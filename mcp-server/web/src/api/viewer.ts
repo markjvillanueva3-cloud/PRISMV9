@@ -137,7 +137,7 @@ export async function loadViewerSceneCatalog(): Promise<ViewerSceneCatalog> {
   return {
     source: 'demo',
     scenes: [DEMO_SCENE_ENTRY],
-    note: 'Live viewer scene routes are not available yet, so PRISM is using the local demo scene as a fallback.',
+    note: 'Live viewer scene routes are not available yet, so Kienzle is using the local demo scene as a fallback.',
   };
 }
 
@@ -163,7 +163,7 @@ export async function loadViewerScene(sceneId?: string | null): Promise<ViewerSc
     return {
       source: 'demo',
       scene: buildDemoScene(),
-      note: `Live scene ${targetId} could not be loaded, so PRISM fell back to the local demo scene.`,
+      note: `Live scene ${targetId} could not be loaded, so Kienzle fell back to the local demo scene.`,
     };
   }
 }

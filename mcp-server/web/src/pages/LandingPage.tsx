@@ -1,5 +1,22 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import { motion, useReducedMotion } from "framer-motion";
+
+// --- iOS critically-damped press (FLEET-IOS-REDESIGN) ------------------------
+// whileTap scale 0.96, spring stiffness 500 / damping 34 -- settles with NO
+// overshoot/bounce (reconciles the old "no bouncy springs" ban). Honors
+// prefers-reduced-motion via useReducedMotion at the call site.
+const PRESS_SPRING = { type: "spring" as const, stiffness: 500, damping: 34 };
+
+/** Hook returning the iOS press props, disabled under prefers-reduced-motion. */
+function usePressProps() {
+  const reduce = useReducedMotion();
+  return reduce
+    ? {}
+    : { whileTap: { scale: 0.96 }, transition: PRESS_SPRING };
+}
+
+const MotionLink = motion(Link);
 
 // ─── Inline SVG Icons ────────────────────────────────────────────────────────
 
@@ -105,9 +122,9 @@ const FEATURES = [
     title: "Calculate",
     description:
       "Physics-backed speed & feed with Kienzle force models, stability lobes, and tool deflection.",
-    accent: "text-blue-400",
-    border: "border-blue-500/30",
-    bg: "bg-blue-500/10",
+    accent: "text-accent",
+    border: "border-accent/30",
+    bg: "bg-accent/10",
   },
   {
     icon: <IconCode />,
@@ -171,7 +188,7 @@ const TIERS = [
       "Community support",
     ],
     cta: "Get Started",
-    href: "/login",
+    href: "/speed-feed-calc",
     highlighted: false,
   },
   {
@@ -275,14 +292,14 @@ const FAQS = [
 function FaqItem({ q, a }: { q: string; a: string }) {
   const [open, setOpen] = useState(false);
   return (
-    <div className="border-b border-slate-700 last:border-0">
+    <div className="border-b border-white/10 last:border-0">
       <button
         type="button"
         aria-expanded={open}
         onClick={() => setOpen((v) => !v)}
-        className="flex w-full items-center justify-between gap-4 py-5 text-left
+        className="flex min-h-11 w-full items-center justify-between gap-4 py-5 text-left
           text-base font-medium text-slate-100 hover:text-white transition-colors
-          focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500
+          focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/70
           focus-visible:ring-offset-2 focus-visible:ring-offset-slate-900"
       >
         <span>{q}</span>
@@ -298,6 +315,7 @@ function FaqItem({ q, a }: { q: string; a: string }) {
 // ─── Main Component ───────────────────────────────────────────────────────────
 
 export default function LandingPage() {
+  const press = usePressProps();
   const handleScrollToPricing = (e: React.MouseEvent<HTMLAnchorElement>) => {
     e.preventDefault();
     document.getElementById("pricing")?.scrollIntoView({ behavior: "smooth" });
@@ -306,48 +324,57 @@ export default function LandingPage() {
   return (
     <div className="min-h-screen bg-slate-900 text-slate-100 antialiased">
 
-      {/* ── Nav ───────────────────────────────────────────────────────────── */}
-      <header className="sticky top-0 z-50 border-b border-slate-800/80
+      {/* -- Nav -- */}
+      <header className="sticky top-0 z-50 border-b border-white/10
         bg-slate-900/90 backdrop-blur-sm">
         <div className="mx-auto flex max-w-7xl items-center justify-between
           px-4 py-3 sm:px-6 lg:px-8">
           <div className="flex items-center gap-2">
-            <span className="text-2xl font-black tracking-tight text-blue-400">
-              PRISM
+            <span
+              className="text-2xl font-black text-accent"
+              style={{ letterSpacing: "var(--tracking-title, -0.02em)" }}
+            >
+              Kienzle
             </span>
             <span className="hidden text-xs font-medium text-slate-500 sm:block">
               Manufacturing Intelligence
             </span>
           </div>
-          <nav className="flex items-center gap-2 sm:gap-4" aria-label="Main navigation">
+          <nav className="flex items-center gap-1 sm:gap-3" aria-label="Main navigation">
             <a
               href="#pricing"
               onClick={handleScrollToPricing}
-              className="text-sm text-slate-400 hover:text-slate-100 transition-colors
-                focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500
-                rounded px-2 py-1"
+              className="inline-flex min-h-11 items-center rounded-ios-sm px-3 text-sm
+                text-slate-400 transition-colors hover:text-slate-100
+                focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/70
+                focus-visible:ring-offset-2 focus-visible:ring-offset-slate-900"
             >
               Pricing
             </a>
-            <Link
+            <MotionLink
+              {...press}
               to="/login"
-              className="rounded-md bg-blue-600 px-4 py-1.5 text-sm font-semibold
-                text-white shadow hover:bg-blue-500 transition-colors
-                focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400
-                focus-visible:ring-offset-2 focus-visible:ring-offset-slate-900"
+              className="inline-flex min-h-11 items-center rounded-ios-md bg-accent px-4
+                text-sm font-semibold text-accent-fg shadow-ios-1 transition-colors
+                hover:bg-accent/90 focus-visible:outline-none focus-visible:ring-2
+                focus-visible:ring-accent/70 focus-visible:ring-offset-2
+                focus-visible:ring-offset-slate-900"
             >
               Log In
-            </Link>
+            </MotionLink>
           </nav>
         </div>
       </header>
 
-      {/* ── Hero ──────────────────────────────────────────────────────────── */}
+      {/* -- Hero -- */}
       <section
         aria-labelledby="hero-heading"
         className="relative flex min-h-[calc(100vh-57px)] items-center justify-center
-          overflow-hidden bg-gradient-to-b from-slate-900 via-blue-900/60 to-slate-900
-          px-4 py-24 sm:px-6 lg:px-8"
+          overflow-hidden px-4 py-24 sm:px-6 lg:px-8"
+        style={{
+          background:
+            "linear-gradient(180deg, #0f1c28 0%, rgb(var(--accent-rgb) / 0.10) 45%, #0f1c28 100%)",
+        }}
       >
         {/* Subtle dot-grid background (pure CSS, no JS) */}
         <div
@@ -359,35 +386,36 @@ export default function LandingPage() {
             backgroundSize: "28px 28px",
           }}
         />
-        {/* Glow blobs */}
+        {/* Soft accent atmosphere (iOS: directionless, no harsh glow ring) */}
         <div
           aria-hidden="true"
           className="pointer-events-none absolute left-1/2 top-1/3 h-[480px] w-[480px]
-            -translate-x-1/2 -translate-y-1/2 rounded-full
-            bg-blue-600/20 blur-3xl"
+            -translate-x-1/2 -translate-y-1/2 rounded-full blur-3xl"
+          style={{ background: "rgb(var(--accent-rgb) / 0.18)" }}
         />
         <div
           aria-hidden="true"
           className="pointer-events-none absolute right-1/4 bottom-1/4 h-64 w-64
-            rounded-full bg-violet-600/15 blur-2xl"
+            rounded-full bg-violet-600/12 blur-2xl"
         />
 
         <div className="relative z-10 mx-auto max-w-4xl text-center">
           {/* Eyebrow */}
-          <div className="mb-6 inline-flex items-center gap-2 rounded-full
-            border border-blue-500/30 bg-blue-500/10 px-4 py-1.5 text-xs
-            font-semibold uppercase tracking-widest text-blue-400">
-            PRISM v9 — Now Available
+          <div className="mb-6 inline-flex min-h-9 items-center gap-2 rounded-ios-pill
+            border border-accent/30 bg-accent/10 px-4 text-xs
+            font-semibold uppercase tracking-widest text-accent">
+            Kienzle v9 &mdash; Now Available
           </div>
 
           <h1
             id="hero-heading"
-            className="text-4xl font-black leading-tight tracking-tight
-              text-white sm:text-5xl lg:text-6xl xl:text-7xl"
+            className="text-4xl font-black leading-tight text-white
+              sm:text-5xl lg:text-6xl xl:text-7xl"
+            style={{ letterSpacing: "var(--tracking-title, -0.02em)" }}
           >
             The World&rsquo;s Smartest
             <br />
-            <span className="bg-gradient-to-r from-blue-400 via-cyan-300 to-blue-400
+            <span className="bg-gradient-to-r from-accent via-cyan-300 to-accent
               bg-clip-text text-transparent">
               Speed &amp; Feed Calculator
             </span>
@@ -396,34 +424,36 @@ export default function LandingPage() {
           <p className="mx-auto mt-6 max-w-2xl text-base leading-relaxed
             text-slate-300 sm:text-lg">
             Physics-backed cutting parameters, instant quoting, and CNC program
-            generation — powered by{" "}
+            generation &mdash; powered by{" "}
             <strong className="text-slate-100">2,957 materials</strong>,{" "}
             <strong className="text-slate-100">94,000+ tools</strong>, and{" "}
             <strong className="text-slate-100">910 machines</strong>.
           </p>
 
           <div className="mt-10 flex flex-wrap items-center justify-center gap-4">
-            <Link
-              to="/login"
-              className="rounded-lg bg-blue-600 px-8 py-3.5 text-base font-semibold
-                text-white shadow-lg shadow-blue-900/50 hover:bg-blue-500
-                transition-colors focus-visible:outline-none focus-visible:ring-2
-                focus-visible:ring-blue-400 focus-visible:ring-offset-2
+            <MotionLink
+              {...press}
+              to="/speed-feed-calc"
+              className="inline-flex min-h-11 items-center rounded-ios-md bg-accent px-8
+                text-base font-semibold text-accent-fg shadow-ios-2 transition-colors
+                hover:bg-accent/90 focus-visible:outline-none focus-visible:ring-2
+                focus-visible:ring-accent/70 focus-visible:ring-offset-2
                 focus-visible:ring-offset-slate-900"
             >
               Try Free
-            </Link>
-            <a
+            </MotionLink>
+            <motion.a
+              {...press}
               href="#pricing"
               onClick={handleScrollToPricing}
-              className="rounded-lg border border-slate-600 px-8 py-3.5 text-base
-                font-semibold text-slate-200 hover:border-slate-400 hover:text-white
-                transition-colors focus-visible:outline-none focus-visible:ring-2
-                focus-visible:ring-slate-400 focus-visible:ring-offset-2
-                focus-visible:ring-offset-slate-900"
+              className="inline-flex min-h-11 items-center rounded-ios-md border
+                border-white/15 px-8 text-base font-semibold text-slate-200
+                shadow-ios-1 transition-colors hover:border-white/30 hover:text-white
+                focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/50
+                focus-visible:ring-offset-2 focus-visible:ring-offset-slate-900"
             >
               See Pricing
-            </a>
+            </motion.a>
           </div>
 
           {/* Social proof micro-row */}
@@ -455,9 +485,9 @@ export default function LandingPage() {
             {FEATURES.map((f) => (
               <article
                 key={f.title}
-                className={`group rounded-xl border ${f.border} ${f.bg}
-                  p-6 transition-all duration-200
-                  hover:border-opacity-60 hover:shadow-lg hover:shadow-black/30`}
+                className={`group rounded-ios-lg border ${f.border} ${f.bg}
+                  p-6 shadow-ios-1 transition-all duration-200
+                  hover:border-opacity-60 hover:shadow-ios-2`}
               >
                 <div className={`mb-4 ${f.accent}`}>{f.icon}</div>
                 <h3 className="mb-2 text-lg font-semibold text-white">{f.title}</h3>
@@ -520,17 +550,17 @@ export default function LandingPage() {
             {TIERS.map((tier) => (
               <div
                 key={tier.name}
-                className={`relative flex flex-col rounded-xl border p-6 transition-shadow
+                className={`relative flex flex-col rounded-ios-lg border p-6 transition-shadow
                   ${
                     tier.highlighted
-                      ? "border-blue-500 bg-blue-600/10 shadow-xl shadow-blue-900/30 ring-1 ring-blue-500/50"
-                      : "border-slate-700 bg-slate-800/50 hover:border-slate-600"
+                      ? "border-accent/60 bg-accent/10 shadow-ios-accent ring-1 ring-accent/40"
+                      : "border-white/10 bg-slate-800/50 shadow-ios-1 hover:border-white/20"
                   }`}
               >
                 {tier.highlighted && (
                   <div className="absolute -top-3.5 left-1/2 -translate-x-1/2">
-                    <span className="rounded-full bg-blue-600 px-3 py-0.5 text-xs
-                      font-bold uppercase tracking-widest text-white shadow">
+                    <span className="rounded-ios-pill bg-accent px-3 py-0.5 text-xs
+                      font-bold uppercase tracking-widest text-accent-fg shadow-ios-1">
                       Most Popular
                     </span>
                   </div>
@@ -560,20 +590,21 @@ export default function LandingPage() {
                   ))}
                 </ul>
 
-                <Link
+                <MotionLink
+                  {...press}
                   to={tier.href}
-                  className={`mt-auto block rounded-lg px-4 py-2.5 text-center text-sm
-                    font-semibold transition-colors focus-visible:outline-none
-                    focus-visible:ring-2 focus-visible:ring-offset-2
-                    focus-visible:ring-offset-slate-900
+                  className={`mt-auto inline-flex min-h-11 items-center justify-center
+                    rounded-ios-md px-4 text-center text-sm font-semibold
+                    transition-colors focus-visible:outline-none focus-visible:ring-2
+                    focus-visible:ring-offset-2 focus-visible:ring-offset-slate-900
                     ${
                       tier.highlighted
-                        ? "bg-blue-600 text-white hover:bg-blue-500 focus-visible:ring-blue-400"
-                        : "border border-slate-600 text-slate-200 hover:border-slate-400 hover:text-white focus-visible:ring-slate-500"
+                        ? "bg-accent text-accent-fg hover:bg-accent/90 focus-visible:ring-accent/70"
+                        : "border border-white/15 text-slate-200 hover:border-white/30 hover:text-white focus-visible:ring-accent/50"
                     }`}
                 >
                   {tier.cta}
-                </Link>
+                </MotionLink>
               </div>
             ))}
           </div>
@@ -596,8 +627,8 @@ export default function LandingPage() {
           >
             Frequently asked questions
           </h2>
-          <div className="divide-y divide-slate-700 rounded-xl border border-slate-700
-            bg-slate-900/60 px-6">
+          <div className="divide-y divide-white/10 rounded-ios-lg border border-white/10
+            bg-slate-900/60 px-6 shadow-ios-1">
             {FAQS.map((faq) => (
               <FaqItem key={faq.q} q={faq.q} a={faq.a} />
             ))}
@@ -605,16 +636,20 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ── CTA Band ──────────────────────────────────────────────────────── */}
+      {/* -- CTA Band -- */}
       <section
         aria-labelledby="cta-heading"
-        className="border-t border-slate-800 bg-gradient-to-r from-blue-900/40
-          via-slate-900 to-blue-900/40 px-4 py-16 sm:px-6 lg:px-8"
+        className="border-t border-white/10 px-4 py-16 sm:px-6 lg:px-8"
+        style={{
+          background:
+            "linear-gradient(90deg, rgb(var(--accent-rgb) / 0.14) 0%, #0f1c28 50%, rgb(var(--accent-rgb) / 0.14) 100%)",
+        }}
       >
         <div className="mx-auto max-w-2xl text-center">
           <h2
             id="cta-heading"
             className="text-2xl font-bold text-white sm:text-3xl"
+            style={{ letterSpacing: "var(--tracking-title, -0.02em)" }}
           >
             Ready to cut smarter?
           </h2>
@@ -622,16 +657,17 @@ export default function LandingPage() {
             Join thousands of machinists using physics-backed parameters to
             extend tool life and maximize throughput.
           </p>
-          <Link
-            to="/login"
-            className="mt-8 inline-block rounded-lg bg-blue-600 px-10 py-3.5
-              text-base font-semibold text-white shadow-lg shadow-blue-900/50
-              hover:bg-blue-500 transition-colors focus-visible:outline-none
-              focus-visible:ring-2 focus-visible:ring-blue-400 focus-visible:ring-offset-2
+          <MotionLink
+            {...press}
+            to="/speed-feed-calc"
+            className="mt-8 inline-flex min-h-11 items-center rounded-ios-md bg-accent
+              px-10 text-base font-semibold text-accent-fg shadow-ios-2
+              transition-colors hover:bg-accent/90 focus-visible:outline-none
+              focus-visible:ring-2 focus-visible:ring-accent/70 focus-visible:ring-offset-2
               focus-visible:ring-offset-slate-900"
           >
             Get Started Free
-          </Link>
+          </MotionLink>
         </div>
       </section>
 
@@ -641,7 +677,7 @@ export default function LandingPage() {
         <div className="mx-auto max-w-7xl">
           <div className="flex flex-col items-center gap-4 sm:flex-row sm:justify-between">
             <p className="text-sm text-slate-500">
-              PRISM Manufacturing Intelligence &mdash; &copy; 2026
+              Kienzle Manufacturing Intelligence &mdash; &copy; 2026
             </p>
             <nav
               aria-label="Footer navigation"
@@ -651,21 +687,21 @@ export default function LandingPage() {
                 href="#pricing"
                 onClick={handleScrollToPricing}
                 className="text-sm text-slate-500 hover:text-slate-300 transition-colors
-                  focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-blue-500 rounded"
+                  focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent/70 rounded"
               >
                 Pricing
               </a>
               <Link
                 to="/login"
                 className="text-sm text-slate-500 hover:text-slate-300 transition-colors
-                  focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-blue-500 rounded"
+                  focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent/70 rounded"
               >
                 Login
               </Link>
               <a
                 href="#"
                 className="text-sm text-slate-500 hover:text-slate-300 transition-colors
-                  focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-blue-500 rounded"
+                  focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent/70 rounded"
               >
                 Documentation
               </a>

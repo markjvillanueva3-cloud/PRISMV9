@@ -1,0 +1,23 @@
+---
+name: reference_oscar_sfc_blocked_gate_surface_2026_06_25
+description: "SFC web /speed-feed-calc rendered a SILENT BLANK panel on a {blocked:true} 200-OK gate; fixed by surfacing it as a thrown ApiError + requiring machine selection (commit b8641ced34). API-layer complement to SpeedFeedPage's existing render-layer blocked handling."
+type: reference
+source: prism-memory
+synced: 2026-06-27T20:30:46.696Z
+aliases: reference_oscar_sfc_blocked_gate_surface_2026_06_25
+---
+
+
+**SFC blocked-gate silent-blank fix (slot:oscar, 2026-06-25, commit `b8641ced34` — U-OSC-SFC-BLOCKED-GATE-SURFACE).** Found via live closed-loop frontend testing on :3100.
+
+**Defect:** the SFC web calculator (`/speed-feed-calc`, `SfcCalculatorPage`) rendered a SILENT BLANK result panel (no numbers, no error) when calculated without a machine selected. The backend `pre-machine-completeness-gate` returns **HTTP 200** with `{ result: { blocked:true, blocker:"pre-machine-completeness-gate", reason:"INCOMPLETE MACHINE DATA: Critical machine fields missing: spindle.max_rpm, spindle.power" } }` — **no `error` key** — when `sfc_calculate` runs without machine spindle data. `assertNoEnvelopeError` only catches `{error}`, so the blocked body passed through `sfc.ts post()` into the `useSfcCalculate` hook's `data` and rendered as undefined/blank fields. Same silent-zero class (frontend-app/CLAUDE.md s2+s5) as the `{error}` envelope, just via `blocked` instead of `error`. `SfcCalculatorPage` initialized `machine=null` (line 53) and did NOT require it before Calculate (button disabled only on `!material||!operation`); `buildSfcCalcRequest` omits `machine_max_rpm/_kw` when `machine` is null. All 15 machines in `web/src/data/machines.ts` carry spindle data, so a *selected* machine is always complete — the only way to hit the block was `machine=null`.
+
+**Fix (4 web files):** (1) `api/envelopeGuard.ts` — new `blockedEnvelopeMessage()` + `assertNotBlocked<T>(payload, endpoint)` sibling of `assertNoEnvelopeError`; checks `payload` AND `payload.result` for **strict** `blocked===true`, throws `ApiError(200, reason, {kind:"http", retryable:false, code:blocker})`. (2) `api/sfc.ts post()` runs both guards on every SFC endpoint. (3) `pages/SfcCalculatorPage.tsx` — Calculate disabled when `!machine` + reason hint. (4) `__tests__/sfc-api.test.ts` +12 tests (blocked nested/top-level/falsy integration + `blockedEnvelopeMessage` + `assertNotBlocked`); 27/27 + useSfc 3/3, tsc clean. 2-arm per-file + 3-of-3 scrutiny PASS (arm B proved revert-sensitivity: neutralizing `assertNotBlocked` -> 2 tests fail).
+
+**Lesson:** a 200-OK body is a handled FAILURE not only via `{error}` but also via `{blocked:true}` (a `pre-*-gate` blocker) — guard BOTH, or the page renders a calc-that-did-not-run as blank. The safety gate itself (whether to hard-block vs allow unclamped-with-warning) stays operator-only; the in-lane fix is surface-the-block + require-the-input.
+
+**FITS THE WHOLE (R16 — verified, NOT a duplicate/conflict):** this is the **API-layer complement** to two prior units, covering the page they didn't:
+- `U-SFC-SURFACE-BLOCKED` (commit `1d5dc8a8dd`) already surfaces blocked `sf_orchestrate` responses on **SpeedFeedPage** at the RENDER layer (`SpeedFeedPage.tsx:416-906`: `isBlocked = !r && result.result.blocked===true` -> red `data-testid="sfc-blocked"` alert with reason+blocker). SfcCalculatorPage had NO such handling — mine closes it via the API layer (throw -> existing error path), no per-page render code.
+- `U-OSC-SFC-PRODUCT-BRIDGE` (commit `dec03327cd`) fixed the gate FALSE-blocking every web calc: the page posts FLAT `machine_max_rpm/_kw` but the gate reads NESTED `machine.spindle.*`; `applySfcMachineBridge()` (utils/sfcMachineBridge.ts) wired into productDispatcher bridges it. So with a machine selected the calc works (live: 4140 -> full result); only `machine=null` legitimately blocks.
+
+**OPTIONAL follow-up (consistency, NOT a confirmed fail-silent):** `web/src/api/speedfeed.ts` `sfRequest` lacks a central `assertNoEnvelopeError`/`assertNotBlocked` guard (only checks `!res.ok`, returns `res.json()` raw); `PrismResponse<T>` is an envelope `{result?,error?}` and callers read TOP-level `.error` while `callTool` nests failures at `result.error`. SpeedFeedPage already handles blocked at render-layer, so the PRIMARY path is covered; CalculatorPage uses MACHINE_CATALOG defaults (supplies machine data, unlikely to block). Centralizing the guard into `sfRequest` would be a consistency win but must NOT force sfc.ts's throw-convention onto callers that read `.error` (R7 conflict: envelope-passthrough vs throw). Low priority. See [[reference_sfc_frontend_backend_wiring_audit_2026_06_25]].

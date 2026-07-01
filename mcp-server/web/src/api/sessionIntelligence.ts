@@ -83,7 +83,7 @@ export async function recallSessionMemory(
       query: params.query,
       limit: params.limit ?? 5,
     },
-    fallbackMessage: 'PRISM persistent memory recall failed',
+    fallbackMessage: 'Kienzle persistent memory recall failed',
   });
 
   memoryCache.set(key, {
@@ -100,7 +100,7 @@ export async function getSessionHealth(force = false) {
 
   const value = await requestSession<SessionHealthSnapshot>('/health', {
     method: 'GET',
-    fallbackMessage: 'PRISM session health check failed',
+    fallbackMessage: 'Kienzle session health check failed',
   });
 
   healthCache = {

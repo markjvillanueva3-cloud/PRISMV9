@@ -32,7 +32,7 @@ function runHook(hook, payload, eventName) {
   const scriptPath = parts[0];
   const scriptArgs = parts.slice(1);
   const start = Date.now();
-  const res = spawnSync(NODE, [scriptPath, ...scriptArgs], {
+  const res = spawnSync(NODE, [scriptPath, ...scriptArgs], { windowsHide: true,
     input: JSON.stringify(payload),
     timeout: hook.timeout || 5000,
     env: { ...process.env, ...env, HOOK_EVENT: env.HOOK_EVENT || eventName },

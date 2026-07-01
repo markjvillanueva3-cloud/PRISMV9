@@ -30,7 +30,7 @@ related:
 ## Description (first paragraph)
 
 
-# /awareness-check — Awareness Score Check
+# /awareness-check — Awareness Score Analysis
 
 <!-- AUTO-END -->
 

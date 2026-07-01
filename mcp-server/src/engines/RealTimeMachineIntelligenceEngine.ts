@@ -15,6 +15,8 @@
  * Lines: ~950
  */
 
+import { CANONICAL_KIENZLE, type ISOGroup } from "../physics/constants.js";
+
 // ═══════════════════════════════════════════════════════════════
 // Types
 // ═══════════════════════════════════════════════════════════════
@@ -105,15 +107,7 @@ interface DashboardSnapshot {
 // Constants
 // ═══════════════════════════════════════════════════════════════
 
-/** Kienzle specific cutting force constants by ISO group */
-const KIENZLE_DEFAULTS: Record<string, { kc1_1: number; mc: number }> = {
-  P: { kc1_1: 1800, mc: 0.26 },    // Steel
-  M: { kc1_1: 2100, mc: 0.25 },    // Stainless
-  K: { kc1_1: 1200, mc: 0.28 },    // Cast iron
-  N: { kc1_1: 700, mc: 0.23 },     // Non-ferrous
-  S: { kc1_1: 2800, mc: 0.25 },    // Superalloy
-  H: { kc1_1: 3500, mc: 0.27 },    // Hardened
-};
+// Kienzle coefficients now imported from canonical physics/constants.ts (see CANONICAL_KIENZLE).
 
 /** Taylor tool life constants by ISO group */
 const TAYLOR_DEFAULTS: Record<string, { C: number; n: number }> = {
@@ -202,7 +196,7 @@ export class RealTimeMachineIntelligenceEngine {
     const ratedPower = Number(params.ratedPower ?? 15); // kW
 
     // Kienzle force prediction
-    const kc = KIENZLE_DEFAULTS[isoGroup] ?? KIENZLE_DEFAULTS.P;
+    const kc = CANONICAL_KIENZLE[isoGroup as ISOGroup] ?? CANONICAL_KIENZLE.P;
     const fz = feedRate / (fluteCount * spindleRpm + 1e-9);
     const hm = Math.max(fz * (ae / toolDiameter), 0.001);
     const kc_actual = kc.kc1_1 * Math.pow(hm, -kc.mc);

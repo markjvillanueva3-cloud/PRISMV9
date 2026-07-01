@@ -210,6 +210,7 @@ function injectionAudit() {
     path.join(REPO, ".claude/settings.json"),
   ];
   const results = [];
+  let configsRead = 0, configErrors = 0;
   for (const cfg of candidates) {
     const st = statOrNull(cfg);
     if (!st) continue;
@@ -228,15 +229,20 @@ function injectionAudit() {
           }
         }
       }
-    } catch {}
+      configsRead++;
+    } catch (e) {
+      configErrors++;
+      process.stderr.write(`[node-staleness] WARN injectionAudit could not parse ${cfg}: ${e.code || e.message}\n`);
+    }
   }
   const noiseCount = results.filter(r => r.noiseFlag).length;
   const tipAutoCount = results.filter(r => /tip-auto-/i.test(r.name)).length;
   let status = "fresh";
-  if (noiseCount >= INJECTION_NOISE_LINES_CRIT) status = "critical";
+  if (configsRead === 0) status = "unknown";  // R12: no settings file parsed -> NOT a clean "fresh"; surface the gap
+  else if (noiseCount >= INJECTION_NOISE_LINES_CRIT) status = "critical";
   else if (noiseCount >= INJECTION_NOISE_LINES_WARN) status = "warn";
   else if (tipAutoCount >= INJECTION_TIP_AUTO_NOISE_THRESHOLD) status = "warn";
-  return { totalInjectors: results.length, noiseFlagged: noiseCount, byEvent: tally(results, "event"), bySource: tally(results, "source"), noiseSample: results.filter(r => r.noiseFlag).slice(0, 8), status };
+  return { totalInjectors: results.length, noiseFlagged: noiseCount, byEvent: tally(results, "event"), bySource: tally(results, "source"), noiseSample: results.filter(r => r.noiseFlag).slice(0, 8), configsRead, configErrors, status };
 }
 function tally(arr, key) {
   const out = {};
@@ -315,9 +321,9 @@ function appendHistory(report) {
       git: report.git.count,
       injNoise: report.injections.noiseFlagged,
       injTotal: report.injections.totalInjectors,
-      ghost: report.utilization.ghost,
-      orphan: report.utilization.orphan,
-      ghostPct: report.utilization.ghostPct,
+      ghost: report.utilization.ghost ?? null,
+      orphan: report.utilization.orphan ?? null,
+      ghostPct: report.utilization.ghostPct ?? null,
       exit: report.exitCode,
     };
     const tmp = HISTORY_FILE + "." + process.pid + ".tmp";

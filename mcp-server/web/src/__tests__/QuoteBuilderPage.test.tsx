@@ -55,6 +55,71 @@ const mockQuoteEstimate = vi.mocked(quoteEstimate);
 const mockQuoteCompareMaterials = vi.mocked(quoteCompareMaterials);
 const mockQuotingGenerate = vi.mocked(quotingGenerate);
 
+// estimate-flow fix (2026-06-23): /quote/estimate returns the MCP content envelope
+// { result: { type:"text", text } } wrapping the engine's NESTED QuoteEstimateResult -- NOT a flat
+// { result: {...} }. The page unwraps + adaptQuoteEstimate maps nested->flat. These helpers mock the
+// REAL production shape: flat test values are inverted into the nested shape, then wrapped in the
+// content envelope, so adaptQuoteEstimate re-derives exactly the flat values each test expects.
+// (The prior mocks used a flat { result } -- the WRONG contract that hid the dead-panel/estimate bug.)
+function nestedEstimateEnvelope(flat: {
+  unit_price?: number;
+  total?: number;
+  cycle_time_min?: number;
+  confidence?: number; // 0-1 as the page consumes it; engine emits confidence_score 0-100
+  material_cost?: number;
+  machining_cost?: number;
+  setup_cost?: number;
+  tooling_cost?: number;
+  overhead?: number;
+  margin?: number;
+  price_breaks?: Array<{ quantity: number; unit_price: number; savings_pct?: number }>;
+  pricing?: { margin_pct?: number; below_margin_floor?: boolean; margin_floor_pct?: number };
+}) {
+  const totalPrice = flat.total ?? 0;
+  // adapter derives margin = total_price - total_cost, so total_cost = total_price - margin.
+  const totalCost = totalPrice - (flat.margin ?? 0);
+  const nested = {
+    quote_id: 'QE26-TEST',
+    quantity: 100,
+    costs: {
+      material: { total: flat.material_cost ?? 0 },
+      machining: { total: flat.machining_cost ?? 0, cycle_time_min: flat.cycle_time_min ?? 0 },
+      setup: { total: flat.setup_cost ?? 0 },
+      tooling: { total: flat.tooling_cost ?? 0 },
+      overhead: { total: flat.overhead ?? 0 },
+      total_cost: totalCost,
+    },
+    pricing: {
+      unit_price: flat.unit_price ?? 0,
+      total_price: totalPrice,
+      margin_pct: flat.pricing?.margin_pct ?? 0,
+      below_margin_floor: flat.pricing?.below_margin_floor ?? false,
+      margin_floor_pct: flat.pricing?.margin_floor_pct ?? 20,
+    },
+    // engine emits 0-100; the adapter divides by 100, so multiply the page-facing 0-1 value back up.
+    confidence_score: Math.round((flat.confidence ?? 0) * 100),
+    // engine price-break shape is { qty, unit_price, total, lead_days } -- the adapter re-keys to
+    // { quantity, unit_price, savings_pct }. Invert quantity->qty so the round-trip is faithful.
+    price_breaks: (flat.price_breaks ?? []).map((b) => ({ qty: b.quantity, unit_price: b.unit_price, total: b.unit_price * b.quantity, lead_days: 7 })),
+  };
+  return {
+    ok: true,
+    result: { type: 'text', text: JSON.stringify(nested) },
+    safety: { score: 0.92, warnings: [] },
+    meta: { formula_used: 'quote-estimate', uncertainty: 0.08 },
+  };
+}
+
+// /quote/compare-materials returns the same content envelope wrapping the engine's bare array.
+function compareEnvelope(comparisons: Array<Record<string, unknown>>) {
+  return {
+    ok: true,
+    result: { type: 'text', text: JSON.stringify(comparisons) },
+    safety: { score: 0.9, warnings: [] },
+    meta: { formula_used: 'quote-compare', uncertainty: 0.05 },
+  };
+}
+
 beforeEach(() => {
   mockDfmQuick.mockReset();
   mockDfmAnalyze.mockReset();
@@ -155,13 +220,7 @@ beforeEach(() => {
     ok: true,
     data: { quote_id: 'Q-500', token: 'share-token', expires_in_days: 14 },
   } as any);
-  mockQuoteCompareMaterials.mockResolvedValue({
-    result: {
-      comparisons: [],
-    },
-    safety: { score: 0.9, warnings: [] },
-    meta: { formula_used: 'quote-compare', uncertainty: 0.05 },
-  } as any);
+  mockQuoteCompareMaterials.mockResolvedValue(compareEnvelope([]) as any);
 });
 
 function renderPage(initialEntries = ['/quote-builder']) {
@@ -179,36 +238,32 @@ describe('QuoteBuilderPage', () => {
     renderPage();
 
     expect(await screen.findByRole('heading', { name: 'Quote Builder' })).toBeDefined();
-    expect(screen.getByRole('button', { name: /Generate PRISM Price Strategy/i })).toBeDefined();
+    expect(screen.getByRole('button', { name: /Generate Kienzle Price Strategy/i })).toBeDefined();
     expect(screen.getAllByRole('button', { name: /Compare Materials/i }).length).toBeGreaterThan(0);
     expect(screen.getByRole('button', { name: /Generate Pricing Packet/i })).toBeDefined();
   });
 
   it('renders estimate output', async () => {
-    mockQuoteEstimate.mockResolvedValue({
-      result: {
-        unit_price: 12.5,
-        total: 1250,
-        cycle_time_min: 6.4,
-        confidence: 0.88,
-        material_cost: 140,
-        machining_cost: 620,
-        setup_cost: 200,
-        tooling_cost: 90,
-        overhead: 100,
-        margin: 100,
-        price_breaks: [],
-      },
-      safety: { score: 0.92, warnings: [] },
-      meta: { formula_used: 'quote-estimate', uncertainty: 0.08 },
-    } as any);
+    mockQuoteEstimate.mockResolvedValue(nestedEstimateEnvelope({
+      unit_price: 12.5,
+      total: 1250,
+      cycle_time_min: 6.4,
+      confidence: 0.88,
+      material_cost: 140,
+      machining_cost: 620,
+      setup_cost: 200,
+      tooling_cost: 90,
+      overhead: 100,
+      margin: 100,
+      price_breaks: [],
+    }) as any);
 
     renderPage();
 
-    fireEvent.click(screen.getByRole('button', { name: /Generate PRISM Price Strategy/i }));
+    fireEvent.click(screen.getByRole('button', { name: /Generate Kienzle Price Strategy/i }));
 
     await waitFor(() => {
-      expect(screen.getAllByText('PRISM shop best price').length).toBeGreaterThan(0);
+      expect(screen.getAllByText('Kienzle shop best price').length).toBeGreaterThan(0);
       expect(screen.getByText('Mounted DFM route')).toBeDefined();
       expect(screen.getByText('6.4 min')).toBeDefined();
     });
@@ -223,21 +278,15 @@ describe('QuoteBuilderPage', () => {
   });
 
   it('renders material comparison and quote document output', async () => {
-    mockQuoteCompareMaterials.mockResolvedValue({
-      result: {
-        comparisons: [
-          {
-            material: '6061-T6',
-            unit_price: 10.2,
-            total: 1020,
-            cycle_time_min: 5.5,
-            tool_life_factor: 1.2,
-          },
-        ],
+    mockQuoteCompareMaterials.mockResolvedValue(compareEnvelope([
+      {
+        material: '6061-T6',
+        unit_price: 10.2,
+        total: 1020,
+        cycle_time_min: 5.5,
+        tool_life_factor: 1.2,
       },
-      safety: { score: 0.93, warnings: [] },
-      meta: { formula_used: 'quote-compare', uncertainty: 0.07 },
-    } as any);
+    ]) as any);
     mockQuotingGenerate.mockResolvedValue({
       result: { quote_number: 'Q-1001', customer: 'Acme', total: 1020 },
       safety: { score: 0.91, warnings: [] },
@@ -271,33 +320,29 @@ describe('QuoteBuilderPage', () => {
   });
 
   it('keeps upstream customer and packet continuity in downstream release links', async () => {
-    mockQuoteEstimate.mockResolvedValue({
-      result: {
-        unit_price: 12.5,
-        total: 1250,
-        cycle_time_min: 6.4,
-        confidence: 0.88,
-        material_cost: 140,
-        machining_cost: 620,
-        setup_cost: 200,
-        tooling_cost: 90,
-        overhead: 100,
-        margin: 100,
-        price_breaks: [],
-      },
-      safety: { score: 0.92, warnings: [] },
-      meta: { formula_used: 'quote-estimate', uncertainty: 0.08 },
-    } as any);
+    mockQuoteEstimate.mockResolvedValue(nestedEstimateEnvelope({
+      unit_price: 12.5,
+      total: 1250,
+      cycle_time_min: 6.4,
+      confidence: 0.88,
+      material_cost: 140,
+      machining_cost: 620,
+      setup_cost: 200,
+      tooling_cost: 90,
+      overhead: 100,
+      margin: 100,
+      price_breaks: [],
+    }) as any);
 
     renderPage([
       '/quote-builder?source=customers&recordType=Customer&recordId=CUST-001&customer=Acme%20Aerospace&focusPacketId=PACK-200',
     ]);
 
-    fireEvent.click(screen.getByRole('button', { name: /Generate PRISM Price Strategy/i }));
+    fireEvent.click(screen.getByRole('button', { name: /Generate Kienzle Price Strategy/i }));
 
     const releaseUrl = new URL(
       (await screen.findByRole('link', { name: 'Open matched Print to CNC packet' })).getAttribute('href') ?? '',
-      'https://prism.local',
+      'https://kienzle.local',
     );
     expect(releaseUrl.pathname).toBe('/print-to-cnc');
     expect(releaseUrl.searchParams.get('source')).toBe('customers');
@@ -311,5 +356,57 @@ describe('QuoteBuilderPage', () => {
     expect(releaseUrl.searchParams.get('machineFamilyId')).toBeTruthy();
     expect(releaseUrl.searchParams.get('machineManufacturer')).toBeTruthy();
     expect(releaseUrl.searchParams.get('focusPacketId')).not.toBe(releaseUrl.searchParams.get('partClassId'));
+  });
+
+  it('surfaces the margin-floor alert when the quote margin is below the floor', async () => {
+    mockQuoteEstimate.mockResolvedValue(nestedEstimateEnvelope({
+      unit_price: 12.5,
+      total: 1250,
+      cycle_time_min: 6.4,
+      confidence: 0.88,
+      material_cost: 140,
+      machining_cost: 620,
+      setup_cost: 200,
+      tooling_cost: 90,
+      overhead: 100,
+      margin: 100,
+      price_breaks: [],
+      pricing: { margin_pct: 11.3, below_margin_floor: true, margin_floor_pct: 20 },
+    }) as any);
+
+    renderPage();
+    fireEvent.click(screen.getByRole('button', { name: /Generate Kienzle Price Strategy/i }));
+
+    const heading = await screen.findByText('Margin floor alert.');
+    const alertText = heading.closest('[role="alert"]')?.textContent ?? '';
+    // cites the real eroded margin AND the floor it breached, plus the action -- not a generic warning
+    expect(alertText).toContain('11.3%');
+    expect(alertText).toContain('20% floor');
+    expect(alertText).toContain('Review before sending this quote');
+  });
+
+  it('hides the margin-floor alert when the quote margin clears the floor', async () => {
+    mockQuoteEstimate.mockResolvedValue(nestedEstimateEnvelope({
+      unit_price: 12.5,
+      total: 1250,
+      cycle_time_min: 6.4,
+      confidence: 0.88,
+      material_cost: 140,
+      machining_cost: 620,
+      setup_cost: 200,
+      tooling_cost: 90,
+      overhead: 100,
+      margin: 400,
+      price_breaks: [],
+      pricing: { margin_pct: 38, below_margin_floor: false, margin_floor_pct: 20 },
+    }) as any);
+
+    renderPage();
+    fireEvent.click(screen.getByRole('button', { name: /Generate Kienzle Price Strategy/i }));
+
+    // cycle-time tile proves the estimate resolved + the cost panel rendered
+    await screen.findByText('6.4 min');
+    // an above-floor quote must NOT raise the alert
+    expect(screen.queryByText('Margin floor alert.')).toBeNull();
   });
 });

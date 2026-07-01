@@ -1,0 +1,42 @@
+---
+session: claude-8b4b9149
+topic: oscar-sfc-9axis-ms0
+slot: oscar
+written_at: 2026-06-10T18:37:38.906Z
+machine: DESKTOP-N7MI1VB
+family: Claude
+session_key: claude-8b4b9149
+status: active
+---
+
+# HANDOFF: claude-8b4b9149
+Updated: 2026-06-10T18:37:38.906Z
+Family: Claude | Machine: DESKTOP-N7MI1VB | Session: claude-8b4b9149
+
+## STATE
+SFC axis-awareness build COMPLETE + 1 robustness hardening shipped. Working tree clean of my committed work (both units committed). Token pressure CRITICAL (~2123K, Zulu /compact advisory) -> recommend /compact before the next unit. The sub-mm unit is a force-side change (physics-reviewer needed) -> best started fresh post-compact.
+
+## RESUME
+THREE oscar SFC items this arc. SHIPPED: (1) U-OSC-RADIAL-ENGAGEMENT (69146aa9c1 + docreflect 6184237ad2) -- radial honored + hex_mm force-collapse fix, 3-of-3 + physics-reviewer PASS. (2) U-OSC-NEG-RADIAL-GUARD (32f1e6266a) -- engine now rejects NaN/<=0 radial (was: NaN forces -> clamps silently skip), 3-of-3 PASS, 9/9 tests; memory reference_oscar_neg_radial_guard_2026_06_10 written. PENDING DOC: the U-OSC-NEG-RADIAL-GUARD regression entry could NOT be added to CLAUDE.md (peer file-claim by claude-0e5669d2, expires ~14m) -- add it when the claim releases (text in the memory file) OR rely on the memory as the durable record. NEXT IN-LANE oscar unit: U-OSC-SUBMM-IMMERSION -- UltimateSpeedFeedEngine hex_mm line ~2269 uses Math.max(1,Dc) as the immersion denominator, which under-reports immersion for sub-1mm micro-tools at partial engagement (force-side; byte-identical to prior, pre-existing) -> change to Math.max(1e-6,Dc) + a sub-mm regression test + physics-reviewer (chip-thinning regime). Also small P3s in the memory: radial_depth provenance label off truthiness; dual-supply warning text. DO NOT pick U-NN-TIER05 (out-of-lane india GNN + peer-owned by loop 7bfff7a4).
+
+## CONTEXT
+
+
+
+## COMPACT_SEAM
+
+**CLEAN TASK/BATCH BOUNDARY** (nudge 3/3 by stop-task-boundary-compact-nudge.mjs).
+
+Shipped this window (slot oscar): **3 commit(s)** matching `(slot:oscar`.
+Context: **61%** (early-seam band [55%, 85%)).
+
+> A batch just shipped and the window is filling. This is the clean seam to compact
+> BEFORE the next heavy build -- a fresh context window for the next batch avoids a
+> mid-build spiral into the 88% wall.
+
+NEXT ACTION: run `/precompact` to capture a clean handoff, then `/compact` (or let
+native auto-compact@90% fire). HONEST LIMIT: a chat cannot self-fire /compact; this
+block + the directive surface the seam and preserve state -- the compact itself is
+operator- or harness-driven.
+
+(Injected by the task-boundary compact-nudge Stop hook; cap = 3/session.)

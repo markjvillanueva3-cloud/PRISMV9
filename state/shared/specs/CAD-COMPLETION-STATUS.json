@@ -1,0 +1,289 @@
+{
+  "generated": "2026-06-26T16:16:07.410Z",
+  "results": [
+    {
+      "id": "U-MERGE-SLOT-DELTA",
+      "phase": "A",
+      "gate": null,
+      "op": true,
+      "title": "merge 410-commit slot/delta to trunk (operator-gated)",
+      "detect": {
+        "type": "merge"
+      },
+      "state": "PENDING",
+      "evidence": "slot/delta 432 commits ahead of trunk"
+    },
+    {
+      "id": "U-CAD-NURBS-STEP-EMIT",
+      "phase": "A",
+      "gate": null,
+      "title": "headless NURBS STEP emit (post-merge)",
+      "detect": {
+        "type": "git",
+        "grep": "U-CAD-NURBS-STEP-EMIT"
+      },
+      "state": "PENDING",
+      "evidence": "no commit matching /U-CAD-NURBS-STEP-EMIT/"
+    },
+    {
+      "id": "U-CAD-LEARN-LOOP-CLOSE",
+      "phase": "B",
+      "gate": null,
+      "title": "fix-ledger -> retrain -> xproc_outcome_publish(india)",
+      "detect": {
+        "type": "git",
+        "grep": "U-CAD-LEARN-LOOP-CLOSE"
+      },
+      "state": "SHIPPED",
+      "evidence": "commit 19e9c0af6b"
+    },
+    {
+      "id": "U-CAD-REAL-TRAIN-RUN",
+      "phase": "B",
+      "gate": "T1",
+      "title": "real (non-dry-run) QLoRA adapter trained on >=646 pairs",
+      "detect": {
+        "type": "artifact",
+        "probes": [
+          {
+            "dir": "state/shared/lora/adapters",
+            "frag": "cad",
+            "ext": ""
+          },
+          {
+            "dir": "state/shared/cad-ai-models",
+            "frag": "",
+            "ext": ".safetensors"
+          }
+        ]
+      },
+      "state": "PENDING",
+      "evidence": "no artifact in state/shared/lora/adapters | state/shared/cad-ai-models"
+    },
+    {
+      "id": "U-CAD-VALIDATION-50-RUN",
+      "phase": "B",
+      "gate": "T2",
+      "title": "validation-50 run with recorded dim-pass-rate",
+      "detect": {
+        "type": "artifact",
+        "probes": [
+          {
+            "dir": "state/shared/specs",
+            "frag": "cad-train-test-result",
+            "ext": ".json"
+          },
+          {
+            "dir": "state/shared/specs",
+            "frag": "cad-validation-50",
+            "ext": ".json"
+          }
+        ]
+      },
+      "state": "PENDING",
+      "evidence": "no artifact in state/shared/specs | state/shared/specs"
+    },
+    {
+      "id": "U-CAD-PRINTGEN-E2E",
+      "phase": "B",
+      "gate": "T3",
+      "title": "print to CAD to regen dim-by-dim >=95% on >=10 JM parts",
+      "detect": {
+        "type": "artifact",
+        "probes": [
+          {
+            "dir": "state/shared/specs",
+            "frag": "cad-printgen-e2e",
+            "ext": ".json"
+          }
+        ]
+      },
+      "state": "PENDING",
+      "evidence": "no artifact in state/shared/specs"
+    },
+    {
+      "id": "U-CAD-SKETCH-SUBTRACT",
+      "phase": "C",
+      "gate": null,
+      "title": "cut/pocket/groove (foundational)",
+      "detect": {
+        "type": "engine",
+        "file": "CADSubtractiveFeatureEngine.ts"
+      },
+      "state": "SHIPPED",
+      "evidence": "engine CADSubtractiveFeatureEngine.ts on disk"
+    },
+    {
+      "id": "U-CAD-BOOLEAN",
+      "phase": "C",
+      "gate": null,
+      "title": "boolean combine/intersect/subtract (foundational)",
+      "detect": {
+        "type": "engine",
+        "file": "CADBooleanEngine.ts"
+      },
+      "state": "SHIPPED",
+      "evidence": "engine CADBooleanEngine.ts on disk"
+    },
+    {
+      "id": "U-CAD-PATTERNS",
+      "phase": "C",
+      "gate": null,
+      "title": "linear/circular/mirror patterns",
+      "detect": {
+        "type": "engine",
+        "file": "CADPatternEngine.ts"
+      },
+      "state": "SHIPPED",
+      "evidence": "engine CADPatternEngine.ts on disk"
+    },
+    {
+      "id": "U-CAD-REF-GEOM",
+      "phase": "C",
+      "gate": null,
+      "title": "datum planes/axes/coord-systems",
+      "detect": {
+        "type": "engine",
+        "file": "CADReferenceGeometryEngine.ts"
+      },
+      "state": "SHIPPED",
+      "evidence": "engine CADReferenceGeometryEngine.ts on disk"
+    },
+    {
+      "id": "U-CAD-DIE-DESIGN",
+      "phase": "C",
+      "gate": null,
+      "title": "strip/blank/draw/springback (JM-critical)",
+      "detect": {
+        "type": "engine",
+        "file": "CADDieDesignEngine.ts"
+      },
+      "state": "SHIPPED",
+      "evidence": "engine CADDieDesignEngine.ts on disk"
+    },
+    {
+      "id": "U-CAD-SHEET-METAL",
+      "phase": "C",
+      "gate": null,
+      "title": "flange/bend/hem/flat-pattern",
+      "detect": {
+        "type": "engine",
+        "file": "CADSheetMetalEngine.ts"
+      },
+      "state": "SHIPPED",
+      "evidence": "engine CADSheetMetalEngine.ts on disk"
+    },
+    {
+      "id": "U-CAD-2D-DRAWING-GEN",
+      "phase": "C",
+      "gate": null,
+      "title": "model to orthographic 2D drawing (feeds T3)",
+      "detect": {
+        "type": "engine",
+        "file": "CAD2DDrawingEngine.ts"
+      },
+      "state": "SHIPPED",
+      "evidence": "engine CAD2DDrawingEngine.ts on disk"
+    },
+    {
+      "id": "U-CAD-WELDMENTS",
+      "phase": "C",
+      "gate": null,
+      "title": "members/gusset/weld-bead/cut-list",
+      "detect": {
+        "type": "engine",
+        "file": "CADWeldmentEngine.ts"
+      },
+      "state": "SHIPPED",
+      "evidence": "engine CADWeldmentEngine.ts on disk"
+    },
+    {
+      "id": "U-CAD-OLLAMA-OFFLOAD",
+      "phase": "D",
+      "gate": null,
+      "title": "Ollama offload 9pct to 30pct (pre-warm + queue)",
+      "detect": {
+        "type": "git",
+        "grep": "U-CAD-OLLAMA-OFFLOAD"
+      },
+      "state": "SHIPPED",
+      "evidence": "commit 6745df68cb"
+    },
+    {
+      "id": "U-CAD-SCALE-COMPLEX",
+      "phase": "D",
+      "gate": null,
+      "title": "10-50 interdependent features/assemblies (final clear)",
+      "detect": {
+        "type": "git",
+        "grep": "U-CAD-SCALE-COMPLEX"
+      },
+      "state": "PENDING",
+      "evidence": "no commit matching /U-CAD-SCALE-COMPLEX/"
+    },
+    {
+      "id": "PA1-FANOUT-GATE-MAX",
+      "phase": "PA",
+      "gate": null,
+      "op": true,
+      "title": "raise fleet fanout-gate cap for parallel hermes bursts (operator/golf)",
+      "detect": {
+        "type": "git",
+        "grep": "FANOUT-GATE-MAX|FANOUT-GATE-CAP"
+      },
+      "state": "PENDING",
+      "evidence": "no commit matching /FANOUT-GATE-MAX|FANOUT-GATE-CAP/"
+    },
+    {
+      "id": "PA2-CAD-RECON-CRON",
+      "phase": "PA",
+      "gate": null,
+      "title": "durable cron re-runs THIS reconciliation",
+      "detect": {
+        "type": "artifact",
+        "probes": [
+          {
+            "dir": "scripts",
+            "frag": "cad-completion-reconcile",
+            "ext": ".mjs"
+          }
+        ]
+      },
+      "state": "SHIPPED",
+      "evidence": "artifact present (scripts)"
+    },
+    {
+      "id": "PA3-HERMES-CAD-BUILDER",
+      "phase": "PA",
+      "gate": null,
+      "title": "hermes/octopus CAD unit-builder harness (zebra)",
+      "detect": {
+        "type": "git",
+        "grep": "HERMES-CAD-BUILDER"
+      },
+      "state": "SHIPPED",
+      "evidence": "commit 01866ce7d3"
+    },
+    {
+      "id": "PA4-VIZ-CAD-GRAPH-UPDATE",
+      "phase": "PA",
+      "gate": null,
+      "title": "feed CAD-completion state into system-viz graphs (sierra)",
+      "detect": {
+        "type": "git",
+        "grep": "VIZ-CAD-GRAPH"
+      },
+      "state": "SHIPPED",
+      "evidence": "commit ed56229b49"
+    }
+  ],
+  "shipped": 13,
+  "total": 20,
+  "gates": {
+    "T1": "PENDING",
+    "T2": "PENDING",
+    "T3": "PENDING"
+  },
+  "criticalNext": "U-CAD-NURBS-STEP-EMIT",
+  "terminalDone": false
+}

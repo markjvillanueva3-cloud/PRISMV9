@@ -119,9 +119,12 @@ class ShiftScheduleOptimizerEngine {
   optimizeSchedule(input: ScheduleInput): ScheduleResult {
     const { jobs, machines, constraints } = input;
     if (!jobs || jobs.length === 0) {
+      // No jobs -> graceful empty schedule. Guard machines with `?? []` too: an empty {} body has neither
+      // jobs nor machines and was crashing on machines.map here. The jobs-present + no-machines case is
+      // intentionally handled by the explicit throw below (a tested contract) -- do NOT swallow it here.
       return {
         schedule: [], makespan_hours: 0,
-        utilization_pct_per_machine: Object.fromEntries(machines.map(m => [m.id, 0])),
+        utilization_pct_per_machine: Object.fromEntries((machines ?? []).map(m => [m.id, 0])),
         idle_time_total_hours: 0, late_jobs: [], gantt_data: [],
       };
     }
@@ -369,6 +372,11 @@ class ShiftScheduleOptimizerEngine {
    */
   whatIfAddMachine(input: WhatIfInput): WhatIfResult {
     const { current_schedule, new_machine } = input;
+    if (!current_schedule || !new_machine) {
+      // No baseline schedule / candidate machine -> graceful zero-delta result. Was crashing on
+      // current_schedule.makespan_hours when the input lacked a baseline (e.g. an empty {} body).
+      return { new_makespan_hours: 0, makespan_improvement_pct: 0, new_utilization: {}, roi_estimate: 0 };
+    }
     const currentMakespan = current_schedule.makespan_hours;
 
     // Estimate: redistribute work that matches the new machine's type

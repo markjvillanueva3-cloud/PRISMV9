@@ -1,0 +1,256 @@
+{
+  "id": "PP-MOAT-MS3",
+  "version": "1.0.0",
+  "title": "PP Dialect Completeness — Correction Factors, Rigid Tapping, Probing, Threading, Data Wiring",
+  "track": "PP-MOAT",
+  "created_at": "2026-04-01T17:00:00Z",
+  "description": "Close dialect gaps and wire remaining data files. Add Kienzle correction factors (K_gamma, K_kappa, K_wear, K_coolant, K_edge) into the force calculation path. Add rigid tapping (G84.2/G84.3), probing cycles (Renishaw/Siemens/Heidenhain), and threading cycles (G76/CYCLE206) to all 25 controller dialects. Wire AlarmRegistry, controller-alarm-database.json, fusion-post-strategies.json, and cimco-post-strategies.json into the pipeline.",
+  "dependencies": [
+    "PP-MOAT-MS0"
+  ],
+  "knowledge_sources": {
+    "engines": [
+      "ControllerDialectEngine (1,157 lines, 25 dialects)",
+      "KienzleForceModelEngine — canonical Kienzle with correction factors",
+      "PostProcessorPipelineEngine — Stage 3.2 canned cycles, Stage 4.1 arc linearization"
+    ],
+    "data": [
+      "controller-alarm-database.json (59,409 lines, 5000+ alarm codes)",
+      "fusion-post-strategies.json (383 lines, arc tolerance/linearization rules)",
+      "cimco-post-strategies.json (214 lines, canned cycle mappings)",
+      "hypermill-post-configs.json (79 lines)",
+      "AlarmRegistry (743 lines)"
+    ],
+    "formulas": [
+      "K_gamma: rake angle correction — 1 - 0.01*(gamma - 6°)",
+      "K_kappa: edge inclination — 1 - 0.015*(kappa - 45°)",
+      "K_wear: flank wear — 1 + 0.5*(VB/VB_max)",
+      "K_coolant: from CoolantRegistry",
+      "K_edge: edge honing — 1 + 0.002*r_beta (edge radius µm)",
+      "ISO 3685 tool life standard (Taylor framework)",
+      "ISO 68-1 thread geometry"
+    ]
+  },
+  "forge_triple": {
+    "protective_hook": "pp-dialect-completeness — warns when a dialect is missing rigid_tap, probing, or threading cycles",
+    "mcp_action": "prism_cam dialect_completeness_report — report dialect feature coverage",
+    "skill": "/dialect-check — check controller dialect completeness for a specific machine"
+  },
+  "phases": [
+    {
+      "id": "P0",
+      "title": "Kienzle Correction Factors",
+      "units": [
+        {
+          "id": "U-PMMO01",
+          "title": "Add K_gamma, K_kappa, K_wear, K_coolant, K_edge correction factors to PP force calculation",
+          "status": "complete",
+          "steps": [
+            "Read KienzleForceModelEngine to understand its correction factor implementation",
+            "In PostProcessorPipelineEngine Stage 1.1 (after base kc1_1 resolved from registry or canonical):",
+            "  K_gamma = 1 - 0.01 * (gamma_rake_deg - 6) where gamma from ToolContext.rake_angle_deg",
+            "  K_kappa = 1 - 0.015 * (kappa_deg - 45) where kappa from ToolContext.lead_angle_deg",
+            "  K_wear = 1 + 0.5 * (VB_mm / 0.3) where VB from wear state (default 0 for fresh tool)",
+            "  K_coolant = CoolantRegistry lookup (flood=1.0, MQL=0.95, dry=1.1, cryo=0.9)",
+            "  K_edge = 1 + 0.002 * edge_radius_um (default 0 if unknown)",
+            "  corrected_kc = kc1_1 * K_gamma * K_kappa * K_wear * K_coolant * K_edge",
+            "Add correction_factors object to stage output for auditability",
+            "Add constants to constants.ts if not already present"
+          ],
+          "exit_conditions": [
+            "Build passes, all tests pass",
+            "New test: 30° rake angle reduces kc by 24% (K_gamma = 0.76)",
+            "New test: MQL coolant reduces kc by 5%",
+            "New test: fresh tool (VB=0) has K_wear=1.0, worn tool (VB=0.3) has K_wear=1.5",
+            "Correction factors documented in analytics output"
+          ],
+          "legacy_id": "U01",
+          "description": "Add K_gamma, K_kappa, K_wear, K_coolant, K_edge correction factors to PP force calculation — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "P1",
+      "title": "Dialect Cycle Additions",
+      "units": [
+        {
+          "id": "U-PMMO02",
+          "title": "Add rigid tapping (G84.2/G84.3) and threading (G76/CYCLE206) to all 25 dialects",
+          "status": "complete",
+          "steps": [
+            "Add to ControllerDialect interface: rigid_tap_cycle?: string, thread_single_point?: string, thread_multi_pass?: string",
+            "For each Fanuc dialect: rigid_tap_cycle = 'G84.2' (RH) / 'G84.3' (LH)",
+            "For Siemens dialects: rigid_tap_cycle = 'CYCLE84' with SPOS params",
+            "For Heidenhain: rigid_tap_cycle = 'CYCL DEF 207 (RIGID TAP)'",
+            "For Haas: rigid_tap_cycle = 'G84' with J (retract speed)",
+            "For Mazak: rigid_tap_cycle = 'G84' with Mazak rigid tap subprogram",
+            "For threading: Fanuc G76, Siemens CYCLE206/CYCLE207, Heidenhain CYCL DEF 262/263",
+            "For Swiss (Citizen/Star): add LFV chip breaking thread mode",
+            "Update translateCannedCycle() to handle rigid_tap and thread types"
+          ],
+          "exit_conditions": [
+            "Build passes, all tests pass",
+            "New test: Fanuc 31i dialect has rigid_tap_cycle = 'G84.2'",
+            "New test: Siemens 840D has thread_multi_pass = 'CYCLE206'",
+            "New test: translateCannedCycle('rigid_tap', 'fanuc_31i') returns G84.2"
+          ],
+          "legacy_id": "U02",
+          "description": "Add rigid tapping (G84.2/G84.3) and threading (G76/CYCLE206) to all 25 dialects — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-PMMO03",
+          "title": "Add probing cycles to all 25 dialects",
+          "status": "complete",
+          "steps": [
+            "Add to ControllerDialect interface: probing_cycles?: { auto_datum, surface_z, bore, boss, corner, tool_length }",
+            "Fanuc: G65 P9810 (Z surface), G65 P9811 (corner), G65 P9812 (bore/boss), G65 P9023 (tool length)",
+            "Siemens: CYCLE977 (datum), CYCLE978 (surface), CYCLE979 (bore/pocket)",
+            "Heidenhain: TCH PROBE 410-419 (datum/bore/boss/surface/corner/ridge)",
+            "Haas: G65 P9810-P9815 (Renishaw Haas variant with MFIN)",
+            "Add probing_cycles lookup to getFeatureCodes()"
+          ],
+          "exit_conditions": [
+            "Build passes, all tests pass",
+            "All 25 dialects have probing_cycles defined (or explicit 'none' for generics)",
+            "ProbingCycleEngine (from MS1) can use dialect probing_cycles for correct syntax"
+          ],
+          "legacy_id": "U03",
+          "description": "Add probing cycles to all 25 dialects — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "P2",
+      "title": "Data File Wiring",
+      "units": [
+        {
+          "id": "U-PMMO04",
+          "title": "Wire fusion-post-strategies.json + cimco-post-strategies.json into Stage 3.2/4.1",
+          "status": "complete",
+          "steps": [
+            "Read fusion-post-strategies.json — extract arc tolerance rules, linearization params, canned cycle mappings",
+            "Read cimco-post-strategies.json — extract drilling cycle mappings, helix linearization formula",
+            "Create CAMPostStrategyLookup: given controller family, return CAM-proven rules for arc handling, tolerance, cycle translation",
+            "In Stage 3.2 (motion dynamics): use CAM-proven arc max angle per controller instead of hardcoded 180°",
+            "In Stage 4.1 (if arc linearization exists): use CAM-proven segment_count formula",
+            "Log strategy source in analytics: 'fusion-post-strategies' or 'cimco-post-strategies'"
+          ],
+          "exit_conditions": [
+            "Build passes, all tests pass",
+            "New test: Haas controller uses 355° max arc (from Fusion strategy)",
+            "New test: Siemens uses 90° max arc (from Fusion strategy)",
+            "CAM strategy source appears in analytics"
+          ],
+          "legacy_id": "U04",
+          "description": "Wire fusion-post-strategies.json + cimco-post-strategies.json into Stage 3.2/4.1 — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-PMMO05",
+          "title": "Wire AlarmRegistry + controller-alarm-database.json for alarm-preventive output",
+          "status": "complete",
+          "steps": [
+            "Import AlarmRegistry (lazy load)",
+            "In Stage 5.1 (G-code safety analysis), after syntax check, query alarm database:",
+            "  For each controller-specific M-code or G-code combination, check if known alarm conditions exist",
+            "  Flag blocks that would trigger known alarms: 'Warning: This feed rate on Fanuc 0i-MF triggers alarm 414'",
+            "Add alarm_warnings[] to pipeline result",
+            "Add alarm prevention to Stage 6.8 (output verification): block output if critical alarms detected"
+          ],
+          "exit_conditions": [
+            "Build passes, all tests pass",
+            "New test: known alarm-triggering G-code combo produces warning",
+            "New test: unknown controller gracefully skips alarm check",
+            "Alarm warnings appear in analytics output"
+          ],
+          "legacy_id": "U05",
+          "description": "Wire AlarmRegistry + controller-alarm-database.json for alarm-preventive output — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        }
+      ]
+    }
+  ],
+  "exit_gate": "Kienzle 5 correction factors applied. All 25 dialects have rigid tapping + probing + threading. CAM strategies wired. Alarm database wired. /prism-review passed.",
+  "status": "complete",
+  "completed_at": "2026-04-04T23:17:00Z",
+  "test_results": "40/40 MS3 tests pass, 259/259 total PP tests pass (0 regressions)",
+  "smart_config": {
+    "role": "implementer + reviewer",
+    "model": "sonnet",
+    "effort": "HIGH",
+    "context_budget": "65%"
+  },
+  "mcp_lifecycle": {
+    "session_start": [
+      "prism_session:context_boot",
+      "prism_session:dispatcher_map",
+      "prism_session:memory_recall",
+      "prism_session:system_snapshot",
+      "prism_session:action_search"
+    ],
+    "during_work": [
+      "prism_session:auto_checkpoint",
+      "prism_session:tool_route_best",
+      "prism_session:wip_capture"
+    ],
+    "session_end": [
+      "prism_session:memory_save",
+      "prism_session:system_snapshot",
+      "prism_session:checkpoint_enhanced"
+    ]
+  },
+  "feature_cascade": {
+    "new_hooks": [
+      "pp-moat-ms3-gate"
+    ],
+    "new_actions": [
+      "pp_moat_ms3_run"
+    ],
+    "new_skills": [
+      "/pp-moat-ms3"
+    ],
+    "available_to": [
+      "downstream CAMX milestones",
+      "prism app consumers"
+    ]
+  },
+  "intent": "Close dialect gaps and wire remaining data files. Add Kienzle correction factors (K_gamma, K_kappa, K_wear, K_coolant, K_edge) into the force calculation path. Add rigid tapping (G84.2/G84.3), probing cycles (Renishaw/Siemens/Heidenhain), and threading cycles (G76/CYCLE206) to all 25 controller dialects. Wire AlarmRegistry, controller-alarm-database.json, fusion-post-strategies.json, and cimco-post-strategies.json into the pipeline.",
+  "compact_checkpoint": "every 3 units — auto-triggered by hook",
+  "enforcement_hooks_active": [
+    "physics agent",
+    "wiring agent",
+    "constants checker",
+    "stub detector",
+    "test quality",
+    "forge-triple gate",
+    "session audit agent"
+  ]
+}

@@ -1,0 +1,29 @@
+---
+name: node-formula-formula_adjusted_camdispatcher_action_post_check_no_inlined_constants_or_throw
+description: Node-indexed pointer — formula Formula — router · post_check_no_inlined_constants_or_throw → wiki knowledge/wiki/architecture/formulas/formula-adjusted-camdispatcher-action-post-check-no-inlined-constants-or-throw.md
+aliases: [node-formula-formula-adjusted-camdispatcher-action-post-check-no-inlined-constants-or-throw, NODE Formula Formula Adjusted Camdispatcher Action Post Check NO Inlined Constants OR Throw, node-formula-formula_adjusted_camdispatcher_action_post_check_no_inlined_constants_or_throw]
+metadata:
+  type: reference
+  node_kind: formula
+  node_id: formula.formula_adjusted_camdispatcher_action_post_check_no_inlined_constants_or_throw
+  wiki_path: knowledge/wiki/architecture/formulas/formula-adjusted-camdispatcher-action-post-check-no-inlined-constants-or-throw.md
+  generated_at: 2026-05-23
+  generator: scripts/lib/emit-node-memory-pointer.mjs
+---
+
+# Node pointer — formula/formula_adjusted_camdispatcher_action_post_check_no_inlined_constants_or_throw
+
+<!-- AUTO-NODE-MEMORY-POINTER-START -->
+
+> Indexed pointer for graph node `formula.formula_adjusted_camdispatcher_action_post_check_no_inlined_constants_or_throw`. The authoritative documentation is in the wiki entry below — this file exists so that semantic memory searches resolve the node directly.
+
+- **Kind:** formula
+- **Wiki:** [[formula_adjusted_camdispatcher_action_post_check_no_inlined_constants_or_throw]] · `knowledge/wiki/architecture/formulas/formula-adjusted-camdispatcher-action-post-check-no-inlined-constants-or-throw.md`
+- **Graph node id:** `formula.formula_adjusted_camdispatcher_action_post_check_no_inlined_constants_or_throw`
+- **Last regenerated:** 2026-05-24
+
+<!-- AUTO-NODE-MEMORY-POINTER-END -->
+
+## Human notes
+
+(Append free-text below — re-emit preserves anything outside the AUTO-NODE-MEMORY-POINTER markers.)

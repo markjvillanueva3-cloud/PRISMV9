@@ -1,0 +1,300 @@
+{
+  "id": "CPL",
+  "version": "1.0.0",
+  "title": "CAM-Pipeline Track — PostProcessor Completion + Novel Algorithms + Pipeline Architecture",
+  "brief": "Complete 13 unimplemented PostProcessor stages by wiring existing engines, close 12 partial pipeline gaps, add 10 novel algorithms, extend pipeline architecture, and finish CK track.",
+  "created_at": "2026-03-22T12:00:00Z",
+  "created_by": "claude-sonnet-4.6",
+  "total_milestones": 5,
+  "total_units": 50,
+  "tracks": [
+    "CAM",
+    "Pipeline",
+    "Toolpath",
+    "Physics"
+  ],
+  "milestones": [
+    {
+      "id": "CPL-MS0",
+      "title": "PostProcessor Stage Completion — Wire 16 Unimplemented Stages",
+      "brief": "13 StageConfig flags in PostProcessorPipelineEngine have declared interfaces but zero backing code. The engines to power them already exist. This milestone wires each flag to its backing engine, achieving 35/35 implemented stages.",
+      "total_units": 16,
+      "status": "pending",
+      "dependencies": [],
+      "envelope_path": "milestones/CPL-MS0.json",
+      "phases": [
+        {
+          "id": "P0",
+          "title": "Phase 3 Wiring (Motion Optimization)",
+          "units": [
+            {
+              "id": "U01",
+              "title": "Wire toolpath_smoothing (stage 3.1) — ToolpathSmoothingEngine",
+              "description": "Wire ToolpathSmoothingEngine into PostProcessorPipelineEngine. When stageFlags.toolpath_smoothing is true: extract block XYZ coordinates, apply auto-selected smoothing (B-spline for dense, Bezier for sparse, corner-round for moderate), write smoothed coords back to blocks. Report max_chord_error_mm, smoothing_type, points_modified. Gate: skip if chord_error would exceed tightest block tolerance.",
+              "exit_conditions": [
+                "Stage 3.1 pushes result to stages array",
+                "Smoothing applied to block coordinates",
+                "Chord error reported and gated against tolerance",
+                "Tests pass"
+              ],
+              "backing_engine": "ToolpathSmoothingEngine",
+              "status": "pending"
+            },
+            {
+              "id": "U02",
+              "title": "Wire look_ahead (stage 3.3) — MotionDynamicsProfileEngine",
+              "description": "Wire MotionDynamicsProfileEngine bidirectional look-ahead into PostProcessorPipelineEngine. When stageFlags.look_ahead is true: build segment array from blocks, run lookAheadSimulation with machine axis limits from resolved context, clamp block feed rates to achievable values. Report segments_limited, avg_feed_effectiveness, unreachable_feed_count.",
+              "exit_conditions": [
+                "Stage 3.3 pushes result",
+                "Feed rates clamped to achievable values",
+                "Feed effectiveness metric reported",
+                "Tests pass"
+              ],
+              "backing_engine": "MotionDynamicsProfileEngine",
+              "status": "pending"
+            },
+            {
+              "id": "U03",
+              "title": "Wire machine_error_comp (stage 3.4) — MachineToolErrorBudgetEngine",
+              "description": "Wire MachineToolErrorBudgetEngine into PostProcessorPipelineEngine. When stageFlags.machine_error_comp is true: compute 21-error model with Abbe amplification for resolved machine, apply thermal growth delta=alpha*DT*L as coordinate offsets. Report total_error_um, top_contributors, budget_utilization_pct.",
+              "exit_conditions": [
+                "Stage 3.4 pushes result",
+                "Coordinate offsets applied",
+                "Error budget reported",
+                "Tests pass"
+              ],
+              "backing_engine": "MachineToolErrorBudgetEngine",
+              "status": "pending"
+            },
+            {
+              "id": "U04",
+              "title": "Wire multi_axis (stage 3.6) — FiveAxisToolpathIntegrationEngine",
+              "description": "Wire FiveAxisToolpathIntegrationEngine singularity detection + TCPC compensation into PostProcessorPipelineEngine. When stageFlags.multi_axis is true and 5-axis blocks detected: run Jacobian singularity check, apply SLERP retraction if near singularity, linearize 5-axis moves per tolerance. Report singularity_zones, linearization_count, max_orientation_error_deg.",
+              "exit_conditions": [
+                "Stage 3.6 pushes result for 5-axis blocks",
+                "Singularity detection active",
+                "TCPC linearization applied",
+                "Tests pass"
+              ],
+              "backing_engine": "FiveAxisToolpathIntegrationEngine",
+              "status": "pending"
+            }
+          ]
+        },
+        {
+          "id": "P1",
+          "title": "Phase 1 + Phase 4 Wiring (Physics + Stochastic)",
+          "units": [
+            {
+              "id": "U05",
+              "title": "Wire spindle_harmonics (stage 1.4) — Inline resonance avoidance",
+              "description": "Add stage 1.4_spindle_harmonics to PostProcessorPipelineEngine. When stageFlags.spindle_harmonics is true: compute tooth-passing frequency ftp=n*z/60, check against spindle natural frequencies (from machine profile or default 800/1600/3200 Hz), check harmonics 1-5. If within 10% of resonance, shift RPM to nearest stable pocket. Report harmonics_checked, rpm_shifted, original_rpm, new_rpm.",
+              "exit_conditions": [
+                "Stage 1.4 pushes result",
+                "RPM shifted away from resonance",
+                "Harmonic analysis reported",
+                "Tests pass"
+              ],
+              "backing_engine": "inline (uses StochasticChatterEngine stability lobe data if available)",
+              "status": "pending"
+            },
+            {
+              "id": "U06",
+              "title": "Wire uncertainty_propagation (stage 4.2) — UncertaintyPropagationPipeline",
+              "description": "Wire UncertaintyPropagationPipeline (VAR-MS0) into PostProcessorPipelineEngine. When stageFlags.uncertainty_propagation is true: chain force→deflection→dimensional→surface distributions across blocks. Report propagated_uncertainty_sources, force_ci95, dimension_ci95, cpk_prediction.",
+              "exit_conditions": [
+                "Stage 4.2 pushes result",
+                "Cross-engine distribution chaining works",
+                "CI95 bounds reported",
+                "Tests pass"
+              ],
+              "backing_engine": "UncertaintyPropagationPipelineEngine",
+              "status": "pending"
+            },
+            {
+              "id": "U07",
+              "title": "Wire dimensional_verification (stage 4.3) — StochasticDimensionalEngine",
+              "description": "Wire StochasticDimensionalEngine into PostProcessorPipelineEngine. When stageFlags.dimensional_verification is true: run 7-source MC for critical dimensions from context, predict Cpk over production run, report time_to_first_oos, optimal_tool_change_interval, variance_decomposition.",
+              "exit_conditions": [
+                "Stage 4.3 pushes result",
+                "Cpk prediction per critical dimension",
+                "Variance decomposition reported",
+                "Tests pass"
+              ],
+              "backing_engine": "StochasticDimensionalEngine",
+              "status": "pending"
+            },
+            {
+              "id": "U08",
+              "title": "Wire surface_finish_verification (stage 4.4) — StochasticSurfaceFinishEngine",
+              "description": "Wire StochasticSurfaceFinishEngine into PostProcessorPipelineEngine. When stageFlags.surface_finish_verification is true: predict Ra distribution with MC, check against required Ra from context. Report ra_mean, ra_p95, probability_of_exceeding_spec.",
+              "exit_conditions": [
+                "Stage 4.4 pushes result",
+                "Ra prediction with uncertainty",
+                "Spec compliance probability",
+                "Tests pass"
+              ],
+              "backing_engine": "StochasticSurfaceFinishEngine",
+              "status": "pending"
+            },
+            {
+              "id": "U09",
+              "title": "Wire environmental (stage 4.5) — EnvironmentalVariationEngine",
+              "description": "Wire EnvironmentalVariationEngine into PostProcessorPipelineEngine. When stageFlags.environmental is true: model diurnal/seasonal thermal cycles, CTE mismatch between tool/workpiece/machine, humidity effects on dimensional stability. Report thermal_shift_um, cpk_impact, recommended_warm_up_minutes.",
+              "exit_conditions": [
+                "Stage 4.5 pushes result",
+                "Thermal shift modeled",
+                "Cpk impact quantified",
+                "Tests pass"
+              ],
+              "backing_engine": "EnvironmentalVariationEngine",
+              "status": "pending"
+            },
+            {
+              "id": "U10",
+              "title": "Wire batch_variability (stage 4.6) — MaterialBatchVariabilityEngine",
+              "description": "Wire MaterialBatchVariabilityEngine into PostProcessorPipelineEngine. When stageFlags.batch_variability is true: run Cholesky-correlated MC on material properties (hardness, kc1.1, mc, tensile), predict force/life variation across material batches. Report batch_force_cv_pct, batch_life_cv_pct, recommended_safety_margin.",
+              "exit_conditions": [
+                "Stage 4.6 pushes result",
+                "Material batch variation modeled",
+                "Safety margin recommended",
+                "Tests pass"
+              ],
+              "backing_engine": "MaterialBatchVariabilityEngine",
+              "status": "pending"
+            }
+          ]
+        },
+        {
+          "id": "P2",
+          "title": "Phase 5 + Phase 6 Wiring (Safety + Output)",
+          "units": [
+            {
+              "id": "U11",
+              "title": "Wire reliability_check (stage 5.6) — ReliabilityEngineeringEngine",
+              "description": "Wire ReliabilityEngineeringEngine into PostProcessorPipelineEngine. When stageFlags.reliability_check is true: compute Weibull tool life reliability R(t)=exp(-(t/eta)^beta), predict optimal replacement interval, check against planned operation time. Report reliability_at_end_of_op, recommended_tool_change_point, failure_probability.",
+              "exit_conditions": [
+                "Stage 5.6 pushes result",
+                "Weibull reliability computed",
+                "Tool change recommendation",
+                "Tests pass"
+              ],
+              "backing_engine": "ReliabilityEngineeringEngine",
+              "status": "pending"
+            },
+            {
+              "id": "U12",
+              "title": "Wire acoustic_check (stage 5.7) — MachiningAcousticsEngine",
+              "description": "Wire MachiningAcousticsEngine into PostProcessorPipelineEngine. When stageFlags.acoustic_check is true: compute Kopac cutting noise level, aggregate with machine background, check ISO 4869 exposure limits. Report noise_level_dba, exposure_limit_exceeded, hearing_protection_required.",
+              "exit_conditions": [
+                "Stage 5.7 pushes result",
+                "Noise level computed",
+                "ISO 4869 compliance checked",
+                "Tests pass"
+              ],
+              "backing_engine": "MachiningAcousticsEngine",
+              "status": "pending"
+            },
+            {
+              "id": "U13",
+              "title": "Wire probe_routines (stage 6.2) — ProbeRoutineGeneratorEngine",
+              "description": "Wire ProbeRoutineGeneratorEngine into PostProcessorPipelineEngine. When stageFlags.probe_routines is true: generate in-process probe G-code for critical dimensions from context, insert at appropriate points in output program. Report probe_points_generated, critical_dimensions_probed.",
+              "exit_conditions": [
+                "Stage 6.2 pushes result",
+                "Probe G-code generated",
+                "Inserted into output program",
+                "Tests pass"
+              ],
+              "backing_engine": "ProbeRoutineGeneratorEngine",
+              "status": "pending"
+            },
+            {
+              "id": "U14",
+              "title": "Wire setup_sheet (stage 6.3) — SetupSheetFromGCodeEngine",
+              "description": "Wire SetupSheetFromGCodeEngine into PostProcessorPipelineEngine. When stageFlags.setup_sheet is true: generate comprehensive setup sheet from pipeline context (part info, tool list, work offsets, fixture notes, cycle time, safety notes). Populate pipeline output.setup_sheet field.",
+              "exit_conditions": [
+                "Stage 6.3 pushes result",
+                "Setup sheet populated in output",
+                "Tool list + fixture notes included",
+                "Tests pass"
+              ],
+              "backing_engine": "SetupSheetFromGCodeEngine",
+              "status": "pending"
+            },
+            {
+              "id": "U15",
+              "title": "Wire controller_params (stage 6.4) — ControllerDialectEngine extended",
+              "description": "Wire ControllerDialectEngine into PostProcessorPipelineEngine for controller-specific parameter injection. When stageFlags.controller_params is true: inject G10 work offset setup, macro variable initialization, controller-specific safety blocks. Report params_injected, controller_dialect, features_used.",
+              "exit_conditions": [
+                "Stage 6.4 pushes result",
+                "Controller-specific params injected",
+                "Dialect-aware output",
+                "Tests pass"
+              ],
+              "backing_engine": "ControllerDialectEngine",
+              "status": "pending"
+            },
+            {
+              "id": "U16",
+              "title": "Wire digital_twin (stage 6.7) — ProcessDigitalTwinEngine",
+              "description": "Wire ProcessDigitalTwinEngine into PostProcessorPipelineEngine. When stageFlags.digital_twin is true: export digital twin state (workpiece geometry, tool state, machine state, process parameters) for real-time monitoring integration. Report twin_state_exported, data_points, monitoring_endpoints.",
+              "exit_conditions": [
+                "Stage 6.7 pushes result",
+                "Digital twin state exported",
+                "Monitoring-ready output",
+                "Tests pass"
+              ],
+              "backing_engine": "ProcessDigitalTwinEngine",
+              "status": "pending"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "CPL-MS1",
+      "title": "Pipeline Integration — Close 12 Partial Gaps",
+      "brief": "Wire existing engine capabilities into the pipeline flow: servo lag compensation, rotary axis dynamics, trochoidal+depth, vibration-aware bar stock, distortion-compensated multi-setup, generative fixture planning, turning in PrintToProgram, toolpath tolerance verification, within-op cut reordering, post-processor compatibility filter, SelfLearning integration, stochastic geometry from CAD.",
+      "total_units": 12,
+      "status": "pending",
+      "dependencies": [
+        "CPL-MS0"
+      ],
+      "envelope_path": "milestones/CPL-MS1.json"
+    },
+    {
+      "id": "CPL-MS2",
+      "title": "Novel Algorithms — 10 True Innovations",
+      "brief": "Clothoid/Euler spiral blending, wear-pattern-aware refinishing, PH curves, multi-body coupled vibration, thermal field-aware toolpath, minimum-jerk trajectory, Voronoi-medial-axis pocketing, stochastic toolpath routing, inverse thermal compensation, contact-mechanics surface integrity.",
+      "total_units": 10,
+      "status": "pending",
+      "dependencies": [],
+      "envelope_path": "milestones/CPL-MS2.json"
+    },
+    {
+      "id": "CPL-MS3",
+      "title": "Pipeline Architecture Extensions",
+      "brief": "Phase 7 learning feedback, Phase 8 output variants, multi-process router, parallel operation optimization, IPW voxel grid upgrade, tolerance-driven parameter selection.",
+      "total_units": 6,
+      "status": "pending",
+      "dependencies": [
+        "CPL-MS0",
+        "CPL-MS1"
+      ],
+      "envelope_path": "milestones/CPL-MS3.json"
+    },
+    {
+      "id": "CPL-MS4",
+      "title": "CK Track Completion + Integration Tests",
+      "brief": "Complete CK-MS9 through CK-MS13 and WIRE-MS0: Zod schemas, turning profiles, 2D nesting, DXF/SVG import, stochastic routing, NL CAM interface, G-code diff, result cache, end-to-end integration tests, full dispatcher wiring.",
+      "total_units": 6,
+      "status": "pending",
+      "dependencies": [
+        "CPL-MS1",
+        "CPL-MS2"
+      ],
+      "envelope_path": "milestones/CPL-MS4.json"
+    }
+  ],
+  "status": "not_started"
+}

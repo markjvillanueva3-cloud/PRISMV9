@@ -65,8 +65,16 @@ impact:
     - informs: roadmap planning (which dispatchers are under-developed)
   bounded: true
   reversible: true  # analysis only; no file mutations
+composes_with:
+  - "/coverage-by-domain"
+  - "/forge"
+  - "/forge-audit"
+  - "/rgs"
+  - "/wire-unwired"
+  - "/wiring-batch"
+consumes:
+  - "prism_session:dispatcher_map_compact"
 ---
-
 # /dispatcher-coverage — Per-Dispatcher Engine & Action Heatmap
 
 > **Goal:** make the dispatcher-axis view of PRISM's wiring graph as easy to surface as the domain-axis view (`/coverage-by-domain`). When you're about to wire 6 unwired Lathe engines, the question is **"which dispatcher do they belong in?"** — that's a dispatcher-axis question. This skill answers it.

@@ -1,0 +1,851 @@
+{
+  "id": "CCM-MS4",
+  "version": "1.0.0",
+  "title": "Rules System Expansion",
+  "brief": "Create path-specific .claude/rules/*.md files for every major domain. Currently only 3 rules files (prism-mfg.md, prism-skills.md, prism-registries.md). Need rules for engines, dispatchers, hooks, tests, catalogs, CLI, MCP, schemas, skills, pipelines.",
+  "created_at": "2026-03-20T12:00:00Z",
+  "created_by": "claude-opus-4.6",
+  "track": "CCM",
+  "track_name": "Claude Code Modernization",
+  "status": "not_started",
+  "phases": [
+    {
+      "id": "P0",
+      "title": "Domain-Specific Rules Files",
+      "description": "Create 10 path-specific rules files covering all major code domains: engines, dispatchers, hooks, tests, catalogs, CLI, MCP, schemas, skills, pipelines.",
+      "sessions": "1-2",
+      "primary_role": "R1",
+      "primary_model": "opus-4.6",
+      "units": [
+        {
+          "id": "P0-U01",
+          "title": "rules/engines.md — engine coding conventions",
+          "phase": "P0",
+          "sequence": 1,
+          "role": "R1",
+          "role_name": "Systems Architect",
+          "model": "opus-4.6",
+          "effort": 80,
+          "rationale": "Engines are the core computation layer (1078 files). Consistent conventions for formula documentation, error handling, and test pairing are critical for maintainability.",
+          "tools": [
+            "Write",
+            "Read",
+            "Grep",
+            "Glob"
+          ],
+          "skills": [],
+          "scripts": [],
+          "hooks": [],
+          "features": [
+            "engine-conventions",
+            "formula-docs",
+            "test-pairing"
+          ],
+          "dependencies": [],
+          "entry_conditions": [
+            ".claude/rules/ directory exists with existing rules files"
+          ],
+          "exit_conditions": [
+            "Rules load for engine files matching **/engines/**/*.ts",
+            "Covers: naming, JSDoc, formula documentation, error handling, test file pairing, export patterns",
+            "Claude follows rules when editing engine files"
+          ],
+          "rollback": "rm .claude/rules/engines.md",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Analyze existing engine patterns: naming, structure, imports, exports"
+            },
+            {
+              "number": 2,
+              "instruction": "Create .claude/rules/engines.md with globs: ['**/engines/**/*.ts']"
+            },
+            {
+              "number": 3,
+              "instruction": "Document: PascalCase naming, JSDoc with @formula tags, physics units in comments, typed return objects"
+            },
+            {
+              "number": 4,
+              "instruction": "Document: every engine must have matching __tests__/ file, export from index.ts"
+            },
+            {
+              "number": 5,
+              "instruction": "Test: edit an engine file and verify rules are loaded"
+            }
+          ],
+          "deliverables": [
+            {
+              "path": ".claude/rules/engines.md",
+              "type": "config",
+              "description": "Path-specific rules for engine files: naming, JSDoc, formulas, test pairing, exports"
+            }
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": false,
+          "creates_hook": false,
+          "creates_command": false,
+          "description": "rules/engines.md — engine coding conventions — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P0-U02",
+          "title": "rules/dispatchers.md — dispatcher conventions",
+          "phase": "P0",
+          "sequence": 2,
+          "role": "R1",
+          "role_name": "Systems Architect",
+          "model": "opus-4.6",
+          "effort": 80,
+          "rationale": "Dispatchers (68 files) are the routing layer. z.enum synchronization, schema alignment, and naming consistency are the most common sources of bugs.",
+          "tools": [
+            "Write",
+            "Read",
+            "Grep",
+            "Glob"
+          ],
+          "skills": [],
+          "scripts": [],
+          "hooks": [],
+          "features": [
+            "dispatcher-conventions",
+            "zenum-sync",
+            "schema-alignment"
+          ],
+          "dependencies": [],
+          "entry_conditions": [
+            ".claude/rules/ directory exists"
+          ],
+          "exit_conditions": [
+            "Rules load for dispatcher files matching **/dispatchers/**",
+            "Covers: z.enum sync, schema requirements, lazy imports, action naming, handler patterns",
+            "Claude follows rules when editing dispatchers"
+          ],
+          "rollback": "rm .claude/rules/dispatchers.md",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Analyze existing dispatcher patterns: z.enum, handler switch, lazy imports"
+            },
+            {
+              "number": 2,
+              "instruction": "Create .claude/rules/dispatchers.md with globs: ['**/dispatchers/**']"
+            },
+            {
+              "number": 3,
+              "instruction": "Document: z.enum must match all handler cases, lazy imports for engines, action names snake_case"
+            },
+            {
+              "number": 4,
+              "instruction": "Document: schema file required per dispatcher, no cross-dispatcher action name collisions"
+            },
+            {
+              "number": 5,
+              "instruction": "Test: edit a dispatcher file and verify rules are loaded"
+            }
+          ],
+          "deliverables": [
+            {
+              "path": ".claude/rules/dispatchers.md",
+              "type": "config",
+              "description": "Path-specific rules for dispatchers: z.enum sync, schemas, lazy imports, naming"
+            }
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": false,
+          "creates_hook": false,
+          "creates_command": false,
+          "description": "rules/dispatchers.md — dispatcher conventions — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P0-U03",
+          "title": "rules/hooks.md — hook shell standards",
+          "phase": "P0",
+          "sequence": 3,
+          "role": "R1",
+          "role_name": "Systems Architect",
+          "model": "opus-4.6",
+          "effort": 75,
+          "rationale": "Hook scripts (9+ files) must follow strict conventions for JSON I/O, exit codes, and error handling to work correctly with Claude Code's hook system.",
+          "tools": [
+            "Write",
+            "Read",
+            "Grep"
+          ],
+          "skills": [],
+          "scripts": [],
+          "hooks": [],
+          "features": [
+            "hook-standards",
+            "json-io",
+            "exit-codes"
+          ],
+          "dependencies": [],
+          "entry_conditions": [
+            ".claude/rules/ directory exists"
+          ],
+          "exit_conditions": [
+            "Rules load for hook files matching **/.claude/hooks/**",
+            "Covers: JSON stdin/stdout, exit codes (0=pass, 1=warn, 2=block), error handling, state files",
+            "Claude follows rules when editing hooks"
+          ],
+          "rollback": "rm .claude/rules/hooks.md",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Analyze existing hook patterns: stdin parsing, output format, exit codes"
+            },
+            {
+              "number": 2,
+              "instruction": "Create .claude/rules/hooks.md with globs: ['**/.claude/hooks/**']"
+            },
+            {
+              "number": 3,
+              "instruction": "Document: read JSON from stdin, output JSON to stdout, exit 0/1/2, use jq for parsing"
+            },
+            {
+              "number": 4,
+              "instruction": "Document: state files in /tmp/claude-*, dedup patterns, tracker file conventions"
+            },
+            {
+              "number": 5,
+              "instruction": "Test: edit a hook file and verify rules are loaded"
+            }
+          ],
+          "deliverables": [
+            {
+              "path": ".claude/rules/hooks.md",
+              "type": "config",
+              "description": "Path-specific rules for hooks: JSON I/O, exit codes, state management, dedup patterns"
+            }
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": false,
+          "creates_hook": false,
+          "creates_command": false,
+          "description": "rules/hooks.md — hook shell standards — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P0-U04",
+          "title": "rules/tests.md — test conventions",
+          "phase": "P0",
+          "sequence": 4,
+          "role": "R1",
+          "role_name": "Systems Architect",
+          "model": "opus-4.6",
+          "effort": 75,
+          "rationale": "Tests (756 files, 17K+ cases) need consistent structure, naming, and coverage targets. Rules enforce describe/it nesting, assertion patterns, and file naming.",
+          "tools": [
+            "Write",
+            "Read",
+            "Grep"
+          ],
+          "skills": [],
+          "scripts": [],
+          "hooks": [],
+          "features": [
+            "test-conventions",
+            "coverage-targets",
+            "naming-patterns"
+          ],
+          "dependencies": [],
+          "entry_conditions": [
+            ".claude/rules/ directory exists"
+          ],
+          "exit_conditions": [
+            "Rules load for test files matching **/__tests__/** and **/*.test.ts",
+            "Covers: describe/it nesting, assertion style, edge case coverage, file naming",
+            "Claude follows rules when writing tests"
+          ],
+          "rollback": "rm .claude/rules/tests.md",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Analyze existing test patterns: describe nesting, assertion style, setup/teardown"
+            },
+            {
+              "number": 2,
+              "instruction": "Create .claude/rules/tests.md with globs: ['**/__tests__/**', '**/*.test.ts']"
+            },
+            {
+              "number": 3,
+              "instruction": "Document: describe('<EngineName>', () => { it('should...') }), expect() assertions, no any types"
+            },
+            {
+              "number": 4,
+              "instruction": "Document: test file naming matches engine: FooEngine.ts → FooEngine.test.ts, minimum 10 test cases"
+            },
+            {
+              "number": 5,
+              "instruction": "Test: create a test file and verify rules are loaded"
+            }
+          ],
+          "deliverables": [
+            {
+              "path": ".claude/rules/tests.md",
+              "type": "config",
+              "description": "Path-specific rules for tests: structure, naming, assertions, coverage targets"
+            }
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": false,
+          "creates_hook": false,
+          "creates_command": false,
+          "description": "rules/tests.md — test conventions — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P0-U05",
+          "title": "rules/catalogs.md — data catalog conventions",
+          "phase": "P0",
+          "sequence": 5,
+          "role": "R1",
+          "role_name": "Systems Architect",
+          "model": "opus-4.6",
+          "effort": 75,
+          "rationale": "Catalog data files (62 files, 95K+ tools) must follow strict typing, validation, and import patterns to maintain data integrity.",
+          "tools": [
+            "Write",
+            "Read",
+            "Grep"
+          ],
+          "skills": [],
+          "scripts": [],
+          "hooks": [],
+          "features": [
+            "catalog-conventions",
+            "data-validation",
+            "typing-patterns"
+          ],
+          "dependencies": [],
+          "entry_conditions": [
+            ".claude/rules/ directory exists"
+          ],
+          "exit_conditions": [
+            "Rules load for catalog files matching **/data/** and **/catalogs/**",
+            "Covers: TypeScript typing, data validation, import patterns, no raw JSON",
+            "Claude follows rules when editing catalogs"
+          ],
+          "rollback": "rm .claude/rules/catalogs.md",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Analyze existing catalog patterns: typing, exports, validation"
+            },
+            {
+              "number": 2,
+              "instruction": "Create .claude/rules/catalogs.md with globs: ['**/data/**', '**/catalogs/**']"
+            },
+            {
+              "number": 3,
+              "instruction": "Document: all catalog entries typed with interfaces, no 'any', validate with Zod schemas"
+            },
+            {
+              "number": 4,
+              "instruction": "Document: export as const arrays, use satisfies for type checking, include unit annotations"
+            },
+            {
+              "number": 5,
+              "instruction": "Test: edit a catalog file and verify rules are loaded"
+            }
+          ],
+          "deliverables": [
+            {
+              "path": ".claude/rules/catalogs.md",
+              "type": "config",
+              "description": "Path-specific rules for catalogs: typing, validation, exports, unit annotations"
+            }
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": false,
+          "creates_hook": false,
+          "creates_command": false,
+          "description": "rules/catalogs.md — data catalog conventions — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P0-U06",
+          "title": "rules/cli.md — CLI conventions",
+          "phase": "P0",
+          "sequence": 6,
+          "role": "R1",
+          "role_name": "Systems Architect",
+          "model": "opus-4.6",
+          "effort": 70,
+          "rationale": "CLI layer (4 files) uses Commander patterns with specific formatter, stdin, and config conventions that must be consistent.",
+          "tools": [
+            "Write",
+            "Read",
+            "Grep"
+          ],
+          "skills": [],
+          "scripts": [],
+          "hooks": [],
+          "features": [
+            "cli-conventions",
+            "commander-patterns",
+            "formatter-standards"
+          ],
+          "dependencies": [],
+          "entry_conditions": [
+            ".claude/rules/ directory exists"
+          ],
+          "exit_conditions": [
+            "Rules load for CLI files matching **/cli/**",
+            "Covers: Commander patterns, formatters (json/table/csv/compact), stdin piping, config",
+            "Claude follows rules when editing CLI files"
+          ],
+          "rollback": "rm .claude/rules/cli.md",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Analyze existing CLI patterns: Commander setup, formatter usage, stdin detection"
+            },
+            {
+              "number": 2,
+              "instruction": "Create .claude/rules/cli.md with globs: ['**/cli/**']"
+            },
+            {
+              "number": 3,
+              "instruction": "Document: Commander .command()/.option()/.action() pattern, 4 output formats, TTY detection"
+            },
+            {
+              "number": 4,
+              "instruction": "Document: config from ~/.prism/config.json, stdin via process.stdin.isTTY check"
+            },
+            {
+              "number": 5,
+              "instruction": "Test: edit a CLI file and verify rules are loaded"
+            }
+          ],
+          "deliverables": [
+            {
+              "path": ".claude/rules/cli.md",
+              "type": "config",
+              "description": "Path-specific rules for CLI: Commander patterns, formatters, stdin, config"
+            }
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": false,
+          "creates_hook": false,
+          "creates_command": false,
+          "description": "rules/cli.md — CLI conventions — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P0-U07",
+          "title": "rules/mcp.md — MCP conventions",
+          "phase": "P0",
+          "sequence": 7,
+          "role": "R1",
+          "role_name": "Systems Architect",
+          "model": "opus-4.6",
+          "effort": 75,
+          "rationale": "MCP layer (6 files) follows specific tool annotation, resource, prompt, and completion patterns that differ from regular engine code.",
+          "tools": [
+            "Write",
+            "Read",
+            "Grep"
+          ],
+          "skills": [],
+          "scripts": [],
+          "hooks": [],
+          "features": [
+            "mcp-conventions",
+            "tool-annotations",
+            "resource-patterns"
+          ],
+          "dependencies": [],
+          "entry_conditions": [
+            ".claude/rules/ directory exists"
+          ],
+          "exit_conditions": [
+            "Rules load for MCP files matching **/mcp/**",
+            "Covers: tool annotations (readOnly/destructive/idempotent), resources, prompts, completions",
+            "Claude follows rules when editing MCP files"
+          ],
+          "rollback": "rm .claude/rules/mcp.md",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Analyze existing MCP patterns: annotations, resources, prompts"
+            },
+            {
+              "number": 2,
+              "instruction": "Create .claude/rules/mcp.md with globs: ['**/mcp/**']"
+            },
+            {
+              "number": 3,
+              "instruction": "Document: tool annotations required for all dispatchers, resource URI templates, prompt structure"
+            },
+            {
+              "number": 4,
+              "instruction": "Document: completions for common argument types, progress reporter patterns"
+            },
+            {
+              "number": 5,
+              "instruction": "Test: edit an MCP file and verify rules are loaded"
+            }
+          ],
+          "deliverables": [
+            {
+              "path": ".claude/rules/mcp.md",
+              "type": "config",
+              "description": "Path-specific rules for MCP: annotations, resources, prompts, completions"
+            }
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": false,
+          "creates_hook": false,
+          "creates_command": false,
+          "description": "rules/mcp.md — MCP conventions — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P0-U08",
+          "title": "rules/schemas.md — Zod schema conventions",
+          "phase": "P0",
+          "sequence": 8,
+          "role": "R1",
+          "role_name": "Systems Architect",
+          "model": "opus-4.6",
+          "effort": 75,
+          "rationale": "Schema files (60 files) define all action interfaces. Consistent Zod v4 patterns, naming, and validation are essential for type safety across the system.",
+          "tools": [
+            "Write",
+            "Read",
+            "Grep"
+          ],
+          "skills": [],
+          "scripts": [],
+          "hooks": [],
+          "features": [
+            "schema-conventions",
+            "zod-patterns",
+            "naming-standards"
+          ],
+          "dependencies": [],
+          "entry_conditions": [
+            ".claude/rules/ directory exists"
+          ],
+          "exit_conditions": [
+            "Rules load for schema files matching **/schemas/**",
+            "Covers: Zod v4 patterns, naming (camelCase actions, PascalCase types), validation, descriptions",
+            "Claude follows rules when editing schemas"
+          ],
+          "rollback": "rm .claude/rules/schemas.md",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Analyze existing schema patterns: Zod v4 usage, naming, descriptions"
+            },
+            {
+              "number": 2,
+              "instruction": "Create .claude/rules/schemas.md with globs: ['**/schemas/**']"
+            },
+            {
+              "number": 3,
+              "instruction": "Document: Zod v4 z.object(), action names snake_case, .describe() on all fields"
+            },
+            {
+              "number": 4,
+              "instruction": "Document: export schema + inferred type, match dispatcher z.enum entries"
+            },
+            {
+              "number": 5,
+              "instruction": "Test: edit a schema file and verify rules are loaded"
+            }
+          ],
+          "deliverables": [
+            {
+              "path": ".claude/rules/schemas.md",
+              "type": "config",
+              "description": "Path-specific rules for schemas: Zod v4 patterns, naming, descriptions, type inference"
+            }
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": false,
+          "creates_hook": false,
+          "creates_command": false,
+          "description": "rules/schemas.md — Zod schema conventions — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P0-U09",
+          "title": "rules/skills.md — skill file conventions",
+          "phase": "P0",
+          "sequence": 9,
+          "role": "R1",
+          "role_name": "Systems Architect",
+          "model": "opus-4.6",
+          "effort": 70,
+          "rationale": "Skill files (132+) need consistent frontmatter, trigger patterns, and content structure. Rules enforce the conventions established in CCM-MS3.",
+          "tools": [
+            "Write",
+            "Read",
+            "Grep"
+          ],
+          "skills": [],
+          "scripts": [],
+          "hooks": [],
+          "features": [
+            "skill-conventions",
+            "frontmatter-standards",
+            "trigger-patterns"
+          ],
+          "dependencies": [],
+          "entry_conditions": [
+            ".claude/rules/ directory exists"
+          ],
+          "exit_conditions": [
+            "Rules load for skill files matching **/skills/** and **/commands/**",
+            "Covers: frontmatter fields, trigger patterns, content structure, argument handling",
+            "Claude follows rules when creating/editing skills"
+          ],
+          "rollback": "rm .claude/rules/skills.md",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Analyze existing skill patterns: frontmatter, content, triggers"
+            },
+            {
+              "number": 2,
+              "instruction": "Create .claude/rules/skills.md with globs: ['**/skills/**', '**/commands/**']"
+            },
+            {
+              "number": 3,
+              "instruction": "Document: required frontmatter (model, effort, argument-hint), markdown content, step-by-step instructions"
+            },
+            {
+              "number": 4,
+              "instruction": "Document: trigger patterns, skill naming conventions, output format expectations"
+            },
+            {
+              "number": 5,
+              "instruction": "Test: edit a skill file and verify rules are loaded"
+            }
+          ],
+          "deliverables": [
+            {
+              "path": ".claude/rules/skills.md",
+              "type": "config",
+              "description": "Path-specific rules for skills: frontmatter, triggers, content structure, naming"
+            }
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": false,
+          "creates_hook": false,
+          "creates_command": false,
+          "description": "rules/skills.md — skill file conventions — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P0-U10",
+          "title": "rules/pipelines.md — pipeline and orchestrator conventions",
+          "phase": "P0",
+          "sequence": 10,
+          "role": "R1",
+          "role_name": "Systems Architect",
+          "model": "opus-4.6",
+          "effort": 80,
+          "rationale": "Pipeline and orchestrator engines (20+ files) handle async multi-stage processing. They need specific patterns for error handling, stage composition, and progress reporting.",
+          "tools": [
+            "Write",
+            "Read",
+            "Grep"
+          ],
+          "skills": [],
+          "scripts": [],
+          "hooks": [],
+          "features": [
+            "pipeline-conventions",
+            "async-patterns",
+            "stage-composition"
+          ],
+          "dependencies": [],
+          "entry_conditions": [
+            ".claude/rules/ directory exists"
+          ],
+          "exit_conditions": [
+            "Rules load for pipeline files matching **/*Pipeline* and **/*Orchestrator*",
+            "Covers: async patterns, error handling, stage composition, progress reporting, retry logic",
+            "Claude follows rules when editing pipelines"
+          ],
+          "rollback": "rm .claude/rules/pipelines.md",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Analyze existing pipeline patterns: async/await, stage arrays, error accumulation"
+            },
+            {
+              "number": 2,
+              "instruction": "Create .claude/rules/pipelines.md with globs: ['**/*Pipeline*', '**/*Orchestrator*']"
+            },
+            {
+              "number": 3,
+              "instruction": "Document: async methods, try/catch per stage, error accumulation not early abort"
+            },
+            {
+              "number": 4,
+              "instruction": "Document: progress reporting via MCP reporters, stage ordering, input/output typing between stages"
+            },
+            {
+              "number": 5,
+              "instruction": "Test: edit a pipeline file and verify rules are loaded"
+            }
+          ],
+          "deliverables": [
+            {
+              "path": ".claude/rules/pipelines.md",
+              "type": "config",
+              "description": "Path-specific rules for pipelines: async patterns, error handling, stages, progress reporting"
+            }
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": false,
+          "creates_hook": false,
+          "creates_command": false,
+          "description": "rules/pipelines.md — pipeline and orchestrator conventions — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        }
+      ]
+    }
+  ],
+  "smart_config": {
+    "role": "implementer + reviewer",
+    "model": "sonnet",
+    "effort": "HIGH",
+    "context_budget": "65%"
+  },
+  "mcp_lifecycle": {
+    "session_start": [
+      "prism_session:context_boot",
+      "prism_session:dispatcher_map",
+      "prism_session:memory_recall",
+      "prism_session:system_snapshot",
+      "prism_session:action_search"
+    ],
+    "during_work": [
+      "prism_session:auto_checkpoint",
+      "prism_session:tool_route_best",
+      "prism_session:wip_capture"
+    ],
+    "session_end": [
+      "prism_session:memory_save",
+      "prism_session:system_snapshot",
+      "prism_session:checkpoint_enhanced"
+    ]
+  },
+  "forge_triple": {
+    "protective_hook": "ccm-ms4-gate",
+    "mcp_action": "prism_ccm:ccm_ms4_run",
+    "skill_command": "/ccm-ms4",
+    "ownership": "DECLARED — BUILT in terminal unit of this milestone"
+  },
+  "feature_cascade": {
+    "new_hooks": [
+      "ccm-ms4-gate"
+    ],
+    "new_actions": [
+      "ccm_ms4_run"
+    ],
+    "new_skills": [
+      "/ccm-ms4"
+    ],
+    "available_to": [
+      "downstream CAMX milestones",
+      "prism app consumers"
+    ]
+  },
+  "knowledge_sources": {
+    "engines": [
+      "ENGINE_DIGEST.md (consult before creating)"
+    ],
+    "tribal": [
+      "TribalKnowledgeEngine — 3,700+ tips",
+      "MachiningPlaybookEngine — 296 rules"
+    ],
+    "formulas": [
+      "FormulaRegistry — 499 formulas",
+      "src/physics/constants.ts — canonical"
+    ],
+    "reference": [
+      "EXTERNAL-REFERENCE-PROGRAMS-INDEX.md",
+      "MaterialRegistry",
+      "MachineRegistry",
+      "ToolCatalogEngine (95,608 tools)"
+    ]
+  },
+  "intent": "Create path-specific .claude/rules/*.md files for every major domain. Currently only 3 rules files (prism-mfg.md, prism-skills.md, prism-registries.md). Need rules for engines, dispatchers, hooks, tests, catalogs, CLI, MCP, schemas, skills, pipelines.",
+  "compact_checkpoint": "every 3 units — auto-triggered by hook",
+  "enforcement_hooks_active": [
+    "physics agent",
+    "wiring agent",
+    "constants checker",
+    "stub detector",
+    "test quality",
+    "forge-triple gate",
+    "session audit agent"
+  ]
+}

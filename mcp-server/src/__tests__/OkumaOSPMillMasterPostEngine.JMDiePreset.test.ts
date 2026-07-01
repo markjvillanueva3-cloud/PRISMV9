@@ -49,7 +49,7 @@ const JM_DIE_WORK_OFFSET = 15;
 const JM_DIE_FAMILY = "P300";
 const JM_DIE_TLC_MODE = "G56_HA";
 const JM_DIE_NURBS_CODE = "G131";
-const JM_DIE_TCP_MODE = "G169_G170";
+const JM_DIE_TCP_MODE = "G169_G170"; // Okuma-native TCP on/off (.cps:47/515 -- G169 on, G170 off)
 const JM_DIE_N_PAD = 4;
 
 // ---------------------------------------------------------------------------

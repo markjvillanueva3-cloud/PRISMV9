@@ -1,0 +1,160 @@
+{
+  "id": "EIGC-MS5",
+  "version": "1.0.0",
+  "title": "Reconcile Roadmap Truth After Code Truth",
+  "brief": "Compare CAMX-MS10, L0-P2-MS1, L1-P2-MS1, SYS-MS4 milestone states to the repaired codebase. Update milestone JSONs to reflect actual state: complete, partial, implemented-not-hardened, or planned-only.",
+  "created_at": "2026-03-25T14:30:00Z",
+  "created_by": "claude-opus-4.6",
+  "track": "EIGC",
+  "track_name": "Engine Integrity Gap Closure",
+  "status": "not_started",
+  "phases": [
+    {
+      "id": "P0",
+      "title": "Roadmap Reconciliation",
+      "sessions": "1",
+      "units": [
+        {
+          "id": "P0-U01",
+          "title": "Compare 4 milestone files to repaired code",
+          "effort": 50,
+          "dependencies": [],
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit"
+          ],
+          "description": "Compare 4 milestone files to repaired code — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P0-U02",
+          "title": "Update milestone states and wording",
+          "effort": 40,
+          "dependencies": [
+            "P0-U01"
+          ],
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit"
+          ],
+          "description": "Update milestone states and wording — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P0-U03",
+          "title": "Save drift evidence to state/EIGC-MS5/",
+          "effort": 30,
+          "dependencies": [
+            "P0-U02"
+          ],
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit"
+          ],
+          "description": "Save drift evidence to state/EIGC-MS5/ — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        }
+      ]
+    }
+  ],
+  "dependencies": [
+    "EIGC-MS4"
+  ],
+  "exit_conditions": [
+    "No scoped milestone file overstates or understates actual implementation state"
+  ],
+  "smart_config": {
+    "role": "implementer + reviewer",
+    "model": "sonnet",
+    "effort": "HIGH",
+    "context_budget": "65%"
+  },
+  "mcp_lifecycle": {
+    "session_start": [
+      "prism_session:context_boot",
+      "prism_session:dispatcher_map",
+      "prism_session:memory_recall",
+      "prism_session:system_snapshot",
+      "prism_session:action_search"
+    ],
+    "during_work": [
+      "prism_session:auto_checkpoint",
+      "prism_session:tool_route_best",
+      "prism_session:wip_capture"
+    ],
+    "session_end": [
+      "prism_session:memory_save",
+      "prism_session:system_snapshot",
+      "prism_session:checkpoint_enhanced"
+    ]
+  },
+  "forge_triple": {
+    "protective_hook": "eigc-ms5-gate",
+    "mcp_action": "prism_eigc:eigc_ms5_run",
+    "skill_command": "/eigc-ms5",
+    "ownership": "DECLARED — BUILT in terminal unit of this milestone"
+  },
+  "feature_cascade": {
+    "new_hooks": [
+      "eigc-ms5-gate"
+    ],
+    "new_actions": [
+      "eigc_ms5_run"
+    ],
+    "new_skills": [
+      "/eigc-ms5"
+    ],
+    "available_to": [
+      "downstream CAMX milestones",
+      "prism app consumers"
+    ]
+  },
+  "knowledge_sources": {
+    "engines": [
+      "ENGINE_DIGEST.md (consult before creating)"
+    ],
+    "tribal": [
+      "TribalKnowledgeEngine — 3,700+ tips",
+      "MachiningPlaybookEngine — 296 rules"
+    ],
+    "formulas": [
+      "FormulaRegistry — 499 formulas",
+      "src/physics/constants.ts — canonical"
+    ],
+    "reference": [
+      "EXTERNAL-REFERENCE-PROGRAMS-INDEX.md",
+      "MaterialRegistry",
+      "MachineRegistry",
+      "ToolCatalogEngine (95,608 tools)"
+    ]
+  },
+  "intent": "Compare CAMX-MS10, L0-P2-MS1, L1-P2-MS1, SYS-MS4 milestone states to the repaired codebase. Update milestone JSONs to reflect actual state: complete, partial, implemented-not-hardened, or planned-only.",
+  "compact_checkpoint": "every 3 units — auto-triggered by hook",
+  "enforcement_hooks_active": [
+    "physics agent",
+    "wiring agent",
+    "constants checker",
+    "stub detector",
+    "test quality",
+    "forge-triple gate",
+    "session audit agent"
+  ]
+}

@@ -40,7 +40,7 @@ export const MACHINE_CAD_SURFACE_MANIFEST: MachineCadSurfaceManifestEntry[] = [
       { kind: 'text', value: 'Photos / scans', exact: false },
     ],
     capabilitySignals: [
-      { kind: 'text', value: 'Design in PRISM', exact: false },
+      { kind: 'text', value: 'Design in Kienzle', exact: false },
       { kind: 'text', value: 'Open Shop Floor prove-out', exact: false },
       { kind: 'text', value: 'Sync staged files to live packet', exact: false },
     ],

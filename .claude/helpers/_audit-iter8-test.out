@@ -1,0 +1,135 @@
+TAP version 13
+# Subtest: extractMcpActionRefs: single match
+ok 1 - extractMcpActionRefs: single match
+  ---
+  duration_ms: 1.6921
+  ...
+# Subtest: extractMcpActionRefs: multiple unique matches dedup'd
+ok 2 - extractMcpActionRefs: multiple unique matches dedup'd
+  ---
+  duration_ms: 0.174
+  ...
+# Subtest: extractMcpActionRefs: no matches → empty array
+ok 3 - extractMcpActionRefs: no matches → empty array
+  ---
+  duration_ms: 0.0951
+  ...
+# Subtest: extractMcpActionRefs: ignores word boundaries (no fragment matches)
+ok 4 - extractMcpActionRefs: ignores word boundaries (no fragment matches)
+  ---
+  duration_ms: 0.0917
+  ...
+# Subtest: extractMcpActionRefs: non-string input returns []
+ok 5 - extractMcpActionRefs: non-string input returns []
+  ---
+  duration_ms: 0.1657
+  ...
+# Subtest: extractMcpActionRefs: empty string returns []
+ok 6 - extractMcpActionRefs: empty string returns []
+  ---
+  duration_ms: 0.0962
+  ...
+# Subtest: findUnknownActions: returns only unknowns
+ok 7 - findUnknownActions: returns only unknowns
+  ---
+  duration_ms: 0.1932
+  ...
+# Subtest: findUnknownActions: empty input returns []
+ok 8 - findUnknownActions: empty input returns []
+  ---
+  duration_ms: 0.0909
+  ...
+# Subtest: findUnknownActions: non-array returns []
+ok 9 - findUnknownActions: non-array returns []
+  ---
+  duration_ms: 0.3035
+  ...
+# Subtest: findUnknownActions: custom knownSet overrides default
+ok 10 - findUnknownActions: custom knownSet overrides default
+  ---
+  duration_ms: 0.3615
+  ...
+# Subtest: KNOWN_REAL_MCP_ACTIONS: non-empty + every entry well-shaped
+ok 11 - KNOWN_REAL_MCP_ACTIONS: non-empty + every entry well-shaped
+  ---
+  duration_ms: 0.2307
+  ...
+# Subtest: KNOWN_REAL_MCP_ACTIONS: does NOT contain the iter5 fakes (regression guard)
+ok 12 - KNOWN_REAL_MCP_ACTIONS: does NOT contain the iter5 fakes (regression guard)
+  ---
+  duration_ms: 0.1065
+  ...
+# Subtest: dispatcherNameToPrefix: devDispatcher.ts → prism_dev
+ok 13 - dispatcherNameToPrefix: devDispatcher.ts → prism_dev
+  ---
+  duration_ms: 0.1232
+  ...
+# Subtest: dispatcherNameToPrefix: sessionDispatcher.ts → prism_session
+ok 14 - dispatcherNameToPrefix: sessionDispatcher.ts → prism_session
+  ---
+  duration_ms: 0.6378
+  ...
+# Subtest: dispatcherNameToPrefix: camDispatcher.ts → prism_cam
+ok 15 - dispatcherNameToPrefix: camDispatcher.ts → prism_cam
+  ---
+  duration_ms: 0.0724
+  ...
+# Subtest: dispatcherNameToPrefix: mixed-case still lowercases the prefix
+ok 16 - dispatcherNameToPrefix: mixed-case still lowercases the prefix
+  ---
+  duration_ms: 0.055
+  ...
+# Subtest: dispatcherNameToPrefix: non-Dispatcher file returns null
+ok 17 - dispatcherNameToPrefix: non-Dispatcher file returns null
+  ---
+  duration_ms: 0.0546
+  ...
+# Subtest: dispatcherNameToPrefix: null/non-string returns null
+ok 18 - dispatcherNameToPrefix: null/non-string returns null
+  ---
+  duration_ms: 0.067
+  ...
+# Subtest: extractActionsFromDispatcherSource: extracts case statements with prefix
+ok 19 - extractActionsFromDispatcherSource: extracts case statements with prefix
+  ---
+  duration_ms: 0.2059
+  ...
+# Subtest: extractActionsFromDispatcherSource: dedup duplicate cases
+ok 20 - extractActionsFromDispatcherSource: dedup duplicate cases
+  ---
+  duration_ms: 0.1165
+  ...
+# Subtest: extractActionsFromDispatcherSource: non-Dispatcher filename returns []
+ok 21 - extractActionsFromDispatcherSource: non-Dispatcher filename returns []
+  ---
+  duration_ms: 0.153
+  ...
+# Subtest: extractActionsFromDispatcherSource: empty/non-string content returns []
+ok 22 - extractActionsFromDispatcherSource: empty/non-string content returns []
+  ---
+  duration_ms: 0.078
+  ...
+# Subtest: extractActionsFromDispatcherSource: ignores cases with non-action shapes
+ok 23 - extractActionsFromDispatcherSource: ignores cases with non-action shapes
+  ---
+  duration_ms: 0.0768
+  ...
+# Subtest: MCP_ACTION_RE: matches lowercase prism_*:* tokens only
+ok 24 - MCP_ACTION_RE: matches lowercase prism_*:* tokens only
+  ---
+  duration_ms: 0.0655
+  ...
+# Subtest: MCP_ACTION_RE: does not match prism prefix without colon
+ok 25 - MCP_ACTION_RE: does not match prism prefix without colon
+  ---
+  duration_ms: 0.0545
+  ...
+1..25
+# tests 25
+# suites 0
+# pass 25
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 102.7026

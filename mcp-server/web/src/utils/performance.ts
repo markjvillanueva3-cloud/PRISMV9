@@ -214,7 +214,12 @@ export function requestIdleCallback(
   callback: IdleRequestCallback,
   options?: IdleRequestOptions
 ): number {
-  if ('requestIdleCallback' in window) {
+  // typeof guard, not `'requestIdleCallback' in window`: the DOM lib types
+  // requestIdleCallback as a required Window member, so the `in` check makes TS
+  // treat the fallback branch as unreachable -> `window` narrows to `never` and
+  // window.setTimeout below fails (TS2339). A runtime typeof check is the correct
+  // polyfill guard (older browsers lack it) and keeps `window` typed as Window.
+  if (typeof window.requestIdleCallback === 'function') {
     return window.requestIdleCallback(callback, options);
   }
 

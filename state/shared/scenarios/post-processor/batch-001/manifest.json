@@ -1,0 +1,103 @@
+{
+  "schemaVersion": "1.0.0",
+  "batchId": "001",
+  "generatedAt": "2026-05-25T00:00:26.729Z",
+  "generator": "generate-post-processor-scenarios.mjs",
+  "seed": 42,
+  "target": 200,
+  "actual_count": 200,
+  "slot_owner": "india",
+  "milestone": "PRISM-LAUNCH-READINESS-MS0",
+  "unit": "P0-U06",
+  "controllers": [
+    "fanuc-30i",
+    "okuma-osp-p300",
+    "haas-ngc",
+    "heidenhain-itnc640",
+    "mitsubishi-m800"
+  ],
+  "coverage": {
+    "by_controller": {
+      "fanuc-30i": 40,
+      "okuma-osp-p300": 40,
+      "haas-ngc": 40,
+      "heidenhain-itnc640": 40,
+      "mitsubishi-m800": 40
+    },
+    "by_operation": {
+      "turning": 41,
+      "milling": 42,
+      "boring": 42,
+      "threading": 45,
+      "drilling": 30
+    },
+    "by_cycle": {
+      "thread-turn": 18,
+      "contour": 8,
+      "face": 4,
+      "rough-turn": 9,
+      "finish-turn": 12,
+      "bore": 12,
+      "tap-rigid": 8,
+      "pocket": 6,
+      "ream": 8,
+      "tap-floating": 13,
+      "slot": 8,
+      "thread-mill": 13,
+      "helical-bore": 9,
+      "drill": 6,
+      "groove": 4,
+      "bore-back": 8,
+      "drill-peck": 9,
+      "face-turn": 9,
+      "drill-deep": 8,
+      "spot-drill": 7,
+      "trochoidal": 7,
+      "bore-precision": 14
+    },
+    "by_axis_count": {
+      "3": 68,
+      "4": 67,
+      "5": 65
+    },
+    "by_material_group": {
+      "M": 32,
+      "S": 35,
+      "N": 42,
+      "P": 37,
+      "H": 25,
+      "K": 29
+    },
+    "by_envelope": {
+      "large": 47,
+      "small": 51,
+      "medium": 51,
+      "xl": 51
+    },
+    "by_dialect_feature": {
+      "probing": 49,
+      "sub-program": 58,
+      "wcs": 65,
+      "rigid-tap": 61,
+      "high-speed-mill": 57,
+      "tool-change": 60,
+      "canned-cycle": 63
+    },
+    "coverage_pct": {
+      "controller": 1,
+      "operation": 1,
+      "cycle": 0.9565217391304348,
+      "axis_count": 1,
+      "material": 1,
+      "envelope": 1,
+      "dialect_feature": 1
+    },
+    "composite_coverage": 0.9937888198757764
+  },
+  "safety": {
+    "tier": "shop_floor",
+    "omega_floor": 0.98,
+    "sx_floor": 0.98,
+    "validation_oracle": "prism_cam:master_post_generate"
+  }
+}

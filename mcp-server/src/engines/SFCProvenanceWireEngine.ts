@@ -1,4 +1,9 @@
-// WIRE-EXEMPT: Middleware engine called by SFC engines internally, not exposed via dispatcher
+// ORPHAN (2026-06-22 audit, U-SFC-WIRE-EXEMPT-AUDIT): the prior "called by SFC engines internally"
+// WIRE-EXEMPT was PHANTOM -- grep-verified that NO file imports sfcProvenanceWireEngine; every ref is a
+// reverse-direction metadata string (surfaces_into: ["SFCProvenanceWireEngine.*"]) or a doc comment,
+// never a real call. The keyword is removed so the unwired-engine audit surfaces this honestly. Real
+// wiring tracked as U-SFC-PROVENANCE-WIRE: the dispatcher-wired SFCMultiHypothesisRankerEngine should
+// call cite() to attach provenance to its ranking result.
 /**
  * SFCProvenanceWireEngine — U-PPG-SFC-03
  * =======================================

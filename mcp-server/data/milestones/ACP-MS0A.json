@@ -1,0 +1,59 @@
+{
+  "id": "ACP-MS0A",
+  "version": "1.0.0",
+  "title": "Automation Contract & Chain Schema",
+  "brief": "Define automation-chain JSON schema, event-to-chain mapping, command-to-chain mapping, downgrade/fail-closed behavior, telemetry event schema. Per-chain token budgets (entry router <500 tokens, coding chain <2K, product autopilot <5K).",
+  "created_at": "2026-03-25T14:30:00Z",
+  "created_by": "claude-opus-4.6",
+  "track": "ACP",
+  "track_name": "Automation Control Plane",
+  "status": "not_started",
+  "phases": [
+    {
+      "id": "P0",
+      "title": "Schema & Contract Definition",
+      "sessions": "2",
+      "units": [
+        {
+          "id": "P0-U01",
+          "title": "Define automation-chain JSON schema with chain-id, steps, triggers, and token-budget fields",
+          "effort": 60,
+          "dependencies": []
+        },
+        {
+          "id": "P0-U02",
+          "title": "Define event-to-chain mapping (hook events to automation chains) and command-to-chain mapping (slash commands to chains)",
+          "effort": 60,
+          "dependencies": ["P0-U01"]
+        },
+        {
+          "id": "P0-U03",
+          "title": "Define downgrade/fail-closed behavior rules per chain tier (silent degrade, user prompt, hard stop)",
+          "effort": 50,
+          "dependencies": ["P0-U01"]
+        },
+        {
+          "id": "P0-U04",
+          "title": "Define telemetry event schema (fire timestamp, chain-id, step-id, token cost, latency, outcome)",
+          "effort": 50,
+          "dependencies": ["P0-U01"]
+        },
+        {
+          "id": "P0-U05",
+          "title": "Define per-chain token budgets (entry router <500, coding chain <2K, product autopilot <5K) and budget enforcement contract",
+          "effort": 45,
+          "dependencies": ["P0-U01", "P0-U03"]
+        }
+      ]
+    }
+  ],
+  "dependencies": [],
+  "exit_conditions": [
+    "automation-chain JSON schema frozen and validated",
+    "Event-to-chain and command-to-chain mappings documented",
+    "Downgrade/fail-closed rules defined for all chain tiers",
+    "Telemetry event schema defined",
+    "Per-chain token budgets documented with enforcement rules"
+  ],
+  "spec_path": "docs/superpowers/specs/2026-03-25-mcp-automation-control-plane-roadmap-design.md"
+}

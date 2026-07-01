@@ -1,0 +1,220 @@
+/* ==========================================================================
+   PRISM iOS Theme Layer — quebec slot, 2026-06-09
+   Activates via <body data-theme="ios">. Loaded AFTER index.css (main.tsx
+   import order) so it wins the cascade, mirroring the .prism-dark pattern.
+   Doctrine: keeps the 5 status-color SEMANTICS (safety-critical) but
+   re-presents them as iOS system colors per Apple HIG (dark appearance).
+   ========================================================================== */
+
+body[data-theme='ios'] {
+  /* -- iOS dark system palette ------------------------------------------ */
+  --ios-tint: #0a84ff;              /* systemBlue (dark) — single app tint  */
+  --ios-bg: #000000;                /* systemBackground                     */
+  --ios-bg-secondary: #1c1c1e;      /* secondarySystemBackground            */
+  --ios-bg-tertiary: #2c2c2e;       /* tertiarySystemBackground             */
+  --ios-bg-grouped: #000000;        /* systemGroupedBackground              */
+  --ios-fill: rgba(120, 120, 128, 0.36);        /* systemFill               */
+  --ios-fill-secondary: rgba(120, 120, 128, 0.32);
+  --ios-material: rgba(28, 28, 30, 0.72);       /* thick material           */
+  --ios-material-thin: rgba(28, 28, 30, 0.55);
+  --ios-label: #ffffff;
+  --ios-label-secondary: rgba(235, 235, 245, 0.6);
+  --ios-label-tertiary: rgba(235, 235, 245, 0.3);
+  --ios-separator: rgba(84, 84, 88, 0.65);
+  --ios-separator-opaque: #38383a;
+  /* -- status remap: SEMANTICS preserved, presentation = iOS system ------ */
+  --ios-status-info: #64d2ff;       /* was cyan glow  -> systemCyan (dark)  */
+  --ios-status-pending: #bf5af2;    /* was violet     -> systemPurple       */
+  --ios-status-success: #30d158;    /* was emerald    -> systemGreen        */
+  --ios-status-warning: #ff9f0a;    /* was amber      -> systemOrange       */
+  --ios-status-error: #ff453a;      /* was red        -> systemRed          */
+  /* -- geometry & motion -------------------------------------------------- */
+  --ios-radius-control: 10px;       /* buttons, inputs, segmented           */
+  --ios-radius-card: 14px;          /* grouped-inset cells / cards          */
+  --ios-radius-sheet: 16px;         /* modals / sheets                      */
+  --ios-radius-capsule: 999px;
+  --ios-ease: cubic-bezier(0.32, 0.72, 0, 1);   /* Apple sheet curve        */
+  --ios-duration: 250ms;
+  --ios-shadow-card: 0 1px 2px rgba(0, 0, 0, 0.3);
+  --ios-shadow-sheet: 0 8px 40px rgba(0, 0, 0, 0.45);
+
+  /* -- base remap ---------------------------------------------------------- */
+  background: var(--ios-bg) !important;   /* kill HUD radial/linear gradient */
+  color: var(--ios-label);
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text',
+    'SF Pro Display', 'Helvetica Neue', system-ui, sans-serif;
+  letter-spacing: -0.01em;          /* SF Pro's optical default, not wide   */
+}
+
+/* Numerics / G-code keep monospace — SF Mono first (doctrine-compatible) */
+body[data-theme='ios'] .font-mono,
+body[data-theme='ios'] code,
+body[data-theme='ios'] pre {
+  font-family: ui-monospace, 'SF Mono', 'JetBrains Mono', Menlo, Consolas,
+    monospace;
+}
+
+/* THE big de-HUD move: neutralize 1,694 uppercase + 1,664 wide-tracking
+   instances at theme scope. iOS never letterspaces body chrome. */
+body[data-theme='ios'] .uppercase,
+body[data-theme='ios'] [class*='tracking-'] {
+  text-transform: none !important;
+  letter-spacing: -0.01em !important;
+}
+
+/* Calculator Studio scope also forces uppercase via element rules — undo */
+body[data-theme='ios'] .calculator-workspace-root,
+body[data-theme='ios'] .calculator-workspace-root [data-guide-panel-body='true'] :is(p, label, legend, figcaption, th, td, li, dt, dd, div, span, button, select) {
+  text-transform: none !important;
+}
+
+/* -- glow cards -> iOS grouped-inset cards (semantics via tint stripe) --- */
+body[data-theme='ios'] .prism-glow-cyan,
+body[data-theme='ios'] .prism-glow-violet,
+body[data-theme='ios'] .prism-glow-emerald,
+body[data-theme='ios'] .prism-glow-amber,
+body[data-theme='ios'] .prism-glow-red {
+  background: var(--ios-bg-secondary) !important;
+  border: 1px solid transparent !important;
+  border-radius: var(--ios-radius-card) !important;
+  box-shadow: var(--ios-shadow-card) !important;   /* no glow */
+  position: relative;
+}
+body[data-theme='ios'] [class*='prism-glow-']::after {
+  content: '';
+  position: absolute;
+  left: 0; top: 10px; bottom: 10px;
+  width: 4px;
+  border-radius: 999px;
+  background: var(--ios-status-info);
+}
+body[data-theme='ios'] .prism-glow-violet::after { background: var(--ios-status-pending); }
+body[data-theme='ios'] .prism-glow-emerald::after { background: var(--ios-status-success); }
+body[data-theme='ios'] .prism-glow-amber::after { background: var(--ios-status-warning); }
+body[data-theme='ios'] .prism-glow-red::after { background: var(--ios-status-error); }
+
+/* -- chips -> iOS tinted capsule badges --------------------------------- */
+body[data-theme='ios'] .prism-chip {
+  border-radius: var(--ios-radius-capsule) !important;
+  border: none !important;
+  font-size: 0.75rem !important;
+  font-weight: 600 !important;
+  letter-spacing: -0.01em !important;
+  text-transform: none !important;
+  padding: 0.22rem 0.62rem !important;
+  background: var(--ios-fill) !important;
+}
+
+/* -- spectrum progress -> flat single-tint UIProgressView ---------------- */
+body[data-theme='ios'] .prism-spectrum-fill {
+  background: var(--ios-tint) !important;   /* no rainbow gradient */
+  border-radius: var(--ios-radius-capsule) !important;
+}
+
+/* -- LED sweep: gone. iOS does not blink at you. ------------------------- */
+body[data-theme='ios'] .prism-led-sweep,
+body[data-theme='ios'] [class*='led-sweep'] {
+  animation: none !important;
+  background-image: none !important;
+}
+body[data-theme='ios'] .calculator-workspace-root [class*='brand-hero-shell']::before,
+body[data-theme='ios'] .calculator-workspace-root [class*='brand-hero-shell']::after,
+body[data-theme='ios'] .calculator-workspace-root [class*='focus-card']::before {
+  display: none !important;   /* animated borders + LED rails off */
+}
+
+/* -- inputs -> iOS inset filled fields (no visible border) --------------- */
+body[data-theme='ios'] input,
+body[data-theme='ios'] select,
+body[data-theme='ios'] textarea {
+  background-color: var(--ios-bg-tertiary) !important;
+  border-color: transparent !important;
+  border-radius: var(--ios-radius-control) !important;
+  color: var(--ios-label) !important;
+  font-size: max(16px, 1em);   /* prevent iOS zoom-on-focus */
+  transition: box-shadow var(--ios-duration) var(--ios-ease);
+}
+body[data-theme='ios'] input:focus,
+body[data-theme='ios'] select:focus,
+body[data-theme='ios'] textarea:focus {
+  outline: none !important;
+  box-shadow: 0 0 0 3px rgba(10, 132, 255, 0.35) !important;
+}
+
+/* -- buttons -> iOS press physics (scale, not glow/brightness) ----------- */
+body[data-theme='ios'] button:not(:disabled) {
+  border-radius: var(--ios-radius-control);
+  transition: transform var(--ios-duration) var(--ios-ease),
+    opacity var(--ios-duration) var(--ios-ease),
+    background-color 160ms ease;
+  min-height: 44px;   /* HIG tap target */
+}
+body[data-theme='ios'] button:not(:disabled):active {
+  transform: scale(0.96);
+  opacity: 0.8;
+  filter: none;
+}
+
+/* Dense data tables exempt from 44px floor (desktop spreadsheet rows) */
+body[data-theme='ios'] table button,
+body[data-theme='ios'] [role='grid'] button {
+  min-height: 32px;
+}
+
+/* -- dialogs -> iOS sheets on frosted scrim ------------------------------ */
+body[data-theme='ios'] div:has(> [role='dialog'][aria-modal='true']) {
+  background-color: rgba(0, 0, 0, 0.4) !important;
+  backdrop-filter: blur(8px) !important;
+}
+body[data-theme='ios'] [role='dialog'][aria-modal='true'] {
+  background: var(--ios-material) !important;
+  backdrop-filter: saturate(180%) blur(20px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  border-radius: var(--ios-radius-sheet) !important;
+  box-shadow: var(--ios-shadow-sheet) !important;
+}
+
+/* -- nav / top bars -> iOS chrome material ------------------------------- */
+body[data-theme='ios'] nav,
+body[data-theme='ios'] header {
+  background: var(--ios-material-thin);
+  backdrop-filter: saturate(180%) blur(20px);
+  border-bottom: 1px solid var(--ios-separator);
+}
+
+/* -- generic card surfaces: hairlines + grouped background --------------- */
+body[data-theme='ios'] .border-white\/10,
+body[data-theme='ios'] [class*='border-slate-'] {
+  border-color: var(--ios-separator) !important;
+}
+
+/* Near-black HUD card fills -> iOS secondary background */
+body[data-theme='ios'] [class*='bg-[rgba(2,6,23'],
+body[data-theme='ios'] .bg-slate-900,
+body[data-theme='ios'] .bg-slate-950,
+body[data-theme='ios'] [class*='bg-slate-900/'],
+body[data-theme='ios'] [class*='bg-slate-950/'] {
+  background: var(--ios-bg-secondary) !important;
+}
+
+/* Text hierarchy -> iOS label tiers */
+body[data-theme='ios'] .text-slate-400,
+body[data-theme='ios'] .text-slate-500 {
+  color: var(--ios-label-secondary) !important;
+}
+body[data-theme='ios'] .text-slate-600,
+body[data-theme='ios'] .text-slate-700 {
+  color: var(--ios-label-tertiary) !important;
+}
+
+/* Status text/border accents -> iOS system colors (semantic, scoped) */
+body[data-theme='ios'] [class*='text-cyan-'] { color: var(--ios-status-info) !important; }
+body[data-theme='ios'] [class*='text-violet-'] { color: var(--ios-status-pending) !important; }
+body[data-theme='ios'] [class*='text-emerald-'] { color: var(--ios-status-success) !important; }
+body[data-theme='ios'] [class*='text-amber-'] { color: var(--ios-status-warning) !important; }
+body[data-theme='ios'] [class*='text-red-'] { color: var(--ios-status-error) !important; }
+
+/* Respect reduced motion globally */
+@media (prefers-reduced-motion: reduce) {
+  body[data-theme='ios'] button:not(:disabled):active { transform: none; }
+}

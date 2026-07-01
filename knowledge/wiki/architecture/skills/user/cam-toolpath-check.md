@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `cam-toolpath-check` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/cam-toolpath-check.md` |
+| Source | `C:/Users/wompu/.claude/commands/cam-toolpath-check.md` |
 | Model | default |
 | Tags | _(none)_ |
 

@@ -19,6 +19,14 @@ import { setTimeout as sleep } from "node:timers/promises";
 export const DEFAULT_MODEL = "nomic-embed-text";
 export const EMBEDDING_DIM = 768;
 export const DEFAULT_BATCH_SIZE = 32;
+// Default = 1 → exact legacy sequential behavior (deterministic call order, all
+// pre-existing tests unchanged). Consumers opt into GPU saturation by passing
+// concurrency>1 (e.g. from PRISM_EMBED_CONCURRENCY). Empirically on an RTX PRO
+// 6000 Blackwell the 137M nomic-embed model is GPU-bound at ~3.3 embeds/s when
+// issued one-at-a-time but ~51 embeds/s at concurrency 16 (15.3× — vectors
+// byte-identical, min cosine 1.0). Concurrency is the right lever: the backend
+// is idle, not saturated. See [[reference_blackwell_embed_concurrency_2026_06_03]].
+export const DEFAULT_CONCURRENCY = 1;
 export const DEFAULT_MAX_RETRIES = 3;
 export const DEFAULT_RETRY_BASE_MS = 500;
 export const DEFAULT_RETRY_MAX_MS = 8000;
@@ -295,6 +303,11 @@ export async function embedWithRetry(text, opts = {}) {
  * non-empty failures array — caller decides whether to retry later.
  * Duplicate ids in input: keeps first occurrence, records duplicate as failure
  * with reason="duplicate-id".
+ *
+ * opts.concurrency (default 1): number of embed requests in flight at once. 1 =
+ * legacy sequential, deterministic request order. >1 = bounded worker pool that
+ * saturates an idle GPU backend (~15× on an RTX PRO 6000 Blackwell) while
+ * preserving input-order vectors[]/failures[]. Vectors are identical either way.
  */
 export async function embedBatch(items, opts = {}) {
   if (!Array.isArray(items)) {
@@ -304,10 +317,14 @@ export async function embedBatch(items, opts = {}) {
     batchSize = DEFAULT_BATCH_SIZE,
     onProgress = null,
     skipIds: skipIdsRaw = null,
+    concurrency = DEFAULT_CONCURRENCY,
     ...rest
   } = opts;
   if (!Number.isInteger(batchSize) || batchSize < 1) {
     throw new RangeError(`embedBatch: batchSize must be positive integer, got ${batchSize}`);
+  }
+  if (!Number.isInteger(concurrency) || concurrency < 1) {
+    throw new RangeError(`embedBatch: concurrency must be positive integer, got ${concurrency}`);
   }
   // Strict skipIds shape — accept Set or Array only, reject anything else
   // (a caller passing `{ has: () => true }` would silently skip every item).
@@ -360,30 +377,71 @@ export async function embedBatch(items, opts = {}) {
     normalized.push(it);
   }
 
-  // Process in batches of batchSize. Sequential within a batch — Ollama's
-  // single-process model means parallel requests stall on the same backend.
-  for (let i = 0; i < normalized.length; i += batchSize) {
-    const slice = normalized.slice(i, i + batchSize);
-    for (const item of slice) {
-      const r = await embedWithRetry(item.text, rest);
-      if (r.ok) {
+  // Cumulative progress emitter — identical payload shape across the sequential
+  // and concurrent paths so consumers/tests see one contract. Reads the live
+  // counters at call time (closure over the mutated let/array bindings).
+  const emitProgress = () => {
+    if (typeof onProgress !== "function") return;
+    try {
+      onProgress({
+        processed: totalProcessed,
+        total: normalized.length,
+        succeeded: vectors.length,
+        embedFailed: failures.length - preLoopFailureCount,
+        malformedOrDuplicate: preLoopFailureCount,
+      });
+    } catch { /* progress callback errors are non-fatal */ }
+  };
+
+  if (concurrency <= 1) {
+    // Sequential path (legacy default) — one embed request in flight at a time,
+    // deterministic request order. Process in batches of batchSize.
+    for (let i = 0; i < normalized.length; i += batchSize) {
+      const slice = normalized.slice(i, i + batchSize);
+      for (const item of slice) {
+        const r = await embedWithRetry(item.text, rest);
+        if (r.ok) {
+          vectors.push({ id: item.id, vector: r.vector });
+        } else {
+          failures.push({ id: item.id, error: r.error, attempts: r.attempts });
+        }
+        totalProcessed++;
+      }
+      emitProgress();
+    }
+  } else {
+    // Concurrent path — up to `concurrency` embed requests in flight via a
+    // bounded worker pool. The embed backend is GPU-idle when fed one request at
+    // a time; a small pool saturates it for a large throughput gain with
+    // byte-identical vectors. Results land in order-preserving slots so
+    // vectors[]/failures[] ordering matches the sequential path (input order).
+    // NOTE: request *issue* order is non-deterministic under concurrency>1 —
+    // callers that depend on issue order keep the default (concurrency=1).
+    const slots = new Array(normalized.length);
+    let nextIndex = 0;
+    const worker = async () => {
+      for (;;) {
+        const i = nextIndex++;
+        if (i >= normalized.length) return;
+        slots[i] = await embedWithRetry(normalized[i].text, rest);
+      }
+    };
+    const poolSize = Math.min(concurrency, normalized.length);
+    await Promise.all(Array.from({ length: poolSize }, () => worker()));
+    // Reduce in input order; fire progress on the same batchSize cadence as the
+    // sequential path so onProgress consumers see equivalent tick spacing.
+    for (let i = 0; i < normalized.length; i++) {
+      const item = normalized[i];
+      const r = slots[i];
+      if (r && r.ok) {
         vectors.push({ id: item.id, vector: r.vector });
       } else {
-        failures.push({ id: item.id, error: r.error, attempts: r.attempts });
+        failures.push({ id: item.id, error: r ? r.error : "no-result", attempts: r ? r.attempts : 0 });
       }
       totalProcessed++;
+      if (totalProcessed % batchSize === 0) emitProgress();
     }
-    if (typeof onProgress === "function") {
-      try {
-        onProgress({
-          processed: totalProcessed,
-          total: normalized.length,
-          succeeded: vectors.length,
-          embedFailed: failures.length - preLoopFailureCount,
-          malformedOrDuplicate: preLoopFailureCount,
-        });
-      } catch { /* progress callback errors are non-fatal */ }
-    }
+    if (totalProcessed % batchSize !== 0) emitProgress();
   }
 
   const elapsed = Date.now() - startedAt;

@@ -33,8 +33,15 @@
 //
 // Concurrency knob: PRISM_STOP_REGRESSION_CONCURRENCY (default 6, 0=unbounded).
 // Disable: PRISM_STOP_REGRESSION_BUNDLE=0 (then restore the 10 originals as
-// individual Stop entries — never just leave them unguarded).
-// NOT WIRED YET — isolation-tested only; wiring is a separate reviewed step.
+// individual Stop entries -- never just leave them unguarded).
+// WIRED: a single Stop entry in settings.json is this bundle; the 10 originals
+// were removed as individual Stop entries (0 refs each) -- this bundle is their
+// SOLE runner. Do NOT re-add the individuals or they double-run every Stop.
+// (NOTE: a sub-hook may individually time out under heavy shared-tree/fork load
+// -- e.g. stop_on_failing_tests/stop_on_broken_imports run vitest/tsc; the bundle
+// then fail-OPENs that gate LOUDLY per the SAFETY SEMANTICS above. That surfaced
+// "N gate(s) NOT evaluated" is load-induced, not a bundle defect. See memory
+// reference_stop_regression_bundle_timeout_starvation_2026_06_09.)
 
 import { runHook, readStdin, emit } from "./lib/hook-runner.mjs";
 

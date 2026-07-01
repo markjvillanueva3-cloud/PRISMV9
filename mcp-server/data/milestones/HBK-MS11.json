@@ -1,0 +1,47 @@
+{
+  "id": "HBK-MS11",
+  "version": "1.0.0",
+  "title": "Consumer Matrix + SVI Integration",
+  "brief": "Register handbook intelligence as an SVI dimension, build the consumer matrix documenting all handbook data flows across pipelines, and verify end-to-end coverage. Machines without ingested handbooks show as knowledge gaps in SVI. Track handbook-sourced improvement in physics accuracy across all consumers.",
+  "created_at": "2026-03-28T19:00:00Z",
+  "created_by": "claude-opus-4.6",
+  "track": "HBK",
+  "track_name": "Machine Handbook Intelligence",
+  "status": "complete",
+  "completed_at": "2026-03-29T18:35:00Z",
+  "completed_by": "claude-opus-4.6",
+  "phases": [
+    {
+      "id": "P0",
+      "title": "Consumer Matrix + SVI",
+      "sessions": "1-2",
+      "units": [
+        {
+          "id": "P0-U01",
+          "title": "Build handbook consumer matrix: document every engine, pipeline, hook, and skill that consumes handbook data with data flow direction, section types consumed, and fallback behavior when handbook is absent",
+          "effort": 70,
+          "dependencies": []
+        },
+        {
+          "id": "P0-U02",
+          "title": "Register handbook coverage as SVI dimension in SystemVariabilityIndexEngine: machines without ingested handbooks contribute to SVI gap score, track per-machine handbook completeness (0-100% across 10 section types)",
+          "effort": 75,
+          "dependencies": ["P0-U01"]
+        },
+        {
+          "id": "P0-U03",
+          "title": "Build end-to-end integration test: ingest a handbook, verify data flows through physics pipeline, business pipeline, safety pipeline, and appears in SVI report with correct coverage metrics",
+          "effort": 80,
+          "dependencies": ["P0-U01", "P0-U02"]
+        }
+      ]
+    }
+  ],
+  "dependencies": ["HBK-MS7", "HBK-MS8", "HBK-MS9", "HBK-MS10"],
+  "exit_conditions": [
+    "Consumer matrix documents all handbook data consumers with section types and fallback behavior",
+    "SVI reports handbook coverage per machine and contributes to overall system variability score",
+    "End-to-end test proves handbook data flows from ingestion through all consuming pipelines to SVI reporting",
+    "Machines without handbooks are visibly flagged as knowledge gaps in SVI dashboard"
+  ]
+}

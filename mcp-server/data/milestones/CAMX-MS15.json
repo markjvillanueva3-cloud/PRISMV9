@@ -1,0 +1,313 @@
+{
+  "id": "CAMX-MS15",
+  "version": "7.0.0",
+  "title": "Self-Learning Strategy Optimizer",
+  "brief": "Track actual vs predicted performance. Bayesian strategy ranking updates. Anomaly detection. Fleet learning. Strategy evolution. Physics calibration.",
+  "created_at": "2026-03-22T14:54:56Z",
+  "created_by": "claude-opus-4.6",
+  "phases": [
+    {
+      "id": "P0",
+      "title": "Self-Learning System",
+      "units": [
+        {
+          "id": "U-CAMX01",
+          "title": "StrategyPerformanceTrackerEngine",
+          "description": "Track actual vs predicted: cycle time, tool life, Ra, force, power.",
+          "exit_conditions": [
+            "Performance tracking works",
+            "Prediction accuracy computed",
+            "Replaces vague criteria with measurable"
+          ],
+          "status": "complete",
+          "legacy_id": "U01",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-CAMX02",
+          "title": "StrategyRankingUpdateEngine",
+          "description": "Bayesian updating of rankings from results. Wilson score CI.",
+          "exit_conditions": [
+            "Bayesian updating works",
+            "Per-material/tool calibration",
+            "Replaces vague criteria with measurable"
+          ],
+          "status": "complete",
+          "legacy_id": "U02",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-CAMX03",
+          "title": "AnomalyDetectionEngine",
+          "description": "Mahalanobis distance anomaly detection. Auto-adjust when actual deviates.",
+          "exit_conditions": [
+            "Anomalies detected",
+            "Auto-adjustment",
+            "Replaces vague criteria with measurable"
+          ],
+          "status": "complete",
+          "legacy_id": "U03",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-CAMX04",
+          "title": "FleetLearningStrategyEngine",
+          "description": "Aggregate across machines/shops/users. Hierarchical Bayesian shrinkage.",
+          "exit_conditions": [
+            "Fleet learning works",
+            "Transfer learning",
+            "Replaces vague criteria with measurable"
+          ],
+          "status": "complete",
+          "legacy_id": "U04",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-CAMX05",
+          "title": "StrategyEvolutionEngine",
+          "description": "Genetic algorithm for strategy parameter exploration.",
+          "exit_conditions": [
+            "GA exploration works",
+            "Discovers better params",
+            "Replaces vague criteria with measurable"
+          ],
+          "status": "complete",
+          "legacy_id": "U05",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-CAMX06",
+          "title": "PredictionCalibrationEngine",
+          "description": "Continuously calibrate Kienzle kc1.1, Taylor C/n from measurements.",
+          "exit_conditions": [
+            "Auto-calibration works",
+            "Per-machine per-material",
+            "Replaces vague criteria with measurable"
+          ],
+          "status": "complete",
+          "legacy_id": "U06",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-CAMX07",
+          "title": "Dispatcher wiring",
+          "description": "6 actions. — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "exit_conditions": [
+            "6 actions wired",
+            "Build passes",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
+          ],
+          "status": "complete",
+          "legacy_id": "U07",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-CAMX08",
+          "title": "Tests",
+          "description": "30+ tests. — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "exit_conditions": [
+            "30+ tests pass",
+            "Tests pass: npx vitest run (min 10 cases for engine units)",
+            "Typecheck clean: npx tsc --noEmit on touched files"
+          ],
+          "status": "complete",
+          "legacy_id": "U08",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-CAMX09",
+          "title": "Wire SelfLearningCAMEngine into P2P",
+          "description": "Feed production results back to improve future programs.",
+          "exit_conditions": [
+            "Learning loop active",
+            "Proven recipes stored",
+            "Replaces vague criteria with measurable"
+          ],
+          "status": "complete",
+          "legacy_id": "U09",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-CAMX10",
+          "title": "Wire PhysicsAutoCalibrationEngine into SFO",
+          "description": "Auto-calibrate from actual force/life measurements.",
+          "exit_conditions": [
+            "Auto-calibration in SFO",
+            "Constants improve with data",
+            "Replaces vague criteria with measurable"
+          ],
+          "status": "complete",
+          "legacy_id": "U10",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-CAMX11",
+          "title": "Wire TransferLearningEngine",
+          "description": "Transfer physics from closest known material/tool for cold-start.",
+          "exit_conditions": [
+            "Transfer learning works",
+            "Reduces cold-start",
+            "Replaces vague criteria with measurable"
+          ],
+          "status": "complete",
+          "legacy_id": "U11",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-CAMX12",
+          "title": "Wire FeedbackPersistence + MLFeedback",
+          "description": "Persist all decisions+outcomes. Train gradient-boosted predictor.",
+          "exit_conditions": [
+            "Persistence active",
+            "ML predictor trained",
+            "Replaces vague criteria with measurable"
+          ],
+          "status": "complete",
+          "legacy_id": "U12",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        }
+      ]
+    }
+  ],
+  "status": "complete",
+  "completed_at": "2026-04-19T13:46:30Z",
+  "completed_units": 12,
+  "total_units": 12,
+  "closure_notes": "All 12 units covered: 6 core engines (StrategyPerformanceTracker, StrategyRankingUpdate, AnomalyDetection, FleetLearningStrategy, StrategyEvolution, PredictionCalibration) plus SelfLearningCAM, PhysicsAutoCalibration, TransferLearning, FeedbackPersistence; wired into camDispatcher; CAMX-MS15-SelfLearning.test.ts passes 35/35.",
+  "smart_config": {
+    "role": "implementer + reviewer",
+    "model": "sonnet",
+    "effort": "HIGH",
+    "context_budget": "65%"
+  },
+  "mcp_lifecycle": {
+    "session_start": [
+      "prism_session:context_boot",
+      "prism_session:dispatcher_map",
+      "prism_session:memory_recall",
+      "prism_session:system_snapshot",
+      "prism_session:action_search"
+    ],
+    "during_work": [
+      "prism_session:auto_checkpoint",
+      "prism_session:tool_route_best",
+      "prism_session:wip_capture"
+    ],
+    "session_end": [
+      "prism_session:memory_save",
+      "prism_session:system_snapshot",
+      "prism_session:checkpoint_enhanced"
+    ]
+  },
+  "forge_triple": {
+    "protective_hook": "camx-ms15-gate",
+    "mcp_action": "prism_camx:camx_ms15_run",
+    "skill_command": "/camx-ms15",
+    "ownership": "DECLARED — BUILT in terminal unit of this milestone"
+  },
+  "feature_cascade": {
+    "new_hooks": [
+      "camx-ms15-gate"
+    ],
+    "new_actions": [
+      "camx_ms15_run"
+    ],
+    "new_skills": [
+      "/camx-ms15"
+    ],
+    "available_to": [
+      "downstream CAMX milestones",
+      "prism app consumers"
+    ]
+  },
+  "knowledge_sources": {
+    "engines": [
+      "ENGINE_DIGEST.md (consult before creating)"
+    ],
+    "tribal": [
+      "TribalKnowledgeEngine — 3,700+ tips",
+      "MachiningPlaybookEngine — 296 rules"
+    ],
+    "formulas": [
+      "FormulaRegistry — 499 formulas",
+      "src/physics/constants.ts — canonical"
+    ],
+    "reference": [
+      "EXTERNAL-REFERENCE-PROGRAMS-INDEX.md",
+      "MaterialRegistry",
+      "MachineRegistry",
+      "ToolCatalogEngine (95,608 tools)"
+    ]
+  },
+  "intent": "Track actual vs predicted performance. Bayesian strategy ranking updates. Anomaly detection. Fleet learning. Strategy evolution. Physics calibration.",
+  "compact_checkpoint": "every 3 units — auto-triggered by hook",
+  "enforcement_hooks_active": [
+    "physics agent",
+    "wiring agent",
+    "constants checker",
+    "stub detector",
+    "test quality",
+    "forge-triple gate",
+    "session audit agent"
+  ]
+}

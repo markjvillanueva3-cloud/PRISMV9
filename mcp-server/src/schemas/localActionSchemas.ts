@@ -27,6 +27,8 @@ export const LOCAL_ACTIONS = [
     "aggregate_hooks",
   "awareness_route",
   "suggest_commit",
+  // local_generate -- general-purpose Ollama prompt -> text, so ANY local-LLM call routes through MCP (LOCAL-LLM-MS1)
+  "local_generate",
   // DeepSeek V4 hybrid backend actions (LOCAL-LLM-MS0 Phase 1)
   "execute_deepseek",
   "deepseek_health",
@@ -269,6 +271,36 @@ export const AggregateHooksOutputSchema = z.object({
   latencyMs: z.number().describe("Aggregation time in milliseconds"),
 });
 
+// local_generate -- general-purpose prompt -> text via a local Ollama model.
+// This is the action that lets the miner / ask-ollama / any caller route an
+// arbitrary local-LLM generation THROUGH the MCP server (LOCAL-LLM-MS1).
+export const LocalGenerateInputSchema = z.object({
+  prompt: z.string().min(1).describe("User prompt to send to the local model"),
+  model: z.string().min(1).default("gpt-oss:20b")
+    .describe("Ollama model tag (must be pulled; e.g. gpt-oss:20b, gpt-oss:120b, qwen2.5-coder:32b)"),
+  system: z.string().default("You are a concise, accurate assistant.")
+    .describe("System prompt for context"),
+  temperature: z.number().min(0).max(2).default(0.2).describe("Sampling temperature"),
+  maxTokens: z.number().int().min(1).max(32768).default(2048)
+    .describe("Max output tokens (Ollama num_predict)"),
+  numCtx: z.number().int().min(256).max(131072).optional()
+    .describe("Ollama context window (num_ctx). Omit to use the model's default; set higher (e.g. 32768) for large-context tasks like transcript mining that would otherwise truncate"),
+  timeoutMs: z.number().int().min(1000).max(600000).default(120000)
+    .describe("Request timeout in milliseconds"),
+});
+
+export const LocalGenerateOutputSchema = z.object({
+  success: z.boolean().describe("True if the model returned content"),
+  content: z.string().describe("Generated text (empty string on failure)"),
+  error: z.string().optional()
+    .describe("Failure cause (Ollama HTTP/network error); present only when success is false"),
+  model: z.string().describe("Model that produced the response"),
+  latencyMs: z.number().describe("Generation time in milliseconds"),
+  ollamaUsed: z.boolean()
+    .describe("Whether local Ollama served the request successfully (false on network OR HTTP error)"),
+  tokensSaved: z.number().describe("Approx Claude tokens saved by local inference (0 on failure)"),
+});
+
 // ============================================================================
 // DeepSeek V4 Hybrid Backend Schemas (LOCAL-LLM-MS0 Phase 1)
 // ============================================================================
@@ -417,6 +449,10 @@ export const ACTION_LOCAL_SCHEMAS = {
   aggregate_hooks: {
     input: AggregateHooksInputSchema,
     output: AggregateHooksOutputSchema,
+  },
+  local_generate: {
+    input: LocalGenerateInputSchema,
+    output: LocalGenerateOutputSchema,
   },
   // DeepSeek V4 hybrid backend
   execute_deepseek: {

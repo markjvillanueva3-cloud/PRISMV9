@@ -1,0 +1,592 @@
+{
+  "id": "ULT-MS4",
+  "version": "1.0.0",
+  "title": "External Sync + Intelligence Fabric",
+  "brief": "Connect the live shop system to E2, accounting, offline devices, and intelligence pipelines so PRISM becomes a durable bidirectional operating fabric rather than an isolated frontend shell.",
+  "created_at": "2026-03-27T18:40:00Z",
+  "created_by": "codex-rgs-forge-triple",
+  "phases": [
+    {
+      "id": "P1",
+      "title": "Connectors + Analytics Backbone",
+      "description": "Build sync, offline-queue, and analytics engines that keep PRISM aligned with ERP and financial systems while preserving live operational state.",
+      "sessions": "1-2",
+      "primary_role": "R6",
+      "primary_model": "sonnet-4.6",
+      "units": [
+        {
+          "id": "P1-U01",
+          "title": "E2 shop + accounting sync engines",
+          "phase": "P1",
+          "sequence": 1,
+          "role": "R6",
+          "role_name": "Integrator",
+          "model": "sonnet-4.6",
+          "effort": 88,
+          "tools": [
+            {
+              "tool": "prism_sp",
+              "action": "write_file"
+            },
+            {
+              "tool": "prism_bridge",
+              "action": "route_map"
+            }
+          ],
+          "entry_conditions": [
+            "Canonical shop-domain and workflow contracts are stable enough to map externally.",
+            "E2 and accounting sync boundaries plus ownership rules are documented."
+          ],
+          "exit_conditions": [
+            "Bidirectional E2 synchronization exists for jobs, labor, routing, and status snapshots.",
+            "Accounting sync exists for actual cost, labor, and operational-finance rollups.",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
+          ],
+          "rollback": "Disable the new connectors and fall back to manual or one-way exports if sync correctness is not ready.",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Build an E2 connector that maps PRISM canonical shop entities to ERP records with provenance and conflict metadata.",
+              "tool_calls": [
+                "prism_sp:write_file",
+                "prism_bridge:route_map"
+              ]
+            },
+            {
+              "number": 2,
+              "instruction": "Build accounting sync logic for labor, cost, variance, and work-in-process rollups with retry-safe writes.",
+              "tool_calls": [
+                "prism_sp:write_file"
+              ],
+              "validation": "ERP and accounting payloads can round-trip without losing canonical job, operation, or employee identity."
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "src/engines/E2ShopConnectorEngine.ts",
+              "type": "source",
+              "description": "Bidirectional sync engine between PRISM shop state and E2 ERP records.",
+              "line_count_est": 280
+            },
+            {
+              "path": "src/engines/AccountingSyncEngine.ts",
+              "type": "source",
+              "description": "Operational-finance sync engine for actual cost, labor, and variance data.",
+              "line_count_est": 220
+            }
+          ],
+          "estimated_minutes": 165,
+          "description": "E2 shop + accounting sync engines — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P1-U02",
+          "title": "Shop analytics + offline queue engines",
+          "phase": "P1",
+          "sequence": 2,
+          "role": "R2",
+          "role_name": "Implementer",
+          "model": "sonnet-4.6",
+          "effort": 84,
+          "dependencies": [
+            "P1-U01"
+          ],
+          "tools": [
+            {
+              "tool": "prism_sp",
+              "action": "write_file"
+            },
+            {
+              "tool": "prism_validate",
+              "action": "coverage"
+            }
+          ],
+          "entry_conditions": [
+            "External sync edges are defined and conflict semantics are known.",
+            "Operational analytics consumers and offline device requirements are documented."
+          ],
+          "exit_conditions": [
+            "A shop analytics engine turns live execution data into quote variance, throughput, downtime, and ROI signals.",
+            "An offline queue engine can buffer mobile or station mutations until connectivity resumes.",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
+          ],
+          "rollback": "Disable the analytics and offline queue engines and continue with online-only mutations if necessary.",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Build a shop analytics engine that fuses labor, quantity, route, shortage, and approval data into business intelligence signals.",
+              "tool_calls": [
+                "prism_sp:write_file",
+                "prism_validate:coverage"
+              ]
+            },
+            {
+              "number": 2,
+              "instruction": "Add an offline change queue with replay, dedupe, and conflict markers for mobile-first shop-floor flows.",
+              "tool_calls": [
+                "prism_sp:write_file"
+              ],
+              "validation": "Offline mutations can replay safely without double-posting labor or traveler state."
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "src/engines/ShopAnalyticsEngine.ts",
+              "type": "source",
+              "description": "Business intelligence engine for quote variance, ROI, throughput, and efficiency signals.",
+              "line_count_est": 260
+            },
+            {
+              "path": "src/engines/OfflineChangeQueueEngine.ts",
+              "type": "source",
+              "description": "Offline mutation queue and replay engine for mobile or edge workflows.",
+              "line_count_est": 180
+            }
+          ],
+          "estimated_minutes": 150,
+          "description": "Shop analytics + offline queue engines — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P1-U03",
+          "title": "Integration routes + cost analytics alignment",
+          "phase": "P1",
+          "sequence": 3,
+          "role": "R6",
+          "role_name": "Integrator",
+          "model": "sonnet-4.6",
+          "effort": 82,
+          "dependencies": [
+            "P1-U02"
+          ],
+          "tools": [
+            {
+              "tool": "prism_sp",
+              "action": "write_file"
+            },
+            {
+              "tool": "prism_session",
+              "action": "state_checkpoint"
+            }
+          ],
+          "entry_conditions": [
+            "Connectors, analytics, and offline queue engines are available.",
+            "The integrations route surface and actual cost rollups are ready for extension."
+          ],
+          "exit_conditions": [
+            "Integration routes expose sync health, replay queue state, and intelligence surfaces.",
+            "Actual cost rollups align with the new analytics fabric and external sync model.",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
+          ],
+          "rollback": "Revert the integration route and actual-cost updates and continue with the older analytics path.",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Extend integration routes to expose sync status, queue replay, connector health, and analytics summary data.",
+              "tool_calls": [
+                "prism_sp:write_file",
+                "prism_session:state_checkpoint"
+              ]
+            },
+            {
+              "number": 2,
+              "instruction": "Align actual-cost rollups so the same data can feed ERP sync, accounting sync, and business intelligence consumers.",
+              "tool_calls": [
+                "prism_sp:write_file"
+              ],
+              "validation": "Cost and variance data remain consistent across local state, sync payloads, and analytics outputs."
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "src/routes/integrations.ts",
+              "type": "source",
+              "description": "Integration route surface for connector health, replay queue, and sync controls.",
+              "line_count_est": 210
+            },
+            {
+              "path": "src/engines/ActualCostEngine.ts",
+              "type": "source",
+              "description": "Actual-cost alignment with sync and analytics fabrics.",
+              "line_count_est": 90
+            }
+          ],
+          "estimated_minutes": 120,
+          "description": "Integration routes + cost analytics alignment — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        }
+      ],
+      "gate": {
+        "omega_floor": 1,
+        "safety_floor": 0.84,
+        "ralph_required": true,
+        "custom_checks": [
+          "Bidirectional sync preserves canonical identifiers and conflict provenance.",
+          "Offline replay cannot duplicate labor, quantity, or traveler updates."
+        ]
+      },
+      "scrutiny_checkpoint": true,
+      "scrutiny_focus": [
+        "Sync integrity",
+        "Conflict handling",
+        "Analytics trustworthiness"
+      ]
+    },
+    {
+      "id": "P2",
+      "title": "Forge-Triple Sync Operations",
+      "description": "Expose sync operations through command docs and protect connectors with credential and end-to-end validation.",
+      "sessions": "1",
+      "primary_role": "R7",
+      "primary_model": "opus-4.6",
+      "units": [
+        {
+          "id": "P2-U01",
+          "title": "Sync health command + sync ops template",
+          "phase": "P2",
+          "sequence": 4,
+          "role": "R7",
+          "role_name": "Prompt Engineer",
+          "model": "opus-4.6",
+          "effort": 82,
+          "dependencies": [
+            "P1-U03"
+          ],
+          "tools": [
+            {
+              "tool": "prism_skill_script",
+              "action": "skill_search"
+            },
+            {
+              "tool": "prism_sp",
+              "action": "write_file"
+            }
+          ],
+          "entry_conditions": [
+            "Connector health, replay queues, and analytics endpoints are defined.",
+            "Operators need a standard way to inspect sync status and failure modes."
+          ],
+          "exit_conditions": [
+            "A sync health command doc exists for connector status, retries, and replay controls.",
+            "A forge-triple sync template exists for future connector or analytics work.",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
+          ],
+          "rollback": "Remove the command and template docs and use raw integration notes instead.",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Write a sync health command doc covering connector status, replay queues, conflict inspection, and retry actions.",
+              "tool_calls": [
+                "prism_skill_script:skill_search",
+                "prism_sp:write_file"
+              ]
+            },
+            {
+              "number": 2,
+              "instruction": "Create a sync-ops template that future milestones can reuse for connector prompts, payloads, and health indicators.",
+              "tool_calls": [
+                "prism_sp:write_file"
+              ],
+              "validation": "The command doc and template share the same connector and replay vocabulary."
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "commands/sync-health.md",
+              "type": "doc",
+              "description": "Slash-command style guide for connector health, replay, and sync diagnostics.",
+              "line_count_est": 90
+            },
+            {
+              "path": "data/templates/ultimate-app/prism-sync-ops.md",
+              "type": "doc",
+              "description": "Forge-triple template for sync operations, replay, and connector health prompts.",
+              "line_count_est": 80
+            }
+          ],
+          "estimated_minutes": 55,
+          "description": "Sync health command + sync ops template — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P2-U02",
+          "title": "Credential guard + end-to-end sync proof",
+          "phase": "P2",
+          "sequence": 5,
+          "role": "R4",
+          "role_name": "Verifier",
+          "model": "opus-4.6",
+          "effort": 90,
+          "dependencies": [
+            "P2-U01"
+          ],
+          "tools": [
+            {
+              "tool": "prism_sp",
+              "action": "write_file"
+            },
+            {
+              "tool": "prism_review",
+              "action": "run"
+            }
+          ],
+          "entry_conditions": [
+            "The connector surfaces and sync command docs exist.",
+            "Credential storage and replay policies are defined."
+          ],
+          "exit_conditions": [
+            "A credential guard validates connector readiness and blocks unsafe sync attempts.",
+            "End-to-end tests prove sync, replay, and analytics propagation work together.",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
+          ],
+          "rollback": "Disable the new guard or E2E suite if connector instability causes false failures.",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Add a connector credential guard that validates readiness, secret presence, and replay preconditions before sync starts.",
+              "tool_calls": [
+                "prism_sp:write_file"
+              ]
+            },
+            {
+              "number": 2,
+              "instruction": "Build an end-to-end sync proof for connector ingestion, replay, conflict handling, and analytics update propagation.",
+              "tool_calls": [
+                "prism_sp:write_file",
+                "prism_review:run"
+              ],
+              "validation": "The E2E suite proves connectors, offline queue, and analytics stay coherent through retries."
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "src/hooks/integrationCredentialGuard.ts",
+              "type": "source",
+              "description": "Guardrail for connector credential and sync readiness checks.",
+              "line_count_est": 90
+            },
+            {
+              "path": "src/__tests__/integrationSync.e2e.test.ts",
+              "type": "test",
+              "description": "End-to-end proof for connector sync, replay queue, and analytics propagation.",
+              "line_count_est": 220
+            }
+          ],
+          "estimated_minutes": 105,
+          "description": "Credential guard + end-to-end sync proof — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        }
+      ],
+      "gate": {
+        "omega_floor": 1,
+        "safety_floor": 0.86,
+        "ralph_required": true,
+        "custom_checks": [
+          "Sync commands map directly to live connector and queue surfaces.",
+          "E2E coverage proves conflict-aware replay and analytics propagation."
+        ]
+      },
+      "scrutiny_checkpoint": true,
+      "scrutiny_focus": [
+        "Connector safety",
+        "Replay correctness",
+        "Business intelligence fidelity"
+      ]
+    }
+  ],
+  "total_units": 5,
+  "total_sessions": "2-3",
+  "dependency_graph": "ULT-MS1 + ULT-MS3 -> ULT-MS4; P1-U01 -> P1-U02 -> P1-U03 -> P2-U01 -> P2-U02",
+  "role_matrix": [
+    {
+      "code": "R2",
+      "name": "Implementer",
+      "model": "sonnet-4.6",
+      "effort": 84
+    },
+    {
+      "code": "R4",
+      "name": "Verifier",
+      "model": "opus-4.6",
+      "effort": 90
+    },
+    {
+      "code": "R6",
+      "name": "Integrator",
+      "model": "sonnet-4.6",
+      "effort": 88
+    },
+    {
+      "code": "R7",
+      "name": "Prompt Engineer",
+      "model": "opus-4.6",
+      "effort": 82
+    }
+  ],
+  "tool_map": [
+    {
+      "tool": "prism_sp",
+      "phases": [
+        "P1",
+        "P2"
+      ],
+      "purpose": "Implement connectors, analytics, command docs, and tests"
+    },
+    {
+      "tool": "prism_bridge",
+      "phases": [
+        "P1"
+      ],
+      "purpose": "Map sync contracts across routes and connectors"
+    },
+    {
+      "tool": "prism_validate",
+      "phases": [
+        "P1"
+      ],
+      "purpose": "Check analytics and offline-replay coverage"
+    },
+    {
+      "tool": "prism_review",
+      "phases": [
+        "P2"
+      ],
+      "purpose": "Review connector safety and end-to-end sync evidence"
+    }
+  ],
+  "existing_leverage": [
+    {
+      "asset": "src/engines/ERPIntegrationEngine.ts",
+      "type": "engine",
+      "usage": "ERP mapping baseline for E2 alignment"
+    },
+    {
+      "asset": "src/engines/ActualCostEngine.ts",
+      "type": "engine",
+      "usage": "Cost rollups and variance inputs"
+    },
+    {
+      "asset": "src/routes/integrations.ts",
+      "type": "route",
+      "usage": "Existing integration route surface for sync health expansion"
+    },
+    {
+      "asset": "src/engines/ShopRealtimeGateway.ts",
+      "type": "engine",
+      "usage": "Live propagation of sync-driven state updates"
+    }
+  ],
+  "scrutiny_config": {
+    "pass_mode": "adaptive",
+    "min_passes": 3,
+    "max_passes": 6,
+    "convergence_rule": "delta < 2",
+    "scrutinizer_model": "opus-4.6",
+    "scrutinizer_effort": 92
+  },
+  "scrutiny_log": "state/ULT-MS4/scrutiny-log.json",
+  "position_file": "state/ULT-MS4/position.json",
+  "state_dir": "state/ULT-MS4",
+  "status": "not_started",
+  "smart_config": {
+    "role": "implementer + reviewer",
+    "model": "sonnet",
+    "effort": "HIGH",
+    "context_budget": "65%"
+  },
+  "mcp_lifecycle": {
+    "session_start": [
+      "prism_session:context_boot",
+      "prism_session:dispatcher_map",
+      "prism_session:memory_recall",
+      "prism_session:system_snapshot",
+      "prism_session:action_search"
+    ],
+    "during_work": [
+      "prism_session:auto_checkpoint",
+      "prism_session:tool_route_best",
+      "prism_session:wip_capture"
+    ],
+    "session_end": [
+      "prism_session:memory_save",
+      "prism_session:system_snapshot",
+      "prism_session:checkpoint_enhanced"
+    ]
+  },
+  "forge_triple": {
+    "protective_hook": "ult-ms4-gate",
+    "mcp_action": "prism_ult:ult_ms4_run",
+    "skill_command": "/ult-ms4",
+    "ownership": "DECLARED — BUILT in terminal unit of this milestone"
+  },
+  "feature_cascade": {
+    "new_hooks": [
+      "ult-ms4-gate"
+    ],
+    "new_actions": [
+      "ult_ms4_run"
+    ],
+    "new_skills": [
+      "/ult-ms4"
+    ],
+    "available_to": [
+      "downstream CAMX milestones",
+      "prism app consumers"
+    ]
+  },
+  "knowledge_sources": {
+    "engines": [
+      "ENGINE_DIGEST.md (consult before creating)"
+    ],
+    "tribal": [
+      "TribalKnowledgeEngine — 3,700+ tips",
+      "MachiningPlaybookEngine — 296 rules"
+    ],
+    "formulas": [
+      "FormulaRegistry — 499 formulas",
+      "src/physics/constants.ts — canonical"
+    ],
+    "reference": [
+      "EXTERNAL-REFERENCE-PROGRAMS-INDEX.md",
+      "MaterialRegistry",
+      "MachineRegistry",
+      "ToolCatalogEngine (95,608 tools)"
+    ]
+  },
+  "intent": "Connect the live shop system to E2, accounting, offline devices, and intelligence pipelines so PRISM becomes a durable bidirectional operating fabric rather than an isolated frontend shell.",
+  "compact_checkpoint": "every 3 units — auto-triggered by hook",
+  "enforcement_hooks_active": [
+    "physics agent",
+    "wiring agent",
+    "constants checker",
+    "stub detector",
+    "test quality",
+    "forge-triple gate",
+    "session audit agent"
+  ]
+}

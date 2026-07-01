@@ -56,7 +56,7 @@ export class WorkspaceErrorBoundary extends Component<
             <div className="space-y-3">
               <h2 className="text-3xl font-semibold tracking-tight text-slate-50 sm:text-4xl">{this.props.title} unavailable</h2>
               <p className="max-w-2xl text-base leading-7 text-slate-300">
-                {this.props.detail} PRISM caught a loading or rendering failure before it could drop the route into a blank state.
+                {this.props.detail} Kienzle caught a loading or rendering failure before it could drop the route into a blank state.
               </p>
             </div>
             <div className="flex flex-wrap gap-3">

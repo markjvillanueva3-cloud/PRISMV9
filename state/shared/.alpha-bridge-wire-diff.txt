@@ -1,0 +1,520 @@
+...millDispatcher.bridge-wire-fiveaxis-cam.test.ts | 368 +++++++++++++++++++
+ ...illDispatcher.bridge-wire-fiveaxis-lora.test.ts | 405 +++++++++++++++++++++
+ ...llDispatcher.bridge-wire-fiveaxis-synth.test.ts | 302 +++++++++++++++
+ .../millDispatcher.bridge-wire-milling-sci.test.ts | 313 ++++++++++++++++
+ mcp-server/src/__tests__/millDispatcher.test.ts    |  10 +-
+ mcp-server/src/schemas/millActionSchemas.ts        | 225 ++++++++++++
+ mcp-server/src/tools/dispatchers/millDispatcher.ts | 263 ++++++++++++-
+ 7 files changed, 1882 insertions(+), 4 deletions(-)
+
+--- Changes ---
+
+mcp-server/src/__tests__/millDispatcher.bridge-wire-fiveaxis-cam.test.ts
+  @@ -0,0 +1,368 @@
+  +/**
+  + * BRIDGE-WIRING / U-BRIDGE-WIRE-MILL iter-2 — wire test (slot:alpha, 2026-05-22)
+  + *
+  + * Round-trips 2 actions through millDispatcher's prism_mill tool, surfacing
+  + * the previously-unwired FiveAxisCAMIntegrationEngine:
+  + *
+  + *   FiveAxisCAMIntegrationEngine → mill_5axis_cam_convert_3to5,
+  + *                                  mill_5axis_cam_gcode
+  + *
+  + * Real-value assertions (no toBeDefined()/toBeTruthy() stubs):
+  + *   - convert3to5axis with lead=lean=0 + default +Z surface normals keeps
+  + *     the tool axis vertical (k≈1, A=B=0 for every segment).
+  + *   - a 15° lead angle tilts the tool axis in the feed direction →
+  + *     B = atan2(sin15°, cos15°) ≈ 15° → max_b_deg > 0.
+  + *   - a tight b_range_deg of ±5° against that 15° tilt → axis_limit_violations > 0.
+  + *   - toFiveAxisGcode emits the program header (O-number, G90 G40 G80,
+  + *     S<rpm> M03), the G43.4 RTCP code for a head_table machine, G43.5 for
+  + *     table_table, and the M30 program end.
+  + *
+  + * Each test invokes through the dispatcher handler, not the engine singleton.
+  + * Pattern mirrors millDispatcher.bridge-wire-fiveaxis-lora.test.ts.
+  + */
+  +import { describe, it, expect, beforeAll } from "vitest";
+  +import {
+  +  MILL_ACTIONS,
+  +  registerMillDispatcher,
+  +} from "../tools/dispatchers/millDispatcher.js";
+  +import { MILL_ACTION_SCHEMAS } from "../schemas/millActionSchemas.js";
+  +
+  +const FIVEAXIS_CAM_ACTIONS = [
+  +  "mill_5axis_cam_convert_3to5",
+  +  "mill_5axis_cam_gcode",
+  +] as const;
+  +
+  +interface ToolCall {
+  +  action: string;
+  +  params?: Record<string, unknown>;
+  +}
+  +
+  +let handler:
+  +  | ((args: { action: string; params?: Record<string, unknown> }) => Promise<unknown>)
+  +  | null = null;
+  +
+  +beforeAll(() => {
+  +  const fakeServer = {
+  +    tool: (
+  +      _name: string,
+  +      _desc: string,
+  +      _schema: unknown,
+  +      fn: (args: { action: string; params?: Record<string, unknown> }) => Promise<unknown>,
+  +    ) => {
+  +      if (_name === "prism_mill") handler = fn;
+  +    },
+  +  };
+  +  registerMillDispatcher(fakeServer);
+  +  if (!handler) throw new Error("millDispatcher did not register prism_mill tool");
+  +});
+  +
+  +async function call(c: ToolCall): Promise<{ raw: any; success: boolean; error?: string }> {
+  +  if (!handler) throw new Error("handler not captured");
+  +  const r: any = await handler(c);
+  +  if (r && typeof r === "object" && Array.isArray(r.content) && r.content[0]?.text) {
+  +    try {
+  +      const parsed = JSON.parse(r.content[0].text);
+  +      const success = !parsed?.error && parsed?.success !== false;
+  +      return { raw: parsed, success, error: parsed?.error };
+  +    } catch {
+  +      return { raw: r, success: true };
+  +    }
+  +  }
+  +  if (r && typeof r === "object" && r.type === "text" && typeof r.text === "string") {
+  +    try {
+  +      const parsed = JSON.parse(r.text);
+  +      const success = !parsed?.error && parsed?.success !== false;
+  +      return { raw: parsed, success, error: parsed?.error };
+  +    } catch {
+  +      return { raw: r, success: true };
+  +    }
+  +  }
+  +  if (r && typeof r === "object") {
+  +    const success = !r.error && r.success !== false && !r.isError;
+  +    return { raw: r, success, error: r.error };
+  +  }
+  +  return { raw: r, success: true };
+  +}
+  +
+  +function payload(raw: any): any {
+  +  if (raw && typeof raw === "object") {
+  +    if (raw.result !== undefined) return raw.result;
+  +    if (raw.data !== undefined) return raw.data;
+  +  }
+  +  return raw;
+  +}
+  +
+  +/** A 3-axis feed segment with an explicit position (default +Z surface normal). */
+  +function seg3(x: number, y: number, z: number): Record<string, unknown> {
+  +  return { x, y, z, feed_mmmin: 300, rpm: 8000, type: "feed" };
+  +}
+  +
+  +/** A 5-axis segment for the G-code emitter. */
+  ... (268 lines truncated)
+  +368 -0
+
+mcp-server/src/__tests__/millDispatcher.bridge-wire-fiveaxis-lora.test.ts
+  @@ -0,0 +1,405 @@
+  +/**
+  + * BRIDGE-CONSOLIDATED / U-BRIDGE-WIRE-MILL iter-1 — wire test (slot:alpha, 2026-05-22)
+  + *
+  + * Round-trips 6 actions through millDispatcher's prism_mill tool, surfacing
+  + * 2 previously-unwired 5-axis LoRA closed-loop engines:
+  + *
+  + *   FiveAxisLoRADatasetBuilderEngine → mill_5axis_lora_build_dataset,
+  + *                                      mill_5axis_lora_required_schema
+  + *   FiveAxisLoRACadenceEngine        → mill_5axis_lora_cadence_state,
+  + *                                      mill_5axis_lora_cadence_config,
+  + *                                      mill_5axis_lora_cadence_should_run,
+  + *                                      mill_5axis_lora_cadence_check_drift
+  + *
+  + * Real-value assertions (no toBeDefined()/toBeTruthy() stubs):
+  + *   - required schema features = 6 keys incl. tilt_deg + tcpc_enabled;
+  + *     actuals = ["surface_ra_um"] (5-axis domain adds the two extra axes).
+  + *   - 5-axis cadence config defaults: interval="weekly", minNewJobs=10,
+  + *     driftThreshold=0.12, performanceThreshold=60, maxVersions=6 — looser
+  + *     than milling because 5-axis job volume is ~10% of milling at JM Die.
+  + *   - singularity weighting: a job at tilt=90° (gimbal-lock) is up-weighted
+  + *     to weight>=2.0 and tagged "near-singularity" so the adapter sees the
+  + *     rare regime more often.
+  + *   - checkDrift delta = (baseline - current)/baseline; drifted iff
+  + *     delta > 0.12. checkDrift(50,80) → delta 0.375 → drifted. checkDrift(80,80)
+  + *     → delta 0 → not drifted. baseline 0 → divide-by-zero guard → not drifted.
+  + *
+  + * Each test invokes through the dispatcher handler, not the engine singleton —
+  + * verifies action-enum entry + Zod schema + case dispatch end-to-end.
+  + *
+  + * Pattern mirrors businessDispatcher.bridge-wire-business.test.ts.
+  + */
+  +import { describe, it, expect, beforeAll } from "vitest";
+  +import {
+  +  MILL_ACTIONS,
+  +  MILL_DISPATCHER_ACTION_COUNT,
+  +  registerMillDispatcher,
+  +} from "../tools/dispatchers/millDispatcher.js";
+  +import { MILL_ACTION_SCHEMAS } from "../schemas/millActionSchemas.js";
+  +
+  +const FIVEAXIS_LORA_ACTIONS = [
+  +  "mill_5axis_lora_build_dataset",
+  +  "mill_5axis_lora_required_schema",
+  +  "mill_5axis_lora_cadence_state",
+  +  "mill_5axis_lora_cadence_config",
+  +  "mill_5axis_lora_cadence_should_run",
+  +  "mill_5axis_lora_cadence_check_drift",
+  +] as const;
+  +
+  +interface ToolCall {
+  +  action: string;
+  +  params?: Record<string, unknown>;
+  +}
+  +
+  +let handler:
+  +  | ((args: { action: string; params?: Record<string, unknown> }) => Promise<unknown>)
+  +  | null = null;
+  +
+  +beforeAll(() => {
+  +  const fakeServer = {
+  +    tool: (
+  +      _name: string,
+  +      _desc: string,
+  +      _schema: unknown,
+  +      fn: (args: { action: string; params?: Record<string, unknown> }) => Promise<unknown>,
+  +    ) => {
+  +      if (_name === "prism_mill") handler = fn;
+  +    },
+  +  };
+  +  // registerMillDispatcher's `server` parameter is typed `any` — no cast needed.
+  +  registerMillDispatcher(fakeServer);
+  +  if (!handler) throw new Error("millDispatcher did not register prism_mill tool");
+  +});
+  +
+  +/** Invoke the dispatcher handler and normalize the (slimResponse) reply shape. */
+  +async function call(c: ToolCall): Promise<{ raw: any; success: boolean; error?: string }> {
+  +  if (!handler) throw new Error("handler not captured");
+  +  const r: any = await handler(c);
+  +  // Shape A: { content: [{ type: "text", text: "<json>" }] }
+  +  if (r && typeof r === "object" && Array.isArray(r.content) && r.content[0]?.text) {
+  +    try {
+  +      const parsed = JSON.parse(r.content[0].text);
+  +      const success = !parsed?.error && parsed?.success !== false;
+  +      return { raw: parsed, success, error: parsed?.error };
+  +    } catch {
+  +      return { raw: r, success: true };
+  +    }
+  +  }
+  +  // Shape B: { type: "text", text: "<json>" }
+  +  if (r && typeof r === "object" && r.type === "text" && typeof r.text === "string") {
+  +    try {
+  +      const parsed = JSON.parse(r.text);
+  +      const success = !parsed?.error && parsed?.success !== false;
+  +      return { raw: parsed, success, error: parsed?.error };
+  +    } catch {
+  +      return { raw: r, success: true };
+  +    }
+  +  }
+  +  // Shape C: plain object
+  +  if (r && typeof r === "object") {
+  +    const success = !r.error && r.success !== false && !r.isError;
+  ... (305 lines truncated)
+  +405 -0
+
+mcp-server/src/__tests__/millDispatcher.bridge-wire-fiveaxis-synth.test.ts
+  @@ -0,0 +1,302 @@
+  +/**
+  + * BRIDGE-WIRING / U-BRIDGE-WIRE-MILL iter-3 — wire test (slot:alpha, 2026-05-22)
+  + *
+  + * Round-trips 5 actions through millDispatcher's prism_mill tool, surfacing
+  + * the previously-unwired FiveAxisToolpathSynthesisEngine (static-method class):
+  + *
+  + *   mill_5axis_synth_recommend            → synthesize
+  + *   mill_5axis_synth_strategies           → getAllStrategies
+  + *   mill_5axis_synth_strategies_by_family → getStrategiesByFamily
+  + *   mill_5axis_synth_novel_strategies     → getNovelStrategies
+  + *   mill_5axis_synth_get_strategy         → getStrategyById
+  + *
+  + * Real-value assertions (no toBeDefined()/toBeTruthy() stubs):
+  + *   - synthesize on an impeller_blade in Ti-6Al-4V returns a recommended
+  + *     strategy whose category is one of the 4 catalog categories, plus a
+  + *     non-empty candidate set; the recommendation is the top-scored candidate.
+  + *   - getAllStrategies returns the full catalog; getStrategiesByFamily filters
+  + *     to a single family; getNovelStrategies is a strict subset of the catalog.
+  + *   - getStrategyById round-trips a known id and reports found=false for an
+  + *     unknown id (the engine returns undefined → dispatcher maps to null).
+  + *
+  + * Each test invokes through the dispatcher handler, not the engine singleton.
+  + */
+  +import { describe, it, expect, beforeAll } from "vitest";
+  +import {
+  +  MILL_ACTIONS,
+  +  registerMillDispatcher,
+  +} from "../tools/dispatchers/millDispatcher.js";
+  +import { MILL_ACTION_SCHEMAS } from "../schemas/millActionSchemas.js";
+  +
+  +const FIVEAXIS_SYNTH_ACTIONS = [
+  +  "mill_5axis_synth_recommend",
+  +  "mill_5axis_synth_strategies",
+  +  "mill_5axis_synth_strategies_by_family",
+  +  "mill_5axis_synth_novel_strategies",
+  +  "mill_5axis_synth_get_strategy",
+  +] as const;
+  +
+  +const CATEGORIES = ["roughing", "finishing", "semi_finishing", "specialty"];
+  +
+  +interface ToolCall {
+  +  action: string;
+  +  params?: Record<string, unknown>;
+  +}
+  +
+  +let handler:
+  +  | ((args: { action: string; params?: Record<string, unknown> }) => Promise<unknown>)
+  +  | null = null;
+  +
+  +beforeAll(() => {
+  +  const fakeServer = {
+  +    tool: (
+  +      _name: string,
+  +      _desc: string,
+  +      _schema: unknown,
+  +      fn: (args: { action: string; params?: Record<string, unknown> }) => Promise<unknown>,
+  +    ) => {
+  +      if (_name === "prism_mill") handler = fn;
+  +    },
+  +  };
+  +  registerMillDispatcher(fakeServer);
+  +  if (!handler) throw new Error("millDispatcher did not register prism_mill tool");
+  +});
+  +
+  +async function call(c: ToolCall): Promise<{ raw: any; success: boolean; error?: string }> {
+  +  if (!handler) throw new Error("handler not captured");
+  +  const r: any = await handler(c);
+  +  if (r && typeof r === "object" && Array.isArray(r.content) && r.content[0]?.text) {
+  +    try {
+  +      const parsed = JSON.parse(r.content[0].text);
+  +      return { raw: parsed, success: !parsed?.error && parsed?.success !== false, error: parsed?.error };
+  +    } catch {
+  +      return { raw: r, success: true };
+  +    }
+  +  }
+  +  if (r && typeof r === "object" && r.type === "text" && typeof r.text === "string") {
+  +    try {
+  +      const parsed = JSON.parse(r.text);
+  +      return { raw: parsed, success: !parsed?.error && parsed?.success !== false, error: parsed?.error };
+  +    } catch {
+  +      return { raw: r, success: true };
+  +    }
+  +  }
+  +  if (r && typeof r === "object") {
+  +    return { raw: r, success: !r.error && r.success !== false && !r.isError, error: r.error };
+  +  }
+  +  return { raw: r, success: true };
+  +}
+  +
+  +function payload(raw: any): any {
+  +  if (raw && typeof raw === "object") {
+  +    if (raw.result !== undefined) return raw.result;
+  +    if (raw.data !== undefined) return raw.data;
+  +  }
+  +  return raw;
+  +}
+  +
+  +/** A complete, schema-valid FiveAxisSynthesisInput (Ti-6Al-4V impeller blade). */
+  +function synthInput(): Record<string, unknown> {
+  +  return {
+  ... (202 lines truncated)
+  +302 -0
+
+mcp-server/src/__tests__/millDispatcher.bridge-wire-milling-sci.test.ts
+  @@ -0,0 +1,313 @@
+  +/**
+  + * BRIDGE-WIRING / U-BRIDGE-WIRE-MILL iter-4 — wire test (slot:alpha, 2026-05-22)
+  + *
+  + * Round-trips 8 actions through millDispatcher's prism_mill tool, surfacing
+  + * the previously-unwired MillingUnifiedScienceOrchestrationEngine:
+  + *
+  + *   mill_sci_analyze              → analyzeScientifically (7-domain analysis)
+  + *   mill_sci_quick_analyze        → quickAnalyze (rapid param validation)
+  + *   mill_sci_material_properties  → getMaterialProperties
+  + *   mill_sci_materials            → getAvailableMaterials
+  + *   mill_sci_tips                 → getScientificTips
+  + *   mill_sci_domains              → getScientificDomains
+  + *   mill_sci_self_awareness       → getSelfAwareness
+  + *   mill_sci_stats                → getStats
+  + *
+  + * Real-value assertions (no toBeDefined()/toBeTruthy() stubs):
+  + *   - quickAnalyze cutting force follows the Kienzle ap-linearity: doubling
+  + *     the axial depth exactly doubles the force (Fc = kc1.1·ap·fz^(1-mc)).
+  + *   - cutting temperature rises with cutting speed (Vc).
+  + *   - an axial depth far beyond the stability limit → stable=false + a
+  + *     chatter-risk warning.
+  + *   - analyzeScientifically reports all 7 domains + a non-empty formula set
+  + *     and a confidence score in (0, 1].
+  + *   - getScientificDomains returns exactly the 7 canonical domains.
+  + *
+  + * Each test invokes through the dispatcher handler, not the engine singleton.
+  + */
+  +import { describe, it, expect, beforeAll } from "vitest";
+  +import {
+  +  MILL_ACTIONS,
+  +  registerMillDispatcher,
+  +} from "../tools/dispatchers/millDispatcher.js";
+  +import { MILL_ACTION_SCHEMAS } from "../schemas/millActionSchemas.js";
+  +
+  +const SCI_ACTIONS = [
+  +  "mill_sci_analyze",
+  +  "mill_sci_quick_analyze",
+  +  "mill_sci_material_properties",
+  +  "mill_sci_materials",
+  +  "mill_sci_tips",
+  +  "mill_sci_domains",
+  +  "mill_sci_self_awareness",
+  +  "mill_sci_stats",
+  +] as const;
+  +
+  +const DOMAINS = [
+  +  "mechanics", "thermodynamics", "metallurgy", "tribology",
+  +  "dynamics", "chemistry", "fluid_mechanics",
+  +];
+  +
+  +interface ToolCall {
+  +  action: string;
+  +  params?: Record<string, unknown>;
+  +}
+  +
+  +let handler:
+  +  | ((args: { action: string; params?: Record<string, unknown> }) => Promise<unknown>)
+  +  | null = null;
+  +
+  +beforeAll(() => {
+  +  const fakeServer = {
+  +    tool: (
+  +      _name: string,
+  +      _desc: string,
+  +      _schema: unknown,
+  +      fn: (args: { action: string; params?: Record<string, unknown> }) => Promise<unknown>,
+  +    ) => {
+  +      if (_name === "prism_mill") handler = fn;
+  +    },
+  +  };
+  +  registerMillDispatcher(fakeServer);
+  +  if (!handler) throw new Error("millDispatcher did not register prism_mill tool");
+  +});
+  +
+  +async function call(c: ToolCall): Promise<{ raw: any; success: boolean; error?: string }> {
+  +  if (!handler) throw new Error("handler not captured");
+  +  const r: any = await handler(c);
+  +  if (r && typeof r === "object" && Array.isArray(r.content) && r.content[0]?.text) {
+  +    try {
+  +      const parsed = JSON.parse(r.content[0].text);
+  +      return { raw: parsed, success: !parsed?.error && parsed?.success !== false, error: parsed?.error };
+  +    } catch {
+  +      return { raw: r, success: true };
+  +    }
+  +  }
+  +  if (r && typeof r === "object" && r.type === "text" && typeof r.text === "string") {
+  +    try {
+  +      const parsed = JSON.parse(r.text);
+  +      return { raw: parsed, success: !parsed?.error && parsed?.success !== false, error: parsed?.error };
+  +    } catch {
+  +      return { raw: r, success: true };
+  +    }
+  +  }
+  +  if (r && typeof r === "object") {
+  +    return { raw: r, success: !r.error && r.success !== false && !r.isError, error: r.error };
+  +  }
+  +  return { raw: r, success: true };
+  +}
+  +
+  +function payload(raw: any): any {
+  ... (213 lines truncated)
+  +313 -0
+
+mcp-server/src/__tests__/millDispatcher.test.ts
+  @@ -22,8 +22,14 @@ describe("millDispatcher", () => {
+  -    it("should have all actions prefixed with mill_", () => {
+  -      const allPrefixed = MILL_ACTIONS.every((a) => a.startsWith("mill_"));
+  +    it("should have all actions prefixed with mill_ or millturn_", () => {
+  +      // The mill dispatcher consolidates mill, 5-axis (mill_5axis_*) AND
+  +      // mill-turn (millturn_*) actions — both prefixes are legitimate.
+  +      // (Pre-existing: the millturn_* actions from U-BRIDGE-WIRE-MILLING
+  +      // iter-3/4 already broke the original mill_-only assertion.)
+  +      const allPrefixed = MILL_ACTIONS.every(
+  +        (a) => a.startsWith("mill_") || a.startsWith("millturn_"),
+  +      );
+         expect(allPrefixed).toBe(true);
+       });
+   
+  +8 -2
+
+mcp-server/src/schemas/millActionSchemas.ts
+  @@ -1574,6 +1574,202 @@ const millturn_cam_generate = z
+  +// ─── BRIDGE-CONSOLIDATED / U-BRIDGE-WIRE-MILL iter-1 ───────────────────────
+  +// FiveAxis LoRA closed-loop pair — 5-axis dataset builder (tilt/TCPC-aware,
+  +// singularity-weighted) + weekly retrain-cadence scheduler. Both are pure
+  +// transforms; the dataset builder reuses RawJobSchema/DatasetSplitConfigSchema.
+  +
+  +/** mill_5axis_lora_build_dataset — FiveAxisLoRADatasetBuilderEngine.buildDataset(jobs, split?) */
+  +const mill_5axis_lora_build_dataset = z
+  +  .object({
+  +    jobs: z
+  +      .array(RawJobSchema)
+  +      .min(1)
+  +      .describe("RawJob array — 5-axis jobs with features (tilt_deg, tcpc_enabled, ...) + actual surface_ra_um."),
+  +    split: DatasetSplitConfigSchema.optional().describe("Optional split config (defaults to DEFAULT_SPLIT)."),
+  +  })
+  +  .passthrough()
+  +  .describe("Build a LoRA fine-tuning dataset (Alpaca-format) from 5-axis RawJob records.");
+  +
+  +/** mill_5axis_lora_required_schema — FiveAxisLoRADatasetBuilderEngine.requiredSchema (no-arg) */
+  +const mill_5axis_lora_required_schema = z
+  +  .object({})
+  +  .strict()
+  +  .describe("Return the required feature + actual key schema for 5-axis LoRA datasets.");
+  +
+  +/** mill_5axis_lora_cadence_state — FiveAxisLoRACadenceEngine.getState (no-arg) */
+  +const mill_5axis_lora_cadence_state = z
+  +  .object({})
+  +  .passthrough()
+  +  .describe("No-arg snapshot of the 5-axis LoRA retrain-cadence state.");
+  +
+  +/** mill_5axis_lora_cadence_config — FiveAxisLoRACadenceEngine.getConfig (no-arg) */
+  +const mill_5axis_lora_cadence_config = z
+  +  .object({})
+  +  .passthrough()
+  +  .describe("No-arg snapshot of the 5-axis LoRA retrain-cadence config (weekly defaults).");
+  +
+  +/** mill_5axis_lora_cadence_should_run — FiveAxisLoRACadenceEngine.shouldTriggerRun (no-arg) */
+  +const mill_5axis_lora_cadence_should_run = z
+  +  .object({})
+  +  .passthrough()
+  +  .describe("Decide whether a 5-axis LoRA retrain should trigger now (cadence + min-new-jobs gate).");
+  +
+  +/** mill_5axis_lora_cadence_check_drift — FiveAxisLoRACadenceEngine.checkDrift(currentScore, baselineScore) */
+  +const mill_5axis_lora_cadence_check_drift = z
+  +  .object({
+  +    currentScore: z.number().describe("Current adapter performance score."),
+  +    baselineScore: z.number().describe("Baseline performance score to compare against."),
+  +  })
+  +  .passthrough()
+  +  .describe("Detect performance drift vs baseline; flags whether a 5-axis LoRA retrain should be triggered.");
+  +
+  +// ─── BRIDGE-WIRING / U-BRIDGE-WIRE-MILL iter-2 ─────────────────────────────
+  +// FiveAxisCAMIntegrationEngine — 3-axis→5-axis conversion + 5-axis G-code.
+  +// Segment/config records stay free-form (z.record) — the engine owns the
+  +// domain validation; the schema only enforces the array/object shapes.
+  +
+  +/** mill_5axis_cam_convert_3to5 — FiveAxisCAMIntegrationEngine.convert3to5axis(segments3, config) */
+  +const mill_5axis_cam_convert_3to5 = z
+  +  .object({
+  +    segments3: z
+  +      .array(z.record(z.string(), z.unknown()))
+  +      .min(1)
+  +      .describe("3-axis path segments (x,y,z,feed_mmmin,rpm,type + optional surface normals nx,ny,nz)."),
+  +    config: z
+  +      .record(z.string(), z.unknown())
+  +      .describe("FiveAxisConfig — machine_type, a/b/c axis ranges, lead/lean angles, RTCP + singularity flags."),
+  +  })
+
+... (more changes truncated)
+  +66 -0
+[full diff: rtk git diff --no-compact]

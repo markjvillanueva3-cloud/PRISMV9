@@ -19,6 +19,48 @@
  * @module data/jm-die-wedm-program-patterns
  */
 
+import { JM_DIE_ECODE_FAMILIES } from "./jm-die-wedm-tech-tables.js";
+
+/**
+ * Materials JM Die has REAL wire-EDM calibration data for — single-sourced as the
+ * union of every FA-S/FA-10S family's material list in the tech-tables registry.
+ * A material NOT in this set has NO shop-calibrated wire parameters: any pattern
+ * returned for it is a generic-steel fallback and MUST be flagged (compound/exotic
+ * materials — carbide, Inconel, Ti, 17-4PH, CPM — otherwise silently mislabel and
+ * poison downstream training).
+ */
+const JM_CALIBRATED_MATERIALS: ReadonlySet<string> = new Set(
+  JM_DIE_ECODE_FAMILIES.flatMap((f) => f.materials.map((m) => m.toUpperCase())),
+);
+
+/**
+ * Tokens that mark a material as a non-steel / compound / exotic grade — their presence
+ * disqualifies calibration EVEN IF a calibrated steel token is also present (e.g. an
+ * "A2 / WC bimetal" backing-plate composite must route to EDMBiMaterialCompensation, not
+ * be cut with plain A2 params).
+ */
+const JM_COMPOSITE_EXOTIC_MARKERS: ReadonlySet<string> = new Set([
+  "WC", "CARBIDE", "PCD", "CBN", "CERMET", "BIMETAL", "COMPOSITE", "CLAD", "INSERT",
+  "INCONEL", "TITANIUM", "TI", "TUNGSTEN", "MOLY", "MOLYBDENUM",
+]);
+
+/**
+ * True iff JM Die has real wire-EDM calibration for this material. Uses EXACT-TOKEN matching
+ * (split on non-alphanumeric boundaries) — NOT bidirectional substring containment, which
+ * false-positived real exotics like "A286" (Fe-Ni superalloy) via `"A286".includes("A2")`.
+ * Bias is intentional: a false NEGATIVE just adds a verify-warning (safe); a false POSITIVE
+ * silently mislabels an exotic as calibrated and poisons downstream training (unsafe).
+ */
+function isJMMaterialCalibrated(material: string): boolean {
+  const norm = (material ?? "").toUpperCase().trim();
+  if (!norm || norm === "UNKNOWN") return false;
+  const tokens = norm.split(/[^A-Z0-9]+/).filter(Boolean);
+  if (tokens.length === 0) return false;
+  // Any composite/exotic marker disqualifies, regardless of a co-present steel token.
+  if (tokens.some((t) => JM_COMPOSITE_EXOTIC_MARKERS.has(t))) return false;
+  return tokens.some((t) => JM_CALIBRATED_MATERIALS.has(t));
+}
+
 // ============================================================================
 // TYPES
 // ============================================================================
@@ -434,14 +476,24 @@ export function getJMDiePatternForMaterial(
   h_offsets: Record<string, number>;
   feed_rates_ipm: number[];
   notes: string[];
+  /** true iff JM Die has real wire-EDM calibration for this material (else generic-steel fallback) */
+  material_calibrated: boolean;
+  /** fail-loud advisory present when the material is uncalibrated (compound/exotic) */
+  warning?: string;
 } {
   // Normalize material name
   const mat = material.toUpperCase().trim();
+  const material_calibrated = isJMMaterialCalibrated(material);
+  const warning = material_calibrated
+    ? undefined
+    : `Material '${material}' has NO JM Die wire-EDM calibration — the parameters below are a generic-steel fallback, NOT shop-validated. Supply real cut data (or route to EDMBiMaterialCompensation for composites) before production/training use.`;
 
   // Taper work uses E28xx family
   if (needs_taper) {
     return {
       e_code_family: "E28xx_taper_5pass",
+      material_calibrated,
+      warning,
       num_passes: 5,
       h_offsets: { H1: 0, H2: 0, H3: 0, H4: 0, H5: 0 },
       feed_rates_ipm: [0.16, 0.23, 0.26, 0.30, 0.30],
@@ -460,6 +512,8 @@ export function getJMDiePatternForMaterial(
   if (isThick || (isHardened && thickness_mm > 15)) {
     return {
       e_code_family: "E12xx_heavy_5pass",
+      material_calibrated,
+      warning,
       num_passes: 5,
       h_offsets: {
         H175: 0,
@@ -482,6 +536,8 @@ export function getJMDiePatternForMaterial(
   // Standard 4-pass for most work
   return {
     e_code_family: "E12xx_standard_4pass",
+    material_calibrated,
+    warning,
     num_passes: 4,
     h_offsets: {
       H175: 0,

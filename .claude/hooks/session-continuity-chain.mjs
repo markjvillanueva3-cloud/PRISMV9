@@ -122,7 +122,7 @@ export default async function sessionContinuityChain(event) {
     let commits = [];
     try {
       const { execSync } = await import('child_process');
-      const log = execSync('cd H:/prism && git log --oneline -5 --format="%h"', { encoding: 'utf-8' });
+      const log = execSync('cd H:/prism && git log --oneline -5 --format="%h"', { windowsHide: true, encoding: 'utf-8' });
       commits = log.trim().split('\n').filter(Boolean);
     } catch {}
 

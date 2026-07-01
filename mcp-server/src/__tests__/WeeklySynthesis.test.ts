@@ -17,7 +17,7 @@
  * full 7-day week, window-boundary exclusion).
  */
 
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, beforeEach, afterEach } from "vitest";
 import * as fs from "node:fs/promises";
 import * as os from "node:os";
 import * as path from "node:path";
@@ -314,9 +314,137 @@ describe("exported constants", () => {
     expect(MIN_SOURCES_FOR_RETRO).toBe(1);
   });
   it("default Ollama model + url match the token-economy canon", () => {
-    expect(DEFAULT_OLLAMA_MODEL).toBe("qwen2.5-coder:7b");
+    // Blackwell migration (2026-06-04) retired :7b -> the canonical local-synthesis
+    // default is now qwen2.5-coder:32b (the fail-soft fallback when the host
+    // resolver can't reach Ollama). This is also the resolver's `fallback`.
+    expect(DEFAULT_OLLAMA_MODEL).toBe("qwen2.5-coder:32b");
     expect(DEFAULT_OLLAMA_URL).toBe("http://127.0.0.1:11434/api/generate");
     expect(typeof defaultOllamaSummarizer).toBe("function");
+  });
+});
+
+/* ===================================================================== */
+/* defaultOllamaSummarizer — host-aware model resolution (U-WEEKLY-SYNTH- */
+/* RESOLVER). Injects resolveModel + fetchImpl so the model-selection +   */
+/* POST is exercised without a GPU, Ollama, or any network.              */
+/* ===================================================================== */
+
+/** A fetch fake that captures the POST body and returns a scripted reply. */
+function fakeFetch(opts: {
+  status?: number;
+  ok?: boolean;
+  response?: string;
+  capture?: (body: {
+    model?: string;
+    options?: { num_predict?: number; num_ctx?: number };
+  }) => void;
+}): typeof fetch {
+  const status = opts.status ?? 200;
+  const ok = opts.ok ?? (status >= 200 && status < 300);
+  const response = opts.response ?? VALID_RETRO;
+  return (async (_url: string, init?: { body?: string }) => {
+    if (opts.capture && init && typeof init.body === "string") {
+      opts.capture(JSON.parse(init.body));
+    }
+    return { ok, status, json: async () => ({ response }) } as unknown as Response;
+  }) as unknown as typeof fetch;
+}
+
+/** Minimal but valid summarizer input (1 source is the documented floor). */
+const SUMM_OPTS = {
+  sources: [mkSource("2026-05-10", "shipped X; stalled Y")],
+  weekIso: "2026-W19",
+};
+
+describe("defaultOllamaSummarizer — host-aware model resolution", () => {
+  const ENV_KEYS = [
+    "PRISM_WEEKLY_SYNTHESIS_OLLAMA_MODEL",
+    "PRISM_WEEKLY_SYNTHESIS_OLLAMA_URL",
+    "PRISM_WEEKLY_SYNTHESIS_OLLAMA_TIMEOUT_MS",
+  ];
+  const saved: Record<string, string | undefined> = {};
+  beforeEach(() => {
+    for (const k of ENV_KEYS) {
+      saved[k] = process.env[k];
+      delete process.env[k];
+    }
+  });
+  afterEach(() => {
+    for (const k of ENV_KEYS) {
+      if (saved[k] === undefined) delete process.env[k];
+      else process.env[k] = saved[k];
+    }
+  });
+
+  it("POSTs the host-resolved model (router tier) when no env pin is set", async () => {
+    let posted: { model?: string; options?: { num_predict?: number } } | null = null;
+    const res = await defaultOllamaSummarizer(SUMM_OPTS, {
+      resolveModel: async () => ({ model: "host-best-sentinel", source: "router" as const }),
+      fetchImpl: fakeFetch({ capture: (b) => (posted = b) }),
+    });
+    expect(res.ok).toBe(true);
+    expect(posted).not.toBeNull();
+    expect(posted!.model).toBe("host-best-sentinel");
+    // num_predict must be unlimited (-1): a harmony reasoning model (gpt-oss:120b)
+    // emits a preamble before the answer; a starving cap -> empty 4-section retro.
+    expect(posted!.options?.num_predict).toBe(-1);
+  });
+
+  it("threads the env pin as `override` and POSTs it (operator pin wins)", async () => {
+    process.env.PRISM_WEEKLY_SYNTHESIS_OLLAMA_MODEL = "operator-pin-model";
+    let seenOverride: string | null | undefined = "UNSET";
+    let posted: { model?: string } | null = null;
+    const res = await defaultOllamaSummarizer(SUMM_OPTS, {
+      // Mimic the real resolver: an explicit override always wins.
+      resolveModel: async (o: { fallback: string; override?: string | null }) => {
+        seenOverride = o.override;
+        if (typeof o.override === "string" && o.override.trim()) {
+          return { model: o.override.trim(), source: "override" as const };
+        }
+        return { model: "should-not-be-used", source: "router" as const };
+      },
+      fetchImpl: fakeFetch({ capture: (b) => (posted = b) }),
+    });
+    expect(res.ok).toBe(true);
+    expect(seenOverride).toBe("operator-pin-model");
+    expect(posted!.model).toBe("operator-pin-model");
+  });
+
+  it("fail-soft to DEFAULT_OLLAMA_MODEL when the resolver throws", async () => {
+    let posted: { model?: string } | null = null;
+    const res = await defaultOllamaSummarizer(SUMM_OPTS, {
+      resolveModel: async () => {
+        throw new Error("resolver boom");
+      },
+      fetchImpl: fakeFetch({ capture: (b) => (posted = b) }),
+    });
+    expect(res.ok).toBe(true);
+    expect(posted!.model).toBe(DEFAULT_OLLAMA_MODEL);
+  });
+
+  it("fail-soft to DEFAULT_OLLAMA_MODEL when the resolver yields an empty model", async () => {
+    let posted: { model?: string } | null = null;
+    await defaultOllamaSummarizer(SUMM_OPTS, {
+      resolveModel: async () => ({ model: "", source: "fallback" as const }),
+      fetchImpl: fakeFetch({ capture: (b) => (posted = b) }),
+    });
+    expect(posted!.model).toBe(DEFAULT_OLLAMA_MODEL);
+  });
+
+  it("returns ok:false http-<status> on a non-2xx reply (no throw)", async () => {
+    const res = await defaultOllamaSummarizer(SUMM_OPTS, {
+      resolveModel: async () => ({ model: "m", source: "router" as const }),
+      fetchImpl: fakeFetch({ status: 503 }),
+    });
+    expect(res).toEqual({ ok: false, error: "http-503" });
+  });
+
+  it("returns ok:false empty-response on a blank/whitespace reply", async () => {
+    const res = await defaultOllamaSummarizer(SUMM_OPTS, {
+      resolveModel: async () => ({ model: "m", source: "router" as const }),
+      fetchImpl: fakeFetch({ response: "   \n  " }),
+    });
+    expect(res).toEqual({ ok: false, error: "empty-response" });
   });
 });
 
@@ -388,7 +516,7 @@ describe("WeeklySynthesisEngine.runWeekly — EXIT CONDITION: 7-day fixture -> a
       received = opts.sources.length;
       return { ok: true, text: VALID_RETRO, model: "test-fake" };
     };
-    const engine = new WeeklySynthesisEngine({ summarizer: capturing });
+    const engine = new WeeklySynthesisEngine({ loader: defaultLoader, summarizer: capturing });
     const r = await engine.runWeekly({ vaultRoot: root, date: ANCHOR });
 
     expect(r.ok).toBe(true);
@@ -425,7 +553,7 @@ describe("WeeklySynthesisEngine.runWeekly — spanning configs", () => {
       receivedDates = opts.sources.map((s) => s.date);
       return { ok: true, text: VALID_RETRO };
     };
-    const engine = new WeeklySynthesisEngine({ summarizer: cap });
+    const engine = new WeeklySynthesisEngine({ loader: defaultLoader, summarizer: cap });
     const r = await engine.runWeekly({ vaultRoot: root, date: ANCHOR });
 
     expect(r.ok).toBe(true);
@@ -437,7 +565,7 @@ describe("WeeklySynthesisEngine.runWeekly — spanning configs", () => {
   it("a single in-window brief satisfies MIN_SOURCES_FOR_RETRO", async () => {
     const root = await mkVault();
     await seedDaily(root, ANCHOR, "the only brief this week");
-    const engine = new WeeklySynthesisEngine({ summarizer: okSummarizer });
+    const engine = new WeeklySynthesisEngine({ loader: defaultLoader, summarizer: okSummarizer });
     const r = await engine.runWeekly({ vaultRoot: root, date: ANCHOR });
     expect(r.ok).toBe(true);
     if (!r.ok) return;
@@ -448,7 +576,7 @@ describe("WeeklySynthesisEngine.runWeekly — spanning configs", () => {
     const root = await mkVault();
     await seedDaily(root, ANCHOR, "brief");
     const outDir = path.join(root, "retros");
-    const engine = new WeeklySynthesisEngine({ summarizer: okSummarizer });
+    const engine = new WeeklySynthesisEngine({ loader: defaultLoader, summarizer: okSummarizer });
     const r = await engine.runWeekly({ vaultRoot: root, date: ANCHOR, outputDir: outDir });
     expect(r.ok).toBe(true);
     if (!r.ok) return;
@@ -463,7 +591,7 @@ describe("WeeklySynthesisEngine.runWeekly — spanning configs", () => {
 
 describe("WeeklySynthesisEngine.runWeekly — failure modes", () => {
   it("invalid-vault-root when the vault dir does not exist", async () => {
-    const engine = new WeeklySynthesisEngine({ summarizer: okSummarizer });
+    const engine = new WeeklySynthesisEngine({ loader: defaultLoader, summarizer: okSummarizer });
     const r = await engine.runWeekly({
       vaultRoot: path.join(os.tmpdir(), `prism-wse-missing-${Date.now()}`),
       date: ANCHOR,
@@ -477,7 +605,7 @@ describe("WeeklySynthesisEngine.runWeekly — failure modes", () => {
     const dir = await fs.mkdtemp(path.join(os.tmpdir(), "prism-wse-f-"));
     const file = path.join(dir, "afile");
     await fs.writeFile(file, "x", "utf8");
-    const engine = new WeeklySynthesisEngine({ summarizer: okSummarizer });
+    const engine = new WeeklySynthesisEngine({ loader: defaultLoader, summarizer: okSummarizer });
     const r = await engine.runWeekly({ vaultRoot: file, date: ANCHOR });
     expect(r.ok).toBe(false);
     if (r.ok) return;
@@ -486,7 +614,7 @@ describe("WeeklySynthesisEngine.runWeekly — failure modes", () => {
 
   it("invalid-date for a non-date string", async () => {
     const root = await mkVault();
-    const engine = new WeeklySynthesisEngine({ summarizer: okSummarizer });
+    const engine = new WeeklySynthesisEngine({ loader: defaultLoader, summarizer: okSummarizer });
     const r = await engine.runWeekly({ vaultRoot: root, date: "not-a-date" });
     expect(r.ok).toBe(false);
     if (r.ok) return;
@@ -495,7 +623,7 @@ describe("WeeklySynthesisEngine.runWeekly — failure modes", () => {
 
   it("invalid-date for an impossible calendar date (2026-02-30 is NOT normalized to Mar 2)", async () => {
     const root = await mkVault();
-    const engine = new WeeklySynthesisEngine({ summarizer: okSummarizer });
+    const engine = new WeeklySynthesisEngine({ loader: defaultLoader, summarizer: okSummarizer });
     const r = await engine.runWeekly({ vaultRoot: root, date: "2026-02-30" });
     expect(r.ok).toBe(false);
     if (r.ok) return;
@@ -505,7 +633,7 @@ describe("WeeklySynthesisEngine.runWeekly — failure modes", () => {
 
   it("invalid-date for a digit-shaped but out-of-range month", async () => {
     const root = await mkVault();
-    const engine = new WeeklySynthesisEngine({ summarizer: okSummarizer });
+    const engine = new WeeklySynthesisEngine({ loader: defaultLoader, summarizer: okSummarizer });
     const r = await engine.runWeekly({ vaultRoot: root, date: "2026-13-01" });
     expect(r.ok).toBe(false);
     if (r.ok) return;
@@ -514,7 +642,7 @@ describe("WeeklySynthesisEngine.runWeekly — failure modes", () => {
 
   it("no-sources when generated/ holds zero DAILY-CONTEXT files", async () => {
     const root = await mkVault(); // generated/ exists but empty
-    const engine = new WeeklySynthesisEngine({ summarizer: okSummarizer });
+    const engine = new WeeklySynthesisEngine({ loader: defaultLoader, summarizer: okSummarizer });
     const r = await engine.runWeekly({ vaultRoot: root, date: ANCHOR });
     expect(r.ok).toBe(false);
     if (r.ok) return;
@@ -525,7 +653,7 @@ describe("WeeklySynthesisEngine.runWeekly — failure modes", () => {
     const root = await mkVault();
     await fs.writeFile(path.join(root, "generated", "WEEKLY-2026-W19.md"), "x", "utf8");
     await fs.writeFile(path.join(root, "generated", "CONNECTIONS-2026-05-10.md"), "y", "utf8");
-    const engine = new WeeklySynthesisEngine({ summarizer: okSummarizer });
+    const engine = new WeeklySynthesisEngine({ loader: defaultLoader, summarizer: okSummarizer });
     const r = await engine.runWeekly({ vaultRoot: root, date: ANCHOR });
     expect(r.ok).toBe(false);
     if (r.ok) return;
@@ -536,7 +664,7 @@ describe("WeeklySynthesisEngine.runWeekly — failure modes", () => {
     const root = await mkVault();
     await seedDaily(root, "2026-04-01", "way too old");
     await seedDaily(root, "2026-05-30", "in the future");
-    const engine = new WeeklySynthesisEngine({ summarizer: okSummarizer });
+    const engine = new WeeklySynthesisEngine({ loader: defaultLoader, summarizer: okSummarizer });
     const r = await engine.runWeekly({ vaultRoot: root, date: ANCHOR });
     expect(r.ok).toBe(false);
     if (r.ok) return;
@@ -547,7 +675,7 @@ describe("WeeklySynthesisEngine.runWeekly — failure modes", () => {
     const root = await mkVault();
     await seedDaily(root, ANCHOR, "brief");
     const failing: SummarizerFn = async () => ({ ok: false, error: "http-503" });
-    const engine = new WeeklySynthesisEngine({ summarizer: failing });
+    const engine = new WeeklySynthesisEngine({ loader: defaultLoader, summarizer: failing });
     const r = await engine.runWeekly({ vaultRoot: root, date: ANCHOR });
     expect(r.ok).toBe(false);
     if (r.ok) return;
@@ -562,7 +690,7 @@ describe("WeeklySynthesisEngine.runWeekly — failure modes", () => {
       ok: true,
       text: "## Moved\nx\n## Didn't move\ny\n## Top-3 next-week leverage\n1. a",
     });
-    const engine = new WeeklySynthesisEngine({ summarizer: partial });
+    const engine = new WeeklySynthesisEngine({ loader: defaultLoader, summarizer: partial });
     const r = await engine.runWeekly({ vaultRoot: root, date: ANCHOR });
     expect(r.ok).toBe(false);
     if (r.ok) return;
@@ -592,7 +720,7 @@ describe("WeeklySynthesisEngine.runWeekly — failure modes", () => {
         "```",
       ].join("\n"),
     });
-    const engine = new WeeklySynthesisEngine({ summarizer: fenced });
+    const engine = new WeeklySynthesisEngine({ loader: defaultLoader, summarizer: fenced });
     const r = await engine.runWeekly({ vaultRoot: root, date: ANCHOR });
     expect(r.ok).toBe(false);
     if (r.ok) return;
@@ -608,7 +736,7 @@ describe("WeeklySynthesisEngine.runWeekly — failure modes", () => {
     const thrower: SummarizerFn = async () => {
       throw new Error("ollama socket exploded mid-stream");
     };
-    const engine = new WeeklySynthesisEngine({ summarizer: thrower });
+    const engine = new WeeklySynthesisEngine({ loader: defaultLoader, summarizer: thrower });
     const r = await engine.runWeekly({ vaultRoot: root, date: ANCHOR });
     expect(r.ok).toBe(false);
     if (r.ok) return;
@@ -622,7 +750,7 @@ describe("WeeklySynthesisEngine.runWeekly — failure modes", () => {
     // a FILE at <root>/blocker makes mkdir(<root>/blocker/nested) fail ENOTDIR
     const blocker = path.join(root, "blocker");
     await fs.writeFile(blocker, "x", "utf8");
-    const engine = new WeeklySynthesisEngine({ summarizer: okSummarizer });
+    const engine = new WeeklySynthesisEngine({ loader: defaultLoader, summarizer: okSummarizer });
     const r = await engine.runWeekly({
       vaultRoot: root,
       date: ANCHOR,
@@ -642,7 +770,7 @@ describe("WeeklySynthesisEngine.runWeekly — failure modes", () => {
     // distinct from the mkdir branch covered above.
     const week = weekIsoUTC(new Date(`${ANCHOR}T00:00:00Z`));
     await fs.mkdir(path.join(root, "generated", `WEEKLY-${week}.md`), { recursive: true });
-    const engine = new WeeklySynthesisEngine({ summarizer: okSummarizer });
+    const engine = new WeeklySynthesisEngine({ loader: defaultLoader, summarizer: okSummarizer });
     const r = await engine.runWeekly({ vaultRoot: root, date: ANCHOR });
     expect(r.ok).toBe(false);
     if (r.ok) return;
@@ -691,7 +819,7 @@ describe("WeeklySynthesisEngine — adversarial: heading-injection + fence traps
         "1. a (fence never closed)",
       ].join("\n"),
     });
-    const engine = new WeeklySynthesisEngine({ summarizer: unterminated });
+    const engine = new WeeklySynthesisEngine({ loader: defaultLoader, summarizer: unterminated });
     const r = await engine.runWeekly({ vaultRoot: root, date: ANCHOR });
     expect(r.ok).toBe(false);
     if (r.ok) return;

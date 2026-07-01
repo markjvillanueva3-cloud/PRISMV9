@@ -1,0 +1,51 @@
+{
+  "schemaVersion": "1.0.0",
+  "controller": "cimco-edit-2026",
+  "generatedBy": "U-CIMCO-SIM-3 (cimco-ui-map.mjs seed)",
+  "note": "CIMCO Edit 2026 Machine-Simulation navigation FSM. Screens are fingerprinted by the set of distinctive NAMED ribbon controls present in a `PrismCimcoUI.exe --op map` read (MSAA accName; the exe walks only controls present in the current ribbon state). Transitions are accDoDefaultAction invokes (--op invoke --name <X>). Control names + da values are the empirically-verified ribbon from spec CIMCO-SPINE2-LIVESIM-PLAN-2026-06-04 sec A/A7 (live --op map walked 1530 controls on DESKTOP-N7MI1VB). A screen matches when ALL its `discriminator` names are present AND none of its `discriminatorAbsent` names are present (mutual exclusion for superset states). report-toggle sub-path is a documented GAP (U-CIMCO-SIM-5/6 live probe).",
+  "updated": "2026-06-08",
+  "screens": {
+    "editor": {
+      "name": "Editor tab (default landing)",
+      "discriminator": ["Editor", "NC Functions"],
+      "note": "Default ribbon tab on launch. Backplot/Machine-Simulation controls are NOT yet active here. Discriminated by the Editor + NC Functions tab controls. (spec-derived; confirm live via record-screen before SIM-5.)"
+    },
+    "backplot": {
+      "name": "Backplot tab (Machine-Simulation surface, sim NOT yet engaged)",
+      "discriminator": ["Machine Simulation", "Backplot Setup", "Configure Machine Type"],
+      "discriminatorAbsent": ["Solid Model", "Show Machine Origin"],
+      "note": "Backplot tab active, sim NOT engaged. spec sec A: Machine Simulation [ENABLED], Machine, Control + Control Type, Backplot (run), Backplot Setup, Backplot File present. discriminatorAbsent makes this MUTUALLY EXCLUSIVE with machine-sim-running (a superset state): the sim-engaged controls (Solid Model / Show Machine Origin) must be ABSENT from the walked tree, else this is the running state. Without this guard the FSM would mis-ID the running state as backplot and re-invoke Machine Simulation from an already-running state (2-reviewer-caught 2026-06-08). NOTE: MSAA may walk DISABLED controls by name; U-CIMCO-SIM-5 must confirm Solid Model is ABSENT-from-tree (not merely greyed) when not engaged."
+    },
+    "machine-sim-running": {
+      "name": "Machine Simulation engaged (3D sim loaded -- SUPERSET of backplot)",
+      "discriminator": ["Machine Simulation", "Solid Model", "Show Machine Origin"],
+      "note": "Sim engine loaded (CIMCO grows ~388 MB; spec sec A2). SUPERSET of backplot -- keeps the Backplot-tab controls AND adds Solid Model / Show Machine Origin. Discriminator INCLUDES Machine Simulation (shared) plus the two sim-only controls, so a running ribbon matches HERE and is excluded from backplot by backplot.discriminatorAbsent. spec sec A: Solid Model / Stock Compare / Tool / axis-kinematics indicators DISABLED until a machine is loaded / sim runs. The report grid (LINE/TYPE/DESCRIPTION/ACTION) lives in this state; reading it is U-CIMCO-SIM-6."
+    }
+  },
+  "transitions": [
+    {
+      "from": "editor",
+      "key": "Backplot",
+      "to": "backplot",
+      "da": "Switch",
+      "label": "Switch to the Backplot ribbon tab",
+      "observed": true,
+      "note": "spec sec A7: Backplot (pagetab, da=Switch). Drive flow Backplot-tab -> Machine-Simulation -> run confirmed via UIA InvokePattern (sec A2) + re-confirmed via MSAA accDoDefaultAction (sec A7)."
+    },
+    {
+      "from": "backplot",
+      "key": "Machine Simulation",
+      "to": "machine-sim-running",
+      "da": "Click",
+      "label": "Engage Machine Simulation (loads the 3D sim engine in-process)",
+      "observed": true,
+      "note": "spec sec A7: Machine Simulation (pushbutton, da=Click, path XTPMainFrame>xtpBarTop>...>The Ribbon). sec A2: sim is IN-PROCESS (does NOT spawn CIMCOSimulation.exe); CIMCO grows ~388 MB. accDoDefaultAction CAN block on a modal (sec A7 8s watchdog) -- the orchestrator handles the modal out-of-band; blocked is NEVER a clearance signal."
+    }
+  ],
+  "gaps": [
+    "backplot -> Backplot Setup dialog -> enable 'Check collision and limit errors' / 'Report errors' / 'Stop Conditions': spec sec A2 -- report toggles are NOT top-level ribbon controls; they live in a Backplot Setup dialog/dropdown. Exact control path resolved by U-CIMCO-SIM-5/6 live dialog dump.",
+    "machine-sim-running -> read Simulation Report grid (LINE/TYPE/DESCRIPTION/ACTION): the verdict surface. Read path is U-CIMCO-SIM-6 (PrismCimcoUI.exe --op read-report C# change + parseSimulationReport).",
+    "backplot -> Machine select / Control Type bind (load the mapped .mcfg + controller): U-CIMCO-SIM-4 machine-bind gate (Romeo supplies the per-machine .mcfg via chat-bus CIMCO-SPINE2-machine-bind).",
+    "VERIFY-LIVE (SIM-5): record-screen each of editor/backplot/machine-sim-running against a real --op map and confirm the spec-derived discriminator names (Configure Machine Type / Solid Model / Show Machine Origin / NC Functions) are actually present-and-realized, and that Solid Model is ABSENT-from-tree (not just greyed) in the backplot (not-engaged) state."
+  ]
+}

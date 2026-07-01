@@ -24,15 +24,39 @@ import { inferAgentIdentity } from "./agent-identity.mjs";
 import { deriveSessionTopic } from "./derive-session-topic.mjs";
 import { resolveWorktreeCwd } from "./resolve-worktree-cwd.mjs";
 import { lastKnownSlotForChat as _lastKnownSlotForChat } from "./slot-identity-cache.mjs";
+import { SLOT_NAMES as _SLOT_NAMES } from "./chat-slots.mjs";
+import { resolveSlotShared } from "../../scripts/lib/slot-resolve-shared.mjs";
+
+// Canonical NATO slot set (Set for O(1) membership). chat-slots.mjs is the
+// single source of truth + has no import-time side effects (main-guarded CLI),
+// same import precedent as per-agent-handoff.mjs. Used to gate the slot-keyed
+// re-entry directive so only a REAL slot yields `/startup-<slot>`.
+const CANONICAL_SLOTS = new Set(_SLOT_NAMES);
 
 const HANDOFFS_DIR = path.resolve("H:/prism/state/shared/handoffs");
 const SESSION_ID_FILE = path.join(HANDOFFS_DIR, ".current-session-ids.json");
 const POSITION_FILE = path.resolve("H:/prism/state/CURRENT_POSITION.md");
+const LOOP_STATE_DIR = path.resolve("H:/prism/state/shared/loop-state");
 const PRISM_ROOT = path.resolve("H:/prism");
+// Hostile-payload caps for loop-state file reads (Synergy #2). Sister to the
+// substrate-health-inject 1MB cap — the loop-state dir is shared across the
+// 26-chat fleet, so a malicious or corrupt file matching this chat's 8-char
+// prefix would otherwise OOM the precompact hook fleet-wide on JSON.parse.
+// A real loop-state file is ~2KB; 64KB is 32× headroom for legitimate growth.
+const MAX_LOOP_STATE_BYTES = 65536;
+const MAX_LOOP_CANDIDATES = 10; // never read more than 10 prefix-matching files
 // Worktree CWD for this session — resolved once per invocation. Eliminates the
 // recurring handoff-clobber bug where every chat's RESUME directive ended up
 // reading H:/prism's commit log instead of its own worktree's commit log.
 let WORKTREE_CWD = PRISM_ROOT; // initialized in main() once session_id is known
+// Full session UUID — captured from PreCompact stdin so generateSmartResume()
+// can read the matching loop-state file. Falls back to null when no UUID is
+// available (Synergy #2: precompact carries active /loop state).
+// NOTE (P2 refactor): module-level mutable state is a hidden coupling between
+// resolveTerminalFromHookStdinOrHelper (writer) + generateSmartResume (reader).
+// Production call-order is correct (main() resolves terminal first), but a
+// future cleanup should thread fullSessionId through identity instead.
+let FULL_SESSION_ID = null;
 
 // Known placeholder RESUME strings that are useless for auto-continue
 const PLACEHOLDER_RESUMES = [
@@ -228,7 +252,153 @@ function extractTopicSlug() {
   return null;
 }
 
-function generateSmartResume(identity) {
+/**
+ * Read the active /loop-state file for a session reference.
+ *
+ * sessionRef may be a full UUID, a `claude-<8hex>` prefix, or null. Returns the
+ * parsed state JSON if a running loop is found, null otherwise. Pure I/O: no
+ * side effects beyond a single readdirSync + readFileSync per match candidate.
+ *
+ * Used by Synergy #2 (precompact carries active /loop state) so the
+ * post-/compact chat's RESUME directive surfaces the in-flight iteration count
+ * without needing to query loop-state.mjs via subprocess.
+ *
+ * @param {string|null} sessionRef
+ * @param {{dir?: string, requireRunning?: boolean, now?: number}} [options]
+ * @returns {object|null}
+ */
+export function readActiveLoopState(sessionRef, options = {}) {
+  const dir = options.dir || LOOP_STATE_DIR;
+  const requireRunning = options.requireRunning !== false; // default true
+  if (!sessionRef || typeof sessionRef !== "string") return null;
+  let files;
+  try {
+    files = fs.readdirSync(dir).filter((f) => f.startsWith("loop-") && f.endsWith(".json"));
+  } catch {
+    return null; // dir missing → no active loop
+  }
+  // Match by full UUID first (loop-state.mjs uses the raw sid as filename).
+  // Then fall back to 8-char prefix matching for `claude-XXXXXXXX` ids.
+  const trimmed = sessionRef.replace(/^claude-/, "");
+  const prefix = trimmed.slice(0, 8);
+  if (prefix.length < 4) return null; // refuse to match on suspiciously short refs
+  // Exact-uuid match first
+  const exact = files.find((f) => f === `loop-${trimmed}.json`);
+  // Then prefix match (8-char window), capped to prevent DoS (P0): a hostile
+  // peer that drops 50 prefix-colliding files cannot make us readFileSync all
+  // 50 — we'd cap at MAX_LOOP_CANDIDATES (10).
+  const candidates = exact
+    ? [exact]
+    : files.filter((f) => f.startsWith(`loop-${prefix}`)).slice(0, MAX_LOOP_CANDIDATES);
+  if (candidates.length === 0) return null;
+  // If multiple match a prefix, pick newest lastTickAt — multiple sessions
+  // sharing a prefix is statistically possible across the 26-chat fleet.
+  let best = null;
+  for (const f of candidates) {
+    try {
+      const full = path.join(dir, f);
+      // P0 hostile-payload guard: refuse files larger than MAX_LOOP_STATE_BYTES.
+      // A real loop-state is ~2KB; a 200MB file would OOM JSON.parse fleet-wide.
+      const st = fs.statSync(full);
+      if (st.size > MAX_LOOP_STATE_BYTES) continue;
+      const s = JSON.parse(fs.readFileSync(full, "utf-8"));
+      if (requireRunning && s.status !== "running") continue;
+      const lastTick = s.lastTickAt ? new Date(s.lastTickAt).getTime() : 0;
+      if (!best || lastTick > best._lastTick) {
+        best = { ...s, _lastTick: lastTick };
+      }
+    } catch {
+      // malformed loop-state file or stat error — skip, don't fail
+    }
+  }
+  if (!best) return null;
+  delete best._lastTick; // internal sort key — don't leak to caller
+  return best;
+}
+
+/**
+ * Format a single-line RESUME hint for an active /loop state, or null if the
+ * state is missing/empty/exceeds-target. Pure — no I/O. Output is a short
+ * directive a post-/compact chat can act on without re-querying.
+ *
+ * @param {object|null} state
+ * @returns {string|null}
+ */
+export function formatLoopResumeLine(state) {
+  if (!state || typeof state !== "object") return null;
+  const iter = Number.isFinite(state.iter) ? state.iter : 0;
+  const target = Number.isFinite(state.target) && state.target > 0 ? state.target : null;
+  const taskRaw = typeof state.task === "string" ? state.task.trim() : "";
+  // R12 fail-loud: surface the unspecified-task case as a hint, don't hide it.
+  // Hiding `(unspecified)` made post-/compact chats unable to tell "no task"
+  // from "task lost in resume" — both rendered the same. Now they differ.
+  const taskUnspecified = taskRaw === "(unspecified)" || taskRaw === "";
+  const task = !taskUnspecified ? taskRaw.slice(0, 80) : null;
+  const sliceCount = target == null
+    ? `iter ${iter}`
+    : iter >= target * 2
+      ? `iter ${iter} EXCEEDED 2× target ${target}`
+      : iter >= target
+        ? `iter ${iter}/${target} (at-target)`
+        : `iter ${iter}/${target}`;
+  const prefix = `Active /loop: ${sliceCount}`;
+  if (task) return `${prefix} — "${task}". RESUME via /loop`;
+  if (taskUnspecified) return `${prefix} (no task on /loop start). RESUME via /loop`;
+  return `${prefix}. RESUME via /loop`;
+}
+
+/**
+ * Resolve THIS chat's slot binding for the handoff (read-only, fail-soft to "").
+ * Two tiers mirror the inline resolution main() used to do at write-time:
+ *   (1) chat-slots.json by chatId -- ephemeral, may have lapsed by precompact;
+ *   (2) the sticky slot-history cache -- survives heartbeat expiry / force-take.
+ * Resolved BEFORE generateSmartResume so the generated RESUME can scope its
+ * git "Last work" to THIS slot's commits and emit a slot-keyed re-entry.
+ */
+function resolveSlotPrefix(identity) {
+  let slotPrefix = "";
+  try {
+    const slotsFile = path.resolve("H:/prism/state/shared/chat-slots.json");
+    if (fs.existsSync(slotsFile)) {
+      const slots = JSON.parse(fs.readFileSync(slotsFile, "utf-8"));
+      // U-SLOT-RESOLVE-UNIFY (2026-06-18): canonical shared resolver (exact
+      // claude-<8hex> in SLOT_NAMES order, then lenient) instead of an inline
+      // insertion-order first-match -- so the handoff is slot-keyed by the same
+      // authority the slot backbone uses. identity.instance is claude-<8hex>.
+      const r = resolveSlotShared(slots, { chatId: identity.instance, sessionId: identity.instance });
+      if (r) slotPrefix = r.slot;
+    }
+  } catch { /* best-effort */ }
+  if (!slotPrefix) {
+    try {
+      const recovered = _lastKnownSlotForChat(identity.instance);
+      if (recovered) slotPrefix = recovered;
+    } catch { /* best-effort */ }
+  }
+  return (slotPrefix || "").toLowerCase();
+}
+
+/**
+ * The autonomous re-entry directive appended to every synthesized RESUME so a
+ * generated handoff is NEVER a dead-end stub: the next session re-enters
+ * /loop /goal (which re-reads the handoff + roadmap to pick the next unit).
+ * Slot-keyed when known so `/startup-<slot>` force-claims the exact slot via
+ * slot-bind-enforce. Pure -- exported for hermetic testing (R9).
+ *
+ * @param {string} slot canonical NATO slot, or "" when unknown
+ * @returns {string}
+ */
+export function buildReentryDirective(slot = "") {
+  const s = (slot || "").toString().trim().toLowerCase();
+  // Only a CANONICAL NATO slot yields the slot-keyed `/startup-<slot>` form;
+  // any garbage/unknown value degrades to the slotless directive (never emit a
+  // bogus `/startup-42`). R12 -- honest about what we can force-claim.
+  return CANONICAL_SLOTS.has(s)
+    ? `Re-enter autonomous work: /startup-${s} /loop [10m] /goal (continue to 100% -- eval-gate each iter, never abandon mid-build; re-reads handoff + roadmap + Obsidian brain/PSN)`
+    : "Re-enter autonomous work: /loop /goal (continue to 100% -- eval-gate each iter, never abandon mid-build; re-reads handoff + roadmap + Obsidian brain/PSN)";
+}
+
+function generateSmartResume(identity, slot = "") {
   const parts = [];
 
   // 0. CRITICAL: Check for claimed milestone in roadmap-index.json
@@ -236,6 +406,19 @@ function generateSmartResume(identity) {
   if (claim.id) {
     parts.push(`CONTINUE YOUR CLAIMED MILESTONE: ${claim.id} (${claim.title})`);
     parts.push(`Use: prism_orchestrate:roadmap_next_batch { milestone_id: "${claim.id}" }`);
+  }
+
+  // 0.5 SYNERGY #2: surface active /loop state so the post-/compact chat
+  // resumes mid-iteration without needing to query loop-state.mjs. Read by
+  // FULL_SESSION_ID (captured from PreCompact stdin), falls back to identity
+  // hints when stdin wasn't available.
+  try {
+    const ref = FULL_SESSION_ID || identity?.instance || identity?.sessionKey || null;
+    const loopState = readActiveLoopState(ref);
+    const loopLine = formatLoopResumeLine(loopState);
+    if (loopLine) parts.push(loopLine);
+  } catch {
+    // Loop-state surfacing is advisory — never block the handoff write on it.
   }
 
   // Warn about other claims to prevent collision
@@ -273,12 +456,29 @@ function generateSmartResume(identity) {
     // Position file unavailable
   }
 
-  // 2. Recent git commits (last 8 hours) for session context
-  const recentCommits = runGit(["log", "--oneline", "-3", "--since=8 hours ago"]);
-  if (recentCommits) {
-    const firstLine = recentCommits.split("\n")[0];
-    parts.push(`Last work: ${firstLine}`);
+  // 2. Recent git commits for session context. Chat-SPECIFIC when the slot is
+  // known: filter to THIS slot's own commits (the subject carries a
+  // `(slot:<name>)` tag) so the resume reflects what THIS chat did -- NOT a
+  // peer's most-recent commit on the shared tree. That peer-commit leak was the
+  // generic-stub bug the operator flagged (a hotel UI commit auto-resumed an
+  // alpha verified-offload session). Fall back to the fleet-recent commit only
+  // when no slot-tagged commit exists, and LABEL it so it is never mistaken for
+  // this chat's work (R12 -- honest about provenance).
+  let lastWork = "";
+  if (slot) {
+    // Anchor on the OPENING paren of the canonical slot tag `(slot:<name>` so a
+    // mid-message MENTION of another slot (e.g. india's "(slot:india rescuing
+    // slot:papa orphan)") never false-matches as that slot's last work -- a
+    // mention is space-prefixed (` slot:papa`), the tag is paren-prefixed.
+    // `(` is a literal in git's default BRE. (2026-06-10 scrutiny P2 fix.)
+    const slotCommits = runGit(["log", "--oneline", "-3", "--since=24 hours ago", `--grep=(slot:${slot}`]);
+    if (slotCommits) lastWork = `Last work (slot ${slot}): ${slotCommits.split("\n")[0]}`;
   }
+  if (!lastWork) {
+    const recentCommits = runGit(["log", "--oneline", "-1", "--since=8 hours ago"]);
+    if (recentCommits) lastWork = `Last fleet commit (NOT necessarily this chat): ${recentCommits.split("\n")[0]}`;
+  }
+  if (lastWork) parts.push(lastWork);
 
   // 3. Roadmap progress summary
   const roadmapSummary = getRoadmapSummary();
@@ -299,15 +499,23 @@ function generateSmartResume(identity) {
     // No session summary
   }
 
+  // The autonomous re-entry directive: makes EVERY generated resume actionable
+  // (never a dead-end stub). The next session re-enters /loop /goal -- which
+  // re-reads THIS handoff + the roadmap to pick the next unit -- so even a thin
+  // synthesized resume continues the work instead of idling. Slot-keyed when
+  // known (force-claims the exact slot via slot-bind-enforce).
+  const reentry = buildReentryDirective(slot);
+
   if (parts.length === 0) {
     const anyCommits = runGit(["log", "--oneline", "-1"]);
-    if (anyCommits) {
-      return `Read git log and roadmap-index.json to determine next work. Last commit: ${anyCommits}. AI: Use DuplicationGuardEngine before creating, PRISMCreativeReasoningEngine for hybrid solutions.`;
-    }
-    return "Read roadmap-index.json and claim an available milestone before starting work. AI: Use DuplicationGuardEngine before creating, PRISMCreativeReasoningEngine for hybrid solutions.";
+    const lead = anyCommits
+      ? `Read git log and roadmap-index.json to determine next work. Last fleet commit: ${anyCommits}.`
+      : "Read roadmap-index.json and claim an available milestone before starting work.";
+    return `${lead} ${reentry}. AI: Use DuplicationGuardEngine before creating, PRISMCreativeReasoningEngine for hybrid solutions.`;
   }
 
-  // Append AI utilization reminder
+  // Append the re-entry directive + AI utilization reminder.
+  parts.push(reentry);
   parts.push("AI: Check DuplicationGuardEngine before creating. Use PRISMCreativeReasoningEngine.explore('optimal') for hybrid solutions");
 
   return parts.join(". ");
@@ -327,6 +535,9 @@ function resolveTerminalFromHookStdinOrHelper() {
           // Side-effect: resolve worktree CWD for runGit calls. Must happen
           // before any runGit invocation (smart resume / topic extraction).
           WORKTREE_CWD = resolveWorktreeCwd(sid);
+          // Stash the FULL UUID so generateSmartResume's loop-state lookup
+          // can match the exact loop-<uuid>.json file (Synergy #2).
+          FULL_SESSION_ID = sid;
           return `claude-${sid.slice(0, 8)}`;
         }
       }
@@ -335,7 +546,7 @@ function resolveTerminalFromHookStdinOrHelper() {
   // (2) Fall back to the stable-session-id helper (uses transcript-file
   //     exact match after the 2026-04-23 fix).
   try {
-    const r = spawnSync(process.execPath, [path.resolve("H:/prism/.claude/helpers/stable-session-id.mjs")], {
+    const r = spawnSync(process.execPath, [path.resolve("H:/prism/.claude/helpers/stable-session-id.mjs")], { windowsHide: true,
       encoding: "utf-8", timeout: 2000,
     });
     const id = (r.stdout || "").trim();
@@ -387,48 +598,24 @@ function main() {
     return;
   }
 
+  // Resolve THIS chat's slot FIRST so the synthesized RESUME can scope its git
+  // "Last work" to this slot's own commits + emit a slot-keyed /loop /goal
+  // re-entry (instead of a peer's commit + a slotless directive).
+  const slotPrefix = resolveSlotPrefix(identity);
+
   // Synthesize a real RESUME from session state (already does heavy lifting)
-  const synthesized = generateSmartResume(identity);
+  const synthesized = generateSmartResume(identity, slotPrefix);
   if (!synthesized || synthesized.length < 30) {
     const msg = `precompact: handoff auto-write skipped — synthesized RESUME too short (${synthesized?.length ?? 0} chars). Run /precompact in live chat for a real directive.`;
     console.log(JSON.stringify({ continue: true, systemMessage: msg }));
     return;
   }
 
-  // Slot-prefix the topic — coincides with /checkin slot binding per user
-  // directive "precompact session handoffs coincide with checkin slots".
-  // Slot lookup: chat-slots.json keyed by chatId.
-  let slotPrefix = "";
-  try {
-    const slotsFile = path.resolve("H:/prism/state/shared/chat-slots.json");
-    if (fs.existsSync(slotsFile)) {
-      const slots = JSON.parse(fs.readFileSync(slotsFile, "utf-8"));
-      for (const [slotName, slot] of Object.entries(slots.slots || {})) {
-        if (slot && slot.chatId === identity.instance) {
-          slotPrefix = slotName;
-          break;
-        }
-      }
-    }
-  } catch { /* best-effort */ }
-  // SLOT-DRIFT-FIX-MS0/U-SDF13 (2026-05-17): sticky-cache fallback. The
-  // chat-slots.json lookup above is EPHEMERAL — heartbeat expiry, peer
-  // force-takeover, or reclaim() can wipe this chat's entry BEFORE the
-  // precompact writer runs. Live failure mode observed 2026-05-17:
-  // chatId `claude-339c8ff7` drifted bravo → bravo → charlie → delta →
-  // unbound across handoffs with the same chatId, because precompact
-  // reads happened when the slot had already lapsed. The sticky cache
-  // (`state/shared/chat-slot-history/<chatId>.json`) is written on every
-  // successful claim and persists past eviction — read it as the final
-  // fallback so the handoff frontmatter carries `slot:` even when the
-  // live slot binding is gone.
-  if (!slotPrefix) {
-    try {
-      const recovered = _lastKnownSlotForChat(identity.instance);
-      if (recovered) slotPrefix = recovered;
-    } catch { /* best-effort */ }
-  }
-
+  // slotPrefix was resolved above (resolveSlotPrefix) BEFORE generateSmartResume
+  // so the synthesized RESUME could be slot-scoped. It carries both tiers
+  // (chat-slots.json by chatId + sticky slot-history cache, SLOT-DRIFT-FIX-MS0/
+  // U-SDF13) so the handoff frontmatter gets `slot:` even when the live binding
+  // has lapsed. Reused here for the topic prefix.
   const baseTopic = extractTopicSlug() || "session";
   const finalTopic = slotPrefix ? `${slotPrefix}-${baseTopic}` : baseTopic;
 
@@ -484,6 +671,33 @@ function main() {
     }
   }
 
+  // HIGHVALUE-DISCOVERY #11a (2026-06-08, slot:alpha): enrich the precompact
+  // handoff with a `## MEMORY_SEED` section BEFORE padding, so auto-compact under
+  // pressure (when retention matters most) carries the distilled error/memo/tribal
+  // signal — which the U-MEMORY-SEED-READER (#2) restores on the post-compact
+  // resume. Without this, the Stop seed-distiller only runs at end-of-turn (Stop),
+  // never on the PreCompact-written handoff that the resume actually reads. Same
+  // distiller the Stop hook uses (handoff-memory-seed.mjs --file). Fail-soft: any
+  // failure leaves the (already-written) RESUME-only handoff intact. Runs before
+  // padding so the ≤2KB seed eats pad budget (no-seed case stays fixed-size 4096).
+  // seedInfo surfaces the distill outcome in the final systemMessage (R12 fail-loud)
+  // — a silent seed-distill failure would otherwise degrade retention with zero
+  // signal; this matches the writer/pad convention of reporting status into `msg`.
+  let seedInfo = "no-seed";
+  if (writeOk && writtenFile && process.env.PRISM_PRECOMPACT_MEMORY_SEED_DISABLE !== "1") {
+    try {
+      const seedScript = path.resolve("H:/prism/scripts/handoff-memory-seed.mjs");
+      if (fs.existsSync(seedScript)) {
+        const seedRes = spawnSync(process.execPath, [seedScript, "--file", writtenFile], { encoding: "utf-8", timeout: 6000, windowsHide: true });
+        seedInfo = (seedRes.status === 0 && !seedRes.error)
+          ? "seeded"
+          : `seed-failed(status=${seedRes.status ?? "?"}${seedRes.error ? ":" + String(seedRes.error.code || seedRes.error.message).slice(0, 40) : ""})`;
+      } else {
+        seedInfo = "seed-skipped-no-distiller";
+      }
+    } catch (e) { seedInfo = `seed-error:${(e && e.message ? e.message : "unknown").slice(0, 40)}`; }
+  }
+
   // 2026-05-15: PAD-TO-FIXED-SIZE per user directive ("make the precompact
   // hook generate a session handoff the exact same size everytime"). Pads
   // the just-written handoff to PRISM_PRECOMPACT_HANDOFF_PAD_BYTES (default
@@ -509,7 +723,7 @@ function main() {
   }
 
   const msg = writeOk
-    ? `precompact: auto-write OK (${writeMsg}, topic=${finalTopic}, ${padInfo})`
+    ? `precompact: auto-write OK (${writeMsg}, topic=${finalTopic}, ${seedInfo}, ${padInfo})`
     : `precompact: auto-write attempted (${writeMsg}). Run /precompact in live chat to override.`;
   console.log(JSON.stringify({ continue: true, systemMessage: msg }));
 }

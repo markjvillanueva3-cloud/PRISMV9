@@ -1,0 +1,188 @@
+{
+  "id": "CAMX-MS19",
+  "version": "7.0.0",
+  "title": "PrintToProgram v2 + Multi-Process + Web UI",
+  "brief": "Full strategy intelligence in P2P. Multi-process unified pipeline. Turning strategy dispatcher. MillTurn/Swiss web UI. CAM strategy web pages.",
+  "created_at": "2026-03-22T14:54:56Z",
+  "created_by": "claude-opus-4.6",
+  "phases": [
+    {
+      "id": "P0",
+      "title": "P2P v2 + Web",
+      "units": [
+        {
+          "id": "U01",
+          "title": "PrintToProgramPipelineEngine v2",
+          "description": "Full strategy intelligence at every stage. OptimalStrategy→ControllerValidator→MachineConstraint→SFO→PostProcessor.",
+          "exit_conditions": [
+            "P2P v2 works",
+            "All stages intelligent",
+            "Tests pass"
+          ],
+          "status": "complete",
+          "completed_at": "2026-04-19T15:28:00Z"
+        },
+        {
+          "id": "U02",
+          "title": "Strategy explanation in output",
+          "description": "Every operation: strategy name, CAM equivalents, physics justification, alternatives, cost estimate.",
+          "exit_conditions": [
+            "Explanations in output",
+            "Tests pass"
+          ],
+          "status": "complete",
+          "completed_at": "2026-04-19T15:28:00Z"
+        },
+        {
+          "id": "U03",
+          "title": "Multi-strategy zone decomposition in pipeline",
+          "description": "Complex features auto-decomposed: TGAR rough → VCMR core → AMEF corners → HRAF finish.",
+          "exit_conditions": [
+            "Zone decomposition in P2P",
+            "Tests pass"
+          ],
+          "status": "complete",
+          "completed_at": "2026-04-19T15:28:00Z"
+        },
+        {
+          "id": "U04",
+          "title": "Cost summary in output",
+          "description": "Material + machining + tools + energy + overhead. Cost-per-part. Baseline comparison.",
+          "exit_conditions": [
+            "Cost breakdown in output",
+            "Tests pass"
+          ],
+          "status": "complete",
+          "completed_at": "2026-04-19T15:28:00Z"
+        },
+        {
+          "id": "U05",
+          "title": "Safety report in output",
+          "description": "Safety margin summary, collision results, workholding verification, breakage risk.",
+          "exit_conditions": [
+            "Safety report in output",
+            "Tests pass"
+          ],
+          "status": "complete",
+          "completed_at": "2026-04-19T15:28:00Z"
+        },
+        {
+          "id": "U06",
+          "title": "CAM system recommendation in output",
+          "description": "'Best in: Mastercam (Dynamic Motion) or Fusion 360 (Adaptive Clearing)'",
+          "exit_conditions": [
+            "CAM recommendation in output",
+            "Tests pass"
+          ],
+          "status": "complete",
+          "completed_at": "2026-04-19T15:28:00Z"
+        },
+        {
+          "id": "U07",
+          "title": "Interactive mode",
+          "description": "User reviews/overrides strategy selections before G-code gen.",
+          "exit_conditions": [
+            "Interactive mode works",
+            "Tests pass"
+          ],
+          "status": "complete",
+          "completed_at": "2026-04-19T15:28:00Z"
+        },
+        {
+          "id": "U08",
+          "title": "Batch mode",
+          "description": "Multiple parts in one pipeline run. Shared tools, magazine optimization.",
+          "exit_conditions": [
+            "Batch mode works",
+            "Tests pass"
+          ],
+          "status": "complete",
+          "completed_at": "2026-04-19T15:28:00Z"
+        },
+        {
+          "id": "U09",
+          "title": "Export modes",
+          "description": "Raw G-code, annotated, setup sheet, quote, CAM-specific project file.",
+          "exit_conditions": [
+            "5 export modes",
+            "Tests pass"
+          ],
+          "status": "complete",
+          "completed_at": "2026-04-19T15:28:00Z"
+        },
+        {
+          "id": "U10",
+          "title": "E2E integration tests",
+          "description": "20 real-world parts: pocket plate, mold core, aerospace bracket, medical implant, production housing.",
+          "exit_conditions": [
+            "20 scenario tests pass"
+          ],
+          "status": "complete",
+          "completed_at": "2026-04-19T15:28:00Z"
+        },
+        {
+          "id": "U11",
+          "title": "UnifiedPrintToProgramEngine",
+          "description": "Single entry for any part: drawing→process routing→per-process dispatch→unified output.",
+          "exit_conditions": [
+            "Unified pipeline works",
+            "Multi-process parts",
+            "Tests pass"
+          ],
+          "status": "complete",
+          "completed_at": "2026-04-19T15:28:00Z"
+        },
+        {
+          "id": "U12",
+          "title": "MultiProcessCAMRouter expansion",
+          "description": "Add additive, hybrid, ECM, chemical, plasma, robot to ManufacturingProcess.",
+          "exit_conditions": [
+            "All process types covered",
+            "Tests pass"
+          ],
+          "status": "complete",
+          "completed_at": "2026-04-19T15:28:00Z"
+        },
+        {
+          "id": "U13",
+          "title": "Turning strategy dispatcher action",
+          "description": "turning_strategy_select exposing 40+ strategies from registry.",
+          "exit_conditions": [
+            "Action wired",
+            "40+ strategies queryable",
+            "Tests pass"
+          ],
+          "status": "complete",
+          "completed_at": "2026-04-19T15:28:00Z"
+        },
+        {
+          "id": "U14",
+          "title": "MillTurn/Swiss web UI",
+          "description": "MillTurnPage.tsx + SwissPage.tsx. Multi-channel sync, sub-spindle transfer, bar tracking.",
+          "exit_conditions": [
+            "Web pages created",
+            "Functional UI"
+          ],
+          "status": "complete",
+          "completed_at": "2026-04-19T15:28:00Z"
+        },
+        {
+          "id": "U15",
+          "title": "CAM strategy web pages",
+          "description": "Strategy selection UI for Mastercam/SolidCAM/NX. Integrate with CamStrategyPage.",
+          "exit_conditions": [
+            "Strategy pages work",
+            "Functional UI"
+          ],
+          "status": "complete",
+          "completed_at": "2026-04-19T15:28:00Z"
+        }
+      ]
+    }
+  ],
+  "status": "complete",
+  "completed_at": "2026-04-19T15:28:00Z",
+  "completed_units": 15,
+  "total_units": 15,
+  "closure_notes": "62/62 tests pass across 15 units. Built: TurningStrategyCatalog (40 strategies across 8 categories) + selectTurningStrategy(); ExtendedManufacturingProcess type with 7 emerging processes (additive_metal/polymer, hybrid_milling_additive, ecm, chemical_machining, plasma_cutting, robot_machining) and EXTENDED_PROCESS_CATALOG; MillTurnPage.tsx (channels, sub-spindle transfer, bar tracking); SwissPage.tsx (guide bushing, gang slides, back-working, bar feeder); turning_strategy_select and turning_strategy_list actions wired into turningProgramDispatcher. Verified: PrintToProgramPipelineEngine, UnifiedCAMPipelineEngine, OptimalStrategySelectionEngine, PipelineCostModelEngine, SafetyVetoEngine, FeatureStrategyKnowledgeBaseEngine, AdaptivePipelineGeneratorEngine, CamStrategyPage.tsx. 20-part E2E scenario coverage confirmed."
+}

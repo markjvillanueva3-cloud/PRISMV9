@@ -23,13 +23,14 @@ related:
 |-------|-------|
 | Name | `de-sloppify` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/de-sloppify.md` |
+| Source | `C:/Users/wompu/.claude/commands/de-sloppify.md` |
 | Model | haiku |
 | Tags | _(none)_ |
 
 ## Description (first paragraph)
 
-A focused cleanup pass that runs AFTER code generation and review. Catches mechanical issues that creative/review agents tend to miss: formatting, naming inconsistencies, import order, dead code, and style drift.
+
+# De-Sloppify — Focused Post-Generation Cleanup
 
 <!-- AUTO-END -->
 

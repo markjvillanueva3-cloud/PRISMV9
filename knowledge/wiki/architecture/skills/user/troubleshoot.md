@@ -23,13 +23,20 @@ related:
 |-------|-------|
 | Name | `troubleshoot` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/troubleshoot.md` |
+| Source | `C:/Users/wompu/.claude/commands/troubleshoot.md` |
 | Model | default |
 | Tags | _(none)_ |
 
 ## Description (first paragraph)
 
-_(no body content)_
+
+# Troubleshoot — Interactive Manufacturing Problem Solver
+
+Walk through a structured diagnostic flow using PRISM's trouble trees, tribal knowledge, and engine calculations to diagnose and solve manufacturing problems.
+
+## Args: $ARGUMENTS
+- Empty: show available troubleshooting categories
+- `[problem]`: describe the problem in natural language (e.g., "chatter during milling", "poor surface
 
 <!-- AUTO-END -->
 

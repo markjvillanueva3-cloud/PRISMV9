@@ -23,13 +23,20 @@ related:
 |-------|-------|
 | Name | `hook-profile` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/hook-profile.md` |
+| Source | `C:/Users/wompu/.claude/commands/hook-profile.md` |
 | Model | default |
 | Tags | _(none)_ |
 
 ## Description (first paragraph)
 
-_(no body content)_
+
+# Hook Profile — Hook Overhead Analyzer
+
+You are profiling the hook system to identify token overhead, find the heaviest hooks, and suggest optimizations. With 9 hook scripts and 46+ hookify rules firing on every tool call, understanding their cost is essential for token efficiency.
+
+## Args: $ARGUMENTS
+- Empty: full profile — all hooks and rules
+- `scripts`: profile shell hook scripts onl
 
 <!-- AUTO-END -->
 

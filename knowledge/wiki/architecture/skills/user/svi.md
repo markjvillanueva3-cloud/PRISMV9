@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `svi` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/svi.md` |
+| Source | `C:/Users/wompu/.claude/commands/svi.md` |
 | Model | default |
 | Tags | _(none)_ |
 

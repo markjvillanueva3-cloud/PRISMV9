@@ -119,6 +119,7 @@ describe('buildJMDieCalculatorPostWorkflowState', () => {
         summary: 'JM Die curated wire packages are active.',
         posture: 'curated-service',
         note: 'JM Die curated wire package is active.',
+        usesJMDieSeed: true,
       },
       programming: {
         id: 'cimatron',

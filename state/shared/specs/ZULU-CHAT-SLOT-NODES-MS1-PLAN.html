@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta name="prism-source-hash" content="38722cc19f180397b0bdc176cd2058b4f9d21d6bfa25f3e3f0d9e179331d6e61">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ZEBRA-CHAT-SLOT-NODES-MS1 — Per-slot deep population (5-parallel-agent autopilot)</title>
+<style>
+  :root {
+    --bg: #0f1014;
+    --panel: #1a1c23;
+    --panel-2: #232631;
+    --fg: #e4e6eb;
+    --fg-dim: #9aa0a8;
+    --border: #2c303a;
+    --ok: #4ade80;
+    --warn: #fbbf24;
+    --fail: #f87171;
+    --info: #60a5fa;
+    --link: #93c5fd;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; padding: 1.5rem; background: var(--bg); color: var(--fg);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, sans-serif;
+    font-size: 14px; line-height: 1.5; }
+  h1 { font-size: 1.6rem; margin: 0 0 0.25rem 0; }
+  h2 { font-size: 1.15rem; margin: 1.5rem 0 0.5rem 0; padding-bottom: 0.25rem;
+    border-bottom: 1px solid var(--border); color: var(--fg); }
+  .meta { color: var(--fg-dim); font-size: 0.85rem; margin-bottom: 1rem; }
+  .panel { background: var(--panel); border: 1px solid var(--border); border-radius: 6px;
+    padding: 0.75rem 1rem; margin-bottom: 1rem; }
+  .headline-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 0.5rem; margin-bottom: 1rem; }
+  .card { background: var(--panel-2); border: 1px solid var(--border); border-radius: 6px;
+    padding: 0.65rem 0.85rem; }
+  .card .lbl { font-size: 0.8rem; color: var(--fg-dim); }
+  .card .val { font-size: 1.4rem; font-weight: 600; margin: 0.15rem 0; font-variant-numeric: tabular-nums; }
+  .card .hint { font-size: 0.75rem; color: var(--fg-dim); }
+  .card.ok    { border-left: 3px solid var(--ok); }
+  .card.warn  { border-left: 3px solid var(--warn); }
+  .card.fail  { border-left: 3px solid var(--fail); }
+  .card.info  { border-left: 3px solid var(--info); }
+  table { width: 100%; border-collapse: collapse; margin: 0.5rem 0 1rem; font-size: 0.9rem;
+    background: var(--panel); border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }
+  caption { text-align: left; padding: 0.4rem 0.65rem; color: var(--fg-dim);
+    background: var(--panel-2); font-weight: 500; }
+  th, td { padding: 0.4rem 0.65rem; text-align: left; border-bottom: 1px solid var(--border);
+    font-variant-numeric: tabular-nums; vertical-align: top; }
+  th { background: var(--panel-2); color: var(--fg-dim); font-weight: 500;
+    text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.04em; }
+  tr:last-child td { border-bottom: none; }
+  td.right { text-align: right; }
+  ul, ol { margin: 0.4rem 0 1rem 1.25rem; }
+  li { margin: 0.15rem 0; }
+  .badge { display: inline-block; padding: 0.1rem 0.5rem; border-radius: 999px;
+    font-size: 0.75rem; font-weight: 500; background: var(--panel-2); color: var(--fg-dim);
+    border: 1px solid var(--border); }
+  .badge.ok   { background: rgba(74, 222, 128, 0.12); color: var(--ok);   border-color: rgba(74,222,128,0.3); }
+  .badge.warn { background: rgba(251, 191, 36, 0.12); color: var(--warn); border-color: rgba(251,191,36,0.3); }
+  .badge.fail { background: rgba(248, 113, 113, 0.12); color: var(--fail); border-color: rgba(248,113,113,0.3); }
+  .badge.info { background: rgba(96, 165, 250, 0.12); color: var(--info); border-color: rgba(96,165,250,0.3); }
+  .badge-grid { display: flex; flex-wrap: wrap; gap: 0.3rem; margin: 0.3rem 0 1rem 0; }
+  .kv { display: grid; grid-template-columns: max-content 1fr; gap: 0.2rem 0.85rem;
+    margin: 0.4rem 0 1rem 0; }
+  .kv .k { color: var(--fg-dim); }
+  svg.bar-chart { display: block; max-width: 100%; height: auto; }
+  svg .bar { fill: var(--info); }
+  svg .bar.ok   { fill: var(--ok); }
+  svg .bar.warn { fill: var(--warn); }
+  svg .bar.fail { fill: var(--fail); }
+  svg text { fill: var(--fg); font-family: monospace; font-size: 11px; }
+  svg .axis text { fill: var(--fg-dim); }
+  code { background: var(--panel-2); padding: 0 0.3rem; border-radius: 3px;
+    font-family: "Fira Code", Consolas, Menlo, monospace; font-size: 0.85em; }
+  a { color: var(--link); }
+  footer { margin-top: 2rem; padding-top: 0.75rem; border-top: 1px solid var(--border);
+    font-size: 0.8rem; color: var(--fg-dim); }
+</style>
+</head>
+<body>
+<h1>ZEBRA-CHAT-SLOT-NODES-MS1 — Per-slot deep population (5-parallel-agent autopilot)</h1>
+<div class="meta">rendered from state/shared/specs/ZEBRA-CHAT-SLOT-NODES-MS1-PLAN.md</div>
+<div class="meta">Generated 2026-05-26T02:58:38.400Z</div>
+<style>
+  .prism-md-body { max-width: 70rem; margin: 0 auto; }
+  .prism-h1 { font-size: 1.6rem; }
+  .prism-h2 { font-size: 1.25rem; border-bottom: 1px solid var(--border); padding-bottom: 0.25rem; }
+  .prism-h3 { font-size: 1.1rem; color: var(--info); }
+  .prism-h4, .prism-h5, .prism-h6 { font-size: 1rem; color: var(--fg-dim); }
+  .prism-md-body p { margin: 0.5rem 0; }
+  .prism-md-list { margin: 0.5rem 0 0.5rem 1.25rem; padding: 0; }
+  .prism-md-list li { margin: 0.15rem 0; }
+  .prism-md-table { border-collapse: collapse; margin: 0.75rem 0; width: 100%; }
+  .prism-md-table th, .prism-md-table td { border: 1px solid var(--border); padding: 0.35rem 0.6rem; text-align: left; }
+  .prism-md-table th { background: var(--panel-2); }
+  .prism-codeblock { background: var(--panel-2); border: 1px solid var(--border); border-radius: 4px; padding: 0.6rem 0.8rem; overflow-x: auto; font-family: "Cascadia Code", Consolas, monospace; font-size: 13px; }
+  .prism-inline-code { background: var(--panel-2); padding: 0 0.25rem; border-radius: 3px; font-family: "Cascadia Code", Consolas, monospace; font-size: 0.92em; }
+  .prism-quote { border-left: 3px solid var(--info); background: var(--panel-2); padding: 0.5rem 0.85rem; margin: 0.75rem 0; color: var(--fg-dim); }
+  .prism-hr { border: 0; border-top: 1px solid var(--border); margin: 1rem 0; }
+  .prism-link { color: var(--link); text-decoration: none; }
+  .prism-link:hover { text-decoration: underline; }
+  .prism-bad-link { color: var(--fail); text-decoration: line-through; }
+  .prism-unclosed::before { content: "⚠ unterminated code block"; display: block; color: var(--warn); font-size: 0.85em; margin-bottom: 0.25rem; }
+  </style><main class="prism-md-body"><h1 class="prism-h1">ZEBRA-CHAT-SLOT-NODES-MS1 — Per-slot deep population (5-parallel-agent autopilot)</h1>
+<p><strong>Date:</strong> 2026-05-25 · <strong>Slot:</strong> bravo (<code class="prism-inline-code">claude-7979e425</code>) · <strong>Origin:</strong> user directive <em>&quot;each chat agent becomes fully self aware of their domain and their task to produce a value generating feature of the prism app or improvements to overall system&quot;</em></p>
+<p>Follow-on to <strong>ZEBRA-CHAT-SLOT-NODES-MS0</strong> (foundation, this commit) which shipped the chat-fleet roost + 26 NATO slot nodes + baseline PSN synergy edges. MS1 deepens each per-slot node with engine refs, tribal-knowledge refs, CAD/print resources, PRISM-AI feature bindings, and active-work refs — making each chat-slot node a <strong>rich PSN-leg consumer surface</strong>.</p>
+<p>This is the durable execution plan for a <strong>5-parallel-agent autopilot</strong> run in the next session (current session at 75% context — fail-loud-honest about budget).</p>
+<h2 class="prism-h2">MS0 baseline (already shipped)</h2>
+<ul class="prism-md-list"><li><code class="prism-inline-code">scripts/generate-chat-slot-nodes-features.mjs</code> — generator</li><li><code class="prism-inline-code">scripts/generate-chat-slot-nodes-features.test.mjs</code> — 20/20 tests pass</li><li>Registered in <code class="prism-inline-code">scripts/regen-viz.mjs</code> FAST[] + <code class="prism-inline-code">scripts/merge-augmentations.mjs</code> splice</li><li>Augmentation output: <code class="prism-inline-code">state/shared/system-viz/chat-slot-nodes-augmentation.json</code></li><li>Schema: 1 roost (<code class="prism-inline-code">ghost.chat_fleet</code>) + 26 children (<code class="prism-inline-code">ghost.chat_slot.&lt;slot&gt;</code>)</li><li>Each child has metadata <code class="prism-inline-code">{slot, sessionId, branch, topic, loopRunning, tokenZone, decision, refuseCount, hermesRole, skipped}</code></li><li>Synergy edges per slot: soul · token · branch · loop (if bound) · domain (from hermes_role)</li></ul>
+<h2 class="prism-h2">MS1 unit decomposition (5 parallel-agent batches)</h2>
+<p>The 26 slots split into <strong>5 batches of ~5 slots each</strong> so the autopilot can run 4 parallel research/build agents + 1 integrator (me) per batch:</p>
+<table class="prism-md-table"><thead><tr><th>Batch</th><th>Slots (5 each)</th><th>Primary domain bias</th></tr></thead><tbody><tr><td><strong>B1</strong></td><td>alpha, bravo, charlie, delta, echo</td><td>mill / wedm / cad</td></tr>
+<tr><td><strong>B2</strong></td><td>foxtrot, golf, hotel, india, juliett</td><td>hygiene / erp / post / speed-feed</td></tr>
+<tr><td><strong>B3</strong></td><td>kilo, lima, mike, november, oscar</td><td>print-to-program / academy / misc</td></tr>
+<tr><td><strong>B4</strong></td><td>papa, quebec, romeo, sierra, tango</td><td>unassigned / dev-ops / orchestration</td></tr>
+<tr><td><strong>B5</strong></td><td>uniform, victor, whiskey, xray, yankee, zulu, zebra</td><td>unassigned + orchestrator (zebra)</td></tr></tbody></table>
+<p>For each slot, the agent enriches the node with these refs (where applicable):</p>
+<h3 class="prism-h3">U-CSN-M1 — Engine refs (per slot domain)</h3>
+<ul class="prism-md-list"><li>Bravo → mill engines (KienzleForceModel, UltimateSpeedFeed, ChatterStabilityLobe, etc.)</li><li>Charlie → wire-EDM engines</li><li>Delta → CAD engines</li><li>Echo → CAM-toolpath engines</li><li>(Default lookup: PRISMSelfAwarenessEngine.recommendAIFeatures(slot.hermes_role))</li></ul>
+<p>Each ref becomes a <code class="prism-inline-code">synergy</code> edge <code class="prism-inline-code">chat_slot.&lt;slot&gt; → engine.&lt;name&gt;</code> (graph already has engine nodes).</p>
+<h3 class="prism-h3">U-CSN-M2 — Tribal-knowledge refs</h3>
+<p>For each slot domain, attach top-K tribal tips (<code class="prism-inline-code">knowledge/tribal/&lt;domain&gt;-<em>-tips-</em>.md</code>). Edge: <code class="prism-inline-code">chat_slot.&lt;slot&gt; → tribal-tip.&lt;id&gt;</code> (kind: <code class="prism-inline-code">synergy</code>, label: <code class="prism-inline-code">tribal-knowledge</code>).</p>
+<h3 class="prism-h3">U-CSN-M3 — Wiki refs</h3>
+<p>Master-index search for the slot&#39;s domain → top-3 wiki entries. Edge: <code class="prism-inline-code">chat_slot.&lt;slot&gt; → wiki.&lt;entry-slug&gt;</code> (kind: <code class="prism-inline-code">synergy</code>, label: <code class="prism-inline-code">wiki</code>).</p>
+<h3 class="prism-h3">U-CSN-M4 — Resource refs (CAD/prints/docs, where applicable)</h3>
+<p>For shop-floor-bound slots (mill/lathe/wedm specialists), attach:</p>
+<ul class="prism-md-list"><li>JM Die customer-folder refs (<code class="prism-inline-code">H:/PRISM/JM DIE/&lt;MACHINE&gt;/&lt;CUSTOMER&gt;/</code>)</li><li>Recent print-to-program units</li><li>Active CAD/STEP files in regression test sets</li></ul>
+<h3 class="prism-h3">U-CSN-M5 — PRISM-AI feature refs</h3>
+<p>For each slot, call <code class="prism-inline-code">PRISMSelfAwarenessEngine.recommendAIFeatures(domain)</code> and attach top-K AI engine refs (creative reasoning, multi-path reasoning, etc.).</p>
+<h3 class="prism-h3">U-CSN-M6 — Active-work refs</h3>
+<p>For each bound slot, parse the slot&#39;s recent git commits (<code class="prism-inline-code">git log --author-pattern slot/&lt;name&gt;</code>) and attach the current unit-in-flight as a <code class="prism-inline-code">current-work</code> edge.</p>
+<h2 class="prism-h2">Acceptance criteria</h2>
+<p>MS1 ships when:</p>
+<ul class="prism-md-list"><li>Each of 26 slot nodes has <strong>≥3 enrichment edges</strong> beyond the MS0 baseline (engine, tribal, wiki).</li><li>Resource edges (CAD/print) emit only for slots where applicable (domain filter).</li><li>AI feature edges land for every soul-bound slot.</li><li>Active-work edges land for every chat-bound slot with recent commits.</li><li>All edges idempotent (re-run produces no duplicates — <code class="prism-inline-code">existingNodeIds</code> + <code class="prism-inline-code">edgeKey</code> dedup).</li><li>Hermetic tests for each enrichment fn (pure-fn over a synthetic slot+ctx fixture).</li><li>/system-viz dashboard renders the enriched fleet — visual confirmation each slot node has the right substrate bindings.</li></ul>
+<h2 class="prism-h2">Execution protocol — 5-parallel-agent autopilot</h2>
+<p><strong>Per batch (5 slots, ~30 min wall time):</strong></p>
+<ol class="prism-md-list"><li><strong>Spawn 4 parallel agents</strong> (<code class="prism-inline-code">Explore</code> subagent_type):</li></ol>
+<ul class="prism-md-list"><li>Agent A: B1.slot1 enrichment research</li><li>Agent B: B1.slot2 enrichment research</li><li>Agent C: B1.slot3 enrichment research</li><li>Agent D: B1.slot4 enrichment research</li></ul>
+<p>Each agent reports: engine refs + tribal refs + wiki refs + resource refs + AI feature refs for its slot.</p>
+<ol class="prism-md-list"><li><strong>Me (5th agent)</strong> handles B1.slot5 + integrates results from A-D into the generator.</li><li><strong>Append enrichment fn</strong> to <code class="prism-inline-code">scripts/generate-chat-slot-nodes-features.mjs</code> (new exported <code class="prism-inline-code">enrichSlot(slot, ctx, refs)</code> pure fn).</li><li><strong>Re-run generator</strong> → augmentation updated with new edges.</li><li><strong>Run <code class="prism-inline-code">node scripts/regen-viz.mjs --fast</code></strong> → graph rebuilt with enrichment.</li><li><strong>Per-batch commit</strong> with [BOOTSTRAP-SLOT-ENFORCE] prefix.</li></ol>
+<p>Repeat for B2..B5. End-of-task 3-of-3 scrutiny on the final batch.</p>
+<h2 class="prism-h2">Risk register</h2>
+<table class="prism-md-table"><thead><tr><th>Risk</th><th>Class</th><th>Mitigation</th></tr></thead><tbody><tr><td>Context wall mid-batch (each Explore agent costs 150-250K)</td><td>P0</td><td>Cap to 1 batch per session if context &gt;40% on entry; 2 batches if &lt;30%</td></tr>
+<tr><td>Domain mis-classification (bravo not actually mill?)</td><td>P1</td><td>Read <code class="prism-inline-code">slot-soul.&lt;slot&gt;.md</code> <code class="prism-inline-code">domain_filter</code> field — that&#39;s the canonical source</td></tr>
+<tr><td>Engine refs explode graph size (26 × ≥3 engines = 78+ edges minimum)</td><td>P2</td><td>Cap top-K=5 per slot per substrate</td></tr>
+<tr><td>/system-viz regen OOM on the enriched graph</td><td>P1</td><td>Streaming JSON I/O already shipped (U-VIZ-STREAMING-IO, papa 2026-05-24)</td></tr>
+<tr><td>Concurrent agent edits to same generator file</td><td>P0</td><td>Sequential append per batch — no parallel edits to <code class="prism-inline-code">generate-chat-slot-nodes-features.mjs</code></td></tr>
+<tr><td>Slot soul says &quot;specialist-X&quot; where X isn&#39;t a known PRISM domain</td><td>P2</td><td>Fall-soft: tag node with <code class="prism-inline-code">domain:unknown</code>, emit advisory</td></tr></tbody></table>
+<h2 class="prism-h2">Out of scope (deliberate)</h2>
+<ul class="prism-md-list"><li><strong>Lifting the operator-gate</strong> — chat-slot nodes remain SUGGESTION-only surfaces; no actuation.</li><li><strong>Real-time enrichment refresh</strong> — MS1 ships static enrichment, regenerated on <code class="prism-inline-code">regen-viz.mjs</code> runs. Real-time would need a daemon.</li><li><strong>Cross-slot decision logic</strong> — that&#39;s Zebra&#39;s MS1 territory (<code class="prism-inline-code">decideSlotAction</code> ADT). Different envelope.</li></ul>
+<h2 class="prism-h2">Cross-refs</h2>
+<ul class="prism-md-list"><li><strong>MS0 commit</strong>: this session&#39;s foundation commit (chat-slot-nodes generator + tests + registration)</li><li><strong>Library</strong>: <code class="prism-inline-code">scripts/lib/zebra-context-bundle.mjs</code> (PSN aggregator — already shipped)</li><li><strong>CLI</strong>: <code class="prism-inline-code">scripts/zebra-context-load.mjs</code> + <code class="prism-inline-code">scripts/zebra-context-fleet-dashboard.mjs</code></li><li><strong>Hook</strong>: <code class="prism-inline-code">.claude/hooks/slot-context-bundle-inject.mjs</code> (per-prompt fleet precheck)</li><li><strong>Spec source</strong>: ZEBRA-OMNISCIENT-MS0-PLAN.md §5 (5-surface read-side complete)</li><li><strong>Wiki</strong>: <code class="prism-inline-code">knowledge/wiki/architecture/zebra-omniscient-ms0.md</code></li><li><strong>Memory</strong>: <code class="prism-inline-code">reference_zebra_fleet_precheck_2026_05_25.md</code> · <code class="prism-inline-code">reference_u_zo_ms0_05_06_2026_05_25.md</code></li></ul>
+<h2 class="prism-h2">Synergy contract (per /goal directive 2026-05-25)</h2>
+<p>Operator directive (paraphrased): <em>&quot;each chat agent becomes fully self aware of their domain and their task to produce a value generating feature of the prism app or improvements to overall system&quot;</em>.</p>
+<p><strong>MS0 satisfies the foundation:</strong> every slot has a node with PSN-leg synergy edges. <strong>MS1 satisfies the value:</strong> every node lights up with engines, tribal, wiki, resources, and AI features — turning the fleet roster into a substrate-aware collaboration graph the operator can visualize and reason about.</p>
+<p>The autopilot loop (5-parallel × 5 batches) is the execution shape; this spec is the durable plan.</p></main><footer>
+<div>html-report-render schemaVersion 1.0.0</div>
+</footer>
+</body>
+</html>

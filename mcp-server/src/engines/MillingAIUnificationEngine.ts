@@ -804,6 +804,48 @@ export class MillingAIUnificationEngine {
 
     return instructions.slice(0, 4);
   }
+
+  /**
+   * Knowledge-base consumption snapshot for THIS engine instance.
+   *
+   * Real measurement: counts tribal-knowledge tips + playbook rules actually
+   * compiled into the corpus. Replaces the hardcoded
+   * `SYSTEM_INVENTORY.tribal_tips` estimate (3700) with a measured load count
+   * (HM-TRAINING-WIRING-PLAN-2026-05-20 / U-HMT-CONSUMER-MEASURE).
+   *
+   * @returns `tipsLoaded` is the count of tribal-tip strings across every
+   *   material/feature/operation category genuinely resident in this engine.
+   */
+  knowledgeStats(): {
+    engine: "MillingAIUnificationEngine";
+    tipsLoaded: number;
+    playbookRulesLoaded: number;
+    tribalCategories: number;
+    sourceFiles: string[];
+  } {
+    let tipsLoaded = 0;
+    let tribalCategories = 0;
+    for (const cat of Object.values(TRIBAL_KNOWLEDGE_CATEGORIES) as Record<string, string[]>[]) {
+      for (const arr of Object.values(cat)) {
+        tipsLoaded += arr.length;
+        tribalCategories++;
+      }
+    }
+    let playbookRulesLoaded = 0;
+    for (const arr of Object.values(PLAYBOOK_RULES) as string[][]) {
+      playbookRulesLoaded += arr.length;
+    }
+    return {
+      engine: "MillingAIUnificationEngine",
+      tipsLoaded,
+      playbookRulesLoaded,
+      tribalCategories,
+      sourceFiles: [
+        "MillingAIUnificationEngine.ts:TRIBAL_KNOWLEDGE_CATEGORIES",
+        "MillingAIUnificationEngine.ts:PLAYBOOK_RULES",
+      ],
+    };
+  }
 }
 
 export const millingAIUnificationEngine = new MillingAIUnificationEngine();

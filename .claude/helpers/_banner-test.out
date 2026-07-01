@@ -1,0 +1,120 @@
+TAP version 13
+# Subtest: formatBanner: zero takeups + many fires → reports 0K saved (NOT projected from doctrine)
+ok 1 - formatBanner: zero takeups + many fires → reports 0K saved (NOT projected from doctrine)
+  ---
+  duration_ms: 1.0665
+  ...
+# Subtest: formatBanner: zero takeups + many fires → tags as 'below target' (R12 fail-loud)
+ok 2 - formatBanner: zero takeups + many fires → tags as 'below target' (R12 fail-loud)
+  ---
+  duration_ms: 0.1213
+  ...
+# Subtest: formatBanner: 0/3 fires → 'warming up' label (no premature alarm)
+ok 3 - formatBanner: 0/3 fires → 'warming up' label (no premature alarm)
+  ---
+  duration_ms: 0.1157
+  ...
+# Subtest: formatBanner: 1/4 fires (low n) → 'warming up' (not yet a real measurement)
+ok 4 - formatBanner: 1/4 fires (low n) → 'warming up' (not yet a real measurement)
+  ---
+  duration_ms: 0.2006
+  ...
+# Subtest: formatBanner: 35/100 → 'measured ✓' tag (target reached)
+ok 5 - formatBanner: 35/100 → 'measured ✓' tag (target reached)
+  ---
+  duration_ms: 0.1186
+  ...
+# Subtest: formatBanner: exactly 30/100 → at target, '✓' tag
+ok 6 - formatBanner: exactly 30/100 → at target, '✓' tag
+  ---
+  duration_ms: 0.0965
+  ...
+# Subtest: formatBanner: 5/50 (10%) → below-target label with gap context
+ok 7 - formatBanner: 5/50 (10%) → below-target label with gap context
+  ---
+  duration_ms: 0.165
+  ...
+# Subtest: formatBanner: savings = takeups × 8K tokens, period
+ok 8 - formatBanner: savings = takeups × 8K tokens, period
+  ---
+  duration_ms: 0.0992
+  ...
+# Subtest: formatBanner: 1 takeup → ~8K saved, never extrapolated
+ok 9 - formatBanner: 1 takeup → ~8K saved, never extrapolated
+  ---
+  duration_ms: 0.3954
+  ...
+# Subtest: formatBanner: null input returns null
+ok 10 - formatBanner: null input returns null
+  ---
+  duration_ms: 0.4552
+  ...
+# Subtest: formatBanner: undefined input returns null
+ok 11 - formatBanner: undefined input returns null
+  ---
+  duration_ms: 0.1536
+  ...
+# Subtest: formatBanner: non-object input returns null
+ok 12 - formatBanner: non-object input returns null
+  ---
+  duration_ms: 0.078
+  ...
+# Subtest: formatBanner: zero fires returns null (no banner for empty sidecar)
+ok 13 - formatBanner: zero fires returns null (no banner for empty sidecar)
+  ---
+  duration_ms: 0.0925
+  ...
+# Subtest: formatBanner: missing totalFires field returns null
+ok 14 - formatBanner: missing totalFires field returns null
+  ---
+  duration_ms: 0.0795
+  ...
+# Subtest: formatBanner: negative totalFires returns null (don't trust corrupt sidecar)
+ok 15 - formatBanner: negative totalFires returns null (don't trust corrupt sidecar)
+  ---
+  duration_ms: 0.0739
+  ...
+# Subtest: formatBanner: NaN totalFires returns null
+ok 16 - formatBanner: NaN totalFires returns null
+  ---
+  duration_ms: 0.0757
+  ...
+# Subtest: formatBanner: missing takeupTotals → treated as zero takeups (real-world: sidecar just initialized)
+ok 17 - formatBanner: missing takeupTotals → treated as zero takeups (real-world: sidecar just initialized)
+  ---
+  duration_ms: 0.721
+  ...
+# Subtest: formatBanner: missing byToolName/byClassifier → '—' placeholder
+ok 18 - formatBanner: missing byToolName/byClassifier → '—' placeholder
+  ---
+  duration_ms: 0.0997
+  ...
+# Subtest: variability spanning: warming state renders cleanly
+ok 19 - variability spanning: warming state renders cleanly
+  ---
+  duration_ms: 0.0808
+  ...
+# Subtest: variability spanning: below-target state renders cleanly
+ok 20 - variability spanning: below-target state renders cleanly
+  ---
+  duration_ms: 0.0912
+  ...
+# Subtest: variability spanning: at/above-target state renders cleanly
+ok 21 - variability spanning: at/above-target state renders cleanly
+  ---
+  duration_ms: 0.0726
+  ...
+# Subtest: formatBanner: returns canonical 3-line banner shape
+ok 22 - formatBanner: returns canonical 3-line banner shape
+  ---
+  duration_ms: 0.106
+  ...
+1..22
+# tests 22
+# suites 0
+# pass 22
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 95.0049

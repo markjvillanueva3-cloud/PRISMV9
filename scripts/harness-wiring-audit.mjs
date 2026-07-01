@@ -48,11 +48,16 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
-const HOOKS_ROOT_DEFAULT = "H:/prism/.claude/hooks";
+// REPO_ROOT derived from script location (scripts/) so the audit + its report are
+// correct from ANY worktree/clone, not hardcoded to H:/prism (matches the portability
+// fix tango applied to the other audit generators, e.g. 502b811ecf). The C:/H:
+// settings paths stay machine-level (the canonical mirror locations; CLI-overridable).
+const REPO_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
+const HOOKS_ROOT_DEFAULT = path.join(REPO_ROOT, ".claude", "hooks");
 const SETTINGS_C_DEFAULT = "C:/Users/wompu/.claude/settings.json";
 const SETTINGS_H_DEFAULT = "H:/.claude/settings.json";
-const REPORT_JSON = "H:/prism/state/shared/HOOK_WIRING_AUDIT.json";
-const REPORT_MD = "H:/prism/state/shared/HOOK_WIRING_AUDIT.md";
+const REPORT_JSON = path.join(REPO_ROOT, "state", "shared", "HOOK_WIRING_AUDIT.json");
+const REPORT_MD = path.join(REPO_ROOT, "state", "shared", "HOOK_WIRING_AUDIT.md");
 const SCHEMA_VERSION = 1;
 
 // Hooks under these subpaths are NEVER expected to be wired in settings.json:

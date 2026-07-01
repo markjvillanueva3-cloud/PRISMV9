@@ -1,0 +1,701 @@
+{
+  "schemaVersion": "1.0.0",
+  "generatedAt": "2026-06-27T20:04:11.623Z",
+  "taskHealthAvailable": true,
+  "summary": {
+    "advancing": 10,
+    "stalled": 5,
+    "blocked": 0,
+    "done": 1
+  },
+  "staleLoops": [
+    {
+      "task": "PRISM CAD Gen Loop",
+      "status": "stale",
+      "lastRunTime": "2026-06-26T14:34:34.0000000Z"
+    }
+  ],
+  "repairs": [
+    "operator: re-kick \"PRISM CAD Gen Loop\" (Start-ScheduledTask, or install-fleet-phd-continuity-task.ps1 -RekickStale)"
+  ],
+  "domains": [
+    {
+      "slot": "charlie",
+      "galaxy": "quoting",
+      "planStatus": "draft",
+      "galaxyDir": "mcp-server/src/engines/quoting",
+      "task": "PRISM Galaxy Mine (quoting)",
+      "taskStatus": "healthy",
+      "artifactPath": "knowledge\\memories\\patterns\\quoting_synthesis.md",
+      "artifactAgeHrs": 41,
+      "commits72h": 0,
+      "loopTickHrs": null,
+      "acceptanceTargets": [
+        {
+          "metric": "mape",
+          "comparator": "<=",
+          "value": 25,
+          "unit": "%"
+        },
+        {
+          "metric": "coverage",
+          "comparator": ">=",
+          "value": 60,
+          "unit": "%"
+        },
+        {
+          "metric": "mape",
+          "comparator": "<=",
+          "value": 35,
+          "unit": "%"
+        }
+      ],
+      "status": "advancing",
+      "reason": "task PRISM Galaxy Mine (quoting) healthy + artifact fresh",
+      "nextAction": "advance mape toward <= 25%",
+      "acceptance": [
+        {
+          "metric": "mape",
+          "comparator": "<=",
+          "target": 25,
+          "unit": "%",
+          "current": null,
+          "met": null
+        },
+        {
+          "metric": "coverage",
+          "comparator": ">=",
+          "target": 60,
+          "unit": "%",
+          "current": null,
+          "met": null
+        },
+        {
+          "metric": "mape",
+          "comparator": "<=",
+          "target": 35,
+          "unit": "%",
+          "current": null,
+          "met": null
+        }
+      ]
+    },
+    {
+      "slot": "delta",
+      "galaxy": "cad",
+      "planStatus": "draft",
+      "galaxyDir": "mcp-server/src/engines/cad",
+      "task": "PRISM CAD Gen Loop",
+      "taskStatus": "stale",
+      "artifactPath": "knowledge\\memories\\patterns\\cad_synthesis.md",
+      "artifactAgeHrs": 3,
+      "commits72h": 1,
+      "loopTickHrs": null,
+      "acceptanceTargets": [
+        {
+          "metric": "tribal_tips",
+          "comparator": ">=",
+          "value": 400,
+          "unit": ""
+        },
+        {
+          "metric": "coverage",
+          "comparator": ">=",
+          "value": 85,
+          "unit": "%"
+        }
+      ],
+      "status": "advancing",
+      "reason": "1 commit(s) to mcp-server/src/engines/cad in window",
+      "nextAction": "advance tribal_tips toward >= 400",
+      "acceptance": [
+        {
+          "metric": "tribal_tips",
+          "comparator": ">=",
+          "target": 400,
+          "unit": "",
+          "current": null,
+          "met": null
+        },
+        {
+          "metric": "coverage",
+          "comparator": ">=",
+          "target": 85,
+          "unit": "%",
+          "current": null,
+          "met": null
+        }
+      ]
+    },
+    {
+      "slot": "echo",
+      "galaxy": "post-processor",
+      "planStatus": "draft",
+      "galaxyDir": "mcp-server/src/engines/post-processor",
+      "task": "PRISM Galaxy Mine (post-processor)",
+      "taskStatus": "spec-only",
+      "artifactPath": "knowledge\\memories\\patterns\\post-processor_synthesis.md",
+      "artifactAgeHrs": 3,
+      "commits72h": 0,
+      "loopTickHrs": null,
+      "acceptanceTargets": [
+        {
+          "metric": "tribal_tip",
+          "comparator": ">=",
+          "value": 130,
+          "unit": ""
+        },
+        {
+          "metric": "wiki_entries",
+          "comparator": ">=",
+          "value": 8,
+          "unit": ""
+        }
+      ],
+      "status": "stalled:cron-dead",
+      "reason": "PRISM Galaxy Mine (post-processor) is spec-only",
+      "nextAction": "re-kick/register deepening task \"PRISM Galaxy Mine (post-processor)\" (Start-ScheduledTask or its install .ps1)",
+      "acceptance": [
+        {
+          "metric": "tribal_tip",
+          "comparator": ">=",
+          "target": 130,
+          "unit": "",
+          "current": null,
+          "met": null
+        },
+        {
+          "metric": "wiki_entries",
+          "comparator": ">=",
+          "target": 8,
+          "unit": "",
+          "current": null,
+          "met": null
+        }
+      ]
+    },
+    {
+      "slot": "foxtrot",
+      "galaxy": "mill",
+      "planStatus": "draft",
+      "galaxyDir": "mcp-server/src/engines/mill",
+      "task": "PRISM Galaxy Mine (mill)",
+      "taskStatus": "healthy",
+      "artifactPath": "knowledge\\memories\\patterns\\mill_synthesis.md",
+      "artifactAgeHrs": 3,
+      "commits72h": 0,
+      "loopTickHrs": null,
+      "acceptanceTargets": [
+        {
+          "metric": "auroc",
+          "comparator": ">=",
+          "value": 0.78,
+          "unit": ""
+        },
+        {
+          "metric": "macro-f1",
+          "comparator": ">=",
+          "value": 0.55,
+          "unit": ""
+        },
+        {
+          "metric": "brier",
+          "comparator": "<=",
+          "value": 0.15,
+          "unit": ""
+        },
+        {
+          "metric": "tribal_tip",
+          "comparator": ">=",
+          "value": 120,
+          "unit": ""
+        }
+      ],
+      "status": "advancing",
+      "reason": "task PRISM Galaxy Mine (mill) healthy + artifact fresh",
+      "nextAction": "advance auroc toward >= 0.78",
+      "acceptance": [
+        {
+          "metric": "auroc",
+          "comparator": ">=",
+          "target": 0.78,
+          "unit": "",
+          "current": null,
+          "met": null
+        },
+        {
+          "metric": "macro-f1",
+          "comparator": ">=",
+          "target": 0.55,
+          "unit": "",
+          "current": null,
+          "met": null
+        },
+        {
+          "metric": "brier",
+          "comparator": "<=",
+          "target": 0.15,
+          "unit": "",
+          "current": null,
+          "met": null
+        },
+        {
+          "metric": "tribal_tip",
+          "comparator": ">=",
+          "target": 120,
+          "unit": "",
+          "current": null,
+          "met": null
+        }
+      ]
+    },
+    {
+      "slot": "hotel",
+      "galaxy": "business",
+      "planStatus": "draft",
+      "galaxyDir": "mcp-server/src/engines/business",
+      "task": "PRISM Galaxy Mine (business)",
+      "taskStatus": "healthy",
+      "artifactPath": "knowledge\\memories\\patterns\\business_synthesis.md",
+      "artifactAgeHrs": 26,
+      "commits72h": 1,
+      "loopTickHrs": null,
+      "acceptanceTargets": [
+        {
+          "metric": "tribal_tip",
+          "comparator": ">=",
+          "value": 60,
+          "unit": ""
+        },
+        {
+          "metric": "wiki_leaf",
+          "comparator": ">=",
+          "value": 10,
+          "unit": ""
+        }
+      ],
+      "status": "advancing",
+      "reason": "1 commit(s) to mcp-server/src/engines/business in window",
+      "nextAction": "advance tribal_tip toward >= 60",
+      "acceptance": [
+        {
+          "metric": "tribal_tip",
+          "comparator": ">=",
+          "target": 60,
+          "unit": "",
+          "current": null,
+          "met": null
+        },
+        {
+          "metric": "wiki_leaf",
+          "comparator": ">=",
+          "target": 10,
+          "unit": "",
+          "current": null,
+          "met": null
+        }
+      ]
+    },
+    {
+      "slot": "india",
+      "galaxy": "ai-training",
+      "planStatus": "draft",
+      "galaxyDir": "mcp-server/src/engines/ai-training",
+      "task": "PRISM NN-Graph Retrain",
+      "taskStatus": "healthy",
+      "artifactPath": "knowledge\\memories\\patterns\\ai-training_synthesis.md",
+      "artifactAgeHrs": 3,
+      "commits72h": 0,
+      "loopTickHrs": null,
+      "acceptanceTargets": [
+        {
+          "metric": "reward",
+          "comparator": "<",
+          "value": 0.7,
+          "unit": ""
+        },
+        {
+          "metric": "coverage",
+          "comparator": ">",
+          "value": 50,
+          "unit": "%"
+        }
+      ],
+      "status": "advancing",
+      "reason": "task PRISM NN-Graph Retrain healthy + artifact fresh",
+      "nextAction": "advance reward toward < 0.7",
+      "acceptance": [
+        {
+          "metric": "reward",
+          "comparator": "<",
+          "target": 0.7,
+          "unit": "",
+          "current": null,
+          "met": null
+        },
+        {
+          "metric": "coverage",
+          "comparator": ">",
+          "target": 50,
+          "unit": "%",
+          "current": null,
+          "met": null
+        }
+      ]
+    },
+    {
+      "slot": "kilo",
+      "galaxy": "cam",
+      "planStatus": "draft",
+      "galaxyDir": "mcp-server/src/engines/cam",
+      "task": "PRISM CAM Tool Library Regen",
+      "taskStatus": "healthy",
+      "artifactPath": "knowledge\\memories\\patterns\\cam_synthesis.md",
+      "artifactAgeHrs": 3,
+      "commits72h": 0,
+      "loopTickHrs": null,
+      "acceptanceTargets": [
+        {
+          "metric": "tribal",
+          "comparator": ">=",
+          "value": 150,
+          "unit": ""
+        }
+      ],
+      "status": "advancing",
+      "reason": "task PRISM CAM Tool Library Regen healthy + artifact fresh",
+      "nextAction": "advance tribal toward >= 150",
+      "acceptance": [
+        {
+          "metric": "tribal",
+          "comparator": ">=",
+          "target": 150,
+          "unit": "",
+          "current": null,
+          "met": null
+        }
+      ]
+    },
+    {
+      "slot": "lima",
+      "galaxy": "academy",
+      "planStatus": "final",
+      "galaxyDir": "mcp-server/src/engines/academy",
+      "task": "PRISM Galaxy Mine (academy)",
+      "taskStatus": "healthy",
+      "artifactPath": "knowledge\\memories\\patterns\\academy_synthesis.md",
+      "artifactAgeHrs": 1,
+      "commits72h": 0,
+      "loopTickHrs": null,
+      "acceptanceTargets": [
+        {
+          "metric": "tip",
+          "comparator": ">=",
+          "value": 120,
+          "unit": ""
+        }
+      ],
+      "status": "done",
+      "reason": "plan final and acceptance artifact present + fresh",
+      "nextAction": "deepening steady-state; monitor only",
+      "acceptance": [
+        {
+          "metric": "tip",
+          "comparator": ">=",
+          "target": 120,
+          "unit": "",
+          "current": null,
+          "met": null
+        }
+      ]
+    },
+    {
+      "slot": "mike",
+      "galaxy": "wedm",
+      "planStatus": "draft",
+      "galaxyDir": "mcp-server/src/engines/wedm",
+      "task": "PRISM Galaxy Mine (wedm)",
+      "taskStatus": "spec-only",
+      "artifactPath": "knowledge\\memories\\patterns\\wedm_synthesis.md",
+      "artifactAgeHrs": 41,
+      "commits72h": 0,
+      "loopTickHrs": null,
+      "acceptanceTargets": [
+        {
+          "metric": "tribal_tip",
+          "comparator": ">=",
+          "value": 200,
+          "unit": ""
+        },
+        {
+          "metric": "wiki_leaf",
+          "comparator": ">=",
+          "value": 8,
+          "unit": "entries"
+        }
+      ],
+      "status": "stalled:cron-dead",
+      "reason": "PRISM Galaxy Mine (wedm) is spec-only",
+      "nextAction": "re-kick/register deepening task \"PRISM Galaxy Mine (wedm)\" (Start-ScheduledTask or its install .ps1)",
+      "acceptance": [
+        {
+          "metric": "tribal_tip",
+          "comparator": ">=",
+          "target": 200,
+          "unit": "",
+          "current": null,
+          "met": null
+        },
+        {
+          "metric": "wiki_leaf",
+          "comparator": ">=",
+          "target": 8,
+          "unit": "entries",
+          "current": null,
+          "met": null
+        }
+      ]
+    },
+    {
+      "slot": "oscar",
+      "galaxy": "speed-feed",
+      "planStatus": "draft",
+      "galaxyDir": "mcp-server/src/engines/speed-feed",
+      "task": "PRISM SFC Variability Batch Mill",
+      "taskStatus": "healthy",
+      "artifactPath": "knowledge\\memories\\patterns\\speed-feed_synthesis.md",
+      "artifactAgeHrs": 41,
+      "commits72h": 0,
+      "loopTickHrs": null,
+      "acceptanceTargets": [
+        {
+          "metric": "tribal",
+          "comparator": ">=",
+          "value": 100,
+          "unit": "tips"
+        },
+        {
+          "metric": "wiki_leaf",
+          "comparator": ">=",
+          "value": 10,
+          "unit": ""
+        }
+      ],
+      "status": "advancing",
+      "reason": "task PRISM SFC Variability Batch Mill healthy + artifact fresh",
+      "nextAction": "advance tribal toward >= 100tips",
+      "acceptance": [
+        {
+          "metric": "tribal",
+          "comparator": ">=",
+          "target": 100,
+          "unit": "tips",
+          "current": null,
+          "met": null
+        },
+        {
+          "metric": "wiki_leaf",
+          "comparator": ">=",
+          "target": 10,
+          "unit": "",
+          "current": null,
+          "met": null
+        }
+      ]
+    },
+    {
+      "slot": "quebec",
+      "galaxy": "frontend-app",
+      "planStatus": "draft",
+      "galaxyDir": "mcp-server/src/engines/frontend-app",
+      "task": "PRISM Galaxy Mine (frontend-app)",
+      "taskStatus": "spec-only",
+      "artifactPath": "knowledge\\memories\\patterns\\frontend-app_synthesis.md",
+      "artifactAgeHrs": 40,
+      "commits72h": 0,
+      "loopTickHrs": null,
+      "acceptanceTargets": [],
+      "status": "stalled:cron-dead",
+      "reason": "PRISM Galaxy Mine (frontend-app) is spec-only",
+      "nextAction": "re-kick/register deepening task \"PRISM Galaxy Mine (frontend-app)\" (Start-ScheduledTask or its install .ps1)",
+      "acceptance": []
+    },
+    {
+      "slot": "romeo",
+      "galaxy": "wiring",
+      "planStatus": "draft",
+      "galaxyDir": "mcp-server/src/engines/wiring",
+      "task": "PRISM Galaxy Mine (wiring)",
+      "taskStatus": "healthy",
+      "artifactPath": "knowledge\\memories\\patterns\\wiring_synthesis.md",
+      "artifactAgeHrs": 41,
+      "commits72h": 0,
+      "loopTickHrs": null,
+      "acceptanceTargets": [],
+      "status": "advancing",
+      "reason": "task PRISM Galaxy Mine (wiring) healthy + artifact fresh",
+      "nextAction": "run /checkin-romeo /loop on DOMAIN-PLAN-romeo section 3",
+      "acceptance": []
+    },
+    {
+      "slot": "sierra",
+      "galaxy": "system-viz",
+      "planStatus": "draft",
+      "galaxyDir": "mcp-server/src/engines/system-viz",
+      "task": "PRISM Galaxy Mine (system-viz)",
+      "taskStatus": "spec-only",
+      "artifactPath": "knowledge\\memories\\patterns\\system-viz_synthesis.md",
+      "artifactAgeHrs": 41,
+      "commits72h": 0,
+      "loopTickHrs": null,
+      "acceptanceTargets": [
+        {
+          "metric": "tribal",
+          "comparator": ">=",
+          "value": 150,
+          "unit": ""
+        }
+      ],
+      "status": "stalled:cron-dead",
+      "reason": "PRISM Galaxy Mine (system-viz) is spec-only",
+      "nextAction": "re-kick/register deepening task \"PRISM Galaxy Mine (system-viz)\" (Start-ScheduledTask or its install .ps1)",
+      "acceptance": [
+        {
+          "metric": "tribal",
+          "comparator": ">=",
+          "target": 150,
+          "unit": "",
+          "current": null,
+          "met": null
+        }
+      ]
+    },
+    {
+      "slot": "whiskey",
+      "galaxy": "lathe",
+      "planStatus": "draft",
+      "galaxyDir": "mcp-server/src/engines/lathe",
+      "task": "PRISM Galaxy Mine (lathe)",
+      "taskStatus": "healthy",
+      "artifactPath": "knowledge\\memories\\patterns\\lathe_synthesis.md",
+      "artifactAgeHrs": 3,
+      "commits72h": 1,
+      "loopTickHrs": null,
+      "acceptanceTargets": [
+        {
+          "metric": "tribal_tip",
+          "comparator": ">=",
+          "value": 80,
+          "unit": ""
+        },
+        {
+          "metric": "reward",
+          "comparator": ">=",
+          "value": 0.8,
+          "unit": ""
+        }
+      ],
+      "status": "advancing",
+      "reason": "1 commit(s) to mcp-server/src/engines/lathe in window",
+      "nextAction": "advance tribal_tip toward >= 80",
+      "acceptance": [
+        {
+          "metric": "tribal_tip",
+          "comparator": ">=",
+          "target": 80,
+          "unit": "",
+          "current": null,
+          "met": null
+        },
+        {
+          "metric": "reward",
+          "comparator": ">=",
+          "target": 0.8,
+          "unit": "",
+          "current": null,
+          "met": null
+        }
+      ]
+    },
+    {
+      "slot": "xray",
+      "galaxy": "blueprint-vision",
+      "planStatus": "draft",
+      "galaxyDir": "mcp-server/src/engines/blueprint-vision",
+      "task": "PRISM OCR Training Loop",
+      "taskStatus": "healthy",
+      "artifactPath": "knowledge\\memories\\patterns\\blueprint-vision_synthesis.md",
+      "artifactAgeHrs": 3,
+      "commits72h": 10,
+      "loopTickHrs": null,
+      "acceptanceTargets": [
+        {
+          "metric": "tribal_tips",
+          "comparator": ">=",
+          "value": 100,
+          "unit": ""
+        }
+      ],
+      "status": "advancing",
+      "reason": "10 commit(s) to mcp-server/src/engines/blueprint-vision in window",
+      "nextAction": "advance tribal_tips toward >= 100",
+      "acceptance": [
+        {
+          "metric": "tribal_tips",
+          "comparator": ">=",
+          "target": 100,
+          "unit": "",
+          "current": null,
+          "met": null
+        }
+      ]
+    },
+    {
+      "slot": "zulu",
+      "galaxy": "hermes-zulu",
+      "planStatus": "draft",
+      "galaxyDir": "mcp-server/src/engines/hermes-zulu",
+      "task": "PRISM Galaxy Mine (hermes-zulu)",
+      "taskStatus": "spec-only",
+      "artifactPath": "knowledge\\memories\\patterns\\hermes-zulu_synthesis.md",
+      "artifactAgeHrs": 3,
+      "commits72h": 0,
+      "loopTickHrs": null,
+      "acceptanceTargets": [
+        {
+          "metric": "tribal",
+          "comparator": ">=",
+          "value": 90,
+          "unit": "tips"
+        },
+        {
+          "metric": "wiki_leaves",
+          "comparator": ">=",
+          "value": 6,
+          "unit": ""
+        }
+      ],
+      "status": "stalled:cron-dead",
+      "reason": "PRISM Galaxy Mine (hermes-zulu) is spec-only",
+      "nextAction": "re-kick/register deepening task \"PRISM Galaxy Mine (hermes-zulu)\" (Start-ScheduledTask or its install .ps1)",
+      "acceptance": [
+        {
+          "metric": "tribal",
+          "comparator": ">=",
+          "target": 90,
+          "unit": "tips",
+          "current": null,
+          "met": null
+        },
+        {
+          "metric": "wiki_leaves",
+          "comparator": ">=",
+          "target": 6,
+          "unit": "",
+          "current": null,
+          "met": null
+        }
+      ]
+    }
+  ]
+}

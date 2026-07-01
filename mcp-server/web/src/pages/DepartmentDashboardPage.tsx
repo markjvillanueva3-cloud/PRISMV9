@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { ApiError, employeeDeptSummary, employeeUtilization, whoClockedIn } from '../api/client';
+import { unwrapPrism } from '../api/unwrap';
 import { ErrorState, LoadingState } from '../components/LoadingState';
 import {
   ActionButton,
@@ -365,7 +366,7 @@ export function DepartmentDashboardPage() {
     let employeeRowsMounted = false;
 
     if (clockedInResult.status === 'fulfilled') {
-      const employeeCollection = parseClockedInEmployees(clockedInResult.value.result);
+      const employeeCollection = parseClockedInEmployees(unwrapPrism(clockedInResult.value));
       employeeRowsMounted = employeeCollection.mounted && (employeeCollection.rawCount === 0 || employeeCollection.rows.length > 0);
 
       if (employeeRowsMounted) {
@@ -378,7 +379,7 @@ export function DepartmentDashboardPage() {
           : 'The live /api/v1/erp/who-clocked-in route returned no usable employees collection.';
       }
 
-      const downtimeCollection = parseDowntimeReasons(clockedInResult.value.result);
+      const downtimeCollection = parseDowntimeReasons(unwrapPrism(clockedInResult.value));
       const downtimeMounted = downtimeCollection.mounted && (downtimeCollection.rawCount === 0 || downtimeCollection.rows.length > 0);
 
       if (!downtimeMounted) {
@@ -417,7 +418,7 @@ export function DepartmentDashboardPage() {
     let departmentRowsMounted = false;
 
     if (deptResult.status === 'fulfilled') {
-      const deptCollection = parseDeptSummaries(deptResult.value.result);
+      const deptCollection = parseDeptSummaries(unwrapPrism(deptResult.value));
       departmentRowsMounted = deptCollection.mounted && (deptCollection.rawCount === 0 || deptCollection.rows.length > 0);
 
       if (departmentRowsMounted) {
@@ -430,7 +431,7 @@ export function DepartmentDashboardPage() {
           : 'The live /api/v1/erp/employee-dept-summary route returned no usable departments collection.';
       }
 
-      const costCollection = parseDeptCosts(deptResult.value.result);
+      const costCollection = parseDeptCosts(unwrapPrism(deptResult.value));
       const missingCostFields = costCollection.rawCount - costCollection.rows.length;
 
       if (!costCollection.mounted) {
@@ -514,7 +515,7 @@ export function DepartmentDashboardPage() {
           return;
         }
 
-        const parsed = parseEmployeeUtilization(employees[index], result.value.result);
+        const parsed = parseEmployeeUtilization(employees[index], unwrapPrism(result.value));
         if (!parsed) {
           utilizationIssues += 1;
           return;

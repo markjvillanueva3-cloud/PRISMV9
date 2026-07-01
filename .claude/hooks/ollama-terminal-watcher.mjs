@@ -93,15 +93,15 @@ Output:
 ${output.slice(0, MAX_OUTPUT_LENGTH)}`;
 
     const body = JSON.stringify({
-      model: 'qwen2.5-coder:7b',
+      model: 'qwen2.5-coder:32b',
       prompt,
       stream: false,
       options: { num_predict: 150 }
     });
 
     const result = execSync(
-      `curl -s --max-time 5 -X POST http://localhost:11434/api/generate -d '${body.replace(/'/g, "'\"'\"'")}'`,
-      { encoding: 'utf-8', timeout: 6000 }
+      `curl -s --max-time 5 -X POST http://127.0.0.1:11434/api/generate -d '${body.replace(/'/g, "'\"'\"'")}'`,
+      { windowsHide: true, encoding: 'utf-8', timeout: 6000 }
     );
 
     return JSON.parse(result).response?.trim();

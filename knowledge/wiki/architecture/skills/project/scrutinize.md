@@ -30,7 +30,16 @@ related:
 ## Description (first paragraph)
 
 
-Run scrutinization on a roadmap file.
+---
+effort: medium
+maxTurns: 15
+---
+
+# Scrutinize — Standalone Code Quality Review
+
+You are performing a focused code quality review. This is the standalone version of Autopilot Phase 6 — lighter than a full audit, heavier than a glance. Use before committing, before shipping, or anytime you want a quick quality check.
+
+> **OFFLOAD + FAN-OUT (DEVTOOL-AUTOINVOKE-MS0/U6):** add a free loc
 
 <!-- AUTO-END -->
 

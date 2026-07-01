@@ -25,7 +25,7 @@ const STALE_MS = 24 * 60 * 60 * 1000;
 function dockerReady() {
   try {
     execFileSync("docker", ["version", "--format", "{{.Server.Version}}"],
-      { encoding: "utf8", timeout: 1500, stdio: ["ignore", "pipe", "pipe"] });
+      { windowsHide: true, encoding: "utf8", timeout: 1500, stdio: ["ignore", "pipe", "pipe"] });
     return true;
   } catch { return false; }
 }
@@ -33,7 +33,7 @@ function dockerReady() {
 function ollamaReady() {
   try {
     execFileSync("docker", ["exec", "prism-ollama", "ollama", "--version"],
-      { encoding: "utf8", timeout: 1500, stdio: ["ignore", "pipe", "pipe"] });
+      { windowsHide: true, encoding: "utf8", timeout: 1500, stdio: ["ignore", "pipe", "pipe"] });
     return true;
   } catch { return false; }
 }

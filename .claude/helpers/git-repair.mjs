@@ -27,7 +27,7 @@ function error(msg) { console.error(`[repair] ✗ ${msg}`); }
 
 function git(args, opts = {}) {
   try {
-    return execFileSync("git", args, {
+    return execFileSync("git", args, { windowsHide: true,
       cwd: opts.cwd ?? REPO,
       encoding: "utf8",
       stdio: ["ignore", "pipe", "pipe"],

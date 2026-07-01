@@ -30,7 +30,7 @@ function readStdin() {
 
 function terminalId() {
   try {
-    const r = spawnSync(process.execPath, [STABLE_ID], { encoding: "utf8", timeout: 1500 });
+    const r = spawnSync(process.execPath, [STABLE_ID], { windowsHide: true, encoding: "utf8", timeout: 1500 });
     if (r.status === 0 && r.stdout) return r.stdout.trim();
   } catch { /* ignore */ }
   return "unknown";
@@ -75,7 +75,7 @@ async function main() {
     if (description) { args.push("--desc", String(description)); }
     if (duration !== null) { args.push("--duration", String(duration)); }
 
-    spawnSync(process.execPath, args, { stdio: "ignore", timeout: 2000 });
+    spawnSync(process.execPath, args, { windowsHide: true, stdio: "ignore", timeout: 2000 });
   } catch { /* swallow */ }
   process.exit(0);
 }

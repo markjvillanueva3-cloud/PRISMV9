@@ -23,13 +23,16 @@ related:
 |-------|-------|
 | Name | `hook-browse` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/hook-browse.md` |
+| Source | `C:/Users/wompu/.claude/commands/hook-browse.md` |
 | Model | default |
 | Tags | _(none)_ |
 
 ## Description (first paragraph)
 
-_(no body content)_
+
+# Hook Browse — PRISM Hook Explorer
+
+You are browsing PRISM's 220 hooks (NOT Claude hooks — these are the MCP server's internal hook system). Hooks span 17 modules covering enforcement, safety, manufacturing, cognitive, recovery, orchestration, and more. Each hook has a phase, category, mode (blocking/warning/logging/silent), priority, and handler. Use this to understand what hooks exist, find
 
 <!-- AUTO-END -->
 

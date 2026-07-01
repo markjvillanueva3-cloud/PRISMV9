@@ -21,7 +21,7 @@ related:
 
 ## Description (from file header)
 
-hook_saturation_alert — USSH Phase 0.25========================================Monitors hook pipeline saturation using queueing theory.Alerts when utilization ρ > 0.8 (system approaching saturation).Fires: PostToolUseTheory: Little's Law (L = λW), M/M/1 queue analysis
+_(no header docblock — read source for behavior)_
 
 ## Events
 

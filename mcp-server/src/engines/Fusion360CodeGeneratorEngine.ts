@@ -109,6 +109,12 @@ export class Fusion360CodeGeneratorEngine extends UnifiedCADCodeGeneratorBase<Fu
   readonly capabilities: CADCapabilityMatrix = {
     cadSystem: "fusion360",
     supportedOps: new Set(FUSION360_SUPPORTED_OPS),
+    // adsk.fusion API is natively cm/rad (mirrors the canonical Fusion360CADGeneratorAdapter
+    // for the same host); callers convert upstream per CADCapabilityMatrix contract.
+    nativeLengthUnit: "cm",
+    nativeAngleUnit: "rad",
+    requiresSubprocess: true,
+    typicalLatencyMs: 1500,
     version: "2024",
     notes: "Autodesk Fusion 360 Python API (adsk.core, adsk.fusion)",
     maxComplexity: 10000,
@@ -1701,7 +1707,7 @@ export class Fusion360CodeGeneratorEngine extends UnifiedCADCodeGeneratorBase<Fu
       log.debug("Fusion360CodeGeneratorEngine: mock execution mode");
       return {
         ok: true,
-        output: "Mock Fusion 360 execution completed",
+        log: "Mock Fusion 360 execution completed",
         durationMs: Math.floor(Math.random() * 100) + 50,
         metrics: {
           faceCount: Math.floor(Math.random() * 20) + 6,

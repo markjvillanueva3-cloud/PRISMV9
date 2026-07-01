@@ -29,7 +29,7 @@
  *      cannot poison a 5,538-file run.  Both file I/O and parser calls
  *      are wrapped; status is carried in `MCxBatchPerFileResult.status`.
  *
- *   2. **Bounded concurrency (default `min(cpus-1, 8)`).**  Same
+ *   2. **Bounded concurrency (default `min(availableParallelism-1, 16)`).**  Same
  *      handwritten async semaphore as the MIN sibling — no p-limit
  *      dependency, no install conflict with peer chats.
  *
@@ -149,10 +149,18 @@ export const MCX_EXTENSIONS: ReadonlyArray<string> = Object.freeze([
   ".mcam",
 ]);
 
-/** Default concurrency: min(os.cpus()-1, 8), floor 1. */
+/**
+ * Default concurrency: min(parallelism-1, 16), floor 1.
+ * Ceiling raised 8→16 for the 9950X3D2 (16C/32T); HARDWARE-DRIVE-SYNC-AUDIT-2026-06-08 §3.3.
+ * Prefer os.availableParallelism() (honors cgroup/affinity limits) with cpus().length fallback.
+ * Clone-of MINBatchExtractorEngine.defaultConcurrency (keep both in lockstep).
+ */
 export function defaultConcurrency(): number {
-  const cpus = os.cpus()?.length ?? 1;
-  return Math.max(1, Math.min(cpus - 1, 8));
+  const parallelism =
+    typeof os.availableParallelism === "function"
+      ? os.availableParallelism()
+      : (os.cpus()?.length ?? 1);
+  return Math.max(1, Math.min(parallelism - 1, 16));
 }
 
 // --------------------------------------------------------------------------

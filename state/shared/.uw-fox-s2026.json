@@ -1,0 +1,476 @@
+{
+  "schemaVersion": "1.0.0",
+  "generated": "2026-05-17T17:46:13.707Z",
+  "generatedBy": "scripts/validate-unwired-signal.mjs",
+  "source": "H:\\prism\\state\\shared\\UNWIRED-ENGINE-AUDIT-2026-05-07.json",
+  "sourceMtime": "2026-05-16T18:02:37.944Z",
+  "args": {
+    "sample": 90,
+    "seed": 2026,
+    "all": false,
+    "maxFpRate": 10
+  },
+  "totalUnwiredPool": 836,
+  "sampleSize": 90,
+  "counts": {
+    "TRULY-UNWIRED": 6,
+    "FALSE-POSITIVE-WIRED": 32,
+    "WEAK-SIGNAL": 52,
+    "EXEMPT": 0
+  },
+  "falsePositiveRatePct": 35.56,
+  "threshold": 10,
+  "verdict": "FAIL",
+  "perEngine": [
+    {
+      "engineName": "ToolCallHistogramEngine",
+      "classification": "WEAK-SIGNAL",
+      "firstMatch": "test:__tests__/tool-call-histogram-engine.test.ts"
+    },
+    {
+      "engineName": "GrokClientEngine",
+      "classification": "WEAK-SIGNAL",
+      "firstMatch": "cross-engine:engines/MultiModelConsensusEngine.ts"
+    },
+    {
+      "engineName": "ReplanTriggerEngine",
+      "classification": "FALSE-POSITIVE-WIRED",
+      "firstMatch": "dispatcher:tools/dispatchers/devDispatcher.ts"
+    },
+    {
+      "engineName": "CATIAIntegrationTestSuiteEngine",
+      "classification": "WEAK-SIGNAL",
+      "firstMatch": "test:__tests__/CATIAIntegrationTestSuiteEngine.test.ts"
+    },
+    {
+      "engineName": "OutcomeTraceEngine",
+      "classification": "WEAK-SIGNAL",
+      "firstMatch": "test:__tests__/OutcomeTraceEngine.test.ts"
+    },
+    {
+      "engineName": "SessionEventLogEngine",
+      "classification": "WEAK-SIGNAL",
+      "firstMatch": "test:__tests__/session-event-log-engine.test.ts"
+    },
+    {
+      "engineName": "DNCGenerateEngine",
+      "classification": "WEAK-SIGNAL",
+      "firstMatch": "test:__tests__/L2P4-DNCCAMExport.test.ts"
+    },
+    {
+      "engineName": "PageRankEngine",
+      "classification": "FALSE-POSITIVE-WIRED",
+      "firstMatch": "dispatcher:tools/dispatchers/devDispatcher.ts"
+    },
+    {
+      "engineName": "InsertChangeRecommendationEngine",
+      "classification": "WEAK-SIGNAL",
+      "firstMatch": "test:__tests__/turning-insert-life-validation.test.ts"
+    },
+    {
+      "engineName": "TurningThreadRobustOptimizerEngine",
+      "classification": "FALSE-POSITIVE-WIRED",
+      "firstMatch": "dispatcher:tools/dispatchers/devDispatcher.ts"
+    },
+    {
+      "engineName": "LatheLoRAExampleGeneratorEngine",
+      "classification": "WEAK-SIGNAL",
+      "firstMatch": "cross-engine:engines/LatheLoRADatasetValidatorEngine.ts"
+    },
+    {
+      "engineName": "EntryExitStrategyAdapter",
+      "classification": "WEAK-SIGNAL",
+      "firstMatch": "test:__tests__/CAMX-MS0.3-U07-EntryExitStrategy.test.ts"
+    },
+    {
+      "engineName": "CompactPlannerEngine",
+      "classification": "FALSE-POSITIVE-WIRED",
+      "firstMatch": "dispatcher:tools/dispatchers/contextDispatcher.ts"
+    },
+    {
+      "engineName": "CAMCatalogPhysicsLinkerEngine",
+      "classification": "FALSE-POSITIVE-WIRED",
+      "firstMatch": "dispatcher:tools/dispatchers/camDispatcher.ts"
+    },
+    {
+      "engineName": "LathePrintToProgramReasoningEngine",
+      "classification": "FALSE-POSITIVE-WIRED",
+      "firstMatch": "dispatcher:tools/dispatchers/camDispatcher.ts"
+    },
+    {
+      "engineName": "PDFTableExtractionEngine",
+      "classification": "WEAK-SIGNAL",
+      "firstMatch": "cross-engine:engines/PDFHandbookBatchProcessorEngine.ts"
+    },
+    {
+      "engineName": "MicroMillingSizeEffectEngine",
+      "classification": "WEAK-SIGNAL",
+      "firstMatch": "test:__tests__/MicroMillingSizeEffectEngine.test.ts"
+    },
+    {
+      "engineName": "ProcessValidationIQOQPQEngine",
+      "classification": "WEAK-SIGNAL",
+      "firstMatch": "test:__tests__/ProcessValidationIQOQPQEngine.test.ts"
+    },
+    {
+      "engineName": "StandardDimensionLookupEngine",
+      "classification": "FALSE-POSITIVE-WIRED",
+      "firstMatch": "dispatcher:tools/dispatchers/calcDispatcher.ts"
+    },
+    {
+      "engineName": "VisualLabEngine",
+      "classification": "FALSE-POSITIVE-WIRED",
+      "firstMatch": "dispatcher:tools/dispatchers/knowledgeDispatcher.ts"
+    },
+    {
+      "engineName": "LatheTurningFeatureRecognizerEngine",
+      "classification": "FALSE-POSITIVE-WIRED",
+      "firstMatch": "dispatcher:tools/dispatchers/camDispatcher.ts"
+    },
+    {
+      "engineName": "RollbackPlannerEngine",
+      "classification": "FALSE-POSITIVE-WIRED",
+      "firstMatch": "dispatcher:tools/dispatchers/devDispatcher.ts"
+    },
+    {
+      "engineName": "OrificeFlowMeterEngine",
+      "classification": "FALSE-POSITIVE-WIRED",
+      "firstMatch": "dispatcher:tools/dispatchers/devDispatcher.ts"
+    },
+    {
+      "engineName": "WhiteLabelConfigEngine",
+      "classification": "FALSE-POSITIVE-WIRED",
+      "firstMatch": "dispatcher:tools/dispatchers/businessDispatcher.ts"
+    },
+    {
+      "engineName": "DiffMinimizerEngine",
+      "classification": "FALSE-POSITIVE-WIRED",
+      "firstMatch": "dispatcher:tools/dispatchers/devDispatcher.ts"
+    },
+    {
+      "engineName": "SO3KinematicsEncoderEngine",
+      "classification": "WEAK-SIGNAL",
+      "firstMatch": "test:__tests__/engines/SO3KinematicsEncoderEngine.test.ts"
+    },
+    {
+      "engineName": "STRIPSPlannerEngine",
+      "classification": "FALSE-POSITIVE-WIRED",
+      "firstMatch": "dispatcher:tools/dispatchers/devDispatcher.ts"
+    },
+    {
+      "engineName": "CATIAMachiningAIOrchestrationEngine",
+      "classification": "TRULY-UNWIRED",
+      "firstMatch": null
+    },
+    {
+      "engineName": "LSHDedupEngine",
+      "classification": "WEAK-SIGNAL",
+      "firstMatch": "test:__tests__/LSHDedupEngine.test.ts"
+    },
+    {
+      "engineName": "FiveAxisOrchestrationEngine",
+      "classification": "WEAK-SIGNAL",
+      "firstMatch": "cross-engine:engines/FiveAxisAIUltraIntelligenceEngine.ts"
+    },
+    {
+      "engineName": "LatheQualityGateEngine",
+      "classification": "WEAK-SIGNAL",
+      "firstMatch": "test:__tests__/LatheQualityGateEngine.test.ts"
+    },
+    {
+      "engineName": "MemorySyncEngine",
+      "classification": "FALSE-POSITIVE-WIRED",
+      "firstMatch": "dispatcher:tools/dispatchers/memoryDispatcher.ts"
+    },
+    {
+      "engineName": "LatheSubSpindleTransferPurgeEngine",
+      "classification": "WEAK-SIGNAL",
+      "firstMatch": "test:__tests__/LatheSubSpindleTransferPurgeEngine.test.ts"
+    },
+    {
+      "engineName": "CatalogRegistryBridgeEngine",
+      "classification": "WEAK-SIGNAL",
+      "firstMatch": "test:__tests__/CatalogRegistryBridgeEngine.test.ts"
+    },
+    {
+      "engineName": "LatheAIFeatureRegistration",
+      "classification": "WEAK-SIGNAL",
+      "firstMatch": "test:__tests__/LatheAISuiteIntegration.test.ts"
+    },
+    {
+      "engineName": "CAMMLDriftMonitorEngine",
+      "classification": "FALSE-POSITIVE-WIRED",
+      "firstMatch": "dispatcher:tools/dispatchers/camDispatcher.ts"
+    },
+    {
+      "engineName": "HybridProgramComposerEngine",
+      "classification": "TRULY-UNWIRED",
+      "firstMatch": null
+    },
+    {
+      "engineName": "CrossProcessAIBridge",
+      "classification": "FALSE-POSITIVE-WIRED",
+      "firstMatch": "dispatcher:tools/dispatchers/aiReasoningDispatcher.ts"
+    },
+    {
+      "engineName": "ProcessVariabilityIntegrationEngine",
+      "classification": "WEAK-SIGNAL",
+      "firstMatch": "test:__tests__/process-variability-integration.test.ts"
+    },
+    {
+      "engineName": "WEDMMaintenanceSchedulerEngine",
+      "classification": "WEAK-SIGNAL",
+      "firstMatch": "test:__tests__/wedm/wedm_maintenance_scheduler.test.ts"
+    },
+    {
+      "engineName": "WorkflowIntegrationHelper",
+      "classification": "FALSE-POSITIVE-WIRED",
+      "firstMatch": "dispatcher:tools/dispatchers/devDispatcher.ts"
+    },
+    {
+      "engineName": "MachineLoRABaseEngine",
+      "classification": "WEAK-SIGNAL",
+      "firstMatch": "cross-engine:engines/FiveAxisLoRACadenceEngine.ts"
+    },
+    {
+      "engineName": "LatheSafetyPredicateEngine",
+      "classification": "FALSE-POSITIVE-WIRED",
+      "firstMatch": "dispatcher:tools/dispatchers/camDispatcher.ts"
+    },
+    {
+      "engineName": "ReceptanceCouplingEngine",
+      "classification": "FALSE-POSITIVE-WIRED",
+      "firstMatch": "dispatcher:tools/dispatchers/calcDispatcher.ts"
+    },
+    {
+      "engineName": "DeepAIIntelligenceEngine",
+      "classification": "WEAK-SIGNAL",
+      "firstMatch": "cross-engine:engines/AutonomousAIOrchestrationEngine.ts"
+    },
+    {
+      "engineName": "ConversationTrimmerEngine",
+      "classification": "WEAK-SIGNAL",
+      "firstMatch": "test:__tests__/conversation-trimmer-engine.test.ts"
+    },
+    {
+      "engineName": "WorkNCCAMBridgeEngine",
+      "classification": "TRULY-UNWIRED",
+      "firstMatch": null
+    },
+    {
+      "engineName": "RoutingSheetGeneratorEngine",
+      "classification": "FALSE-POSITIVE-WIRED",
+      "firstMatch": "dispatcher:tools/dispatchers/devDispatcher.ts"
+    },
+    {
+      "engineName": "SBOMReviewEngine",
+      "classification": "WEAK-SIGNAL",
+      "firstMatch": "test:__tests__/engines/SBOMReviewEngine.test.ts"
+    },
+    {
+      "engineName": "TrainingDatasetSnapshotEngine",
+      "classification": "FALSE-POSITIVE-WIRED",
+      "firstMatch": "dispatcher:tools/dispatchers/devDispatcher.ts"
+    },
+    {
+      "engineName": "ConcentrationInequalityEngine",
+      "classification": "WEAK-SIGNAL",
+      "firstMatch": "test:__tests__/concentration-inequality-engine.test.ts"
+    },
+    {
+      "engineName": "FDA21CFRPart11Engine",
+      "classification": "FALSE-POSITIVE-WIRED",
+      "firstMatch": "dispatcher:tools/dispatchers/devDispatcher.ts"
+    },
+    {
+      "engineName": "MachinePackageAPIEngine",
+      "classification": "WEAK-SIGNAL",
+      "firstMatch": "cross-engine:engines/MachineAuditEngine.ts"
+    },
+    {
+      "engineName": "LatheOpusReasoningEngine",
+      "classification": "WEAK-SIGNAL",
+      "firstMatch": "test:__tests__/engines/LatheOpusReasoningEngine.test.ts"
+    },
+    {
+      "engineName": "CamProfileEngine",
+      "classification": "WEAK-SIGNAL",
+      "firstMatch": "test:__tests__/cam-profile-engine.test.ts"
+    },
+    {
+      "engineName": "ScrollCompressorEngine",
+      "classification": "WEAK-SIGNAL",
+      "firstMatch": "test:__tests__/batch72-engines.test.ts"
+    },
+    {
+      "engineName": "CopyPasteDetectorEngine",
+      "classification": "FALSE-POSITIVE-WIRED",
+      "firstMatch": "dispatcher:tools/dispatchers/devDispatcher.ts"
+    },
+    {
+      "engineName": "MasterPostFineTuningEngine",
+      "classification": "WEAK-SIGNAL",
+      "firstMatch": "test:__tests__/MasterPostFineTuningEngine.test.ts"
+    },
+    {
+      "engineName": "CAMBaselineRegressorEngine",
+      "classification": "FALSE-POSITIVE-WIRED",
+      "firstMatch": "dispatcher:tools/dispatchers/camDispatcher.ts"
+    },
+    {
+      "engineName": "TenantOnboardingRunbookEngine",
+      "classification": "WEAK-SIGNAL",
+      "firstMatch": "test:__tests__/engines/TenantOnboardingRunbookEngine.test.ts"
+    },
+    {
+      "engineName": "FiveAxisDecisionEngine",
+      "classification": "WEAK-SIGNAL",
+      "firstMatch": "test:__tests__/MILL-HARD-MS3.test.ts"
+    },
+    {
+      "engineName": "FormalVerificationEngine",
+      "classification": "WEAK-SIGNAL",
+      "firstMatch": "test:__tests__/formal-verification-engine.test.ts"
+    },
+    {
+      "engineName": "reactiveChainBootstrap",
+      "classification": "TRULY-UNWIRED",
+      "firstMatch": null
+    },
+    {
+      "engineName": "TribalKnowledgeOutcomeBridgeEngine",
+      "classification": "FALSE-POSITIVE-WIRED",
+      "firstMatch": "dispatcher:tools/dispatchers/aiReasoningDispatcher.ts"
+    },
+    {
+      "engineName": "MillTribalIntegrationEngine",
+      "classification": "FALSE-POSITIVE-WIRED",
+      "firstMatch": "dispatcher:tools/dispatchers/devDispatcher.ts"
+    },
+    {
+      "engineName": "SpindleTorqueGateEngine",
+      "classification": "FALSE-POSITIVE-WIRED",
+      "firstMatch": "dispatcher:tools/dispatchers/camDispatcher.ts"
+    },
+    {
+      "engineName": "CADScreenshotCapturer",
+      "classification": "FALSE-POSITIVE-WIRED",
+      "firstMatch": "dispatcher:tools/dispatchers/cadAutomationDispatcher.ts"
+    },
+    {
+      "engineName": "VendorTurningCatalogExtractorEngine",
+      "classification": "FALSE-POSITIVE-WIRED",
+      "firstMatch": "dispatcher:tools/dispatchers/turningDispatcher.ts"
+    },
+    {
+      "engineName": "TribalExplanationEngine",
+      "classification": "WEAK-SIGNAL",
+      "firstMatch": "test:__tests__/tk-ms9-ai-explanation-prediction.test.ts"
+    },
+    {
+      "engineName": "ShopRepositoryPort",
+      "classification": "WEAK-SIGNAL",
+      "firstMatch": "cross-engine:engines/ShopStateEngine.ts"
+    },
+    {
+      "engineName": "EventEngine",
+      "classification": "WEAK-SIGNAL",
+      "firstMatch": "test:__tests__/l2-infrastructure-engines.test.ts"
+    },
+    {
+      "engineName": "WEDMWireThreadingMinEngine",
+      "classification": "WEAK-SIGNAL",
+      "firstMatch": "test:__tests__/WEDMPrintToProgram.e2e.test.ts"
+    },
+    {
+      "engineName": "MachineVocabularyNormalizerEngine",
+      "classification": "FALSE-POSITIVE-WIRED",
+      "firstMatch": "dispatcher:tools/dispatchers/dataDispatcher.ts"
+    },
+    {
+      "engineName": "LocalEmbeddingEngine",
+      "classification": "WEAK-SIGNAL",
+      "firstMatch": "test:__tests__/local-embedding-engine.test.ts"
+    },
+    {
+      "engineName": "MillingHybridStrategySynthesizer",
+      "classification": "WEAK-SIGNAL",
+      "firstMatch": "test:__tests__/MillingHybridStrategySynthesizer.test.ts"
+    },
+    {
+      "engineName": "QuotingEngine",
+      "classification": "WEAK-SIGNAL",
+      "firstMatch": "test:__tests__/batch3-engines.test.ts"
+    },
+    {
+      "engineName": "MembraneFiltrationEngine",
+      "classification": "WEAK-SIGNAL",
+      "firstMatch": "test:__tests__/batch92-engines.test.ts"
+    },
+    {
+      "engineName": "ChangePointDetectionEngine",
+      "classification": "WEAK-SIGNAL",
+      "firstMatch": "test:__tests__/change-point-detection-engine.test.ts"
+    },
+    {
+      "engineName": "MasterPostProcessorUnifiedAGIEngine",
+      "classification": "TRULY-UNWIRED",
+      "firstMatch": null
+    },
+    {
+      "engineName": "FluidizedBedEngine",
+      "classification": "WEAK-SIGNAL",
+      "firstMatch": "test:__tests__/batch63-engines.test.ts"
+    },
+    {
+      "engineName": "GrepOptimizerEngine",
+      "classification": "WEAK-SIGNAL",
+      "firstMatch": "test:__tests__/grep-optimizer-engine.test.ts"
+    },
+    {
+      "engineName": "LatheUnifiedAIEngine",
+      "classification": "WEAK-SIGNAL",
+      "firstMatch": "cross-engine:engines/LatheDeepAIHardeningEngine.ts"
+    },
+    {
+      "engineName": "SinkerEDMLoRACadenceEngine",
+      "classification": "WEAK-SIGNAL",
+      "firstMatch": "test:__tests__/p1-lora-pairs.test.ts"
+    },
+    {
+      "engineName": "WEDMProgramComparisonEngine",
+      "classification": "WEAK-SIGNAL",
+      "firstMatch": "test:__tests__/WEDMProgramComparisonEngine.test.ts"
+    },
+    {
+      "engineName": "DailyFlashReportEngine",
+      "classification": "FALSE-POSITIVE-WIRED",
+      "firstMatch": "dispatcher:tools/dispatchers/devDispatcher.ts"
+    },
+    {
+      "engineName": "DesignToFloorPipelineEngine",
+      "classification": "WEAK-SIGNAL",
+      "firstMatch": "test:__tests__/design-to-floor-pipeline.test.ts"
+    },
+    {
+      "engineName": "InventorCAMStrategyEngine",
+      "classification": "TRULY-UNWIRED",
+      "firstMatch": null
+    },
+    {
+      "engineName": "TurningStrategyCatalog",
+      "classification": "WEAK-SIGNAL",
+      "firstMatch": "cross-engine:engines/LathePrintFeatureStrategySelectorEngine.ts"
+    },
+    {
+      "engineName": "VirtualMachiningDeepLearningEngine",
+      "classification": "WEAK-SIGNAL",
+      "firstMatch": "test:__tests__/VIRTUAL-MACHINING.test.ts"
+    },
+    {
+      "engineName": "QdrantVectorStoreEngine",
+      "classification": "WEAK-SIGNAL",
+      "firstMatch": "cross-engine:engines/MemorySyncEngine.ts"
+    }
+  ]
+}

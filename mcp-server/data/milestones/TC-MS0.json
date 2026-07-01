@@ -1,0 +1,620 @@
+{
+  "id": "TC-MS0",
+  "version": "5.4.0",
+  "title": "Tool Catalog PDF Integration — Manufacturer Data Extraction",
+  "brief": "Extract structured cutting tool data from 45 manufacturer PDF catalogs (Tungaloy, Sandvik, Kennametal, ISCAR, OSG, Guhring, etc.) into PRISM's tool registry. Multi-session project: OCR/table extraction, schema mapping, validation, registry population.",
+  "created_at": "2026-03-06T20:00:00Z",
+  "created_by": "claude-opus-4.6",
+  "catalog_path": "C:/PRISM/CATALOGS/",
+  "catalog_count": 45,
+  "estimated_sessions": "5-8",
+  "phases": [
+    {
+      "id": "P0",
+      "title": "Catalog Inventory & Schema Design",
+      "description": "Inventory all 45 PDFs, classify by manufacturer/type (turning, milling, drilling, threading, tooling systems, workholding). Design unified tool data schema covering insert geometry, grade mapping, speed/feed recommendations, and catalog cross-references.",
+      "sessions": "1",
+      "primary_role": "R3",
+      "primary_model": "opus-4.6",
+      "implementation_model": "sonnet-4.6",
+      "execution_split": "CC 70% / MCP 30%",
+      "units": [
+        {
+          "id": "P0-U01",
+          "title": "Catalog Inventory & Classification",
+          "phase": "P0",
+          "sequence": 0,
+          "role": "R3",
+          "role_name": "Knowledge Engineer",
+          "model": "opus-4.6",
+          "effort": 60,
+          "tools": [
+            {
+              "tool": "prism_dev"
+            }
+          ],
+          "skills": [
+            "/pdf-learn"
+          ],
+          "scripts": [],
+          "description": "Read first 5-10 pages of each PDF catalog. Classify by: manufacturer, tool type (turning/milling/drilling/threading/tooling), content type (geometry specs, grade tables, speed/feed charts, ordering info). Create inventory JSON.",
+          "exit_conditions": [
+            "Inventory JSON with 45 entries",
+            "Classification accuracy verified on sample",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
+          ],
+          "status": "pending",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P0-U02",
+          "title": "Unified Tool Data Schema",
+          "phase": "P0",
+          "sequence": 1,
+          "role": "R3",
+          "role_name": "Data Architect",
+          "model": "opus-4.6",
+          "effort": 80,
+          "tools": [
+            {
+              "tool": "prism_dev"
+            }
+          ],
+          "skills": [],
+          "scripts": [],
+          "description": "Design TypeScript interfaces for unified tool data: InsertSpec (geometry, grade, chipbreaker, nose radius, edge prep), EndMillSpec (flutes, helix, LOC, shank), DrillSpec (point angle, margin, coolant), ThreadingSpec (pitch, form). Map to existing ToolRegistry schema.",
+          "exit_conditions": [
+            "Schema interfaces created",
+            "Mapping to existing ToolRegistry verified",
+            "Sample data validates against schema"
+          ],
+          "status": "pending",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "P1",
+      "title": "Tungaloy & Sandvik Extraction (Priority Catalogs)",
+      "description": "Extract structured data from Tungaloy GC_2023-2024 (8 PDFs: US/Global × Turning/Milling/Drilling/Tooling) and existing Sandvik-derived data. These are the highest-value catalogs with comprehensive speed/feed tables.",
+      "sessions": "1-2",
+      "primary_role": "R3",
+      "primary_model": "opus-4.6",
+      "implementation_model": "sonnet-4.6",
+      "execution_split": "CC 80% / MCP 20%",
+      "units": [
+        {
+          "id": "P1-U01",
+          "title": "Tungaloy Turning Catalog Extraction",
+          "phase": "P1",
+          "sequence": 0,
+          "role": "R3",
+          "role_name": "Knowledge Engineer",
+          "model": "opus-4.6",
+          "effort": 100,
+          "tools": [
+            {
+              "tool": "prism_calc"
+            },
+            {
+              "tool": "prism_dev"
+            }
+          ],
+          "skills": [
+            "/pdf-learn"
+          ],
+          "scripts": [],
+          "description": "Extract from GC_2023-2024 Turning-Grooving (US + Global): insert geometries, grade recommendations by ISO material group, chipbreaker selection, speed/feed tables. Map to unified schema.",
+          "exit_conditions": [
+            "Insert geometries extracted",
+            "Grade-to-material mapping complete",
+            "Speed/feed data validated against existing strategy_db"
+          ],
+          "status": "pending",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P1-U02",
+          "title": "Tungaloy Milling Catalog Extraction",
+          "phase": "P1",
+          "sequence": 1,
+          "role": "R3",
+          "role_name": "Knowledge Engineer",
+          "model": "opus-4.6",
+          "effort": 100,
+          "tools": [
+            {
+              "tool": "prism_calc"
+            },
+            {
+              "tool": "prism_dev"
+            }
+          ],
+          "skills": [
+            "/pdf-learn"
+          ],
+          "scripts": [],
+          "description": "Extract from GC_2023-2024 Milling (US + Global): end mill specs, indexable milling cutter geometries, grade tables, speed/feed recommendations by material group and operation.",
+          "exit_conditions": [
+            "Milling tool specs extracted",
+            "Speed/feed tables parsed",
+            "Cross-referenced with turning grades"
+          ],
+          "status": "pending",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P1-U03",
+          "title": "Tungaloy Drilling Catalog Extraction",
+          "phase": "P1",
+          "sequence": 2,
+          "role": "R3",
+          "role_name": "Knowledge Engineer",
+          "model": "opus-4.6",
+          "effort": 80,
+          "tools": [
+            {
+              "tool": "prism_calc"
+            },
+            {
+              "tool": "prism_dev"
+            }
+          ],
+          "skills": [
+            "/pdf-learn"
+          ],
+          "scripts": [],
+          "description": "Extract from GC_2023-2024 Drilling (US + Global): drill geometries, point angles, coolant specs, peck drilling recommendations, speed/feed by material.",
+          "exit_conditions": [
+            "Drill specs extracted",
+            "Speed/feed tables parsed",
+            "Peck parameters mapped"
+          ],
+          "status": "pending",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "P2",
+      "title": "Multi-Manufacturer Extraction (ISCAR, Kennametal, OSG, Guhring)",
+      "description": "Extract data from remaining high-priority manufacturer catalogs. Focus on unique data not already covered by Tungaloy extraction.",
+      "sessions": "2-3",
+      "primary_role": "R3",
+      "primary_model": "opus-4.6",
+      "implementation_model": "sonnet-4.6",
+      "execution_split": "CC 80% / MCP 20%",
+      "units": [
+        {
+          "id": "P2-U01",
+          "title": "ISCAR Catalog Extraction",
+          "phase": "P2",
+          "sequence": 0,
+          "role": "R3",
+          "role_name": "Knowledge Engineer",
+          "model": "opus-4.6",
+          "effort": 100,
+          "tools": [
+            {
+              "tool": "prism_calc"
+            },
+            {
+              "tool": "prism_dev"
+            }
+          ],
+          "skills": [
+            "/pdf-learn"
+          ],
+          "scripts": [],
+          "description": "Extract from ISCAR PART 1: turning inserts, grooving/parting, threading, milling cutters. Focus on unique ISCAR grades (IC grades) and proprietary geometries (SUMO, DOVE-IQ).",
+          "exit_conditions": [
+            "ISCAR tool specs extracted",
+            "IC grade mapping complete",
+            "Speed/feed data validated"
+          ],
+          "status": "pending",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P2-U02",
+          "title": "Kennametal Catalog Extraction",
+          "phase": "P2",
+          "sequence": 1,
+          "role": "R3",
+          "role_name": "Knowledge Engineer",
+          "model": "opus-4.6",
+          "effort": 100,
+          "tools": [
+            {
+              "tool": "prism_calc"
+            },
+            {
+              "tool": "prism_dev"
+            }
+          ],
+          "skills": [
+            "/pdf-learn"
+          ],
+          "scripts": [],
+          "description": "Extract from Kennametal turning/milling/drilling catalogs: KCP grade system, KCSM/KCPM substrates, Beyond inserts, speed/feed tables.",
+          "exit_conditions": [
+            "Kennametal specs extracted",
+            "KCP grade mapping to ISO complete",
+            "Speed/feed data validated"
+          ],
+          "status": "pending",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P2-U03",
+          "title": "OSG & Guhring Solid Carbide Extraction",
+          "phase": "P2",
+          "sequence": 2,
+          "role": "R3",
+          "role_name": "Knowledge Engineer",
+          "model": "opus-4.6",
+          "effort": 80,
+          "tools": [
+            {
+              "tool": "prism_calc"
+            },
+            {
+              "tool": "prism_dev"
+            }
+          ],
+          "skills": [
+            "/pdf-learn"
+          ],
+          "scripts": [],
+          "description": "Extract from OSG and Guhring catalogs: solid carbide end mills (geometries, coatings, flute counts), drills (point angles, coolant), taps (thread forms, speeds). These complement indexable data from Tungaloy/ISCAR/Kennametal.",
+          "exit_conditions": [
+            "Solid carbide specs extracted",
+            "Coating-to-material recommendations mapped",
+            "Speed/feed data validated"
+          ],
+          "status": "pending",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P2-U04",
+          "title": "Remaining Manufacturer Extraction",
+          "phase": "P2",
+          "sequence": 3,
+          "role": "R3",
+          "role_name": "Knowledge Engineer",
+          "model": "opus-4.6",
+          "effort": 100,
+          "tools": [
+            {
+              "tool": "prism_calc"
+            },
+            {
+              "tool": "prism_dev"
+            }
+          ],
+          "skills": [
+            "/pdf-learn"
+          ],
+          "scripts": [],
+          "description": "Extract from: MA Ford (end mills), SGS (solid carbide), Korloy (turning/rotating/solid), Emuge (taps/thread mills), Ingersoll (indexable), Accupro, Flash Solid, YG-1. Focus on unique geometries and grades not already covered.",
+          "exit_conditions": [
+            "All remaining catalogs processed",
+            "Unique data extracted and merged",
+            "No duplicate entries"
+          ],
+          "status": "pending",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "P3",
+      "title": "Tooling Systems & Workholding Extraction",
+      "description": "Extract non-cutting tool data: tool holders (BIG DAISHOWA, Haimer, REGO-FIX, CAMFIX), workholding (Orange Vise), tooling systems. These support machine profile validation and setup sheet generation.",
+      "sessions": "1",
+      "primary_role": "R3",
+      "primary_model": "opus-4.6",
+      "implementation_model": "sonnet-4.6",
+      "execution_split": "CC 70% / MCP 30%",
+      "units": [
+        {
+          "id": "P3-U01",
+          "title": "Tool Holder & Collet System Extraction",
+          "phase": "P3",
+          "sequence": 0,
+          "role": "R3",
+          "role_name": "Knowledge Engineer",
+          "model": "opus-4.6",
+          "effort": 80,
+          "tools": [
+            {
+              "tool": "prism_dev"
+            }
+          ],
+          "skills": [
+            "/pdf-learn"
+          ],
+          "scripts": [],
+          "description": "Extract from BIG DAISHOWA, Haimer, REGO-FIX, CAMFIX catalogs: holder types (shrink fit, hydraulic, collet chuck, milling chuck), taper specs, runout specs, balance grades, max RPM ratings. Feed into MachineProfileEngine validation.",
+          "exit_conditions": [
+            "Holder specs extracted",
+            "Taper/runout data mapped",
+            "RPM limits integrated with machine profiles"
+          ],
+          "status": "shipped",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "auto_close_out_at": "2026-05-24T00:59:31.369Z",
+          "auto_close_out_reason": "dispatcher-wired engine MachineProfileEngine found in corpus"
+        },
+        {
+          "id": "P3-U02",
+          "title": "Workholding Extraction",
+          "phase": "P3",
+          "sequence": 1,
+          "role": "R3",
+          "role_name": "Knowledge Engineer",
+          "model": "opus-4.6",
+          "effort": 60,
+          "tools": [
+            {
+              "tool": "prism_dev"
+            }
+          ],
+          "skills": [
+            "/pdf-learn"
+          ],
+          "scripts": [],
+          "description": "Extract from Orange Vise and related catalogs: vise specs, clamping force, jaw types, repeatability. Feed into workholding intelligence engine.",
+          "exit_conditions": [
+            "Workholding specs extracted",
+            "Clamping force data available for setup sheets",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
+          ],
+          "status": "pending",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "P4",
+      "title": "Registry Population & Validation",
+      "description": "Load all extracted tool data into PRISM's ToolRegistry. Cross-validate against existing strategy_db, physics engines, and known machining data. Build lookup APIs.",
+      "sessions": "1",
+      "primary_role": "R3",
+      "primary_model": "opus-4.6",
+      "implementation_model": "sonnet-4.6",
+      "execution_split": "MCP 80% / CC 20%",
+      "units": [
+        {
+          "id": "P4-U01",
+          "title": "ToolRegistry Bulk Import",
+          "phase": "P4",
+          "sequence": 0,
+          "role": "R3",
+          "role_name": "Data Engineer",
+          "model": "opus-4.6",
+          "effort": 80,
+          "tools": [
+            {
+              "tool": "prism_dev"
+            }
+          ],
+          "skills": [],
+          "scripts": [],
+          "description": "Create bulk import pipeline for ToolRegistry. Load all extracted tool data with manufacturer provenance. Handle deduplication across manufacturers (same ISO insert from multiple brands).",
+          "exit_conditions": [
+            "Bulk import working",
+            "All extracted data loaded",
+            "Dedup logic verified"
+          ],
+          "status": "pending",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P4-U02",
+          "title": "Cross-Validation & Quality Assurance",
+          "phase": "P4",
+          "sequence": 1,
+          "role": "R3",
+          "role_name": "QA Engineer",
+          "model": "opus-4.6",
+          "effort": 100,
+          "tools": [
+            {
+              "tool": "prism_calc"
+            },
+            {
+              "tool": "prism_dev"
+            }
+          ],
+          "skills": [
+            "/test"
+          ],
+          "scripts": [],
+          "description": "Validate extracted data against: existing strategy_db speeds (within 20%), physics engine predictions (Kienzle/Taylor), known machining handbooks. Flag outliers for manual review. Write integration tests.",
+          "exit_conditions": [
+            "Cross-validation complete",
+            "Outliers flagged and resolved",
+            "Integration tests passing"
+          ],
+          "status": "pending",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P4-U03",
+          "title": "Catalog Lookup API & Dispatcher Actions",
+          "phase": "P4",
+          "sequence": 2,
+          "role": "R3",
+          "role_name": "API Engineer",
+          "model": "opus-4.6",
+          "effort": 80,
+          "tools": [
+            {
+              "tool": "prism_dev"
+            }
+          ],
+          "skills": [],
+          "scripts": [],
+          "description": "Create dispatcher actions for tool catalog queries: tool_catalog_search (by material/operation/manufacturer), tool_catalog_recommend (best tool for job), tool_catalog_compare (side-by-side specs). Wire to calcDispatcher or new toolCatalogDispatcher.",
+          "exit_conditions": [
+            "Dispatcher actions wired",
+            "Search/recommend/compare working",
+            "Tests passing"
+          ],
+          "status": "pending",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        }
+      ]
+    }
+  ],
+  "status": "not_started",
+  "smart_config": {
+    "role": "implementer + reviewer",
+    "model": "sonnet",
+    "effort": "HIGH",
+    "context_budget": "65%"
+  },
+  "mcp_lifecycle": {
+    "session_start": [
+      "prism_session:context_boot",
+      "prism_session:dispatcher_map",
+      "prism_session:memory_recall",
+      "prism_session:system_snapshot",
+      "prism_session:action_search"
+    ],
+    "during_work": [
+      "prism_session:auto_checkpoint",
+      "prism_session:tool_route_best",
+      "prism_session:wip_capture"
+    ],
+    "session_end": [
+      "prism_session:memory_save",
+      "prism_session:system_snapshot",
+      "prism_session:checkpoint_enhanced"
+    ]
+  },
+  "forge_triple": {
+    "protective_hook": "tc-ms0-gate",
+    "mcp_action": "prism_tc:tc_ms0_run",
+    "skill_command": "/tc-ms0",
+    "ownership": "DECLARED — BUILT in terminal unit of this milestone"
+  },
+  "feature_cascade": {
+    "new_hooks": [
+      "tc-ms0-gate"
+    ],
+    "new_actions": [
+      "tc_ms0_run"
+    ],
+    "new_skills": [
+      "/tc-ms0"
+    ],
+    "available_to": [
+      "downstream CAMX milestones",
+      "prism app consumers"
+    ]
+  },
+  "knowledge_sources": {
+    "engines": [
+      "ENGINE_DIGEST.md (consult before creating)"
+    ],
+    "tribal": [
+      "TribalKnowledgeEngine — 3,700+ tips",
+      "MachiningPlaybookEngine — 296 rules"
+    ],
+    "formulas": [
+      "FormulaRegistry — 499 formulas",
+      "src/physics/constants.ts — canonical"
+    ],
+    "reference": [
+      "EXTERNAL-REFERENCE-PROGRAMS-INDEX.md",
+      "MaterialRegistry",
+      "MachineRegistry",
+      "ToolCatalogEngine (95,608 tools)"
+    ]
+  },
+  "intent": "Extract structured cutting tool data from 45 manufacturer PDF catalogs (Tungaloy, Sandvik, Kennametal, ISCAR, OSG, Guhring, etc.) into PRISM's tool registry. Multi-session project: OCR/table extraction, schema mapping, validation, registry population.",
+  "compact_checkpoint": "every 3 units — auto-triggered by hook",
+  "enforcement_hooks_active": [
+    "physics agent",
+    "wiring agent",
+    "constants checker",
+    "stub detector",
+    "test quality",
+    "forge-triple gate",
+    "session audit agent"
+  ],
+  "units": {},
+  "updated_at": "2026-05-24"
+}

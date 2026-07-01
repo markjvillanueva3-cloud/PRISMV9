@@ -34,6 +34,7 @@
 import {
   existsSync,
   mkdirSync,
+  readdirSync,
   readFileSync,
   renameSync,
   unlinkSync,
@@ -434,5 +435,104 @@ export class CAMTrainingExtractionAggregatorEngine {
         ],
       },
     ];
+  }
+
+  /**
+   * U-HMT-CONSUMER-MEASURE: scan the knowledge_store directory and report
+   * aggregate consumption stats for HM-training docs.
+   *
+   * Walks every `doc-*.json` in the supplied directory, tallies tips/formulas/
+   * tables (deduping tips via {@link dedupKey}), partitions by HM-training
+   * scope (regex matches the canonical HM doc-id slugs maintained in
+   * scripts/hm-extraction-coverage.mjs and the embed-index router), and lists
+   * zero-tip docs so callers can detect silent extraction failures. Pure —
+   * I/O only against the supplied directory; never mutates state.
+   *
+   * @param knowledgeStoreDir Absolute path to `cad-engine/knowledge_store`.
+   * @returns Per-doc and aggregate counts; empty stats if dir missing.
+   */
+  static knowledgeStats(knowledgeStoreDir: string): {
+    engine: "CAMTrainingExtractionAggregatorEngine";
+    knowledge_store_dir: string;
+    doc_count: number;
+    hm_doc_count: number;
+    total_tips: number;
+    total_tips_unique: number;
+    total_formulas: number;
+    total_parameter_tables: number;
+    zero_tip_docs: string[];
+    hm_tip_total: number;
+    per_doc: Array<{ doc: string; tips: number; formulas: number; tables: number; hm: boolean }>;
+  } {
+    const empty = {
+      engine: "CAMTrainingExtractionAggregatorEngine" as const,
+      knowledge_store_dir: knowledgeStoreDir,
+      doc_count: 0,
+      hm_doc_count: 0,
+      total_tips: 0,
+      total_tips_unique: 0,
+      total_formulas: 0,
+      total_parameter_tables: 0,
+      zero_tip_docs: [] as string[],
+      hm_tip_total: 0,
+      per_doc: [] as Array<{ doc: string; tips: number; formulas: number; tables: number; hm: boolean }>,
+    };
+    if (!existsSync(knowledgeStoreDir)) return empty;
+
+    // Sync match with scripts/hm-extraction-coverage.mjs HM_FILE_RE and the
+    // embed-index HM router in scripts/embed-knowledge-store-into-tribal-index.mjs.
+    const HM_RE = /^doc-(hypermill|hmautocolor|cad-manual|fusion-cad|automation-center|virtual-tool|virtual-machining|virtual-mc|tool-builder|synchronization-tool|sql-tool-db|sql-macro|hypermill-sql|hypercad)/i;
+
+    const docs: string[] = [];
+    for (const name of readdirSync(knowledgeStoreDir)) {
+      if (name.startsWith("doc-") && name.endsWith(".json")) docs.push(name);
+    }
+
+    const seenTipKeys = new Set<string>();
+    const perDoc: Array<{ doc: string; tips: number; formulas: number; tables: number; hm: boolean }> = [];
+    const zeroTipDocs: string[] = [];
+    let totalTips = 0;
+    let totalFormulas = 0;
+    let totalTables = 0;
+    let hmDocCount = 0;
+    let hmTipTotal = 0;
+
+    for (const name of docs) {
+      const basename = name.replace(/\.json$/, "");
+      let doc: KnowledgeStoreDoc;
+      try {
+        doc = this.loadKnowledgeStoreDoc(knowledgeStoreDir, basename);
+      } catch {
+        continue;
+      }
+      const tipsArr = doc.tips ?? [];
+      const formulasArr = doc.formulas ?? [];
+      const tablesArr = doc.parameter_tables ?? [];
+      const isHm = HM_RE.test(basename);
+      if (isHm) {
+        hmDocCount += 1;
+        hmTipTotal += tipsArr.length;
+      }
+      if (tipsArr.length === 0) zeroTipDocs.push(basename);
+      totalTips += tipsArr.length;
+      totalFormulas += formulasArr.length;
+      totalTables += tablesArr.length;
+      for (const t of tipsArr) seenTipKeys.add(this.dedupKey(t));
+      perDoc.push({ doc: basename, tips: tipsArr.length, formulas: formulasArr.length, tables: tablesArr.length, hm: isHm });
+    }
+
+    return {
+      engine: "CAMTrainingExtractionAggregatorEngine",
+      knowledge_store_dir: knowledgeStoreDir,
+      doc_count: docs.length,
+      hm_doc_count: hmDocCount,
+      total_tips: totalTips,
+      total_tips_unique: seenTipKeys.size,
+      total_formulas: totalFormulas,
+      total_parameter_tables: totalTables,
+      zero_tip_docs: zeroTipDocs,
+      hm_tip_total: hmTipTotal,
+      per_doc: perDoc,
+    };
   }
 }

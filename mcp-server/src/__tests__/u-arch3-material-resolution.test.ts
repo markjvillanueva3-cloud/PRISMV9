@@ -402,11 +402,13 @@ describe("MultiAxisPrintToProgramEngine — U-ARCH3 material resolution", () => 
 // ============================================================================
 
 describe("CANONICAL_MATERIAL_DB — integrity checks", () => {
-  it("has 15 material entries", () => {
+  it("has 16 material entries", () => {
     // 13 base + C11000 ETP Copper + C26000 Cartridge Brass (added 2026-05-17,
     // TSC-FIX/U-TSC-WIRE-EDM-COPPER — replaced a ~3x Al6061 thermal proxy for
-    // copper/brass WEDM workpieces with real ASM/Touloukian values).
-    expect(Object.keys(CANONICAL_MATERIAL_DB).length).toBe(15);
+    // copper/brass WEDM workpieces with real ASM/Touloukian values)
+    // + ductile_iron (added 2026-06-22, SFC-CONVERGENCE/U-SFC-DUCTILE-IRON-KC — nodular iron
+    // kc1_1 1300 vs the gray-iron K-group 1100; fixes a ~18% force under-prediction).
+    expect(Object.keys(CANONICAL_MATERIAL_DB).length).toBe(16);
   });
 
   it("all ISO groups are represented", () => {

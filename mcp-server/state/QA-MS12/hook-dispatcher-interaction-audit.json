@@ -1,0 +1,97 @@
+{
+  "audit_id": "QA-MS12-P0-U04",
+  "title": "Hook-to-Dispatcher Interaction Audit",
+  "auditor": "claude-opus-4.6",
+  "timestamp": "2026-02-28T08:10:00Z",
+  "status": "COMPLETE",
+  "verdict": "PASS - Hook-dispatcher interaction is well-layered: autoHookWrapper provides universal proxy wrapping (layer 1), HookExecutor provides phase-driven enforcement (layer 2), HookEngine provides event-driven cognitive hooks (layer 3), hookBridge routes cognitive hooks to Python/TS (layer 4). No circular dependencies detected.",
+
+  "interaction_matrix": {
+    "layer_1_auto_hook_proxy": {
+      "component": "autoHookWrapper.ts (2621 lines)",
+      "direction": "Wraps ALL prism_* dispatchers at registration time",
+      "mechanism": "index.ts intercepts server.tool() → wrapWithUniversalHooks → wrapToolWithAutoHooks (calc only)",
+      "dispatchers_wrapped": "All 45 prism_* dispatchers",
+      "hooks_fired": [
+        "SESSION-AUTO-BOOT-001 (first-call recon)",
+        "CALC-BEFORE-EXEC-001 / CALC-AFTER-EXEC-001 (calc tools)",
+        "INTEL-PROOF-001 (safety proof results)",
+        "REFL-002 (error reflection)"
+      ],
+      "cadence_functions": "80+ auto* functions from cadenceExecutor.ts"
+    },
+    "layer_2_hook_executor": {
+      "component": "HookExecutor.ts (842 lines)",
+      "direction": "Called by dispatchers and autoHookWrapper to enforce phase-specific hooks",
+      "mechanism": "hookExecutor.execute(phase, context) — runs priority-sorted hook chains",
+      "callers": [
+        "autoHookWrapper.ts — fires hooks before/after dispatcher calls",
+        "orchestrationDispatcher.ts — fires on-agent-timeout, on-swarm-consensus",
+        "hookRegistration.ts — registers all 112 domain hooks at startup",
+        "Various engines — fire hooks for domain-specific phases"
+      ],
+      "phases": "40+ phases covering all PRISM domains"
+    },
+    "layer_3_hook_engine": {
+      "component": "HookEngine.ts (749 lines)",
+      "direction": "Event-driven hooks via EventBus (EventEmitter)",
+      "mechanism": "hookEngine.executeHookChain(phase, data) — priority-sorted with halt support",
+      "built_in_hooks": 6,
+      "events": {
+        "system": 18,
+        "cognitive": 10
+      },
+      "wrapWithHooks": "Lifecycle wrapper: before → operation → after/on_error"
+    },
+    "layer_4_hook_bridge": {
+      "component": "hookBridge.ts (612 lines)",
+      "direction": "Routes cognitive hooks between TypeScript and Python servers",
+      "mechanism": "fireHook(hookId, data) — checks COGNITIVE_PREFIXES, routes to Python (localhost:8765) or falls back to TS emulation",
+      "cognitive_hooks": 18,
+      "safety_gate": "S(x) < 0.70 blocks cognitive hook execution",
+      "fallback": "emulateInTypescript() provides pattern-based responses when Python unavailable"
+    }
+  },
+
+  "circular_dependency_check": {
+    "result": "NO CIRCULAR DEPENDENCIES",
+    "analysis": {
+      "autoHookWrapper_to_HookExecutor": "One-way: autoHookWrapper calls hookExecutor.execute(). HookExecutor never calls autoHookWrapper.",
+      "autoHookWrapper_to_HookEngine": "One-way: autoHookWrapper imports hookEngine for fireHook(). HookEngine never calls autoHookWrapper.",
+      "HookExecutor_to_HookEngine": "Independent: Both are hook execution engines but operate on different registration sets. HookExecutor = domain hooks, HookEngine = event-driven hooks.",
+      "hookBridge_to_HookEngine": "One-way: hookBridge may call hookEngine for fallback. HookEngine does not call hookBridge.",
+      "dispatchers_to_hooks": "One-way: Dispatchers fire hooks via hookExecutor.execute(). Hooks may modify data but never directly call dispatchers."
+    }
+  },
+
+  "ordering_analysis": {
+    "hook_priority_system": {
+      "HookExecutor": "PRIORITY_VALUES map: critical=0, high=1, normal=2, low=3 (lower = runs first)",
+      "HookEngine": "Same priority enum, sorted ascending before chain execution",
+      "conflict_risk": "LOW — priorities are explicit per-hook, no ambiguous same-priority conflicts observed"
+    },
+    "execution_order": [
+      "1. autoHookWrapper pre-execution cadences (journal, recon, pressure check, etc.)",
+      "2. wrapToolWithAutoHooks pre-calc (CALC-BEFORE-EXEC-001, Λ(x) validation) — calc tools only",
+      "3. HookExecutor.execute(phase, context) — domain hooks for the specific action",
+      "4. Actual dispatcher handler execution",
+      "5. HookExecutor.execute(post-phase, result) — post-action domain hooks",
+      "6. wrapToolWithAutoHooks post-calc (CALC-AFTER-EXEC-001, Φ(x) verification) — calc tools only",
+      "7. autoHookWrapper post-execution cadences (telemetry, error learn, anti-regression, etc.)"
+    ]
+  },
+
+  "data_flow": {
+    "pre_execution": "autoHookWrapper builds cadence context → fires HookExecutor phases → passes enriched context to dispatcher",
+    "post_execution": "Dispatcher result → HookExecutor post-phases → autoHookWrapper cadences → response slimming → return to MCP client",
+    "error_path": "Exception → autoHookWrapper catches → fires REFL-002 → autoErrorLearn → autoD3ErrorChain → returns error response",
+    "blocking_behavior": "HookExecutor mode=blocking can halt execution. autoHookWrapper Λ(x) < 0.5 blocks calc tools. hookBridge S(x) < 0.70 blocks cognitive hooks."
+  },
+
+  "findings": [],
+  "exit_conditions_met": {
+    "interaction_matrix_documented": true,
+    "circular_dependency_detection_verified": true,
+    "hook_ordering_conflicts_identified": true
+  }
+}

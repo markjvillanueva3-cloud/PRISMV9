@@ -1,8 +1,13 @@
 ---
 description: Force-claim slot ALPHA + run the full /checkin pipeline. NATO-phonetic shortcut for `/checkin --preferSlot alpha --force`. Fleet-reaper ownership moved to golf 2026-05-16 — alpha is a standard work slot now.
 allowed-tools: Bash, Read, Edit, Write, Glob, Grep, TodoWrite, Task, AskUserQuestion
+composes_with:
+  - "/checkin"
+  - "/checkin-golf"
+  - "/fleet-reaper"
+  - "/handoff"
+  - "/pick-unit"
 ---
-
 # /checkin-alpha — slot-locked /checkin (standard work slot)
 
 Force-takes the **alpha** slot (evicting any prior owner with `--force true --confirmRecent true`), binds the handoff to `alpha-work`, then runs the standard `/checkin` pipeline. Use when you want this specific slot regardless of who currently holds it.

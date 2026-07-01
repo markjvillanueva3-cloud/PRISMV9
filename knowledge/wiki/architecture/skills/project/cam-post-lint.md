@@ -29,8 +29,7 @@ related:
 
 ## Description (first paragraph)
 
-
-# /cam-post-lint — CAM to Post-Processor Lint Check
+Validate CAM post-processor output for controller compatibility and safety.
 
 <!-- AUTO-END -->
 

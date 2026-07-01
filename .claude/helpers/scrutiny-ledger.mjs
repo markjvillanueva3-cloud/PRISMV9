@@ -358,9 +358,14 @@ export function recordScrutiny(sessionId, marks = {}) {
 }
 
 /**
- * Returns true when all three review arms (Codex CLI, 2nd Claude reviewer,
- * Opus reviewer) have recorded PASS for the session. Self-review is orthogonal
- * and is NOT required for clearance under the strict 3-of-3 policy.
+ * Returns true when both required review arms (Opus reviewer A holistic + 2nd
+ * Claude reviewer B independent) have recorded PASS for the session. Self-review
+ * is orthogonal and NOT required for clearance under the strict 2-of-2 policy
+ * (reduced from 3-of-3 per user directive 2026-05-20).
+ *
+ * Arm C (codexReviewed slot — analyst pass) is RETAINED as a backward-compat
+ * field but NO LONGER required. Old ledger entries that recorded `codexReviewed`
+ * are unaffected; new entries that omit it still clear.
  *
  * Backward compat:
  *   - a legacy entry that recorded `geminiReviewed: true` (pre-2026-05-12)
@@ -374,8 +379,8 @@ export function isCleared(sessionId) {
   if (!entry) return false;
   // The Claude (arm-B) leg is satisfied by the canonical flag OR any legacy alias.
   const claudeArmOk = ARM_B_FLAG_ALIASES.some((k) => entry[k] === true);
-  // Strict 3-of-3 policy
-  if (entry.codexReviewed === true && claudeArmOk && entry.opusReviewed === true) {
+  // Strict 2-of-2 policy (arm A + arm B). Arm C (codexReviewed) is no longer required.
+  if (entry.opusReviewed === true && claudeArmOk) {
     return true;
   }
   // Legacy fallback: pre-3way entries used selfReviewed && agentReviewed and

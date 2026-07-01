@@ -218,11 +218,12 @@ class KienzleForceModelImpl implements Algorithm<KienzleInput, KienzleOutput> {
         mc = input.material.mc;
         materialSource = input.material.name;
       }
-    } else if (input.iso_group) {
-      const kienzle = CANONICAL_KIENZLE[input.iso_group];
+    } else if (input.iso_group && Object.prototype.hasOwnProperty.call(CANONICAL_KIENZLE, input.iso_group)) {
+      const isoKey = input.iso_group as ISOGroup;
+      const kienzle = CANONICAL_KIENZLE[isoKey];
       kc1_1 = kienzle.kc1_1;
       mc = kienzle.mc;
-      materialSource = `ISO-${input.iso_group}`;
+      materialSource = `ISO-${isoKey}`;
     } else {
       // Default to steel (ISO P)
       kc1_1 = CANONICAL_KIENZLE.P.kc1_1;

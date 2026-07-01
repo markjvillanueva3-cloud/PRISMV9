@@ -1,0 +1,644 @@
+{
+  "schemaVersion": "1.0.0",
+  "generatedAt": "2026-07-01T00:56:14.655Z",
+  "totalSources": 36,
+  "present": 27,
+  "missing": 9,
+  "sources": [
+    {
+      "id": "machine-milling-lora",
+      "kind": "lora-training-jsonl",
+      "path": "H:/prism/state/shared/lora/machine-milling-dataset.jsonl",
+      "description": "Per-machine LoRA dataset for milling (real shop RawJobs -> Alpaca via millingLoRADatasetBuilderEngine). Producer: scripts/build-machine-lora-datasets.mjs; owner slot: foxtrot. Empty until real actuals land at state/shared/training/machine-jobs/milling.jsonl.",
+      "domains": [
+        "mill"
+      ],
+      "advisory": false,
+      "status": "missing",
+      "fileStat": null
+    },
+    {
+      "id": "machine-5axis-lora",
+      "kind": "lora-training-jsonl",
+      "path": "H:/prism/state/shared/lora/machine-5axis-dataset.jsonl",
+      "description": "Per-machine LoRA dataset for 5axis (real shop RawJobs -> Alpaca via fiveAxisLoRADatasetBuilderEngine). Producer: scripts/build-machine-lora-datasets.mjs; owner slot: foxtrot. Empty until real actuals land at state/shared/training/machine-jobs/5axis.jsonl.",
+      "domains": [
+        "mill",
+        "5axis"
+      ],
+      "advisory": false,
+      "status": "missing",
+      "fileStat": null
+    },
+    {
+      "id": "machine-millturn-lora",
+      "kind": "lora-training-jsonl",
+      "path": "H:/prism/state/shared/lora/machine-millturn-dataset.jsonl",
+      "description": "Per-machine LoRA dataset for millturn (real shop RawJobs -> Alpaca via millTurnLoRADatasetBuilderEngine). Producer: scripts/build-machine-lora-datasets.mjs; owner slot: whiskey. Empty until real actuals land at state/shared/training/machine-jobs/millturn.jsonl.",
+      "domains": [
+        "lathe",
+        "mill"
+      ],
+      "advisory": false,
+      "status": "missing",
+      "fileStat": null
+    },
+    {
+      "id": "machine-wedm-lora",
+      "kind": "lora-training-jsonl",
+      "path": "H:/prism/state/shared/lora/machine-wedm-dataset.jsonl",
+      "description": "Per-machine LoRA dataset for wedm (real shop RawJobs -> Alpaca via wedmLoRADatasetBuilderEngine). Producer: scripts/build-machine-lora-datasets.mjs; owner slot: mike. Empty until real actuals land at state/shared/training/machine-jobs/wedm.jsonl.",
+      "domains": [
+        "wedm"
+      ],
+      "advisory": false,
+      "status": "missing",
+      "fileStat": null
+    },
+    {
+      "id": "machine-sinker-lora",
+      "kind": "lora-training-jsonl",
+      "path": "H:/prism/state/shared/lora/machine-sinker-dataset.jsonl",
+      "description": "Per-machine LoRA dataset for sinker (real shop RawJobs -> Alpaca via sinkerEDMLoRADatasetBuilderEngine). Producer: scripts/build-machine-lora-datasets.mjs; owner slot: mike. Empty until real actuals land at state/shared/training/machine-jobs/sinker.jsonl.",
+      "domains": [
+        "wedm",
+        "edm"
+      ],
+      "advisory": false,
+      "status": "missing",
+      "fileStat": null
+    },
+    {
+      "id": "machine-laser-lora",
+      "kind": "lora-training-jsonl",
+      "path": "H:/prism/state/shared/lora/machine-laser-dataset.jsonl",
+      "description": "Per-machine LoRA dataset for laser (real shop RawJobs -> Alpaca via laserLoRADatasetBuilderEngine). Producer: scripts/build-machine-lora-datasets.mjs; owner slot: mike. Empty until real actuals land at state/shared/training/machine-jobs/laser.jsonl.",
+      "domains": [
+        "laser"
+      ],
+      "advisory": false,
+      "status": "missing",
+      "fileStat": null
+    },
+    {
+      "id": "machine-waterjet-lora",
+      "kind": "lora-training-jsonl",
+      "path": "H:/prism/state/shared/lora/machine-waterjet-dataset.jsonl",
+      "description": "Per-machine LoRA dataset for waterjet (real shop RawJobs -> Alpaca via waterjetLoRADatasetBuilderEngine). Producer: scripts/build-machine-lora-datasets.mjs; owner slot: mike. Empty until real actuals land at state/shared/training/machine-jobs/waterjet.jsonl.",
+      "domains": [
+        "waterjet"
+      ],
+      "advisory": false,
+      "status": "missing",
+      "fileStat": null
+    },
+    {
+      "id": "machine-grinding-lora",
+      "kind": "lora-training-jsonl",
+      "path": "H:/prism/state/shared/lora/machine-grinding-dataset.jsonl",
+      "description": "Per-machine LoRA dataset for grinding (real shop RawJobs -> Alpaca via grindingLoRADatasetBuilderEngine). Producer: scripts/build-machine-lora-datasets.mjs; owner slot: foxtrot. Empty until real actuals land at state/shared/training/machine-jobs/grinding.jsonl.",
+      "domains": [
+        "grinding"
+      ],
+      "advisory": false,
+      "status": "missing",
+      "fileStat": null
+    },
+    {
+      "id": "machine-lathe-lora",
+      "kind": "lora-training-jsonl",
+      "path": "H:/prism/state/shared/lora/machine-lathe-dataset.jsonl",
+      "description": "Lathe LoRA dataset from the JM CNC LATHE archive (real .MIN programs, quality-gated + deduped). Producer: npx tsx scripts/build-lathe-lora-dataset.ts.",
+      "domains": [
+        "lathe"
+      ],
+      "advisory": true,
+      "status": "present",
+      "resolvedPath": "H:/prism/state/shared/lora/machine-lathe-dataset.jsonl",
+      "fileStat": {
+        "exists": true,
+        "sizeBytes": 747365,
+        "mtime": "2026-06-18T19:14:02.236Z"
+      },
+      "rows": 1657
+    },
+    {
+      "id": "psn-corpus-manifest",
+      "kind": "aggregate-manifest",
+      "path": "H:/prism/state/shared/training/psn-corpus-manifest.json",
+      "description": "PSN 11-leg training corpus manifest (obsidian/wiki/memories/tribal/system-viz/engines/algorithms/formulas/prism-ai).",
+      "domains": [
+        "general"
+      ],
+      "status": "present",
+      "resolvedPath": "H:/prism/state/shared/training/psn-corpus-manifest.json",
+      "fileStat": {
+        "exists": true,
+        "sizeBytes": 786,
+        "mtime": "2026-06-25T00:36:45.741Z"
+      },
+      "rows": 568605
+    },
+    {
+      "id": "cad-cam-pdf-resources-index",
+      "kind": "pdf-classification-manifest",
+      "path": "H:/prism/mcp-server/data/state/cad-cam-resources-pdf-index.json",
+      "description": "CAD/CAM resources PDF classification — 4008 PDFs across resources/ + JM DIE/ keyed by (domain, software).",
+      "domains": [
+        "cad",
+        "cam",
+        "blueprint",
+        "machine",
+        "training",
+        "catalog"
+      ],
+      "status": "present",
+      "resolvedPath": "H:/prism/mcp-server/data/state/cad-cam-resources-pdf-index.json",
+      "fileStat": {
+        "exists": true,
+        "sizeBytes": 1193390,
+        "mtime": "2026-06-24T00:59:37.263Z"
+      },
+      "rows": 4338
+    },
+    {
+      "id": "cad-cam-pdf-nodes",
+      "kind": "pdf-extracted-text",
+      "rootDir": "H:/prism/state/shared/cad-cam-pdf-nodes",
+      "description": "Per-PDF extracted text+HTML nodes. JSON+HTML pair per PDF, sha8-keyed.",
+      "domains": [
+        "cad",
+        "cam",
+        "blueprint"
+      ],
+      "status": "present",
+      "resolvedPath": "H:/prism/state/shared/cad-cam-pdf-nodes",
+      "fileStat": {
+        "exists": true,
+        "sizeBytes": null,
+        "mtime": "2026-06-12T03:33:10.266Z"
+      },
+      "fileCount": 12027
+    },
+    {
+      "id": "cad-cam-pdf-tribal-seeds",
+      "kind": "tribal-seed-pointers",
+      "path": "H:/prism/state/shared/cad-cam-pdf-tribal-seeds.json",
+      "description": "Pointer-style tribal tips per CAD/CAM software (semantic AI promotion deferred — needs Ollama).",
+      "domains": [
+        "cad",
+        "cam",
+        "blueprint"
+      ],
+      "status": "present",
+      "resolvedPath": "H:/prism/state/shared/cad-cam-pdf-tribal-seeds.json",
+      "fileStat": {
+        "exists": true,
+        "sizeBytes": 206522,
+        "mtime": "2026-06-30T16:05:42.000Z"
+      },
+      "rows": 125
+    },
+    {
+      "id": "cam-master-training-set",
+      "kind": "lora-training-jsonl",
+      "path": "H:/prism/state/shared/corpus/cam-master-training-set.jsonl",
+      "description": "CAM-AI-TRAINING-MS0 3766-tuple LoRA training set, 8 tracks (template/physics/param/cross-system/iso286/finish/coolant/operator-gate).",
+      "domains": [
+        "cam"
+      ],
+      "status": "missing",
+      "resolvedPath": "H:/prism/mcp-server/data/state/cam-master-training-set.jsonl",
+      "fileStat": null
+    },
+    {
+      "id": "domain-knowledge-lora",
+      "kind": "lora-training-jsonl",
+      "path": "H:/prism/state/shared/lora/domain-knowledge-dataset.jsonl",
+      "description": "Rescued resource-PDF domain knowledge -> Alpaca pairs (post-processor/mill/lathe/speed-feed/wedm/tooling) from real pdftotext grounding of the 65 Ollama-rescued specs. Producer: domain-corpus-to-lora-dataset.mjs (U-PAPA-DOMAIN-KNOWLEDGE-LORA).",
+      "domains": [
+        "post-processor",
+        "mill",
+        "lathe",
+        "speed-feed",
+        "wedm",
+        "tooling"
+      ],
+      "advisory": true,
+      "status": "present",
+      "resolvedPath": "H:/prism/state/shared/lora/domain-knowledge-dataset.jsonl",
+      "fileStat": {
+        "exists": true,
+        "sizeBytes": 403895,
+        "mtime": "2026-06-25T03:19:47.365Z"
+      },
+      "rows": 204
+    },
+    {
+      "id": "ghostwire-wiring-lora",
+      "kind": "lora-training-jsonl",
+      "path": "H:/prism/state/shared/lora/ghostwire-wiring-dataset.jsonl",
+      "description": "GNN ghost-wiring CONFIRMED (engine-referenced-on-disk) outcomes -> engine->dispatcher wiring-inference Alpaca pairs; pending/unvalidated guesses skipped (trust gate). Producer: build-ghostwire-lora-dataset.mjs (U-DELTA-GHOSTWIRE-CONVERTER, slot:delta 2026-06-28).",
+      "domains": [
+        "general"
+      ],
+      "advisory": true,
+      "status": "present",
+      "resolvedPath": "H:/prism/state/shared/lora/ghostwire-wiring-dataset.jsonl",
+      "fileStat": {
+        "exists": true,
+        "sizeBytes": 520388,
+        "mtime": "2026-06-28T18:29:15.097Z"
+      },
+      "rows": 2310
+    },
+    {
+      "id": "hermes-enrichment-lora",
+      "kind": "lora-training-jsonl",
+      "path": "H:/prism/state/shared/lora/hermes-enrichment-dataset.jsonl",
+      "description": "Hermes/Grok per-domain enrichment-loop cited rules -> Alpaca recall pairs (topic -> cited specifics). Producer: hermes-enrichment-to-alpaca.mjs (U-HERMES-LORA-CORPUS, slot:india 2026-06-30).",
+      "domains": [
+        "mill",
+        "lathe",
+        "wedm",
+        "cam",
+        "cad",
+        "post-processor",
+        "general"
+      ],
+      "advisory": true,
+      "status": "present",
+      "resolvedPath": "H:/prism/state/shared/lora/hermes-enrichment-dataset.jsonl",
+      "fileStat": {
+        "exists": true,
+        "sizeBytes": 102377,
+        "mtime": "2026-06-30T15:20:37.908Z"
+      },
+      "rows": 190
+    },
+    {
+      "id": "hermes-knowledge-lora",
+      "kind": "lora-training-jsonl",
+      "path": "H:/prism/state/shared/lora/hermes-knowledge-dataset.jsonl",
+      "description": "Hermes/Grok 6-parallel-agent knowledge campaign (wave-1/2, 84 zulu-R12-verified cited items across the 6 primary domains) -> Alpaca recall pairs. Producer: hermes-enrichment-to-alpaca.mjs over stage-hermes-knowledge-tips.mjs staging (U-INDIA-HERMES-KNOWLEDGE-LORA, slot:india 2026-06-30).",
+      "domains": [
+        "mill",
+        "lathe",
+        "wedm",
+        "cam",
+        "cad",
+        "post-processor",
+        "general"
+      ],
+      "advisory": true,
+      "status": "present",
+      "resolvedPath": "H:/prism/state/shared/lora/hermes-knowledge-dataset.jsonl",
+      "fileStat": {
+        "exists": true,
+        "sizeBytes": 33354,
+        "mtime": "2026-07-01T00:51:49.134Z"
+      },
+      "rows": 84
+    },
+    {
+      "id": "cad-fusion-live-roundtrip-accuracy",
+      "kind": "cad-accuracy-ledger",
+      "path": "H:/prism/state/shared/cad-fusion-live/roundtrip-accuracy.jsonl",
+      "description": "Live-Fusion closed-loop roundtrip accuracy datapoints: a known primitive spec -> the Fusion-bridge-generated solid read-back (volume/bbox via /geometry) vs ANALYTIC ground truth -> per-axis + volume dim error, plus the stale-in-memory add-in verdict. A geometric-FIDELITY validation signal (NOT Alpaca pairs; inventoried/discoverable only). Producer: scripts/cad-fusion-live-roundtrip.mjs (U-DELTA-FUSION-LIVE-ROUNDTRIP, slot:delta 2026-06-28).",
+      "domains": [
+        "cad"
+      ],
+      "advisory": true,
+      "status": "present",
+      "resolvedPath": "H:/prism/state/shared/cad-fusion-live/roundtrip-accuracy.jsonl",
+      "fileStat": {
+        "exists": true,
+        "sizeBytes": 6180,
+        "mtime": "2026-06-29T13:31:52.275Z"
+      },
+      "rows": 18
+    },
+    {
+      "id": "tribal-knowledge-lora",
+      "kind": "lora-training-jsonl",
+      "path": "H:/prism/state/shared/lora/tribal-knowledge-dataset.jsonl",
+      "description": "Per-domain *-tribal-corpus.jsonl source PDFs -> domain-tagged Alpaca pairs (cad/cam now, all 10 via --domains all; overlap-guarded vs domain-knowledge-lora so strictly additive). Producer: tribal-corpus-to-lora-dataset.mjs (U-PAPA-TRIBAL-CORPUS-LORA).",
+      "domains": [
+        "cad",
+        "cam"
+      ],
+      "advisory": true,
+      "status": "present",
+      "resolvedPath": "H:/prism/state/shared/lora/tribal-knowledge-dataset.jsonl",
+      "fileStat": {
+        "exists": true,
+        "sizeBytes": 1234669,
+        "mtime": "2026-06-25T04:46:26.865Z"
+      },
+      "rows": 398
+    },
+    {
+      "id": "vault-feedback-lora",
+      "kind": "lora-training-jsonl",
+      "path": "H:/prism/state/shared/lora/vault-feedback-dataset.jsonl",
+      "description": "Vault feedback memories -> Alpaca doctrine pairs (verified, hand-authored PRISM rules). Producer: vault-to-lora-dataset.mjs (OBSIDIAN-AI-SYNERGY).",
+      "domains": [
+        "general"
+      ],
+      "advisory": false,
+      "status": "present",
+      "resolvedPath": "H:/prism/state/shared/lora/vault-feedback-dataset.jsonl",
+      "fileStat": {
+        "exists": true,
+        "sizeBytes": 910061,
+        "mtime": "2026-06-30T03:23:27.529Z"
+      },
+      "rows": 342
+    },
+    {
+      "id": "vault-galaxy-synthesis-lora",
+      "kind": "lora-training-jsonl",
+      "path": "H:/prism/state/shared/lora/vault-galaxy-synthesis-dataset.jsonl",
+      "description": "Per-galaxy synthesis brains -> Alpaca pairs (advisory/LLM-distilled, galaxy-tagged; verify against source). Producer: vault-to-lora-dataset.mjs --source galaxy (U-LORA-GALAXY-SYNTHESIS).",
+      "domains": [
+        "general"
+      ],
+      "advisory": true,
+      "status": "present",
+      "resolvedPath": "H:/prism/state/shared/lora/vault-galaxy-synthesis-dataset.jsonl",
+      "fileStat": {
+        "exists": true,
+        "sizeBytes": 209335,
+        "mtime": "2026-06-30T03:23:31.669Z"
+      },
+      "rows": 447
+    },
+    {
+      "id": "vault-galaxy-aisynergy-lora",
+      "kind": "lora-training-jsonl",
+      "path": "H:/prism/state/shared/lora/vault-galaxy-aisynergy-dataset.jsonl",
+      "description": "Per-galaxy CLAUDE.md \"## AI Synergy (PSN leg #10)\" sections -> galaxy-tagged Alpaca pairs (the per-galaxy AI->substrate mapping: reasoning bridge / LoRA / GNN / CAG-RAG). DETERMINISTIC doc-extraction (no Ollama) of verified-true participation -- the \"claude.md of each galaxy\" AI-synergy LoRA signal. Producer: vault-to-lora-dataset.mjs --source galaxy-ai-synergy (U-LORA-GALAXY-AISYN, slot:bravo 2026-06-14).",
+      "domains": [
+        "general"
+      ],
+      "advisory": false,
+      "status": "present",
+      "resolvedPath": "H:/prism/state/shared/lora/vault-galaxy-aisynergy-dataset.jsonl",
+      "fileStat": {
+        "exists": true,
+        "sizeBytes": 20869,
+        "mtime": "2026-06-25T01:01:59.421Z"
+      },
+      "rows": 12
+    },
+    {
+      "id": "bridge-reasoning-lora",
+      "kind": "lora-training-jsonl",
+      "path": "H:/prism/state/shared/lora/bridge-reasoning-combined.jsonl",
+      "description": "Galaxy-reasoning-bridge grounded (question, RAG context, answer) Alpaca pairs from the self-improvement loop, all galaxies (advisory/LLM-generated). Producer: galaxy-reasoning-bridge.mjs reasonForGalaxy w/ PRISM_GALAXY_BRIDGE_LORA_EMIT=1 -> combined sink (U-FLOR-BRIDGE-LORA-WIRE).",
+      "domains": [
+        "general"
+      ],
+      "advisory": true,
+      "status": "present",
+      "resolvedPath": "H:/prism/state/shared/lora/bridge-reasoning-combined.jsonl",
+      "fileStat": {
+        "exists": true,
+        "sizeBytes": 494642,
+        "mtime": "2026-06-16T18:15:58.470Z"
+      },
+      "rows": 184
+    },
+    {
+      "id": "vault-lessons-lora",
+      "kind": "lora-training-jsonl",
+      "path": "H:/prism/state/shared/lora/vault-lessons-dataset.jsonl",
+      "description": "PRISM failure->fix corpus (wiki code-tribal/learnings) -> symptom->(root-cause+fix) Alpaca pairs. Premium debugging-reasoning signal: teaches the model to diagnose a symptom to its root cause + the fix and to avoid documented silent-failure modes. Signal-gated + NON-DEGENERATE split (input=symptom != output=diagnosis). Producer: vault-lessons-to-lora-dataset.mjs (U-LORA-LESSONS, slot:alpha 2026-06-17).",
+      "domains": [
+        "general"
+      ],
+      "advisory": true,
+      "status": "present",
+      "resolvedPath": "H:/prism/state/shared/lora/vault-lessons-dataset.jsonl",
+      "fileStat": {
+        "exists": true,
+        "sizeBytes": 296066,
+        "mtime": "2026-06-25T01:01:59.853Z"
+      },
+      "rows": 186
+    },
+    {
+      "id": "wiki-canonical-pairs",
+      "kind": "lora-training-jsonl",
+      "path": "H:/prism/state/shared/training/wiki-canonical-pairs.jsonl",
+      "description": "Canonical wiki entries -> instruction/completion training pairs ({prompt,completion} schema). The \"wikis across all galaxies\" LoRA signal. Producer: scripts/wiki-canonical-to-training-pairs.mjs.",
+      "domains": [
+        "general"
+      ],
+      "advisory": true,
+      "status": "present",
+      "resolvedPath": "H:/prism/state/shared/training/wiki-canonical-pairs.jsonl",
+      "fileStat": {
+        "exists": true,
+        "sizeBytes": 533203,
+        "mtime": "2026-05-21T20:33:26.611Z"
+      },
+      "rows": 282
+    },
+    {
+      "id": "vault-wiki-knowledge-lora",
+      "kind": "lora-training-jsonl",
+      "path": "H:/prism/state/shared/lora/vault-wiki-knowledge-dataset.jsonl",
+      "description": "Curated per-domain wiki spine (applied-practice/foundations/reference prose; architecture/code-tribal/os/consensus excluded) -> per-section instruction/input/output Alpaca pairs, galaxy-tagged. The \"domain expertise across all galaxies\" LoRA signal (distinct from wiki-canonical-pairs ideablock Q&A and vault-lessons failure->fix). Producer: scripts/vault-wiki-to-lora-dataset.mjs (U-LORA-WIKI-DOMAIN, slot:india 2026-06-21).",
+      "domains": [
+        "general"
+      ],
+      "advisory": true,
+      "status": "present",
+      "resolvedPath": "H:/prism/state/shared/lora/vault-wiki-knowledge-dataset.jsonl",
+      "fileStat": {
+        "exists": true,
+        "sizeBytes": 3586072,
+        "mtime": "2026-06-25T01:01:59.608Z"
+      },
+      "rows": 2714
+    },
+    {
+      "id": "outcome-bus-recommendations",
+      "kind": "lora-training-jsonl",
+      "path": "H:/prism/state/shared/lora/outcomes-dataset.jsonl",
+      "description": "Closed-loop outcome-bus recommendation events -> Alpaca pairs (learnable subset; engine-emitted recommendations, advisory). Producer: scripts/build-outcomes-lora-dataset.mjs.",
+      "domains": [
+        "speed_feed",
+        "sinker_edm",
+        "mill",
+        "lathe",
+        "wedm",
+        "general"
+      ],
+      "advisory": true,
+      "status": "present",
+      "resolvedPath": "H:/prism/state/shared/lora/outcomes-dataset.jsonl",
+      "fileStat": {
+        "exists": true,
+        "sizeBytes": 3182981,
+        "mtime": "2026-06-30T02:06:46.268Z"
+      },
+      "rows": 11483
+    },
+    {
+      "id": "cad-fix-training-corrections",
+      "kind": "lora-training-jsonl",
+      "path": "H:/prism/state/shared/lora/cad-fix-training-dataset.jsonl",
+      "description": "Delta CAD closed-loop fix-ledger corrections -> CAD-generation Alpaca pairs (missing-feature corrections, evidence-grounded, advisory). Producer: scripts/build-cad-fix-training-dataset.mjs.",
+      "domains": [
+        "cad"
+      ],
+      "advisory": true,
+      "status": "present",
+      "resolvedPath": "H:/prism/state/shared/lora/cad-fix-training-dataset.jsonl",
+      "fileStat": {
+        "exists": true,
+        "sizeBytes": 11262,
+        "mtime": "2026-06-13T06:37:42.951Z"
+      },
+      "rows": 29
+    },
+    {
+      "id": "cad-ground-truth-feature-priors",
+      "kind": "lora-training-jsonl",
+      "path": "H:/prism/state/shared/lora/cad-ground-truth-dataset.jsonl",
+      "description": "Delta CAD class-prototype ground-truth -> CAD-generation class->feature-prior Alpaca pairs (evidence-ranked, all 11 part classes, advisory). Producer: scripts/build-cad-ground-truth-dataset.mjs.",
+      "domains": [
+        "cad"
+      ],
+      "advisory": true,
+      "status": "present",
+      "resolvedPath": "H:/prism/state/shared/lora/cad-ground-truth-dataset.jsonl",
+      "fileStat": {
+        "exists": true,
+        "sizeBytes": 26028,
+        "mtime": "2026-06-12T04:25:44.461Z"
+      },
+      "rows": 71
+    },
+    {
+      "id": "cad-geometry-composition",
+      "kind": "lora-training-jsonl",
+      "path": "H:/prism/state/shared/lora/cad-geometry-composition-dataset.jsonl",
+      "description": "Delta CAD per-class surface-primitive composition -> CAD-generation topology-prior Alpaca pairs (per-part averages + complexity distribution, all 11 part classes, advisory). Producer: scripts/build-cad-geometry-composition-dataset.mjs.",
+      "domains": [
+        "cad"
+      ],
+      "advisory": true,
+      "status": "present",
+      "resolvedPath": "H:/prism/state/shared/lora/cad-geometry-composition-dataset.jsonl",
+      "fileStat": {
+        "exists": true,
+        "sizeBytes": 3892,
+        "mtime": "2026-06-12T04:46:17.443Z"
+      },
+      "rows": 11
+    },
+    {
+      "id": "cad-dimension-radii",
+      "kind": "lora-training-jsonl",
+      "path": "H:/prism/state/shared/lora/cad-dimension-dataset.jsonl",
+      "description": "Delta CAD per-class cylindrical/circular feature radii (mm, unit-normalized from the STEP corpus) -> CAD-generation dimensional-prior Alpaca pairs (radius distributions per class, advisory). Producer: scripts/build-cad-dimension-dataset.mjs.",
+      "domains": [
+        "cad"
+      ],
+      "advisory": true,
+      "status": "present",
+      "resolvedPath": "H:/prism/state/shared/lora/cad-dimension-dataset.jsonl",
+      "fileStat": {
+        "exists": true,
+        "sizeBytes": 6285,
+        "mtime": "2026-06-28T21:04:33.017Z"
+      },
+      "rows": 19
+    },
+    {
+      "id": "mit-ocw-corpus-index",
+      "kind": "mit-ocw-corpus-index",
+      "path": "H:/prism/extracted/mit-ocw/corpus-index.jsonl",
+      "description": "MIT OpenCourseWare corpus registry: one JSONL entry per course (176+ courses, scanned from H:/prism/resources/MIT COURSES + 225-entry hardcoded index). Fields: course_id, slug, title, category, priority, topics, prism_engines, sections, url, source_path, has_zip, is_extracted, relevance, extracted_at. Producer: scripts/materialize-mit-ocw-corpus.mjs. Inventoried only (not Alpaca pairs); training pipeline reads this to discover locally-extracted MIT courses.",
+      "domains": [
+        "cad",
+        "cam",
+        "mill",
+        "lathe",
+        "wedm",
+        "general"
+      ],
+      "advisory": true,
+      "status": "present",
+      "resolvedPath": "H:/prism/extracted/mit-ocw/corpus-index.jsonl",
+      "fileStat": {
+        "exists": true,
+        "sizeBytes": 75045,
+        "mtime": "2026-06-30T15:58:42.233Z"
+      },
+      "rows": 176
+    },
+    {
+      "id": "cad-software-master-index",
+      "kind": "extraction-master-index",
+      "path": "H:/prism/mcp-server/data/extracted-knowledge/CAD_SOFTWARE_MASTER_INDEX.json",
+      "description": "Master index of CAD-software extraction batches (freecad/fusion360/inventor/etc).",
+      "domains": [
+        "cad"
+      ],
+      "status": "present",
+      "resolvedPath": "H:/prism/mcp-server/data/extracted-knowledge/CAD_SOFTWARE_MASTER_INDEX.json",
+      "fileStat": {
+        "exists": true,
+        "sizeBytes": 13135,
+        "mtime": "2026-04-19T05:06:59.750Z"
+      },
+      "rows": null
+    },
+    {
+      "id": "academy-course-definitions",
+      "kind": "curriculum-modules",
+      "rootDir": "H:/prism/mcp-server/src/data/academy",
+      "description": "PRISM Academy curriculum — TS course modules per topic (lima PRISM-ACADEMY-FEATURES-MS0).",
+      "domains": [
+        "general",
+        "cad",
+        "cam",
+        "cnc",
+        "shop-basics",
+        "erp"
+      ],
+      "status": "present",
+      "resolvedPath": "H:/prism/mcp-server/src/data/academy",
+      "fileStat": {
+        "exists": true,
+        "sizeBytes": null,
+        "mtime": "2026-06-12T03:33:10.188Z"
+      },
+      "fileCount": 29
+    },
+    {
+      "id": "tribal-graph-corpus",
+      "kind": "tribal-embed-corpus",
+      "rootDir": "H:/prism/state/shared/tribal-graph",
+      "description": "Tribal embedding corpus (course-tribal-nodes + content candidates).",
+      "domains": [
+        "general",
+        "mill",
+        "lathe",
+        "wedm"
+      ],
+      "status": "present",
+      "resolvedPath": "H:/prism/state/shared/tribal-graph",
+      "fileStat": {
+        "exists": true,
+        "sizeBytes": null,
+        "mtime": "2026-05-16T05:47:40.864Z"
+      },
+      "fileCount": 8
+    }
+  ]
+}

@@ -1,0 +1,126 @@
+================================================================================
+WIRE EDM STUDIO WIZARD — ARCHITECTURE REVIEW SUMMARY
+================================================================================
+
+RATING: 42/100
+
+EXECUTIVE ISSUES (Fix Before Starting):
+1. [CRITICAL] 16 files is too many — merge to 6 files (60% reduction)
+2. [CRITICAL] useReducer + cascading invalidation over-engineered — use useState
+3. [CRITICAL] THREE.ExtrudeGeometry fails on self-intersecting DXF profiles
+4. [CRITICAL] localStorage autosave has no versioning/migration — use URL params
+5. [CRITICAL] 2-column layout breaks on mobile, not addressed
+
+SECONDARY ISSUES (Fix During Build):
+6. [HIGH] Bundle impact: 6 lazy chunks + Monaco + Three.js — consolidate
+7. [HIGH] Error recovery path unclear — step 3 failure loses steps 1-2 data
+8. [HIGH] No DXF validation before 3D render — corrupt files crash viewer
+9. [HIGH] Cascading async calls can deadlock on back-button
+10. [MEDIUM] ProfileMesh re-renders on any parent state change (unmemoized)
+
+================================================================================
+RECOMMENDED PIVOT: 3-PHASE MVP INSTEAD
+================================================================================
+
+Phase 1 (2 weeks): Steps 1-3 (Import → Review → WCS)
+  - 6 files instead of 16
+  - useState instead of useReducer
+  - 2D profile rendering (no ExtrudeGeometry)
+  - URL params for state (no localStorage)
+  - Mobile-responsive grid
+  - DXF validation
+  - Error retry pattern
+
+Phase 2 (1 week): Add Step 4 (Toolpath) + Polish
+  - Monaco editor
+  - Bundle optimization
+  - Validation/progress UI
+
+Phase 3 (1 week): Complete Steps 5-6 + Tests
+
+TOTAL: 4 weeks (instead of estimated 8-10 weeks for full plan)
+
+================================================================================
+KEY INSIGHTS
+================================================================================
+
+✓ GOOD DECISIONS:
+  - Wizard pattern is right for the feature
+  - Lazy loading is appropriate
+  - Reusing Viewer3D + GcodeEditor is smart
+  - Follow PpgContext pattern for autosave (but fix for structured data)
+
+✗ BAD DECISIONS:
+  - 16 files for a single feature (violates cohesion)
+  - useReducer for simple multi-step form (use useState)
+  - ExtrudeGeometry on arbitrary DXF profiles (architectural mismatch)
+  - localStorage without versioning (data loss risk)
+  - No mobile strategy for 2-column layout
+
+⚠ MISSING:
+  - Error recovery: step failure erases downstream data
+  - Validation: no checks before rendering/advancing
+  - Testing: no test plan for complex workflow
+  - Undo/redo: but breadcrumb savepoints cheaper alternative
+  - Accessibility: no mention of keyboard nav, screen readers
+
+================================================================================
+IMPLEMENTATION CHECKLIST (Phase 1)
+================================================================================
+
+Files to Create:
+  [ ] WireEdmWizardContext.tsx (300-400 LOC, consolidates context+hook+actions)
+  [ ] WireEdmWizardPage.tsx (wrapper, route entry)
+  [ ] wireEdmWizardSteps.tsx (conditional rendering, all 6 step forms)
+  [ ] ProfileMesh3D.tsx (memoized, 2D canvas or stock box visual)
+  [ ] WireEdmGizmos.tsx (WCS axes, start hole markers)
+  [ ] wireEdmTypes.ts (types + validation constants)
+
+API Changes Needed:
+  [ ] POST /api/v1/wire-edm/validate-dxf (check contour validity)
+  [ ] POST /api/v1/wire-edm/calculate-wcs (WCS from profile + stock)
+
+Validation Rules:
+  [ ] Step 1: Profile file exists and parses
+  [ ] Step 2: Stock dimensions > 0, units match project
+  [ ] Step 3: WCS calculation succeeds or show retry
+  [ ] Step 4: Toolpath generated or show diagnostics
+  [ ] Step 5: Optimization params valid
+  [ ] Step 6: G-code export succeeds
+
+Mobile Breakpoints:
+  [ ] < 640px: Single-column, form full-width, viewer in modal
+  [ ] 640-1024px: Form 1/3, viewer 2/3 (drawer for editor)
+  [ ] > 1024px: Form 1/3, viewer 1/3, editor 1/3
+
+Memoization:
+  [ ] ProfileMesh memoized on profile geometry
+  [ ] Step components memoized on their data props
+  [ ] WCSGizmo memoized on wcs config
+
+Error Handling:
+  [ ] DXF parse error → show message + re-upload button
+  [ ] WCS calc error → show retry button (don't clear profile/review)
+  [ ] API timeout → show retry with backoff
+  [ ] File too large → show error + max size info
+
+================================================================================
+RISK ASSESSMENT
+================================================================================
+
+If implemented as-is (no fixes): 7/10 risk of production issues
+  - Data loss via localStorage corruption
+  - Crashes on complex DXF profiles (ExtrudeGeometry failures)
+  - User frustration from lost work (cascade invalidation)
+  - Mobile unusable (layout mismatch)
+
+If Phase 1 MVP done with fixes: 2/10 risk
+  - Smaller surface area (3 steps, 6 files)
+  - Validation in place before 3D render
+  - No cascade invalidation
+  - Responsive design
+  - Can extend iteratively
+
+================================================================================
+DETAILED REVIEW: See wire-edm-wizard-review.md
+================================================================================

@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PRISM — CLAUDE-BRIEF</title>
+<style>
+  :root {
+    --bg: #0f1014;
+    --panel: #1a1c23;
+    --panel-2: #232631;
+    --fg: #e4e6eb;
+    --fg-dim: #9aa0a8;
+    --border: #2c303a;
+    --ok: #4ade80;
+    --warn: #fbbf24;
+    --fail: #f87171;
+    --info: #60a5fa;
+    --link: #93c5fd;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; padding: 1.5rem; background: var(--bg); color: var(--fg);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, sans-serif;
+    font-size: 14px; line-height: 1.5; }
+  h1 { font-size: 1.6rem; margin: 0 0 0.25rem 0; }
+  h2 { font-size: 1.15rem; margin: 1.5rem 0 0.5rem 0; padding-bottom: 0.25rem;
+    border-bottom: 1px solid var(--border); color: var(--fg); }
+  .meta { color: var(--fg-dim); font-size: 0.85rem; margin-bottom: 1rem; }
+  .panel { background: var(--panel); border: 1px solid var(--border); border-radius: 6px;
+    padding: 0.75rem 1rem; margin-bottom: 1rem; }
+  .headline-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 0.5rem; margin-bottom: 1rem; }
+  .card { background: var(--panel-2); border: 1px solid var(--border); border-radius: 6px;
+    padding: 0.65rem 0.85rem; }
+  .card .lbl { font-size: 0.8rem; color: var(--fg-dim); }
+  .card .val { font-size: 1.4rem; font-weight: 600; margin: 0.15rem 0; font-variant-numeric: tabular-nums; }
+  .card .hint { font-size: 0.75rem; color: var(--fg-dim); }
+  .card.ok    { border-left: 3px solid var(--ok); }
+  .card.warn  { border-left: 3px solid var(--warn); }
+  .card.fail  { border-left: 3px solid var(--fail); }
+  .card.info  { border-left: 3px solid var(--info); }
+  table { width: 100%; border-collapse: collapse; margin: 0.5rem 0 1rem; font-size: 0.9rem;
+    background: var(--panel); border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }
+  caption { text-align: left; padding: 0.4rem 0.65rem; color: var(--fg-dim);
+    background: var(--panel-2); font-weight: 500; }
+  th, td { padding: 0.4rem 0.65rem; text-align: left; border-bottom: 1px solid var(--border);
+    font-variant-numeric: tabular-nums; vertical-align: top; }
+  th { background: var(--panel-2); color: var(--fg-dim); font-weight: 500;
+    text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.04em; }
+  tr:last-child td { border-bottom: none; }
+  td.right { text-align: right; }
+  ul, ol { margin: 0.4rem 0 1rem 1.25rem; }
+  li { margin: 0.15rem 0; }
+  .badge { display: inline-block; padding: 0.1rem 0.5rem; border-radius: 999px;
+    font-size: 0.75rem; font-weight: 500; background: var(--panel-2); color: var(--fg-dim);
+    border: 1px solid var(--border); }
+  .badge.ok   { background: rgba(74, 222, 128, 0.12); color: var(--ok);   border-color: rgba(74,222,128,0.3); }
+  .badge.warn { background: rgba(251, 191, 36, 0.12); color: var(--warn); border-color: rgba(251,191,36,0.3); }
+  .badge.fail { background: rgba(248, 113, 113, 0.12); color: var(--fail); border-color: rgba(248,113,113,0.3); }
+  .badge.info { background: rgba(96, 165, 250, 0.12); color: var(--info); border-color: rgba(96,165,250,0.3); }
+  .badge-grid { display: flex; flex-wrap: wrap; gap: 0.3rem; margin: 0.3rem 0 1rem 0; }
+  .kv { display: grid; grid-template-columns: max-content 1fr; gap: 0.2rem 0.85rem;
+    margin: 0.4rem 0 1rem 0; }
+  .kv .k { color: var(--fg-dim); }
+  svg.bar-chart { display: block; max-width: 100%; height: auto; }
+  svg .bar { fill: var(--info); }
+  svg .bar.ok   { fill: var(--ok); }
+  svg .bar.warn { fill: var(--warn); }
+  svg .bar.fail { fill: var(--fail); }
+  svg text { fill: var(--fg); font-family: monospace; font-size: 11px; }
+  svg .axis text { fill: var(--fg-dim); }
+  code { background: var(--panel-2); padding: 0 0.3rem; border-radius: 3px;
+    font-family: "Fira Code", Consolas, Menlo, monospace; font-size: 0.85em; }
+  a { color: var(--link); }
+  footer { margin-top: 2rem; padding-top: 0.75rem; border-top: 1px solid var(--border);
+    font-size: 0.8rem; color: var(--fg-dim); }
+</style>
+</head>
+<body>
+<h1>PRISM — CLAUDE-BRIEF</h1>
+<div class="meta">Continuous awareness · auto-generated each SessionStart</div>
+<div class="meta">Generated 2026-06-24T18:14:06.211Z</div>
+
+<div class="headline-grid">
+<div class="card info">
+  <div class="lbl">Engines</div>
+  <div class="val">3833</div>
+  
+</div>
+<div class="card info">
+  <div class="lbl">Dispatchers</div>
+  <div class="val">111</div>
+  
+</div>
+<div class="card info">
+  <div class="lbl">Actions</div>
+  <div class="val">?</div>
+  
+</div>
+<div class="card info">
+  <div class="lbl">Hooks</div>
+  <div class="val">54</div>
+  
+</div>
+</div>
+<table><caption>Wiki brain</caption>
+<thead><tr><th>Field</th><th>Value</th></tr></thead>
+<tbody>
+<tr><td>Architecture entries</td><td>70317</td></tr>
+<tr><td>Orphan rate</td><td>8345 orphans / 45895 files (18.2%)  (rescue hub: `_orphans-rescue.md` — every orphan gets an inbound link there, so effective orphan rate ≈ 0)</td></tr>
+<tr><td>Last regen</td><td>2026-06-24T12:40:29.383Z</td></tr>
+<tr><td>Breakdown</td><td>memory-reference:19657 · action:10481 · architecture:9570 · code-tribal:8092 · formula:7316 · engine:4739 · tribal-tip:4247 · test:1608 · skill:1554</td></tr>
+<tr><td>Semantic index</td><td>59527 vectors · nomic-embed-text · 768-d</td></tr>
+</tbody>
+</table>
+<table><caption>CAM integration status (tier-1)</caption>
+<thead><tr><th>CAM</th><th>Priority</th><th>In-host runner</th><th>Status</th></tr></thead>
+<tbody>
+<tr><td>hyperMILL</td><td>2</td><td>full Project Manager runtime · 63 engines</td><td><span class="badge ok">production (best)</span></td></tr>
+<tr><td>Mastercam</td><td>3</td><td>C-Hook generator only</td><td><span class="badge ok">production (no live link)</span></td></tr>
+<tr><td>Inventor HSM</td><td>5</td><td>full in-host runner</td><td><span class="badge warn">beta</span></td></tr>
+<tr><td>Fusion 360</td><td>1</td><td>runner present · add-in plan-only</td><td><span class="badge warn">beta</span></td></tr>
+<tr><td>Esprit</td><td>4</td><td>NOT WIRED (9 declared / 0 in dispatcher)</td><td><span class="badge fail">stub — aspirational</span></td></tr>
+<tr><td>SolidWorks</td><td>6</td><td>AutomationBridge + CodeGenerator only</td><td><span class="badge fail">stub</span></td></tr>
+</tbody>
+</table>
+<h2>JM machine fleet</h2>
+<div class="kv">
+<div class="k">active</div><div><span class="badge ok">14</span></div>
+<div class="k">standby</div><div>1</div>
+<div class="k">B250IIW flagship</div><div>see JM-B250II-DEEP-AUDIT.md</div>
+</div>
+<h2>Top 10 honest gaps</h2>
+<ol>
+<li>1. 1</li>
+<li>2. 2</li>
+<li>3. 3</li>
+<li>4. 4</li>
+<li>5. 5</li>
+<li>6. 6</li>
+<li>7. 7</li>
+<li>8. 8</li>
+<li>9. 9</li>
+<li>10. 10</li>
+</ol>
+<h2>Recent wiki activity</h2>
+<ul>
+<li>[2026-06-24] consensus_recall | c772a3b0 task:auto-critical-edit rec:accept agreement:1 | by:unknown</li>
+<li>[2026-06-24] consensus_persist | c772a3b0 task:auto-critical-edit rec:escalate agreement:0.224 | by:unknown</li>
+<li>[2026-06-24] consensus_recall | b3597113 task:auto-critical-edit rec:escalate agreement:0.108 | by:unknown</li>
+<li>[2026-06-24] consensus_persist | b3597113 task:auto-critical-edit rec:escalate agreement:0.041 | by:unknown</li>
+<li>[2026-06-24] consensus_recall | 1028e2cf task:auto-critical-edit rec:escalate agreement:0.08 | by:unknown</li>
+</ul>
+<h2>Memory vault</h2>
+<div class="kv">
+<div class="k">atomic notes</div><div>20793</div>
+<div class="k">modified in last 24h</div><div><span class="badge ok">6025</span></div>
+</div>
+<footer><div>Source markdown: state/shared/CLAUDE-BRIEF.md · render schema 1.0.0</div>
+<div>html-report-render schemaVersion 1.0.0</div>
+</footer>
+</body>
+</html>

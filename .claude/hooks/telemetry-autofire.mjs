@@ -60,7 +60,7 @@ function deriveStage(filePath) {
 function deriveMilestone() {
   // Try git log
   try {
-    const r = spawnSync("git", ["log", "-1", "--pretty=%s"], {
+    const r = spawnSync("git", ["log", "-1", "--pretty=%s"], { windowsHide: true,
       encoding: "utf8", cwd: PRISM, timeout: 2000,
     });
     if (r.status === 0) {
@@ -90,7 +90,7 @@ function record(milestone, stage, event, payload) {
       "--stage", stage,
       "--event", event,
       "--payload", JSON.stringify(payload),
-    ], { timeout: 3000, stdio: "ignore" });
+    ], { windowsHide: true, timeout: 3000, stdio: "ignore" });
   } catch { /* silent */ }
 }
 

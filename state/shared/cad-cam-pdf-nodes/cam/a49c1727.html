@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><title>SQL_Macro_Database_Manual-en-US</title>
+<style>body{font:14px/1.5 system-ui,-apple-system,sans-serif;max-width:960px;margin:2em auto;padding:0 1em;background:#0d1117;color:#c9d1d9}h1{font-size:1.4em;border-bottom:1px solid #30363d;padding-bottom:.4em}dl{display:grid;grid-template-columns:max-content 1fr;gap:.3em 1em}dt{font-weight:600;color:#8b949e}pre{white-space:pre-wrap;word-wrap:break-word;background:#161b22;padding:1em;border:1px solid #30363d;border-radius:6px;font-size:13px}</style>
+</head><body>
+<h1>SQL_Macro_Database_Manual-en-US</h1>
+<dl>
+<dt>Domain</dt><dd>cam</dd>
+<dt>Software</dt><dd>hypermill</dd>
+<dt>Path</dt><dd><code>OPEN MIND/doc/33.0/PDF/SQL Macro Database/SQL_Macro_Database_Manual-en-US.pdf</code></dd>
+<dt>Pages</dt><dd>14</dd>
+<dt>Text chars</dt><dd>8773</dd>
+</dl>
+<h2>Extracted text</h2>
+<pre>OPEN MIND macro database in an
+SQL server environment
+
+-- 1 of 14 --
+
+Table of Contents
+1. Macro database in multi-user mode .................................................................................................. 3
+2. Creating an OPEN MIND macro database as a client application ............................................................ 4
+3. Connecting the client database to SQL Server .................................................................................... 6
+4. Exporting macros from the previous
+hyperMILL version ...................................................................... 12
+5. Opening the SQL database with
+hyper MILL and importing macros ....................................................... 13
+6. Update an existing SQL macro database ......................................................................................... 14
+OPEN MIND macro database in an SQL server
+environment
+2
+
+-- 2 of 14 --
+
+1. Macro database in multi-user mode
+NOTE
+General information about using a macro database with multiple users at the same time
+• Create macro (s) and Edit macro (s): Macros can cannot be edited by multiple users
+at the same time . This applies to both standard databases and databases in a SQL
+server environment.
+• Apply macro (s): the simultaneous application of macros is possible for both stand-
+ard databases and databases in a SQL server environment (Macros → Apply mac-
+ros function in the context menu of a job or Apply macros function in the context
+menu of a feature).
+OPEN MIND macro database in an SQL server
+environment
+3
+
+-- 3 of 14 --
+
+2. Creating an OPEN MIND macro database as a client
+application
+1. Install the Microsoft SQL Server Management Studio software on the computer that you use to
+manage your tool databases and start the software as Administrator. Under File → Connect Object
+Explorer.
+2. In the Connect to Server dialogue, select Database Engine under Server type, the name of your SQL
+Server under Server name and SQL Server Authentication under Authentication. Then enter your
+login details ( Login and Password) and click Connect.
+3. Create a new database. To do this, click the Databases entry in the file browser and choose New Tool
+Database on the shortcut menu. Enter the required database name under Database name. Click OK
+to close the dialogue. The database appears as an entry in the file browser.
+4. Open the MacroDB_sqlserver.sql script file for your new database’s data definition by double-
+clicking (the script is automatically loaded into Microsoft SQL Server Management Studio) or via the
+menu item File → Open → File.
+By default, the script file is located in the following directory:
+C:\Program Files\OPEN MIND\hyperMILL\[version]\macrotech.
+NOTE
+Alternatively, you can also open and copy the content of the script file in a text
+editor. Select Script for database as → Create → New query editor window from the
+database’s shortcut menu. Delete the content in the editor window and paste the
+content of the database script from the clipboard.
+5. Enter the name of the previously created database in the USE instruction at the beginning of the script
+(example: omMacroDBSQL).
+OPEN MIND macro database in an SQL server
+environment
+4
+
+-- 4 of 14 --
+
+6. Execute the script. To do this, click Execute on the menu bar.
+You have now completed the administrator tasks.
+NOTE
+Please note that it may be necessary to adapt the permissions for the new data-
+base (login details) to the database administrator.
+OPEN MIND macro database in an SQL server
+environment
+5
+
+-- 5 of 14 --
+
+3. Connecting the client database to SQL Server
+To ensure that the macro database can establish a connection to the SQL Server, you must create a DSN
+file with the connection information for the driver that the SQL Server client needs.
+NOTE
+If the permissions were adapted for the database administrator when you created the
+macro database as a client application, the following tasks must be performed on the
+database administrator&#39;s system.
+1. Click the magnifying glass icon on the Windows taskbar, enter ODBC and select Set up ODBC data
+sources (64-Bit).
+2. Start the software, switch to the File DSN tab and click Add.
+3. In the next dialogue, always select the highest available version of the SQL Server Native Client from
+the list of available drivers and click Next.
+OPEN MIND macro database in an SQL server
+environment
+6
+
+-- 6 of 14 --
+
+4. Specify a name and the storage location for the *.dsn file and click Next.
+5. Then click Finish.
+By default, the *.dsn file is saved in the following directory:
+C:\Users\[Benutzername]\Documents\
+OPEN MIND macro database in an SQL server
+environment
+7
+
+-- 7 of 14 --
+
+6. The Create a New Data Source to SQL Server dialogue opens and the name of the previously created
+*.dsn file is displayed. If you choose, you can provide a description of your data source under
+Description. Select the name of the SQL Server under Server and click Next.
+7. Then select With SQL Server authentication using a login ID and password entered by the user, enter
+the login details and click Next.
+OPEN MIND macro database in an SQL server
+environment
+8
+
+-- 8 of 14 --
+
+8. On the following dialogue page, select the Change the default database to: checkbox and enter the
+name of the database previously created in step A. Then click Next.
+9. Click Finish on the following dialogue page.
+OPEN MIND macro database in an SQL server
+environment
+9
+
+-- 9 of 14 --
+
+10. A summary of all the information is displayed on the last dialogue page. Click Test Data Source to test
+the connection between the macro database and SQL Server.
+11. If the TESTS COMPLETED SUCCESSFULLY! message appears, the connection is functioning cor-
+rectly. Click OK to close the dialogue.
+OPEN MIND macro database in an SQL server
+environment
+10
+
+-- 10 of 14 --
+
+The *.dsn file should now contain the following information:
+DRIVER=SQL Server Native Client 11.0 UID=[your login name]
+PWD=[your password]
+DATABASE=[your database name]
+WSID=[your client computer name]
+APP=Microsoft® Windows® Operating System
+SERVER=[your server computer name]
+Description=[optional – your database description]
+NOTE
+If the password entry is not present, add the password (PWD) manually to the file. To
+do this, select the file and then select Open with. Choose a standard text editor for
+editing and save the *.dsn file.
+OPEN MIND macro database in an SQL server
+environment
+11
+
+-- 11 of 14 --
+
+4. Exporting macros from the previous
+hyperMILL version
+Before you can import macros from a previous version of the database, you must export this version of the
+database in the *.omx format.
+1. To do this, start the previous version of
+hyperMILL and open the macro database. Use the View
+macro database function on the shortcut menu of the
+hyperMILL macro browser.
+2. Click Export all and specify the storage location for the *.omx file.
+OPEN MIND macro database in an SQL server
+environment
+12
+
+-- 12 of 14 --
+
+5. Opening the SQL database with
+hyper MILL and import-
+ing macros
+1. Start the current version of
+hyperMILL and open the
+hyperMILL settings ( hyperMILL → Setup →
+Settings). Click Database → Database Settings Wizard / manage database projects. The
+hyperMILL
+SettingsWizard opens.
+2. Select Change under Macro database and choose SQL-Server database (*.dsn) as the format in the
+selection dialogue. Under File name, select the name of the previously created database ( *.dsn).
+Close the
+hyperMILL Settings Wizard by clicking OK.
+You have now linked the newly created database and can import your macros from an older version of
+the database into it.
+3. Open the new database that is still ‘empty’ using the View macro database shortcut function of the
+hyperMILL macro browser. Click Import to import your macros. Select Macro Exchange File (*.omx) as
+the format ( Type) and select the storage location of the previously exported *.omx file under Path.
+4. Click OK to close the dialogue.
+You have now successfully imported your macros from your previous database into the new version of
+the database.
+OPEN MIND macro database in an SQL server
+environment
+13
+
+-- 13 of 14 --
+
+6. Update an existing SQL macro database
+Before you can import macros from a previous version of the database, you must export this version of the
+database in the *.omx format.
+1. Start the previous version of
+	hyperMILL and open the macro database. Use the View macro data-
+base function on the shortcut menu of the
+hyperMILL macro browser.
+2. Click Export all and specify the storage location for the *.omx file.
+3. Create a new SQL database as described in section 1.
+4. Import your macros into the new created SQL database as described in the previous section 4.
+OPEN MIND macro database in an SQL server
+environment
+14
+
+-- 14 of 14 --
+
+</pre>
+</body></html>

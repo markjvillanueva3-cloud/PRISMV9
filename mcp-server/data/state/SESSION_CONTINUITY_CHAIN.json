@@ -1,0 +1,33 @@
+{
+  "schemaVersion": 1,
+  "description": "Multi-session handoff chain — last 5 sessions linked for context continuity",
+  "maxSessions": 5,
+  "sessions": [],
+  "created": "2026-04-18T21:30:00Z",
+  "lastUpdate": "2026-04-18T21:30:00Z",
+  "compressionStrategy": {
+    "older": "summarize",
+    "recent": "raw",
+    "cutoff": 2
+  },
+  "sessionSchema": {
+    "sessionId": "string",
+    "family": "string (Claude|Agent|Codex)",
+    "machine": "string",
+    "startedAt": "ISO timestamp",
+    "endedAt": "ISO timestamp or null",
+    "totalToolCalls": "number",
+    "totalTokens": "number (estimated)",
+    "commits": ["array of commit SHAs"],
+    "milestonesWorked": ["array of milestone IDs"],
+    "keyDecisions": ["array of decision summaries"],
+    "filesModified": ["top 20 files by change count"],
+    "reasoningHighlights": ["top 5 reasoning chain summaries"],
+    "handoffNotes": "string (what the next session should know)"
+  },
+  "chainIntegrity": {
+    "lastValidation": null,
+    "brokenLinks": [],
+    "orphanedSessions": []
+  }
+}

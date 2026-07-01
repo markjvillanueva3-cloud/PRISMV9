@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 import { ApiError, sheetMetalQuote } from '../api/client';
 import { ErrorState, LoadingState } from '../components/LoadingState';
+import { GatedError } from '../components/entitlement';
 import type { SheetMetalQuoteResult } from '../api/types';
 import {
   ActionButton,
@@ -16,6 +17,7 @@ export function SheetMetalQuotePage() {
   const [result, setResult] = useState<SheetMetalQuoteResult | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [gateError, setGateError] = useState<unknown>(null);
   const [form, setForm] = useState({
     material: 'mild_steel',
     thickness_mm: '2',
@@ -55,19 +57,29 @@ export function SheetMetalQuotePage() {
       });
       setResult((response.result as unknown as SheetMetalQuoteResult) ?? null);
     } catch (issue) {
+      setGateError(issue);
       setError(issue instanceof ApiError ? issue.message : 'Failed to generate quote');
     } finally {
       setLoading(false);
     }
   }
 
+  // U-SHEETMETAL-FLAT-ADAPT (page guard, 3-of-3 arm A/B/C P1): the cost-breakdown bars are
+  // redacted (absent) for an anonymous caller -- only the authed cost stack carries them. Filter
+  // to bars whose value is a finite number so an anon result renders the commercial summary
+  // without crashing on `undefined.toFixed()`. (The route omits material/cutting/bending/finishing
+  // for anon; this filter is the FE half the adapter's contract relies on.)
   const breakdown = result
-    ? [
-        { label: 'Material', value: result.material_cost, tone: 'bg-sky-300' },
-        { label: 'Cutting', value: result.cutting_cost, tone: 'bg-emerald-300' },
-        { label: 'Bending', value: result.bending_cost, tone: 'bg-amber-300' },
-        { label: 'Finishing', value: result.finishing_cost, tone: 'bg-violet-300' },
-      ]
+    ? (
+        [
+          { label: 'Material', value: result.material_cost, tone: 'bg-sky-300' },
+          { label: 'Cutting', value: result.cutting_cost, tone: 'bg-emerald-300' },
+          { label: 'Bending', value: result.bending_cost, tone: 'bg-amber-300' },
+          { label: 'Finishing', value: result.finishing_cost, tone: 'bg-violet-300' },
+        ] as Array<{ label: string; value: number | undefined; tone: string }>
+      ).filter((row): row is { label: string; value: number; tone: string } =>
+        typeof row.value === 'number' && Number.isFinite(row.value),
+      )
     : [];
 
   return (
@@ -106,7 +118,7 @@ export function SheetMetalQuotePage() {
       />
 
       {loading ? <LoadingState label="Calculating fabrication quote..." /> : null}
-      {error ? <ErrorState message={error} onRetry={handleQuote} /> : null}
+      {error ? <GatedError error={gateError} feature='quoting' fallback={<ErrorState message={error} onRetry={handleQuote} />} /> : null}
 
       <div className="grid gap-6 xl:grid-cols-[minmax(0,1.08fr)_minmax(360px,0.92fr)]">
         <div className="space-y-6">
@@ -160,26 +172,33 @@ export function SheetMetalQuotePage() {
             <>
               <PanelCard title="Commercial summary" subtitle="Read unit price, total, and promise posture before opening the detailed cost stack.">
                 <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-                  <SummaryTile label="Unit price" value={`$${result.unit_price.toFixed(2)}`} hint="Commercial unit value from the staged fabrication route." />
+                  {/* null-safe: an anon/degraded result can carry null price/total (cost basis redacted
+                      or unpriced) -- show a dash rather than crashing on `null.toFixed`. */}
+                  <SummaryTile label="Unit price" value={typeof result.unit_price === 'number' ? `$${result.unit_price.toFixed(2)}` : '--'} hint="Commercial unit value from the staged fabrication route." />
                   <SummaryTile
                     label="Total"
-                    value={`$${result.total.toFixed(2)}`}
+                    value={typeof result.total === 'number' ? `$${result.total.toFixed(2)}` : '--'}
                     hint="Aggregate price for the current lot."
                     accent="from-sky-400/22 via-sky-300/8 to-transparent"
                   />
                   <SummaryTile
                     label="Lead time"
-                    value={`${result.lead_time_days} days`}
+                    value={result.lead_time_days != null ? `${result.lead_time_days} days` : '--'}
                     hint="Current promise posture for the batch."
                     accent="from-amber-300/22 via-amber-200/8 to-transparent"
                   />
                 </div>
               </PanelCard>
 
+              {/* Cost breakdown is authed-only (anon = cost basis redacted -> breakdown empty). Gate
+                  the whole panel on having at least one priced bar so anon sees the commercial
+                  summary cleanly without an empty/blank cost panel. */}
+              {breakdown.length > 0 ? (
               <PanelCard title="Cost breakdown" subtitle="Keep the fabrication stack readable so material, cut time, press brake work, and finish drag stay visible.">
                 <div className="space-y-4">
                   {breakdown.map((row) => {
-                    const width = result.total > 0 ? Math.min((row.value / result.total) * 100, 100) : 0;
+                    const total = typeof result.total === 'number' ? result.total : 0;
+                    const width = total > 0 ? Math.min((row.value / total) * 100, 100) : 0;
                     return (
                       <div key={row.label} className="grid grid-cols-[112px_minmax(0,1fr)_96px] items-center gap-3">
                         <div className="text-sm text-slate-300">{row.label}</div>
@@ -192,10 +211,11 @@ export function SheetMetalQuotePage() {
                   })}
                   <div className="flex items-center justify-between border-t border-white/8 pt-3 text-sm font-semibold text-slate-100">
                     <span>Total</span>
-                    <span className="font-mono">${result.total.toFixed(2)}</span>
+                    <span className="font-mono">{typeof result.total === 'number' ? `$${result.total.toFixed(2)}` : '--'}</span>
                   </div>
                 </div>
               </PanelCard>
+              ) : null}
             </>
           ) : null}
         </div>

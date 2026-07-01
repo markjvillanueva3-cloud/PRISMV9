@@ -23,13 +23,14 @@ related:
 |-------|-------|
 | Name | `mill-studio` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/mill-studio.md` |
+| Source | `C:/Users/wompu/.claude/commands/mill-studio.md` |
 | Model | default |
 | Tags | _(none)_ |
 
 ## Description (first paragraph)
 
-Open the PRISM Mill Studio — a 6-step wizard for milling program generation. Parity with /lathe-studio.
+
+# /mill-studio — Interactive CNC Mill Programming Studio
 
 <!-- AUTO-END -->
 

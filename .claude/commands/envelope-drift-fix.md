@@ -74,8 +74,12 @@ impact:
     - commit landed (or staged if --no-commit)
   bounded: true
   reversible: true  # default --dry-run; --fix gated by per-envelope operator confirmation OR --auto-confirm
+composes_with:
+  - "/close-out"
+  - "/envelope-sync"
+  - "/forge-audit"
+  - "/handoff"
 ---
-
 # /envelope-drift-fix — Detect + Auto-Apply + Close-Out
 
 > **Goal:** the existing `/envelope-sync --apply` patches the envelope JSON, but the [[feedback_roadmap_close_out]] doctrine says a milestone is only really closed when ALL 4 surfaces agree (envelope + roadmap-index + MILESTONE_PROGRESS + BUILD_STATE + chat-bus post). `/envelope-sync` alone does surface 1 only. `/close-out` does all 4 but requires the operator to name the milestone.

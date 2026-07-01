@@ -464,4 +464,70 @@ describe("MitsubishiMV1200RWireEDMMasterPostEngine", () => {
       expect(mitsubishiMV1200RWireEDMMasterPostEngine).toBeInstanceOf(MitsubishiMV1200RWireEDMMasterPostEngine);
     });
   });
+
+  // ==========================================================================
+  // NON-FINITE EMIT GUARD (U-PP-NONFINITE-EMIT-SWEEP) -- a NaN/Infinity start
+  // coord, profile point, taper UV, arc R/I/J, or wire offset must never leak a
+  // literal XNaN/DNaN the M800 control rejects. WEDM arm of the bug-class sweep;
+  // sibling of RokuRoku/HaasNGC/OkumaOSP/HurcoV11 mill + OkumaB250 lathe fixes.
+  // ==========================================================================
+  describe("non-finite emit guard (U-PP-NONFINITE-EMIT-SWEEP)", () => {
+    const wedmOp = (o: Partial<WireEDMOperation> = {}): WireEDMOperation => ({
+      operation_type: "profile",
+      pass: "rough",
+      start_x: 0,
+      start_y: 0,
+      profile_points: [{ x: 10, y: 0, type: "linear" }, { x: 10, y: 10, type: "linear" }],
+      material: { name: "D2", hardness_hrc: 60, conductivity_class: "medium" },
+      thickness_mm: 25,
+      offset_direction: "left",
+      ...o,
+    });
+    const joined = (g: string[]) => g.join("\n");
+
+    it("[regression] finite inputs emit a real rapid + profile with NO non-finite warning", () => {
+      const r = engine.generateProgram([wedmOp()]);
+      expect(r.gcode.some(l => /G00 X0\.000 Y0\.000 \(RAPID TO START\)/.test(l))).toBe(true);
+      expect(r.warnings.some(w => w.includes("non-finite"))).toBe(false);
+      expect(joined(r.gcode)).not.toContain("SKIPPED");
+    });
+
+    it("NaN start_x replaces the rapid with an ERROR marker -- no literal XNaN", () => {
+      const r = engine.generateProgram([wedmOp({ start_x: NaN })]);
+      expect(joined(r.gcode)).not.toContain("XNaN");
+      expect(joined(r.gcode)).not.toContain("NaN");
+      expect(r.warnings.some(w => w.includes("non-finite start XY"))).toBe(true);
+      expect(r.gcode.some(l => l.includes("NON-FINITE START COORD"))).toBe(true);
+    });
+
+    it("Infinity profile point is skipped -- no literal XInfinity", () => {
+      const r = engine.generateProgram([wedmOp({
+        profile_points: [{ x: Infinity, y: 5, type: "linear" }, { x: 20, y: 20, type: "linear" }],
+      })]);
+      expect(joined(r.gcode)).not.toContain("Infinity");
+      expect(r.warnings.some(w => w.includes("non-finite XY"))).toBe(true);
+      expect(r.gcode.some(l => l.includes("PROFILE POINT") && l.includes("SKIPPED"))).toBe(true);
+      expect(r.gcode.some(l => /X20\.000/.test(l))).toBe(true); // finite point still emits
+    });
+
+    it("non-finite taper U/V is omitted -- no literal UNaN/VInfinity", () => {
+      const r = engine.generateProgram([wedmOp({
+        operation_type: "taper",
+        profile_points: [{ x: 10, y: 10, u: NaN, v: Infinity, type: "linear" }],
+      })]);
+      expect(joined(r.gcode)).not.toContain("UNaN");
+      expect(joined(r.gcode)).not.toContain("Infinity");
+      expect(joined(r.gcode)).not.toContain("NaN");
+      expect(r.warnings.some(w => w.includes("non-finite taper U/V"))).toBe(true);
+    });
+
+    it("non-finite arc R is omitted -- no literal RInfinity", () => {
+      const r = engine.generateProgram([wedmOp({
+        profile_points: [{ x: 10, y: 0, type: "linear" }, { x: 20, y: 20, r: Infinity, type: "arc_cw" }],
+      })]);
+      expect(joined(r.gcode)).not.toContain("RInfinity");
+      expect(joined(r.gcode)).not.toContain("Infinity");
+      expect(r.warnings.some(w => w.includes("non-finite arc R"))).toBe(true);
+    });
+  });
 });

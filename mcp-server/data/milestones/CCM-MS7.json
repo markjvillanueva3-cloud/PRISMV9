@@ -1,0 +1,813 @@
+{
+  "id": "CCM-MS7",
+  "version": "1.0.0",
+  "title": "Memory & Context Optimization",
+  "brief": "Modernize auto-memory, CLAUDE.md architecture, compaction strategy. Modularize CLAUDE.md using @-import syntax, add dynamic context injection via InstructionsLoaded hook, validate memory freshness, define compaction survival lists, implement structured memory types with proper frontmatter, automate checkpoint creation, prune MEMORY.md automatically, integrate context budget monitoring.",
+  "created_at": "2026-03-20T12:00:00Z",
+  "created_by": "claude-opus-4.6",
+  "track": "CCM",
+  "track_name": "Claude Code Modernization",
+  "status": "not_started",
+  "dependencies": [
+    "CCM-MS0",
+    "CCM-MS4"
+  ],
+  "wave": 2,
+  "phases": [
+    {
+      "id": "P0",
+      "title": "Memory & Context Architecture",
+      "description": "Modularize CLAUDE.md, add dynamic context injection, validate memory freshness, define compaction survival, implement structured memory types, automate checkpoints, auto-prune MEMORY.md, integrate context budget monitoring, detect stale memories, optimize memory search.",
+      "sessions": "2-4",
+      "primary_role": "R1",
+      "primary_model": "opus-4.6",
+      "units": [
+        {
+          "id": "P0-U01",
+          "title": "CLAUDE.md modularization",
+          "phase": "P0",
+          "sequence": 1,
+          "role": "R1",
+          "role_name": "Systems Architect",
+          "model": "opus-4.6",
+          "effort": 85,
+          "rationale": "Monolithic CLAUDE.md wastes tokens loading irrelevant context. Splitting into domain-specific includes via @-import keeps the main file under 100 lines while allowing domain-specific loading.",
+          "tools": [
+            "Bash",
+            "Read",
+            "Edit"
+          ],
+          "skills": [],
+          "scripts": [],
+          "hooks": [],
+          "features": [
+            "CLAUDE.md @-import modularization"
+          ],
+          "dependencies": [],
+          "entry_conditions": [
+            "Current CLAUDE.md exists and is readable"
+          ],
+          "exit_conditions": [
+            "Main CLAUDE.md < 100 lines",
+            "@-import includes work and load domain files",
+            "All existing content preserved in domain includes"
+          ],
+          "rollback": "git checkout -- CLAUDE.md .claude/includes/",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Audit current CLAUDE.md content, identify domain boundaries (hooks, engines, catalogs, tools, milestones)."
+            },
+            {
+              "number": 2,
+              "instruction": "Create .claude/includes/ directory with domain files: hooks.md, engines.md, catalogs.md, tools.md, milestones.md, preferences.md."
+            },
+            {
+              "number": 3,
+              "instruction": "Rewrite CLAUDE.md to use @-import syntax referencing each include."
+            },
+            {
+              "number": 4,
+              "instruction": "Verify all content accessible via includes."
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "CLAUDE.md",
+              "type": "config",
+              "description": "Modularized CLAUDE.md with @-imports"
+            },
+            {
+              "path": ".claude/includes/",
+              "type": "config",
+              "description": "Domain-specific include files"
+            }
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": false,
+          "creates_hook": false,
+          "creates_command": false,
+          "description": "CLAUDE.md modularization — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P0-U02",
+          "title": "Dynamic context injection",
+          "phase": "P0",
+          "sequence": 2,
+          "role": "R1",
+          "role_name": "Systems Architect",
+          "model": "opus-4.6",
+          "effort": 85,
+          "rationale": "InstructionsLoaded hook can inject relevant context based on which files/directories are being worked on, reducing irrelevant context loading.",
+          "tools": [
+            "Bash"
+          ],
+          "skills": [],
+          "scripts": [],
+          "hooks": [
+            "session-start-unified"
+          ],
+          "features": [
+            "Domain-aware dynamic context injection"
+          ],
+          "dependencies": [
+            "P0-U01"
+          ],
+          "entry_conditions": [
+            "CLAUDE.md modularized from P0-U01"
+          ],
+          "exit_conditions": [
+            "Context injected per domain based on active file paths",
+            "Engine work loads engine context, hook work loads hook context, etc.",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
+          ],
+          "rollback": "git checkout -- state/CCM-MS7/",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Create InstructionsLoaded hook that detects active working context (last edited files, current directory)."
+            },
+            {
+              "number": 2,
+              "instruction": "Map detected context to relevant include files from P0-U01."
+            },
+            {
+              "number": 3,
+              "instruction": "Inject only relevant domain context into the session."
+            },
+            {
+              "number": 4,
+              "instruction": "Test by working in src/engines/ and verifying engine context loads, then src/hooks/ and verifying hook context loads."
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "state/CCM-MS7/context-injection-hook.sh",
+              "type": "script",
+              "description": "InstructionsLoaded context injection hook"
+            }
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": true,
+          "creates_hook": true,
+          "creates_command": false,
+          "description": "Dynamic context injection — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P0-U03",
+          "title": "Memory freshness validation",
+          "phase": "P0",
+          "sequence": 3,
+          "role": "R1",
+          "role_name": "Systems Architect",
+          "model": "opus-4.6",
+          "effort": 85,
+          "rationale": "Memory files reference file paths and function names that may no longer exist. A validation hook checks these references against the actual codebase to flag stale entries.",
+          "tools": [
+            "Bash",
+            "Grep"
+          ],
+          "skills": [],
+          "scripts": [],
+          "hooks": [],
+          "features": [
+            "Stale memory reference detection"
+          ],
+          "dependencies": [],
+          "entry_conditions": [
+            "Memory files accessible in ~/.claude/projects/"
+          ],
+          "exit_conditions": [
+            "Stale references flagged with file path and line number",
+            "Report written to state/CCM-MS7/memory-freshness.json",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
+          ],
+          "rollback": "git checkout -- state/CCM-MS7/",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Write memory-freshness-check.sh that extracts file paths and function names from memory/*.md files."
+            },
+            {
+              "number": 2,
+              "instruction": "Check each reference against the actual filesystem."
+            },
+            {
+              "number": 3,
+              "instruction": "Report stale references (file not found, function not found) with context."
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "state/CCM-MS7/memory-freshness-check.sh",
+              "type": "script",
+              "description": "Memory freshness validation script"
+            },
+            {
+              "path": "state/CCM-MS7/memory-freshness.json",
+              "type": "data",
+              "description": "Stale memory reference report"
+            }
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": true,
+          "creates_hook": false,
+          "creates_command": false,
+          "description": "Memory freshness validation — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P0-U04",
+          "title": "Compaction survival list",
+          "phase": "P0",
+          "sequence": 4,
+          "role": "R1",
+          "role_name": "Systems Architect",
+          "model": "opus-4.6",
+          "effort": 85,
+          "rationale": "When context compaction occurs, critical facts (active milestone, current branch, key decisions) must survive. A PostCompact hook verifies these facts persist.",
+          "tools": [
+            "Bash"
+          ],
+          "skills": [],
+          "scripts": [],
+          "hooks": [
+            "precompact-save"
+          ],
+          "features": [
+            "Critical fact survival through compaction"
+          ],
+          "dependencies": [],
+          "entry_conditions": [
+            "precompact-save hook exists"
+          ],
+          "exit_conditions": [
+            "Facts survive compaction as verified by PostCompact hook",
+            "Survival list includes: active milestone, current branch, last test status, active crons",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
+          ],
+          "rollback": "git checkout -- state/CCM-MS7/",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Define compaction survival list: active milestone ID, current git branch, last build status, last test pass rate, active cron count, current working files."
+            },
+            {
+              "number": 2,
+              "instruction": "Update precompact-save hook to persist these facts to a survival file."
+            },
+            {
+              "number": 3,
+              "instruction": "Add PostCompact verification that checks survival facts are present in resumed context."
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "state/CCM-MS7/compaction-survival.json",
+              "type": "config",
+              "description": "Compaction survival fact list"
+            },
+            {
+              "path": "state/CCM-MS7/postcompact-verify.sh",
+              "type": "script",
+              "description": "PostCompact survival verification hook"
+            }
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": true,
+          "creates_hook": true,
+          "creates_command": false,
+          "description": "Compaction survival list — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P0-U05",
+          "title": "Auto-memory categorization",
+          "phase": "P0",
+          "sequence": 5,
+          "role": "R1",
+          "role_name": "Systems Architect",
+          "model": "opus-4.6",
+          "effort": 85,
+          "rationale": "Unstructured memory files are hard to search and prune. Adding typed frontmatter (user/feedback/project/reference) enables automated categorization, retrieval, and lifecycle management.",
+          "tools": [
+            "Bash",
+            "Edit"
+          ],
+          "skills": [],
+          "scripts": [],
+          "hooks": [],
+          "features": [
+            "Structured memory types with frontmatter"
+          ],
+          "dependencies": [],
+          "entry_conditions": [
+            "Memory files accessible"
+          ],
+          "exit_conditions": [
+            "All memories typed with frontmatter: type, created, last_verified, scope",
+            "Types: user, feedback, project, reference, session",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
+          ],
+          "rollback": "git checkout -- state/CCM-MS7/",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Define memory frontmatter schema: type (user|feedback|project|reference|session), created (ISO date), last_verified (ISO date), scope (global|track|milestone)."
+            },
+            {
+              "number": 2,
+              "instruction": "Write auto-categorize.sh that scans existing memory files, infers type from content, adds frontmatter."
+            },
+            {
+              "number": 3,
+              "instruction": "Apply to all existing memory files."
+            },
+            {
+              "number": 4,
+              "instruction": "Verify all files have valid frontmatter."
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "state/CCM-MS7/auto-categorize.sh",
+              "type": "script",
+              "description": "Memory auto-categorization script"
+            },
+            {
+              "path": "state/CCM-MS7/memory-schema.json",
+              "type": "config",
+              "description": "Memory frontmatter schema definition"
+            }
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": true,
+          "creates_hook": false,
+          "creates_command": false,
+          "description": "Auto-memory categorization — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P0-U06",
+          "title": "Session checkpoint strategy",
+          "phase": "P0",
+          "sequence": 6,
+          "role": "R1",
+          "role_name": "Systems Architect",
+          "model": "opus-4.6",
+          "effort": 85,
+          "rationale": "Auto-checkpoints before destructive operations and after milestone completions provide recovery points. Prevents loss of progress during failed forge runs.",
+          "tools": [
+            "Bash"
+          ],
+          "skills": [],
+          "scripts": [],
+          "hooks": [
+            "pretooluse-unified"
+          ],
+          "features": [
+            "Auto-checkpoint on destructive ops and milestone completion"
+          ],
+          "dependencies": [],
+          "entry_conditions": [
+            "Git repo available for checkpoint commits/tags"
+          ],
+          "exit_conditions": [
+            "Auto-checkpoints created before git reset/revert/clean operations",
+            "Auto-checkpoints created after milestone unit completion",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
+          ],
+          "rollback": "git checkout -- state/CCM-MS7/",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Define checkpoint triggers: pre-destructive (git reset, git clean, git revert) and post-milestone (unit exit conditions met)."
+            },
+            {
+              "number": 2,
+              "instruction": "Write checkpoint logic that creates a lightweight git tag with timestamp and context."
+            },
+            {
+              "number": 3,
+              "instruction": "Wire into pretooluse-unified for destructive ops and posttooluse-unified for milestone detection."
+            },
+            {
+              "number": 4,
+              "instruction": "Test by triggering a checkpoint and verifying the tag exists."
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "state/CCM-MS7/checkpoint-strategy.json",
+              "type": "config",
+              "description": "Checkpoint trigger definitions"
+            }
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": false,
+          "creates_hook": true,
+          "creates_command": false,
+          "description": "Session checkpoint strategy — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P0-U07",
+          "title": "MEMORY.md auto-pruning",
+          "phase": "P0",
+          "sequence": 7,
+          "role": "R1",
+          "role_name": "Systems Architect",
+          "model": "opus-4.6",
+          "effort": 85,
+          "rationale": "MEMORY.md grows unbounded, consuming context tokens. SessionEnd hook checks line count and archives old entries when it exceeds 180 lines, keeping the active file lean.",
+          "tools": [
+            "Bash"
+          ],
+          "skills": [],
+          "scripts": [],
+          "hooks": [],
+          "features": [
+            "Automatic MEMORY.md pruning at 180-line threshold"
+          ],
+          "dependencies": [
+            "P0-U05"
+          ],
+          "entry_conditions": [
+            "Memory categorization from P0-U05 complete"
+          ],
+          "exit_conditions": [
+            "Auto-pruning active on SessionEnd",
+            "Old entries archived when MEMORY.md exceeds 180 lines",
+            "Archive preserves full history"
+          ],
+          "rollback": "git checkout -- state/CCM-MS7/",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Write memory-prune.sh that checks MEMORY.md line count, identifies oldest entries by last_verified frontmatter."
+            },
+            {
+              "number": 2,
+              "instruction": "Move oldest entries (beyond 180-line budget) to memory-archive.md with timestamp."
+            },
+            {
+              "number": 3,
+              "instruction": "Wire as SessionEnd hook or scheduled cron."
+            },
+            {
+              "number": 4,
+              "instruction": "Test by temporarily lowering threshold and verifying pruning occurs."
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "state/CCM-MS7/memory-prune.sh",
+              "type": "script",
+              "description": "MEMORY.md auto-pruning script"
+            }
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": true,
+          "creates_hook": true,
+          "creates_command": false,
+          "description": "MEMORY.md auto-pruning — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P0-U08",
+          "title": "Context budget monitoring",
+          "phase": "P0",
+          "sequence": 8,
+          "role": "R1",
+          "role_name": "Systems Architect",
+          "model": "opus-4.6",
+          "effort": 85,
+          "rationale": "ContextWindowPressureEngine already exists but is not wired into PreToolUse for real-time awareness. Integration enables proactive compaction and context shedding before hitting limits.",
+          "tools": [
+            "Bash"
+          ],
+          "skills": [],
+          "scripts": [],
+          "hooks": [
+            "pretooluse-unified"
+          ],
+          "features": [
+            "Real-time context budget awareness in PreToolUse"
+          ],
+          "dependencies": [],
+          "entry_conditions": [
+            "ContextWindowPressureEngine exists in src/engines/"
+          ],
+          "exit_conditions": [
+            "PreToolUse hook queries context budget before tool calls",
+            "Warnings emitted at 70% and 90% capacity",
+            "Auto-compaction suggested at 90%"
+          ],
+          "rollback": "git checkout -- state/CCM-MS7/",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Wire ContextWindowPressureEngine into pretooluse-unified hook."
+            },
+            {
+              "number": 2,
+              "instruction": "Add threshold checks: warn at 70%, critical at 90%."
+            },
+            {
+              "number": 3,
+              "instruction": "At 90%, suggest compaction or context shedding."
+            },
+            {
+              "number": 4,
+              "instruction": "Test by simulating high token counts and verifying warnings fire."
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "state/CCM-MS7/context-budget-config.json",
+              "type": "config",
+              "description": "Context budget threshold configuration"
+            }
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": false,
+          "creates_hook": true,
+          "creates_command": false,
+          "description": "Context budget monitoring — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P0-U09",
+          "title": "Stale memory detector",
+          "phase": "P0",
+          "sequence": 9,
+          "role": "R1",
+          "role_name": "Systems Architect",
+          "model": "opus-4.6",
+          "effort": 85,
+          "rationale": "Weekly or SessionStart detection of stale memories — entries referencing deleted files, completed milestones, or outdated counts — prevents context pollution with incorrect information.",
+          "tools": [
+            "Bash",
+            "Grep"
+          ],
+          "skills": [],
+          "scripts": [],
+          "hooks": [],
+          "features": [
+            "Stale memory detection via codebase cross-reference"
+          ],
+          "dependencies": [
+            "P0-U03"
+          ],
+          "entry_conditions": [
+            "Memory freshness validation from P0-U03 available"
+          ],
+          "exit_conditions": [
+            "Stale memories flagged with reason (file deleted, milestone completed, count outdated)",
+            "Report written to state/CCM-MS7/stale-memories.json",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
+          ],
+          "rollback": "git checkout -- state/CCM-MS7/",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Extend memory-freshness-check.sh to also detect: completed milestone references, outdated engine/test counts, references to renamed files."
+            },
+            {
+              "number": 2,
+              "instruction": "Wire as SessionStart check or weekly cron from CCM-MS5."
+            },
+            {
+              "number": 3,
+              "instruction": "Test with known stale entries and verify they are detected."
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "state/CCM-MS7/stale-memory-detector.sh",
+              "type": "script",
+              "description": "Enhanced stale memory detection script"
+            },
+            {
+              "path": "state/CCM-MS7/stale-memories.json",
+              "type": "data",
+              "description": "Stale memory report"
+            }
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": true,
+          "creates_hook": false,
+          "creates_command": false,
+          "description": "Stale memory detector — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P0-U10",
+          "title": "Memory search optimization",
+          "phase": "P0",
+          "sequence": 10,
+          "role": "R1",
+          "role_name": "Systems Architect",
+          "model": "opus-4.6",
+          "effort": 85,
+          "rationale": "Indexing memory files by type and topic enables faster retrieval without full-text scanning, reducing token cost for memory lookups.",
+          "tools": [
+            "Bash"
+          ],
+          "skills": [],
+          "scripts": [],
+          "hooks": [],
+          "features": [
+            "Indexed memory retrieval by type and topic"
+          ],
+          "dependencies": [
+            "P0-U05"
+          ],
+          "entry_conditions": [
+            "Memory categorization from P0-U05 complete with frontmatter"
+          ],
+          "exit_conditions": [
+            "Memory index file generated at state/CCM-MS7/memory-index.json",
+            "Index maps type→files and topic→files for O(1) lookup",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
+          ],
+          "rollback": "git checkout -- state/CCM-MS7/",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Write memory-indexer.sh that parses frontmatter from all memory files, extracts type and topic tags."
+            },
+            {
+              "number": 2,
+              "instruction": "Build JSON index mapping type→[files] and topic→[files]."
+            },
+            {
+              "number": 3,
+              "instruction": "Write to state/CCM-MS7/memory-index.json."
+            },
+            {
+              "number": 4,
+              "instruction": "Test retrieval by querying index for 'project' type and verifying correct files returned."
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "state/CCM-MS7/memory-indexer.sh",
+              "type": "script",
+              "description": "Memory index builder"
+            },
+            {
+              "path": "state/CCM-MS7/memory-index.json",
+              "type": "data",
+              "description": "Memory search index"
+            }
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": true,
+          "creates_hook": false,
+          "creates_command": false,
+          "description": "Memory search optimization — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        }
+      ]
+    }
+  ],
+  "smart_config": {
+    "role": "implementer + reviewer",
+    "model": "sonnet",
+    "effort": "HIGH",
+    "context_budget": "65%"
+  },
+  "mcp_lifecycle": {
+    "session_start": [
+      "prism_session:context_boot",
+      "prism_session:dispatcher_map",
+      "prism_session:memory_recall",
+      "prism_session:system_snapshot",
+      "prism_session:action_search"
+    ],
+    "during_work": [
+      "prism_session:auto_checkpoint",
+      "prism_session:tool_route_best",
+      "prism_session:wip_capture"
+    ],
+    "session_end": [
+      "prism_session:memory_save",
+      "prism_session:system_snapshot",
+      "prism_session:checkpoint_enhanced"
+    ]
+  },
+  "forge_triple": {
+    "protective_hook": "ccm-ms7-gate",
+    "mcp_action": "prism_ccm:ccm_ms7_run",
+    "skill_command": "/ccm-ms7",
+    "ownership": "DECLARED — BUILT in terminal unit of this milestone"
+  },
+  "feature_cascade": {
+    "new_hooks": [
+      "ccm-ms7-gate"
+    ],
+    "new_actions": [
+      "ccm_ms7_run"
+    ],
+    "new_skills": [
+      "/ccm-ms7"
+    ],
+    "available_to": [
+      "downstream CAMX milestones",
+      "prism app consumers"
+    ]
+  },
+  "knowledge_sources": {
+    "engines": [
+      "ENGINE_DIGEST.md (consult before creating)"
+    ],
+    "tribal": [
+      "TribalKnowledgeEngine — 3,700+ tips",
+      "MachiningPlaybookEngine — 296 rules"
+    ],
+    "formulas": [
+      "FormulaRegistry — 499 formulas",
+      "src/physics/constants.ts — canonical"
+    ],
+    "reference": [
+      "EXTERNAL-REFERENCE-PROGRAMS-INDEX.md",
+      "MaterialRegistry",
+      "MachineRegistry",
+      "ToolCatalogEngine (95,608 tools)"
+    ]
+  },
+  "intent": "Modernize auto-memory, CLAUDE.md architecture, compaction strategy. Modularize CLAUDE.md using @-import syntax, add dynamic context injection via InstructionsLoaded hook, validate memory freshness, define compaction survival lists, implement structured memory types with proper frontmatter, automate checkpoint creation, prune MEMORY.md automatically, integrate context budget monitoring.",
+  "compact_checkpoint": "every 3 units — auto-triggered by hook",
+  "enforcement_hooks_active": [
+    "physics agent",
+    "wiring agent",
+    "constants checker",
+    "stub detector",
+    "test quality",
+    "forge-triple gate",
+    "session audit agent"
+  ]
+}

@@ -21,7 +21,7 @@ related:
 
 ## Description (from file header)
 
-hook_circular_dep_check — USSH Phase 0.25==========================================Detects circular dependencies using Tarjan's SCC algorithm.Runs on SessionStart to catch dependency cycles early.Fires: SessionStartTheory: Graph theory, Strongly Connected Components
+_(no header docblock — read source for behavior)_
 
 ## Events
 

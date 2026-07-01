@@ -23,13 +23,21 @@ related:
 |-------|-------|
 | Name | `process-calc` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/process-calc.md` |
+| Source | `C:/Users/wompu/.claude/commands/process-calc.md` |
 | Model | default |
 | Tags | _(none)_ |
 
 ## Description (first paragraph)
 
-_(no body content)_
+
+# Process Calc — Unified Manufacturing Process Calculator
+
+Run a complete process calculation chain: material lookup, force prediction, power budget, and safety check in one command.
+
+## Args: $ARGUMENTS
+- Empty: interactive — ask for operation type, material, tool, and parameters
+- `turning [material] [Vc] [f] [ap]`: turning force calculation
+- `tapping [material] [thread-size] [blind|th
 
 <!-- AUTO-END -->
 

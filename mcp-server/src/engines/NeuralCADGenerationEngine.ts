@@ -464,15 +464,10 @@ export class NeuralCADGenerationEngine extends BaseEngine {
    * Convert tokens to CadQuery Python code.
    */
   toCadQuery(tokens: TokenSeq): string {
-    // Use tokenizer's detokenize if available
-    try {
-      const detokenized = cadTokenRepresentationEngine.detokenize(tokens, "cadquery");
-      if (detokenized.ops && detokenized.ops.length > 0) {
-        return this.opsToCadQuery(detokenized.ops);
-      }
-    } catch {
-      // Fall through to template-based generation
-    }
+    // Use tokenizer's detokenize if available.
+    // detokenize() requires a TokenSequence (structured) not a raw number[].
+    // Raw number[] (TokenSeq) cannot be meaningfully wrapped into TokenSequence
+    // without fabricating token metadata, so fall through to template generation.
 
     // Template-based fallback
     return this.tokensToCadQueryTemplate(tokens);

@@ -1,0 +1,47 @@
+{
+  "schemaVersion": 1,
+  "description": "Cost-alarm thresholds + cool-down config. Read by CostAlarmEngine.check() on each tick. Edit defaults inline; per-task-class overrides under taskClassOverrides.",
+  "thresholds": {
+    "dailyUSD": 5.00,
+    "weeklyUSD": 25.00,
+    "dailyTokens": 1500000,
+    "weeklyTokens": 7500000
+  },
+  "coolDownMinutes": 60,
+  "channels": [
+    {
+      "type": "jsonl",
+      "path": "state/shared/cost-alarm-log.jsonl",
+      "alwaysEnabled": true
+    },
+    {
+      "type": "agent_chat",
+      "path": "state/shared/AGENT_CHAT.md",
+      "alwaysEnabled": true
+    }
+  ],
+  "rotation": {
+    "alarmLogMaxBytes": 524288,
+    "alarmLogKeepArchives": 5
+  },
+  "taskClassOverrides": {
+    "wire_seam_probe": {
+      "dailyUSD": 0.10,
+      "weeklyUSD": 0.50,
+      "coolDownMinutes": 240
+    }
+  },
+  "tentacleAllowList": null,
+  "ignoreTestTentacles": true,
+  "testTentaclePrefixes": ["__wiretest__", "__test__", "__smoke__"],
+  "lastUpdated": "2026-05-20T15:55:00.000Z",
+  "_doc": {
+    "thresholds": "USD or token caps; an alarm fires when daily OR weekly EITHER USD or tokens crosses its cap.",
+    "coolDownMinutes": "After an alarm fires for a given alarm key, suppress repeats for this many minutes.",
+    "channels": "Where alarms get written. JSONL is canonical; agent_chat is human-visible.",
+    "rotation": "When alarmLogMaxBytes is exceeded, rotate to .1, .2, ... up to alarmLogKeepArchives.",
+    "taskClassOverrides": "Per-task-class threshold map. Lookup by taskClass string; falls through to top-level thresholds when absent.",
+    "tentacleAllowList": "null = aggregate all tentacles. Array = only these tentacles count toward thresholds.",
+    "ignoreTestTentacles": "Skip records whose tentacle starts with any testTentaclePrefixes entry."
+  }
+}

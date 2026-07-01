@@ -1,0 +1,298 @@
+Application Tutorial | InventorCAM 2024
+
+Multiaxis Roughing | Part 2
+
+                                                iMachining 2D
+                                                iMachining 3D
+                                                2.5D Milling
+                                                Indexial Multi-Sided
+                                                HSS Machining
+                                                3D High Speed Milling
+                                                Simultaneous 5-Axis
+                                                Turning
+                                                Advanced Mill-Turn
+                                                Swiss-Type
+                                                Solid Probe
+                                                                                                                                                     Contents
+
+Contents
+
+1. Introduction...........................................................................................................................................1
+2. CAM-Part Definition..............................................................................................................................5
+3. Stock and Target Definition..................................................................................................................11
+4. Roughing Operations...........................................................................................................................13
+
+                                                                                                                                                                 i
+Introduction  1
+About this course
+The goal of this course is to teach you how to use InventorCAM's Multiaxis Machining to machine a part This tutorial
+covers the basic concepts of Multiaxis Machining. Once you have developed a good foundation in basic skills, you can
+refer to the online help for information on the less frequently used options.
+Prerequisites
+Students attending this course are expected to have basic knowledge of the InventorCAM software.
+Course design
+This course is designed around a task-based approach to training. The guided exercises will teach you the necessary
+commands and options to complete a machining task. The theoretical explanations are embedded into these exercises to
+give an overview of the Multiaxis Machining capabilities.
+Using this book
+This tutorial is intended to be used in a classroom environment under the guidance of an experienced instructor. It is also
+intended to be a self-study tutorial.
+This book is made with Autodesk Inventor Professional 2024 and InventorCAM 2024 SP1.
+
+2
+                                                                                                                                                      1. Introduction
+
+Multiaxis Machining
+The Multiaxis Machining operation creates a multiaxis tool path used to rough out pocket shaped geometries. You can
+specify the inputs for floor, wall and ceiling surfaces which are used by InventorCAM to create the roughing tool path.
+The Multiaxis Machining is an excellent feature that can be used to rough large amounts of material with multiaxis
+movements. The advantage of this operation is that roughing of parts and pockets can be done with one single set up,
+specially if the walls have undercuts.
+In this tutorial, the two strategies of offset and adaptive, available in Multiaxis Machining operation, are explained using
+two different tool paths.
+
+                                                                                                                                                                         3
+4
+2 CAM-Part Definition
+The CAM-Part definition process for the part consists of the following stages:
+
+                                                    CAM-Part creation
+
+                                                CNC-Machine de nition
+
+                                            Coordinate System de nition
+
+                                                  Stock model de nition
+
+                                                 Target model de nition
+
+                                                             Setup
+
+        · CAM-Part creation. At this stage, you have to define the CAM-Part name and location. InventorCAM defines
+            the necessary system files and a folder to allocate the place to store InventorCAM data.
+
+        · CNC-controller definition. It is necessary to choose the CNC-controller. The controller type influences the
+            Coordinate System definition and the Geometry definition.
+
+        · Coordinate System definition. You have to define the Coordinate System, which is the origin for all machining
+            operations of the CAM-Part. You can create multiple CoordSys positions and in each machining step select
+            which CoordSys you want to use for the operation.
+
+        · Stock model definition. It is necessary to define a boundary of the stock that is used for the CAM-Part
+            machining.
+
+        · Target model definition. InventorCAM enables you to define the model of the part in its final stage after the
+            machining.
+
+        · Setup. You have to define the clamping fixture, the initial stock position on main or back spindle and the
+            position of the part zero with reference to the main or back spindle.
+
+The following exercises describe the full process of the CAM-Part definition. It is recommended to go through the stages
+in order to understand how the CAM-Part features are built. For this purpose, you have to turn off the automatic CAM-
+Part definition.
+1. Click InventorCAM2024 > CAM Settings.
+
+6
+                                                 2. CAM-Part Definition
+
+2. In the left pane, select CAM-Part.
+
+3. Ensure that the settings are as shown in the
+image.
+
+4. In the left pane, select Automatic CAM-Part
+definition. In the right pane, click the Milling tab.
+5. Ensure that the settings are as shown in the
+image.
+6. Click OK to confirm your choice.
+
+7. Browse to open the Autodesk Inventor part
+MAR-2.ipt.
+8. Click InventorCAM2024 > New > Milling.
+The New Milling Part window opens.
+
+                                                                                                                                                                         7
+9. Click OK to confirm the CAM part.
+Define the CAM-Part in the Milling Part Data dialog box.In the CNC-Machine list, click DMU100_monoblock_iTNC530_5X.
+10. Click the CoordSys button in the Define section to set the coordinate system for this part.
+11. In the Definitions options section, select the option of Select face.
+12. In the Place CoordSys origin to list, click Top center of model box.
+13. Select the face as shown in the image.
+14. The coordinate system is defined.
+
+15. Ensure that the direction of axes is as shown in the image.
+
+16. Click
+The CoordSys Data window displays.
+
+17. Enter the parameters as shown in the image.
+
+18. Click
+
+19. Click  to close the CoordSys Manager dialog box.
+
+20. Click  to close the Milling Part Data dialog box.
+
+The CAM part is now defined.
+
+8
+Stock and Target  3
+     Definition
+To define the stock you have to follow the steps mentioned in this chapter.
+1. Click the Model tab > Modeling section.
+2. Expand Design Model: 1 > Solid Bodies(2) > Solid2 > select Visibility.
+Ensure that the visibility of Solid1 is switched off.
+3. Click the InventorCAM Manager tab.
+
+4. Right click Stock > Define.
+5. In the Defined by list, click 3D Model.
+
+6. Select the solid as shown in the image.
+7. Click
+8. Click the Model tab > Modeling section.
+9. Expand Design Model: 1> > Solid Bodies(2) > > Solid2 > unselect
+Visibility. Ensure that the visibility of Solid1 is switched on.Click the
+InventorCAM Manager tab.
+10. Right click Target > Define.
+11. Select the face as shown in the image.
+12. Click
+The stock and target are now defined.
+
+12
+4 Roughing Operations
+1. Right click Operations > Machine Setup > Add at start of operations tree.
+2. Enter a value of 250 in the Z column.
+3. Click OK.
+
+4. Right click Setup > Add Milling Operation > Multiaxis Machining.
+5. Click Geometry.
+6. In the Strategy list, click Offset.
+7. In the sub-strategy list, click Offset from floor.
+8. Click under Floor surfaces.
+9. In the Color section, click Pick from Model.
+10. Select any of the floor surfaces.
+11. Click Find Faces.
+
+14
+                                                             4. Roughing operations
+
+12. The selected faces look as shown in the image.
+
+13. Click
+
+14. Click and then click Surfaces under Machining surfaces.
+15. In the Color section, click Pick from Model.
+16. Select any of the wall surfaces of
+the part.
+17. In the Color section, click Find
+Faces.
+
+18. The selected faces must look as displayed in the image.
+19. Click
+
+20. Set the Stock to leave on values as 0.5 for both, floor and wall surfaces sections.
+21. Click Tool > Select.
+22. Double click BULL NOSE MILL to add it as the tool.
+
+                                                                                                                                                                        15
+23. Enter the parameters as shown in the image.
+
+24. Click  and double click the Holder icon to display the list of holders.
+
+25. Search for BT40 ER 32x80 and double click it to add it to the tool.
+
+26. Click  to save the tool.
+
+27. Click Levels.
+
+28. Enter the Levels values as shown in the image.
+
+29. Save and Exit the operation.
+
+30. Go to the Model tab and ensure that Solid2 > is visible and Solid1 is hidden.
+31. Click the InventorCAM tab.
+32. Open the saved operation.
+33. Click Tool path parameters.
+34. Enter the parameters as shown in the image.
+
+16
+35. Click the Sorting tab.                                   4. Roughing operations
+36. Enter the parameters as shown in the image.                                            17
+
+37. Click the Smoothing tab.
+38. Enter the parameters as shown in the image.
+
+39. Click the Geometry page.
+40. Select the Stock tab.
+41. Select the Respect stock model check box.
+42. In the Stock definition list, click Surfaces.
+43. Click
+44. Select all the faces of the part as shown in the image.
+45. Click
+
+46. Set the Tolerance value as 0.1 and Shrink value as 0.5.
+47. Click Link.
+48. Enter the parameters as shown in the image.
+49. Click the Approach/Retreat tab.
+50. Enter the parameters as shown in the image.
+
+51. Click the Links tab.
+52. Enter the parameters as shown in the image.
+53. Save and Exit the operation.
+54. Go to Model tab and ensure that Solid1 > is visible and Solid2 is
+hidden.
+55. Go to the InventorCAM tab.
+56. Open the saved operation.
+57. Recheck if the floor and wall surface are selected on the Geometry page.
+If you see the faces are not selected, reselect them.
+58. Click
+59. Close the operation.
+The tool path should look as displayed in the image.
+
+18
+                                                                                                  4. Roughing operations
+
+60. Right click the operation > Copy.
+61. Right click the operation > Paste.
+62. Right click the pasted operation > Edit.
+63. Click Link.
+64. Click the Links tab.
+65. Select the options as shown in the image.
+
+66. Click Geometry.
+67. In the Strategy list, click Adaptive and in the sub-list select Offset from floor.
+68. Click the Stock tab.
+69. Set the values as shown in the image.
+
+70. Click Tool path parameters.
+71. On the Surface quality tab, select the option of By number of slices and set the value as 1.
+72. Click the Smoothing tab and in the Threshold value in % of tool section, set the value as 0.
+73. Click
+74. Click to close the operation.
+
+                                                                                                  19
+The tool path should look as displayed in the image.
+The adaptive strategy generates a tool path that enters the material in one single step, use the full cutting length of the
+tool, and creates many spiral tool paths depending on the defined geometry.
+
+20
+                                                                          The Complete CAM Solution, with
+                                                                          Revolutionary iMachining, best support
+                                                                          for Multi-Channel Mill-Turn and Swiss
+                                                                          CNCs, seamlessly Integrated in and
+                                                                          associative to SOLIDWORKS®, Inventor®
+                                                                          and Solid Edge®.
+                                                                          iMachining 2D
+                                                                          iMachining 3D
+                                                                          2.5D Milling
+                                                                          Indexial Multi-Sided
+                                                                          HSS Machining
+                                                                          3D High Speed Milling
+                                                                          Simultaneous 5-Axis
+                                                                          Turning
+                                                                          Advanced Mill-Turn
+                                                                          Swiss-Type
+                                                                          Solid Probe
+
+solidcam.com
+

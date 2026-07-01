@@ -23,13 +23,14 @@ related:
 |-------|-------|
 | Name | `welder-harden` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/welder-harden.md` |
+| Source | `C:/Users/wompu/.claude/commands/welder-harden.md` |
 | Model | default |
 | Tags | _(none)_ |
 
 ## Description (first paragraph)
 
-Harden AI models for specific welding machines, processes, or material classes.
+
+# /welder-harden — Welding AI Hardening
 
 <!-- AUTO-END -->
 

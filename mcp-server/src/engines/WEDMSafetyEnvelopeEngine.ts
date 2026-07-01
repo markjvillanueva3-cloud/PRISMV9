@@ -53,7 +53,15 @@ export interface EnvelopeReport {
 export interface SafetyEnvelope {
   id: string;
   description: string;
-  limits: Record<EnvelopeParam, EnvelopeLimit>;
+  /**
+   * Limits keyed by reading param. PARTIAL: an envelope bounds only the params
+   * it has a conservative shop-wide limit for. U-EFF36 added 6 optional
+   * axis-position fields (X/Y/Z_upper/Z_lower/U/V_mm) to EnvelopeReading for
+   * WEDMFailsafeEngine's machine-specific travel checks -- those positions have
+   * NO universal shop-wide band, so DEFAULT_ENVELOPE intentionally omits them.
+   * `check()` already iterates only the present limit entries.
+   */
+  limits: Partial<Record<EnvelopeParam, EnvelopeLimit>>;
 }
 
 const DEFAULT_ENVELOPE: SafetyEnvelope = {

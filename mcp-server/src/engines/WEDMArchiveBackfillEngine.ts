@@ -112,8 +112,8 @@ export class WEDMArchiveBackfillEngine {
     if (statePath) this.statePath = statePath;
     if (this.stateLoaded) return;
     try {
-      if (fs.existsSync(statePath)) {
-        const raw = fs.readFileSync(statePath, "utf8");
+      if (fs.existsSync(this.statePath)) {
+        const raw = fs.readFileSync(this.statePath, "utf8");
         const parsed = JSON.parse(raw);
         if (parsed && typeof parsed === "object" && parsed.schemaVersion === 1) {
           this.state = parsed as BackfillStateFile;
@@ -260,16 +260,16 @@ export class WEDMArchiveBackfillEngine {
             action: "ingest-program",
             keywords: [material.toLowerCase(), prog.dialect ?? "unknown-dialect"],
             awareness_used: false,
-            inputs_summary: {
+            inputs_summary: JSON.stringify({
               filePath: prog.filePath,
               customer: prog.customerName,
               fileName: prog.fileName,
-            },
-            outputs_summary: {
+            }),
+            outputs_summary: JSON.stringify({
               qualityScore: prog.qualityScore,
               passCount: prog.passCount,
               feedRates: prog.feedRates,
-            },
+            }),
             confidence:
               typeof prog.qualityScore === "number" ? prog.qualityScore / 100 : 0.6,
           });

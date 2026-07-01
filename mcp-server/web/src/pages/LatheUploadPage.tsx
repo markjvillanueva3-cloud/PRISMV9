@@ -119,11 +119,11 @@ export function LatheUploadPage() {
   return (
     <WorkspaceRecoveryScaffold
       eyebrow="Machining intake"
-      title="Lathe Upload"
-      description="The lathe intake desk is rebuilt on a stable APPW front-end seam. Operators can post an upload payload, fetch the mounted solver result, and use PRISM AI to interpret what the machining engine returned."
+      title="Kienzle Upload"
+      description="The lathe intake desk is rebuilt on a stable APPW front-end seam. Operators can post an upload payload, fetch the mounted solver result, and use Kienzle AI to interpret what the machining engine returned."
       surfaces={['jobDesk']}
       metrics={metrics}
-      aiSummary="PRISM AI can explain what the lathe intake payload means, summarize pending solver status, and translate the result into machinist-friendly next steps."
+      aiSummary="Kienzle AI can explain what the lathe intake payload means, summarize pending solver status, and translate the result into machinist-friendly next steps."
       aiContext={aiContext}
       suggestions={[
         {
@@ -157,7 +157,7 @@ export function LatheUploadPage() {
           <textarea
             value={fileBody}
             onChange={(event) => setFileBody(event.target.value)}
-            className="min-h-[180px] w-full rounded-[22px] border border-white/10 bg-slate-950/80 px-4 py-3 text-sm text-slate-100 outline-none transition focus:border-cyan-300/32"
+            className="min-h-[180px] w-full rounded-ios-lg border border-white/10 bg-slate-950/80 px-4 py-3 text-sm text-slate-100 outline-none transition focus:border-cyan-300/32"
             placeholder="Paste the lathe notes, OCR, or extracted file content here."
           />
         </label>
@@ -178,7 +178,7 @@ export function LatheUploadPage() {
         </div>
 
         {error ? (
-          <div className="mt-4 rounded-2xl border border-rose-300/18 bg-rose-300/[0.08] px-4 py-3 text-sm text-rose-100">
+          <div className="mt-4 rounded-ios-lg border border-rose-300/18 bg-rose-300/[0.08] px-4 py-3 text-sm text-rose-100">
             {error}
           </div>
         ) : null}
@@ -186,7 +186,7 @@ export function LatheUploadPage() {
 
       <div className="grid gap-6 lg:grid-cols-2">
         <PanelCard title="Upload receipt" subtitle="The mounted upload acknowledgment payload.">
-          <div className="rounded-2xl border border-white/8 bg-white/[0.03] px-4 py-4 text-sm text-slate-300">
+          <div className="rounded-ios-lg border border-white/8 bg-white/[0.03] px-4 py-4 text-sm text-slate-300">
             {uploadReceipt ? formatJsonPreview(uploadReceipt) : 'No lathe upload has been posted in this session yet.'}
           </div>
         </PanelCard>
@@ -197,7 +197,7 @@ export function LatheUploadPage() {
               <StatusPill label={`Status ${latheResult?.status ?? 'idle'}`} tone={latheResult?.status === 202 ? 'amber' : 'sky'} />
               {latheResult?.payload ? <StatusPill label="Payload mounted" tone="emerald" /> : null}
             </div>
-            <div className="rounded-2xl border border-white/8 bg-white/[0.03] px-4 py-4 text-sm text-slate-300">
+            <div className="rounded-ios-lg border border-white/8 bg-white/[0.03] px-4 py-4 text-sm text-slate-300">
               {latheResult?.payload ? formatJsonPreview(latheResult.payload) : 'No lathe result payload is mounted for the current job ID.'}
             </div>
           </div>

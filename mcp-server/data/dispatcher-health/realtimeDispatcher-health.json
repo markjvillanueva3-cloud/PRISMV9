@@ -1,0 +1,91 @@
+{
+  "dispatcherName": "realtimeDispatcher",
+  "dispatcherFile": "H:\\PRISM\\mcp-server\\src\\tools\\dispatchers\\realtimeDispatcher.ts",
+  "timestamp": "2026-04-19T03:20:31.160Z",
+  "totalActions": 6,
+  "healthyActions": 0,
+  "coverage": {
+    "caseCoverage": 1,
+    "schemaCoverage": 0,
+    "testCoverage": 0.6666666666666666,
+    "skillCoverage": 0,
+    "smokeTestCoverage": 0
+  },
+  "actions": [
+    {
+      "action": "ws_broadcast",
+      "hasCase": true,
+      "hasSchema": false,
+      "hasTest": true,
+      "hasSkill": false,
+      "smokeTestPassed": null
+    },
+    {
+      "action": "ws_room_send",
+      "hasCase": true,
+      "hasSchema": false,
+      "hasTest": true,
+      "hasSkill": false,
+      "smokeTestPassed": null
+    },
+    {
+      "action": "ws_unicast",
+      "hasCase": true,
+      "hasSchema": false,
+      "hasTest": true,
+      "hasSkill": false,
+      "smokeTestPassed": null
+    },
+    {
+      "action": "ws_stats",
+      "hasCase": true,
+      "hasSchema": false,
+      "hasTest": true,
+      "hasSkill": false,
+      "smokeTestPassed": null
+    },
+    {
+      "action": "rt_bridge_stats",
+      "hasCase": true,
+      "hasSchema": false,
+      "hasTest": false,
+      "hasSkill": false,
+      "smokeTestPassed": null
+    },
+    {
+      "action": "rt_bridge_emit",
+      "hasCase": true,
+      "hasSchema": false,
+      "hasTest": false,
+      "hasSkill": false,
+      "smokeTestPassed": null
+    }
+  ],
+  "gaps": {
+    "missingCases": [],
+    "missingSchemas": [
+      "ws_broadcast",
+      "ws_room_send",
+      "ws_unicast",
+      "ws_stats",
+      "rt_bridge_stats",
+      "rt_bridge_emit"
+    ],
+    "missingTests": [
+      "rt_bridge_stats",
+      "rt_bridge_emit"
+    ],
+    "missingSkills": [
+      "ws_broadcast",
+      "ws_room_send",
+      "ws_unicast",
+      "ws_stats",
+      "rt_bridge_stats",
+      "rt_bridge_emit"
+    ],
+    "smokeTestFailures": []
+  },
+  "recommendations": [
+    "Add schemas for: ws_broadcast, ws_room_send, ws_unicast, ws_stats, rt_bridge_stats (+1 more)"
+  ]
+}

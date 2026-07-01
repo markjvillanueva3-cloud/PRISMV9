@@ -1,0 +1,2004 @@
+{
+  "schemaVersion": "1.0.0",
+  "generatedAt": "2026-05-25T03:51:26.528Z",
+  "generatedBy": "scripts/batch-compat-scorer.mjs",
+  "source": {
+    "cohortsPath": "H:\\prism\\state\\shared\\specs\\PRISM-COHORTS.json",
+    "cohortCount": 12,
+    "totalEngines": 3501
+  },
+  "scoringModel": {
+    "weights": {
+      "domain": 0.4,
+      "shape": 0.3,
+      "importStyle": 0.15,
+      "vintage": 0.15
+    },
+    "costThresholds": {
+      "LOW": 0.8,
+      "MEDIUM": 0.55
+    },
+    "domainTokens": 77,
+    "shapeSuffixes": 25,
+    "note": "Heuristic Jaccard + hand-tuned weights — NOT a trained classifier"
+  },
+  "cohortProfiles": [
+    {
+      "cohort": "esm-js (current — NodeNext convention)",
+      "engineCount": 1396,
+      "topDomains": [
+        {
+          "domain": "Agent",
+          "count": 4
+        },
+        {
+          "domain": "Feed",
+          "count": 2
+        },
+        {
+          "domain": "Post",
+          "count": 2
+        },
+        {
+          "domain": "Schema",
+          "count": 1
+        },
+        {
+          "domain": "Cost",
+          "count": 1
+        },
+        {
+          "domain": "Bridge",
+          "count": 1
+        },
+        {
+          "domain": "Toolpath",
+          "count": 1
+        },
+        {
+          "domain": "Tool",
+          "count": 1
+        }
+      ],
+      "topShapes": [
+        {
+          "shape": "Engine",
+          "count": 28
+        }
+      ],
+      "dominantImportStyle": "esm-js",
+      "era": "currentESM"
+    },
+    {
+      "cohort": "mtime-q1 (no header signals)",
+      "engineCount": 749,
+      "topDomains": [
+        {
+          "domain": "Spindle",
+          "count": 1
+        },
+        {
+          "domain": "Quote",
+          "count": 1
+        },
+        {
+          "domain": "Mill",
+          "count": 1
+        },
+        {
+          "domain": "Learning",
+          "count": 1
+        },
+        {
+          "domain": "Optimization",
+          "count": 1
+        }
+      ],
+      "topShapes": [
+        {
+          "shape": "Engine",
+          "count": 30
+        }
+      ],
+      "dominantImportStyle": "unknown",
+      "era": "earlyESM"
+    },
+    {
+      "cohort": "esm-plain (pre-NodeNext .js suffix)",
+      "engineCount": 476,
+      "topDomains": [
+        {
+          "domain": "Cam",
+          "count": 2
+        },
+        {
+          "domain": "Cad",
+          "count": 2
+        },
+        {
+          "domain": "Rag",
+          "count": 2
+        },
+        {
+          "domain": "Chatter",
+          "count": 1
+        },
+        {
+          "domain": "Thermal",
+          "count": 1
+        },
+        {
+          "domain": "Wear",
+          "count": 1
+        },
+        {
+          "domain": "Memory",
+          "count": 1
+        },
+        {
+          "domain": "Agent",
+          "count": 1
+        }
+      ],
+      "topShapes": [
+        {
+          "shape": "Engine",
+          "count": 29
+        }
+      ],
+      "dominantImportStyle": "esm-plain",
+      "era": "earlyESM"
+    },
+    {
+      "cohort": "mtime-q2 (no header signals)",
+      "engineCount": 312,
+      "topDomains": [
+        {
+          "domain": "Cam",
+          "count": 8
+        },
+        {
+          "domain": "Safety",
+          "count": 2
+        },
+        {
+          "domain": "Bridge",
+          "count": 2
+        },
+        {
+          "domain": "Learning",
+          "count": 1
+        },
+        {
+          "domain": "Agent",
+          "count": 1
+        },
+        {
+          "domain": "Wear",
+          "count": 1
+        },
+        {
+          "domain": "Material",
+          "count": 1
+        },
+        {
+          "domain": "Reasoning",
+          "count": 1
+        }
+      ],
+      "topShapes": [
+        {
+          "shape": "Engine",
+          "count": 23
+        }
+      ],
+      "dominantImportStyle": "unknown",
+      "era": "earlyESM"
+    },
+    {
+      "cohort": "mtime-q3 (no header signals)",
+      "engineCount": 307,
+      "topDomains": [
+        {
+          "domain": "Cad",
+          "count": 17
+        },
+        {
+          "domain": "Bridge",
+          "count": 2
+        },
+        {
+          "domain": "Lora",
+          "count": 1
+        },
+        {
+          "domain": "Agent",
+          "count": 1
+        },
+        {
+          "domain": "Post",
+          "count": 1
+        },
+        {
+          "domain": "Registry",
+          "count": 1
+        },
+        {
+          "domain": "Cam",
+          "count": 1
+        },
+        {
+          "domain": "Learning",
+          "count": 1
+        }
+      ],
+      "topShapes": [
+        {
+          "shape": "Engine",
+          "count": 28
+        },
+        {
+          "shape": "Registry",
+          "count": 1
+        }
+      ],
+      "dominantImportStyle": "unknown",
+      "era": "earlyESM"
+    },
+    {
+      "cohort": "mtime-q4 (no header signals)",
+      "engineCount": 200,
+      "topDomains": [
+        {
+          "domain": "Cad",
+          "count": 17
+        },
+        {
+          "domain": "Feed",
+          "count": 2
+        },
+        {
+          "domain": "Cam",
+          "count": 2
+        },
+        {
+          "domain": "Bridge",
+          "count": 1
+        },
+        {
+          "domain": "Optimizer",
+          "count": 1
+        },
+        {
+          "domain": "Learning",
+          "count": 1
+        }
+      ],
+      "topShapes": [
+        {
+          "shape": "Engine",
+          "count": 29
+        },
+        {
+          "shape": "Adapter",
+          "count": 1
+        }
+      ],
+      "dominantImportStyle": "unknown",
+      "era": "earlyESM"
+    },
+    {
+      "cohort": "iter19-23 (JM-Die-page era, 2026-05-24)",
+      "engineCount": 20,
+      "topDomains": [
+        {
+          "domain": "Material",
+          "count": 2
+        },
+        {
+          "domain": "Coolant",
+          "count": 1
+        },
+        {
+          "domain": "Operator",
+          "count": 1
+        },
+        {
+          "domain": "Post",
+          "count": 1
+        },
+        {
+          "domain": "Pricing",
+          "count": 1
+        },
+        {
+          "domain": "SubSpindle",
+          "count": 1
+        },
+        {
+          "domain": "Spindle",
+          "count": 1
+        },
+        {
+          "domain": "Tool",
+          "count": 1
+        }
+      ],
+      "topShapes": [
+        {
+          "shape": "Engine",
+          "count": 20
+        }
+      ],
+      "dominantImportStyle": "unknown",
+      "era": "currentESM"
+    },
+    {
+      "cohort": "iter<12 (pre-slot-worktree, early 2026-05)",
+      "engineCount": 18,
+      "topDomains": [
+        {
+          "domain": "Shop",
+          "count": 2
+        },
+        {
+          "domain": "Floor",
+          "count": 2
+        },
+        {
+          "domain": "Bridge",
+          "count": 2
+        },
+        {
+          "domain": "Quoting",
+          "count": 2
+        },
+        {
+          "domain": "Vendor",
+          "count": 2
+        },
+        {
+          "domain": "Cam",
+          "count": 1
+        },
+        {
+          "domain": "Quote",
+          "count": 1
+        },
+        {
+          "domain": "Feed",
+          "count": 1
+        }
+      ],
+      "topShapes": [
+        {
+          "shape": "Engine",
+          "count": 18
+        }
+      ],
+      "dominantImportStyle": "unknown",
+      "era": "earlyESM"
+    },
+    {
+      "cohort": "deprecated",
+      "engineCount": 8,
+      "topDomains": [
+        {
+          "domain": "Cost",
+          "count": 2
+        },
+        {
+          "domain": "Shop",
+          "count": 1
+        },
+        {
+          "domain": "Scheduling",
+          "count": 1
+        },
+        {
+          "domain": "Quoting",
+          "count": 1
+        },
+        {
+          "domain": "Tool",
+          "count": 1
+        }
+      ],
+      "topShapes": [
+        {
+          "shape": "Engine",
+          "count": 8
+        }
+      ],
+      "dominantImportStyle": "unknown",
+      "era": "deprecated"
+    },
+    {
+      "cohort": "iter12-18 (slot-worktree+SLOT-RECLAIM, mid-2026-05)",
+      "engineCount": 7,
+      "topDomains": [
+        {
+          "domain": "Mill",
+          "count": 1
+        },
+        {
+          "domain": "Rag",
+          "count": 1
+        },
+        {
+          "domain": "Lathe",
+          "count": 1
+        }
+      ],
+      "topShapes": [
+        {
+          "shape": "Engine",
+          "count": 7
+        }
+      ],
+      "dominantImportStyle": "unknown",
+      "era": "currentESM"
+    },
+    {
+      "cohort": "cjs-era (pre-ESM migration)",
+      "engineCount": 7,
+      "topDomains": [
+        {
+          "domain": "Cost",
+          "count": 2
+        },
+        {
+          "domain": "Registry",
+          "count": 1
+        },
+        {
+          "domain": "Agent",
+          "count": 1
+        },
+        {
+          "domain": "Cam",
+          "count": 1
+        },
+        {
+          "domain": "Bridge",
+          "count": 1
+        },
+        {
+          "domain": "Capacity",
+          "count": 1
+        },
+        {
+          "domain": "Tool",
+          "count": 1
+        },
+        {
+          "domain": "Erp",
+          "count": 1
+        }
+      ],
+      "topShapes": [
+        {
+          "shape": "Engine",
+          "count": 6
+        }
+      ],
+      "dominantImportStyle": "cjs",
+      "era": "preESM"
+    },
+    {
+      "cohort": "iter24+ (generic-bridge era, 2026-05-24)",
+      "engineCount": 1,
+      "topDomains": [
+        {
+          "domain": "Knowledge",
+          "count": 1
+        }
+      ],
+      "topShapes": [
+        {
+          "shape": "Engine",
+          "count": 1
+        }
+      ],
+      "dominantImportStyle": "esm-js",
+      "era": "currentESM"
+    }
+  ],
+  "cohortOrder": [
+    "esm-js (current — NodeNext convention)",
+    "mtime-q1 (no header signals)",
+    "esm-plain (pre-NodeNext .js suffix)",
+    "mtime-q2 (no header signals)",
+    "mtime-q3 (no header signals)",
+    "mtime-q4 (no header signals)",
+    "iter19-23 (JM-Die-page era, 2026-05-24)",
+    "iter<12 (pre-slot-worktree, early 2026-05)",
+    "deprecated",
+    "iter12-18 (slot-worktree+SLOT-RECLAIM, mid-2026-05)",
+    "cjs-era (pre-ESM migration)",
+    "iter24+ (generic-bridge era, 2026-05-24)"
+  ],
+  "matrix": [
+    [
+      1,
+      0.467,
+      0.584,
+      0.474,
+      0.51,
+      0.502,
+      0.495,
+      0.41,
+      0.235,
+      0.307,
+      0.238,
+      0.311
+    ],
+    [
+      0.467,
+      1,
+      0.522,
+      0.487,
+      0.525,
+      0.535,
+      0.442,
+      0.441,
+      0.215,
+      0.322,
+      0.195,
+      0.198
+    ],
+    [
+      0.584,
+      0.522,
+      1,
+      0.553,
+      0.595,
+      0.58,
+      0.408,
+      0.446,
+      0.21,
+      0.282,
+      0.252,
+      0.243
+    ],
+    [
+      0.474,
+      0.487,
+      0.553,
+      1,
+      0.541,
+      0.523,
+      0.468,
+      0.528,
+      0.239,
+      0.286,
+      0.261,
+      0.201
+    ],
+    [
+      0.51,
+      0.525,
+      0.595,
+      0.541,
+      1,
+      0.787,
+      0.412,
+      0.459,
+      0.218,
+      0.267,
+      0.25,
+      0.198
+    ],
+    [
+      0.502,
+      0.535,
+      0.58,
+      0.523,
+      0.787,
+      1,
+      0.395,
+      0.453,
+      0.215,
+      0.265,
+      0.221,
+      0.198
+    ],
+    [
+      0.495,
+      0.442,
+      0.408,
+      0.468,
+      0.412,
+      0.395,
+      1,
+      0.511,
+      0.277,
+      0.345,
+      0.218,
+      0.247
+    ],
+    [
+      0.41,
+      0.441,
+      0.446,
+      0.528,
+      0.459,
+      0.453,
+      0.511,
+      1,
+      0.31,
+      0.312,
+      0.271,
+      0.204
+    ],
+    [
+      0.235,
+      0.215,
+      0.21,
+      0.239,
+      0.218,
+      0.215,
+      0.277,
+      0.31,
+      1,
+      0.375,
+      0.43,
+      0.142
+    ],
+    [
+      0.307,
+      0.322,
+      0.282,
+      0.286,
+      0.267,
+      0.265,
+      0.345,
+      0.312,
+      0.375,
+      1,
+      0.347,
+      0.275
+    ],
+    [
+      0.238,
+      0.195,
+      0.252,
+      0.261,
+      0.25,
+      0.221,
+      0.218,
+      0.271,
+      0.43,
+      0.347,
+      1,
+      0.14
+    ],
+    [
+      0.311,
+      0.198,
+      0.243,
+      0.201,
+      0.198,
+      0.198,
+      0.247,
+      0.204,
+      0.142,
+      0.275,
+      0.14,
+      1
+    ]
+  ],
+  "matrixDetail": [
+    [
+      {
+        "total": 1,
+        "domain": 1,
+        "shape": 1,
+        "importStyle": 1,
+        "vintage": 1,
+        "cost": "SELF"
+      },
+      {
+        "total": 0.467,
+        "domain": 0,
+        "shape": 0.933,
+        "importStyle": 0.55,
+        "vintage": 0.7,
+        "cost": "HIGH"
+      },
+      {
+        "total": 0.584,
+        "domain": 0.154,
+        "shape": 0.966,
+        "importStyle": 0.85,
+        "vintage": 0.7,
+        "cost": "MEDIUM"
+      },
+      {
+        "total": 0.474,
+        "domain": 0.1,
+        "shape": 0.821,
+        "importStyle": 0.55,
+        "vintage": 0.7,
+        "cost": "HIGH"
+      },
+      {
+        "total": 0.51,
+        "domain": 0.083,
+        "shape": 0.966,
+        "importStyle": 0.55,
+        "vintage": 0.7,
+        "cost": "HIGH"
+      },
+      {
+        "total": 0.502,
+        "domain": 0.086,
+        "shape": 0.933,
+        "importStyle": 0.55,
+        "vintage": 0.7,
+        "cost": "HIGH"
+      },
+      {
+        "total": 0.495,
+        "domain": 0.12,
+        "shape": 0.714,
+        "importStyle": 0.55,
+        "vintage": 1,
+        "cost": "HIGH"
+      },
+      {
+        "total": 0.41,
+        "domain": 0.074,
+        "shape": 0.643,
+        "importStyle": 0.55,
+        "vintage": 0.7,
+        "cost": "HIGH"
+      },
+      {
+        "total": 0.235,
+        "domain": 0.111,
+        "shape": 0.286,
+        "importStyle": 0.55,
+        "vintage": 0.15,
+        "cost": "HIGH"
+      },
+      {
+        "total": 0.307,
+        "domain": 0,
+        "shape": 0.25,
+        "importStyle": 0.55,
+        "vintage": 1,
+        "cost": "HIGH"
+      },
+      {
+        "total": 0.238,
+        "domain": 0.211,
+        "shape": 0.214,
+        "importStyle": 0.5,
+        "vintage": 0.1,
+        "cost": "HIGH"
+      },
+      {
+        "total": 0.311,
+        "domain": 0,
+        "shape": 0.036,
+        "importStyle": 1,
+        "vintage": 1,
+        "cost": "HIGH"
+      }
+    ],
+    [
+      {
+        "total": 0.467,
+        "domain": 0,
+        "shape": 0.933,
+        "importStyle": 0.55,
+        "vintage": 0.7,
+        "cost": "HIGH"
+      },
+      {
+        "total": 1,
+        "domain": 1,
+        "shape": 1,
+        "importStyle": 1,
+        "vintage": 1,
+        "cost": "SELF"
+      },
+      {
+        "total": 0.522,
+        "domain": 0,
+        "shape": 0.967,
+        "importStyle": 0.55,
+        "vintage": 1,
+        "cost": "HIGH"
+      },
+      {
+        "total": 0.487,
+        "domain": 0.043,
+        "shape": 0.767,
+        "importStyle": 0.6,
+        "vintage": 1,
+        "cost": "HIGH"
+      },
+      {
+        "total": 0.525,
+        "domain": 0.034,
+        "shape": 0.903,
+        "importStyle": 0.6,
+        "vintage": 1,
+        "cost": "HIGH"
+      },
+      {
+        "total": 0.535,
+        "domain": 0.036,
+        "shape": 0.935,
+        "importStyle": 0.6,
+        "vintage": 1,
+        "cost": "HIGH"
+      },
+      {
+        "total": 0.442,
+        "domain": 0.118,
+        "shape": 0.667,
+        "importStyle": 0.6,
+        "vintage": 0.7,
+        "cost": "HIGH"
+      },
+      {
+        "total": 0.441,
+        "domain": 0.053,
+        "shape": 0.6,
+        "importStyle": 0.6,
+        "vintage": 1,
+        "cost": "HIGH"
+      },
+      {
+        "total": 0.215,
+        "domain": 0,
+        "shape": 0.267,
+        "importStyle": 0.6,
+        "vintage": 0.3,
+        "cost": "HIGH"
+      },
+      {
+        "total": 0.322,
+        "domain": 0.143,
+        "shape": 0.233,
+        "importStyle": 0.6,
+        "vintage": 0.7,
+        "cost": "HIGH"
+      },
+      {
+        "total": 0.195,
+        "domain": 0,
+        "shape": 0.2,
+        "importStyle": 0.5,
+        "vintage": 0.4,
+        "cost": "HIGH"
+      },
+      {
+        "total": 0.198,
+        "domain": 0,
+        "shape": 0.033,
+        "importStyle": 0.55,
+        "vintage": 0.7,
+        "cost": "HIGH"
+      }
+    ],
+    [
+      {
+        "total": 0.584,
+        "domain": 0.154,
+        "shape": 0.966,
+        "importStyle": 0.85,
+        "vintage": 0.7,
+        "cost": "MEDIUM"
+      },
+      {
+        "total": 0.522,
+        "domain": 0,
+        "shape": 0.967,
+        "importStyle": 0.55,
+        "vintage": 1,
+        "cost": "HIGH"
+      },
+      {
+        "total": 1,
+        "domain": 1,
+        "shape": 1,
+        "importStyle": 1,
+        "vintage": 1,
+        "cost": "SELF"
+      },
+      {
+        "total": 0.553,
+        "domain": 0.207,
+        "shape": 0.793,
+        "importStyle": 0.55,
+        "vintage": 1,
+        "cost": "MEDIUM"
+      },
+      {
+        "total": 0.595,
+        "domain": 0.206,
+        "shape": 0.933,
+        "importStyle": 0.55,
+        "vintage": 1,
+        "cost": "MEDIUM"
+      },
+      {
+        "total": 0.58,
+        "domain": 0.143,
+        "shape": 0.967,
+        "importStyle": 0.55,
+        "vintage": 1,
+        "cost": "MEDIUM"
+      },
+      {
+        "total": 0.408,
+        "domain": 0.034,
+        "shape": 0.69,
+        "importStyle": 0.55,
+        "vintage": 0.7,
+        "cost": "HIGH"
+      },
+      {
+        "total": 0.446,
+        "domain": 0.069,
+        "shape": 0.621,
+        "importStyle": 0.55,
+        "vintage": 1,
+        "cost": "HIGH"
+      },
+      {
+        "total": 0.21,
+        "domain": 0,
+        "shape": 0.276,
+        "importStyle": 0.55,
+        "vintage": 0.3,
+        "cost": "HIGH"
+      },
+      {
+        "total": 0.282,
+        "domain": 0.056,
+        "shape": 0.241,
+        "importStyle": 0.55,
+        "vintage": 0.7,
+        "cost": "HIGH"
+      },
+      {
+        "total": 0.252,
+        "domain": 0.136,
+        "shape": 0.207,
+        "importStyle": 0.5,
+        "vintage": 0.4,
+        "cost": "HIGH"
+      },
+      {
+        "total": 0.243,
+        "domain": 0,
+        "shape": 0.034,
+        "importStyle": 0.85,
+        "vintage": 0.7,
+        "cost": "HIGH"
+      }
+    ],
+    [
+      {
+        "total": 0.474,
+        "domain": 0.1,
+        "shape": 0.821,
+        "importStyle": 0.55,
+        "vintage": 0.7,
+        "cost": "HIGH"
+      },
+      {
+        "total": 0.487,
+        "domain": 0.043,
+        "shape": 0.767,
+        "importStyle": 0.6,
+        "vintage": 1,
+        "cost": "HIGH"
+      },
+      {
+        "total": 0.553,
+        "domain": 0.207,
+        "shape": 0.793,
+        "importStyle": 0.55,
+        "vintage": 1,
+        "cost": "MEDIUM"
+      },
+      {
+        "total": 1,
+        "domain": 1,
+        "shape": 1,
+        "importStyle": 1,
+        "vintage": 1,
+        "cost": "SELF"
+      },
+      {
+        "total": 0.541,
+        "domain": 0.158,
+        "shape": 0.793,
+        "importStyle": 0.6,
+        "vintage": 1,
+        "cost": "HIGH"
+      },
+      {
+        "total": 0.523,
+        "domain": 0.132,
+        "shape": 0.767,
+        "importStyle": 0.6,
+        "vintage": 1,
+        "cost": "HIGH"
+      },
+      {
+        "total": 0.468,
+        "domain": 0.031,
+        "shape": 0.87,
+        "importStyle": 0.6,
+        "vintage": 0.7,
+        "cost": "HIGH"
+      },
+      {
+        "total": 0.528,
+        "domain": 0.133,
+        "shape": 0.783,
+        "importStyle": 0.6,
+        "vintage": 1,
+        "cost": "HIGH"
+      },
+      {
+        "total": 0.239,
+        "domain": 0,
+        "shape": 0.348,
+        "importStyle": 0.6,
+        "vintage": 0.3,
+        "cost": "HIGH"
+      },
+      {
+        "total": 0.286,
+        "domain": 0,
+        "shape": 0.304,
+        "importStyle": 0.6,
+        "vintage": 0.7,
+        "cost": "HIGH"
+      },
+      {
+        "total": 0.261,
+        "domain": 0.12,
+        "shape": 0.261,
+        "importStyle": 0.5,
+        "vintage": 0.4,
+        "cost": "HIGH"
+      },
+      {
+        "total": 0.201,
+        "domain": 0,
+        "shape": 0.043,
+        "importStyle": 0.55,
+        "vintage": 0.7,
+        "cost": "HIGH"
+      }
+    ],
+    [
+      {
+        "total": 0.51,
+        "domain": 0.083,
+        "shape": 0.966,
+        "importStyle": 0.55,
+        "vintage": 0.7,
+        "cost": "HIGH"
+      },
+      {
+        "total": 0.525,
+        "domain": 0.034,
+        "shape": 0.903,
+        "importStyle": 0.6,
+        "vintage": 1,
+        "cost": "HIGH"
+      },
+      {
+        "total": 0.595,
+        "domain": 0.206,
+        "shape": 0.933,
+        "importStyle": 0.55,
+        "vintage": 1,
+        "cost": "MEDIUM"
+      },
+      {
+        "total": 0.541,
+        "domain": 0.158,
+        "shape": 0.793,
+        "importStyle": 0.6,
+        "vintage": 1,
+        "cost": "HIGH"
+      },
+      {
+        "total": 1,
+        "domain": 1,
+        "shape": 1,
+        "importStyle": 1,
+        "vintage": 1,
+        "cost": "SELF"
+      },
+      {
+        "total": 0.787,
+        "domain": 0.69,
+        "shape": 0.903,
+        "importStyle": 0.6,
+        "vintage": 1,
+        "cost": "MEDIUM"
+      },
+      {
+        "total": 0.412,
+        "domain": 0.026,
+        "shape": 0.69,
+        "importStyle": 0.6,
+        "vintage": 0.7,
+        "cost": "HIGH"
+      },
+      {
+        "total": 0.459,
+        "domain": 0.081,
+        "shape": 0.621,
+        "importStyle": 0.6,
+        "vintage": 1,
+        "cost": "HIGH"
+      },
+      {
+        "total": 0.218,
+        "domain": 0,
+        "shape": 0.276,
+        "importStyle": 0.6,
+        "vintage": 0.3,
+        "cost": "HIGH"
+      },
+      {
+        "total": 0.267,
+        "domain": 0,
+        "shape": 0.241,
+        "importStyle": 0.6,
+        "vintage": 0.7,
+        "cost": "HIGH"
+      },
+      {
+        "total": 0.25,
+        "domain": 0.133,
+        "shape": 0.207,
+        "importStyle": 0.5,
+        "vintage": 0.4,
+        "cost": "HIGH"
+      },
+      {
+        "total": 0.198,
+        "domain": 0,
+        "shape": 0.034,
+        "importStyle": 0.55,
+        "vintage": 0.7,
+        "cost": "HIGH"
+      }
+    ],
+    [
+      {
+        "total": 0.502,
+        "domain": 0.086,
+        "shape": 0.933,
+        "importStyle": 0.55,
+        "vintage": 0.7,
+        "cost": "HIGH"
+      },
+      {
+        "total": 0.535,
+        "domain": 0.036,
+        "shape": 0.935,
+        "importStyle": 0.6,
+        "vintage": 1,
+        "cost": "HIGH"
+      },
+      {
+        "total": 0.58,
+        "domain": 0.143,
+        "shape": 0.967,
+        "importStyle": 0.55,
+        "vintage": 1,
+        "cost": "MEDIUM"
+      },
+      {
+        "total": 0.523,
+        "domain": 0.132,
+        "shape": 0.767,
+        "importStyle": 0.6,
+        "vintage": 1,
+        "cost": "HIGH"
+      },
+      {
+        "total": 0.787,
+        "domain": 0.69,
+        "shape": 0.903,
+        "importStyle": 0.6,
+        "vintage": 1,
+        "cost": "MEDIUM"
+      },
+      {
+        "total": 1,
+        "domain": 1,
+        "shape": 1,
+        "importStyle": 1,
+        "vintage": 1,
+        "cost": "SELF"
+      },
+      {
+        "total": 0.395,
+        "domain": 0,
+        "shape": 0.667,
+        "importStyle": 0.6,
+        "vintage": 0.7,
+        "cost": "HIGH"
+      },
+      {
+        "total": 0.453,
+        "domain": 0.083,
+        "shape": 0.6,
+        "importStyle": 0.6,
+        "vintage": 1,
+        "cost": "HIGH"
+      },
+      {
+        "total": 0.215,
+        "domain": 0,
+        "shape": 0.267,
+        "importStyle": 0.6,
+        "vintage": 0.3,
+        "cost": "HIGH"
+      },
+      {
+        "total": 0.265,
+        "domain": 0,
+        "shape": 0.233,
+        "importStyle": 0.6,
+        "vintage": 0.7,
+        "cost": "HIGH"
+      },
+      {
+        "total": 0.221,
+        "domain": 0.065,
+        "shape": 0.2,
+        "importStyle": 0.5,
+        "vintage": 0.4,
+        "cost": "HIGH"
+      },
+      {
+        "total": 0.198,
+        "domain": 0,
+        "shape": 0.033,
+        "importStyle": 0.55,
+        "vintage": 0.7,
+        "cost": "HIGH"
+      }
+    ],
+    [
+      {
+        "total": 0.495,
+        "domain": 0.12,
+        "shape": 0.714,
+        "importStyle": 0.55,
+        "vintage": 1,
+        "cost": "HIGH"
+      },
+      {
+        "total": 0.442,
+        "domain": 0.118,
+        "shape": 0.667,
+        "importStyle": 0.6,
+        "vintage": 0.7,
+        "cost": "HIGH"
+      },
+      {
+        "total": 0.408,
+        "domain": 0.034,
+        "shape": 0.69,
+        "importStyle": 0.55,
+        "vintage": 0.7,
+        "cost": "HIGH"
+      },
+      {
+        "total": 0.468,
+        "domain": 0.031,
+        "shape": 0.87,
+        "importStyle": 0.6,
+        "vintage": 0.7,
+        "cost": "HIGH"
+      },
+      {
+        "total": 0.412,
+        "domain": 0.026,
+        "shape": 0.69,
+        "importStyle": 0.6,
+        "vintage": 0.7,
+        "cost": "HIGH"
+      },
+      {
+        "total": 0.395,
+        "domain": 0,
+        "shape": 0.667,
+        "importStyle": 0.6,
+        "vintage": 0.7,
+        "cost": "HIGH"
+      },
+      {
+        "total": 1,
+        "domain": 1,
+        "shape": 1,
+        "importStyle": 1,
+        "vintage": 1,
+        "cost": "SELF"
+      },
+      {
+        "total": 0.511,
+        "domain": 0.115,
+        "shape": 0.9,
+        "importStyle": 0.6,
+        "vintage": 0.7,
+        "cost": "HIGH"
+      },
+      {
+        "total": 0.277,
+        "domain": 0.111,
+        "shape": 0.4,
+        "importStyle": 0.6,
+        "vintage": 0.15,
+        "cost": "HIGH"
+      },
+      {
+        "total": 0.345,
+        "domain": 0,
+        "shape": 0.35,
+        "importStyle": 0.6,
+        "vintage": 1,
+        "cost": "HIGH"
+      },
+      {
+        "total": 0.218,
+        "domain": 0.095,
+        "shape": 0.3,
+        "importStyle": 0.5,
+        "vintage": 0.1,
+        "cost": "HIGH"
+      },
+      {
+        "total": 0.247,
+        "domain": 0,
+        "shape": 0.05,
+        "importStyle": 0.55,
+        "vintage": 1,
+        "cost": "HIGH"
+      }
+    ],
+    [
+      {
+        "total": 0.41,
+        "domain": 0.074,
+        "shape": 0.643,
+        "importStyle": 0.55,
+        "vintage": 0.7,
+        "cost": "HIGH"
+      },
+      {
+        "total": 0.441,
+        "domain": 0.053,
+        "shape": 0.6,
+        "importStyle": 0.6,
+        "vintage": 1,
+        "cost": "HIGH"
+      },
+      {
+        "total": 0.446,
+        "domain": 0.069,
+        "shape": 0.621,
+        "importStyle": 0.55,
+        "vintage": 1,
+        "cost": "HIGH"
+      },
+      {
+        "total": 0.528,
+        "domain": 0.133,
+        "shape": 0.783,
+        "importStyle": 0.6,
+        "vintage": 1,
+        "cost": "HIGH"
+      },
+      {
+        "total": 0.459,
+        "domain": 0.081,
+        "shape": 0.621,
+        "importStyle": 0.6,
+        "vintage": 1,
+        "cost": "HIGH"
+      },
+      {
+        "total": 0.453,
+        "domain": 0.083,
+        "shape": 0.6,
+        "importStyle": 0.6,
+        "vintage": 1,
+        "cost": "HIGH"
+      },
+      {
+        "total": 0.511,
+        "domain": 0.115,
+        "shape": 0.9,
+        "importStyle": 0.6,
+        "vintage": 0.7,
+        "cost": "HIGH"
+      },
+      {
+        "total": 1,
+        "domain": 1,
+        "shape": 1,
+        "importStyle": 1,
+        "vintage": 1,
+        "cost": "SELF"
+      },
+      {
+        "total": 0.31,
+        "domain": 0.105,
+        "shape": 0.444,
+        "importStyle": 0.6,
+        "vintage": 0.3,
+        "cost": "HIGH"
+      },
+      {
+        "total": 0.312,
+        "domain": 0,
+        "shape": 0.389,
+        "importStyle": 0.6,
+        "vintage": 0.7,
+        "cost": "HIGH"
+      },
+      {
+        "total": 0.271,
+        "domain": 0.091,
+        "shape": 0.333,
+        "importStyle": 0.5,
+        "vintage": 0.4,
+        "cost": "HIGH"
+      },
+      {
+        "total": 0.204,
+        "domain": 0,
+        "shape": 0.056,
+        "importStyle": 0.55,
+        "vintage": 0.7,
+        "cost": "HIGH"
+      }
+    ],
+    [
+      {
+        "total": 0.235,
+        "domain": 0.111,
+        "shape": 0.286,
+        "importStyle": 0.55,
+        "vintage": 0.15,
+        "cost": "HIGH"
+      },
+      {
+        "total": 0.215,
+        "domain": 0,
+        "shape": 0.267,
+        "importStyle": 0.6,
+        "vintage": 0.3,
+        "cost": "HIGH"
+      },
+      {
+        "total": 0.21,
+        "domain": 0,
+        "shape": 0.276,
+        "importStyle": 0.55,
+        "vintage": 0.3,
+        "cost": "HIGH"
+      },
+      {
+        "total": 0.239,
+        "domain": 0,
+        "shape": 0.348,
+        "importStyle": 0.6,
+        "vintage": 0.3,
+        "cost": "HIGH"
+      },
+      {
+        "total": 0.218,
+        "domain": 0,
+        "shape": 0.276,
+        "importStyle": 0.6,
+        "vintage": 0.3,
+        "cost": "HIGH"
+      },
+      {
+        "total": 0.215,
+        "domain": 0,
+        "shape": 0.267,
+        "importStyle": 0.6,
+        "vintage": 0.3,
+        "cost": "HIGH"
+      },
+      {
+        "total": 0.277,
+        "domain": 0.111,
+        "shape": 0.4,
+        "importStyle": 0.6,
+        "vintage": 0.15,
+        "cost": "HIGH"
+      },
+      {
+        "total": 0.31,
+        "domain": 0.105,
+        "shape": 0.444,
+        "importStyle": 0.6,
+        "vintage": 0.3,
+        "cost": "HIGH"
+      },
+      {
+        "total": 1,
+        "domain": 1,
+        "shape": 1,
+        "importStyle": 1,
+        "vintage": 1,
+        "cost": "SELF"
+      },
+      {
+        "total": 0.375,
+        "domain": 0,
+        "shape": 0.875,
+        "importStyle": 0.6,
+        "vintage": 0.15,
+        "cost": "HIGH"
+      },
+      {
+        "total": 0.43,
+        "domain": 0.25,
+        "shape": 0.75,
+        "importStyle": 0.5,
+        "vintage": 0.2,
+        "cost": "HIGH"
+      },
+      {
+        "total": 0.142,
+        "domain": 0,
+        "shape": 0.125,
+        "importStyle": 0.55,
+        "vintage": 0.15,
+        "cost": "HIGH"
+      }
+    ],
+    [
+      {
+        "total": 0.307,
+        "domain": 0,
+        "shape": 0.25,
+        "importStyle": 0.55,
+        "vintage": 1,
+        "cost": "HIGH"
+      },
+      {
+        "total": 0.322,
+        "domain": 0.143,
+        "shape": 0.233,
+        "importStyle": 0.6,
+        "vintage": 0.7,
+        "cost": "HIGH"
+      },
+      {
+        "total": 0.282,
+        "domain": 0.056,
+        "shape": 0.241,
+        "importStyle": 0.55,
+        "vintage": 0.7,
+        "cost": "HIGH"
+      },
+      {
+        "total": 0.286,
+        "domain": 0,
+        "shape": 0.304,
+        "importStyle": 0.6,
+        "vintage": 0.7,
+        "cost": "HIGH"
+      },
+      {
+        "total": 0.267,
+        "domain": 0,
+        "shape": 0.241,
+        "importStyle": 0.6,
+        "vintage": 0.7,
+        "cost": "HIGH"
+      },
+      {
+        "total": 0.265,
+        "domain": 0,
+        "shape": 0.233,
+        "importStyle": 0.6,
+        "vintage": 0.7,
+        "cost": "HIGH"
+      },
+      {
+        "total": 0.345,
+        "domain": 0,
+        "shape": 0.35,
+        "importStyle": 0.6,
+        "vintage": 1,
+        "cost": "HIGH"
+      },
+      {
+        "total": 0.312,
+        "domain": 0,
+        "shape": 0.389,
+        "importStyle": 0.6,
+        "vintage": 0.7,
+        "cost": "HIGH"
+      },
+      {
+        "total": 0.375,
+        "domain": 0,
+        "shape": 0.875,
+        "importStyle": 0.6,
+        "vintage": 0.15,
+        "cost": "HIGH"
+      },
+      {
+        "total": 1,
+        "domain": 1,
+        "shape": 1,
+        "importStyle": 1,
+        "vintage": 1,
+        "cost": "SELF"
+      },
+      {
+        "total": 0.347,
+        "domain": 0,
+        "shape": 0.857,
+        "importStyle": 0.5,
+        "vintage": 0.1,
+        "cost": "HIGH"
+      },
+      {
+        "total": 0.275,
+        "domain": 0,
+        "shape": 0.143,
+        "importStyle": 0.55,
+        "vintage": 1,
+        "cost": "HIGH"
+      }
+    ],
+    [
+      {
+        "total": 0.238,
+        "domain": 0.211,
+        "shape": 0.214,
+        "importStyle": 0.5,
+        "vintage": 0.1,
+        "cost": "HIGH"
+      },
+      {
+        "total": 0.195,
+        "domain": 0,
+        "shape": 0.2,
+        "importStyle": 0.5,
+        "vintage": 0.4,
+        "cost": "HIGH"
+      },
+      {
+        "total": 0.252,
+        "domain": 0.136,
+        "shape": 0.207,
+        "importStyle": 0.5,
+        "vintage": 0.4,
+        "cost": "HIGH"
+      },
+      {
+        "total": 0.261,
+        "domain": 0.12,
+        "shape": 0.261,
+        "importStyle": 0.5,
+        "vintage": 0.4,
+        "cost": "HIGH"
+      },
+      {
+        "total": 0.25,
+        "domain": 0.133,
+        "shape": 0.207,
+        "importStyle": 0.5,
+        "vintage": 0.4,
+        "cost": "HIGH"
+      },
+      {
+        "total": 0.221,
+        "domain": 0.065,
+        "shape": 0.2,
+        "importStyle": 0.5,
+        "vintage": 0.4,
+        "cost": "HIGH"
+      },
+      {
+        "total": 0.218,
+        "domain": 0.095,
+        "shape": 0.3,
+        "importStyle": 0.5,
+        "vintage": 0.1,
+        "cost": "HIGH"
+      },
+      {
+        "total": 0.271,
+        "domain": 0.091,
+        "shape": 0.333,
+        "importStyle": 0.5,
+        "vintage": 0.4,
+        "cost": "HIGH"
+      },
+      {
+        "total": 0.43,
+        "domain": 0.25,
+        "shape": 0.75,
+        "importStyle": 0.5,
+        "vintage": 0.2,
+        "cost": "HIGH"
+      },
+      {
+        "total": 0.347,
+        "domain": 0,
+        "shape": 0.857,
+        "importStyle": 0.5,
+        "vintage": 0.1,
+        "cost": "HIGH"
+      },
+      {
+        "total": 1,
+        "domain": 1,
+        "shape": 1,
+        "importStyle": 1,
+        "vintage": 1,
+        "cost": "SELF"
+      },
+      {
+        "total": 0.14,
+        "domain": 0,
+        "shape": 0.167,
+        "importStyle": 0.5,
+        "vintage": 0.1,
+        "cost": "HIGH"
+      }
+    ],
+    [
+      {
+        "total": 0.311,
+        "domain": 0,
+        "shape": 0.036,
+        "importStyle": 1,
+        "vintage": 1,
+        "cost": "HIGH"
+      },
+      {
+        "total": 0.198,
+        "domain": 0,
+        "shape": 0.033,
+        "importStyle": 0.55,
+        "vintage": 0.7,
+        "cost": "HIGH"
+      },
+      {
+        "total": 0.243,
+        "domain": 0,
+        "shape": 0.034,
+        "importStyle": 0.85,
+        "vintage": 0.7,
+        "cost": "HIGH"
+      },
+      {
+        "total": 0.201,
+        "domain": 0,
+        "shape": 0.043,
+        "importStyle": 0.55,
+        "vintage": 0.7,
+        "cost": "HIGH"
+      },
+      {
+        "total": 0.198,
+        "domain": 0,
+        "shape": 0.034,
+        "importStyle": 0.55,
+        "vintage": 0.7,
+        "cost": "HIGH"
+      },
+      {
+        "total": 0.198,
+        "domain": 0,
+        "shape": 0.033,
+        "importStyle": 0.55,
+        "vintage": 0.7,
+        "cost": "HIGH"
+      },
+      {
+        "total": 0.247,
+        "domain": 0,
+        "shape": 0.05,
+        "importStyle": 0.55,
+        "vintage": 1,
+        "cost": "HIGH"
+      },
+      {
+        "total": 0.204,
+        "domain": 0,
+        "shape": 0.056,
+        "importStyle": 0.55,
+        "vintage": 0.7,
+        "cost": "HIGH"
+      },
+      {
+        "total": 0.142,
+        "domain": 0,
+        "shape": 0.125,
+        "importStyle": 0.55,
+        "vintage": 0.15,
+        "cost": "HIGH"
+      },
+      {
+        "total": 0.275,
+        "domain": 0,
+        "shape": 0.143,
+        "importStyle": 0.55,
+        "vintage": 1,
+        "cost": "HIGH"
+      },
+      {
+        "total": 0.14,
+        "domain": 0,
+        "shape": 0.167,
+        "importStyle": 0.5,
+        "vintage": 0.1,
+        "cost": "HIGH"
+      },
+      {
+        "total": 1,
+        "domain": 1,
+        "shape": 1,
+        "importStyle": 1,
+        "vintage": 1,
+        "cost": "SELF"
+      }
+    ]
+  ],
+  "topMediumCostBridges": [
+    {
+      "from": "esm-js (current — NodeNext convention)",
+      "to": "esm-plain (pre-NodeNext .js suffix)",
+      "total": 0.584,
+      "domain": 0.154,
+      "shape": 0.966,
+      "importStyle": 0.85,
+      "vintage": 0.7,
+      "cost": "MEDIUM",
+      "fromEngineCount": 1396,
+      "toEngineCount": 476,
+      "combinedEngineCount": 1872
+    },
+    {
+      "from": "esm-plain (pre-NodeNext .js suffix)",
+      "to": "esm-js (current — NodeNext convention)",
+      "total": 0.584,
+      "domain": 0.154,
+      "shape": 0.966,
+      "importStyle": 0.85,
+      "vintage": 0.7,
+      "cost": "MEDIUM",
+      "fromEngineCount": 476,
+      "toEngineCount": 1396,
+      "combinedEngineCount": 1872
+    },
+    {
+      "from": "esm-plain (pre-NodeNext .js suffix)",
+      "to": "mtime-q2 (no header signals)",
+      "total": 0.553,
+      "domain": 0.207,
+      "shape": 0.793,
+      "importStyle": 0.55,
+      "vintage": 1,
+      "cost": "MEDIUM",
+      "fromEngineCount": 476,
+      "toEngineCount": 312,
+      "combinedEngineCount": 788
+    },
+    {
+      "from": "mtime-q2 (no header signals)",
+      "to": "esm-plain (pre-NodeNext .js suffix)",
+      "total": 0.553,
+      "domain": 0.207,
+      "shape": 0.793,
+      "importStyle": 0.55,
+      "vintage": 1,
+      "cost": "MEDIUM",
+      "fromEngineCount": 312,
+      "toEngineCount": 476,
+      "combinedEngineCount": 788
+    },
+    {
+      "from": "esm-plain (pre-NodeNext .js suffix)",
+      "to": "mtime-q3 (no header signals)",
+      "total": 0.595,
+      "domain": 0.206,
+      "shape": 0.933,
+      "importStyle": 0.55,
+      "vintage": 1,
+      "cost": "MEDIUM",
+      "fromEngineCount": 476,
+      "toEngineCount": 307,
+      "combinedEngineCount": 783
+    },
+    {
+      "from": "mtime-q3 (no header signals)",
+      "to": "esm-plain (pre-NodeNext .js suffix)",
+      "total": 0.595,
+      "domain": 0.206,
+      "shape": 0.933,
+      "importStyle": 0.55,
+      "vintage": 1,
+      "cost": "MEDIUM",
+      "fromEngineCount": 307,
+      "toEngineCount": 476,
+      "combinedEngineCount": 783
+    },
+    {
+      "from": "esm-plain (pre-NodeNext .js suffix)",
+      "to": "mtime-q4 (no header signals)",
+      "total": 0.58,
+      "domain": 0.143,
+      "shape": 0.967,
+      "importStyle": 0.55,
+      "vintage": 1,
+      "cost": "MEDIUM",
+      "fromEngineCount": 476,
+      "toEngineCount": 200,
+      "combinedEngineCount": 676
+    },
+    {
+      "from": "mtime-q4 (no header signals)",
+      "to": "esm-plain (pre-NodeNext .js suffix)",
+      "total": 0.58,
+      "domain": 0.143,
+      "shape": 0.967,
+      "importStyle": 0.55,
+      "vintage": 1,
+      "cost": "MEDIUM",
+      "fromEngineCount": 200,
+      "toEngineCount": 476,
+      "combinedEngineCount": 676
+    },
+    {
+      "from": "mtime-q3 (no header signals)",
+      "to": "mtime-q4 (no header signals)",
+      "total": 0.787,
+      "domain": 0.69,
+      "shape": 0.903,
+      "importStyle": 0.6,
+      "vintage": 1,
+      "cost": "MEDIUM",
+      "fromEngineCount": 307,
+      "toEngineCount": 200,
+      "combinedEngineCount": 507
+    },
+    {
+      "from": "mtime-q4 (no header signals)",
+      "to": "mtime-q3 (no header signals)",
+      "total": 0.787,
+      "domain": 0.69,
+      "shape": 0.903,
+      "importStyle": 0.6,
+      "vintage": 1,
+      "cost": "MEDIUM",
+      "fromEngineCount": 200,
+      "toEngineCount": 307,
+      "combinedEngineCount": 507
+    }
+  ],
+  "topLowCostBridges": [],
+  "caveat": "ADVISORY ONLY. Scores are heuristic Jaccard over name-derived features, NOT validated API compat. Every recommended bridge MUST be human-verified before Stage 3 shim implementation.",
+  "mustHumanVerify": true
+}

@@ -21,7 +21,7 @@ related:
 
 ## Description (from file header)
 
-embedding-cache-guard.mjs — PostToolUse hookCADCAM-DAGI-MS0/U-DAGI05Monitors embedding operations and warns on cache issues:- Cache size exceeding threshold (memory pressure)- Cache hit rate below threshold (inefficient)- Embedding dimension mismatches (corrupted data)
+_(no header docblock — read source for behavior)_
 
 ## Events
 

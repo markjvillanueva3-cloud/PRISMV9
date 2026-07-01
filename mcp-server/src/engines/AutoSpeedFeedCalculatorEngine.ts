@@ -253,7 +253,10 @@ export class AutoSpeedFeedCalculatorEngine {
       return Math.round(sfm * IMPERIAL_RPM_FACTOR / diameter);
     } else {
       // Use canonical metric formula: N = 1000 * Vc / (pi * D_mm)
-      return rpmFromVc(sfm, diameter);
+      // Round to integer to honor the JSDoc contract ("rounded to nearest integer")
+      // and match the imperial branch — downstream G50 clamp + Okuma line emission
+      // both expect integer RPM.
+      return Math.round(rpmFromVc(sfm, diameter));
     }
   }
 

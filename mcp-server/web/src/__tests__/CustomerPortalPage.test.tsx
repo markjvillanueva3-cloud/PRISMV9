@@ -211,10 +211,10 @@ describe('CustomerPortalPage', () => {
     const messagesLink = screen.getByRole('link', { name: 'Open Messages follow-up' });
     const ordersLink = screen.getByRole('link', { name: 'Open Order Tracking' });
     const qualityLink = screen.getByRole('link', { name: 'Open Quality follow-up' });
-    const customersUrl = new URL(customersLink.getAttribute('href') ?? '', 'https://prism.test');
-    const messagesUrl = new URL(messagesLink.getAttribute('href') ?? '', 'https://prism.test');
-    const ordersUrl = new URL(ordersLink.getAttribute('href') ?? '', 'https://prism.test');
-    const qualityUrl = new URL(qualityLink.getAttribute('href') ?? '', 'https://prism.test');
+    const customersUrl = new URL(customersLink.getAttribute('href') ?? '', 'https://kienzle.test');
+    const messagesUrl = new URL(messagesLink.getAttribute('href') ?? '', 'https://kienzle.test');
+    const ordersUrl = new URL(ordersLink.getAttribute('href') ?? '', 'https://kienzle.test');
+    const qualityUrl = new URL(qualityLink.getAttribute('href') ?? '', 'https://kienzle.test');
     expect(customersUrl.searchParams.get('originSource')).toBe('customers');
     expect(messagesUrl.searchParams.get('originSource')).toBe('customers');
     expect(ordersUrl.searchParams.get('focusType')).toBe('quote');
@@ -345,8 +345,8 @@ describe('CustomerPortalPage', () => {
       expect(mockAddPortalQualityDocument).toHaveBeenCalledWith(expect.objectContaining({ job_id: 'JOB-4821', title: 'Material cert' }));
     });
 
-    const ordersUrl = new URL(screen.getByRole('link', { name: 'Open Order Tracking' }).getAttribute('href') ?? '', 'https://prism.test');
-    const qualityUrl = new URL(screen.getByRole('link', { name: 'Open Quality follow-up' }).getAttribute('href') ?? '', 'https://prism.test');
+    const ordersUrl = new URL(screen.getByRole('link', { name: 'Open Order Tracking' }).getAttribute('href') ?? '', 'https://kienzle.test');
+    const qualityUrl = new URL(screen.getByRole('link', { name: 'Open Quality follow-up' }).getAttribute('href') ?? '', 'https://kienzle.test');
     expect(ordersUrl.searchParams.get('originSource')).toBe('orders');
     expect(ordersUrl.searchParams.get('focusJobId')).toBe('JOB-4821');
     expect(qualityUrl.searchParams.get('originSource')).toBe('orders');

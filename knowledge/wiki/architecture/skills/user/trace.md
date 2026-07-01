@@ -23,13 +23,20 @@ related:
 |-------|-------|
 | Name | `trace` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/trace.md` |
+| Source | `C:/Users/wompu/.claude/commands/trace.md` |
 | Model | default |
 | Tags | _(none)_ |
 
 ## Description (first paragraph)
 
-_(no body content)_
+
+# Trace — Wiring Chain Tracer
+
+You are tracing the full wiring chain for a PRISM component — from dispatcher action through engine to algorithm and safety hooks. This reveals how components connect, identifies broken or missing links, and helps understand the system architecture.
+
+## Args: $ARGUMENTS
+- `[engine-name]`: trace FROM an engine (e.g., `trace KienzleEngine`)
+- `[dispatcher-name]
 
 <!-- AUTO-END -->
 

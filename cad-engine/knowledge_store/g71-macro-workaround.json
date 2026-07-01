@@ -1,0 +1,41 @@
+{
+  "document_id": "g71-macro-workaround-cnccookbook",
+  "title": "IF/GOTO G71 Roughing Cycle Workaround",
+  "source": "CNCCookbook - Poor Man's G71 Lathe Roughing",
+  "domain": "lathe",
+  "extracted_at": "2026-04-15",
+  "tips": [
+    {
+      "title": "G52 coordinate shift for G71-less controls",
+      "body": "For controls without G71 rough turning, use G52 work coordinate shift to offset the profile inward each pass. Define the profile once in a subprogram, then loop: G52 X#100 to shift, M97 P10 to call profile, #100=#100-#101 to decrement. Exit when #100 ≤ 0. This traces the full profile each pass with shifting coordinates.",
+      "category": "programming",
+      "tags": ["g71", "g52", "macro", "roughing", "lathe", "workaround"],
+      "operation_types": ["turning"],
+      "confidence": 85
+    },
+    {
+      "title": "M97/M99 local subprogram pattern for roughing",
+      "body": "Use M97 P10 to call a local subprogram at N10, and M99 to return. Store the profile geometry (G01/G02/G03 moves) in the subprogram with fixed coordinates. The G52 shift outside the subprogram handles the roughing offset. This pattern works on Fanuc and Fanuc-compatible controls.",
+      "category": "programming",
+      "tags": ["m97", "m99", "subprogram", "macro", "lathe", "fanuc"],
+      "operation_types": ["turning"],
+      "confidence": 85
+    },
+    {
+      "title": "IF/GOTO loop structure for repeated passes",
+      "body": "Pattern: N1000 (loop start), IF [#100 LE 0.0] GOTO 1100, (do work), #100=#100-#101, GOTO 1000, N1100 (exit). Initialize #100 to material radius, #101 to depth-of-cut. Loop decrements until condition met. Always test in simulator — infinite loops crash the control.",
+      "category": "programming",
+      "tags": ["if-goto", "loop", "macro", "lathe", "fanuc"],
+      "operation_types": ["turning"],
+      "confidence": 90
+    },
+    {
+      "title": "G71 workaround cuts more air than native G71",
+      "body": "The G52/subprogram workaround follows the full profile contour every pass, including areas already cut. Native G71 rapids over previously-cut areas. Accept the extra cycle time or optimize by breaking the profile into segments. For production, upgrade to a control with native G71.",
+      "category": "optimization",
+      "tags": ["g71", "air-cut", "cycle-time", "optimization", "lathe"],
+      "operation_types": ["turning"],
+      "confidence": 80
+    }
+  ]
+}

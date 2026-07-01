@@ -11,41 +11,86 @@
  * additionalContext so every fresh chat knows "what's built / what's
  * not used / what's drifted" without running anything.
  *
- * If the snapshot file is missing or stale (>24h old), regenerates it
- * inline before reading. The script runs in ~1.6s so SessionStart cost
- * is bounded.
+ * If the snapshot file is missing, >24h old, or older than BUILD_STATE.json,
+ * regenerates it — DETACHED + debounced, never blocking SessionStart (the
+ * generator reads a ~370 MB graph). This session reads whatever snapshot is
+ * on disk; the background regen refreshes it for the next session.
+ *
+ * Inject modes (knob `PRISM_AWARENESS_INJECT_MODE`, added 2026-05-19
+ * by [GOLF]/U-WAVE2B):
+ *   summary  (default)  — ~1KB summary digest (legacy behavior, unchanged)
+ *   pointer             — opt-in 4-line pointer at the file (saves ~700B)
+ *   silent              — emit nothing
+ *
+ * The regen logic ALWAYS runs (so the file stays fresh on disk) regardless
+ * of inject mode. Operators who want minimal inject can flip to pointer
+ * without losing freshness.
  *
  * Disable: PRISM_AWARENESS_INJECT=0
  * Force-regen always: PRISM_AWARENESS_INJECT_FORCE_REGEN=1
  * Stale threshold:    PRISM_AWARENESS_INJECT_STALE_HOURS=<n>  (default 24)
  */
 
-import { readFileSync, statSync, existsSync } from "node:fs";
-import { spawnSync } from "node:child_process";
+import { readFileSync, writeFileSync, statSync, existsSync } from "node:fs";
+import { spawn } from "node:child_process";
 import path from "node:path";
+// 2026-05-26 (U-D8-PRISMAWARENESS-COUNTER-WIRE, slot:alpha): S6 shared counter
+// for FEATURE-UTILIZATION dashboard. PRISMAwareness was 0-fire pre-wire.
+import { incrementFeature } from "../helpers/feature-counter.mjs";
 
 const ENABLED = process.env.PRISM_AWARENESS_INJECT !== "0";
 const FORCE_REGEN = process.env.PRISM_AWARENESS_INJECT_FORCE_REGEN === "1";
 const STALE_HOURS = parseInt(process.env.PRISM_AWARENESS_INJECT_STALE_HOURS, 10) || 24;
 const SNAPSHOT_PATH = "H:/prism/state/shared/AWARENESS-SNAPSHOT.md";
 const SNAPSHOT_SCRIPT = "H:/prism/scripts/awareness-snapshot.mjs";
+const BUILD_STATE_PATH = "H:/prism/state/shared/BUILD_STATE.json";
 const STALE_MS = STALE_HOURS * 3600 * 1000;
-const REGEN_TIMEOUT_MS = 8_000;
+const REGEN_STAMP = "H:/prism/state/shared/.awareness-regen.stamp";
+const REGEN_DEBOUNCE_MS = 5 * 60 * 1000;  // one regen per 5 min across the fleet
 
+/**
+ * Regenerate the snapshot for the NEXT session — detached + debounced.
+ *
+ * AWARENESS-READINESS (2026-05-19): the generator reads a ~370 MB system graph
+ * (~13s cold). The prior `spawnSync(..., { windowsHide: true,timeout: 8000})` SIGTERM-killed the
+ * regen mid-run on a cold SessionStart — and the new BUILD_STATE-mtime stale
+ * trigger made that happen on every post-BUILD_STATE start. Fire-and-forget
+ * instead: this session reads whatever snapshot is on disk, the detached regen
+ * refreshes it for the next session. The debounce stamp stops a 13-chat
+ * SessionStart burst from each spawning a regen.
+ */
 function regenSnapshot() {
   try {
-    spawnSync(process.execPath, [SNAPSHOT_SCRIPT], {
+    if (existsSync(REGEN_STAMP)) {
+      try {
+        if (Date.now() - statSync(REGEN_STAMP).mtimeMs < REGEN_DEBOUNCE_MS) return;
+      } catch { /* stamp unreadable — fall through and regen */ }
+    }
+    try { writeFileSync(REGEN_STAMP, new Date().toISOString()); }
+    catch { /* best-effort — debounce is an optimization, not a correctness gate */ }
+    const child = spawn(process.execPath, [SNAPSHOT_SCRIPT], {
+      detached: true, windowsHide: true,
       stdio: "ignore",
-      timeout: REGEN_TIMEOUT_MS,
     });
+    child.unref();
   } catch { /* non-fatal */ }
 }
 
 function isStale() {
   if (!existsSync(SNAPSHOT_PATH)) return true;
   try {
-    const ageMs = Date.now() - statSync(SNAPSHOT_PATH).mtimeMs;
-    return ageMs > STALE_MS;
+    const snapMtime = statSync(SNAPSHOT_PATH).mtimeMs;
+    if (Date.now() - snapMtime > STALE_MS) return true;
+    // AWARENESS-READINESS (2026-05-19): also regenerate when BUILD_STATE.json
+    // has changed since the snapshot was written — the readiness / built /
+    // wired figures are derived from BUILD_STATE, so a newer BUILD_STATE means
+    // the snapshot's numbers are stale even inside the 24h window.
+    if (existsSync(BUILD_STATE_PATH)) {
+      try {
+        if (statSync(BUILD_STATE_PATH).mtimeMs > snapMtime) return true;
+      } catch { /* mtime read failed — fall through, not fatal */ }
+    }
+    return false;
   } catch { return true; }
 }
 
@@ -81,10 +126,17 @@ function compact(md) {
   };
 
   const headline = findSection("Headline").filter((l) => l.trim().startsWith("-"));
+  const ready = findSection("Ready to use (built AND wired — invokable now)")
+    .filter((l) => l.trim().startsWith("-"));
   const totalsBlock = findSection("Graph utilization (filtered to semantic layers L0..L8 + L10)");
   const orphans = findSection("Top orphans (built + documented + unwired — fix candidates)")
     .filter((l) => l.trim().startsWith("-"));
   const drift = findSection("Milestone drift (envelope vs git reality)")
+    .filter((l) => l.trim().startsWith("-"));
+  // U-GCF-AWARENESS (alpha): surface galaxy federation in the DEFAULT summary inject — the generator
+  // already emits "## Galaxy Federation (...)"; compact() must list the heading or it only renders in
+  // full/pointer mode (the audited gap). Lines start with "-" so the existing filter pattern applies.
+  const federation = findSection("Galaxy Federation (hub-and-spoke context roll-up)")
     .filter((l) => l.trim().startsWith("-"));
 
   // Find the totals table rows (lines starting with `|`).
@@ -95,6 +147,11 @@ function compact(md) {
   if (headline.length > 0) {
     out.push("**Built:**");
     headline.slice(0, 4).forEach((l) => out.push(l));
+    out.push("");
+  }
+  if (ready.length > 0) {
+    out.push("**Ready to use (built ∩ wired — invokable now):**");
+    ready.slice(0, 3).forEach((l) => out.push(l));
     out.push("");
   }
   if (totalsRows.length > 0) {
@@ -122,6 +179,11 @@ function compact(md) {
     drift.slice(0, 3).forEach((l) => out.push(l));
     out.push("");
   }
+  if (federation.length > 0) {
+    out.push("**Galaxy federation:**");
+    federation.slice(0, 3).forEach((l) => out.push(l));
+    out.push("");
+  }
   out.push(
     "_Full report: `state/shared/AWARENESS-SNAPSHOT.md`. " +
     "Drill: `/master-index <query>` · `/utilization-dashboard` · `/awareness-snapshot` regen._",
@@ -138,13 +200,42 @@ function emit(systemReminder) {
   }));
 }
 
+function buildPointer() {
+  const ageStr = (() => {
+    if (!existsSync(SNAPSHOT_PATH)) return "missing";
+    try {
+      const h = (Date.now() - statSync(SNAPSHOT_PATH).mtimeMs) / 3600_000;
+      if (h < 1) return `${Math.round(h * 60)}m`;
+      if (h < 48) return `${Math.round(h)}h`;
+      return `${Math.round(h / 24)}d`;
+    } catch { return "?"; }
+  })();
+  return [
+    "## 🧭 PRISM Awareness — auto-regenerated digest on disk (pointer mode)",
+    `   📍 \`state/shared/AWARENESS-SNAPSHOT.md\` (age: ${ageStr}, regenerates ≤${STALE_HOURS}h) — engines built/unwired · utilization · orphans · envelope drift`,
+    "   Read this file for the full digest. Live commands: `/master-index <query>` · `/utilization-dashboard` · `/awareness-snapshot`.",
+    "   Restore legacy in-context summary: unset `PRISM_AWARENESS_INJECT_MODE` (default) or set `=summary`. Silence: `=silent`.",
+  ].join("\n");
+}
+
 function main() {
   if (!ENABLED) { process.exit(0); }
+  // Always keep the disk file fresh — inject mode only affects what we emit
+  // into the chat context, never whether the cron-equivalent regen runs.
   if (FORCE_REGEN || isStale()) { regenSnapshot(); }
+  const mode = String(process.env.PRISM_AWARENESS_INJECT_MODE || "summary").toLowerCase();
+  if (mode === "silent") { process.exit(0); }
+  if (mode === "pointer") {
+    emit(buildPointer());
+    process.exit(0);
+  }
+  // Default: summary mode (legacy behavior — byte-equivalent to pre-WAVE2B).
   const md = readSnapshot();
   if (!md) { process.exit(0); }
   const block = compact(md);
   if (!block) { process.exit(0); }
+  // U-D8: feature engaged — snapshot loaded + compacted to non-empty block.
+  try { incrementFeature("PRISMAwareness", { slot: null }); } catch { /* never blocks */ }
   emit(block);
   process.exit(0);
 }

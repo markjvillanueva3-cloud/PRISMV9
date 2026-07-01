@@ -50,6 +50,13 @@ export interface WEDMCalcInput {
   wire_diameter_mm?: number;
   machine?: string;
   priority?: "speed" | "quality" | "balanced";
+  /**
+   * Total wire-cut path length in mm (contour perimeter x num_passes, or supplied by the caller's
+   * geometry). When provided, per-pass cutting_time + predicted_cycle_time are REAL; when omitted the
+   * engine falls back to DEFAULT_ESTIMATE_PATH_LENGTH_MM and flags the cycle time as a low-confidence
+   * estimate (a warning + cycle_time_confidence is lowered) -- it never silently fabricates the time.
+   */
+  cut_length_mm?: number;
 }
 
 /** AI-optimized cutting parameters */
@@ -144,6 +151,11 @@ const RA_MODEL_COEFFICIENTS: Record<string, { k: number; alpha: number; beta: nu
 };
 
 /** Base area cutting rates by ISO group (mm²/min) */
+// Fallback cut-path length (mm) used ONLY when the caller supplies no `cut_length_mm`. A neutral
+// estimate so cutting_time is non-zero; when this fallback is used the result is flagged as a
+// low-confidence estimate (warning + lowered cycle_time_confidence) -- never presented as exact.
+const DEFAULT_ESTIMATE_PATH_LENGTH_MM = 100;
+
 const BASE_AREA_RATES: Record<string, number> = {
   P: 200, M: 150, K: 250, N: 300, S: 100, H: 180,
 };
@@ -429,8 +441,12 @@ export class WEDMCalculatorAIEngine {
       const coef = RA_MODEL_COEFFICIENTS[input.material.iso_group] ?? RA_MODEL_COEFFICIENTS.P;
       const passRa = isRough ? 3.2 : 3.2 * Math.pow(0.5, i);
 
-      // Cutting time (path length estimation)
-      const pathLength = 100; // placeholder - real value from geometry
+      // Cutting time = path length / feed. Use the caller-supplied real cut length when present;
+      // else fall back to a neutral estimate (the result is flagged low-confidence + warned, never
+      // silently fabricated -- ENGINE-AUDIT 2026-06-19, slot:bravo).
+      const pathLength = input.cut_length_mm && input.cut_length_mm > 0
+        ? input.cut_length_mm
+        : DEFAULT_ESTIMATE_PATH_LENGTH_MM;
       const cuttingTime = pathLength / feed;
 
       passes.push({
@@ -503,7 +519,8 @@ export class WEDMCalculatorAIEngine {
       total: Math.round(total * 100) / 100,
       cutting: Math.round(cuttingTime * 100) / 100,
       threading: threadingTime,
-      confidence: 0.85,
+      // Real cut length supplied -> trustworthy; otherwise the time is a path-length estimate.
+      confidence: input.cut_length_mm && input.cut_length_mm > 0 ? 0.85 : 0.35,
       wire_m: Math.round(wire_m * 10) / 10,
     };
   }
@@ -621,6 +638,10 @@ export class WEDMCalculatorAIEngine {
 
     if (input.material.carbide_content_pct && input.material.carbide_content_pct > 15) {
       warnings.push("High carbide content: Use zinc or moly-coated wire to prevent frequent breaks.");
+    }
+
+    if (!(input.cut_length_mm && input.cut_length_mm > 0)) {
+      warnings.push(`Cutting/cycle time is an ESTIMATE: no cut_length_mm supplied, assumed ${DEFAULT_ESTIMATE_PATH_LENGTH_MM}mm path. Supply cut_length_mm (contour perimeter x passes) for an accurate cycle time.`);
     }
 
     return warnings;

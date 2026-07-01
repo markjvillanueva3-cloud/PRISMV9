@@ -1,0 +1,375 @@
+{
+  "agent_id": "AGT-SONNET-001",
+  "name": "validator",
+  "tier": "SONNET",
+  "version": "2.0.0",
+  "created": "2026-01-28",
+  "role": "General Purpose Validator - Multi-Domain Validation Engine",
+  
+  "domain_expertise": [
+    "Data structure validation",
+    "Schema compliance checking",
+    "Value range validation",
+    "Relationship validation",
+    "Cross-reference validation",
+    "Format validation",
+    "Syntax validation",
+    "Consistency checking",
+    "Completeness validation",
+    "Type checking"
+  ],
+
+  "capabilities": [
+    {
+      "id": "CAP-VAL-001",
+      "name": "Schema Compliance Validation",
+      "description": "Validates data structures against defined schemas (material 127-param, machine 85-param, agent capability schema)",
+      "category": "VALIDATION",
+      "inputs": {
+        "required": ["data", "schema"],
+        "optional": ["strict_mode", "allow_extra_fields"]
+      },
+      "outputs": {
+        "primary": "validation_result",
+        "secondary": ["schema_errors", "missing_fields", "type_mismatches", "extra_fields"]
+      },
+      "skills_used": ["prism-validator", "prism-material-schema"],
+      "hooks_triggered": ["db:preValidate", "SCHEMA-VALIDATE"],
+      "synergizes_with": ["schema_designer", "data_quality_enforcer"],
+      "validation_patterns": [
+        "Required field presence",
+        "Field type checking",
+        "Nested structure validation",
+        "Array element validation"
+      ],
+      "success_criteria": "Schema compliance verified"
+    },
+    {
+      "id": "CAP-VAL-002",
+      "name": "Value Range Validation",
+      "description": "Validates values against physical and logical range constraints from prism-validator",
+      "category": "VALIDATION",
+      "inputs": {
+        "required": ["values", "range_definitions"],
+        "optional": ["tolerance", "unit_system"]
+      },
+      "outputs": {
+        "primary": "range_validation_result",
+        "secondary": ["out_of_range_values", "boundary_violations", "unit_issues"]
+      },
+      "skills_used": ["prism-validator", "prism-material-physics"],
+      "hooks_triggered": ["calc:safetyBoundsCheck", "RANGE-VALIDATE"],
+      "synergizes_with": ["physics_validator", "data_quality_enforcer"],
+      "range_categories": {
+        "physical_properties": "density, melting point, conductivity",
+        "mechanical_properties": "strength, hardness, elongation",
+        "kienzle_parameters": "Kc1.1, mc coefficients",
+        "johnson_cook": "A, B, n, C, m parameters",
+        "taylor_tool_life": "C, n by tool type"
+      },
+      "success_criteria": "All values within valid ranges"
+    },
+    {
+      "id": "CAP-VAL-003",
+      "name": "Relationship Validation",
+      "description": "Validates logical relationships between fields (yield < tensile, solidus < liquidus, etc.)",
+      "category": "VALIDATION",
+      "inputs": {
+        "required": ["data"],
+        "optional": ["relationship_rules", "tolerance"]
+      },
+      "outputs": {
+        "primary": "relationship_result",
+        "secondary": ["violated_relationships", "weak_relationships", "suggestions"]
+      },
+      "skills_used": ["prism-validator", "prism-material-physics"],
+      "hooks_triggered": ["RELATIONSHIP-VALIDATE"],
+      "synergizes_with": ["physics_validator", "materials_scientist"],
+      "relationship_rules": [
+        "yield_strength < tensile_strength (ratio 0.5-0.95)",
+        "solidus < liquidus",
+        "elasticModulus > shearModulus",
+        "Kc_tangential > Kc_feed > Kc_radial",
+        "mc_tangential < mc_feed < mc_radial",
+        "Taylor_C: HSS < carbide < ceramic",
+        "J-C A ≈ yield_strength (±20%)"
+      ],
+      "success_criteria": "All relationships valid"
+    },
+    {
+      "id": "CAP-VAL-004",
+      "name": "Cross-Reference Validation",
+      "description": "Validates references between entities (material→machine compatibility, tool→material suitability)",
+      "category": "VALIDATION",
+      "inputs": {
+        "required": ["source_entity", "referenced_entity"],
+        "optional": ["reference_type"]
+      },
+      "outputs": {
+        "primary": "reference_validation",
+        "secondary": ["broken_references", "invalid_references", "suggestions"]
+      },
+      "skills_used": ["prism-validator", "prism-wiring-templates"],
+      "hooks_triggered": ["XREF-VALIDATE"],
+      "synergizes_with": ["resource_auditor", "completeness_auditor"],
+      "success_criteria": "All references valid and resolvable"
+    },
+    {
+      "id": "CAP-VAL-005",
+      "name": "Format Validation",
+      "description": "Validates data formats (ID patterns, dates, units, naming conventions)",
+      "category": "VALIDATION",
+      "inputs": {
+        "required": ["data", "format_rules"],
+        "optional": ["strict_mode"]
+      },
+      "outputs": {
+        "primary": "format_result",
+        "secondary": ["format_errors", "suggestions"]
+      },
+      "skills_used": ["prism-validator"],
+      "hooks_triggered": ["FORMAT-VALIDATE"],
+      "synergizes_with": ["schema_designer"],
+      "format_patterns": {
+        "material_id": "^[PMKNSH]-[A-Z]{2}-\\d{3}$",
+        "machine_id": "^MCH-[A-Z]{3}-\\d{4}$",
+        "alarm_id": "^ALM-[A-Z]{3,6}-\\d{3,4}$",
+        "agent_id": "^AGT-(OPUS|SONNET|HAIKU)-\\d{3}$",
+        "iso_date": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}Z$"
+      },
+      "success_criteria": "All formats valid"
+    },
+    {
+      "id": "CAP-VAL-006",
+      "name": "JavaScript Syntax Validation",
+      "description": "Validates JavaScript file syntax using node --check",
+      "category": "VALIDATION",
+      "inputs": {
+        "required": ["file_path"],
+        "optional": ["es_version"]
+      },
+      "outputs": {
+        "primary": "syntax_result",
+        "secondary": ["syntax_errors", "line_numbers", "error_messages"]
+      },
+      "skills_used": ["prism-validator", "prism-code-master"],
+      "hooks_triggered": ["SYNTAX-VALIDATE"],
+      "synergizes_with": ["coder", "code_reviewer"],
+      "command": "node --check [filename].js",
+      "success_criteria": "Syntax valid"
+    },
+    {
+      "id": "CAP-VAL-007",
+      "name": "JSON Validation",
+      "description": "Validates JSON file structure and parsability",
+      "category": "VALIDATION",
+      "inputs": {
+        "required": ["json_content"],
+        "optional": ["schema"]
+      },
+      "outputs": {
+        "primary": "json_result",
+        "secondary": ["parse_errors", "structure_errors"]
+      },
+      "skills_used": ["prism-validator"],
+      "hooks_triggered": ["JSON-VALIDATE"],
+      "synergizes_with": ["schema_designer"],
+      "success_criteria": "Valid JSON"
+    },
+    {
+      "id": "CAP-VAL-008",
+      "name": "Section Completeness Validation",
+      "description": "Validates that all required sections are present in data structures",
+      "category": "VALIDATION",
+      "inputs": {
+        "required": ["data", "required_sections"],
+        "optional": ["optional_sections"]
+      },
+      "outputs": {
+        "primary": "section_result",
+        "secondary": ["missing_sections", "empty_sections", "completeness_score"]
+      },
+      "skills_used": ["prism-validator", "prism-sp-verification"],
+      "hooks_triggered": ["SECTION-VALIDATE"],
+      "synergizes_with": ["completeness_auditor"],
+      "material_sections": [
+        "identification", "composition", "physicalProperties", "mechanicalProperties",
+        "kienzle", "johnsonCook", "taylorToolLife", "chipFormation",
+        "friction", "thermalMachining", "surfaceIntegrity", "machinability",
+        "recommendedParameters", "statisticalData"
+      ],
+      "success_criteria": "All required sections present"
+    },
+    {
+      "id": "CAP-VAL-009",
+      "name": "Type Validation",
+      "description": "Validates data types match expected types (number, string, boolean, array, object)",
+      "category": "VALIDATION",
+      "inputs": {
+        "required": ["data", "type_expectations"],
+        "optional": ["coercion_allowed"]
+      },
+      "outputs": {
+        "primary": "type_result",
+        "secondary": ["type_errors", "coerced_values"]
+      },
+      "skills_used": ["prism-validator"],
+      "hooks_triggered": ["TYPE-VALIDATE"],
+      "synergizes_with": ["schema_designer"],
+      "success_criteria": "All types correct"
+    },
+    {
+      "id": "CAP-VAL-010",
+      "name": "Uniqueness Validation",
+      "description": "Validates uniqueness constraints (IDs, names, codes)",
+      "category": "VALIDATION",
+      "inputs": {
+        "required": ["data_collection", "unique_fields"],
+        "optional": ["scope"]
+      },
+      "outputs": {
+        "primary": "uniqueness_result",
+        "secondary": ["duplicates", "duplicate_locations"]
+      },
+      "skills_used": ["prism-validator"],
+      "hooks_triggered": ["UNIQUE-VALIDATE"],
+      "synergizes_with": ["data_quality_enforcer"],
+      "success_criteria": "All unique constraints satisfied"
+    },
+    {
+      "id": "CAP-VAL-011",
+      "name": "Consistency Validation",
+      "description": "Validates internal consistency within a data structure",
+      "category": "VALIDATION",
+      "inputs": {
+        "required": ["data"],
+        "optional": ["consistency_rules"]
+      },
+      "outputs": {
+        "primary": "consistency_result",
+        "secondary": ["inconsistencies", "suggestions"]
+      },
+      "skills_used": ["prism-validator", "prism-material-physics"],
+      "hooks_triggered": ["CONSISTENCY-VALIDATE"],
+      "synergizes_with": ["physics_validator"],
+      "success_criteria": "Data internally consistent"
+    },
+    {
+      "id": "CAP-VAL-012",
+      "name": "Batch Validation",
+      "description": "Validates multiple entities in batch with aggregated results",
+      "category": "VALIDATION",
+      "inputs": {
+        "required": ["entities", "validation_rules"],
+        "optional": ["stop_on_first_error", "parallel"]
+      },
+      "outputs": {
+        "primary": "batch_result",
+        "secondary": ["per_entity_results", "summary_stats", "common_issues"]
+      },
+      "skills_used": ["prism-validator", "prism-quality-master"],
+      "hooks_triggered": ["BATCH-VALIDATE"],
+      "synergizes_with": ["data_quality_enforcer", "completeness_auditor"],
+      "success_criteria": "Batch validation complete"
+    },
+    {
+      "id": "CAP-VAL-013",
+      "name": "Alarm Data Validation",
+      "description": "Validates CNC controller alarm data structure and content",
+      "category": "VALIDATION",
+      "inputs": {
+        "required": ["alarm_data"],
+        "optional": ["controller_family"]
+      },
+      "outputs": {
+        "primary": "alarm_validation_result",
+        "secondary": ["invalid_alarms", "missing_fields", "severity_issues"]
+      },
+      "skills_used": ["prism-validator", "prism-error-catalog"],
+      "hooks_triggered": ["ALARM-VALIDATE"],
+      "synergizes_with": ["alarm_validator"],
+      "required_alarm_fields": ["alarm_id", "code", "name", "category", "severity", "description", "causes", "quick_fix"],
+      "success_criteria": "Alarm data valid"
+    },
+    {
+      "id": "CAP-VAL-014",
+      "name": "Machine Data Validation",
+      "description": "Validates CNC machine specification data",
+      "category": "VALIDATION",
+      "inputs": {
+        "required": ["machine_data"],
+        "optional": ["validation_level"]
+      },
+      "outputs": {
+        "primary": "machine_validation_result",
+        "secondary": ["invalid_specs", "missing_fields", "range_issues"]
+      },
+      "skills_used": ["prism-validator", "prism-manufacturing-tables"],
+      "hooks_triggered": ["MACHINE-VALIDATE"],
+      "synergizes_with": ["machine_validator"],
+      "success_criteria": "Machine data valid"
+    },
+    {
+      "id": "CAP-VAL-015",
+      "name": "Validation Report Generation",
+      "description": "Generates comprehensive validation reports with issues, severity, and remediation",
+      "category": "GENERATION",
+      "inputs": {
+        "required": ["validation_results"],
+        "optional": ["report_format", "audience"]
+      },
+      "outputs": {
+        "primary": "validation_report",
+        "secondary": ["summary", "detailed_issues", "remediation_steps"]
+      },
+      "skills_used": ["prism-validator", "prism-quality-master"],
+      "hooks_triggered": ["REPORT-GENERATE"],
+      "synergizes_with": ["documentation_writer"],
+      "success_criteria": "Actionable report generated"
+    }
+  ],
+
+  "skills_mastered": [
+    "prism-validator",
+    "prism-material-schema",
+    "prism-material-physics",
+    "prism-quality-master",
+    "prism-sp-verification",
+    "prism-wiring-templates",
+    "prism-error-catalog",
+    "prism-manufacturing-tables",
+    "prism-code-master"
+  ],
+
+  "hooks_subscribed": [
+    "db:preValidate",
+    "calc:safetyBoundsCheck",
+    "quality:gateCheck"
+  ],
+
+  "can_delegate_to": [
+    "alarm_validator",
+    "machine_validator",
+    "field_validator"
+  ],
+
+  "receives_from": [
+    "data_quality_enforcer",
+    "coordinator_v2",
+    "extractor"
+  ],
+
+  "quality_gates": [
+    "Schema compliance verified",
+    "All ranges valid",
+    "Relationships consistent",
+    "No broken references"
+  ],
+
+  "performance_metrics": {
+    "validation_accuracy": 0.99,
+    "false_positive_rate": 0.01,
+    "latency_target_ms": 500,
+    "batch_throughput": 100
+  }
+}

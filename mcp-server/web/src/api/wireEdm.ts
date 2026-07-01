@@ -568,3 +568,15 @@ export function weExportGcode(programText: string, filename?: string): void {
   a.click();
   URL.revokeObjectURL(url);
 }
+
+// 2026-05-26 (slot golf, tsc-fix): WeFeasibilityResult / weFeasibility are referenced by
+// WireEdmFeasibilityPanel.test.tsx (mocked via vi.fn()). The API helper was never landed in
+// this module. Stub uses `any` so test-side mocks/destructures don't cascade TS2339s. Per R12
+// the runtime throws NOT_IMPLEMENTED — fail-loud, not skip-for-green. Future
+// U-WEB-WIREDM-FEASIBILITY-API milestone should implement against the real backend route.
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export type WeFeasibilityResult = any;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function weFeasibility(..._args: any[]): Promise<WeFeasibilityResult> {
+  throw new Error('NOT_IMPLEMENTED: weFeasibility helper was never landed — see U-WEB-WIREDM-FEASIBILITY-API');
+}

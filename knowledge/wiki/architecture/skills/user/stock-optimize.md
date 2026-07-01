@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `stock-optimize` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/stock-optimize.md` |
+| Source | `C:/Users/wompu/.claude/commands/stock-optimize.md` |
 | Model | default |
 | Tags | _(none)_ |
 

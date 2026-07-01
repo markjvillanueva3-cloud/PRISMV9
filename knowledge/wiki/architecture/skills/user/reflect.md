@@ -23,13 +23,14 @@ related:
 |-------|-------|
 | Name | `reflect` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/reflect.md` |
+| Source | `C:/Users/wompu/.claude/commands/reflect.md` |
 | Model | default |
 | Tags | _(none)_ |
 
 ## Description (first paragraph)
 
-Trigger deep metacognitive analysis of recent actions, decisions, and learning opportunities.
+
+# /reflect — Phase 0.13 Metacognitive Reflection
 
 <!-- AUTO-END -->
 

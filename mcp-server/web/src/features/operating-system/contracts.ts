@@ -22,7 +22,9 @@ export type OperatingSystemEntityType =
   | 'Quality'
   | 'Lesson';
 
-export type TravelerStepStatus = 'complete' | 'running' | 'ready' | 'blocked';
+// 2026-05-27 (slot golf, GOAL-TSC-FIX iter7): + 'current' for JobsPage.test.tsx
+// (2 sites use status: 'current' to denote the active step). Semantic: synonym of 'running'.
+export type TravelerStepStatus = 'complete' | 'running' | 'ready' | 'blocked' | 'current';
 export type WorkflowTone = 'neutral' | 'watch' | 'good';
 export type ApprovalStatus = 'ready' | 'waiting' | 'approved' | 'blocked';
 export type ExceptionSeverity = 'info' | 'watch' | 'critical';

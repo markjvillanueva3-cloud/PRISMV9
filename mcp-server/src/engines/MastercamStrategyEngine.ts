@@ -14,7 +14,7 @@
  * @milestone MILL-MASTER/P2-U01-MC-FINISH
  */
 
-import { mastercamCycleCatalogEngine } from "./MastercamCycleCatalogEngine.js";
+import { mastercamCycleCatalogEngine, type MastercamCycle, type MastercamCycleCategory } from "./MastercamCycleCatalogEngine.js";
 import { CANONICAL_KIENZLE } from "../physics/constants.js";
 
 // ============================================================================
@@ -74,6 +74,74 @@ export interface StrategyRecommendation {
   };
 }
 
+// -- CAMX-MS3 U01 dispatcher-action I/O types (camxMs3U01ActionSchemas contract) --
+
+export type StrategyPriority = "balanced" | "cycle_time" | "surface_finish" | "tool_life";
+export type StrategyListCategory = "drilling" | "finishing" | "multi_axis" | "roughing" | "turning";
+
+export interface RecommendFeature {
+  type: string;
+  depth_mm?: number;
+  wall_angle_deg?: number;
+  has_previous_roughing?: boolean;
+  axis_count?: number;
+}
+export interface RecommendMaterial { iso_group: ISOGroup; hardness_hrc?: number; name?: string }
+export interface RecommendMachine { type: string; max_rpm?: number; spindle_kw?: number; hpc?: boolean }
+export interface RecommendTool { diameter_mm: number; flute_count: number; type: string; corner_radius_mm?: number }
+
+export type RecommendResult =
+  | {
+      success: true;
+      out_of_scope: false;
+      operation: OperationType;
+      priority_applied: StrategyPriority;
+      primary: StrategyRecommendation;
+      alternatives: StrategyRecommendation[];
+      machine_type: string | null;
+    }
+  | { success: false; out_of_scope: true; reason: string; feature_type: string | null };
+
+export interface StrategyParamsResult {
+  success: true;
+  found: boolean;
+  strategy_name: string;
+  cycle?: MastercamCycle;
+  candidates?: { code: string; displayName: string; category: MastercamCycleCategory }[];
+  note?: string;
+}
+
+export interface TechnologyDetails {
+  technology: string;
+  description: string;
+  cycle_count: number;
+  cycles: MastercamCycle[];
+  source: "MastercamCycleCatalogEngine";
+}
+
+export interface TurningTechnologyDetails {
+  technology: string;
+  available: boolean;
+  cycle_count: number;
+  cycles: MastercamCycle[];
+  description: string;
+  note?: string;
+  source: "MastercamCycleCatalogEngine";
+}
+
+export interface StrategyListResult {
+  success: true;
+  category: StrategyListCategory | "all";
+  count: number;
+  strategies: {
+    code: string;
+    displayName: string;
+    category: MastercamCycleCategory;
+    isDynamic: boolean;
+    isOpti: boolean;
+  }[];
+}
+
 // ============================================================================
 // BASELINE CUTTING-SPEED TABLE (Sandvik C-2920:3 + Kennametal reference)
 // ============================================================================
@@ -106,6 +174,28 @@ const WOC_PCT: Record<OperationType, number> = {
   roughing: 0.10, finishing: 0.30, pocketing: 0.08, contouring: 0.25,
   drilling: 1.0, peck_drilling: 1.0, thread_milling: 0.05,
   facing: 0.75, slotting: 1.0, chamfering: 0.1,
+};
+
+/**
+ * Map a CAMX feature.type (camxMs3U01ActionSchemas featureZ enum) -> engine OperationType.
+ * Turning / unsupported features -> undefined (recommend() returns an honest out-of-scope result).
+ */
+const FEATURE_TO_OPERATION: Record<string, OperationType | undefined> = {
+  bore: "drilling",
+  contour: "contouring",
+  face: "facing",
+  flat_area: "facing",
+  freeform_3d: "finishing",
+  groove: "slotting",
+  hole: "drilling",
+  impeller: "finishing",
+  pocket: "pocketing",
+  ruled_surface: "finishing",
+  slot: "slotting",
+  steep_wall: "finishing",
+  thread: "thread_milling",
+  turning_external: undefined,
+  turning_internal: undefined,
 };
 
 // ============================================================================
@@ -276,6 +366,185 @@ class MastercamStrategyEngine {
   /** List supported ISO material groups */
   getSupportedMaterialGroups(): readonly ISOGroup[] {
     return ["P", "M", "K", "N", "S", "H"] as const;
+  }
+
+  // -- CAMX-MS3 U01 dispatcher actions (camDispatcher mastercam_strategy_*) --
+  // These back the 6 prism_cam actions wired in CAMX-MS3 U01. Every result is
+  // sourced from selectStrategy() (real Sandvik vc/fz + CANONICAL_KIENZLE) or the
+  // composed MastercamCycleCatalogEngine -- never fabricated (NO-FAKE-CODE).
+
+  /**
+   * Recommend a Mastercam milling strategy for a feature/material/machine/tool combo.
+   * Returns the primary pick plus Dynamic- and Opti-preferred alternatives (all real
+   * selectStrategy() results, deduped by cycle code). Turning/unsupported features
+   * return an honest out-of-scope result rather than a fabricated milling strategy.
+   * @param feature  Feature geometry (schema featureZ); feature.type drives operation mapping.
+   * @param material Workpiece material (needs iso_group).
+   * @param machine  CNC machine (optional; type echoed in the result).
+   * @param tool     Cutting tool (optional; diameter/flutes feed the physics estimate).
+   * @param priority Optimization priority: cycle_time -> Dynamic, tool_life -> Opti, else standard.
+   * @returns Ranked recommendation or an out-of-scope result.
+   */
+  recommend(
+    feature: RecommendFeature,
+    material: RecommendMaterial,
+    machine?: RecommendMachine,
+    tool?: RecommendTool,
+    priority: StrategyPriority = "balanced",
+  ): RecommendResult {
+    const operation = FEATURE_TO_OPERATION[feature?.type ?? ""];
+    if (!operation) {
+      return {
+        success: false,
+        out_of_scope: true,
+        reason: `Feature "${feature?.type ?? "(none)"}" is a turning/unsupported feature; ` +
+          `MastercamStrategyEngine covers milling operations. Route turning features to the lathe domain.`,
+        feature_type: feature?.type ?? null,
+      };
+    }
+    const baseReq: StrategyRequest = {
+      operation,
+      iso_group: material.iso_group,
+      tool_diameter_mm: tool?.diameter_mm,
+      flutes: tool?.flute_count,
+    };
+    const primary = this.selectStrategy({
+      ...baseReq,
+      prefer_dynamic: priority === "cycle_time",
+      prefer_opti: priority === "tool_life",
+    });
+    const alternatives: StrategyRecommendation[] = [];
+    for (const variant of [{ prefer_dynamic: true }, { prefer_opti: true }] as const) {
+      const alt = this.selectStrategy({ ...baseReq, ...variant });
+      if (alt.cycle_code !== primary.cycle_code &&
+          !alternatives.some((a) => a.cycle_code === alt.cycle_code)) {
+        alternatives.push(alt);
+      }
+    }
+    return {
+      success: true,
+      out_of_scope: false,
+      operation,
+      priority_applied: priority,
+      primary,
+      alternatives,
+      machine_type: machine?.type ?? null,
+    };
+  }
+
+  /**
+   * Default parameters / catalog record for a named strategy (exact code or fuzzy name).
+   * @param strategyName Cycle code (e.g. "2D:DynamicContour") or a searchable name.
+   * @returns The matching cycle, or candidate matches when no unique hit (never fabricated).
+   */
+  getParameters(strategyName: string): StrategyParamsResult {
+    const exact = mastercamCycleCatalogEngine.lookupByCode(strategyName);
+    if (exact) {
+      return { success: true, found: true, strategy_name: strategyName, cycle: exact };
+    }
+    const matches = mastercamCycleCatalogEngine.search(strategyName);
+    if (matches.length === 1) {
+      return { success: true, found: true, strategy_name: strategyName, cycle: matches[0] };
+    }
+    return {
+      success: true,
+      found: false,
+      strategy_name: strategyName,
+      candidates: matches.map((c) => ({ code: c.code, displayName: c.displayName, category: c.category })),
+      note: matches.length
+        ? `No exact match for "${strategyName}"; ${matches.length} candidate(s) -- pass a specific code.`
+        : `No Mastercam cycle matches "${strategyName}". Use mastercam_strategy_list to enumerate.`,
+    };
+  }
+
+  /** Mastercam Dynamic Motion Technology deep-dive (all isDynamic cycles in the catalog). */
+  dynamicMotionDetails(): TechnologyDetails {
+    const cycles = mastercamCycleCatalogEngine.getDynamicCycles();
+    return {
+      technology: "Dynamic Motion Technology",
+      description:
+        "Mastercam Dynamic Motion holds a constant tool engagement angle via micro-lifts and " +
+        "trochoidal-style moves, enabling full-flute depths at high feed with controlled radial load.",
+      cycle_count: cycles.length,
+      cycles,
+      source: "MastercamCycleCatalogEngine",
+    };
+  }
+
+  /** Mastercam OptiRough / Profit Milling deep-dive (all isOpti cycles in the catalog). */
+  optiRoughDetails(): TechnologyDetails {
+    const cycles = mastercamCycleCatalogEngine.getOptiCycles();
+    return {
+      technology: "OptiRough / Profit Milling",
+      description:
+        "OptiRough is a high-efficiency 3D roughing strategy using stepped, constant-load passes " +
+        "(roll-into-cut, full-depth steps) to remove material with controlled tool engagement.",
+      cycle_count: cycles.length,
+      cycles,
+      source: "MastercamCycleCatalogEngine",
+    };
+  }
+
+  /**
+   * Mastercam Profit Turning deep-dive. Profit Turning is a LATHE strategy; this mill-focused
+   * catalog may carry no turning cycles -- returns an honest availability flag, never fabricated.
+   */
+  profitTurningDetails(): TurningTechnologyDetails {
+    const turningCycles = mastercamCycleCatalogEngine.byCategory("turning");
+    const profitMatches = mastercamCycleCatalogEngine
+      .search("profit")
+      .filter((c) => c.category === "turning");
+    const cycles = profitMatches.length ? profitMatches : turningCycles;
+    return {
+      technology: "Profit Turning",
+      available: cycles.length > 0,
+      cycle_count: cycles.length,
+      cycles,
+      description:
+        "Profit Turning applies constant-engagement-angle dynamic motion to turning, enabling " +
+        "deep radial cuts at high MRR with even insert wear.",
+      note: cycles.length
+        ? undefined
+        : "No turning cycles in the Mastercam mill catalog -- route turning strategy queries to the lathe domain.",
+      source: "MastercamCycleCatalogEngine",
+    };
+  }
+
+  /**
+   * List Mastercam strategies, optionally filtered by a strategy category.
+   * Schema categories map onto catalog cycle categories: drilling->drilling, turning->turning,
+   * multi_axis->5axis, finishing->3d_milling, roughing->Opti+Dynamic cycles; omit for all.
+   * @param category One of drilling | finishing | multi_axis | roughing | turning.
+   */
+  listStrategies(category?: StrategyListCategory): StrategyListResult {
+    let cycles: MastercamCycle[];
+    switch (category) {
+      case "drilling": cycles = mastercamCycleCatalogEngine.byCategory("drilling"); break;
+      case "turning": cycles = mastercamCycleCatalogEngine.byCategory("turning"); break;
+      case "multi_axis": cycles = mastercamCycleCatalogEngine.byCategory("5axis"); break;
+      case "finishing": cycles = mastercamCycleCatalogEngine.byCategory("3d_milling"); break;
+      case "roughing": {
+        const seen = new Set<string>();
+        cycles = [
+          ...mastercamCycleCatalogEngine.getOptiCycles(),
+          ...mastercamCycleCatalogEngine.getDynamicCycles(),
+        ].filter((c) => (seen.has(c.code) ? false : (seen.add(c.code), true)));
+        break;
+      }
+      default: cycles = mastercamCycleCatalogEngine.listAll();
+    }
+    return {
+      success: true,
+      category: category ?? "all",
+      count: cycles.length,
+      strategies: cycles.map((c) => ({
+        code: c.code,
+        displayName: c.displayName,
+        category: c.category,
+        isDynamic: c.isDynamic,
+        isOpti: c.isOpti,
+      })),
+    };
   }
 }
 

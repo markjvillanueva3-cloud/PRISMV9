@@ -264,8 +264,8 @@ describe('CalculatorPage logical mill/lathe matrix', () => {
 
     expect(matrix.perToolpathCount.get('mc-dynamic-mill')).toBeGreaterThan(0);
     expect(matrix.perToolpathCount.get('f360-turn-rough')).toBeGreaterThan(0);
-    expect(matrix.perToolpathCount.get('prism-featureflow-rough')).toBeGreaterThan(0);
-    expect(matrix.perToolpathCount.get('prism-syncguard-rough')).toBeGreaterThan(0);
+    expect(matrix.perToolpathCount.get('kienzle-featureflow-rough')).toBeGreaterThan(0);
+    expect(matrix.perToolpathCount.get('kienzle-syncguard-rough')).toBeGreaterThan(0);
   }, 150000);
 
   it('keeps desired-finish forecasting logical across thousands of ferrous calculator combinations', () => {

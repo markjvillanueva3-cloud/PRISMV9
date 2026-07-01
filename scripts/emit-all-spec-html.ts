@@ -16,8 +16,9 @@
  * Run via the tsx loader (PRISM bundles its engines via esbuild — a plain-node `.mjs` can't import
  * the engine):
  *
- *   node --import tsx scripts/emit-all-spec-html.ts [options]
- *   node H:/prism/node_modules/tsx/dist/cli.mjs H:/prism/scripts/emit-all-spec-html.ts [options]   # what the cron uses
+ *   node --import tsx scripts/emit-all-spec-html.ts [options]                            # works if tsx is on the resolver path
+ *   H:/prism/mcp-server/node_modules/.bin/tsx scripts/emit-all-spec-html.ts [options]    # CANONICAL Windows path (PRISM_ROOT/node_modules has no tsx at HEAD)
+ *   node H:/prism/node_modules/tsx/dist/cli.mjs H:/prism/scripts/emit-all-spec-html.ts [options]   # legacy path — DO NOT USE: PRISM_ROOT/node_modules/tsx does not exist at HEAD (2026-05-18 verified slot kilo). The mcp-server-vendored tsx is the only Windows-functional path.
  *
  * Options:
  *   --force          Re-render every twin, even if up to date.

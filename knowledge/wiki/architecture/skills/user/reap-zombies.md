@@ -23,17 +23,14 @@ related:
 |-------|-------|
 | Name | `reap-zombies` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/reap-zombies.md` |
+| Source | `C:/Users/wompu/.claude/commands/reap-zombies.md` |
 | Model | default |
 | Tags | _(none)_ |
 
 ## Description (first paragraph)
 
-Clean up stale claims from crashed sessions:
-- Detect dead sessions
-- Release orphaned locks
-- Clear stale claims
-- Report cleanup
+
+# /reap-zombies — Dead Claim Cleanup
 
 <!-- AUTO-END -->
 

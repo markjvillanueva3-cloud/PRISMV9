@@ -1,0 +1,4505 @@
+{
+  "schemaVersion": "1.0.0",
+  "generatedAt": "2026-06-26T08:22:21.114Z",
+  "generator": "rgs-tool-planner",
+  "degraded": false,
+  "plans": {
+    "CCM-MS14::P0-U01": {
+      "pipelines": [
+        {
+          "skill": "/scrutinize",
+          "why": "unit involves scrutiny, review, audit, or quality",
+          "confidence": 0.7
+        }
+      ],
+      "tribal": [],
+      "skills": [],
+      "mcpTools": [
+        "Rate Limiter",
+        "action-tracker"
+      ],
+      "agents": [],
+      "buildVsIntegrate": "build",
+      "complexityTier": "M",
+      "confidence": 0.7,
+      "rationale": "Based on the provided signals, 'action-tracker' is a relevant tool for tracking hook success rates with moderate confidence.",
+      "source": "ollama",
+      "rawConfidence": 0.7
+    },
+    "CCM-MS14::P0-U02": {
+      "pipelines": [
+        {
+          "skill": "/scrutinize",
+          "why": "unit involves scrutiny, review, audit, or quality",
+          "confidence": 0.7
+        },
+        {
+          "skill": "/dedup",
+          "why": "unit involves deduplication",
+          "confidence": 0.75
+        }
+      ],
+      "tribal": [],
+      "skills": [
+        "dedup"
+      ],
+      "mcpTools": [],
+      "agents": [],
+      "buildVsIntegrate": "build",
+      "complexityTier": "M",
+      "confidence": 0.75,
+      "rationale": "The /dedup skill has the highest confidence for optimizing dedup windows.",
+      "source": "ollama",
+      "rawConfidence": 0.75
+    },
+    "CCM-MS14::P0-U03": {
+      "pipelines": [
+        {
+          "skill": "/scrutinize",
+          "why": "unit involves scrutiny, review, audit, or quality",
+          "confidence": 0.7
+        }
+      ],
+      "tribal": [],
+      "skills": [],
+      "mcpTools": [],
+      "agents": [],
+      "buildVsIntegrate": "build",
+      "complexityTier": "M",
+      "confidence": 0.7,
+      "rationale": "The only candidate pipeline skill is /scrutinize with a confidence of 0.7.",
+      "source": "ollama",
+      "rawConfidence": 0.7
+    },
+    "CCM-MS14::P0-U04": {
+      "pipelines": [
+        {
+          "skill": "/scrutinize",
+          "why": "unit involves scrutiny, review, audit, or quality",
+          "confidence": 0.7
+        }
+      ],
+      "tribal": [],
+      "skills": [],
+      "mcpTools": [],
+      "agents": [],
+      "buildVsIntegrate": "build",
+      "complexityTier": "M",
+      "confidence": 0.7,
+      "rationale": "The only candidate signal is the /scrutinize skill with a confidence of 0.7.",
+      "source": "ollama",
+      "rawConfidence": 0.7
+    },
+    "CCM-MS14::P0-U05": {
+      "pipelines": [
+        {
+          "skill": "/auto-speed-feed",
+          "why": "SFC calibration units — routes to the speed-feed orchestrator",
+          "confidence": 0.8
+        },
+        {
+          "skill": "/scrutinize",
+          "why": "unit involves scrutiny, review, audit, or quality",
+          "confidence": 0.7
+        }
+      ],
+      "tribal": [],
+      "skills": [],
+      "mcpTools": [],
+      "agents": [],
+      "buildVsIntegrate": "build",
+      "complexityTier": "M",
+      "confidence": 0.8,
+      "rationale": "The /auto-speed-feed skill has the highest confidence score among the candidates.",
+      "source": "ollama",
+      "rawConfidence": 0.8
+    },
+    "CCM-MS15::P0-U01": {
+      "pipelines": [
+        {
+          "skill": "/scrutinize",
+          "why": "unit involves scrutiny, review, audit, or quality",
+          "confidence": 0.7
+        }
+      ],
+      "tribal": [],
+      "skills": [
+        "envelope-sync"
+      ],
+      "mcpTools": [
+        "GraphQL"
+      ],
+      "agents": [],
+      "buildVsIntegrate": "build",
+      "complexityTier": "M",
+      "confidence": 0.7,
+      "rationale": "Based on the provided signals, 'pipelines' with skill '/scrutinize' and 'skills' including 'envelope-sync' are the most relevant candidates for auto-repair of schema drift.",
+      "source": "ollama",
+      "rawConfidence": 0.7
+    },
+    "CCM-MS15::P0-U02": {
+      "pipelines": [
+        {
+          "skill": "/scrutinize",
+          "why": "unit involves scrutiny, review, audit, or quality",
+          "confidence": 0.7
+        }
+      ],
+      "tribal": [],
+      "skills": [
+        "envelope-sync"
+      ],
+      "mcpTools": [],
+      "agents": [],
+      "buildVsIntegrate": "build",
+      "complexityTier": "M",
+      "confidence": 0.7,
+      "rationale": "Based on the provided signals, /scrutinize has a confidence of 0.7 and envelope-sync is listed as a skill candidate.",
+      "source": "ollama",
+      "rawConfidence": 0.7
+    },
+    "CCM-MS15::P0-U03": {
+      "pipelines": [
+        {
+          "skill": "/scrutinize",
+          "why": "unit involves scrutiny, review, audit, or quality",
+          "confidence": 0.7
+        }
+      ],
+      "tribal": [],
+      "skills": [],
+      "mcpTools": [],
+      "agents": [],
+      "buildVsIntegrate": "build",
+      "complexityTier": "M",
+      "confidence": 0.7,
+      "rationale": "The candidate signal indicates a high confidence in using the /scrutinize skill for the given unit.",
+      "source": "ollama",
+      "rawConfidence": 0.7
+    },
+    "CCM-MS15::P0-U04": {
+      "pipelines": [
+        {
+          "skill": "/scrutinize",
+          "why": "unit involves scrutiny, review, audit, or quality",
+          "confidence": 0.7
+        }
+      ],
+      "tribal": [],
+      "skills": [],
+      "mcpTools": [],
+      "agents": [],
+      "buildVsIntegrate": "build",
+      "complexityTier": "M",
+      "confidence": 0.7,
+      "rationale": "The only candidate signal is the /scrutinize pipeline with a confidence of 0.7.",
+      "source": "ollama",
+      "rawConfidence": 0.7
+    },
+    "CCM-MS15::P0-U05": {
+      "pipelines": [
+        {
+          "skill": "test-team",
+          "why": "unit involves tests or coverage",
+          "confidence": 0.75
+        },
+        {
+          "skill": "/scrutinize",
+          "why": "unit involves scrutiny, review, audit, or quality",
+          "confidence": 0.7
+        }
+      ],
+      "tribal": [],
+      "skills": [],
+      "mcpTools": [],
+      "agents": [
+        "test-review-agent"
+      ],
+      "buildVsIntegrate": "build",
+      "complexityTier": "M",
+      "confidence": 0.75,
+      "rationale": "The 'test-team' skill has the highest confidence score among the candidates.",
+      "source": "ollama",
+      "rawConfidence": 0.75
+    },
+    "CCM-MS16::P0-U01": {
+      "pipelines": [
+        {
+          "skill": "/scrutinize",
+          "why": "unit involves scrutiny, review, audit, or quality",
+          "confidence": 0.7
+        }
+      ],
+      "tribal": [],
+      "skills": [],
+      "mcpTools": [
+        "Auth (OAuth/RBAC/MFA)",
+        "Telemetry / Metrics"
+      ],
+      "agents": [],
+      "buildVsIntegrate": "build",
+      "complexityTier": "M",
+      "confidence": 0.7,
+      "rationale": "The candidate signals indicate a strong preference for the '/scrutinize' skill with a confidence of 0.7, and given the unit's focus on session metrics collection, this tool is well-suited.",
+      "source": "ollama",
+      "rawConfidence": 0.7
+    },
+    "CCM-MS16::P0-U02": {
+      "pipelines": [
+        {
+          "skill": "/scrutinize",
+          "why": "unit involves scrutiny, review, audit, or quality",
+          "confidence": 0.7
+        }
+      ],
+      "tribal": [],
+      "skills": [],
+      "mcpTools": [],
+      "agents": [],
+      "buildVsIntegrate": "build",
+      "complexityTier": "M",
+      "confidence": 0.7,
+      "rationale": "The candidate signal indicates a high confidence in using the /scrutinize pipeline for this unit.",
+      "source": "ollama",
+      "rawConfidence": 0.7
+    },
+    "CCM-MS16::P0-U03": {
+      "pipelines": [
+        {
+          "skill": "/scrutinize",
+          "why": "unit involves scrutiny, review, audit, or quality",
+          "confidence": 0.7
+        }
+      ],
+      "tribal": [],
+      "skills": [],
+      "mcpTools": [
+        "action-tracker"
+      ],
+      "agents": [],
+      "buildVsIntegrate": "build",
+      "complexityTier": "M",
+      "confidence": 0.7,
+      "rationale": "Based on the provided signals, 'action-tracker' is the most relevant tool with a confidence of 0.7.",
+      "source": "ollama",
+      "rawConfidence": 0.7
+    },
+    "CCM-MS16::P0-U04": {
+      "pipelines": [
+        {
+          "skill": "/forge-triple",
+          "why": "unit creates an engine + skill + hook triple",
+          "confidence": 0.85
+        },
+        {
+          "skill": "/scrutinize",
+          "why": "unit involves scrutiny, review, audit, or quality",
+          "confidence": 0.7
+        }
+      ],
+      "tribal": [],
+      "skills": [],
+      "mcpTools": [],
+      "agents": [],
+      "buildVsIntegrate": "build",
+      "complexityTier": "M",
+      "confidence": 0.85,
+      "rationale": "The /forge-triple skill has the highest confidence level.",
+      "source": "ollama",
+      "rawConfidence": 0.85
+    },
+    "CCM-MS16::P1-U01": {
+      "pipelines": [
+        {
+          "skill": "/scrutinize",
+          "why": "unit involves scrutiny, review, audit, or quality",
+          "confidence": 0.7
+        }
+      ],
+      "tribal": [],
+      "skills": [],
+      "mcpTools": [],
+      "agents": [],
+      "buildVsIntegrate": "build",
+      "complexityTier": "M",
+      "confidence": 0.7,
+      "rationale": "The candidate signals indicate a high confidence in the /scrutinize skill for the given unit.",
+      "source": "ollama",
+      "rawConfidence": 0.7
+    },
+    "CCM-MS16::P1-U02": {
+      "pipelines": [
+        {
+          "skill": "test-team",
+          "why": "unit involves tests or coverage",
+          "confidence": 0.75
+        },
+        {
+          "skill": "/scrutinize",
+          "why": "unit involves scrutiny, review, audit, or quality",
+          "confidence": 0.7
+        }
+      ],
+      "tribal": [],
+      "skills": [
+        "trend"
+      ],
+      "mcpTools": [
+        "action-tracker"
+      ],
+      "agents": [
+        "test-review-agent"
+      ],
+      "buildVsIntegrate": "build",
+      "complexityTier": "M",
+      "confidence": 0.75,
+      "rationale": "Based on the provided signals, 'test-team' and '/scrutinize' have high confidence levels, and 'action-tracker' is listed as an MCP tool relevant to tracking trends.",
+      "source": "ollama",
+      "rawConfidence": 0.75
+    },
+    "CCM-MS16::P1-U03": {
+      "pipelines": [
+        {
+          "skill": "/wire-unwired",
+          "why": "unit involves wiring engines to dispatchers",
+          "confidence": 0.8
+        },
+        {
+          "skill": "/scrutinize",
+          "why": "unit involves scrutiny, review, audit, or quality",
+          "confidence": 0.7
+        }
+      ],
+      "tribal": [],
+      "skills": [],
+      "mcpTools": [
+        "MCP Server :3100"
+      ],
+      "agents": [
+        "wiring-review-agent"
+      ],
+      "buildVsIntegrate": "build",
+      "complexityTier": "M",
+      "confidence": 0.8,
+      "rationale": "The /wire-unwired skill has the highest confidence score among the candidates.",
+      "source": "ollama",
+      "rawConfidence": 0.8
+    },
+    "CCM-MS16::P1-U04": {
+      "pipelines": [
+        {
+          "skill": "/scrutinize",
+          "why": "unit involves scrutiny, review, audit, or quality",
+          "confidence": 0.7
+        }
+      ],
+      "tribal": [],
+      "skills": [],
+      "mcpTools": [],
+      "agents": [],
+      "buildVsIntegrate": "build",
+      "complexityTier": "M",
+      "confidence": 0.7,
+      "rationale": "The only candidate signal is the /scrutinize pipeline with a confidence of 0.7.",
+      "source": "ollama",
+      "rawConfidence": 0.7
+    },
+    "CCM-MS16::P2-U01": {
+      "pipelines": [
+        {
+          "skill": "/scrutinize",
+          "why": "unit involves scrutiny, review, audit, or quality",
+          "confidence": 0.7
+        }
+      ],
+      "tribal": [],
+      "skills": [],
+      "mcpTools": [],
+      "agents": [],
+      "buildVsIntegrate": "build",
+      "complexityTier": "M",
+      "confidence": 0.7,
+      "rationale": "Based on the provided signals, /scrutinize is the only candidate pipeline with a confidence score of 0.7.",
+      "source": "ollama",
+      "rawConfidence": 0.7
+    },
+    "CCM-MS16::P2-U02": {
+      "pipelines": [
+        {
+          "skill": "/scrutinize",
+          "why": "unit involves scrutiny, review, audit, or quality",
+          "confidence": 0.7
+        }
+      ],
+      "tribal": [],
+      "skills": [],
+      "mcpTools": [],
+      "agents": [],
+      "buildVsIntegrate": "build",
+      "complexityTier": "M",
+      "confidence": 0.7,
+      "rationale": "The only candidate signal is the /scrutinize pipeline with a confidence of 0.7.",
+      "source": "ollama",
+      "rawConfidence": 0.7
+    },
+    "CCM-MS16::P2-U03": {
+      "pipelines": [
+        {
+          "skill": "/scrutinize",
+          "why": "unit involves scrutiny, review, audit, or quality",
+          "confidence": 0.7
+        }
+      ],
+      "tribal": [],
+      "skills": [],
+      "mcpTools": [],
+      "agents": [],
+      "buildVsIntegrate": "build",
+      "complexityTier": "M",
+      "confidence": 0.7,
+      "rationale": "The candidate signals indicate a high confidence in the /scrutinize skill for building the Weekly Report Generator.",
+      "source": "ollama",
+      "rawConfidence": 0.7
+    },
+    "CCM-MS16::P2-U04": {
+      "pipelines": [
+        {
+          "skill": "/scrutinize",
+          "why": "unit involves scrutiny, review, audit, or quality",
+          "confidence": 0.7
+        }
+      ],
+      "tribal": [],
+      "skills": [],
+      "mcpTools": [],
+      "agents": [],
+      "buildVsIntegrate": "build",
+      "complexityTier": "M",
+      "confidence": 0.7,
+      "rationale": "The only candidate signal is a pipeline with the skill '/scrutinize' and a confidence of 0.7.",
+      "source": "ollama",
+      "rawConfidence": 0.7
+    },
+    "CCM-MS17::P0-U01": {
+      "pipelines": [
+        {
+          "skill": "/scrutinize",
+          "why": "unit involves scrutiny, review, audit, or quality",
+          "confidence": 0.7
+        }
+      ],
+      "tribal": [],
+      "skills": [],
+      "mcpTools": [],
+      "agents": [],
+      "buildVsIntegrate": "build",
+      "complexityTier": "M",
+      "confidence": 0.7,
+      "rationale": "The only candidate signal is the /scrutinize pipeline with a confidence of 0.7.",
+      "source": "ollama",
+      "rawConfidence": 0.7
+    },
+    "CCM-MS17::P0-U02": {
+      "pipelines": [
+        {
+          "skill": "/scrutinize",
+          "why": "unit involves scrutiny, review, audit, or quality",
+          "confidence": 0.7
+        }
+      ],
+      "tribal": [],
+      "skills": [],
+      "mcpTools": [],
+      "agents": [],
+      "buildVsIntegrate": "build",
+      "complexityTier": "M",
+      "confidence": 0.7,
+      "rationale": "The only candidate signal is the /scrutinize pipeline with a confidence of 0.7.",
+      "source": "ollama",
+      "rawConfidence": 0.7
+    },
+    "CCM-MS17::P0-U03": {
+      "pipelines": [
+        {
+          "skill": "/scrutinize",
+          "why": "unit involves scrutiny, review, audit, or quality",
+          "confidence": 0.7
+        }
+      ],
+      "tribal": [],
+      "skills": [],
+      "mcpTools": [],
+      "agents": [],
+      "buildVsIntegrate": "build",
+      "complexityTier": "M",
+      "confidence": 0.7,
+      "rationale": "The only candidate signal is the /scrutinize pipeline with a confidence of 0.7.",
+      "source": "ollama",
+      "rawConfidence": 0.7
+    },
+    "CCM-MS17::P0-U04": {
+      "pipelines": [
+        {
+          "skill": "/scrutinize",
+          "why": "unit involves scrutiny, review, audit, or quality",
+          "confidence": 0.7
+        }
+      ],
+      "tribal": [],
+      "skills": [],
+      "mcpTools": [],
+      "agents": [],
+      "buildVsIntegrate": "build",
+      "complexityTier": "M",
+      "confidence": 0.7,
+      "rationale": "Based on the provided signals, the /scrutinize pipeline is the only candidate with a confidence of 0.7.",
+      "source": "ollama",
+      "rawConfidence": 0.7
+    },
+    "CCM-MS17::P1-U01": {
+      "pipelines": [
+        {
+          "skill": "/token-dashboard",
+          "why": "token-economy / cost-efficiency / prompt-cache units",
+          "confidence": 0.8
+        },
+        {
+          "skill": "/scrutinize",
+          "why": "unit involves scrutiny, review, audit, or quality",
+          "confidence": 0.7
+        }
+      ],
+      "tribal": [],
+      "skills": [],
+      "mcpTools": [
+        "Auth (OAuth/RBAC/MFA)"
+      ],
+      "agents": [
+        "code-analyzer"
+      ],
+      "buildVsIntegrate": "build",
+      "complexityTier": "M",
+      "confidence": 0.8,
+      "rationale": "The /token-dashboard pipeline has the highest confidence score among the candidates.",
+      "source": "ollama",
+      "rawConfidence": 0.8
+    },
+    "CCM-MS17::P1-U02": {
+      "pipelines": [
+        {
+          "skill": "/scrutinize",
+          "why": "unit involves scrutiny, review, audit, or quality",
+          "confidence": 0.7
+        }
+      ],
+      "tribal": [],
+      "skills": [],
+      "mcpTools": [
+        "reference_extraction_priority..."
+      ],
+      "agents": [],
+      "buildVsIntegrate": "build",
+      "complexityTier": "M",
+      "confidence": 0.7,
+      "rationale": "Based on the provided signals, /scrutinize is the only candidate pipeline with a confidence score of 0.7.",
+      "source": "ollama",
+      "rawConfidence": 0.7
+    },
+    "CCM-MS17::P1-U03": {
+      "pipelines": [
+        {
+          "skill": "/scrutinize",
+          "why": "unit involves scrutiny, review, audit, or quality",
+          "confidence": 0.7
+        }
+      ],
+      "tribal": [],
+      "skills": [],
+      "mcpTools": [],
+      "agents": [],
+      "buildVsIntegrate": "build",
+      "complexityTier": "M",
+      "confidence": 0.7,
+      "rationale": "The only candidate signal is the /scrutinize pipeline with a confidence of 0.7.",
+      "source": "ollama",
+      "rawConfidence": 0.7
+    },
+    "CCM-MS17::P1-U04": {
+      "pipelines": [
+        {
+          "skill": "/scrutinize",
+          "why": "unit involves scrutiny, review, audit, or quality",
+          "confidence": 0.7
+        },
+        {
+          "skill": "/dedup",
+          "why": "unit involves deduplication",
+          "confidence": 0.75
+        }
+      ],
+      "tribal": [],
+      "skills": [
+        "dedup"
+      ],
+      "mcpTools": [],
+      "agents": [],
+      "buildVsIntegrate": "build",
+      "complexityTier": "M",
+      "confidence": 0.75,
+      "rationale": "The /dedup skill has the highest confidence score among the candidates for the given unit.",
+      "source": "ollama",
+      "rawConfidence": 0.75
+    },
+    "CCM-MS17::P2-U01": {
+      "pipelines": [
+        {
+          "skill": "/scrutinize",
+          "why": "unit involves scrutiny, review, audit, or quality",
+          "confidence": 0.7
+        }
+      ],
+      "tribal": [],
+      "skills": [],
+      "mcpTools": [],
+      "agents": [],
+      "buildVsIntegrate": "build",
+      "complexityTier": "M",
+      "confidence": 0.7,
+      "rationale": "The only candidate pipeline skill is /scrutinize with a confidence of 0.7.",
+      "source": "ollama",
+      "rawConfidence": 0.7
+    },
+    "CCM-MS17::P2-U02": {
+      "pipelines": [
+        {
+          "skill": "/token-dashboard",
+          "why": "token-economy / cost-efficiency / prompt-cache units",
+          "confidence": 0.8
+        },
+        {
+          "skill": "/scrutinize",
+          "why": "unit involves scrutiny, review, audit, or quality",
+          "confidence": 0.7
+        }
+      ],
+      "tribal": [],
+      "skills": [],
+      "mcpTools": [],
+      "agents": [
+        "code-analyzer"
+      ],
+      "buildVsIntegrate": "build",
+      "complexityTier": "M",
+      "confidence": 0.8,
+      "rationale": "The /token-dashboard skill has the highest confidence score among the candidates.",
+      "source": "ollama",
+      "rawConfidence": 0.8
+    },
+    "CCM-MS17::P2-U03": {
+      "pipelines": [
+        {
+          "skill": "test-team",
+          "why": "unit involves tests or coverage",
+          "confidence": 0.75
+        },
+        {
+          "skill": "/scrutinize",
+          "why": "unit involves scrutiny, review, audit, or quality",
+          "confidence": 0.7
+        }
+      ],
+      "tribal": [],
+      "skills": [],
+      "mcpTools": [],
+      "agents": [
+        "test-review-agent"
+      ],
+      "buildVsIntegrate": "build",
+      "complexityTier": "M",
+      "confidence": 0.75,
+      "rationale": "The 'test-team' pipeline has the highest confidence score for building the A/B Test Framework.",
+      "source": "ollama",
+      "rawConfidence": 0.75
+    },
+    "CCM-MS17::P2-U04": {
+      "pipelines": [
+        {
+          "skill": "test-team",
+          "why": "unit involves tests or coverage",
+          "confidence": 0.75
+        },
+        {
+          "skill": "/scrutinize",
+          "why": "unit involves scrutiny, review, audit, or quality",
+          "confidence": 0.7
+        }
+      ],
+      "tribal": [],
+      "skills": [],
+      "mcpTools": [],
+      "agents": [
+        "test-review-agent"
+      ],
+      "buildVsIntegrate": "integrate",
+      "complexityTier": "L",
+      "confidence": 0.725,
+      "rationale": "Both 'test-team' and '/scrutinize' have high confidence levels for the given unit.",
+      "source": "ollama",
+      "rawConfidence": 0.725
+    },
+    "CCM-MS2::P0-U01": {
+      "pipelines": [
+        {
+          "skill": "/scrutinize",
+          "why": "unit involves scrutiny, review, audit, or quality",
+          "confidence": 0.7
+        }
+      ],
+      "tribal": [],
+      "skills": [],
+      "mcpTools": [],
+      "agents": [],
+      "buildVsIntegrate": "build",
+      "complexityTier": "M",
+      "confidence": 0.7,
+      "rationale": "The only candidate signal is for the /scrutinize skill with a confidence of 0.7.",
+      "source": "ollama",
+      "rawConfidence": 0.7
+    },
+    "CCM-MS2::P0-U02": {
+      "pipelines": [
+        {
+          "skill": "/scrutinize",
+          "why": "unit involves scrutiny, review, audit, or quality",
+          "confidence": 0.7
+        }
+      ],
+      "tribal": [],
+      "skills": [],
+      "mcpTools": [],
+      "agents": [
+        "physics-reviewer"
+      ],
+      "buildVsIntegrate": "integrate",
+      "complexityTier": "M",
+      "confidence": 0.7,
+      "rationale": "The candidate signal indicates a strong confidence in the /scrutinize skill for integration.",
+      "source": "ollama",
+      "rawConfidence": 0.7
+    },
+    "CCM-MS2::P0-U03": {
+      "pipelines": [
+        {
+          "skill": "test-team",
+          "why": "unit involves tests or coverage",
+          "confidence": 0.75
+        },
+        {
+          "skill": "/scrutinize",
+          "why": "unit involves scrutiny, review, audit, or quality",
+          "confidence": 0.7
+        }
+      ],
+      "tribal": [],
+      "skills": [],
+      "mcpTools": [],
+      "agents": [
+        "test-review-agent"
+      ],
+      "buildVsIntegrate": "build",
+      "complexityTier": "M",
+      "confidence": 0.75,
+      "rationale": "The 'test-team' pipeline has the highest confidence score.",
+      "source": "ollama",
+      "rawConfidence": 0.75
+    },
+    "CCM-MS2::P0-U04": {
+      "pipelines": [
+        {
+          "skill": "/pdf-learn",
+          "why": "unit involves PDF/document ingestion or parsing",
+          "confidence": 0.8
+        },
+        {
+          "skill": "/scrutinize",
+          "why": "unit involves scrutiny, review, audit, or quality",
+          "confidence": 0.7
+        }
+      ],
+      "tribal": [],
+      "skills": [],
+      "mcpTools": [],
+      "agents": [],
+      "buildVsIntegrate": "build",
+      "complexityTier": "M",
+      "confidence": 0.8,
+      "rationale": "The /pdf-learn skill has the highest confidence score among the candidates.",
+      "source": "ollama",
+      "rawConfidence": 0.8
+    },
+    "CCM-MS2::P0-U05": {
+      "pipelines": [
+        {
+          "skill": "/scrutinize",
+          "why": "unit involves scrutiny, review, audit, or quality",
+          "confidence": 0.7
+        }
+      ],
+      "tribal": [],
+      "skills": [],
+      "mcpTools": [],
+      "agents": [],
+      "buildVsIntegrate": "build",
+      "complexityTier": "M",
+      "confidence": 0.7,
+      "rationale": "The candidate signals indicate a high confidence in using the /scrutinize skill for the given unit.",
+      "source": "ollama",
+      "rawConfidence": 0.7
+    },
+    "CCM-MS3::P0-U01": {
+      "pipelines": [
+        {
+          "skill": "/scrutinize",
+          "why": "unit involves scrutiny, review, audit, or quality",
+          "confidence": 0.7
+        }
+      ],
+      "tribal": [],
+      "skills": [
+        "audit-viz-first"
+      ],
+      "mcpTools": [],
+      "agents": [],
+      "buildVsIntegrate": "integrate",
+      "complexityTier": "M",
+      "confidence": 0.7,
+      "rationale": "Based on the provided signals, 'audit-viz-first' is the most relevant skill for the given unit and tier.",
+      "source": "ollama",
+      "rawConfidence": 0.7
+    },
+    "CCM-MS3::P0-U02": {
+      "pipelines": [
+        {
+          "skill": "/scrutinize",
+          "why": "unit involves scrutiny, review, audit, or quality",
+          "confidence": 0.7
+        }
+      ],
+      "tribal": [],
+      "skills": [],
+      "mcpTools": [],
+      "agents": [],
+      "buildVsIntegrate": "build",
+      "complexityTier": "M",
+      "confidence": 0.7,
+      "rationale": "The candidate signal indicates a high confidence in using the /scrutinize pipeline for this task.",
+      "source": "ollama",
+      "rawConfidence": 0.7
+    },
+    "CCM-MS3::P0-U03": {
+      "pipelines": [
+        {
+          "skill": "/scrutinize",
+          "why": "unit involves scrutiny, review, audit, or quality",
+          "confidence": 0.7
+        }
+      ],
+      "tribal": [],
+      "skills": [],
+      "mcpTools": [],
+      "agents": [],
+      "buildVsIntegrate": "build",
+      "complexityTier": "M",
+      "confidence": 0.7,
+      "rationale": "The candidate signal indicates a high confidence in the /scrutinize pipeline for building the model addition.",
+      "source": "ollama",
+      "rawConfidence": 0.7
+    },
+    "CCM-MS3::P0-U04": {
+      "pipelines": [
+        {
+          "skill": "/scrutinize",
+          "why": "unit involves scrutiny, review, audit, or quality",
+          "confidence": 0.7
+        }
+      ],
+      "tribal": [],
+      "skills": [],
+      "mcpTools": [],
+      "agents": [],
+      "buildVsIntegrate": "build",
+      "complexityTier": "M",
+      "confidence": 0.7,
+      "rationale": "The candidate signal indicates a high confidence in using the /scrutinize skill for building the unit.",
+      "source": "ollama",
+      "rawConfidence": 0.7
+    },
+    "CCM-MS3::P0-U05": {
+      "pipelines": [
+        {
+          "skill": "/scrutinize",
+          "why": "unit involves scrutiny, review, audit, or quality",
+          "confidence": 0.7
+        }
+      ],
+      "tribal": [],
+      "skills": [],
+      "mcpTools": [],
+      "agents": [],
+      "buildVsIntegrate": "build",
+      "complexityTier": "M",
+      "confidence": 0.7,
+      "rationale": "The candidate signal indicates a high confidence in using the /scrutinize skill for this unit.",
+      "source": "ollama",
+      "rawConfidence": 0.7
+    },
+    "CCM-MS4::P0-U01": {
+      "pipelines": [
+        {
+          "skill": "/scrutinize",
+          "why": "unit involves scrutiny, review, audit, or quality",
+          "confidence": 0.7
+        }
+      ],
+      "tribal": [],
+      "skills": [],
+      "mcpTools": [],
+      "agents": [],
+      "buildVsIntegrate": "build",
+      "complexityTier": "M",
+      "confidence": 0.7,
+      "rationale": "The candidate signal indicates a strong preference for the /scrutinize skill with a confidence of 0.7.",
+      "source": "ollama",
+      "rawConfidence": 0.7
+    },
+    "CCM-MS4::P0-U02": {
+      "pipelines": [
+        {
+          "skill": "/wire-unwired",
+          "why": "unit involves wiring engines to dispatchers",
+          "confidence": 0.8
+        },
+        {
+          "skill": "/scrutinize",
+          "why": "unit involves scrutiny, review, audit, or quality",
+          "confidence": 0.7
+        }
+      ],
+      "tribal": [],
+      "skills": [],
+      "mcpTools": [
+        "MCP Server :3100",
+        "businessdispatchershopfloor",
+        "adaptivecontroldispatcher-ada...",
+        "adaptivecontroldispatcher-rtac",
+        "adaptivecontroldispatcher-var...",
+        "agentdispatcher",
+        "aireasoningdispatcher-bounds"
+      ],
+      "agents": [
+        "wiring-review-agent"
+      ],
+      "buildVsIntegrate": "build",
+      "complexityTier": "M",
+      "confidence": 0.8,
+      "rationale": "Highest confidence in /wire-unwired for handling dispatcher conventions.",
+      "source": "ollama",
+      "rawConfidence": 0.8
+    },
+    "CCM-MS4::P0-U03": {
+      "pipelines": [
+        {
+          "skill": "/scrutinize",
+          "why": "unit involves scrutiny, review, audit, or quality",
+          "confidence": 0.7
+        }
+      ],
+      "tribal": [],
+      "skills": [],
+      "mcpTools": [],
+      "agents": [],
+      "buildVsIntegrate": "build",
+      "complexityTier": "M",
+      "confidence": 0.7,
+      "rationale": "The candidate signal indicates a high confidence in using the /scrutinize skill for the given unit.",
+      "source": "ollama",
+      "rawConfidence": 0.7
+    },
+    "CCM-MS4::P0-U04": {
+      "pipelines": [
+        {
+          "skill": "test-team",
+          "why": "unit involves tests or coverage",
+          "confidence": 0.75
+        },
+        {
+          "skill": "/scrutinize",
+          "why": "unit involves scrutiny, review, audit, or quality",
+          "confidence": 0.7
+        }
+      ],
+      "tribal": [],
+      "skills": [],
+      "mcpTools": [],
+      "agents": [
+        "test-review-agent"
+      ],
+      "buildVsIntegrate": "build",
+      "complexityTier": "M",
+      "confidence": 0.75,
+      "rationale": "The 'test-team' skill has the highest confidence for handling test conventions.",
+      "source": "ollama",
+      "rawConfidence": 0.75
+    },
+    "CCM-MS4::P0-U05": {
+      "pipelines": [
+        {
+          "skill": "/pdf-learn",
+          "why": "unit involves PDF/document ingestion or parsing",
+          "confidence": 0.8
+        },
+        {
+          "skill": "/scrutinize",
+          "why": "unit involves scrutiny, review, audit, or quality",
+          "confidence": 0.7
+        }
+      ],
+      "tribal": [],
+      "skills": [],
+      "mcpTools": [],
+      "agents": [],
+      "buildVsIntegrate": "build",
+      "complexityTier": "M",
+      "confidence": 0.8,
+      "rationale": "The /pdf-learn skill has the highest confidence score among the candidates.",
+      "source": "ollama",
+      "rawConfidence": 0.8
+    },
+    "CCM-MS5::P0-U01": {
+      "pipelines": [
+        {
+          "skill": "/scrutinize",
+          "why": "unit involves scrutiny, review, audit, or quality",
+          "confidence": 0.7
+        }
+      ],
+      "tribal": [],
+      "skills": [],
+      "mcpTools": [],
+      "agents": [],
+      "buildVsIntegrate": "build",
+      "complexityTier": "M",
+      "confidence": 0.7,
+      "rationale": "The candidate signal indicates a high confidence in the /scrutinize skill for building health.",
+      "source": "ollama",
+      "rawConfidence": 0.7
+    },
+    "CCM-MS5::P0-U02": {
+      "pipelines": [
+        {
+          "skill": "test-team",
+          "why": "unit involves tests or coverage",
+          "confidence": 0.75
+        },
+        {
+          "skill": "/scrutinize",
+          "why": "unit involves scrutiny, review, audit, or quality",
+          "confidence": 0.7
+        }
+      ],
+      "tribal": [],
+      "skills": [],
+      "mcpTools": [],
+      "agents": [
+        "test-review-agent"
+      ],
+      "buildVsIntegrate": "build",
+      "complexityTier": "M",
+      "confidence": 0.75,
+      "rationale": "The 'test-team' pipeline has the highest confidence score among the candidates.",
+      "source": "ollama",
+      "rawConfidence": 0.75
+    },
+    "CCM-MS5::P0-U03": {
+      "pipelines": [
+        {
+          "skill": "/wire-unwired",
+          "why": "unit involves wiring engines to dispatchers",
+          "confidence": 0.8
+        },
+        {
+          "skill": "/scrutinize",
+          "why": "unit involves scrutiny, review, audit, or quality",
+          "confidence": 0.7
+        }
+      ],
+      "tribal": [],
+      "skills": [],
+      "mcpTools": [
+        "MCP Server :3100"
+      ],
+      "agents": [
+        "wiring-review-agent"
+      ],
+      "buildVsIntegrate": "build",
+      "complexityTier": "M",
+      "confidence": 0.8,
+      "rationale": "Highest confidence in /wire-unwired for the given unit and verdict.",
+      "source": "ollama",
+      "rawConfidence": 0.8
+    },
+    "CCM-MS5::P0-U04": {
+      "pipelines": [
+        {
+          "skill": "/scrutinize",
+          "why": "unit involves scrutiny, review, audit, or quality",
+          "confidence": 0.7
+        }
+      ],
+      "tribal": [],
+      "skills": [],
+      "mcpTools": [],
+      "agents": [],
+      "buildVsIntegrate": "integrate",
+      "complexityTier": "M",
+      "confidence": 0.7,
+      "rationale": "The signal indicates a moderate confidence in using the /scrutinize skill for integrating the memory cleanup cron unit.",
+      "source": "ollama",
+      "rawConfidence": 0.7
+    },
+    "CCM-MS5::P0-U05": {
+      "pipelines": [
+        {
+          "skill": "/pdf-learn",
+          "why": "unit involves PDF/document ingestion or parsing",
+          "confidence": 0.8
+        },
+        {
+          "skill": "/scrutinize",
+          "why": "unit involves scrutiny, review, audit, or quality",
+          "confidence": 0.7
+        }
+      ],
+      "tribal": [],
+      "skills": [],
+      "mcpTools": [],
+      "agents": [],
+      "buildVsIntegrate": "build",
+      "complexityTier": "M",
+      "confidence": 0.8,
+      "rationale": "The /pdf-learn skill has the highest confidence score among the candidates.",
+      "source": "ollama",
+      "rawConfidence": 0.8
+    },
+    "CCM-MS6::P0-U01": {
+      "pipelines": [
+        {
+          "skill": "/scrutinize",
+          "why": "unit involves scrutiny, review, audit, or quality",
+          "confidence": 0.7
+        }
+      ],
+      "tribal": [],
+      "skills": [],
+      "mcpTools": [
+        "U-REV-MS0-ACT-SUBTIER-01 · Add subscription_tier_set action (hoist from MS1)"
+      ],
+      "agents": [],
+      "buildVsIntegrate": "build",
+      "complexityTier": "M",
+      "confidence": 0.7,
+      "rationale": "The candidate signal indicates a high confidence in using the /scrutinize pipeline for the given unit.",
+      "source": "ollama",
+      "rawConfidence": 0.7
+    },
+    "CCM-MS6::P0-U02": {
+      "pipelines": [
+        {
+          "skill": "/scrutinize",
+          "why": "unit involves scrutiny, review, audit, or quality",
+          "confidence": 0.7
+        }
+      ],
+      "tribal": [],
+      "skills": [],
+      "mcpTools": [
+        "U-REV-MS0-ACT-SUBTIER-01 · Add subscription_tier_set action (hoist from MS1)"
+      ],
+      "agents": [],
+      "buildVsIntegrate": "build",
+      "complexityTier": "M",
+      "confidence": 0.7,
+      "rationale": "The candidate signal indicates a high confidence in the '/scrutinize' skill for the given unit and tier.",
+      "source": "ollama",
+      "rawConfidence": 0.7
+    },
+    "CCM-MS6::P0-U03": {
+      "pipelines": [
+        {
+          "skill": "/scrutinize",
+          "why": "unit involves scrutiny, review, audit, or quality",
+          "confidence": 0.7
+        }
+      ],
+      "tribal": [],
+      "skills": [
+        "audit-viz-first"
+      ],
+      "mcpTools": [],
+      "agents": [],
+      "buildVsIntegrate": "integrate",
+      "complexityTier": "M",
+      "confidence": 0.7,
+      "rationale": "Based on the provided signals, /scrutinize has a high confidence level and audit-viz-first is suggested as a skill.",
+      "source": "ollama",
+      "rawConfidence": 0.7
+    },
+    "CCM-MS6::P0-U04": {
+      "pipelines": [
+        {
+          "skill": "/scrutinize",
+          "why": "unit involves scrutiny, review, audit, or quality",
+          "confidence": 0.7
+        }
+      ],
+      "tribal": [],
+      "skills": [],
+      "mcpTools": [
+        "MCP Server :3100"
+      ],
+      "agents": [],
+      "buildVsIntegrate": "build",
+      "complexityTier": "M",
+      "confidence": 0.7,
+      "rationale": "The candidate signal indicates a high confidence in using the /scrutinize skill for the MCP server sandboxing unit.",
+      "source": "ollama",
+      "rawConfidence": 0.7
+    },
+    "CCM-MS6::P0-U05": {
+      "pipelines": [
+        {
+          "skill": "/scrutinize",
+          "why": "unit involves scrutiny, review, audit, or quality",
+          "confidence": 0.7
+        }
+      ],
+      "tribal": [],
+      "skills": [],
+      "mcpTools": [
+        "feedback_dispatcher_path_gree...",
+        "extractionenforcementhooks"
+      ],
+      "agents": [
+        "physics-reviewer"
+      ],
+      "buildVsIntegrate": "build",
+      "complexityTier": "M",
+      "confidence": 0.7,
+      "rationale": "Based on the provided signals, 'scrutinize' has a confidence score of 0.7 and is included in the pipeline candidates. The MCP tools are also relevant for protected path enforcement.",
+      "source": "ollama",
+      "rawConfidence": 0.7
+    },
+    "CCM-MS7::P0-U01": {
+      "pipelines": [
+        {
+          "skill": "/scrutinize",
+          "why": "unit involves scrutiny, review, audit, or quality",
+          "confidence": 0.7
+        }
+      ],
+      "tribal": [],
+      "skills": [],
+      "mcpTools": [],
+      "agents": [],
+      "buildVsIntegrate": "build",
+      "complexityTier": "M",
+      "confidence": 0.7,
+      "rationale": "The only candidate signal is the /scrutinize skill with a confidence of 0.7.",
+      "source": "ollama",
+      "rawConfidence": 0.7
+    },
+    "CCM-MS7::P0-U02": {
+      "pipelines": [
+        {
+          "skill": "/scrutinize",
+          "why": "unit involves scrutiny, review, audit, or quality",
+          "confidence": 0.7
+        }
+      ],
+      "tribal": [],
+      "skills": [],
+      "mcpTools": [],
+      "agents": [],
+      "buildVsIntegrate": "build",
+      "complexityTier": "M",
+      "confidence": 0.7,
+      "rationale": "The candidate signal indicates a high confidence in the /scrutinize skill for the given unit.",
+      "source": "ollama",
+      "rawConfidence": 0.7
+    },
+    "CCM-MS7::P0-U03": {
+      "pipelines": [
+        {
+          "skill": "/scrutinize",
+          "why": "unit involves scrutiny, review, audit, or quality",
+          "confidence": 0.7
+        }
+      ],
+      "tribal": [],
+      "skills": [],
+      "mcpTools": [],
+      "agents": [],
+      "buildVsIntegrate": "build",
+      "complexityTier": "M",
+      "confidence": 0.7,
+      "rationale": "The only candidate signal is the /scrutinize pipeline with a confidence of 0.7.",
+      "source": "ollama",
+      "rawConfidence": 0.7
+    },
+    "CCM-MS7::P0-U04": {
+      "pipelines": [
+        {
+          "skill": "/scrutinize",
+          "why": "unit involves scrutiny, review, audit, or quality",
+          "confidence": 0.7
+        }
+      ],
+      "tribal": [],
+      "skills": [],
+      "mcpTools": [
+        "state/compaction-survival",
+        "reference_compaction_optimal_..."
+      ],
+      "agents": [],
+      "buildVsIntegrate": "build",
+      "complexityTier": "M",
+      "confidence": 0.7,
+      "rationale": "Based on the provided signals, the 'state/compaction-survival' tool is a strong candidate with a confidence score of 0.7.",
+      "source": "ollama",
+      "rawConfidence": 0.7
+    },
+    "CCM-MS7::P0-U05": {
+      "pipelines": [
+        {
+          "skill": "/scrutinize",
+          "why": "unit involves scrutiny, review, audit, or quality",
+          "confidence": 0.7
+        }
+      ],
+      "tribal": [],
+      "skills": [],
+      "mcpTools": [],
+      "agents": [],
+      "buildVsIntegrate": "build",
+      "complexityTier": "M",
+      "confidence": 0.7,
+      "rationale": "The only candidate signal is the /scrutinize pipeline with a confidence of 0.7.",
+      "source": "ollama",
+      "rawConfidence": 0.7
+    },
+    "CCM-MS8::P0-U01": {
+      "pipelines": [
+        {
+          "skill": "/scrutinize",
+          "why": "unit involves scrutiny, review, audit, or quality",
+          "confidence": 0.7
+        }
+      ],
+      "tribal": [],
+      "skills": [],
+      "mcpTools": [
+        "MCP Server :3100",
+        "REST API"
+      ],
+      "agents": [],
+      "buildVsIntegrate": "build",
+      "complexityTier": "M",
+      "confidence": 0.7,
+      "rationale": "The candidate signals indicate a high confidence in the 'pipelines' tool for scrutinizing the creation of standard .mcp.json files.",
+      "source": "ollama",
+      "rawConfidence": 0.7
+    },
+    "CCM-MS8::P0-U02": {
+      "pipelines": [
+        {
+          "skill": "/scrutinize",
+          "why": "unit involves scrutiny, review, audit, or quality",
+          "confidence": 0.7
+        }
+      ],
+      "tribal": [],
+      "skills": [],
+      "mcpTools": [],
+      "agents": [],
+      "buildVsIntegrate": "build",
+      "complexityTier": "M",
+      "confidence": 0.7,
+      "rationale": "The only candidate signal is the /scrutinize skill with a confidence of 0.7.",
+      "source": "ollama",
+      "rawConfidence": 0.7
+    },
+    "CCM-MS8::P0-U03": {
+      "pipelines": [
+        {
+          "skill": "/scrutinize",
+          "why": "unit involves scrutiny, review, audit, or quality",
+          "confidence": 0.7
+        }
+      ],
+      "tribal": [],
+      "skills": [],
+      "mcpTools": [
+        "MCP Server :3100",
+        "resourceExtraction"
+      ],
+      "agents": [],
+      "buildVsIntegrate": "build",
+      "complexityTier": "M",
+      "confidence": 0.7,
+      "rationale": "Based on the provided signals, /scrutinize has a high confidence level and resourceExtraction is listed as an MCP tool.",
+      "source": "ollama",
+      "rawConfidence": 0.7
+    },
+    "CCM-MS8::P0-U04": {
+      "pipelines": [
+        {
+          "skill": "/pdf-learn",
+          "why": "unit involves PDF/document ingestion or parsing",
+          "confidence": 0.8
+        },
+        {
+          "skill": "/scrutinize",
+          "why": "unit involves scrutiny, review, audit, or quality",
+          "confidence": 0.7
+        }
+      ],
+      "tribal": [],
+      "skills": [],
+      "mcpTools": [
+        "MCP Server :3100"
+      ],
+      "agents": [],
+      "buildVsIntegrate": "build",
+      "complexityTier": "M",
+      "confidence": 0.75,
+      "rationale": "Both /pdf-learn and /scrutinize are highly confident candidates for processing the MCP prompt catalog.",
+      "source": "ollama",
+      "rawConfidence": 0.75
+    },
+    "CCM-MS8::P0-U05": {
+      "pipelines": [
+        {
+          "skill": "/scrutinize",
+          "why": "unit involves scrutiny, review, audit, or quality",
+          "confidence": 0.7
+        }
+      ],
+      "tribal": [],
+      "skills": [],
+      "mcpTools": [],
+      "agents": [],
+      "buildVsIntegrate": "build",
+      "complexityTier": "M",
+      "confidence": 0.7,
+      "rationale": "The candidate signal indicates a high confidence in using the /scrutinize skill for deferred tool loading config.",
+      "source": "ollama",
+      "rawConfidence": 0.7
+    },
+    "CCM-MS9::P0-U01": {
+      "pipelines": [
+        {
+          "skill": "/scrutinize",
+          "why": "unit involves scrutiny, review, audit, or quality",
+          "confidence": 0.7
+        }
+      ],
+      "tribal": [],
+      "skills": [],
+      "mcpTools": [],
+      "agents": [],
+      "buildVsIntegrate": "build",
+      "complexityTier": "M",
+      "confidence": 0.7,
+      "rationale": "The candidate signals indicate a high confidence in the '/scrutinize' skill for the given unit and tier.",
+      "source": "ollama",
+      "rawConfidence": 0.7
+    },
+    "CCM-MS9::P0-U02": {
+      "pipelines": [
+        {
+          "skill": "/scrutinize",
+          "why": "unit involves scrutiny, review, audit, or quality",
+          "confidence": 0.7
+        }
+      ],
+      "tribal": [],
+      "skills": [],
+      "mcpTools": [],
+      "agents": [],
+      "buildVsIntegrate": "build",
+      "complexityTier": "M",
+      "confidence": 0.7,
+      "rationale": "The only candidate signal is the /scrutinize skill with a confidence of 0.7.",
+      "source": "ollama",
+      "rawConfidence": 0.7
+    },
+    "CCM-MS9::P0-U03": {
+      "pipelines": [
+        {
+          "skill": "test-team",
+          "why": "unit involves tests or coverage",
+          "confidence": 0.75
+        },
+        {
+          "skill": "/scrutinize",
+          "why": "unit involves scrutiny, review, audit, or quality",
+          "confidence": 0.7
+        }
+      ],
+      "tribal": [],
+      "skills": [],
+      "mcpTools": [],
+      "agents": [
+        "test-review-agent"
+      ],
+      "buildVsIntegrate": "build",
+      "complexityTier": "M",
+      "confidence": 0.75,
+      "rationale": "The 'test-team' skill has the highest confidence score among the candidates.",
+      "source": "ollama",
+      "rawConfidence": 0.75
+    },
+    "CCM-MS9::P0-U04": {
+      "pipelines": [
+        {
+          "skill": "/scrutinize",
+          "why": "unit involves scrutiny, review, audit, or quality",
+          "confidence": 0.7
+        }
+      ],
+      "tribal": [],
+      "skills": [],
+      "mcpTools": [],
+      "agents": [],
+      "buildVsIntegrate": "build",
+      "complexityTier": "M",
+      "confidence": 0.7,
+      "rationale": "Based on the provided candidate signals, /scrutinize is the only skill with a confidence level of 0.7.",
+      "source": "ollama",
+      "rawConfidence": 0.7
+    },
+    "CCM-MS9::P0-U05": {
+      "pipelines": [
+        {
+          "skill": "/scrutinize",
+          "why": "unit involves scrutiny, review, audit, or quality",
+          "confidence": 0.7
+        }
+      ],
+      "tribal": [],
+      "skills": [],
+      "mcpTools": [],
+      "agents": [],
+      "buildVsIntegrate": "build",
+      "complexityTier": "M",
+      "confidence": 0.7,
+      "rationale": "The only candidate signal is the /scrutinize skill with a confidence of 0.7.",
+      "source": "ollama",
+      "rawConfidence": 0.7
+    },
+    "CLI-MS0::P0-U01": {
+      "pipelines": [
+        {
+          "skill": "/scrutinize",
+          "why": "generic review fallback — no keyword matched",
+          "confidence": 0.3
+        }
+      ],
+      "tribal": [],
+      "skills": [],
+      "mcpTools": [],
+      "agents": [],
+      "buildVsIntegrate": "build",
+      "complexityTier": "M",
+      "confidence": 0.3,
+      "rationale": "The only candidate signal is the /scrutinize skill with a confidence of 0.3.",
+      "source": "ollama",
+      "rawConfidence": 0.3
+    },
+    "CLI-MS0::P0-U02": {
+      "pipelines": [
+        {
+          "skill": "/wire-unwired",
+          "why": "unit involves wiring engines to dispatchers",
+          "confidence": 0.8
+        }
+      ],
+      "tribal": [],
+      "skills": [],
+      "mcpTools": [
+        "MCP Server :3100",
+        "resourceExtraction",
+        "state/compaction-survival",
+        "feedback_hotel_pii_redaction_..."
+      ],
+      "agents": [
+        "wiring-review-agent"
+      ],
+      "buildVsIntegrate": "build",
+      "complexityTier": "M",
+      "confidence": 0.8,
+      "rationale": "High confidence in /wire-unwired skill, and MCP Server :3100 is a relevant tool for the unit.",
+      "source": "ollama",
+      "rawConfidence": 0.8
+    },
+    "CLI-MS0::P0-U03": {
+      "pipelines": [
+        {
+          "skill": "/post-generate",
+          "why": "post-processor / G-code dialect / controller / CIMCO / WinMax — echo domain",
+          "confidence": 0.8
+        }
+      ],
+      "tribal": [],
+      "skills": [
+        "quality-check-lathe"
+      ],
+      "mcpTools": [],
+      "agents": [],
+      "buildVsIntegrate": "build",
+      "complexityTier": "M",
+      "confidence": 0.8,
+      "rationale": "Based on the provided signals, the 'pipelines' with skill '/post-generate' and the 'quality-check-lathe' skill are the most relevant candidates for this unit.",
+      "source": "ollama",
+      "rawConfidence": 0.8
+    },
+    "CLI-MS0::P0-U04": {
+      "pipelines": [
+        {
+          "skill": "/scrutinize",
+          "why": "generic review fallback — no keyword matched",
+          "confidence": 0.3
+        }
+      ],
+      "tribal": [],
+      "skills": [],
+      "mcpTools": [
+        "REST API"
+      ],
+      "agents": [
+        "physics-reviewer"
+      ],
+      "buildVsIntegrate": "build",
+      "complexityTier": "M",
+      "confidence": 0.5,
+      "rationale": "Based on the provided signals, REST API is the only MCP tool available and seems relevant for scrutinizing CLI-MS0::P0-U04.",
+      "source": "ollama",
+      "rawConfidence": 0.5
+    },
+    "CLI-MS0::P1-U02": {
+      "pipelines": [
+        {
+          "skill": "/post-generate",
+          "why": "post-processor / G-code dialect / controller / CIMCO / WinMax — echo domain",
+          "confidence": 0.8
+        }
+      ],
+      "tribal": [],
+      "skills": [],
+      "mcpTools": [],
+      "agents": [
+        "physics-reviewer"
+      ],
+      "buildVsIntegrate": "build",
+      "complexityTier": "M",
+      "confidence": 0.8,
+      "rationale": "The candidate signal indicates a high confidence in using the /post-generate skill for the given unit.",
+      "source": "ollama",
+      "rawConfidence": 0.8
+    },
+    "CLI-MS0::P1-U03": {
+      "pipelines": [
+        {
+          "skill": "/quote-to-ship",
+          "why": "quoting/cost/pricing/DFM — routes to quote-to-ship orchestrator",
+          "confidence": 0.8
+        },
+        {
+          "skill": "/token-dashboard",
+          "why": "token-economy / cost-efficiency / prompt-cache units",
+          "confidence": 0.8
+        },
+        {
+          "skill": "/cad-feature-recognize",
+          "why": "geometry-analysis units — feature-recognition / DFM / tolerance-stack",
+          "confidence": 0.8
+        }
+      ],
+      "tribal": [],
+      "skills": [],
+      "mcpTools": [
+        "REST API"
+      ],
+      "agents": [
+        "code-analyzer"
+      ],
+      "buildVsIntegrate": "build",
+      "complexityTier": "M",
+      "confidence": 0.8,
+      "rationale": "Selected /quote-to-ship based on highest confidence and relevance to 'prism quote (estimate)' task.",
+      "source": "ollama",
+      "rawConfidence": 0.8
+    },
+    "CLI-MS0::P1-U04": {
+      "pipelines": [
+        {
+          "skill": "/post-generate",
+          "why": "post-processor / G-code dialect / controller / CIMCO / WinMax — echo domain",
+          "confidence": 0.8
+        }
+      ],
+      "tribal": [],
+      "skills": [],
+      "mcpTools": [],
+      "agents": [],
+      "buildVsIntegrate": "build",
+      "complexityTier": "M",
+      "confidence": 0.8,
+      "rationale": "The candidate signal indicates a high confidence in the /post-generate skill for the given unit.",
+      "source": "ollama",
+      "rawConfidence": 0.8
+    },
+    "CLI-MS0::P1-U05": {
+      "pipelines": [
+        {
+          "skill": "/post-generate",
+          "why": "post-processor / G-code dialect / controller / CIMCO / WinMax — echo domain",
+          "confidence": 0.8
+        }
+      ],
+      "tribal": [],
+      "skills": [],
+      "mcpTools": [
+        "reference_audit_actionmap_syn..."
+      ],
+      "agents": [],
+      "buildVsIntegrate": "build",
+      "complexityTier": "M",
+      "confidence": 0.8,
+      "rationale": "The candidate signal indicates a high confidence in using the /post-generate skill for post-processing.",
+      "source": "ollama",
+      "rawConfidence": 0.8
+    },
+    "CLI-MS0::P1-U06": {
+      "pipelines": [
+        {
+          "skill": "/pdf-learn",
+          "why": "unit involves PDF/document ingestion or parsing",
+          "confidence": 0.8
+        }
+      ],
+      "tribal": [],
+      "skills": [
+        "audit-viz-first"
+      ],
+      "mcpTools": [],
+      "agents": [],
+      "buildVsIntegrate": "build",
+      "complexityTier": "M",
+      "confidence": 0.8,
+      "rationale": "Based on the provided signals, /pdf-learn has a high confidence score and audit-viz-first is listed as a skill.",
+      "source": "ollama",
+      "rawConfidence": 0.8
+    },
+    "CLI-MS0::P1-U07": {
+      "pipelines": [
+        {
+          "skill": "/scrutinize",
+          "why": "generic review fallback — no keyword matched",
+          "confidence": 0.3
+        }
+      ],
+      "tribal": [],
+      "skills": [
+        "playbook"
+      ],
+      "mcpTools": [
+        "GraphQL"
+      ],
+      "agents": [],
+      "buildVsIntegrate": "build",
+      "complexityTier": "M",
+      "confidence": 0.4,
+      "rationale": "Based on the provided signals, the playbook skill and GraphQL tool are relevant for building the prism playbook.",
+      "source": "ollama",
+      "rawConfidence": 0.4
+    },
+    "CLI-MS0::P1-U08": {
+      "pipelines": [
+        {
+          "skill": "/biz-health",
+          "why": "business/ERP/finance units — entirely unrouted without this rule",
+          "confidence": 0.8
+        }
+      ],
+      "tribal": [],
+      "skills": [],
+      "mcpTools": [],
+      "agents": [
+        "physics-reviewer"
+      ],
+      "buildVsIntegrate": "build",
+      "complexityTier": "M",
+      "confidence": 0.8,
+      "rationale": "The candidate signal indicates a high confidence in using the /biz-health skill for the given unit.",
+      "source": "ollama",
+      "rawConfidence": 0.8
+    },
+    "CLI-MS0::P2-U01": {
+      "pipelines": [
+        {
+          "skill": "/quote-to-ship",
+          "why": "quoting/cost/pricing/DFM — routes to quote-to-ship orchestrator",
+          "confidence": 0.8
+        }
+      ],
+      "tribal": [],
+      "skills": [],
+      "mcpTools": [
+        "devdispatcher-uwirespreadshee..."
+      ],
+      "agents": [
+        "code-analyzer"
+      ],
+      "buildVsIntegrate": "build",
+      "complexityTier": "M",
+      "confidence": 0.8,
+      "rationale": "The candidate signal indicates a high confidence in the '/quote-to-ship' pipeline for building the unit.",
+      "source": "ollama",
+      "rawConfidence": 0.8
+    },
+    "CLI-MS0::P2-U02": {
+      "pipelines": [
+        {
+          "skill": "/scrutinize",
+          "why": "generic review fallback — no keyword matched",
+          "confidence": 0.3
+        }
+      ],
+      "tribal": [],
+      "skills": [],
+      "mcpTools": [],
+      "agents": [],
+      "buildVsIntegrate": "build",
+      "complexityTier": "M",
+      "confidence": 0.3,
+      "rationale": "The only candidate signal provided is for the /scrutinize skill with a confidence of 0.3.",
+      "source": "ollama",
+      "rawConfidence": 0.3
+    },
+    "CLI-MS0::P2-U03": {
+      "pipelines": [
+        {
+          "skill": "/post-generate",
+          "why": "post-processor / G-code dialect / controller / CIMCO / WinMax — echo domain",
+          "confidence": 0.8
+        }
+      ],
+      "tribal": [],
+      "skills": [],
+      "mcpTools": [],
+      "agents": [],
+      "buildVsIntegrate": "build",
+      "complexityTier": "M",
+      "confidence": 0.8,
+      "rationale": "The candidate signal indicates a high confidence in using the /post-generate skill for pipeline composition helpers.",
+      "source": "ollama",
+      "rawConfidence": 0.8
+    },
+    "CLI-MS0::P3-U01": {
+      "pipelines": [
+        {
+          "skill": "/scrutinize",
+          "why": "generic review fallback — no keyword matched",
+          "confidence": 0.3
+        }
+      ],
+      "tribal": [],
+      "skills": [],
+      "mcpTools": [],
+      "agents": [],
+      "buildVsIntegrate": "build",
+      "complexityTier": "M",
+      "confidence": 0.3,
+      "rationale": "The only candidate signal is the /scrutinize skill with a confidence of 0.3.",
+      "source": "ollama",
+      "rawConfidence": 0.3
+    },
+    "CLI-MS0::P3-U02": {
+      "pipelines": [
+        {
+          "skill": "/scrutinize",
+          "why": "generic review fallback — no keyword matched",
+          "confidence": 0.3
+        }
+      ],
+      "tribal": [],
+      "skills": [],
+      "mcpTools": [
+        "Auth (OAuth/RBAC/MFA)"
+      ],
+      "agents": [],
+      "buildVsIntegrate": "build",
+      "complexityTier": "M",
+      "confidence": 0.3,
+      "rationale": "The only candidate signal is a pipeline with low confidence.",
+      "source": "ollama",
+      "rawConfidence": 0.3
+    },
+    "CLI-MS0::P3-U03": {
+      "pipelines": [
+        {
+          "skill": "/scrutinize",
+          "why": "generic review fallback — no keyword matched",
+          "confidence": 0.3
+        }
+      ],
+      "tribal": [],
+      "skills": [],
+      "mcpTools": [
+        "action-help",
+        "MISC-291 · ProductPillarEngine shows incomplete pillars (productDispatcher stub "
+      ],
+      "agents": [],
+      "buildVsIntegrate": "build",
+      "complexityTier": "M",
+      "confidence": 0.4,
+      "rationale": "Based on the provided signals, 'action-help' is a relevant tool for generating man pages and help systems.",
+      "source": "ollama",
+      "rawConfidence": 0.4
+    },
+    "CLI-MS0::P4-U01": {
+      "pipelines": [
+        {
+          "skill": "/wire-unwired",
+          "why": "unit involves wiring engines to dispatchers",
+          "confidence": 0.8
+        },
+        {
+          "skill": "/token-dashboard",
+          "why": "token-economy / cost-efficiency / prompt-cache units",
+          "confidence": 0.8
+        }
+      ],
+      "tribal": [],
+      "skills": [],
+      "mcpTools": [
+        "Auth (OAuth/RBAC/MFA)",
+        "MCP Server :3100"
+      ],
+      "agents": [
+        "wiring-review-agent",
+        "code-analyzer"
+      ],
+      "buildVsIntegrate": "build",
+      "complexityTier": "M",
+      "confidence": 0.8,
+      "rationale": "Both /wire-unwired and /token-dashboard have high confidence scores and are relevant to the CLIDispatchEngine unit.",
+      "source": "ollama",
+      "rawConfidence": 0.8
+    },
+    "CLI-MS0::P4-U02": {
+      "pipelines": [
+        {
+          "skill": "test-team",
+          "why": "unit involves tests or coverage",
+          "confidence": 0.75
+        }
+      ],
+      "tribal": [],
+      "skills": [],
+      "mcpTools": [],
+      "agents": [
+        "test-review-agent"
+      ],
+      "buildVsIntegrate": "build",
+      "complexityTier": "M",
+      "confidence": 0.75,
+      "rationale": "The candidate signal indicates a high confidence in the 'test-team' skill, which aligns with the /cli-test unit title.",
+      "source": "ollama",
+      "rawConfidence": 0.75
+    },
+    "CLI-MS0::P4-U03": {
+      "pipelines": [
+        {
+          "skill": "/wire-unwired",
+          "why": "unit involves wiring engines to dispatchers",
+          "confidence": 0.8
+        }
+      ],
+      "tribal": [],
+      "skills": [],
+      "mcpTools": [
+        "MISC-003 · Wire action-triple-sync.mjs PreToolUse hook into settings.json"
+      ],
+      "agents": [
+        "wiring-review-agent"
+      ],
+      "buildVsIntegrate": "build",
+      "complexityTier": "M",
+      "confidence": 0.8,
+      "rationale": "Based on the provided signals, /wire-unwired has a high confidence score and MISC-003 is directly relevant to the unit's title.",
+      "source": "ollama",
+      "rawConfidence": 0.8
+    },
+    "CLI-MS0::P4-U04": {
+      "pipelines": [
+        {
+          "skill": "test-team",
+          "why": "unit involves tests or coverage",
+          "confidence": 0.75
+        }
+      ],
+      "tribal": [],
+      "skills": [],
+      "mcpTools": [
+        "reference_audit_actionmap_syn..."
+      ],
+      "agents": [
+        "test-review-agent"
+      ],
+      "buildVsIntegrate": "integrate",
+      "complexityTier": "M",
+      "confidence": 0.75,
+      "rationale": "The candidate signals indicate a strong confidence in the 'test-team' pipeline for integration tests and build verification.",
+      "source": "ollama",
+      "rawConfidence": 0.75
+    },
+    "COMBO-EFFICIENCY-MS0::P0-U01": {
+      "pipelines": [
+        {
+          "skill": "/ollama-route-check",
+          "why": "local-LLM offload / model-routing units",
+          "confidence": 0.85
+        }
+      ],
+      "tribal": [],
+      "skills": [],
+      "mcpTools": [
+        "REST API",
+        "MCP Server :3100"
+      ],
+      "agents": [
+        "code-analyzer"
+      ],
+      "buildVsIntegrate": "build",
+      "complexityTier": "M",
+      "confidence": 0.85,
+      "rationale": "Based on the provided signals, /ollama-route-check is the most confident candidate for diagnosing and reviving Ollama /api/chat.",
+      "source": "ollama",
+      "rawConfidence": 0.85
+    },
+    "COST-EFFICIENCY-BRIDGE-MS0::P0-U01": {
+      "pipelines": [
+        {
+          "skill": "/token-dashboard",
+          "why": "token-economy / cost-efficiency / prompt-cache units",
+          "confidence": 0.8
+        }
+      ],
+      "tribal": [],
+      "skills": [],
+      "mcpTools": [
+        "camtrainingextractionaggregat...",
+        "camtrainingextractionaggregat...",
+        "resourceExtraction"
+      ],
+      "agents": [
+        "code-analyzer"
+      ],
+      "buildVsIntegrate": "build",
+      "complexityTier": "M",
+      "confidence": 0.8,
+      "rationale": "High confidence in pipelines due to skill match, and resourceExtraction is relevant for cost efficiency.",
+      "source": "ollama",
+      "rawConfidence": 0.8
+    },
+    "COST-EFFICIENCY-BRIDGE-MS0::P0-U02": {
+      "pipelines": [
+        {
+          "skill": "/token-dashboard",
+          "why": "token-economy / cost-efficiency / prompt-cache units",
+          "confidence": 0.8
+        },
+        {
+          "skill": "test-team",
+          "why": "unit involves tests or coverage",
+          "confidence": 0.75
+        }
+      ],
+      "tribal": [],
+      "skills": [],
+      "mcpTools": [],
+      "agents": [
+        "test-review-agent",
+        "code-analyzer"
+      ],
+      "buildVsIntegrate": "build",
+      "complexityTier": "S",
+      "confidence": 0.75,
+      "rationale": "The 'test-team' skill has the highest confidence score among the candidates for handling the given unit.",
+      "source": "ollama",
+      "rawConfidence": 0.75
+    },
+    "COST-EFFICIENCY-BRIDGE-MS0::P0-U03": {
+      "pipelines": [
+        {
+          "skill": "/cad-from-blueprint",
+          "why": "CAD / blueprint intake — routes to the print-to-CAD pipeline",
+          "confidence": 0.8
+        }
+      ],
+      "tribal": [],
+      "skills": [],
+      "mcpTools": [],
+      "agents": [
+        "code-analyzer"
+      ],
+      "buildVsIntegrate": "build",
+      "complexityTier": "M",
+      "confidence": 0.8,
+      "rationale": "The only candidate skill provided is /cad-from-blueprint with a confidence of 0.8.",
+      "source": "ollama",
+      "rawConfidence": 0.8
+    },
+    "COST-EFFICIENCY-BRIDGE-MS0::P0-U04": {
+      "pipelines": [
+        {
+          "skill": "/scrutinize",
+          "why": "generic review fallback — no keyword matched",
+          "confidence": 0.3
+        }
+      ],
+      "tribal": [],
+      "skills": [],
+      "mcpTools": [
+        "Auth (OAuth/RBAC/MFA)",
+        "GraphQL"
+      ],
+      "agents": [],
+      "buildVsIntegrate": "build",
+      "complexityTier": "M",
+      "confidence": 0.3,
+      "rationale": "The only candidate provided is the 'pipelines' tool with a skill of '/scrutinize'.",
+      "source": "ollama",
+      "rawConfidence": 0.3
+    },
+    "ECHO-CAM-BRIDGES-MS0::P0-U01": {
+      "pipelines": [
+        {
+          "skill": "/cam-strategy",
+          "why": "CAM strategy / toolpath selection",
+          "confidence": 0.75
+        },
+        {
+          "skill": "/cad-from-blueprint",
+          "why": "CAD / blueprint intake — routes to the print-to-CAD pipeline",
+          "confidence": 0.8
+        }
+      ],
+      "tribal": [],
+      "skills": [
+        "cam-strategy"
+      ],
+      "mcpTools": [
+        "caddispatcher-cadbridgestatus"
+      ],
+      "agents": [],
+      "buildVsIntegrate": "build",
+      "complexityTier": "M",
+      "confidence": 0.775,
+      "rationale": "High confidence in both CAD and CAM skills, with a slight preference for CAD due to higher individual confidence.",
+      "source": "ollama",
+      "rawConfidence": 0.775
+    },
+    "ECHO-CAM-BRIDGES-MS0::P0-U02": {
+      "pipelines": [
+        {
+          "skill": "/post-generate",
+          "why": "post-processor / G-code dialect / controller / CIMCO / WinMax — echo domain",
+          "confidence": 0.8
+        },
+        {
+          "skill": "/scrutinize",
+          "why": "unit involves scrutiny, review, audit, or quality",
+          "confidence": 0.7
+        }
+      ],
+      "tribal": [],
+      "skills": [],
+      "mcpTools": [],
+      "agents": [],
+      "buildVsIntegrate": "integrate",
+      "complexityTier": "M",
+      "confidence": 0.8,
+      "rationale": "The /post-generate skill has the highest confidence score among the candidates.",
+      "source": "ollama",
+      "rawConfidence": 0.8
+    },
+    "ECHO-CAM-BRIDGES-MS0::P0-U03": {
+      "pipelines": [
+        {
+          "skill": "/auto-speed-feed",
+          "why": "SFC calibration units — routes to the speed-feed orchestrator",
+          "confidence": 0.8
+        },
+        {
+          "skill": "/fusion-generate",
+          "why": "live-host integration — Fusion360 / HyperCAD / add-in units",
+          "confidence": 0.8
+        }
+      ],
+      "tribal": [],
+      "skills": [],
+      "mcpTools": [
+        "caddispatcher-cadbridgestatus"
+      ],
+      "agents": [
+        "physics-reviewer"
+      ],
+      "buildVsIntegrate": "build",
+      "complexityTier": "M",
+      "confidence": 0.8,
+      "rationale": "Both skills have high confidence and are directly relevant to the unit's title involving SFC speeds/feeds and Fusion 360 bridging.",
+      "source": "ollama",
+      "rawConfidence": 0.8
+    },
+    "ECHO-CAM-BRIDGES-MS0::P0-U04": {
+      "pipelines": [
+        {
+          "skill": "/auto-speed-feed",
+          "why": "SFC calibration units — routes to the speed-feed orchestrator",
+          "confidence": 0.8
+        },
+        {
+          "skill": "/cam-bridge",
+          "why": "in-seat add-in + vendor-bridge units for CAM integration",
+          "confidence": 0.8
+        },
+        {
+          "skill": "/mill",
+          "why": "milling-domain unit — routes to the Tier-3 mill orchestrator",
+          "confidence": 0.8
+        },
+        {
+          "skill": "/hypermill-full-job",
+          "why": "HyperMILL sub-galaxy / .hmt tool-lib / cycle-catalog units",
+          "confidence": 0.8
+        }
+      ],
+      "tribal": [],
+      "skills": [
+        "mill"
+      ],
+      "mcpTools": [],
+      "agents": [
+        "physics-reviewer"
+      ],
+      "buildVsIntegrate": "build",
+      "complexityTier": "M",
+      "confidence": 0.8,
+      "rationale": "High confidence in skills related to CAM bridging and hyperMILL job creation for the given unit.",
+      "source": "ollama",
+      "rawConfidence": 0.8
+    },
+    "ECHO-CAM-BRIDGES-MS0::P0-U05": {
+      "pipelines": [
+        {
+          "skill": "/auto-speed-feed",
+          "why": "SFC calibration units — routes to the speed-feed orchestrator",
+          "confidence": 0.8
+        }
+      ],
+      "tribal": [],
+      "skills": [],
+      "mcpTools": [],
+      "agents": [
+        "physics-reviewer"
+      ],
+      "buildVsIntegrate": "build",
+      "complexityTier": "M",
+      "confidence": 0.8,
+      "rationale": "The candidate signal indicates a high confidence in the /auto-speed-feed skill for processing SFC speeds/feeds.",
+      "source": "ollama",
+      "rawConfidence": 0.8
+    },
+    "EIGC-MS0::P0-U01": {
+      "pipelines": [
+        {
+          "skill": "/scrutinize",
+          "why": "unit involves scrutiny, review, audit, or quality",
+          "confidence": 0.7
+        }
+      ],
+      "tribal": [],
+      "skills": [
+        "audit-viz-first"
+      ],
+      "mcpTools": [],
+      "agents": [],
+      "buildVsIntegrate": "integrate",
+      "complexityTier": "M",
+      "confidence": 0.7,
+      "rationale": "Based on the provided signals, the /scrutinize skill has a confidence of 0.7 and audit-viz-first is listed as a required skill.",
+      "source": "ollama",
+      "rawConfidence": 0.7
+    },
+    "EIGC-MS0::P0-U02": {
+      "pipelines": [
+        {
+          "skill": "/scrutinize",
+          "why": "unit involves scrutiny, review, audit, or quality",
+          "confidence": 0.7
+        }
+      ],
+      "tribal": [],
+      "skills": [
+        "audit-viz-first"
+      ],
+      "mcpTools": [],
+      "agents": [],
+      "buildVsIntegrate": "integrate",
+      "complexityTier": "M",
+      "confidence": 0.7,
+      "rationale": "Based on the provided signals, 'audit-viz-first' and '/scrutinize' are the most relevant skills for integrating the Audit MultiProcessCAMBridgeEngine + SolidEditingEngine.",
+      "source": "ollama",
+      "rawConfidence": 0.7
+    },
+    "EIGC-MS0::P0-U03": {
+      "pipelines": [
+        {
+          "skill": "/scrutinize",
+          "why": "unit involves scrutiny, review, audit, or quality",
+          "confidence": 0.7
+        }
+      ],
+      "tribal": [],
+      "skills": [
+        "audit-viz-first",
+        "cam-strategy"
+      ],
+      "mcpTools": [],
+      "agents": [],
+      "buildVsIntegrate": "integrate",
+      "complexityTier": "M",
+      "confidence": 0.7,
+      "rationale": "Based on the provided signals, 'audit-viz-first' and 'cam-strategy' are the most relevant skills for integrating the SecondaryOpsPipelineEngine, ExecutionVerificationEngine, and ToolpathSimulationEngine.",
+      "source": "ollama",
+      "rawConfidence": 0.7
+    },
+    "EIGC-MS0::P0-U04": {
+      "pipelines": [
+        {
+          "skill": "/scrutinize",
+          "why": "unit involves scrutiny, review, audit, or quality",
+          "confidence": 0.7
+        }
+      ],
+      "tribal": [],
+      "skills": [
+        "audit-viz-first",
+        "envelope-sync"
+      ],
+      "mcpTools": [],
+      "agents": [],
+      "buildVsIntegrate": "integrate",
+      "complexityTier": "M",
+      "confidence": 0.7,
+      "rationale": "Based on the candidate signals, 'scrutinize' and 'audit-viz-first' are recommended with a confidence level of 0.7.",
+      "source": "ollama",
+      "rawConfidence": 0.7
+    },
+    "EIGC-MS0::P0-U05": {
+      "pipelines": [
+        {
+          "skill": "/scrutinize",
+          "why": "unit involves scrutiny, review, audit, or quality",
+          "confidence": 0.7
+        }
+      ],
+      "tribal": [],
+      "skills": [],
+      "mcpTools": [
+        "REST API"
+      ],
+      "agents": [],
+      "buildVsIntegrate": "build",
+      "complexityTier": "M",
+      "confidence": 0.7,
+      "rationale": "Based on the provided signals, /scrutinize has a high confidence score and REST API is listed as an MCP tool.",
+      "source": "ollama",
+      "rawConfidence": 0.7
+    },
+    "EIGC-MS0A::P0-U01": {
+      "pipelines": [
+        {
+          "skill": "/scrutinize",
+          "why": "unit involves scrutiny, review, audit, or quality",
+          "confidence": 0.7
+        }
+      ],
+      "tribal": [],
+      "skills": [],
+      "mcpTools": [],
+      "agents": [],
+      "buildVsIntegrate": "build",
+      "complexityTier": "M",
+      "confidence": 0.7,
+      "rationale": "The candidate signal indicates a high confidence in the /scrutinize skill for the given unit.",
+      "source": "ollama",
+      "rawConfidence": 0.7
+    },
+    "EIGC-MS0A::P0-U02": {
+      "pipelines": [
+        {
+          "skill": "/scrutinize",
+          "why": "unit involves scrutiny, review, audit, or quality",
+          "confidence": 0.7
+        }
+      ],
+      "tribal": [],
+      "skills": [],
+      "mcpTools": [
+        "abstractionhierarchyengine",
+        "abstractionhierarchyengine",
+        "abstraction-hierarchy-engine"
+      ],
+      "agents": [],
+      "buildVsIntegrate": "integrate",
+      "complexityTier": "M",
+      "confidence": 0.7,
+      "rationale": "Based on the provided signals, the 'abstraction-hierarchy-engine' is a strong candidate with a confidence of 0.7.",
+      "source": "ollama",
+      "rawConfidence": 0.7
+    },
+    "EIGC-MS1::P0-U01": {
+      "pipelines": [
+        {
+          "skill": "/scrutinize",
+          "why": "unit involves scrutiny, review, audit, or quality",
+          "confidence": 0.7
+        }
+      ],
+      "tribal": [],
+      "skills": [],
+      "mcpTools": [],
+      "agents": [],
+      "buildVsIntegrate": "build",
+      "complexityTier": "M",
+      "confidence": 0.7,
+      "rationale": "The candidate signals indicate a high confidence in using the /scrutinize skill for this task.",
+      "source": "ollama",
+      "rawConfidence": 0.7
+    },
+    "EIGC-MS1::P0-U02": {
+      "pipelines": [
+        {
+          "skill": "/scrutinize",
+          "why": "unit involves scrutiny, review, audit, or quality",
+          "confidence": 0.7
+        }
+      ],
+      "tribal": [],
+      "skills": [],
+      "mcpTools": [],
+      "agents": [],
+      "buildVsIntegrate": "integrate",
+      "complexityTier": "M",
+      "confidence": 0.7,
+      "rationale": "The candidate signal indicates a high confidence in using the /scrutinize skill for integrating the fix or suppression of pre-existing lint errors.",
+      "source": "ollama",
+      "rawConfidence": 0.7
+    },
+    "EIGC-MS1::P0-U03": {
+      "pipelines": [
+        {
+          "skill": "/scrutinize",
+          "why": "unit involves scrutiny, review, audit, or quality",
+          "confidence": 0.7
+        }
+      ],
+      "tribal": [],
+      "skills": [],
+      "mcpTools": [],
+      "agents": [],
+      "buildVsIntegrate": "build",
+      "complexityTier": "M",
+      "confidence": 0.7,
+      "rationale": "The candidate signal indicates a high confidence in using the /scrutinize skill for verifying npm run lint and integrating it into the CI gate.",
+      "source": "ollama",
+      "rawConfidence": 0.7
+    },
+    "EIGC-MS10::P0-U02": {
+      "pipelines": [
+        {
+          "skill": "/post-generate",
+          "why": "post-processor / G-code dialect / controller / CIMCO / WinMax — echo domain",
+          "confidence": 0.8
+        },
+        {
+          "skill": "/scrutinize",
+          "why": "unit involves scrutiny, review, audit, or quality",
+          "confidence": 0.7
+        }
+      ],
+      "tribal": [],
+      "skills": [],
+      "mcpTools": [
+        "feedback_dispatcher_path_gree...",
+        "reference_audit_actionmap_syn..."
+      ],
+      "agents": [],
+      "buildVsIntegrate": "build",
+      "complexityTier": "M",
+      "confidence": 0.8,
+      "rationale": "Highest confidence in /post-generate skill for post processor generation.",
+      "source": "ollama",
+      "rawConfidence": 0.8
+    },
+    "EIGC-MS10::P0-U03": {
+      "pipelines": [
+        {
+          "skill": "/scrutinize",
+          "why": "unit involves scrutiny, review, audit, or quality",
+          "confidence": 0.7
+        }
+      ],
+      "tribal": [],
+      "skills": [],
+      "mcpTools": [
+        "feedback_dispatcher_path_gree..."
+      ],
+      "agents": [],
+      "buildVsIntegrate": "build",
+      "complexityTier": "M",
+      "confidence": 0.7,
+      "rationale": "The /scrutinize pipeline has the highest confidence score among the candidates.",
+      "source": "ollama",
+      "rawConfidence": 0.7
+    },
+    "EIGC-MS10::P0-U04": {
+      "pipelines": [
+        {
+          "skill": "/quote-to-ship",
+          "why": "quoting/cost/pricing/DFM — routes to quote-to-ship orchestrator",
+          "confidence": 0.8
+        },
+        {
+          "skill": "/biz-health",
+          "why": "business/ERP/finance units — entirely unrouted without this rule",
+          "confidence": 0.8
+        },
+        {
+          "skill": "/scrutinize",
+          "why": "unit involves scrutiny, review, audit, or quality",
+          "confidence": 0.7
+        }
+      ],
+      "tribal": [],
+      "skills": [],
+      "mcpTools": [
+        "feedback_dispatcher_path_gree..."
+      ],
+      "agents": [
+        "code-analyzer",
+        "reviewer"
+      ],
+      "buildVsIntegrate": "build",
+      "complexityTier": "M",
+      "confidence": 0.8,
+      "rationale": "Highest confidence in /quote-to-ship for the given unit and tier.",
+      "source": "ollama",
+      "rawConfidence": 0.8
+    },
+    "EIGC-MS10::P0-U05": {
+      "pipelines": [
+        {
+          "skill": "/quote-to-ship",
+          "why": "quoting/cost/pricing/DFM — routes to quote-to-ship orchestrator",
+          "confidence": 0.8
+        },
+        {
+          "skill": "/biz-health",
+          "why": "business/ERP/finance units — entirely unrouted without this rule",
+          "confidence": 0.8
+        },
+        {
+          "skill": "/scrutinize",
+          "why": "unit involves scrutiny, review, audit, or quality",
+          "confidence": 0.7
+        }
+      ],
+      "tribal": [],
+      "skills": [],
+      "mcpTools": [
+        "reference_audit_actionmap_syn..."
+      ],
+      "agents": [
+        "code-analyzer",
+        "reviewer"
+      ],
+      "buildVsIntegrate": "build",
+      "complexityTier": "M",
+      "confidence": 0.8,
+      "rationale": "Highest confidence in the /quote-to-ship skill for the given unit and tier.",
+      "source": "ollama",
+      "rawConfidence": 0.8
+    },
+    "EIGC-MS2::P0-U01": {
+      "pipelines": [
+        {
+          "skill": "/scrutinize",
+          "why": "unit involves scrutiny, review, audit, or quality",
+          "confidence": 0.7
+        }
+      ],
+      "tribal": [],
+      "skills": [],
+      "mcpTools": [
+        "MCP Server :3100"
+      ],
+      "agents": [],
+      "buildVsIntegrate": "build",
+      "complexityTier": "M",
+      "confidence": 0.7,
+      "rationale": "The candidate signal indicates a high confidence in using the /scrutinize skill for this unit.",
+      "source": "ollama",
+      "rawConfidence": 0.7
+    },
+    "EIGC-MS2::P0-U02": {
+      "pipelines": [
+        {
+          "skill": "/scrutinize",
+          "why": "unit involves scrutiny, review, audit, or quality",
+          "confidence": 0.7
+        }
+      ],
+      "tribal": [],
+      "skills": [],
+      "mcpTools": [
+        "MCP Server :3100"
+      ],
+      "agents": [],
+      "buildVsIntegrate": "build",
+      "complexityTier": "M",
+      "confidence": 0.7,
+      "rationale": "The candidate signals indicate a high confidence in the /scrutinize skill for this unit.",
+      "source": "ollama",
+      "rawConfidence": 0.7
+    },
+    "EIGC-MS2::P0-U03": {
+      "pipelines": [
+        {
+          "skill": "/post-generate",
+          "why": "post-processor / G-code dialect / controller / CIMCO / WinMax — echo domain",
+          "confidence": 0.8
+        },
+        {
+          "skill": "/scrutinize",
+          "why": "unit involves scrutiny, review, audit, or quality",
+          "confidence": 0.7
+        }
+      ],
+      "tribal": [],
+      "skills": [
+        "quality-check-lathe"
+      ],
+      "mcpTools": [
+        "MCP Server :3100"
+      ],
+      "agents": [],
+      "buildVsIntegrate": "build",
+      "complexityTier": "M",
+      "confidence": 0.75,
+      "rationale": "Both /post-generate and /scrutinize have high confidence levels, suggesting they are suitable for the task.",
+      "source": "ollama",
+      "rawConfidence": 0.75
+    },
+    "EIGC-MS2::P0-U04": {
+      "pipelines": [
+        {
+          "skill": "/scrutinize",
+          "why": "unit involves scrutiny, review, audit, or quality",
+          "confidence": 0.7
+        }
+      ],
+      "tribal": [],
+      "skills": [],
+      "mcpTools": [
+        "MCP Server :3100"
+      ],
+      "agents": [],
+      "buildVsIntegrate": "integrate",
+      "complexityTier": "M",
+      "confidence": 0.7,
+      "rationale": "Based on the provided signals, /scrutinize has a confidence of 0.7 and MCP Server :3100 is listed as an MCP tool.",
+      "source": "ollama",
+      "rawConfidence": 0.7
+    },
+    "EIGC-MS2::P0-U05": {
+      "pipelines": [
+        {
+          "skill": "/scrutinize",
+          "why": "unit involves scrutiny, review, audit, or quality",
+          "confidence": 0.7
+        }
+      ],
+      "tribal": [],
+      "skills": [],
+      "mcpTools": [
+        "MCP Server :3100"
+      ],
+      "agents": [],
+      "buildVsIntegrate": "build",
+      "complexityTier": "M",
+      "confidence": 0.7,
+      "rationale": "The candidate signal indicates a high confidence in using the /scrutinize skill for this unit.",
+      "source": "ollama",
+      "rawConfidence": 0.7
+    },
+    "EIGC-MS3::P0-U01": {
+      "pipelines": [
+        {
+          "skill": "/scrutinize",
+          "why": "unit involves scrutiny, review, audit, or quality",
+          "confidence": 0.7
+        }
+      ],
+      "tribal": [],
+      "skills": [],
+      "mcpTools": [
+        "WebSocket"
+      ],
+      "agents": [],
+      "buildVsIntegrate": "build",
+      "complexityTier": "M",
+      "confidence": 0.7,
+      "rationale": "The candidate signal indicates a high confidence in using the /scrutinize pipeline for this unit.",
+      "source": "ollama",
+      "rawConfidence": 0.7
+    },
+    "EIGC-MS3::P0-U02": {
+      "pipelines": [
+        {
+          "skill": "/scrutinize",
+          "why": "unit involves scrutiny, review, audit, or quality",
+          "confidence": 0.7
+        }
+      ],
+      "tribal": [],
+      "skills": [
+        "cam-strategy"
+      ],
+      "mcpTools": [
+        "WebSocket"
+      ],
+      "agents": [
+        "physics-reviewer"
+      ],
+      "buildVsIntegrate": "build",
+      "complexityTier": "M",
+      "confidence": 0.7,
+      "rationale": "Based on the provided signals, /scrutinize has a high confidence score and cam-strategy is listed as a required skill.",
+      "source": "ollama",
+      "rawConfidence": 0.7
+    },
+    "EIGC-MS3::P0-U03": {
+      "pipelines": [
+        {
+          "skill": "/scrutinize",
+          "why": "unit involves scrutiny, review, audit, or quality",
+          "confidence": 0.7
+        }
+      ],
+      "tribal": [],
+      "skills": [],
+      "mcpTools": [],
+      "agents": [],
+      "buildVsIntegrate": "build",
+      "complexityTier": "M",
+      "confidence": 0.7,
+      "rationale": "The only candidate tool provided is /scrutinize with a confidence of 0.7.",
+      "source": "ollama",
+      "rawConfidence": 0.7
+    },
+    "EIGC-MS4::P0-U01": {
+      "pipelines": [
+        {
+          "skill": "/hypermill-full-job",
+          "why": "HyperMILL sub-galaxy / .hmt tool-lib / cycle-catalog units",
+          "confidence": 0.8
+        },
+        {
+          "skill": "/scrutinize",
+          "why": "unit involves scrutiny, review, audit, or quality",
+          "confidence": 0.7
+        }
+      ],
+      "tribal": [],
+      "skills": [
+        "mill"
+      ],
+      "mcpTools": [
+        "Telemetry / Metrics",
+        "feedback_hotel_pii_redaction_...",
+        "U-REV-MS0-ACT-SUBTIER-01 · Add subscription_tier_set action (hoist from MS1)"
+      ],
+      "agents": [],
+      "buildVsIntegrate": "build",
+      "complexityTier": "M",
+      "confidence": 0.8,
+      "rationale": "The highest confidence skill is /hypermill-full-job, which aligns with the mill skill required for hyperMILL export/sync.",
+      "source": "ollama",
+      "rawConfidence": 0.8
+    },
+    "EIGC-MS4::P0-U02": {
+      "pipelines": [
+        {
+          "skill": "/scrutinize",
+          "why": "unit involves scrutiny, review, audit, or quality",
+          "confidence": 0.7
+        }
+      ],
+      "tribal": [],
+      "skills": [],
+      "mcpTools": [
+        "U-REV-MS0-ACT-SUBTIER-01 · Add subscription_tier_set action (hoist from MS1)"
+      ],
+      "agents": [],
+      "buildVsIntegrate": "build",
+      "complexityTier": "M",
+      "confidence": 0.7,
+      "rationale": "Based on the provided signals, /scrutinize has a confidence of 0.7 and U-REV-MS0-ACT-SUBTIER-01 is listed as an MCP tool candidate.",
+      "source": "ollama",
+      "rawConfidence": 0.7
+    },
+    "EIGC-MS4::P0-U03": {
+      "pipelines": [
+        {
+          "skill": "test-team",
+          "why": "unit involves tests or coverage",
+          "confidence": 0.75
+        },
+        {
+          "skill": "/scrutinize",
+          "why": "unit involves scrutiny, review, audit, or quality",
+          "confidence": 0.7
+        }
+      ],
+      "tribal": [],
+      "skills": [],
+      "mcpTools": [],
+      "agents": [
+        "test-review-agent"
+      ],
+      "buildVsIntegrate": "integrate",
+      "complexityTier": "M",
+      "confidence": 0.7,
+      "rationale": "The /scrutinize tool has the highest confidence score for this task.",
+      "source": "ollama",
+      "rawConfidence": 0.7
+    },
+    "EIGC-MS5::P0-U01": {
+      "pipelines": [
+        {
+          "skill": "/scrutinize",
+          "why": "unit involves scrutiny, review, audit, or quality",
+          "confidence": 0.7
+        }
+      ],
+      "tribal": [],
+      "skills": [],
+      "mcpTools": [],
+      "agents": [],
+      "buildVsIntegrate": "build",
+      "complexityTier": "M",
+      "confidence": 0.7,
+      "rationale": "The only candidate provided is the /scrutinize skill with a confidence of 0.7.",
+      "source": "ollama",
+      "rawConfidence": 0.7
+    },
+    "EIGC-MS5::P0-U02": {
+      "pipelines": [
+        {
+          "skill": "/scrutinize",
+          "why": "unit involves scrutiny, review, audit, or quality",
+          "confidence": 0.7
+        }
+      ],
+      "tribal": [],
+      "skills": [],
+      "mcpTools": [],
+      "agents": [],
+      "buildVsIntegrate": "build",
+      "complexityTier": "M",
+      "confidence": 0.7,
+      "rationale": "The candidate signals indicate a strong preference for the /scrutinize skill with a confidence of 0.7.",
+      "source": "ollama",
+      "rawConfidence": 0.7
+    },
+    "EIGC-MS5::P0-U03": {
+      "pipelines": [
+        {
+          "skill": "/scrutinize",
+          "why": "unit involves scrutiny, review, audit, or quality",
+          "confidence": 0.7
+        }
+      ],
+      "tribal": [],
+      "skills": [
+        "envelope-sync"
+      ],
+      "mcpTools": [],
+      "agents": [],
+      "buildVsIntegrate": "build",
+      "complexityTier": "M",
+      "confidence": 0.7,
+      "rationale": "Based on the provided signals, /scrutinize has a confidence of 0.7 and envelope-sync is listed as a skill.",
+      "source": "ollama",
+      "rawConfidence": 0.7
+    },
+    "EIGC-MS6::P0-U01": {
+      "pipelines": [
+        {
+          "skill": "test-team",
+          "why": "unit involves tests or coverage",
+          "confidence": 0.75
+        },
+        {
+          "skill": "/scrutinize",
+          "why": "unit involves scrutiny, review, audit, or quality",
+          "confidence": 0.7
+        }
+      ],
+      "tribal": [],
+      "skills": [],
+      "mcpTools": [
+        "batchCAMToolBridgeActionSchemas"
+      ],
+      "agents": [
+        "test-review-agent"
+      ],
+      "buildVsIntegrate": "build",
+      "complexityTier": "M",
+      "confidence": 0.725,
+      "rationale": "Both test-team and /scrutinize have high confidence levels, and they are relevant for adding integrity tests.",
+      "source": "ollama",
+      "rawConfidence": 0.725
+    },
+    "EIGC-MS6::P0-U02": {
+      "pipelines": [
+        {
+          "skill": "test-team",
+          "why": "unit involves tests or coverage",
+          "confidence": 0.75
+        },
+        {
+          "skill": "/scrutinize",
+          "why": "unit involves scrutiny, review, audit, or quality",
+          "confidence": 0.7
+        }
+      ],
+      "tribal": [],
+      "skills": [],
+      "mcpTools": [],
+      "agents": [
+        "test-review-agent"
+      ],
+      "buildVsIntegrate": "build",
+      "complexityTier": "M",
+      "confidence": 0.75,
+      "rationale": "The 'test-team' has the highest confidence score for handling integrity tests.",
+      "source": "ollama",
+      "rawConfidence": 0.75
+    },
+    "EIGC-MS6::P0-U03": {
+      "pipelines": [
+        {
+          "skill": "test-team",
+          "why": "unit involves tests or coverage",
+          "confidence": 0.75
+        },
+        {
+          "skill": "/scrutinize",
+          "why": "unit involves scrutiny, review, audit, or quality",
+          "confidence": 0.7
+        }
+      ],
+      "tribal": [],
+      "skills": [
+        "cam-strategy"
+      ],
+      "mcpTools": [
+        "dispatcher-secondaryops"
+      ],
+      "agents": [
+        "test-review-agent"
+      ],
+      "buildVsIntegrate": "build",
+      "complexityTier": "M",
+      "confidence": 0.75,
+      "rationale": "High confidence in 'test-team' for integrity tests, and 'dispatcher-secondaryops' is relevant to the unit's focus.",
+      "source": "ollama",
+      "rawConfidence": 0.75
+    },
+    "EIGC-MS6::P0-U04": {
+      "pipelines": [
+        {
+          "skill": "/scrutinize",
+          "why": "unit involves scrutiny, review, audit, or quality",
+          "confidence": 0.7
+        }
+      ],
+      "tribal": [],
+      "skills": [
+        "audit-viz-first"
+      ],
+      "mcpTools": [],
+      "agents": [],
+      "buildVsIntegrate": "integrate",
+      "complexityTier": "M",
+      "confidence": 0.7,
+      "rationale": "The candidate signals indicate a high confidence in the /scrutinize skill for building an engine-integrity audit script.",
+      "source": "ollama",
+      "rawConfidence": 0.7
+    },
+    "EIGC-MS7::P0-U01": {
+      "pipelines": [
+        {
+          "skill": "/scrutinize",
+          "why": "unit involves scrutiny, review, audit, or quality",
+          "confidence": 0.7
+        }
+      ],
+      "tribal": [],
+      "skills": [
+        "audit-viz-first"
+      ],
+      "mcpTools": [
+        "prism-v8-89-monolith-extraction",
+        "MISC-291 · ProductPillarEngine shows incomplete pillars (productDispatcher stub "
+      ],
+      "agents": [],
+      "buildVsIntegrate": "build",
+      "complexityTier": "M",
+      "confidence": 0.7,
+      "rationale": "Based on the provided signals, 'audit-viz-first' and 'prism-v8-89-monolith-extraction' are the most relevant tools for building the unit.",
+      "source": "ollama",
+      "rawConfidence": 0.7
+    },
+    "EIGC-MS7::P0-U02": {
+      "pipelines": [
+        {
+          "skill": "/scrutinize",
+          "why": "unit involves scrutiny, review, audit, or quality",
+          "confidence": 0.7
+        }
+      ],
+      "tribal": [],
+      "skills": [],
+      "mcpTools": [],
+      "agents": [],
+      "buildVsIntegrate": "build",
+      "complexityTier": "M",
+      "confidence": 0.7,
+      "rationale": "The candidate signal indicates a high confidence in the /scrutinize skill for identifying conflicting schemas, enums, and field names.",
+      "source": "ollama",
+      "rawConfidence": 0.7
+    },
+    "EIGC-MS7::P0-U03": {
+      "pipelines": [
+        {
+          "skill": "/scrutinize",
+          "why": "unit involves scrutiny, review, audit, or quality",
+          "confidence": 0.7
+        }
+      ],
+      "tribal": [],
+      "skills": [],
+      "mcpTools": [
+        "reference_audit_actionmap_syn..."
+      ],
+      "agents": [],
+      "buildVsIntegrate": "build",
+      "complexityTier": "M",
+      "confidence": 0.7,
+      "rationale": "Based on the provided signals, /scrutinize has a high confidence score and is included in the pipeline candidates. The mcpTools also suggest including reference_audit_actionmap_syn...",
+      "source": "ollama",
+      "rawConfidence": 0.7
+    },
+    "EIGC-MS8::P0-U01": {
+      "pipelines": [
+        {
+          "skill": "/biz-health",
+          "why": "business/ERP/finance units — entirely unrouted without this rule",
+          "confidence": 0.8
+        },
+        {
+          "skill": "/cad-from-blueprint",
+          "why": "CAD / blueprint intake — routes to the print-to-CAD pipeline",
+          "confidence": 0.8
+        },
+        {
+          "skill": "/scrutinize",
+          "why": "unit involves scrutiny, review, audit, or quality",
+          "confidence": 0.7
+        }
+      ],
+      "tribal": [],
+      "skills": [],
+      "mcpTools": [],
+      "agents": [
+        "physics-reviewer",
+        "reviewer"
+      ],
+      "buildVsIntegrate": "build",
+      "complexityTier": "M",
+      "confidence": 0.8,
+      "rationale": "High confidence in /cad-from-blueprint and /biz-health for defining provenance fields related to speed/feed, post, print-to-program, ERP outputs.",
+      "source": "ollama",
+      "rawConfidence": 0.8
+    },
+    "EIGC-MS8::P0-U02": {
+      "pipelines": [
+        {
+          "skill": "/fusion-generate",
+          "why": "live-host integration — Fusion360 / HyperCAD / add-in units",
+          "confidence": 0.8
+        },
+        {
+          "skill": "/scrutinize",
+          "why": "unit involves scrutiny, review, audit, or quality",
+          "confidence": 0.7
+        }
+      ],
+      "tribal": [],
+      "skills": [],
+      "mcpTools": [
+        "Node pointer — formula/formula_adjusted_devdispatcher_action_pr_compute_scores"
+      ],
+      "agents": [
+        "physics-reviewer"
+      ],
+      "buildVsIntegrate": "integrate",
+      "complexityTier": "M",
+      "confidence": 0.8,
+      "rationale": "High confidence in /fusion-generate for integrating Physics Fusion confidence scores.",
+      "source": "ollama",
+      "rawConfidence": 0.8
+    },
+    "EIGC-MS8::P0-U03": {
+      "pipelines": [
+        {
+          "skill": "/scrutinize",
+          "why": "unit involves scrutiny, review, audit, or quality",
+          "confidence": 0.7
+        }
+      ],
+      "tribal": [],
+      "skills": [],
+      "mcpTools": [
+        "U-REV-MS0-ACT-SUBTIER-01 · Add subscription_tier_set action (hoist from MS1)"
+      ],
+      "agents": [],
+      "buildVsIntegrate": "build",
+      "complexityTier": "M",
+      "confidence": 0.7,
+      "rationale": "The only candidate signal is the /scrutinize pipeline with a confidence of 0.7.",
+      "source": "ollama",
+      "rawConfidence": 0.7
+    },
+    "EIGC-MS9::P0-U01": {
+      "pipelines": [
+        {
+          "skill": "/scrutinize",
+          "why": "unit involves scrutiny, review, audit, or quality",
+          "confidence": 0.7
+        }
+      ],
+      "tribal": [],
+      "skills": [],
+      "mcpTools": [
+        "MISC-305 · CAM 3x-rule shared core extraction queued for follow-up unit (Masterc",
+        "REST API"
+      ],
+      "agents": [],
+      "buildVsIntegrate": "build",
+      "complexityTier": "M",
+      "confidence": 0.7,
+      "rationale": "Based on the provided signals, the 'pipelines' tool with a scrutiny skill and REST API are suitable for building the product-capability-matrix.json.",
+      "source": "ollama",
+      "rawConfidence": 0.7
+    },
+    "EIGC-MS9::P0-U02": {
+      "pipelines": [
+        {
+          "skill": "/scrutinize",
+          "why": "unit involves scrutiny, review, audit, or quality",
+          "confidence": 0.7
+        }
+      ],
+      "tribal": [],
+      "skills": [],
+      "mcpTools": [
+        "MISC-291 · ProductPillarEngine shows incomplete pillars (productDispatcher stub "
+      ],
+      "agents": [],
+      "buildVsIntegrate": "build",
+      "complexityTier": "M",
+      "confidence": 0.7,
+      "rationale": "The candidate signal indicates a high confidence in using the /scrutinize skill for this task.",
+      "source": "ollama",
+      "rawConfidence": 0.7
+    },
+    "EIGC-MS9::P0-U03": {
+      "pipelines": [
+        {
+          "skill": "/scrutinize",
+          "why": "unit involves scrutiny, review, audit, or quality",
+          "confidence": 0.7
+        }
+      ],
+      "tribal": [],
+      "skills": [],
+      "mcpTools": [
+        "U-REV-MS0-ACT-SUBTIER-01 · Add subscription_tier_set action (hoist from MS1)"
+      ],
+      "agents": [],
+      "buildVsIntegrate": "build",
+      "complexityTier": "M",
+      "confidence": 0.7,
+      "rationale": "Based on the provided signals, /scrutinize has a high confidence score and U-REV-MS0-ACT-SUBTIER-01 is relevant for handling subscription tier actions.",
+      "source": "ollama",
+      "rawConfidence": 0.7
+    },
+    "F360-AP-MS0::P0-U01": {
+      "pipelines": [
+        {
+          "skill": "/cam-strategy",
+          "why": "CAM strategy / toolpath selection",
+          "confidence": 0.75
+        }
+      ],
+      "tribal": [],
+      "skills": [],
+      "mcpTools": [],
+      "agents": [],
+      "buildVsIntegrate": "build",
+      "complexityTier": "S",
+      "confidence": 0.75,
+      "rationale": "The candidate signal indicates a strong confidence in using the /cam-strategy skill for building the CAM setup.",
+      "source": "ollama",
+      "rawConfidence": 0.75
+    },
+    "F360-AP-MS0::P0-U02": {
+      "pipelines": [
+        {
+          "skill": "/cam-strategy",
+          "why": "CAM strategy / toolpath selection",
+          "confidence": 0.75
+        }
+      ],
+      "tribal": [],
+      "skills": [],
+      "mcpTools": [],
+      "agents": [],
+      "buildVsIntegrate": "build",
+      "complexityTier": "S",
+      "confidence": 0.75,
+      "rationale": "The candidate signal indicates a strong confidence in the /cam-strategy skill for building this unit.",
+      "source": "ollama",
+      "rawConfidence": 0.75
+    },
+    "F360-AP-MS0::P0-U03": {
+      "pipelines": [
+        {
+          "skill": "/cam-strategy",
+          "why": "CAM strategy / toolpath selection",
+          "confidence": 0.75
+        }
+      ],
+      "tribal": [],
+      "skills": [],
+      "mcpTools": [],
+      "agents": [],
+      "buildVsIntegrate": "build",
+      "complexityTier": "S",
+      "confidence": 0.75,
+      "rationale": "The candidate signal indicates a strong confidence in the /cam-strategy pipeline for the given unit.",
+      "source": "ollama",
+      "rawConfidence": 0.75
+    },
+    "F360-AP-MS0::P0-U04": {
+      "pipelines": [
+        {
+          "skill": "/post-generate",
+          "why": "post-processor / G-code dialect / controller / CIMCO / WinMax — echo domain",
+          "confidence": 0.8
+        },
+        {
+          "skill": "/cam-strategy",
+          "why": "CAM strategy / toolpath selection",
+          "confidence": 0.75
+        }
+      ],
+      "tribal": [],
+      "skills": [
+        "cam-strategy"
+      ],
+      "mcpTools": [
+        "asynchookdispatcherengine",
+        "asynchookdispatcherengine-3-3...",
+        "asynchookdispatcherengine"
+      ],
+      "agents": [],
+      "buildVsIntegrate": "build",
+      "complexityTier": "S",
+      "confidence": 0.75,
+      "rationale": "High confidence in /cam-strategy skill, and asynchookdispatcherengine is a relevant tool for async operations.",
+      "source": "ollama",
+      "rawConfidence": 0.75
+    },
+    "F360-AP-MS0::P1-U05": {
+      "pipelines": [
+        {
+          "skill": "/cam-strategy",
+          "why": "CAM strategy / toolpath selection",
+          "confidence": 0.75
+        }
+      ],
+      "tribal": [],
+      "skills": [],
+      "mcpTools": [
+        "resourceExtraction"
+      ],
+      "agents": [],
+      "buildVsIntegrate": "build",
+      "complexityTier": "S",
+      "confidence": 0.75,
+      "rationale": "Based on the candidate signals, the most confident pipeline skill is /cam-strategy with a confidence of 0.75, and resourceExtraction is listed as an MCP tool.",
+      "source": "ollama",
+      "rawConfidence": 0.75
+    },
+    "F360-AP-MS0::P1-U06": {
+      "pipelines": [
+        {
+          "skill": "/cam-strategy",
+          "why": "CAM strategy / toolpath selection",
+          "confidence": 0.75
+        }
+      ],
+      "tribal": [],
+      "skills": [],
+      "mcpTools": [],
+      "agents": [],
+      "buildVsIntegrate": "build",
+      "complexityTier": "S",
+      "confidence": 0.75,
+      "rationale": "The candidate signals indicate a high confidence in using the /cam-strategy pipeline for this unit.",
+      "source": "ollama",
+      "rawConfidence": 0.75
+    },
+    "HBK-MS0::P0-U01": {
+      "pipelines": [
+        {
+          "skill": "/post-generate",
+          "why": "post-processor / G-code dialect / controller / CIMCO / WinMax — echo domain",
+          "confidence": 0.8
+        }
+      ],
+      "tribal": [],
+      "skills": [],
+      "mcpTools": [],
+      "agents": [],
+      "buildVsIntegrate": "build",
+      "complexityTier": "S",
+      "confidence": 0.8,
+      "rationale": "The candidate signals indicate a high confidence in using the /post-generate skill for building the TypeScript interface.",
+      "source": "ollama",
+      "rawConfidence": 0.8
+    },
+    "HBK-MS0::P0-U02": {
+      "pipelines": [
+        {
+          "skill": "/wire-unwired",
+          "why": "in-memory-fallback / durable-state units need wiring review",
+          "confidence": 0.75
+        }
+      ],
+      "tribal": [],
+      "skills": [],
+      "mcpTools": [],
+      "agents": [],
+      "buildVsIntegrate": "build",
+      "complexityTier": "S",
+      "confidence": 0.75,
+      "rationale": "The only candidate signal is the /wire-unwired skill with a confidence of 0.75.",
+      "source": "ollama",
+      "rawConfidence": 0.75
+    },
+    "HBK-MS0::P0-U03": {
+      "pipelines": [
+        {
+          "skill": "/scrutinize",
+          "why": "generic review fallback — no keyword matched",
+          "confidence": 0.3
+        }
+      ],
+      "tribal": [],
+      "skills": [],
+      "mcpTools": [
+        "dispatcher-zod-validation"
+      ],
+      "agents": [],
+      "buildVsIntegrate": "build",
+      "complexityTier": "S",
+      "confidence": 0.8,
+      "rationale": "The candidate signal indicates a need for schema validation, and 'dispatcher-zod-validation' is the only MCP tool provided that fits this requirement.",
+      "source": "ollama",
+      "rawConfidence": 0.8
+    },
+    "HBK-MS0::P0-U04": {
+      "pipelines": [
+        {
+          "skill": "test-team",
+          "why": "unit involves tests or coverage",
+          "confidence": 0.75
+        }
+      ],
+      "tribal": [],
+      "skills": [],
+      "mcpTools": [],
+      "agents": [
+        "test-review-agent"
+      ],
+      "buildVsIntegrate": "build",
+      "complexityTier": "S",
+      "confidence": 0.75,
+      "rationale": "The test-team has the highest confidence level for building and validating against schemas.",
+      "source": "ollama",
+      "rawConfidence": 0.75
+    },
+    "HBK-MS1::P0-U01": {
+      "pipelines": [
+        {
+          "skill": "/scrutinize",
+          "why": "generic review fallback — no keyword matched",
+          "confidence": 0.3
+        }
+      ],
+      "tribal": [],
+      "skills": [],
+      "mcpTools": [],
+      "agents": [],
+      "buildVsIntegrate": "build",
+      "complexityTier": "M",
+      "confidence": 0.3,
+      "rationale": "The only candidate signal provided is for the /scrutinize skill with a confidence of 0.3.",
+      "source": "ollama",
+      "rawConfidence": 0.3
+    },
+    "HBK-MS1::P0-U02": {
+      "pipelines": [
+        {
+          "skill": "/scrutinize",
+          "why": "generic review fallback — no keyword matched",
+          "confidence": 0.3
+        }
+      ],
+      "tribal": [],
+      "skills": [],
+      "mcpTools": [
+        "resourceExtraction"
+      ],
+      "agents": [
+        "physics-reviewer"
+      ],
+      "buildVsIntegrate": "build",
+      "complexityTier": "M",
+      "confidence": 0.7,
+      "rationale": "The unit requires extracting specific data from tables, which aligns well with the resourceExtraction tool.",
+      "source": "ollama",
+      "rawConfidence": 0.7
+    },
+    "HBK-MS1::P0-U03": {
+      "pipelines": [
+        {
+          "skill": "/scrutinize",
+          "why": "unit involves scrutiny, review, audit, or quality",
+          "confidence": 0.7
+        }
+      ],
+      "tribal": [],
+      "skills": [],
+      "mcpTools": [
+        "dispatcher-machinevocabnormal...",
+        "Telemetry / Metrics"
+      ],
+      "agents": [],
+      "buildVsIntegrate": "build",
+      "complexityTier": "M",
+      "confidence": 0.7,
+      "rationale": "Based on the provided signals, the 'dispatcher-machinevocabnormal...' and 'Telemetry / Metrics' tools are suggested with a confidence score of 0.7.",
+      "source": "ollama",
+      "rawConfidence": 0.7
+    },
+    "HBK-MS1::P0-U04": {
+      "pipelines": [
+        {
+          "skill": "test-team",
+          "why": "unit involves tests or coverage",
+          "confidence": 0.75
+        }
+      ],
+      "tribal": [],
+      "skills": [
+        "lathe"
+      ],
+      "mcpTools": [
+        "resourceExtraction",
+        "WebSocket"
+      ],
+      "agents": [
+        "test-review-agent"
+      ],
+      "buildVsIntegrate": "build",
+      "complexityTier": "M",
+      "confidence": 0.75,
+      "rationale": "Based on the candidate signals, the test-team skill with high confidence and the presence of resourceExtraction and WebSocket in mcpTools suggest these tools are suitable for building the extraction test suite.",
+      "source": "ollama",
+      "rawConfidence": 0.75
+    },
+    "HBK-MS10::P0-U01": {
+      "pipelines": [
+        {
+          "skill": "/wire-unwired",
+          "why": "unit involves wiring engines to dispatchers",
+          "confidence": 0.8
+        },
+        {
+          "skill": "test-team",
+          "why": "unit involves tests or coverage",
+          "confidence": 0.75
+        }
+      ],
+      "tribal": [],
+      "skills": [],
+      "mcpTools": [
+        "MCP Server :3100",
+        "GraphQL"
+      ],
+      "agents": [
+        "test-review-agent",
+        "wiring-review-agent"
+      ],
+      "buildVsIntegrate": "build",
+      "complexityTier": "M",
+      "confidence": 0.8,
+      "rationale": "High confidence in using pipelines for the task, with GraphQL as a supporting tool.",
+      "source": "ollama",
+      "rawConfidence": 0.8
+    },
+    "HBK-MS10::P0-U02": {
+      "pipelines": [
+        {
+          "skill": "test-team",
+          "why": "unit involves tests or coverage",
+          "confidence": 0.75
+        }
+      ],
+      "tribal": [],
+      "skills": [],
+      "mcpTools": [],
+      "agents": [
+        "test-review-agent"
+      ],
+      "buildVsIntegrate": "build",
+      "complexityTier": "S",
+      "confidence": 0.75,
+      "rationale": "The candidate signals indicate a strong confidence in using the 'test-team' pipeline for building the specified slash-command skills.",
+      "source": "ollama",
+      "rawConfidence": 0.75
+    },
+    "HBK-MS10::P0-U03": {
+      "pipelines": [
+        {
+          "skill": "/pdf-learn",
+          "why": "unit involves PDF/document ingestion or parsing",
+          "confidence": 0.8
+        },
+        {
+          "skill": "test-team",
+          "why": "unit involves tests or coverage",
+          "confidence": 0.75
+        }
+      ],
+      "tribal": [],
+      "skills": [],
+      "mcpTools": [
+        "extractionenforcementhooks",
+        "stop-on-undocumented-action"
+      ],
+      "agents": [
+        "physics-reviewer"
+      ],
+      "buildVsIntegrate": "build",
+      "complexityTier": "M",
+      "confidence": 0.8,
+      "rationale": "The MCP tools directly align with the unit's requirements for creating enforcement hooks.",
+      "source": "ollama",
+      "rawConfidence": 0.8
+    },
+    "HBK-MS10::P0-U04": {
+      "pipelines": [
+        {
+          "skill": "test-team",
+          "why": "unit involves tests or coverage",
+          "confidence": 0.75
+        },
+        {
+          "skill": "/scrutinize",
+          "why": "unit involves scrutiny, review, audit, or quality",
+          "confidence": 0.7
+        }
+      ],
+      "tribal": [],
+      "skills": [
+        "audit-viz-first"
+      ],
+      "mcpTools": [],
+      "agents": [
+        "test-review-agent"
+      ],
+      "buildVsIntegrate": "integrate",
+      "complexityTier": "S",
+      "confidence": 0.725,
+      "rationale": "Both test-team and /scrutinize have high confidence levels for handling the maintenance scripts.",
+      "source": "ollama",
+      "rawConfidence": 0.725
+    },
+    "HBK-MS11::P0-U01": {
+      "pipelines": [
+        {
+          "skill": "/pdf-learn",
+          "why": "unit involves PDF/document ingestion or parsing",
+          "confidence": 0.8
+        },
+        {
+          "skill": "/forge-triple",
+          "why": "unit creates an engine + skill + hook triple",
+          "confidence": 0.85
+        }
+      ],
+      "tribal": [],
+      "skills": [],
+      "mcpTools": [
+        "action-tracker"
+      ],
+      "agents": [],
+      "buildVsIntegrate": "build",
+      "complexityTier": "M",
+      "confidence": 0.85,
+      "rationale": "Both /pdf-learn and /forge-triple have high confidence scores for processing handbook data.",
+      "source": "ollama",
+      "rawConfidence": 0.85
+    },
+    "HBK-MS11::P0-U02": {
+      "pipelines": [
+        {
+          "skill": "test-team",
+          "why": "unit involves tests or coverage",
+          "confidence": 0.75
+        }
+      ],
+      "tribal": [],
+      "skills": [],
+      "mcpTools": [
+        "MISC-001 · Complete U-CAM-HM-SKILLS-WIRE-01: camDispatcher.ts in INCONSISTENT/BR"
+      ],
+      "agents": [
+        "test-review-agent"
+      ],
+      "buildVsIntegrate": "build",
+      "complexityTier": "M",
+      "confidence": 0.75,
+      "rationale": "The candidate signal suggests using MISC-001 for the task, with a high confidence level.",
+      "source": "ollama",
+      "rawConfidence": 0.75
+    },
+    "HBK-MS11::P0-U03": {
+      "pipelines": [
+        {
+          "skill": "test-team",
+          "why": "unit involves tests or coverage",
+          "confidence": 0.75
+        }
+      ],
+      "tribal": [],
+      "skills": [],
+      "mcpTools": [],
+      "agents": [
+        "physics-reviewer",
+        "test-review-agent"
+      ],
+      "buildVsIntegrate": "integrate",
+      "complexityTier": "M",
+      "confidence": 0.8,
+      "rationale": "The test-team has a high confidence level in handling end-to-end integration tests, making it suitable for this task.",
+      "source": "ollama",
+      "rawConfidence": 0.8
+    },
+    "HBK-MS2::P0-U01": {
+      "pipelines": [
+        {
+          "skill": "/scrutinize",
+          "why": "generic review fallback — no keyword matched",
+          "confidence": 0.3
+        }
+      ],
+      "tribal": [],
+      "skills": [
+        "quality-check-lathe"
+      ],
+      "mcpTools": [
+        "resourceExtraction",
+        "MCP Server :3100"
+      ],
+      "agents": [],
+      "buildVsIntegrate": "build",
+      "complexityTier": "S",
+      "confidence": 0.4,
+      "rationale": "Based on the provided signals, resource extraction and MCP Server are relevant tools for handling file intake and registry commit workflows.",
+      "source": "ollama",
+      "rawConfidence": 0.4
+    },
+    "HBK-MS2::P0-U02": {
+      "pipelines": [
+        {
+          "skill": "/dedup",
+          "why": "unit involves deduplication",
+          "confidence": 0.75
+        }
+      ],
+      "tribal": [],
+      "skills": [
+        "dedup"
+      ],
+      "mcpTools": [],
+      "agents": [],
+      "buildVsIntegrate": "integrate",
+      "complexityTier": "S",
+      "confidence": 0.75,
+      "rationale": "The candidate signal indicates a strong confidence in the /dedup skill for handling deduplication and merge logic.",
+      "source": "ollama",
+      "rawConfidence": 0.75
+    },
+    "HBK-MS2::P0-U03": {
+      "pipelines": [
+        {
+          "skill": "/pdf-learn",
+          "why": "unit involves PDF/document ingestion or parsing",
+          "confidence": 0.8
+        }
+      ],
+      "tribal": [],
+      "skills": [],
+      "mcpTools": [
+        "action-tracker",
+        "resourceExtraction"
+      ],
+      "agents": [],
+      "buildVsIntegrate": "build",
+      "complexityTier": "M",
+      "confidence": 0.8,
+      "rationale": "The /pdf-learn skill is highly confident for handling document extraction, while action-tracker and resourceExtraction are suitable for managing provenance and revisions.",
+      "source": "ollama",
+      "rawConfidence": 0.8
+    },
+    "HBK-MS3::P0-U01": {
+      "pipelines": [
+        {
+          "skill": "/scrutinize",
+          "why": "generic review fallback — no keyword matched",
+          "confidence": 0.3
+        }
+      ],
+      "tribal": [],
+      "skills": [],
+      "mcpTools": [
+        "resourceExtraction"
+      ],
+      "agents": [],
+      "buildVsIntegrate": "build",
+      "complexityTier": "M",
+      "confidence": 0.7,
+      "rationale": "The candidate signals indicate a need for extracting and indexing specific data from handbook alarm sections, which aligns with the capabilities of resourceExtraction.",
+      "source": "ollama",
+      "rawConfidence": 0.7
+    },
+    "HBK-MS3::P0-U02": {
+      "pipelines": [
+        {
+          "skill": "/scrutinize",
+          "why": "generic review fallback — no keyword matched",
+          "confidence": 0.3
+        }
+      ],
+      "tribal": [],
+      "skills": [
+        "shop-knowledge"
+      ],
+      "mcpTools": [],
+      "agents": [],
+      "buildVsIntegrate": "integrate",
+      "complexityTier": "S",
+      "confidence": 0.3,
+      "rationale": "The only candidate skill provided is /scrutinize with a confidence of 0.3.",
+      "source": "ollama",
+      "rawConfidence": 0.3
+    },
+    "HBK-MS3::P0-U03": {
+      "pipelines": [
+        {
+          "skill": "/scrutinize",
+          "why": "generic review fallback — no keyword matched",
+          "confidence": 0.3
+        }
+      ],
+      "tribal": [],
+      "skills": [
+        "shop-knowledge"
+      ],
+      "mcpTools": [
+        "GraphQL"
+      ],
+      "agents": [],
+      "buildVsIntegrate": "build",
+      "complexityTier": "M",
+      "confidence": 0.3,
+      "rationale": "Based on the provided signals, GraphQL is suggested for querying the handbook alarm registry, and /scrutinize is included as a candidate skill with moderate confidence.",
+      "source": "ollama",
+      "rawConfidence": 0.3
+    },
+    "HBK-MS4::P0-U01": {
+      "pipelines": [
+        {
+          "skill": "/scrutinize",
+          "why": "generic review fallback — no keyword matched",
+          "confidence": 0.3
+        }
+      ],
+      "tribal": [],
+      "skills": [],
+      "mcpTools": [
+        "resourceExtraction"
+      ],
+      "agents": [],
+      "buildVsIntegrate": "build",
+      "complexityTier": "M",
+      "confidence": 0.8,
+      "rationale": "The signal indicates a need for extracting specific performance data from handbook sections, which aligns well with the resource extraction tool.",
+      "source": "ollama",
+      "rawConfidence": 0.8
+    },
+    "HBK-MS4::P0-U02": {
+      "pipelines": [
+        {
+          "skill": "/scrutinize",
+          "why": "generic review fallback — no keyword matched",
+          "confidence": 0.3
+        }
+      ],
+      "tribal": [],
+      "skills": [],
+      "mcpTools": [
+        "resourceExtraction"
+      ],
+      "agents": [],
+      "buildVsIntegrate": "build",
+      "complexityTier": "M",
+      "confidence": 0.8,
+      "rationale": "The 'resourceExtraction' tool is the only MCP tool candidate and aligns well with extracting specific capability data from the unit.",
+      "source": "ollama",
+      "rawConfidence": 0.8
+    },
+    "HBK-MS4::P0-U03": {
+      "pipelines": [
+        {
+          "skill": "/scrutinize",
+          "why": "generic review fallback — no keyword matched",
+          "confidence": 0.3
+        }
+      ],
+      "tribal": [],
+      "skills": [],
+      "mcpTools": [
+        "U-ACTION-TRACES · Track D4 — Action traces"
+      ],
+      "agents": [],
+      "buildVsIntegrate": "build",
+      "complexityTier": "S",
+      "confidence": 0.3,
+      "rationale": "The only candidate tool provided is U-ACTION-TRACES, which has a confidence score of 0.3.",
+      "source": "ollama",
+      "rawConfidence": 0.3
+    },
+    "HBK-MS4::P0-U04": {
+      "pipelines": [
+        {
+          "skill": "/scrutinize",
+          "why": "generic review fallback — no keyword matched",
+          "confidence": 0.3
+        }
+      ],
+      "tribal": [],
+      "skills": [],
+      "mcpTools": [
+        "MISC-157 · 673 oversized PDFs still deferred (drawing-likely PDF extraction)",
+        "ghost.ms.acp-ms0 → wiki.architecture.actions_dev_me-get-records"
+      ],
+      "agents": [],
+      "buildVsIntegrate": "integrate",
+      "complexityTier": "S",
+      "confidence": 0.3,
+      "rationale": "Based on the provided signals, the 'scrutinize' skill is the only candidate pipeline with a confidence score of 0.3.",
+      "source": "ollama",
+      "rawConfidence": 0.3
+    },
+    "HBK-MS5::P0-U01": {
+      "pipelines": [
+        {
+          "skill": "/scrutinize",
+          "why": "generic review fallback — no keyword matched",
+          "confidence": 0.3
+        }
+      ],
+      "tribal": [],
+      "skills": [],
+      "mcpTools": [
+        "resourceExtraction"
+      ],
+      "agents": [],
+      "buildVsIntegrate": "build",
+      "complexityTier": "M",
+      "confidence": 0.7,
+      "rationale": "The candidate signal indicates a need for extracting maintenance schedules, which aligns well with the resourceExtraction tool.",
+      "source": "ollama",
+      "rawConfidence": 0.7
+    },
+    "HBK-MS5::P0-U02": {
+      "pipelines": [
+        {
+          "skill": "/scrutinize",
+          "why": "generic review fallback — no keyword matched",
+          "confidence": 0.3
+        }
+      ],
+      "tribal": [],
+      "skills": [],
+      "mcpTools": [
+        "resourceExtraction"
+      ],
+      "agents": [],
+      "buildVsIntegrate": "build",
+      "complexityTier": "M",
+      "confidence": 0.7,
+      "rationale": "The candidate signal indicates a need for extracting specific data from handbook parts sections, which aligns well with the resourceExtraction tool.",
+      "source": "ollama",
+      "rawConfidence": 0.7
+    },
+    "HBK-MS5::P0-U03": {
+      "pipelines": [
+        {
+          "skill": "/quote-to-ship",
+          "why": "quoting/cost/pricing/DFM — routes to quote-to-ship orchestrator",
+          "confidence": 0.8
+        },
+        {
+          "skill": "/token-dashboard",
+          "why": "token-economy / cost-efficiency / prompt-cache units",
+          "confidence": 0.8
+        }
+      ],
+      "tribal": [],
+      "skills": [],
+      "mcpTools": [],
+      "agents": [
+        "code-analyzer"
+      ],
+      "buildVsIntegrate": "build",
+      "complexityTier": "S",
+      "confidence": 0.8,
+      "rationale": "Selected /quote-to-ship based on the highest confidence score among candidate pipelines.",
+      "source": "ollama",
+      "rawConfidence": 0.8
+    },
+    "HBK-MS6::P0-U01": {
+      "pipelines": [
+        {
+          "skill": "/post-generate",
+          "why": "post-processor / G-code dialect / controller / CIMCO / WinMax — echo domain",
+          "confidence": 0.8
+        }
+      ],
+      "tribal": [],
+      "skills": [],
+      "mcpTools": [
+        "resourceExtraction"
+      ],
+      "agents": [],
+      "buildVsIntegrate": "build",
+      "complexityTier": "M",
+      "confidence": 0.8,
+      "rationale": "The candidate signals indicate a need for extracting specific data from handbook controller sections, which aligns with the resourceExtraction tool.",
+      "source": "ollama",
+      "rawConfidence": 0.8
+    },
+    "HBK-MS6::P0-U02": {
+      "pipelines": [
+        {
+          "skill": "/post-generate",
+          "why": "post-processor / G-code dialect / controller / CIMCO / WinMax — echo domain",
+          "confidence": 0.8
+        }
+      ],
+      "tribal": [],
+      "skills": [],
+      "mcpTools": [
+        "resourceExtraction"
+      ],
+      "agents": [],
+      "buildVsIntegrate": "build",
+      "complexityTier": "S",
+      "confidence": 0.8,
+      "rationale": "The candidate signal indicates a need for extracting macro variable maps and system parameter tables, which aligns with the resourceExtraction tool.",
+      "source": "ollama",
+      "rawConfidence": 0.8
+    },
+    "HBK-MS6::P0-U03": {
+      "pipelines": [
+        {
+          "skill": "/post-generate",
+          "why": "post-processor / G-code dialect / controller / CIMCO / WinMax — echo domain",
+          "confidence": 0.8
+        }
+      ],
+      "tribal": [],
+      "skills": [],
+      "mcpTools": [
+        "U-ACTION-TRACES · Track D4 — Action traces"
+      ],
+      "agents": [],
+      "buildVsIntegrate": "build",
+      "complexityTier": "S",
+      "confidence": 0.8,
+      "rationale": "The candidate signals suggest using the /post-generate skill with a high confidence, and U-ACTION-TRACES is mentioned as an MCP tool.",
+      "source": "ollama",
+      "rawConfidence": 0.8
+    },
+    "HBK-MS6::P0-U04": {
+      "pipelines": [
+        {
+          "skill": "/post-generate",
+          "why": "post-processor / G-code dialect / controller / CIMCO / WinMax — echo domain",
+          "confidence": 0.8
+        }
+      ],
+      "tribal": [],
+      "skills": [],
+      "mcpTools": [],
+      "agents": [],
+      "buildVsIntegrate": "integrate",
+      "complexityTier": "S",
+      "confidence": 0.8,
+      "rationale": "The candidate signal indicates a strong preference for the /post-generate skill with high confidence, making it the best fit for validating controller data against dialect definitions.",
+      "source": "ollama",
+      "rawConfidence": 0.8
+    },
+    "HBK-MS7::P0-U01": {
+      "pipelines": [
+        {
+          "skill": "/auto-speed-feed",
+          "why": "SFC calibration units — routes to the speed-feed orchestrator",
+          "confidence": 0.8
+        }
+      ],
+      "tribal": [],
+      "skills": [],
+      "mcpTools": [],
+      "agents": [
+        "physics-reviewer"
+      ],
+      "buildVsIntegrate": "integrate",
+      "complexityTier": "M",
+      "confidence": 0.8,
+      "rationale": "The candidate signal indicates a high confidence in the /auto-speed-feed pipeline for integrating the specified unit.",
+      "source": "ollama",
+      "rawConfidence": 0.8
+    },
+    "HBK-MS7::P0-U02": {
+      "pipelines": [
+        {
+          "skill": "/scrutinize",
+          "why": "generic review fallback — no keyword matched",
+          "confidence": 0.3
+        }
+      ],
+      "tribal": [],
+      "skills": [
+        "wedm-feedback"
+      ],
+      "mcpTools": [],
+      "agents": [
+        "physics-reviewer"
+      ],
+      "buildVsIntegrate": "integrate",
+      "complexityTier": "M",
+      "confidence": 0.7,
+      "rationale": "The 'wedm-feedback' skill is the only candidate provided and aligns with integrating axis acceleration data into the FeedRateOptimizationEngine.",
+      "source": "ollama",
+      "rawConfidence": 0.7
+    },
+    "HBK-MS7::P0-U03": {
+      "pipelines": [
+        {
+          "skill": "/token-dashboard",
+          "why": "token-economy / cost-efficiency / prompt-cache units",
+          "confidence": 0.8
+        }
+      ],
+      "tribal": [],
+      "skills": [
+        "cam-strategy"
+      ],
+      "mcpTools": [],
+      "agents": [
+        "physics-reviewer"
+      ],
+      "buildVsIntegrate": "integrate",
+      "complexityTier": "S",
+      "confidence": 0.8,
+      "rationale": "The candidate signal indicates high confidence in using the /token-dashboard pipeline for integrating thermal compensation data into the specified engines.",
+      "source": "ollama",
+      "rawConfidence": 0.8
+    },
+    "HBK-MS7::P0-U04": {
+      "pipelines": [
+        {
+          "skill": "test-team",
+          "why": "unit involves tests or coverage",
+          "confidence": 0.75
+        }
+      ],
+      "tribal": [],
+      "skills": [],
+      "mcpTools": [],
+      "agents": [
+        "physics-reviewer",
+        "test-review-agent"
+      ],
+      "buildVsIntegrate": "build",
+      "complexityTier": "M",
+      "confidence": 0.75,
+      "rationale": "The test-team skill has the highest confidence for building a comparison test suite.",
+      "source": "ollama",
+      "rawConfidence": 0.75
+    },
+    "HBK-MS8::P0-U01": {
+      "pipelines": [
+        {
+          "skill": "/scrutinize",
+          "why": "generic review fallback — no keyword matched",
+          "confidence": 0.3
+        }
+      ],
+      "tribal": [],
+      "skills": [
+        "cost-optimize-lathe"
+      ],
+      "mcpTools": [
+        "Rate Limiter"
+      ],
+      "agents": [
+        "code-analyzer"
+      ],
+      "buildVsIntegrate": "integrate",
+      "complexityTier": "S",
+      "confidence": 0.4,
+      "rationale": "The 'Rate Limiter' is the only MCP tool provided, and it aligns with the need to factor costs into hourly burden rates.",
+      "source": "ollama",
+      "rawConfidence": 0.4
+    },
+    "HBK-MS8::P0-U02": {
+      "pipelines": [
+        {
+          "skill": "/scrutinize",
+          "why": "generic review fallback — no keyword matched",
+          "confidence": 0.3
+        }
+      ],
+      "tribal": [],
+      "skills": [],
+      "mcpTools": [],
+      "agents": [],
+      "buildVsIntegrate": "integrate",
+      "complexityTier": "M",
+      "confidence": 0.3,
+      "rationale": "The only candidate skill provided is /scrutinize with a confidence of 0.3.",
+      "source": "ollama",
+      "rawConfidence": 0.3
+    },
+    "HBK-MS8::P0-U03": {
+      "pipelines": [
+        {
+          "skill": "/token-dashboard",
+          "why": "token-economy / cost-efficiency / prompt-cache units",
+          "confidence": 0.8
+        },
+        {
+          "skill": "test-team",
+          "why": "unit involves tests or coverage",
+          "confidence": 0.75
+        }
+      ],
+      "tribal": [],
+      "skills": [
+        "cost-optimize-lathe"
+      ],
+      "mcpTools": [],
+      "agents": [
+        "test-review-agent",
+        "code-analyzer"
+      ],
+      "buildVsIntegrate": "build",
+      "complexityTier": "M",
+      "confidence": 0.775,
+      "rationale": "Both token-dashboard and test-team have high confidence scores for handling the unit's requirements.",
+      "source": "ollama",
+      "rawConfidence": 0.775
+    },
+    "HBK-MS9::P0-U01": {
+      "pipelines": [
+        {
+          "skill": "/pdf-learn",
+          "why": "unit involves PDF/document ingestion or parsing",
+          "confidence": 0.8
+        },
+        {
+          "skill": "/post-generate",
+          "why": "post-processor / G-code dialect / controller / CIMCO / WinMax — echo domain",
+          "confidence": 0.8
+        }
+      ],
+      "tribal": [],
+      "skills": [],
+      "mcpTools": [],
+      "agents": [
+        "physics-reviewer"
+      ],
+      "buildVsIntegrate": "integrate",
+      "complexityTier": "M",
+      "confidence": 0.8,
+      "rationale": "Both /pdf-learn and /post-generate have high confidence scores for processing the given unit.",
+      "source": "ollama",
+      "rawConfidence": 0.8
+    },
+    "HBK-MS9::P0-U02": {
+      "pipelines": [
+        {
+          "skill": "/scrutinize",
+          "why": "generic review fallback — no keyword matched",
+          "confidence": 0.3
+        }
+      ],
+      "tribal": [],
+      "skills": [],
+      "mcpTools": [],
+      "agents": [],
+      "buildVsIntegrate": "integrate",
+      "complexityTier": "M",
+      "confidence": 0.3,
+      "rationale": "The only candidate signal is the /scrutinize skill with a confidence of 0.3.",
+      "source": "ollama",
+      "rawConfidence": 0.3
+    },
+    "HBK-MS9::P0-U03": {
+      "pipelines": [
+        {
+          "skill": "/token-dashboard",
+          "why": "token-economy / cost-efficiency / prompt-cache units",
+          "confidence": 0.8
+        }
+      ],
+      "tribal": [],
+      "skills": [
+        "quality-check-lathe"
+      ],
+      "mcpTools": [],
+      "agents": [
+        "code-analyzer"
+      ],
+      "buildVsIntegrate": "integrate",
+      "complexityTier": "S",
+      "confidence": 0.8,
+      "rationale": "The candidate signal suggests using the /token-dashboard pipeline with high confidence for integrating machine-specific accuracy data.",
+      "source": "ollama",
+      "rawConfidence": 0.8
+    },
+    "HBK-MS9::P0-U04": {
+      "pipelines": [
+        {
+          "skill": "test-team",
+          "why": "unit involves tests or coverage",
+          "confidence": 0.75
+        }
+      ],
+      "tribal": [],
+      "skills": [],
+      "mcpTools": [],
+      "agents": [
+        "test-review-agent"
+      ],
+      "buildVsIntegrate": "build",
+      "complexityTier": "M",
+      "confidence": 0.75,
+      "rationale": "The test-team has the highest confidence level for handling the build safety validation test suite.",
+      "source": "ollama",
+      "rawConfidence": 0.75
+    },
+    "HITL-OPERATOR-UI-MS24::P0-U01": {
+      "pipelines": [
+        {
+          "skill": "/scrutinize",
+          "why": "unit involves scrutiny, review, audit, or quality",
+          "confidence": 0.7
+        }
+      ],
+      "tribal": [],
+      "skills": [
+        "audit-viz-first"
+      ],
+      "mcpTools": [
+        "WebSocket"
+      ],
+      "agents": [],
+      "buildVsIntegrate": "integrate",
+      "complexityTier": "S",
+      "confidence": 0.7,
+      "rationale": "Based on the provided signals, 'audit-viz-first' and '/scrutinize' are relevant skills for rendering consensus output with provenance.",
+      "source": "ollama",
+      "rawConfidence": 0.7
+    },
+    "HITL-OPERATOR-UI-MS24::P0-U02": {
+      "pipelines": [
+        {
+          "skill": "/scrutinize",
+          "why": "generic review fallback — no keyword matched",
+          "confidence": 0.3
+        }
+      ],
+      "tribal": [],
+      "skills": [],
+      "mcpTools": [
+        "feedback_dispatcher_path_gree..."
+      ],
+      "agents": [],
+      "buildVsIntegrate": "build",
+      "complexityTier": "S",
+      "confidence": 0.3,
+      "rationale": "Based on the provided signals, /scrutinize is the only candidate pipeline with a confidence score, and feedback_dispatcher_path_gree... is listed as an MCP tool.",
+      "source": "ollama",
+      "rawConfidence": 0.3
+    },
+    "HITL-OPERATOR-UI-MS24::P0-U03": {
+      "pipelines": [
+        {
+          "skill": "/biz-health",
+          "why": "business/ERP/finance units — entirely unrouted without this rule",
+          "confidence": 0.8
+        }
+      ],
+      "tribal": [],
+      "skills": [],
+      "mcpTools": [],
+      "agents": [
+        "reviewer"
+      ],
+      "buildVsIntegrate": "integrate",
+      "complexityTier": "M",
+      "confidence": 0.8,
+      "rationale": "The only candidate pipeline with a confidence score is /biz-health, which aligns with the integration verdict.",
+      "source": "ollama",
+      "rawConfidence": 0.8
+    },
+    "HURCO-VM30I-SCENARIOS-MS0::P0-U01": {
+      "pipelines": [
+        {
+          "skill": "/post-generate",
+          "why": "post-processor / G-code dialect / controller / CIMCO / WinMax — echo domain",
+          "confidence": 0.8
+        },
+        {
+          "skill": "test-team",
+          "why": "unit involves tests or coverage",
+          "confidence": 0.75
+        }
+      ],
+      "tribal": [],
+      "skills": [],
+      "mcpTools": [
+        "git-commit: [MAIN] [TOKEN-SAVINGS-PIVOT]/U-PSN-ACTION-HINT (slot:alpha iter22-fo"
+      ],
+      "agents": [
+        "physics-reviewer",
+        "test-review-agent"
+      ],
+      "buildVsIntegrate": "build",
+      "complexityTier": "M",
+      "confidence": 0.8,
+      "rationale": "The highest confidence signal is for the 'pipelines' skill with a confidence of 0.8.",
+      "source": "ollama",
+      "rawConfidence": 0.8
+    },
+    "HURCO-VM30I-SCENARIOS-MS0::P0-U02": {
+      "pipelines": [
+        {
+          "skill": "/cad-corpus",
+          "why": "CAD corpus population / coverage-matrix work",
+          "confidence": 0.8
+        },
+        {
+          "skill": "/post-generate",
+          "why": "post-processor / G-code dialect / controller / CIMCO / WinMax — echo domain",
+          "confidence": 0.8
+        },
+        {
+          "skill": "test-team",
+          "why": "unit involves tests or coverage",
+          "confidence": 0.75
+        }
+      ],
+      "tribal": [],
+      "skills": [],
+      "mcpTools": [],
+      "agents": [
+        "test-review-agent"
+      ],
+      "buildVsIntegrate": "build",
+      "complexityTier": "M",
+      "confidence": 0.8,
+      "rationale": "High confidence in /cad-corpus and /post-generate for the given unit and verdict.",
+      "source": "ollama",
+      "rawConfidence": 0.8
+    }
+  }
+}

@@ -101,7 +101,7 @@ function main() {
   const result = spawnSync(
     process.execPath,
     [coordHelper, "post", "--message", message, "--status", `lifecycle:${args.event}`],
-    { encoding: "utf8", timeout: 5000 }
+    { windowsHide: true, encoding: "utf8", timeout: 5000 }
   );
 
   if (result.status !== 0) {

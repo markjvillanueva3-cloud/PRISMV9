@@ -423,7 +423,7 @@ export class TribalKnowledgeAdvisorEngine {
         min_confidence: 50,
       });
 
-      return result.tips || [];
+      return result;
     } catch (err) {
       log.warn("TribalKnowledgeAdvisorEngine: Failed to query tribal knowledge", { error: err });
       return [];

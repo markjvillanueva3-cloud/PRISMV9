@@ -1,0 +1,292 @@
+{
+  "milestone": "JM-DIE-FLEET-SCAN-MS0",
+  "slot": "charlie",
+  "goal": "/goal-16",
+  "generated_at": "2026-05-25T03:09:16.568Z",
+  "archive_root": "H:/prism/JM DIE",
+  "subdirs_walked": [
+    "CNC MILL HAAS",
+    "HURCO CNC PROGRAMS",
+    "WIRE EDM",
+    "CNC OKUMA MULTUS",
+    "ROKU-ROKU",
+    "MACRO PROGRAMS"
+  ],
+  "assumptions": {
+    "machine_rate_usd_per_hr": 95,
+    "assumed_material_spend_usd": 75,
+    "note": "MS0 single-rate; per-machine rates in MS1 via ShopConfigurationEngine"
+  },
+  "plan": {
+    "walked_files": 5744,
+    "already_scanned_at_plan_time": 730,
+    "to_scan": 5744,
+    "batch_count": 3
+  },
+  "aggregate": {
+    "files_inventoried_this_run": 5744,
+    "cnc_programs_parsed": 73,
+    "total_program_time_s": 1603065.73,
+    "total_fmv_usd": 72985.62
+  },
+  "ledger_after": {
+    "total_rows": 6474,
+    "unique_paths": 6474,
+    "by_source": {
+      "program-analysis": 200,
+      "financial-baseline": 530,
+      "fleet-scan-batch": 5744
+    },
+    "by_kind": {
+      "other": 5713,
+      "cnc-program": 313,
+      "docustrata": 448
+    }
+  },
+  "batches": [
+    {
+      "batch_id": "B0001",
+      "file_count": 2000,
+      "cnc_program_count": 69,
+      "docustrata_count": 7,
+      "other_count": 1924,
+      "family_mix": {
+        "mill": 556,
+        "mill_turn": 18,
+        "utility": 4,
+        "micro_mill": 1108,
+        "wedm": 314
+      },
+      "parsed_programs": 69,
+      "batch_total_time_s": 1602986.21,
+      "batch_total_fmv_usd": 72182.32,
+      "ledger_appended": 2000,
+      "programs_sample": [
+        {
+          "rel_path": "CNC MILL HAAS/AJ MANUFACTURING/UPSET-876-2-.495.MIN",
+          "dialect": "mazak_lathe",
+          "block_count": 120,
+          "tool_changes": 8,
+          "total_time_s": 59.32,
+          "fmv_usd": 202.26
+        },
+        {
+          "rel_path": "CNC MILL HAAS/ALL STAR/ALL STAR .NC",
+          "dialect": "fanuc_mill",
+          "block_count": 14,
+          "tool_changes": 1,
+          "total_time_s": 69.2,
+          "fmv_usd": 202.62
+        },
+        {
+          "rel_path": "CNC MILL HAAS/ALL STAR/ALL STAR.NC",
+          "dialect": "fanuc_mill",
+          "block_count": 62,
+          "tool_changes": 5,
+          "total_time_s": 33.12,
+          "fmv_usd": 201.31
+        },
+        {
+          "rel_path": "CNC MILL HAAS/ATF/WAFER1314.MIN",
+          "dialect": "mazak_lathe",
+          "block_count": 68,
+          "tool_changes": 5,
+          "total_time_s": 1246.3,
+          "fmv_usd": 245.49
+        },
+        {
+          "rel_path": "CNC MILL HAAS/FASTRON/WAFER1314.MIN",
+          "dialect": "mazak_lathe",
+          "block_count": 68,
+          "tool_changes": 5,
+          "total_time_s": 1246.3,
+          "fmv_usd": 245.49
+        },
+        {
+          "rel_path": "CNC MILL HAAS/FONTANA/GRIP BLOCKS/B-0506 JOBS/B-0506-2/B-0506-2.NC",
+          "dialect": "fanuc_mill",
+          "block_count": 51449,
+          "tool_changes": 9,
+          "total_time_s": 6142.86,
+          "fmv_usd": 423.8
+        },
+        {
+          "rel_path": "CNC MILL HAAS/FONTANA/GRIP BLOCKS/B-0506 JOBS/B-0506-6  1.15625/B-0506-6.NC",
+          "dialect": "fanuc_mill",
+          "block_count": 128,
+          "tool_changes": 2,
+          "total_time_s": 20.31,
+          "fmv_usd": 200.84
+        },
+        {
+          "rel_path": "CNC MILL HAAS/FONTANA/GRIP BLOCKS/B-0506 JOBS/B-0506-6.NC",
+          "dialect": "fanuc_mill",
+          "block_count": 128,
+          "tool_changes": 2,
+          "total_time_s": 20.31,
+          "fmv_usd": 200.84
+        },
+        {
+          "rel_path": "CNC MILL HAAS/FONTANA/GRIP BLOCKS/B-1289-11  1.1875/PROVEN PRG/OP1/O01289.nc",
+          "dialect": "fanuc_mill",
+          "block_count": 59458,
+          "tool_changes": 2,
+          "total_time_s": 13951.16,
+          "fmv_usd": 708.15
+        },
+        {
+          "rel_path": "CNC MILL HAAS/FONTANA/GRIP BLOCKS/B-1289-11  1.1875/PROVEN PRG/OP2/B-1289-11.2.NC",
+          "dialect": "fanuc_mill",
+          "block_count": 180,
+          "tool_changes": 1,
+          "total_time_s": 0,
+          "fmv_usd": 200.1
+        },
+        {
+          "rel_path": "CNC MILL HAAS/FONTANA/GRIP BLOCKS/C-0127/C-01271.NC",
+          "dialect": "fanuc_mill",
+          "block_count": 47319,
+          "tool_changes": 1,
+          "total_time_s": 265.51,
+          "fmv_usd": 209.77
+        },
+        {
+          "rel_path": "CNC MILL HAAS/FONTANA/GRIP BLOCKS/C-0127/C-01272.NC",
+          "dialect": "fanuc_mill",
+          "block_count": 7484,
+          "tool_changes": 1,
+          "total_time_s": 3163.9,
+          "fmv_usd": 315.32
+        },
+        {
+          "rel_path": "CNC MILL HAAS/FONTANA/GRIP BLOCKS/C-0127/tc-0127-03/C-01271.NC",
+          "dialect": "fanuc_mill",
+          "block_count": 47319,
+          "tool_changes": 1,
+          "total_time_s": 265.51,
+          "fmv_usd": 209.77
+        },
+        {
+          "rel_path": "CNC MILL HAAS/FONTANA/GRIP BLOCKS/C-0127/tc-0127-03/C-01272.NC",
+          "dialect": "fanuc_mill",
+          "block_count": 7484,
+          "tool_changes": 1,
+          "total_time_s": 3163.9,
+          "fmv_usd": 315.32
+        },
+        {
+          "rel_path": "CNC MILL HAAS/FONTANA/GRIP BLOCKS/C-0127/TC-0127-5/TC-0127-5.2.NC",
+          "dialect": "fanuc_mill",
+          "block_count": 69489,
+          "tool_changes": 2,
+          "total_time_s": 3919.01,
+          "fmv_usd": 342.82
+        },
+        {
+          "rel_path": "CNC MILL HAAS/FONTANA/GRIP BLOCKS/FD-1500-006/FD1500-006.NC",
+          "dialect": "fanuc_mill",
+          "block_count": 34727,
+          "tool_changes": 2,
+          "total_time_s": 7789.32,
+          "fmv_usd": 483.76
+        },
+        {
+          "rel_path": "CNC MILL HAAS/FONTANA/GRIP BLOCKS/FD-1500-006/O01506.nc",
+          "dialect": "fanuc_mill",
+          "block_count": 34727,
+          "tool_changes": 2,
+          "total_time_s": 8922.31,
+          "fmv_usd": 525.02
+        },
+        {
+          "rel_path": "CNC MILL HAAS/FONTANA/GRIP BLOCKS/FD-1500-006/pass with undercut/FD-1500-006A.NC",
+          "dialect": "fanuc_mill",
+          "block_count": 29870,
+          "tool_changes": 2,
+          "total_time_s": 7119.03,
+          "fmv_usd": 459.35
+        },
+        {
+          "rel_path": "CNC MILL HAAS/FONTANA/GRIP BLOCKS/FD-1500-006/pass with undercut/PROVEN PRG/O15006.nc",
+          "dialect": "fanuc_mill",
+          "block_count": 29869,
+          "tool_changes": 2,
+          "total_time_s": 8086.26,
+          "fmv_usd": 494.57
+        },
+        {
+          "rel_path": "CNC MILL HAAS/SFS GROUP USA/Guided back stops/1563247/OP1/O32471.NC",
+          "dialect": "fanuc_mill",
+          "block_count": 1676,
+          "tool_changes": 13,
+          "total_time_s": 1208.3,
+          "fmv_usd": 244.1
+        }
+      ]
+    },
+    {
+      "batch_id": "B0002",
+      "file_count": 2000,
+      "cnc_program_count": 1,
+      "docustrata_count": 0,
+      "other_count": 1999,
+      "family_mix": {
+        "wedm": 2000
+      },
+      "parsed_programs": 1,
+      "batch_total_time_s": 36,
+      "batch_total_fmv_usd": 201.41,
+      "ledger_appended": 2000,
+      "programs_sample": [
+        {
+          "rel_path": "WIRE EDM/ITW SHAKEPROOF 500-30540-24000-04.NC",
+          "dialect": "fanuc_mill",
+          "block_count": 136,
+          "tool_changes": 0,
+          "total_time_s": 36,
+          "fmv_usd": 201.41
+        }
+      ]
+    },
+    {
+      "batch_id": "B0003",
+      "file_count": 1744,
+      "cnc_program_count": 3,
+      "docustrata_count": 0,
+      "other_count": 1741,
+      "family_mix": {
+        "wedm": 1744
+      },
+      "parsed_programs": 3,
+      "batch_total_time_s": 43.52,
+      "batch_total_fmv_usd": 601.89,
+      "ledger_appended": 1744,
+      "programs_sample": [
+        {
+          "rel_path": "WIRE EDM/NOZE TEST.NC",
+          "dialect": "fanuc_mill",
+          "block_count": 107,
+          "tool_changes": 0,
+          "total_time_s": 12,
+          "fmv_usd": 200.54
+        },
+        {
+          "rel_path": "WIRE EDM/QUILL1125-750-STOP.MIN",
+          "dialect": "mazak_lathe",
+          "block_count": 43,
+          "tool_changes": 4,
+          "total_time_s": 29.12,
+          "fmv_usd": 201.16
+        },
+        {
+          "rel_path": "WIRE EDM/Wire Program - 5 inch square.NC",
+          "dialect": "fanuc_mill",
+          "block_count": 7,
+          "tool_changes": 0,
+          "total_time_s": 2.4,
+          "fmv_usd": 200.19
+        }
+      ]
+    }
+  ]
+}

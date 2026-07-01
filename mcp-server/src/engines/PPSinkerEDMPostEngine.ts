@@ -21,6 +21,15 @@
  * @module PPSinkerEDMPostEngine
  */
 
+import {
+  resolveEDMMaterial,
+  resolveEDMBiMaterial,
+  EDM_MULTIPASS_MATERIALS,
+  EDM_BIMATERIAL_MATERIALS,
+  type EDMMultiPassMaterialProps,
+  type EDMBiMaterialProps,
+} from "../data/edm-material-db.js";
+
 // ── Types ─────────────────────────────────────────────────────────────
 
 export type SinkerBurnStage = "rough" | "semi_finish" | "finish" | "super_finish";
@@ -68,7 +77,11 @@ export interface SinkerProgramInput {
   material?: string;
   cavity_depth_mm?: number;     // Total cavity depth for planning
   operations: SinkerOperation[];
-  machine_model?: "EA12V" | "EA12S" | "EA28V";
+  // EA12D added 2026-06-25: JM Die's EDM-02 is a Mitsubishi EA12D (C30EA-2 control).
+  // Without it in the union, an EA12D job fell back to the default "EA12V" header and
+  // silently mis-labeled the machine identity (the lathe-identity lesson, e6b72b9e69).
+  // Identity only -- pulse params stay stage-default / caller-supplied (no fabricated spec).
+  machine_model?: "EA12V" | "EA12S" | "EA12D" | "EA28V";
   /** Output units: "metric" (G21, mm) or "imperial" (G20, inches). Defaults to metric. */
   units?: "metric" | "imperial";
 }
@@ -82,6 +95,10 @@ export interface SinkerProgram {
   total_burn_depth_mm: number;
   estimated_burn_time_min?: number;
   warnings: string[];
+  /** U-PP-EDM-MATERIAL-WIRE: canonical EDM material key the workpiece resolved to
+   *  (via src/data/edm-material-db.ts). Lets programmatic consumers/UI show what the
+   *  raw material string mapped to. Advisory metadata -- does not affect emitted G-code. */
+  material_resolved?: string;
 }
 
 // ── Stage defaults (Mitsubishi EA12V E-pack approximations) ───────────
@@ -127,6 +144,67 @@ function formatCoord(value: number, decimals: number, scale: number): string {
 
 // ── Engine ─────────────────────────────────────────────────────────────
 
+/** U-PP-NONFINITE-EMIT-SWEEP: numeric op fields that feed an emitted coordinate token
+ *  (start X/Y/Z, plunge depth, retract, over-burn, orbit radius). A present-but-non-finite
+ *  value formats into a literal `XNaN`/`ZInfinity` the Mitsubishi sinker control rejects --
+ *  the `?? default` fallbacks only catch null/undefined, NOT NaN/Infinity. Returns the
+ *  offending field=value pairs so the op can be HALTED (fail loud), never silently emit a
+ *  wrong-but-valid coord. Sibling of the OkumaB250/OkumaOSP/HurcoV11/Mitsubishi/PPOkuma/
+ *  PPWireEDM/FiveAxis fixes (R15 apply-to-all). Absent fields are not flagged. */
+function nonFiniteSinkerEmitFields(op: SinkerOperation): string[] {
+  const FIELDS = [
+    "start_x", "start_y", "start_z",
+    "target_depth_mm", "retract_depth_mm", "over_burn_mm", "orbit_radius_mm",
+  ] as const;
+  const bad: string[] = [];
+  for (const f of FIELDS) {
+    const v = (op as unknown as Record<string, unknown>)[f];
+    if (typeof v === "number" && !Number.isFinite(v)) bad.push(`${f}=${v}`);
+  }
+  return bad;
+}
+
+/** U-PP-EDM-MATERIAL-WIRE: resolve the workpiece material against the canonical EDM
+ *  material DB (single source of truth -- src/data/edm-material-db.ts), the same DB
+ *  EDMBiMaterialCompensationEngine + PostProcessorComprehensiveKnowledgeEngine consume.
+ *  Returns a GUARANTEED-valid multi-pass props bucket: `resolveEDMMaterial` can hand
+ *  back a die-steel GRADE (H13/D2/A2/S7/M2) that lives ONLY in the bi-material table,
+ *  NOT in EDM_MULTIPASS_MATERIALS -- so those map to the `tool_steel` bucket (all are
+ *  hardenable die steels JM Die burns); any other miss falls back to `steel`. Never
+ *  undefined, never throws. This drives ADVISORY output only (header comments /
+ *  warnings / burn-time estimate) -- it NEVER alters the emitted pulse params
+ *  (IP/ON/OF/SV) or motion blocks, which stay stage-default / caller-supplied so no
+ *  fabricated burn energy ever reaches real iron. */
+const DIE_STEEL_GRADES = new Set(["H13", "D2", "A2", "S7", "M2"]);
+function resolveSinkerMaterialProps(material: string): {
+  key: string;
+  multipass: EDMMultiPassMaterialProps;
+  bi: EDMBiMaterialProps;
+} {
+  const resolved = resolveEDMMaterial(material);
+  let key = resolved;
+  if (!EDM_MULTIPASS_MATERIALS[key]) {
+    key = DIE_STEEL_GRADES.has(resolved) ? "tool_steel" : "steel";
+  }
+  // Bi-material thermal props (machinability / melting point) for the header advisory. The bi
+  // table is keyed by GRADE (H13/D2/A2/S7/M2/steel/...) and has NO `tool_steel`/`hardened_steel`
+  // bucket key -- so an alias die-steel grade like P20/O1/W1 (multipass bucket `tool_steel`)
+  // falls back to plain STEEL bi-props, mislabeling the header (a TOOL_STEEL bucket showing
+  // steel's machinability 1.00 / melt 1500C). Use H13 as the canonical die-steel thermal profile
+  // for those two buckets so the displayed values are consistent with the bucket label. Grades
+  // with their OWN bi entry (H13/D2/A2/S7/M2) resolve directly and are untouched; plain steel
+  // (1018/4140 -> `steel` bucket) keeps its steel bi-props.
+  let bi = resolveEDMBiMaterial(material);
+  if ((key === "tool_steel" || key === "hardened_steel") && bi === EDM_BIMATERIAL_MATERIALS["steel"]) {
+    bi = EDM_BIMATERIAL_MATERIALS["H13"];
+  }
+  return {
+    key,
+    multipass: EDM_MULTIPASS_MATERIALS[key],
+    bi,
+  };
+}
+
 export class PPSinkerEDMPostEngine {
   /**
    * Generate a complete sinker EDM program.
@@ -142,7 +220,19 @@ export class PPSinkerEDMPostEngine {
     lines.push(`O${progNum}`);
     lines.push(`(${input.part_description ?? "SINKER EDM PROGRAM"})`);
     lines.push(`(MACHINE: MITSUBISHI ${machine})`);
-    lines.push(`(MATERIAL: ${input.material ?? "TOOL STEEL"})`);
+    // U-PP-EDM-MATERIAL-WIRE: make the post material-aware via the canonical EDM DB.
+    // ADVISORY ONLY -- these header comments + the warnings + the time estimate; the
+    // emitted pulse params (IP/ON/OF/SV) and motion blocks are NOT touched.
+    const rawMaterial = input.material ?? "TOOL STEEL";
+    const matProps = resolveSinkerMaterialProps(rawMaterial);
+    lines.push(`(MATERIAL: ${rawMaterial})`);
+    lines.push(`(MAT PROPS: ${matProps.key.toUpperCase()} | MRR ${matProps.multipass.mrr_factor.toFixed(2)}x | MACHINABILITY ${matProps.bi.machinability_index.toFixed(2)} | MELT ${matProps.bi.melting_point_C}C)`);
+    if (matProps.multipass.distortion_prone) {
+      lines.push(`(ADVISORY: ${matProps.key.toUpperCase()} IS DISTORTION-PRONE -- STRESS-RELIEVE BEFORE FINISH, KEEP FINISH PULSE LIGHT)`);
+    }
+    if (matProps.multipass.flush_factor >= 1.3) {
+      lines.push(`(ADVISORY: ${matProps.key.toUpperCase()} NEEDS AGGRESSIVE FLUSH (factor ${matProps.multipass.flush_factor.toFixed(2)}) -- INCREASE OFF-TIME RATIO / FLUSH PRESSURE)`);
+    }
     if (input.cavity_depth_mm !== undefined) {
       lines.push(`(CAVITY DEPTH: ${input.cavity_depth_mm}mm)`);
     }
@@ -165,6 +255,17 @@ export class PPSinkerEDMPostEngine {
     // Process operations
     for (let i = 0; i < input.operations.length; i++) {
       const op = input.operations[i];
+      // U-PP-NONFINITE-EMIT-SWEEP: a non-finite coord/depth field would emit a literal
+      // XNaN/ZInfinity the Mitsubishi sinker control rejects -- HALT the op's emit (fail
+      // loud) + warn; never silently emit a wrong-but-valid coord (and don't let a NaN
+      // depth corrupt the burn-depth summary).
+      const badEmit = nonFiniteSinkerEmitFields(op);
+      if (badEmit.length > 0) {
+        warnings.push(`Operation ${i + 1} (${op.stage}): non-finite emit field(s) [${badEmit.join(", ")}] -- operation block replaced with an ERROR marker to avoid a literal XNaN/ZInfinity the sinker control rejects; fix the upstream setup before running.`);
+        lines.push(``);
+        lines.push(`(ERROR: OPERATION ${i + 1} ${op.stage.toUpperCase()} NON-FINITE ${badEmit.join(" ")} -- DO NOT RUN, REVIEW SETUP)`);
+        continue;
+      }
       const electrodeNum = op.electrode_number ?? 1;
       electrodes.add(electrodeNum);
       totalBurnDepth += op.target_depth_mm;
@@ -175,6 +276,12 @@ export class PPSinkerEDMPostEngine {
       }
       if (op.stage === "rough" && op.peak_current_a !== undefined && op.peak_current_a > 64) {
         warnings.push(`Operation ${i + 1}: peak current ${op.peak_current_a}A exceeds EA12V generator limit (64A)`);
+      }
+      // U-PP-EDM-MATERIAL-WIRE: material-aware over-current advisory (matters on larger
+      // generators e.g. EA28V where the 64A cap above does not bind). Advisory only --
+      // does not clamp the emitted current.
+      if (op.peak_current_a !== undefined && op.peak_current_a > matProps.multipass.max_current_A) {
+        warnings.push(`Operation ${i + 1}: peak current ${op.peak_current_a}A exceeds ${matProps.key} max safe current (${matProps.multipass.max_current_A}A at 50mm thickness) -- recast/microcrack risk`);
       }
 
       lines.push(``);
@@ -292,8 +399,13 @@ export class PPSinkerEDMPostEngine {
     // Heuristic: rough MRR ~200mm³/min, each stage slower by 5x
     let estBurnTime: number | undefined;
     if (input.operations.length > 0) {
+      // U-PP-EDM-MATERIAL-WIRE: scale the heuristic by the workpiece MRR factor --
+      // carbide (~0.35x) burns ~3x slower than steel; copper/graphite faster. A
+      // non-finite depth (a halted op above) contributes 0 so the estimate never NaNs.
+      const mrrFactor = matProps.multipass.mrr_factor;
       const timeByOp = input.operations.map(op => {
-        const baseMRR = { rough: 200, semi_finish: 40, finish: 8, super_finish: 1 }[op.stage];
+        if (!Number.isFinite(op.target_depth_mm)) return 0;
+        const baseMRR = { rough: 200, semi_finish: 40, finish: 8, super_finish: 1 }[op.stage] * mrrFactor;
         const volume = op.target_depth_mm * 100; // Assume 100mm² cross-section
         return volume / baseMRR;
       });
@@ -309,6 +421,7 @@ export class PPSinkerEDMPostEngine {
       total_burn_depth_mm: totalBurnDepth,
       estimated_burn_time_min: estBurnTime,
       warnings,
+      material_resolved: matProps.key,
     };
   }
 
@@ -329,20 +442,20 @@ export class PPSinkerEDMPostEngine {
         {
           stage: "rough", electrode_number: 1, electrode_name: "ROUGH_GRAPHITE",
           target_depth_mm: cavityDepth - 0.15,
-          orbit_pattern: "circle", orbit_radius: 0.30,
+          orbit_pattern: "circle", orbit_radius_mm: 0.30,
           start_z: 2, flush_cycle_sec: 5, retract_depth_mm: 2,
           suction_enabled: true,
         },
         {
           stage: "semi_finish", electrode_number: 2, electrode_name: "SEMI_GRAPHITE",
           target_depth_mm: cavityDepth - 0.03,
-          orbit_pattern: "circle", orbit_radius: 0.12,
+          orbit_pattern: "circle", orbit_radius_mm: 0.12,
           start_z: 2, flush_cycle_sec: 3, retract_depth_mm: 1,
         },
         {
           stage: "finish", electrode_number: 3, electrode_name: "FINISH_COPPER",
           target_depth_mm: cavityDepth,
-          orbit_pattern: "circle", orbit_radius: 0.05,
+          orbit_pattern: "circle", orbit_radius_mm: 0.05,
           start_z: 2, flush_cycle_sec: 0, // continuous for finish
         },
       ],

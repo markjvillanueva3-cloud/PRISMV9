@@ -1,0 +1,3626 @@
+{
+ "FEATURE-GAP-AUDIT-MS0::U-GAP-SF-NC-CALIBRATION": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-calc.md",
+   "knowledge/wiki/architecture/dispatcher-cam.md",
+   "knowledge/wiki/architecture/dispatcher-data.md"
+  ],
+  "addSeWiki": [
+   "jsonl-ledger-conventions",
+   "schema-read-discipline",
+   "physics-constants-discipline"
+  ],
+  "systemImpact": "Mining shop-proven speed/feed pairs from 35K+ JM DIE programs feeds prism_calc:speed_feed and prism_cam:auto_speed_feed_optimize with empirical priors, replacing Sandvik catalog defaults for high-volume materials. Downstream consumers: SFC quick-start, ShopToolDatabase, ultimate_speed_feed action, and the SF-AI L1-L3 ladder under U-WIRE-BACKLOG-SF.",
+  "csDepth": [
+   "O(N) streaming parse over .min/.mcx-8/.cyc — keep in-memory window bounded; full corpus is multi-GB",
+   "Outlier filtering before fitting: a single mis-typed F-word skews the calibration distribution; use robust regression (Theil-Sen) or median-only summaries",
+   "Per-(material, tool, machine) bucket sparsity: most cells will have <5 samples, so report confidence bands not point estimates"
+  ]
+ },
+ "FEATURE-GAP-AUDIT-MS0::U-GAP-TRIBAL-KNOWLEDGE-GRAPH": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-knowledge.md",
+   "knowledge/wiki/architecture/dispatcher-aireasoning.md",
+   "knowledge/wiki/architecture/tribal-graph-content-mine.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "dispatcher-action-design",
+   "memory-curation-discipline"
+  ],
+  "systemImpact": "Re-modularizing PRISM_KNOWLEDGE_GRAPH + PRISM_KNOWLEDGE_FUSION restores a typed graph substrate behind prism_knowledge:* + prism_ai:knowledge_query that today fan-out across wiki, tribal-by-domain-inject, and master-index-search. Consumers: cross_process_ai_orchestrate, ai_capability_knowledge_sources, and the GRAPH-AS-LLM-CONTEXT-MS0 siblings (U-GAC01/02/06).",
+  "csDepth": [
+   "Adjacency representation choice: edge-list for sparse domain links vs CSR for traversal hotpaths in xproc-causal-export-graph",
+   "Schema-version invariant: monolith dump shape must be migrated forward before merge — silent shape drift is the documented bug class (R12)",
+   "Cycle detection on KG_FUSION merge — duplicate node-id from two ingesters yields a self-loop that breaks BFS depth"
+  ]
+ },
+ "FEATURE-GAP-AUDIT-MS0::U-GAP-TRIBAL-MACRO-INTEL": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-cam.md",
+   "knowledge/wiki/architecture/dispatcher-edm.md",
+   "knowledge/wiki/architecture/dispatcher-turning.md"
+  ],
+  "addSeWiki": [
+   "memory-curation-discipline",
+   "test-design-real-values",
+   "jsonl-ledger-conventions"
+  ],
+  "systemImpact": "Extracting common-variable + part-counter loop patterns from JM DIE MACRO PROGRAMS/ enriches okuma_macro_convert + cam_macro_library_list with empirical operator idioms (not just vendor docs). Downstream: turning_macro_fanout_dry_run, cam_macro_match_family, and the lathe/mill print-to-program pipelines that emit macros instead of expanded G-code.",
+  "csDepth": [
+   "AST-level pattern mining over Okuma/Mitsubishi/Fanuc macro dialects — each dialect needs its own tokenizer; never normalize before classify",
+   "Common-variable namespace collision (#100-#199 system-reserved vs #500+ user) — mis-classify and a 'safe' template overwrites a probe offset",
+   "Loop-counter patterns are O(N) over program length; nested WHILE/IF needs balanced-paren stack with depth cap to bound parser memory"
+  ]
+ },
+ "FEATURE-GAP-AUDIT-MS0::U-GAP-WIRE-JMDIE-CORPUS": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-edm.md",
+   "knowledge/wiki/architecture/dispatcher-cam.md",
+   "knowledge/wiki/architecture/dispatcher-knowledge.md"
+  ],
+  "addSeWiki": [
+   "memory-curation-discipline",
+   "jsonl-ledger-conventions",
+   "test-design-real-values"
+  ],
+  "systemImpact": "Ingesting 4058 Mastercam .mcx-8 + Sodick .esp files across ~100 customers fuels prism_edm:wedm_print_to_program + knowledge_jmdie_pattern_analyze with per-customer pattern priors. Downstream: cad_harvest_catalog, ai_wedm_advanced_neural, jmdie_pattern_tips, and the WireEDMNeuralTraining/WEDMProgramOptimizer engines parked under U-WIRE-BACKLOG-WIRE.",
+  "csDepth": [
+   "Binary .mcx-8 parse must validate Mastercam version byte; cross-version field offsets shift and silently mis-decode tool numbers (R12)",
+   "Customer-disjoint train/test split when feeding cam_ml_split_customer_disjoint — leakage across customers inflates accuracy by ~15-20% in observed runs",
+   "100-customer scale: O(N×M) similarity index needs LSH/MinHash, not pairwise cosine — naive blocks tier-5 GraphSAGE seed for hours"
+  ]
+ },
+ "FEATURE-GAP-AUDIT-MS0::U-WIRE-BACKLOG-ACADEMY": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-knowledge.md",
+   "knowledge/wiki/architecture/dispatcher-aireasoning.md",
+   "knowledge/wiki/architecture/knowledge-conversion-ms0.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "dispatcher-action-design",
+   "regression-prevention-doctrine"
+  ],
+  "systemImpact": "Wiring VideoELearningAI, MITCourseIntegration, ToolDatabaseDeepLearning into prism_knowledge:* + prism_ai:* makes the 65 MIT-OCW course assets + the v8.89 monolith's training kernel reachable from /pdf-learn, /video-learn, and the ai_training_master_* surface. Removes silent-orphan asset class flagged by stop_on_unwired_assets.",
+  "csDepth": [
+   "Each engine needs a dispatcher action whose Zod input schema is uniquely-keyed — duplicate action names silently shadow under the table-driven ACTION_MAP (recurring bug, fixed 2026-05-18)",
+   "Course-asset ingestion is I/O-bound; batch the 65 candidates with bounded concurrency or the build_state_inject hook OOMs on the merge step",
+   "Idempotent register: re-running the wire must be a no-op via duplicationGuardEngine.mustCheckBeforeCreating()"
+  ]
+ },
+ "FEATURE-GAP-AUDIT-MS0::U-WIRE-BACKLOG-CAM": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-cam.md",
+   "knowledge/wiki/architecture/dispatcher-cad.md",
+   "knowledge/wiki/architecture/dispatcher-hook.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "dispatcher-action-design",
+   "mcp-tool-design"
+  ],
+  "systemImpact": "Wiring CimatronCAMBridge + SprutCAMBridge + ~24 other vendor bridges into prism_cam closes the documented gap where vendor-specific strategies (Cimatron Mold, SprutCAM Robot) had engines but no callable surface. Downstream: cam_strategy_recommend cross-CAM ranking, cam_translate vendor-to-vendor, multi_cam_post_phase_b.",
+  "csDepth": [
+   "Vendor-bridge dispatcher actions must cap the action enum size — Mastercam alone added ~100 actions; bucket per-vendor sub-dispatcher to avoid camDispatcher.ts crossing the 1000-action ceiling",
+   "Each bridge has a different output dialect — emit a normalized CamStrategySpec then post-process, don't fork the prism_cam contract per vendor",
+   "Test must round-trip a real .vbk/.stp from each vendor — hermetic fakes have shipped false-greens (R8: read before you write)"
+  ]
+ },
+ "FEATURE-GAP-AUDIT-MS0::U-WIRE-BACKLOG-DATABASE": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-data.md",
+   "knowledge/wiki/architecture/dispatcher-infra.md",
+   "knowledge/wiki/architecture/dispatcher-hook.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "schema-read-discipline",
+   "atomic-write-idempotency-patterns"
+  ],
+  "systemImpact": "Wiring PDFSourceRegistry, PhysicsPluginRegistry, WetRunDeviationRegistry into prism_data + prism_infra surfaces the registry layer behind /pdf-learn, prism_calc plugin discovery, and the wet-run validator. Downstream: data_database_search, infra_plugin_register, calc_physics_calibrate_*.",
+  "csDepth": [
+   "Registry writes need atomicWriteJson + per-PID temp file — the roadmap-index drift class (5 writers, 3 non-atomic) is the cautionary tale fixed 2026-05-19",
+   "schemaVersion gate on every read: registry consumers must refuse-write on shape mismatch, never silently migrate (R12)",
+   "WetRunDeviationRegistry append rate is high — prefer JSONL with rotation over JSON edit-in-place to avoid O(N) rewrites"
+  ]
+ },
+ "FEATURE-GAP-AUDIT-MS0::U-WIRE-BACKLOG-ERP": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-business.md",
+   "knowledge/wiki/architecture/dispatcher-integration.md",
+   "knowledge/wiki/architecture/dispatcher-knowledge.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "dispatcher-action-design",
+   "jsonl-ledger-conventions"
+  ],
+  "systemImpact": "Wiring BusinessIntelligence, CustomerKnowledge, BusinessDocumentExtractor into prism_business + prism_integration unlocks customer-history-aware quoting and the doc-extractor side of /quote-to-ship. Downstream: customer_analytics, quote_estimate calibration, integration_export_qb, lathe_erp_full.",
+  "csDepth": [
+   "Customer-name normalization is the silent bug surface — 'JM Die Inc.' vs 'JM Die Co' splits the history; use a deterministic canonicalization step",
+   "BusinessDocumentExtractor returns Promise<unknown> from PDF parse — narrow with zod at the dispatcher boundary, never propagate unknown",
+   "Per-customer indexes must dedup on hash, not filename — vendor sends the same RFQ as PDF + DOCX, double-counts revenue"
+  ]
+ },
+ "FEATURE-GAP-AUDIT-MS0::U-WIRE-BACKLOG-LATHE": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-turning.md",
+   "knowledge/wiki/architecture/dispatcher-cam.md",
+   "knowledge/wiki/architecture/dispatcher-calc.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "dispatcher-action-design",
+   "physics-constants-discipline"
+  ],
+  "systemImpact": "Largest clean unwired gap (~77 engines). Wiring LatheThermodynamics, LatheUnifiedPhysicsOrchestration, LatheOpusReasoning, LatheMetaLearning, LatheQualityGate into prism_turning unlocks the lathe LEARNING_LOOP stage of DOMAIN-PIPELINE-MS0 + closes the bravo-slot LATHE-MASTER backlog. Consumers: lathe_print_to_program, lathe_p2p_strategy_select, lathe_lora_predict.",
+  "csDepth": [
+   "Wave-front strategy: wire physics engines (Thermodynamics, Orchestration) BEFORE AI engines (OpusReasoning, MetaLearning) — the AI layer depends on physics outputs as features",
+   "QualityGate is safety-critical — its action must run under safety-tier discipline (S(x)>=0.70) and never be bypassed by a softening test",
+   "77-engine wave needs batched dispatcher action registration to avoid blowing past Zod enum perf cliff at ~2000 actions"
+  ]
+ },
+ "FEATURE-GAP-AUDIT-MS0::U-WIRE-BACKLOG-MILL": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-mill.md",
+   "knowledge/wiki/architecture/dispatcher-cam.md",
+   "knowledge/wiki/architecture/dispatcher-aireasoning.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "dispatcher-action-design",
+   "safety-tier-discipline"
+  ],
+  "systemImpact": "Wiring MillingAIUltraIntelligence, FiveAxisAIUltraIntelligence, MillingUltimateAI, FiveAxisOrchestration into prism_mill + prism_5axis flips the ~20 unwired NEEDS_WIRING entries in BUILD_STATE.json. Downstream: mill_print_to_program, mill_agi_orchestrate, five_axis_singularity_manage, mill_5axis_orchestrate.",
+  "csDepth": [
+   "FiveAxisOrchestration's input kinematics use ClassName['field'] not typeof this.X — recurring lathe regression class (fixed 2026-05-17, commit 1af3c577a)",
+   "MillingAIUltraIntelligence is a singleton wrapper — mark inner as WIRE-EXEMPT or the auto-wire scanner double-counts and stop_on_unwired_assets blocks",
+   "Five-axis adds rotary-axis pair to every output — keep rotation_order field a 2-char string ('AB','BC','AC') not free text"
+  ]
+ },
+ "FEATURE-GAP-AUDIT-MS0::U-WIRE-BACKLOG-MISC": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-dev.md",
+   "knowledge/wiki/architecture/dispatcher-hook.md",
+   "knowledge/wiki/architecture/dispatcher-infra.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "regression-prevention-doctrine",
+   "claude-md-as-pointer-index"
+  ],
+  "systemImpact": "~328 misc engines — bulk of unwired-engine debt. Ranking by leverage via /wire-unwired feeds dev_batch_unwired, dev_wire_unwired, stop_on_unwired_assets. Triage path: classify per BUILD_STATE.COVERAGE_BY_DOMAIN row, route to the correct dispatcher batch (cam/cad/calc/turning/edm/business/dev/data).",
+  "csDepth": [
+   "Bulk wave needs batched test runs — a 328-engine sweep that compiles cleanly but breaks 50 hermetic tests is the documented MS1 false-green pattern",
+   "Many of the 328 are documented WIRE-EXEMPT inner-layer engines — re-check the // WIRE-EXEMPT marker before forcing a wire",
+   "Use dispatcher-coverage skill BEFORE building anything new — half of these have an existing action that just needs a new alias"
+  ]
+ },
+ "FEATURE-GAP-AUDIT-MS0::U-WIRE-BACKLOG-SF": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-calc.md",
+   "knowledge/wiki/architecture/dispatcher-aireasoning.md",
+   "knowledge/wiki/architecture/dispatcher-cam.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "dispatcher-action-design",
+   "physics-constants-discipline"
+  ],
+  "systemImpact": "The SpeedFeedUltimateAI/AdvancedAI/DeepLearning L1-L3 ladder feeds calc_speed_feed + ai_resource_speed_feed + cam_speedfeed_compute as a cascade (cheap-then-strong, per two_pass dispatcher). Wires the SF-AI surface that SFC quick-start, /auto-speed-feed, and lathe_sf_advise depend on.",
+  "csDepth": [
+   "Cascade short-circuit: L1 returns first if confidence>=threshold, else escalates — calibrate thresholds via xproc-conformal-calibrate, not magic constants",
+   "Tier dispatch must respect safety-tier-discipline — never let L1 ship a speed/feed for hardened steel without L3 sign-off",
+   "Per-iteration cost tracking via prism_dev:token_ledger_record; the cascade is the same FrugalGPT pattern as prism_ai:two_pass"
+  ]
+ },
+ "FEATURE-GAP-AUDIT-MS0::U-WIRE-BACKLOG-TRIBAL": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-knowledge.md",
+   "knowledge/wiki/architecture/dispatcher-shoppractice.md",
+   "knowledge/wiki/architecture/dispatcher-aireasoning.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "memory-curation-discipline",
+   "jsonl-ledger-conventions"
+  ],
+  "systemImpact": "PlaybookRulesEngine (133KB) is the largest single unwired engine — wiring it into prism_shop_practice:playbook_* + prism_knowledge:* makes 3,700+ machinist tips reachable from tribal_search, tribal-by-domain-inject, and the playbook_advise/playbook_sequence actions used by mill/lathe/wedm print-to-program.",
+  "csDepth": [
+   "133KB rules-file load time is non-trivial — cache parsed rules under a fingerprint, not on every invocation",
+   "Rule deserialization needs strict zod schema — silent shape drift in playbook JSON has cost a fleet-wide tribal-domain mis-classification before",
+   "Rules can conflict (multi-rule fire on same predicate) — adopt R7 surface-conflicts-don't-average policy at dispatch time"
+  ]
+ },
+ "FEATURE-GAP-AUDIT-MS0::U-WIRE-BACKLOG-WIRE": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-edm.md",
+   "knowledge/wiki/architecture/dispatcher-aireasoning.md",
+   "knowledge/wiki/architecture/dispatcher-cam.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "dispatcher-action-design",
+   "safety-tier-discipline"
+  ],
+  "systemImpact": "Wiring ~73 unwired WEDM engines (WEDMNeuralTraining, WireEDMDeepAIHardening, ElectrodeUltimateAI, WEDMProgramOptimizer, WEDMStrategyLibrary) into prism_edm completes the wedm LEARNING_LOOP stage of DOMAIN-PIPELINE-MS0. Downstream: wedm_print_to_program, wedm_run_pipeline, wedm_safety_gate_evaluate, wedm_ml_optimize_*.",
+  "csDepth": [
+   "WEDM safety-gate-evaluate must veto unsafe wire-break-risk programs — wiring AI engines without safety-tier-discipline is the recurring class fixed by wedm_safety_predicate_verify_or_throw",
+   "WEDMNeuralTraining batches need stratified per-customer sampling (cam_ml_split_customer_disjoint) to avoid the 15-20% accuracy inflation",
+   "Electrode + wire engines share Sodick dialect — translate via cps_map_dialect, never inline machine-specific G-code"
+  ]
+ },
+ "FMERGE-MS0::U-FMERGE01": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-cadautomation.md",
+   "knowledge/wiki/architecture/dispatcher-cadregression.md",
+   "knowledge/wiki/architecture/dispatcher-dev.md"
+  ],
+  "addSeWiki": [
+   "regression-prevention-doctrine",
+   "test-design-real-values",
+   "doc-reflection-rule"
+  ],
+  "systemImpact": "Diffing the two frontend trees (Claude vs Codex) feeds cad_bundle_diff + cad_visual_diff_features + cad_regression_analyzer_diff with a route+component delta map. Output drives U-FMERGE02 canonical-frontend selection and the survivor route ledger (U-FMERGE06A).",
+  "csDepth": [
+   "Diff at three levels (file-presence, AST, rendered-DOM) — file-only diff misses logically-equivalent JSX with different formatting",
+   "Frontend trees have generated artifacts (.next/cache) — must apply pathspec ignore or diff time blows up O(N^2)",
+   "Drift between MD spec and HTML companion has bitten before — apply MD↔HTML hash drift guard from U-HPS06"
+  ]
+ },
+ "FMERGE-MS0::U-FMERGE02": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-cam.md",
+   "knowledge/wiki/architecture/dispatcher-cad.md",
+   "knowledge/wiki/architecture/dispatcher-dev.md"
+  ],
+  "addSeWiki": [
+   "claude-md-as-pointer-index",
+   "doc-reflection-rule",
+   "regression-prevention-doctrine"
+  ],
+  "systemImpact": "Choosing the canonical frontend is a one-way decision — fixes the ontology dispatcher's canonical/alias contract for the merged app (cam_ontology_get_canonical, cam_ontology_list_canonicals). Downstream: every U-FMERGE0X step and the eventual /pick-build-close skill output references one canonical tree.",
+  "csDepth": [
+   "Decision-record format must capture rationale + losers — silent canonical flip breaks every downstream import (R7 surface-conflicts policy)",
+   "Canonical choice affects test runner pathing — Vitest + esbuild resolution must update in lockstep, not staggered (recurring esbuild externals fix)",
+   "Encode canonical in roadmap-index.json AND CLAUDE.md pointer — single source per surface, not dual-write"
+  ]
+ },
+ "FMERGE-MS0::U-FMERGE03": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-business.md",
+   "knowledge/wiki/architecture/dispatcher-context.md",
+   "knowledge/wiki/architecture/dispatcher-bridge.md"
+  ],
+  "addSeWiki": [
+   "handoff-discipline",
+   "claude-md-as-pointer-index",
+   "regression-prevention-doctrine"
+  ],
+  "systemImpact": "The merge checklist is the operator-facing punch list — feeds /handoff, /precompact, and the per-file-scrutiny-gate so the multi-file merge doesn't lose state across slot worktrees. Consumed by U-FMERGE04+ executors.",
+  "csDepth": [
+   "Checklist items must be idempotent — re-running a step must be a no-op or fail-loud, never silently double-apply",
+   "Order matters: hooks before contexts before utils before pages (dependency DAG); encode as topo-sorted list",
+   "Checklist crosses slot boundaries — track via state/shared so peer chats see progress, not local-only TODO"
+  ]
+ },
+ "FMERGE-MS1::U-FMERGE04": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-dev.md",
+   "knowledge/wiki/architecture/dispatcher-cad.md",
+   "knowledge/wiki/architecture/frontends/page/fe-page-a3reportpage-1.md"
+  ],
+  "addSeWiki": [
+   "per-file-scrutiny-gate",
+   "regression-prevention-doctrine",
+   "test-design-real-values"
+  ],
+  "systemImpact": "Selective donor-page review enumerates which Codex pages are pulled into canonical PRISM, scoring each by capability uniqueness vs duplication. Drives the donor-capability harvest ledger (U-FMERGE04A) and the route survivor audit (U-FMERGE06).",
+  "csDepth": [
+   "Per-page review must walk imports — adopting a page without its hook dependencies leaves dangling imports that break the build",
+   "Capability scoring is subjective; record reviewer-id and rationale in ledger so disputes surface (R7)",
+   "Frontend protection rule per [[feedback_frontend_codex]] — Codex owns frontend; respect ownership boundary"
+  ]
+ },
+ "FMERGE-MS1::U-FMERGE04A": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-aireasoning.md",
+   "knowledge/wiki/architecture/dispatcher-context.md",
+   "knowledge/wiki/architecture/dispatcher-hook.md"
+  ],
+  "addSeWiki": [
+   "jsonl-ledger-conventions",
+   "atomic-write-idempotency-patterns",
+   "regression-prevention-doctrine"
+  ],
+  "systemImpact": "The donor-capability harvest ledger is an append-only JSONL — feeds event_publish, ai_capability_report, and the close-out-audit silent-debt detector. Each adopted page becomes a ledger row pointing at its source commit + destination path.",
+  "csDepth": [
+   "JSONL append-only — never edit-in-place; rotation at 512KB matches fleet-memory-history.jsonl convention",
+   "Schema-version field on every row to support back-compat reads (lessons from outcome-ledger evolution)",
+   "Append must be atomic per row (O_APPEND on POSIX, careful flag combo on Windows) — partial-line append corrupts the parser"
+  ]
+ },
+ "FMERGE-MS1::U-FMERGE05": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-dev.md",
+   "knowledge/wiki/architecture/claude-md-collapse-tool.md",
+   "knowledge/wiki/architecture/combos/combo-claude.md"
+  ],
+  "addSeWiki": [
+   "regression-prevention-doctrine",
+   "per-file-scrutiny-gate",
+   "atomic-write-idempotency-patterns"
+  ],
+  "systemImpact": "Copy-not-move Claude-unique components per [[feedback_copy_never_move]] — preserves Codex branch reversibility while adopting capabilities. Hook leave-a-copy-behind-guard (Stop chain) enforces the rule fleet-wide.",
+  "csDepth": [
+   "Hard-rule: never delete during merge — only disable via _legacy suffix; matches the doctrine that lets reversibility win conflicts",
+   "Copy must preserve mtime + content hash so cross-tree audit can prove source/destination equivalence",
+   "Watch for case-insensitive Windows collisions when the source path is camelCase and dest is kebab-case"
+  ]
+ },
+ "FMERGE-MS1::U-FMERGE06": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-dev.md",
+   "knowledge/wiki/architecture/dispatcher-local.md",
+   "knowledge/wiki/architecture/dispatcher-cad.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "mcp-tool-design",
+   "regression-prevention-doctrine"
+  ],
+  "systemImpact": "Inventories every backend route reachable from the merged frontend — feeds dev_route_sync_scan, dev_gap_scan, and posttool-mcp-backend-audit. Output is the survivor route ledger (U-FMERGE06A) and the unused-route punch list.",
+  "csDepth": [
+   "Route discovery must AST-parse the frontend's fetch/axios calls — string-match misses dynamic URL composition",
+   "Backend consumer audit cross-refs each route with the dispatcher action it calls — orphan routes (no caller) and orphan dispatchers (no route) are different defects",
+   "Use master-index-precheck-inject hits BEFORE Grep — proper search-first discipline avoids re-deriving the route table"
+  ]
+ },
+ "FMERGE-MS1::U-FMERGE06A": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-context.md",
+   "knowledge/wiki/architecture/dispatcher-aireasoning.md",
+   "knowledge/wiki/architecture/dispatcher-hook.md"
+  ],
+  "addSeWiki": [
+   "jsonl-ledger-conventions",
+   "atomic-write-idempotency-patterns",
+   "regression-prevention-doctrine"
+  ],
+  "systemImpact": "Survivor-route ledger pairs every kept route with its backend handler + dispatcher action — feeds event_publish, ai_route_mill_pipeline, neural_route_decision, and the eventual /system-viz route-survival overlay.",
+  "csDepth": [
+   "JSONL schema with route, handler, dispatcher_action, survival_decision, timestamp — schemaVersion required",
+   "Append-only with monotonic timestamp; out-of-order writes break the survival timeline (use process.hrtime for nanosecond ordering)",
+   "Cross-refs handlers to dispatcher actions via cross_reg_join — paths persisted, not joined-on-read"
+  ]
+ },
+ "FMERGE-MS1::U-FMERGE07": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-hook.md",
+   "knowledge/wiki/architecture/dispatcher-cadautomation.md",
+   "knowledge/wiki/architecture/dispatcher-cam.md"
+  ],
+  "addSeWiki": [
+   "hook-authoring-discipline",
+   "per-file-scrutiny-gate",
+   "regression-prevention-doctrine"
+  ],
+  "systemImpact": "Merging hooks/contexts/utils touches three high-contention surfaces — git-shared-index-hazards apply. Drives cad_replication_merge, hybrid_post_merge, pp_merge_validate, and the post-merge hook-fire-rate audit baseline.",
+  "csDepth": [
+   "Hook-merge order: PreToolUse → PostToolUse → SessionStart → Stop; intra-event order matters (file-claim-guard before duplication-hard-block)",
+   "settings.json merge — peer claims expected; commit via pathspec only, never `git add .` (lessons from git-shared-index-hazards)",
+   "Context merge can drift KV-cache keys — re-canonicalize via kv-sort-json post-merge"
+  ]
+ },
+ "FMERGE-MS1::U-FMERGE08": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-dev.md",
+   "knowledge/wiki/architecture/dispatcher-cam.md",
+   "knowledge/wiki/architecture/dispatcher-business.md"
+  ],
+  "addSeWiki": [
+   "ts-error-recipe-bank",
+   "regression-prevention-doctrine",
+   "per-file-scrutiny-gate"
+  ],
+  "systemImpact": "Building + fixing the merged app exercises every TSC, esbuild, vitest gate. Consumes ts-error-recipe-bank, dev_build, dev_test_smoke, and stop_on_failing_tests. Output is a green build that satisfies the always-build doctrine.",
+  "csDepth": [
+   "TSC errors come in recurring classes (z.input<>, unknown-bridge, prototype-form ReturnType, MaterialProps literal) — apply ts-error-recipe-bank before re-deriving",
+   "Esbuild externals must list every Node built-in + every native dep ([[feedback_esbuild_externals]]) — silent omission yields runtime ESM errors",
+   "Build memory cap 16GB heap — bigger trees OOM the `npm run build`, use build:fast for iteration"
+  ]
+ },
+ "FMERGE-MS2::U-FMERGE09": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-aireasoning.md",
+   "knowledge/wiki/architecture/dispatcher-business.md",
+   "knowledge/wiki/architecture/dispatcher-cam.md"
+  ],
+  "addSeWiki": [
+   "doc-reflection-rule",
+   "claude-md-as-pointer-index",
+   "regression-prevention-doctrine"
+  ],
+  "systemImpact": "Updates every script + doc surface to reference the canonical merged app per the doc-reflection-rule (CLAUDE.md + MEMORY.md + wiki + Obsidian). Removes silent-drift across update-all-docs, portal-update-quality-doc, and the per-surface patch-sibling files.",
+  "csDepth": [
+   "4-surface reflection invariant — missing one surface = doc-drift bug class fixed multiple times in May 2026",
+   "Patch-sibling convention for peer-locked surfaces (state/shared/dashboards/patches/) avoids racing the H: shared tree",
+   "Update batches must be atomic per surface — partial application leaves docs in an inconsistent state"
+  ]
+ },
+ "FMERGE-MS2::U-FMERGE10": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-dev.md",
+   "knowledge/wiki/architecture/dispatcher-cad.md",
+   "knowledge/wiki/architecture/dispatcher-knowledge.md"
+  ],
+  "addSeWiki": [
+   "atomic-write-idempotency-patterns",
+   "regression-prevention-doctrine",
+   "claude-md-as-pointer-index"
+  ],
+  "systemImpact": "Archives the non-canonical app per never-delete-only-disable doctrine — feeds wedm_archive_backfill_state, archive_analyze, archive_discover. Keeps Codex branch + commit history reachable; surfaces removed routes in the survivor ledger.",
+  "csDepth": [
+   "Archive path convention: <name>.archive.<date>; matches the // WIRE-EXEMPT marker model so auto-wire scanner skips",
+   "Topo-sort the archive operation — leaf dirs first, then parents, to keep tree consistent",
+   "Archive must preserve git history via `git mv` not `cp+rm`; otherwise blame/log breaks"
+  ]
+ },
+ "GAP-MS0::P0-U00": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/engines/turning/diamondturningengine.md",
+   "knowledge/wiki/architecture/dispatcher-turning.md",
+   "knowledge/wiki/architecture/dispatcher-calc.md"
+  ],
+  "addSeWiki": [
+   "physics-constants-discipline",
+   "engine-creation-discipline",
+   "test-design-real-values"
+  ],
+  "systemImpact": "DiamondTurningEngine sits behind prism_calc:diamond_turning_* + prism_turning physics — ultra-precision regime (single-point diamond, sub-micron surface finish) feeds cam_mastercam_physics_calculate_turning and the lathe LEARNING_LOOP for hard-turning workflows.",
+  "csDepth": [
+   "Physics constants for diamond tooling differ from carbide — must import from physics/constants.ts, never inline (R12 + safety rail)",
+   "Surface-finish model needs sub-Ra resolution — single-precision floats lose useful digits; use double throughout",
+   "Wear rate at diamond tip is non-linear above ~1500 m/min — guard the model with explicit speed envelope check"
+  ]
+ },
+ "GRAPH-AS-LLM-CONTEXT-MS0::U-GAC01": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-knowledge.md",
+   "knowledge/wiki/architecture/dispatcher-cad.md",
+   "knowledge/wiki/architecture/nn-graph-ms0.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "test-design-real-values",
+   "mcp-tool-design"
+  ],
+  "systemImpact": "GraphContextLensEngine builds a per-query ego-graph from the system-viz 372k-node graph — feeds master-index-precheck-inject, subagent-per-task-presearch, and the GraphRAG retrieval layer (U-GAC02). Drops random-walk surface area into 1-2 hop neighborhoods.",
+  "csDepth": [
+   "BFS to depth K with degree cap to keep ego-graph bounded — unguarded BFS on a hub node yields multi-MB context",
+   "Hop weight decay (cosine-like) ranks distant nodes lower — pure BFS frontier flattens importance signal",
+   "Pure-core + injected-readers pattern per NN-GRAPH-MS1 lesson — must ship a real-graph E2E test, not hermetic-only"
+  ]
+ },
+ "GRAPH-AS-LLM-CONTEXT-MS0::U-GAC02": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-knowledge.md",
+   "knowledge/wiki/architecture/dispatcher-aireasoning.md",
+   "knowledge/wiki/architecture/nn-graph-ms0.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "mcp-tool-design",
+   "memory-curation-discipline"
+  ],
+  "systemImpact": "GraphRAG over wiki + system-graph combines BM25-lite + 768-d embeddings (knowledge/wiki/architecture/_embeddings.jsonl, 14738 vectors) with graph-walk re-ranking. Feeds knowledge_search, ai_knowledge_query, learn_search_enhanced.",
+  "csDepth": [
+   "Embedding-file is ~44MB JSONL — stream-parse with indexOf('\\n'), never JSON.parse the whole; otherwise OOM under memory pressure",
+   "int8 dequant from quantized vectors (q[i]/127) — match the NN-1 768d-features convention",
+   "Re-rank via graph-walk distance (Personalized PageRank ~ O(E log N)) — not full BFS at query time"
+  ]
+ },
+ "GRAPH-AS-LLM-CONTEXT-MS0::U-GAC03": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-knowledge.md",
+   "knowledge/wiki/architecture/dispatcher-cadautomation.md",
+   "knowledge/wiki/architecture/dispatcher-dev.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "ts-error-recipe-bank",
+   "test-design-real-values"
+  ],
+  "systemImpact": "Projecting mcp-server/src into a code-graph (engines, dispatchers, hooks, calls) populates KnowledgeGraphEngine + KnowledgeGraphNeuralBridgeEngine. Drives change-radius prediction, edit-impact analysis, and the NN-GRAPH tier-5 wiring inference.",
+  "csDepth": [
+   "TS AST projection via ts-morph or compiler API — never regex; the imports-graph degenerates without proper resolution",
+   "Re-export chains and barrel files inflate edge count exponentially — collapse to original definitions",
+   "Project incrementally — full ~3274-engine projection in one pass blows the heap; chunk by directory"
+  ]
+ },
+ "GRAPH-AS-LLM-CONTEXT-MS0::U-GAC04": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-hook.md",
+   "knowledge/wiki/architecture/dispatcher-orchestrate.md",
+   "knowledge/wiki/architecture/subagent-per-task-presearch.md"
+  ],
+  "addSeWiki": [
+   "subagent-orchestration-discipline",
+   "parallel-tool-call-discipline",
+   "mcp-tool-design"
+  ],
+  "systemImpact": "Dual-channel context (structured JSON + viz screenshot) for subagent dispatch enriches subagent-start-context.mjs already wired in SubagentStart. Lets a spawned reviewer agent SEE the system-viz layer it's auditing instead of inferring topology from text.",
+  "csDepth": [
+   "Screenshot capture path needs headless renderer — keep it out of the parent agent's context (cost-aware-route off-Claude)",
+   "JSON channel structure must be deterministic — ordering JSON keys via kv-sort-json keeps the KV cache stable",
+   "Image attachment doubles inference latency — opt-in per subagent type, not default-on"
+  ]
+ },
+ "GRAPH-AS-LLM-CONTEXT-MS0::U-GAC05": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-agent.md",
+   "knowledge/wiki/architecture/dispatcher-orchestrate.md",
+   "knowledge/wiki/architecture/agent-status-overlay.md"
+  ],
+  "addSeWiki": [
+   "fleet-coordination-discipline",
+   "subagent-orchestration-discipline",
+   "doc-reflection-rule"
+  ],
+  "systemImpact": "Spatial-UI coordination uses /system-viz coordinates as a shared address space across the 26-slot fleet — each chat 'parks' on a viz region, peers see the badge via ActionTraceEngine. Feeds AGENT_WORKBOARD, fleet-status, agent-status-overlay.",
+  "csDepth": [
+   "Coordinate locks must survive /compact — back via chat-slots.json + handoff write",
+   "Two slots claiming the same region need conflict resolution (R7 surface-don't-average) — last-wins is wrong; oldest-claim wins",
+   "Status overlay refresh rate bounded by file-system fsync rate — batch updates, don't write per-action"
+  ]
+ },
+ "GRAPH-AS-LLM-CONTEXT-MS0::U-GAC06": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-aireasoning.md",
+   "knowledge/wiki/architecture/dispatcher-knowledge.md",
+   "knowledge/wiki/architecture/dispatcher-cad.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "memory-curation-discipline",
+   "doc-reflection-rule"
+  ],
+  "systemImpact": "Community-summary generator clusters the 3274-engine graph into named domains and emits per-cluster summaries — feeds prism_brep_cad_generator, learning_summary, ai_capability_report. Reduces master-index search space and powers domain-MOC (Nick Milo pattern) generation.",
+  "csDepth": [
+   "Modularity-based clustering (Louvain or Leiden) — O(E log N), don't use K-means on a graph",
+   "Summary generation per cluster needs LLM tokens; route to Ollama (off-Claude) — use cost-aware-route",
+   "Summary refresh cadence — re-generate only when cluster membership churn > threshold; mtime + hash sentinel"
+  ]
+ },
+ "GRAPH-AS-LLM-CONTEXT-MS0::U-GAC07": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-dev.md",
+   "knowledge/wiki/architecture/dispatcher-guard.md",
+   "knowledge/wiki/architecture/dispatcher-context.md"
+  ],
+  "addSeWiki": [
+   "regression-prevention-doctrine",
+   "atomic-write-idempotency-patterns",
+   "fail-loud-r12-patterns"
+  ],
+  "systemImpact": "Stale-graph detector blocks downstream consumers (master-index, NN-GRAPH eval, GraphRAG) from reading a system-graph older than threshold — mirrors the U-WIKI-LEAFIDX-FAILLOUD pattern. Feeds context_pressure, state_conversation_stale_detector, build-state-snapshot.",
+  "csDepth": [
+   "Two-signal stale gate: mtime > threshold OR content-hash mismatch — single-signal misses regen-without-content-change",
+   "Block must be R12 fail-loud — silent stale-graph read is the documented bug class (regen-viz silent corruption fixed by U-REGEN-VIZ-MERGE-FAILLOUD)",
+   "Threshold per-consumer — master-index can tolerate 4h, NN-GRAPH-eval needs <1h"
+  ]
+ },
+ "GRAPH-AS-LLM-CONTEXT-MS0::U-GAC08": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-guard.md",
+   "knowledge/wiki/architecture/dispatcher-cad.md",
+   "knowledge/wiki/architecture/dispatcher-calc.md"
+  ],
+  "addSeWiki": [
+   "fail-loud-r12-patterns",
+   "regression-prevention-doctrine",
+   "schema-read-discipline"
+  ],
+  "systemImpact": "Hallucinated-node-id guard rejects subagent or LLM outputs referencing system-graph nodes that don't exist — fires from guard_anomaly_guard, dup_guard_check, and a new pre-write gate. Prevents downstream tools (cad_blueprint_extract, master_index_query) from silently 404'ing on a hallucinated id.",
+  "csDepth": [
+   "Validation set: every node-id mentioned in tool output cross-checked against the merged system-graph (O(1) via prebuilt id-set)",
+   "Edit-distance threshold (Levenshtein <=2) to detect typo vs hallucination — but typo-fix is dangerous, prefer fail-loud",
+   "Guard latency budget — must be <50ms; load id-set once per session, not per call"
+  ]
+ },
+ "HM-KC-MS10::U-HKKC01": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-cam.md",
+   "knowledge/wiki/architecture/dispatcher-orchestrate.md",
+   "knowledge/wiki/architecture/milestones/milestone-ghost-ms-cc-ms10.md"
+  ],
+  "addSeWiki": [
+   "schema-read-discipline",
+   "claude-md-as-pointer-index",
+   "regression-prevention-doctrine"
+  ],
+  "systemImpact": "HM-KC-MS10 coordinator placeholder unit — orchestrates the HM-KC (hyperMILL knowledge-conversion) milestone-10 sub-units across ck-ms10, tk-ms10, mcp-connection-coordinator, prism-phase1/2 coordinators.",
+  "csDepth": [
+   "Coordinator units are typically stub envelopes; verify against roadmap-index before treating as a real build target",
+   "Cross-milestone dependency DAG must topo-sort — HM-KC-MS10 depends on MS1-9 outputs",
+   "Idempotent re-runs required (slot may pick up the coordinator after a /compact)"
+  ]
+ },
+ "HM-KC-MS1::U-HKKC01": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-cam.md",
+   "knowledge/wiki/architecture/dispatcher-orchestrate.md",
+   "knowledge/wiki/architecture/rgs-tool-autoinvoke-ms1.md"
+  ],
+  "addSeWiki": [
+   "schema-read-discipline",
+   "claude-md-as-pointer-index",
+   "regression-prevention-doctrine"
+  ],
+  "systemImpact": "HM-KC-MS1 coordinator — entry point for the HM-KC milestone-1 chain (rgs-tool-autoinvoke, system-viz, ai-integ, camk, camx series). Feeds the per-slot RGS allocation for cam/hypermill-domain slots.",
+  "csDepth": [
+   "Coordinator unit shape is enumeration-only — actual build work is in sibling sub-units",
+   "MS1 chain links into ai-integ-ms1-chain-sharing — schema must align across coordinators",
+   "Re-pickup safe via /pick-unit slot filtering"
+  ]
+ },
+ "HM-KC-MS2::U-HKKC01": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-cam.md",
+   "knowledge/wiki/architecture/dispatcher-orchestrate.md",
+   "knowledge/wiki/architecture/milestones/milestone-ghost-ms-camk-ms2.md"
+  ],
+  "addSeWiki": [
+   "schema-read-discipline",
+   "claude-md-as-pointer-index",
+   "regression-prevention-doctrine"
+  ],
+  "systemImpact": "HM-KC-MS2 coordinator — orchestrates ai-integ-ms2 (Opus capability), box-ms2 (toolsub converter), camk-ms2 (finish cycletime + simulation), postprocessormoat-ms2.",
+  "csDepth": [
+   "Coordinator placeholder; build work in siblings",
+   "Verify each sub-unit envelope before claiming",
+   "Post-MS2 work depends on MS1 outputs (chain-sharing)"
+  ]
+ },
+ "HM-KC-MS3::U-HKKC01": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-cam.md",
+   "knowledge/wiki/architecture/dispatcher-orchestrate.md",
+   "knowledge/wiki/architecture/action-trace-engine.md"
+  ],
+  "addSeWiki": [
+   "schema-read-discipline",
+   "claude-md-as-pointer-index",
+   "regression-prevention-doctrine"
+  ],
+  "systemImpact": "HM-KC-MS3 coordinator — orchestrates ai-integ-ms3 (neural-bridge), camk-ms3 (multi-operation), postprocessormoat-ms3, tk-ms3 (speedfeed-tribal), mcp-connection-coordinator.",
+  "csDepth": [
+   "Coordinator-only; verify children",
+   "MS3 neural-bridge depends on KnowledgeGraphNeuralBridgeEngine wiring",
+   "tk-ms3 speedfeed-tribal couples to SF-AI ladder"
+  ]
+ },
+ "HM-KC-MS4::U-HKKC01": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-cam.md",
+   "knowledge/wiki/architecture/dispatcher-orchestrate.md",
+   "knowledge/wiki/architecture/combos/combo-coordinator.md"
+  ],
+  "addSeWiki": [
+   "schema-read-discipline",
+   "claude-md-as-pointer-index",
+   "regression-prevention-doctrine"
+  ],
+  "systemImpact": "HM-KC-MS4 coordinator — orchestrates ai-integ-ms4 (proactive-learning), mcp-connection-coordinator, prism-phase1/2/3 coordinators.",
+  "csDepth": [
+   "Coordinator-only",
+   "Proactive-learning depends on outcome ledger maturity",
+   "prism-phaseN coordinators chain monolith-extracted modules"
+  ]
+ },
+ "HM-KC-MS5::U-HKKC01": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-cam.md",
+   "knowledge/wiki/architecture/dispatcher-orchestrate.md",
+   "knowledge/wiki/architecture/dispatcher-product.md"
+  ],
+  "addSeWiki": [
+   "schema-read-discipline",
+   "claude-md-as-pointer-index",
+   "regression-prevention-doctrine"
+  ],
+  "systemImpact": "HM-KC-MS5 coordinator — orchestrates ai-integ-ms5 (agent-profiles), pp-ms5 (prove-out validation), rem-ms5 (cadences), mcp-connection-coordinator, prism-phase1.",
+  "csDepth": [
+   "Coordinator-only",
+   "pp-ms5 prove-out gates post-process emission — safety-tier-discipline applies",
+   "rem-ms5 cadences must respect Karpathy R10 checkpoint cadence"
+  ]
+ },
+ "HM-KC-MS6::U-HKKC01": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-cam.md",
+   "knowledge/wiki/architecture/dispatcher-orchestrate.md",
+   "knowledge/wiki/architecture/dispatcher-business.md"
+  ],
+  "addSeWiki": [
+   "schema-read-discipline",
+   "claude-md-as-pointer-index",
+   "regression-prevention-doctrine"
+  ],
+  "systemImpact": "HM-KC-MS6 coordinator — orchestrates integ-ms6 (offline-sync), tk-ms6 (coursebuilder integration), mcp-connection-coordinator, prism-phase1/2 coordinators.",
+  "csDepth": [
+   "Coordinator-only",
+   "Offline-sync cross-PC use case = empty-sync windows, fail-loud on partial",
+   "Coursebuilder feeds learn_course_build"
+  ]
+ },
+ "HM-KC-MS7::U-HKKC01": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-cam.md",
+   "knowledge/wiki/architecture/dispatcher-orchestrate.md",
+   "knowledge/wiki/architecture/dispatcher-aireasoning.md"
+  ],
+  "addSeWiki": [
+   "schema-read-discipline",
+   "claude-md-as-pointer-index",
+   "regression-prevention-doctrine"
+  ],
+  "systemImpact": "HM-KC-MS7 coordinator — orchestrates tk-ms7 (natural-language-query), mcp-connection-coordinator, prism-phase1/2/3 coordinators.",
+  "csDepth": [
+   "Coordinator-only",
+   "NL-query routes via prism_ai:knowledge_query — needs query budget",
+   "Phase-coordinator chain depends on monolith extracted modules"
+  ]
+ },
+ "HM-KC-MS8::U-HKKC01": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-cam.md",
+   "knowledge/wiki/architecture/dispatcher-orchestrate.md",
+   "knowledge/wiki/architecture/dispatcher-aireasoning.md"
+  ],
+  "addSeWiki": [
+   "schema-read-discipline",
+   "claude-md-as-pointer-index",
+   "regression-prevention-doctrine"
+  ],
+  "systemImpact": "HM-KC-MS8 coordinator — orchestrates tk-ms8 (reinforcement-proactive), mcp-connection-coordinator, prism-phase1/2/3 coordinators.",
+  "csDepth": [
+   "Coordinator-only",
+   "Reinforcement-learning loop needs an outcome ledger and replay buffer",
+   "Proactive triggers must respect token economy"
+  ]
+ },
+ "HM-KC-MS9::U-HKKC01": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-cam.md",
+   "knowledge/wiki/architecture/dispatcher-orchestrate.md",
+   "knowledge/wiki/architecture/dispatcher-aireasoning.md"
+  ],
+  "addSeWiki": [
+   "schema-read-discipline",
+   "claude-md-as-pointer-index",
+   "regression-prevention-doctrine"
+  ],
+  "systemImpact": "HM-KC-MS9 coordinator — orchestrates tk-ms9 (ai-explanation-prediction), mcp-connection-coordinator, prism-phase1/2/3 coordinators.",
+  "csDepth": [
+   "Coordinator-only",
+   "Explanation generation routes via xproc_rule_explain_prediction",
+   "Auto-match-prediction wires into outcome-replay loop"
+  ]
+ },
+ "HM-PLG-MS1::U-HPPL01": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-cam.md",
+   "knowledge/wiki/architecture/dispatcher-business.md",
+   "knowledge/wiki/architecture/rgs-tool-autoinvoke-ms1.md"
+  ],
+  "addSeWiki": [
+   "schema-read-discipline",
+   "claude-md-as-pointer-index",
+   "regression-prevention-doctrine"
+  ],
+  "systemImpact": "HM-PLG-MS1 coordinator — orchestrates the hyperMILL plugin milestone-1 chain (rgs-tool-autoinvoke, system-viz, ai-integ, hypercad-python-api).",
+  "csDepth": [
+   "Coordinator-only",
+   "hyperMILL Python API extract is the data substrate",
+   "Plugin wiring must respect duplicationGuardEngine"
+  ]
+ },
+ "HM-PLG-MS2::U-HPPL01": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-cam.md",
+   "knowledge/wiki/architecture/dispatcher-aireasoning.md",
+   "knowledge/wiki/architecture/dispatcher-business.md"
+  ],
+  "addSeWiki": [
+   "schema-read-discipline",
+   "claude-md-as-pointer-index",
+   "regression-prevention-doctrine"
+  ],
+  "systemImpact": "HM-PLG-MS2 coordinator — orchestrates ai-integ-ms2, box-ms2, camk-ms2 plugin sub-units; feeds ai_physics_optimize, xproc_physics_features.",
+  "csDepth": [
+   "Coordinator-only",
+   "ai_physics_optimize requires Kienzle constants from physics/constants.ts (R12)",
+   "Plugin work touches camDispatcher action enum"
+  ]
+ },
+ "HM-PLG-MS3::U-HPPL01": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-cam.md",
+   "knowledge/wiki/architecture/dispatcher-aireasoning.md",
+   "knowledge/wiki/architecture/dispatcher-business.md"
+  ],
+  "addSeWiki": [
+   "schema-read-discipline",
+   "claude-md-as-pointer-index",
+   "regression-prevention-doctrine"
+  ],
+  "systemImpact": "HM-PLG-MS3 coordinator — orchestrates ai-integ-ms3 (neural-bridge), camk-ms3, postprocessormoat-ms3 plugin sub-units; feeds proactive_quality_report, portal_add_quality_doc.",
+  "csDepth": [
+   "Coordinator-only",
+   "Neural-bridge depends on KnowledgeGraphNeuralBridgeEngine",
+   "Quality reports must respect omega gate (S(x)>=0.70)"
+  ]
+ },
+ "HM-PLG-MS4::U-HPPL01": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-cam.md",
+   "knowledge/wiki/architecture/dispatcher-business.md",
+   "knowledge/wiki/architecture/dispatcher-orchestrate.md"
+  ],
+  "addSeWiki": [
+   "schema-read-discipline",
+   "claude-md-as-pointer-index",
+   "regression-prevention-doctrine"
+  ],
+  "systemImpact": "HM-PLG-MS4 coordinator — orchestrates ai-integ-ms4, mcp-connection, prism-phase1 plugin sub-units; feeds billing_create_checkout and milestone_advance.",
+  "csDepth": [
+   "Coordinator-only",
+   "Billing actions cross safety boundary — escalate to operator-confirm",
+   "milestone_advance writes roadmap-index — atomic"
+  ]
+ },
+ "HM-PLG-MS5::U-HPPL01": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-cam.md",
+   "knowledge/wiki/architecture/dispatcher-adaptivecontrol.md",
+   "knowledge/wiki/architecture/dispatcher-business.md"
+  ],
+  "addSeWiki": [
+   "schema-read-discipline",
+   "claude-md-as-pointer-index",
+   "regression-prevention-doctrine"
+  ],
+  "systemImpact": "HM-PLG-MS5 coordinator — orchestrates ai-integ-ms5, pp-ms5, rem-ms5 plugin sub-units; feeds tool_life_predict / tool_life_weibull / tool_life_replacement (adaptive control core).",
+  "csDepth": [
+   "Coordinator-only",
+   "Weibull tool-life model — physics-constants discipline applies (Taylor C/n)",
+   "Replacement decision is safety-relevant — gate via tier discipline"
+  ]
+ },
+ "HM-PLG-MS6::U-HPPL01": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-cam.md",
+   "knowledge/wiki/architecture/dispatcher-aireasoning.md",
+   "knowledge/wiki/architecture/dispatcher-business.md"
+  ],
+  "addSeWiki": [
+   "schema-read-discipline",
+   "claude-md-as-pointer-index",
+   "regression-prevention-doctrine"
+  ],
+  "systemImpact": "HM-PLG-MS6 coordinator — orchestrates integ-ms6, tk-ms6, mcp-connection plugin sub-units; feeds learning_rank / learning_summary / meta_learning_list.",
+  "csDepth": [
+   "Coordinator-only",
+   "Learning_rank is the meta-learner — needs outcome ledger to operate",
+   "meta_learning_list pulls from xproc_outcome_query"
+  ]
+ },
+ "HM-PLG-MS7::U-HPPL01": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-cam.md",
+   "knowledge/wiki/architecture/dispatcher-aireasoning.md",
+   "knowledge/wiki/architecture/dispatcher-business.md"
+  ],
+  "addSeWiki": [
+   "schema-read-discipline",
+   "claude-md-as-pointer-index",
+   "regression-prevention-doctrine"
+  ],
+  "systemImpact": "HM-PLG-MS7 coordinator — plugin milestone-7 sub-units; feeds tk-ms7 natural-language query layer for the hyperMILL plugin.",
+  "csDepth": [
+   "Coordinator-only",
+   "NL-query needs token-budget guard",
+   "Plugin frontend bridge — frontend protection rule applies"
+  ]
+ },
+ "HM-PLG-MS8::U-HPPL01": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-cam.md",
+   "knowledge/wiki/architecture/dispatcher-aireasoning.md",
+   "knowledge/wiki/architecture/dispatcher-business.md"
+  ],
+  "addSeWiki": [
+   "schema-read-discipline",
+   "claude-md-as-pointer-index",
+   "regression-prevention-doctrine"
+  ],
+  "systemImpact": "HM-PLG-MS8 coordinator — plugin milestone-8 sub-units; feeds reinforcement-proactive learning loop for the hyperMILL plugin.",
+  "csDepth": [
+   "Coordinator-only",
+   "RL loop needs outcome ledger + replay buffer",
+   "Proactive must respect token budget"
+  ]
+ },
+ "HTML-COMPANION-MS0::U-HTML-BACKFILL": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-doc.md",
+   "knowledge/wiki/architecture/dispatcher-dev.md",
+   "knowledge/wiki/architecture/dispatcher-export.md"
+  ],
+  "addSeWiki": [
+   "html-companion-discipline",
+   "regression-prevention-doctrine",
+   "atomic-write-idempotency-patterns"
+  ],
+  "systemImpact": "Backfilling HTML companions for K2-CLOUD-INTEGRATION-PLAN.md, K2-ROUTER-INVENTORY.md, BORIS-LOOP-AGENT-DOCTRINE.md plus state/shared/specs/*.md >=150 lines exercises spec-html-companion-generator.mjs at scale. Each MD gets a sibling .html for operator-friendly viewing.",
+  "csDepth": [
+   "Idempotent: re-run must produce byte-identical HTML for unchanged MD; otherwise drift guard (U-HPS06) screams",
+   "Batch glob must respect mtime cap to avoid re-processing fresh files",
+   "Atomic write per file with temp+rename to avoid partial HTML emit during interrupt"
+  ]
+ },
+ "HTML-COMPANION-MS0::U-HTML-CLAUDE-MD-EDIT": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/claude-md-collapse-tool.md",
+   "knowledge/wiki/architecture/dispatcher-doc.md",
+   "knowledge/wiki/architecture/dispatcher-dev.md"
+  ],
+  "addSeWiki": [
+   "claude-md-as-pointer-index",
+   "html-companion-discipline",
+   "doc-reflection-rule"
+  ],
+  "systemImpact": "Adding the role-split rule to CLAUDE.md tells every chat which surfaces need BOTH MD + HTML companions vs MD-only — feeds the spec-html-companion-generator policy and the per-file scrutiny gate's HTML expectation.",
+  "csDepth": [
+   "CLAUDE.md is high-contention peer-locked — use patch-sibling convention if the edit blocks",
+   "Rule must be a 1-2 line pointer per the 'pointer-index' doctrine; detail lives in the wiki entry",
+   "Edit invalidates downstream caches (build-state-snapshot) — trigger regen"
+  ]
+ },
+ "HTML-COMPANION-MS0::U-HTML-COMPANION-GENERATOR": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-doc.md",
+   "knowledge/wiki/architecture/dispatcher-dev.md",
+   "knowledge/wiki/architecture/dispatcher-hook.md"
+  ],
+  "addSeWiki": [
+   "html-companion-discipline",
+   "hook-authoring-discipline",
+   "atomic-write-idempotency-patterns"
+  ],
+  "systemImpact": "spec-html-companion-generator.mjs reads any qualifying MD and emits a dark-theme HTML page with sticky nav, severity pills, copy-to-prompt buttons, SVG diagrams. Wired as PostToolUse Write hook on state/shared/specs/*.md so emit-on-write is automatic.",
+  "csDepth": [
+   "Minimal MD parser (headings/lists/tables/code/links) — never javascript: URI (XSS guard in mdToHtml)",
+   "Hook latency budget — must be <500ms or PostToolUse drift kicks in; use streaming render",
+   "SVG diagram inlining triples HTML size — gate behind a frontmatter flag"
+  ]
+ },
+ "HTML-COMPANION-MS0::U-HTML-DOCTRINE-UPDATE": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-doc.md",
+   "knowledge/wiki/architecture/checkin-loop-fullstack.md",
+   "knowledge/wiki/architecture/dispatcher-dev.md"
+  ],
+  "addSeWiki": [
+   "html-companion-discipline",
+   "regression-prevention-doctrine",
+   "doc-reflection-rule"
+  ],
+  "systemImpact": "Updating BORIS-LOOP-AGENT-DOCTRINE.md formalizes which artifact classes (>=150 line specs, audits, roadmaps, setup sheets) qualify for HTML emission — feeds the U-HTML-COMPANION-GENERATOR policy gate and the doctrine pinned in CLAUDE.md.",
+  "csDepth": [
+   "Threshold (>=150 lines) is a policy choice — record rationale to avoid re-litigation",
+   "Doctrine update must reflect in 4 surfaces (CLAUDE.md + MEMORY.md + wiki + memory) per doc-reflection-rule",
+   "Versioned doctrine — schemaVersion bump on rule change so consumers gate cleanly"
+  ]
+ },
+ "HTML-PRIMARY-MS0::U-HPS01": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-doc.md",
+   "knowledge/wiki/architecture/dispatcher-dev.md",
+   "knowledge/wiki/architecture/dispatcher-export.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "html-companion-discipline",
+   "test-design-real-values"
+  ],
+  "systemImpact": "SpecHTMLCompanionEngine is the master renderer behind prism_dev:emit_spec_html + prism_session:doc_render — consumed by U-HTML-COMPANION-GENERATOR and every spec-doc emission across PRISM.",
+  "csDepth": [
+   "Master renderer must be pure (no I/O in render fn) — injected file reader for testability",
+   "AST round-trip: MD→AST→HTML; never regex on raw MD (loses inline-code/link nesting)",
+   "Memoize parsed AST by content hash — saves re-parse on idempotent re-runs"
+  ]
+ },
+ "HTML-PRIMARY-MS0::U-HPS03": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-doc.md",
+   "knowledge/wiki/architecture/dispatcher-export.md",
+   "knowledge/wiki/architecture/dispatcher-dev.md"
+  ],
+  "addSeWiki": [
+   "html-companion-discipline",
+   "engine-creation-discipline",
+   "regression-prevention-doctrine"
+  ],
+  "systemImpact": "Theme engine handles dark/light via prefers-color-scheme CSS — feeds U-HPS01 master renderer and every emitted HTML page. Operator UX consistency is the value (PPG/SFC pages match doctrine).",
+  "csDepth": [
+   "Pure CSS via custom properties — no JS theme switcher (extra runtime weight)",
+   "prefers-color-scheme media query is correct over a manual toggle for accessibility",
+   "Print stylesheet branch — sticky nav must hide on print, severity pills go grayscale"
+  ]
+ },
+ "HTML-PRIMARY-MS0::U-HPS04": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-doc.md",
+   "knowledge/wiki/architecture/dispatcher-export.md",
+   "knowledge/wiki/architecture/dispatcher-dev.md"
+  ],
+  "addSeWiki": [
+   "html-companion-discipline",
+   "engine-creation-discipline",
+   "regression-prevention-doctrine"
+  ],
+  "systemImpact": "Navigation engine renders sticky TOC + anchor links + in-page search — feeds U-HPS01 master renderer. Operator-facing — must be keyboard accessible (U-HPS05 a11y hook depends on it).",
+  "csDepth": [
+   "TOC build from heading hierarchy — handle skipped levels (H1→H3) gracefully",
+   "Anchor IDs must be stable across regens — kebab-case slug of heading text, suffix on collision",
+   "Client-side search via small Lunr-like index — bound at 64KB to avoid blowing page weight"
+  ]
+ },
+ "HTML-PRIMARY-MS0::U-HPS05": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-doc.md",
+   "knowledge/wiki/architecture/dispatcher-dev.md",
+   "knowledge/wiki/architecture/hooks/runtime/hook-profile.md"
+  ],
+  "addSeWiki": [
+   "hook-authoring-discipline",
+   "html-companion-discipline",
+   "regression-prevention-doctrine"
+  ],
+  "systemImpact": "Accessibility hook gates emit via WAI-ARIA + axe-cli — must be wired in PRISM_HOOK_PROFILE so it can't be silently bypassed. Feeds U-HPS01 + every HTML emission across HTML-COMPANION-MS0.",
+  "csDepth": [
+   "axe-cli runs on rendered HTML — needs headless renderer; cost-aware-route off-Claude",
+   "Severity thresholds: serious/critical fail, moderate warn — encode policy not magic numbers",
+   "Hook must respect PRISM_HOOK_PROFILE minimal-allowlist for safety-critical gates"
+  ]
+ },
+ "HTML-PRIMARY-MS0::U-HPS06": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-doc.md",
+   "knowledge/wiki/architecture/dispatcher-guard.md",
+   "knowledge/wiki/architecture/dispatcher-dev.md"
+  ],
+  "addSeWiki": [
+   "regression-prevention-doctrine",
+   "fail-loud-r12-patterns",
+   "html-companion-discipline"
+  ],
+  "systemImpact": "MD↔HTML hash drift guard on regen — fires Stop hook on mismatch, ensuring no partial regen ships with stale HTML next to fresh MD. Sister to file-claim-guard and the broader regression-prevention doctrine.",
+  "csDepth": [
+   "Hash MD source AND rendered HTML; mismatch on either side is drift",
+   "Per-file drift record in JSONL; surfaces in /system-viz drift overlay",
+   "False-positives on minor formatting — canonicalize via prettier/markdown-fmt before hash"
+  ]
+ },
+ "HTML-PRIMARY-MS0::U-HPS07": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-dev.md",
+   "knowledge/wiki/architecture/dispatcher-session.md",
+   "knowledge/wiki/architecture/dispatcher-doc.md"
+  ],
+  "addSeWiki": [
+   "dispatcher-action-design",
+   "mcp-tool-design",
+   "html-companion-discipline"
+  ],
+  "systemImpact": "Dispatcher actions prism_dev:emit_spec_html + prism_session:doc_render expose U-HPS01 master renderer to MCP callers — used by /system-viz spec view, /handoff render, and any chat that wants an HTML snapshot of a spec.",
+  "csDepth": [
+   "Action zod input schema must validate path is in repo (no path traversal)",
+   "doc_render returns HTML body inline — bounded at 1MB or reject; pagination otherwise",
+   "Idempotent — re-rendering same input yields byte-identical output"
+  ]
+ },
+ "INTEG-MS5::U-INTE01": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-orchestrate.md",
+   "knowledge/wiki/architecture/dispatcher-integration.md",
+   "knowledge/wiki/architecture/milestones/milestone-ghost-ms-integ-ms5.md"
+  ],
+  "addSeWiki": [
+   "schema-read-discipline",
+   "claude-md-as-pointer-index",
+   "regression-prevention-doctrine"
+  ],
+  "systemImpact": "INTEG-MS5 coordinator placeholder — meta-orchestrator for milestone-5 integration work; child units do the actual build.",
+  "csDepth": [
+   "Coordinator-only — verify children exist before planning",
+   "Integration milestones often need cross-PC handoff support",
+   "Verify against roadmap-index"
+  ]
+ },
+ "INTEL-OLLAMA-OBSIDIAN-MS0::P11-U07": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-hook.md",
+   "knowledge/wiki/architecture/dispatcher-session.md",
+   "knowledge/wiki/architecture/dispatcher-context.md"
+  ],
+  "addSeWiki": [
+   "hook-authoring-discipline",
+   "regression-prevention-doctrine",
+   "fail-loud-r12-patterns"
+  ],
+  "systemImpact": "Wiring 14 critical-gap awareness/goal/continuity hooks closes the gap Agent-3 surfaced where the hook existed on disk but was unwired in settings.json (the 88%-unwired-hook silent-degrade class). Feeds master-index-precheck-inject, goal-complete-gate, terminal-window-id, and other session-continuity hooks.",
+  "csDepth": [
+   "Hook wiring must NOT be batched into a single bundle — high-contention bundle churn loses wirings (lesson from master-index-surface)",
+   "Each hook needs latency envelope; PRISM_HOOK_PROFILE enforces budget",
+   "Test by sending a controlled UserPromptSubmit and verifying additionalContext"
+  ]
+ },
+ "INTEL-OLLAMA-OBSIDIAN-MS0::P12-U01": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-auth.md",
+   "knowledge/wiki/architecture/dispatcher-guard.md",
+   "knowledge/wiki/architecture/dispatcher-dev.md"
+  ],
+  "addSeWiki": [
+   "dispatcher-action-design",
+   "mcp-tool-design",
+   "schema-read-discipline"
+  ],
+  "systemImpact": "Splitting securityDispatcher (1055 actions) into 5 sub-dispatchers crosses the Zod enum perf cliff — preserves callable surface while shrinking each enum to manageable size. Feeds prism_auth, prism_guard, and any other security-related dispatcher consumer.",
+  "csDepth": [
+   "Zod enum size affects parse latency O(N) — sub-1000 sweet spot per dispatcher",
+   "Split must preserve action names — never rename, only re-route (breaks every external caller otherwise)",
+   "Migration: per-action alias for one release, then deprecate"
+  ]
+ },
+ "INTEL-OLLAMA-OBSIDIAN-MS0::P13-U02": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-infra.md",
+   "knowledge/wiki/architecture/dispatcher-monitoring.md",
+   "knowledge/wiki/architecture/docker-mcp-wire-ms0.md"
+  ],
+  "addSeWiki": [
+   "cron-and-scheduled-task-discipline",
+   "regression-prevention-doctrine",
+   "fleet-coordination-discipline"
+  ],
+  "systemImpact": "docker-compose.intel.yml orchestrates Qdrant + Ollama together — feeds OLLAMA-EXPAND-MS0 (ask-ollama) and the prism_intelligence Qdrant search layer. Closes the silent-degrade case where Docker is wedged → master-index falls back to BM25 fleet-wide.",
+  "csDepth": [
+   "Service health probes must be active not passive — wedged Docker daemon was the recurring bug",
+   "Compose ordering: Qdrant before Ollama (Ollama embed calls need Qdrant up)",
+   "Volume mounts must persist Qdrant collections across container restarts"
+  ]
+ },
+ "INTEL-OLLAMA-OBSIDIAN-MS0::P16-U03": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-dev.md",
+   "knowledge/wiki/architecture/dispatcher-cad.md",
+   "knowledge/wiki/architecture/dispatcher-cam.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "per-file-scrutiny-gate",
+   "regression-prevention-doctrine"
+  ],
+  "systemImpact": "Merging top-5 candidates into canonical PRISM — each gated by duplicationGuardEngine.mustCheckBeforeCreating(). Feeds the FMERGE-MS0 chain and the per-merge close-out-audit.",
+  "csDepth": [
+   "Dedup check is THROW on dup — cannot bypass; redirect to existing asset",
+   "Merge order matters — leaf utils before engines before dispatchers before hooks",
+   "Each merge needs its own 3-of-3 scrutiny gate per per-file-scrutiny-gate"
+  ]
+ },
+ "INTEL-OLLAMA-OBSIDIAN-MS0::P20-U02": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-infra.md",
+   "knowledge/wiki/architecture/dispatcher-aireasoning.md",
+   "knowledge/wiki/architecture/ollama-pipeline-ms0.md"
+  ],
+  "addSeWiki": [
+   "cron-and-scheduled-task-discipline",
+   "regression-prevention-doctrine",
+   "claude-md-as-pointer-index"
+  ],
+  "systemImpact": "Pulling llama3.3:70b as an optional high-complexity tier feeds AISystemRouterEngine + ollama-pipeline-injector — gated on disk capacity (~42GB). Used by the K2-CLOUD-MS0 router ladder when local high-complexity is preferred over Claude.",
+  "csDepth": [
+   "Disk-conditional pull — fail-soft on insufficient space; don't crash the installer",
+   "70b model needs 48GB+ system RAM — guard via systeminfo probe",
+   "Pre-warm via keep_alive matters at this size; cold-load is multi-minute"
+  ]
+ },
+ "INTEL-OLLAMA-OBSIDIAN-MS0::P20-U03": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-aireasoning.md",
+   "knowledge/wiki/architecture/dispatcher-orchestrate.md",
+   "knowledge/wiki/architecture/ollama-pipeline-ms0.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "model-router-discipline",
+   "dispatcher-action-design"
+  ],
+  "systemImpact": "ModelRouterEngine routes by task complexity tier — extends AISystemRouterEngine with K2-CLOUD-MS0's mid-band rules. Consumers: ollama-tier-router hook, prism_ai:two_pass cascade, every Ollama-routed skill.",
+  "csDepth": [
+   "Tier-floor must be calibrated via outcome ledger (not magic numbers) — recurring lesson from adaptive-threshold",
+   "Mid-band uses contextSize + safety-critical as features — Boolean AND only, not soft thresholds",
+   "Test must include 5 failure modes (auth fail, timeout, malformed, budget exhausted, model unavailable)"
+  ]
+ },
+ "INTEL-OLLAMA-OBSIDIAN-MS0::P22-U01": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-aireasoning.md",
+   "knowledge/wiki/architecture/dispatcher-orchestrate.md",
+   "knowledge/wiki/architecture/codex-review-arm.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "dispatcher-action-design",
+   "regression-prevention-doctrine"
+  ],
+  "systemImpact": "PreReviewOrchestratorEngine drafts via DeepSeek-R1 then hands off to Claude for review — same pattern as Codex CLI advisory review arm. Consumers: pre-review skill, /scrutinize pipeline.",
+  "csDepth": [
+   "Draft must NOT mark the scrutiny ledger — advisory only (Codex pattern); otherwise 3-of-3 collapses to 2-of-3",
+   "Failover when DeepSeek unreachable — never block Claude path",
+   "Cost tracking via prism_dev:token_ledger_record per draft+review pair"
+  ]
+ },
+ "INTEL-OLLAMA-OBSIDIAN-MS0::P23-U02": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-aireasoning.md",
+   "knowledge/wiki/architecture/dispatcher-telemetry.md",
+   "knowledge/wiki/architecture/ollama-pipeline-ms0.md"
+  ],
+  "addSeWiki": [
+   "regression-prevention-doctrine",
+   "engine-creation-discipline",
+   "atomic-write-idempotency-patterns"
+  ],
+  "systemImpact": "Tunes ModelRouterEngine tier thresholds from telemetry — RL-style adaptive policy reading from ollama-offload-stats.json. Same pattern as adaptive-threshold for hook fire-rate.",
+  "csDepth": [
+   "Adaptive threshold needs N-sample minimum (typically 100+) to avoid jitter",
+   "Persist learned thresholds atomically; never overwrite on partial sample",
+   "Bound learning rate so a bad day doesn't blow tier mapping fleet-wide"
+  ]
+ },
+ "INTEL-OLLAMA-OBSIDIAN-MS0::P5-U05": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-intelligence.md",
+   "knowledge/wiki/architecture/dispatcher-diagnosis.md",
+   "knowledge/wiki/architecture/dispatcher-aireasoning.md"
+  ],
+  "addSeWiki": [
+   "dispatcher-action-design",
+   "engine-creation-discipline",
+   "regression-prevention-doctrine"
+  ],
+  "systemImpact": "Wiring prism_intelligence:diagnose_failure → DiagnosticReasoningEngine connects /troubleshoot + /diagnose-fix to the canonical reasoning engine. Feeds forensic_tool_autopsy, inverse_solve, troubleshoot_diagnose surfaces.",
+  "csDepth": [
+   "Action input must include sensor/observation data — diagnose needs evidence",
+   "Reasoning chain output must be auditable — emit ScrutinyDecision-like shape",
+   "Never silently downgrade severity — fail-loud on uncertain diagnosis"
+  ]
+ },
+ "INTEL-OLLAMA-OBSIDIAN-MS0::P6-U02": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-hook.md",
+   "knowledge/wiki/architecture/dispatcher-guard.md",
+   "knowledge/wiki/architecture/dispatcher-session.md"
+  ],
+  "addSeWiki": [
+   "hook-authoring-discipline",
+   "regression-prevention-doctrine",
+   "claude-md-as-pointer-index"
+  ],
+  "systemImpact": "4 hooks for unforced CLAUDE.md rules turn doctrine into enforced gates — same pattern as goal-complete-gate (gates /goal until close-out-audit runs). Feeds the MINIMAL_ALLOWLIST and PRISM_HOOK_PROFILE.",
+  "csDepth": [
+   "Hooks for doctrine rules must respect PRISM_HOOK_PROFILE so emergency overrides exist",
+   "Bypass logging via jsonl-ledger so auditable",
+   "Each rule needs a wiki page describing the gate logic — doctrine pointer"
+  ]
+ },
+ "INTEL-OLLAMA-OBSIDIAN-MS0::P6-U03": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-hook.md",
+   "knowledge/wiki/architecture/dispatcher-session.md",
+   "knowledge/wiki/architecture/awareness-readiness.md"
+  ],
+  "addSeWiki": [
+   "hook-authoring-discipline",
+   "regression-prevention-doctrine",
+   "claude-md-as-pointer-index"
+  ],
+  "systemImpact": "Awareness hook deduplication — pick 3 canonical (e.g. master-index-precheck-inject, awareness-snapshot-inject, build-state-inject), deprecate 10 redundant. Reduces UserPromptSubmit latency and KV cache churn fleet-wide.",
+  "csDepth": [
+   "Dedup by output equivalence not file-name — two hooks may have different code, same output",
+   "Deprecation path: hooks:[] + _disabled_by per never-delete-only-disable",
+   "Verify per-PromptSubmit token cost drops post-dedup"
+  ]
+ },
+ "INTEL-OLLAMA-OBSIDIAN-MS0::P7-U02": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-session.md",
+   "knowledge/wiki/architecture/dispatcher-integration.md",
+   "knowledge/wiki/architecture/dispatcher-dev.md"
+  ],
+  "addSeWiki": [
+   "handoff-discipline",
+   "test-design-real-values",
+   "regression-prevention-doctrine"
+  ],
+  "systemImpact": "Cross-PC handoff test verifies H: drive (work PC) + C: mirror is sufficient for a session to resume on the other machine — confirms terminal-pin + per-agent-handoff + session-start-auto-resume work cross-host.",
+  "csDepth": [
+   "Test must use REAL files, not stubs — peer-PC actually open + read",
+   "Hostname-aware slot filtering required (FLEET-REAPER-MS2 lesson)",
+   "Symlink vs junction differs between drives on Windows — encode both paths"
+  ]
+ },
+ "K2-CLOUD-MS0::U-K2-AUTH-SETUP": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-auth.md",
+   "knowledge/wiki/architecture/dispatcher-infra.md",
+   "knowledge/wiki/architecture/ollama-pipeline-ms0.md"
+  ],
+  "addSeWiki": [
+   "regression-prevention-doctrine",
+   "atomic-write-idempotency-patterns",
+   "schema-read-discipline"
+  ],
+  "systemImpact": "k2-cloud-auth-setup.mjs wraps ollama signin and writes mcp-server/data/state/k2-cloud-auth.json marker — feeds K2CloudOllamaEngine (U-K2-CLOUD-ENGINE) auth check before dispatching to K2.6:cloud.",
+  "csDepth": [
+   "Auth marker file is tiny — atomic write via temp+rename",
+   "Never log secrets; surface only auth status (auth-token-storage-discipline)",
+   "Marker schemaVersion required — token rotation invalidates old shape"
+  ]
+ },
+ "K2-CLOUD-MS0::U-K2-CLAUDE-MD-DOC": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-doc.md",
+   "knowledge/wiki/architecture/dispatcher-dev.md",
+   "knowledge/wiki/architecture/ollama-pipeline-ms0.md"
+  ],
+  "addSeWiki": [
+   "claude-md-as-pointer-index",
+   "doc-reflection-rule",
+   "regression-prevention-doctrine"
+  ],
+  "systemImpact": "CLAUDE.md doc update documents the 3-tier ladder (qwen → K2.6:cloud → Claude Opus) plus Boris back-flow note + two-pass safety pattern reference. Consumers: every chat reading CLAUDE.md at SessionStart; ai_route_mill_pipeline + ai_route_decision logic.",
+  "csDepth": [
+   "Doc edit must be a pointer not a full transcript — CLAUDE.md is bounded by the 200-line collapse threshold",
+   "4-surface reflection rule applies",
+   "Tier table maps to AISystemRouterEngine — synchronize"
+  ]
+ },
+ "K2-CLOUD-MS0::U-K2-CLAUDE-SCRUTINIZE-CHAIN": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-aireasoning.md",
+   "knowledge/wiki/architecture/dispatcher-guard.md",
+   "knowledge/wiki/architecture/two-pass-cascade-2026-05-18.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "safety-tier-discipline",
+   "fail-loud-r12-patterns"
+  ],
+  "systemImpact": "K2ScrutinizeChainEngine implements two-pass safety: K2 generates → Claude scrutinizes against PRISM SAFETY RAILS → returns ScrutinyDecision{verdict,primary_response,scrutiny_notes,total_cost}. Critical safety bridge for using cheap K2 on engine-building tasks.",
+  "csDepth": [
+   "ScrutinyDecision union (PASS|REVISE|FAIL) — exhaustive switch at every consumer (TS strict-checks help here)",
+   "REVISE path triggers regenerate — must bound max-revise-count to prevent infinite loop",
+   "FAIL must escalate to Opus, never silently downgrade safety threshold"
+  ]
+ },
+ "K2-CLOUD-MS0::U-K2-CLOUD-ENGINE": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-aireasoning.md",
+   "knowledge/wiki/architecture/dispatcher-infra.md",
+   "knowledge/wiki/architecture/ollama-pipeline-ms0.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "fail-loud-r12-patterns",
+   "test-design-real-values"
+  ],
+  "systemImpact": "K2CloudOllamaEngine adapts kimi-k2.6:cloud via Ollama Cloud — auth via marker file, fallback to local qwen, 5 failure modes + 2 adversarial tests. Consumers: ModelRouterEngine, prism_ai dispatcher, ai_route_task.",
+  "csDepth": [
+   "5 failure modes: auth fail, network timeout, malformed response, budget exhausted, K2.6 unavailable — each needs a named test",
+   "Fallback to qwen must preserve task semantics — not all tasks survive a smaller model",
+   "Adversarial: NaN context size + unicode in prompt — fuzz inputs at the seam"
+  ]
+ },
+ "K2-CLOUD-MS0::U-K2-CONFIG-INVENTORY": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-aireasoning.md",
+   "knowledge/wiki/architecture/dispatcher-dev.md",
+   "knowledge/wiki/architecture/ollama-pipeline-ms0.md"
+  ],
+  "addSeWiki": [
+   "claude-md-as-pointer-index",
+   "doc-reflection-rule",
+   "schema-read-discipline"
+  ],
+  "systemImpact": "K2-ROUTER-INVENTORY.md documents the existing tier table in AISystemRouterEngine + OllamaHookBridgeEngine — feeds U-K2-ROUTER-DECISION and U-K2-TIER-REGISTER policy work.",
+  "csDepth": [
+   "Inventory is a doc — keep it ≤200 lines per pointer-index doctrine",
+   "Sync with code (AISystemRouterEngine.AIBackend union, KIMI_K2_PRICING constants)",
+   "Drift gate: hash of inventory vs hash of code-extracted table"
+  ]
+ },
+ "K2-CLOUD-MS0::U-K2-COST-GUARD": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-aireasoning.md",
+   "knowledge/wiki/architecture/dispatcher-dev.md",
+   "knowledge/wiki/architecture/dispatcher-guard.md"
+  ],
+  "addSeWiki": [
+   "token-budget-management",
+   "fail-loud-r12-patterns",
+   "engine-creation-discipline"
+  ],
+  "systemImpact": "Per-session budget cap (100K tokens) + fail-closed gate at 90% using K2_SESSION_BUDGET_TOKENS + K2_BUDGET_FAIL_CLOSED_RATIO — consumers: K2CloudOllamaEngine, ModelRouterEngine. Prevents cost blowout.",
+  "csDepth": [
+   "Constants live in physics/constants.ts equivalent — never inline magic numbers (R12 + safety rail)",
+   "Budget read from token-ledger.json — atomic read/write",
+   "Fail-closed means refuse-to-call, never silently degrade quality below safety threshold"
+  ]
+ },
+ "K2-CLOUD-MS0::U-K2-DASHBOARD": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-dev.md",
+   "knowledge/wiki/architecture/dispatcher-aireasoning.md",
+   "knowledge/wiki/architecture/dispatcher-monitoring.md"
+  ],
+  "addSeWiki": [
+   "regression-prevention-doctrine",
+   "atomic-write-idempotency-patterns",
+   "schema-read-discipline"
+  ],
+  "systemImpact": "ollama-offload-dashboard.mjs extension adds USD per session, monthly burn rate, budget cap utilization — feeds operator dashboard + the auto-tune in U-K2-ROUTER-DECISION.",
+  "csDepth": [
+   "Cost projection from ollama-offload-stats.json — schema v2/v3 dual-read (schema-read-discipline)",
+   "Monthly burn linear-extrapolated from last 24h; bound to current-month projection only",
+   "Dashboard idempotent and pure — no side effects from invocation"
+  ]
+ },
+ "K2-CLOUD-MS0::U-K2-FALLBACK-TESTS": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-aireasoning.md",
+   "knowledge/wiki/architecture/dispatcher-dev.md",
+   "knowledge/wiki/architecture/dispatcher-guard.md"
+  ],
+  "addSeWiki": [
+   "test-design-real-values",
+   "regression-prevention-doctrine",
+   "fail-loud-r12-patterns"
+  ],
+  "systemImpact": "Vitest covering 5 failure modes + 2 adversarial + scrutiny PASS/REVISE/FAIL paths — gates K2CloudOllamaEngine + K2ScrutinizeChainEngine commit. Critical safety test surface.",
+  "csDepth": [
+   "Each failure mode needs its own test name + assertion (no shared fixtures)",
+   "Adversarial inputs use Buffer.from with explicit encoding for unicode determinism",
+   "Test must REAL-INVOKE the cascade end-to-end at least once, not all hermetic"
+  ]
+ },
+ "K2-CLOUD-MS0::U-K2-ROUTER-DECISION": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-aireasoning.md",
+   "knowledge/wiki/architecture/dispatcher-orchestrate.md",
+   "knowledge/wiki/architecture/ollama-pipeline-ms0.md"
+  ],
+  "addSeWiki": [
+   "dispatcher-action-design",
+   "fail-loud-r12-patterns",
+   "regression-prevention-doctrine"
+  ],
+  "systemImpact": "Extends AISystemRouterEngine routing matrix with mid-band rule: contextSize>8K AND not safety-critical → K2.6 instead of Opus for engine_building/reasoning task classes. Direct lever on cost economics.",
+  "csDepth": [
+   "Routing decision is a pure function of (taskClass, contextSize, isSafetyCritical) — easy to unit-test",
+   "Mid-band must default-deny safety-critical — never route safety-critical to K2 without scrutiny chain",
+   "Decision audit emitted to outcome ledger for adaptive tuning (U-K2 ROUTER-DECISION + P23-U02 pair)"
+  ]
+ },
+ "K2-CLOUD-MS0::U-K2-SKILL": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/skills/project/ask-ollama.md",
+   "knowledge/wiki/architecture/dispatcher-aireasoning.md",
+   "knowledge/wiki/architecture/ollama-expand-ms0.md"
+  ],
+  "addSeWiki": [
+   "claude-md-as-pointer-index",
+   "doc-reflection-rule",
+   "engine-creation-discipline"
+  ],
+  "systemImpact": "/k2-ask skill (or /local-ask --tier=k2 extension) exposes K2CloudOllamaEngine to slash-command consumers — sister to /ask-local from OLLAMA-EXPAND-MS0.",
+  "csDepth": [
+   "Skill frontmatter must validate via command-frontmatter.schema.json",
+   "Trigger keywords must not overlap /local-ask to avoid silent dispatch race",
+   "Body ≤200 lines per pointer-index doctrine; detail lives in wiki"
+  ]
+ },
+ "K2-CLOUD-MS0::U-K2-TELEMETRY": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-telemetry.md",
+   "knowledge/wiki/architecture/dispatcher-aireasoning.md",
+   "knowledge/wiki/architecture/dispatcher-dev.md"
+  ],
+  "addSeWiki": [
+   "schema-read-discipline",
+   "atomic-write-idempotency-patterns",
+   "regression-prevention-doctrine"
+  ],
+  "systemImpact": "ollama-offload-stats.json schemaVersion 2.0.0 → 3.0.0 with per-model breakdown (model_used, tier, cost_estimate, tokens_in, tokens_out per event) + migration. Foundation for U-K2-DASHBOARD and adaptive routing.",
+  "csDepth": [
+   "Schema migration must be reversible — keep v2 read path until all consumers updated (recurring lesson)",
+   "Per-event row adds storage — rotate >512KB jsonl tail",
+   "Cost estimate is per-tier from KIMI_K2_PRICING — never inline price magic numbers"
+  ]
+ },
+ "K2-CLOUD-MS0::U-K2-TIER-HOOK": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-hook.md",
+   "knowledge/wiki/architecture/dispatcher-aireasoning.md",
+   "knowledge/wiki/architecture/ollama-pipeline-ms0.md"
+  ],
+  "addSeWiki": [
+   "hook-authoring-discipline",
+   "regression-prevention-doctrine",
+   "dispatcher-action-design"
+  ],
+  "systemImpact": ".claude/hooks/ollama-tier-router.mjs UserPromptSubmit hook routes prompts >8K context to K2.6:cloud per AGGRESSIVE posture — sister to ollama-pipeline-injector. Direct cost-saving lever in the hot path.",
+  "csDepth": [
+   "Hook latency budget <500ms; do NOT call the model from the hook (race)",
+   "Decision is metadata injection — actual route happens downstream in AISystemRouterEngine",
+   "Knob PRISM_OLLAMA_TIER_ROUTER_DISABLE for emergency revert"
+  ]
+ },
+ "K2-CLOUD-MS0::U-K2-TIER-REGISTER": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-aireasoning.md",
+   "knowledge/wiki/architecture/dispatcher-auth.md",
+   "knowledge/wiki/architecture/ollama-pipeline-ms0.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "dispatcher-action-design",
+   "schema-read-discipline"
+  ],
+  "systemImpact": "Registers kimi-k2.6:cloud tier in AISystemRouterEngine — extends AIBackend union, adds KIMI_K2_PRICING constants + contextSize/isSafetyCritical/getCurrentSessionTokens helpers + probe with auth-marker check. Foundation for U-K2-ROUTER-DECISION.",
+  "csDepth": [
+   "AIBackend union expansion is a breaking-change for exhaustive switch consumers — TS strict-checks catch this",
+   "Pricing constants in physics/constants.ts equivalent — never inline",
+   "Probe must check K2 reachability + auth marker (compose preflight, not fire-and-pray)"
+  ]
+ },
+ "KAR-ROADMAP::U-KAR01": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-orchestrate.md",
+   "knowledge/wiki/architecture/dispatcher-cam.md",
+   "knowledge/wiki/architecture/milestones/milestone-ghost-ms-camk-ms2.md"
+  ],
+  "addSeWiki": [
+   "schema-read-discipline",
+   "claude-md-as-pointer-index",
+   "regression-prevention-doctrine"
+  ],
+  "systemImpact": "KAR-MS2 coordinator — orchestrates KAR-roadmap MS2 sub-units.",
+  "csDepth": [
+   "Coordinator-only",
+   "Verify children exist before planning",
+   "Cross-MS dependency DAG topo-sort"
+  ]
+ },
+ "KNOWLEDGE-VAULT-MS0::U-VAULT01": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/knowledge-vault-schema.md",
+   "knowledge/wiki/architecture/dispatcher-knowledge.md",
+   "knowledge/wiki/architecture/dispatcher-doc.md"
+  ],
+  "addSeWiki": [
+   "claude-md-as-pointer-index",
+   "memory-curation-discipline",
+   "schema-read-discipline"
+  ],
+  "systemImpact": "Vault-schema doc defines CLAUDE.md's role in the 5-namespace vault (memory + wiki + commands + handoffs + specs). Consumers: every chat reading CLAUDE.md; the U-CK06 frontmatter validator; the U-VAULT02 promotion engine.",
+  "csDepth": [
+   "CLAUDE.md is doctrine-pointer not 6th namespace — ≤200 lines (the collapse threshold)",
+   "Schema documented in 1 wiki entry that CLAUDE.md POINTS to",
+   "Schema invariant must be machine-checkable (frontmatter JSON schema)"
+  ]
+ },
+ "KNOWLEDGE-VAULT-MS0::U-VAULT02": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-knowledge.md",
+   "knowledge/wiki/architecture/dispatcher-memory.md",
+   "knowledge/wiki/architecture/dispatcher-doc.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "memory-curation-discipline",
+   "regression-prevention-doctrine"
+  ],
+  "systemImpact": "Memory→wiki promotion engine moves stable memories into long-lived wiki entries — implements the promotion path described in KNOWLEDGE-VAULT-MS0. Consumers: stop-obsidian-memory-feed.mjs, knowledge_search, wiki maintainer engine.",
+  "csDepth": [
+   "Promotion threshold must be tunable (citations, age, embed-similarity to existing wiki)",
+   "Idempotent: re-running must not produce dup wiki entries — duplicationGuardEngine THROW",
+   "Reverse flow (deprecate stale wiki) is a separate unit"
+  ]
+ },
+ "KNOWLEDGE-VAULT-MS0::U-VAULT04": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-skillscript.md",
+   "knowledge/wiki/architecture/dispatcher-knowledge.md",
+   "knowledge/wiki/architecture/skills/project/checkin.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "memory-curation-discipline",
+   "hook-authoring-discipline"
+  ],
+  "systemImpact": "Skill↔wiki cross-trigger registry maps each skill to the wiki entries it documents AND that document it — feeds skill-auto-trigger.mjs and the per-skill master-index-search-lib pre-search.",
+  "csDepth": [
+   "Bidirectional registry — schema must encode both directions (skill→wiki, wiki→skill)",
+   "Stale-detector via mtime: skill update should re-validate wiki cross-refs",
+   "Registry append-only JSONL; consumed by skill loader at SessionStart"
+  ]
+ },
+ "KNOWLEDGE-VAULT-MS0::U-VAULT05": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-knowledge.md",
+   "knowledge/wiki/architecture/dispatcher-cad.md",
+   "knowledge/wiki/architecture/dispatcher-cam.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "memory-curation-discipline",
+   "doc-reflection-rule"
+  ],
+  "systemImpact": "Domain MOC (Map of Content per Nick Milo) generator emits a per-domain index page that links every relevant memory + wiki entry — feeds knowledge_search, master-index-precheck-inject, the operator-facing /system-viz domain view.",
+  "csDepth": [
+   "MOC per domain — generated from frontmatter tags + folder structure",
+   "Idempotent: same inputs yield identical MOC; otherwise drift",
+   "MOC links must be relative paths for portability across slot worktrees"
+  ]
+ },
+ "KNOWLEDGE-VAULT-MS0::U-VAULT06": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-guard.md",
+   "knowledge/wiki/architecture/dispatcher-knowledge.md",
+   "knowledge/wiki/architecture/dispatcher-context.md"
+  ],
+  "addSeWiki": [
+   "regression-prevention-doctrine",
+   "fail-loud-r12-patterns",
+   "memory-curation-discipline"
+  ],
+  "systemImpact": "Vault-rot sentinel surfaces stale entries (mtime > N days OR contradicted by recent memory) — feeds memory-relevance-inject, dup_guard_summary, and the operator close-out queue.",
+  "csDepth": [
+   "Two signals (mtime + contradiction) prevents the false-positive of a still-valid old wiki",
+   "Contradiction detection via embedding similarity — pull from wiki/_embeddings.jsonl",
+   "Sentinel emits advisory not block — operator decides deprecate vs preserve"
+  ]
+ },
+ "L2-P4-MS1::P0-U06": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-cam.md",
+   "knowledge/wiki/architecture/dispatcher-cnc-ops.md",
+   "knowledge/wiki/architecture/dispatcher-mill.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "dispatcher-action-design",
+   "physics-constants-discipline"
+  ],
+  "systemImpact": "Batch 10 (Advanced CNC Programming, 4 engines) extends prism_cam + prism_cnc_ops with advanced toolpath strategies. Consumers: cam_strategy_recommend, mill_program_pattern_analyze.",
+  "csDepth": [
+   "4-engine batch needs 4 dispatcher actions + 4 test files + 4 docs (4x4 surface)",
+   "Per-engine zod schema must align with cam_param_optimize",
+   "Test must round-trip real G-code, not stub fixtures"
+  ]
+ },
+ "L2-P4-MS1::P0-U07": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-cam.md",
+   "knowledge/wiki/architecture/dispatcher-cad.md",
+   "knowledge/wiki/architecture/dispatcher-quality.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "test-design-real-values",
+   "physics-constants-discipline"
+  ],
+  "systemImpact": "Batch 11 (Material Testing Interface, 3 engines) feeds material-test data into the calibration loop — consumers: prism_calc material lookup, quality_spc_chart, calibration_kienzle.",
+  "csDepth": [
+   "Material-test data has units — never lose track of MPa/Mg/m^3 (R12 explicit units)",
+   "Calibration constants live in canonical material DB",
+   "Test round-trip with real material certificate PDF"
+  ]
+ },
+ "L2-P4-MS1::P0-U08": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-cad.md",
+   "knowledge/wiki/architecture/dispatcher-cam.md",
+   "knowledge/wiki/architecture/dispatcher-feasibility.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "dispatcher-action-design",
+   "safety-tier-discipline"
+  ],
+  "systemImpact": "Batch 12 (Jig & Fixture Specific, 5 engines) feeds prism_cad fixture design + prism_feasibility workholding checks. Consumers: cad_fixture_ingest_file, workholding_check, fixture_clamp_force.",
+  "csDepth": [
+   "Workholding force calcs are safety-critical — physics-constants discipline",
+   "Fixture validity check must consider tool reach + holder collision",
+   "Round-trip with real fixture STEP"
+  ]
+ },
+ "L2-P4-MS1::P0-U09": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-cam.md",
+   "knowledge/wiki/architecture/dispatcher-dev.md",
+   "knowledge/wiki/architecture/dispatcher-hook.md"
+  ],
+  "addSeWiki": [
+   "dispatcher-action-design",
+   "mcp-tool-design",
+   "regression-prevention-doctrine"
+  ],
+  "systemImpact": "Wiring 52 engines × 9 dispatcher action slots — large registration sweep. Risk: action-enum size bloat. Consumers: every dispatcher in the 52-engine fan-out.",
+  "csDepth": [
+   "52×9 = 468 actions — be deliberate about which dispatcher gets which (avoid enum perf cliff)",
+   "Test must invoke each action at least once via dispatcher round-trip (real wiring test)",
+   "Wiring map persisted as JSONL — auditable for stop_on_unwired_assets"
+  ]
+ },
+ "L2-P4-MS1::P0-U10": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-guard.md",
+   "knowledge/wiki/architecture/dispatcher-cam.md",
+   "knowledge/wiki/architecture/dispatcher-dev.md"
+  ],
+  "addSeWiki": [
+   "safety-tier-discipline",
+   "fail-loud-r12-patterns",
+   "test-design-real-values"
+  ],
+  "systemImpact": "L2-P4 safety gate — full validation of the 52×9 batch wave. Must pass before commit; consumes 3-of-3 scrutiny + per-file gate.",
+  "csDepth": [
+   "Safety gate uses Omega equation S(x)>=0.70 hard constraint",
+   "Validation must include real-data E2E, not all hermetic (recurring lesson)",
+   "Pass means every engine round-trips through its dispatcher action without throwing"
+  ]
+ },
+ "L8-P0-MS2::P0-U06": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-cam.md",
+   "knowledge/wiki/architecture/frontends/page/fe-page-a3reportpage-1.md",
+   "knowledge/wiki/architecture/dispatcher-product.md"
+  ],
+  "addSeWiki": [
+   "regression-prevention-doctrine",
+   "test-design-real-values",
+   "engine-creation-discipline"
+  ],
+  "systemImpact": "G-Code Preview Panel renders post-processed G-code in the PPG frontend — feeds the operator visualization layer + the cycle-time/cost overlays. Consumes ppg_generate, cam_dnc_generate output.",
+  "csDepth": [
+   "G-code can be megabytes — virtualize/windowed render, not full DOM",
+   "Highlight unsafe G-codes (G0 in stock, M3/M4 without speed) via SafetyTier overlay",
+   "Frontend protection rule per [[feedback_frontend_codex]]"
+  ]
+ },
+ "L8-P0-MS2::P0-U07": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-cam.md",
+   "knowledge/wiki/architecture/frontends/page/fe-page-a3reportpage-1.md",
+   "knowledge/wiki/architecture/dispatcher-product.md"
+  ],
+  "addSeWiki": [
+   "regression-prevention-doctrine",
+   "engine-creation-discipline",
+   "test-design-real-values"
+  ],
+  "systemImpact": "Diff Comparison View renders side-by-side G-code diff — feeds operator review of post-processor changes. Consumes ppg_program_diff, cam_compare_programs.",
+  "csDepth": [
+   "Line-by-line diff with N-line context window — keep render bounded",
+   "Color blocks must be colorblind-safe (WCAG AA contrast)",
+   "Diff algorithm: Myers for correctness, Patience for readability"
+  ]
+ },
+ "L8-P0-MS2::P0-U08": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-cam.md",
+   "knowledge/wiki/architecture/frontends/page/fe-page-a3reportpage-1.md",
+   "knowledge/wiki/architecture/dispatcher-product.md"
+  ],
+  "addSeWiki": [
+   "regression-prevention-doctrine",
+   "engine-creation-discipline",
+   "test-design-real-values"
+  ],
+  "systemImpact": "Operation Builder is the operator UI for assembling cam operations — feeds cam_param_optimize, ppg_generate. Consumers: PPG quick-start, /cam-strategy-select skill.",
+  "csDepth": [
+   "Form state machine; each op has its own zod schema",
+   "Validate at edit-time not submit-time (operator UX)",
+   "Save-draft to local state; persist via prism_session"
+  ]
+ },
+ "L8-P0-MS2::P0-U09": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-cam.md",
+   "knowledge/wiki/architecture/dispatcher-safety.md",
+   "knowledge/wiki/architecture/dispatcher-guard.md"
+  ],
+  "addSeWiki": [
+   "safety-tier-discipline",
+   "fail-loud-r12-patterns",
+   "test-design-real-values"
+  ],
+  "systemImpact": "Validation Panel surfaces safety-critical findings before G-code emit — feeds operator gate decision. Consumes safety_validate, ppg_validate_limits, cam_safety_validate.",
+  "csDepth": [
+   "Severity tiers (info/warn/error/critical) map to UI styling",
+   "Critical must block submit at the UI level (defense in depth)",
+   "Findings ledger persisted via JSONL for audit"
+  ]
+ },
+ "L8-P0-MS2::P0-U10": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-cam.md",
+   "knowledge/wiki/architecture/dispatcher-product.md",
+   "knowledge/wiki/architecture/dispatcher-export.md"
+  ],
+  "addSeWiki": [
+   "regression-prevention-doctrine",
+   "atomic-write-idempotency-patterns",
+   "test-design-real-values"
+  ],
+  "systemImpact": "Optimize & Download wires the optimize-then-emit pipeline (auto-speed-feed, gcode-opt-optimize, ppg-generate-output, file delivery). Consumes the full P0 chain (U-U06..U-U09).",
+  "csDepth": [
+   "Download is browser-side — Blob URL with proper Content-Disposition",
+   "Optimize step idempotent so re-download yields identical content",
+   "Encode operator-id + timestamp in the filename for traceability"
+  ]
+ },
+ "L8-P0-MS2::P0-U11": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-product.md",
+   "knowledge/wiki/architecture/dispatcher-session.md",
+   "knowledge/wiki/architecture/dispatcher-context.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "regression-prevention-doctrine",
+   "atomic-write-idempotency-patterns"
+  ],
+  "systemImpact": "PPG state management threads job context across the PPG frontend pages — consumes prism_session:state_save/load, prism_context:memory_externalize.",
+  "csDepth": [
+   "State machine for PPG workflow — Idle→Configure→Generate→Validate→Optimize→Download",
+   "Persist via prism_session so /compact survives PPG mid-flow",
+   "Race condition: two tabs editing the same job — last-write-wins is wrong, oldest-wins (R7)"
+  ]
+ },
+ "L8-P0-MS2::P0-U12": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-dev.md",
+   "knowledge/wiki/architecture/dispatcher-product.md",
+   "knowledge/wiki/architecture/dispatcher-cam.md"
+  ],
+  "addSeWiki": [
+   "test-design-real-values",
+   "regression-prevention-doctrine",
+   "per-file-scrutiny-gate"
+  ],
+  "systemImpact": "PPG testing & polish — exercises the full PPG frontend with real G-code, real operator flows. Consumes Playwright + Vitest gates.",
+  "csDepth": [
+   "Playwright must drive REAL flows, not mock data — recurring hermetic-false-green class",
+   "Polish includes accessibility — axe-cli gate from U-HPS05",
+   "Coverage gate: every page reachable from PPG quick-start"
+  ]
+ },
+ "L8-P1-MS2::P0-U06": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-knowledge.md",
+   "knowledge/wiki/architecture/dispatcher-aireasoning.md",
+   "knowledge/wiki/architecture/frontends/page/fe-page-a3reportpage-1.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "memory-curation-discipline",
+   "regression-prevention-doctrine"
+  ],
+  "systemImpact": "Knowledge Search in the Learning frontend lets operators query the wiki + tribal knowledge — consumes knowledge_search, ai_knowledge_query, wiki indexes.",
+  "csDepth": [
+   "Search latency budget <300ms; rely on prebuilt indexes (BM25 + embed)",
+   "Result ranking: blend BM25 + vector + recency",
+   "UI must surface citation paths so operators can deep-link"
+  ]
+ },
+ "L8-P1-MS2::P0-U07": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-data.md",
+   "knowledge/wiki/architecture/dispatcher-cam.md",
+   "knowledge/wiki/architecture/dispatcher-knowledge.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "regression-prevention-doctrine",
+   "test-design-real-values"
+  ],
+  "systemImpact": "Material Selection Wizard walks operator through material picking — consumes data_material_get/search/compare, ai_resource_material_parameters.",
+  "csDepth": [
+   "Wizard state machine; back-button safe",
+   "Material substitution rules require uncertainty disclosure (R12)",
+   "Persist selection via prism_session"
+  ]
+ },
+ "L8-P1-MS2::P0-U08": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-data.md",
+   "knowledge/wiki/architecture/dispatcher-cam.md",
+   "knowledge/wiki/architecture/dispatcher-cad.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "regression-prevention-doctrine",
+   "test-design-real-values"
+  ],
+  "systemImpact": "Tool Selection Wizard walks operator through tool picking — consumes data_tool_get/search/recommend, tool_select_recommend, catalog_tool_lookup.",
+  "csDepth": [
+   "Filter by material + operation + machine simultaneously — pre-index for sub-100ms",
+   "Holder compatibility check at selection time (avoid late-bound collision)",
+   "Operator can override but get advisory warning"
+  ]
+ },
+ "L8-P1-MS2::P0-U09": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-data.md",
+   "knowledge/wiki/architecture/dispatcher-cam.md",
+   "knowledge/wiki/architecture/dispatcher-feasibility.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "regression-prevention-doctrine",
+   "test-design-real-values"
+  ],
+  "systemImpact": "Machine Selection Wizard — consumes data_machine_get/search/capabilities, machine_capability_query, capacity_machines.",
+  "csDepth": [
+   "Filter by envelope + spindle + controller capability",
+   "Show capacity load to avoid scheduling overload",
+   "Persist selection so downstream PPG inherits machine"
+  ]
+ },
+ "L8-P1-MS2::P0-U10": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-adaptivecontrol.md",
+   "knowledge/wiki/architecture/dispatcher-intelligence.md",
+   "knowledge/wiki/architecture/dispatcher-machinelive.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "regression-prevention-doctrine",
+   "test-design-real-values"
+  ],
+  "systemImpact": "Digital Twin Panel surfaces live machine state via digital_twin_query + digital_twin_state — operator sees simulation vs reality delta. Consumes intelligence_digital_twin_*.",
+  "csDepth": [
+   "WebSocket push for live update — handle reconnection",
+   "Twin sync via xproc_online_update — adaptive",
+   "Drift between twin + reality is its own metric (digital_twin_drift_detect)"
+  ]
+ },
+ "L8-P1-MS2::P0-U11": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/frontends/page/fe-page-a3reportpage-1.md",
+   "knowledge/wiki/architecture/dispatcher-knowledge.md",
+   "knowledge/wiki/architecture/dispatcher-product.md"
+  ],
+  "addSeWiki": [
+   "regression-prevention-doctrine",
+   "doc-reflection-rule",
+   "engine-creation-discipline"
+  ],
+  "systemImpact": "Learning frontend layout + sub-navigation across knowledge search, material/tool/machine wizards, digital twin — feeds PRISM Academy and the cross-link UX to SFC and PPG.",
+  "csDepth": [
+   "Layout is React routing — keep route table flat for in-page search",
+   "Sub-nav state persists across compact via prism_session",
+   "Cross-links must use canonical route names (per U-FMERGE06A survivor ledger)"
+  ]
+ },
+ "L8-P1-MS2::P0-U12": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/frontends/page/fe-page-a3reportpage-1.md",
+   "knowledge/wiki/architecture/dispatcher-data.md",
+   "knowledge/wiki/architecture/dispatcher-product.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "regression-prevention-doctrine",
+   "test-design-real-values"
+  ],
+  "systemImpact": "Shared chart components used by Learning, ERP, SFC frontends — consume data_chart_pareto/waterfall/control/histogram. Reduces frontend code duplication.",
+  "csDepth": [
+   "Chart lib choice (Recharts vs Visx) affects bundle size — measure",
+   "Pareto chart sorts descending — encode in component, not caller",
+   "Color palette consistent with theme engine (U-HPS03)"
+  ]
+ },
+ "L8-P1-MS2::P0-U13": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-knowledge.md",
+   "knowledge/wiki/architecture/dispatcher-product.md",
+   "knowledge/wiki/architecture/frontends/page/fe-page-a3reportpage-1.md"
+  ],
+  "addSeWiki": [
+   "doc-reflection-rule",
+   "claude-md-as-pointer-index",
+   "regression-prevention-doctrine"
+  ],
+  "systemImpact": "Cross-links Learning to SFC + PPG — operator can jump from a tool-life lesson to the SFC calculator or PPG post-processor. Consumes the canonical route map (U-FMERGE06A).",
+  "csDepth": [
+   "Deep-link state preservation across route — query-param + prism_session",
+   "Broken link surface via U-VAULT06 vault-rot sentinel pattern",
+   "Cross-link drift caught by U-FMERGE survivor ledger"
+  ]
+ },
+ "L8-P1-MS2::P0-U14": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-session.md",
+   "knowledge/wiki/architecture/dispatcher-context.md",
+   "knowledge/wiki/architecture/dispatcher-product.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "regression-prevention-doctrine",
+   "atomic-write-idempotency-patterns"
+  ],
+  "systemImpact": "Learning state context for the React tree — consumes prism_session:state_save/load + prism_context:memory_externalize. Persists wizard step + selection across compact.",
+  "csDepth": [
+   "State shape narrow + serializable — no React refs in state",
+   "Restore must validate via zod (schema migration safe)",
+   "Race on simultaneous tab open — oldest-claim-wins"
+  ]
+ },
+ "L8-P1-MS2::P0-U15": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-dev.md",
+   "knowledge/wiki/architecture/dispatcher-product.md",
+   "knowledge/wiki/architecture/frontends/page/fe-page-a3reportpage-1.md"
+  ],
+  "addSeWiki": [
+   "test-design-real-values",
+   "regression-prevention-doctrine",
+   "per-file-scrutiny-gate"
+  ],
+  "systemImpact": "Learning testing & polish — Playwright + Vitest exercising the full Learning frontend with realistic operator flows.",
+  "csDepth": [
+   "Playwright drives REAL flows, not mock — same anti-pattern caveats",
+   "Polish includes a11y; axe-cli per page",
+   "Coverage: every wizard step reachable"
+  ]
+ },
+ "L8-P2-MS2::P0-U06": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-business.md",
+   "knowledge/wiki/architecture/dispatcher-machinelive.md",
+   "knowledge/wiki/architecture/frontends/page/fe-page-a3reportpage-1.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "regression-prevention-doctrine",
+   "test-design-real-values"
+  ],
+  "systemImpact": "Capacity Analytics Dashboard — visualizes capacity_all_loads, capacity_bottlenecks, bottleneck_identify across machines. ERP-frontend page.",
+  "csDepth": [
+   "Real-time updates via WebSocket — bound to 1Hz max to avoid render storm",
+   "Bottleneck logic via OPT not Sherpa-like (graph-based topo-sort + critical-path)",
+   "Charts share components from U-U12"
+  ]
+ },
+ "L8-P2-MS2::P0-U07": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-adaptivecontrol.md",
+   "knowledge/wiki/architecture/dispatcher-machinelive.md",
+   "knowledge/wiki/architecture/dispatcher-business.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "regression-prevention-doctrine",
+   "test-design-real-values"
+  ],
+  "systemImpact": "Predictive Maintenance Panel surfaces maint_predict, maint_schedule, maint_alerts — feeds operator preventive maintenance decisions. ERP frontend.",
+  "csDepth": [
+   "Weibull RUL model needs calibration (Bayesian update from outcome)",
+   "Alert deduplication — avoid notification storm",
+   "Per-machine schedule respects scheduled-task discipline"
+  ]
+ },
+ "L8-P2-MS2::P0-U08": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-business.md",
+   "knowledge/wiki/architecture/dispatcher-product.md",
+   "knowledge/wiki/architecture/frontends/page/fe-page-a3reportpage-1.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "regression-prevention-doctrine",
+   "test-design-real-values"
+  ],
+  "systemImpact": "ERP Overview Page — landing for ERP frontend, surfaces capacity + maintenance + quotes + jobs at a glance. Consumes business dispatcher.",
+  "csDepth": [
+   "Dashboard widgets must lazy-load to keep TTI low",
+   "Per-widget refresh cadence respects token economy",
+   "Auth gate — only ERP-role operators see"
+  ]
+ },
+ "L8-P2-MS2::P0-U09": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-business.md",
+   "knowledge/wiki/architecture/frontends/page/fe-page-a3reportpage-1.md",
+   "knowledge/wiki/architecture/dispatcher-product.md"
+  ],
+  "addSeWiki": [
+   "regression-prevention-doctrine",
+   "doc-reflection-rule",
+   "engine-creation-discipline"
+  ],
+  "systemImpact": "ERP frontend layout + nav across Overview, Capacity, Predictive Maintenance, Quote, Reports, Inventory pages.",
+  "csDepth": [
+   "Routing flat for in-page search",
+   "Layout persists per role (operator vs admin)",
+   "Cross-link to SFC + Learning via canonical route names"
+  ]
+ },
+ "L8-P2-MS2::P0-U10": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-business.md",
+   "knowledge/wiki/architecture/dispatcher-export.md",
+   "knowledge/wiki/architecture/dispatcher-product.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "atomic-write-idempotency-patterns",
+   "regression-prevention-doctrine"
+  ],
+  "systemImpact": "Quote PDF Export emits operator-facing quote document — consumes quote_generate + export_render_pdf. Branded per shop_config.",
+  "csDepth": [
+   "PDF render server-side (Puppeteer/playwright) — never client-side (font + perf nightmare)",
+   "Quote total + line items match the underlying quote object byte-for-byte",
+   "PDF metadata includes quote-id for audit linkage"
+  ]
+ },
+ "L8-P2-MS2::P0-U11": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-business.md",
+   "knowledge/wiki/architecture/dispatcher-realtime.md",
+   "knowledge/wiki/architecture/dispatcher-session.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "regression-prevention-doctrine",
+   "atomic-write-idempotency-patterns"
+  ],
+  "systemImpact": "ERP state + WebSocket updates feed real-time capacity/maintenance/quote changes — consumes ws_broadcast, rt_bridge_emit, prism_session.",
+  "csDepth": [
+   "WS state machine: disconnect→backoff→reconnect; persist last-seen-event-id",
+   "Server pushes only deltas, not full state",
+   "Per-user channel isolation to prevent cross-tenant leak"
+  ]
+ },
+ "L8-P2-MS2::P0-U12": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-business.md",
+   "knowledge/wiki/architecture/dispatcher-product.md",
+   "knowledge/wiki/architecture/dispatcher-aireasoning.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "regression-prevention-doctrine",
+   "test-design-real-values"
+  ],
+  "systemImpact": "Report Builder generates operator-defined reports across capacity/maintenance/quality — consumes reporting_dashboard, reporting_pareto, reporting_production.",
+  "csDepth": [
+   "Report definition is a DSL — must be serializable for replay",
+   "Field selection bounded — wild-card reports OOM the DB",
+   "Cache reports by (definition_hash, time_window) for repeat runs"
+  ]
+ },
+ "L8-P2-MS2::P0-U13": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-business.md",
+   "knowledge/wiki/architecture/dispatcher-data.md",
+   "knowledge/wiki/architecture/dispatcher-cam.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "regression-prevention-doctrine",
+   "test-design-real-values"
+  ],
+  "systemImpact": "Tool & Material Inventory pages — consumes tool_inventory_add, material_db_search, inventory_eoq, tool_reorder_alerts. ERP-frontend critical path.",
+  "csDepth": [
+   "EOQ calculation per item — bound by min-order-qty + lead time",
+   "Reorder alert dedupe — one notification per item per day",
+   "Inventory movements append-only ledger (auditable)"
+  ]
+ },
+ "L8-P2-MS2::P0-U14": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-business.md",
+   "knowledge/wiki/architecture/dispatcher-product.md",
+   "knowledge/wiki/architecture/frontends/page/fe-page-a3reportpage-1.md"
+  ],
+  "addSeWiki": [
+   "doc-reflection-rule",
+   "claude-md-as-pointer-index",
+   "regression-prevention-doctrine"
+  ],
+  "systemImpact": "Cross-links ERP frontend to SFC + Learning — consumes the canonical route ledger. Operator can jump from a job to its material lesson.",
+  "csDepth": [
+   "Deep-link state preservation",
+   "Broken link detection via U-VAULT06 pattern",
+   "Sibling to U-FMERGE07 (cross-links survive merge)"
+  ]
+ },
+ "L8-P2-MS2::P0-U15": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-dev.md",
+   "knowledge/wiki/architecture/dispatcher-business.md",
+   "knowledge/wiki/architecture/frontends/page/fe-page-a3reportpage-1.md"
+  ],
+  "addSeWiki": [
+   "test-design-real-values",
+   "regression-prevention-doctrine",
+   "per-file-scrutiny-gate"
+  ],
+  "systemImpact": "ERP testing & polish — Playwright + Vitest exercising the full ERP frontend with real operator flows.",
+  "csDepth": [
+   "Playwright real flows, not mocked",
+   "a11y via axe-cli per page",
+   "Coverage: every route reachable from Overview"
+  ]
+ },
+ "L9-P1-MS1::P0-U06": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-cam.md",
+   "knowledge/wiki/architecture/dispatcher-cad.md",
+   "knowledge/wiki/architecture/dispatcher-integration.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "dispatcher-action-design",
+   "test-design-real-values"
+  ],
+  "systemImpact": "Supporting CAM Engines (Nesting + ToolAssembly + CAMIntegration) — feeds nesting_optimize, tool_assembly, cad_cam_handoff. L9-P1 CAM pipeline foundation.",
+  "csDepth": [
+   "Nesting is NP-hard — heuristics (bottom-left-fill, no-fit polygon) bounded with time",
+   "ToolAssembly collision envelope must stay accurate post-edit (re-compute, don't cache stale)",
+   "CAMIntegration round-trips real .vbk/.mcx-8"
+  ]
+ },
+ "L9-P1-MS1::P0-U07": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-cam.md",
+   "knowledge/wiki/architecture/dispatcher-bridge.md",
+   "knowledge/wiki/architecture/dispatcher-dev.md"
+  ],
+  "addSeWiki": [
+   "dispatcher-action-design",
+   "mcp-tool-design",
+   "regression-prevention-doctrine"
+  ],
+  "systemImpact": "CAM dispatcher wiring + API route — exposes L9-P1 engines via prism_cam actions + REST/gRPC bridge. Consumers: L9 frontend + external CAM tools.",
+  "csDepth": [
+   "API route must be schema-versioned — back-compat over N-1 releases",
+   "Dispatcher action enum size growth — be deliberate",
+   "Auth gate via prism_bridge:validate_key for external callers"
+  ]
+ },
+ "L9-P1-MS1::P0-U08": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-safety.md",
+   "knowledge/wiki/architecture/dispatcher-cam.md",
+   "knowledge/wiki/architecture/dispatcher-guard.md"
+  ],
+  "addSeWiki": [
+   "safety-tier-discipline",
+   "fail-loud-r12-patterns",
+   "test-design-real-values"
+  ],
+  "systemImpact": "Full L9-P1 CAM safety gate — Omega S(x)>=0.70 hard constraint over the wired engines + dispatcher + API route. Must pass before commit.",
+  "csDepth": [
+   "Safety gate enforces collision-check, workholding-check, spindle-power-check",
+   "Real-data E2E required (recurring hermetic-false-green pattern)",
+   "Gate failure must escalate, not silently downgrade"
+  ]
+ },
+ "L9-P2-MS1::P0-U06": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-cam.md",
+   "knowledge/wiki/architecture/frontends/page/fe-page-a3reportpage-1.md",
+   "knowledge/wiki/architecture/dispatcher-product.md"
+  ],
+  "addSeWiki": [
+   "regression-prevention-doctrine",
+   "engine-creation-discipline",
+   "test-design-real-values"
+  ],
+  "systemImpact": "Viewer Controls & Toolbar — operator viz of CAM toolpath in browser. Consumes viz_toolpath, simulation_visualize, toolpath rendering.",
+  "csDepth": [
+   "WebGL-accelerated render; bound polygon count",
+   "Camera controls keyboard-accessible",
+   "Toolpath color encoding (rapid red, feed green, plunge yellow)"
+  ]
+ },
+ "L9-P2-MS1::P0-U07": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/frontends/page/fe-page-a3reportpage-1.md",
+   "knowledge/wiki/architecture/dispatcher-cam.md",
+   "knowledge/wiki/architecture/dispatcher-product.md"
+  ],
+  "addSeWiki": [
+   "regression-prevention-doctrine",
+   "engine-creation-discipline",
+   "test-design-real-values"
+  ],
+  "systemImpact": "Viewer page integration — embeds the viewer in PPG + Learning + ERP frontends via shared component. Sister to U-U12 shared chart components.",
+  "csDepth": [
+   "Component lazy-load (~1MB WebGL bundle)",
+   "Per-page viewer prop drilling — wrap in Context",
+   "Persist camera pose across compact"
+  ]
+ },
+ "L9-P2-MS1::P0-U08": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-dev.md",
+   "knowledge/wiki/architecture/dispatcher-cam.md",
+   "knowledge/wiki/architecture/frontends/page/fe-page-a3reportpage-1.md"
+  ],
+  "addSeWiki": [
+   "test-design-real-values",
+   "regression-prevention-doctrine",
+   "per-file-scrutiny-gate"
+  ],
+  "systemImpact": "Viewer testing — Playwright drives real toolpath flows + screenshot-diff regression.",
+  "csDepth": [
+   "Screenshot-diff per controller/camera-pose combo — false-positive on minor rendering diff",
+   "Coverage: rapid + feed + plunge segments rendered correctly",
+   "a11y: keyboard nav through viewer controls"
+  ]
+ },
+ "LASER-PIPE-MS0::U-LPPI01": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-edm.md",
+   "knowledge/wiki/architecture/dispatcher-orchestrate.md",
+   "knowledge/wiki/architecture/dispatcher-cam.md"
+  ],
+  "addSeWiki": [
+   "schema-read-discipline",
+   "claude-md-as-pointer-index",
+   "regression-prevention-doctrine"
+  ],
+  "systemImpact": "LASER-PIPE-MS0 coordinator placeholder — orchestrates laser-pipeline milestone-0 sub-units.",
+  "csDepth": [
+   "Coordinator-only",
+   "Verify children before planning",
+   "Laser pipe uses edm dispatcher actions (laser_cut_program)"
+  ]
+ },
+ "LASER-PIPE-MS1::U-LPPI01": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-edm.md",
+   "knowledge/wiki/architecture/dispatcher-orchestrate.md",
+   "knowledge/wiki/architecture/dispatcher-cam.md"
+  ],
+  "addSeWiki": [
+   "schema-read-discipline",
+   "claude-md-as-pointer-index",
+   "regression-prevention-doctrine"
+  ],
+  "systemImpact": "LASER-PIPE-MS1 coordinator placeholder — laser-pipeline milestone-1 sub-units.",
+  "csDepth": [
+   "Coordinator-only",
+   "Verify children",
+   "MS1 typically wires MS0 outputs"
+  ]
+ },
+ "LASER-PIPE-MS2::U-LPPI01": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-edm.md",
+   "knowledge/wiki/architecture/dispatcher-orchestrate.md",
+   "knowledge/wiki/architecture/dispatcher-cam.md"
+  ],
+  "addSeWiki": [
+   "schema-read-discipline",
+   "claude-md-as-pointer-index",
+   "regression-prevention-doctrine"
+  ],
+  "systemImpact": "LASER-PIPE-MS2 coordinator placeholder — laser-pipeline milestone-2 sub-units.",
+  "csDepth": [
+   "Coordinator-only",
+   "Verify children",
+   "MS2 chains MS0+MS1"
+  ]
+ },
+ "LATHE-LORA-MS0::U-LLLO05": {
+  "addArchWiki": [],
+  "addSeWiki": [
+   "schema-read-discipline"
+  ],
+  "systemImpact": "Unit lacks a milestone-envelope title; treat as documentation or close-out candidate.",
+  "csDepth": []
+ },
+ "LATHE-LORA-MS0::U-LLLO06": {
+  "addArchWiki": [],
+  "addSeWiki": [
+   "schema-read-discipline"
+  ],
+  "systemImpact": "Unit lacks a milestone-envelope title; treat as documentation or close-out candidate.",
+  "csDepth": []
+ },
+ "LATHE-LORA-MS0::U-LLLO07": {
+  "addArchWiki": [],
+  "addSeWiki": [
+   "schema-read-discipline"
+  ],
+  "systemImpact": "Unit lacks a milestone-envelope title; treat as documentation or close-out candidate.",
+  "csDepth": []
+ },
+ "LATHE-LORA-MS0::U-LLR01": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-turning.md",
+   "knowledge/wiki/architecture/dispatcher-aireasoning.md",
+   "knowledge/wiki/architecture/nn-graph-ms0.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "cron-and-scheduled-task-discipline",
+   "regression-prevention-doctrine"
+  ],
+  "systemImpact": "Port LatheLoRACadenceEngine — controls retraining cadence for lathe LoRA adapters. Sister to NN-GRAPH retrain lifecycle. Consumers: lathe_lora_cadence_state/should_trigger/active_version, lathe_lora_master.",
+  "csDepth": [
+   "Cadence is data-driven (drift detection) not magic cron",
+   "Triggering retrain is expensive — gate via min-delta-pct + max-age-hrs",
+   "Preserve previous adapter for rollback"
+  ]
+ },
+ "LATHE-LORA-MS0::U-LLR02": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-turning.md",
+   "knowledge/wiki/architecture/dispatcher-aireasoning.md",
+   "knowledge/wiki/architecture/nn-graph-ms0.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "regression-prevention-doctrine",
+   "test-design-real-values"
+  ],
+  "systemImpact": "Port LatheLoRAPipelineEngine — end-to-end pipeline (dataset→train→eval→promote) for lathe LoRA. Mirrors NN-GRAPH-MS2/U2 retrain lifecycle.",
+  "csDepth": [
+   "Pipeline must be resumable — checkpoint per stage",
+   "Auto-promote IFF eval passes every gate (NN-GRAPH safety invariant)",
+   "Pure decision fns + injected-deps shell"
+  ]
+ },
+ "LATHE-LORA-MS0::U-LLR03": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-turning.md",
+   "knowledge/wiki/architecture/dispatcher-aireasoning.md",
+   "knowledge/wiki/architecture/dispatcher-dev.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "test-design-real-values",
+   "regression-prevention-doctrine"
+  ],
+  "systemImpact": "Port LatheLoRATrainingScriptEngine — wraps the actual fine-tune subprocess invocation. Consumers: pipeline engine, scheduled-task installer.",
+  "csDepth": [
+   "Subprocess via process.execPath — never bare 'node'",
+   "Capture stdout+stderr for the outcome ledger",
+   "Hyperparameter args from frozen config — never inline"
+  ]
+ },
+ "LATHE-LORA-MS0::U-LLR04": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-turning.md",
+   "knowledge/wiki/architecture/dispatcher-hook.md",
+   "knowledge/wiki/architecture/dispatcher-guard.md"
+  ],
+  "addSeWiki": [
+   "hook-authoring-discipline",
+   "safety-tier-discipline",
+   "regression-prevention-doctrine"
+  ],
+  "systemImpact": "LatheLoRAHooks.ts (training guard) gates accidental training runs in non-training contexts. Hook + dispatcher pair.",
+  "csDepth": [
+   "Guard checks training-allowed signal (PRISM_LATHE_LORA_TRAIN_ALLOWED) — not magic env",
+   "Guard timeout strict — guards must be fast",
+   "Bypass requires audit log"
+  ]
+ },
+ "LATHE-LORA-MS0::U-LLR05": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-turning.md",
+   "knowledge/wiki/architecture/dispatcher-data.md",
+   "knowledge/wiki/architecture/dispatcher-cam.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "memory-curation-discipline",
+   "test-design-real-values"
+  ],
+  "systemImpact": "LatheLoRADatasetBuilderEngine assembles training set from JM-DIE lathe programs + outcome ledger. Consumers: pipeline engine, dataset validator.",
+  "csDepth": [
+   "Customer-disjoint split via cam_ml_split_customer_disjoint",
+   "Outcome ledger join must cap rows for memory",
+   "Dataset versioned by hash for reproducibility"
+  ]
+ },
+ "LATHE-LORA-MS0::U-LLR06": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-turning.md",
+   "knowledge/wiki/architecture/dispatcher-cam.md",
+   "knowledge/wiki/architecture/dispatcher-data.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "schema-read-discipline",
+   "test-design-real-values"
+  ],
+  "systemImpact": "LatheLoRAProgramParserEngine parses Okuma/Fanuc/Mitsubishi lathe NC programs for dataset construction. Consumers: dataset builder, masterpost regression.",
+  "csDepth": [
+   "Per-controller tokenizer — never normalize before classify",
+   "Comment + macro-variable detection separately",
+   "Streaming parse to handle multi-MB programs"
+  ]
+ },
+ "LATHE-LORA-MS0::U-LLR07": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-turning.md",
+   "knowledge/wiki/architecture/dispatcher-data.md",
+   "knowledge/wiki/architecture/dispatcher-cam.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "test-design-real-values",
+   "regression-prevention-doctrine"
+  ],
+  "systemImpact": "LatheLoRAExampleGeneratorEngine emits (prompt, response) training pairs from parsed programs. Consumer: dataset builder.",
+  "csDepth": [
+   "Prompt templates must be deterministic — drift makes adapter inconsistent",
+   "Response includes safety-critical fields — never elide",
+   "Augmentation (paraphrase) bounded to avoid hallucinated G-codes"
+  ]
+ },
+ "LATHE-LORA-MS0::U-LLR08": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-turning.md",
+   "knowledge/wiki/architecture/dispatcher-data.md",
+   "knowledge/wiki/architecture/dispatcher-validate.md"
+  ],
+  "addSeWiki": [
+   "schema-read-discipline",
+   "fail-loud-r12-patterns",
+   "test-design-real-values"
+  ],
+  "systemImpact": "LatheLoRADatasetValidatorEngine catches malformed examples before training — gates dataset before pipeline kicks fine-tune.",
+  "csDepth": [
+   "Validator rejects unparseable G-code, missing units, ambiguous tool numbers",
+   "Stats per-rejection class for operator triage",
+   "Hard gate: no dataset proceeds if reject rate > threshold"
+  ]
+ },
+ "LATHE-LORA-MS0::U-LLR09": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-turning.md",
+   "knowledge/wiki/architecture/dispatcher-aireasoning.md",
+   "knowledge/wiki/architecture/dispatcher-calc.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "test-design-real-values",
+   "regression-prevention-doctrine"
+  ],
+  "systemImpact": "LatheLoRAHyperparameterOptimizerEngine tunes learning rate, LoRA rank, alpha via Bayesian optimization over eval metrics. Consumer: pipeline engine.",
+  "csDepth": [
+   "Bayesian-opt acquisition: EI vs UCB tradeoff — pick by budget",
+   "Bounds on rank to avoid OOM on small GPU",
+   "Outcome captured for transfer to other LoRA pipelines"
+  ]
+ },
+ "LATHE-LORA-MS0::U-LLR10": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-turning.md",
+   "knowledge/wiki/architecture/dispatcher-aireasoning.md",
+   "knowledge/wiki/architecture/dispatcher-cam.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "test-design-real-values",
+   "regression-prevention-doctrine"
+  ],
+  "systemImpact": "LatheLoRATransferStrategyEngine decides when to warm-start from sibling LoRA (mill, wedm) vs from scratch. Consumer: pipeline engine.",
+  "csDepth": [
+   "Transfer similarity metric: domain overlap + corpus distribution distance",
+   "Warm-start risks negative transfer — eval-gate before promoting",
+   "Sister pattern to cam_transfer_pairs"
+  ]
+ },
+ "LATHE-LORA-MS0::U-LLR11": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-turning.md",
+   "knowledge/wiki/architecture/dispatcher-aireasoning.md",
+   "knowledge/wiki/architecture/dispatcher-calc.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "test-design-real-values",
+   "physics-constants-discipline"
+  ],
+  "systemImpact": "LatheLoRARewardShapingEngine designs the training reward function (correctness + safety + cycle-time). Consumer: pipeline engine.",
+  "csDepth": [
+   "Multi-objective reward — weights from xproc_reward_default_weights",
+   "Safety has hard-floor (never below threshold) per safety-tier-discipline",
+   "Reward audit via xproc_reward_audit"
+  ]
+ },
+ "LATHE-LORA-MS0::U-LLR12": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-turning.md",
+   "knowledge/wiki/architecture/dispatcher-monitoring.md",
+   "knowledge/wiki/architecture/dispatcher-dev.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "jsonl-ledger-conventions",
+   "regression-prevention-doctrine"
+  ],
+  "systemImpact": "LatheLoRATrainingMonitorEngine streams metrics (loss, eval-accuracy, GPU-mem) to monitoring + outcome ledger. Consumer: pipeline + operator dashboard.",
+  "csDepth": [
+   "JSONL append-only stream per step",
+   "Bound RSS — long runs leak memory",
+   "Snapshot every N steps to bound recovery work"
+  ]
+ },
+ "LATHE-LORA-MS0::U-LLR13": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-turning.md",
+   "knowledge/wiki/architecture/dispatcher-calc.md",
+   "knowledge/wiki/architecture/dispatcher-validate.md"
+  ],
+  "addSeWiki": [
+   "physics-constants-discipline",
+   "test-design-real-values",
+   "fail-loud-r12-patterns"
+  ],
+  "systemImpact": "LatheLoRAPhysicsEvaluatorEngine cross-checks adapter output against canonical physics (Kienzle, Taylor) — gate before promote.",
+  "csDepth": [
+   "Physics constants from physics/constants.ts (R12)",
+   "Tolerance bands per material — narrow for safety-critical",
+   "Pure decision fn; outcome ledger captures grade"
+  ]
+ },
+ "LATHE-LORA-MS0::U-LLR14": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-turning.md",
+   "knowledge/wiki/architecture/dispatcher-safety.md",
+   "knowledge/wiki/architecture/dispatcher-validate.md"
+  ],
+  "addSeWiki": [
+   "safety-tier-discipline",
+   "fail-loud-r12-patterns",
+   "test-design-real-values"
+  ],
+  "systemImpact": "LatheLoRASafetyEvaluatorEngine runs adapter output through every safety gate (collision, chuck force, spindle power) before promote.",
+  "csDepth": [
+   "Safety gate is veto — single failure blocks promote",
+   "Real-data E2E with known-unsafe inputs to validate veto fires",
+   "Audit log captures veto reason for operator"
+  ]
+ },
+ "LATHE-LORA-MS0::U-LLR15": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-turning.md",
+   "knowledge/wiki/architecture/dispatcher-aireasoning.md",
+   "knowledge/wiki/architecture/dispatcher-validate.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "test-design-real-values",
+   "fail-loud-r12-patterns"
+  ],
+  "systemImpact": "LatheLoRAReasoningEvaluatorEngine grades adapter chain-of-thought quality — gates promote alongside physics + safety evaluators.",
+  "csDepth": [
+   "Reasoning grade via cot_explain heuristics",
+   "Compare to Claude reference reasoning for delta",
+   "Bound reasoning depth to avoid eval cost blowout"
+  ]
+ },
+ "LATHE-LORA-MS0::U-LLR16": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-turning.md",
+   "knowledge/wiki/architecture/dispatcher-dev.md",
+   "knowledge/wiki/architecture/dispatcher-aireasoning.md"
+  ],
+  "addSeWiki": [
+   "test-design-real-values",
+   "regression-prevention-doctrine",
+   "engine-creation-discipline"
+  ],
+  "systemImpact": "LatheLoRABenchmarkSuiteEngine runs the canonical lathe-LoRA benchmark (known programs + expected outputs) — promotion gate.",
+  "csDepth": [
+   "Benchmark cases must be REAL programs — synthetic loses domain shift",
+   "Benchmark hash freeze + version — drift gate",
+   "Output: per-case score + aggregate"
+  ]
+ },
+ "LATHE-LORA-MS0::U-LLR17": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-turning.md",
+   "knowledge/wiki/architecture/dispatcher-aireasoning.md",
+   "knowledge/wiki/architecture/dispatcher-dev.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "test-design-real-values",
+   "regression-prevention-doctrine"
+  ],
+  "systemImpact": "LatheLoRAMergeStrategyEngine merges multiple LoRA adapters (e.g. material-specific + machine-specific) via SLERP or task-arithmetic. Consumer: ensemble inference.",
+  "csDepth": [
+   "Linear weight blend (SLERP) requires careful coefficient calibration",
+   "Test merge preserves both source adapters' competence",
+   "Merge is destructive — preserve source adapters for rollback"
+  ]
+ },
+ "LATHE-LORA-MS0::U-LLR18": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-turning.md",
+   "knowledge/wiki/architecture/dispatcher-aireasoning.md",
+   "knowledge/wiki/architecture/dispatcher-dev.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "test-design-real-values",
+   "regression-prevention-doctrine"
+  ],
+  "systemImpact": "LatheLoRAQuantizationOptimizerEngine produces int8/int4 quantized adapter for low-RAM deployment. Consumer: Ollama deployer.",
+  "csDepth": [
+   "GPTQ vs AWQ tradeoff — measure on benchmark suite",
+   "Bound accuracy delta vs base — fail-loud if >2% drop",
+   "Per-layer quantization sensitivity analysis"
+  ]
+ },
+ "LATHE-LORA-MS0::U-LLR19": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-turning.md",
+   "knowledge/wiki/architecture/dispatcher-data.md",
+   "knowledge/wiki/architecture/dispatcher-infra.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "schema-read-discipline",
+   "regression-prevention-doctrine"
+  ],
+  "systemImpact": "LatheLoRAModelRegistryEngine tracks every trained adapter (training-set hash, hyperparam set, eval score, deployment status). Consumer: pipeline + deployer.",
+  "csDepth": [
+   "Registry write atomic; schemaVersion required",
+   "Index by content-hash + tag",
+   "Surfaces in /system-viz model overlay"
+  ]
+ },
+ "LATHE-LORA-MS0::U-LLR20": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-turning.md",
+   "knowledge/wiki/architecture/dispatcher-aireasoning.md",
+   "knowledge/wiki/architecture/dispatcher-dev.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "test-design-real-values",
+   "regression-prevention-doctrine"
+  ],
+  "systemImpact": "LatheLoRAModelOptimizerEngine post-train optimization (pruning, distillation) — feeds deployer with leaner model. Consumer: pipeline.",
+  "csDepth": [
+   "Pruning preserves safety-critical neurons (heuristic via Fisher info)",
+   "Distillation needs teacher (full Claude/Opus) — token-budget aware",
+   "Bound accuracy delta"
+  ]
+ },
+ "LATHE-LORA-MS0::U-LLR21": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-turning.md",
+   "knowledge/wiki/architecture/dispatcher-aireasoning.md",
+   "knowledge/wiki/architecture/dispatcher-infra.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "atomic-write-idempotency-patterns",
+   "regression-prevention-doctrine"
+  ],
+  "systemImpact": "LatheLoRAOllamaDeployerEngine packages adapter + base model into Ollama modelfile and registers. Consumer: inference gateway.",
+  "csDepth": [
+   "Modelfile generation deterministic — content-hash gate",
+   "Tag includes adapter-version + base-version",
+   "Atomic register + rollback path"
+  ]
+ },
+ "LATHE-LORA-MS0::U-LLR22": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-turning.md",
+   "knowledge/wiki/architecture/dispatcher-aireasoning.md",
+   "knowledge/wiki/architecture/dispatcher-bridge.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "dispatcher-action-design",
+   "regression-prevention-doctrine"
+  ],
+  "systemImpact": "LatheLoRAInferenceGatewayEngine fronts the deployed adapter — handles routing, rate-limit, failover to base model. Consumer: prism_turning + lathe skills.",
+  "csDepth": [
+   "Circuit breaker on adapter failure — fall back to base",
+   "Per-tenant rate limit via prism_bridge",
+   "Inference latency budget enforced"
+  ]
+ },
+ "LATHE-LORA-MS0::U-LLR23": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-turning.md",
+   "knowledge/wiki/architecture/dispatcher-monitoring.md",
+   "knowledge/wiki/architecture/dispatcher-aireasoning.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "jsonl-ledger-conventions",
+   "regression-prevention-doctrine"
+  ],
+  "systemImpact": "LatheLoRAHealthMonitorEngine watches deployed adapter (latency, error rate, drift) — feeds alert + retrain trigger.",
+  "csDepth": [
+   "Drift detector via KS-test on output distribution",
+   "Latency P99 + error rate budget",
+   "Auto-trigger retrain on sustained breach (with cooldown)"
+  ]
+ },
+ "LATHE-LORA-MS0::U-LLR24": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-turning.md",
+   "knowledge/wiki/architecture/dispatcher-validate.md",
+   "knowledge/wiki/architecture/dispatcher-aireasoning.md"
+  ],
+  "addSeWiki": [
+   "test-design-real-values",
+   "fail-loud-r12-patterns",
+   "regression-prevention-doctrine"
+  ],
+  "systemImpact": "LatheLoRAVerificationEngine runs end-to-end verification of deployed adapter against benchmark — sister to NN-GRAPH eval harness.",
+  "csDepth": [
+   "Verification == benchmark replay + drift check",
+   "Outcome captured in jsonl for audit",
+   "Fail-loud on any safety regression"
+  ]
+ },
+ "LATHE-LORA-MS0::U-LLR25": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-turning.md",
+   "knowledge/wiki/architecture/dispatcher-aireasoning.md",
+   "knowledge/wiki/architecture/dispatcher-calc.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "physics-constants-discipline",
+   "test-design-real-values"
+  ],
+  "systemImpact": "LatheLoRAPhysicsAugmentedInferenceEngine wraps adapter inference with physics post-correction (clamp to envelope, Kienzle sanity check). Consumer: inference gateway.",
+  "csDepth": [
+   "Post-correction is bounded — never silently rewrite adapter output",
+   "Physics overlay surfaces correction reason",
+   "Conformal calibration via xproc_conformal_*"
+  ]
+ },
+ "LATHE-LORA-MS0::U-LLR26": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-turning.md",
+   "knowledge/wiki/architecture/dispatcher-aireasoning.md",
+   "knowledge/wiki/architecture/dispatcher-knowledge.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "test-design-real-values",
+   "regression-prevention-doctrine"
+  ],
+  "systemImpact": "LatheLoRAReasoningChainInferenceEngine combines adapter with chain-of-thought scaffolding — sister to cot_reason_tree. Consumer: inference gateway.",
+  "csDepth": [
+   "CoT depth bounded — avoid runaway",
+   "Per-step grade for early-exit",
+   "Chain rationale stored for audit"
+  ]
+ },
+ "LATHE-LORA-MS0::U-LLR27": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-turning.md",
+   "knowledge/wiki/architecture/dispatcher-aireasoning.md",
+   "knowledge/wiki/architecture/dispatcher-adaptivecontrol.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "test-design-real-values",
+   "regression-prevention-doctrine"
+  ],
+  "systemImpact": "LatheLoRAAdaptiveRefinementEngine refines adapter on outcome data without full retrain — online-update style. Sister to xproc_online_update.",
+  "csDepth": [
+   "Update rate bounded — bad batch can corrupt adapter (EWC consolidation needed)",
+   "Outcome filter — only high-confidence (operator-confirmed) outcomes",
+   "Rollback path if refinement degrades benchmark"
+  ]
+ },
+ "LATHE-LORA-MS0::U-LLR28": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-turning.md",
+   "knowledge/wiki/architecture/dispatcher-knowledge.md",
+   "knowledge/wiki/architecture/dispatcher-aireasoning.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "memory-curation-discipline",
+   "regression-prevention-doctrine"
+  ],
+  "systemImpact": "LatheLoRATribalAugmentationEngine injects tribal knowledge (3,700+ machinist tips) into adapter inference context — sister to tribal-by-domain-inject hook.",
+  "csDepth": [
+   "Top-K tribal tips by relevance — bound context tokens",
+   "Tribal hits ranked via xproc_active_select",
+   "Audit per-inference which tips were injected"
+  ]
+ },
+ "LATHE-LORA-MS0::U-LLR29": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-turning.md",
+   "knowledge/wiki/architecture/dispatcher-aireasoning.md",
+   "knowledge/wiki/architecture/nn-graph-ms0.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "regression-prevention-doctrine",
+   "fail-loud-r12-patterns"
+  ],
+  "systemImpact": "LatheLoRADriftDetectorEngine detects distribution drift in adapter inputs — triggers retrain cadence. Sister to NN-GRAPH drift detection.",
+  "csDepth": [
+   "Drift signal: KS-test + cosine-similarity",
+   "Bounded false-positive rate via min-sample-count",
+   "Output: drift score + recommended action"
+  ]
+ },
+ "LATHE-LORA-MS0::U-LLR30": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-turning.md",
+   "knowledge/wiki/architecture/dispatcher-aireasoning.md",
+   "knowledge/wiki/architecture/dispatcher-adaptivecontrol.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "regression-prevention-doctrine",
+   "test-design-real-values"
+  ],
+  "systemImpact": "LatheLoRAContinualLearningEngine adapts adapter to new shop data over time — EWC consolidation to prevent catastrophic forgetting. Sister to xproc_ewc_consolidate.",
+  "csDepth": [
+   "EWC Fisher info update via xproc_ewc_compute_fisher",
+   "Replay buffer balances new+old samples",
+   "Rollback path if catastrophic forgetting detected"
+  ]
+ },
+ "LATHE-LORA-MS0::U-LLR31": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-turning.md",
+   "knowledge/wiki/architecture/dispatcher-orchestrate.md",
+   "knowledge/wiki/architecture/dispatcher-aireasoning.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "cron-and-scheduled-task-discipline",
+   "regression-prevention-doctrine"
+  ],
+  "systemImpact": "LatheLoRACadenceOrchestratorEngine coordinates retrain cadence across multiple LoRAs (mill, lathe, wedm) — global scheduler.",
+  "csDepth": [
+   "Cross-LoRA priority + GPU contention scheduling",
+   "Lockfile to serialize retrains",
+   "Outcome: retrain plan with start times"
+  ]
+ },
+ "LATHE-LORA-MS0::U-LLR32": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-turning.md",
+   "knowledge/wiki/architecture/dispatcher-infra.md",
+   "knowledge/wiki/architecture/dispatcher-dev.md"
+  ],
+  "addSeWiki": [
+   "cron-and-scheduled-task-discipline",
+   "regression-prevention-doctrine",
+   "test-design-real-values"
+  ],
+  "systemImpact": "LatheLoRACronJobEngine ties to Windows scheduled task — runs cadence orchestrator on schedule. Sister to NN-GRAPH retrain lifecycle installer.",
+  "csDepth": [
+   "Scheduled task installer follows fleet-reaper SYSTEM-principal pattern",
+   "PID lockfile prevents overlapping runs",
+   "Knob to disable for emergency"
+  ]
+ },
+ "LATHE-LORA-MS0::U-LLR33": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-turning.md",
+   "knowledge/wiki/architecture/dispatcher-aireasoning.md",
+   "knowledge/wiki/architecture/nn-graph-ms0.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "test-design-real-values",
+   "regression-prevention-doctrine"
+  ],
+  "systemImpact": "LatheLoRANeuralBridgeEngine glues adapter output into KnowledgeGraphNeuralBridgeEngine — feeds wiring-inference cascade tier-5 with lathe-domain examples.",
+  "csDepth": [
+   "Bridge schema must align with NN-GRAPH feature dim (768d from NN-1)",
+   "Embedding pulled via prism_memory:embed_text",
+   "Bridge update is online — incremental, not full rebuild"
+  ]
+ },
+ "LATHE-LORA-MS0::U-LLR34": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-turning.md",
+   "knowledge/wiki/architecture/dispatcher-aireasoning.md",
+   "knowledge/wiki/architecture/dispatcher-monitoring.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "test-design-real-values",
+   "regression-prevention-doctrine"
+  ],
+  "systemImpact": "LatheLoRAAttentionAnalyzerEngine inspects adapter attention patterns — surfaces which tokens influence which outputs. Sister to xproc_attention_explain.",
+  "csDepth": [
+   "Attention extraction needs model hook — handle quantized models",
+   "ECE calibration via xproc_attention_ece",
+   "Baseline drift detection via baseline_add/anomaly"
+  ]
+ },
+ "LATHE-LORA-MS0::U-LLR35": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-turning.md",
+   "knowledge/wiki/architecture/dispatcher-aireasoning.md",
+   "knowledge/wiki/architecture/dispatcher-memory.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "atomic-write-idempotency-patterns",
+   "regression-prevention-doctrine"
+  ],
+  "systemImpact": "LatheLoRAEmbeddingCacheEngine caches embeddings for frequent prompts — reduces inference latency. Consumer: inference gateway.",
+  "csDepth": [
+   "LRU eviction policy + bounded RSS",
+   "Cache key = (prompt_hash + adapter_version)",
+   "Persistence optional — warm cache via prewarm"
+  ]
+ },
+ "LATHE-LORA-MS0::U-LLR36": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-turning.md",
+   "knowledge/wiki/architecture/dispatcher-aireasoning.md",
+   "knowledge/wiki/architecture/dispatcher-orchestrate.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "test-design-real-values",
+   "regression-prevention-doctrine"
+  ],
+  "systemImpact": "LatheLoRANeuralOrchestratorEngine coordinates neural-inference path (adapter, retrieval, reasoning) — meta layer over the inference engines.",
+  "csDepth": [
+   "Orchestration plan must be deterministic for replay",
+   "Per-stage timeout — never block on slow inference forever",
+   "Outcome captured for adaptive routing"
+  ]
+ },
+ "LATHE-LORA-MS0::U-LLR37": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-turning.md",
+   "knowledge/wiki/architecture/dispatcher-knowledge.md",
+   "knowledge/wiki/architecture/dispatcher-aireasoning.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "memory-curation-discipline",
+   "test-design-real-values"
+  ],
+  "systemImpact": "LatheLoRAKnowledgeExtractorEngine pulls structured knowledge (operator macros, common patterns) from adapter via prompted introspection. Consumer: knowledge graph.",
+  "csDepth": [
+   "Extraction must be deterministic (temperature 0)",
+   "Validate extracted facts against canonical material/tool DB",
+   "Append to knowledge graph idempotently"
+  ]
+ },
+ "LATHE-LORA-MS0::U-LLR38": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-turning.md",
+   "knowledge/wiki/architecture/dispatcher-aireasoning.md",
+   "knowledge/wiki/architecture/dispatcher-context.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "memory-curation-discipline",
+   "test-design-real-values"
+  ],
+  "systemImpact": "LatheLoRASemanticContextEngine assembles per-query semantic context (relevant tribal tips, prior outcomes, machine state). Sister to subagent-per-task-presearch.",
+  "csDepth": [
+   "Top-K retrieval by cosine to query embed",
+   "Bound context tokens to fit adapter window",
+   "Mix tribal + outcome + state per priority"
+  ]
+ },
+ "LATHE-LORA-MS0::U-LLR39": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-turning.md",
+   "knowledge/wiki/architecture/dispatcher-aireasoning.md",
+   "knowledge/wiki/architecture/dispatcher-memory.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "jsonl-ledger-conventions",
+   "atomic-write-idempotency-patterns"
+  ],
+  "systemImpact": "LatheLoRAExperienceLedgerEngine append-only log of (input, output, outcome, reward) — feeds continual learning + reward shaping.",
+  "csDepth": [
+   "Append-only JSONL with schemaVersion + rotation at 512KB",
+   "Outcome attached asynchronously when operator/M30 confirms",
+   "Bound RSS via streaming reader"
+  ]
+ },
+ "LATHE-LORA-MS0::U-LLR40": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-turning.md",
+   "knowledge/wiki/architecture/dispatcher-aireasoning.md",
+   "knowledge/wiki/architecture/dispatcher-knowledge.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "memory-curation-discipline",
+   "regression-prevention-doctrine"
+  ],
+  "systemImpact": "LatheLoRAKnowledgeFusionEngine fuses adapter knowledge into PRISM knowledge graph — adapter learnings become first-class wiki/tribal entries.",
+  "csDepth": [
+   "Fusion conflict resolution (R7 — pick more-recent + more-tested)",
+   "Confidence threshold for promotion to wiki",
+   "Audit log of every fusion"
+  ]
+ },
+ "LATHE-LORA-MS0::U-LLR41": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-turning.md",
+   "knowledge/wiki/architecture/dispatcher-aireasoning.md",
+   "knowledge/wiki/architecture/dispatcher-orchestrate.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "test-design-real-values",
+   "regression-prevention-doctrine"
+  ],
+  "systemImpact": "LatheLoRAEnsembleInferenceEngine runs adapter + base + sibling adapter in ensemble, votes on output — robustness via xproc_ensemble_predict pattern.",
+  "csDepth": [
+   "Voting strategy: confidence-weighted majority",
+   "Cost-aware — ensemble cost = N×base; gate to high-value queries",
+   "Disagreement triggers human-in-loop via xproc_ensemble_disagreement"
+  ]
+ },
+ "LATHE-LORA-MS0::U-LLR42": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-turning.md",
+   "knowledge/wiki/architecture/dispatcher-aireasoning.md",
+   "knowledge/wiki/architecture/dispatcher-adaptivecontrol.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "test-design-real-values",
+   "regression-prevention-doctrine"
+  ],
+  "systemImpact": "LatheLoRAMetaAdaptationEngine adapts adapter to NEW task quickly via MAML — sister to xproc_maml_meta_train.",
+  "csDepth": [
+   "Meta-train requires task distribution — pull from outcome ledger",
+   "Inner-loop adaptation bounded steps",
+   "Gradient stability: clip to prevent explosion"
+  ]
+ },
+ "LATHE-LORA-MS0::U-LLR43": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-turning.md",
+   "knowledge/wiki/architecture/dispatcher-calc.md",
+   "knowledge/wiki/architecture/dispatcher-aireasoning.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "test-design-real-values",
+   "fail-loud-r12-patterns"
+  ],
+  "systemImpact": "LatheLoRAUncertaintyQuantifierEngine emits per-prediction confidence (conformal/Bayesian/ensemble disagreement). Consumer: safety gate, operator UI.",
+  "csDepth": [
+   "Conformal calibration via xproc_conformal_calibrate — needs calibration set",
+   "Coverage guarantee depends on iid assumption — violate at risk",
+   "Uncertainty surfaced in dispatcher output"
+  ]
+ },
+ "LATHE-LORA-MS0::U-LLR44": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-turning.md",
+   "knowledge/wiki/architecture/dispatcher-aireasoning.md",
+   "knowledge/wiki/architecture/dispatcher-orchestrate.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "test-design-real-values",
+   "regression-prevention-doctrine"
+  ],
+  "systemImpact": "LatheLoRAModelSelectionEngine picks adapter version per query (material-specific vs general) — sister to cam_lora_select.",
+  "csDepth": [
+   "Selection by query features + model card metadata",
+   "Fall back to general adapter if no specific match",
+   "Audit which adapter served each query"
+  ]
+ },
+ "LATHE-LORA-MS0::U-LLR45": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-turning.md",
+   "knowledge/wiki/architecture/dispatcher-aireasoning.md",
+   "knowledge/wiki/architecture/dispatcher-orchestrate.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "test-design-real-values",
+   "regression-prevention-doctrine"
+  ],
+  "systemImpact": "LatheLoRAMasterOrchestratorEngine top-level orchestrator for all 44 sibling lathe-LoRA engines — coordinates training, eval, deploy, inference, monitor.",
+  "csDepth": [
+   "Orchestrator is stateful — sub-system transitions captured",
+   "Health summary aggregates child engine health",
+   "Initialize idempotent"
+  ]
+ },
+ "LATHE-LORA-MS0::U-LLR46": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/skills/project/lathe-lora.md",
+   "knowledge/wiki/architecture/dispatcher-turning.md",
+   "knowledge/wiki/architecture/skills/project/lathe-studio.md"
+  ],
+  "addSeWiki": [
+   "claude-md-as-pointer-index",
+   "doc-reflection-rule",
+   "engine-creation-discipline"
+  ],
+  "systemImpact": "/lathe-lora skill — operator entry-point to the lathe-LoRA pipeline (train, eval, deploy, query). Body ≤200 lines per pointer-index doctrine.",
+  "csDepth": [
+   "Frontmatter validates via command-frontmatter.schema.json",
+   "Triggers must not collide with /lathe-studio + /lathe-master-post",
+   "Body links into the master orchestrator action"
+  ]
+ },
+ "LATHE-LORA-MS0::U-LLR48": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-dev.md",
+   "knowledge/wiki/architecture/dispatcher-turning.md",
+   "knowledge/wiki/architecture/dispatcher-validate.md"
+  ],
+  "addSeWiki": [
+   "test-design-real-values",
+   "regression-prevention-doctrine",
+   "per-file-scrutiny-gate"
+  ],
+  "systemImpact": "Comprehensive test suite for LATHE-LORA-MS0 — exercises every engine in the 44-engine wave with real lathe programs.",
+  "csDepth": [
+   "Per-engine REAL-DATA test (not all hermetic)",
+   "End-to-end pipeline test from dataset to inference",
+   "Per-file 2-reviewer gate per multi-file discipline"
+  ]
+ },
+ "LATHE-MASTER::U-LTH01": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-turning.md",
+   "knowledge/wiki/architecture/dispatcher-dev.md",
+   "knowledge/wiki/architecture/dispatcher-data.md"
+  ],
+  "addSeWiki": [
+   "regression-prevention-doctrine",
+   "schema-read-discipline",
+   "test-design-real-values"
+  ],
+  "systemImpact": "Lathe Engine Inventory Reconciliation cross-refs lathe engines on disk vs roadmap + BUILD_STATE — surfaces unwired/orphan/stub engines.",
+  "csDepth": [
+   "Reconciliation uses dev_engine_util_audit",
+   "Cross-ref shipped commits (subject [LATHE-*] patterns)",
+   "Output drives FEATURE-GAP-AUDIT-MS0::U-WIRE-BACKLOG-LATHE"
+  ]
+ },
+ "LATHE-MASTER::U-LTH02": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-turning.md",
+   "knowledge/wiki/architecture/dispatcher-dev.md",
+   "knowledge/wiki/architecture/dispatcher-hook.md"
+  ],
+  "addSeWiki": [
+   "dispatcher-action-design",
+   "mcp-tool-design",
+   "regression-prevention-doctrine"
+  ],
+  "systemImpact": "Dispatcher wiring audit for lathe actions — surfaces actions registered in prism_turning that lack engine backing, and engines that lack action backing.",
+  "csDepth": [
+   "Audit via dispatcher-coverage skill + dev_audit_unwired_engines",
+   "Per-action smoke test through dispatcher round-trip",
+   "Output: per-action wiring health"
+  ]
+ },
+ "LATHE-MASTER::U-LTH03": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-turning.md",
+   "knowledge/wiki/architecture/dispatcher-dev.md",
+   "knowledge/wiki/architecture/dispatcher-validate.md"
+  ],
+  "addSeWiki": [
+   "test-design-real-values",
+   "regression-prevention-doctrine",
+   "fail-loud-r12-patterns"
+  ],
+  "systemImpact": "Lathe test coverage sweep ensures every lathe engine has a vitest companion — gates by test-coverage skill threshold.",
+  "csDepth": [
+   "Coverage = engines-with-tests / total-engines",
+   "Test must be real-value (no toBeDefined stubs)",
+   "Per-file 2-reviewer gate per multi-file"
+  ]
+ },
+ "LATHE-MASTER::U-LTH04": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-turning.md",
+   "knowledge/wiki/architecture/dispatcher-calc.md",
+   "knowledge/wiki/architecture/dispatcher-guard.md"
+  ],
+  "addSeWiki": [
+   "physics-constants-discipline",
+   "fail-loud-r12-patterns",
+   "regression-prevention-doctrine"
+  ],
+  "systemImpact": "Physics constants inline-usage sweep for lathe engines — finds any inlined Kienzle/Taylor/material constant that should import from physics/constants.ts. R12 safety rail.",
+  "csDepth": [
+   "Sweep via grep + AST to catch numeric literal vs named constant",
+   "Migrate each inline to import, preserve value byte-for-byte",
+   "Test invariance — same outputs pre+post migration"
+  ]
+ },
+ "LATHE-MASTER::U-LTH04b": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-turning.md",
+   "knowledge/wiki/architecture/dispatcher-data.md",
+   "knowledge/wiki/architecture/dispatcher-calc.md"
+  ],
+  "addSeWiki": [
+   "physics-constants-discipline",
+   "schema-read-discipline",
+   "regression-prevention-doctrine"
+  ],
+  "systemImpact": "Extends CANONICAL_MATERIAL_DB + migrates 3 engines off inline material tables — concrete sibling of U-LTH04. Closes documented material-table drift class (commits 4eb6ce33b + f24d9a3c0).",
+  "csDepth": [
+   "Migration via context-adapter (MaterialEntry→Context) preserves call sites",
+   "DB count test bumped explicitly (13→15 lesson)",
+   "ISO group canonical mapping"
+  ]
+ },
+ "LATHE-MASTER::U-LTH05": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-turning.md",
+   "knowledge/wiki/architecture/dispatcher-knowledge.md",
+   "knowledge/wiki/architecture/dispatcher-data.md"
+  ],
+  "addSeWiki": [
+   "memory-curation-discipline",
+   "schema-read-discipline",
+   "regression-prevention-doctrine"
+  ],
+  "systemImpact": "Knowledge source completeness check — for lathe domain, every wiki entry has a memory + every memory has a wiki + every skill cross-triggers a wiki. Feeds U-VAULT04.",
+  "csDepth": [
+   "Coverage matrix per source-type",
+   "Drift via U-VAULT06 vault-rot sentinel",
+   "Fix path: promote/archive per memory-curation-discipline"
+  ]
+ },
+ "LATHE-MASTER::U-LTH06": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-turning.md",
+   "knowledge/wiki/architecture/dispatcher-dev.md",
+   "knowledge/wiki/architecture/dispatcher-doc.md"
+  ],
+  "addSeWiki": [
+   "regression-prevention-doctrine",
+   "atomic-write-idempotency-patterns",
+   "claude-md-as-pointer-index"
+  ],
+  "systemImpact": "Legacy envelope archival — moves superseded lathe milestone envelopes to _archive/ per never-delete-only-disable doctrine.",
+  "csDepth": [
+   "Archive path convention preserves git history (git mv)",
+   "Cross-ref update: roadmap-index entries point at archive path",
+   "MILESTONE_PROGRESS regen post-archive"
+  ]
+ },
+ "LATHE-MASTER::U-LTH07": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-turning.md",
+   "knowledge/wiki/architecture/dispatcher-calc.md",
+   "knowledge/wiki/architecture/dispatcher-cam.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "physics-constants-discipline",
+   "test-design-real-values"
+  ],
+  "systemImpact": "LatheSpeedFeedCalculatorFacadeEngine wraps the lathe SF calc cascade behind a stable interface — sister to LatheSpeedFeedDeepLearningAdvisor + ReasoningBridge.",
+  "csDepth": [
+   "Facade hides cascade details — caller sees one API",
+   "Backward-compat as cascade evolves",
+   "Physics constants import (R12)"
+  ]
+ },
+ "LATHE-MASTER::U-LTH08": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-turning.md",
+   "knowledge/wiki/architecture/dispatcher-aireasoning.md",
+   "knowledge/wiki/architecture/dispatcher-calc.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "test-design-real-values",
+   "regression-prevention-doctrine"
+  ],
+  "systemImpact": "LatheSpeedFeedDeepLearningAdvisorEngine is the DL layer of the lathe SF cascade — feeds the facade with neural prediction over physics baseline.",
+  "csDepth": [
+   "DL prediction has uncertainty — emit per-prediction confidence",
+   "Fall back to physics if confidence below threshold",
+   "Conformal calibrated"
+  ]
+ },
+ "LATHE-MASTER::U-LTH09": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-turning.md",
+   "knowledge/wiki/architecture/dispatcher-aireasoning.md",
+   "knowledge/wiki/architecture/dispatcher-knowledge.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "test-design-real-values",
+   "regression-prevention-doctrine"
+  ],
+  "systemImpact": "LatheSpeedFeedReasoningBridgeEngine connects SF facade to chain-of-thought reasoning — emits human-readable rationale for each recommendation.",
+  "csDepth": [
+   "Reasoning bounded depth",
+   "Per-step grade for early exit",
+   "Rationale stored in outcome ledger"
+  ]
+ },
+ "LATHE-MASTER::U-LTH10": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-turning.md",
+   "knowledge/wiki/architecture/dispatcher-calc.md",
+   "knowledge/wiki/architecture/dispatcher-bridge.md"
+  ],
+  "addSeWiki": [
+   "dispatcher-action-design",
+   "mcp-tool-design",
+   "regression-prevention-doctrine"
+  ],
+  "systemImpact": "Dispatcher wiring for SpeedFeed calculator — exposes the facade via prism_turning:lathe_sf_* actions and prism_calc:speed_feed sibling. Consumers: /auto-speed-feed-lathe skill.",
+  "csDepth": [
+   "Action enum size guard — keep prism_turning under perf cliff",
+   "Round-trip test through MCP, not just engine call",
+   "Schema versioned"
+  ]
+ },
+ "LATHE-MASTER::U-LTH100": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-turning.md",
+   "knowledge/wiki/architecture/dispatcher-monitoring.md",
+   "knowledge/wiki/architecture/dispatcher-business.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "schema-read-discipline",
+   "jsonl-ledger-conventions"
+  ],
+  "systemImpact": "LatheTelemetrySummaryEngine extends outcome schema with telemetry rollup — feeds /lathe-ai dashboard + LatheActualFeedbackTuningEngine consumer.",
+  "csDepth": [
+   "Outcome schema extension MUST be back-compat (v→v+1 dual-read)",
+   "Rollup window configurable; bound RSS",
+   "Per-machine telemetry isolation"
+  ]
+ },
+ "LATHE-MASTER::U-LTH101": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-turning.md",
+   "knowledge/wiki/architecture/dispatcher-hook.md",
+   "knowledge/wiki/architecture/dispatcher-machinelive.md"
+  ],
+  "addSeWiki": [
+   "hook-authoring-discipline",
+   "engine-creation-discipline",
+   "regression-prevention-doctrine"
+  ],
+  "systemImpact": "OnM30AutoCompleteOutcomeHook fires when machine M30 detected (program end) — auto-completes outcome record. Consumer: outcome ledger.",
+  "csDepth": [
+   "Hook listens to MTConnect/OPC-UA stream",
+   "Idempotent: M30 detected twice → one outcome row",
+   "Operator override path for false-positive M30"
+  ]
+ },
+ "LATHE-MASTER::U-LTH102": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-turning.md",
+   "knowledge/wiki/architecture/dispatcher-adaptivecontrol.md",
+   "knowledge/wiki/architecture/dispatcher-aireasoning.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "regression-prevention-doctrine",
+   "test-design-real-values"
+  ],
+  "systemImpact": "Wire LatheActualFeedbackTuningEngine consumer — turns telemetry summaries into adapter-tuning signal. Consumer: lathe-LoRA refinement.",
+  "csDepth": [
+   "Tuning signal must avoid feedback loops — use exponential moving average",
+   "Bound learning rate",
+   "Drift detection upstream of tuning"
+  ]
+ },
+ "LATHE-MASTER::U-LTH103": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/skills/project/forge-triple.md",
+   "knowledge/wiki/architecture/dispatcher-turning.md",
+   "knowledge/wiki/architecture/dispatcher-machinelive.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "dispatcher-action-design",
+   "hook-authoring-discipline"
+  ],
+  "systemImpact": "Forge-triple for live telemetry — emits engine + skill + hook triple for the live-telemetry path. Consumer: operator dashboard.",
+  "csDepth": [
+   "Forge-triple is the canonical 3-piece pattern (engine + skill + hook)",
+   "Each piece validated by its own gate",
+   "Cross-trigger via U-VAULT04 registry"
+  ]
+ },
+ "LATHE-MASTER::U-LTH104": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-turning.md",
+   "knowledge/wiki/architecture/dispatcher-cad.md",
+   "knowledge/wiki/architecture/dispatcher-calc.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "test-design-real-values",
+   "physics-constants-discipline"
+  ],
+  "systemImpact": "LatheManifoldXZPolygonEngine wraps manifold-3d for 2D XZ polygon operations at 2ms/op — feeds lathe revolution profile + stock model. Consumer: lathe print-to-program.",
+  "csDepth": [
+   "manifold-3d native binding — measure cold-load",
+   "2ms/op budget per spec — perf test in CI",
+   "Polygon orientation (CW vs CCW) must be invariant"
+  ]
+ },
+ "LATHE-MASTER::U-LTH105": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-turning.md",
+   "knowledge/wiki/architecture/dispatcher-calc.md",
+   "knowledge/wiki/architecture/dispatcher-safety.md"
+  ],
+  "addSeWiki": [
+   "physics-constants-discipline",
+   "engine-creation-discipline",
+   "safety-tier-discipline"
+  ],
+  "systemImpact": "LathePerBlockPhysicsEngine computes Kienzle + thermal + deflection + stability per G-code block at 8ms/block — feeds lathe simulator + safety gates.",
+  "csDepth": [
+   "Per-block budget 8ms — streaming + memoization needed for 10k-block programs",
+   "Physics constants from physics/constants.ts (R12)",
+   "Stability lobe lookup is the expensive step — cache by (tool, holder, material)"
+  ]
+ }
+}

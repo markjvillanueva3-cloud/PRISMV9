@@ -94,7 +94,7 @@ const REGISTRY: ReadonlyMap<CADSystemId, AdapterEntry> = new Map<
       cadSystem: "mastercam",
       async get() {
         const mod = await import("./MastercamCodeGeneratorEngine.js");
-        return mod.mastercamCADGeneratorAdapter;
+        return mod.mastercamCodeGeneratorEngine;
       },
       description: "Mastercam NetHook3 C# emission (mm + deg native, license-gated)",
       canBuildScriptInTest: true,

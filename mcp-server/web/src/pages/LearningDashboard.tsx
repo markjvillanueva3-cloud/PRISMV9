@@ -7,6 +7,7 @@ import { useNavigate } from 'react-router-dom';
 import { useProgress, useRecommend } from '../hooks/useLearning';
 import { useLearningCourseRegistry } from '../hooks/useLearningCourseRegistry';
 import { useCourses } from '../hooks/useCourses';
+import { useStudentId } from '../hooks/useStudentId';
 import { SPECIALIZATION_TRACKS, TOTAL_DURATION_MIN, TOTAL_LESSONS } from '../data/academy';
 import { LoadingState } from '../components/LoadingState';
 import { ErrorState } from '../components/ErrorState';
@@ -40,7 +41,7 @@ export function LearningDashboard() {
     fetchProgress,
   } = useProgress();
   const { recommendations, loading: rLoading, fetchRecommendations } = useRecommend();
-  const { stats: academyStats } = useCourses();
+  const { stats: academyStats } = useCourses(useStudentId());
   const courseRegistry = useLearningCourseRegistry();
   const [learningSnapshot, setLearningSnapshot] = useState<PlatformLearningSnapshot | null>(null);
 
@@ -166,7 +167,7 @@ export function LearningDashboard() {
               <div className="text-xs font-semibold uppercase tracking-[0.24em] text-slate-500">Learning system</div>
               <h2 className="mt-2 text-2xl font-semibold text-slate-900">Shop-specific learning with network lift</h2>
               <p className="mt-2 max-w-4xl text-sm leading-6 text-slate-600">
-                Every shop should get smarter from its own work first, while privacy-safe shared outcomes improve the full PRISM platform over time.
+                Every shop should get smarter from its own work first, while privacy-safe shared outcomes improve the full Kienzle platform over time.
               </p>
             </div>
             <div className="rounded-2xl border border-prism-200 bg-prism-50 px-4 py-2 text-sm font-medium text-prism-700">
@@ -240,7 +241,7 @@ export function LearningDashboard() {
             <div className="text-xs font-semibold uppercase tracking-[0.24em] text-slate-500">Mounted course progression</div>
             <h2 className="mt-2 text-2xl font-semibold text-slate-900">Live course registry and enrollments</h2>
             <p className="mt-2 max-w-4xl text-sm leading-6 text-slate-600">
-              The academy lesson tree is still richer than the mounted backend course model, so PRISM now layers live published-course and enrollment signals on top of the static curriculum instead of pretending the two models are identical.
+              The academy lesson tree is still richer than the mounted backend course model, so Kienzle now layers live published-course and enrollment signals on top of the static curriculum instead of pretending the two models are identical.
             </p>
           </div>
           <div className="flex items-center gap-3">

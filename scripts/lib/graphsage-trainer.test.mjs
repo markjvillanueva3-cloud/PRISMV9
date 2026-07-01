@@ -21,9 +21,12 @@ import {
   bceLoss,
   rocAuc,
   sampleNegativeEdges,
+  positiveTypeMarginal,
+  sampleStratifiedNegativeEdges,
   computeLossAndGradients,
   train,
 } from "./graphsage-trainer.mjs";
+import { mulberry32 } from "./graph-random-walk.mjs";
 
 const mean = (a) => a.reduce((x, y) => x + y, 0) / a.length;
 
@@ -423,5 +426,191 @@ describe("R9 — link prediction learns to separate edges from non-edges", () =>
     }
     const auc = rocAuc(scores, labels);
     assert.ok(auc > 0.6, `post-training link-prediction AUC ${auc} must beat random (0.5)`);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// U-NN-TRAINER-EXPORT-RESTORE (2026-05-23, slot golf) — stratified negative
+// sampling. Restored after the 2026-05-21 ship (629190e6c9) was overwritten by
+// a later edit that dropped the producers, leaving graphsage-train-pipeline's
+// import unsatisfiable. Tests pin both producers + edgeSet rejection +
+// marginal weighting + hard/cross-type pHard branch + adversarial guards.
+// ---------------------------------------------------------------------------
+
+const NUL = String.fromCharCode(0);
+const ek = (a, b) => (a < b ? a + NUL + b : b + NUL + a);
+
+describe("positiveTypeMarginal", () => {
+  it("counts endpoint types from [u,v] array edges", () => {
+    const nodeType = new Map([
+      ["a", "engine"], ["b", "engine"], ["c", "dispatcher"], ["d", "dispatcher"],
+    ]);
+    const m = positiveTypeMarginal([["a", "b"], ["c", "d"]], nodeType);
+    assert.equal(m.get("engine"), 2);
+    assert.equal(m.get("dispatcher"), 2);
+    assert.equal(m.size, 2);
+  });
+
+  it("accepts {u,v} object edges (pipeline + trainer shape parity)", () => {
+    const nodeType = new Map([["a", "x"], ["b", "y"]]);
+    const m = positiveTypeMarginal([{ u: "a", v: "b" }], nodeType);
+    assert.equal(m.get("x"), 1);
+    assert.equal(m.get("y"), 1);
+  });
+
+  it("counts a shared endpoint once per edge it appears in", () => {
+    const nodeType = new Map([["hub", "h"], ["a", "h"], ["b", "h"]]);
+    const m = positiveTypeMarginal([["hub", "a"], ["hub", "b"]], nodeType);
+    assert.equal(m.get("h"), 4);
+  });
+
+  it("skips endpoints with no type in the map", () => {
+    const nodeType = new Map([["a", "t"]]);
+    const m = positiveTypeMarginal([["a", "b"]], nodeType);
+    assert.equal(m.get("t"), 1);
+    assert.equal(m.size, 1);
+  });
+
+  it("empty edge list -> empty Map (boundary)", () => {
+    const m = positiveTypeMarginal([], new Map([["a", "t"]]));
+    assert.ok(m instanceof Map);
+    assert.equal(m.size, 0);
+  });
+
+  it("non-array trainEdges -> empty Map (failure mode, fail-soft)", () => {
+    assert.equal(positiveTypeMarginal(null, new Map([["a", "t"]])).size, 0);
+    assert.equal(positiveTypeMarginal(undefined, new Map([["a", "t"]])).size, 0);
+    assert.equal(positiveTypeMarginal("a-b", new Map([["a", "t"]])).size, 0);
+  });
+
+  it("non-Map nodeType -> empty Map (failure mode, fail-soft)", () => {
+    assert.equal(positiveTypeMarginal([["a", "b"]], null).size, 0);
+    assert.equal(positiveTypeMarginal([["a", "b"]], { a: "t" }).size, 0);
+  });
+
+  it("skips malformed edge entries (adversarial: short array, null, scalar)", () => {
+    const nodeType = new Map([["a", "t"], ["b", "t"]]);
+    const m = positiveTypeMarginal(
+      [["a"], null, 42, ["a", "b"], { u: "a" }], nodeType,
+    );
+    assert.equal(m.get("t"), 3);
+  });
+});
+
+describe("sampleStratifiedNegativeEdges", () => {
+  const ids = ["a", "b", "c", "d", "e", "f"];
+  const nodeType = new Map([
+    ["a", "X"], ["b", "X"], ["c", "X"],
+    ["d", "Y"], ["e", "Y"], ["f", "Y"],
+  ]);
+  const typeMarginal = new Map([["X", 3], ["Y", 3]]);
+
+  it("no nodeType -> byte-identical to sampleNegativeEdges (legacy parity)", () => {
+    const edgeSet = new Set([ek("a", "b")]);
+    const legacy = sampleNegativeEdges(ids, edgeSet, 5, mulberry32(7));
+    const strat = sampleStratifiedNegativeEdges(ids, edgeSet, 5, mulberry32(7), {});
+    assert.deepEqual(strat, legacy);
+  });
+
+  it("nodeType present but typeMarginal absent -> legacy fallback", () => {
+    const edgeSet = new Set();
+    const legacy = sampleNegativeEdges(ids, edgeSet, 4, mulberry32(3));
+    const strat = sampleStratifiedNegativeEdges(ids, edgeSet, 4, mulberry32(3), { nodeType });
+    assert.deepEqual(strat, legacy);
+  });
+
+  it("happy path: draws the requested count, all real-edge-free, distinct", () => {
+    const edgeSet = new Set([ek("a", "b"), ek("c", "d")]);
+    const negs = sampleStratifiedNegativeEdges(ids, edgeSet, 6, mulberry32(1), {
+      nodeType, typeMarginal, pHard: 0.5,
+    });
+    assert.equal(negs.length, 6);
+    const seen = new Set();
+    for (const { u, v } of negs) {
+      assert.notEqual(u, v);
+      assert.ok(!edgeSet.has(ek(u, v)));
+      const key = ek(u, v);
+      assert.ok(!seen.has(key));
+      seen.add(key);
+    }
+  });
+
+  it("pHard=1.0 -> every negative is intra-type (hard negatives only)", () => {
+    const negs = sampleStratifiedNegativeEdges(ids, new Set(), 8, mulberry32(9), {
+      nodeType, typeMarginal, pHard: 1.0,
+    });
+    assert.ok(negs.length > 0);
+    for (const { u, v } of negs) {
+      assert.equal(nodeType.get(u), nodeType.get(v));
+    }
+  });
+
+  it("pHard=0.0 -> sampler still runs and yields valid negatives", () => {
+    const negs = sampleStratifiedNegativeEdges(ids, new Set(), 6, mulberry32(2), {
+      nodeType, typeMarginal, pHard: 0.0,
+    });
+    assert.ok(negs.length > 0);
+    for (const { u, v } of negs) assert.notEqual(u, v);
+  });
+
+  it("rejects every pair already in edgeSet", () => {
+    const edgeSet = new Set([ek("a", "b"), ek("a", "c"), ek("b", "c")]);
+    const negs = sampleStratifiedNegativeEdges(ids, edgeSet, 10, mulberry32(5), {
+      nodeType, typeMarginal, pHard: 1.0,
+    });
+    for (const { u, v } of negs) {
+      assert.ok(!edgeSet.has(ek(u, v)));
+    }
+  });
+
+  it("bounded: saturated graph returns fewer than count, never loops forever", () => {
+    const tinyIds = ["a", "b"];
+    const tinyType = new Map([["a", "T"], ["b", "T"]]);
+    const tinyMarg = new Map([["T", 2]]);
+    const negs = sampleStratifiedNegativeEdges(
+      tinyIds, new Set([ek("a", "b")]), 100, mulberry32(1),
+      { nodeType: tinyType, typeMarginal: tinyMarg, pHard: 1.0 },
+    );
+    assert.equal(negs.length, 0);
+  });
+
+  it("NaN pHard -> falls back to 0.7 default (adversarial)", () => {
+    const negs = sampleStratifiedNegativeEdges(ids, new Set(), 5, mulberry32(4), {
+      nodeType, typeMarginal, pHard: NaN,
+    });
+    assert.equal(negs.length, 5);
+  });
+
+  it("Infinity pHard -> not finite, falls back to 0.7 default (adversarial)", () => {
+    const negs = sampleStratifiedNegativeEdges(ids, new Set(), 6, mulberry32(8), {
+      nodeType, typeMarginal, pHard: Infinity,
+    });
+    assert.equal(negs.length, 6);
+    for (const { u, v } of negs) assert.notEqual(u, v);
+  });
+
+  it("empty nodeIds -> empty result (boundary)", () => {
+    const negs = sampleStratifiedNegativeEdges([], new Set(), 5, mulberry32(1), {
+      nodeType, typeMarginal,
+    });
+    assert.deepEqual(negs, []);
+  });
+
+  it("count <= 0 -> empty result (boundary)", () => {
+    assert.deepEqual(
+      sampleStratifiedNegativeEdges(ids, new Set(), 0, mulberry32(1), { nodeType, typeMarginal }),
+      [],
+    );
+    assert.deepEqual(
+      sampleStratifiedNegativeEdges(ids, new Set(), -3, mulberry32(1), { nodeType, typeMarginal }),
+      [],
+    );
+  });
+
+  it("seed-deterministic: identical opts + seed -> identical output", () => {
+    const opts = { nodeType, typeMarginal, pHard: 0.6 };
+    const a = sampleStratifiedNegativeEdges(ids, new Set(), 6, mulberry32(11), opts);
+    const b = sampleStratifiedNegativeEdges(ids, new Set(), 6, mulberry32(11), opts);
+    assert.deepEqual(a, b);
   });
 });

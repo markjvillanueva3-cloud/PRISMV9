@@ -1,0 +1,372 @@
+{
+  "audit_date": "2026-03-30",
+  "audit_type": "Knowledge Source Normalization",
+  "summary": {
+    "total_roadmaps_analyzed": 8,
+    "duplication_instances": 10,
+    "critical_findings": 4,
+    "major_findings": 4,
+    "minor_findings": 2,
+    "self_update_mechanisms_found": 0,
+    "estimated_fix_effort_hours": 64
+  },
+  "duplication_matrix": [
+    {
+      "source_name": "MachiningPlaybookEngine",
+      "appearances_in_roadmaps": 7,
+      "roadmaps": [
+        "LATHE",
+        "MILL-TURN",
+        "MILLING",
+        "GRINDING",
+        "LASER",
+        "WATERJET",
+        "TKP (Wave TK-2)"
+      ],
+      "priority": "CRITICAL",
+      "recommendation": "Declare ONCE in KNOWLEDGE-SOURCES-MASTER.md; all roadmaps reference via @reference tag",
+      "action_item": "1.1"
+    },
+    {
+      "source_name": "src/data/*-cam-tips.ts (tribal tips across 18 CAM systems)",
+      "appearances_in_roadmaps": 7,
+      "roadmaps": [
+        "LATHE",
+        "MILL-TURN",
+        "MILLING",
+        "GRINDING",
+        "LASER",
+        "WATERJET",
+        "WIRE-EDM"
+      ],
+      "priority": "CRITICAL",
+      "recommendation": "Create TribalTipsRegistry.md indexing all 18 files; roadmaps import it",
+      "action_item": "4.1"
+    },
+    {
+      "source_name": "PhysicsFusionOrchestratorEngine + 5 plugins",
+      "appearances_in_roadmaps": 6,
+      "roadmaps": [
+        "LATHE",
+        "MILL-TURN",
+        "MILLING",
+        "GRINDING",
+        "LASER",
+        "WATERJET"
+      ],
+      "priority": "CRITICAL",
+      "recommendation": "Declare ONCE via PhysicsIntegrationPattern.md; explain fusion_tier >= 2 requirement",
+      "action_item": "4.3"
+    },
+    {
+      "source_name": "FormulaRegistry (Kienzle, Taylor, constants)",
+      "appearances_in_roadmaps": 6,
+      "roadmaps": [
+        "LATHE",
+        "MILL-TURN",
+        "MILLING",
+        "GRINDING",
+        "LASER",
+        "WATERJET"
+      ],
+      "priority": "CRITICAL",
+      "recommendation": "Single source: src/physics/constants.ts CANONICAL; never inline values",
+      "action_item": "1.3"
+    },
+    {
+      "source_name": "src/physics/constants.ts (canonical physics constants)",
+      "appearances_in_roadmaps": 5,
+      "roadmaps": [
+        "LATHE",
+        "MILL-TURN",
+        "MILLING",
+        "GRINDING",
+        "LASER"
+      ],
+      "priority": "CRITICAL",
+      "recommendation": "List FIRST in source hierarchy; formulas reference it, never inline",
+      "action_item": "1.3"
+    },
+    {
+      "source_name": "controller-knowledge-tips.ts",
+      "appearances_in_roadmaps": 5,
+      "roadmaps": [
+        "LATHE",
+        "MILL-TURN",
+        "MILLING",
+        "GRINDING",
+        "WATERJET"
+      ],
+      "priority": "MAJOR",
+      "recommendation": "Consolidate if split; create single reference",
+      "action_item": "1.1"
+    },
+    {
+      "source_name": "SafetyVetoEngine (E1098)",
+      "appearances_in_roadmaps": 7,
+      "roadmaps": [
+        "All collision-prevention milestones"
+      ],
+      "priority": "CRITICAL",
+      "recommendation": "Group under single Collision Safety Reference; link once",
+      "action_item": "1.2"
+    },
+    {
+      "source_name": "CollisionEngine + CollisionPreventionEngine",
+      "appearances_in_roadmaps": 7,
+      "roadmaps": [
+        "All machine roadmaps (MS0 milestones)"
+      ],
+      "priority": "CRITICAL",
+      "recommendation": "Single reference in Collision Safety module",
+      "action_item": "1.2"
+    },
+    {
+      "source_name": "NestingOptimizationEngine",
+      "appearances_in_roadmaps": 3,
+      "roadmaps": [
+        "LASER",
+        "WATERJET (implicit)",
+        "MILLING (multi-setup)"
+      ],
+      "priority": "MAJOR",
+      "recommendation": "Create Nesting Module Reference; link once",
+      "action_item": "4.1"
+    },
+    {
+      "source_name": "SheetUtilizationEngine",
+      "appearances_in_roadmaps": 2,
+      "roadmaps": [
+        "LASER",
+        "WATERJET"
+      ],
+      "priority": "MAJOR",
+      "recommendation": "Generalize to Material Utilization Reference",
+      "action_item": "4.1"
+    }
+  ],
+  "hierarchy_violations": [
+    {
+      "violation": "FORMULAS listed before CONSTANTS in all roadmaps",
+      "severity": "MAJOR",
+      "affected_roadmaps": 7,
+      "examples": [
+        {
+          "roadmap": "LATHE",
+          "line": "86-87",
+          "text": "Kienzle (kc1.1 for ISO P/M/K/N/S/H)"
+        },
+        {
+          "roadmap": "MILL",
+          "line": "62",
+          "text": "Kienzle (milling: Fc = kc1.1 × ae × fz^(1-mc) × z_engaged)"
+        }
+      ],
+      "risk": "Encourages inline constant values instead of importing canonical source",
+      "fix": "Reorder all roadmaps: [CONSTANTS → FORMULAS → ENGINES → TRIBAL_TIPS → PLAYBOOK → REFERENCE]"
+    },
+    {
+      "violation": "MachiningPlaybookEngine cited as monolith; no per-machine rule breakdown",
+      "severity": "MAJOR",
+      "affected_roadmaps": 7,
+      "risk": "Sessions inherit inapplicable rules (e.g., LATHE reads milling pocket rules)",
+      "fix": "Create PlaybookRulesIndex.md mapping rules to machine types"
+    },
+    {
+      "violation": "Tribal tips reference via wildcard (src/data/*-cam-tips.ts) instead of explicit list",
+      "severity": "MAJOR",
+      "affected_roadmaps": 7,
+      "risk": "New CAM systems won't auto-appear in roadmaps; discovery is manual",
+      "fix": "Create TribalTipsRegistry.md; roadmaps reference registry, not individual files"
+    }
+  ],
+  "self_update_gaps": [
+    {
+      "gap_id": "GAP-1",
+      "title": "TKP produces new tribal knowledge, but machine roadmaps don't subscribe to promotions",
+      "description": "TKP Wave TK-0..TK-7 builds canonical knowledge (tribal tips, playbook rules, formulas), but LATHE/MILL/MT/GRIND/LASER/WATERJET/WIRE roadmaps have NO HOOK to detect and consume promoted knowledge",
+      "impact": "Downstream machine roadmaps inherit stale knowledge sources; new tribal knowledge propagates to engines but not roadmaps",
+      "example": "TKP Wave TK-1 promotes 'Haas lathe M100 spindle dwell = 2.5s (not 1s)' → live in TurningPrintToProgramEngine, but LATHE-MS5 session still lists generic MASTER KNOWLEDGE SOURCES",
+      "required_solution": "KnowledgeSourceUpdateHook (MCP action + protective hook) subscribes to TKP promotion queue",
+      "action_item": "2.1"
+    },
+    {
+      "gap_id": "GAP-2",
+      "title": "Per-session knowledge sources declared but not validated for completeness",
+      "description": "Sessions inherit global MASTER SOURCES + add local sources, but no validation that all required categories are covered (ENGINES, TRIBAL_TIPS, PLAYBOOK, CONSTANTS, FORMULAS, REFERENCE)",
+      "impact": "Sessions might be missing critical sources without author realizing",
+      "example": "LATHE-MS0 declares 5 engines but never cites FormulaRegistry → next editor might not realize formulas are needed for this session",
+      "required_solution": "per-session-knowledge-completeness.py hook validates categories",
+      "action_item": "3.2"
+    },
+    {
+      "gap_id": "GAP-3",
+      "title": "No explicit EXCLUDED SOURCES marking on sessions",
+      "description": "Sessions inherit global sources but don't declare which ones DON'T apply. Readers assume all inherited sources are active.",
+      "impact": "Sessions carry implicit bloat; risk of wrong anti-patterns applied",
+      "example": "LATHE session reads all 296 MachiningPlaybookEngine rules, includes milling-specific rules by default",
+      "required_solution": "Add 'EXCLUDED SOURCES' section to per-session knowledge blocks with rationales",
+      "action_item": "1.4"
+    }
+  ],
+  "scoring": {
+    "duplication_risk_score": 6.2,
+    "duplication_risk_interpretation": "Moderate — 7 repetitions of same sources; high risk if any source updates require multi-roadmap sync",
+    "source_hierarchy_violation_score": 7.1,
+    "source_hierarchy_interpretation": "High — All 7 roadmaps list formulas before constants, systematically violating hierarchy",
+    "self_update_gap_score": 8.5,
+    "self_update_gap_interpretation": "CRITICAL — 0/8 roadmaps subscribe to TKP feedback; new tribal knowledge doesn't auto-reach roadmaps",
+    "per_session_knowledge_isolation_score": 4.2,
+    "per_session_knowledge_interpretation": "Minor — Sessions do declare per-milestone sources, just lack exclusions + completeness validation",
+    "overall_health_score": 6.5,
+    "overall_interpretation": "Knowledge source documentation is well-structured but fragmented and static. Self-update mechanism missing. Risk: SVI stalls because tribal knowledge propagates to engines but not roadmaps; sessions inherit frozen knowledge snapshots."
+  },
+  "action_items_prioritized": [
+    {
+      "phase": 1,
+      "title": "Normalize existing duplication",
+      "duration_hours": 16,
+      "items": [
+        {
+          "id": "1.1",
+          "task": "Create KNOWLEDGE-SOURCES-MASTER.md (single source-of-truth for all shared sources)",
+          "deliverable": "H:\\prism\\audits\\KNOWLEDGE-SOURCES-MASTER.md",
+          "effort": 6,
+          "depends_on": null
+        },
+        {
+          "id": "1.2",
+          "task": "Update all 7 comprehensive roadmaps (replace inline MASTER KNOWLEDGE SOURCES with references to Master doc)",
+          "deliverable": "[7 roadmaps updated]",
+          "effort": 6,
+          "depends_on": "1.1"
+        },
+        {
+          "id": "1.3",
+          "task": "Reorder source hierarchy in all roadmaps (CONSTANTS → FORMULAS → ENGINES → TRIBAL → REFERENCE)",
+          "deliverable": "[7 roadmaps reordered]",
+          "effort": 3,
+          "depends_on": null
+        },
+        {
+          "id": "1.4",
+          "task": "Add EXCLUDED SOURCES section to each per-session knowledge block",
+          "deliverable": "[7 roadmaps × ~2 sessions per roadmap = 14+ session blocks with explicit exclusions]",
+          "effort": 1,
+          "depends_on": null
+        }
+      ]
+    },
+    {
+      "phase": 2,
+      "title": "Implement self-update mechanism (CRITICAL)",
+      "duration_hours": 24,
+      "items": [
+        {
+          "id": "2.1",
+          "task": "Create KnowledgeSourceUpdateHook (MCP action + protective hook)",
+          "deliverable": "H:\\prism\\mcp-server\\src\\engines\\KnowledgeSourceUpdateHook.ts",
+          "effort": 12,
+          "depends_on": null
+        },
+        {
+          "id": "2.2",
+          "task": "Create RoadmapKnowledgeConsumer engine (query promoted knowledge by roadmap type)",
+          "deliverable": "H:\\prism\\mcp-server\\src\\engines\\RoadmapKnowledgeConsumer.ts",
+          "effort": 6,
+          "depends_on": "2.1"
+        },
+        {
+          "id": "2.3",
+          "task": "Wire TKP Wave TK-1 consumer map to RoadmapKnowledgeConsumer",
+          "deliverable": "TribalKnowledgeConsumerRegistry updated + integration test",
+          "effort": 4,
+          "depends_on": "2.2"
+        },
+        {
+          "id": "2.4",
+          "task": "Create RoadmapVersionDependency schema (Zod) + validation logic",
+          "deliverable": "H:\\prism\\mcp-server\\src\\schemas\\RoadmapVersionDependency.ts",
+          "effort": 2,
+          "depends_on": "2.1"
+        }
+      ]
+    },
+    {
+      "phase": 3,
+      "title": "Formalize per-session knowledge scoping",
+      "duration_hours": 12,
+      "items": [
+        {
+          "id": "3.1",
+          "task": "Create session knowledge validation template + schema",
+          "deliverable": "H:\\prism\\mcp-server\\src\\schemas\\SessionKnowledgeScope.ts",
+          "effort": 4,
+          "depends_on": null
+        },
+        {
+          "id": "3.2",
+          "task": "Add per-session-knowledge-completeness.py validation hook",
+          "deliverable": "H:\\prism\\hooks\\per-session-knowledge-completeness.py",
+          "effort": 4,
+          "depends_on": "3.1"
+        },
+        {
+          "id": "3.3",
+          "task": "Document session knowledge scoping pattern in /rgs protocol",
+          "deliverable": "H:\\prism\\mcp-server\\data\\docs\\SESSION-KNOWLEDGE-SCOPING.md",
+          "effort": 4,
+          "depends_on": "3.1"
+        }
+      ]
+    },
+    {
+      "phase": 4,
+      "title": "Create consolidated reference structures",
+      "duration_hours": 12,
+      "items": [
+        {
+          "id": "4.1",
+          "task": "Create TribalTipsRegistry.md + PlaybookRulesIndex.md",
+          "deliverable": "[2 registry documents]",
+          "effort": 4,
+          "depends_on": null
+        },
+        {
+          "id": "4.2",
+          "task": "Create PhysicsIntegrationPattern.md (replaces inline repetition)",
+          "deliverable": "H:\\prism\\mcp-server\\data\\docs\\PhysicsIntegrationPattern.md",
+          "effort": 3,
+          "depends_on": null
+        },
+        {
+          "id": "4.3",
+          "task": "Create ReferenceSourceVersion.md (external sources versioning + validation)",
+          "deliverable": "H:\\prism\\audits\\ReferenceSourceVersion.md",
+          "effort": 3,
+          "depends_on": null
+        },
+        {
+          "id": "4.4",
+          "task": "Add enforcement hooks (duplication, hierarchy, completeness)",
+          "deliverable": "[4 PreToolUse/PostToolUse hooks]",
+          "effort": 2,
+          "depends_on": "1.1, 3.1"
+        }
+      ]
+    }
+  ],
+  "sv i_impact_estimate": {
+    "current_psi": 40.8,
+    "after_phase_1_complete": 42.1,
+    "after_phase_2_complete": 47.3,
+    "after_phase_4_complete": 52.8,
+    "rationale": "Phases 1-2 eliminate duplication and implement self-update; phases 3-4 make knowledge discoverable in roadmaps. SVI rises because knowledge propagation becomes automatic (TKP promotions auto-reach roadmaps), sessions inherit living knowledge (not frozen snapshots), duplication risk drops to <2.0."
+  },
+  "next_steps": [
+    "Review audit with domain agents (physics, wiring, testing agents)",
+    "Prioritize Phase 1 + Phase 2 for v25 roadmap integration",
+    "Create tickets for each action item in task queue",
+    "Assign Phase 1 & 2 to backend team; Phase 3-4 can proceed in parallel"
+  ]
+}

@@ -23,13 +23,14 @@ related:
 |-------|-------|
 | Name | `chat-topic` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/chat-topic.md` |
+| Source | `C:/Users/wompu/.claude/commands/chat-topic.md` |
 | Model | default |
 | Tags | _(none)_ |
 
 ## Description (first paragraph)
 
-PRISM's `/rename` is **engine-rename only** (`<oldEngineId> <newEngineId>`). To rename the *chat* — i.e., the label `/startup` and the resume picker key on — you set the topic suffix on this chat's handoff file (`HANDOFF-<id>-<topic>.md`). The `enforce-handoff-topic.mjs` Stop hook only touches *topicless* handoffs, so a custom topic **sticks**.
+
+# /chat-topic — Rename This Chat's Resume Label
 
 <!-- AUTO-END -->
 

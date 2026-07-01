@@ -1,0 +1,1060 @@
+{
+ "CADCAM-DAGI-MS1::U-DASAL13": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/milestones/milestone-ghost-ms-cadcam-dagi-ms1.md",
+   "knowledge/wiki/architecture/engines/cad/camfeaturelearningengine.md"
+  ],
+  "addSeWiki": ["regression-prevention-doctrine"],
+  "systemImpact": "The joined idiom corpus feeds downstream CAD-automation strategy selection (CADActionValidationEngine U-DASAL15 verifies actions against mined idioms, and the MS1 dispatcher cascade U-DASAL16 surfaces idioms to consuming CAM dispatchers). If joined frequency is computed wrong, single-source noise propagates as 'best practice' into every downstream strategy recommendation. CAMK and CAM-EXHAUST cross-CAM synthesis later assume this idiom store is canonical.",
+  "csDepth": [
+   "Joined-corpus mining is a stratified-counting problem: a raw global Apriori run lets the larger corpus dominate support thresholds — normalize support per-source or weight by inverse corpus size before merging, else the rule set is just the bigger corpus.",
+   "n-gram tokenization of operation sequences must canonicalize parameter-bearing operations (a Drill@10 and Drill@12 are the same idiom) — without an equivalence class on the token alphabet the itemset lattice explodes and idioms never reach minimum support."
+  ]
+ },
+ "CADCAM-DAGI-MS1::U-DASAL15": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/milestones/milestone-ghost-ms-cadcam-dagi-ms1.md",
+   "knowledge/wiki/architecture/engines/cad/cadphysicsconsistencygateengine.md"
+  ],
+  "addSeWiki": ["regression-prevention-doctrine"],
+  "systemImpact": "This is the verification gate the entire CADCAM-DAGI pipeline depends on — every CAD action emitted by the idiom learner and the MS2 feature engines passes through it before CAM consumes the geometry. If it regresses to checking return codes instead of actual state, a failed feature operation silently produces a wrong solid that the CADCAMHandoffEngine (MS7 U-DAE2E03) then certifies, and CAM cuts the wrong part. It is a precondition for CADValidationGateHook (MS3 U-DACAV09).",
+  "csDepth": [
+   "Result-receipt chaining is a provenance problem: each action must emit a receipt referencing the prior receipt's hash, so a verifier can detect a skipped or reordered step — a flat per-action boolean cannot catch a dropped intermediate operation.",
+   "Idempotent re-verification requires the verifier to be a pure function of observed geometry/state, never of mutable side-channel counters; re-running verify on an already-completed action must be a no-op that returns the same verdict — otherwise concurrent re-checks race."
+  ]
+ },
+ "CADCAM-DAGI-MS1::U-DASAL16": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/milestones/milestone-ghost-ms-cadcam-dagi-ms1.md",
+   "knowledge/wiki/architecture/combos/combo-cadautomationdispatcher.md",
+   "knowledge/wiki/architecture/dispatcher-cam.md"
+  ],
+  "addSeWiki": ["doc-reflection-rule"],
+  "systemImpact": "This unit is the wiring choke point for all of MS1 — the idiom learner and CADActionValidationEngine become invisible to the rest of PRISM until their actions are registered on prism_cadautomation and fanned out to prism_cam. A missed action enum entry means production 500s on that action while MockMCPServer-based tests false-pass (the documented z.enum bypass class). Every later milestone's dispatcher-wiring unit (MS2 U-DACFS14 ... MS7 U-DAE2E08) repeats this pattern and inherits the same hazard.",
+  "csDepth": [
+   "The action enum is a single shared mutable surface across many milestones — concurrent wiring units in different chats race to append to the same z.enum array; the round-trip E2E must assert against the real SDK-validated boundary, not the mock, or the regression is invisible.",
+   "Feature-cascade fan-out is a graph-reachability obligation: every dispatcher that transitively consumes the engine's output must be wired in the same commit — a partial fan-out leaves an orphan path that the stop_on_unwired_assets hook should catch but only if the engine has zero refs, not one-of-N."
+  ]
+ },
+ "CADCAM-DAGI-MS2::U-DACFS01": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/milestones/milestone-ghost-ms-cadcam-dagi-ms2.md"
+  ],
+  "addSeWiki": ["physics-constants-discipline"],
+  "systemImpact": "AdvancedSweepEngine is a primitive geometry producer — its surfaces feed BoundarySurfaceEngine (U-DACFS03), MultiBodyManagementEngine (U-DACFS08), and ultimately the BRep validator (MS3 U-DACAV01). A non-G1/G2-continuous rail join silently produces a surface the manifold checker later rejects, stalling the whole MS2→MS3 handoff; CAM toolpath generation on a defective swept surface gouges.",
+  "csDepth": [
+   "Multi-rail synchronization is a reparameterization problem: rails of different arc-length must share a common parameter domain — chord-length or centripetal reparameterization, not uniform knot spacing, or the section curve drifts and twists along the sweep.",
+   "Knot-vector merging across rails has quadratic blow-up risk: naively unioning all rails' knot vectors multiplies control-point count; knot removal with a bounded deviation tolerance is required to keep the surface tractable for downstream tessellation."
+  ]
+ },
+ "CADCAM-DAGI-MS2::U-DACFS02": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/milestones/milestone-ghost-ms-cadcam-dagi-ms2.md"
+  ],
+  "addSeWiki": ["physics-constants-discipline"],
+  "systemImpact": "AdvancedLoftEngine produces skinned surfaces consumed by the same MS2 downstream chain (boundary, multi-body) and validated by MS3's BRep/dimensional gates. A twisted loft from bad point-correspondence produces a geometrically wrong solid that passes a naive area check but fails manifold validation — corrupting the CAD→CAM handoff. Shares the NURBS engine dependency with U-DACFS01.",
+  "csDepth": [
+   "Profile-to-profile correspondence is an assignment problem: minimize total point-pair distance (Hungarian algorithm) or align by arc-length parameter — a greedy nearest-neighbor match twists the surface when profiles have different orientations.",
+   "Mismatched profile point counts force a resampling decision before lofting; resampling to the LCM or to a fixed dense sampling trades control-point bloat against fidelity — pick the resampling density from a continuity-error budget, not arbitrarily."
+  ]
+ },
+ "CADCAM-DAGI-MS2::U-DACFS03": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/milestones/milestone-ghost-ms-cadcam-dagi-ms2.md"
+  ],
+  "addSeWiki": ["fail-loud-r12-patterns"],
+  "systemImpact": "BoundarySurfaceEngine closes edge loops into surfaces consumed by MultiBodyManagementEngine and the MS3 manifold validator. A non-watertight boundary that silently yields a degenerate patch is the exact defect class the BRep validator (U-DACAV01) exists to catch — but a degenerate patch can pass Euler-characteristic checks while being unmachinable, so the failure must surface here, not three engines downstream.",
+  "csDepth": [
+   "Boundary closure detection is a graph-cycle problem on the edge-loop topology: verify every edge endpoint has degree 2 and the loop is a single cycle before fitting — a figure-eight or open chain must fail loud, not produce a self-intersecting Coons patch.",
+   "Coons vs Gordon patch choice depends on boundary count and whether interior curves exist; a 4-boundary case is bilinearly-blended Coons, N>4 needs a Gordon surface or triangulation — picking the wrong constructor for the boundary count yields visible cross-boundary discontinuity."
+  ]
+ },
+ "CADCAM-DAGI-MS2::U-DACFS04": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/milestones/milestone-ghost-ms-cadcam-dagi-ms2.md"
+  ],
+  "addSeWiki": ["fail-loud-r12-patterns"],
+  "systemImpact": "FreeformSurfaceSculptEngine produces T-spline/SubD surfaces that must be convertible to NURBS or tessellated for the MS3 validators and CAM. A creased limit surface at a star vertex passes BRep manifold checks but produces a CAM gouge — so SubD continuity must be verified at sculpt time. Feeds the same MS2 multi-body and MS3 validation chain as the other surface engines.",
+  "csDepth": [
+   "Catmull-Clark subdivision at extraordinary vertices does not converge to C2 — only C1 with bounded curvature; the engine must classify star points and either apply a special tuned subdivision mask or flag the region, never assume uniform C2.",
+   "SubD-to-NURBS conversion for downstream CAD interop is lossy near star points; carrying a tolerance budget through the conversion and failing loud when it is exceeded prevents a silently-degraded surface reaching CAM."
+  ]
+ },
+ "CADCAM-DAGI-MS2::U-DACFS07": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/milestones/milestone-ghost-ms-cadcam-dagi-ms2.md",
+   "knowledge/wiki/architecture/engines/cad/cadassemblygraphengine.md"
+  ],
+  "addSeWiki": ["schema-read-discipline"],
+  "systemImpact": "ParametricDriverEngine orchestrates rule-driven parametric updates that re-drive part geometry — it is the automation layer the parametric-part-library and assembly engines depend on for design-intent propagation. A circular driver rule that silently loops hangs the CAD pipeline; a wrong topological order applies rules with stale inputs, producing geometry that the MS3 dimensional validator then flags as out-of-spec without explaining why.",
+  "csDepth": [
+   "Rule evaluation requires cycle detection on the dependency DAG (Tarjan/Kahn) before any forward-chaining pass — a cycle must fail loud naming the rule chain, never be broken arbitrarily, since either break point produces different geometry.",
+   "Forward-chaining over a DAG must handle the diamond-dependency case: a rule reachable by two paths must evaluate exactly once after both predecessors settle — memoize on rule identity, not on invocation, to avoid redundant re-fires that thrash dependent geometry."
+  ]
+ },
+ "CADCAM-DAGI-MS2::U-DACFS08": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/milestones/milestone-ghost-ms-cadcam-dagi-ms2.md",
+   "knowledge/wiki/architecture/engines/geometry/topologyengine.md"
+  ],
+  "addSeWiki": ["fail-loud-r12-patterns"],
+  "systemImpact": "MultiBodyManagementEngine is the consumer of every MS2 surface/solid producer (sweep, loft, boundary, sculpt) — it composes them into multi-body parts that AssemblyConstraintEngine (U-DACFS09) and the MS3 validators operate on. A boolean op that breaks manifold validity corrupts the body graph and every downstream interference check; a missed shared-face produces a false collision report in U-DACAV06.",
+  "csDepth": [
+   "Boolean solid ops are numerically fragile at near-coincident faces: a robustness epsilon and exact-arithmetic predicates (orientation tests) are needed, or union/subtract produces sliver faces that break manifold validity intermittently.",
+   "Body-graph adjacency tracking is an incremental-update problem — each boolean op must locally patch the adjacency structure rather than rebuilding it, and shared-face detection must use spatial hashing on face bounding boxes to avoid the O(n^2) all-pairs comparison as body count grows."
+  ]
+ },
+ "CADCAM-DAGI-MS2::U-DACFS09": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/milestones/milestone-ghost-ms-cadcam-dagi-ms2.md",
+   "knowledge/wiki/architecture/engines/calc/kinematicsengine.md"
+  ],
+  "addSeWiki": ["physics-constants-discipline"],
+  "systemImpact": "AssemblyConstraintEngine reduces assembly DOF and solves kinematic chains — its output feeds AssemblyInterferenceValidatorEngine (MS3 U-DACAV06) for collision checks through motion envelopes and the BOM synthesis engine for the assembly tree. An undetected over-constrained assembly (DOF<0) silently locks geometry; a wrong motion envelope makes the interference validator miss a collision in a configuration the part actually reaches.",
+  "csDepth": [
+   "DOF counting must respect redundant constraints: naively summing per-mate DOF removal over-counts when two mates constrain the same axis — a constraint Jacobian rank computation gives the true mobility (Grübler's formula is only an upper bound).",
+   "Forward kinematics on a closed kinematic loop is not a simple chain product — closed loops need a constraint-solver (Newton iteration on the loop-closure equations); a chain-only solver silently produces a non-closing assembly."
+  ]
+ },
+ "CADCAM-DAGI-MS2::U-DACFS10": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/milestones/milestone-ghost-ms-cadcam-dagi-ms2.md",
+   "knowledge/wiki/architecture/engines/calc/columnbucklingengine.md"
+  ],
+  "addSeWiki": ["physics-constants-discipline"],
+  "systemImpact": "WeldmentFrameGeneratorEngine produces structural frame geometry whose joints feed the MS3 manifold/interference validators and whose strength is checked against the bolted-joint and weld-strength engines. A miter/cope trim that leaves a gap produces a non-watertight solid the BRep validator rejects; inlined structural-steel constants are the exact CALC-HARDEN bug class that the canonical-constants enforcer (U-CH16) blocks.",
+  "csDepth": [
+   "Joint trimming is a pairwise solid-boolean problem at every skeleton-edge intersection — the trim order matters when 3+ members meet at a node; a deterministic precedence (by member size or priority) is needed or the trimmed geometry is non-deterministic.",
+   "Sweeping a cross-section along a skeleton edge requires a stable frame (rotation-minimizing frame, not Frenet) to avoid section twist at inflection points — a Frenet frame flips at zero-curvature spans and twists the member."
+  ]
+ },
+ "CADCAM-DAGI-MS2::U-DACFS12": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/milestones/milestone-ghost-ms-cadcam-dagi-ms2.md",
+   "knowledge/wiki/architecture/engines/cad/gdtstackupengine.md"
+  ],
+  "addSeWiki": ["fail-loud-r12-patterns"],
+  "systemImpact": "TechnicalDrawingSynthesisEngine emits ASME Y14.5 drawings from the MS2 solid models — these drawings are the GD&T spec source the MS3 DimensionalValidatorEngine (U-DACAV02) compares actual geometry against, and PrintIngestEngine (MS7) round-trips. A wrong feature-control-frame placement or inconsistent projection makes the dimensional validator measure against a wrong datum, cascading a false out-of-spec verdict.",
+  "csDepth": [
+   "Hidden-line removal is an O(n^2) edge-vs-face occlusion problem; a BSP-tree or depth-sorted painter approach is needed for tractability, and the view consistency check must ensure the same 3D edge is hidden/visible coherently across all orthographic views.",
+   "GD&T symbol placement is grammar-constrained: feature-control-frame composition (tolerance | datum-A | datum-B) follows Y14.5 ordering rules — a placement engine that emits frames without validating the datum-reference grammar produces drawings that humans and the dimensional validator interpret differently."
+  ]
+ },
+ "CADCAM-DAGI-MS2::U-DACFS13": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/milestones/milestone-ghost-ms-cadcam-dagi-ms2.md",
+   "knowledge/wiki/architecture/engines/cad/cadassemblygraphengine.md"
+  ],
+  "addSeWiki": ["atomic-write-idempotency-patterns"],
+  "systemImpact": "BOMiPropertySynthesisEngine flattens the assembly graph into a BOM consumed by ERP/inventory engines and the OptimalMachineSelectorEngine (MS7) for shop-floor routing. A wrong quantity roll-up under-orders stock; a non-schema-versioned record breaks the ERP consumer on the next schema bump. It depends on the assembly graph being correct (built by U-DACFS08/09).",
+  "csDepth": [
+   "Recursive assembly-tree traversal must detect shared sub-assemblies (DAG, not tree) — a pure tree walk double-counts a component used in two sub-assemblies; memoize visited sub-assembly nodes and multiply quantities along the path.",
+   "Quantity roll-up de-duplication needs a stable component-identity key (part number, not object reference) — iProperty metadata normalization must canonicalize before the roll-up, or the same physical part appears as two BOM lines."
+  ]
+ },
+ "CADCAM-DAGI-MS2::U-DACFS14": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/milestones/milestone-ghost-ms-cadcam-dagi-ms2.md",
+   "knowledge/wiki/architecture/combos/combo-cadautomationdispatcher.md"
+  ],
+  "addSeWiki": ["doc-reflection-rule"],
+  "systemImpact": "This wiring unit makes the 9 MS2 surface/assembly/drawing engines reachable from prism_cadautomation and fans them out to prism_cam — until it lands, all of MS2 is built-but-orphan. A missed action enum entry 500s production while mock tests pass. MS3 validators and MS7 master cascade assume every MS2 action is registered.",
+  "csDepth": [
+   "The MS2 action set is large (9 engines) — appending all to z.enum(ACTIONS) in one commit creates a wide merge surface; the round-trip E2E must iterate every new action against the real SDK boundary, not spot-check.",
+   "Feature-cascade fan-out for surface engines must wire to both prism_cadautomation and any geometry-consuming dispatcher; a one-of-N wiring satisfies the zero-orphan hook but still leaves a dead path the integration test will not exercise unless explicitly enumerated."
+  ]
+ },
+ "CADCAM-DAGI-MS3::U-DACAV01": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/milestones/milestone-ghost-ms-cadcam-dagi-ms3.md",
+   "knowledge/wiki/architecture/engines/geometry/topologyengine.md"
+  ],
+  "addSeWiki": ["regression-prevention-doctrine"],
+  "systemImpact": "BRepTopologyValidatorEngine is the gatekeeper for every MS2-produced solid before CAM — CADValidationGateHook (U-DACAV09) blocks CAM on its PASS, and CADCAMHandoffEngine (MS7) chains its receipt. A soft-pass on a non-manifold solid lets a defective part reach toolpath generation, where it gouges; a false-fail stalls the whole CAD→CAM pipeline. It is the highest-leverage safety engine in MS3.",
+  "csDepth": [
+   "Euler-Poincaré (V−E+F = 2(s−h) with shells s and handles h) is necessary but not sufficient — a solid can satisfy it and still be non-manifold at a single shared vertex; the per-edge 'exactly 2 faces' check and a non-manifold-vertex check (umbrella test) must both run.",
+   "B-rep traversal must handle large face counts without stack overflow — iterative DFS with an explicit stack, not recursion (the documented spread→push system-viz fix class); watertightness on a tessellated mesh additionally needs an exact float-tolerance for vertex welding or coincident vertices read as a crack."
+  ]
+ },
+ "CADCAM-DAGI-MS3::U-DACAV02": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/milestones/milestone-ghost-ms-cadcam-dagi-ms3.md",
+   "knowledge/wiki/architecture/engines/cad/gdtstackupengine.md"
+  ],
+  "addSeWiki": ["regression-prevention-doctrine"],
+  "systemImpact": "DimensionalValidatorEngine compares produced geometry against the ASME Y14.5 spec from TechnicalDrawingSynthesisEngine (U-DACFS12) and PdfBlueprintDimensionExtractor — its verdict feeds the CADValidationGateHook and the AGIvsHuman benchmark scorecard (MS7). A wrong datum reference or tolerance-band off-by-one passes an out-of-spec part or fails an in-spec one, directly corrupting the beat-humans metric.",
+  "csDepth": [
+   "Tolerance-band comparison must use the GD&T datum-reference frame, not the model coordinate frame — measuring a feature without first establishing its datums (a 3-2-1 fixturing transform) yields a measurement that is numerically precise but references the wrong origin.",
+   "Spec-vs-actual diffing must report each out-of-band feature individually with measured value and limit (R12) — a single rolled-up max-deviation hides which feature failed and makes the regression non-actionable; floating-point comparison needs an explicit epsilon tied to the tolerance grade."
+  ]
+ },
+ "CADCAM-DAGI-MS3::U-DACAV04": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/milestones/milestone-ghost-ms-cadcam-dagi-ms3.md",
+   "knowledge/wiki/architecture/engines/cad/cadfeaturerecognitionengine.md"
+  ],
+  "addSeWiki": ["regression-prevention-doctrine"],
+  "systemImpact": "ManufacturabilityValidatorEngine runs the full DFM rule sweep — its findings gate whether a design proceeds to CAM and feed the CADValidationGateHook. A rule that silently no-fires (wall thickness, draft, undercut) lets an unmanufacturable feature through; aggregating into one score instead of per-rule findings makes a real DFM violation invisible. CAM strategy selection downstream assumes DFM has already filtered impossible features.",
+  "csDepth": [
+   "Each DFM rule must fire independently and report concrete violations (R12) — a single rolled-up manufacturability score is the anti-pattern; the aggregation should be a list of findings, with the score derived from it, never the score alone.",
+   "Tool-reach/accessibility analysis is a visibility problem: a feature is accessible if a tool axis exists that reaches it without collision — this is a configuration-space query, computationally heavy, and must be bounded (sampled tool orientations) or it dominates the sweep cost."
+  ]
+ },
+ "CADCAM-DAGI-MS3::U-DACAV06": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/milestones/milestone-ghost-ms-cadcam-dagi-ms3.md",
+   "knowledge/wiki/architecture/engines/calc/bvhengine.md"
+  ],
+  "addSeWiki": ["regression-prevention-doctrine"],
+  "systemImpact": "AssemblyInterferenceValidatorEngine detects collisions between assembly bodies through their motion envelopes (from AssemblyConstraintEngine U-DACFS09) — a missed collision is a P0 safety defect that reaches the shop floor. Its verdict feeds the CADValidationGateHook and is a precondition for fixture/setup planning in MS7. Shares collision-detection infrastructure with the CAM toolpath collision engines.",
+  "csDepth": [
+   "BVH broad-phase must be rebuilt or refit when bodies move through their motion envelope — a static BVH built once misses collisions in non-rest configurations; sweeping the envelope and testing at discrete poses needs a step fine enough to not tunnel a thin body through another.",
+   "Narrow-phase solid-solid intersection on tessellated meshes is triangle-triangle testing — exact predicates are needed near coplanar triangles, and the result must be every colliding pair, not first-hit, since reporting one collision hides the rest."
+  ]
+ },
+ "CADCAM-DAGI-MS3::U-DACAV09": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/milestones/milestone-ghost-ms-cadcam-dagi-ms3.md",
+   "knowledge/wiki/architecture/high-roi-hooks-ms0.md",
+   "knowledge/wiki/architecture/engines/cam/camkernelvalidationengine.md"
+  ],
+  "addSeWiki": ["safety-tier-discipline"],
+  "systemImpact": "CADValidationGateHook is the hard fail-closed barrier between CAD and CAM — it blocks every CAM action unless a fresh BRep/dimensional/manufacturability/interference PASS receipt exists. If it regresses (exit-2 instead of stdout-JSON, or accepts a stale receipt), every defective CAD model from MS2/MS3 reaches CAM unchecked. It is the enforcement counterpart of CADCAMHandoffEngine (MS7 U-DAE2E03) and must be in a no-disable hook tier.",
+  "csDepth": [
+   "A blocking PreToolUse hook MUST signal via stdout JSON, not exit-2 — Windows pipe truncation on exit-2 silently bypasses the block (documented task-freshness-gate class); the hook must also exit 0 from a bundled sub-hook position.",
+   "Receipt freshness is a TTL problem with a clock-skew hazard: a receipt must carry a content hash of the validated geometry, not just a timestamp — a timestamp-only receipt passes if CAD geometry changed but the validator was not re-run; fail-closed means a missing or unparseable receipt blocks."
+  ]
+ },
+ "CADCAM-DAGI-MS3::U-DACAV10": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/milestones/milestone-ghost-ms-cadcam-dagi-ms3.md",
+   "knowledge/wiki/architecture/combos/combo-cadautomationdispatcher.md"
+  ],
+  "addSeWiki": ["doc-reflection-rule"],
+  "systemImpact": "This unit wires the 4 MS3 validator engines plus the gate hook into prism_cadautomation — until it lands, the validators are unreachable and the CAD→CAM safety chain is open. A missed enum entry 500s the validation action in production while mock tests pass, defeating the entire MS3 safety milestone.",
+  "csDepth": [
+   "Validator-engine fan-out must reach every dispatcher that triggers a CAD→CAM transition, not just prism_cadautomation — a partial wiring leaves a CAM entry path that skips validation.",
+   "MockMCPServer bypasses the z.enum(ACTIONS) gate, so a missing-from-enum action 9/9-passes in test while production is 100% broken — the round-trip E2E must hit the real SDK enum boundary (documented recurring false-green class)."
+  ]
+ },
+ "CADCAM-DAGI-MS4::U-CAMAGI02": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/milestones/milestone-ghost-ms-cadcam-dagi-ms4.md",
+   "knowledge/wiki/architecture/engines/cam/strategysequencingengine.md"
+  ],
+  "addSeWiki": ["test-design-real-values"],
+  "systemImpact": "StrategyMomentSelectorEngine ('strategy per moment') is the decision policy OptimalToolpathAtMomentEngine (U-CAMAGI03) drives at every cut instant — its choices flow into the full adaptive orchestrator (U-CAMAGI06) and the JM-Die 100-part regression suite (U-CAMAGI15). A non-deterministic selector breaks reproducibility of every downstream CAM-AGI test; a wrong context key picks a strategy that gouges or runs slow.",
+  "csDepth": [
+   "Determinism for identical machining state is a hashing-discipline requirement: the context key must be a canonical, order-stable serialization of the state — a key built from object iteration order or floating-point state without quantization gives different selections on re-run.",
+   "Greedy per-moment selection can be globally suboptimal — a bounded lookahead (sample the next k moments) trades cost for quality; the lookahead depth must be a tuned parameter, and the value function must be consistent so greedy and lookahead agree at depth 0."
+  ]
+ },
+ "CADCAM-DAGI-MS4::U-CAMAGI03": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/milestones/milestone-ghost-ms-cadcam-dagi-ms4.md",
+   "knowledge/wiki/architecture/engines/cam/camkernelorchestratorengine.md"
+  ],
+  "addSeWiki": ["regression-prevention-doctrine"],
+  "systemImpact": "OptimalToolpathAtMomentEngine is the core orchestration of MS4 CAM-AGI — it composes the strategy selector, variability integrator, and parameter engines into the per-moment toolpath decision. The CAMAGIOrchestratorEngine (U-CAMAGI14) sits above it and the adaptive loop (U-CAMAGI06) wraps it. A dropped sub-engine result silently degrades toolpath quality; a wrong orchestration order uses stale context.",
+  "csDepth": [
+   "Sub-engine fan-out then merge is a dataflow-ordering problem — every sub-engine result must be consumed (R12), not silently dropped; an explicit result-completeness assertion catches a sub-engine that returned nothing.",
+   "Optimal-toolpath search over candidate strategies is a cost-minimization with a potentially large branching factor — memoizing identical (state, strategy) evaluations and pruning dominated candidates early keeps it tractable per moment."
+  ]
+ },
+ "CADCAM-DAGI-MS4::U-CAMAGI04": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/milestones/milestone-ghost-ms-cadcam-dagi-ms4.md",
+   "knowledge/wiki/architecture/engines/cam/predictivesimulationengine.md"
+  ],
+  "addSeWiki": ["safety-tier-discipline"],
+  "systemImpact": "RealtimeVariabilityIntegratorEngine estimates live machining drift and feeds compensation into LOCDynamicParameterEngine (U-CAMAGI05) and the adaptive orchestrator (U-CAMAGI06). An estimator that amplifies noise drives the closed loop unstable — a divergent compensation command is a machine-safety hazard, so it must be S(x)-gated and route through prism_safety.",
+  "csDepth": [
+   "A Kalman filter or EWMA estimator must be tuned for convergence and noise rejection — an overly-aggressive gain amplifies sensor noise into the compensation command; verify with a known synthetic drift profile that the estimate converges and does not oscillate.",
+   "Real-time sensor integration has a sample-rate / latency coupling: a compensation computed on stale sensor data lags the true drift — the loop must bound estimator latency and the integrator must handle missing/late samples without diverging."
+  ]
+ },
+ "CADCAM-DAGI-MS4::U-CAMAGI05": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/milestones/milestone-ghost-ms-cadcam-dagi-ms4.md",
+   "knowledge/wiki/architecture/engines/calc/feedoptimizationengine.md"
+  ],
+  "addSeWiki": ["safety-tier-discipline"],
+  "systemImpact": "LOCDynamicParameterEngine maps length-of-cut changes to live feed/speed parameters consumed by the adaptive orchestrator and ultimately commanded to the machine. An inline kc/Taylor value here is the exact CALC-HARDEN bug class (U-CH01/CH16 enforce against it); a wrong LOC→param transfer function commands a feed the AdaptiveSafetyEnvelopeEngine (MS5 U-DAAE07) must then clamp.",
+  "csDepth": [
+   "Interpolation-table vs regression choice matters: a sparse LOC table needs interpolation that does not overshoot between knots (monotone cubic, not natural spline) — overshoot produces a feed spike at an unsampled LOC.",
+   "Realtime recomputation per LOC change must be bounded-latency and idempotent — recomputing on an unchanged LOC must return the identical parameter, or the feed command jitters; physics constants must be imported from constants.ts, never inlined."
+  ]
+ },
+ "CADCAM-DAGI-MS4::U-CAMAGI06": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/milestones/milestone-ghost-ms-cadcam-dagi-ms4.md",
+   "knowledge/wiki/architecture/engines/orchestration/metaaiorchestrationengine.md"
+  ],
+  "addSeWiki": ["fail-loud-r12-patterns"],
+  "systemImpact": "VariabilityAdaptiveOrchestratorEngine is the full sense-decide-act-verify loop for MS4 — it wraps the per-moment toolpath engine and the variability integrator. An unbounded loop is a hang risk that stalls the whole CAM-AGI pipeline; the CAMAGIOrchestratorEngine (U-CAMAGI14) and MS5's master closed loop depend on this loop terminating.",
+  "csDepth": [
+   "A closed adaptive loop MUST have a hard iteration bound AND a convergence criterion — bounding iterations alone can return a non-converged result; convergence-only without a bound is a hang; both are required (the documented adaptive-loop-termination class).",
+   "Loop stability needs a contraction guarantee or a damping factor — an adaptive loop whose correction overshoots oscillates; verify the loop converges on a known scenario before claiming it works (R12)."
+  ]
+ },
+ "CADCAM-DAGI-MS4::U-CAMAGI07": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/milestones/milestone-ghost-ms-cadcam-dagi-ms4.md",
+   "knowledge/wiki/architecture/engines/calc/geneticalgorithmengine.md"
+  ],
+  "addSeWiki": ["test-design-real-values"],
+  "systemImpact": "MultiObjectiveStrategyOptimizerEngine produces the Pareto front of CAM strategies that CycleTimeOptimizer/CostOptimizedStrategy engines and the CAM-AGI orchestrator select from. A wrong dominance relation lets a strictly-dominated candidate into the front, so a downstream consumer can pick a strategy worse on every objective. Feeds the strategy-selection layer of the whole MS4 milestone.",
+  "csDepth": [
+   "Non-dominated sorting (NSGA-II) is O(MN^2) in objectives M and population N — for many candidates a fast non-dominated sort or a dominance-tree is needed; the dominance test itself must be strict (a candidate dominated on all objectives never enters the front, R-correctness).",
+   "Weighted-sum scalarization cannot reach concave regions of the Pareto front — epsilon-constraint or NSGA-II is required for a true front; mixing scalarization methods inconsistently across calls produces an unstable front."
+  ]
+ },
+ "CADCAM-DAGI-MS4::U-CAMAGI08": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/milestones/milestone-ghost-ms-cadcam-dagi-ms4.md",
+   "knowledge/wiki/architecture/engines/calc/cycletimeengine.md"
+  ],
+  "addSeWiki": ["physics-constants-discipline"],
+  "systemImpact": "CycleTimeOptimizerEngine minimizes total machining time — its output feeds CostOptimizedStrategyEngine (cost depends on time) and the AGIvsHuman benchmark (cycle time is a headline metric). A cycle-time decomposition that omits tool-change or dwell under-reports time, inflating the beat-humans scorecard with a fabricated win.",
+  "csDepth": [
+   "Cycle time is a sum of decomposed components (cutting + rapid + tool-change + dwell) — each must be a real computed term verified against a measured baseline part; omitting any term is the silent-undercount class.",
+   "Rapid-move minimization (air-cut reduction) is a TSP-like ordering problem over toolpath segments — exact TSP is intractable, so a heuristic (nearest-neighbor + 2-opt) is used; the optimization must never reorder cutting moves, only rapids, or it changes the part."
+  ]
+ },
+ "CADCAM-DAGI-MS4::U-CAMAGI09": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/milestones/milestone-ghost-ms-cadcam-dagi-ms4.md",
+   "knowledge/wiki/architecture/formulas/formula-constants-canonical-taylor.md"
+  ],
+  "addSeWiki": ["physics-constants-discipline"],
+  "systemImpact": "ToolLifeAwareStrategyEngine biases CAM strategy by predicted tool wear — its remaining-useful-life estimates feed the cost optimizer (tool cost per part) and tool-change scheduling. An inline Taylor exponent is the precise CALC-HARDEN U-CH01 bug class; a wrong wear model picks a strategy that wears the tool out mid-part, a safety and scrap hazard.",
+  "csDepth": [
+   "The Taylor equation VcT^n = C must import n and C from constants.ts per ISO material group — an inline exponent is the documented CALC-HARDEN defect; the canonical-constants enforcer hook (U-CH16) blocks it.",
+   "Wear-rate integration along the toolpath is path-history-dependent — RUL must accumulate wear over engaged segments, not assume uniform wear; a stateless per-segment estimate ignores cumulative damage."
+  ]
+ },
+ "CADCAM-DAGI-MS4::U-CAMAGI10": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/milestones/milestone-ghost-ms-cadcam-dagi-ms4.md",
+   "knowledge/wiki/architecture/engines/calc/cycletimeengine.md"
+  ],
+  "addSeWiki": ["physics-constants-discipline"],
+  "systemImpact": "CostOptimizedStrategyEngine sums machine/tool/labor/energy cost into a total-cost-of-ownership figure that the CAM-AGI orchestrator and quote-to-ship pipeline consume. A hardcoded rate instead of a real engine output (cycle time, tool life, energy) makes the cost figure fiction — and quoting downstream prices a job on it.",
+  "csDepth": [
+   "Total-cost-of-ownership must compose real engine outputs (cycle time from U-CAMAGI08, tool life from U-CAMAGI09, energy from the sustainability engine) — every cost term sourced, never a hardcoded rate (R12 honesty).",
+   "Constrained cost minimization must respect physics limits as hard constraints — minimizing cost by exceeding a feed/torque limit is invalid; the minimizer searches only the feasible region the safety envelope defines."
+  ]
+ },
+ "CADCAM-DAGI-MS4::U-CAMAGI11": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/milestones/milestone-ghost-ms-cadcam-dagi-ms4.md",
+   "knowledge/wiki/architecture/engines/cam/strategytaxonomyengine.md"
+  ],
+  "addSeWiki": ["schema-read-discipline"],
+  "systemImpact": "CrossCAMStrategyTransferEngine synthesizes a best-of-all-CAMs strategy by normalizing across Mastercam/Fusion/hyperMILL/InventorCAM strategy vocabularies — it depends on the CAM-PARITY-AGI strategy-knowledge units (U-CAMP05/07) having populated those vocabularies and on the strategy taxonomy being canonical. Without normalization it does apples-to-oranges selection, recommending a strategy a target CAM cannot execute.",
+  "csDepth": [
+   "Cross-source best-of-N selection requires every source strategy mapped to one common taxonomy before comparison — an un-normalized comparison ranks vocabulary differences, not strategy quality.",
+   "Transfer learning of strategy knowledge has a negative-transfer risk: a strategy optimal on one CAM's kinematics may be wrong on another; the transfer must carry capability metadata so an inapplicable strategy is filtered, not transferred."
+  ]
+ },
+ "CADCAM-DAGI-MS4::U-CAMAGI12": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/milestones/milestone-ghost-ms-cadcam-dagi-ms4.md",
+   "knowledge/wiki/architecture/tribal-knowledge-index.md",
+   "knowledge/wiki/architecture/u-tribal-embed-gap.md"
+  ],
+  "addSeWiki": ["wiki-automation-discipline"],
+  "systemImpact": "TribalKnowledgeApplicatorEngine retrieves shop-floor wisdom by machining context and applies it inside the CAM-AGI orchestrator — it depends on the tribal-knowledge corpus and embedding index being populated and fresh. A retrieval matching keyword overlap instead of true feature context applies the wrong tip, silently degrading every CAM-AGI recommendation that consumes it.",
+  "csDepth": [
+   "RAG retrieval must rank by semantic feature match, not lexical overlap — BM25 alone over-weights shared keywords; a hybrid (vector similarity + BM25) with a relevance threshold is needed, and retrieved tips must be verified to actually match the query feature.",
+   "The tribal corpus drifts — a stale embedding index returns tips for a superseded process; the engine must read a fresh index and the embedding gap (documented u-tribal-embed-gap) means some tips have no vector and are unreachable by vector search."
+  ]
+ },
+ "CADCAM-DAGI-MS4::U-CAMAGI13": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/milestones/milestone-ghost-ms-cadcam-dagi-ms4.md",
+   "knowledge/wiki/architecture/engines/calc/markovdecisionengine.md"
+  ],
+  "addSeWiki": ["test-design-real-values"],
+  "systemImpact": "ReinforcementLearningCAMFeedbackEngine updates a CAM policy from real machining outcomes — it closes the continuous-learning loop for the whole CAM-AGI system and feeds the strategy selector. A policy trained on a hardcoded reward converges on nothing useful (R9); a poisoned reward signal degrades every strategy the orchestrator picks thereafter.",
+  "csDepth": [
+   "The reward signal must encode true machining success (surface finish, tool life, cycle time, no scrap) — a test that passes on a hardcoded reward is worthless (R9); the policy is only as good as the reward's fidelity.",
+   "Prioritized experience replay introduces sampling bias that needs importance-sampling correction — an uncorrected prioritized buffer skews the policy toward high-TD-error transitions; the replay buffer write must be atomic so a crash mid-update does not corrupt the experience store."
+  ]
+ },
+ "CADCAM-DAGI-MS4::U-CAMAGI14": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/milestones/milestone-ghost-ms-cadcam-dagi-ms4.md",
+   "knowledge/wiki/architecture/engines/cam/camkernelorchestratorengine.md"
+  ],
+  "addSeWiki": ["fail-loud-r12-patterns"],
+  "systemImpact": "CAMAGIOrchestratorEngine is the top-level orchestrator that chains every MS4 sub-engine — it is the integration apex of the CAM-AGI milestone and what the JM-Die 100-part regression suite (U-CAMAGI15) exercises end-to-end. A swallowed sub-engine failure or an averaged contradiction (R7 violation) silently produces a wrong toolpath the regression suite then certifies.",
+  "csDepth": [
+   "Pipeline staging must propagate every sub-engine failure (R12), never swallow it — a top-level orchestrator that returns a partial result on a sub-engine error masks the defect.",
+   "Two contradicting sub-engine verdicts must be resolved by picking the more authoritative one and flagging the conflict (R7), never averaged — averaging two strategies produces the worst-of-both."
+  ]
+ },
+ "CADCAM-DAGI-MS4::U-CAMAGI15": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/milestones/milestone-ghost-ms-cadcam-dagi-ms4.md",
+   "knowledge/wiki/architecture/engines/cam/camkernelvalidationengine.md"
+  ],
+  "addSeWiki": ["test-design-real-values"],
+  "systemImpact": "JMDieRegressionTestSuite is the acceptance gate for the entire CAM-AGI milestone — 100 real JM-Die parts must pass before MS4 is considered done, and it is the regression oracle that catches a future MS5/MS6/MS7 change breaking CAM-AGI. A test passing on a hardcoded output, or a .skip-ped failing part, makes the milestone falsely green and lets a real CAM defect ship.",
+  "csDepth": [
+   "Each part test must assert real reference values (golden toolpath / measured outcome) — a toBeDefined()-style stub is hook-rejected and proves nothing (R9); the regression oracle must fail when the CAM physics regresses.",
+   "A 100-part suite is a corpus-scale harness — golden-file comparison must use semantic toolpath equivalence (geometry preserved), not byte equality, since post-processor formatting differences are not defects; never .skip a failing part (R12)."
+  ]
+ },
+ "CADCAM-DAGI-MS5::U-DAAE04": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/milestones/milestone-ghost-ms-cadcam-dagi-ms5.md",
+   "knowledge/wiki/architecture/engines/chatter/chatterstabilitylobeengine.md"
+  ],
+  "addSeWiki": ["fail-loud-r12-patterns"],
+  "systemImpact": "AdaptiveRPMSolverEngine issues live RPM commands inside chatter stability lobes — its output is consumed by the AdaptiveExecutionOrchestratorEngine (U-DAAE09) and constrained by the AdaptiveSafetyEnvelopeEngine (U-DAAE07). An RPM command that leaves the stable lobe causes chatter (surface/tool damage); a command exceeding spindle limits is a machine-safety hazard — both must be clamped before they reach the machine.",
+  "csDepth": [
+   "Stability-lobe-aware RPM selection must locate the current cut on the lobe diagram and pick a stable RPM band — the lobe diagram is frequency/depth dependent, so the solver needs the live modal parameters, not a static lobe map.",
+   "PID/feedback control of spindle speed must clamp the command to machine spindle limits as a hard saturation, and integral-windup protection is required or a saturated command keeps the integrator climbing and overshoots on release."
+  ]
+ },
+ "CADCAM-DAGI-MS5::U-DAAE07": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/milestones/milestone-ghost-ms-cadcam-dagi-ms5.md",
+   "knowledge/wiki/architecture/engines/physics/feasibilityorchestratorengine.md"
+  ],
+  "addSeWiki": ["fail-loud-r12-patterns"],
+  "systemImpact": "AdaptiveSafetyEnvelopeEngine enforces the hard physics bounds and the S(x) safety gate for the entire MS5 adaptive milestone — every adaptive RPM/feed command from U-DAAE04 and the master closed loop (U-DAAE09) passes through it. If the gate fails open or is softened, an adaptive engine can command a parameter outside the physics envelope straight to the machine. It must route through prism_safety and sit in a no-disable safety tier.",
+  "csDepth": [
+   "Hard-bound clamping must be the last operation before any command leaves the engine — clamping early then transforming risks re-introducing an out-of-bound value; the clamp is a saturation on the final command.",
+   "Fail-closed S(x) semantics: any envelope-evaluation error, missing input, or NaN must deny the action, never default to allow — the safety gate's failure mode is the most dangerous code path and must be the most conservative."
+  ]
+ },
+ "CADCAM-DAGI-MS5::U-DAAE09": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/milestones/milestone-ghost-ms-cadcam-dagi-ms5.md",
+   "knowledge/wiki/architecture/engines/cam/predictivesimulationengine.md"
+  ],
+  "addSeWiki": ["safety-tier-discipline"],
+  "systemImpact": "AdaptiveExecutionOrchestratorEngine is the master sense-plan-act-verify loop of MS5 — it composes the RPM solver, safety envelope, and predictive simulation. An unbounded loop hangs execution; skipping the S(x) gate on any iteration lets an unsafe command through. MS7's master dispatcher cascade assumes this loop terminates and is safety-gated end-to-end.",
+  "csDepth": [
+   "The master closed loop must terminate (hard iteration bound + convergence criterion) AND evaluate the S(x) safety gate on every single iteration — an unbounded loop or a gate-skipped iteration is the documented adaptive-loop hazard.",
+   "Sub-engine fan-out with a safety-gated merge means the gate is not a one-time check — it must re-fire after each adaptive correction, since a correction can move a previously-safe command out of the envelope."
+  ]
+ },
+ "CADCAM-DAGI-MS5::U-DAAE10": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/milestones/milestone-ghost-ms-cadcam-dagi-ms5.md",
+   "knowledge/wiki/architecture/combos/combo-cadautomationdispatcher.md"
+  ],
+  "addSeWiki": ["doc-reflection-rule"],
+  "systemImpact": "This unit wires the MS5 adaptive engines into prism_cadautomation and the consuming dispatchers — until it lands, the adaptive RPM/safety/orchestration engines are orphans. A missed enum entry 500s the adaptive action in production; the MS7 master cascade (U-DAE2E08) depends on every MS5 action being registered.",
+  "csDepth": [
+   "Adaptive-engine fan-out must reach prism_safety as well as prism_cadautomation — a safety-relevant engine wired only to the automation dispatcher misses the S(x) consumer (the WIRE-TO-ALL-SOURCES doctrine).",
+   "Verify against the real SDK z.enum gate, not MockMCPServer — the mock bypasses the enum so a missing action passes test while production breaks."
+  ]
+ },
+ "CADCAM-DAGI-MS6::U-DAMPP04": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/milestones/milestone-ghost-ms-cadcam-dagi-ms6.md",
+   "knowledge/wiki/architecture/engines/cam/gcodeoptimizationengine.md"
+  ],
+  "addSeWiki": ["regression-prevention-doctrine"],
+  "systemImpact": "RedundantMoveEliminatorEngine strips dead moves from generated G-code — it is a stage in the GCodeCompressionEngine pipeline (U-DAMPP06) and its output is the program that runs on the machine. Removing a move that silently changed a modal group (e.g. a G-code that set absolute/incremental mode) corrupts every subsequent move — a P0 program-integrity defect.",
+  "csDepth": [
+   "Modal G/M-code state must be tracked with an FSM — a 'zero-distance' move can still carry a modal word change (feedrate, plane, units); the eliminator must prove the move is a pure no-op across ALL modal groups before removing it.",
+   "G-code AST simplification must be semantics-preserving — the equivalence check after elimination must compare resulting tool positions and modal state, not just line count; a passed semantic-diff is the only safe acceptance criterion."
+  ]
+ },
+ "CADCAM-DAGI-MS6::U-DAMPP06": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/milestones/milestone-ghost-ms-cadcam-dagi-ms6.md",
+   "knowledge/wiki/architecture/engines/cam/gcodeintelligencepipelineengine.md"
+  ],
+  "addSeWiki": ["regression-prevention-doctrine"],
+  "systemImpact": "GCodeCompressionEngine is the master compression pipeline composing redundant-move elimination, arc-fitting, subprogram extraction, and modal trimming — its output is the final NC program. A compression stage that alters geometry is a P0 safety defect (machine cuts a wrong part); the SubProgramMacroLibraryEngine (U-DAMPP07) is one of its stages and the MS6 dispatcher wiring exposes it.",
+  "csDepth": [
+   "A pipeline of lossless transforms must verify toolpath equivalence after EACH stage, not only at the end — a stage that introduces a defect compounds through the rest of the pipeline and is hard to localize at the end.",
+   "Arc-fitting (replacing G1 segments with G2/G3 arcs) has a tolerance budget — fitting too aggressively deviates from the intended path; the deviation must be bounded and verified, and the modal-state FSM must be threaded through every stage."
+  ]
+ },
+ "CADCAM-DAGI-MS6::U-DAMPP07": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/milestones/milestone-ghost-ms-cadcam-dagi-ms6.md",
+   "knowledge/wiki/architecture/engines/program/programstructureengine.md"
+  ],
+  "addSeWiki": ["regression-prevention-doctrine"],
+  "systemImpact": "SubProgramMacroLibraryEngine extracts repeated G-code subsequences into parameterized subprograms — it is a compression stage feeding GCodeCompressionEngine (U-DAMPP06) and the final NC program. A wrong argument mapping in a parameterized macro produces a different cut at every call site, silently scrapping parts.",
+  "csDepth": [
+   "Common-subsequence detection across a program is a longest-common-substring / suffix-automaton problem — the candidate macro must be exactly repeated (modal-state-aware), and near-matches must NOT be merged or the parameterization is unsafe.",
+   "Macro parameterization is a variable-binding problem: the differing tokens between call sites become arguments — the binding must be exact and order-stable; a wrong argument-to-position mapping is undetectable by line count but changes the geometry."
+  ]
+ },
+ "CADCAM-DAGI-MS6::U-DAMPP08": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/milestones/milestone-ghost-ms-cadcam-dagi-ms6.md",
+   "knowledge/wiki/architecture/combos/combo-cadautomationdispatcher.md"
+  ],
+  "addSeWiki": ["doc-reflection-rule"],
+  "systemImpact": "This unit wires the MS6 post-processing engines (move eliminator, compression, macro library) into prism_cadautomation and the post-processing dispatchers — until it lands, the compression pipeline is unreachable. A missed enum entry 500s the post-processing action; MS7's master cascade depends on every MS6 action being registered.",
+  "csDepth": [
+   "Post-processing-engine fan-out must reach prism_pp (post-processor) and any program-emitting dispatcher, not just prism_cadautomation.",
+   "Verify the new actions against the real SDK z.enum gate — MockMCPServer bypasses the enum and false-passes a missing action."
+  ]
+ },
+ "CADCAM-DAGI-MS7::U-DAE2E02": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/milestones/milestone-ghost-ms-cadcam-dagi-ms7.md",
+   "knowledge/wiki/architecture/engines/geometry/stepgeometryparserengine.md"
+  ],
+  "addSeWiki": ["fail-loud-r12-patterns"],
+  "systemImpact": "PrintIngestEngine is the front door of the MS7 end-to-end pipeline — it parses PDF/DWG/STEP/text inputs into the geometry every downstream CADCAM-DAGI stage consumes. A silent-empty return on a malformed file lets the whole pipeline run on no geometry and produce a vacuous toolpath; a wrong format detection routes to the wrong parser and silently mis-extracts.",
+  "csDepth": [
+   "Multi-format parser dispatch needs reliable format detection (magic bytes, not extension) — extension-only detection mis-routes a mislabeled file; an unrecognized or malformed file must fail loud, never return empty silently (R12).",
+   "Recursive-descent parsing of STEP AP242 has deep entity-reference graphs — the parser must handle forward references and cycles in the entity graph, and bound recursion depth to avoid stack overflow on a hostile or huge file."
+  ]
+ },
+ "CADCAM-DAGI-MS7::U-DAE2E03": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/milestones/milestone-ghost-ms-cadcam-dagi-ms7.md",
+   "knowledge/wiki/architecture/engines/cam/camkernelvalidationengine.md"
+  ],
+  "addSeWiki": ["safety-tier-discipline"],
+  "systemImpact": "CADCAMHandoffEngine enforces the validation-receipt chain between CAD and CAM — it is the engine counterpart of CADValidationGateHook (MS3 U-DACAV09) and the integrity backbone of the MS7 end-to-end pipeline. A missing or unverified receipt that does not fail the handoff lets an un-validated CAD model reach CAM; the AGIvsHuman benchmark and final integration both assume this chain is intact.",
+  "csDepth": [
+   "A hash-chained receipt provenance lets the handoff prove no stage was skipped — each receipt references the prior's hash; a flat set of receipts cannot detect a dropped or reordered validation stage.",
+   "Fail-closed handoff semantics: a missing, stale, or unparseable receipt must block the handoff loud (R12) — receipts must hash the validated artifact, not just timestamp, or a changed geometry passes on a stale receipt."
+  ]
+ },
+ "CADCAM-DAGI-MS7::U-DAE2E04": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/milestones/milestone-ghost-ms-cadcam-dagi-ms7.md",
+   "knowledge/wiki/architecture/engines/dispatcher/costawarerouterengine.md"
+  ],
+  "addSeWiki": ["schema-read-discipline"],
+  "systemImpact": "OptimalMachineSelectorEngine routes a job to a shop-floor machine by capability fit and live availability — it depends on ShopConfigurationEngine for real machine specs and on the BOM/feature data from upstream stages. A hardcoded capability picks a machine that cannot make the part; ignoring live availability schedules onto a busy machine, breaking shop-floor scheduling downstream.",
+  "csDepth": [
+   "Machine-selection scoring must read real specs from ShopConfigurationEngine (21 JM-Die machines) — never hardcode capabilities; schema-read the machine config before consuming it.",
+   "Constraint-satisfaction routing over the machine pool combines hard constraints (capability match) and soft objectives (availability, cost) — the solver must treat capability as a hard filter first, then optimize over the feasible set, or it can return a capability-violating assignment."
+  ]
+ },
+ "CADCAM-DAGI-MS7::U-DAE2E06": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/milestones/milestone-ghost-ms-cadcam-dagi-ms7.md",
+   "knowledge/wiki/architecture/engines/validation/benchmarksuiteengine.md"
+  ],
+  "addSeWiki": ["test-design-real-values"],
+  "systemImpact": "AGIvsHumanBenchmarkEngine is the headline scorecard of the whole CADCAM-DAGI program — it compares the AGI pipeline against human-baseline data per metric (cycle time, cost, quality). A scorecard built on fabricated human baselines proves nothing (R12) and would mislead every downstream decision about whether the AGI is production-ready.",
+  "csDepth": [
+   "Per-metric win/loss must compare against real recorded human-baseline data — a fabricated baseline is a fictional win (R12); the human data must be a real measured corpus, version-pinned.",
+   "A paired-comparison statistical test (per-part AGI vs human) is needed, not an aggregate mean — paired testing controls for part-difficulty variance; an unpaired mean comparison can be dominated by easy-part selection bias."
+  ]
+ },
+ "CADCAM-DAGI-MS7::U-DAE2E08": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/milestones/milestone-ghost-ms-cadcam-dagi-ms7.md",
+   "knowledge/wiki/architecture/engines/cam/camkernelorchestratorengine.md",
+   "knowledge/wiki/architecture/combos/combo-cadautomationdispatcher.md"
+  ],
+  "addSeWiki": ["doc-reflection-rule"],
+  "systemImpact": "U-DAE2E08 is the master dispatcher that cascades every CADCAM-DAGI surface (MS1 idioms through MS7 benchmark) into one end-to-end pipeline — it is the integration apex of the entire 7-milestone program. A single un-registered action enum entry anywhere across the 7 milestones silently breaks the cascade at that node; this unit is where the whole DAGI system either composes or stays a pile of orphans.",
+  "csDepth": [
+   "Full-system cascade verification is a graph-reachability obligation across all 7 milestones — every action enum from MS1..MS6 must be registered; an end-to-end E2E that walks the real pipeline is the only proof.",
+   "The master dispatcher is the widest shared mutable surface in the program — coordinate the action-enum append carefully against concurrent milestone-wiring units, and verify against the real SDK boundary, not the mock."
+  ]
+ },
+ "CALC-HARDEN-MS0::U-CH01": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/milestones/milestone-ghost-ms-calc-harden-ms0.md",
+   "knowledge/wiki/architecture/formulas/formula-constants-canonical-kienzle.md"
+  ],
+  "addSeWiki": ["test-design-real-values"],
+  "systemImpact": "U-CH01 fixes the Taylor exponent in MonteCarlo/AdaptiveCalibration/Cryogenic engines — these engines feed tool-life predictions into CAM strategy selection, cost estimation, and the prism_calc dispatcher. A wrong exponent placement silently over- or under-predicts tool life everywhere those engines are consumed; this is the precise defect class the canonical-constants enforcer (U-CH16) and the cross-engine invariant suite (U-CH17) are built to prevent recurring.",
+  "csDepth": [
+   "Taylor's VcT^n=C is sensitive to exponent placement — n must multiply log(T), not log(Vc); a transposed exponent is dimensionally plausible but numerically wrong, so the regression test must assert against a known analytical tool-life value, not just a non-zero output.",
+   "Fixing three engines at once needs a regression oracle that fails on a revert of ANY of the three — a single shared invariant test is stronger than three independent ones because it catches a partial fix."
+  ]
+ },
+ "CALC-HARDEN-MS0::U-CH02": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/milestones/milestone-ghost-ms-calc-harden-ms0.md",
+   "knowledge/wiki/architecture/engines/calc/dimensionalanalysiscrossvalidationengine.md"
+  ],
+  "addSeWiki": ["test-design-real-values"],
+  "systemImpact": "U-CH02 fixes MRR /60 and power *1000 unit errors plus the ae-vs-D confusion in CuttingForceEngine and SpecificCuttingEnergy — these are core physics engines whose outputs flow into feed/speed optimization, safety gating, and CAM strategy. A unit error here propagates a 60x or 1000x wrong force/power into every consumer, including the S(x) safety gate. The cross-engine invariant suite (U-CH17) is designed to catch exactly this dimensional class.",
+  "csDepth": [
+   "Unit errors are catchable by dimensional-analysis tests — every fix must assert the corrected unit against a hand-computed value (mm3/min vs mm3/s, W vs kW); a value-only test passes both the buggy and fixed code if the magnitude is not pinned.",
+   "ae (radial engagement) vs D (tool diameter) is a parameter-confusion class — the fix needs a test with ae != D so a swap is detectable; ae==D test inputs hide the bug."
+  ]
+ },
+ "CALC-HARDEN-MS0::U-CH05": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/milestones/milestone-ghost-ms-calc-harden-ms0.md",
+   "knowledge/wiki/architecture/engines/calc/advancedchipthicknessengine.md"
+  ],
+  "addSeWiki": ["test-design-real-values"],
+  "systemImpact": "U-CH05 fixes a 1000x scaling error in RegenerativeChatter and an ae→ap mix-up in MachineVibration — chatter prediction feeds the AdaptiveRPMSolverEngine (CADCAM-DAGI MS5 U-DAAE04) and stability-lobe-aware strategy selection. A 1000x-wrong stability limit makes chatter prediction useless, so the adaptive RPM loop commands into chatter. U-CH06 writes the regression tests that lock this fix.",
+  "csDepth": [
+   "A 1000x error is a unit-prefix mistake (kHz vs Hz, or N vs kN) — the fix must be verified against a known analytical stability-lobe solution so the magnitude is pinned, not just the shape.",
+   "ae (radial) vs ap (axial) depth confusion changes the chip-load and stability math — the regression test must use ae != ap inputs so a swap fails the test."
+  ]
+ },
+ "CALC-HARDEN-MS0::U-CH06": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/milestones/milestone-ghost-ms-calc-harden-ms0.md",
+   "knowledge/wiki/architecture/engines/chatter/chatterstabilitylobeengine.md"
+  ],
+  "addSeWiki": ["fail-loud-r12-patterns"],
+  "systemImpact": "U-CH06 writes the chatter-physics regression tests with known analytical solutions — these are the oracle that locks the U-CH05 fixes and catches any future chatter-engine regression. Without real-value tests the CADCAM-DAGI MS5 adaptive RPM loop has no guarantee its chatter inputs are correct. The cross-engine invariant suite (U-CH17) extends this pattern.",
+  "csDepth": [
+   "A regression test must fail when the physics equation regresses — a toBeDefined() stub is hook-rejected; the test must assert against a closed-form analytical stability-lobe diagram value.",
+   "Algebraic-invariant test design (e.g. stability scales as 1/depth) is stronger than point checks — an invariant catches a whole family of wrong implementations, not just one reverted constant."
+  ]
+ },
+ "CALC-HARDEN-MS0::U-CH10": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/milestones/milestone-ghost-ms-calc-harden-ms0.md",
+   "knowledge/wiki/architecture/formulas/formula-constants-predictedra.md"
+  ],
+  "addSeWiki": ["test-design-real-values"],
+  "systemImpact": "U-CH10 fixes the SurfaceFinishPredictor nose-radius formula and the Rz/Ra ratio — surface-finish prediction feeds quality gating, DFM, and CAM finish-pass strategy. A wrong Ra formula mis-predicts achievable finish, so CAM picks a wrong finish strategy and the quality gate passes a part that will not meet spec.",
+  "csDepth": [
+   "Theoretical Ra = f^2/(32r) is exact for a round-nose tool — the fix must verify against this closed form with known feed f and nose radius r; the f^2 (quadratic in feed) dependence makes a linear-feed bug pass at one feed and fail at another, so test multiple feeds.",
+   "Rz/Ra ratio is profile-shape dependent (~4 for typical machined surfaces but not constant) — a hardcoded ratio is an approximation; the test must pin which ratio model is intended."
+  ]
+ },
+ "CALC-HARDEN-MS0::U-CH14": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/milestones/milestone-ghost-ms-calc-harden-ms0.md",
+   "knowledge/wiki/architecture/engines/calc/constraintsatisfactionengine.md"
+  ],
+  "addSeWiki": ["test-design-real-values"],
+  "systemImpact": "U-CH14 migrates ChatterSLD/StochasticChatter/MachineVibration/ConstraintSatisfaction to canonical constant imports — this removes inline kc/Taylor values that the canonical-constants enforcer (U-CH16) will block, and centralizes the physics constants every chatter/vibration consumer reads. A migration that changes output means a hidden inline constant differed from canonical — a silent physics bug being surfaced.",
+  "csDepth": [
+   "A behavior-preserving refactor must produce byte-identical output before and after — any value change means an inline constant differed from canonical; the regression oracle is an output-equality test across a fixture set.",
+   "Import-graph rewrite has a circular-import hazard — pulling constants from constants.ts into many engines must not create a cycle; the constants module must be a leaf with no engine dependencies."
+  ]
+ },
+ "CALC-HARDEN-MS0::U-CH15": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/milestones/milestone-ghost-ms-calc-harden-ms0.md",
+   "knowledge/wiki/architecture/formulas/formula-constants-canonical-material-db.md"
+  ],
+  "addSeWiki": ["test-design-real-values"],
+  "systemImpact": "U-CH15 migrates 8+ thermal/surface/chip/drilling engines to canonical imports — it centralizes material-property and physics-constant lookup across a large engine set feeding thermal compensation, surface prediction, and drilling strategy. A migration that changes an engine's output exposes a previously-hidden wrong inline constant; running affected tests per engine catches it.",
+  "csDepth": [
+   "Migrating 8+ engines is a wide refactor — run affected tests after EACH engine, not all at the end, so a value change localizes to one engine; output must not change unless a constant was genuinely wrong (then it is a separate documented fix).",
+   "Material-property lookup centralization means the canonical material DB becomes a hot shared read — its schema must be stable and the lookup keyed on a canonical ISO group identifier, not a free-form material name."
+  ]
+ },
+ "CALC-HARDEN-MS0::U-CH16": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/milestones/milestone-ghost-ms-calc-harden-ms0.md",
+   "knowledge/wiki/architecture/high-roi-hooks-ms0.md",
+   "knowledge/wiki/architecture/task-freshness-gate.md"
+  ],
+  "addSeWiki": ["safety-tier-discipline"],
+  "systemImpact": "U-CH16 creates the canonical-constants-enforcer hook that hard-blocks any inline kc1_1/mc/Taylor literal — it is the permanent guard preventing the U-CH01/CH02/CH05 bug class from ever recurring. Every future engine commit passes through it; if it false-positives it blocks legitimate work, if it misses it lets a physics bug ship. It must sit in a no-disable hook tier alongside the build-discipline gates.",
+  "csDepth": [
+   "Scanning for inline numeric literals MUST strip comments and string regions before pattern-matching — an unstripped scan false-positives on a constant mentioned in a comment or a test fixture (the documented strip-before-scan class).",
+   "A blocking PreToolUse hook must signal via stdout JSON, never exit-2 — Windows pipe truncation on exit-2 silently bypasses the block; a bundled sub-hook must also exit 0 and block only via stdout."
+  ]
+ },
+ "CALC-HARDEN-MS0::U-CH17": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/milestones/milestone-ghost-ms-calc-harden-ms0.md",
+   "knowledge/wiki/architecture/engines/calc/dimensionalanalysiscrossvalidationengine.md"
+  ],
+  "addSeWiki": ["fail-loud-r12-patterns"],
+  "systemImpact": "U-CH17 builds the 30+-test cross-engine physics invariant suite — it asserts physical invariants (energy/force/dimensional consistency) ACROSS coupled engines, so a regression in any one engine that breaks a shared invariant is caught. It is the permanent regression net for the whole CALC-HARDEN milestone and for any future physics-engine change.",
+  "csDepth": [
+   "Cross-engine invariants (e.g. cutting power computed two ways must agree, energy is conserved) are stronger than per-engine tests — they catch a regression that keeps one engine internally consistent but breaks its coupling to another.",
+   "A 30+-test cross-validation matrix must have each test fail if ANY coupled engine regresses (R9) — the suite is a coupling oracle; designing the invariants so they are not all satisfiable by a single trivial implementation is the hard part."
+  ]
+ },
+ "CAM-EXHAUST-MS0::U-CAM81": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/engines/cam/gcodetranspilerengine.md",
+   "knowledge/wiki/architecture/dispatcher-cam.md"
+  ],
+  "addSeWiki": ["fail-loud-r12-patterns"],
+  "systemImpact": "U-CAM81 is the cross-CAM translation integration test — it verifies that translating a program between CAM systems (Mastercam↔Fusion↔hyperMILL) preserves toolpath semantics. It is the acceptance gate for the cross-CAM translation/recommender engines; a round-trip that loses a move is a P0, and this test is the only place that catches it before a translated program runs on a machine.",
+  "csDepth": [
+   "Cross-CAM equivalence must be a SEMANTIC diff (resulting tool positions and modal state), not byte equality — post-processor formatting and comment differences are not defects; a byte-diff test false-fails on cosmetic differences and a missing-move defect can hide behind them.",
+   "Round-trip testing (A→B→A) is a stronger oracle than one-way — a round-trip that does not recover the original geometry localizes the lossy direction."
+  ]
+ },
+ "CAM-EXHAUST-MS0::U-CAM108": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/engines/ml/federatedloraengine.md",
+   "knowledge/wiki/architecture/engines/cam/camtrainingextractionaggregatorengine.md"
+  ],
+  "addSeWiki": ["memory-curation-discipline"],
+  "systemImpact": "U-CAM108 trains a hyperMILL-specific LoRA adapter — the adapter is consumed by the InferenceLoRAGateEngine to specialize CAM recommendations for hyperMILL jobs. A LoRA trained on fabricated or wrong-system data degrades the base model's hyperMILL output; the adapter's quality directly bounds hyperMILL CAM-AGI accuracy. Part of the per-CAM LoRA family (U-CAM109/110/111).",
+  "csDepth": [
+   "LoRA training-set construction must use real hyperMILL examples — a fabricated dataset poisons the adapter (R9 / training-data-fidelity); the adapter must improve a held-out hyperMILL test set, not just fit the training set (overfitting risk on a low-rank adapter is real).",
+   "Adapter weight serialization needs versioning — a hyperMILL adapter loaded against a mismatched base-model version produces silently-wrong inference; the version must be checked at load."
+  ]
+ },
+ "CAM-EXHAUST-MS0::U-CAM109": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/engines/ml/federatedloraengine.md",
+   "knowledge/wiki/architecture/engines/cam/camtrainingextractionaggregatorengine.md"
+  ],
+  "addSeWiki": ["memory-curation-discipline"],
+  "systemImpact": "U-CAM109 trains a Mastercam X8-specific LoRA adapter consumed by the InferenceLoRAGateEngine for Mastercam jobs. Cross-version training data (mixing X8 with other versions) poisons the adapter so it recommends features absent in X8. Part of the per-CAM LoRA family — its training pipeline should reuse the hyperMILL adapter's pattern.",
+  "csDepth": [
+   "Version-specific (X8) training-data curation must filter by exact version — X8 and X9 differ in available strategies; a version-blind dataset trains an adapter that hallucinates X9-only features into X8 output.",
+   "The adapter must be validated on a held-out X8 set; a LoRA that fits training but does not generalize is the documented hermetic-fakes-don't-prove-it class for ML."
+  ]
+ },
+ "CAM-EXHAUST-MS0::U-CAM110": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/engines/fusion/fusion360aiorchestrationengine.md",
+   "knowledge/wiki/architecture/engines/cam/camtrainingextractionaggregatorengine.md"
+  ],
+  "addSeWiki": ["memory-curation-discipline"],
+  "systemImpact": "U-CAM110 trains a Fusion 360 cloud-CAM LoRA adapter consumed by InferenceLoRAGateEngine for Fusion jobs and the Fusion360AIOrchestrationEngine. A LoRA on fabricated Fusion data degrades Fusion CAM recommendations; the adapter must improve a held-out test set. Part of the per-CAM LoRA family.",
+  "csDepth": [
+   "Cloud-CAM training-dataset assembly must use real Fusion CAM examples and Fusion-specific tribal tips — fabricated data poisons the adapter (R9).",
+   "The adapter must demonstrably improve a held-out Fusion test set — measuring only training-set fit hides overfitting; version/base-model compatibility must be checked at load."
+  ]
+ },
+ "CAM-EXHAUST-MS0::U-CAM111": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/engines/inventor/inventorcamstrategyengine.md",
+   "knowledge/wiki/architecture/engines/cam/inventorcamaiorchestrationengine.md"
+  ],
+  "addSeWiki": ["memory-curation-discipline"],
+  "systemImpact": "U-CAM111 trains an Inventor HSM LoRA adapter consumed by InferenceLoRAGateEngine for Inventor HSM jobs. A tier-blind adapter (not distinguishing HSM Express vs Pro) recommends Pro-only features to Express users — a capability mismatch that surfaces as a job that cannot run. Completes the per-CAM LoRA family.",
+  "csDepth": [
+   "The training split must encode the HSM Express vs Pro capability tier — a tier-blind adapter recommends unavailable features; the tier is a hard capability filter that the training data must carry.",
+   "Same overfitting/held-out-validation and base-model-version-compatibility concerns as the sibling LoRA units."
+  ]
+ },
+ "CAM-EXHAUST-MS0::U-CAM114": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/engines/physics/feasibilityorchestratorengine.md",
+   "knowledge/wiki/architecture/u-oe-docker-compose-2026-05-18.md"
+  ],
+  "addSeWiki": ["safety-tier-discipline"],
+  "systemImpact": "U-CAM114 is the containerized physics simulation agent — CAM strategy selection and feasibility gating offload heavy physics simulation to it. A silent fallback to no-physics when the container is unreachable removes the physics safety check entirely; downstream CAM proceeds with no feasibility verification. Container-unreachable must fail loud (R12). The docker-compose hardening (u-oe-docker-compose) is the recovery-path reference.",
+  "csDepth": [
+   "A containerized worker has a host↔container failure boundary that must fail loud — a Docker daemon down, container OOM-killed, or HTTP-unreachable must surface as an error, never a silent no-physics fallback (the documented Docker-wedged silent-degrade class).",
+   "Job-queue dispatch to the agent needs idempotent retry and timeout — a hung container must be detected by timeout, not waited on indefinitely; the IPC/HTTP boundary must validate the response shape (schema-read)."
+  ]
+ },
+ "CAM-EXHAUST-MS0::U-CAM115": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/engines/cam/batchcamengine.md",
+   "knowledge/wiki/architecture/u-oe-docker-compose-2026-05-18.md"
+  ],
+  "addSeWiki": ["regression-prevention-doctrine"],
+  "systemImpact": "U-CAM115 is the Docker batch processor for bulk CAM analysis — it is the >100-file batch path the PRISM routing doctrine offloads large jobs to. A partial-batch failure that is silently dropped means some parts never get analyzed and the consumer believes the batch completed; idempotent per-item retry bounds the blast radius of a worker crash.",
+  "csDepth": [
+   "Batch partitioning + parallel worker dispatch needs idempotent per-item processing — a worker crash mid-item must be retryable without double-applying side effects (atomic write per result); a partial-batch failure must be reported, never silently dropped (R12).",
+   "Bulk-result aggregation across workers needs a deterministic merge — out-of-order worker completion must not reorder results; a stable per-item key is required."
+  ]
+ },
+ "CAM-EXHAUST-MS0::U-CAM116": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/engines/cnc/cncsimulationpipelineengine.md",
+   "knowledge/wiki/architecture/u-oe-docker-compose-2026-05-18.md"
+  ],
+  "addSeWiki": ["safety-tier-discipline"],
+  "systemImpact": "U-CAM116 is the headless Docker simulation runner that verifies toolpaths without a GUI — it is the verification gate before a program is approved. A SIGKILL or container crash that exits silently looks identical to a clean PASS (R12), so an unverified toolpath can be approved. CAM strategy acceptance depends on this runner failing loud on a crash.",
+  "csDepth": [
+   "A headless runner must distinguish a clean PASS from a silent SIGKILL/crash — exit code AND a positive completion signal must both be checked; a missing completion marker is a failure, not a pass (the documented signal-kill-leaves-no-message class).",
+   "Simulation-result pass/fail extraction must parse a structured result, not infer from exit code alone — a 0 exit with no result is indeterminate, not a pass."
+  ]
+ },
+ "CAM-EXHAUST-MS0::U-CAM125": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/engines/cam/camkernelorchestratorengine.md",
+   "knowledge/wiki/architecture/domain-cam.md"
+  ],
+  "addSeWiki": ["fail-loud-r12-patterns"],
+  "systemImpact": "U-CAM125 unifies the CAD→CAM pipeline — it wires the CAD feature-extraction output as the verified input to CAM toolpath generation. A feature lost at the CAD-CAM seam silently produces a wrong toolpath; this is the same seam-integrity concern the CADCAM-DAGI CADCAMHandoffEngine (MS7 U-DAE2E03) formalizes with receipts.",
+  "csDepth": [
+   "Each pipeline stage's output must be the next stage's VERIFIED input — a feature dropped at the CAD-CAM seam is invisible without an explicit completeness check at the handoff (feature count in == feature count out).",
+   "Pipeline staging with state propagation needs each stage to be a pure transform of validated input — a stage that reads ambient mutable state instead of its declared input makes the seam non-reproducible."
+  ]
+ },
+ "CAM-EXHAUST-MS0::U-CAM128": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/engines/cam/camintegrationengine.md",
+   "knowledge/wiki/architecture/dispatcher-cam.md"
+  ],
+  "addSeWiki": ["doc-reflection-rule"],
+  "systemImpact": "U-CAM128 is the final integration of the entire CAM-EXHAUST milestone — it wires every CAM-EXHAUST engine end-to-end and verifies every dispatcher action is registered. An unwired engine is a silent orphan the stop_on_unwired_assets hook should catch; this unit is where CAM-EXHAUST either composes into a working system or stays a pile of disconnected engines.",
+  "csDepth": [
+   "Full-system integration must run a real E2E cascade — verifying every dispatcher action is registered is a completeness check on the action table; an unwired engine is a silent orphan.",
+   "Dispatcher action-table completeness must be verified against the real SDK z.enum gate, not MockMCPServer, which bypasses the enum and false-passes a missing action."
+  ]
+ },
+ "CAM-ML-CLOSEDLOOP-MS0::U-CMCCL05": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/milestones/milestone-ghost-ms-cam-ml-closedloop-ms0.md",
+   "knowledge/wiki/architecture/engines/edm/edmqualityorchestratorengine.md"
+  ],
+  "addSeWiki": ["test-design-real-values"],
+  "systemImpact": "U-CMCCL05 builds the Sinker-EDM LoRA dataset builder + cadence engine — it is the FIRST instance of the per-process closed-loop ML pattern that U-CMCCL06/07/08 (laser/waterjet/grinding) generalize. Its dataset feeds the federated-LoRA training of sinker-EDM adapters and its cadence engine triggers retraining. If the pattern is wrong here, all four sibling units inherit the defect.",
+  "csDepth": [
+   "The cadence trigger must fire on genuine measured drift, not a timer — a timer-based retrain wastes compute and a drift-blind cadence misses a real distribution shift; drift detection is a statistical test on recent outcomes vs the training distribution.",
+   "The dataset must hold real sinker-EDM examples (R9) and be written atomically with a schemaVersion — a non-atomic write interrupted mid-flush corrupts the dataset; the sibling units depend on this schema being stable."
+  ]
+ },
+ "CAM-ML-CLOSEDLOOP-MS0::U-CMCCL06": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/milestones/milestone-ghost-ms-cam-ml-closedloop-ms0.md",
+   "knowledge/wiki/architecture/engines/cam/camtrainingextractionaggregatorengine.md"
+  ],
+  "addSeWiki": ["test-design-real-values"],
+  "systemImpact": "U-CMCCL06 builds the Laser LoRA dataset builder + cadence engine — it generalizes the U-CMCCL05 sinker-EDM pattern to laser cutting. Its dataset feeds laser-cutting LoRA training and its cadence triggers retraining. It should reuse the sinker-EDM abstraction (R8 — never re-implement); a copy-paste divergence from the established pattern fragments the closed-loop family.",
+  "csDepth": [
+   "Generalizing a shipped pattern (sinker-EDM) is an abstraction task — extract the shared dataset-builder/cadence logic into a reusable core, do not re-implement (R8 dedup discipline).",
+   "Same atomic-write + schemaVersion + drift-triggered cadence + real-examples concerns as U-CMCCL05; the drift detector must be calibrated for laser-cutting outcome variance, not reused blind."
+  ]
+ },
+ "CAM-ML-CLOSEDLOOP-MS0::U-CMCCL07": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/milestones/milestone-ghost-ms-cam-ml-closedloop-ms0.md",
+   "knowledge/wiki/architecture/engines/cam/camtrainingextractionaggregatorengine.md"
+  ],
+  "addSeWiki": ["test-design-real-values"],
+  "systemImpact": "U-CMCCL07 builds the Waterjet LoRA dataset builder + cadence engine — it reuses the sinker/laser closed-loop pattern for waterjet. Its dataset feeds waterjet LoRA training. Part of the four-process closed-loop family (EDM/laser/waterjet/grinding) whose ledgers the MasterAITrainingLedgerEngine (U-CMCCL09) generalizes over.",
+  "csDepth": [
+   "Reuse the established sinker/laser abstraction rather than re-implement (R8) — the dataset builder and cadence engine should be one shared core parameterized per process.",
+   "Waterjet outcome metrics (taper, edge quality) differ from EDM — the drift detector and dataset schema must capture waterjet-specific signals; atomic schema-versioned writes throughout."
+  ]
+ },
+ "CAM-ML-CLOSEDLOOP-MS0::U-CMCCL08": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/milestones/milestone-ghost-ms-cam-ml-closedloop-ms0.md",
+   "knowledge/wiki/architecture/engines/stochastic/stochasticgrindingengine.md"
+  ],
+  "addSeWiki": ["test-design-real-values"],
+  "systemImpact": "U-CMCCL08 builds the Grinding LoRA dataset builder + cadence engine — the fourth instance of the closed-loop ML pattern. Its dataset feeds grinding LoRA training. The four sibling units' training ledgers all roll up into MasterAITrainingLedgerEngine (U-CMCCL09); a divergent dataset schema here breaks that aggregation.",
+  "csDepth": [
+   "Reuse the shared closed-loop core (R8) — grinding differs in wheel-wear and stochastic outcome variance, so the drift detector needs grinding-specific calibration.",
+   "Atomic, schema-versioned dataset writes — the master ledger (U-CMCCL09) aggregates across all four processes and needs a consistent schema."
+  ]
+ },
+ "CAM-ML-CLOSEDLOOP-MS0::U-CMCCL09": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/milestones/milestone-ghost-ms-cam-ml-closedloop-ms0.md",
+   "knowledge/wiki/architecture/ledger-store.md",
+   "knowledge/wiki/architecture/ledger-projector.md"
+  ],
+  "addSeWiki": ["regression-prevention-doctrine"],
+  "systemImpact": "U-CMCCL09 generalizes LathePerformanceSLORegistry into the MasterAITrainingLedgerEngine — the single append-only ledger that records every AI training run across the EDM/laser/waterjet/grinding closed loops and feeds the TrainingLedger dispatcher (U-CMCCL11). It is the system-of-record for ML training provenance; a corrupted ledger loses the audit trail for every adapter.",
+  "csDepth": [
+   "Generalizing a domain-specific registry to a shared abstraction must NOT re-implement (R8) — abstract the existing LathePerformanceSLORegistry pattern; the run lifecycle (open→close→drift-report) is a small state machine.",
+   "An append-only JSONL ledger needs atomic appends (O_EXCL or atomic-rename) so a crash mid-write does not truncate a record; a schemaVersion field is mandatory for the multi-process aggregation to stay forward-compatible."
+  ]
+ },
+ "CAM-ML-CLOSEDLOOP-MS0::U-CMCCL11": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/milestones/milestone-ghost-ms-cam-ml-closedloop-ms0.md",
+   "knowledge/wiki/architecture/combos/combo-aireasoningdispatcher.md"
+  ],
+  "addSeWiki": ["doc-reflection-rule"],
+  "systemImpact": "U-CMCCL11 wires the MasterAITrainingLedgerEngine onto prism_ai as ledger_* actions — until it lands, the training ledger is unreachable from the dispatcher surface and no chat/agent can query training provenance. A missed enum entry 500s the ledger action in production while MockMCPServer-based tests false-pass.",
+  "csDepth": [
+   "Every ledger_* action must appear in the z.enum(ACTIONS) gate — MockMCPServer bypasses it, so a missing action 9/9-passes in test and 100%-fails in production; the round-trip E2E must hit the real SDK boundary.",
+   "Ledger query actions should be pure reads with no write side-effect — mixing a write action into the same dispatcher path as reads risks a query mutating the ledger."
+  ]
+ },
+ "CAM-PARITY-AGI-MS0::U-CAMP02": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/engines/multi/multiaxiskinematicengine.md",
+   "knowledge/wiki/architecture/dispatcher-cam.md"
+  ],
+  "addSeWiki": ["test-design-real-values"],
+  "systemImpact": "U-CAMP02 brings Mastercam 5-axis/multi-axis/mill-turn parity — these engines feed the cross-CAM strategy transfer (CADCAM-DAGI MS4 U-CAMAGI11) and any 5-axis CAM job routed through PRISM. A wrong rotary kinematic model produces tool-axis vectors that gouge on a real 5-axis machine; the post-processor downstream emits wrong rotary moves.",
+  "csDepth": [
+   "5-axis kinematic transformation depends on the machine's rotary configuration (table-table, head-head, table-head) — a single hardcoded kinematic model is wrong for most machines; the transform must read the machine's actual rotary topology.",
+   "Tool-axis vector orientation control near a singularity (gimbal lock) needs special handling — the rotary solution is non-unique there and a naive solver flips the C-axis; mill-turn adds multi-channel synchronization (two turrets must not collide in time)."
+  ]
+ },
+ "CAM-PARITY-AGI-MS0::U-CAMP03": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/engines/cam/postprocessorcapabilitymatrixengine.md",
+   "knowledge/wiki/architecture/dispatcher-pp.md"
+  ],
+  "addSeWiki": ["schema-read-discipline"],
+  "systemImpact": "U-CAMP03 models Mastercam canned-cycle and controller catalogs — these catalogs feed post-processor generation and CAM cycle selection. A wrong cycle parameter (peck depth, dwell) produces a different hole; a wrong controller-compatibility entry posts code a controller rejects.",
+  "csDepth": [
+   "Canned-cycle catalog modeling must capture each cycle's exact parameter set per controller — drill/tap/bore cycles have controller-specific parameter orders; the catalog schema must be schema-versioned and read, not assumed.",
+   "A controller-capability matrix is a sparse lookup — a missing entry must be a known-unknown (fail loud), not silently treated as 'supported'."
+  ]
+ },
+ "CAM-PARITY-AGI-MS0::U-CAMP04": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/engines/quality/spcchartingengine.md",
+   "knowledge/wiki/architecture/dispatcher-quality.md"
+  ],
+  "addSeWiki": ["test-design-real-values"],
+  "systemImpact": "U-CAMP04 builds Mastercam SPC/FAI/probing quality bridges — these feed the quality dashboard and the AGIvsHuman benchmark's quality metric. Fabricated measurement data or wrong control limits make the SPC charts meaningless; a quality gate built on them passes a part it should reject.",
+  "csDepth": [
+   "SPC control-chart computation (Xbar-R) must compute real control limits from the actual subgroup data — a hardcoded limit is the documented fabrication class; verify against a known dataset with hand-computed limits.",
+   "FAI and probing data extraction must parse real measurement records — never stub the measurement layer (R12); the probing-cycle data format is controller-specific and must be schema-read."
+  ]
+ },
+ "CAM-PARITY-AGI-MS0::U-CAMP05": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/engines/cam/strategytaxonomyengine.md",
+   "knowledge/wiki/architecture/engines/cam/featurestrategyknowledgebaseengine.md"
+  ],
+  "addSeWiki": ["schema-read-discipline"],
+  "systemImpact": "U-CAMP05 extracts Mastercam strategy knowledge (OptiRough, Dynamic Motion) into the strategy taxonomy — this is the source vocabulary the cross-CAM strategy transfer engine (CADCAM-DAGI MS4 U-CAMAGI11) normalizes against. If Mastercam strategies are mis-extracted, cross-CAM synthesis compares against a wrong reference and recommends a wrong strategy.",
+  "csDepth": [
+   "CAM data extraction must capture real Mastercam strategy semantics, not just names — OptiRough and Dynamic Motion have specific engagement-control behavior; verify each extracted strategy against the function index.",
+   "Strategy-knowledge indexing into a common taxonomy is the prerequisite for any cross-CAM comparison — an extraction that leaves strategies in Mastercam-specific terms makes them un-normalizable downstream."
+  ]
+ },
+ "CAM-PARITY-AGI-MS0::U-CAMP06": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/formulas/formula-constants-canonical-material-db.md",
+   "knowledge/wiki/architecture/engines/cam/camdeeplearningengine.md"
+  ],
+  "addSeWiki": ["physics-constants-discipline"],
+  "systemImpact": "U-CAMP06 builds the Fusion material bridge mapping Fusion materials to PRISM's canonical material DB by ISO group — every Fusion CAM job's feed/speed/kc selection depends on this mapping. A wrong ISO group selects wrong kc values, propagating a wrong cutting force into the safety gate and CAM strategy.",
+  "csDepth": [
+   "Material-property bridging is a key-mapping problem — Fusion material names must map to a canonical ISO group (P/M/K/N/S/H); an ambiguous or missing mapping must fail loud, never default to a guessed group.",
+   "Deep-learning material-parameter inference for an unmapped material must be flagged as inferred (lower confidence), not silently treated as canonical — the canonical kc1.1 values per ISO group are safety-relevant constants."
+  ]
+ },
+ "CAM-PARITY-AGI-MS0::U-CAMP07": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/engines/multi/multiaxiskinematicengine.md",
+   "knowledge/wiki/architecture/engines/fusion/fusion360aiorchestrationengine.md"
+  ],
+  "addSeWiki": ["test-design-real-values"],
+  "systemImpact": "U-CAMP07 brings Fusion 5-axis/multi-axis parity — its kinematic model and strategy knowledge feed Fusion CAM jobs and the cross-CAM transfer engine. A wrong Fusion kinematic model produces tool-axis vectors that gouge; mirrors U-CAMP02 (Mastercam) and shares the multi-axis kinematic engine.",
+  "csDepth": [
+   "Fusion's machine model must drive the 5-axis transform — the rotary configuration is machine-specific; verify tool-axis vectors against a known Fusion 5-axis reference toolpath.",
+   "Multi-axis strategy knowledge encoding must capture Fusion-specific strategies into the common taxonomy so cross-CAM transfer can use them."
+  ]
+ },
+ "CAM-PARITY-AGI-MS0::U-CAMP08": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/engines/cam/postprocessorcapabilitymatrixengine.md",
+   "knowledge/wiki/architecture/dispatcher-pp.md"
+  ],
+  "addSeWiki": ["schema-read-discipline"],
+  "systemImpact": "U-CAMP08 models Fusion canned-cycle and controller catalogs plus the lathe-post delta registry — these feed Fusion post-processor generation. A missed per-controller post delta makes the post emit wrong code for that controller; mirrors U-CAMP03 (Mastercam).",
+  "csDepth": [
+   "The lathe-post delta registry captures per-controller variations from a base post — each delta must be exact; a missed delta silently produces wrong NC code for that controller.",
+   "Canned-cycle and controller-capability catalogs must be schema-versioned and read, not assumed; a missing controller entry is a known-unknown that must fail loud."
+  ]
+ },
+ "CAM-PARITY-AGI-MS0::U-CAMP09": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/engines/quality/spcchartingengine.md",
+   "knowledge/wiki/architecture/dispatcher-quality.md"
+  ],
+  "addSeWiki": ["test-design-real-values"],
+  "systemImpact": "U-CAMP09 builds Fusion SPC/FAI/probing quality bridges feeding the quality dashboard and benchmark quality metric. Stubbed measurement layers or fabricated control limits make the quality verdict fiction; mirrors U-CAMP04 (Mastercam).",
+  "csDepth": [
+   "SPC control limits must be computed from real subgroup data and verified against a known dataset — never fabricate measurement data (R12).",
+   "The FAI measurement pipeline and probing-cycle bridging must parse real Fusion measurement output; the result schema must be read, not assumed."
+  ]
+ },
+ "CAM-PARITY-AGI-MS0::U-CAMP10": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/engines/cam/camkernelorchestratorengine.md",
+   "knowledge/wiki/architecture/engines/cam/strategytaxonomyengine.md"
+  ],
+  "addSeWiki": ["regression-prevention-doctrine"],
+  "systemImpact": "U-CAMP10 is the InventorCAM core engine suite — a coordinated set of engines that brings InventorCAM strategy modeling to parity. It feeds the cross-CAM transfer engine and InventorCAM jobs; the InventorCAM material/multi-axis (U-CAMP11) and catalog/quality (U-CAMP12) suites build on it. Adding a duplicate engine here is an R8 violation — check ENGINE_DIGEST first.",
+  "csDepth": [
+   "A core engine suite is a composition of coordinated engines — each must be independently tested AND the suite verified together; an engine that passes in isolation can fail in composition.",
+   "Before adding any new engine, check ENGINE_DIGEST and run duplicationGuardEngine (R8) — InventorCAM overlaps Inventor HSM and may already be partly built."
+  ]
+ },
+ "CAM-PARITY-AGI-MS0::U-CAMP11": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/engines/multi/multiaxiskinematicengine.md",
+   "knowledge/wiki/architecture/formulas/formula-constants-canonical-material-db.md"
+  ],
+  "addSeWiki": ["physics-constants-discipline"],
+  "systemImpact": "U-CAMP11 is the InventorCAM material + multi-axis suite — its material lookup feeds InventorCAM feed/speed selection and its multi-axis model feeds 5-axis InventorCAM jobs. A wrong ISO-group mapping selects wrong kc values; builds on the U-CAMP10 core suite.",
+  "csDepth": [
+   "Material lookup must use the canonical material DB keyed on ISO group — never inline material constants (physics-constants discipline).",
+   "5-axis kinematic transformation must model the actual rotary configuration; verify against a known reference."
+  ]
+ },
+ "CAM-PARITY-AGI-MS0::U-CAMP12": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/engines/calc/crosscatalogvalidationengine.md",
+   "knowledge/wiki/architecture/dispatcher-quality.md"
+  ],
+  "addSeWiki": ["schema-read-discipline"],
+  "systemImpact": "U-CAMP12 is the InventorCAM catalog + quality suite — cross-catalog validation here catches missing/inconsistent catalog entries before they reach CAM cycle selection or quality gating. An un-validated catalog with a missing cycle produces a wrong-cycle toolpath; completes the InventorCAM parity set (U-CAMP10/11/12).",
+  "csDepth": [
+   "Cross-catalog validation is a referential-integrity check — every reference from one catalog into another must resolve; a dangling reference is a missing-entry defect.",
+   "Schema-read each catalog before consuming it — a catalog parsed against an assumed schema silently mis-reads on a schema bump."
+  ]
+ },
+ "CAM-PARITY-AGI-MS0::U-CAMP16": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/engines/cam/camintegrationengine.md",
+   "knowledge/wiki/architecture/engines/cam/camkernelvalidationengine.md"
+  ],
+  "addSeWiki": ["fail-loud-r12-patterns"],
+  "systemImpact": "U-CAMP16 is the full-suite integration test for CAM-PARITY-AGI — it exercises every Mastercam/Fusion/InventorCAM parity engine end-to-end. It is the acceptance gate for the whole milestone and the regression oracle that catches a future change breaking CAM parity. A .skip-ped failing path makes the milestone falsely green.",
+  "csDepth": [
+   "Full-suite integration testing must assert real reference values per engine and run a real cross-engine cascade — a stub assertion proves nothing (R9).",
+   "Never .skip a failing path to make the suite green (R12) — a skipped test is a hidden failure; a failing CAM-parity path means a real defect."
+  ]
+ },
+ "CAMK-MS0::U01": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/milestones/milestone-ghost-ms-camk-ms0.md",
+   "knowledge/wiki/architecture/engines/cad/cadfeaturerecognitionengine.md"
+  ],
+  "addSeWiki": ["test-design-real-values"],
+  "systemImpact": "FeatureToZoneEngine maps recognized geometric features to machining zones — it is the entry stage of the CAMK (CAM-kernel) pipeline; the cutter-contact engine (U03) and the novel-toolpath simulator (CAMK-MS2 U01) operate on the zones it produces. A misclassified feature picks a wrong machining strategy for that zone, cascading a wrong toolpath.",
+  "csDepth": [
+   "Geometric feature recognition (pocket/slot/hole) is a classification problem on B-rep topology — the classifier must be verified per feature type with known geometry; an ambiguous feature (a shallow pocket vs a face) needs a tie-break rule, not a silent default.",
+   "Feature-to-zone spatial mapping is a clustering problem — geometrically adjacent features may belong to one zone or several; the clustering criterion (accessibility, tool reach) must be explicit."
+  ]
+ },
+ "CAMK-MS0::U03": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/milestones/milestone-ghost-ms-camk-ms0.md",
+   "knowledge/wiki/architecture/engines/geometry/engagementgeometryengine.md"
+  ],
+  "addSeWiki": ["physics-constants-discipline"],
+  "systemImpact": "CutterContactEngine computes analytical cutter-contact points — these CC points are the geometric basis for toolpath generation and the engagement-driven force simulation in the CAMK novel-toolpath simulator. A wrong CC point places the tool wrong, gouging the surface or leaving stock; it is a foundational geometry engine the CAMK kernel depends on.",
+  "csDepth": [
+   "Analytical cutter-contact computation is an offset/tangency problem — the CC point is where the tool surface is tangent to the part surface; this has a closed-form solution for standard tool shapes and must be verified against it, not a numerical approximation.",
+   "The cutter-location to cutter-contact transformation depends on tool geometry (ball, flat, bull-nose) — a single transform is wrong for non-ball tools; the engine must branch on tool shape."
+  ]
+ },
+ "CAMK-MS2::U01": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/milestones/milestone-ghost-ms-camk-ms2.md",
+   "knowledge/wiki/architecture/engines/cam/noveltoolpathsimulatorengine.md"
+  ],
+  "addSeWiki": ["physics-constants-discipline"],
+  "systemImpact": "NovelToolpathSimulator computes force/temperature/deflection per toolpath segment — it is the physics-verification stage of the CAMK kernel feeding strategy acceptance and safety gating. An inline physics constant is the CALC-HARDEN bug class (U-CH16 blocks it); a wrong per-segment force estimate mis-predicts where a toolpath overloads the tool or deflects the part.",
+  "csDepth": [
+   "Per-segment force/temp/deflection simulation is numerical integration of physics state along the path — the step size must be fine enough to resolve engagement changes; a coarse step misses a brief overload spike.",
+   "Engagement-driven cutting-force integration must read the actual radial/axial engagement per segment (from the engagement-geometry engine); physics constants (kc, thermal) must be imported from constants.ts, never inlined."
+  ]
+ },
+ "CAMK-MS2::U02": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/milestones/milestone-ghost-ms-camk-ms2.md",
+   "knowledge/wiki/architecture/engines/cad/stockmodelengine.md"
+  ],
+  "addSeWiki": ["fail-loud-r12-patterns"],
+  "systemImpact": "VoxelStockIntegration tracks material removal by subtracting the swept tool volume per move — the in-process stock model it maintains is consumed by the toolpath simulator (engagement depends on remaining stock) and by collision/rest-machining detection. A too-coarse voxel grid misses thin cuts, so the stock model diverges from reality and engagement/force estimates downstream are wrong.",
+  "csDepth": [
+   "Voxel material-removal is a 3D occupancy-grid update — boolean subtraction of the swept tool volume per move; the grid resolution must be fine enough that no machined feature is thinner than a voxel, or thin cuts are silently missed (memory cost is O(n^3) in resolution — a real space/accuracy tradeoff).",
+   "Swept-volume voxelization per move is the per-segment cost driver — an exact swept solid is expensive; conservative voxelization (mark any voxel the swept volume touches) is safe for collision but over-removes for MRR, so the two uses need different rasterization."
+  ]
+ }
+}

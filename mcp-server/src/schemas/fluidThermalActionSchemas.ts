@@ -59,4 +59,9 @@ export const FLUID_THERMAL_ACTION_SCHEMAS: ActionSchemaMap = {
   thermocouple_calculate: z.object({ tc_type: optStr, measured_voltage_mV: optNum, measured_temperature_C: optNum, cold_junction_temp_C: optNum }).passthrough(),
   ultrasonic_flowmeter_calculate: z.object({ pipe_diameter_mm: optPosNum, flow_velocity_m_s: optPosNum, mode: optStr, mount_type: optStr }).passthrough(),
   vane_pump_calculate: z.object({ rotor_diameter_mm: optPosNum, cam_ring_diameter_mm: optPosNum, vane_width_mm: optPosNum, speed_rpm: optPosNum }).passthrough(),
+  fluidized_bed_calculate: z.object({ gas_flow_m3_h: optPosNum, bed_diameter_mm: optPosNum, particle_diameter_um: optPosNum, particle_density_kg_m3: optPosNum, gas_density_kg_m3: optPosNum, gas_viscosity_Pa_s: optPosNum, static_bed_height_mm: optPosNum, bed_voidage: optPosNum }).passthrough(),
+  vacuum_pump_calculate: z.object({ chamber_volume_L: optPosNum, target_pressure_mbar: optPosNum, pumpdown_time_min: optPosNum, gas_load_mbar_L_s: optNum, pump_type: optStr }).passthrough(),
+  peristaltic_pump_calculate: z.object({ tube_material: optStr, pump_size: optStr, tube_id_mm: optPosNum, tube_wall_mm: optPosNum, roller_count: optPosNum, rpm: optPosNum, discharge_pressure_bar: optPosNum, fluid_viscosity_mPa_s: optPosNum }).passthrough(),
+  progressive_cavity_pump_calculate: z.object({ stator_material: optStr, fluid: optStr, rotor_diameter_mm: optPosNum, eccentricity_mm: optPosNum, pitch_length_mm: optPosNum, num_stages: optPosNum, rpm: optPosNum, discharge_pressure_bar: optPosNum, fluid_viscosity_mPa_s: optPosNum }).passthrough(),
+  axial_piston_pump_calculate: z.object({ type: optStr, control: optStr, num_pistons: optPosNum, piston_diameter_mm: optPosNum, piston_stroke_mm: optPosNum, swashplate_angle_deg: optPosNum, shaft_speed_rpm: optPosNum, system_pressure_bar: optPosNum, oil_viscosity_cSt: optPosNum }).passthrough(),
 };

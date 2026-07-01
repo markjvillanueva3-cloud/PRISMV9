@@ -40,6 +40,7 @@ export type PDFSourceCategory =
   | "catalog"
   | "academic"
   | "mit_course"
+  | "ai_textbook" // cyrilXBT 12 free MIT-Press AI/ML textbooks (corpus-as-permanent-reasoning-layer, 2026-06-08)
   | "cam_documentation"
   | "standards"
   | "paper";
@@ -67,6 +68,9 @@ export interface PDFSourceMetadata {
   fileSize?: number;
   language?: string;
   courseId?: string; // For MIT courses
+  topics?: string[]; // Subject tags for retrieval/routing (ai_textbook entries)
+  source?: string; // Provenance tag (e.g. "cyrilXBT-12-mit-ai-textbooks-2026-06-08")
+  note?: string; // Curator annotation (e.g. hub-entry disambiguation)
 }
 
 export interface PDFExtractionResult {

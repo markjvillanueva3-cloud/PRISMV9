@@ -52,7 +52,8 @@ export interface ShopMachine {
   max_rpm?: number;
   max_power_kw?: number;
   max_torque_nm?: number;
-  work_envelope?: { x_mm: number; z_mm: number };
+  spindle_taper?: string; // mill spindle taper designation (e.g. CAT40, BT30, HSK63A)
+  work_envelope?: { x_mm: number; y_mm?: number; z_mm: number };
   bar_capacity_mm?: number;
   has_bar_feeder?: boolean;
   has_sub_spindle?: boolean;
@@ -144,6 +145,10 @@ export interface ShopProfile {
   rates: ShopRates;
   machines: ShopMachine[];
   overhead_pct: number;
+  /** Minimum acceptable gross-margin % floor. QuoteEstimatorEngine flags (does not
+   *  reject) a quote whose post-discount margin falls below it. Optional: engines
+   *  fall back to their own DEFAULT_MARGIN_FLOOR_PCT when a profile omits it. */
+  margin_floor_pct?: number;
   material_markup_pct: number;
   tooling_cost_per_op: number;
   material_cost_per_part_default: number;
@@ -321,6 +326,8 @@ const DEFAULT_MACHINES: ShopMachine[] = [
     hourly_rate: 80.00, efficiency_factor: 0.82,
     capabilities: ["milling", "drilling", "tapping", "boring", "contouring"],
     hours_per_shift: 10, shifts_per_day: 1, days_per_week: 5,
+    // Spindle nameplate (U-KSF-01, OEM-verified 2026-06-26): Hurco VM30i CAT40, 12k rpm / 20 hp (15 kW).
+    max_rpm: 12000, max_power_kw: 15,
   },
   {
     id: "VMC-02", name: "Okuma M460V-5AX", type: "5-axis",
@@ -328,6 +335,8 @@ const DEFAULT_MACHINES: ShopMachine[] = [
     capabilities: ["milling", "drilling", "5axis_contouring", "high_speed_milling", "die_sinking"],
     hours_per_shift: 10, shifts_per_day: 1, days_per_week: 5,
     controller: "okuma",
+    // Spindle nameplate (U-KSF-01, OEM-verified 2026-06-26): Okuma GENOS M460V-5AX, 15k rpm / 22 kW / 199 Nm.
+    max_rpm: 15000, max_power_kw: 22, max_torque_nm: 199,
   },
   {
     id: "VMC-03", name: "Haas VF-2", type: "VMC",
@@ -335,6 +344,8 @@ const DEFAULT_MACHINES: ShopMachine[] = [
     capabilities: ["milling", "drilling", "tapping", "boring"],
     hours_per_shift: 10, shifts_per_day: 1, days_per_week: 5,
     controller: "haas",
+    // Spindle nameplate (U-KSF-01, OEM-verified 2026-06-26): Haas VF-2, 8.1k rpm / 22.4 kW / 122 Nm @ 2000 rpm.
+    max_rpm: 8100, max_power_kw: 22.4, max_torque_nm: 122,
   },
   {
     id: "VMC-04", name: "Haas OM-2", type: "VMC",
@@ -342,6 +353,9 @@ const DEFAULT_MACHINES: ShopMachine[] = [
     capabilities: ["milling", "drilling", "engraving", "small_parts"],
     hours_per_shift: 10, shifts_per_day: 1, days_per_week: 5,
     controller: "haas",
+    // Spindle nameplate (U-KSF-01, OEM-verified 2026-06-26): Haas Office Mill OM-2, 30k rpm / 5 hp (3.7 kW) ISO20.
+    // CORRECTS the Claude-design jm-data.js value of 7.5 hp -- the OM-2 native spindle is 5 hp; 7.5 hp is a different platform.
+    max_rpm: 30000, max_power_kw: 3.7,
   },
   {
     id: "VMC-05", name: "Roku-Roku HC 658-II", type: "VMC",
@@ -349,6 +363,9 @@ const DEFAULT_MACHINES: ShopMachine[] = [
     capabilities: ["milling", "drilling", "engraving", "high_speed_milling", "die_sinking", "electrode_milling", "graphite_milling"],
     hours_per_shift: 10, shifts_per_day: 1, days_per_week: 5,
     controller: "fanuc",
+    // Spindle nameplate (U-KSF-01, OEM-verified 2026-06-26): Roku-Roku HC-658 II, 32k rpm (200-32,000) / ~15 hp (11 kW).
+    // CORRECTS the Claude-design jm-data.js value of 40k rpm -- the HC-658 II standard spindle tops at 32k (40k would allow 25% over-speed).
+    max_rpm: 32000, max_power_kw: 11,
   },
   // ── SINKER EDM (2) ────────────────────────────────────────────────────────
   {
@@ -422,7 +439,8 @@ function createDefaultProfile(): ShopProfile {
     name: "JM Die Company",
     rates: { ...DEFAULT_RATES },
     machines: DEFAULT_MACHINES.map(m => ({ ...m, capabilities: [...m.capabilities] })),
-    overhead_pct: 18,                      // JM Die — small die shop overhead
+    overhead_pct: 18,                      // JM Die -- small die shop overhead
+    margin_floor_pct: 20,                  // JM Die -- flag quotes below 20% gross margin
     material_markup_pct: 15,               // JM Die — tool steel/carbide material markup
     tooling_cost_per_op: 20.00,            // JM Die — tooling cost per operation
     material_cost_per_part_default: 35.00, // JM Die — tool steel default
@@ -947,6 +965,8 @@ export class ShopConfigurationEngine {
 
     if (profile.overhead_pct < 0 || profile.overhead_pct > 200)
       warnings.push(`overhead_pct ${profile.overhead_pct}% outside sane range (0-200%)`);
+    if (profile.margin_floor_pct != null && (profile.margin_floor_pct < 0 || profile.margin_floor_pct > 100))
+      warnings.push(`margin_floor_pct ${profile.margin_floor_pct}% outside sane range (0-100%)`);
     if (profile.material_markup_pct < 0 || profile.material_markup_pct > 100)
       warnings.push(`material_markup_pct ${profile.material_markup_pct}% outside sane range (0-100%)`);
 

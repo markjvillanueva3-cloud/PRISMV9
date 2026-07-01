@@ -2,47 +2,20 @@ import { useState, useEffect, useCallback } from 'react';
 import { SafetyBadge } from '../components/shared/SafetyBadge';
 import { useWebSocket, type WSMessage } from '../hooks/useWebSocket';
 import { NotificationBell, NotificationPanel, ToastContainer, useNotifications } from '../components/shared/NotificationCenter';
+import {
+  loadDashboardSnapshotWithFallback,
+  DEMO_OEE,
+  type MachineStatus,
+  type JobProgress,
+  type ToolLife,
+  type OEEData,
+  type DashboardSnapshotSource,
+} from '../api/dashboard';
 
 // ── Types ──────────────────────────────────────────────────────────
 
-interface MachineStatus {
-  id: string;
-  name: string;
-  brand: string;
-  status: 'running' | 'idle' | 'alarm' | 'offline' | 'setup';
-  spindle_rpm: number;
-  feed_rate: number;
-  current_program: string;
-  uptime_pct: number;
-}
-
-interface JobProgress {
-  id: string;
-  job_number: string;
-  part_name: string;
-  machine: string;
-  progress_pct: number;
-  completed: number;
-  total: number;
-  eta_minutes: number;
-  current_op: string;
-}
-
-interface ToolLife {
-  id: string;
-  tool_name: string;
-  machine: string;
-  life_remaining_pct: number;
-  estimated_minutes: number;
-  wear_rate: 'normal' | 'elevated' | 'critical';
-}
-
-interface OEEData {
-  availability: number;
-  performance: number;
-  quality: number;
-  oee: number;
-}
+// MachineStatus / JobProgress / ToolLife / OEEData are imported from api/dashboard.ts -- the single
+// source of truth, shared with the live-snapshot loader (loadDashboardSnapshotWithFallback) + DEMO set.
 
 // ── Status Colors ──────────────────────────────────────────────────
 
@@ -56,29 +29,12 @@ const STATUS_COLORS: Record<string, { bg: string; text: string; dot: string }> =
 
 // ── Mock Data (replaced by WebSocket in production) ────────────────
 
-const MOCK_MACHINES: MachineStatus[] = [
-  { id: 'm1', name: 'Haas VF-2', brand: 'Haas', status: 'running', spindle_rpm: 8000, feed_rate: 2400, current_program: 'O1234', uptime_pct: 92 },
-  { id: 'm2', name: 'DMG MORI NLX 2500', brand: 'DMG MORI', status: 'running', spindle_rpm: 4500, feed_rate: 180, current_program: 'O5678', uptime_pct: 88 },
-  { id: 'm3', name: 'Mazak QTN 200', brand: 'Mazak', status: 'idle', spindle_rpm: 0, feed_rate: 0, current_program: '', uptime_pct: 75 },
-  { id: 'm4', name: 'Okuma MU-5000V', brand: 'Okuma', status: 'setup', spindle_rpm: 0, feed_rate: 0, current_program: '', uptime_pct: 82 },
-  { id: 'm5', name: 'Doosan DNM 5700', brand: 'Doosan', status: 'alarm', spindle_rpm: 0, feed_rate: 0, current_program: 'O9012', uptime_pct: 68 },
-  { id: 'm6', name: 'Haas ST-20', brand: 'Haas', status: 'running', spindle_rpm: 3200, feed_rate: 120, current_program: 'O3456', uptime_pct: 91 },
-];
-
-const MOCK_JOBS: JobProgress[] = [
-  { id: 'j1', job_number: 'JOB-2401', part_name: 'Hydraulic Manifold', machine: 'Haas VF-2', progress_pct: 72, completed: 36, total: 50, eta_minutes: 85, current_op: 'Op 30 - Pocket' },
-  { id: 'j2', job_number: 'JOB-2402', part_name: 'Bearing Housing', machine: 'DMG MORI NLX 2500', progress_pct: 45, completed: 9, total: 20, eta_minutes: 210, current_op: 'Op 20 - Bore' },
-  { id: 'j3', job_number: 'JOB-2403', part_name: 'Spindle Adapter', machine: 'Haas ST-20', progress_pct: 90, completed: 18, total: 20, eta_minutes: 22, current_op: 'Op 40 - Thread' },
-];
-
-const MOCK_TOOLS: ToolLife[] = [
-  { id: 't1', tool_name: 'EM 12mm 4F TiAlN', machine: 'Haas VF-2', life_remaining_pct: 35, estimated_minutes: 42, wear_rate: 'elevated' },
-  { id: 't2', tool_name: 'Drill 8.5mm Carbide', machine: 'Haas VF-2', life_remaining_pct: 78, estimated_minutes: 156, wear_rate: 'normal' },
-  { id: 't3', tool_name: 'CNMG 120408 IC8150', machine: 'DMG MORI NLX 2500', life_remaining_pct: 12, estimated_minutes: 8, wear_rate: 'critical' },
-  { id: 't4', tool_name: 'Thread Mill M10x1.5', machine: 'Haas ST-20', life_remaining_pct: 65, estimated_minutes: 95, wear_rate: 'normal' },
-];
-
-const MOCK_OEE: OEEData = { availability: 0.87, performance: 0.82, quality: 0.96, oee: 0.685 };
+// JM Die Company shop-floor seed — the REAL fleet (Okuma/Hurco/Haas/Mitsubishi per
+// src/data/jm-die-profile.ts JM_DIE_CONTROLLER_MAP) running real cold-heading die/punch work for
+// JM's fastener customers. Live telemetry replaces this once the machine WebSocket rooms are wired;
+// until then this is the demo display. Mirrors api/dashboard.ts DEMO_* so both dashboards agree.
+// Demo seed (DEMO_MACHINES/JOBS/TOOLS/OEE) lives in api/dashboard.ts and is applied by the snapshot
+// loader as a LABELED per-surface fallback -- this page no longer carries its own copy or fabricates.
 
 // ── Components ─────────────────────────────────────────────────────
 
@@ -175,10 +131,11 @@ function OEEGauge({ label, value }: { label: string; value: number }) {
 // ── Main Dashboard ─────────────────────────────────────────────────
 
 export function DashboardPage() {
-  const [machines, setMachines] = useState(MOCK_MACHINES);
-  const [jobs, setJobs] = useState(MOCK_JOBS);
-  const [tools, setTools] = useState(MOCK_TOOLS);
-  const [oee, _setOee] = useState(MOCK_OEE);
+  const [machines, setMachines] = useState<MachineStatus[]>([]);
+  const [jobs, setJobs] = useState<JobProgress[]>([]);
+  const [tools, setTools] = useState<ToolLife[]>([]);
+  const [oee, setOee] = useState<OEEData>(DEMO_OEE);
+  const [dataSource, setDataSource] = useState<DashboardSnapshotSource>('demo');
   const [safetyScore, setSafetyScore] = useState(0.88);
   const [lastUpdate, setLastUpdate] = useState(new Date());
   const {
@@ -235,23 +192,24 @@ export function DashboardPage() {
     autoConnect: true,
   });
 
-  // Simulated real-time tick for demo mode
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setJobs(prev => prev.map(j => ({
-        ...j,
-        progress_pct: Math.min(100, j.progress_pct + Math.random() * 0.5),
-        eta_minutes: Math.max(0, j.eta_minutes - 1),
-      })));
-      setTools(prev => prev.map(t => ({
-        ...t,
-        life_remaining_pct: Math.max(0, t.life_remaining_pct - Math.random() * 0.2),
-        estimated_minutes: Math.max(0, t.estimated_minutes - 1),
-      })));
-      setLastUpdate(new Date());
-    }, 60_000);
-    return () => clearInterval(timer);
+  // Load the real dashboard snapshot (machine-live / job-dashboard / tool-usage / telemetry routes).
+  // Per surface it falls back to LABELED demo data with an honest source posture; it NEVER fabricates
+  // live motion (the prior RNG-simulated tick did -- a shop-floor dashboard must never invent progress).
+  const loadSnapshot = useCallback(async () => {
+    const snap = await loadDashboardSnapshotWithFallback();
+    setMachines(snap.machines);
+    setJobs(snap.jobs);
+    setTools(snap.tools);
+    setOee(snap.oee);
+    setDataSource(snap.source);
+    setLastUpdate(new Date());
   }, []);
+
+  useEffect(() => {
+    loadSnapshot();
+    const timer = setInterval(loadSnapshot, 60_000); // re-poll real routes, not a random simulation
+    return () => clearInterval(timer);
+  }, [loadSnapshot]);
 
   const running = machines.filter(m => m.status === 'running').length;
   const alarms = machines.filter(m => m.status === 'alarm').length;
@@ -264,10 +222,11 @@ export function DashboardPage() {
         <div style={{ display: 'flex', alignItems: 'center', gap: 12, fontSize: 12, color: '#9ca3af' }}>
           <span style={{
             width: 8, height: 8, borderRadius: '50%',
-            background: isConnected ? '#22c55e' : '#ef4444',
+            background: isConnected ? '#22c55e' : '#9ca3af',
             display: 'inline-block',
-          }} />
-          {isConnected ? 'Live' : 'Demo'} — Updated {lastUpdate.toLocaleTimeString()}
+          }} title={isConnected ? 'Real-time feed connected' : 'Real-time feed offline'} />
+          {dataSource === 'live' ? 'Live data' : dataSource === 'mixed' ? 'Mixed (live + demo)' : 'Demo data'}
+          {' '}- Updated {lastUpdate.toLocaleTimeString()}
           <NotificationBell count={unreadCount} onClick={() => setPanelOpen(!panelOpen)} />
         </div>
       </div>

@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `sync-drives` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/sync-drives.md` |
+| Source | `C:/Users/wompu/.claude/commands/sync-drives.md` |
 | Model | default |
 | Tags | _(none)_ |
 

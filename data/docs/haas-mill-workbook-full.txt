@@ -1,0 +1,2387 @@
+
+===== PAGE 4 =====
+IIIINTRODUCTION ..................................................................................................................
+THE COORDINATE SYSTEM ................................. ............................................................
+MACHINE HOME .............................................. ...................................................................
+ABSOLUTE AND INCREMENTAL POSITIONING .............................................................
+POSITIONING EXERCISE ....................................... ............................................................
+PROGRAMMING WITH CODES ..........................................................................................
+PROGRAM FORMAT ...........................................................................................................
+DEFINITIONS WITHIN THE FORMAT ................................................................................
+OFTEN USED PREPARATORY "G" CODES ....................................................................
+PREPARATORY "G" CODES LIST....................................................................................
+MACHINE DEFAULTS ........................................... .............................................................
+OFTEN USED MISCELLANEOUS "M" CODES ................................................................
+MISCELLANEOUS "M" CODES LIST ...............................................................................
+PROGRAM STRUCTURE ..................................................................................................
+ALPHABETICAL ADDRESS CODES ...............................................................................
+RAPID POSITION COMMAND  (G00) ................................................................................
+LINEAR INTERPOLATION COMMAND  (G01) ..................................................................
+CIRCULAR INTERPOLATION COMMANDS  (G02, G03) .................................................
+INTERPOLATION EXERCISE ............................................................................................
+PROGRAM START-UP LINES ............................................................................................
+PROGRAM ENDING LINES................................................................................................
+INCH / METRIC SELECTION  (G20, G21) ..........................................................................
+WORK COORDINATE SELECTION  (G54-59, G110-129 & G154 with P1-99) ..............
+MORE WORK COORDINATE SELECTION  (G52, G53,) .................................................
+TOOL LENGTH COMPENSATION  (G43).........................................................................
+DWELL COMMAND  (G04) ................................................................................................
+REFERENCE POINT AND RETURN  (G28) .....................................................................
+ANOTHER WAY TO RETURN TO MACHINE ZERO (G53) ..............................................
+CIRCULAR POCKET MILLING  (G12, G13)......................................................................
+CIRCULAR POCKET MILLING EXERCISE ......................................................................CONTENTS
+1
+2
+5
+6
+8
+9
+10
+11
+13
+14
+18
+19
+20
+22
+24
+30
+31
+32
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+55PROGRAMMING
+
+===== PAGE 5 =====
+IVCIRCULAR PLANE SELECTION  (G17, G18, G19) ............................................................. 
+CUTTER COMPENSATION  (G40, G41, G42) ......................................................................  
+CUTTER COMPENSATION EXERCISE #1 ...........................................................................
+ADVANTAGES OF CUTTER COMPENSATION ...................................................................
+CUTTER COMPENSATION EXERCISE #2 ...........................................................................
+THREAD MILLING WITH HELICAL MOTION .......................................................................
+CANNED CYCLES FOR DRILLING TAPPING AND BORING ............................................
+CANCEL CANNED CYCLE  (G80) ........................................................................................
+CANNED CYCLE RETURN PLANES  (G98, G99) ...............................................................
+DRILL CANNED CYCLE  (G81) ............................................................................................
+SPOT DRILL/COUNTERBORE CANNED CYCLE  (G82) ....................................................
+DEEP HOLE PECK DRILL CANNED CYCLE  (G83) ...........................................................
+CANNED CYCLE EXERCISE #1 ...........................................................................................
+TAPPING CANNED CYCLE  (G84) .......................................................................................
+REVERSE TAPPING CANNED CYCLE  (G74) ..................................................................... 
+BORE IN - BORE OUT CANNED CYCLE  (G85) ................................................................. 
+BORE IN - STOP - RAPID OUT CANNED CYCLE  (G86) ................................................... 
+BORE IN - MANUAL RETRACT CANNED CYCLE  (G87) ...................................................
+BORE IN - DWELL - MANUAL RETRACT CANNED CYCLE  (G88) ...................................
+BORE IN - DWELL - BORE OUT CANNED CYCLE  (G89) ..................................................
+CANNED CYCLE EXERCISE #2 ................................ ...........................................................
+HIGH SPEED PECK DRILL CANNED CYCLE  (G73) ...........................................................
+BORE IN - SHIFT OFF - RAPID OUT CANNED CYCLE  (G76) ...........................................
+BACK BORE CANNED CYCLE  (G77) .................................................................................
+BOLT HOLE PATTERNS  (G70, G71, G72) ..........................................................................
+BOLT HOLE CIRCLE  (G70) .................................................................................................
+BOLT HOLE ARC  (G71) ........................................................................................................
+BOLT HOLES ALONG AN ANGLE  (G72) ...........................................................................
+CANNED CYCLE EXERCISE #3 ...........................................................................................
+SUBROUTINE  (M97, M98, M99) ...........................................................................................CONTENTSPROGRAMMING
+56
+60
+66
+67
+68
+70
+72
+73
+74
+75
+76
+77
+80
+82
+83
+84
+85
+86
+87
+88
+90
+92
+96
+97
+98
+99
+100
+101
+102
+105
+
+===== PAGE 6 =====
+VCONTENTS
+GENERAL PURPOSE POCKET MILLING (G150) ................................................................ 109
+MISCELLANEOUS "M" CODES.............................................................................................. 116
+FINAL EXERCISE ................................................................................................................. ... 132
+WORKBOOK EXAMPLES AND EXERCISES DEFINED WITH A 20 TOOL CAROUSEL
+All program examples and exercises in this workbook are using the tools listed below, 
+except for Canned Cycle Exercise #2 (P. 91) and the final exercise (P.132). The same tools
+are being used in those exercises, though in a difference numerical order.
+T1 = 1/2 DIAMETER 4 FLUTE END MILL
+T2 = 5/8 DIAMETER 2 FLUTE END MILL
+T3 = 1/2 DIAMETER 90 DEG SPOT DRILL
+T4 = 1/4 DIAMETER DRILL
+T5 = 3/8 DIAMETER 2 FLUTE END MILL
+T6 = #7 .201 DIAMETER STUB DRILL
+T7 = 1/4-20 SPIRAL TAP
+T8 = 3/4 DIAMETER THREAD MILL
+T9 = 3.0 DIAMETER 5 FLUTE SHELL MILL
+T10 = 7/8 DIAMETER INSERT DRILL
+T11 = 1/2 DIAMETER 2 FLUTE END MILL
+T12 = 3/4 DIAMETER 4 FLUTE END MILL
+T13 = 1/2 DIAMETER 2 FLUTE BALL END MILL
+T14 = 5/16 DIAMETER DRILL
+T15 = 3/8 DIAMETER DRILL
+T16 = 1/2 DIAMETER DRILL
+T17 = 3/8-16 TAP
+T18 = 7/16-14 TAP
+T19 = BORING TOOL
+T20 = SPINDLE PROBEPROGRAMMING
+
+===== PAGE 13 =====
+7different work offset G code that defines in it, another location (when machining with
+multiple vises and/or fixtures at s eparate locations on the machine table.)
+Each dimension, or X-Y point is known as a coordinate. If a position 2 inches to the right,
+and 2 inches down (toward you) from part ze ro was programmed, t he X coordinate would
+be X2.0 and the Y coordinate woul d be Y-2.0.  And the machine would go to that exact
+location from part zero, regardless of where it began, within the travel of the  machine tool.
+X2.0 Y-2.0 could be a hole location, an arc en d point, or the end of a line which are known
+coordinate values.
+G91 INCREMENTAL POSITION COMMAND
+This code is modal and changes the way axis motion commands are interpreted. G91
+makes all subsequent commands incremental.
+Incremental dimensions are referenced from one point to another. This can be a conve-
+nient way to input dimensions into a program  (especially for G81-G89, G73, G74, and G77
+canned cycles) depending on the blueprint.
+When using a G91 incremental position comman d, each measurement or move is the
+actual distance to the next location (whether it is a hole location, end of arc, or end of line)
+and is always in reference from the current location.
+If you programmed a G91 with an X coordinate of X2.0 and a Y coordinate of Y-2.0,  the
+machine would go that exact distance from wher e it is, regardless of where it began, within
+the travel of the machine tool.
+Absolute mode should be your positioning mode of  choice for most applications. There are
+times when incremental mode can be quite hel pful and can be used in the same program 
+that uses absolute mode . Repeating motions within a s ubroutine, for example, is one 
+excellent example. If you have six identical pockets to machine on a Haas mill, you can 
+save programming effort if you specify the motions incrementally to machine one pocket. 
+Then just call up the subroutine again to repeat  the commands to do another pocket at a 
+new location.PROGRAMMING
+
+===== PAGE 15 =====
+9PROGRAMMING WITH CODES
+The definition of a part program for any CNC consists of movements of the tool, and speed
+changes to the spindle RPM. It also contai ns auxiliary command functions such as tool
+changes, coolant on or off commands, or external M code commands.
+Tool movements consist of rapid positioni ng commands, straight line moves or movement
+along an arc of the tool at a controlled speed.
+The HAAS mill has three (3) linear axes defined as X axis, Y axis, and Z axis. The X and
+Y axis will move the machine table below and around the spindles c enterline, while the Z
+axis moves the tool spindle down toward or  up and away from the machine table. The
+"machine zero" position is where the spindle is  pointing down at the upper right corner, with
+the machine table all the way to the left in t he X axis and all the way toward you in the Y
+axis and Z axis is up at the tool change positi on. Motion in the X axis will move the machine
+table to the right with negative values  and to the left with positive values. The Y axis will
+move the machine table toward you with posit ive values and away from you with negative
+values. Motion in the Z axis will move the tool toward the machine table with negative
+values and away from the machine table with positive values.
+A program is written as a set of instructions given in the order they are to be performed.
+The instructions, if given in English, might look like this:
+LINE #1 = SELECT CUTTING TOOL.
+LINE #2 = TURN SPINDLE ON AND SELECT THE RPM.
+LINE #3 = RAPID TO THE STARTING POSITION OF THE PART.
+LINE #4 = TURN COOLANT ON.
+LINE #5 = CHOOSE PROPER FEED RATE AND MAKE THE CUT(S).
+LINE #6 = TURN THE SPINDLE AND COOLANT OFF.
+LINE #7 = RETURN TO CLEARANCE POSITION TO SELECT ANOTHER TOOL.
+and so on. But our machine control underst ands only these messages when given in
+machine code, also referred to as G and M code programming. Before considering the
+meaning and the use of codes, it is helpful to lay down a few guidelines.PROGRAMMING
+
+===== PAGE 19 =====
+13OFTEN USED PREPARATORY "G" CODES
+G00 Rapid traverse motion; Used for non-cutting moves of the machine in positioning quick
+to a location to be machined, or rapid away after program cuts have been performed.
+Maximum rapid motion (I.P.M.) of a Haas machine will vary on machine model.
+G01 Linear interpolation motion; Used for actual machining and metal removal.
+Governed by a programmed feedrate in inches (or mm) per minute. Maximum feed
+rate (I.P.M.) of a Haas machine will vary on machine model.
+G02 Circular Interpolation, Clockwise
+G03 Circular Interpolation, Counterclockwise
+G28 Machine Home ( Rapid traverse )
+G40 Cutter Compensation CANCEL
+G41 Cutter Compensation LEFT of the programmed path
+G42 Cutter Compensation RIGHT of the programmed path
+G43 Tool LENGTH Compensation +
+G53 Machine Coordinate Positioning, Non-Modal
+G54 Work Coordinate #1 (Part zero offset location)
+G80 Canned Cycle Cancel
+G81 Drill Canned Cycle
+G82 Spot Drill Canned Cycle
+G83 Peck Drill Canned Cycle
+G84 Tapping Canned Cycle
+G90 Absolute Programming Positioning
+G91 Incremental Programming Positioning
+G98 Canned Cycle Initial Point Return
+G99 Canned Cycle Rapid (R) Plane ReturnPROGRAMMING
+
+===== PAGE 21 =====
+15     Code     Group Function
+G35* 0 Automatic Tool Di ameter Measurement (D,H,Z,F)
+G36** 00 Automatic Work Offset Measurement (X,Y,Z,A,B,I,J,K,F)
+G37* 00 Automatic Tool Offset Measurement (D,H,Z,F)
+G40* 07 Cutter Compensation Cancel G41/G42/G141 (X,Y) (Setting 56)
+G41 07 2D Cutter Compensation Left (X,Y,D) (Setting 43, 44, 58)
+G42 07 2D Cutter Compensation Right (X,Y,D) (Setting 43, 44, 58)
+G43 08 Tool Length Compensation + (H,Z) (Setting 15)
+G44 08 Tool Length Compensation - (H,Z) (Setting 15)
+G47 00 Text Engraving (X,Y,Z,R,I,J,P,E,F) (Macro Variab le #599 to Change Serial Number)
+G49* 08 Tool Length Compensati on Cancel G43/G44/G143 (Setting 56)
+G50* 11 Scaling G51 Cancel (Setting 56)
+G51** 11 Scaling (X,Y,Z,P)  (Setting 71)
+G52 12 Select Work Coordinate System G52 (Setting 33, YASNAC)
+G52 00 Global Work Coordinate System Shift (Setting 33, FANUC)
+G52 00 Global Work Coordinate System Shift (Setting 33, HAAS)
+G53 00 Machine Zero XYZ Positioning, Non-Modal
+G54* 12 Work Offset Positioning Coordinate #1 (Setting 56)
+G55 12 Work Offset Positioning Coordinate #2
+G56 12 Work Offset Positioning Coordinate #3
+G57 12 Work Offset Posi tioning Coordinate #4
+G58 12 Work Offset Positioning Coordinate #5
+G59 12 Work Offset Positioning Coordinate #6
+G60 00 Uni-Directional Positioning (X,Y,Z,A,B) (Setting 35)
+G61 13 Exact Stop, Modal (X,Y,Z,A,B)
+G64* 13 Exact Stop G61 Cancel (Setting 56)
+G65** 00 Macro Sub-Routine Call
+G68** 16 Rotation  (G17,G18,G19,X,Y,Z,A, R) (Setting 72, 73)
+G69** 16 Rotation G68 Cancel (Setting 56)
+G70 00 Bolt Hole Circle with a Canned Cycle (,I,J,L)
+G71 00 Bolt Hole Arc with a Canned Cycle (,I,J,K,L)
+G72 00 Bolt Holes Along an Angle with a Canned Cycle (,I,J,L)
+G73 09 High Speed Peck Drill Canned Cycle (X,Y,A,B,Z,I,J,K ,Q,P,R,L,F) (Setting 22)
+G74 09 Reverse Tapping Canned Cycle (X,Y,A,B,Z,R,J,L,F)  (Setting 130, 133)
+G76 09 Fine Boring Canned Cycle (X,Y,A,B,Z,I,J,P ,Q,P,R,L,F) (Setting 27)
+G77 09 Back Bore Canned Cycle (X,Y,A,B,Z,I,J ,Q,R,L,F) (Setting 27)
+G80 09 Cancel Canned Cycle (Setting 56)
+G81 09 Drill Canned Cycle (X,Y,A,B,Z,R,L,F)
+G82 09 Spot Drill / Counterbore Canned Cycle (X,Y,A,B,Z,P,R,L,F)
+G83 09 Peck Drill Deep Hole Canned Cycle (X,Y,A,B,Z,I,J,K ,Q,P,R,L,F) (Setting 22, 52)
+G84 09 Tapping Canned Cycle (X,Y,A,B,Z,R,J,L,F)  (Setting 130, 133)
+G85 09 Bore in~Bore out Canned Cycle (X,Y,A,B,Z,R,L,F)
+G86 09 Bore in~Stop~Rapid out Canned Cycle (X,Y,A,B,Z,R,L,F)
+(G codes continued next page)PROGRAMMING
+
+===== PAGE 25 =====
+19OFTEN USED MISCELLANEOUS "M" CODES
+M00 The M00 code is used for a Program Stop command on the machine.
+It stops the spindle, turns off coolant and stops look-a-head processing.
+Pressing CYCLE START again will c ontinue the program on the next
+block of the program.
+M01 The M01 code is used for an Optional Program Stop command.
+Pressing the OPT STOP key on the control panel signals the machine
+to perform a stop command when the control reads an M01 command.
+It will then perform like an M00.
+M03 Starts the spindle CLOCKWISE.  Must have a spindle speed defined.
+M04 Starts the spindle COUNTERCLOCKWISE.  Must have a spindle speed defined.
+M05 STOPS the spindle.
+M06 Tool change command along with a tool number will execute a
+tool change for that tool. This command will automatically stop the
+spindle, Z-axis will move up to the machine zero position and the
+selected tool will be put in spindle. The coolant pump will tu rn off
+right before executing the tool change.
+M08 Coolant ON command.
+M09 Coolant OFF command.
+M30 Program End and Reset to the beginning of program.
+M97 Local Subroutine call
+M98 Subprogram call
+M99 Subprogram return (M98) or Subrouti ne return (M97), or a Program loop.
+NOTE:  Only one "M" code can be used per line. And the M-codes will be the last command to be
+executed in a line, regardless of where it's located in that line.PROGRAMMING
+
+===== PAGE 27 =====
+21M78 Alarm if Skip Signal Found
+M79 Alarm if Skip Signal Not Found
+M80** Automatic Door Open (Setting 131)
+M81** Automatic Door Close (Setting 131)
+M82 Tool Unclamp
+M83** Auto Air Jet On
+M84** Auto Air Jet Off
+M86 Tool Clamp
+M88** Coolant Through the Spindle On (Setting 32)
+M89** Coolant Through the Spindle Off (Setting 32)
+M93 Axis POS Capture Start (P, Q)
+M94 Axis POS Capture Stop
+M95 Sleep Mode
+M96 Jump if No Input (P, Q)
+M97 Local Sub-Program Call (P, L)
+M98 Sub Program Call (P, L)
+M99 M97 Local Sub-Program or M98 Sub-Program Return or Loop Program 
+(Setting 118)
+M101** MOM (Minimum Oil Machining) CANNED CYCLE MODE (I)
+M102** MOM (Minimum Oil Machining) MODE (I,J)
+M103** MOM (Minimum Oil Machining) MODE CANEL
+M109 Interactive User Input (P)
+** OptionsPROGRAMMING
+
+===== PAGE 29 =====
+23%        :PROGRAMS MUST BEGIN AND END WITH % AND WILL NOT BE SEEN IN PROGRAM DISPLAY
+O10023 ; :LETTER “O” AND UP TO A FIVE DIGIT PROGRAM NUMBER
+(MILL PART PROGRAM EXAMPLE) ; :(COMMENTS IN PARENTHESIS ARE IGNORED BY CONTROL)
+(ENTER DIA. OFFSET D02 AT .625) ; :(NOTES TO OPERATOR)
+T2 M06 (5/8 DIA. 2 FLAT END MILL) ; :TOOL CHANGE TO TOOL #2 (NOTES TO OPERATOR)
+G90 G54 G00 X-2.35 Y2.35  S1604 M03 ; :ABS POSIT, WORK OFFSET#, RAPID X Y, SPINDLE ON CW
+G43 H01 Z0.1 M08 ; :TOOL LENGTH COMP #2, Z POSITION, COOLANT ON
+G01 Z-0.625 F50. ; :FAST FEED TO DEPTH
+G41 Y2. D02 F16. ; :CUTTER COMP. LEFT OF LINE WITH DIA. COMP D02
+X2.0 ; :CUT  A 4.0 IN. SQUARE
+Y-2.0 ; :"""
+X-2.0 ; :"""
+Y2.25 ; :"""
+G40 X-2.3 Y2.3 ; :G40 CANCELS CUTTER COMP MOVING AWAY FROM PART
+G00 Z1. M09 ; :RAPID Z1., COOLANT OFF
+G28 G91 Z0. M05 ; :RETURN Z TO MACHINE ZERO, SPINDLE OFF
+M00 (CHECK PART); :PROGRAM STOP COMMAND TO PERFORM A TASK
+;
+(SPOT DRILL HOLES) ; :(NOTES TO OPERATOR)
+T3 M06 (1/2 DIA. 90 DEG. SPOT DRILL) ; :TOOL CHANGE TO TOOL #3, (NOTES TO OPERATOR)
+G90 G54 G00 X-1.5 Y1.5  S1250 M03 ; :ABS POSIT, WORK OFFSET#, RAPID X Y, SPINDLE ON CW
+G43 H03 Z1. M08 ; :TOOL LENGTH COMP #3, Z POSITION, COOLANT ON
+G82 G99 Z-0.125 P0.2 R0.1 F10. ; :SPOT DRILLING Z-.125 DEEP, DWELL .2 OF A SECOND
+Y-1.5 ; :SPOT DRILL ANOTHER HOLE,  RAPID PLANE IS R.1
+/ X1.5 ; :DRILL THIRD HOLE WITH AN OPTIONAL BLOCK DELETE 
+/ Y1.5 ; :DRILL FOURTH HOLE WITH OPTIONAL BLOCK DELETE 
+G80 G00 Z1. M09 ; :CANCEL CANNED CYCLE, RAPID Z1. COOLANT OFF
+G28 G91 Z0. M05 ; :RETURN Z TO MACHINE ZERO, SPINDLE OFF
+;
+(DRILL HOLES) ; :(NOTES TO OPERATOR)
+T4 M06 (1/4 DIA. DRILL) ; :TOOL CHANGE TO TOOL #4, (NOTES TO OPERATOR)
+G90 G54 G00 X-1.5 Y1.5 S1400 M03 ; :ABS POSIT, WORK OFFSET#, RAPID X Y, SPINDLE ON CW
+G43 H04 Z1. M08 ; :TOOL LENGTH COMP #4, Z POSITION, COOLANT ON
+G83 G99 Z-0.525 Q0.5 R0.1 F12. ; :PECK DRILLING TO Z-.525 DEEP, .5 PECK
+Y-1.5 ; :SECOND HOLE , RAPID PLANE IS R.1
+/ X1.5 ; :THIRD HOLE WITH AN OPTIONAL BLOCK DELETE 
+/ Y1.5 ; :FOURTH HOLE WITH AN OPTIONAL BLOCK DELETE 
+G80 G00 Z1. M09 ; :CANCEL CANNED CYCLE, RAPID Z1., COOLANT OFF
+G28 G91 Y0. Z0. M05 ; :RETURN Y AND Z TO MACHINE ZERO
+M30 ; :PROGRAM STOP AND RETURN TO BEGINNING
+%:PROGRAM BEGINS AND ENDS WITH %  
+To change tools, all that is needed is an M06 even without a G28 in the previous line. A G28 can be
+specified to send all axes to machine home, or it can be defined to send a specific axis home with
+G28 G91 Z0 and/or Y0 and/or X0 to send ju st these axis specified to home position.PROGRAMMING
+
+===== PAGE 31 =====
+25E ENGRAVING FEED RATE / CONTOURING ACCURACY  (Setting 85)
+The E address character is used, with G187, to select the accuracy required when cutting
+a corner during high speed machining operations .  The range of values possible is 0.0001
+to 0.25 for the E code.  Refer to the “Cont ouring Accuracy” section of your machine manual
+for more information.
+Setting 85  - Is also used to designate the same condition for Contouring Accuracy.
+F FEED RATE   (Setting 19, 77)
+The F address character is used to select the feed rate applied to any interpolation
+functions, including pocket milli ng and canned cycles. It is either in inches per minute with
+four fractional positions or mm per minute with three fractional positions.
+Setting 77  - Allows the operator to select how the control interprets an F address
+code that does not contain a decimal poin t, (It is recommended that the programmer
+always use a decimal point).
+G PREPARATORY FUNCTIONS (G codes)
+The G address character is used to specify the type of operation to occur in the block
+containing the G code. The G is followed by  a two or three digit number between 0 and 187.
+Each G code defined in this control is part of a group of G codes. The Group 0 codes are
+non-modal; that is, they specify a function app licable to this block only and do not effect
+other blocks. The other groups are modal and th e specification of one code in the group
+cancels the previous code applicable from that group. A modal G code applies to all
+subsequent blocks so those blocks do not need to re-specify the same G code. More than
+one G code can be placed in a block in order to specify all of the setup conditions for an operation.
+H TOOL LENGTH OFFSET SELECTION  (Setting 15)
+The H address character is used to select the tool length offset entry from the offsets
+memory. The H is followed by a two digi t number between 0 and 200 (100 programs on an
+older machine). H0 will clear any tool length offset and Hnn will use the tool length entered
+in on n from the Offset display.  You must sele ct either G43 or G44 to activate a tool length
+(H) offsets. The G49 command is the default condition and this command will clear any tool
+length offsets. A G28, M30 or pressing Re set will also cancel tool length offsets.
+Setting 15  - When this setting is on, a check is made to ensure that the H offset code
+matches the tool presently in the spindl e. This check can help prevent crashes.
+I CIRCULAR INTERPOLATION / CANNED CYCLE DATA
+The I address character is used to specify data for either canned cycles or circular
+motions. It is defined in inches with four fractional positions or mm with three fractional positions.
+J CIRCULAR INTERPOLATION / CANNED CYCLE DATA
+The J address character is used to specify data for either canned cycles or circular
+motions. It is defined in inches with four fractional positions or mm with three fractional positions.
+K CIRCULAR INTERPOLATION / CANNED CYCLE DATA
+The K address character is used to specify data for either canned cycles or circular
+motions. It is defined in inches with four fractional positions or mm with three fractional positions.PROGRAMMING
+
+===== PAGE 32 =====
+26L LOOP COUNT TO REPEAT A COMMAND LINE
+The L address character is used to specify a repeat count for some canned cycles and
+auxiliary functions. It is followed by a number between 0 and 32767.
+M M CODE MISCELLANEOUS FUNCTIONS
+The M address character is used to specify an M code. These codes are used to control
+miscellaneous machine functions. Note that only one M code is allowed per block in a CNC
+program and all M codes are performed secondary in a block.
+N NUMBER OF BLOCK
+The N address character is entirely optional.  It can be used to identify or number each
+block of a program. It is followed by a number between 0 and 99999. The M97 functions
+needs to reference an N line number.
+O PROGRAM NUMBER   (PROGRAM name in parenthesis)
+The O address character is used to identify a program.  It is followed by a number between
+0 and 99999.  A program saved in memory always has a Onnnnn identification in the first
+block. Altering the Onnnnn in the first blo ck causes the program to be renumbered. If you
+enter a program name (Program Text Name) between parenthesis in the first three lines
+of a program, that program name will also be seen in your list of programs. You can have
+up to 500 program numbers (200 pr ograms on an older machine) in  your  List of Programs.
+You can delete a program number from the LI ST PROG display, by cursor selecting the
+program, and pressing the ER ASE PROG key. You can also delete a program in the
+advanced editor using the menu item  DELETE PROGRAM FROM LIST.
+P DELAY OF TIME / M98 PROGRAM NUMBER Call / M97 SEQUENCE 
+     NUMBER Call / G103 BLOCK LOOKAHEAD
+The P address character is used for either a dwell time in seconds with a G04, or in c anned
+cycles G82, G83, G86, G88, G 89 and G73. When used as a dwell time, it is defined as a
+positive decimal value between 0.001 and 1000.0 in sec onds. When P is used to search for
+a program number with an M98, or for a program number block in an M97. When P is used
+in a M97 or M98 the P value is a positive nu mber with no decimal point up to 99999. When
+P is used with a G103, it defines the number  of blocks the control looks-ahead in a program
+to execute between P1-P15.
+Q CANNED CYCLE OPTIONAL DATA
+The Q address character is used in canned cycles and is always a positive number in
+inches between 0.001 and 100.0.PROGRAMMING
+
+===== PAGE 33 =====
+27R CIRCULAR INTERPOLATION / CANNED CYCLE DATA   (Setting 52)
+The R address character is used in canned cycles or circular interpolation. It's either in
+inches with four fractional positions or mm with three fractional positions. It is followed by
+number in inches or metric. It's usually used to define the reference plane for canned cycles.
+S SPINDLE SPEED COMMAND   (Setting 20)
+The S address character is used to specify the spindle speed in conjunction with M41 and
+M42. The S is followed by an unsigned number between 1 - 99999. The S command does
+not turn the spindle on or off; it only sets the desired speed. If a gear change is required
+in order to set the commanded speed, this command will cause a gear change to occur
+even if the spindle is stopped. If spindle is  running, a gear change operation will occur and
+the spindle will start r unning at the new speed.
+T TOOL SELECTION CODE   (Setting 15)
+The T address character is used to select th e tool for the next tool change. The number
+following must be a positive number between 1 and (20) the number in Parameter 65. It
+does not cause the tool change operation to occur. The Tnn may be placed in the same
+block that starts tool change (M06 or  M16) or in any previous block.
+U AUXILIARY EXTERNAL LINEAR AXIS
+The U address character is used to specify mo tion for the optional external linear, U-axis.
+It specifies a position of motion in inches. It is always followed by a signed number and up
+to four fractional decimal positions. If no decimal  point is entered, the last digit is assumed
+to be 1/10000 inches. The smallest magnitude is 0.0001 inches, the most negative value
+is -8380.0000 inches, and the largest number is 8380.0000 inches.
+V AUXILIARY EXTERNAL LINEAR AXIS
+The V address character is used to specify motion for the optional external linear, V-axis.
+It specifies a position of motion in inches. It is always followed by a signed number and up
+to four fractional decimal positions. If no decimal  point is entered, the last digit is assumed
+to be 1/10000 inches.
+W AUXILIARY EXTERNAL LINEAR AXIS
+The W address character is used to specify motion for the optional external linear, W-axis.
+It specifies a position of motion in inches. It is always followed by a signed number and up
+to four fractional decimal positions. If no decima l point is entered, the last digit is assumed
+to be 1/10000 inches.PROGRAMMING
+
+===== PAGE 48 =====
+42PROGRAM START-UP LINES
+1 T 6 0M  1 T - Selects tool number one to be loaded
+into the spindle.
+M06 - Activates the tool change sequence.
+G90 G54 G00 X___ Y____ G90 - Activates control to be in ABSOLUTE.
+G54 - Selects work coordinate offset system No. 1
+G00 - Preparatory function for RAPID.
+X__ - Axis move to initial X position.
+Y__ - Axis move to initial Y position.
+S1200 M03 S 1200  - Informs the control that 1200 has
+been selected as the RPM for this tool.
+M03 - Turns the spindle on in a clockwise
+direction at a speed of 1200 RPM.
+G43 H01 Z0.1 M08 G43 - Recognizes the tool length offset value
+stored in the Hnn code offset
+display register in the offset LENGTH
+GEOMETRY display.
+H01 - Defines to the control which offset
+register the tool offset value is stored in.
+Z0.1 - Informs the control to move from full
+spindle retract to this Z value and
+apply the tool length offset.
+M08 - Turns the coolant on.PROGRAMMING
+
+===== PAGE 51 =====
+45WORK COORDINATE SELECTION
+G54-59  WORK COORDINATE OFFSET SYSTEM #1-6
+These G-codes will select one of the six work coordinate offsets that are entered in the
+Work Zero Offset display page. All subsequent references to axes’ positions will be
+recognized in the new coordinate system.
+G110-G129  WORK COORDINATE OFFSET SYSTEM #7-26
+These G-codes operate the same as work offsets G54 to G59.
+G154 P1-99  WORK COORDINATE OFFSET SYSTEM #7-105
+G154 was added in mill software version 12.02 and above. This feature provides 99
+more work offsets. In all previous versions, the user was limited to a maximum of 27
+work offsets. These included the standard work offsets (designated G54 through G59),
+and twenty additional work offsets (G110 through G129).  Now with G154 P1 to P99,
+your able to activate additional work offsets. For example G154 P10 will select work
+offset 10 from the list of additional work offset. Note that G110 to G129 refer to the
+same work offsets as the G154 P1 through P20 i.e., they can be selected by using
+either method. The Work Offset display screens have been adjusted accordingly. The
+Position page display has also been enhanced so that when a G154 work offset is
+active, the heading in the upper right work offset will show the G154 P value.
+Note: In software 12.02, G154 renamed to G155 - In all previous versions, G154 was 5-AXIS REV
+TAP CYCLE. This has been changed to G155.PROGRAMMING
+
+===== PAGE 54 =====
+48DWELL COMMAND
+G04 Dwell
+P The dwell time in seconds or milliseconds
+G04 is used to cause a delay or dwell in the program. The block containing G04 will
+delay for the time specified in the P code.  When programmed on a line following
+some motion such as G00, G01, G02 and G03 all motion will be stopped for the
+amount of time specified in the P command in seconds.  If the P has no fraction part,
+the delay is in milliseconds (0.001 seconds); otherwise the delay is in seconds.
+The slide motion is stopped, but the spindle w ill continue to rotate at the requested
+RPM, and the coolant stays on.
+G04  P____
+Minimum value  -  P.001      of a second
+Maximum value  -  P1000.0  secondsPROGRAMMING
+
+===== PAGE 57 =====
+51PROGRAMMING
+CIRCULAR POCKET MILLING
+There are two G codes, G12 and G13 that w ill provide for pocket milling of a circular
+shape. They're different only in which dire ction of rotation is used. G12 and G13 are
+non-modal.
+G12 Circular Pocket Milling Clockwise
+XPosition in X axis to center of circular pocket
+YPosition in Y axis to center of circular pocket
+ZZ depth of cut, or it's the increment  depth of cuts when used with G91
+IRadius Of First Circle (Or it's the finish radius if K is not used)
+KRadius Of Finished Circle (If specified)
+QRadius cut increment step-over of the spiral out (Q is used with K only)
+LLoop count for repeating incremental dept h of cuts (L is used with G91)
+D*Cutter Comp. Offset Number (Enter cutte r size in offset display register)
+FFeed Rate in inches (mm) per minute
+This G12 code implies the use of G42 cutter compensation right
+G13 Circular Pocket Milling Counterclockwise
+This G13 code implies the use of G41 cutter compensation left and will be
+machining in a counterclockwise directi on, but is otherwise the same as G12.
+G13 is usually prefered instead of G12, since G13 will be climb cutting when used
+with a standard right handed tool.
+*In order to get the exact programmed circul ar pocket diameter, the control uses the
+selected D code tool size. If this compensation is not desired, program D0.
+The tool must be positioned at the center of t he circular pocket either in a previous block
+or in this command using an X and Y position. The cuts are performed entirely with circular
+motions of varying radiuses.
+The G12 Code implies the use of  G42 cutter compensation right.
+The G13 Code implies the use of G41 cutter compensation left.
+To remove all the material within the circle use an I and Q value less than the tool diameter and
+a K value equal to the circle radius. G12 and G13 belongs to Group zero and thus is non-modal.
+If no K & Q is specified, the center roughi ng passes of this command are removed
+completely and only one finish pass of the circular pocket is performed.
+If G91 (incremental) is specified and an L c ount is included, the Z increment is repeated
+L times at the F feed rate command.
+NOTE:  This command will not bring the tool back ou t of the circular pocket after it's done.
+So be sure to move the tool up in the Z ax is, above the fixture and part, before you position
+to another XY location to machine.
+
+===== PAGE 61 =====
+55PROGRAMMING
+CIRCULAR POCKET MILLING EXERCISE
+   G12 Circular Pocket Milling CW
+or
+   G13 Circular Pocket Milling CCW
+X Position to center of pocket
+Y Position to center of pocket
+Z Depth of cut or increment down
+IRadius of First Circle (or the
+finish radius If K is not used).
+K Radius of Finished Circle
+(if specified).
+Q Radius step over Increment
+(must be used with K).
+D Cutter Comp. number
+(Enter cutter size into offset
+display register number).
+L Loop count for repeating
+deeper cuts.
+F Feedrate in inch (mm) per min.CPM1
+CPM2
+Circular Pocket Mill CPM 2  which is a 2.0
+Dia. x .750 dp. pocket incrementaly stepping
+down 0.25 depth using an L3 count and an
+incremental G91 command to do 3 passes on
+a circular pocket using I0.3, K1.0 and Q0.35
+to machine out pocket.Circular Pocket Mill CPM 1  which is a 2.0 Dia.
+x .500 dp. pocket, spiraling out to a rough 1.980
+diameter using I0.25, K0.99 and Q0.2 roughing
+out pocket. Then mill another circular pocket
+command to finish CPM 1 using 1.0 " I only" as
+a circular pocket finish pass.
+O00020 (CIRCULAR POCKET MILLING EXERCISE)
+T___  M___(T2 IS A 5/8 DIA. 2 FLT CENTER CUTTING END MILL)
+G___  G___  G___  X______  Y______   (X Y position to center of CPM1)
+S______  M_____ (Turn spindle on, clockwise direction)
+G___  H____ Z_____ M___  (Rapid to .1 above part)
+G___ Z____ I ____ K____ Q____ D___  F7.2   (CPM1 with I,K& Q)
+G___ I _____ D____  F12.5   (I only for a finish pass of CPM1)
+G___ Z_____  (Rapid Z to a .1 clearance position above part)
+X______ Y______  (X Y position to center of CPM2)
+G01 Z0. F20.  (Feed down to the start point to start incremental depth down)
+G___ G___ Z____ I ___ K___ Q___ D___ L___ F10.  ( I, K, Q & G91)
+G___ G___ Z____ M___ (Switch to absolute, Rapid 1.0 above part, coolant off)
+G53 G49 Z0. M05
+M30TOOL 2 IS A 5/8 DIA. 2 FLUTE END MILL WITH A SPINDLE SPEED OF 1620 RPM.
+
+===== PAGE 78 =====
+72PROGRAMMING
+CANNED CYCLES FOR DRILLING TAPPING AND
+BORING
+A canned cycle is used to simplify programming of a part. Canned cycles are defined for
+the most common Z-axis repeti tive operation such as drilling,  tapping, and boring. There
+are 13 canned cycles to choose from and once selected a canned cycle is active until
+canceled with G80. When active, the canned cycl e is executed every time an X and/or Y-
+axis move is programmed. Those X Y move s are executed as RAPID commands and the
+Z motions are executed as feed commands, and the canned cycle is performed again for
+any X-Y coordinates that follow. The five operations in a canned cycle are:
+1) Positioning of the X and Y axes (and/or optional A axis).
+2) Rapid traverse to the R plane.
+3) The drilling, tapping, and bori ng for the canned cycle being used.
+4) Operation at the bottom of hole.
+5) Retraction to the R plane (G99) or initial starting point (G98).
+The positioning of a canned cycle in the X and/or  Y axes can be done in either in absolute
+(G90) or incremental (G91). Incremental (G91) motion in a canned cycle is often useful
+with a loop (Lnn) count which will repeat t he canned cycle operation that many times with
+each incremental X or Y move for the canned cycle.
+Incremental example using an "L" repeat command:
+N15 G81 G99 Z-0.5 R0.1 F6.5  (This will drill one hole at  the present location.)
+N16 G91 X-0.5625 L9   (To drill 9 more holes .5625 in the minus direction equally spaced.)
+N17 G90 X~~~~ Y~~~~
+If an L0 is in the canned cycle line, the cycle will not execute until the control reads the next
+X and/or Y position location. One reason to define an L0 is for not drilling a hole in the center
+of a bolt hole pattern.
+Using L0 so as to not drill a hole in the center of bolt circle example:
+N21 X1.25 Y-0.75   (Center location of bolt hole pattern)
+N22 G81 G99 Z-0.5 R0.1 F6.5 L0 (L0 on G81 line so as not to drill hole in the center of BHC )
+N23 G70 I0.75 J10. L6  (6 hole Bolt-Hole-Circle)
+Once a canned cycle is defined, that operat ion is performed at every X-Y position
+subsequently listed in a block. Some of the canned cycle numerical values can also be
+changed after the canned cycle is defined. The most  important of these are the R plane value
+and the Z depth value, and all subsequent cycles ar e performed with the new R or Z value.
+The G98 and G99 are modal commands whic h change the way the canned cycles operate.
+When G98 (machine default value) is active, the Z-axis will return  to the initial start point
+at the completion of the canned cycle for clearance over to the next  X Y hole location.
+When G99 is active, the Z-axis will return  to the rapid (R) plane when the canned cycle is
+completed for clearance to the next X Y loca tion. Changes to the G98/G99 selection can
+also be made after the canned cycle is acti ve. If changed, the new G98/G99 value will
+change all subsequent canned cycle.
+
+===== PAGE 79 =====
+73PROGRAMMING
+CANNED CYCLES
+Setting 27 - G76/G77 SHIFT DIR.  - More information aobout this setting is defined with the G76 and
+G77 codes.
+Setting 28 - CAN CYCLE ACT W/O X/Y  - For all canned cycles
+This is an On/Off setting. If a canned cycle is defined in a block without an X or Y location, there
+are two common actions taken by other controls; some will execute the c anned cycle at that time
+and some will not. When it is off, an initial canned cycl e definition without an X or Y motion will not
+cause the canned cycle to be executed. When it is on, the initial canned cycle definition will cause
+one cycle to be executed even if there is no X or Y motion in that Canned Cycle command block. Most
+users prefer having this ON.
+Setting 52 - G83 RETRACT ABOVE R  - More information is defined with G83 about this setting.
+Setting 57 - EXACT STOP CANNED X-Y  - For all canned cycles
+This is an On/Off setting. When it is off, the rapid X-Y motion a ssociated with a canned
+cycle may not get exact stop; according to other  conditions. When it is on, the X-Y motion
+always gets exact stop. This will make canned cycles slower but less likely to run into a
+close tolerance/interference fixture. Most users will have this OFF.
+G80 CANNED CYCLES CANCEL
+The G80 code is used to cancel a canned cycle. This G code is modal in that it deactivates
+all canned cycles G73, G74, G76, G77, or G 81-G89 until a new one is selected. In addition
+to this, a G00 or G01 code will al so cancel any active canned cycle.G
+E D O Cn o i t a r e p O g n i l l i r D Ze h t t a n o i t a r e p O
+e l o H f o d n Es i x a Z
+n o i t c a r t e Rn o i t a c i l p p A
+3 7 G n i d e e f t n e t t i m r e t n)il a n o i t p o ( l l e wtdu o d i p a rk c e p d e e p s h g i h
+g n i l l i r d
+4 7 G n i d e e f WC Ce l d n ipWsC e s r e v e r e l d n i ptsu o d eegfn i p p a t d n a h t f e l
+6 7 G n i d e etff i h s , t n e i r o , p o t s e l d n i p s , l l e wtdu o d i p agrn i r o b e n i f
+7 7 G, t f i h s , p o t s e l d n i p s
+p u d e e f , t f i h s , n i d i p a rt f i h s , e l d n i p s t n e i rtou o d i p agrn i r o b k c a b
+1 8 G n i d e eefn otnu o d i p agrn i l l i r d
+2 8 G n i d e elfl ewtdu o d i p agrn i l l i r d t o p s
+3 8 G n i d e e f t n e t t i m r e t n)il a n o i t p o ( l l e wtdu o d i p aerl c y c g n i l l i r d k c e p
+4 8 G n i d e e f WCe l d n ipWsC Ce s r e v e r e l d n i ptsu o d eeefl c y c g n i p p a t
+5 8 G n i d e eefn otnu o d eeefl c y c g n i r o b
+6 8 G n i d e etfn e i r o , p o t s e l d n i ptsu o d i p aerl c y c g n i r o b
+7 8 G n i d e etfn e i r o , p o t s e l d n i ptsu o g o j l a u n aeml c y c g n i r o b
+8 8 G n i d e etfn e i r o , p o t s e l d n i p s , l l e wtdu o g o j l a u n aeml c y c g n i r o b
+9 8 G n i d e elfl ewtdu o d i p aerl c y c g n i r o b
+
+===== PAGE 80 =====
+74PROGRAMMING
+CANNED CYCLE RETURN PLANES
+G98  CANNED CYCLE INITIAL POINT RETURN
+This G code is modal and changes the way a c anned cycle operates. With G98, the Z axis
+returns to its initial starting point (Z position it was at when the canned cycle was first
+defined) between each new X and/or Y location.  This allows for positioning up and around
+areas of a part, fixture, and/or clamp that is in the path of a tool to the next location.
+G99 CANNED CYCLE R PLANE RETURN
+This G code is modal and changes the way a c anned cycle operates. With G99, the Z axis
+will stay down at the R plane between each new X and/or Y location, when there is no
+obstruction is in the way of the tool to the next location.
+O10074 (G98/G99 Return Plane in a Canned Cycle)
+N1 T15 M06 (3/8 DIA. DRILL)
+N2 G90 G54 G00 X1.5 Y-0.5  (1)
+N3 S1200 M03
+N4 G43 H15 Z1. M08 (initial start point is Z1.0)
+N5 G83 G99 Z-.625 Q.2 R0.1 F8. (G99 rapids to R.1 between holes)
+N6 X0.5 Y-0.75  (2)
+N7 Y-2.25 (3)
+N8 G98 X1.5 Y-2.5  (G98 position to initial start point after drilling)  (4)
+N9 G99 X3.5 Z-1.2 R-0.4 (stays down at R plane after drilling hole)  (5)
+N10 X4.5 Y-2.25  (6)
+N11 Y-0.75  (7)
+N12 X3.5 Y-0.5  (8)
+N13 G80 G00 Z1. M09
+N14 G53 G49 Z0. M05
+N15 M30
+
+===== PAGE 81 =====
+75PROGRAMMING
+G81 DRILL CANNED CYCLE
+X* Rapid X-axis location
+Y* Rapid Y-axis location
+Z Z-depth (feed to Z-depth starting from R plane)
+R R-plane (rapid point  to start feeding)
+F Feed rate in inches (mm) per minute
+ * Indicates optional
+This G code is modal so that it is activat ed every X and/or Y axis move, and it will rapid
+to that position and then cause this canned cycl e to be executed again, until it's canceled.
+Use G98 and G99 for the Z position clearance location for positioning between holes.
+O10075 (G81 Drilling Cycle)
+N1 T16 M06 (1/2 DIA. DRILL)
+N2 G90 G54 G00 X0.5 Y-0.5
+N3 S1450 M03
+N4 G43 H16 Z1. M08
+N5 G81 G99 Z-0.375 R0.1 F9.
+N6 X1.5
+N7 Y-1.5
+N8 X0.5
+N9 G80 G00 Z1. M09
+N10 G53 G49 Z0. M05
+N11 M30
+
+===== PAGE 82 =====
+76PROGRAMMING
+G82 SPOT DRILL~COUNTERBORE CANNED CYCLE
+X* Rapid X-axis location
+Y* Rapid Y-axis location
+ZZ-depth (feed to Z-depth starting from R plane)
+PDwell time at Z-depth
+RR-plane (rapid point to start feeding)
+FFeed rate in inches (mm) per minute
+ * Indicates optional
+This G code is modal so that it is activat ed every X and/or Y axis move, and it will rapid
+to that position and then cause this canned cycl e to be executed again, until it's canceled.
+A dwell in seconds/milliseconds is caused at the bottom of each Z-depth in this cycle
+which is defined with P. Use G98 and G99 for the Z position clearance location for
+positioning between holes.
+O10076 (G82 Drill~Dwell Cycle)
+N1 T11 M06 (1/2 DIA. 2 FLT E.M.)
+N2 G90 G54 G00 X0.5 Y-0.5
+N3 S1200 M03
+N4 G43 H11 Z1. M08
+N5 G82 G99 Z-0.375 P0.5 R0.1 F7.5
+N6 X1.5
+N7 Y-1.5
+N8 X0.5
+N9 G80 G00 Z1. M09
+N10 G53 G49 Z0. M05
+N11 M30
+
+===== PAGE 83 =====
+77PROGRAMMING
+G8 3  DEEP HOLE PECK DRILL CANNED CYCLE
+X* Rapid X-axis location
+Y* Rapid Y-axis location
+Z Z-depth (feed to Z-depth st arting from R plane)
+Q* Pecking equal incremental depth amount (if I, J and K are not used)
+I* Size of first peck depth (if Q is not used)
+J* Amount reducing each peck after first peck depth (if Q is not used)
+K* Minimum peck depth (if Q is not used)
+P Dwell time at Z-depth
+R R-plane (rapid point to start feeding)
+F Feed rate in inches (mm) per minute
+ * Indicates optional
+This G code is modal so that it is activat ed every X and/or Y axis move, and it will rapid
+to that position and then cause this canned cycl e to be executed again, until it's canceled.
+And  the depth for each peck in this cycle will be the amount defined with Q. Then the tool
+will rapid up to the R plane after each peck and th en back in for the next peck until Z depth
+is reached.  Use G98 and G99 for the Z position clearance location for positioning between
+holes.
+If I, J, and K are specified, a different operating mode is selected. The first
+pass will cut in by I, each succeeding cut will be reduced by amount J, and
+the minimum cutting depth is K.
+Setting 22  - As the tool pecks deeper into the hole, with each peck it rapids out to the
+R-plane, and then back in to a constant specif ied distance above the bottom of the hole that
+was created by the previous peck. That specified distance is defined in Setting 22.
+Setting 52  - Changes the way G83 works when it re turns to the R-plane. Most program-
+mers set the R-plane well above the cut to insure  that the chip clear motion actually allows
+the chips to get out of the hole but this causes a wasted motion when first drillin g through
+this “empty” space. If Setting 52 is set to the distance required to clear chips, the R plane
+can be put much closer to the part being drilled. When the clear move to R occurs, the Z
+will be moved above R by this setting.
+
+===== PAGE 84 =====
+78PROGRAMMING
+O10078 (G83 Deep Hole Peck Drill Using Q)
+N1 T10 M06 (7/8 DIA. DRILL)
+N2 G90 G54 G00 X0.625 Y0.625
+N3 S1050 M03
+N4 G43 H10 Z1. M08
+N5 G83 G99 Z-2.3 Q0.5 R0.1 F8.
+N6 X1.375 Y1.375
+N7 G80 G00 Z1. M09
+N8 G53 G49 Z0. M05
+N9 M30
+
+===== PAGE 85 =====
+79PROGRAMMING
+O10079 (G83 Deep Hole Peck Drill Using I, J & K)
+N1 T16 M06 (1/2 DIA. DRILL)
+N2 G90 G54 G00 X0.625 Y0.625
+N3 S1833 M03
+N4 G43 H16 Z1. M08
+N5 G83 G99 Z-2.18 I0.5 J0.1 K0.2 R0.1 F9.
+N6 X1.375 Y1.375
+N7 G80 G00 Z1. M09
+N8 G53 G49 Z0. M05
+N9 M30
+
+===== PAGE 86 =====
+80PROGRA MMING
+CANNED CYCLE EXERC ISE #1
+TOOL 3 - is a 1/2 DIA. SPOT DRILL - Dr ill To a depth of . 200  to leave
+a .400 dia. s pot for a c ounterbore chamfer.  ( use a G 81 canned  cycle)
+S1604  Spindle Speed ( Surface S peed  is 210.)
+F6.5 F eed Per Mi nute ( Chip Load  is .002)
+TOOL 4 is a 1/4 DIA. DRILL - Drill thru to a 1.1 depth (use a G 83 canned  cycle
+with a . 150 peck amount).
+S3208  Spindle Speed ( Surface S peed  is 210.)
+F16.0427 Feed Per Mi nute ( Chip Load  is .0025)
+TOOL 5 is a 3/8 DIA. 2- FLT. END MILL  - Dr ill to a . 325 depth  (use a G82
+canned  cycle with a 0.2 of a sec ond dwell ).
+S2139  Spindle Speed ( Surface S peed  is 210.)
+F6.4171  Feed Per Mi nute ( Chip Load  is .0015)
+
+===== PAGE 87 =====
+81PROGRAMMING
+CANNED CYCLE EXERCISE #1
+O00050 (CANNED CYCLE EXERCISE #1)
+T3  M____  (T3 - 1/2 DIA. SPOT DRILL)
+G____  G____  G____  X______  Y______
+S_____  M____
+G____  H____  Z______  M____
+G____  G____  Z______  R____  F____
+X______ Y______
+X______ Y______
+X______ Y______
+G____  G____  Z______  M____
+G____  G____  Z______  M____
+M____  (Optional stop)
+T4  M____ (T4 - 1/4 DIA. DRILL)
+G____  G____  G____  X______  Y______
+S_____  M____
+G____  H____  Z______  M____
+G____  G____  Z______  Q____ R____  F____
+X______ Y______
+X______ Y______
+X______ Y______
+G____  G____  Z______  M____
+G____  G____  Z______  M____
+M____  (Optional stop)
+T5  M____ (T5 - 3/8 DIA. 2 FLT. END MILL)
+G____  G____  G____  X______  Y______
+S_____  M____
+G____  H____  Z______  M____
+G____  G____  Z______  P____  R____  F____
+X______ Y______
+X______ Y_____ _
+X______ Y______
+G____  G____  Z______  M____
+G____  G____  Z______  M____
+M____  (Program End and Reset)
+
+===== PAGE 88 =====
+82PROGRAMMING
+You don't need to start
+the spindle with a M03
+for a tap that's using G84
+because this cycle will
+turn on the spindle for
+you automatically and it
+will  do it  quicker.G84 TAPPING CAN N ED CYCLE
+X* Rapid X-axis location
+Y* Rapid Y-axis location
+ZZ-depth (tapping Z-depth st arting from R plane)
+J* Tapping Retract Speed (Rev. 10.13 and above)
+RR-plane (rapid point to start feeding)
+FFeed rate in inches (mm) per minute
+ * Indicates optional
+This G code is modal. Use G98 and G99 for the Z position clearance location.
+On older machines without vector motors, if your using a spindle speed that's in
+low gear you, may want to command M42 to force it into high gear, because most
+tapping (a smaller size tap) operations  don't need the torque of low gear. And in
+high gear the tapping oper ation performs quicker.
+Newer machines have Setting 130 , Tap Retract Speed, can be set with, 1 thru 9,
+to quick-reverse-out of thread up to 9 times faster then going in, If J is not used.
+With Rigid Tapping, the ratio between feedra te and spindle speed must be calculated
+for thread pitch being cut. The calculation is 1    Threads Per Inch x rpm = tapping
+feedrate. Use the Haas calculator for the s peed and feed numbers.
+O10082 (G84 R.H. Tapping Cycle)
+N1 T18 M06 (7/16-14 TAP)
+N2 G90 G54 G00 X0.625 Y0.625
+N3 S500 (You don't need M03, the
+G84 turns on the spindle for you.)
+N4 G43 H18 Z1. M08
+N5 G84 G99 Z-0.65 R0.1 J3 F 35.7143
+N6 X-0.625  Y-0.625
+N7 G80 G00 Z1. M09
+N8 G53 G49 Z0. M05
+N9 M30:
+
+===== PAGE 89 =====
+83PROGRAMMING
+G74 REVERSE  (LEFT HAND) TAPPING CANNED CYCLE
+X*Rapid X-axis location
+Y*Rapid Y-axis location
+ZZ-depth (tapping Z-depth starting from R plane)
+J*Tapping Retract Speed (Rev. 10.13 and above)
+RR-plane (rapid point to start feeding)
+FFeed rate in inches (mm) per minute
+   *Indicates optional
+This G code is modal. Use G98 and G99 for the Z position clearance location.
+On older machines without vector motors, if your using a spindle speed that's in low
+gear you, may want to command M42 to force it into high gear, because most tap-
+ping (a smaller size tap) operations don't need the torque of low gear. And in high
+gear the tapping operation performs quicker.
+Newer machines have Setting 130 , Tap Retract Speed, can be set with, 1 thru 9,
+to quick-reverse-out of thread up to 9 times faster then going in, If J is not used.
+With Rigid Tapping, the ratio between feedrate and the spindle speed must be
+calculated for the thread pitch being cut. The calculation is 1/Threads Per Inch x
+rpm = tapping feedrate. Use the Haas calculator for the speed and feed numbers.
+O10083 (G74 L.H. Tapping Cycle)
+N1 T18 M06 (7/16-14 L.H. TAP)
+N2 G90 G54 G00 X-0.625 Y0.625
+N3 S490 (You don't need M03, the
+G84 turns on the spindle for you.)
+N4 G43 H18 Z1. M08
+N5 G74 G99 Z-0.65 R0.1 J3 F35.
+N6 X0.625  Y0-.625
+N7 G80 G00 Z1. M09
+N8 G53 G49 Z0. M05
+N9 M30You don't need to start
+the spindle with a M04
+for a tap that's using G74
+because this cycle will
+turn on the spindle for
+you automatically and it
+will  do it  quicker.
+XZY
+XZYG98InitialStartingPlanee n a l P g n i t r a t S l a i t i n I
+e n a l P d i p a R 9 9 G
+RPlane RPlane
+ZPlane ZPlaneG74 Tapping Canned CycleZ Axis position between holes
+Cutting Feed
+Rapid Traverse
+Begin or end of stroke
+Spindle CW
+Spindle CCWG98/G99
+
+===== PAGE 90 =====
+84PROGRAMMING
+G85 BORE IN~BORE OUT CANNED CYCLE
+X* Rapid X-axis location
+Y* Rapid Y-axis location
+ZZ-depth (feed to Z-depth starting from R plane)
+RR-plane (rapid point to start feeding)
+FFeed rate in inches (mm) per minute
+ * Indicates optional
+This G code is modal so that it is ac tivated every X and/or Y axis move, and it
+will rapid to that posit ion and then cause this canned cycle to be executed
+again, until it's canceled.  Use G98 and G99 for the Z position clearance loca-
+tion for positioning between holes.
+O10084  (G85 Bore In~Bore Out)
+N1 T19 M06 (BORING BAR)
+N2 G90 G54 G00 X0.5 Y0.5
+N3 S1450 M03
+N4 G43 H19 Z1. M08
+N5 G85 G99 Z-.54 R0.1 F4.5
+N6 X-0.5
+N7 Y-0.5
+N8 G80 G00 Z1. M09
+N9 G53 G49 Z0. M05
+N10 M30
+XZY
+XZYe n a l P g n i t r a t S l a i t i n I 8 9
+G Initial Starting Plane
+R Plane R Plane
+Z Plane Z Planee n a l P d i p a R 9 9
+GG85 Boring Canned Cycle
+Cutting Feed
+Rapid Traverse
+Begin or end of stroke
+
+===== PAGE 91 =====
+85PROGRAMMING
+G86 BORE IN~STOP~RAPID OUT CANNED CYCLE
+X* Rapid X-axis location
+Y* Rapid Y-axis location
+ZZ-depth (feed to Z-depth starting from R plane)
+RR-plane (rapid point to start feeding)
+FFeed rate in inches (mm) per minute
+ * Indicates optional
+This G code is modal so that it is ac tivated every X and/or Y axis move, and it
+will rapid to that posit ion and then cause this canned cycle to be executed
+again, until it's canceled.  Use G98 and G99 for the Z position clearance loca-
+tion for positioning between holes.
+O10085 (G86 Bore~Stop~Rapid Out)
+N1 T19 M06 (BORING BAR)
+N2 G90 G54 G00 X0.5 Y0.5
+N3 S1450 M03
+N4 G43 H19 Z1. M08
+N5 G86 G99 Z-0.54 R0.1 F4.5
+N6 X-0.5
+N7 Y-0.5
+N8 G80 G00 Z1. M09
+N9 G53 G49 Z0. M05
+N10 M30
+XZY
+XZYG98 InitialStarting PlaneInitial Starting Planee n a l P d i p a R 9 9 G
+R PlaneR Plane
+Z Plane Z PlaneG86 Bore and Stop Canned CycleCutting Feed
+Rapid Traverse
+Begin or end of stroke
+Spindle CW
+Spindle Stop
+
+===== PAGE 92 =====
+86PROGRAMMING
+XZY
+XZYG98 Initial Starting Plane Initial Starting Plane
+R Plane R Plane
+Z Plane Z PlaneG99 Rapid PlaneG87 Bore and Stop and Manual Retract Canned CycleCutting Feed
+Rapid Traverse
+Begin or end of stroke
+Handle Jog
+Spindle StopG87 BORE IN~MANUAL RETRACT CANNED CYCLE
+X* Rapid X-axis location
+Y* Rapid Y-axis location
+ZZ-depth (feed to Z-depth st arting from R plane)
+RR-plane (rapid point to start feeding)
+FFeed rate in inches (mm) per minute
+ * Indicates optional
+This G code is modal so that it is ac tivated every X and/or Y axis move, and it
+will rapid to that position and then cause this canned cycle to be executed
+again, until it's canceled.  Use G98 and G99 for the Z position clearance loca-
+tion for positioning between holes.
+O10086 (G87 Bore~Manual Retract)
+N1 T19 M06 (BORING BAR)
+N2 G90 G54 G00 X0.5 Y-0.5
+N3 S1450 M03
+N4 G43 H19 Z1. M08
+N5 G87 G99 Z-0.54 R0.1 F4.5
+N6 X1.5 Y-1.5
+N7 G80 G00 Z1. M09
+N8 G53 G49 Z0. M05
+N9 M30
+
+===== PAGE 93 =====
+87PROGRAMMING
+G88 BORE IN~DWELL~MANUAL RETRACT CANNED CYCLE
+X* Rapid X-axis location
+Y* Rapid Y-axis location
+ZZ-depth (feed to Z-depth starting from R plane)
+PDwell time at Z-depth
+RR-plane (rapid point to start feeding)
+FFeed rate in inches (mm) per minute
+ * Indicates optional
+This G code is modal so that it is ac tivated every X and/or Y axis move, and it
+will rapid to that posit ion and then cause this canned cycle to be executed
+again, until it's canceled.  Use G98 and G99 for the Z position clearance loca-
+tion for positioning between holes.
+O10087 (G88 Bore~Dwell~Manual)
+N1 T19 M06 (BORING BAR)
+N2 G90 G54 G00 X1.5 Y-0.5
+N3 S1450 M03
+N4 G43 H19 Z1. M08
+N5 G88 G99 Z-.42 P0.2 R0.1 F4.5
+N6 X0.5 Y-1.5
+N7 G80 G00 Z1. M09
+N8 G53 G49 Z0. M05
+N9 M30
+XZY
+XZYG98 Initial Starting Plane Initial Starting Plane
+R Plane R Plane
+Z Plane Z PlaneG99 Rapid PlaneCutting Feed
+Rapid Traverse
+Begin or end of stroke
+Handle Jog
+Spindle Stop
+DwellG88 Bore and Dw ell and Manual Retract Canned Cycle
+
+===== PAGE 94 =====
+88PROGRAMMING
+G89 BORE IN~DWELL~BORE OUT CANNED CYCLE
+X* Rapid X-axis location
+Y* Rapid Y-axis location
+ZZ-depth (feed to Z-depth st arting from R plane)
+PDwell time at Z-depth
+RR-plane (rapid point to start feeding)
+FFeed rate in inches (mm) per minute
+ * Indicates optional
+This G code is modal so that it is activated at every X and/or Y axis move, and will rapid to
+that position and cause this canned cycle to be ex ecuted again, until it's  canceled.  A dwell
+in this cycle in seconds"."milliseconds will happen at the end of the Z- depth with P defined.
+Use G98 and G99 for the Z position clearance location for positioning between holes.
+O10088 (G89 Bore In~Dwell~Bore Out)
+N1 T19 M06 (BORING BAR)
+N2 G90 G54 G00 X1.625 Y-0.375
+N3 S1450 M03
+N4 G43 H19 Z1. M08
+N5 G89 G99 Z-0.375 P0.2 R0.1 F4.5
+N6 X1. Y-1.
+N7 X0.375 Y-1.625
+N8 G80 G00 Z1. M09
+N9 G53 G49 Z0. M05
+N10 M30
+XZY
+XZYe n a l P g n i t r a t S l a i t i n I 8 9 G
+Initial Starting Plane
+R Plane R Plane
+Z Plane Z Planee n a l P d i p a R 9 9 GG89 Bore and Dw ell Canned Cycle
+Cutting Feed
+Rapid Traverse
+Begin or end of stroke
+Dwell
+
+===== PAGE 96 =====
+90PROGRAMMING
+CANNED CYCLE EXERCISE #2
+Be sure to calculate depth of tools fr om the surface that is being machined.
+Change the R-plane according to the surface you are machining.
+Use the Haas CALC display for spindle speed and feedrate.
+TOOL #1 -  90 DEG. 1/2 (0.5) DIA. SPOT DRILL .2  DEPTH
+Use G81 Canned Cycle S_________
+Surface Speed is 220. SFM with a Chip Load of .0025 F_________
+TOOL #2 -  "U" (.368) DIA. DRILL THRU TO 1.14 DEPTH
+Use G83 Canned Cycle with a Q0.2 peck amount S_________
+Surface Speed is 220. SFM with a Chip Load of .0035 F_________
+TOOL #3 -  7/16-14 TAP WITH RIGID TAP THRU TO 1.2 DEPTH
+Use G84 Canned Cycle S 525
+Use tapping calculator to get a feedrate for 525 RPM F_________
+
+===== PAGE 97 =====
+91PROGRAMMING
+O00060 (CANNED CYCLE EXERCISE #2)
+_____________________________________________
+_____________________________________________
+_____________________________________________
+_____________________________________________
+_____________________________________________
+_____________________________________________
+_____________________________________________
+_____________________________________________
+_____________________________________________
+_____________________________________________
+_____________________________________________
+_____________________________________________
+_____________________________________________
+_____________________________________________
+_____________________________________________
+_____________________________________________
+_____________________________________________
+_____________________________________________
+_____________________________________________
+_____________________________________________
+_____________________________________________
+_____________________________________________
+_____________________________________________
+_____________________________________________
+_____________________________________________
+_____________________________________________
+_____________________________________________
+_____________________________________________
+
+===== PAGE 98 =====
+92PROGRAMMING
+G73HIGH SPEED PECK DRILL   CANNED CYCLE
+X* Rapid X-axis location
+Y* Rapid Y-axis location
+ZZ-depth (feed to Z-depth starting from R plane)
+Q* Pecking equal incremental depth amount (if I, J and K are not used)
+ I* Size of first peck depth (if Q is not used)
+J* Amount reducing each peck after first peck depth (if Q is not used)
+K* Minimum peck depth (if Q is not used)
+P* Dwell time at Z-depth
+RR-plane (rapid point to start feeding)
+FFeed rate in inches (mm) per minute
+ * Indicates optional
+This G code is modal so that it is ac tivated every X and/or Y axis move, and it
+will rapid to that posit ion and then cause this canned cycle to be executed
+again, until it's canceled.  The depth of each peck in this cycle will be the
+amount defined with Q or using IJ & K or  K & Q.  The tool will pull back after
+each peck and then back in for the next peck until Z depth is reached.  This
+cycle is a high speed peck cycle where the retract distance it pulls back after
+each peck is set by Setting 22. Use G98 and G99 for the Z position clearance
+location for positioning between holes.
+SETTING 22  - As the tool pecks deeper into th e hole, after each peck, it will pull
+back a constant specified distance above the bottom of the hole that was created
+by the previous peck, to break the ch ip. That specified distance is defined in
+Setting 22.
+SETTING 52  - Changes the way G73 works when it returns to the R plane when
+using K and Q. When the clear move to R occurs, the Z will be moved above R
+by this setting distance. Most programmers set the R-plane well above the cut to
+insure that the chip clear motion actually  allows the chips to get out of the hole
+but this causes a wasted motion when firs t drilling through this “empty” space. Or
+you may need to define a clearance move above the part, in which the R-plane
+may be down inside a part or pocket. If Setting 52 is set to the distance required
+to clear chips, the R-plane can be put much closer to the par t being drilled. The
+Z axis will be moved above the R-plane by this amount ins Setting 52.
+
+===== PAGE 99 =====
+93PROGRAMMING
+O10093 (G73 High Speed Peck Drill Using Q)
+N1 T10 M06 (7/8 DIA. INSERT DRILL)
+N2 G90 G54 G00 X0.625 Y0.625
+N3 S1450 M03
+N4 G43 H10 Z1. M08
+N5 G73 G99 Z-2.15 Q0.1 R0.1 F9.
+N6 X1.375 Y1.375
+N7 G80 G00 Z1. M09
+N8 G53 G49 Z0. M05
+N9 M30G73 HIGH SPEED PECK DRILL CANNED CYCLE USING Q
+If Q is used, it specifies the amount each peck will be in a G73 canned cycle.
+R Plane
+R PlaneStarting Plane Starting Plane
+SETTING #22SETTING #22
+SETTING #22SETTING #22Q Q
+Q Q
+Q Q
+Z Plane Z PlaneG73 Peck Drilling Canned CycleCutting Feed
+Rapid Traverse
+Begin or end of stroke
+SETTING #52
+
+===== PAGE 100 =====
+94PROGRAMMING
+G73 HIGH SPEED PECK DRILL CANNED CYCLE USING I,J,K
+R Plane
+SETTING #22
+I1=I
+I21=I -J
+I32=I -J
+I4=K
+Z PlaneG73 Peck Drilling with I , J & K options
+O10094 (G73 High Speed Peck Drill Using I, J & K)
+N1 T10 M06 (7/8 DIA. INSERT DRILL)
+N2 G90 G54 G00 X0.625 Y0.625
+N3 S1450 M03
+N4 G43 H10 Z1. M08
+N5 G73 G99 Z-2.15 I0 .4 J0.05 K0.1  R0.1 F9.
+N6 X0.1.375 Y1.375
+N7 G80 G00 Z1. M09
+N8 G53 G49 Z0. M05
+N9 M30If I, J, and K are specified , a different 
+operating mode is selected. The first peck 
+will be in by I, each succeeding peck will be 
+reduced by the J amount, with a minimum 
+peck being defined with K.
+
+===== PAGE 101 =====
+95PROGRAMMING
+G73 HIGH SPEED PECK DRILL CANNED CYCLE USING K & Q
+O10095 (G73 High Speed Peck Drill Using K & Q)
+N1 T10 M06 (7/8 DIA. INSERT DRILL)
+N2 G90 G54 G00 X0.625 Y0.625
+N3 S1450 M03
+N4 G43 H10 Z1. M08
+N5 G73 G99 Z-2.15 K1. Q0.2 R0.1 F9.
+N6 X0.1.375 Y1.375
+N7 G80 G00 Z1. M09
+N8 G53 G49 Z0. M05
+N9 M30SETTING #22
+Q
+Q
+Q
+Z PlaneQ
+Q
+QG73 Peck Drilling with K & Q Options 
+R Plane If K and Q commands are specified  
+together with a G73, a different 
+operating mode is selected in this 
+cycle. After a number of pecks of Q 
+distance down into the part totals up to 
+the K amount, and then multiples of K 
+thereafter, the tool will then return to 
+the R-plane. This allows much faster 
+drilling than a G83, but still returns to 
+the R plane occasionally to clear chips.
+
+===== PAGE 102 =====
+96PROGRAMMING
+G76 BORE IN~STOP~SHIFT~RAPID OUT CANNED CYCLE
+X* Rapid X-axis location
+Y* Rapid Y-axis location
+ZZ-depth (feed to Z-depth starting from R plane)
+PDwell time at Z-depth
+Q* Shift value, always incremental (if I or J are not used)
+ I* Shift value X-axis (if Q is not used)
+J*Shift value Y-axis (if Q is not used)
+RR-plane (rapid point to start feeding)
+FFeed rate in inches (mm) per minute
+   * Indicates optional
+This G code is modal so that it is ac tivated every X and/or Y axis move, and it
+will rapid to that position and then cause this canned cycle to be executed
+again, until it's canceled. Use G98 and G99 for the Z position clearance location
+for positioning between holes.
+O10096 (G76 Bore~Stop~Shift~Rapid)
+N1 T19 M06 (BORING BAR)
+N2 G90 G54 G00 X1.0 Y-1.25
+N3 S1450 M03
+N4 G43 H19 Z1. M08
+N5 G76 G99 Z-0.55 P0.2 I-0.01 R0.1 F4.5
+N6 G80 G00 Z1. M09
+N7 G53 G49 Z0. M05
+N8 M30
+XZY
+XZYe n a l P g n i t r a t S l a i t i n I 8 9 G
+Initial Starting Plane
+G99 Rapid Plane
+ShiftShiftR Plane R PlaneG76 Fine Boring Canned CycleCutting Feed
+Rapid Traverse
+Begin or end of stroke
+Shift
+Spindle Orient
+Z Plane Z PlaneThe Q value distance 
+will shift in the direction 
+set by setting 27. If Q is 
+not specified, the 
+optional I and J values 
+are used to define the 
+shift distance and 
+direction.
+
+===== PAGE 103 =====
+97PROGRAMMING
+G7 7 BACK BORE CANNED CYCLE
+STOP~SHIFT~RAPID IN~SHIFT~SPINDLE ON
+BORE UP~STOP~SHIFT~RAPID OUT CANNED CYCLE
+X* Rapid X-axis location
+Y* Rapid Y-axis location
+Z Z-depth (feed to Z-depth starting from R plane)
+Q* Shift value, always incremen tal (if I or J are not used)
+I* Shift value X-axis (if Q is not used)
+J* Shift value Y-axis (if Q is not used)
+R R-plane (rapid point  to start feeding)
+F Feed rate in inches (mm) per minute
+    * Indicates optional
+This G code is modal so that it is activated every X and/or Y axis move, and it
+will rapid to that position and then ca use this canned cycle to be executed
+again, until it's canceled. Use G98 and G99 for the Z position clearance location
+for positioning between holes.
+O10097 (G76 Back Bore)
+N1 T19 M06 (BACK BORING BAR)
+N2 G90 G54 G00 X1.25 Y-0.75
+N3 S1450 M03
+N4 G43 H19 Z1. M08
+N5 G77 G99 Z-0.4 R-0.55 Q0.12 F4.5
+N6 G80 G00 Z1. M09
+N7 G53 G49 Z0. M05
+N8 M30
+This cycle will shift the X and/or Y
+axis prior to and after cutting in
+order to clear the tool while enter-
+ing and exiting the part.  The Q
+value shift direction is set with
+setting 27.  If Q is not specified,
+the optional I and J values can be
+used to determine shift direction
+and distance. The tool will rapid
+down to the R clearance depth and
+feed up to the Z command depth
+for back counterbore.XZYStarting Plane
+Z Plane
+R PlaneShiftG77 Back Boring Canned Cycle
+t f i h S d e e F g n i t t u C
+t n e i r O e l d n i p S e s r e v a r T d i p a R
+Begin or end of stroke Spindle CWBack BoringThe Q value distance 
+will shift in the direc-
+tion set by setting 27. 
+If Q is not specified, 
+the optional I and J 
+values are used to 
+define the shift 
+distance and direction.
+
+===== PAGE 104 =====
+98PROGRAMMING
+BOLT HOLE PATTERNS
+There are three G codes that provide commands used to do bolt holes patterns.
+They are G70, G71, and G72. These G codes are defined with one of the canned
+cycles G73, G74, G76, G77,  or G81-G89.  You defi ne the angle of the bolt hole
+pattern, 0 to 360.0 degrees horizontal from three O'clock CCW. A minus sign will
+reverse angles CW.
+G70 BOLT HOLE CIRCLE COMMAND
+I= Radius of the bolt hole circle
+J= Starting angle of first hole from three o'clock, 0 to 360.0 deg.
+L= Number of evenly spaced holes around bolt hole circle
+The tool must be positioned at the center of the circle either in a previous block
+or in the G70 block. G70 belongs to Group zero and thus is non-modal. For a
+G70 to work correctly, a canned cycle must  be active to perform the desired drill,
+tap or bore cycle.
+G71 BOLT HOLE ARC COMMAND
+I=Radius of the bolt hole arc
+J= Starting angle of first hole from three o'clock, 0 to 360.0 deg.
+K= Angular spacing between holes (+ or -)
+L= Number of evenly spaced holes around bolt hole arc
+The tool must be positioned at the center of the arc eith er in a previous block or
+in the G71 block. G71 belongs to Group zero and thus is non-modal. For a G71
+to work correctly, a canned cycle must be ac tive to perform the desired drill, tap
+or bore cycle. Using a K minus value (K-30.0) defines positioning around the
+bolt hole arc CW starting from the J angle.
+G72 BOLT HOLES ALONG AN ANGLE
+I=Distance between bolt holes along an angle
+J= Angle of holes from three o'clock, 0 to 360.0 deg.
+L= Number of evenly spaced holes along an angle
+This G72 code drills L holes in a straight  line at the specifie d angle. G72 belongs
+to Group zero and thus is non-modal. For a G72 to work correctly, a canned
+cycle must be active to perform the desired drill, tap or bore cycle.
+
+===== PAGE 105 =====
+99PROGRAMMING
+BOLT HOLE CIRCLE
+You must position to the center of a bol t hole circle using X and Y coordinates on
+the G70 command block in a program, or have the XY coordinates defined in a
+previous block when defining a bolt hole circle.
+If an L0 is on the canned cycle line, the cycle will not execute that command
+until the control reads the next line for a G70 command, so as not to drill a hole
+in the center of a bolt hol e circle. Or you can combine the drill cycle with the G70
+on the same line, and it will also, not drill a hole in the center.
+A minus sign will reverse angle CW.
+Be sure to use a decimal point with angle command codes.
+G70 BOLT HOLE CIRCLE COMMAND
+I= Radius of the bolt hole circle
+J= First hole starting angle from thre e o' clock (0 to 360.0 deg. CCW)
+L= Number of evenly spaced holes around bolt hole circle
+O10099 (Bolt Hole Circle)
+N1 T15 M06 (3/8 DIA. DRILL)
+N2 G90 G54 G00 X2. Y-1.5  (Center position of bolt hole circle)
+N3 S1620 M03
+N4 G43 H15 Z1. M08
+N5 G81 G99 Z-0.45 R0.1 F8. L0
+N6 G70  I 1.25  J10.  L8
+N7 G80 G00 Z1. M09
+N8 G53 G49 Z0. M05
+N9 M30(Having L0 on line N5 will cause machine
+to not do this command until the control
+reads the next line, so as not to drill a hole
+in the center of bolt circle. Or you can
+combine N5 and N6 together, minus the
+L0, to also not drill a hole in the center.)
+
+===== PAGE 106 =====
+100PROGRAMMING
+BOLT HOLE ARC
+You must position to the center of a bolt hole arc using X and Y coordinates on
+the G71 command block in a program, or have the XY coordinates defined in a
+previous block when defining a bolt hole arc.
+If an L0 is on the canned cycle line, the cycle will not execute that command
+until the control reads the next line for a G71 command, so as not to drill a hole
+in the center of a bolt hol e arc. Or you can combine the drill cycle with the G71
+on the same line, and it will also  not drill a hole in the center.
+A minus sign will reverse angles CW.
+Be sure to use a decimal point with angle command codes.
+G71 BOLT HOLE ARC COMMAND
+I= Radius of the bolt hole arc
+J= First hole starting angle from thr ee o' clock (0 to 360.0 deg. CCW)
+K= Angular spacing between holes (+ or -)
+L= Number of evenly spaced holes around bolt hole arc
+O10100 (Bolt Hole Arc)
+N1 T15 M06 (3/8 DIA. DRILL)
+N2 G90 G54 G00 X2. Y-1.5 (Center position of bolt hole arc)
+N3 S1450 M03
+N4 G43 H15 Z1. M08
+N5 G81 G99 Z-0.45 R0.1 F8. L0
+N6 G71  I0 .875 J45. K36.  L6
+N7 G80 G00 Z1. M09
+N8 G53 G49 Z0. M05
+N9 M30(Having L0 on line N5 will cause machine
+to not   do this command until the control
+reads the next line, so as not to drill a hole
+in the center of bolt circle. Or you can
+combine N5 and N6 together, minus the
+L0, to also not drill a hole in the center.)
+
+===== PAGE 107 =====
+101PROGRAMMING
+BOLT HOLES ALONG AN ANGLE
+If an L0 is on the canned cycle line, the cycle will not execute that command
+until the control reads the next line for the G72 command. Or you can combine
+the G72 with the drill cycle on the same line.
+A minus sign will reverse angle CW.
+Be sure to use a decimal point with angle command codes.
+G72 BOLT HOLES ALONG AN ANGLE
+I= Distance between bolt holes along an angle
+J= Angle of holes from three o' clock (0 to 360.0 deg. CCW)
+L= Number of evenly spaced holes along an angle
+O10101 (Bolt Holes Along An Angle)
+N1 T16 M06 (1/2 DIA. DRILL)
+N2 G90 G54 G00 X0.65 Y-1.5  (Start position of bolt holes along an angle)
+N3 S1450 M03
+N4 G43 H16 Z1. M08
+N5 G81 G99 Z-0.45 R0.1 G72  I0 .5  J20.  L7 F8.
+N6 G80 G00 Z1. M09
+N7 G53 G49 Z0. M05
+N8 M30
+
+===== PAGE 108 =====
+102PROGRAMMING
+CANNED CYCLE EXERCISE #3
+Program a #7 (.201) Drill at 3200 RPM with 11.5 feedrate to Z-0.95 dr ill tip depth
+for Bolt  Hole Circle, drilling thru part with Z-1.1 for Bolt Hole Arc, and drilling to
+Z-0.65 drill tip depth for Bolt Holes Alon g an Angle. Define r apid plane .100 up from
+the bottom of each circular pocket for Bolt Hole Circle and Bolt Hole Arc, and back
+to R0.1 above part for Bolt Holes along an Angle . Because of clearance prob-
+lems, a G98 needs to be used to rapid to initial start point between each holes in
+the bolt hole circle and bolt hole arc.
+NOTE: If an L0 is on the canned cycle line, it will not execute that command until
+the control reads the next location so as not to drill a hole in the center of a bolt
+hole circle or bolt hole arc command.
+
+===== PAGE 109 =====
+103PROGRAMMING
+O00070 (CANNED CYCLE EXERCISE #3)
+T6 M06 (#7 .201 DIA. CARBIDE STUB DRILL)
+G___  G___  G___  X_____  Y_____ (X Y center position of Bolt Hole Circle)
+S3200  M____
+G___  H___  Z_____  M___ (Position to Z0.1 for the initial point, coolant on)
+G___ G___ Z-0.95  Q0.2  R____ F11.5  (G83 with G98 initial point return)
+G___ I_____ J_____ L___  (Bolt Hole Circle command for 6 holes)
+X_____Y_____  L___  (Go to Bolt Hole Arc center, with no hole here using L0)
+G___ Z-1.1 R_____ I_____  J____ K_____ L___ (Bolt Hole Arc 5 holes)
+G___ X____ Y____ Z -0.65 R___ I____ J____ L___ (Define a Bolt Holes
+Along an Angle, with XY start location, new Z depth and change the R plane)
+G___ G___ Z_____ M___ (Cancel canned cycle and turn coolant off)
+G___ G___ Z_____ M___ (Send Z home and turn spindle off)
+M01 (Optional Stop)
+T7 M06 (1/4-20 Tap)
+G___  G___  G___  X_____  Y_____ (X Y center position of Bolt Hole Circle)
+S750   (G84 will turn on spindle)
+G___  H___  Z_____  M___ (Position to Z0.1 for the initial point, coolant on)
+G___ G___ Z-0.8 R_____ F____ (G84 with G98 initial point return)
+G___ I_____ J_____ L___  (Bolt Hole Circle command for 6 holes)
+X_____Y_____  L___  (Go to Bolt Hole Arc center, but no hole here using L0)
+G___ Z-1.1 R___ I_____  J____ K_____ L___ (Bolt Hole Arc 5 holes)
+G___ X____ Y____ Z -0.55 R___ I____ J____ L___ (Define a Bolt Holes
+Along an Angle, with XY start location, new Z depth and change R plane)
+G___ G___ Z_____ M___ (Cancel canned cycle and turn off coolant)
+G___ G___ Y_____ Z_____ M___ (Send Y and Z home and turn off spindle)
+M30 (End of Program)
+The circular pockets are 0.50 deep, and 0.75 deep, so the rapid R-plane should
+be defined 0.1 above the bottom surface of  each pocket (R-0.4 and R-0.65), so
+as not to drill air from top of part down  to where the surface of pocket begins. Be
+careful, because the R-plane needs to be changed back to R0.1 to the rapid
+plane above part surface when your positi oning over to drill and tap Bolt Holes
+Along an Angle.
+NOTE: Be sure to use decimal points with angle commands.
+
+===== PAGE 112 =====
+106PROGRAMMING
+O10106  (PROGRAM CALLING SUB-PROGRAM WITH AN M98)
+T3 M06  (90 DEG. 1/2 DIA. SPOT DRILL)
+G90 G54 G00 X1.5 Y-0.5 (1)
+S1400 M03
+G43 H03 Z1. M08
+G81 G99 Z-0.24 R0.1 F7.  (G81 Drilling Canned Cycle)
+M98 P10107  (Call Sub-Program O10107)
+T15 M06  ("U" .368 DIA. DRILL)
+G90 G54 G00 X1.5 Y-0.5 (1)
+S2100 M03
+G43 H15 Z1. M08
+G83 G99 Z-0.75 Q0.2 R0.1 F12.5 (G83 Peck Drilling Canned Cycle)
+M98 P10107  (Call Sub-Program O10107)
+T18 M06  (7/16-14 TAP)
+G90 G54 G00 X1.5 Y-0.5 (1)
+S525  (G84 will turn on the spindle, so no M03 is needed)
+G43 H18 Z1. M08
+G84 G99 Z-0.6 R0.1 F37.5  (G84 Tapping Canned Cycle)
+M98 P10107  (Call Sub-Program O10107)
+G53 G49 Y0.
+M30   (End Program)
+
+===== PAGE 114 =====
+108PROGRAMMING
+O10108  (PROGRAM CALLING LOCAL SUB-ROUTINE WITH M97)
+T3 M06 (90 DEG. 1/2 DIA. SPOT DRILL)
+G90 G54 G00 X1.5 Y-0.5   (1)
+S1400 M03
+G43 H03 Z1. M08
+G81 G99 Z-0.24 R0.1 F7.  (G81 Drilling Canned Cycle)
+M97 P10  (Call Local Sub-Routine N101)
+T15 M06 ("U" .368 DIA. DRILL)
+G90 G54 G00 X1.5 Y-0.5   (1)
+S2100 M03
+G43 H15 Z1. M08
+G83 G99 Z-.75 Q0.2 R0.1 F12.5 (G83 Peck Drilling Canned Cycle)
+M97 P10  (Call Local Sub-Routine N101)
+T18 M06 (7/16-14 TAP)
+G90 G54 G00 X1.5 Y-0.5   (1)
+S525  (G84 will turn on the spindle, so no M03 is needed)
+G43 H18 Z1. M08
+G84 G99 Z-.6 R0.1 F37.5  (G84 Tapping Canned Cycle)
+M97 P10  (Call Local Sub-Routine N101)
+G53 G49 Y0. Z0.
+M30  (End of main program)
+N10 (Local subroutine example listing all the hole locations)
+(N10 is Local Sub-Routine after M30)  (Part print on previous page)
+X.5 Y-.75   (2)
+Y-2.25   (3)
+G98 X1.5 Y-2.5   (4)
+G99 X3.5 (5)
+X4.5 Y-2.25   (6)
+Y-.75   (7)
+X3.5 Y-.5   (8)
+G80 G00 Z1.0 M09
+G53 G49 Z0. M05
+M99  (An M99 ends a sub-routine and returns back to the next line in
+the main program after the M97 sub-routine call.)
+
+===== PAGE 115 =====
+109PROGRAMMING
+GENERAL PURPOSE POCKET MILLING
+G150  General Purpose Pocket Milling
+PSubprogram call of program number  that defines pocket geometry
+XX position of starting hole (not needed if you're already at that location)
+YY position of starting hole (not needed if you're already at that location)
+ZFinal depth of pocket
+QIncremental Z-axis depth, starting from R plane
+RR plane clearance position
+IX-axis shift over cut increment (use I or J, not both)
+JY-axis shift over cut increment (use I or J, not both)
+KFinishing cut allowance
+G41 Left or G42 Right (of progr am path) Cutter compensation
+DCutter compensation geometry offset register number
+FFeed rate
+This G code provides for general purpose pocket milling. The shape of the pocket
+to be machined must be defined by a series of motions within a subprogram.  A
+series of motions in either the X or Y axis will be used to cut out the specified
+shape, followed by a finishing pass to clean up the outer edge. Only one of
+either I or J must be specified. If I is used, the pocket is cut by stepping over in
+the X axis, and the strokes will be along the Y axis. If J is used, the pocket is cut
+by shifting over in the Y axis, and the strokes will be along the X axis. I and J
+must be positive numbers. The K command is a finish pass and must be a posi-
+tive number. There is no finishing pass for the Z depth using the K command. A
+Z depth finish pass can be calculated using Z, Q, and R commands.
+Multiple Q cuts can be defined to get to the final Z depth. The feed down to the
+final Z depth starts from the R plane,  feeding down by the Q amount for each
+pass until the Z depth is reached. Q must be positive.
+If an L count is specified on the G150 command line, with a G91 and an X and/or
+Y value, the entire block is repeated agai n at an incremental X or Y distance,
+L number of times.
+The subroutine must define a closed loop area  with a series of G01, G02, or G03
+motions in the X and Y axes, and must end with an M99. G codes G90 and G91
+can also be used in the subprogram to se lect absolute or incremental motion.
+Any codes other than G, I, J,  R, X, or Y are ignored  in the subprogram, which
+must consist of no more than 40 moves.  (In control software version 11.11, G150
+Pocket Milling was increased to 40 geometry moves. In all prev ious versions,
+G150 could be defined with no more than 20 geometry moves.)
+
+===== PAGE 116 =====
+110PROGRAMMING
+With a G150 pocket milling command, you may need a clearance hole drilled to
+Z depth of pocket, prior to the endmill ent ering for a G150 pocket cycle, since it
+plunges straight down in the Z axis. You may choose to specify an XY starting
+hole location to be drilled, prior to, or in the G150 command.
+The first motion of a subprogram should define a move from the starting hole
+location onto a start point of the pocket geometry. The final move in the subpro-
+gram should close the loop at the same point where you began the pocket geom-
+etry. In the example on the following page , the start point of the G150 is X1.5
+Y3.25, and the first move of the subprogram is X0.5.  Therefore, the last move of
+the subprogram must return to X0.5 Y3.25.
+If K is specified, the roughing cuts will cut inside the programmed pocket size by
+the amount of K. The fi nishing pass will follow along the pocket geometry edge
+and is done at the full pocket depth.
+(Tool 1 drills a clearance hole in the pocket for endmill to plunge into)
+O10110 (PROGRAM NAME HERE, SHOWS IN LIST PROGRAM)
+(Drill Starting h ole for endmill to plunge down in Z axis for G150 pocket cycle)
+N101 T16 M06  (1/2 DIA. DRILL)
+N102 G90 G54 G00 X1.5 Y3.25  (Starting location for drilling)
+N103 S1528 M03
+N104 G43 H16 Z1. M08
+N105 G83 G99 Z-1.25 Q0.25 R0.1 F6.1
+N106 G80 G00 Z1. M09
+N107 G53 G49 Z0. M05
+(G150 Shift X axis with I, milling down Q steps to Z depth)
+N108 T11 M06  (1/2 DIA. 2 FLT. ENDMILL)
+N109 G90 G54 G00 X1.5 Y3.25 (Start location for pocket milling routine)
+N110 S2100 M03
+N111 G43 H11 Z1. M08
+N112 G01 Z.01 F30. (Feed down to start point in Z for incremental Q depth)
+N113 G150 P10111 G41 D11 I.4 (or J.4) K.02 Z-1.25 Q.63 R.01 F16.5
+N114 G40 G01 X1.5 Y3.25 (Be sure to cancel cutter compensation)
+N115 G00 Z0.1 M09
+N116 G53 G49 Y0. Z0. M05
+N117 M30
+The G150 pocket millin g sub-program is called up on line N206 (this page) with
+G150 P109. This tells the control to lo ok for program O00109 (next page) for the
+finish geometry of the pocket being machined.
+
+===== PAGE 117 =====
+111PROGRAMMING
+(SUBPROGRAM)
+O10111 (G150 POCKET GEOMETRY)
+N1 G01 X0.5
+N2 Y1.5
+N3 G03 X2.25 R0.875
+N4 G01 X5.25
+N5 G03 X7. R0.875
+N6 G01 Y5.
+N7 G03 X5.25 R0.875
+N8 G01 X2.25
+N9 G03 X0.5 R0.875
+N10 G01 Y3.25
+N11 M99  (Returns to main program)
+G150 NOTES
+1.  Position the endmill to t he starting point inside t he pocket. Do not have cutter
+overlap on any line of the pocket geometry with the entry of the endmill.
+2.  The G150 command line calls up a subprogram with a P command (P12345)
+that specifies the separate subprogram (O 12345) which defines the geometry of a
+pocket. This pocket geometry must be defined in 40 strokes (moves) or less.
+In control software version 11.11, G150 Pocket Milling w as increased to 40 ge-
+ometry moves. In all previous versions, a G150 could not be defined with mo re
+than 20 geometry moves in the s ubprogram called up by the G150.
+3. The G150 pocket geometry command cannot be listed after the M30 command,
+like the way M97 (Local subprogram call) is used. Instead, G150 uses a P command
+to call up a separate program wh ich contains the pocket geometry.
+
+===== PAGE 118 =====
+112PROGRAMMING
+4.  You can also define an island within the G150 pocket command. Remember
+that you only have a total of 40 moves to define the pocket geometry (only 20
+moves for machines with ver.11.11 and earlier).
+5.  When positioning on and off of an island inside a G150 subprogram that's
+using cutter compensation (G41/G42). The cutte r will be either left or right of the
+line you’re positioning onto. If you’re positioning onto the island or pocket at the
+same location you position off the island or pocket, you will leave a large scallop
+the size of the offset radius . To eliminate this scallop, you need to overlap the
+entry and exit moves by a little more than t he offset amount, in the offset register,
+so that the center of t he cutter overlaps the path on the entry and exit moves,
+when defining an Island in a G150 pocket command.
+6.  Define the pocket geometry tool path in  the direction you wish to cut. Define
+the path counterclockwise to climb cut us ing G41, or clockwise to conventional
+cut with a G42. The cutting path direction needs to be reversed when positioning
+onto an island inside the pocket when clim b or conventional cutting with endmill.
+ You might need to drill a clearance hole for the endmill to plunge straight
+down in the Z  axis for the G150 pocket cycle command.
+O10112 (PROGRAM NAME)
+N101 T16 M06  (1/2 DIA. DRILL)
+N102 G90 G54 G00 X1.5 Y3.25  (Start location for drilling clearance hole)
+N103 S1528 M03
+N104 G43 H16 Z1. M08
+N105 G83 G99 Z-1.25 Q0.25 R0.1 F6.1
+N106 G80 G00 Z1. M09
+N107 G53 G49 Z0. M05
+(G150 Shift Y axis with J, milling down Q steps to Z depth.)
+N108 T11 M06  (1/2 DIA. 2 FLT END MILL)
+N109 G90 G54 G00  X1.5 Y3.25  (Start location for pocket milling routine)
+N110 S2100 M03
+N111 G43 H11 Z0.1 M08
+N112 G01 Z0.01 F30. (Feed down to start point in Z axis for incremental Q depth)
+N113 G150 P10113 G41 D11 I.4 (or J.4) K.02 Z- 1.25 Q.63 R.01 F16.5
+N114 G40 G01 X1.5 Y3.25 (Be sure to cancel cutter compensation)
+N115 G00 Z0.1 M09
+N116 G53 G49 Y0. Z0. M05
+N117 M30
+
+===== PAGE 123 =====
+117PROGRAMMING
+M78 Alarm if Skip Signal Found
+M79 Alarm if Skip Signal not Found
+M80 ** Automatic Door Open (Setting 131)
+M81 ** Automatic Door Close (Setting 131)
+M82 Tool Unclamp
+M83 ** Auto Air Jet On
+M84 ** Auto Air Jet Off
+M86 Tool Clamp
+M88 ** Coolant Through the Spindle ON (Setting 32)
+M89 ** Coolant Through the Spindle OFF (Setting 32)
+M95 Sleep Mode
+M96 Jump if no Input (P,Q)
+M97 Local Sub-Program Call (P, L)
+M98 Sub Program Call (P, L)
+M99 Sub Program/Sub-Program Return Or Loop (P) (Setting 118)
+M101** MOM (Minimum Oil Machining) CANNED CYCLE MODE (I)
+M102** MOM (Minimum Oil Machining) MODE (I,J)
+M103** MOM (Minimum Oil Machining) MODE CANEL
+M109** Interactive User Input (P)
+
+===== PAGE 124 =====
+118PROGRAMMING
+M CODE DETAILED DESCRIPTION
+M00 OPTIONAL PROGRAM STOP  (SETTING 39, 42)
+The M00 code is used to stop a program. It also stops the spindle and turns off
+the coolant and stops interpretation look ahead processing. The program pointer
+will advance to the next block and stop.  A cycle start will continue program op-
+eration from the next block. If the Thr ough the Spindle Coolant option is ON,
+M00 will shut it off.
+M01 OPTIONAL PROGRAM STOP  (SETTING 17, 39)
+The M01 code is identical to M00 except that it only stops if  OPTIONAL STOP is
+turned on from the front panel . A cycle start will continue program operation from the
+next block. If the Through the Spindle Coolant option is ON, M01 will shut it off.
+M02 PROGRAM END  (SETTING 39)
+The M02 code will stop program operati on the same as M00 but does not ad-
+vance the program pointer to the next block.
+M03 SPINDLE FORWARD (S) (SETTING 144)
+The M03 code will start the spindle moving is a clockw ise direction at whatever
+speed was previously set. The block will delay until the spindle reaches about
+90% of commanded speed.
+When Parameter 278 bit 10, "CNCR SPINDLE", is set to 1, the machine will not
+wait for the spindle to come up to speed immediately after an M03 command.
+Instead, it will check and/or wait for the spindle to come up to speed immediately
+before the next interpolated motion is initiated.
+M04 SPINDLE REVERSE (S) (SETTING 144)
+The M04 code will start the spindle movi ng is a counterclockwise direction at
+whatever speed was previously set. T he block will delay until the spindle
+reaches about 90% of commanded speed.
+When Parameter 278 bit 10, "CNCR SPINDLE", is set to 1, the machine will not
+wait for the spindle to come up to speed immediately after an M04 command.
+Instead, it will check and/or wait for the spindle to come up to speed immediately
+before the next interpolated motion is initiated.
+Running an M04 command with Through the Spindle Coolant (TSC) on is not
+recommended.
+M05 SPINDLE STOP
+The M05 code is used to stop the spindle. The block is delayed until the spindle
+slows below 10 RPM.
+
+===== PAGE 135 =====
+129PROGRAMMING
+If you have macros, you can use a global variable and specify a block to jump to by adding
+#nnn=dddd in the subroutine and then using M99 P# nnn after the subroutine call. There are
+many ways to jump conditionally after an M99 return when using macros.
+M101 MOM (MINIMUM OIL MACHINING) CANNED CYCLE MODE
+M101 tells the system to start MOM whenev er the appropriate G-Code Canned Cycle is
+encountered (G73, G74, G76, G 77, and G81 thru G89). Oil is dispensed for the on time
+duration whenever the t ool is at the R-Plane.
+I - On time (Canned Cycle Mode) squirt duration in seconds (0.050 is 50 msec).
+M102 MOM MODE
+M102 tells the system to ignore the G-Co de Canned Cycles and dispense oil whenever
+M102 is encountered in the program. Oil is dispensed for the on time  duration at a
+periodicity dictated by the Time Between Squirts MOM.
+I  - On time (Canned Cycle Mode) squirt duration in seconds (0.050 is 50 msec).
+J - Cycle time (MOM Mode Cycle)  in seconds between squirts.
+M103 MOM MODE CANCEL
+M103 tells the system to cancel both MOM Canned Mode and MOM Mode (no oil will
+be dispensed via MOM)....
+...  (Part program)
+...M98 P346  (Jumps to line N346 to run the local-sub program)
+...
+N123 (The M99 P123 at the end of the local sub-program will jump back here)
+...
+M99 P333 (Jumps the program to line N333)
+...
+N333 (Jumps to this line after M99 P333)
+...  (Finish part)
+...
+M30   (End of main program)
+N346  (Local Sub-program)
+...
+...  (Local Sub-program portion of part)
+...
+M99 P123  (Jumps back to line N123 in the main program) 
+
+===== PAGE 138 =====
+132PROGRAMMING
+FINAL EXERCISE
+     
+TOOL 1 - 3/4 Dia. 4 Flt. End Mill  - finish mill contour .3 depth 1 pass.
+250 SFM@.003 chip per flute. S ________F_______
+TOOL 2 - 7/8 Dia. 2 Flt. Insert Drill - rough drill circular pocket .490
+deep with a G73 canned cycle. 250 SFM@.005 chip per flute.
+S________F_______
+TOOL 3 - 5/8 Dia.  2 Flt. End Mill  - finish 1.800 dia. x .5 deep circular
+G13 pocket .250 SFM@.0025 chip per flute.S ________F_______
+TOOL 4 - 1/2 Dia. Spot Drill - spot drill 6 holes Z-.4 deep with R-.2 in
+a G81 cycle. 200 SFM@.003 chip per flute.S ________F_______
+TOOL 5 - 5/16  Dia. Drill - drill 6 holes thru using G83 canned cycle
+200 SFM@.0025 chip per flute. S ________F_______
+TOOL 6 - 3/8-16 UN Tap  - tap 6 holes thru with a G84 rigid tapping
+machine. Tap at 650 RPM. S650 F_______
+
+===== PAGE 140 =====
+134PROGRAMMING
+TOOL #2
+TOOL #2 -  .875 Dia. 2 Flt. Insert Drill
+Rough drill in center of the 1.800 
+circular pocket .480 d eep using a G81
+canned cycle at 250 FPM x .005 chip per
+tooth.
+T___  M___  (7/8 DIA. INSERT DRILL)
+G___  G___  G___  X_____  Y_____
+S_____  M_____
+G___  H___ Z_____  M___
+G___ Z_____ R____ F___
+G___ G___ Z_____ M___
+G___ G___ Z_____ M___
+
+===== PAGE 142 =====
+136PROGRAMMING
+TOOL 4, 5, &  6
+The rapid plane for the drill and tap is R-.2  down from the top surface of part.
+TOOL #4 - .500 Dia. Spot Drill
+Use a G81 to spot drill 6 holes to a dept h of -.5 starting fr om a -.2 rapid plane.
+200 FPM @ .003 chip per tooth.
+TOOL #5 - .3125 Dia. Drill
+Use a G83 to drill 6 holes thru to a dep th of -.72 with a 0.1 peck depth amount
+and a -.2 rapid plane.
+200 FPM @ .0025 chip per tooth.
+TOOL #6 - 3/8-16 Tap
+Use a G84 to tap 6 holes thru pa rt to a -.75 depth and a -.2 rapid plane,
+with a 650 RPM. Machine is equiped with rigid tapping.(first hole) (second hole)
+(third hole)
+(fifth hole) (fourth hole)(sixth hole)
+
+===== PAGE 143 =====
+137PROGRAMMING
+TOOL 4, 5, &  6
+T___  M___    (1/2 DIA. SPOT DRILL)
+G___  G___  G___  X______  Y______
+S_____  M_____
+G___  H___ Z_____  M___
+G___ G___ Z_____ R____ F___
+M___ P____
+T___  M___  (5/16 DIA. DRILL)
+G___  G___  G___  X______  Y______
+S_____  M_____
+G___  H___ Z_____  M___
+G___ G___ Z_____  Q____ R____ F___
+M___ P___
+T___  M___  (3/8-16 TAP)
+G___  G___  G___  X______  Y______
+S_____  (M03 not needed with G84)
+G___  H___ Z_____ M___
+G___ G___ Z_____ R____ F___
+M___ P___
+G53 Y0. Z0.
+T1 M06 (Change back to tool #1 for the next part to be run)
+M___  (End of program)
+(SUB-PROGRAM)
+O00081
+G___ X_______
+G___ Y_______
+G___ X______ Y_____
+G___ X______
+X______Y______
+G___ G___ Z____ M___
+G___ G___ Z____ M___
+M___Use G98 and G99 for
+the Z position clearance
+location for positioning
+between holes.
+G98  Initial Point Return
+G99  R Plane Return
+
+===== PAGE 144 =====
+h c n i  =  7 3 9 3 0 . 0  x  m m mm  =  4 . 5 2  x  h c n i
+h c n i  =  7 3 . 9 3  x  r e t e m mm  =  8 . 4 0 3  x  t o o f
+e l i m  =  4 1 2 6 . 0  x  m k m k  =  9 0 6 . 1  x  e l i m
+Abbreviations and Measurement Units 
+D = Diameter of Milling Cutter or Lathe Part RPM = Revolutions per Minute (Spindle Speed)
+F= Feed (Inch or metric) SFM = surface feet per minute
+d= depth of cut SMPM = Surface Meters per Minute
+FPR = Feed per Revolution T = Number of Teeth in the Cutter
+FPT = Feed per Tooth TPI = Threads per Inch
+FPM = Feed per Minute (Table Travel Feedrate) W= Width of Cut
+FPR = Feed per Revolution °C = Degrees Celsius
+L = Length of Cut (Inches) °F = Degrees Fahrenheit
+` 01-14-04Miscellaneous
+Radius of Circle = Circumference x 0. 159155
+Diameter of Circle = Circumference x 0. 31831
+Circumference of Circle = D x 3.1416
+Area of Circle = R2 x 3.1416
+Cutting Time in Minutes  (Mill) =L ÷ FPM
+Cutting Time in Seconds  (Lathe) = Distance to go x 60 sec
+         FPR x RPMThreads
+Mill Tapping Feedrate FPM =1 ÷ TPIx RPM
+Lathe Threading Feedrate (Thread Lead) FPR =1 ÷ TPI
+Tap Drill Size = Major Dia. of Tap  -  % of Thread Height x .01299
+        TPI
+Percent of Full Thread = TPI xMajor Dia. of Tap- Drill Dia.
+            .01299
+Mill Tapping Feedrate (Metric) = RPM x Metric Pitch
+Tap Drill Size (Metric) = Tap Major Dia. (mm) - % of Thread Height x Metric Pitch
+                                    76.980
+Percent of Full Thread (Metric) =76.980
+     Metric Pitch   x  Basic Major Diameter (mm) - Drilled Hole (mm)Mill and Lathe Conversions
+T o Find: Formula:
+Revolutions Per Minute RPM = (SFM x 3.82) ÷ D
+Surface Feet Per Minute SFM = RPM x D x 0.262
+Surface Meters Per Minute (Metric) SMPM = SFM x 0.3048
+Feed Per Minute Milling Feedrate FPM =F PTx Tx RPM
+Feed Per Revolution FPR = FPM ÷ RPM
+Feed Per Tooth - Mill FPT = FPM ÷ (T x RPM)
+Feed Per Minute - Lathe FPM =F PR x RPM
+Metal Removal Rate MMR = Wx  dx  F
+Advance Per Revolution ADV/R = F÷ R P MFahrenheit to Celsius :  (°F - 32) ÷ 1.8 = °C
+Celsius to Fahrenheit :  (°C x 1.8) + 32 = °F
+Degrees,Minutes,Seconds to Decimal Degrees :  Degrees+( Minutes /60)+( Seconds /3600)= Decimal DegreesConversion Formulas
+
+===== PAGE 145 =====
+DECIMAL EQUIVALENTS WITH TAP DRILLS CHART
+Decimal Drill Tap
+Equiv. Size  m SizesDecimal Drill Tap
+Equiv. Size mmDecimal Drill 
+Equiv.   Size mmDecimal Drill Tap
+Equiv. Size mm Sizes
+.0019685                  0.05
+.0039370                  0.1
+.0059        97            0.150
+.0063        96            0.160
+.0067        95            0.170
+.0071        94            0.180
+.0075        93            0.191
+.0079        92            0.2
+.0083        91 0.211
+.0087        90            0.221
+.0091        89            0.231
+.0095        88            0.241
+.0098                        0.25
+.0100        87            0.254
+.0105        86            0.267
+.0110        85            0.279
+.0115        84            0.292
+.0118         -              0.3
+.0120        83            0.305
+.0125        82            0.318
+.0130        81            0.330
+.0135        80            0.343
+.0138         -              0.35
+.0145        79            0.368
+.0156       1/64          0.396
+.0158         -              0.4
+.0160        78            0.406
+.0177         -              0.45
+.0180        77            0.457
+.0197         -              0.5
+.0200        76            0.508
+.0210        75            0.533
+.0217         -              0.55
+.0225        74            0.572
+.0236         -              0.6
+.0240        73            0.610
+.0250        72            0.635
+.0256         -              0.65
+.0260        71            0.660
+.0276         -             0.7
+.0280        70   0.711
+.0292        69           0.742
+.0295         -             0.75        M1 x 0.25
+.0310        68           0.787
+.0313      1/32          0.793
+.0315         -             0.8
+.0320        67           0.813
+.0330        66           0.838
+.0335         -             0.85 M1.1 x 0.25
+.0350        65           0.889
+.0354         -             0.9
+.0360        64           0.914
+.0370        63           0.940
+.0374         -             0.95 M1.2 x 0.25
+.0380        62           0.965
+.0390        61           0.991
+.0394         -             1.0
+.0400        60           1.016
+.0410        59           1.041
+.0420        58           1.067
+.0430        57           1.092
+.0433         -             1.1 M1.4 x 0.3
+.0465        56           1.181
+.0469       3/64         1.191 #0-80
+.0472         -             1.2
+.0492         -             1.25 M1.6 x 0.35
+.0512         -             1.3
+.0520        55           1.321
+.0550        54           1.397
+.0551         -             1.4
+.0571                       1.45 M1.8 x 0.35
+.0591         -             1.5
+.0595        53  1.51      1#1-64 #1-72
+.0625       1/16         1.588
+.0630         -             1.6         M2 x 0.4
+.0635        52           1.613
+.0669         -             1.7
+.0670        51           1.702
+.0689         -             1.75 M2.2 x 0.45
+.0700        50           1.778 #2-56 #2-64
+.0709         -             1.8
+.0730        49           1.854
+.0748         -             1.9
+.0760        48           1.930.0781       5/64           1.984
+.0785        47             1.994          #3-48
+.0787                         2.0
+.0807                         2.05    M2.5 x 0.45
+.0810        46             2.057
+.0820        45             2.083          #3-56
+.0827                         2.1
+.0846                         2.15
+.086044                     2.184
+.0866                         2.2
+.0886                         2.25
+.089043                     2.261          #4-40
+.0906                         2.3
+.0925                         2.35
+.0935        42             2.375          #4-48
+.0938       3/32           2.383
+.0945                         2.4
+.0960        41             2.438
+.0965                         2.45
+.0980        40             2.489
+.0984                         2.5             M3 x 0.5
+.0995        39             2.527
+.1015        38             2.578          #5-40
+.1024                         2.6
+.1040        37             2.642          #5-44
+.10632.7
+.1065        36             2.705          #6-32
+.1094       7/64           2.779
+.1100        35             2.794
+.1102                         2.8
+.1110        34             2.819
+.1130        33             2.870          #6-40
+.1142                         2.9            M3.5 x 0.6
+.1160        32             2.946
+.1181                         3.0
+.1200        31             3.048
+.1220                         3.1
+.1250        1/8            3.175
+.1260                         3.2
+.1285        30             3.264
+.1299                         3.3             M4 x 0.7
+.1339                         3.4
+.1360        29             3.454 #8-32 #8-36
+.1378                         3.5
+.1405        28             3.569
+.1406       9/64           3.571
+.1417                         3.6
+.1440        27             3.658
+.1457                         3.7
+.1470        26             3.734
+.1476                         3.75  M4.5 x 0.75
+.1495        25             3.797          #10-24
+.1496                         3.8
+.1520        24             3.861
+.1535                         3.9
+.1540        23             3.912
+.1562       5/32           3.968
+.1570        22             3.988
+.1575                         4.0
+.1590        21             4.039          #10-32
+.1610        20             4.089
+.1614                         4.1
+.1654                         4.2            M5 x 0.8
+.1660        19             4.216
+.1693                         4.3
+.1695        18             4.305
+.17191 1/64    4.366
+.1730        17             4.394
+.1732                         4.4
+.1770        16             4.496          #12-24
+.1772                         4.5
+.1800        15             4.572
+.1811                         4.6
+.1820        14             4.623          #12-28
+.1850        13             4.699          #12-32
+.1875       3/16           4.763
+.1890        12             4.801
+.1910        11             4.851
+.1929                         4.9
+.1935        10             4.915
+.1960          9             4.978
+.1969                         5.0               M6 x 1
+.1990          8             5.055.2008                          5.1
+.20107                        5.105        1/4-20
+.2031      13/64           5.159
+.2040         6               5.182
+.2047                          5.2
+.2055         5               5.220
+.2087                          5.3
+.2090         4               5.309
+.2126                          5.4
+.2130         3               5.410        1/4-28
+.2165                          5.5
+.2188       7/32            5.558        1/4-32
+.2205                          5.6
+.2210         2               5.613
+.2244                          5.7
+.2280         1               5.791
+.2283                          5.8
+.2323                          5.9
+.2340         A               5.944
+.2344     15/64            5.954
+.2362                          6.0               M7 x 1
+.2380         B               6.045
+.2402                          6.1
+.2420         C              6.147
+.2441                          6.2
+.2460         D              6.248
+.2480                          6.3
+.2500 1/4 & E     6.350
+.2520                          6.4
+.2559                          6.5
+.2570         F               6.528         5/16-18
+.2598                          6.6
+.2610         G              6.629
+.2638                          6.7
+.2656      17/64           6.746
+.2660         H               6.756
+.2677                           6.8              M8 x        1.25
+.2717                           6.9
+.2720          I                6.909          5/16-24
+.2756                           7.0
+.2770          J               7.036
+.2795                           7.1
+.2810          K              7.137
+.2812        9/32           7.143          5/16-32
+.2835                          7.2
+.2874                          7.3
+.2900           L             7.366
+.2913                          7.4
+.2950          M             7.493
+.2953                          7.5
+.2969       19/64          7.541
+.2992                          7.6
+.3020          N             7.671
+.3031                          7.7
+.3071                          7.8                M9 x         1.25
+.3110                          7.9
+.3125         5/16          7.938           3/8-16
+.3150                          8.0
+.3160          O             8.026
+.3189                          8.1
+.3228                          8.2
+.3230          P             8.204
+.3268                          8.3
+.3281       21/64          8.334          3/8-20
+.3307                          8.4
+.3320          Q             8.433          3/8-24
+.3346                          8.5        M10 x 1.5
+.3386                          8.6
+.3390          R     8.611
+.3425                          8.7
+.3438      1 1/32     8.733          3/8-32
+.3465                          8.8
+.3480          S              8.839
+.3504                          8.9
+.3543                          9.0
+.3580          T              9.093
+.3583                          9.1
+.3594      23/64           9.129
+.3622                          9.2
+.3661                          9.3
+.3680          U              9.347          7/16-14
+.3701                          9.4
+.3740                          9.5.3750         3/8            9.525
+.3770           V             9.576
+.3780                          9.6
+.3819                          9.7
+.3858                          9.8
+.3860          W             9.804
+.3898                          9.9
+.3906        25/64         9.921         7/16-20
+.3937                         10.0
+.3970           X            10.084
+.4016                         10.2        M12 x 1.75
+.4040           Y            10.262        7/16-28
+.4062        13/32        10.318
+.4130           Z            10.490
+.4134                         10.5
+.4219        27/64        10.716       1/2-13
+.4331                         11.0
+.4375         7/16         11.113
+.4528                         11.5
+.4531        29/64        11.509       1/2-20
+.4688        15/32        11.908       1/2-28
+.4724                         12.0        M14 x 2
+.4844         31/64       12.304       9/16-12
+.4921                         12.5
+.5000           1/2         12.700
+.5118                         13.0
+.5156         33/64       13.096 9/16-18 9/16-24
+.5312         17/32       13.493 5/8-11
+.5315                         13.5
+.5469         35/64       13.891
+.5512                         14.0 M16 x 2
+.5625          9/16        14.288 5/8-16
+.5709                         14.5
+.5781        37/64        14.684 5/8-18 5/8-20
+.5906                         15.0
+.5938        19/32   15.083  5/8-24 5/8-28 5/8-32
+.6094        39/64       15.4791 1/16-12
+.6102                        15.5 M18 x 2.5
+.6250          5/8         15.875       1  1/16-16
+.6299                        16.0
+.6406        41/64       16.271       1  1/16-20
+.6496                        16.5
+.656221/32               16.6681 1/16-24 11/16-28
+    -               -                             11/16-32     3/4-10
+.6693                        17.0
+.6719        43/64       17.066 3/4-12
+.6875        1   1/16   17.463 3/4-16
+.6890                        17.5 M20 x 2.5
+.7031        45/64       17.859 3/4-20
+.7087                        18.0
+.7188        23/32       18.258 3/4-28 3/4-32
+.7283                        18.5
+.7344        47/64       18.654 13/16-12
+.7480                        19.0
+.7500          3/4         19.050 13/16-16
+.7656        49/64       19.446 13/16-20 7/8-9
+.7677                        19.5 M22 x 2.5
+.7812        25/32       19.843 13/16-32
+.7874                        20.0
+.7969        51/64       20.241 7/8-12
+.8071                        20.5
+.8125        13/16       20.638 7/8-14 7/8-16
+.8268                        21.0 M24 x 3
+.8281        53/64       21.034 7/8-20
+.8438        27/32       21.433 7/8-28 7/8-32
+.8465                        21.5
+.8594        55/64       21.829 15/16-12
+.8661                        22.0
+.8750         7/8          22.225 15/16-16 1.0-8
+.8858                        22.5
+.8906        57/64       22.621 15/16-20
+.9055                        23.0
+.9062       29/32        23.018 15/16-28 15/16-32
+.9219       59/64        23.416 1.0-12
+.9252                        23.5
+.9375      15/16         23.813 1.0-16 11/16-8
+.9449                        24.0 M27 x 3
+.9531      61/64         24.209 1.0-20
+.9646                        24.5
+.9688      31/32         24.608 1.0-28 1.0-32
+.9843                        25.0
+.9844      63/64         25.004 11/16-12 11/8-7
+1.000     1   25.400 11/16-16 11/8-8
+www.HaasCNC.comSizesTap
+Sizes

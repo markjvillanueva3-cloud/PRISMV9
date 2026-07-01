@@ -23,13 +23,14 @@ related:
 |-------|-------|
 | Name | `wiki-morning` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/wiki-morning.md` |
+| Source | `C:/Users/wompu/.claude/commands/wiki-morning.md` |
 | Model | default |
 | Tags | _(none)_ |
 
 ## Description (first paragraph)
 
-Karpathy's morning-briefing pattern. One terminal command, ~60 seconds, surfaces what changed in the wiki overnight and what needs human attention today.
+
+# /wiki-morning
 
 <!-- AUTO-END -->
 

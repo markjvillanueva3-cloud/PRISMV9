@@ -24,7 +24,7 @@ if (!existsSync(RTK_SOURCE_WIN) && !existsSync('/h/.tools/rtk/rtk.exe')) {
 
 // Check if rtk is already in PATH
 try {
-  execSync('which rtk', { encoding: 'utf8', stdio: 'pipe' });
+  execSync('which rtk', { windowsHide: true, encoding: 'utf8', stdio: 'pipe' });
   // Already available, nothing to do
   process.exit(0);
 } catch {
@@ -52,7 +52,7 @@ for (const dir of candidates) {
 
   if (inPath) {
     try {
-      execSync(`mkdir -p "${dir}"`, { stdio: 'pipe' });
+      execSync(`mkdir -p "${dir}"`, { windowsHide: true, stdio: 'pipe' });
       targetDir = dir;
       break;
     } catch {
@@ -65,7 +65,7 @@ if (!targetDir) {
   // Create ~/bin and hope it's in PATH
   targetDir = join(homedir(), 'bin').replace(/\\/g, '/');
   try {
-    execSync(`mkdir -p "${targetDir}"`, { stdio: 'pipe' });
+    execSync(`mkdir -p "${targetDir}"`, { windowsHide: true, stdio: 'pipe' });
   } catch {
     console.log('⚠ Could not create bin directory for rtk symlink');
     process.exit(0);
@@ -75,7 +75,7 @@ if (!targetDir) {
 // Create symlink
 const targetPath = `${targetDir}/rtk`;
 try {
-  execSync(`ln -sf "${RTK_SOURCE}" "${targetPath}"`, { stdio: 'pipe' });
+  execSync(`ln -sf "${RTK_SOURCE}" "${targetPath}"`, { windowsHide: true, stdio: 'pipe' });
   console.log(`✓ RTK symlinked: ${targetPath} → ${RTK_SOURCE}`);
 } catch (err) {
   console.log(`⚠ Failed to symlink rtk: ${err.message}`);

@@ -16,7 +16,7 @@ survives: [compact, restart, PID-change, terminal-window-reuse]
 The load-bearing identity primitive that survives `/compact`, harness
 restarts, PID changes, and terminal-window reuse. Every slot claim,
 handoff write, loop-state record, and chat-bus post is keyed on this
-identity. Without it, the 13-chat fleet would lose its slot bindings
+identity. Without it, the 26-chat fleet would lose its slot bindings
 on every compact.
 
 ## Identity scheme

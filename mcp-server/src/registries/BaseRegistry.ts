@@ -10,6 +10,7 @@ import { Config } from '../utils/Config.js';
 import { PATHS } from '../constants.js';
 import * as fs from 'fs/promises';
 import * as path from 'path';
+import { atomicLockedWrite } from '../utils/atomicLockedWrite.js';
 
 /** Data Layer type definition.
  */
@@ -317,15 +318,27 @@ export abstract class BaseRegistry<T extends RegistryItem> {
   /**
    * Ensure registry is initialized
    */
+  /** Single-flight guard: dedupes concurrent initialize() calls (see ensureInitialized). */
+  private initPromise: Promise<void> | null = null;
+
   protected async ensureInitialized(): Promise<void> {
     // M-025: Re-initialize if TTL expired (daemon mode cache invalidation)
     if (this.initialized && this.ttlMs > 0 && Date.now() - this.loadedAt > this.ttlMs) {
-      this.logger.info(`TTL expired (${this.ttlMs}ms) — reloading registry`);
+      this.logger.info(`TTL expired (${this.ttlMs}ms) -- reloading registry`);
       this.initialized = false;
       this.items.clear();
     }
     if (!this.initialized) {
-      await this.initialize();
+      // Single-flight: with 26 concurrent chats two callers can both observe
+      // !initialized and both run initialize() -- duplicate disk loads + a
+      // lost-update window. Dedupe to at most one in-flight initialize() per
+      // instance; concurrent callers await the same promise.
+      if (!this.initPromise) {
+        this.initPromise = this.initialize().finally(() => {
+          this.initPromise = null;
+        });
+      }
+      await this.initPromise;
     }
   }
 
@@ -388,10 +401,14 @@ export abstract class BaseRegistry<T extends RegistryItem> {
     // Ensure directory exists
     await fs.mkdir(layerPath, { recursive: true });
     
-    // Write to individual file
+    // Write to individual file. atomicLockedWrite (cross-process lock + tmp->rename)
+    // closes the per-item RMW race: with 26 concurrent chats, two writers to the
+    // same item.id otherwise last-writer-wins and a reader can observe a torn write.
+    // Same bytes land on the happy path; the mkdir above is now redundant
+    // (atomicLockedWrite ensures the parent dir) but harmless, left for clarity.
     const filePath = path.join(layerPath, `${item.id}.json`);
-    await fs.writeFile(filePath, JSON.stringify(item, null, 2));
-    
+    await atomicLockedWrite(filePath, JSON.stringify(item, null, 2));
+
     this.logger.debug(`Persisted item: ${item.id}`);
   }
 }

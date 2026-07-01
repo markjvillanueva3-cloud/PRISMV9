@@ -420,6 +420,10 @@ export interface MachineEnvelope {
 export interface MachineSpindle {
   max_rpm: number;
   min_rpm?: number;
+  /** Base (constant-torque) RPM: rated torque is flat below this and falls off
+   *  inversely above it (constant-power region). Drives machine-aware torque
+   *  curves; optional because not every source record provides it. */
+  base_rpm?: number;
   power: number;
   power_peak?: number;
   torque?: number;
@@ -435,6 +439,10 @@ export interface MachineAxes {
   linear_axes: number;
   rotary_axes: number;
   simultaneous_axes?: number;
+  /** Max programmable cutting feed rate (mm/min), distinct from rapid traverse.
+   *  Drives machine-aware feed clamping; optional because not every source
+   *  record provides it. */
+  max_cutting_feed_mmmin?: number;
   x_rapid?: number;
   y_rapid?: number;
   z_rapid?: number;

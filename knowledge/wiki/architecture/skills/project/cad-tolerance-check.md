@@ -29,8 +29,7 @@ related:
 
 ## Description (first paragraph)
 
-
-# /cad-tolerance-check — Validate CAD Model Tolerances
+Analyze and validate geometric tolerances and dimensions in CAD models per GD&T standards.
 
 <!-- AUTO-END -->
 

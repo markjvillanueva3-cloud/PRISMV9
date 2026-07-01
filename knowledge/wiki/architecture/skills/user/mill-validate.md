@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `mill-validate` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/mill-validate.md` |
+| Source | `C:/Users/wompu/.claude/commands/mill-validate.md` |
 | Model | default |
 | Tags | _(none)_ |
 

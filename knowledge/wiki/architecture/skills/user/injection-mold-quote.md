@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `injection-mold-quote` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/injection-mold-quote.md` |
+| Source | `C:/Users/wompu/.claude/commands/injection-mold-quote.md` |
 | Model | default |
 | Tags | _(none)_ |
 

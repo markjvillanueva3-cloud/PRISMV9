@@ -176,3 +176,152 @@ describe("formatInjection", () => {
     assert.equal(formatInjection([], "anything"), null);
   });
 });
+
+describe("formatInjection -- synergy-ask tool-side reflex (gated >=3 hits)", () => {
+  it("appends the synergy-ask pointer for a >=3-hit concept grep, threading the probe", async () => {
+    const { formatInjection } = await reload();
+    const hits = [
+      { kind: "L7/engine", id: "engines.A", name: "AEngine" },
+      { kind: "L7/engine", id: "engines.B", name: "BEngine" },
+      { kind: "L8/wiki", id: "wiki.C", name: "CWiki" },
+    ];
+    const out = formatInjection(hits, "kienzle");
+    assert.ok(out.includes("synergy-ask.mjs"), ">=3 hits -> synergy-ask pointer present");
+    assert.ok(out.includes('synergy-ask.mjs "kienzle"'), "probe threaded into the suggested command");
+    assert.ok(out.includes("graph nodes with Obsidian-vault content"), "names the graph+vault join");
+  });
+
+  it("does NOT append the synergy-ask pointer for a 2-hit result (gate: needs >=3)", async () => {
+    const { formatInjection } = await reload();
+    const hits = [
+      { kind: "L7/engine", id: "engines.A", name: "AEngine" },
+      { kind: "L8/wiki", id: "wiki.B", name: "BWiki" },
+    ];
+    const out = formatInjection(hits, "foo");
+    assert.ok(!out.includes("synergy-ask"), "2 hits is a small disambiguation, not a concept grep");
+  });
+
+  it("does NOT append the synergy-ask pointer on the single exact-match path", async () => {
+    const { formatInjection } = await reload();
+    const hits = [{ kind: "L7/engine", id: "engines.Foo", name: "Foo" }];
+    const out = formatInjection(hits, "Foo"); // exact name match -> exact-match banner, no synergy
+    assert.ok(!out.includes("synergy-ask"), "a single known node does not need the combiner");
+  });
+});
+
+// ============================================================================
+// [docs:N] brain-coverage marker (U-SV-NOTECOUNT-BRIDGE, sierra) — parseFindOutput
+// strips a trailing ` [docs:N]` marker emitted by `system-viz-query find` and
+// captures it into hit.noteCount, so the model routes to DOCUMENTED nodes first
+// (memory/wiki × context-retention bridge). The marker is the structural
+// brain-coverage count from the find-cache projection — NOT wiki content.
+// ============================================================================
+describe("parseFindOutput — [docs:N] brain-coverage marker", () => {
+  it("captures + strips a trailing [docs:N] marker into noteCount, name stays clean", async () => {
+    const { parseFindOutput } = await reload();
+    const sample = `Found 2 node(s) matching "kienzle":
+  L7/engine  engines.MillKienzleEngine    MillKienzleEngine [docs:3]
+  L8/wiki  wiki.MillKienzle              wiki — MillKienzle [docs:1]`;
+    const hits = parseFindOutput(sample, 5);
+    assert.equal(hits.length, 2);
+    assert.equal(hits[0].name, "MillKienzleEngine", "marker stripped from name");
+    assert.equal(hits[0].noteCount, 3);
+    assert.equal(hits[1].name, "wiki — MillKienzle", "label with spaces + em-dash preserved");
+    assert.equal(hits[1].noteCount, 1);
+  });
+
+  it("lines WITHOUT the marker parse unchanged with noteCount 0 (backward compat)", async () => {
+    const { parseFindOutput } = await reload();
+    const sample = `Found 1 node(s) matching "foo":
+  L6/built  core.hooks.foo                foo-hook`;
+    const hits = parseFindOutput(sample, 5);
+    assert.equal(hits.length, 1);
+    assert.equal(hits[0].name, "foo-hook");
+    assert.equal(hits[0].noteCount, 0, "no marker → noteCount 0");
+  });
+
+  it("does NOT false-match digits or brackets that are not the [docs:N] marker", async () => {
+    const { parseFindOutput } = await reload();
+    const sample = `Found 3 node(s) matching "x":
+  L1/a  id.a  Engine2
+  L1/b  id.b  arr[5]
+  L1/c  id.c  thing [docs:notanumber]`;
+    const hits = parseFindOutput(sample, 5);
+    assert.equal(hits[0].name, "Engine2");
+    assert.equal(hits[0].noteCount, 0, "trailing digit is not a marker");
+    assert.equal(hits[1].name, "arr[5]");
+    assert.equal(hits[1].noteCount, 0, "[5] is not [docs:N]");
+    assert.equal(hits[2].name, "thing [docs:notanumber]");
+    assert.equal(hits[2].noteCount, 0, "[docs:non-digit] is not a marker");
+  });
+});
+
+describe("formatInjection — brain-coverage surfacing", () => {
+  it("appends (N docs) to brain-backed hits + a legend in the footer", async () => {
+    const { formatInjection } = await reload();
+    const hits = [
+      { kind: "L7/engine", id: "engines.Foo", name: "FooEngine", noteCount: 3 },
+      { kind: "L8/wiki", id: "wiki.Bar", name: "BarWiki", noteCount: 0 },
+    ];
+    const out = formatInjection(hits, "Foo");
+    assert.ok(out.includes("(3 docs)"), "brain-backed hit shows doc count");
+    assert.ok(!out.includes("(0 docs)"), "undocumented hit shows NO marker");
+    assert.ok(out.includes("wiki/memory entries"), "footer legend present when any brain-backed");
+  });
+
+  it("omits the legend when no hit is brain-backed", async () => {
+    const { formatInjection } = await reload();
+    const hits = [
+      { kind: "L7/engine", id: "engines.Foo", name: "FooEngine", noteCount: 0 },
+      { kind: "L8/wiki", id: "wiki.Bar", name: "BarWiki" },
+    ];
+    const out = formatInjection(hits, "Foo");
+    assert.ok(!out.includes("docs)"), "no doc markers when nothing brain-backed");
+    assert.ok(!out.includes("wiki/memory entries"), "no legend when nothing brain-backed");
+  });
+
+  it("exact-match banner surfaces (N docs) when the single hit is brain-backed", async () => {
+    const { formatInjection } = await reload();
+    const hits = [{ kind: "L7/engine", id: "engines.Foo", name: "Foo", noteCount: 5 }];
+    const out = formatInjection(hits, "Foo");
+    assert.ok(out.includes("EXACT MATCH"), "single exact hit → exact-match banner");
+    assert.ok(out.includes("(5 docs)"), "exact-match banner surfaces brain coverage");
+  });
+});
+
+// ============================================================================
+// emit ↔ parse FORMAT CONTRACT — the line `system-viz-query find` emits must
+// round-trip through parseFindOutput to the right {name, noteCount}. Mirrors the
+// EXACT emit template (no graph load) so a future drift on either side fails here
+// instead of silently zeroing noteCount fleet-wide (1060 find calls/day).
+// ============================================================================
+describe("emit↔parse format contract", () => {
+  // Mirror of the per-hit line in scripts/system-viz-query.mjs `find` HUMAN branch:
+  //   `  ${h.layer}/${h.subgroup ?? '_'}  ${h.id.padEnd(28)} ${label}${ noteCount>0 ? ' [docs:'+n+']' : '' }`
+  function emitLine(h) {
+    const note = (h.noteCount || 0) > 0 ? ` [docs:${h.noteCount}]` : "";
+    return `  ${h.layer}/${h.subgroup ?? "_"}  ${String(h.id).padEnd(28)} ${String(h.label).split("\n")[0]}${note}`;
+  }
+
+  it("round-trips a brain-backed emit line to {name, noteCount}", async () => {
+    const { parseFindOutput } = await reload();
+    const node = { layer: "L7", subgroup: "engine", id: "engines.MillKienzleEngine", label: "MillKienzleEngine", noteCount: 4 };
+    const stdout = `Found 1 node(s) matching "kienzle":\n${emitLine(node)}`;
+    const hits = parseFindOutput(stdout, 5);
+    assert.equal(hits.length, 1);
+    assert.equal(hits[0].kind, "L7/engine");
+    assert.equal(hits[0].id, "engines.MillKienzleEngine");
+    assert.equal(hits[0].name, "MillKienzleEngine", "emit→parse name is clean");
+    assert.equal(hits[0].noteCount, 4, "emit→parse noteCount preserved");
+  });
+
+  it("round-trips an undocumented emit line to noteCount 0", async () => {
+    const { parseFindOutput } = await reload();
+    const node = { layer: "L6", subgroup: "built", id: "core.hooks.foo", label: "foo-hook", noteCount: 0 };
+    const stdout = `Found 1 node(s) matching "foo":\n${emitLine(node)}`;
+    const hits = parseFindOutput(stdout, 5);
+    assert.equal(hits.length, 1);
+    assert.equal(hits[0].name, "foo-hook");
+    assert.equal(hits[0].noteCount, 0);
+  });
+});

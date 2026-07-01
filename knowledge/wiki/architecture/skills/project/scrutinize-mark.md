@@ -29,7 +29,8 @@ related:
 
 ## Description (first paragraph)
 
-PRISM ships with a Stop hook (`scrutinize-before-stop.mjs`) that BLOCKS task completion when the session has uncommitted file changes and the scrutiny ledger has no entry for the current session. This skill records that scrutiny was done so the next Stop attempt is allowed.
+
+# /scrutinize-mark — Clear the Scrutiny Gate
 
 <!-- AUTO-END -->
 

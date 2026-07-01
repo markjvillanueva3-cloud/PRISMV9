@@ -1,0 +1,65 @@
+{
+  "document_id": "cnc-lathe-programming-turning",
+  "title": "CNC Lathe Programming for Turning",
+  "source": "CNCCookbook - CNC Lathe Programming Guide",
+  "domain": "lathe",
+  "extracted_at": "2026-04-15",
+  "tips": [
+    {
+      "title": "G190/G191 diameter vs radius mode switching",
+      "body": "G190 selects radius mode (X values = distance from centerline), G191 selects diameter mode (X values = full diameter). Diameter mode is standard for turning as it matches blueprint callouts. Some posts output G190/G191 explicitly; others assume diameter mode. Verify your post matches your controller expectation.",
+      "category": "programming",
+      "tags": ["g190", "g191", "diameter-mode", "radius-mode", "lathe"],
+      "operation_types": ["turning"],
+      "confidence": 85
+    },
+    {
+      "title": "Tttww tool and wear offset encoding",
+      "body": "Lathe T-word format: Tttww where tt=tool station (01-99), ww=wear offset register (00-99). Example: T0101 = tool 1, wear offset 1. T0102 = tool 1, wear offset 2. Multiple wear offsets per tool allows tight tolerance control on separate features — rough with one offset, finish with another to compensate tool wear.",
+      "category": "programming",
+      "tags": ["t-word", "wear-offset", "tool-change", "lathe", "tolerance"],
+      "operation_types": ["turning"],
+      "confidence": 90
+    },
+    {
+      "title": "Automatic chamfer with C-word on lathe",
+      "body": "Program C±value after a single-axis G01 move to add a 45° chamfer. Value = chamfer leg length. Sign depends on direction: X+ moving toward Z- uses C-; X- moving toward Z+ uses C+. Requires single-axis move before chamfer (not diagonal). Example: G01 X1.0 C-0.030 Z-2.0 adds 0.030\" chamfer.",
+      "category": "programming",
+      "tags": ["chamfer", "c-word", "lathe", "fanuc", "automatic"],
+      "operation_types": ["turning"],
+      "confidence": 85
+    },
+    {
+      "title": "Automatic corner radius with R-word on lathe",
+      "body": "Program R±value after a single-axis G01 move to add a fillet/corner radius. Value = radius size. Sign convention same as chamfer: based on X direction and corner position. Example: G01 X1.0 R0.015 Z-2.0 adds 0.015\" blend radius. Works for both internal and external corners.",
+      "category": "programming",
+      "tags": ["corner-radius", "r-word", "fillet", "lathe", "fanuc"],
+      "operation_types": ["turning"],
+      "confidence": 85
+    },
+    {
+      "title": "Part zero at finished part end (best practice)",
+      "body": "Locate Z0 at the end of the finished part, not chuck face. This is the most popular approach for parts machined on both ends: flip part, Z0 stays at the same physical location relative to part features. Makes blueprint dimensions directly programmable without offset math.",
+      "category": "setup",
+      "tags": ["part-zero", "z-zero", "work-offset", "lathe", "best-practice"],
+      "operation_types": ["turning"],
+      "confidence": 85
+    },
+    {
+      "title": "Gang tooling selection via slide motion",
+      "body": "Gang tooling mounts multiple tools on the cross slide (no turret). Select tools by explicit X/Z positioning to the desired tool. No T-word tool change — tools are always 'loaded'. Faster for small parts with multiple operations. Requires careful programming to avoid collisions between gang-mounted tools.",
+      "category": "tooling",
+      "tags": ["gang-tooling", "cross-slide", "lathe", "swiss", "small-parts"],
+      "operation_types": ["turning"],
+      "confidence": 80
+    },
+    {
+      "title": "No M06 on lathes — T-word executes tool change",
+      "body": "Unlike mills, CNC lathes execute tool changes immediately with the T-word. No M06 required or allowed on most lathe controls. T0200 commands turret rotation to station 2 immediately. Some mill-turn machines use M06; verify your specific control's requirements.",
+      "category": "programming",
+      "tags": ["m06", "t-word", "tool-change", "lathe", "mill-turn"],
+      "operation_types": ["turning"],
+      "confidence": 95
+    }
+  ]
+}

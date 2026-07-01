@@ -1,0 +1,45 @@
+{
+  "schemaVersion": "1.1.0",
+  "generatedAt": "2026-05-21T21:18:10.724Z",
+  "substrates": {
+    "linkAudit": {
+      "present": true,
+      "generatedAt": "2026-05-21T02:10:19.782Z",
+      "stats": {
+        "linksTotal": 97673,
+        "linksBroken": 4136,
+        "filesScanned": 24795,
+        "brokenRatio": 0.0423
+      },
+      "summary": "4,136 broken / 97,673 wiki-style tokens (4.2%)"
+    },
+    "wikiTribal": {
+      "present": true,
+      "generatedAt": "2026-05-21T15:42:04.772Z",
+      "stats": {
+        "wikiFiles": 23992,
+        "missing": 23802,
+        "stale": 0,
+        "coverage": 0.0079
+      },
+      "summary": "23,802 / 23,992 wiki files lack tribal embedding (0.8% coverage)"
+    },
+    "aiMemoXref": {
+      "present": true,
+      "generatedAt": "2026-05-21T17:53:35.143Z",
+      "stats": {
+        "engineCount": 7,
+        "missing": 4,
+        "memoCount": 863,
+        "coverage": 0.4286
+      },
+      "summary": "4 / 7 PRISM-AI engines lack memo coverage (42.9% coverage)"
+    }
+  },
+  "healthy": false,
+  "driftSurfaces": [
+    "link-audit",
+    "wiki-tribal",
+    "ai-memo-xref"
+  ]
+}

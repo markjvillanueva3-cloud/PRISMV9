@@ -1,0 +1,1175 @@
+     Introduction to
+Multiaxis Toolpaths
+mastercam x getting started tutorials
+
+    Introduction to
+    Multiaxis Toolpaths
+
+             December 2011
+
+                        Be sure you have the latest information!
+
+                           Information might have been changed or added since this document was
+                           published. Contact your local Reseller for the latest information.
+II · INTRODUCTION TO MULTIAXIS TOOLPATHS
+
+TERMS OF USE  Mastercam® X6 Introduction to Multiaxis Toolpaths
+
+              Date: December 2011
+              Copyright © 2011 CNC Software, Inc.-- All rights reserved.
+              First Printing: December 2011
+              Software: Mastercam X6
+
+              Use of this document is subject to the Mastercam End User License Agreement.
+              A copy of the Mastercam End User License Agreement is included with the
+              Mastercam product package of which this document is part. The Mastercam
+              End User License Agreement can also be found at:
+              www.mastercam.com/legal/licenseagreement/
+Contents
+
+Introduction ....................................................................................................... 1
+
+     X Tutorial Goals................................................................................................. 1
+     X Introduction to Multiaxis Toolpath Requirements ..................................... 1
+
+         General Tutorial Requirements....................................................................... 2
+
+ 1. Basic Machine Overview...................................................... 3
+
+     X Table/Table Machine .................................................................................... 4
+     X Head/Table Machine..................................................................................... 5
+     X Head/Head Machine ..................................................................................... 7
+
+ 2. Multiaxis Toolpath Controls Overview ................................. 9
+
+     X Cut Pattern..................................................................................................... 9
+     X Tool Axis Control......................................................................................... 10
+     X Tool Tip Control ........................................................................................... 11
+
+ 3. Mastercam Interface and Workflow.................................. 13
+
+     X Cut Pattern Page ......................................................................................... 14
+     X Tool Axis Control Page ............................................................................... 15
+     X Collision Control Page................................................................................. 16
+
+ 4. Multiaxis Curve Toolpath.................................................... 19
+
+     X Lesson Goals ............................................................................................... 19
+     X Exercise 1: Getting Started with Toolpath Creation............................. 19
+     X Exercise 2: Create a Multiaxis Curve Toolpath.................................... 21
+     X Exercise 3: Backplot the Operation ..................................................... 27
+     X Exercise 4: Machine Simulation.......................................................... 29
+IV · INTRODUCTION TO MULTIAXIS TOOLPATHS
+
+ 5. Tool Axis Control Options ................................................... 31
+
+     X Lesson Goals ............................................................................................... 31
+     X Exercise 1: Preparing the Part ............................................................. 31
+     X Exercise 2: Copy and Edit an Operation............................................... 32
+     X Exercise 3: Copy and Edit a Second Operation.................................... 35
+
+ 6. Multiaxis Drill Toolpath....................................................... 39
+
+     X Lesson Goals ............................................................................................... 39
+     X Exercise 1: Getting Started with Toolpath Creation............................. 39
+     X Exercise 2: Create a Multiaxis Drill Toolpath ....................................... 41
+     X Exercise 3: Add a Second Multiaxis Drill Operation............................. 46
+     X Exercise 4: Backplot the operations .................................................... 49
+
+ Conclusion......................................................................................................... 51
+
+     X Mastercam Resources ............................................................................... 51
+     X Mastercam Documentation ....................................................................... 53
+
+         Contact Us.................................................................................................... 53
+!"#$%&'(#!%"
+
+This tutorial introduces the concepts of multiaxis machining, beginning with the
+machine architecture and ending with multiaxis toolpath creation. Multiaxis tool-
+paths are basically the familiar contour, pocket, and surface toolpaths in X,Y, and Z,
+with rotational motion added in A, B, and C. The available axes vary based on your
+particular machine setup.
+
+The workflow is consistent regardless of the Multiaxis toolpath selected.
+Mastercam's Multiaxis interface follows a uniform structure through the toolpathing
+process. Select the toolpath family, select a toolpath type, progress from top to
+bottom through the tree style interface, enter parameters on the necessary pages,
+and generate the toolpath. Additional tools such as Backplot and Machine
+Simulation allow you to review your toolpath before cutting begins on the machine.
+
+You will gain a general understanding of the multiaxis process by completing this
+tutorial. The information contained in these pages will allow you to begin gaining
+the knowledge and confidence to work with Mastercam's Multiaxis toolpaths.
+Further information on multiaxis toolpaths can be found in subsequent Focus Series
+multiaxis tutorials.
+
+Tutorial Goals
+
+       Understand the basic architecture of a multiaxis machine
+       Review the controls of a multiaxis toolpath: cut pattern, tool axis control,
+
+           and tool tip control
+       Follow the workflow of Mastercam's Multiaxis toolpath interface
+       Create and modify a Multiaxis Curve toolpath
+       Create and modify a Multiaxis Drill toolpath
+
+Introduction to Multiaxis Toolpath Requirements
+
+       Mastercam X6 with Mill Level 1 or Mastercam Router, or higher level seat
+       Curve 5-axis / Drill 5-axis add-on (included in the Multiaxis add-on)
+
+         IMPORTANT: Screen colors in the tutorial pictures were modified to
+         enhance image quality; they may not match your Mastercam settings or
+         the tutorial results. These color differences do not affect the lesson or
+         the exercise results.
+2 · INTRODUCTION TO MULTIAXIS TOOLPATH REQUIREMENTS
+
+General Tutorial Requirements
+
+All Mastercam tutorials have the following general requirements:
+       You must be comfortable using the Windows® operating system.
+       The tutorials cannot be used with Mastercam Demo/Home Learning
+           Edition (HLE). The Demo/HLE file format (EMCX-6) is different from
+           Mastercam (MCX-6), and basic Mastercam functions, such as file
+           conversions and posting, are unavailable.
+       Each lesson in the tutorial builds on the mastery of preceding lesson's skills.
+           We recommend that you complete them in order.
+       Focus Series and Exploring Series tutorials require, at minimum, a mastery of
+           the basic Mastercam skills taught in the Getting Started Series modules. A
+           general knowledge of machining principals and practices is also required.
+       You must have a seat of Mastercam X6 Design or higher to complete most of
+           the tutorials in the Getting Started Series.
+       The Basic 2D Machining module in the Getting Started Series requires, at
+           minimum, a seat of Mill Entry or Router Entry.
+       The Basic 3D Machining module in the Getting Started Series requires Mill
+           Level 3 or Router Pro.
+       Additional files may accompany a tutorial. Unless the tutorial provides
+           specific instructions on where to place these files, store them in a folder that
+           can be accessed from the Mastercam workstation, either with the tutorial or
+           in any location that you prefer.
+       The Getting Started Series tutorials are available in an Adobe® Flash®
+           compatible video format. Additional tutorial videos may also be available.
+           Contact your local Mastercam Reseller for more information.
+       You must install Adobe Flash Player to display tutorial videos. You can
+           download Adobe Flash Player from www.adobe.com.
+       All Mastercam tutorials require you to configure Mastercam to work in a
+           default metric or English configuration. The tutorial provides instructions
+           for loading the appropriate configuration file.
+
+INTRODUCTION TO MULTIAXIS TOOLPATHS
+)*++%",-
+
+Basic Machine Overview
+
+1
+
+The first thing to notice about a multiaxis machine is the additional axes available.
+Instead of a straightforward machine with XYZ axes capabilities, you now have a
+machine capable of handling five or more axes of motion. Typically the axes are
+defined as XYZ / ABC / UVW as shown below.
+
+The axes may be in a different orientation, or have different relationships. The main
+point is that your machine now has a much greater range of motion than a standard
+3-axis vertical or horizontal machine.
+The added motion of a multiaxis machine greatly enhances the capabilities of your
+shop, as well as expanding the variety of parts that can be machined. However, due
+to the enhanced power of the machine, there really is no such thing as a "standard
+5-axis machine". Nearly every machine is unique in its axes combination, orienta-
+tion, travel and rotation limits, and controller.
+Common terms for multiaxis machines are table/table, head/table, and head/head.
+These terms describe the relationship of the rotary components on the machine.
+4 · TABLE/TABLE MACHINE
+
+The configuration of the rotaries determines the zero location of the machine and
+how you need to locate the part within Mastercam. The part must be located in
+Mastercam where it will be sitting on the machine. The only exception is for a head/
+head arrangement.
+
+         IMPORTANT: Improper location of your geometry will cause the part to
+         be cut incorrectly.
+
+Table/Table Machine
+
+A table/table machine has both rotary axes connected and attached to the table.
+Typically this is a trunnion carrying a rotary table. The machine axes zero position is
+located at the intersection of rotary axes. Your part is located in Mastercam relative
+to the machine zero position. The rotary components are shown in red in the images
+below.
+
+                                          Table/Table configuration
+
+INTRODUCTION TO MULTIAXIS TOOLPATHS
+                                                                                                         BASIC MACHINE OVERVIEW · 5
+
+                                           Table/Table machine zero
+
+Head/Table Machine
+
+A head/table machine has one rotary on the table and the other on the spindle. They
+operate independently of each other. The table could be comprised of a trunnion or
+simply a rotary attached to the table. The machine axis zero is located at the inter-
+section of the rotary axes. Your part is located in Mastercam relative to the machine
+zero position, as in the table/table configuration. The rotary components are shown
+in red in the following images.
+
+                                                                                     INTRODUCTION TO MULTIAXIS TOOLPATHS
+6 · HEAD/TABLE MACHINE
+
+                                           Head/Table configuration
+
+                                        Head/Table machine zero
+
+INTRODUCTION TO MULTIAXIS TOOLPATHS
+                                                                                                         BASIC MACHINE OVERVIEW · 7
+
+Head/Head Machine
+
+A head/head machine has both rotary axes connected and attached to the spindle.
+The machine axis zero is typically located on the face of the spindle. The origin is
+shown on the table in the second image as this is where the spindle face lies when all
+axes are set to zero. The rotary components are shown in red in the images below.
+
+                                        Head/Head configuration
+
+                                                                                     INTRODUCTION TO MULTIAXIS TOOLPATHS
+8 · HEAD/HEAD MACHINE
+
+                                    Head/Head machine zero
+
+These are the basic arrangements of multiaxis machines. Be aware that multiaxis
+machines may be as simple as a single rotary for 4-axis work, or as complex as having
+five axes and a nutating head. No matter how the machine is configured, the inputs
+for a good toolpath follow the same pattern from machine to machine. Continue on
+to Lesson 2 to learn about the necessary controls for creating an efficient multiaxis
+toolpath.
+
+INTRODUCTION TO MULTIAXIS TOOLPATHS
+)*++%",.
+
+Multiaxis Toolpath Controls
+
+2
+
+Overview
+
+Three controls separate multiaxis toolpaths from the typical 2- and 3-axis toolpaths:
+
+       Cut Pattern
+       Tool Axis Control
+       Tool Tip Control
+Effective use of these controls is the deciding factor in your ability to create efficient
+toolpaths for your particular machine. This tutorial starts you on the path to
+becoming a more effective programmer. However, there is no substitute for experi-
+ence and knowing your machine's capabilities.
+
+Cut Pattern
+
+What do I want the tool to follow? The answer is the cut pattern. Selecting a toolpath
+family is the initial phase of establishing the cut pattern. Different toolpath families
+vary the type of geometry allowed for the cut pattern. Geometry selection can range
+from a contour or chain, to a surface edge or edges, and on through single or
+multiple surfaces or solids. Below are two examples of cut pattern selections.
+
+Curve     Surface
+10 · TOOL AXIS CONTROL
+
+In addition to the geometry selected for the toolpath, cut pattern includes such
+parameters as:
+
+       Cutting method: zigzag, one way, spiral
+       Compensation: type and direction
+       Stock to leave: drive surfaces, walls
+       Stepover: across, along, increment
+Subsequent lessons and tutorials will cover cut pattern options in more detail.
+
+Tool Axis Control
+
+How do I want my tool axis to behave as it follows the cut pattern? Tool axis control
+answers this question. Multiaxis toolpaths include numerous options on how to
+manipulate the tool axis. The options allow you to control the part of the tool in
+contact with the material, and the amount of tool movement the toolpath generates,
+as well as being able to set the number of axes of output for the posted toolpath.
+Below are two examples of tool axis control.
+
+Surface                 From point
+
+Toolpath family and toolpath type determine which tool axis controls you can
+access. Some examples of the controls available include:
+
+       Classic: Lines, surface, from point, chain
+       Wireframe: Tilted relative to cutting direction, tilted through curve
+
+INTRODUCTION TO MULTIAXIS TOOLPATHS
+                                                                          MULTIAXIS TOOLPATH CONTROLS OVERVIEW · 11
+
+       Surface/Solid: Tilted from curve away, tilted with fixed angle to axis
+       Drill/Circle Mill: Parallel to line, surface, plane
+       Convert to 5x: Tilted through lines, tilted through point
+       Custom App: Set automatically for these toolpath types
+Click the Help button to find further details on the available options and their func-
+tion.
+
+Tool Tip Control
+
+What controls the depth of the tool along the tool axis? Tool tip control handles this
+function. Compensation surfaces are included in tool tip control. Applying tool tip
+control is a three step process:
+
+       1 Tool positions are generated along the selected cut pattern.
+
+       2 Tool axis vectors are created at each position based on the tool axis control
+           settings.
+
+                                                                                     INTRODUCTION TO MULTIAXIS TOOLPATHS
+12 · TOOL TIP CONTROL
+
+       3 Depth along the tool axis is applied based on the tip compensation method.
+
+         TIP: Use the method depicted above when you have very complicated,
+         or less than perfect, part geometry. The clean core geometry is used to
+         generate the cut pattern and tool axis control vectors. Tip control is then
+         used to cut the outer surfaces with much cleaner motion.
+The three controls described above form the core of all your multiaxis toolpaths.
+Additional refinement is added through collision control, linking, tool selection, and
+more. Building confidence with these controls will greatly ease and enhance your
+ability to generate efficient multiaxis toolpaths. Continue on to Lesson 3 to see how
+these controls are an integral part of the multiaxis workflow within Mastercam.
+
+INTRODUCTION TO MULTIAXIS TOOLPATHS
+)*++%",/
+
+Mastercam Interface and Workflow
+
+3
+
+Mastercam's Multiaxis toolpath interface follows the familiar tree-style layout intro-
+duced in recent releases. You progress through the pages of the tree, make the neces-
+sary selections, enter appropriate parameters, and generate your toolpath. Viewing
+the process in simplified terms helps to lessen the complexity of creating a multiaxis
+toolpath.
+
+Begin the toolpath creation process by selecting an appropriate machine definition.
+This applies to all toolpath types in Mastercam. After selecting a machine definition
+that supports multiaxis movement, choose the Multiaxis option from the Toolpaths
+menu. The following image shows the starting point for a Curve toolpath, found in
+the Classic toolpath family.
+
+                                 1) Toolpath Type page selection
+
+                                 2) Classic toolpath family selection
+
+                                 3) Curve toolpath type selection
+14 · CUT PATTERN PAGE
+
+Multiaxis toolpaths are divided into six toolpath families. Each toolpath family
+contains different toolpath types. Selecting the most efficient type will come from
+experience and usage. For now, let's focus on the general workflow rather than
+specific applications.
+
+The tree structure provides the basic roadmap to
+creating a toolpath. While you are free to select the
+pages as needed, the most efficient route is to travel
+from top to bottom. Click the plus sign in front of any
+page to expose additional pages for input.
+The pages within the tree structure vary with the tool-
+path type. The procedure remains the same regardless
+of what the tree looks like. Answer the questions:
+
+       What do I want the tool to follow?
+       How do I want my tool axis to behave?
+       What controls the depth along the tool axis?
+And you are well on your way to generating a multiaxis
+toolpath.
+
+Cut Pattern Page
+
+The pages discussed in the previous lesson are the pivotal pages for multiaxis work.
+The cut pattern page is where you select your drive geometry, set compensation
+
+INTRODUCTION TO MULTIAXIS TOOLPATHS
+                                                                               MASTERCAM INTERFACE AND WORKFLOW · 15
+
+parameters, and set various other options. Below is a sample of the cut pattern page
+for a multiaxis Curve toolpath.
+
+Tool Axis Control Page
+
+The Tool Axis Control page defines the tilting motion of the tool axis as it moves
+along the cut pattern. The options available vary by toolpath type, just as the tree
+structure and other pages vary. Tool axis control is what sets multiaxis toolpaths
+apart from 2- and 3-axis toolpaths. The ability to manipulate the tool axis allows for
+
+                                                                                     INTRODUCTION TO MULTIAXIS TOOLPATHS
+16 · COLLISION CONTROL PAGE
+
+complex and powerful control. Below is a sample of the Tool Axis Control page for a
+multiaxis Curve toolpath.
+
+Collision Control Page
+
+Tool tip control does not have its own page like the other two controls. It can be
+found on the Collision Control page. Use the parameters to instruct Mastercam how
+
+INTRODUCTION TO MULTIAXIS TOOLPATHS
+                                                                               MASTERCAM INTERFACE AND WORKFLOW · 17
+
+the tip of the tool should be placed in relation to the cut pattern. Below is a sample of
+the Collision Control page for a multiaxis Curve toolpath.
+
+Complete the remaining pages in the tree if necessary. Additional parameters
+include linking information (how the tool moves when not in contact with material)
+and roughing options. The Additional Settings branch provides pages that generally
+do not need to be touched for multiaxis programming. Review them and click Help if
+you would like to know details about these pages. Continue on to Lesson 4 to begin
+creating a multiaxis Curve toolpath.
+
+                                                                                     INTRODUCTION TO MULTIAXIS TOOLPATHS
+18 · COLLISION CONTROL PAGE
+INTRODUCTION TO MULTIAXIS TOOLPATHS
+)*++%",0
+
+Multiaxis Curve Toolpath
+
+4
+
+Experience with design and toolpath creation is assumed at this point of the tutorial.
+Detailed steps on such actions as selecting a machine definition, changing the
+graphics view or construction plane, or making levels visible, will not be provided.
+Please review the Basic 3D Design and Basic 3D Machining tutorials before
+continuing if you are not familiar with these concepts.
+
+Lesson Goals
+
+       Open a part file and assign a machine definition.
+       Create a Multiaxis Curve toolpath.
+       Backplot the toolpath.
+
+Exercise 1: Getting Started with Toolpath Creation
+
+Assigning a machine definition is the first essential step in creating a toolpath.
+Setting the graphics view to allow the easiest geometry selection plays a small part in
+visualizing your work. This exercise guides you through the initial steps involved
+with creating a toolpath.
+
+       1 Start Mastercam using your
+           preferred method:
+
+           Double-click Mastercam's
+               desktop icon.
+               Or
+
+           Launch Mastercam from the
+               Windows Start menu.
+
+       2 Select the default metric configuration file:
+20 · GETTING STARTED WITH TOOLPATH CREATION
+
+           a Select Settings, Configuration
+               from Mastercam's menu.
+
+           b Choose ...\mcamxm.config <Metric> from the Current drop-down list.
+           c Click OK.
+       3 Open the part file Curve_Toolpath.MCX-6, which was provided with the
+           tutorial.
+
+       4 Select the default Mill metric machine definition.
+
+INTRODUCTION TO MULTIAXIS TOOLPATHS
+                                                                                                   MULTIAXIS CURVE TOOLPATH · 21
+
+         Note: The default machine definition has rotary axes defined that allow
+         multiaxis toolpaths. Load the machine definition of your choice as long as
+         it supports 5-axis motion.
+       5 Set your graphics view to Isometric.
+       6 Activate shading if necessary.
+       7 Fit the geometry to the screen using [Alt+F1] or the Fit button.
+       8 Choose File, Save As, and save the part under a different file name. This
+
+           protects the original tutorial file from being overwritten.
+
+Exercise 2: Create a Multiaxis Curve Toolpath
+
+Creating a toolpath involves selecting the toolpath type, tool, and geometry, as well
+as completing the parameter pages. Completing this process yields a program
+capable of cutting your part on a machine.
+
+       1 From the Mastercam menu, choose
+           Toolpaths, Multiaxis.
+
+       2 Click OK if prompted to enter a new
+           NC file name.
+
+                                                                                     INTRODUCTION TO MULTIAXIS TOOLPATHS
+22 · CREATE A MULTIAXIS CURVE TOOLPATH
+
+       3 Select Classic and Curve on the
+           Toolpath Type page.
+
+       4 Select Tool from the Tree View pane.
+       5 Click the Select library tool button.
+
+           The tool library defined in the
+           machine definition opens.
+       6 Select the 8mm ball endmill and click OK.
+
+       7 Select Cut Pattern from the Tree View pane.
+       8 Choose 3D Curves from the Curve type drop-down selection.
+
+       9 Click the Select button next to 3D Curves to return to the graphics window
+           for curve selection.
+
+INTRODUCTION TO MULTIAXIS TOOLPATHS
+                                                                                            MULTIAXIS CURVE TOOLPATH · 23
+
+10 Select the chain on the edge of the part as shown. The start position is not
+      important for the purpose of the tutorial. The chain should go in a clockwise
+      direction, regardless of the start point.
+
+11 Click OK on the Chaining dialog box to return to the Cut Pattern page.
+
+                                                                             INTRODUCTION TO MULTIAXIS TOOLPATHS
+24 · CREATE A MULTIAXIS CURVE TOOLPATH
+
+     12 Set the remaining parameters as shown.
+
+         TIP: The radial offset value for this particular operation should equal the
+         tool radius. Use this field in a similar manner as a stock to leave. A value
+         equal to the tool radius is equivalent to zero stock to leave. Take advan-
+         tage of this functionality for trimming operations.
+     13 Select Tool Axis Control from the Tree View pane.
+     14 Choose To point from the Tool axis control drop-down selection.
+
+     15 Click the Select button next to To point to return to the graphics window for
+           point selection.
+
+INTRODUCTION TO MULTIAXIS TOOLPATHS
+                                           MULTIAXIS CURVE TOOLPATH · 25
+
+16 Select the point as indicated.
+
+      You return to the Tool Axis Control
+      page as soon as you select the
+      point.
+
+17 Set the remaining parameters as shown.
+
+    TIP: Click in a field to see a progressive image on the right side of the
+    page. The image depicts what the field controls. Click Help for detailed
+    information on each field.
+18 Select Collision Control from the Tree View pane.
+
+                                                                             INTRODUCTION TO MULTIAXIS TOOLPATHS
+26 · CREATE A MULTIAXIS CURVE TOOLPATH
+
+     19 Set Vector depth to -10.0. The value allows the curve operation to trim the
+           part with the side of the tool, avoiding the ball portion at the tip.
+
+The images below show how the difference between vector depth values
+affects the toolpath.
+
+Vector depth = 0.0  Vector depth = negative
+
+     20 Select Roughing from the Tree View pane.
+
+INTRODUCTION TO MULTIAXIS TOOLPATHS
+                                           MULTIAXIS CURVE TOOLPATH · 27
+
+21 Deselect Multi Passes.
+
+      Trimming operations using a Curve
+      toolpath generally utilize a single
+      pass.
+
+22 Click OK to generate the multiaxis curve toolpath on the selected geometry.
+
+     23 Save your part file.
+
+Exercise 3: Backplot the Operation
+
+Backplotting an operation allows you to review the tool motion before any cutting
+takes place on the actual machine. Backplot should be the first step in validating
+your toolpath.
+
+                                                                                     INTRODUCTION TO MULTIAXIS TOOLPATHS
+28 · BACKPLOT THE OPERATION
+
+       1 Click Backplot selected operations
+           in the Toolpath Manager.
+
+       2 In the Backplot dialog box, select
+           the Display tool and Display rapid
+           moves buttons.
+
+       3 Click Options in the Backplot
+           dialog box.
+
+       4 Deselect the options shown and
+           click OK. This prevents your part
+           from spinning around and moving
+           out of view.
+
+       5 Click Play to begin the backplot of your toolpath.
+
+INTRODUCTION TO MULTIAXIS TOOLPATHS
+                                                                                                   MULTIAXIS CURVE TOOLPATH · 29
+
+       6 Click OK in the Backplot dialog box when you have finished reviewing the
+           tool motion.
+
+Exercise 4: Machine Simulation
+
+Machine simulation is the next step in validating your operations. The tool motion is
+shown on your part as it is positioned on your machine. Collisions between various
+machine components and the part are visually apparent as well as being reported in
+text on the screen. The following is a quick run-through of Machine Simulation. For a
+more detailed explanation, review Help as well as the Focus Series Tutorial: Machine
+Simulation.
+
+       1 Right-click in Mastercam's toolbar
+           area.
+
+       2 Select Machine Simulation from
+           the list of toolbars to make it visible.
+           The Machine Simulation toolbar is
+           not on by default.
+
+       3 Click Simulation startup settings
+           to select a machine to display the
+           motion on.
+
+       4 Select 6_5AXGEN_VMCHTAC from
+           the drop-down list of machines.
+           The machine selection is saved with
+           the part file. Running simulation on
+           the same part file will reload the
+           selected machine.
+
+                                                                                     INTRODUCTION TO MULTIAXIS TOOLPATHS
+30 · MACHINE SIMULATION
+
+       5 Click Simulate to begin the
+           machine simulation of the selected
+           operation.
+
+       6 Use the simulation playback buttons to review the tool motion contained in
+           your operations.
+
+       7 Click Exit from within machine
+           simulation to return to the
+           Mastercam interface.
+
+       8 Save your part file. The same file will be used in a subsequent lesson.
+You have now completed a basic multiaxis curve toolpath. Curve is generally used
+for trimming operations. The motion is typically straightforward, making it an ideal
+toolpath for demonstrating some different tool axis control strategies and the effects
+they can produce on the tool. Proceed to Lesson 5 to explore these strategies.
+
+INTRODUCTION TO MULTIAXIS TOOLPATHS
+)*++%",1
+
+Tool Axis Control Options
+
+5
+
+Tool axis control is what separates multiaxis toolpaths from normal surface, chain,
+and point toolpaths. The ability to manipulate the angle of the tool, relative to the
+cut pattern, puts a great amount of control in your hands. The cut speed, finish
+quality, and tool life can all be affected with tool axis control. Complete this lesson to
+gain exposure with two additional tool axis control options for a multiaxis Curve
+toolpath.
+
+Lesson Goals
+
+       Open a previously saved part.
+       Edit the operation's parameters, specifically tool axis control.
+       Generate the toolpath and observe the tool motion.
+
+Exercise 1: Preparing the Part
+
+       1 Use File, Open to open the part file saved in the previous lesson. If the file is
+           unavailable, open the part file Curve_Toolpath_Lesson_5.MCX-6, which
+           was provided with the tutorial.
+
+       2 Set your graphics view to Isometric.
+
+       3 Activate shading if necessary.
+       4 Fit the geometry to the screen using [Alt+F1] or the Fit button.
+       5 Choose File, Save As, and save the part under a different file name. This
+
+           protects the original tutorial file from being overwritten.
+32 · COPY AND EDIT AN OPERATION
+
+Exercise 2: Copy and Edit an Operation
+
+       1 Right-click on the first operation
+           and hold the mouse button down.
+
+       2 Drag the operation to a position
+           farther down the Toolpath
+           Manager.
+
+       3 Release the right mouse button and
+           select Copy after.
+
+       4 Select operation 1 and turn off the
+           toolpath display. Press [T] or click
+           Toggle display on selected
+           operations.
+           The visible toolpath belongs to
+           operation 2.
+
+       5 Use the Level Manager to make level 7:Chain visible.
+           The geometry on level 7 is used for tool axis control in this exercise.
+
+       6 Click Parameters under operation
+           2. The Multiaxis Toolpath - Curve
+           dialog box opens.
+
+       7 Select Tool from the Tree View pane.
+
+INTRODUCTION TO MULTIAXIS TOOLPATHS
+                                     TOOL AXIS CONTROL OPTIONS · 33
+
+8 Enter Chain in the Comment box.
+
+    A comment helps to distinguish
+    operations of the same toolpath
+    type.
+
+ 9 Select Tool Axis Control from the Tree View pane.
+10 Choose Chain from the tool axis control drop-down selection.
+
+11 Click Select to open the Chain Options dialog box.
+
+12 Select Closest point on chain, then
+      click the Select Chain button.
+
+                                     INTRODUCTION TO MULTIAXIS TOOLPATHS
+34 · COPY AND EDIT AN OPERATION
+
+     13 Select the chain as shown.
+
+     14 Click OK in the Chaining dialog box and the Chain Options dialog box. You
+           return to the Tool Axis Control page.
+
+     15 Click OK to accept the parameter changes.
+     16 Click Regenerate all dirty
+
+           operations in the Toolpath
+           Manager.
+
+     17 Backplot the operation to observe the tool motion.
+     18 Save your part file.
+At this point in the lesson, take a moment to review the two operations created.
+Operation 1 uses To point for tool axis control. The tool is always pointing at the
+selected point. Operation 2 uses Chain for tool axis control. The tool is always
+pointing from a point on the chain, in this case, the closest point of the chain. The
+different options create drastically different tool and machine motion. The edge of
+the part will also have a different taper depending on the tool axis.
+Toggle the toolpath display for the two operations so that they are both visible.
+Notice the different tool angle around the entire part shown below. Backplot the
+operations to see the different tool motion. Select both operations and run Machine
+Simulation as in the previous lesson. A collision is reported for operation 2 before
+
+INTRODUCTION TO MULTIAXIS TOOLPATHS
+                                                                                                  TOOL AXIS CONTROL OPTIONS · 35
+
+you even run the simulation. This indicates that using the existing chain for tool axis
+control is not going to work on this particular machine. This does not indicate a bad
+toolpath; only the fact that this toolpath will not run on the selected machine.
+
+Exercise 3: Copy and Edit a Second Operation
+
+       1 Right-click on the second operation and hold the mouse button down.
+       2 Drag the operation to a position farther down the Toolpath Manager.
+       3 Release the right mouse button and select Copy after.
+       4 Select operation 2 and turn off the toolpath display. Press [T] or click the
+
+           Toggle display on selected operations button.
+           Toggle the display for operations 1 and 2 so both are off.
+       5 Use the Level Manager to make level 8:Tool axis lines visible. Turn off the
+           display of levels 1, 6, and 7.
+       6 Click Parameters under operation
+           3. The Multiaxis Toolpath - Curve
+           dialog box opens.
+
+                                                                                     INTRODUCTION TO MULTIAXIS TOOLPATHS
+36 · COPY AND EDIT A SECOND OPERATION
+
+       7 Select Tool from the Tree View pane.
+       8 Enter Lines in the Comment box.
+       9 Select Tool Axis Control from the Tree View pane.
+     10 Choose Lines from the Tool axis control drop-down selection.
+     11 Click Select to open the Lines Tool Axis Control dialog box.
+     12 Click the Window select lines
+
+           button to select lines for tool axis
+           control.
+
+INTRODUCTION TO MULTIAXIS TOOLPATHS
+                                                                                                  TOOL AXIS CONTROL OPTIONS · 37
+
+     13 Draw a selection window around the entire part. Only lines are selected.
+
+     14 Click OK in the Lines Tool Axis Control dialog box. You return to the Tool
+           Axis Control page.
+
+     15 Click OK to accept the parameter changes.
+     16 Click the Regenerate all dirty
+
+           operations button in the Toolpath
+           Manager.
+     17 Backplot the operation to observe
+           the tool motion.
+     18 Save your part file.
+Review the tool motion for operation 3. Observe how the tool axis lines up with each
+line as it approaches that point in the toolpath. The axis transitions from alignment
+with one line as it moves to the next. Use as many lines as necessary to achieve the
+desired motion.
+Use Backplot and Machine Simulation to review the tool and machine motion for all
+three operations. The subtle differences in tool axis control put a great deal of power
+in your hands for generating complex toolpaths. Tool axis control is a key element to
+all multiaxis toolpaths, no matter which options are available on the page.
+Proceed to Lesson 6 where you will create two Multiaxis Drill operations using two of
+the tool axis control methods available for that toolpath type.
+
+                                                                                     INTRODUCTION TO MULTIAXIS TOOLPATHS
+38 · COPY AND EDIT A SECOND OPERATION
+INTRODUCTION TO MULTIAXIS TOOLPATHS
+)*++%",2
+
+Multiaxis Drill Toolpath
+
+6
+
+Multiaxis drill toolpaths differ from other multiaxis toolpaths in several ways:
+
+       Limited cut pattern selection: points or points/lines
+       Restricted tool axis control: parallel to line, surface, or plane
+       Fewer tip control options: point, projected point, or compensation surface
+The power of multiaxis drill becomes apparent on parts that contain multiple holes
+with center lines pointing in different directions. Your multiaxis machine is capable
+of drilling many different holes with a single fixture setup, saving time and increasing
+productivity.
+
+Lesson Goals
+
+       Open a part file and assign a machine definition.
+       Create some Multiaxis Drill operations.
+       Backplot the operations.
+
+Exercise 1: Getting Started with Toolpath Creation
+
+Assigning a machine definition is the first essential step in creating a toolpath.
+Setting the graphics view to allow the easiest geometry selection plays a small part in
+visualizing your work. This exercise guides you through the initial steps involved
+with creating a toolpath.
+40 · GETTING STARTED WITH TOOLPATH CREATION
+
+       1 Open the part file Drill_Toolpath.MCX-6, which was provided with the
+           tutorial.
+
+       2 Select the default Mill metric machine definition.
+         Note: The default machine definition has rotary axes defined that allow
+         multiaxis toolpaths. Load the machine definition of your choice as long as
+         it supports 5-axis motion.
+
+       3 Set your graphics view to Isometric.
+       4 Activate shading if necessary.
+       5 Fit the geometry to the screen using [Alt+F1] or the Fit button.
+       6 Choose File, Save As, and save the part under a different file name. This
+
+           protects the original tutorial file from being overwritten.
+
+INTRODUCTION TO MULTIAXIS TOOLPATHS
+                                                                                                    MULTIAXIS DRILL TOOLPATH · 41
+
+Exercise 2: Create a Multiaxis Drill Toolpath
+
+      1 From the Mastercam menu, choose
+           Toolpaths, Multiaxis.
+
+      2 Click OK if prompted to enter new
+           NC file name.
+
+      3 Select Drill/Circle Mill and Drill on the Toolpath Type page.
+
+      4 Select Tool from the Tree View pane.
+      5 Click the Select library tool button.
+
+           The library defined in the machine
+           definition opens.
+
+                                                                                    INTRODUCTION TO MULTIAXIS TOOLPATHS
+42 · CREATE A MULTIAXIS DRILL TOOLPATH
+
+       6 Select the 10mm drill and click OK.
+           Adjust the tool filter settings as
+           necessary to make tool selection
+           easier.
+
+       7 Select Cut Pattern from the Tree View pane.
+       8 Choose Points for the entity type.
+
+       9 Select Peck Drill for the cycle and set the subsequent parameters.
+
+           Cycle selection determines the available parameters. Choose different
+           cycles to review the parameters.
+     10 Click Select to return to the graphics window for point selection.
+     11 Select Window Points in the Drill
+           Point Selection dialog box.
+
+INTRODUCTION TO MULTIAXIS TOOLPATHS
+                                         MULTIAXIS DRILL TOOLPATH · 43
+
+12 Create a window around the visible
+      points.
+
+      The point geometry is on level 1.
+
+13 Click OK in the Drill Point Selection dialog box to return to the Cut Pattern
+      page.
+
+14 Select Tool Axis Control from the Tree View pane.
+15 Choose Surface for Tool axis
+
+      control and 5 axis for Output
+      format.
+
+16 Click Select to return to the graphics window for surface selection.
+
+                                         INTRODUCTION TO MULTIAXIS TOOLPATHS
+44 · CREATE A MULTIAXIS DRILL TOOLPATH
+
+     17 Select the surface as shown. Rotate the geometry as needed to allow
+           selection.
+
+           The surface is on level 5. Use the Level Manager to make it visible if
+           necessary.
+         TIP: Manipulating the visible levels makes the selection process easier
+         and less susceptible to error.
+     18 Press [Enter] or click End Selection when done.
+     19 Select Collision Control from the Tree View pane.
+     20 Set Tip control to Compensation
+           surface.
+           Click Help for an explanation of the
+           different tip control options.
+
+     21 Click the Select button next to Compensation surface. The Toolpath/
+           surface selection dialog box opens.
+
+INTRODUCTION TO MULTIAXIS TOOLPATHS
+                                           MULTIAXIS DRILL TOOLPATH · 45
+
+22 Click Select to select surfaces in the
+      graphics window.
+
+23 Select the surface as shown. Rotate
+      the geometry as needed to allow
+      selection.
+      The surface is on level 4. Use the
+      Level Manager to make it visible if
+      necessary.
+
+24 Press [Enter] or click End Selection when done.
+25 Click OK in the Toolpath/surface selection dialog box.
+
+                                           INTRODUCTION TO MULTIAXIS TOOLPATHS
+46 · ADD A SECOND MULTIAXIS DRILL OPERATION
+
+     26 Click OK to generate the multiaxis drill toolpath on the selected points.
+
+     27 Save your part file.
+
+Exercise 3: Add a Second Multiaxis Drill Operation
+
+       1 Turn off the display of level 1, and make level 3 visible in the Level Manager.
+       2 From the Mastercam menu, choose Toolpaths, Multiaxis.
+       3 Select Drill/Circle Mill and Drill on the Toolpath Type page.
+       4 Select Tool from the Tree View pane.
+       5 Select the 10mm drill shown in the
+
+           tool list.
+
+       6 Select Cut Pattern from the Tree View pane.
+
+INTRODUCTION TO MULTIAXIS TOOLPATHS
+                                            MULTIAXIS DRILL TOOLPATH · 47
+
+7 Choose Points/Lines for the entity type.
+
+ 8 The Cycle should still be on Peck drill. Set it if necessary.
+
+ 9 Click Select to return to the graphics window for point selection.
+
+10 Select Window Points in the Drill
+      Point Selection dialog box.
+
+11 Draw a window around the visible
+      points.
+      Change the view to Back and rotate
+      the geometry as needed to bring the
+      points/lines into view. The points
+      for this operation are on the back
+      side of the part.
+
+    Note: It is not necessary to select the lines, even though the entity type is set
+    to Points/Lines. The lines are automatically selected as long as they end on
+    the point.
+
+12 Click OK in the Drill Point Selection dialog box to return to the Cut Pattern
+      page.
+
+13 Select Tool Axis Control from the Tree View pane.
+
+                                                                             INTRODUCTION TO MULTIAXIS TOOLPATHS
+48 · ADD A SECOND MULTIAXIS DRILL OPERATION
+
+     14 Check Output format to be sure it is set to 5 axis. Notice how Tool axis
+           control is set to Points/Lines. The lines attached to the points are
+           automatically set as the tool axis control.
+
+     15 Select Collision Control from the Tree View pane.
+     16 Set Tip control to Original point.
+
+     17 Activate Tip compensation by
+           selecting the checkbox. Set Break
+           through to 2.0.
+           The break through value
+           determines how far the full
+           diameter of the drill will penetrate
+           beyond the selected tip control
+           geometry.
+
+INTRODUCTION TO MULTIAXIS TOOLPATHS
+                                                                                                    MULTIAXIS DRILL TOOLPATH · 49
+
+     18 Click OK to generate the multiaxis drill toolpath on the selected points.
+
+     19 Save your part file.
+
+Exercise 4: Backplot the operations
+
+      1 Set your graphics view to Isometric.
+      2 In the Toolpath Manager, click
+
+           Select all operations.
+
+                                                                                    INTRODUCTION TO MULTIAXIS TOOLPATHS
+50 · BACKPLOT THE OPERATIONS
+
+       3 Click Backplot selected operations
+           in the Toolpath Manager.
+
+       4 In the Backplot dialog box, select
+           the Display tool and Display rapid
+           moves buttons.
+
+       5 Click Options in the Backplot
+           dialog box.
+
+       6 Deselect the options shown and
+           click OK. This prevents your part
+           from spinning around and moving
+           out of view.
+
+       7 Click Play to begin the backplot of your toolpath.
+
+INTRODUCTION TO MULTIAXIS TOOLPATHS
+                                                                                                     MULTIAXIS DRILL TOOLPATH · 51
+
+       8 Click OK in the Backplot dialog box when you have finished reviewing the
+           tool motion.
+
+You have now completed a multiaxis drill toolpath. While the simplest of the multi-
+axis toolpaths, care must be taken when selecting geometry, tool axis control, and tip
+control methods. The differences between the control methods are subtle but can
+produce drastically different tool motion.
+
+Conclusion
+
+Congratulations! You have completed the Introduction to Multiaxis Toolpaths tuto-
+rial. Now that you have mastered the skills in this tutorial, explore Mastercam's other
+features and functions. Additional tutorials may be available in this or other series.
+This is a module of the Mastercam Getting Started Tutorial Series. The series intro-
+duces general Mastercam functions and teaches basic skills for getting started with
+Mastercam. Other tutorial series include:
+
+       Focus Series: Focuses on a specific Mastercam feature--for example, Setup
+           Sheets or FBM Drill, and teaches basic and advanced skills.
+
+       Exploring Series: Explores a single Mastercam product--for example
+           Mastercam® for SolidWorks® or Mastercam Swiss Expert, and teaches in-
+           depth skills for working with the product.
+
+The Mastercam tutorial series is in continual development, and we will add modules
+as we complete them. For information and availability or for further training, please
+contact your local Mastercam Reseller.
+
+Mastercam Resources
+
+Enhance your Mastercam experience by using the following resources:
+       Mastercam Help--Access Mastercam Help by selecting Help, Contents from
+           Mastercam's menu bar or by pressing [Alt+H] on your keyboard. Also, most
+           dialog boxes and ribbon bars feature a Help buttonthat opens Mastercam
+           Help directly to related information.
+       Mastercam Reseller--Your local Mastercam Reseller can help with most
+           questions about Mastercam.
+
+                                                                                     INTRODUCTION TO MULTIAXIS TOOLPATHS
+52 · MASTERCAM RESOURCES
+
+       Technical Support--CNC Software's Technical Support department (860-
+           875-5006 or support@mastercam.com) is open Monday through Friday
+           from 8:00 a.m. to 5:30 p.m. USA Eastern Standard Time.
+
+       Mastercam University--CNC Software sponsors Mastercam University, an
+           affordable online learning platform that gives you 24/7 access to Mastercam
+           training materials. Take advantage of more than 180 videos to master your
+           skills at your own pace and help prepare yourself for Mastercam
+           Certification. For more information on Mastercam University, please
+           contact your Authorized Mastercam Reseller, visit www.mastercamu.com,
+           or email training@mastercam.com.
+
+       Online communities--You can search for information or ask questions on
+           the Mastercam Web forum, located at www.emastercam.com. You can also
+           find a wealth of information, including many videos, at
+           www.mastercam.com and www.mastercamedu.com.
+           For tech tips and the latest Mastercam news, you can join us on Facebook
+           (www.facebook.com/mastercam), follow us on Twitter (www.twitter.com/
+           mastercam), and subscribe to our blog, Mastercam Xtras (http://
+           blog.mastercam.com). Visit our YouTube channel to see Mastercam in
+           action (www.youtube.com/user/MastercamCadCam)!
+
+INTRODUCTION TO MULTIAXIS TOOLPATHS
+                                                                                                     MULTIAXIS DRILL TOOLPATH · 53
+
+Mastercam Documentation
+
+Mastercam installs the following documents in the \Documentation folder of your
+Mastercam installation:
+
+       Mastercam X6 Quick Start
+       Mastercam X6 Administrator Guide
+       Mastercam X6 Transition Guide
+       Mastercam X6 Quick Reference Card
+       Mastercam X6 File Location Card
+       Mastercam X6 Post Debugger User's Guide
+
+Contact Us
+
+For questions about this or other Mastercam documentation, contact the Technical
+Documentation department by email at techdocs@mastercam.com.
+
+                                                                                     INTRODUCTION TO MULTIAXIS TOOLPATHS
+54 · MASTERCAM DOCUMENTATION
+INTRODUCTION TO MULTIAXIS TOOLPATHS
+               Attention! Updates may be available.
+  Go to Mastercam.com/Support for the latest downloads.
+
+671 Old Post Road
+Tolland, CT 06084 USA
+www.mastercam.com
+
+Printed in the USA on 100% Post Consumer Waste, FSC Stocks
+

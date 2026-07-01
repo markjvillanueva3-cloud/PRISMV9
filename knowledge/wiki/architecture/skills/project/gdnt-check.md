@@ -29,8 +29,7 @@ related:
 
 ## Description (first paragraph)
 
-
-# /gdnt-check — GD&T Compliance Validation
+Validate geometric dimensioning and tolerancing compliance per ASME Y14.5/ISO 1101.
 
 <!-- AUTO-END -->
 

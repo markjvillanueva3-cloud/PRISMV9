@@ -34,7 +34,7 @@ const DRY_RUN = process.env.PRISM_STOP_MARK_DRY_RUN === "1";
 
 function sessionId() {
   try {
-    const r = spawnSync(NODE_BIN, [STABLE_ID_HELPER], { encoding: "utf-8", timeout: 2000 });
+    const r = spawnSync(NODE_BIN, [STABLE_ID_HELPER], { windowsHide: true, encoding: "utf-8", timeout: 2000 });
     const id = (r.stdout || "").trim();
     return id || null;
   } catch {
@@ -44,7 +44,7 @@ function sessionId() {
 
 function recentCommits() {
   try {
-    const r = spawnSync("git", ["log", `-n${GIT_LOOKBACK}`, "--pretty=format:%H%x09%s"], {
+    const r = spawnSync("git", ["log", `-n${GIT_LOOKBACK}`, "--pretty=format:%H%x09%s"], { windowsHide: true,
       encoding: "utf-8",
       timeout: 3000,
       cwd: process.cwd(),

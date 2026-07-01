@@ -81,4 +81,61 @@ describe("PostProcessorUnificationEngine", () => {
     const stats = await postProcessorUnificationEngine.getStats();
     expect(stats.totalConfigs).toBeGreaterThan(0);
   });
+
+  describe("execute(action, params) dispatcher wrapper", () => {
+    it("pp_unify_query routes to query()", async () => {
+      const r = (await postProcessorUnificationEngine.execute("pp_unify_query", {
+        controller: "Fanuc",
+      })) as Array<{ controller: string }>;
+      expect(Array.isArray(r)).toBe(true);
+      expect(r.every((c) => c.controller === "Fanuc")).toBe(true);
+    });
+
+    it("pp_unify_get routes to getConfig()", async () => {
+      const list = (await postProcessorUnificationEngine.execute("pp_unify_query", {
+        limit: 1,
+      })) as Array<{ id: string }>;
+      if (list.length > 0) {
+        const c = (await postProcessorUnificationEngine.execute("pp_unify_get", {
+          id: list[0].id,
+        })) as { id: string } | null;
+        expect(c).not.toBeNull();
+        expect(c?.id).toBe(list[0].id);
+      }
+    });
+
+    it("pp_unify_get returns null for unknown id", async () => {
+      const c = await postProcessorUnificationEngine.execute("pp_unify_get", {
+        id: "definitely-not-real",
+      });
+      expect(c).toBeNull();
+    });
+
+    it("pp_unify_stats routes to getStats()", async () => {
+      const s = (await postProcessorUnificationEngine.execute("pp_unify_stats", {})) as {
+        totalConfigs: number;
+      };
+      expect(typeof s.totalConfigs).toBe("number");
+      expect(s.totalConfigs).toBeGreaterThan(0);
+    });
+
+    it("pp_unify_by_controller routes to getByController()", async () => {
+      const r = (await postProcessorUnificationEngine.execute(
+        "pp_unify_by_controller",
+        { controller: "Okuma" },
+      )) as Array<{ controller: string }>;
+      expect(r.every((c) => c.controller === "Okuma")).toBe(true);
+    });
+
+    it("throws on unknown action (fail-loud per R12)", async () => {
+      await expect(
+        postProcessorUnificationEngine.execute("pp_unify_no_such_action", {}),
+      ).rejects.toThrow(/unknown action/i);
+    });
+
+    it("tolerates missing params (defaults applied)", async () => {
+      const r = (await postProcessorUnificationEngine.execute("pp_unify_query", undefined)) as Array<unknown>;
+      expect(Array.isArray(r)).toBe(true);
+    });
+  });
 });

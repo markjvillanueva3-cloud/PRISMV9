@@ -1,0 +1,21 @@
+---
+name: reference_romeo_triage_ctor_parse_fix_2026_06_17
+description: romeo-wiring-triage false-WIREABLE fix -- object/multiline ctor arg-count bug mis-ranked DI engine NXOpen as WIREABLE; test de-rotted
+type: reference
+source: prism-memory
+synced: 2026-06-27T20:30:47.148Z
+aliases: reference_romeo_triage_ctor_parse_fix_2026_06_17
+---
+
+
+ROMEO HARNESS FIX (slot:romeo, 2026-06-17, commit `3aec6d3c59` `[MAIN-FORCE] [WIRING]/U-ROMEO-TRIAGE-CTOR-PARSE-FIX` on cad-fusion-live-ms0). Found while the operator directive was "continue in engineered loops/harnesses optimally" and romeo's clean wire queue was exhausted -- so the highest-value in-lane work was hardening romeo's own harness.
+
+**BUG (false-WIREABLE -- the DANGEROUS direction).** `scripts/romeo-wiring-triage.mjs` `engineConstructability` counted required ctor args via `match(/constructor\(([^)]*)\)/)` + `split(",")` + `!/[?=]/.test(seg)`. An object-param ctor `constructor(opts: { a: A; b: B; clock?: C; max?: number })` breaks BOTH heuristics: object fields are `;`-separated so `split(",")` keeps the whole object as ONE segment, and that segment contains `?` (from optional FIELDS `clock?`/`max?`) so the filter dropped the entire REQUIRED `opts` param -> ctorArgs 0 -> `classify()` returned WIREABLE. `NXOpenAssemblyDrawingEngine` (a DI engine needing injected `assemblyTransport`+`drawingTransport`) was ranked WIREABLE; trusting it would make romeo wire a throw-on-zero-arg-construct engine (its own `wiring-an-engine-that-throws` refuse). Empirically: old parser ctorArgs=0; fixed=1 -> NEEDS-REVIEW. Live partition WIREABLE 1->0 (honest: romeo's clean in-lane queue is genuinely empty).
+
+**FIX.** Balanced-paren extraction (`extractCtorParamList`) + top-level comma split across `(){}[]` (`splitTopLevelCommas`) + name-level optionality (`isOptionalCtorParam`: a param is optional iff its NAME before the first top-level `:` ends with `?` OR it has a top-level `=` default; `?`/`=` INSIDE the type annotation never counts). Angle brackets `<>` are ignored for depth -> a generic-with-internal-comma at worst OVER-counts = FAIL-SAFE (NEEDS-REVIEW, never false-WIREABLE). Exported the helpers + `classify`/`engineConstructability`/`dispatcherExists` + wrapped the run block in a guarded `main()` (`pathToFileURL(process.argv[1]).href === import.meta.url`) so the test can import without overwriting the live queue.
+
+**TEST DE-ROT.** The prior `romeo-wiring-triage.test.mjs` pinned a TRANSIENT backlog -- `total >= 40` magnitude floor + 4 named engines (CounterfactualMill, TransferLearningAdapter, EmbeddingGuard, MITCourseIntegration) -- so it went **5/8 RED** the moment the fleet wired the backlog down to 18 (the test failed *because romeo succeeded*). Rewrote to: (a) pure ctor-parser unit tests over synthetic source (never rot; incl. the NXOpen object-ctor regression, RED on old parser), (b) direct `classify()` logic tests (engine `.ts` persists on disk even when wired out of the audit), (c) live invariants asserted against the live audit COUNT (no magnitude floor). 17/17 pass. 3-of-3 scrutiny PASS.
+
+**LESSON.** A test that asserts a backlog MAGNITUDE or specific in-flight item names rots as the domain succeeds -- assert INVARIANTS (partition completeness vs the live source count) + test the LOGIC directly (synthetic inputs / disk-persistent refs), never the transient queue contents. And a string-heuristic arg-counter must be brace/paren-depth-aware: `split(",")` + a blanket `?`/`=` test silently under-counts object/multiline params -> false-WIREABLE. Sibling of [[feedback_verify_unwired_against_shared_tree]] + the `parseShipped`-prose-miscount regression (anchor structured extraction to structure, not free text).
+
+**DOCUMENTED FUTURE-DRIFT CAVEAT (deferred, non-triggering).** `isOptionalCtorParam`/`splitTopLevelCommas` do NOT track backtick template-literal spans, so a future ctor param typed `` cfg: `mode=${T}` `` would have its `=` misread as a default -> under-count -> false-WIREABLE. Verified NON-TRIGGERING today: 0 engine constructors contain a backtick (`grep -rlE "constructor\s*\([^)]*\`" mcp-server/src/engines/` = 0). If a backtick ctor param type ever appears, harden by stripping backtick-delimited spans before the `=` scan (one-liner). All 3 scrutiny arms downgraded this to non-issue.

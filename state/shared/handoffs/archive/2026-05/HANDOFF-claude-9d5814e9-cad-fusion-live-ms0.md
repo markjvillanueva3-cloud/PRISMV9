@@ -1,0 +1,12 @@
+# HANDOFF: claude-9d5814e9
+Updated: 2026-05-09T19:15:18.502Z
+Family: Claude | Machine: DESKTOP-N7MI1VB | Session: claude-9d5814e9
+
+## STATE
+Pipeline rewire 70 percent shipped: skill fixes (precompact.md write side, startup.md Step 1B/1.5/1.6/7) intact in H:/prism/.claude/commands/. session-handoff-load.mjs wired into both C: and H: settings.json SessionStart group 0 position 29/30. Memory relieved 93.7 to 79.5 percent by killing PID 30880 (3.3GB tsserver) plus 10 orphans. Hook fixes REVERTED by peer chat (cee63f1f or 99eca613) — confirmed via system-reminder file diff that showed original pre-fix code in both files.
+
+## RESUME
+Re-apply 2 hook fixes that peer chat reverted: (1) H:/prism/.claude/hooks/scrutinize-before-stop.mjs — add OWNERSHIP_REL='mcp-server/data/state/session-file-ownership.json' constant + deriveStableSessionId(payload) helper (returns claude-<sid.slice(0,8)>) + readOwnershipFiles(projectRoot) helper + refactor hasUncommittedChanges into meaningfulChangedFiles(root) returning string[] + add ownership check in main() that skips gate with continue:true+systemMessage if this chat owns 0 of changedFiles via ownership map; (2) H:/prism/.claude/helpers/per-agent-handoff.mjs cmdRead — add args.topic resolution chain at top of function: (a) HANDOFF-<inst>-<topic>.md if topic, (b) bare HANDOFF-<inst>.md, (c) newest HANDOFF-<inst>-*.md for same instance any topic, then existing fuzzy/family-latest/global-latest fallbacks. Re-post chat-bus claims first (old ones at H:/prism/state/shared/chat-bus/claims/0fb449ce4a436aaa.json + a2e91e2e288b8c3a.json from 2026-05-09 ~05:30Z likely expired), apply both edits, COMMIT IMMEDIATELY with [MAIN] [HANDOFF-PIPELINE-MS0]/U-MULTICHAT-SAFE: re-apply ownership-check + topic-aware cmdRead — last attempt got reverted by peer because it stayed uncommitted. Then pivot back to user's original task: tool-errors/hangs investigation.
+
+## CONTEXT
+Multi-chat env: 6 concurrent chats, this chat=claude-9d5814e9, branch=cad-fusion-live-ms0. Anti-revert tactic: post fresh chat-bus claim json files at H:/prism/state/shared/chat-bus/claims/<random16hex>.json with schemaVersion 1.0.0 + path + sessionId=claude-9d5814e9 + pcName=DESKTOP-N7MI1VB + acquiredAt + expiresAt (30min) + intent=edit, then edit, then IMMEDIATELY git add+commit. After re-apply, pivot back to tool-errors task — major suspects: stable-session-id.mjs WMIC overhead, 32 Stop hooks fan-out, hook telemetry gap (only file-read-cache events get duration logged).

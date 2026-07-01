@@ -69,13 +69,6 @@ export interface ChannelProgram {
   total_time_s: number;
 }
 
-// Kienzle coefficients for turning force
-const KC: Record<string, { kc1_1: number; mc: number }> = {
-  P: { kc1_1: 1780, mc: 0.26 }, M: { kc1_1: 2100, mc: 0.25 },
-  K: { kc1_1: 1100, mc: 0.28 }, N: { kc1_1: 700, mc: 0.23 },
-  S: { kc1_1: 2800, mc: 0.25 }, H: { kc1_1: 4000, mc: 0.22 },
-};
-
 export class MillTurnCAMEngine {
 
   /**

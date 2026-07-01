@@ -1,0 +1,68 @@
+{
+  "schemaVersion": "1.0.0",
+  "ts": "2026-05-09T19:16:13.113Z",
+  "session": "unknown-session",
+  "flags": {
+    "tier": [
+      0
+    ],
+    "point": [],
+    "force": false,
+    "dryRun": true
+  },
+  "counts": {
+    "evaluated": 6,
+    "ran": 0,
+    "skippedFresh": 0,
+    "skippedPeerLane": 0,
+    "manualAdvisory": 0,
+    "failures": 0
+  },
+  "byTier": {
+    "0": 6
+  },
+  "points": [
+    {
+      "id": "prism-inventory",
+      "tier": 0,
+      "action": "would-run",
+      "reason": "always-trigger",
+      "regenerator": "node scripts/update-prism-inventory.mjs --quiet"
+    },
+    {
+      "id": "build-state",
+      "tier": 0,
+      "action": "would-run",
+      "reason": "always-trigger",
+      "regenerator": "node scripts/build-state-snapshot.mjs"
+    },
+    {
+      "id": "milestone-progress",
+      "tier": 0,
+      "action": "would-run",
+      "reason": "always-trigger",
+      "regenerator": "node scripts/build-milestone-progress.mjs"
+    },
+    {
+      "id": "claude-brief",
+      "tier": 0,
+      "action": "would-run",
+      "reason": "always-trigger",
+      "regenerator": "node mcp-server/scripts/generate-claude-brief.mjs"
+    },
+    {
+      "id": "build-context",
+      "tier": 0,
+      "action": "would-run",
+      "reason": "always-trigger",
+      "regenerator": "node mcp-server/scripts/generate-build-context.mjs"
+    },
+    {
+      "id": "count-drift",
+      "tier": 0,
+      "action": "would-run",
+      "reason": "always-trigger",
+      "regenerator": "node mcp-server/scripts/check-count-drift.mjs"
+    }
+  ]
+}

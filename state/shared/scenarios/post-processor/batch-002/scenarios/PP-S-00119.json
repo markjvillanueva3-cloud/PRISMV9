@@ -1,0 +1,83 @@
+{
+  "id": "PP-S-00119",
+  "schemaVersion": "2.0.0",
+  "controller": {
+    "id": "mazak-smoothg",
+    "vendor": "Mazak",
+    "family": "SmoothG",
+    "dialect": "mazak",
+    "market_share": 0.08
+  },
+  "machine": {
+    "name": "Hurco VMX24i",
+    "make": "Hurco",
+    "model": "VMX24i",
+    "type": "Mill"
+  },
+  "spindle": {
+    "taper_id": "CAT40",
+    "taper_type": "CAT",
+    "taper_size": 40,
+    "max_rpm": 12000,
+    "min_rpm": 0,
+    "power_hp": 20,
+    "drive_type": "direct-drive",
+    "hp_class": "medium"
+  },
+  "operation": "threading",
+  "cycle": "tap-floating",
+  "axis_count": 4,
+  "material": {
+    "id": "S-Inconel-718",
+    "group": "S",
+    "name": "nickel superalloy"
+  },
+  "geometry": {
+    "depth_mm": 80.9,
+    "diameter_mm": 8.2,
+    "pitch_mm": 0.72,
+    "rapid_z_mm": 227.9
+  },
+  "optional_features": [
+    "hsm",
+    "mist"
+  ],
+  "rejected_features": [
+    "probing_renishaw",
+    "cas"
+  ],
+  "expected_gcode_shape": {
+    "lines_min": 40,
+    "lines_max": 200,
+    "must_contain": [
+      "G5.1"
+    ],
+    "must_not_contain": []
+  },
+  "safety_tier": "shop_floor",
+  "omega_floor": 0.98,
+  "sx_floor": 0.98,
+  "validation": {
+    "oracle": "master_post_generate",
+    "controller_profile_check": "master_post_get_controller_profile",
+    "dialect_features_check": "dialect_features",
+    "feature_gate_applied": "featureValidForController",
+    "pass_criteria": "shape_match AND dialect_correct AND validation_pass AND omega_meets_floor AND all_features_controller_supported",
+    "reject_on": [
+      "textual-cross-map",
+      "missing-dialect-resolve",
+      "softened-master-post-threshold",
+      "feature-not-supported-by-controller"
+    ]
+  },
+  "metadata": {
+    "generatedAt": "2026-05-25T00:18:53.797Z",
+    "generator": "generate-post-processor-scenarios.mjs",
+    "slot_owner": "india",
+    "milestone": "PRISM-LAUNCH-READINESS-MS0",
+    "unit": "P0-U06",
+    "schema": "v2.0.0",
+    "forced_controller": true,
+    "forced_reason": "original_machine_make_Hurco_pool_did_not_yield_mazak_after_3_retries"
+  }
+}

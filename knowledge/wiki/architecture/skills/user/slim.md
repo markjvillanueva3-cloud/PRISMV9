@@ -23,13 +23,21 @@ related:
 |-------|-------|
 | Name | `slim` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/slim.md` |
+| Source | `C:/Users/wompu/.claude/commands/slim.md` |
 | Model | default |
 | Tags | _(none)_ |
 
 ## Description (first paragraph)
 
-_(no body content)_
+
+# Slim — Active Context Optimizer
+
+You are actively trimming, compressing, and reorganizing context files to maximize token efficiency. This is the ACTION counterpart to `/context` (which only diagnoses). `/slim` makes changes.
+
+## Args: $ARGUMENTS
+- Empty: full optimization pass — MEMORY.md + CLAUDE.md + state cleanup
+- `memory`: optimize MEMORY.md only
+- `claude`: optimize CLAUDE.md fil
 
 <!-- AUTO-END -->
 

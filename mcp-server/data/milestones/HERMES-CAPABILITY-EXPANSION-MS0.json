@@ -1,0 +1,208 @@
+{
+  "$schema": "milestone-envelope-v1",
+  "schemaVersion": "1.0.0",
+  "milestone_id": "HERMES-CAPABILITY-EXPANSION-MS0",
+  "title": "Hermes Capability Expansion — 16 high-leverage tools beyond MEMORY-VAULT (execution/eval/Obsidian-plugin/Qdrant-advanced/Excel-PSN/distribution)",
+  "status": "not_started",
+  "created_at": "2026-05-24T02:10:00.000Z",
+  "created_by": "claude-ea80ce2f slot bravo",
+  "spec_file": "state/shared/specs/HERMES-CAPABILITY-EXPANSION-RESEARCH-2026-05-23.md",
+  "derived_from": [
+    "mcp-server/data/milestones/HERMES-MEMORY-VAULT-MS0.json (sister MS, memory layer)",
+    "state/shared/specs/HERMES-PSN-RAG-SYNERGY-RESEARCH-2026-05-23.md",
+    "state/shared/specs/HERMES-OCTOPUS-COORDINATION-RESEARCH-2026-05-23.md",
+    "user directive 2026-05-24: find more high-leverage zebra/hermes tools; add Excel to PSN"
+  ],
+  "psn_legs_touched": [1, 2, 3, 4, 5, 6, 7, 11],
+  "units": [
+    {
+      "id": "U-HCAP01",
+      "title": "Tool-use trace replay — Hermes Atlas pattern, replay any dispatcher round-trip",
+      "priority": "P0",
+      "status": "not_started",
+      "depends_on": [],
+      "blocks": ["U-HCAP04"],
+      "description": "Today every dispatcher action emits to `prism_session:audit_log` but there is no replay path. Hermes Atlas records every (tool_call, input, output, latency) tuple and replays them deterministically for debugging + regression detection. Build `traceReplayEngine` + `prism_session:trace_replay` action that takes a trace-id and re-executes the same dispatcher call against current code. Operator gets a diff against the original output.",
+      "exit_criteria": "engine + dispatcher action + ≥4 tests (1 happy, 1 idempotent, 1 input-drift, 1 missing-trace)",
+      "estimated_loc": "~150 LOC engine + ~50 LOC dispatcher wire + ~80 LOC tests"
+    },
+    {
+      "id": "U-HCAP02",
+      "title": "Schema-aware structured output — Zod-validated tool-call returns on every dispatcher",
+      "priority": "P0",
+      "status": "not_started",
+      "depends_on": [],
+      "blocks": [],
+      "description": "Hermes Schema mode enforces JSON-schema validation on every tool input AND output. PRISM has Zod schemas on dispatcher INPUTS (z.enum action lists) but not on OUTPUTS — engines return arbitrary objects, callers must trust shape. Build `dispatchValidator` middleware that wraps every dispatcher's response in a `safeParse` against a per-action output schema. R12 fail-soft: schema miss logs + degrades to raw response with `validated:false` flag. Per-dispatcher rollout starts with `prism_calc` (highest physics-safety leverage).",
+      "exit_criteria": "middleware + ≥10 per-action output schemas across prism_calc + prism_safety + ≥8 tests",
+      "estimated_loc": "~200 LOC middleware + ~150 LOC schemas + ~100 LOC tests"
+    },
+    {
+      "id": "U-HCAP03",
+      "title": "Cost telemetry per turn — Hermes Atlas $/tokens/latency per dispatcher call",
+      "priority": "P0",
+      "status": "not_started",
+      "depends_on": [],
+      "blocks": [],
+      "description": "Today `ollama-offload-stats.json` tracks offload ratio but not per-turn Claude cost. Build `costLedgerEngine` that observes every `aiSystemRouterEngine.route()` invocation, records (turn_id, model, input_tokens, output_tokens, est_usd, latency_ms, dispatcher), persists to `state/shared/cost-ledger.jsonl`. Operator dashboard via `prism_session:cost_summary` action — by slot / by dispatcher / by date-range. Sister surface to ollama-offload stats.",
+      "exit_criteria": "engine + dispatcher action + Stop-hook flush + ≥3 stats tests + sample 7-day rollup",
+      "estimated_loc": "~180 LOC + ~80 LOC tests"
+    },
+    {
+      "id": "U-HCAP04",
+      "title": "Self-correction / thought rewriter — when a dispatch fails, rewrite the plan",
+      "priority": "P1",
+      "status": "not_started",
+      "depends_on": ["U-HCAP01"],
+      "blocks": [],
+      "description": "Hermes self-correct: on tool-call failure (schema mismatch, exception, low-confidence result), the agent rewrites its plan + retries. PRISM today: failures surface via Stop hooks (`error-pattern-promote`, `error-block-prewarn`) but no in-loop rewriter. Build `thoughtRewriterEngine` that consumes a failed trace from U-HCAP01, classifies failure (schema-miss / null-result / R12-degrade / wrong-tool), proposes 1-3 alternative dispatcher calls, surfaces to caller. NEVER auto-retries — operator-gated promote.",
+      "exit_criteria": "engine + integration with traceReplay + 4 failure-class tests + advisory dispatcher action",
+      "estimated_loc": "~200 LOC + ~100 LOC tests"
+    },
+    {
+      "id": "U-HCAP05",
+      "title": "Eval harness vs Hermes baselines — continuous benchmark suite",
+      "priority": "P1",
+      "status": "not_started",
+      "depends_on": [],
+      "blocks": [],
+      "description": "Hermes Eval is a quarterly benchmark across memory recall / tool-use accuracy / plan-completion. PRISM has scrutiny gates (3-of-3) but no continuous benchmark vs external baselines. Build `prism_eval` dispatcher with 5 actions: `bench_memory_recall` (master_index_query top-K precision over a curated 50-query set), `bench_tool_use` (dispatcher round-trip success on a curated 100-task suite), `bench_plan_completion` (milestone-progress drift over time), `bench_cost_per_correct` (U-HCAP03 ledger + correctness signal), `bench_summary` (rollup all 4 + percentile vs baseline). Curated suites under `state/shared/eval-suites/`. Weekly cron run; results to `state/shared/dashboards/eval-results-{week}.{md,html}`.",
+      "exit_criteria": "dispatcher + 5 actions + 4 curated suite files + cron task + first sample rollup",
+      "estimated_loc": "~300 LOC + ~150 LOC suite data + ~120 LOC tests"
+    },
+    {
+      "id": "U-HCAP06",
+      "title": "Long-horizon plan tracker — Hermes Atlas Plans pattern",
+      "priority": "P1",
+      "status": "not_started",
+      "depends_on": [],
+      "blocks": [],
+      "description": "Hermes Atlas tracks N-week commitments via natural-language plan + auto-derived milestone-progress. PRISM has milestone envelopes but no auto-derived plan-from-prose path. Build `planTrackerEngine` that ingests a natural-language plan (e.g. an operator goal statement), extracts (deliverables, dependencies, est-LOC, est-effort), proposes an envelope skeleton, surfaces to operator. Sister to the existing `pickerEngine` but driven by prose intake rather than next-best-unit selection. Operator-gated promote NEVER writes the envelope directly.",
+      "exit_criteria": "engine + dispatcher action + 6 prose-intake tests + sample envelope skeleton",
+      "estimated_loc": "~250 LOC + ~120 LOC tests"
+    },
+    {
+      "id": "U-HCAP07",
+      "title": "Excel — read shop tool-library `.xlsx` → tribal-corpus tool entries",
+      "priority": "P1",
+      "status": "not_started",
+      "depends_on": [],
+      "blocks": ["U-HCAP14"],
+      "description": "Most shops keep their tool library in Excel, NOT in CAM. PRISM's tribal corpus has 3919 tips but no Excel ingest. Build `excelToolLibIngestEngine` using `xlsx` npm pkg (zero-native, pure-js). Reads a workbook, identifies sheets matching tool-library frontmatter heuristics (columns: `tool_id|diameter|flutes|coating|material_class|stickout`), maps each row to a `tribal-tip` entry with provenance `{source: 'xlsx', file, sheet, row}`. R12 fail-soft on missing columns. Operator-gated promote to `tribal-corpus.json`.",
+      "exit_criteria": "engine + dispatcher action + 5 tests (3 sheet layouts + 2 R12-degrade) + sample JM-Die `.xlsx` ingest",
+      "estimated_loc": "~220 LOC + ~100 LOC tests + sample data"
+    },
+    {
+      "id": "U-HCAP08",
+      "title": "Excel — write quote output `.xlsx` from QuoteToShip pipeline",
+      "priority": "P1",
+      "status": "not_started",
+      "depends_on": [],
+      "blocks": [],
+      "description": "Today `QuoteToShipPipeline.quote()` returns JSON; ops-team manually retypes into shop Excel. Build `excelQuoteRenderEngine` that takes a `QuoteResult` and renders a customer-facing `.xlsx` with sheets: `Summary`, `Line Items`, `Setup Operations`, `Material`, `Quality Plan`. Uses `xlsx` write-side. Template-driven (one-template-per-customer-class via `mcp-server/data/quote-templates/*.xlsx`). Roundtrip-safe so the result re-ingests via U-HCAP09.",
+      "exit_criteria": "engine + dispatcher action + 4 tests + 1 sample quote.xlsx",
+      "estimated_loc": "~250 LOC + ~120 LOC tests"
+    },
+    {
+      "id": "U-HCAP09",
+      "title": "Excel — read customer quote history `.xlsx` → ActualCost + QuoteEstimator priors",
+      "priority": "P1",
+      "status": "not_started",
+      "depends_on": [],
+      "blocks": [],
+      "description": "Huge cold-start win for new PrismApp customers. Most shops have years of `.xlsx` quote history. Build `excelQuoteHistoryIngestEngine` that reads N quote files, extracts (part_id, material, qty, est_cost, actual_cost, lead_time), seeds `QuoteEstimator` Bayesian priors per customer + per part-family. R12 fail-soft on unrecognized layouts. Operator-gated; surfaces a confidence per import.",
+      "exit_criteria": "engine + dispatcher action + 4 tests + sample JM-Die history ingest",
+      "estimated_loc": "~250 LOC + ~120 LOC tests"
+    },
+    {
+      "id": "U-HCAP10",
+      "title": "Obsidian native PRISM plugin — master-index hits + /system-viz inline",
+      "priority": "P1",
+      "status": "not_started",
+      "depends_on": [],
+      "blocks": [],
+      "description": "Obsidian has a Plugin API (TypeScript, distributed via BRAT or Obsidian Catalog). Today PRISM feeds Obsidian one-way (memory-feed Stop hook). With a native plugin, operators get: (a) inline master-index hit cards on hover over any `[[backlink]]`, (b) command palette for `prism_session:master_index_query`, (c) right-pane /system-viz embed (iframe to localhost:8765), (d) frontmatter-driven dispatcher buttons. Ship as `obsidian-plugin/` subdir with own package.json + main.ts + manifest.json.",
+      "exit_criteria": "plugin scaffold + 4 commands + manifest + README + 1 sample install",
+      "estimated_loc": "~400 LOC TS + manifest + README"
+    },
+    {
+      "id": "U-HCAP11",
+      "title": "Qdrant Discovery API + SPLADE sparse vectors — better retrieval than dense-only",
+      "priority": "P1",
+      "status": "not_started",
+      "depends_on": [],
+      "blocks": [],
+      "description": "Sister to U-HMEMV09 (general Qdrant migration). This unit adds the TWO highest-leverage advanced features: (a) Discovery API for example-based 'find more like these' with negative examples — operator picks 3 'good' tribal tips and 1 'bad' to refine retrieval; (b) SPLADE sparse-vector embeddings — Qdrant 1.10 native sparse+dense in one collection, drop-in replacement for the hand-rolled BM25-lite in `master-index-search-lib.mjs`. Brute-force fallback preserved.",
+      "exit_criteria": "engine + 2 dispatcher actions + ≥5 tests + recall@K benchmark vs U-HMEMV09 baseline",
+      "estimated_loc": "~250 LOC + ~120 LOC tests"
+    },
+    {
+      "id": "U-HCAP12",
+      "title": "Council/debate protocol — formal multi-agent debate w/ rebuttals (octopus extension)",
+      "priority": "P2",
+      "status": "not_started",
+      "depends_on": [],
+      "blocks": [],
+      "description": "Octopus has 5-voice consensus today, but no formal debate — each voice fires once. Hermes Council mode runs N rounds: round 1 each voice proposes, round 2 each rebuts the strongest other, round 3 each updates given rebuttals, round 4 vote. Build `debateProtocolEngine` extending octopus-input-curator. ROUND_COUNT configurable (default 3). Operator-gated promote; advisory output.",
+      "exit_criteria": "engine + integration with octopus-with-hermes-rag.mjs + 4 debate tests + sample 3-round transcript",
+      "estimated_loc": "~200 LOC + ~100 LOC tests"
+    },
+    {
+      "id": "U-HCAP13",
+      "title": "Active learning — auto-edit slot-soul prompt based on outcomes",
+      "priority": "P2",
+      "status": "not_started",
+      "depends_on": [],
+      "blocks": [],
+      "description": "U-HRP05 (slot-soul evolution drafts) proposes refuse-rule candidates but doesn't compile them. Build `slotSoulCompilerEngine` that takes accepted draft candidates + outcome ledger, proposes minimal-diff edits to the actual slot-soul markdown (refuse_list additions, voice tweaks). NEVER auto-writes the soul; emits a unified diff for operator review. Hermes 'self-improving prompt' pattern but operator-gated.",
+      "exit_criteria": "engine + dispatcher action + 5 diff-generation tests + sample diff preview",
+      "estimated_loc": "~180 LOC + ~100 LOC tests"
+    },
+    {
+      "id": "U-HCAP14",
+      "title": "Excel add-in (Office.js) — Excel ribbon → PRISM dispatcher client",
+      "priority": "P2",
+      "status": "not_started",
+      "depends_on": ["U-HCAP07"],
+      "blocks": [],
+      "description": "Office.js Excel add-in turns Excel into a PSN client. Ribbon buttons surface: master-index-query, prism_calc actions (cutting force, speed/feed), QuoteToShip output (write current sheet as quote-input). Manifest-distributed via shop's M365 admin or sideload. Web-pane content from a local PRISM REST server (separate unit later). Pure shell + manifest in this unit; functionality lights up as REST surface lands.",
+      "exit_criteria": "add-in scaffold + 3 ribbon buttons (stubs) + manifest + sideload doc",
+      "estimated_loc": "~300 LOC TS + manifest"
+    },
+    {
+      "id": "U-HCAP15",
+      "title": "Federated tribal learning — privacy-preserving aggregate signals across customers",
+      "priority": "P2",
+      "status": "not_started",
+      "depends_on": [],
+      "blocks": [],
+      "description": "Each shop's tribal corpus stays local. But aggregate signals (e.g. 'drill X works well in tool steel across 14 shops') promote to a shared tribal layer via differential-privacy aggregation. PRISM's no-public-H: doctrine respected — only k-anonymized hash signals leave the local boundary. Build `federatedTribalAggregator` + opt-in operator gate. Sister to closed-loop learning.",
+      "exit_criteria": "lib + opt-in toggle + DP-aggregation tests + sample 3-shop synthetic dataset",
+      "estimated_loc": "~250 LOC + ~150 LOC tests"
+    },
+    {
+      "id": "U-HCAP16",
+      "title": "agentskills.io skill recipe registry — import + dedup vs PRISM skill surface",
+      "priority": "P2",
+      "status": "not_started",
+      "depends_on": [],
+      "blocks": [],
+      "description": "Hermes pulls skill recipes from `agentskills.io`. PRISM has 174 commands but no community-recipe import. Build `skillRecipeImportEngine` that fetches a recipe URL, validates schema, runs duplicationGuardEngine against existing skills, surfaces matches/conflicts to operator. Operator-gated promote NEVER auto-installs a recipe. Source can be agentskills.io OR an internal PRISM-skills marketplace (future Hermes-MemoryProvider compliance path).",
+      "exit_criteria": "engine + dispatcher action + 4 import-flow tests + 1 sample recipe import (dry-run)",
+      "estimated_loc": "~220 LOC + ~120 LOC tests"
+    }
+  ],
+  "synergy_axes": {
+    "psn_leg_1_obsidian": ["U-HCAP10"],
+    "psn_leg_2_prism_os": ["U-HCAP07", "U-HCAP08", "U-HCAP09", "U-HCAP14"],
+    "psn_leg_3_wiki": ["U-HCAP10"],
+    "psn_leg_4_memory": ["U-HCAP01", "U-HCAP05"],
+    "psn_leg_5_tribal": ["U-HCAP07", "U-HCAP15"],
+    "psn_leg_6_sysviz": ["U-HCAP10"],
+    "psn_leg_7_engines": ["U-HCAP02", "U-HCAP03", "U-HCAP08"],
+    "psn_leg_11_prism_ai": ["U-HCAP04", "U-HCAP05", "U-HCAP06", "U-HCAP11", "U-HCAP12", "U-HCAP13", "U-HCAP16"]
+  },
+  "advisory": "All 16 units operator-reviewable + operator-gated promote; nothing in this milestone mutates live wiki/memory/CLAUDE.md or shop data without operator action. Excel ingesters R12 fail-soft on unrecognized layouts (never silently corrupt tribal/quote priors). U-HCAP15 federation requires explicit opt-in.",
+  "mustHumanVerify": true,
+  "notes": "Sister to HERMES-MEMORY-VAULT-MS0 (memory layer). This MS covers EXECUTION (U-HCAP01-04), EVALUATION (U-HCAP05-06), OFFICE-SURFACE (U-HCAP07-09+14), OBSIDIAN-PLUGIN (U-HCAP10), QDRANT-ADVANCED (U-HCAP11), DEBATE (U-HCAP12), AUTO-PROMPT-EDIT (U-HCAP13), DISTRIBUTION (U-HCAP15-16). Excel surface (U-HCAP07-09+14) added on user directive 2026-05-24: 'can we start utilizing excel in any way within PSN?' — answer: 5 leverage points, 3 ship now (read tool-lib, write quote, read quote-history), 1 P2 (Office.js add-in)."
+}

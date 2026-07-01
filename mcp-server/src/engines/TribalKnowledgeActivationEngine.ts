@@ -543,7 +543,7 @@ export class TribalKnowledgeActivationEngine {
       if (bodyLower.includes(materialLower) || titleLower.includes(materialLower)) {
         score += 15;
         reasons.push(`Material keyword match: ${context.material}`);
-        matchType = matchType === "exact" ? "exact" : "partial";
+        matchType = "partial";
       }
     }
 

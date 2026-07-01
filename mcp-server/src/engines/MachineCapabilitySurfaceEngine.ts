@@ -18,6 +18,15 @@
 
 import { log } from "../utils/Logger.js";
 import type { CanonicalMachinePackage, CanonicalMachineType } from "../types/MachinePackage.js";
+import {
+  machineGeometricAccuracyEngine,
+  type AxisErrors6DOF,
+  type SquarenessErrors,
+  type BallBarMeasuredPoint,
+  type VolumetricAccuracyOutput,
+  type AbbeOffsetOutput,
+  type BallBarOutput,
+} from "./MachineGeometricAccuracyEngine.js";
 import type { MachineAxisTopology } from "../contracts/userMachineProfile.js";
 import { machineService } from "../services/MachineService.js";
 import { machineVocabularyNormalizerEngine } from "./MachineVocabularyNormalizerEngine.js";
@@ -124,6 +133,71 @@ export interface CapabilitySummary {
   spindle: SpindlePackage;
   coolant: CoolantStrategy;
   overallCapabilityScore: number;
+}
+
+/**
+ * U-DEA-november-P02: Accuracy envelope attached to a capability summary.
+ *
+ * Activates MachineGeometricAccuracyEngine (volumetric/abbe/ballbar) at the
+ * point where downstream physics (deflection, thermal, surface finish) asks
+ * for a machine's capability — so they consume REAL accuracy bounds rather
+ * than nominals. All fields are optional: when no measured data + no controller
+ * default is available, the field is `null` and `accuracy_source` flags it.
+ */
+export interface CapabilityWithAccuracy extends CapabilitySummary {
+  accuracy: {
+    /** Volumetric accuracy envelope (max/mean/p95) over the work envelope. */
+    volumetric: {
+      max_um: number;
+      mean_um: number;
+      p95_um: number;
+      max_location: { x: number; y: number; z: number };
+    } | null;
+    /** Per-axis Abbe error contribution at a configured offset distance. */
+    abbe: Array<{
+      axis: string;
+      abbe_error_um: number;
+      contribution_pct: number;
+      recommendation: string;
+    }>;
+    /** Ball-bar circularity + servo/backlash/squareness diagnosis. */
+    ballBar: {
+      circularity_um: number;
+      servo_mismatch_um: number;
+      squareness_error_urad: number;
+      scaling_error_ppm: number;
+      reversal_spike_um: number;
+      diagnosed_issues: string[];
+    } | null;
+  };
+  /**
+   * Provenance of the accuracy envelope:
+   *  - 'measured' when caller supplied real calibration data
+   *  - 'controller-default' when defaults from the controller tier are used (ISO 230-2 typical bands)
+   *  - 'no-data' when neither was available; downstream consumers should treat as unbounded.
+   */
+  accuracy_source: "measured" | "controller-default" | "no-data";
+}
+
+/** Optional measured-accuracy inputs the caller can supply to override defaults. */
+export interface CapabilityAccuracyOptions {
+  /** Per-axis 6-DOF errors. Overrides controller-tier defaults if present. */
+  axis_errors?: { x_axis: AxisErrors6DOF; y_axis: AxisErrors6DOF; z_axis: AxisErrors6DOF };
+  /** Inter-axis squareness errors (urad). Defaults to controller tier when absent. */
+  squareness?: SquarenessErrors;
+  /** Work envelope for volumetric calc. Defaults to a 500 mm cube centered on origin. */
+  workspace?: { x_range: [number, number]; y_range: [number, number]; z_range: [number, number] };
+  /** Grid-point density for volumetric calc. Defaults to 4 (64 sample points). */
+  volumetric_grid_points?: number;
+  /** Abbe-offset queries (axis + offset distance). Defaults to 3 stock cases (X@100, Y@100, Z@250). */
+  abbe_queries?: Array<{ axis: string; offset_distance_mm: number }>;
+  /** Measured ball-bar points. When absent, ball-bar is skipped (no synthetic data). */
+  ball_bar?: {
+    nominal_radius_mm: number;
+    measured_points: BallBarMeasuredPoint[];
+    feed_rate_mm_min: number;
+    plane: "XY" | "XZ" | "YZ";
+  };
 }
 
 export interface CapabilityComparison {
@@ -353,6 +427,185 @@ class MachineCapabilitySurfaceEngine {
       flowRate: maxPressure > 50 ? 20 : 40,
       tankCapacity: 200,
       filtration: maxPressure > 50 ? "fine_10um" : "standard_25um",
+    };
+  }
+
+  /**
+   * U-DEA-november-P02: Get capability summary enriched with predicted accuracy envelopes.
+   *
+   * Activates the precision-cluster engines (acc_volumetric, acc_abbe_offset,
+   * acc_ball_bar) at capability-lookup time so downstream physics consumers see
+   * realistic precision data instead of nominals. Pure function — no I/O, no
+   * mutation of cached package data.
+   *
+   * Source priority for accuracy inputs:
+   *   1. Caller-supplied `opts.axis_errors` / `opts.squareness` / `opts.ball_bar` (treated as measured)
+   *   2. Controller-tier defaults from `getControllerAccuracyTier()` (ISO 230-2 typical bands)
+   *   3. `null` field + `accuracy_source: "no-data"` when neither is available
+   *
+   * Ball-bar measurement is OPT-IN — without measured points the field is `null`
+   * (no synthetic ballbar diagnosis to keep proof-grade integrity).
+   *
+   * @param machineId Machine identifier (must resolve to a package via getPackage)
+   * @param opts Optional measured-accuracy data to override controller defaults
+   * @returns CapabilityWithAccuracy or null if the base summary is null
+   */
+  getCapabilityWithAccuracy(
+    machineId: string,
+    opts: CapabilityAccuracyOptions = {}
+  ): CapabilityWithAccuracy | null {
+    const base = this.getCapabilitySummary(machineId);
+    if (!base) return null;
+
+    // Resolve accuracy inputs: caller override -> controller-tier default
+    const tier = this.getControllerAccuracyTier(base.controller);
+    const measured = !!(opts.axis_errors && opts.squareness);
+    const axisErrors = opts.axis_errors ?? tier.default_axis_errors;
+    const squareness = opts.squareness ?? tier.default_squareness;
+
+    // Volumetric: defaults to 500mm cube, 4-point grid (64 sample points)
+    const workspace = opts.workspace ?? {
+      x_range: [-250, 250] as [number, number],
+      y_range: [-250, 250] as [number, number],
+      z_range: [-250, 250] as [number, number],
+    };
+    const gridPoints = opts.volumetric_grid_points ?? 4;
+
+    let volumetric: CapabilityWithAccuracy["accuracy"]["volumetric"] = null;
+    try {
+      const vol: VolumetricAccuracyOutput = machineGeometricAccuracyEngine.volumetricAccuracy({
+        workspace,
+        grid_points: gridPoints,
+        axis_errors: axisErrors,
+        squareness,
+      });
+      volumetric = {
+        max_um: vol.max_error_um,
+        mean_um: vol.mean_error_um,
+        p95_um: vol.volumetric_accuracy_um,
+        max_location: vol.max_error_location,
+      };
+    } catch {
+      // volumetricAccuracy throws on degenerate axis error config; surface as null
+      volumetric = null;
+    }
+
+    // Abbe: defaults to X@100mm, Y@100mm, Z@250mm using each axis's yaw error
+    const abbeQueries = opts.abbe_queries ?? [
+      { axis: "x", offset_distance_mm: 100 },
+      { axis: "y", offset_distance_mm: 100 },
+      { axis: "z", offset_distance_mm: 250 },
+    ];
+    const abbe: CapabilityWithAccuracy["accuracy"]["abbe"] = [];
+    for (const q of abbeQueries) {
+      const angAxis = q.axis.toLowerCase();
+      const angSource: AxisErrors6DOF | undefined =
+        angAxis === "x" ? axisErrors.x_axis :
+        angAxis === "y" ? axisErrors.y_axis :
+        angAxis === "z" ? axisErrors.z_axis : undefined;
+      if (!angSource) continue;
+      // Use the largest 3-DOF angular as the conservative driver (roll/pitch/yaw)
+      const angularErrorUrad = Math.max(
+        Math.abs(angSource.roll),
+        Math.abs(angSource.pitch),
+        Math.abs(angSource.yaw)
+      );
+      if (!Number.isFinite(angularErrorUrad) || angularErrorUrad <= 0) continue;
+      try {
+        const out: AbbeOffsetOutput = machineGeometricAccuracyEngine.abbeOffset({
+          angular_error_urad: angularErrorUrad,
+          offset_distance_mm: q.offset_distance_mm,
+          axis: q.axis,
+        });
+        abbe.push({
+          axis: q.axis,
+          abbe_error_um: out.abbe_error_um,
+          contribution_pct: out.contribution_to_total_pct,
+          recommendation: out.recommendation,
+        });
+      } catch {
+        // skip degenerate per-axis abbe — don't fail whole envelope
+      }
+    }
+
+    // Ball-bar: OPT-IN ONLY (measured points required — no synthetic data)
+    let ballBar: CapabilityWithAccuracy["accuracy"]["ballBar"] = null;
+    if (opts.ball_bar && Array.isArray(opts.ball_bar.measured_points) && opts.ball_bar.measured_points.length > 0) {
+      try {
+        const bb: BallBarOutput = machineGeometricAccuracyEngine.ballBarAnalysis({
+          nominal_radius_mm: opts.ball_bar.nominal_radius_mm,
+          measured_points: opts.ball_bar.measured_points,
+          feed_rate_mm_min: opts.ball_bar.feed_rate_mm_min,
+          plane: opts.ball_bar.plane,
+        });
+        ballBar = {
+          circularity_um: bb.circularity_um,
+          servo_mismatch_um: bb.servo_mismatch_um,
+          squareness_error_urad: bb.squareness_error_urad,
+          scaling_error_ppm: bb.scaling_error_ppm,
+          reversal_spike_um: bb.reversal_spike_um,
+          diagnosed_issues: bb.diagnosed_issues,
+        };
+      } catch {
+        ballBar = null;
+      }
+    }
+
+    const sourceTag: CapabilityWithAccuracy["accuracy_source"] =
+      measured ? "measured" :
+      (volumetric || abbe.length > 0) ? "controller-default" :
+      "no-data";
+
+    return {
+      ...base,
+      accuracy: { volumetric, abbe, ballBar },
+      accuracy_source: sourceTag,
+    };
+  }
+
+  /**
+   * Map a controller capability set to a default machine-accuracy tier.
+   *
+   * Tiers track ISO 230-2 typical bands for VMCs by manufacturer class.
+   * Premium tier (full volumetric compensation + nano smoothing) → tight defaults.
+   * Mid tier → moderate. Economy tier (no volumetric comp) → loose defaults.
+   *
+   * Citations:
+   *  - ISO 230-2:2014 — Test code for machine tools — accuracy/repeatability
+   *  - Mazak Vertical Center Smart 530C spec: ±0.005mm positioning
+   *  - Haas VF-2 spec: ±0.0025in (±0.064mm) positioning per axis
+   *  - DMG MORI NHX-4000: ±0.004mm typical
+   */
+  private getControllerAccuracyTier(controller: ControllerCapabilities): {
+    tier: "premium" | "mid" | "economy";
+    default_axis_errors: { x_axis: AxisErrors6DOF; y_axis: AxisErrors6DOF; z_axis: AxisErrors6DOF };
+    default_squareness: SquarenessErrors;
+  } {
+    const hasVolComp = controller.features.volumetricCompensation === true;
+    const hasNano = controller.features.nanoSmoothing === true;
+    const tier: "premium" | "mid" | "economy" =
+      (hasVolComp && hasNano) ? "premium" :
+      hasVolComp ? "mid" : "economy";
+
+    // Tier-keyed magnitudes (µm for positioning/straightness, µrad for roll/pitch/yaw + squareness)
+    const M: Record<typeof tier, { pos: number; straight: number; ang: number; sq: number }> = {
+      premium: { pos: 5,  straight: 3,  ang: 5,  sq: 5 },
+      mid:     { pos: 10, straight: 6,  ang: 10, sq: 10 },
+      economy: { pos: 20, straight: 12, ang: 20, sq: 20 },
+    };
+    const m = M[tier];
+    const axis: AxisErrors6DOF = {
+      positioning: m.pos,
+      straightness_y: m.straight,
+      straightness_z: m.straight,
+      roll: m.ang,
+      pitch: m.ang,
+      yaw: m.ang,
+    };
+    return {
+      tier,
+      default_axis_errors: { x_axis: { ...axis }, y_axis: { ...axis }, z_axis: { ...axis } },
+      default_squareness: { xy: m.sq, xz: m.sq, yz: m.sq },
     };
   }
 
@@ -747,6 +1000,7 @@ class MachineCapabilitySurfaceEngine {
         "getSpindlePackage",
         "getCoolantStrategy",
         "getCapabilitySummary",
+        "getCapabilityWithAccuracy",
         "compareCapabilities",
         "findByCapabilities",
       ],

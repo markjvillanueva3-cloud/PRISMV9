@@ -1,0 +1,456 @@
+{
+  "schemaVersion": "1.0.0",
+  "runner": "train-lathe-full-archive.mjs",
+  "milestone": "JM-DIE-LATHE-UPGRADE-MS0",
+  "unit": "U-LATHE-AI-TRAIN-RUNNER",
+  "slot": "whiskey",
+  "startedAt": "2026-05-25T12:44:30.522Z",
+  "finishedAt": "2026-05-25T12:52:10.995Z",
+  "elapsedMs": 460473,
+  "config": {
+    "maxPrograms": 20000,
+    "epochs": 50
+  },
+  "result": {
+    "total_programs_found": 16558,
+    "programs_parsed": 16558,
+    "programs_analyzed": 16558,
+    "programs_trained": 16558,
+    "parse_errors": 0,
+    "total_time_ms": 460314,
+    "avg_time_per_program_ms": 27.80009663002778,
+    "avg_program_score": 58.632926681966424,
+    "score_distribution": [
+      {
+        "range": "0-19",
+        "count": 469
+      },
+      {
+        "range": "20-39",
+        "count": 837
+      },
+      {
+        "range": "40-59",
+        "count": 5481
+      },
+      {
+        "range": "60-79",
+        "count": 9491
+      },
+      {
+        "range": "80-100",
+        "count": 280
+      }
+    ],
+    "total_issues_found": 157315,
+    "common_issues": [
+      {
+        "issue": "Extremely slow feed rate (< 0.001 IPR)",
+        "count": 64482,
+        "percentage": 389.43109071143857
+      },
+      {
+        "issue": "Feed too low for unknown",
+        "count": 23775,
+        "percentage": 143.5861819060273
+      },
+      {
+        "issue": "Feed too low for od_rough",
+        "count": 11355,
+        "percentage": 68.57712284092283
+      },
+      {
+        "issue": "No coolant detected for roughing/drilling",
+        "count": 10813,
+        "percentage": 65.30378064983694
+      },
+      {
+        "issue": "Feed too low for drill",
+        "count": 8916,
+        "percentage": 53.84708298103635
+      },
+      {
+        "issue": "Feed too low for od_finish",
+        "count": 8629,
+        "percentage": 52.11378185771228
+      },
+      {
+        "issue": "Missing G50 S#### max RPM limit with CSS mode",
+        "count": 8565,
+        "percentage": 51.72726174658775
+      },
+      {
+        "issue": "Feed too low for boring_bar",
+        "count": 7609,
+        "percentage": 45.95361758666506
+      },
+      {
+        "issue": "Feed too low for center_drill",
+        "count": 5154,
+        "percentage": 31.126947698997466
+      },
+      {
+        "issue": "Feed too low for cutoff",
+        "count": 4483,
+        "percentage": 27.0745259089262
+      },
+      {
+        "issue": "Feed too low for od_groove",
+        "count": 1656,
+        "percentage": 10.001207875347264
+      },
+      {
+        "issue": "No optional stops (M1) between tool changes",
+        "count": 456,
+        "percentage": 2.75395579176229
+      },
+      {
+        "issue": "Operation order may not be optimal",
+        "count": 428,
+        "percentage": 2.5848532431453073
+      },
+      {
+        "issue": "Feed too low for id_groove",
+        "count": 308,
+        "percentage": 1.86012803478681
+      },
+      {
+        "issue": "Feed too low for od_thread",
+        "count": 235,
+        "percentage": 1.4192535330353908
+      },
+      {
+        "issue": "Feed too high for od_thread",
+        "count": 110,
+        "percentage": 0.6643314409952893
+      },
+      {
+        "issue": "Feed too low for face",
+        "count": 91,
+        "percentage": 0.5495832830051939
+      },
+      {
+        "issue": "Feed too low for id_rough",
+        "count": 81,
+        "percentage": 0.48918951564198576
+      },
+      {
+        "issue": "Feed too high for unknown",
+        "count": 44,
+        "percentage": 0.2657325763981157
+      },
+      {
+        "issue": "Feed too low for id_thread",
+        "count": 37,
+        "percentage": 0.22345693924387006
+      }
+    ],
+    "anti_patterns": [
+      {
+        "pattern": "Missing G50 with CSS",
+        "count": 8565,
+        "severity": "critical"
+      },
+      {
+        "pattern": "Extremely slow feed",
+        "count": 64482,
+        "severity": "warning"
+      },
+      {
+        "pattern": "No coolant on roughing",
+        "count": 10813,
+        "severity": "suggestion"
+      }
+    ],
+    "best_practices": [
+      {
+        "practice": "G50 before G96",
+        "count": 14959
+      },
+      {
+        "practice": "Canned cycles (G85/G87)",
+        "count": 12211
+      },
+      {
+        "practice": "M1 optional stops",
+        "count": 16206
+      }
+    ],
+    "customers_analyzed": 260,
+    "best_customers": [
+      {
+        "customer": "AFI INDUSTRIES",
+        "program_count": 1,
+        "avg_score": 100,
+        "total_issues": 0,
+        "common_issues": {},
+        "best_program": {
+          "filename": "DC-SP21-619-SIDE-B.min",
+          "score": 100
+        },
+        "worst_program": {
+          "filename": "DC-SP21-619-SIDE-B.min",
+          "score": 100
+        }
+      },
+      {
+        "customer": "MACRO PROGRAMS!!!!",
+        "program_count": 4,
+        "avg_score": 91,
+        "total_issues": 14,
+        "common_issues": {},
+        "best_program": {
+          "filename": "ANGLE-ADJUST.MIN",
+          "score": 98
+        },
+        "worst_program": {
+          "filename": "SAMPLE.MIN",
+          "score": 70
+        }
+      },
+      {
+        "customer": "MIDWEST FABRICATING",
+        "program_count": 11,
+        "avg_score": 84.18181818181819,
+        "total_issues": 33,
+        "common_issues": {},
+        "best_program": {
+          "filename": "685 BOT VERT STR ROLLER.MIN",
+          "score": 100
+        },
+        "worst_program": {
+          "filename": "EP-387.MIN",
+          "score": 50
+        }
+      },
+      {
+        "customer": "CNC#1#2#3",
+        "program_count": 2,
+        "avg_score": 80,
+        "total_issues": 4,
+        "common_issues": {},
+        "best_program": {
+          "filename": "M08-TOP-.1271-DEEP.min",
+          "score": 80
+        },
+        "worst_program": {
+          "filename": "M08-TOP-.1271-DEEP.min",
+          "score": 80
+        }
+      },
+      {
+        "customer": "SILVI",
+        "program_count": 1,
+        "avg_score": 80,
+        "total_issues": 2,
+        "common_issues": {},
+        "best_program": {
+          "filename": "P05000076-0.MIN",
+          "score": 80
+        },
+        "worst_program": {
+          "filename": "P05000076-0.MIN",
+          "score": 80
+        }
+      }
+    ],
+    "worst_customers": [
+      {
+        "customer": "T-MHP-R-13MM-S-98Q",
+        "program_count": 1,
+        "avg_score": 10,
+        "total_issues": 9,
+        "common_issues": {},
+        "best_program": {
+          "filename": "T-MHP-R-13MM-S-98Q-2.25L.MIN",
+          "score": 10
+        },
+        "worst_program": {
+          "filename": "T-MHP-R-13MM-S-98Q-2.25L.MIN",
+          "score": 10
+        }
+      },
+      {
+        "customer": "CNC#1",
+        "program_count": 1,
+        "avg_score": 10,
+        "total_issues": 10,
+        "common_issues": {},
+        "best_program": {
+          "filename": "8916-1225-01+.MIN",
+          "score": 10
+        },
+        "worst_program": {
+          "filename": "8916-1225-01+.MIN",
+          "score": 10
+        }
+      },
+      {
+        "customer": "ALPINE ELECTR",
+        "program_count": 1,
+        "avg_score": 10,
+        "total_issues": 14,
+        "common_issues": {},
+        "best_program": {
+          "filename": "ALPINEELECTR.MIN",
+          "score": 10
+        },
+        "worst_program": {
+          "filename": "ALPINEELECTR.MIN",
+          "score": 10
+        }
+      },
+      {
+        "customer": "AKKO ELECTR",
+        "program_count": 1,
+        "avg_score": 10,
+        "total_issues": 14,
+        "common_issues": {},
+        "best_program": {
+          "filename": "G652D01.MIN",
+          "score": 10
+        },
+        "worst_program": {
+          "filename": "G652D01.MIN",
+          "score": 10
+        }
+      },
+      {
+        "customer": "OMNI-LITE",
+        "program_count": 2,
+        "avg_score": 23,
+        "total_issues": 31,
+        "common_issues": {},
+        "best_program": {
+          "filename": "MST610-H-S-R.MIN",
+          "score": 24
+        },
+        "worst_program": {
+          "filename": "MST610-H-S-L.MIN",
+          "score": 22
+        }
+      }
+    ],
+    "best_programs": [
+      {
+        "filepath": "H:\\PRISM\\JM DIE\\CNC LATHE\\BELVIDERE\\ATF\\CNC LATHE\\!!!!!\\STOP SET\\CNC LATHE\\!!!!!\\KEYWAY-1.MIN",
+        "score": 100,
+        "customer": "!!!!!"
+      },
+      {
+        "filepath": "H:\\PRISM\\JM DIE\\CNC LATHE\\BELVIDERE\\ATF\\CNC LATHE\\!!!!!\\STOP SET\\CNC LATHE\\!!!!!\\KEYWAY.MIN",
+        "score": 100,
+        "customer": "!!!!!"
+      },
+      {
+        "filepath": "H:\\PRISM\\JM DIE\\CNC LATHE\\FASTENAL\\A35879HK-A.min",
+        "score": 100,
+        "customer": "FASTENAL"
+      },
+      {
+        "filepath": "H:\\PRISM\\JM DIE\\CNC LATHE\\FONTANA\\B-13701-HT.MIN",
+        "score": 100,
+        "customer": "FONTANA"
+      },
+      {
+        "filepath": "H:\\PRISM\\JM DIE\\CNC LATHE\\HI-PERFORMANCE\\AOT-12B-310DIA.MIN",
+        "score": 100,
+        "customer": "HI-PERFORMANCE"
+      },
+      {
+        "filepath": "H:\\PRISM\\JM DIE\\CNC LATHE\\HI-PERFORMANCE\\AOT-12B-360DIA.MIN",
+        "score": 100,
+        "customer": "HI-PERFORMANCE"
+      },
+      {
+        "filepath": "H:\\PRISM\\JM DIE\\CNC LATHE\\NATHANS USB\\CNC#1#2#3\\CUSTOMERS\\ACCURATE THREADED\\ATF\\4-20 BOTTOM FEED ROLL.min",
+        "score": 100,
+        "customer": "ATF"
+      },
+      {
+        "filepath": "H:\\PRISM\\JM DIE\\CNC LATHE\\NATHANS USB\\CNC#1#2#3\\CUSTOMERS\\MIDWEST FABRICATING\\685 BOT VERT STR ROLLER.MIN",
+        "score": 100,
+        "customer": "MIDWEST FABRICATING"
+      },
+      {
+        "filepath": "H:\\PRISM\\JM DIE\\CNC LATHE\\NATHANS USB\\CNC#1#2#3\\CUSTOMERS\\MIDWEST FABRICATING\\685 HORIZ STR ROLLER.MIN",
+        "score": 100,
+        "customer": "MIDWEST FABRICATING"
+      },
+      {
+        "filepath": "H:\\PRISM\\JM DIE\\CNC LATHE\\NATHANS USB\\CNC#1#2#3\\CUSTOMERS\\MIDWEST FABRICATING\\685 TOP VERT STR ROLLER.MIN",
+        "score": 100,
+        "customer": "MIDWEST FABRICATING"
+      }
+    ],
+    "worst_programs": [
+      {
+        "filepath": "H:\\PRISM\\JM DIE\\CNC LATHE\\ATF\\ISB-1069-L-A.MIN",
+        "score": 2,
+        "customer": "ATF",
+        "issues": 23
+      },
+      {
+        "filepath": "H:\\PRISM\\JM DIE\\CNC LATHE\\ITW\\ITW588-32970-00000-07-B.MIN",
+        "score": 4,
+        "customer": "ITW",
+        "issues": 20
+      },
+      {
+        "filepath": "H:\\PRISM\\JM DIE\\CNC LATHE\\FONTANA\\B-2213-ITEM-1-R.MIN",
+        "score": 4,
+        "customer": "FONTANA",
+        "issues": 18
+      },
+      {
+        "filepath": "H:\\PRISM\\JM DIE\\CNC LATHE\\VALLEY\\SALVI-125 FEED ROLLS-118.MIN",
+        "score": 6,
+        "customer": "VALLEY",
+        "issues": 18
+      },
+      {
+        "filepath": "H:\\PRISM\\JM DIE\\CNC LATHE\\VALLEY\\FR-3800-173-A.MIN",
+        "score": 6,
+        "customer": "VALLEY",
+        "issues": 17
+      },
+      {
+        "filepath": "H:\\PRISM\\JM DIE\\CNC LATHE\\VALLEY\\FEED ROLLS 14TH SALVI.MIN",
+        "score": 6,
+        "customer": "VALLEY",
+        "issues": 17
+      },
+      {
+        "filepath": "H:\\PRISM\\JM DIE\\CNC LATHE\\VALLEY\\FEED ROLLS 11-32 SALVI-244.MIN",
+        "score": 6,
+        "customer": "VALLEY",
+        "issues": 19
+      },
+      {
+        "filepath": "H:\\PRISM\\JM DIE\\CNC LATHE\\VALLEY\\FEED ROLLS 1-4 .242 GROOVE.MIN",
+        "score": 6,
+        "customer": "VALLEY",
+        "issues": 17
+      },
+      {
+        "filepath": "H:\\PRISM\\JM DIE\\CNC LATHE\\VALLEY\\FEED ROLLS 1-4 .230 GROOVE.MIN",
+        "score": 6,
+        "customer": "VALLEY",
+        "issues": 17
+      },
+      {
+        "filepath": "H:\\PRISM\\JM DIE\\CNC LATHE\\JACOBSON\\SP-1500-004-A.MIN",
+        "score": 6,
+        "customer": "JACOBSON",
+        "issues": 12
+      }
+    ],
+    "neural_network_accuracy": 0.0002790192052180215,
+    "knowledge_graph_nodes": 13332,
+    "knowledge_graph_edges": 6,
+    "patterns_learned": 0,
+    "experience_buffer_size": 10000,
+    "total_improvement_recommendations": 19950,
+    "programs_rewritable": 16278
+  }
+}

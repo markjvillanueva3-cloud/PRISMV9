@@ -462,4 +462,56 @@ describe("PartDeflectionEngine — Physics Validation", () => {
       );
     });
   });
+
+  // Round cross-section = TURNING workpiece (solid bar). I = pi*D^4/64, distinct from the
+  // rectangular wall I = L*t^3/12. delta = F*H^3/(k*E*I), k = 3 cantilever / 48 simply-supported.
+  describe("Round cross-section (turning workpiece) - I = pi*D^4/64", () => {
+    it("round cantilever deflection matches F*H^3/(3*E*I) with I=pi*D^4/64 (D=10,L=100,F=200N,steel)", () => {
+      // I = pi*10^4/64 = 490.874 mm^4; delta = 200*100^3/(3*200000*490.874) = 0.6791 mm
+      const r = partDeflectionEngine.calculate({
+        cross_section: "round", diameter_mm: 10, wall_thickness_mm: 10,
+        wall_height_mm: 100, wall_length_mm: 100,
+        support_type: "cantilever", cutting_force_n: 200, material: "steel", tolerance_mm: 0.05,
+      });
+      expect(r.max_deflection.value).toBeCloseTo(0.6791, 3);
+      expect(r.max_deflection.value).toBeGreaterThan(0.05); // >> tolerance -> deflection hazard
+    });
+    it("tailstock (simply-supported) is ~16x stiffer than chuck-only (cantilever) for the same bar", () => {
+      const base = { cross_section: "round" as const, diameter_mm: 10, wall_thickness_mm: 10,
+        wall_height_mm: 100, wall_length_mm: 100, cutting_force_n: 200, material: "steel" as const, tolerance_mm: 0.05 };
+      const cant = partDeflectionEngine.calculate({ ...base, support_type: "cantilever" });
+      const ss = partDeflectionEngine.calculate({ ...base, support_type: "simply_supported" });
+      expect(cant.max_deflection.value / ss.max_deflection.value).toBeCloseTo(16, 1); // k = 48/3
+    });
+    it("round vs rectangular use DIFFERENT I -> different deflection (no model conflation)", () => {
+      const common = { wall_thickness_mm: 10, wall_height_mm: 100, wall_length_mm: 100,
+        support_type: "cantilever" as const, cutting_force_n: 200, material: "steel" as const, tolerance_mm: 0.05 };
+      const round = partDeflectionEngine.calculate({ ...common, cross_section: "round", diameter_mm: 10 });
+      const rect = partDeflectionEngine.calculate({ ...common }); // default rectangular (I = L*t^3/12 = 8333 >> round 490.9)
+      expect(round.max_deflection.value).toBeGreaterThan(rect.max_deflection.value);
+    });
+    it("D^4 stiffness: doubling diameter cuts deflection ~16x", () => {
+      const base = { cross_section: "round" as const, wall_thickness_mm: 10, wall_height_mm: 100,
+        wall_length_mm: 100, support_type: "cantilever" as const, cutting_force_n: 200, material: "steel" as const, tolerance_mm: 0.05 };
+      const d10 = partDeflectionEngine.calculate({ ...base, diameter_mm: 10 });
+      const d20 = partDeflectionEngine.calculate({ ...base, diameter_mm: 20 });
+      expect(d10.max_deflection.value / d20.max_deflection.value).toBeCloseTo(16, 0); // (20/10)^4 = 16
+    });
+    it("omitting cross_section keeps rectangular behavior byte-identical (no regression for milling callers)", () => {
+      const a = partDeflectionEngine.calculate({ wall_thickness_mm: 3, wall_height_mm: 40, wall_length_mm: 60,
+        support_type: "cantilever", cutting_force_n: 150, material: "aluminum", tolerance_mm: 0.05 });
+      const b = partDeflectionEngine.calculate({ cross_section: "rectangular", wall_thickness_mm: 3, wall_height_mm: 40,
+        wall_length_mm: 60, support_type: "cantilever", cutting_force_n: 150, material: "aluminum", tolerance_mm: 0.05 });
+      expect(a.max_deflection.value).toBe(b.max_deflection.value);
+    });
+    it("round + floor_mode uses the ROUND beam path, not the rectangular floor (P1 guard)", () => {
+      const base = { cross_section: "round" as const, diameter_mm: 12, wall_thickness_mm: 12,
+        wall_height_mm: 120, wall_length_mm: 120, support_type: "cantilever" as const,
+        cutting_force_n: 180, material: "steel" as const, tolerance_mm: 0.05 };
+      const noFloor = partDeflectionEngine.calculate({ ...base });
+      const withFloor = partDeflectionEngine.calculate({ ...base, floor_mode: true });
+      // floor_mode is inert for a round bar -> identical deflection (not the rectangular floor formula).
+      expect(withFloor.max_deflection.value).toBe(noFloor.max_deflection.value);
+    });
+  });
 });

@@ -1,0 +1,150 @@
+{
+  "schemaVersion": "1.1.0",
+  "milestone": "LATHE-AWARE-HARDEN-MS1",
+  "generated": "2026-04-15T02:00:00Z",
+  "revision": "v7 — aligned with PRISM-INVENTORY-2026-04-15.md",
+  "prism_full_inventory": {
+    "total_engines": 1869,
+    "total_formulas": 509,
+    "total_algorithms": 53,
+    "total_dispatchers": 85,
+    "total_actions": 2720,
+    "total_hooks": 227,
+    "total_skills": 66,
+    "total_scripts": 52,
+    "total_cadences": 40,
+    "total_tests": 1255,
+    "ai_categories": ["reasoning", "learning", "intelligence", "orchestration", "agent", "advisor", "prediction", "optimization", "knowledge", "nlp", "vision", "physics", "deep_ai"],
+    "discovery_api": "AIFeatureAutoRegistryEngine.discoverFeatures()",
+    "routing_api": "PRISMSelfAwarenessEngine.whoHandles(domain)",
+    "recommendation_api": "PRISMSelfAwarenessEngine.recommendAIFeatures(task)",
+    "note": "AGI routing (MS9-MS12) MUST query full PRISM inventory, not just lathe engines"
+  },
+  "data_assets": {
+    "tools_database": 95608,
+    "materials_database": 6372,
+    "machines_database": 910,
+    "strategies_database": 698,
+    "post_processors": 20,
+    "tribal_tips": 4493,
+    "mit_courses": 225,
+    "video_transcripts": 69,
+    "jm_die_programs": 36929
+  },
+  "baseline": {
+    "engines": {
+      "lathe_prefixed": 59,
+      "turning_prefixed": 12,
+      "total": 71
+    },
+    "dispatchers": {
+      "turningDispatcher": {
+        "actions": 77,
+        "file": "src/tools/dispatchers/turningDispatcher.ts"
+      },
+      "turningProgramDispatcher": {
+        "actions": 14,
+        "file": "src/tools/dispatchers/turningProgramDispatcher.ts"
+      },
+      "total_actions": 91
+    },
+    "tests": {
+      "lathe_test_files": 55,
+      "target_after_completion": 70
+    },
+    "quality_score": 94,
+    "tribal_tips_lathe_relevant": 285
+  },
+  "external_assets": {
+    "sandvik_tools": {
+      "file": "src/data/sandvik-tools-extracted.json",
+      "size_bytes": 693883,
+      "status": "partial",
+      "action": "extract_delta_in_MS2"
+    },
+    "hypermill_tips": {
+      "registered_in_log": 434,
+      "actual_in_file": 434,
+      "gap": 0,
+      "file": "data/extracted-knowledge/hypermill/hypermill-tribal-tips-1776036032655.json",
+      "status": "FIXED_IN_MS0.5",
+      "action": "none"
+    },
+    "jm_die_programs": {
+      "count": 36929,
+      "status": "indexed",
+      "queryable_by_type": false,
+      "action": "add_type_query_in_MS10"
+    },
+    "okuma_osp_tips": {
+      "count": 63,
+      "status": "completed"
+    }
+  },
+  "critical_fixes_status": {
+    "eval_sites": {
+      "OkumaParametricProgramEngine.ts:2340": "FIXED_MS1",
+      "OkumaParametricProgramEngine.ts:2370": "FIXED_MS1",
+      "NLHookEngine.ts:68": "FIXED_MS1",
+      "NLHookEngine.ts:918": "PENDING",
+      "NLHookEngine.ts:929": "PENDING",
+      "TribalKnowledgeEngine.ts:1063": "FIXED_MS1"
+    },
+    "as_any_cleanup": {
+      "file": "TurningPrintToProgramEngine.ts",
+      "count": 0,
+      "status": "FIXED_MS1",
+      "types_added": ["TurningInsertType", "ToolMaterialType", "_pBlock", "_qBlock", "runId", "stickout_mm"]
+    },
+    "writeFileSync_wrap": {
+      "file": "LatheFullArchiveTrainingEngine.ts",
+      "line": 518,
+      "status": "FIXED_MS1"
+    },
+    "console_log_removal": {
+      "file": "LatheFullArchiveTrainingEngine.ts",
+      "count": 25,
+      "status": "FIXED_MS1"
+    }
+  },
+  "agi_routing_gaps": {
+    "programming_styles_supported": ["macro", "hardcode"],
+    "programming_styles_missing": ["cam", "conversational", "hybrid"],
+    "conversational_types_in_matrix": ["mazatrol", "klartext", "navi_mill", "shop_mill", "manual_guide_i"],
+    "conversational_types_missing": ["winmax"],
+    "action_required": "MS9_programming_style_selector"
+  },
+  "data_path_issues": {
+    "okuma_multus_pdfs": {
+      "claimed_path": "H:/PRISM/resources/OKUMA MULTUS PDFS/",
+      "status": "EMPTY_DIRECTORY",
+      "action": "verify_location_before_MS4"
+    }
+  },
+  "ms1_progress": {
+    "U-LAT09": "COMPLETE",
+    "U-LAT10": "COMPLETE",
+    "U-LAT11": "PARTIAL",
+    "U-LAT12": "COMPLETE",
+    "U-LAT13": "COMPLETE",
+    "U-LAT14": "COMPLETE",
+    "U-LAT15": "COMPLETE",
+    "U-LAT16": "COMPLETE",
+    "U-LAT17": "COMPLETE",
+    "U-LAT18": "COMPLETE",
+    "U-LAT19": "COMPLETE",
+    "U-LAT20": "COMPLETE"
+  },
+  "ms1_status": "COMPLETE",
+  "ms1_completed": "2026-04-16T01:43:00Z",
+  "ms1_commits": [
+    "765c1bc LATHE-AWARE-HARDEN-MS1: U-LAT15 swept-volume + U-LAT16 centrifugal scaling",
+    "9249f85 LATHE-AWARE-HARDEN-MS1: U-LAT14 S(x) hard block integration",
+    "5fd28f4 LATHE-AWARE-HARDEN-MS1: U-LAT17 FRF coupling correction for turning stability",
+    "5dbb783 LATHE-AWARE-HARDEN-MS1: U-LAT20 regression test suite — 19 tests"
+  ],
+  "ms1_test_count": 19,
+  "dedup_verified": true,
+  "extraction_log_read": true,
+  "delta_list_generated": true
+}

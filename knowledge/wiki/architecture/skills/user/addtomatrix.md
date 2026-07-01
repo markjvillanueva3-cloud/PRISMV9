@@ -23,13 +23,20 @@ related:
 |-------|-------|
 | Name | `addtomatrix` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/addtomatrix.md` |
+| Source | `C:/Users/wompu/.claude/commands/addtomatrix.md` |
 | Model | default |
 | Tags | _(none)_ |
 
 ## Description (first paragraph)
 
-_(no body content)_
+
+# Add to Matrix — Register Products in MASTER_INDEX
+
+You are registering new PRISM products (engines, dispatchers, algorithms, hooks, cadences, formulas, registries) in the system's tracking matrix. This ensures nothing gets created without being properly cataloged.
+
+## Args: $ARGUMENTS
+- Empty: scan for unregistered products and offer to register them
+- `[file-path]`: register the specifi
 
 <!-- AUTO-END -->
 

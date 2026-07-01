@@ -1,0 +1,323 @@
+{
+  "milestone": "JM-DIE-QUOTE-TRAINING-MS0",
+  "unit": "U-QT09-EXHAUST-SCENARIOS",
+  "slot": "charlie",
+  "goal": "/goal-18",
+  "generated_at": "2026-05-25T06:52:13.162Z",
+  "duration_ms": 2285,
+  "config": {
+    "scenario_count": 50000,
+    "scenario_seed": 2026,
+    "shop_loading_pct": 50,
+    "as_of_date": "2026-05-25"
+  },
+  "synthetic_scenarios": {
+    "total": 50000,
+    "quoted": 50000,
+    "failed": 0,
+    "outsource_distribution": {
+      "in-house": 49342,
+      "outsource": 436,
+      "toss-up": 222
+    },
+    "by_process": {
+      "mill": {
+        "count": 12546,
+        "mean_fmv_usd": 181.07,
+        "mean_time_s": 2362.99
+      },
+      "lathe": {
+        "count": 12586,
+        "mean_fmv_usd": 217.66,
+        "mean_time_s": 3346.89
+      },
+      "wedm": {
+        "count": 12365,
+        "mean_fmv_usd": 1166.19,
+        "mean_time_s": 29487.07
+      },
+      "sinker_edm": {
+        "count": 12503,
+        "mean_fmv_usd": 2964.36,
+        "mean_time_s": 78833.44
+      }
+    },
+    "by_material": {
+      "aluminum_6061": {
+        "count": 12566,
+        "mean_fmv_usd": 540.1
+      },
+      "steel_a36": {
+        "count": 12474,
+        "mean_fmv_usd": 1205.83
+      },
+      "stainless_304": {
+        "count": 12359,
+        "mean_fmv_usd": 1955.89
+      },
+      "copper_c110": {
+        "count": 12601,
+        "mean_fmv_usd": 832.73
+      }
+    },
+    "aggregate": {
+      "mean_fmv_per_part_usd": 1129.89,
+      "mean_fmv_lot_usd": 283069.7,
+      "mean_time_in_cut_s": 28440.64,
+      "total_revenue_simulated_usd": 14997219155.28
+    },
+    "outcomes_log": "H:/prism/state/shared/scan-tracking/scenario-results.jsonl"
+  },
+  "jm_die_first_hop": {
+    "baseline_records_used": 10,
+    "baseline_source": "H:/prism/state/shared/specs/JM-DIE-FINANCIAL-BASELINE-2026-05-24.json",
+    "training_loop_report": {
+      "ok": true,
+      "total_records": 10,
+      "total_predicted": 10,
+      "total_skipped": 0,
+      "metrics": {
+        "mae_usd": 106.68012441193346,
+        "rmse_usd": 126.6015926836004,
+        "mape_pct": 171.89799345346322,
+        "mean_signed_pct_error": 146.22828885078883
+      },
+      "per_customer_bias": [
+        {
+          "customer": "ACCURATE THREADED FASTENERS",
+          "record_count": 1,
+          "mean_pct_error": 1298.4631355602496,
+          "mean_abs_pct_error": 1298.4631355602496,
+          "systematic_direction": "over-predicting"
+        },
+        {
+          "customer": "AALLE",
+          "record_count": 1,
+          "mean_pct_error": 120.10302121908441,
+          "mean_abs_pct_error": 120.10302121908441,
+          "systematic_direction": "over-predicting"
+        },
+        {
+          "customer": "AARKER",
+          "record_count": 1,
+          "mean_pct_error": 82.73840017564405,
+          "mean_abs_pct_error": 82.73840017564405,
+          "systematic_direction": "over-predicting"
+        },
+        {
+          "customer": "ACCA",
+          "record_count": 1,
+          "mean_pct_error": -48.93377150767508,
+          "mean_abs_pct_error": 48.93377150767508,
+          "systematic_direction": "under-predicting"
+        },
+        {
+          "customer": "AAAMECONINGPIN",
+          "record_count": 1,
+          "mean_pct_error": 44.612303936686374,
+          "mean_abs_pct_error": 44.612303936686374,
+          "systematic_direction": "over-predicting"
+        },
+        {
+          "customer": "AAFAS",
+          "record_count": 1,
+          "mean_pct_error": -43.85358167638789,
+          "mean_abs_pct_error": 43.85358167638789,
+          "systematic_direction": "under-predicting"
+        },
+        {
+          "customer": "AATF",
+          "record_count": 1,
+          "mean_pct_error": 36.38225675408112,
+          "mean_abs_pct_error": 36.38225675408112,
+          "systematic_direction": "over-predicting"
+        },
+        {
+          "customer": "ACCUR",
+          "record_count": 1,
+          "mean_pct_error": -30.068302041359324,
+          "mean_abs_pct_error": 30.068302041359324,
+          "systematic_direction": "under-predicting"
+        },
+        {
+          "customer": "AAAS",
+          "record_count": 1,
+          "mean_pct_error": 8.332293875514523,
+          "mean_abs_pct_error": 8.332293875514523,
+          "systematic_direction": "over-predicting"
+        },
+        {
+          "customer": "AAKESE",
+          "record_count": 1,
+          "mean_pct_error": -5.492867787949757,
+          "mean_abs_pct_error": 5.492867787949757,
+          "systematic_direction": "under-predicting"
+        }
+      ],
+      "worst_5_records": [
+        {
+          "customer": "ACCA",
+          "part_id": "ACCA-AVG",
+          "actual_usd": 434.63166666666666,
+          "predicted_fmv_usd": 221.95,
+          "abs_error_usd": 212.68166666666667,
+          "pct_error": -48.93377150767508
+        },
+        {
+          "customer": "ACCURATE THREADED FASTENERS",
+          "part_id": "ACCURATE THREADED FASTENERS-AVG",
+          "actual_usd": 15.870993975903614,
+          "predicted_fmv_usd": 221.95,
+          "abs_error_usd": 206.07900602409637,
+          "pct_error": 1298.4631355602496
+        },
+        {
+          "customer": "AAFAS",
+          "part_id": "AAFAS-AVG",
+          "actual_usd": 395.30571428571426,
+          "predicted_fmv_usd": 221.95,
+          "abs_error_usd": 173.35571428571427,
+          "pct_error": -43.85358167638789
+        },
+        {
+          "customer": "AALLE",
+          "part_id": "AALLE-AVG",
+          "actual_usd": 100.83914285714286,
+          "predicted_fmv_usd": 221.95,
+          "abs_error_usd": 121.11085714285713,
+          "pct_error": 120.10302121908441
+        },
+        {
+          "customer": "AARKER",
+          "part_id": "AARKER-AVG",
+          "actual_usd": 121.45777777777776,
+          "predicted_fmv_usd": 221.95,
+          "abs_error_usd": 100.49222222222222,
+          "pct_error": 82.73840017564405
+        }
+      ],
+      "best_5_records": [
+        {
+          "customer": "AAKESE",
+          "part_id": "AAKESE-AVG",
+          "actual_usd": 234.85,
+          "predicted_fmv_usd": 221.95,
+          "abs_error_usd": 12.900000000000006,
+          "pct_error": -5.492867787949757
+        },
+        {
+          "customer": "AAAS",
+          "part_id": "AAAS-AVG",
+          "actual_usd": 204.8788888888889,
+          "predicted_fmv_usd": 221.95,
+          "abs_error_usd": 17.071111111111094,
+          "pct_error": 8.332293875514523
+        },
+        {
+          "customer": "AATF",
+          "part_id": "AATF-AVG",
+          "actual_usd": 162.7411111111111,
+          "predicted_fmv_usd": 221.95,
+          "abs_error_usd": 59.20888888888888,
+          "pct_error": 36.38225675408112
+        },
+        {
+          "customer": "AAAMECONINGPIN",
+          "part_id": "AAAMECONINGPIN-AVG",
+          "actual_usd": 153.47933333333333,
+          "predicted_fmv_usd": 221.95,
+          "abs_error_usd": 68.47066666666666,
+          "pct_error": 44.612303936686374
+        },
+        {
+          "customer": "ACCUR",
+          "part_id": "ACCUR-AVG",
+          "actual_usd": 317.3811111111111,
+          "predicted_fmv_usd": 221.95,
+          "abs_error_usd": 95.43111111111114,
+          "pct_error": -30.068302041359324
+        }
+      ],
+      "psi_delta_fed_count": 10
+    }
+  },
+  "deep_reasoning_prompts": {
+    "explain_bias_top_customer": {
+      "question_class": "explain-bias",
+      "ai_substrate": "prism-creative-reasoning",
+      "prompt_text": "Customer ACCURATE THREADED FASTENERS shows over-predicting bias of 1298.46% across 1 records. Identify 3 plausible root causes (material assumption mismatch, machine-rate drift, tolerance creep, surface-finish escalation, or customer-specific operational pattern), citing the catalog sources below. For each cause, propose ONE concrete correction the FMV engine can apply.",
+      "context_facts": [
+        "customer=ACCURATE THREADED FASTENERS",
+        "record_count=1",
+        "mean_signed_pct_error=1298.46%",
+        "mean_abs_pct_error=1298.46%",
+        "systematic_direction=over-predicting",
+        "global_mape=171.90%",
+        "global_mae_usd=106.68"
+      ],
+      "citations": "[1] Industrial Press — Machinery's Handbook 31st Edition, 2020 ed. 31",
+      "expected_output_shape": "{root_causes: [{cause, evidence, correction}], confidence: 0-1}",
+      "reason_for_substrate": "explores conventional → exploratory → hybrid → innovative → optimal modes for synthesis"
+    },
+    "find_pattern": {
+      "question_class": "find-pattern",
+      "ai_substrate": "psn-nn-gnn",
+      "prompt_text": "Across the worst 3 prediction failures (above), identify the SHARED feature(s) (material, process, customer, lot size, lead time) that correlate with high MAPE. Use graph-feature correlation on the 110K-node PSN graph to find latent clusters.",
+      "context_facts": [
+        "total_predicted=10",
+        "global_mape=171.90%",
+        "global_mae_usd=106.68",
+        "mean_signed_bias=146.23%",
+        "worst_records_count=5",
+        "worst:ACCA:ACCA-AVG=actual 434.63 vs predicted 221.95 (-48.9%)",
+        "worst:ACCURATE THREADED FASTENERS:ACCURATE THREADED FASTENERS-AVG=actual 15.87 vs predicted 221.95 (1298.5%)",
+        "worst:AAFAS:AAFAS-AVG=actual 395.31 vs predicted 221.95 (-43.9%)"
+      ],
+      "citations": "[1] NIST — NIST AMS 100-7 — Predictive Models for Manufacturing, 2023 <https://nvlpubs.nist.gov/nistpubs/ams/NIST.AMS.100-7.pdf>\n[2] SME — SME Manufacturing Engineering Fundamentals, 2018",
+      "expected_output_shape": "{correlated_features: [feature, correlation, evidence], cluster_id?}",
+      "reason_for_substrate": "feature-correlation analysis over 110K-node graph + psi_delta history"
+    },
+    "suggest_rate_adjust": {
+      "question_class": "suggest-rate-adjust",
+      "ai_substrate": "claude-deep-reasoning",
+      "prompt_text": "Current default machine rate is $95/hr; pipeline shows signed bias of 146.23%. Recommend a new default rate that would minimize MAPE, citing AMT/MFG.com benchmarks below. Show the math (target_rate = current_rate / (1 + bias_decimal)).",
+      "context_facts": [
+        "current_default_machine_rate_usd_per_hr=95",
+        "global_signed_bias_pct=146.23",
+        "global_mape_pct=171.90",
+        "total_predicted=10",
+        "hint=over-prediction-suggests-rate-or-overhead-too-high"
+      ],
+      "citations": "[1] Association For Manufacturing Technology — AMT Industry Outlook Manufacturing 2024, 2024",
+      "expected_output_shape": "{recommended_rate_usd_per_hr: number, expected_mape_reduction_pct: number, math: string}",
+      "reason_for_substrate": "careful step-by-step numeric reasoning with citation chains"
+    },
+    "outlier_investigate": {
+      "question_class": "outlier-investigate",
+      "ai_substrate": "tribal-rag",
+      "prompt_text": "5 outlier predictions above. For each, draw on shop tribal knowledge (per-machine quirks, material lot variance, fixture-specific setup times) to propose the most likely cause + a one-line diagnostic question the operator could answer to confirm.",
+      "context_facts": [
+        "outlier:ACCA:ACCA-AVG=$212.68 error (-48.9%)",
+        "outlier:ACCURATE THREADED FASTENERS:ACCURATE THREADED FASTENERS-AVG=$206.08 error (1298.5%)",
+        "outlier:AAFAS:AAFAS-AVG=$173.36 error (-43.9%)",
+        "outlier:AALLE:AALLE-AVG=$121.11 error (120.1%)",
+        "outlier:AARKER:AARKER-AVG=$100.49 error (82.7%)"
+      ],
+      "citations": "[1] ISO — ISO 3685 — Tool-life testing with single-point turning tools, 1993 <https://www.iso.org/standard/9151.html>\n[2] Industrial Press — Machinery's Handbook 31st Edition, 2020 ed. 31\n[3] SME — SME Manufacturing Engineering Fundamentals, 2018\n[4] Pearson — Manufacturing Engineering and Technology (Kalpakjian, 7e), 2014 ed. 7\n[5] Sandvik Coromant — Sandvik Coromant Turning Cutting Data 2024, 2024 <https://www.sandvik.coromant.com/en-us/knowledge/general-turning>",
+      "expected_output_shape": "{outliers: [{part_id, probable_cause, diagnostic_question}]}",
+      "reason_for_substrate": "retrieves shop-floor tribal knowledge for probable-cause hypotheses"
+    },
+    "cross_customer_rec": {
+      "question_class": "cross-customer-rec",
+      "ai_substrate": "prism-creative-reasoning",
+      "prompt_text": "Source customer ACCURATE THREADED FASTENERS and target AALLE show different bias profiles. Identify whether the source's correction factor transfers to target (same material? same process? same tolerance class?) — if YES, propose the transfer; if NO, explain the blocking variable.",
+      "context_facts": [
+        "source=ACCURATE THREADED FASTENERS: over-predicting 1298.46% across 1 recs",
+        "target=AALLE: over-predicting 120.10% across 1 recs"
+      ],
+      "citations": "[1] NIST — NIST Material Measurement Lab — AISI 1018 reference, 2024\n[2] ASM International — ASM Handbook Vol. 2 — Properties and Selection: Nonferrous Alloys, 2017",
+      "expected_output_shape": "{transferable: boolean, blocking_variable?: string, proposed_correction?: number}",
+      "reason_for_substrate": "explores conventional → exploratory → hybrid → innovative → optimal modes for synthesis"
+    }
+  }
+}

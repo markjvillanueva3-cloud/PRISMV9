@@ -9,6 +9,9 @@ import { BaseRegistry } from "./base.js";
 import { PATHS } from "../constants.js";
 import { log } from "../utils/Logger.js";
 import { fileExists, readJsonFile, writeJsonFile, listDirectory } from "../utils/files.js";
+import {
+  normalizeControllerFamily, normalizeAlarmCategory, normalizeSeverity, resolveControllerFamilyRaw,
+} from "../data/alarm-categorization.js";
 
 // ============================================================================
 // ALARM TYPES
@@ -282,6 +285,23 @@ export class AlarmRegistry extends BaseRegistry<Alarm> {
     }
   }
 
+  /** Canonical controller-family index key — recovers `family`/alarm_id and folds aliases
+   *  (DMG MORI → DMG_MORI). Falls back to raw-uppercase for an unrecognized brand (never drops it). */
+  private canonController(raw: string | undefined | null): string | null {
+    if (!raw || raw === "undefined") return null;
+    return normalizeControllerFamily(raw) ?? raw.toUpperCase();
+  }
+  /** Canonical alarm-category index key (OVERHEAT → THERMAL), raw-upper fallback for unknown. */
+  private canonCategory(raw: string | undefined | null): string | null {
+    if (!raw || raw === "undefined") return null;
+    return normalizeAlarmCategory(raw) ?? raw.toUpperCase();
+  }
+  /** Canonical severity index key, raw-upper fallback for unknown. */
+  private canonSeverity(raw: string | undefined | null): string | null {
+    if (!raw || raw === "undefined") return null;
+    return normalizeSeverity(raw) ?? raw.toUpperCase();
+  }
+
   /**
    * Build search indexes
    */
@@ -299,13 +319,14 @@ export class AlarmRegistry extends BaseRegistry<Alarm> {
     for (const [id, entry] of this.entries) {
       const alarm = entry.data;
       
-      // Index by controller family
+      // Index by controller family (canonical — recovers `family`/alarm_id when controller_family
+      // is missing or the literal "undefined" string; folds DMG MORI/Mazatrol/etc. aliases)
+      const controller = this.canonController(resolveControllerFamilyRaw(alarm));
       /** If.
-       * @param alarm.controller_family - alarm.controller_family
+       * @param controller - canonical controller-family key
        * @returns void
        */
-      if (alarm.controller_family) {
-        const controller = alarm.controller_family.toUpperCase();
+      if (controller) {
         if (!this.indexByController.has(controller)) {
           this.indexByController.set(controller, []);
         }
@@ -325,26 +346,26 @@ export class AlarmRegistry extends BaseRegistry<Alarm> {
         }
       }
       
-      // Index by category
+      // Index by category (canonical — folds OVERHEAT→THERMAL, PMC→PLC, etc.)
+      const category = this.canonCategory(alarm.category);
       /** If.
-       * @param alarm.category - alarm.category
+       * @param category - canonical alarm-category key
        * @returns void
        */
-      if (alarm.category) {
-        const category = alarm.category.toUpperCase();
+      if (category) {
         if (!this.indexByCategory.has(category)) {
           this.indexByCategory.set(category, []);
         }
         this.indexByCategory.get(category)!.push(id);
       }
       
-      // Index by severity
+      // Index by severity (canonical — folds FATAL→CRITICAL, WARNING→MEDIUM, etc.)
+      const severity = this.canonSeverity(alarm.severity);
       /** If.
-       * @param alarm.severity - alarm.severity
+       * @param severity - canonical severity key
        * @returns void
        */
-      if (alarm.severity) {
-        const severity = alarm.severity.toUpperCase();
+      if (severity) {
         if (!this.indexBySeverity.has(severity)) {
           this.indexBySeverity.set(severity, []);
         }
@@ -361,7 +382,7 @@ export class AlarmRegistry extends BaseRegistry<Alarm> {
   async decode(controller: string, code: string): Promise<Alarm | undefined> {
     await this.load();
     
-    const controllerUpper = controller.toUpperCase();
+    const controllerUpper = this.canonController(controller) ?? controller.toUpperCase();
     const codeUpper = code.toUpperCase().replace(/^(ALM|ALARM|ERR|ERROR)[\s\-_:]*/i, "");
     
     // Try direct code lookup
@@ -423,13 +444,13 @@ export class AlarmRegistry extends BaseRegistry<Alarm> {
      * @returns void
      */
     if (options.controller) {
-      const ids = this.indexByController.get(options.controller.toUpperCase()) || [];
+      const ids = this.indexByController.get(this.canonController(options.controller) ?? options.controller.toUpperCase()) || [];
       results = ids.map(id => this.get(id)).filter(Boolean) as Alarm[];
     } else if (options.category) {
-      const ids = this.indexByCategory.get(options.category.toUpperCase()) || [];
+      const ids = this.indexByCategory.get(this.canonCategory(options.category) ?? options.category.toUpperCase()) || [];
       results = ids.map(id => this.get(id)).filter(Boolean) as Alarm[];
     } else if (options.severity) {
-      const ids = this.indexBySeverity.get(options.severity.toUpperCase()) || [];
+      const ids = this.indexBySeverity.get(this.canonSeverity(options.severity) ?? options.severity.toUpperCase()) || [];
       results = ids.map(id => this.get(id)).filter(Boolean) as Alarm[];
     } else {
       results = this.all();
@@ -450,22 +471,19 @@ export class AlarmRegistry extends BaseRegistry<Alarm> {
       );
     }
     
-    if (options.controller && !this.indexByController.has(options.controller.toUpperCase())) {
-      results = results.filter(a => 
-        a.controller_family?.toUpperCase() === options.controller!.toUpperCase()
-      );
+    if (options.controller && !this.indexByController.has(this.canonController(options.controller) ?? "")) {
+      const want = this.canonController(options.controller);
+      results = results.filter(a => this.canonController(resolveControllerFamilyRaw(a)) === want);
     }
-    
-    if (options.category && !this.indexByCategory.has(options.category.toUpperCase())) {
-      results = results.filter(a => 
-        a.category?.toUpperCase() === options.category!.toUpperCase()
-      );
+
+    if (options.category && !this.indexByCategory.has(this.canonCategory(options.category) ?? "")) {
+      const want = this.canonCategory(options.category);
+      results = results.filter(a => this.canonCategory(a.category) === want);
     }
-    
-    if (options.severity && !this.indexBySeverity.has(options.severity.toUpperCase())) {
-      results = results.filter(a => 
-        a.severity?.toUpperCase() === options.severity!.toUpperCase()
-      );
+
+    if (options.severity && !this.indexBySeverity.has(this.canonSeverity(options.severity) ?? "")) {
+      const want = this.canonSeverity(options.severity);
+      results = results.filter(a => this.canonSeverity(a.severity) === want);
     }
     
     /** If.
@@ -497,7 +515,7 @@ export class AlarmRegistry extends BaseRegistry<Alarm> {
   async getByController(controller: string): Promise<Alarm[]> {
     await this.load();
     
-    const ids = this.indexByController.get(controller.toUpperCase()) || [];
+    const ids = this.indexByController.get(this.canonController(controller) ?? controller.toUpperCase()) || [];
     return ids.map(id => this.get(id)).filter(Boolean) as Alarm[];
   }
 
@@ -507,7 +525,7 @@ export class AlarmRegistry extends BaseRegistry<Alarm> {
   async getByCategory(category: string): Promise<Alarm[]> {
     await this.load();
     
-    const ids = this.indexByCategory.get(category.toUpperCase()) || [];
+    const ids = this.indexByCategory.get(this.canonCategory(category) ?? category.toUpperCase()) || [];
     return ids.map(id => this.get(id)).filter(Boolean) as Alarm[];
   }
 
@@ -517,7 +535,7 @@ export class AlarmRegistry extends BaseRegistry<Alarm> {
   async getBySeverity(severity: string): Promise<Alarm[]> {
     await this.load();
     
-    const ids = this.indexBySeverity.get(severity.toUpperCase()) || [];
+    const ids = this.indexBySeverity.get(this.canonSeverity(severity) ?? severity.toUpperCase()) || [];
     return ids.map(id => this.get(id)).filter(Boolean) as Alarm[];
   }
 

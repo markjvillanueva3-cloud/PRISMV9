@@ -37,7 +37,15 @@ export const DEFAULT_EMBED_MODEL = "nomic-embed-text";
 export const EXPECTED_EMBED_DIM = 768;
 /** nomic-embed-text supports ~8k tokens; 32 KB chars is a safe upper bound. */
 export const MAX_EMBED_INPUT_CHARS = 32_768;
-export const DEFAULT_EMBED_TIMEOUT_MS = 15_000;
+// 30s, not 15s: a COLD nomic-embed-text load (model not yet resident) routinely
+// exceeds 15s on first call, which aborted the embed and surfaced as the
+// recall-wide "embed failed" that made the revived vault look broken. The
+// keep_alive below keeps the model warm so steady-state calls stay sub-second.
+export const DEFAULT_EMBED_TIMEOUT_MS = 30_000;
+// Keep the embed model resident between calls so the first recall after an idle
+// gap does not pay a cold-load that blows the timeout. Ollama unloads models
+// after ~5min idle by default.
+export const DEFAULT_EMBED_KEEP_ALIVE = "30m";
 
 export interface OllamaEmbedderOptions {
   /** Ollama daemon URL. Defaults to localhost:11434. */
@@ -134,7 +142,7 @@ export class QdrantMemoryEngineSingleton {
         res = await fetch(`${host}/api/embed`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ model, input: text }),
+          body: JSON.stringify({ model, input: text, keep_alive: DEFAULT_EMBED_KEEP_ALIVE }),
           signal: controller.signal,
         });
       } catch (e) {

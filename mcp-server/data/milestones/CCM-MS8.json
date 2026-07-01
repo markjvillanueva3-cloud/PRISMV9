@@ -1,0 +1,673 @@
+{
+  "id": "CCM-MS8",
+  "version": "1.0.0",
+  "title": "MCP & Integration Modernization",
+  "brief": "Standard .mcp.json, full tool annotations, resource optimization. Currently MCP config embedded in settings.json, not standard .mcp.json format. Tool annotations exist but not all dispatchers classified. MCP resources, prompts, completions partially implemented but not fully wired.",
+  "created_at": "2026-03-20T12:00:00Z",
+  "created_by": "claude-opus-4.6",
+  "track": "CCM",
+  "track_name": "Claude Code Modernization",
+  "status": "not_started",
+  "dependencies": [],
+  "wave": 1,
+  "phases": [
+    {
+      "id": "P0",
+      "title": "MCP Standards & Integration",
+      "description": "Migrate to standard .mcp.json, expand tool annotations to all dispatchers, wire MCP resources and prompts, configure deferred tool loading, add health monitoring, wire resource links into output, and create distribution bundle.",
+      "sessions": "2-3",
+      "primary_role": "R1",
+      "primary_model": "opus-4.6",
+      "units": [
+        {
+          "id": "P0-U01",
+          "title": "Create standard .mcp.json",
+          "phase": "P0",
+          "sequence": 1,
+          "role": "R1",
+          "role_name": "Systems Architect",
+          "model": "opus-4.6",
+          "effort": 85,
+          "rationale": "Standard .mcp.json at project root is the official MCP discovery mechanism. Moving config from settings.json enables portable project setup and multi-project MCP configurations.",
+          "tools": [
+            "Bash",
+            "Read",
+            "Edit"
+          ],
+          "skills": [],
+          "scripts": [],
+          "hooks": [],
+          "features": [
+            "Standard .mcp.json at project root"
+          ],
+          "dependencies": [],
+          "entry_conditions": [
+            "Current MCP config exists in settings.json"
+          ],
+          "exit_conditions": [
+            "MCP loads from .mcp.json at project root",
+            "settings.json MCP entries migrated or removed",
+            ".mcp.json follows official schema"
+          ],
+          "rollback": "git checkout -- .mcp.json",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Read current MCP configuration from settings.json mcpServers section."
+            },
+            {
+              "number": 2,
+              "instruction": "Create .mcp.json at project root following official MCP config schema with servers, tools, and resources sections."
+            },
+            {
+              "number": 3,
+              "instruction": "Migrate all MCP server definitions (serena, playwright, context7) to .mcp.json."
+            },
+            {
+              "number": 4,
+              "instruction": "Verify MCP servers load correctly from new config location."
+            }
+          ],
+          "deliverables": [
+            {
+              "path": ".mcp.json",
+              "type": "config",
+              "description": "Standard MCP configuration file at project root"
+            }
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": false,
+          "creates_hook": false,
+          "creates_command": false,
+          "description": "Create standard .mcp.json — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P0-U02",
+          "title": "Tool annotation expansion",
+          "phase": "P0",
+          "sequence": 2,
+          "role": "R1",
+          "role_name": "Systems Architect",
+          "model": "opus-4.6",
+          "effort": 85,
+          "rationale": "Tool annotations (readOnly/destructive/idempotent/openWorld) enable clients to make safety decisions. All 67 dispatchers need complete annotations for full MCP compliance.",
+          "tools": [
+            "Bash",
+            "Grep",
+            "Edit"
+          ],
+          "skills": [],
+          "scripts": [],
+          "hooks": [],
+          "features": [
+            "Complete tool annotations for all 67 dispatchers"
+          ],
+          "dependencies": [],
+          "entry_conditions": [
+            "src/mcp/toolAnnotations.ts exists with partial annotations"
+          ],
+          "exit_conditions": [
+            "All 67 dispatchers classified with readOnly, destructive, idempotent, openWorld flags",
+            "Annotation coverage 100%",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
+          ],
+          "rollback": "git checkout -- src/mcp/toolAnnotations.ts",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Read existing toolAnnotations.ts, identify unannotated dispatchers."
+            },
+            {
+              "number": 2,
+              "instruction": "Classify each unannotated dispatcher by analyzing its actions (read-only queries vs state-changing operations)."
+            },
+            {
+              "number": 3,
+              "instruction": "Add annotations for all missing dispatchers."
+            },
+            {
+              "number": 4,
+              "instruction": "Verify 67/67 dispatchers annotated."
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "src/mcp/toolAnnotations.ts",
+              "type": "source",
+              "description": "Complete tool annotations for all dispatchers"
+            }
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": false,
+          "creates_hook": false,
+          "creates_command": false,
+          "description": "Tool annotation expansion — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P0-U03",
+          "title": "MCP resource templates",
+          "phase": "P0",
+          "sequence": 3,
+          "role": "R1",
+          "role_name": "Systems Architect",
+          "model": "opus-4.6",
+          "effort": 85,
+          "rationale": "MCP resources expose machine/material/tool/alarm data as browsable URI templates, enabling clients to discover and query data without knowing dispatcher action names.",
+          "tools": [
+            "Bash",
+            "Edit"
+          ],
+          "skills": [],
+          "scripts": [],
+          "hooks": [],
+          "features": [
+            "MCP URI resource templates for machines, materials, tools, alarms"
+          ],
+          "dependencies": [
+            "P0-U01"
+          ],
+          "entry_conditions": [
+            ".mcp.json created from P0-U01",
+            "src/mcp/resources.ts exists with partial implementation"
+          ],
+          "exit_conditions": [
+            "Resources browsable via MCP protocol",
+            "URI templates: prism://machine/{id}, prism://material/{name}, prism://tool/{catalog}/{id}, prism://alarm/{code}",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
+          ],
+          "rollback": "git checkout -- src/mcp/resources.ts",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Read existing resources.ts to assess current resource template coverage."
+            },
+            {
+              "number": 2,
+              "instruction": "Wire machine resource template to machine-profiles-catalog lookup."
+            },
+            {
+              "number": 3,
+              "instruction": "Wire material resource template to material database lookup."
+            },
+            {
+              "number": 4,
+              "instruction": "Wire tool resource template to ToolCatalogEngine search."
+            },
+            {
+              "number": 5,
+              "instruction": "Test each resource URI resolves correctly."
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "src/mcp/resources.ts",
+              "type": "source",
+              "description": "Complete MCP resource template implementations"
+            }
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": false,
+          "creates_hook": false,
+          "creates_command": false,
+          "description": "MCP resource templates — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P0-U04",
+          "title": "MCP prompt catalog",
+          "phase": "P0",
+          "sequence": 4,
+          "role": "R1",
+          "role_name": "Systems Architect",
+          "model": "opus-4.6",
+          "effort": 85,
+          "rationale": "MCP prompts expose the top 10 skills as structured prompt templates, enabling clients to invoke common workflows with pre-filled parameters.",
+          "tools": [
+            "Bash",
+            "Edit"
+          ],
+          "skills": [],
+          "scripts": [],
+          "hooks": [],
+          "features": [
+            "Top 10 skills exposed as MCP prompts"
+          ],
+          "dependencies": [
+            "P0-U01"
+          ],
+          "entry_conditions": [
+            "src/mcp/prompts.ts exists with 7 prompts"
+          ],
+          "exit_conditions": [
+            "10 prompts available via MCP",
+            "Prompts include: speed-feed, quote, simulate, feasibility, playbook, alarm, tool-select, program-gen, video-replay, fusion-generate",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
+          ],
+          "rollback": "git checkout -- src/mcp/prompts.ts",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Read existing prompts.ts to see current 7 prompts."
+            },
+            {
+              "number": 2,
+              "instruction": "Add missing prompts: program-gen, video-replay, fusion-generate with appropriate parameter schemas."
+            },
+            {
+              "number": 3,
+              "instruction": "Verify all 10 prompts resolve correctly via MCP protocol."
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "src/mcp/prompts.ts",
+              "type": "source",
+              "description": "Complete MCP prompt catalog with 10 prompts"
+            }
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": false,
+          "creates_hook": false,
+          "creates_command": false,
+          "description": "MCP prompt catalog — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P0-U05",
+          "title": "Deferred tool loading config",
+          "phase": "P0",
+          "sequence": 5,
+          "role": "R1",
+          "role_name": "Systems Architect",
+          "model": "opus-4.6",
+          "effort": 85,
+          "rationale": "Not all 67 dispatchers need to be loaded at startup. Configuring ToolSearch for lazy-loading of less-used tools reduces initial context and startup overhead.",
+          "tools": [
+            "Bash",
+            "Edit"
+          ],
+          "skills": [],
+          "scripts": [],
+          "hooks": [],
+          "features": [
+            "Deferred tool loading for less-used dispatchers"
+          ],
+          "dependencies": [
+            "P0-U02"
+          ],
+          "entry_conditions": [
+            "Tool annotations complete from P0-U02 to classify usage frequency"
+          ],
+          "exit_conditions": [
+            "Tool loading optimized: top 20 dispatchers eager, remaining 47 deferred",
+            "ToolSearch fetches deferred tools on demand",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
+          ],
+          "rollback": "git checkout -- state/CCM-MS8/",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Analyze dispatcher usage frequency from hook logs or hardcoded priority list."
+            },
+            {
+              "number": 2,
+              "instruction": "Configure top 20 most-used dispatchers as eager-loaded."
+            },
+            {
+              "number": 3,
+              "instruction": "Configure remaining 47 as deferred, available via ToolSearch."
+            },
+            {
+              "number": 4,
+              "instruction": "Test that deferred tools are discoverable and callable after fetch."
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "state/CCM-MS8/deferred-tool-config.json",
+              "type": "config",
+              "description": "Deferred tool loading configuration"
+            }
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": false,
+          "creates_hook": false,
+          "creates_command": false,
+          "description": "Deferred tool loading config — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P0-U06",
+          "title": "MCP server health monitoring",
+          "phase": "P0",
+          "sequence": 6,
+          "role": "R1",
+          "role_name": "Systems Architect",
+          "model": "opus-4.6",
+          "effort": 85,
+          "rationale": "MCP servers (Serena, Playwright, Context7) can silently fail. Health monitoring via cron or HTTP hook detects unresponsive servers and alerts before they cause workflow failures.",
+          "tools": [
+            "Bash",
+            "CronCreate"
+          ],
+          "skills": [],
+          "scripts": [],
+          "hooks": [],
+          "features": [
+            "MCP server health monitoring"
+          ],
+          "dependencies": [
+            "P0-U01"
+          ],
+          "entry_conditions": [
+            ".mcp.json created from P0-U01"
+          ],
+          "exit_conditions": [
+            "Health monitored for all configured MCP servers",
+            "Unresponsive servers detected within 5 minutes",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
+          ],
+          "rollback": "git checkout -- state/CCM-MS8/",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Write mcp-health-check.sh that pings each MCP server endpoint for responsiveness."
+            },
+            {
+              "number": 2,
+              "instruction": "Use CronCreate to schedule health checks every 5 minutes or on session start."
+            },
+            {
+              "number": 3,
+              "instruction": "Report unresponsive servers to state/CCM-MS8/mcp-health.json."
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "state/CCM-MS8/mcp-health-check.sh",
+              "type": "script",
+              "description": "MCP server health check script"
+            },
+            {
+              "path": "state/CCM-MS8/mcp-health.json",
+              "type": "data",
+              "description": "MCP server health status"
+            }
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": true,
+          "creates_hook": false,
+          "creates_command": false,
+          "description": "MCP server health monitoring — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P0-U07",
+          "title": "Resource links in tool output",
+          "phase": "P0",
+          "sequence": 7,
+          "role": "R1",
+          "role_name": "Systems Architect",
+          "model": "opus-4.6",
+          "effort": 85,
+          "rationale": "Resource links (materialLink, machineLink, toolLink) in tool output enable clients to navigate from results to detailed resource views, improving discoverability.",
+          "tools": [
+            "Bash",
+            "Edit"
+          ],
+          "skills": [],
+          "scripts": [],
+          "hooks": [],
+          "features": [
+            "Resource links embedded in dispatcher output"
+          ],
+          "dependencies": [
+            "P0-U03"
+          ],
+          "entry_conditions": [
+            "MCP resources wired from P0-U03",
+            "src/mcp/resourceLinks.ts exists"
+          ],
+          "exit_conditions": [
+            "Links in output for material, machine, and tool references",
+            "At least 5 dispatchers emit resource links in their responses",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
+          ],
+          "rollback": "git checkout -- src/mcp/resourceLinks.ts",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Read resourceLinks.ts to understand current link generation API."
+            },
+            {
+              "number": 2,
+              "instruction": "Wire materialLink into calcDispatcher responses that reference materials."
+            },
+            {
+              "number": 3,
+              "instruction": "Wire machineLink into camDispatcher and cncOpsDispatcher responses."
+            },
+            {
+              "number": 4,
+              "instruction": "Wire toolLink into toolDispatcher and sfDispatcher responses."
+            },
+            {
+              "number": 5,
+              "instruction": "Test that output includes clickable resource URIs."
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "src/mcp/resourceLinks.ts",
+              "type": "source",
+              "description": "Resource link integration into dispatcher outputs"
+            }
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": false,
+          "creates_hook": false,
+          "creates_command": false,
+          "description": "Resource links in tool output — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P0-U08",
+          "title": "MCP bundle manifest",
+          "phase": "P0",
+          "sequence": 8,
+          "role": "R1",
+          "role_name": "Systems Architect",
+          "model": "opus-4.6",
+          "effort": 85,
+          "rationale": ".mcpb distribution manifest enables portable deployment of the entire PRISM MCP server as a single package with all tools, resources, prompts, and completions declared.",
+          "tools": [
+            "Bash"
+          ],
+          "skills": [],
+          "scripts": [],
+          "hooks": [],
+          "features": [
+            ".mcpb distribution bundle manifest"
+          ],
+          "dependencies": [
+            "P0-U01",
+            "P0-U02",
+            "P0-U03",
+            "P0-U04"
+          ],
+          "entry_conditions": [
+            "All prior MCP units complete"
+          ],
+          "exit_conditions": [
+            "Bundle created at dist/prism.mcpb",
+            "Manifest declares all tools, resources, prompts, completions",
+            "Bundle is self-contained and portable"
+          ],
+          "rollback": "git checkout -- state/CCM-MS8/",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Read existing manifest.json if any from Wave 8 MCP modernization."
+            },
+            {
+              "number": 2,
+              "instruction": "Create or update manifest.json with complete tool list (67 dispatchers), resource templates (4), prompts (10), completions (4)."
+            },
+            {
+              "number": 3,
+              "instruction": "Write build script that packages manifest + server into dist/prism.mcpb."
+            },
+            {
+              "number": 4,
+              "instruction": "Test that the bundle can be loaded by an MCP client."
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "manifest.json",
+              "type": "config",
+              "description": "MCP bundle manifest"
+            },
+            {
+              "path": "state/CCM-MS8/build-bundle.sh",
+              "type": "script",
+              "description": "Bundle build script"
+            }
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": true,
+          "creates_hook": false,
+          "creates_command": false,
+          "description": "MCP bundle manifest — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        }
+      ]
+    }
+  ],
+  "smart_config": {
+    "role": "implementer + reviewer",
+    "model": "sonnet",
+    "effort": "HIGH",
+    "context_budget": "65%"
+  },
+  "mcp_lifecycle": {
+    "session_start": [
+      "prism_session:context_boot",
+      "prism_session:dispatcher_map",
+      "prism_session:memory_recall",
+      "prism_session:system_snapshot",
+      "prism_session:action_search"
+    ],
+    "during_work": [
+      "prism_session:auto_checkpoint",
+      "prism_session:tool_route_best",
+      "prism_session:wip_capture"
+    ],
+    "session_end": [
+      "prism_session:memory_save",
+      "prism_session:system_snapshot",
+      "prism_session:checkpoint_enhanced"
+    ]
+  },
+  "forge_triple": {
+    "protective_hook": "ccm-ms8-gate",
+    "mcp_action": "prism_ccm:ccm_ms8_run",
+    "skill_command": "/ccm-ms8",
+    "ownership": "DECLARED — BUILT in terminal unit of this milestone"
+  },
+  "feature_cascade": {
+    "new_hooks": [
+      "ccm-ms8-gate"
+    ],
+    "new_actions": [
+      "ccm_ms8_run"
+    ],
+    "new_skills": [
+      "/ccm-ms8"
+    ],
+    "available_to": [
+      "downstream CAMX milestones",
+      "prism app consumers"
+    ]
+  },
+  "knowledge_sources": {
+    "engines": [
+      "ENGINE_DIGEST.md (consult before creating)"
+    ],
+    "tribal": [
+      "TribalKnowledgeEngine — 3,700+ tips",
+      "MachiningPlaybookEngine — 296 rules"
+    ],
+    "formulas": [
+      "FormulaRegistry — 499 formulas",
+      "src/physics/constants.ts — canonical"
+    ],
+    "reference": [
+      "EXTERNAL-REFERENCE-PROGRAMS-INDEX.md",
+      "MaterialRegistry",
+      "MachineRegistry",
+      "ToolCatalogEngine (95,608 tools)"
+    ]
+  },
+  "intent": "Standard .mcp.json, full tool annotations, resource optimization. Currently MCP config embedded in settings.json, not standard .mcp.json format. Tool annotations exist but not all dispatchers classified. MCP resources, prompts, completions partially implemented but not fully wired.",
+  "compact_checkpoint": "every 3 units — auto-triggered by hook",
+  "enforcement_hooks_active": [
+    "physics agent",
+    "wiring agent",
+    "constants checker",
+    "stub detector",
+    "test quality",
+    "forge-triple gate",
+    "session audit agent"
+  ]
+}

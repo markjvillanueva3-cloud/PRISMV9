@@ -1,0 +1,182 @@
+{
+  "generated_for": "romeo",
+  "date": "2026-06-15",
+  "advisoryOnly": true,
+  "mustHumanVerify": true,
+  "synthesis_note": "Input set of verified-open items was empty ([]). All 14 items were rediscovered directly from slot/romeo git history, the open task list (#22/#23/#27), the TOOL-DB-CONSOLIDATION inventory commits, JM-DIE-GAPS-UPDATE-2026-05-24.md, and the PRISM-BRIDGE-MAP candidate set. Each item carries cited evidence. Verify against live slot/romeo + MAIN state before executing.",
+  "total_items": 14,
+  "themes": [
+    "TOOL-DB-CONSOLIDATION",
+    "JM-FUSION-TOOLS CAM library finishing",
+    "WIRING closure (core charter)",
+    "PRISM-BRIDGE-MAP cross-domain/cross-level closure",
+    "JM-DIE-SHOP-PAGE app gaps"
+  ],
+  "items": [
+    {
+      "id": "ROMEO-REM-01",
+      "alias": "U-DBCON-1",
+      "theme": "TOOL-DB-CONSOLIDATION",
+      "title": "Record-aware loader fix + MAIN-vs-slot branch decision",
+      "whats_left": "Apply RECORD-AWARE merge fix to CatalogCorpusLoaderEngine.readVendorFile (naive flat() loads widia-2022 speed_feed_data array as FAKE tools). Loader is fleet infra + ~3207 commits stale on slot/romeo -> belongs on MAIN via [MAIN-FORCE]. Operator confirms branch before executing.",
+      "evidence": "commits 9930e7828e (record-aware merge + branch decision), a5a158130b (readVendorFile takes only FIRST nested array)",
+      "est_effort": "M",
+      "suggested_executor": "manual",
+      "dependencies": ["operator branch confirm", "cleared host to verify corpus-load delta"],
+      "roi_rank": 1
+    },
+    {
+      "id": "ROMEO-REM-02",
+      "alias": "U-DBCON G1",
+      "theme": "TOOL-DB-CONSOLIDATION",
+      "title": "Dedup correctness / split-brain id audit + measure exact unified total",
+      "whats_left": "Verify id compatibility between the .ts getter corpus and the extracted CATALOG_INDEX corpus before trusting the unified total (addTools dedups by id). Measure exact total via toolCatalogEngine.stats() -- not measurable in inventory session (corpus load timed out on stressed host).",
+      "evidence": "commit 000afafd61 (G1 dedup correctness; 'Exact unified total = toolCatalogEngine.stats() -- not measurable this session')",
+      "est_effort": "M",
+      "suggested_executor": "harnessed-loop",
+      "dependencies": ["ROMEO-REM-01"],
+      "roi_rank": 2
+    },
+    {
+      "id": "ROMEO-REM-03",
+      "alias": "U-DBCON G2",
+      "theme": "TOOL-DB-CONSOLIDATION",
+      "title": "Route the 8 enriched-monolith files (genuinely orphaned)",
+      "whats_left": "8 catalog-extractions-enriched monolith files (~232 rich raw_tools) load by NEITHER path. Route via toolCatalogEngine.addTools() with dedup key vendor|designation|diameter|type.",
+      "evidence": "commit 000afafd61 (G2 ... genuinely orphaned), 19fd0146f4 (8 enriched monolith files NOT routed)",
+      "est_effort": "S",
+      "suggested_executor": "hermes-agent",
+      "dependencies": ["ROMEO-REM-01"],
+      "roi_rank": 3
+    },
+    {
+      "id": "ROMEO-REM-04",
+      "alias": "U-DBCON G3",
+      "theme": "TOOL-DB-CONSOLIDATION",
+      "title": "Getter-coverage audit (no large vendor silently dropped)",
+      "whats_left": "Audit which *-tool-catalog.ts getters _loadStandardTools() invokes vs which exist on disk but are never called. Inventory flagged divergence (emuge .ts=13717 vs extracted=8; osg extracted=11550 vs .ts=0).",
+      "evidence": "commit 000afafd61 (G3 getter-coverage audit), 19fd0146f4 (per-vendor divergence table)",
+      "est_effort": "S",
+      "suggested_executor": "hermes-agent",
+      "dependencies": [],
+      "roi_rank": 4
+    },
+    {
+      "id": "ROMEO-REM-05",
+      "alias": "U-DBCON G4",
+      "theme": "TOOL-DB-CONSOLIDATION",
+      "title": "35.9K PDF/zip extraction gap (hand off to juliett)",
+      "whats_left": "vendor-catalog-manifest.json declares currentTools=54080 targetTools=90000 gapToTarget=35920 (un-extracted PDF/zip shards). Out of ROMEO lane -- extraction is juliett (database-expansion) domain. Track + cross-slot handoff.",
+      "evidence": "commit 19fd0146f4 (gapToTarget=35920), 000afafd61 (G4 ... juliett)",
+      "est_effort": "L",
+      "suggested_executor": "manual",
+      "dependencies": [],
+      "roi_rank": 11
+    },
+    {
+      "id": "ROMEO-REM-06",
+      "alias": "task#27",
+      "theme": "JM-FUSION-TOOLS CAM library finishing",
+      "title": "Mastercam X8 .tooldb exporter",
+      "whats_left": "Mastercam X8 cannot natively import .mcam-tools (2017+ format). Build an X8 .tooldb exporter so the JM crib loads on the shop's actual X8 seat. cam-libraries/ holds only .hmt.sql + .mcam-tools today -- no .tooldb.",
+      "evidence": "open task #27; ls state/shared/jm-fusion-tools/cam-libraries/ -> no .tooldb",
+      "est_effort": "M",
+      "suggested_executor": "hermes-agent",
+      "dependencies": [],
+      "roi_rank": 5
+    },
+    {
+      "id": "ROMEO-REM-07",
+      "alias": "tail of task#22/#23",
+      "theme": "JM-FUSION-TOOLS CAM library finishing",
+      "title": "Populate holder 3D profile (TlAssembly / .hmt holder geometry)",
+      "whats_left": "Option A surface upgrade left holder/geometry logic unchanged from Option B. Populate Mastercam TlAssembly holder-3D + hyperMILL .hmt holder 3D profile (if schema supports) so collision/clearance is real. Use the 1,164 holders already accounted (task #19 getAllHolders + HOLDERS.csv). NOTE: Option A (486954fe70) already shipped the per-grade x toolpath cutting-data half of #22/#23 -- only the holder-3D piece remains.",
+      "evidence": "open tasks #22 (+holder 3D if .hmt supports) + #23 (populate TlAssembly holder 3D); commit 486954fe70 ('Geometry/holder/units-first logic unchanged from Option B')",
+      "est_effort": "M",
+      "suggested_executor": "hermes-agent",
+      "dependencies": ["ROMEO-REM-06"],
+      "roi_rank": 6
+    },
+    {
+      "id": "ROMEO-REM-08",
+      "theme": "WIRING closure (core charter)",
+      "title": "Standing dormant-engine wiring loop (next UNWIRED-ENGINE-AUDIT batch)",
+      "whats_left": "Re-run authoritative UNWIRED-ENGINE-AUDIT, take next batch of MAIN-verified dormant engines, wire each to natural dispatcher with round-trip test (proven ROMEO pattern: cache var + lazy getEngine + ACTIONS + switch guards + Zod + N-case round-trip w/ physics ref values). Also confirm HolderSelectionEngine dispatcher wiring actually landed (slot/romeo grep returned no dispatcher ref -- likely on MAIN).",
+      "evidence": "commit 89f7dcba3b (UNWIRED-ENGINE-AUDIT regenerated 2026-06-11); the 8 [WIRING]/U-WIRE-* commits as template; HolderSelection dispatcher grep miss",
+      "est_effort": "L",
+      "suggested_executor": "harnessed-loop",
+      "dependencies": [],
+      "roi_rank": 7
+    },
+    {
+      "id": "ROMEO-REM-09",
+      "theme": "PRISM-BRIDGE-MAP cross-domain/cross-level closure",
+      "title": "Wire the verified cross-LEVEL bridge candidates",
+      "whats_left": "crossLevelStitch() emits synthetic (fromLayer,toLayer) suggestions but does NOT wire them (no graph access inside engine). Run bridge-graph-builder.mjs against the live 520MB system-graph.json, verify each suggestion, wire survivors (top: learning L6<->L8 leverage 2254).",
+      "evidence": "commit ad688933d4 (crossLevelStitch ... Downstream consumers verify against live system-graph.json before wiring)",
+      "est_effort": "M",
+      "suggested_executor": "harnessed-loop",
+      "dependencies": [],
+      "roi_rank": 8
+    },
+    {
+      "id": "ROMEO-REM-10",
+      "theme": "PRISM-BRIDGE-MAP cross-domain/cross-level closure",
+      "title": "Close the remaining cross-DOMAIN bridge candidates",
+      "whats_left": "iter24-26 closed ~30 of the top PRISM-BRIDGE-GRAPH candidates; the leverage-ranked set is longer. Continue with the generic-bridge-engine pattern (best-effort lazy-import composition, note field surfaces missing imports).",
+      "evidence": "commits ad688933d4 (9 more), 8fbf8306a2 (11 more), 682302ce06 (10 of top-30) -- draining-but-not-empty queue",
+      "est_effort": "M",
+      "suggested_executor": "hermes-agent",
+      "dependencies": [],
+      "roi_rank": 9
+    },
+    {
+      "id": "ROMEO-REM-11",
+      "alias": "JM-Die gap#4/#16",
+      "theme": "JM-DIE-SHOP-PAGE app gaps",
+      "title": "VBA Excel reverse-ingestion of the operator's quoting system",
+      "whats_left": "Parse Automated Program_Corrected 5-25.xlsm cells + .cls VBA module text -> YAML rule book + classified macros (ground-truth for the quoting engine). Also fixes gap #16: walker mis-files .xlsm as tooling; needs a vba_automation stratum + engine schema bump.",
+      "evidence": "JM-DIE-GAPS-UPDATE-2026-05-24.md P1 #4 + P3 #16; recommended-order iter19",
+      "est_effort": "L",
+      "suggested_executor": "hermes-agent",
+      "dependencies": [],
+      "roi_rank": 10
+    },
+    {
+      "id": "ROMEO-REM-12",
+      "alias": "JM-Die gap#5/#7",
+      "theme": "JM-DIE-SHOP-PAGE app gaps",
+      "title": "Macro library tab + queue board tab",
+      "whats_left": "Two small daily-use tabs. #5 Macros tab over MACRO PROGRAMS/ 4 .min files (browse + usage-count + feature tags). #7 Queue board over QUEUE/ WIP folder (status/priority/owner).",
+      "evidence": "JM-DIE-GAPS-UPDATE-2026-05-24.md P1 #5 + #7; recommended-order iter20",
+      "est_effort": "M",
+      "suggested_executor": "hermes-agent",
+      "dependencies": [],
+      "roi_rank": 12
+    },
+    {
+      "id": "ROMEO-REM-13",
+      "alias": "JM-Die gap#9",
+      "theme": "JM-DIE-SHOP-PAGE app gaps",
+      "title": "Federated-learning Phase 2 trainer",
+      "whats_left": "iter17 shipped hook surface (onCustomerOnboarded, onJobOutcomeRecorded) tagged not-implemented. Phase 2 = trainer aggregating CustomerProfile.contributionSignals across customers, anonymize, feed pattern store. Touches PSN leg #10 (NN/GNN).",
+      "evidence": "JM-DIE-GAPS-UPDATE-2026-05-24.md P2 #9; recommended-order iter21",
+      "est_effort": "L",
+      "suggested_executor": "harnessed-loop",
+      "dependencies": ["ROMEO-REM-11"],
+      "roi_rank": 13
+    },
+    {
+      "id": "ROMEO-REM-14",
+      "alias": "JM-Die gap#17/#20/#21/#22",
+      "theme": "JM-DIE-SHOP-PAGE app gaps",
+      "title": "Write-side actions + corpus-freshness cron + ERP actuals sync",
+      "whats_left": "All shipped actions are read-only. Bundle: #20 write actions w/ audit ledger (re-categorize file, override post mapping, favorite job, customer note); #21 quote-PDF export; #17 Stop-hook/daily cron to re-walk corpus + diff-report; #22 wire ERPCostFeedbackEngine to pull JM-Die actuals so iter16 price tracker auto-populates.",
+      "evidence": "JM-DIE-GAPS-UPDATE-2026-05-24.md P3 #17 + future-gaps #20/#21/#22; recommended-order iter22",
+      "est_effort": "L",
+      "suggested_executor": "hermes-agent",
+      "dependencies": [],
+      "roi_rank": 14
+    }
+  ]
+}

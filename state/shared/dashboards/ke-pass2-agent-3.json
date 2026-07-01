@@ -1,0 +1,1146 @@
+{
+  "CAD-COMPLETE-MS0::U-CADC-CRD01": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/per-slot-claim-ms0.md",
+      "knowledge/wiki/architecture/session-continuity-stack.md",
+      "knowledge/wiki/architecture/hook-synergy-ms0.md"
+    ],
+    "addSeWiki": ["fail-loud-r12-patterns", "regression-prevention-doctrine"],
+    "systemImpact": "MultiCADSessionEngine is the shared-state floor for every cross-CAD unit in CAD-COMPLETE-MS0 — CrossCADIntentFusionEngine (U-CADC-CRD02) and CrossCADConsistencyValidatorEngine (U-CADC-CRD03) both read its session registry, and CADAccessControlRBACABACEngine (U-FS-12) writes session records into it. If the lock-guarded read-modify-write regresses to a last-writer-wins clobber, two CAD bridges silently desync their intent state and downstream consistency validation passes against corrupt input.",
+    "csDepth": [
+      "The session registry is a concurrent map keyed by sessionId — lock granularity matters: a single global lock serializes all CAD sessions (throughput collapse under the 6-bridge fleet), per-session locks risk deadlock if intent fusion needs to read two sessions atomically; prefer per-session locks with a strict lock-ordering rule (sort sessionIds before multi-acquire).",
+      "Stale-session reaping is an ABA hazard — a sessionId reused after a crashed session can be mistaken for the live one; tag each session record with a monotonic epoch/nonce so a reader detects the reuse rather than acting on a recycled record."
+    ]
+  },
+  "CAD-COMPLETE-MS0::U-CADC-CRD02": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/engines/fusion/sensorfusionengine.md",
+      "knowledge/wiki/architecture/engines/ai/consensusneuralfeedbackengine.md",
+      "knowledge/wiki/architecture/dispatcher-intelligence.md"
+    ],
+    "addSeWiki": ["fail-loud-r12-patterns", "regression-prevention-doctrine"],
+    "systemImpact": "CrossCADIntentFusionEngine sits between the heterogeneous intake bridges (sketch/voice/drawing-parse) and the CAD generation pipeline — its fused intent is the input contract for every CAD-COMPLETE-MS0 generation unit. If fusion silently averages conflicting intents instead of surfacing the conflict (per R7), the generation pipeline produces a part that satisfies neither source, and CrossCADConsistencyValidatorEngine cannot catch it because both CADs were fed the same wrong intent.",
+    "csDepth": [
+      "Confidence-weighted aggregation needs calibrated source confidences — an uncalibrated voice-parser that always reports 0.9 will dominate a well-calibrated sketch parser; the fusion must normalize or learn per-source reliability priors, not trust raw self-reported confidence.",
+      "Embedding-space similarity for intent matching is O(n·d) per query and sensitive to embedding-model version drift — pin the embedding model version in the persisted intent record so a re-embedded prior session is comparable, otherwise cross-session fusion silently degrades."
+    ]
+  },
+  "CAD-COMPLETE-MS0::U-CADC-CRD03": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/dispatcher-cadregression.md",
+      "knowledge/wiki/architecture/engines/cad/cadphysicsconsistencygateengine.md",
+      "knowledge/wiki/architecture/system-viz-fs-coverage.md"
+    ],
+    "addSeWiki": ["physics-constants-discipline", "fail-loud-r12-patterns"],
+    "systemImpact": "CrossCADConsistencyValidatorEngine is the correctness gate for the multi-CAD generation pipeline — it consumes outputs of U-CADC-CRD01/CRD02 and any CAD bridge, and CAD-UNIVERSAL-CONTROL-MS0's coverage/exit gates (U-CUC15/U-CUC18) depend on it certifying cross-bridge parity. A too-loose epsilon tolerance passes genuinely divergent geometry; a too-tight one floods the regression dashboard with false positives and erodes trust in the whole CAD regression infra.",
+    "csDepth": [
+      "Epsilon-tolerance float comparison must be relative-plus-absolute (a fixed absolute epsilon fails on both micron features and meter-scale assemblies) — use scaled tolerance keyed to the part's bounding box, and define it once as a named constant, not inlined per call site.",
+      "Geometric hash comparison is order-sensitive — face/edge enumeration order differs across CAD kernels; the hash must canonicalize (sort by a rotation-invariant key) before hashing or identical geometry from two CADs hashes differently and the validator false-fails."
+    ]
+  },
+  "CAD-COMPLETE-MS0::U-CCCO07": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/cad-fusion-training-ms0.md",
+      "knowledge/wiki/architecture/knowledge-conversion-ms0.md",
+      "knowledge/wiki/architecture/close-out-audit.md"
+    ],
+    "addSeWiki": ["schema-read-discipline", "handoff-discipline"],
+    "systemImpact": "U-CCCO07 is a placeholder-titled unit inside CAD-COMPLETE-MS0 — its real downstream consumers cannot be named until the milestone envelope is read. Building against the placeholder title risks producing an engine no other CAD-COMPLETE unit wires to, creating a same-commit orphan that stop_on_unwired_assets will block.",
+    "csDepth": [
+      "Because the spec is unknown, the highest-ROI move is read-before-write (R8): the milestone envelope at mcp-server/data/milestones/ defines unit-7's actual deliverable and its dependency edges — building blind risks duplicating an already-shipped engine that duplicationGuardEngine would THROW on.",
+      "Title-as-placeholder is itself a data-integrity smell — confirm via MILESTONE_PROGRESS whether U-CCCO07 is already shipped under a different commit subject before allocating build effort."
+    ]
+  },
+  "CAD-COMPLETE-MS0::U-CCCO08": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/cad-fusion-training-ms0.md",
+      "knowledge/wiki/architecture/knowledge-conversion-ms0.md",
+      "knowledge/wiki/architecture/close-out-audit.md"
+    ],
+    "addSeWiki": ["schema-read-discipline", "handoff-discipline"],
+    "systemImpact": "U-CCCO08 is a placeholder-titled unit inside CAD-COMPLETE-MS0; like U-CCCO07 its real dependents are only knowable from the milestone envelope. Until the spec is read, its system impact cannot be stated concretely — building blind risks an unwired orphan or a duplication-guard THROW.",
+    "csDepth": [
+      "Read the CAD-COMPLETE-MS0 envelope's unit-8 block before any code (R8) — the placeholder title carries zero contract information; the envelope holds the input/output schema and the dispatcher it must wire to.",
+      "Cross-check MILESTONE_PROGRESS and the silent-close-out-drift audit: a pre-2026-05-12 untagged ship would make this unit already-done, and re-building it is wasted effort plus a guard violation."
+    ]
+  },
+  "CAD-COMPLETE-MS0::U-FS-04": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/engines/cad/cadbundlesigningversioningengine.md",
+      "knowledge/wiki/architecture/per-slot-claim-ms0.md",
+      "knowledge/wiki/architecture/silent-close-out-drift.md"
+    ],
+    "addSeWiki": ["fail-loud-r12-patterns", "regression-prevention-doctrine", "schema-read-discipline"],
+    "systemImpact": "CADRevisionPromotionWorkflowEngine governs the draft→review→released lifecycle that gates which CAD revision is consumable by downstream CAM and quote pipelines — a released revision is the SSOT a customer order machines against. If an illegal transition silently no-ops instead of failing loud, a draft-quality model can leak into a released slot and a part gets machined off un-reviewed geometry.",
+    "csDepth": [
+      "An FSM with guarded transitions must persist its state atomically (temp+rename) — a crash mid-transition that leaves the state record half-written turns a reader's draft→review promotion into an undefined state; pair the FSM with a schemaVersion'd record.",
+      "Concurrent promotion is a classic race: two reviewers both promoting the same revision review→released must be serialized via a per-revision lock or a compare-and-swap on the expected current state, or the second promotion acts on stale state and the released-count diverges."
+    ]
+  },
+  "CAD-COMPLETE-MS0::U-FS-12": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/dispatcher-tenant.md",
+      "knowledge/wiki/architecture/dispatcher-security.md",
+      "knowledge/wiki/architecture/engines/cad/cadtenantnamespaceengine.md"
+    ],
+    "addSeWiki": ["fail-loud-r12-patterns", "regression-prevention-doctrine", "safety-tier-discipline"],
+    "systemImpact": "CADAccessControlRBACABACEngine is the authorization choke point for every multi-tenant CAD operation — MultiCADSessionEngine (U-CADC-CRD01) writes session records through it and CADTenantNamespaceEngine relies on its tenant-isolation decisions. A regression that flips a default-deny path to default-allow is a cross-tenant data-leak: customer A's CAD files become reachable by customer B.",
+    "csDepth": [
+      "ABAC attribute-policy evaluation can suffer policy-rule ordering bugs and combining-algorithm ambiguity (deny-overrides vs permit-overrides) — the combining algorithm must be explicit and tested with overlapping grant+deny rules, since 'first match wins' silently shadows later deny rules.",
+      "RBAC role-permission lookups are hot-path — cache the resolved role→permission matrix but invalidate the cache on role mutation, or a revoked permission stays effective until cache expiry (a security-relevant staleness window)."
+    ]
+  },
+  "CAD-COMPLETE-MS0::U-CAD-APP-03": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/dispatcher-cad.md",
+      "knowledge/wiki/architecture/system-viz-fs-coverage.md",
+      "knowledge/wiki/architecture/engines/cad/cadinstallationprobeengine.md"
+    ],
+    "addSeWiki": ["fail-loud-r12-patterns", "doc-reflection-rule"],
+    "systemImpact": "CreoIntegrationTestSuite is the regression net for the Creo CAD bridge — it is what CAD-UNIVERSAL-CONTROL-MS0's coverage exit gate (U-CUC18) counts toward the 95%-by-bridge threshold. If its fixtures secretly return hardcoded geometry instead of driving the real Creo automation API, the suite passes green while the Creo bridge is actually broken in production, and the coverage gate certifies a false positive.",
+    "csDepth": [
+      "Headless integration fixtures must be suite-lifetime in setup/teardown — a per-test backup/restore on a real Creo session file is the documented footgun that deleted a live system-viz graph; back up once at suite start, restore once at suite exit.",
+      "COM automation mocking is a hermetic-fakes hazard: a mock that bypasses the real COM marshalling proves nothing about production wiring — at least one fixture must drive the actual Creo API end-to-end as a real-data oracle."
+    ]
+  },
+  "CAD-COMPLETE-MS0::U-CAD-APP-06": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/dispatcher-cad.md",
+      "knowledge/wiki/architecture/system-viz-fs-coverage.md",
+      "knowledge/wiki/architecture/engines/cad/cadinstallationprobeengine.md"
+    ],
+    "addSeWiki": ["fail-loud-r12-patterns", "doc-reflection-rule"],
+    "systemImpact": "CATIAIntegrationTestSuite is the regression net for the CATIA bridge and feeds the CAD-UNIVERSAL-CONTROL-MS0 coverage exit gate (U-CUC18). If its CAA fixtures pass against a fake harness, the coverage gate certifies CATIA support that does not actually work, and CAM/quote pipelines that route CATIA parts fail silently downstream.",
+    "csDepth": [
+      "Suite-lifetime fixture setup/teardown is mandatory on real CAA session files — asymmetric per-test teardown that unlinks then can't restore is the exact bug class that wiped a real fixture file; gate the backup on a once-per-process flag and restore in a beforeExit handler.",
+      "CAA automation is process-affine and slow — fixtures should share one CATIA process across the suite (one COM connect/disconnect) rather than spawn per test, but then test isolation must be enforced by explicit document-close between tests or state leaks between cases."
+    ]
+  },
+  "CAD-COMPLETE-MS0::U-CAD-APP-13": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/fleet-reaper.md",
+      "knowledge/wiki/architecture/engines/cad/cadcontentaddressablestoreengine.md",
+      "knowledge/wiki/architecture/session-continuity-stack.md"
+    ],
+    "addSeWiki": ["fail-loud-r12-patterns", "regression-prevention-doctrine", "schema-read-discipline"],
+    "systemImpact": "CADCrashRecoveryEngine is what keeps a long CAD automation job (e.g. the 20K-file GroundTruthBatchExtractor) survivable across a crash — its watchdog + re-attach + replay is depended on by every long-running CAD bridge operation. If replay double-applies commands, the recovered CAD model diverges from the intended one and silently corrupts whatever pipeline consumes it.",
+    "csDepth": [
+      "Idempotent re-attach requires the command log to carry a monotonic sequence id and the engine to record the last-successfully-applied id atomically before each replay — without it, a crash between 'command applied' and 'log advanced' replays the command and double-applies (an extrude becomes a double-extrude).",
+      "Watchdog process supervision must distinguish a wedged-but-alive CAD process from a genuinely dead one — killing a slow-but-progressing process is as harmful as missing a hung one; use a liveness heartbeat plus a progress signal, not PID-existence alone (PID reuse hazard)."
+    ]
+  },
+  "CAD-COMPLETE-MS0::U-CAD-APP-16": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/engines/cad/cadcontentaddressablestoreengine.md",
+      "knowledge/wiki/architecture/dispatcher-security.md",
+      "knowledge/wiki/architecture/ledger-store.md"
+    ],
+    "addSeWiki": ["fail-loud-r12-patterns", "regression-prevention-doctrine", "safety-tier-discipline"],
+    "systemImpact": "CADPluginTamperAuditLogEngine is the tamper-evidence layer for CAD plugin command history — security audits and CADAccessControlRBACABACEngine incident review depend on its hash chain being verifiable. If a chain gap is silently skipped instead of failing loud, tampering becomes undetectable and the audit log's entire security value is void.",
+    "csDepth": [
+      "A hash-chained / Merkle log is append-only by construction — concurrent appenders must be serialized through a single writer or a lock, because two writers each hashing the current tip produce a fork; an append-only .jsonl with one canonical writer is the safer data structure than a mutable JSON file.",
+      "Chain verification is O(n) over the whole log — for a long-lived CAD plugin this grows unboundedly; checkpoint the chain (periodic signed Merkle roots) so verification can start from the last trusted root rather than genesis, while keeping any gap a hard fail."
+    ]
+  },
+  "CAD-COMPLETE-MS0::U-CAD-APP-19": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/dispatcher-cam.md",
+      "knowledge/wiki/architecture/system-viz-fs-coverage.md",
+      "knowledge/wiki/architecture/engines/mastercam/mastercamfunctionindexengine.md"
+    ],
+    "addSeWiki": ["fail-loud-r12-patterns", "doc-reflection-rule"],
+    "systemImpact": "MastercamHeadlessIntegrationTestSuite fills the cap-11 gap for the #1 CAM app — it is the regression net the CAD-UNIVERSAL-CONTROL-MS0 coverage exit gate (U-CUC18) counts most heavily, since Mastercam is the highest-volume bridge. A suite passing against a fake NET-Hook harness means the most-used CAM bridge is unverified while the coverage gate reports green.",
+    "csDepth": [
+      "Golden-output comparison must be deterministic — Mastercam NET-Hook output can carry timestamps, GUIDs, and machine-specific paths; the golden comparator must normalize those volatile fields or every run false-fails.",
+      "The suite must drive the real NET-Hook API in at least one E2E fixture — a 'hermetic fakes don't prove wiring' violation here is high-cost because a missing-from-enum dispatcher action passes a mock 100% while production is 100% broken."
+    ]
+  },
+  "CAD-COMPLETE-MS0::U-ML-11": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/nn-graph-ms0.md",
+      "knowledge/wiki/architecture/u-nng-pipeline-stratified-wire.md",
+      "knowledge/wiki/architecture/engines/orchestration/neuralweightpersistenceengine.md"
+    ],
+    "addSeWiki": ["test-design-real-values", "fail-loud-r12-patterns"],
+    "systemImpact": "ContinualLearningBufferEngine (EWC++ + replay buffer) is the catastrophic-forgetting guard for every PRISM learning engine that updates online — CADCAM-AGI's VariabilityIntegrationLayer (U-AGI18) and the CAD learning engines (U-CTE12 targets) depend on it so that adapting to a new customer's parts doesn't erase prior-customer competence. If the Fisher penalty regresses, the model silently forgets old tasks while still reporting good loss on the new one.",
+    "csDepth": [
+      "The Fisher information matrix is O(params²) if stored densely — use the diagonal approximation (standard EWC) and persist only the diagonal, but document that the approximation drops parameter correlations; full Fisher is intractable for any non-trivial model.",
+      "Prioritized replay sampling needs a sum-tree (segment tree) for O(log n) proportional sampling and priority update — a naive linear scan over the buffer is O(n) per sample and dominates training time; importance-sampling weights must correct the bias the prioritization introduces."
+    ]
+  },
+  "CAD-COMPLETE-MS0::U-AI-11": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/engines/orchestration/metaaiorchestrationengine.md",
+      "knowledge/wiki/architecture/codex-review-arm.md",
+      "knowledge/wiki/architecture/ollama-pipeline-ms0.md"
+    ],
+    "addSeWiki": ["fail-loud-r12-patterns", "token-budget-management"],
+    "systemImpact": "SecondOpinionConsensusEngine is the multi-model disagreement-surfacing layer that other AI-routed CAD/CAM units lean on for high-stakes decisions — its design mirrors the 3-of-3 scrutiny gate doctrine. If it silently picks or averages when models diverge (R7 violation), a confidently-wrong single model overrides a correct dissent and the conflict never reaches a human.",
+    "csDepth": [
+      "Quorum voting needs a tie-breaking and abstention policy — with 2 models a disagreement is a 1-1 tie that MUST escalate, not coin-flip; with N models define whether a non-strict majority counts and whether a low-confidence vote abstains rather than votes.",
+      "Disagreement detection on free-text outputs is not exact-equality — use semantic divergence (Jaccard over normalized tokens, or embedding cosine distance) with a calibrated threshold; raw string inequality flags trivial paraphrases as disagreement and floods the human queue."
+    ]
+  },
+  "CAD-COMPLETE-MS0::U-INT-07": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/engines/cad/cadtenantnamespaceengine.md",
+      "knowledge/wiki/architecture/dispatcher-context.md",
+      "knowledge/wiki/architecture/knowledge-vault-schema.md"
+    ],
+    "addSeWiki": ["physics-constants-discipline", "fail-loud-r12-patterns"],
+    "systemImpact": "CADUnitPreferenceEngine resolves the metric/imperial/mixed display and input context for every CAD operation per user/customer — CAD generation, drawing-parse, and CADSTEPAP238Engine (U-INT-10) export all consume its resolved unit system. A lossy or wrong conversion factor here propagates a dimensional error into machined geometry; this is a safety-relevant correctness path, not a cosmetic preference.",
+    "csDepth": [
+      "Unit conversion must use exact rational factors (25.4 mm/in exactly) and apply conversion once at a defined boundary — repeated round-tripping accumulates float error; store dimensions in one canonical internal unit and convert only at the I/O edge.",
+      "The per-user/customer/mixed preference fallback chain is a layered-config resolution problem — define a strict precedence order and a deterministic tie-break, and fail loud on an unresolvable 'mixed' spec rather than defaulting silently to one system."
+    ]
+  },
+  "CAD-COMPLETE-MS0::U-INT-08": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/dispatcher-cad.md",
+      "knowledge/wiki/architecture/dispatcher-validation.md",
+      "knowledge/wiki/architecture/slash-cmd-fidelity-ms0.md"
+    ],
+    "addSeWiki": ["fail-loud-r12-patterns", "regression-prevention-doctrine"],
+    "systemImpact": "CADAccessibilityUIAuditEngine audits the CAD frontend UIs against WCAG 2.2 AA — CADRegressionDashboardUI (U-CINF09) and any operator-facing CAD UI depend on it to catch accessibility regressions before release. If it ships toBeDefined-stub checks instead of real contrast/focus-order assertions, the audit reports compliant while the UI is actually unusable for screen-reader/keyboard-only operators.",
+    "csDepth": [
+      "WCAG contrast checks require the WCAG relative-luminance formula with exact sRGB linearization coefficients — an approximate luminance computation flips borderline pass/fail; treat the coefficients as named constants.",
+      "Keyboard focus-order traversal is a graph problem — the audit must walk the actual tab-order DAG and detect cycles and unreachable interactive nodes; a flat DOM-order assumption misses CSS/JS-reordered focus and gives false passes."
+    ]
+  },
+  "CAD-COMPLETE-MS0::U-INT-10": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/engines/cad/cadformatconversionmatrixengine.md",
+      "knowledge/wiki/architecture/dispatcher-export.md",
+      "knowledge/wiki/architecture/dispatcher-cam.md"
+    ],
+    "addSeWiki": ["fail-loud-r12-patterns", "regression-prevention-doctrine"],
+    "systemImpact": "CADSTEPAP238Engine exports STEP-NC machining info — its output is the interchange format a downstream CAM/post pipeline (and external machine controllers) consume directly. An AP238 file with malformed part-21 entities is silently unloadable; every CAM consumer that round-trips through STEP-NC inherits the corruption, so write-then-reparse verification is load-bearing.",
+    "csDepth": [
+      "EXPRESS-schema entity emission has ordering and reference-integrity constraints — every entity reference (#id) must resolve and forward references must be permitted by the schema; emit a reference graph and topologically validate it before serialization rather than trusting append order.",
+      "Mapping machining features to STEP-NC workingsteps is a many-to-one with unit-system pitfalls — feature dimensions must be in the AP238-mandated units; a metric/imperial mix-up (depends on U-INT-07) emits geometrically valid but dimensionally wrong workingsteps."
+    ]
+  },
+  "CAD-COMPLETE-MS0::U-INT-18": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/engines/cad/cadreplicationdurabilityengine.md",
+      "knowledge/wiki/architecture/fleet-reaper.md",
+      "knowledge/wiki/architecture/engines/cad/cadcontentaddressablestoreengine.md"
+    ],
+    "addSeWiki": ["fail-loud-r12-patterns", "regression-prevention-doctrine", "schema-read-discipline"],
+    "systemImpact": "CADCrashRecoveryPlatformEngine is the platform-hardening layer beneath CADCrashRecoveryEngine (U-CAD-APP-13) — it handles orphan COM processes, disk-full checkpoints, and clock-skew. Every long CAD automation job on the memory-pressured PRISM host depends on it; if a disk-full checkpoint corrupts instead of failing loud, recovery replays from a truncated checkpoint and produces a wrong model.",
+    "csDepth": [
+      "Disk-full-safe checkpointing means write-temp-then-rename AND explicitly checking for ENOSPC on both write and fsync — a rename onto a full disk can still fail; the engine must surface ENOSPC loud, never leave a partial checkpoint as the 'latest'.",
+      "Clock-skew resilience requires a monotonic clock for ordering recovery events — wall-clock timestamps can go backwards (NTP correction), making a later checkpoint appear older; orphan-COM detection by 'process older than N seconds' must also use monotonic time or a backwards jump reaps a live process."
+    ]
+  },
+  "CAD-GROUND-TRUTH-MS0::U-CGT01": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/engines/cad/cadformatconversionmatrixengine.md",
+      "knowledge/wiki/architecture/engines/cad/groundtruthregistryengine.md",
+      "knowledge/wiki/architecture/dispatcher-cad.md"
+    ],
+    "addSeWiki": ["fail-loud-r12-patterns", "regression-prevention-doctrine"],
+    "systemImpact": "FCStdNativeParserEngine is one of the per-format parsers feeding GroundTruthBatchExtractor (U-CGT07) and the GroundTruthRegistryEngine (U-CGT08) — the ground-truth corpus it produces is the training/validation reference for every CAD ML and regression unit downstream. A parser that silently drops a feature from Document.xml poisons the ground truth, and every model trained on it inherits the gap.",
+    "csDepth": [
+      "FCStd is a ZIP container — entry extraction must guard against zip-slip (a malicious or malformed entry path escaping the extraction root) and against decompression bombs (bounded output size); a 20K-file batch will eventually hit a pathological archive.",
+      "FreeCAD Document.xml uses object-reference indirection — features reference each other by name; the parser must build the object graph and resolve references rather than reading a flat element list, or a parametric feature tree is parsed as disconnected nodes."
+    ]
+  },
+  "CAD-GROUND-TRUTH-MS0::U-CGT02": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/engines/fusion/fusion360functionindexengine.md",
+      "knowledge/wiki/architecture/cad-fusion-training-ms0.md",
+      "knowledge/wiki/architecture/engines/cad/groundtruthregistryengine.md"
+    ],
+    "addSeWiki": ["fail-loud-r12-patterns", "regression-prevention-doctrine"],
+    "systemImpact": "F3DSQLiteParserEngine is the Fusion360 ground-truth parser feeding GroundTruthBatchExtractor (U-CGT07) and the registry (U-CGT08) — the cad-fusion-training-ms0 corpus and Fusion-routed CAD ML units depend on its extraction being faithful. Reading the wrong SQLite table or assuming a schema version that drifted produces silently incomplete ground truth.",
+    "csDepth": [
+      "F3D embeds a real SQLite DB whose schema is version-dependent — query sqlite_master to discover actual table/column names at runtime rather than hardcoding them; the schema-read-first discipline is mandatory here (a recurring META-tool bug class is assuming a schema without reading the file).",
+      "Binary-blob columns may hold compressed or proprietary-encoded geometry — the parser must detect and fail loud on an unrecognized blob encoding rather than emitting garbage, and must open the SQLite file read-only to avoid mutating a corpus file."
+    ]
+  },
+  "CAD-GROUND-TRUTH-MS0::U-CGT03": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/engines/cad/stepap242pmiextractorengine.md",
+      "knowledge/wiki/architecture/engines/cad/igesimportengine.md",
+      "knowledge/wiki/architecture/dispatcher-export.md"
+    ],
+    "addSeWiki": ["fail-loud-r12-patterns", "mcp-tool-design"],
+    "systemImpact": "CADToSTEPPipelineEngine is the per-format normalization layer that gives GroundTruthBatchExtractor (U-CGT07) a uniform STEP representation regardless of source CAD — the entire ground-truth corpus's comparability depends on every format-specific pipeline behaving identically through a shared interface. If one format's pipeline emits subtly different STEP, cross-format ground-truth comparison silently breaks.",
+    "csDepth": [
+      "The strategy pattern per format must share a verified common interface contract — divergent error handling between pipelines (one throws, one returns empty) is the silent-degrade hazard; the dispatch table maps extension→pipeline but every pipeline must honor the same fail-loud contract.",
+      "STEP geometry export is lossy across kernels — the pipeline should record a fidelity metric (face/edge count delta) per conversion so downstream consumers can filter low-fidelity ground truth rather than treating all conversions as equal."
+    ]
+  },
+  "CAD-GROUND-TRUTH-MS0::U-CGT06": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/dispatcher-cadregression.md",
+      "knowledge/wiki/architecture/engines/cad/cadpreviewthumbnailcacheengine.md",
+      "knowledge/wiki/architecture/engines/ml/cadregressiondashboardengine.md"
+    ],
+    "addSeWiki": ["fail-loud-r12-patterns", "regression-prevention-doctrine"],
+    "systemImpact": "CADScreenshotCapturer produces the reference views that CADVisualDiffEngine and the CAD regression dashboard (U-CINF09) compare against — every visual-diff regression verdict depends on these captures being byte-deterministic. Non-deterministic capture (varying camera, lighting, AA) generates false visual regressions that erode trust in the whole regression suite.",
+    "csDepth": [
+      "Deterministic capture requires pinning camera matrix, light positions, render resolution, anti-aliasing mode, and GPU/software-renderer choice — even driver-version differences in rasterization can flip pixels; pair the capture with perceptual hashing (a small Hamming-distance tolerance) rather than exact pixel equality to absorb sub-perceptual noise.",
+      "Perceptual image hashing (pHash/dHash) has a false-negative rate — a real but small geometric change can hash within tolerance; the diff threshold is a precision/recall tradeoff that must be tuned against a labeled set, not guessed."
+    ]
+  },
+  "CAD-GROUND-TRUTH-MS0::U-CGT07": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/engines/cam/batchcamengine.md",
+      "knowledge/wiki/architecture/fleet-memory-monitor.md",
+      "knowledge/wiki/architecture/engines/cad/groundtruthregistryengine.md"
+    ],
+    "addSeWiki": ["fail-loud-r12-patterns", "regression-prevention-doctrine"],
+    "systemImpact": "GroundTruthBatchExtractor produces the entire 20K-file ground-truth corpus — it is the single upstream dependency of GroundTruthRegistryEngine (U-CGT08), the CAD ML training units (U-ML-11), and CAD-INFRA-MS0's regression corpus. A crash that restarts from zero instead of resuming wastes hours; a checkpoint bug that skips files silently shrinks the corpus and biases every model trained on it.",
+    "csDepth": [
+      "Bounded-concurrency worker pool: the worker count must be tuned to the memory-pressured PRISM host (commit-memory ceiling), not CPU count — over-subscription triggers the fleet-memory-monitor critical state and OOM; a semaphore-bounded pool with backpressure is the correct structure.",
+      "Resumable checkpointing must record per-file completion atomically (an append-only .jsonl of completed file ids) — a checkpoint that records a count rather than the set of done files cannot distinguish 'file 12001-12100 done' from 'a different 100 done', causing skip-or-redo on resume."
+    ]
+  },
+  "CAD-GROUND-TRUTH-MS0::U-CGT08": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/engines/cad/cadsearchuniversalengine.md",
+      "knowledge/wiki/architecture/engines/cad/cadfileindexengine.md",
+      "knowledge/wiki/architecture/master-index-surface.md"
+    ],
+    "addSeWiki": ["fail-loud-r12-patterns", "regression-prevention-doctrine"],
+    "systemImpact": "GroundTruthRegistryEngine is the queryable index over the ground-truth corpus from U-CGT07 — CAD ML training (U-ML-11), regression validation (U-CINF14), and any consistency-validation unit query it by class/feature. If the index is stale or its persisted form is corrupt, every consumer silently trains/validates against a partial corpus.",
+    "csDepth": [
+      "An inverted index keyed by class/feature must be built once and updated incrementally — a linear scan over 20K records per query is O(n) and unusable; the index posting lists should be sorted for fast intersection on multi-term queries.",
+      "Persisting the index atomically with schemaVersion is mandatory — a reader hitting a mid-write index file sees truncated JSON; if the index grows large, prefer an append-only or sharded store over rewriting one big JSON, since pretty-printing a multi-hundred-MB structure hits V8's max-string-length cap."
+    ]
+  },
+  "CAD-GROUND-TRUTH-MS0::U-CGT10": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/dispatcher-cadregression.md",
+      "knowledge/wiki/architecture/engines/cad/groundtruthvalidationengine.md",
+      "knowledge/wiki/architecture/silent-close-out-drift.md"
+    ],
+    "addSeWiki": ["fail-loud-r12-patterns", "regression-prevention-doctrine"],
+    "systemImpact": "The ground-truth determinism regression test is the fail-on-revert oracle that protects the entire CAD-GROUND-TRUTH-MS0 corpus — it guards U-CGT01/02/03/07/08 against silent extraction drift. If this test passes when output drifts, every downstream ML and regression milestone trains against a moving target without knowing it.",
+    "csDepth": [
+      "Determinism verification (same input → byte-identical output) must normalize legitimately non-deterministic fields (timestamps, run ids, absolute paths) before byte-comparison, or it false-fails on noise; the golden file must be regenerable and version-controlled.",
+      "A real fail-on-revert oracle must actually fail on the buggy code — write it so that reverting the determinism fix flips the test red; a test that passes against both correct and buggy output is a worthless toBeDefined-class stub."
+    ]
+  },
+  "CAD-INFRA-MS0::U-CINF01": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/system-viz-fs-coverage.md",
+      "knowledge/wiki/architecture/system-viz-fs-coverage-ms1.md",
+      "knowledge/wiki/architecture/master-index-surface.md"
+    ],
+    "addSeWiki": ["fail-loud-r12-patterns", "regression-prevention-doctrine"],
+    "systemImpact": "CADFileIndexerEngine is the master 20,006-file catalog that CADFileClassifierEngine (U-CINF02), the CAD universal-control coverage telemetry (U-CUC16), and the new-customer-directory watcher (U-CUC05) all read. If the incremental mtime-keyed update misses a changed file, the entire CAD coverage picture and every downstream classifier silently operates on a stale catalog.",
+    "csDepth": [
+      "mtime-keyed incremental indexing has a known false-negative: a file modified within the same second as the last index pass, or restored with a preserved mtime, is missed — pair mtime with size and optionally a content hash for changed-file detection; bounded-depth recursion prevents runaway on symlink loops.",
+      "Persisting a 20K-entry catalog atomically means temp+rename, and at this scale prefer not pretty-printing the JSON (compact stringify) — the system-viz fs-coverage work documents the V8 max-string-length crash from indented stringify of large merged graphs."
+    ]
+  },
+  "CAD-INFRA-MS0::U-CINF02": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/engines/cad/cadfeatureclassifierengine.md",
+      "knowledge/wiki/architecture/engines/cad/cadformatconversionmatrixengine.md",
+      "knowledge/wiki/architecture/dispatcher-cad.md"
+    ],
+    "addSeWiki": ["fail-loud-r12-patterns", "regression-prevention-doctrine"],
+    "systemImpact": "CADFileClassifierEngine labels every cataloged file part/assembly/drawing/CAM — CAD-INFRA-MS0's regression infra (U-CINF14 smoke corpus) and coverage telemetry (U-CUC16) partition work by these classes. A misclassification routes a file to the wrong test/extraction lane, so a drawing tested as a part silently produces a false regression or a skipped check.",
+    "csDepth": [
+      "Extension-only classification is unreliable (.dwg can be a drawing or, mislabeled, an assembly export) — combine the file magic-number/content signature with the extension; assert every class branch with a real example file so the decision tree's leaves are all exercised.",
+      "An 'unknown/other' bucket must be surfaced loudly, not silently swallowed — an unclassified file is a coverage gap; a rule classifier should emit a confidence and route low-confidence cases to a human-review queue."
+    ]
+  },
+  "CAD-INFRA-MS0::U-CINF03": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/dispatcher-cadregression.md",
+      "knowledge/wiki/architecture/knowledge-vault-schema.md",
+      "knowledge/wiki/architecture/per-slot-claim-ms0.md"
+    ],
+    "addSeWiki": ["fail-loud-r12-patterns", "regression-prevention-doctrine"],
+    "systemImpact": "CADTestStateSchema defines the per-file atomic state record that CADTestCheckpointEngine (U-CINF05), CADFailureTriageEngine (U-CINF06), and CADRegressionResultsAnalyzerEngine (U-CINF10) all read and write — it is the shared data contract for the whole CAD regression pipeline. A schema change without a migration path breaks every consumer at once.",
+    "csDepth": [
+      "Per-file atomic state means each file's state record is its own temp+rename write — this avoids the multi-writer race entirely (no shared mutable JSON), and a reader hitting a mid-write file must never see truncated JSON; the rename is the atomicity guarantee.",
+      "Every state JSON requires schemaVersion and an N-1 backward-compatible migration — a Zod schema validates on read, but the analyzer must read schemaVersion FIRST and dispatch to the right field mapping; assuming current field names against an older record is the recurring schema-read-blindness bug class."
+    ]
+  },
+  "CAD-INFRA-MS0::U-CINF05": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/engines/cad/cadcontentaddressablestoreengine.md",
+      "knowledge/wiki/architecture/engines/cam/batchcamengine.md",
+      "knowledge/wiki/architecture/fleet-reaper.md"
+    ],
+    "addSeWiki": ["fail-loud-r12-patterns", "schema-read-discipline"],
+    "systemImpact": "CADTestCheckpointEngine makes the CAD regression run resumable every 100 files — the 20K-file regression sweep (and U-CINF14's smoke validation) depends on it so a crash at file 12K resumes rather than restarts. A checkpoint bug that skips or re-runs files corrupts CADRegressionResultsAnalyzerEngine's (U-CINF10) aggregate pass-rate.",
+    "csDepth": [
+      "The checkpoint must record the SET of completed file ids (append-only), not a count — restart logic that resumes 'after file N' assumes processing order is stable; if order varies (parallel workers), only an explicit done-set lets resume skip exactly the done files.",
+      "Atomic checkpoint write (temp+rename) every 100 files is a throughput/durability tradeoff — too-frequent checkpointing serializes the workers on fsync; the 100-file interval bounds re-work to at most 100 files on a crash, which is the right granularity."
+    ]
+  },
+  "CAD-INFRA-MS0::U-CINF06": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/dispatcher-diagnosis.md",
+      "knowledge/wiki/architecture/engines/cad/cadtrialerrorlearningengine.md",
+      "knowledge/wiki/architecture/dispatcher-cadregression.md"
+    ],
+    "addSeWiki": ["regression-prevention-doctrine", "schema-read-discipline"],
+    "systemImpact": "CADFailureTriageEngine classifies every CAD regression failure into a named category — CADRegressionResultsAnalyzerEngine (U-CINF10), the dashboard (U-CINF09), and the safety hooks (U-CINF13) all consume its taxonomy to decide aggregate health and whether to abort. An uncategorized failure falling into a silent 'unknown' bucket hides a whole class of breakage from the abort gate.",
+    "csDepth": [
+      "Exception-type-to-category mapping must have a total function semantics — every failure lands in a named category, and a genuinely new exception type must surface as a LOUD 'needs-a-rule' finding, not default into an 'unknown' sink that the analyzer then under-weights.",
+      "Rule-based triage ordering matters: a broad rule placed before a specific one shadows it (the same first-match-wins shadowing hazard as ABAC policy ordering); order rules specific-to-general and test the overlap cases."
+    ]
+  },
+  "CAD-INFRA-MS0::U-CINF07": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/engines/cad/cadcontentaddressablestoreengine.md",
+      "knowledge/wiki/architecture/ledger-store.md",
+      "knowledge/wiki/architecture/dispatcher-cadregression.md"
+    ],
+    "addSeWiki": ["fail-loud-r12-patterns", "regression-prevention-doctrine"],
+    "systemImpact": "CADArtifactStorageEngine content-addresses the diffs/images/logs produced by the CAD regression run — CADRegressionDashboardUI (U-CINF09) and CADRegressionReportGeneratorEngine (U-CINF11) link to its blobs. If two identical artifacts don't dedupe, storage bloats; if a blob write is non-atomic, the dashboard links to a truncated image.",
+    "csDepth": [
+      "Content-addressable storage keyed by SHA-256 gives free deduplication but a hash collision (astronomically unlikely with SHA-256, but a malformed-input bug can compute the wrong hash) writes one blob over another — verify hash on read for safety-relevant artifacts.",
+      "Atomic blob write (temp+rename into the hash-named final path) makes the store idempotent: re-storing an identical artifact is a no-op; this also makes concurrent writers safe since both produce the same final name and the rename is atomic."
+    ]
+  },
+  "CAD-INFRA-MS0::U-CINF09": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/engines/ml/cadregressiondashboardengine.md",
+      "knowledge/wiki/architecture/frontends/index.md",
+      "knowledge/wiki/architecture/dispatcher-cadregression.md"
+    ],
+    "addSeWiki": ["fail-loud-r12-patterns", "regression-prevention-doctrine"],
+    "systemImpact": "CADRegressionDashboardUI is the operator-facing surface for the whole CAD regression infra — it renders CADRegressionResultsAnalyzerEngine's (U-CINF10) aggregate metrics and CADArtifactStorageEngine's (U-CINF07) artifacts. If it renders hardcoded placeholder data, operators trust a green dashboard while real regressions go unnoticed.",
+    "csDepth": [
+      "The dashboard must render purely from the regression results JSON — no derived metrics computed in the UI layer, or the dashboard and the analyzer disagree (two surfaces, one metric, two answers); the analyzer is the single source of truth.",
+      "React state management for a large result set needs virtualization/pagination — rendering 20K result rows in one DOM tree is a performance cliff; the API endpoint should serve paginated/aggregated slices, not the raw set."
+    ]
+  },
+  "CAD-INFRA-MS0::U-CINF10": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/engines/ml/cadregressionresultsanalyzerengine.md",
+      "knowledge/wiki/architecture/dispatcher-quality.md",
+      "knowledge/wiki/architecture/silent-close-out-drift.md"
+    ],
+    "addSeWiki": ["fail-loud-r12-patterns", "regression-prevention-doctrine"],
+    "systemImpact": "CADRegressionResultsAnalyzerEngine is the metric authority for CAD regression — CADRegressionDashboardUI (U-CINF09), CADRegressionReportGeneratorEngine (U-CINF11), CADRegressionSafetyHooks (U-CINF13's abort threshold), and the CAD-UNIVERSAL coverage gate (U-CUC16/U-CUC18) all consume its aggregate pass-rate/percentiles. A wrong aggregation silently mis-certifies milestone exit gates.",
+    "csDepth": [
+      "Aggregation must be a streaming reduce over result records (not load-all-into-memory) at 20K scale — and percentile computation needs the full distribution; use a t-digest or sorted-sample structure for streaming percentiles rather than an exact sort of all values.",
+      "Read the result-state schemaVersion before mapping field names — the recurring META-tool bug (high-roi-skill-rank reading totals.* against a v2 top-level schema) is exactly this class: assume nothing about field shape, schema-probe first."
+    ]
+  },
+  "CAD-INFRA-MS0::U-CINF11": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/engines/ml/cadregressionreportgeneratorengine.md",
+      "knowledge/wiki/architecture/dispatcher-document.md",
+      "knowledge/wiki/architecture/dispatcher-cadregression.md"
+    ],
+    "addSeWiki": ["fail-loud-r12-patterns", "regression-prevention-doctrine"],
+    "systemImpact": "CADRegressionReportGeneratorEngine produces the PDF/HTML reports operators and stakeholders read for CAD regression runs — it consumes CADRegressionResultsAnalyzerEngine's (U-CINF10) aggregate JSON. A malformed report or one built from stale/placeholder metrics misinforms the milestone close-out decision.",
+    "csDepth": [
+      "PDF/HTML generation from structured data must round-trip-verify the output is well-formed (parse the generated HTML, validate the PDF opens) — a write-only report generator can emit broken markup that renders blank.",
+      "The report must reflect the analyzer's metrics verbatim — recomputing any metric in the report layer creates a divergence; consume the analyzer JSON as the single source and template over it, write the report file atomically."
+    ]
+  },
+  "CAD-INFRA-MS0::U-CINF13": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/hooks/engine/enforcementhooks.md",
+      "knowledge/wiki/architecture/fleet-reaper.md",
+      "knowledge/wiki/architecture/dispatcher-cadregression.md"
+    ],
+    "addSeWiki": ["regression-prevention-doctrine", "fail-loud-r12-patterns"],
+    "systemImpact": "CADRegressionSafetyHooks abort a CAD regression run on cascading failure — they protect the host (a 20K-file run that's failing every file wastes hours and memory) and prevent a corrupt run from feeding CADRegressionResultsAnalyzerEngine (U-CINF10) a meaningless aggregate. If the abort gate doesn't fire, a cascade runs to completion and the dashboard reports a falsely-low pass-rate as if it were real signal.",
+    "csDepth": [
+      "The circuit-breaker needs a failure-rate window, not a raw count — abort on 'N failures in the last M files', because an absolute count would never abort a long run with a steady low failure rate while a true cascade should trip fast; tune the window against real failure-burst data.",
+      "The abort must be loud and idempotent — once tripped it stays tripped for the run; a flapping breaker (trip, recover, trip) on a borderline failure rate produces a half-finished run that's worse than either a clean abort or a clean completion."
+    ]
+  },
+  "CAD-INFRA-MS0::U-CINF14": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/engines/cad/groundtruthvalidationengine.md",
+      "knowledge/wiki/architecture/dispatcher-cadregression.md",
+      "knowledge/wiki/architecture/silent-close-out-drift.md"
+    ],
+    "addSeWiki": ["regression-prevention-doctrine", "fail-loud-r12-patterns"],
+    "systemImpact": "The 100-file smoke corpus is the fast CI gate for the CAD regression infra — it runs before the full 20K sweep and is the practical fail-on-revert oracle for U-CINF01 through U-CINF13. If the smoke corpus is unrepresentative or its assertions are stubs, a CAD extraction regression ships green and only surfaces in production.",
+    "csDepth": [
+      "Smoke-corpus subset selection must cover every file class (part/assembly/drawing/CAM) and every parser path — a 100-file sample that accidentally omits a class gives no coverage for that path; stratified sampling, not random, is correct here.",
+      "Deterministic 100-file validation means the same 100 files in the same order produce byte-identical aggregate output — the test fails loud on any extraction regression, and reverting any U-CINF fix must flip it red, or it is not a real oracle."
+    ]
+  },
+  "CAD-INFRA-MS0::U-CINF15": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/knowledge-vault-schema.md",
+      "knowledge/wiki/architecture/wiki-propagation-watchdog-stop.md",
+      "knowledge/wiki/architecture/dispatcher-cadregression.md"
+    ],
+    "addSeWiki": ["regression-prevention-doctrine", "memory-curation-discipline"],
+    "systemImpact": "The CAD regression infra documentation + runbook is the operator's recovery and operating reference for U-CINF01 through U-CINF14 — without it, a stalled or aborted regression run has no documented restart path and the infra becomes operator-opaque. It is also the doc surface the doc-reflection rule requires updating when any U-CINF unit changes.",
+    "csDepth": [
+      "Documentation-as-code means the runbook lives in-repo and is kept current by the doc-reflection rule — a runbook that drifts from the actual recovery procedure is worse than none, because operators trust a stale procedure.",
+      "The runbook should be a concise pointer index (claude-md-as-pointer-index discipline) into the wiki detail pages, not a monolith — past ~200 lines, dense operational docs stop being read."
+    ]
+  },
+  "CAD-TRAINING-EXTRACT-MS0::U-CTE01": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/course-forge-conversions.md",
+      "knowledge/wiki/architecture/tribal-knowledge-index.md",
+      "knowledge/wiki/architecture/dispatcher-knowledge.md"
+    ],
+    "addSeWiki": ["regression-prevention-doctrine", "wiki-automation-discipline"],
+    "systemImpact": "Extracting the Mastercam Basics tutorial feeds structured KnowledgeTip records into the knowledge-conversion lanes that the CAM learning engines and tribal corpus consume — U-CTE11 (action-sequence index) and U-CTE12 (wire into learning engines) depend on this extraction's output. Malformed extraction poisons the tip corpus that recommendation engines query.",
+    "csDepth": [
+      "Document-to-structured-knowledge extraction must dedupe against the already-extracted Mastercam(45) set before adding — the duplicationGuardEngine / extraction-log discipline; re-extracting an existing tutorial double-counts tips and biases retrieval.",
+      "Tutorial step parsing is sequence extraction — preserve step ordering and the action→parameter binding; a parser that flattens steps into a bag-of-tips loses the procedural structure the learning engines need."
+    ]
+  },
+  "CAD-TRAINING-EXTRACT-MS0::U-CTE02": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/course-forge-conversions.md",
+      "knowledge/wiki/architecture/tribal-knowledge-index.md",
+      "knowledge/wiki/architecture/dispatcher-knowledge.md"
+    ],
+    "addSeWiki": ["regression-prevention-doctrine", "wiki-automation-discipline"],
+    "systemImpact": "Extracting the Mastercam Solids tutorial adds solid-modeling KnowledgeTip records to the corpus feeding U-CTE11's action-sequence index and U-CTE12's learning-engine ingestion — it shares the Mastercam extraction lane with U-CTE01 and U-CTE03, so consistent schema across all three is what makes the consolidated index coherent.",
+    "csDepth": [
+      "Dedupe against already-extracted Mastercam(45) AND against U-CTE01's output — overlapping basics/solids content double-counts; the extraction registry is the cross-unit dedup authority.",
+      "Solid-modeling step parsing must capture feature-tree operations (extrude/revolve/boolean) with their parameters — these are parametric actions; extracting prose without the parameter bindings yields tips the learning engine can't act on."
+    ]
+  },
+  "CAD-TRAINING-EXTRACT-MS0::U-CTE03": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/course-forge-conversions.md",
+      "knowledge/wiki/architecture/domain-edm.md",
+      "knowledge/wiki/architecture/engines/mastercam/mastercamedmbridge.md"
+    ],
+    "addSeWiki": ["regression-prevention-doctrine", "wiki-automation-discipline"],
+    "systemImpact": "Extracting Mastercam Wire EDM tutorials feeds the EDM knowledge lane — the WEDM AGI engines (62 of them) and the wire-EDM studios consume EDM-specific tips. If wire/flush/taper parameters are lost in extraction, the EDM learning corpus is missing exactly the parameters that distinguish wire-EDM from milling knowledge.",
+    "csDepth": [
+      "EDM action-sequence parsing must preserve EDM-specific parameter dimensions (wire diameter, flush pressure, taper angle) and their units — these are not milling parameters; a generic CAM extractor that drops them silently strips the EDM signal.",
+      "Dedupe against the existing 46 WEDM tribal tips — the EDM corpus is already substantial; re-extracting overlapping content biases the WEDM retrieval index."
+    ]
+  },
+  "CAD-TRAINING-EXTRACT-MS0::U-CTE04": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/course-forge-conversions.md",
+      "knowledge/wiki/architecture/engines/inventor/inventorcamstrategyengine.md",
+      "knowledge/wiki/architecture/dispatcher-knowledge.md"
+    ],
+    "addSeWiki": ["regression-prevention-doctrine", "wiki-automation-discipline"],
+    "systemImpact": "Extracting InventorCAM 2.5D Milling + 3D HSM strategy knowledge feeds the CAM strategy lane — the strategy-selection and toolpath engines consume these strategy records, and U-CTE11's action-sequence index incorporates them. Mis-extracted HSM strategy knowledge degrades automated strategy recommendation.",
+    "csDepth": [
+      "2.5D vs 3D-HSM strategies have distinct parameter spaces (stepover/stepdown vs constant-engagement/scallop) — the extractor must keep them in separate strategy categories or the learning engine conflates two regimes.",
+      "Extraction stays advisory until human-verified — a strategy tip that drives a real toolpath is safety-relevant; mark mustHumanVerify on the ledger, never auto-wire raw extracted strategy into a generator."
+    ]
+  },
+  "CAD-TRAINING-EXTRACT-MS0::U-CTE05": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/course-forge-conversions.md",
+      "knowledge/wiki/architecture/engines/solid/solidcamfunctionindexengine.md",
+      "knowledge/wiki/architecture/dispatcher-knowledge.md"
+    ],
+    "addSeWiki": ["regression-prevention-doctrine", "wiki-automation-discipline"],
+    "systemImpact": "Extracting the three InventorCAM 5-axis training volumes feeds the 5-axis CAM knowledge lane consumed by the 5-axis engines and strategy selection — three volumes consolidating into one action-sequence set means cross-volume dedup quality directly determines whether the 5-axis tip corpus is coherent or has triplicated entries.",
+    "csDepth": [
+      "Multi-document corpus consolidation across three volumes is a merge-with-dedup problem — overlapping topics must be detected by semantic similarity, not exact title match; near-duplicate tips across volumes inflate retrieval weight.",
+      "5-axis training extraction must preserve tool-axis-orientation and kinematic-mode context — a 5-axis strategy tip without its kinematics is ambiguous; the extractor must keep the multi-axis context that distinguishes 5-axis from 3-axis advice."
+    ]
+  },
+  "CAD-TRAINING-EXTRACT-MS0::U-CTE06": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/course-forge-conversions.md",
+      "knowledge/wiki/architecture/engines/inventor/inventorcamstrategyengine.md",
+      "knowledge/wiki/architecture/dispatcher-knowledge.md"
+    ],
+    "addSeWiki": ["regression-prevention-doctrine", "wiki-automation-discipline"],
+    "systemImpact": "Extracting InventorCAM Advanced + iLogic knowledge feeds the CAM strategy lane plus the parametric-rule knowledge that drives Inventor automation (relevant to InventorILogicBridgeEngine, U-AGI07). iLogic is parametric scripting — extracting the rule logic, not just prose, is what makes this extraction actionable for the bridge engines.",
+    "csDepth": [
+      "iLogic / parametric-rule extraction must capture the rule's conditional logic and parameter dependencies as structured data — prose extraction loses the executable semantics; the rule is closer to code than to a tip.",
+      "Advanced-strategy parsing should record the precondition context (when the advanced strategy applies) so the learning engine can match it to a situation, not just store it as a flat fact."
+    ]
+  },
+  "CAD-TRAINING-EXTRACT-MS0::U-CTE07": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/course-forge-conversions.md",
+      "knowledge/wiki/architecture/engines/solid/solideditingengine.md",
+      "knowledge/wiki/architecture/dispatcher-knowledge.md"
+    ],
+    "addSeWiki": ["regression-prevention-doctrine", "wiki-automation-discipline"],
+    "systemImpact": "Extracting SolidWorks training feeds the CAD modeling-knowledge lane consumed by U-CTE11's action-sequence index and the CAD learning engines (U-CTE12) — registering through the extraction-training registry is what prevents the same SolidWorks corpus being ingested twice across training-extract units.",
+    "csDepth": [
+      "Modeling-feature step parsing must capture the SolidWorks feature-tree operation order and parent-child references — a flattened feature list loses the dependency structure a modeling-recommendation engine needs.",
+      "Registering through the extraction-training registry is the idempotency guarantee — re-running the extraction must be a no-op for already-registered content; without the registry, a re-run double-ingests."
+    ]
+  },
+  "CAD-TRAINING-EXTRACT-MS0::U-CTE08": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/course-forge-conversions.md",
+      "knowledge/wiki/architecture/engines/fusion/fusion360functionindexengine.md",
+      "knowledge/wiki/architecture/dispatcher-knowledge.md"
+    ],
+    "addSeWiki": ["regression-prevention-doctrine", "wiki-automation-discipline"],
+    "systemImpact": "Extracting Fusion 360 training (CAM + tools) feeds the CAM and tool-knowledge lanes; it shares the Fusion corpus with cad-fusion-training-ms0, so cross-referencing that corpus is what prevents re-extracting already-ingested Fusion content into the action-sequence index (U-CTE11).",
+    "csDepth": [
+      "Cross-reference the cad-fusion-training-ms0 corpus before extraction — overlapping Fusion content already extracted there must be deduped, or the Fusion tip corpus double-counts.",
+      "CAM + tool knowledge are two distinct lanes (toolpath strategy vs tool-library data) — keep them in separate KnowledgeTip categories so tool-selection retrieval doesn't get strategy tips and vice versa."
+    ]
+  },
+  "CAD-TRAINING-EXTRACT-MS0::U-CTE09": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/course-forge-conversions.md",
+      "knowledge/wiki/architecture/dispatcher-resourceextraction.md",
+      "knowledge/wiki/architecture/dispatcher-knowledge.md"
+    ],
+    "addSeWiki": ["regression-prevention-doctrine", "wiki-automation-discipline"],
+    "systemImpact": "Extracting FreeCAD Path Workbench knowledge from online sources feeds the CAM knowledge lane — it is the knowledge backing for FreeCADPathBridgeEngine (U-AGI05), so the Path Workbench API surface this extraction captures directly determines what the bridge can drive.",
+    "csDepth": [
+      "Online-source extraction must attribute and pin source URLs + retrieval dates — web content drifts; an un-attributed tip can't be re-verified, and a stale extraction silently encodes an outdated API.",
+      "Capturing the Path Workbench API surface is an inventory problem — the extraction should produce a structured operation/parameter list, not prose, so the bridge engine can map PRISM CAM ops onto real Path calls."
+    ]
+  },
+  "CAD-TRAINING-EXTRACT-MS0::U-CTE10": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/course-forge-conversions.md",
+      "knowledge/wiki/architecture/tribal-corpus-index.md",
+      "knowledge/wiki/architecture/dispatcher-knowledge.md"
+    ],
+    "addSeWiki": ["regression-prevention-doctrine", "wiki-automation-discipline"],
+    "systemImpact": "Consolidating scattered hyperMILL extractions into coherent action sequences is a cleanup unit — it produces the canonical hyperMILL action-sequence set that U-CTE11's index and U-CTE12's learning-engine ingestion consume. Without consolidation, the hyperMILL knowledge is fragmented across documents and retrieval is incoherent.",
+    "csDepth": [
+      "Action-sequence consolidation across documents is a merge + dedup over the already-extracted hyperMILL(25) set — overlapping sequences must be unified, not concatenated; semantic dedup, not exact match.",
+      "Consolidation must preserve sequence boundaries — merging two partial sequences into one only when they're genuinely the same procedure; an over-eager merge fuses distinct procedures into a nonsensical combined sequence."
+    ]
+  },
+  "CAD-TRAINING-EXTRACT-MS0::U-CTE11": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/master-index-surface.md",
+      "knowledge/wiki/architecture/engines/cad/cadfeatureembeddingengine.md",
+      "knowledge/wiki/architecture/tribal-knowledge-index.md"
+    ],
+    "addSeWiki": ["fail-loud-r12-patterns", "regression-prevention-doctrine"],
+    "systemImpact": "The CAD Action Sequence Index is the queryable retrieval layer over every U-CTE01..U-CTE10 extraction — U-CTE12 (wire into learning engines) and any build-resolution / strategy-recommendation consumer queries it. If the index is stale or non-atomic, every downstream learning engine retrieves against a partial action-sequence corpus.",
+    "csDepth": [
+      "An action-sequence index combining an inverted index (by class/feature) and an embedding-based retrieval index has two consistency surfaces — both must be rebuilt together when the corpus changes, or keyword and semantic retrieval disagree.",
+      "Embedding-based retrieval must pin the embedding model version in the index (the 14,738 int8 768-d nomic-embed vectors precedent) — a re-embedded query against an index built with a different model silently returns wrong neighbors; persist atomically with schemaVersion."
+    ]
+  },
+  "CAD-TRAINING-EXTRACT-MS0::U-CTE12": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/engines/cad/camfeaturelearningengine.md",
+      "knowledge/wiki/architecture/knowledge-conversion-ms0.md",
+      "knowledge/wiki/architecture/dispatcher-cad.md"
+    ],
+    "addSeWiki": ["fail-loud-r12-patterns", "regression-prevention-doctrine"],
+    "systemImpact": "Wiring action sequences into the CAD learning engines is the consumption step that makes the entire CAD-TRAINING-EXTRACT-MS0 milestone payoff real — CADTrialErrorLearningEngine and CamFeatureLearningEngine ingest the U-CTE11 index, and their recommend() output then drives CAD/CAM automation. If the ingest API is mis-wired, the milestone shipped extraction with no consumer (the writer-without-reader anti-pattern).",
+    "csDepth": [
+      "Batch ingestion into a learning engine must be idempotent — re-ingesting the same sequences must not double-weight patterns; the engine's ingest API needs a dedup key (sequence id) so a re-run is safe.",
+      "The acceptance test must verify recommend() returns the ingested patterns end-to-end through the real ingest API — a test against a fake ingest path proves nothing about production wiring (the hermetic-fakes hazard); this is the round-trip oracle."
+    ]
+  },
+  "CAD-UNIVERSAL-CONTROL-MS0::U-CUC04": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/engines/cad/cadfileindexengine.md",
+      "knowledge/wiki/architecture/system-viz-fs-coverage.md",
+      "knowledge/wiki/architecture/dispatcher-cad.md"
+    ],
+    "addSeWiki": ["regression-prevention-doctrine", "memory-curation-discipline"],
+    "systemImpact": "The unknown-extension detector is the coverage-gap surface for CAD-UNIVERSAL-CONTROL-MS0 — it feeds the coverage telemetry (U-CUC16) and the exit gate (U-CUC18) by naming every unrecognized file. A detector that stays silent on an unknown extension hides exactly the gap the 95%-coverage milestone gate exists to measure.",
+    "csDepth": [
+      "The detector is a set-difference of seen-extensions minus known/supported-extensions — the known set is an allowlist that must be the single source of truth shared with the format-conversion matrix, or the detector and the converters disagree on what's 'known'.",
+      "Surfacing must be loud but not noisy — append one advisory per newly-seen unknown extension, dedup against already-surfaced ones (a stamp/seen-set), so a recurring unknown extension doesn't spam every run."
+    ]
+  },
+  "CAD-UNIVERSAL-CONTROL-MS0::U-CUC05": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/engines/cad/cadfileindexengine.md",
+      "knowledge/wiki/architecture/system-viz-fs-coverage-ms1.md",
+      "knowledge/wiki/architecture/wiki-propagation-watchdog-stop.md"
+    ],
+    "addSeWiki": ["fail-loud-r12-patterns", "regression-prevention-doctrine"],
+    "systemImpact": "The new-customer-directory watcher (Stop hook, debounced hourly) keeps CADFileIndexerEngine's catalog and the CAD coverage telemetry current as customers are added — it is the freshness mechanism behind U-CUC16's coverage numbers. If the debounce fails, either it never sweeps (stale coverage) or it sweeps every Stop (host load spike across the 13-chat fleet).",
+    "csDepth": [
+      "Stop-hook debounce via a stamp file is the standard pattern — many simultaneous Stops collapse to one sweep; the stamp's mtime gates the next run, and the throttle interval must be read at call-time so an env override takes effect.",
+      "Directory-change detection by mtime/stamp has the same same-second false-negative as mtime indexing — a customer directory created and a file added within the throttle window may be partially seen; the watcher should re-sweep from the last stamp boundary, not from 'now'."
+    ]
+  },
+  "CAD-UNIVERSAL-CONTROL-MS0::U-CUC06": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/fleet-memory-monitor.md",
+      "knowledge/wiki/architecture/ledger-store.md",
+      "knowledge/wiki/architecture/dispatcher-cad.md"
+    ],
+    "addSeWiki": ["fail-loud-r12-patterns", "regression-prevention-doctrine"],
+    "systemImpact": "The volume-delta alert posts to AGENT_CHAT when extension-volume shifts >5% vs baseline — it is the operator early-warning that the CAD corpus changed materially, feeding into coverage-gate re-evaluation (U-CUC16). It mirrors the fleet-memory-monitor's single-advisory-line discipline; over-alerting trains operators to ignore it.",
+    "csDepth": [
+      "Delta detection vs a stored baseline needs the baseline to be updatable — after an alert fires and the operator acknowledges, the baseline should advance, or every subsequent run re-fires the same >5% alert (alert fatigue).",
+      "Appending to AGENT_CHAT must be a single advisory line with a cooldown — concurrent appenders need atomic append (an append-only .jsonl), and the >5% threshold must be hysteretic (don't flap at exactly 5%)."
+    ]
+  },
+  "CAD-UNIVERSAL-CONTROL-MS0::U-CUC07": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/engines/cad/cadformatconversionmatrixengine.md",
+      "knowledge/wiki/architecture/dispatcher-cam.md",
+      "knowledge/wiki/architecture/dispatcher-cad.md"
+    ],
+    "addSeWiki": ["fail-loud-r12-patterns", "regression-prevention-doctrine"],
+    "systemImpact": "DxfWriterEngine (pure-JS DXF generator) is a P0 coverage gap — it gives CAD-UNIVERSAL-CONTROL-MS0 a no-dependency DXF export path counted toward the U-CUC18 95%-by-bridge exit gate, and the write-path integration tests (U-CUC17) verify it. Every consumer that needs DXF output (drawings, CAM interchange) depends on it emitting loadable files.",
+    "csDepth": [
+      "DXF is a group-code text format — each entity is (group-code, value) pairs in the ENTITIES section; the writer must emit the exact group codes for each entity type per the AutoCAD R12/2000 spec, and a wrong code produces a file that reads as a different entity.",
+      "Round-trip verification (write then re-parse) is mandatory — a write-only DXF test that checks 'no exception thrown' proves nothing; the test must re-import and assert entity counts/geometry match."
+    ]
+  },
+  "CAD-UNIVERSAL-CONTROL-MS0::U-CUC08": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/dispatcher-cadautomation.md",
+      "knowledge/wiki/architecture/dispatcher-cam.md",
+      "knowledge/wiki/architecture/system-viz-fs-coverage.md"
+    ],
+    "addSeWiki": ["fail-loud-r12-patterns", "regression-prevention-doctrine"],
+    "systemImpact": "Mastercam native save (.mcx-8/.mcx/.mcx-6) is a P0 coverage gap — it gives CAD-UNIVERSAL-CONTROL-MS0 the ability to write Mastercam-native files for the #1 CAM app, counted toward the U-CUC18 exit gate. Without it, parts routed through the Mastercam bridge can be read but not saved back natively.",
+    "csDepth": [
+      ".mcx is a proprietary binary format — native save almost certainly requires the NET-Hook automation API per Mastercam version; the engine must dispatch on version (.mcx-6/.mcx/.mcx-8) and fail loud if the required Mastercam version isn't installed.",
+      "Verify each version writes a loadable file (re-open it) — a binary-format writer that emits a structurally-wrong file is silently broken; version-specific format dispatch must be tested per version, not assumed uniform."
+    ]
+  },
+  "CAD-UNIVERSAL-CONTROL-MS0::U-CUC09": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/engines/cad/cadformatconversionmatrixengine.md",
+      "knowledge/wiki/architecture/dispatcher-cad.md",
+      "knowledge/wiki/architecture/dispatcher-export.md"
+    ],
+    "addSeWiki": ["regression-prevention-doctrine", "schema-read-discipline"],
+    "systemImpact": "The DWG bridge (ODA File Converter or LibreDWG) is a P1 coverage gap — it gives CAD-UNIVERSAL-CONTROL-MS0 DWG read/write via an external converter, counted toward the U-CUC18 exit gate. As a subprocess bridge it is also a reliability surface: a converter-missing or nonzero-exit case must fail loud, not produce a silent empty file.",
+    "csDepth": [
+      "External-converter subprocess bridging must handle three failure modes explicitly: converter-binary-missing (ENOENT on spawn), nonzero exit code, and zero-exit-but-empty-output — each must fail loud; a converter that 'succeeds' but produces a 0-byte DWG is the silent-corruption hazard.",
+      "Subprocess invocation needs a timeout and bounded output capture — a hung ODA converter would otherwise wedge the calling pipeline; capture stderr for diagnostics since a SIGKILL leaves no message."
+    ]
+  },
+  "CAD-UNIVERSAL-CONTROL-MS0::U-CUC10": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/engines/inventor/plugininventoryengine.md",
+      "knowledge/wiki/architecture/dispatcher-cad.md",
+      "knowledge/wiki/architecture/system-viz-fs-coverage.md"
+    ],
+    "addSeWiki": ["fail-loud-r12-patterns", "regression-prevention-doctrine"],
+    "systemImpact": "Inventor .idw drawing export is a P2 coverage gap — it gives CAD-UNIVERSAL-CONTROL-MS0 the ability to emit Inventor drawing documents via COM automation, counted toward the U-CUC18 exit gate and verified by U-CUC17's write-path tests.",
+    "csDepth": [
+      "Inventor .idw export drives the COM automation API — it requires Inventor installed and a live COM connection; the engine must fail loud on Inventor-not-running, not return a fake success.",
+      "Verification must open the exported .idw and assert the expected views are present — a COM export call that returns without error can still produce a drawing with missing or empty view placeholders; check the actual document contents."
+    ]
+  },
+  "CAD-UNIVERSAL-CONTROL-MS0::U-CUC11": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/engines/cad/cadformatconversionmatrixengine.md",
+      "knowledge/wiki/architecture/dispatcher-cad.md",
+      "knowledge/wiki/architecture/system-viz-fs-coverage.md"
+    ],
+    "addSeWiki": ["fail-loud-r12-patterns", "regression-prevention-doctrine"],
+    "systemImpact": "STL via CadQuery is a P2 coverage gap — a thin wrapper giving CAD-UNIVERSAL-CONTROL-MS0 STL export through the Python CAD kernel, counted toward the U-CUC18 exit gate. STL output feeds mesh-based downstream consumers (StltoVoxelGridEngine, 3D-print/visualization paths).",
+    "csDepth": [
+      "Even a 'trivial wrapper' must pass mesh-resolution parameters through — a wrapper that calls export with default tessellation silently produces a coarse mesh; the test must verify the resolution param actually changes triangle count.",
+      "The Python CAD-kernel bridge crosses a process boundary — handle Python-missing and CadQuery-import-error fail-loud; a wrapper that swallows the subprocess error returns an empty STL silently."
+    ]
+  },
+  "CAD-UNIVERSAL-CONTROL-MS0::U-CUC12": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/engines/cad/stepap242pmiextractorengine.md",
+      "knowledge/wiki/architecture/engines/cad/cadformatconversionmatrixengine.md",
+      "knowledge/wiki/architecture/dispatcher-cad.md"
+    ],
+    "addSeWiki": ["fail-loud-r12-patterns", "regression-prevention-doctrine"],
+    "systemImpact": "Parasolid .x_b/.x_t support is a P3 coverage gap — it gives CAD-UNIVERSAL-CONTROL-MS0 Parasolid interchange via a STEP round-trip, counted toward the U-CUC18 exit gate. Because it round-trips through STEP, it inherits STEP's lossy-conversion risk for any consumer of Parasolid geometry.",
+    "csDepth": [
+      "STEP round-trip conversion of B-rep geometry risks losing faces/edges/topology — the test must assert B-rep fidelity (face count, edge count, watertightness) survives the round-trip, not just that a file was produced.",
+      "Parasolid .x_b (binary) vs .x_t (text) are two encodings of the same kernel format — the engine must handle both; a writer that only does .x_t silently can't satisfy a .x_b request."
+    ]
+  },
+  "CAD-UNIVERSAL-CONTROL-MS0::U-CUC13": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/engines/cad/igesimportengine.md",
+      "knowledge/wiki/architecture/engines/cad/cadformatconversionmatrixengine.md",
+      "knowledge/wiki/architecture/dispatcher-cad.md"
+    ],
+    "addSeWiki": ["fail-loud-r12-patterns", "regression-prevention-doctrine"],
+    "systemImpact": "The IGES .igs translator is a P3 coverage gap — it gives CAD-UNIVERSAL-CONTROL-MS0 IGES interchange, counted toward the U-CUC18 exit gate and verified by U-CUC17's write-path tests. IGES is a legacy interchange format still common in customer file archives.",
+    "csDepth": [
+      "IGES is a fixed-72-column record format with five sections (Start/Global/Directory/Parameter/Terminate) — the parser must respect exact column positions and the Directory-Entry→Parameter-Data linkage; a column-offset error shifts every field and silently mis-parses.",
+      "IGES uses parameter and record delimiters declared in the Global section — the parser must read those delimiters first, not assume the defaults (comma/semicolon); a file with non-default delimiters breaks a hardcoded parser."
+    ]
+  },
+  "CAD-UNIVERSAL-CONTROL-MS0::U-CUC14": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/dispatcher-aireasoning.md",
+      "knowledge/wiki/architecture/slash-cmd-fidelity-ms0.md",
+      "knowledge/wiki/architecture/skill-auto-loader.md"
+    ],
+    "addSeWiki": ["fail-loud-r12-patterns", "regression-prevention-doctrine"],
+    "systemImpact": "Natural-language CAD routing tests verify that SlashCommandRecommender + AgentRegistry route real prompts to the correct CAD bridge — they are the regression net for the NL-routing layer that the whole CAD-UNIVERSAL-CONTROL-MS0 user-facing entry depends on. A routing regression silently sends a CAD request to the wrong bridge.",
+    "csDepth": [
+      "NL intent classification is a precision/recall tradeoff — the tests must include near-miss prompts (phrases close to two bridges) and assert the right one wins, not just easy unambiguous prompts; an ambiguous prompt should surface the ambiguity, not silently pick.",
+      "Keyword + similarity routing has a polysemy hazard (e.g. a token matching multiple domains) — tests must pin the disambiguation rule with concrete example phrases, the way the /lathe polysemy guard does."
+    ]
+  },
+  "CAD-UNIVERSAL-CONTROL-MS0::U-CUC15": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/dispatcher-aireasoning.md",
+      "knowledge/wiki/architecture/dispatcher-cadregression.md",
+      "knowledge/wiki/architecture/rgs-tool-autoinvoke-ms1.md"
+    ],
+    "addSeWiki": ["fail-loud-r12-patterns", "regression-prevention-doctrine"],
+    "systemImpact": "The coverage regression smoke test drives all 6 CAD bridges through prism_ai and asserts each responds — it is the integration oracle for the U-CUC18 exit gate. If it passes against mocks, a bridge missing from the dispatcher enum looks healthy while production is 100% broken for that bridge.",
+    "csDepth": [
+      "The smoke test must drive the REAL prism_ai dispatcher, not a MockMCPServer — the documented RGS-TOOL bug is that a mock bypasses the z.enum(ACTIONS) gate, so a missing-from-enum action 9/9-passes while production is fully broken; this test must round-trip through the real enum gate.",
+      "Coverage-gap detection across N bridges is a set-coverage assertion — the test must enumerate all 6 expected bridges and fail loud if any is absent, not just check that 'some' bridge responded."
+    ]
+  },
+  "CAD-UNIVERSAL-CONTROL-MS0::U-CUC16": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/engines/cad/cadfileindexengine.md",
+      "knowledge/wiki/architecture/viz-coverage-ms0.md",
+      "knowledge/wiki/architecture/system-viz-fs-coverage.md"
+    ],
+    "addSeWiki": ["fail-loud-r12-patterns", "regression-prevention-doctrine"],
+    "systemImpact": "CAD-coverage volume telemetry feeds the SVI-gated milestone gate — it computes by-extension and by-volume coverage from CADFileIndexerEngine's catalog and gates the U-CUC18 milestone exit. If the telemetry mis-computes, the gate either blocks a complete milestone or passes an incomplete one.",
+    "csDepth": [
+      "Coverage must be computed two ways (by-extension count AND by-file-volume) because they answer different questions — a format with few files but huge volume can pass by-count and fail by-volume; the gate ANDs both, so both computations must be correct.",
+      "The telemetry must derive from a single source (the file index) — the viz-coverage-ms0 precedent is that a hand-edited domain-count array drifted from BUILD_STATE; coverage figures must be computed from the canonical catalog, not maintained separately."
+    ]
+  },
+  "CAD-UNIVERSAL-CONTROL-MS0::U-CUC17": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/engines/cad/cadformatconversionmatrixengine.md",
+      "knowledge/wiki/architecture/dispatcher-export.md",
+      "knowledge/wiki/architecture/dispatcher-cadregression.md"
+    ],
+    "addSeWiki": ["fail-loud-r12-patterns", "regression-prevention-doctrine"],
+    "systemImpact": "Write-path integration tests per bridge verify export correctness for DxfWriterEngine (U-CUC07), Mastercam save (U-CUC08), DWG (U-CUC09), .idw (U-CUC10), STL (U-CUC11), Parasolid (U-CUC12), IGES (U-CUC13) — they are the regression net the U-CUC18 exit gate counts. A write test that only checks 'no exception' lets a corrupt exporter pass.",
+    "csDepth": [
+      "Write-path tests must export then re-import to verify the file is genuinely valid — the round-trip is the real assertion; 'no exception thrown' on write proves nothing about whether the file is loadable.",
+      "Per-bridge fixture parameterization should share one parameterized harness across all 7 export bridges so coverage is uniform — divergent ad-hoc tests per bridge leave inconsistent assertion strength and a weak bridge slips through."
+    ]
+  },
+  "CAD-UNIVERSAL-CONTROL-MS0::U-CUC18": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/close-out-audit.md",
+      "knowledge/wiki/architecture/silent-close-out-drift.md",
+      "knowledge/wiki/architecture/viz-coverage-ms0.md"
+    ],
+    "addSeWiki": ["fail-loud-r12-patterns", "regression-prevention-doctrine", "safety-tier-discipline"],
+    "systemImpact": "The CAD-UNIVERSAL-CONTROL-MS0 milestone exit gate is the final certification for the whole milestone — it ANDs coverage>=95% by-ext AND by-volume (U-CUC16) AND all ingestion mechanisms live (U-CUC05) AND AI routing canaries pass (U-CUC14/U-CUC15). A weak gate ships an incomplete milestone as done, creating exactly the silent-close-out-drift the close-out audit exists to catch.",
+    "csDepth": [
+      "A multi-criterion gate must AND every criterion and report WHICH criterion failed — a gate that returns a single boolean with no breakdown gives the operator no actionable signal; each of the four criteria must be a real measured check, not a hardcoded pass.",
+      "Canary tests must be genuine fail-on-revert oracles — a canary that passes regardless of whether the AI routing works is a toBeDefined stub; reverting any routing fix must flip a canary red."
+    ]
+  },
+  "CADCAM-AGI-MS0::U-AGI01": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/engines/adaptive/realtimeadaptivecontrollerengine.md",
+      "knowledge/wiki/architecture/engines/adaptive/engagementadaptivefeedengine.md",
+      "knowledge/wiki/architecture/dispatcher-mill.md"
+    ],
+    "addSeWiki": ["fail-loud-r12-patterns", "regression-prevention-doctrine"],
+    "systemImpact": "LOCBasedAdaptiveParameterEngine is a core CADCAM-AGI engine — the AGI master controller (U-AGI03) and the cycle-time/speed-feed optimizers consume its LOC-adapted parameters. Because it scales feeds by engagement, a regression here directly changes cutting parameters: an over-aggressive feed is a tool-breakage / safety hazard, so it must import Kienzle/material constants from physics/constants.ts.",
+    "csDepth": [
+      "Engagement-angle to feed scaling must clamp to a safe envelope — an adaptive control loop without saturation limits can command a feed outside the machine/tool capability; the clamp bounds are safety constants, not tunables.",
+      "LOC-based adaptation is a control loop — it must be stable (no oscillation): a poorly-damped feed response chatters; pair the gain with a rate limiter and verify against a real cutting sequence that would oscillate without damping."
+    ]
+  },
+  "CADCAM-AGI-MS0::U-AGI03": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/engines/intelligence/machiningintelligenceorchestratorengine.md",
+      "knowledge/wiki/architecture/engines/orchestration/treeofthoughtengine.md",
+      "knowledge/wiki/architecture/dispatcher-orchestration.md"
+    ],
+    "addSeWiki": ["fail-loud-r12-patterns", "regression-prevention-doctrine"],
+    "systemImpact": "CADCAMAGIOrchestrationEngine is the master controller for the entire CADCAM-AGI-MS0 milestone — it sequences every sub-engine (U-AGI01, U-AGI04..U-AGI19) and is wired by cadCamAgiDispatcher (U-AGI20). If a sub-engine isn't wired in the same commit it becomes an orphan; if a stage failure is swallowed, the whole AGI pipeline produces a wrong program from a silently-skipped stage.",
+    "csDepth": [
+      "The sub-engine dependency graph must be a DAG with explicit stage ordering — a cycle means non-termination; topologically sort stages and fail loud on a cycle, since the orchestrator can't sequence a cyclic dependency.",
+      "A stage failure must propagate and abort the pipeline (fail-loud) — an orchestrator that catches a sub-engine error and continues produces a program missing that stage's contribution, which is worse than a clean abort; partial output must never be presented as complete."
+    ]
+  },
+  "CADCAM-AGI-MS0::U-AGI04": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/engines/cad/stltovoxelgridengine.md",
+      "knowledge/wiki/architecture/dispatcher-cad.md",
+      "knowledge/wiki/architecture/ollama-prism-bridge.md"
+    ],
+    "addSeWiki": ["fail-loud-r12-patterns", "regression-prevention-doctrine"],
+    "systemImpact": "CadQueryBridgeEngine is the Python CAD-kernel bridge that gives CADCAM-AGI parametric/B-rep geometry operations — CadQueryActionExecutorEngine (U-DASAL02) and any AGI unit needing real geometry depend on it. As a process-boundary bridge it is a reliability surface: a swallowed Python error silently returns no geometry.",
+    "csDepth": [
+      "JSON IPC across the process boundary must define a strict request/response schema and handle partial reads — a CAD-kernel subprocess can emit large geometry payloads; the bridge must frame messages (length-prefixed or delimiter) so a chunked read doesn't truncate.",
+      "Python-missing, OCCT-import-error, and subprocess-crash are three distinct failure modes — each must fail loud with a distinguishable error; a bridge that returns an empty result for all three hides the root cause."
+    ]
+  },
+  "CADCAM-AGI-MS0::U-AGI05": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/engines/cam/camintegrationengine.md",
+      "knowledge/wiki/architecture/dispatcher-cam.md",
+      "knowledge/wiki/architecture/dispatcher-cad.md"
+    ],
+    "addSeWiki": ["fail-loud-r12-patterns", "regression-prevention-doctrine"],
+    "systemImpact": "FreeCADPathBridgeEngine integrates FreeCAD CAM into CADCAM-AGI — the AGI orchestrator (U-AGI03) routes CAM operations through it, and it is the runtime consumer of the FreeCAD Path knowledge extracted in U-CTE09. A mistranslated CAM op produces a wrong toolpath that the safety gate (U-AGI24) must then catch downstream.",
+    "csDepth": [
+      "CAM operation translation from PRISM ops to Path Workbench calls is a mapping that must be total — an unmapped PRISM op must fail loud, not silently emit no toolpath; every op needs an explicit Path-call equivalent or a documented rejection.",
+      "Generated toolpaths must be verified against a real FreeCAD Path job — a translation that produces syntactically valid Path calls but geometrically wrong toolpaths is the silent-correctness hazard; verify the toolpath, not just that the calls executed."
+    ]
+  },
+  "CADCAM-AGI-MS0::U-AGI06": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/engines/mastercam/mastercamfunctionindexengine.md",
+      "knowledge/wiki/architecture/dispatcher-cam.md",
+      "knowledge/wiki/architecture/u-bridge-wire-mastercam-2026-05-18.md"
+    ],
+    "addSeWiki": ["fail-loud-r12-patterns", "regression-prevention-doctrine"],
+    "systemImpact": "MastercamAutomationBridgeEngine is the .NET automation bridge for the #1 CAM app within CADCAM-AGI — the AGI orchestrator (U-AGI03) drives Mastercam through it. As COM/.NET automation it must handle Mastercam-not-running and COM-error fail-loud, or the AGI pipeline silently produces nothing while reporting success.",
+    "csDepth": [
+      "COM automation is process-affine and stateful — the bridge must manage the Mastercam process lifecycle (connect, keep-alive, disconnect) and detect a wedged COM connection; a stale COM reference throws RPC_E_DISCONNECTED unpredictably.",
+      "Each automation call must be verified for its real effect (the geometry/toolpath actually changed), not just a non-throwing return — a COM call can return success while the operation no-op'd; verify the effect."
+    ]
+  },
+  "CADCAM-AGI-MS0::U-AGI07": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/engines/cad/parametricpartlibraryengine.md",
+      "knowledge/wiki/architecture/dispatcher-cad.md",
+      "knowledge/wiki/architecture/engines/inventor/inventorcamstrategyengine.md"
+    ],
+    "addSeWiki": ["fail-loud-r12-patterns", "regression-prevention-doctrine"],
+    "systemImpact": "InventorILogicBridgeEngine is the parametric CAD driver for CADCAM-AGI — the AGI orchestrator (U-AGI03) and the parametric-part library use it to drive Inventor models by rule. The iLogic knowledge extracted in U-CTE06 is its knowledge backing. A rule that doesn't actually regenerate the model produces a stale part silently.",
+    "csDepth": [
+      "iLogic rule-driven regeneration is order-dependent — parameter changes must trigger a full feature-tree regeneration and the bridge must verify the model actually rebuilt (not just that the parameter was set); an un-regenerated model is silently stale.",
+      "COM automation for parametric CAD must distinguish a regeneration FAILURE (constraint conflict, over-defined sketch) from success — Inventor can leave the model in an error state; the bridge must report that loud, not treat 'returned' as 'succeeded'."
+    ]
+  },
+  "CADCAM-AGI-MS0::U-AGI09": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/engines/inventor/inventoryeoqengine.md",
+      "knowledge/wiki/architecture/engines/inventor/erptoolinventoryengine.md",
+      "knowledge/wiki/architecture/dispatcher-cad.md"
+    ],
+    "addSeWiki": ["fail-loud-r12-patterns", "regression-prevention-doctrine"],
+    "systemImpact": "StockAutoSelectionChainEngine picks inventory-aware stock for CADCAM-AGI — the AGI orchestrator (U-AGI03) consumes its choice, and cycle-time/cost optimizers downstream depend on the stock dimension. A wrong stock selection cascades into wrong machining-allowance and cost estimates.",
+    "csDepth": [
+      "A chain-of-responsibility selection must have a deterministic fall-through — when no stock matches, the chain must terminate in an explicit 'no stock available' result, not silently return the last-tried candidate; the order of handlers determines the selection bias.",
+      "Inventory-aware constraint satisfaction is a small optimization (minimize waste subject to fitting the part) — but it must read LIVE inventory; a selection against a stale inventory snapshot picks stock that's already consumed, a race with the ERP system."
+    ]
+  },
+  "CADCAM-AGI-MS0::U-AGI11": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/engines/tool/toolselectionadvisorengine.md",
+      "knowledge/wiki/architecture/engines/tool/toolgeometryselectionengine.md",
+      "knowledge/wiki/architecture/engines/inventor/inventoryawaretoolselectorengine.md"
+    ],
+    "addSeWiki": ["fail-loud-r12-patterns", "regression-prevention-doctrine"],
+    "systemImpact": "ToolAutoSelectionChainEngine selects tooling for CADCAM-AGI by matching feature+material to the tool library — the AGI orchestrator (U-AGI03), the speed-feed engines, and ToolChangeMinimizationEngine (U-AGI14) all depend on its tool choices. A wrong tool selection produces wrong speeds/feeds and a wrong cycle-time estimate.",
+    "csDepth": [
+      "There are already multiple tool-selection engines (toolselectionadvisor, toolselectionrecommender, inventoryawaretoolselector) — dedup is mandatory (R8/duplicationGuardEngine): this unit must be a chain that COMPOSES them, not a fourth parallel selector, or it duplicates an existing engine.",
+      "ISO 13399 tool-data lookup is a constraint-matching problem against the tool library — the match must be deterministic and surface ties (two equally-good tools) rather than silently picking; the chain order is the tie-break and must be documented."
+    ]
+  },
+  "CADCAM-AGI-MS0::U-AGI13": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/engines/adaptive/rapidrepositionoptengine.md",
+      "knowledge/wiki/architecture/engines/adaptive/pprapidmovevalidatorengine.md",
+      "knowledge/wiki/architecture/engines/toolpath/toolpathlinkingengine.md"
+    ],
+    "addSeWiki": ["fail-loud-r12-patterns", "safety-tier-discipline"],
+    "systemImpact": "RapidMovementOptimizerEngine reorders rapid moves to cut air time within CADCAM-AGI — CycleTimeOptimizerEngine (U-AGI15) consumes its optimized motion, and the program safety gate (U-AGI24) must verify every reordered rapid still clears stock and fixture. A reorder that creates a collision path is a crash hazard, so safety beats the time saving.",
+    "csDepth": [
+      "Rapid-move sequencing is a TSP/nearest-neighbor route optimization — exact TSP is NP-hard, so a heuristic (nearest-neighbor + 2-opt) is correct, but the heuristic's output is meaningless if any reordered rapid clips geometry; every candidate reordering must pass a collision check before acceptance.",
+      "Collision-safe retract planning is the hard constraint — the optimizer must treat retract-clearance as inviolable and reject any reordering that violates it; an optimizer that optimizes time first and checks safety after can present an unsafe path as 'optimal'."
+    ]
+  },
+  "CADCAM-AGI-MS0::U-AGI14": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/engines/tool/toolcalldeduplicatorengine.md",
+      "knowledge/wiki/architecture/engines/tool/toolcallbatchoptimizerengine.md",
+      "knowledge/wiki/architecture/engines/tool/toolmagazineoptimizationengine.md"
+    ],
+    "addSeWiki": ["fail-loud-r12-patterns", "regression-prevention-doctrine"],
+    "systemImpact": "ToolChangeMinimizationEngine reorders operations to batch same-tool work within CADCAM-AGI — CycleTimeOptimizerEngine (U-AGI15) consumes the reduced tool-change count. A reorder that violates op dependencies (finish before rough) produces a program that machines the part in the wrong order.",
+    "csDepth": [
+      "Operation reordering to minimize tool changes is a constrained grouping problem — it must respect a partial order (rough-before-finish, drill-before-tap); the algorithm reorders only WITHIN dependency-compatible groups, so it is a topological-sort-then-group, not a free permutation.",
+      "Minimizing tool-change count is a set-cover-flavored problem, but the dominant correctness risk is the dependency constraint, not optimality — a slightly-suboptimal grouping is fine; a grouping that reverses rough/finish order is a defective program. Also dedup against the existing toolcalldeduplicator/batchoptimizer engines (R8)."
+    ]
+  },
+  "CADCAM-AGI-MS0::U-AGI15": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/engines/cam/rapidrepositionoptengine.md",
+      "knowledge/wiki/architecture/dispatcher-calc.md",
+      "knowledge/wiki/architecture/engines/adaptive/realtimeadaptivecontrollerengine.md"
+    ],
+    "addSeWiki": ["physics-constants-discipline", "fail-loud-r12-patterns"],
+    "systemImpact": "CycleTimeOptimizerEngine estimates and optimizes cycle time within CADCAM-AGI — it consumes RapidMovementOptimizerEngine (U-AGI13) and ToolChangeMinimizationEngine (U-AGI14) output, and its estimate feeds cost/quote estimation. A wrong cycle-time estimate propagates a wrong cost to the customer-facing quote.",
+    "csDepth": [
+      "Cycle-time estimation is a summation of feed-time + rapid-time + dwell + tool-change overhead — accuracy requires modeling acceleration/deceleration (a short move never reaches programmed feed); a constant-velocity model systematically under-estimates time on parts with many short moves.",
+      "Estimates must be validated against measured machine cycle times — a model tuned only against itself drifts; the test should compare predicted vs real cycle time on a known program, not assert a hardcoded number."
+    ]
+  },
+  "CADCAM-AGI-MS0::U-AGI16": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/engines/cad/featureclusteringengine.md",
+      "knowledge/wiki/architecture/dispatcher-ml.md",
+      "knowledge/wiki/architecture/nn-graph-ms0.md"
+    ],
+    "addSeWiki": ["fail-loud-r12-patterns", "regression-prevention-doctrine"],
+    "systemImpact": "PartComplexityClassifierEngine scores part complexity within CADCAM-AGI — the AGI orchestrator (U-AGI03) and cost/scheduling estimators use the complexity score to allocate effort and estimate machining time. A mis-scored part biases cost estimates and capacity planning.",
+    "csDepth": [
+      "ML complexity scoring (feature vector → score) must be monotonic in the obvious direction — adding a feature/pocket/hole must not decrease the score; the test should assert monotonicity rather than a hardcoded constant, which would pass even if the model returned a fixed value.",
+      "Feature engineering from part geometry is the load-bearing part — the feature vector (hole count, surface area, min-radius, tolerance band count) determines the model's ceiling; a regression/gradient-boosted model on weak features can't recover from a poor feature set."
+    ]
+  },
+  "CADCAM-AGI-MS0::U-AGI17": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/engines/cam/masterpostprocessorengine.md",
+      "knowledge/wiki/architecture/engines/cam/postprocessorcapabilitymatrixengine.md",
+      "knowledge/wiki/architecture/dispatcher-pp.md"
+    ],
+    "addSeWiki": ["fail-loud-r12-patterns", "safety-tier-discipline"],
+    "systemImpact": "MasterPostProcessorEnhancement tunes per-controller G/M-code output within CADCAM-AGI — every program the AGI pipeline emits is post-processed through it for the target machine controller. Wrongly-tuned post output is G-code a real controller rejects or, worse, misinterprets, so generated G-code must parse for every target dialect.",
+    "csDepth": [
+      "Controller-dialect optimization is keyed off the post-processor capability matrix — the enhancement must read the matrix per controller, not assume a generic dialect; a Fanuc-tuned output sent to an Okuma controller is the documented S[Vnn]-vs-S\\d regex-trap class of bug.",
+      "Generated G-code must be parse-verified per target controller dialect — a post that emits syntactically-plausible-but-wrong code is silently dangerous; the test must run the output through each controller's parser."
+    ]
+  },
+  "CADCAM-AGI-MS0::U-AGI18": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/engines/cad/cadtrialerrorlearningengine.md",
+      "knowledge/wiki/architecture/u-cleanup-b9-conformal-drift-gate.md",
+      "knowledge/wiki/architecture/nn-graph-ms0.md"
+    ],
+    "addSeWiki": ["fail-loud-r12-patterns", "regression-prevention-doctrine"],
+    "systemImpact": "VariabilityIntegrationLayer adapts CADCAM-AGI to ever-changing conditions — it re-tunes parameters and strategy from outcome feedback, so the AGI orchestrator (U-AGI03) and StrategyEvolutionEngine depend on it for closed-loop improvement. If it adapts on noise or never adapts, the AGI pipeline either drifts or stagnates.",
+    "csDepth": [
+      "Online adaptation must distinguish a real condition shift from outcome noise — re-tuning on every single outcome chases noise; use a drift-detection gate (conformal/CUSUM-style) so re-tuning fires only on a statistically significant shift, the same discipline as the conformal drift gate.",
+      "Feedback-driven re-tuning paired with continual learning (U-ML-11) risks catastrophic forgetting — adapting to new conditions must not erase competence on prior conditions; the layer should bound how far a re-tune can move from the prior config."
+    ]
+  },
+  "CADCAM-AGI-MS0::U-AGI19": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/engines/intelligence/processintelligencerouterengine.md",
+      "knowledge/wiki/architecture/engines/cad/cadsearchuniversalengine.md",
+      "knowledge/wiki/architecture/dispatcher-aireasoning.md"
+    ],
+    "addSeWiki": ["fail-loud-r12-patterns", "regression-prevention-doctrine"],
+    "systemImpact": "SoftwareRouterEngine picks the CAD/CAM software for a job within CADCAM-AGI — the AGI orchestrator (U-AGI03) uses its choice to route work to the right bridge engine (Mastercam/FreeCAD/Inventor/SolidCAM/hyperMILL). A wrong routing decision sends a job to a bridge that can't do it.",
+    "csDepth": [
+      "Capability-match routing must surface ties — when two software packages are equally capable for a feature, the router must return the conflict (R7), not silently pick; a silent pick hides a real decision the operator should make.",
+      "The feature-to-software capability lookup is a matrix that must be the single source of truth shared with the AGI bridges — if the router's capability map drifts from what a bridge actually supports, routing succeeds but the bridge fails."
+    ]
+  },
+  "CADCAM-AGI-MS0::U-AGI20": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/dispatcher-cad.md",
+      "knowledge/wiki/architecture/dispatcher-cam.md",
+      "knowledge/wiki/architecture/rgs-tool-autoinvoke-ms1.md"
+    ],
+    "addSeWiki": ["fail-loud-r12-patterns", "regression-prevention-doctrine"],
+    "systemImpact": "cadCamAgiDispatcher is the MCP execution surface for the entire CADCAM-AGI-MS0 milestone — it is how every U-AGI engine becomes externally callable. If an action is in the executor but missing from the z.enum(), the action is unreachable in production while a mock-based test passes; this dispatcher is the wiring that makes the whole milestone usable.",
+    "csDepth": [
+      "Every action must be in BOTH the z.enum(ACTIONS) AND have an executor body — the documented RGS-TOOL bug is that MockMCPServer bypasses the SDK enum gate, so a missing-from-enum action 9/9-passes in tests while production is 100% broken; the round-trip E2E must drive the real enum gate.",
+      "The dispatcher action enum + Zod input schema is a contract — a schema change without an N-1 migration breaks every caller; validate input at the boundary and fail loud on a schema mismatch rather than passing a malformed payload to the executor."
+    ]
+  },
+  "CADCAM-AGI-MS0::U-AGI21": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/engines/intelligence/machiningintelligenceorchestratorengine.md",
+      "knowledge/wiki/architecture/rgs-tool-autoinvoke-ms1.md",
+      "knowledge/wiki/architecture/dispatcher-cam.md"
+    ],
+    "addSeWiki": ["fail-loud-r12-patterns", "regression-prevention-doctrine"],
+    "systemImpact": "The CADCAM-AGI full-pipeline integration test is the end-to-end oracle for the whole milestone — it drives CAD→CAM→post through the real engines (U-AGI01..U-AGI20) and is the regression net the milestone close-out depends on. If it runs against hermetic fakes, the milestone ships with the integration unverified.",
+    "csDepth": [
+      "Multi-stage E2E assertion must verify each stage's output is consumed correctly by the next — a test that only checks the final output can pass even if a middle stage no-op'd and a later stage compensated; assert intermediate contracts.",
+      "Hermetic fakes do not prove production wiring — the documented lesson (RGS-TOOL MS1: 97 hermetic tests missed 10 P0 bugs in the real reader factories) — the integration test must drive at least the real dispatcher and real engine APIs as the regression oracle."
+    ]
+  },
+  "CADCAM-AGI-MS0::U-AGI22": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/skill-auto-loader.md",
+      "knowledge/wiki/architecture/slash-cmd-fidelity-ms0.md",
+      "knowledge/wiki/architecture/knowledge-vault-schema.md"
+    ],
+    "addSeWiki": ["doc-reflection-rule", "regression-prevention-doctrine"],
+    "systemImpact": "The /agi-program skill is the operator-facing entry to the CADCAM-AGI pipeline — it routes to cadCamAgiDispatcher (U-AGI20). Invalid command frontmatter means the skill fails the command-frontmatter schema and may not load/trigger correctly, leaving the whole AGI milestone without a usable invocation surface.",
+    "csDepth": [
+      "The skill frontmatter must validate against .claude/schemas/command-frontmatter.schema.json — a frontmatter field error makes the skill silently mis-trigger or not load; validate it explicitly, don't assume.",
+      "Skill-to-dispatcher invocation must reference the actual cadCamAgiDispatcher action names — a skill that names a non-existent action looks fine in the .md but fails at runtime; cross-check against the U-AGI20 enum."
+    ]
+  },
+  "CADCAM-AGI-MS0::U-AGI23": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/wiki-automation-discipline.md",
+      "knowledge/wiki/architecture/knowledge-vault-schema.md",
+      "knowledge/wiki/architecture/claude-md-collapse-tool.md"
+    ],
+    "addSeWiki": ["doc-reflection-rule", "memory-curation-discipline"],
+    "systemImpact": "The AGI System Guide is the documentation surface for the whole CADCAM-AGI-MS0 milestone — it is the operator/developer reference for U-AGI01..U-AGI24 and the doc surface the doc-reflection rule requires updating whenever any AGI unit changes. A stale guide misleads future work on the AGI system.",
+    "csDepth": [
+      "Documentation-as-code: the guide must be a concise CLAUDE.md-pointer-style index into wiki detail pages, not a monolith — past ~200 lines, dense docs stop being read and CLAUDE.md compliance collapses.",
+      "The four-surface doc-reflection rule means CLAUDE.md + MEMORY.md + wiki + Obsidian memory must all be updated in the same session — an AGI guide that updates only the wiki leaves the pointer index stale."
+    ]
+  },
+  "CADCAM-AGI-MS0::U-AGI24": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/hooks/runtime/agi-safety-envelope-guard.md",
+      "knowledge/wiki/architecture/hooks/engine/enforcementhooks.md",
+      "knowledge/wiki/architecture/domain-safety.md"
+    ],
+    "addSeWiki": ["fail-loud-r12-patterns", "regression-prevention-doctrine"],
+    "systemImpact": "The AGI Safety Gate is the hard block on unsafe CADCAM-AGI output — every program the AGI orchestrator (U-AGI03) emits passes through it before reaching a machine. It is the last line of defense against the rapid-move/feed/post regressions in U-AGI13/U-AGI01/U-AGI17; if it weakens from block to warn, an unsafe program can reach the shop floor.",
+    "csDepth": [
+      "A hard-gate must be block, not warn — it refuses unsafe output unconditionally and loud; the safety-tier discipline forbids softening a block to a warn, and the gate must be on the un-disableable allowlist so a profile can't turn it off.",
+      "Safety-envelope constraint checks must use canonical constants from physics/constants.ts — inlining a safety threshold creates a drift hazard where the gate checks against a different limit than the rest of the system; the envelope (max feed, max RPM, collision clearance) is safety-critical and single-sourced."
+    ]
+  },
+  "CADCAM-DAGI-MS1::U-DASAL02": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/engines/cad/parametricpartlibraryengine.md",
+      "knowledge/wiki/architecture/cad-fusion-training-ms0.md",
+      "knowledge/wiki/architecture/dispatcher-cad.md"
+    ],
+    "addSeWiki": ["fail-loud-r12-patterns", "regression-prevention-doctrine"],
+    "systemImpact": "CadQueryActionExecutorEngine synthesizes a CadQuery DSL method chain from PRISM actions — it is the execution arm of the DAGI action layer, consuming CadQueryBridgeEngine (CADCAM-AGI U-AGI04) to actually run the synthesized chain. A chain that compiles but produces wrong geometry silently corrupts the part the DAGI pipeline builds.",
+    "csDepth": [
+      "DSL chain synthesis (fluent builder) is a sequence-to-code translation — the generated chain must be verified to EXECUTE and produce the intended geometry, not merely parse; a syntactically valid CadQuery chain can build the wrong solid.",
+      "AST/sequence-to-DSL translation has an ordering hazard — CadQuery operations are order-dependent (a fillet after a chamfer differs from before); the synthesizer must preserve the action sequence's intended order, and an executor crossing the Python process boundary must fail loud on a kernel error."
+    ]
+  },
+  "CADCAM-DAGI-MS1::U-DASAL09": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/engines/cam/camintegrationengine.md",
+      "knowledge/wiki/architecture/dispatcher-cam.md",
+      "knowledge/wiki/architecture/dispatcher-cadautomation.md"
+    ],
+    "addSeWiki": ["fail-loud-r12-patterns", "regression-prevention-doctrine"],
+    "systemImpact": "HyperMillActionExecutorEngine maps PRISM DAGI actions to the hyperMILL automation API — it is the hyperMILL execution arm of the DAGI action layer, backed by the consolidated hyperMILL action-sequence knowledge (U-CTE10). A mis-mapped action silently fails to produce the intended hyperMILL operation.",
+    "csDepth": [
+      "Action-to-API command mapping must be total and fail loud on an unmapped action — a hyperMILL automation interface that silently ignores an unknown action produces a program missing that operation.",
+      "hyperMILL automation is process-stateful (like Mastercam COM) — the executor must detect hyperMILL-not-running and a wedged automation session, and verify each action's real effect rather than treating a non-throwing call as success."
+    ]
+  },
+  "CADCAM-DAGI-MS1::U-DASAL11": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/engines/cad/parametricpartlibraryengine.md",
+      "knowledge/wiki/architecture/dispatcher-cadautomation.md",
+      "knowledge/wiki/architecture/engines/inventor/inventorcamstrategyengine.md"
+    ],
+    "addSeWiki": ["fail-loud-r12-patterns", "regression-prevention-doctrine"],
+    "systemImpact": "InventorActionExecutorEngine drives Inventor via Apprentice (read) + iLogic (write) — it is the Inventor execution arm of the DAGI action layer. Mixing the read-only and write paths, or a write action that doesn't regenerate the model, silently corrupts the part the DAGI pipeline builds in Inventor.",
+    "csDepth": [
+      "Inventor Apprentice is a read-only API and iLogic is the write path — the executor must keep the read/write split explicit; routing a write action to Apprentice silently no-ops, routing a read through iLogic risks an unintended model mutation.",
+      "Write actions must verify the model actually regenerated and didn't enter an error state (over-defined sketch, constraint conflict) — the same regeneration-verification hazard as InventorILogicBridgeEngine (U-AGI07); a 'returned' COM call is not a 'succeeded' regeneration."
+    ]
+  },
+  "CADCAM-DAGI-MS1::U-DASAL12": {
+    "addArchWiki": [
+      "knowledge/wiki/architecture/engines/solid/solidcamfunctionindexengine.md",
+      "knowledge/wiki/architecture/engines/adaptive/adaptivechiploadengine.md",
+      "knowledge/wiki/architecture/dispatcher-cam.md"
+    ],
+    "addSeWiki": ["fail-loud-r12-patterns", "regression-prevention-doctrine"],
+    "systemImpact": "SolidCAMiMachiningBridgeEngine encodes SolidCAM iMachining adaptive-chipload/engagement knowledge — the DAGI action layer and any CAM strategy unit that picks iMachining technology depend on it. Because iMachining parameters drive real cutting, inlining chipload/engagement constants instead of importing from physics/constants.ts is a safety-relevant drift hazard.",
+    "csDepth": [
+      "iMachining's technology-wizard parameters (adaptive chipload, engagement angle, step) are physics-relevant — they must import from physics/constants.ts; inlining a chipload constant duplicates a safety-rail value and the bridge can silently diverge from the canonical limit (the U-WIRE-ENERGY KC11 inline-vs-canonical bug class).",
+      "The iMachining bridge encodes a knowledge mapping (feature/material → iMachining technology) — it must surface when no iMachining technology fits rather than silently emitting a default; an inappropriate technology choice produces aggressive toolpaths."
+    ]
+  }
+}

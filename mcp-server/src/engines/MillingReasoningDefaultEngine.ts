@@ -1,3 +1,4 @@
+// WIRE-EXEMPT: internal 5-step reasoning wrapper consumed by milling AGI engines (MillingAGIMasterEngine et al). Not a direct dispatcher target — invoked transitively through milling reasoning chain (MILL-AGI-P0/U-P0.2-01).
 /**
  * MillingReasoningDefaultEngine — MILL-AGI-P0/U-P0.2-01
  *
@@ -46,7 +47,7 @@ export const ReasoningContextSchema = z.object({
     coating: z.string().optional(),
     flutes: z.number().optional(),
   }).optional(),
-  parameters: z.record(z.unknown()).optional().describe("Input parameters"),
+  parameters: z.record(z.string(), z.unknown()).optional().describe("Input parameters"),
   constraints: z.array(z.string()).optional(),
   objective: z.string().optional().describe("Primary optimization goal"),
 });
@@ -59,7 +60,7 @@ export const ReasoningHypothesisSchema = z.object({
   confidence: z.number().min(0).max(1),
   sources: z.array(z.string()),
   assumptions: z.array(z.string()),
-  predictedOutcome: z.record(z.unknown()).optional(),
+  predictedOutcome: z.record(z.string(), z.unknown()).optional(),
 });
 
 export type ReasoningHypothesis = z.infer<typeof ReasoningHypothesisSchema>;
@@ -103,7 +104,7 @@ export type Justification = z.infer<typeof JustificationSchema>;
 
 export const ReasoningResultSchema = z.object({
   success: z.boolean(),
-  decision: z.record(z.unknown()),
+  decision: z.record(z.string(), z.unknown()),
   reasoning_trace: z.object({
     trace_id: z.string(),
     steps: z.array(z.object({
@@ -121,8 +122,8 @@ export const ReasoningResultSchema = z.object({
   }),
   confidence: z.number(),
   warnings: z.array(z.string()),
-  _awareness: z.record(z.unknown()).optional(),
-  _reasoning: z.record(z.unknown()).optional(),
+  _awareness: z.record(z.string(), z.unknown()).optional(),
+  _reasoning: z.record(z.string(), z.unknown()).optional(),
   _provenance: z.object({
     engine: z.string(),
     version: z.string(),

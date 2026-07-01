@@ -1,0 +1,29 @@
+{
+  "compilerOptions": {
+    "target": "ES2020",
+    "useDefineForClassFields": true,
+    "lib": ["ES2020", "DOM", "DOM.Iterable"],
+    "module": "ESNext",
+    "skipLibCheck": true,
+    "moduleResolution": "bundler",
+    "allowImportingTsExtensions": true,
+    "isolatedModules": true,
+    "moduleDetection": "force",
+    "noEmit": true,
+    "jsx": "react-jsx",
+    "strict": true,
+    // noUnusedLocals/noUnusedParameters are false INTENTIONALLY -- they are style
+    // flags, not correctness. ESLint's @typescript-eslint/no-unused-vars handles
+    // this better (underscore-prefix exemption, per-pattern rules, autofix). All
+    // correctness flags (TS2322 / TS2339 / TS2345 / strict / noImplicitAny) stay
+    // enforced. Flipped 2026-05-26 (slot golf, /goal tsc-fix loop).
+    // NOTE: this was previously a "// ...": "..." JSON key-value, which tsc parsed
+    // as an unknown compiler option (TS5023); converted to a real JSONC comment
+    // 2026-06-18 (slot papa) -- same decision, valid syntax.
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
+    "noFallthroughCasesInSwitch": true,
+    "noUncheckedSideEffectImports": true
+  },
+  "include": ["src"]
+}

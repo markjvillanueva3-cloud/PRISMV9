@@ -28,7 +28,7 @@ related:
 | Course ID | `course-4-milling-operations` |
 | Source | `mcp-server/src/data/academy/course-4-milling-operations.ts` |
 | Level | Intermediate |
-| Modules (declared / counted) | 12 / 13 |
+| Modules (declared / counted) | 12 / 14 |
 | Lessons (counted) | ? |
 | Est. hours | 10 |
 

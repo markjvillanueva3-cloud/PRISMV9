@@ -112,6 +112,12 @@ export const ACTIONS = [
   "cad_regression_report_trend",
   "cad_regression_report_hotspots",
   "cad_regression_report_summary",
+  // CINF11 — HTML/PDF variants (printable=true emits standalone HTML5 doc for browser Print → PDF; no headless-browser dep)
+  "cad_regression_report_snapshot_html",
+  "cad_regression_report_diff_html",
+  "cad_regression_report_trend_html",
+  "cad_regression_report_hotspots_html",
+  "cad_regression_report_summary_html",
   // CINF12 — spec-named MCP aliases (envelope deliverable: cad_regression.start_batch({corpus:'all'}))
   // Thin facades over existing engines so external MCP clients can use the documented names.
   "start_batch",
@@ -229,6 +235,16 @@ export async function routeCADRegression(action: CADRegressionAction, params: an
       return (await report()).execute({ op: "renderHotspots", ...params });
     case "cad_regression_report_summary":
       return (await report()).execute({ op: "renderSummary", ...params });
+    case "cad_regression_report_snapshot_html":
+      return (await report()).execute({ op: "renderSnapshotHtml", ...params });
+    case "cad_regression_report_diff_html":
+      return (await report()).execute({ op: "renderDiffHtml", ...params });
+    case "cad_regression_report_trend_html":
+      return (await report()).execute({ op: "renderTrendHtml", ...params });
+    case "cad_regression_report_hotspots_html":
+      return (await report()).execute({ op: "renderHotspotsHtml", ...params });
+    case "cad_regression_report_summary_html":
+      return (await report()).execute({ op: "renderSummaryHtml", ...params });
 
     // CINF12 spec aliases — thin facades for envelope-documented MCP action names.
     // Schemas mirror the engine contract, so these are pure forwarders. The

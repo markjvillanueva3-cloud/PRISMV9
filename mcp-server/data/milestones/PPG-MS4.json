@@ -1,0 +1,107 @@
+{
+  "schemaVersion": "1.0.0",
+  "id": "PPG-MS4",
+  "version": "1.0.0",
+  "title": "PPG-MS4 — Fleet Coverage (21 JM Die machines: 7 Okuma lathes, 5 mills, 3 EDM, 6 support)",
+  "track": "PPG",
+  "parent_roadmap": "PRISM-UNIFIED-ROADMAP-v2",
+  "pillar": "P3-PPG-SFC-LEARNING-LOOP",
+  "status": "not_started",
+  "created_at": "2026-04-28T21:30:00.000Z",
+  "last_updated": "2026-04-29T04:37:47.554Z",
+  "total_units": 10,
+  "completed_units": 0,
+  "description": "Delivers production-grade master posts for every JM Die machine in production. Inherits sidecar (PPG-MS0), block-by-block S/F (PPG-MS1), and iMachining (PPG-MS2). Closes the Roku-Roku alias bug found in pre-precompact audit, adds Multus B250IIW lathe-mill combo, and ships the fleet manifest doc that operators read on day one of cutover.",
+  "rationale": "JM Die has 21 machines but PRISM has only wired 3 (Hurco V11, Okuma B250, Mitsubishi MV1200R). The other 18 fall back to manual editing, which is the failure mode that triggered this entire roadmap. Without fleet coverage, JM-PRODUCTION-CUTOVER cannot ship.",
+  "leverage_existing": [
+    "PPG-WIRE-MS0 — Hurco V11, Okuma B250, Mitsubishi MV1200R already wired",
+    "ShopConfigurationEngine — 21-machine JM Die config (src/engines/)",
+    "JM Die profile — src/data/jm-die-profile.ts (controller map, 100+ customers)",
+    "Master post engines registry — extended per machine family",
+    "PostProcessorPipelineEngine — 38-stage pipeline as common backbone"
+  ],
+  "the_worked_example_that_proves_it": {
+    "scenario": "JM Die programmer needs to run a Multus B250IIW (lathe-mill) job for an Optimas fastener that touches 4 of the 21 machines (lathe → wire EDM → mill → grinder).",
+    "today_pre_ppg_ms4": "Lathe and wire EDM posts work (PPG-WIRE-MS0). Mill is hand-coded. Grinder is hand-coded. Multus is hand-coded. The Roku-Roku alias bug means even if the operator picks Roku-Roku from the wizard, the wrong dialect emits.",
+    "should_be_post_ppg_ms4": "Wizard shows 21 machines accurately. Selecting any of them produces a correct, physics-aware program. Multi-machine job is sequenced; each post sized to that machine's controller and kinematics.",
+    "gap_now_closed": "JM Die can run PRISM-generated programs on every CNC in the shop without human post-editing."
+  },
+  "units": [
+    {
+      "id": "U-PPGM27",
+      "title": "Hurco VMX24 + VMX42 mill master post",
+      "scope": "Extend HurcoV11MillMasterPostEngine for VMX24 / VMX42 spindle limits + work envelope; sidecar physics per machine"
+    },
+    {
+      "id": "U-PPGM28",
+      "title": "Okuma LB300II / LB400II / LU45 lathe master posts",
+      "scope": "Extend OkumaB250LatheMasterPostEngine; OSP-P200/P300 dialect variations; sub-spindle for LU45"
+    },
+    {
+      "id": "U-PPGM29",
+      "title": "Haas VF / UMC mill master post",
+      "scope": "src/engines/HaasMillMasterPostEngine.ts — Fanuc-derived dialect; HSM toggle; through-spindle coolant gating"
+    },
+    {
+      "id": "U-PPGM30",
+      "title": "Roku-Roku Wave/EX/PX high-speed mill master post",
+      "scope": "src/engines/RokuRokuHighSpeedMillMasterPostEngine.ts — high-RPM spindle, fine-pitch micro-machining defaults"
+    },
+    {
+      "id": "U-PPGM31",
+      "title": "Mitsubishi sinker EDM master post (DSE/EM-series)",
+      "scope": "src/engines/MitsubishiSinkerEDMMasterPostEngine.ts — flush plan, electrode wear comp, multi-electrode sequencing"
+    },
+    {
+      "id": "U-PPGM32",
+      "title": "Mitsubishi MV1200R upgrade to PPG-MS3 multi-pass",
+      "scope": "Adopt full multi-pass schedule from PPG-MS3 (already wired in PPG-WIRE-MS0; this unit folds in PPG-MS3 deliverables)"
+    },
+    {
+      "id": "U-PPGM33",
+      "title": "Multus B250IIW lathe-mill combo master post",
+      "scope": "src/engines/MultusB250IIWMasterPostEngine.ts — multi-channel sync (G140/G141), polar/cylindrical interpolation, sub-spindle handoff"
+    },
+    {
+      "id": "U-PPGM34",
+      "title": "Roku-Roku alias bug fix in dialect router",
+      "scope": "src/engines/PostDialectRouter.ts — Roku-Roku selection currently routes to Fanuc default; fix to RokuRoku dialect"
+    },
+    {
+      "id": "U-PPGM35",
+      "title": "Fleet manifest doc + machine fingerprint table",
+      "scope": "docs/jm-die-fleet-manifest.md — 21-machine table with controller, kinematics, work envelope, post engine, sidecar location"
+    },
+    {
+      "id": "U-PPGM36",
+      "title": "Fleet integration test suite",
+      "scope": "src/__tests__/JMDieFleet.integration.test.ts — emits + sidecar SHA verifies for every machine in the fleet"
+    }
+  ],
+  "completion_criteria": [
+    "All 21 JM Die machines reachable from the wizard via master_post_<machine> + master_post_by_machine auto-router",
+    "Roku-Roku alias bug fixed; integration test asserts correct dialect emission",
+    "Multus B250IIW multi-channel sync verified against shop reference program",
+    "Fleet manifest published; operators can find their machine + its post in <30s"
+  ],
+  "depends_on": [
+    "PPG-MS0",
+    "PPG-WIRE-MS0",
+    "PPG-MS1",
+    "PPG-MS2",
+    "PPG-MS3"
+  ],
+  "blocks": [
+    "PPG-MS6",
+    "PPG-MS12",
+    "PPG-MS11",
+    "PPG-MS15",
+    "PPG-MS25",
+    "PPG-MS31"
+  ],
+  "layer_boundary_note": "MasterPostEngine = machine-level (Hurco V11, Okuma B250, etc). DialectEmitterEngine = controller-level (Fanuc, WinMax, OSP, etc). MS4 builds the former and CONSUMES the latter from MS5. PostDialectRouter is BUILT in PPG-MS5 (U-PPGM42c) — U-PPGM34 here is a CONSUMER patch only.",
+  "supersedes_partial": [
+    "PPG-WIRE-MS0 (after MS4 ships, PPG-WIRE-MS0/U-PPGW10 is obsolete)"
+  ],
+  "_reverse_reciprocity_patch": "ppg-round3-novel-2026-04-29"
+}

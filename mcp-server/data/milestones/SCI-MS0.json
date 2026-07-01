@@ -1,0 +1,82 @@
+{
+  "id": "SCI-MS0",
+  "version": "7.0.0",
+  "title": "Sensor Integration & Real-Time Data Framework",
+  "brief": "Build the sensor data ingestion framework that feeds real-time machining data into KALP/BOPA/WBRL adaptive algorithms. Spindle load, vibration, force, temperature.",
+  "created_at": "2026-03-07T22:00:00Z",
+  "created_by": "claude-opus-4.6",
+  "phases": [
+    {
+      "id": "P0",
+      "title": "Sensor Data Ingestion",
+      "units": [
+        {
+          "id": "U01",
+          "title": "SensorDataSchemaEngine - Unified sensor data model",
+          "description": "Define TypeScript interfaces and Zod schemas for all sensor data types: SpindleLoadSample (timestamp_ms, load_pct, power_kw, torque_nm, rpm_actual), VibrationSample (timestamp_ms, accel_x/y/z_g, velocity_mm_s, displacement_um), ForceSample (timestamp_ms, fx/fy/fz_n, mx/my/mz_nm from dynamometer), TemperatureSample (timestamp_ms, tool_temp_c, workpiece_temp_c, coolant_temp_c). Ring buffer implementation for real-time streaming (configurable depth 1K-100K samples). Sample rate metadata.",
+          "exit_conditions": [
+            "4 sensor data schemas with Zod validation",
+            "Ring buffer with configurable depth",
+            "Sample rate tracking",
+            "Serialization/deserialization",
+            "Unit tests"
+          ],
+          "status": "complete"
+        },
+        {
+          "id": "U02",
+          "title": "SensorSimulatorEngine - Synthetic sensor data from physics models",
+          "description": "Generate realistic synthetic sensor data from novel algorithm physics predictions. Uses: Kienzle force model + Gaussian noise (sigma = 5% of nominal), spindle load = P_cut/P_max * 100 + noise, vibration from stability lobe proximity (amplitude increases near lobes), temperature from Jaeger model + thermal lag (first-order response tau = 2-5s). Enables testing adaptive algorithms without real hardware. Configurable: noise level, drift, outlier injection, sensor failure simulation.",
+          "exit_conditions": [
+            "Synthetic data for all 4 sensor types",
+            "Physics-based nominal + noise",
+            "Configurable noise/drift/outliers",
+            "Sensor failure injection",
+            "Matches real sensor statistical properties"
+          ],
+          "status": "complete"
+        },
+        {
+          "id": "U03",
+          "title": "SensorFusionEngine - Multi-sensor data fusion with Kalman filter",
+          "description": "Fuse multiple sensor streams into unified cutting state estimate. Extended Kalman Filter state vector: [Fc, dFc/dt, temperature, deflection, wear_state]. Measurement models: force_measured = Fc + noise, load_pct = f(Fc, rpm), vibration = f(deflection, chatter). Prediction model: Fc(t+1) = Fc(t) + dFc/dt * dt. Handles: sensor dropout (hold last), sensor disagreement (chi-squared test), time alignment (interpolation). Outputs: fused_state with covariance matrix.",
+          "exit_conditions": [
+            "EKF with 5-state vector",
+            "Multi-sensor fusion",
+            "Sensor dropout handling",
+            "Chi-squared disagreement detection",
+            "Covariance output"
+          ],
+          "status": "complete"
+        },
+        {
+          "id": "U04",
+          "title": "AnomalyDetectionEngine - Real-time cutting anomaly detection",
+          "description": "Detect anomalies in sensor streams using: (1) CUSUM (cumulative sum) for gradual drift (tool wear), (2) EWMA (exponentially weighted moving average) for trend detection, (3) Mahalanobis distance for multivariate outliers, (4) FFT spectral analysis for chatter onset (tooth-passing frequency harmonics), (5) Wavelet decomposition for transient events (tool breakage). Each method outputs: anomaly_detected (bool), severity (0-1), type (drift/chatter/breakage/overload), recommended_action.",
+          "exit_conditions": [
+            "5 anomaly detection methods",
+            "Real-time processing",
+            "Severity scoring",
+            "Action recommendations",
+            "False positive rate < 5% on synthetic data"
+          ],
+          "status": "complete"
+        },
+        {
+          "id": "U05",
+          "title": "SensorDispatcherActions - Dispatcher integration for sensor data",
+          "description": "Add sensor actions to appropriate dispatcher: sensor_ingest (buffer new samples), sensor_fuse (run EKF fusion), sensor_anomaly_detect (run all 5 detectors), sensor_status (buffer depths, sample rates, last anomaly), sensor_simulate (generate synthetic data for algorithm). WebSocket integration for real-time streaming to frontend. Hook: on-anomaly fires adaptation trigger.",
+          "exit_conditions": [
+            "5 dispatcher actions",
+            "WebSocket streaming",
+            "On-anomaly hook",
+            "Integration tests",
+            "Schema validation"
+          ],
+          "status": "complete"
+        }
+      ]
+    }
+  ],
+  "status": "complete"
+}

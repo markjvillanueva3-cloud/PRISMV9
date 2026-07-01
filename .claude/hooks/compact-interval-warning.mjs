@@ -80,7 +80,7 @@ export function unitCommitsSince(sinceMs, opts = {}) {
   const isoSince = new Date(sinceMs).toISOString();
   let log;
   try {
-    log = execSync(`git -C "${cwd}" log --since="${isoSince}" --format=%s`, {
+    log = execSync(`git -C "${cwd}" log --since="${isoSince}" --format=%s`, { windowsHide: true,
       encoding: "utf8",
       timeout: 3000,
     });
@@ -101,6 +101,15 @@ async function main() {
   // Don't double-fire on stop_hook_active — let the parent invocation own the warning.
   if (payload.stop_hook_active === true) return ok();
 
+  // R6 (operator 2026-06-11): context growth is NOT a stop signal -- task-boundary
+  // compaction nudges contradict "keep working until autocompact". Honor the operator
+  // suppression knobs (PRISM_TASK_BOUNDARY_COMPACT_DISABLE was SET in settings.json env
+  // but never checked here -- the live source of the "pushback to compact" anti-pattern).
+  if (process.env.PRISM_TASK_BOUNDARY_COMPACT_DISABLE === "1" ||
+      process.env.PRISM_COMPACT_INTERVAL_WARN_DISABLE === "1") {
+    return ok();
+  }
+
   const since = lastCompactMs();
   const units = unitCommitsSince(since);
   if (units < UNIT_THRESHOLD) return ok();
@@ -109,8 +118,8 @@ async function main() {
   const ageStr = ageMin === null ? "(no compact recorded yet)" : `${ageMin} min ago`;
   const ctx =
     `compact-interval-warning: ${units} milestone-prefixed commits since last /compact ${ageStr}.\n` +
-    `CLAUDE.md says: compact every 2–3 units (don't wait for context limit).\n` +
-    `Run /compact before the next non-trivial task to keep cache warm.`;
+    `R6 (operator-locked): context growth is NOT a stop signal -- KEEP WORKING. Native autocompact fires at 95% and the PreCompact hook auto-writes your handoff;\n` +
+    `do NOT pre-empt with a manual /compact on a unit boundary -- only /compact on a SPIRAL (repeating failure / degrading output), never a clean unit boundary.`;
   ok(ctx);
 }
 

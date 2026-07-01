@@ -22,6 +22,10 @@ let _cpkSurrogate: any, _insertLife: any, _offsetComp: any, _robustOpt: any;
 let _omvProbe: any;
 // OBSIDIAN-AUTOMATE-MS3/U-WIRE-LATHE-BATCH11
 let _firstPiece: any, _envBreach: any, _auxAxis: any, _drf: any;
+// FEATURE-GAP-AUDIT-MS0/U-BRIDGE-WIRE-OKUMA — 4 unwired Okuma engines
+let _okumaStep: any, _okumaMacro: any, _okumaManualTips: any, _okumaTranscript: any;
+// FEATURE-GAP-AUDIT-MS0/U-GAP-LATHE-LIVE-TOOLING — feature→toolpath planner
+let _livePlanner: any;
 async function getEngine(name: string): Promise<any> {
   switch (name) {
     case "chuck": return _chuck ??= (await import("../../engines/ChuckJawForceEngine.js")).chuckJawForceEngine;
@@ -42,17 +46,35 @@ async function getEngine(name: string): Promise<any> {
     case "envBreach": return _envBreach ??= (await import("../../engines/LatheEnvelopeBreachReplayEngine.js")).latheEnvelopeBreachReplayEngine;
     case "auxAxis": return _auxAxis ??= (await import("../../engines/LatheAuxAxisTimingEngine.js")).latheAuxAxisTimingEngine;
     case "drf": return _drf ??= (await import("../../engines/LatheDatumReferenceFrameEngine.js")).latheDatumReferenceFrameEngine;
+    // FEATURE-GAP-AUDIT-MS0/U-BRIDGE-WIRE-OKUMA
+    case "okumaStep":         return _okumaStep         ??= (await import("../../engines/OkumaMachineStepIngesterEngine.js")).okumaMachineStepIngesterEngine;
+    case "okumaMacro":        return _okumaMacro        ??= (await import("../../engines/OkumaMacroConverterBridgeEngine.js")).okumaMacroConverterBridgeEngine;
+    case "okumaManualTips":   return _okumaManualTips   ??= (await import("../../engines/OkumaManualTipExtractorEngine.js")).okumaManualTipExtractorEngine;
+    case "okumaTranscript":   return _okumaTranscript   ??= (await import("../../engines/OkumaGosigerTranscriptMinerEngine.js")).okumaGosigerTranscriptMinerEngine;
+    // FEATURE-GAP-AUDIT-MS0/U-GAP-LATHE-LIVE-TOOLING
+    case "livePlanner":       return _livePlanner       ??= (await import("../../engines/LatheLiveToolingPlannerEngine.js")).latheLiveToolingPlannerEngine;
     default: throw new Error(`Unknown turning engine: ${name}`);
   }
 }
 
 const ACTIONS = [
+  // WIRE-UNWIRED-PAPA / U-WIRE-TURNING (slot:papa, 2026-06-15) --
+  // SwissTypeDecisionEngine (Swiss-vs-conventional routing verdict) +
+  // TurretLayoutEngine (interface/capability/layout/interference via its executeAction router).
+  "swiss_decide", "swiss_decide_batch",
+  "turret_analyze_interface", "turret_compare_interfaces", "turret_analyze_capability",
+  "turret_optimize_layout", "turret_plan_gang", "turret_check_interference",
   "chuck_force", "tailstock", "steady_rest",
-  "live_tool", "bar_pull", "thread_single_point",
+  "live_tool", "live_tool_plan", "bar_pull", "thread_single_point",
   "part_off_force", "thread_turning_calc",
   "turning_assemble_program", "turning_auto_tools", "turning_cycle_time", "turning_validate",
   "mill_turn_live_tool", "mill_turn_sub_spindle", "mill_turn_multi_channel",
   "mill_turn_bar_feeder", "mill_turn_swiss",
+  // WIRING/U-ROMEO-WIRE-SWISS-EMIT (slot:romeo, 2026-06-22) -- SwissChannelFileEmitterEngine:
+  // emits dialect-correct per-channel program files (citizen/star/tsugami/mazak/dmg_mori) from a
+  // MillTurnSwissPipelineEngine.calculateMultiChannel() schedule. Closes the schedule->files loop
+  // after mill_turn_multi_channel. Engine proven by lathe-ms6a-multichannel-emit.test.ts.
+  "mill_turn_channel_emit",
   // LATHE-MS0: Collision zone + safety checks
   "lathe_collision_check", "lathe_swing_check", "lathe_grooving_overhang",
   "lathe_chip_thickness", "lathe_boring_reach", "lathe_g71_type",
@@ -65,6 +87,9 @@ const ACTIONS = [
   "hard_turn_decide", "hard_turn_optimize",
   // LATHE-PRO-MS6: Bar stock cut planning
   "bar_stock_cut_plan",
+  // LATHE-PRO-MS10 / XGAL-WIRE: bar-feed pitch optimizer + remnant reuse
+  "bar_feed_pitch_optimize",
+  "bar_remnant_plan", "bar_remnant_count_feasible",
   // CAM-EXHAUST-MS0: Cpk/life/offset/optimizer engines
   "turning_cpk_surrogate", "turning_insert_life",
   "turning_offset_wear", "turning_offset_probe",
@@ -73,6 +98,8 @@ const ACTIONS = [
   "turning_min_fingerprint", "turning_min_classify",
   // MS-PRINT-PROGRAM-LOOP/U-PPL-B1: program reoptimization orchestrator (lathe arm)
   "lathe_program_reoptimize",
+  // FEATURE-GAP-AUDIT-MS0/U-GAP-LATHE-NOSE-RADIUS-COMP: TNR reference + LAP validation
+  "tnr_lookup_p_code", "tnr_get_g_code", "tnr_validate_program", "tnr_setup_procedure",
   // ENGINE-WIRE-LATHE-MS0/U-WIRE-LATHE-BATCH1: 6 unwired lathe engines
   "lathe_css_optimize",                  // LatheCSSOptimizerEngine.optimize
   "lathe_chip_predict_type",             // LatheChipMechanicsEngine.predictChipType
@@ -154,6 +181,14 @@ const ACTIONS = [
   "lathe_lora_knowledge_graph_stats",       // LatheLoRAKnowledgeGraphEngine.getStats
   "lathe_lora_master_orch_stats",           // LatheLoRAMasterOrchestratorEngine.getStats
   "lathe_lora_model_selector_stats",        // LatheLoRAModelSelectorEngine.getStats
+  // U-LATHE-LORA-SELECTOR-LOOP (slot:india): the whole usable selector loop was unwired (only stats).
+  // register -> select -> record closes it end-to-end via MCP; parity with mill_lora_sel_* (millDispatcher).
+  "lathe_lora_model_selector_register",     // LatheLoRAModelSelectorEngine.registerModel
+  "lathe_lora_model_selector_unregister",   // LatheLoRAModelSelectorEngine.unregisterModel
+  "lathe_lora_model_selector_select",       // LatheLoRAModelSelectorEngine.select (the produce side)
+  "lathe_lora_model_selector_record",       // LatheLoRAModelSelectorEngine.recordOutcome -- actuals feedback (closes the loop)
+  "lathe_lora_model_selector_release",      // LatheLoRAModelSelectorEngine.release
+  "lathe_lora_model_selector_models",       // LatheLoRAModelSelectorEngine.getModels
   "lathe_lora_monitoring_stats",            // LatheLoRAMonitoringEngine.getStats
   "lathe_lora_resource_manager_stats",      // LatheLoRAResourceManagerEngine.getStats
 
@@ -208,6 +243,7 @@ const ACTIONS = [
   "lathe_workholding_expanding_mandrel",    // calculateExpandingMandrel — Lame thick-wall grip
   "lathe_workholding_magnetic_chuck",       // calculateMagneticChuck — ferrous-only holding force
   "lathe_workholding_stock_form",           // stockFormRecommendation — jaw + G71/G72/G73 selection
+  "lathe_expanding_mandrel_analyze",        // ExpandingMandrelEngine.analyze — actuator-force grip + centrifugal max-safe-RPM (distinct from the Lame _workholding_ variant)
 
   // WIRE-UNWIRED-MS0/U-WIRE-LSO: LatheSequenceOptimizerEngine (LATHE-PRO-MS3/U-LPS02)
   "lathe_sequence_optimize",                // optimize — multi-criteria operation sequencing w/ hard constraints
@@ -229,6 +265,7 @@ const ACTIONS = [
   "turning_iso1832_parse",                  // parseISO1832Designation — pure ISO 1832 insert-code decoder
   "turning_chipbreaker_classify",           // classifyChipbreaker — pure code → finishing/medium/roughing/universal
   "turning_vendor_insert_search",           // searchInserts — query the ~4095-insert Tungaloy+Widia catalog
+  "turning_tool_catalog_query",             // CATALOG-APP-WIRING-MS0/U8: full 62.7K vendor corpus search for the lathe galaxy
   "turning_vendor_grade_recommend",         // recommendGrade — ISO-group + operation → ranked grade list
   "turning_vendor_iso_code_resolve",        // resolveISOCode — parse + catalog match
   "turning_vendor_catalog_stats",           // getStats — per-vendor catalog inventory
@@ -244,12 +281,324 @@ const ACTIONS = [
   // WIRE-UNWIRED-MS0/U-WIRE-LBACKTRACE: LatheProgramBacktraceEngine (LATHE-PRO-MS12)
   "lathe_backtrace_trace",                  // trace — walk backward through block history to find root cause
   "lathe_backtrace_stats",                  // getStats — reference standard
+
+  // FEATURE-GAP-AUDIT-MS0/U-BRIDGE-WIRE-OKUMA: 4 unwired Okuma engines
+  "okuma_step_parse",                       // OkumaMachineStepIngesterEngine.parseContent — STEP AP203/AP214 axis-frame extraction
+  "okuma_macro_convert",                    // OkumaMacroConverterBridgeEngine.convert (async) — OSP dialect → ISO G-code
+  "okuma_manual_tips_extract",              // OkumaManualTipExtractorEngine.extractFromText — manual text → tribal tips
+  "okuma_transcript_mine",                  // OkumaGosigerTranscriptMinerEngine.mineAllTranscripts — Gosiger video tip mining
+
+  // FEATURE-GAP-AUDIT-MS0/U-GAP-LATHE-TRIBAL-WIRE: lathe tribal knowledge → lathe AI bridge
+  "lathe_tribal_integrate",                 // LatheTribalIntegrationEngine.integrateWithLatheAI — corpus+curated tips → injector → 4 lathe engines
+  "lathe_tribal_adjustment",                // LatheTribalIntegrationEngine.getAdjustment — tribal rpm/feed/doc factors for an operation
+  "lathe_tribal_failure_check",             // LatheTribalIntegrationEngine.checkFailureModes — lathe failure-mode lookup
+  "lathe_tribal_source_corpus",             // LatheTribalIntegrationEngine.sourceCorpusTips — lathe-relevant tribal corpus query
+  "lathe_tribal_integration_stats",         // LatheTribalIntegrationEngine.getStatistics — tribal coverage counts
+
+  // U-LATHE-PROG-OPT-WIRE: expose LatheProgramOptimizerEngine upgrade surfaces (analyze was already wired as lathe_program_analyze)
+  "lathe_program_optimize",                 // LatheProgramOptimizerEngine.generateOptimizedProgram — emit upgraded program text + changelog
+  "lathe_program_estimate",                 // LatheProgramOptimizerEngine.estimateImprovements — pre-upgrade impact estimate
+
+  // U-WIRE-LATHE-BIRDNEST: bird's-nest chip-wrap risk prediction (LATHE-PRO-MS7 — 291-LOC engine, 0 dispatcher refs before this wire)
+  "lathe_bird_nest_predict",                // LatheBirdNestPredictorEngine.predict — risk_score + mitigations[] + safety_notes[]
+  "lathe_bird_nest_stats",                  // LatheBirdNestPredictorEngine.getStats — model + factors + risk_levels
+
+  // U-WIRE-LATHE-PARTING-CLEAR: parting-off chip-clearance + coolant-jet-reach evaluation (LATHE-PRO-MS7 — 194-LOC engine, 0 dispatcher refs before this wire)
+  "lathe_parting_clearance_evaluate",       // LathePartingChipClearanceEngine.evaluate — verdict + peck cycle + risk_factors[]
+  "lathe_parting_clearance_stats",          // LathePartingChipClearanceEngine.getStats — model + iso groups + formulas
+
+  // U-WIRE-LATHE-PART-COST: 7-bucket cost-per-part model (LATHE-PRO-MS10 — 185-LOC engine, 0 dispatcher refs before this wire)
+  "lathe_part_cost_compute",                // LathePartCostModelEngine.compute — bucket breakdown + total + scrap-amortized total
+  "lathe_part_cost_stats",                  // LathePartCostModelEngine.getStats — bucket list + canonical references
+
+  // U-WIRE-LATHE-SUBSPINDLE-PURGE: sub-spindle transfer purge timing (LATHE-PRO-MS7 — 267-LOC engine, 0 dispatcher refs)
+  "lathe_subspindle_purge_plan",            // LatheSubSpindleTransferPurgeEngine.plan — phases[] + contamination risk + timing
+  "lathe_subspindle_purge_stats",           // LatheSubSpindleTransferPurgeEngine.getStats — phases_modeled + supported_controllers
+
+  // U-WIRE-LATHE-OP-TIME-BREAKDOWN: detailed per-op time decomposition (LATHE-PRO-MS5 — 257-LOC engine, 0 dispatcher refs)
+  "lathe_op_time_compute",                  // LatheOpTimeBreakdownEngine.compute — 9-bucket breakdown + productive_fraction + bottleneck
+  "lathe_op_time_aggregate",                // LatheOpTimeBreakdownEngine.aggregate — per-piece + lot total over N ops
+  "lathe_op_time_stats",                    // LatheOpTimeBreakdownEngine.getStats — bucket list + canonical defaults
+
+  // U-WIRE-LATHE-REPLAY-FRAME: block-by-block replay frame compiler (LATHE-PRO-MS12 — 138-LOC engine, 0 dispatcher refs)
+  "lathe_replay_frame_compile",             // LatheReplayFrameCompilerEngine.compile — frame list + breach indices for front-end NC viewer
+  "lathe_replay_frame_stats",               // LatheReplayFrameCompilerEngine.getStats — reference
+
+  // U-WIRE-LATHE-PART-CLASSIFIER: 15-family part classifier (LATHE-PRO-MS3 — 447-LOC engine, 0 dispatcher refs)
+  "lathe_part_classify",                    // LathePartClassifierEngine.classify — family + workholding default + roughing cycle + sequence template
+  "lathe_part_classify_batch",              // LathePartClassifierEngine.classifyBatch — bulk classification
+  "lathe_part_family_profile",              // LathePartClassifierEngine.getFamilyProfile — full profile for one family
+  "lathe_part_family_list",                 // LathePartClassifierEngine.listFamilies — all 15 families with defaults
+
+  // U-WIRE-LATHE-PROG-COST: programming cost model — macro/hardcode/cam/conversational (LATHE-AWARE-HARDEN-MS11 — 485-LOC engine, 0 dispatcher refs)
+  "lathe_programming_cost_estimate",        // LatheProgrammingCostEngine.estimateProgrammingCost — bucket breakdown + per-part cost for one (style,complexity,lot)
+  "lathe_programming_cost_compare",         // LatheProgrammingCostEngine.compareApproaches — rank styles for a given part spec
+  "lathe_programming_cost_breakeven",       // LatheProgrammingCostEngine.breakEvenAnalysis — macro-vs-hardcode crossover by lot size
+  "lathe_programming_cost_stats",           // LatheProgrammingCostEngine.getStats — styles_supported + canonical defaults
+
+  // LATHE-PSN-SYNERGY (Phase 2): tribal-knowledge → per-style score deltas bridge for the decision flow
+  "lathe_programming_style_tribal_advise",  // ProgrammingStyleTribalAdvisorEngine.advise — per-style score deltas + source-tip citations
+  "lathe_programming_style_tribal_stats",   // ProgrammingStyleTribalAdvisorEngine.getStats — rule_count + controllers_covered + tip_sources_count
+  "lathe_programming_style_tribal_rules",   // ProgrammingStyleTribalAdvisorEngine.getRules — full rule library snapshot (audit/debug)
+
+  // U-WIRE-LATHE-PERF-SLO: production-SLO registry (LATHE-PROD-READY-MS0 — 338-LOC engine, 0 dispatcher refs)
+  "lathe_slo_targets",                      // LathePerformanceSLORegistryEngine.targets — canonical SLO target list
+  "lathe_slo_get_target",                   // .getTarget — single SLO target
+  "lathe_slo_set_target",                   // .setTarget — override / add a target
+  "lathe_slo_record_sample",                // .recordSample — ingest a metric sample
+  "lathe_slo_sample_count",                 // .sampleCount — sample count for a metric
+  "lathe_slo_evaluate",                     // .evaluate — percentile verdict for a metric
+  "lathe_slo_dashboard",                    // .dashboard — full snapshot across all SLOs
+  "lathe_slo_clear_samples",                // .clearSamples — reset one or all rolling windows
+
+  // U-WIRE-LATHE-LORA-SAFETY-EVAL: LoRA-output safety evaluator (LATHE-LORA-MS0 — 430-LOC engine, 0 dispatcher refs) — critical for ANY AI-generated upgrade output
+  "lathe_lora_safety_evaluate",             // LatheLoRASafetyEvaluatorEngine.evaluate — S(x) + collision + limit checks
+  "lathe_lora_safety_is_safe",              // .isSafe — boolean threshold check
+  "lathe_lora_safety_summary",              // .getSummary — operator-facing text summary
+  "lathe_lora_safety_set_config",           // .setConfig — override machine limits / s_x_threshold
+  "lathe_lora_safety_get_config",           // .getConfig — current configuration
+  "lathe_lora_safety_threshold",            // .getThreshold — current S(x) threshold value
+
+  // U-WIRE-LATHE-LORA-REASON-EVAL: LoRA reasoning-chain evaluator (LATHE-LORA-MS0 — 477-LOC engine, 0 dispatcher refs) — explanation-quality gate
+  "lathe_lora_reason_evaluate",             // LatheLoRAReasoningEvaluatorEngine.evaluate — coherence/domain/justification/structure/completeness
+  "lathe_lora_reason_summary",              // .getSummary — operator-facing summary
+  "lathe_lora_reason_suggestions",          // .getSuggestions — improvement suggestions
+  "lathe_lora_reason_set_config",           // .setConfig — override evaluation config
+  "lathe_lora_reason_get_config",           // .getConfig — current config
+
+  // U-WIRE-LATHE-COOLANT-ADVISOR: coolant delivery recommender (LATHE-PRO-MS5 — 347-LOC engine, 0 dispatcher refs)
+  "lathe_coolant_advise",                   // LatheCoolantAdvisorEngine.advise — flood/HPC/mist/MQL/dry/cryogenic recommendation
+  "lathe_coolant_stats",                    // .getStats — model metadata
+
+  // U-WIRE-LATHE-CHUCK-JAW-SETUP: soft-jaw setup calculator (LATHE-PRO-MS11 — 156-LOC engine, 0 dispatcher refs)
+  "lathe_chuck_jaw_compute",                // LatheChuckJawSetupEngine.compute — bore + grip + centrifugal safety
+  "lathe_chuck_jaw_stats",                  // .getStats — reference
+
+  // U-WIRE-LATHE-CSS-OPTIMIZER: CSS/G96 clamp + G96↔G97 mode selector (LATHE-PRO — 240-LOC engine, 0 dispatcher refs)
+  "lathe_css_optimize",                     // LatheCSSOptimizerEngine.optimize — clamp RPM + true CSS fraction + cycle-time delta
+  "lathe_css_select_mode",                  // .selectMode — G96 vs G97 for a feature
+  "lathe_css_stats",                        // .getStats — reference
+
+  // U-WIRE-LATHE-LORA-REWARD-SHAPE: RL reward shaping for LoRA fine-tuning (LATHE-LORA-MS0 — 488-LOC engine, 0 dispatcher refs)
+  "lathe_lora_reward_calc",                 // LatheLoRARewardShapingEngine.calculateReward -- RewardResult with components + bonus_reasons + penalty_reasons
+  "lathe_lora_reward_threshold",            // .meetsThreshold — boolean threshold check
+  "lathe_lora_reward_summary",              // .getSummary — operator-facing summary
+  "lathe_lora_reward_set_config",           // .setConfig — override reward weights
+  "lathe_lora_reward_get_config",           // .getConfig — current config
+
+  // JM-DIE-LATHE-UPGRADE-MS0/U-LATHE-AI-TIER-UNWIRED-5: 5 fully-unwired AI-tier lathe engines
+  "lathe_ai_reason",                        // LatheAIReasoningEngine.reason — async deep reasoning over LatheOperationContext
+  "lathe_active_learning_select",           // LatheActiveLearningEngine.selectSamples — pick most-informative samples for labeling
+  "lathe_bayesian_optimize",                // LatheBayesianOptimizationEngine.optimizeParameters — GP-based parameter search
+  "lathe_deep_logic_evaluate",              // LatheDeepLogicEngine.evaluate — propositional-logic evaluation
+  "lathe_cam_intelligence_recommend",       // LatheCAMIntelligenceEngine.recommendParametricTemplate — CAM strategy router
+
+  // JM-DIE-LATHE-UPGRADE-MS0/U-LATHE-AI-TIER-UNWIRED-4: 4 more fully-unwired AI-tier lathe engines
+  "lathe_ai_orchestrate_full",              // LatheAIOrchestrationEngine.orchestrateFullAnalysis — async cross-engine orchestration
+  "lathe_ai_train_from_programs",           // LatheAITrainingEngine.trainFromPrograms — train from program corpus
+  "lathe_adaptive_machining_adapt",         // LatheAdaptiveMachiningEngine.adaptTurningParameters — real-time turn-param adaptation
+  "lathe_attention_self",                   // LatheAttentionMechanismEngine.computeSelfAttention — transformer self-attention over G-code tokens
+
+  // JM-DIE-LATHE-UPGRADE-MS0/U-LATHE-FLEET-UNWIRED-6: 6 engines unwired across ALL dispatchers
+  "lathe_master_orchestrate",               // LatheMasterOrchestratorFacadeEngine.orchestrate — top-level facade
+  "lathe_post_validate_program",            // LathePostGeneratorValidatorWiringEngine.validateProgram — static post-validator
+  "lathe_post_regression_generate",         // LathePostRegressionTestGeneratorEngine.generateTest — static regression-test gen
+  "lathe_program_catalog_register",         // LatheProgramCatalogEngine.register — catalog entry registration
+  "lathe_transformer_tokenize",             // LatheTransformerEngine.tokenizeProgram — G-code tokenization for transformer
+  "lathe_unified_ai_execute",               // LatheUnifiedAIOrchestrator.execute — unified AI orchestration
+  "lathe_unified_ai_find_engine",           // LatheUnifiedAIOrchestrator.findEngineForCapability — task→engine router
+  "lathe_unified_ai_capability_engines",    // LatheUnifiedAIOrchestrator.getEnginesWithCapability — engines having a capability
+  "lathe_ai_orchestrate_optimization",      // LatheAIOrchestrationEngine.orchestrateOptimization — async optimization sweep
+  "lathe_ai_orchestrate_learning",          // LatheAIOrchestrationEngine.orchestrateLearning — async corpus learning
+  "lathe_ai_orchestrate_diagnosis",         // LatheAIOrchestrationEngine.orchestrateDiagnosis — async symptom diagnosis
+  "lathe_ai_generate_program",              // LatheAIOrchestrationEngine.generateProgram -- AI head drives spine + per-op AI safety advisory (U-AIHEAD-01)
+  "lathe_ai_record_feedback",               // LatheAIOrchestrationEngine.recordGenerationFeedback -- write side of the self-improving loop (U-SELFIMPROVE-01)
+  "lathe_rag_retrieve",                     // LatheAIOrchestrationEngine.retrieveRAGContext -- RAG advisory from the tribal corpus (U-LW-RAG-ADVISORY)
+  "lathe_deep_reason",                      // LatheAIOrchestrationEngine.assessDeepReasoning -- deterministic FMEA deep-reasoning advisory (U-LW-DEEP-REASON-ADVISORY)
+  "lathe_mill_turn_advise",                 // LatheAIOrchestrationEngine.assessMillTurn -- real live-tool physics per live-tool feature (U-LW-MILLTURN-ADVISORY)
+  "lathe_swiss_advise",                     // LatheAIOrchestrationEngine.assessSwiss -- Swiss guide-bushing suitability for the part (U-LW-SWISS-ADVISORY)
+  "lathe_knurl_advise",                     // LatheAIOrchestrationEngine.assessKnurl -- real knurling physics per knurl feature (U-LW-KNURL-ADVISORY)
+  "lathe_cam_intelligence_toolpath",        // LatheCAMIntelligenceEngine.selectToolpath — toolpath strategy selector
+  "lathe_cam_intelligence_sequence",        // LatheCAMIntelligenceEngine.sequenceOperations — operation ordering
+  "lathe_cam_intelligence_workholding",     // LatheCAMIntelligenceEngine.recommendWorkholding — workholding strategy
+  "lathe_cam_intelligence_mrr_cost",        // LatheCAMIntelligenceEngine.optimizeMRRCost — MRR/cost optimization
+  "lathe_active_learning_update",           // LatheActiveLearningEngine.updateModel — incremental model update
+  "lathe_active_learning_uncertainty",      // LatheActiveLearningEngine.queryUncertainty — uncertainty map over pool
+  "lathe_active_learning_committee",        // LatheActiveLearningEngine.queryByCommittee — query-by-committee disagreement
+  "lathe_active_learning_feedback",         // LatheActiveLearningEngine.processOperatorFeedback -- operator returns actual quality (closes the active-learning loop)
+  "lathe_active_learning_calibrate",        // LatheActiveLearningEngine.calibrateModelConfidence -- Platt/ECE confidence calibration pass over labeled+predicted
+  "lathe_bayesian_acquisition_ei",          // LatheBayesianOptimizationEngine.acquisitionEI — expected-improvement acquisition
+  "lathe_bayesian_acquisition_ucb",         // LatheBayesianOptimizationEngine.acquisitionUCB — upper-confidence-bound acquisition
+
+  // JM-DIE-LATHE-UPGRADE-MS0/U-LATHE-LORA-UNWIRED-3: 3 previously-unwired LatheLoRA* engines
+  "lathe_lora_generate_script",             // LatheLoRATrainingScriptEngine.generateScript — emit training-script + estimateVRAM + estimateTime
+  "lathe_lora_apply_preset",                // LatheLoRATrainingScriptEngine.applyPreset — apply training preset
+  "lathe_lora_estimate",                    // LatheLoRATrainingScriptEngine.estimateVRAM/estimateTime — resource planning
+  "lathe_lora_validate_config",             // LatheLoRATrainingScriptEngine.validateConfig — config validation
+  "lathe_lora_tribal_augment",              // LatheLoRATribalAugmentationEngine.findRelevantTips — runtime tip augmentation
+  "lathe_lora_tribal_find_tips",            // alias of tribal_augment
+  "lathe_lora_tribal_aug_stats",            // LatheLoRATribalAugmentationEngine.getConfig — augmentation engine state
+  "lathe_lora_tribal_extract",              // LatheLoRATribalExtractorEngine.extractTip — single-text → TribalTip
+  "lathe_lora_tribal_extract_batch",        // LatheLoRATribalExtractorEngine.extractTip × array (batch convenience)
+  "lathe_lora_tribal_extractor_stats",      // LatheLoRATribalExtractorEngine.getConfig
+
+  // U-WIRE-LATHE-CUTTING-CHEMISTRY: coolant chemistry + chemical wear + selection (LATHE-PRO — 2237-LOC engine, 0 dispatcher refs)
+  "lathe_chemistry_comprehensive",          // LatheCuttingChemistryEngine.comprehensiveAnalysis — full chemistry + wear + selection + safety
+  "lathe_chemistry_select_coolant",         // .selectCoolant — base coolant + additives + concentration for material/op
+
+  // BACKEND-DEV-LOOP/U-WIRE-LATHE-GA: LatheGeneticAlgorithmEngine — evolutionary optimization (2315-LOC engine, 0 dispatcher refs)
+  "lathe_ga_optimize_parameters",           // .optimizeParameters — speed/feed/DOC + passes via GA (Kienzle + Taylor fitness)
+  "lathe_ga_optimize_tool_sequence",        // .optimizeToolSequence — minimize total_time + tool_changes for op ordering w/ deps
+  "lathe_ga_optimize_multi_pass",           // .optimizeMultiPassStrategy — DOC distribution across multiple roughing passes
+
+  // BRIDGE-WIRING/U-BRIDGE-WIRE-TURNING: 6 unwired Turning engines (LATHE-PRO-MS4a/MS5 — 0 dispatcher refs before this wire)
+  "turning_envelope_distance",              // TurningEnvelopeDistanceEngine.run — graduated distance-to-envelope metric
+  "turning_sensitivity_analysis",           // TurningSensitivityAnalysisEngine.run — local-OAT + Morris variability apportionment
+  "turning_stochastic_production_plan",     // TurningStochasticPlanEngine.run — MC P5/P50/P95 over MS1+MS2 cascade
+  "turning_thread_optimize",                // TurningThreadOptimizerEngine.optimize — threading capstone + ISO 965-1 gate
+  "turning_thread_sensitivity",             // TurningThreadSensitivityEngine.run — OAT apportionment on thread cascade
+  "turning_thread_stochastic_plan",         // TurningThreadStochasticPlanEngine.run — MC envelope for single-point threading
+  // LATHE-UNWIRED-WIRE-MS0/U-LUW01 (slot:whiskey 2026-05-23) — wire 5 high-leverage Lathe AI engines (9 actions)
+  "lathe_selfaware_query",                  // LatheSelfAwarenessIntegrationEngine.whatCanIDo — capability discovery
+  "lathe_selfaware_how_do_i",               // LatheSelfAwarenessIntegrationEngine.howDoI — task-routing
+  "lathe_selfaware_who_handles",            // LatheSelfAwarenessIntegrationEngine.whoHandles — domain-routing
+  "lathe_safety_compute",                   // LatheSafetySignalEngine.compute — safety signal from context
+  "lathe_knowledge_graph_build",            // LatheKnowledgeGraphEngine.buildGraph — full graph rebuild
+  "lathe_ai_ultra_list_controllers",        // LatheAIUltraEngine.listControllers — by family
+  "lathe_ai_ultra_get_controller_caps",     // LatheAIUltraEngine.getControllerCapabilities — controller cap probe
+  "lathe_quality_gate_validate_program",    // LatheQualityGateEngine.validateProgram — full G-code QA gate
+  "lathe_quality_gate_validate_safety",     // LatheQualityGateEngine.validateSafety — safety-only fast path
+
+  // WIRE-UNWIRED-LOOP-TURNING/BATCH-A: 56 orphan turning/lathe engines
+  "lathe_orchestration_calculate",          // LatheOrchestrationEngine.calculate
+  "eccentric_turning_get_stats",            // EccentricTurningEngine.getStats
+  "lathe_deep_learning_find_similar_jobs",  // LatheDeepLearningEngine.findSimilarJobs
+  "lathe_unified_ai_generate_process_plan", // LatheUnifiedAIEngine.generateProcessPlan
+  "lathe_dl_intel_get_stats",               // LatheDeepLearningIntelligenceEngine.getStats
+  "lathe_dl_intel_analyze",                 // LatheDeepLearningIntelligenceEngine.analyzeWithIntelligence
+  "lathe_resource_knowledge_get_base",      // LatheResourceKnowledgeEngine.getKnowledgeBase
+  "lathe_rl_get_stats",                     // LatheReinforcementLearningEngine.getStats
+  "lathe_rl_select_action",                 // LatheReinforcementLearningEngine.selectAction
+  "lathe_meta_learning_maml_train",         // LatheMetaLearningEngine.mamlTrain
+  "lathe_archive_training_get_stats",       // LatheFullArchiveTrainingEngine.getStats
+  "lathe_archive_training_run",             // LatheFullArchiveTrainingEngine.trainFullArchive
+  "lathe_style_selector_select",            // LatheProgrammingStyleSelectorEngine.selectStyle
+  "lathe_part_family_planning_analyze",     // LathePartFamilyPlanningEngine.analyzeFamilyPotential
+  "lathe_transfer_learning_transfer",       // LatheTransferLearningEngine.transferKnowledge
+  "lathe_lora_program_parser_parse",        // LatheLoRAProgramParserEngine.parse
+  "lathe_lora_example_generator_generate",  // LatheLoRAExampleGeneratorEngine.generateFromParsed
+  "lathe_lora_dataset_validator_validate",  // LatheLoRADatasetValidatorEngine.validate
+  "lathe_lora_transfer_strategy_list",      // LatheLoRATransferStrategyEngine.listBaseModels
+  "lathe_lora_training_monitor_init",       // LatheLoRATrainingMonitorEngine.initRun
+  "lathe_lora_physics_evaluator_evaluate",  // LatheLoRAPhysicsEvaluatorEngine.evaluate
+  "lathe_lora_merge_strategy_recommend",    // LatheLoRAMergeStrategyEngine.recommendStrategy
+  "lathe_lora_quantization_estimate_size",  // LatheLoRAQuantizationOptimizerEngine.estimateSize
+  "lathe_lora_model_optimizer_get_profile", // LatheLoRAModelOptimizerEngine.getProfile
+  "lathe_lora_ollama_deployer_generate",    // LatheLoRAOllamaDeployerEngine.generateModelfile
+  "lathe_lora_inference_gateway_get_config",// LatheLoRAInferenceGatewayEngine.getConfig
+  "lathe_lora_reasoning_chain_get_templates",// LatheLoRAReasoningChainInferenceEngine.getTemplates
+  "lathe_lora_neural_bridge_get_config",    // LatheLoRANeuralBridgeEngine.getConfig
+  "lathe_lora_neural_orch_start_pipeline",  // LatheLoRANeuralOrchestratorEngine.startPipeline
+  "lathe_lora_program_miner_detect_dialect",// LatheLoRAProgramMinerEngine.detectDialect
+  "lathe_lora_knowledge_curator_get_config",// LatheLoRAKnowledgeCuratorEngine.getConfig
+  "lathe_lora_pipeline_coord_create",       // LatheLoRAPipelineCoordinatorEngine.createPipeline
+  "turning_strategy_catalog_select",        // TurningStrategyCatalog.selectTurningStrategy
+  "lathe_ai_feature_get_stats",             // LatheAIFeatureRegistration.getLatheAIStats
+  "lathe_ai_feature_find_best",             // LatheAIFeatureRegistration.findBestEngineForTask
+  "lathe_advanced_ops_live_tooling",        // LatheAdvancedOperationsEngine.getLiveToolingParams
+  "lathe_deep_ai_harden_analyze",           // LatheDeepAIHardeningEngine.analyzeLatheOperation
+  "lathe_intelligence_get_stats",           // LatheIntelligenceEngine.getStats
+  "lathe_intelligence_decide_macro",        // LatheIntelligenceEngine.decideMacroVsHardCode
+  "lathe_print_ingest_ingest",              // LathePrintIngestPipelineEngine.ingest
+  "lathe_feature_recognizer_recognize",     // LatheTurningFeatureRecognizerEngine.recognize
+  "lathe_print_setup_select",               // LathePrintSetupSelectionEngine.selectSetup
+  "lathe_print_dl_intel_predict",           // LathePrintToProgramDLIntelligenceEngine.predict
+  "lathe_safety_predicate_evaluate",        // LatheSafetyPredicateEngine.evaluate
+  "lathe_lora_physics_aug_infer_extract",   // LatheLoRAPhysicsAugmentedInferenceEngine.extractParameters
+  "lathe_proof_carrying_emit",              // LatheProofCarryingEmitEngine.emit
+  "lathe_print_tolerance_stack_propagate",  // LathePrintToleranceStackEngine.propagate
+  "lathe_thermodynamics_heat_gen",          // LatheThermodynamicsEngine.calculateHeatGeneration
+  "lathe_opus_reasoning_forward",           // LatheOpusReasoningEngine.forward
+  "lathe_unified_physics_analyze",          // LatheUnifiedPhysicsOrchestrationEngine.analyzeFullPhysics
+  "lathe_knowledge_graph_ingest",           // LathePrintToProgramKnowledgeGraphEngine.ingest
+  "lathe_print_reasoning_explain",          // LathePrintToProgramReasoningEngine.explain
+  "lathe_tribal_integration_source_corpus", // LatheTribalIntegrationEngine.sourceCorpusTips
+  "lathe_print_sequence_plan",              // LathePrintSequencePlannerEngine.planSequence
+  "lathe_print_feature_strategy_select",    // LathePrintFeatureStrategySelectorEngine.selectStrategy
+  "lathe_print_program_emit",               // LathePrintProgramEmitterEngine.emit
+  "lathe_print_program_signoff_generate",   // LathePrintProgramSignoffEngine.generatePackage
+  "lathe_program_audit_pipeline_run",       // LatheProgramAuditPipelineEngine.audit
+  "jmdie_lathe_program_upgrade",            // JMDieLatheProgramUpgraderEngine.upgrade
+  "jmdie_lathe_program_upgrade_v2",         // JMDieLatheProgramUpgraderV2Engine.upgradeV2
+  "lathe_program_library_search",           // LatheProgramLibraryEngine.search
+  // iter9 wire-unwired-loop: turning/swiss/multi-spindle engines
+  "multi_spindle_automatic_plan",
+  "swiss_type_intelligence_analyze",
+  "insert_grade_select",
+  "insert_change_recommend",
+  // CALC-RESTORE-MS0/U-WIRE-TURNING-COST-ESTIMATE (slot:india 2026-06-22): JobCostingEngine wire.
+  "turning_cost_estimate",
 ] as const;
 
 /** Registers turning dispatcher.
  * @param server - MCP server instance
   * @returns void
  */
+// WIRE-UNWIRED-PAPA / U-WIRE-TURNING (slot:papa, 2026-06-15) -- schemas for
+// SwissTypeDecisionEngine + TurretLayoutEngine (built + in-process, dispatcher-DARK).
+// Both stateless singletons, deterministic (no Math.random/Date.now), no inlined physics.
+// Enum-enforced where it gives a clean failure mode (interfaces); permissive .passthrough()
+// for the complex nested turret types (the engine validates internally). normalizeParams adds
+// camelCase aliases; turret reads camelCase, swiss spec reads snake_case (both preserved).
+const _papaToolHolderInterface = z.enum([
+  "bmt_45", "bmt_55", "bmt_65", "vdi_30", "vdi_40", "vdi_50",
+  "capto_c3", "capto_c4", "capto_c5", "capto_c6",
+  "hsk_a40", "hsk_a50", "hsk_a63", "hsk_t40", "hsk_t63", "proprietary",
+]);
+const _papaTurretType = z.enum([
+  "disc_12", "disc_16", "disc_24", "drum_8", "drum_10", "drum_12",
+  "gang", "chain_40", "chain_60", "chain_120",
+]);
+const _papaPartRoutingSpec = z
+  .object({
+    // .positive() mirrors the engine's _validate (>0 required) so an invalid spec rejects
+    // cleanly at the schema boundary instead of reaching the engine's throw.
+    length_mm: z.number().positive(),
+    max_diameter_mm: z.number().positive(),
+    tightest_tolerance_mm: z.number().positive(),
+    has_live_operations: z.boolean(),
+    annual_quantity: z.number().positive(),
+    material: z.string(),
+  })
+  .passthrough();
+// Required key fields enforced; remaining TurretConfig fields are engine-validated -> passthrough.
+const _papaTurretConfig = z
+  .object({
+    turretId: z.string(),
+    turretType: _papaTurretType,
+    stationCount: z.number(),
+    interfaceType: _papaToolHolderInterface,
+  })
+  .passthrough();
+const _papaObjArray = z.array(z.record(z.string(), z.unknown()));
+const PAPA_TURNING_WIRE_SCHEMAS = {
+  swiss_decide: z.object({ spec: _papaPartRoutingSpec }).passthrough(),
+  swiss_decide_batch: z.object({ specs: z.array(_papaPartRoutingSpec) }).passthrough(),
+  turret_analyze_interface: z.object({ interfaceType: _papaToolHolderInterface }).passthrough(),
+  turret_compare_interfaces: z
+    .object({ interface1: _papaToolHolderInterface, interface2: _papaToolHolderInterface, application: z.string() })
+    .passthrough(),
+  turret_analyze_capability: z.object({ config: _papaTurretConfig }).passthrough(),
+  turret_optimize_layout: z
+    .object({ operations: _papaObjArray, availableTools: _papaObjArray, config: _papaTurretConfig, priorities: z.record(z.string(), z.unknown()) })
+    .passthrough(),
+  turret_plan_gang: z
+    .object({ tools: _papaObjArray, operations: _papaObjArray, maxWidth_mm: z.number() })
+    .passthrough(),
+  turret_check_interference: z.object({ assignments: _papaObjArray, config: _papaTurretConfig }).passthrough(),
+};
+const MERGED_TURNING_SCHEMAS = { ...TURNING_ACTION_SCHEMAS, ...PAPA_TURNING_WIRE_SCHEMAS };
+
 export function registerTurningDispatcher(server: any): void {
   server.tool(
     "prism_turning",
@@ -268,7 +617,7 @@ Actions: ${ACTIONS.join(", ")}.`,
         } catch { /* normalizer not available */ }
 
         // Zod schema validation â€” SAFETY CRITICAL
-        const validation = validateActionParams(action, params, TURNING_ACTION_SCHEMAS);
+        const validation = validateActionParams(action, params, MERGED_TURNING_SCHEMAS);
         if (!validation.valid) {
           return dispatcherError(
             `Invalid params for '${action}': ${validation.errorMessage}`,
@@ -312,6 +661,12 @@ Actions: ${ACTIONS.join(", ")}.`,
           case "live_tool": {
             const engine = await getEngine("live");
             result = engine.calculate?.(params) ?? engine.compute?.(params) ?? { error: "LiveToolingEngine method not found" };
+            break;
+          }
+          case "live_tool_plan": {
+            // FEATURE-GAP-AUDIT-MS0/U-GAP-LATHE-LIVE-TOOLING — feature→toolpath planner
+            const engine = await getEngine("livePlanner");
+            result = engine.plan?.(params) ?? engine.calculate?.(params) ?? { error: "LatheLiveToolingPlannerEngine method not found" };
             break;
           }
           case "bar_pull": {
@@ -377,6 +732,15 @@ Actions: ${ACTIONS.join(", ")}.`,
           case "mill_turn_swiss": {
             const { millTurnSwissPipelineEngine: mte } = await import("../../engines/MillTurnSwissPipelineEngine.js");
             result = mte.calculate({ action: "swiss_machining", params: params as any });
+            break;
+          }
+          case "mill_turn_channel_emit": {
+            // SwissChannelFileEmitterEngine.emit() is the code-emission layer that turns a
+            // calculateMultiChannel() schedule (from mill_turn_multi_channel) into dialect-correct
+            // per-channel program files. Pure string assembler; defensive against empty/single-channel
+            // input (returns warnings, never throws). Engine already unit-tested (U-LPM01).
+            const { swissChannelFileEmitterEngine } = await import("../../engines/SwissChannelFileEmitterEngine.js");
+            result = swissChannelFileEmitterEngine.emit(params as any);
             break;
           }
           // LATHE-MS0: Collision zone actions
@@ -530,6 +894,11 @@ Actions: ${ACTIONS.join(", ")}.`,
             result = barStockCutPlanEngine.plan(params as Parameters<typeof barStockCutPlanEngine.plan>[0]);
             break;
           }
+          case "bar_feed_pitch_optimize": {
+            const { barFeedPitchOptimizerEngine } = await import("../../engines/BarFeedPitchOptimizerEngine.js");
+            result = barFeedPitchOptimizerEngine.optimize(params as Parameters<typeof barFeedPitchOptimizerEngine.optimize>[0]);
+            break;
+          }
           case "turning_cpk_surrogate": {
             const { turningCpkSurrogateEngine } = await import("../../engines/TurningCpkSurrogateEngine.js");
             result = turningCpkSurrogateEngine.predict(params as Parameters<typeof turningCpkSurrogateEngine.predict>[0]);
@@ -553,6 +922,40 @@ Actions: ${ACTIONS.join(", ")}.`,
           case "turning_robust_optimize": {
             const { turningRobustOptimizerEngine } = await import("../../engines/TurningRobustOptimizerEngine.js");
             result = turningRobustOptimizerEngine.run(params as Parameters<typeof turningRobustOptimizerEngine.run>[0]);
+            break;
+          }
+          // ─────────────────────────────────────────────────────────────────
+          // BRIDGE-WIRING/U-BRIDGE-WIRE-TURNING — 6 unwired Turning engines.
+          // Each engine throws on bad input; the outer try/catch envelopes it.
+          // ─────────────────────────────────────────────────────────────────
+          case "turning_envelope_distance": {
+            const { turningEnvelopeDistanceEngine } = await import("../../engines/TurningEnvelopeDistanceEngine.js");
+            result = { success: true, data: turningEnvelopeDistanceEngine.run(params as Parameters<typeof turningEnvelopeDistanceEngine.run>[0]) };
+            break;
+          }
+          case "turning_sensitivity_analysis": {
+            const { turningSensitivityAnalysisEngine } = await import("../../engines/TurningSensitivityAnalysisEngine.js");
+            result = { success: true, data: turningSensitivityAnalysisEngine.run(params as Parameters<typeof turningSensitivityAnalysisEngine.run>[0]) };
+            break;
+          }
+          case "turning_stochastic_production_plan": {
+            const { turningStochasticPlanEngine } = await import("../../engines/TurningStochasticPlanEngine.js");
+            result = { success: true, data: turningStochasticPlanEngine.run(params as Parameters<typeof turningStochasticPlanEngine.run>[0]) };
+            break;
+          }
+          case "turning_thread_optimize": {
+            const { turningThreadOptimizerEngine } = await import("../../engines/TurningThreadOptimizerEngine.js");
+            result = { success: true, data: turningThreadOptimizerEngine.optimize(params as Parameters<typeof turningThreadOptimizerEngine.optimize>[0]) };
+            break;
+          }
+          case "turning_thread_sensitivity": {
+            const { turningThreadSensitivityEngine } = await import("../../engines/TurningThreadSensitivityEngine.js");
+            result = { success: true, data: turningThreadSensitivityEngine.run(params as Parameters<typeof turningThreadSensitivityEngine.run>[0]) };
+            break;
+          }
+          case "turning_thread_stochastic_plan": {
+            const { turningThreadStochasticPlanEngine } = await import("../../engines/TurningThreadStochasticPlanEngine.js");
+            result = { success: true, data: turningThreadStochasticPlanEngine.run(params as Parameters<typeof turningThreadStochasticPlanEngine.run>[0]) };
             break;
           }
           // ─────────────────────────────────────────────────────────────────
@@ -612,6 +1015,38 @@ Actions: ${ACTIONS.join(", ")}.`,
           // ─────────────────────────────────────────────────────────────────
           // ENGINE-WIRE-LATHE-MS0/U-WIRE-LATHE-BATCH1: 6 unwired lathe engines
           // ─────────────────────────────────────────────────────────────────
+          case "tnr_lookup_p_code": {
+            const { ToolNoseRadiusCompensationEngine } =
+              await import("../../engines/ToolNoseRadiusCompensationEngine.js");
+            const pCode = Number((params as { pCode?: number }).pCode);
+            result = { success: true, data: ToolNoseRadiusCompensationEngine.lookupPCode(pCode) };
+            break;
+          }
+          case "tnr_get_g_code": {
+            const { ToolNoseRadiusCompensationEngine } =
+              await import("../../engines/ToolNoseRadiusCompensationEngine.js");
+            const code = (params as { code?: "G40" | "G41" | "G42" }).code ?? "G40";
+            result = { success: true, data: ToolNoseRadiusCompensationEngine.getGCode(code) };
+            break;
+          }
+          case "tnr_validate_program": {
+            const { ToolNoseRadiusCompensationEngine, ProgramValidateInputSchema } =
+              await import("../../engines/ToolNoseRadiusCompensationEngine.js");
+            const parsed = ProgramValidateInputSchema.parse({
+              program: (params as { program?: string }).program ?? "",
+            });
+            result = { success: true, data: ToolNoseRadiusCompensationEngine.validateProgram(parsed.program) };
+            break;
+          }
+          case "tnr_setup_procedure": {
+            const { ToolNoseRadiusCompensationEngine } =
+              await import("../../engines/ToolNoseRadiusCompensationEngine.js");
+            result = {
+              success: true,
+              data: { steps: ToolNoseRadiusCompensationEngine.getSetupProcedure() },
+            };
+            break;
+          }
           case "lathe_css_optimize": {
             const { latheCSSOptimizerEngine } = await import("../../engines/LatheCSSOptimizerEngine.js");
             result = latheCSSOptimizerEngine.optimize(params as Parameters<typeof latheCSSOptimizerEngine.optimize>[0]);
@@ -699,6 +1134,996 @@ Actions: ${ACTIONS.join(", ")}.`,
             const p = params as { content: string; file_path?: string };
             if (typeof p.content !== "string") throw new Error("lathe_program_analyze requires 'content' (string)");
             result = latheProgramOptimizerEngine.analyzeProgram(p.content, p.file_path);
+            break;
+          }
+          // U-LATHE-PROG-OPT-WIRE: completes the LatheProgramOptimizerEngine surface (analyze was BATCH3; optimize+estimate close the upgrade trio)
+          case "lathe_program_optimize": {
+            const { latheProgramOptimizerEngine } = await import("../../engines/LatheProgramOptimizerEngine.js");
+            const p = params as { content: string; file_path?: string };
+            if (typeof p.content !== "string") throw new Error("lathe_program_optimize requires 'content' (string)");
+            result = latheProgramOptimizerEngine.generateOptimizedProgram(p.content, p.file_path);
+            break;
+          }
+          case "lathe_program_estimate": {
+            const { latheProgramOptimizerEngine } = await import("../../engines/LatheProgramOptimizerEngine.js");
+            const p = params as { content: string; file_path?: string };
+            if (typeof p.content !== "string") throw new Error("lathe_program_estimate requires 'content' (string)");
+            result = latheProgramOptimizerEngine.estimateImprovements(p.content, p.file_path);
+            break;
+          }
+          // U-WIRE-LATHE-BIRDNEST: chip-wrap risk prediction (LATHE-PRO-MS7)
+          case "lathe_bird_nest_predict": {
+            const { latheBirdNestPredictorEngine } = await import("../../engines/LatheBirdNestPredictorEngine.js");
+            const p = params as Parameters<typeof latheBirdNestPredictorEngine.predict>[0];
+            if (typeof p?.vc_m_min !== "number") throw new Error("lathe_bird_nest_predict requires 'vc_m_min' (number)");
+            if (typeof p?.feed_mm_rev !== "number") throw new Error("lathe_bird_nest_predict requires 'feed_mm_rev' (number)");
+            if (typeof p?.doc_mm !== "number") throw new Error("lathe_bird_nest_predict requires 'doc_mm' (number)");
+            if (typeof p?.clearance_length_mm !== "number") throw new Error("lathe_bird_nest_predict requires 'clearance_length_mm' (number)");
+            if (typeof p?.length_over_diameter !== "number") throw new Error("lathe_bird_nest_predict requires 'length_over_diameter' (number)");
+            if (typeof p?.chipbreaker !== "string") throw new Error("lathe_bird_nest_predict requires 'chipbreaker' (string)");
+            if (typeof p?.coolant !== "string") throw new Error("lathe_bird_nest_predict requires 'coolant' (string)");
+            result = latheBirdNestPredictorEngine.predict(p);
+            break;
+          }
+          case "lathe_bird_nest_stats": {
+            const { latheBirdNestPredictorEngine } = await import("../../engines/LatheBirdNestPredictorEngine.js");
+            result = latheBirdNestPredictorEngine.getStats();
+            break;
+          }
+          // U-WIRE-LATHE-PARTING-CLEAR: chip-clearance + coolant-jet evaluation for parting (LATHE-PRO-MS7)
+          case "lathe_parting_clearance_evaluate": {
+            const { lathePartingChipClearanceEngine } = await import("../../engines/LathePartingChipClearanceEngine.js");
+            const p = params as Parameters<typeof lathePartingChipClearanceEngine.evaluate>[0];
+            if (typeof p?.blade_width_mm !== "number") throw new Error("lathe_parting_clearance_evaluate requires 'blade_width_mm' (number)");
+            if (typeof p?.slot_depth_mm !== "number") throw new Error("lathe_parting_clearance_evaluate requires 'slot_depth_mm' (number)");
+            if (typeof p?.bar_od_mm !== "number") throw new Error("lathe_parting_clearance_evaluate requires 'bar_od_mm' (number)");
+            if (typeof p?.feed_mm_rev !== "number") throw new Error("lathe_parting_clearance_evaluate requires 'feed_mm_rev' (number)");
+            if (typeof p?.vc_m_min !== "number") throw new Error("lathe_parting_clearance_evaluate requires 'vc_m_min' (number)");
+            if (typeof p?.coolant_pressure_bar !== "number") throw new Error("lathe_parting_clearance_evaluate requires 'coolant_pressure_bar' (number)");
+            result = lathePartingChipClearanceEngine.evaluate(p);
+            break;
+          }
+          case "lathe_parting_clearance_stats": {
+            const { lathePartingChipClearanceEngine } = await import("../../engines/LathePartingChipClearanceEngine.js");
+            result = lathePartingChipClearanceEngine.getStats();
+            break;
+          }
+          // U-WIRE-LATHE-PART-COST: 7-bucket cost-per-part model (LATHE-PRO-MS10)
+          case "lathe_part_cost_compute": {
+            const { lathePartCostModelEngine } = await import("../../engines/LathePartCostModelEngine.js");
+            const p = params as Parameters<typeof lathePartCostModelEngine.compute>[0];
+            if (typeof p?.cycle_time_s !== "number") throw new Error("lathe_part_cost_compute requires 'cycle_time_s' (number)");
+            if (typeof p?.machine_rate_per_hr !== "number") throw new Error("lathe_part_cost_compute requires 'machine_rate_per_hr' (number)");
+            if (!Array.isArray(p?.operations)) throw new Error("lathe_part_cost_compute requires 'operations' (array)");
+            if (typeof p?.part_mass_kg !== "number") throw new Error("lathe_part_cost_compute requires 'part_mass_kg' (number)");
+            if (typeof p?.waste_mass_kg !== "number") throw new Error("lathe_part_cost_compute requires 'waste_mass_kg' (number)");
+            if (typeof p?.material_price_per_kg !== "number") throw new Error("lathe_part_cost_compute requires 'material_price_per_kg' (number)");
+            if (typeof p?.setup_time_s !== "number") throw new Error("lathe_part_cost_compute requires 'setup_time_s' (number)");
+            if (typeof p?.setup_rate_per_hr !== "number") throw new Error("lathe_part_cost_compute requires 'setup_rate_per_hr' (number)");
+            if (typeof p?.batch_size !== "number") throw new Error("lathe_part_cost_compute requires 'batch_size' (number)");
+            result = lathePartCostModelEngine.compute(p);
+            break;
+          }
+          case "lathe_part_cost_stats": {
+            const { lathePartCostModelEngine } = await import("../../engines/LathePartCostModelEngine.js");
+            result = lathePartCostModelEngine.getStats();
+            break;
+          }
+          // U-WIRE-LATHE-SUBSPINDLE-PURGE: sub-spindle transfer purge timing (LATHE-PRO-MS7)
+          case "lathe_subspindle_purge_plan": {
+            const { latheSubSpindleTransferPurgeEngine } = await import("../../engines/LatheSubSpindleTransferPurgeEngine.js");
+            const p = params as Parameters<typeof latheSubSpindleTransferPurgeEngine.plan>[0];
+            if (typeof p?.main_rpm !== "number") throw new Error("lathe_subspindle_purge_plan requires 'main_rpm' (number)");
+            if (typeof p?.transfer_length_mm !== "number") throw new Error("lathe_subspindle_purge_plan requires 'transfer_length_mm' (number)");
+            if (typeof p?.transfer_diameter_mm !== "number") throw new Error("lathe_subspindle_purge_plan requires 'transfer_diameter_mm' (number)");
+            if (typeof p?.coolant_pressure_bar !== "number") throw new Error("lathe_subspindle_purge_plan requires 'coolant_pressure_bar' (number)");
+            if (typeof p?.air_blast_available !== "boolean") throw new Error("lathe_subspindle_purge_plan requires 'air_blast_available' (boolean)");
+            result = latheSubSpindleTransferPurgeEngine.plan(p);
+            break;
+          }
+          case "lathe_subspindle_purge_stats": {
+            const { latheSubSpindleTransferPurgeEngine } = await import("../../engines/LatheSubSpindleTransferPurgeEngine.js");
+            result = latheSubSpindleTransferPurgeEngine.getStats();
+            break;
+          }
+          // U-WIRE-LATHE-OP-TIME-BREAKDOWN: 9-bucket op-time decomposition (LATHE-PRO-MS5)
+          case "lathe_op_time_compute": {
+            const { latheOpTimeBreakdownEngine } = await import("../../engines/LatheOpTimeBreakdownEngine.js");
+            const p = params as Parameters<typeof latheOpTimeBreakdownEngine.compute>[0];
+            if (typeof p?.cut_length_mm !== "number") throw new Error("lathe_op_time_compute requires 'cut_length_mm' (number)");
+            if (typeof p?.feed_mm_min !== "number") throw new Error("lathe_op_time_compute requires 'feed_mm_min' (number)");
+            result = latheOpTimeBreakdownEngine.compute(p);
+            break;
+          }
+          case "lathe_op_time_aggregate": {
+            const { latheOpTimeBreakdownEngine } = await import("../../engines/LatheOpTimeBreakdownEngine.js");
+            const p = params as { ops: Parameters<typeof latheOpTimeBreakdownEngine.aggregate>[0]; lot_size: number };
+            if (!Array.isArray(p?.ops)) throw new Error("lathe_op_time_aggregate requires 'ops' (array of per-op breakdowns)");
+            if (typeof p?.lot_size !== "number") throw new Error("lathe_op_time_aggregate requires 'lot_size' (number)");
+            result = latheOpTimeBreakdownEngine.aggregate(p.ops, p.lot_size);
+            break;
+          }
+          case "lathe_op_time_stats": {
+            const { latheOpTimeBreakdownEngine } = await import("../../engines/LatheOpTimeBreakdownEngine.js");
+            result = latheOpTimeBreakdownEngine.getStats();
+            break;
+          }
+          // U-WIRE-LATHE-REPLAY-FRAME: block-by-block replay frame compiler (LATHE-PRO-MS12)
+          case "lathe_replay_frame_compile": {
+            const { latheReplayFrameCompilerEngine } = await import("../../engines/LatheReplayFrameCompilerEngine.js");
+            const p = params as Parameters<typeof latheReplayFrameCompilerEngine.compile>[0];
+            if (typeof p?.program_id !== "string") throw new Error("lathe_replay_frame_compile requires 'program_id' (string)");
+            if (!Array.isArray(p?.blocks)) throw new Error("lathe_replay_frame_compile requires 'blocks' (array)");
+            result = latheReplayFrameCompilerEngine.compile(p);
+            break;
+          }
+          case "lathe_replay_frame_stats": {
+            const { latheReplayFrameCompilerEngine } = await import("../../engines/LatheReplayFrameCompilerEngine.js");
+            result = latheReplayFrameCompilerEngine.getStats();
+            break;
+          }
+          // U-WIRE-LATHE-PART-CLASSIFIER: 15-family part classifier (LATHE-PRO-MS3)
+          case "lathe_part_classify": {
+            const { lathePartClassifierEngine } = await import("../../engines/LathePartClassifierEngine.js");
+            const p = params as Parameters<typeof lathePartClassifierEngine.classify>[0];
+            if (typeof p?.length_mm !== "number") throw new Error("lathe_part_classify requires 'length_mm' (number)");
+            if (typeof p?.max_od_mm !== "number") throw new Error("lathe_part_classify requires 'max_od_mm' (number)");
+            result = lathePartClassifierEngine.classify(p);
+            break;
+          }
+          case "lathe_part_classify_batch": {
+            const { lathePartClassifierEngine } = await import("../../engines/LathePartClassifierEngine.js");
+            const p = params as { parts: Parameters<typeof lathePartClassifierEngine.classifyBatch>[0] };
+            if (!Array.isArray(p?.parts)) throw new Error("lathe_part_classify_batch requires 'parts' (array)");
+            result = lathePartClassifierEngine.classifyBatch(p.parts);
+            break;
+          }
+          case "lathe_part_family_profile": {
+            const { lathePartClassifierEngine } = await import("../../engines/LathePartClassifierEngine.js");
+            const p = params as { family: Parameters<typeof lathePartClassifierEngine.getFamilyProfile>[0] };
+            if (typeof p?.family !== "string") throw new Error("lathe_part_family_profile requires 'family' (string)");
+            result = lathePartClassifierEngine.getFamilyProfile(p.family);
+            break;
+          }
+          case "lathe_part_family_list": {
+            const { lathePartClassifierEngine } = await import("../../engines/LathePartClassifierEngine.js");
+            result = lathePartClassifierEngine.listFamilies();
+            break;
+          }
+          // U-WIRE-LATHE-PROG-COST: programming cost model (LATHE-AWARE-HARDEN-MS11)
+          case "lathe_programming_cost_estimate": {
+            const { latheProgrammingCostEngine } = await import("../../engines/LatheProgrammingCostEngine.js");
+            const p = params as { style: Parameters<typeof latheProgrammingCostEngine.estimateProgrammingCost>[0]; complexity: Parameters<typeof latheProgrammingCostEngine.estimateProgrammingCost>[1]; lot_size: number; options?: Parameters<typeof latheProgrammingCostEngine.estimateProgrammingCost>[3] };
+            if (typeof p?.style !== "string") throw new Error("lathe_programming_cost_estimate requires 'style' (string)");
+            if (typeof p?.complexity !== "string") throw new Error("lathe_programming_cost_estimate requires 'complexity' (string)");
+            if (typeof p?.lot_size !== "number") throw new Error("lathe_programming_cost_estimate requires 'lot_size' (number)");
+            result = latheProgrammingCostEngine.estimateProgrammingCost(p.style, p.complexity, p.lot_size, p.options);
+            break;
+          }
+          case "lathe_programming_cost_compare": {
+            const { latheProgrammingCostEngine } = await import("../../engines/LatheProgrammingCostEngine.js");
+            const p = params as Parameters<typeof latheProgrammingCostEngine.compareApproaches>[0];
+            if (typeof p?.part_complexity !== "string") throw new Error("lathe_programming_cost_compare requires 'part_complexity' (string)");
+            if (typeof p?.lot_size !== "number") throw new Error("lathe_programming_cost_compare requires 'lot_size' (number)");
+            result = latheProgrammingCostEngine.compareApproaches(p);
+            break;
+          }
+          case "lathe_programming_cost_breakeven": {
+            const { latheProgrammingCostEngine } = await import("../../engines/LatheProgrammingCostEngine.js");
+            const p = params as { macro_investment_hr: number; lot_sizes: number[]; complexity?: Parameters<typeof latheProgrammingCostEngine.breakEvenAnalysis>[2]; options?: Parameters<typeof latheProgrammingCostEngine.breakEvenAnalysis>[3] };
+            if (typeof p?.macro_investment_hr !== "number") throw new Error("lathe_programming_cost_breakeven requires 'macro_investment_hr' (number)");
+            if (!Array.isArray(p?.lot_sizes)) throw new Error("lathe_programming_cost_breakeven requires 'lot_sizes' (number array)");
+            result = latheProgrammingCostEngine.breakEvenAnalysis(p.macro_investment_hr, p.lot_sizes, p.complexity, p.options);
+            break;
+          }
+          case "lathe_programming_cost_stats": {
+            const { latheProgrammingCostEngine } = await import("../../engines/LatheProgrammingCostEngine.js");
+            result = latheProgrammingCostEngine.getStats();
+            break;
+          }
+          // LATHE-PSN-SYNERGY (Phase 2): tribal-knowledge → style-score-delta bridge
+          case "lathe_programming_style_tribal_advise": {
+            const { programmingStyleTribalAdvisorEngine } = await import(
+              "../../engines/ProgrammingStyleTribalAdvisorEngine.js"
+            );
+            const p = params as Parameters<typeof programmingStyleTribalAdvisorEngine.advise>[0];
+            if (typeof p?.controller !== "string") throw new Error("lathe_programming_style_tribal_advise requires 'controller' (string)");
+            if (typeof p?.part_complexity !== "string") throw new Error("lathe_programming_style_tribal_advise requires 'part_complexity' (string)");
+            if (typeof p?.lot_size !== "number") throw new Error("lathe_programming_style_tribal_advise requires 'lot_size' (number)");
+            if (typeof p?.family_parts_expected !== "number") throw new Error("lathe_programming_style_tribal_advise requires 'family_parts_expected' (number)");
+            result = programmingStyleTribalAdvisorEngine.advise(p);
+            break;
+          }
+          case "lathe_programming_style_tribal_stats": {
+            const { programmingStyleTribalAdvisorEngine } = await import(
+              "../../engines/ProgrammingStyleTribalAdvisorEngine.js"
+            );
+            result = programmingStyleTribalAdvisorEngine.getStats();
+            break;
+          }
+          case "lathe_programming_style_tribal_rules": {
+            const { programmingStyleTribalAdvisorEngine } = await import(
+              "../../engines/ProgrammingStyleTribalAdvisorEngine.js"
+            );
+            result = programmingStyleTribalAdvisorEngine.getRules();
+            break;
+          }
+          // U-WIRE-LATHE-PERF-SLO: production-SLO registry (LATHE-PROD-READY-MS0)
+          case "lathe_slo_targets": {
+            const { lathePerformanceSLORegistryEngine } = await import("../../engines/LathePerformanceSLORegistryEngine.js");
+            result = lathePerformanceSLORegistryEngine.targets();
+            break;
+          }
+          case "lathe_slo_get_target": {
+            const { lathePerformanceSLORegistryEngine } = await import("../../engines/LathePerformanceSLORegistryEngine.js");
+            const p = params as { metric: Parameters<typeof lathePerformanceSLORegistryEngine.getTarget>[0] };
+            if (typeof p?.metric !== "string") throw new Error("lathe_slo_get_target requires 'metric' (string)");
+            result = lathePerformanceSLORegistryEngine.getTarget(p.metric);
+            break;
+          }
+          case "lathe_slo_set_target": {
+            const { lathePerformanceSLORegistryEngine } = await import("../../engines/LathePerformanceSLORegistryEngine.js");
+            const p = params as { target: Parameters<typeof lathePerformanceSLORegistryEngine.setTarget>[0] };
+            if (!p?.target || typeof p.target.metric !== "string") throw new Error("lathe_slo_set_target requires 'target' (SLOTarget object with metric)");
+            lathePerformanceSLORegistryEngine.setTarget(p.target);
+            result = { success: true, metric: p.target.metric };
+            break;
+          }
+          case "lathe_slo_record_sample": {
+            const { lathePerformanceSLORegistryEngine } = await import("../../engines/LathePerformanceSLORegistryEngine.js");
+            const p = params as { metric: Parameters<typeof lathePerformanceSLORegistryEngine.recordSample>[0]; value: number };
+            if (typeof p?.metric !== "string") throw new Error("lathe_slo_record_sample requires 'metric' (string)");
+            if (typeof p?.value !== "number") throw new Error("lathe_slo_record_sample requires 'value' (number)");
+            lathePerformanceSLORegistryEngine.recordSample(p.metric, p.value);
+            result = { success: true, metric: p.metric, recorded: p.value };
+            break;
+          }
+          case "lathe_slo_sample_count": {
+            const { lathePerformanceSLORegistryEngine } = await import("../../engines/LathePerformanceSLORegistryEngine.js");
+            const p = params as { metric: Parameters<typeof lathePerformanceSLORegistryEngine.sampleCount>[0] };
+            if (typeof p?.metric !== "string") throw new Error("lathe_slo_sample_count requires 'metric' (string)");
+            result = { metric: p.metric, count: lathePerformanceSLORegistryEngine.sampleCount(p.metric) };
+            break;
+          }
+          case "lathe_slo_evaluate": {
+            const { lathePerformanceSLORegistryEngine } = await import("../../engines/LathePerformanceSLORegistryEngine.js");
+            const p = params as { metric: Parameters<typeof lathePerformanceSLORegistryEngine.evaluate>[0] };
+            if (typeof p?.metric !== "string") throw new Error("lathe_slo_evaluate requires 'metric' (string)");
+            result = lathePerformanceSLORegistryEngine.evaluate(p.metric);
+            break;
+          }
+          case "lathe_slo_dashboard": {
+            const { lathePerformanceSLORegistryEngine } = await import("../../engines/LathePerformanceSLORegistryEngine.js");
+            result = lathePerformanceSLORegistryEngine.dashboard();
+            break;
+          }
+          case "lathe_slo_clear_samples": {
+            const { lathePerformanceSLORegistryEngine } = await import("../../engines/LathePerformanceSLORegistryEngine.js");
+            const p = params as { metric?: Parameters<typeof lathePerformanceSLORegistryEngine.clearSamples>[0] };
+            lathePerformanceSLORegistryEngine.clearSamples(p?.metric);
+            result = { success: true, cleared: p?.metric ?? "all" };
+            break;
+          }
+          // U-WIRE-LATHE-LORA-SAFETY-EVAL: LoRA-output safety evaluator (LATHE-LORA-MS0)
+          case "lathe_lora_safety_evaluate": {
+            const { latheLoRASafetyEvaluatorEngine } = await import("../../engines/LatheLoRASafetyEvaluatorEngine.js");
+            const p = params as { output: string; context?: { operation?: string } };
+            if (typeof p?.output !== "string") throw new Error("lathe_lora_safety_evaluate requires 'output' (string)");
+            result = latheLoRASafetyEvaluatorEngine.evaluate(p.output, p.context);
+            break;
+          }
+          case "lathe_lora_safety_is_safe": {
+            const { latheLoRASafetyEvaluatorEngine } = await import("../../engines/LatheLoRASafetyEvaluatorEngine.js");
+            const p = params as { evaluation: Parameters<typeof latheLoRASafetyEvaluatorEngine.isSafe>[0] };
+            if (!p?.evaluation || typeof p.evaluation !== "object") throw new Error("lathe_lora_safety_is_safe requires 'evaluation' (SafetyEvaluation object)");
+            result = { is_safe: latheLoRASafetyEvaluatorEngine.isSafe(p.evaluation) };
+            break;
+          }
+          case "lathe_lora_safety_summary": {
+            const { latheLoRASafetyEvaluatorEngine } = await import("../../engines/LatheLoRASafetyEvaluatorEngine.js");
+            const p = params as { evaluation: Parameters<typeof latheLoRASafetyEvaluatorEngine.getSummary>[0] };
+            if (!p?.evaluation || typeof p.evaluation !== "object") throw new Error("lathe_lora_safety_summary requires 'evaluation' (SafetyEvaluation object)");
+            result = { summary: latheLoRASafetyEvaluatorEngine.getSummary(p.evaluation) };
+            break;
+          }
+          case "lathe_lora_safety_set_config": {
+            const { latheLoRASafetyEvaluatorEngine } = await import("../../engines/LatheLoRASafetyEvaluatorEngine.js");
+            const p = params as { config: Parameters<typeof latheLoRASafetyEvaluatorEngine.setConfig>[0] };
+            if (!p?.config || typeof p.config !== "object") throw new Error("lathe_lora_safety_set_config requires 'config' (Partial<SafetyConfig>)");
+            latheLoRASafetyEvaluatorEngine.setConfig(p.config);
+            result = { success: true, config: latheLoRASafetyEvaluatorEngine.getConfig() };
+            break;
+          }
+          case "lathe_lora_safety_get_config": {
+            const { latheLoRASafetyEvaluatorEngine } = await import("../../engines/LatheLoRASafetyEvaluatorEngine.js");
+            result = latheLoRASafetyEvaluatorEngine.getConfig();
+            break;
+          }
+          case "lathe_lora_safety_threshold": {
+            const { latheLoRASafetyEvaluatorEngine } = await import("../../engines/LatheLoRASafetyEvaluatorEngine.js");
+            result = { s_x_threshold: latheLoRASafetyEvaluatorEngine.getThreshold() };
+            break;
+          }
+          // U-WIRE-LATHE-LORA-REASON-EVAL: LoRA reasoning-chain evaluator (LATHE-LORA-MS0)
+          case "lathe_lora_reason_evaluate": {
+            const { latheLoRAReasoningEvaluatorEngine } = await import("../../engines/LatheLoRAReasoningEvaluatorEngine.js");
+            const p = params as { output: string };
+            if (typeof p?.output !== "string") throw new Error("lathe_lora_reason_evaluate requires 'output' (string)");
+            result = latheLoRAReasoningEvaluatorEngine.evaluate(p.output);
+            break;
+          }
+          case "lathe_lora_reason_summary": {
+            const { latheLoRAReasoningEvaluatorEngine } = await import("../../engines/LatheLoRAReasoningEvaluatorEngine.js");
+            const p = params as { evaluation: Parameters<typeof latheLoRAReasoningEvaluatorEngine.getSummary>[0] };
+            if (!p?.evaluation || typeof p.evaluation !== "object") throw new Error("lathe_lora_reason_summary requires 'evaluation' (ReasoningEvaluation object)");
+            result = { summary: latheLoRAReasoningEvaluatorEngine.getSummary(p.evaluation) };
+            break;
+          }
+          case "lathe_lora_reason_suggestions": {
+            const { latheLoRAReasoningEvaluatorEngine } = await import("../../engines/LatheLoRAReasoningEvaluatorEngine.js");
+            const p = params as { evaluation: Parameters<typeof latheLoRAReasoningEvaluatorEngine.getSuggestions>[0] };
+            if (!p?.evaluation || typeof p.evaluation !== "object") throw new Error("lathe_lora_reason_suggestions requires 'evaluation' (ReasoningEvaluation object)");
+            result = { suggestions: latheLoRAReasoningEvaluatorEngine.getSuggestions(p.evaluation) };
+            break;
+          }
+          case "lathe_lora_reason_set_config": {
+            const { latheLoRAReasoningEvaluatorEngine } = await import("../../engines/LatheLoRAReasoningEvaluatorEngine.js");
+            const p = params as { config: Parameters<typeof latheLoRAReasoningEvaluatorEngine.setConfig>[0] };
+            if (!p?.config || typeof p.config !== "object") throw new Error("lathe_lora_reason_set_config requires 'config' (Partial<ReasoningConfig>)");
+            latheLoRAReasoningEvaluatorEngine.setConfig(p.config);
+            result = { success: true, config: latheLoRAReasoningEvaluatorEngine.getConfig() };
+            break;
+          }
+          case "lathe_lora_reason_get_config": {
+            const { latheLoRAReasoningEvaluatorEngine } = await import("../../engines/LatheLoRAReasoningEvaluatorEngine.js");
+            result = latheLoRAReasoningEvaluatorEngine.getConfig();
+            break;
+          }
+          // U-WIRE-LATHE-COOLANT-ADVISOR: coolant delivery recommender (LATHE-PRO-MS5)
+          case "lathe_coolant_advise": {
+            const { latheCoolantAdvisorEngine } = await import("../../engines/LatheCoolantAdvisorEngine.js");
+            const p = params as Parameters<typeof latheCoolantAdvisorEngine.advise>[0];
+            if (typeof p?.iso_group !== "string") throw new Error("lathe_coolant_advise requires 'iso_group' (string)");
+            if (typeof p?.operation !== "string") throw new Error("lathe_coolant_advise requires 'operation' (string)");
+            if (typeof p?.tool_material !== "string") throw new Error("lathe_coolant_advise requires 'tool_material' (string)");
+            result = latheCoolantAdvisorEngine.advise(p);
+            break;
+          }
+          case "lathe_coolant_stats": {
+            const { latheCoolantAdvisorEngine } = await import("../../engines/LatheCoolantAdvisorEngine.js");
+            result = latheCoolantAdvisorEngine.getStats();
+            break;
+          }
+          // U-WIRE-LATHE-CHUCK-JAW-SETUP: soft-jaw setup calculator (LATHE-PRO-MS11)
+          case "lathe_chuck_jaw_compute": {
+            const { latheChuckJawSetupEngine } = await import("../../engines/LatheChuckJawSetupEngine.js");
+            const p = params as Parameters<typeof latheChuckJawSetupEngine.compute>[0];
+            if (typeof p?.part_od_mm !== "number") throw new Error("lathe_chuck_jaw_compute requires 'part_od_mm' (number)");
+            if (typeof p?.part_od_tol_mm !== "number") throw new Error("lathe_chuck_jaw_compute requires 'part_od_tol_mm' (number)");
+            if (typeof p?.clamp_force_kn !== "number") throw new Error("lathe_chuck_jaw_compute requires 'clamp_force_kn' (number)");
+            if (typeof p?.jaw_mass_kg !== "number") throw new Error("lathe_chuck_jaw_compute requires 'jaw_mass_kg' (number)");
+            if (typeof p?.jaw_centroid_radius_mm !== "number") throw new Error("lathe_chuck_jaw_compute requires 'jaw_centroid_radius_mm' (number)");
+            if (typeof p?.chuck_rated_max_rpm !== "number") throw new Error("lathe_chuck_jaw_compute requires 'chuck_rated_max_rpm' (number)");
+            if (typeof p?.operating_rpm !== "number") throw new Error("lathe_chuck_jaw_compute requires 'operating_rpm' (number)");
+            result = latheChuckJawSetupEngine.compute(p);
+            break;
+          }
+          case "lathe_chuck_jaw_stats": {
+            const { latheChuckJawSetupEngine } = await import("../../engines/LatheChuckJawSetupEngine.js");
+            result = latheChuckJawSetupEngine.getStats();
+            break;
+          }
+          // U-WIRE-LATHE-CSS-OPTIMIZER: CSS clamp + mode selector (LATHE-PRO)
+          case "lathe_css_optimize": {
+            const { latheCSSOptimizerEngine } = await import("../../engines/LatheCSSOptimizerEngine.js");
+            const p = params as Parameters<typeof latheCSSOptimizerEngine.optimize>[0];
+            if (typeof p?.Vc_m_min !== "number") throw new Error("lathe_css_optimize requires 'Vc_m_min' (number)");
+            if (typeof p?.max_od_mm !== "number") throw new Error("lathe_css_optimize requires 'max_od_mm' (number)");
+            if (typeof p?.min_od_mm !== "number") throw new Error("lathe_css_optimize requires 'min_od_mm' (number)");
+            if (typeof p?.rated_max_rpm !== "number") throw new Error("lathe_css_optimize requires 'rated_max_rpm' (number)");
+            result = latheCSSOptimizerEngine.optimize(p);
+            break;
+          }
+          case "lathe_css_select_mode": {
+            const { latheCSSOptimizerEngine } = await import("../../engines/LatheCSSOptimizerEngine.js");
+            const p = params as { Vc_m_min: number; diameter_mm: number; rated_max_rpm: number; feature_length_mm: number };
+            if (typeof p?.Vc_m_min !== "number") throw new Error("lathe_css_select_mode requires 'Vc_m_min' (number)");
+            if (typeof p?.diameter_mm !== "number") throw new Error("lathe_css_select_mode requires 'diameter_mm' (number)");
+            if (typeof p?.rated_max_rpm !== "number") throw new Error("lathe_css_select_mode requires 'rated_max_rpm' (number)");
+            if (typeof p?.feature_length_mm !== "number") throw new Error("lathe_css_select_mode requires 'feature_length_mm' (number)");
+            result = latheCSSOptimizerEngine.selectMode(p.Vc_m_min, p.diameter_mm, p.rated_max_rpm, p.feature_length_mm);
+            break;
+          }
+          case "lathe_css_stats": {
+            const { latheCSSOptimizerEngine } = await import("../../engines/LatheCSSOptimizerEngine.js");
+            result = latheCSSOptimizerEngine.getStats();
+            break;
+          }
+          // U-WIRE-LATHE-LORA-REWARD-SHAPE: RL reward shaping (LATHE-LORA-MS0)
+          case "lathe_lora_reward_calc": {
+            const { latheLoRARewardShapingEngine } = await import("../../engines/LatheLoRARewardShapingEngine.js");
+            const p = params as { output: string; context?: { instruction?: string; expected_type?: string } };
+            if (typeof p?.output !== "string") throw new Error("lathe_lora_reward_calc requires 'output' (string)");
+            result = latheLoRARewardShapingEngine.calculateReward(p.output, p.context);
+            break;
+          }
+          case "lathe_lora_reward_threshold": {
+            const { latheLoRARewardShapingEngine } = await import("../../engines/LatheLoRARewardShapingEngine.js");
+            const p = params as { result: Parameters<typeof latheLoRARewardShapingEngine.meetsThreshold>[0]; threshold?: number };
+            if (!p?.result || typeof p.result !== "object") throw new Error("lathe_lora_reward_threshold requires 'result' (RewardResult object)");
+            const thr = typeof p.threshold === "number" ? p.threshold : 0;
+            result = { meets_threshold: latheLoRARewardShapingEngine.meetsThreshold(p.result, thr), threshold: thr };
+            break;
+          }
+          case "lathe_lora_reward_summary": {
+            const { latheLoRARewardShapingEngine } = await import("../../engines/LatheLoRARewardShapingEngine.js");
+            const p = params as { result: Parameters<typeof latheLoRARewardShapingEngine.getSummary>[0] };
+            if (!p?.result || typeof p.result !== "object") throw new Error("lathe_lora_reward_summary requires 'result' (RewardResult object)");
+            result = { summary: latheLoRARewardShapingEngine.getSummary(p.result) };
+            break;
+          }
+          case "lathe_lora_reward_set_config": {
+            const { latheLoRARewardShapingEngine } = await import("../../engines/LatheLoRARewardShapingEngine.js");
+            const p = params as { config: Parameters<typeof latheLoRARewardShapingEngine.setConfig>[0] };
+            if (!p?.config || typeof p.config !== "object") throw new Error("lathe_lora_reward_set_config requires 'config' (Partial<RewardConfig>)");
+            latheLoRARewardShapingEngine.setConfig(p.config);
+            result = { success: true, config: latheLoRARewardShapingEngine.getConfig() };
+            break;
+          }
+          case "lathe_lora_reward_get_config": {
+            const { latheLoRARewardShapingEngine } = await import("../../engines/LatheLoRARewardShapingEngine.js");
+            result = latheLoRARewardShapingEngine.getConfig();
+            break;
+          }
+          // ────────────────────────────────────────────────────────────────
+          // JM-DIE-LATHE-UPGRADE-MS0/U-LATHE-LORA-UNWIRED-3 — wire 3 previously-
+          // unwired LatheLoRA* engines (TrainingScript + TribalAugmentation +
+          // TribalExtractor). Operator can now generate training scripts,
+          // augment runtime responses with tribal tips, and extract structured
+          // tribal tips from free-text via MCP.
+          // ────────────────────────────────────────────────────────────────
+          case "lathe_lora_generate_script": {
+            const { latheLoRATrainingScriptEngine } = await import("../../engines/LatheLoRATrainingScriptEngine.js");
+            const p = params as { config?: Parameters<typeof latheLoRATrainingScriptEngine.setConfig>[0] };
+            if (p?.config) latheLoRATrainingScriptEngine.setConfig(p.config);
+            result = { success: true, data: latheLoRATrainingScriptEngine.generateScript() };
+            break;
+          }
+          case "lathe_lora_apply_preset": {
+            const { latheLoRATrainingScriptEngine } = await import("../../engines/LatheLoRATrainingScriptEngine.js");
+            const p = params as { preset?: Parameters<typeof latheLoRATrainingScriptEngine.applyPreset>[0] };
+            if (!p?.preset) {
+              result = { success: false, error: "params.preset (TrainingPreset) required" };
+              break;
+            }
+            result = { success: true, data: latheLoRATrainingScriptEngine.applyPreset(p.preset) };
+            break;
+          }
+          case "lathe_lora_estimate": {
+            const { latheLoRATrainingScriptEngine } = await import("../../engines/LatheLoRATrainingScriptEngine.js");
+            result = {
+              success: true,
+              data: {
+                vram_gb: latheLoRATrainingScriptEngine.estimateVRAM(),
+                time_hours: latheLoRATrainingScriptEngine.estimateTime(),
+                config: latheLoRATrainingScriptEngine.getConfig(),
+              },
+            };
+            break;
+          }
+          case "lathe_lora_validate_config": {
+            const { latheLoRATrainingScriptEngine } = await import("../../engines/LatheLoRATrainingScriptEngine.js");
+            result = { success: true, data: latheLoRATrainingScriptEngine.validateConfig() };
+            break;
+          }
+          case "lathe_lora_tribal_augment":
+          case "lathe_lora_tribal_find_tips": {
+            const { latheLoRATribalAugmentationEngine } = await import("../../engines/LatheLoRATribalAugmentationEngine.js");
+            const p = params as { response?: string; query?: string };
+            if (typeof p?.response !== "string" || typeof p?.query !== "string") {
+              result = { success: false, error: "params.response and params.query (non-empty strings) required" };
+              break;
+            }
+            result = { success: true, data: latheLoRATribalAugmentationEngine.findRelevantTips(p.response, p.query) };
+            break;
+          }
+          case "lathe_lora_tribal_aug_stats": {
+            const { latheLoRATribalAugmentationEngine } = await import("../../engines/LatheLoRATribalAugmentationEngine.js");
+            result = { success: true, data: latheLoRATribalAugmentationEngine.getConfig() };
+            break;
+          }
+          case "lathe_lora_tribal_extract": {
+            const { latheLoRATribalExtractorEngine } = await import("../../engines/LatheLoRATribalExtractorEngine.js");
+            const p = params as { rawText?: string; metadata?: { author?: string; source?: string } };
+            if (typeof p?.rawText !== "string" || p.rawText.length === 0) {
+              result = { success: false, error: "params.rawText (non-empty string) required" };
+              break;
+            }
+            result = { success: true, data: latheLoRATribalExtractorEngine.extractTip(p.rawText, p.metadata) };
+            break;
+          }
+          case "lathe_lora_tribal_extract_batch": {
+            const { latheLoRATribalExtractorEngine } = await import("../../engines/LatheLoRATribalExtractorEngine.js");
+            const p = params as { texts?: string[]; metadata?: { author?: string; source?: string } };
+            if (!Array.isArray(p?.texts)) {
+              result = { success: false, error: "params.texts (array of strings) required" };
+              break;
+            }
+            const tips = p.texts.map((rawText) => latheLoRATribalExtractorEngine.extractTip(rawText, p.metadata));
+            result = {
+              success: true,
+              data: {
+                tips,
+                total: p.texts.length,
+                extracted: tips.filter((t) => t !== null).length,
+              },
+            };
+            break;
+          }
+          case "lathe_lora_tribal_extractor_stats": {
+            const { latheLoRATribalExtractorEngine } = await import("../../engines/LatheLoRATribalExtractorEngine.js");
+            result = { success: true, data: latheLoRATribalExtractorEngine.getConfig() };
+            break;
+          }
+          // ────────────────────────────────────────────────────────────────
+          // JM-DIE-LATHE-UPGRADE-MS0/U-LATHE-AI-TIER-UNWIRED-5 — wire 5 fully-
+          // unwired AI-tier lathe engines (Reasoning + ActiveLearning + Bayesian
+          // + DeepLogic + CAMIntelligence). Closes the operator /goal's "lathe
+          // wizard AI systems" surface by exposing one flagship method per engine.
+          // ────────────────────────────────────────────────────────────────
+          case "lathe_ai_reason": {
+            const { latheAIReasoningEngine } = await import("../../engines/LatheAIReasoningEngine.js");
+            const p = params as { context?: Parameters<typeof latheAIReasoningEngine.reason>[0] };
+            if (!p?.context) {
+              result = { success: false, error: "params.context (LatheOperationContext) required" };
+              break;
+            }
+            result = { success: true, data: await latheAIReasoningEngine.reason(p.context) };
+            break;
+          }
+          case "lathe_active_learning_select": {
+            const { latheActiveLearningEngine } = await import("../../engines/LatheActiveLearningEngine.js");
+            const p = params as {
+              candidatePool?: Parameters<typeof latheActiveLearningEngine.selectSamples>[0];
+              budget?: Parameters<typeof latheActiveLearningEngine.selectSamples>[1];
+              strategy?: Parameters<typeof latheActiveLearningEngine.selectSamples>[2];
+            };
+            if (!Array.isArray(p?.candidatePool)) {
+              result = { success: false, error: "params.candidatePool (LatheDataPoint[]) required" };
+              break;
+            }
+            result = {
+              success: true,
+              data: latheActiveLearningEngine.selectSamples(p.candidatePool, p.budget ?? 10, p.strategy),
+            };
+            break;
+          }
+          // U-LATHE-ACTIVE-LEARN-DEEPEN — 3 additional surfaces on LatheActiveLearningEngine
+          case "lathe_active_learning_update": {
+            const { latheActiveLearningEngine } = await import("../../engines/LatheActiveLearningEngine.js");
+            const p = params as { newSamples?: Parameters<typeof latheActiveLearningEngine.updateModel>[0] };
+            if (!Array.isArray(p?.newSamples)) {
+              result = { success: false, error: "params.newSamples (LatheDataPoint[]) required" };
+              break;
+            }
+            result = { success: true, data: latheActiveLearningEngine.updateModel(p.newSamples) };
+            break;
+          }
+          case "lathe_active_learning_uncertainty": {
+            const { latheActiveLearningEngine } = await import("../../engines/LatheActiveLearningEngine.js");
+            const p = params as { pool?: Parameters<typeof latheActiveLearningEngine.queryUncertainty>[0] };
+            const uncertaintyMap = latheActiveLearningEngine.queryUncertainty(p?.pool);
+            result = { success: true, data: Object.fromEntries(uncertaintyMap) };
+            break;
+          }
+          case "lathe_active_learning_committee": {
+            const { latheActiveLearningEngine } = await import("../../engines/LatheActiveLearningEngine.js");
+            const p = params as Parameters<typeof latheActiveLearningEngine.queryByCommittee>;
+            if (!p || !p[0]) {
+              result = { success: false, error: "params[0] required for queryByCommittee" };
+              break;
+            }
+            result = { success: true, data: latheActiveLearningEngine.queryByCommittee(...p) };
+            break;
+          }
+          // U-LATHE-ACTIVE-LEARN-FEEDBACK (slot:india 2026-06-22) -- close the active-learning
+          // loop: the query-side (select/update/uncertainty/committee) was wired, but the
+          // ACTUALS-side (operator returns observed quality, then calibrate confidence) had no
+          // dispatcher surface, so the Platt/ECE calibration path was dead-letter. These two
+          // expose the already-built feedback methods.
+          case "lathe_active_learning_feedback": {
+            const { latheActiveLearningEngine } = await import("../../engines/LatheActiveLearningEngine.js");
+            const p = params as { feedback?: Parameters<typeof latheActiveLearningEngine.processOperatorFeedback>[0] };
+            const fb = p?.feedback;
+            if (!fb || typeof fb.experiment_id !== "string" || fb.actual_quality === undefined) {
+              result = { success: false, error: "params.feedback (OperatorFeedback: experiment_id, operator_id, timestamp, actual_quality, observations[], anomalies_noted[], confidence) required" };
+              break;
+            }
+            result = { success: true, data: latheActiveLearningEngine.processOperatorFeedback(fb) };
+            break;
+          }
+          case "lathe_active_learning_calibrate": {
+            const { latheActiveLearningEngine } = await import("../../engines/LatheActiveLearningEngine.js");
+            result = { success: true, data: latheActiveLearningEngine.calibrateModelConfidence() };
+            break;
+          }
+          // Bayesian fit-then-predict surface (MCP-friendly substitute for
+          // optimizeParameters which requires a callable). Operator passes
+          // observations + kernel config + a query x; receives the fitted GP
+          // plus prediction (mean + std) at x. For full optimization callers
+          // should invoke this iteratively, choosing x by their own acquisition.
+          case "lathe_bayesian_optimize": {
+            const { latheBayesianOptimizationEngine } = await import("../../engines/LatheBayesianOptimizationEngine.js");
+            const p = params as {
+              observations?: Parameters<typeof latheBayesianOptimizationEngine.fitGP>[0];
+              kernel?: Parameters<typeof latheBayesianOptimizationEngine.fitGP>[1];
+              x?: Parameters<typeof latheBayesianOptimizationEngine.predictGP>[1];
+            };
+            if (!Array.isArray(p?.observations) || !p?.kernel || !Array.isArray(p?.x)) {
+              result = { success: false, error: "params.observations (BayesianObservation[]), params.kernel (KernelConfig), params.x (number[]) required" };
+              break;
+            }
+            const gp = latheBayesianOptimizationEngine.fitGP(p.observations, p.kernel);
+            const prediction = latheBayesianOptimizationEngine.predictGP(gp, p.x);
+            result = { success: true, data: { gp, prediction } };
+            break;
+          }
+          // U-LATHE-BAYESIAN-DEEPEN — 2 acquisition functions (operator picks next-x for fit→predict iteration loop)
+          case "lathe_bayesian_acquisition_ei": {
+            const { latheBayesianOptimizationEngine } = await import("../../engines/LatheBayesianOptimizationEngine.js");
+            const p = params as { gp?: Parameters<typeof latheBayesianOptimizationEngine.acquisitionEI>[0]; x?: number[]; best_y?: number; xi?: number };
+            if (!p?.gp || !Array.isArray(p?.x) || typeof p?.best_y !== "number") {
+              result = { success: false, error: "params.gp (GPModel), params.x (number[]), params.best_y (number) required" };
+              break;
+            }
+            result = { success: true, data: latheBayesianOptimizationEngine.acquisitionEI(p.gp, p.x, p.best_y, p.xi) };
+            break;
+          }
+          case "lathe_bayesian_acquisition_ucb": {
+            const { latheBayesianOptimizationEngine } = await import("../../engines/LatheBayesianOptimizationEngine.js");
+            const p = params as { gp?: Parameters<typeof latheBayesianOptimizationEngine.acquisitionUCB>[0]; x?: number[]; kappa?: number };
+            if (!p?.gp || !Array.isArray(p?.x)) {
+              result = { success: false, error: "params.gp (GPModel), params.x (number[]) required" };
+              break;
+            }
+            result = { success: true, data: latheBayesianOptimizationEngine.acquisitionUCB(p.gp, p.x, p.kappa) };
+            break;
+          }
+          case "lathe_deep_logic_evaluate": {
+            const { latheDeepLogicEngine } = await import("../../engines/LatheDeepLogicEngine.js");
+            const p = params as { context?: Parameters<typeof latheDeepLogicEngine.analyzeOperation>[0] };
+            if (!p?.context) {
+              result = { success: false, error: "params.context (LatheOperationContext) required for analyzeOperation" };
+              break;
+            }
+            result = { success: true, data: latheDeepLogicEngine.analyzeOperation(p.context) };
+            break;
+          }
+          case "lathe_cam_intelligence_recommend": {
+            const { latheCAMIntelligenceEngine } = await import("../../engines/LatheCAMIntelligenceEngine.js");
+            const p = params as Parameters<typeof latheCAMIntelligenceEngine.recommendParametricTemplate>;
+            if (!p || !p[0]) {
+              result = { success: false, error: "params[0] (CAMTemplateContext) required" };
+              break;
+            }
+            result = { success: true, data: latheCAMIntelligenceEngine.recommendParametricTemplate(...p) };
+            break;
+          }
+          // U-LATHE-CAM-INTEL-DEEPEN — 4 additional surfaces on LatheCAMIntelligenceEngine
+          case "lathe_cam_intelligence_toolpath": {
+            const { latheCAMIntelligenceEngine } = await import("../../engines/LatheCAMIntelligenceEngine.js");
+            const p = params as Parameters<typeof latheCAMIntelligenceEngine.selectToolpath>;
+            if (!p || !p[0]) {
+              result = { success: false, error: "params[0] required for selectToolpath" };
+              break;
+            }
+            result = { success: true, data: latheCAMIntelligenceEngine.selectToolpath(...p) };
+            break;
+          }
+          case "lathe_cam_intelligence_sequence": {
+            const { latheCAMIntelligenceEngine } = await import("../../engines/LatheCAMIntelligenceEngine.js");
+            const p = params as Parameters<typeof latheCAMIntelligenceEngine.sequenceOperations>;
+            if (!p || !p[0]) {
+              result = { success: false, error: "params[0] required for sequenceOperations" };
+              break;
+            }
+            result = { success: true, data: latheCAMIntelligenceEngine.sequenceOperations(...p) };
+            break;
+          }
+          case "lathe_cam_intelligence_workholding": {
+            const { latheCAMIntelligenceEngine } = await import("../../engines/LatheCAMIntelligenceEngine.js");
+            const p = params as Parameters<typeof latheCAMIntelligenceEngine.recommendWorkholding>;
+            if (!p || !p[0]) {
+              result = { success: false, error: "params[0] required for recommendWorkholding" };
+              break;
+            }
+            result = { success: true, data: latheCAMIntelligenceEngine.recommendWorkholding(...p) };
+            break;
+          }
+          case "lathe_cam_intelligence_mrr_cost": {
+            const { latheCAMIntelligenceEngine } = await import("../../engines/LatheCAMIntelligenceEngine.js");
+            const p = params as Parameters<typeof latheCAMIntelligenceEngine.optimizeMRRCost>;
+            if (!p || !p[0]) {
+              result = { success: false, error: "params[0] required for optimizeMRRCost" };
+              break;
+            }
+            result = { success: true, data: latheCAMIntelligenceEngine.optimizeMRRCost(...p) };
+            break;
+          }
+          // ────────────────────────────────────────────────────────────────
+          // JM-DIE-LATHE-UPGRADE-MS0/U-LATHE-AI-TIER-UNWIRED-4 — wire 4 more
+          // fully-unwired AI-tier lathe engines (AIOrchestration + AITraining
+          // + AdaptiveMachining + AttentionMechanism). Same pattern as the
+          // UNWIRED-5 batch: one flagship method per engine.
+          // ────────────────────────────────────────────────────────────────
+          case "lathe_ai_orchestrate_full": {
+            const { latheAIOrchestrationEngine } = await import("../../engines/LatheAIOrchestrationEngine.js");
+            const p = params as Parameters<typeof latheAIOrchestrationEngine.orchestrateFullAnalysis>;
+            if (!p || !p[0]) {
+              result = { success: false, error: "params[0] (OrchestrationInput) required" };
+              break;
+            }
+            result = { success: true, data: await latheAIOrchestrationEngine.orchestrateFullAnalysis(...p) };
+            break;
+          }
+          // U-LATHE-AI-ORCH-DEEPEN — 3 additional orchestration variants on LatheAIOrchestrationEngine
+          case "lathe_ai_orchestrate_optimization": {
+            const { latheAIOrchestrationEngine } = await import("../../engines/LatheAIOrchestrationEngine.js");
+            const p = params as {
+              program?: Parameters<typeof latheAIOrchestrationEngine.orchestrateOptimization>[0];
+              goals?: Parameters<typeof latheAIOrchestrationEngine.orchestrateOptimization>[1];
+              strategy?: Parameters<typeof latheAIOrchestrationEngine.orchestrateOptimization>[2];
+            };
+            if (!p?.program || !p?.goals) {
+              result = { success: false, error: "params.program and params.goals required" };
+              break;
+            }
+            result = { success: true, data: await latheAIOrchestrationEngine.orchestrateOptimization(p.program, p.goals, p.strategy) };
+            break;
+          }
+          case "lathe_ai_orchestrate_learning": {
+            const { latheAIOrchestrationEngine } = await import("../../engines/LatheAIOrchestrationEngine.js");
+            const p = params as {
+              programs?: Parameters<typeof latheAIOrchestrationEngine.orchestrateLearning>[0];
+              options?: Parameters<typeof latheAIOrchestrationEngine.orchestrateLearning>[1];
+            };
+            if (!Array.isArray(p?.programs)) {
+              result = { success: false, error: "params.programs (string[]) required" };
+              break;
+            }
+            result = { success: true, data: await latheAIOrchestrationEngine.orchestrateLearning(p.programs, p.options) };
+            break;
+          }
+          case "lathe_ai_orchestrate_diagnosis": {
+            const { latheAIOrchestrationEngine } = await import("../../engines/LatheAIOrchestrationEngine.js");
+            const p = params as {
+              symptoms?: Parameters<typeof latheAIOrchestrationEngine.orchestrateDiagnosis>[0];
+              context?: Parameters<typeof latheAIOrchestrationEngine.orchestrateDiagnosis>[1];
+            };
+            if (!p?.symptoms) {
+              result = { success: false, error: "params.symptoms (string[] | LatheSymptoms) required" };
+              break;
+            }
+            result = { success: true, data: await latheAIOrchestrationEngine.orchestrateDiagnosis(p.symptoms, p.context) };
+            break;
+          }
+          case "lathe_ai_generate_program": {
+            // U-AIHEAD-01: the AI head drives the now-real spine + adds a per-op AI safety advisory (additive).
+            const { latheAIOrchestrationEngine } = await import("../../engines/LatheAIOrchestrationEngine.js");
+            result = { success: true, data: latheAIOrchestrationEngine.generateProgram(params as any) };
+            break;
+          }
+          case "lathe_ai_record_feedback": {
+            // U-SELFIMPROVE-01: write side of the self-improving loop -- record REAL caller-supplied
+            // shop-floor outcomes (measured actuals) back into the continuous learner. No fabricated data.
+            const { latheAIOrchestrationEngine } = await import("../../engines/LatheAIOrchestrationEngine.js");
+            const p = params as {
+              input?: Parameters<typeof latheAIOrchestrationEngine.recordGenerationFeedback>[0];
+              outcomes?: Parameters<typeof latheAIOrchestrationEngine.recordGenerationFeedback>[1];
+            };
+            if (!p?.input || !Array.isArray(p?.outcomes)) {
+              result = { success: false, error: "params.input (turning input) and params.outcomes (Array<{operation_type, ap_mm, kind, observation}>) required" };
+              break;
+            }
+            result = { success: true, data: latheAIOrchestrationEngine.recordGenerationFeedback(p.input, p.outcomes) };
+            break;
+          }
+          case "lathe_rag_retrieve": {
+            // U-LW-RAG-ADVISORY: retrieve real tribal-corpus tips as advisory RAG context for a turning input.
+            const { latheAIOrchestrationEngine } = await import("../../engines/LatheAIOrchestrationEngine.js");
+            const p = params as { input?: Parameters<typeof latheAIOrchestrationEngine.retrieveRAGContext>[0] };
+            if (!p?.input) {
+              result = { success: false, error: "params.input (turning input) required" };
+              break;
+            }
+            result = { success: true, data: { rag_advisory: latheAIOrchestrationEngine.retrieveRAGContext(p.input) } };
+            break;
+          }
+          case "lathe_deep_reason": {
+            // U-LW-DEEP-REASON-ADVISORY: deterministic FMEA deep-reasoning advisory over a turning input
+            // (rule-based RPN; no untrained NN, no fabricated physics inputs). undefined when unavailable.
+            const { latheAIOrchestrationEngine } = await import("../../engines/LatheAIOrchestrationEngine.js");
+            const p = params as { input?: Parameters<typeof latheAIOrchestrationEngine.assessDeepReasoning>[0] };
+            if (!p?.input) {
+              result = { success: false, error: "params.input (turning input) required" };
+              break;
+            }
+            result = { success: true, data: { deep_reasoning_advisory: latheAIOrchestrationEngine.assessDeepReasoning(p.input) } };
+            break;
+          }
+          case "lathe_mill_turn_advise": {
+            // U-LW-MILLTURN-ADVISORY: real live-tool physics (calculateLiveTool) per live-tool feature of a
+            // turning input -- activates only for features carrying a real tool diameter + depth (no fabrication).
+            const { latheAIOrchestrationEngine } = await import("../../engines/LatheAIOrchestrationEngine.js");
+            const p = params as { input?: Parameters<typeof latheAIOrchestrationEngine.assessMillTurn>[0] };
+            if (!p?.input) {
+              result = { success: false, error: "params.input (turning input) required" };
+              break;
+            }
+            result = { success: true, data: { mill_turn_advisory: latheAIOrchestrationEngine.assessMillTurn(p.input) } };
+            break;
+          }
+          case "lathe_swiss_advise": {
+            // U-LW-SWISS-ADVISORY: Swiss-type guide-bushing suitability (analyzeGuideBushing) for a turning
+            // input -- part-driven (L/D + material + tolerance); undefined when geometry is invalid.
+            const { latheAIOrchestrationEngine } = await import("../../engines/LatheAIOrchestrationEngine.js");
+            const p = params as { input?: Parameters<typeof latheAIOrchestrationEngine.assessSwiss>[0] };
+            if (!p?.input) {
+              result = { success: false, error: "params.input (turning input) required" };
+              break;
+            }
+            result = { success: true, data: { swiss_advisory: latheAIOrchestrationEngine.assessSwiss(p.input) } };
+            break;
+          }
+          case "lathe_knurl_advise": {
+            // U-LW-KNURL-ADVISORY: real knurling physics (KnurlingEngine.knurl) per knurl feature of a turning
+            // input -- activates only for 'knurl' features carrying a real diameter + length (no fabrication).
+            const { latheAIOrchestrationEngine } = await import("../../engines/LatheAIOrchestrationEngine.js");
+            const p = params as { input?: Parameters<typeof latheAIOrchestrationEngine.assessKnurl>[0] };
+            if (!p?.input) {
+              result = { success: false, error: "params.input (turning input) required" };
+              break;
+            }
+            result = { success: true, data: { knurl_advisory: latheAIOrchestrationEngine.assessKnurl(p.input) } };
+            break;
+          }
+          case "lathe_ai_train_from_programs": {
+            const { latheAITrainingEngine } = await import("../../engines/LatheAITrainingEngine.js");
+            const p = params as { programs?: Parameters<typeof latheAITrainingEngine.trainFromPrograms>[0] };
+            if (!Array.isArray(p?.programs)) {
+              result = { success: false, error: "params.programs (Array<{content, filepath}>) required" };
+              break;
+            }
+            result = { success: true, data: latheAITrainingEngine.trainFromPrograms(p.programs) };
+            break;
+          }
+          case "lathe_adaptive_machining_adapt": {
+            const { latheAdaptiveMachiningEngine } = await import("../../engines/LatheAdaptiveMachiningEngine.js");
+            const p = params as Parameters<typeof latheAdaptiveMachiningEngine.adaptTurningParameters>;
+            if (!p || !p[0]) {
+              result = { success: false, error: "params[0] (TurningEngagementProfile) required" };
+              break;
+            }
+            result = { success: true, data: latheAdaptiveMachiningEngine.adaptTurningParameters(...p) };
+            break;
+          }
+          case "lathe_attention_self": {
+            const { latheAttentionMechanismEngine } = await import("../../engines/LatheAttentionMechanismEngine.js");
+            const p = params as { tokens?: Parameters<typeof latheAttentionMechanismEngine.computeSelfAttention>[0] };
+            if (!Array.isArray(p?.tokens)) {
+              result = { success: false, error: "params.tokens (GCodeToken[]) required" };
+              break;
+            }
+            result = { success: true, data: latheAttentionMechanismEngine.computeSelfAttention(p.tokens) };
+            break;
+          }
+          // ────────────────────────────────────────────────────────────────
+          // JM-DIE-LATHE-UPGRADE-MS0/U-LATHE-FLEET-UNWIRED-6 — wire 6 engines
+          // unwired ACROSS ALL DISPATCHERS (caught by fleet-wide audit).
+          // ────────────────────────────────────────────────────────────────
+          case "lathe_master_orchestrate": {
+            const { latheMasterOrchestratorFacadeEngine } = await import("../../engines/LatheMasterOrchestratorFacadeEngine.js");
+            const p = params as { request?: Parameters<typeof latheMasterOrchestratorFacadeEngine.orchestrate>[0] };
+            if (!p?.request) {
+              result = { success: false, error: "params.request (LatheOrchRequest) required" };
+              break;
+            }
+            result = { success: true, data: await latheMasterOrchestratorFacadeEngine.orchestrate(p.request) };
+            break;
+          }
+          case "lathe_post_validate_program": {
+            const { LathePostGeneratorValidatorWiringEngine } = await import("../../engines/LathePostGeneratorValidatorWiringEngine.js");
+            const p = params as Parameters<typeof LathePostGeneratorValidatorWiringEngine.validateProgram>;
+            if (!p || !p[0]) {
+              result = { success: false, error: "params[0] (validator program/config) required" };
+              break;
+            }
+            result = { success: true, data: LathePostGeneratorValidatorWiringEngine.validateProgram(...p) };
+            break;
+          }
+          case "lathe_post_regression_generate": {
+            const { LathePostRegressionTestGeneratorEngine } = await import("../../engines/LathePostRegressionTestGeneratorEngine.js");
+            const p = params as { input?: Parameters<typeof LathePostRegressionTestGeneratorEngine.generateTest>[0] };
+            if (!p?.input) {
+              result = { success: false, error: "params.input (GeneratorInput) required" };
+              break;
+            }
+            result = { success: true, data: LathePostRegressionTestGeneratorEngine.generateTest(p.input) };
+            break;
+          }
+          case "lathe_program_catalog_register": {
+            const { latheProgramCatalogEngine } = await import("../../engines/LatheProgramCatalogEngine.js");
+            const p = params as { entry?: Parameters<typeof latheProgramCatalogEngine.register>[0] };
+            if (!p?.entry) {
+              result = { success: false, error: "params.entry (ProgramCatalogEntry) required" };
+              break;
+            }
+            latheProgramCatalogEngine.register(p.entry);
+            result = { success: true, data: { registered: true, partNumber: (p.entry as { partNumber?: string }).partNumber } };
+            break;
+          }
+          case "lathe_transformer_tokenize": {
+            const { latheTransformerEngine } = await import("../../engines/LatheTransformerEngine.js");
+            const p = params as { program?: Parameters<typeof latheTransformerEngine.tokenizeProgram>[0] };
+            if (!Array.isArray(p?.program)) {
+              result = { success: false, error: "params.program (string[]) required — array of G-code lines" };
+              break;
+            }
+            result = { success: true, data: { tokenIds: latheTransformerEngine.tokenizeProgram(p.program), count: p.program.length } };
+            break;
+          }
+          case "lathe_unified_ai_execute": {
+            const { latheUnifiedAIOrchestrator } = await import("../../engines/LatheUnifiedAIOrchestrator.js");
+            const p = params as { request?: Parameters<typeof latheUnifiedAIOrchestrator.execute>[0] };
+            if (!p?.request) {
+              result = { success: false, error: "params.request (OrchestrationRequest) required" };
+              break;
+            }
+            result = { success: true, data: await latheUnifiedAIOrchestrator.execute(p.request) };
+            break;
+          }
+          // U-LATHE-UNIFIED-AI-DEEPEN — 2 additional router surfaces beyond execute
+          case "lathe_unified_ai_find_engine": {
+            const { latheUnifiedAIOrchestrator } = await import("../../engines/LatheUnifiedAIOrchestrator.js");
+            const p = params as { capability?: string };
+            if (typeof p?.capability !== "string" || p.capability.length === 0) {
+              result = { success: false, error: "params.capability (non-empty string) required" };
+              break;
+            }
+            result = { success: true, data: latheUnifiedAIOrchestrator.findEngineForCapability(p.capability) };
+            break;
+          }
+          case "lathe_unified_ai_capability_engines": {
+            const { latheUnifiedAIOrchestrator } = await import("../../engines/LatheUnifiedAIOrchestrator.js");
+            const p = params as { capability?: string };
+            if (typeof p?.capability !== "string" || p.capability.length === 0) {
+              result = { success: false, error: "params.capability (non-empty string) required" };
+              break;
+            }
+            result = { success: true, data: latheUnifiedAIOrchestrator.getEnginesWithCapability(p.capability) };
+            break;
+          }
+          // U-WIRE-LATHE-CUTTING-CHEMISTRY: coolant chemistry + wear + selection (LATHE-PRO)
+          case "lathe_chemistry_comprehensive": {
+            const { latheCuttingChemistryEngine } = await import("../../engines/LatheCuttingChemistryEngine.js");
+            const p = params as Parameters<typeof latheCuttingChemistryEngine.comprehensiveAnalysis>[0];
+            if (typeof p?.workpiece_material !== "string") throw new Error("lathe_chemistry_comprehensive requires 'workpiece_material' (string)");
+            if (typeof p?.tool_material !== "string") throw new Error("lathe_chemistry_comprehensive requires 'tool_material' (string)");
+            if (typeof p?.operation !== "string") throw new Error("lathe_chemistry_comprehensive requires 'operation' (string)");
+            if (typeof p?.cutting_speed_m_min !== "number") throw new Error("lathe_chemistry_comprehensive requires 'cutting_speed_m_min' (number)");
+            if (typeof p?.feed_mm_rev !== "number") throw new Error("lathe_chemistry_comprehensive requires 'feed_mm_rev' (number)");
+            if (typeof p?.depth_of_cut_mm !== "number") throw new Error("lathe_chemistry_comprehensive requires 'depth_of_cut_mm' (number)");
+            result = latheCuttingChemistryEngine.comprehensiveAnalysis(p);
+            break;
+          }
+          case "lathe_chemistry_select_coolant": {
+            const { latheCuttingChemistryEngine } = await import("../../engines/LatheCuttingChemistryEngine.js");
+            const p = params as Parameters<typeof latheCuttingChemistryEngine.selectCoolant>[0];
+            if (typeof p?.workpiece_material !== "string") throw new Error("lathe_chemistry_select_coolant requires 'workpiece_material' (string)");
+            if (typeof p?.operation !== "string") throw new Error("lathe_chemistry_select_coolant requires 'operation' (string)");
+            if (typeof p?.cutting_speed_m_min !== "number") throw new Error("lathe_chemistry_select_coolant requires 'cutting_speed_m_min' (number)");
+            if (typeof p?.tool_material !== "string") throw new Error("lathe_chemistry_select_coolant requires 'tool_material' (string)");
+            result = latheCuttingChemistryEngine.selectCoolant(p);
             break;
           }
           case "lathe_shop_optimize_program": {
@@ -1002,6 +2427,68 @@ Actions: ${ACTIONS.join(", ")}.`,
           case "lathe_lora_model_selector_stats": {
             const { latheLoRAModelSelectorEngine } = await import("../../engines/LatheLoRAModelSelectorEngine.js");
             result = latheLoRAModelSelectorEngine.getStats();
+            break;
+          }
+          case "lathe_lora_model_selector_register": {
+            const { latheLoRAModelSelectorEngine } = await import("../../engines/LatheLoRAModelSelectorEngine.js");
+            const p = params as { model?: unknown };
+            if (!p.model || typeof p.model !== "object") {
+              throw new TypeError("lathe_lora_model_selector_register: 'model' object required (ModelDescriptor)");
+            }
+            result = latheLoRAModelSelectorEngine.registerModel(
+              p.model as Parameters<typeof latheLoRAModelSelectorEngine.registerModel>[0],
+            );
+            break;
+          }
+          case "lathe_lora_model_selector_unregister": {
+            const { latheLoRAModelSelectorEngine } = await import("../../engines/LatheLoRAModelSelectorEngine.js");
+            const p = params as { model_id?: unknown };
+            if (typeof p.model_id !== "string") {
+              throw new TypeError("lathe_lora_model_selector_unregister: model_id (string) required");
+            }
+            result = { ok: latheLoRAModelSelectorEngine.unregisterModel(p.model_id) };
+            break;
+          }
+          case "lathe_lora_model_selector_select": {
+            // Produce side: pick the best LoRA model for a SelectionContext.
+            const { latheLoRAModelSelectorEngine } = await import("../../engines/LatheLoRAModelSelectorEngine.js");
+            result = {
+              selection: latheLoRAModelSelectorEngine.select(
+                (params ?? {}) as Parameters<typeof latheLoRAModelSelectorEngine.select>[0],
+              ),
+            };
+            break;
+          }
+          case "lathe_lora_model_selector_record": {
+            // Actuals-feedback side of the lathe LoRA-selector loop: observed success/latency for a
+            // previously-selected model. Was unwired (only getStats wired) -> the selector's perf
+            // stats never updated from outcomes. Parity with mill_lora_sel_record_outcome.
+            const { latheLoRAModelSelectorEngine } = await import("../../engines/LatheLoRAModelSelectorEngine.js");
+            const p = params as { model_id?: unknown; success?: unknown; latency_ms?: unknown };
+            if (typeof p.model_id !== "string" || typeof p.success !== "boolean") {
+              throw new TypeError("lathe_lora_model_selector_record: model_id (string) + success (boolean) required");
+            }
+            result = {
+              ok: latheLoRAModelSelectorEngine.recordOutcome(
+                p.model_id,
+                p.success,
+                typeof p.latency_ms === "number" ? p.latency_ms : undefined,
+              ),
+            };
+            break;
+          }
+          case "lathe_lora_model_selector_release": {
+            const { latheLoRAModelSelectorEngine } = await import("../../engines/LatheLoRAModelSelectorEngine.js");
+            const p = params as { model_id?: unknown };
+            if (typeof p.model_id !== "string") {
+              throw new TypeError("lathe_lora_model_selector_release: model_id (string) required");
+            }
+            result = { ok: latheLoRAModelSelectorEngine.release(p.model_id) };
+            break;
+          }
+          case "lathe_lora_model_selector_models": {
+            const { latheLoRAModelSelectorEngine } = await import("../../engines/LatheLoRAModelSelectorEngine.js");
+            result = { models: latheLoRAModelSelectorEngine.getModels() };
             break;
           }
           case "lathe_lora_monitoring_stats": {
@@ -1416,6 +2903,18 @@ Actions: ${ACTIONS.join(", ")}.`,
             break;
           }
 
+          // U-WIRE-EMA: ExpandingMandrelEngine — actuator-force grip + centrifugal
+          // max-safe-RPM model. DISTINCT from lathe_workholding_expanding_mandrel
+          // above (that is LatheWorkholdingEngine's Lame thick-wall interference-fit
+          // model keyed on radial_interference; this one is the dynamic-grip model
+          // keyed on actuator_force_n + rpm — R7 surfaced, not blended). Separate
+          // import on purpose so the two engines stay visibly independent.
+          case "lathe_expanding_mandrel_analyze": {
+            const { expandingMandrelEngine } = await import("../../engines/ExpandingMandrelEngine.js");
+            result = { success: true, data: expandingMandrelEngine.analyze(params as any) };
+            break;
+          }
+
           // WIRE-UNWIRED-MS0/U-WIRE-LSO: LatheSequenceOptimizerEngine — 2 surfaces
           // Hard constraints (face first / part-off last / center-drill before
           // drill / rough before finish / thread after OD-finish / G97 for
@@ -1612,6 +3111,7 @@ Actions: ${ACTIONS.join(", ")}.`,
           case "turning_iso1832_parse":
           case "turning_chipbreaker_classify":
           case "turning_vendor_insert_search":
+          case "turning_tool_catalog_query":
           case "turning_vendor_grade_recommend":
           case "turning_vendor_iso_code_resolve":
           case "turning_vendor_catalog_stats": {
@@ -1629,6 +3129,23 @@ Actions: ${ACTIONS.join(", ")}.`,
                 const { ensureCatalogsLoaded } = await import("../../data/turning-vendor-catalog-loader.js");
                 ensureCatalogsLoaded();
                 data = { inserts: eng.vendorTurningCatalogExtractorEngine.searchInserts(p) };
+                break;
+              }
+              case "turning_tool_catalog_query": {
+                // CATALOG-APP-WIRING-MS0/U8: expose the full 62.7K vendor corpus to the
+                // lathe galaxy (broader than the ~4095-insert turning vendor catalog above).
+                const { catalogCorpusLoaderEngine } = await import("../../engines/CatalogCorpusLoaderEngine.js");
+                const ensured = catalogCorpusLoaderEngine.ensureLoaded();
+                const { toolCatalogEngine } = await import("../../engines/ToolCatalogEngine.js");
+                const tools = toolCatalogEngine.search({
+                  type: p.type as string | undefined,
+                  diameter_mm: p.diameter_mm as number | undefined,
+                  iso_group: p.iso_group as string | undefined,
+                  manufacturer: p.manufacturer as string | undefined,
+                  operation: p.operation as string | undefined,
+                  max_results: (p.max_results as number | undefined) ?? 50,
+                });
+                data = { count: tools.length, corpus_ensured: ensured.ensured, tools };
                 break;
               }
               case "turning_vendor_grade_recommend": {
@@ -1651,6 +3168,720 @@ Actions: ${ACTIONS.join(", ")}.`,
               }
             }
             result = { success: true, data };
+            break;
+          }
+
+          // FEATURE-GAP-AUDIT-MS0/U-BRIDGE-WIRE-OKUMA: 4 unwired Okuma engines
+          case "okuma_step_parse":
+          case "okuma_macro_convert":
+          case "okuma_manual_tips_extract":
+          case "okuma_transcript_mine": {
+            let data: unknown;
+            switch (action) {
+              case "okuma_step_parse": {
+                const engine = await getEngine("okumaStep");
+                data = engine.parseContent(
+                  params.content as string,
+                  params.sourceName as string | undefined,
+                );
+                break;
+              }
+              case "okuma_macro_convert": {
+                const engine = await getEngine("okumaMacro");
+                const options: Record<string, unknown> = {};
+                if (params.pythonBinary !== undefined) options.pythonBinary = params.pythonBinary;
+                if (params.converterPath !== undefined) options.converterPath = params.converterPath;
+                data = await engine.convert(params.source as string, options);
+                break;
+              }
+              case "okuma_manual_tips_extract": {
+                const engine = await getEngine("okumaManualTips");
+                // ExtractionOptions uses snake_case in the engine — translate from
+                // normalized camelCase param back to the engine's expected key.
+                const options: Record<string, unknown> = {};
+                if (params.manualName !== undefined) options.manual_name = params.manualName;
+                data = engine.extractFromText(params.text as string, options);
+                break;
+              }
+              case "okuma_transcript_mine": {
+                const engine = await getEngine("okumaTranscript");
+                const options: Record<string, unknown> = {};
+                if (params.videoIds !== undefined) options.videoIds = params.videoIds;
+                data = engine.mineAllTranscripts(options);
+                break;
+              }
+            }
+            result = { success: true, data };
+            break;
+          }
+
+          // FEATURE-GAP-AUDIT-MS0/U-GAP-LATHE-TRIBAL-WIRE: lathe tribal knowledge → lathe AI bridge
+          case "lathe_tribal_integrate":
+          case "lathe_tribal_adjustment":
+          case "lathe_tribal_failure_check":
+          case "lathe_tribal_source_corpus":
+          case "lathe_tribal_integration_stats": {
+            const { latheTribalIntegrationEngine } = await import(
+              "../../engines/LatheTribalIntegrationEngine.js"
+            );
+            let data: unknown;
+            switch (action) {
+              case "lathe_tribal_integrate": {
+                // Source lathe tribal knowledge (corpus + curated) and inject
+                // it into the 4 downstream lathe AI engines via the injector.
+                const context = (params.context ?? {}) as Parameters<
+                  typeof latheTribalIntegrationEngine.integrateWithLatheAI
+                >[0];
+                const opts = (params.options ?? {}) as Record<string, unknown>;
+                data = latheTribalIntegrationEngine.integrateWithLatheAI(context, {
+                  limitPerTarget:
+                    typeof opts.limitPerTarget === "number" ? opts.limitPerTarget : undefined,
+                  minRelevance:
+                    typeof opts.minRelevance === "number" ? opts.minRelevance : undefined,
+                  includeCorpus:
+                    typeof opts.includeCorpus === "boolean" ? opts.includeCorpus : undefined,
+                });
+                break;
+              }
+              case "lathe_tribal_adjustment": {
+                if (typeof params.material !== "string" || typeof params.operation !== "string") {
+                  throw new Error(
+                    "lathe_tribal_adjustment requires string 'material' and 'operation'",
+                  );
+                }
+                const conditions = (params.conditions ?? {}) as Parameters<
+                  typeof latheTribalIntegrationEngine.getAdjustment
+                >[2];
+                data = latheTribalIntegrationEngine.getAdjustment(
+                  params.material,
+                  params.operation,
+                  conditions,
+                );
+                break;
+              }
+              case "lathe_tribal_failure_check": {
+                const material =
+                  typeof params.material === "string" ? params.material : undefined;
+                const operation =
+                  typeof params.operation === "string" ? params.operation : undefined;
+                data = {
+                  failure_modes: latheTribalIntegrationEngine.checkFailureModes(
+                    material,
+                    operation,
+                  ),
+                };
+                break;
+              }
+              case "lathe_tribal_source_corpus": {
+                const context = (params.context ?? {}) as Parameters<
+                  typeof latheTribalIntegrationEngine.sourceCorpusTips
+                >[0];
+                data = { tips: latheTribalIntegrationEngine.sourceCorpusTips(context) };
+                break;
+              }
+              case "lathe_tribal_integration_stats": {
+                data = latheTribalIntegrationEngine.getStatistics();
+                break;
+              }
+            }
+            result = { success: true, data };
+            break;
+          }
+
+          // BACKEND-DEV-LOOP/U-WIRE-LATHE-GA: evolutionary optimization (3 surfaces)
+          case "lathe_ga_optimize_parameters": {
+            const { latheGeneticAlgorithmEngine: lga } = await import("../../engines/LatheGeneticAlgorithmEngine.js");
+            result = { success: true, data: lga.optimizeParameters(params as any) };
+            break;
+          }
+          case "lathe_ga_optimize_tool_sequence": {
+            const { latheGeneticAlgorithmEngine: lga } = await import("../../engines/LatheGeneticAlgorithmEngine.js");
+            const operations = (params as any).operations ?? [];
+            const config = (params as any).config ?? {};
+            result = { success: true, data: lga.optimizeToolSequence(operations, config) };
+            break;
+          }
+          case "lathe_ga_optimize_multi_pass": {
+            const { latheGeneticAlgorithmEngine: lga } = await import("../../engines/LatheGeneticAlgorithmEngine.js");
+            const totalStock = Number((params as any).total_stock_mm ?? (params as any).totalStock ?? 0);
+            const constraints = (params as any).constraints ?? {
+              max_doc_mm: 3.0,
+              min_doc_mm: 0.5,
+              max_passes: 5,
+              tool_stability_factor: 1.0,
+            };
+            const objectives = (params as any).objectives ?? [];
+            const config = (params as any).config ?? {};
+            result = { success: true, data: lga.optimizeMultiPassStrategy(totalStock, constraints, objectives, config) };
+            break;
+          }
+
+          // LATHE-UNWIRED-WIRE-MS0/U-LUW01 (slot:whiskey 2026-05-23) — wire 5 Lathe AI engines into prism_turning
+          case "lathe_selfaware_query": {
+            const { latheSelfAwarenessIntegrationEngine } = await import("../../engines/LatheSelfAwarenessIntegrationEngine.js");
+            const query = String((params as any).query ?? "");
+            result = { success: true, data: latheSelfAwarenessIntegrationEngine.whatCanIDo(query) };
+            break;
+          }
+          case "lathe_selfaware_how_do_i": {
+            const { latheSelfAwarenessIntegrationEngine } = await import("../../engines/LatheSelfAwarenessIntegrationEngine.js");
+            const task = String((params as any).task ?? "");
+            result = { success: true, data: latheSelfAwarenessIntegrationEngine.howDoI(task) };
+            break;
+          }
+          case "lathe_selfaware_who_handles": {
+            const { latheSelfAwarenessIntegrationEngine } = await import("../../engines/LatheSelfAwarenessIntegrationEngine.js");
+            const domain = String((params as any).domain ?? "");
+            result = { success: true, data: latheSelfAwarenessIntegrationEngine.whoHandles(domain) };
+            break;
+          }
+          case "lathe_safety_compute": {
+            const { latheSafetySignalEngine } = await import("../../engines/LatheSafetySignalEngine.js");
+            const input = (params as any).input ?? params;
+            result = { success: true, data: latheSafetySignalEngine.compute(input as any) };
+            break;
+          }
+          case "lathe_knowledge_graph_build": {
+            const { latheKnowledgeGraphEngine } = await import("../../engines/LatheKnowledgeGraphEngine.js");
+            result = { success: true, data: latheKnowledgeGraphEngine.buildGraph() };
+            break;
+          }
+          case "lathe_ai_ultra_list_controllers": {
+            const { latheAIUltraEngine } = await import("../../engines/LatheAIUltraEngine.js");
+            const family = (params as any).family;
+            result = { success: true, data: latheAIUltraEngine.listControllers(family) };
+            break;
+          }
+          case "lathe_ai_ultra_get_controller_caps": {
+            const { latheAIUltraEngine } = await import("../../engines/LatheAIUltraEngine.js");
+            const controller = (params as any).controller;
+            if (!controller) { result = { error: "controller required" }; break; }
+            result = { success: true, data: latheAIUltraEngine.getControllerCapabilities(controller) };
+            break;
+          }
+          case "lathe_quality_gate_validate_program": {
+            const { latheQualityGateEngine } = await import("../../engines/LatheQualityGateEngine.js");
+            const program = String((params as any).program ?? "");
+            const context = (params as any).context ?? {};
+            result = { success: true, data: latheQualityGateEngine.validateProgram(program, context) };
+            break;
+          }
+          case "lathe_quality_gate_validate_safety": {
+            const { latheQualityGateEngine } = await import("../../engines/LatheQualityGateEngine.js");
+            const program = String((params as any).program ?? "");
+            const context = (params as any).context;
+            result = { success: true, data: latheQualityGateEngine.validateSafety(program, context) };
+            break;
+          }
+
+          // WIRE-UNWIRED-LOOP-TURNING/BATCH-A: 56 orphan turning/lathe engines
+          case "lathe_orchestration_calculate": {
+            const { latheOrchestrationEngine } = await import("../../engines/LatheOrchestrationEngine.js");
+            // U-LW-AIHEAD-SPINE: pass the dispatch params straight through as the LatheOrchestrationInput
+            // (was wrongly reading the input from params.context, leaving input={} for flat callers).
+            result = { success: true, data: (latheOrchestrationEngine as any).calculate?.(action, params as any) };
+            break;
+          }
+          case "eccentric_turning_get_stats": {
+            const { eccentricTurningEngine } = await import("../../engines/EccentricTurningEngine.js");
+            result = { success: true, data: (eccentricTurningEngine as any).getStats?.() ?? { engine: "EccentricTurningEngine" } };
+            break;
+          }
+          case "lathe_deep_learning_find_similar_jobs": {
+            const { latheDeepLearningEngine } = await import("../../engines/LatheDeepLearningEngine.js");
+            const p = params as { material?: string; operation?: string; machine_type?: string };
+            result = { success: true, data: (latheDeepLearningEngine as any).findSimilarJobs?.(p.material ?? "", p.operation ?? "", p.machine_type ?? "") };
+            break;
+          }
+          case "lathe_unified_ai_generate_process_plan": {
+            const { latheUnifiedAIEngine } = await import("../../engines/LatheUnifiedAIEngine.js");
+            result = { success: true, data: await latheUnifiedAIEngine.generateProcessPlan(params as any) };
+            break;
+          }
+          case "lathe_dl_intel_get_stats": {
+            const { latheDeepLearningIntelligenceEngine } = await import("../../engines/LatheDeepLearningIntelligenceEngine.js");
+            result = { success: true, data: (latheDeepLearningIntelligenceEngine as any).getStats?.() ?? { engine: "LatheDeepLearningIntelligenceEngine" } };
+            break;
+          }
+          // JM-DIE-LATHE-UPGRADE-MS0/U-LATHE-DL-INTEL-ANALYZE — predict surface
+          // Operator passes { program: {content, operations[], parameters[], material?, score?}, depth? }
+          // Returns full ProgramIntelligence: embeddings + patterns + chain-of-thought reasoning +
+          // quality prediction + optimization potential + recommended improvements.
+          case "lathe_dl_intel_analyze": {
+            const { latheDeepLearningIntelligenceEngine } = await import("../../engines/LatheDeepLearningIntelligenceEngine.js");
+            const p = params as { program?: Parameters<typeof latheDeepLearningIntelligenceEngine.analyzeWithIntelligence>[0]; depth?: "shallow" | "medium" | "deep" | "exhaustive" };
+            if (!p.program || typeof p.program.content !== "string") {
+              result = { success: false, error: "params.program (with content, operations, parameters) required" };
+              break;
+            }
+            result = {
+              success: true,
+              data: latheDeepLearningIntelligenceEngine.analyzeWithIntelligence(p.program, p.depth ?? "deep"),
+            };
+            break;
+          }
+          case "lathe_resource_knowledge_get_base": {
+            const { latheResourceKnowledgeEngine } = await import("../../engines/LatheResourceKnowledgeEngine.js");
+            result = { success: true, data: latheResourceKnowledgeEngine.getKnowledgeBase() };
+            break;
+          }
+          case "lathe_rl_get_stats": {
+            const { latheReinforcementLearningEngine } = await import("../../engines/LatheReinforcementLearningEngine.js");
+            result = { success: true, data: (latheReinforcementLearningEngine as any).getStats?.() ?? { engine: "LatheReinforcementLearningEngine" } };
+            break;
+          }
+          // JM-DIE-LATHE-UPGRADE-MS0/U-LATHE-RL-SELECT-ACTION — RL action selection
+          // Operator passes { state: LatheRLState, algorithm?: "q_learning"|"reinforce"|"a2c" }
+          // Returns { action, actionData, logProb?, value? }
+          case "lathe_rl_select_action": {
+            const { latheReinforcementLearningEngine } = await import("../../engines/LatheReinforcementLearningEngine.js");
+            const p = params as { state?: Parameters<typeof latheReinforcementLearningEngine.selectAction>[0]; algorithm?: "q_learning" | "reinforce" | "a2c" };
+            if (!p.state) {
+              result = { success: false, error: "params.state (LatheRLState) required" };
+              break;
+            }
+            result = {
+              success: true,
+              data: latheReinforcementLearningEngine.selectAction(p.state, p.algorithm ?? "a2c"),
+            };
+            break;
+          }
+          case "lathe_meta_learning_maml_train": {
+            const { latheMetaLearningEngine } = await import("../../engines/LatheMetaLearningEngine.js");
+            result = { success: true, data: latheMetaLearningEngine.mamlTrain(params as any) };
+            break;
+          }
+          case "lathe_archive_training_get_stats": {
+            const { latheFullArchiveTrainingEngine } = await import("../../engines/LatheFullArchiveTrainingEngine.js");
+            result = { success: true, data: (latheFullArchiveTrainingEngine as any).getStats?.() ?? { engine: "LatheFullArchiveTrainingEngine" } };
+            break;
+          }
+          // JM-DIE-LATHE-UPGRADE-MS0/U-LATHE-ARCHIVE-TRAIN-RUN — kick off full-archive training
+          // Operator passes { maxPrograms?: number, epochs?: number }. maxPrograms=0 → unlimited.
+          // WARNING: synchronous; will block event loop. For long runs (>5K programs), prefer
+          // detached scripts/train-lathe-full-archive.mjs runner. JM Die corpus has ~16K source
+          // + 114K PRISM_UPGRADED variants — unlimited scan hits OOM at ~130K files.
+          case "lathe_archive_training_run": {
+            const { latheFullArchiveTrainingEngine } = await import("../../engines/LatheFullArchiveTrainingEngine.js");
+            const p = params as { maxPrograms?: number; epochs?: number };
+            result = {
+              success: true,
+              data: latheFullArchiveTrainingEngine.trainFullArchive(p.maxPrograms ?? 0, p.epochs ?? 50),
+            };
+            break;
+          }
+          case "lathe_style_selector_select": {
+            const { latheProgrammingStyleSelectorEngine } = await import("../../engines/LatheProgrammingStyleSelectorEngine.js");
+            result = { success: true, data: (latheProgrammingStyleSelectorEngine as any).selectStyle?.(params as any) ?? (latheProgrammingStyleSelectorEngine as any).select?.(params as any) };
+            break;
+          }
+          case "lathe_part_family_planning_analyze": {
+            const { lathePartFamilyPlanningEngine } = await import("../../engines/LathePartFamilyPlanningEngine.js");
+            result = { success: true, data: (lathePartFamilyPlanningEngine as any).analyzeFamilyPotential?.(params as any, (params as any).context ?? {}) };
+            break;
+          }
+          case "lathe_transfer_learning_transfer": {
+            const { latheTransferLearningEngine } = await import("../../engines/LatheTransferLearningEngine.js");
+            result = { success: true, data: (latheTransferLearningEngine as any).transferKnowledge?.(params as any, (params as any).target ?? {}) };
+            break;
+          }
+          case "lathe_lora_program_parser_parse": {
+            const { latheLoRAProgramParserEngine } = await import("../../engines/LatheLoRAProgramParserEngine.js");
+            const content = String((params as any).content ?? "");
+            const fileName = (params as any).file_name as string | undefined;
+            result = { success: true, data: latheLoRAProgramParserEngine.parse(content, fileName) };
+            break;
+          }
+          case "lathe_lora_example_generator_generate": {
+            const { latheLoRAExampleGeneratorEngine } = await import("../../engines/LatheLoRAExampleGeneratorEngine.js");
+            const parseResult = (params as any).parse_result ?? params;
+            result = { success: true, data: (latheLoRAExampleGeneratorEngine as any).generateFromParsed?.(parseResult as any, (params as any).options ?? {}) };
+            break;
+          }
+          case "lathe_lora_dataset_validator_validate": {
+            const { latheLoRADatasetValidatorEngine } = await import("../../engines/LatheLoRADatasetValidatorEngine.js");
+            const examples = (params as any).examples ?? [];
+            if (!Array.isArray(examples)) throw new Error("lathe_lora_dataset_validator_validate requires 'examples' (array)");
+            result = { success: true, data: latheLoRADatasetValidatorEngine.validate(examples as any) };
+            break;
+          }
+          case "lathe_lora_transfer_strategy_list": {
+            const { latheLoRATransferStrategyEngine } = await import("../../engines/LatheLoRATransferStrategyEngine.js");
+            result = { success: true, data: latheLoRATransferStrategyEngine.listBaseModels() };
+            break;
+          }
+          case "lathe_lora_training_monitor_init": {
+            const { latheLoRATrainingMonitorEngine } = await import("../../engines/LatheLoRATrainingMonitorEngine.js");
+            result = { success: true, data: latheLoRATrainingMonitorEngine.initRun(params as any) };
+            break;
+          }
+          case "lathe_lora_physics_evaluator_evaluate": {
+            const { latheLoRAPhysicsEvaluatorEngine } = await import("../../engines/LatheLoRAPhysicsEvaluatorEngine.js");
+            const output = String((params as any).output ?? "");
+            const context = (params as any).context;
+            result = { success: true, data: (latheLoRAPhysicsEvaluatorEngine as any).evaluate?.(output, context) };
+            break;
+          }
+          case "lathe_lora_merge_strategy_recommend": {
+            const { latheLoRAMergeStrategyEngine } = await import("../../engines/LatheLoRAMergeStrategyEngine.js");
+            const adapterIds = (params as any).adapter_ids as string[];
+            if (!Array.isArray(adapterIds)) throw new Error("lathe_lora_merge_strategy_recommend requires 'adapter_ids' (string[])");
+            result = { success: true, data: latheLoRAMergeStrategyEngine.recommendStrategy(adapterIds) };
+            break;
+          }
+          case "lathe_lora_quantization_estimate_size": {
+            const { latheLoRAQuantizationOptimizerEngine } = await import("../../engines/LatheLoRAQuantizationOptimizerEngine.js");
+            const modelId = String((params as any).model_id ?? "");
+            const config = (params as any).config ?? {};
+            result = { success: true, data: latheLoRAQuantizationOptimizerEngine.estimateSize(modelId, config) };
+            break;
+          }
+          case "lathe_lora_model_optimizer_get_profile": {
+            const { latheLoRAModelOptimizerEngine } = await import("../../engines/LatheLoRAModelOptimizerEngine.js");
+            result = { success: true, data: latheLoRAModelOptimizerEngine.getProfiles() };
+            break;
+          }
+          case "lathe_lora_ollama_deployer_generate": {
+            const { latheLoRAOllamaDeployerEngine } = await import("../../engines/LatheLoRAOllamaDeployerEngine.js");
+            result = { success: true, data: latheLoRAOllamaDeployerEngine.generateModelfile(params as any) };
+            break;
+          }
+          case "lathe_lora_inference_gateway_get_config": {
+            const { latheLoRAInferenceGatewayEngine } = await import("../../engines/LatheLoRAInferenceGatewayEngine.js");
+            result = { success: true, data: latheLoRAInferenceGatewayEngine.getConfig() };
+            break;
+          }
+          case "lathe_lora_reasoning_chain_get_templates": {
+            const { latheLoRAReasoningChainInferenceEngine } = await import("../../engines/LatheLoRAReasoningChainInferenceEngine.js");
+            result = { success: true, data: latheLoRAReasoningChainInferenceEngine.getTemplates() };
+            break;
+          }
+          case "lathe_lora_neural_bridge_get_config": {
+            const { latheLoRANeuralBridgeEngine } = await import("../../engines/LatheLoRANeuralBridgeEngine.js");
+            result = { success: true, data: latheLoRANeuralBridgeEngine.getConfig() };
+            break;
+          }
+          case "lathe_lora_neural_orch_start_pipeline": {
+            const { latheLoRANeuralOrchestratorEngine } = await import("../../engines/LatheLoRANeuralOrchestratorEngine.js");
+            const input = String((params as any).input ?? "");
+            const metadata = (params as any).metadata as Record<string, unknown> | undefined;
+            result = { success: true, data: latheLoRANeuralOrchestratorEngine.startPipeline(input, metadata) };
+            break;
+          }
+          case "lathe_lora_program_miner_detect_dialect": {
+            const { latheLoRAProgramMinerEngine } = await import("../../engines/LatheLoRAProgramMinerEngine.js");
+            const programText = String((params as any).program_text ?? "");
+            result = { success: true, data: { dialect: latheLoRAProgramMinerEngine.detectDialect(programText) } };
+            break;
+          }
+          case "lathe_lora_knowledge_curator_get_config": {
+            const { latheLoRAKnowledgeCuratorEngine } = await import("../../engines/LatheLoRAKnowledgeCuratorEngine.js");
+            result = { success: true, data: latheLoRAKnowledgeCuratorEngine.getConfig() };
+            break;
+          }
+          case "lathe_lora_pipeline_coord_create": {
+            const { latheLoRAPipelineCoordinatorEngine } = await import("../../engines/LatheLoRAPipelineCoordinatorEngine.js");
+            const name = String((params as any).name ?? "pipeline");
+            const stages = (params as any).stages ?? [];
+            result = { success: true, data: latheLoRAPipelineCoordinatorEngine.createPipeline(name, stages) };
+            break;
+          }
+          case "turning_strategy_catalog_select": {
+            const { selectTurningStrategy } = await import("../../engines/TurningStrategyCatalog.js");
+            result = { success: true, data: selectTurningStrategy(params as any) };
+            break;
+          }
+          case "lathe_ai_feature_get_stats": {
+            const { getLatheAIStats } = await import("../../engines/LatheAIFeatureRegistration.js");
+            result = { success: true, data: getLatheAIStats() };
+            break;
+          }
+          // JM-DIE-LATHE-UPGRADE-MS0/U-LATHE-AI-FEATURE-FIND-BEST — task → engine router
+          // Operator passes { task: string }. Returns the highest-affinity registered
+          // lathe AI engine for the task, or null when no engine matches.
+          case "lathe_ai_feature_find_best": {
+            const { findBestEngineForTask } = await import("../../engines/LatheAIFeatureRegistration.js");
+            const p = params as { task?: string };
+            if (typeof p.task !== "string" || p.task.length === 0) {
+              result = { success: false, error: "params.task (non-empty string) required" };
+              break;
+            }
+            result = { success: true, data: findBestEngineForTask(p.task) };
+            break;
+          }
+          case "lathe_advanced_ops_live_tooling": {
+            const { latheAdvancedOperationsEngine } = await import("../../engines/LatheAdvancedOperationsEngine.js");
+            result = { success: true, data: latheAdvancedOperationsEngine.getLiveToolingParams(params as any) };
+            break;
+          }
+          case "lathe_deep_ai_harden_analyze": {
+            const { latheDeepAIHardeningEngine } = await import("../../engines/LatheDeepAIHardeningEngine.js");
+            result = { success: true, data: latheDeepAIHardeningEngine.analyzeLatheOperation(params as any) };
+            break;
+          }
+          case "lathe_intelligence_get_stats": {
+            const { latheIntelligenceEngine } = await import("../../engines/LatheIntelligenceEngine.js");
+            result = { success: true, data: (latheIntelligenceEngine as any).getStats?.() ?? { engine: "LatheIntelligenceEngine" } };
+            break;
+          }
+          // JM-DIE-LATHE-UPGRADE-MS0/U-LATHE-INTEL-DECIDE-MACRO — decide macro vs hard-code G-code
+          // Operator passes { part: LathePartProfile, machine: LatheMachineConfig, operationContext: {...} }
+          // Returns MacroRecommendation with chain-of-thought reasoning + score + suggested variables
+          case "lathe_intelligence_decide_macro": {
+            const { LatheIntelligenceEngine } = await import("../../engines/LatheIntelligenceEngine.js");
+            const p = params as {
+              part?: Parameters<typeof LatheIntelligenceEngine.decideMacroVsHardCode>[0];
+              machine?: Parameters<typeof LatheIntelligenceEngine.decideMacroVsHardCode>[1];
+              operationContext?: Parameters<typeof LatheIntelligenceEngine.decideMacroVsHardCode>[2];
+            };
+            if (!p.part || !p.machine) {
+              result = { success: false, error: "params.part (LathePartProfile) and params.machine (LatheMachineConfig) required" };
+              break;
+            }
+            result = {
+              success: true,
+              data: LatheIntelligenceEngine.decideMacroVsHardCode(p.part, p.machine, p.operationContext ?? {}),
+            };
+            break;
+          }
+          case "lathe_print_ingest_ingest": {
+            const { lathePrintIngestPipelineEngine } = await import("../../engines/LathePrintIngestPipelineEngine.js");
+            result = { success: true, data: lathePrintIngestPipelineEngine.ingest(params as any) };
+            break;
+          }
+          case "lathe_feature_recognizer_recognize": {
+            const { latheTurningFeatureRecognizerEngine } = await import("../../engines/LatheTurningFeatureRecognizerEngine.js");
+            result = { success: true, data: (latheTurningFeatureRecognizerEngine as any).recognize?.(params as any) ?? (latheTurningFeatureRecognizerEngine as any).recognizeFeatures?.(params as any) };
+            break;
+          }
+          case "lathe_print_setup_select": {
+            const { lathePrintSetupSelectionEngine } = await import("../../engines/LathePrintSetupSelectionEngine.js");
+            result = { success: true, data: (lathePrintSetupSelectionEngine as any).selectSetup?.(params as any, (params as any).machine ?? {}, (params as any).constraints ?? {}, (params as any).options) };
+            break;
+          }
+          case "lathe_print_dl_intel_predict": {
+            const { lathePrintToProgramDLIntelligenceEngine } = await import("../../engines/LathePrintToProgramDLIntelligenceEngine.js");
+            result = { success: true, data: lathePrintToProgramDLIntelligenceEngine.predict(params as any) };
+            break;
+          }
+          case "lathe_safety_predicate_evaluate": {
+            const { latheSafetyPredicateEngine } = await import("../../engines/LatheSafetyPredicateEngine.js");
+            result = { success: true, data: (latheSafetyPredicateEngine as any).evaluate?.(params as any) ?? (latheSafetyPredicateEngine as any).check?.(params as any) };
+            break;
+          }
+          case "lathe_lora_physics_aug_infer_extract": {
+            const { latheLoRAPhysicsAugmentedInferenceEngine } = await import("../../engines/LatheLoRAPhysicsAugmentedInferenceEngine.js");
+            const response = String((params as any).response ?? "");
+            result = { success: true, data: latheLoRAPhysicsAugmentedInferenceEngine.extractParameters(response) };
+            break;
+          }
+          case "lathe_proof_carrying_emit": {
+            const { latheProofCarryingEmitEngine } = await import("../../engines/LatheProofCarryingEmitEngine.js");
+            result = { success: true, data: latheProofCarryingEmitEngine.emit(params as any) };
+            break;
+          }
+          case "lathe_print_tolerance_stack_propagate": {
+            const { lathePrintToleranceStackEngine } = await import("../../engines/LathePrintToleranceStackEngine.js");
+            result = { success: true, data: lathePrintToleranceStackEngine.propagate(params as any) };
+            break;
+          }
+          case "lathe_thermodynamics_heat_gen": {
+            const { latheThermodynamicsEngine } = await import("../../engines/LatheThermodynamicsEngine.js");
+            result = { success: true, data: (latheThermodynamicsEngine as any).calculateHeatGeneration?.(params as any, (params as any).process ?? {}, (params as any).material ?? {}) };
+            break;
+          }
+          case "lathe_opus_reasoning_forward": {
+            const { latheOpusReasoningEngine } = await import("../../engines/LatheOpusReasoningEngine.js");
+            result = { success: true, data: await ((latheOpusReasoningEngine as any).forward?.(params as any, params as any, params as any) ?? (latheOpusReasoningEngine as any).reason?.(params as any) ?? (latheOpusReasoningEngine as any).infer?.(params as any) ?? { engine: "LatheOpusReasoningEngine", note: "method not callable" }) };
+            break;
+          }
+          case "lathe_unified_physics_analyze": {
+            const { latheUnifiedPhysicsOrchestrationEngine } = await import("../../engines/LatheUnifiedPhysicsOrchestrationEngine.js");
+            result = { success: true, data: latheUnifiedPhysicsOrchestrationEngine.analyzeFullPhysics(params as any) };
+            break;
+          }
+          case "lathe_knowledge_graph_ingest": {
+            const { lathePrintToProgramKnowledgeGraphEngine } = await import("../../engines/LathePrintToProgramKnowledgeGraphEngine.js");
+            result = { success: true, data: lathePrintToProgramKnowledgeGraphEngine.ingest(params as any) };
+            break;
+          }
+          case "lathe_print_reasoning_explain": {
+            const { lathePrintToProgramReasoningEngine } = await import("../../engines/LathePrintToProgramReasoningEngine.js");
+            result = { success: true, data: lathePrintToProgramReasoningEngine.explain(params as any) };
+            break;
+          }
+          case "lathe_tribal_integration_source_corpus": {
+            const { latheTribalIntegrationEngine } = await import("../../engines/LatheTribalIntegrationEngine.js");
+            result = { success: true, data: latheTribalIntegrationEngine.sourceCorpusTips(params as any) };
+            break;
+          }
+          case "lathe_print_sequence_plan": {
+            const { lathePrintSequencePlannerEngine } = await import("../../engines/LathePrintSequencePlannerEngine.js");
+            result = { success: true, data: (lathePrintSequencePlannerEngine as any).planSequence?.(params as any, (params as any).setup ?? {}, (params as any).constraints ?? {}) };
+            break;
+          }
+          case "lathe_print_feature_strategy_select": {
+            const { lathePrintFeatureStrategySelectorEngine } = await import("../../engines/LathePrintFeatureStrategySelectorEngine.js");
+            result = { success: true, data: (lathePrintFeatureStrategySelectorEngine as any).selectStrategy?.(params as any, (params as any).context ?? {}) };
+            break;
+          }
+          case "lathe_print_program_emit": {
+            const { lathePrintProgramEmitterEngine } = await import("../../engines/LathePrintProgramEmitterEngine.js");
+            result = { success: true, data: lathePrintProgramEmitterEngine.emit(params as any, (params as any).options) };
+            break;
+          }
+          case "lathe_print_program_signoff_generate": {
+            const { lathePrintProgramSignoffEngine } = await import("../../engines/LathePrintProgramSignoffEngine.js");
+            result = { success: true, data: lathePrintProgramSignoffEngine.generatePackage(params as any) };
+            break;
+          }
+          case "lathe_program_audit_pipeline_run": {
+            const { latheProgramAuditPipelineEngine } = await import("../../engines/LatheProgramAuditPipelineEngine.js");
+            const content = String((params as any).content ?? "");
+            result = { success: true, data: (latheProgramAuditPipelineEngine as any).audit?.(content) ?? (latheProgramAuditPipelineEngine as any).run?.(content) ?? (latheProgramAuditPipelineEngine as any).process?.(content) ?? { engine: "LatheProgramAuditPipelineEngine", note: "method not callable" } };
+            break;
+          }
+          case "jmdie_lathe_program_upgrade": {
+            const { jmDieLatheProgramUpgraderEngine } = await import("../../engines/JMDieLatheProgramUpgraderEngine.js");
+            result = { success: true, data: await (jmDieLatheProgramUpgraderEngine as any).upgrade?.(params as any) ?? (jmDieLatheProgramUpgraderEngine as any).run?.(params as any) };
+            break;
+          }
+          case "jmdie_lathe_program_upgrade_v2": {
+            const { jmDieLatheProgramUpgraderV2Engine } = await import("../../engines/JMDieLatheProgramUpgraderV2Engine.js");
+            result = { success: true, data: await (jmDieLatheProgramUpgraderV2Engine as any).upgrade?.(params as any) ?? (jmDieLatheProgramUpgraderV2Engine as any).run?.(params as any) };
+            break;
+          }
+          case "lathe_program_library_search": {
+            const { latheProgramLibraryEngine } = await import("../../engines/LatheProgramLibraryEngine.js");
+            result = { success: true, data: await (latheProgramLibraryEngine as any).search?.(params as any) ?? (latheProgramLibraryEngine as any).find?.(params as any) };
+            break;
+          }
+          // iter9 wire-unwired-loop: turning/swiss/multi-spindle engines
+          case "multi_spindle_automatic_plan": {
+            const { multiSpindleAutomaticEngine } = await import("../../engines/MultiSpindleAutomaticEngine.js");
+            const p = params as any;
+            result = { success: true, data: (multiSpindleAutomaticEngine as any).plan?.(p) ?? (multiSpindleAutomaticEngine as any).run?.(p) ?? (multiSpindleAutomaticEngine as any).analyze?.(p) ?? { engine: "MultiSpindleAutomaticEngine", note: "method not callable" } };
+            break;
+          }
+          case "swiss_type_intelligence_analyze": {
+            const { swissTypeIntelligenceEngine } = await import("../../engines/SwissTypeIntelligenceEngine.js");
+            const p = params as any;
+            result = { success: true, data: (swissTypeIntelligenceEngine as any).analyze?.(p) ?? (swissTypeIntelligenceEngine as any).run?.(p) ?? { engine: "SwissTypeIntelligenceEngine", note: "method not callable" } };
+            break;
+          }
+          case "insert_grade_select": {
+            const { insertGradeSelectionEngine } = await import("../../engines/InsertGradeSelectionEngine.js");
+            const p = params as any;
+            result = { success: true, data: (insertGradeSelectionEngine as any).select?.(p) ?? (insertGradeSelectionEngine as any).recommend?.(p) ?? (insertGradeSelectionEngine as any).run?.(p) ?? { engine: "InsertGradeSelectionEngine", note: "method not callable" } };
+            break;
+          }
+          case "insert_change_recommend": {
+            const { insertChangeRecommendationEngine } = await import("../../engines/InsertChangeRecommendationEngine.js");
+            const p = params as any;
+            result = { success: true, data: (insertChangeRecommendationEngine as any).recommend?.(p) ?? (insertChangeRecommendationEngine as any).run?.(p) ?? { engine: "InsertChangeRecommendationEngine", note: "method not callable" } };
+            break;
+          }
+          // WIRE-UNWIRED-PAPA / U-WIRE-TURNING (slot:papa, 2026-06-15)
+          // SwissTypeDecisionEngine + TurretLayoutEngine (stateless singletons, lazy-imported).
+          // result=value;break -> post-switch wraps slimResponse(result) into content.
+          case "swiss_decide": {
+            const { swissTypeDecisionEngine } = await import("../../engines/SwissTypeDecisionEngine.js");
+            result = swissTypeDecisionEngine.decide(
+              params.spec as Parameters<typeof swissTypeDecisionEngine.decide>[0],
+            );
+            break;
+          }
+          case "swiss_decide_batch": {
+            const { swissTypeDecisionEngine } = await import("../../engines/SwissTypeDecisionEngine.js");
+            result = {
+              results: swissTypeDecisionEngine.decideBatch(
+                params.specs as Parameters<typeof swissTypeDecisionEngine.decideBatch>[0],
+              ),
+            };
+            break;
+          }
+          // TurretLayoutEngine self-routes all 6 turret_* actions via its executeAction(action, params)
+          // -> EngineResult { success, data?, error? }. Action names match 1:1.
+          case "turret_analyze_interface":
+          case "turret_compare_interfaces":
+          case "turret_analyze_capability":
+          case "turret_optimize_layout":
+          case "turret_plan_gang":
+          case "turret_check_interference": {
+            const { turretLayoutEngine } = await import("../../engines/TurretLayoutEngine.js");
+            result = await turretLayoutEngine.executeAction(action, params);
+            break;
+          }
+          // LATHE-PRO-MS10 / XGAL-WIRE: bar remnant reuse (BarRemnantManagementEngine).
+          // Pure synchronous engine; snake_case fields survive normalizeParams (it keeps originals).
+          case "bar_remnant_plan": {
+            const { barRemnantManagementEngine } = await import("../../engines/BarRemnantManagementEngine.js");
+            const p = params as any;
+            result = barRemnantManagementEngine.plan(p.inventory ?? [], p.job ?? {});
+            break;
+          }
+          case "bar_remnant_count_feasible": {
+            const { barRemnantManagementEngine } = await import("../../engines/BarRemnantManagementEngine.js");
+            const p = params as any;
+            result = {
+              count: barRemnantManagementEngine.countFeasible(
+                p.inventory ?? [],
+                p.material,
+                p.diameter_mm,
+                p.diameter_tol_mm,
+                p.min_feasible_length_mm,
+              ),
+            };
+            break;
+          }
+          // CALC-RESTORE-MS0/U-WIRE-TURNING-COST-ESTIMATE (slot:india 2026-06-22):
+          // Adapt turning geometry/time params -> JobCostingEngine.JobSpec -> calculateJobCost.
+          // Unit bridges: JobSpec.material dims are in MM + density in kg/m3 (engine converts),
+          // pricePerLb = $/kg / 2.20462; cycle sec -> min. A round bar is modelled as the prism
+          // whose square cross-section equals the cylinder area (side = OD*sqrt(pi/4)) so material
+          // cost tracks the true cylinder volume AND stays exactly proportional to OD^2.
+          // kerf 0 keeps the OD^2 proportionality exact; toolChanges 0 keeps machining cost
+          // exactly proportional to cycle time. CostBreakdown omits batch_size, so echo it back.
+          case "turning_cost_estimate": {
+            const { jobCostingEngine } = await import("../../engines/JobCostingEngine.js");
+            const barOd = Number(params.bar_od_mm);
+            const partLen = Number(params.part_length_mm);
+            const cycleSec = Number(params.cycle_time_sec);
+            const batch = params.batch_size != null ? Number(params.batch_size) : 1;
+            const secondary = params.secondary_ops_cost_usd != null ? Number(params.secondary_ops_cost_usd) : 0;
+            const side = barOd * Math.sqrt(Math.PI / 4); // square side with the bar's cross-sectional area
+            const jobSpec = {
+              quantity: batch,
+              machineType: "cnc_lathe",
+              toolChanges: 0,
+              operations: [{
+                type: "turning",
+                cycleTime: cycleSec / 60,
+                setupTime: params.setup_minutes != null ? Number(params.setup_minutes) : undefined,
+              }],
+              material: {
+                length: partLen,
+                width: side,
+                height: side,
+                kerfAllowance: 0,
+                density: params.density_kg_m3 != null ? Number(params.density_kg_m3) : 7850,
+                pricePerLb: params.material_price_per_kg != null
+                  ? Number(params.material_price_per_kg) / 2.20462
+                  : undefined,
+              },
+              rates: params.machine_rate_per_hr != null
+                ? { machineRate: Number(params.machine_rate_per_hr) }
+                : undefined,
+              finishingOperations: secondary > 0
+                ? [{ type: "secondary", costPerPart: secondary }]
+                : undefined,
+            };
+            const breakdown = jobCostingEngine.calculateJobCost(jobSpec);
+            // The engine rounds perPart to 2 decimals (round2(total/qty)), so perPart*qty drifts
+            // from total for large batches. Re-derive perPart at full precision off the engine's
+            // authoritative total so the documented invariant total === perPart * batch_size holds
+            // exactly at any batch size; echo batch_size (CostBreakdown omits it).
+            result = { ...breakdown, perPart: batch > 0 ? breakdown.total / batch : breakdown.total, batch_size: batch };
             break;
           }
 

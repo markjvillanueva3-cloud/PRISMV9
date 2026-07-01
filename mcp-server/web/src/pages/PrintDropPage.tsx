@@ -224,7 +224,7 @@ export function PrintDropPage() {
       description="Drop an engineering print (PDF or image) to automatically classify the required machine type. Uses OCR for title block extraction and CAD feature inference for intelligent routing."
       surfaces={['printClassify']}
       metrics={metrics}
-      aiSummary="PRISM AI can explain the classification reasoning, suggest alternative machine setups, and identify potential manufacturing challenges."
+      aiSummary="Kienzle AI can explain the classification reasoning, suggest alternative machine setups, and identify potential manufacturing challenges."
       aiContext={aiContext}
       suggestions={[
         {

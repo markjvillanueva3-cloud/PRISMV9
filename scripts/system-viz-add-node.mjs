@@ -47,6 +47,10 @@
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import {
+  isGraphWriteLockActive,
+  graphWriteLockPath,
+} from "./lib/system-graph-write-lock.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, "..");
@@ -428,11 +432,12 @@ export function computeConcurrentAdds(rereadEntries, originalSnapshot, flushedBa
  * @internal Caller MUST hold `pidFilePath()` lock — `flushQueue` does
  *           not acquire/release it on its own.
  */
-export function flushQueue({ gPath, qPath, lfPath, onCommitPid, now = new Date() } = {}) {
+export function flushQueue({ gPath, qPath, lfPath, onCommitPid, graphWriteLock, now = new Date() } = {}) {
   gPath  = gPath  || graphPath();
   qPath  = qPath  || queuePath();
   lfPath = lfPath || lastFlushPath();
   onCommitPid = onCommitPid || onCommitPidPath();
+  graphWriteLock = graphWriteLock || graphWriteLockPath();
 
   const { entries: queue, corrupt, tooLarge } = readQueue(qPath);
   if (tooLarge) {
@@ -449,6 +454,21 @@ export function flushQueue({ gPath, qPath, lfPath, onCommitPid, now = new Date()
   // wait out the 60s interval.
   if (isRegenActive(onCommitPid)) {
     return { flushed: 0, skipped: 0, corrupt, queueDepth: queue.length, batch: 0, deferred: true, error: "regen_active" };
+  }
+
+  // TIER 1b — U-VIZ-F11-CROSS-LOCK. DEFER while the SHARED system-graph.json
+  // write-lock is held live by a peer (regen-viz.mjs or system-viz-on-commit.mjs
+  // mid-merge). TIER-1 above only fences the generate-system-viz writer
+  // (.system-viz-on-commit.pid); F1 isolated that to architecture-graph.json,
+  // but regen-viz / on-commit still rewrite system-graph.json under the
+  // SEPARATE .system-graph-write.pid. Without this our stale read-modify-
+  // atomic-write would silently clobber a fresh regen merge (or be clobbered
+  // by it). Same non-destructive defer contract as TIER-1: queue is NOT
+  // touched, lastFlush NOT advanced, next call retries promptly. A stale/
+  // dead holder self-heals (the lock's process.kill(pid,0) reclaim) so this
+  // never permanently wedges flushing.
+  if (isGraphWriteLockActive({ pidPath: graphWriteLock })) {
+    return { flushed: 0, skipped: 0, corrupt, queueDepth: queue.length, batch: 0, deferred: true, error: "graph_write_locked" };
   }
 
   if (!fs.existsSync(gPath)) {

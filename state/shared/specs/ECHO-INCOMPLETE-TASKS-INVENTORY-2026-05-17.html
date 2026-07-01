@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="generator" content="SpecHTMLCompanionEngine">
+<meta name="prism-source-hash" content="a1db2639af1f431df1bae85cff626246cae7ad01b3282db8ddf71459178c1008">
+<title>Echo slot — incomplete-task inventory</title>
+<style>
+:root, [data-theme="light"] {
+  --bg:#ffffff; --bg-soft:#f6f8fa; --bg-code:#f6f8fa; --fg:#1f2328; --fg-muted:#636c76;
+  --border:#d0d7de; --accent:#0969da; --accent-soft:#ddf4ff; --thead:#f6f8fa; --quote:#656d76;
+  --table-stripe:#f6f8fa;
+}
+[data-theme="dark"] {
+  --bg:#0d1117; --bg-soft:#161b22; --bg-code:#161b22; --fg:#e6edf3; --fg-muted:#8b949e;
+  --border:#30363d; --accent:#2f81f7; --accent-soft:#163356; --thead:#161b22; --quote:#8b949e;
+  --table-stripe:#11151c;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg:#0d1117; --bg-soft:#161b22; --bg-code:#161b22; --fg:#e6edf3; --fg-muted:#8b949e;
+    --border:#30363d; --accent:#2f81f7; --accent-soft:#163356; --thead:#161b22; --quote:#8b949e;
+    --table-stripe:#11151c;
+  }
+}
+* { box-sizing:border-box; }
+html { scroll-behavior:smooth; }
+body { margin:0; background:var(--bg); color:var(--fg); font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif; line-height:1.6; font-size:16px; }
+.skip-link { position:absolute; left:-9999px; top:0; background:var(--accent); color:#fff; padding:8px 14px; z-index:100; border-radius:0 0 6px 0; }
+.skip-link:focus { left:0; }
+.layout { display:grid; grid-template-columns:minmax(0,1fr); max-width:1180px; margin:0 auto; padding:0 20px; }
+@media (min-width:1000px) { .layout { grid-template-columns:260px minmax(0,1fr); gap:40px; } }
+header.doc-head { grid-column:1 / -1; padding:28px 0 16px; border-bottom:1px solid var(--border); }
+header.doc-head h1.page-title { margin:0 0 6px; font-size:1.9rem; line-height:1.25; }
+header.doc-head .provenance { color:var(--fg-muted); font-size:.85rem; margin:0; }
+header.doc-head .theme-toggle { float:right; background:var(--bg-soft); color:var(--fg); border:1px solid var(--border); border-radius:6px; padding:5px 10px; font-size:.8rem; cursor:pointer; }
+nav.toc { align-self:start; position:sticky; top:16px; max-height:calc(100vh - 32px); overflow:auto; font-size:.85rem; padding:14px 0; }
+@media (max-width:999px) { nav.toc { position:static; max-height:none; border-bottom:1px solid var(--border); margin-bottom:12px; } }
+nav.toc .toc-title { font-weight:600; color:var(--fg-muted); text-transform:uppercase; letter-spacing:.04em; font-size:.7rem; margin-bottom:8px; }
+nav.toc ul { list-style:none; margin:0; padding:0; }
+nav.toc li a { color:var(--fg-muted); text-decoration:none; display:block; padding:3px 6px; border-left:2px solid transparent; border-radius:0 4px 4px 0; }
+nav.toc li a:hover { color:var(--accent); background:var(--accent-soft); border-left-color:var(--accent); }
+nav.toc li a.active { color:var(--accent); background:var(--accent-soft); border-left-color:var(--accent); font-weight:600; }
+nav.toc .toc-l2 a { padding-left:14px; } nav.toc .toc-l3 a { padding-left:26px; font-size:.95em; } nav.toc .toc-l4 a { padding-left:38px; font-size:.9em; }
+nav.toc input.toc-search { width:100%; box-sizing:border-box; margin:0 0 8px; padding:5px 8px; font-size:.82rem; border:1px solid var(--border); border-radius:5px; background:var(--bg); color:var(--fg); }
+nav.toc input.toc-search:focus { outline:2px solid var(--accent); outline-offset:-1px; }
+nav.toc .toc-search-status { font-size:.7rem; color:var(--fg-muted); min-height:1em; margin:-4px 0 6px; }
+nav.toc li.toc-hidden { display:none; }
+main.doc-body mark.search-hit { background:#fff3a3; color:#1f2328; border-radius:2px; padding:0 1px; }
+main.doc-body mark.search-hit.current { outline:2px solid var(--accent); outline-offset:1px; }
+main.doc-body { min-width:0; padding:24px 0 64px; }
+main.doc-body h1,main.doc-body h2,main.doc-body h3,main.doc-body h4,main.doc-body h5,main.doc-body h6 { line-height:1.3; margin-top:1.8em; margin-bottom:.6em; scroll-margin-top:16px; position:relative; }
+main.doc-body h1 { font-size:1.7rem; border-bottom:1px solid var(--border); padding-bottom:.3em; }
+main.doc-body h2 { font-size:1.4rem; border-bottom:1px solid var(--border); padding-bottom:.3em; }
+main.doc-body h3 { font-size:1.18rem; } main.doc-body h4 { font-size:1.02rem; }
+main.doc-body a.anchor { position:absolute; left:-1.1em; opacity:0; text-decoration:none; color:var(--fg-muted); font-weight:400; padding-right:.3em; }
+main.doc-body h1:hover a.anchor,main.doc-body h2:hover a.anchor,main.doc-body h3:hover a.anchor,main.doc-body h4:hover a.anchor { opacity:1; }
+main.doc-body a { color:var(--accent); text-decoration:none; } main.doc-body a:hover { text-decoration:underline; }
+main.doc-body p { margin:.8em 0; }
+main.doc-body code { background:var(--bg-code); border-radius:4px; padding:.15em .35em; font-size:.88em; font-family:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace; }
+main.doc-body pre { background:var(--bg-code); border:1px solid var(--border); border-radius:8px; padding:14px 16px; overflow:auto; line-height:1.45; }
+main.doc-body pre code { background:none; padding:0; font-size:.86rem; }
+main.doc-body blockquote { margin:1em 0; padding:.4em 1em; border-left:4px solid var(--border); color:var(--quote); }
+main.doc-body ul,main.doc-body ol { margin:.6em 0; padding-left:1.6em; }
+main.doc-body li { margin:.2em 0; }
+main.doc-body hr { border:0; border-top:1px solid var(--border); margin:2em 0; }
+main.doc-body .table-wrap { overflow-x:auto; margin:1em 0; }
+main.doc-body table { border-collapse:collapse; width:100%; font-size:.9rem; }
+main.doc-body th,main.doc-body td { border:1px solid var(--border); padding:6px 11px; text-align:left; vertical-align:top; }
+main.doc-body thead th { background:var(--thead); }
+main.doc-body tbody tr:nth-child(2n) { background:var(--table-stripe); }
+main.doc-body details.frontmatter { background:var(--bg-soft); border:1px solid var(--border); border-radius:8px; padding:6px 14px; margin:0 0 22px; }
+main.doc-body details.frontmatter summary { cursor:pointer; font-weight:600; color:var(--fg-muted); }
+main.doc-body details.frontmatter table { font-size:.82rem; }
+main.doc-body details.frontmatter th { width:1%; white-space:nowrap; background:transparent; color:var(--fg-muted); }
+main.doc-body .mermaid { background:var(--bg-soft); border:1px solid var(--border); border-radius:8px; padding:14px; margin:1em 0; text-align:center; overflow:auto; white-space:pre-wrap; }
+main.doc-body .truncation-notice { background:var(--accent-soft); border:1px solid var(--accent); border-radius:6px; padding:10px 14px; font-size:.9rem; }
+footer.doc-foot { grid-column:1 / -1; border-top:1px solid var(--border); margin-top:48px; padding:18px 0 40px; color:var(--fg-muted); font-size:.82rem; }
+footer.doc-foot code { background:var(--bg-code); border-radius:4px; padding:.12em .3em; }
+</style>
+</head>
+<body>
+<a class="skip-link" href="#content">Skip to content</a>
+<div class="layout">
+<header class="doc-head">
+<button id="themeToggle" class="theme-toggle" type="button" aria-label="Toggle color theme">◐ theme</button>
+<h1 class="page-title" id="top">Echo slot — incomplete-task inventory</h1>
+<p class="provenance">Generated 2026-05-18T17:34:20.441Z by <code>scripts/emit-all-spec-html.ts</code> · the Markdown alongside is canonical</p>
+</header>
+<nav class="toc" aria-label="Table of contents"><div class="toc-title">On this page</div><input type="search" class="toc-search" placeholder="Search this page…" aria-label="Search this page" autocomplete="off"><div class="toc-search-status" aria-live="polite"></div><ul>
+<li class="toc-l1"><a href="#echo-slot-incomplete-task-inventory">Echo slot — incomplete-task inventory</a></li>
+<li class="toc-l2"><a href="#tier-1-active-autonomous-safe-pick-from-these">Tier 1 — ACTIVE, autonomous-safe (pick from these)</a></li>
+<li class="toc-l3"><a href="#1-ms-print-program-loop-14-units-pending-tracks-abc">1. MS-PRINT-PROGRAM-LOOP — 14 units pending (Tracks A/B/C)</a></li>
+<li class="toc-l3"><a href="#2-system-viz-brain-ms0-1-unit-pending-operator-gated-not-autonomous">2. SYSTEM-VIZ-BRAIN-MS0 — 1 unit pending, OPERATOR-GATED, NOT AUTONOMOUS</a></li>
+<li class="toc-l3"><a href="#3-cleanup-ms0-1-unit-pending">3. CLEANUP-MS0 — 1 unit pending</a></li>
+<li class="toc-l3"><a href="#4-dev-tool-conflict-audit-6-track-jk-units-pending">4. DEV-TOOL-CONFLICT-AUDIT — 6 Track-J/K units pending</a></li>
+<li class="toc-l3"><a href="#5-ms-print-program-loop-echo-work-iter-2-continuation">5. MS-PRINT-PROGRAM-LOOP (echo-work iter 2 continuation)</a></li>
+<li class="toc-l2"><a href="#tier-2-referenced-but-not-tracked-in-envelopes-status-unknown-orphan">Tier 2 — REFERENCED BUT NOT TRACKED IN ENVELOPES (status unknown / orphan)</a></li>
+<li class="toc-l2"><a href="#tier-3-recently-closed-subtracted-not-punch-list">Tier 3 — RECENTLY CLOSED (subtracted — not punch-list)</a></li>
+<li class="toc-l2"><a href="#recommended-next-action-echo">Recommended next action (echo)</a></li>
+<li class="toc-l2"><a href="#provenance">Provenance</a></li>
+</ul></nav>
+<main id="content" class="doc-body" role="main">
+<details class="frontmatter" open><summary>Document metadata</summary><div class="table-wrap"><table>
+<tbody>
+<tr><th scope="row">session</th><td>claude-cdc4a2c4</td></tr>
+<tr><th scope="row">slot</th><td>echo</td></tr>
+<tr><th scope="row">generated_at</th><td>2026-05-17</td></tr>
+<tr><th scope="row">purpose</th><td>All tasks left incomplete by prior echo chats — reconstructed from handoffs + cross-referenced against MILESTONE_PROGRESS + git log</td></tr>
+<tr><th scope="row">advisoryOnly</th><td>true</td></tr>
+<tr><th scope="row">mustHumanVerify</th><td>true</td></tr>
+</tbody>
+</table></div></details>
+<h1 id="echo-slot-incomplete-task-inventory"><a class="anchor" href="#echo-slot-incomplete-task-inventory" aria-label="Permalink to Echo slot — incomplete-task inventory">#</a>Echo slot — incomplete-task inventory</h1>
+<p>Reconstructed by reading every <code>HANDOFF-*-echo-*.md</code> (20 files) + <code>chat-slot-history/&lt;chatId&gt;.json</code> (8 echo-bound chatIds: 098ac2aa, 0c5d9bee, 2081f435, 9412073a, 9876118b, a2b1b5ca, a61bbf34, a7f31142, dacc6809 + this chat) + cross-referenced against <code>state/shared/MILESTONE_PROGRESS.json</code>, milestone envelopes, and recent commits.</p>
+<h2 id="tier-1-active-autonomous-safe-pick-from-these"><a class="anchor" href="#tier-1-active-autonomous-safe-pick-from-these" aria-label="Permalink to Tier 1 — ACTIVE, autonomous-safe (pick from these)">#</a>Tier 1 — ACTIVE, autonomous-safe (pick from these)</h2>
+<h3 id="1-ms-print-program-loop-14-units-pending-tracks-abc"><a class="anchor" href="#1-ms-print-program-loop-14-units-pending-tracks-abc" aria-label="Permalink to 1. MS-PRINT-PROGRAM-LOOP — 14 units pending (Tracks A/B/C)">#</a>1. <code>MS-PRINT-PROGRAM-LOOP</code> — 14 units pending (Tracks A/B/C)</h3>
+<p>Origin: <code>claude-2081f435</code> (4 handoffs), continued by <code>claude-098ac2aa</code>. Status: <code>in_progress_real</code>. Track D shipped 5/5; A/B/C untouched.</p>
+<ul>
+<li><strong>Track A</strong> (5 pending) — parametric template engines:
+<ul>
+<li><code>[A1] U-FAMILY-PARAM-EXTRACT</code> — per family extract 8-15 driving parameters (turning analogue of .xlsm 34-dim)</li>
+<li><code>[A2] MS-RES-XLSM-ENGINE core</code> — decode vbaProject.bin, reverse 34-dim→geometry math for 11 die templates</li>
+<li><code>[A3] MachineDomainTemplateLibraryEngine</code> (NEW) — parametric program-skeleton registry</li>
+<li><code>[A5] proven_generate_program</code> — bridge adapted-recipe → TurningProgramAssembler / MillingPrintToProgram</li>
+<li><code>[A6] DieCavityBatchProgramEngine</code> (NEW) — parts CSV → parametric instantiation → batch .MIN</li>
+</ul></li>
+<li><strong>Track B</strong> (3 pending) — re-optimization:
+<ul>
+<li><code>[B8] Wire optimizer engines to all logical dispatchers</code> (MillProgramOptimizer + LatheProgramOptimizer to prism_cam/prism_mill)</li>
+<li><code>[B9] ArchiveReoptimizationBatchEngine</code> — JM-Die batch re-optimize (depends on C5 + D5)</li>
+<li><code>[B10] U-CLEAN-TRAINING-SET + re-opt review loop</code> — designate re-opt programs as CLEAN LoRA corpus</li>
+</ul></li>
+<li><strong>Track C</strong> (6 pending, <strong>Revenue-Day-1-eligible per §R10.5</strong>):
+<ul>
+<li><code>[C1] U-LATHE-MIN-DIALECT-POST</code> — Okuma OSP .MIN dialect post (G85/G87, NSTRT/NBAR, T010101, part-counter macro)</li>
+<li><code>[C3] Wire prism_machining_kb into TurningProgramAssemblerEngine</code></li>
+<li><code>[C4] LatheKnowledgeDirectProgrammerEngine</code> (NEW front door — NL → .MIN, no CAD step)</li>
+<li><code>[C5] LatheNLPartParserEngine</code> (a) + U-NC-MINING-CALIBRATE (b) — lathe-tuned NL parser + 16,558 .MIN S/F mining</li>
+<li><code>[C6] LatheMachineDomainKnowledgeProfileEngine</code> (NEW) — per-machine turret/cycle/dialect profile</li>
+<li><code>[C7] U-LATHE-DIRECT-SAFETY-GATE</code> — every emitted .MIN runs LATHE-HARDENED safety pipeline + mistake-detector</li>
+</ul></li>
+</ul>
+<p>Recommended start: <strong>Track C first</strong> (revenue-eligible). Has dependency chain — start C3 (KB wiring) → C5 (parser) → C4 (front door).</p>
+<h3 id="2-system-viz-brain-ms0-1-unit-pending-operator-gated-not-autonomous"><a class="anchor" href="#2-system-viz-brain-ms0-1-unit-pending-operator-gated-not-autonomous" aria-label="Permalink to 2. SYSTEM-VIZ-BRAIN-MS0 — 1 unit pending, OPERATOR-GATED, NOT AUTONOMOUS">#</a>2. <code>SYSTEM-VIZ-BRAIN-MS0</code> — 1 unit pending, <strong>OPERATOR-GATED, NOT AUTONOMOUS</strong></h3>
+<p>Origin: <code>claude-9876118b</code> + <code>claude-a61bbf34</code>. 25/26 shipped (96.2%).</p>
+<ul>
+<li><code>U-P5-COORD-SQLITE-LIVE-SWAP</code> — swap work-claim.mjs from <code>WORK_CLAIMS.json</code> to live SQLite. Cutover plan delivered at <code>state/shared/specs/U-P5-COORD-SQLITE-LIVE-SWAP-CUTOVER-PLAN-2026-05-17.md</code> (3-of-3 PASS, commit 3177ae8236). HIGH BLAST RADIUS — 11 live peers; do NOT do autonomously.</li>
+</ul>
+<h3 id="3-cleanup-ms0-1-unit-pending"><a class="anchor" href="#3-cleanup-ms0-1-unit-pending" aria-label="Permalink to 3. CLEANUP-MS0 — 1 unit pending">#</a>3. <code>CLEANUP-MS0</code> — 1 unit pending</h3>
+<p>Origin: <code>claude-a61bbf34</code> (echo-cleanup-ms0 handoff).</p>
+<ul>
+<li><code>U-CLEANUP-B9</code> (not_started) — model-drift eval suite (10 frozen known-bug commits + expected verdicts in <code>state/shared/</code>)</li>
+</ul>
+<h3 id="4-dev-tool-conflict-audit-6-track-jk-units-pending"><a class="anchor" href="#4-dev-tool-conflict-audit-6-track-jk-units-pending" aria-label="Permalink to 4. DEV-TOOL-CONFLICT-AUDIT — 6 Track-J/K units pending">#</a>4. <code>DEV-TOOL-CONFLICT-AUDIT</code> — 6 Track-J/K units pending</h3>
+<p>Origin: <code>claude-dacc6809</code>. F1 shipped (<code>dd735c1871</code>, <code>4ad4bb334a</code>). META detector: <code>scripts/dev-tool-conflict-detector.mjs</code>.</p>
+<ul>
+<li><code>F11</code> — cross-lock <code>regen-viz.mjs</code> subprocess write + <code>system-viz-add-node.mjs</code> atomic-rename (DEFERRED — needs shared PID-lock convention)</li>
+<li><code>U-ROADMAP-INDEX-WRITER-CONSOLIDATE</code> (F4) — atomic-write the 3 non-atomic writers of <code>roadmap-index.json</code> (<code>reconcile-milestones.mjs</code>, <code>register-devtools-roadmap-envelopes.mjs</code>, <code>register-revenue-roadmap-envelopes.mjs</code>)</li>
+<li><code>U-ERROR-MEMORY-CANONICAL-WRITER</code> (F2) — designate canonical writer for <code>error-memory.json</code> (latent race if any orphan hook gets wired)</li>
+<li><code>U-SKILL-USAGE-CANONICAL-WRITER</code> (F3) — same for <code>skill-usage-stats.json</code></li>
+<li><code>U-SKILL-ARCHIVE-FORGE-RGS-BAK</code> (F5) — move <code>forge..forge6</code> + <code>rgs..rgs5</code> + <code>.fullcopy-bak-*</code> to <code>_archive/</code> (~250KB skill text the LLM never needs)</li>
+<li><code>U-SKILL-MIRROR-RECONCILE</code> (F5) — 64 H:/ vs H:/prism/ skill mirrors with large size deltas</li>
+</ul>
+<h3 id="5-ms-print-program-loop-echo-work-iter-2-continuation"><a class="anchor" href="#5-ms-print-program-loop-echo-work-iter-2-continuation" aria-label="Permalink to 5. MS-PRINT-PROGRAM-LOOP (echo-work iter 2 continuation)">#</a>5. <code>MS-PRINT-PROGRAM-LOOP</code> (echo-work iter 2 continuation)</h3>
+<p>Origin: <code>claude-098ac2aa</code> (most recent). U-PRECOMMIT-PATHSPEC-ONLY shipped <code>22418a618a</code>.</p>
+<ul>
+<li><strong><code>slot-queue.mjs --pick</code> BROKEN</strong> — returns already-shipped unit; MILESTONE_PROGRESS sees it as 1954/5200. Investigate picker shipped-detection bug FIRST.</li>
+<li>After picker fix: <code>U-GAP-CAM-ADAPTIVE-CLEARING</code> (v8.89 monolith re-modularize) OR split <code>U-WIRE-BACKLOG-CAM</code> (~26 unwired engines) into per-engine sub-units.</li>
+</ul>
+<h2 id="tier-2-referenced-but-not-tracked-in-envelopes-status-unknown-orphan"><a class="anchor" href="#tier-2-referenced-but-not-tracked-in-envelopes-status-unknown-orphan" aria-label="Permalink to Tier 2 — REFERENCED BUT NOT TRACKED IN ENVELOPES (status unknown / orphan)">#</a>Tier 2 — REFERENCED BUT NOT TRACKED IN ENVELOPES (status unknown / orphan)</h2>
+<p>Origin: 9 handoffs ending with the generic &quot;Next: INFRA-CONSENSUS-WIRE-MS0, INFRA-AGI-ROUTER-MS2, L8-P0-MS2&quot; tail. The first two are <code>completed_real</code>; only <code>L8-P0-MS2</code> remains <code>in_progress_real</code> — <strong>content unknown until envelope is read</strong>.</p>
+<ul>
+<li><code>L8-P0-MS2</code> — status <code>in_progress_real</code>, no echo handoff describes the work.</li>
+</ul>
+<h2 id="tier-3-recently-closed-subtracted-not-punch-list"><a class="anchor" href="#tier-3-recently-closed-subtracted-not-punch-list" aria-label="Permalink to Tier 3 — RECENTLY CLOSED (subtracted — not punch-list)">#</a>Tier 3 — RECENTLY CLOSED (subtracted — not punch-list)</h2>
+<p>These appeared in echo handoffs but the milestones are now <code>completed_real</code>. Listed for traceability:</p>
+<ul>
+<li><code>SLOT-WORKTREE-MS0</code> (15/16 → completed; U-P3-DEFAULT-ON either shipped or absorbed)</li>
+<li><code>COORD-MS0</code> (10/12 → completed_real; U-COORD09/12 shipped)</li>
+<li><code>INFRA-CONSENSUS-WIRE-MS0</code>, <code>INFRA-AGI-ROUTER-MS2</code> (completed_real)</li>
+<li><code>OBSIDIAN-PRISM-OS-MS0</code> (closed; 8 orphans wired)</li>
+<li><code>SLASH-CMD-FIDELITY-MS0/U-SCF02</code> (shipped 228d3d963)</li>
+<li><code>CHAT-ORCHESTRATOR-MS0/U-CHO01/02/04</code> (shipped 85703afab6, 5ece125d8b, 7b1a19655c)</li>
+<li><code>RGS-TOOL-AUTOINVOKE-MS1/U-INTEG-FIX-P0</code> (shipped e7e2dbf1b — 10 P0 bugs landed)</li>
+<li><code>KNOWLEDGE-CONVERSION-MS0/U-KC-C2</code> (shipped 05152dff62)</li>
+<li><code>SLOT-DRIFT-FIX-MS0/U-SDF18</code> (shipped 1904c4cf7b)</li>
+<li><code>WIRE-UNWIRED-MS0/U-WIRE-NPQ</code> (shipped f8fb276f45)</li>
+<li><code>MS-PRINT-PROGRAM-LOOP Track D</code> 5/5 (D1 a045840af, D2 188e07729, D3 b0266be5d, D4 81ead2a7b, D5-BRIDGE 601b9547b+ce43d04b8)</li>
+<li><code>RGS-TOOL-AUTOINVOKE-MS1</code> Phase 2 (<code>e7e2dbf1b</code> post-ship audit punch-list)</li>
+</ul>
+<h2 id="recommended-next-action-echo"><a class="anchor" href="#recommended-next-action-echo" aria-label="Permalink to Recommended next action (echo)">#</a>Recommended next action (echo)</h2>
+<ol>
+<li><strong>Investigate <code>slot-queue.mjs --pick</code> bug</strong> (from <code>claude-098ac2aa</code> handoff) — the picker is returning already-shipped units. This blocks autonomous progress on all of Tier 1.</li>
+<li>After picker fix: Pick from <strong>MS-PRINT-PROGRAM-LOOP Track C</strong> (revenue-eligible) — start with <code>C3</code> (KB wiring is the dependency for C4/C5).</li>
+<li><strong>DO NOT</strong> attempt <code>U-P5-COORD-SQLITE-LIVE-SWAP</code> autonomously — operator-gated.</li>
+<li><strong>DO NOT</strong> invent new milestones — 11 ms still have units pending.</li>
+</ol>
+<h2 id="provenance"><a class="anchor" href="#provenance" aria-label="Permalink to Provenance">#</a>Provenance</h2>
+<p>Read sources:</p>
+<ul>
+<li>20 echo-bound handoff files in <code>state/shared/handoffs/</code></li>
+<li>8 historic echo chatIds in <code>state/shared/chat-slot-history/</code></li>
+<li><code>state/shared/MILESTONE_PROGRESS.json</code></li>
+<li><code>mcp-server/data/milestones/{MS-PRINT-PROGRAM-LOOP,SYSTEM-VIZ-BRAIN-MS0,CLEANUP-MS0}.json</code></li>
+<li>Git log since 14 days, filtered for echo unit-ids</li>
+</ul>
+</main>
+<footer class="doc-foot">
+<p>HTML companion — the canonical document is the Markdown file alongside it. <a href="ECHO-INCOMPLETE-TASKS-INVENTORY-2026-05-17.md">ECHO-INCOMPLETE-TASKS-INVENTORY-2026-05-17.md</a> Regenerate: <code>node scripts/emit-spec-html.mjs &lt;path.md&gt;</code></p>
+
+</footer>
+</div>
+<script>(function(){
+  try {
+    var k = "prism-spec-theme";
+    var saved = localStorage.getItem(k);
+    if (saved === "dark" || saved === "light") document.documentElement.setAttribute("data-theme", saved);
+  } catch (e) { /* localStorage blocked — keep default theme */ }
+  var b = document.getElementById("themeToggle");
+  if (!b) return;
+  b.addEventListener("click", function () {
+    var cur = document.documentElement.getAttribute("data-theme");
+    var sysDark = !!(window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches);
+    var next = cur === "dark" ? "light" : cur === "light" ? "dark" : (sysDark ? "light" : "dark");
+    document.documentElement.setAttribute("data-theme", next);
+    b.textContent = next === "dark" ? "\u263E dark" : "\u2600 light";
+    try { localStorage.setItem(k, next); } catch (e) { /* persistence unavailable — non-fatal */ }
+  });
+})();</script>
+<script>(function(){
+  var body = document.querySelector("main.doc-body");
+  var toc = document.querySelector("nav.toc");
+  if (!body) return;
+  // TOC active-section highlight.
+  if (toc) {
+    var links = {};
+    toc.querySelectorAll("a[href^='#']").forEach(function(a){ links[a.getAttribute("href").slice(1)] = a; });
+    var heads = body.querySelectorAll("h1[id],h2[id],h3[id],h4[id]");
+    var active = null;
+    function setActive(id){
+      if (active === id) return;
+      if (active && links[active]) links[active].classList.remove("active");
+      active = id;
+      if (active && links[active]) links[active].classList.add("active");
+    }
+    var io = new IntersectionObserver(function(entries){
+      var top = null, topY = Infinity;
+      entries.forEach(function(e){ if (e.isIntersecting) { var y = e.boundingClientRect.top; if (y < topY) { topY = y; top = e.target.id; } } });
+      if (!top) {
+        var best = null;
+        heads.forEach(function(h){ if (h.getBoundingClientRect().top < 80) best = h.id; });
+        top = best || (heads[0] && heads[0].id);
+      }
+      if (top) setActive(top);
+    }, { rootMargin: "0px 0px -70% 0px", threshold: [0, 1] });
+    heads.forEach(function(h){ io.observe(h); });
+  }
+  // In-page search: wrap matches in <mark>, jump to first, filter the TOC.
+  var input = toc && toc.querySelector("input.toc-search");
+  var status = toc && toc.querySelector(".toc-search-status");
+  if (!input) return;
+  var SKIP = { SCRIPT:1, STYLE:1, MARK:1, NOSCRIPT:1 };
+  function clearMarks(){
+    body.querySelectorAll("mark.search-hit").forEach(function(m){ var p = m.parentNode; if (p) { p.replaceChild(document.createTextNode(m.textContent), m); p.normalize(); } });
+    if (toc) toc.querySelectorAll("li.toc-hidden").forEach(function(li){ li.classList.remove("toc-hidden"); });
+  }
+  function doSearch(q){
+    clearMarks();
+    if (status) status.textContent = "";
+    if (!q || q.length < 2) return;
+    var needle = q.toLowerCase(), hits = 0, first = null;
+    var walker = document.createTreeWalker(body, NodeFilter.SHOW_TEXT, { acceptNode: function(n){
+      if (!n.nodeValue || !n.nodeValue.trim()) return NodeFilter.FILTER_REJECT;
+      var p = n.parentNode; while (p && p !== body) { if (SKIP[p.nodeName]) return NodeFilter.FILTER_REJECT; p = p.parentNode; }
+      return n.nodeValue.toLowerCase().indexOf(needle) >= 0 ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT;
+    }});
+    var targets = [];
+    while (walker.nextNode()) targets.push(walker.currentNode);
+    targets.forEach(function(node){
+      if (hits > 2000) return;
+      var text = node.nodeValue, lower = text.toLowerCase(), frag = document.createDocumentFragment(), i = 0, idx;
+      while ((idx = lower.indexOf(needle, i)) >= 0 && hits <= 2000) {
+        if (idx > i) frag.appendChild(document.createTextNode(text.slice(i, idx)));
+        var m = document.createElement("mark"); m.className = "search-hit"; m.textContent = text.slice(idx, idx + needle.length);
+        if (hits === 0) { m.classList.add("current"); first = m; }
+        frag.appendChild(m); hits++; i = idx + needle.length;
+      }
+      if (i < text.length) frag.appendChild(document.createTextNode(text.slice(i)));
+      if (node.parentNode) node.parentNode.replaceChild(frag, node);
+    });
+    if (status) status.textContent = hits ? (hits + " match" + (hits === 1 ? "" : "es")) : "no matches";
+    if (toc) toc.querySelectorAll("li").forEach(function(li){ var a = li.querySelector("a"); if (a && a.textContent.toLowerCase().indexOf(needle) < 0) li.classList.add("toc-hidden"); });
+    if (first) first.scrollIntoView({ block: "center", behavior: "smooth" });
+  }
+  var t;
+  input.addEventListener("input", function(){ clearTimeout(t); t = setTimeout(function(){ doSearch(input.value.trim()); }, 180); });
+  input.addEventListener("keydown", function(e){ if (e.key === "Escape") { input.value = ""; doSearch(""); input.blur(); } });
+})();</script>
+</body>
+</html>

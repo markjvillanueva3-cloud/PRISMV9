@@ -23,13 +23,14 @@ related:
 |-------|-------|
 | Name | `lathe-lora` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/lathe-lora.md` |
+| Source | `C:/Users/wompu/.claude/commands/lathe-lora.md` |
 | Model | default |
 | Tags | _(none)_ |
 
 ## Description (first paragraph)
 
-Process a LatheLoRA model response through the physics-augmentation pipeline. Validates LLM-suggested turning parameters against canonical Kienzle coefficients before they reach the operator.
+
+# /lathe-lora — Lathe LoRA Physics-Augmented Inference
 
 <!-- AUTO-END -->
 

@@ -12,9 +12,18 @@
  * @version 1.0.0
  */
 
+import { randomUUID } from "node:crypto";
 import { z } from "zod";
 import { TURNING_STRATEGY_CATALOG, selectTurningStrategy, type TurningStrategyEntry } from "./TurningStrategyCatalog.js";
 import type { FeatureCpkTarget, ToleranceStackOutput } from "./LathePrintToleranceStackEngine.js";
+import {
+  makeDefaultConsensusVote,
+  publishOutcomeToFeedbackBus,
+  ORCHESTRATE_STAGE,
+  type ConsensusVoteQuery,
+  type ConsensusVoteVerdict,
+} from "./domainAGIAdapterKit.js";
+import type { OutcomeEvent } from "../schemas/outcomeEventSchema.js";
 
 // ============================================================================
 // SCHEMAS & TYPES
@@ -88,7 +97,7 @@ export const StrategyRecommendationSchema = z.object({
   strategy_name: z.string(),
   score: z.number().min(0).max(100),
   reasoning_chain: z.array(ReasoningStepSchema),
-  parameters: z.record(z.union([z.number(), z.string(), z.boolean()])),
+  parameters: z.record(z.string(), z.union([z.number(), z.string(), z.boolean()])),
   trade_offs: z.object({
     pros: z.array(z.string()),
     cons: z.array(z.string()),
@@ -134,6 +143,50 @@ export const StrategyPlanSchema = z.object({
   timestamp: z.string(),
 });
 export type StrategyPlan = z.infer<typeof StrategyPlanSchema>;
+
+// ============================================================================
+// CONSENSUS-GATED STRATEGY DECISION — LATHE-P2P-CONSENSUS-MS4/P0-U03
+// ============================================================================
+
+/**
+ * Per-feature consensus verdict on the insert/CSS/threading strategy decision.
+ * Carries the selected StrategyRecommendation + full audit trail (candidate
+ * set, verdict, threshold, escalation flag, lineage/job ids).
+ */
+export const ConsensusStrategyDecisionSchema = z.object({
+  schemaVersion: z.literal("1.0.0"),
+  featureId: z.string(),
+  featureType: z.string(),
+  selected_strategy_id: z.string(),
+  selected_recommendation: StrategyRecommendationSchema,
+  candidate_strategy_ids: z.array(z.string()).min(1),
+  consensus: z.object({
+    answer: z.string(),
+    confidence: z.number().min(0).max(1),
+    voters: z.array(z.string()),
+    auditId: z.string().optional(),
+    agreement_met: z.boolean(),
+    threshold: z.number().min(0).max(1),
+  }),
+  escalated_to_human: z.boolean(),
+  lineage_id: z.string(),
+  job_id: z.string(),
+  timestamp: z.string(),
+});
+export type ConsensusStrategyDecision = z.infer<typeof ConsensusStrategyDecisionSchema>;
+
+export type SelectStrategyConsensusFn = (q: ConsensusVoteQuery) => Promise<ConsensusVoteVerdict>;
+
+export interface SelectStrategyConsensusOpts {
+  /** Agreement floor (default 0.75 per envelope). */
+  agreementThreshold?: number;
+  /** Injected consensus seam — required in tests (VITEST guard fail-loud). */
+  consensusDecide?: SelectStrategyConsensusFn;
+  /** Optional outcome-bus seam (default = feedbackBusEngine.publish). */
+  publish?: (event: OutcomeEvent) => void;
+  /** Caller-supplied job id linking events across stages. */
+  jobId?: string;
+}
 
 // ============================================================================
 // KNOWLEDGE BASES
@@ -565,6 +618,176 @@ class LathePrintFeatureStrategySelectorEngine {
   ): StrategyRecommendation[] {
     if (!features || features.length === 0) return [];
     return features.map(f => this.selectStrategy(f, material, machine));
+  }
+
+  // ==========================================================================
+  // CONSENSUS-GATED STRATEGY SELECTION — LATHE-P2P-CONSENSUS-MS4/P0-U03
+  // ==========================================================================
+
+  /**
+   * Per-operation consensus gate on insert/CSS/threading decisions.
+   *
+   * Candidate set = primary strategy + first 2 alternatives from
+   * `selectStrategy().alternatives` (which itself surfaces ranked
+   * `selectTurningStrategy` rivals + JM Die tribal-knowledge adjustments).
+   *
+   * Each candidate is presented to the consensus seam by `strategy_id`.
+   * Voters weigh trade-offs (cycle vs Cpk vs tool-life vs scrap-risk).
+   * Winner becomes the StrategyRecommendation returned. The full candidate
+   * set + verdict ride along on `ConsensusStrategyDecision` for audit.
+   *
+   * Fail-open: consensus throws/returns unknown → primary is selected,
+   * `escalated_to_human` set true.
+   *
+   * In test runtimes the default seam fires `vitestConsensusGuard` (R12);
+   * tests MUST inject `opts.consensusDecide`.
+   *
+   * @param feature one turning feature
+   * @param material material context
+   * @param machine optional machine capability
+   * @param opts seam injection + threshold + jobId
+   * @returns selected StrategyRecommendation + consensus provenance
+   */
+  async selectStrategyWithConsensus(
+    feature: FeatureInput,
+    material: MaterialInput,
+    machine: MachineCapability | undefined,
+    opts: SelectStrategyConsensusOpts = {},
+  ): Promise<ConsensusStrategyDecision> {
+    const threshold = opts.agreementThreshold ?? 0.75;
+    const primary = this.selectStrategy(feature, material, machine);
+    // Build a candidate ladder: primary first, then up to 2 alternatives.
+    const altSlice = (primary.alternatives ?? []).slice(0, 2);
+    const candidateIds: string[] = [primary.strategy_id, ...altSlice.map(a => a.strategy_id)];
+    // Dedupe while preserving order (alts can collide with primary in edge cases).
+    const seen = new Set<string>();
+    const uniqueIds = candidateIds.filter(id => (seen.has(id) ? false : seen.add(id)));
+    // Build candidate StrategyRecommendation map keyed by strategy_id.
+    const candidateRecs: Record<string, StrategyRecommendation> = { [primary.strategy_id]: primary };
+    for (const alt of altSlice) {
+      if (!candidateRecs[alt.strategy_id]) {
+        // Lift the alternative to a full StrategyRecommendation shape by re-
+        // running selectTurningStrategy on the feature filtered to that id.
+        candidateRecs[alt.strategy_id] = {
+          featureId: feature.id,
+          featureType: feature.type,
+          strategy_id: alt.strategy_id,
+          strategy_name: alt.strategy_name,
+          score: alt.score,
+          reasoning_chain: primary.reasoning_chain,
+          parameters: primary.parameters,
+          trade_offs: { pros: [], cons: [alt.reason_for_rejection] },
+          alternatives: [],
+          tool_recommendation: primary.tool_recommendation,
+          estimated_cycle_time_sec: primary.estimated_cycle_time_sec,
+          citations: primary.citations,
+        };
+      }
+    }
+
+    const lineageId = randomUUID();
+    const jobId = opts.jobId ?? randomUUID();
+
+    const consensusFn = opts.consensusDecide ?? makeDefaultConsensusVote({
+      engineName: "LathePrintFeatureStrategySelectorEngine",
+      callerEngine: "LathePrintFeatureStrategySelectorEngine.selectStrategyWithConsensus",
+    });
+
+    let verdict: ConsensusVoteVerdict;
+    try {
+      verdict = await consensusFn({
+        question: `Which strategy minimizes cost+risk for ${feature.type} on ${material.iso_group} material?`,
+        options: uniqueIds,
+        decisionKind: "strategy",
+      });
+    } catch {
+      verdict = { answer: primary.strategy_id, confidence: 0, voters: [] };
+    }
+
+    const winnerId = uniqueIds.includes(verdict.answer) ? verdict.answer : primary.strategy_id;
+    const winner = candidateRecs[winnerId] ?? primary;
+    const agreementMet = verdict.confidence >= threshold;
+
+    const decision: ConsensusStrategyDecision = {
+      schemaVersion: "1.0.0",
+      featureId: feature.id,
+      featureType: feature.type,
+      selected_strategy_id: winnerId,
+      selected_recommendation: winner,
+      candidate_strategy_ids: uniqueIds,
+      consensus: {
+        answer: winnerId,
+        confidence: verdict.confidence,
+        voters: verdict.voters,
+        auditId: verdict.auditId,
+        agreement_met: agreementMet,
+        threshold,
+      },
+      escalated_to_human: !agreementMet,
+      lineage_id: lineageId,
+      job_id: jobId,
+      timestamp: new Date().toISOString(),
+    };
+
+    // Outcome event (v1.1.0 cross_process_decision).
+    const event: OutcomeEvent = {
+      schemaVersion: "1.1.0",
+      event_id: randomUUID(),
+      lineage_id: lineageId,
+      domain: "lathe",
+      kind: "cross_process_decision",
+      severity: "info",
+      source: "system",
+      timestamp: decision.timestamp,
+      context: {
+        job_id: jobId,
+        pipeline_stage: ORCHESTRATE_STAGE,
+        consensus_audit_id: verdict.auditId,
+      },
+      recommended: {
+        decision_kind: "strategy",
+        feature_id: feature.id,
+        feature_type: feature.type,
+        material_iso_group: material.iso_group,
+        candidates: uniqueIds,
+      },
+      actual: {
+        selected: winnerId,
+        agreement_met: agreementMet,
+        threshold,
+        escalated_to_human: !agreementMet,
+      },
+      confidence: verdict.confidence,
+    };
+    try {
+      (opts.publish ?? publishOutcomeToFeedbackBus)(event);
+    } catch {
+      // Observability seam — never block pipeline on bus failure.
+    }
+
+    return decision;
+  }
+
+  /**
+   * Batch-mode consensus gate — applies `selectStrategyWithConsensus` per feature.
+   * Single shared `job_id` ties all per-feature events to one pipeline run.
+   * Operator-visible decisions array preserves order matching `features`.
+   *
+   * Per envelope R1 mitigation ("parallel fanout, voices subset for low-stakes
+   * decisions"), candidate votes are dispatched concurrently via Promise.all
+   * so total latency tracks the slowest single vote, not the sum.
+   */
+  async batchSelectStrategiesWithConsensus(
+    features: FeatureInput[],
+    material: MaterialInput,
+    machine: MachineCapability | undefined,
+    opts: SelectStrategyConsensusOpts = {},
+  ): Promise<{ job_id: string; decisions: ConsensusStrategyDecision[] }> {
+    const jobId = opts.jobId ?? randomUUID();
+    const decisions = await Promise.all(
+      features.map(f => this.selectStrategyWithConsensus(f, material, machine, { ...opts, jobId })),
+    );
+    return { job_id: jobId, decisions };
   }
 
   /**

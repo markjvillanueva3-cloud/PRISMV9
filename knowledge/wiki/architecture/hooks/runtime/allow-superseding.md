@@ -21,9 +21,7 @@ related:
 
 ## Description (from file header)
 
-allow-superseding.mjs — Phase 1 Tier 5B
-PreTool hook that requires reasonCode for forced re-extractions.
-Ensures intentional superseding has documented justification.
+_(no header docblock — read source for behavior)_
 
 ## Events
 

@@ -153,9 +153,9 @@ export function AuditManagerPage() {
     <WorkspaceRecoveryScaffold
       eyebrow="Quality governance"
       title="Audit Manager"
-      description="The APPW audit desk is restored on a live scaffold so the team can read audit posture, manage findings, and generate review packages with PRISM AI reasoning across the mounted compliance data."
+      description="The APPW audit desk is restored on a live scaffold so the team can read audit posture, manage findings, and generate review packages with Kienzle AI reasoning across the mounted compliance data."
       metrics={metrics}
-      aiSummary="PRISM AI can summarize audit posture, identify the most serious findings, and turn the management review package into an executive-ready brief."
+      aiSummary="Kienzle AI can summarize audit posture, identify the most serious findings, and turn the management review package into an executive-ready brief."
       aiContext={aiContext}
       suggestions={[
         {

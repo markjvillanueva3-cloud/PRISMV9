@@ -89,7 +89,7 @@ export interface PostWarning {
   line: number;
   code: string;
   message: string;
-  category: "efficiency" | "safety" | "compatibility" | "best_practice";
+  category: "efficiency" | "safety" | "compatibility" | "best_practice" | "sequence" | "syntax";
   recommendation: string;
 }
 
@@ -2088,7 +2088,7 @@ export class LathePostProcessorAIEngine {
         );
 
       case "post_ai_llm_query":
-        return this.processLLMQuery(params as LLMPostQuery);
+        return this.processLLMQuery(params as unknown as LLMPostQuery);
 
       case "post_ai_learning_context":
         return this.getLearningContext();

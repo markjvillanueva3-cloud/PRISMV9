@@ -277,6 +277,58 @@ describe("round-trip determinism", () => {
   });
 });
 
+describe("heterophily provenance (U-AISYN-GNN-HETERO-CKPT-PROVENANCE)", () => {
+  // A H2GCN-trained model widens features egoDim*(1+hops) before training, so the
+  // checkpoint's inputDim is the WIDENED dim. The pipeline stamps model.config.heterophily
+  // so graphsage-predictor reproduces the SAME widening at inference by READING it (line 191),
+  // instead of inferring hops from inputDim -- inference cannot recover normalize="sum".
+  // save -> load MUST carry the provenance through BOTH directions or the read is a dead no-op.
+  function heteroModel({ hops = 3, normalize = "mean", egoDim = 4 } = {}) {
+    const inputDim = egoDim * (1 + hops); // the widened dim the model was actually trained on
+    const m = createModel({ inputDim, hiddenDim: 3, embedDim: 2, seed: 7 });
+    m.config.heterophily = { hops, normalize, egoDim };
+    return m;
+  }
+
+  it("saveCheckpoint persists config.heterophily { hops, normalize, egoDim }", () => {
+    const cp = saveCheckpoint(heteroModel({ hops: 3, normalize: "mean", egoDim: 4 }));
+    assert.deepEqual(cp.config.heterophily, { hops: 3, normalize: "mean", egoDim: 4 });
+  });
+
+  it("round-trips heterophily through save -> stringify -> parse -> load", () => {
+    const out = loadCheckpoint(JSON.stringify(saveCheckpoint(heteroModel({ hops: 2, normalize: "mean", egoDim: 4 }))));
+    assert.deepEqual(out.model.config.heterophily, { hops: 2, normalize: "mean", egoDim: 4 });
+  });
+
+  it('preserves normalize="sum" verbatim (the one field the predictor CANNOT infer from inputDim)', () => {
+    const out = loadCheckpoint(JSON.stringify(saveCheckpoint(heteroModel({ hops: 3, normalize: "sum", egoDim: 4 }))));
+    assert.equal(out.model.config.heterophily.normalize, "sum");
+  });
+
+  it('coerces an unknown normalize to "mean" (only sum|mean are valid)', () => {
+    const out = loadCheckpoint(JSON.stringify(saveCheckpoint(heteroModel({ hops: 1, normalize: "max", egoDim: 4 }))));
+    assert.equal(out.model.config.heterophily.normalize, "mean");
+  });
+
+  it("a legacy (no-heterophily) model omits the key entirely -- byte-identical legacy config both ways", () => {
+    const cp = saveCheckpoint(tinyModel());
+    assert.ok(!("heterophily" in cp.config), "legacy checkpoint must not carry a heterophily key");
+    const out = loadCheckpoint(JSON.stringify(cp));
+    assert.ok(!("heterophily" in out.model.config), "legacy reload must not synthesize a heterophily key");
+  });
+
+  it("the heterophily-stamped model still reconstructs a forward-valid model (byte-identical embeddings)", () => {
+    const m = heteroModel({ hops: 3, normalize: "sum", egoDim: 4 }); // inputDim = 4*(1+3) = 16
+    const adjacency = new Map([["a", ["b"]], ["b", ["a"]]]);
+    const wide = (s) => Array.from({ length: 16 }, (_, i) => Math.sin(s + i) * 0.1); // length == widened inputDim
+    const features = new Map([["a", wide(1)], ["b", wide(2)]]);
+    const before = forward(m, adjacency, features, { buildCache: false }).embeddings;
+    const reloaded = loadCheckpoint(JSON.stringify(saveCheckpoint(m))).model;
+    const after = forward(reloaded, adjacency, features, { buildCache: false }).embeddings;
+    assertEmbeddingsIdentical(before, after, "heterophily round-trip");
+  });
+});
+
 describe("bundled calibrator / metadata", () => {
   it("round-trips a calibrator bundle intact", () => {
     const calibrator = { breakpoints: [0.1, 0.5, 0.9], fitted: [0.05, 0.4, 0.95], n: 120, dropped: 3, reliable: true };

@@ -791,20 +791,18 @@ export class LatheAdvancedOperationsEngine {
     log.info(`[LatheAdvancedOps] Eccentric turning: ${params.offset_mm}mm offset`);
 
     // Determine best method based on offset magnitude
-    let method: "offset_tailstock" | "four_jaw" | "eccentric_chuck" | "y_axis";
-    if (params.offset_mm > params.diameter_mm / 4) {
-      method = "four_jaw";
-    } else if (params.offset_mm < 2) {
-      method = "offset_tailstock";
-    } else {
-      method = "eccentric_chuck";  // Or Y-axis if available
-    }
+    const selectEccentricMethod = (offsetMm: number, diameterMm: number): EccentricResult["method"] => {
+      if (offsetMm > diameterMm / 4) return "four_jaw";
+      if (offsetMm < 2) return "offset_tailstock";
+      return "eccentric_chuck";  // Or Y-axis if available
+    };
+    const method = selectEccentricMethod(params.offset_mm, params.diameter_mm);
 
     // Calculate safe RPM based on unbalance
     const unbalanceMass = params.offset_mm * params.diameter_mm * 0.1;  // Rough estimate
     const maxSafeRpm = Math.min(2000, Math.round(3000 / Math.sqrt(unbalanceMass)));
 
-    const setupProcedures: Record<typeof method, string[]> = {
+    const setupProcedures: Record<EccentricResult["method"], string[]> = {
       offset_tailstock: [
         "Mount workpiece between centers",
         `Offset tailstock ${params.offset_mm}mm from centerline`,

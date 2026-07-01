@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta name="prism-source-hash" content="334d07d2852b7b102785c1973c9e30e1cd653de55dcfa72ad5527be516712dca">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CLAUDE.md PATCH — TOKEN-AWARENESS-MS0</title>
+<style>
+  :root {
+    --bg: #0f1014;
+    --panel: #1a1c23;
+    --panel-2: #232631;
+    --fg: #e4e6eb;
+    --fg-dim: #9aa0a8;
+    --border: #2c303a;
+    --ok: #4ade80;
+    --warn: #fbbf24;
+    --fail: #f87171;
+    --info: #60a5fa;
+    --link: #93c5fd;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; padding: 1.5rem; background: var(--bg); color: var(--fg);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, sans-serif;
+    font-size: 14px; line-height: 1.5; }
+  h1 { font-size: 1.6rem; margin: 0 0 0.25rem 0; }
+  h2 { font-size: 1.15rem; margin: 1.5rem 0 0.5rem 0; padding-bottom: 0.25rem;
+    border-bottom: 1px solid var(--border); color: var(--fg); }
+  .meta { color: var(--fg-dim); font-size: 0.85rem; margin-bottom: 1rem; }
+  .panel { background: var(--panel); border: 1px solid var(--border); border-radius: 6px;
+    padding: 0.75rem 1rem; margin-bottom: 1rem; }
+  .headline-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 0.5rem; margin-bottom: 1rem; }
+  .card { background: var(--panel-2); border: 1px solid var(--border); border-radius: 6px;
+    padding: 0.65rem 0.85rem; }
+  .card .lbl { font-size: 0.8rem; color: var(--fg-dim); }
+  .card .val { font-size: 1.4rem; font-weight: 600; margin: 0.15rem 0; font-variant-numeric: tabular-nums; }
+  .card .hint { font-size: 0.75rem; color: var(--fg-dim); }
+  .card.ok    { border-left: 3px solid var(--ok); }
+  .card.warn  { border-left: 3px solid var(--warn); }
+  .card.fail  { border-left: 3px solid var(--fail); }
+  .card.info  { border-left: 3px solid var(--info); }
+  table { width: 100%; border-collapse: collapse; margin: 0.5rem 0 1rem; font-size: 0.9rem;
+    background: var(--panel); border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }
+  caption { text-align: left; padding: 0.4rem 0.65rem; color: var(--fg-dim);
+    background: var(--panel-2); font-weight: 500; }
+  th, td { padding: 0.4rem 0.65rem; text-align: left; border-bottom: 1px solid var(--border);
+    font-variant-numeric: tabular-nums; vertical-align: top; }
+  th { background: var(--panel-2); color: var(--fg-dim); font-weight: 500;
+    text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.04em; }
+  tr:last-child td { border-bottom: none; }
+  td.right { text-align: right; }
+  ul, ol { margin: 0.4rem 0 1rem 1.25rem; }
+  li { margin: 0.15rem 0; }
+  .badge { display: inline-block; padding: 0.1rem 0.5rem; border-radius: 999px;
+    font-size: 0.75rem; font-weight: 500; background: var(--panel-2); color: var(--fg-dim);
+    border: 1px solid var(--border); }
+  .badge.ok   { background: rgba(74, 222, 128, 0.12); color: var(--ok);   border-color: rgba(74,222,128,0.3); }
+  .badge.warn { background: rgba(251, 191, 36, 0.12); color: var(--warn); border-color: rgba(251,191,36,0.3); }
+  .badge.fail { background: rgba(248, 113, 113, 0.12); color: var(--fail); border-color: rgba(248,113,113,0.3); }
+  .badge.info { background: rgba(96, 165, 250, 0.12); color: var(--info); border-color: rgba(96,165,250,0.3); }
+  .badge-grid { display: flex; flex-wrap: wrap; gap: 0.3rem; margin: 0.3rem 0 1rem 0; }
+  .kv { display: grid; grid-template-columns: max-content 1fr; gap: 0.2rem 0.85rem;
+    margin: 0.4rem 0 1rem 0; }
+  .kv .k { color: var(--fg-dim); }
+  svg.bar-chart { display: block; max-width: 100%; height: auto; }
+  svg .bar { fill: var(--info); }
+  svg .bar.ok   { fill: var(--ok); }
+  svg .bar.warn { fill: var(--warn); }
+  svg .bar.fail { fill: var(--fail); }
+  svg text { fill: var(--fg); font-family: monospace; font-size: 11px; }
+  svg .axis text { fill: var(--fg-dim); }
+  code { background: var(--panel-2); padding: 0 0.3rem; border-radius: 3px;
+    font-family: "Fira Code", Consolas, Menlo, monospace; font-size: 0.85em; }
+  a { color: var(--link); }
+  footer { margin-top: 2rem; padding-top: 0.75rem; border-top: 1px solid var(--border);
+    font-size: 0.8rem; color: var(--fg-dim); }
+</style>
+</head>
+<body>
+<h1>CLAUDE.md PATCH — TOKEN-AWARENESS-MS0</h1>
+<div class="meta">rendered from state/shared/dashboards/patches/CLAUDE-MD-PATCH-TOKEN-AWARENESS-MS0.md</div>
+<div class="meta">Generated 2026-05-20T05:21:38.104Z</div>
+<style>
+  .prism-md-body { max-width: 70rem; margin: 0 auto; }
+  .prism-h1 { font-size: 1.6rem; }
+  .prism-h2 { font-size: 1.25rem; border-bottom: 1px solid var(--border); padding-bottom: 0.25rem; }
+  .prism-h3 { font-size: 1.1rem; color: var(--info); }
+  .prism-h4, .prism-h5, .prism-h6 { font-size: 1rem; color: var(--fg-dim); }
+  .prism-md-body p { margin: 0.5rem 0; }
+  .prism-md-list { margin: 0.5rem 0 0.5rem 1.25rem; padding: 0; }
+  .prism-md-list li { margin: 0.15rem 0; }
+  .prism-md-table { border-collapse: collapse; margin: 0.75rem 0; width: 100%; }
+  .prism-md-table th, .prism-md-table td { border: 1px solid var(--border); padding: 0.35rem 0.6rem; text-align: left; }
+  .prism-md-table th { background: var(--panel-2); }
+  .prism-codeblock { background: var(--panel-2); border: 1px solid var(--border); border-radius: 4px; padding: 0.6rem 0.8rem; overflow-x: auto; font-family: "Cascadia Code", Consolas, monospace; font-size: 13px; }
+  .prism-inline-code { background: var(--panel-2); padding: 0 0.25rem; border-radius: 3px; font-family: "Cascadia Code", Consolas, monospace; font-size: 0.92em; }
+  .prism-quote { border-left: 3px solid var(--info); background: var(--panel-2); padding: 0.5rem 0.85rem; margin: 0.75rem 0; color: var(--fg-dim); }
+  .prism-hr { border: 0; border-top: 1px solid var(--border); margin: 1rem 0; }
+  .prism-link { color: var(--link); text-decoration: none; }
+  .prism-link:hover { text-decoration: underline; }
+  .prism-bad-link { color: var(--fail); text-decoration: line-through; }
+  .prism-unclosed::before { content: "⚠ unterminated code block"; display: block; color: var(--warn); font-size: 0.85em; margin-bottom: 0.25rem; }
+  </style><main class="prism-md-body"><h1 class="prism-h1">CLAUDE.md PATCH — TOKEN-AWARENESS-MS0</h1>
+<p><strong>Surface:</strong> <code class="prism-inline-code">H:/prism/CLAUDE.md</code> <strong>Insertion point:</strong> Immediately BEFORE the line <code class="prism-inline-code">## NN-GRAPH-MS2 (2026-05-17, slot alpha) — autonomous NN lifecycle</code> <strong>Author slot:</strong> task (not golf — written as patch-sibling per OBSIDIAN-BRAIN-FIX-MS0/U-OBF-GOLF doctrine) <strong>Date:</strong> 2026-05-20 <strong>Disposition:</strong> insert as new top-level section, do not modify any other section <strong>Drain instruction:</strong> golf-slot owner runs <code class="prism-inline-code">git diff</code> against this file to validate, then copies the block below verbatim into CLAUDE.md and deletes this patch-sibling.</p>
+<hr class="prism-hr">
+<h2 class="prism-h2">TOKEN-AWARENESS-MS0 (2026-05-20) — close the model-blind-to-its-own-budget loop</h2>
+<p>PRISM&#39;s biggest autonomous-loop failure mode was that the model never SAW its own context/quota state — statusline rendered to humans only, precompact-auto-trigger fired at SOFT-880K / HARD-940K (too late for graceful wrap-up), and the model voluntarily compacted only when it remembered to. Source motivation: Reddit r/ClaudeAI/comments/1t9ayg8 (InertiaUK/claude-quota-proxy + ScottBull/claude-conductor + ryoppippi/ccusage + nateherkai/token-dashboard). The proxy approach is ToS grey-area / account-ban risk on a 13-slot fleet; the headless stream-json wrap kills the interactive REPL. The ToS-safe path: Claude Code&#39;s own <strong>statusLine</strong> stdin JSON carries <code class="prism-inline-code">context_window.used_percentage</code> + <code class="prism-inline-code">rate_limits.five_hour.{used_percentage,resets_at}</code> since v1.2.80 — and the same payload reaches <strong>UserPromptSubmit hooks</strong>. We capture it, dedup-by-<code class="prism-inline-code">message.id</code> over the JSONL (token-dashboard&#39;s load-bearing logic against Claude&#39;s stream-write-2-3x bug), and surface the state to the model on every prompt.</p>
+<p><strong>12 units shipped</strong> (<code class="prism-inline-code">U-TA01..U-TA12</code>):</p>
+<ul class="prism-md-list"><li><strong>Layer 1 — data capture</strong> (pure libs + sidecar writer): <code class="prism-inline-code">scripts/lib/token-awareness-state.mjs</code> (<code class="prism-inline-code">computeZone</code>/<code class="prism-inline-code">decideAction</code>/<code class="prism-inline-code">mergeFromSources</code>/<code class="prism-inline-code">applyStaleness</code>; 46 tests; R12 invariant: missing signal never downgrades worst-of), <code class="prism-inline-code">scripts/lib/transcript-token-counter.mjs</code> (<code class="prism-inline-code">dedupByMessageId</code> last-write-wins; 27 tests incl. fail-on-revert &quot;triple-snapshot MUST NOT triple-count&quot;), <code class="prism-inline-code">.claude/hooks/token-awareness-sidecar.mjs</code> (atomic per-slot write to <code class="prism-inline-code">state/shared/token-budget-&lt;slot&gt;.json</code>, accepts both 0..1 and 0..100 percentage forms, 9 subprocess tests).</li><li><strong>Layer 2 — model-visible surfacing</strong>: <code class="prism-inline-code">H:/prism/.claude/statusline.mjs</code> reads the sidecar and renders a zone label + <code class="prism-inline-code">5h=N%</code> on line 2 when <code class="prism-inline-code">rateLimits</code> source present; <code class="prism-inline-code">.claude/hooks/token-awareness-inject.mjs</code> emits a 3–5 line <code class="prism-inline-code">additionalContext</code> block on UserPromptSubmit when zone ≥ YELLOW or stale (phrased as STATE, not INSTRUCTION — mitigates the Reddit thread&#39;s &quot;model anxiety&quot; concern); <code class="prism-inline-code">.claude/hooks/token-awareness-stop-advisory.mjs</code> writes one-line <code class="prism-inline-code">AGENT_CHAT.jsonl</code> warning when session exited at RED+ without <code class="prism-inline-code">/compact</code>, with 30-min per-slot cooldown.</li><li><strong>Layer 3 — engine + dispatcher</strong>: <code class="prism-inline-code">mcp-server/src/engines/TokenAwarenessEngine.ts</code> + 5 actions wired into <code class="prism-inline-code">prism_context</code>: <code class="prism-inline-code">token_awareness_{state,zone,should_compact,recommend,history}</code>. Round-trip vitest E2E via <code class="prism-inline-code">registerContextDispatcher</code> fixture (real MCP code path, no <code class="prism-inline-code">as any</code> shortcuts). 20 vitest cases.</li><li><strong>Layer 4 — integration</strong>: <code class="prism-inline-code">/loop</code> keyword detection in inject hook (<code class="prism-inline-code">isAutonomousLoopPrompt</code> matches <code class="prism-inline-code">/loop</code>/<code class="prism-inline-code">/autopilot-full</code>/<code class="prism-inline-code">/checkin-&lt;nato&gt; /loop</code>/&quot;until complete&quot;) emits a stronger advisory when RED+ AND prompt is an autonomous-loop driver; settings.json wires sidecar (UserPromptSubmit + PostToolUse) + inject (UserPromptSubmit, after master-index-precheck) + Stop advisory (after duplication-guard-stop).</li></ul>
+<p><strong>Zone state machine</strong> (worst-of ctx/5h/7d signals):</p>
+<table class="prism-md-table"><thead><tr><th>Zone</th><th>Threshold</th><th>Inject advisory</th><th>Action</th></tr></thead><tbody><tr><td>GREEN</td><td>&lt;60%</td><td>none (saves tokens)</td><td>proceed</td></tr>
+<tr><td>YELLOW</td><td>60–85%</td><td>&quot;prefer Ollama offload, batch tool calls, avoid exploratory subagents&quot;</td><td>wrap-up</td></tr>
+<tr><td>RED</td><td>85–95%</td><td>&quot;voluntary /compact now preserves cleaner handoff than forced trip&quot;</td><td>compact</td></tr>
+<tr><td>CRITICAL</td><td>≥95%</td><td>&quot;write handoff + /compact immediately to avoid forced truncation&quot;</td><td>stop-and-compact</td></tr></tbody></table>
+<p>Stale sidecar (capturedAt &gt; 60s) bumps zone UP one step (never down — R12) and adds <code class="prism-inline-code">⚠ sidecar stale</code>. CRITICAL stays CRITICAL when stale; GREEN→YELLOW on stale.</p>
+<p><strong>Knobs:</strong> <code class="prism-inline-code">PRISM_TOKEN_AWARE_SIDECAR_DISABLE=1</code> · <code class="prism-inline-code">PRISM_TOKEN_AWARE_INJECT=0</code> · <code class="prism-inline-code">PRISM_TOKEN_AWARE_INJECT_GREEN=1</code> (also inject on GREEN — debug) · <code class="prism-inline-code">PRISM_TOKEN_AWARE_STOP_DISABLE=1</code> · <code class="prism-inline-code">PRISM_TOKEN_AWARE_STOP_COOLDOWN_MS=N</code> · <code class="prism-inline-code">PRISM_TOKEN_AWARE_{YELLOW,RED,CRIT}_PCT=N</code> (override 0.60/0.85/0.95 thresholds).</p>
+<p><strong>Integration with existing surfaces:</strong> complementary to <code class="prism-inline-code">precompact-auto-trigger.mjs</code> (HARD/SOFT byte gates catch hard failure; this catches <em>graceful self-pacing</em>). Reuses <code class="prism-inline-code">ollama-offload-stats.json</code> as 4th data source. 60s stale TTL aligns with statusline cache TTL. Compact-boundary slicing uses the same <code class="prism-inline-code">&#39;&quot;isCompactSummary&quot;:true&#39;</code> marker as statusline + precompact (drift would silently break 3 surfaces — anti-regression test pins it).</p>
+<p>Wiki: <a href="knowledge/wiki/architecture/token-awareness-ms0.md" class="prism-link"><code class="prism-inline-code">knowledge/wiki/architecture/token-awareness-ms0.md</code></a>. Memory: [[reference_token_awareness_ms0_2026_05_20]].</p></main><footer>
+<div>html-report-render schemaVersion 1.0.0</div>
+</footer>
+</body>
+</html>

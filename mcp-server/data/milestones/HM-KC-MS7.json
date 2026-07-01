@@ -1,0 +1,322 @@
+{
+  "id": "HM-KC-MS7",
+  "version": "8.3.0",
+  "title": "Settings + Preferences Catalog — Global Settings, Layers, UI ~265 Schemas",
+  "track": "HM-KC",
+  "status": "complete",
+  "description": "Generate parameter schemas for hyperMILL global settings and preferences: calculation settings (~20 params), display settings (~25), layer system (~15 per layer × N), tool database settings (~15), NC generation settings (~20), machine settings (~30), VIRTUAL Machining settings (~15), measurement system (~10), nightSHIFT batch config (~10), UI features/job list management (~90 non-parameter interactions mapped to parameter equivalents), and user preference profiles. These are the least physics-intensive but most user-facing parameters.",
+  "dependencies": [
+    "HM-KC-MS0"
+  ],
+  "knowledge_sources": {
+    "engines": [
+      "HyperMillControllerCatalogEngine",
+      "HyperMillCycleDefaultsEngine"
+    ],
+    "registries": [
+      "MachineRegistry"
+    ],
+    "services": [],
+    "physics": [
+      "src/physics/constants.ts"
+    ],
+    "reference": [
+      "data/hypermill/HyperMillParameterCatalog.json (Settings domain subset)",
+      "hyperMILL training manuals (settings, preferences, UI configuration sections)"
+    ]
+  },
+  "forge_triple": {
+    "hook": "measurementSystemConsistencyHook — BUILT — blocks mixed metric/imperial parameters",
+    "action": "generate_settings_catalog — BUILT — generates settings domain artifacts from schemas",
+    "skill": "/hypermill-settings-params — BUILT — settings and preferences parameter reference"
+  },
+  "enforcement": {
+    "pre_level": [
+      "knowledge-consult"
+    ],
+    "post_level": [
+      "stub-detector",
+      "constants-checker"
+    ],
+    "compact_level": [
+      "review-gate",
+      "forge-triple-gate"
+    ]
+  },
+  "mcp_lifecycle": {
+    "session_start": [
+      "prism_session:context_boot",
+      "prism_session:dispatcher_map",
+      "prism_session:memory_recall",
+      "prism_session:system_snapshot"
+    ],
+    "during_work": [
+      "prism_session:auto_checkpoint (every 5-10 tool calls)",
+      "prism_session:wip_capture"
+    ],
+    "session_end": [
+      "prism_session:memory_save",
+      "prism_session:system_snapshot",
+      "prism_session:checkpoint_enhanced"
+    ]
+  },
+  "sessions": [
+    {
+      "id": "HM-KC-MS7-S1",
+      "title": "System Settings Parameter Schemas (~175 params)",
+      "smart_config": {
+        "role": "settings-domain-expert",
+        "model": "opus",
+        "effort": "MAX",
+        "context_budget": "40%"
+      },
+      "knowledge": [
+        "Calculation settings: tolerance, smoothing_tolerance, geometry_check, parallel_calculation",
+        "Tool database settings: default_TDB_path, auto_load, coupling_type, material_table",
+        "NC generation settings: output_folder, naming_convention, sub_programs, line_numbers",
+        "Machine settings: machine_model, kinematic_config, axis_limits, spindle_config",
+        "Measurement system: metric/inch, decimal_places, angle_format, coordinate_display"
+      ],
+      "intent": "Generate schemas for all system-level settings parameters. Measurement system consistency hook prevents mixed metric/imperial values across parameters. Machine settings validation against MachineRegistry. Calculation tolerance range validation for reasonable machining tolerances.",
+      "skills": [
+        "/forge-schemas",
+        "/forge-hooks",
+        "/test",
+        "/checkpoint"
+      ],
+      "plugins": [
+        "Vitest MCP",
+        "ESLint MCP"
+      ],
+      "units": [
+        {
+          "id": "U-HKC36",
+          "title": "Calculation + Machine + NC Generation Settings Schemas — ~70 parameters",
+          "description": "Generate schemas for calculation settings (tolerance 0.001-0.1mm, smoothing_tolerance, geometry_check on/off, parallel_calculation threads — 20 params), machine settings (machine_model from MachineRegistry, kinematic_config, axis_limits per axis, spindle_config max_rpm/min_rpm/power_kw — 30 params), and NC generation settings (output_folder, naming_convention with template variables, sub_program support, line_number format — 20 params). Calculation tolerance hook warns when tolerance < 0.001mm (unrealistic) or > 0.1mm (too coarse).",
+          "depends_on": [
+            "U-HKC06"
+          ],
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "exit_criteria": [
+            "Calculation schemas: >= 18 parameters with tolerance range validation",
+            "Machine schemas: >= 28 parameters linked to MachineRegistry",
+            "NC generation schemas: >= 18 parameters with naming convention templates",
+            "Tolerance range hook warns on unrealistic values",
+            "Unit tests for tolerance range and machine axis limit validation"
+          ],
+          "rollback": {
+            "files_created": [
+              "src/schemas/hypermill/settings/calculationSchemas.ts",
+              "src/schemas/hypermill/settings/machineSettingsSchemas.ts",
+              "src/schemas/hypermill/settings/ncGenSchemas.ts"
+            ],
+            "files_modified": [],
+            "abort_criteria": [
+              "tsc errors > 0"
+            ],
+            "rollback_procedure": "git checkout -- src/schemas/hypermill/settings/"
+          }
+        },
+        {
+          "id": "U-HKC37",
+          "title": "Tool DB + Display + Measurement + VIRTUAL + nightSHIFT Schemas — ~105 parameters",
+          "description": "Generate schemas for tool database settings (default_TDB_path, auto_load, coupling_type, material_table — 15 params), display settings (shading, wireframe, transparency, colors, mesh_quality — 25 params), measurement system (metric/inch toggle, decimal_places, angle_format, coordinate_display — 10 params), VIRTUAL Machining settings (simulation_quality, collision_tolerance, stock_mesh_density — 15 params), and nightSHIFT batch config (max_parallel, priority, notification, auto_post — 10 params). Measurement system consistency hook blocks mixed metric/imperial across all parameters in a session.",
+          "depends_on": [
+            "U-HKC06"
+          ],
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "exit_criteria": [
+            "Tool DB schemas: >= 14 parameters with path validation",
+            "Display schemas: >= 23 parameters",
+            "Measurement system schemas: >= 9 parameters with consistency hook",
+            "VIRTUAL Machining schemas: >= 14 parameters",
+            "nightSHIFT schemas: >= 9 parameters",
+            "Measurement system hook blocks inch values when session is metric and vice versa"
+          ],
+          "rollback": {
+            "files_created": [
+              "src/schemas/hypermill/settings/toolDbSchemas.ts",
+              "src/schemas/hypermill/settings/displaySchemas.ts",
+              "src/schemas/hypermill/settings/measurementSchemas.ts"
+            ],
+            "files_modified": [],
+            "abort_criteria": [
+              "tsc errors > 0"
+            ],
+            "rollback_procedure": "git checkout -- src/schemas/hypermill/settings/toolDbSchemas.ts src/schemas/hypermill/settings/displaySchemas.ts src/schemas/hypermill/settings/measurementSchemas.ts"
+          }
+        }
+      ],
+      "exit_gate": "✓ >= 170 system settings schemas | ✓ measurement consistency hook | ✓ tolerance range hook | omega_floor >= 0.90",
+      "feature_cascade": {
+        "new_hooks": [
+          "measurementSystemConsistencyHook",
+          "toleranceRangeHook"
+        ],
+        "new_actions": [
+          "generate_settings_schemas"
+        ],
+        "new_skills": [],
+        "available_to": [
+          "HM-KC-MS8"
+        ]
+      },
+      "compact_checkpoint": true
+    },
+    {
+      "id": "HM-KC-MS7-S2",
+      "title": "UI Features + Settings Artifact Batch Generation (~90 UI mappings + artifacts)",
+      "smart_config": {
+        "role": "settings-domain-expert",
+        "model": "opus",
+        "effort": "MAX",
+        "context_budget": "40%"
+      },
+      "knowledge": [
+        "Job list management: drag-reorder, group, expand/collapse, filter, multi-select",
+        "Tree navigation: component tree, feature tree, operation tree, tool tree",
+        "Selection modes, view controls, context menus, drag-and-drop, keyboard shortcuts",
+        "All system settings schemas from S1"
+      ],
+      "intent": "Map UI features (non-parameter interactions) to parameter equivalents where applicable, generate schemas for UI configuration parameters, and then batch-generate all settings domain artifacts (skills, scripts, hooks).",
+      "skills": [
+        "/forge-schemas",
+        "/forge-skills",
+        "/forge-hooks",
+        "/test",
+        "/checkpoint"
+      ],
+      "plugins": [
+        "Vitest MCP",
+        "ESLint MCP"
+      ],
+      "units": [
+        {
+          "id": "U-HKC38",
+          "title": "UI Feature Parameter Mapping + Schemas — ~90 parameters",
+          "description": "Map non-parameter UI features to configurable parameter equivalents: job list management (sort_order, group_by, filter_type, display_mode — 15 params), tree navigation (default_tree_view, auto_expand_level, show_icons — 12 params), selection modes (default_selection_mode, selection_highlight_color — 10 params), view controls (default_view_orientation, auto_fit, section_plane_mode — 10 params), context menus (custom_menu_items, shortcut_overrides — 20 params), drag-and-drop (drag_sensitivity, drop_target_highlight — 8 params), keyboard shortcuts (shortcut_map entries — 15 params).",
+          "depends_on": [
+            "U-HKC06"
+          ],
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "exit_criteria": [
+            "UI feature mapping covers all 7 UI categories (job list, tree, selection, view, context, DnD, shortcuts)",
+            ">= 85 UI configuration parameters with schemas",
+            "Total settings domain reaches >= 260 parameter schemas",
+            "Unit tests for shortcut key validation and view orientation enums"
+          ],
+          "rollback": {
+            "files_created": [
+              "src/schemas/hypermill/settings/uiFeatureSchemas.ts"
+            ],
+            "files_modified": [],
+            "abort_criteria": [
+              "tsc errors > 0"
+            ],
+            "rollback_procedure": "git checkout -- src/schemas/hypermill/settings/uiFeatureSchemas.ts"
+          }
+        },
+        {
+          "id": "U-HKC39",
+          "title": "Settings Domain Artifact Batch Generation — ~265 skills + scripts + hooks",
+          "description": "Artifact generation for the entire settings/preferences domain. Reads all ~265 parameter schemas and auto-generates skill templates, AC Python setter scripts for configurable settings, and hook validation rules. Registers measurement consistency, tolerance range, and machine settings validation hooks.",
+          "depends_on": [
+            "U-HKC36",
+            "U-HKC37",
+            "U-HKC38"
+          ],
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "exit_criteria": [
+            "Skill templates generated for all ~265 settings parameters",
+            "AC Python setter scripts generated for configurable parameters",
+            ">= 3 hooks registered for settings domain (measurement, tolerance, machine)",
+            "tsc --noEmit passes with 0 errors on all generated artifacts"
+          ],
+          "rollback": {
+            "files_created": [
+              "src/engines/hypermill/HyperMillSettingsArtifactGeneratorEngine.ts"
+            ],
+            "files_modified": [
+              "src/hooks/hookRegistry.ts"
+            ],
+            "abort_criteria": [
+              "tsc errors > 0"
+            ],
+            "rollback_procedure": "git checkout -- src/engines/hypermill/HyperMillSettingsArtifactGeneratorEngine.ts src/hooks/hookRegistry.ts"
+          }
+        }
+      ],
+      "exit_gate": "✓ >= 260 total settings schemas | ✓ ~265 skills + scripts | ✓ >= 3 hooks | ✓ tsc clean | omega_floor >= 0.90",
+      "feature_cascade": {
+        "new_hooks": [],
+        "new_actions": [
+          "generate_settings_catalog"
+        ],
+        "new_skills": [
+          "/hypermill-settings-params"
+        ],
+        "available_to": [
+          "HM-KC-MS8",
+          "HM-KC-MS9"
+        ]
+      },
+      "compact_checkpoint": true
+    }
+  ],
+  "total_units": 4,
+  "completed_units": 4,
+  "smart_config": {
+    "role": "implementer + reviewer",
+    "model": "sonnet",
+    "effort": "HIGH",
+    "context_budget": "65%"
+  },
+  "feature_cascade": {
+    "new_hooks": [
+      "hm-kc-ms7-gate"
+    ],
+    "new_actions": [
+      "hm_kc_ms7_run"
+    ],
+    "new_skills": [
+      "/hm-kc-ms7"
+    ],
+    "available_to": [
+      "downstream CAMX milestones",
+      "prism app consumers"
+    ]
+  },
+  "intent": "Generate parameter schemas for hyperMILL global settings and preferences: calculation settings (~20 params), display settings (~25), layer system (~15 per layer × N), tool database settings (~15), NC generation settings (~20), machine settings (~30), VIRTUAL Machining settings (~15), measurement system (~10), nightSHIFT batch config (~10), UI features/job list management (~90 non-parameter interactions mapped to parameter equivalents), and user preference profiles. These are the least physics-intensive but most user-facing parameters.",
+  "compact_checkpoint": "every 3 units — auto-triggered by hook",
+  "enforcement_hooks_active": [
+    "physics agent",
+    "wiring agent",
+    "constants checker",
+    "stub detector",
+    "test quality",
+    "forge-triple gate",
+    "session audit agent"
+  ],
+  "units": [
+    {
+      "id": "U-HKKC01",
+      "title": "HM-KC-MS7 — Coordinator",
+      "description": "Master coordinator envelope for HM-KC-MS7. Tracks sub-milestones, aggregates their exit gates, and opens closure after every child milestone flips to complete. Follow 4-LOOP at the aggregation layer.",
+      "exit_conditions": [
+        "All sub-milestones listed in dependencies reach status=complete",
+        "Aggregate scrutiny score ≥80 across children",
+        "Cross-track coherence verified: no orphan engines, no duplicate actions",
+        "Final /rgs pass through the 10-agent gate returns PASS"
+      ],
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ],
+      "status": "pending",
+      "role": "coordinator"
+    }
+  ],
+  "_role": "coordinator"
+}

@@ -1,0 +1,101 @@
+# cam galaxy CROSS-SESSION SYNTHESIS (2 of 217 mineable, model gpt-oss:120b, 2026-06-09)
+
+## What this galaxy is building
+- **Cross‑vendor CAM pipeline**: unified toolpath generation for Fusion 360, Mastercam, hyperMILL, Inventor HSM, NX, Esprit, SolidCAM, PowerMill; includes adaptive slicing, collision‑check, print‑to‑program export.  
+- **PRISM AI orchestration layer**: Hermes agent + MCP daemon routes LLM calls (Claude Opus 4.8 primary, Ollama `qwen2.5‑coder:32b` fallback) to drive CAM decision logic, semantic search, and memory sync across 34 galaxies.  
+- **Persistent knowledge store**: Qdrant vector DB (`prism-qdrant` v1.17.0) holds semantic indices for toolpath patterns, vendor docs, and operator notes.  
+- **Large‑scale backup/transfer**: streaming of the ~1.2 TB PRISM repository (≈1 038 GB code + 42 GB backups) to Box via rclone with a curated exclude list.
+
+## Shipped capabilities
+- `hermes` desktop app & CLI installed; `slot_brief_write` test passes.  
+- Qdrant container up (`docker compose up -d prism-qdrant`) exposing port 6333, 3 live collections.  
+- Migration of Hermes config v0→v28 (provider strings corrected).  
+- Scripts added:
+  - `scripts/fill-galaxy-memory-sections.mjs` (idempotent memory section filler).  
+  - `galaxy-synthesis-refresh.mjs`, `syncGalaxyMemories()`.  
+- Commits:  
+  - `28b72e4dee` – memory sections, 13 tests.  
+  - `822c48c55` – VRAM math & routing tiers.  
+  - `3499f5f20f` – U5b tool‑calling agent.  
+  - `d807d46f44` – U5c PreToolUse hook.  
+  - `a59f35221e` – U6 coding‑offload script.  
+  - `cfda0e391a` – U7 Opus tail‑review gate.  
+  - `e17be56e82` – U10 capability probe.  
+- Environment defaults set: `NUM_PARALLEL=2`, `MAX_LOADED_MODELS=3`, `OLLAMA_KEEP_ALIVE=30m`.  
+- No backup payload shipped yet; strategy defined.
+
+## Key decisions + rationale
+- **Model routing**: primary = Claude Opus 4.8 (code‑focused), fallback = Ollama `qwen2.5‑coder:32b`; ensures high‑quality code generation while keeping local compute cheap.  
+- **Local primary model**: `gpt‑oss:20b` (128 K context) for fleet; `gpt‑oss:120b` reserved for heavy tool‑calling only when VRAM permits.  
+- **VRAM safety**: limit concurrent loaded models to 3, keep‑alive 30 min → prevents OOM on 48 GB GPUs.  
+- **Routing engine cleanup**: removed duplicate router (U8) and enforced auto‑route flag via `ollama-route-config.json`.  
+- **Backup transport**: drop all git worktrees, SteamLibrary, runtime tools; use rclone direct‑to‑Box API to avoid C: cache overflow.  
+- **Exclude list**: stored at `H:\.tmp\rc-backup-excludes.json` to prune non‑PRISM files before upload.  
+- **Billing fallback**: Hermes 400 errors (Claude) handled by switching to Ollama when “extra usage” billing disabled.
+
+## Standing operator directives
+1. After any config edit, restart Hermes (`hermes doctor`) and MCP daemon `:3100`.  
+2. Bring Qdrant up: `docker compose up -d prism-qdrant`; verify collections via `curl localhost:6333/collections`.  
+3. Set env vars: `OLLAMA_KEEP_ALIVE=60s`, `NUM_PARALLEL=4`, `MAX_LOADED_MODELS=3`.  
+4. Deploy GPU‑exposed Docker overrides; run `build.sh` with `llm-run --task pre-build-checks --config llm-routing.yaml`.  
+5. Execute ultracode workflow `wbmnnd902` → commit to branch `llm-integration-prism`.  
+6. Monitor GPU load (`nvidia-smi`) – target 30‑40 % during peak builds.  
+7. Clean zombie `tsserver` processes if memory pressure spikes.  
+8. Verify Hermes messages; resolve HTTP 400 by enabling “extra usage” billing or confirming fallback path.  
+9. Run rclone backup: `rclone sync H:\Box\Prism\ prbox:Prism\ --exclude-from H:\.tmp\rc-backup-excludes.json --progress`.  
+10. Confirm Box account has ≥1 TB free and supports >150 GB files; re‑authorize if token expires.  
+
+## What is still to build (open threads)
+- **Qdrant**: start container, configure vector store for CAM pattern embeddings.  
+- **Hermes 400 fix**: automate billing check or enforce Ollama fallback on rate‑limit.  
+- **CapabilityIndexEngine cwd conflict**: implement PRISM_ROOT‑relative path resolution.  
+- **Fallback verification**: test Claude fallback under simulated billing outage.  
+- **Headless zulu checks**: schedule PowerShell script to run `/checkin‑<slot>` health probes.  
+- **Hermes‑Obsidian bridge**: re‑enable scheduled task with elevated rights.  
+- **Corrupt `ai-training_synthesis.md`**: regenerate once owner approves.  
+- **Custom provider parsing**: patch Hermes to handle `reasoning` field from gpt‑oss models.  
+- **Backup monitoring**: ensure no local C: cache buildup during rclone; add watchdog script.  
+- **Finalize CAM toolpath adapters**: map vendor post‑processors into PRISM adaptive pipeline.  
+
+## How to build it (patterns/sequence)
+1. **Infrastructure bootstrap**  
+   - Deploy MCP daemon `:3100`, Qdrant container, and Ollama server.  
+   - Apply Hermes config migration (`hermes config migrate`).  
+2. **Model routing setup**  
+   - Load `gpt‑oss:20b` as primary; start fallback providers; verify via `hermes model list`.  
+3. **Memory section sync**  
+   - Run `node scripts/fill-galaxy-memory-sections.mjs`; commit changes to all `engines/*/MEMORY.md`.  
+4. **CAM adapter integration**  
+   - For each vendor (Fusion, Mastercam, …) create a dispatch wrapper exposing: slice generation → collision check → toolpath export.  
+   - Register wrappers in `CapabilityIndexEngine` dispatcher table.  
+5. **Semantic index build**  
+   - Ingest vendor docs & sample G‑code into Qdrant; run vectorization via Ollama `qwen3‑vl`.  
+6. **End‑to‑end test**  
+   - Trigger ultracode workflow `wbmnnd902`; validate generated toolpaths against collision checker.  
+7. **Backup rollout**  
+   - Verify exclude list, then start rclone sync; monitor with `rclone rc core/stats`.  
+8. **Observability & auto‑routing**  
+   - Enable `ollama-route-config.json` mode:auto; set health checks in MCP for Hermes/Qdrant.  
+
+## Tools to use
+- **Dispatchers / Engines**: `CapabilityIndexEngine`, `OutcomeCaptureBusEngine`, `DocuStrataMaterialPriorEngine`, `JMCustomerVendorDatabaseEngine`.  
+- **Scripts / Hooks**: `fill-galaxy-memory-sections.mjs`, `galaxy-synthesis-refresh.mjs`, `syncGalaxyMemories()`, `hermes-obsidian-app-map.mjs`, `zulu-cli.ps1`.  
+- **Containers**: `prism-qdrant` (v1.17.0), Ollama server with models (`gpt‑oss:20b/120b`, `qwen2.5‑coder:32b`, `qwen3‑vl`).  
+- **System Viz / Monitoring**: `nvidia-smi`, Qdrant REST API, Hermes CLI (`hermes doctor`), MCP health endpoint `:3100/health`.  
+- **AI Systems**: Claude Opus 4.8 (Anthropic), Ollama custom models, GPT‑OSS family.  
+- **Knowledge stores**: Obsidian vault via REST (`:27123`), Qdrant vector DB (`:6333`).  
+- **Backup / Transfer**: `rclone` with Box remote, PowerShell for drive enumeration, `robocopy` (dry‑run only).  
+
+## Recurring findings + bugs
+- **Hermes HTTP 400** when Claude lacks extra‑usage credit; 429 rate‑limit also observed.  
+- **Qdrant down** → `semantic_search` fails; other queries (`self_awareness_search`) still work.  
+- **Provider string typo** (`openai`) fixed by using `custom/…`.  
+- **gpt‑oss reasoning field** not parsed → “no final response” errors in Hermes adapter.  
+- **VRAM math**: `qwen2.5‑coder:32b` ≈ 37 GB; cannot co‑reside with `gpt‑oss:120b`. Enforced load limits.  
+- **Duplicate router (U8)** removed; auto‑route flag now enforced.  
+- **Auto‑generated `node_*` dumps** inflated memory totals → excluded from counts.  
+- **Stale MCP daemon** caused N‑drive errors; restart clears state.  
+- **Box Drive mount** forces all writes to C:; leads to immediate overflow on large copy.  
+- **Robocopy enumeration error 31** on Box‑backed directories – switched to rclone.  
+- **Corrupt `ai-training_synthesis.md`** (all NUL) flagged for manual regeneration.  
+- **Entry guard bug in U10 probe** prevented relative path ops; fixed in commit `e17be56e82`.

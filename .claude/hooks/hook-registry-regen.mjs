@@ -55,10 +55,20 @@ function main() {
     } catch { /* spawn failed under fork pressure — the verify cron + next SessionStart will catch up */ }
   }
 
-  process.stdout.write(JSON.stringify({
-    continue: true,
-    hookSpecificOutput: { hookEventName: "PostToolUse", additionalContext: "↻ HOOK_REGISTRY.json + STOP_HOOK_REGISTRY.json regen queued (a .claude/hooks change was detected)" },
-  }));
+  // 2026-05-26 (U-A11-HOOK-REGISTRY-NOISE-SUPPRESS, slot:alpha): dropped the
+  // additionalContext advisory. The regen ACTION fires regardless (detached
+  // child above); the prompt-context message was pure noise — 125 fires/session
+  // at 3,032 tokens (A11 in DORMANT-FEATURES-ENUMERATION-2026-05-26). Operators
+  // never act on "regen queued" and it leaks into every subsequent turn's cache
+  // breakpoint. Re-enable explicitly by setting PRISM_HOOK_REGISTRY_REGEN_VERBOSE=1.
+  if (process.env.PRISM_HOOK_REGISTRY_REGEN_VERBOSE === "1") {
+    process.stdout.write(JSON.stringify({
+      continue: true,
+      hookSpecificOutput: { hookEventName: "PostToolUse", additionalContext: "↻ HOOK_REGISTRY.json + STOP_HOOK_REGISTRY.json regen queued (a .claude/hooks change was detected)" },
+    }));
+  } else {
+    process.stdout.write(JSON.stringify({ continue: true }));
+  }
 }
 
 // Import-safe: the hook-runner spawns this as `node hook-registry-regen.mjs`; a unit test that

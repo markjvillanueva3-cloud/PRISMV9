@@ -1,0 +1,112 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-04-16T15:35:00.000Z",
+  "description": "WEDM surfaces watched by SVI (System Variability Index) — Phase 0.10",
+  "surfaces": {
+    "wedm-engines": {
+      "type": "engine-count",
+      "target": 51,
+      "current": 71,
+      "psi_weight": 0.15,
+      "path_pattern": "src/engines/(WEDM*|Wedm*|EDM*|WireEDM*).ts",
+      "description": "WEDM engine count and completeness"
+    },
+    "wedm-actions": {
+      "type": "action-coverage",
+      "target": 256,
+      "current": 256,
+      "psi_weight": 0.1,
+      "path_pattern": "src/tools/dispatchers/*Dispatcher.ts",
+      "filter": "wedm_*",
+      "description": "WEDM action coverage in dispatchers"
+    },
+    "wedm-skills": {
+      "type": "skill-completeness",
+      "target": 12,
+      "current": 12,
+      "psi_weight": 0.1,
+      "path_pattern": "~/.claude/commands/wedm-*.md",
+      "description": "WEDM skill availability"
+    },
+    "wedm-hooks": {
+      "type": "hook-coverage",
+      "target": 16,
+      "current": 16,
+      "psi_weight": 0.08,
+      "path_pattern": "src/hooks/WEDMSafetyHooks.ts",
+      "description": "WEDM safety hook coverage"
+    },
+    "wedm-playbooks": {
+      "type": "playbook-count",
+      "target": 8,
+      "current": 8,
+      "psi_weight": 0.05,
+      "path_pattern": "data/playbooks/wedm_*.json",
+      "description": "WEDM workflow playbooks"
+    },
+    "wedm-state-files": {
+      "type": "state-completeness",
+      "target": 15,
+      "current": 31,
+      "psi_weight": 0.07,
+      "path_pattern": "data/state/WEDM_*.json",
+      "description": "WEDM state file infrastructure"
+    },
+    "wedm-indexes": {
+      "type": "index-coverage",
+      "target": 8,
+      "current": 8,
+      "psi_weight": 0.05,
+      "path_pattern": "data/state/WEDM_*_INDEX.json",
+      "description": "WEDM reverse indexes"
+    },
+    "wedm-mit-integration": {
+      "type": "knowledge-integration",
+      "target": 5,
+      "current": 5,
+      "psi_weight": 0.05,
+      "path_pattern": "data/state/WEDM_MIT_*.json",
+      "description": "MIT OCW course integration"
+    },
+    "wedm-jm-die-programs": {
+      "type": "harvest-completeness",
+      "target": 2500,
+      "current": 26,
+      "psi_weight": 0.15,
+      "path_pattern": "H:/PRISM/JM DIE/WIRE EDM",
+      "description": "JM Die WEDM program harvest (limited by zip archives)"
+    },
+    "wedm-tribal-tips": {
+      "type": "knowledge-coverage",
+      "target": 107,
+      "current": 46,
+      "psi_weight": 0.05,
+      "description": "WEDM tribal tips (20 + 26 MIT)"
+    },
+    "wedm-formulas": {
+      "type": "formula-coverage",
+      "target": 10,
+      "current": 14,
+      "psi_weight": 0.05,
+      "description": "WEDM math models with MIT citations"
+    },
+    "wedm-tests": {
+      "type": "test-coverage",
+      "target": 60,
+      "current": 15,
+      "psi_weight": 0.1,
+      "description": "WEDM test suite coverage"
+    }
+  },
+  "psi": {
+    "current": 0.875,
+    "target": 1,
+    "description": "Psi = weighted sum of (current/target) per surface",
+    "lastCalculated": "2026-04-16T15:43:55.599Z"
+  },
+  "milestoneGate": {
+    "minPsiDelta": 0.005,
+    "blockIfNetZero": true,
+    "description": "Milestones must emit non-zero Psi delta to be accepted"
+  }
+}

@@ -51,26 +51,30 @@ export interface DashboardSnapshot {
 
 const API_BASE = '/api/v1';
 
+// JM Die Company shop-floor seed — the REAL 21-machine fleet (Okuma/Hurco/Haas/Mitsubishi/Roku-Roku
+// per src/data/jm-die-profile.ts JM_DIE_CONTROLLER_MAP) running real cold-heading die/punch work for
+// JM's fastener customers (HOLO-KROME, ITW, SEMBLEX…). This is the initial display until the live
+// machine/job/tool/telemetry routes are reachable. NOT generic placeholder hardware.
 export const DEMO_MACHINES: MachineStatus[] = [
-  { id: 'm1', name: 'Haas VF-2', brand: 'Haas', status: 'running', spindle_rpm: 8000, feed_rate: 2400, current_program: 'O1234', uptime_pct: 92 },
-  { id: 'm2', name: 'DMG MORI NLX 2500', brand: 'DMG MORI', status: 'running', spindle_rpm: 4500, feed_rate: 180, current_program: 'O5678', uptime_pct: 88 },
-  { id: 'm3', name: 'Mazak QTN 200', brand: 'Mazak', status: 'idle', spindle_rpm: 0, feed_rate: 0, current_program: '', uptime_pct: 75 },
-  { id: 'm4', name: 'Okuma MU-5000V', brand: 'Okuma', status: 'setup', spindle_rpm: 0, feed_rate: 0, current_program: '', uptime_pct: 82 },
-  { id: 'm5', name: 'Doosan DNM 5700', brand: 'Doosan', status: 'alarm', spindle_rpm: 0, feed_rate: 0, current_program: 'O9012', uptime_pct: 68 },
-  { id: 'm6', name: 'Haas ST-20', brand: 'Haas', status: 'running', spindle_rpm: 3200, feed_rate: 120, current_program: 'O3456', uptime_pct: 91 },
+  { id: 'm1', name: 'Hurco VM30i', brand: 'Hurco', status: 'running', spindle_rpm: 9000, feed_rate: 1800, current_program: '1042', uptime_pct: 93 },
+  { id: 'm2', name: 'Okuma GENOS L300-M', brand: 'Okuma', status: 'running', spindle_rpm: 3500, feed_rate: 220, current_program: 'O2207', uptime_pct: 90 },
+  { id: 'm3', name: 'Haas VF-2', brand: 'Haas', status: 'idle', spindle_rpm: 0, feed_rate: 0, current_program: '', uptime_pct: 84 },
+  { id: 'm4', name: 'Okuma Multus B250II', brand: 'Okuma', status: 'setup', spindle_rpm: 0, feed_rate: 0, current_program: '', uptime_pct: 81 },
+  { id: 'm5', name: 'Mitsubishi EA12S', brand: 'Mitsubishi', status: 'alarm', spindle_rpm: 0, feed_rate: 0, current_program: 'EA-0571', uptime_pct: 70 },
+  { id: 'm6', name: 'Okuma M460V-5AX', brand: 'Okuma', status: 'running', spindle_rpm: 12000, feed_rate: 2400, current_program: 'DIE_CAV.MIN', uptime_pct: 88 },
 ];
 
 export const DEMO_JOBS: JobProgress[] = [
-  { id: 'j1', job_number: 'JOB-2401', part_name: 'Hydraulic Manifold', machine: 'Haas VF-2', progress_pct: 72, completed: 36, total: 50, eta_minutes: 85, current_op: 'Op 30 - Pocket' },
-  { id: 'j2', job_number: 'JOB-2402', part_name: 'Bearing Housing', machine: 'DMG MORI NLX 2500', progress_pct: 45, completed: 9, total: 20, eta_minutes: 210, current_op: 'Op 20 - Bore' },
-  { id: 'j3', job_number: 'JOB-2403', part_name: 'Spindle Adapter', machine: 'Haas ST-20', progress_pct: 90, completed: 18, total: 20, eta_minutes: 22, current_op: 'Op 40 - Thread' },
+  { id: 'j1', job_number: 'JM-24-0412', part_name: 'Cold-Header Die — HOLO-KROME 3/8-16 SHCS', machine: 'Hurco VM30i', progress_pct: 72, completed: 36, total: 50, eta_minutes: 85, current_op: 'Op 30 - Cavity Mill' },
+  { id: 'j2', job_number: 'JM-24-0418', part_name: 'Trim Die Insert — ITW Shakeproof', machine: 'Okuma GENOS L300-M', progress_pct: 45, completed: 9, total: 20, eta_minutes: 210, current_op: 'Op 20 - OD Turn' },
+  { id: 'j3', job_number: 'JM-24-0421', part_name: 'Carbide Punch — SEMBLEX T-25 TORX', machine: 'Okuma M460V-5AX', progress_pct: 90, completed: 18, total: 20, eta_minutes: 22, current_op: 'Op 40 - Finish Profile' },
 ];
 
 export const DEMO_TOOLS: ToolLife[] = [
-  { id: 't1', tool_name: 'EM 12mm 4F TiAlN', machine: 'Haas VF-2', life_remaining_pct: 35, estimated_minutes: 42, wear_rate: 'elevated' },
-  { id: 't2', tool_name: 'Drill 8.5mm Carbide', machine: 'Haas VF-2', life_remaining_pct: 78, estimated_minutes: 156, wear_rate: 'normal' },
-  { id: 't3', tool_name: 'CNMG 120408 IC8150', machine: 'DMG MORI NLX 2500', life_remaining_pct: 12, estimated_minutes: 8, wear_rate: 'critical' },
-  { id: 't4', tool_name: 'Thread Mill M10x1.5', machine: 'Haas ST-20', life_remaining_pct: 65, estimated_minutes: 95, wear_rate: 'normal' },
+  { id: 't1', tool_name: 'EM 6mm 4F AlTiN (D2 die steel)', machine: 'Hurco VM30i', life_remaining_pct: 35, estimated_minutes: 42, wear_rate: 'elevated' },
+  { id: 't2', tool_name: 'Carbide Drill 4.2mm', machine: 'Hurco VM30i', life_remaining_pct: 78, estimated_minutes: 156, wear_rate: 'normal' },
+  { id: 't3', tool_name: 'CNMG 432 Carbide (M2 HSS)', machine: 'Okuma GENOS L300-M', life_remaining_pct: 12, estimated_minutes: 8, wear_rate: 'critical' },
+  { id: 't4', tool_name: 'Ball EM 3mm 2F (H13)', machine: 'Okuma M460V-5AX', life_remaining_pct: 65, estimated_minutes: 95, wear_rate: 'normal' },
 ];
 
 export const DEMO_OEE: OEEData = { availability: 0.87, performance: 0.82, quality: 0.96, oee: 0.685 };
@@ -192,7 +196,7 @@ function normalizeMachineList(payload: unknown): MachineStatus[] {
   const unwrapped = unwrapPayload(payload);
 
   if (Array.isArray(unwrapped)) {
-    return unwrapped.flatMap<JobProgress>((entry, index) => {
+    return unwrapped.flatMap<MachineStatus>((entry, index) => {
         const record = asRecord(entry);
         if (!record) {
           return [];
@@ -446,7 +450,7 @@ export async function loadDashboardSnapshotWithFallback(): Promise<DashboardSnap
     return await loadDashboardSnapshot();
   } catch {
     return buildDemoSnapshot(
-      'Dashboard routes could not be loaded, so PRISM is using the local demo control-room snapshot.',
+      'Dashboard routes could not be loaded, so Kienzle is using the local demo control-room snapshot.',
     );
   }
 }

@@ -1431,6 +1431,7 @@ export class MillingDeepAIHardeningEngine {
       deep_cavity:      "high_speed",
       bore_large:       "drilling",
       ruled_surface:    "5axis_simultaneous",
+      steep_wall:       "3d_milling",
     };
     return map[feature] ?? "3d_milling";
   }

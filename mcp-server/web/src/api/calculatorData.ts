@@ -2068,7 +2068,7 @@ function mergeMachineRecords(existing: MachineCatalogItem, incoming: MachineCata
     ],
     preferred.mode,
   );
-  const configurationOptions =
+  const configurationOptions: MachineConfigurationOption[] =
     controllerOptions.length === 1 && spindleOptions.length === 1
       ? [
           {
@@ -4033,6 +4033,9 @@ export interface HolderPackageOption extends SelectionOption {
   maxTurretCount?: number;
   coolantThrough?: boolean;
   maxRpm?: number;
+  // 2026-05-26 (slot golf, tsc-fix): augmentations consumed by CalculatorPage holder-compat UI.
+  compatibleGeometryClasses?: string[];
+  maxToolDiameterMm?: number;
   source?: 'database' | 'fallback';
 }
 

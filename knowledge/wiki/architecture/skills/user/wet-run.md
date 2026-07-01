@@ -23,13 +23,14 @@ related:
 |-------|-------|
 | Name | `wet-run` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/wet-run.md` |
+| Source | `C:/Users/wompu/.claude/commands/wet-run.md` |
 | Model | default |
 | Tags | _(none)_ |
 
 ## Description (first paragraph)
 
-Drive the LATHE-PROD-READY-MS0 wet-run pilot end-to-end via `prism_safety` MCP actions: chaos-drill gate, session lifecycle FSM, auto-rollback execution, and post-mortem governance.
+
+# Wet-Run — JM Die Pilot Lifecycle Driver
 
 <!-- AUTO-END -->
 

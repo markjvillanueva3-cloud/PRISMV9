@@ -26,14 +26,22 @@ describe("OllamaHookBridgeEngine", () => {
   });
 
   describe("instantiation", () => {
-    it("creates instance with default baseUrl localhost:11434", () => {
+    it("creates instance with default baseUrl 127.0.0.1:11434 (IPv4 -- Windows IPv6-safe; honors OLLAMA_URL)", () => {
+      // OLLAMA-FLEET-AUDIT P1-6: the default is now the IPv4 literal (not the
+      // IPv6-ambiguous `localhost`, which on Windows resolves to ::1 first and
+      // burns the 500ms hook budget on a DNS-then-TCP-fail), unless OLLAMA_URL
+      // overrides. Pinning the fallback to the IPv4 literal still catches a
+      // regression to `localhost` (this is not a tautology: revert the default
+      // and config.baseUrl would be localhost while the RHS stays 127.0.0.1).
       const config = engine.getConfig();
-      expect(config.baseUrl).toBe("http://localhost:11434");
+      expect(config.baseUrl).toBe(process.env.OLLAMA_URL || "http://127.0.0.1:11434");
     });
 
-    it("creates instance with default model qwen2.5-coder:7b", () => {
+    it("creates instance with default model qwen2.5-coder:32b", () => {
+      // Post-2026-06-04 Blackwell retirement: 7b/14b were `ollama rm`'d; the
+      // installed floor default is now the 32b coder.
       const config = engine.getConfig();
-      expect(config.defaultModel).toBe("qwen2.5-coder:7b");
+      expect(config.defaultModel).toBe("qwen2.5-coder:32b");
     });
 
     it("creates instance with default timeout 500ms for hook speed", () => {
@@ -120,12 +128,14 @@ describe("OllamaHookBridgeEngine", () => {
   });
 
   describe("getModelForHook", () => {
-    it("returns qwen2.5-coder:7b for grep_index hook type", () => {
-      expect(engine.getModelForHook("grep_index")).toBe("qwen2.5-coder:7b");
+    it("returns gpt-oss:20b for grep_index hook type (speed tier)", () => {
+      // BLACKWELL-MODEL-INTEGRATION-MS0 P2: speed-critical hooks → gpt-oss:20b.
+      expect(engine.getModelForHook("grep_index")).toBe("gpt-oss:20b");
     });
 
-    it("returns qwen2.5-coder:14b for ai_feature hook type", () => {
-      expect(engine.getModelForHook("ai_feature")).toBe("qwen2.5-coder:14b");
+    it("returns qwen3-coder:30b for ai_feature hook type (code tier)", () => {
+      // U-FLOR-CODER-DEFAULT: code/quality hooks use the newer qwen3-coder:30b MoE.
+      expect(engine.getModelForHook("ai_feature")).toBe("qwen3-coder:30b");
     });
 
     it("returns custom model after override configured", () => {
@@ -148,7 +158,7 @@ describe("OllamaHookBridgeEngine", () => {
       expect(result.fallbackUsed).toBe(false);
     });
 
-    it("uses ai_feature model (14b) when hookType=ai_feature", async () => {
+    it("uses ai_feature model (qwen3-coder:30b) when hookType=ai_feature", async () => {
       let capturedBody: string = "";
       vi.spyOn(globalThis, "fetch").mockImplementation(async (_url, options) => {
         capturedBody = options?.body as string;
@@ -157,8 +167,10 @@ describe("OllamaHookBridgeEngine", () => {
 
       await engine.query("test", { hookType: "ai_feature" });
 
+      // No live /api/tags cache seeded here → resolveInstalledModel passes the
+      // configured ai_feature model (qwen3-coder:30b) through unchanged.
       const parsed = JSON.parse(capturedBody);
-      expect(parsed.model).toBe("qwen2.5-coder:14b");
+      expect(parsed.model).toBe("qwen3-coder:30b");
     });
 
     it("includes grep_index system prompt when hookType=grep_index", async () => {

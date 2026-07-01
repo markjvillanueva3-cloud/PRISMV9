@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `gcode` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/gcode.md` |
+| Source | `C:/Users/wompu/.claude/commands/gcode.md` |
 | Model | default |
 | Tags | _(none)_ |
 

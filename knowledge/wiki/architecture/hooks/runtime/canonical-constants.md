@@ -21,7 +21,7 @@ related:
 
 ## Description (from file header)
 
-canonical-constants.mjs — Phase 1 Tier 5C Physics HookPreToolWrite hook that blocks physics formulas that bypassthe canonical constants.ts file.
+_(no header docblock — read source for behavior)_
 
 ## Events
 

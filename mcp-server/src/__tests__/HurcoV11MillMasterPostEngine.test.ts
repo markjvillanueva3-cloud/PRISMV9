@@ -177,8 +177,11 @@ describe("HurcoV11 — tool change", () => {
 describe("HurcoV11 — spindle & coolant", () => {
   it("emits S<rpm> M03 spindle CW with exact RPM value", () => {
     const result = hurcoV11MillMasterPostEngine.generateProgram([makeOp({ spindle_rpm: 8500 })]);
-    const sLine = mustFind(result.gcode, l => /^S8500 M03/.test(l), "S line");
-    expect(sLine).toBe("S8500 M03 (SPINDLE CW 8500 RPM)");
+    // U-PPGM13: spindle-start carries the inline N-label + S + F so the physics-
+    // sidecar gate (verifyBlockAnnotations) can cross-check emitted S/F against
+    // block_annotations[]. N100 = first op; F1200 = makeOp default feed.
+    const sLine = mustFind(result.gcode, l => /^N100 S8500 M03 F1200/.test(l), "S line");
+    expect(sLine).toBe("N100 S8500 M03 F1200 (SPINDLE CW 8500 RPM)");
   });
 
   it("inserts G04 P1.0 dwell when axial_depth > 0.5×D (12mm tool, 8mm DOC)", () => {
@@ -721,16 +724,31 @@ describe("HurcoV11 — material constant overrides", () => {
 });
 
 describe("HurcoV11 — UltiMotion & metadata", () => {
-  it("UltiMotion G187 P3 emitted by default", () => {
+  // U-HURCO-G053-FIX (2026-05-22 india /loop): the prior G187 P3 expectation
+  // was inherited from Haas dialect — wrong for Hurco V11. Real JM Die-posted
+  // programs (H:/prism/JM DIE/HURCO CNC PROGRAMS/) + Fusion .cps PRISM Enhanced
+  // v8.9.153 (line 3022) both emit G05.3 P<n> immediately after T<n> M06.
+  // Operator confirmed 2026-05-22. P35 for ADAPTIVE roughing, P10 for FINISH ops.
+  it("UltiMotion G05.3 P10 emitted by default for non-adaptive ops (per tool change)", () => {
     const result = hurcoV11MillMasterPostEngine.generateProgram([makeOp()]);
-    const um = mustFind(result.gcode, l => /^G187/.test(l), "G187");
-    expect(um).toBe("G187 P3 (ULTIMOTION HIGH ACCURACY MODE)");
+    const sm = mustFind(result.gcode, l => /^G05\.3/.test(l), "G05.3");
+    expect(sm).toBe("G05.3 P10 (T1 FINISH SMOOTHING)");
   });
 
-  it("use_ultimotion: false suppresses G187 P3", () => {
+  it("UltiMotion G05.3 P35 emitted for adaptive operation_type", () => {
+    const result = hurcoV11MillMasterPostEngine.generateProgram([
+      makeOp({ operation_type: "adaptive", tool_number: 7 })
+    ]);
+    const sm = mustFind(result.gcode, l => /^G05\.3/.test(l), "G05.3");
+    expect(sm).toBe("G05.3 P35 (T7 ADAPTIVE ROUGH SMOOTHING)");
+  });
+
+  it("use_ultimotion: false suppresses all G05.3 emission", () => {
     const result = hurcoV11MillMasterPostEngine.generateProgram([makeOp()], {
       use_ultimotion: false
     });
+    expect(linesMatching(result.gcode, /^G05\.3/).length).toBe(0);
+    // Anti-regression: ensure the prior bogus G187 emission stays dead.
     expect(linesMatching(result.gcode, /^G187/).length).toBe(0);
   });
 
@@ -783,5 +801,76 @@ describe("HurcoV11 — singleton & stats", () => {
     expect(stats.features.some(f => /Taylor tool life/.test(f))).toBe(true);
     expect(stats.features.some(f => /Aggressiveness levels 1-5/.test(f))).toBe(true);
     expect(stats.features.some(f => /Prove-out/.test(f))).toBe(true);
+  });
+});
+
+// ============================================================================
+// NON-FINITE EMIT GUARD (U-PP-NONFINITE-EMIT-SWEEP) -- a NaN/Infinity coordinate,
+// feed, spindle, or arc param must never leak a literal XNaN/FInfinity/SInfinity the
+// WinMax control rejects. Sibling of the RokuRoku/HaasNGC/OkumaOSP/OkumaB250 fixes.
+// ============================================================================
+describe("HurcoV11 -- non-finite emit guard (U-PP-NONFINITE-EMIT-SWEEP)", () => {
+  const joined = (g: string[]) => g.join("\n");
+
+  it("[regression] finite inputs emit real motion with NO non-finite warning (byte path unchanged)", () => {
+    const r = hurcoV11MillMasterPostEngine.generateProgram([makeOp()]);
+    expect(r.gcode.some(l => /X25\.000 Y25\.000/.test(l))).toBe(true);
+    expect(r.warnings.some(w => w.includes("non-finite"))).toBe(false);
+    expect(joined(r.gcode)).not.toContain("SKIPPED");
+  });
+
+  it("NaN X coordinate is skipped + warned -- no literal XNaN", () => {
+    const r = hurcoV11MillMasterPostEngine.generateProgram([
+      makeOp({ coordinates: [
+        { x: 0, y: 0, z: 5, type: "rapid" },
+        { x: NaN, y: 10, z: -3, type: "linear" },
+        { x: 30, y: 30, z: -3, type: "linear" },
+      ] }),
+    ]);
+    expect(joined(r.gcode)).not.toContain("XNaN");
+    expect(joined(r.gcode)).not.toContain("NaN");
+    expect(r.warnings.some(w => w.includes("non-finite XYZ"))).toBe(true);
+    expect(r.gcode.some(l => l.includes("NON-FINITE COORD SKIPPED"))).toBe(true);
+    expect(r.gcode.some(l => /X30\.000/.test(l))).toBe(true); // finite neighbor still emits
+  });
+
+  it("Infinity Z coordinate is skipped -- no literal ZInfinity", () => {
+    const r = hurcoV11MillMasterPostEngine.generateProgram([
+      makeOp({ coordinates: [
+        { x: 0, y: 0, z: 5, type: "rapid" },
+        { x: 10, y: 10, z: Infinity, type: "linear" },
+      ] }),
+    ]);
+    expect(joined(r.gcode)).not.toContain("Infinity");
+    expect(r.warnings.some(w => w.includes("non-finite XYZ"))).toBe(true);
+  });
+
+  it("non-finite feed_mm_min emits a flagged F token (never FNaN/FInfinity) + warns", () => {
+    const r = hurcoV11MillMasterPostEngine.generateProgram([makeOp({ feed_mm_min: Infinity })]);
+    expect(joined(r.gcode)).not.toContain("FInfinity");
+    expect(joined(r.gcode)).not.toContain("FNaN");
+    expect(r.warnings.some(w => w.includes("feed_mm_min") && w.includes("non-finite"))).toBe(true);
+  });
+
+  it("non-finite spindle_rpm emits a flagged 0 token (never SInfinity/SNaN) + warns", () => {
+    const r = hurcoV11MillMasterPostEngine.generateProgram([makeOp({ spindle_rpm: Infinity })]);
+    expect(joined(r.gcode)).not.toContain("SInfinity");
+    expect(joined(r.gcode)).not.toContain("SNaN");
+    expect(r.warnings.some(w => w.includes("spindle_rpm") && w.includes("non-finite"))).toBe(true);
+  });
+
+  it("non-finite arc R is omitted -- no literal RInfinity", () => {
+    const r = hurcoV11MillMasterPostEngine.generateProgram([
+      makeOp({
+        coordinates: [
+          { x: 0, y: 0, z: -1, type: "linear" },
+          { x: 20, y: 20, z: -1, type: "arc_cw" },
+        ],
+        arc_data: [{}, { r: Infinity }],
+      }),
+    ]);
+    expect(joined(r.gcode)).not.toContain("RInfinity");
+    expect(joined(r.gcode)).not.toContain("Infinity");
+    expect(r.warnings.some(w => w.includes("non-finite R"))).toBe(true);
   });
 });

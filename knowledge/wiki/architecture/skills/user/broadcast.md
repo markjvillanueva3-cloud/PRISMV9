@@ -23,13 +23,14 @@ related:
 |-------|-------|
 | Name | `broadcast` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/broadcast.md` |
+| Source | `C:/Users/wompu/.claude/commands/broadcast.md` |
 | Model | default |
 | Tags | _(none)_ |
 
 ## Description (first paragraph)
 
-Broadcast a message to all other active Claude/Codex sessions.
+
+# /broadcast — Send Message to All Sessions (U-COORD08)
 
 <!-- AUTO-END -->
 

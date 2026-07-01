@@ -41,6 +41,29 @@ import { iqlEngine } from "./IQLEngine.js";
 import { maxEntIRLEngine } from "./MaxEntIRLEngine.js";
 import { safetyShieldEngine } from "./SafetyShieldEngine.js";
 import { policyExperienceLedgerEngine } from "./PolicyExperienceLedgerEngine.js";
+import { type OutcomeDomainT } from "../schemas/outcomeEventSchema.js";
+
+/**
+ * Map OfflineRL training domain enum -> OutcomeDomain accepted by
+ * PolicyExperienceLedgerEngine.query().
+ *
+ * OfflineRL schema uses: "mill"|"lathe"|"wedm"|"sinker"|"grinder"|"welder"|"general"
+ * OutcomeDomain uses:    "mill"|"lathe"|"wedm"|"sinker_edm"|"grinder"|"welder"|...|"other"
+ *
+ * Mappings:
+ *   sinker  -> sinker_edm  (same process, OfflineRL used the short form)
+ *   general -> other       (semantic choice: "general" has no OutcomeDomain counterpart;
+ *                          "other" is the OutcomeDomain catch-all -- india to confirm)
+ */
+function toOutcomeDomain(
+  domain: OfflineRLTrainInput["domain"],
+): OutcomeDomainT {
+  switch (domain) {
+    case "sinker":  return "sinker_edm";
+    case "general": return "other";
+    default:        return domain; // mill, lathe, wedm, grinder, welder are identical
+  }
+}
 
 interface OrchestratorState {
   policyId: string;
@@ -56,6 +79,17 @@ interface OrchestratorState {
 class OfflineRLOrchestratorEngine {
   private states: Map<string, OrchestratorState> = new Map();
 
+  /** Experience source. Defaults to the shared singleton; swappable for test
+   *  isolation so suites don't race on the cwd-shared state/policy ledger file. */
+  private ledger = policyExperienceLedgerEngine;
+
+  /** TEST-ONLY: point the orchestrator at an isolated ledger instance (e.g. a
+   *  fresh tmpRoot) so "empty experience" assertions are deterministic without
+   *  wiping the shared singleton file. Production never calls this. */
+  setLedgerForTest(ledger: typeof policyExperienceLedgerEngine): void {
+    this.ledger = ledger;
+  }
+
   /**
    * Train an offline RL policy combining IQL + MaxEnt IRL + SafetyShield.
    * @param input - Training configuration
@@ -65,8 +99,10 @@ class OfflineRLOrchestratorEngine {
     const startTime = performance.now();
     const parsed = OfflineRLTrainInputSchema.parse(input);
 
-    const { tuples } = policyExperienceLedgerEngine.query({
-      domain: parsed.domain,
+    const { tuples } = this.ledger.query({
+      // Apply the purpose-built mapper (sinker->sinker_edm, general->other) so the
+      // query uses the ledger/OutcomeDomain vocab and actually matches stored tuples.
+      domain: toOutcomeDomain(parsed.domain),
       since_iso: parsed.experience_query?.since_iso,
       limit: parsed.experience_query?.limit ?? 10000,
     });

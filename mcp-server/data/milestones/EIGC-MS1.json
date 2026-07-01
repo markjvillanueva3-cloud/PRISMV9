@@ -1,0 +1,165 @@
+{
+  "id": "EIGC-MS1",
+  "version": "1.0.0",
+  "title": "Restore ESLint Flat Config as Hard Gate",
+  "brief": "Gap fix: ESLint 10 flat config is broken. Restore it so lint can serve as a hard gate for all subsequent EIGC and production milestones. This unblocks the full validation stack.",
+  "created_at": "2026-03-25T14:30:00Z",
+  "created_by": "claude-opus-4.6",
+  "track": "EIGC",
+  "track_name": "Engine Integrity Gap Closure",
+  "status": "complete",
+  "phases": [
+    {
+      "id": "P0",
+      "title": "ESLint Restoration",
+      "sessions": "1",
+      "units": [
+        {
+          "id": "P0-U01",
+          "title": "Restore eslint.config.mjs with flat config for ESLint 10",
+          "effort": 70,
+          "dependencies": [],
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit"
+          ],
+          "description": "Restore eslint.config.mjs with flat config for ESLint 10 — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P0-U02",
+          "title": "Fix or suppress pre-existing lint errors in scoped engines",
+          "effort": 50,
+          "dependencies": [
+            "P0-U01"
+          ],
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit"
+          ],
+          "description": "Fix or suppress pre-existing lint errors in scoped engines — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P0-U03",
+          "title": "Verify npm run lint passes and add to CI gate",
+          "effort": 30,
+          "dependencies": [
+            "P0-U02"
+          ],
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit"
+          ],
+          "description": "Verify npm run lint passes and add to CI gate — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        }
+      ]
+    }
+  ],
+  "dependencies": [
+    "EIGC-MS0"
+  ],
+  "exit_conditions": [
+    "npm run lint passes on scoped engines",
+    "Lint is a hard gate for remaining EIGC milestones"
+  ],
+  "spec_path": "docs/superpowers/specs/2026-03-25-engine-integrity-gap-closure-roadmap-design.md",
+  "notes": "Gap fix added during scrutiny — original roadmap noted ESLint was broken but had no milestone to restore it",
+  "completed_at": "2026-04-04T16:15:00Z",
+  "completion_note": "Verified: engines exist and are substantive. Build PASS.",
+  "smart_config": {
+    "role": "implementer + reviewer",
+    "model": "sonnet",
+    "effort": "HIGH",
+    "context_budget": "65%"
+  },
+  "mcp_lifecycle": {
+    "session_start": [
+      "prism_session:context_boot",
+      "prism_session:dispatcher_map",
+      "prism_session:memory_recall",
+      "prism_session:system_snapshot",
+      "prism_session:action_search"
+    ],
+    "during_work": [
+      "prism_session:auto_checkpoint",
+      "prism_session:tool_route_best",
+      "prism_session:wip_capture"
+    ],
+    "session_end": [
+      "prism_session:memory_save",
+      "prism_session:system_snapshot",
+      "prism_session:checkpoint_enhanced"
+    ]
+  },
+  "forge_triple": {
+    "protective_hook": "eigc-ms1-gate",
+    "mcp_action": "prism_eigc:eigc_ms1_run",
+    "skill_command": "/eigc-ms1",
+    "ownership": "DECLARED — BUILT in terminal unit of this milestone"
+  },
+  "feature_cascade": {
+    "new_hooks": [
+      "eigc-ms1-gate"
+    ],
+    "new_actions": [
+      "eigc_ms1_run"
+    ],
+    "new_skills": [
+      "/eigc-ms1"
+    ],
+    "available_to": [
+      "downstream CAMX milestones",
+      "prism app consumers"
+    ]
+  },
+  "knowledge_sources": {
+    "engines": [
+      "ENGINE_DIGEST.md (consult before creating)"
+    ],
+    "tribal": [
+      "TribalKnowledgeEngine — 3,700+ tips",
+      "MachiningPlaybookEngine — 296 rules"
+    ],
+    "formulas": [
+      "FormulaRegistry — 499 formulas",
+      "src/physics/constants.ts — canonical"
+    ],
+    "reference": [
+      "EXTERNAL-REFERENCE-PROGRAMS-INDEX.md",
+      "MaterialRegistry",
+      "MachineRegistry",
+      "ToolCatalogEngine (95,608 tools)"
+    ]
+  },
+  "intent": "Gap fix: ESLint 10 flat config is broken. Restore it so lint can serve as a hard gate for all subsequent EIGC and production milestones. This unblocks the full validation stack.",
+  "compact_checkpoint": "every 3 units — auto-triggered by hook",
+  "enforcement_hooks_active": [
+    "physics agent",
+    "wiring agent",
+    "constants checker",
+    "stub detector",
+    "test quality",
+    "forge-triple gate",
+    "session audit agent"
+  ]
+}

@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Archivo:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; background: #070809; }
+    @keyframes kz-ember-pulse { 0%,100% { opacity: .55; } 50% { opacity: 1; } }
+    @keyframes kz-scan { 0% { transform: translateY(-100%); } 100% { transform: translateY(2200%); } }
+  </style>
+</helmet>
+<x-import component-from-global-scope="deck-stage" from="./deck-stage.js" width="1920" height="1080" hint-size="100%,100%">
+
+  <section data-label="Cover" data-speaker-notes="The reframe in one line: the engineering is a decade ahead of the experience. This deck is a brutal audit of the current Prism suite plus the identity that replaces the name — Kienzle, after the cutting-force law the whole engine runs on." style="width:1920px;height:1080px;box-sizing:border-box;background:radial-gradient(1200px 700px at 16% -8%, rgba(255,90,43,0.16), transparent 60%), linear-gradient(180deg,#0A0B0D 0%,#070809 100%);color:#F3F4F6;font-family:'Archivo',sans-serif;padding:104px 120px;display:flex;flex-direction:column;justify-content:space-between;overflow:hidden;">
+    <div style="position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,0.022) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,0.022) 1px,transparent 1px);background-size:64px 64px;pointer-events:none;"></div>
+    <div style="position:relative;display:flex;justify-content:space-between;align-items:center;font-family:'JetBrains Mono',monospace;font-size:14px;letter-spacing:0.28em;text-transform:uppercase;color:#71757F;">
+      <span>Internal Review · Confidential</span>
+      <span style="color:#FF5A2B;">Brutally Honest — Find Every Flaw</span>
+    </div>
+
+    <div style="position:relative;">
+      <div style="display:flex;align-items:center;gap:18px;margin-bottom:30px;font-family:'JetBrains Mono',monospace;font-size:15px;letter-spacing:0.2em;text-transform:uppercase;color:#71757F;">
+        <span style="text-decoration:line-through;text-decoration-color:#FF5A2B;text-decoration-thickness:2px;">Prism</span>
+        <span style="color:#FF5A2B;">→</span>
+        <span style="color:#AEB4BE;">A new identity</span>
+      </div>
+      <div style="display:flex;align-items:flex-end;gap:40px;">
+        <svg viewBox="0 0 120 120" width="132" height="132" style="flex:none;filter:drop-shadow(0 0 26px rgba(255,90,43,0.35));">
+          <rect x="22" y="20" width="13" height="80" rx="1.5" fill="#F3F4F6"/>
+          <path d="M35 60 L86 22" stroke="#F3F4F6" stroke-width="13" stroke-linecap="round"/>
+          <path d="M35 60 L92 98 L92 74 L58 60 Z" fill="#FF5A2B"/>
+          <circle cx="92" cy="98" r="6" fill="#FF8А5A"/>
+          <circle cx="92" cy="98" r="6" fill="#FF8A5A"/>
+        </svg>
+        <h1 style="margin:0;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:188px;line-height:0.84;letter-spacing:0.04em;color:#F3F4F6;">KIENZLE</h1>
+      </div>
+      <p style="margin:38px 0 0;max-width:1020px;font-size:30px;line-height:1.45;color:#AEB4BE;font-weight:400;">A brutal design audit of the manufacturing suite — and the brand that retires <span style="color:#F3F4F6;">Prism</span>. Named for the cutting-force law the engine already runs on.</p>
+    </div>
+
+    <div style="position:relative;display:flex;gap:14px;flex-wrap:wrap;font-family:'JetBrains Mono',monospace;font-size:14px;">
+      <span style="padding:11px 18px;border:1px solid rgba(255,255,255,0.12);border-radius:999px;color:#AEB4BE;">Tri-platform · Web · Desktop · Mobile</span>
+      <span style="padding:11px 18px;border:1px solid rgba(255,255,255,0.12);border-radius:999px;color:#AEB4BE;">165 screens</span>
+      <span style="padding:11px 18px;border:1px solid rgba(255,255,255,0.12);border-radius:999px;color:#AEB4BE;">Flagship shop · JM Die Company</span>
+      <span style="padding:11px 18px;border:1px solid rgba(255,90,43,0.3);background:rgba(255,90,43,0.08);border-radius:999px;color:#FF7A4D;">Audit + Rebrand</span>
+    </div>
+  </section>
+
+  <section data-label="What's built" data-speaker-notes="Credit first, because it's earned. This is not a thin wrapper — it's a genuinely deep manufacturing platform. The problem is never going to be capability. Hold that thought."><div style="width:1920px;height:1080px;box-sizing:border-box;background:#0A0B0D;color:#F3F4F6;font-family:'Archivo',sans-serif;padding:84px 120px 72px;display:flex;flex-direction:column;">
+      <div style="font-family:'JetBrains Mono',monospace;font-size:14px;letter-spacing:0.28em;text-transform:uppercase;color:#FF5A2B;margin-bottom:22px;">The Starting Point</div>
+      <h2 style="margin:0;font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:62px;line-height:1.04;letter-spacing:-0.01em;max-width:1400px;">The engineering is a decade ahead of the experience.</h2>
+      <p style="margin:22px 0 44px;font-size:25px;line-height:1.5;color:#AEB4BE;max-width:1280px;">Before the audit draws blood — credit where it's earned. This is not a thin CRUD wrapper. It's a deep, physically-grounded manufacturing platform. Capability is <span style="color:#F3F4F6;">never</span> going to be the problem.</p>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:20px;flex:1;">
+        <div style="border:1px solid rgba(255,255,255,0.09);border-radius:18px;background:linear-gradient(180deg,rgba(255,255,255,0.025),transparent);padding:30px 32px;display:flex;flex-direction:column;">
+          <div style="font-family:'JetBrains Mono',monospace;font-size:52px;font-weight:700;color:#F3F4F6;line-height:1;">9</div>
+          <div style="font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:22px;margin:14px 0 8px;">Manufacturing pipelines</div>
+          <div style="font-size:16px;line-height:1.5;color:#9398A2;">Mill · Turn · 5-axis · Mill-turn / Swiss · EDM · Grind · Laser · Waterjet · Quote-to-ship</div>
+        </div>
+        <div style="border:1px solid rgba(255,255,255,0.09);border-radius:18px;background:linear-gradient(180deg,rgba(255,255,255,0.025),transparent);padding:30px 32px;display:flex;flex-direction:column;">
+          <div style="font-family:'JetBrains Mono',monospace;font-size:52px;font-weight:700;color:#F3F4F6;line-height:1;">20</div>
+          <div style="font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:22px;margin:14px 0 8px;">Post-processor dialects</div>
+          <div style="font-size:16px;line-height:1.5;color:#9398A2;">A 38-stage post pipeline with genuine per-block speed/feed variability — Okuma, Fanuc, Haas, Mitsubishi, Hurco…</div>
+        </div>
+        <div style="border:1px solid rgba(255,90,43,0.22);border-radius:18px;background:linear-gradient(180deg,rgba(255,90,43,0.07),transparent);padding:30px 32px;display:flex;flex-direction:column;">
+          <div style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:30px;color:#FF7A4D;line-height:1;">Physics core</div>
+          <div style="font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:22px;margin:14px 0 8px;color:#F3F4F6;">Real cutting mechanics</div>
+          <div style="font-size:16px;line-height:1.5;color:#C2B0A6;">Kienzle force model · Taylor tool-life · chatter stability lobes · thermal-wear coupling · Monte-Carlo uncertainty</div>
+        </div>
+        <div style="border:1px solid rgba(255,255,255,0.09);border-radius:18px;background:linear-gradient(180deg,rgba(255,255,255,0.025),transparent);padding:30px 32px;display:flex;flex-direction:column;">
+          <div style="font-family:'JetBrains Mono',monospace;font-size:52px;font-weight:700;color:#F3F4F6;line-height:1;">6</div>
+          <div style="font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:22px;margin:14px 0 8px;">CAM bridges</div>
+          <div style="font-size:16px;line-height:1.5;color:#9398A2;">Fusion 360 · hyperMILL · Mastercam · Esprit · Inventor HSM · SolidWorks</div>
+        </div>
+        <div style="border:1px solid rgba(255,255,255,0.09);border-radius:18px;background:linear-gradient(180deg,rgba(255,255,255,0.025),transparent);padding:30px 32px;display:flex;flex-direction:column;">
+          <div style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:30px;color:#F3F4F6;line-height:1;">Full ERP</div>
+          <div style="font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:22px;margin:14px 0 8px;">Beyond the cut</div>
+          <div style="font-size:16px;line-height:1.5;color:#9398A2;">Quoting · scheduling · SPC / quality · payroll · purchasing · customer portals · learning</div>
+        </div>
+        <div style="border:1px solid rgba(255,255,255,0.09);border-radius:18px;background:linear-gradient(180deg,rgba(255,255,255,0.025),transparent);padding:30px 32px;display:flex;flex-direction:column;">
+          <div style="font-family:'JetBrains Mono',monospace;font-size:52px;font-weight:700;color:#F3F4F6;line-height:1;">38,251</div>
+          <div style="font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:22px;margin:14px 0 8px;">Real files behind the math</div>
+          <div style="font-size:16px;line-height:1.5;color:#9398A2;">Grounded in JM Die's actual archive — 111,745 documents, 118 customers, 15 production machines</div>
+        </div>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-top:34px;padding-top:22px;border-top:1px solid rgba(255,255,255,0.08);font-family:'JetBrains Mono',monospace;font-size:13px;letter-spacing:0.18em;text-transform:uppercase;color:#5C616B;">
+        <span>Kienzle · Audit &amp; Identity</span><span>01</span>
+      </div>
+    </div></section>
+
+  <section data-label="Thesis" data-speaker-notes="The single reframe. You think the risk is too many features overwhelming the customer. The real problem is narrower and more fixable: the build system's internal mental model is leaking onto the customer's screen. Hide the machine and the feature count stops mattering."><div style="width:1920px;height:1080px;box-sizing:border-box;background:radial-gradient(900px 600px at 88% 110%, rgba(255,90,43,0.10), transparent 60%),#0A0B0D;color:#F3F4F6;font-family:'Archivo',sans-serif;padding:84px 120px 72px;display:flex;flex-direction:column;">
+      <div style="font-family:'JetBrains Mono',monospace;font-size:14px;letter-spacing:0.28em;text-transform:uppercase;color:#FF5A2B;margin-bottom:26px;">The Reframe</div>
+      <div style="display:grid;grid-template-columns:1.05fr 0.95fr;gap:72px;flex:1;align-items:center;">
+        <div>
+          <h2 style="margin:0;font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:70px;line-height:1.02;letter-spacing:-0.015em;">You don't have a feature problem.</h2>
+          <h2 style="margin:14px 0 0;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:70px;line-height:1.02;letter-spacing:-0.015em;color:#FF5A2B;">You have a plumbing-exposure problem.</h2>
+          <p style="margin:36px 0 0;font-size:26px;line-height:1.5;color:#AEB4BE;max-width:760px;">You're afraid 165 features will overwhelm the customer. The real failure is narrower and far more fixable: <span style="color:#F3F4F6;">the build system's internal mental model is bleeding straight onto the operator's screen.</span></p>
+          <div style="margin-top:40px;display:flex;align-items:center;gap:20px;">
+            <div style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:30px;color:#F3F4F6;padding:16px 28px;border:1px solid rgba(255,90,43,0.35);border-radius:14px;background:rgba(255,90,43,0.08);">Hide the machine.</div>
+            <span style="font-size:19px;color:#9398A2;max-width:300px;line-height:1.4;">Do that, and the feature count stops mattering.</span>
+          </div>
+        </div>
+        <div style="border:1px solid rgba(255,255,255,0.10);border-radius:18px;background:#0E0F12;overflow:hidden;box-shadow:0 30px 80px rgba(0,0,0,0.5);">
+          <div style="display:flex;align-items:center;gap:9px;padding:16px 22px;border-bottom:1px solid rgba(255,255,255,0.08);background:#121317;">
+            <span style="width:11px;height:11px;border-radius:50%;background:#FF4D4D;"></span>
+            <span style="width:11px;height:11px;border-radius:50%;background:#F4B740;"></span>
+            <span style="width:11px;height:11px;border-radius:50%;background:#36D399;"></span>
+            <span style="margin-left:12px;font-family:'JetBrains Mono',monospace;font-size:13px;color:#71757F;letter-spacing:0.1em;">verbatim — shipped to users</span>
+          </div>
+          <div style="padding:30px 30px 34px;font-family:'JetBrains Mono',monospace;font-size:18px;line-height:1.85;color:#C7CCD4;">
+            <div style="color:#71757F;">// dashboard, above the fold</div>
+            <div>Operating-system <span style="color:#FF7A4D;">convergence</span></div>
+            <div>Shell bootstrap: <span style="color:#36D399;">Live + fallback</span></div>
+            <div>Add-on features · <span style="color:#9398A2;">sourcing posture</span></div>
+            <div style="margin-top:18px;color:#71757F;">// front door, body copy</div>
+            <div style="color:#E6E1DE;">"…until the backend inbox routes</div>
+            <div style="color:#E6E1DE;">&nbsp;fully land."</div>
+            <div style="margin-top:6px;color:#E6E1DE;">"<span style="color:#FF5A2B;">Claude-owned backend claims</span></div>
+            <div style="color:#E6E1DE;">&nbsp;still remain the final authority."</div>
+            <div style="margin-top:22px;padding-top:16px;border-top:1px dashed rgba(255,77,77,0.4);color:#FF6B6B;font-size:15px;letter-spacing:0.04em;">▲ A machinist read this. None of it is for them.</div>
+          </div>
+        </div>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-top:18px;padding-top:22px;border-top:1px solid rgba(255,255,255,0.08);font-family:'JetBrains Mono',monospace;font-size:13px;letter-spacing:0.18em;text-transform:uppercase;color:#5C616B;">
+        <span>Kienzle · Audit &amp; Identity</span><span>02</span>
+      </div>
+    </div></section>
+
+  <section data-label="Audit · Dashboard" data-speaker-notes="The dashboard's entire top third is the app talking about its own infrastructure. A shop owner opening this at 6am wants jobs, money, and machines — not 'sourcing posture' and 'shell bootstrap'. The actual KPIs are below the fold.">
+    <div style="width:1920px;height:1080px;box-sizing:border-box;background:#0A0B0D;color:#F3F4F6;font-family:'Archivo',sans-serif;padding:78px 110px 70px;display:flex;flex-direction:column;">
+      <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:14px;">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:14px;letter-spacing:0.28em;text-transform:uppercase;color:#FF5A2B;">Audit 01 · Visual + IA · The Dashboard</div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:13px;color:#FF4D4D;letter-spacing:0.12em;">SEVERITY: HIGH</div>
+      </div>
+      <h2 style="margin:0 0 26px;font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:52px;line-height:1.0;letter-spacing:-0.01em;">The dashboard's first job is talking about itself.</h2>
+      <div style="display:grid;grid-template-columns:1040px 1fr;gap:48px;flex:1;align-items:start;">
+        <div style="border:1px solid rgba(255,255,255,0.12);border-radius:14px;overflow:hidden;box-shadow:0 30px 80px rgba(0,0,0,0.55);">
+          <div style="display:flex;align-items:center;gap:8px;padding:11px 16px;background:#16181D;border-bottom:1px solid rgba(255,255,255,0.07);">
+            <span style="width:10px;height:10px;border-radius:50%;background:#3A3D44;"></span><span style="width:10px;height:10px;border-radius:50%;background:#3A3D44;"></span><span style="width:10px;height:10px;border-radius:50%;background:#3A3D44;"></span>
+            <span style="margin-left:10px;font-family:'JetBrains Mono',monospace;font-size:12px;color:#71757F;">prism · /dashboard — shipped build v19.1</span>
+          </div>
+          <div style="position:relative;">
+            <img src="research/current-dashboard.png" alt="Current Prism dashboard" style="display:block;width:1040px;height:585px;object-fit:cover;">
+            <div style="position:absolute;left:44%;top:2%;display:flex;align-items:center;gap:7px;"><span style="width:26px;height:26px;border-radius:50%;background:#FF5A2B;color:#0A0B0D;font-family:'JetBrains Mono',monospace;font-weight:700;font-size:14px;display:flex;align-items:center;justify-content:center;box-shadow:0 0 0 4px rgba(255,90,43,0.2);">1</span></div>
+            <div style="position:absolute;left:50%;top:36%;"><span style="width:26px;height:26px;border-radius:50%;background:#FF5A2B;color:#0A0B0D;font-family:'JetBrains Mono',monospace;font-weight:700;font-size:14px;display:flex;align-items:center;justify-content:center;box-shadow:0 0 0 4px rgba(255,90,43,0.2);">2</span></div>
+            <div style="position:absolute;left:86%;top:57%;"><span style="width:26px;height:26px;border-radius:50%;background:#FF5A2B;color:#0A0B0D;font-family:'JetBrains Mono',monospace;font-weight:700;font-size:14px;display:flex;align-items:center;justify-content:center;box-shadow:0 0 0 4px rgba(255,90,43,0.2);">3</span></div>
+            <div style="position:absolute;left:8%;top:32%;"><span style="width:26px;height:26px;border-radius:50%;background:#FF5A2B;color:#0A0B0D;font-family:'JetBrains Mono',monospace;font-weight:700;font-size:14px;display:flex;align-items:center;justify-content:center;box-shadow:0 0 0 4px rgba(255,90,43,0.2);">4</span></div>
+            <div style="position:absolute;left:0;right:0;bottom:0;height:40px;background:linear-gradient(0deg,#0A0B0D,transparent);display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;font-size:12px;color:#FF6B6B;letter-spacing:0.08em;">▼ the actual manufacturing KPIs start here — below the fold</div>
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:18px;">
+          <div style="display:flex;gap:14px;"><span style="flex:none;width:26px;height:26px;border-radius:50%;background:#FF5A2B;color:#0A0B0D;font-family:'JetBrains Mono',monospace;font-weight:700;font-size:14px;display:flex;align-items:center;justify-content:center;">1</span><div><div style="font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:21px;">"Platform posture" owns the top third</div><div style="font-size:17px;color:#9398A2;line-height:1.45;">Unit system, billing tier, "sourcing posture" — config metadata, not a command center.</div></div></div>
+          <div style="display:flex;gap:14px;"><span style="flex:none;width:26px;height:26px;border-radius:50%;background:#FF5A2B;color:#0A0B0D;font-family:'JetBrains Mono',monospace;font-weight:700;font-size:14px;display:flex;align-items:center;justify-content:center;">2</span><div><div style="font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:21px;">"Operating-system convergence"</div><div style="font-size:17px;color:#9398A2;line-height:1.45;">Seven "Live + fallback" chips expose backend wiring state. Pure internal telemetry.</div></div></div>
+          <div style="display:flex;gap:14px;"><span style="flex:none;width:26px;height:26px;border-radius:50%;background:#FF5A2B;color:#0A0B0D;font-family:'JetBrains Mono',monospace;font-weight:700;font-size:14px;display:flex;align-items:center;justify-content:center;">3</span><div><div style="font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:21px;">"Global search," explained twice</div><div style="font-size:17px;color:#9398A2;line-height:1.45;">Two cards on one screen <span style="color:#C7CCD4;">describe</span> the search box instead of <span style="color:#C7CCD4;">being</span> it.</div></div></div>
+          <div style="display:flex;gap:14px;"><span style="flex:none;width:26px;height:26px;border-radius:50%;background:#FF5A2B;color:#0A0B0D;font-family:'JetBrains Mono',monospace;font-weight:700;font-size:14px;display:flex;align-items:center;justify-content:center;">4</span><div><div style="font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:21px;">Codename copy: "Desk counts"</div><div style="font-size:17px;color:#9398A2;line-height:1.45;">Internal nouns ("desks", "posture", "convergence") shipped as UI labels.</div></div></div>
+          <div style="margin-top:8px;padding:18px 22px;border-left:3px solid #FF5A2B;background:rgba(255,90,43,0.06);border-radius:0 12px 12px 0;"><div style="font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:18px;color:#FF7A4D;margin-bottom:4px;">The fix</div><div style="font-size:17px;color:#C7CCD4;line-height:1.45;">Open jobs, cash at risk, machines down, late shipments — in the first 600px. Move "posture" to Settings, delete the telemetry.</div></div>
+        </div>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-top:18px;padding-top:18px;border-top:1px solid rgba(255,255,255,0.08);font-family:'JetBrains Mono',monospace;font-size:13px;letter-spacing:0.18em;text-transform:uppercase;color:#5C616B;">
+        <span>Kienzle · Audit &amp; Identity</span><span>03</span>
+      </div>
+    </div>
+  </section>
+
+  <section data-label="Audit · Calculator" data-speaker-notes="Correction to an earlier read: the calculator is real and deep — machine, spindle, controller, material, tool, workholding, coolant and a Conservative→Aggressive solve outputting RPM, feed, surface speed, feed-per-tooth and a safety score. The fault is that all of it is buried behind a marketing hero and a Guided-Setup gate; the default screen sells instead of serving.">
+    <div style="width:1920px;height:1080px;box-sizing:border-box;background:#0A0B0D;color:#F3F4F6;font-family:'Archivo',sans-serif;padding:78px 110px 70px;display:flex;flex-direction:column;">
+      <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:14px;">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:14px;letter-spacing:0.28em;text-transform:uppercase;color:#FF5A2B;">Audit 02 · The Flagship · Speed/Feed Calculator</div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:13px;color:#FF4D4D;letter-spacing:0.12em;">SEVERITY: CRITICAL</div>
+      </div>
+      <h2 style="margin:0 0 12px;font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:48px;line-height:1.0;letter-spacing:-0.01em;">You built a deep calculator — then buried it.</h2>
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:18px;padding:9px 16px;border:1px solid rgba(54,211,153,0.3);background:rgba(54,211,153,0.06);border-radius:10px;width:fit-content;"><span style="flex:none;color:#36D399;font-family:'JetBrains Mono',monospace;font-size:13px;letter-spacing:0.06em;">✓ CREDIT</span><span style="font-size:15.5px;color:#C7CCD4;">Underneath it's genuinely deep — machine · spindle · controller · material · tool · workholding · coolant · Conservative→Aggressive → RPM, feed, V<sub>c</sub>, feed/tooth, safety score.</span></div>
+      <div style="display:grid;grid-template-columns:1040px 1fr;gap:48px;flex:1;align-items:start;">
+        <div style="border:1px solid rgba(255,255,255,0.12);border-radius:14px;overflow:hidden;box-shadow:0 30px 80px rgba(0,0,0,0.55);">
+          <div style="display:flex;align-items:center;gap:8px;padding:11px 16px;background:#16181D;border-bottom:1px solid rgba(255,255,255,0.07);">
+            <span style="width:10px;height:10px;border-radius:50%;background:#3A3D44;"></span><span style="width:10px;height:10px;border-radius:50%;background:#3A3D44;"></span><span style="width:10px;height:10px;border-radius:50%;background:#3A3D44;"></span>
+            <span style="margin-left:10px;font-family:'JetBrains Mono',monospace;font-size:12px;color:#71757F;">prism · /calculator — "Calculator / Studio"</span>
+          </div>
+          <div style="position:relative;">
+            <img src="research/current-calculator.png" alt="Current Prism calculator" style="display:block;width:1040px;height:585px;object-fit:cover;">
+            <div style="position:absolute;left:13%;top:36%;"><span style="width:26px;height:26px;border-radius:50%;background:#FF5A2B;color:#0A0B0D;font-family:'JetBrains Mono',monospace;font-weight:700;font-size:14px;display:flex;align-items:center;justify-content:center;box-shadow:0 0 0 4px rgba(255,90,43,0.2);">1</span></div>
+            <div style="position:absolute;left:33%;top:58%;"><span style="width:26px;height:26px;border-radius:50%;background:#FF5A2B;color:#0A0B0D;font-family:'JetBrains Mono',monospace;font-weight:700;font-size:14px;display:flex;align-items:center;justify-content:center;box-shadow:0 0 0 4px rgba(255,90,43,0.2);">2</span></div>
+            <div style="position:absolute;left:58%;top:60%;"><span style="width:26px;height:26px;border-radius:50%;background:#FF5A2B;color:#0A0B0D;font-family:'JetBrains Mono',monospace;font-weight:700;font-size:14px;display:flex;align-items:center;justify-content:center;box-shadow:0 0 0 4px rgba(255,90,43,0.2);">3</span></div>
+            <div style="position:absolute;left:58%;top:30%;"><span style="width:26px;height:26px;border-radius:50%;background:#FF5A2B;color:#0A0B0D;font-family:'JetBrains Mono',monospace;font-weight:700;font-size:14px;display:flex;align-items:center;justify-content:center;box-shadow:0 0 0 4px rgba(255,90,43,0.2);">4</span></div>
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:18px;">
+          <div style="display:flex;gap:14px;"><span style="flex:none;width:26px;height:26px;border-radius:50%;background:#FF5A2B;color:#0A0B0D;font-family:'JetBrains Mono',monospace;font-weight:700;font-size:14px;display:flex;align-items:center;justify-content:center;">1</span><div><div style="font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:21px;">A billboard, clipped mid-letter</div><div style="font-size:17px;color:#9398A2;line-height:1.45;">"PRIS… ULTIMATE MACHINING TOOL" — marketing copy aimed at a user who already opened the tool, and it overflows its own box.</div></div></div>
+          <div style="display:flex;gap:14px;"><span style="flex:none;width:26px;height:26px;border-radius:50%;background:#FF5A2B;color:#0A0B0D;font-family:'JetBrains Mono',monospace;font-weight:700;font-size:14px;display:flex;align-items:center;justify-content:center;">2</span><div><div style="font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:21px;">Fake machine: "Awea AF-1250"</div><div style="font-size:17px;color:#9398A2;line-height:1.45;">JM Die runs Okuma, Hurco, Haas, Roku-Roku. The demo data is invented — the one shop you're selling to isn't in it.</div></div></div>
+          <div style="display:flex;gap:14px;"><span style="flex:none;width:26px;height:26px;border-radius:50%;background:#FF5A2B;color:#0A0B0D;font-family:'JetBrains Mono',monospace;font-weight:700;font-size:14px;display:flex;align-items:center;justify-content:center;">3</span><div><div style="font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:21px;">"Machine-aware solve · partial live crib"</div><div style="font-size:17px;color:#9398A2;line-height:1.45;">"Advisory confidence", "guidance lane", "guarded solve" — engine codenames no machinist will ever say.</div></div></div>
+          <div style="display:flex;gap:14px;"><span style="flex:none;width:26px;height:26px;border-radius:50%;background:#FF5A2B;color:#0A0B0D;font-family:'JetBrains Mono',monospace;font-weight:700;font-size:14px;display:flex;align-items:center;justify-content:center;">4</span><div><div style="font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:21px;">It's two clicks from its own front door</div><div style="font-size:17px;color:#9398A2;line-height:1.45;">All that depth hides behind "Guided Setup → Start at Machine Selection." The default screen sells; it doesn't serve.</div></div></div>
+          <div style="margin-top:6px;padding:18px 22px;border-left:3px solid #FF5A2B;background:rgba(255,90,43,0.06);border-radius:0 12px 12px 0;"><div style="font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:18px;color:#FF7A4D;margin-bottom:4px;">The fix</div><div style="font-size:17px;color:#C7CCD4;line-height:1.45;">Land on inputs + live results. Lead with <span style="color:#fff;">outcomes</span> — Tool-Saving · Rush · Optimal · Upgrade Path. (Rebuilt later in this deck.)</div></div>
+        </div>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-top:18px;padding-top:18px;border-top:1px solid rgba(255,255,255,0.08);font-family:'JetBrains Mono',monospace;font-size:13px;letter-spacing:0.18em;text-transform:uppercase;color:#5C616B;">
+        <span>Kienzle · Audit &amp; Identity</span><span>04</span>
+      </div>
+    </div>
+  </section>
+
+  <section data-label="Audit · Front door" data-speaker-notes="The first screen after login. It forces a routing decision, and its body copy is literally the engineering team's in-progress migration notes — 'staged messages seam', 'until the backend inbox routes fully land', 'Claude-owned backend claims'. It also violates a design rule written in your own CLAUDE.md.">
+    <div style="width:1920px;height:1080px;box-sizing:border-box;background:#0A0B0D;color:#F3F4F6;font-family:'Archivo',sans-serif;padding:78px 110px 70px;display:flex;flex-direction:column;">
+      <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:14px;">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:14px;letter-spacing:0.28em;text-transform:uppercase;color:#FF5A2B;">Audit 03 · UX Flow · The Front Door</div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:13px;color:#FF4D4D;letter-spacing:0.12em;">SEVERITY: CRITICAL</div>
+      </div>
+      <h2 style="margin:0 0 26px;font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:52px;line-height:1.0;letter-spacing:-0.01em;">Your front door is a changelog.</h2>
+      <div style="display:grid;grid-template-columns:1040px 1fr;gap:48px;flex:1;align-items:start;">
+        <div style="border:1px solid rgba(255,255,255,0.12);border-radius:14px;overflow:hidden;box-shadow:0 30px 80px rgba(0,0,0,0.55);">
+          <div style="display:flex;align-items:center;gap:8px;padding:11px 16px;background:#16181D;border-bottom:1px solid rgba(255,255,255,0.07);">
+            <span style="width:10px;height:10px;border-radius:50%;background:#3A3D44;"></span><span style="width:10px;height:10px;border-radius:50%;background:#3A3D44;"></span><span style="width:10px;height:10px;border-radius:50%;background:#3A3D44;"></span>
+            <span style="margin-left:10px;font-family:'JetBrains Mono',monospace;font-size:12px;color:#71757F;">prism · / — first screen after login</span>
+          </div>
+          <div style="position:relative;">
+            <img src="research/current-sidebar.png" alt="Current Prism workspace gateway" style="display:block;width:1040px;height:585px;object-fit:cover;">
+            <div style="position:absolute;left:30%;top:13%;"><span style="width:26px;height:26px;border-radius:50%;background:#FF5A2B;color:#0A0B0D;font-family:'JetBrains Mono',monospace;font-weight:700;font-size:14px;display:flex;align-items:center;justify-content:center;box-shadow:0 0 0 4px rgba(255,90,43,0.2);">1</span></div>
+            <div style="position:absolute;left:22%;top:33%;"><span style="width:26px;height:26px;border-radius:50%;background:#FF5A2B;color:#0A0B0D;font-family:'JetBrains Mono',monospace;font-weight:700;font-size:14px;display:flex;align-items:center;justify-content:center;box-shadow:0 0 0 4px rgba(255,90,43,0.2);">2</span></div>
+            <div style="position:absolute;left:80%;top:25%;"><span style="width:26px;height:26px;border-radius:50%;background:#FF5A2B;color:#0A0B0D;font-family:'JetBrains Mono',monospace;font-weight:700;font-size:14px;display:flex;align-items:center;justify-content:center;box-shadow:0 0 0 4px rgba(255,90,43,0.2);">3</span></div>
+            <div style="position:absolute;left:70%;top:63%;"><span style="width:26px;height:26px;border-radius:50%;background:#FF5A2B;color:#0A0B0D;font-family:'JetBrains Mono',monospace;font-weight:700;font-size:14px;display:flex;align-items:center;justify-content:center;box-shadow:0 0 0 4px rgba(255,90,43,0.2);">4</span></div>
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:16px;">
+          <div style="display:flex;gap:14px;"><span style="flex:none;width:26px;height:26px;border-radius:50%;background:#FF5A2B;color:#0A0B0D;font-family:'JetBrains Mono',monospace;font-weight:700;font-size:14px;display:flex;align-items:center;justify-content:center;">1</span><div><div style="font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:21px;">A decision before any work</div><div style="font-size:17px;color:#9398A2;line-height:1.45;">"Choose Your Workspace" makes the user route themselves before they can do a single thing.</div></div></div>
+          <div style="display:flex;gap:14px;"><span style="flex:none;width:26px;height:26px;border-radius:50%;background:#FF5A2B;color:#0A0B0D;font-family:'JetBrains Mono',monospace;font-weight:700;font-size:14px;display:flex;align-items:center;justify-content:center;">2</span><div><div style="font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:21px;">Body copy = migration notes</div><div style="font-size:17px;color:#9398A2;line-height:1.45;">"…app messages still converge through the staged messages seam until the backend inbox routes fully land."</div></div></div>
+          <div style="display:flex;gap:14px;"><span style="flex:none;width:26px;height:26px;border-radius:50%;background:#FF5A2B;color:#0A0B0D;font-family:'JetBrains Mono',monospace;font-weight:700;font-size:14px;display:flex;align-items:center;justify-content:center;">3</span><div><div style="font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:21px;">"Claude-owned backend claims"</div><div style="font-size:17px;color:#9398A2;line-height:1.45;">The AI build system's authority model, shown to a customer as workspace "rules."</div></div></div>
+          <div style="display:flex;gap:14px;"><span style="flex:none;width:26px;height:26px;border-radius:50%;background:#FF5A2B;color:#0A0B0D;font-family:'JetBrains Mono',monospace;font-weight:700;font-size:14px;display:flex;align-items:center;justify-content:center;">4</span><div><div style="font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:21px;">The one action is buried</div><div style="font-size:17px;color:#9398A2;line-height:1.45;">The actual "Quick launch" buttons sit small, bottom-right, under three paragraphs of prose.</div></div></div>
+          <div style="margin-top:4px;padding:16px 20px;border:1px solid rgba(255,77,77,0.3);background:rgba(255,77,77,0.05);border-radius:12px;"><div style="font-family:'JetBrains Mono',monospace;font-size:13px;color:#FF6B6B;letter-spacing:0.08em;margin-bottom:6px;">↳ AND IT BREAKS YOUR OWN RULE — web/CLAUDE.md:</div><div style="font-family:'JetBrains Mono',monospace;font-size:14.5px;color:#C7CCD4;line-height:1.5;">"✗ Centered Hero sections with giant headline + small body — this is consumer marketing, PRISM is industrial tooling."</div></div>
+        </div>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-top:18px;padding-top:18px;border-top:1px solid rgba(255,255,255,0.08);font-family:'JetBrains Mono',monospace;font-size:13px;letter-spacing:0.18em;text-transform:uppercase;color:#5C616B;">
+        <span>Kienzle · Audit &amp; Identity</span><span>05</span>
+      </div>
+    </div>
+  </section>
+
+  <section data-label="Audit · IA wall" data-speaker-notes="This is the real navigation catalog, every label, rendered as one wall. 90 destinations across 7 sections, one section with 27, three different speed/feed routes in a single menu, and 165 page files total — so ~75 screens aren't even reachable from this nav. Mobile flattens all of it to a 15-item list, against your own max-5 rule.">
+    <div style="width:1920px;height:1080px;box-sizing:border-box;background:#0A0B0D;color:#F3F4F6;font-family:'Archivo',sans-serif;padding:78px 110px 70px;display:flex;flex-direction:column;">
+      <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:14px;">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:14px;letter-spacing:0.28em;text-transform:uppercase;color:#FF5A2B;">Audit 04 · Information Architecture</div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:13px;color:#FF4D4D;letter-spacing:0.12em;">SEVERITY: HIGH</div>
+      </div>
+      <h2 style="margin:0 0 24px;font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:52px;line-height:1.0;letter-spacing:-0.01em;">Everything is top-level. So nothing is.</h2>
+      <div style="display:grid;grid-template-columns:1.34fr 0.66fr;gap:46px;flex:1;min-height:0;">
+        <div style="border:1px solid rgba(255,255,255,0.1);border-radius:16px;background:#0E0F12;padding:22px 24px;display:flex;flex-direction:column;gap:13px;overflow:hidden;">
+          <div style="font-family:'JetBrains Mono',monospace;font-size:12px;color:#71757F;letter-spacing:0.14em;margin-bottom:2px;">THE ACTUAL LEFT-NAV CATALOG — VERBATIM</div>
+          <div style="display:flex;flex-direction:column;gap:11px;overflow:hidden;">
+            <div>
+              <div style="font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:0.14em;color:#FF7A4D;margin-bottom:6px;">MACHINING</div>
+              <div style="display:flex;flex-wrap:wrap;gap:5px;">
+                <span style="padding:3px 8px;border:1px solid rgba(255,255,255,0.12);border-radius:5px;font-size:11.5px;color:#C7CCD4;">Dashboard</span><span style="padding:3px 8px;border:1px solid rgba(255,77,77,0.45);background:rgba(255,77,77,0.07);border-radius:5px;font-size:11.5px;color:#FF8A8A;">Calculator · Studio</span><span style="padding:3px 8px;border:1px solid rgba(255,77,77,0.45);background:rgba(255,77,77,0.07);border-radius:5px;font-size:11.5px;color:#FF8A8A;">Speed/Feed Calc</span><span style="padding:3px 8px;border:1px solid rgba(255,77,77,0.45);background:rgba(255,77,77,0.07);border-radius:5px;font-size:11.5px;color:#FF8A8A;">Speed/Feed Full</span><span style="padding:3px 8px;border:1px solid rgba(255,255,255,0.12);border-radius:5px;font-size:11.5px;color:#AEB4BE;">Toolpath Advisor</span><span style="padding:3px 8px;border:1px solid rgba(255,255,255,0.12);border-radius:5px;font-size:11.5px;color:#AEB4BE;">What-If</span><span style="padding:3px 8px;border:1px solid rgba(255,255,255,0.12);border-radius:5px;font-size:11.5px;color:#AEB4BE;">Thread Calc</span><span style="padding:3px 8px;border:1px solid rgba(255,255,255,0.12);border-radius:5px;font-size:11.5px;color:#AEB4BE;">Post Processor</span><span style="padding:3px 8px;border:1px solid rgba(255,255,255,0.12);border-radius:5px;font-size:11.5px;color:#AEB4BE;">Optimization</span><span style="padding:3px 8px;border:1px solid rgba(255,255,255,0.12);border-radius:5px;font-size:11.5px;color:#AEB4BE;">Setup Sheet</span><span style="padding:3px 8px;border:1px solid rgba(255,255,255,0.12);border-radius:5px;font-size:11.5px;color:#AEB4BE;">Cycle Time</span><span style="padding:3px 8px;border:1px solid rgba(255,255,255,0.12);border-radius:5px;font-size:11.5px;color:#AEB4BE;">Tool Optimization</span><span style="padding:3px 8px;border:1px solid rgba(255,255,255,0.12);border-radius:5px;font-size:11.5px;color:#AEB4BE;">Feature Selection</span><span style="padding:3px 8px;border:1px solid rgba(255,255,255,0.12);border-radius:5px;font-size:11.5px;color:#AEB4BE;">Prove-Out</span><span style="padding:3px 8px;border:1px solid rgba(255,255,255,0.12);border-radius:5px;font-size:11.5px;color:#AEB4BE;">Lathe · Upload</span><span style="padding:3px 8px;border:1px solid rgba(255,255,255,0.12);border-radius:5px;font-size:11.5px;color:#AEB4BE;">Lathe · Wizard</span><span style="padding:3px 8px;border:1px solid rgba(255,255,255,0.12);border-radius:5px;font-size:11.5px;color:#AEB4BE;">Lathe · Results</span><span style="padding:3px 8px;border:1px solid rgba(255,255,255,0.12);border-radius:5px;font-size:11.5px;color:#AEB4BE;">Milling · Upload</span><span style="padding:3px 8px;border:1px solid rgba(255,255,255,0.12);border-radius:5px;font-size:11.5px;color:#AEB4BE;">Milling · Wizard</span><span style="padding:3px 8px;border:1px solid rgba(255,255,255,0.12);border-radius:5px;font-size:11.5px;color:#AEB4BE;">Milling · Results</span><span style="padding:3px 8px;border:1px solid rgba(255,255,255,0.12);border-radius:5px;font-size:11.5px;color:#AEB4BE;">Print to CNC</span><span style="padding:3px 8px;border:1px solid rgba(255,255,255,0.12);border-radius:5px;font-size:11.5px;color:#AEB4BE;">Pipeline</span><span style="padding:3px 8px;border:1px solid rgba(255,255,255,0.12);border-radius:5px;font-size:11.5px;color:#AEB4BE;">Job Planner</span><span style="padding:3px 8px;border:1px solid rgba(255,255,255,0.12);border-radius:5px;font-size:11.5px;color:#AEB4BE;">Safety Monitor</span><span style="padding:3px 8px;border:1px solid rgba(255,255,255,0.12);border-radius:5px;font-size:11.5px;color:#AEB4BE;">Alarm Decoder</span><span style="padding:3px 8px;border:1px solid rgba(255,255,255,0.12);border-radius:5px;font-size:11.5px;color:#AEB4BE;">3D Viewer</span><span style="padding:3px 8px;border:1px solid rgba(255,255,255,0.12);border-radius:5px;font-size:11.5px;color:#AEB4BE;">AI Learning</span><span style="padding:3px 8px;border:1px solid rgba(255,255,255,0.12);border-radius:5px;font-size:11.5px;color:#AEB4BE;">Reports</span><span style="padding:3px 8px;border:1px solid rgba(255,255,255,0.12);border-radius:5px;font-size:11.5px;color:#AEB4BE;">Secondary Ops</span>
+              </div>
+            </div>
+            <div>
+              <div style="font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:0.14em;color:#FF7A4D;margin-bottom:6px;">QUOTES &amp; PLANNING</div>
+              <div style="display:flex;flex-wrap:wrap;gap:5px;">
+                <span style="padding:3px 8px;border:1px solid rgba(255,255,255,0.12);border-radius:5px;font-size:11.5px;color:#AEB4BE;">Quote Builder</span><span style="padding:3px 8px;border:1px solid rgba(255,255,255,0.12);border-radius:5px;font-size:11.5px;color:#AEB4BE;">Quote Analytics</span><span style="padding:3px 8px;border:1px solid rgba(255,255,255,0.12);border-radius:5px;font-size:11.5px;color:#AEB4BE;">Blueprint Quote</span><span style="padding:3px 8px;border:1px solid rgba(255,255,255,0.12);border-radius:5px;font-size:11.5px;color:#AEB4BE;">Sheet Metal</span><span style="padding:3px 8px;border:1px solid rgba(255,255,255,0.12);border-radius:5px;font-size:11.5px;color:#AEB4BE;">Additive</span><span style="padding:3px 8px;border:1px solid rgba(255,255,255,0.12);border-radius:5px;font-size:11.5px;color:#AEB4BE;">Injection Mold</span><span style="padding:3px 8px;border:1px solid rgba(255,255,255,0.12);border-radius:5px;font-size:11.5px;color:#AEB4BE;">Batch Planning</span><span style="padding:3px 8px;border:1px solid rgba(255,255,255,0.12);border-radius:5px;font-size:11.5px;color:#AEB4BE;">Stock Optimizer</span><span style="padding:3px 8px;border:1px solid rgba(255,255,255,0.12);border-radius:5px;font-size:11.5px;color:#AEB4BE;">Material Pricing</span><span style="padding:3px 8px;border:1px solid rgba(255,255,255,0.12);border-radius:5px;font-size:11.5px;color:#AEB4BE;">Machine Rates</span><span style="padding:3px 8px;border:1px solid rgba(255,255,255,0.12);border-radius:5px;font-size:11.5px;color:#AEB4BE;">Capacity</span><span style="padding:3px 8px;border:1px solid rgba(255,255,255,0.12);border-radius:5px;font-size:11.5px;color:#AEB4BE;">Integrations</span><span style="padding:3px 8px;border:1px solid rgba(255,255,255,0.12);border-radius:5px;font-size:11.5px;color:#AEB4BE;">Scheduling</span>
+              </div>
+            </div>
+            <div>
+              <div style="font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:0.14em;color:#FF4D4D;margin-bottom:6px;">SHOP &amp; ERP — 27 LINKS</div>
+              <div style="display:flex;flex-wrap:wrap;gap:5px;">
+                <span style="padding:3px 8px;border:1px solid rgba(255,255,255,0.12);border-radius:5px;font-size:11.5px;color:#AEB4BE;">Jobs</span><span style="padding:3px 8px;border:1px solid rgba(255,255,255,0.12);border-radius:5px;font-size:11.5px;color:#AEB4BE;">My Workspace</span><span style="padding:3px 8px;border:1px solid rgba(255,255,255,0.12);border-radius:5px;font-size:11.5px;color:#AEB4BE;">Parts Library</span><span style="padding:3px 8px;border:1px solid rgba(255,255,255,0.12);border-radius:5px;font-size:11.5px;color:#AEB4BE;">Document Inbox</span><span style="padding:3px 8px;border:1px solid rgba(255,255,255,0.12);border-radius:5px;font-size:11.5px;color:#AEB4BE;">Messages</span><span style="padding:3px 8px;border:1px solid rgba(255,255,255,0.12);border-radius:5px;font-size:11.5px;color:#AEB4BE;">Customer Portal</span><span style="padding:3px 8px;border:1px solid rgba(255,255,255,0.12);border-radius:5px;font-size:11.5px;color:#AEB4BE;">Capture Ops</span><span style="padding:3px 8px;border:1px solid rgba(255,255,255,0.12);border-radius:5px;font-size:11.5px;color:#AEB4BE;">Orders</span><span style="padding:3px 8px;border:1px solid rgba(255,255,255,0.12);border-radius:5px;font-size:11.5px;color:#AEB4BE;">Shop Live</span><span style="padding:3px 8px;border:1px solid rgba(255,255,255,0.12);border-radius:5px;font-size:11.5px;color:#AEB4BE;">Shop Profile</span><span style="padding:3px 8px;border:1px solid rgba(255,255,255,0.12);border-radius:5px;font-size:11.5px;color:#AEB4BE;">Inventory</span><span style="padding:3px 8px;border:1px solid rgba(255,255,255,0.12);border-radius:5px;font-size:11.5px;color:#AEB4BE;">Exports</span><span style="padding:3px 8px;border:1px solid rgba(255,255,255,0.12);border-radius:5px;font-size:11.5px;color:#AEB4BE;">Purchasing</span><span style="padding:3px 8px;border:1px solid rgba(255,255,255,0.12);border-radius:5px;font-size:11.5px;color:#AEB4BE;">Purchase Orders</span><span style="padding:3px 8px;border:1px solid rgba(255,255,255,0.12);border-radius:5px;font-size:11.5px;color:#AEB4BE;">Invoices</span><span style="padding:3px 8px;border:1px solid rgba(255,255,255,0.12);border-radius:5px;font-size:11.5px;color:#AEB4BE;">Profitability</span><span style="padding:3px 8px;border:1px solid rgba(255,255,255,0.12);border-radius:5px;font-size:11.5px;color:#AEB4BE;">Tooling Cost</span><span style="padding:3px 8px;border:1px solid rgba(255,255,255,0.12);border-radius:5px;font-size:11.5px;color:#AEB4BE;">General Ledger</span><span style="padding:3px 8px;border:1px solid rgba(255,255,255,0.12);border-radius:5px;font-size:11.5px;color:#AEB4BE;">Quality</span><span style="padding:3px 8px;border:1px solid rgba(255,255,255,0.12);border-radius:5px;font-size:11.5px;color:#AEB4BE;">Customers</span><span style="padding:3px 8px;border:1px solid rgba(255,255,255,0.12);border-radius:5px;font-size:11.5px;color:#AEB4BE;">People Ops</span><span style="padding:3px 8px;border:1px solid rgba(255,255,255,0.12);border-radius:5px;font-size:11.5px;color:#AEB4BE;">Shop Clock</span><span style="padding:3px 8px;border:1px solid rgba(255,255,255,0.12);border-radius:5px;font-size:11.5px;color:#AEB4BE;">Timecards</span><span style="padding:3px 8px;border:1px solid rgba(255,255,255,0.12);border-radius:5px;font-size:11.5px;color:#AEB4BE;">Payroll</span><span style="padding:3px 8px;border:1px solid rgba(255,255,255,0.12);border-radius:5px;font-size:11.5px;color:#AEB4BE;">HR Compliance</span><span style="padding:3px 8px;border:1px solid rgba(255,255,255,0.12);border-radius:5px;font-size:11.5px;color:#AEB4BE;">Financial Analysis</span><span style="padding:3px 8px;border:1px solid rgba(255,255,255,0.12);border-radius:5px;font-size:11.5px;color:#AEB4BE;">Department</span>
+              </div>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+              <div>
+                <div style="font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:0.14em;color:#FF7A4D;margin-bottom:6px;">BUSINESS MGMT</div>
+                <div style="display:flex;flex-wrap:wrap;gap:5px;">
+                  <span style="padding:3px 8px;border:1px solid rgba(255,255,255,0.12);border-radius:5px;font-size:11.5px;color:#AEB4BE;">Executive Dashboard</span><span style="padding:3px 8px;border:1px solid rgba(255,255,255,0.12);border-radius:5px;font-size:11.5px;color:#AEB4BE;">Daily Flash</span><span style="padding:3px 8px;border:1px solid rgba(255,255,255,0.12);border-radius:5px;font-size:11.5px;color:#AEB4BE;">RFQ Inbox</span><span style="padding:3px 8px;border:1px solid rgba(255,255,255,0.12);border-radius:5px;font-size:11.5px;color:#AEB4BE;">Sales Pipeline</span><span style="padding:3px 8px;border:1px solid rgba(255,255,255,0.12);border-radius:5px;font-size:11.5px;color:#AEB4BE;">Commissions</span><span style="padding:3px 8px;border:1px solid rgba(255,255,255,0.12);border-radius:5px;font-size:11.5px;color:#AEB4BE;">Credit Mgmt</span><span style="padding:3px 8px;border:1px solid rgba(255,255,255,0.12);border-radius:5px;font-size:11.5px;color:#AEB4BE;">Vendor Scorecard</span><span style="padding:3px 8px;border:1px solid rgba(255,255,255,0.12);border-radius:5px;font-size:11.5px;color:#AEB4BE;">Vendor Catalog</span><span style="padding:3px 8px;border:1px solid rgba(255,255,255,0.12);border-radius:5px;font-size:11.5px;color:#AEB4BE;">Receiving</span><span style="padding:3px 8px;border:1px solid rgba(255,255,255,0.12);border-radius:5px;font-size:11.5px;color:#AEB4BE;">Shipping</span>
+                </div>
+              </div>
+              <div>
+                <div style="font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:0.14em;color:#FF7A4D;margin-bottom:6px;">OPS SUPPORT</div>
+                <div style="display:flex;flex-wrap:wrap;gap:5px;">
+                  <span style="padding:3px 8px;border:1px solid rgba(255,255,255,0.12);border-radius:5px;font-size:11.5px;color:#AEB4BE;">Preventive Maint.</span><span style="padding:3px 8px;border:1px solid rgba(255,255,255,0.12);border-radius:5px;font-size:11.5px;color:#AEB4BE;">Equipment Assets</span><span style="padding:3px 8px;border:1px solid rgba(255,255,255,0.12);border-radius:5px;font-size:11.5px;color:#AEB4BE;">Maint. Work Orders</span><span style="padding:3px 8px;border:1px solid rgba(255,255,255,0.12);border-radius:5px;font-size:11.5px;color:#AEB4BE;">Calibration</span><span style="padding:3px 8px;border:1px solid rgba(255,255,255,0.12);border-radius:5px;font-size:11.5px;color:#AEB4BE;">OSHA</span><span style="padding:3px 8px;border:1px solid rgba(255,255,255,0.12);border-radius:5px;font-size:11.5px;color:#AEB4BE;">Audit Manager</span>
+                </div>
+              </div>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+              <div>
+                <div style="font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:0.14em;color:#FF7A4D;margin-bottom:6px;">MFG EXCELLENCE</div>
+                <div style="display:flex;flex-wrap:wrap;gap:5px;">
+                  <span style="padding:3px 8px;border:1px solid rgba(255,255,255,0.12);border-radius:5px;font-size:11.5px;color:#AEB4BE;">OEE</span><span style="padding:3px 8px;border:1px solid rgba(255,255,255,0.12);border-radius:5px;font-size:11.5px;color:#AEB4BE;">Kaizen</span><span style="padding:3px 8px;border:1px solid rgba(255,255,255,0.12);border-radius:5px;font-size:11.5px;color:#AEB4BE;">SPC</span><span style="padding:3px 8px;border:1px solid rgba(255,255,255,0.12);border-radius:5px;font-size:11.5px;color:#AEB4BE;">Value Stream</span><span style="padding:3px 8px;border:1px solid rgba(255,255,255,0.12);border-radius:5px;font-size:11.5px;color:#AEB4BE;">Kanban</span><span style="padding:3px 8px;border:1px solid rgba(255,255,255,0.12);border-radius:5px;font-size:11.5px;color:#AEB4BE;">Root Cause</span><span style="padding:3px 8px;border:1px solid rgba(255,255,255,0.12);border-radius:5px;font-size:11.5px;color:#AEB4BE;">A3 Report</span>
+                </div>
+              </div>
+              <div>
+                <div style="font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:0.14em;color:#FF7A4D;margin-bottom:6px;">KNOWLEDGE</div>
+                <div style="display:flex;flex-wrap:wrap;gap:5px;">
+                  <span style="padding:3px 8px;border:1px solid rgba(255,255,255,0.12);border-radius:5px;font-size:11.5px;color:#AEB4BE;">Documents</span><span style="padding:3px 8px;border:1px solid rgba(255,255,255,0.12);border-radius:5px;font-size:11.5px;color:#AEB4BE;">Ingest Knowledge</span><span style="padding:3px 8px;border:1px solid rgba(255,255,255,0.12);border-radius:5px;font-size:11.5px;color:#AEB4BE;">Browse Knowledge</span><span style="padding:3px 8px;border:1px solid rgba(255,255,255,0.12);border-radius:5px;font-size:11.5px;color:#AEB4BE;">Course Viewer</span><span style="padding:3px 8px;border:1px solid rgba(255,255,255,0.12);border-radius:5px;font-size:11.5px;color:#AEB4BE;">Fleet Learning</span><span style="padding:3px 8px;border:1px solid rgba(255,255,255,0.12);border-radius:5px;font-size:11.5px;color:#AEB4BE;">Learning</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:14px;">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+            <div style="border:1px solid rgba(255,255,255,0.09);border-radius:14px;padding:18px 20px;background:linear-gradient(180deg,rgba(255,255,255,0.025),transparent);"><div style="font-family:'JetBrains Mono',monospace;font-size:40px;font-weight:700;color:#F3F4F6;line-height:1;">90</div><div style="font-size:15px;color:#9398A2;margin-top:6px;line-height:1.35;">nav destinations</div></div>
+            <div style="border:1px solid rgba(255,255,255,0.09);border-radius:14px;padding:18px 20px;background:linear-gradient(180deg,rgba(255,255,255,0.025),transparent);"><div style="font-family:'JetBrains Mono',monospace;font-size:40px;font-weight:700;color:#F3F4F6;line-height:1;">7</div><div style="font-size:15px;color:#9398A2;margin-top:6px;line-height:1.35;">top sections</div></div>
+            <div style="border:1px solid rgba(255,77,77,0.3);border-radius:14px;padding:18px 20px;background:rgba(255,77,77,0.05);"><div style="font-family:'JetBrains Mono',monospace;font-size:40px;font-weight:700;color:#FF6B6B;line-height:1;">27</div><div style="font-size:15px;color:#C2A6A6;margin-top:6px;line-height:1.35;">links in "Shop &amp; ERP" alone</div></div>
+            <div style="border:1px solid rgba(255,77,77,0.3);border-radius:14px;padding:18px 20px;background:rgba(255,77,77,0.05);"><div style="font-family:'JetBrains Mono',monospace;font-size:40px;font-weight:700;color:#FF6B6B;line-height:1;">165</div><div style="font-size:15px;color:#C2A6A6;margin-top:6px;line-height:1.35;">page files (~75 not in nav)</div></div>
+          </div>
+          <div style="border:1px solid rgba(255,90,43,0.3);border-radius:14px;padding:18px 22px;background:rgba(255,90,43,0.06);">
+            <div style="font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:20px;color:#FF7A4D;margin-bottom:8px;">Three "Speed/Feed" routes. One menu.</div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;font-family:'JetBrains Mono',monospace;font-size:13px;">
+              <span style="padding:5px 10px;border:1px solid rgba(255,77,77,0.4);border-radius:6px;color:#FF8A8A;">/calculator · Studio</span>
+              <span style="padding:5px 10px;border:1px solid rgba(255,77,77,0.4);border-radius:6px;color:#FF8A8A;">/speed-feed-calc</span>
+              <span style="padding:5px 10px;border:1px solid rgba(255,77,77,0.4);border-radius:6px;color:#FF8A8A;">/speed-feed · Full</span>
+            </div>
+            <div style="font-size:15px;color:#C7CCD4;margin-top:10px;line-height:1.4;">A user cannot tell which one to open. Neither can a new hire.</div>
+          </div>
+          <div style="border:1px solid rgba(255,255,255,0.09);border-radius:14px;padding:18px 22px;background:linear-gradient(180deg,rgba(255,255,255,0.025),transparent);">
+            <div style="font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:20px;margin-bottom:6px;">Mobile is one flat list of 15</div>
+            <div style="font-size:15px;color:#9398A2;line-height:1.4;">Your own web/CLAUDE.md: <span style="color:#C7CCD4;">"bottom tab bar… hamburger only as secondary."</span> Shipped: a 15-item scroll.</div>
+          </div>
+        </div>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-top:18px;padding-top:18px;border-top:1px solid rgba(255,255,255,0.08);font-family:'JetBrains Mono',monospace;font-size:13px;letter-spacing:0.18em;text-transform:uppercase;color:#5C616B;">
+        <span>Kienzle · Audit &amp; Identity</span><span>06</span>
+      </div>
+    </div>
+  </section>
+
+  <section data-label="Audit · Split-brain" data-speaker-notes="Two design languages are documented in the same files. The 2026-06-09 decision moved the fleet to an iOS look, but the rollout is partial — so Calculator Studio HUD pages and iOS pages coexist. index.css literally ships both a studio :root layer and an iOS bridge that overrides it. A page built last month and one built this month look like different products.">
+    <div style="width:1920px;height:1080px;box-sizing:border-box;background:#0A0B0D;color:#F3F4F6;font-family:'Archivo',sans-serif;padding:78px 110px 70px;display:flex;flex-direction:column;">
+      <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:14px;">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:14px;letter-spacing:0.28em;text-transform:uppercase;color:#FF5A2B;">Audit 05 · Consistency · Design System</div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:13px;color:#FF4D4D;letter-spacing:0.12em;">SEVERITY: HIGH</div>
+      </div>
+      <h2 style="margin:0 0 8px;font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:52px;line-height:1.0;letter-spacing:-0.01em;">Two design languages. One codebase.</h2>
+      <p style="margin:0 0 28px;font-size:23px;color:#9398A2;max-width:1280px;line-height:1.45;">A half-finished migration from "Calculator Studio" to "Apple-iOS" — both doctrines live, contradicting each other inside the same files.</p>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:26px;flex:1;min-height:0;">
+        <div style="display:flex;flex-direction:column;gap:16px;">
+          <div style="font-family:'JetBrains Mono',monospace;font-size:13px;letter-spacing:0.16em;color:#22D3EE;">DOCTRINE A — "CALCULATOR STUDIO" (INDUSTRIAL HUD)</div>
+          <div style="position:relative;border:1px solid rgba(34,211,238,0.4);border-radius:14px;background:linear-gradient(180deg,rgba(34,211,238,0.12),rgba(2,6,23,0.9));padding:26px 28px;box-shadow:0 0 30px rgba(34,211,238,0.18);overflow:hidden;flex:1;">
+            <div style="position:absolute;top:0;left:-30%;width:30%;height:3px;background:linear-gradient(90deg,transparent,#22D3EE,transparent);animation:kz-scan 3s linear infinite;"></div>
+            <div style="font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:0.2em;color:#67E8F9;">OPTIMIZATION</div>
+            <div style="font-family:'JetBrains Mono',monospace;font-size:54px;font-weight:700;color:#fff;margin:6px 0 14px;text-shadow:0 0 18px rgba(34,211,238,0.5);">68%</div>
+            <div style="height:10px;border-radius:6px;background:linear-gradient(90deg,#ef4444,#f59e0b,#22c55e);margin-bottom:16px;"></div>
+            <div style="display:flex;gap:8px;font-family:'JetBrains Mono',monospace;font-size:11px;"><span style="padding:4px 9px;border:1px solid rgba(34,211,238,0.5);border-radius:999px;color:#67E8F9;">ADVISORY CONFIDENCE</span><span style="padding:4px 9px;border:1px solid rgba(34,211,238,0.5);border-radius:999px;color:#67E8F9;">LED SWEEP</span></div>
+            <div style="margin-top:18px;font-size:14px;color:#9CC;line-height:1.5;">Glow borders · cyan-on-near-black · sharp · monospace · "no soft shadows"</div>
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:16px;">
+          <div style="font-family:'JetBrains Mono',monospace;font-size:13px;letter-spacing:0.16em;color:#0A84FF;">DOCTRINE B — "APPLE-iOS" (SOFT &amp; CALM)</div>
+          <div style="border:1px solid rgba(255,255,255,0.08);border-radius:16px;background:#1C1E24;padding:26px 28px;box-shadow:0 12px 40px rgba(0,0,0,0.45);flex:1;">
+            <div style="font-size:13px;color:#8E939E;letter-spacing:0.02em;">Optimization</div>
+            <div style="font-family:'Space Grotesk',sans-serif;font-size:54px;font-weight:600;color:#F3F4F6;margin:6px 0 16px;letter-spacing:-0.02em;">68%</div>
+            <div style="display:inline-flex;background:#26282F;border-radius:10px;padding:3px;margin-bottom:18px;"><span style="padding:7px 16px;background:#0A84FF;border-radius:8px;font-size:14px;color:#fff;">Tuned</span><span style="padding:7px 16px;font-size:14px;color:#8E939E;">Risk</span></div>
+            <div style="font-size:14px;color:#8E939E;line-height:1.5;">Soft directionless shadows · systemBlue · 14px radii · SF type · 44pt targets · segmented controls</div>
+          </div>
+        </div>
+      </div>
+      <div style="display:flex;gap:18px;margin-top:24px;">
+        <div style="flex:1;border:1px solid rgba(255,77,77,0.28);background:rgba(255,77,77,0.05);border-radius:12px;padding:16px 20px;">
+          <div style="font-family:'JetBrains Mono',monospace;font-size:12px;color:#FF6B6B;letter-spacing:0.1em;margin-bottom:6px;">web/CLAUDE.md — line A</div>
+          <div style="font-family:'JetBrains Mono',monospace;font-size:14px;color:#C7CCD4;">"All pages MUST follow the Calculator Studio design concept."</div>
+        </div>
+        <div style="display:flex;align-items:center;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:22px;color:#FF5A2B;">⚔</div>
+        <div style="flex:1;border:1px solid rgba(255,77,77,0.28);background:rgba(255,77,77,0.05);border-radius:12px;padding:16px 20px;">
+          <div style="font-family:'JetBrains Mono',monospace;font-size:12px;color:#FF6B6B;letter-spacing:0.1em;margin-bottom:6px;">web/CLAUDE.md — line B (same file)</div>
+          <div style="font-family:'JetBrains Mono',monospace;font-size:14px;color:#C7CCD4;">"iOS is the fleet default; Calculator Studio is retained as a scoped per-page accent."</div>
+        </div>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-top:18px;padding-top:18px;border-top:1px solid rgba(255,255,255,0.08);font-family:'JetBrains Mono',monospace;font-size:13px;letter-spacing:0.18em;text-transform:uppercase;color:#5C616B;">
+        <span>Kienzle · Audit &amp; Identity</span><span>07</span>
+      </div>
+    </div>
+  </section>
+
+  <section data-label="Audit · Craft" data-speaker-notes="The detail layer. The tell is the global zoom:0.9 — shipping a browser-zoom hack to make dense layouts fit is a band-aid that breaks real accessibility zoom. The 12,909-line CalculatorPage is flagged in your own docs as the canonical violation. Credits on the right are real and worth protecting.">
+    <div style="width:1920px;height:1080px;box-sizing:border-box;background:#0A0B0D;color:#F3F4F6;font-family:'Archivo',sans-serif;padding:78px 110px 70px;display:flex;flex-direction:column;">
+      <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:14px;">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:14px;letter-spacing:0.28em;text-transform:uppercase;color:#FF5A2B;">Audit 06 · Craft + Accessibility</div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:13px;color:#F4B740;letter-spacing:0.12em;">SEVERITY: MIXED</div>
+      </div>
+      <h2 style="margin:0 0 30px;font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:52px;line-height:1.0;letter-spacing:-0.01em;">The seams show — but the steel is sound.</h2>
+      <div style="display:grid;grid-template-columns:1.1fr 0.9fr;gap:40px;flex:1;min-height:0;">
+        <div>
+          <div style="font-family:'JetBrains Mono',monospace;font-size:13px;letter-spacing:0.16em;color:#FF6B6B;margin-bottom:16px;">CUTS THAT SHOW</div>
+          <div style="display:flex;flex-direction:column;gap:13px;">
+            <div style="display:flex;gap:14px;align-items:flex-start;border-bottom:1px solid rgba(255,255,255,0.06);padding-bottom:13px;"><span style="flex:none;margin-top:4px;width:9px;height:9px;border-radius:50%;background:#FF4D4D;"></span><div style="flex:1;"><div style="font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:19px;">A global <span style="font-family:'JetBrains Mono',monospace;color:#FF8A8A;">zoom: 0.9</span> ships as a layout fix</div><div style="font-size:15.5px;color:#9398A2;line-height:1.4;">≥1024px viewports are shrunk to make dense pages fit — which fights real browser/text zoom. The fix masks the cause.</div></div><span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#FF6B6B;">HIGH</span></div>
+            <div style="display:flex;gap:14px;align-items:flex-start;border-bottom:1px solid rgba(255,255,255,0.06);padding-bottom:13px;"><span style="flex:none;margin-top:4px;width:9px;height:9px;border-radius:50%;background:#FF4D4D;"></span><div style="flex:1;"><div style="font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:19px;">One page is 12,909 lines</div><div style="font-size:15.5px;color:#9398A2;line-height:1.4;">CalculatorPage.tsx (~660KB). Your own CLAUDE.md: <span style="color:#C7CCD4;">"the canonical violation."</span></div></div><span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#FF6B6B;">HIGH</span></div>
+            <div style="display:flex;gap:14px;align-items:flex-start;border-bottom:1px solid rgba(255,255,255,0.06);padding-bottom:13px;"><span style="flex:none;margin-top:4px;width:9px;height:9px;border-radius:50%;background:#F4B740;"></span><div style="flex:1;"><div style="font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:19px;">Text overflow clips the hero</div><div style="font-size:15.5px;color:#9398A2;line-height:1.4;">"PRIS…" is cut mid-letter — a sign nothing is tested at real viewport widths.</div></div><span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#F4B740;">MED</span></div>
+            <div style="display:flex;gap:14px;align-items:flex-start;border-bottom:1px solid rgba(255,255,255,0.06);padding-bottom:13px;"><span style="flex:none;margin-top:4px;width:9px;height:9px;border-radius:50%;background:#F4B740;"></span><div style="flex:1;"><div style="font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:19px;">Corner radii disagree by system</div><div style="font-size:15.5px;color:#9398A2;line-height:1.4;">12 / 18 / 24px (studio) vs 10 / 14 / 16px (iOS). Even the rounding is mid-argument.</div></div><span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#F4B740;">MED</span></div>
+            <div style="display:flex;gap:14px;align-items:flex-start;"><span style="flex:none;margin-top:4px;width:9px;height:9px;border-radius:50%;background:#F4B740;"></span><div style="flex:1;"><div style="font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:19px;">Dim-label contrast flirts with the floor</div><div style="font-size:15.5px;color:#9398A2;line-height:1.4;">Slate-500 labels on near-black sit near the AA minimum — fine until a shop-floor monitor in daylight.</div></div><span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#F4B740;">MED</span></div>
+          </div>
+        </div>
+        <div style="border-left:1px solid rgba(255,255,255,0.08);padding-left:40px;">
+          <div style="font-family:'JetBrains Mono',monospace;font-size:13px;letter-spacing:0.16em;color:#36D399;margin-bottom:16px;">EDGES THAT HOLD — KEEP THESE</div>
+          <div style="display:flex;flex-direction:column;gap:16px;">
+            <div style="display:flex;gap:13px;align-items:flex-start;"><span style="flex:none;margin-top:5px;color:#36D399;font-size:16px;">✓</span><div><div style="font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:19px;">A disciplined 5-color status spectrum</div><div style="font-size:15.5px;color:#9398A2;line-height:1.4;">Semantic, consistent, genuinely good. We carry it forward.</div></div></div>
+            <div style="display:flex;gap:13px;align-items:flex-start;"><span style="flex:none;margin-top:5px;color:#36D399;font-size:16px;">✓</span><div><div style="font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:19px;">A documented WCAG-AA floor</div><div style="font-size:15.5px;color:#9398A2;line-height:1.4;">Focus-ring tokens, 44pt targets, aria-pressed audits — the intent is right.</div></div></div>
+            <div style="display:flex;gap:13px;align-items:flex-start;"><span style="flex:none;margin-top:5px;color:#36D399;font-size:16px;">✓</span><div><div style="font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:19px;">Monospace numerics everywhere</div><div style="font-size:15.5px;color:#9398A2;line-height:1.4;">Column-aligned G-code and data. Exactly right for the domain.</div></div></div>
+            <div style="display:flex;gap:13px;align-items:flex-start;"><span style="flex:none;margin-top:5px;color:#36D399;font-size:16px;">✓</span><div><div style="font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:19px;">One build → web · desktop · mobile</div><div style="font-size:15.5px;color:#9398A2;line-height:1.4;">A genuinely elegant architecture seam. Protect it.</div></div></div>
+          </div>
+        </div>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-top:18px;padding-top:18px;border-top:1px solid rgba(255,255,255,0.08);font-family:'JetBrains Mono',monospace;font-size:13px;letter-spacing:0.18em;text-transform:uppercase;color:#5C616B;">
+        <span>Kienzle · Audit &amp; Identity</span><span>08</span>
+      </div>
+    </div>
+  </section>
+
+  <section data-label="Scorecard" data-speaker-notes="Brutal grades across the six lenses you asked for. The throughline: an A-grade engine is being dragged down by a D-grade experience. Every one of these is fixable without touching the physics.">
+    <div style="width:1920px;height:1080px;box-sizing:border-box;background:radial-gradient(900px 600px at 90% 0%, rgba(255,90,43,0.08), transparent 60%),#0A0B0D;color:#F3F4F6;font-family:'Archivo',sans-serif;padding:78px 110px 70px;display:flex;flex-direction:column;">
+      <div style="font-family:'JetBrains Mono',monospace;font-size:14px;letter-spacing:0.28em;text-transform:uppercase;color:#FF5A2B;margin-bottom:18px;">Audit · Report Card</div>
+      <h2 style="margin:0 0 30px;font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:54px;line-height:1.0;letter-spacing:-0.01em;">The grades.</h2>
+      <div style="display:grid;grid-template-columns:1.25fr 0.75fr;gap:48px;flex:1;min-height:0;">
+        <div style="display:flex;flex-direction:column;gap:0;">
+          <div style="display:flex;align-items:center;gap:22px;padding:17px 0;border-bottom:1px solid rgba(255,255,255,0.08);"><span style="flex:none;width:64px;height:64px;border-radius:12px;background:rgba(244,183,64,0.14);border:1px solid rgba(244,183,64,0.4);color:#F4B740;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:32px;display:flex;align-items:center;justify-content:center;">C+</span><div style="flex:1;"><div style="font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:23px;">Visual design / UI polish</div><div style="font-size:16px;color:#9398A2;">Capable dark theme, strong spectrum — buried under jargon, clutter, no hierarchy.</div></div></div>
+          <div style="display:flex;align-items:center;gap:22px;padding:17px 0;border-bottom:1px solid rgba(255,255,255,0.08);"><span style="flex:none;width:64px;height:64px;border-radius:12px;background:rgba(255,77,77,0.14);border:1px solid rgba(255,77,77,0.45);color:#FF6B6B;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:32px;display:flex;align-items:center;justify-content:center;">D</span><div style="flex:1;"><div style="font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:23px;">UX flows &amp; information architecture</div><div style="font-size:16px;color:#9398A2;">A 90-link wall, a changelog front door, a calculator with no calculator.</div></div></div>
+          <div style="display:flex;align-items:center;gap:22px;padding:17px 0;border-bottom:1px solid rgba(255,255,255,0.08);"><span style="flex:none;width:64px;height:64px;border-radius:12px;background:rgba(255,90,43,0.14);border:1px solid rgba(255,90,43,0.45);color:#FF7A4D;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:32px;display:flex;align-items:center;justify-content:center;">D+</span><div style="flex:1;"><div style="font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:23px;">Consistency across the suite</div><div style="font-size:16px;color:#9398A2;">Two design languages, mid-divorce, in the same files.</div></div></div>
+          <div style="display:flex;align-items:center;gap:22px;padding:17px 0;border-bottom:1px solid rgba(255,255,255,0.08);"><span style="flex:none;width:64px;height:64px;border-radius:12px;background:rgba(244,183,64,0.14);border:1px solid rgba(244,183,64,0.4);color:#F4B740;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:32px;display:flex;align-items:center;justify-content:center;">C</span><div style="flex:1;"><div style="font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:23px;">Design system</div><div style="font-size:16px;color:#9398A2;">Excellent tokens &amp; intent; contradictory in practice, a 660KB monolith, enforcement never landed.</div></div></div>
+          <div style="display:flex;align-items:center;gap:22px;padding:17px 0;border-bottom:1px solid rgba(255,255,255,0.08);"><span style="flex:none;width:64px;height:64px;border-radius:12px;background:rgba(255,90,43,0.14);border:1px solid rgba(255,90,43,0.45);color:#FF7A4D;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:32px;display:flex;align-items:center;justify-content:center;">C-</span><div style="flex:1;"><div style="font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:23px;">Accessibility</div><div style="font-size:16px;color:#9398A2;">Right intentions, undercut by a zoom hack, hover-only affordances, flat mobile nav.</div></div></div>
+          <div style="display:flex;align-items:center;gap:22px;padding:17px 0;"><span style="flex:none;width:64px;height:64px;border-radius:12px;background:rgba(255,90,43,0.14);border:1px solid rgba(255,90,43,0.45);color:#FF7A4D;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:32px;display:flex;align-items:center;justify-content:center;">C-</span><div style="flex:1;"><div style="font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:23px;">Branding &amp; identity</div><div style="font-size:16px;color:#9398A2;">A literal-prism cliché, "Academy" vs "Intelligence" confusion — and the name is legally taken.</div></div></div>
+        </div>
+        <div style="display:flex;flex-direction:column;justify-content:center;border:1px solid rgba(255,90,43,0.3);border-radius:20px;background:linear-gradient(180deg,rgba(255,90,43,0.08),transparent);padding:40px 38px;">
+          <div style="font-family:'JetBrains Mono',monospace;font-size:13px;letter-spacing:0.2em;color:#9398A2;">OVERALL — EXPERIENCE</div>
+          <div style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:140px;line-height:0.9;color:#FF5A2B;margin:8px 0 4px;">D+</div>
+          <div style="font-size:20px;color:#C7CCD4;line-height:1.45;margin-bottom:24px;">…wrapped around an engine that grades</div>
+          <div style="display:flex;align-items:center;gap:16px;margin-bottom:24px;"><span style="width:56px;height:56px;border-radius:12px;background:rgba(54,211,153,0.14);border:1px solid rgba(54,211,153,0.45);color:#36D399;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:30px;display:flex;align-items:center;justify-content:center;">A</span><span style="font-size:18px;color:#9398A2;line-height:1.4;">Physics, pipelines,<br>post-processors.</span></div>
+          <div style="font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:22px;color:#F3F4F6;line-height:1.3;">None of the D's require touching the A.</div>
+        </div>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-top:18px;padding-top:18px;border-top:1px solid rgba(255,255,255,0.08);font-family:'JetBrains Mono',monospace;font-size:13px;letter-spacing:0.18em;text-transform:uppercase;color:#5C616B;">
+        <span>Kienzle · Audit &amp; Identity</span><span>09</span>
+      </div>
+    </div>
+  </section>
+
+  <section data-label="The Name" data-speaker-notes="Prism is optical refraction — a pretty metaphor with nothing to do with metal, and it's legally Sandvik's now. The engine's actual heart is the Kienzle specific-cutting-force law: it's literally in the code as KienzleForceModelEngine with the kc1.1 constants per ISO group. Name the company what the machine already computes.">
+    <div style="width:1920px;height:1080px;box-sizing:border-box;background:radial-gradient(1000px 720px at 80% 55%, rgba(255,90,43,0.13), transparent 62%),linear-gradient(180deg,#0A0B0D,#070809);color:#F3F4F6;font-family:'Archivo',sans-serif;padding:84px 110px 70px;display:flex;flex-direction:column;">
+      <div style="font-family:'JetBrains Mono',monospace;font-size:14px;letter-spacing:0.28em;text-transform:uppercase;color:#FF5A2B;margin-bottom:20px;">The Rebrand · 01 — The Name</div>
+      <div style="display:grid;grid-template-columns:0.92fr 1.08fr;gap:60px;flex:1;align-items:center;">
+        <div>
+          <h2 style="margin:0;font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:60px;line-height:0.98;letter-spacing:-0.015em;">Stop naming it<br>after light.</h2>
+          <p style="margin:30px 0 0;font-size:23px;line-height:1.5;color:#AEB4BE;"><span style="color:#F3F4F6;">Prism</span> is optical refraction — a pretty physics metaphor with nothing to do with cutting metal. And it's now legally <span style="color:#F3F4F6;">Sandvik's</span>.</p>
+          <p style="margin:20px 0 0;font-size:23px;line-height:1.5;color:#AEB4BE;">The engine's real heart is the <span style="color:#FF7A4D;">Kienzle</span> specific-cutting-force law — the equation that turns chip geometry into the force behind every cut. Name the company what the machine already computes.</p>
+          <div style="margin-top:30px;padding:18px 22px;border-left:3px solid #FF5A2B;background:rgba(255,90,43,0.06);border-radius:0 12px 12px 0;">
+            <div style="font-family:'JetBrains Mono',monospace;font-size:13px;color:#9398A2;margin-bottom:8px;">it's already in your codebase:</div>
+            <div style="font-family:'JetBrains Mono',monospace;font-size:16px;color:#C7CCD4;line-height:1.7;"><span style="color:#FF7A4D;">KienzleForceModelEngine</span>.ts<br><span style="color:#71757F;">src/physics/constants.ts → </span>k<sub>c1.1</sub> per ISO group</div>
+          </div>
+        </div>
+        <div style="border:1px solid rgba(255,255,255,0.1);border-radius:20px;background:#0E0F12;padding:42px 46px;box-shadow:0 30px 80px rgba(0,0,0,0.5);">
+          <div style="font-family:'JetBrains Mono',monospace;font-size:13px;letter-spacing:0.16em;color:#71757F;margin-bottom:18px;">THE KIENZLE SPECIFIC CUTTING FORCE</div>
+          <div style="font-family:'Space Grotesk',sans-serif;font-size:52px;font-weight:500;color:#F3F4F6;letter-spacing:0.01em;margin-bottom:8px;">F<sub style="font-size:0.5em;color:#9398A2;">c</sub> = k<sub style="font-size:0.5em;color:#9398A2;">c1.1</sub> · b · h<sup style="font-size:0.6em;color:#FF7A4D;">(1−m<tspan>c</tspan>)</sup></div>
+          <div style="font-size:15px;color:#9398A2;line-height:1.6;margin-bottom:28px;">cutting force = specific force × chip width × chip thickness, corrected by the material's Kienzle exponent. Every speed &amp; feed in the app descends from this.</div>
+          <div style="font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:0.14em;color:#71757F;margin-bottom:12px;">k<sub>c1.1</sub> BY ISO MATERIAL GROUP — N/mm²</div>
+          <div style="display:grid;grid-template-columns:repeat(6,1fr);gap:8px;">
+            <div style="border:1px solid rgba(255,255,255,0.1);border-radius:9px;padding:12px 6px;text-align:center;"><div style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:22px;color:#FF7A4D;">P</div><div style="font-family:'JetBrains Mono',monospace;font-size:13px;color:#C7CCD4;margin-top:3px;">1800</div></div>
+            <div style="border:1px solid rgba(255,255,255,0.1);border-radius:9px;padding:12px 6px;text-align:center;"><div style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:22px;color:#FF7A4D;">M</div><div style="font-family:'JetBrains Mono',monospace;font-size:13px;color:#C7CCD4;margin-top:3px;">2100</div></div>
+            <div style="border:1px solid rgba(255,255,255,0.1);border-radius:9px;padding:12px 6px;text-align:center;"><div style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:22px;color:#FF7A4D;">K</div><div style="font-family:'JetBrains Mono',monospace;font-size:13px;color:#C7CCD4;margin-top:3px;">1100</div></div>
+            <div style="border:1px solid rgba(255,255,255,0.1);border-radius:9px;padding:12px 6px;text-align:center;"><div style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:22px;color:#FF7A4D;">N</div><div style="font-family:'JetBrains Mono',monospace;font-size:13px;color:#C7CCD4;margin-top:3px;">700</div></div>
+            <div style="border:1px solid rgba(255,255,255,0.1);border-radius:9px;padding:12px 6px;text-align:center;"><div style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:22px;color:#FF7A4D;">S</div><div style="font-family:'JetBrains Mono',monospace;font-size:13px;color:#C7CCD4;margin-top:3px;">2800</div></div>
+            <div style="border:1px solid rgba(255,255,255,0.1);border-radius:9px;padding:12px 6px;text-align:center;"><div style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:22px;color:#FF7A4D;">H</div><div style="font-family:'JetBrains Mono',monospace;font-size:13px;color:#C7CCD4;margin-top:3px;">3200</div></div>
+          </div>
+          <div style="margin-top:24px;display:flex;align-items:center;gap:14px;border-top:1px solid rgba(255,255,255,0.08);padding-top:22px;">
+            <svg viewBox="0 0 120 120" width="52" height="52" style="flex:none;"><rect x="22" y="20" width="13" height="80" rx="1.5" fill="#F3F4F6"/><path d="M35 60 L86 22" stroke="#F3F4F6" stroke-width="13" stroke-linecap="round"/><path d="M35 60 L92 98 L92 74 L58 60 Z" fill="#FF5A2B"/></svg>
+            <div><div style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:30px;letter-spacing:0.04em;">KIENZLE</div><div style="font-family:'JetBrains Mono',monospace;font-size:12px;color:#71757F;letter-spacing:0.12em;">MANUFACTURING INTELLIGENCE</div></div>
+          </div>
+        </div>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-top:18px;padding-top:18px;border-top:1px solid rgba(255,255,255,0.08);font-family:'JetBrains Mono',monospace;font-size:13px;letter-spacing:0.18em;text-transform:uppercase;color:#5C616B;">
+        <span>Kienzle · Audit &amp; Identity</span><span>10</span>
+      </div>
+    </div>
+  </section>
+
+</x-import>
+</x-dc>
+</body>
+</html>

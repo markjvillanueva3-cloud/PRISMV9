@@ -1,3 +1,4 @@
+// WIRE-EXEMPT: headless integration-test suite (MCTestCase/MCTestResult types), not an MCP dispatcher action.
 /**
  * MastercamHeadlessIntegrationTestEngine — U-CAD-APP-19 (PHASE-48)
  *

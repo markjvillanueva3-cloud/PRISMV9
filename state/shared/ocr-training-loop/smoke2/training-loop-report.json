@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "1.1.0",
+  "models": [
+    "qwen3-vl:8b-instruct",
+    "qwen2.5vl:7b"
+  ],
+  "n_models": 2,
+  "calibrate": {
+    "count_attempted": 3,
+    "cases": [
+      {
+        "seed": 9000,
+        "difficulty": "easy",
+        "n_models": 2,
+        "dims": 6,
+        "correct": 5
+      },
+      {
+        "seed": 9002,
+        "difficulty": "easy",
+        "n_models": 2,
+        "dims": 8,
+        "correct": 6
+      }
+    ],
+    "samples": 14,
+    "calibration": {
+      "byF": [
+        {
+          "f": 0.5,
+          "n": 8,
+          "correct": 6,
+          "raw": 0.75,
+          "isotonic": 0.75
+        },
+        {
+          "f": 1,
+          "n": 6,
+          "correct": 5,
+          "raw": 0.8333,
+          "isotonic": 0.8333
+        }
+      ],
+      "totalN": 14,
+      "minF": 0.5,
+      "maxF": 1,
+      "calibrated": true,
+      "reliable": false,
+      "minReliableSamples": 50
+    }
+  },
+  "weak_label": {
+    "listed": 0,
+    "corpus_processed_total": 0,
+    "resumed_skipped": 0,
+    "this_run_scored": 0,
+    "this_run_missing": 0,
+    "this_run_rasterize_or_ensemble_failed": 0,
+    "this_run_total_labels": 0,
+    "this_run_trainable_labels": 0,
+    "this_run_trainable_yield": 0,
+    "this_run_tier_totals": {
+      "gold": 0,
+      "silver": 0,
+      "bronze": 0,
+      "reject": 0,
+      "uncalibrated": 0,
+      "no_corroboration": 0
+    },
+    "this_run_active_learning_queued": 0
+  },
+  "outputs": {
+    "trainset": "state\\shared\\ocr-training-loop\\smoke2\\trainset.jsonl",
+    "active_learning_queue": "state\\shared\\ocr-training-loop\\smoke2\\active-learning-queue.jsonl",
+    "cursor": "state\\shared\\ocr-training-loop\\smoke2\\processed-cursor.jsonl"
+  },
+  "mustHumanVerify": true,
+  "note": "Pseudo-labels are ensemble-distilled. Gold/silver are calibration-tiered (validated on synthetic perfect-GT); operator must confirm the active-learning queue before LoRA fine-tune (india). Resumable: trainset/queue/cursor are append-only; re-run resumes from processed-cursor.jsonl. Multi-page PDFs emit one row PER PAGE (key+page+image). A reaper kill mid-print leaves up to k duplicate rows; xray-trainset-to-lora.mjs dedups them last-wins by key+page."
+}

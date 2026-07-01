@@ -127,12 +127,20 @@ export class CostSavingsTrackerEngine {
   private costs: typeof DEFAULT_COSTS;
   private idCounter = 0;
 
-  constructor() {
-    const prismDir = join(homedir(), ".prism");
-    if (!existsSync(prismDir)) {
-      try { mkdirSync(prismDir, { recursive: true }); } catch { /* ok */ }
+  constructor(opts: { storePath?: string } = {}) {
+    // storePath is injectable for test isolation (default: ~/.prism/savings.json).
+    // An injected path (e.g. a temp file) lets tests exercise the persistence +
+    // formula paths WITHOUT polluting the operator's real savings ledger. Only the
+    // default path ensures the ~/.prism dir exists; an injected path manages its own.
+    if (opts.storePath) {
+      this.storePath = opts.storePath;
+    } else {
+      const prismDir = join(homedir(), ".prism");
+      if (!existsSync(prismDir)) {
+        try { mkdirSync(prismDir, { recursive: true }); } catch { /* ok */ }
+      }
+      this.storePath = join(prismDir, "savings.json");
     }
-    this.storePath = join(prismDir, "savings.json");
     this.store = this.loadStore();
     this.costs = { ...DEFAULT_COSTS };
   }

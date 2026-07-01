@@ -113,7 +113,14 @@ export class ProgramStructureEngine {
     const warnings: string[] = [];
     const progNum = input.program_number ?? DEFAULT_PROGRAM_NUMBER;
     const workOffset = input.work_offset ?? DEFAULT_WORK_OFFSET;
-    const safeZ = input.safe_z_mm ?? DEFAULT_SAFE_Z;
+    // U-PP-NONFINITE-EMIT-SWEEP: a non-finite safe_z_mm would emit a literal `ZNaN`/
+    // `ZInfinity` retract the control rejects (`??` catches undefined, NOT NaN/Infinity).
+    // Default to the known-safe retract height + warn -- a retract to a safe default is
+    // safe, and this single source-guard covers all 3 safeZ emit sites (incl buildToolChange).
+    const safeZ = Number.isFinite(input.safe_z_mm) ? (input.safe_z_mm as number) : DEFAULT_SAFE_Z;
+    if (input.safe_z_mm !== undefined && !Number.isFinite(input.safe_z_mm)) {
+      warnings.push(`Non-finite safe_z_mm (${input.safe_z_mm}) -- defaulted to ${DEFAULT_SAFE_Z}mm to avoid a literal ZNaN/ZInfinity retract the control rejects; verify the setup.`);
+    }
     const home = input.machine_home ?? DEFAULT_HOME;
     const partName = input.part_name ?? "UNNAMED";
     const material = input.material ?? "UNKNOWN";

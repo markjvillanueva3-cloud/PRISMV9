@@ -173,9 +173,15 @@ describe("QuoteEstimatorEngine", () => {
 
     expect(est.costs.nre.items).toHaveLength(2);
     expect(est.costs.nre.total_nre).toBeGreaterThan(0);
-    // First item amortized, second not
-    expect(est.costs.nre.items[0].amortized_per_part).toBeGreaterThan(0);
-    expect(est.costs.nre.items[1].amortized_per_part).toBe(0);
+    // Both items amortize into per-part cost. total_nre is NOT separately billed
+    // (QuoteEstimatorEngine totalCost folds in only amortized_per_part*qty), so an
+    // NRE item with no explicit amortize_over_qty defaults to amortizing over the
+    // quote quantity — otherwise its cost would vanish from the quote (under-quote).
+    expect(est.costs.nre.items[0].amortized_per_part).toBeGreaterThan(0); // explicit amortize_over_qty:100
+    expect(est.costs.nre.items[1].amortized_per_part).toBeGreaterThan(0); // defaults to quote qty (100)
+    // Recovery invariant (the real intent): per-part NRE × qty recovers the FULL
+    // NRE total — nothing is silently dropped from the quote.
+    expect(est.costs.nre.amortized_per_part * 100).toBeCloseTo(est.costs.nre.total_nre, 0);
   });
 
   it("compareMaterials shows price differences", () => {

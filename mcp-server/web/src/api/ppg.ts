@@ -2,13 +2,34 @@
  * PPG (Post Processor Generator) API Client
  * U-PPGW05: Frontend functions for master post routes
  */
+import type {
+  PpgGenerateRequest,
+  PpgGenerateResult,
+  PpgTemplateRequest,
+  PpgTemplateResult,
+  PpgProgramRequest,
+  PpgProgramResult,
+  PpgValidateRequest,
+  PpgValidateResult,
+  PpgCompareRequest,
+  PpgCompareResult,
+  PpgOptimizeRequest,
+  PpgOptimizeResult,
+  PpgControllerInfo,
+  PpgOperationInfo,
+} from "../types/ppg";
 
 const BASE_URL = "/api/v1/ppg";
 const TIMEOUT_MS = 30_000;
 
-async function post<T>(endpoint: string, body: unknown): Promise<T> {
+async function post<T>(endpoint: string, body: unknown, signal?: AbortSignal): Promise<T> {
+  // 2026-05-27 (slot golf, GOAL-TSC-FIX iter5): added signal param so usePpgCall's
+  // AbortController plumbing actually cancels in-flight fetches. Falls back to
+  // the local TIMEOUT_MS controller if no caller-provided signal.
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), TIMEOUT_MS);
+  const onAbort = () => controller.abort();
+  if (signal) signal.addEventListener("abort", onAbort);
   try {
     const res = await fetch(`${BASE_URL}${endpoint}`, {
       method: "POST",
@@ -20,6 +41,22 @@ async function post<T>(endpoint: string, body: unknown): Promise<T> {
     return (await res.json()) as T;
   } finally {
     clearTimeout(timeout);
+    if (signal) signal.removeEventListener("abort", onAbort);
+  }
+}
+
+async function get<T>(endpoint: string, signal?: AbortSignal): Promise<T> {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), TIMEOUT_MS);
+  const onAbort = () => controller.abort();
+  if (signal) signal.addEventListener("abort", onAbort);
+  try {
+    const res = await fetch(`${BASE_URL}${endpoint}`, { method: "GET", signal: controller.signal });
+    if (!res.ok) throw new Error((await res.json().catch(() => ({}))).message ?? res.statusText);
+    return (await res.json()) as T;
+  } finally {
+    clearTimeout(timeout);
+    if (signal) signal.removeEventListener("abort", onAbort);
   }
 }
 
@@ -81,38 +118,55 @@ export interface MasterPostAutoResult extends MasterPostResult {
 
 export const ppgApi = {
   /** Hurco VMX24 mill master post (WinMax controller) */
-  masterHurcoV11: (req: MasterPostRequest) =>
-    post<MasterPostResult>("/master/hurco-v11", req),
+  masterHurcoV11: (req: MasterPostRequest, signal?: AbortSignal) =>
+    post<MasterPostResult>("/master/hurco-v11", req, signal),
 
   /** Okuma LB250 lathe master post (OSP-P300L controller) */
-  masterOkumaB250: (req: MasterPostRequest) =>
-    post<MasterPostResult>("/master/okuma-b250", req),
+  masterOkumaB250: (req: MasterPostRequest, signal?: AbortSignal) =>
+    post<MasterPostResult>("/master/okuma-b250", req, signal),
 
   /** Mitsubishi MV1200R wire EDM master post (M800V controller) */
-  masterMitsubishiMV1200R: (req: MasterPostRequest) =>
-    post<MasterPostResult>("/master/mitsubishi-mv1200r", req),
+  masterMitsubishiMV1200R: (req: MasterPostRequest, signal?: AbortSignal) =>
+    post<MasterPostResult>("/master/mitsubishi-mv1200r", req, signal),
 
   /** Auto-route to appropriate master post by machine model */
-  masterAuto: (req: MasterPostAutoRequest) =>
-    post<MasterPostAutoResult>("/master/auto", req),
+  masterAuto: (req: MasterPostAutoRequest, signal?: AbortSignal) =>
+    post<MasterPostAutoResult>("/master/auto", req, signal),
 
   /** Full 38-stage post processor pipeline */
-  pipeline: (req: unknown) => post("/pipeline", req),
+  pipeline: (req: unknown, signal?: AbortSignal) => post<unknown>("/pipeline", req, signal),
 
   /** Generate G-code from toolpath moves */
-  generate: (req: unknown) => post("/generate", req),
+  generate: (req: PpgGenerateRequest, signal?: AbortSignal) =>
+    post<PpgGenerateResult>("/generate", req, signal),
 
   /** Generate from parametric template */
-  template: (req: unknown) => post("/template", req),
+  template: (req: PpgTemplateRequest, signal?: AbortSignal) =>
+    post<PpgTemplateResult>("/template", req, signal),
+
+  /** Generate full program (multi-operation pipeline) */
+  program: (req: PpgProgramRequest, signal?: AbortSignal) =>
+    post<PpgProgramResult>("/program", req, signal),
 
   /** Validate G-code for controller compatibility */
-  validate: (req: unknown) => post("/validate", req),
+  validate: (req: PpgValidateRequest, signal?: AbortSignal) =>
+    post<PpgValidateResult>("/validate", req, signal),
 
   /** Compare G-code across controllers */
-  compare: (req: unknown) => post("/compare", req),
+  compare: (req: PpgCompareRequest, signal?: AbortSignal) =>
+    post<PpgCompareResult>("/compare", req, signal),
 
   /** Optimize G-code (reduce motion, merge rapids) */
-  optimize: (req: unknown) => post("/optimize", req),
+  optimize: (req: PpgOptimizeRequest, signal?: AbortSignal) =>
+    post<PpgOptimizeResult>("/optimize", req, signal),
+
+  /** GET supported controllers with feature flags */
+  getControllers: (signal?: AbortSignal) =>
+    get<PpgControllerInfo[]>("/controllers", signal),
+
+  /** GET supported operation types with parameter shapes */
+  getOperations: (signal?: AbortSignal) =>
+    get<PpgOperationInfo[]>("/operations", signal),
 };
 
 export default ppgApi;

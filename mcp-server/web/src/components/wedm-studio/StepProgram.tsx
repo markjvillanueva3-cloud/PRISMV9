@@ -284,7 +284,7 @@ export default function StepProgram({ onComplete, onBack, isActive }: StepProgra
         <Card>
           <h4 className="text-sm font-semibold text-slate-700 dark:text-slate-200 mb-3">
             Technology Table Mapping
-            <InfoTip text="Maps PRISM parameters to machine-native condition codes. Your machine uses specific E-pack/C-code/V-code numbers." />
+            <InfoTip text="Maps Kienzle parameters to machine-native condition codes. Your machine uses specific E-pack/C-code/V-code numbers." />
           </h4>
           <p className="text-xs text-slate-600 dark:text-slate-300 mb-2">
             Your machine ({selection.controller.toUpperCase()}) uses{" "}
@@ -300,7 +300,7 @@ export default function StepProgram({ onComplete, onBack, isActive }: StepProgra
               <thead>
                 <tr className="border-b border-slate-200 dark:border-slate-700">
                   <th className="text-left py-1 text-slate-400 font-medium">Pass</th>
-                  <th className="text-left py-1 text-slate-400 font-medium">PRISM Params</th>
+                  <th className="text-left py-1 text-slate-400 font-medium">Kienzle Params</th>
                   <th className="text-left py-1 text-slate-400 font-medium">{selection.controller.toUpperCase()} Code</th>
                 </tr>
               </thead>

@@ -70,7 +70,7 @@ function readSessionStops(sessionId) {
 
 function gitWorktreeUncommitted() {
   try {
-    const out = execSync("git status --porcelain=v1 2>nul", {
+    const out = execSync("git status --porcelain=v1 2>nul", { windowsHide: true,
       cwd: "H:/prism", encoding: "utf8", timeout: 3000, stdio: ["ignore", "pipe", "ignore"],
     });
     return out.trim().length > 0;
@@ -79,7 +79,7 @@ function gitWorktreeUncommitted() {
 
 function gitRecentCommits(n = 3) {
   try {
-    const out = execSync(`git log --oneline -${n} 2>nul`, {
+    const out = execSync(`git log --oneline -${n} 2>nul`, { windowsHide: true,
       cwd: "H:/prism", encoding: "utf8", timeout: 3000, stdio: ["ignore", "pipe", "ignore"],
     });
     return out.split(/\r?\n/).filter(Boolean);

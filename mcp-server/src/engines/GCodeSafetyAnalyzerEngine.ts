@@ -152,14 +152,33 @@ const COMMENT_PATTERNS: Record<ControllerType, RegExp> = {
   okuma: /\(.*\)/,
 };
 
-/** Safe start block requirements per controller */
+/**
+ * Safe start block requirements per controller.
+ *
+ * Per-controller note (U-GCANALYZER-OKUMA-START-BLOCK, whiskey 2026-05-24):
+ * - fanuc / haas / mazak: mill-centric Fanuc convention with G80 (canned
+ *   cycle cancel), G49 (tool offset comp cancel), G17 (XY plane).
+ * - siemens: G90 + G40 + G17 (less rigid Fanuc convention).
+ * - heidenhain: no required codes (different dialect entirely).
+ * - okuma: OSP-controller lathes default-init to G90 (absolute), G40 (cutter
+ *   comp off), and operate in lathe-mode (no G17/G49/G80 — those are
+ *   mill-centric). The canonical OSP lathe safe-start is `G50 S<rpm>` (max
+ *   RPM clamp) + `G97`/`G96` (constant RPM vs constant surface speed) — NOT
+ *   the Fanuc mill subset. Requiring G80/G49/G17 on lathe programs was a
+ *   false-positive cascade across the JM Die corpus.
+ *
+ * The okuma list below is intentionally LIBERAL — only the absolute-
+ * positioning code is universally required. Lathe-specific safety
+ * (G50 max-RPM clamp) is checked separately via a dedicated rule in a
+ * follow-up unit (U-OKUMA-LATHE-G50-CHECK).
+ */
 const SAFE_START_CODES: Record<ControllerType, string[]> = {
   fanuc: ['G90', 'G80', 'G40', 'G49', 'G17'],
   haas: ['G90', 'G80', 'G40', 'G49', 'G17'],
   siemens: ['G90', 'G40', 'G17'],
   heidenhain: [],
   mazak: ['G90', 'G80', 'G40', 'G49', 'G17'],
-  okuma: ['G90', 'G80', 'G40', 'G49', 'G17'],
+  okuma: ['G90'],
 };
 
 const MAX_CARBIDE_SFM = 1200;
@@ -223,8 +242,14 @@ export class GCodeSafetyAnalyzerEngine {
       mCodes.push(this.normalizeCode(`M${m[1]}`));
     }
 
-    // Extract address values (X, Y, Z, F, S, T, R, etc.)
-    const addrPattern = /([A-Z])\s*(-?\d+\.?\d*)/gi;
+    // Extract address values (X, Y, Z, F, S, T, R, etc.).
+    // The numeric pattern accepts BOTH "0.040" AND ".040" — Okuma OSP
+    // programs (JM Die fleet) commonly emit leading-dot decimals (`F.006`,
+    // `X-.040`). Prior regex `/-?\d+\.?\d*/` required digits before the
+    // decimal, silently failing to parse `F.006` → modal feedRate stayed 0
+    // → CRIT-05 fired on every cut. Fix per JM-DIE-LATHE-UPGRADE-MS0/
+    // U-GCANALYZER-MODAL-F-TRACK (whiskey 2026-05-24).
+    const addrPattern = /([A-Z])\s*(-?(?:\d+\.?\d*|\.\d+))/gi;
     const addrMatches = code.matchAll(addrPattern);
     for (const m of addrMatches) {
       const letter = m[1].toUpperCase();
@@ -1012,6 +1037,43 @@ export class GCodeSafetyAnalyzerEngine {
     return null;
   }
 
+  /**
+   * HIGH-19 (U-OKUMA-LATHE-G50-CHECK, whiskey 2026-05-24): Okuma OSP lathes
+   * require `G50 S<max_rpm>` to clamp spindle speed. Without G50, a small-
+   * diameter cut in CSS (constant surface speed, G96) mode can drive the
+   * spindle to mechanical destruction. Mill-mode programs skip this check.
+   * Searches the first 20 non-comment lines for an `G50` block carrying an
+   * S-address. Lathe-only — fires only when controller=okuma.
+   */
+  private checkOkumaG50MaxRpmClamp(
+    lines: ParsedLine[],
+    config: SafetyAnalysisConfig,
+  ): SafetyIssue | null {
+    if (config.controller !== 'okuma') return null;
+    const HEADER_SCAN_LINES = 20;
+    const firstLines = lines
+      .filter((l) => !l.isComment)
+      .slice(0, HEADER_SCAN_LINES);
+    const hasG50WithS = firstLines.some(
+      (l) => l.gCodes.includes('G50') && l.addresses.has('S'),
+    );
+    if (hasG50WithS) return null;
+    return {
+      rule_id: 'HIGH-19',
+      line: firstLines[0]?.lineNum ?? 1,
+      code_snippet: firstLines[0]?.raw ?? '',
+      description:
+        'Okuma lathe program missing G50 S<max_rpm> spindle-speed clamp. ' +
+        'Without it, a small-diameter cut in CSS (G96) mode can drive the ' +
+        'spindle past mechanical limits — catastrophic failure mode.',
+      fix_suggestion:
+        'Add `G50 S<max_rpm>` near the program header (typical value: ' +
+        '2500-3600 for steel, machine-dependent). Required even when G97 ' +
+        '(constant RPM) is used downstream — the clamp applies globally.',
+      severity: 'high',
+    };
+  }
+
   /** HIGH-18: Missing safe start block */
   private checkSafeStartBlock(
     lines: ParsedLine[],
@@ -1325,6 +1387,13 @@ export class GCodeSafetyAnalyzerEngine {
 
     const blockDeleteIssue = this.checkExcessiveBlockDelete(lines);
     if (blockDeleteIssue) medium.push(blockDeleteIssue);
+
+    // U-OKUMA-LATHE-G50-CHECK (whiskey 2026-05-24): Okuma OSP-controller
+    // lathes use G50 S<rpm> to clamp the max spindle RPM — critical when
+    // the part is small-diameter (constant-surface-speed mode can compute a
+    // runaway RPM otherwise). Absence is a HIGH severity safety lint.
+    const g50Issue = this.checkOkumaG50MaxRpmClamp(lines, config);
+    if (g50Issue) high.push(g50Issue);
 
     // Line-by-line analysis with modal state tracking
     for (const line of lines) {

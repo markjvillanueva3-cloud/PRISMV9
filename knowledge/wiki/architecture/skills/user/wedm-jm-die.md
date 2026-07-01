@@ -23,17 +23,14 @@ related:
 |-------|-------|
 | Name | `wedm-jm-die` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/wedm-jm-die.md` |
+| Source | `C:/Users/wompu/.claude/commands/wedm-jm-die.md` |
 | Model | default |
 | Tags | _(none)_ |
 
 ## Description (first paragraph)
 
-Inject JM Die Company Wire EDM shop context:
-- Machine inventory (Mitsubishi FA-20S)
-- Customer-specific patterns
-- Historical program analysis
-- Material preferences
+
+# /wedm-jm-die — JM Die Shop Context
 
 <!-- AUTO-END -->
 

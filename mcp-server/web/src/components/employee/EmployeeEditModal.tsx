@@ -10,7 +10,11 @@ import { ActionButton, Field, Input, Select } from '../workspace/WorkspacePrimit
 interface EmployeeEditModalProps {
   employee: Employee;
   onSave: (employeeId: string, updates: Record<string, unknown>) => Promise<void>;
-  onCloseShift?: (employeeId: string) => Promise<void>;
+  // 2026-05-27 iter25 widened to accept (id, reason) — caller's
+  // handleManagerCloseShift requires `reason: string`, so the prop must too.
+  // Modal's internal call site at L163 already supplies a sensible default
+  // ('Manager closed shift') so this matches without prompting the operator.
+  onCloseShift?: (employeeId: string, reason: string) => Promise<void>;
   onClose: () => void;
   saving: boolean;
 }
@@ -160,7 +164,7 @@ export function EmployeeEditModal({ employee, onSave, onCloseShift, onClose, sav
             {onCloseShift && (
               <button
                 type="button"
-                onClick={() => void onCloseShift(employee.id)}
+                onClick={() => void onCloseShift(employee.id, 'Manager closed forgotten shift from EmployeeEditModal')}
                 disabled={saving}
                 className="rounded-lg border border-amber-400/30 bg-amber-400/10 px-4 py-2 text-sm font-medium text-amber-300 transition hover:bg-amber-400/20 disabled:opacity-50"
               >

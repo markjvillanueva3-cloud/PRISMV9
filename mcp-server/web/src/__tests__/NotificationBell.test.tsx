@@ -59,6 +59,7 @@ describe('NotificationBell', () => {
       },
       clearance_level: 'lead',
       login: vi.fn(),
+      register: vi.fn(),
       logout: vi.fn(),
       displayName: 'Mark V',
     });

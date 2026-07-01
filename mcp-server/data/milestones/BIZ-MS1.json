@@ -1,0 +1,524 @@
+{
+  "id": "BIZ-MS1",
+  "version": "1.0.0",
+  "title": "Shop Floor Clock & Multi-Job Tracking",
+  "brief": "Wire ShopFloorClockPage and related components (ShiftClockWidget, ActiveJobsDashboard, JobSelector) to real backend data from TimeClockEngine. Adds handoff notes, fatigue alerting, enhanced pause reasons, barcode job selection, WebSocket real-time updates with polling fallback, and offline IndexedDB queue. Depends on BIZ-MS0 completing the jobTimePause route fix and TimeClockEngine enhancements.",
+  "created_at": "2026-04-08T22:45:00Z",
+  "created_by": "claude-opus-4-6",
+  "track": "BIZ",
+  "track_name": "Business Management Platform",
+  "status": "complete",
+  "total_units": 5,
+  "total_sessions": "3-4",
+  "plan_file": "H:/prism/plans/erp-employee/BUSINESS-MANAGEMENT-MASTER-PLAN.md",
+  "phases": [
+    {
+      "id": "BIZ-MS1-P1",
+      "title": "Enhanced Shift Clock + Job Tracking Wiring",
+      "description": "Wire ShiftClockWidget and ActiveJobsDashboard to the enhanced TimeClockEngine backend, adding handoff notes, fatigue alerting, pause reason categories, and production count capture on job stop.",
+      "sessions": "2",
+      "primary_role": "R2",
+      "primary_model": "sonnet-4-6",
+      "units": [
+        {
+          "id": "U-BIZ07",
+          "title": "Wire ShiftClockWidget to enhanced backend",
+          "phase": "BIZ-MS1-P1",
+          "sequence": 1,
+          "role": "R2",
+          "role_name": "Builder",
+          "model": "sonnet-4-6",
+          "effort": 80,
+          "dependencies": ["BIZ-MS0"],
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Read web/src/components/jobs/ShiftClockWidget.tsx in full to understand existing state and props"
+            },
+            {
+              "number": 2,
+              "instruction": "Add getShiftHandoff(employeeId: string) to web/src/api/client.ts — GET /api/erp/shift-handoff/:employeeId, returns { handoff_notes: string, operator_name: string, clock_out_time: string } | null"
+            },
+            {
+              "number": 3,
+              "instruction": "On clock-in render: call getShiftHandoff() for the current employee and display the previous shift's handoff_notes in a yellow banner if present (operator name + time + notes)"
+            },
+            {
+              "number": 4,
+              "instruction": "On clock-out: show a textarea (min 3 rows, placeholder 'Handoff notes for next operator...') and pass handoff_notes value to shiftClockOut() call"
+            },
+            {
+              "number": 5,
+              "instruction": "Add fatigue alert banner: if current shift duration >= 12 hours, render a red banner 'FATIGUE ALERT: 12+ hours on shift. Consider a break.' above the clock-out button"
+            },
+            {
+              "number": 6,
+              "instruction": "Ensure clock-out button is disabled while the handoff_notes textarea is empty (require at least 1 non-whitespace character)"
+            },
+            {
+              "number": 7,
+              "instruction": "Run npm run build:fast and fix any TypeScript errors"
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "web/src/components/jobs/ShiftClockWidget.tsx",
+              "type": "source",
+              "description": "ShiftClockWidget with handoff notes input, previous handoff display, fatigue alert banner"
+            },
+            {
+              "path": "web/src/api/client.ts",
+              "type": "source",
+              "description": "getShiftHandoff() API method added"
+            }
+          ],
+          "exit_conditions": [
+            "Clock in shows previous operator's handoff notes in yellow banner if available",
+            "Clock out prompts for handoff notes (required, non-empty)",
+            "Fatigue alert banner appears at 12+ hours on shift",
+            "getShiftHandoff() makes correct GET call and handles null response"
+          ],
+          "knowledge_sources": [
+            "web/src/components/jobs/ShiftClockWidget.tsx",
+            "web/src/api/client.ts",
+            "web/src/pages/ShopFloorClockPage.tsx",
+            "src/engines/TimeClockEngine.ts"
+          ],
+          "abort_criteria": [
+            "BIZ-MS0 not complete (TimeClockEngine lacks handoff_notes on ShiftEntry)",
+            "shiftClockOut route does not accept handoff_notes parameter"
+          ],
+          "rollback": "Revert ShiftClockWidget.tsx to last working commit; remove getShiftHandoff from client.ts"
+        },
+        {
+          "id": "U-BIZ08",
+          "title": "Wire ActiveJobsDashboard to enhanced job tracking",
+          "phase": "BIZ-MS1-P1",
+          "sequence": 2,
+          "role": "R2",
+          "role_name": "Builder",
+          "model": "sonnet-4-6",
+          "effort": 95,
+          "dependencies": ["U-BIZ07"],
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Read web/src/components/jobs/ActiveJobsDashboard.tsx in full to understand existing job card structure and state"
+            },
+            {
+              "number": 2,
+              "instruction": "Add process_type selector to each job card: a small segmented control with values [setup, run, rework, inspection, teardown] — default from job routing data, operator can change"
+            },
+            {
+              "number": 3,
+              "instruction": "Ensure the live job timer is displayed in 48px+ font on each job card, updating every second via setInterval"
+            },
+            {
+              "number": 4,
+              "instruction": "Add cost-so-far display on each job card: elapsed_seconds * (hourly_rate / 3600), formatted as '$XX.XX', updating every 30 seconds"
+            },
+            {
+              "number": 5,
+              "instruction": "Replace single pause button with 5 quick-reason buttons on pause: machine_down (wrench icon), tool_change (gear icon), material_shortage (box icon), break (coffee icon), waiting_inspection (eye icon), plus an 'Other' button that opens a text input. Each sends reason_category + optional notes to jobTimePause()"
+            },
+            {
+              "number": 6,
+              "instruction": "Add stop button completion modal: number pad input for good_parts (large digit display, min 0), scrap_count input, scrap_reason dropdown [dimension_out_of_spec, surface_finish, wrong_material, operator_error, machine_fault, other]. Call jobTimeStop() with good_parts, scrap_count, scrap_reason, process_type"
+            },
+            {
+              "number": 7,
+              "instruction": "Add auto-pause toast: when user clicks Start New Job and there is already an active (running) job, show a toast 'Auto-pausing [job X] to start [job Y]' and call jobTimePause() on the running job with reason_category='break' before starting the new one"
+            },
+            {
+              "number": 8,
+              "instruction": "Update jobTimePause() call in web/src/api/client.ts to send { jobTimeId, reason, reason_category, notes? } in request body"
+            },
+            {
+              "number": 9,
+              "instruction": "Run npm run build:fast and fix any TypeScript errors"
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "web/src/components/jobs/ActiveJobsDashboard.tsx",
+              "type": "source",
+              "description": "ActiveJobsDashboard with process_type selector, 48px timer, cost-so-far, 5-reason pause buttons, completion modal with production counts"
+            },
+            {
+              "path": "web/src/api/client.ts",
+              "type": "source",
+              "description": "jobTimePause() updated to send reason + reason_category"
+            }
+          ],
+          "exit_conditions": [
+            "Each job card shows process_type selector, 48px+ live timer, cost-so-far",
+            "Pause shows 5 quick-reason buttons + Other with free text",
+            "Stop modal captures good_parts (number pad), scrap_count, scrap_reason",
+            "Auto-pause toast fires and pauses running job when starting a new one",
+            "jobTimePause API call sends reason_category in body"
+          ],
+          "knowledge_sources": [
+            "web/src/components/jobs/ActiveJobsDashboard.tsx",
+            "web/src/api/client.ts",
+            "web/src/pages/ShopFloorClockPage.tsx",
+            "src/engines/TimeClockEngine.ts"
+          ],
+          "abort_criteria": [
+            "BIZ-MS0 TimeClockEngine jobPause() does not accept reason_category",
+            "BIZ-MS0 jobStop() does not accept good_parts / scrap_count"
+          ],
+          "rollback": "Revert ActiveJobsDashboard.tsx to last working commit; revert jobTimePause signature in client.ts"
+        }
+      ],
+      "gate": {
+        "omega_floor": 1.0,
+        "safety_floor": 0.90,
+        "test_required": true,
+        "build_required": true,
+        "anti_regression": true,
+        "checkpoint": true,
+        "learning_save": true
+      },
+      "scrutiny_checkpoint": true,
+      "scrutiny_focus": [
+        "UX: 72px+ touch targets for all buttons on tablets",
+        "Fatigue alert: correct 12-hour threshold calculation accounting for pause periods",
+        "Pause reasons: all 5 categories map correctly to TimeClockEngine reason_category enum",
+        "Number pad: good_parts cannot be negative",
+        "Auto-pause: must not auto-pause an already-paused job"
+      ]
+    },
+    {
+      "id": "BIZ-MS1-P2",
+      "title": "Barcode Job Selection + Real-Time Updates",
+      "description": "Wire JobSelector with barcode scanner support and process type auto-selection from routing, then add WebSocket real-time multi-tablet sync with 10-second polling fallback.",
+      "sessions": "1-2",
+      "primary_role": "R2",
+      "primary_model": "sonnet-4-6",
+      "units": [
+        {
+          "id": "U-BIZ09",
+          "title": "Wire JobSelector to enhanced routing",
+          "phase": "BIZ-MS1-P2",
+          "sequence": 1,
+          "role": "R2",
+          "role_name": "Builder",
+          "model": "sonnet-4-6",
+          "effort": 75,
+          "dependencies": ["U-BIZ08"],
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Read web/src/components/jobs/JobSelector.tsx in full to understand current job search and selection flow"
+            },
+            {
+              "number": 2,
+              "instruction": "Add a hidden <input type='text' autoFocus className='sr-only' /> at the top of the component for USB barcode scanner keyboard emulation — captures rapid keystrokes ending in Enter as a barcode scan event"
+            },
+            {
+              "number": 3,
+              "instruction": "On barcode scan (input receiving 4+ chars within 100ms followed by Enter key): call getJobByBarcode(barcode) API and populate the job selector with the result, showing a brief 'Job scanned: [job_number]' flash toast"
+            },
+            {
+              "number": 4,
+              "instruction": "Add getJobByBarcode(barcode: string) to web/src/api/client.ts — GET /api/erp/jobs/barcode/:barcode, returns JobSummary with job_number, description, process_type from routing, machine_id from routing"
+            },
+            {
+              "number": 5,
+              "instruction": "When a job is selected (by barcode or dropdown), auto-populate process_type from job routing (using the first unstarted operation). Show a confirmation step: 'Process: [setup/run/etc] — Confirm or change?'"
+            },
+            {
+              "number": 6,
+              "instruction": "Add machine_id selector dropdown populated from MachineRegistry — filtered to machines with matching process_type capability. Update jobTimeStart() call in client.ts to send process_type and machine_id in body"
+            },
+            {
+              "number": 7,
+              "instruction": "Run npm run build:fast and fix any TypeScript errors"
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "web/src/components/jobs/JobSelector.tsx",
+              "type": "source",
+              "description": "JobSelector with hidden barcode input, auto-populated process_type from routing, machine_id selector"
+            },
+            {
+              "path": "web/src/api/client.ts",
+              "type": "source",
+              "description": "getJobByBarcode() and updated jobTimeStart() with process_type + machine_id"
+            }
+          ],
+          "exit_conditions": [
+            "USB barcode scanner keystrokes captured by hidden autoFocus input",
+            "Barcode scan auto-populates job, process_type, machine_id from routing",
+            "Operator sees confirmation step before committing process_type",
+            "Machine dropdown shows only compatible machines for the process type",
+            "jobTimeStart() sends process_type and machine_id in request body"
+          ],
+          "knowledge_sources": [
+            "web/src/components/jobs/JobSelector.tsx",
+            "web/src/api/client.ts",
+            "web/src/pages/ShopFloorClockPage.tsx",
+            "src/registries/MachineRegistry.ts",
+            "src/engines/TimeClockEngine.ts"
+          ],
+          "abort_criteria": [
+            "No /api/erp/jobs/barcode/:barcode route exists on backend (would need BIZ-MS0 or separate unit)",
+            "MachineRegistry not accessible from frontend API"
+          ],
+          "rollback": "Revert JobSelector.tsx; remove getJobByBarcode from client.ts; revert jobTimeStart signature"
+        },
+        {
+          "id": "U-BIZ10",
+          "title": "Add WebSocket real-time updates + polling fallback",
+          "phase": "BIZ-MS1-P2",
+          "sequence": 2,
+          "role": "R2",
+          "role_name": "Builder",
+          "model": "sonnet-4-6",
+          "effort": 90,
+          "dependencies": ["U-BIZ09"],
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Create web/src/hooks/useJobStatusSocket.ts — a React hook that opens a WebSocket to ws://[host]/api/erp/ws/job-status and subscribes to job_update events filtered by employeeId or departmentId"
+            },
+            {
+              "number": 2,
+              "instruction": "The hook returns { jobs, connectionStatus: 'connected' | 'polling' | 'disconnected', lastUpdated }. On WS message, parse JSON and update jobs state via React state dispatch"
+            },
+            {
+              "number": 3,
+              "instruction": "Implement 10-second polling fallback: when WS is closed or errors, set a setInterval that calls getActiveJobs() every 10 seconds. Clear interval when WS reconnects"
+            },
+            {
+              "number": 4,
+              "instruction": "Add exponential backoff reconnect to WebSocket: 1s, 2s, 4s, 8s, max 30s. Do not reconnect if component is unmounted (track with useRef isMounted flag)"
+            },
+            {
+              "number": 5,
+              "instruction": "Add connection status indicator to ShopFloorClockPage.tsx: a small dot (12px circle) in top-right corner — green (#22c55e) = WebSocket live, yellow (#eab308) = polling, red (#ef4444) = disconnected. Tooltip on hover shows 'Live' / 'Polling (Xs)' / 'Offline'"
+            },
+            {
+              "number": 6,
+              "instruction": "When any operator on another tablet pauses, resumes, or stops a job, the WS broadcast should cause the receiving tablet's ActiveJobsDashboard to re-render within 2 seconds. Verify this by reading the WS server broadcast logic in src/routes/erp.ts"
+            },
+            {
+              "number": 7,
+              "instruction": "Replace the existing polling in ActiveJobsDashboard (if any) with the useJobStatusSocket hook"
+            },
+            {
+              "number": 8,
+              "instruction": "Run npm run build:fast and fix any TypeScript errors"
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "web/src/hooks/useJobStatusSocket.ts",
+              "type": "source",
+              "description": "WebSocket hook with polling fallback, exponential backoff reconnect, connection status"
+            },
+            {
+              "path": "web/src/pages/ShopFloorClockPage.tsx",
+              "type": "source",
+              "description": "Connection status indicator dot added"
+            },
+            {
+              "path": "web/src/components/jobs/ActiveJobsDashboard.tsx",
+              "type": "source",
+              "description": "Wired to useJobStatusSocket hook"
+            }
+          ],
+          "exit_conditions": [
+            "WebSocket connects and receives job_update events",
+            "Polling fallback activates within 2 seconds of WS disconnect",
+            "Connection status dot shows correct color for each state",
+            "Two tablets see each other's job state changes within 2 seconds",
+            "Exponential backoff prevents reconnect storm",
+            "No memory leaks: intervals and WS closed on component unmount"
+          ],
+          "knowledge_sources": [
+            "web/src/hooks/useJobStatusSocket.ts",
+            "web/src/pages/ShopFloorClockPage.tsx",
+            "web/src/components/jobs/ActiveJobsDashboard.tsx",
+            "src/routes/erp.ts"
+          ],
+          "abort_criteria": [
+            "No WebSocket server endpoint exists at /api/erp/ws/job-status in erp.ts",
+            "WS server does not broadcast on pause/resume/stop events"
+          ],
+          "rollback": "Remove useJobStatusSocket.ts; revert ActiveJobsDashboard to direct API calls; remove status dot from ShopFloorClockPage"
+        }
+      ],
+      "gate": {
+        "omega_floor": 1.0,
+        "safety_floor": 0.90,
+        "test_required": true,
+        "build_required": true,
+        "anti_regression": true,
+        "checkpoint": true,
+        "learning_save": true
+      },
+      "scrutiny_checkpoint": true,
+      "scrutiny_focus": [
+        "Barcode scanner: hidden input must not steal focus from visible inputs",
+        "WebSocket: no reconnect storm — exponential backoff enforced",
+        "Polling fallback: interval must clear when WS reconnects to prevent double-update",
+        "Memory safety: all intervals and WS closed on unmount",
+        "Multi-tablet: broadcast must include enough data for full re-render (not just a ping)"
+      ]
+    },
+    {
+      "id": "BIZ-MS1-P3",
+      "title": "Offline Resilience",
+      "description": "IndexedDB offline queue for all shop floor actions, with automatic replay on reconnect and a pending-sync banner.",
+      "sessions": "1",
+      "primary_role": "R2",
+      "primary_model": "sonnet-4-6",
+      "units": [
+        {
+          "id": "U-BIZ11",
+          "title": "Add offline resilience with IndexedDB queue",
+          "phase": "BIZ-MS1-P3",
+          "sequence": 1,
+          "role": "R2",
+          "role_name": "Builder",
+          "model": "sonnet-4-6",
+          "effort": 85,
+          "dependencies": ["U-BIZ10"],
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Create web/src/lib/OfflineQueueManager.ts — a class that wraps IndexedDB (idb or native IDBDatabase) with an 'offline_actions' object store. Schema: { id: auto-increment, action_type: string, payload: object, timestamp: ISO string, status: 'pending' | 'syncing' | 'failed' }"
+            },
+            {
+              "number": 2,
+              "instruction": "Implement enqueue(action_type: string, payload: object): Promise<number> — stores the action with status='pending' and returns the IDB key"
+            },
+            {
+              "number": 3,
+              "instruction": "Implement replayAll(): Promise<{ replayed: number, skipped: number, failed: number }> — iterates pending actions oldest-to-newest (sorted by timestamp), calls the corresponding API function for each action_type, marks as 'syncing' during the call. On 409 Conflict (already processed on server), mark status='skipped'. On success, delete the record. On other errors, mark status='failed' and stop replay"
+            },
+            {
+              "number": 4,
+              "instruction": "Implement getPendingCount(): Promise<number> and subscribe(callback: (count: number) => void) for reactive UI updates"
+            },
+            {
+              "number": 5,
+              "instruction": "Wrap the API functions in client.ts (shiftClockIn, shiftClockOut, jobTimeStart, jobTimePause, jobTimeStop) with a try/catch: on network error (fetch throws or status >= 500 and not 409), call offlineQueueManager.enqueue(action_type, payload) and return a synthetic optimistic response so the UI does not block"
+            },
+            {
+              "number": 6,
+              "instruction": "Create web/src/hooks/useOfflineSync.ts — subscribes to OfflineQueueManager.subscribe(), triggers replayAll() when navigator.onLine becomes true (via 'online' event), exposes { pendingCount, isSyncing }"
+            },
+            {
+              "number": 7,
+              "instruction": "Add pending-sync banner to ShopFloorClockPage.tsx: when pendingCount > 0, show a yellow banner at top 'X actions pending sync — will auto-sync on reconnect'. When isSyncing, show 'Syncing X actions...' with a spinner"
+            },
+            {
+              "number": 8,
+              "instruction": "Run npm run build:fast and fix any TypeScript errors"
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "web/src/lib/OfflineQueueManager.ts",
+              "type": "source",
+              "description": "IndexedDB offline queue with enqueue, replayAll, getPendingCount, subscribe"
+            },
+            {
+              "path": "web/src/hooks/useOfflineSync.ts",
+              "type": "source",
+              "description": "React hook wrapping OfflineQueueManager with online event listener and auto-replay"
+            },
+            {
+              "path": "web/src/api/client.ts",
+              "type": "source",
+              "description": "API wrappers updated to enqueue on network failure"
+            },
+            {
+              "path": "web/src/pages/ShopFloorClockPage.tsx",
+              "type": "source",
+              "description": "Pending-sync banner added"
+            }
+          ],
+          "exit_conditions": [
+            "WiFi drop during pause: action queued in IndexedDB, UI shows 'X actions pending sync'",
+            "On reconnect: replayAll() fires automatically, banner shows 'Syncing...' then clears",
+            "If server returns 409 (already processed): record skipped without re-sending",
+            "Actions replayed in chronological order (oldest first)",
+            "getPendingCount() returns 0 after successful replay",
+            "OfflineQueueManager works in browsers supporting IndexedDB (Chrome 80+, Safari 14+)"
+          ],
+          "knowledge_sources": [
+            "web/src/lib/OfflineQueueManager.ts",
+            "web/src/hooks/useOfflineSync.ts",
+            "web/src/api/client.ts",
+            "web/src/pages/ShopFloorClockPage.tsx"
+          ],
+          "abort_criteria": [
+            "Target browsers do not support IndexedDB (extremely unlikely in 2026)",
+            "Server does not return 409 on duplicate action replay (conflict detection requires server-side idempotency keys)"
+          ],
+          "rollback": "Remove OfflineQueueManager.ts and useOfflineSync.ts; revert client.ts wrappers; remove banner from ShopFloorClockPage"
+        }
+      ],
+      "gate": {
+        "omega_floor": 1.0,
+        "safety_floor": 0.90,
+        "test_required": true,
+        "build_required": true,
+        "anti_regression": true,
+        "checkpoint": true,
+        "learning_save": true
+      },
+      "scrutiny_checkpoint": true,
+      "scrutiny_focus": [
+        "IndexedDB: object store created before first enqueue (handle onupgradeneeded correctly)",
+        "Replay order: must be strictly chronological, not insertion order if timestamps differ",
+        "Optimistic response: UI must not crash if API is unavailable — synthetic response must match shape of real response",
+        "Online event: 'online' fires on reconnect but network may not be fully ready — add 2s delay before replay",
+        "Failed replay: stop on first non-409 error to prevent partial state corruption"
+      ]
+    }
+  ],
+  "dependencies": ["BIZ-MS0"],
+  "forge_triple": {
+    "hook": {
+      "name": "biz-ms1-offline-guard",
+      "trigger": "PreToolUse(Write|Edit)",
+      "file": "web/src/api/client.ts",
+      "description": "Warn if API client function is added without a corresponding offline-queue enqueue call for shop floor action types"
+    },
+    "mcp_action": {
+      "dispatcher": "businessDispatcher",
+      "action": "shift_handoff_get",
+      "description": "Fetch the most recent handoff notes for a given employee's last completed shift — used by ShiftClockWidget on clock-in render"
+    },
+    "skill_enhancement": {
+      "skill": "shop_floor_ux",
+      "enhancement": "Touch-first tablet patterns: 72px targets, barcode scanner hidden input, offline-first API wrappers with IndexedDB queue, WebSocket + polling hybrid real-time"
+    }
+  },
+  "enforcement": {
+    "build_gate": "npm run build:fast must pass after each unit before proceeding to next unit",
+    "no_mock_data": "All API calls must target real backend routes — no fixture JSON or hardcoded arrays in completed units",
+    "touch_targets": "All interactive elements must be minimum 72px tall for tablet use",
+    "offline_required": "API wrappers for clock-in, clock-out, job start, pause, stop MUST have offline queue fallback after U-BIZ11",
+    "websocket_fallback": "WebSocket implementation must include polling fallback — pure WS with no fallback is not acceptable",
+    "no_passthrough": "No .passthrough() in any Zod schema added or modified in this milestone"
+  },
+  "exit_conditions": [
+    "Clock in shows previous operator's handoff notes",
+    "Clock out requires and saves handoff notes",
+    "Fatigue alert banner appears at 12+ hours",
+    "Each job card shows: process_type selector, 48px+ live timer, cost-so-far",
+    "Pause presents 5 reason buttons + Other free text",
+    "Stop modal captures good_parts and scrap_count",
+    "Barcode scan auto-populates job + process_type + machine_id",
+    "Two tablets see each other's job changes within 2 seconds via WebSocket",
+    "Polling fallback activates on WS disconnect",
+    "WiFi drop queues action in IndexedDB, auto-syncs on reconnect",
+    "npm run build:fast clean (0 errors), all affected tests pass"
+  ]
+}

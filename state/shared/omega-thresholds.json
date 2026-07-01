@@ -1,0 +1,58 @@
+{
+  "schemaVersion": "1.0.0",
+  "description": "Tiered safety/quality thresholds for PRISM Ω(x) safety equation. Cited by CLAUDE.md §VERIFICATION PIPELINE and Operating Rules auto-injection. Authoritative source for tier ladder.",
+  "lastUpdated": "2026-04-30",
+  "tiers": {
+    "shop_floor": {
+      "description": "G-code, feed/speed → real machine. Five-sigma. Default tier when in doubt.",
+      "omega_min": 0.95,
+      "safety_min": 0.98,
+      "fai_required": true,
+      "scrutiny_ledger_required": true,
+      "evidence_required": ["proven_out", "production"],
+      "fires_before": ["dnc_send", "first chip on real machine", "customer ship"]
+    },
+    "production": {
+      "description": "Production release. Four-sigma. Cpk gate.",
+      "omega_min": 0.90,
+      "safety_min": 0.95,
+      "cpk_min": 1.33,
+      "evidence_required": ["proven_out"],
+      "fires_before": ["dnc_send for production lot", "quote sign-off"]
+    },
+    "proven_out": {
+      "description": "Recipe proven via prove-out runs or similarity match. Mid-tier.",
+      "omega_min": 0.85,
+      "safety_min": 0.90,
+      "evidence_required": ["sim", "3 clean outcomes OR similarity>=0.85 to existing recipe"],
+      "fires_before": ["git commit of physics/CAM code"]
+    },
+    "sim": {
+      "description": "Simulation / exploration. Lowest tier; requires fix-and-re-climb on any S<0.70.",
+      "omega_min": 0.50,
+      "safety_min": 0.70,
+      "evidence_required": [],
+      "fires_before": ["any new toolpath/post output before commit"]
+    }
+  },
+  "blocking_rules": {
+    "safety_min_global": 0.70,
+    "below_safety_min_action": "BLOCKED — drop to sim, fix root cause, re-climb",
+    "tier_expiration_days": 7,
+    "force_re_score_on": ["constants edit", "registry edit", "kc1.1/Taylor coefficient change"]
+  },
+  "promotion_actions": {
+    "sim_to_proven_out": "prism_provenPipeline:proven_prove_out",
+    "proven_out_to_production": "prism_validation:prediction_validate + Cpk check",
+    "production_to_shop_floor": "prism_quality:fai_run (PASSED disposition)",
+    "auto_score": "prism_omega:auto_score (R/C/P/S/L from session metrics)"
+  },
+  "implementation_status": {
+    "thresholds_externalized": true,
+    "tier_check_action": "aspirational — not yet wired",
+    "tier_promote_action": "aspirational — not yet wired",
+    "evidence_chain_action": "aspirational — not yet wired",
+    "current_canonical_in_code": "mcp-server/src/tools/dispatchers/omegaDispatcher.ts (inline flat thresholds: RELEASE=0.70, ACCEPTABLE=0.65, WARNING=0.50, SAFETY_MIN=0.70)",
+    "next_step": "Refactor omegaDispatcher.ts to load this JSON instead of inline constants"
+  }
+}

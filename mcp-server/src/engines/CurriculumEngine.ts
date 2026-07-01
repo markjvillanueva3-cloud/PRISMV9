@@ -48,6 +48,28 @@ import {
   COURSE_9_MODULES, COURSE_10_MODULES, COURSE_11_MODULES,
   COURSE_12_MODULES,
 } from "../data/academy/course-6-to-12-advanced.js";
+import { COURSE_13_MODULES } from "../data/academy/course-13-wire-edm-progressive.js";
+import {
+  COURSE_14_MODULES, COURSE_15_MODULES, COURSE_16_MODULES,
+} from "../data/academy/course-14-15-16-electrode-robot-sinker.js";
+import { COURSE_17_MODULES } from "../data/academy/course-17-tooling-codes.js";
+import { COURSE_18_MODULES } from "../data/academy/course-18-cad-cam-entry-level.js";
+import { COURSE_19_MODULES } from "../data/academy/course-19-hypermill-nx-solidcam-entry.js";
+import { COURSE_20_MODULES } from "../data/academy/course-20-esprit-powermill-inventor-catia-entry.js";
+import { COURSE_21_MODULES } from "../data/academy/course-21-business-management.js";
+import { COURSE_22_MODULES } from "../data/academy/course-22-alarm-troubleshooting-deep.js";
+import { COURSE_23_MODULES } from "../data/academy/course-23-prism-database-mastery.js";
+import { COURSE_24_MODULES } from "../data/academy/course-24-accuracy-improvement.js";
+import { COURSE_25_MODULES } from "../data/academy/course-25-creo-worknc-gibbscam-edgecam-entry.js";
+import { COURSE_26_MODULES } from "../data/academy/course-26-hexagon-trio-camworks-entry.js";
+import { COURSE_27_MODULES } from "../data/academy/course-27-final-six-cam-entry.js";
+import { COURSE_28_MODULES } from "../data/academy/course-28-function-index-reference.js";
+import { COURSE_29_MODULES } from "../data/academy/course-29-toolpath-reasoning-dual-level.js";
+import { COURSE_30_MODULES } from "../data/academy/course-30-toolpath-catalog-programming-paradigms.js";
+import { COURSE_31_MODULES } from "../data/academy/course-31-cadcam-operations-atlas.js";
+import { COURSE_32_MODULES } from "../data/academy/course-32-machining-math-science-deep-dive.js";
+import { COURSE_33_MODULES } from "../data/academy/course-33-material-machining-atlas.js";
+import { COURSE_34_MODULES } from "../data/academy/course-34-per-machine-type-operations.js";
 
 /** Map of course ID → rich module content from academy data files */
 const RICH_MODULES: Record<string, Module[]> = {
@@ -66,6 +88,28 @@ const RICH_MODULES: Record<string, Module[]> = {
   "course-10": COURSE_10_MODULES,
   "course-11": COURSE_11_MODULES,
   "course-12": COURSE_12_MODULES,
+  "course-13": COURSE_13_MODULES,
+  "course-14": COURSE_14_MODULES,
+  "course-15": COURSE_15_MODULES,
+  "course-16": COURSE_16_MODULES,
+  "course-17": COURSE_17_MODULES,
+  "course-18": COURSE_18_MODULES,
+  "course-19": COURSE_19_MODULES,
+  "course-20": COURSE_20_MODULES,
+  "course-21": COURSE_21_MODULES,
+  "course-22": COURSE_22_MODULES,
+  "course-23": COURSE_23_MODULES,
+  "course-24": COURSE_24_MODULES,
+  "course-25": COURSE_25_MODULES,
+  "course-26": COURSE_26_MODULES,
+  "course-27": COURSE_27_MODULES,
+  "course-28": COURSE_28_MODULES,
+  "course-29": COURSE_29_MODULES,
+  "course-30": COURSE_30_MODULES,
+  "course-31": COURSE_31_MODULES,
+  "course-32": COURSE_32_MODULES,
+  "course-33": COURSE_33_MODULES,
+  "course-34": COURSE_34_MODULES,
 };
 
 // ═══════════════════════════════════════════════════════════════
@@ -87,15 +131,43 @@ export interface Course {
   certificationLevel?: "operator" | "programmer" | "master";
 }
 
+/**
+ * Inline question shape used by courses 17, 19-23, 28-34 (Lima session 2026-05-24..25).
+ * Simpler than the canonical {@link Question} — bare-array convention without Quiz wrapper.
+ * Both shapes accepted at runtime; RICH_MODULES coerces as needed.
+ */
+export interface InlineQuestion {
+  id: string;
+  type: string;
+  prompt: string;
+  options: string[];
+  correctIndex: number;
+  explanation: string;
+  topicTags?: string[];
+}
+
+export type ModuleQuiz = Quiz | InlineQuestion[];
+
+/**
+ * Inline lesson-content shape used by courses 17, 19-23, 28-34 (Lima session 2026-05-24..25).
+ * These ship `content[]` directly on the module instead of nesting in `lessons[]`.
+ */
+export type ModuleContent = LessonContent;
+
 export interface Module {
   id: string;
-  courseId: string;
+  courseId?: string;
   title: string;
-  description: string;
-  order: number;
-  lessons: Lesson[];
-  quiz: Quiz;
-  estimatedMinutes: number;
+  description?: string;
+  order?: number;
+  /** Canonical lesson nesting (courses 0a..16). */
+  lessons?: Lesson[];
+  /** Inline lesson content (courses 17, 19-23, 28-34 Lima convention). */
+  content?: ModuleContent[];
+  quiz?: ModuleQuiz;
+  estimatedMinutes?: number;
+  prismEngines?: string[];
+  prismDispatcherActions?: string[];
 }
 
 export interface Lesson {
@@ -108,16 +180,30 @@ export interface Lesson {
   prismEngines?: string[];     // Engine names used in interactive elements
 }
 
+/**
+ * Generic content-block config bag — used by courses 17, 19-23, 28-34 as a single `config` field
+ * instead of the more-typed {@link LessonContent.calculatorConfig}. Free-form so each course can
+ * embed engine-specific input/output shapes without forcing a schema migration.
+ */
+export interface LessonAnnotation {
+  x?: number;
+  y?: number;
+  label?: string;
+  description?: string;
+}
+
 export interface LessonContent {
-  type: ContentType;
+  type: ContentType | string;
   title?: string;
   body?: string;               // Markdown text
   diagramSvg?: string;         // SVG markup for diagrams
+  /** Generic config bag — Lima-session convention for calculator/sandbox/video/3d_viewer blocks. */
+  config?: Record<string, unknown>;
   calculatorConfig?: {
     engine: string;            // PRISM engine name
     inputFields: string[];     // Parameter names to expose
     outputFields: string[];    // Result fields to display
-    defaults?: Record<string, number>;
+    defaults?: Record<string, number | string>;
   };
   sandboxConfig?: {
     engine: string;
@@ -125,6 +211,8 @@ export interface LessonContent {
     validationFn?: string;     // Validation logic name
   };
   videoUrl?: string;
+  videoPosterUrl?: string;       // Optional thumbnail for video blocks
+  modelUrl?: string;             // glTF/USDZ URL for 3d_viewer blocks
   annotations?: Array<{
     x: number; y: number;
     label: string;
@@ -250,7 +338,7 @@ export class CurriculumEngine {
   }
 
   getLesson(courseId: string, moduleId: string, lessonId: string): Lesson | undefined {
-    return this.getModule(courseId, moduleId)?.lessons.find(l => l.id === lessonId);
+    return this.getModule(courseId, moduleId)?.lessons?.find(l => l.id === lessonId);
   }
 
   // ─────────────────────────────────────────────────────────
@@ -331,14 +419,17 @@ export class CurriculumEngine {
     const module = this.getModule(courseId, moduleId);
     if (!module) return { ok: true };
 
-    const lessonIdx = module.lessons.findIndex(l => l.id === lessonId);
-    const nextLesson = module.lessons[lessonIdx + 1];
+    // Lima-shape modules (courses 17, 19-23, 28-34) ship inline `content[]` instead of `lessons[]`.
+    // Optional-chain + array-default keeps the engine compatible with both shapes.
+    const moduleLessons = module.lessons ?? [];
+    const lessonIdx = moduleLessons.findIndex(l => l.id === lessonId);
+    const nextLesson = moduleLessons[lessonIdx + 1];
 
     // Update percent complete
     const course = this.courses.get(courseId);
     if (course) {
       const totalLessons = course.modules.reduce(
-        (sum, m) => sum + m.lessons.length, 0
+        (sum, m) => sum + (m.lessons?.length ?? 0), 0
       );
       progress.percentComplete = totalLessons > 0
         ? Math.round((progress.lessonsViewed.length / totalLessons) * 100)
@@ -388,7 +479,9 @@ export class CurriculumEngine {
 
     // Check if module quiz passed
     const module = this.getModule(courseId, moduleId);
-    const passingScore = module?.quiz.passingScore ?? 70;
+    // ModuleQuiz is Quiz | InlineQuestion[] — narrow before .passingScore access (array form has no passing score).
+    const quiz = module?.quiz;
+    const passingScore = (quiz && !Array.isArray(quiz) ? quiz.passingScore : undefined) ?? 70;
     const passed = score >= passingScore;
 
     if (passed) {
@@ -451,7 +544,9 @@ export class CurriculumEngine {
         const course = this.courses.get(courseId);
         if (course) {
           for (const mod of course.modules) {
-            const qs = student.quizScores[mod.quiz.id];
+            // ModuleQuiz narrow: array form has no .id
+            const quizId = mod.quiz && !Array.isArray(mod.quiz) ? mod.quiz.id : undefined;
+            const qs = quizId ? student.quizScores[quizId] : undefined;
             if (qs) {
               totalScore += qs.bestScore;
               scoreCount++;
@@ -674,7 +769,7 @@ export class CurriculumEngine {
     const lessons: string[] = [];
     for (const course of this.courses.values()) {
       for (const module of course.modules) {
-        for (const lesson of module.lessons) {
+        for (const lesson of module.lessons ?? []) {
           if (lesson.keyFormulas?.some(f => f.includes(topic))) {
             lessons.push(lesson.id);
           }
@@ -908,6 +1003,372 @@ export class CurriculumEngine {
           "ROI on Tooling Upgrades",
           "Scrap Cost & First Article Economics",
           "Price Breaks & Batch Economics",
+        ],
+      },
+      {
+        id: "course-13",
+        title: "Wire EDM — Entry to Master (Progressive)",
+        description: "Wire EDM from foundations through master-level micro-features. 5 modules: foundations, basic programming, 4-axis taper, multi-pass strategy, lights-out production.",
+        level: "intermediate",
+        prerequisites: ["course-1"],
+        estimatedHours: 6,
+        moduleCount: 5,
+        moduleTitles: [
+          "Wire EDM Foundations",
+          "Basic Wire EDM Programming",
+          "Advanced 4-Axis Programming",
+          "Surface Quality & Multi-Pass Strategy",
+          "Master Work — Micro-Features, PCD/Carbide, Lights-Out",
+        ],
+      },
+      {
+        id: "course-14",
+        title: "Electrode Making — Copper, Graphite, Tungsten-Copper",
+        description: "Electrode design and fabrication for sinker EDM. 4 modules: foundations, sizing & overcut, orbital patterns, micro-electrodes.",
+        level: "intermediate",
+        prerequisites: ["course-1"],
+        estimatedHours: 4,
+        moduleCount: 4,
+        moduleTitles: [
+          "Electrode Foundations",
+          "Side-Overcut & Electrode Sizing",
+          "Orbital and Vector Patterns",
+          "Master Work — Micro-Electrodes Below Ø0.10 mm",
+        ],
+      },
+      {
+        id: "course-15",
+        title: "Robot Arms — JM Die Context (Entry to Master)",
+        description: "6-axis articulated arms for CNC tending. 4 modules: foundations, grippers, Okuma pickoff handshake, lights-out cells. JM LTH-01 prioritized.",
+        level: "advanced",
+        prerequisites: ["course-1"],
+        estimatedHours: 4,
+        moduleCount: 4,
+        moduleTitles: [
+          "6-Axis Arm Foundations",
+          "Gripper End-Effectors",
+          "Robot↔CNC Handshake (Okuma Pickoff)",
+          "Master Work — Multi-Machine Lights-Out Cells",
+        ],
+      },
+      {
+        id: "course-17",
+        title: "Tooling Codes — ISO Insert + ANSI Body + Chip-Breaker",
+        description: "Read every character of an ISO/ANSI tooling code and feed the data directly into speed-feed pipelines. 3 modules: insert code anatomy, holder code anatomy, grade+breaker→Vc/fn mapping.",
+        level: "intermediate",
+        prerequisites: ["course-5"],
+        estimatedHours: 3,
+        moduleCount: 3,
+        moduleTitles: [
+          "ISO 1832 Insert Code Anatomy",
+          "ANSI Body Code Anatomy",
+          "Grade Codes + Chip-Breakers → Speed-Feed Pipeline",
+        ],
+      },
+      {
+        id: "course-18",
+        title: "CAD/CAM Entry-Level Training",
+        description: "First-day-on-the-job training: Fusion 360 first part, Mastercam Dynamic Motion first job, toolpath strategy hierarchy, alarm 5-step diagnosis, and shop-floor efficiency (OEE + SMED + accuracy). 5 modules.",
+        level: "novice",
+        prerequisites: ["course-0c"],
+        estimatedHours: 4,
+        moduleCount: 5,
+        moduleTitles: [
+          "CAD Entry — Fusion 360 First-Part Walkthrough",
+          "CAM Entry — Mastercam Dynamic Motion First Job",
+          "Toolpath Strategy Hierarchy — Rough → Semi → Finish",
+          "Alarm Troubleshooting — Fanuc / Haas / Okuma 5-Step Diagnosis",
+          "Shop-Floor Efficiency — OEE, Setup Reduction, Accuracy",
+        ],
+      },
+      {
+        id: "course-19",
+        title: "CAM Entry — hyperMILL + NX CAM + SolidCAM iMachining",
+        description: "Continues course-18 into the next 3 priority CAM systems by U.S. installed base. 4 modules: hyperMILL project workflow, NX CAM feature-based machining + aerospace defaults, SolidCAM iMachining patented chip-thinning, and a cross-CAM decision matrix (when to use which).",
+        level: "novice",
+        prerequisites: ["course-18"],
+        estimatedHours: 5,
+        moduleCount: 4,
+        moduleTitles: [
+          "hyperMILL Entry — Project Setup + First 2D Pocket",
+          "NX CAM Entry — Feature-Based Machining + Aerospace Defaults",
+          "SolidCAM iMachining Entry — Patented Chip-Thinning + SolidWorks Integration",
+          "CAM System Selection — When to Use hyperMILL vs NX vs SolidCAM vs Mastercam vs Fusion",
+        ],
+      },
+      {
+        id: "course-34",
+        title: "Per-Machine-Type Operation Guide — VMC, HMC, 5-Axis, Lathes, EDM, Grinders",
+        description: "Per user directive 2026-05-25: 'expand all domains of machining, each machine type'. 7 modules covering distinctive operations per machine type: 3-axis VMC, HMC + 4-axis VMC (tombstone), 5-axis (trunnion + gantry + head/head configs with RTCP G43.4/TRAORI/M128), lathes (2-axis + sub-spindle + live tooling + Swiss + multi-spindle), EDM (wire + sinker), grinders (surface + cylindrical + centerless + creep-feed + form), and a machine-selection decision tree. LAYMAN + ADVANCED dual-level. Closes the 'each machine type' axis of the /goal.",
+        level: "intermediate",
+        prerequisites: ["course-33"],
+        estimatedHours: 7,
+        moduleCount: 7,
+        moduleTitles: [
+          "3-Axis VMC (Vertical Machining Center)",
+          "HMC (Horizontal Machining Center) + 4-Axis VMC",
+          "5-Axis Machining Centers (Trunnion + Gantry + Head/Head)",
+          "Lathes (2-Axis + Sub-Spindle + Live Tooling)",
+          "Wire EDM + Sinker EDM (Non-Traditional)",
+          "Grinders (Surface, Cylindrical, Centerless, Creep-Feed, Form)",
+          "Machine Selection — The Routing Decision Tree",
+        ],
+      },
+      {
+        id: "course-33",
+        title: "Material Machining Atlas — How to Cut Every Material + Operation Order",
+        description: "Per user directive 2026-05-25: 'how to cut different materials (all materials), explain recommendations and why we do operations in certain order'. 6 modules covering all 6 ISO groups (P steels, M stainless, N aluminum/non-ferrous, S superalloys, K cast iron, H hardened) with per-material parameters + coating selection + coolant selection + operation-order rationale. Canonical mill + lathe order templates with bad-order quantified examples. Closes the materials axis of the /goal.",
+        level: "intermediate",
+        prerequisites: ["course-32"],
+        estimatedHours: 6,
+        moduleCount: 6,
+        moduleTitles: [
+          "Group P — Steels (1018, 4140, 4340, A2/D2, H13, 17-4 PH)",
+          "Group M — Stainless Steels (303, 304, 316, 410, 416)",
+          "Group N — Aluminum + Non-Ferrous (6061, 7075, brass, copper, magnesium)",
+          "Group S — Superalloys (Ti-6Al-4V, Inconel 625/718, Hastelloy)",
+          "Group K + H — Cast Iron + Hardened/Bearing Materials",
+          "Operation Order — Why We Do Things In Certain Order",
+        ],
+      },
+      {
+        id: "course-32",
+        title: "Machining Math & Science Deep-Dive — Why Optimal Parameters Are Optimal",
+        description: "Per user directive 2026-05-25: 'tooling utilization, optimal parameters and why its optimal, explain the math and science behind machining processes'. 5 modules with LAYMAN + ADVANCED dual-level template: Merchant's circle + shear-angle mechanics, Komanduri-Hou heat partition + Loewen-Shaw thermal zones, 5 tool wear mechanisms (Archard adhesion + abrasion + diffusion + oxidation + BUE), surface integrity physics (Brammertz Ra + Mishra-Yoon residual stress + Pawade white layer + work hardening), Taylor + Gilbert tool-life economy + cost-minimum cutting speed derivation with worked JM Die example.",
+        level: "advanced",
+        prerequisites: ["course-30"],
+        estimatedHours: 6,
+        moduleCount: 5,
+        moduleTitles: [
+          "Cutting Mechanics — Merchant's Circle, Shear Angle, Force Physics",
+          "Heat Partition + Thermal Physics in Machining",
+          "Tool Wear Mechanisms — Adhesion, Abrasion, Diffusion, Oxidation, BUE",
+          "Surface Integrity — Ra, Residual Stress, White Layer, Work Hardening",
+          "Optimal Parameter Selection — Taylor Tool Life Economics + Cost-Minimum Cutting Speed",
+        ],
+      },
+      {
+        id: "course-31",
+        title: "Complete CAD/CAM Operations Atlas (Rosetta Stone)",
+        description: "Per user directive 2026-05-25 'full coverage for all tool paths from all cam softwares, all cad functions from all cad software': operation-centric Rosetta Stone enumerating ~1000+ cross-system operation-name correspondences. 7 modules: hole-making, 2D milling, 3D milling, 5-axis, turning + mill-turn, CAD operations across 11 priority CAD systems, specialty operations (probing/EDM/laser/waterjet/grinding).",
+        level: "intermediate",
+        prerequisites: ["course-30"],
+        estimatedHours: 5,
+        moduleCount: 7,
+        moduleTitles: [
+          "Hole-Making Operations Across All CAM Systems",
+          "2D Milling Operations Across All CAM Systems",
+          "3D Milling Operations Across All CAM Systems",
+          "5-Axis Operations Across All CAM Systems",
+          "Turning + Mill-Turn Operations Across All CAM Systems",
+          "CAD Operations Across All Priority CAD Systems",
+          "Specialty Operations — Probing, EDM, Laser, Waterjet, Grinding Across All Systems",
+        ],
+      },
+      {
+        id: "course-30",
+        title: "Complete Toolpath Catalog + Programming Paradigms (Hard Code / Macros / Conversational)",
+        description: "Per user directive 2026-05-25: 'account for all possible tool paths and explain them all and show how to use them and how each input works and affects the cut for each cam tool path, hard code, macros, conversational'. 5 modules: 2D toolpath catalog (face/pocket/profile/slot/drill/helical/bore + G81-G89 canned cycles), 3D toolpath catalog (Z-level/parallel/scallop/pencil/rest/swarf/multi-axis), per-input quantified effects (Vc/fz/ap/ae/stepover/stepdown/coolant), programming paradigms (hard code vs Fanuc Custom Macro B vs Mazatrol conversational), and a 4-question synthesis decision tree.",
+        level: "intermediate",
+        prerequisites: ["course-29"],
+        estimatedHours: 6,
+        moduleCount: 5,
+        moduleTitles: [
+          "2D Toolpath Catalog — Face, Pocket, Profile, Slot, Drill, Helical, Bore",
+          "3D Toolpath Catalog — Z-Level, Parallel, Scallop, Pencil, Rest, Swarf, Multi-Axis",
+          "Per-Input Effects — What Each Parameter Does to the Cut",
+          "Programming Paradigms — Hard Code vs Macros vs Conversational",
+          "Putting It All Together — The Toolpath Decision Tree",
+        ],
+      },
+      {
+        id: "course-29",
+        title: "Toolpath Reasoning — Why Strategies Match Geometry (Layman + Advanced)",
+        description: "Establishes the CANONICAL dual-level pedagogy: every machining concept presented BOTH in plain-language layman terms AND in advanced math/physics terms with citations. 6 modules: spindle stiffness anisotropy + plunge roughing for tall walls + high-feed milling + trochoidal slots + HSM adaptive clearing + climb vs conventional. Each module includes annotated ASCII force-vector diagrams. This is the TEMPLATE for re-enriching all machining/engineering courses with dual-level explanations per user directive 2026-05-24.",
+        level: "intermediate",
+        prerequisites: ["course-4"],
+        estimatedHours: 5,
+        moduleCount: 6,
+        moduleTitles: [
+          "Force Direction Fundamentals — Spindle Stiffness Anisotropy",
+          "Plunge Roughing Tall Walls — Force Targeted Vertically",
+          "High-Feed Milling — Why Small Axial DOC + Large Feed Per Tooth Works",
+          "Trochoidal Slot Milling — Engagement-Angle Modulation",
+          "HSM Adaptive Clearing — Engagement-Modulated Feed for Constant Force",
+          "Climb vs Conventional — Chip Geometry + Deflection Direction",
+        ],
+      },
+      {
+        id: "course-28",
+        title: "Function-Index Reference — Every Function + Input for All 23 Priority CAD/CAM Systems",
+        description: "CLOSES /goal axis 'include every single function and input possible for each cad and cam system, utilize all compatible nodes from /system-viz'. 23 modules — one per priority CAM system — each cataloging the PRISM function-index dispatcher actions (8-15 per CAM) that enumerate every toolpath, parameter, operation, and input. Teaches NAVIGATION of PRISM's existing function-index surface rather than re-deriving content. Each module includes a calculator slot for live-query of the function index.",
+        level: "intermediate",
+        prerequisites: ["course-27"],
+        estimatedHours: 6,
+        moduleCount: 23,
+        moduleTitles: [
+          "Fusion 360 — Function Index",
+          "Mastercam — Function Index (Mill + Lathe + Mill-Turn)",
+          "hyperMILL — Function Index (Mold/Die + 5-Axis)",
+          "NX CAM — Function Index (Aerospace + Auto)",
+          "SolidCAM — Function Index (iMachining)",
+          "Esprit — Function Index (ProfitTurning + Multi-Channel)",
+          "PowerMill — Function Index (Vortex + 5-Axis)",
+          "Inventor HSM — Function Index (Inventor-Native CAM)",
+          "CATIA Machining — Function Index (Tier-1 OEM)",
+          "Creo NC — Function Index (PTC)",
+          "WorkNC — Function Index (Auto5)",
+          "GibbsCAM — Function Index (Volumill)",
+          "EdgeCAM — Function Index (Waveform)",
+          "SURFCAM — Function Index (TrueMill)",
+          "VISI — Function Index (Mold/Die)",
+          "CAMWorks — Function Index (SolidWorks AFR)",
+          "Alphacam — Function Index (Non-Metallic)",
+          "TopSolid — Function Index (European Tier-2)",
+          "BobCAD-CAM — Function Index (Budget DMT)",
+          "Cimatron — Function Index (Mold/Die)",
+          "SprutCAM — Function Index (Robot CAM)",
+          "PartMaker — Function Index (Swiss)",
+          "Closing the Loop — FeatureCAM + Vericut + Tebis Function Indexes",
+        ],
+      },
+      {
+        id: "course-27",
+        title: "CAM Entry — Final 6 (TopSolid + BobCAD + Cimatron + SprutCAM + PartMaker + FeatureCAM)",
+        description: "CLOSES /goal CAM-coverage axis. After course-27, 23 of 23 priority CAM systems have entry-level training. 6 modules: TopSolid (European Tier-2 PMI), BobCAD-CAM (budget small-shop), Cimatron (plastic injection mold), SprutCAM (cross-vendor robot CAM), PartMaker (Swiss + multi-spindle specialist, Autodesk), FeatureCAM (Autodesk AFR).",
+        level: "novice",
+        prerequisites: ["course-26"],
+        estimatedHours: 5,
+        moduleCount: 6,
+        moduleTitles: [
+          "TopSolid Entry — French CAM with PMI-Driven Workflow",
+          "BobCAD-CAM Entry — Budget Small-Shop CAM",
+          "Cimatron Entry — Plastic Injection Mold/Die Specialist",
+          "SprutCAM Entry — Robot Programming + CNC",
+          "PartMaker Entry — Swiss + Multi-Spindle Specialist (Autodesk)",
+          "FeatureCAM Entry — Autodesk AFR + Closing the CAM-Coverage Loop",
+        ],
+      },
+      {
+        id: "course-26",
+        title: "CAM Entry — SURFCAM + VISI + Alphacam + CAMWorks",
+        description: "Continues course-25 into 4 more priority CAM systems. 4 modules: SURFCAM TrueMill HSM (US patent 7,451,013), VISI mold/die split-design, Alphacam non-metallic specialist (wood + composite + stone), CAMWorks AFR (Automatic Feature Recognition) on SolidWorks.",
+        level: "novice",
+        prerequisites: ["course-25"],
+        estimatedHours: 4,
+        moduleCount: 4,
+        moduleTitles: [
+          "SURFCAM Entry — TrueMill HSM (Hexagon)",
+          "VISI Entry — Mold/Die Specialist (Hexagon)",
+          "Alphacam Entry — Wood + Composite + Stone Specialist (Hexagon)",
+          "CAMWorks Entry — AFR (Automatic Feature Recognition) on SolidWorks",
+        ],
+      },
+      {
+        id: "course-25",
+        title: "CAM Entry — Creo NC + WorkNC + GibbsCAM + EdgeCAM",
+        description: "Continues course-20 into 4 more priority CAM systems. 4 modules: Creo NC (PTC, aerospace + auto PMI-driven), WorkNC (Hexagon, Auto5 1-click 5-axis conversion), GibbsCAM (Sandvik, Volumill — first commercial HSM algorithm), EdgeCAM (Hexagon, SolidWorks/Inventor add-in + PC-DMIS closed-loop).",
+        level: "novice",
+        prerequisites: ["course-20"],
+        estimatedHours: 4,
+        moduleCount: 4,
+        moduleTitles: [
+          "Creo NC Entry — PTC's Aerospace + Auto CAM",
+          "WorkNC Entry — Auto-5-Axis Mold/Die",
+          "GibbsCAM Entry — Volumill Chip-Thinning + Mill-Turn",
+          "EdgeCAM Entry — Waveform Roughing + SolidWorks/Inventor Add-In",
+        ],
+      },
+      {
+        id: "course-24",
+        title: "Accuracy Improvement Per Machine Class",
+        description: "Closes the /goal 'how to improve accuracy' axis. Decomposes accuracy errors into 4 pathways (geometric, thermal, dynamic, process) + applies machine-class-specific compensation strategies. 4 modules: ISO 230 fundamentals + ballbar + thermal comp, mill RTCP + head clearance + tool deflection RSS stack, lathe springback + taper + tool wear progression, wire EDM multi-pass + corner radius + grinder spark-out.",
+        level: "advanced",
+        prerequisites: ["course-21"],
+        estimatedHours: 5,
+        moduleCount: 4,
+        moduleTitles: [
+          "Machine Accuracy Fundamentals — ISO 230 + Ballbar + Thermal",
+          "Mill Accuracy — Geometric Comp + RTCP + Head Clearance",
+          "Lathe Accuracy — Springback + Taper + Tool Offset Wear",
+          "Wire EDM + Grinder Accuracy — Corner Radius + Taper Error",
+        ],
+      },
+      {
+        id: "course-23",
+        title: "PRISM Database Mastery — Tooling + Inserts + Materials + Machines",
+        description: "Closes the /goal 'full database of tooling and inserts and machines and material' axis. Teaches HOW TO QUERY PRISM's vast catalogs (12 tool vendors, ISO 1832 inserts, 25+ machine manufacturers, 12+ material spec systems) rather than memorizing data. 4 modules covering tool catalog query workflow, insert ISO-code → catalog mapping, material spec equivalents + machinability, and machine capability + job-to-machine matching.",
+        level: "intermediate",
+        prerequisites: ["course-17"],
+        estimatedHours: 5,
+        moduleCount: 4,
+        moduleTitles: [
+          "Tooling Database — Catalog Query + Selection Workflow",
+          "Insert Database — ISO 1832 Code → Material → Performance",
+          "Material Database — ISO Groups + Equivalents + Machinability",
+          "Machine Database — Capability Lookup + Selection + Cost Per Hour",
+        ],
+      },
+      {
+        id: "course-22",
+        title: "Alarm Troubleshooting Deep Dive — Fanuc + Haas + Okuma + Mazak + Siemens 840D",
+        description: "Continues course-18 mod 4 (top-15 cheat sheet) into systematic alarm decoding across 5 major controllers + 100+ alarm classes. Universal 8-category framework + Fanuc/Haas/Okuma/Mazak/Siemens deep dives + escalation protocol + pattern detection + PRISM AlarmIntelligenceEngine integration. 5 modules.",
+        level: "intermediate",
+        prerequisites: ["course-18"],
+        estimatedHours: 6,
+        moduleCount: 5,
+        moduleTitles: [
+          "Alarm Anatomy — Code Structure + Category Decode",
+          "Fanuc Alarm Deep Dive — The 30 Most Common + Root Causes",
+          "Haas + Okuma Alarm Deep Dive",
+          "Mazak + Siemens 840D Alarm Deep Dive",
+          "Alarm Escalation + Pattern Detection + PRISM Workflow",
+        ],
+      },
+      {
+        id: "course-21",
+        title: "Business Management for Machinists + Shop-Floor Managers",
+        description: "Job costing (labor/material/overhead/scrap/margin), quoting fundamentals (cycle time + capacity planning), shop-floor management (KPIs, dispatching, daily standup), continuous improvement (PDCA + kaizen + lean), and a daily operating rhythm. 5 modules. Closes the /goal 'business management + shop floor manager + efficiency + accuracy' axes.",
+        level: "intermediate",
+        prerequisites: ["course-1"],
+        estimatedHours: 6,
+        moduleCount: 5,
+        moduleTitles: [
+          "Job Costing — Labor, Material, Overhead, Scrap, Margin",
+          "Quoting Fundamentals — Cycle Time + Capacity Planning",
+          "Shop-Floor Management — KPIs, Dispatching, Daily Standup",
+          "Continuous Improvement — PDCA, Kaizen, Lean Metrics",
+          "Putting It Together — A Daily Routine for Shop-Floor Managers",
+        ],
+      },
+      {
+        id: "course-20",
+        title: "CAM Entry — Esprit + PowerMill + Inventor HSM + CATIA Machining",
+        description: "Continues course-19 into the next 4 priority CAM systems. 4 modules: Esprit mill-turn + ProfitTurning (Swiss machining), PowerMill mold/die + Vortex roughing, Inventor HSM Adaptive Clearing (Fusion-paired), and CATIA Machining APT/KBM workflow (large-OEM aerospace + auto + defense).",
+        level: "novice",
+        prerequisites: ["course-19"],
+        estimatedHours: 4,
+        moduleCount: 4,
+        moduleTitles: [
+          "Esprit Entry — Mill-Turn + ProfitTurning + Swiss Machining",
+          "PowerMill Entry — Mold/Die Surface Finishing + Vortex Roughing",
+          "Inventor HSM Entry — Inventor-Integrated CAM (Fusion-paired)",
+          "CATIA Machining Entry — Large-OEM Aerospace + Auto + Defense",
+        ],
+      },
+      {
+        id: "course-16",
+        title: "Sinker EDM — JM Mitsubishi EA12 (Entry to Master)",
+        description: "Sinker EDM via JM's EA12S+EA12D fleet. 4 modules: foundations, flushing, multi-pass strategy, micro+mirror master work.",
+        level: "intermediate",
+        prerequisites: ["course-14"],
+        estimatedHours: 4,
+        moduleCount: 4,
+        moduleTitles: [
+          "Sinker EDM Foundations (JM EA12 fleet)",
+          "Flushing — The 70% Quality Determinant",
+          "Multi-Pass Strategy (Rough → Mirror)",
+          "Master Work — Micro-Sinker + Mirror + Sealing Pockets",
         ],
       },
       {

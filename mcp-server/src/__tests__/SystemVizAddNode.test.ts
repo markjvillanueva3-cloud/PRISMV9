@@ -622,6 +622,60 @@ describe("flushQueue — full-regen coordination (lost-update defense)", () => {
     expect(readGraph(TMP_DIR).nodes.some(n => n.id === "engine.foo")).toBe(true);
   });
 
+  // ── TIER 1b — U-VIZ-F11-CROSS-LOCK shared system-graph.json write lock ──
+  // Mirrors the TIER-1 battery. These are the fail-on-revert oracles for the
+  // integration seam: a future flushQueue refactor that silently deletes or
+  // inverts TIER-1b would leave the lock-lib's own 25/25 green but break the
+  // race-closure — exactly the "pure-core tested, seam untested" class.
+  it("TIER 1b: defers while the shared graph-write lock is held live (queue preserved, graph untouched)", async () => {
+    const m = await import(SCRIPT_PATH);
+    seedGraph(TMP_DIR, [{ id: "engine.existing" }]);
+    const qp = m.queuePath();
+    m.appendQueue(qp, m.buildNodeEntry({ label: "Foo" }));
+    const gwl = path.join(TMP_DIR, ".system-graph-write.pid");
+    fs.writeFileSync(gwl, String(process.ppid)); // a live pid = regen/on-commit mid-merge
+    const r = m.flushQueue({ graphWriteLock: gwl });
+    expect(r.deferred).toBe(true);
+    expect(r.error).toBe("graph_write_locked");
+    expect(r.flushed).toBe(0);
+    expect(r.queueDepth).toBe(1);
+    expect(readGraph(TMP_DIR).nodes.some((n: { id: string }) => n.id === "engine.foo")).toBe(false);
+    expect(readGraph(TMP_DIR).nodes.length).toBe(1);
+    expect(readQueueFile(TMP_DIR).length).toBe(1); // queue NOT truncated
+  });
+
+  it("TIER 1b: defer does NOT touch last-flush.iso (next call retries promptly)", async () => {
+    const m = await import(SCRIPT_PATH);
+    seedGraph(TMP_DIR, []);
+    m.appendQueue(m.queuePath(), m.buildNodeEntry({ label: "Foo" }));
+    const gwl = path.join(TMP_DIR, ".system-graph-write.pid");
+    fs.writeFileSync(gwl, String(process.ppid));
+    m.flushQueue({ graphWriteLock: gwl });
+    expect(fs.existsSync(m.lastFlushPath())).toBe(false);
+  });
+
+  it("TIER 1b: a dead shared-lock PID does NOT block the flush (self-heals)", async () => {
+    const m = await import(SCRIPT_PATH);
+    seedGraph(TMP_DIR, []);
+    m.appendQueue(m.queuePath(), m.buildNodeEntry({ label: "Foo" }));
+    const gwl = path.join(TMP_DIR, ".system-graph-write.pid");
+    fs.writeFileSync(gwl, "999999999"); // dead pid → stale lock, must reclaim
+    const r = m.flushQueue({ graphWriteLock: gwl });
+    expect(r.flushed).toBe(1);
+    expect(r.batch).toBe(1);
+    expect(readGraph(TMP_DIR).nodes.some((n: { id: string }) => n.id === "engine.foo")).toBe(true);
+  });
+
+  it("TIER 1b: absent shared lock is a no-op (no-contention path byte-identical to pre-F11)", async () => {
+    const m = await import(SCRIPT_PATH);
+    seedGraph(TMP_DIR, []);
+    m.appendQueue(m.queuePath(), m.buildNodeEntry({ label: "Foo" }));
+    // graphWriteLock points at a path that does NOT exist → isActive=false → fall through.
+    const r = m.flushQueue({ graphWriteLock: path.join(TMP_DIR, ".absent-graph-write.pid") });
+    expect(r.flushed).toBe(1);
+    expect(readGraph(TMP_DIR).nodes.some((n: { id: string }) => n.id === "engine.foo")).toBe(true);
+  });
+
   it("TIER 2: aborts the write if the graph mtime changes during the read-modify window", async () => {
     const m = await import(SCRIPT_PATH);
     seedGraph(TMP_DIR, [{ id: "engine.existing" }]);

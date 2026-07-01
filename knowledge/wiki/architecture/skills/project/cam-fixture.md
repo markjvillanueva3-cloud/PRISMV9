@@ -29,8 +29,7 @@ related:
 
 ## Description (first paragraph)
 
-
-# /cam-fixture — Fixture Design Assistant
+Design and validate workholding fixtures for machining operations.
 
 <!-- AUTO-END -->
 

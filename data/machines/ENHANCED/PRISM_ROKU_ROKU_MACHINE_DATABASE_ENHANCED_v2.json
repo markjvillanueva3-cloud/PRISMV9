@@ -1,0 +1,1827 @@
+[
+  {
+    "id": "ROKU_GENOS_M460_VE",
+    "manufacturer": "Roku-Roku",
+    "model": "GENOS M460-VE",
+    "type": "vertical_machining_center",
+    "subtype": "ultra_high_speed_graphite",
+    "description": "Ultra-high-speed graphite electrode machining center",
+    "work_envelope": {
+      "x": {
+        "min": 0,
+        "max": 460,
+        "unit": "mm"
+      },
+      "y": {
+        "min": 0,
+        "max": 360,
+        "unit": "mm"
+      },
+      "z": {
+        "min": 0,
+        "max": 260,
+        "unit": "mm"
+      },
+      "table_length": 550,
+      "table_width": 360,
+      "table_load_capacity": 150,
+      "table_load_unit": "kg",
+      "spindle_nose_to_table": {
+        "min": 80,
+        "max": 340
+      }
+    },
+    "spindle": {
+      "type": "built_in_motor",
+      "taper": "HSK-E40",
+      "max_rpm": 42000,
+      "power_rating": 10,
+      "power_unit": "kW",
+      "torque_max": 6.4,
+      "torque_unit": "Nm",
+      "bearing_type": "ceramic_angular_contact",
+      "bearing_lubrication": "oil_air",
+      "bearing_arrangement": "DBB",
+      "runout_TIR": 0.001,
+      "axial_runout": 0.0005,
+      "thermal_growth_at_max_rpm": 0.003,
+      "power_continuous": 11,
+      "power_30min": 15,
+      "torque_continuous": 70,
+      "spindle_nose": "BT40",
+      "coolant_through": true
+    },
+    "axis_specs": {
+      "x": {
+        "travel": 460,
+        "rapid_rate": 60000,
+        "max_feed": 48000,
+        "acceleration": 1.8,
+        "jerk": 80,
+        "motor_type": "linear_motor",
+        "motor_thrust": 2800,
+        "guideway_type": "linear_roller",
+        "guideway_preload": "light",
+        "encoder_type": "optical_linear_scale",
+        "encoder_resolution": 0.0001,
+        "positioning_accuracy": 0.0015,
+        "repeatability": 0.001
+      },
+      "y": {
+        "travel": 360,
+        "rapid_rate": 60000,
+        "max_feed": 48000,
+        "acceleration": 1.8,
+        "jerk": 80,
+        "motor_type": "linear_motor",
+        "motor_thrust": 2800,
+        "guideway_type": "linear_roller",
+        "encoder_type": "optical_linear_scale",
+        "encoder_resolution": 0.0001,
+        "positioning_accuracy": 0.0015,
+        "repeatability": 0.001
+      },
+      "z": {
+        "travel": 260,
+        "rapid_rate": 48000,
+        "max_feed": 36000,
+        "acceleration": 1.5,
+        "jerk": 60,
+        "motor_type": "linear_motor",
+        "motor_thrust": 2500,
+        "guideway_type": "linear_roller",
+        "encoder_type": "optical_linear_scale",
+        "encoder_resolution": 0.0001,
+        "positioning_accuracy": 0.0015,
+        "repeatability": 0.001
+      }
+    },
+    "atc": {
+      "type": "turret_disc",
+      "capacity": 16,
+      "max_tool_diameter": 45,
+      "max_tool_diameter_all_stations": 30,
+      "max_tool_length": 130,
+      "max_tool_weight": 1.2,
+      "tool_change_time": 0.7,
+      "chip_to_chip_time": 1
+    },
+    "controller": {
+      "brand": "FANUC",
+      "model": "31i-B5",
+      "axes_count": 3,
+      "nano_interpolation": true,
+      "ai_contour_control_II": true,
+      "ai_servo_tuning": true,
+      "smooth_tolerance_control": true,
+      "look_ahead_blocks": 1000,
+      "block_processing_time": 0.4,
+      "nano_smoothing": true
+    },
+    "graphite_system": {
+      "graphite_optimized": true,
+      "dust_collection": {
+        "type": "centralized_vacuum",
+        "capacity": 2000,
+        "capacity_unit": "m3/hr",
+        "filtration": "HEPA",
+        "filtration_efficiency": 99.97
+      },
+      "enclosure": {
+        "fully_enclosed": true,
+        "positive_pressure": true,
+        "pressure_differential": 20,
+        "pressure_unit": "Pa"
+      },
+      "way_protection": {
+        "bellows_type": "stainless_steel",
+        "air_purge": true,
+        "labyrinth_seals": true
+      },
+      "spindle_protection": {
+        "air_purge": true,
+        "purge_pressure": 0.3,
+        "purge_unit": "MPa"
+      }
+    },
+    "thermal_compensation": {
+      "spindle_thermal_displacement": true,
+      "axis_thermal_compensation": true,
+      "environment_compensation": true,
+      "real_time_compensation": true,
+      "compensation_interval": 0.5,
+      "interval_unit": "seconds"
+    },
+    "machine_dimensions": {
+      "length": 1650,
+      "width": 1800,
+      "height": 2350,
+      "weight": 3200,
+      "weight_unit": "kg",
+      "footprint": 2.97,
+      "footprint_unit": "m2"
+    },
+    "kinematic_chain": {
+      "type": "serial_C_prime",
+      "structure": "moving_column_linear_motor",
+      "chain": [
+        "base_cast_iron",
+        "column_X",
+        "saddle_Y",
+        "spindle_Z"
+      ],
+      "base_material": "Meehanite_cast_iron",
+      "stress_relief": "natural_aging",
+      "moving_mass_x": 280,
+      "moving_mass_y": 180,
+      "moving_mass_z": 120
+    },
+    "layer": "ENHANCED",
+    "collision_model": {
+      "type": "parametric_envelope",
+      "generated": true,
+      "source": "spec_derived",
+      "work_volume": {
+        "x": 460,
+        "y": 360,
+        "z": 260,
+        "shape": "rectangular"
+      },
+      "zones": {
+        "spindle": {
+          "type": "cylinder",
+          "radius": 80,
+          "length": 350,
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 435
+          },
+          "orientation": "vertical"
+        },
+        "head": {
+          "type": "box",
+          "dimensions": {
+            "x": 350,
+            "y": 350,
+            "z": 400
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 460
+          }
+        },
+        "column": {
+          "type": "box",
+          "dimensions": {
+            "x": 350,
+            "y": 500,
+            "z": 960
+          },
+          "position": {
+            "x": 0,
+            "y": -430,
+            "z": 130
+          }
+        },
+        "table": {
+          "type": "box",
+          "dimensions": {
+            "x": 598,
+            "y": 396,
+            "z": 80
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          }
+        },
+        "work_envelope": {
+          "type": "box",
+          "dimensions": {
+            "x": 460,
+            "y": 360,
+            "z": 260
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 130
+          }
+        },
+        "y_saddle": {
+          "type": "box",
+          "dimensions": {
+            "x": 660,
+            "y": 300,
+            "z": 200
+          },
+          "position": {
+            "x": 0,
+            "y": -180,
+            "z": 0
+          }
+        },
+        "splash_guard": {
+          "type": "box",
+          "dimensions": {
+            "x": 960,
+            "y": 760,
+            "z": 960
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 130
+          }
+        }
+      }
+    },
+    "has3DModel": true
+  },
+  {
+    "id": "ROKU_GENOS_M560_VE",
+    "manufacturer": "Roku-Roku",
+    "model": "GENOS M560-VE",
+    "type": "vertical_machining_center",
+    "subtype": "ultra_high_speed_graphite",
+    "description": "Large-format ultra-high-speed graphite machining center",
+    "work_envelope": {
+      "x": {
+        "min": 0,
+        "max": 560,
+        "unit": "mm"
+      },
+      "y": {
+        "min": 0,
+        "max": 460,
+        "unit": "mm"
+      },
+      "z": {
+        "min": 0,
+        "max": 350,
+        "unit": "mm"
+      },
+      "table_length": 660,
+      "table_width": 460,
+      "table_load_capacity": 250,
+      "table_load_unit": "kg"
+    },
+    "spindle": {
+      "type": "built_in_motor",
+      "taper": "HSK-E50",
+      "max_rpm": 36000,
+      "power_rating": 15,
+      "power_unit": "kW",
+      "torque_max": 15,
+      "torque_unit": "Nm",
+      "bearing_type": "ceramic_angular_contact",
+      "power_continuous": 11,
+      "power_30min": 15,
+      "torque_continuous": 70,
+      "spindle_nose": "BT40",
+      "coolant_through": true
+    },
+    "axis_specs": {
+      "x": {
+        "travel": 560,
+        "rapid_rate": 54000,
+        "max_feed": 42000,
+        "acceleration": 1.5,
+        "motor_type": "linear_motor",
+        "guideway_type": "linear_roller",
+        "positioning_accuracy": 0.002,
+        "repeatability": 0.001
+      },
+      "y": {
+        "travel": 460,
+        "rapid_rate": 54000,
+        "max_feed": 42000,
+        "acceleration": 1.5,
+        "motor_type": "linear_motor",
+        "guideway_type": "linear_roller",
+        "positioning_accuracy": 0.002,
+        "repeatability": 0.001
+      },
+      "z": {
+        "travel": 350,
+        "rapid_rate": 42000,
+        "max_feed": 30000,
+        "acceleration": 1.2,
+        "motor_type": "linear_motor",
+        "guideway_type": "linear_roller",
+        "positioning_accuracy": 0.002,
+        "repeatability": 0.001
+      }
+    },
+    "atc": {
+      "type": "arm_type",
+      "capacity": 20,
+      "max_tool_diameter": 60,
+      "max_tool_length": 180,
+      "max_tool_weight": 2.5,
+      "tool_change_time": 1.2
+    },
+    "controller": {
+      "brand": "FANUC",
+      "model": "31i-B5",
+      "axes_count": 3,
+      "nano_interpolation": true,
+      "ai_contour_control_II": true
+    },
+    "graphite_system": {
+      "graphite_optimized": true,
+      "dust_collection": true,
+      "fully_enclosed": true
+    },
+    "machine_dimensions": {
+      "length": 2100,
+      "width": 2200,
+      "height": 2600,
+      "weight": 5000,
+      "weight_unit": "kg"
+    },
+    "kinematic_chain": {
+      "type": "serial_C_prime",
+      "structure": "moving_column_linear_motor",
+      "chain": [
+        "base",
+        "column_X",
+        "saddle_Y",
+        "spindle_Z"
+      ]
+    },
+    "layer": "ENHANCED",
+    "collision_model": {
+      "type": "parametric_envelope",
+      "generated": true,
+      "source": "spec_derived",
+      "work_volume": {
+        "x": 560,
+        "y": 460,
+        "z": 350,
+        "shape": "rectangular"
+      },
+      "zones": {
+        "spindle": {
+          "type": "cylinder",
+          "radius": 80,
+          "length": 350,
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 525
+          },
+          "orientation": "vertical"
+        },
+        "head": {
+          "type": "box",
+          "dimensions": {
+            "x": 350,
+            "y": 350,
+            "z": 400
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 550
+          }
+        },
+        "column": {
+          "type": "box",
+          "dimensions": {
+            "x": 350,
+            "y": 500,
+            "z": 1050
+          },
+          "position": {
+            "x": 0,
+            "y": -480,
+            "z": 175
+          }
+        },
+        "table": {
+          "type": "box",
+          "dimensions": {
+            "x": 728,
+            "y": 506,
+            "z": 80
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          }
+        },
+        "work_envelope": {
+          "type": "box",
+          "dimensions": {
+            "x": 560,
+            "y": 460,
+            "z": 350
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 175
+          }
+        },
+        "y_saddle": {
+          "type": "box",
+          "dimensions": {
+            "x": 760,
+            "y": 300,
+            "z": 200
+          },
+          "position": {
+            "x": 0,
+            "y": -230,
+            "z": 0
+          }
+        },
+        "splash_guard": {
+          "type": "box",
+          "dimensions": {
+            "x": 1060,
+            "y": 860,
+            "z": 1050
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 175
+          }
+        }
+      }
+    },
+    "has3DModel": true
+  },
+  {
+    "id": "ROKU_MV_550",
+    "manufacturer": "Roku-Roku",
+    "model": "MV-550",
+    "type": "vertical_machining_center",
+    "subtype": "high_speed_die_mold",
+    "description": "High-speed die/mold finishing center",
+    "work_envelope": {
+      "x": {
+        "min": 0,
+        "max": 550,
+        "unit": "mm"
+      },
+      "y": {
+        "min": 0,
+        "max": 450,
+        "unit": "mm"
+      },
+      "z": {
+        "min": 0,
+        "max": 350,
+        "unit": "mm"
+      },
+      "table_length": 650,
+      "table_width": 450,
+      "table_load_capacity": 350,
+      "table_load_unit": "kg"
+    },
+    "spindle": {
+      "type": "built_in_motor",
+      "taper": "BBT40",
+      "max_rpm": 24000,
+      "power_rating": 18,
+      "power_unit": "kW",
+      "torque_max": 50,
+      "torque_unit": "Nm",
+      "bearing_type": "ceramic_hybrid",
+      "oil_air_lubrication": true,
+      "through_spindle_coolant": true,
+      "tsc_pressure": 70,
+      "tsc_unit": "bar",
+      "power_continuous": 11,
+      "power_30min": 15,
+      "torque_continuous": 70,
+      "spindle_nose": "BT40",
+      "coolant_through": true
+    },
+    "axis_specs": {
+      "x": {
+        "travel": 550,
+        "rapid_rate": 50000,
+        "max_feed": 24000,
+        "acceleration": 1.2,
+        "motor_type": "linear_motor",
+        "guideway_type": "linear_roller",
+        "guideway_size": 35,
+        "positioning_accuracy": 0.003,
+        "repeatability": 0.0015
+      },
+      "y": {
+        "travel": 450,
+        "rapid_rate": 50000,
+        "max_feed": 24000,
+        "acceleration": 1.2,
+        "motor_type": "linear_motor",
+        "guideway_type": "linear_roller",
+        "positioning_accuracy": 0.003,
+        "repeatability": 0.0015
+      },
+      "z": {
+        "travel": 350,
+        "rapid_rate": 40000,
+        "max_feed": 20000,
+        "acceleration": 1,
+        "motor_type": "linear_motor",
+        "guideway_type": "linear_roller",
+        "positioning_accuracy": 0.003,
+        "repeatability": 0.0015
+      }
+    },
+    "atc": {
+      "type": "arm_type",
+      "capacity": 24,
+      "max_tool_diameter": 75,
+      "max_tool_length": 200,
+      "max_tool_weight": 6,
+      "tool_change_time": 1.8
+    },
+    "controller": {
+      "brand": "FANUC",
+      "model": "31i-B5",
+      "axes_count": 3,
+      "nano_interpolation": true,
+      "ai_contour_control_II": true,
+      "smooth_tolerance_control": true,
+      "high_precision_contour": true
+    },
+    "thermal_compensation": {
+      "spindle_growth": true,
+      "axis_compensation": true,
+      "real_time": true
+    },
+    "machine_dimensions": {
+      "length": 2300,
+      "width": 2200,
+      "height": 2700,
+      "weight": 5500,
+      "weight_unit": "kg"
+    },
+    "kinematic_chain": {
+      "type": "serial_C_prime",
+      "structure": "moving_column_linear_motor",
+      "chain": [
+        "base",
+        "column_X",
+        "saddle_Y",
+        "spindle_Z"
+      ]
+    },
+    "layer": "ENHANCED",
+    "collision_model": {
+      "type": "parametric_envelope",
+      "generated": true,
+      "source": "spec_derived",
+      "work_volume": {
+        "x": 550,
+        "y": 450,
+        "z": 350,
+        "shape": "rectangular"
+      },
+      "zones": {
+        "spindle": {
+          "type": "cylinder",
+          "radius": 80,
+          "length": 350,
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 525
+          },
+          "orientation": "vertical"
+        },
+        "head": {
+          "type": "box",
+          "dimensions": {
+            "x": 350,
+            "y": 350,
+            "z": 400
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 550
+          }
+        },
+        "column": {
+          "type": "box",
+          "dimensions": {
+            "x": 350,
+            "y": 500,
+            "z": 1050
+          },
+          "position": {
+            "x": 0,
+            "y": -475,
+            "z": 175
+          }
+        },
+        "table": {
+          "type": "box",
+          "dimensions": {
+            "x": 715,
+            "y": 495,
+            "z": 80
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          }
+        },
+        "work_envelope": {
+          "type": "box",
+          "dimensions": {
+            "x": 550,
+            "y": 450,
+            "z": 350
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 175
+          }
+        },
+        "y_saddle": {
+          "type": "box",
+          "dimensions": {
+            "x": 750,
+            "y": 300,
+            "z": 200
+          },
+          "position": {
+            "x": 0,
+            "y": -225,
+            "z": 0
+          }
+        },
+        "splash_guard": {
+          "type": "box",
+          "dimensions": {
+            "x": 1050,
+            "y": 850,
+            "z": 1050
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 175
+          }
+        }
+      }
+    },
+    "has3DModel": true
+  },
+  {
+    "id": "ROKU_MV_850",
+    "manufacturer": "Roku-Roku",
+    "model": "MV-850",
+    "type": "vertical_machining_center",
+    "subtype": "high_speed_die_mold",
+    "description": "Large high-speed die/mold center",
+    "work_envelope": {
+      "x": {
+        "min": 0,
+        "max": 850,
+        "unit": "mm"
+      },
+      "y": {
+        "min": 0,
+        "max": 600,
+        "unit": "mm"
+      },
+      "z": {
+        "min": 0,
+        "max": 450,
+        "unit": "mm"
+      },
+      "table_length": 1000,
+      "table_width": 600,
+      "table_load_capacity": 700,
+      "table_load_unit": "kg"
+    },
+    "spindle": {
+      "type": "built_in_motor",
+      "taper": "HSK-A63",
+      "max_rpm": 20000,
+      "power_rating": 26,
+      "power_unit": "kW",
+      "torque_max": 120,
+      "torque_unit": "Nm",
+      "power_continuous": 11,
+      "power_30min": 15,
+      "torque_continuous": 70,
+      "spindle_nose": "BT40",
+      "coolant_through": true
+    },
+    "axis_specs": {
+      "x": {
+        "travel": 850,
+        "rapid_rate": 40000,
+        "max_feed": 18000,
+        "acceleration": 0.9,
+        "motor_type": "linear_motor",
+        "guideway_type": "linear_roller",
+        "positioning_accuracy": 0.004,
+        "repeatability": 0.002
+      },
+      "y": {
+        "travel": 600,
+        "rapid_rate": 40000,
+        "max_feed": 18000,
+        "acceleration": 0.9,
+        "motor_type": "linear_motor",
+        "guideway_type": "linear_roller",
+        "positioning_accuracy": 0.004,
+        "repeatability": 0.002
+      },
+      "z": {
+        "travel": 450,
+        "rapid_rate": 32000,
+        "max_feed": 15000,
+        "acceleration": 0.8,
+        "guideway_type": "linear_roller",
+        "positioning_accuracy": 0.004,
+        "repeatability": 0.002
+      }
+    },
+    "atc": {
+      "type": "arm_type",
+      "capacity": 30,
+      "max_tool_diameter": 90,
+      "max_tool_length": 300,
+      "max_tool_weight": 8,
+      "tool_change_time": 2.5
+    },
+    "controller": {
+      "brand": "FANUC",
+      "model": "31i-B5",
+      "axes_count": 3
+    },
+    "machine_dimensions": {
+      "length": 3000,
+      "width": 2700,
+      "height": 3100,
+      "weight": 9500,
+      "weight_unit": "kg"
+    },
+    "kinematic_chain": {
+      "type": "serial_C_prime",
+      "structure": "moving_column",
+      "chain": [
+        "base",
+        "column_X",
+        "saddle_Y",
+        "spindle_Z"
+      ]
+    },
+    "layer": "ENHANCED",
+    "collision_model": {
+      "type": "parametric_envelope",
+      "generated": true,
+      "source": "spec_derived",
+      "work_volume": {
+        "x": 850,
+        "y": 600,
+        "z": 450,
+        "shape": "rectangular"
+      },
+      "zones": {
+        "spindle": {
+          "type": "cylinder",
+          "radius": 80,
+          "length": 350,
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 625
+          },
+          "orientation": "vertical"
+        },
+        "head": {
+          "type": "box",
+          "dimensions": {
+            "x": 350,
+            "y": 350,
+            "z": 400
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 650
+          }
+        },
+        "column": {
+          "type": "box",
+          "dimensions": {
+            "x": 350,
+            "y": 500,
+            "z": 1150
+          },
+          "position": {
+            "x": 0,
+            "y": -550,
+            "z": 225
+          }
+        },
+        "table": {
+          "type": "box",
+          "dimensions": {
+            "x": 1105,
+            "y": 660,
+            "z": 80
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          }
+        },
+        "work_envelope": {
+          "type": "box",
+          "dimensions": {
+            "x": 850,
+            "y": 600,
+            "z": 450
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 225
+          }
+        },
+        "y_saddle": {
+          "type": "box",
+          "dimensions": {
+            "x": 1050,
+            "y": 300,
+            "z": 200
+          },
+          "position": {
+            "x": 0,
+            "y": -300,
+            "z": 0
+          }
+        },
+        "splash_guard": {
+          "type": "box",
+          "dimensions": {
+            "x": 1350,
+            "y": 1000,
+            "z": 1150
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 225
+          }
+        }
+      }
+    },
+    "has3DModel": true
+  },
+  {
+    "id": "ROKU_MU_500VA",
+    "manufacturer": "Roku-Roku",
+    "model": "MU-500VA",
+    "type": "vertical_machining_center",
+    "subtype": "5_axis_trunnion",
+    "description": "5-axis high-speed machining center with trunnion",
+    "work_envelope": {
+      "x": {
+        "min": 0,
+        "max": 500,
+        "unit": "mm"
+      },
+      "y": {
+        "min": 0,
+        "max": 400,
+        "unit": "mm"
+      },
+      "z": {
+        "min": 0,
+        "max": 350,
+        "unit": "mm"
+      },
+      "trunnion_diameter": 400,
+      "max_workpiece_diameter": 500,
+      "max_workpiece_height": 300,
+      "table_load_capacity": 150,
+      "table_load_unit": "kg"
+    },
+    "spindle": {
+      "type": "built_in_motor",
+      "taper": "HSK-A63",
+      "max_rpm": 20000,
+      "power_rating": 22,
+      "power_unit": "kW",
+      "torque_max": 100,
+      "torque_unit": "Nm",
+      "bearing_type": "ceramic_hybrid",
+      "power_continuous": 11,
+      "power_30min": 15,
+      "torque_continuous": 70,
+      "spindle_nose": "BT40",
+      "coolant_through": true
+    },
+    "axis_specs": {
+      "x": {
+        "travel": 500,
+        "rapid_rate": 48000,
+        "max_feed": 20000,
+        "acceleration": 1.2,
+        "motor_type": "linear_motor",
+        "guideway_type": "linear_roller",
+        "positioning_accuracy": 0.003,
+        "repeatability": 0.0015
+      },
+      "y": {
+        "travel": 400,
+        "rapid_rate": 48000,
+        "max_feed": 20000,
+        "acceleration": 1.2,
+        "motor_type": "linear_motor",
+        "guideway_type": "linear_roller",
+        "positioning_accuracy": 0.003,
+        "repeatability": 0.0015
+      },
+      "z": {
+        "travel": 350,
+        "rapid_rate": 40000,
+        "max_feed": 15000,
+        "acceleration": 1,
+        "guideway_type": "linear_roller",
+        "positioning_accuracy": 0.003,
+        "repeatability": 0.0015
+      },
+      "a": {
+        "type": "rotary_trunnion",
+        "travel": {
+          "min": -120,
+          "max": 30
+        },
+        "rapid_rate": 60,
+        "rapid_rate_unit": "rpm",
+        "max_torque": 600,
+        "torque_unit": "Nm",
+        "clamping_torque": 1200,
+        "drive_type": "direct_drive",
+        "positioning_accuracy": 0.003,
+        "repeatability": 0.0015,
+        "indexing_accuracy": 8,
+        "indexing_unit": "arc_seconds"
+      },
+      "c": {
+        "type": "rotary_table",
+        "travel": {
+          "min": -360,
+          "max": 360
+        },
+        "continuous": true,
+        "rapid_rate": 100,
+        "rapid_rate_unit": "rpm",
+        "max_torque": 400,
+        "torque_unit": "Nm",
+        "clamping_torque": 800,
+        "drive_type": "direct_drive",
+        "positioning_accuracy": 0.003,
+        "repeatability": 0.0015
+      }
+    },
+    "atc": {
+      "type": "arm_type",
+      "capacity": 32,
+      "max_tool_diameter": 75,
+      "max_tool_length": 200,
+      "max_tool_weight": 6,
+      "tool_change_time": 2
+    },
+    "controller": {
+      "brand": "FANUC",
+      "model": "31i-B5",
+      "axes_count": 5,
+      "simultaneous_axes": 5,
+      "tcpc": true,
+      "rtcp": true,
+      "ai_contour_control_II": true,
+      "smooth_tcp": true
+    },
+    "machine_dimensions": {
+      "length": 2600,
+      "width": 2400,
+      "height": 3000,
+      "weight": 8000,
+      "weight_unit": "kg"
+    },
+    "kinematic_chain": {
+      "type": "table_table",
+      "structure": "trunnion_on_fixed_column",
+      "chain": [
+        "base",
+        "column",
+        "saddle_Y",
+        "spindle_Z",
+        "table_X",
+        "trunnion_A",
+        "rotary_C"
+      ],
+      "tcp_reference": "workpiece_center",
+      "rtcp_capable": true
+    },
+    "layer": "ENHANCED",
+    "collision_model": {
+      "type": "parametric_envelope",
+      "generated": true,
+      "source": "spec_derived",
+      "work_volume": {
+        "x": 500,
+        "y": 400,
+        "z": 350,
+        "shape": "rectangular"
+      },
+      "zones": {
+        "spindle": {
+          "type": "cylinder",
+          "radius": 80,
+          "length": 350,
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 525
+          },
+          "orientation": "vertical"
+        },
+        "head": {
+          "type": "box",
+          "dimensions": {
+            "x": 350,
+            "y": 350,
+            "z": 400
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 550
+          }
+        },
+        "column": {
+          "type": "box",
+          "dimensions": {
+            "x": 350,
+            "y": 500,
+            "z": 1050
+          },
+          "position": {
+            "x": 0,
+            "y": -450,
+            "z": 175
+          }
+        },
+        "table": {
+          "type": "box",
+          "dimensions": {
+            "x": 650,
+            "y": 440,
+            "z": 80
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          }
+        },
+        "work_envelope": {
+          "type": "box",
+          "dimensions": {
+            "x": 500,
+            "y": 400,
+            "z": 350
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 175
+          }
+        },
+        "y_saddle": {
+          "type": "box",
+          "dimensions": {
+            "x": 700,
+            "y": 300,
+            "z": 200
+          },
+          "position": {
+            "x": 0,
+            "y": -200,
+            "z": 0
+          }
+        },
+        "splash_guard": {
+          "type": "box",
+          "dimensions": {
+            "x": 1000,
+            "y": 800,
+            "z": 1050
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 175
+          }
+        }
+      }
+    },
+    "has3DModel": true
+  },
+  {
+    "id": "ROKU_DC_1612",
+    "manufacturer": "Roku-Roku",
+    "model": "DC-1612",
+    "type": "double_column_machining_center",
+    "subtype": "bridge_type",
+    "description": "Double-column high-speed machining center",
+    "work_envelope": {
+      "x": {
+        "min": 0,
+        "max": 1600,
+        "unit": "mm"
+      },
+      "y": {
+        "min": 0,
+        "max": 1200,
+        "unit": "mm"
+      },
+      "z": {
+        "min": 0,
+        "max": 650,
+        "unit": "mm"
+      },
+      "table_length": 1800,
+      "table_width": 1200,
+      "table_load_capacity": 3500,
+      "table_load_unit": "kg"
+    },
+    "spindle": {
+      "type": "built_in_motor",
+      "taper": "HSK-A63",
+      "max_rpm": 15000,
+      "power_rating": 30,
+      "power_unit": "kW",
+      "torque_max": 200,
+      "torque_unit": "Nm"
+    },
+    "axis_specs": {
+      "x": {
+        "travel": 1600,
+        "rapid_rate": 30000,
+        "max_feed": 15000,
+        "acceleration": 0.6,
+        "motor_type": "linear_motor",
+        "guideway_type": "linear_roller",
+        "positioning_accuracy": 0.008,
+        "repeatability": 0.004
+      },
+      "y": {
+        "travel": 1200,
+        "rapid_rate": 30000,
+        "max_feed": 15000,
+        "acceleration": 0.6,
+        "motor_type": "linear_motor",
+        "guideway_type": "linear_roller",
+        "positioning_accuracy": 0.008,
+        "repeatability": 0.004
+      },
+      "z": {
+        "travel": 650,
+        "rapid_rate": 24000,
+        "max_feed": 12000,
+        "acceleration": 0.5,
+        "guideway_type": "linear_roller",
+        "positioning_accuracy": 0.008,
+        "repeatability": 0.004
+      }
+    },
+    "atc": {
+      "type": "arm_type",
+      "capacity": 40,
+      "max_tool_diameter": 100,
+      "max_tool_length": 350,
+      "max_tool_weight": 15,
+      "tool_change_time": 5
+    },
+    "controller": {
+      "brand": "FANUC",
+      "model": "31i-B5",
+      "axes_count": 3,
+      "nano_interpolation": true
+    },
+    "machine_dimensions": {
+      "length": 4500,
+      "width": 3500,
+      "height": 3600,
+      "weight": 18000,
+      "weight_unit": "kg"
+    },
+    "kinematic_chain": {
+      "type": "bridge_type",
+      "structure": "fixed_table_moving_bridge",
+      "chain": [
+        "base",
+        "table_fixed",
+        "column_left",
+        "column_right",
+        "crossrail_X",
+        "saddle_Y",
+        "ram_Z"
+      ]
+    },
+    "layer": "ENHANCED",
+    "collision_model": {
+      "type": "parametric_envelope",
+      "generated": true,
+      "source": "spec_derived",
+      "work_volume": {
+        "x": 1600,
+        "y": 1200,
+        "z": 650,
+        "shape": "rectangular"
+      },
+      "zones": {
+        "crossrail": {
+          "type": "box",
+          "dimensions": {
+            "x": 2200,
+            "y": 300,
+            "z": 400
+          },
+          "position": {
+            "x": 0,
+            "y": 600,
+            "z": 1050
+          }
+        },
+        "spindle": {
+          "type": "cylinder",
+          "radius": 100,
+          "length": 500,
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 900
+          },
+          "orientation": "vertical"
+        },
+        "columns": [
+          {
+            "type": "box",
+            "dimensions": {
+              "x": 400,
+              "y": 400,
+              "z": 1450
+            },
+            "position": {
+              "x": -1000,
+              "y": 600,
+              "z": 325
+            }
+          },
+          {
+            "type": "box",
+            "dimensions": {
+              "x": 400,
+              "y": 400,
+              "z": 1450
+            },
+            "position": {
+              "x": 1000,
+              "y": 600,
+              "z": 325
+            }
+          }
+        ],
+        "table": {
+          "type": "box",
+          "dimensions": {
+            "x": 2080,
+            "y": 1320,
+            "z": 200
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          }
+        },
+        "work_envelope": {
+          "type": "box",
+          "dimensions": {
+            "x": 1600,
+            "y": 1200,
+            "z": 650
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 325
+          }
+        }
+      }
+    },
+    "has3DModel": true
+  },
+  {
+    "id": "ROKU_G_300",
+    "manufacturer": "Roku-Roku",
+    "model": "G-300",
+    "type": "vertical_machining_center",
+    "subtype": "compact_graphite",
+    "description": "Compact graphite electrode machine for small electrodes",
+    "work_envelope": {
+      "x": {
+        "min": 0,
+        "max": 300,
+        "unit": "mm"
+      },
+      "y": {
+        "min": 0,
+        "max": 250,
+        "unit": "mm"
+      },
+      "z": {
+        "min": 0,
+        "max": 200,
+        "unit": "mm"
+      },
+      "table_length": 350,
+      "table_width": 250,
+      "table_load_capacity": 80,
+      "table_load_unit": "kg"
+    },
+    "spindle": {
+      "type": "built_in_motor",
+      "taper": "HSK-E32",
+      "max_rpm": 50000,
+      "power_rating": 6,
+      "power_unit": "kW",
+      "torque_max": 3.5,
+      "torque_unit": "Nm",
+      "bearing_type": "ceramic_hybrid",
+      "runout": 0.0008,
+      "power_continuous": 11,
+      "power_30min": 15,
+      "torque_continuous": 70,
+      "spindle_nose": "BT40",
+      "coolant_through": true
+    },
+    "axis_specs": {
+      "x": {
+        "travel": 300,
+        "rapid_rate": 60000,
+        "max_feed": 48000,
+        "acceleration": 2,
+        "jerk": 100,
+        "motor_type": "linear_motor",
+        "guideway_type": "linear_roller",
+        "positioning_accuracy": 0.001,
+        "repeatability": 0.0005
+      },
+      "y": {
+        "travel": 250,
+        "rapid_rate": 60000,
+        "max_feed": 48000,
+        "acceleration": 2,
+        "jerk": 100,
+        "motor_type": "linear_motor",
+        "guideway_type": "linear_roller",
+        "positioning_accuracy": 0.001,
+        "repeatability": 0.0005
+      },
+      "z": {
+        "travel": 200,
+        "rapid_rate": 48000,
+        "max_feed": 36000,
+        "acceleration": 1.8,
+        "jerk": 80,
+        "motor_type": "linear_motor",
+        "guideway_type": "linear_roller",
+        "positioning_accuracy": 0.001,
+        "repeatability": 0.0005
+      }
+    },
+    "atc": {
+      "type": "turret_disc",
+      "capacity": 12,
+      "max_tool_diameter": 35,
+      "max_tool_length": 100,
+      "max_tool_weight": 0.8,
+      "tool_change_time": 0.6,
+      "chip_to_chip_time": 0.9
+    },
+    "controller": {
+      "brand": "FANUC",
+      "model": "31i-B5",
+      "axes_count": 3,
+      "nano_interpolation": true,
+      "ai_contour_control_II": true
+    },
+    "graphite_system": {
+      "graphite_optimized": true,
+      "dust_collection": true,
+      "fully_enclosed": true
+    },
+    "machine_dimensions": {
+      "length": 1400,
+      "width": 1500,
+      "height": 2100,
+      "weight": 2200,
+      "weight_unit": "kg"
+    },
+    "kinematic_chain": {
+      "type": "serial_C_prime",
+      "structure": "moving_column_linear_motor",
+      "chain": [
+        "base",
+        "column_X",
+        "saddle_Y",
+        "spindle_Z"
+      ]
+    },
+    "layer": "ENHANCED",
+    "collision_model": {
+      "type": "parametric_envelope",
+      "generated": true,
+      "source": "spec_derived",
+      "work_volume": {
+        "x": 300,
+        "y": 250,
+        "z": 200,
+        "shape": "rectangular"
+      },
+      "zones": {
+        "spindle": {
+          "type": "cylinder",
+          "radius": 80,
+          "length": 350,
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 375
+          },
+          "orientation": "vertical"
+        },
+        "head": {
+          "type": "box",
+          "dimensions": {
+            "x": 350,
+            "y": 350,
+            "z": 400
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 400
+          }
+        },
+        "column": {
+          "type": "box",
+          "dimensions": {
+            "x": 350,
+            "y": 500,
+            "z": 900
+          },
+          "position": {
+            "x": 0,
+            "y": -375,
+            "z": 100
+          }
+        },
+        "table": {
+          "type": "box",
+          "dimensions": {
+            "x": 390,
+            "y": 275,
+            "z": 80
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          }
+        },
+        "work_envelope": {
+          "type": "box",
+          "dimensions": {
+            "x": 300,
+            "y": 250,
+            "z": 200
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 100
+          }
+        },
+        "y_saddle": {
+          "type": "box",
+          "dimensions": {
+            "x": 500,
+            "y": 300,
+            "z": 200
+          },
+          "position": {
+            "x": 0,
+            "y": -125,
+            "z": 0
+          }
+        },
+        "splash_guard": {
+          "type": "box",
+          "dimensions": {
+            "x": 800,
+            "y": 650,
+            "z": 900
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 100
+          }
+        }
+      }
+    },
+    "has3DModel": true
+  },
+  {
+    "id": "ROKU_MA_500",
+    "manufacturer": "Roku-Roku",
+    "model": "MA-500",
+    "type": "vertical_machining_center",
+    "subtype": "graphite_with_automation",
+    "description": "Graphite machining center with integrated automation",
+    "work_envelope": {
+      "x": {
+        "min": 0,
+        "max": 500,
+        "unit": "mm"
+      },
+      "y": {
+        "min": 0,
+        "max": 400,
+        "unit": "mm"
+      },
+      "z": {
+        "min": 0,
+        "max": 300,
+        "unit": "mm"
+      },
+      "table_length": 600,
+      "table_width": 400,
+      "table_load_capacity": 200,
+      "table_load_unit": "kg"
+    },
+    "spindle": {
+      "type": "built_in_motor",
+      "taper": "HSK-E50",
+      "max_rpm": 30000,
+      "power_rating": 12,
+      "power_unit": "kW",
+      "torque_max": 15,
+      "torque_unit": "Nm",
+      "power_continuous": 11,
+      "power_30min": 15,
+      "torque_continuous": 70,
+      "spindle_nose": "BT40",
+      "coolant_through": true
+    },
+    "axis_specs": {
+      "x": {
+        "travel": 500,
+        "rapid_rate": 54000,
+        "max_feed": 40000,
+        "acceleration": 1.5,
+        "motor_type": "linear_motor",
+        "guideway_type": "linear_roller",
+        "positioning_accuracy": 0.002,
+        "repeatability": 0.001
+      },
+      "y": {
+        "travel": 400,
+        "rapid_rate": 54000,
+        "max_feed": 40000,
+        "acceleration": 1.5,
+        "motor_type": "linear_motor",
+        "guideway_type": "linear_roller",
+        "positioning_accuracy": 0.002,
+        "repeatability": 0.001
+      },
+      "z": {
+        "travel": 300,
+        "rapid_rate": 42000,
+        "max_feed": 30000,
+        "acceleration": 1.2,
+        "motor_type": "linear_motor",
+        "guideway_type": "linear_roller",
+        "positioning_accuracy": 0.002,
+        "repeatability": 0.001
+      }
+    },
+    "atc": {
+      "type": "arm_type",
+      "capacity": 24,
+      "tool_change_time": 1.5
+    },
+    "automation": {
+      "pallet_changer": true,
+      "pallet_count": 6,
+      "pallet_size": "300x300",
+      "pallet_size_unit": "mm",
+      "pallet_load": 50,
+      "pallet_load_unit": "kg",
+      "pallet_change_time": 15,
+      "robot_interface": true,
+      "robot_type": "6_axis_articulated"
+    },
+    "controller": {
+      "brand": "FANUC",
+      "model": "31i-B5",
+      "axes_count": 3
+    },
+    "graphite_system": {
+      "graphite_optimized": true,
+      "dust_collection": true,
+      "fully_enclosed": true
+    },
+    "machine_dimensions": {
+      "length": 3200,
+      "width": 2800,
+      "height": 2800,
+      "weight": 7500,
+      "weight_unit": "kg"
+    },
+    "kinematic_chain": {
+      "type": "serial_C_prime",
+      "structure": "moving_column_with_pallet",
+      "chain": [
+        "base",
+        "column_X",
+        "saddle_Y",
+        "spindle_Z",
+        "pallet_changer"
+      ]
+    },
+    "layer": "ENHANCED",
+    "collision_model": {
+      "type": "parametric_envelope",
+      "generated": true,
+      "source": "spec_derived",
+      "work_volume": {
+        "x": 500,
+        "y": 400,
+        "z": 300,
+        "shape": "rectangular"
+      },
+      "zones": {
+        "spindle": {
+          "type": "cylinder",
+          "radius": 80,
+          "length": 350,
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 475
+          },
+          "orientation": "vertical"
+        },
+        "head": {
+          "type": "box",
+          "dimensions": {
+            "x": 350,
+            "y": 350,
+            "z": 400
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 500
+          }
+        },
+        "column": {
+          "type": "box",
+          "dimensions": {
+            "x": 350,
+            "y": 500,
+            "z": 1000
+          },
+          "position": {
+            "x": 0,
+            "y": -450,
+            "z": 150
+          }
+        },
+        "table": {
+          "type": "box",
+          "dimensions": {
+            "x": 650,
+            "y": 440,
+            "z": 80
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          }
+        },
+        "work_envelope": {
+          "type": "box",
+          "dimensions": {
+            "x": 500,
+            "y": 400,
+            "z": 300
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 150
+          }
+        },
+        "y_saddle": {
+          "type": "box",
+          "dimensions": {
+            "x": 700,
+            "y": 300,
+            "z": 200
+          },
+          "position": {
+            "x": 0,
+            "y": -200,
+            "z": 0
+          }
+        },
+        "splash_guard": {
+          "type": "box",
+          "dimensions": {
+            "x": 1000,
+            "y": 800,
+            "z": 1000
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 150
+          }
+        }
+      }
+    },
+    "has3DModel": true
+  }
+]

@@ -23,13 +23,14 @@ related:
 |-------|-------|
 | Name | `autopilot` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/autopilot.md` |
+| Source | `C:/Users/wompu/.claude/commands/autopilot.md` |
 | Model | default |
 | Tags | _(none)_ |
 
 ## Description (first paragraph)
 
-Complete PRISM development cycle: pick task → execute → commit → scrutinize → fix → register → verify → update docs. No manual intervention unless something fails.
+
+# Autopilot — Full Development Cycle Pipeline
 
 <!-- AUTO-END -->
 

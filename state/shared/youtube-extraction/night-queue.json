@@ -1,0 +1,18 @@
+{
+  "schemaVersion": "1.0.0",
+  "note": "Curated night-lane YouTube extraction queue (U-YT-NIGHT-STAGE, slot:zulu 2026-06-12). Consumed by scripts/youtube-night-extract.mjs -- STAGING-ONLY (--no-ingest --no-wiki forced); tips land in state/shared/youtube-extraction/<id>.json and are promoted ATTENDED via scripts/promote-youtube-staged.mjs. One query per closed-loop domain slot (operator directive: delta/kilo/oscar/echo/mike/foxtrot/whiskey/xray). Weekly rotation (cooldown 7d, OK runs only); 3 queries/night -> full cycle ~3 nights. Curate freely: domain slots own their query wording; ids must stay unique; queries must not start with '-'.",
+  "queries": [
+    { "id": "mill-tram-deflection", "domain": "mill", "query": "ytsearch3:CNC milling tool deflection chatter fix tips", "enabled": true },
+    { "id": "lathe-insert-chipcontrol", "domain": "lathe", "query": "ytsearch3:CNC lathe insert chip control feeds speeds tips", "enabled": true },
+    { "id": "wedm-flush-wirebreak", "domain": "wedm", "query": "ytsearch3:wire EDM wire break flushing fix tips", "enabled": true },
+    { "id": "cam-rest-machining", "domain": "cam", "query": "ytsearch3:CAM rest machining toolpath strategy tips", "enabled": true },
+    { "id": "cad-step-repair", "domain": "cad", "query": "ytsearch3:STEP file import repair CAD modeling tips", "enabled": true },
+    { "id": "sfc-feeds-speeds-carbide", "domain": "speed-feed", "query": "ytsearch3:feeds and speeds carbide endmill calculation shop tips", "enabled": true },
+    { "id": "post-gcode-dialect", "domain": "post-processor", "query": "ytsearch3:CNC post processor G-code edit Fanuc Haas tips", "enabled": true },
+    { "id": "ocr-blueprint-gdt", "domain": "blueprint-vision", "query": "ytsearch3:reading engineering blueprint GD&T tolerances machinist", "enabled": true },
+    { "id": "fusion-ui-navigation", "domain": "cad", "query": "ytsearch3:Fusion 360 sketch constraints parametric modeling tutorial workflow", "enabled": true },
+    { "id": "fusion-api-scripting", "domain": "cad", "query": "ytsearch3:Fusion 360 API python script automate modeling", "enabled": true },
+    { "id": "mastercam-ui-navigation", "domain": "cad", "query": "ytsearch3:Mastercam interface toolpath setup tutorial workflow", "enabled": true },
+    { "id": "hypermill-ui-navigation", "domain": "cad", "query": "ytsearch3:hyperMILL hyperCAD tutorial setup workflow programming", "enabled": true }
+  ]
+}

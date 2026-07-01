@@ -23,13 +23,20 @@ related:
 |-------|-------|
 | Name | `bash-optimize` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/bash-optimize.md` |
+| Source | `C:/Users/wompu/.claude/commands/bash-optimize.md` |
 | Model | default |
 | Tags | _(none)_ |
 
 ## Description (first paragraph)
 
-_(no body content)_
+
+# Bash Optimize — Convert Repetitive Bash Commands into Token-Saving Automations
+
+You are analyzing recent Bash tool usage in this session to identify patterns that waste tokens, then building skills, scripts, hooks, or stop hooks to eliminate that waste permanently.
+
+## Args: $ARGUMENTS
+- Empty: full analysis — scan session, find patterns, build automations
+- `scan`: analyze only — show w
 
 <!-- AUTO-END -->
 

@@ -11,8 +11,17 @@
  * @version 1.0.0
  */
 
+import { randomUUID } from "node:crypto";
 import { z } from "zod";
 import type { ToolpathProgram, ToolpathOperation, ToolpathMove } from "./LathePrintToolpathGeneratorEngine.js";
+import {
+  makeDefaultConsensusVote,
+  publishOutcomeToFeedbackBus,
+  ORCHESTRATE_STAGE,
+  type ConsensusVoteQuery,
+  type ConsensusVoteVerdict,
+} from "./domainAGIAdapterKit.js";
+import type { OutcomeEvent } from "../schemas/outcomeEventSchema.js";
 
 // ============================================================================
 // CONTROLLER DIALECTS
@@ -285,6 +294,45 @@ export const EmittedProgramSchema = z.object({
   timestamp: z.string(),
 });
 export type EmittedProgram = z.infer<typeof EmittedProgramSchema>;
+
+// ============================================================================
+// CONSENSUS-GATED POST SELECTION — LATHE-P2P-CONSENSUS-MS4/P1-U02
+// ============================================================================
+
+/**
+ * Result of consensus-gated post-processor selection. The chosen controller is
+ * folded into the emitted program; full audit ride-along covers the candidate
+ * set + verdict + escalation flag.
+ */
+export const ConsensusEmittedProgramSchema = z.object({
+  schemaVersion: z.literal("1.0.0"),
+  emitted: EmittedProgramSchema,
+  selected_controller: z.enum(["fanuc", "haas", "okuma_osp", "mitsubishi", "mazak", "siemens", "generic"]),
+  candidate_controllers: z.array(z.enum(["fanuc", "haas", "okuma_osp", "mitsubishi", "mazak", "siemens", "generic"])).min(1),
+  consensus: z.object({
+    answer: z.string(),
+    confidence: z.number().min(0).max(1),
+    voters: z.array(z.string()),
+    auditId: z.string().optional(),
+    agreement_met: z.boolean(),
+    threshold: z.number().min(0).max(1),
+    skipped: z.boolean().describe("True when only one candidate controller — consensus skipped, no vote fanned out."),
+  }),
+  escalated_to_human: z.boolean(),
+  lineage_id: z.string(),
+  job_id: z.string(),
+  timestamp: z.string(),
+});
+export type ConsensusEmittedProgram = z.infer<typeof ConsensusEmittedProgramSchema>;
+
+export type EmitConsensusFn = (q: ConsensusVoteQuery) => Promise<ConsensusVoteVerdict>;
+
+export interface EmitWithConsensusOpts {
+  agreementThreshold?: number;
+  consensusDecide?: EmitConsensusFn;
+  publish?: (event: OutcomeEvent) => void;
+  jobId?: string;
+}
 
 // ============================================================================
 // ENGINE
@@ -603,6 +651,158 @@ class LathePrintProgramEmitterEngine {
 
     return { valid: errors.length === 0, errors, warnings };
   }
+}
+
+// Extend the engine prototype with the consensus-gated emit method.
+// Kept outside the original class body to leave the rest of the file
+// untouched and let the consensus surface land as a strictly-additive
+// LATHE-P2P-CONSENSUS-MS4/P1-U02 deliverable.
+declare module "./LathePrintProgramEmitterEngine.js" {
+  // module augmentation placeholder — types live on the class below
+}
+
+/**
+ * Consensus-gated post-processor selection + emit
+ * (LATHE-P2P-CONSENSUS-MS4/P1-U02).
+ *
+ * When the machine→controller mapping is ambiguous (e.g. Okuma B250IIW
+ * supports both OSP-P300L and legacy OSP-P200L), present the candidate
+ * controllers to the consensus seam and emit with the winning post.
+ *
+ * If only one candidate is supplied, consensus is SKIPPED — the unique
+ * choice is emitted immediately, `consensus.skipped` is true, confidence=1,
+ * no fanout cost. This matches envelope behavior: "consensus when machine
+ * has ambiguous post mapping".
+ *
+ * Fail-open: seam throws / unknown answer → first candidate is emitted,
+ * escalated_to_human flagged.
+ *
+ * @param program toolpath program to emit
+ * @param candidateControllers controllers valid for this machine (≥1)
+ * @param baseOptions emit options (controller is overridden by consensus)
+ * @param opts seam injection + threshold + jobId
+ * @returns consensus-gated emitted program with full audit trail
+ */
+async function emitWithConsensusImpl(
+  this: LathePrintProgramEmitterEngine,
+  program: ToolpathProgram,
+  candidateControllers: ControllerFamily[],
+  baseOptions: Omit<EmitOptions, "controller">,
+  opts: EmitWithConsensusOpts = {},
+): Promise<ConsensusEmittedProgram> {
+  if (!Array.isArray(candidateControllers) || candidateControllers.length === 0) {
+    throw new Error("emitWithConsensus: candidateControllers must contain at least one controller family");
+  }
+
+  const threshold = opts.agreementThreshold ?? 0.75;
+  const lineageId = randomUUID();
+  const jobId = opts.jobId ?? randomUUID();
+
+  let selectedController: ControllerFamily;
+  let verdict: ConsensusVoteVerdict;
+  let skipped: boolean;
+
+  if (candidateControllers.length === 1) {
+    // No ambiguity — skip consensus, default-high confidence to the unique pick.
+    selectedController = candidateControllers[0];
+    verdict = { answer: selectedController, confidence: 1, voters: [] };
+    skipped = true;
+  } else {
+    const consensusFn = opts.consensusDecide ?? makeDefaultConsensusVote({
+      engineName: "LathePrintProgramEmitterEngine",
+      callerEngine: "LathePrintProgramEmitterEngine.emitWithConsensus",
+    });
+    try {
+      verdict = await consensusFn({
+        question: `Which post-processor controller dialect minimizes risk for this lathe program?`,
+        options: candidateControllers,
+        decisionKind: "post_processor",
+      });
+    } catch {
+      verdict = { answer: candidateControllers[0], confidence: 0, voters: [] };
+    }
+    const answer = verdict.answer as ControllerFamily;
+    selectedController = candidateControllers.includes(answer) ? answer : candidateControllers[0];
+    skipped = false;
+  }
+
+  const agreementMet = verdict.confidence >= threshold;
+  const emitted = this.emit(program, { ...baseOptions, controller: selectedController });
+
+  const result: ConsensusEmittedProgram = {
+    schemaVersion: "1.0.0",
+    emitted,
+    selected_controller: selectedController,
+    candidate_controllers: candidateControllers,
+    consensus: {
+      answer: selectedController,
+      confidence: verdict.confidence,
+      voters: verdict.voters,
+      auditId: verdict.auditId,
+      agreement_met: agreementMet,
+      threshold,
+      skipped,
+    },
+    escalated_to_human: !skipped && !agreementMet,
+    lineage_id: lineageId,
+    job_id: jobId,
+    timestamp: new Date().toISOString(),
+  };
+
+  // Outcome event (v1.1.0 cross_process_decision).
+  const event: OutcomeEvent = {
+    schemaVersion: "1.1.0",
+    event_id: randomUUID(),
+    lineage_id: lineageId,
+    domain: "lathe",
+    kind: "cross_process_decision",
+    severity: "info",
+    source: "system",
+    timestamp: result.timestamp,
+    context: {
+      job_id: jobId,
+      pipeline_stage: ORCHESTRATE_STAGE,
+      consensus_audit_id: verdict.auditId,
+    },
+    recommended: {
+      decision_kind: "post_processor",
+      candidates: candidateControllers,
+      skipped,
+    },
+    actual: {
+      selected: selectedController,
+      agreement_met: agreementMet,
+      threshold,
+      escalated_to_human: result.escalated_to_human,
+    },
+    confidence: verdict.confidence,
+  };
+  try {
+    (opts.publish ?? publishOutcomeToFeedbackBus)(event);
+  } catch {
+    // Observability seam — never block emission on bus failure.
+  }
+
+  return result;
+}
+
+// Attach to prototype so `lathePrintProgramEmitterEngine.emitWithConsensus(...)`
+// is callable as a normal method while keeping the original class body untouched.
+(LathePrintProgramEmitterEngine.prototype as unknown as {
+  emitWithConsensus: typeof emitWithConsensusImpl;
+}).emitWithConsensus = emitWithConsensusImpl;
+
+// Augment the class type so TS surfaces the new method on the singleton.
+declare global {
+  // intentionally empty
+}
+interface LathePrintProgramEmitterEngine {
+  emitWithConsensus(
+    program: ToolpathProgram,
+    candidateControllers: ControllerFamily[],
+    baseOptions: Omit<EmitOptions, "controller">,
+    opts?: EmitWithConsensusOpts,
+  ): Promise<ConsensusEmittedProgram>;
 }
 
 export const lathePrintProgramEmitterEngine = new LathePrintProgramEmitterEngine();

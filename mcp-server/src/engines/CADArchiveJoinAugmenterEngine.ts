@@ -330,7 +330,10 @@ export function filterMillEligibleEntries(
   opts: FilterOptions = {},
 ): CADFileEntry[] {
   if (!Array.isArray(entries)) return [];
-  const allow = opts.formats ?? MILL_PROGRAM_FORMATS;
+  const rawAllow = opts.formats ?? MILL_PROGRAM_FORMATS;
+  const allow: ReadonlySet<CADFormat> = Array.isArray(rawAllow)
+    ? new Set(rawAllow as readonly CADFormat[])
+    : (rawAllow as ReadonlySet<CADFormat>);
   const result: CADFileEntry[] = [];
   for (const e of entries) {
     if (!isUsableEntry(e)) continue;

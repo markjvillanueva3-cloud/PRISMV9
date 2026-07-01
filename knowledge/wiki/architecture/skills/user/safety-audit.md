@@ -23,13 +23,18 @@ related:
 |-------|-------|
 | Name | `safety-audit` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/safety-audit.md` |
+| Source | `C:/Users/wompu/.claude/commands/safety-audit.md` |
 | Model | default |
 | Tags | _(none)_ |
 
 ## Description (first paragraph)
 
-_(no body content)_
+
+# Safety Audit — PRISM Safety Chain Inspector
+
+You are auditing PRISM's safety chain: the multi-layer defense system that prevents unsafe machining parameters from reaching production. This includes S(x) scoring, SafetyBlockError, cross-field physics validation, schema validation, and safety-classified algorithms. Use this to find weak links, verify coverage, or audit S(x) scores.
+
+## Args: 
 
 <!-- AUTO-END -->
 

@@ -106,6 +106,23 @@ const qdrant_vector_upsert = z.object({
   metadata: z.record(z.string(), z.unknown()).optional().describe("Extra payload (plain object)"),
 }).passthrough();
 
+// JULIETT-DB-BRIDGE-MS0/U-DB-BRIDGE-01 — unified vector router across the 14
+// QdrantMemoryEngine kinds. Fail-soft: returns ok:true with empty hits when
+// Qdrant is offline (per the 2026-05-26 GPU-contention banner — backend
+// liveness is recoverable, schema-correctness is not).
+const MEMORY_KIND_ENUM = z.enum([
+  "program", "outcome", "tip", "formula", "rule", "playbook", "note",
+  "error", "skill", "engine", "action", "gsd", "directive", "wiki",
+]);
+const vector_search_unified = z.object({
+  query: z.string().min(1).describe("Free-text query embedded via nomic-embed-text"),
+  kinds: z.array(MEMORY_KIND_ENUM).min(1).optional().describe("Subset of 14 MemoryKinds to fan out across. Default: all kinds."),
+  topK: z.number().int().positive().max(100).optional().describe("Max hits returned post-merge. 1..100, default 10."),
+  minScore: z.number().min(0).max(1).optional().describe("Lower bound on cosine score (0..1). Default 0."),
+  includeMetadata: z.boolean().optional().describe("Include per-hit metadata payload. Default false."),
+  perKindLimit: z.number().int().positive().max(50).optional().describe("Per-kind Qdrant limit. Default auto-sized 1..50."),
+}).passthrough().describe("Unified vector-search router across QdrantMemoryEngine's 14 kind-collections. One call replaces a 14-RTT loop; fail-soft on backend offline.");
+
 // OBSIDIAN-COMPOUND-MS1/S2/U-EMERGING-THESIS — TF-IDF synthesis over vault.
 const emerging_thesis = z.object({
   window: z.enum(["24h", "7d", "30d"]).optional().describe("Time window over vault mtime; default 7d"),
@@ -468,6 +485,36 @@ const memory_sync_bundle_metadata = z.object({
   { message: "memory_sync_bundle_metadata requires non-empty 'src_path' (or 'srcPath')" },
 ).describe("Read metadata for a single MemorySync bundle file (no Qdrant connection).");
 
+// BRAIN-SYNERGY-MS0/U-BRAIN-RECALL (slot:lima, 2026-05-21)
+const brain_recall = z.object({
+  query: z.string().min(1).describe("Free-text BM25 query across the Obsidian memory vault + system-graph + wiki indexes."),
+  k: z.number().int().positive().max(50).optional().describe("Top-K hits per source. Default 5. Capped at 50."),
+  include_memory: z.boolean().optional().describe("Search the file-based Obsidian memory vault (default true)."),
+  includeMemory: z.boolean().optional().describe("Alias for include_memory (camelCase)."),
+  include_graph: z.boolean().optional().describe("Search the system-graph master index (default true)."),
+  includeGraph: z.boolean().optional().describe("Alias for include_graph (camelCase)."),
+  include_wiki: z.boolean().optional().describe("Search the tribal/wiki BM25 index (default true)."),
+  includeWiki: z.boolean().optional().describe("Alias for include_wiki (camelCase)."),
+}).passthrough().describe("Unified BM25 search across the Obsidian memory vault + system-graph + wiki. Closes the gap where PRISM AI dispatchers had no first-class action to consult the file-based 2nd brain.");
+
+// HMEMV03/U-HMEMV03-RECALL-AS-OF (temporal-aware point-in-time recall): "what did
+// PRISM's memory/wiki BELIEVE at time T". Resolves the as-of commit (<= T) over the
+// git-tracked corpus (knowledge/memories or knowledge/wiki) and BM25-scores files
+// as-they-existed-at-that-commit. Operates on the H: git-tracked mirror ONLY (the
+// C: master vault is outside the repo, so it has no git temporal axis).
+const recall_as_of = z.object({
+  query: z.string().min(1).describe("Free-text BM25 query scored against the corpus as-it-existed at the as-of commit."),
+  as_of: z.string().min(1).optional().describe("REQUIRED ISO-8601 timestamp WITH an explicit offset (Z or +/-HH:MM). A bare date is rejected (it would silently mean host-local-midnight)."),
+  asOf: z.string().min(1).optional().describe("Alias for as_of (camelCase)."),
+  k: z.number().int().positive().max(50).optional().describe("Top-K hits. Default 5. Capped at 50."),
+  top_k: z.number().int().positive().max(50).optional().describe("Alias for k."),
+  corpus: z.enum(["memories", "wiki"]).optional().describe("Which git-tracked corpus to walk. Default 'memories'."),
+  max_files: z.number().int().positive().optional().describe("Hard cap on as-of files read (DoS guard). Default 20000; exceeding it fails loud."),
+}).passthrough().refine(
+  (d) => (typeof d.as_of === "string" && d.as_of.length > 0) || (typeof d.asOf === "string" && d.asOf.length > 0),
+  { message: "recall_as_of requires non-empty 'as_of' (or 'asOf') ISO-8601 timestamp" },
+).describe("Temporal-aware point-in-time recall: BM25-score the memory/wiki corpus AS IT EXISTED at the commit at-or-before the as-of timestamp. Git-history walk over the H: git-tracked mirror only.");
+
 export const ACTION_MEMORY_SCHEMAS: ActionSchemaMap = {
   get_health,
   trace_decision,
@@ -483,6 +530,8 @@ export const ACTION_MEMORY_SCHEMAS: ActionSchemaMap = {
   remember,
   qdrant_vector_search,
   qdrant_vector_upsert,
+  // JULIETT-DB-BRIDGE-MS0/U-DB-BRIDGE-01
+  vector_search_unified,
   emerging_thesis,
   daily_brief_get,
   daily_context_get,
@@ -506,4 +555,8 @@ export const ACTION_MEMORY_SCHEMAS: ActionSchemaMap = {
   // WIRE-UNWIRED-MS0/U-WIRE-MEMSYNC
   memory_sync_list_bundles,
   memory_sync_bundle_metadata,
+  // BRAIN-SYNERGY-MS0/U-BRAIN-RECALL
+  brain_recall,
+  // HMEMV03/U-HMEMV03-RECALL-AS-OF: temporal-aware point-in-time recall
+  recall_as_of,
 };

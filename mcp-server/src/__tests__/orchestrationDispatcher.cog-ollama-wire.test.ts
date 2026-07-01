@@ -19,7 +19,7 @@ import { registerOrchestrationDispatcher } from "../tools/dispatchers/orchestrat
 // Canonical TaskKind enum (mirrors ModelRoutingEngine.ts:32 — drift detector)
 const TASK_KINDS = ["chat", "code", "embed", "reasoning", "safety_critical", "gcode_explain", "quote_summary"] as const;
 const BACKENDS = ["ollama", "anthropic", "openai"] as const;
-const HARDWARE_PROFILES = ["home_4080", "work_3080", "cloud_only"] as const;
+const HARDWARE_PROFILES = ["home_blackwell", "home_4080", "work_3080", "cloud_only"] as const;
 
 interface CapturedTool {
   handler: (args: { action: string; params?: Record<string, unknown> }) => Promise<unknown>;

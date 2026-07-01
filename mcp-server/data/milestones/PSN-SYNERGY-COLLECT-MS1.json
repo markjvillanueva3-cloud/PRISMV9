@@ -1,0 +1,70 @@
+{
+  "id": "PSN-SYNERGY-COLLECT-MS1",
+  "version": "1.0.0",
+  "title": "PSN Synergy Collector — Scanner Expansion (system_viz / prism_os / prism_ai cross-refs)",
+  "brief": "MS0 first cut left 3 legs (system_viz, prism_os, prism_ai) with empty cross_refs — false-positive P0_critical pairs that drowned out real signal. This milestone eats its own dog food: ran the inspector on its own snapshot, identified the false positives, and shipped the scanners that close them.",
+  "created_at": "2026-05-23T22:00:00Z",
+  "created_by": "claude-64f03cee (slot echo)",
+  "track": "META",
+  "track_name": "PRISM Synergy Network Tooling",
+  "status": "complete",
+  "completed_at": "2026-05-23T22:10:00Z",
+  "completed_by": "claude-64f03cee (slot echo)",
+  "close_out_log": [
+    {
+      "unit": "P0-U01",
+      "status": "shipped",
+      "note": "Three new scanner functions in scripts/psn-synergy-collect.mjs: (1) `readJsonMetadataHead()` — bounded-head read of the 495MB system-graph.json that uses a stack-balanced JSON-object scanner (`extractBalancedJsonObject`) to extract `counts` / `vault` / `totals` / `coverage` sub-objects individually (the full `meta` block extends past 65KB into nested roadmap arrays). (2) `countEngineImportsInDispatcher()` — regex-counts `from .*engines/Xxx` + lazy `await import(.*engines/Xxx)` patterns in any dispatcher file. (3) `deriveSystemVizCrossRefs(meta)` — maps the graph metadata onto the 11-leg PSN as authoritative cross-refs (system_viz→engines/wiki/memories/algorithms/formulas/prism_os = N nodes of each type in the graph). Measurable delta on re-rank: P0_critical pairs 36→27 (-9), P1 3→9, P2 6→9. system_viz cross_refs went from {} to 7 real per-leg counts; prism_os→engines = 11; prism_ai→engines = 464. Also corrected system_viz node_count 280735→20702 (the previous regex `\"id\":` was counting substring matches inside the giant body; meta.totals.nodes is authoritative)."
+    }
+  ],
+  "linked_roadmap": "state/shared/specs/ROADMAP-CONSOLIDATED.md",
+  "phases": [
+    {
+      "id": "P0",
+      "title": "Scanner expansion closing v1 blind spots",
+      "sessions": "1",
+      "units": [
+        {
+          "id": "P0-U01",
+          "title": "scripts/psn-synergy-collect.mjs scanner expansion (system_viz / prism_os / prism_ai)",
+          "effort": 25,
+          "dependencies": [
+            "PSN-SYNERGY-COLLECT-MS0",
+            "PSN-SYNERGY-INSPECT-MS0"
+          ],
+          "exit_conditions": [
+            "system_viz cross_refs populated from system-graph.json metadata head (NOT a full 495MB parse)",
+            "prism_os cross_refs populated from operatingSystemDispatcher engine-import scan",
+            "prism_ai cross_refs populated from aiReasoningDispatcher engine-import scan",
+            "Inspector re-rank shows P0_critical pair count decreasing (false positives resolved)",
+            "Pure-Node script — no engine I/O, no engine imports added (purity preserved)",
+            "Runs to completion on this repo without errors"
+          ],
+          "description": "Iter 1 of a /loop /goal: the inspector is the steering wheel; we ran it on ourselves, it surfaced 3 collector blind spots as false-positive P0_critical pairs, and we shipped the fix. This is the canonical compounding pattern the inspector was built to enable — every chat running it can surface its own slot's gaps and ship the fix.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        }
+      ]
+    }
+  ],
+  "acceptance": "scripts/psn-synergy-collect.mjs MS1 enhancement runs to completion. system_viz, prism_os, and prism_ai legs now ship populated cross_refs. Inspector re-rank shows P0_critical pair count 36→27 (9 pairs moved down a band) — measurable demonstration of the false-positive class being closed.",
+  "risks": [
+    {
+      "id": "R1",
+      "description": "The metadata-head reader uses a 64KB read with balanced-bracket scan. If the graph's `counts`/`vault`/`totals` JSON objects themselves grew past 64KB (currently <5KB), the parser would fail to find them. Mitigation: maxBytes is a parameter — bump for one-off precision runs. Real risk is low because the canonical meta block is small by design."
+    },
+    {
+      "id": "R2",
+      "description": "obsidian_brain, memories, and wiki are still under-counted in their reverse cross-refs because the collector only scans memories→wiki (via [[name]]) — not the reverse direction. Top-2 remaining P0_critical pairs (obsidian_brain↔algorithms/formulas) are likely real (memory files rarely mention bare algorithm/formula names). A future MS would add reverse-direction scanners + token-aware refs to fold these in."
+    }
+  ],
+  "blocks": [],
+  "blocked_by": [
+    "PSN-SYNERGY-COLLECT-MS0"
+  ],
+  "updated_at": "2026-05-24T02:57:00Z"
+}

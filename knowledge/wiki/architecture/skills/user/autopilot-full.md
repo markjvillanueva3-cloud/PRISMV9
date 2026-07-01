@@ -23,13 +23,18 @@ related:
 |-------|-------|
 | Name | `autopilot-full` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/autopilot-full.md` |
+| Source | `C:/Users/wompu/.claude/commands/autopilot-full.md` |
 | Model | default |
 | Tags | _(none)_ |
 
 ## Description (first paragraph)
 
-_(no body content)_
+
+# Autopilot Full — Maximum Autonomous Development Pipeline
+
+The ultimate PRISM development command. Assesses the entire system, identifies ALL opportunities for growth, generates new roadmap milestones, executes work, learns from every available source, forges new components, tests exhaustively, and leaves the system stronger than it found it. One command to do everything.
+
+## Phase 0: Self-
 
 <!-- AUTO-END -->
 

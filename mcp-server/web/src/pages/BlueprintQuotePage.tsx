@@ -1,6 +1,7 @@
-import { useMemo, useState } from 'react';
-import { ApiError, blueprintToQuote } from '../api/client';
+import { useMemo, useRef, useState } from 'react';
+import { ApiError, blueprintToQuote, blueprintRedact } from '../api/client';
 import { ErrorState, LoadingState } from '../components/LoadingState';
+import { GatedError } from '../components/entitlement';
 import type { BlueprintQuoteResult } from '../api/types';
 import {
   ActionButton,
@@ -15,6 +16,7 @@ export function BlueprintQuotePage() {
   const [result, setResult] = useState<BlueprintQuoteResult | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [gateError, setGateError] = useState<unknown>(null);
   const [form, setForm] = useState({
     material: '6061-T6',
     quantity: '25',
@@ -36,6 +38,64 @@ export function BlueprintQuotePage() {
     setForm((current) => ({ ...current, [key]: value }));
   }
 
+  // === CAD/print drop-box + auto-redaction (U-3VIEW-REDACT-WIRE) ===
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const [dragActive, setDragActive] = useState(false);
+  const [uploadName, setUploadName] = useState<string | null>(null);
+  const [redacting, setRedacting] = useState(false);
+  const [redactError, setRedactError] = useState<string | null>(null);
+  // Redacted preview + summary (mirrors the operating-system intake redaction contract).
+  const [redacted, setRedacted] = useState<{
+    text: string;
+    replacementCount: number;
+    note: string;
+  } | null>(null);
+
+  async function ingestPrintFile(file: File) {
+    setRedactError(null);
+    setUploadName(file.name);
+    // Only text-extractable inputs are auto-redacted client-side. Binary CAD (STEP/
+    // DXF) carries no customer-identity text layer the way a scanned print does; a
+    // full OCR path is the xray pipeline, out of scope for this drop-box.
+    const isTextish = /\.(txt|dxf|nc|csv|json|md)$/i.test(file.name) || file.type.startsWith('text/');
+    if (!isTextish) {
+      setRedacted(null);
+      setRedactError(
+        `${file.name} stored. Auto-redaction runs on text-extractable prints (.txt/.dxf/.nc) or scanned-print OCR; ` +
+          `binary CAD has no title-block text layer to redact here.`,
+      );
+      return;
+    }
+    setRedacting(true);
+    try {
+      const raw = await file.text();
+      // aggressive=true: opt into the 118-name customer list for a print intake (a
+      // false negative here leaks a JM customer identity -- privacy-critical).
+      const response = await blueprintRedact({ text: raw, aggressive: true, auditCleartext: false });
+      // blueprint_redact returns { data: { text: { text, redactions[] } } } -- redactText
+      // yields a RedactTextResult, so the redacted string is data.text.text and the
+      // applied-mask count is data.text.redactions.length (authoritative, not a token scan).
+      const textResult = (response.result as unknown as {
+        data?: { text?: { text?: string; redactions?: unknown[] } };
+      })?.data?.text;
+      const out = textResult?.text ?? '';
+      const replacementCount = Array.isArray(textResult?.redactions) ? textResult.redactions.length : 0;
+      setRedacted({
+        text: out,
+        replacementCount,
+        note:
+          replacementCount > 0
+            ? `Customer identity and title-block details were auto-redacted (${replacementCount} field(s)) before this print was stored.`
+            : 'No customer-identity fields were detected in this print.',
+      });
+    } catch (issue) {
+      setRedacted(null);
+      setRedactError(issue instanceof ApiError ? issue.message : 'Redaction failed -- print not stored.');
+    } finally {
+      setRedacting(false);
+    }
+  }
+
   async function handleQuote() {
     setLoading(true);
     setError(null);
@@ -55,6 +115,7 @@ export function BlueprintQuotePage() {
       });
       setResult((response.result as unknown as BlueprintQuoteResult) ?? null);
     } catch (issue) {
+      setGateError(issue);
       setError(issue instanceof ApiError ? issue.message : 'Failed to generate quote');
     } finally {
       setLoading(false);
@@ -97,10 +158,85 @@ export function BlueprintQuotePage() {
       />
 
       {loading ? <LoadingState label="Analyzing blueprint..." /> : null}
-      {error ? <ErrorState message={error} onRetry={handleQuote} /> : null}
+      {error ? <GatedError error={gateError} feature='quoting' fallback={<ErrorState message={error} onRetry={handleQuote} />} /> : null}
 
       <div className="grid gap-6 xl:grid-cols-[minmax(0,1.1fr)_minmax(360px,0.9fr)]">
         <div className="space-y-6">
+          <PanelCard
+            title="Drop a print or CAD file"
+            subtitle="Drag a drawing, print, or CAD file here. Customer identity and title-block details are auto-redacted before the file is stored or quoted."
+          >
+            <div
+              role="button"
+              tabIndex={0}
+              onClick={() => fileInputRef.current?.click()}
+              onKeyDown={(event) => {
+                if (event.key === 'Enter' || event.key === ' ') fileInputRef.current?.click();
+              }}
+              onDragOver={(event) => {
+                event.preventDefault();
+                setDragActive(true);
+              }}
+              onDragLeave={() => setDragActive(false)}
+              onDrop={(event) => {
+                event.preventDefault();
+                setDragActive(false);
+                const file = event.dataTransfer.files?.[0];
+                if (file) void ingestPrintFile(file);
+              }}
+              className={`flex min-h-[140px] cursor-pointer flex-col items-center justify-center gap-2 rounded-[22px] border-2 border-dashed px-6 py-8 text-center transition-colors ${
+                dragActive
+                  ? 'border-cyan-300/60 bg-cyan-300/[0.08]'
+                  : 'border-white/15 bg-black/15 hover:border-white/25'
+              }`}
+            >
+              <div className="text-sm font-semibold text-slate-100">
+                {uploadName ? uploadName : 'Drop a print / CAD file, or click to browse'}
+              </div>
+              <div className="text-xs leading-5 text-slate-400">
+                Text prints (.txt/.dxf/.nc) are auto-redacted on upload. Scanned-print OCR runs server-side.
+              </div>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept=".txt,.dxf,.nc,.csv,.json,.md,.pdf,.step,.stp,.iges,.igs,image/*"
+                className="hidden"
+                onChange={(event) => {
+                  const file = event.target.files?.[0];
+                  if (file) void ingestPrintFile(file);
+                }}
+              />
+            </div>
+
+            {redacting ? (
+              <div className="mt-3 text-sm text-cyan-200">Redacting customer identity...</div>
+            ) : null}
+
+            {redacted ? (
+              <div className="mt-3 rounded-[18px] border border-emerald-400/30 bg-emerald-500/10 px-4 py-3 text-sm leading-6 text-emerald-100">
+                <div className="flex items-center gap-2">
+                  <span className="rounded-full border border-emerald-400/40 bg-emerald-500/15 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.16em] text-emerald-200">
+                    Redacted
+                  </span>
+                  <span className="font-semibold">{redacted.replacementCount} field(s) masked</span>
+                </div>
+                <div className="mt-1 opacity-90">{redacted.note}</div>
+                {redacted.text ? (
+                  <pre className="mt-2 max-h-40 overflow-auto whitespace-pre-wrap rounded-[12px] border border-white/10 bg-black/25 px-3 py-2 font-mono text-xs text-slate-200">
+                    {redacted.text.slice(0, 1200)}
+                    {redacted.text.length > 1200 ? '\n...' : ''}
+                  </pre>
+                ) : null}
+              </div>
+            ) : null}
+
+            {redactError ? (
+              <div className="mt-3 rounded-[18px] border border-amber-400/30 bg-amber-500/10 px-4 py-3 text-sm leading-6 text-amber-100">
+                {redactError}
+              </div>
+            ) : null}
+          </PanelCard>
+
           <PanelCard title="Part specifications" subtitle="Keep the quote basis readable so engineering and commercial teams can challenge the same assumptions.">
             <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
               <Field label="Material">

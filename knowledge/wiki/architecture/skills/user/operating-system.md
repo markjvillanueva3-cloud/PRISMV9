@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `operating-system` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/operating-system.md` |
+| Source | `C:/Users/wompu/.claude/commands/operating-system.md` |
 | Model | default |
 | Tags | _(none)_ |
 

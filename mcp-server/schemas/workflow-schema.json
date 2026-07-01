@@ -1,0 +1,84 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "prism-workflow-schema-v1",
+  "title": "PRISM Workflow Schema",
+  "description": "Multi-step workflow definition for orchestration",
+  "type": "object",
+  "required": ["id", "name", "steps"],
+  "properties": {
+    "id": { "type": "string", "pattern": "^WF-[A-Z]+-[0-9]{3}$" },
+    "name": { "type": "string" },
+    "description": { "type": "string" },
+    "type": {
+      "type": "string",
+      "enum": ["sequential", "parallel", "conditional", "loop", "ralph"]
+    },
+    "steps": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "type", "action"],
+        "properties": {
+          "id": { "type": "string" },
+          "name": { "type": "string" },
+          "type": { "type": "string", "enum": ["agent", "script", "hook", "decision", "parallel", "wait"] },
+          "action": { "type": "string", "description": "Agent/script/hook ID to execute" },
+          "inputs": { "type": "object" },
+          "outputs": { "type": "object" },
+          "condition": { "type": "string", "description": "Execution condition" },
+          "on_success": { "type": "string", "description": "Next step ID on success" },
+          "on_failure": { "type": "string", "description": "Next step ID on failure" },
+          "timeout_ms": { "type": "integer" },
+          "retry_count": { "type": "integer" }
+        }
+      }
+    },
+    "entry_point": { "type": "string", "description": "First step ID" },
+    "exit_points": { "type": "array", "items": { "type": "string" }, "description": "Terminal step IDs" },
+    "variables": {
+      "type": "object",
+      "description": "Workflow-level variables",
+      "additionalProperties": true
+    },
+    "hooks": {
+      "type": "object",
+      "properties": {
+        "on_start": { "type": "array", "items": { "type": "string" } },
+        "on_step_complete": { "type": "array", "items": { "type": "string" } },
+        "on_error": { "type": "array", "items": { "type": "string" } },
+        "on_complete": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "quality_gates": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "after_step": { "type": "string" },
+          "check": { "type": "string" },
+          "threshold": { "type": "number" }
+        }
+      }
+    },
+    "ralph_config": {
+      "type": "object",
+      "description": "Ralph loop configuration if type=ralph",
+      "properties": {
+        "iterations": { "type": "integer", "minimum": 1, "maximum": 10 },
+        "validators": { "type": "array", "items": { "type": "string" } },
+        "convergence_threshold": { "type": "number" }
+      }
+    },
+    "estimated_duration_ms": { "type": "integer" },
+    "max_parallel_agents": { "type": "integer" },
+    "status": { "type": "string", "enum": ["active", "draft", "deprecated"] },
+    "metadata": {
+      "type": "object",
+      "properties": {
+        "created": { "type": "string", "format": "date-time" },
+        "author": { "type": "string" },
+        "version": { "type": "string" }
+      }
+    }
+  }
+}

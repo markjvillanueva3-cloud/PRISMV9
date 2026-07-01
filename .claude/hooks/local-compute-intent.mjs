@@ -30,6 +30,7 @@ import {
 import { dirname } from "node:path";
 import { execFileSync, spawn } from "node:child_process";
 import process from "node:process";
+import { dedupeOrMarker } from "../../scripts/lib/injection-dedup-fs.mjs";
 
 const REPO_ROOT = "H:/prism";
 const LAUNCHER = `${REPO_ROOT}/mcp-server/scripts/ollama-docker-launcher.mjs`;
@@ -156,7 +157,7 @@ function dockerCommand() {
 function sh(args, timeout = 1500) {
   try {
     const stdout = execFileSync(dockerCommand(), args,
-      { encoding: "utf8", timeout, stdio: ["ignore", "pipe", "pipe"] });
+      { windowsHide: true, encoding: "utf8", timeout, stdio: ["ignore", "pipe", "pipe"] });
     return { ok: true, stdout: stdout.trim() };
   } catch (error) {
     return {
@@ -454,10 +455,18 @@ async function main() {
   // Log that we're injecting context (strong intent)
   logSilent({ action: "inject-context", categories, missing, launch: launch.status });
 
+  // Per-session injection dedup (U-ALPHA-INJECT-DEDUP-FS): the autostart suggestion is stable while
+  // the stack stays down; re-emit full on change/TTL, else a 1-line marker. Saves ~1351B/turn fleet-
+  // wide -- the single biggest non-deduped injector. The launch attempt above is unaffected (already
+  // ran + is cache/lock-gated); only the injected TEXT is deduped.
+  const injected = dedupeOrMarker(suggestion, {
+    sessionId: input?.session_id, hookName: "local-compute-intent", root: REPO_ROOT,
+  });
+
   process.stdout.write(JSON.stringify({
     continue: true,
-    hookSpecificOutput: { hookEventName: "UserPromptSubmit", additionalContext: suggestion },
-    additionalContext: suggestion,
+    hookSpecificOutput: { hookEventName: "UserPromptSubmit", additionalContext: injected },
+    additionalContext: injected,
     _meta: { hook: "local-compute-intent", triggered: categories, missing, services, launch },
   }));
 }

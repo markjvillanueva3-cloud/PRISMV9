@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `lathe-masterpost` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/lathe-masterpost.md` |
+| Source | `C:/Users/wompu/.claude/commands/lathe-masterpost.md` |
 | Model | default |
 | Tags | _(none)_ |
 

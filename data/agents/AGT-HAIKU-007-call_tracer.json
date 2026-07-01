@@ -1,0 +1,109 @@
+{
+  "agent_id": "AGT-HAIKU-007",
+  "name": "call_tracer",
+  "tier": "HAIKU",
+  "version": "1.0.0",
+  "created": "2026-01-29",
+  "role": "Call Tracer - Tracks Tool Calls and Agent Invocations for Debugging",
+  
+  "domain_expertise": [
+    "Tool call tracking",
+    "Agent invocation logging",
+    "Performance measurement",
+    "Debug tracing",
+    "Call chain analysis"
+  ],
+
+  "design_principle": "Lightweight tracing - minimal overhead, maximum visibility",
+
+  "capabilities": [
+    {
+      "id": "CAP-TRACE-001",
+      "name": "Log Tool Call",
+      "description": "Logs a tool call with timing",
+      "category": "LOGGING",
+      "inputs": { "required": ["tool_name", "parameters"], "optional": ["result"] },
+      "outputs": { "primary": "trace_id" },
+      "latency_target_ms": 5
+    },
+    {
+      "id": "CAP-TRACE-002",
+      "name": "Log Agent Invocation",
+      "description": "Logs an agent invocation",
+      "category": "LOGGING",
+      "inputs": { "required": ["agent_id", "task"], "optional": ["result"] },
+      "outputs": { "primary": "invocation_id" },
+      "latency_target_ms": 5
+    },
+    {
+      "id": "CAP-TRACE-003",
+      "name": "Get Call Count",
+      "description": "Returns current tool call count for session",
+      "category": "READ",
+      "inputs": {},
+      "outputs": { "primary": "call_count" },
+      "latency_target_ms": 5
+    },
+    {
+      "id": "CAP-TRACE-004",
+      "name": "Get Buffer Zone",
+      "description": "Returns current buffer zone status",
+      "category": "READ",
+      "inputs": { "required": ["call_count"] },
+      "outputs": { "primary": "zone", "secondary": ["color", "action_needed"] },
+      "zones": { "GREEN": "0-8", "YELLOW": "9-14", "ORANGE": "15-18", "RED": "19+" },
+      "latency_target_ms": 5
+    },
+    {
+      "id": "CAP-TRACE-005",
+      "name": "Get Recent Calls",
+      "description": "Returns recent tool calls",
+      "category": "READ",
+      "inputs": { "optional": ["limit"] },
+      "outputs": { "primary": "recent_calls" },
+      "latency_target_ms": 20
+    },
+    {
+      "id": "CAP-TRACE-006",
+      "name": "Get Call Statistics",
+      "description": "Returns call statistics for session",
+      "category": "READ",
+      "inputs": {},
+      "outputs": { "primary": "statistics", "secondary": ["total", "by_tool", "avg_latency"] },
+      "latency_target_ms": 30
+    },
+    {
+      "id": "CAP-TRACE-007",
+      "name": "Start Trace",
+      "description": "Starts a new trace span",
+      "category": "TRACING",
+      "inputs": { "required": ["span_name"] },
+      "outputs": { "primary": "span_id" },
+      "latency_target_ms": 5
+    },
+    {
+      "id": "CAP-TRACE-008",
+      "name": "End Trace",
+      "description": "Ends a trace span and records duration",
+      "category": "TRACING",
+      "inputs": { "required": ["span_id"] },
+      "outputs": { "primary": "duration_ms" },
+      "latency_target_ms": 5
+    }
+  ],
+
+  "skills_mastered": [
+    "prism-session-master"
+  ],
+
+  "hooks_subscribed": ["tool:postCall", "agent:postInvoke"],
+
+  "can_delegate_to": [],
+  "receives_from": ["coordinator_v2", "all_agents"],
+
+  "performance_metrics": {
+    "tracing_overhead_percent": 1.0,
+    "average_latency_ms": 5,
+    "traces_per_second": 500
+  }
+}

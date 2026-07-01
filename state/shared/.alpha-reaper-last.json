@@ -1,0 +1,166 @@
+{
+  "ok": true,
+  "now": 1778972590623,
+  "mode": "once",
+  "disabled": false,
+  "dryRun": false,
+  "config": {
+    "intervalSec": 300,
+    "ageFloorSec": 45,
+    "killAfter": 2,
+    "effectiveKillAfter": 1,
+    "memPressurePct": 90,
+    "softReliefAgeSec": 180,
+    "softReliefPressurePct": 90,
+    "noRelief": false,
+    "noCoord": false
+  },
+  "mem": {
+    "physTotalMb": 64667,
+    "physFreeMb": 23499,
+    "commitTotalMb": 68763,
+    "commitFreeMb": 1353,
+    "physUsedPct": 63.7,
+    "commitUsedPct": 98,
+    "usedPct": 98
+  },
+  "underPressure": true,
+  "blockedBy": null,
+  "slots": {
+    "targets": 63,
+    "candidates": 5,
+    "protected": 40,
+    "owned-by-other-live": 6,
+    "leftover-bash-task": 2,
+    "unowned": 3,
+    "owned-by-alive": 12
+  },
+  "slotsResolved": true,
+  "caveats": [],
+  "candidates": [
+    {
+      "pid": 56040,
+      "name": "bash.exe",
+      "class": "leftover-bash-task",
+      "ownerSlot": null,
+      "ownerStatus": null,
+      "ageMs": 906655,
+      "rssBytes": 5955584,
+      "reason": "leftover bash.exe (age 907s, pattern matched) under unpinned harness 50060",
+      "firstSeenAt": 1778972590623,
+      "sweeps": 1,
+      "willReap": false,
+      "decision": "confirming (0s/300s — ~300s left)"
+    },
+    {
+      "pid": 39468,
+      "name": "bash.exe",
+      "class": "leftover-bash-task",
+      "ownerSlot": null,
+      "ownerStatus": null,
+      "ageMs": 906641,
+      "rssBytes": 10391552,
+      "reason": "leftover bash.exe (age 907s, pattern matched) under unpinned harness 50060",
+      "firstSeenAt": 1778972590623,
+      "sweeps": 1,
+      "willReap": false,
+      "decision": "confirming (0s/300s — ~300s left)"
+    },
+    {
+      "pid": 2648,
+      "name": "node.exe",
+      "class": "unowned",
+      "ownerSlot": null,
+      "ownerStatus": null,
+      "ageMs": 783622,
+      "rssBytes": 53649408,
+      "reason": "dead ancestor 12736 — no live owner in the chain",
+      "firstSeenAt": 1778972586243,
+      "sweeps": 2,
+      "willReap": false,
+      "decision": "confirming (4s/300s — ~296s left)"
+    },
+    {
+      "pid": 48964,
+      "name": "bash.exe",
+      "class": "unowned",
+      "ownerSlot": null,
+      "ownerStatus": null,
+      "ageMs": 73,
+      "rssBytes": 8630272,
+      "reason": "dead ancestor 32140 — no live owner in the chain",
+      "firstSeenAt": 1778972590623,
+      "sweeps": 1,
+      "willReap": false,
+      "decision": "too young (0s < 45s floor)"
+    },
+    {
+      "pid": 48892,
+      "name": "bash.exe",
+      "class": "unowned",
+      "ownerSlot": null,
+      "ownerStatus": null,
+      "ageMs": 58,
+      "rssBytes": 7217152,
+      "reason": "dead ancestor 32140 — no live owner in the chain",
+      "firstSeenAt": 1778972590623,
+      "sweeps": 1,
+      "willReap": false,
+      "decision": "too young (0s < 45s floor)"
+    }
+  ],
+  "pending": 5,
+  "reaped": [],
+  "reapedOk": 0,
+  "reapFailed": 0,
+  "softRelief": {
+    "attempted": false,
+    "priorityDemoted": 0,
+    "workingSetTrimmed": 0,
+    "rssReclaimedBytes": 0,
+    "targets": 0,
+    "skipped": 0,
+    "dryRun": false,
+    "error": null
+  },
+  "gpu": {
+    "available": true,
+    "name": "NVIDIA GeForce RTX 4080 SUPER",
+    "totalMb": 16376,
+    "usedMb": 6293,
+    "freeMb": 9753,
+    "utilizationPct": 7
+  },
+  "ollama": {
+    "reachable": true,
+    "models": [
+      "qwen2.5-coder:14b",
+      "deepseek-r1:14b",
+      "nomic-embed-text:latest",
+      "qwen2.5-coder:32b",
+      "qwen2.5-coder:7b"
+    ],
+    "loaded": [
+      {
+        "model": "qwen2.5-coder:7b",
+        "sizeMb": 4392
+      }
+    ]
+  },
+  "coordinator": {
+    "evaluated": true,
+    "shouldPrewarm": false,
+    "shouldHintOffload": true,
+    "thresholdDelta": -0.15,
+    "prewarmModel": "qwen2.5-coder:7b",
+    "prewarmFired": false,
+    "prewarmError": null,
+    "hintWritten": true,
+    "hintError": null,
+    "reason": "commit 98% · gpuFree 9753MB · 1 alive slot(s) · qwen2.5-coder:7b already loaded",
+    "skipped": null,
+    "error": null,
+    "hintMode": "aggressive-offload"
+  },
+  "ledgerPath": "H:\\prism\\state\\shared\\fleet-reaper-candidates.json"
+}

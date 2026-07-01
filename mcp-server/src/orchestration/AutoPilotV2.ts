@@ -174,16 +174,21 @@ function generatePlan(context: TaskContext, config: AutoPilotV2Config): Executio
 
   phases.push({ id: "init", name: "Initialize", tools: [{ tool: "prism:prism_session_boot", params: {}, required: true }], parallel: false, checkpoint: false });
 
+  // WORKING_TOOLS only defines manufacturing/validation/session/development/orchestration/knowledge.
+  // The original `.calculations` and `.data` keys never existed -> `undefined.slice(0,3)` threw a
+  // TypeError on every plan-gen for calculation/data_lookup tasks. The `manufacturing` bucket holds
+  // both the lookup tool (prism_data, index 0) and the calc tool (prism_calc, index 1); slice(0,3) =
+  // [prism_data, prism_calc, prism_safety] -- correct lead tool for each phase.
   if (context.taskType === "calculation") {
     phases.push({
       id: "gather", name: "Gather Parameters",
-      tools: WORKING_TOOLS.calculations.slice(0, 3).map(t => ({ tool: t, params: {}, required: true })),
+      tools: WORKING_TOOLS.manufacturing.slice(0, 3).map(t => ({ tool: t, params: {}, required: true })),
       parallel: config.enableParallel, checkpoint: true
     });
   } else if (context.taskType === "data_lookup") {
     phases.push({
       id: "lookup", name: "Data Lookup",
-      tools: WORKING_TOOLS.data.slice(0, 3).map(t => ({ tool: t, params: {}, required: true })),
+      tools: WORKING_TOOLS.manufacturing.slice(0, 3).map(t => ({ tool: t, params: {}, required: true })),
       parallel: config.enableParallel, checkpoint: true
     });
   }

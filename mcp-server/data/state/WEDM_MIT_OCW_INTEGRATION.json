@@ -1,0 +1,68 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-04-16T10:30:00.000Z",
+  "description": "MIT OpenCourseWare integration for WEDM AGI — Phase 0.8",
+  "courses": {
+    "2.008": {
+      "courseId": "2.008",
+      "title": "Fundamentals of Manufacturing Processes",
+      "mitUrl": "https://ocw.mit.edu/courses/2-008-design-and-manufacturing-ii-spring-2004/",
+      "department": "Mechanical Engineering",
+      "feeds": ["Klocke Ra model", "Kunieda MRR", "discharge physics", "dielectric breakdown"],
+      "targetEngines": ["WEDMSurfaceFinishEngine", "WEDMMRREngine", "EDMEngine"],
+      "ingested": true,
+      "tipsCount": 6,
+      "formulasCited": 3
+    },
+    "2.830": {
+      "courseId": "2.830",
+      "title": "Control of Manufacturing Processes",
+      "mitUrl": "https://ocw.mit.edu/courses/2-830j-control-of-manufacturing-processes-sma-6303-spring-2008/",
+      "department": "Mechanical Engineering",
+      "feeds": ["Servo control", "adaptive feed", "PID tuning", "SPC charts", "process capability"],
+      "targetEngines": ["WEDMServoControlEngine", "WEDMAdaptiveControlEngine"],
+      "ingested": true,
+      "tipsCount": 6,
+      "formulasCited": 2
+    },
+    "2.813": {
+      "courseId": "2.813",
+      "title": "Energy, Materials, and Manufacturing",
+      "mitUrl": "https://ocw.mit.edu/courses/2-813-energy-materials-and-manufacturing-fall-2019/",
+      "department": "Mechanical Engineering",
+      "feeds": ["Batch optimization", "scheduling", "lean principles", "cycle time analysis"],
+      "targetEngines": ["WEDMSchedulingEngine", "WEDMBatchOptimizer"],
+      "ingested": true,
+      "tipsCount": 5,
+      "formulasCited": 2
+    },
+    "18.06": {
+      "courseId": "18.06",
+      "title": "Linear Algebra",
+      "mitUrl": "https://ocw.mit.edu/courses/18-06-linear-algebra-spring-2010/",
+      "department": "Mathematics",
+      "feeds": ["SVD decomposition", "PCA", "eigenvalue analysis", "least squares"],
+      "targetEngines": ["WEDMProgramNeuralAnalysisEngine", "WEDMFeatureExtractionEngine"],
+      "ingested": true,
+      "tipsCount": 4,
+      "formulasCited": 3
+    },
+    "6.S191": {
+      "courseId": "6.S191",
+      "title": "Introduction to Deep Learning",
+      "mitUrl": "https://ocw.mit.edu/courses/6-s191-introduction-to-deep-learning-january-iap-2020/",
+      "department": "EECS",
+      "feeds": ["GP calibration", "uncertainty bounds", "confidence intervals", "transfer learning"],
+      "targetEngines": ["WEDMNeuralTrainingEngine", "WEDMNeuralMRREngine", "WEDMNeuralRaEngine"],
+      "ingested": true,
+      "tipsCount": 5,
+      "formulasCited": 2
+    }
+  },
+  "summary": {
+    "totalCourses": 5,
+    "totalTipsIngested": 26,
+    "totalFormulasCited": 12,
+    "lastIngest": "2026-04-16T10:30:00.000Z"
+  }
+}

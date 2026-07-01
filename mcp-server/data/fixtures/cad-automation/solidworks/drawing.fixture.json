@@ -1,0 +1,21 @@
+{
+  "schemaVersion": 1,
+  "cadSystem": "solidworks",
+  "scenario": "drawing",
+  "featureTree": {
+    "features": [
+      {"type": "DrawingView", "name": "Front View", "parameters": {"scale": {"value": 1, "unit": "ratio"}}},
+      {"type": "DrawingView", "name": "Top View", "parameters": {"scale": {"value": 1, "unit": "ratio"}}},
+      {"type": "DrawingView", "name": "Right View", "parameters": {"scale": {"value": 1, "unit": "ratio"}}},
+      {"type": "Dimension", "name": "D1@Front View", "parameters": {"value": {"value": 50.0, "unit": "mm"}}}
+    ],
+    "sheets": [{"name": "Sheet1", "size": "A3", "scale": 1}]
+  },
+  "boundingBox": {"min": [0, 0, 0], "max": [297, 420, 0], "units": "mm"},
+  "parameters": {
+    "sheet_count": {"value": 1, "unit": "count"},
+    "dimension_count": {"value": 12, "unit": "count"},
+    "note_count": {"value": 3, "unit": "count"}
+  },
+  "step": "ISO-10303-21;\nHEADER;\nFILE_DESCRIPTION(('SolidWorks drawing mock fixture'),'2;1');\nFILE_NAME('drawing.STEP','2026-04-19',('PRISM'),('JM Die'),'SW2024','SolidWorks 2024','');\nFILE_SCHEMA(('AUTOMOTIVE_DESIGN { 1 0 10303 214 1 1 1 1 }'));\nENDSEC;\nDATA;\n#10=PRODUCT('drawing_reference','drawing_reference','',(#20));\n#20=PRODUCT_CONTEXT('',#30,'mechanical');\n#30=APPLICATION_CONTEXT('automotive design');\nENDSEC;\nEND-ISO-10303-21;"
+}

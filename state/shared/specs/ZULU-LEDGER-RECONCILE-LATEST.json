@@ -1,0 +1,108 @@
+{
+  "generatedAt": "2026-06-25T23:57:41.481Z",
+  "summary": {
+    "total": 7,
+    "shipped": 6,
+    "open": 0,
+    "covered": 0,
+    "unknown": 1,
+    "ledgerStaleCount": 6,
+    "metaUtilized": 4,
+    "metaTotal": 4,
+    "ledgerSnapshot": "ZULU-MASTER-CONTEXT-LEDGER-2026-06-11.md",
+    "newestLedger": "ZULU-MASTER-CONTEXT-LEDGER-2026-06-11.md",
+    "ledgerSnapshotStale": false
+  },
+  "results": [
+    {
+      "id": "OLLAMA-GEN",
+      "title": "Ollama /api/generate wedge (gates galaxy reflection A-16/B-06/A-09)",
+      "roiRank": 1,
+      "ledgerSays": "OPEN",
+      "verdict": "SHIPPED",
+      "evidence": "gen OK 432ms -> \"READY\"",
+      "ledgerStale": true
+    },
+    {
+      "id": "A-13",
+      "title": "consensus-of cross-substrate edge materialization",
+      "roiRank": 5,
+      "ledgerSays": "OPEN",
+      "verdict": "SHIPPED",
+      "evidence": "EDGE_TYPES has consensus-of (4 types)",
+      "ledgerStale": true
+    },
+    {
+      "id": "A-16",
+      "title": "per-galaxy reflection synthesis (patterns/<galaxy>_synthesis.md)",
+      "roiRank": 1,
+      "ledgerSays": "OPEN",
+      "verdict": "SHIPPED",
+      "evidence": "35 synthesis files present, 34 mtime-fresh<24h, stalest 70.6h (canonical hash-staleness = galaxy-synthesis-refresh's job)",
+      "ledgerStale": true
+    },
+    {
+      "id": "A-14",
+      "title": "slot-task-claim VALID_SLOTS frozen at 12 (fleet is 26)",
+      "roiRank": 14,
+      "ledgerSays": "OPEN",
+      "verdict": "SHIPPED",
+      "evidence": "imports dynamic SLOT_NAMES from chat-slots.mjs",
+      "ledgerStale": true
+    },
+    {
+      "id": "AI-SYNERGY",
+      "title": "AI-synergy across all galaxies (improve weak galaxies)",
+      "roiRank": 0,
+      "ledgerSays": "OPEN",
+      "verdict": "SHIPPED",
+      "evidence": "mean synergy 1, weak galaxies 0",
+      "ledgerStale": true
+    },
+    {
+      "id": "A-06",
+      "title": "galaxy READS master brain (dedicated consumer API)",
+      "roiRank": 3,
+      "ledgerSays": "OPEN",
+      "verdict": "SHIPPED",
+      "evidence": "galaxy-brain-read.mjs present (scripts/lib/); wired into galaxy-reasoning-bridge",
+      "ledgerStale": true
+    },
+    {
+      "id": "A-04",
+      "title": "consensus_decide (multi-model) propagated to the domain dispatchers",
+      "roiRank": 14,
+      "ledgerSays": "OPEN",
+      "verdict": "UNKNOWN",
+      "evidence": "consensus_decide (MultiModelConsensusEngine) wired in 1/107 dispatchers [aiReasoningDispatcher.ts]; 0 domain dispatcher(s) beyond prism_ai -- per-domain propagation is peer-owned (infra-consensus-wire) + a scope call, verify manually",
+      "ledgerStale": false
+    }
+  ],
+  "metaSystems": [
+    {
+      "system": "ollama",
+      "status": "UTILIZED",
+      "adoptionGap": false,
+      "evidence": "61 offload decisions (~38145 tok est. if all adopted), 1 executed (~786 tok measured), last activity 0.0h ago",
+      "action": null
+    },
+    {
+      "system": "hermes",
+      "status": "UTILIZED",
+      "evidence": "348 ask-hermes calls, 0 fail (0.0% fail), last activity 0.1h ago",
+      "action": null
+    },
+    {
+      "system": "octopus",
+      "status": "UTILIZED",
+      "evidence": "604 processed, 1 queued, last drain 1.5h ago (healthy trickle)",
+      "action": null
+    },
+    {
+      "system": "obsidian",
+      "status": "UTILIZED",
+      "evidence": "35 galaxy syntheses present (34 mtime<24h, stalest 70.6h -- mtime informational)",
+      "action": null
+    }
+  ]
+}

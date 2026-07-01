@@ -1,0 +1,153 @@
+{
+  "tree_id": "TT-CHIPS",
+  "title": "Chip Evacuation Problems Troubleshooting",
+  "symptom": "Chip packing in flutes, stringy chips wrapping around tool, re-cutting of chips",
+  "root": {
+    "node_id": "TT-CHIPS-ROOT",
+    "node_type": "symptom",
+    "text": "Chip evacuation problems during machining",
+    "confidence": 1.0,
+    "children": [
+      {
+        "node_id": "TT-CHIPS-C1",
+        "node_type": "cause",
+        "text": "Chips packing in tool flutes (common in deep pockets/holes)",
+        "confidence": 0.85,
+        "children": [
+          {
+            "node_id": "TT-CHIPS-D1",
+            "node_type": "diagnostic",
+            "text": "Are chips building up in the flutes? Check for sudden spindle load increase",
+            "confidence": 0.85,
+            "children": [
+              {
+                "node_id": "TT-CHIPS-S1",
+                "node_type": "solution",
+                "text": "Increase coolant pressure and direct nozzle into cutting zone",
+                "confidence": 0.85,
+                "children": [],
+                "metadata": {}
+              },
+              {
+                "node_id": "TT-CHIPS-S2",
+                "node_type": "solution",
+                "text": "Use through-spindle coolant (TSC) for deep features",
+                "confidence": 0.9,
+                "children": [],
+                "metadata": {}
+              },
+              {
+                "node_id": "TT-CHIPS-S3",
+                "node_type": "solution",
+                "text": "Reduce number of flutes — 2 flute for aluminum, 3 flute for steel",
+                "confidence": 0.8,
+                "children": [],
+                "metadata": {}
+              }
+            ],
+            "metadata": {}
+          }
+        ],
+        "metadata": {}
+      },
+      {
+        "node_id": "TT-CHIPS-C2",
+        "node_type": "cause",
+        "text": "Stringy, continuous chips wrapping around tool or workpiece",
+        "confidence": 0.8,
+        "children": [
+          {
+            "node_id": "TT-CHIPS-D2",
+            "node_type": "diagnostic",
+            "text": "Are chips long and continuous (bird-nesting)? Common in ductile materials at low feed",
+            "confidence": 0.8,
+            "children": [
+              {
+                "node_id": "TT-CHIPS-S4",
+                "node_type": "solution",
+                "text": "Increase feed per tooth to produce thicker chips that break naturally",
+                "confidence": 0.85,
+                "children": [],
+                "metadata": {}
+              },
+              {
+                "node_id": "TT-CHIPS-S5",
+                "node_type": "solution",
+                "text": "Use chip-breaker geometry inserts (for turning/boring)",
+                "confidence": 0.9,
+                "children": [],
+                "metadata": {}
+              },
+              {
+                "node_id": "TT-CHIPS-S6",
+                "node_type": "solution",
+                "text": "Program peck cycles for drilling (G73 high-speed peck or G83 deep hole)",
+                "confidence": 0.85,
+                "children": [],
+                "metadata": {}
+              }
+            ],
+            "metadata": {}
+          }
+        ],
+        "metadata": {}
+      },
+      {
+        "node_id": "TT-CHIPS-C3",
+        "node_type": "cause",
+        "text": "Re-cutting of chips damaging surface finish",
+        "confidence": 0.7,
+        "children": [
+          {
+            "node_id": "TT-CHIPS-D3",
+            "node_type": "diagnostic",
+            "text": "Are there random scratches or marks from chips being re-cut? Chip marks differ from tool marks",
+            "confidence": 0.7,
+            "children": [
+              {
+                "node_id": "TT-CHIPS-S7",
+                "node_type": "solution",
+                "text": "Add air blast to clear chips from cutting zone",
+                "confidence": 0.8,
+                "children": [],
+                "metadata": {}
+              },
+              {
+                "node_id": "TT-CHIPS-S8",
+                "node_type": "solution",
+                "text": "Program climb milling — chips fall behind the cutter instead of ahead",
+                "confidence": 0.75,
+                "children": [],
+                "metadata": {}
+              }
+            ],
+            "metadata": {}
+          }
+        ],
+        "metadata": {}
+      }
+    ],
+    "metadata": {}
+  },
+  "material_context": [
+    "aluminum",
+    "steel",
+    "stainless_steel"
+  ],
+  "machine_context": [
+    "3-axis_vertical",
+    "5-axis",
+    "lathe"
+  ],
+  "source_practice_ids": [
+    "SP-0020"
+  ],
+  "created_at": "2026-03-01T22:00:00Z",
+  "tags": [
+    "chips",
+    "evacuation",
+    "packing",
+    "bird_nest",
+    "re-cutting"
+  ]
+}

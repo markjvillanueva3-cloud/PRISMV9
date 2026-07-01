@@ -1,0 +1,65 @@
+{
+  "id": "TWIN-SIM-GATE-MS23",
+  "version": "1.0.0",
+  "title": "Digital-twin G-code dry-run engine (third consensus checkpoint for MS9)",
+  "brief": "Build prism_cam:cnc_simulate_predictive as a real engine that runs full RTCP envelope check + collision sim + reach margin on G-code BEFORE it leaves the gate. Closes Gemini's third consensus checkpoint and architect Gap #2 (no engine owns sim). Must cover ISO-EIA + Heidenhain conversational + Hurco NCL + EDM .ISO dialects.",
+  "created_at": "2026-05-05T13:00:00Z",
+  "created_by": "claude-opus-4-7-v2",
+  "track": "SAFETY",
+  "track_name": "Safety / Pre-Ship Gates",
+  "status": "not_started",
+  "linked_roadmap": "state/shared/PRISM-COMPREHENSIVE-ROADMAP-2026-05-04-V2.md",
+  "phases": [
+    {
+      "id": "P0",
+      "title": "Build digital-twin sim engine + dialect adapters",
+      "sessions": "4",
+      "units": [
+        {
+          "id": "P0-U01",
+          "title": "Add cnc_simulate_predictive action to prism_cam dispatcher",
+          "effort": 90,
+          "dependencies": [],
+          "exit_conditions": ["prism_cam exposes cnc_simulate_predictive action", "Zod schema validates {gcode, machineId, dialect, fixtureModel, toolModel}", "tests: 3 happy + 3 failure (unsupported dialect, missing fixture, malformed gcode)"],
+          "description": "New dispatcher action surface. Lazy-import sim engine.",
+          "four_loop": ["BUILD", "SCRUTINIZE", "GAP FILL", "TIE UP"]
+        },
+        {
+          "id": "P0-U02",
+          "title": "Implement DigitalTwinSimulationEngine with RTCP envelope + collision",
+          "effort": 180,
+          "dependencies": ["P0-U01"],
+          "exit_conditions": ["RTCP-resolved envelope check finds 5/5 staged collisions (carriage-vs-fixture, tool-vs-clamp, RTCP-flip, axis-reach, work-volume-exit)", "reach margin computed per axis, fail if <5mm", "outputs structured collision[] with {type, axisCoord, severity}"],
+          "description": "Core engine. Use existing CollisionPreventionEngine + reach-envelope helpers if present; only build what's missing. Must reuse, not duplicate.",
+          "four_loop": ["BUILD", "SCRUTINIZE", "GAP FILL", "TIE UP"]
+        },
+        {
+          "id": "P0-U03",
+          "title": "Dialect adapters: ISO-EIA, Heidenhain, Hurco NCL, EDM .ISO",
+          "effort": 120,
+          "dependencies": ["P0-U02"],
+          "exit_conditions": ["each of 4 dialects parses 1 reference program from JM DIE/", "round-trip: dialect -> canonical -> dialect produces byte-identical output", "tests: 4 happy + 2 cross-dialect fail-fast"],
+          "description": "Adapter chain. Heidenhain conversational has no G-codes; EDM .ISO is wire/sinker variants. Reference programs from JM DIE/ archive.",
+          "four_loop": ["BUILD", "SCRUTINIZE", "GAP FILL", "TIE UP"]
+        },
+        {
+          "id": "P0-U04",
+          "title": "Wire as MS9 third consensus checkpoint + ledger",
+          "effort": 75,
+          "dependencies": ["P0-U03"],
+          "exit_conditions": ["MS9 SafetyOmegaGate calls cnc_simulate_predictive as 3rd checkpoint", "20 reference programs: collision count = 0", "5 known-bad programs: BLOCKED with named cause", "ledger entries appended to SAFETY_GATE_LEDGER.jsonl"],
+          "description": "Integration with MS9. End-to-end pass on real JM Die programs. Block on any failure.",
+          "four_loop": ["BUILD", "SCRUTINIZE", "GAP FILL", "TIE UP"]
+        }
+      ]
+    }
+  ],
+  "acceptance": "prism_cam:cnc_simulate_predictive live; collision count = 0 on 20 reference programs; correctly flags 5 known-bad programs (>=2 must be 5-axis singularities); 4 dialects round-trip clean; wired into MS9 as 3rd checkpoint; ledger persists.",
+  "risks": [
+    {"id": "R1", "description": "Heidenhain conversational lacks formal grammar; mitigation = use existing HeidenhainPostEngine parser if present, else best-effort recognizer with explicit unsupported-form list"},
+    {"id": "R2", "description": "Full kinematic simulator is a 6-month project on its own; mitigation = swept-volume check + reach margin first, defer dynamics (jerk, accel) to post-pilot"},
+    {"id": "R3", "description": "Reusing CollisionPreventionEngine may leak state between simulations; mitigation = construct fresh per call, no module-level mutable state"}
+  ],
+  "blocks": ["SAFETY-OMEGA-GATE-MS9"],
+  "blocked_by": ["INFRA-AGI-ROUTER-MS2", "MILL-P2P-CONSENSUS-MS3"]
+}

@@ -196,7 +196,7 @@ class LatheJobProfitabilityAnalyticsEngine {
     return this.state.jobs.find((j) => j.job_id === jobId) ?? null;
   }
 
-  portfolio(input: PortfolioQueryInput = {}): PortfolioReport {
+  portfolio(input: z.input<typeof PortfolioQueryInputSchema> = {}): PortfolioReport {
     const parsed = PortfolioQueryInputSchema.parse(input);
     const since = parsed.since_iso ? Date.parse(parsed.since_iso) : null;
     const until = parsed.until_iso ? Date.parse(parsed.until_iso) : null;

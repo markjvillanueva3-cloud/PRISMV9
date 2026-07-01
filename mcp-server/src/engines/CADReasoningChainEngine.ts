@@ -12,7 +12,8 @@
  */
 
 import { log } from "../utils/Logger.js";
-import type { BaseEngine, EngineInfo, EngineCapability } from "./BaseEngine.js";
+import { BaseEngine } from "./BaseEngine.js";
+import type { EngineInfo, EngineCapability } from "./BaseEngine.js";
 import type { FeatureSpec } from "./NeuralCADGenerationEngine.js";
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -115,16 +116,24 @@ export interface ReasonedGenerationOutput {
 // ENGINE
 // ═══════════════════════════════════════════════════════════════════════════
 
-class CADReasoningChainEngine implements BaseEngine {
-  readonly info: EngineInfo = {
-    name: "CADReasoningChainEngine",
-    version: "1.0.0",
-    domain: "cad_reasoning",
-    description: "Chain-of-thought reasoning for CAD design decisions",
-  };
-
+class CADReasoningChainEngine extends BaseEngine {
   private chainStore: Map<string, CADReasoningChain> = new Map();
   private stepCounter = 0;
+
+  constructor() {
+    super({
+      name: "CADReasoningChainEngine",
+      version: "1.0.0",
+      domain: "cad_reasoning",
+      description: "Chain-of-thought reasoning for CAD design decisions",
+    });
+  }
+
+  protected async executeImpl(input: unknown): Promise<unknown> {
+    const err = this.validate(input);
+    if (err) throw new Error(err);
+    return this.generateWithReasoning(input as ReasonedGenerationInput);
+  }
 
   getCapabilities(): EngineCapability[] {
     return [
@@ -628,7 +637,7 @@ class CADReasoningChainEngine implements BaseEngine {
     // Check for thin walls
     const hasSmallFeatures = features.some(f => {
       const wall = f.params.wallThickness ?? f.params.thickness;
-      return wall !== undefined && wall < 2;
+      return typeof wall === "number" && wall < 2;
     });
 
     if (hasSmallFeatures) {
@@ -643,7 +652,7 @@ class CADReasoningChainEngine implements BaseEngine {
         alternatives: [
           { option: "Increase wall thickness", whyRejected: "May conflict with design intent" },
         ],
-        affectedFeatures: features.filter(f => (f.params.wallThickness ?? f.params.thickness) < 2).map(f => f.type),
+        affectedFeatures: features.filter(f => { const w = f.params.wallThickness ?? f.params.thickness; return typeof w === "number" && w < 2; }).map(f => f.type),
       }));
     }
 

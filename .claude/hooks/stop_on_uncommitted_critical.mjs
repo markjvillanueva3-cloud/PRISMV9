@@ -36,7 +36,7 @@ async function main() {
   const input = await readStdinJson();
 
   try {
-    const status = execSync("git status --porcelain", {
+    const status = execSync("git status --porcelain", { windowsHide: true,
       cwd: "H:/prism", encoding: "utf-8"
     });
 

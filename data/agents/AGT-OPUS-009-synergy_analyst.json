@@ -1,0 +1,352 @@
+{
+  "agent_id": "AGT-OPUS-009",
+  "name": "synergy_analyst",
+  "tier": "OPUS",
+  "version": "1.0.0",
+  "created": "2026-01-28",
+  "role": "Synergy Pattern Analyst - Learns and Optimizes Agent Interactions",
+  
+  "domain_expertise": [
+    "Pairwise interaction analysis",
+    "Synergy pattern learning",
+    "Team dynamics optimization",
+    "Collaboration modeling",
+    "Emergent behavior detection",
+    "Performance correlation",
+    "Agent compatibility assessment",
+    "Synergy matrix maintenance",
+    "Cross-functional analysis",
+    "Continuous learning"
+  ],
+
+  "capabilities": [
+    {
+      "id": "CAP-SYN-001",
+      "name": "Pairwise Synergy Calculation",
+      "description": "Calculates synergy scores between agent pairs using F-SYNERGY-001, measuring how much better they perform together vs independently",
+      "category": "ANALYSIS",
+      "inputs": {
+        "required": ["agent_pair", "historical_data"],
+        "optional": ["task_context", "performance_metrics"]
+      },
+      "outputs": {
+        "primary": "synergy_score",
+        "secondary": ["confidence_interval", "sample_size", "trend"]
+      },
+      "skills_used": ["prism-synergy-calculator", "prism-deep-learning"],
+      "hooks_triggered": ["SYNERGY-CALC"],
+      "synergizes_with": ["combination_optimizer", "coordinator_v2"],
+      "formula": "synergy_ij = performance_together / (performance_i × performance_j)",
+      "success_criteria": "Accurate synergy quantification"
+    },
+    {
+      "id": "CAP-SYN-002",
+      "name": "Synergy Matrix Maintenance",
+      "description": "Maintains the 150+ pairwise synergy matrix, updating scores based on new execution data",
+      "category": "INTEGRATION",
+      "inputs": {
+        "required": ["execution_results"],
+        "optional": ["decay_factor", "learning_rate"]
+      },
+      "outputs": {
+        "primary": "updated_matrix",
+        "secondary": ["changes_made", "new_entries", "confidence_updates"]
+      },
+      "skills_used": ["prism-synergy-calculator", "prism-deep-learning"],
+      "hooks_triggered": ["MATRIX-UPDATE", "learning:extract"],
+      "synergizes_with": ["learning_extractor_v2", "resource_auditor"],
+      "success_criteria": "Matrix reflects current synergies"
+    },
+    {
+      "id": "CAP-SYN-003",
+      "name": "Team Synergy Optimization",
+      "description": "Optimizes team composition to maximize total synergy using geometric mean of pairwise scores",
+      "category": "OPTIMIZATION",
+      "inputs": {
+        "required": ["candidate_agents", "team_size"],
+        "optional": ["must_include", "must_exclude"]
+      },
+      "outputs": {
+        "primary": "optimal_team",
+        "secondary": ["team_synergy_score", "pairwise_breakdown", "alternatives"]
+      },
+      "skills_used": ["prism-synergy-calculator", "prism-combination-engine"],
+      "hooks_triggered": ["TEAM-OPTIMIZE"],
+      "synergizes_with": ["combination_optimizer", "coordinator_v2"],
+      "formula": "Syn(R) = geometric_mean(synergy_ij for all pairs i,j in R)",
+      "success_criteria": "Synergy > 0.80"
+    },
+    {
+      "id": "CAP-SYN-004",
+      "name": "Synergy Pattern Discovery",
+      "description": "Discovers patterns in synergies - which agent types work well together, which combinations to avoid",
+      "category": "ANALYSIS",
+      "inputs": {
+        "required": ["synergy_matrix", "agent_metadata"],
+        "optional": ["pattern_types", "min_confidence"]
+      },
+      "outputs": {
+        "primary": "discovered_patterns",
+        "secondary": ["pattern_confidence", "examples", "recommendations"]
+      },
+      "skills_used": ["prism-deep-learning", "prism-knowledge-master"],
+      "hooks_triggered": ["PATTERN-DISCOVER"],
+      "synergizes_with": ["learning_extractor_v2", "meta_analyst_v2"],
+      "pattern_types": [
+        "positive_synergy_clusters",
+        "negative_synergy_pairs",
+        "tier_compatibility",
+        "domain_complementarity",
+        "skill_overlap_effects"
+      ],
+      "success_criteria": "Actionable patterns identified"
+    },
+    {
+      "id": "CAP-SYN-005",
+      "name": "Synergy Prediction",
+      "description": "Predicts synergy for untested agent pairs based on learned patterns and agent characteristics",
+      "category": "ANALYSIS",
+      "inputs": {
+        "required": ["agent_pair"],
+        "optional": ["context", "similar_pairs"]
+      },
+      "outputs": {
+        "primary": "predicted_synergy",
+        "secondary": ["confidence", "similar_pairs_used", "prediction_rationale"]
+      },
+      "skills_used": ["prism-synergy-calculator", "prism-deep-learning"],
+      "hooks_triggered": ["SYNERGY-PREDICT"],
+      "synergizes_with": ["learning_extractor_v2", "combination_optimizer"],
+      "success_criteria": "Prediction within 15% of actual"
+    },
+    {
+      "id": "CAP-SYN-006",
+      "name": "Negative Synergy Detection",
+      "description": "Identifies agent combinations with negative synergy (perform worse together) for avoidance",
+      "category": "ANALYSIS",
+      "inputs": {
+        "required": ["execution_data"],
+        "optional": ["threshold", "context"]
+      },
+      "outputs": {
+        "primary": "negative_synergy_pairs",
+        "secondary": ["severity", "causes", "mitigation_suggestions"]
+      },
+      "skills_used": ["prism-synergy-calculator", "prism-sp-debugging"],
+      "hooks_triggered": ["NEG-SYNERGY-DETECT"],
+      "synergizes_with": ["debugger", "root_cause_analyst"],
+      "success_criteria": "Conflicts identified before they occur"
+    },
+    {
+      "id": "CAP-SYN-007",
+      "name": "Synergy Trend Analysis",
+      "description": "Analyzes how synergies change over time - improving, degrading, or stable",
+      "category": "ANALYSIS",
+      "inputs": {
+        "required": ["historical_synergies"],
+        "optional": ["time_window", "granularity"]
+      },
+      "outputs": {
+        "primary": "trend_report",
+        "secondary": ["improving_pairs", "degrading_pairs", "recommendations"]
+      },
+      "skills_used": ["prism-synergy-calculator", "prism-deep-learning"],
+      "hooks_triggered": ["TREND-ANALYZE"],
+      "synergizes_with": ["meta_analyst_v2", "calibration_engineer"],
+      "success_criteria": "Trends accurately identified"
+    },
+    {
+      "id": "CAP-SYN-008",
+      "name": "Cross-Tier Synergy Analysis",
+      "description": "Analyzes synergies between different agent tiers (OPUS-SONNET, SONNET-HAIKU, etc.)",
+      "category": "ANALYSIS",
+      "inputs": {
+        "required": ["synergy_matrix"],
+        "optional": ["tier_focus"]
+      },
+      "outputs": {
+        "primary": "cross_tier_analysis",
+        "secondary": ["best_combinations", "patterns", "recommendations"]
+      },
+      "skills_used": ["prism-synergy-calculator", "prism-knowledge-master"],
+      "hooks_triggered": ["TIER-ANALYZE"],
+      "synergizes_with": ["coordinator_v2", "combination_optimizer"],
+      "success_criteria": "Optimal tier combinations identified"
+    },
+    {
+      "id": "CAP-SYN-009",
+      "name": "Domain Complementarity Analysis",
+      "description": "Analyzes how agents from different domains complement each other (validation + extraction, physics + materials)",
+      "category": "ANALYSIS",
+      "inputs": {
+        "required": ["agents", "domains"],
+        "optional": ["task_types"]
+      },
+      "outputs": {
+        "primary": "complementarity_scores",
+        "secondary": ["best_pairings", "coverage_analysis", "gap_identification"]
+      },
+      "skills_used": ["prism-synergy-calculator", "prism-resource-optimizer"],
+      "hooks_triggered": ["COMPLEMENT-ANALYZE"],
+      "synergizes_with": ["coordinator_v2", "task_decomposer"],
+      "success_criteria": "Complementary pairs identified"
+    },
+    {
+      "id": "CAP-SYN-010",
+      "name": "Synergy Coefficient Calibration",
+      "description": "Calibrates synergy coefficients based on actual execution performance vs predictions",
+      "category": "INTEGRATION",
+      "inputs": {
+        "required": ["predictions", "actuals"],
+        "optional": ["calibration_method"]
+      },
+      "outputs": {
+        "primary": "calibrated_coefficients",
+        "secondary": ["calibration_report", "accuracy_improvement", "next_calibration"]
+      },
+      "skills_used": ["prism-synergy-calculator", "prism-formula-evolution"],
+      "hooks_triggered": ["formula:calibrationCheck", "SYNERGY-CALIBRATE"],
+      "synergizes_with": ["calibration_engineer", "proof_generator"],
+      "success_criteria": "Prediction accuracy improves"
+    },
+    {
+      "id": "CAP-SYN-011",
+      "name": "Emergent Behavior Detection",
+      "description": "Detects emergent behaviors in agent combinations - unexpected positive or negative outcomes",
+      "category": "ANALYSIS",
+      "inputs": {
+        "required": ["multi_agent_outputs"],
+        "optional": ["baseline_expectations"]
+      },
+      "outputs": {
+        "primary": "emergent_behaviors",
+        "secondary": ["behavior_type", "frequency", "impact_assessment"]
+      },
+      "skills_used": ["prism-deep-learning", "prism-synergy-calculator"],
+      "hooks_triggered": ["EMERGENT-DETECT"],
+      "synergizes_with": ["learning_extractor_v2", "meta_analyst_v2"],
+      "success_criteria": "Novel behaviors captured for learning"
+    },
+    {
+      "id": "CAP-SYN-012",
+      "name": "Synergy-Based Recommendation",
+      "description": "Recommends agent additions/removals to improve team synergy for specific tasks",
+      "category": "OPTIMIZATION",
+      "inputs": {
+        "required": ["current_team", "task"],
+        "optional": ["budget_constraint", "improvement_target"]
+      },
+      "outputs": {
+        "primary": "recommendations",
+        "secondary": ["expected_improvement", "trade_offs", "alternatives"]
+      },
+      "skills_used": ["prism-synergy-calculator", "prism-agent-selector"],
+      "hooks_triggered": ["SYNERGY-RECOMMEND"],
+      "synergizes_with": ["coordinator_v2", "combination_optimizer"],
+      "success_criteria": "Recommendations improve synergy"
+    },
+    {
+      "id": "CAP-SYN-013",
+      "name": "Skill Synergy Analysis",
+      "description": "Analyzes synergies between skills - which skills work well together",
+      "category": "ANALYSIS",
+      "inputs": {
+        "required": ["skill_usage_data"],
+        "optional": ["skill_metadata"]
+      },
+      "outputs": {
+        "primary": "skill_synergies",
+        "secondary": ["positive_combinations", "conflicts", "loading_recommendations"]
+      },
+      "skills_used": ["prism-synergy-calculator", "prism-skill-orchestrator"],
+      "hooks_triggered": ["skill:load", "SKILL-SYNERGY"],
+      "synergizes_with": ["resource_optimizer", "coordinator_v2"],
+      "success_criteria": "Optimal skill combinations identified"
+    },
+    {
+      "id": "CAP-SYN-014",
+      "name": "Context-Dependent Synergy",
+      "description": "Analyzes how synergies vary by context (task type, complexity, domain)",
+      "category": "ANALYSIS",
+      "inputs": {
+        "required": ["synergy_data", "context_labels"],
+        "optional": ["context_features"]
+      },
+      "outputs": {
+        "primary": "context_synergy_model",
+        "secondary": ["context_patterns", "best_contexts", "recommendations"]
+      },
+      "skills_used": ["prism-synergy-calculator", "prism-deep-learning"],
+      "hooks_triggered": ["CONTEXT-SYNERGY"],
+      "synergizes_with": ["learning_extractor_v2", "coordinator_v2"],
+      "success_criteria": "Context-aware synergy predictions"
+    },
+    {
+      "id": "CAP-SYN-015",
+      "name": "Synergy Report Generation",
+      "description": "Generates comprehensive synergy reports for analysis and decision making",
+      "category": "GENERATION",
+      "inputs": {
+        "required": ["synergy_matrix"],
+        "optional": ["report_scope", "audience"]
+      },
+      "outputs": {
+        "primary": "synergy_report",
+        "secondary": ["visualizations", "key_insights", "action_items"]
+      },
+      "skills_used": ["prism-synergy-calculator", "prism-knowledge-master"],
+      "hooks_triggered": ["REPORT-GENERATE"],
+      "synergizes_with": ["documentation_writer", "meta_analyst_v2"],
+      "success_criteria": "Actionable report generated"
+    }
+  ],
+
+  "skills_mastered": [
+    "prism-synergy-calculator",
+    "prism-deep-learning",
+    "prism-combination-engine",
+    "prism-resource-optimizer",
+    "prism-agent-selector",
+    "prism-formula-evolution",
+    "prism-knowledge-master",
+    "prism-skill-orchestrator",
+    "prism-sp-debugging"
+  ],
+
+  "hooks_subscribed": [
+    "swarm:complete",
+    "agent:postExecute",
+    "learning:extract",
+    "formula:calibrationCheck",
+    "skill:load",
+    "SYNERGY-CALC",
+    "MATRIX-UPDATE",
+    "TEAM-OPTIMIZE",
+    "PATTERN-DISCOVER"
+  ],
+
+  "can_delegate_to": [
+    "learning_extractor_v2",
+    "calibration_engineer"
+  ],
+
+  "receives_from": [
+    "coordinator_v2",
+    "combination_optimizer",
+    "test_orchestrator"
+  ],
+
+  "quality_gates": [
+    "Synergy predictions accurate",
+    "Matrix complete and current",
+    "Patterns validated",
+    "Recommendations actionable"
+  ],
+
+  "performance_metrics": {
+    "prediction_accuracy": 0.85,
+    "matrix_coverage": 0.95,
+    "pattern_confidence": 0.80,
+    "latency_target_ms": 1500
+  }
+}

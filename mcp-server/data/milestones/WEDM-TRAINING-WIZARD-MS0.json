@@ -1,0 +1,242 @@
+{
+  "schemaVersion": "1.0.0",
+  "id": "WEDM-TRAINING-WIZARD-MS0",
+  "title": "Wire EDM Training + Wizard — DocuStrata Corpus, JM Fleet Templates, Self-Learning Loop, Front-End Wire Wizard",
+  "track": "WEDM-TRAINING-WIZARD",
+  "version": "1.0.0",
+  "status": "draft_pending_dedup",
+  "created_at": "2026-05-25",
+  "created_by": "claude-eb71a012 slot:mike",
+  "priority": "HIGH",
+  "dedup_audit_required": {
+    "overlaps_to_resolve": [
+      "TRAINING-LEARNING-MS0 (status:completed) — ships WEDM corpus scanner U4 + WEDMPartFamilyTemplateExtractorEngine + WEDMPartFamilyMatcherEngine. U-WTW01/02/05/06 may duplicate or already-have substrate to wrap.",
+      "AUTO-LEARNING-LOOP-MS0 — likely overlaps U-WTW11 (persistent learning loop orchestrator). Must read full envelope before building U-WTW11.",
+      "WEDM-NEXT-MS0 U-WN09/10/11/12/13/14/15/16 pending — different scope (Ra/cycle-ML/multi-machine-sched/wire-inv/capacity/adaptive-gap/flushing/digital-twin) but loop activation may already exist as WEDMOnlineLearningEngine + WEDMContinuousLearningEngine.",
+      "U-REV-WEDM-01..07 in REVENUE-ROADMAP-v7.6 — these ARE the wire wizard frontend pages (P5). Reuse the unit IDs OR re-ID as U-WTW13a..g and reference REVENUE units."
+    ],
+    "audit_next_iter": "iter3: read TRAINING-LEARNING-MS0 deliveries + AUTO-LEARNING-LOOP-MS0 fully + REVENUE-ROADMAP-v7.6 U-REV-WEDM-01..07 spec. Mark each U-WTW unit either KEEP / SKIP / REVISE based on actual disk state. Only then flip status:in_progress."
+  },
+  "description": "Activate the full WEDM training pipeline using DocuStrata prints + CAD files + paired existing programs. Emit per-part JM templates, per-machine/controller hard-coded feature programs (baseline), wiki + tribal injection nodes per WEDM CAM process, persistent self-learning loop (AI/DL/DR/LoRA/RAG/NN/GNN/ML), and a front-end wire wizard that turns a print into a program after training.",
+  "philosophy": "PRISM has 103 WEDM engines + 42 state files + 8 playbooks + 5 controller dialects + WEDMPartRecognitionEngine + WEDMContinuousLearningEngine + WEDMLearningLoopEngine + JMDieTrainingCorpusEngine + BlueprintProgramJoinEngine + ProgramPrintLinkIndexEngine + TrainingExampleAssemblerEngine already on disk. The substrate is built. This milestone WIRES it into a persistent end-to-end loop and exposes the wire wizard front-end (U-REV-WEDM-01..07 from REVENUE-ROADMAP-v7.6). NO new physics engines — only orchestrators, catalog generators, dispatcher actions, training pipeline activators, and frontend pages.",
+  "user_directive_alignment": {
+    "use_every_print": "U-WTW01..03 — pair every JM Die print with its matching program; emit (print, CAD?, program, features) training tuples",
+    "use_every_program": "U-WTW01 — every existing WEDM program in JM archive flows into the corpus",
+    "use_cad_for_difficult_paths": "U-WTW03 — STEP/IGES/DXF matched to prints for 3D-aware wire paths",
+    "jm_part_templates": "U-WTW05..06 — per-family parameter templates (run WEDMPartRecognitionEngine over corpus)",
+    "wiki_tribal_per_process": "U-WTW09 — auto-emit per-process tribal pages",
+    "hard_coded_feature_programs_per_machine_controller": "U-WTW08 — feature × controller catalog (5 controllers × N feature types)",
+    "self_learning_loop_AI_DL_DR_LoRA_RAG_NN_GNN_ML": "U-WTW11 — orchestrator of WEDMContinuousLearning + WEDMOnlineLearning + WEDMFewShot + WEDMRLController + wedm_lora",
+    "first_training_run": "U-WTW12 — closes U-TRAIN-13 (wedm_lora r=4 first training run)",
+    "front_end_wire_wizard": "U-WTW13..14 — 7 pages (U-REV-WEDM-01..07 re-IDed)"
+  },
+  "dependencies": [
+    "WEDM-100PCT-MS0",
+    "WEDM-NEXT-MS0",
+    "WEDM-AI-PRODUCTION",
+    "WEDM-P2P-PRODUCTION-MS0"
+  ],
+  "blocked_by": [],
+  "estimated_units": 14,
+  "completed_units": 0,
+  "sessions_p50": 6,
+  "sessions_p90": 12,
+  "existing_engines_to_reuse": [
+    "JMDieTrainingCorpusEngine",
+    "BlueprintProgramJoinEngine",
+    "ProgramPrintLinkIndexEngine",
+    "TrainingExampleAssemblerEngine",
+    "CADArchiveJoinAugmenterEngine",
+    "JMDieArchiveBackAnnotationEngine",
+    "WEDMPartRecognitionEngine",
+    "WEDMContinuousLearningEngine",
+    "WEDMLearningLoopEngine",
+    "WEDMOnlineLearningEngine",
+    "WEDMFewShotEngine",
+    "WEDMRLControllerEngine",
+    "WEDMNeuralTrainingEngine",
+    "WEDMPrototypicalNetworkEngine",
+    "WEDMKnowledgeDistillationEngine",
+    "WEDMPrintToProgramEngine",
+    "WEDMCompleteOrchestrationEngine",
+    "WEDMStrategyLibraryEngine",
+    "EDMPostProcessGCodeEngine",
+    "WedmProgramIndexEngine"
+  ],
+  "existing_controllers_to_template": [
+    "Mitsubishi (FA-10S, MV1200R)",
+    "Sodick (AQ750L)",
+    "Makino (U6, U3)",
+    "AgieCharmilles (CUT)",
+    "Fanuc"
+  ],
+  "phases": [
+    {
+      "id": "P1-CORPUS",
+      "title": "DocuStrata Print↔Program Training Corpus",
+      "units": ["U-WTW01", "U-WTW02", "U-WTW03", "U-WTW04"]
+    },
+    {
+      "id": "P2-TEMPLATES",
+      "title": "Per-Part JM Templates from Corpus",
+      "units": ["U-WTW05", "U-WTW06", "U-WTW07"]
+    },
+    {
+      "id": "P3-CONTROLLER-CATALOG",
+      "title": "Hard-Coded Per-Machine/Controller Feature Programs (JM Fleet Baseline)",
+      "units": ["U-WTW08", "U-WTW09", "U-WTW10"]
+    },
+    {
+      "id": "P4-LEARNING-LOOP",
+      "title": "Persistent Self-Learning Loop Activator",
+      "units": ["U-WTW11", "U-WTW12"]
+    },
+    {
+      "id": "P5-WIZARD",
+      "title": "Front-End Wire Wizard (7 pages from U-REV-WEDM-01..07)",
+      "units": ["U-WTW13", "U-WTW14"]
+    }
+  ],
+  "unit_list": [
+    {
+      "id": "U-WTW01",
+      "title": "WEDMTrainingCorpusEngine — WEDM-filtered training corpus orchestrator",
+      "phase": "P1-CORPUS",
+      "status": "pending",
+      "description": "Wrap JMDieTrainingCorpusEngine + BlueprintProgramJoinEngine + ProgramPrintLinkIndexEngine with a WEDM filter. Output: per-program record { print_path, program_path, cad_path?, controller, material, machine, features[], parameters, outcomes? }. No new physics — pure orchestration.",
+      "files_to_create": ["src/engines/WEDMTrainingCorpusEngine.ts", "src/__tests__/WEDMTrainingCorpusEngine.test.ts"],
+      "reuses": ["JMDieTrainingCorpusEngine", "BlueprintProgramJoinEngine", "ProgramPrintLinkIndexEngine", "WedmProgramIndexEngine"],
+      "deliverables": ["engine", "tests", "dispatcher_action(prism_edm:wedm_training_corpus_build)"]
+    },
+    {
+      "id": "U-WTW02",
+      "title": "WEDMProgramPrintPairExtractor — feature/parameter extraction per pair",
+      "phase": "P1-CORPUS",
+      "status": "pending",
+      "description": "For each (print, program) pair from U-WTW01, parse the WEDM program (WireEDMProgramParserEngine) and the print (existing OCR / feature recognizer if available) → emit aligned (features, parameters, controller, machine) tuples ready for training. Persist to data/state/WEDM_TRAINING_PAIRS.jsonl.",
+      "files_to_create": ["src/engines/WEDMProgramPrintPairExtractor.ts", "src/__tests__/WEDMProgramPrintPairExtractor.test.ts"],
+      "reuses": ["WireEDMProgramParserEngine", "WEDMPartRecognitionEngine"]
+    },
+    {
+      "id": "U-WTW03",
+      "title": "WEDMCADPathMatchEngine — link STEP/IGES/DXF to prints for difficult wire paths",
+      "phase": "P1-CORPUS",
+      "status": "pending",
+      "description": "When a print has matching STEP/IGES/DXF in the archive, attach the 3D geometry to the training tuple. Enables training on 3D-aware wire paths (tapers, complex contours) that 2D-only training misses.",
+      "files_to_create": ["src/engines/WEDMCADPathMatchEngine.ts", "src/__tests__/WEDMCADPathMatchEngine.test.ts"],
+      "reuses": ["CADArchiveJoinAugmenterEngine"]
+    },
+    {
+      "id": "U-WTW04",
+      "title": "Dispatcher actions + corpus build CLI",
+      "phase": "P1-CORPUS",
+      "status": "pending",
+      "description": "Wire wedm_training_corpus_build, wedm_training_pairs_extract, wedm_cad_match into prism_edm dispatcher. Also: scripts/build-wedm-training-corpus.mjs CLI for batch runs over JM Die archive.",
+      "files_to_create": ["scripts/build-wedm-training-corpus.mjs"],
+      "files_to_modify": ["src/tools/dispatchers/edmDispatcher.ts"]
+    },
+    {
+      "id": "U-WTW05",
+      "title": "WEDMPartFamilyTemplateEngine — per-family parameter templates from corpus",
+      "phase": "P2-TEMPLATES",
+      "status": "pending",
+      "description": "Run WEDMPartRecognitionEngine over the corpus. Group by part family (punch/die, gear, key, contour, pocket, multi-cavity, complex). For each family, aggregate (material × machine × controller) parameters → emit Template { family, params_by_machine_material, ra_curves, pass_counts, exemplar_programs[] }.",
+      "files_to_create": ["src/engines/WEDMPartFamilyTemplateEngine.ts", "src/__tests__/WEDMPartFamilyTemplateEngine.test.ts"],
+      "reuses": ["WEDMPartRecognitionEngine", "WEDMStrategyLibraryEngine"]
+    },
+    {
+      "id": "U-WTW06",
+      "title": "JM-Die part-template catalog generator (runs across full JM archive)",
+      "phase": "P2-TEMPLATES",
+      "status": "pending",
+      "description": "Batch CLI that emits state/shared/JM-DIE-WEDM-TEMPLATES.json — one entry per distinct part family found in JM archive, with exemplar programs and learned parameter envelopes.",
+      "files_to_create": ["scripts/generate-jmdie-wedm-templates.mjs"]
+    },
+    {
+      "id": "U-WTW07",
+      "title": "Dispatcher actions + tests for template catalog",
+      "phase": "P2-TEMPLATES",
+      "status": "pending",
+      "description": "wedm_template_query(part_family|material|machine), wedm_template_recommend(print_features). Tests verify catalog round-trip and recommendation precision.",
+      "files_to_modify": ["src/tools/dispatchers/edmDispatcher.ts"]
+    },
+    {
+      "id": "U-WTW08",
+      "title": "WEDMFeatureProgramCatalogEngine — controller × feature G-code primitives (JM-fleet baseline)",
+      "phase": "P3-CONTROLLER-CATALOG",
+      "status": "pending",
+      "description": "Per controller (Mitsubishi, Sodick, Makino, AgieCharmilles, Fanuc) × feature type (square pocket, round pocket, slot, taper, keyway, gear-tooth, complex contour, finish-only, multi-pass, start-hole pattern, parting line, micro-radius) emit a known-correct G-code primitive template. This is the BASELINE — all other machines/controllers inherit from this catalog and override only where dialects differ.",
+      "files_to_create": ["src/engines/WEDMFeatureProgramCatalogEngine.ts", "src/data/wedm-feature-program-catalog.ts", "src/__tests__/WEDMFeatureProgramCatalogEngine.test.ts"],
+      "reuses": ["EDMPostProcessGCodeEngine", "MitsubishiMV1200RWireEDMMasterPostEngine"]
+    },
+    {
+      "id": "U-WTW09",
+      "title": "Wire EDM tribal injection node generator — wiki + tribal per CAM process",
+      "phase": "P3-CONTROLLER-CATALOG",
+      "status": "pending",
+      "description": "For each WEDM CAM process (rough pass, skim, finish, taper, multi-pass, corner, threading, start-hole, tab-cut), auto-emit (a) wiki entry to knowledge/wiki/code-tribal/wedm-<process>.md and (b) tribal injection node in tribal-embed-index. Sources: corpus parameter envelopes + WEDMStrategyLibraryEngine + existing tribal tips. Use tribal-by-domain-inject doctrine.",
+      "files_to_create": ["scripts/generate-wedm-tribal-nodes.mjs"]
+    },
+    {
+      "id": "U-WTW10",
+      "title": "Dispatcher actions + tests for feature-program catalog and tribal nodes",
+      "phase": "P3-CONTROLLER-CATALOG",
+      "status": "pending",
+      "description": "wedm_feature_program(controller, feature, params), wedm_tribal_query(process), tests verify catalog completeness across 5 controllers × N features.",
+      "files_to_modify": ["src/tools/dispatchers/edmDispatcher.ts"]
+    },
+    {
+      "id": "U-WTW11",
+      "title": "WEDMPersistentLearningLoopEngine — AI/DL/DR/LoRA/RAG/NN/GNN/ML orchestrator",
+      "phase": "P4-LEARNING-LOOP",
+      "status": "pending",
+      "description": "Single orchestrator that wires: (a) ContinuousLearning + OnlineLearning ingest from outcome ledger, (b) FewShot bootstrap for new materials, (c) RLController policy update from production telemetry, (d) PrototypicalNetwork + KnowledgeDistillation for cross-machine transfer, (e) wedm_lora training trigger when corpus delta > N, (f) NeuralTraining ensemble update, (g) RAG retrieval from training corpus, (h) GNN node-embedding update for new feature types. Persists state to WEDM_LEARNING_LOOP_STATE.json.",
+      "files_to_create": ["src/engines/WEDMPersistentLearningLoopEngine.ts", "src/__tests__/WEDMPersistentLearningLoopEngine.test.ts"],
+      "reuses": ["WEDMContinuousLearningEngine", "WEDMOnlineLearningEngine", "WEDMFewShotEngine", "WEDMRLControllerEngine", "WEDMPrototypicalNetworkEngine", "WEDMKnowledgeDistillationEngine", "WEDMNeuralTrainingEngine"]
+    },
+    {
+      "id": "U-WTW12",
+      "title": "First wedm_lora r=4 training run (closes U-TRAIN-13 from REVENUE-ROADMAP-v7.6)",
+      "phase": "P4-LEARNING-LOOP",
+      "status": "pending",
+      "description": "Execute first end-to-end wedm_lora training run using the U-WTW01 corpus + U-WTW05 templates. r=4 micro-LoRA. Validate accuracy delta on held-out JM Die programs. Persist checkpoint to WEDM_LORA_CHECKPOINT.json.",
+      "files_to_create": ["scripts/run-wedm-lora-train.mjs"]
+    },
+    {
+      "id": "U-WTW13",
+      "title": "Front-end wire wizard scaffolding — 7 pages (U-REV-WEDM-01..07)",
+      "phase": "P5-WIZARD",
+      "status": "pending",
+      "description": "Build React/Vite pages: WireEdmStudioPage (entry + feasibility gate), WireEdmProgramPage, WireEdmCostPage, WireEdmMultipassPage, WireEdmTroubleshootPage, WireEdmControllerSelectPage, WireEdmReportPage. Wire each to existing prism_edm dispatcher actions.",
+      "files_to_create": ["web/src/pages/wire-edm/WireEdmStudioPage.tsx", "web/src/pages/wire-edm/WireEdmProgramPage.tsx", "web/src/pages/wire-edm/WireEdmCostPage.tsx", "web/src/pages/wire-edm/WireEdmMultipassPage.tsx", "web/src/pages/wire-edm/WireEdmTroubleshootPage.tsx", "web/src/pages/wire-edm/WireEdmControllerSelectPage.tsx", "web/src/pages/wire-edm/WireEdmReportPage.tsx"]
+    },
+    {
+      "id": "U-WTW14",
+      "title": "End-to-end print→program pipeline through wizard (post-training validation)",
+      "phase": "P5-WIZARD",
+      "status": "pending",
+      "description": "Upload print → wizard runs full pipeline (corpus match → template recommend → feature catalog → physics gates → G-code generate → cost estimate). Validates on JM Die held-out prints. Records outcome to WEDM_FEEDBACK_LEDGER for U-WTW11 loop. This closes the user's stated goal: print-to-program for WEDM after training."
+    }
+  ],
+  "exit_criteria": [
+    "All 14 units shipped (engine + tests + dispatcher wiring + frontend page where applicable)",
+    "scripts/build-wedm-training-corpus.mjs runs end-to-end over JM Die archive",
+    "JM-DIE-WEDM-TEMPLATES.json non-empty with ≥10 part families",
+    "wedm-feature-program-catalog covers 5 controllers × ≥10 feature types",
+    "WEDM_LORA_CHECKPOINT.json contains r=4 checkpoint with non-trivial accuracy delta",
+    "Wire wizard frontend loads all 7 pages, generates a valid WEDM program from a held-out JM Die print",
+    "3-of-3 scrutiny PASS at end-of-task per CLAUDE.md §SCRUTINY GATE",
+    "Per-file scrutiny PASS for each file generated"
+  ],
+  "rollback_strategy": {
+    "on_test_failure": "Revert engine file, fix, re-run tests",
+    "on_safety_violation": "Block merge, escalate to safety-review",
+    "checkpoint_frequency": "After each U-WTW unit completion"
+  },
+  "knowledge_sources": [
+    "JM DIE archive (24,545 files, 100+ customers — see knowledge/wiki/reference/jm-die-profile.md)",
+    "WEDM_DIGEST.md (103 engines, 5 controller dialects, 8 playbooks, 42 state files, 46 tribal tips, 14 formulas)",
+    "PRISM-INVENTORY-LATEST.md (live counts)",
+    "REVENUE-ROADMAP-v7.6 (U-REV-WEDM-01..07 frontend pages, U-TRAIN-13 LoRA, U-REV-MP-17 controller unify)"
+  ]
+}

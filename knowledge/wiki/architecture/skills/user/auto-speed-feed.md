@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `auto-speed-feed` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/auto-speed-feed.md` |
+| Source | `C:/Users/wompu/.claude/commands/auto-speed-feed.md` |
 | Model | default |
 | Tags | _(none)_ |
 

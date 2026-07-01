@@ -1,8 +1,13 @@
 ---
 description: Graph-wide utilization classifier — buckets every PRISM node into hub/sink/source/orphan/ghost. Use to answer "what's actually being used?" and to surface the audit punch list (built-but-unwired, dead code).
 allowed-tools: mcp__prism_safe__prism_session, Read
+composes_with:
+  - "/build-state"
+  - "/master-index"
+  - "/system-viz"
+consumes:
+  - "prism_session:master_index_utilization_dashboard"
 ---
-
 # /utilization-dashboard — Who's Using What
 
 Classifies every node in the system-viz graph (excluding L9 fs root + L11 filesystem leaves by default) into one of six utilization buckets:

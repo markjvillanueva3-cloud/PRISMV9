@@ -29,8 +29,7 @@ related:
 
 ## Description (first paragraph)
 
-
-# /cam-workholding — Workholding Force and Safety Analysis
+Select optimal workholding solution for part geometry and operations.
 
 <!-- AUTO-END -->
 

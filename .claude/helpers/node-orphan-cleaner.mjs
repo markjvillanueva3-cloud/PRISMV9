@@ -10,6 +10,14 @@
 import { execFileSync } from 'child_process';
 import { appendFileSync, existsSync, mkdirSync, readFileSync, unlinkSync, writeFileSync } from 'fs';
 import { join } from 'path';
+import { pathToFileURL } from 'url';
+// Single source of truth for the PRISM/fleet-worker protect list, shared with
+// fleet-reaper-sweep's stale-node hunter (2026-06-11 incident fix). A node
+// running PRISM/fleet tooling (miner / *-sidecar / pipeline / fleet-* / ollama /
+// mcp-server / ...) is a legit worker and must never be reaped here either,
+// regardless of RSS/age/CPU -- closes the aggressive-mode (cpu<=5 && mem<=350)
+// path that could reap an idle detached fleet worker not in KEEP_PATTERNS.
+import { DEFAULT_PRISM_WORKER_PROTECT_REGEX } from '../../scripts/lib/fleet-reaper-mcp-zombie-hunter.mjs';
 
 const args = new Set(process.argv.slice(2));
 const QUIET = args.has('--quiet');
@@ -150,7 +158,7 @@ foreach ($proc in $procs) {
   const tempScript = join(TEMP_DIR, `prism_node_list_${process.pid}.ps1`);
   try {
     writeFileSync(tempScript, psScript);
-    const output = execFileSync(POWERSHELL, ['-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', tempScript], {
+    const output = execFileSync(POWERSHELL, ['-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', tempScript], { windowsHide: true,
       timeout: 15000,
       encoding: 'utf-8',
     }).trim();
@@ -188,7 +196,7 @@ foreach ($proc in $procs) {
 
 function killProcess(pid) {
   try {
-    execFileSync('taskkill', ['/F', '/PID', String(pid)], {
+    execFileSync('taskkill', ['/F', '/PID', String(pid)], { windowsHide: true,
       timeout: 5000,
       encoding: 'utf-8',
     });
@@ -208,6 +216,12 @@ function isProtected(proc) {
     return true;
   }
   if (matchesAny(KEEP_PATTERNS, command)) {
+    return true;
+  }
+  // SHARED PRISM/fleet-worker protect (2026-06-11 incident fix): a node running
+  // prism tooling (miner/sidecar/pipeline/fleet-*/ollama/...) is a legit worker,
+  // never reap it -- single source of truth = the fleet-reaper hunter's regex.
+  if (command && DEFAULT_PRISM_WORKER_PROTECT_REGEX.test(command)) {
     return true;
   }
   if (proc.parentName && /Codex|Claude|Creative Cloud/i.test(proc.parentName)) {
@@ -319,4 +333,11 @@ function run() {
   }
 }
 
-run();
+// Exported for unit testing of the pure decision functions.
+export { isProtected, shouldKill, isTransient };
+
+// Main-guard: only auto-run the killer when invoked directly (scheduled task /
+// CLI), NOT when imported by a test. process.argv[1] is the entry script path.
+if (import.meta.url === pathToFileURL(process.argv[1] || '').href) {
+  run();
+}

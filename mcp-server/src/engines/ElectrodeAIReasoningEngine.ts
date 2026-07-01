@@ -483,7 +483,10 @@ Consider alternatives and trade-offs.`;
     safety_warnings: safetyWarnings,
     tribal_insights: tribalInsights,
     processing_time_ms: Date.now() - startTime,
-    model_used: "claude-sonnet-4-6",
+    // Report the ACTUAL provider that produced the final step (Ollama-first
+    // routing means this is usually a free local model, not Claude) -- never
+    // hardcode a provider that may not have answered (R12 honesty).
+    model_used: step3Response.model,
   };
 }
 

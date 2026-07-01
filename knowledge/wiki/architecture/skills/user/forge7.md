@@ -23,13 +23,14 @@ related:
 |-------|-------|
 | Name | `forge7` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/forge7.md` |
+| Source | `C:/Users/wompu/.claude/commands/forge7.md` |
 | Model | default |
 | Tags | _(none)_ |
 
 ## Description (first paragraph)
 
-v7 inherits **everything** from v6 (self-optimizing pipeline, adaptive thresholds, auto-build for compounding-gains proposals, all v5 tool-discipline + v4 atomic-first + v3 superpowers + v2 12-stage scrutiny + v1 RGS hard rules).
+
+# Forge v7 — Boris Loop+Agent edition
 
 <!-- AUTO-END -->
 

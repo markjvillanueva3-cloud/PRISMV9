@@ -4,88 +4,121 @@
 **Slot:** `india`
 **Cron:** `*/20 * * * *` (session-only, recurring=true, ID `bc83bbdb`)
 **Operator directive:** `/loop [20m] continue with college coursework extration and conversion to usable nodes`
-**Iters completed (substantive):** 4 commits across ~3 wake-ups
-**Advisory:** `advisoryOnly: true` — this is the meta-record, not the deliverables themselves
-**Status:** **Lane C operator-action layer COMPLETE.** Next step requires operator review (per the doctrine this loop authored).
+**Status:** **8 primitives shipped + tooling + docs.** ~24 commits. Pipeline proven end-to-end and at depth.
+**Advisory:** `advisoryOnly: true` — meta-record, not the deliverables themselves.
 
 ## What this loop did
 
-Closed the gap between KNOWLEDGE-CONVERSION-MS0's 69-item FORGE-QUEUE inventory (advisory; "here are 69 things to maybe build") and the operator's `/forge-triple` ceremony (concrete file path + dispatcher action + dedup + physics gate per asset). The router did the routing but not the prep. This loop did the prep.
+Took KNOWLEDGE-CONVERSION-MS0's 69-item Lane-C FORGE-QUEUE (MIT-OCW courseware
+routed but not yet built) and drove it end-to-end: built an operator-action
+tooling layer, then converted seven MIT-OCW course candidates into real,
+tested, mutually-composable PRISM algorithm nodes, then built the security-
+reviewed keystone that unblocks their MCP dispatcher wiring.
 
-## Trajectory
+## Deliverables
 
-| # | Commit | Subject | Substance |
-|---|--------|---------|-----------|
-| 1 | `dea7274d23` | `[MAIN] [KNOWLEDGE-CONVERSION-MS0]/U-COURSE-FORGE-PROPOSALS` | Hand-curated P1-P10 stubs in `state/shared/specs/COURSE-FORGE-PROPOSALS.{md,html}` with proposed_path, dispatcher_action, dedup_preflight grep, deliverables, physics_gate, consolidation/reject guidance. |
-| 2 | `5d5c363f0e` | `[MAIN] [KNOWLEDGE-CONVERSION-MS0]/U-COURSE-FORGE-STUBS-EMITTER` | Extended `scripts/course-data-router.mjs` with `--emit forge-stubs --min-relevance N` mode. First run at 0.6 floor: **62 stubs surfaced** in `state/shared/specs/COURSE-FORGE-STUBS.{md,html}`. Kind-aware path proposals + REJECT auto-flag for first-party CAM bridges + name-similarity dedup-preflight against live inventory. |
-| 3 | `6ae5399608` | `[MAIN] [KNOWLEDGE-CONVERSION-MS0]/U-COURSE-FORGE-STUBS-EMITTER-TESTS` | `scripts/course-data-router.cli.test.mjs` — 13-case hermetic node:test CLI suite (spawnSync the live binary with temp-dir candidate fixture). Covers happy path + filter + REJECT + physics_gate + PascalCase + JSON mode + dry-run + adversarial arg validation + regression guard on default ledger mode. **13/13 PASS.** |
-| 4 | `592cc28260` | `[MAIN] [KNOWLEDGE-CONVERSION-MS0]/U-COURSE-FORGE-DOC-REFLECTION` | CLAUDE.md §KNOWLEDGE-CONVERSION-MS0 paragraph 2 + `knowledge/wiki/architecture/course-forge-stubs-emitter.md` + Obsidian memory `reference_course_forge_stubs_emitter_2026_05_17.md`. MEMORY.md index update DEFERRED — file already 27 B over the 24576-byte truncation ceiling; another chat is actively compressing per the active memory-size-watch regression. |
+### Phase 1 — operator-action tooling (3 commits)
 
-## Top-10 P1-P10 candidate verdicts (operator decision queue)
+| Commit | Artifact |
+|--------|----------|
+| `dea7274d23` | `COURSE-FORGE-PROPOSALS.md` — hand-curated P1-P10 stubs (proposed_path, dispatcher_action, dedup_preflight, physics_gate, reject/consolidate guidance) |
+| `5d5c363f0e` | `course-data-router.mjs --emit forge-stubs` bulk emitter + `COURSE-FORGE-STUBS.md` (62-stub bundle) |
+| `6ae5399608` | `course-data-router.cli.test.mjs` — 13-case hermetic CLI test suite |
 
-From `state/shared/specs/COURSE-FORGE-PROPOSALS.md` — review and act on these first:
+### Phase 2 — seven course→node conversions (7 build commits, 148 tests)
 
-| # | Candidate | Course | Verdict | Why |
-|---|-----------|--------|---------|-----|
-| P1 | `algorithm:operator-splitting` | 10.34 | **CLEAR — /forge-ready** | Novel name; Strang splitting; direct thermal/CAM leverage |
-| P2 | `algorithm:transition-equations-solver` | 2.854 | REVIEW vs SchedulingEngine family | JM Die line-balance fit |
-| P3 | `algorithm:bernoullis-equation-solver` + `formula:moody-diagram-analysis` | 1.060 | REVIEW (Bernoulli partially in OrificeFlowMeter); **physics_gate=required** for Moody | Coolant flow / swarf flush |
-| P4 + P5 | `engine:lean-manufacturing-engine` + `engine:lean-enterprise-engine` + `algorithm:lesat-algorithm` | 16.885j + 16.852j | **CONSOLIDATE** to one engine before /forge | Sibling courses; duplicationGuard would throw |
-| P6 | `algorithm:pendulum-cart-modeling` + `formula:transfer-functions` | 2.003 | **CLEAR — /forge-ready**; `transfer-functions` is algebraic not physics-constant | Chatter prediction, servo-loop tuning |
-| P7 | `algorithm:euler-method` | 2.003j | **CLEAR — /forge-ready** | ODE foundation for thermal transient / motion profile |
-| P8 | `algorithm:cam-path-optimization` | 2.007 | **REJECT** | First-party CAM stack already production-grade |
-| P9 | `engine:solidworks` | 2.007 | **REJECT** | Tier-1 CAM bridge already shipped |
-| P10 | `algorithm:response-surface-modeling` | 2.830j | REVIEW (mentioned in TurningCpkSurrogateEngine) | SFC speed/feed optimization fit |
+| Node | Source course | Commit | Composition role | Tests |
+|------|---------------|--------|------------------|-------|
+| `OperatorSplittingMethod` | MIT-OCW 10.34 | `1323fa4ee7` | Lie/Strang operator splitting | 28 |
+| `ODEIntegrator` | MIT-OCW 2.003j | `b38a9f2285` | explicit Euler + classical RK4 | 28 |
+| `LinearStateSpaceModel` | MIT-OCW 2.003 | `a547223bbf` | LTI analysis (TF, Bode, Kalman ranks) + simulate | 22 |
+| `FiniteDifferenceMethod` | MIT-OCW 2.086 | `7cbbe511d7` | strong-form PDE discretization | 18 |
+| `GradientDescent` | MIT-OCW 18.02 | `271351e7ec` | first-order optimizer (vanilla/momentum/Adam) | 17 |
+| `FiniteElementMethod1D` | MIT-OCW 1.050/3.22/1.105 | `937bc66e76` | weak-form PDE discretization (Galerkin P1) | 17 |
+| `LagrangianMechanics` | MIT-OCW 16.07/2.032 | `56243befc9` | numerical Euler-Lagrange EOM | 18 |
 
-**Recommended first /forge target:** **P1 `algorithm:operator-splitting`** — fully novel name, no physics constants, well-documented in published numerical-methods literature (Strang 1968), direct leverage for PRISM's thermal-deflection engine family.
+All `mcp-server/src/algorithms/*.ts`, each implementing the `Algorithm<I,O>`
+interface. **No inline physics constants** — every one is a numerical/algebraic
+primitive; masses, lengths, gravity, cutting coefficients are caller-supplied.
 
-## How the operator continues from here
+### Phase 3 — dispatcher-wiring keystone (1 spec + 1 build commit)
 
-```bash
-# 1. Review the proposals
-cat state/shared/specs/COURSE-FORGE-PROPOSALS.md      # P1-P10 detailed
-cat state/shared/specs/COURSE-FORGE-STUBS.md          # full 62-stub bundle
+| Commit | Artifact |
+|--------|----------|
+| `e0fbe51..` → `47e93d03fa` chain | `U-COURSE-FORGE-DISPATCHER-WIRING-DESIGN.md` — the 3-option decision record |
+| `47e93d03fa` | `SafeExpressionEvaluator.ts` — sandboxed `compileExpression` (tokenizer→recursive-descent→AST walk, NO eval/Function, P0-hardened), 60 tests |
 
-# 2. Pre-flight dedup check for the chosen candidate (e.g. P1)
-node H:/prism/.claude/helpers/duplication-guard-precheck.mjs \
-  --kind algorithm --name operator-splitting
+### Doc-reflection (5 commits)
 
-# 3. Then /forge-triple it (per-file scrutiny + 3-of-3 Stop gate will fire)
-/forge-triple algorithm:operator-splitting
+`592cc28260`, `0b237f435b`, `6aee8f6060`, `5033850759`, `17c36fae47`, plus the
+expr-evaluator doc-reflection — CLAUDE.md §KNOWLEDGE-CONVERSION-MS0, the wiki
+entry `course-forge-conversions.md`, and the Obsidian memory all kept in sync.
 
-# 4. Bulk-regenerate STUBS bundle at any time:
-node scripts/course-data-router.mjs --emit forge-stubs --min-relevance 0.6
+## The composition graph
+
+The seven nodes are not isolated — they interlock:
+
+```
+LagrangianMechanics.makeEOMDerivative  ─┐
+FiniteDifferenceMethod.makeMethodOfLinesRHS ─┤
+LinearStateSpaceModel.simulate ─────────────┤→ ODEIntegrator (Euler/RK4)
+                                             │      │
+                                             │      └→ makeSubstepIntegrator
+                                             │             │
+                                             └─────────────┴→ OperatorSplittingMethod
 ```
 
-## Open follow-ups (operator-coordinated, NOT for autonomous /loop)
+- A mechanism's **Lagrangian** → EOM → integrate (verified: pendulum period ≈2π√(ℓ/g)).
+- A **PDE** → discretize strong-form (FDM) **or** weak-form (FEM) → method-of-lines
+  → integrate (verified: heat-equation Fourier decay vs analytic `exp(−D·k²·t)`).
+- An **LTI system** → transfer function / Bode / Kalman ranks / time simulation.
+- FDM ↔ FEM are the strong/weak discretization pair; GD complements the existing
+  derivative-free `BayesianOptimizer`/`GeneticOptimizer`.
 
-| Item | Why deferred |
-|------|--------------|
-| Actual `/forge-triple` of any P1-P10 candidate | Operator-gated by the very doctrine this loop wrote — autonomous /forge of course-derived intent violates Lane C policy |
-| MEMORY.md index pointer for `reference_course_forge_stubs_emitter_2026_05_17` | MEMORY.md is 27 B over the 24576-byte ceiling; another chat actively compressing |
-| Wire `--emit forge-stubs` as a dispatcher action (`prism_knowledge:course_forge_stubs`?) | Adjacency to peer chat editing scripts/system-viz-graph-search — defer to avoid collision |
-| Extend upstream miner to ingest more course material (currently 65/65 MIT-OCW; many more courses available) | Significant surface; needs operator scope decision on which OCW courses to mine next |
-| Lower-tier (mfg_relevance < 0.6) candidates | Currently 7 items below the 0.6 floor not surfaced in default bundle; operator can re-run with `--min-relevance 0` if needed |
+## Bugs caught + fixed mid-build (R12 — fix the wrong thing, never silence)
 
-## Stop conditions reached
+| # | Bug | Class | Fix |
+|---|-----|-------|-----|
+| 1 | Test fixture used OUTPUT decisions[] shape not INPUT candidateAssets[] | test | rewrote fixture (9/13→13/13) |
+| 2 | Convergence-test operators secretly commuted (scaled-identity ⊥ rotation) | test | genuinely non-commuting rotate∘decay-x pair |
+| 3 | Faddeev-LeVerrier emitted `-0` coefficients (breaks `Object.is`) | **code** | `+ 0` normalization at source |
+| 4 | "defaults to rk4" asserted `exp(-1)` not the RK4 one-step value 0.375 | test | pinned to 0.375 (also proves rk4-not-euler) |
+| 5 | Momentum-beats-vanilla premise wrong on isotropic bowl | test | ill-conditioned objective where momentum truly helps |
+| 6 | Two safety-threshold expectations assumed too-low scores | test | corrected + added load-bearing flag assertions |
 
-None yet. The cron continues. Sessions-only storage means the job dies on session exit. Operator can manually stop via `CronDelete bc83bbdb`. Loop-state may have been reaped (sweep helper occasionally reaps stale states); slot-heartbeat continues regardless.
+One code bug, five test-side. None silenced — every one diagnosed to root cause.
+
+## Open follow-up (operator-gated, NOT autonomous /loop)
+
+**`U-COURSE-FORGE-P1-DISPATCHER`** — wire the 7 nodes to the MCP surface.
+Blocked by design: 5 of 7 take JS closures as primary input, which cannot
+cross a JSON dispatcher boundary. The decision record
+`U-COURSE-FORGE-DISPATCHER-WIRING-DESIGN.md` lays out 3 options; **Option A's
+keystone (`SafeExpressionEvaluator`) is now built** — a future unit can wire
+the closure-input nodes by passing expression strings. The wiring itself
+touches the heavily-peer-claimed `algorithmDispatcher.ts` (or needs a new tool
+surface), so it is a deliberate operator-reviewed step, not a /loop iteration.
 
 ## Lessons surfaced
 
 | Class | Lesson |
 |-------|--------|
-| **Schema-read-first** | First-pass test fixture used OUTPUT decisions[] shape; correct input is INPUT candidateAssets[] shape. 9/13 failed → spawnSync stderr capture revealed R12 throw → fixture rewrite → 13/13 PASS. Same class as 2026-05-16 META-tool calculation bugs. |
-| **Doctrine honesty** | After 4 productive commits, the comprehensive-build-enforce hook pressured me to keep ratcheting. The honest move was to stop and respect the operator-gate doctrine I had just written. Acknowledge work-complete, hand off cleanly. |
-| **Index ceiling discipline** | MEMORY.md was already 27 B over the 24576-byte truncation ceiling. Adding a pointer would have pushed deeper. Skipped the index update; sister memory file remains discoverable via filename grep. |
-| **Hook false-positives** | `[ ! -f H:/PRISM/.git/index.lock ]` (file-existence test) repeatedly flagged as "destructive redirect" by the bash guard. False positive on the `[` character preceding the path. Worked around by waiting for the lock to clear before each commit. |
+| **Schema-read-first** | Test fixture bug #1 — assume nothing about a JSON shape; read the actual file. Same class as the 2026-05-16 META-tool bugs. |
+| **R12 fix-the-wrong-thing** | 6 bugs, every one diagnosed to decide test-vs-code. The `-0` was the only real code bug; weakening the other 5 assertions would have hidden correct behavior. |
+| **WIRE-EXEMPT is a real verdict** | Not every primitive is dispatcher-shaped. Closure-input numerical primitives are library-internal until an expression-bridge exists. The tag + a decision record is honest; a forced unsafe `eval` wire is not. |
+| **Doctrine honesty under cron pressure** | The comprehensive-build hook pushes "wire everything"; the honest answer was to build the keystone and hand the wiring decision to the operator rather than force a collision-prone dispatcher edit. |
+
+## Stop conditions
+
+None reached — the cron continues every 20 min. Session-only storage: the job
+dies on session exit. Operator stops it with `CronDelete bc83bbdb`.
 
 ## See also
 
+- [[course-forge-conversions]] (wiki) — the 7 nodes + composition graph
+- [[course-forge-stubs-emitter]] (wiki) — the operator-action tooling layer
 - [[knowledge-conversion-ms0]] (wiki) — parent milestone
-- [[course-forge-stubs-emitter]] (wiki) — this loop's architecture writeup
-- `state/shared/specs/COURSE-FORGE-PROPOSALS.{md,html}` — P1-P10 hand-curated
-- `state/shared/specs/COURSE-FORGE-STUBS.{md,html}` — 62-stub auto-bundle
-- `scripts/course-data-router.mjs` — CLI with `--emit forge-stubs` mode
-- `scripts/course-data-router.cli.test.mjs` — 13-case test suite
-- `state/shared/specs/LOOP-32fcf842-SESSION-SUMMARY-2026-05-17.md` — sister session summary (prior cron loop, also slot india)
+- `state/shared/specs/COURSE-FORGE-PROPOSALS.md` — P1-P10 hand-curated
+- `state/shared/specs/COURSE-FORGE-STUBS.md` — 62-stub auto-bundle
+- `state/shared/specs/U-COURSE-FORGE-DISPATCHER-WIRING-DESIGN.md` — wiring decision record
+- `mcp-server/src/algorithms/{OperatorSplittingMethod,ODEIntegrator,LinearStateSpaceModel,FiniteDifferenceMethod,GradientDescent,FiniteElementMethod1D,LagrangianMechanics,SafeExpressionEvaluator}.ts`

@@ -18,7 +18,7 @@
  */
 
 import { log } from "../utils/Logger.js";
-import type { BaseEngine, EngineInfo, EngineCapability } from "./BaseEngine.js";
+import { BaseEngine, type EngineInfo, type EngineCapability } from "./BaseEngine.js";
 import * as fs from "fs";
 import * as path from "path";
 import * as crypto from "crypto";
@@ -66,7 +66,9 @@ export interface GeometryMetrics {
   filePath: string;
   fileSize: number;
   hash: string;
-  volume: number; // mm³
+  volume: number; // mm³ -- interpret via volumeMethod (STEP/IGES report a bbox proxy, NOT solid volume)
+  /** How `volume` was derived: solid (true B-rep, n/a yet), mesh (STL signed-tet integration), bbox-proxy (STEP/IGES bounding-box volume), or none (2D/empty). */
+  volumeMethod?: "solid" | "mesh" | "bbox-proxy" | "none";
   surfaceArea: number; // mm²
   boundingBox: BoundingBox;
   topology: TopologyMetrics;
@@ -109,6 +111,74 @@ export interface ComparisonResult {
   topologySimilarity: number;
   recommendations: string[];
   comparisonTimeMs: number;
+}
+
+/**
+ * Control-point-cloud Hausdorff result (an APPROXIMATION of true surface Hausdorff:
+ * it measures distance over the B-rep CARTESIAN_POINT control net, not tessellated
+ * surface samples). This is the MEANINGFUL shape-fidelity metric that the count-weighted
+ * topology Jaccard is not -- point COUNT parity does not imply shape match.
+ */
+export interface HausdorffResult {
+  fileA: string;
+  fileB: string;
+  unitA: string;
+  unitB: string;
+  pointsA: number;
+  pointsB: number;
+  sampledA: number;
+  sampledB: number;
+  directedAtoBMm: number;
+  directedBtoAMm: number;
+  hausdorffMm: number;
+  chamferMeanMm: number;
+  bboxDiagonalMm: number;
+  hausdorffPercentOfDiagonal: number;
+  passed: boolean;
+  threshold: number;
+  note: string;
+}
+
+/**
+ * Bidirectional Hausdorff + mean Chamfer distance between two 3D point clouds.
+ * Pure + deterministic (brute-force nearest-neighbor, no RNG).
+ * directed(A,B) = max over a in A of (min over b in B of |a-b|);
+ * hausdorff = max(directed(A,B), directed(B,A)). Empty cloud -> Infinity.
+ */
+export function hausdorffPointClouds(
+  a: ReadonlyArray<readonly [number, number, number]>,
+  b: ReadonlyArray<readonly [number, number, number]>,
+): { directedAtoB: number; directedBtoA: number; hausdorff: number; chamferMean: number } {
+  if (a.length === 0 || b.length === 0) {
+    return { directedAtoB: Infinity, directedBtoA: Infinity, hausdorff: Infinity, chamferMean: Infinity };
+  }
+  const directed = (
+    src: ReadonlyArray<readonly [number, number, number]>,
+    dst: ReadonlyArray<readonly [number, number, number]>,
+  ): { max: number; mean: number } => {
+    let maxMin = 0;
+    let sumMin = 0;
+    for (const p of src) {
+      let min = Infinity;
+      for (const q of dst) {
+        const dx = p[0] - q[0], dy = p[1] - q[1], dz = p[2] - q[2];
+        const d2 = dx * dx + dy * dy + dz * dz;
+        if (d2 < min) min = d2;
+      }
+      const d = Math.sqrt(min);
+      if (d > maxMin) maxMin = d;
+      sumMin += d;
+    }
+    return { max: maxMin, mean: sumMin / src.length };
+  };
+  const ab = directed(a, b);
+  const ba = directed(b, a);
+  return {
+    directedAtoB: ab.max,
+    directedBtoA: ba.max,
+    hausdorff: Math.max(ab.max, ba.max),
+    chamferMean: (ab.mean + ba.mean) / 2,
+  };
 }
 
 /** Batch comparison input */
@@ -222,13 +292,31 @@ const IGES_ENTITY_TYPES: Record<number, string> = {
 // ENGINE
 // ═══════════════════════════════════════════════════════════════════════════
 
-class CADGeometryComparisonEngine implements BaseEngine {
-  readonly info: EngineInfo = {
-    name: "CADGeometryComparisonEngine",
-    version: "1.0.0",
-    domain: "cad_comparison",
-    description: "Format-agnostic CAD geometry comparison for regeneration testing",
-  };
+class CADGeometryComparisonEngine extends BaseEngine {
+  constructor() {
+    super({
+      name: "CADGeometryComparisonEngine",
+      version: "1.0.0",
+      domain: "cad_comparison",
+      description: "Format-agnostic CAD geometry comparison for regeneration testing",
+    });
+  }
+
+  protected async executeImpl(input: unknown): Promise<unknown> {
+    if (
+      input &&
+      typeof input === "object" &&
+      "originalPath" in input &&
+      "generatedPath" in input
+    ) {
+      const { originalPath, generatedPath } = input as {
+        originalPath: string;
+        generatedPath: string;
+      };
+      return this.compare(originalPath, generatedPath);
+    }
+    throw new Error("executeImpl requires { originalPath, generatedPath }");
+  }
 
   private thresholds: ComparisonThresholds = { ...DEFAULT_THRESHOLDS };
 
@@ -351,6 +439,7 @@ class CADGeometryComparisonEngine implements BaseEngine {
       fileSize: stats.size,
       hash,
       volume: metrics.volume ?? 0,
+      volumeMethod: metrics.volumeMethod ?? "none",
       surfaceArea: metrics.surfaceArea ?? 0,
       boundingBox: metrics.boundingBox ?? this.getEmptyBoundingBox(),
       topology: metrics.topology ?? this.getEmptyTopology(),
@@ -409,11 +498,23 @@ class CADGeometryComparisonEngine implements BaseEngine {
     const shellCount = (entityTypes.CLOSED_SHELL ?? 0) + (entityTypes.OPEN_SHELL ?? 0);
     const solidCount = (entityTypes.MANIFOLD_SOLID_BREP ?? 0) + (entityTypes.BREP_WITH_VOIDS ?? 0);
 
-    // Extract bounding box from CARTESIAN_POINT entities
-    const bbox = this.extractBoundingBoxFromSTEP(content);
+    // Resolve the STEP length unit and normalize all geometry to MILLIMETRES so an
+    // inch-authored file compares correctly against a mm reference. A unit-blind
+    // comparator reports a 25.4x-confounded delta (UNITS-FIRST safety rail).
+    // U-CAD-COMPARE-UNIT-NORMALIZE.
+    const { scale, unit } = this.detectStepLengthScaleToMm(content);
+    if (unit !== "mm") {
+      warnings.push(`STEP length unit '${unit}' normalized to mm (scale x${scale})`);
+    }
+    // Extract bounding box from CARTESIAN_POINT entities (normalized to mm)
+    const bbox = this.extractBoundingBoxFromSTEP(content, scale);
 
-    // Estimate volume from bounding box (approximation)
+    // BBOX-PROXY volume: this is the bounding-BOX volume, NOT true solid volume -- a STEP
+    // B-rep solid fills only a fraction of its bbox (e.g. blisk.stp's 451.5M mm3 is its
+    // 1206.9x1206.9x310 box, not the slender disk+blades). Tagged volumeMethod:"bbox-proxy"
+    // so no consumer mistakes it for solid volume; the comparator gates on bbox+topology.
     const volume = bbox.sizeX * bbox.sizeY * bbox.sizeZ;
+    warnings.push("STEP volume is a bounding-box proxy (NOT true solid volume) -- gate on bbox/topology, not raw volume");
 
     // Estimate surface area (rough: 2*(xy + xz + yz))
     const surfaceArea = 2 * (
@@ -434,6 +535,7 @@ class CADGeometryComparisonEngine implements BaseEngine {
 
     return {
       volume,
+      volumeMethod: "bbox-proxy",
       surfaceArea,
       boundingBox: bbox,
       topology: {
@@ -448,7 +550,7 @@ class CADGeometryComparisonEngine implements BaseEngine {
     };
   }
 
-  private extractBoundingBoxFromSTEP(content: string): BoundingBox {
+  private extractBoundingBoxFromSTEP(content: string, scaleToMm = 1.0): BoundingBox {
     const pointPattern = /CARTESIAN_POINT\s*\([^)]*,\s*\(\s*([-\d.eE+]+)\s*,\s*([-\d.eE+]+)\s*,\s*([-\d.eE+]+)\s*\)/gi;
     const points: Array<[number, number, number]> = [];
 
@@ -479,12 +581,112 @@ class CADGeometryComparisonEngine implements BaseEngine {
       maxZ = Math.max(maxZ, z);
     }
 
+    const s = scaleToMm;
     return {
-      minX, maxX, minY, maxY, minZ, maxZ,
-      sizeX: maxX - minX,
-      sizeY: maxY - minY,
-      sizeZ: maxZ - minZ,
+      minX: minX * s, maxX: maxX * s, minY: minY * s, maxY: maxY * s, minZ: minZ * s, maxZ: maxZ * s,
+      sizeX: (maxX - minX) * s,
+      sizeY: (maxY - minY) * s,
+      sizeZ: (maxZ - minZ) * s,
     };
+  }
+
+  /** Parse all CARTESIAN_POINT coords from STEP content as an mm-scaled point cloud. */
+  private extractPointCloudFromSTEP(content: string, scaleToMm: number): Array<[number, number, number]> {
+    const re = /CARTESIAN_POINT\s*\([^)]*,\s*\(\s*([-\d.eE+]+)\s*,\s*([-\d.eE+]+)\s*,\s*([-\d.eE+]+)\s*\)/gi;
+    const pts: Array<[number, number, number]> = [];
+    for (const m of content.matchAll(re)) {
+      const x = parseFloat(m[1]), y = parseFloat(m[2]), z = parseFloat(m[3]);
+      if (!isNaN(x) && !isNaN(y) && !isNaN(z)) pts.push([x * scaleToMm, y * scaleToMm, z * scaleToMm]);
+    }
+    return pts;
+  }
+
+  /** Deterministic stride downsample to at most `cap` points (no RNG -- reproducible). */
+  private strideSample<T>(arr: T[], cap: number): T[] {
+    if (cap <= 0 || arr.length <= cap) return arr;
+    const stride = Math.ceil(arr.length / cap);
+    const out: T[] = [];
+    for (let i = 0; i < arr.length; i += stride) out.push(arr[i]);
+    return out;
+  }
+
+  /**
+   * Control-point-cloud Hausdorff distance between two STEP files (unit-normalized to mm).
+   * APPROXIMATION of true surface Hausdorff: it uses the B-rep CARTESIAN_POINT control net,
+   * not tessellated surface samples -- for exact surface distance, tessellate via a CAD kernel.
+   * Reports the distance in mm and as a % of file-A's bbox diagonal (size-normalized
+   * shape-fidelity). This is the MEANINGFUL shape gate that the count-weighted topology
+   * Jaccard is not: matching CARTESIAN_POINT COUNT does not imply matching SHAPE.
+   *
+   * @param fileA reference STEP path
+   * @param fileB candidate STEP path
+   * @param opts.sampleCap max points per cloud (deterministic stride sample; default 4000)
+   * @param opts.thresholdPercent pass if hausdorff <= this % of bbox diagonal (default 1.0)
+   */
+  computeSurfaceHausdorff(
+    fileA: string,
+    fileB: string,
+    opts?: { sampleCap?: number; thresholdPercent?: number },
+  ): HausdorffResult {
+    const cap = opts?.sampleCap ?? 4000;
+    const thr = opts?.thresholdPercent ?? 1.0;
+    const ca = fs.readFileSync(fileA, "utf8");
+    const cb = fs.readFileSync(fileB, "utf8");
+    const ua = this.detectStepLengthScaleToMm(ca);
+    const ub = this.detectStepLengthScaleToMm(cb);
+    const cloudA = this.extractPointCloudFromSTEP(ca, ua.scale);
+    const cloudB = this.extractPointCloudFromSTEP(cb, ub.scale);
+    const sa = this.strideSample(cloudA, cap);
+    const sb = this.strideSample(cloudB, cap);
+    const h = hausdorffPointClouds(sa, sb);
+    const bb = this.extractBoundingBoxFromSTEP(ca, ua.scale);
+    const diag = Math.sqrt(bb.sizeX ** 2 + bb.sizeY ** 2 + bb.sizeZ ** 2);
+    const pct =
+      diag > 0 && Number.isFinite(h.hausdorff)
+        ? (h.hausdorff / diag) * 100
+        : h.hausdorff === 0
+          ? 0
+          : 100;
+    return {
+      fileA,
+      fileB,
+      unitA: ua.unit,
+      unitB: ub.unit,
+      pointsA: cloudA.length,
+      pointsB: cloudB.length,
+      sampledA: sa.length,
+      sampledB: sb.length,
+      directedAtoBMm: h.directedAtoB,
+      directedBtoAMm: h.directedBtoA,
+      hausdorffMm: h.hausdorff,
+      chamferMeanMm: h.chamferMean,
+      bboxDiagonalMm: diag,
+      hausdorffPercentOfDiagonal: pct,
+      passed: Number.isFinite(pct) && pct <= thr,
+      threshold: thr,
+      note: "Control-point-cloud Hausdorff (approx of surface Hausdorff; tessellate for exact). % is of file-A bbox diagonal.",
+    };
+  }
+
+  /**
+   * Resolve a STEP file's LENGTH unit to a scale factor converting the model's raw
+   * coordinate values to MILLIMETRES. STEP geometry is authored in the unit declared
+   * by its GLOBAL_UNIT_ASSIGNED_CONTEXT; comparing an inch-authored model against a mm
+   * reference without this normalization yields a 25.4x-confounded delta (UNITS-FIRST).
+   * CAUTION: an inch model STILL contains SI_UNIT(.MILLI.,.METRE.) -- it is the BASE of
+   * the inch CONVERSION_BASED_UNIT -- so the length-conversion unit NAME (inch/foot, NOT
+   * the angle DEGREE/RADIAN conversions) must be checked BEFORE the SI prefix.
+   * @returns scale (multiply raw coords to get mm) + the detected unit label.
+   */
+  private detectStepLengthScaleToMm(content: string): { scale: number; unit: string } {
+    if (/CONVERSION_BASED_UNIT\s*\(\s*'\s*INCH\s*'/i.test(content)) return { scale: 25.4, unit: "inch" };
+    if (/CONVERSION_BASED_UNIT\s*\(\s*'\s*FOOT\s*'/i.test(content)) return { scale: 304.8, unit: "foot" };
+    if (/SI_UNIT\s*\(\s*\.MILLI\.\s*,\s*\.METRE\./i.test(content)) return { scale: 1.0, unit: "mm" };
+    if (/SI_UNIT\s*\(\s*\.CENTI\.\s*,\s*\.METRE\./i.test(content)) return { scale: 10.0, unit: "cm" };
+    if (/SI_UNIT\s*\(\s*\.MICRO\.\s*,\s*\.METRE\./i.test(content)) return { scale: 0.001, unit: "micron" };
+    // bare metre (no SI prefix), reached only after the prefixed cases above
+    if (/SI_UNIT\s*\([^)]*\.METRE\./i.test(content)) return { scale: 1000.0, unit: "m" };
+    return { scale: 1.0, unit: "unknown-assume-mm" };
   }
 
   private extractSTEPFeatures(content: string, entityTypes: Record<string, number>): ExtractedFeatures {
@@ -560,6 +762,7 @@ class CADGeometryComparisonEngine implements BaseEngine {
 
     return {
       volume: 0, // DXF is 2D
+      volumeMethod: "none",
       surfaceArea: area,
       boundingBox: bbox,
       topology: {
@@ -653,6 +856,7 @@ class CADGeometryComparisonEngine implements BaseEngine {
 
     return {
       volume: Math.abs(volume),
+      volumeMethod: "mesh",
       surfaceArea,
       boundingBox: bbox,
       topology: {
@@ -820,6 +1024,7 @@ class CADGeometryComparisonEngine implements BaseEngine {
 
     return {
       volume,
+      volumeMethod: "bbox-proxy",
       surfaceArea,
       boundingBox: bbox,
       topology: {
@@ -882,6 +1087,14 @@ class CADGeometryComparisonEngine implements BaseEngine {
       ? (volumeDelta / originalMetrics.volume) * 100
       : (generatedMetrics.volume > 0 ? 100 : 0);
 
+    // Volume is method-tagged (defect-1 fix): STEP/IGES report a bbox PROXY, not solid
+    // volume. A proxy-vs-proxy delta is consistent (both bbox); a proxy-vs-mesh delta is
+    // apples-to-oranges -> mark ADVISORY (passed) on a method mismatch so it never
+    // false-fails the gate, and annotate the proxy nature so the number is never trusted as solid.
+    const volMethodA = originalMetrics.volumeMethod ?? "none";
+    const volMethodB = generatedMetrics.volumeMethod ?? "none";
+    const volMethodMismatch = volMethodA !== volMethodB;
+    const volIsProxy = volMethodA === "bbox-proxy" || volMethodB === "bbox-proxy";
     metrics.push({
       metric: "Volume",
       original: originalMetrics.volume,
@@ -889,8 +1102,10 @@ class CADGeometryComparisonEngine implements BaseEngine {
       delta: volumeDelta,
       deltaPercent: volumeDeltaPercent,
       threshold: effectiveThresholds.volumeDeltaPercent,
-      passed: volumeDeltaPercent <= effectiveThresholds.volumeDeltaPercent,
-      details: `${volumeDeltaPercent.toFixed(2)}% delta (threshold: ${effectiveThresholds.volumeDeltaPercent}%)`,
+      passed: volMethodMismatch ? true : volumeDeltaPercent <= effectiveThresholds.volumeDeltaPercent,
+      details: volMethodMismatch
+        ? `ADVISORY (not gated): volume methods differ (${volMethodA} vs ${volMethodB}) -- not comparable; raw delta ${volumeDeltaPercent.toFixed(2)}%`
+        : `${volumeDeltaPercent.toFixed(2)}% delta (threshold: ${effectiveThresholds.volumeDeltaPercent}%${volIsProxy ? "; bbox-proxy, not solid volume" : ""})`,
     });
 
     // 2. Bounding box comparison (max of X, Y, Z deltas)

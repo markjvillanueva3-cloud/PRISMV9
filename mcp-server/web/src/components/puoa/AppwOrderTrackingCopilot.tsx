@@ -64,7 +64,7 @@ function buildSummary(props: AppwOrderTrackingCopilotProps) {
   if (props.upstreamSourceLabel) posture.push(`upstream ${props.upstreamSourceLabel}`);
   if (props.orderReference) posture.push(`reference ${props.orderReference}`);
 
-  return `PRISM AI is reasoning over live order posture, machine queue depth, order-health metrics, recent execution writes, and workflow continuity for the Order Tracking desk. Current posture: ${posture.join(' | ')}.`;
+  return `Kienzle AI is reasoning over live order posture, machine queue depth, order-health metrics, recent execution writes, and workflow continuity for the Order Tracking desk. Current posture: ${posture.join(' | ')}.`;
 }
 
 function buildSuggestions(props: AppwOrderTrackingCopilotProps): WorkspaceCopilotSuggestion[] {

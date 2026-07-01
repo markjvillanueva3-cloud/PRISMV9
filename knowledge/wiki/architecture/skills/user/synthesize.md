@@ -23,13 +23,14 @@ related:
 |-------|-------|
 | Name | `synthesize` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/synthesize.md` |
+| Source | `C:/Users/wompu/.claude/commands/synthesize.md` |
 | Model | default |
 | Tags | _(none)_ |
 
 ## Description (first paragraph)
 
-Phase 0.18 skill. Given a problem expressed as **input type → output type** (plus optional constraints and tags), enumerate short, valid pipelines of existing PRISM primitives (engines, actions, formulas) that transform the input into the output. Candidates are scored by `(1 / length) × average_primitive_confidence` so shorter, higher-confidence chains surface first.
+
+# /synthesize — Compositional Synthesis from Primitives
 
 <!-- AUTO-END -->
 

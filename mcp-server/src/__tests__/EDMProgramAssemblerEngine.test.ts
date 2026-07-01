@@ -703,4 +703,144 @@ describe("EDMProgramAssemblerEngine", () => {
       expect(r.n_passes).toBe(2);
     });
   });
+
+  describe("assembleSinkerEDM (die-sink / ram EDM)", () => {
+    const sinkerInput = () => ({
+      program_number: 42,
+      part_name: "DIE CAVITY",
+      material: "P20 steel",
+      electrode_material: "graphite",
+      cavity_depth_mm: 12,
+    });
+
+    it("produces a real 3-burn die-sink program by default", () => {
+      const r = engine.assembleSinkerEDM(sinkerInput());
+      expect(r.success).toBe(true);
+      expect(r.pass_count).toBe(3); // rough + semi_finish + finish
+      expect(r.program_number).toBe(42);
+      expect(r.line_count).toBeGreaterThan(0);
+      expect(r.total_time_min).toBeGreaterThan(0);
+      expect(r.program_text).toContain("DIE-SINK EDM: DIE CAVITY");
+      expect(r.program_text).toContain("ELECTRODE: graphite");
+    });
+
+    it("plunges the electrode to the full cavity depth (Z negative)", () => {
+      const r = engine.assembleSinkerEDM(sinkerInput());
+      expect(r.program_text).toContain("Z-12.000");
+      expect(r.program_text).toContain("PLUNGE TO DEPTH");
+    });
+
+    it("burn schedule DECREASES current rough->finish (real die-sink physics)", () => {
+      const r = engine.assembleSinkerEDM(sinkerInput());
+      // Extract the peak-current value from each burn comment, in order.
+      const currents = Array.from(r.program_text.matchAll(/I=(\d+)A/g)).map(m => Number(m[1]));
+      expect(currents.length).toBe(3);
+      // Strictly monotonic decreasing: rough (20) > semi (8) > finish (3).
+      expect(currents[0]).toBeGreaterThan(currents[1]);
+      expect(currents[1]).toBeGreaterThan(currents[2]);
+      expect(currents[0]).toBe(20);
+      expect(currents[2]).toBe(3);
+      // Finish burn carries the finest Ra.
+      expect(r.program_text).toContain("Ra=0.8um");
+    });
+
+    it("emits a sinker footer (program end) with NO wire-cut code", () => {
+      const r = engine.assembleSinkerEDM(sinkerInput());
+      expect(r.program_text).toContain("M30"); // program_end (mitsubishi)
+      // Mitsubishi wire_cut is M51 -- a die-sink program must never emit it.
+      expect(r.program_text).not.toContain("M51");
+    });
+
+    it("honors a custom burn schedule (pass_count tracks the schedule length)", () => {
+      const r = engine.assembleSinkerEDM({
+        ...sinkerInput(),
+        burn_settings: [
+          { pass_type: "rough", peak_current_A: 30, on_time_us: 200, off_time_us: 50, overcut_mm: 0.4, orbit_radius_mm: 0, ra_um: 6.3, plunge_feed_mm_min: 3 },
+          { pass_type: "finish", peak_current_A: 2, on_time_us: 4, off_time_us: 4, overcut_mm: 0.02, orbit_radius_mm: 0.02, ra_um: 0.4, plunge_feed_mm_min: 0.3 },
+        ],
+      });
+      expect(r.success).toBe(true);
+      expect(r.pass_count).toBe(2);
+      expect(r.program_text).toContain("I=30A");
+      expect(r.program_text).toContain("Ra=0.4um");
+    });
+
+    it("rejects invalid input (program_number out of range, non-positive depth)", () => {
+      expect(engine.assembleSinkerEDM({ ...sinkerInput(), program_number: 0 }).success).toBe(false);
+      expect(engine.assembleSinkerEDM({ ...sinkerInput(), cavity_depth_mm: 0 }).success).toBe(false);
+      expect(engine.assembleSinkerEDM({ ...sinkerInput(), cavity_depth_mm: -5 }).success).toBe(false);
+    });
+
+    it("warns on a deep cavity (>50mm) -- flushing + electrode wear risk", () => {
+      const r = engine.assembleSinkerEDM({ ...sinkerInput(), cavity_depth_mm: 80 });
+      expect(r.success).toBe(true);
+      expect(r.warnings.some(w => /Deep cavity/.test(w))).toBe(true);
+    });
+
+    it("respects the requested controller dialect (sodick flush/end codes)", () => {
+      const r = engine.assembleSinkerEDM({ ...sinkerInput(), dialect: "sodick" as ControllerDialect });
+      expect(r.dialect).toBe("sodick");
+      expect(r.program_text).toContain("M08"); // flush_on
+      expect(r.program_text).toContain("M30"); // program_end
+    });
+
+    it("is deterministic for the same input (cavity geometry)", () => {
+      const a = engine.assembleSinkerEDM(sinkerInput());
+      const b = engine.assembleSinkerEDM(sinkerInput());
+      // program_text carries a date header line; compare the pass blocks instead.
+      expect(a.pass_count).toBe(b.pass_count);
+      expect(a.total_time_min).toBe(b.total_time_min);
+      expect(a.blocks.filter(bl => bl.type === "pass")).toEqual(
+        b.blocks.filter(bl => bl.type === "pass"),
+      );
+    });
+  });
+
+  // ==========================================================================
+  // NON-FINITE EMIT GUARD (U-PP-NONFINITE-EMIT-SWEEP) -- a NaN/Infinity wire
+  // coordinate (start / cut point / close / taper UV) must never leak a literal
+  // XNaN/UInfinity the wire control rejects. EDM-assembler arm of the bug-class sweep.
+  // ==========================================================================
+  describe("non-finite emit guard (U-PP-NONFINITE-EMIT-SWEEP)", () => {
+    const codes = () => new EDMProgramAssemblerEngine().getDialectCodes("mitsubishi");
+    const joined = (b: { lines: string[] }) => b.lines.join("\n");
+    const noBadToken = (g: string) => {
+      expect(g).not.toMatch(/[XYUV]NaN/);
+      expect(g).not.toMatch(/[XYUV]Infinity/);
+    };
+
+    it("[regression] a finite path emits real motion with NO ERROR marker", () => {
+      const block = engine.buildPassBlock(makeSimplePasses()[0], makeSimplePath(), codes(), false, "mitsubishi");
+      expect(/X10\.000 Y0\.000/.test(joined(block))).toBe(true);
+      expect(joined(block)).not.toContain("ERROR");
+    });
+
+    it("NaN start coord emits an ERROR marker -- no literal XNaN", () => {
+      const path: CutPath = { start: { x: 0, y: 0 }, points: [{ x: NaN, y: 0 }, { x: 10, y: 10 }], closed: false };
+      const block = engine.buildPassBlock(makeSimplePasses()[0], path, codes(), false, "mitsubishi");
+      noBadToken(joined(block));
+      expect(joined(block)).toContain("NON-FINITE START COORD");
+    });
+
+    it("Infinity cut point is skipped -- no literal XInfinity, finite neighbor still emits", () => {
+      const path: CutPath = { start: { x: 0, y: 0 }, points: [{ x: 5, y: 5 }, { x: Infinity, y: 1 }, { x: 20, y: 20 }], closed: false };
+      const block = engine.buildPassBlock(makeSimplePasses()[0], path, codes(), false, "mitsubishi");
+      noBadToken(joined(block));
+      expect(joined(block)).toContain("NON-FINITE COORD");
+      expect(/X20\.000/.test(joined(block))).toBe(true);
+    });
+
+    it("non-finite taper U/V is omitted -- no literal UNaN", () => {
+      const path: CutPath = { start: { x: 0, y: 0 }, points: [{ x: 5, y: 5 }, { x: 10, y: 10, u: NaN, v: Infinity }], closed: false };
+      const block = engine.buildPassBlock(makeSimplePasses()[0], path, codes(), false, "mitsubishi");
+      noBadToken(joined(block));
+      expect(joined(block)).toContain("NON-FINITE TAPER U/V");
+    });
+
+    it("buildSetup with a NaN start coord emits an ERROR marker -- no literal XNaN", () => {
+      const setup = engine.buildSetup({ x: NaN, y: 5 }, "G54", codes(), "mitsubishi");
+      noBadToken(setup.lines.join("\n"));
+      expect(setup.lines.join("\n")).toContain("NON-FINITE SETUP START COORD");
+    });
+  });
 });

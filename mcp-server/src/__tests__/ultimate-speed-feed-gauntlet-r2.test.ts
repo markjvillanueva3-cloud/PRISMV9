@@ -515,7 +515,7 @@ describe("Gauntlet R2: Units Consistency", () => {
   it("all OptimizedValue fields have correct units", () => {
     const r = calc({ material: "steel", tool_diameter_mm: 12 });
     expect(r.cutting_speed.unit).toBe("m/min");
-    expect(r.spindle_rpm.unit).toBe("RPM");
+    expect(r.spindle_rpm.unit).toBe("rev/min"); // engine canonically emits the dimensional unit "rev/min" (UltimateSpeedFeedEngine spindle_rpm); "RPM" was a stale outlier expectation
     expect(r.feed_per_tooth.unit).toBe("mm/tooth");
     expect(r.feed_per_rev.unit).toBe("mm/rev");
     expect(r.feed_rate.unit).toBe("mm/min");

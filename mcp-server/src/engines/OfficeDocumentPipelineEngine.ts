@@ -181,6 +181,22 @@ export class OfficeDocumentPipelineEngine {
     );
   }
 
+  static findByPartNumber(partNumber: string): ExtractionResult[] {
+    const upper = partNumber.toUpperCase();
+    return [...this.results.values()].filter((r) =>
+      r.extractedData.partNumbers.some((p) => p.toUpperCase().includes(upper))
+    );
+  }
+
+  /** Free-text keyword search across section content + every extracted-data field. */
+  static searchByKeyword(keyword: string): ExtractionResult[] {
+    const lower = keyword.toLowerCase();
+    return [...this.results.values()].filter((r) =>
+      r.sections.some((s) => typeof s.content === "string" && s.content.toLowerCase().includes(lower)) ||
+      Object.values(r.extractedData).some((arr) => arr.some((v) => v.toLowerCase().includes(lower)))
+    );
+  }
+
   static getQueueStats(): { queued: number; processed: number; pending: number; byFormat: Record<string, number> } {
     const byFormat: Record<string, number> = {};
     for (const path of this.queue) {

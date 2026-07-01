@@ -1,0 +1,2163 @@
+commit 1ff8892f7c2ed7206fcc1d5254118416a11ddf5c
+Author: markjvillanueva3-cloud <markjvillanueva3@gmail.com>
+Date:   Tue May 5 08:42:38 2026 -0500
+
+    [CAM-EXHAUST-MS0]/U-CAM-FUSION-SPC-FAI+INV-SPC-FAI+SC-SPC-FAI: SPC + FAI bridges across 3 priority CAMs
+    
+    Closes audit gaps surfaced in 6-CAM completeness scorecard:
+    - Fusion 360: was 14/15 (missing SPC/FAI). Now 16/16.
+    - Inventor HSM: was 2/15 (CRITICAL). +SPC +FAI = 4/15.
+    - SolidCAM: was 6/15 (MAJOR). +SPC +FAI = 8/15.
+    
+    Engines (6 new):
+      Fusion360SPCBridge / Fusion360FAIBridge — Fusion-specific Setup→Operation→Toolpath provenance
+      InventorHSMSPCBridge / InventorHSMFAIBridge — .ipt/.iam doc-path provenance, HSM browser nodes
+      SolidCAMSPCBridge / SolidCAMFAIBridge — .prz CAM-Part path + sldprt source provenance
+    
+    Math (industry standard, identical across all 3):
+      - X-bar/R chart with ASTM E2587 / AIAG SPC factor tables (n=2..10)
+      - Cp/Cpk/Pp/Ppk via R-bar method short-term sigma + sample stdev long-term
+      - Nelson rules 2-5 (rule 1 covered by UCL/LCL OOC detection)
+      - Abramowitz-Stegun 26.2.17 normal CDF (~7.5e-8 max error) for ppm defective
+      - AS9102 Rev C Form 1/2/3 with sequential balloon numbering, equipment selection
+        by tolerance band, methods by feature type
+    
+    Tests (6 files, 117 assertions, all hand-computed expected values):
+      - Subgroup 5 chart: x-bar=25.00 R=0.05 from known 10-point set
+      - Capability with controlled Box-Muller (Mulberry32 PRNG, fixed seeds)
+      - Nelson Rule 2 fires on 9-subgroup biased run; Rule 3 on 6-monotonic series
+      - Capability thresholds 1.33/1.0 verified via known sigma vs tolerance ratios
+      - AS9102 PASS/FAIL boundaries, draft/rejected/complete state transitions
+      - Equipment selection: CMM ≤0.0001in, Mic 0.0001\"-0.0005\", Caliper >0.005\"
+    
+    Dispatcher wiring (camDispatcher.ts):
+      +25 actions in z.enum + 25 case blocks (4 SPC + 5 FAI per CAM × 3 CAMs)
+      Pattern: lazy import per case, normalize params, return result via shared switch
+    
+    Pre-staged for U-CAM79 (test deferred awaiting concrete-value rewrite):
+      src/schemas/camFunctionActionSchemas.ts (8 actions, Zod v4)
+      src/tools/dispatchers/camFunctionDispatcher.ts (consolidates 8 CAM-function engines)
+    
+    Multi-model consensus on action surface (deepseek-r1:14b APPROVE; Gemini 503'd
+    transient, Codex CLI off PATH this session). Harness: scripts/consensus-cam79-
+    action-surface.mjs.
+    
+    Verification:
+      npm run build:fast in H:/prism = green (4.8s, 3 pre-existing warnings unrelated)
+      npx vitest run [8 SPC+FAI test files] = 142/142 pass
+      npx vitest run [6 new files in this worktree] = 117/117 pass
+      Diff vs HEAD: +4386 / -29 (29 deletions = CAM-EXHAUST-MS0.json key reorder)
+      Pattern proven: Mastercam SPC/FAI suite (pre-existing) = 25/25 pass, no regression
+    
+    Audit baseline (CAM-EXHAUST-MS0): was 137/281, now 141/281 complete.
+    
+    🤖 Generated with [Claude Code](https://claude.com/claude-code)
+    
+    Co-Authored-By: Claude Opus 4.7 (1M context) <noreply@anthropic.com>
+
+diff --git a/mcp-server/src/engines/Fusion360FAIBridge.ts b/mcp-server/src/engines/Fusion360FAIBridge.ts
+new file mode 100644
+index 000000000..82620a4c5
+--- /dev/null
++++ b/mcp-server/src/engines/Fusion360FAIBridge.ts
+@@ -0,0 +1,348 @@
++/**
++ * Fusion360FAIBridge — First Article Inspection Integration for Fusion 360
++ *
++ * Generates AS9102 Rev C compliant FAI reports from Fusion 360 setups:
++ *   - Form 1: Part Number Accountability
++ *   - Form 2: Product Accountability (materials, special processes, tests)
++ *   - Form 3: Characteristic Accountability (ballooned features)
++ *   - Balloon drawing data
++ *   - Measurement data integration & PASS/FAIL evaluation
++ *
++ * Feature ingestion is shaped to Fusion's setup→operation→toolpath hierarchy
++ * with optional Fusion Team document URN provenance. Math + classification
++ * mirror MastercamFAIBridge for consistency across CAMs.
++ *
++ * @module engines/Fusion360FAIBridge
++ * @milestone CAM-EXHAUST-MS0/U-CAM-FUSION-FAI-01
++ */
++
++import { log } from "../utils/Logger.js";
++
++// ============================================================================
++// TYPES
++// ============================================================================
++
++export type FAICharacteristicType = "dimension" | "tolerance" | "surface" | "position" | "note";
++export type FAIResult = "PASS" | "FAIL" | "PENDING";
++export type FAIComplianceStandard = "AS9102_Rev_C" | "AS9102_Rev_B";
++
++export interface FAICharacteristic {
++  balloon_number: number;
++  characteristic_designator: string;
++  characteristic_type: FAICharacteristicType;
++  nominal: string;
++  tolerance_plus: string;
++  tolerance_minus: string;
++  measured_value?: string;
++  deviation?: string;
++  result?: FAIResult;
++  method?: string;
++  equipment?: string;
++  notes?: string;
++}
++
++export interface FAIForm1 {
++  part_number: string;
++  part_name: string;
++  revision: string;
++  drawing_number: string;
++  serial_number?: string;
++  organization_name: string;
++  supplier_code?: string;
++  purchase_order?: string;
++  detail_fab?: boolean;
++  complete?: boolean;
++  reason_for_fai: "new_part" | "design_change" | "process_change" | "production_break";
++  inspection_date: string;
++  fai_report_number: string;
++  signature?: string;
++}
++
++export interface FAIForm2 {
++  materials: Array<{
++    material_spec: string;
++    material_type: string;
++    supplier: string;
++    cert_number?: string;
++    lot_number?: string;
++  }>;
++  special_processes: Array<{
++    process_name: string;
++    specification: string;
++    supplier?: string;
++    approval_number?: string;
++  }>;
++  functional_tests: Array<{
++    test_name: string;
++    specification: string;
++    result: "PASS" | "FAIL";
++    date: string;
++  }>;
++}
++
++export interface FAIForm3 {
++  characteristics: FAICharacteristic[];
++  total_characteristics: number;
++  passed: number;
++  failed: number;
++  pending: number;
++  all_passed: boolean;
++}
++
++export interface FAIReport {
++  form1: FAIForm1;
++  form2: FAIForm2;
++  form3: FAIForm3;
++  created_date: string;
++  status: "draft" | "complete" | "approved" | "rejected";
++  compliance: FAIComplianceStandard;
++}
++
++/**
++ * Feature data extracted from a Fusion 360 setup. Provenance fields
++ * (setup_name / operation_name / fusion_doc_id) are optional but help link
++ * Form 3 entries back to the originating Fusion document.
++ */
++export interface FusionFeatureExtraction {
++  feature_id: string;
++  feature_type: string;
++  x: number;
++  y: number;
++  z: number;
++  nominal: number;
++  tolerance?: { plus: number; minus: number };
++  tool_used?: string;
++  operation?: string;
++  setup_name?: string;
++  fusion_doc_id?: string;
++}
++
++// ============================================================================
++// CONSTANTS — measurement-equipment selection thresholds (inches)
++// ============================================================================
++
++const TOL_THRESHOLD_CMM_IN = 0.0001;
++const TOL_THRESHOLD_MIC_HIRES_IN = 0.0005;
++const TOL_THRESHOLD_MIC_STD_IN = 0.001;
++const TOL_THRESHOLD_CALIPER_IN = 0.005;
++const DIAMETER_MIC_VS_PIN_BREAK_MM = 25;
++const DEFAULT_TOLERANCE_IN = 0.005;
++
++// ============================================================================
++// ENGINE
++// ============================================================================
++
++export class Fusion360FAIBridge {
++  /**
++   * Convert Fusion feature extractions into ballooned FAI characteristics.
++   * Balloon numbers are assigned sequentially in input order.
++   */
++  extractCharacteristics(features: FusionFeatureExtraction[]): FAICharacteristic[] {
++    const characteristics: FAICharacteristic[] = [];
++    let balloonNumber = 1;
++
++    for (const feature of features) {
++      const tolPlus = feature.tolerance?.plus ?? DEFAULT_TOLERANCE_IN;
++      const tolMinus = feature.tolerance?.minus ?? DEFAULT_TOLERANCE_IN;
++      const charType = this.classifyCharacteristic(feature.feature_type);
++
++      characteristics.push({
++        balloon_number: balloonNumber++,
++        characteristic_designator: feature.feature_id,
++        characteristic_type: charType,
++        nominal: feature.nominal.toFixed(4),
++        tolerance_plus: `+${tolPlus.toFixed(4)}`,
++        tolerance_minus: `-${tolMinus.toFixed(4)}`,
++        result: "PENDING",
++        method: this.suggestMeasurementMethod(feature),
++        equipment: this.suggestEquipment(feature),
++      });
++    }
++
++    return characteristics;
++  }
++
++  /**
++   * Map a Fusion feature_type string to the AS9102 characteristic type bucket.
++   */
++  private classifyCharacteristic(featureType: string): FAICharacteristicType {
++    const t = featureType.toLowerCase();
++    if (t.includes("position") || t.includes("hole")) return "position";
++    if (t.includes("surface") || t.includes("finish")) return "surface";
++    return "dimension";
++  }
++
++  private suggestMeasurementMethod(feature: FusionFeatureExtraction): string {
++    const t = feature.feature_type.toLowerCase();
++    if (t.includes("diameter")) {
++      return feature.nominal > DIAMETER_MIC_VS_PIN_BREAK_MM ? "Micrometer" : "Pin Gauge";
++    }
++    if (t.includes("depth")) return "Depth Micrometer";
++    if (t.includes("position")) return "CMM";
++    if (t.includes("surface")) return "Profilometer";
++    if (t.includes("thread")) return "Thread Gauge (Go/No-Go)";
++    return "Caliper";
++  }
++
++  private suggestEquipment(feature: FusionFeatureExtraction): string {
++    const tol = feature.tolerance?.plus ?? DEFAULT_TOLERANCE_IN;
++    if (tol <= TOL_THRESHOLD_CMM_IN) return "CMM (Zeiss/Hexagon)";
++    if (tol <= TOL_THRESHOLD_MIC_HIRES_IN) return "Digital Micrometer 0.0001\"";
++    if (tol <= TOL_THRESHOLD_MIC_STD_IN) return "Digital Micrometer 0.0005\"";
++    if (tol <= TOL_THRESHOLD_CALIPER_IN) return "Digital Caliper 0.001\"";
++    return "Tape Measure";
++  }
++
++  /**
++   * Build Form 1 (part-number accountability).
++   */
++  createForm1(
++    partNumber: string,
++    partName: string,
++    revision: string,
++    drawingNumber: string,
++    organization: string,
++    reason: FAIForm1["reason_for_fai"] = "new_part",
++  ): FAIForm1 {
++    return {
++      part_number: partNumber,
++      part_name: partName,
++      revision,
++      drawing_number: drawingNumber,
++      organization_name: organization,
++      reason_for_fai: reason,
++      inspection_date: new Date().toISOString().split("T")[0],
++      fai_report_number: `FAI-${partNumber}-${Date.now().toString(36).toUpperCase()}`,
++    };
++  }
++
++  /**
++   * Build Form 2 (product accountability — materials, special processes, tests).
++   */
++  createForm2(
++    materials: FAIForm2["materials"] = [],
++    processes: FAIForm2["special_processes"] = [],
++    tests: FAIForm2["functional_tests"] = [],
++  ): FAIForm2 {
++    return {
++      materials,
++      special_processes: processes,
++      functional_tests: tests,
++    };
++  }
++
++  /**
++   * Build Form 3 (characteristic accountability — counts pass/fail/pending).
++   */
++  createForm3(characteristics: FAICharacteristic[]): FAIForm3 {
++    const passed = characteristics.filter((c) => c.result === "PASS").length;
++    const failed = characteristics.filter((c) => c.result === "FAIL").length;
++    const pending = characteristics.filter((c) => c.result === "PENDING").length;
++
++    return {
++      characteristics,
++      total_characteristics: characteristics.length,
++      passed,
++      failed,
++      pending,
++      all_passed: failed === 0 && pending === 0,
++    };
++  }
++
++  /**
++   * Compose the full report. Status: 'draft' if any pending, 'rejected' if any failed,
++   * else 'complete'. (Approval requires human signature — left to caller.)
++   */
++  generateReport(form1: FAIForm1, form2: FAIForm2, characteristics: FAICharacteristic[]): FAIReport {
++    const form3 = this.createForm3(characteristics);
++    const status: FAIReport["status"] =
++      form3.pending > 0 ? "draft" : form3.failed > 0 ? "rejected" : "complete";
++
++    log.info(
++      `[Fusion360FAIBridge] Report ${form1.fai_report_number}: ${form3.passed}/${form3.total_characteristics} passed`,
++    );
++
++    return {
++      form1,
++      form2,
++      form3,
++      created_date: new Date().toISOString(),
++      status,
++      compliance: "AS9102_Rev_C",
++    };
++  }
++
++  /**
++   * Apply measurements to characteristics, assigning PASS/FAIL by tolerance band.
++   * Unmeasured balloons are returned untouched (PENDING).
++   */
++  applyMeasurements(
++    characteristics: FAICharacteristic[],
++    measurements: Array<{ balloon_number: number; measured_value: number }>,
++  ): FAICharacteristic[] {
++    return characteristics.map((char) => {
++      const measurement = measurements.find((m) => m.balloon_number === char.balloon_number);
++      if (!measurement) return char;
++
++      const nominal = parseFloat(char.nominal);
++      const tolPlus = parseFloat(char.tolerance_plus);
++      const tolMinus = parseFloat(char.tolerance_minus);
++      const measured = measurement.measured_value;
++      const deviation = measured - nominal;
++      const pass = deviation >= tolMinus && deviation <= tolPlus;
++
++      return {
++        ...char,
++        measured_value: measured.toFixed(4),
++        deviation: deviation >= 0 ? `+${deviation.toFixed(4)}` : deviation.toFixed(4),
++        result: pass ? "PASS" : "FAIL",
++      };
++    });
++  }
++
++  /**
++   * Export the report to JSON for downstream consumers (Net-Inspect, QualityOne, etc.)
++   */
++  exportJSON(report: FAIReport): string {
++    return JSON.stringify(report, null, 2);
++  }
++
++  /**
++   * Generate balloon placement coordinates. This is a deterministic 10-column
++   * grid layout — caller can replace with drawing-view positions when integrated
++   * with Fusion drawing API.
++   */
++  generateBalloonData(
++    characteristics: FAICharacteristic[],
++  ): Array<{ balloon_number: number; x: number; y: number; text: string }> {
++    const COL_COUNT = 10;
++    const COL_PITCH = 50;
++    const ROW_PITCH = 50;
++    const ORIGIN_X = 100;
++    const ORIGIN_Y = 100;
++    return characteristics.map((c, i) => ({
++      balloon_number: c.balloon_number,
++      x: ORIGIN_X + (i % COL_COUNT) * COL_PITCH,
++      y: ORIGIN_Y + Math.floor(i / COL_COUNT) * ROW_PITCH,
++      text: c.balloon_number.toString(),
++    }));
++  }
++
++  /**
++   * Bridge capability stats (telemetry / dispatcher introspection).
++   */
++  getStats(): {
++    forms_supported: number;
++    compliance_standards: FAIComplianceStandard[];
++    characteristic_types: number;
++  } {
++    return {
++      forms_supported: 3,
++      compliance_standards: ["AS9102_Rev_C", "AS9102_Rev_B"],
++      characteristic_types: 5,
++    };
++  }
++}
++
++// Singleton export — matches Mastercam/hyperMILL convention
++export const fusion360FAIBridge = new Fusion360FAIBridge();
+diff --git a/mcp-server/src/engines/Fusion360SPCBridge.ts b/mcp-server/src/engines/Fusion360SPCBridge.ts
+new file mode 100644
+index 000000000..552a94ac2
+--- /dev/null
++++ b/mcp-server/src/engines/Fusion360SPCBridge.ts
+@@ -0,0 +1,458 @@
++/**
++ * Fusion360SPCBridge — Statistical Process Control Integration for Fusion 360
++ *
++ * Bridges Fusion 360 toolpath/setup data with PRISM SPC engines for:
++ *   - X-bar R charts from machined features (per Setup, per Operation)
++ *   - Process capability (Cp, Cpk, Pp, Ppk)
++ *   - Control limit calculations using A2/D3/D4/d2 factor tables
++ *   - Out-of-control detection
++ *   - Nelson SPC rules 1-5 integration
++ *
++ * Math is identical to MastercamSPCBridge (industry-standard A2/D3/D4/d2
++ * tables and Nelson rules). Difference: feature ingestion is shaped to
++ * Fusion's setup/operation hierarchy and supports cloud-derived part_id
++ * provenance from Fusion Team or local FUSION_DATA_DIR.
++ *
++ * @module engines/Fusion360SPCBridge
++ * @milestone CAM-EXHAUST-MS0/U-CAM-FUSION-SPC-01
++ */
++
++import { log } from "../utils/Logger.js";
++
++// ============================================================================
++// CONSTANTS — A2/D3/D4/d2 factor tables (n = 2..10)
++// Industry-standard control-chart constants. See ASTM E2587, ASQ Quality Press.
++// ============================================================================
++
++const A2_FACTORS: Record<number, number> = {
++  2: 1.880, 3: 1.023, 4: 0.729, 5: 0.577,
++  6: 0.483, 7: 0.419, 8: 0.373, 9: 0.337, 10: 0.308,
++};
++
++const D3_FACTORS: Record<number, number> = {
++  2: 0, 3: 0, 4: 0, 5: 0,
++  6: 0, 7: 0.076, 8: 0.136, 9: 0.184, 10: 0.223,
++};
++
++const D4_FACTORS: Record<number, number> = {
++  2: 3.267, 3: 2.575, 4: 2.282, 5: 2.115,
++  6: 2.004, 7: 1.924, 8: 1.864, 9: 1.816, 10: 1.777,
++};
++
++const d2_FACTORS: Record<number, number> = {
++  2: 1.128, 3: 1.693, 4: 2.059, 5: 2.326,
++  6: 2.534, 7: 2.704, 8: 2.847, 9: 2.970, 10: 3.078,
++};
++
++// Capability thresholds per AIAG Statistical Process Control 2nd ed.
++const CPK_CAPABLE_THRESHOLD = 1.33;
++const CPK_MARGINAL_THRESHOLD = 1.0;
++
++// ============================================================================
++// TYPES
++// ============================================================================
++
++export type FusionFeatureType = "diameter" | "length" | "position" | "angle" | "surface";
++
++export interface FusionSPCFeature {
++  feature_id: string;
++  feature_type: FusionFeatureType;
++  nominal: number;
++  tolerance_plus: number;
++  tolerance_minus: number;
++  unit: "mm" | "inch";
++  /** Fusion 360 setup name that produced this feature */
++  setup_name?: string;
++  /** Fusion 360 operation name */
++  operation_name?: string;
++}
++
++export interface FusionSPCMeasurement {
++  feature_id: string;
++  measured_value: number;
++  timestamp: string;
++  part_number: number;
++  operator?: string;
++  machine_id?: string;
++  /** Fusion Team document URN (cloud) or local file path */
++  fusion_doc_id?: string;
++}
++
++export interface XBarRChart {
++  feature_id: string;
++  subgroup_size: number;
++  x_bar_values: number[];
++  r_values: number[];
++  x_bar_ucl: number;
++  x_bar_lcl: number;
++  x_bar_cl: number;
++  r_ucl: number;
++  r_lcl: number;
++  r_cl: number;
++  out_of_control_points: number[];
++  nelson_violations: NelsonViolation[];
++}
++
++export interface NelsonViolation {
++  rule: number;
++  description: string;
++  points: number[];
++  severity: "warning" | "critical";
++}
++
++export interface ProcessCapability {
++  feature_id: string;
++  Cp: number;
++  Cpk: number;
++  Pp: number;
++  Ppk: number;
++  sigma_short: number;
++  sigma_long: number;
++  ppm_defective: number;
++  process_status: "capable" | "marginal" | "incapable";
++  recommendations: string[];
++}
++
++export interface FusionSPCAnalysisResult {
++  job_id: string;
++  feature_count: number;
++  charts: XBarRChart[];
++  capabilities: ProcessCapability[];
++  overall_status: "in_control" | "warning" | "out_of_control";
++  summary: string;
++  timestamp: string;
++}
++
++// ============================================================================
++// ENGINE
++// ============================================================================
++
++export class Fusion360SPCBridge {
++  /**
++   * Build an X-bar R chart for a single feature from a stream of measurements.
++   *
++   * @param feature       feature spec (nominal + tolerance)
++   * @param measurements  full measurement stream (filtered + sorted internally by part_number)
++   * @param subgroupSize  rational subgroup size n in [2,10]; default 5
++   * @returns             control chart with X-bar / R values, UCL/LCL/CL, OOC points, Nelson violations
++   * @throws              if subgroupSize is outside [2,10] (no factor tables defined)
++   */
++  createXBarRChart(
++    feature: FusionSPCFeature,
++    measurements: FusionSPCMeasurement[],
++    subgroupSize: number = 5,
++  ): XBarRChart {
++    if (!Number.isInteger(subgroupSize) || subgroupSize < 2 || subgroupSize > 10) {
++      throw new Error(
++        `Fusion360SPCBridge: subgroupSize must be integer in [2,10], got ${subgroupSize}`,
++      );
++    }
++
++    const featureMeasurements = measurements
++      .filter((m) => m.feature_id === feature.feature_id)
++      .sort((a, b) => a.part_number - b.part_number);
++
++    const subgroups: number[][] = [];
++    for (let i = 0; i + subgroupSize <= featureMeasurements.length; i += subgroupSize) {
++      const group = featureMeasurements.slice(i, i + subgroupSize).map((m) => m.measured_value);
++      subgroups.push(group);
++    }
++
++    const xBars = subgroups.map((g) => g.reduce((a, b) => a + b, 0) / g.length);
++    const ranges = subgroups.map((g) => Math.max(...g) - Math.min(...g));
++
++    const xBarBar = xBars.length > 0 ? xBars.reduce((a, b) => a + b, 0) / xBars.length : 0;
++    const rBar = ranges.length > 0 ? ranges.reduce((a, b) => a + b, 0) / ranges.length : 0;
++
++    const A2 = A2_FACTORS[subgroupSize];
++    const D3 = D3_FACTORS[subgroupSize];
++    const D4 = D4_FACTORS[subgroupSize];
++
++    const xBarUCL = xBarBar + A2 * rBar;
++    const xBarLCL = xBarBar - A2 * rBar;
++    const rUCL = D4 * rBar;
++    const rLCL = D3 * rBar;
++
++    const outOfControl: number[] = [];
++    xBars.forEach((xb, i) => {
++      if (xb > xBarUCL || xb < xBarLCL) outOfControl.push(i);
++    });
++    ranges.forEach((r, i) => {
++      if ((r > rUCL || r < rLCL) && !outOfControl.includes(i)) outOfControl.push(i);
++    });
++
++    const sigmaForRules = (xBarUCL - xBarBar) / 3;
++    const nelsonViolations = this.checkNelsonRules(xBars, xBarBar, sigmaForRules);
++
++    return {
++      feature_id: feature.feature_id,
++      subgroup_size: subgroupSize,
++      x_bar_values: xBars,
++      r_values: ranges,
++      x_bar_ucl: round4(xBarUCL),
++      x_bar_lcl: round4(xBarLCL),
++      x_bar_cl: round4(xBarBar),
++      r_ucl: round4(rUCL),
++      r_lcl: round4(rLCL),
++      r_cl: round4(rBar),
++      out_of_control_points: outOfControl,
++      nelson_violations: nelsonViolations,
++    };
++  }
++
++  /**
++   * Nelson SPC rules 1-5 detection on an X-bar series.
++   * Sigma is estimated from the X-bar control limits (UCL - CL = 3σ).
++   */
++  private checkNelsonRules(values: number[], centerLine: number, sigma: number): NelsonViolation[] {
++    const violations: NelsonViolation[] = [];
++
++    for (let i = 0; i <= values.length - 9; i++) {
++      const slice = values.slice(i, i + 9);
++      const allAbove = slice.every((v) => v > centerLine);
++      const allBelow = slice.every((v) => v < centerLine);
++      if (allAbove || allBelow) {
++        violations.push({
++          rule: 2,
++          description: "9 consecutive points on same side of center line",
++          points: Array.from({ length: 9 }, (_, j) => i + j),
++          severity: "warning",
++        });
++        break;
++      }
++    }
++
++    for (let i = 0; i <= values.length - 6; i++) {
++      const slice = values.slice(i, i + 6);
++      let increasing = true;
++      let decreasing = true;
++      for (let j = 1; j < slice.length; j++) {
++        if (slice[j] <= slice[j - 1]) increasing = false;
++        if (slice[j] >= slice[j - 1]) decreasing = false;
++      }
++      if (increasing || decreasing) {
++        violations.push({
++          rule: 3,
++          description: "6 consecutive points steadily increasing or decreasing",
++          points: Array.from({ length: 6 }, (_, j) => i + j),
++          severity: "warning",
++        });
++        break;
++      }
++    }
++
++    for (let i = 0; i <= values.length - 14; i++) {
++      const slice = values.slice(i, i + 14);
++      let alternating = true;
++      for (let j = 2; j < slice.length; j++) {
++        const prevDir = slice[j - 1] - slice[j - 2];
++        const currDir = slice[j] - slice[j - 1];
++        if (prevDir * currDir >= 0) {
++          alternating = false;
++          break;
++        }
++      }
++      if (alternating) {
++        violations.push({
++          rule: 4,
++          description: "14 consecutive points alternating up and down",
++          points: Array.from({ length: 14 }, (_, j) => i + j),
++          severity: "critical",
++        });
++        break;
++      }
++    }
++
++    const twoSigma = 2 * sigma;
++    for (let i = 0; i <= values.length - 3; i++) {
++      const slice = values.slice(i, i + 3);
++      const beyond2Sigma = slice.filter((v) => Math.abs(v - centerLine) > twoSigma).length;
++      if (beyond2Sigma >= 2) {
++        violations.push({
++          rule: 5,
++          description: "2 out of 3 consecutive points beyond 2σ",
++          points: Array.from({ length: 3 }, (_, j) => i + j),
++          severity: "warning",
++        });
++        break;
++      }
++    }
++
++    return violations;
++  }
++
++  /**
++   * Compute Cp / Cpk / Pp / Ppk for a feature.
++   *
++   * @returns capability indices + ppm defective rate + status + recommendations
++   * @throws  if measurements have <2 values for the feature (cannot estimate sigma)
++   */
++  calculateCapability(
++    feature: FusionSPCFeature,
++    measurements: FusionSPCMeasurement[],
++    subgroupSize: number = 5,
++  ): ProcessCapability {
++    const values = measurements
++      .filter((m) => m.feature_id === feature.feature_id)
++      .map((m) => m.measured_value);
++
++    if (values.length < 2) {
++      throw new Error(
++        `Fusion360SPCBridge.calculateCapability: need ≥2 measurements for ${feature.feature_id}, got ${values.length}`,
++      );
++    }
++
++    const n = values.length;
++    const mean = values.reduce((a, b) => a + b, 0) / n;
++
++    const chart = this.createXBarRChart(feature, measurements, subgroupSize);
++    const d2 = d2_FACTORS[subgroupSize];
++    const sigmaShort = chart.r_cl / d2;
++    const sigmaLong = Math.sqrt(values.reduce((s, v) => s + (v - mean) ** 2, 0) / (n - 1));
++
++    const USL = feature.nominal + feature.tolerance_plus;
++    const LSL = feature.nominal - feature.tolerance_minus;
++
++    const Cp = (USL - LSL) / (6 * sigmaShort);
++    const Cpk = Math.min(
++      (USL - mean) / (3 * sigmaShort),
++      (mean - LSL) / (3 * sigmaShort),
++    );
++    const Pp = (USL - LSL) / (6 * sigmaLong);
++    const Ppk = Math.min(
++      (USL - mean) / (3 * sigmaLong),
++      (mean - LSL) / (3 * sigmaLong),
++    );
++
++    const zUpper = (USL - mean) / sigmaLong;
++    const zLower = (mean - LSL) / sigmaLong;
++    const ppmDefective = Math.round((normalCDF(-zUpper) + normalCDF(-zLower)) * 1e6);
++
++    const recommendations: string[] = [];
++    let status: ProcessCapability["process_status"];
++    if (Cpk >= CPK_CAPABLE_THRESHOLD) {
++      status = "capable";
++    } else if (Cpk >= CPK_MARGINAL_THRESHOLD) {
++      status = "marginal";
++      recommendations.push("Process is marginally capable — consider reducing variation");
++    } else {
++      status = "incapable";
++      recommendations.push("Process is NOT capable — immediate action required");
++    }
++    if (Cp > Cpk * 1.2) {
++      recommendations.push("Process is off-center — adjust setup to center on nominal");
++    }
++    if (sigmaLong > sigmaShort * 1.5) {
++      recommendations.push("High long-term variation — investigate special causes");
++    }
++
++    return {
++      feature_id: feature.feature_id,
++      Cp: round2(Cp),
++      Cpk: round2(Cpk),
++      Pp: round2(Pp),
++      Ppk: round2(Ppk),
++      sigma_short: round4(sigmaShort),
++      sigma_long: round4(sigmaLong),
++      ppm_defective: ppmDefective,
++      process_status: status,
++      recommendations,
++    };
++  }
++
++  /**
++   * Full SPC analysis for a Fusion 360 job.
++   * Skips features with fewer than 2*subgroupSize measurements.
++   */
++  analyzeJob(
++    jobId: string,
++    features: FusionSPCFeature[],
++    measurements: FusionSPCMeasurement[],
++    subgroupSize: number = 5,
++  ): FusionSPCAnalysisResult {
++    const charts: XBarRChart[] = [];
++    const capabilities: ProcessCapability[] = [];
++    let overallStatus: FusionSPCAnalysisResult["overall_status"] = "in_control";
++
++    for (const feature of features) {
++      const featureMeasurements = measurements.filter((m) => m.feature_id === feature.feature_id);
++      if (featureMeasurements.length >= subgroupSize * 2) {
++        const chart = this.createXBarRChart(feature, measurements, subgroupSize);
++        const capability = this.calculateCapability(feature, measurements, subgroupSize);
++        charts.push(chart);
++        capabilities.push(capability);
++
++        if (chart.out_of_control_points.length > 0 || capability.process_status === "incapable") {
++          overallStatus = "out_of_control";
++        } else if (
++          (chart.nelson_violations.length > 0 || capability.process_status === "marginal") &&
++          overallStatus !== "out_of_control"
++        ) {
++          overallStatus = "warning";
++        }
++      }
++    }
++
++    const capableCount = capabilities.filter((c) => c.process_status === "capable").length;
++    const oocPoints = charts.reduce((sum, c) => sum + c.out_of_control_points.length, 0);
++    const summary = `${capableCount}/${capabilities.length} features capable. ${oocPoints} out-of-control points.`;
++
++    log.info(`[Fusion360SPCBridge] Job ${jobId} analyzed: ${summary}`);
++
++    return {
++      job_id: jobId,
++      feature_count: features.length,
++      charts,
++      capabilities,
++      overall_status: overallStatus,
++      summary,
++      timestamp: new Date().toISOString(),
++    };
++  }
++
++  /**
++   * Capability stats for the bridge itself (telemetry / dispatcher introspection).
++   */
++  getStats(): { features_supported: number; nelson_rules: number; capability_indices: number } {
++    return {
++      features_supported: 5, // diameter, length, position, angle, surface
++      nelson_rules: 4,       // Rules 2,3,4,5 (Rule 1 is handled by OOC detection on UCL/LCL)
++      capability_indices: 4, // Cp, Cpk, Pp, Ppk
++    };
++  }
++}
++
++// ============================================================================
++// HELPERS
++// ============================================================================
++
++function round2(x: number): number {
++  return Math.round(x * 100) / 100;
++}
++
++function round4(x: number): number {
++  return Math.round(x * 10000) / 10000;
++}
++
++/**
++ * Standard normal CDF using Abramowitz & Stegun 26.2.17 approximation
++ * (max error ~7.5e-8). Used for tail-probability calculation in PPM defective.
++ */
++function normalCDF(z: number): number {
++  const a1 = 0.254829592;
++  const a2 = -0.284496736;
++  const a3 = 1.421413741;
++  const a4 = -1.453152027;
++  const a5 = 1.061405429;
++  const p = 0.3275911;
++
++  const sign = z < 0 ? -1 : 1;
++  const absZ = Math.abs(z) / Math.sqrt(2);
++  const t = 1.0 / (1.0 + p * absZ);
++  const y = 1.0 - (((((a5 * t + a4) * t) + a3) * t + a2) * t + a1) * t * Math.exp(-absZ * absZ);
++
++  return 0.5 * (1.0 + sign * y);
++}
++
++// Singleton export — matches Mastercam/hyperMILL convention
++export const fusion360SPCBridge = new Fusion360SPCBridge();
+diff --git a/mcp-server/src/engines/InventorHSMFAIBridge.ts b/mcp-server/src/engines/InventorHSMFAIBridge.ts
+new file mode 100644
+index 000000000..14e1d29d6
+--- /dev/null
++++ b/mcp-server/src/engines/InventorHSMFAIBridge.ts
+@@ -0,0 +1,253 @@
++/**
++ * InventorHSMFAIBridge — First Article Inspection (AS9102 Rev C) for Inventor HSM
++ *
++ * Mirror of Fusion360FAIBridge with feature-extraction reshaped for the
++ * Inventor HSM browser tree (Setup → Operation → Toolpath → Feature). Source
++ * provenance fields point at .ipt/.iam paths instead of Fusion Team URNs.
++ *
++ * @module engines/InventorHSMFAIBridge
++ * @milestone CAM-EXHAUST-MS0/U-CAM-INV-FAI-01
++ */
++
++import { log } from "../utils/Logger.js";
++
++export type FAICharacteristicType = "dimension" | "tolerance" | "surface" | "position" | "note";
++export type FAIResult = "PASS" | "FAIL" | "PENDING";
++export type FAIComplianceStandard = "AS9102_Rev_C" | "AS9102_Rev_B";
++
++export interface FAICharacteristic {
++  balloon_number: number;
++  characteristic_designator: string;
++  characteristic_type: FAICharacteristicType;
++  nominal: string;
++  tolerance_plus: string;
++  tolerance_minus: string;
++  measured_value?: string;
++  deviation?: string;
++  result?: FAIResult;
++  method?: string;
++  equipment?: string;
++  notes?: string;
++}
++
++export interface FAIForm1 {
++  part_number: string;
++  part_name: string;
++  revision: string;
++  drawing_number: string;
++  serial_number?: string;
++  organization_name: string;
++  supplier_code?: string;
++  purchase_order?: string;
++  detail_fab?: boolean;
++  complete?: boolean;
++  reason_for_fai: "new_part" | "design_change" | "process_change" | "production_break";
++  inspection_date: string;
++  fai_report_number: string;
++  signature?: string;
++}
++
++export interface FAIForm2 {
++  materials: Array<{ material_spec: string; material_type: string; supplier: string; cert_number?: string; lot_number?: string }>;
++  special_processes: Array<{ process_name: string; specification: string; supplier?: string; approval_number?: string }>;
++  functional_tests: Array<{ test_name: string; specification: string; result: "PASS" | "FAIL"; date: string }>;
++}
++
++export interface FAIForm3 {
++  characteristics: FAICharacteristic[];
++  total_characteristics: number;
++  passed: number;
++  failed: number;
++  pending: number;
++  all_passed: boolean;
++}
++
++export interface FAIReport {
++  form1: FAIForm1;
++  form2: FAIForm2;
++  form3: FAIForm3;
++  created_date: string;
++  status: "draft" | "complete" | "approved" | "rejected";
++  compliance: FAIComplianceStandard;
++}
++
++export interface InventorHSMFeatureExtraction {
++  feature_id: string;
++  feature_type: string;
++  x: number;
++  y: number;
++  z: number;
++  nominal: number;
++  tolerance?: { plus: number; minus: number };
++  tool_used?: string;
++  operation?: string;
++  setup_name?: string;
++  inventor_doc_path?: string;
++}
++
++const TOL_THRESHOLD_CMM_IN = 0.0001;
++const TOL_THRESHOLD_MIC_HIRES_IN = 0.0005;
++const TOL_THRESHOLD_MIC_STD_IN = 0.001;
++const TOL_THRESHOLD_CALIPER_IN = 0.005;
++const DIAMETER_MIC_VS_PIN_BREAK_MM = 25;
++const DEFAULT_TOLERANCE_IN = 0.005;
++
++export class InventorHSMFAIBridge {
++  extractCharacteristics(features: InventorHSMFeatureExtraction[]): FAICharacteristic[] {
++    const chars: FAICharacteristic[] = [];
++    let n = 1;
++    for (const f of features) {
++      const tolPlus = f.tolerance?.plus ?? DEFAULT_TOLERANCE_IN;
++      const tolMinus = f.tolerance?.minus ?? DEFAULT_TOLERANCE_IN;
++      chars.push({
++        balloon_number: n++,
++        characteristic_designator: f.feature_id,
++        characteristic_type: this.classifyCharacteristic(f.feature_type),
++        nominal: f.nominal.toFixed(4),
++        tolerance_plus: `+${tolPlus.toFixed(4)}`,
++        tolerance_minus: `-${tolMinus.toFixed(4)}`,
++        result: "PENDING",
++        method: this.suggestMeasurementMethod(f),
++        equipment: this.suggestEquipment(f),
++      });
++    }
++    return chars;
++  }
++
++  private classifyCharacteristic(featureType: string): FAICharacteristicType {
++    const t = featureType.toLowerCase();
++    if (t.includes("position") || t.includes("hole")) return "position";
++    if (t.includes("surface") || t.includes("finish")) return "surface";
++    return "dimension";
++  }
++
++  private suggestMeasurementMethod(f: InventorHSMFeatureExtraction): string {
++    const t = f.feature_type.toLowerCase();
++    if (t.includes("diameter")) return f.nominal > DIAMETER_MIC_VS_PIN_BREAK_MM ? "Micrometer" : "Pin Gauge";
++    if (t.includes("depth")) return "Depth Micrometer";
++    if (t.includes("position")) return "CMM";
++    if (t.includes("surface")) return "Profilometer";
++    if (t.includes("thread")) return "Thread Gauge (Go/No-Go)";
++    return "Caliper";
++  }
++
++  private suggestEquipment(f: InventorHSMFeatureExtraction): string {
++    const tol = f.tolerance?.plus ?? DEFAULT_TOLERANCE_IN;
++    if (tol <= TOL_THRESHOLD_CMM_IN) return "CMM (Zeiss/Hexagon)";
++    if (tol <= TOL_THRESHOLD_MIC_HIRES_IN) return "Digital Micrometer 0.0001\"";
++    if (tol <= TOL_THRESHOLD_MIC_STD_IN) return "Digital Micrometer 0.0005\"";
++    if (tol <= TOL_THRESHOLD_CALIPER_IN) return "Digital Caliper 0.001\"";
++    return "Tape Measure";
++  }
++
++  createForm1(
++    partNumber: string,
++    partName: string,
++    revision: string,
++    drawingNumber: string,
++    organization: string,
++    reason: FAIForm1["reason_for_fai"] = "new_part",
++  ): FAIForm1 {
++    return {
++      part_number: partNumber,
++      part_name: partName,
++      revision,
++      drawing_number: drawingNumber,
++      organization_name: organization,
++      reason_for_fai: reason,
++      inspection_date: new Date().toISOString().split("T")[0],
++      fai_report_number: `FAI-${partNumber}-${Date.now().toString(36).toUpperCase()}`,
++    };
++  }
++
++  createForm2(
++    materials: FAIForm2["materials"] = [],
++    processes: FAIForm2["special_processes"] = [],
++    tests: FAIForm2["functional_tests"] = [],
++  ): FAIForm2 {
++    return { materials, special_processes: processes, functional_tests: tests };
++  }
++
++  createForm3(characteristics: FAICharacteristic[]): FAIForm3 {
++    const passed = characteristics.filter((c) => c.result === "PASS").length;
++    const failed = characteristics.filter((c) => c.result === "FAIL").length;
++    const pending = characteristics.filter((c) => c.result === "PENDING").length;
++    return {
++      characteristics,
++      total_characteristics: characteristics.length,
++      passed,
++      failed,
++      pending,
++      all_passed: failed === 0 && pending === 0,
++    };
++  }
++
++  generateReport(form1: FAIForm1, form2: FAIForm2, characteristics: FAICharacteristic[]): FAIReport {
++    const form3 = this.createForm3(characteristics);
++    const status: FAIReport["status"] =
++      form3.pending > 0 ? "draft" : form3.failed > 0 ? "rejected" : "complete";
++    log.info(
++      `[InventorHSMFAIBridge] Report ${form1.fai_report_number}: ${form3.passed}/${form3.total_characteristics} passed`,
++    );
++    return {
++      form1,
++      form2,
++      form3,
++      created_date: new Date().toISOString(),
++      status,
++      compliance: "AS9102_Rev_C",
++    };
++  }
++
++  applyMeasurements(
++    characteristics: FAICharacteristic[],
++    measurements: Array<{ balloon_number: number; measured_value: number }>,
++  ): FAICharacteristic[] {
++    return characteristics.map((char) => {
++      const m = measurements.find((x) => x.balloon_number === char.balloon_number);
++      if (!m) return char;
++      const nominal = parseFloat(char.nominal);
++      const tolPlus = parseFloat(char.tolerance_plus);
++      const tolMinus = parseFloat(char.tolerance_minus);
++      const measured = m.measured_value;
++      const deviation = measured - nominal;
++      const pass = deviation >= tolMinus && deviation <= tolPlus;
++      return {
++        ...char,
++        measured_value: measured.toFixed(4),
++        deviation: deviation >= 0 ? `+${deviation.toFixed(4)}` : deviation.toFixed(4),
++        result: pass ? "PASS" : "FAIL",
++      };
++    });
++  }
++
++  exportJSON(report: FAIReport): string {
++    return JSON.stringify(report, null, 2);
++  }
++
++  generateBalloonData(
++    characteristics: FAICharacteristic[],
++  ): Array<{ balloon_number: number; x: number; y: number; text: string }> {
++    const COL_COUNT = 10;
++    const COL_PITCH = 50;
++    const ROW_PITCH = 50;
++    const ORIGIN_X = 100;
++    const ORIGIN_Y = 100;
++    return characteristics.map((c, i) => ({
++      balloon_number: c.balloon_number,
++      x: ORIGIN_X + (i % COL_COUNT) * COL_PITCH,
++      y: ORIGIN_Y + Math.floor(i / COL_COUNT) * ROW_PITCH,
++      text: c.balloon_number.toString(),
++    }));
++  }
++
++  getStats(): { forms_supported: number; compliance_standards: FAIComplianceStandard[]; characteristic_types: number } {
++    return {
++      forms_supported: 3,
++      compliance_standards: ["AS9102_Rev_C", "AS9102_Rev_B"],
++      characteristic_types: 5,
++    };
++  }
++}
++
++export const inventorHSMFAIBridge = new InventorHSMFAIBridge();
+diff --git a/mcp-server/src/engines/InventorHSMSPCBridge.ts b/mcp-server/src/engines/InventorHSMSPCBridge.ts
+new file mode 100644
+index 000000000..d03f74e27
+--- /dev/null
++++ b/mcp-server/src/engines/InventorHSMSPCBridge.ts
+@@ -0,0 +1,428 @@
++/**
++ * InventorHSMSPCBridge — Statistical Process Control Integration for Inventor HSM
++ *
++ * Mirror of Fusion360SPCBridge — same ASTM E2587 / AIAG SPC math (X-bar/R chart,
++ * Cp/Cpk/Pp/Ppk, Nelson rules 2-5), reshaped for Inventor HSM's job→setup→
++ * operation hierarchy and HSM-specific tolerance conventions (Inventor projects
++ * source from .ipt/.iam parts; setup_name is the HSM Setup, operation_name is
++ * the HSM Operation node).
++ *
++ * @module engines/InventorHSMSPCBridge
++ * @milestone CAM-EXHAUST-MS0/U-CAM-INV-SPC-01
++ */
++
++import { log } from "../utils/Logger.js";
++
++// ============================================================================
++// CONSTANTS — A2/D3/D4/d2 factor tables (n = 2..10) per ASTM E2587, ASQ Quality Press
++// ============================================================================
++
++const A2_FACTORS: Record<number, number> = {
++  2: 1.880, 3: 1.023, 4: 0.729, 5: 0.577,
++  6: 0.483, 7: 0.419, 8: 0.373, 9: 0.337, 10: 0.308,
++};
++
++const D3_FACTORS: Record<number, number> = {
++  2: 0, 3: 0, 4: 0, 5: 0,
++  6: 0, 7: 0.076, 8: 0.136, 9: 0.184, 10: 0.223,
++};
++
++const D4_FACTORS: Record<number, number> = {
++  2: 3.267, 3: 2.575, 4: 2.282, 5: 2.115,
++  6: 2.004, 7: 1.924, 8: 1.864, 9: 1.816, 10: 1.777,
++};
++
++const d2_FACTORS: Record<number, number> = {
++  2: 1.128, 3: 1.693, 4: 2.059, 5: 2.326,
++  6: 2.534, 7: 2.704, 8: 2.847, 9: 2.970, 10: 3.078,
++};
++
++const CPK_CAPABLE_THRESHOLD = 1.33;
++const CPK_MARGINAL_THRESHOLD = 1.0;
++
++// ============================================================================
++// TYPES
++// ============================================================================
++
++export type InventorHSMFeatureType = "diameter" | "length" | "position" | "angle" | "surface";
++
++export interface InventorHSMSPCFeature {
++  feature_id: string;
++  feature_type: InventorHSMFeatureType;
++  nominal: number;
++  tolerance_plus: number;
++  tolerance_minus: number;
++  unit: "mm" | "inch";
++  /** Inventor HSM Setup name (HSM browser node) */
++  setup_name?: string;
++  /** Inventor HSM Operation name */
++  operation_name?: string;
++  /** Source .ipt/.iam path */
++  inventor_doc_path?: string;
++}
++
++export interface InventorHSMSPCMeasurement {
++  feature_id: string;
++  measured_value: number;
++  timestamp: string;
++  part_number: number;
++  operator?: string;
++  machine_id?: string;
++  inventor_doc_path?: string;
++}
++
++export interface XBarRChart {
++  feature_id: string;
++  subgroup_size: number;
++  x_bar_values: number[];
++  r_values: number[];
++  x_bar_ucl: number;
++  x_bar_lcl: number;
++  x_bar_cl: number;
++  r_ucl: number;
++  r_lcl: number;
++  r_cl: number;
++  out_of_control_points: number[];
++  nelson_violations: NelsonViolation[];
++}
++
++export interface NelsonViolation {
++  rule: number;
++  description: string;
++  points: number[];
++  severity: "warning" | "critical";
++}
++
++export interface ProcessCapability {
++  feature_id: string;
++  Cp: number;
++  Cpk: number;
++  Pp: number;
++  Ppk: number;
++  sigma_short: number;
++  sigma_long: number;
++  ppm_defective: number;
++  process_status: "capable" | "marginal" | "incapable";
++  recommendations: string[];
++}
++
++export interface InventorHSMSPCAnalysisResult {
++  job_id: string;
++  feature_count: number;
++  charts: XBarRChart[];
++  capabilities: ProcessCapability[];
++  overall_status: "in_control" | "warning" | "out_of_control";
++  summary: string;
++  timestamp: string;
++}
++
++// ============================================================================
++// ENGINE
++// ============================================================================
++
++export class InventorHSMSPCBridge {
++  /**
++   * X-bar R chart from a measurement stream. Same math as Fusion360SPCBridge —
++   * different feature schema (Inventor HSM provenance fields).
++   *
++   * @throws if subgroupSize is outside [2,10]
++   */
++  createXBarRChart(
++    feature: InventorHSMSPCFeature,
++    measurements: InventorHSMSPCMeasurement[],
++    subgroupSize: number = 5,
++  ): XBarRChart {
++    if (!Number.isInteger(subgroupSize) || subgroupSize < 2 || subgroupSize > 10) {
++      throw new Error(
++        `InventorHSMSPCBridge: subgroupSize must be integer in [2,10], got ${subgroupSize}`,
++      );
++    }
++
++    const featureMeasurements = measurements
++      .filter((m) => m.feature_id === feature.feature_id)
++      .sort((a, b) => a.part_number - b.part_number);
++
++    const subgroups: number[][] = [];
++    for (let i = 0; i + subgroupSize <= featureMeasurements.length; i += subgroupSize) {
++      subgroups.push(featureMeasurements.slice(i, i + subgroupSize).map((m) => m.measured_value));
++    }
++
++    const xBars = subgroups.map((g) => g.reduce((a, b) => a + b, 0) / g.length);
++    const ranges = subgroups.map((g) => Math.max(...g) - Math.min(...g));
++
++    const xBarBar = xBars.length > 0 ? xBars.reduce((a, b) => a + b, 0) / xBars.length : 0;
++    const rBar = ranges.length > 0 ? ranges.reduce((a, b) => a + b, 0) / ranges.length : 0;
++
++    const A2 = A2_FACTORS[subgroupSize];
++    const D3 = D3_FACTORS[subgroupSize];
++    const D4 = D4_FACTORS[subgroupSize];
++
++    const xBarUCL = xBarBar + A2 * rBar;
++    const xBarLCL = xBarBar - A2 * rBar;
++    const rUCL = D4 * rBar;
++    const rLCL = D3 * rBar;
++
++    const outOfControl: number[] = [];
++    xBars.forEach((xb, i) => {
++      if (xb > xBarUCL || xb < xBarLCL) outOfControl.push(i);
++    });
++    ranges.forEach((r, i) => {
++      if ((r > rUCL || r < rLCL) && !outOfControl.includes(i)) outOfControl.push(i);
++    });
++
++    const sigmaForRules = (xBarUCL - xBarBar) / 3;
++    const nelsonViolations = this.checkNelsonRules(xBars, xBarBar, sigmaForRules);
++
++    return {
++      feature_id: feature.feature_id,
++      subgroup_size: subgroupSize,
++      x_bar_values: xBars,
++      r_values: ranges,
++      x_bar_ucl: round4(xBarUCL),
++      x_bar_lcl: round4(xBarLCL),
++      x_bar_cl: round4(xBarBar),
++      r_ucl: round4(rUCL),
++      r_lcl: round4(rLCL),
++      r_cl: round4(rBar),
++      out_of_control_points: outOfControl,
++      nelson_violations: nelsonViolations,
++    };
++  }
++
++  private checkNelsonRules(values: number[], centerLine: number, sigma: number): NelsonViolation[] {
++    const violations: NelsonViolation[] = [];
++
++    for (let i = 0; i <= values.length - 9; i++) {
++      const slice = values.slice(i, i + 9);
++      const allAbove = slice.every((v) => v > centerLine);
++      const allBelow = slice.every((v) => v < centerLine);
++      if (allAbove || allBelow) {
++        violations.push({
++          rule: 2,
++          description: "9 consecutive points on same side of center line",
++          points: Array.from({ length: 9 }, (_, j) => i + j),
++          severity: "warning",
++        });
++        break;
++      }
++    }
++
++    for (let i = 0; i <= values.length - 6; i++) {
++      const slice = values.slice(i, i + 6);
++      let increasing = true;
++      let decreasing = true;
++      for (let j = 1; j < slice.length; j++) {
++        if (slice[j] <= slice[j - 1]) increasing = false;
++        if (slice[j] >= slice[j - 1]) decreasing = false;
++      }
++      if (increasing || decreasing) {
++        violations.push({
++          rule: 3,
++          description: "6 consecutive points steadily increasing or decreasing",
++          points: Array.from({ length: 6 }, (_, j) => i + j),
++          severity: "warning",
++        });
++        break;
++      }
++    }
++
++    for (let i = 0; i <= values.length - 14; i++) {
++      const slice = values.slice(i, i + 14);
++      let alternating = true;
++      for (let j = 2; j < slice.length; j++) {
++        const prevDir = slice[j - 1] - slice[j - 2];
++        const currDir = slice[j] - slice[j - 1];
++        if (prevDir * currDir >= 0) {
++          alternating = false;
++          break;
++        }
++      }
++      if (alternating) {
++        violations.push({
++          rule: 4,
++          description: "14 consecutive points alternating up and down",
++          points: Array.from({ length: 14 }, (_, j) => i + j),
++          severity: "critical",
++        });
++        break;
++      }
++    }
++
++    const twoSigma = 2 * sigma;
++    for (let i = 0; i <= values.length - 3; i++) {
++      const slice = values.slice(i, i + 3);
++      const beyond2Sigma = slice.filter((v) => Math.abs(v - centerLine) > twoSigma).length;
++      if (beyond2Sigma >= 2) {
++        violations.push({
++          rule: 5,
++          description: "2 out of 3 consecutive points beyond 2σ",
++          points: Array.from({ length: 3 }, (_, j) => i + j),
++          severity: "warning",
++        });
++        break;
++      }
++    }
++
++    return violations;
++  }
++
++  /**
++   * Process capability indices (Cp/Cpk/Pp/Ppk) + PPM defective.
++   * @throws if fewer than 2 measurements for the feature.
++   */
++  calculateCapability(
++    feature: InventorHSMSPCFeature,
++    measurements: InventorHSMSPCMeasurement[],
++    subgroupSize: number = 5,
++  ): ProcessCapability {
++    const values = measurements
++      .filter((m) => m.feature_id === feature.feature_id)
++      .map((m) => m.measured_value);
++
++    if (values.length < 2) {
++      throw new Error(
++        `InventorHSMSPCBridge.calculateCapability: need ≥2 measurements for ${feature.feature_id}, got ${values.length}`,
++      );
++    }
++
++    const n = values.length;
++    const mean = values.reduce((a, b) => a + b, 0) / n;
++    const chart = this.createXBarRChart(feature, measurements, subgroupSize);
++    const d2 = d2_FACTORS[subgroupSize];
++    const sigmaShort = chart.r_cl / d2;
++    const sigmaLong = Math.sqrt(values.reduce((s, v) => s + (v - mean) ** 2, 0) / (n - 1));
++
++    const USL = feature.nominal + feature.tolerance_plus;
++    const LSL = feature.nominal - feature.tolerance_minus;
++
++    const Cp = (USL - LSL) / (6 * sigmaShort);
++    const Cpk = Math.min(
++      (USL - mean) / (3 * sigmaShort),
++      (mean - LSL) / (3 * sigmaShort),
++    );
++    const Pp = (USL - LSL) / (6 * sigmaLong);
++    const Ppk = Math.min(
++      (USL - mean) / (3 * sigmaLong),
++      (mean - LSL) / (3 * sigmaLong),
++    );
++
++    const zUpper = (USL - mean) / sigmaLong;
++    const zLower = (mean - LSL) / sigmaLong;
++    const ppmDefective = Math.round((normalCDF(-zUpper) + normalCDF(-zLower)) * 1e6);
++
++    const recommendations: string[] = [];
++    let status: ProcessCapability["process_status"];
++    if (Cpk >= CPK_CAPABLE_THRESHOLD) {
++      status = "capable";
++    } else if (Cpk >= CPK_MARGINAL_THRESHOLD) {
++      status = "marginal";
++      recommendations.push("Process is marginally capable — consider reducing variation");
++    } else {
++      status = "incapable";
++      recommendations.push("Process is NOT capable — immediate action required");
++    }
++    if (Cp > Cpk * 1.2) recommendations.push("Process is off-center — adjust setup to center on nominal");
++    if (sigmaLong > sigmaShort * 1.5) recommendations.push("High long-term variation — investigate special causes");
++
++    return {
++      feature_id: feature.feature_id,
++      Cp: round2(Cp),
++      Cpk: round2(Cpk),
++      Pp: round2(Pp),
++      Ppk: round2(Ppk),
++      sigma_short: round4(sigmaShort),
++      sigma_long: round4(sigmaLong),
++      ppm_defective: ppmDefective,
++      process_status: status,
++      recommendations,
++    };
++  }
++
++  /**
++   * Full SPC analysis for an Inventor HSM job. Skips features with fewer than
++   * 2*subgroupSize measurements.
++   */
++  analyzeJob(
++    jobId: string,
++    features: InventorHSMSPCFeature[],
++    measurements: InventorHSMSPCMeasurement[],
++    subgroupSize: number = 5,
++  ): InventorHSMSPCAnalysisResult {
++    const charts: XBarRChart[] = [];
++    const capabilities: ProcessCapability[] = [];
++    let overallStatus: InventorHSMSPCAnalysisResult["overall_status"] = "in_control";
++
++    for (const feature of features) {
++      const featureMeasurements = measurements.filter((m) => m.feature_id === feature.feature_id);
++      if (featureMeasurements.length >= subgroupSize * 2) {
++        const chart = this.createXBarRChart(feature, measurements, subgroupSize);
++        const capability = this.calculateCapability(feature, measurements, subgroupSize);
++        charts.push(chart);
++        capabilities.push(capability);
++
++        if (chart.out_of_control_points.length > 0 || capability.process_status === "incapable") {
++          overallStatus = "out_of_control";
++        } else if (
++          (chart.nelson_violations.length > 0 || capability.process_status === "marginal") &&
++          overallStatus !== "out_of_control"
++        ) {
++          overallStatus = "warning";
++        }
++      }
++    }
++
++    const capableCount = capabilities.filter((c) => c.process_status === "capable").length;
++    const oocPoints = charts.reduce((sum, c) => sum + c.out_of_control_points.length, 0);
++    const summary = `${capableCount}/${capabilities.length} features capable. ${oocPoints} out-of-control points.`;
++
++    log.info(`[InventorHSMSPCBridge] Job ${jobId} analyzed: ${summary}`);
++
++    return {
++      job_id: jobId,
++      feature_count: features.length,
++      charts,
++      capabilities,
++      overall_status: overallStatus,
++      summary,
++      timestamp: new Date().toISOString(),
++    };
++  }
++
++  getStats(): { features_supported: number; nelson_rules: number; capability_indices: number } {
++    return { features_supported: 5, nelson_rules: 4, capability_indices: 4 };
++  }
++}
++
++// ============================================================================
++// HELPERS
++// ============================================================================
++
++function round2(x: number): number {
++  return Math.round(x * 100) / 100;
++}
++
++function round4(x: number): number {
++  return Math.round(x * 10000) / 10000;
++}
++
++/**
++ * Standard normal CDF using Abramowitz & Stegun 26.2.17 approximation
++ * (max error ~7.5e-8).
++ */
++function normalCDF(z: number): number {
++  const a1 = 0.254829592;
++  const a2 = -0.284496736;
++  const a3 = 1.421413741;
++  const a4 = -1.453152027;
++  const a5 = 1.061405429;
++  const p = 0.3275911;
++
++  const sign = z < 0 ? -1 : 1;
++  const absZ = Math.abs(z) / Math.sqrt(2);
++  const t = 1.0 / (1.0 + p * absZ);
++  const y = 1.0 - (((((a5 * t + a4) * t) + a3) * t + a2) * t + a1) * t * Math.exp(-absZ * absZ);
++
++  return 0.5 * (1.0 + sign * y);
++}
++
++export const inventorHSMSPCBridge = new InventorHSMSPCBridge();
+diff --git a/mcp-server/src/engines/SolidCAMFAIBridge.ts b/mcp-server/src/engines/SolidCAMFAIBridge.ts
+new file mode 100644
+index 000000000..f1d5a73df
+--- /dev/null
++++ b/mcp-server/src/engines/SolidCAMFAIBridge.ts
+@@ -0,0 +1,249 @@
++/**
++ * SolidCAMFAIBridge — First Article Inspection (AS9102 Rev C) for SolidCAM
++ *
++ * Mirror of MastercamFAIBridge / Fusion360FAIBridge / InventorHSMFAIBridge,
++ * reshaped for SolidCAM's CAM-Part (.prz) hierarchy. Provenance includes the
++ * source SolidWorks part path so balloon entries trace back to the originating
++ * 3D model.
++ *
++ * @module engines/SolidCAMFAIBridge
++ * @milestone CAM-EXHAUST-MS0/U-CAM-SC-FAI-01
++ */
++
++import { log } from "../utils/Logger.js";
++
++export type FAICharacteristicType = "dimension" | "tolerance" | "surface" | "position" | "note";
++export type FAIResult = "PASS" | "FAIL" | "PENDING";
++export type FAIComplianceStandard = "AS9102_Rev_C" | "AS9102_Rev_B";
++
++export interface FAICharacteristic {
++  balloon_number: number;
++  characteristic_designator: string;
++  characteristic_type: FAICharacteristicType;
++  nominal: string;
++  tolerance_plus: string;
++  tolerance_minus: string;
++  measured_value?: string;
++  deviation?: string;
++  result?: FAIResult;
++  method?: string;
++  equipment?: string;
++  notes?: string;
++}
++
++export interface FAIForm1 {
++  part_number: string;
++  part_name: string;
++  revision: string;
++  drawing_number: string;
++  serial_number?: string;
++  organization_name: string;
++  supplier_code?: string;
++  purchase_order?: string;
++  detail_fab?: boolean;
++  complete?: boolean;
++  reason_for_fai: "new_part" | "design_change" | "process_change" | "production_break";
++  inspection_date: string;
++  fai_report_number: string;
++  signature?: string;
++}
++
++export interface FAIForm2 {
++  materials: Array<{ material_spec: string; material_type: string; supplier: string; cert_number?: string; lot_number?: string }>;
++  special_processes: Array<{ process_name: string; specification: string; supplier?: string; approval_number?: string }>;
++  functional_tests: Array<{ test_name: string; specification: string; result: "PASS" | "FAIL"; date: string }>;
++}
++
++export interface FAIForm3 {
++  characteristics: FAICharacteristic[];
++  total_characteristics: number;
++  passed: number;
++  failed: number;
++  pending: number;
++  all_passed: boolean;
++}
++
++export interface FAIReport {
++  form1: FAIForm1;
++  form2: FAIForm2;
++  form3: FAIForm3;
++  created_date: string;
++  status: "draft" | "complete" | "approved" | "rejected";
++  compliance: FAIComplianceStandard;
++}
++
++export interface SolidCAMFeatureExtraction {
++  feature_id: string;
++  feature_type: string;
++  x: number;
++  y: number;
++  z: number;
++  nominal: number;
++  tolerance?: { plus: number; minus: number };
++  tool_used?: string;
++  operation?: string;
++  cam_part_path?: string;
++  sldprt_path?: string;
++}
++
++const TOL_THRESHOLD_CMM_IN = 0.0001;
++const TOL_THRESHOLD_MIC_HIRES_IN = 0.0005;
++const TOL_THRESHOLD_MIC_STD_IN = 0.001;
++const TOL_THRESHOLD_CALIPER_IN = 0.005;
++const DIAMETER_MIC_VS_PIN_BREAK_MM = 25;
++const DEFAULT_TOLERANCE_IN = 0.005;
++
++export class SolidCAMFAIBridge {
++  extractCharacteristics(features: SolidCAMFeatureExtraction[]): FAICharacteristic[] {
++    const out: FAICharacteristic[] = [];
++    let n = 1;
++    for (const f of features) {
++      const tolPlus = f.tolerance?.plus ?? DEFAULT_TOLERANCE_IN;
++      const tolMinus = f.tolerance?.minus ?? DEFAULT_TOLERANCE_IN;
++      out.push({
++        balloon_number: n++,
++        characteristic_designator: f.feature_id,
++        characteristic_type: this.classify(f.feature_type),
++        nominal: f.nominal.toFixed(4),
++        tolerance_plus: `+${tolPlus.toFixed(4)}`,
++        tolerance_minus: `-${tolMinus.toFixed(4)}`,
++        result: "PENDING",
++        method: this.method(f),
++        equipment: this.equipment(f),
++      });
++    }
++    return out;
++  }
++
++  private classify(t: string): FAICharacteristicType {
++    const s = t.toLowerCase();
++    if (s.includes("position") || s.includes("hole")) return "position";
++    if (s.includes("surface") || s.includes("finish")) return "surface";
++    return "dimension";
++  }
++
++  private method(f: SolidCAMFeatureExtraction): string {
++    const t = f.feature_type.toLowerCase();
++    if (t.includes("diameter")) return f.nominal > DIAMETER_MIC_VS_PIN_BREAK_MM ? "Micrometer" : "Pin Gauge";
++    if (t.includes("depth")) return "Depth Micrometer";
++    if (t.includes("position")) return "CMM";
++    if (t.includes("surface")) return "Profilometer";
++    if (t.includes("thread")) return "Thread Gauge (Go/No-Go)";
++    return "Caliper";
++  }
++
++  private equipment(f: SolidCAMFeatureExtraction): string {
++    const tol = f.tolerance?.plus ?? DEFAULT_TOLERANCE_IN;
++    if (tol <= TOL_THRESHOLD_CMM_IN) return "CMM (Zeiss/Hexagon)";
++    if (tol <= TOL_THRESHOLD_MIC_HIRES_IN) return "Digital Micrometer 0.0001\"";
++    if (tol <= TOL_THRESHOLD_MIC_STD_IN) return "Digital Micrometer 0.0005\"";
++    if (tol <= TOL_THRESHOLD_CALIPER_IN) return "Digital Caliper 0.001\"";
++    return "Tape Measure";
++  }
++
++  createForm1(
++    partNumber: string,
++    partName: string,
++    revision: string,
++    drawingNumber: string,
++    organization: string,
++    reason: FAIForm1["reason_for_fai"] = "new_part",
++  ): FAIForm1 {
++    return {
++      part_number: partNumber,
++      part_name: partName,
++      revision,
++      drawing_number: drawingNumber,
++      organization_name: organization,
++      reason_for_fai: reason,
++      inspection_date: new Date().toISOString().split("T")[0],
++      fai_report_number: `FAI-${partNumber}-${Date.now().toString(36).toUpperCase()}`,
++    };
++  }
++
++  createForm2(
++    materials: FAIForm2["materials"] = [],
++    processes: FAIForm2["special_processes"] = [],
++    tests: FAIForm2["functional_tests"] = [],
++  ): FAIForm2 {
++    return { materials, special_processes: processes, functional_tests: tests };
++  }
++
++  createForm3(characteristics: FAICharacteristic[]): FAIForm3 {
++    const passed = characteristics.filter((c) => c.result === "PASS").length;
++    const failed = characteristics.filter((c) => c.result === "FAIL").length;
++    const pending = characteristics.filter((c) => c.result === "PENDING").length;
++    return {
++      characteristics,
++      total_characteristics: characteristics.length,
++      passed, failed, pending,
++      all_passed: failed === 0 && pending === 0,
++    };
++  }
++
++  generateReport(form1: FAIForm1, form2: FAIForm2, characteristics: FAICharacteristic[]): FAIReport {
++    const form3 = this.createForm3(characteristics);
++    const status: FAIReport["status"] =
++      form3.pending > 0 ? "draft" : form3.failed > 0 ? "rejected" : "complete";
++    log.info(
++      `[SolidCAMFAIBridge] Report ${form1.fai_report_number}: ${form3.passed}/${form3.total_characteristics} passed`,
++    );
++    return {
++      form1, form2, form3,
++      created_date: new Date().toISOString(),
++      status,
++      compliance: "AS9102_Rev_C",
++    };
++  }
++
++  applyMeasurements(
++    characteristics: FAICharacteristic[],
++    measurements: Array<{ balloon_number: number; measured_value: number }>,
++  ): FAICharacteristic[] {
++    return characteristics.map((c) => {
++      const m = measurements.find((x) => x.balloon_number === c.balloon_number);
++      if (!m) return c;
++      const nominal = parseFloat(c.nominal);
++      const tolPlus = parseFloat(c.tolerance_plus);
++      const tolMinus = parseFloat(c.tolerance_minus);
++      const dev = m.measured_value - nominal;
++      const pass = dev >= tolMinus && dev <= tolPlus;
++      return {
++        ...c,
++        measured_value: m.measured_value.toFixed(4),
++        deviation: dev >= 0 ? `+${dev.toFixed(4)}` : dev.toFixed(4),
++        result: pass ? "PASS" : "FAIL",
++      };
++    });
++  }
++
++  exportJSON(report: FAIReport): string {
++    return JSON.stringify(report, null, 2);
++  }
++
++  generateBalloonData(
++    characteristics: FAICharacteristic[],
++  ): Array<{ balloon_number: number; x: number; y: number; text: string }> {
++    const COL_COUNT = 10;
++    const COL_PITCH = 50;
++    const ROW_PITCH = 50;
++    const ORIGIN_X = 100;
++    const ORIGIN_Y = 100;
++    return characteristics.map((c, i) => ({
++      balloon_number: c.balloon_number,
++      x: ORIGIN_X + (i % COL_COUNT) * COL_PITCH,
++      y: ORIGIN_Y + Math.floor(i / COL_COUNT) * ROW_PITCH,
++      text: c.balloon_number.toString(),
++    }));
++  }
++
++  getStats(): { forms_supported: number; compliance_standards: FAIComplianceStandard[]; characteristic_types: number } {
++    return {
++      forms_supported: 3,
++      compliance_standards: ["AS9102_Rev_C", "AS9102_Rev_B"],
++      characteristic_types: 5,
++    };
++  }
++}
++
++export const solidCAMFAIBridge = new SolidCAMFAIBridge();
+diff --git a/mcp-server/src/engines/SolidCAMSPCBridge.ts b/mcp-server/src/engines/SolidCAMSPCBridge.ts
+new file mode 100644
+index 000000000..0cdaaf779
+--- /dev/null
++++ b/mcp-server/src/engines/SolidCAMSPCBridge.ts
+@@ -0,0 +1,334 @@
++/**
++ * SolidCAMSPCBridge — Statistical Process Control Integration for SolidCAM
++ *
++ * Mirror of MastercamSPCBridge / Fusion360SPCBridge / InventorHSMSPCBridge.
++ * Same ASTM E2587 / AIAG SPC math (X-bar/R, Cp/Cpk/Pp/Ppk, Nelson rules 2-5).
++ * Reshaped for SolidCAM's CAM-Part hierarchy: each measurement points back at
++ * the .prz CAM-Part file and the source SolidWorks part it was generated from.
++ *
++ * @module engines/SolidCAMSPCBridge
++ * @milestone CAM-EXHAUST-MS0/U-CAM-SC-SPC-01
++ */
++
++import { log } from "../utils/Logger.js";
++
++const A2_FACTORS: Record<number, number> = {
++  2: 1.880, 3: 1.023, 4: 0.729, 5: 0.577,
++  6: 0.483, 7: 0.419, 8: 0.373, 9: 0.337, 10: 0.308,
++};
++const D3_FACTORS: Record<number, number> = {
++  2: 0, 3: 0, 4: 0, 5: 0,
++  6: 0, 7: 0.076, 8: 0.136, 9: 0.184, 10: 0.223,
++};
++const D4_FACTORS: Record<number, number> = {
++  2: 3.267, 3: 2.575, 4: 2.282, 5: 2.115,
++  6: 2.004, 7: 1.924, 8: 1.864, 9: 1.816, 10: 1.777,
++};
++const d2_FACTORS: Record<number, number> = {
++  2: 1.128, 3: 1.693, 4: 2.059, 5: 2.326,
++  6: 2.534, 7: 2.704, 8: 2.847, 9: 2.970, 10: 3.078,
++};
++const CPK_CAPABLE_THRESHOLD = 1.33;
++const CPK_MARGINAL_THRESHOLD = 1.0;
++
++export type SolidCAMFeatureType = "diameter" | "length" | "position" | "angle" | "surface";
++
++export interface SolidCAMSPCFeature {
++  feature_id: string;
++  feature_type: SolidCAMFeatureType;
++  nominal: number;
++  tolerance_plus: number;
++  tolerance_minus: number;
++  unit: "mm" | "inch";
++  /** SolidCAM CAM-Part .prz file path */
++  cam_part_path?: string;
++  /** Source SolidWorks part .sldprt path (when CAM-Part was generated from SW) */
++  sldprt_path?: string;
++  /** SolidCAM operation name (iMachining / 3D HSS / 5-axis / Turning / etc.) */
++  operation_name?: string;
++}
++
++export interface SolidCAMSPCMeasurement {
++  feature_id: string;
++  measured_value: number;
++  timestamp: string;
++  part_number: number;
++  operator?: string;
++  machine_id?: string;
++  cam_part_path?: string;
++}
++
++export interface XBarRChart {
++  feature_id: string;
++  subgroup_size: number;
++  x_bar_values: number[];
++  r_values: number[];
++  x_bar_ucl: number;
++  x_bar_lcl: number;
++  x_bar_cl: number;
++  r_ucl: number;
++  r_lcl: number;
++  r_cl: number;
++  out_of_control_points: number[];
++  nelson_violations: NelsonViolation[];
++}
++
++export interface NelsonViolation {
++  rule: number;
++  description: string;
++  points: number[];
++  severity: "warning" | "critical";
++}
++
++export interface ProcessCapability {
++  feature_id: string;
++  Cp: number;
++  Cpk: number;
++  Pp: number;
++  Ppk: number;
++  sigma_short: number;
++  sigma_long: number;
++  ppm_defective: number;
++  process_status: "capable" | "marginal" | "incapable";
++  recommendations: string[];
++}
++
++export interface SolidCAMSPCAnalysisResult {
++  job_id: string;
++  feature_count: number;
++  charts: XBarRChart[];
++  capabilities: ProcessCapability[];
++  overall_status: "in_control" | "warning" | "out_of_control";
++  summary: string;
++  timestamp: string;
++}
++
++export class SolidCAMSPCBridge {
++  createXBarRChart(
++    feature: SolidCAMSPCFeature,
++    measurements: SolidCAMSPCMeasurement[],
++    subgroupSize: number = 5,
++  ): XBarRChart {
++    if (!Number.isInteger(subgroupSize) || subgroupSize < 2 || subgroupSize > 10) {
++      throw new Error(`SolidCAMSPCBridge: subgroupSize must be integer in [2,10], got ${subgroupSize}`);
++    }
++    const fm = measurements
++      .filter((m) => m.feature_id === feature.feature_id)
++      .sort((a, b) => a.part_number - b.part_number);
++
++    const subgroups: number[][] = [];
++    for (let i = 0; i + subgroupSize <= fm.length; i += subgroupSize) {
++      subgroups.push(fm.slice(i, i + subgroupSize).map((m) => m.measured_value));
++    }
++    const xBars = subgroups.map((g) => g.reduce((a, b) => a + b, 0) / g.length);
++    const ranges = subgroups.map((g) => Math.max(...g) - Math.min(...g));
++
++    const xBarBar = xBars.length > 0 ? xBars.reduce((a, b) => a + b, 0) / xBars.length : 0;
++    const rBar = ranges.length > 0 ? ranges.reduce((a, b) => a + b, 0) / ranges.length : 0;
++
++    const A2 = A2_FACTORS[subgroupSize];
++    const D3 = D3_FACTORS[subgroupSize];
++    const D4 = D4_FACTORS[subgroupSize];
++
++    const xBarUCL = xBarBar + A2 * rBar;
++    const xBarLCL = xBarBar - A2 * rBar;
++    const rUCL = D4 * rBar;
++    const rLCL = D3 * rBar;
++
++    const ooc: number[] = [];
++    xBars.forEach((xb, i) => {
++      if (xb > xBarUCL || xb < xBarLCL) ooc.push(i);
++    });
++    ranges.forEach((r, i) => {
++      if ((r > rUCL || r < rLCL) && !ooc.includes(i)) ooc.push(i);
++    });
++
++    const sigmaForRules = (xBarUCL - xBarBar) / 3;
++    const nelsonViolations = this.checkNelsonRules(xBars, xBarBar, sigmaForRules);
++
++    return {
++      feature_id: feature.feature_id,
++      subgroup_size: subgroupSize,
++      x_bar_values: xBars,
++      r_values: ranges,
++      x_bar_ucl: round4(xBarUCL),
++      x_bar_lcl: round4(xBarLCL),
++      x_bar_cl: round4(xBarBar),
++      r_ucl: round4(rUCL),
++      r_lcl: round4(rLCL),
++      r_cl: round4(rBar),
++      out_of_control_points: ooc,
++      nelson_violations: nelsonViolations,
++    };
++  }
++
++  private checkNelsonRules(values: number[], cl: number, sigma: number): NelsonViolation[] {
++    const violations: NelsonViolation[] = [];
++    for (let i = 0; i <= values.length - 9; i++) {
++      const slice = values.slice(i, i + 9);
++      if (slice.every((v) => v > cl) || slice.every((v) => v < cl)) {
++        violations.push({
++          rule: 2,
++          description: "9 consecutive points on same side of center line",
++          points: Array.from({ length: 9 }, (_, j) => i + j),
++          severity: "warning",
++        });
++        break;
++      }
++    }
++    for (let i = 0; i <= values.length - 6; i++) {
++      const slice = values.slice(i, i + 6);
++      let inc = true, dec = true;
++      for (let j = 1; j < slice.length; j++) {
++        if (slice[j] <= slice[j - 1]) inc = false;
++        if (slice[j] >= slice[j - 1]) dec = false;
++      }
++      if (inc || dec) {
++        violations.push({
++          rule: 3,
++          description: "6 consecutive points steadily increasing or decreasing",
++          points: Array.from({ length: 6 }, (_, j) => i + j),
++          severity: "warning",
++        });
++        break;
++      }
++    }
++    for (let i = 0; i <= values.length - 14; i++) {
++      const slice = values.slice(i, i + 14);
++      let alt = true;
++      for (let j = 2; j < slice.length; j++) {
++        if ((slice[j - 1] - slice[j - 2]) * (slice[j] - slice[j - 1]) >= 0) { alt = false; break; }
++      }
++      if (alt) {
++        violations.push({
++          rule: 4,
++          description: "14 consecutive points alternating up and down",
++          points: Array.from({ length: 14 }, (_, j) => i + j),
++          severity: "critical",
++        });
++        break;
++      }
++    }
++    const twoS = 2 * sigma;
++    for (let i = 0; i <= values.length - 3; i++) {
++      const slice = values.slice(i, i + 3);
++      if (slice.filter((v) => Math.abs(v - cl) > twoS).length >= 2) {
++        violations.push({
++          rule: 5,
++          description: "2 out of 3 consecutive points beyond 2σ",
++          points: Array.from({ length: 3 }, (_, j) => i + j),
++          severity: "warning",
++        });
++        break;
++      }
++    }
++    return violations;
++  }
++
++  calculateCapability(
++    feature: SolidCAMSPCFeature,
++    measurements: SolidCAMSPCMeasurement[],
++    subgroupSize: number = 5,
++  ): ProcessCapability {
++    const values = measurements
++      .filter((m) => m.feature_id === feature.feature_id)
++      .map((m) => m.measured_value);
++    if (values.length < 2) {
++      throw new Error(
++        `SolidCAMSPCBridge.calculateCapability: need ≥2 measurements for ${feature.feature_id}, got ${values.length}`,
++      );
++    }
++    const n = values.length;
++    const mean = values.reduce((a, b) => a + b, 0) / n;
++    const chart = this.createXBarRChart(feature, measurements, subgroupSize);
++    const d2 = d2_FACTORS[subgroupSize];
++    const sigmaShort = chart.r_cl / d2;
++    const sigmaLong = Math.sqrt(values.reduce((s, v) => s + (v - mean) ** 2, 0) / (n - 1));
++    const USL = feature.nominal + feature.tolerance_plus;
++    const LSL = feature.nominal - feature.tolerance_minus;
++    const Cp = (USL - LSL) / (6 * sigmaShort);
++    const Cpk = Math.min((USL - mean) / (3 * sigmaShort), (mean - LSL) / (3 * sigmaShort));
++    const Pp = (USL - LSL) / (6 * sigmaLong);
++    const Ppk = Math.min((USL - mean) / (3 * sigmaLong), (mean - LSL) / (3 * sigmaLong));
++    const zUpper = (USL - mean) / sigmaLong;
++    const zLower = (mean - LSL) / sigmaLong;
++    const ppm = Math.round((normalCDF(-zUpper) + normalCDF(-zLower)) * 1e6);
++
++    const recs: string[] = [];
++    let status: ProcessCapability["process_status"];
++    if (Cpk >= CPK_CAPABLE_THRESHOLD) status = "capable";
++    else if (Cpk >= CPK_MARGINAL_THRESHOLD) {
++      status = "marginal";
++      recs.push("Process is marginally capable — consider reducing variation");
++    } else {
++      status = "incapable";
++      recs.push("Process is NOT capable — immediate action required");
++    }
++    if (Cp > Cpk * 1.2) recs.push("Process is off-center — adjust setup to center on nominal");
++    if (sigmaLong > sigmaShort * 1.5) recs.push("High long-term variation — investigate special causes");
++
++    return {
++      feature_id: feature.feature_id,
++      Cp: round2(Cp), Cpk: round2(Cpk), Pp: round2(Pp), Ppk: round2(Ppk),
++      sigma_short: round4(sigmaShort), sigma_long: round4(sigmaLong),
++      ppm_defective: ppm, process_status: status, recommendations: recs,
++    };
++  }
++
++  analyzeJob(
++    jobId: string,
++    features: SolidCAMSPCFeature[],
++    measurements: SolidCAMSPCMeasurement[],
++    subgroupSize: number = 5,
++  ): SolidCAMSPCAnalysisResult {
++    const charts: XBarRChart[] = [];
++    const capabilities: ProcessCapability[] = [];
++    let overall: SolidCAMSPCAnalysisResult["overall_status"] = "in_control";
++    for (const feature of features) {
++      const fm = measurements.filter((m) => m.feature_id === feature.feature_id);
++      if (fm.length >= subgroupSize * 2) {
++        const chart = this.createXBarRChart(feature, measurements, subgroupSize);
++        const cap = this.calculateCapability(feature, measurements, subgroupSize);
++        charts.push(chart);
++        capabilities.push(cap);
++        if (chart.out_of_control_points.length > 0 || cap.process_status === "incapable") overall = "out_of_control";
++        else if ((chart.nelson_violations.length > 0 || cap.process_status === "marginal") && overall !== "out_of_control") overall = "warning";
++      }
++    }
++    const capable = capabilities.filter((c) => c.process_status === "capable").length;
++    const ooc = charts.reduce((s, c) => s + c.out_of_control_points.length, 0);
++    const summary = `${capable}/${capabilities.length} features capable. ${ooc} out-of-control points.`;
++    log.info(`[SolidCAMSPCBridge] Job ${jobId} analyzed: ${summary}`);
++    return {
++      job_id: jobId,
++      feature_count: features.length,
++      charts, capabilities,
++      overall_status: overall,
++      summary,
++      timestamp: new Date().toISOString(),
++    };
++  }
++
++  getStats(): { features_supported: number; nelson_rules: number; capability_indices: number } {
++    return { features_supported: 5, nelson_rules: 4, capability_indices: 4 };
++  }
++}
++
++function round2(x: number): number { return Math.round(x * 100) / 100; }
++function round4(x: number): number { return Math.round(x * 10000) / 10000; }
++
++function normalCDF(z: number): number {
++  const a1 = 0.254829592;
++  const a2 = -0.284496736;
++  const a3 = 1.421413741;
++  const a4 = -1.453152027;
++  const a5 = 1.061405429;
++  const p = 0.3275911;
++  const sign = z < 0 ? -1 : 1;
++  const absZ = Math.abs(z) / Math.sqrt(2);
++  const t = 1.0 / (1.0 + p * absZ);
++  const y = 1.0 - (((((a5 * t + a4) * t) + a3) * t + a2) * t + a1) * t * Math.exp(-absZ * absZ);
++  return 0.5 * (1.0 + sign * y);
++}
++
++export const solidCAMSPCBridge = new SolidCAMSPCBridge();

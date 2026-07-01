@@ -1,0 +1,42 @@
+{
+  "audit_id": "QA-MS13-P0-U04",
+  "title": "Cadence Function Audit",
+  "auditor": "claude-opus-4.6",
+  "timestamp": "2026-02-28T09:30:00Z",
+  "status": "COMPLETE",
+  "verdict": "FINDING — Claimed 40 cadences, actual count is 103 exported auto* functions in cadenceExecutor.ts. This is a 158% undercount (same pattern as prior QA findings).",
+  "metrics": {
+    "claimed_cadence_count": 40,
+    "actual_cadence_count": 103,
+    "delta": "+63 (158% undercount)",
+    "source_file": "src/tools/cadenceExecutor.ts",
+    "invocation_file": "src/tools/autoHookWrapper.ts (2621 lines, imports all 103)"
+  },
+  "cadence_categories": {
+    "session_lifecycle": ["autoSessionLifecycleStart", "autoSessionLifecycleEnd", "autoSessionHealthPoll", "autoSessionQualityTrack", "autoSessionMetricsSnapshot", "autoSessionHandoffGenerate", "autoNextSessionPrep"],
+    "context_management": ["autoContextPressure", "autoContextCompress", "autoContextPullBack", "autoContextRehydrate", "autoContextPressureRecommend", "autoCompress"],
+    "compaction": ["autoCompactionDetect", "autoCompactionSurvival", "autoPreCompactionDump", "autoCompactionTrend"],
+    "telemetry": ["autoTelemetrySnapshot", "autoTelemetryAnomalyCheck", "autoTelemetrySloCheck", "autoTelemetryResolve"],
+    "error_learning": ["autoErrorLearn", "autoD3ErrorChain", "autoD3LkgUpdate", "autoAntiRegression"],
+    "memory": ["autoMemoryExternalize", "autoMemoryGraphFlush", "autoMemoryGraphIntegrity", "autoMemoryGraphEvict"],
+    "pattern_matching": ["autoPatternMatch", "autoPatternStatsUpdate", "autoFailurePatternSync", "autoPatternDetect"],
+    "cognitive": ["autoCognitiveUpdate", "autoCognitiveStatePersist", "autoCognitiveStateRestore"],
+    "skills": ["autoSkillHint", "autoSkillContextMatch", "autoSkillHookMatch", "autoSkillPreload", "autoPhaseSkillLoader"],
+    "quality": ["autoQualityGate", "autoVariationCheck", "autoDecisionCapture"],
+    "budget": ["autoBudgetTrack", "autoBudgetReport"],
+    "python_bridge": ["autoPythonCompactionPredict", "autoPythonCompress", "autoPythonExpand"],
+    "orchestration": ["autoGroupedSwarmDispatch", "autoATCSParallelUpgrade", "autoATCSCheckpointScan"],
+    "misc": ["autoTodoRefresh", "autoCheckpoint", "autoAttentionScore", "autoAttentionAnchor", "autoRecoveryManifest", "autoHandoffPackage", "autoPreTaskRecon", "autoWarmStartData", "autoInputValidation", "autoD4CacheCheck", "autoD4DiffCheck", "autoD4BatchTick", "autoD4PerfSummary", "autoTrajectoryRecord", "autoTrajectoryFinalize", "autoResponseTemplate", "autoTemplateOptimizer", "autoResumeDetector", "autoLearningStorePersist", "autoComplianceAuditBoot", "autoSLBConsume", "autoBridgeHealthCheck", "autoRegistryRefresh", "autoGsdAccessSummary", "autoSwarmPatternDecay", "autoNLHookValidate", "autoOmegaHistoryPersist", "autoOmegaHistoryRestore", "autoConversationalMemorySave", "autoScriptQueueDrain", "autoRoadmapHeartbeat", "autoCalcPreEnrich", "autoKnowledgePreWarm", "autoJobLearningPersist", "autoRalphScoreCapture", "autoFocusOptimize", "autoRelevanceFilter", "autoWipCapture", "autoLearningQuery", "autoStateReconstruct", "autoPriorityScore", "autoKvCacheStabilityCheck", "autoKvStabilityPeriodic", "autoDispatcherByteTrack", "autoSuperpowerBoot", "autoNLHookEvaluator", "autoHookActivationPhaseCheck", "autoDocAntiRegression", "autoAgentRecommend", "autoScriptRecommend", "autoKnowledgeCrossQuery", "autoPfpPatternExtract"]
+  },
+  "trigger_mechanism": "All cadences are invoked by autoHookWrapper.ts based on call number (callNum), time-based intervals, and state conditions. Not cron-scheduled — event-driven per dispatcher call.",
+  "findings": [
+    {
+      "id": "F-MS13-01",
+      "severity": "MINOR",
+      "title": "Cadence count undercount: 40 claimed vs 103 actual",
+      "description": "constants.ts and documentation claim 40 cadences but cadenceExecutor.ts exports 103 auto* functions. Same pattern as prior QA findings (action undercount, engine undercount).",
+      "recommendation": "Update constants.ts CADENCE_COUNT to 103"
+    }
+  ],
+  "exit_conditions_met": { "all_cadences_inventoried": true, "trigger_conditions_verified": true, "cadence_to_hook_wiring_verified": true }
+}

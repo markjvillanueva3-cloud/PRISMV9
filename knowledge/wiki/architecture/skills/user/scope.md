@@ -23,13 +23,18 @@ related:
 |-------|-------|
 | Name | `scope` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/scope.md` |
+| Source | `C:/Users/wompu/.claude/commands/scope.md` |
 | Model | default |
 | Tags | _(none)_ |
 
 ## Description (first paragraph)
 
-_(no body content)_
+
+# Scope — Change Impact Analysis
+
+You are analyzing the blast radius of a proposed change before any code is modified. Given a target component (file, engine, dispatcher, milestone), map everything that would be affected: downstream consumers, upstream providers, test coverage, safety chain involvement, and risk level. This is a read-only planning tool — it changes nothing.
+
+## Args: $ARGUME
 
 <!-- AUTO-END -->
 

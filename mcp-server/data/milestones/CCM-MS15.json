@@ -1,0 +1,1086 @@
+{
+  "id": "CCM-MS15",
+  "version": "1.0.0",
+  "title": "Self-Healing Infrastructure",
+  "brief": "System automatically detects drift, repairs itself, and adapts thresholds with zero manual maintenance. Auto-repair schema drift (z.enum vs exports), auto-sync registries (SKILL_INDEX vs actual), auto-validate hook configs, auto-prune stale memory, auto-quarantine flaky tests, adaptive safety limits from 910-machine catalog, cache TTL auto-tuning via gradient descent, Python hook health monitor with auto-restart, atomicWrite race condition fix with OS-level locks, pipeline rollback on mid-stage failure, Bayesian-optimized dedup windows.",
+  "created_at": "2026-03-20T12:00:00Z",
+  "created_by": "claude-opus-4.6",
+  "track": "CCM",
+  "track_name": "Claude Code Modernization",
+  "status": "not_started",
+  "dependencies": [
+    "CCM-MS14"
+  ],
+  "wave": 4,
+  "phases": [
+    {
+      "id": "P0",
+      "title": "Self-Healing Systems",
+      "description": "Build automatic detection and repair for schema drift, registry staleness, hook config errors, memory bloat, flaky tests, safety limit drift, cache TTL mis-tuning, Python hook failures, file write races, pipeline mid-failure recovery, and dedup window optimization.",
+      "sessions": "3-5",
+      "primary_role": "R1",
+      "primary_model": "opus-4.6",
+      "units": [
+        {
+          "id": "P0-U01",
+          "title": "Schema drift auto-repair",
+          "phase": "P0",
+          "sequence": 1,
+          "role": "R1",
+          "role_name": "Systems Architect",
+          "model": "opus-4.6",
+          "effort": 85,
+          "rationale": "z.enum lists in dispatchers frequently drift from actual engine exports. A cron scanning exports vs z.enum every 12h and auto-patching mismatches eliminates a top-3 build failure cause.",
+          "tools": [
+            "Read",
+            "Write",
+            "Edit",
+            "Bash",
+            "Grep",
+            "Glob"
+          ],
+          "skills": [],
+          "scripts": [
+            "~/.claude/hooks/lib/schema-drift-repair.sh"
+          ],
+          "hooks": [],
+          "features": [
+            "12h cron scan",
+            "auto-add missing z.enum entries",
+            "auto-remove orphan entries",
+            "diff report"
+          ],
+          "dependencies": [],
+          "entry_conditions": [
+            "CCM-MS14 complete"
+          ],
+          "exit_conditions": [
+            "Cron runs every 12h scanning engine exports vs z.enum",
+            "Missing entries auto-added",
+            "Orphan entries auto-removed",
+            "Diff report logged"
+          ],
+          "rollback": "git checkout -- state/CCM-MS15/",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Build scanner: parse all dispatcher z.enum lists and all engine index.ts exports."
+            },
+            {
+              "number": 2,
+              "instruction": "Diff: identify entries in z.enum but not exported (orphans) and exported but not in z.enum (missing)."
+            },
+            {
+              "number": 3,
+              "instruction": "Auto-patch: add missing entries to z.enum, remove orphans, preserving alphabetical order."
+            },
+            {
+              "number": 4,
+              "instruction": "Generate diff report: what changed, when, why."
+            },
+            {
+              "number": 5,
+              "instruction": "Set up 12h cron via CronCreate."
+            },
+            {
+              "number": 6,
+              "instruction": "Test with intentionally introduced drift."
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "~/.claude/hooks/lib/schema-drift-repair.sh",
+              "type": "script",
+              "description": "Schema drift scanner and auto-repair cron"
+            }
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": true,
+          "creates_hook": false,
+          "creates_command": false,
+          "description": "Schema drift auto-repair — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P0-U02",
+          "title": "Registry drift auto-sync",
+          "phase": "P0",
+          "sequence": 2,
+          "role": "R1",
+          "role_name": "Systems Architect",
+          "model": "opus-4.6",
+          "effort": 85,
+          "rationale": "SKILL_INDEX, agent_registry, ENGINE_DIGEST, and DISPATCHER_DIGEST can go stale when engines/skills are added. A 12h cron comparing these registries against actual files and auto-regenerating stale ones keeps the system self-consistent.",
+          "tools": [
+            "Read",
+            "Write",
+            "Edit",
+            "Bash",
+            "Grep",
+            "Glob"
+          ],
+          "skills": [],
+          "scripts": [
+            "~/.claude/hooks/lib/registry-sync.sh"
+          ],
+          "hooks": [],
+          "features": [
+            "12h cron scan",
+            "SKILL_INDEX sync",
+            "agent_registry sync",
+            "ENGINE_DIGEST regen",
+            "DISPATCHER_DIGEST regen"
+          ],
+          "dependencies": [],
+          "entry_conditions": [
+            "CCM-MS14 complete"
+          ],
+          "exit_conditions": [
+            "Cron runs every 12h comparing registries vs actual files",
+            "Stale registries auto-regenerated",
+            "Sync report logged"
+          ],
+          "rollback": "git checkout -- state/CCM-MS15/",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Build comparator: count engines in src/engines/ vs ENGINE_DIGEST, dispatchers in src/dispatchers/ vs DISPATCHER_DIGEST."
+            },
+            {
+              "number": 2,
+              "instruction": "Compare SKILL_INDEX entries against actual .md files in commands/."
+            },
+            {
+              "number": 3,
+              "instruction": "Compare agent_registry entries against actual agent configs."
+            },
+            {
+              "number": 4,
+              "instruction": "Auto-regenerate any stale registry using existing generator scripts."
+            },
+            {
+              "number": 5,
+              "instruction": "Set up 12h cron; test with intentionally stale registry."
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "~/.claude/hooks/lib/registry-sync.sh",
+              "type": "script",
+              "description": "Registry drift detector and auto-sync cron"
+            }
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": true,
+          "creates_hook": false,
+          "creates_command": false,
+          "description": "Registry drift auto-sync — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P0-U03",
+          "title": "Hook config auto-validate",
+          "phase": "P0",
+          "sequence": 3,
+          "role": "R1",
+          "role_name": "Systems Architect",
+          "model": "opus-4.6",
+          "effort": 80,
+          "rationale": "Hook config errors (bad regex matchers, missing script files, syntax errors) cause silent failures. SessionStart validation catches these before they cause issues during the session.",
+          "tools": [
+            "Read",
+            "Write",
+            "Edit",
+            "Bash",
+            "Grep",
+            "Glob"
+          ],
+          "skills": [],
+          "scripts": [],
+          "hooks": [
+            "session-start-unified"
+          ],
+          "features": [
+            "syntax error detection in hook scripts",
+            "file existence validation",
+            "matcher regex validation"
+          ],
+          "dependencies": [],
+          "entry_conditions": [
+            "CCM-MS14 complete"
+          ],
+          "exit_conditions": [
+            "All hook scripts validated for syntax errors at SessionStart",
+            "Missing referenced files detected",
+            "Invalid matcher regex flagged",
+            "Validation report surfaced"
+          ],
+          "rollback": "git checkout -- state/CCM-MS15/",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Parse .claude/settings.local.json to enumerate all hook configurations."
+            },
+            {
+              "number": 2,
+              "instruction": "For each hook: validate script file exists, check bash/python syntax, test matcher regex compiles."
+            },
+            {
+              "number": 3,
+              "instruction": "For each referenced file in hook scripts (source, import): verify existence."
+            },
+            {
+              "number": 4,
+              "instruction": "Wire into session-start-unified; surface warnings for any issues found."
+            },
+            {
+              "number": 5,
+              "instruction": "Test with intentionally broken hook config."
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "~/.claude/hooks/lib/hook-config-validator.sh",
+              "type": "script",
+              "description": "Hook configuration validator for SessionStart"
+            }
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": true,
+          "creates_hook": false,
+          "creates_command": false,
+          "description": "Hook config auto-validate — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P0-U04",
+          "title": "Memory auto-prune",
+          "phase": "P0",
+          "sequence": 4,
+          "role": "R1",
+          "role_name": "Systems Architect",
+          "model": "opus-4.6",
+          "effort": 75,
+          "rationale": "MEMORY.md grows unboundedly with references to files that may have been deleted or moved. SessionEnd pruning of stale refs and auto-archiving keeps memory under 180 lines and contextually relevant.",
+          "tools": [
+            "Read",
+            "Write",
+            "Edit",
+            "Bash",
+            "Grep",
+            "Glob"
+          ],
+          "skills": [],
+          "scripts": [],
+          "hooks": [],
+          "features": [
+            "detect refs to deleted files",
+            "auto-archive stale entries",
+            "maintain <180 lines"
+          ],
+          "dependencies": [],
+          "entry_conditions": [
+            "CCM-MS14 complete"
+          ],
+          "exit_conditions": [
+            "MEMORY.md scanned for stale file references",
+            "Stale entries auto-archived to memory-archive.md",
+            "Line count maintained under 180"
+          ],
+          "rollback": "git checkout -- state/CCM-MS15/",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Parse MEMORY.md for file path references (backtick paths, markdown links)."
+            },
+            {
+              "number": 2,
+              "instruction": "Check each referenced path for existence; flag missing as stale."
+            },
+            {
+              "number": 3,
+              "instruction": "Move stale entries to memory-archive.md with timestamp."
+            },
+            {
+              "number": 4,
+              "instruction": "If line count > 180, identify lowest-value entries (oldest, least referenced) and archive."
+            },
+            {
+              "number": 5,
+              "instruction": "Test with MEMORY.md containing known stale refs."
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "~/.claude/hooks/lib/memory-pruner.sh",
+              "type": "script",
+              "description": "MEMORY.md auto-pruner and archiver"
+            }
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": true,
+          "creates_hook": false,
+          "creates_command": false,
+          "description": "Memory auto-prune — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P0-U05",
+          "title": "Test flakiness quarantine",
+          "phase": "P0",
+          "sequence": 5,
+          "role": "R1",
+          "role_name": "Systems Architect",
+          "model": "opus-4.6",
+          "effort": 80,
+          "rationale": "Flaky tests erode trust in the test suite and waste investigation time. Tracking per-test pass/fail over last 20 runs and quarantining when P(flaky)>0.1 keeps the suite reliable while preserving test coverage.",
+          "tools": [
+            "Read",
+            "Write",
+            "Edit",
+            "Bash",
+            "Grep"
+          ],
+          "skills": [],
+          "scripts": [
+            "~/.claude/hooks/lib/test-quarantine.sh"
+          ],
+          "hooks": [],
+          "features": [
+            "per-test pass/fail last 20 runs",
+            "P(flaky) computation",
+            "auto-quarantine at P>0.1",
+            "auto-restore at P<0.02"
+          ],
+          "dependencies": [],
+          "entry_conditions": [
+            "CCM-MS14 complete"
+          ],
+          "exit_conditions": [
+            "Per-test pass/fail tracked over last 20 runs",
+            "Tests with P(flaky)>0.1 auto-quarantined",
+            "Quarantined tests auto-restored when P(flaky)<0.02"
+          ],
+          "rollback": "git checkout -- state/CCM-MS15/",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Build test result parser: extract per-test pass/fail from vitest JSON output."
+            },
+            {
+              "number": 2,
+              "instruction": "Persist per-test results in ~/.prism/test-history.json (rolling 20 runs)."
+            },
+            {
+              "number": 3,
+              "instruction": "Compute P(flaky) = count(alternating pass/fail) / total_runs per test."
+            },
+            {
+              "number": 4,
+              "instruction": "Quarantine: add .skip to tests with P(flaky)>0.1; log issue."
+            },
+            {
+              "number": 5,
+              "instruction": "Restore: remove .skip when P(flaky)<0.02 over next 20 runs."
+            },
+            {
+              "number": 6,
+              "instruction": "Test with intentionally flaky test."
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "~/.claude/hooks/lib/test-quarantine.sh",
+              "type": "script",
+              "description": "Flaky test detection and quarantine system"
+            }
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": true,
+          "creates_hook": false,
+          "creates_command": false,
+          "description": "Test flakiness quarantine — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P0-U06",
+          "title": "Adaptive safety limits",
+          "phase": "P0",
+          "sequence": 6,
+          "role": "R1",
+          "role_name": "Systems Architect",
+          "model": "opus-4.6",
+          "effort": 80,
+          "rationale": "Fixed 60K RPM / 50K mm/min safety limits are overly conservative for low-speed machines and insufficient for high-speed spindles. Using the 910-machine catalog to set machine-specific limits is both safer and less restrictive.",
+          "tools": [
+            "Read",
+            "Write",
+            "Edit",
+            "Bash",
+            "Grep"
+          ],
+          "skills": [],
+          "scripts": [],
+          "hooks": [],
+          "features": [
+            "machine-specific RPM limits from catalog",
+            "machine-specific feed limits",
+            "fallback to conservative defaults"
+          ],
+          "dependencies": [],
+          "entry_conditions": [
+            "CCM-MS14 complete",
+            "910-machine catalog accessible"
+          ],
+          "exit_conditions": [
+            "Safety limits derived from machine-specific catalog data",
+            "Each machine gets its own max RPM/feed",
+            "Unknown machines fall back to conservative defaults"
+          ],
+          "rollback": "git checkout -- state/CCM-MS15/",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Extract max_spindle_speed and max_feed_rate from all 910 machine profiles."
+            },
+            {
+              "number": 2,
+              "instruction": "Replace fixed 60K/50K constants with machine-specific lookups."
+            },
+            {
+              "number": 3,
+              "instruction": "Add 10% safety margin: limit = catalog_max * 0.9."
+            },
+            {
+              "number": 4,
+              "instruction": "Fallback: if machine not in catalog, use conservative P10 of all machines."
+            },
+            {
+              "number": 5,
+              "instruction": "Test with high-speed (80K RPM) and low-speed (6K RPM) machines."
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "~/.claude/hooks/lib/adaptive-safety-limits.ts",
+              "type": "script",
+              "description": "Machine-catalog-aware adaptive safety limits"
+            }
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": true,
+          "creates_hook": false,
+          "creates_command": false,
+          "description": "Adaptive safety limits — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P0-U07",
+          "title": "Cache TTL auto-tuning",
+          "phase": "P0",
+          "sequence": 7,
+          "role": "R1",
+          "role_name": "Systems Architect",
+          "model": "opus-4.6",
+          "effort": 80,
+          "rationale": "Fixed cache TTLs cannot adapt to changing data patterns. Weekly gradient descent on P(stale) targeting <=0.01 automatically finds the optimal TTL per cache, balancing freshness against hit rate.",
+          "tools": [
+            "Read",
+            "Write",
+            "Edit",
+            "Bash"
+          ],
+          "skills": [],
+          "scripts": [],
+          "hooks": [],
+          "features": [
+            "weekly TTL optimization",
+            "gradient descent on P(stale)",
+            "target P(stale)<=0.01",
+            "per-cache TTL"
+          ],
+          "dependencies": [
+            "P0-U06"
+          ],
+          "entry_conditions": [
+            "CCM-MS14 P0-U06 cache monitor providing hit/miss/stale data"
+          ],
+          "exit_conditions": [
+            "Cache TTLs auto-tuned weekly via gradient descent",
+            "P(stale) converges to <=0.01",
+            "TTL changes logged with before/after"
+          ],
+          "rollback": "git checkout -- state/CCM-MS15/",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Collect weekly cache metrics from CCM-MS14 P0-U06: hit rate, miss rate, stale rate per cache."
+            },
+            {
+              "number": 2,
+              "instruction": "Implement gradient descent: dP(stale)/dTTL approx from finite differences; step TTL to minimize |P(stale)-0.01|."
+            },
+            {
+              "number": 3,
+              "instruction": "Constraints: TTL_min=1s, TTL_max=3600s; learning rate 0.1 with decay."
+            },
+            {
+              "number": 4,
+              "instruction": "Apply optimized TTLs; log old vs new TTL and expected P(stale)."
+            },
+            {
+              "number": 5,
+              "instruction": "Set up weekly cron; test convergence on simulated cache data."
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "~/.claude/hooks/lib/cache-ttl-tuner.ts",
+              "type": "script",
+              "description": "Gradient descent cache TTL auto-tuner"
+            }
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": true,
+          "creates_hook": false,
+          "creates_command": false,
+          "description": "Cache TTL auto-tuning — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P0-U08",
+          "title": "Python hook health monitor",
+          "phase": "P0",
+          "sequence": 8,
+          "role": "R1",
+          "role_name": "Systems Architect",
+          "model": "opus-4.6",
+          "effort": 75,
+          "rationale": "Python hooks (syntax check, linting) can silently die. A 60s heartbeat with P(available) tracking and auto-restart after 3 failures ensures Python hook reliability with TS fallback.",
+          "tools": [
+            "Read",
+            "Write",
+            "Edit",
+            "Bash"
+          ],
+          "skills": [],
+          "scripts": [
+            "~/.claude/hooks/lib/python-health-monitor.sh"
+          ],
+          "hooks": [],
+          "features": [
+            "60s heartbeat",
+            "P(available) tracking",
+            "auto-restart after 3 failures",
+            "TS fallback"
+          ],
+          "dependencies": [],
+          "entry_conditions": [
+            "CCM-MS14 complete",
+            "Python hooks in use"
+          ],
+          "exit_conditions": [
+            "Python hook health monitored with 60s heartbeat",
+            "Auto-restart after 3 consecutive failures",
+            "Fallback to TS equivalent when Python unavailable"
+          ],
+          "rollback": "git checkout -- state/CCM-MS15/",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Implement heartbeat: every 60s, run python --version and a trivial syntax check."
+            },
+            {
+              "number": 2,
+              "instruction": "Track P(available) = successes / (successes + failures) over rolling window."
+            },
+            {
+              "number": 3,
+              "instruction": "On 3 consecutive heartbeat failures: kill and restart Python process."
+            },
+            {
+              "number": 4,
+              "instruction": "If restart fails: switch to TS-based syntax checker as fallback."
+            },
+            {
+              "number": 5,
+              "instruction": "Test with simulated Python process death."
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "~/.claude/hooks/lib/python-health-monitor.sh",
+              "type": "script",
+              "description": "Python hook health monitor with auto-restart"
+            }
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": true,
+          "creates_hook": false,
+          "creates_command": false,
+          "description": "Python hook health monitor — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P0-U09",
+          "title": "atomicWrite race fix",
+          "phase": "P0",
+          "sequence": 9,
+          "role": "R1",
+          "role_name": "Systems Architect",
+          "model": "opus-4.6",
+          "effort": 80,
+          "rationale": "The current .tmp+rename atomicWrite pattern can race when multiple hooks write to the same file concurrently. OS-level advisory locks (flock on Linux/WSL, LockFileEx on Windows) eliminate this race condition.",
+          "tools": [
+            "Read",
+            "Write",
+            "Edit",
+            "Bash"
+          ],
+          "skills": [],
+          "scripts": [],
+          "hooks": [],
+          "features": [
+            "OS-level advisory locks",
+            "flock for Linux/WSL",
+            "LockFileEx for Windows",
+            "timeout with retry"
+          ],
+          "dependencies": [],
+          "entry_conditions": [
+            "CCM-MS14 complete"
+          ],
+          "exit_conditions": [
+            "atomicWrite uses OS-level locks",
+            "Concurrent writes serialized correctly",
+            "Lock timeout with retry prevents deadlocks"
+          ],
+          "rollback": "git checkout -- state/CCM-MS15/",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Identify all atomicWrite call sites across hook scripts."
+            },
+            {
+              "number": 2,
+              "instruction": "Implement lock wrapper: flock on Linux/WSL, PowerShell LockFileEx on Windows."
+            },
+            {
+              "number": 3,
+              "instruction": "Add timeout (5s) with exponential backoff retry (3 attempts)."
+            },
+            {
+              "number": 4,
+              "instruction": "Replace all .tmp+rename patterns with locked write."
+            },
+            {
+              "number": 5,
+              "instruction": "Stress test: 10 concurrent writers to same file."
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "~/.claude/hooks/lib/atomic-write-locked.sh",
+              "type": "script",
+              "description": "OS-level locked atomic write utility"
+            }
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": true,
+          "creates_hook": false,
+          "creates_command": false,
+          "description": "atomicWrite race fix — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P0-U10",
+          "title": "Pipeline rollback on failure",
+          "phase": "P0",
+          "sequence": 10,
+          "role": "R1",
+          "role_name": "Systems Architect",
+          "model": "opus-4.6",
+          "effort": 85,
+          "rationale": "PrintToProgramPipeline currently loses all work on mid-stage failure. Checkpointing per stage and rolling back to N-1 on stage N failure preserves partial results and enables retry from last good state.",
+          "tools": [
+            "Read",
+            "Write",
+            "Edit",
+            "Bash",
+            "Grep"
+          ],
+          "skills": [],
+          "scripts": [],
+          "hooks": [],
+          "features": [
+            "per-stage checkpointing",
+            "rollback to N-1 on failure",
+            "partial result preservation",
+            "retry from checkpoint"
+          ],
+          "dependencies": [],
+          "entry_conditions": [
+            "CCM-MS14 complete",
+            "PrintToProgramPipelineEngine accessible"
+          ],
+          "exit_conditions": [
+            "Pipeline checkpoints state after each stage",
+            "On stage N failure, rolls back to stage N-1 output",
+            "Partial results recoverable and usable"
+          ],
+          "rollback": "git checkout -- state/CCM-MS15/",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Identify all pipeline stages in PrintToProgramPipeline and PostProcessorPipeline."
+            },
+            {
+              "number": 2,
+              "instruction": "Implement checkpoint: serialize stage output to ~/.prism/pipeline-checkpoints/{run_id}/{stage_id}.json."
+            },
+            {
+              "number": 3,
+              "instruction": "On stage failure: log error, load checkpoint from stage N-1, return partial result."
+            },
+            {
+              "number": 4,
+              "instruction": "Add retry-from-checkpoint API: resume pipeline from any checkpointed stage."
+            },
+            {
+              "number": 5,
+              "instruction": "Auto-prune checkpoints older than 24h."
+            },
+            {
+              "number": 6,
+              "instruction": "Test with simulated mid-pipeline failure and recovery."
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "~/.claude/hooks/lib/pipeline-checkpoint.ts",
+              "type": "script",
+              "description": "Pipeline checkpoint and rollback system"
+            }
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": true,
+          "creates_hook": false,
+          "creates_command": false,
+          "description": "Pipeline rollback on failure — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P0-U11",
+          "title": "Adaptive dedup windows",
+          "phase": "P0",
+          "sequence": 11,
+          "role": "R1",
+          "role_name": "Systems Architect",
+          "model": "opus-4.6",
+          "effort": 80,
+          "rationale": "Building on CCM-MS14 P0-U02 Beta distributions and P0-U10 FP tracking, Bayesian optimization finds the window that minimizes weighted FP+missed cost per tool, with different cost weights reflecting tool expense.",
+          "tools": [
+            "Read",
+            "Write",
+            "Edit",
+            "Bash"
+          ],
+          "skills": [],
+          "scripts": [],
+          "hooks": [],
+          "features": [
+            "Bayesian optimization of dedup windows",
+            "cost-weighted FP+missed minimization",
+            "per-tool cost weights"
+          ],
+          "dependencies": [
+            "P0-U01"
+          ],
+          "entry_conditions": [
+            "CCM-MS14 P0-U02 and P0-U10 providing FP/FN data"
+          ],
+          "exit_conditions": [
+            "Dedup windows auto-tuned via Bayesian optimization",
+            "Cost-weighted objective minimized per tool",
+            "Windows adapt over sessions"
+          ],
+          "rollback": "git checkout -- state/CCM-MS15/",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Define cost model: FP_cost (blocked needed call) vs missed_cost (allowed duplicate) per tool type."
+            },
+            {
+              "number": 2,
+              "instruction": "Implement Bayesian optimization: GP surrogate on (window_ms) -> total_cost, EI acquisition."
+            },
+            {
+              "number": 3,
+              "instruction": "Use CCM-MS14 P0-U02 Beta posteriors as prior; update with P0-U10 FP data."
+            },
+            {
+              "number": 4,
+              "instruction": "Run optimization weekly; apply new windows; log changes."
+            },
+            {
+              "number": 5,
+              "instruction": "Test convergence on synthetic cost data."
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "~/.claude/hooks/lib/bayesian-dedup-tuner.ts",
+              "type": "script",
+              "description": "Bayesian optimization for dedup window tuning"
+            }
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": true,
+          "creates_hook": false,
+          "creates_command": false,
+          "description": "Adaptive dedup windows — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P0-U12",
+          "title": "Self-healing integration tests",
+          "phase": "P0",
+          "sequence": 12,
+          "role": "R1",
+          "role_name": "Systems Architect",
+          "model": "opus-4.6",
+          "effort": 85,
+          "rationale": "Each self-healing subsystem needs integration testing to verify it actually repairs the problem it detects. Simulating schema drift, cache corruption, hook failure, and pipeline mid-failure then verifying auto-repair provides confidence in the self-healing infrastructure.",
+          "tools": [
+            "Read",
+            "Write",
+            "Edit",
+            "Bash"
+          ],
+          "skills": [],
+          "scripts": [],
+          "hooks": [],
+          "features": [
+            "schema drift simulation + repair verification",
+            "cache corruption simulation",
+            "hook failure simulation",
+            "pipeline mid-failure simulation"
+          ],
+          "dependencies": [
+            "P0-U01",
+            "P0-U02",
+            "P0-U03",
+            "P0-U04",
+            "P0-U05",
+            "P0-U06",
+            "P0-U07",
+            "P0-U08",
+            "P0-U09",
+            "P0-U10",
+            "P0-U11"
+          ],
+          "entry_conditions": [
+            "All P0-U01 through P0-U11 operational"
+          ],
+          "exit_conditions": [
+            "Integration tests pass for all 11 self-healing subsystems",
+            "Each test: introduce fault, verify detection, verify auto-repair",
+            "Tests run in CI"
+          ],
+          "rollback": "git checkout -- state/CCM-MS15/",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Test schema drift: remove 3 z.enum entries, run repair cron, verify restored."
+            },
+            {
+              "number": 2,
+              "instruction": "Test registry drift: delete ENGINE_DIGEST, run sync cron, verify regenerated."
+            },
+            {
+              "number": 3,
+              "instruction": "Test hook config: introduce syntax error, verify SessionStart catches it."
+            },
+            {
+              "number": 4,
+              "instruction": "Test memory prune: add refs to nonexistent files, verify auto-archived."
+            },
+            {
+              "number": 5,
+              "instruction": "Test cache corruption: write invalid JSON to cache file, verify auto-recovery."
+            },
+            {
+              "number": 6,
+              "instruction": "Test pipeline rollback: inject failure at stage 3, verify checkpoint at stage 2 used."
+            },
+            {
+              "number": 7,
+              "instruction": "Run all tests in sequence; verify no cross-contamination."
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "~/.claude/hooks/lib/self-healing-tests.sh",
+              "type": "script",
+              "description": "Integration tests for all self-healing subsystems"
+            }
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": true,
+          "creates_hook": false,
+          "creates_command": false,
+          "description": "Self-healing integration tests — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        }
+      ]
+    }
+  ],
+  "smart_config": {
+    "role": "implementer + reviewer",
+    "model": "sonnet",
+    "effort": "HIGH",
+    "context_budget": "65%"
+  },
+  "mcp_lifecycle": {
+    "session_start": [
+      "prism_session:context_boot",
+      "prism_session:dispatcher_map",
+      "prism_session:memory_recall",
+      "prism_session:system_snapshot",
+      "prism_session:action_search"
+    ],
+    "during_work": [
+      "prism_session:auto_checkpoint",
+      "prism_session:tool_route_best",
+      "prism_session:wip_capture"
+    ],
+    "session_end": [
+      "prism_session:memory_save",
+      "prism_session:system_snapshot",
+      "prism_session:checkpoint_enhanced"
+    ]
+  },
+  "forge_triple": {
+    "protective_hook": "ccm-ms15-gate",
+    "mcp_action": "prism_ccm:ccm_ms15_run",
+    "skill_command": "/ccm-ms15",
+    "ownership": "DECLARED — BUILT in terminal unit of this milestone"
+  },
+  "feature_cascade": {
+    "new_hooks": [
+      "ccm-ms15-gate"
+    ],
+    "new_actions": [
+      "ccm_ms15_run"
+    ],
+    "new_skills": [
+      "/ccm-ms15"
+    ],
+    "available_to": [
+      "downstream CAMX milestones",
+      "prism app consumers"
+    ]
+  },
+  "knowledge_sources": {
+    "engines": [
+      "ENGINE_DIGEST.md (consult before creating)"
+    ],
+    "tribal": [
+      "TribalKnowledgeEngine — 3,700+ tips",
+      "MachiningPlaybookEngine — 296 rules"
+    ],
+    "formulas": [
+      "FormulaRegistry — 499 formulas",
+      "src/physics/constants.ts — canonical"
+    ],
+    "reference": [
+      "EXTERNAL-REFERENCE-PROGRAMS-INDEX.md",
+      "MaterialRegistry",
+      "MachineRegistry",
+      "ToolCatalogEngine (95,608 tools)"
+    ]
+  },
+  "intent": "System automatically detects drift, repairs itself, and adapts thresholds with zero manual maintenance. Auto-repair schema drift (z.enum vs exports), auto-sync registries (SKILL_INDEX vs actual), auto-validate hook configs, auto-prune stale memory, auto-quarantine flaky tests, adaptive safety limits from 910-machine catalog, cache TTL auto-tuning via gradient descent, Python hook health monitor with auto-restart, atomicWrite race condition fix with OS-level locks, pipeline rollback on mid-stage failure, Bayesian-optimized dedup windows.",
+  "compact_checkpoint": "every 3 units — auto-triggered by hook",
+  "enforcement_hooks_active": [
+    "physics agent",
+    "wiring agent",
+    "constants checker",
+    "stub detector",
+    "test quality",
+    "forge-triple gate",
+    "session audit agent"
+  ]
+}

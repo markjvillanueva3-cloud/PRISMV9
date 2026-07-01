@@ -163,8 +163,14 @@ Actions: ${ACTIONS.join(", ")}.`,
           case "turning_print_to_program": {
             const eng = await getEngine();
             const turningResult = eng.calculate(action, params) as any;
-            // PIPELINE-VAR U-PV02: Auto-chain PostProcessor for per-block S/F optimization
-            if (turningResult?.program_text && turningResult.program_text.length > 0) {
+            // PIPELINE-VAR U-PV02: Auto-chain PostProcessor for per-block S/F optimization.
+            // LATHE-OKUMA-POST: SKIP this generic re-codegen when the engine ALREADY applied the
+            // verified Okuma OSP master post (postprocessor_applied===true). The generic pipeline
+            // re-parses program_text into motion blocks and re-emits in its DEFAULT (Fanuc) dialect
+            // -- it does not carry the controller here -- which would CLOBBER the OSP cycles
+            // (G85 LAP, G71 threading) back to Fanuc, re-introducing the exact wrong-dialect bug
+            // this routing fixes. The OSP program from the master post is already final + authoritative.
+            if (!turningResult?.postprocessor_applied && turningResult?.program_text && turningResult.program_text.length > 0) {
               try {
                 const { postProcessorPipelineEngine } = await import("../../engines/PostProcessorPipelineEngine.js");
                 const ppOutput = await postProcessorPipelineEngine.process({

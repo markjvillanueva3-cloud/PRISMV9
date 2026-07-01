@@ -23,19 +23,14 @@ related:
 |-------|-------|
 | Name | `commands-audit` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/commands-audit.md` |
+| Source | `C:/Users/wompu/.claude/commands/commands-audit.md` |
 | Model | default |
 | Tags | _(none)_ |
 
 ## Description (first paragraph)
 
-Two audits in one pass:
-1. **Docs coverage** — which of the 300+ slash commands have `## Usage`,
-   `## Implementation`, `## Related`, `## Phase` sections, and are in
-   the manifest.
-2. **Utilization (U-PLG7)** — which of the 134 Task-tool agents actually
-   got invoked in the last 30d, read from `AGENT_UTILIZATION_LEDGER.jsonl`
-   (populated by the PostToolUse `^Task$` hook installed under U-PLG
+
+# /commands-audit — Phase 0.17 Slash Command + Agent Utilization Audit
 
 <!-- AUTO-END -->
 

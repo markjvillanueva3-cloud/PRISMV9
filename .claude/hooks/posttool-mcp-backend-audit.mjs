@@ -116,7 +116,7 @@ try {
             windowsHide: true,
           },
         )
-      : spawn("npx", ["tsx", "./scripts/run-dev-audit-chain.ts", "--edited-file", filePath], {
+      : spawn("npx", ["tsx", "./scripts/run-dev-audit-chain.ts", "--edited-file", filePath], { windowsHide: true,
           cwd: MCP_ROOT,
           stdio: ["ignore", logFd, logFd],
           detached: true,

@@ -3,8 +3,11 @@
  * a unified speed/feed recommendation pipeline.
  *
  * Orchestrates resolution of machine, tool, material, holder, coolant,
- * workholding, CAM strategy, and geometry context before delegating to
- * physics engines (Kienzle force, Taylor life, Loewen-Shaw thermal, etc.).
+ * workholding, CAM strategy, and geometry context, then applies inline
+ * Kienzle-force / Taylor-life physics against canonical constants plus
+ * inline thermal + stability approximations. NOTE: thermal and stability
+ * are NOT yet algorithm-module composed — JaegerTempField / StabilityLobe
+ * module wiring is tracked by milestone SF-PSN-WIRE-MS0.
  *
  * References:
  *   - UltimateSpeedFeedEngine (core speed/feed physics)
@@ -31,9 +34,28 @@ import { SVDEngine } from "./SVDEngine.js";
 import { getTorqueCurve, torqueAtRpm } from "../data/machine-torque-curves.js";
 import { CANONICAL_TAYLOR, CANONICAL_TOOL_MODULUS, CANONICAL_MATERIAL_DB, CANONICAL_KIENZLE } from "../physics/constants.js";
 import type { ISOGroup } from "../physics/constants.js";
+import {
+  isHssAggressiveVcThermallyCapped,
+  getMaterialSpecificToolSpeedFactor,
+} from "../physics/tool-material-speed-override.js";
+import { optimizeForVcFactor } from "../physics/optimize-for-factor.js";
+import { getCoatingMaterialSpeedFactor, getCoatingMaterialLifeFactor, isCoatingMaterialIncompatible, coatingIncompatibleLifeCap } from "../physics/coating-material-speed.js";
+import { getMultipliers as getCoolantVcMultipliers } from "../algorithms/CoolantVcModifier.js";
+import { calculateKienzleCuttingForce } from "./ManufacturingCalculations.js";
 import { tribalKnowledgeEngine, type KnowledgeTip } from "./TribalKnowledgeEngine.js";
 import { crossProcessNeuralLearningEngine } from "./CrossProcessNeuralLearningEngine.js";
 import type { OutcomeRecord } from "./CrossProcessOutcomeStore.js";
+// CATALOG-APP-WIRING-MS0/U7: exact tool-geometry resolution from the 62.7K corpus.
+// No circular dependency — neither engine imports this orchestrator.
+import { catalogCorpusLoaderEngine } from "./CatalogCorpusLoaderEngine.js";
+import { toolCatalogEngine as corpusToolCatalogEngine } from "./ToolCatalogEngine.js";
+// SFC-CONVERGENCE P2 (slot:oscar, operator-approved): flag-gated delegation of core physics to
+// UltimateSpeedFeedEngine.  Active only when PRISM_SFC_CONVERGE === '1'; flag-off path is
+// provably unchanged (the imports are side-effect-free; the engine is only instantiated on the
+// class field, which is a no-cost lazy object; the delegation block is entirely inside the
+// if-branch below).  Pattern mirrors SpeedFeedNineAxisOrchestratorEngine lines 43-51 + 570.
+import { UltimateSpeedFeedEngine } from "./UltimateSpeedFeedEngine.js";
+import { orchestratorToUltimateInput } from "./lib/orchestrator-input-adapter.js";
 
 function getMonteCarloEngine(): any {
   return monteCarloEngine as any;
@@ -157,6 +179,7 @@ export interface OrchestratorInput {
   tool_grade?: string;                  // manufacturer grade (e.g. "IC928")
   insert_grade?: string;                // insert grade override (e.g. "GC4325", "IC928")
   tool_series?: string;                 // manufacturer series (e.g. "CoroMill 390")
+  tool_catalog_id?: string;             // exact CatalogTool id (e.g. "corpus:Accupro:ACCU-0.1250") — resolves real geometry from the 62.7K corpus
 
   // ── Holder (4) ──
   holder_type?: "shrink_fit" | "hydraulic" | "ER_collet" | "Weldon" | "milling_chuck";
@@ -188,6 +211,7 @@ export interface OrchestratorInput {
   workpiece_width_mm?: number;
   workpiece_height_mm?: number;
   workpiece_diameter_mm?: number;       // turning / round stock
+  bore_diameter_mm?: number;            // boring: the BORE ID drives Vc (not the workpiece OD)
   wall_thickness_mm?: number;           // thin wall detection
   overhang_ratio?: number;              // L/D ratio
   feature_tolerance_mm?: number;
@@ -310,6 +334,22 @@ export interface OrchestratorResult {
 
   // ── Tribal knowledge (TK-2 consumer wiring) ──
   tribal_tips?: KnowledgeTip[];
+
+  // ── PSN provenance (SF-PSN-WIRE-MS0 U-SFPSN-10) ──
+  // Aggregated declaration of which PSN surfaces + algorithm modules
+  // contributed to this recommendation. Populated by compute() from the
+  // proven/miner/wiki/memory decision-prior results at steps 1.5-1.8 plus
+  // the composed algorithm modules registered with engines_called.
+  // Closes audit F1-F9: SF output now declares contributing PSN surfaces.
+  psn_surfaces?: {
+    proven?: { found: boolean; source: string };
+    miner?: { found: boolean; source: string; sampleCount?: number };
+    wiki?: { found: boolean; source: string; confidence: number; citationCount: number };
+    memory?: { found: boolean; source: string; confidence: number };
+    outcome_feedback_loop?: { enabled: boolean; sink: string };
+    algorithm_modules_composed: string[];
+    aggregate_confidence: number;
+  };
 }
 
 export interface LimitingFactor {
@@ -1013,6 +1053,7 @@ function normalizeCAMSystem(raw: string): string {
     siemens: "nx",
     solidcam: "solidcam",
     solid: "solidcam",
+    prism: "prism",
   };
   return map[norm] ?? "generic";
 }
@@ -1094,11 +1135,52 @@ function av<T>(value: T, confidence: number, source: string): AtomicValue<T> {
   return { value, confidence, source };
 }
 
+/**
+ * Classify a proven-program Vc against the physics Vc for the proven-blend decision (KAR-MS2 U-KAR14).
+ * Pure + exported so the blend gate AND the SFM/m-min units-mismatch diagnostic are unit-tested directly,
+ * without seeding the aggregator singleton.
+ *
+ * The blend band [0.7, 1.3] is unchanged -- proven Vc within +-30% of physics blends; otherwise physics
+ * wins. A ratio near 1/0.3048 ~= 3.28 is the signature of the proven-store SFM-stored-as-m/min units bug
+ * (Task #12): such a value is ALREADY (correctly) rejected by the band so it can never inflate the
+ * recommendation, but we flag it so the silent data-utility waste (JM proven lathe css discarded as an
+ * outlier) is visible until the store cssUnit is fixed at the source.
+ * Ref: reference_oscar_proven_css_sfm_mitigated_not_dangerous_2026_06_25.
+ */
+export function classifyProvenVcDeviation(
+  provenVc: number,
+  physicsVc: number,
+): { ratio: number; withinBlendBand: boolean; sfmUnitsArtifact: boolean } {
+  const ratio = physicsVc > 0 && Number.isFinite(provenVc) ? provenVc / physicsVc : NaN;
+  const withinBlendBand = ratio >= 0.7 && ratio <= 1.3;
+  // [2.8, 3.6] brackets 1/0.3048 (3.281) -- catches the SFM units artifact without flagging a merely
+  // aggressive proven program (which sits well below 2.8x physics).
+  const sfmUnitsArtifact = ratio >= 2.8 && ratio <= 3.6;
+  return { ratio, withinBlendBand, sfmUnitsArtifact };
+}
+
 // ============================================================================
 // ENGINE CLASS
 // ============================================================================
 
 export class SpeedFeedOrchestratorEngine {
+
+  // SFC-CONVERGENCE P2: singleton delegate for the flag-on path.  Instantiated once at class
+  // creation; zero cost when PRISM_SFC_CONVERGE is unset (the object is idle).  Mirrors the
+  // NineAxis pattern (SpeedFeedNineAxisOrchestratorEngine line 570).
+  private readonly ultimateDelegate = new UltimateSpeedFeedEngine();
+
+  /**
+   * Clear any per-engine compute cache. This engine is intentionally STATELESS: compute() is a pure
+   * function of its input (it reads module-level DBs + other engine singletons, and never memoizes
+   * results on the instance -- the class holds no fields other than the convergence delegate), so
+   * there is no result cache to clear and therefore no way to serve a stale higher-rpm result to a
+   * lower-rpm machine. This is a documented no-op kept for API symmetry + test determinism; it is
+   * the single hook to wire real invalidation if a result cache is ever introduced. (U-SFC-CACHE-API)
+   */
+  clearCache(): void {
+    // No per-instance compute-result cache exists (stateless engine) -- nothing to clear.
+  }
 
   // ────────────────────────────────────────────
   // resolveMachine
@@ -1125,17 +1207,14 @@ export class SpeedFeedOrchestratorEngine {
           if (machineRegistry?.loaded) {
             const regMachine = machineRegistry.getByIdOrModel(input.machine_name);
             if (regMachine?.spindle) {
-              const wt = regMachine.weight ?? 5000;
-              catalogMatch = {
-                power_kw: regMachine.spindle.power_continuous ?? 15,
-                max_rpm: regMachine.spindle.max_rpm ?? 12000,
-                torque_Nm: regMachine.spindle.torque_max ?? 120,
-                taper: regMachine.spindle.spindle_nose ?? "BT40",
-                rigidity: (wt > 10000 ? "high" : wt > 4000 ? "medium" : "low") as "low"|"medium"|"high",
-                type: regMachine.type ?? "vertical_mill",
-                guideway: "linear" as "box"|"linear"|"hydrostatic",
-                nat_freq_hz: 800,
-              };
+              // Route the raw registry machine through the canonical normalizer + physics/class
+              // enricher (U-MACHDB-02/03) so spindle power is read across all 7 key variants (was
+              // power_continuous-ONLY -> silently dropped every variant-keyed machine to the 15 kW
+              // default) and guideway + nat_freq come from the derived way_type + FRF spring-mass
+              // model (were hard-coded "linear" / 800 Hz -- the latter physically wrong, real dominant
+              // structural modes are ~40-250 Hz). U-MACHDB-04 (P5 wire).
+              const { registryMachineToCatalog } = require("../registries/machine-enricher.js");
+              catalogMatch = registryMachineToCatalog(regMachine) ?? catalogMatch;
             }
           }
         } catch { /* MachineRegistry not loaded — fall through to defaults */ }
@@ -1342,9 +1421,35 @@ export class SpeedFeedOrchestratorEngine {
     const hasSeries = input.tool_series !== undefined;
     const op = input.operation ?? "milling";
 
-    // ── ToolRegistry fallback (95K tools) — enrich from catalog when grade/series given ──
+    // ── CatalogCorpus exact-id resolution (62.7K corpus) — highest-precision path ──
+    // When tool_catalog_id is given (e.g. "corpus:Accupro:ACCU-0.1250"), resolve the
+    // real cataloged geometry from toolCatalogEngine (loaded via the corpus loader).
+    // This is an EXACT lookup, more precise than the fuzzy ToolRegistry fallback below.
+    // (CATALOG-APP-WIRING-MS0/U7, slot:romeo) — maps CatalogTool.physical into the
+    // regTool shape so the existing av() default-resolution plumbing picks it up.
     let regTool: { geometry?: any; substrate?: string; coating?: any; catalog_number?: string } | undefined;
-    if ((hasGrade || hasSeries) && !hasDia) {
+    if (input.tool_catalog_id) {
+      try {
+        catalogCorpusLoaderEngine.ensureLoaded(); // idempotent, fail-soft
+        const ct = corpusToolCatalogEngine.lookup(input.tool_catalog_id);
+        if (ct) {
+          regTool = {
+            geometry: {
+              diameter: ct.physical?.cutting_diameter_mm,
+              flutes: ct.flute_count,
+              flute_length: ct.physical?.flute_length_mm || undefined,
+              corner_radius: ct.physical?.corner_radius_mm,
+              helix_angle: ct.helix_angle_deg,
+            },
+            substrate: ct.material,
+            coating: ct.coating,
+            catalog_number: ct.designation,
+          };
+        }
+      } catch { /* corpus loader / catalog not available — fall through to registry/defaults */ }
+    }
+    // ── ToolRegistry fallback (95K tools) — enrich from catalog when grade/series given ──
+    if (!regTool && (hasGrade || hasSeries) && !hasDia) {
       try {
         const { toolRegistry } = require("../registries/ToolRegistry.js") as any;
         if (toolRegistry?.loaded) {
@@ -1746,6 +1851,18 @@ export class SpeedFeedOrchestratorEngine {
       stratSrc = "default_conventional";
     }
 
+    // Preserve the operator's strategy label (U-SFC-CAM-STRATEGY-FIDELITY): report back the strategy
+    // the user actually specified (lowercased, spacing intact) instead of relabeling it to the matched
+    // DB key or the "conventional" fallback -- so a Mastercam "Surface Finish Parallel" or Fusion
+    // "Swarf" path keeps its identity instead of silently collapsing to "conventional". The PHYSICS
+    // (stratRec: ae_pct / speed_multiplier / feed_multiplier / is_adaptive) still come from the
+    // best-matching record selected above -- this is a display-label change only, not a physics change.
+    // No cam_strategy given -> stratName keeps its mapped/default value.
+    if (input.cam_strategy !== undefined) {
+      const userLabel = input.cam_strategy.trim().toLowerCase();
+      if (userLabel.length > 0) stratName = userLabel;
+    }
+
     return {
       cam_system: av(camKey, camConf, camSrc),
       strategy_name: av(stratName, stratConf, stratSrc),
@@ -2144,6 +2261,235 @@ export class SpeedFeedOrchestratorEngine {
     return { source: "none", found: false };
   }
 
+  // ==========================================================================
+  // SPEEDFEED MINER EVIDENCE (SF-PSN-WIRE-MS0 U-SFPSN-06, 2026-05-23 juliett)
+  // ==========================================================================
+
+  /**
+   * Query raw-program mining evidence as a decision prior.
+   * Lazy-loads ProgramDatabaseEngine + SpeedFeedMinerEngine, mines matching
+   * records, returns matching stats row as AtomicValue prior.
+   *
+   * Confidence: 0.82 (below proven=0.88 — miner is raw shop-floor, not curated;
+   * above handbook=0.85 only when sample_count >= 30 — for now scale linearly
+   * with sample_count up to 0.82 cap).
+   *
+   * Pattern: behaviour-equivalent to queryProvenParameters() — try/catch with
+   * {found:false} fall-through so a missing miner / empty corpus never breaks
+   * the orchestrator pipeline. Mirrors the proven-aggregator wire site.
+   *
+   * Wired per SF-PSN-VALUE-NODE-AUDIT-2026-05-22 finding F8 — addresses the
+   * audit gap "SpeedFeedMinerEngine composed by zero SF engines (0 hits)".
+   */
+  private queryMinerEvidence(input: OrchestratorInput): {
+    cssSpeed?: AtomicValue<number>;
+    feedRate?: AtomicValue<number>;
+    source: string;
+    found: boolean;
+    sampleCount?: number;
+  } {
+    try {
+      // Lazy load to avoid circular dependency + cold-start cost when corpus empty
+      const { programDatabaseEngine } = require("./ProgramDatabaseEngine.js");
+      const { speedFeedMinerEngine } = require("./SpeedFeedMinerEngine.js");
+
+      // Query corpus by machine_type + operation (material is freeform, filter after)
+      const opCategory = this.mapToProvenOperation(input);
+      const records = programDatabaseEngine.query({
+        machine_type: input.machine_type,
+        operation_type: opCategory && opCategory !== "unknown" ? opCategory : undefined,
+      });
+
+      if (!records || records.length === 0) {
+        return { source: "miner:no-corpus-match", found: false };
+      }
+
+      // Cap to first 500 records — protects against full-corpus mine on every SF call
+      const sampleRecords = records.length > 500 ? records.slice(0, 500) : records;
+
+      const mineResult = speedFeedMinerEngine.mine(sampleRecords);
+      if (!mineResult || !mineResult.stats || mineResult.stats.length === 0) {
+        return { source: "miner:no-stats", found: false };
+      }
+
+      // Find matching stats row: same operation + machine_type + (loose) material match
+      const materialKey = (input.material || "").toLowerCase();
+      const machineKey = input.machine_type || "";
+      const matchingStats = mineResult.stats.filter((s: { material: string; operation: string; machine_type: string; sample_count: number }) => {
+        const opMatch = s.operation === opCategory;
+        const machineMatch = !machineKey || s.machine_type === machineKey;
+        const materialMatch = !materialKey || s.material.toLowerCase().includes(materialKey) || materialKey.includes(s.material.toLowerCase());
+        return opMatch && machineMatch && materialMatch;
+      });
+
+      if (matchingStats.length === 0) {
+        return { source: "miner:no-row-match", found: false };
+      }
+
+      // Pick the row with the highest sample_count for stability
+      const top = matchingStats.reduce((a: { sample_count: number }, b: { sample_count: number }) => a.sample_count >= b.sample_count ? a : b) as {
+        material: string;
+        operation: string;
+        machine_type: string;
+        sample_count: number;
+        speed_median: number;
+        feed_median: number;
+      };
+
+      if (top.sample_count < 3) {
+        return { source: `miner:low-samples(${top.sample_count})`, found: false };
+      }
+
+      // Confidence scales with sample_count, capped at 0.82
+      const confidence = Math.min(0.82, 0.50 + top.sample_count * 0.01);
+      const source = `miner:${top.material}|${top.operation}|${top.machine_type}:n=${top.sample_count}`;
+
+      return {
+        cssSpeed: top.speed_median > 0 ? {
+          value: top.speed_median,
+          confidence,
+          source,
+        } : undefined,
+        feedRate: top.feed_median > 0 ? {
+          value: top.feed_median,
+          confidence,
+          source,
+        } : undefined,
+        source,
+        found: true,
+        sampleCount: top.sample_count,
+      };
+    } catch {
+      // ProgramDatabaseEngine / SpeedFeedMinerEngine not loaded, or corpus empty
+      return { source: "miner:none", found: false };
+    }
+  }
+
+  // ==========================================================================
+  // WIKI/TRIBAL EVIDENCE (SF-PSN-WIRE-MS0 U-SFPSN-08, 2026-05-23 juliett)
+  // ==========================================================================
+
+  /**
+   * Query the wiki/tribal knowledge surface as decision evidence.
+   * Lazy-loads PRISMSelfAwarenessEngine and runs a sync substring search
+   * over the cached tribal corpus for "{material} {operation}" tokens.
+   *
+   * Returns the top citation set + an aggregate confidence (mean of hit
+   * confidences, capped 0.75 since tribal tips are heuristic not measured).
+   *
+   * Pattern: behaviour-equivalent to queryProvenParameters() / queryMinerEvidence() —
+   * try/catch fall-through to {found:false} so a missing self-awareness
+   * engine / empty corpus never breaks the orchestrator pipeline.
+   *
+   * Wired per SF-PSN-VALUE-NODE-AUDIT-2026-05-22 finding F4 — addresses
+   * the audit gap "wiki consult — machinability / cutting-physics wiki
+   * entries as decision evidence".
+   */
+  private queryWikiEvidence(input: OrchestratorInput): {
+    citations: Array<{ tip: string; category: string; confidence: number }>;
+    confidence: number;
+    source: string;
+    found: boolean;
+  } {
+    try {
+      const { prismSelfAwarenessEngine } = require("./PRISMSelfAwarenessEngine.js");
+
+      // Build query from material + operation; both optional but at least one
+      // must be present for a meaningful tribal query.
+      const material = (input.material || "").toString().toLowerCase();
+      const operation = (input.operation || "").toString().toLowerCase();
+      if (!material && !operation) {
+        return { citations: [], confidence: 0, source: "wiki:no-query-tokens", found: false };
+      }
+
+      // Two-pass: prefer combined query, fall back to material alone if zero hits.
+      const combined = [material, operation].filter(Boolean).join(" ").trim();
+      let hits = prismSelfAwarenessEngine.searchTribalKnowledgeSync(combined, { limit: 5 });
+      if ((!hits || hits.length === 0) && material) {
+        hits = prismSelfAwarenessEngine.searchTribalKnowledgeSync(material, { limit: 5 });
+      }
+
+      if (!hits || hits.length === 0) {
+        return { citations: [], confidence: 0, source: "wiki:no-match", found: false };
+      }
+
+      const citations = hits.slice(0, 3).map((h: { tip: string; category: string; confidence: number }) => ({
+        tip: (h.tip || "").substring(0, 200),
+        category: h.category || "general",
+        confidence: typeof h.confidence === "number" ? h.confidence : 0.7,
+      }));
+
+      const aggConfidence = Math.min(
+        0.75,
+        citations.reduce((sum: number, c: { confidence: number }) => sum + c.confidence, 0) / Math.max(1, citations.length)
+      );
+
+      return {
+        citations,
+        confidence: aggConfidence,
+        source: `wiki:tribal:n=${hits.length}:q="${combined.substring(0, 40)}"`,
+        found: true,
+      };
+    } catch {
+      return { citations: [], confidence: 0, source: "wiki:none", found: false };
+    }
+  }
+
+  // ==========================================================================
+  // OBSIDIAN MEMORY RECALL (SF-PSN-WIRE-MS0 U-SFPSN-07, 2026-05-23 juliett)
+  // ==========================================================================
+
+  /**
+   * Query cross-session Obsidian-brain memory for prior SF outcomes on the same
+   * material/operation context. Lazy-loads ConversationalMemoryEngine.findJob()
+   * (sync, in-memory job store) — returns the matching JobContext as a recall
+   * prior with confidence 0.70 (below wiki=0.75 since recall is a single-shot
+   * match rather than aggregated citations).
+   *
+   * Pattern: behaviour-equivalent to queryProvenParameters / queryMinerEvidence
+   * / queryWikiEvidence — try/catch fall-through to {found:false}. The
+   * orchestrator's compute() is SYNC, so we use findJob (sync) rather than
+   * the QdrantMemoryEngine async recall (which would force compute() async).
+   * Async semantic recall via QdrantMemoryEngine is a future U-SFPSN-07-ASYNC
+   * follow-up when compute() can be promoted.
+   *
+   * Wired per SF-PSN-VALUE-NODE-AUDIT-2026-05-22 finding F3 — addresses
+   * the audit gap "obsidian-brain/memory NOT connected to SF decisioning".
+   */
+  private queryObsidianMemoryEvidence(input: OrchestratorInput): {
+    jobId?: string;
+    material?: string;
+    confidence: number;
+    source: string;
+    found: boolean;
+  } {
+    try {
+      const { findJob } = require("./ConversationalMemoryEngine.js");
+
+      const material = (input.material || "").toString();
+      if (!material) {
+        return { confidence: 0, source: "memory:no-material-key", found: false };
+      }
+
+      const job = findJob(material);
+      if (!job || !job.id) {
+        return { confidence: 0, source: "memory:no-prior-job", found: false };
+      }
+
+      // Recall confidence is fixed at 0.70 — single prior job match is weaker
+      // than aggregated wiki citations (0.75) or miner statistics (up to 0.82).
+      return {
+        jobId: job.id,
+        material: job.material,
+        confidence: 0.70,
+        source: `memory:obsidian-brain:job=${job.id}:material=${job.material ?? "unknown"}`,
+        found: true,
+      };
+    } catch {
+      return { confidence: 0, source: "memory:none", found: false };
+    }
+  }
+
   private mapToProvenMaterial(input: OrchestratorInput): string {
     // Map ISO group to proven material group
     const isoMap: Record<string, string> = {
@@ -2260,9 +2606,64 @@ export class SpeedFeedOrchestratorEngine {
     }
     if (resumeFrom <= 8) cpm.checkpoint('query_proven_params', 8, proven, Date.now() - t0);
 
+    // ── Step 1.6: Query SpeedFeed Miner Evidence (SF-PSN-WIRE-MS0 U-SFPSN-06) ──
+    // Raw NC-program mining as a decision prior. Complements queryProvenParameters
+    // (curated, conf 0.88) with miner evidence (raw, conf scales to 0.82 by sample_count).
+    // Per audit F8: previously composed by ZERO SF engines.
+    t0 = Date.now();
+    const minerEvidence = this.queryMinerEvidence(input);
+    if (minerEvidence.found) {
+      engines_called.push("SpeedFeedMinerEngine");
+      formulas_used.push(`Miner evidence: ${minerEvidence.source}`);
+    }
+
+    // ── Step 1.7: Query Wiki/Tribal Evidence (SF-PSN-WIRE-MS0 U-SFPSN-08) ──
+    // Tribal-knowledge wiki citations as decision evidence + provenance.
+    // Per audit F4: SF output should cite contributing wiki entries.
+    t0 = Date.now();
+    const wikiEvidence = this.queryWikiEvidence(input);
+    if (wikiEvidence.found) {
+      engines_called.push("PRISMSelfAwarenessEngine");
+      formulas_used.push(`Wiki evidence: ${wikiEvidence.source} [conf=${wikiEvidence.confidence.toFixed(2)}]`);
+    }
+
+    // ── Step 1.8: Query Obsidian Memory Recall (SF-PSN-WIRE-MS0 U-SFPSN-07) ──
+    // Cross-session memory of prior SF outcomes on the same material.
+    // Per audit F3: obsidian-brain/memory not connected to SF decisioning.
+    t0 = Date.now();
+    const memoryEvidence = this.queryObsidianMemoryEvidence(input);
+    if (memoryEvidence.found) {
+      engines_called.push("ConversationalMemoryEngine");
+      formulas_used.push(`Memory recall: ${memoryEvidence.source} [conf=${memoryEvidence.confidence.toFixed(2)}]`);
+    }
+
     // ── Step 2: Core Speed/Feed Physics ──
     const D = tool.diameter_mm.value;
     const z = tool.flutes.value;
+    // TURNING rpm/Vc fix (U-SFC-ORCH-TURNING, slot:oscar 2026-06-21): for lathe operations the
+    // surface speed Vc is set by the WORKPIECE outer diameter, so the rpm<->Vc relationship MUST
+    // use workpiece_diameter_mm -- NOT the single-point tool diameter. Using D (tool) for turning
+    // collapsed the reported Vc to ~1-2 m/min (P0 live bug; reference_oscar_orchestrator_turning_broken_2026_06_21).
+    // Milling/drilling are unchanged (rpmDiameter === D). Guard: with no workpiece diameter we fall
+    // back to D (preserves prior behavior, never divides by zero). The chip-load/feed path stays
+    // milling-shaped for turning -- a known separate gap the engine convergence addresses.
+    // BORING diameter (U-SFC-ORCH-BORE-DIAMETER, slot:oscar 2026-06-21): boring's surface speed is
+    // set by the BORE diameter (the hole being enlarged), not the workpiece OD -- so for boring
+    // rpm = 1000*Vc/(pi*D_bore). Prefer bore_diameter_mm when boring; otherwise fall back to the
+    // workpiece OD (conservative AT the bore, still better than the prior collapsed-Vc bug), then to
+    // D (never divide by zero). Turning/facing/etc keep the workpiece OD; milling/drilling keep D.
+    const LATHE_OPS = new Set(["turning", "boring", "facing", "grooving", "parting", "threading"]);
+    const opLower = (input.operation ?? "").toLowerCase();
+    const isLatheOp = LATHE_OPS.has(opLower);
+    const boreDia =
+      opLower === "boring" && typeof input.bore_diameter_mm === "number" && input.bore_diameter_mm > 0
+        ? input.bore_diameter_mm
+        : null;
+    const workDia =
+      typeof input.workpiece_diameter_mm === "number" && input.workpiece_diameter_mm > 0
+        ? input.workpiece_diameter_mm
+        : null;
+    const rpmDiameter = isLatheOp ? (boreDia ?? workDia ?? D) : D;
     const cutType = input.cut_type ?? "roughing";
     const isRoughing = cutType === "roughing" || cutType === "semi_finishing";
 
@@ -2271,10 +2672,40 @@ export class SpeedFeedOrchestratorEngine {
       ? material.vc_base_roughing.value
       : material.vc_base_finishing.value;
 
-    // Coating speed factor
+    // Coating speed factor -- MATERIAL-SPECIFIC (U-OSC-COATING-MATERIAL-SPEED). The COATING_DB
+    // speed_multiplier is workpiece-AGNOSTIC, but a coating's speed benefit depends on the ISO group
+    // and some (coating, material) pairs are physically WRONG: diamond/PCD on ferrous suffers carbon
+    // diffusion into iron (rapid wear) -- handing it the 1.30x non-ferrous home boost on steel is both
+    // inaccurate AND an over-speed. The layer is DERATE-ONLY (never raises the headline above the
+    // scalar baseline); high-Al PVD on aluminium is mildly derated (BUE not oxidation dominates).
     const coatingKey = normalizeCoating(tool.coating.value);
     const coatingRec = COATING_DB[coatingKey] ?? COATING_DB["TiAlN"];
-    const coatingSpeedFactor = coatingRec.speed_multiplier;
+    const coatingSpeedFactor = getCoatingMaterialSpeedFactor(
+      coatingKey,
+      coatingRec.speed_multiplier,
+      material.iso_group.value,
+    );
+    if (isCoatingMaterialIncompatible(coatingKey, material.iso_group.value)) {
+      dn_warnings.push(
+        `Coating-material incompatibility: ${coatingKey} (diamond/PCD) on a ${material.iso_group.value}-group ferrous workpiece -- carbon diffuses into iron at the cutting temperature, causing rapid chemical/crater wear. Diamond tooling is non-ferrous ONLY; select a PVD/CVD carbide grade (AlCrN/TiAlN) for steel/iron and reserve diamond for aluminium/brass/composites.`,
+      );
+    }
+    // Material-specific coating tool-LIFE factor (U-OSC-LIFE-MATERIAL-AWARE, coating half). The
+    // COATING_DB life_multiplier is workpiece-agnostic (diamond=2.00), but diamond/PCD life COLLAPSES
+    // on ferrous (diffusion wear) -- the bare 2.00 OVER-states life on the exact pair the speed layer
+    // already derates+flags. DERATE-ONLY (life estimate can only fall -> never under-warns). Consumed
+    // at every toolLifeMin site below in place of the bare coatingRec.life_multiplier.
+    const coatingLifeFactor = getCoatingMaterialLifeFactor(
+      coatingKey,
+      coatingRec.life_multiplier,
+      material.iso_group.value,
+    );
+    // Absolute tool-life cap for a carbon-diffusion-INCOMPATIBLE pair (diamond on ferrous). The life
+    // MULTIPLIER alone cannot fix this: the speed layer derated Vc, and Taylor life ~ (1/Vc)^(1/n)
+    // inflates the base ~100x, swamping the 0.15 multiplier -> a physically-impossible long life.
+    // The real failure is CHEMICAL (carbon diffusion), fast regardless of Vc, so cap the life
+    // absolutely. Infinity (no cap) for every compatible pair. Applied via Math.min at each life site.
+    const coatingLifeCapMin = coatingIncompatibleLifeCap(coatingKey, material.iso_group.value);
 
     // Insert grade speed factor
     const GRADE_SPEED_FACTORS: Record<string, number> = {
@@ -2291,8 +2722,28 @@ export class SpeedFeedOrchestratorEngine {
       insertGradeFactor = GRADE_SPEED_FACTORS[input.tool_grade.toUpperCase()] ?? 1.0;
     }
 
-    // Coolant speed factor
-    const coolantSpeedFactor = coolant.speed_factor.value;
+    // Coolant speed factor -- MATERIAL-SPECIFIC via the EXISTING CoolantVcModifier (algo 8.5; REUSE,
+    // not a forked table -- already cited+tested+used by UltimateSpeedFeedEngine). The COOLANT_DB
+    // scalar is workpiece-AGNOSTIC, but coolant's Vc effect is ISO-dependent: dry SEVERELY penalizes
+    // stainless/superalloy (gummy, heat-concentrated) but barely cast iron (graphite self-lubricates);
+    // cryo strongly lifts superalloys. DERATE-ONLY for the headline (Math.min vs the scalar): the
+    // material-aware DERATES apply (the safety fix -- e.g. dry-on-stainless under-penalty), but a RAISE
+    // (cryo-S 1.60) stays delegated to UltimateSpeedFeedEngine + gated by RPM-cap + S(x), matching the
+    // coating/tool-material convention (never raise the conservative orchestrator headline).
+    const coolantScalar = coolant.speed_factor.value;
+    let coolantSpeedFactor = coolantScalar;
+    if (input.coolant_type) {
+      const COOLANT_ALGO_MAP: Record<string, "dry" | "flood" | "mist" | "MQL" | "cryogenic"> = {
+        flood: "flood", mist: "mist", mql: "MQL", MQL: "MQL", dry: "dry",
+        cryogenic: "cryogenic", air_blast: "dry", through_tool: "flood",
+      };
+      const algoCoolant = COOLANT_ALGO_MAP[input.coolant_type] ?? "flood";
+      const matAwareCoolant = getCoolantVcMultipliers({
+        iso_group: material.iso_group.value,
+        coolant: algoCoolant,
+      }).vc_multiplier.value;
+      coolantSpeedFactor = Math.min(coolantScalar, matAwareCoolant);
+    }
 
     // CAM strategy speed multiplier
     const camSpeedMult = camStrat.speed_multiplier.value;
@@ -2312,10 +2763,36 @@ export class SpeedFeedOrchestratorEngine {
     // INFRA-5-1 U-CAL1: Calibration override for cutting speed
     const calVcFactor = input.calibration_overrides?.vc_factor ?? 1.0;
 
+    // Tool-material speed factor (U-OSC-ORCH-TOOLMAT-DEROT): vcBase is CARBIDE-anchored, but the
+    // headline Vc chain previously applied coating/insert/coolant/cam/geom/grade factors and DROPPED
+    // the tool-material factor -- so HSS published the CARBIDE speed, a ~3.2-3.9x over-speed (HSS
+    // red-hardness ~600 C -> the tool burns up). Apply the canonical per-(tool, ISO) factor, but CLAMP
+    // it to <= 1.0 for the HEADLINE recommendation: only a SLOWER-than-carbide material (HSS 0.35x) is
+    // derated (THE safety fix); a FASTER-than-carbide material (cermet/ceramic/CBN) is left UNCHANGED at
+    // the conservative carbide-anchored headline it already had (this fix never RAISES any headline Vc).
+    // Their faster capability is delivered by UltimateSpeedFeedEngine (which applies the FULL factor) and
+    // the PRISM_SFC_CONVERGE delegation -- NOT by this non-converged orchestrator headline, which stays
+    // conservative-safe and gated by the machine-RPM cap + S(x). Raising the headline for CBN/ceramic is
+    // the un-safe-leaning direction and over-speeds at extreme hardness (the single-value 1.4x CBN factor
+    // is calibrated for 58-62 HRC, not 70 HRC -- caught by the HRC-70 conservative-bound test). Explicit
+    // tool_material ONLY (inferred/absent -> 1.0). Known "carbide vc == hss vc DROPPED" bug,
+    // SFC-VENDOR-COMPARISON-2026-06-09. No double-apply under PRISM_SFC_CONVERGE (convergeVc is replaced
+    // by the delegate's already-factored Vc).
+    const toolMaterialSpeedFactor = input.tool_material
+      ? Math.min(1.0, getMaterialSpecificToolSpeedFactor(input.tool_material, material.iso_group.value))
+      : 1.0;
+    // optimize_for operating-point factor (U-OSC-ORCH-OPTIMIZE-FOR-WIRE): the cost/balanced/
+    // productivity goal selector was DEAD -- this engine declared `optimize_for` but never consumed
+    // it, so the SFC web pages (SpeedFeedPage, CalculatorPage via sf_orchestrate) returned identical
+    // Vc/fz for every goal. DERATE-ONLY (vc/fz <= 1.0): vc_base is a single carbide-anchored nominal,
+    // so cost/tool_life/surface_finish lower the operating point (longer life / finer finish) while
+    // balanced/productivity stay at the conservative nominal -- raising above it is operator-gated.
+    // See physics/optimize-for-factor.ts for the goal->factor table + Taylor/Ra grounding.
+    const optVcFactor = optimizeForVcFactor(input.optimize_for);
     // Effective cutting speed
     let Vc = vcBase * coatingSpeedFactor * insertGradeFactor * coolantSpeedFactor * camSpeedMult
-           * geomDerating * gradeFactor * calVcFactor;
-    formulas_used.push("Vc = Vc_base × coating_factor × insert_grade_factor × coolant_factor × cam_multiplier × geom_derating × grade_factor" + (calVcFactor !== 1.0 ? ` × cal_vc(${calVcFactor})` : ""));
+           * geomDerating * gradeFactor * toolMaterialSpeedFactor * calVcFactor * optVcFactor;
+    formulas_used.push("Vc = Vc_base × coating_factor × insert_grade_factor × coolant_factor × cam_multiplier × geom_derating × grade_factor" + (input.tool_material ? ` × tool_material_factor(${toolMaterialSpeedFactor.toFixed(2)} ${input.tool_material})` : "") + (calVcFactor !== 1.0 ? ` × cal_vc(${calVcFactor})` : "") + (optVcFactor !== 1.0 ? ` × optimize_for_vc(${optVcFactor.toFixed(2)} ${input.optimize_for})` : ""));
     if (insertGradeFactor !== 1.0) {
       formulas_used.push(`Insert grade ${input.insert_grade ?? input.tool_grade}: Vc × ${insertGradeFactor}`);
     }
@@ -2337,30 +2814,34 @@ export class SpeedFeedOrchestratorEngine {
       const provenVc = proven.cssSpeed.value;
       const physicsVc = Vc;
 
-      // If proven is within 20% of physics, trust proven more
-      // If proven differs by >30%, flag for review but don't override physics
-      const vcRatio = provenVc / physicsVc;
-      if (vcRatio >= 0.7 && vcRatio <= 1.3) {
+      // Blend when proven Vc is within +-30% of physics; otherwise physics wins (deviation logged).
+      // classifyProvenVcDeviation also flags a ~3.28x ratio as an SFM/m-min units mismatch (Task #12) so
+      // the silent data-utility waste (proven lathe css rejected as an outlier) is visible.
+      const dev = classifyProvenVcDeviation(provenVc, physicsVc);
+      if (dev.withinBlendBand) {
         // Blend: 60% proven, 40% physics when proven confidence is high
         const blendWeight = proven.cssSpeed.confidence * 0.6;
         Vc = Vc * (1 - blendWeight) + provenVc * blendWeight;
         provenVcAdjustment = Vc / physicsVc;
-        formulas_used.push(`Proven program Vc blend: ${physicsVc.toFixed(1)} → ${Vc.toFixed(1)} m/min (${proven.source})`);
+        formulas_used.push(`Proven program Vc blend: ${physicsVc.toFixed(1)} -> ${Vc.toFixed(1)} m/min (${proven.source})`);
+      } else if (dev.sfmUnitsArtifact) {
+        // Rejected by the blend band AND a near-certain SFM-as-m/min units artifact -- flag the silent waste.
+        formulas_used.push(`Proven program Vc REJECTED as a likely SFM/m-min units mismatch (ratio ${dev.ratio.toFixed(2)}x ~= 1/0.3048): ${provenVc.toFixed(1)} vs physics ${physicsVc.toFixed(1)} m/min -- proven data unusable until the store cssUnit is fixed (Task #12). Using physics.`);
       } else {
-        // Significant deviation — log but don't override
-        formulas_used.push(`Proven program Vc differs: ${provenVc.toFixed(1)} vs physics ${physicsVc.toFixed(1)} — using physics`);
+        // Significant deviation -- log but don't override.
+        formulas_used.push(`Proven program Vc differs: ${provenVc.toFixed(1)} vs physics ${physicsVc.toFixed(1)} m/min -- using physics.`);
       }
     }
 
     // RPM = 1000 * Vc / (π * D) — clamp to machine max
     const maxRPM = Math.min(machine.max_rpm.value, holder.max_rpm.value);
-    let rpm = (1000 * Vc) / (Math.PI * D);
+    let rpm = (1000 * Vc) / (Math.PI * rpmDiameter);
     let rpmClamped = false;
     if (rpm > maxRPM) {
       rpm = maxRPM;
       rpmClamped = true;
       // Recalculate actual Vc
-      Vc = (Math.PI * D * rpm) / 1000;
+      Vc = (Math.PI * rpmDiameter * rpm) / 1000;
     }
 
     // Gear range clamping: if handbook data provides gear ranges, select the
@@ -2384,11 +2865,11 @@ export class SpeedFeedOrchestratorEngine {
         if (rpm > activeGear.max_rpm) {
           rpm = activeGear.max_rpm;
           rpmClamped = true;
-          Vc = (Math.PI * D * rpm) / 1000;
+          Vc = (Math.PI * rpmDiameter * rpm) / 1000;
         } else if (rpm < activeGear.min_rpm) {
           rpm = activeGear.min_rpm;
           rpmClamped = true;
-          Vc = (Math.PI * D * rpm) / 1000;
+          Vc = (Math.PI * rpmDiameter * rpm) / 1000;
         }
       }
       if (activeGear) {
@@ -2491,13 +2972,35 @@ export class SpeedFeedOrchestratorEngine {
     const mrr = (ap * ae * Vf) / 1000;
     formulas_used.push("MRR = ap × ae × Vf / 1000 [cm³/min]");
 
-    // Kienzle cutting force: Fc = kc1.1 × ap × fz^(1-mc)
+    // Kienzle cutting force.
     // INFRA-5-1 U-CAL1: Apply calibration factor to kc1.1
     const calKcFactor = input.calibration_overrides?.kc1_1_factor ?? 1.0;
     const kc1_1 = material.kc1_1.value * calKcFactor;
     const mc = material.mc.value;
-    const Fc = kc1_1 * ap * Math.pow(Math.max(fz, 0.001), 1 - mc);
-    formulas_used.push("Fc = kc1.1 × ap × fz^(1-mc) [Kienzle]" + (calKcFactor !== 1.0 ? ` (kc1.1 cal: ×${calKcFactor})` : ""));
+    // U-OSC-ORCH-FORCE-PARITY: route the tangential force through the shared, literature-referenced
+    // Kienzle core (Martellotti mean chip thickness h_mean = fz*(1-cos phi_e)/phi_e + engaged-teeth
+    // duty z_e = z*phi_e/2pi) instead of the prior inline `kc1_1*ap*fz^(1-mc)`. The inline form used
+    // the chip-thinning-INFLATED fz directly as the chip thickness AND omitted z_e, over-stating
+    // force/power ~3x for low-radial-engagement milling (ae << D) -- specific cutting energy ~17.7
+    // J/mm3 vs the physical ~4 for P-steel (safety-physics root-cause 2026-06-25). This is the SAME
+    // core that backs ProductEngine.sfcCalculate (the /speed-feed-calc page), restoring page<->core
+    // parity. The fix is monotonically toward physical correctness and SAFE (it lowers an over-stated
+    // force/power; the over-power stall guard was over-conservative). iso_group is omitted because it
+    // only scales the feed/passive forces (Ff/Fp friction), never the tangential Fc consumed here.
+    const kienzleFc = (fzArg: number, vcArg: number): number =>
+      calculateKienzleCuttingForce(
+        {
+          cutting_speed: vcArg,
+          feed_per_tooth: Math.max(fzArg, 0.001),
+          axial_depth: ap,
+          radial_depth: ae,
+          tool_diameter: D,
+          number_of_teeth: z,
+        },
+        { kc1_1, mc },
+      ).Fc;
+    const Fc = kienzleFc(fz, Vc);
+    formulas_used.push("Fc = kc1.1 x h_mean^(-mc) x ap x z_e [Kienzle: Martellotti mean-chip + engaged-teeth duty]" + (calKcFactor !== 1.0 ? ` (kc1.1 cal: x${calKcFactor})` : ""));
 
     // Power = Fc * Vc / (60 * 1000) [kW]
     const powerKW = (Fc * Vc) / (60 * 1000);
@@ -2517,10 +3020,10 @@ export class SpeedFeedOrchestratorEngine {
     let toolLifeMin = Math.pow(taylorC / Math.max(Vc, 1), 1 / taylorN);
     // Apply coolant life factor
     toolLifeMin *= coolant.life_factor.value;
-    // Apply coating life factor
-    toolLifeMin *= coatingRec.life_multiplier;
-    // Clamp to reasonable range [1, 9999]
-    toolLifeMin = Math.max(1, Math.min(9999, toolLifeMin));
+    // Apply coating life factor (material-specific -- U-OSC-LIFE-MATERIAL-AWARE coating half)
+    toolLifeMin *= coatingLifeFactor;
+    // Clamp to reasonable range [1, 9999], applying the incompatible-pair absolute life cap.
+    toolLifeMin = Math.max(1, Math.min(9999, coatingLifeCapMin, toolLifeMin));
     formulas_used.push("T_life = (C/Vc)^(1/n) × coolant_life × coating_life [Taylor]");
 
     // Surface finish: Ra ≈ fz² / (32 × corner_radius) [µm, theoretical]
@@ -2707,33 +3210,80 @@ export class SpeedFeedOrchestratorEngine {
       severity: whUtil > 100 ? "critical" : whUtil > 80 ? "warning" : "info",
     });
 
-    // ── Apply proportional reduction if any check fails ──
-    let reductionFactor = 1.0;
+    // -- Apply constraint-appropriate reduction if any safety check fails --
+    // PHYSICS (physics-reviewer adjudicated 2026-06-23, FAIL/CRITICAL on the prior code):
+    // deflection (delta = Fc*L^3/3EI), workholding (Fc < 0.7*clamp), and torque
+    // (T = Fc*D/2000 -- Vc cancels because rpm is proportional to Vc) are FORCE-driven and
+    // INDEPENDENT of cutting speed: reducing Vc does NOT relieve them -- only the fz/ap force
+    // lever does. The ONLY genuinely Vc-driven constraints are power (P = Fc*Vc/60000) and rpm
+    // (rpm = 1000*Vc/(pi*D)). The prior single-factor `Vc *= reductionFactor` collapsed Vc
+    // 2-7x below published carbide bands whenever deflection bound AND left the violation
+    // unresolved (sqrt-exponent under-reduced fz -> under-protection), contaminating the
+    // 11.2M variability corpus + sfc_nine_axis. Route each binding check to its physically
+    // effective lever. Kienzle Fc = kc1_1*ap*fz^(1-mc): to cut Fc by factor r, fz scales by
+    // r^(1/(1-mc)). See [[reference_oscar_sfc_deflection_vc_lever_2026_06_23]].
+    let reductionFactor = 1.0; // overall worst ratio, retained for downstream message reporting
     const failedChecks = safetyChecks.filter((c) => !c.passed);
     if (failedChecks.length > 0) {
-      for (const check of failedChecks) {
-        if (check.value !== undefined && check.limit !== undefined && check.value > 0) {
-          const ratio = check.limit / check.value;
-          reductionFactor = Math.min(reductionFactor, ratio);
-        }
+      const FAIL_FLOOR = 0.1; // never reduce a lever below 10% of its prior value
+      const SAFETY_MARGIN = 0.95; // land at 95% of the binding limit (5% headroom)
+      const ratioOf = (name: string): number => {
+        const c = failedChecks.find((x) => x.name === name);
+        return c && c.value !== undefined && c.limit !== undefined && c.value > 0
+          ? c.limit / c.value
+          : 1.0;
+      };
+      // fz exponent that converts a target FORCE reduction into the required fz reduction.
+      const fzExp = 1 / Math.max(0.05, 1 - mc);
+
+      // (1) FORCE-driven binds {deflection, workholding, torque} -> reduce fz (NOT Vc).
+      const forceRatio = Math.min(ratioOf("deflection"), ratioOf("workholding"), ratioOf("torque"));
+      if (forceRatio < 1) {
+        fz *= Math.max(FAIL_FLOOR, Math.pow(forceRatio * SAFETY_MARGIN, fzExp));
+        reductionFactor = Math.min(reductionFactor, forceRatio);
       }
-      // Apply reduction proportionally
-      reductionFactor = Math.max(0.1, reductionFactor * 0.95); // 5% extra margin
-      Vc *= reductionFactor;
-      rpm = Math.round((1000 * Vc) / (Math.PI * D));
+
+      // (2) feed-rate bind: Vf = fz*z*rpm is linear in fz -> reduce fz (NOT Vc).
+      const feedRatio = ratioOf("feed_rate");
+      if (feedRatio < 1) {
+        fz *= Math.max(FAIL_FLOOR, feedRatio * SAFETY_MARGIN);
+        reductionFactor = Math.min(reductionFactor, feedRatio);
+      }
+
+      // (3) rpm bind: rpm is defined by Vc -> clamp Vc so rpm <= maxRPM.
+      const rpmFromVc = (1000 * Vc) / (Math.PI * rpmDiameter);
+      if (rpmFromVc > maxRPM && maxRPM > 0) {
+        Vc = (maxRPM * Math.PI * rpmDiameter) / 1000;
+        reductionFactor = Math.min(reductionFactor, ratioOf("rpm"));
+      }
+
+      // (4) POWER bind resolved LAST: P couples to Fc AND Vc. The fz cuts above already
+      //     lowered Fc, so recompute power with the new fz; only reduce Vc if still over.
+      //     Use the same shared-core force as every published site (U-OSC-ORCH-FORCE-PARITY) so the
+      //     power-lever DECISION matches the real (Martellotti+z_e) force -- the old inline form here
+      //     over-stated Fc ~3x and could trigger an unnecessarily aggressive Vc cut on low-ae cuts.
+      const fcAfterFz = kienzleFc(fz, Vc);
+      const powerAfterFz = (fcAfterFz * Vc) / (60 * 1000);
+      if (powerLimit > 0 && powerAfterFz > powerLimit) {
+        const powerRatio = powerLimit / powerAfterFz;
+        Vc *= Math.max(FAIL_FLOOR, powerRatio * SAFETY_MARGIN); // pure Vc lever: P is proportional to Vc
+        reductionFactor = Math.min(reductionFactor, powerRatio);
+      }
+
+      // Recompute rpm + feed from the corrected Vc/fz.
+      rpm = Math.round((1000 * Vc) / (Math.PI * rpmDiameter));
       if (rpm > maxRPM) rpm = maxRPM;
-      fz *= Math.sqrt(reductionFactor); // reduce fz less aggressively than speed
       Vf = fz * z * rpm;
 
       // Recompute derived values after reduction
-      const FcAdj = kc1_1 * ap * Math.pow(Math.max(fz, 0.001), 1 - mc);
+      const FcAdj = kienzleFc(fz, Vc);
       const powerAdj = (FcAdj * Vc) / (60 * 1000);
       const torqueAdj = rpm > 0 ? (powerAdj * 30000) / (Math.PI * rpm) : 0;
       const deflAdj_mm = I_moment > 0
         ? (FcAdj * Math.pow(stickout, 3)) / (3 * E_tool * I_moment)
         : 0;
       const lifeAdj = Math.pow(taylorC / Math.max(Vc, 1), 1 / taylorN)
-        * coolant.life_factor.value * coatingRec.life_multiplier;
+        * coolant.life_factor.value * coatingLifeFactor;
 
       // Update safety checks to reflect post-adjustment values
       for (const sc of safetyChecks) {
@@ -2781,7 +3331,7 @@ export class SpeedFeedOrchestratorEngine {
     }
 
     // Recompute final derived values (after possible adjustment)
-    const finalFc = kc1_1 * ap * Math.pow(Math.max(fz, 0.001), 1 - mc);
+    const finalFc = kienzleFc(fz, Vc);
     const finalPower = (finalFc * Vc) / (60 * 1000);
     const finalTorque = rpm > 0 ? (finalPower * 30000) / (Math.PI * rpm) : 0;
     const finalMRR = (ap * ae * Vf) / 1000;
@@ -2789,9 +3339,191 @@ export class SpeedFeedOrchestratorEngine {
     const finalDefl_mm = I_moment > 0
       ? (finalFc * Math.pow(stickout, 3)) / (3 * E_tool * I_moment)
       : 0;
-    const finalLife = Math.max(1, Math.min(9999,
+    const finalLife = Math.max(1, Math.min(9999, coatingLifeCapMin,
       Math.pow(taylorC / Math.max(Vc, 1), 1 / taylorN)
-      * coolant.life_factor.value * coatingRec.life_multiplier));
+      * coolant.life_factor.value * coatingLifeFactor));
+
+    // ── SFC-CONVERGENCE P2 (PRISM_SFC_CONVERGE): delegate core physics to UltimateSpeedFeedEngine ──
+    // When PRISM_SFC_CONVERGE === '1', the 7 core-physics output quantities (Vc, fz, Vf,
+    // tangential_force_N, power_kw, torque_Nm, tool_life_min, surface_finish_Ra_um) are sourced
+    // from UltimateSpeedFeedEngine.calculate() instead of the orchestrator's inline Kienzle/Taylor
+    // formulas.  All orchestrator-resolved context (machine/tool/material/holder/coolant/cam/
+    // workholding/geometry), safety_checks, limiting_factors, stability_assessment, alternatives,
+    // playbook_warnings, and PSN provenance are KEPT -- the override is additive core-physics only.
+    //
+    // Injection point: AFTER all orchestrator final values are computed (finalFc/finalPower/
+    // finalTorque/finalLife/finalRa) and BEFORE they flow into the result object assembly below.
+    // The override writes into the same local variables so the result assembly block is unchanged.
+    //
+    // Flag-off invariant: the entire block is inside `if (process.env.PRISM_SFC_CONVERGE === '1')`
+    // so flag-off execution is provably identical to the pre-P2 code path -- no variable is
+    // mutated outside this branch.
+    let convergeVc = Vc;
+    let convergeFz = fz;
+    let convergeVf = Vf;
+    let convergeFinalFc = finalFc;
+    let convergeFinalPower = finalPower;
+    let convergeFinalTorque = finalTorque;
+    let convergeFinalLife = finalLife;
+    let convergeFinalRa = finalRa;
+    // Derived outputs that MUST track the (possibly delegated) core physics so the published
+    // recommendation is internally self-consistent (spindle_rpm = π·D·Vc, MRR = ap·ae·Vf,
+    // deflection = Fc·L³/3EI).  Initialized to the orchestrator finals so the flag-off path is
+    // byte-identical; overwritten ONLY when delegation is accepted below.
+    // (U-SFC-CONVERGE-SAFETY, slot:oscar 2026-06-22 -- fixes the under-report where flag-on published
+    //  delegated Vc/forces while spindle_rpm/MRR/deflection/safety_checks stayed on orchestrator values.)
+    let convergeRpm = rpm;
+    let convergeMRR = finalMRR;
+    let convergeDefl_mm = finalDefl_mm;
+
+    if (process.env.PRISM_SFC_CONVERGE === '1') {
+      try {
+        // Build the adapter input with orchestrator-resolved machine scalars substituted in (P2
+        // contract from orchestrator-input-adapter.ts: "pass resolved machine/tool scalars").
+        const resolvedInput = {
+          ...input,
+          machine_power_kw:     machine.power_kw.value,
+          machine_max_rpm:      machine.max_rpm.value,
+          machine_max_torque_nm: machine.max_torque_Nm.value,
+          machine_rigidity:     machine.rigidity.value,
+        };
+        const ultimateInput = orchestratorToUltimateInput(resolvedInput);
+        const uResult = this.ultimateDelegate.calculate(ultimateInput);
+
+        // Extract the 7 core-physics quantities from UltimateSpeedFeedResult.
+        // Field paths verified against UltimateSpeedFeedResult interface (lines 276-407):
+        //   cutting_speed.value          -> Vc (m/min)
+        //   feed_per_tooth.value         -> fz (mm/tooth)
+        //   feed_rate.value              -> Vf (mm/min)
+        //   forces.tangential_force_N.value   -> Fc (N)
+        //   power.required_power_kw.value     -> power (kW)
+        //   forces.torque_Nm.value            -> torque (Nm)
+        //   tool_life.life_minutes.value      -> life (min)
+        //   surface_finish.practical_ra_um.value -> Ra (um)
+        const shapeValid =
+          uResult.cutting_speed?.value > 0 &&
+          uResult.feed_per_tooth?.value > 0 &&
+          uResult.forces?.tangential_force_N?.value >= 0 &&
+          uResult.power?.required_power_kw?.value >= 0 &&
+          uResult.forces?.torque_Nm?.value >= 0 &&
+          uResult.tool_life?.life_minutes?.value > 0 &&
+          uResult.surface_finish?.practical_ra_um?.value > 0;
+
+        if (shapeValid) {
+          // Delegated core-physics candidates + the derived quantities the result reports.
+          const dVc      = uResult.cutting_speed.value;
+          const dFz      = uResult.feed_per_tooth.value;
+          const dFc      = uResult.forces.tangential_force_N.value;
+          const dPower   = uResult.power.required_power_kw.value;
+          const dTorque  = uResult.forces.torque_Nm.value;
+          const dLife    = Math.max(1, Math.min(9999, uResult.tool_life.life_minutes.value));
+          const dRa      = uResult.surface_finish.practical_ra_um.value;
+          // RPM implied by the delegated Vc -- NOT clamped to maxRPM: an over-max rpm is a real
+          // infeasibility that must trigger fallback, not be silently capped (which would desync
+          // the published Vc from the published rpm).
+          const dRpm     = Math.round((1000 * dVc) / (Math.PI * rpmDiameter));
+          const dVf      = uResult.feed_rate?.value ?? (dFz * z * dRpm);
+          const dDefl_mm = I_moment > 0 ? (dFc * Math.pow(stickout, 3)) / (3 * E_tool * I_moment) : 0;
+          const dMRR     = (ap * ae * dVf) / 1000;
+
+          // ── SAFETY GATE (oscar non-negotiable) ──────────────────────────────────────────────
+          // The delegated recommendation is PUBLISHED only if it is within the SAME machine limits
+          // the orchestrator clamps to (powerLimit/torqueLimit/maxRPM/tolLimit/vfLimit/whLimit, all
+          // resolved in Step-4 above).  This closes the under-report bug where a higher delegated
+          // Vc/force was published while safety_checks still reflected the orchestrator's lower
+          // physics -- e.g. a 25 kW delegated recommendation on a 1.5 kW machine with the safety
+          // panel reading 1.3 kW.  On any breach we fall back to the orchestrator's already-clamped,
+          // self-consistent result (R12 fail-loud: the reason is logged + recorded in formulas_used).
+          const breaches: string[] = [];
+          if (dPower   > powerLimit)  breaches.push(`power ${dPower.toFixed(1)}kW>${powerLimit.toFixed(1)}`);
+          if (dTorque  > torqueLimit) breaches.push(`torque ${dTorque.toFixed(1)}Nm>${torqueLimit.toFixed(1)}`);
+          if (dRpm     > maxRPM)      breaches.push(`rpm ${dRpm}>${maxRPM}`);
+          if (dDefl_mm > tolLimit)    breaches.push(`defl ${(dDefl_mm * 1000).toFixed(1)}um>${(tolLimit * 1000).toFixed(1)}`);
+          if (dVf      > vfLimit)     breaches.push(`feed ${dVf.toFixed(0)}>${vfLimit}`);
+          if (dFc      > whLimit)     breaches.push(`Fc ${dFc.toFixed(0)}N>${whLimit.toFixed(0)}`);
+
+          if (breaches.length === 0) {
+            // ACCEPT: publish delegated physics + keep every derived/safety field consistent with it.
+            convergeVc          = dVc;
+            convergeFz          = dFz;
+            convergeVf          = dVf;
+            convergeFinalFc     = dFc;
+            convergeFinalPower  = dPower;
+            convergeFinalTorque = dTorque;
+            convergeFinalLife   = dLife;
+            convergeFinalRa     = dRa;
+            convergeRpm         = dRpm;
+            convergeMRR         = dMRR;
+            convergeDefl_mm     = dDefl_mm;
+
+            // Re-sync the safety panel to the PUBLISHED (delegated) values so it can never
+            // under-report.  All entries pass by construction (we are inside breaches.length===0).
+            for (const sc of safetyChecks) {
+              if (sc.name === "power")            { sc.value = dPower;   sc.limit = powerLimit;  sc.passed = dPower   <= powerLimit;  sc.message = `Power ${dPower.toFixed(2)} kW within limit ${powerLimit.toFixed(1)} kW (PRISM_SFC_CONVERGE delegated)`; }
+              else if (sc.name === "torque")      { sc.value = dTorque;  sc.limit = torqueLimit; sc.passed = dTorque  <= torqueLimit; sc.message = `Torque ${dTorque.toFixed(2)} Nm within limit ${torqueLimit.toFixed(1)} Nm (delegated)`; }
+              else if (sc.name === "rpm")         { sc.value = dRpm;     sc.limit = maxRPM;      sc.passed = dRpm     <= maxRPM;      sc.message = `RPM ${dRpm} within max ${maxRPM} (delegated)`; }
+              else if (sc.name === "deflection")  { sc.value = dDefl_mm; sc.limit = tolLimit;    sc.passed = dDefl_mm <= tolLimit;    sc.message = `Deflection ${(dDefl_mm * 1000).toFixed(1)} µm within tolerance/3 = ${(tolLimit * 1000).toFixed(1)} µm (delegated)`; }
+              else if (sc.name === "feed_rate")   { sc.value = dVf;      sc.limit = vfLimit;     sc.passed = dVf      <= vfLimit;     sc.message = `Feed rate ${dVf.toFixed(0)} mm/min within limit ${vfLimit} (delegated)`; }
+              else if (sc.name === "workholding") { sc.value = dFc;      sc.limit = whLimit;     sc.passed = dFc      <= whLimit;     sc.message = `Cutting force ${dFc.toFixed(0)} N within workholding limit ${whLimit.toFixed(0)} N (delegated)`; }
+            }
+            for (const lf of limitingFactors) {
+              if (lf.parameter === "power_kw")               lf.utilization_pct = Math.min(powerLimit  > 0 ? (dPower   / powerLimit)  * 100 : 0, 999);
+              else if (lf.parameter === "torque_Nm")         lf.utilization_pct = Math.min(torqueLimit > 0 ? (dTorque  / torqueLimit) * 100 : 0, 999);
+              else if (lf.parameter === "spindle_rpm")       lf.utilization_pct = Math.min(maxRPM      > 0 ? (dRpm     / maxRPM)      * 100 : 0, 999);
+              else if (lf.parameter === "deflection_mm")     lf.utilization_pct = Math.min(tolLimit    > 0 ? (dDefl_mm / tolLimit)    * 100 : 0, 999);
+              else if (lf.parameter === "feed_rate_mmmin")   lf.utilization_pct = Math.min((dVf / vfLimit) * 100, 999);
+              else if (lf.parameter === "workholding_force") lf.utilization_pct = Math.min(whLimit     > 0 ? (dFc      / whLimit)     * 100 : 0, 999);
+              // Per-factor warning bands MUST match the original Step-4 thresholds (spindle_rpm warns
+              // at >90, deflection at >70, the rest at >80) -- a flattened uniform band would
+              // under-warn deflection (>70..80) and over-warn rpm (>80..90).
+              if (lf.parameter === "spindle_rpm") {
+                lf.severity = lf.utilization_pct > 100 ? "critical" : lf.utilization_pct > 90 ? "warning" : "info";
+              } else if (lf.parameter === "deflection_mm") {
+                lf.severity = lf.utilization_pct > 100 ? "critical" : lf.utilization_pct > 70 ? "warning" : "info";
+              } else if (["power_kw", "torque_Nm", "feed_rate_mmmin", "workholding_force"].includes(lf.parameter)) {
+                lf.severity = lf.utilization_pct > 100 ? "critical" : lf.utilization_pct > 80 ? "warning" : "info";
+              }
+            }
+
+            formulas_used.push(
+              "PRISM_SFC_CONVERGE: core physics delegated to UltimateSpeedFeedEngine (safety re-validated)"
+            );
+            engines_called.push(
+              "PRISM_SFC_CONVERGE: core physics delegated to UltimateSpeedFeedEngine"
+            );
+            log.info(
+              `[SpeedFeedOrchestrator] PRISM_SFC_CONVERGE active: Vc=${convergeVc.toFixed(1)} m/min ` +
+              `(was ${Vc.toFixed(1)}), rpm=${convergeRpm} (was ${rpm}), ` +
+              `life=${convergeFinalLife.toFixed(0)} min (was ${finalLife.toFixed(0)})`
+            );
+          } else {
+            // REJECT: delegated recommendation exceeds machine safety limits -- keep the
+            // orchestrator's already-clamped, self-consistent result (R12 fail-loud).
+            log.warn(
+              `[SpeedFeedOrchestrator] PRISM_SFC_CONVERGE: delegated recommendation exceeds machine ` +
+              `safety limits [${breaches.join(", ")}] -- falling back to orchestrator (safe) physics.`
+            );
+            formulas_used.push(`PRISM_SFC_CONVERGE: fallback to orchestrator (delegated exceeds limits: ${breaches.join(", ")})`);
+          }
+        } else {
+          // UltimateSpeedFeedEngine returned an unexpected shape -- fall back to orchestrator values
+          // and log loudly (R12 fail-loud).
+          log.warn(
+            "[SpeedFeedOrchestrator] PRISM_SFC_CONVERGE: UltimateSpeedFeedEngine returned " +
+            "invalid/zero core-physics values -- falling back to orchestrator physics. " +
+            `cutting_speed.value=${uResult.cutting_speed?.value}, ` +
+            `feed_per_tooth.value=${uResult.feed_per_tooth?.value}`
+          );
+          formulas_used.push("PRISM_SFC_CONVERGE: fallback to orchestrator (engine returned invalid values)");
+        }
+      } catch (err) {
+        // Delegation failure must never crash the orchestrator (advisory convergence, not a hard
+        // dependency).  Log + continue with orchestrator values (R12 fail-loud, not silent).
+        log.warn(`[SpeedFeedOrchestrator] PRISM_SFC_CONVERGE: UltimateSpeedFeedEngine.calculate() threw -- ` +
+          `falling back to orchestrator physics. Error: ${err}`);
+        formulas_used.push("PRISM_SFC_CONVERGE: fallback to orchestrator (exception)");
+      }
+    }
 
     // ── Step 5: Limiting Factor ──
     // Sort by utilization descending
@@ -2864,8 +3596,12 @@ export class SpeedFeedOrchestratorEngine {
     const stiffness = input.system_stiffness_n_m ?? inferredStiffness;
     const natFreq = input.natural_frequency_hz ?? machine.nat_freq_hz.value;
     const dampingR = input.damping_ratio ?? (gwDampMap[gw as keyof typeof gwDampMap] ?? 0.03);
+    // U-SFC-CONVERGE-SAFETY: anchor the uncertainty band + stability assessment on the PUBLISHED
+    // (possibly delegated) operating point so the CI / p_chatter describe the recommendation actually
+    // returned -- not the orchestrator baseline.  convergeVc/convergeFz == Vc/fz when the flag is off,
+    // so the flag-off path is byte-identical.
     const fullUQ = this.computeFullUncertainty(
-      material, tool, Vc, fz, ap, ae, stiffness, natFreq, dampingR,
+      material, tool, convergeVc, convergeFz, ap, ae, stiffness, natFreq, dampingR,
     );
     const uncertainty = {
       speed_cv_pct: (15 / confScale),
@@ -2921,7 +3657,7 @@ export class SpeedFeedOrchestratorEngine {
 
     if (rpmClamped) {
       recommendations.push(
-        `RPM was clamped to machine/holder max (${maxRPM}). Actual Vc = ${Vc.toFixed(1)} m/min (vs target ${(vcBase * coatingSpeedFactor * coolantSpeedFactor * camSpeedMult * geomDerating * gradeFactor).toFixed(1)})`,
+        `RPM was clamped to machine/holder max (${maxRPM}). Actual Vc = ${Vc.toFixed(1)} m/min (vs target ${(vcBase * coatingSpeedFactor * insertGradeFactor * coolantSpeedFactor * camSpeedMult * geomDerating * gradeFactor * toolMaterialSpeedFactor * calVcFactor).toFixed(1)})`,
       );
     }
     if (reductionFactor < 1.0) {
@@ -2937,14 +3673,16 @@ export class SpeedFeedOrchestratorEngine {
       fzMult: number,
       note: string,
     ): AlternativeSet => {
-      const altVc = Vc * vcMult;
-      const altFz = fz * fzMult;
-      const altRpm = Math.min(Math.round((1000 * altVc) / (Math.PI * D)), maxRPM);
+      // U-SFC-CONVERGE-SAFETY: scale alternatives off the PUBLISHED (possibly delegated) anchor so the
+      // "balanced" (1.0x) alternative equals the headline recommendation. convergeVc/Fz == Vc/fz flag-off.
+      const altVc = convergeVc * vcMult;
+      const altFz = convergeFz * fzMult;
+      const altRpm = Math.min(Math.round((1000 * altVc) / (Math.PI * rpmDiameter)), maxRPM);
       const altVf = altFz * z * altRpm;
       const altMRR = (ap * ae * altVf) / 1000;
-      const altLife = Math.max(1, Math.min(9999,
+      const altLife = Math.max(1, Math.min(9999, coatingLifeCapMin,
         Math.pow(taylorC / Math.max(altVc, 1), 1 / taylorN)
-        * coolant.life_factor.value * coatingRec.life_multiplier));
+        * coolant.life_factor.value * coatingLifeFactor));
       return {
         label,
         cutting_speed_mpm: Math.round(altVc * 10) / 10,
@@ -2957,19 +3695,46 @@ export class SpeedFeedOrchestratorEngine {
       };
     };
 
+    // HSS aggressive-Vc thermal cap (U-OSC-HSS-AGGR-VC-CAP): mirror the UltimateSpeedFeedEngine cap on
+    // the customer-facing sf_orchestrate path. HSS red-hardness (~600 C) gives it no aggressive
+    // cutting-SPEED gear in hot-cutting groups (P/M/K/S/H, NOT N-aluminum), so clamp the aggressive Vc
+    // multiplier to 1.0x (== balanced Vc) while KEEPING the aggressive feed multiplier (1.15x) -- HSS
+    // gets its aggressive MRR from feed/depth, not Vc. Monotonically safe (only lowers Vc).
+    const hssVcCapped = isHssAggressiveVcThermallyCapped(input.tool_material, material.iso_group.value);
+    const aggressiveVcMult = hssVcCapped ? 1.0 : 1.30;
+    const aggressiveNote = hssVcCapped
+      ? "Maximum MRR via feed/depth (HSS cutting speed thermally capped at the recommended level -- red-hardness limit) -- monitor tool wear closely"
+      : "Higher speed/feed for maximum MRR -- monitor tool wear closely";
     const alternatives: AlternativeSet[] = [
       makeAlternative("conservative", 0.70, 0.80,
         "Lower speed/feed for extended tool life and reduced risk"),
       makeAlternative("balanced", 1.00, 1.00,
         "Recommended parameters balancing productivity and tool life"),
-      makeAlternative("aggressive", 1.30, 1.15,
-        "Higher speed/feed for maximum MRR — monitor tool wear closely"),
+      makeAlternative("aggressive", aggressiveVcMult, 1.15, aggressiveNote),
     ];
 
     // ── Step 9: Playbook Warnings ──
     const playbook_warnings: string[] = [...dn_warnings];
     const matName = material.name.value.toLowerCase();
     const isoGroup = material.iso_group.value;
+
+    // U-SFC-MACHINE-FALLBACK-WARN (slot:oscar): when a machine_name was supplied but matched NO
+    // capability/catalog/registry source, power/rpm/torque silently fall back to generic type
+    // defaults (confidence 0.4) while resolved_machine.name still echoes the user's name at high
+    // confidence -- so the result LOOKS machine-specific while the power/torque SAFETY LIMITS are
+    // generic. Surface that honestly (oscar soul: never publish without disclosing the uncertainty).
+    // Detected via the power_kw provenance: a real match yields source "capability_*"/"catalog_*"/
+    // "user_input"; an unfound named machine yields "default_for_<type>".
+    if (input.machine_name && machine.power_kw.source.startsWith("default_for_")) {
+      playbook_warnings.push(
+        `Machine "${input.machine_name}" not found in the capability database -- using generic ` +
+        `${machine.type.value} defaults (power ${machine.power_kw.value.toFixed(1)} kW, ` +
+        `max ${machine.max_rpm.value} rpm, torque ${machine.max_torque_Nm.value.toFixed(0)} Nm, ` +
+        `confidence ${machine.power_kw.confidence.toFixed(2)}). The power/torque safety limits are ` +
+        `NOT machine-specific -- verify against your machine's spindle specs or pass ` +
+        `machine_power_kw/machine_max_rpm/machine_max_torque_nm explicitly.`
+      );
+    }
 
     if ((matName.includes("titanium") || isoGroup === "S") && isRoughing) {
       playbook_warnings.push(
@@ -3059,12 +3824,12 @@ export class SpeedFeedOrchestratorEngine {
           material_iso: isoGroup,
           tolerance_mm: geometry.feature_tolerance_mm?.value,
           wall_thickness_mm: geometry.wall_thickness_mm?.value,
-          surface_finish_Ra: finalRa,
+          surface_finish_Ra: convergeFinalRa,
           operation_type: input.operation ?? "milling",
           categories: playbookCategories,
           hardness_hrc: input.hardness_hrc,
           aspect_ratio: geometry.overhang_ratio?.value,
-          spindle_rpm: rpm,
+          spindle_rpm: convergeRpm,
         });
         if (playbookResult?.summary?.length > 0) {
           for (const warning of playbookResult.summary) {
@@ -3082,21 +3847,25 @@ export class SpeedFeedOrchestratorEngine {
     }
 
     // ── Step 10: Build and return OrchestratorResult ──
+    // NOTE: cutting_speed_mpm, feed_per_tooth_mm, feed_rate_mmmin, power_kw, torque_Nm,
+    // tangential_force_N, tool_life_min, surface_finish_Ra_um use the converge* variables which
+    // equal the orchestrator finals when PRISM_SFC_CONVERGE is unset (flag-off path unchanged)
+    // and equal UltimateSpeedFeedEngine values when the flag is set.
     const result: OrchestratorResult = {
-      cutting_speed_mpm: Math.round(Vc * 10) / 10,
-      spindle_rpm: rpm,
-      feed_per_tooth_mm: Math.round(fz * 10000) / 10000,
-      feed_rate_mmmin: Math.round(Vf),
+      cutting_speed_mpm: Math.round(convergeVc * 10) / 10,
+      spindle_rpm: convergeRpm,
+      feed_per_tooth_mm: Math.round(convergeFz * 10000) / 10000,
+      feed_rate_mmmin: Math.round(convergeVf),
       axial_depth_mm: Math.round(ap * 1000) / 1000,
       radial_depth_mm: Math.round(ae * 1000) / 1000,
 
-      mrr_cm3min: Math.round(finalMRR * 100) / 100,
-      power_kw: Math.round(finalPower * 100) / 100,
-      torque_Nm: Math.round(finalTorque * 100) / 100,
-      tangential_force_N: Math.round(finalFc),
-      tool_life_min: Math.round(finalLife),
-      surface_finish_Ra_um: roundSurfaceFinishRa(finalRa),
-      deflection_um: Math.round(finalDefl_mm * 1000 * 10) / 10,
+      mrr_cm3min: Math.round(convergeMRR * 100) / 100,
+      power_kw: Math.round(convergeFinalPower * 100) / 100,
+      torque_Nm: Math.round(convergeFinalTorque * 100) / 100,
+      tangential_force_N: Math.round(convergeFinalFc),
+      tool_life_min: Math.round(Math.min(coatingLifeCapMin, convergeFinalLife)),
+      surface_finish_Ra_um: roundSurfaceFinishRa(convergeFinalRa),
+      deflection_um: Math.round(convergeDefl_mm * 1000 * 10) / 10,
 
       overall_confidence: Math.round(overallConfidence * 1000) / 1000,
       uncertainty,
@@ -3161,6 +3930,46 @@ export class SpeedFeedOrchestratorEngine {
           confidence: input.calibration_overrides.confidence,
         };
       }
+    }
+
+    // ── SF-PSN-WIRE-MS0 U-SFPSN-10: aggregate PSN provenance ──
+    // Closes audit F1-F9: SF output declares which PSN surfaces + algorithm
+    // modules contributed to this recommendation, with per-source confidence.
+    // Data sources: proven (step 1.5), minerEvidence (1.6), wikiEvidence (1.7),
+    // memoryEvidence (1.8), plus engines_called for the algorithm modules.
+    {
+      const algorithmModules = engines_called.filter(e =>
+        // Match algorithm modules (suffix -Model/-Lobe/-Field or known names)
+        /Model$|Lobe$|Field$|Diagram$|Selector$|^Kienzle|^Taylor|^Gilbert|^Jaeger|^Stability|^FRF|^RCSA/.test(e)
+      );
+      const confidences: number[] = [];
+      if (proven.found) confidences.push(0.88);
+      if (minerEvidence.found && typeof minerEvidence.sampleCount === "number") {
+        confidences.push(Math.min(0.82, 0.50 + minerEvidence.sampleCount * 0.01));
+      }
+      if (wikiEvidence.found) confidences.push(wikiEvidence.confidence);
+      if (memoryEvidence.found) confidences.push(memoryEvidence.confidence);
+      const aggregateConfidence = confidences.length > 0
+        ? confidences.reduce((a, b) => a + b, 0) / confidences.length
+        : 0;
+
+      result.psn_surfaces = {
+        proven: { found: proven.found, source: proven.source },
+        miner: { found: minerEvidence.found, source: minerEvidence.source, sampleCount: minerEvidence.sampleCount },
+        wiki: {
+          found: wikiEvidence.found,
+          source: wikiEvidence.source,
+          confidence: wikiEvidence.confidence,
+          citationCount: wikiEvidence.citations.length,
+        },
+        memory: { found: memoryEvidence.found, source: memoryEvidence.source, confidence: memoryEvidence.confidence },
+        outcome_feedback_loop: {
+          enabled: true,
+          sink: "SpeedFeedDeepLearningEngine.recordFeedback → SFCOutcomeCaptureWireEngine (U-SFPSN-09)",
+        },
+        algorithm_modules_composed: algorithmModules,
+        aggregate_confidence: Math.round(aggregateConfidence * 1000) / 1000,
+      };
     }
 
     // ── TK-2: Tribal knowledge consumer wiring ──
@@ -3407,6 +4216,20 @@ function optimizeFn(engine: SpeedFeedOrchestratorEngine, input: OrchestratorInpu
 
   // Dimension bounds: [Vc m/min, fz mm/tooth, ap mm]
   const D = input.tool_diameter_mm ?? 12;
+  // TURNING rpm fix (U-SFC-ORCH-TURNING): lathe ops compute the rpm<->Vc relationship from the
+  // WORKPIECE diameter, not the tool (mirrors compute()'s rpmDiameter; kept inline -- extract a
+  // shared helper if a 3rd site appears). Bounds below stay tool-relative (separate milling-shaped gap).
+  const optLatheOps = new Set(["turning", "boring", "facing", "grooving", "parting", "threading"]);
+  const optOpLower = (input.operation ?? "").toLowerCase();
+  const optBoreDia =
+    optOpLower === "boring" && typeof input.bore_diameter_mm === "number" && input.bore_diameter_mm > 0
+      ? input.bore_diameter_mm
+      : null;
+  const optWorkDia =
+    typeof input.workpiece_diameter_mm === "number" && input.workpiece_diameter_mm > 0
+      ? input.workpiece_diameter_mm
+      : null;
+  const rpmDiameter = optLatheOps.has(optOpLower) ? (optBoreDia ?? optWorkDia ?? D) : D;
   const bounds: [number, number][] = [
     [20, 500],       // Vc
     [0.01, 0.3],     // fz
@@ -3423,7 +4246,7 @@ function optimizeFn(engine: SpeedFeedOrchestratorEngine, input: OrchestratorInpu
     const Vc = pos[0], fz = pos[1], ap = pos[2];
     const ae = input.radial_depth_mm ?? D * 0.5;
     const z = input.flutes ?? 4;
-    const rpm = Math.min(1000 * Vc / (Math.PI * D), input.machine_max_rpm ?? 15000);
+    const rpm = Math.min(1000 * Vc / (Math.PI * rpmDiameter), input.machine_max_rpm ?? 15000);
     const Vf = fz * z * rpm;
     const mrr = (ap * ae * Vf) / 1000; // cm³/min
 

@@ -383,8 +383,13 @@ describe("LatheSpeedFeedReasoningBridgeEngine", () => {
 
       const avgConfidence =
         result.scenarios.reduce((sum, s) => sum + s.confidence, 0) / result.scenarios.length;
+      // overall_confidence is the scenario-average rounded to the engine's 2-decimal
+      // output precision (LatheSpeedFeedReasoningBridgeEngine L656). Compare against the
+      // same rounding so a boundary average like 0.575 (IEEE-754 0.57499...) does not
+      // fail by exactly 0.005 against an unrounded expectation.
+      const expectedOverall = Math.round(avgConfidence * 100) / 100;
 
-      expect(result.overall_confidence).toBeCloseTo(avgConfidence, 2);
+      expect(result.overall_confidence).toBeCloseTo(expectedOverall, 10);
     });
 
     it("overall confidence is bounded [0.3, 0.95]", () => {

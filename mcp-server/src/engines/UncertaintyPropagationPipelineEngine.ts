@@ -450,6 +450,17 @@ class UncertaintyPropagationPipelineEngine {
    * Propagate uncertainty through a chain of physics models.
    */
   propagate(input: PipelineInput): AtomicValue<PipelineResult> {
+    // Self-validate (mirrors planJob/reportFor): propagate + propagateMC/FOSM/PCE
+    // dereference input.uncertain_params (line ~460/476) and input.stages (line ~493)
+    // with no downstream guard, so a missing/empty array would throw a TypeError.
+    // Fail loud here so EVERY caller (the prism_ai dispatcher included) gets a clear
+    // error instead of a crash.
+    if (!input || !Array.isArray(input.uncertain_params) || input.uncertain_params.length === 0) {
+      throw new Error("UncertaintyPropagationPipelineEngine.propagate: uncertain_params must be a non-empty array");
+    }
+    if (!Array.isArray(input.stages) || input.stages.length === 0) {
+      throw new Error("UncertaintyPropagationPipelineEngine.propagate: stages must be a non-empty array");
+    }
     const method = input.method ?? "mc";
     const MAX_TRIALS = 100_000;
     const N = Math.min(input.n_trials ?? 2000, MAX_TRIALS);

@@ -1,0 +1,52 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-04-15T21:30:00.000Z",
+  "description": "Maps WEDM action IDs to their implementations (engine, schema, skill)",
+  "actions": {
+    "wedm_predict_mrr": {
+      "engine": "WEDMMRREngine",
+      "method": "predictMRR",
+      "schema": "WEDMMRRInputSchema",
+      "skills": ["/wedm-studio", "/wedm-ai-advisor"],
+      "dispatcher": "wedmDispatcher"
+    },
+    "wedm_predict_ra": {
+      "engine": "WEDMSurfaceFinishEngine",
+      "method": "predictRa",
+      "schema": "WEDMRaInputSchema",
+      "skills": ["/wedm-studio", "/wedm-ai-advisor"],
+      "dispatcher": "wedmDispatcher"
+    },
+    "wedm_generate_gcode": {
+      "engine": "WEDMPostProcessorEngine",
+      "method": "generateGCode",
+      "schema": "WEDMGCodeInputSchema",
+      "skills": ["/wedm-studio", "/wedm-program"],
+      "dispatcher": "wedmDispatcher"
+    },
+    "wedm_solve_taper": {
+      "engine": "WEDMTaperSolverEngine",
+      "method": "solveTaper",
+      "schema": "WEDMTaperInputSchema",
+      "skills": ["/wedm-studio"],
+      "dispatcher": "wedmDispatcher"
+    },
+    "wedm_estimate_cost": {
+      "engine": "WEDMCostEstimatorEngine",
+      "method": "estimate",
+      "schema": "WEDMCostInputSchema",
+      "skills": ["/wedm-studio", "/quote-to-ship"],
+      "dispatcher": "wedmDispatcher"
+    },
+    "wedm_feedback_submit": {
+      "engine": "WEDMFeedbackCalibrationEngine",
+      "method": "submitFeedback",
+      "schema": "WEDMFeedbackInputSchema",
+      "skills": ["/wedm-learn"],
+      "dispatcher": "wedmDispatcher"
+    }
+  },
+  "totalActions": 256,
+  "indexedActions": 6,
+  "lastUpdated": "2026-04-15T21:30:00.000Z"
+}

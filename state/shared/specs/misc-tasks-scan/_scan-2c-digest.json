@@ -1,0 +1,1557 @@
+{
+ "files": 51,
+ "items": [
+  {
+   "file": "2c37ed17-584a-4913-9d0f-8eb3cdcea8df.jsonl",
+   "hitCount": 7,
+   "top": [
+    {
+     "role": "user",
+     "recIdx": 3445,
+     "ts": "2026-05-14T14:24:18.504Z",
+     "snippet": "# Pre-Compact — Session Continuation Handoff / / You are about to prepare for `/compact`. This is the LAST thing you do before the user runs the real `/compact` command. Your job is to capture everything needed so the next session can seamlessly continue. / / **CRITICAL**: The RESUME directive you write here is what enables auto-continue after compaction. If you write a vague RESUME, the next session will be lost. Be SPECIFIC.",
+     "score": 3
+    },
+    {
+     "role": "user",
+     "recIdx": 3445,
+     "ts": "2026-05-14T14:24:18.504Z",
+     "snippet": "You are about to prepare for `/compact`. This is the LAST thing you do before the user runs the real `/compact` command. Your job is to capture everything needed so the next session can seamlessly continue. / / **CRITICAL**: The RESUME directive you write here is what enables auto-continue after compaction. If you write a vague RESUME, the next session will be lost. Be SPECIFIC. / / **WHY THIS IS CRITICAL (2026-05-06):** The PreCompact hook auto-writer is BANNED. It used to fall back to a generi",
+     "score": 3
+    },
+    {
+     "role": "user",
+     "recIdx": 3445,
+     "ts": "2026-05-14T14:24:18.504Z",
+     "snippet": "**CRITICAL**: The RESUME directive you write here is what enables auto-continue after compaction. If you write a vague RESUME, the next session will be lost. Be SPECIFIC. / / **WHY THIS IS CRITICAL (2026-05-06):** The PreCompact hook auto-writer is BANNED. It used to fall back to a generic \"Pre-compact snapshot (RESUME generated)\" stub, which clobbered real RESUMEs and left next sessions blind. Now ONLY the live chat (this conversation, via this skill) can write a handoff. If you skip Step 1, th",
+     "score": 3
+    },
+    {
+     "role": "user",
+     "recIdx": 3445,
+     "ts": "2026-05-14T14:24:18.504Z",
+     "snippet": "- **DON'T**: \"compacting — read per-agent handoff on restore\" (placeholder — will be overridden by smart fallback) / / The PreCompact hook PRESERVES your RESUME (it can no longer overwrite it — the auto-writer is banned). If you don't write one here, the hook can't generate a fallback either — the next session will have NO handoff for this chat. / / ### State Summary:",
+     "score": 3
+    }
+   ]
+  },
+  {
+   "file": "2d4d9527-4387-4fe6-98c3-5a4ec9c4c67f.jsonl",
+   "hitCount": 33,
+   "top": [
+    {
+     "role": "user",
+     "recIdx": 426,
+     "ts": "2026-04-22T16:08:53.484Z",
+     "snippet": "This session is being continued from a previous conversation that ran out of context. The summary below covers the earlier portion of the conversation. / / Summary:",
+     "score": 4
+    },
+    {
+     "role": "user",
+     "recIdx": 30267,
+     "ts": "2026-04-24T12:26:01.978Z",
+     "snippet": "- [list of what was created/modified] / / Next: /forge [next idea] or /pick-task for remaining work / ``` /",
+     "score": 4
+    },
+    {
+     "role": "user",
+     "recIdx": 12784,
+     "ts": "2026-04-23T17:04:14.714Z",
+     "snippet": "# Pre-Compact — Session Continuation Handoff / / You are about to prepare for `/compact`. This is the LAST thing you do before the user runs the real `/compact` command. Your job is to capture everything needed so the next session can seamlessly continue. / / **CRITICAL**: The RESUME directive you write here is what enables auto-continue after compaction. If you write a vague RESUME, the next session will be lost. Be SPECIFIC.",
+     "score": 3
+    },
+    {
+     "role": "user",
+     "recIdx": 12784,
+     "ts": "2026-04-23T17:04:14.714Z",
+     "snippet": "You are about to prepare for `/compact`. This is the LAST thing you do before the user runs the real `/compact` command. Your job is to capture everything needed so the next session can seamlessly continue. / / **CRITICAL**: The RESUME directive you write here is what enables auto-continue after compaction. If you write a vague RESUME, the next session will be lost. Be SPECIFIC. / / ## Step 0: MARK COMPLETED TASKS (MANDATORY — DO FIRST)",
+     "score": 3
+    },
+    {
+     "role": "user",
+     "recIdx": 30267,
+     "ts": "2026-04-24T12:26:01.978Z",
+     "snippet": "3. Ship it (`/ship` protocol — includes `/remember` for key findings) / 4. Report what's done and what remains / 5. Next session: `/startup` → `/handoff read` → `/pick-task [next-unit-id]` / / ## End State",
+     "score": 3
+    }
+   ]
+  },
+  {
+   "file": "2d5f83fd-5962-4f49-85f2-9988a830948c.jsonl",
+   "hitCount": 6,
+   "top": [
+    {
+     "role": "user",
+     "recIdx": 1511,
+     "ts": "2026-04-13T18:40:02.274Z",
+     "snippet": "This session is being continued from a previous conversation that ran out of context. The summary below covers the earlier portion of the conversation. / / Summary:",
+     "score": 4
+    },
+    {
+     "role": "user",
+     "recIdx": 2915,
+     "ts": "2026-04-13T19:00:37.469Z",
+     "snippet": "- **TS2769: No overload matches this call** on `.default({})`: Fixed by changing to `.optional()` / - **Test mutation bug**: Tests were failing because `createGoldenAtom` returned shallow copy of source object. Test setting `authorityRank = 15` mutated golden data. Fixed by deep copying: `source: { ...partial.source }` / - **TS2322: Type '\"post-extraction\"' is not assignable to type 'HookPhase'**: Partially fixed by changing to \"post-batch-import\". Still need to fix \"pre-wiring\" → appropriate ph",
+     "score": 3
+    },
+    {
+     "role": "user",
+     "recIdx": 2915,
+     "ts": "2026-04-13T19:00:37.469Z",
+     "snippet": "/ 8. Current Work: / Working on KAR-MS1 U-KAR07: Post-extraction auto-wire hook. Created KnowledgeHooks.ts with two hooks but encountered type error on the phase values. Fixed \"post-extraction\" → \"post-batch-import\" but still need to fix \"pre-wiring\" on line 332 of KnowledgeHooks.ts. The edit made was: / ```typescript / // Changed from:",
+     "score": 3
+    },
+    {
+     "role": "user",
+     "recIdx": 2915,
+     "ts": "2026-04-13T19:00:37.469Z",
+     "snippet": "phase: \"post-batch-import\", / ``` / Still need to fix line 332: `phase: \"pre-wiring\"` → valid HookPhase / / 9. Optional Next Step:",
+     "score": 3
+    }
+   ]
+  },
+  {
+   "file": "2d94e41e-d14f-468a-8a31-d3dcd2003d9d.jsonl",
+   "hitCount": 15,
+   "top": [
+    {
+     "role": "user",
+     "recIdx": 8399,
+     "ts": "2026-04-19T18:11:28.597Z",
+     "snippet": "- Created `H:/prism/mcp-server/src/__tests__/engines/NISTAIRMFComplianceEngine.test.ts` / - Ran tests: `npx vitest run src/__tests__/engines/NISTAIRMFComplianceEngine.test.ts` → **19/19 tests pass, 210ms duration** / - The engine is implemented but NOT YET wired into `complianceDispatcher.ts` and NOT YET committed / - Task tracker state: #1-3 completed, #4 in_progress, #5-6 pending /",
+     "score": 6
+    },
+    {
+     "role": "user",
+     "recIdx": 10151,
+     "ts": "2026-04-19T18:35:56.885Z",
+     "snippet": "- Solved U-LPR-OPS-SBOM-REVIEW: net-new engine (~430 LOC) + 27 tests + 18 schemas + 18 switch cases → committed cleanly as `541c0b078`. / - Phase-11 now fully closed: all 7 units (CAPACITY, DR, BACKUP, ONBOARD, NIST, CHAOS, SBOM-REVIEW) complete. / - In-progress: U-LPR-PERF-SLO (Phase-10) — LatencyBudgetDecompositionEngine source + tests written; not yet run, not yet wired, not yet committed. / / 6. All user messages:",
+     "score": 6
+    },
+    {
+     "role": "user",
+     "recIdx": 5758,
+     "ts": "2026-04-19T16:41:38.402Z",
+     "snippet": "This session is being continued from a previous conversation that ran out of context. The summary below covers the earlier portion of the conversation. / / Summary:",
+     "score": 4
+    },
+    {
+     "role": "user",
+     "recIdx": 1083,
+     "ts": "2026-04-19T16:31:38.438Z",
+     "snippet": "# Pre-Compact — Session Continuation Handoff / / You are about to prepare for `/compact`. This is the LAST thing you do before the user runs the real `/compact` command. Your job is to capture everything needed so the next session can seamlessly continue. / / **CRITICAL**: The RESUME directive you write here is what enables auto-continue after compaction. If you write a vague RESUME, the next session will be lost. Be SPECIFIC.",
+     "score": 3
+    },
+    {
+     "role": "user",
+     "recIdx": 1083,
+     "ts": "2026-04-19T16:31:38.438Z",
+     "snippet": "You are about to prepare for `/compact`. This is the LAST thing you do before the user runs the real `/compact` command. Your job is to capture everything needed so the next session can seamlessly continue. / / **CRITICAL**: The RESUME directive you write here is what enables auto-continue after compaction. If you write a vague RESUME, the next session will be lost. Be SPECIFIC. / / ## Step 0: MARK COMPLETED TASKS (MANDATORY — DO FIRST)",
+     "score": 3
+    },
+    {
+     "role": "user",
+     "recIdx": 8399,
+     "ts": "2026-04-19T18:11:28.597Z",
+     "snippet": "- Solved: git lock identity bug (root cause diagnosed + patched + tested) / - Solved: 5 full engine+test+schema+dispatcher implementations (DR, Backup, Onboarding, NIST engine-side) with 54+19 = 73/73 tests passing / - Ongoing: NIST schemas + dispatcher wiring not yet done; not yet committed / / 6. All user messages:",
+     "score": 3
+    }
+   ]
+  },
+  {
+   "file": "2ed43935-c9bd-40a8-9664-aa0da47625d5.jsonl",
+   "hitCount": 2,
+   "top": [
+    {
+     "role": "user",
+     "recIdx": 5649,
+     "ts": "2026-04-20T23:34:51.215Z",
+     "snippet": "This session is being continued from a previous conversation that ran out of context. The summary below covers the earlier portion of the conversation. / / Summary:",
+     "score": 4
+    }
+   ]
+  },
+  {
+   "file": "31dfad9c-e3d3-481b-b478-88a7afb43ffe.jsonl",
+   "hitCount": 2,
+   "top": [
+    {
+     "role": "user",
+     "recIdx": 636,
+     "ts": "2026-05-06T12:27:01.908Z",
+     "snippet": "- [list of what was created/modified] / / Next: /forge [next idea] or /pick-task for remaining work / ``` /",
+     "score": 4
+    },
+    {
+     "role": "user",
+     "recIdx": 636,
+     "ts": "2026-05-06T12:27:01.908Z",
+     "snippet": "3. Ship it (`/ship` protocol — includes `/remember` for key findings) / 4. Report what's done and what remains / 5. Next session: `/startup` → `/handoff read` → `/pick-task [next-unit-id]` / / ## End State",
+     "score": 3
+    }
+   ]
+  },
+  {
+   "file": "32a39c0c-ec85-4b35-bb0c-265f75d8b968.jsonl",
+   "hitCount": 14,
+   "top": [
+    {
+     "role": "user",
+     "recIdx": 1956,
+     "ts": "2026-05-16T01:26:46.257Z",
+     "snippet": "This session is being continued from a previous conversation that ran out of context. The summary below covers the earlier portion of the conversation. / / Summary:",
+     "score": 4
+    },
+    {
+     "role": "user",
+     "recIdx": 10411,
+     "ts": "2026-05-16T04:25:05.722Z",
+     "snippet": "# Pre-Compact — Session Continuation Handoff / / You are about to prepare for `/compact`. This is the LAST thing you do before the user runs the real `/compact` command. Your job is to capture everything needed so the next session can seamlessly continue. / / **CRITICAL**: The RESUME directive you write here is what enables auto-continue after compaction. If you write a vague RESUME, the next session will be lost. Be SPECIFIC.",
+     "score": 3
+    },
+    {
+     "role": "user",
+     "recIdx": 10411,
+     "ts": "2026-05-16T04:25:05.722Z",
+     "snippet": "You are about to prepare for `/compact`. This is the LAST thing you do before the user runs the real `/compact` command. Your job is to capture everything needed so the next session can seamlessly continue. / / **CRITICAL**: The RESUME directive you write here is what enables auto-continue after compaction. If you write a vague RESUME, the next session will be lost. Be SPECIFIC. / / **WHY THIS IS CRITICAL (2026-05-06):** The PreCompact hook auto-writer is BANNED. It used to fall back to a generi",
+     "score": 3
+    },
+    {
+     "role": "user",
+     "recIdx": 10411,
+     "ts": "2026-05-16T04:25:05.722Z",
+     "snippet": "**CRITICAL**: The RESUME directive you write here is what enables auto-continue after compaction. If you write a vague RESUME, the next session will be lost. Be SPECIFIC. / / **WHY THIS IS CRITICAL (2026-05-06):** The PreCompact hook auto-writer is BANNED. It used to fall back to a generic \"Pre-compact snapshot (RESUME generated)\" stub, which clobbered real RESUMEs and left next sessions blind. Now ONLY the live chat (this conversation, via this skill) can write a handoff. If you skip Step 1, th",
+     "score": 3
+    },
+    {
+     "role": "user",
+     "recIdx": 10411,
+     "ts": "2026-05-16T04:25:05.722Z",
+     "snippet": "- **DON'T**: \"compacting — read per-agent handoff on restore\" (placeholder — will be overridden by smart fallback) / / The PreCompact hook PRESERVES your RESUME (it can no longer overwrite it — the auto-writer is banned). If you don't write one here, the hook can't generate a fallback either — the next session will have NO handoff for this chat. / / ### State Summary:",
+     "score": 3
+    }
+   ]
+  },
+  {
+   "file": "32bface5-4d52-4196-a29f-0b1d36576ac8.jsonl",
+   "hitCount": 1,
+   "top": [
+    {
+     "role": "user",
+     "recIdx": 2046,
+     "ts": "2026-04-20T01:13:48.438Z",
+     "snippet": "This session is being continued from a previous conversation that ran out of context. The summary below covers the earlier portion of the conversation. / / Summary:",
+     "score": 4
+    }
+   ]
+  },
+  {
+   "file": "339c8ff7-73f9-4ab2-9d68-2e10d32f5267.jsonl",
+   "hitCount": 24,
+   "top": [
+    {
+     "role": "user",
+     "recIdx": 9079,
+     "ts": "2026-05-15T17:43:02.893Z",
+     "snippet": "Just committed the WIRE-EXEMPT marker (commit 00fd2f52a) to LatheProgramCatalogEngine.ts to clear the Stop hook's orphan-engine block. The marker explains: / - Engine pre-dates U-PPL-D2 (LATHE-AWARE-HARDEN MS10, E108) / - Pre-existing surfaces (classifyFile/scanDirectory/findSimilarPrograms/getProgrammingHistory/getStyleDistribution) not yet wired / - U-PPL-D2 additions (linkPrint/linkPrintBatch/validateLinkInfo) reachable through parent ProgramMemoryEngine dispatcher path via shared resolveAuto",
+     "score": 6
+    },
+    {
+     "role": "assistant",
+     "recIdx": 5139,
+     "ts": "2026-05-15T16:11:46.302Z",
+     "snippet": "Reviewer A: PASS (0 P0/P1, 2 P2-P3 deferrables — pre-existing read_print_pointer gap + cosmetic Zod fallback). Reviewer B hit rate limit — will replay through end-of-task 3-of-3. Schema linter-tidy is fine. Moving to build + test verification:",
+     "score": 5
+    },
+    {
+     "role": "assistant",
+     "recIdx": 32903,
+     "ts": "2026-05-16T02:02:34.126Z",
+     "snippet": "**What shipped:** / - EXTENDED `blueprint-accuracy-guard.mjs` from dead-code legacy to modern PostToolUse with closed-loop learning events (drift/replay/correction/consolidate → JSONL for offline `xproc_*` consumption) / - NEW `blueprint-coverage-floor-guard.mjs` Stop hook in MINIMAL_ALLOWLIST — blocks Stop when extraction-path code changes without fresh audit; 5-branch ladder including graceful degradation (defer when U8 not yet shipped) / - 13 forward-compatible regex patterns cover U1-U8 engi",
+     "score": 5
+    },
+    {
+     "role": "assistant",
+     "recIdx": 38088,
+     "ts": "2026-05-16T02:56:24.192Z",
+     "snippet": "- **HARD RULES enforced via Zod refine + tests**: RAG sources-cited (U7), LoRA customer-name anonymization (U8), extraction-path coverage floor (U5), Stop block ceiling 3 (U5) / - **Per-file scrutiny gate** caught 2 P0 + 7 P1 on U5; convergent reviewer P1s on U3 + U7 + U8 all fixed pre-commit / - **3-of-3 end-of-task scrutiny PASS** on U5 (one full pass; U3-U8 deferred to next chat per autonomous-loop test directive) / / **Continuing to test the autonomous precompact/compact/handoff chain** — co",
+     "score": 5
+    },
+    {
+     "role": "user",
+     "recIdx": 3630,
+     "ts": "2026-05-15T15:20:52.773Z",
+     "snippet": "This session is being continued from a previous conversation that ran out of context. The summary below covers the earlier portion of the conversation. / / Summary:",
+     "score": 4
+    },
+    {
+     "role": "user",
+     "recIdx": 38427,
+     "ts": "2026-05-16T03:03:01.711Z",
+     "snippet": "- Post-ship distill memos for U3-U8 / / **P2 deferred items from per-file scrutiny:** / - JSONL concurrent-write atomicity / - Sid-sharded block ledger",
+     "score": 4
+    },
+    {
+     "role": "user",
+     "recIdx": 3633,
+     "ts": "2026-05-15T15:21:03.308Z",
+     "snippet": "<local-command-stdout>\u001b[2mCompacted (ctrl+o to see full summary)\u001b[22m / \u001b[2mPreCompact [\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/claude-brief-precompact.mjs] completed successfully: {\"continue\":true,\"systemMessage\":\"**AWARENESS BACKBONE — PRESERVE THIS IN COMPACTED SUMMARY**\\n\\nThree auto-injected files survive on disk and are the source of truth for PRISM:\\n- `H:/prism/state/shared/CLAUDE-BRIEF.md` (0.1h old) — what we have (process priority mill > lathe > WEDM, CAM tier-1 priority",
+     "score": 3
+    },
+    {
+     "role": "user",
+     "recIdx": 27279,
+     "ts": "2026-05-16T00:44:54.200Z",
+     "snippet": "- Both tasks (#1 U-PPL-A5 ship and #2 Iter 5+ continue) marked completed / - Loop ended at iter 4/4 with MS-PRINT-PROGRAM-LOOP at 7/23 (NOT full milestone-complete — user's extended /goal target not reached, hit natural stopping point at context budget + per-file scrutiny overhead) / - **Logged follow-up units** (in memory + handoff, NOT auto-claimed): / - MockMCPServer harness retrofit for BATCH1-5 + U-PPL-A5 wiring tests (P0-2 deferred) / - Backfill 6 BATCH1 missing schemas (mill_helical_calc ",
+     "score": 3
+    }
+   ]
+  },
+  {
+   "file": "33c70c0d-5eb3-4665-b130-fc94af54b8c0.jsonl",
+   "hitCount": 6,
+   "top": [
+    {
+     "role": "user",
+     "recIdx": 2722,
+     "ts": "2026-05-04T19:25:19.679Z",
+     "snippet": "This session is being continued from a previous conversation that ran out of context. The summary below covers the earlier portion of the conversation. / / Summary:",
+     "score": 4
+    },
+    {
+     "role": "user",
+     "recIdx": 2277,
+     "ts": "2026-05-04T19:17:13.490Z",
+     "snippet": "# Pre-Compact — Session Continuation Handoff / / You are about to prepare for `/compact`. This is the LAST thing you do before the user runs the real `/compact` command. Your job is to capture everything needed so the next session can seamlessly continue. / / **CRITICAL**: The RESUME directive you write here is what enables auto-continue after compaction. If you write a vague RESUME, the next session will be lost. Be SPECIFIC.",
+     "score": 3
+    },
+    {
+     "role": "user",
+     "recIdx": 2277,
+     "ts": "2026-05-04T19:17:13.490Z",
+     "snippet": "You are about to prepare for `/compact`. This is the LAST thing you do before the user runs the real `/compact` command. Your job is to capture everything needed so the next session can seamlessly continue. / / **CRITICAL**: The RESUME directive you write here is what enables auto-continue after compaction. If you write a vague RESUME, the next session will be lost. Be SPECIFIC. / / ## Step 0: MARK COMPLETED TASKS (MANDATORY — DO FIRST)",
+     "score": 3
+    },
+    {
+     "role": "user",
+     "recIdx": 2722,
+     "ts": "2026-05-04T19:25:19.679Z",
+     "snippet": "- Identified ~50 untested non-HM CAM engines; picked 4 smallest unclaimed. / - Test failures were real test bugs (not engine bugs) caught by behavioral assertions, not stub patterns — exactly what strict-legitimacy aims for. / - Reviewer caught a class of mistake (typeof guards) that's easy to fall into; fixed pattern is now codified in CONTINUE_CAM_WORK.md guidance for next session. / / 6. All user messages:",
+     "score": 3
+    },
+    {
+     "role": "user",
+     "recIdx": 2722,
+     "ts": "2026-05-04T19:25:19.679Z",
+     "snippet": "7. Pending Tasks: / - Run `/compact` (user must trigger; I cannot run it myself per /precompact protocol) / - Continue CAM-EXHAUST-MS0 vendor-engine backfill in next session — pick 2-3 from CONTINUE_CAM_WORK.md remaining queue (CAMRecommendEngine 371 lines, CAMToolGetEngine 361 lines, MastercamControllerCatalogEngine 707 lines are smallest unclaimed) / / 8. Current Work:",
+     "score": 3
+    }
+   ]
+  },
+  {
+   "file": "34950a5c-7ec9-4b30-a99d-fd1b682b67e8.jsonl",
+   "hitCount": 5,
+   "top": [
+    {
+     "role": "user",
+     "recIdx": 1816,
+     "ts": "2026-05-15T02:37:25.773Z",
+     "snippet": "# Pre-Compact — Session Continuation Handoff / / You are about to prepare for `/compact`. This is the LAST thing you do before the user runs the real `/compact` command. Your job is to capture everything needed so the next session can seamlessly continue. / / **CRITICAL**: The RESUME directive you write here is what enables auto-continue after compaction. If you write a vague RESUME, the next session will be lost. Be SPECIFIC.",
+     "score": 3
+    },
+    {
+     "role": "user",
+     "recIdx": 1816,
+     "ts": "2026-05-15T02:37:25.773Z",
+     "snippet": "You are about to prepare for `/compact`. This is the LAST thing you do before the user runs the real `/compact` command. Your job is to capture everything needed so the next session can seamlessly continue. / / **CRITICAL**: The RESUME directive you write here is what enables auto-continue after compaction. If you write a vague RESUME, the next session will be lost. Be SPECIFIC. / / **WHY THIS IS CRITICAL (2026-05-06):** The PreCompact hook auto-writer is BANNED. It used to fall back to a generi",
+     "score": 3
+    },
+    {
+     "role": "user",
+     "recIdx": 1816,
+     "ts": "2026-05-15T02:37:25.773Z",
+     "snippet": "**CRITICAL**: The RESUME directive you write here is what enables auto-continue after compaction. If you write a vague RESUME, the next session will be lost. Be SPECIFIC. / / **WHY THIS IS CRITICAL (2026-05-06):** The PreCompact hook auto-writer is BANNED. It used to fall back to a generic \"Pre-compact snapshot (RESUME generated)\" stub, which clobbered real RESUMEs and left next sessions blind. Now ONLY the live chat (this conversation, via this skill) can write a handoff. If you skip Step 1, th",
+     "score": 3
+    },
+    {
+     "role": "user",
+     "recIdx": 1816,
+     "ts": "2026-05-15T02:37:25.773Z",
+     "snippet": "- **DON'T**: \"compacting — read per-agent handoff on restore\" (placeholder — will be overridden by smart fallback) / / The PreCompact hook PRESERVES your RESUME (it can no longer overwrite it — the auto-writer is banned). If you don't write one here, the hook can't generate a fallback either — the next session will have NO handoff for this chat. / / ### State Summary:",
+     "score": 3
+    }
+   ]
+  },
+  {
+   "file": "3764678e-8888-488b-9a79-2d9f9d2df267.jsonl",
+   "hitCount": 12,
+   "top": [
+    {
+     "role": "user",
+     "recIdx": 21102,
+     "ts": "2026-05-02T00:09:03.058Z",
+     "snippet": "/ 7. Pending Tasks: / The 6 wave-1 units NOT shipped this session (per RESUME directive in handoff): / - **P0-U04** (~15min): promote ollama-auto-router to first UserPromptSubmit matcher in H:/.claude/settings.json / - **P2-U01** (~30min): UNIFIED_ERROR_LEDGER schema in mcp-server/data/state/ + Zod schema in src/schemas/ + ingest stub",
+     "score": 6
+    },
+    {
+     "role": "user",
+     "recIdx": 9848,
+     "ts": "2026-05-01T20:08:48.196Z",
+     "snippet": "This session is being continued from a previous conversation that ran out of context. The summary below covers the earlier portion of the conversation. / / Summary:",
+     "score": 4
+    },
+    {
+     "role": "user",
+     "recIdx": 9507,
+     "ts": "2026-05-01T19:51:03.129Z",
+     "snippet": "# Pre-Compact — Session Continuation Handoff / / You are about to prepare for `/compact`. This is the LAST thing you do before the user runs the real `/compact` command. Your job is to capture everything needed so the next session can seamlessly continue. / / **CRITICAL**: The RESUME directive you write here is what enables auto-continue after compaction. If you write a vague RESUME, the next session will be lost. Be SPECIFIC.",
+     "score": 3
+    },
+    {
+     "role": "user",
+     "recIdx": 9507,
+     "ts": "2026-05-01T19:51:03.129Z",
+     "snippet": "You are about to prepare for `/compact`. This is the LAST thing you do before the user runs the real `/compact` command. Your job is to capture everything needed so the next session can seamlessly continue. / / **CRITICAL**: The RESUME directive you write here is what enables auto-continue after compaction. If you write a vague RESUME, the next session will be lost. Be SPECIFIC. / / ## Step 0: MARK COMPLETED TASKS (MANDATORY — DO FIRST)",
+     "score": 3
+    },
+    {
+     "role": "user",
+     "recIdx": 9848,
+     "ts": "2026-05-01T20:08:48.196Z",
+     "snippet": "> \"Continue P4-U03: build .claude/hooks/pre-shop-floor-commit-consensus.mjs per envelope spec. P3-U04+P4-U01+P4-U02+P4-U05 shipped (commits 3494f6875 188fc0e8d 1c2abac91 796e3d4aa 48b0bc532 b946e349f, all pushed, 78/78 tests green). 20/23 done. P4-U03 hook drafted inline in prior chat but NOT written. Trigger pattern: src/physics/constants.ts, PostProcessor*.ts, GcodeEmit*.ts, kienzle*, taylor*. Decision mapping: FAIL→exit 2, CONDITIONAL→exit 0 + warn, PASS→exit 0 silent, throw→exit 0 fail-OPEN.",
+     "score": 3
+    }
+   ]
+  },
+  {
+   "file": "379c35e0-101e-45ef-a542-8bab640aca59.jsonl",
+   "hitCount": 40,
+   "top": [
+    {
+     "role": "user",
+     "recIdx": 3548,
+     "ts": "2026-04-29T01:25:15.905Z",
+     "snippet": "- **Op duplication avoidance**: probing.json already had 3 inspection-flavored ops (INSPECT_FEATURE_VERIFY, INSPECT_TOLERANCE_GATE, INSPECT_SPC_LOG). MS1-04 chose CMM-planning/tolerance-stack/GD&T validation/reporting layer ops to complement, not duplicate. / - **Ongoing**: Pre-existing camxMs22U01ActionSchemas.ts missing — flagged to user as cross-chat coordination signal. NOT being fixed in this lane. / - **Crash recovery and orphan node cleanup**: blocked by precompact threshold; deferred to ",
+     "score": 6
+    },
+    {
+     "role": "user",
+     "recIdx": 3548,
+     "ts": "2026-04-29T01:25:15.905Z",
+     "snippet": "This session is being continued from a previous conversation that ran out of context. The summary below covers the earlier portion of the conversation. / / Summary:",
+     "score": 4
+    },
+    {
+     "role": "user",
+     "recIdx": 3430,
+     "ts": "2026-04-29T01:17:11.987Z",
+     "snippet": "# Pre-Compact — Session Continuation Handoff / / You are about to prepare for `/compact`. This is the LAST thing you do before the user runs the real `/compact` command. Your job is to capture everything needed so the next session can seamlessly continue. / / **CRITICAL**: The RESUME directive you write here is what enables auto-continue after compaction. If you write a vague RESUME, the next session will be lost. Be SPECIFIC.",
+     "score": 3
+    },
+    {
+     "role": "user",
+     "recIdx": 3430,
+     "ts": "2026-04-29T01:17:11.987Z",
+     "snippet": "You are about to prepare for `/compact`. This is the LAST thing you do before the user runs the real `/compact` command. Your job is to capture everything needed so the next session can seamlessly continue. / / **CRITICAL**: The RESUME directive you write here is what enables auto-continue after compaction. If you write a vague RESUME, the next session will be lost. Be SPECIFIC. / / ## Step 0: MARK COMPLETED TASKS (MANDATORY — DO FIRST)",
+     "score": 3
+    },
+    {
+     "role": "user",
+     "recIdx": 7042,
+     "ts": "2026-04-29T03:34:24.886Z",
+     "snippet": "Direct quote from my last work just before threshold block: \"Hmm — `claudeParentPid` is unstable (changed from 31964 → 26440 between hook invocations), meaning Claude Code spawns hooks via short-lived intermediaries. The parent-PID approach is broken on Windows. Reverting to a tighter heartbeat-only signal.\" / / **After /compact completes**: The next session should begin by reverting the parent-PID gating in the 3 files listed above, lowering PRESENCE_TTL_MS to 5 minutes, and running the reaper ",
+     "score": 3
+    }
+   ]
+  },
+  {
+   "file": "38217068-8504-4624-9df2-0504b748a0bb.jsonl",
+   "hitCount": 5,
+   "top": [
+    {
+     "role": "user",
+     "recIdx": 5783,
+     "ts": "2026-04-21T02:07:29.092Z",
+     "snippet": "This session is being continued from a previous conversation that ran out of context. The summary below covers the earlier portion of the conversation. / / Summary:",
+     "score": 4
+    },
+    {
+     "role": "user",
+     "recIdx": 5111,
+     "ts": "2026-04-21T02:01:58.622Z",
+     "snippet": "# Pre-Compact — Session Continuation Handoff / / You are about to prepare for `/compact`. This is the LAST thing you do before the user runs the real `/compact` command. Your job is to capture everything needed so the next session can seamlessly continue. / / **CRITICAL**: The RESUME directive you write here is what enables auto-continue after compaction. If you write a vague RESUME, the next session will be lost. Be SPECIFIC.",
+     "score": 3
+    },
+    {
+     "role": "user",
+     "recIdx": 5111,
+     "ts": "2026-04-21T02:01:58.622Z",
+     "snippet": "You are about to prepare for `/compact`. This is the LAST thing you do before the user runs the real `/compact` command. Your job is to capture everything needed so the next session can seamlessly continue. / / **CRITICAL**: The RESUME directive you write here is what enables auto-continue after compaction. If you write a vague RESUME, the next session will be lost. Be SPECIFIC. / / ## Step 0: MARK COMPLETED TASKS (MANDATORY — DO FIRST)",
+     "score": 3
+    }
+   ]
+  },
+  {
+   "file": "38460387-a5bc-44f3-95a4-50a0eec02f96.jsonl",
+   "hitCount": 8,
+   "top": [
+    {
+     "role": "user",
+     "recIdx": 1387,
+     "ts": "2026-04-27T01:09:50.495Z",
+     "snippet": "This session is being continued from a previous conversation that ran out of context. The summary below covers the earlier portion of the conversation. / / Summary:",
+     "score": 4
+    },
+    {
+     "role": "user",
+     "recIdx": 1468,
+     "ts": "2026-04-27T01:10:03.204Z",
+     "snippet": "# Pre-Compact — Session Continuation Handoff / / You are about to prepare for `/compact`. This is the LAST thing you do before the user runs the real `/compact` command. Your job is to capture everything needed so the next session can seamlessly continue. / / **CRITICAL**: The RESUME directive you write here is what enables auto-continue after compaction. If you write a vague RESUME, the next session will be lost. Be SPECIFIC.",
+     "score": 3
+    },
+    {
+     "role": "user",
+     "recIdx": 1468,
+     "ts": "2026-04-27T01:10:03.204Z",
+     "snippet": "You are about to prepare for `/compact`. This is the LAST thing you do before the user runs the real `/compact` command. Your job is to capture everything needed so the next session can seamlessly continue. / / **CRITICAL**: The RESUME directive you write here is what enables auto-continue after compaction. If you write a vague RESUME, the next session will be lost. Be SPECIFIC. / / ## Step 0: MARK COMPLETED TASKS (MANDATORY — DO FIRST)",
+     "score": 3
+    },
+    {
+     "role": "user",
+     "recIdx": 1920,
+     "ts": "2026-04-27T01:16:16.657Z",
+     "snippet": "/ 7. Pending Tasks: / - U-CAM48 (in progress): Still need to create: / - `mcp-server/data/cam-functions/catia/drilling.json` - comprehensive hole operations / - `mcp-server/data/cam-functions/catia/5axis.json` - multi-axis specific operations",
+     "score": 3
+    }
+   ]
+  },
+  {
+   "file": "38686688-aeea-4e61-8bdb-08e2f4e86100.jsonl",
+   "hitCount": 2,
+   "top": [
+    {
+     "role": "user",
+     "recIdx": 102,
+     "ts": "2026-04-01T01:22:29.481Z",
+     "snippet": "### Stage 9: Dependency Resolution / Validate DAG, resolve references. Check that: / - No unit depends on something not yet built / - No circular dependencies / - Compaction points don't split dependent units",
+     "score": 6
+    },
+    {
+     "role": "user",
+     "recIdx": 102,
+     "ts": "2026-04-01T01:22:29.481Z",
+     "snippet": "- Forge-triple gate blocks compaction without hook + action + skill / - Session audit agent reviews work before every compaction / - PostCompact: Feature Cascade writes SESSION_ARTIFACTS.json for next session / - SessionStart: reads Feature Cascade, reports live system counts + new capabilities /",
+     "score": 3
+    }
+   ]
+  },
+  {
+   "file": "3903ab98-fb9a-454b-b142-cfec282ad0b0.jsonl",
+   "hitCount": 2,
+   "top": [
+    {
+     "role": "user",
+     "recIdx": 1048,
+     "ts": "2026-04-14T13:24:25.527Z",
+     "snippet": "This session is being continued from a previous conversation that ran out of context. The summary below covers the earlier portion of the conversation. / / Summary:",
+     "score": 4
+    }
+   ]
+  },
+  {
+   "file": "3a1c1c68-a4cf-4705-a813-b80ec43b26fa.jsonl",
+   "hitCount": 1,
+   "top": [
+    {
+     "role": "user",
+     "recIdx": 158,
+     "ts": "2026-05-16T04:06:42.582Z",
+     "snippet": "| 4 | Regressions auto-flow to CLAUDE.md | Boris CLAUDE.md back-flow | NEW Phase 6.M | / | 5 | HTML output companion for milestone summary | Thariq HTML > Markdown | NEW Phase 6.N | / | 6 | Follow-up units registered via /loop or /schedule | cyrilXBT recurring + Boris /loop | NEW Phase 6.O | / | 7 | Karpathy anti-drift every 5 units | Karpathy LLM-Wiki | Phase 4D (already in v6, hardened in v7) | / | 8 | Composite chain `/forge-go` exit | Boris /go | NEW Phase 6.P |",
+     "score": 3
+    }
+   ]
+  },
+  {
+   "file": "3afd44e5-f2bf-4581-b79a-baf2688d871f.jsonl",
+   "hitCount": 5,
+   "top": [
+    {
+     "role": "user",
+     "recIdx": 3666,
+     "ts": "2026-04-19T18:13:14.222Z",
+     "snippet": "This session is being continued from a previous conversation that ran out of context. The summary below covers the earlier portion of the conversation. / / Summary:",
+     "score": 4
+    }
+   ]
+  },
+  {
+   "file": "3c93458e-6160-4049-97a3-4060539e018f.jsonl",
+   "hitCount": 40,
+   "top": [
+    {
+     "role": "user",
+     "recIdx": 203,
+     "ts": "2026-04-03T00:04:54.894Z",
+     "snippet": "### Stage 9: Dependency Resolution / Validate DAG, resolve references. Check that: / - No unit depends on something not yet built / - No circular dependencies / - Compaction points don't split dependent units",
+     "score": 6
+    },
+    {
+     "role": "user",
+     "recIdx": 633,
+     "ts": "2026-04-03T16:06:36.776Z",
+     "snippet": "This session is being continued from a previous conversation that ran out of context. The summary below covers the earlier portion of the conversation. / / Summary:",
+     "score": 4
+    },
+    {
+     "role": "user",
+     "recIdx": 203,
+     "ts": "2026-04-03T00:04:54.894Z",
+     "snippet": "- Forge-triple gate blocks compaction without hook + action + skill / - Session audit agent reviews work before every compaction / - PostCompact: Feature Cascade writes SESSION_ARTIFACTS.json for next session / - SessionStart: reads Feature Cascade, reports live system counts + new capabilities /",
+     "score": 3
+    },
+    {
+     "role": "user",
+     "recIdx": 3148,
+     "ts": "2026-04-04T17:24:29.366Z",
+     "snippet": "\u001b[2mPreCompact [node H:/prism/.claude/helpers/pre-compact.mjs] completed successfully: {\"additionalContext\":\"COMPACTION IMMINENT — State preserved in .compaction-survival.md. Position: # CURRENT POSITION ## Updated: 2026-04-04 **Phase:** WEDM-HARDEN-MS0 — WEDM Hard. 0 uncommitted files. SVI: # PRISM System Variability Index **Updated**: 2026-04-04T17:20:42.285Z **SVI**: 2.6 × 10^43 **Reacha. After compaction, read .claude/helpers/.compaction-survival.md and H:/prism/state/shared/SVI-compact.md p",
+     "score": 3
+    },
+    {
+     "role": "user",
+     "recIdx": 3569,
+     "ts": "2026-04-05T00:49:41.224Z",
+     "snippet": "Continue the RGS 10-stage pipeline from Stage 3 (Knowledge Source Mapping). The user explicitly said \"should we run this through the rgs pipeline?\" and I confirmed and began executing. The pipeline was interrupted by the safety-critical test mandate update (now applied to rgs.md). The next step is to resume at Stage 3 and complete through Stage 10, including the 10-agent scrutiny. / / I suggested compacting before continuing: \"Context is getting heavy. Should I compact and continue the full RGS ",
+     "score": 3
+    },
+    {
+     "role": "user",
+     "recIdx": 4197,
+     "ts": "2026-04-05T05:37:16.761Z",
+     "snippet": "- S1 U-W100-02: Replace PASS_BASELINES with published lookup — NOT STARTED / - 35 more units remaining across S2-S11 / - User was asked \"Context is getting heavy — should I compact and continue S1 in next session?\" — no answer yet before compaction triggered / / 8. Current Work:",
+     "score": 3
+    },
+    {
+     "role": "user",
+     "recIdx": 4197,
+     "ts": "2026-04-05T05:37:16.761Z",
+     "snippet": "/ 9. Optional Next Step: / Continue WEDM-100PCT-MS0 execution with S1 (U-W100-01: Build published cutting condition database). As stated at end of session: \"S0 complete. Ready to proceed to S1 (U-W100-01: Build published cutting condition database).\" The user said \"begin\" to start execution, and S0 is now complete. S1 contains units U-W100-01 (published conditions DB), U-W100-03a (Ra standardization for 3 small engines), and U-W100-02 (replace PASS_BASELINES). There are 0 uncommitted files. Shou",
+     "score": 3
+    },
+    {
+     "role": "user",
+     "recIdx": 4200,
+     "ts": "2026-04-05T05:37:17.153Z",
+     "snippet": "\u001b[2mPreCompact [node H:/prism/.claude/helpers/roadmap-to-queue.mjs sync] completed successfully: {\"ok\":true,\"total_tasks\":161,\"queue_written\":\"H:\\\\prism\\\\state\\\\shared\\\\TASK_QUEUE.md\",\"queue_json_written\":\"H:\\\\prism\\\\state\\\\shared\\\\TASK_QUEUE.json\",\"byLayer\":{\"L0\":15,\"L1\":21,\"L2\":9,\"L3\":15,\"L4\":28,\"L5\":23,\"L6\":17,\"L7\":19,\"L8\":14}}\u001b[22m / \u001b[2mPostCompact [node H:/prism/.claude/helpers/auto-resume-injector.mjs] completed successfully: {\"additionalContext\":\"=== POST-COMPACTION AUTO-RESUME === Compa",
+     "score": 3
+    },
+    {
+     "role": "user",
+     "recIdx": 4829,
+     "ts": "2026-04-05T16:25:36.445Z",
+     "snippet": "Summary: / 1. Primary Request and Intent: / The user's primary goal is to achieve **100% confidence in Wire EDM program generation** through PRISM. This session continued execution of the WEDM-100PCT-MS0 roadmap (38 units across 13 sessions). The user wants physics-optimized, production-safe Wire EDM programs that can be generated from prints, pictures of prints, or CAD files. When asked about current confidence, I gave an honest ~30-35% assessment detailing remaining gaps (offsets 59% wrong, sy",
+     "score": 3
+    },
+    {
+     "role": "user",
+     "recIdx": 4829,
+     "ts": "2026-04-05T16:25:36.445Z",
+     "snippet": "/ 8. Current Work: / Completed S1 (3 units) and S2 (3 units) of WEDM-100PCT-MS0. Total: 7/38 units done. The last action was updating the milestone JSON, writing the handoff, and posting coordination status. I then asked: \"Context is getting heavy — should I compact and continue S3 in next session, or keep going?\" The user had not yet responded before compaction triggered. / / System state: 1142/1142 EDM tests pass, build PASS 60.3MB, 0 new TS errors. No git repo (not a git repository).",
+     "score": 3
+    }
+   ]
+  },
+  {
+   "file": "3cc79f23-218b-456a-9d44-8ad49d3050ac.jsonl",
+   "hitCount": 24,
+   "top": [
+    {
+     "role": "user",
+     "recIdx": 474,
+     "ts": "2026-03-31T13:18:39.563Z",
+     "snippet": "This session is being continued from a previous conversation that ran out of context. The summary below covers the earlier portion of the conversation. / / Summary:",
+     "score": 4
+    },
+    {
+     "role": "user",
+     "recIdx": 446,
+     "ts": "2026-03-31T13:09:38.431Z",
+     "snippet": "# Handoff — Session Continuity Protocol / / You are creating a structured handoff document that captures everything the next session needs to resume work seamlessly. This is the PROACTIVE alternative to `precompact-save` (which only fires reactively on compaction). Use `/handoff` before ending a session, when context is getting heavy, or when switching major tasks. / / ## Args:",
+     "score": 3
+    },
+    {
+     "role": "user",
+     "recIdx": 446,
+     "ts": "2026-03-31T13:09:38.431Z",
+     "snippet": "/ ## Next Actions (priority order) / 1. [first thing to do next session] / 2. [second thing] / 3. [third thing]",
+     "score": 3
+    },
+    {
+     "role": "user",
+     "recIdx": 446,
+     "ts": "2026-03-31T13:09:38.431Z",
+     "snippet": "/ ## Resume Command / Run at next session start: `/startup` then resume with: / > [1-2 sentence description of exactly where to pick up] / ```",
+     "score": 3
+    },
+    {
+     "role": "user",
+     "recIdx": 446,
+     "ts": "2026-03-31T13:09:38.431Z",
+     "snippet": "/ ### Resume Prompt (`/handoff resume`) / Generate a copy-pasteable prompt for the next session: / ``` / I'm resuming PRISM work. Last session I was working on [milestone-id] [unit-id] — [title].",
+     "score": 3
+    },
+    {
+     "role": "user",
+     "recIdx": 474,
+     "ts": "2026-03-31T13:18:39.563Z",
+     "snippet": "The user should run `/compact` to compress context. After compaction, the RESUME directive from the handoff states: \"Fusion 360 roadmap generation complete (95.7/100 scrutiny score, 8 loops, all 20 dimensions at 90+). Ready for Phase F360-1 execution (U-F360-01: install add-in in real Fusion 360) or return to main roadmap. User decides priority.\" / / The next session should either: / 1. Begin Phase F360-1 execution starting with U-F360-01 (install Python add-in in real Fusion 360) / 2. Return to",
+     "score": 3
+    },
+    {
+     "role": "user",
+     "recIdx": 693,
+     "ts": "2026-03-31T13:44:24.684Z",
+     "snippet": "/ 9. Optional Next Step: / After compaction, the next session should follow the RESUME directive: \"User directed 'follow unified roadmap.' Next: return to main roadmap — APP-MS0 P0-U01 (Product Catalog & Feature Registry) or SQ3-1-TOOL (Tooling enrichment) from task queue. User decides priority.\" / / The user explicitly said \"follow unified roadmap\" — this is a decision point. The unified roadmap's CURRENT_POSITION says APP-MS0 is next. The task queue's next Claude task is SQ3-1-TOOL. The user s",
+     "score": 3
+    },
+    {
+     "role": "user",
+     "recIdx": 2005,
+     "ts": "2026-04-01T00:40:40.468Z",
+     "snippet": "``` / / Replace `<RESUME_DIRECTIVE>` with a **specific, actionable** instruction for the next session. Not \"continue working\" — say exactly what to do, what files to touch, what the next unit/task is. / / Replace `<CURRENT_STATE>` with a 1-line summary of what was accomplished.",
+     "score": 3
+    },
+    {
+     "role": "user",
+     "recIdx": 2021,
+     "ts": "2026-04-01T00:45:54.226Z",
+     "snippet": "Per the RESUME directive in the handoff: **F360 Fixture Integration** — Add `/cam/setups`, `/cam/setup/stock`, `/cam/setup/bodies` endpoints to PRISMBridge (fusion360_api_server.py). Add \"Workholding\" tab to the intelligence panel (FusionFeedsCalculator.py) with auto-read from `adsk.cam.Setup.stock`/`.fixture`/`.models` + manual dropdown (vise/chuck/vacuum/magnetic/collet). Wire to SpeedFeedOrchestratorEngine `workholding_type`/`stiffness`/`clamping_force_kN` params. Also deferred architectural ",
+     "score": 3
+    },
+    {
+     "role": "user",
+     "recIdx": 2024,
+     "ts": "2026-04-01T00:45:54.707Z",
+     "snippet": "\u001b[2mPreCompact [node H:/prism/.claude/helpers/pre-compact.mjs] completed successfully: {\"additionalContext\":\"COMPACTION IMMINENT — State preserved in .compaction-survival.md. Position: # CURRENT POSITION ## Updated: 2026-04-01 **Phase:** Next: APP-MS0 — Product & U. 0 uncommitted files. SVI: # PRISM System Variability Index **Updated**: 2026-04-01T00:40:43.957Z **SVI**: 2.8 × 10^45 **Reacha. After compaction, read .claude/helpers/.compaction-survival.md and H:/prism/state/shared/SVI-compact.md p",
+     "score": 3
+    }
+   ]
+  },
+  {
+   "file": "3d52cfb2-1766-42f5-9473-2fff44a5dcb8.jsonl",
+   "hitCount": 10,
+   "top": [
+    {
+     "role": "user",
+     "recIdx": 575,
+     "ts": "2026-04-14T22:12:40.160Z",
+     "snippet": "This session is being continued from a previous conversation that ran out of context. The summary below covers the earlier portion of the conversation. / / Summary:",
+     "score": 4
+    },
+    {
+     "role": "user",
+     "recIdx": 11025,
+     "ts": "2026-04-15T02:49:11.371Z",
+     "snippet": "After auto-write, review each generated TypeScript file and fill in domain-specific logic from extracted knowledge. / / ### 5D: Brainstorm Follow-Up Work / ```python / from video_brainstorm import brainstorm_from_knowledge, generate_rgs_milestone, save_brainstorm",
+     "score": 3
+    }
+   ]
+  },
+  {
+   "file": "3d60920a-d609-415c-a9f6-61f034fac7b0.jsonl",
+   "hitCount": 2,
+   "top": [
+    {
+     "role": "user",
+     "recIdx": 12154,
+     "ts": "2026-05-04T00:23:44.363Z",
+     "snippet": "This session is being continued from a previous conversation that ran out of context. The summary below covers the earlier portion of the conversation. / / Summary:",
+     "score": 4
+    }
+   ]
+  },
+  {
+   "file": "3d6ed651-0899-4914-a085-33693ca5f94d.jsonl",
+   "hitCount": 13,
+   "top": [
+    {
+     "role": "user",
+     "recIdx": 3667,
+     "ts": "2026-04-15T14:23:58.328Z",
+     "snippet": "- Mandatory rules about DuplicationGuard and command suggestions / / The hook was written but not yet wired into settings.json and not tested. / / 9. Optional Next Step:",
+     "score": 6
+    },
+    {
+     "role": "user",
+     "recIdx": 2266,
+     "ts": "2026-04-15T13:43:11.499Z",
+     "snippet": "This session is being continued from a previous conversation that ran out of context. The summary below covers the earlier portion of the conversation. / / Summary:",
+     "score": 4
+    },
+    {
+     "role": "user",
+     "recIdx": 5825,
+     "ts": "2026-04-15T16:40:03.986Z",
+     "snippet": "After auto-write, review each generated TypeScript file and fill in domain-specific logic from extracted knowledge. / / ### 5D: Brainstorm Follow-Up Work / ```python / from video_brainstorm import brainstorm_from_knowledge, generate_rgs_milestone, save_brainstorm",
+     "score": 3
+    },
+    {
+     "role": "user",
+     "recIdx": 9491,
+     "ts": "2026-04-15T18:30:06.237Z",
+     "snippet": "/ 8. Current Work: / Immediately before this summary request, I had just completed Loop 2 by writing the comprehensive revised envelope to `H:\\prism\\mcp-server\\data\\milestones\\AI-AWARE-HARDEN.json`. The revised envelope addresses all 3 worst-scoring Loop 1 dimensions (Feature Cascade 25, MCP Utilization 38, Exit Gate Rigor 58) plus integrates the external scrutiny findings. Key additions include: `featureCascade` blocks on all 5 sessions with NEW_HOOKS/NEW_ACTIONS/NEW_SKILLS/AVAILABLE_TO, top-le",
+     "score": 3
+    }
+   ]
+  },
+  {
+   "file": "404e2eb8-d36a-4dfd-962a-9b210d2be6f2.jsonl",
+   "hitCount": 7,
+   "top": [
+    {
+     "role": "user",
+     "recIdx": 1665,
+     "ts": "2026-04-17T15:55:49.602Z",
+     "snippet": "This session is being continued from a previous conversation that ran out of context. The summary below covers the earlier portion of the conversation. / / Summary:",
+     "score": 4
+    },
+    {
+     "role": "user",
+     "recIdx": 1665,
+     "ts": "2026-04-17T15:55:49.602Z",
+     "snippet": "- Complete U-S0-04: Activate 3,594 dormant tribal tips / - TRIBAL_ACTIVATION_ACTIONS array added to knowledgeDispatcher / - Still need to add case handlers for the 8 new actions / - Need to wire to TribalKnowledgeActivationEngine methods /",
+     "score": 3
+    },
+    {
+     "role": "user",
+     "recIdx": 5479,
+     "ts": "2026-04-17T17:34:04.265Z",
+     "snippet": "- 5 ERP engines CREATED: ERPImportEngine, ERPCostFeedbackEngine, ERPQualityEngine, ERPToolInventoryEngine, ERPWorkOrderEngine / - 6 Measurement & QC engines NOT YET CREATED: CMMImportEngine, CMMHistoryEngine, SurfaceMeasureEngine, ProbeRecordEngine, ProbeDriftEngine, MeasureSummaryEngine / - Tests and exports NOT YET DONE / / 9. Optional Next Step:",
+     "score": 3
+    }
+   ]
+  },
+  {
+   "file": "40bfc582-2404-4dac-a233-c734e5a445b3.jsonl",
+   "hitCount": 1,
+   "top": [
+    {
+     "role": "user",
+     "recIdx": 4067,
+     "ts": "2026-05-13T20:19:54.326Z",
+     "snippet": "This session is being continued from a previous conversation that ran out of context. The summary below covers the earlier portion of the conversation. / / Summary:",
+     "score": 4
+    }
+   ]
+  },
+  {
+   "file": "40e61170-039e-4399-a8e6-4b9821a69c44.jsonl",
+   "hitCount": 18,
+   "top": [
+    {
+     "role": "user",
+     "recIdx": 3113,
+     "ts": "2026-04-26T22:04:03.567Z",
+     "snippet": "This session is being continued from a previous conversation that ran out of context. The summary below covers the earlier portion of the conversation. / / Summary:",
+     "score": 4
+    },
+    {
+     "role": "user",
+     "recIdx": 3040,
+     "ts": "2026-04-26T22:02:49.776Z",
+     "snippet": "# Pre-Compact — Session Continuation Handoff / / You are about to prepare for `/compact`. This is the LAST thing you do before the user runs the real `/compact` command. Your job is to capture everything needed so the next session can seamlessly continue. / / **CRITICAL**: The RESUME directive you write here is what enables auto-continue after compaction. If you write a vague RESUME, the next session will be lost. Be SPECIFIC.",
+     "score": 3
+    },
+    {
+     "role": "user",
+     "recIdx": 3040,
+     "ts": "2026-04-26T22:02:49.776Z",
+     "snippet": "You are about to prepare for `/compact`. This is the LAST thing you do before the user runs the real `/compact` command. Your job is to capture everything needed so the next session can seamlessly continue. / / **CRITICAL**: The RESUME directive you write here is what enables auto-continue after compaction. If you write a vague RESUME, the next session will be lost. Be SPECIFIC. / / ## Step 0: MARK COMPLETED TASKS (MANDATORY — DO FIRST)",
+     "score": 3
+    },
+    {
+     "role": "user",
+     "recIdx": 9878,
+     "ts": "2026-04-26T23:21:26.055Z",
+     "snippet": "/ 9. Optional Next Step: / After user runs `/compact`, the next session should: / - Execute U-CAM47: Create CATIAMachiningFunctionIndexEngine / - Extract CATIA Machining functions: Prismatic Machining, Surface Machining, Advanced Machining, DELMIA integration",
+     "score": 3
+    }
+   ]
+  },
+  {
+   "file": "41281702-30a9-441f-9984-d4e143219be9.jsonl",
+   "hitCount": 3,
+   "top": [
+    {
+     "role": "user",
+     "recIdx": 23499,
+     "ts": "2026-05-05T17:17:57.512Z",
+     "snippet": "- Defaults: targetChars=1500, overlapChars=200, MIN_CHUNK_CHARS=50, HARD_MAX_CHUNK_CHARS=4000 / / Earlier in the session I had stated: \"Building full pipeline: PdfChunkExtractorEngine (pure chunker) + KnowledgeIngestEngine (orchestrator) + driver + tests. I'll run the full 116-PDF ingest in background while finishing tests.\" Per the comprehensive-build directive: \"Build EVERY identified asset in this session — no 'deferred to follow-up'\". / / Verified before starting: pdfjs-dist available in nod",
+     "score": 6
+    },
+    {
+     "role": "user",
+     "recIdx": 23499,
+     "ts": "2026-05-05T17:17:57.512Z",
+     "snippet": "This session is being continued from a previous conversation that ran out of context. The summary below covers the earlier portion of the conversation. / / Summary:",
+     "score": 4
+    },
+    {
+     "role": "user",
+     "recIdx": 23499,
+     "ts": "2026-05-05T17:17:57.512Z",
+     "snippet": "- KnowledgeIngestEngine tests: NOT YET CREATED / - scripts/ingest-pdfs.mjs driver: NOT YET CREATED / - Wire `ingest_pdf` action to knowledgeDispatcher: NOT YET DONE / - Live ingestion of 116 PDFs (5.4 GB) into Qdrant kind='wiki': NOT YET RUN /",
+     "score": 3
+    }
+   ]
+  },
+  {
+   "file": "414ba3e5-f6e9-449a-81f1-a3399d25f480.jsonl",
+   "hitCount": 34,
+   "top": [
+    {
+     "role": "assistant",
+     "recIdx": 104,
+     "ts": "2026-03-25T00:09:49.998Z",
+     "snippet": "| **ADMIN** | Costing, Learning, Settings | / / Plus standalone pages: Landing, Login, and several more page files not yet wired into routes (Diagnosis, EDM, Grinding, Turning, Welding, Vibration, etc.). / / Not all 67 page files are routed — the `App.tsx` router only has ~20 routes defined, with many pages existing as files but not yet connected. The preview is live on port 5173 if you want to click around.",
+     "score": 5
+    },
+    {
+     "role": "assistant",
+     "recIdx": 2876,
+     "ts": "2026-03-25T20:12:06.782Z",
+     "snippet": "3. Removed redundant operation selector / / The remaining work is building React components for the v8 features and wiring them to the existing MCP dispatchers. The modular architecture means each feature is isolated — when one breaks, the others keep working.",
+     "score": 5
+    },
+    {
+     "role": "user",
+     "recIdx": 4468,
+     "ts": "2026-03-25T22:35:02.213Z",
+     "snippet": "This session is being continued from a previous conversation that ran out of context. The summary below covers the earlier portion of the conversation. / / Summary:",
+     "score": 4
+    }
+   ]
+  },
+  {
+   "file": "419e02ba-a719-44ef-8764-569164eb1ee1.jsonl",
+   "hitCount": 2,
+   "top": [
+    {
+     "role": "user",
+     "recIdx": 53,
+     "ts": "2026-05-14T02:27:12.676Z",
+     "snippet": "<command-message>checkin</command-message> / <command-name>/checkin</command-name> / <command-args>/pick-task utilize /system-viz + obsidian to keep extracting prints from docustrata folder. we still need to clean up the categories. there are still customer names that are very similar that probably means theyre the same. then we need all cnc programs for mill, lathe and wire; cad files; cad and cam files all in their proper folders for those customers and part numbers. we need original programs ",
+     "score": 3
+    },
+    {
+     "role": "user",
+     "recIdx": 54,
+     "ts": "2026-05-14T02:27:12.676Z",
+     "snippet": "**Re-run it after every `/compact`** (the slot heartbeat needs refreshing; a compact can also leave a stale index.lock). / / ## Args: /pick-task utilize /system-viz + obsidian to keep extracting prints from docustrata folder. we still need to clean up the categories. there are still customer names that are very similar that probably means theyre the same. then we need all cnc programs for mill, lathe and wire; cad files; cad and cam files all in their proper folders for those customers and part ",
+     "score": 3
+    }
+   ]
+  },
+  {
+   "file": "41db1b82-95ec-4f76-bff8-293146973f7e.jsonl",
+   "hitCount": 21,
+   "top": [
+    {
+     "role": "assistant",
+     "recIdx": 1455,
+     "ts": "2026-05-16T00:05:49.174Z",
+     "snippet": "Got it. Two heads-ups before I start: / / **Slot \"kilo\" doesn't exist in the fleet.** Current chat-slots.mjs defines 7 NATO slots: alpha · bravo · charlie · delta · echo · foxtrot (work) + golf (hygiene). The 10-chat expansion to alpha..india + juliett is *designed* (per `feedback_fleet_design_10_chats`) but not yet wired in code. Kilo is the 11th NATO letter — beyond even the planned expansion. / / **Taxonomy-first is exactly the right move.** Tribal store has ~4,245 entries already; categorizi",
+     "score": 5
+    },
+    {
+     "role": "assistant",
+     "recIdx": 3245,
+     "ts": "2026-05-16T00:35:51.843Z",
+     "snippet": "• Critical addendum: variability/inference layer required for partial-input queries (formulas adjust + tribal usage adjusts when user lacks all SFC inputs) / • Algorithm choice = (C): Jaccard for aggregation backbone (predictable hierarchy) + Ollama nomic-embed-text cosine for lateral wires (semantic surprise) / • Slot 'kilo' silently fell back to 'bravo' (chat-slots.mjs only has 7 slots; 10-chat expansion not yet wired) / • prism_context:claim_file failed 7× with sessionId/pcName validation — b",
+     "score": 5
+    },
+    {
+     "role": "user",
+     "recIdx": 1295,
+     "ts": "2026-05-15T23:56:14.197Z",
+     "snippet": "This session is being continued from a previous conversation that ran out of context. The summary below covers the earlier portion of the conversation. / / Summary:",
+     "score": 4
+    },
+    {
+     "role": "user",
+     "recIdx": 3207,
+     "ts": "2026-05-16T00:33:59.923Z",
+     "snippet": "# Pre-Compact — Session Continuation Handoff / / You are about to prepare for `/compact`. This is the LAST thing you do before the user runs the real `/compact` command. Your job is to capture everything needed so the next session can seamlessly continue. / / **CRITICAL**: The RESUME directive you write here is what enables auto-continue after compaction. If you write a vague RESUME, the next session will be lost. Be SPECIFIC.",
+     "score": 3
+    },
+    {
+     "role": "user",
+     "recIdx": 3207,
+     "ts": "2026-05-16T00:33:59.923Z",
+     "snippet": "You are about to prepare for `/compact`. This is the LAST thing you do before the user runs the real `/compact` command. Your job is to capture everything needed so the next session can seamlessly continue. / / **CRITICAL**: The RESUME directive you write here is what enables auto-continue after compaction. If you write a vague RESUME, the next session will be lost. Be SPECIFIC. / / **WHY THIS IS CRITICAL (2026-05-06):** The PreCompact hook auto-writer is BANNED. It used to fall back to a generi",
+     "score": 3
+    },
+    {
+     "role": "user",
+     "recIdx": 3207,
+     "ts": "2026-05-16T00:33:59.923Z",
+     "snippet": "**CRITICAL**: The RESUME directive you write here is what enables auto-continue after compaction. If you write a vague RESUME, the next session will be lost. Be SPECIFIC. / / **WHY THIS IS CRITICAL (2026-05-06):** The PreCompact hook auto-writer is BANNED. It used to fall back to a generic \"Pre-compact snapshot (RESUME generated)\" stub, which clobbered real RESUMEs and left next sessions blind. Now ONLY the live chat (this conversation, via this skill) can write a handoff. If you skip Step 1, th",
+     "score": 3
+    },
+    {
+     "role": "user",
+     "recIdx": 3207,
+     "ts": "2026-05-16T00:33:59.923Z",
+     "snippet": "- **DON'T**: \"compacting — read per-agent handoff on restore\" (placeholder — will be overridden by smart fallback) / / The PreCompact hook PRESERVES your RESUME (it can no longer overwrite it — the auto-writer is banned). If you don't write one here, the hook can't generate a fallback either — the next session will have NO handoff for this chat. / / ### State Summary:",
+     "score": 3
+    }
+   ]
+  },
+  {
+   "file": "43688889-d925-4bcc-a8fd-5a30301dc4fb.jsonl",
+   "hitCount": 3,
+   "top": [
+    {
+     "role": "user",
+     "recIdx": 1825,
+     "ts": "2026-04-17T13:19:23.753Z",
+     "snippet": "This session is being continued from a previous conversation that ran out of context. The summary below covers the earlier portion of the conversation. / / Summary:",
+     "score": 4
+    }
+   ]
+  },
+  {
+   "file": "4533c031-2c0d-4d7d-9a34-dfb1cb856921.jsonl",
+   "hitCount": 21,
+   "top": [
+    {
+     "role": "user",
+     "recIdx": 17654,
+     "ts": "2026-04-19T15:48:49.501Z",
+     "snippet": "/ 6. All user messages: / - (Continuation prompt, embedded at end of compaction summary): \"This session is being continued from a previous conversation that ran out of context... Continue the conversation from where it left off without asking the user any further questions. Resume directly — do not acknowledge the summary, do not recap what was happening, do not preface with 'I'll continue' or similar. Pick up the last task as if the break never happened.\" / - System reminder (PreToolUse:Bash ho",
+     "score": 6
+    },
+    {
+     "role": "user",
+     "recIdx": 1040,
+     "ts": "2026-04-19T00:52:19.587Z",
+     "snippet": "This session is being continued from a previous conversation that ran out of context. The summary below covers the earlier portion of the conversation. / / Summary:",
+     "score": 4
+    },
+    {
+     "role": "user",
+     "recIdx": 18279,
+     "ts": "2026-04-19T15:55:22.550Z",
+     "snippet": "- Commit U-LPR-OPS-DR with format: `LATHE-PROD-READY-MS0/U-LPR-OPS-DR: Disaster recovery engine with RTO/RPO compliance — Adds DisasterRecoveryEngine with tier-0 (4hr/1hr), tier-1 (8hr/4hr), tier-2 (24hr/24hr) targets, 5 default scenarios (region/data/ransomware/hardware/human), drill recording with RTO/RPO enforcement, replication lag tracking, 90-day drill cadence validation, compliance plan generator. References NIST SP 800-34 and ISO 22301.` / / Subsequent Phase 11 units still pending: / - U",
+     "score": 3
+    },
+    {
+     "role": "user",
+     "recIdx": 18378,
+     "ts": "2026-04-19T15:57:06.654Z",
+     "snippet": "- Commit with message: `LATHE-PROD-READY-MS0/U-LPR-OPS-DR: Disaster recovery engine with RTO/RPO compliance — Adds DisasterRecoveryEngine with tier-0 (4hr/1hr), tier-1 (8hr/4hr), tier-2 (24hr/24hr) targets, 5 default scenarios (region/data/ransomware/hardware/human), drill recording with RTO/RPO enforcement, replication lag tracking, 90-day drill cadence validation, compliance plan generator. References NIST SP 800-34 and ISO 22301.` / / Subsequent Phase 11 units still pending: / - U-LPR-OPS-BAC",
+     "score": 3
+    }
+   ]
+  },
+  {
+   "file": "45d42b3b-0ac6-4924-9b24-ba628d6c5d31.jsonl",
+   "hitCount": 1,
+   "top": [
+    {
+     "role": "assistant",
+     "recIdx": 1040,
+     "ts": "2026-04-25T02:53:59.161Z",
+     "snippet": "Baseline green: 38/38 store + flag tests pass. Now I have a clear scope for U-LPR07's remaining work:",
+     "score": 5
+    }
+   ]
+  },
+  {
+   "file": "45e35536-67ab-485a-b262-ccb7f5b18b48.jsonl",
+   "hitCount": 1,
+   "top": [
+    {
+     "role": "user",
+     "recIdx": 109,
+     "ts": "2026-04-19T15:34:50.471Z",
+     "snippet": "This session is being continued from a previous conversation that ran out of context. The summary below covers the earlier portion of the conversation. / / Summary:",
+     "score": 4
+    }
+   ]
+  },
+  {
+   "file": "464af690-f711-48c7-ac0f-37dae3d96d66.jsonl",
+   "hitCount": 40,
+   "top": [
+    {
+     "role": "user",
+     "recIdx": 4473,
+     "ts": "2026-04-22T19:35:27.412Z",
+     "snippet": "### Stage 9: Dependency Resolution (SCRUTINY-HARDENED) / Validate DAG, resolve references. Check that: / - No unit depends on something not yet built / - No circular dependencies / - Compaction points don't split dependent units",
+     "score": 6
+    },
+    {
+     "role": "user",
+     "recIdx": 15916,
+     "ts": "2026-04-23T18:21:52.049Z",
+     "snippet": "- WEDMAutonomyAuditEngine (now passing after restoration cascade) / / Ongoing (deferred to next session per user): / - 14 failing files requiring engine feature builds (documented in WEDM-FAILURE-BREAKDOWN-2026-04-23.md) / - Notable complexity: WEDMHeadClearanceWiring (needs safety_gate in engine result + `wedmHeadClearanceEngine.check()` method that doesn't exist), WEDMRaPredictorEngine (producing NaN — Klocke formula broken), dispatcher action registration for wedm_lora_create, wedm_gnn_*, wed",
+     "score": 6
+    },
+    {
+     "role": "user",
+     "recIdx": 756,
+     "ts": "2026-04-22T16:06:35.209Z",
+     "snippet": "This session is being continued from a previous conversation that ran out of context. The summary below covers the earlier portion of the conversation. / / Summary:",
+     "score": 4
+    },
+    {
+     "role": "user",
+     "recIdx": 4187,
+     "ts": "2026-04-22T18:15:43.573Z",
+     "snippet": "- [list of what was created/modified] / / Next: /forge [next idea] or /pick-task for remaining work / ``` /",
+     "score": 4
+    },
+    {
+     "role": "user",
+     "recIdx": 4187,
+     "ts": "2026-04-22T18:15:43.573Z",
+     "snippet": "3. Ship it (`/ship` protocol — includes `/remember` for key findings) / 4. Report what's done and what remains / 5. Next session: `/startup` → `/handoff read` → `/pick-task [next-unit-id]` / / ## End State",
+     "score": 3
+    },
+    {
+     "role": "user",
+     "recIdx": 4473,
+     "ts": "2026-04-22T19:35:27.412Z",
+     "snippet": "NEW_ACTIONS: [dispatcher:action → consumer_intent] / NEW_SKILLS: [/skill → trigger] / AVAILABLE_TO: [downstream sessions — MUST include ALL consumers, not just next session] / /compact checkpoint / ```",
+     "score": 3
+    },
+    {
+     "role": "user",
+     "recIdx": 4473,
+     "ts": "2026-04-22T19:35:27.412Z",
+     "snippet": "- Unit names use U-{DOMAIN_PREFIX}{NN} format (no bare U01) / - **Cross-track dependencies declared** (if this roadmap modifies engines that other tracks test/depend on, declare soft dependencies on QA-MS0, SYS-MS2, or relevant milestones) / - **available_to lists ALL downstream consumers** (not just the next session — include the final milestone if it needs upstream outputs) / / ### Stage 10: Output + 10-Agent Scrutiny (MANDATORY)",
+     "score": 3
+    },
+    {
+     "role": "user",
+     "recIdx": 4473,
+     "ts": "2026-04-22T19:35:27.412Z",
+     "snippet": "- Forge-triple gate blocks compaction without hook + action + skill / - Session audit agent reviews work before every compaction / - PostCompact: Feature Cascade writes SESSION_ARTIFACTS.json for next session / - SessionStart: reads Feature Cascade, reports live system counts + new capabilities /",
+     "score": 3
+    },
+    {
+     "role": "user",
+     "recIdx": 12365,
+     "ts": "2026-04-23T17:04:43.981Z",
+     "snippet": "# Pre-Compact — Session Continuation Handoff / / You are about to prepare for `/compact`. This is the LAST thing you do before the user runs the real `/compact` command. Your job is to capture everything needed so the next session can seamlessly continue. / / **CRITICAL**: The RESUME directive you write here is what enables auto-continue after compaction. If you write a vague RESUME, the next session will be lost. Be SPECIFIC.",
+     "score": 3
+    },
+    {
+     "role": "user",
+     "recIdx": 12365,
+     "ts": "2026-04-23T17:04:43.981Z",
+     "snippet": "You are about to prepare for `/compact`. This is the LAST thing you do before the user runs the real `/compact` command. Your job is to capture everything needed so the next session can seamlessly continue. / / **CRITICAL**: The RESUME directive you write here is what enables auto-continue after compaction. If you write a vague RESUME, the next session will be lost. Be SPECIFIC. / / ## Step 0: MARK COMPLETED TASKS (MANDATORY — DO FIRST)",
+     "score": 3
+    },
+    {
+     "role": "user",
+     "recIdx": 15916,
+     "ts": "2026-04-23T18:21:52.049Z",
+     "snippet": "No immediate next step — the session has concluded. The user's most recent explicit direction was \"Tackle them in a new session with fresh context\" for the remaining 14 failing files. I wrote the handoff and breakdown doc accordingly. The work for THIS session is complete per user direction. / / When the next session starts (via `/startup`), it should read `HANDOFF-Claude-claude-ce599c18.md` and execute the RESUME directive verbatim: / > \"Fix 14 remaining WEDM test files (96 test failures). Star",
+     "score": 3
+    },
+    {
+     "role": "user",
+     "recIdx": 21294,
+     "ts": "2026-04-23T20:07:15.315Z",
+     "snippet": "<command-message>forge-audit</command-message> / <command-name>/forge-audit</command-name> / <command-args>assess the entire wire edm capability of the h drive. are you 100% confident we can start simulated testing before live testing on real machines fro print to cnc program for wire? we still need to wire to the front end built that codex built and make any updates to the app that is needed to utilize what was built backend</command-args>",
+     "score": 3
+    }
+   ]
+  },
+  {
+   "file": "46b1f34c-ec26-4619-b86f-900e1595acb3.jsonl",
+   "hitCount": 2,
+   "top": [
+    {
+     "role": "assistant",
+     "recIdx": 2412,
+     "ts": "2026-04-09T12:32:09.650Z",
+     "snippet": "The ValueStreamPage already tries to call `getValueStreamData` but falls back to hardcoded data. This is more involved — the seed data constants are used throughout the JSX for rendering the process steps, metrics, and waste analysis. Converting this to use state would require significant refactoring. / / Given the scope of remaining work (5 lean pages to rewire), let me focus on the approach that provides the most value: wire the API calls, replace seed initialization with state, and ensure the",
+     "score": 5
+    },
+    {
+     "role": "assistant",
+     "recIdx": 3217,
+     "ts": "2026-04-09T13:03:36.755Z",
+     "snippet": "BIZ-MS6 needs 3 new engines (BusinessSyncEngine, CashFlowProjectionEngine, BurdenRateEngine). This is the real remaining work. Let me verify BIZ-MS5 completeness, then tackle MS6. / / Let me check if BIZ-MS5 pages have seed data.",
+     "score": 5
+    }
+   ]
+  },
+  {
+   "file": "47052e1a-ff74-490e-adb8-bdb230166148.jsonl",
+   "hitCount": 9,
+   "top": [
+    {
+     "role": "assistant",
+     "recIdx": 5113,
+     "ts": "2026-04-21T15:24:16.947Z",
+     "snippet": "2. MS-P1.5-ONESHOT closeout with per-unit evidence / / ## Open WEDM milestones now (remaining work) / / From the 23-entry open list, minus MS-P1.5 which just closed → **22 open**:",
+     "score": 5
+    },
+    {
+     "role": "user",
+     "recIdx": 3749,
+     "ts": "2026-04-21T14:54:27.505Z",
+     "snippet": "- [list of what was created/modified] / / Next: /forge [next idea] or /pick-task for remaining work / ``` /",
+     "score": 4
+    },
+    {
+     "role": "user",
+     "recIdx": 7305,
+     "ts": "2026-04-21T18:57:32.292Z",
+     "snippet": "This session is being continued from a previous conversation that ran out of context. The summary below covers the earlier portion of the conversation. / / Summary:",
+     "score": 4
+    },
+    {
+     "role": "user",
+     "recIdx": 3749,
+     "ts": "2026-04-21T14:54:27.505Z",
+     "snippet": "3. Ship it (`/ship` protocol — includes `/remember` for key findings) / 4. Report what's done and what remains / 5. Next session: `/startup` → `/handoff read` → `/pick-task [next-unit-id]` / / ## End State",
+     "score": 3
+    },
+    {
+     "role": "user",
+     "recIdx": 7305,
+     "ts": "2026-04-21T18:57:32.292Z",
+     "snippet": "/ 9. Optional Next Step: / The session was explicitly ended by the user choosing option \"2\" (pause), and a handoff was written for the next session. The handoff's RESUME directive reads verbatim: / / > \"BUILD MS-P4-DL-CORE: start with U-P4-DL-01 (WEDMJobOutcomeEngine + WEDM_JOB_HISTORY.json schema v1 + 10 tests + dispatcher wiring). Envelope at mcp-server/data/milestones/MS-P4-DL-CORE.json on work/wedm-consolidated. ~450 LOC, one session. Then U-02 → U-03 → U-04 → U-05 in sequence.\"",
+     "score": 3
+    }
+   ]
+  },
+  {
+   "file": "48e5d403-a4c0-42f1-b5c7-46ac189c35e2.jsonl",
+   "hitCount": 1,
+   "top": [
+    {
+     "role": "user",
+     "recIdx": 3379,
+     "ts": "2026-05-13T19:31:39.592Z",
+     "snippet": "close out your units/tasks so I can clear session to move on to the next session",
+     "score": 3
+    }
+   ]
+  },
+  {
+   "file": "490727e5-8e95-4ec4-bbbc-18ccc6aeb61e.jsonl",
+   "hitCount": 10,
+   "top": [
+    {
+     "role": "user",
+     "recIdx": 1292,
+     "ts": "2026-03-28T18:10:35.497Z",
+     "snippet": "Summary: / 1. Primary Request and Intent: / The user ran `/startup` with argument \"finish the tk line of work if you didnt already\". This directed me to check TK (Tribal Knowledge) work status and complete any remaining work. TK-0 (consumer matrix) and TK-1 (persistence + bridges) were already complete from prior sessions. The remaining work was **TK-2: Wire Tier 1 Critical Tribal Knowledge Consumers** — adding tribal knowledge tip queries to 10 critical manufacturing engines so they include rel",
+     "score": 6
+    },
+    {
+     "role": "user",
+     "recIdx": 361,
+     "ts": "2026-03-28T15:06:13.999Z",
+     "snippet": "This session is being continued from a previous conversation that ran out of context. The summary below covers the earlier portion of the conversation. / / Summary:",
+     "score": 4
+    },
+    {
+     "role": "user",
+     "recIdx": 361,
+     "ts": "2026-03-28T15:06:13.999Z",
+     "snippet": "- FORGE-TRIPLE BLOCKED: VideoLearningEngine, ApprovalWorkflowEngine, RecordTimelineEngine need protective hooks / - INDEX SYNC BLOCKED: VideoLearningEngine, ApprovalWorkflowEngine, RecordTimelineEngine missing from MASTER_INDEX_COMPACT.md / - Session 6-6 exit gate still pending (/prism-review + FORGE-TRIPLE for ApprovalWorkflowEngine, RecordTimelineEngine) / - TK-3 through TK-7 from the Tribal Knowledge Propagation Roadmap (feedback loops, frontend propagation, search/explain, tenant specializat",
+     "score": 3
+    },
+    {
+     "role": "user",
+     "recIdx": 361,
+     "ts": "2026-03-28T15:06:13.999Z",
+     "snippet": "5. InstantQuoteEngine — tribal corrections for cycle time estimates\" / / However, the compact threshold was hit (30+ edits) and the review gate flagged 7 engine edits since last /prism-review. Should compact first, then in the next session start TK-2 by reading the consumer matrix and wiring SpeedFeedOrchestratorEngine as the first critical consumer. / / If you need specific details from before compaction (like exact code snippets, error messages, or content you generated), read the full transcr",
+     "score": 3
+    }
+   ]
+  },
+  {
+   "file": "4b9018be-1199-49a4-966a-608b0f11f4e6.jsonl",
+   "hitCount": 3,
+   "top": [
+    {
+     "role": "user",
+     "recIdx": 5766,
+     "ts": "2026-04-20T20:07:01.355Z",
+     "snippet": "This session is being continued from a previous conversation that ran out of context. The summary below covers the earlier portion of the conversation. / / Summary:",
+     "score": 4
+    }
+   ]
+  },
+  {
+   "file": "4c73c6db-f05a-4822-b73e-8fe4564a82a5.jsonl",
+   "hitCount": 6,
+   "top": [
+    {
+     "role": "assistant",
+     "recIdx": 1073,
+     "ts": "2026-03-28T00:54:23.048Z",
+     "snippet": "- **MEDIUM**: QuoteRevisionEngine ternary `\"draft\":\"draft\"` simplified / / ### Remaining (non-blocking, deferred to next session) / - **HIGH**: Wright's `computeQtyBreaks` public method doesn't normalize to qty=1 baseline / - **HIGH**: `Math.pow(1, b)` dead code division in `computeQtyBreaks`",
+     "score": 5
+    },
+    {
+     "role": "user",
+     "recIdx": 297,
+     "ts": "2026-03-27T23:54:38.745Z",
+     "snippet": "This session is being continued from a previous conversation that ran out of context. The summary below covers the earlier portion of the conversation. / / Summary:",
+     "score": 4
+    }
+   ]
+  },
+  {
+   "file": "4da29a0f-4a1a-4eca-9e29-27f249934efa.jsonl",
+   "hitCount": 23,
+   "top": [
+    {
+     "role": "assistant",
+     "recIdx": 10955,
+     "ts": "2026-04-21T01:36:04.785Z",
+     "snippet": "**Completed this session (CAM-ML-CLOSEDLOOP-MS0)** — 15/15 units, closed-loop feedback delivered. / / **Still unstarted — master-AI roadmap remaining work:** / / | Milestone | Remaining units |",
+     "score": 5
+    },
+    {
+     "role": "user",
+     "recIdx": 5087,
+     "ts": "2026-04-20T23:39:59.917Z",
+     "snippet": "This session is being continued from a previous conversation that ran out of context. The summary below covers the earlier portion of the conversation. / / Summary:",
+     "score": 4
+    },
+    {
+     "role": "user",
+     "recIdx": 13444,
+     "ts": "2026-04-21T02:03:22.864Z",
+     "snippet": "# Pre-Compact — Session Continuation Handoff / / You are about to prepare for `/compact`. This is the LAST thing you do before the user runs the real `/compact` command. Your job is to capture everything needed so the next session can seamlessly continue. / / **CRITICAL**: The RESUME directive you write here is what enables auto-continue after compaction. If you write a vague RESUME, the next session will be lost. Be SPECIFIC.",
+     "score": 3
+    },
+    {
+     "role": "user",
+     "recIdx": 13444,
+     "ts": "2026-04-21T02:03:22.864Z",
+     "snippet": "You are about to prepare for `/compact`. This is the LAST thing you do before the user runs the real `/compact` command. Your job is to capture everything needed so the next session can seamlessly continue. / / **CRITICAL**: The RESUME directive you write here is what enables auto-continue after compaction. If you write a vague RESUME, the next session will be lost. Be SPECIFIC. / / ## Step 0: MARK COMPLETED TASKS (MANDATORY — DO FIRST)",
+     "score": 3
+    }
+   ]
+  },
+  {
+   "file": "4dc97bc2-be6e-4c3b-b526-626e44417878.jsonl",
+   "hitCount": 3,
+   "top": [
+    {
+     "role": "user",
+     "recIdx": 834,
+     "ts": "2026-04-18T01:21:21.842Z",
+     "snippet": "This session is being continued from a previous conversation that ran out of context. The summary below covers the earlier portion of the conversation. / / Summary:",
+     "score": 4
+    }
+   ]
+  },
+  {
+   "file": "4e48853f-4db9-4875-867b-c9eaf0fc82b9.jsonl",
+   "hitCount": 1,
+   "top": [
+    {
+     "role": "assistant",
+     "recIdx": 55,
+     "ts": "2026-03-29T05:50:10.058Z",
+     "snippet": "| **Interval Arithmetic** (guaranteed bounds on floating-point computation) | 18.086 | ~400 | Complete JS | / / ### Not Yet Implemented (biggest opportunity gaps): / / | What | MIT Course | Impact on PRISM |",
+     "score": 5
+    }
+   ]
+  },
+  {
+   "file": "4ece27cb-0d23-4cc2-b93d-e87897eb01e6.jsonl",
+   "hitCount": 10,
+   "top": [
+    {
+     "role": "user",
+     "recIdx": 4958,
+     "ts": "2026-04-11T17:37:23.226Z",
+     "snippet": "### Stage 9: Dependency Resolution / Validate DAG, resolve references. Check that: / - No unit depends on something not yet built / - No circular dependencies / - Compaction points don't split dependent units",
+     "score": 6
+    },
+    {
+     "role": "user",
+     "recIdx": 3244,
+     "ts": "2026-04-11T16:12:42.417Z",
+     "snippet": "This session is being continued from a previous conversation that ran out of context. The summary below covers the earlier portion of the conversation. / / Summary:",
+     "score": 4
+    },
+    {
+     "role": "user",
+     "recIdx": 3203,
+     "ts": "2026-04-11T16:02:37.017Z",
+     "snippet": "# Pre-Compact — Session Continuation Handoff / / You are about to prepare for `/compact`. This is the LAST thing you do before the user runs the real `/compact` command. Your job is to capture everything needed so the next session can seamlessly continue. / / **CRITICAL**: The RESUME directive you write here is what enables auto-continue after compaction. If you write a vague RESUME, the next session will be lost. Be SPECIFIC.",
+     "score": 3
+    },
+    {
+     "role": "user",
+     "recIdx": 3203,
+     "ts": "2026-04-11T16:02:37.017Z",
+     "snippet": "You are about to prepare for `/compact`. This is the LAST thing you do before the user runs the real `/compact` command. Your job is to capture everything needed so the next session can seamlessly continue. / / **CRITICAL**: The RESUME directive you write here is what enables auto-continue after compaction. If you write a vague RESUME, the next session will be lost. Be SPECIFIC. / / ## Step 1: Write Per-Agent Handoff (MOST IMPORTANT STEP)",
+     "score": 3
+    },
+    {
+     "role": "user",
+     "recIdx": 4958,
+     "ts": "2026-04-11T17:37:23.226Z",
+     "snippet": "- Forge-triple gate blocks compaction without hook + action + skill / - Session audit agent reviews work before every compaction / - PostCompact: Feature Cascade writes SESSION_ARTIFACTS.json for next session / - SessionStart: reads Feature Cascade, reports live system counts + new capabilities /",
+     "score": 3
+    }
+   ]
+  },
+  {
+   "file": "5022f788-b00d-4397-bb65-d6e6e77c42fb.jsonl",
+   "hitCount": 19,
+   "top": [
+    {
+     "role": "user",
+     "recIdx": 27,
+     "ts": "2026-04-04T02:49:00.653Z",
+     "snippet": "### Stage 9: Dependency Resolution / Validate DAG, resolve references. Check that: / - No unit depends on something not yet built / - No circular dependencies / - Compaction points don't split dependent units",
+     "score": 6
+    },
+    {
+     "role": "assistant",
+     "recIdx": 689,
+     "ts": "2026-04-04T05:02:13.403Z",
+     "snippet": "PP-REV-MS0 Session 1 is already done (3/6 units). Let me load the remaining work and existing engine to continue with Session 2.",
+     "score": 5
+    },
+    {
+     "role": "user",
+     "recIdx": 452,
+     "ts": "2026-04-04T04:03:29.682Z",
+     "snippet": "This session is being continued from a previous conversation that ran out of context. The summary below covers the earlier portion of the conversation. / / Summary:",
+     "score": 4
+    },
+    {
+     "role": "user",
+     "recIdx": 27,
+     "ts": "2026-04-04T02:49:00.653Z",
+     "snippet": "- Forge-triple gate blocks compaction without hook + action + skill / - Session audit agent reviews work before every compaction / - PostCompact: Feature Cascade writes SESSION_ARTIFACTS.json for next session / - SessionStart: reads Feature Cascade, reports live system counts + new capabilities /",
+     "score": 3
+    },
+    {
+     "role": "user",
+     "recIdx": 452,
+     "ts": "2026-04-04T04:03:29.682Z",
+     "snippet": "/ 7. Pending Tasks: / - **ARCH-MS1-S2** (next session): U-SHAD04 (AdvancedCalculations physics constants), U-SHAD05 (CAMKernelEngine physics import), U-SHAD06 (QuoteEngine pricing externalization) / - **ARCH-MS2**: Dispatcher cleanup + direct I/O elimination + misclassified engines (8 units) / - **ARCH-MS3**: Engine contract adoption + type consolidation (4 units) — includes type mapping for MaterialData↔Material and MachineSpec↔Machine that U-SHAD02/03 deferred",
+     "score": 3
+    },
+    {
+     "role": "user",
+     "recIdx": 455,
+     "ts": "2026-04-04T04:03:30.144Z",
+     "snippet": "\u001b[2mPreCompact [node H:/prism/.claude/helpers/pre-compact.mjs] completed successfully: {\"additionalContext\":\"COMPACTION IMMINENT — State preserved in .compaction-survival.md. Position: # CURRENT POSITION ## Updated: 2026-04-04 **Phase:** MCAT-MS0 — Machine Catalog . 0 uncommitted files. SVI: # PRISM System Variability Index **Updated**: 2026-04-04T03:58:30.213Z **SVI**: 2.6 × 10^43 **Reacha. After compaction, read .claude/helpers/.compaction-survival.md and H:/prism/state/shared/SVI-compact.md p",
+     "score": 3
+    }
+   ]
+  },
+  {
+   "file": "50f0af04-beaa-42b2-ba6f-df3515d088ee.jsonl",
+   "hitCount": 4,
+   "top": [
+    {
+     "role": "assistant",
+     "recIdx": 3413,
+     "ts": "2026-04-21T13:24:23.478Z",
+     "snippet": "6. **B3** — Extend Mastercam adapter from read-only to operation-create / / **Emergent theme: \"real code exists, wiring does not\"** — every priority CAM has substantial code that isn't hooked into the dispatch path. F3's schema binding bought the shape contract; the remaining work is the **content contract** (B1) and the **operation contract** (B3, B6). Round-3 should re-run after B1 lands — that's the gate with the largest coverage expansion. / / Scrutiny: `H:/PRISM/SCRUTINY-CAM-EXHAUST-MS0-ROU",
+     "score": 5
+    },
+    {
+     "role": "user",
+     "recIdx": 13136,
+     "ts": "2026-04-21T19:02:09.160Z",
+     "snippet": "This session is being continued from a previous conversation that ran out of context. The summary below covers the earlier portion of the conversation. / / Summary:",
+     "score": 4
+    },
+    {
+     "role": "assistant",
+     "recIdx": 6832,
+     "ts": "2026-04-21T14:44:31.267Z",
+     "snippet": "The background agent returned a plan, not shipped code — it hit shell constraints and never created the files. I'll ship the three artifacts now. / / First, dedup check.",
+     "score": 3
+    }
+   ]
+  },
+  {
+   "file": "520e3809-31e7-45da-ad7a-2674eb149cd1.jsonl",
+   "hitCount": 9,
+   "top": [
+    {
+     "role": "user",
+     "recIdx": 2621,
+     "ts": "2026-05-12T02:48:42.074Z",
+     "snippet": "This session is being continued from a previous conversation that ran out of context. The summary below covers the earlier portion of the conversation. / / Summary:",
+     "score": 4
+    },
+    {
+     "role": "user",
+     "recIdx": 2621,
+     "ts": "2026-05-12T02:48:42.074Z",
+     "snippet": "- `H:/prism/state/shared/PRISM-BUILD-VISION.md` — what we're trying to build (per-component vision, audit-mapped gaps) / Build doctrine: before any new engine/script/hook → (1) check CLAUDE-BRIEF, (2) check claims in PRISM-BUILD-CONTEXT, (3) check PRISM-BUILD-VISION component section, (4) run `duplicationGuardEngine.mustCheckBeforeCreating()`. Top current audit gap: \"Pillar telemetry rot.\" / NOTE: `/precompact` was NOT run before this compact — no fresh RESUME directive exists; the next session ",
+     "score": 3
+    },
+    {
+     "role": "user",
+     "recIdx": 2624,
+     "ts": "2026-05-12T02:48:48.338Z",
+     "snippet": "<local-command-stdout>\u001b[2mCompacted (ctrl+o to see full summary)\u001b[22m / \u001b[2mPreCompact [\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/claude-brief-precompact.mjs] completed successfully: {\"continue\":true,\"systemMessage\":\"**AWARENESS BACKBONE — PRESERVE THIS IN COMPACTED SUMMARY**\\n\\nThree auto-injected files survive on disk and are the source of truth for PRISM:\\n- `H:/prism/state/shared/CLAUDE-BRIEF.md` (9.5h old) — what we have (process priority mill > lathe > WEDM, CAM tier-1 priority",
+     "score": 3
+    }
+   ]
+  },
+  {
+   "file": "538ea0be-844c-4062-a69d-b90cc29e10d0.jsonl",
+   "hitCount": 9,
+   "top": [
+    {
+     "role": "user",
+     "recIdx": 347,
+     "ts": "2026-03-30T00:01:59.081Z",
+     "snippet": "This session is being continued from a previous conversation that ran out of context. The summary below covers the earlier portion of the conversation. / / Summary:",
+     "score": 4
+    },
+    {
+     "role": "user",
+     "recIdx": 347,
+     "ts": "2026-03-30T00:01:59.081Z",
+     "snippet": "All added to ACTION_DEV_SCHEMAS export map. / / - **`state/HANDOFF.md`** — Updated with full session results and RESUME instruction for next session. / / - **`mcp-server/state/session-edit-counter.json`** — Review counter reset twice during session (after AUTO-0 and after AUTO-0+AUTO-1).",
+     "score": 3
+    }
+   ]
+  },
+  {
+   "file": "549c9f4f-854a-47df-aad4-1783f66f881c.jsonl",
+   "hitCount": 8,
+   "top": [
+    {
+     "role": "assistant",
+     "recIdx": 7380,
+     "ts": "2026-05-16T02:41:07.149Z",
+     "snippet": "Settings.json clean — no active peer claims. **Iter 6: prepare to wire 2 doctrine-clear error-learn hooks** (the rest need header-read to confirm matchers — defer to next session).",
+     "score": 5
+    },
+    {
+     "role": "user",
+     "recIdx": 5535,
+     "ts": "2026-05-16T01:55:51.352Z",
+     "snippet": "This session is being continued from a previous conversation that ran out of context. The summary below covers the earlier portion of the conversation. / / Summary:",
+     "score": 4
+    }
+   ]
+  }
+ ]
+}

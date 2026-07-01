@@ -11,7 +11,7 @@ import {
   toolpath_stats,
   toolpath_material_strategies,
   toolpath_prism_novel
-} from "../toolpathTools";
+} from "../toolpathTools.js";
 import { hookExecutor } from "../../engines/HookExecutor.js";
 
 /** Engine params are validated by Zod but engine functions have narrow signatures — named alias avoids bare `as any` */

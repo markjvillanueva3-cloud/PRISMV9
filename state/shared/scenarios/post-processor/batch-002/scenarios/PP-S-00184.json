@@ -1,0 +1,90 @@
+{
+  "id": "PP-S-00184",
+  "schemaVersion": "2.0.0",
+  "controller": {
+    "id": "mitsubishi-m800",
+    "vendor": "Mitsubishi",
+    "family": "M800",
+    "dialect": "mitsubishi",
+    "market_share": 0.02
+  },
+  "machine": {
+    "name": "CNC Masters CNC Baron",
+    "make": "CNC Masters",
+    "model": "CNC Baron",
+    "type": "Mill"
+  },
+  "spindle": {
+    "taper_id": "R8",
+    "taper_type": "R8",
+    "taper_size": 40,
+    "max_rpm": 2000,
+    "min_rpm": 110,
+    "power_hp": 2,
+    "drive_type": "belt-or-gear",
+    "hp_class": "manual-mill"
+  },
+  "operation": "drilling",
+  "cycle": "drill-peck",
+  "axis_count": 3,
+  "material": {
+    "id": "S-Inconel-718",
+    "group": "S",
+    "name": "nickel superalloy"
+  },
+  "geometry": {
+    "depth_mm": 49.01,
+    "diameter_mm": 39.08,
+    "pitch_mm": null,
+    "rapid_z_mm": 189.9
+  },
+  "optional_features": [
+    "sub_spindle",
+    "atc",
+    "hsm"
+  ],
+  "rejected_features": [
+    "probing_renishaw"
+  ],
+  "expected_gcode_shape": {
+    "lines_min": 20,
+    "lines_max": 200,
+    "must_contain": [
+      "%",
+      "O",
+      "G90",
+      "G05.1"
+    ],
+    "must_not_contain": [
+      "CYCL DEF",
+      "BEGIN PGM",
+      "G15 H"
+    ]
+  },
+  "safety_tier": "shop_floor",
+  "omega_floor": 0.98,
+  "sx_floor": 0.98,
+  "validation": {
+    "oracle": "master_post_generate",
+    "controller_profile_check": "master_post_get_controller_profile",
+    "dialect_features_check": "dialect_features",
+    "feature_gate_applied": "featureValidForController",
+    "pass_criteria": "shape_match AND dialect_correct AND validation_pass AND omega_meets_floor AND all_features_controller_supported",
+    "reject_on": [
+      "textual-cross-map",
+      "missing-dialect-resolve",
+      "softened-master-post-threshold",
+      "feature-not-supported-by-controller"
+    ]
+  },
+  "metadata": {
+    "generatedAt": "2026-05-25T00:18:53.799Z",
+    "generator": "generate-post-processor-scenarios.mjs",
+    "slot_owner": "india",
+    "milestone": "PRISM-LAUNCH-READINESS-MS0",
+    "unit": "P0-U06",
+    "schema": "v2.0.0",
+    "forced_controller": true,
+    "forced_reason": "original_machine_make_CNC Masters_pool_did_not_yield_mitsubishi_after_3_retries"
+  }
+}

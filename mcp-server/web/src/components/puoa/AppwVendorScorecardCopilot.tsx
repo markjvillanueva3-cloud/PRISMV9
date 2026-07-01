@@ -50,7 +50,7 @@ function buildSummary(props: AppwVendorScorecardCopilotProps) {
   if (props.issue) posture.push('vendor lane degraded');
   posture.push(formatRefresh(props.refreshedAt));
 
-  return `PRISM AI is reasoning over live supplier scorecard posture, balancing composite rank against delivery, quality, and price risk instead of trusting a single leaderboard. Current posture: ${posture.join(' | ')}.`;
+  return `Kienzle AI is reasoning over live supplier scorecard posture, balancing composite rank against delivery, quality, and price risk instead of trusting a single leaderboard. Current posture: ${posture.join(' | ')}.`;
 }
 
 function buildSuggestions(props: AppwVendorScorecardCopilotProps): WorkspaceCopilotSuggestion[] {

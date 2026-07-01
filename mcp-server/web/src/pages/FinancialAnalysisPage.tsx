@@ -274,7 +274,7 @@ export function FinancialAnalysisPage() {
           });
           break;
       }
-      const raw = unwrapMcpResult((response as Record<string, unknown>)?.result ?? (response as Record<string, unknown>)?.data);
+      const raw = unwrapMcpResult((response as unknown as Record<string, unknown>)?.result ?? (response as unknown as Record<string, unknown>)?.data);
       setResult((raw as Record<string, unknown>) ?? null);
     } catch (issue) {
       setError(issue instanceof ApiError ? issue.message : 'Analysis failed');

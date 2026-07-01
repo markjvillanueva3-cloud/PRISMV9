@@ -49,6 +49,7 @@ import fs from "node:fs";
 import path from "node:path";
 import crypto from "node:crypto";
 import { fileURLToPath, pathToFileURL } from "node:url";
+import { readGraphStreaming, writeGraphStreamingAtomic } from "./lib/graph-io.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT_PRISM = path.resolve(__dirname, "..");
@@ -586,9 +587,9 @@ function main() {
     console.error(`graph file missing: ${GRAPH_FILE}`);
     process.exit(2);
   }
-  const graph = JSON.parse(fs.readFileSync(GRAPH_FILE, "utf8"));
+  const graph = readGraphStreaming(GRAPH_FILE);  // cap-safe: raw JSON.parse on the >512MiB graph throws Invalid-string-length (U-VIZ-WRITER-CAPSAFE 2026-06-23)
   const merged = mergeIntoGraph(graph, augment);
-  writeGraphAtomic(GRAPH_FILE, merged);
+  writeGraphStreamingAtomic(GRAPH_FILE, merged);  // cap-safe per-element streaming write (U-VIZ-WRITER-CAPSAFE 2026-06-23; supersedes the local writeGraphAtomic for the >512MiB graph)
   const t2 = Date.now();
   console.error(`[merge] wrote ${GRAPH_FILE} in ${t2 - t1}ms — total ${merged.nodes.length} nodes, ${merged.edges.length} edges`);
   console.log(JSON.stringify(augment.summary, null, 2));

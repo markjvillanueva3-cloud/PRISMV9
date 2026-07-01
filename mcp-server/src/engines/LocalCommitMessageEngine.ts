@@ -20,7 +20,7 @@ import { z } from "zod";
 import { execSync } from "node:child_process";
 
 const OLLAMA_URL = process.env.OLLAMA_URL || "http://localhost:11434";
-const COMMIT_MODEL = process.env.OLLAMA_COMMIT_MODEL || "qwen2.5-coder:7b";
+const COMMIT_MODEL = process.env.OLLAMA_COMMIT_MODEL || "qwen2.5-coder:32b";
 const TIMEOUT_MS = 15_000;
 
 export const CommitInputSchema = z.object({

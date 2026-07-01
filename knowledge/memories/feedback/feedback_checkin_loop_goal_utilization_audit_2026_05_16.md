@@ -1,28 +1,12 @@
 ---
 name: feedback-checkin-loop-goal-utilization-audit-2026-05-16
 description: "Audit of /checkin + /loop + /goal against the 14 PRISM dev-tool surfaces. Found that 9 of 14 surfaces are NAMED but never INVOKED in /checkin (system-viz, Obsidian semantic pull, Ollama routing, RTK, neural network, AI systems, learning systems, tribal knowledge, prism_safety). /loop has 2 hooks but no per-iter start. /goal has 4 hooks but pre-flight doesn't call verify-unit-ready. Top-7 improvement ladder. 3 shipped this turn; 4 queued."
-metadata:
-  type: feedback
-  scope: project
-  surface: skills + hook wiring
-  audit_date: 2026-05-16
-  audited_by: claude-a61bbf34 (slot echo)
-  related_skills:
-    - checkin
-    - checkin-alpha..lima (12 slot-locked variants)
-    - loop (built-in Claude Code)
-    - goal (built-in Claude Code)
-  related_hooks:
-    - loop-iteration-inject.mjs
-    - loop-detector.mjs
-    - goal-complete-gate.mjs
-    - goal-prereq-inject.mjs
-    - goal-stack-init.mjs
-    - goal-stack-inject.mjs
-  related_units:
-    - SYSTEM-VIZ-BRAIN-MS0/U-P3-VERIFY-UNIT-READY (composes into /goal pre-flight per improvement #5)
-    - SYSTEM-VIZ-BRAIN-MS0/U-P5-CHECKIN-FLEET-CONTEXT (the iter-3 ship being audited)
+aliases: feedback_checkin_loop_goal_utilization_audit_2026_05_16
+type: feedback
+source: prism-memory
+synced: 2026-06-27T20:30:46.419Z
 ---
+
 
 # Audit: /checkin + /loop + /goal — dev-tool utilization to highest capability
 

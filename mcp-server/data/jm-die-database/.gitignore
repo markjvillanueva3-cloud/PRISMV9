@@ -1,0 +1,8 @@
+# JM die database — regenerable derived tables are gitignored (repo convention for large derived data).
+# Rebuild everything with:  node scripts/build-jm-die-database.mjs
+# Source of truth = H:/PRISM/Docustrata/.index/*.jsonl (docustrata-pipeline.py outputs) + the named PDF.
+# Committed (durable catalog): manifest.json, reports/*.json, README.md, .gitignore
+tables/
+reports/*.txt
+*.tmp
+*.*.tmp

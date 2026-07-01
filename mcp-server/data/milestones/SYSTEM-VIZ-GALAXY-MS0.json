@@ -1,0 +1,191 @@
+{
+  "schemaVersion": "1.0.0",
+  "milestoneId": "SYSTEM-VIZ-GALAXY-MS0",
+  "title": "Stratified Manifold Viewer — 5-level semantic-zoom replacement for the hairball /system-viz",
+  "createdAt": "2026-05-25",
+  "createdBy": "claude-b509cb68 (slot:golf)",
+  "claimedStatus": "not_started",
+  "scope": "Replace the current 3D 'galaxy' attempt with a 5-level stratified manifold viewer: constellation (L0) → subway (L1) → local graph (L2) → tesseract (L3) → source (L4). Math-driven visual properties. Fractal coherence across scales. Knot rendering for the 16 deep-integration bridges. Sequenceable — L0+L1+L2 ships first, L3 tesseract is a follow-up unit.",
+  "researchSpec": "state/shared/specs/SYSTEM-VIZ-GALAXY-RESEARCH-2026-05-25.md",
+  "rationale": [
+    "Current /system-viz attempts a flat 50K-node galaxy that fundamentally can't converge — force-directed layouts hairball above ~5K nodes",
+    "Popular Obsidian-galaxy videos work because they curate to 1-3K nodes; PRISM cannot copy that aesthetic without losing structure",
+    "PRISM has earned hierarchical structure (L1-L13 layers, 11 PSN legs, 28 augmentation overlays, time dimension) — the visual must use it",
+    "Tesseract-INSIDE-node works (bounded context) where tesseract-as-overview fails (humans can't navigate 4D at scale)"
+  ],
+  "prerequisites": {
+    "hard": [
+      {
+        "id": "BUG-FIX/U-REGEN-VIZ-HEAP-BUMP",
+        "reason": "data layer must be fresh — regen-viz.mjs OOM at merge-augmentations stage blocks any data-driven viz",
+        "status": "open"
+      }
+    ],
+    "soft": [
+      {
+        "id": "BUG-FIX/U-OLLAMA-DAEMON-HEALTH",
+        "reason": "Ollama /api/chat enables semantic embedding edges (A3 in obsidian-brain spec, B1 here). Without it, viz falls back to keyword/structural edges only — degraded but functional",
+        "status": "open"
+      },
+      {
+        "id": "INFRA/U-CLAUDE-GRAPH-INDEX",
+        "reason": "the compact JSONL+HTML index proposed earlier this session — Claude-side consumption surface, not viz-side. Independent but related.",
+        "status": "proposed-not-built"
+      }
+    ]
+  },
+  "phases": [
+    {
+      "phaseId": "P1",
+      "title": "Foundation — graph index + L0 constellation",
+      "estimatedHours": 8,
+      "units": [
+        {
+          "id": "U-SVG-P1-GRAPH-INDEX",
+          "title": "Compact graph index suitable for tiered consumption",
+          "deliverables": [
+            "scripts/generate-claude-graph-index.mjs",
+            "state/shared/graph/claude-graph-index.jsonl",
+            "state/shared/graph/claude-graph.html (2D static viewer)"
+          ],
+          "tests": ["happy path", "missing source field", "edge to deleted node", "concurrent regen race"]
+        },
+        {
+          "id": "U-SVG-P1-L0-CONSTELLATION",
+          "title": "L0 constellation map — 11 PSN-leg regions, domain clusters per region",
+          "deliverables": [
+            "viz layer code (constellation renderer)",
+            "Louvain/Leiden community detection",
+            "PageRank node sizing"
+          ],
+          "tests": ["happy", "node with no community", "all-orphan input", "PSN leg has zero nodes"]
+        }
+      ]
+    },
+    {
+      "phaseId": "P2",
+      "title": "L1 subway + L2 local graph",
+      "estimatedHours": 6,
+      "units": [
+        {
+          "id": "U-SVG-P2-L1-SUBWAY",
+          "title": "Subway-line rendering for workflow pipelines (print→program, quote→ship, blueprint→quote)",
+          "deliverables": [
+            "subway layer renderer",
+            "pipeline-edge data extraction from dispatcher actions"
+          ],
+          "tests": ["happy", "pipeline with no stations", "pipeline crossing multiple PSN legs", "broken pipeline (deleted node)"]
+        },
+        {
+          "id": "U-SVG-P2-L2-LOCAL-GRAPH",
+          "title": "L2 force-directed local-graph view, smooth transition from L1",
+          "deliverables": [
+            "local-graph renderer (force-directed, bounded iterations, decay)",
+            "L1→L2 camera morph"
+          ],
+          "tests": ["happy", "node with 0 neighbors", "node with >100 neighbors (force-graph stability)", "rapid zoom-in/out (camera reset)"]
+        }
+      ]
+    },
+    {
+      "phaseId": "P3",
+      "title": "L3 tesseract — node interior",
+      "estimatedHours": 12,
+      "units": [
+        {
+          "id": "U-SVG-P3-TESSERACT-RENDER",
+          "title": "4D tesseract renderer (3 cells visible + slider for 4th axis)",
+          "deliverables": [
+            "tesseract WebGL component",
+            "4D-to-3D projection math",
+            "slider UI for 4th-axis sweep"
+          ],
+          "tests": [
+            "happy (engine node)", "happy (hook node)", "happy (memory node)",
+            "axis swap (rotate 4D)", "cell hover (highlight + side panel)",
+            "pivot to neighbor (smooth zoom out to L2)"
+          ]
+        },
+        {
+          "id": "U-SVG-P3-AXIS-ADAPTERS",
+          "title": "Per-node-type axis adapters (engine/dispatcher/hook/memory/skill/wiki/algorithm/formula)",
+          "deliverables": [
+            "TesseractAxisAdapterRegistry engine",
+            "8 adapter modules (one per node type)"
+          ],
+          "tests": ["all 8 node types render with correct axes", "adapter for unknown type fails gracefully"]
+        }
+      ]
+    },
+    {
+      "phaseId": "P4",
+      "title": "Knot rendering + fractal coherence",
+      "estimatedHours": 6,
+      "units": [
+        {
+          "id": "U-SVG-P4-KNOTS",
+          "title": "Knot-diagram rendering for 16 deep-integration bridges at L1",
+          "deliverables": [
+            "knot-rendering component",
+            "crossing-number annotation",
+            "topological linkage detection (Conway notation or simpler)"
+          ],
+          "tests": ["all 16 bridges render", "knot crossing count matches expected", "linked vs unlinked correctly distinguished"]
+        },
+        {
+          "id": "U-SVG-P4-FRACTAL-GESTURES",
+          "title": "Fractal coherence — same gesture set works at all 5 levels",
+          "deliverables": [
+            "unified input handler",
+            "level-aware action dispatch"
+          ],
+          "tests": ["zoom gesture", "pan gesture", "select gesture each at L0,L1,L2,L3,L4"]
+        }
+      ]
+    },
+    {
+      "phaseId": "P5",
+      "title": "Smooth transitions + L4 source view",
+      "estimatedHours": 4,
+      "units": [
+        {
+          "id": "U-SVG-P5-TRANSITIONS",
+          "title": "Smooth morphing transitions between all 5 levels (no jump cuts)",
+          "deliverables": [
+            "transition animator",
+            "anchor-tracking (eye follows one element through zoom)"
+          ],
+          "tests": ["L0→L1", "L1→L2", "L2→L3", "L3→L4 forward and backward each"]
+        },
+        {
+          "id": "U-SVG-P5-L4-SOURCE",
+          "title": "L4 source/text panel + tesseract thumbnail persistence",
+          "deliverables": [
+            "source-panel component",
+            "thumbnail re-expand on click"
+          ],
+          "tests": ["happy", "missing source file", "large source file (>10K lines)", "binary file"]
+        }
+      ]
+    }
+  ],
+  "closeOutCriteria": [
+    "All 5 phases shipped with passing tests (≥3 failure modes + ≥2 adversarial per unit)",
+    "Variability floor: each phase exercises ≥3 spanning configurations (e.g. ≥3 node types in L3, ≥3 pipelines in L1)",
+    "Round-trip E2E: click an L0 PSN-leg → drill to L4 source → return to L0, all in one demo",
+    "Performance: L0 renders <500ms with 50K nodes, L3 tesseract @60fps with axis-swap",
+    "Doc surfaces updated: CLAUDE.md pointer, wiki entry, memory reference, this envelope status flip",
+    "No regressions in existing /system-viz layers (L1-L13 still queryable)"
+  ],
+  "blastRadius": "MEDIUM-HIGH. Changes the dominant viz surface. Old /system-viz must remain functional during rollout (parallel surface, not in-place replacement). New viewer behind a /system-viz-galaxy or /system-viz --mode=stratified flag until close-out.",
+  "rollbackPlan": "Surface lives in state/shared/system-viz/galaxy/ subdirectory. Removal = delete subdirectory and unwire the new skill. Existing /system-viz untouched throughout.",
+  "outOfScope": [
+    "Replacing 3D /system-viz substrate — stratified manifold is additive",
+    "Mobile rendering (desktop browser only for v1)",
+    "Real-time collaborative cursors",
+    "VR/AR mode (some videos do this; not justified for PRISM)",
+    "Auto-generated MOC notes (handled in OBSIDIAN-BRAIN-EFFICIENCY-MS0)"
+  ],
+  "totalEstimatedHours": 36,
+  "recommendedSequence": "Each phase its own chat session, due to context budget. P1 first as the foundation (also useful standalone — the JSONL+HTML index unblocks other work even before the visual lands). P3 tesseract is the highest-novelty piece — recommend per-file scrutiny gate."
+}

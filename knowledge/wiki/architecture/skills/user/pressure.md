@@ -23,13 +23,27 @@ related:
 |-------|-------|
 | Name | `pressure` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/pressure.md` |
+| Source | `C:/Users/wompu/.claude/commands/pressure.md` |
 | Model | default |
 | Tags | _(none)_ |
 
 ## Description (first paragraph)
 
-_(no body content)_
+
+# Pressure — Context Window Pressure Monitor
+
+Check context window utilization and predict when compaction is needed.
+
+## Steps
+1. Estimate current context usage from conversation length
+2. Calculate burn rate from recent token accumulation
+3. Predict time until compaction threshold (85%)
+
+4. Output compact status:
+```
+CONTEXT PRESSURE
+================
+Status: [GREEN/YELLOW/ORANGE/R
 
 <!-- AUTO-END -->
 

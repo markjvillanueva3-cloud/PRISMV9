@@ -29,8 +29,7 @@ related:
 
 ## Description (first paragraph)
 
-
-# /cad-dfm — Design for Manufacturability Analysis
+Comprehensive DFM analysis with improvement suggestions and cost impact.
 
 <!-- AUTO-END -->
 

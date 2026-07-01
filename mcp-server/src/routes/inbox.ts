@@ -4,14 +4,24 @@
  */
 import { Router } from "express";
 import type { CallToolFn } from "./index.js";
+import { verifyToken } from "../middleware/auth.js";
 
 /**
  * Creates the inbox router.
+ *
+ * AUTH: every route requires a valid Bearer (verifyToken -> 401 for anon). DocuRead items carry
+ * shop-internal content -- `InboxItem.extracted_data` is OCR'd customer prints/POs/invoices/material-certs,
+ * `ingested_by` is an employee name (PII), and ingest/match/status are writes -- so there is NO legitimate
+ * anonymous view. Mounted under `/api` (optionalToken, which never rejects anon), so the gate must live here.
+ * Mirrors the erp.ts / hotel-portal.ts precedent (U-INBOX-INTEGRATIONS-AUTH, slot:hotel).
  * @param callTool - MCP tool call function
  * @returns Express router
  */
 export function createInboxRouter(callTool: CallToolFn): Router {
   const router = Router();
+
+  // Gate ALL inbox routes (incl. any future-added) with one line -- no public inbox view exists.
+  router.use(verifyToken);
 
   // POST /inbox/ingest — Accept and classify a new document
   router.post("/ingest", async (req, res) => {

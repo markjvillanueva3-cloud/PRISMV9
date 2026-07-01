@@ -23,13 +23,14 @@ related:
 |-------|-------|
 | Name | `wiki-sync` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/wiki-sync.md` |
+| Source | `C:/Users/wompu/.claude/commands/wiki-sync.md` |
 | Model | default |
 | Tags | _(none)_ |
 
 ## Description (first paragraph)
 
-Bridge `WikiSelfAwarenessSyncEngine` outputs into wiki/. Idempotent — second run with same input writes zero files.
+
+# /wiki-sync
 
 <!-- AUTO-END -->
 

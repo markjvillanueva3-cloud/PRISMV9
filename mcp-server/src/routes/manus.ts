@@ -34,14 +34,14 @@ export function createManusRouter(callTool: CallToolFn): Router {
     catch (e: any) { res.status(500).json({ ok: false, error: e.message }); }
   });
 
-  // Capabilities
-  router.post("/web-research", async (req, res) => {
-    try { res.json({ ok: true, data: await callTool("prism_manus", "web_research", req.body) }); }
-    catch (e: any) { res.status(500).json({ ok: false, error: e.message }); }
+  // Capabilities. prism_manus exposes code_reasoning + knowledge_lookup (LLM reasoning), NOT a live
+  // web_research browser nor an arbitrary code_sandbox executor -- those capabilities were never built.
+  // Fail loud (501) rather than the silent 200+{error} a non-existent action produces.
+  router.post("/web-research", async (_req, res) => {
+    res.status(501).json({ ok: false, error: "not_implemented", message: "web research not yet wired -- prism_manus has no web_research action (it exposes code_reasoning + knowledge_lookup). Build a research capability then wire this route." });
   });
-  router.post("/code-sandbox", async (req, res) => {
-    try { res.json({ ok: true, data: await callTool("prism_manus", "code_sandbox", req.body) }); }
-    catch (e: any) { res.status(500).json({ ok: false, error: e.message }); }
+  router.post("/code-sandbox", async (_req, res) => {
+    res.status(501).json({ ok: false, error: "not_implemented", message: "code sandbox not yet wired -- prism_manus has no code_sandbox action (it exposes code_reasoning + knowledge_lookup). Build a sandbox executor then wire this route." });
   });
 
   // Hook integration

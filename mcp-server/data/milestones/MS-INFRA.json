@@ -1,0 +1,349 @@
+{
+  "id": "MS-INFRA",
+  "version": "7.6.0",
+  "title": "MS-INFRA — hosted licensing/funnel backend + AuthEngine→Postgres + v1 scaling-floor decision",
+  "brief": "Tier A = small hosted licensing/funnel backend (Fly/Render: auth + Stripe billing + tier validation + free-tier web tools). AuthEngine is in-memory Maps today; mcp-server/src/db/schema.sql has the unused PG schema. LOCK (§R9.8): job queue + event bus = in-process for v1 (prism_infra:job_enqueue/event_publish/prism_realtime — no broker); Redis(tr.cache)/CDN(tr.cdn)/Object-Store(tr.s3) DEFERRED INDEFINITELY (aspirational v8.89-cloud-scale; must NOT appear on any GA critical path). DNC transfer covered by prism_integration:dnc_* + MS-PILOT.",
+  "created_at": "2026-05-11T18:00:32.098Z",
+  "created_by": "claude-99eca613 (register-revenue-roadmap-envelopes.mjs, v7.6 §R10)",
+  "track": "revenue",
+  "track_name": "REVENUE-ROADMAP v7.6",
+  "roadmap_priority": 1,
+  "tier": 0,
+  "status": "not_started",
+  "source": "§R7.2 / round6/02-deploy.md + §R9.8 scaling-floor lock",
+  "viz_node_id": "ghost.ms.ms-infra",
+  "doc_propagation": [
+    "claude.md",
+    "gsd",
+    "wiki",
+    "system-viz"
+  ],
+  "dependencies": [],
+  "blocks": [
+    "MS-PAY",
+    "MS-DESKTOP"
+  ],
+  "phases": [
+    {
+      "id": "P0",
+      "title": "MS-INFRA — hosted licensing/funnel backend + AuthEngine→Postgres + v1 scaling-floor decision",
+      "sessions": "3",
+      "units": [
+        {
+          "id": "U-INFRA-01",
+          "title": "Hosted licensing/funnel backend skeleton (Fly/Render) — auth + tier-validation endpoints",
+          "effort": 90,
+          "dependencies": [],
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit",
+            "Dispatcher wiring verified: import + call + action-enum + Zod schema all match (test invokes through the dispatcher, not only the engine singleton)"
+          ],
+          "description": "Hosted licensing/funnel backend skeleton (Fly/Render) — auth + tier-validation endpoints — follow the 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP); run duplicationGuardEngine.checkBeforeCreating() before any new asset; wire to ALL logical dispatchers; doc-backflow per MS-DOCFLOW.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "viz_node_id": "ghost.ms.ms-infra.uinfra-01",
+          "doc_propagation": [
+            "wiki",
+            "skill",
+            "digest",
+            "system-viz"
+          ]
+        },
+        {
+          "id": "U-INFRA-02",
+          "title": "AuthEngine → Postgres (use mcp-server/src/db/schema.sql; replace in-memory Maps)",
+          "effort": 90,
+          "dependencies": [],
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit",
+            "Dispatcher wiring verified: import + call + action-enum + Zod schema all match (test invokes through the dispatcher, not only the engine singleton)"
+          ],
+          "description": "AuthEngine → Postgres (use mcp-server/src/db/schema.sql; replace in-memory Maps) — follow the 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP); run duplicationGuardEngine.checkBeforeCreating() before any new asset; wire to ALL logical dispatchers; doc-backflow per MS-DOCFLOW.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "viz_node_id": "ghost.ms.ms-infra.uinfra-02",
+          "doc_propagation": [
+            "wiki",
+            "skill",
+            "digest",
+            "system-viz"
+          ]
+        },
+        {
+          "id": "U-INFRA-03",
+          "title": "Real Stripe keys + STRIPE_TEST_MODE=false wiring (pairs with MS-PAY)",
+          "effort": 90,
+          "dependencies": [],
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit",
+            "Dispatcher wiring verified: import + call + action-enum + Zod schema all match (test invokes through the dispatcher, not only the engine singleton)"
+          ],
+          "description": "Real Stripe keys + STRIPE_TEST_MODE=false wiring (pairs with MS-PAY) — follow the 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP); run duplicationGuardEngine.checkBeforeCreating() before any new asset; wire to ALL logical dispatchers; doc-backflow per MS-DOCFLOW.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "viz_node_id": "ghost.ms.ms-infra.uinfra-03",
+          "doc_propagation": [
+            "wiki",
+            "skill",
+            "digest",
+            "system-viz"
+          ]
+        },
+        {
+          "id": "U-INFRA-04",
+          "title": "License-key issuance + validation (online check → cached offline JWT + CRL; reuse PRISM_SUBSCRIPTION_SYSTEM.js)",
+          "effort": 90,
+          "dependencies": [],
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit",
+            "Dispatcher wiring verified: import + call + action-enum + Zod schema all match (test invokes through the dispatcher, not only the engine singleton)"
+          ],
+          "description": "License-key issuance + validation (online check → cached offline JWT + CRL; reuse PRISM_SUBSCRIPTION_SYSTEM.js) — follow the 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP); run duplicationGuardEngine.checkBeforeCreating() before any new asset; wire to ALL logical dispatchers; doc-backflow per MS-DOCFLOW.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "viz_node_id": "ghost.ms.ms-infra.uinfra-04",
+          "doc_propagation": [
+            "wiki",
+            "skill",
+            "digest",
+            "system-viz"
+          ]
+        },
+        {
+          "id": "U-INFRA-05",
+          "title": "Free-tier web tools served from the hosted backend (SFC-free, etc.) — SEO/acquisition surface",
+          "effort": 90,
+          "dependencies": [],
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit",
+            "Dispatcher wiring verified: import + call + action-enum + Zod schema all match (test invokes through the dispatcher, not only the engine singleton)"
+          ],
+          "description": "Free-tier web tools served from the hosted backend (SFC-free, etc.) — SEO/acquisition surface — follow the 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP); run duplicationGuardEngine.checkBeforeCreating() before any new asset; wire to ALL logical dispatchers; doc-backflow per MS-DOCFLOW.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "viz_node_id": "ghost.ms.ms-infra.uinfra-05",
+          "doc_propagation": [
+            "wiki",
+            "skill",
+            "digest",
+            "system-viz"
+          ]
+        },
+        {
+          "id": "U-INFRA-06",
+          "title": "[LOCK] v1 scaling-floor decision documented — in-process queue/bus; Redis/CDN/S3 deferred indefinitely; revisit only if multi-tenant SaaS at scale",
+          "effort": 90,
+          "dependencies": [],
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit",
+            "Dispatcher wiring verified: import + call + action-enum + Zod schema all match (test invokes through the dispatcher, not only the engine singleton)"
+          ],
+          "description": "[LOCK] v1 scaling-floor decision documented — in-process queue/bus; Redis/CDN/S3 deferred indefinitely; revisit only if multi-tenant SaaS at scale — follow the 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP); run duplicationGuardEngine.checkBeforeCreating() before any new asset; wire to ALL logical dispatchers; doc-backflow per MS-DOCFLOW.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "viz_node_id": "ghost.ms.ms-infra.uinfra-06",
+          "doc_propagation": [
+            "wiki",
+            "skill",
+            "digest",
+            "system-viz"
+          ]
+        },
+        {
+          "id": "U-INFRA-07",
+          "title": "Telemetry / metrics endpoint (Prometheus scrape) on the hosted backend",
+          "effort": 90,
+          "dependencies": [],
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit",
+            "Dispatcher wiring verified: import + call + action-enum + Zod schema all match (test invokes through the dispatcher, not only the engine singleton)"
+          ],
+          "description": "Telemetry / metrics endpoint (Prometheus scrape) on the hosted backend — follow the 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP); run duplicationGuardEngine.checkBeforeCreating() before any new asset; wire to ALL logical dispatchers; doc-backflow per MS-DOCFLOW.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "viz_node_id": "ghost.ms.ms-infra.uinfra-07",
+          "doc_propagation": [
+            "wiki",
+            "skill",
+            "digest",
+            "system-viz"
+          ]
+        },
+        {
+          "id": "U-INFRA-08",
+          "title": "Rate limiter on the public endpoints",
+          "effort": 90,
+          "dependencies": [],
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit",
+            "Dispatcher wiring verified: import + call + action-enum + Zod schema all match (test invokes through the dispatcher, not only the engine singleton)"
+          ],
+          "description": "Rate limiter on the public endpoints — follow the 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP); run duplicationGuardEngine.checkBeforeCreating() before any new asset; wire to ALL logical dispatchers; doc-backflow per MS-DOCFLOW.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "viz_node_id": "ghost.ms.ms-infra.uinfra-08",
+          "doc_propagation": [
+            "wiki",
+            "skill",
+            "digest",
+            "system-viz"
+          ]
+        },
+        {
+          "id": "U-INFRA-09",
+          "title": "Health-check + uptime monitoring",
+          "effort": 90,
+          "dependencies": [],
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit",
+            "Dispatcher wiring verified: import + call + action-enum + Zod schema all match (test invokes through the dispatcher, not only the engine singleton)"
+          ],
+          "description": "Health-check + uptime monitoring — follow the 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP); run duplicationGuardEngine.checkBeforeCreating() before any new asset; wire to ALL logical dispatchers; doc-backflow per MS-DOCFLOW.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "viz_node_id": "ghost.ms.ms-infra.uinfra-09",
+          "doc_propagation": [
+            "wiki",
+            "skill",
+            "digest",
+            "system-viz"
+          ]
+        },
+        {
+          "id": "U-INFRA-10",
+          "title": "Backup + restore for the licensing DB",
+          "effort": 90,
+          "dependencies": [],
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit",
+            "Dispatcher wiring verified: import + call + action-enum + Zod schema all match (test invokes through the dispatcher, not only the engine singleton)"
+          ],
+          "description": "Backup + restore for the licensing DB — follow the 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP); run duplicationGuardEngine.checkBeforeCreating() before any new asset; wire to ALL logical dispatchers; doc-backflow per MS-DOCFLOW.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "viz_node_id": "ghost.ms.ms-infra.uinfra-10",
+          "doc_propagation": [
+            "wiki",
+            "skill",
+            "digest",
+            "system-viz"
+          ]
+        },
+        {
+          "id": "U-INFRA-11",
+          "title": "Deploy pipeline (CI → Fly/Render)",
+          "effort": 90,
+          "dependencies": [],
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit",
+            "Dispatcher wiring verified: import + call + action-enum + Zod schema all match (test invokes through the dispatcher, not only the engine singleton)"
+          ],
+          "description": "Deploy pipeline (CI → Fly/Render) — follow the 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP); run duplicationGuardEngine.checkBeforeCreating() before any new asset; wire to ALL logical dispatchers; doc-backflow per MS-DOCFLOW.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "viz_node_id": "ghost.ms.ms-infra.uinfra-11",
+          "doc_propagation": [
+            "wiki",
+            "skill",
+            "digest",
+            "system-viz"
+          ]
+        },
+        {
+          "id": "U-INFRA-12",
+          "title": "E2E: a license key issued by the backend validates from the desktop client (online + cached-offline path)",
+          "effort": 90,
+          "dependencies": [],
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit",
+            "Dispatcher wiring verified: import + call + action-enum + Zod schema all match (test invokes through the dispatcher, not only the engine singleton)"
+          ],
+          "description": "E2E: a license key issued by the backend validates from the desktop client (online + cached-offline path) — follow the 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP); run duplicationGuardEngine.checkBeforeCreating() before any new asset; wire to ALL logical dispatchers; doc-backflow per MS-DOCFLOW.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "viz_node_id": "ghost.ms.ms-infra.uinfra-12",
+          "doc_propagation": [
+            "wiki",
+            "skill",
+            "digest",
+            "system-viz"
+          ]
+        }
+      ]
+    }
+  ],
+  "total_units": 12,
+  "completed_units": 0
+}

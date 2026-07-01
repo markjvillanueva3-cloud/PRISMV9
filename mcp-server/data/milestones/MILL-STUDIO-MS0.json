@@ -1,0 +1,177 @@
+{
+  "schemaVersion": "1.0.0",
+  "milestone_id": "MILL-STUDIO-MS0",
+  "title": "Mill Calculator Page Studio — close 5x parity gap with Lathe/WireEDM + PSN-synergy weave",
+  "domain": "frontend",
+  "priority": "p1",
+  "created_at": "2026-05-23T20:00:00.000Z",
+  "created_by": "claude-e83edc54 (slot oscar)",
+  "spec_path": "state/shared/specs/MILL-STUDIO-MS0-SPEC-2026-05-23.md",
+  "status": "not_started",
+  "total_units": 12,
+  "completed_units": 0,
+  "ship_records": [],
+  "units": [
+    {
+      "unit_id": "U-MSTUD-A1",
+      "title": "Wire StrategyPanel into CalculatorPage.tsx mill-mode (lazy-load)",
+      "phase": "A",
+      "status": "pending",
+      "files_to_touch": [
+        "mcp-server/web/src/pages/CalculatorPage.tsx",
+        "mcp-server/web/src/components/mill/StrategyPanel.tsx"
+      ],
+      "engines": ["MillMasterOrchestratorFacadeEngine"],
+      "depends_on": [],
+      "blocks": ["U-MSTUD-A2", "U-MSTUD-A3"],
+      "priority_score": 1
+    },
+    {
+      "unit_id": "U-MSTUD-A2",
+      "title": "Wire ProgramPreview into mill-mode (g-code render)",
+      "phase": "A",
+      "status": "pending",
+      "files_to_touch": [
+        "mcp-server/web/src/pages/CalculatorPage.tsx",
+        "mcp-server/web/src/components/mill/ProgramPreview.tsx"
+      ],
+      "depends_on": ["U-MSTUD-A1"],
+      "priority_score": 2
+    },
+    {
+      "unit_id": "U-MSTUD-A3",
+      "title": "Wire SimPanel into mill-mode (program_simulate dispatcher)",
+      "phase": "A",
+      "status": "pending",
+      "files_to_touch": [
+        "mcp-server/web/src/pages/CalculatorPage.tsx",
+        "mcp-server/web/src/components/mill/SimPanel.tsx"
+      ],
+      "depends_on": ["U-MSTUD-A1"],
+      "priority_score": 3
+    },
+    {
+      "unit_id": "U-MSTUD-B7",
+      "title": "MillFeasibilityPanel — green/amber/red badges (machine envelope, spindle power, max RPM, tool reach)",
+      "phase": "B",
+      "status": "pending",
+      "files_to_touch": [
+        "mcp-server/web/src/components/calculator/MillFeasibilityPanel.tsx",
+        "mcp-server/web/src/__tests__/MillFeasibilityPanel.test.tsx",
+        "mcp-server/web/src/pages/CalculatorPage.tsx"
+      ],
+      "engines": ["MachineLimitGuard", "MachineCapabilitySurfaceEngine"],
+      "priority_score": 4
+    },
+    {
+      "unit_id": "U-MSTUD-B2",
+      "title": "MillCostPanel — cycle-time + tool-life + coolant + spindle cost breakdown",
+      "phase": "B",
+      "status": "pending",
+      "files_to_touch": [
+        "mcp-server/web/src/components/calculator/MillCostPanel.tsx",
+        "mcp-server/web/src/__tests__/MillCostPanel.test.tsx",
+        "mcp-server/web/src/pages/CalculatorPage.tsx"
+      ],
+      "engines": ["QuoteEstimator", "ActualCostEngine", "OEEEngine"],
+      "priority_score": 5
+    },
+    {
+      "unit_id": "U-MSTUD-B1",
+      "title": "MillChatterPanel — stability lobe diagram + RPM picker + depth-of-cut slider",
+      "phase": "B",
+      "status": "pending",
+      "files_to_touch": [
+        "mcp-server/web/src/components/calculator/MillChatterPanel.tsx",
+        "mcp-server/web/src/__tests__/MillChatterPanel.test.tsx",
+        "mcp-server/web/src/pages/CalculatorPage.tsx"
+      ],
+      "engines": ["ChatterStabilityLobeEngine", "RegenerativeChatterEngine", "DampingOptimizationEngine"],
+      "priority_score": 6
+    },
+    {
+      "unit_id": "U-MSTUD-B3",
+      "title": "MillToolLifePanel — Taylor + Weibull stochastic projection",
+      "phase": "B",
+      "status": "pending",
+      "files_to_touch": [
+        "mcp-server/web/src/components/calculator/MillToolLifePanel.tsx",
+        "mcp-server/web/src/__tests__/MillToolLifePanel.test.tsx",
+        "mcp-server/web/src/pages/CalculatorPage.tsx"
+      ],
+      "engines": ["ToolWearProgressionEngine", "StochasticToolLifeEngine"],
+      "priority_score": 7
+    },
+    {
+      "unit_id": "U-MSTUD-B4",
+      "title": "MillWorkholdingPanel — fixture stiffness + part-deflection + clamp force advisor",
+      "phase": "B",
+      "status": "pending",
+      "files_to_touch": [
+        "mcp-server/web/src/components/calculator/MillWorkholdingPanel.tsx",
+        "mcp-server/web/src/__tests__/MillWorkholdingPanel.test.tsx",
+        "mcp-server/web/src/pages/CalculatorPage.tsx"
+      ],
+      "engines": ["PartDeflectionEngine", "FixtureStiffnessEngine"],
+      "priority_score": 8
+    },
+    {
+      "unit_id": "U-MSTUD-B5",
+      "title": "MillToolSelectorPanel — tool registry filter + holder compatibility + diameter/length recommendation",
+      "phase": "B",
+      "status": "pending",
+      "files_to_touch": [
+        "mcp-server/web/src/components/calculator/MillToolSelectorPanel.tsx",
+        "mcp-server/web/src/__tests__/MillToolSelectorPanel.test.tsx",
+        "mcp-server/web/src/pages/CalculatorPage.tsx"
+      ],
+      "priority_score": 9
+    },
+    {
+      "unit_id": "U-MSTUD-B6",
+      "title": "MillSurfaceFinishPanel — predicted Ra/Rz sparkline + stepover-vs-finish tradeoff curve",
+      "phase": "B",
+      "status": "pending",
+      "files_to_touch": [
+        "mcp-server/web/src/components/calculator/MillSurfaceFinishPanel.tsx",
+        "mcp-server/web/src/__tests__/MillSurfaceFinishPanel.test.tsx",
+        "mcp-server/web/src/pages/CalculatorPage.tsx"
+      ],
+      "engines": ["SurfaceFinishPredictorEngine", "SurfaceIntegrityEngine"],
+      "priority_score": 10
+    },
+    {
+      "unit_id": "U-MSTUD-B8",
+      "title": "MillSketch2D — feature-class picker (pocket/contour/slot/face/drill pattern) with simple 2D sketch input",
+      "phase": "B",
+      "status": "pending",
+      "files_to_touch": [
+        "mcp-server/web/src/components/calculator/MillSketch2D.tsx",
+        "mcp-server/web/src/__tests__/MillSketch2D.test.tsx",
+        "mcp-server/web/src/pages/CalculatorPage.tsx"
+      ],
+      "priority_score": 11
+    },
+    {
+      "unit_id": "U-MSTUD-C1",
+      "title": "PSN-synergy weave — reusable <PSNExplain> tooltip + 11-leg affordance pass",
+      "phase": "C",
+      "status": "pending",
+      "files_to_touch": [
+        "mcp-server/web/src/components/psn/PSNExplain.tsx",
+        "mcp-server/web/src/__tests__/PSNExplain.test.tsx",
+        "mcp-server/web/src/pages/CalculatorPage.tsx"
+      ],
+      "depends_on": ["U-MSTUD-A1", "U-MSTUD-B1", "U-MSTUD-B2", "U-MSTUD-B3", "U-MSTUD-B4", "U-MSTUD-B5", "U-MSTUD-B6", "U-MSTUD-B7", "U-MSTUD-B8"],
+      "psn_legs_covered": ["1.Obsidian", "2.PRISMOS", "3.Wiki", "4.Memories", "5.Tribal", "6.SystemViz", "7.Engines", "8.Algorithms", "9.Formulas", "10.NN-GNN", "11.PRISM-AI"],
+      "priority_score": 12
+    }
+  ],
+  "risks": [
+    "CalculatorPage.tsx is a 656K monolith — peer-absorption risk on every edit; future iters should use slot-worktree (per reference_u_bridge_wire_agent_absorbed_2026_05_23)",
+    "MillMasterOrchestratorFacadeEngine API names not yet verified — first build (U-MSTUD-A1) must validate dispatcher contract before wiring",
+    "Mill stubs in components/mill/ should be renamed to MillStrategyPanel/MillProgramPreview/MillSimPanel + relocated to components/calculator/ for naming consistency with Lathe/WireEDM peers"
+  ],
+  "psn_synergy_score": 11,
+  "differentiator": "PSN-backed knowledge graph (vs isolated competitors G-Wizard / FSWizard / HSMAdvisor)"
+}

@@ -1,0 +1,93 @@
+{
+  "schemaVersion": "1.0.0",
+  "_lastBackfillTs": "2026-05-08T16:41:54.025Z",
+  "timestamp": "2026-04-15T03:50:52.101Z",
+  "duration_sec": 646,
+  "architecture": {
+    "input_dim": 256,
+    "output_dim": 12,
+    "layers": "256→128→64→32→16→12",
+    "neurons": 508,
+    "weights": 44220
+  },
+  "training": {
+    "samples": 5400,
+    "epochs": 1080000,
+    "final_loss": 56.874172040193244,
+    "physics_loss": 3.6519209999999998
+  },
+  "machines": [
+    "HAAS_VF2",
+    "HAAS_OM2",
+    "HURCO_VM30i",
+    "OKUMA_M460V_5AX",
+    "ROKU_ROKU_HC658"
+  ],
+  "tools": 20,
+  "feature_categories": 176,
+  "test_prediction": {
+    "rpm": 2453.37676393702,
+    "feed_rate_mm_min": 1.3489941181007673e-192,
+    "doc_mm": 5.728479364328808,
+    "woc_mm": 38.464983648682534,
+    "chip_load_mm": 0.03983388521462208,
+    "confidence": 0.38401535352866767,
+    "safety_score": 0.7714369469530765,
+    "efficiency_score": 0.4944623098648114,
+    "tool_life_factor": 0.0028231370648542837,
+    "surface_finish_ra": 8.172590362789327,
+    "cycle_time_reduction_pct": 21.343048533031407,
+    "feature_importance": {},
+    "attention_weights": {
+      "0": 0.08177922546456733,
+      "1": 2.6979882362015345e-196,
+      "2": 0.2864239682164404,
+      "3": 0.7692996729736507,
+      "4": 0.19916942607311042,
+      "5": 0.38401535352866767,
+      "6": 0.7714369469530765,
+      "7": 0.4944623098648114,
+      "8": 0.0028231370648542837,
+      "9": 0.6538072290231461,
+      "10": 0.4268609706606281,
+      "11": 1
+    },
+    "physics_violations": [
+      "Feed rate 0 unusual"
+    ],
+    "tribal_alignments": [],
+    "decision_chain": [
+      "Input: 256-dim encoded features",
+      "Forward: 128→64→32→16 hidden processing",
+      "Physics: Kienzle/Taylor constraints applied",
+      "Output: 12 optimized parameters"
+    ]
+  },
+  "reasoning_test": {
+    "query": "What parameters for roughing titanium on 5-axis?",
+    "evidence": [
+      "Material S: kc1.1=2800 N/mm², mc=0.28",
+      "Taylor constants: C=150, n=0.18",
+      "Machine: OKUMA_M460V_5AX",
+      "Operation type: rough"
+    ],
+    "logic_chain": [
+      "High specific cutting force (2800) → reduce DOC, use rigid setup",
+      "Low Taylor n (0.18) → speed-sensitive tool life, stay conservative on Vc"
+    ],
+    "conclusion": "Based on analysis: High specific cutting force (2800) → reduce DOC, use rigid setup; Low Taylor n (0.18) → speed-sensitive tool life, stay conservative on Vc",
+    "confidence": 0.95,
+    "alternatives": []
+  },
+  "anomaly_test": {
+    "is_anomaly": false,
+    "anomaly_score": 0.4,
+    "reconstruction_error": 0.3,
+    "flagged_features": [
+      "aggressive_params"
+    ],
+    "expected_ranges": {},
+    "actual_values": {},
+    "severity": "info"
+  }
+}

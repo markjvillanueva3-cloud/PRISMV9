@@ -68,7 +68,7 @@ try {
 
 // Git status
 try {
-  const result = spawnSync('git', ['status', '--porcelain'], {
+  const result = spawnSync('git', ['status', '--porcelain'], { windowsHide: true,
     cwd: 'H:/prism/mcp-server',
     encoding: 'utf8',
     timeout: 2000

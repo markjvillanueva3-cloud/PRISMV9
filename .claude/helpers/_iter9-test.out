@@ -1,0 +1,170 @@
+TAP version 13
+# Subtest: extractMcpActionRefs: single match
+ok 1 - extractMcpActionRefs: single match
+  ---
+  duration_ms: 2.248
+  ...
+# Subtest: extractMcpActionRefs: multiple unique matches dedup'd
+ok 2 - extractMcpActionRefs: multiple unique matches dedup'd
+  ---
+  duration_ms: 0.2074
+  ...
+# Subtest: extractMcpActionRefs: no matches → empty array
+ok 3 - extractMcpActionRefs: no matches → empty array
+  ---
+  duration_ms: 0.1027
+  ...
+# Subtest: extractMcpActionRefs: ignores word boundaries (no fragment matches)
+ok 4 - extractMcpActionRefs: ignores word boundaries (no fragment matches)
+  ---
+  duration_ms: 0.1751
+  ...
+# Subtest: extractMcpActionRefs: non-string input returns []
+ok 5 - extractMcpActionRefs: non-string input returns []
+  ---
+  duration_ms: 0.2045
+  ...
+# Subtest: extractMcpActionRefs: empty string returns []
+ok 6 - extractMcpActionRefs: empty string returns []
+  ---
+  duration_ms: 0.1094
+  ...
+# Subtest: findUnknownActions: returns only unknowns
+ok 7 - findUnknownActions: returns only unknowns
+  ---
+  duration_ms: 0.2508
+  ...
+# Subtest: findUnknownActions: empty input returns []
+ok 8 - findUnknownActions: empty input returns []
+  ---
+  duration_ms: 0.144
+  ...
+# Subtest: findUnknownActions: non-array returns []
+ok 9 - findUnknownActions: non-array returns []
+  ---
+  duration_ms: 0.3839
+  ...
+# Subtest: findUnknownActions: custom knownSet overrides default
+ok 10 - findUnknownActions: custom knownSet overrides default
+  ---
+  duration_ms: 0.5079
+  ...
+# Subtest: KNOWN_REAL_MCP_ACTIONS: non-empty + every entry well-shaped
+ok 11 - KNOWN_REAL_MCP_ACTIONS: non-empty + every entry well-shaped
+  ---
+  duration_ms: 0.3862
+  ...
+# Subtest: KNOWN_REAL_MCP_ACTIONS: does NOT contain the iter5 fakes (regression guard)
+ok 12 - KNOWN_REAL_MCP_ACTIONS: does NOT contain the iter5 fakes (regression guard)
+  ---
+  duration_ms: 0.9714
+  ...
+# Subtest: dispatcherNameToPrefix: devDispatcher.ts → prism_dev
+ok 13 - dispatcherNameToPrefix: devDispatcher.ts → prism_dev
+  ---
+  duration_ms: 0.1516
+  ...
+# Subtest: dispatcherNameToPrefix: sessionDispatcher.ts → prism_session
+ok 14 - dispatcherNameToPrefix: sessionDispatcher.ts → prism_session
+  ---
+  duration_ms: 0.1321
+  ...
+# Subtest: dispatcherNameToPrefix: camDispatcher.ts → prism_cam
+ok 15 - dispatcherNameToPrefix: camDispatcher.ts → prism_cam
+  ---
+  duration_ms: 0.1008
+  ...
+# Subtest: dispatcherNameToPrefix: mixed-case still lowercases the prefix
+ok 16 - dispatcherNameToPrefix: mixed-case still lowercases the prefix
+  ---
+  duration_ms: 0.099
+  ...
+# Subtest: dispatcherNameToPrefix: non-Dispatcher file returns null
+ok 17 - dispatcherNameToPrefix: non-Dispatcher file returns null
+  ---
+  duration_ms: 0.1162
+  ...
+# Subtest: dispatcherNameToPrefix: null/non-string returns null
+ok 18 - dispatcherNameToPrefix: null/non-string returns null
+  ---
+  duration_ms: 0.0947
+  ...
+# Subtest: extractActionsFromDispatcherSource: extracts case statements with prefix
+ok 19 - extractActionsFromDispatcherSource: extracts case statements with prefix
+  ---
+  duration_ms: 0.2351
+  ...
+# Subtest: extractActionsFromDispatcherSource: dedup duplicate cases
+ok 20 - extractActionsFromDispatcherSource: dedup duplicate cases
+  ---
+  duration_ms: 0.1358
+  ...
+# Subtest: extractActionsFromDispatcherSource: non-Dispatcher filename returns []
+ok 21 - extractActionsFromDispatcherSource: non-Dispatcher filename returns []
+  ---
+  duration_ms: 0.2127
+  ...
+# Subtest: extractActionsFromDispatcherSource: empty/non-string content returns []
+ok 22 - extractActionsFromDispatcherSource: empty/non-string content returns []
+  ---
+  duration_ms: 0.1661
+  ...
+# Subtest: extractActionsFromDispatcherSource: ignores cases with non-action shapes
+ok 23 - extractActionsFromDispatcherSource: ignores cases with non-action shapes
+  ---
+  duration_ms: 0.1862
+  ...
+# Subtest: classifyUnknowns: dispatcher exists → Tier A
+ok 24 - classifyUnknowns: dispatcher exists → Tier A
+  ---
+  duration_ms: 0.1887
+  ...
+# Subtest: classifyUnknowns: dispatcher missing → Tier B (R12 fake)
+ok 25 - classifyUnknowns: dispatcher missing → Tier B (R12 fake)
+  ---
+  duration_ms: 0.1023
+  ...
+# Subtest: classifyUnknowns: mixed refs split correctly
+ok 26 - classifyUnknowns: mixed refs split correctly
+  ---
+  duration_ms: 0.146
+  ...
+# Subtest: classifyUnknowns: malformed ref (no colon) → Tier B
+ok 27 - classifyUnknowns: malformed ref (no colon) → Tier B
+  ---
+  duration_ms: 0.1079
+  ...
+# Subtest: classifyUnknowns: empty input → empty tiers
+ok 28 - classifyUnknowns: empty input → empty tiers
+  ---
+  duration_ms: 0.1176
+  ...
+# Subtest: classifyUnknowns: non-array input → empty tiers (defensive)
+ok 29 - classifyUnknowns: non-array input → empty tiers (defensive)
+  ---
+  duration_ms: 0.1844
+  ...
+# Subtest: classifyUnknowns: null/undefined knownPrefixes treats everything as Tier B
+ok 30 - classifyUnknowns: null/undefined knownPrefixes treats everything as Tier B
+  ---
+  duration_ms: 0.1546
+  ...
+# Subtest: MCP_ACTION_RE: matches lowercase prism_*:* tokens only
+ok 31 - MCP_ACTION_RE: matches lowercase prism_*:* tokens only
+  ---
+  duration_ms: 0.2467
+  ...
+# Subtest: MCP_ACTION_RE: does not match prism prefix without colon
+ok 32 - MCP_ACTION_RE: does not match prism prefix without colon
+  ---
+  duration_ms: 0.131
+  ...
+1..32
+# tests 32
+# suites 0
+# pass 32
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 157.1072

@@ -557,8 +557,8 @@ class LatheLoRADatasetBuilderEngine {
     let tribalTips: string[] = [];
     try {
       const { tribalKnowledgeEngine } = await import("./TribalKnowledgeEngine.js");
-      const result = tribalKnowledgeEngine.query("lathe turning Okuma", { limit: 20 });
-      tribalTips = result.tips.map((t: any) => t.body || t.title);
+      const result = tribalKnowledgeEngine.search({ query: "lathe turning Okuma", limit: 20 });
+      tribalTips = result.map((t) => t.body || t.title);
       this.stats.tribal_tips_used = tribalTips.length;
     } catch (err) {
       warnings.push("Could not load tribal knowledge tips");

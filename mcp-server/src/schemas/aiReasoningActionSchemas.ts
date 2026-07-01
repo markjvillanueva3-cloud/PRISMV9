@@ -12,9 +12,38 @@ import {
   TaskCategory,
   ConfidenceLevel,
 } from "./successPatternSchema.js";
+import {
+  ContinualLoRATrainSchema,
+  ProtoMAMLPredictSchema,
+} from "./continualLearningSchema.js";
 
 /** Supported actions for prism_ai dispatcher */
 export const AI_REASONING_ACTIONS = [
+  // PSN-DORMANCY-AUDIT-MS0/U-BRIDGE-AI-TIER1-TIER2: Tier-1 (Claude) → Tier-2
+  // (FullSystemAICoordinatorEngine) command path.
+  "system_coordinate",
+  // PSN-DORMANCY-AUDIT-MS0/U-BRIDGE-AI-TIER2-TIER3: Tier-2 → Tier-3 specialist
+  // routing for non-mfg domains (cad/cam/safety/quality).
+  "system_route_specialist",
+  // PSN-DORMANCY-AUDIT-MS0/U-BRIDGE-LEARN-CAM-SFC: same-session outcome → override
+  // store ingest + query (OutcomeFeedbackOverrideStoreEngine).
+  "outcome_override_ingest",
+  "outcome_override_get",
+  "outcome_override_keys",
+  // PSN-DORMANCY-AUDIT-MS0/U-BRIDGE-SHOPFLOOR-LEARN: MTConnect telemetry →
+  // outcome-bus translator (MTConnectToOutcomeBridgeEngine).
+  "shopfloor_translate",
+  "shopfloor_publish",
+  // JM-DIE-LATHE-UPGRADE-MS0: per-machine S/F upgrade for JM Die lathe programs.
+  "jm_die_lathe_upgrade",
+  // JM-DIE-LATHE-UPGRADE-MS0/U-V2-PHYSICS: physics-driven (UltimateSpeedFeedEngine-backed) V2 variant.
+  "jm_die_lathe_upgrade_v2",
+  // JM-DIE-LATHE-UPGRADE-MS0/U-AUDIT-PIPELINE: 3-stage code-audit + collision screen.
+  "jm_die_lathe_audit",
+  // JM-DIE-LATHE-UPGRADE-MS0/U-PROGRAM-LIBRARY: frontend-facing program-library aggregator.
+  "jm_die_lathe_program_library",
+  // JM-DIE-LATHE-UPGRADE-MS0/U-LATHE-PROGRAM-RECOGNITION-BRIDGE: OCR partNumber → library lookup.
+  "jm_die_lathe_program_recognize",
   "ai_route_mill_pipeline",
   "ai_mill_agi_reason",
   "ai_mill_awareness_query",
@@ -29,6 +58,8 @@ export const AI_REASONING_ACTIONS = [
   "ppg_drift_canary_check",
   "sfc_fewshot_predict",
   "ppg_sfc_closed_loop",
+  "submit_sfm_override",
+  "get_override_history_size",
   "iterate_retrieve",
   // ENGINE-WIRE-MS0/U-WIRE03: 5 leaf AI/deep-reasoning engines
   "ai_explain_decision",
@@ -100,12 +131,26 @@ export const AI_REASONING_ACTIONS = [
   "neural_recommend",   // U-WIRE27 → recommend slash commands for a query string
   "neural_synthesize",  // U-WIRE27 → multi-source synthesis (engines+wisdom+commands)
   "neural_stats",       // U-WIRE27 → learning stats (totalQueries, successRate, topRoutes)
+  // AI-WIRE-MS0/U-AIW05: 3 remaining neural engines (NeuralIntegration + ModelRegistry already wired)
+  "neural_determinism_test", // U-AIW05 → compareOutputs(actual,expected) seeded determinism check
+  "neural_weight_persist",   // U-AIW05 → list persisted neural model weight files
+  "deep_logic_trace",        // U-AIW05 → proof-trace stats, or per-id proof summary
+  // AI-WIRE-MS0/U-AIW09: 3 learning engines (MetaLearningOptimizer already wired via meta_learning_*)
+  "ai_transfer_learn",       // U-AIW09 → TransferLearningEngine.materialTransfer
+  "ai_continual_learn",      // U-AIW09 → ContinualLoRAEngine.train
+  "ai_few_shot_learn",       // U-AIW09 → ProtoMAMLFewShotEngine.predict
+  // MILL-AGI-P0.3 / U-NN-WIRE-PNB: PhysicsNeuralBridgeEngine — physics+neural fusion
+  "physics_neural_bridge_predict",  // U-NN-WIRE-PNB → BridgeResult (Kienzle/Taylor/Roughness/Deflection × neural correction × Bayesian fusion)
+  "physics_neural_bridge_version",  // U-NN-WIRE-PNB → model version tag (telemetry / cache key)
   // ENGINE-WIRE-MS0/U-WIRE28: CNCControllerDeepLearningEngine — controller knowledge
   "controller_select",      // U-WIRE28 → pick best controller family for job requirements
   "controller_translate",   // U-WIRE28 → translate G-code from source dialect to target
   "controller_compare",     // U-WIRE28 → compare two controllers head-to-head
   "controller_macro",       // U-WIRE28 → generate macro skeleton for task + controller
   "controller_debug",       // U-WIRE28 → debug post-processor / G-code error message
+  // U-AITRAIN-POST-CNC-CONTROLLER-DL-STEP3-4: corpus-learned pattern consumer
+  "controller_ingest_learned",  // ingest the canonical learned-patterns ledger into the engine
+  "controller_recommend_macro", // recommend a macro for an operation (built-in → learned fallback)
   // ENGINE-WIRE-MS0/U-WIRE29: StatisticalLearningBoundsEngine — PAC/VC/Rademacher
   "bounds_pac_complexity",  // U-WIRE29 → PAC sample complexity m ≥ (1/ε)·(ln|H| + ln(1/δ))
   "bounds_vc",              // U-WIRE29 → VC bound √((d·ln(n/d) + ln(1/δ))/n)
@@ -173,6 +218,7 @@ export const AI_REASONING_ACTIONS = [
   "xproc_route_explain",
   "xproc_orchestrate_full",
   "xproc_orchestrate_brief",
+  "xproc_orchestrate_live",
   // T8-02/T8-04 Rule Extraction + Formula-Neural Blend
   "xproc_extract_rules",
   "xproc_rule_explain_prediction",
@@ -439,11 +485,15 @@ export const AI_REASONING_ACTIONS = [
   "cognitive_budget_allocate",      // CognitiveBudgetAllocatorEngine.allocate
   "ensemble_register_member",       // EnsembleModelSelectorEngine.registerMember
   "ensemble_predict",               // EnsembleModelSelectorEngine.predict
+  "ensemble_update_weights",        // EnsembleModelSelectorEngine.updateWeights -- actuals feedback (closes the loop)
+  "ensemble_get_weights",           // EnsembleModelSelectorEngine.getWeights -- observe the re-weighting
   "neural_model_register",          // NeuralModelRegistryEngine.registerModel
   "neural_model_list",              // NeuralModelRegistryEngine.listModels
   "reasoning_chain_register",       // ReasoningChainSharingEngine.registerChain
   "reasoning_chain_query",          // ReasoningChainSharingEngine.queryChains
   "reasoning_explain",              // ReasoningExplainerEngine.explain
+  "reasoning_explain_formula",      // ReasoningExplainerEngine.explainFormula
+  "reasoning_reading_level",        // ReasoningExplainerEngine.getReadingLevelLabel
   "transfer_bridge_register",       // TransferLearningBridgeEngine.register
   "transfer_bridge_find_analogies", // TransferLearningBridgeEngine.findAnalogies
   "memory_pressure_sample",         // MemoryPressureMonitorEngine.sampleNow
@@ -458,6 +508,10 @@ export const AI_REASONING_ACTIONS = [
   "cascade_calibrate",              // CascadeCalibrationEngine.calibrate
   // INFRA-CONSENSUS-WIRE-MS0/P0-U01: 4-way model consensus action surface
   "consensus_decide",               // MultiModelConsensusEngine.ask (vote or compare)
+  // INFRA-CONSENSUS-WIRE-MS0/P0-U04: consensus-audit-log read action
+  "consensus_audit_query",          // ConsensusAuditLogEngine.read (recent decisions, filtered)
+  // INFRA-CONSENSUS-WIRE-MS0/P0-U03: retry + escalation policy
+  "consensus_escalate",             // ConsensusCoordinatorEngine.runWithEscalation (retry -> escalate -> human_review)
   // CAM-FUSION-LIVE-MS0/U-WIRE-LORA-DRIFT: cross-pipeline LoRA drift coordination
   "lora_drift_record",              // LoRADriftCoordinatorEngine.record
   "lora_drift_active",              // LoRADriftCoordinatorEngine.activePipelines
@@ -479,6 +533,30 @@ export const AI_REASONING_ACTIONS = [
   "roadmap_auto_append",            // RoadmapAutoAppendEngine.propose / proposeBatch
   // AUTO-LEARNING-LOOP-MS0/U-ALL12 — SourcePoisoningSanitizerEngine
   "source_poisoning_sanitize",      // SourcePoisoningSanitizerEngine.sanitize
+  // COST-CASCADE-MS0/U-DISPATCHER-ACTION-TWO-PASS — TwoPassCascadeEngine
+  "two_pass",                       // TwoPassCascadeEngine.run (cheap→gate→strong cascade)
+  // COST-CASCADE-MS0/U-COST-ALARM — CostAlarmEngine
+  "cost_alarm_check",               // CostAlarmEngine.check (telemetry → threshold → fire)
+  // COST-CASCADE-MS0/U-CASCADE-FALLBACK-CHAIN — CascadeFallbackChainEngine
+  "cascade_run",                    // CascadeFallbackChainEngine.run (cheap→mid→strong + breaker)
+  "cascade_status",                 // CascadeFallbackChainEngine.status (breaker snapshot)
+  // ENGINE-WIRE-MS0/U-WIRE09: TemporalReasoningEngine.record (write -- previously unwired)
+  "temporal_record",                // TemporalReasoningEngine.record(series, value, at?, note?)
+  // ENGINE-WIRE-MS0/U-WIRE09: CognitiveBudgetAllocatorEngine.classify (previously unwired)
+  "cognitive_classify",             // CognitiveBudgetAllocatorEngine.classify(score)
+  // WIRE-MS0/U-WIRE07: CausalReasoningEngine granular actions (add_edge / trace_impact / root_causes)
+  "causal_add_edge",        // U-WIRE07 → CausalReasoningEngine.addEdge (single edge write)
+  "causal_trace_impact",    // U-WIRE07 → CausalReasoningEngine.traceImpact (BFS forward)
+  "causal_root_causes",     // U-WIRE07 → CausalReasoningEngine.rootCauses (BFS backward)
+  // DEV-LOOP-RESTORE: 4 dev-loop actions (restored from pre-clobber parent c642606778^)
+  "ai_route_task",
+  "ai_health_report",
+  "ai_recommend_capability",
+  "ai_classify_content",
+  // U-WIRE11-SYNC: AISystemSynchronizerEngine -- 3 granular actions replacing deleted composite ai_system_sync
+  "ai_system_status",
+  "ai_system_summary",
+  "ai_system_synergize",
 ] as const;
 
 export type AIReasoningAction = (typeof AI_REASONING_ACTIONS)[number];
@@ -538,6 +616,144 @@ const ReasoningModeEnum = z.enum([
 // ============================================================================
 // ACTION SCHEMAS
 // ============================================================================
+
+/**
+ * Tier-1 → Tier-2 system coordinate — single entry point Claude (Tier-1)
+ * calls to dispatch a DomainAGIIntent through FullSystemAICoordinatorEngine,
+ * which routes the mfg slice (mill/lathe/wedm) through
+ * ProcessIntelligenceRouterEngine and appends `coordinator_metadata` to
+ * the returned DomainAGIResult. PSN-DORMANCY-AUDIT-MS0/U-BRIDGE-AI-TIER1-TIER2.
+ *
+ * The intent payload is validated by DomainAGIIntentSchema INSIDE the
+ * coordinator — we use `.passthrough()` here so the dispatcher boundary
+ * doesn't fork the canonical contract. Coordinator-boundary failures
+ * surface as a structured DomainAGIResult with `error.code:"INVALID_INTENT"`.
+ */
+const system_coordinate = z
+  .object({
+    intent: z.record(z.string(), z.unknown()).describe("DomainAGIIntent — validated inside FullSystemAICoordinatorEngine.coordinate()."),
+  })
+  .passthrough();
+
+/** Upgrade one JM Die lathe program through real physics (UltimateSpeedFeedEngine). */
+const jm_die_lathe_upgrade_v2 = z.object({
+  sourcePath: z.string().min(1).describe("Path to the source lathe program."),
+  programText: z.string().optional().describe("Optional source program text."),
+  material: z.string().optional().describe("Workpiece material (e.g., '4140', 'D2', '316', 'tool_steel'). Defaults to 'tool_steel' (H group)."),
+  toolDiameterMm: z.number().optional().describe("Insert holder diameter in mm. Defaults to 12.7 (1/2\")."),
+  operation: z.enum(["turning", "drilling", "tapping", "reaming", "milling", "facing", "grooving", "threading", "boring"]).optional(),
+  optimizeFor: z.enum(["tool_life", "productivity", "surface_finish", "balanced"]).optional(),
+}).passthrough();
+
+/**
+ * Run 3-stage code-audit + collision screen on one lathe variant.
+ * Returns verdict (pass/pass_with_notes/warn/fail), Stage-A SafetyAnalysisResult,
+ * Stage-B parsed-move count, Stage-C envelope-screen findings, composite score.
+ * JM-DIE-LATHE-UPGRADE-MS0/U-AUDIT-PIPELINE.
+ */
+const jm_die_lathe_audit = z.object({
+  variantPath: z.string().min(1).describe("Absolute path to the lathe variant being audited."),
+  programText: z.string().min(1).describe("Full G-code program text."),
+  partNumber: z.string().min(1).describe("Part number from filename."),
+  machineId: z.string().min(1).describe("Machine ID (e.g., LTH-06)."),
+  machineModel: z.string().min(1).describe("Machine model (e.g., Okuma_LB-3000EX_BigBore)."),
+  controller: z.enum(["fanuc", "haas", "siemens", "heidenhain", "mazak", "okuma"]).optional().describe("Defaults to 'okuma' (JM Die fleet)."),
+  envelope: z.object({
+    machineId: z.string(),
+    x_min_mm: z.number(),
+    x_max_mm: z.number(),
+    z_min_mm: z.number(),
+    z_max_mm: z.number(),
+    chuck_z_mm: z.number(),
+    tail_z_mm: z.number().optional(),
+    clearance_warning_mm: z.number(),
+  }).describe("Per-machine work envelope for Stage-C collision screen."),
+  strictness: z.enum(["standard", "strict", "aerospace"]).optional().describe("Defaults to 'standard'."),
+}).passthrough();
+
+/**
+ * Bridge a recognized partNumber from any OCR / barcode / vision consumer
+ * into a LatheProgramLibraryEngine lookup with fuzzy alternates +
+ * routing hint (dispatch / regenerate_v2 / new_part).
+ * JM-DIE-LATHE-UPGRADE-MS0/U-LATHE-PROGRAM-RECOGNITION-BRIDGE.
+ */
+const jm_die_lathe_program_recognize = z.object({
+  recognizedPartNumber: z.string().min(0).describe("Part number string from OCR/barcode/QR/label/vision (case-insensitive, will be normalized)."),
+  source: z.enum(["ocr_blueprint", "barcode", "qr", "label_scanner", "vision_system", "manual"]).optional().describe("Recognition source for telemetry/provenance."),
+  sourceConfidence: z.number().min(0).max(1).optional().describe("Source OCR confidence (0-1) — preserved into the result."),
+  maxAlternates: z.number().int().min(0).max(25).optional().describe("Max fuzzy alternates to return (default 5, cap 25)."),
+  minAlternateOverlap: z.number().min(0).max(1).optional().describe("Min character-overlap ratio for an alternate to qualify (default 0.5)."),
+}).passthrough();
+
+/**
+ * Frontend-facing aggregator listing JM Die lathe programs + per-machine
+ * variants. Returned shape is bound by lathe-wizard / lathe-studio / shop-mgmt
+ * / biz-mgmt / employee-portal frontends + camera-recognition consumers.
+ * Star indicator: variant.optimized=true when header carries V2 PRISM_UPGRADED
+ * marker. JM-DIE-LATHE-UPGRADE-MS0/U-PROGRAM-LIBRARY.
+ */
+const jm_die_lathe_program_library = z.object({
+  customer: z.string().optional().describe("Filter to one customer folder (case-sensitive)."),
+  partNumber: z.string().optional().describe("Filter to one part number (case-sensitive)."),
+  search: z.string().optional().describe("Case-insensitive substring filter on filename."),
+  limit: z.number().int().min(0).max(2000).optional().describe("Max entries returned (default 200; 0 returns dispatchableMachines metadata only)."),
+  includeAudit: z.boolean().optional().describe("Run audit on every variant inline (slower; expensive on large libraries)."),
+}).passthrough();
+
+/** Upgrade one JM Die lathe program — emits 7 per-machine variants. */
+const jm_die_lathe_upgrade = z.object({
+  sourcePath: z.string().min(1).describe("Path to the source lathe program."),
+  programText: z.string().optional().describe("Optional program text; if omitted, only filename is parsed for part number."),
+  partNumber: z.string().optional().describe("Override extracted part number."),
+  materialOverride: z.string().optional().describe("Override default 'tool_steel' material when print is known."),
+  toolDiameterMm: z.number().optional().describe("Tool/insert diameter in mm; defaults to 12.7 (1/2\")."),
+}).passthrough();
+
+/** Translate one MTConnect shop-floor event into the canonical outcome shape. */
+const shopfloor_translate = z.object({
+  device_id: z.string().optional(),
+  execution: z.string().describe("MTConnect EXECUTION dataitem value."),
+  controller_mode: z.string().optional(),
+  alarms: z.array(z.string()).optional(),
+  spindle_load_pct: z.number().optional(),
+  tool_temp_c: z.number().optional(),
+  operator_overrides: z.record(z.string(), z.unknown()).optional(),
+  domain: z.enum(["mill", "lathe", "wedm"]).optional(),
+  ts: z.string().optional(),
+}).passthrough();
+
+/** Translate AND publish to FeedbackBus in one call. Same schema as shopfloor_translate. */
+const shopfloor_publish = shopfloor_translate;
+
+/** Ingest one outcome event into the same-session override store (LEARN-CAM/SFC). */
+const outcome_override_ingest = z.object({
+  domain: z.enum(["mill", "lathe", "wedm", "cam", "sfc", "safety", "quality"]).describe("Override-relevant domain."),
+  success: z.boolean().describe("Only success===true mutates the store."),
+  confidence: z.number().min(0).max(1).describe("Confidence floor 0.7 for store mutation."),
+  overrides: z.record(z.string(), z.unknown()).describe("Key → recommended value override map."),
+}).passthrough();
+
+/** Query a single override record by (domain, key). */
+const outcome_override_get = z.object({
+  domain: z.enum(["mill", "lathe", "wedm", "cam", "sfc", "safety", "quality"]).describe("Override-relevant domain."),
+  key: z.string().min(1).describe("Override key (e.g., 'stepover_pct', 'sfm_multiplier')."),
+});
+
+/** List all override keys currently held for a domain. */
+const outcome_override_keys = z.object({
+  domain: z.enum(["mill", "lathe", "wedm", "cam", "sfc", "safety", "quality"]).describe("Override-relevant domain."),
+});
+
+/**
+ * Tier-2 → Tier-3 specialist routing — returns a structured route decision
+ * naming the canonical engine + dispatcher action that handles the non-mfg
+ * domain. Caller executes the named specialist. PSN-DORMANCY-AUDIT-MS0/
+ * U-BRIDGE-AI-TIER2-TIER3.
+ */
+const system_route_specialist = z.object({
+  domain: z.enum(["cad", "cam", "safety", "quality"]).describe("Non-mfg Tier-3 specialist domain. Mfg domains (mill/lathe/wedm) use system_coordinate instead."),
+  payload: z.record(z.string(), z.unknown()).describe("Opaque specialist input — passed through to the named dispatcher action."),
+}).passthrough();
 
 /** Route mill pipeline — Full P2P pipeline orchestration */
 const ai_route_mill_pipeline = z.object({
@@ -1153,7 +1369,52 @@ const ai_hook_rule_match = z.object({
   params: z.record(z.string(), z.unknown()).describe("Tool parameters object"),
 }).passthrough();
 
+/** Route a dev task to optimal Claude/Ollama/Docker backend */
+const ai_route_task = z.object({
+  task: z.string().min(1).describe("Task description for backend routing"),
+}).passthrough();
+/** Probe reachability of all known AI backends */
+const ai_health_report = z.object({
+  backend: z.string().optional().describe("Specific backend to probe (omit for all)"),
+}).passthrough();
+/** Recommend PRISM capabilities matching a user prompt */
+const ai_recommend_capability = z.object({
+  input: z.string().min(1).describe("User prompt or task description"),
+}).passthrough();
+/** Classify content type for downstream processing */
+const ai_classify_content = z.object({
+  content: z.unknown().describe("Content to classify (text, file metadata, etc.)"),
+  hint: z.string().optional().describe("Optional content type hint"),
+}).passthrough();
+
+/** AISystemSynchronizerEngine.getStatus -- read active flag, engineCount, capabilities list */
+const ai_system_status = z
+  .object({})
+  .passthrough()
+  .describe("No-input query: returns AI system status (active flag, engineCount, capabilities list)");
+/** AISystemSynchronizerEngine.getSummary -- multiline string describing all AI capabilities */
+const ai_system_summary = z
+  .object({})
+  .passthrough()
+  .describe("No-input query: returns a multiline summary string of all AI capabilities");
+/** AISystemSynchronizerEngine.getSynergizedCapabilities -- cross-system workflow for a problem */
+const ai_system_synergize = z.object({
+  problem: z.string().min(1).describe("Manufacturing problem to synergize AI systems around"),
+}).passthrough();
+
 export const ACTION_AI_REASONING_SCHEMAS: Record<AIReasoningAction, z.ZodTypeAny> = {
+  system_coordinate,
+  system_route_specialist,
+  outcome_override_ingest,
+  outcome_override_get,
+  outcome_override_keys,
+  shopfloor_translate,
+  shopfloor_publish,
+  jm_die_lathe_upgrade,
+  jm_die_lathe_upgrade_v2,
+  jm_die_lathe_audit,
+  jm_die_lathe_program_library,
+  jm_die_lathe_program_recognize,
   ai_route_mill_pipeline,
   ai_mill_agi_reason,
   ai_mill_awareness_query,
@@ -1170,6 +1431,18 @@ export const ACTION_AI_REASONING_SCHEMAS: Record<AIReasoningAction, z.ZodTypeAny
   ppg_drift_canary_check: z.object({}).passthrough(),
   sfc_fewshot_predict: z.object({}).passthrough(),
   ppg_sfc_closed_loop: z.object({}).passthrough(),
+  // CL-1 (iter317): operator override capture for PPG-SFC closed-loop training
+  submit_sfm_override: z.object({
+    adapter_key: z.string().describe("Adapter key: <customer>-<material>-<machine_id>"),
+    lineage_id: z.string().describe("Lineage ID from prior SFC recommendation"),
+    recommended_sfm: z.number().positive().describe("SFM the wizard recommended"),
+    actual_sfm: z.number().positive().describe("SFM the operator actually ran"),
+    override_factor: z.number().positive().describe("actual_sfm / recommended_sfm ratio"),
+    reason: z.string().optional().describe("Operator's reason for the override (free text)"),
+  }).describe("Submit an operator SFM override into PPG-SFC closed-loop training history. Accumulates per adapter_key; triggers LoRA training at 30 experiences."),
+  get_override_history_size: z.object({
+    adapter_key: z.string().describe("Adapter key: <customer>-<material>-<machine_id>"),
+  }).describe("Get the count of accumulated overrides for a given adapter_key. Useful for shop-floor visibility into how close a given (customer, material, machine) is to triggering its next LoRA training cycle."),
   // ENGINE-WIRE-MS0/U-WIRE03: 5 leaf AI/deep-reasoning engines
   ai_explain_decision,
   ai_extract_classify,
@@ -1372,6 +1645,42 @@ export const ACTION_AI_REASONING_SCHEMAS: Record<AIReasoningAction, z.ZodTypeAny
     query: z.string().min(1).describe("Query to synthesize across multiple sources"),
   }).passthrough(),
   neural_stats: z.object({}).passthrough(),
+  // AI-WIRE-MS0/U-AIW05 — NeuralDeterminismTesting / NeuralWeightPersistence / DeepLogicTrace
+  neural_determinism_test: z.object({
+    actual: z.array(z.number()).min(1).describe("Actual output vector"),
+    expected: z.array(z.number()).min(1).describe("Expected/baseline output vector"),
+    seed: z.number().int().optional().describe("Determinism seed (default 42)"),
+    tolerance: z.number().positive().optional().describe("FP comparison tolerance (default 0.001)"),
+  }).passthrough(),
+  neural_weight_persist: z.object({
+    modelId: z.string().optional().describe("Optional model id to filter persisted weight files"),
+  }).passthrough(),
+  deep_logic_trace: z.object({
+    traceId: z.string().optional().describe("Optional proof-trace id; omit for global trace stats"),
+  }).passthrough(),
+  // AI-WIRE-MS0/U-AIW09 — TransferLearning / ContinualLoRA / ProtoMAMLFewShot
+  ai_transfer_learn: z.object({
+    source_material: z.string().min(1).describe("Source material the known parameters came from"),
+    target_material: z.string().min(1).describe("Target material to transfer cutting parameters to"),
+    source_speed_mmin: z.number().positive().describe("Known good cutting speed on the source material [m/min]"),
+    source_tool_life_min: z.number().positive().optional().describe("Optional known tool life on the source material [min]"),
+  }).passthrough(),
+  ai_continual_learn: ContinualLoRATrainSchema,
+  ai_few_shot_learn: ProtoMAMLPredictSchema,
+  // MILL-AGI-P0.3 / U-NN-WIRE-PNB — PhysicsNeuralBridgeEngine
+  physics_neural_bridge_predict: z.object({
+    cutting_speed_mpm: z.number().positive().describe("Cutting speed Vc [m/min]"),
+    feed_per_tooth_mm: z.number().positive().describe("Feed per tooth fz [mm/tooth]"),
+    axial_depth_mm: z.number().positive().describe("Axial depth ap [mm]"),
+    radial_depth_mm: z.number().positive().describe("Radial depth ae [mm]"),
+    tool_diameter_mm: z.number().positive().describe("Tool diameter D [mm]"),
+    number_of_teeth: z.number().int().positive().describe("Number of teeth z"),
+    material_kc1_1: z.number().positive().describe("Kienzle kc1.1 specific cutting force [N/mm²]"),
+    material_mc: z.number().min(0).describe("Kienzle mc exponent (size-effect)"),
+    material_C: z.number().positive().optional().describe("Taylor C constant [m/min]"),
+    material_n: z.number().min(0).max(1).optional().describe("Taylor n exponent"),
+  }).passthrough(),
+  physics_neural_bridge_version: z.object({}).passthrough(),
   // U-WIRE28 — CNCControllerDeepLearningEngine
   // ControllerFamily values are validated by the engine itself; the schema
   // accepts any string here so new families don't require schema updates.
@@ -1399,6 +1708,15 @@ export const ACTION_AI_REASONING_SCHEMAS: Record<AIReasoningAction, z.ZodTypeAny
   controller_debug: z.object({
     errorMessage: z.string().min(1).describe("Error / alarm message text"),
     controller: z.string().min(1).describe("Controller family that produced the error"),
+  }).passthrough(),
+  // U-AITRAIN-POST-CNC-CONTROLLER-DL-STEP3-4 — learned-pattern consumer.
+  // controller_ingest_learned takes NO caller path: the dispatcher resolves the
+  // single canonical ledger (mcp-server/data/state/learned-cnc-controller-patterns.json)
+  // itself, so there is no path-traversal surface from MCP input.
+  controller_ingest_learned: z.object({}).passthrough(),
+  controller_recommend_macro: z.object({
+    operation: z.string().min(1).describe("Operation keyword(s), e.g. 'turning', 'spot drill', 'bore'"),
+    controller: z.string().min(1).describe("Controller family (e.g. 'okuma_osp')"),
   }).passthrough(),
   // U-WIRE29 — StatisticalLearningBoundsEngine
   // All bounds enforce ε,δ ∈ (0,1) STRICTLY (open interval — engine throws
@@ -1519,6 +1837,7 @@ export const ACTION_AI_REASONING_SCHEMAS: Record<AIReasoningAction, z.ZodTypeAny
   xproc_route_explain: z.object({}).passthrough(),
   xproc_orchestrate_full: z.object({}).passthrough(),
   xproc_orchestrate_brief: z.object({}).passthrough(),
+  xproc_orchestrate_live: z.object({}).passthrough(),
   xproc_extract_rules: z.object({}).passthrough(),
   xproc_rule_explain_prediction: z.object({}).passthrough(),
   xproc_blend_predict: z.object({}).passthrough(),
@@ -1986,6 +2305,12 @@ export const ACTION_AI_REASONING_SCHEMAS: Record<AIReasoningAction, z.ZodTypeAny
   xproc_outcome_retrieve_similar: z.object({}).passthrough(),
   xproc_outcome_stats: z.object({}).passthrough(),
   xproc_outcome_clear: z.object({}).passthrough(),
+  // INFRA-NEURAL-LEDGER-MS1/P0-U03 — replay capability (read-side API); schemas were
+  // missing from the map while the actions were in the enum (broke Record<> type).
+  xproc_outcome_replay: z.object({}).passthrough(),
+  xproc_outcome_replay_job: z.object({}).passthrough(),
+  xproc_outcome_replay_since: z.object({}).passthrough(),
+  xproc_outcome_stream_from_disk: z.object({}).passthrough(),
   xproc_neural_train: z.object({}).passthrough(),
   xproc_neural_predict: z.object({}).passthrough(),
   xproc_neural_evaluate: z.object({}).passthrough(),
@@ -2036,6 +2361,11 @@ export const ACTION_AI_REASONING_SCHEMAS: Record<AIReasoningAction, z.ZodTypeAny
     domain: z.enum(["force", "thermal", "tool_life", "surface", "chatter"]).optional()
       .describe("Optional ensemble domain"),
   }).passthrough(),
+  ensemble_update_weights: z.object({
+    member_errors: z.record(z.string(), z.number()).describe("Map of memberId → observed error (loss) this round"),
+    actual: z.number().describe("The actual observed value the ensemble was predicting"),
+  }).passthrough(),
+  ensemble_get_weights: z.object({}).passthrough(),
   neural_model_register: z.object({
     checkpoint: z.unknown().describe("ModelCheckpoint object"),
   }).passthrough(),
@@ -2055,11 +2385,21 @@ export const ACTION_AI_REASONING_SCHEMAS: Record<AIReasoningAction, z.ZodTypeAny
     limit: z.number().int().positive().optional().describe("Max results"),
   }).passthrough(),
   reasoning_explain: z.object({
-    chain: z.unknown().describe("ManufacturingReasoningChain to explain"),
-    audience: z.enum(["machinist", "engineer", "manager", "novice"]).optional()
+    question: z.string().min(1).describe("Question or recommendation to explain"),
+    context: z.record(z.string(), z.unknown()).describe("Explanation context (recommendation, calculation, selection, etc.)"),
+    audience: z.enum(["machinist", "engineer", "manager", "auditor"]).optional()
       .describe("Audience reading level (default: machinist)"),
-    style: z.enum(["narrative", "bullet", "formal"]).optional().describe("Explanation style"),
+    maxWords: z.number().int().min(1).max(2000).optional()
+      .describe("Word count ceiling (default: audience-based)"),
   }).passthrough(),
+  reasoning_explain_formula: z.object({
+    formula: z.string().min(1).describe("Formula string to explain (e.g. 'Fc = kc1.1 × ap × fz^(1-mc)')"),
+    audience: z.enum(["machinist", "engineer", "manager", "auditor"]).optional()
+      .describe("Target audience (default: machinist)"),
+  }),
+  reasoning_reading_level: z.object({
+    grade: z.number().finite().describe("Flesch-Kincaid grade level to classify"),
+  }),
   transfer_bridge_register: z.object({
     problem: z.unknown().describe("SolvedProblem object — see TransferLearningBridgeEngine"),
   }).passthrough(),
@@ -2141,7 +2481,6 @@ export const ACTION_AI_REASONING_SCHEMAS: Record<AIReasoningAction, z.ZodTypeAny
     ),
     voices: z.array(
       z.enum(["claude", "codex", "ollama", "grok", "gemini"]),
-    ).min(2).max(5).describe(
     ).min(2).max(5).refine(
       (v) => new Set(v).size === v.length,
       { message: "voices must be distinct (no duplicate entries)" },
@@ -2155,6 +2494,13 @@ export const ACTION_AI_REASONING_SCHEMAS: Record<AIReasoningAction, z.ZodTypeAny
       "or GOOGLE_API_KEY set). Listing `codex` or `ollama` is therefore " +
       "informational acknowledgement; omitting them does NOT skip them. " +
       "If you want a 2-voice minimum baseline pass `voices:['codex','ollama']`.",
+    ),
+    hermesAgents: z.boolean().optional().describe(
+      "OCTOPUS-HERMES-AGENTS (operator max-pro 2026-06-25): the 5-lens Hermes-agent persona panel " +
+      "(safety-first/root-cause/fastest-unblock/distributed-ownership/adversarial) seated via the free " +
+      "Hermes OAuth proxy. DEFAULT ON when the proxy is reachable (drastically increased utilization); " +
+      "pass `false` to opt out for this call (e.g. a quick baseline), `true` to force. Global kill " +
+      "switch: env PRISM_OCTOPUS_HERMES_AGENTS=0.",
     ),
     agreementThreshold: z.number().finite().min(0).max(1).default(0.70).describe(
       "Caller's accept threshold in [0,1]. INDEPENDENT from the engine's " +
@@ -2210,6 +2556,63 @@ export const ACTION_AI_REASONING_SCHEMAS: Record<AIReasoningAction, z.ZodTypeAny
     "comes back from the dispatcher; callers must inspect recommendation " +
     "AND successCount, not just dispatcher-level success), totalLatencyMs, " +
     "and meetsCallerThreshold (agreementScore vs caller's agreementThreshold).",
+  ),
+
+  // ── ConsensusAuditLogEngine (INFRA-CONSENSUS-WIRE-MS0/P0-U04) ────────────
+  // Reads the consensus-decisions.jsonl provenance log. Every consensus call
+  // (MultiModelConsensusEngine.ask) appends one record; this action surfaces
+  // recent records for debugging / replay, filtered by recency or caller.
+  consensus_audit_query: z.object({
+    limit: z.number().int().positive().max(1000).optional().describe(
+      "Max records to return, newest-first (1 ≤ x ≤ 1000; engine default 50).",
+    ),
+    sinceMs: z.number().int().nonnegative().optional().describe(
+      "Epoch-ms cutoff — records with an earlier `ts` are excluded.",
+    ),
+    callerEngine: z.string().optional().describe(
+      "Filter to a single upstream caller engine (e.g. 'MillingAGIMasterEngine').",
+    ),
+  }).strict().describe(
+    "Query the consensus-decisions.jsonl audit log. Returns recent " +
+    "ConsensusAuditRecord[] newest-first, each carrying the full per-voice " +
+    "answer set, finalDecision, agreement, and latency/token totals.",
+  ),
+
+  // ── ConsensusCoordinatorEngine.runWithEscalation (INFRA-CONSENSUS-WIRE-MS0/P0-U03) ──
+  // Retry + escalation policy over the 4-way consensus fan-out. An ambiguous
+  // result (agreementScore below the caller threshold) triggers normal-effort
+  // retries, then ONE escalated attempt with Codex bumped to xhigh effort,
+  // then human_review_required if even that stays below threshold.
+  consensus_escalate: z.object({
+    prompt: z.string().min(1).max(50_000).describe(
+      "The question the model panel should answer (≤50 000 chars).",
+    ),
+    context: z.string().max(20_000).optional().describe(
+      "Optional caller context appended before the panel sees the prompt.",
+    ),
+    mode: z.enum(["compare", "vote"]).optional().describe(
+      "Consensus mode. 'vote' requires voteOptions[]. Default 'compare'.",
+    ),
+    voteOptions: z.array(z.string().min(1).max(200)).min(2).max(20).optional().describe(
+      "Voting options (≥2, ≤20) — required when mode='vote'.",
+    ),
+    agreementThreshold: z.number().finite().min(0).max(1).optional().describe(
+      "Caller accept gate in [0,1] — agreementScore must meet this. Default 0.70.",
+    ),
+    maxRetries: z.number().int().min(0).max(5).optional().describe(
+      "Normal-effort retries before the escalated xhigh attempt. Default 1.",
+    ),
+    timeoutMs: z.number().int().min(1_000).max(600_000).optional().describe(
+      "Per-attempt timeout in ms (1 s ≤ x ≤ 10 min).",
+    ),
+    callerEngine: z.string().min(1).max(64).optional().describe(
+      "Caller-engine tag forwarded to the consensus audit log.",
+    ),
+  }).strict().describe(
+    "Run consensus with a retry + escalation policy. Returns a discriminated " +
+    "outcome: 'accepted' (with escalated flag + per-attempt audit trail), or " +
+    "'human_review_required' (every attempt below threshold), or " +
+    "'validation-error'.",
   ),
 
   // ── LoRADriftCoordinatorEngine (CAM-FUSION-LIVE-MS0/U-WIRE-LORA-DRIFT) ───
@@ -2415,4 +2818,122 @@ export const ACTION_AI_REASONING_SCHEMAS: Record<AIReasoningAction, z.ZodTypeAny
     "configured DispatchFn (production wires this at boot; an unconfigured engine returns " +
     "reason:'no_dispatch_configured'). Returns { enqueue?, flush?, stats, dailyUsage, dispatchConfigured }.",
   ),
+
+  // COST-CASCADE-MS0/U-DISPATCHER-ACTION-TWO-PASS — TwoPassCascadeEngine.run
+  two_pass: z.object({
+    prompt: z.string().min(1).describe(
+      "The task/prompt to run through the cheap→strong cascade.",
+    ),
+    qualityThreshold: z.number().min(0).max(1).optional().describe(
+      "Quality gate in [0,1]. The cheap pass is accepted when its judged score is >= this value. " +
+      "Default 0.7.",
+    ),
+    forceStrong: z.boolean().optional().describe(
+      "Skip the cheap pass entirely and run the strong tentacle directly. Default false.",
+    ),
+    cheapModel: z.string().min(1).optional().describe(
+      "Override the cheap (first-pass) Ollama model id. " +
+      "Default: env PRISM_TWOPASS_CHEAP_MODEL, else 'qwen2.5-coder:1.5b' " +
+      "(Blackwell roster; the legacy :3b tag was retired 2026-06-04).",
+    ),
+    strongModel: z.string().min(1).optional().describe(
+      "Override the strong (escalation) Ollama model id. " +
+      "Default: env PRISM_TWOPASS_STRONG_MODEL, else 'qwen2.5-coder:32b' " +
+      "(Blackwell roster; the legacy :7b tag was retired 2026-06-04).",
+    ),
+    cheapCostUSD: z.number().min(0).optional().describe(
+      "Optional USD cost estimate for one cheap-pass call — fallback used only when the tentacle " +
+      "does not report its own measured cost.",
+    ),
+    strongCostUSD: z.number().min(0).optional().describe(
+      "Optional USD cost estimate for one strong-pass call — fallback used only when the tentacle " +
+      "does not report its own measured cost.",
+    ),
+  }).strict().describe(
+    "prism_ai:two_pass — FrugalGPT cheap-then-strong cascade. Runs a cheap model, scores the answer " +
+    "with a deterministic rule-based judge, and escalates to a strong model only when the score is " +
+    "below qualityThreshold. Returns { pass, result, qualityScore, costUSD, escalated, degraded, " +
+    "costRecorded, threshold, cheapError?, strongError?, judgeError? }.",
+  ),
+
+  // COST-CASCADE-MS0/U-COST-ALARM — CostAlarmEngine.check
+  cost_alarm_check: z.object({
+    prismRoot: z.string().optional().describe(
+      "Absolute PRISM root override. Defaults to env PRISM_ROOT or process.cwd().",
+    ),
+  }).strict().describe(
+    "prism_ai:cost_alarm_check — read cost telemetry + active config, evaluate thresholds, fire " +
+    "alarms with cool-down de-dup. Returns { ok, fired[], skipped[], snapshot, configMissing? }.",
+  ),
+
+  // COST-CASCADE-MS0/U-CASCADE-FALLBACK-CHAIN — CascadeFallbackChainEngine.run
+  cascade_run: z.object({
+    taskClass: z.string().min(1).describe(
+      "Task class (e.g. reasoning, code_review, search). Used by isCascadable + telemetry.",
+    ),
+    prompt: z.string().min(1).describe(
+      "Prompt to route through the cheap→mid→strong cascade.",
+    ),
+    forceTentacle: z.enum(["cheap", "mid", "strong"]).optional().describe(
+      "Bypass cascade and invoke only this tentacle (testing/debug).",
+    ),
+    cheapModel: z.string().min(1).optional().describe(
+      "Override cheap-tentacle Ollama model id. Default: env PRISM_CASCADE_CHEAP_MODEL or qwen2.5-coder:1.5b.",
+    ),
+    midModel: z.string().min(1).optional().describe(
+      "Override mid-tentacle Ollama model id. Default: env PRISM_CASCADE_MID_MODEL or gpt-oss:20b.",
+    ),
+    strongModel: z.string().min(1).optional().describe(
+      "Override strong-tentacle Ollama model id. Default: env PRISM_CASCADE_STRONG_MODEL or qwen2.5-coder:32b.",
+    ),
+  }).strict().describe(
+    "prism_ai:cascade_run — cheap→mid→strong cascade with per-tentacle circuit-breaker (closed/open/half-open). " +
+    "Ships in calibrate-stub mode via STUB_CALIBRATION; U-CASCADE-CALIBRATE remains externally blocked by " +
+    "K2-CLOUD-MS0::K2-K0. Returns { ok, tentacle?, output?, reason?, lastFailureReason?, attempts[] }.",
+  ),
+
+  // COST-CASCADE-MS0/U-CASCADE-FALLBACK-CHAIN — CascadeFallbackChainEngine.status
+  cascade_status: z.object({}).strict().describe(
+    "prism_ai:cascade_status — read-only snapshot of the per-tentacle circuit-breaker state. " +
+    "Returns { breakers: Record<tentacleId, { state, consecutiveFailures, openedAt?, lastTransitionAt? }> }.",
+  ),
+
+  // ENGINE-WIRE-MS0/U-WIRE09: TemporalReasoningEngine.record -- write surface (previously unwired)
+  temporal_record: z.object({
+    series: z.string().min(1).describe("Series name (non-empty)"),
+    value: z.number().finite().describe("Snapshot value (must be finite)"),
+    at: z.string().regex(/^\d{4}-\d{2}-\d{2}/).optional().describe("ISO-8601 timestamp (YYYY-MM-DD prefix)"),
+    note: z.string().optional().describe("Optional annotation"),
+  }),
+
+  // ENGINE-WIRE-MS0/U-WIRE09: CognitiveBudgetAllocatorEngine.classify -- previously unwired
+  cognitive_classify: z.object({
+    score: z.number().finite().describe("Budget score (finite number)"),
+  }),
+
+  // WIRE-MS0/U-WIRE07: CausalReasoningEngine granular actions
+  causal_add_edge: z.object({
+    from: z.string().min(1).describe("Source node id (non-empty)"),
+    to: z.string().min(1).describe("Target node id (non-empty)"),
+    confidence: z.number().min(0).max(1).describe("Edge confidence in [0, 1]"),
+    polarity: z.enum(["positive", "negative", "unknown"]).describe("Causal polarity"),
+    reason: z.string().optional().describe("Optional human-readable rationale"),
+  }),
+  causal_trace_impact: z.object({
+    source: z.string().min(1).describe("Node id to trace forward from (BFS over outgoing edges)"),
+    maxHops: z.number().int().min(1).optional().describe("Max BFS depth (default 3, must be >= 1)"),
+  }),
+  causal_root_causes: z.object({
+    target: z.string().min(1).describe("Node id to find root causes for (BFS over incoming edges)"),
+    maxHops: z.number().int().min(1).optional().describe("Max BFS depth (default 3)"),
+  }),
+  // DEV-LOOP-RESTORE: 4 dev-loop actions
+  ai_route_task,
+  ai_health_report,
+  ai_recommend_capability,
+  ai_classify_content,
+  // U-WIRE11-SYNC: AISystemSynchronizerEngine granular actions
+  ai_system_status,
+  ai_system_summary,
+  ai_system_synergize,
 };

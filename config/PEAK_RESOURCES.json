@@ -1,0 +1,87 @@
+{
+  "alwaysCheck": {
+    "beforeOutput": [
+      "anti_regression",
+      "BAYES-002",
+      "G1-G9"
+    ]
+  },
+  "alwaysCompute": {
+    "metrics": [
+      {
+        "enforcement": "HARD_BLOCK",
+        "id": "S(x)",
+        "threshold": 0.7
+      },
+      {
+        "enforcement": "WARN",
+        "id": "Ω(x)",
+        "threshold": 0.7
+      },
+      {
+        "enforcement": "WARN",
+        "id": "evidence_level",
+        "threshold": "L3"
+      }
+    ]
+  },
+  "alwaysLoad": {
+    "skills": [
+      {
+        "critical": true,
+        "name": "prism-cognitive-core",
+        "reason": "5 AI/ML patterns"
+      },
+      {
+        "critical": true,
+        "name": "prism-master-equation",
+        "reason": "Ω(x) computation"
+      },
+      {
+        "critical": true,
+        "name": "prism-safety-framework",
+        "reason": "S(x) HARD BLOCK"
+      },
+      {
+        "critical": true,
+        "name": "prism-quick-start",
+        "reason": "Session protocol"
+      }
+    ]
+  },
+  "alwaysTrigger": {
+    "hooks": [
+      {
+        "id": "BAYES-001",
+        "reason": "Initialize priors",
+        "when": "session_start"
+      },
+      {
+        "id": "OPT-001",
+        "reason": "Optimize resources",
+        "when": "session_start"
+      },
+      {
+        "id": "RES-ACT-002",
+        "reason": "Load peak resources",
+        "when": "session_start"
+      }
+    ]
+  },
+  "description": "Resources that MUST be active every session for peak performance",
+  "lastUpdated": "2026-02-01T08:45:00Z",
+  "orphanDetection": {
+    "actions": [
+      "warn",
+      "suggest_integration"
+    ],
+    "sessionsBeforeOrphan": 5
+  },
+  "utilizationTracking": {
+    "checkEveryNTools": 5,
+    "enabled": true,
+    "targetUtilization": 0.5,
+    "warnThreshold": 0.3
+  },
+  "version": "1.0"
+}

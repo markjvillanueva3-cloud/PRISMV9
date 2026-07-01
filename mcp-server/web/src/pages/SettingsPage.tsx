@@ -2,6 +2,12 @@ import { useState, useEffect } from "react";
 import { Card, Button, Input, Badge } from "../components/ui";
 import { Tabs, TabList, Tab, TabPanel } from "../components/ui/Tabs";
 import { useToast } from "../components/ui/Toast";
+// FLEET-IOS-REDESIGN U3e (slot:hotel): the iOS appearance customization
+// (accent / corners / haptics) lives in its own tab, built from the
+// WorkspacePrimitives system. ThemeCustomizer is self-contained; the preview
+// primitives are accent-driven (U3c/U3d) so they repaint live as the user picks.
+import { ThemeCustomizer } from "../components/workspace/ThemeCustomizer";
+import { ActionButton, TabButton, Stepper } from "../components/workspace/WorkspacePrimitives";
 
 type Units = "metric" | "imperial";
 type Theme = "light" | "dark" | "system";
@@ -85,6 +91,7 @@ export default function SettingsPage() {
       <Tabs defaultValue="general">
         <TabList>
           <Tab value="general">General</Tab>
+          <Tab value="appearance">Appearance</Tab>
           <Tab value="defaults">Defaults</Tab>
           <Tab value="advanced">Advanced</Tab>
         </TabList>
@@ -171,6 +178,31 @@ export default function SettingsPage() {
           </div>
         </TabPanel>
 
+        <TabPanel value="appearance">
+          <div className="grid gap-6 lg:grid-cols-[minmax(0,380px)_minmax(0,1fr)]">
+            <ThemeCustomizer />
+            <Card title="Live preview">
+              <div className="space-y-6">
+                <div className="flex flex-wrap gap-3">
+                  <ActionButton>Primary</ActionButton>
+                  <ActionButton variant="outline">Outline</ActionButton>
+                  <ActionButton tone="emerald">Success</ActionButton>
+                  <ActionButton tone="rose">Danger</ActionButton>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  <TabButton active onClick={() => {}}>Active tab</TabButton>
+                  <TabButton active={false} onClick={() => {}}>Inactive</TabButton>
+                </div>
+                <Stepper steps={["Draft", "Review", "Posted"]} current={1} />
+                <p className="text-xs text-slate-400">
+                  Accent applies to buttons, tabs, steps, and focus rings. Success
+                  and danger keep their fixed semantic colors.
+                </p>
+              </div>
+            </Card>
+          </div>
+        </TabPanel>
+
         <TabPanel value="defaults">
           <Card title="Default Values">
             <div className="grid gap-4 lg:grid-cols-2">
@@ -196,7 +228,7 @@ export default function SettingsPage() {
               onChange={(e) => update("apiEndpoint", e.target.value)}
             />
             <p className="mt-2 text-xs text-slate-400">
-              Base URL for the PRISM API server.
+              Base URL for the Kienzle API server.
             </p>
           </Card>
         </TabPanel>

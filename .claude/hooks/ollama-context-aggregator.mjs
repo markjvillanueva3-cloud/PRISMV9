@@ -134,14 +134,14 @@ ${signals.map((s, i) => `${i + 1}. [${s.domain}] ${s.ctx}`).join('\n')}
 
 Return only the 3 selected domain names, one per line:`;
     const body = JSON.stringify({
-      model: 'qwen2.5-coder:7b',
+      model: 'qwen2.5-coder:32b',
       prompt: ollamaPrompt,
       stream: false,
       options: { num_predict: 100 }
     });
     const result = execSync(
-      `curl -s -X POST http://localhost:11434/api/generate -d '${body.replace(/'/g, "'\\''")}'`,
-      { encoding: 'utf-8', timeout: 4000 }
+      `curl -s -X POST http://127.0.0.1:11434/api/generate -d '${body.replace(/'/g, "'\\''")}'`,
+      { windowsHide: true, encoding: 'utf-8', timeout: 4000 }
     );
     const parsed = JSON.parse(result);
     if (parsed.response) {

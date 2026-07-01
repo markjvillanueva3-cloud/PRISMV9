@@ -1,0 +1,117 @@
+{
+  "agent_id": "AGT-HAIKU-004",
+  "name": "cutting_calculator",
+  "tier": "HAIKU",
+  "version": "1.0.0",
+  "created": "2026-01-29",
+  "role": "Cutting Calculator - Fast Basic Cutting Parameter Calculations",
+  
+  "domain_expertise": [
+    "Speed calculations",
+    "Feed calculations",
+    "MRR calculations",
+    "Basic force estimates",
+    "Simple conversions"
+  ],
+
+  "design_principle": "Fast basic calculations - delegate complex work to SONNET/OPUS",
+
+  "capabilities": [
+    {
+      "id": "CAP-CALC-001",
+      "name": "RPM Calculation",
+      "description": "Calculates RPM from SFM and diameter",
+      "category": "CALCULATION",
+      "inputs": { "required": ["sfm", "diameter_inches"] },
+      "outputs": { "primary": "rpm" },
+      "formula": "RPM = (SFM × 12) / (π × D)",
+      "latency_target_ms": 10
+    },
+    {
+      "id": "CAP-CALC-002",
+      "name": "SFM Calculation",
+      "description": "Calculates SFM from RPM and diameter",
+      "category": "CALCULATION",
+      "inputs": { "required": ["rpm", "diameter_inches"] },
+      "outputs": { "primary": "sfm" },
+      "formula": "SFM = (π × D × RPM) / 12",
+      "latency_target_ms": 10
+    },
+    {
+      "id": "CAP-CALC-003",
+      "name": "Feed Rate Calculation",
+      "description": "Calculates feed rate from RPM, flutes, and chip load",
+      "category": "CALCULATION",
+      "inputs": { "required": ["rpm", "flutes", "chip_load"] },
+      "outputs": { "primary": "feed_rate_ipm" },
+      "formula": "F = RPM × Z × fz",
+      "latency_target_ms": 10
+    },
+    {
+      "id": "CAP-CALC-004",
+      "name": "Chip Load Calculation",
+      "description": "Calculates chip load from feed, RPM, and flutes",
+      "category": "CALCULATION",
+      "inputs": { "required": ["feed_rate_ipm", "rpm", "flutes"] },
+      "outputs": { "primary": "chip_load" },
+      "formula": "fz = F / (RPM × Z)",
+      "latency_target_ms": 10
+    },
+    {
+      "id": "CAP-CALC-005",
+      "name": "MRR Calculation",
+      "description": "Calculates material removal rate",
+      "category": "CALCULATION",
+      "inputs": { "required": ["width", "depth", "feed_rate_ipm"] },
+      "outputs": { "primary": "mrr_cubic_in_per_min" },
+      "formula": "MRR = WOC × DOC × F",
+      "latency_target_ms": 10
+    },
+    {
+      "id": "CAP-CALC-006",
+      "name": "Metric/Imperial Conversion",
+      "description": "Converts between metric and imperial units",
+      "category": "CONVERSION",
+      "inputs": { "required": ["value", "from_unit", "to_unit"] },
+      "outputs": { "primary": "converted_value" },
+      "latency_target_ms": 5
+    },
+    {
+      "id": "CAP-CALC-007",
+      "name": "Basic Force Estimate",
+      "description": "Quick force estimate using simplified model",
+      "category": "CALCULATION",
+      "inputs": { "required": ["kc", "chip_area"] },
+      "outputs": { "primary": "cutting_force_estimate" },
+      "formula": "Fc ≈ kc × Ac",
+      "note": "For detailed force calculation, delegate to force_calculator",
+      "latency_target_ms": 20
+    },
+    {
+      "id": "CAP-CALC-008",
+      "name": "Power Calculation",
+      "description": "Calculates spindle power from force and speed",
+      "category": "CALCULATION",
+      "inputs": { "required": ["cutting_force_n", "cutting_speed_mpm"] },
+      "outputs": { "primary": "power_kw" },
+      "formula": "P = (Fc × Vc) / 60000",
+      "latency_target_ms": 10
+    }
+  ],
+
+  "skills_mastered": [
+    "prism-product-calculators",
+    "prism-manufacturing-tables"
+  ],
+
+  "hooks_subscribed": ["calc:preCalculate"],
+
+  "can_delegate_to": ["force_calculator", "thermal_calculator"],
+  "receives_from": ["optimizer", "machinist"],
+
+  "performance_metrics": {
+    "calculation_accuracy": 1.0,
+    "average_latency_ms": 15,
+    "calculations_per_second": 100
+  }
+}

@@ -1,9 +1,9 @@
 /**
- * CustomerPortalEngine — Token-Based Customer Portal Access
- * ===========================================================
+ * CustomerPortalEngine -- Token-Based Customer Portal Access (durable)
+ * ====================================================================
  *
  * Provides external customer access to quotes, orders, milestones, quality
- * documents, and messaging — all without requiring a PRISM account.
+ * documents, and messaging -- all without requiring a PRISM account.
  *
  * Security model:
  * - Access via cryptographic tokens (base64url, 32 bytes)
@@ -12,22 +12,45 @@
  * - Rate-limited (10 req/min per token, configurable)
  * - Revocable at any time
  *
+ * PERSISTENCE (U-HOTEL-PORTAL-PERSISTENCE, 2026-06-09 slot:hotel)
+ *   The four durable record types -- tokens, messages, quality documents, and
+ *   service cases -- are persisted in a SQLite database in WAL mode, modeled on
+ *   juliett's CoordinationStoreEngine pattern (lazy ensureOpen, prepared
+ *   statements, synchronous=NORMAL, busy_timeout, schema_version in meta).
+ *   Previously every record lived only in process-memory Maps and was lost on
+ *   every MCP-server restart -- a customer's portal token, message thread,
+ *   quality docs, and open service cases evaporated on each redeploy. They now
+ *   survive restart.
+ *
+ *   rateBuckets stays an in-memory Map ON PURPOSE: a per-minute sliding rate
+ *   window is transient by definition and SHOULD reset when the process
+ *   restarts. Persisting it would be a correctness bug, not a feature.
+ *
+ *   Tests construct `new CustomerPortalEngine({ dbPath: ":memory:" })` (or a
+ *   temp file for kill-restart-readback E2E). The exported singleton uses a
+ *   durable file path in production and ":memory:" under vitest so the existing
+ *   singleton-based suites stay hermetic with no changes.
+ *
  * Actions:
  *   portal_create_token, portal_revoke_token, portal_list_tokens,
  *   portal_quote_view, portal_order_status, portal_quote_respond,
  *   portal_documents, portal_document_download, portal_messages,
  *   portal_send_message
  *
- * @version 1.0.0 — Session 6-9 U-PORTAL2
- * @see QuoteRevisionEngine — share tokens (portal extends this pattern)
- * @see MilestoneTrackingEngine — order milestone timelines
- * @see FileStorageEngine — file attachments for quality documents
+ * @version 2.0.0 -- Session hotel U-HOTEL-PORTAL-PERSISTENCE (SQLite WAL backing)
+ * @see CoordinationStoreEngine -- the SQLite WAL store pattern this mirrors
+ * @see QuoteRevisionEngine -- share tokens (portal extends this pattern)
+ * @see MilestoneTrackingEngine -- order milestone timelines
+ * @see FileStorageEngine -- file attachments for quality documents
  */
 
 import * as crypto from "crypto";
+import * as fs from "node:fs";
+import * as path from "node:path";
+import Database, { type Database as DatabaseType, type Statement } from "better-sqlite3";
 import { log } from "../utils/Logger.js";
 
-// ─── Types ────────────────────────────────────────────────────────────────────
+// --- Types ------------------------------------------------------------------
 
 export type PortalTokenType = "quote" | "order";
 export type PortalScope = "view" | "respond" | "documents" | "messages";
@@ -130,16 +153,180 @@ export interface PortalTokenValidation {
   token?: PortalToken;
 }
 
-// ─── Rate Limiter ─────────────────────────────────────────────────────────────
+// --- Rate Limiter (transient) -----------------------------------------------
 
 interface RateBucket {
   count: number;
   window_start: number;
 }
 
-// ─── Engine ───────────────────────────────────────────────────────────────────
+// --- Persistence config -----------------------------------------------------
 
-/** Fields that are NEVER exposed to portal (internal cost data). */
+const HARNESS_ROOT = "H:/prism";
+const SCHEMA_VERSION = 1;
+const BUSY_TIMEOUT_MS = 5_000;        // below the 30s Stop budget; well above disk hiccups
+const RATE_WINDOW_MS = 60_000;        // per-token sliding rate window (1 minute)
+const MAX_MESSAGE_LEN = 5_000;        // single message length cap
+const MESSAGE_THREAD_CAP = 500;       // newest-N messages retained per entity thread
+const DEFAULT_MESSAGE_LIMIT = 50;     // listMessages default page size
+
+/**
+ * Resolve the database path for the production singleton.
+ * - PRISM_PORTAL_DB_PATH override wins (ops / multi-host).
+ * - Under vitest (or NODE_ENV=test) default to ":memory:" so the existing
+ *   singleton-based suites stay hermetic and never write a real db file.
+ * - Otherwise the durable shared path, sibling to coordination.db.
+ */
+function defaultPortalDbPath(): string {
+  const override = process.env.PRISM_PORTAL_DB_PATH;
+  if (typeof override === "string" && override.length > 0) return override;
+  if (process.env.VITEST || process.env.NODE_ENV === "test") return ":memory:";
+  return path.join(HARNESS_ROOT, "state/shared/customer-portal.db");
+}
+
+/** better-sqlite3 throws on an `undefined` bind value; coerce to null. */
+function nz<T>(v: T | undefined | null): T | null {
+  return v === undefined || v === null ? null : v;
+}
+
+export interface CustomerPortalEngineOptions {
+  /** SQLite path; ":memory:" for hermetic tests, a temp file for restart E2E. */
+  dbPath?: string;
+}
+
+// --- DDL (one statement each: prepared+run, not a multi-statement batch) -----
+
+const PORTAL_DDL: string[] = [
+  `CREATE TABLE IF NOT EXISTS portal_tokens (
+     token         TEXT PRIMARY KEY,
+     id            TEXT NOT NULL,
+     token_type    TEXT NOT NULL,
+     entity_id     TEXT NOT NULL,
+     customer_id   TEXT,
+     scope_json    TEXT NOT NULL DEFAULT '["view"]',
+     expires_at    TEXT NOT NULL,
+     revoked       INTEGER NOT NULL DEFAULT 0,
+     last_accessed TEXT,
+     access_count  INTEGER NOT NULL DEFAULT 0,
+     rate_limit    INTEGER NOT NULL DEFAULT 10,
+     created_by    TEXT,
+     created_at    TEXT NOT NULL
+   )`,
+  `CREATE INDEX IF NOT EXISTS idx_portal_tokens_entity ON portal_tokens(entity_id)`,
+  `CREATE TABLE IF NOT EXISTS portal_messages (
+     id          TEXT PRIMARY KEY,
+     entity_type TEXT NOT NULL,
+     entity_id   TEXT NOT NULL,
+     sender_type TEXT NOT NULL,
+     sender_name TEXT NOT NULL,
+     message     TEXT NOT NULL,
+     read_at     TEXT,
+     created_at  TEXT NOT NULL
+   )`,
+  `CREATE INDEX IF NOT EXISTS idx_portal_messages_entity ON portal_messages(entity_type, entity_id)`,
+  `CREATE TABLE IF NOT EXISTS portal_quality_docs (
+     id            TEXT PRIMARY KEY,
+     job_id        TEXT NOT NULL,
+     doc_type      TEXT NOT NULL,
+     file_id       TEXT,
+     title         TEXT NOT NULL,
+     status        TEXT NOT NULL,
+     reviewed_by   TEXT,
+     reviewed_at   TEXT,
+     notes         TEXT,
+     metadata_json TEXT NOT NULL DEFAULT '{}',
+     created_at    TEXT NOT NULL,
+     updated_at    TEXT NOT NULL
+   )`,
+  `CREATE INDEX IF NOT EXISTS idx_portal_docs_job ON portal_quality_docs(job_id)`,
+  `CREATE TABLE IF NOT EXISTS portal_service_cases (
+     id                 TEXT PRIMARY KEY,
+     entity_type        TEXT NOT NULL,
+     entity_id          TEXT NOT NULL,
+     customer_id        TEXT,
+     subject            TEXT NOT NULL,
+     summary            TEXT NOT NULL,
+     severity           TEXT NOT NULL,
+     status             TEXT NOT NULL,
+     owner              TEXT,
+     sla_target_at      TEXT NOT NULL,
+     escalation_level   INTEGER NOT NULL DEFAULT 0,
+     satisfaction_score INTEGER,
+     opened_at          TEXT NOT NULL,
+     updated_at         TEXT NOT NULL,
+     resolved_at        TEXT
+   )`,
+  `CREATE INDEX IF NOT EXISTS idx_portal_cases_entity ON portal_service_cases(entity_type, entity_id)`,
+  `CREATE TABLE IF NOT EXISTS meta (
+     key   TEXT PRIMARY KEY,
+     value TEXT NOT NULL
+   )`,
+];
+
+// --- Internal row shapes (DB <-> domain object mapping) ---------------------
+
+interface TokenRow {
+  token: string;
+  id: string;
+  token_type: string;
+  entity_id: string;
+  customer_id: string | null;
+  scope_json: string;
+  expires_at: string;
+  revoked: number;
+  last_accessed: string | null;
+  access_count: number;
+  rate_limit: number;
+  created_by: string | null;
+  created_at: string;
+}
+
+interface MessageRow {
+  id: string;
+  entity_type: string;
+  entity_id: string;
+  sender_type: string;
+  sender_name: string;
+  message: string;
+  read_at: string | null;
+  created_at: string;
+}
+
+interface DocRow {
+  id: string;
+  job_id: string;
+  doc_type: string;
+  file_id: string | null;
+  title: string;
+  status: string;
+  reviewed_by: string | null;
+  reviewed_at: string | null;
+  notes: string | null;
+  metadata_json: string;
+  created_at: string;
+  updated_at: string;
+}
+
+interface CaseRow {
+  id: string;
+  entity_type: string;
+  entity_id: string;
+  customer_id: string | null;
+  subject: string;
+  summary: string;
+  severity: string;
+  status: string;
+  owner: string | null;
+  sla_target_at: string;
+  escalation_level: number;
+  satisfaction_score: number | null;
+  opened_at: string;
+  updated_at: string;
+  resolved_at: string | null;
+}
+
+// --- Fields NEVER exposed to portal (internal cost data) --------------------
+
 const INTERNAL_FIELDS = new Set([
   "cost_breakdown", "margin", "markup", "internal_cost", "raw_material_cost",
   "labor_cost", "overhead_cost", "profit_margin", "hourly_rate",
@@ -150,13 +337,224 @@ const INTERNAL_FIELDS = new Set([
 ]);
 
 export class CustomerPortalEngine {
-  private tokens = new Map<string, PortalToken>();       // token string → PortalToken
-  private messages = new Map<string, PortalMessage[]>(); // entity_key → messages
-  private qualityDocs = new Map<string, QualityDocument[]>(); // job_id → docs
-  private serviceCases = new Map<string, PortalServiceCase[]>(); // entity_key → service cases
-  private rateBuckets = new Map<string, RateBucket>();   // token → rate bucket
+  private readonly dbPath: string;
+  private db: DatabaseType | null = null;
+  private stmts: {
+    insertToken: Statement;
+    findToken: Statement;
+    revokeToken: Statement;
+    listTokensByEntity: Statement;
+    updateTokenAccess: Statement;
+    insertMessage: Statement;
+    trimMessages: Statement;
+    listMessagesByEntity: Statement;
+    markMessagesRead: Statement;
+    insertDoc: Statement;
+    findDoc: Statement;
+    countDocsByJob: Statement;
+    updateDoc: Statement;
+    listDocsByJob: Statement;
+    listDocsByJobApproved: Statement;
+    insertCase: Statement;
+    findCaseById: Statement;
+    listCasesByEntity: Statement;
+    updateCase: Statement;
+  } | null = null;
 
-  // ─── Token Management ───────────────────────────────────────────────────
+  // Transient: per-minute sliding rate window. Resets on restart by design.
+  private rateBuckets = new Map<string, RateBucket>();
+
+  constructor(opts: CustomerPortalEngineOptions = {}) {
+    this.dbPath = opts.dbPath ?? defaultPortalDbPath();
+  }
+
+  /**
+   * Lazy-open the database + apply schema + cache prepared statements.
+   * Construction does NOT open the DB (keeps module-import side-effect free);
+   * the first portal method call opens it. Safe to call repeatedly.
+   */
+  private ensureOpen(): { db: DatabaseType; stmts: NonNullable<CustomerPortalEngine["stmts"]> } {
+    if (this.db && this.stmts) return { db: this.db, stmts: this.stmts };
+
+    if (this.dbPath !== ":memory:") {
+      try { fs.mkdirSync(path.dirname(this.dbPath), { recursive: true }); } catch { /* ignore */ }
+    }
+
+    const db = new Database(this.dbPath);
+    if (this.dbPath !== ":memory:") {
+      db.pragma("journal_mode = WAL");
+    }
+    db.pragma("synchronous = NORMAL");
+    db.pragma(`busy_timeout = ${BUSY_TIMEOUT_MS}`);
+
+    // Apply schema one statement at a time (idempotent CREATE IF NOT EXISTS).
+    for (const ddl of PORTAL_DDL) db.prepare(ddl).run();
+    db.prepare("INSERT OR IGNORE INTO meta(key, value) VALUES ('schema_version', ?)").run(String(SCHEMA_VERSION));
+
+    const stmts = {
+      insertToken: db.prepare(`
+        INSERT INTO portal_tokens(token, id, token_type, entity_id, customer_id, scope_json,
+          expires_at, revoked, last_accessed, access_count, rate_limit, created_by, created_at)
+        VALUES(@token, @id, @token_type, @entity_id, @customer_id, @scope_json,
+          @expires_at, @revoked, @last_accessed, @access_count, @rate_limit, @created_by, @created_at)
+      `),
+      findToken: db.prepare(`SELECT * FROM portal_tokens WHERE token = ?`),
+      revokeToken: db.prepare(`UPDATE portal_tokens SET revoked = 1 WHERE token = ?`),
+      listTokensByEntity: db.prepare(
+        `SELECT * FROM portal_tokens WHERE entity_id = ? ORDER BY created_at DESC, rowid DESC`,
+      ),
+      updateTokenAccess: db.prepare(
+        `UPDATE portal_tokens SET last_accessed = @last_accessed, access_count = @access_count WHERE token = @token`,
+      ),
+      insertMessage: db.prepare(`
+        INSERT INTO portal_messages(id, entity_type, entity_id, sender_type, sender_name, message, read_at, created_at)
+        VALUES(@id, @entity_type, @entity_id, @sender_type, @sender_name, @message, @read_at, @created_at)
+      `),
+      trimMessages: db.prepare(`
+        DELETE FROM portal_messages
+         WHERE entity_type = @entity_type AND entity_id = @entity_id
+           AND rowid NOT IN (
+             SELECT rowid FROM portal_messages
+              WHERE entity_type = @entity_type AND entity_id = @entity_id
+              ORDER BY rowid DESC LIMIT @keep
+           )
+      `),
+      listMessagesByEntity: db.prepare(
+        `SELECT * FROM portal_messages WHERE entity_type = ? AND entity_id = ? ORDER BY created_at DESC, rowid DESC LIMIT ?`,
+      ),
+      markMessagesRead: db.prepare(`
+        UPDATE portal_messages SET read_at = @read_at
+         WHERE entity_type = @entity_type AND entity_id = @entity_id
+           AND sender_type = @sender_type AND read_at IS NULL
+      `),
+      insertDoc: db.prepare(`
+        INSERT INTO portal_quality_docs(id, job_id, doc_type, file_id, title, status,
+          reviewed_by, reviewed_at, notes, metadata_json, created_at, updated_at)
+        VALUES(@id, @job_id, @doc_type, @file_id, @title, @status,
+          @reviewed_by, @reviewed_at, @notes, @metadata_json, @created_at, @updated_at)
+      `),
+      findDoc: db.prepare(`SELECT * FROM portal_quality_docs WHERE job_id = ? AND id = ?`),
+      countDocsByJob: db.prepare(`SELECT COUNT(*) AS n FROM portal_quality_docs WHERE job_id = ?`),
+      updateDoc: db.prepare(`
+        UPDATE portal_quality_docs
+           SET status = @status, reviewed_by = @reviewed_by, reviewed_at = @reviewed_at,
+               notes = @notes, updated_at = @updated_at
+         WHERE id = @id
+      `),
+      listDocsByJob: db.prepare(`SELECT * FROM portal_quality_docs WHERE job_id = ? ORDER BY rowid ASC`),
+      listDocsByJobApproved: db.prepare(
+        `SELECT * FROM portal_quality_docs WHERE job_id = ? AND status = 'approved' ORDER BY rowid ASC`,
+      ),
+      insertCase: db.prepare(`
+        INSERT INTO portal_service_cases(id, entity_type, entity_id, customer_id, subject, summary,
+          severity, status, owner, sla_target_at, escalation_level, satisfaction_score,
+          opened_at, updated_at, resolved_at)
+        VALUES(@id, @entity_type, @entity_id, @customer_id, @subject, @summary,
+          @severity, @status, @owner, @sla_target_at, @escalation_level, @satisfaction_score,
+          @opened_at, @updated_at, @resolved_at)
+      `),
+      findCaseById: db.prepare(`SELECT * FROM portal_service_cases WHERE id = ?`),
+      listCasesByEntity: db.prepare(
+        `SELECT * FROM portal_service_cases WHERE entity_type = ? AND entity_id = ? ORDER BY updated_at DESC, rowid DESC`,
+      ),
+      updateCase: db.prepare(`
+        UPDATE portal_service_cases
+           SET status = @status, owner = @owner, escalation_level = @escalation_level,
+               satisfaction_score = @satisfaction_score, resolved_at = @resolved_at, updated_at = @updated_at
+         WHERE id = @id
+      `),
+    };
+
+    this.db = db;
+    this.stmts = stmts;
+    return { db, stmts };
+  }
+
+  // --- row <-> domain mappers -----------------------------------------------
+
+  private static rowToToken(r: TokenRow): PortalToken {
+    let scope: PortalScope[];
+    try {
+      const parsed = JSON.parse(r.scope_json);
+      scope = Array.isArray(parsed) ? (parsed as PortalScope[]) : ["view"];
+    } catch {
+      scope = ["view"];
+    }
+    return {
+      id: r.id,
+      token: r.token,
+      token_type: r.token_type as PortalTokenType,
+      entity_id: r.entity_id,
+      customer_id: r.customer_id ?? undefined,
+      scope,
+      expires_at: r.expires_at,
+      revoked: !!r.revoked,
+      last_accessed: r.last_accessed ?? undefined,
+      access_count: r.access_count,
+      rate_limit: r.rate_limit,
+      created_by: r.created_by ?? undefined,
+      created_at: r.created_at,
+    };
+  }
+
+  private static rowToMessage(r: MessageRow): PortalMessage {
+    return {
+      id: r.id,
+      entity_type: r.entity_type as PortalTokenType,
+      entity_id: r.entity_id,
+      sender_type: r.sender_type as PortalMessageSender,
+      sender_name: r.sender_name,
+      message: r.message,
+      read_at: r.read_at ?? undefined,
+      created_at: r.created_at,
+    };
+  }
+
+  private static rowToDoc(r: DocRow): QualityDocument {
+    let metadata: Record<string, unknown>;
+    try {
+      const parsed = JSON.parse(r.metadata_json);
+      metadata = parsed && typeof parsed === "object" ? (parsed as Record<string, unknown>) : {};
+    } catch {
+      metadata = {};
+    }
+    return {
+      id: r.id,
+      job_id: r.job_id,
+      doc_type: r.doc_type as QualityDocument["doc_type"],
+      file_id: r.file_id ?? undefined,
+      title: r.title,
+      status: r.status as QualityDocument["status"],
+      reviewed_by: r.reviewed_by ?? undefined,
+      reviewed_at: r.reviewed_at ?? undefined,
+      notes: r.notes ?? undefined,
+      metadata,
+      created_at: r.created_at,
+      updated_at: r.updated_at,
+    };
+  }
+
+  private static rowToCase(r: CaseRow): PortalServiceCase {
+    return {
+      id: r.id,
+      entity_type: r.entity_type as PortalTokenType,
+      entity_id: r.entity_id,
+      customer_id: r.customer_id ?? undefined,
+      subject: r.subject,
+      summary: r.summary,
+      severity: r.severity as PortalServiceCase["severity"],
+      status: r.status as PortalServiceCase["status"],
+      owner: r.owner ?? undefined,
+      sla_target_at: r.sla_target_at,
+      escalation_level: r.escalation_level,
+      satisfaction_score: r.satisfaction_score ?? undefined,
+      opened_at: r.opened_at,
+      updated_at: r.updated_at,
+      resolved_at: r.resolved_at ?? undefined,
+    };
+  }
+
+  // --- Token Management -----------------------------------------------------
 
   /**
    * Create a portal access token for a customer.
@@ -198,7 +596,22 @@ export class CustomerPortalEngine {
       created_at: new Date().toISOString(),
     };
 
-    this.tokens.set(tokenStr, portalToken);
+    const { stmts } = this.ensureOpen();
+    stmts.insertToken.run({
+      token: portalToken.token,
+      id: portalToken.id,
+      token_type: portalToken.token_type,
+      entity_id: portalToken.entity_id,
+      customer_id: nz(portalToken.customer_id),
+      scope_json: JSON.stringify(portalToken.scope),
+      expires_at: portalToken.expires_at,
+      revoked: 0,
+      last_accessed: null,
+      access_count: 0,
+      rate_limit: portalToken.rate_limit,
+      created_by: nz(portalToken.created_by),
+      created_at: portalToken.created_at,
+    });
     log.info(`[CustomerPortal] Token created for ${input.token_type}:${input.entity_id}`);
     return portalToken;
   }
@@ -207,33 +620,33 @@ export class CustomerPortalEngine {
    * Revoke a portal token (immediate access removal).
    */
   revokeToken(token: string): { revoked: boolean } {
-    const pt = this.tokens.get(token);
-    if (!pt) throw new Error("Token not found");
-    pt.revoked = true;
-    log.info(`[CustomerPortal] Token revoked for ${pt.token_type}:${pt.entity_id}`);
+    const { stmts } = this.ensureOpen();
+    const row = stmts.findToken.get(token) as TokenRow | undefined;
+    if (!row) throw new Error("Token not found");
+    stmts.revokeToken.run(token);
+    log.info(`[CustomerPortal] Token revoked for ${row.token_type}:${row.entity_id}`);
     return { revoked: true };
   }
 
   /**
-   * List tokens for an entity (admin view).
+   * List tokens for an entity (admin view), newest first.
    */
   listTokens(entityId: string): PortalToken[] {
-    const result: PortalToken[] = [];
-    for (const pt of this.tokens.values()) {
-      if (pt.entity_id === entityId) {
-        result.push(pt);
-      }
-    }
-    return result.sort((a, b) => b.created_at.localeCompare(a.created_at));
+    const { stmts } = this.ensureOpen();
+    const rows = stmts.listTokensByEntity.all(entityId) as TokenRow[];
+    return rows.map((r) => CustomerPortalEngine.rowToToken(r));
   }
 
   /**
-   * Validate a token: check existence, expiry, revocation, and rate limit.
-   * Updates access stats on successful validation.
+   * Validate a token: check existence, expiry, revocation, scope, and rate
+   * limit. Updates access stats on successful validation.
    */
   validateToken(token: string, requiredScope?: PortalScope): PortalTokenValidation {
-    const pt = this.tokens.get(token);
-    if (!pt) return { valid: false, reason: "Token not found" };
+    const { stmts } = this.ensureOpen();
+    const row = stmts.findToken.get(token) as TokenRow | undefined;
+    if (!row) return { valid: false, reason: "Token not found" };
+
+    const pt = CustomerPortalEngine.rowToToken(row);
     if (pt.revoked) return { valid: false, reason: "Token has been revoked" };
     if (new Date(pt.expires_at) < new Date()) return { valid: false, reason: "Token has expired" };
 
@@ -242,12 +655,11 @@ export class CustomerPortalEngine {
       return { valid: false, reason: `Token does not have '${requiredScope}' scope` };
     }
 
-    // Rate limiting (sliding window per minute)
+    // Rate limiting (sliding window per minute) -- transient, in-memory.
     const now = Date.now();
     const bucket = this.rateBuckets.get(token);
     if (bucket) {
-      const windowMs = 60000; // 1 minute
-      if (now - bucket.window_start < windowMs) {
+      if (now - bucket.window_start < RATE_WINDOW_MS) {
         if (bucket.count >= pt.rate_limit) {
           return { valid: false, reason: "Rate limit exceeded. Try again in 1 minute." };
         }
@@ -260,18 +672,23 @@ export class CustomerPortalEngine {
       this.rateBuckets.set(token, { count: 1, window_start: now });
     }
 
-    // Update access stats
+    // Update access stats (durable).
     pt.last_accessed = new Date().toISOString();
     pt.access_count++;
+    stmts.updateTokenAccess.run({
+      token,
+      last_accessed: pt.last_accessed,
+      access_count: pt.access_count,
+    });
 
     return { valid: true, token: pt };
   }
 
-  // ─── Portal Views (customer-facing, NO internal cost data) ────────────
+  // --- Portal Views (customer-facing, NO internal cost data) ----------------
 
   /**
    * Get a quote for portal display.
-   * Strips all internal cost data — only shows customer-facing pricing.
+   * Strips all internal cost data -- only shows customer-facing pricing.
    */
   getQuoteView(input: {
     quote_id: string;
@@ -315,7 +732,7 @@ export class CustomerPortalEngine {
     let messageId: string | undefined;
     if (input.message || input.response === "request_changes") {
       const msgText = input.response === "request_changes"
-        ? `Changes requested: ${(input.requested_changes ?? []).join("; ")}${input.message ? ` — ${input.message}` : ""}`
+        ? `Changes requested: ${(input.requested_changes ?? []).join("; ")}${input.message ? ` -- ${input.message}` : ""}`
         : input.message ?? `Quote ${input.response}ed`;
 
       const msg = this.addMessage({
@@ -363,7 +780,7 @@ export class CustomerPortalEngine {
     }) as PortalOrderStatus;
   }
 
-  // ─── Quality Documents ────────────────────────────────────────────────
+  // --- Quality Documents ----------------------------------------------------
 
   /**
    * Register a quality document (internal action).
@@ -392,9 +809,21 @@ export class CustomerPortalEngine {
       updated_at: new Date().toISOString(),
     };
 
-    const existing = this.qualityDocs.get(input.job_id) ?? [];
-    existing.push(doc);
-    this.qualityDocs.set(input.job_id, existing);
+    const { stmts } = this.ensureOpen();
+    stmts.insertDoc.run({
+      id: doc.id,
+      job_id: doc.job_id,
+      doc_type: doc.doc_type,
+      file_id: nz(doc.file_id),
+      title: doc.title,
+      status: doc.status,
+      reviewed_by: nz(doc.reviewed_by),
+      reviewed_at: nz(doc.reviewed_at),
+      notes: nz(doc.notes),
+      metadata_json: JSON.stringify(doc.metadata),
+      created_at: doc.created_at,
+      updated_at: doc.updated_at,
+    });
 
     log.info(`[CustomerPortal] Quality doc added: ${input.doc_type} for job ${input.job_id}`);
     return doc;
@@ -410,12 +839,14 @@ export class CustomerPortalEngine {
     reviewed_by?: string;
     notes?: string;
   }): QualityDocument {
-    const docs = this.qualityDocs.get(input.job_id);
-    if (!docs) throw new Error(`No documents for job ${input.job_id}`);
+    const { stmts } = this.ensureOpen();
+    const count = (stmts.countDocsByJob.get(input.job_id) as { n: number }).n;
+    if (count === 0) throw new Error(`No documents for job ${input.job_id}`);
 
-    const doc = docs.find((d) => d.id === input.doc_id);
-    if (!doc) throw new Error(`Document ${input.doc_id} not found`);
+    const row = stmts.findDoc.get(input.job_id, input.doc_id) as DocRow | undefined;
+    if (!row) throw new Error(`Document ${input.doc_id} not found`);
 
+    const doc = CustomerPortalEngine.rowToDoc(row);
     if (input.status) {
       doc.status = input.status;
       if (input.status === "approved" || input.status === "rejected") {
@@ -426,6 +857,14 @@ export class CustomerPortalEngine {
     if (input.notes) doc.notes = input.notes;
     doc.updated_at = new Date().toISOString();
 
+    stmts.updateDoc.run({
+      id: doc.id,
+      status: doc.status,
+      reviewed_by: nz(doc.reviewed_by),
+      reviewed_at: nz(doc.reviewed_at),
+      notes: nz(doc.notes),
+      updated_at: doc.updated_at,
+    });
     return doc;
   }
 
@@ -433,25 +872,26 @@ export class CustomerPortalEngine {
    * List quality documents for a job (portal: only approved docs shown).
    */
   listQualityDocuments(jobId: string, portalMode = false): QualityDocument[] {
-    const docs = this.qualityDocs.get(jobId) ?? [];
-    if (portalMode) {
-      return docs.filter((d) => d.status === "approved");
-    }
-    return [...docs];
+    const { stmts } = this.ensureOpen();
+    const rows = (portalMode
+      ? stmts.listDocsByJobApproved.all(jobId)
+      : stmts.listDocsByJob.all(jobId)) as DocRow[];
+    return rows.map((r) => CustomerPortalEngine.rowToDoc(r));
   }
 
   /**
    * Get a specific quality document by ID.
    */
   getQualityDocument(jobId: string, docId: string): QualityDocument | null {
-    const docs = this.qualityDocs.get(jobId) ?? [];
-    return docs.find((d) => d.id === docId) ?? null;
+    const { stmts } = this.ensureOpen();
+    const row = stmts.findDoc.get(jobId, docId) as DocRow | undefined;
+    return row ? CustomerPortalEngine.rowToDoc(row) : null;
   }
 
-  // ─── Messages ─────────────────────────────────────────────────────────
+  // --- Messages -------------------------------------------------------------
 
   /**
-   * Add a message to a portal conversation thread.
+   * Add a message to a portal conversation thread (thread bounded to 500).
    */
   addMessage(input: {
     entity_type: PortalTokenType;
@@ -461,7 +901,9 @@ export class CustomerPortalEngine {
     message: string;
   }): PortalMessage {
     if (!input.message.trim()) throw new Error("Message cannot be empty");
-    if (input.message.length > 5000) throw new Error("Message exceeds 5000 character limit");
+    if (input.message.length > MAX_MESSAGE_LEN) {
+      throw new Error(`Message exceeds ${MAX_MESSAGE_LEN} character limit`);
+    }
 
     const msg: PortalMessage = {
       id: crypto.randomUUID(),
@@ -473,15 +915,23 @@ export class CustomerPortalEngine {
       created_at: new Date().toISOString(),
     };
 
-    const key = `${input.entity_type}:${input.entity_id}`;
-    const existing = this.messages.get(key) ?? [];
-    existing.push(msg);
-    this.messages.set(key, existing);
-
-    // Bound message threads to 500
-    if (existing.length > 500) {
-      this.messages.set(key, existing.slice(-500));
-    }
+    const { db, stmts } = this.ensureOpen();
+    // Insert + bound-to-500 atomically so a concurrent reader never sees an
+    // over-long thread or a torn trim.
+    const insertAndTrim = db.transaction(() => {
+      stmts.insertMessage.run({
+        id: msg.id,
+        entity_type: msg.entity_type,
+        entity_id: msg.entity_id,
+        sender_type: msg.sender_type,
+        sender_name: msg.sender_name,
+        message: msg.message,
+        read_at: null,
+        created_at: msg.created_at,
+      });
+      stmts.trimMessages.run({ entity_type: msg.entity_type, entity_id: msg.entity_id, keep: MESSAGE_THREAD_CAP });
+    });
+    insertAndTrim();
 
     return msg;
   }
@@ -489,30 +939,27 @@ export class CustomerPortalEngine {
   /**
    * List messages for a portal entity, newest first.
    */
-  listMessages(entityType: PortalTokenType, entityId: string, limit = 50): PortalMessage[] {
-    const key = `${entityType}:${entityId}`;
-    const msgs = this.messages.get(key) ?? [];
-    return [...msgs].sort((a, b) => b.created_at.localeCompare(a.created_at)).slice(0, limit);
+  listMessages(entityType: PortalTokenType, entityId: string, limit = DEFAULT_MESSAGE_LIMIT): PortalMessage[] {
+    const { stmts } = this.ensureOpen();
+    const rows = stmts.listMessagesByEntity.all(entityType, entityId, limit) as MessageRow[];
+    return rows.map((r) => CustomerPortalEngine.rowToMessage(r));
   }
 
   /**
    * Mark messages as read (shop reads customer messages).
    */
   markMessagesRead(entityType: PortalTokenType, entityId: string, senderType: PortalMessageSender): number {
-    const key = `${entityType}:${entityId}`;
-    const msgs = this.messages.get(key) ?? [];
-    let count = 0;
-    const now = new Date().toISOString();
-    for (const msg of msgs) {
-      if (msg.sender_type === senderType && !msg.read_at) {
-        msg.read_at = now;
-        count++;
-      }
-    }
-    return count;
+    const { stmts } = this.ensureOpen();
+    const info = stmts.markMessagesRead.run({
+      entity_type: entityType,
+      entity_id: entityId,
+      sender_type: senderType,
+      read_at: new Date().toISOString(),
+    });
+    return info.changes;
   }
 
-  // ─── Service Cases ────────────────────────────────────────────────────
+  // --- Service Cases --------------------------------------------------------
 
   /**
    * Create a customer service case tied to a portal entity.
@@ -538,7 +985,6 @@ export class CustomerPortalEngine {
     }
 
     const now = new Date();
-    const entityKey = CustomerPortalEngine.buildEntityKey(input.entity_type, input.entity_id);
     const serviceCase: PortalServiceCase = {
       id: crypto.randomUUID(),
       entity_type: input.entity_type,
@@ -555,21 +1001,36 @@ export class CustomerPortalEngine {
       updated_at: now.toISOString(),
     };
 
-    const existing = this.serviceCases.get(entityKey) ?? [];
-    existing.push(serviceCase);
-    this.serviceCases.set(entityKey, existing);
+    const { stmts } = this.ensureOpen();
+    stmts.insertCase.run({
+      id: serviceCase.id,
+      entity_type: serviceCase.entity_type,
+      entity_id: serviceCase.entity_id,
+      customer_id: nz(serviceCase.customer_id),
+      subject: serviceCase.subject,
+      summary: serviceCase.summary,
+      severity: serviceCase.severity,
+      status: serviceCase.status,
+      owner: nz(serviceCase.owner),
+      sla_target_at: serviceCase.sla_target_at,
+      escalation_level: serviceCase.escalation_level,
+      satisfaction_score: nz(serviceCase.satisfaction_score),
+      opened_at: serviceCase.opened_at,
+      updated_at: serviceCase.updated_at,
+      resolved_at: nz(serviceCase.resolved_at),
+    });
 
     log.info(`[CustomerPortal] Service case created for ${input.entity_type}:${input.entity_id}`);
     return serviceCase;
   }
 
   /**
-   * List service cases for a portal entity.
+   * List service cases for a portal entity, most-recently-updated first.
    */
   listServiceCases(entityType: PortalTokenType, entityId: string): PortalServiceCase[] {
-    const entityKey = CustomerPortalEngine.buildEntityKey(entityType, entityId);
-    const cases = this.serviceCases.get(entityKey) ?? [];
-    return [...cases].sort((left, right) => right.updated_at.localeCompare(left.updated_at));
+    const { stmts } = this.ensureOpen();
+    const rows = stmts.listCasesByEntity.all(entityType, entityId) as CaseRow[];
+    return rows.map((r) => CustomerPortalEngine.rowToCase(r));
   }
 
   /**
@@ -582,8 +1043,11 @@ export class CustomerPortalEngine {
     escalate?: boolean;
     satisfaction_score?: number;
   }): PortalServiceCase {
-    const serviceCase = this.findServiceCase(input.case_id);
-    if (!serviceCase) throw new Error(`Service case ${input.case_id} not found`);
+    const { stmts } = this.ensureOpen();
+    const row = stmts.findCaseById.get(input.case_id) as CaseRow | undefined;
+    if (!row) throw new Error(`Service case ${input.case_id} not found`);
+
+    const serviceCase = CustomerPortalEngine.rowToCase(row);
 
     if (input.owner !== undefined) {
       serviceCase.owner = input.owner.trim() || undefined;
@@ -613,10 +1077,52 @@ export class CustomerPortalEngine {
     }
 
     serviceCase.updated_at = new Date().toISOString();
+
+    stmts.updateCase.run({
+      id: serviceCase.id,
+      status: serviceCase.status,
+      owner: nz(serviceCase.owner),
+      escalation_level: serviceCase.escalation_level,
+      satisfaction_score: nz(serviceCase.satisfaction_score),
+      resolved_at: nz(serviceCase.resolved_at),
+      updated_at: serviceCase.updated_at,
+    });
     return serviceCase;
   }
 
-  // ─── Utility ──────────────────────────────────────────────────────────
+  // --- Lifecycle / introspection --------------------------------------------
+
+  /** Close the underlying database handle. Safe to call multiple times. */
+  close(): void {
+    if (this.db) {
+      try { this.db.close(); } catch { /* already closed */ }
+      this.db = null;
+      this.stmts = null;
+    }
+  }
+
+  /** Path the engine is using -- useful for tests + introspection. */
+  getDbPath(): string {
+    return this.dbPath;
+  }
+
+  /** Reachability + WAL-mode confirmation. Returns the journal mode in effect. */
+  health(): { open: boolean; dbPath: string; journalMode: string; schemaVersion: number } {
+    const { db } = this.ensureOpen();
+    const journalRows = db.pragma("journal_mode") as Array<{ journal_mode: string }>;
+    const journalMode = journalRows.length > 0 ? journalRows[0].journal_mode : "unknown";
+    const versionRow = db.prepare("SELECT value FROM meta WHERE key = 'schema_version'").get() as
+      | { value: string }
+      | undefined;
+    return {
+      open: true,
+      dbPath: this.dbPath,
+      journalMode,
+      schemaVersion: versionRow ? Number(versionRow.value) : SCHEMA_VERSION,
+    };
+  }
+
+  // --- Utility --------------------------------------------------------------
 
   /**
    * Strip internal cost fields from any object (safety filter).
@@ -648,20 +1154,9 @@ export class CustomerPortalEngine {
         return 48;
     }
   }
-
-  private findServiceCase(caseId: string): PortalServiceCase | null {
-    for (const cases of this.serviceCases.values()) {
-      const serviceCase = cases.find((entry) => entry.id === caseId);
-      if (serviceCase) {
-        return serviceCase;
-      }
-    }
-
-    return null;
-  }
 }
 
-// ─── Loose types for cross-engine data passing ────────────────────────────────
+// --- Loose types for cross-engine data passing ------------------------------
 
 interface QuoteRevisionLike {
   revision_number?: number;

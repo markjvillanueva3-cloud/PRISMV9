@@ -912,7 +912,12 @@ class PostProcessorMetaLearningEngine {
 
     // Step 3: Memory retrieval (if enabled)
     if (useMemory && optimizedPost) {
-      const memories = this.readFromMemory(optimizedPost);
+      const memoryQuery: PostOutput = {
+        gcodeBlocks: optimizedPost.gcodeBlocks,
+        features: optimizedPost.features,
+        confidence: optimizedPost.objectives.quality
+      };
+      const memories = this.readFromMemory(memoryQuery);
       if (memories.length > 0) {
         recommendations.push(`Retrieved ${memories.length} relevant memories`);
         // Could blend memory patterns with optimized post

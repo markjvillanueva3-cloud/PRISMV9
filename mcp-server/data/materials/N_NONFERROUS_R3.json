@@ -1,0 +1,280 @@
+{
+  "_provenance": {
+    "iso_group": "N",
+    "milestone": "DB-COVERAGE-GAPFILL-MS0 / U-MAT01",
+    "created": "2026-06-03",
+    "by": "slot:romeo",
+    "schema": "mirrors M_STAINLESS_R3.json / S_SUPERALLOYS_R3.json",
+    "kienzle_taylor_policy": "kc1_1/mc/taylor_C/taylor_n trace to mcp-server/src/physics/constants.ts ONLY. AISI_CUTTING_COEFFICIENTS where present; otherwise CANONICAL_KIENZLE['N']=700/0.22 and CANONICAL_TAYLOR['N']=600/0.40 default, marked iso_group_default.",
+    "caveat_copper": "C11000 copper and C26000 brass carry the N-group default kc1_1=700. The N default is tuned for aluminium; pure copper has a HIGHER specific cutting force (~1000-1350 N/mm2, Sandvik) due to ductility/BUE — so 700 UNDER-predicts copper cutting force (a non-conservative direction for spindle/tool sizing). Surfaced as a finding for the physics owner (DB-COVERAGE-GAPFILL-MS0 U-MAT02); NOT a measured grade value.",
+    "thermophysical_sources": ["ASM Metals Handbook Vol.2 (Nonferrous Alloys)", "Touloukian Thermophysical Properties (1970)", "Machinery's Handbook 32nd ed."],
+    "parity_test": "src/__tests__/material-r3-parity.test.ts"
+  },
+  "materials": [
+    {
+      "material_id": "MD-6061-T6",
+      "name": "Aluminum 6061-T6 (Al-Mg-Si)",
+      "iso_group": "N",
+      "material_type": "aluminum_alloy",
+      "subcategory": "6xxx_wrought",
+      "condition": "T6",
+      "data_quality": "verified",
+      "data_sources": ["ASM_Metals_Handbook_Vol2", "Machinerys_Handbook_32", "constants.ts:AISI_CUTTING_COEFFICIENTS"],
+      "physical": {
+        "density": 2700, "melting_point": 652, "specific_heat": 896,
+        "thermal_conductivity": 167, "thermal_expansion": 23.6,
+        "elastic_modulus": 69, "poisson_ratio": 0.33, "shear_modulus": 26, "bulk_modulus": 76
+      },
+      "mechanical": {
+        "hardness": { "brinell": 95, "vickers": 107, "rockwell_c": null, "rockwell_b": 60 },
+        "tensile_strength": { "typical": 310, "min": 290, "max": 320 },
+        "yield_strength": { "typical": 276, "min": 240, "max": 290 },
+        "elongation": 12, "reduction_of_area": 50,
+        "impact_strength": null, "fatigue_strength": 96, "fracture_toughness": 29,
+        "work_hardening_exponent": 0.05
+      },
+      "kienzle": {
+        "kc1_1": 700, "mc": 0.22,
+        "kc1_1_milling": 630, "mc_milling": 0.21,
+        "kc1_1_drilling": 770, "mc_drilling": 0.23,
+        "source": "constants.ts:AISI_CUTTING_COEFFICIENTS['6061']"
+      },
+      "johnson_cook": {
+        "A": 324, "B": 114, "n": 0.42, "C": 0.002, "m": 1.34,
+        "T_melt": 652, "T_ref": 25, "epsilon_dot_ref": 0.001
+      },
+      "taylor": {
+        "C": 600, "n": 0.40,
+        "C_carbide": 600, "n_carbide": 0.40,
+        "C_ceramic": null, "n_ceramic": null,
+        "C_cbn": null, "n_cbn": null,
+        "source": "constants.ts:AISI_CUTTING_COEFFICIENTS['6061']"
+      },
+      "chip_formation": {
+        "chip_type": "continuous", "chip_breaking": "poor",
+        "built_up_edge_tendency": "high",
+        "work_hardening_severity": "low", "adhesion_tendency": "high"
+      },
+      "cutting_recommendations": {
+        "turning": { "speed_roughing": 400, "speed_finishing": 800, "feed_roughing": 0.30, "feed_finishing": 0.10, "doc_roughing": 4.0, "doc_finishing": 0.5 },
+        "milling": { "speed_roughing": 600, "speed_finishing": 1000, "feed_per_tooth_roughing": 0.15, "feed_per_tooth_finishing": 0.08, "doc_roughing": 5.0, "doc_finishing": 0.5 },
+        "tool_material": { "recommended_grade": "Uncoated carbide K10 (polished) or DLC", "coating_recommendation": "Uncoated polished flutes or DLC to fight BUE", "geometry_recommendation": "High positive rake, polished flutes, large helix" },
+        "coolant": { "type": "flood", "recommendation": "Flood or MQL; high speeds keep heat in chip" }
+      },
+      "machinability": { "aisi_rating": 190, "relative_to_1212": 1.90 },
+      "_verified": { "session": "DB-COVERAGE-GAPFILL-MS0", "date": "2026-06-03", "method": "handbook_reference", "params": 0 }
+    },
+    {
+      "material_id": "MD-7075-T6",
+      "name": "Aluminum 7075-T6 (Al-Zn-Mg-Cu)",
+      "iso_group": "N",
+      "material_type": "aluminum_alloy",
+      "subcategory": "7xxx_wrought",
+      "condition": "T6",
+      "data_quality": "verified",
+      "data_sources": ["ASM_Metals_Handbook_Vol2", "Machinerys_Handbook_32", "constants.ts:AISI_CUTTING_COEFFICIENTS"],
+      "physical": {
+        "density": 2810, "melting_point": 635, "specific_heat": 960,
+        "thermal_conductivity": 130, "thermal_expansion": 23.6,
+        "elastic_modulus": 72, "poisson_ratio": 0.33, "shear_modulus": 27, "bulk_modulus": 76
+      },
+      "mechanical": {
+        "hardness": { "brinell": 150, "vickers": 175, "rockwell_c": null, "rockwell_b": 87 },
+        "tensile_strength": { "typical": 572, "min": 524, "max": 572 },
+        "yield_strength": { "typical": 503, "min": 469, "max": 503 },
+        "elongation": 11, "reduction_of_area": 35,
+        "impact_strength": null, "fatigue_strength": 159, "fracture_toughness": 23,
+        "work_hardening_exponent": 0.05
+      },
+      "kienzle": {
+        "kc1_1": 750, "mc": 0.22,
+        "kc1_1_milling": 675, "mc_milling": 0.21,
+        "kc1_1_drilling": 825, "mc_drilling": 0.23,
+        "source": "constants.ts:AISI_CUTTING_COEFFICIENTS['7075']"
+      },
+      "johnson_cook": {
+        "A": 473, "B": 210, "n": 0.34, "C": 0.001, "m": 1.34,
+        "T_melt": 635, "T_ref": 25, "epsilon_dot_ref": 0.001
+      },
+      "taylor": {
+        "C": 580, "n": 0.38,
+        "C_carbide": 580, "n_carbide": 0.38,
+        "C_ceramic": null, "n_ceramic": null,
+        "C_cbn": null, "n_cbn": null,
+        "source": "constants.ts:AISI_CUTTING_COEFFICIENTS['7075']"
+      },
+      "chip_formation": {
+        "chip_type": "continuous", "chip_breaking": "fair",
+        "built_up_edge_tendency": "moderate",
+        "work_hardening_severity": "low", "adhesion_tendency": "moderate"
+      },
+      "cutting_recommendations": {
+        "turning": { "speed_roughing": 350, "speed_finishing": 700, "feed_roughing": 0.30, "feed_finishing": 0.10, "doc_roughing": 4.0, "doc_finishing": 0.5 },
+        "milling": { "speed_roughing": 500, "speed_finishing": 900, "feed_per_tooth_roughing": 0.15, "feed_per_tooth_finishing": 0.08, "doc_roughing": 5.0, "doc_finishing": 0.5 },
+        "tool_material": { "recommended_grade": "Uncoated carbide K10 (polished)", "coating_recommendation": "Uncoated polished or DLC", "geometry_recommendation": "High positive rake; aerospace structural, watch residual stress/distortion" },
+        "coolant": { "type": "flood", "recommendation": "Flood; high-pressure for chip evacuation in pockets" }
+      },
+      "machinability": { "aisi_rating": 120, "relative_to_1212": 1.20 },
+      "_verified": { "session": "DB-COVERAGE-GAPFILL-MS0", "date": "2026-06-03", "method": "handbook_reference", "params": 0 }
+    },
+    {
+      "material_id": "MD-2024-T3",
+      "name": "Aluminum 2024-T3 (Al-Cu)",
+      "iso_group": "N",
+      "material_type": "aluminum_alloy",
+      "subcategory": "2xxx_wrought",
+      "condition": "T3",
+      "data_quality": "verified_thermophysical_iso_default_kc",
+      "data_sources": ["ASM_Metals_Handbook_Vol2", "Machinerys_Handbook_32", "constants.ts:CANONICAL_KIENZLE"],
+      "physical": {
+        "density": 2780, "melting_point": 638, "specific_heat": 875,
+        "thermal_conductivity": 121, "thermal_expansion": 22.9,
+        "elastic_modulus": 73, "poisson_ratio": 0.33, "shear_modulus": 28, "bulk_modulus": 76
+      },
+      "mechanical": {
+        "hardness": { "brinell": 120, "vickers": 137, "rockwell_c": null, "rockwell_b": 75 },
+        "tensile_strength": { "typical": 483, "min": 440, "max": 483 },
+        "yield_strength": { "typical": 345, "min": 290, "max": 345 },
+        "elongation": 18, "reduction_of_area": 35,
+        "impact_strength": null, "fatigue_strength": 138, "fracture_toughness": 26,
+        "work_hardening_exponent": 0.05
+      },
+      "kienzle": {
+        "kc1_1": 700, "mc": 0.22,
+        "kc1_1_milling": 630, "mc_milling": 0.21,
+        "kc1_1_drilling": 770, "mc_drilling": 0.23,
+        "source": "constants.ts:CANONICAL_KIENZLE['N'] (iso-group default — grade-specific kc pending physics review)"
+      },
+      "johnson_cook": {
+        "A": 369, "B": 684, "n": 0.73, "C": 0.0083, "m": 1.7,
+        "T_melt": 638, "T_ref": 25, "epsilon_dot_ref": 0.001
+      },
+      "taylor": {
+        "C": 600, "n": 0.40,
+        "C_carbide": 600, "n_carbide": 0.40,
+        "C_ceramic": null, "n_ceramic": null,
+        "C_cbn": null, "n_cbn": null,
+        "source": "constants.ts:CANONICAL_TAYLOR['N'] (iso-group default)"
+      },
+      "chip_formation": {
+        "chip_type": "continuous", "chip_breaking": "fair",
+        "built_up_edge_tendency": "high",
+        "work_hardening_severity": "low", "adhesion_tendency": "high"
+      },
+      "cutting_recommendations": {
+        "turning": { "speed_roughing": 300, "speed_finishing": 600, "feed_roughing": 0.30, "feed_finishing": 0.10, "doc_roughing": 4.0, "doc_finishing": 0.5 },
+        "milling": { "speed_roughing": 450, "speed_finishing": 800, "feed_per_tooth_roughing": 0.13, "feed_per_tooth_finishing": 0.07, "doc_roughing": 4.0, "doc_finishing": 0.5 },
+        "tool_material": { "recommended_grade": "Uncoated carbide K10 (polished)", "coating_recommendation": "Uncoated polished; Cu content increases adhesion vs 6061", "geometry_recommendation": "High positive rake, sharp edge; aerospace skins/fittings" },
+        "coolant": { "type": "flood", "recommendation": "Flood to clear gummy chips" }
+      },
+      "machinability": { "aisi_rating": 130, "relative_to_1212": 1.30 },
+      "_verified": { "session": "DB-COVERAGE-GAPFILL-MS0", "date": "2026-06-03", "method": "handbook_reference", "params": 0 }
+    },
+    {
+      "material_id": "MD-C26000-ANNEALED",
+      "name": "C26000 Cartridge Brass 70/30 (Annealed)",
+      "iso_group": "N",
+      "material_type": "brass",
+      "subcategory": "copper_zinc_alloy",
+      "condition": "annealed",
+      "data_quality": "verified_thermophysical_iso_default_kc",
+      "data_sources": ["ASM_Metals_Handbook_Vol2", "Touloukian_Thermophysical_1970", "constants.ts:CANONICAL_KIENZLE"],
+      "physical": {
+        "density": 8530, "melting_point": 930, "specific_heat": 375,
+        "thermal_conductivity": 120, "thermal_expansion": 19.9,
+        "elastic_modulus": 110, "poisson_ratio": 0.35, "shear_modulus": 41, "bulk_modulus": 112
+      },
+      "mechanical": {
+        "hardness": { "brinell": 75, "vickers": 79, "rockwell_c": null, "rockwell_b": 65 },
+        "tensile_strength": { "typical": 350, "min": 300, "max": 365 },
+        "yield_strength": { "typical": 125, "min": 100, "max": 160 },
+        "elongation": 53, "reduction_of_area": 60,
+        "impact_strength": null, "fatigue_strength": 100, "fracture_toughness": null,
+        "work_hardening_exponent": 0.35
+      },
+      "kienzle": {
+        "kc1_1": 700, "mc": 0.22,
+        "kc1_1_milling": 630, "mc_milling": 0.21,
+        "kc1_1_drilling": 770, "mc_drilling": 0.23,
+        "source": "constants.ts:CANONICAL_KIENZLE['N'] (iso-group default — annealed cartridge brass; grade-specific kc pending physics review)"
+      },
+      "johnson_cook": {
+        "A": 112, "B": 505, "n": 0.42, "C": 0.009, "m": 1.68,
+        "T_melt": 930, "T_ref": 25, "epsilon_dot_ref": 0.001
+      },
+      "taylor": {
+        "C": 600, "n": 0.40,
+        "C_carbide": 600, "n_carbide": 0.40,
+        "C_ceramic": null, "n_ceramic": null,
+        "C_cbn": null, "n_cbn": null,
+        "source": "constants.ts:CANONICAL_TAYLOR['N'] (iso-group default)"
+      },
+      "chip_formation": {
+        "chip_type": "continuous", "chip_breaking": "poor",
+        "built_up_edge_tendency": "low",
+        "work_hardening_severity": "high", "adhesion_tendency": "low"
+      },
+      "cutting_recommendations": {
+        "turning": { "speed_roughing": 200, "speed_finishing": 400, "feed_roughing": 0.25, "feed_finishing": 0.10, "doc_roughing": 3.0, "doc_finishing": 0.5 },
+        "milling": { "speed_roughing": 300, "speed_finishing": 500, "feed_per_tooth_roughing": 0.12, "feed_per_tooth_finishing": 0.06, "doc_roughing": 3.0, "doc_finishing": 0.4 },
+        "tool_material": { "recommended_grade": "Uncoated carbide K10", "coating_recommendation": "Uncoated; annealed 70/30 is gummy (use free-machining C36000 if available)", "geometry_recommendation": "Positive rake; neutral-to-negative rake risks tearing in annealed temper" },
+        "coolant": { "type": "flood", "recommendation": "Flood optional" }
+      },
+      "machinability": { "aisi_rating": 30, "relative_to_1212": 0.30 },
+      "_verified": { "session": "DB-COVERAGE-GAPFILL-MS0", "date": "2026-06-03", "method": "handbook_reference", "params": 0 }
+    },
+    {
+      "material_id": "MD-C11000-H02",
+      "name": "C11000 ETP Copper (Hard Drawn H02)",
+      "iso_group": "N",
+      "material_type": "copper",
+      "subcategory": "electrolytic_tough_pitch",
+      "condition": "hard_drawn",
+      "data_quality": "verified_thermophysical_iso_default_kc",
+      "data_sources": ["ASM_Metals_Handbook_Vol2", "Touloukian_Thermophysical_1970", "constants.ts:CANONICAL_KIENZLE"],
+      "physical": {
+        "density": 8960, "melting_point": 1085, "specific_heat": 385,
+        "thermal_conductivity": 391, "thermal_expansion": 17.0,
+        "elastic_modulus": 117, "poisson_ratio": 0.34, "shear_modulus": 44, "bulk_modulus": 140
+      },
+      "mechanical": {
+        "hardness": { "brinell": 87, "vickers": 89, "rockwell_c": null, "rockwell_b": 40 },
+        "tensile_strength": { "typical": 250, "min": 220, "max": 310 },
+        "yield_strength": { "typical": 195, "min": 150, "max": 290 },
+        "elongation": 20, "reduction_of_area": 70,
+        "impact_strength": null, "fatigue_strength": 90, "fracture_toughness": null,
+        "work_hardening_exponent": 0.30
+      },
+      "kienzle": {
+        "kc1_1": 700, "mc": 0.22,
+        "kc1_1_milling": 630, "mc_milling": 0.21,
+        "kc1_1_drilling": 770, "mc_drilling": 0.23,
+        "source": "constants.ts:CANONICAL_KIENZLE['N'] (iso-group default — WARNING: under-predicts pure-copper force, real ~1000-1350; flagged DB-COVERAGE-GAPFILL-MS0 U-MAT02 for physics review)"
+      },
+      "johnson_cook": {
+        "A": 90, "B": 292, "n": 0.31, "C": 0.025, "m": 1.09,
+        "T_melt": 1085, "T_ref": 25, "epsilon_dot_ref": 0.001
+      },
+      "taylor": {
+        "C": 600, "n": 0.40,
+        "C_carbide": 600, "n_carbide": 0.40,
+        "C_ceramic": null, "n_ceramic": null,
+        "C_cbn": null, "n_cbn": null,
+        "source": "constants.ts:CANONICAL_TAYLOR['N'] (iso-group default)"
+      },
+      "chip_formation": {
+        "chip_type": "continuous", "chip_breaking": "poor",
+        "built_up_edge_tendency": "high",
+        "work_hardening_severity": "moderate", "adhesion_tendency": "high"
+      },
+      "cutting_recommendations": {
+        "turning": { "speed_roughing": 200, "speed_finishing": 400, "feed_roughing": 0.25, "feed_finishing": 0.10, "doc_roughing": 3.0, "doc_finishing": 0.5 },
+        "milling": { "speed_roughing": 300, "speed_finishing": 500, "feed_per_tooth_roughing": 0.12, "feed_per_tooth_finishing": 0.06, "doc_roughing": 3.0, "doc_finishing": 0.4 },
+        "tool_material": { "recommended_grade": "Uncoated carbide K10 (mirror-polished)", "coating_recommendation": "Uncoated polished; copper is extremely gummy, severe BUE", "geometry_recommendation": "Very high positive rake, razor edge, large helix; sharp tools prevent BUE/smearing" },
+        "coolant": { "type": "flood", "recommendation": "Flood mandatory for chip evacuation; high thermal conductivity dumps heat to part" }
+      },
+      "machinability": { "aisi_rating": 20, "relative_to_1212": 0.20 },
+      "_verified": { "session": "DB-COVERAGE-GAPFILL-MS0", "date": "2026-06-03", "method": "handbook_reference", "params": 0 }
+    }
+  ]
+}

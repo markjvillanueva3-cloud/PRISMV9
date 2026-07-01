@@ -1,0 +1,144 @@
+{
+  "id": "WEDM-INT-MS0",
+  "name": "WEDM Integration Wiring — Frontend↔Backend Shape Bridge",
+  "description": "Bridge the data shape mismatch between WEDM frontend API types (wedmStudio.ts) and backend engine input/output shapes. The edmDispatcher passes params straight through without transformation. E2E test (wedm-e2e-pipeline.test.ts) shows 8/17 stages fail due to: (1) frontend sends flat params but engines expect nested objects, (2) engines return nested results but frontend expects flat shapes, (3) missing default fields engines require.",
+  "status": "complete",
+  "priority": "P1",
+  "track": "WEDM-INT",
+  "depends_on": ["WEDM-MS0", "WEDM-MS1"],
+  "created_at": "2026-04-02",
+  "total_units": 10,
+  "completed_units": 10,
+  "sessions": [
+    {
+      "id": "WEDM-INT-S1",
+      "name": "Shape Audit + Feasibility/Selection Bridge",
+      "units": [
+        {
+          "id": "U-WINT01",
+          "name": "Shape audit — map all 20 WEDM actions input/output contracts",
+          "description": "Read every WEDM engine interface (FeasibilityInput, FullSelectionInput, ToolpathInput, MultiPassInput, CuttingParamInput, EDMGCodeInput, CostInput, SetupSheetInput, StartHolePlan params, wire break params). Document the exact mismatch between what the frontend sends vs what the engine expects. Create a WEDM_SHAPE_MAP.md reference.",
+          "role": "R2",
+          "effort": "medium",
+          "entry_condition": "wedm-e2e-pipeline.test.ts exists with 17 tests (9 pass, 8 fail)",
+          "exit_condition": "WEDM_SHAPE_MAP.md documents all 20 action shapes with frontend→engine translation notes",
+          "deliverables": ["data/docs/WEDM_SHAPE_MAP.md"]
+        },
+        {
+          "id": "U-WINT02",
+          "name": "Feasibility bridge — translate flat params to nested FeasibilityInput",
+          "description": "In edmDispatcher.ts case 'wedm_assess_feasibility': transform { features, material, thickness_mm, wire_diameter_mm, target_ra_um } into { features: [...mapped], material, workpiece: { thickness_mm, length_mm, width_mm, height_mm }, wire_diameter_mm }. Infer workpiece dimensions from features bounding box when not explicitly provided.",
+          "role": "R3",
+          "effort": "medium",
+          "entry_condition": "U-WINT01 complete",
+          "exit_condition": "E2E Stage 3 (Feasibility) test passes. Frontend FeasibilityParams type works end-to-end.",
+          "deliverables": ["src/tools/dispatchers/edmDispatcher.ts (feasibility bridge)"]
+        },
+        {
+          "id": "U-WINT03",
+          "name": "Selection bridge — flatten FullSelectionResult to MaterialMachineWireSelection",
+          "description": "In edmDispatcher.ts case 'wedm_full_selection': (1) transform frontend { material, features } into FullSelectionInput with part dimensions from features bounding box, (2) flatten FullSelectionResult { material_assessment, machine_selection, wire_selection, wire_diameter_optimization, controller_map } into { material, machine_id, machine_name, wire_type, wire_diameter_mm, controller, material_density_kg_m3 } matching MaterialMachineWireSelection type.",
+          "role": "R3",
+          "effort": "high",
+          "entry_condition": "U-WINT01 complete",
+          "exit_condition": "E2E Stage 4 (Selection) test passes. Frontend receives flat selection object.",
+          "deliverables": ["src/tools/dispatchers/edmDispatcher.ts (selection bridge)"]
+        }
+      ]
+    },
+    {
+      "id": "WEDM-INT-S2",
+      "name": "Start Holes + Toolpath + Multi-Pass Bridge",
+      "units": [
+        {
+          "id": "U-WINT04",
+          "name": "Start holes bridge — convert features to ProfileGeometry[]",
+          "description": "In edmDispatcher.ts case 'wedm_plan_start_holes': transform frontend { features } into engine-expected { profiles: ProfileGeometry[], workpiece: WorkpieceSpec }. Map PartFeature[] to ProfileGeometry[] using contour data. Flatten StartHolePlan { holes } to WCSResult { origin, start_holes, setup_notes }.",
+          "role": "R3",
+          "effort": "medium",
+          "entry_condition": "U-WINT03 complete (selection works)",
+          "exit_condition": "E2E Stage 5 (Start Holes) test passes.",
+          "deliverables": ["src/tools/dispatchers/edmDispatcher.ts (start holes bridge)"]
+        },
+        {
+          "id": "U-WINT05",
+          "name": "Toolpath bridge — convert frontend shape to ToolpathInput",
+          "description": "In edmDispatcher.ts case 'wedm_generate_toolpath': transform frontend { features, contours, start_holes, material, wire_diameter_mm } into engine ToolpathInput { profiles: ProfileDefinition[], workpiece_thickness_mm, wire_diameter_mm }. Map contours to ProfileDefinition with contour_points, type classification (exterior/interior). Flatten result profiles_classified to ToolpathResult { profiles, tabs, sequence, total_cut_length_mm }.",
+          "role": "R3",
+          "effort": "high",
+          "entry_condition": "U-WINT04 complete",
+          "exit_condition": "E2E Stage 6 (Toolpath) test passes. Frontend receives ToolpathResult shape.",
+          "deliverables": ["src/tools/dispatchers/edmDispatcher.ts (toolpath bridge)"]
+        },
+        {
+          "id": "U-WINT06",
+          "name": "Multi-pass bridge — translate to MultiPassInput",
+          "description": "In edmDispatcher.ts case 'wedm_full_multipass': transform frontend { material, wire_type, wire_diameter_mm, target_ra_um } into engine MultiPassInput { material, thickness_mm, profile_length_mm, tolerance_mm, target_ra_um, wire_diameter_mm, wire_type }. Provide sensible defaults for required fields (tolerance_mm=0.01, thickness_mm from prior step). Flatten MultiPassPlan to MultiPassResult { total_passes, passes, predicted_final_ra_um, predicted_recast_um, predicted_haz_um }.",
+          "role": "R3",
+          "effort": "medium",
+          "entry_condition": "U-WINT05 complete",
+          "exit_condition": "E2E Stage 7 (Multi-Pass) test passes.",
+          "deliverables": ["src/tools/dispatchers/edmDispatcher.ts (multipass bridge)"]
+        }
+      ]
+    },
+    {
+      "id": "WEDM-INT-S3",
+      "name": "Optimize + G-code + Cost/Setup Bridge + E2E Gate",
+      "units": [
+        {
+          "id": "U-WINT07",
+          "name": "Optimize bridge — CuttingParamFlush + wire break + flushing",
+          "description": "In edmDispatcher.ts case 'wedm_optimize_params': transform frontend OptimizeParams into CuttingParamInput. Add required fields (pass_type defaults, base param lookup). Compose the optimize response from three engines: CuttingParamFlush.optimizeParams + planFlushing + predictWireBreakRisk → flatten into OptimizeResult { multipass, wire_break, flushing, estimated_time_min, predicted_pp }.",
+          "role": "R3",
+          "effort": "high",
+          "entry_condition": "U-WINT06 complete",
+          "exit_condition": "E2E Stage 8 (Optimization) test passes.",
+          "deliverables": ["src/tools/dispatchers/edmDispatcher.ts (optimize bridge)"]
+        },
+        {
+          "id": "U-WINT08",
+          "name": "G-code bridge — translate to EDMGCodeInput with geometry",
+          "description": "In edmDispatcher.ts case 'wedm_generate_gcode': transform frontend ProgramStageParams { material, machine_id, controller, wire_type, wire_diameter_mm, profiles, multipass, flushing } into engine EDMGCodeInput with proper contour_points geometry. Flatten EDMGCodeResult to GCodeOutput { program, controller, line_count, estimated_run_time_min, warnings }. Test all 6 controller dialects.",
+          "role": "R3",
+          "effort": "high",
+          "entry_condition": "U-WINT07 complete",
+          "exit_condition": "E2E Stage 9 (G-code) tests pass for all 6 dialects.",
+          "deliverables": ["src/tools/dispatchers/edmDispatcher.ts (gcode bridge)"]
+        },
+        {
+          "id": "U-WINT09",
+          "name": "Cost + Setup sheet bridge",
+          "description": "In edmDispatcher.ts cases 'wedm_estimate_cost' and 'wedm_generate_setup_sheet': transform frontend ProgramStageParams into engine CostInput/SetupSheetInput with threading_time, tab_cutting, idle time defaults. Flatten CostEstimate to CostBreakdown { wire_cost_usd, machine_time_cost_usd, consumables_cost_usd, setup_cost_usd, total_cost_usd, wire_consumption_m, machine_time_min }. Flatten SetupSheet output.",
+          "role": "R3",
+          "effort": "medium",
+          "entry_condition": "U-WINT08 complete",
+          "exit_condition": "E2E Stage 10 (Cost + Setup) tests pass.",
+          "deliverables": ["src/tools/dispatchers/edmDispatcher.ts (cost/setup bridge)"]
+        },
+        {
+          "id": "U-WINT10",
+          "name": "Full chain E2E gate + frontend Quick Generate wiring",
+          "description": "Run the full chain test (DXF → G-code). Fix any remaining issues. Wire the Quick Generate DAG in the frontend to populate WedmStudioContext with intermediate results. Add stale-data invalidation when user navigates backward. Final gate: all 17 E2E tests green, tsc 0 errors, 184+ WEDM tests pass.",
+          "role": "R3",
+          "effort": "high",
+          "entry_condition": "U-WINT09 complete",
+          "exit_condition": "wedm-e2e-pipeline.test.ts: 17/17 pass. tsc: 0 errors. wedm tests: 184+ pass.",
+          "deliverables": ["src/__tests__/wedm-e2e-pipeline.test.ts (all green)", "web/src/api/wedmStudio.ts (Quick Generate context wiring)"]
+        }
+      ]
+    }
+  ],
+  "exit_gate": {
+    "criteria": [
+      "wedm-e2e-pipeline.test.ts: 17/17 tests pass",
+      "tsc --noEmit: 0 errors",
+      "All 184+ WEDM unit tests still pass (no regressions)",
+      "Frontend types match backend response shapes (no as-any casts)",
+      "Quick Generate populates WedmStudioContext",
+      "Backward navigation invalidates stale step data"
+    ],
+    "omega_floor": 0.85,
+    "rollback": "git revert changes to edmDispatcher.ts + revert E2E test updates"
+  }
+}

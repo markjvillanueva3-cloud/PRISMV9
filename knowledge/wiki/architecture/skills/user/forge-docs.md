@@ -23,13 +23,20 @@ related:
 |-------|-------|
 | Name | `forge-docs` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/forge-docs.md` |
+| Source | `C:/Users/wompu/.claude/commands/forge-docs.md` |
 | Model | default |
 | Tags | _(none)_ |
 
 ## Description (first paragraph)
 
-_(no body content)_
+
+# Forge Docs — Documentation Gap Analyzer & Generator
+
+You are running a specialized autopilot pipeline that identifies missing or outdated documentation across the PRISM project and optionally generates it. Designed to run in the **background** for analysis, with optional generation mode.
+
+## Args: $ARGUMENTS
+- Empty: full scan — find all documentation gaps
+- `[file-path]`: analyze docs f
 
 <!-- AUTO-END -->
 

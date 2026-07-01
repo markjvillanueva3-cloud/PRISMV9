@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="generator" content="SpecHTMLCompanionEngine">
+<meta name="prism-source-hash" content="5cde3ca899038d4ae302409d51549eca43fb77e0b6b257dce28b3ac2df2fb52f">
+<title>Course-Data Routing Ledger (U-KC-D1)</title>
+<style>
+:root, [data-theme="light"] {
+  --bg:#ffffff; --bg-soft:#f6f8fa; --bg-code:#f6f8fa; --fg:#1f2328; --fg-muted:#636c76;
+  --border:#d0d7de; --accent:#0969da; --accent-soft:#ddf4ff; --thead:#f6f8fa; --quote:#656d76;
+  --table-stripe:#f6f8fa;
+}
+[data-theme="dark"] {
+  --bg:#0d1117; --bg-soft:#161b22; --bg-code:#161b22; --fg:#e6edf3; --fg-muted:#8b949e;
+  --border:#30363d; --accent:#2f81f7; --accent-soft:#163356; --thead:#161b22; --quote:#8b949e;
+  --table-stripe:#11151c;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg:#0d1117; --bg-soft:#161b22; --bg-code:#161b22; --fg:#e6edf3; --fg-muted:#8b949e;
+    --border:#30363d; --accent:#2f81f7; --accent-soft:#163356; --thead:#161b22; --quote:#8b949e;
+    --table-stripe:#11151c;
+  }
+}
+* { box-sizing:border-box; }
+html { scroll-behavior:smooth; }
+body { margin:0; background:var(--bg); color:var(--fg); font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif; line-height:1.6; font-size:16px; }
+.skip-link { position:absolute; left:-9999px; top:0; background:var(--accent); color:#fff; padding:8px 14px; z-index:100; border-radius:0 0 6px 0; }
+.skip-link:focus { left:0; }
+.layout { display:grid; grid-template-columns:minmax(0,1fr); max-width:1180px; margin:0 auto; padding:0 20px; }
+@media (min-width:1000px) { .layout { grid-template-columns:260px minmax(0,1fr); gap:40px; } }
+header.doc-head { grid-column:1 / -1; padding:28px 0 16px; border-bottom:1px solid var(--border); }
+header.doc-head h1.page-title { margin:0 0 6px; font-size:1.9rem; line-height:1.25; }
+header.doc-head .provenance { color:var(--fg-muted); font-size:.85rem; margin:0; }
+header.doc-head .theme-toggle { float:right; background:var(--bg-soft); color:var(--fg); border:1px solid var(--border); border-radius:6px; padding:5px 10px; font-size:.8rem; cursor:pointer; }
+nav.toc { align-self:start; position:sticky; top:16px; max-height:calc(100vh - 32px); overflow:auto; font-size:.85rem; padding:14px 0; }
+@media (max-width:999px) { nav.toc { position:static; max-height:none; border-bottom:1px solid var(--border); margin-bottom:12px; } }
+nav.toc .toc-title { font-weight:600; color:var(--fg-muted); text-transform:uppercase; letter-spacing:.04em; font-size:.7rem; margin-bottom:8px; }
+nav.toc ul { list-style:none; margin:0; padding:0; }
+nav.toc li a { color:var(--fg-muted); text-decoration:none; display:block; padding:3px 6px; border-left:2px solid transparent; border-radius:0 4px 4px 0; }
+nav.toc li a:hover { color:var(--accent); background:var(--accent-soft); border-left-color:var(--accent); }
+nav.toc li a.active { color:var(--accent); background:var(--accent-soft); border-left-color:var(--accent); font-weight:600; }
+nav.toc .toc-l2 a { padding-left:14px; } nav.toc .toc-l3 a { padding-left:26px; font-size:.95em; } nav.toc .toc-l4 a { padding-left:38px; font-size:.9em; }
+nav.toc input.toc-search { width:100%; box-sizing:border-box; margin:0 0 8px; padding:5px 8px; font-size:.82rem; border:1px solid var(--border); border-radius:5px; background:var(--bg); color:var(--fg); }
+nav.toc input.toc-search:focus { outline:2px solid var(--accent); outline-offset:-1px; }
+nav.toc .toc-search-status { font-size:.7rem; color:var(--fg-muted); min-height:1em; margin:-4px 0 6px; }
+nav.toc li.toc-hidden { display:none; }
+main.doc-body mark.search-hit { background:#fff3a3; color:#1f2328; border-radius:2px; padding:0 1px; }
+main.doc-body mark.search-hit.current { outline:2px solid var(--accent); outline-offset:1px; }
+main.doc-body { min-width:0; padding:24px 0 64px; }
+main.doc-body h1,main.doc-body h2,main.doc-body h3,main.doc-body h4,main.doc-body h5,main.doc-body h6 { line-height:1.3; margin-top:1.8em; margin-bottom:.6em; scroll-margin-top:16px; position:relative; }
+main.doc-body h1 { font-size:1.7rem; border-bottom:1px solid var(--border); padding-bottom:.3em; }
+main.doc-body h2 { font-size:1.4rem; border-bottom:1px solid var(--border); padding-bottom:.3em; }
+main.doc-body h3 { font-size:1.18rem; } main.doc-body h4 { font-size:1.02rem; }
+main.doc-body a.anchor { position:absolute; left:-1.1em; opacity:0; text-decoration:none; color:var(--fg-muted); font-weight:400; padding-right:.3em; }
+main.doc-body h1:hover a.anchor,main.doc-body h2:hover a.anchor,main.doc-body h3:hover a.anchor,main.doc-body h4:hover a.anchor { opacity:1; }
+main.doc-body a { color:var(--accent); text-decoration:none; } main.doc-body a:hover { text-decoration:underline; }
+main.doc-body p { margin:.8em 0; }
+main.doc-body code { background:var(--bg-code); border-radius:4px; padding:.15em .35em; font-size:.88em; font-family:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace; }
+main.doc-body pre { background:var(--bg-code); border:1px solid var(--border); border-radius:8px; padding:14px 16px; overflow:auto; line-height:1.45; }
+main.doc-body pre code { background:none; padding:0; font-size:.86rem; }
+main.doc-body blockquote { margin:1em 0; padding:.4em 1em; border-left:4px solid var(--border); color:var(--quote); }
+main.doc-body ul,main.doc-body ol { margin:.6em 0; padding-left:1.6em; }
+main.doc-body li { margin:.2em 0; }
+main.doc-body hr { border:0; border-top:1px solid var(--border); margin:2em 0; }
+main.doc-body .table-wrap { overflow-x:auto; margin:1em 0; }
+main.doc-body table { border-collapse:collapse; width:100%; font-size:.9rem; }
+main.doc-body th,main.doc-body td { border:1px solid var(--border); padding:6px 11px; text-align:left; vertical-align:top; }
+main.doc-body thead th { background:var(--thead); }
+main.doc-body tbody tr:nth-child(2n) { background:var(--table-stripe); }
+main.doc-body details.frontmatter { background:var(--bg-soft); border:1px solid var(--border); border-radius:8px; padding:6px 14px; margin:0 0 22px; }
+main.doc-body details.frontmatter summary { cursor:pointer; font-weight:600; color:var(--fg-muted); }
+main.doc-body details.frontmatter table { font-size:.82rem; }
+main.doc-body details.frontmatter th { width:1%; white-space:nowrap; background:transparent; color:var(--fg-muted); }
+main.doc-body .mermaid { background:var(--bg-soft); border:1px solid var(--border); border-radius:8px; padding:14px; margin:1em 0; text-align:center; overflow:auto; white-space:pre-wrap; }
+main.doc-body .truncation-notice { background:var(--accent-soft); border:1px solid var(--accent); border-radius:6px; padding:10px 14px; font-size:.9rem; }
+footer.doc-foot { grid-column:1 / -1; border-top:1px solid var(--border); margin-top:48px; padding:18px 0 40px; color:var(--fg-muted); font-size:.82rem; }
+footer.doc-foot code { background:var(--bg-code); border-radius:4px; padding:.12em .3em; }
+</style>
+</head>
+<body>
+<a class="skip-link" href="#content">Skip to content</a>
+<div class="layout">
+<header class="doc-head">
+<button id="themeToggle" class="theme-toggle" type="button" aria-label="Toggle color theme">◐ theme</button>
+<h1 class="page-title" id="top">Course-Data Routing Ledger (U-KC-D1)</h1>
+<p class="provenance">Generated 2026-05-18T17:34:20.354Z by <code>scripts/emit-all-spec-html.ts</code> · the Markdown alongside is canonical</p>
+</header>
+<nav class="toc" aria-label="Table of contents"><div class="toc-title">On this page</div><input type="search" class="toc-search" placeholder="Search this page…" aria-label="Search this page" autocomplete="off"><div class="toc-search-status" aria-live="polite"></div><ul>
+<li class="toc-l1"><a href="#course-data-routing-ledger-u-kc-d1">Course-Data Routing Ledger (U-KC-D1)</a></li>
+<li class="toc-l2"><a href="#caveat">Caveat</a></li>
+<li class="toc-l2"><a href="#inventory">Inventory</a></li>
+<li class="toc-l2"><a href="#thresholds">Thresholds</a></li>
+<li class="toc-l2"><a href="#summary">Summary</a></li>
+<li class="toc-l3"><a href="#by-decision">By decision</a></li>
+<li class="toc-l3"><a href="#by-node-type">By node-type</a></li>
+<li class="toc-l3"><a href="#by-lane">By lane</a></li>
+<li class="toc-l2"><a href="#forge-queue-items-lane-c-recommended-actions">Forge-queue items (Lane C — recommended actions)</a></li>
+<li class="toc-l2"><a href="#duplicate-hits-lane-b-verify-scope-match">Duplicate hits (Lane B — verify scope match)</a></li>
+<li class="toc-l2"><a href="#re-run">Re-run</a></li>
+</ul></nav>
+<main id="content" class="doc-body" role="main">
+<h1 id="course-data-routing-ledger-u-kc-d1"><a class="anchor" href="#course-data-routing-ledger-u-kc-d1" aria-label="Permalink to Course-Data Routing Ledger (U-KC-D1)">#</a>Course-Data Routing Ledger (U-KC-D1)</h1>
+<p><strong>Generator:</strong> scripts/course-data-router.mjs <strong>Generated:</strong> 2026-05-17T15:00:00Z <strong>Schema:</strong> 1.0.0 <strong>Advisory:</strong> <code>advisoryOnly: true</code> · <code>mustHumanVerify: true</code></p>
+<h2 id="caveat"><a class="anchor" href="#caveat" aria-label="Permalink to Caveat">#</a>Caveat</h2>
+<blockquote>
+<p>Routing decisions are ADVISORY. FORGE-QUEUE items require human /forge gate. Formulas require physics-reviewer agent before any port. DUPLICATE decisions are based on name-token overlap and may have false positives — human verify before discarding course intent.</p>
+</blockquote>
+<h2 id="inventory"><a class="anchor" href="#inventory" aria-label="Permalink to Inventory">#</a>Inventory</h2>
+<ul>
+<li>Algorithms scanned: 53</li>
+<li>Engines scanned: 3267</li>
+</ul>
+<h2 id="thresholds"><a class="anchor" href="#thresholds" aria-label="Permalink to Thresholds">#</a>Thresholds</h2>
+<ul>
+<li><code>ALGORITHM_FORGE_MIN_RELEVANCE</code>: 0.5</li>
+<li><code>ENGINE_FORGE_MIN_RELEVANCE</code>: 0.6</li>
+<li><code>FORMULA_DISCARD_FLOOR</code>: 0.3</li>
+<li><code>DEDUP_MATCH_SCORE</code>: 0.6</li>
+</ul>
+<h2 id="summary"><a class="anchor" href="#summary" aria-label="Permalink to Summary">#</a>Summary</h2>
+<ul>
+<li><strong>Candidates:</strong> 65</li>
+<li><strong>Assets routed:</strong> 126</li>
+</ul>
+<h3 id="by-decision"><a class="anchor" href="#by-decision" aria-label="Permalink to By decision">#</a>By decision</h3>
+<ul>
+<li><strong>TRIBAL-SHIPPED</strong>: 31</li>
+<li><strong>DUPLICATE</strong>: 10</li>
+<li><strong>FORGE-QUEUE</strong>: 69</li>
+<li><strong>DISCARD</strong>: 16</li>
+</ul>
+<h3 id="by-node-type"><a class="anchor" href="#by-node-type" aria-label="Permalink to By node-type">#</a>By node-type</h3>
+<ul>
+<li><strong>knowledge</strong>: 31</li>
+<li><strong>algorithm</strong>: 50</li>
+<li><strong>formula</strong>: 10</li>
+<li><strong>engine</strong>: 35</li>
+</ul>
+<h3 id="by-lane"><a class="anchor" href="#by-lane" aria-label="Permalink to By lane">#</a>By lane</h3>
+<ul>
+<li><strong>Lane A</strong> (direct-wire autonomous): 31</li>
+<li><strong>Lane B</strong> (port semi-autonomous): 10</li>
+<li><strong>Lane C</strong> (forge human-gated): 69</li>
+<li><strong>No lane</strong> (DISCARD): 16</li>
+</ul>
+<h2 id="forge-queue-items-lane-c-recommended-actions"><a class="anchor" href="#forge-queue-items-lane-c-recommended-actions" aria-label="Permalink to Forge-queue items (Lane C — recommended actions)">#</a>Forge-queue items (Lane C — recommended actions)</h2>
+<div class="table-wrap"><table>
+<thead><tr><th>Course</th><th>Asset</th><th>Kind</th><th>Lane</th><th>Recommended Action</th></tr></thead>
+<tbody>
+<tr><td>10.34</td><td>operator-splitting</td><td>algorithm</td><td>C</td><td>/forge-triple algorithm:operator-splitting</td></tr>
+<tr><td>2.854-fall-2016</td><td>transition-equations-solver</td><td>algorithm</td><td>C</td><td>/forge-triple algorithm:transition-equations-solver</td></tr>
+<tr><td>1.060-spring-2006</td><td>bernoullis-equation-solver</td><td>algorithm</td><td>C</td><td>/forge-triple algorithm:bernoullis-equation-solver</td></tr>
+<tr><td>1.060-spring-2006</td><td>moody-diagram-analysis</td><td>formula</td><td>C</td><td>physics-reviewer agent verify equation + dimensional consistency, then port constants to src/physics/constants.ts (NEVER inline) and wire to prism_calc/&lt;action&gt; via /forge-triple formula:moody-diagram-analysis</td></tr>
+<tr><td>resources</td><td>operator-splitting</td><td>algorithm</td><td>C</td><td>/forge-triple algorithm:operator-splitting</td></tr>
+<tr><td>16.852j-fall-2005</td><td>lean-enterprise-engine</td><td>engine</td><td>C</td><td>/forge-triple engine:lean-enterprise-engine</td></tr>
+<tr><td>16.852j-fall-2005</td><td>lesat-algorithm</td><td>algorithm</td><td>C</td><td>/forge-triple algorithm:lesat-algorithm</td></tr>
+<tr><td>16.885j-fall-2004</td><td>lean-manufacturing-engine</td><td>engine</td><td>C</td><td>/forge-triple engine:lean-manufacturing-engine</td></tr>
+<tr><td>2.003</td><td>pendulum-cart-modeling</td><td>algorithm</td><td>C</td><td>/forge-triple algorithm:pendulum-cart-modeling</td></tr>
+<tr><td>2.003</td><td>transfer-functions</td><td>formula</td><td>C</td><td>physics-reviewer agent verify equation + dimensional consistency, then port constants to src/physics/constants.ts (NEVER inline) and wire to prism_calc/&lt;action&gt; via /forge-triple formula:transfer-functions</td></tr>
+<tr><td>2.007-spring-2009</td><td>solidworks</td><td>engine</td><td>C</td><td>/forge-triple engine:solidworks</td></tr>
+<tr><td>2.007-spring-2009</td><td>cam-path-optimization</td><td>algorithm</td><td>C</td><td>/forge-triple algorithm:cam-path-optimization</td></tr>
+<tr><td>2.003j-fall-2007</td><td>euler-method</td><td>algorithm</td><td>C</td><td>/forge-triple algorithm:euler-method</td></tr>
+<tr><td>2.830j-spring-2008</td><td>response-surface-modeling</td><td>algorithm</td><td>C</td><td>/forge-triple algorithm:response-surface-modeling</td></tr>
+<tr><td>6.871</td><td>seelect</td><td>engine</td><td>C</td><td>/forge-triple engine:seelect</td></tr>
+<tr><td>6.871</td><td>bayes-nets</td><td>algorithm</td><td>C</td><td>/forge-triple algorithm:bayes-nets</td></tr>
+<tr><td>18.02-spring-2006</td><td>gradient-descent</td><td>algorithm</td><td>C</td><td>/forge-triple algorithm:gradient-descent</td></tr>
+<tr><td>18.02-spring-2006</td><td>finite-element-analysis-fea</td><td>engine</td><td>C</td><td>/forge-triple engine:finite-element-analysis-fea</td></tr>
+<tr><td>12.864</td><td>singular-value-decomposition</td><td>algorithm</td><td>C</td><td>/forge-triple algorithm:singular-value-decomposition</td></tr>
+<tr><td>16.225</td><td>newmarks-algorithm</td><td>algorithm</td><td>C</td><td>/forge-triple algorithm:newmarks-algorithm</td></tr>
+<tr><td>18.086</td><td>multigrid-method</td><td>algorithm</td><td>C</td><td>/forge-triple algorithm:multigrid-method</td></tr>
+<tr><td>2.004</td><td>pid-tuning</td><td>algorithm</td><td>C</td><td>/forge-triple algorithm:pid-tuning</td></tr>
+<tr><td>2.004</td><td>simulink-models</td><td>engine</td><td>C</td><td>/forge-triple engine:simulink-models</td></tr>
+<tr><td>3.016</td><td>numerical-integration</td><td>algorithm</td><td>C</td><td>/forge-triple algorithm:numerical-integration</td></tr>
+<tr><td>9.66j</td><td>bayes-net-inference</td><td>algorithm</td><td>C</td><td>/forge-triple algorithm:bayes-net-inference</td></tr>
+<tr><td>9.66j</td><td>constraint-based-optimizer</td><td>engine</td><td>C</td><td>/forge-triple engine:constraint-based-optimizer</td></tr>
+<tr><td>16.07</td><td>inertial-guidance-system</td><td>engine</td><td>C</td><td>/forge-triple engine:inertial-guidance-system</td></tr>
+<tr><td>16.07</td><td>lagranges-equations</td><td>algorithm</td><td>C</td><td>/forge-triple algorithm:lagranges-equations</td></tr>
+<tr><td>16.682</td><td>digital-logic-engine</td><td>engine</td><td>C</td><td>/forge-triple engine:digital-logic-engine</td></tr>
+<tr><td>16.682</td><td>transistor-gain-formula</td><td>formula</td><td>C</td><td>physics-reviewer agent verify equation + dimensional consistency, then port constants to src/physics/constants.ts (NEVER inline) and wire to prism_calc/&lt;action&gt; via /forge-triple formula:transistor-gain-formula</td></tr>
+<tr><td>2.086</td><td>finite-difference-method</td><td>algorithm</td><td>C</td><td>/forge-triple algorithm:finite-difference-method</td></tr>
+<tr><td>2.141</td><td>dynamic-system-simulation-engine</td><td>engine</td><td>C</td><td>/forge-triple engine:dynamic-system-simulation-engine</td></tr>
+<tr><td>3.21</td><td>cahn-hilliard-equation-solver</td><td>algorithm</td><td>C</td><td>/forge-triple algorithm:cahn-hilliard-equation-solver</td></tr>
+<tr><td>3.60</td><td>material-property-prediction-engine</td><td>engine</td><td>C</td><td>/forge-triple engine:material-property-prediction-engine</td></tr>
+<tr><td>3.60</td><td>wave-propagation-simulation-algorithm</td><td>algorithm</td><td>C</td><td>/forge-triple algorithm:wave-propagation-simulation-algorithm</td></tr>
+<tr><td>6.231</td><td>value-iteration</td><td>algorithm</td><td>C</td><td>/forge-triple algorithm:value-iteration</td></tr>
+<tr><td>6.231</td><td>policy-iteration-engine</td><td>engine</td><td>C</td><td>/forge-triple engine:policy-iteration-engine</td></tr>
+<tr><td>6.883</td><td>mutation-testing</td><td>algorithm</td><td>C</td><td>/forge-triple algorithm:mutation-testing</td></tr>
+<tr><td>6.883</td><td>test-case-reduction-engine</td><td>engine</td><td>C</td><td>/forge-triple engine:test-case-reduction-engine</td></tr>
+<tr><td>8.022</td><td>relativistic-dynamics-engine</td><td>engine</td><td>C</td><td>/forge-triple engine:relativistic-dynamics-engine</td></tr>
+<tr><td>ESD.34</td><td>architectural-engine</td><td>engine</td><td>C</td><td>/forge-triple engine:architectural-engine</td></tr>
+<tr><td>1.050-fall-2004</td><td>finite-element-analysis</td><td>algorithm</td><td>C</td><td>/forge-triple algorithm:finite-element-analysis</td></tr>
+<tr><td>1.050-fall-2004</td><td>buckling-formula</td><td>formula</td><td>C</td><td>physics-reviewer agent verify equation + dimensional consistency, then port constants to src/physics/constants.ts (NEVER inline) and wire to prism_calc/&lt;action&gt; via /forge-triple formula:buckling-formula</td></tr>
+<tr><td>1.105-fall-2003</td><td>finite-element-method</td><td>algorithm</td><td>C</td><td>/forge-triple algorithm:finite-element-method</td></tr>
+<tr><td>1.105-fall-2003</td><td>euler-buckling-formula</td><td>formula</td><td>C</td><td>physics-reviewer agent verify equation + dimensional consistency, then port constants to src/physics/constants.ts (NEVER inline) and wire to prism_calc/&lt;action&gt; via /forge-triple formula:euler-buckling-formula</td></tr>
+<tr><td>10.490-fall-2006</td><td>batch-reactor-sizing-algorithm</td><td>algorithm</td><td>C</td><td>/forge-triple algorithm:batch-reactor-sizing-algorithm</td></tr>
+<tr><td>10.490-fall-2006</td><td>kinetic-rate-equation</td><td>formula</td><td>C</td><td>physics-reviewer agent verify equation + dimensional consistency, then port constants to src/physics/constants.ts (NEVER inline) and wire to prism_calc/&lt;action&gt; via /forge-triple formula:kinetic-rate-equation</td></tr>
+<tr><td>10.490-fall-2006</td><td>economic-model-engine</td><td>engine</td><td>C</td><td>/forge-triple engine:economic-model-engine</td></tr>
+<tr><td>15.099-fall-2003</td><td>differential-evolution</td><td>algorithm</td><td>C</td><td>/forge-triple algorithm:differential-evolution</td></tr>
+<tr><td>2.032</td><td>lagranges-equations</td><td>algorithm</td><td>C</td><td>/forge-triple algorithm:lagranges-equations</td></tr>
+<tr><td>3.225-fall-2007</td><td>material-property-prediction-engine</td><td>engine</td><td>C</td><td>/forge-triple engine:material-property-prediction-engine</td></tr>
+<tr><td>esd.33-summer-2010</td><td>operating-window-methods</td><td>engine</td><td>C</td><td>/forge-triple engine:operating-window-methods</td></tr>
+<tr><td>esd.60-summer-2004</td><td>pdca-cycle-engine</td><td>engine</td><td>C</td><td>/forge-triple engine:pdca-cycle-engine</td></tr>
+<tr><td>3.22</td><td>finite-element-analysis</td><td>algorithm</td><td>C</td><td>/forge-triple algorithm:finite-element-analysis</td></tr>
+<tr><td>18.112-fall-2008</td><td>cauchy-goursat-theorem</td><td>algorithm</td><td>C</td><td>/forge-triple algorithm:cauchy-goursat-theorem</td></tr>
+<tr><td>esd.342-spring-2006</td><td>louvain-algorithm</td><td>algorithm</td><td>C</td><td>/forge-triple algorithm:louvain-algorithm</td></tr>
+<tr><td>esd.342-spring-2006</td><td>ucinet</td><td>engine</td><td>C</td><td>/forge-triple engine:ucinet</td></tr>
+<tr><td>15.083J</td><td>ellipsoid-method</td><td>algorithm</td><td>C</td><td>/forge-triple algorithm:ellipsoid-method</td></tr>
+<tr><td>18.409</td><td>lanczos-method</td><td>algorithm</td><td>C</td><td>/forge-triple algorithm:lanczos-method</td></tr>
+<tr><td>6.079</td><td>gradient-descent-method</td><td>algorithm</td><td>C</td><td>/forge-triple algorithm:gradient-descent-method</td></tr>
+<tr><td>6.641</td><td>maxwell-equations</td><td>formula</td><td>C</td><td>physics-reviewer agent verify equation + dimensional consistency, then port constants to src/physics/constants.ts (NEVER inline) and wire to prism_calc/&lt;action&gt; via /forge-triple formula:maxwell-equations</td></tr>
+<tr><td>6.641</td><td>method-of-images</td><td>algorithm</td><td>C</td><td>/forge-triple algorithm:method-of-images</td></tr>
+<tr><td>18.098</td><td>taylor_series_expansion</td><td>algorithm</td><td>C</td><td>/forge-triple algorithm:taylor_series_expansion</td></tr>
+<tr><td>3.15</td><td>ferromagnetism-formula</td><td>formula</td><td>C</td><td>physics-reviewer agent verify equation + dimensional consistency, then port constants to src/physics/constants.ts (NEVER inline) and wire to prism_calc/&lt;action&gt; via /forge-triple formula:ferromagnetism-formula</td></tr>
+<tr><td>6.001</td><td>scheme-evaluator-engine</td><td>engine</td><td>C</td><td>/forge-triple engine:scheme-evaluator-engine</td></tr>
+<tr><td>6.189</td><td>cilk-runtime-system</td><td>engine</td><td>C</td><td>/forge-triple engine:cilk-runtime-system</td></tr>
+<tr><td>8.02</td><td>gausss-law-for-magnetism</td><td>formula</td><td>C</td><td>physics-reviewer agent verify equation + dimensional consistency, then port constants to src/physics/constants.ts (NEVER inline) and wire to prism_calc/&lt;action&gt; via /forge-triple formula:gausss-law-for-magnetism</td></tr>
+<tr><td>8.512</td><td>boltzmann-equation</td><td>formula</td><td>C</td><td>physics-reviewer agent verify equation + dimensional consistency, then port constants to src/physics/constants.ts (NEVER inline) and wire to prism_calc/&lt;action&gt; via /forge-triple formula:boltzmann-equation</td></tr>
+<tr><td>ec.s06-fall-2005</td><td>pugh_chart_selection</td><td>algorithm</td><td>C</td><td>/forge-triple algorithm:pugh_chart_selection</td></tr>
+</tbody>
+</table></div>
+<h2 id="duplicate-hits-lane-b-verify-scope-match"><a class="anchor" href="#duplicate-hits-lane-b-verify-scope-match" aria-label="Permalink to Duplicate hits (Lane B — verify scope match)">#</a>Duplicate hits (Lane B — verify scope match)</h2>
+<div class="table-wrap"><table>
+<thead><tr><th>Course</th><th>Course asset</th><th>PRISM file</th><th>Score</th></tr></thead>
+<tbody>
+<tr><td>2.008-spring-2003</td><td>engine:mastercam-integration</td><td>MastercamHeadlessIntegrationTestEngine</td><td>1.00</td></tr>
+<tr><td>3.016</td><td>engine:finite-element-analysis</td><td>FiniteElementEngine</td><td>0.67</td></tr>
+<tr><td>2.086</td><td>engine:monte-carlo-simulation-engine</td><td>CapacityMonteCarloEngine</td><td>0.67</td></tr>
+<tr><td>6.034</td><td>algorithm:decision-tree</td><td>DecisionTreeClassifier</td><td>1.00</td></tr>
+<tr><td>6.823</td><td>engine:pipeline-engine</td><td>AdaptivePipelineGeneratorEngine</td><td>1.00</td></tr>
+<tr><td>1.010-fall-2008</td><td>algorithm:monte-carlo-simulation</td><td>MonteCarlo</td><td>0.67</td></tr>
+<tr><td>1.010-fall-2008</td><td>engine:uncertainty-propagation-engine</td><td>UncertaintyPropagationEngine</td><td>1.00</td></tr>
+<tr><td>2.032</td><td>engine:dynamics-engine</td><td>CoolantDynamicsEngine</td><td>1.00</td></tr>
+<tr><td>2.670-january-iap-2004</td><td>algorithm:wear-rate-prediction-model</td><td>ToolWearPrediction</td><td>0.67</td></tr>
+<tr><td>6.071j</td><td>engine:signal-processing-engine</td><td>SignalProcessingEngine</td><td>1.00</td></tr>
+</tbody>
+</table></div>
+<h2 id="re-run"><a class="anchor" href="#re-run" aria-label="Permalink to Re-run">#</a>Re-run</h2>
+<pre><code class="language-bash">node scripts/course-data-router.mjs
+# or deterministic for diffs:
+node scripts/course-data-router.mjs --frozen-time 2026-05-17T00:00:00Z
+</code></pre>
+</main>
+<footer class="doc-foot">
+<p>HTML companion — the canonical document is the Markdown file alongside it. <a href="COURSE-DATA-ROUTING-LEDGER.md">COURSE-DATA-ROUTING-LEDGER.md</a> Regenerate: <code>node scripts/emit-spec-html.mjs &lt;path.md&gt;</code></p>
+
+</footer>
+</div>
+<script>(function(){
+  try {
+    var k = "prism-spec-theme";
+    var saved = localStorage.getItem(k);
+    if (saved === "dark" || saved === "light") document.documentElement.setAttribute("data-theme", saved);
+  } catch (e) { /* localStorage blocked — keep default theme */ }
+  var b = document.getElementById("themeToggle");
+  if (!b) return;
+  b.addEventListener("click", function () {
+    var cur = document.documentElement.getAttribute("data-theme");
+    var sysDark = !!(window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches);
+    var next = cur === "dark" ? "light" : cur === "light" ? "dark" : (sysDark ? "light" : "dark");
+    document.documentElement.setAttribute("data-theme", next);
+    b.textContent = next === "dark" ? "\u263E dark" : "\u2600 light";
+    try { localStorage.setItem(k, next); } catch (e) { /* persistence unavailable — non-fatal */ }
+  });
+})();</script>
+<script>(function(){
+  var body = document.querySelector("main.doc-body");
+  var toc = document.querySelector("nav.toc");
+  if (!body) return;
+  // TOC active-section highlight.
+  if (toc) {
+    var links = {};
+    toc.querySelectorAll("a[href^='#']").forEach(function(a){ links[a.getAttribute("href").slice(1)] = a; });
+    var heads = body.querySelectorAll("h1[id],h2[id],h3[id],h4[id]");
+    var active = null;
+    function setActive(id){
+      if (active === id) return;
+      if (active && links[active]) links[active].classList.remove("active");
+      active = id;
+      if (active && links[active]) links[active].classList.add("active");
+    }
+    var io = new IntersectionObserver(function(entries){
+      var top = null, topY = Infinity;
+      entries.forEach(function(e){ if (e.isIntersecting) { var y = e.boundingClientRect.top; if (y < topY) { topY = y; top = e.target.id; } } });
+      if (!top) {
+        var best = null;
+        heads.forEach(function(h){ if (h.getBoundingClientRect().top < 80) best = h.id; });
+        top = best || (heads[0] && heads[0].id);
+      }
+      if (top) setActive(top);
+    }, { rootMargin: "0px 0px -70% 0px", threshold: [0, 1] });
+    heads.forEach(function(h){ io.observe(h); });
+  }
+  // In-page search: wrap matches in <mark>, jump to first, filter the TOC.
+  var input = toc && toc.querySelector("input.toc-search");
+  var status = toc && toc.querySelector(".toc-search-status");
+  if (!input) return;
+  var SKIP = { SCRIPT:1, STYLE:1, MARK:1, NOSCRIPT:1 };
+  function clearMarks(){
+    body.querySelectorAll("mark.search-hit").forEach(function(m){ var p = m.parentNode; if (p) { p.replaceChild(document.createTextNode(m.textContent), m); p.normalize(); } });
+    if (toc) toc.querySelectorAll("li.toc-hidden").forEach(function(li){ li.classList.remove("toc-hidden"); });
+  }
+  function doSearch(q){
+    clearMarks();
+    if (status) status.textContent = "";
+    if (!q || q.length < 2) return;
+    var needle = q.toLowerCase(), hits = 0, first = null;
+    var walker = document.createTreeWalker(body, NodeFilter.SHOW_TEXT, { acceptNode: function(n){
+      if (!n.nodeValue || !n.nodeValue.trim()) return NodeFilter.FILTER_REJECT;
+      var p = n.parentNode; while (p && p !== body) { if (SKIP[p.nodeName]) return NodeFilter.FILTER_REJECT; p = p.parentNode; }
+      return n.nodeValue.toLowerCase().indexOf(needle) >= 0 ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT;
+    }});
+    var targets = [];
+    while (walker.nextNode()) targets.push(walker.currentNode);
+    targets.forEach(function(node){
+      if (hits > 2000) return;
+      var text = node.nodeValue, lower = text.toLowerCase(), frag = document.createDocumentFragment(), i = 0, idx;
+      while ((idx = lower.indexOf(needle, i)) >= 0 && hits <= 2000) {
+        if (idx > i) frag.appendChild(document.createTextNode(text.slice(i, idx)));
+        var m = document.createElement("mark"); m.className = "search-hit"; m.textContent = text.slice(idx, idx + needle.length);
+        if (hits === 0) { m.classList.add("current"); first = m; }
+        frag.appendChild(m); hits++; i = idx + needle.length;
+      }
+      if (i < text.length) frag.appendChild(document.createTextNode(text.slice(i)));
+      if (node.parentNode) node.parentNode.replaceChild(frag, node);
+    });
+    if (status) status.textContent = hits ? (hits + " match" + (hits === 1 ? "" : "es")) : "no matches";
+    if (toc) toc.querySelectorAll("li").forEach(function(li){ var a = li.querySelector("a"); if (a && a.textContent.toLowerCase().indexOf(needle) < 0) li.classList.add("toc-hidden"); });
+    if (first) first.scrollIntoView({ block: "center", behavior: "smooth" });
+  }
+  var t;
+  input.addEventListener("input", function(){ clearTimeout(t); t = setTimeout(function(){ doSearch(input.value.trim()); }, 180); });
+  input.addEventListener("keydown", function(e){ if (e.key === "Escape") { input.value = ""; doSearch(""); input.blur(); } });
+})();</script>
+</body>
+</html>

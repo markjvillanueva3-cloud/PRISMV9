@@ -23,13 +23,19 @@ related:
 |-------|-------|
 | Name | `forge-safety` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/forge-safety.md` |
+| Source | `C:/Users/wompu/.claude/commands/forge-safety.md` |
 | Model | default |
 | Tags | _(none)_ |
 
 ## Description (first paragraph)
 
-_(no body content)_
+
+# Forge Safety — Safety Chain Audit + Hardening Autopilot
+
+You are running a specialized autopilot pipeline focused on auditing the PRISM safety chain end-to-end, identifying unprotected operations, hardening weak links, and validating that all safety-critical paths are correctly enforced.
+
+## Args: $ARGUMENTS
+- Empty: full audit — analyze the entire safety chain, find gaps, harden the wors
 
 <!-- AUTO-END -->
 

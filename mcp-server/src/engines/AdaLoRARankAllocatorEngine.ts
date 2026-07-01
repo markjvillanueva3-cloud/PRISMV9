@@ -54,7 +54,12 @@ class AdaLoRARankAllocatorEngine {
     };
 
     this.allocations.set(config.adapter_id, {
-      config,
+      // Default importance_metric to the engine's canonical SVD scoring (see file header)
+      // so reallocateRanks differentiates ranks by importance even when the caller omits
+      // the metric. Without this, an unspecified metric leaves every importance score at 0
+      // (updateImportance's switch matches no case) -> totalImportance 0 -> reallocation
+      // degenerates to the even 1/n split (the "expected 10 to be greater than 10" bug).
+      config: { ...config, importance_metric: config.importance_metric ?? "svd" },
       allocation,
       stepCount: 0,
       layerGradients: new Map(),

@@ -1,0 +1,1636 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><title>MPPostDebuggerUG</title>
+<style>body{font:14px/1.5 system-ui,-apple-system,sans-serif;max-width:960px;margin:2em auto;padding:0 1em;background:#0d1117;color:#c9d1d9}h1{font-size:1.4em;border-bottom:1px solid #30363d;padding-bottom:.4em}dl{display:grid;grid-template-columns:max-content 1fr;gap:.3em 1em}dt{font-weight:600;color:#8b949e}pre{white-space:pre-wrap;word-wrap:break-word;background:#161b22;padding:1em;border:1px solid #30363d;border-radius:6px;font-size:13px}</style>
+</head><body>
+<h1>MPPostDebuggerUG</h1>
+<dl>
+<dt>Domain</dt><dd>cam</dd>
+<dt>Software</dt><dd>mastercam</dd>
+<dt>Path</dt><dd><code>MasterCam/MASTERCAM/mcamX8/documentation/MPPostDebuggerUG.pdf</code></dd>
+<dt>Pages</dt><dd>72</dd>
+<dt>Text chars</dt><dd>56983</dd>
+</dl>
+<h2>Extracted text</h2>
+<pre>Debugger Quick Start
+Enable the debugger
+Can’t find it? Use the Advanced Configuration utility to turn it on. Learn more...
+Start the debugger
+Post your toolpaths and click the 	button. Learn more...
+Set your screen layout
+Only do this once—select and lay out the windows you want to use. Learn more...
+Choose your Run mode
+First use Turbo to quickly preview NC output. Then use Run (normal) or Step
+(detailed, but slow) to analyze post logic and output. Learn more...
+Set watch lists and break points
+Isolate the information you want to focus on. Learn more...
+Analyze output and edit post
+Run post and use debugger windows to analyze output. Use editor to make changes to your post. Learn more...
+Re-post and see changes
+Re-post from Mastercam to see changes—return to step 2. Learn more...
+1
+2
+3
+4
+5
+6
+7
+NC
+Post 	NCI 	Watches 	Messages... 	History
+Lists
+Post window.
+Lists the contents
+of the .PST file.
+The current line
+is bold.
+Learn more...
+NCI window.
+Lists the contents
+of the .NCI file.
+The current line
+is bold.
+Learn more...
+Watches .
+Lists all variables in
+the watch list; their
+raw, unformatted
+values; and their
+prv_ values.
+Learn more...
+Messages/
+Error log
+window.
+Shows errors
+and other
+messages from
+the .ERR file.
+Learn more...
+History
+window.
+Lists all the
+output
+postblocks.
+Learn more...
+Lists window.
+Lists all
+variables,
+strings, and
+postblocks.
+Learn more...
+NC window.
+Previews your NC output, along with the NCI line and
+postblocks associated with each line. Learn more...
+Shortcut keys
+Find Next................... F3
+Run ............................ F5
+Stop........................... Shift+F5
+Toggle Breakpoint ...... F9
+Step Over................... F10
+Step Into.................... F11
+Step Statement ......... Ctrl+F11
+Pause......................... F12
+Select All ................... Ctrl+A
+Find ........................... Ctrl+F
+Add Watch ................ Ctrl+W
+What the heck are all these windows??
+How do I...? / FAQ
+
+-- 1 of 72 --
+
+How do I…?
+ Make it run like fastmode?
+Use Run Turbo mode—this is close to legacy
+fastmode output. Learn more...
+ Make changes to my post?
+Open the PST file in your regular editor and make
+changes there. Re-post and run the debugger again to
+see your changes. You can’t directly edit the PST file
+in the debugger window. Learn more...
+ Add something to the watch list?
+Select it in the Post window and press Ctrl+W. Learn
+more...
+ Delete a single variable from the watch list?
+Make the Watches window wider so you can see the
+Delete button next to the variable name. Learn
+more...
+ Make the font size bigger?
+Select Configuration from the menu. Learn more...
+ Rewind the post and run it again?
+Select File &gt; Quit from the menu and re-post from
+inside Mastercam. There is no “rewind” function.
+Learn more...
+ I just want to step through a section of my post,
+not the whole thing. How do I do that?
+Set a breakpoint before the section you want to step
+through. Run the post. When you hit the breakpoint,
+use one of the Step commands. Learn more...
+ Print the contents of one of the windows?
+You can’t print from the debugger. Open the NC, NCI,
+or PST file in your editor and print from there.
+ Set a breakpoint?
+Move the cursor at the beginning of a postline or NCI
+line and press F9. Learn more...
+ Debug a “binned” post?
+This works just like a regular post except that binned
+portions won’t be visible in the Post window. Only
+unbinned portions will be shown. Learn more...
+FAQ—
+ Why is it so slow?
+You might be running in Run Step mode. Try regular
+Run mode or Run Turbo. Learn more...
+ I added variables to my watch list, but I don’t see
+any values.
+Use Run Step mode to see the values update in real
+time. In regular Run mode, they will update at
+breakpoints. In Run Turbo mode, they won’t update
+at all. Don’t forget to include the $ for pre-defined
+variables. Learn more...
+ Nothing is happening, it looks like I’m stuck in an
+infinite loop.
+Your post might be in the middle of a parameter read
+loop, which can take a long time to complete. If
+you’re not interested in debugging this portion of
+your post, consider setting a breakpoint after your
+parameters are processed; then, use Run mode (not
+Run Step mode) until the breakpoint is reached.
+Learn more...
+ All my toolbar buttons are grayed out and
+nothing’s working—what do I do now?
+Your post has finished running. Return to
+Mastercam and re-post your part to continue the
+debugger session. Learn more...
+ I re-posted my part but the debugger isn’t
+appearing. Mastercam looks like it’s stuck.
+Click the debugger icon in the Taskbar on your
+desktop or click on the debugger window itself.
+ The debugger is showing NC output that isn’t
+actually in my NC file.
+This can happen with canned cycles. Sometimes the
+NC window shows additional moves or data that the
+NC file—properly—omits. Verify the NC output in
+your editor.
+ I want to search for some text but the Find button
+is grayed out.
+Find only works when you’re in the Post window.
+ I can see the debugger button in Mastercam, but
+it’s grayed out.
+Select the NC file option:
+
+-- 2 of 72 --
+
+i
+11
+12
+13
+14
+15
+16
+17
+18
+19
+110
+Mastercam X8
+Post Debugger
+User’s Guide
+March 2014
+Information may have been changed and/or added since this
+document was published. The latest version of this document is
+installed with Mastercam or can be obtained from your local
+Mastercam Reseller.
+
+-- 3 of 72 --
+
+ii • MASTERCAM X8 / Post Debugger User’s Guide
+Mastercam® X8 Post Debugger User’s Guide
+Date: March 2014
+Copyright © 2014 CNC Software, Inc. — All rights reserved.
+Software: Mastercam X8
+TERMS OF USE 	Use of this document is subject to the Mastercam End User License
+Agreement. A copy of the Mastercam End User License Agreement is
+included with the Mastercam product package of which this document is
+part. The Mastercam End User License Agreement can also be found at:
+www.mastercam.com/legal/licenseagreement/
+
+-- 4 of 72 --
+
+/ • ix
+Contents
+1. Using the Post Debugger.................................................. 1
+ Enabling the debugger.......................................................... 2
+ Launching the debugger ...................................................... 4
+ Customizing the screen display .......................................... 6
+ Running the post................................................................... 7
+Understanding the different run options........................... 8
+What happens when the post is finished running? ............ 9
+ Tracing through a post....................................................... 11
+ Using breakpoints............................................................... 15
+ Watching variables............................................................. 18
+Saving and loading watch lists ......................................... 21
+Working with watch list files............................................. 22
+2. Editing and Debugging Posts........................................ 23
+ Editing your post................................................................. 24
+ Making the debugger work like legacy debug
+variables .............................................................................. 25
+fastmode$ ......................................................................... 25
+The bug2$ switch.............................................................. 26
+The bug4$ switch.............................................................. 27
+Other debug switches ....................................................... 28
+ Tutorial example:
+Finding out where a value comes from............................ 29
+3. Reference............................................................................... 43
+ Debugger windows ............................................................ 44
+Post window ..................................................................... 45
+Encrypted or “binned” posts ........................................ 47
+NCI window ...................................................................... 48
+NC window ....................................................................... 49
+
+-- 5 of 72 --
+
+iv • MASTERCAM X8 / Post Debugger User’s Guide
+Customizing the NC window ....................................... 52
+Message/Error Log window.............................................. 54
+Watches window............................................................... 55
+History window................................................................. 57
+Lists window ..................................................................... 58
+ Menu commands................................................................ 59
+ Toolbar ................................................................................. 62
+ Keyboard shortcuts............................................................. 63
+
+-- 6 of 72 --
+
+chapter 1
+Using the Post
+Debugger
+The Mastercam Post Debugger helps you find and correct
+errors in your posts. Using the debugger, you can step through
+the posting process a line at a time, while watching the post
+produce the NC code. As you manipulate the posting process,
+you can watch how variables change value and view a stack
+trace of the post execution. This chapter shows you how to use
+some of the debugger’s essential features:
+ Enabling the debugger . . . . . . . . . . . . . . . . . . . page 2
+ Launching the debugger . . . . . . . . . . . . . . . . . page 4
+ Customizing the screen display . . . . . . . . . . . page 6
+ Running the post . . . . . . . . . . . . . . . . . . . . . . . . page 7
+ Tracing through a post . . . . . . . . . . . . . . . . . .page 11
+ Using breakpoints . . . . . . . . . . . . . . . . . . . . . .page 15
+ Watching variables . . . . . . . . . . . . . . . . . . . . .page 18
+
+-- 7 of 72 --
+
+2 • MASTERCAM X8 / Post Debugger User’s Guide
+Quick Start
+Enabling the debugger
+The debugger is launched from a button on the Post processing dialog
+box. Before you can access the debugger, you need to activate it.
+NOTE: The default state is to have it disabled.To use the
+debugger, you must explicitly enable it.
+Use the Mastercam Advanced Configuration utility to enable the
+debugger. Follow these steps:
+How do I...?	How do I...?
+Enabling the debugger
+1 From your Windows Start menu, choose All Programs.
+2 In your Mastercam X8 &gt; Utilities folder, choose Advanced
+Configuration.
+
+-- 8 of 72 --
+
+USING THE POST DEBUGGER / Enabling the debugger • 3
+Quick Start
+3 Select the Post support page.
+4 Choose Enabled and click OK.
+Once the debugger is enabled, you will see its button in the Post
+processing dialog box:
+NOTE: The previous steps show a Windows 7 system.
+Windows 8 users will typically need to Search for the Advanced
+Configuration utility.
+
+-- 9 of 72 --
+
+4 • MASTERCAM X8 / Post Debugger User’s Guide
+Quick Start
+Launching the debugger
+Launch the debugger as part of the regular posting process.
+How do I...?	How do I...?
+Launching the debugger
+1 Select the operations that you want to post.
+2 Click the Post button.
+3 In the Post Processing dialog, select the NC file option.
+4 Choose which Edit options you want. These will cause your
+default editor to automatically open when the debugger
+session is finished.
+Note that the Edit options (or the NCI file option) do not affect
+the debugger itself. You will always be able to see NC output
+and the NCI file in the debugger even if no Edit options are
+selected. Select them only if you want the Editor to open in
+addition to the debugger.
+
+-- 10 of 72 --
+
+USING THE POST DEBUGGER / Launching the debugger • 5
+Quick Start
+Best practice—Unless you really want to see the NCI or NC
+file in your editor, leave the Edit options unchecked.This will
+greatly simplify the interaction between Mastercam and the
+debugger.
+5 Click the debugger button.
+NOTE: If you don’t see this button, the debugger has not been
+enabled. See Enabling the debugger on page 2.
+6 Select the names of the NC and/or NCI files, if prompted.
+The debugger will open automatically.
+IMPORTANT: If a debugger session is already open—in other
+words, if you have been using the debugger and you are simply
+re-posting—Mastercam might look like it has locked up. All you
+need to do, though, is click on the title bar of the debugger
+window to make it active.
+
+-- 11 of 72 --
+
+6 • MASTERCAM X8 / Post Debugger User’s Guide
+Quick Start
+Customizing the screen display
+You can choose which windows to display and how they are arranged.
+Typically, you only need to do this once—Mastercam will remember
+your layout between sessions.
+How do I...?	How do I...?
+Changing the font size
+1 Select Configuration from the menu.
+2 Choose Select font.
+3 Select the desired font size.
+If you wish, you can also change the font, style, and other
+attributes.
+Best practice—Don’t select a Bold font. The debugger uses
+bold to highlight the current NCI and post line—if you choose
+bold for everything, you won’t be able to see this.
+How do I...?	How do I...?
+Showing or hiding windows
+Learn more about
+each window—
+see Debugger
+windows on
+page 44.
+1 Use the View menu to select which windows will be visible.
+2 Drag and resize them as desired, or use the Window menu to
+automatically position them.
+Best practice—If you need to conserve screen space, the
+Lists, History, and Messages windows are less important and
+can typically be turned off while you are running the post. You
+can always turn them on and inspect them after the post has
+run.
+You can also customize the information that gets displayed in the
+NC window. See Customizing the NC window on page 52.
+
+-- 12 of 72 --
+
+USING THE POST DEBUGGER / Running the post • 7
+Quick Start
+Running the post
+How you use the debugger depends on what you are looking for in
+your post. As you use the debugger, you will discover different ways to
+find the information you need. To get you started, the following
+sections describe some basic debugging techniques.
+The simplest way to use the debugger is to click the Run button.
+Different Run modes are available from the Debug menu. Each runs
+the post from beginning to end, populating the NC window with
+output. See Understanding the different run options on page 8 to learn
+more about them.
+While the post is running, you can pause it and examine the contents
+of the windows.
+ 	To pause the post while it is running, do either of these two
+things:
+ Click the Pause button:
+ Set a breakpoint.
+ 	Often while the post is running, it is difficult to stop it exactly
+where you want with the pause button. Setting breakpoints
+gives you a lot more control.
+ 	Once the post is paused, you can either choose to step (or
+trace) through it. This lets you run one line at a time so you
+can see what is happening in great detail.
+When the post finishes, you can use your editor to make changes to
+the post, and/or return to Mastercam to make changes to your part
+and re-post.
+
+-- 13 of 72 --
+
+8 • MASTERCAM X8 / Post Debugger User’s Guide
+Quick Start
+Understanding the different run options
+See NC window
+on page 49 to learn
+more about these
+terms.
+The debugger gives you three different run modes. Choose the right
+one by balancing your need for speed with the desired level of detail.
+Pay attention to these guidelines:
+ 	If your post reads operation parameters, avoid Run Step
+mode. The parameter read loops can take a long time.
+ 	You can mix-and-match run modes. In other words, you can
+start in one mode, pause, and resume in a different mode. So,
+for example, you can run in normal mode until your post is
+finished with parameter reads; then you can pause it (or set a
+breakpoint) and resume in Run Step mode to see watch list
+variables.
+ 	Consider first running in Turbo mode to quickly see the NC
+output and look for problem areas. This will let you identify
+areas where you want to set breakpoints or identify variables
+to add to the watch list. Then return to Mastercam and re-
+post.
+ 	Turbo mode will not stop for breakpoints.
+ 	In Run (normal) mode, you can see watch list values only
+when the debugger is paused. You will not see them update
+while it is running.
+See Making the debugger work like legacy debug variables on page 25
+for more information about running the debugger.
+Table 1: Comparing the different Run modes
+Mode 	Speed Expanded
+NC output?
+Trace
+enabled? Watch list?
+Run Turbo 	Fastest 	No 	No 	No
+Run (normal) 	Fast 	Yes 	Yes Only at
+breakpoints
+Run Step 	Slow 	Yes 	Yes 	Yes
+
+-- 14 of 72 --
+
+USING THE POST DEBUGGER / Running the post • 9
+Quick Start
+What happens when the post is finished
+running?
+You can only run the post once during each debugger session. The
+session ends when either of two things happens:
+ 	The debugger finishes processing the NCI file and the last
+postblock has been executed.
+ 	You click the Stop button.
+Once the debugger finishes processing, control passes back to MP.
+ 	If either of the Edit buttons was selected when you launched
+the debugger:
+your default editor will automatically start. The debugger
+window will still be open in the background. You can return to
+it and review the output in the different windows.
+ 	If no Edit options were selected, the debugger window
+remains open, but the toolbar buttons will be grayed out.
+You can now do one of two things:
+Quit the debugger—Select File &gt; Quit from the menu, or simply click
+on the Mastercam or Editor window. This leaves the debugger session
+active. You can edit your PST file with the Editor, make changes to your
+part in Mastercam—or both—then re-post your part.
+
+-- 15 of 72 --
+
+10 • MASTERCAM X8 / Post Debugger User’s Guide
+Quick Start
+ 	When you return to the debugger, your output will appear in a
+new NC tab:
+ 	Your watch list and breakpoints will be preserved.
+Exit or close the debugger—Select File &gt; Exit from the menu, or
+simply close the window. The next time you launch the debugger, the
+NC output window, variable watch list, and breakpoints will all be
+cleared.
+IMPORTANT: If you are returning to an active debugger
+session from Mastercam—in other words, if you have been
+using the debugger and you are simply re-posting—Mastercam
+might look like it has locked up. All you need to do, though, is
+click on the title bar of the debugger window to make it active.
+
+-- 16 of 72 --
+
+USING THE POST DEBUGGER / Tracing through a post • 11
+Quick Start
+Tracing through a post
+Instead of just running the post and examining the output, you will
+often want to trace through a post step by step.
+ 	As each instruction executes, you see the resulting output (if
+any).
+ 	You can more easily verify the post’s logic.
+ 	You can see exactly when variable values change in the watch
+list.
+There are a number of different ways to trace through a post. The
+following procedures describe some common techniques.
+Best practice—Typically, to set up a trace, you will set a
+breakpoint before running the post to automatically pause the
+post at the proper spot.
+If you are not using breakpoints, remember to click the Pause
+button, not the Stop button. If you click Stop, the debugger
+session will end.
+TIP: Tracing is especially effective when Expanded NC output
+is turned on. See What is ”Expanded NC output“ ? on page 52 to
+learn more.
+How do I...?	How do I...?
+Tracing with Step Into
+The debugger’s Step Into command lets you watch the post
+execute one line at a time. Each time you click Step Into, the
+debugger executes a line and updates the windows to show the
+results. The debugger then waits for you to issue another
+command.
+
+-- 17 of 72 --
+
+12 • MASTERCAM X8 / Post Debugger User’s Guide
+Quick Start
+1 Start the debugger. The Post window displays your PST file.
+2 Click the Step Into button.
+The debugger moves to the first code line inside of the current
+post block.
+3 Click Step Into again.
+ If the current line is an instruction, the debugger executes
+the instruction and moves to the next line, as shown in the
+following figure.
+
+-- 18 of 72 --
+
+USING THE POST DEBUGGER / Tracing through a post • 13
+Quick Start
+ If the current line calls a post block or function, the
+debugger jumps to that post block or function.
+4 Keep pressing Step Into to trace deeper and deeper into the
+post, watching to see that the instructions execute in the order
+that you expect.
+How do I...?	How do I...?
+Tracing with Run Step
+See
+Understanding
+the different
+run options on
+page 8 to learn
+more about the run
+modes.
+The Run Step command lets you watch post processing as it
+happens, without your having to continually click a button.
+1 Start the debugger.
+2 Select Run Step from the Debug menu. The debugger starts
+executing the post.
+
+-- 19 of 72 --
+
+14 • MASTERCAM X8 / Post Debugger User’s Guide
+Quick Start
+3 Watch the NCI window to see the current line the post is
+processing.
+4 Watch the Post window to see the debugger quickly
+processing post lines.
+
+-- 20 of 72 --
+
+USING THE POST DEBUGGER / Using breakpoints • 15
+Quick Start
+Using breakpoints
+Often, you don’t want to debug an entire post from the beginning.
+More likely, you want to trace from a specific location in your post.
+Breakpoints make this type of debugging possible.
+How do I...?	How do I...?
+Tracing with breakpoints
+1 Start the debugger.
+2 Select Run Turbo from the Debug menu to quickly run
+through the entire post and populate the debugger’s windows
+with output.
+NOTE: Select Run, not Run Turbo, if you want to see expanded
+NC output.
+3 In the NC window, locate the instruction where you want to
+start debugging.
+
+-- 21 of 72 --
+
+16 • MASTERCAM X8 / Post Debugger User’s Guide
+Quick Start
+4 Double-click the NC line. The debugger highlights the NCI
+and post lines that generated the code.
+You can also simply
+press F9 to set the
+breakpoint.
+5 Right-click the highlighted post line, and choose Toggle
+Breakpoint from the pop-up menu. A small double-arrow
+appears next to the selected line.
+6 Choose File &gt; Quit to stop the debugging session, but leave
+the debugger open.
+
+-- 22 of 72 --
+
+USING THE POST DEBUGGER / Using breakpoints • 17
+Quick Start
+7 Go back to Mastercam and re-start the debugger session.
+a 	Make sure the same operations are selected.
+b Click the Post button.
+c 	Click the debugger button.
+d Click on the debugger window to activate it.
+8 Click the Run button.
+The debugger processes the post until it gets to the breakpoint
+you set. It will pause and waits for your command.
+NOTE: Run Turbo mode does not stop for breakpoints.
+9 Click the Step Into button to start tracing from the
+breakpoint. (See Tracing through a post on page 11 to learn
+more.)
+How do I...?	How do I...?
+Clearing breakpoints
+1 To clear a single breakpoint, click anywhere in the line with
+the breakpoint and press F9.
+2 To clear all breakpopints, select Remove All Breakpoints from
+the Debug menu, or press Ctrl + Shift + F9.
+
+-- 23 of 72 --
+
+18 • MASTERCAM X8 / Post Debugger User’s Guide
+Quick Start
+Watching variables
+Often, a wrong variable value is the cause of a post problem, so an
+important part of debugging is watching to see how and where post
+variable values change. Use the Watches window to monitor variable
+values. When you add a variable to this window, you can step through
+a post and see the variable’s value at any point in the posting process.
+ 	You can see the values updating when you are stepping
+through the post or running in Run Step mode.
+ 	If you are in normal Run mode, you will not see the values
+update in real time, but they will update when the post pauses
+at breakpoints.
+TIP: You can watch both numeric variables and strings.
+How do I...?	How do I...?
+Watching a variable
+1 Start the debugger.
+2 If you do not see the Watches window, choose View &gt; Watch
+from the menu.
+
+-- 24 of 72 --
+
+USING THE POST DEBUGGER / Watching variables • 19
+Quick Start
+3 In the Post window, locate the variable that you want to
+watch.
+4 Select the variable.
+TIP: If it is a pre-defined variable, make sure you select the $
+following the name. If you double-click on the name,
+Mastercam will automatically select the $ too.
+5 Right-click and select Add Watch from the pop-up menu.
+You can also right-click and select Add Watch when nothing is
+selected. Mastercam will display a window where you can
+simply type in the name of a variable to watch.
+
+-- 25 of 72 --
+
+20 • MASTERCAM X8 / Post Debugger User’s Guide
+Quick Start
+6 Trace through your post, watching for variable values and
+changes in the Watches window.
+NOTE: The debugger automatically adds the prv_ variable.
+How do I...?	How do I...?
+Removing a variable from the watch list
+1 Click the Clear button next to the variable name.
+Note that this button is typically not visible unless you expand
+the Watches window and make it much wider than usual.
+How do I...?	How do I...?
+Clearing the entire watch list
+1 Click the Clear button in the Watches toolbar.
+
+-- 26 of 72 --
+
+USING THE POST DEBUGGER / Watching variables • 21
+Quick Start
+Saving and loading watch lists
+The debugger lets you save a watch list to a file. This lets you recall sets
+of variables with a single keystroke.
+This can be very powerful when the debugger is paused. You can
+quickly open sets of variables and check sets of values, one after the
+other, and get a detailed picture of the state of your post session at any
+particular point in time. For example, you can create saved lists of
+tolerance settings, control definition settings, rotary axis settings, or
+whatever is useful to you.
+Use the Select path button in the Watches toolbar to tell Mastercam
+where your watch lists are stored. When you set the folder, Mastercam
+will:
+ 	Automatically populate the list on the toolbar with all the
+watch lists that are available in that folder.
+ 	Use that folder as the default location for saving new watch
+lists.
+How do I...?	How do I...?
+Saving a watch list
+1 Click the Save button in the Watches toolbar.
+2 Navigate to the desired folder.
+3 Enter the name of the file.
+How do I...?	How do I...?
+Setting the folder where watch lists are stored
+1 Click the Select path button in the Watches toolbar.
+2 Navigate to the desired folder, or click the Make New Folder
+button to create one.
+
+-- 27 of 72 --
+
+22 • MASTERCAM X8 / Post Debugger User’s Guide
+Quick Start
+How do I...?	How do I...?
+Loading a watch list
+1 Select it from the Watches toolbar.
+2 If the watch list you want is not displayed, click the Select
+path button in the toolbar and navigate to the proper folder.
+
+-- 28 of 72 --
+
+USING THE POST DEBUGGER / Watching variables • 23
+Quick Start
+Working with watch list files
+Watch list files have a .MPWatch extension. Despite the extension,
+they are simple XML files. If you want to create large watch lists, or
+many watch list files, you can easily create or edit the files directly with
+a text editor or XML editor.
+The files look like this:
+&lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot;?&gt;
+&lt;ArrayOfString xmlns:xsi=&quot;http://www.w3.org/2001/
+XMLSchema-instance&quot; xmlns:xsd=&quot;http://www.w3.org/
+2001/XMLSchema&quot;&gt;
+&lt;string&gt;xnci$&lt;/string&gt;
+&lt;string&gt;x$&lt;/string&gt;
+&lt;string&gt;xabs&lt;/string&gt;
+&lt;string&gt;xinc&lt;/string&gt;
+&lt;string&gt;ynci$&lt;/string&gt;
+&lt;string&gt;y$&lt;/string&gt;
+&lt;string&gt;yabs&lt;/string&gt;
+&lt;string&gt;yinc&lt;/string&gt;
+&lt;string&gt;znci$&lt;/string&gt;
+&lt;string&gt;z$&lt;/string&gt;
+&lt;string&gt;zabs&lt;/string&gt;
+&lt;string&gt;zinc&lt;/string&gt;
+&lt;/ArrayOfString&gt;
+To add new variables to a file, all you need to do is simply enclose the
+variable name between &lt;string&gt; ... &lt;/string&gt; tags.
+As long as the file has the proper extension, the debugger will
+automatically recognize it and add it to the Set watch list when its
+folder is selected.
+
+-- 29 of 72 --
+
+24 • MASTERCAM X8 / Post Debugger User’s Guide
+Quick Start
+
+-- 30 of 72 --
+
+chapter 2
+Editing and Debugging
+Posts
+In this chapter, you will learn about:
+ Editing your post. . . . . . . . . . . . . . . . . . . . . . .page 24
+ Making the debugger work like legacy debug
+variables . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .page 25
+In addition, there is a complete tutorial example:
+ Tutorial example: Finding out where a value comes
+from . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .page 29
+The previous chapter concentrated on how to use the debugger
+tools. The sections in this chapter will show you how to use the
+debugger to create the proper workflow for accomplishing
+specific post development and debugging tasks.
+
+-- 31 of 72 --
+
+24 • MASTERCAM X8 / Post Debugger User’s Guide
+Quick Start
+Editing your post
+It is important that you understand that the debugger doesn’t actually
+let you edit your PST file. It simply provides a controlled environment
+where you can run the PST and watch it closely. To actually write, edit,
+and save the PST file itself, you will use the same editor that you
+already use.
+When you start the debugger from inside Mastercam, the debugger
+loads your PST file from disk; reads and parses it; and loads it in
+memory. When you run it inside the debugger, it runs your PST file
+from its memory.
+Because of this, you can’t actually see changes to your post in real-
+time. You can’t see the effect of changes to your PST file until you re-
+post your part and MP re-loads your post in its memory.
+Follow this general workflow when working on your post.
+How do I...?	How do I...?
+Making changes to your post while using the debugger
+1 Start the debugger.
+2 Run your post, and see the contents of the different output
+windows.
+3 Start your editor and load the PST file.
+4 Use the debugger tools to identify where in the PST file you
+need to make changes.
+5 Make the changes in your editor.
+6 Save the PST file.
+7 In the debugger, select File &gt; Quit from the menu.
+8 Re-post the toolpaths from inside Mastercam and launch the
+debugger again.
+Now when you run the post, you will see the effect of your changes.
+The debugger will create a new tab in the NC window for the output
+from the updated post. This lets you easily compare the two and
+identify how your changes affected the NC output.
+
+-- 32 of 72 --
+
+EDITING AND DEBUGGING POSTS / Making the debugger work like legacy debug variables • 25
+Quick Start
+Making the debugger work like
+legacy debug variables
+This section discusses some of the legacy debugging tools that MP
+supported before the debugger was released, and how they relate to
+the debugger. If you are used to debugging your posts with the
+traditional debug variables, this section will tell you how to reproduce
+that same functionality with the debugger.
+This section also explains what uses, if any, the traditional debug
+variables still have and how they should be set.
+If you are not familiar with editing posts in Mastercam X2 and earlier,
+you do not need to read this section.
+fastmode$
+The fastmode$ variable was the traditional way to turn on
+debugging. Setting fastmode$ = 0 (or no$) enabled the other bug
+switches. Starting with Mastercam X, it was toggled with a control
+definition setting:
+This setting was taken out in Mastercam X3. fastmode$ is now
+automatically initialized to yes$ and you do not need to include it in
+your PST files.
+NOTE: fastmode$ can still be used to enable scaling. If you
+manually set it to no$, it enables scaling via scalex$, scaley$,
+and scalez$.
+The debug output that you got with fastmode$ depended on the
+state of the other debug switches. The next section tells you how to
+reproduce these results with the debugger.
+
+-- 33 of 72 --
+
+26 • MASTERCAM X8 / Post Debugger User’s Guide
+Quick Start
+The bug2$ switch
+The bug2$ switch was one of the most common tools for debugging a
+post. To refresh your memory about how it worked:
+ 	When fastmode$ = 0 and bug2$ was set to a positive value,
+each line of NC file included the name of the postblock that
+output the line. If the line of NC code was output by more than
+one postblock, the NC file contained the names of the first
+and last postblocks that wrote to that line.
+ 	If bug2$ was set to a negative value, displayed all the
+postblock labels that have been called in the post, even those
+that do not result in output.
+The bug2$ switch no longer has any function and can be removed
+from your post. The debugger lets you mimic its features in the
+following ways:
+ 	To simply see the first output postblock for each line with the
+fastest possible output, choose Run Turbo from the Debug
+menu.
+See What is
+”Expanded NC
+output“ ? on
+page 52.
+ 	To see all the output postblocks for each line, follow these
+steps:
+a 	Turn on Expanded NC output.
+b Choose Run from the Debug menu.
+ 	To see all the postblocks that are executed, whether or not
+they produce output, follow these steps:
+a 	Choose Run Step from the Debug menu.
+See History
+window on
+page 57.
+b Make the History window visible. The postblocks will be
+listed there.
+
+-- 34 of 72 --
+
+EDITING AND DEBUGGING POSTS / Making the debugger work like legacy debug variables • 27
+Quick Start
+The bug4$ switch
+The bug4$ switch was used to output the current line number of the
+NCI file at the end of each line of NC code. Setting its value to 1
+activated this feature.
+This is no longer necessary: all three Run modes in the debugger will
+include the NCI line number in the NC window. Just make sure that
+the NCI Line option is turned on in the Configuration dialog box:
+However, bug4$ is still useful when you want to output raw,
+unformatted variable values with the ~ (tilde) operator.
+ 	When bug4$ = –1, the ~ operator is active. The ~ operator
+will force raw, unformatted output.
+ 	When bug4$ = 0 or 1, the ~ operator will force output, but
+the output will be formatted according to the applicable
+format statement.
+You need to use your editor to set bug4$ and manually add the ~ in
+front of the desired variables.
+Note, however, that the debugger can often give you the same
+information more easily. Just add the desired variable to a watch list;
+the watch list window always shows all values unformatted. This way,
+you do not need to constantly keep making changes to your post.
+
+-- 35 of 72 --
+
+28 • MASTERCAM X8 / Post Debugger User’s Guide
+Quick Start
+Other debug switches
+The variables bug1$ and bug3$ can also be removed from your PST
+file, they no longer have any function. The only remaining use is for
+ATP: you can set bug1$ = 1 to see the NC output in a list box. For
+normal posting, though, bug1$ is replaced by the Edit options that
+you select in the Post Processing dialog box.
+
+-- 36 of 72 --
+
+EDITING AND DEBUGGING POSTS / Tutorial example: Finding out where a value comes from • 29
+Quick Start
+Editing and Debugging Posts
+Tutorial example: Finding out
+where a value comes from
+This section walks you through an example of how you might use the
+debugger to perform a real-world debugging task.
+In this example, you will look at the toolpaths for the part shown here:
+There are two simple toolpaths—a contour toolpath and a pocket
+toolpath—using two different tools. In this example, you will look at
+the G43 codes for each toolpath and figure out how they are output:
+ 	what postblocks and postlines output the codes
+ 	what variables are used to store the values
+ 	what NCI lines are current when the G43 is processed
+Once you learn this information, you will know where in your post to
+make changes if you need to modify the output.
+
+-- 37 of 72 --
+
+30 • MASTERCAM X8 / Post Debugger User’s Guide
+Quick Start
+Example
+Example 1: Starting the
+debugger
+1 Select the operations and
+click the Post button.
+See Enabling
+the debugger
+on page 2 if you do
+not see this button.
+2 Set your edit options as shown here
+and click the Debug button.
+3 Enter a file name for the NC file and
+click OK.
+See
+Customizing
+the screen
+display on page
+6.
+4 If necessary, take a few moments and arrange your windows
+in a useful layout.
+
+-- 38 of 72 --
+
+EDITING AND DEBUGGING POSTS / Tutorial example: Finding out where a value comes from • 31
+Quick Start
+Example
+Example 2: Previewing the NC output
+When the debugger first starts, your PST file is loaded in the Post
+window. The first postblock that will be executed—typically,
+pprep$—will be highlighted. The NCI window is populated with
+your entire NCI file.
+1 Select Run Turbo from the Debug menu. 	.
+Mastercam runs the post in Turbo mode and quickly
+populates just the NC window with output
+2 Go to the NC window and find the G43.
+When you find the line, you can see that is was output by the
+psof$ postblock, and that line 97 was the current NCI line.
+
+-- 39 of 72 --
+
+32 • MASTERCAM X8 / Post Debugger User’s Guide
+Quick Start
+3 Continue scrolling through the NC window and find the other
+G43.
+When you find the line, you can see that the G43 for the
+second operation was output by the ptlchg$ postblock.
+
+-- 40 of 72 --
+
+EDITING AND DEBUGGING POSTS / Tutorial example: Finding out where a value comes from • 33
+Quick Start
+Example
+Example 3: Setting breakpoints and watching variables
+Once you know where the output is coming from, set breakpoints
+just before those locations, so you can study the output in detail.
+Once you see the output postlines, you can figure out which
+variables are holding the values, so you can add them to the
+watch list.
+1 Go back to the first G43 line in the NC window and double-
+click it.
+Mastercam sets the Post window to the output postline in
+psof$ and NCI window to line 97.
+By comparing the postline with the NC output, you can guess
+that sg43 is the string that holds the G43, and tlngno$ is the
+variable that holds the offset number.
+
+-- 41 of 72 --
+
+34 • MASTERCAM X8 / Post Debugger User’s Guide
+Quick Start
+2 Select sg43. Right-click on it and
+select Add Watch.
+3 Select tlngno$. Right-click
+and select Add Watch.
+NOTE: Make sure that you select the $ following the variable
+name. Make sure that you do not select the * operator in front
+of the name.
+4 Move up a couple of lines before the G43
+output postline and press F9. Mastercam
+adds a breakpoint as shown here.
+
+-- 42 of 72 --
+
+EDITING AND DEBUGGING POSTS / Tutorial example: Finding out where a value comes from • 35
+Quick Start
+5 Go back to the NC window. Find the second G43 and double-
+click it.
+Mastercam sets the Post window to the output postline in
+ptlchg$.
+You can see that the output postline uses the same variables
+as the one in psof$, so you do not need to add any new
+variables to the watch list.
+6 Again, move up a couple of lines before the
+G43 output postline and press F9 to add
+another breakpoint.
+
+-- 43 of 72 --
+
+36 • MASTERCAM X8 / Post Debugger User’s Guide
+Quick Start
+Example
+Example 4: Returning to Mastercam and reposting the part
+To use the breakpoints and watch list, you need to return to
+Mastercam and repost the toolpaths. The debugger will preserve
+the work that you did in this session.
+1 Click the Mastercam icon in your Taskbar
+to return to Mastercam.
+2 Make sure you select the
+same operations and click the
+Post button.
+3 Click the Debug button to return to the
+debugger.
+4 Confirm the NC file name when prompted.
+
+-- 44 of 72 --
+
+EDITING AND DEBUGGING POSTS / Tutorial example: Finding out where a value comes from • 37
+Quick Start
+5 When you re-launch the debugger, Mastercam will pause at
+this screen:
+6 It might look like Mastercam has locked up,
+but click the Debugger icon in the Task bar—
+or just click in the debugger window—to
+activate it.
+Notice that there is now a second tab in
+the NC window. Each time you repost,
+Mastercam adds a new tab to this window
+so you can compare the NC output from
+each session.
+7 Select Configuration from the menu.
+Make sure that Show expanded NC
+output is selected.
+
+-- 45 of 72 --
+
+38 • MASTERCAM X8 / Post Debugger User’s Guide
+Quick Start
+8 Select Run from the Debug menu.
+The debugger runs until it reaches the first breakpoint, then
+pauses.
+Example
+Example 5: Tracing through the post and analyzing the
+debugger output
+In the final example, you will step through sections of interest and
+look at the post logic and output in detail. Typically, the step and
+trace functions are used to look at only small sections of the post
+that you have identified after running once in Turbo mode.
+While the debugger is paused at the first breakpoint, take a
+moment and look at the state of the output windows.
+1 You can see that the Post window indicates where processing
+was paused. The NCI window shows what line was being
+processed at that point.
+
+-- 46 of 72 --
+
+EDITING AND DEBUGGING POSTS / Tutorial example: Finding out where a value comes from • 39
+Quick Start
+2 The Watches window shows the
+current value of the variables that we
+are monitoring. Variables whose
+values are different from their prv_
+values will appear in bold. Typcally,
+this is because their values have
+been set, but they have not yet been
+output. In this case, the prv_ value of
+tlngno$ is the last value read during
+the NCI pre-read.
+3 The NC window shows the output for each line broken out by
+each individual output element.
+ Complete output lines are indicated by -&gt; symbols.
+ This feature is triggered by the Show expanded NC output
+option. You will not see this, however, in Run Turbo mode.
+4 Click the Step Into button on the toolbar to
+execute PST instructions one at a time.
+
+-- 47 of 72 --
+
+40 • MASTERCAM X8 / Post Debugger User’s Guide
+Quick Start
+As output instructions are executed, you can see the current
+output line being built, element by element, in the Current
+Output field in the NC window.
+5 When you reach the line in which the G43 is output…
+…use the Step Statement button on the toolbar to
+execute each postline one statement at a time.
+This is the most detailed trace mode.
+6 When the G43 and offset code are output…
+
+-- 48 of 72 --
+
+EDITING AND DEBUGGING POSTS / Tutorial example: Finding out where a value comes from • 41
+Quick Start
+… the prv_ values in the Watches window
+update, and the entries are no longer bold.
+7 When the postline has completely
+finished executing, select Run from
+the Debug menu to run to the next
+breakpoint.
+8 Repeat steps 4–5 to analyze the G43 output at the toolchange,
+and Run the post to finish the job.
+9 When the post has finishing running, do one of the following:
+ Open the PST file in an editor to make changes, save them,
+and repost. Hopefully you now know where in your post to
+make changes if you want to alter the processing related to
+the G43 output. Mastercam will maintain the debugger
+state and watch list. When you return to the debugger,
+there will be a third tab in the NC window.
+ Go back to Mastercam to edit the part and repost.
+ Select File &gt; Exit to close the debugger and end the
+session.
+
+-- 49 of 72 --
+
+42 • MASTERCAM X8 / Post Debugger User’s Guide
+Quick Start
+
+-- 50 of 72 --
+
+chapter 3
+Reference
+This chapter provides a reference to all the debugger interface
+elements:
+ Debugger windows. . . . . . . . . . . . . . . . . . . . .page 44
+ Menu commands. . . . . . . . . . . . . . . . . . . . . . .page 59
+ Toolbar. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .page 62
+ Keyboard shortcuts. . . . . . . . . . . . . . . . . . . . .page 63
+
+-- 51 of 72 --
+
+44 • MASTERCAM X8 / Post Debugger User’s Guide
+Quick Start
+Debugger windows
+The Post Debugger displays information in seven windows:
+ Post window . . . . . . . . . . . . . . . . . . . . . . . . . .page 45
+ NCI window . . . . . . . . . . . . . . . . . . . . . . . . . . .page 48
+ NC window. . . . . . . . . . . . . . . . . . . . . . . . . . . .page 49
+ Message/Error Log window . . . . . . . . . . . . .page 54
+ Watches window. . . . . . . . . . . . . . . . . . . . . . .page 55
+ History window . . . . . . . . . . . . . . . . . . . . . . . .page 57
+ Lists window . . . . . . . . . . . . . . . . . . . . . . . . . .page 58
+See
+Customizing
+the screen
+display on
+page 6 to learn
+about showing/
+hiding windows.
+You can choose to show or hide any of these. Read the following
+sections to learn more about them.
+
+-- 52 of 72 --
+
+REFERENCE / Debugger windows • 45
+Quick Start
+Post window
+See Editing
+your post on
+page 24 to learn
+how to make
+changes to your
+PST file.
+The Post window displays the currently active post (PST) file. As the
+NCI lines are processed in succession, the currently active post line
+appears in bold.
+The status area at the bottom of the window displays the line number
+and column position of the active line. These are keyed to the NC
+window and History window:
+
+-- 53 of 72 --
+
+46 • MASTERCAM X8 / Post Debugger User’s Guide
+Quick Start
+The Post window also has the following features:
+See Using
+breakpoints on
+page 15 and
+Watching
+variables on
+page 18 to learn
+more.
+ 	The Find (Ctrl + F) and Find Next functions are available, so
+you can search for text.
+ 	A right-click menu lets you add variables to the watch list or
+set breakpoints.
+
+-- 54 of 72 --
+
+REFERENCE / Debugger windows • 47
+Quick Start
+Encrypted or “binned” posts
+You can use the debugger to work with posts that have been
+encrypted, or “binned.” Unencrypted portions appear in the Post
+window normally. Encrypted portions are hidden by placeholder text,
+as shown in the following picture. The trace and step functions will
+also not show encrypted sections of your post
+
+-- 55 of 72 --
+
+48 • MASTERCAM X8 / Post Debugger User’s Guide
+Quick Start
+NCI window
+The NCI window displays the ASCII NCI data for your part file. This
+data is always generated and displayed in this window, even if you do
+not have the NCI file &gt; Edit option selected when you post the
+toolpaths. The current line is bolded.
+The status area at the bottom of the window displays the line number
+of the current line. (Each line in each two-line pair is numbered
+individually.) This is keyed to the NC window as shown below:
+ 	Double-click the NCI line in the NC window and the NCI
+window will jump to that line.
+See Using
+breakpoints on
+page 15 to learn
+more.
+ 	The breakpoint function is available in the NCI window, so
+you can set breakpoints and pause debugger execution at any
+NCI line you choose.
+
+-- 56 of 72 --
+
+REFERENCE / Debugger windows • 49
+Quick Start
+NC window
+The NC window displays the NC code the post is generating, along
+with other information such as the NC line number and the number of
+the NCI code line that produced the output.
+The code that you see in the window is being generated by the
+debugger for display/debugging purposes, but it is not actually being
+written to the NC file. The NC file will not be written until the debugger
+session ends and control is handed back to MP.
+IMPORTANT: There are instances where the code written to
+the NC file is different than the code that appears in the NC
+window. The most common example is canned cycles, where
+the debugger window often displays more information than is
+actually written to the file.
+You can choose to display up to seven columns of information:
+Line—The number of the line in the NC window
+Machine Type—This is for future use. It is hidden by default.
+Stream—This displays the stream in which the line was output. For
+most applications, this is simply the name of the NC file.
+
+-- 57 of 72 --
+
+50 • MASTERCAM X8 / Post Debugger User’s Guide
+Quick Start
+If your PST file is outputting to multiple files, you can see that
+information here. For example, this Agievision post writes its NC
+output to several different files: SBL, ISO, and more. The debugger
+clearly identifies where each piece of data is written:
+Unless you are using buffers or outputting to multiple files, you can
+typically hide this column.
+NCI Line—The number of the last NC line that the post processor read.
+This is not necessarily the NCI line that produced the output. It’s just
+the most recent line that the debugger read from the NCI file.
+NC Output—What has been generated by your output postblocks—
+typically, to be written to your NC file. With Expanded NC Output
+turned on, each buffered item will be listed on its own line as it is
+output. When the buffer is cleared and the line is finally written to the
+
+-- 58 of 72 --
+
+REFERENCE / Debugger windows • 51
+Quick Start
+file, you will see the complete line preceded by a -&gt; symbol, as shown
+in the following picture.
+Post Block—The post block (including the line and column number in
+the post file) that produced the NC output.
+Trace—The post blocks that generated the NC output (top-level post
+blocks only).
+Double-click on a NCI line number or postblock name to jump there.
+
+-- 59 of 72 --
+
+52 • MASTERCAM X8 / Post Debugger User’s Guide
+Quick Start
+Customizing the NC window
+There are number of options available to customize how information
+is displayed in the NC window.
+First, use the Configuration command from the menu to decide which
+columns you want to see:
+Best practice—For most applications, the column layout
+shown above will work fine. For most applications, the Trace
+and Machine Type options are not useful.
+Once you decide which columns to display, you can:
+ 	Resize columns by dragging the column boundaries.
+ 	Re-order columns by dragging-and-dropping them.
+What is ”Expanded NC output“ ?
+The Show expanded NC output option specifies whether the NC
+window shows each NC line in each step of its generation or just the
+final line.
+For example, Figure 3-1 shows the NC window’s contents when Show
+expanded NC output is selected. In the NC Output column, you can
+see how the NC line was generated, step by step. The line prefaced with
+the -&gt; symbol is where your post would finally write the complete line
+to the NC file.
+
+-- 60 of 72 --
+
+REFERENCE / Debugger windows • 53
+Quick Start
+Figure 3-1: With expanded NC output
+Figure 3-2 shows the same NC window with Show expanded NC
+output turned off. Now the window displays only complete NC lines.
+Figure 3-2: Without expanded NC output
+NOTE: Run Turbo mode does not show expanded NC output.
+
+-- 61 of 72 --
+
+54 • MASTERCAM X8 / Post Debugger User’s Guide
+Quick Start
+Message/Error Log window
+The Message/Error Log window shows messages about the post being
+processed, as well as errors that occur.
+NOTE: This window typically mirrors the contents of the .ERR
+file.
+
+-- 62 of 72 --
+
+REFERENCE / Debugger windows • 55
+Quick Start
+Watches window
+See Watching
+variables on
+page 18 to learn
+more about adding
+variables to the
+watch list.
+The Watches window lists all the variables that you have added to the
+watch list, together with their prv_ variables.
+ 	Variables whose values are different from their prv_ values
+are shown in bold. Typically, these values will be displayed
+unformatted.
+ 	Once the variable has been output, the prv_ value is updated
+so that the two values are equivalent. The values will be shown
+unbolded, and will reflect the format statement with which it
+was output.
+To clear the watch list, click the Clear button on the toolbar:
+To delete single variables, click the Delete button at the end of each
+line. You might need to make the window wider to see it:
+The debugger also lets you save watch lists. Use the Select path button
+in the Watches toolbar to tell Mastercam where your watch lists are
+stored. When you select a folder with this button, Mastercam will
+
+-- 63 of 72 --
+
+56 • MASTERCAM X8 / Post Debugger User’s Guide
+Quick Start
+populate the list on the toolbar with all the watch lists that are
+available in that folder:
+Load a different watch list by selecting it from the list. See Saving and
+loading watch lists on page 21 and Working with watch list files on
+page 22 to learn more.
+
+-- 64 of 72 --
+
+REFERENCE / Debugger windows • 57
+Quick Start
+History window
+The History window lists all the postblocks that have been executed in
+the current debugging session.
+Each line in the History window includes the current NCI line number
+at the time the postblock was executed, as well as the line number of
+the postblock in the PST file. Double-click on either to jump there in
+the NCI or Post window.
+NOTE: The History window is only populated when you use
+Run Step mode.
+
+-- 65 of 72 --
+
+58 • MASTERCAM X8 / Post Debugger User’s Guide
+Quick Start
+Lists window
+The Lists window lists all of the postblocks, strings, and numeric
+variables in the current PST file.
+Typically you do not need to display this window while the post is
+running. You can toggle it on anytime if you want to look at it.
+
+-- 66 of 72 --
+
+REFERENCE / Menu commands • 59
+Quick Start
+Menu commands
+See What
+happens when
+the post is
+finished
+running? on
+page 9 for more
+information.
+This table lists all of the debugger commands.
+.
+See
+Understanding
+the different
+run options on
+page 8 for more
+information.
+Table 1: File menu
+Command 	Description 	Shortcut
+Quit 	Terminates the current session, but
+leaves the debugger open. Use this
+command when you want to return
+to Mastercam and re-post.
+This option will preserve your
+watch list and breakpoints, and
+create a new tab for the next run of
+NC output so you can compare the
+results of each session.
+Exit 	Terminates the current session, and
+closes the debugger.
+Table 2: Edit menu
+Command 	Description 	Shortcut
+Find 	Searches for occurrences of a given
+text string
+Ctrl+F
+Find Again 	Searches for the next occurrence of
+the previously searched text string
+F3
+Table 3: Debug menu
+Command 	Description 	Shortcut
+Run 	Runs quickly through the post. 	F5
+Run Step 	Steps through the post more slowly
+than the Run command, but shows
+the most information.
+Run Turbo 	Runs through the post at the fastest
+possible speed, but without
+updating the History window.
+Expanded NC output is not
+available.
+Pause 	Pauses the debugger’s processing. 	F12
+
+-- 67 of 72 --
+
+60 • MASTERCAM X8 / Post Debugger User’s Guide
+Quick Start
+See
+Customizing
+the screen
+display on
+page 6 for more
+information.
+.
+Stop 	Stops the debugger’s processing.
+ 	Ends the debugger session.
+You can return to
+Mastercam.
+ 	Transfers control to editor.
+The NC file only shows
+output to stop point.
+ 	Must re-post from inside
+Mastercam to resume
+debugging.
+Shift+F5
+Step Over 	Executes all of the commands that
+are part of the highlighted post
+block, or if not on a post block,
+executes the current line.
+F10
+Step Into 	Enters the currently highlighted
+post block, or if not on a post block,
+executes the current line.
+F11
+Step
+Statement
+This is more detailed than Step
+Into. It moves forward through the
+post one statement at a time. You
+can see individual elements of each
+postline executed, element by
+element.
+Ctrl+F11
+Toggle
+Breakpoint
+Adds or removes a breakpoint from
+the currently selected line.
+F9
+Add Watch 	Adds the currently highlighted
+variable to the Watches window.
+Ctrl+W
+Remove All
+Breakpoints
+Removes all breakpoints from the
+debugger windows.
+Ctrl+Shift+F9
+Table 3: Debug menu
+Command 	Description 	Shortcut
+Table 4: Configuration menu
+Command 	Description 	Shortcut
+Configuration 	Displays the Configuration dialog
+box
+
+-- 68 of 72 --
+
+REFERENCE / Menu commands • 61
+Quick Start
+.
+.
+.
+Table 5: View menu
+Command 	Description 	Shortcut
+Watch 	Shows or hides the Watches
+window.
+History 	Shows or hides the History window.
+Lists 	Shows or hides the Lists window.
+Post 	Shows or hides the Post window.
+NCI 	Shows or hides the NCI window.
+NC 	Shows or hides the NC window.
+Message/Error
+Log
+Shows or hides the Message/Error
+Log window.
+Table 6: Window menu
+Command 	Description 	Shortcut
+Cascade 	Arranges the Post, NCI, NC, and
+Message/Error Log windows so
+that they diagonally overlap.
+Horizontal 	Arranges the Post, NCI, NC, and
+Message/Error Log windows
+horizontally in a grid.
+Vertical 	Arranges the Post, NCI, NC, and
+Message/Error Log windows in a
+vertical stack.
+[Window List] 	Brings the selected window to the
+foreground.
+Table 7: Help menu
+Command 	Description 	Shortcut
+User Guide 	Displays this document
+About
+Mastercam
+Post Debugger
+Tells you about the current version
+of the debugger.
+
+-- 69 of 72 --
+
+62 • MASTERCAM X8 / Post Debugger User’s Guide
+Quick Start
+Toolbar
+The toolbar lets you quickly access the most frequently used menu
+commands. When all the toolbar buttons are grayed out, that means
+the debugger has either finished processing or has been stopped. The
+only way to resume processing is to go back to Mastercam and re-post.
+Table 8: Toolbar commands
+Command 	Description
+Run 	Runs quickly through the post.
+Pause 	Pauses the debugger’s processing.
+Stop 	Stops the debugger’s processing.
+Step Over 	Executes all of the commands that are part of
+the highlighted post block, or if not on a post
+block, executes the current line.
+Step Into 	Enters the currently highlighted post block,
+or executes the current line.
+Step Statement 	Moves forward through the post one
+statement at a time. Individual postlines are
+executed one element at a time. This is the
+most detailed step mode.
+Toggle Breakpoint 	Adds or removes a breakpoint from the
+currently selected line.
+Add Watch 	Adds the currently highlighted variable to
+the Watches window.
+Find 	Searches for occurrences of a given text
+string.
+Find Again 	Searches for the next occurrence of the
+previously searched text string.
+
+-- 70 of 72 --
+
+REFERENCE / Keyboard shortcuts • 63
+Quick Start
+Keyboard shortcuts
+For many of the debugger’s commands, you can use the keyboard
+shortcuts shown here.
+Table 9: Keyboard shortcuts
+Command 	Keystroke
+Add watch 	Ctrl+W
+Pause 	F12
+Run 	F5
+Find 	Ctrl+F
+Find next 	F3
+Select all 	Ctrl+A
+Step into 	F11
+Step over 	F10
+Step statement 	Ctrl+F11
+Stop 	Shift+F5
+Toggle breakpoint 	F9
+Clear all breakpoints 	Ctrl+Shift+F9
+
+-- 71 of 72 --
+
+64 • MASTERCAM X8 / Post Debugger User’s Guide
+Quick Start
+
+-- 72 of 72 --
+
+</pre>
+</body></html>

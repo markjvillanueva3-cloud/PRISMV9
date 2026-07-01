@@ -14,9 +14,16 @@ import {
   quoteShareToken,
   quoteEstimate,
   quoteCompareMaterials,
+  quoteThreeView,
+  quoteLocationVendorPricing,
+  quoteOutsourceRecommend,
+  quoteWhatIf,
+  unwrapQuotingBody,
+  adaptQuoteEstimate,
   quotingGenerate,
   ApiError,
 } from '../api/client';
+import type { ThreeViewPricingResult, LocationVendorPricingResult, OutsourceReport, WhatIfRow } from '../api/client';
 import { LoadingState, ErrorState } from '../components/LoadingState';
 import type {
   DfmAnalyzeResult,
@@ -61,6 +68,13 @@ interface QuoteFormState {
   certificationLevel: CertificationLevel;
   deliveryMode: DeliveryMode;
   customerIntent: CustomerIntent;
+}
+
+// U-WHATIF01: an engine WhatIfRow (scenario / unit_price / delta_pct) carrying the human label
+// the page assigns by index (the engine emits a generic "Scenario N" it does not know the intent of).
+interface LabeledWhatIfRow extends WhatIfRow {
+  label: string;
+  hint: string;
 }
 
 interface CustomerQuoteOption {
@@ -200,7 +214,7 @@ const CERTIFICATION_OPTIONS: Array<{ value: CertificationLevel; label: string; d
 
 const DELIVERY_OPTIONS: Array<{ value: DeliveryMode; label: string; detail: string }> = [
   { value: 'economy', label: 'Economy', detail: 'Favor lower pricing pressure over shortest promise date.' },
-  { value: 'standard', label: 'PRISM standard', detail: 'The default quote posture PRISM would normally recommend.' },
+  { value: 'standard', label: 'Kienzle standard', detail: 'The default quote posture Kienzle would normally recommend.' },
   { value: 'expedite', label: 'Expedite', detail: 'Compress lead time and accept the premium that comes with it.' },
 ];
 
@@ -230,12 +244,27 @@ const CERTIFICATION_LABELS: Record<CertificationLevel, string> = {
 
 const DELIVERY_LABELS: Record<DeliveryMode, string> = {
   economy: 'Economy delivery',
-  standard: 'PRISM standard',
+  standard: 'Kienzle standard',
   expedite: 'Expedite delivery',
 };
 
 function formatCurrency(value: number) {
   return `$${value.toFixed(2)}`;
+}
+
+// U-LVP02: label + tailwind classes for a vendor's price-discovery tier (api/catalog/quote/unknown).
+// The price is an ADVISORY band, never a firm quote -- the badge communicates how knowable it is.
+function vendorTierBadge(tier: 'api' | 'catalog' | 'quote' | 'unknown'): { label: string; cls: string } {
+  switch (tier) {
+    case 'api':
+      return { label: 'API price', cls: 'border-emerald-400/30 bg-emerald-500/12 text-emerald-100' };
+    case 'catalog':
+      return { label: 'List price', cls: 'border-cyan-300/30 bg-cyan-400/12 text-cyan-100' };
+    case 'quote':
+      return { label: 'RFQ only', cls: 'border-amber-400/30 bg-amber-500/12 text-amber-100' };
+    default:
+      return { label: 'Est.', cls: 'border-white/16 bg-black/20 text-slate-300' };
+  }
 }
 
 function buildToleranceStack(form: QuoteFormState) {
@@ -270,7 +299,7 @@ function buildInstantQuotePayload(
   releaseWorkspace: ProgramReleaseWorkspace | null,
 ) {
   return {
-    part_name: recordLabel || 'PRISM internal quote',
+    part_name: recordLabel || 'Kienzle internal quote',
     material: form.material,
     quantity: parseInt(form.quantity, 10) || 1,
     bounding_box_mm: {
@@ -317,6 +346,103 @@ function pickCatalogId<T extends { id: string }>(items: T[], ...predicates: Arra
     }
   }
   return items[0]?.id ?? '';
+}
+
+// U-3VIEW01: map the free-text form operation to the three-view pricing process
+// enum so the engine picks the right canonical machine rate. Mirrors the existing
+// /turn|lathe/ regex convention used elsewhere on this page.
+function mapOperationToProcess(
+  operation: string,
+): 'mill' | 'lathe' | 'wedm' | 'sinker_edm' | 'grind' | 'other' {
+  const op = operation.toLowerCase();
+  if (/wire.?edm|wedm/.test(op)) return 'wedm';
+  if (/sinker|ram.?edm|\bedm\b/.test(op)) return 'sinker_edm';
+  if (/turn|lathe/.test(op)) return 'lathe';
+  if (/grind/.test(op)) return 'grind';
+  if (/mill|3-axis|5-axis|drill|bore|pocket/.test(op)) return 'mill';
+  return 'mill';
+}
+
+// U-QT04: strict-enum mappers for the make-vs-buy outsource recommender, whose engine accepts only
+// the 4 process / 4 material / 4 tolerance enum values. The form carries free strings, so clamp.
+function mapOperationToOutsourceProcess(operation: string): 'mill' | 'lathe' | 'wedm' | 'sinker_edm' {
+  const p = mapOperationToProcess(operation);
+  // grind/other have no outsource rate-card entry -> clamp to mill (the closest prismatic baseline).
+  return p === 'lathe' || p === 'wedm' || p === 'sinker_edm' ? p : 'mill';
+}
+
+function mapMaterialToOutsourceEnum(
+  material: string,
+): 'aluminum_6061' | 'steel_a36' | 'stainless_304' | 'copper_c110' {
+  const m = material.toLowerCase();
+  if (/stainless|\b3\d\d\b|17-4|15-5/.test(m)) return 'stainless_304';
+  if (/copper|brass|bronze|c1\d\d/.test(m)) return 'copper_c110';
+  if (/alum|alu|6061|7075|2024/.test(m)) return 'aluminum_6061';
+  // default to carbon steel (the broadest "everything else" bucket for an estimate).
+  return 'steel_a36';
+}
+
+function mapToleranceMmToClass(toleranceMm: number): 'coarse' | 'medium' | 'fine' | 'very_fine' {
+  if (!Number.isFinite(toleranceMm) || toleranceMm <= 0) return 'medium';
+  if (toleranceMm >= 0.1) return 'coarse';
+  if (toleranceMm >= 0.025) return 'medium';
+  if (toleranceMm >= 0.005) return 'fine';
+  return 'very_fine';
+}
+
+// U-WHATIF01: pick a sensibly DIFFERENT material for the alt-material scenario so the row
+// shows a real price swing, not a no-op. Aluminum -> 4140 steel (the broad "tougher/cheaper-stock"
+// swap); anything else -> 6061-T6 (the broad "lighter/cheaper-machining" swap). Returns null when
+// the form material is already the natural alternative (so we skip the no-op scenario).
+function pickAltMaterial(material: string): string | null {
+  const m = material.toLowerCase();
+  const isAluminum = /alum|alu|6061|7075|2024/.test(m);
+  if (isAluminum) return /4140|4340|alloy steel/.test(m) ? null : '4140 Steel';
+  return /6061/.test(m) ? null : '6061-T6';
+}
+
+// U-WHATIF01: build labeled scenario deltas on the base quote payload. Each scenario is a
+// Partial of the base payload (the engine applies { ...base, ...scenario }); the label/hint are
+// carried alongside and re-attached to the engine rows by index after the call. Only scenarios
+// that actually change something are emitted (e.g. the alt-material row is dropped when the
+// material is already the natural alternative), so the panel never shows a 0% no-op row.
+function buildWhatIfScenarios(
+  form: QuoteFormState,
+  base: Record<string, unknown>,
+): Array<{ label: string; hint: string; delta: Record<string, unknown> }> {
+  const baseQty = parseInt(form.quantity, 10) || 1;
+  const baseTol = parseFloat(form.tolerance_mm) || 0.05;
+  const scenarios: Array<{ label: string; hint: string; delta: Record<string, unknown> }> = [];
+
+  // Volume scenario: 10x the quantity (fixed setup/tooling amortizes -> lower unit price).
+  scenarios.push({
+    label: `Quantity x10 (${baseQty * 10} pcs)`,
+    hint: 'Setup and tooling amortize across a larger run, lowering the per-part price.',
+    delta: { quantity: baseQty * 10 },
+  });
+
+  // Tighter-tolerance scenario: one ISO band finer (only if it is actually tighter than the base).
+  const finerTol = baseTol > 0.005 ? Math.max(0.005, baseTol / 2) : null;
+  if (finerTol !== null) {
+    scenarios.push({
+      label: `Tighter tolerance (+/-${finerTol.toFixed(3)} mm)`,
+      hint: 'A finer tolerance raises inspection and process cost, increasing the unit price.',
+      delta: { tolerance_mm: finerTol },
+    });
+  }
+
+  // Alt-material scenario: swap to a sensibly different stock (skipped when it would be a no-op).
+  const altMaterial = pickAltMaterial(form.material);
+  if (altMaterial) {
+    scenarios.push({
+      label: `Alt material (${altMaterial})`,
+      hint: 'Re-prices the same geometry on a different stock to compare material economics.',
+      delta: { material: altMaterial },
+    });
+  }
+
+  void base; // base is the estimate payload the engine re-uses; deltas are applied on top of it.
+  return scenarios;
 }
 
 function buildProgramReleaseInput(catalog: ProgramReleaseCatalog, form: QuoteFormState): ProgramReleaseInput {
@@ -411,7 +537,7 @@ function buildOutsourceAdvisory(form: QuoteFormState, estimate: QuoteEstimate, w
     return {
       label: 'Hybrid compare',
       detail:
-        'The part still looks viable in-house, but volume, machine burden, or confidence posture means PRISM should compare supplier economics before final release.',
+        'The part still looks viable in-house, but volume, machine burden, or confidence posture means Kienzle should compare supplier economics before final release.',
       toneClass: 'border-amber-300/18 bg-amber-300/[0.08] text-amber-50',
     };
   }
@@ -557,7 +683,7 @@ function buildCustomerQuoteOptions(estimate: QuoteEstimate, comparisons: Materia
   const recommended = buildQuoteOption({
     id: 'prism-recommended',
     badge: 'Primary recommendation',
-    label: 'PRISM shop best price',
+    label: 'Kienzle shop best price',
     summary:
       'This is the number the shop should lead with internally because it reflects the best current balance of manufacturability, confidence, margin protection, and schedule reality.',
     toneClass: 'border-emerald-300/26 bg-emerald-300/[0.09] text-emerald-50',
@@ -765,6 +891,21 @@ export function QuoteBuilderPage() {
   const [tab, setTab] = useState<Tab>('estimate');
   const [estimate, setEstimate] = useState<QuoteEstimate | null>(null);
   const [comparisons, setComparisons] = useState<MaterialComparison[]>([]);
+  // U-3VIEW01: canonical-rate three-view pricing (current/optimal/cost-floor + advisor).
+  // Grounds the margin-floor + network-target cards in real JM shop rates instead of
+  // heuristic deltas; null until the first estimate resolves it.
+  const [threeView, setThreeView] = useState<ThreeViewPricingResult | null>(null);
+  // U-LVP01: location/logistics/vendor-aware sourcing -- current vs alternative vendors
+  // by total landed cost (part + freight + customs). Null until the estimate resolves it.
+  const [vendorPricing, setVendorPricing] = useState<LocationVendorPricingResult | null>(null);
+  // U-QT04: make-vs-buy outsource recommendation (in-house vs outsource verdict + savings + reason).
+  // Pairs with the vendor-sourcing panel; null until the first estimate resolves the in-house cost.
+  const [outsource, setOutsource] = useState<OutsourceReport | null>(null);
+  // U-WHATIF01: scenario re-pricing -- the same base quote run under labeled deltas (qty x10,
+  // finer tolerance, alt material) so the estimator can see price sensitivity at a glance.
+  // Each row pairs the engine's unit_price/delta_pct with a human label (matched by index).
+  // null until the first estimate resolves the base quote.
+  const [whatIf, setWhatIf] = useState<LabeledWhatIfRow[] | null>(null);
   const [dfmResult, setDfmResult] = useState<DfmResult | null>(null);
   const [dfmWorkspace, setDfmWorkspace] = useState<DfmWorkspaceState | null>(null);
   const [dfmError, setDfmError] = useState<string | null>(null);
@@ -1190,7 +1331,11 @@ export function QuoteBuilderPage() {
         customer_intent: form.customerIntent,
       };
       const dfmIssueDrivers = buildDfmIssueDrivers(form);
-      const [estimateResponse, compareResponse, dfmQuickResponse, dfmAnalyzeResponse, dfmToleranceResponse, dfmCostImpactResponse, dfmRulesResponse] =
+      // U-WHATIF01: labeled scenario deltas re-priced against the SAME base payload the estimate
+      // uses, so the what-if rows are consistent with the headline quote. Built before the batch so
+      // the labels (matched to engine rows by index) survive into the resolve below.
+      const whatIfScenarios = buildWhatIfScenarios(form, basePayload);
+      const [estimateResponse, compareResponse, dfmQuickResponse, dfmAnalyzeResponse, dfmToleranceResponse, dfmCostImpactResponse, dfmRulesResponse, threeViewResponse, whatIfResponse] =
         await Promise.allSettled([
         quoteEstimate({
           ...basePayload,
@@ -1221,19 +1366,148 @@ export function QuoteBuilderPage() {
           process: form.operation,
         }),
         dfmRules(),
+        // U-3VIEW01: canonical-rate three-view pricing. Process mapped from the form
+        // op; machine_hours seeded at a conservative default here and refined from the
+        // estimate's cycle_time_min once it resolves (a second call below).
+        quoteThreeView({
+          material: form.material,
+          process: mapOperationToProcess(form.operation),
+          machine_hours_per_part: 0.5,
+          quantity: parseInt(form.quantity, 10) || 1,
+          verified_comparables: 0,
+        }),
+        // U-WHATIF01: re-price the base quote under the labeled scenario deltas. /quote/what-if
+        // wraps the engine array in { result } (sendCompatResponse) -> unwrapQuotingBody peels it.
+        quoteWhatIf({
+          ...basePayload,
+          scenarios: whatIfScenarios.map((s) => s.delta),
+        }),
       ]);
 
       if (estimateResponse.status === 'rejected') {
         throw estimateResponse.reason;
       }
 
-      setEstimate(estimateResponse.value.result as unknown as QuoteEstimate);
+      // /quote/estimate returns the MCP content envelope { result: { type:"text", text } } AND the
+      // engine's QuoteEstimateResult is NESTED (costs.*/pricing.*) -- the page's QuoteEstimate is FLAT.
+      // unwrapQuotingBody peels the envelope; adaptQuoteEstimate maps nested -> flat. Reading .result
+      // raw (the prior code) gave undefined for every field -> formatCurrency(undefined) crashed the
+      // estimate tab (estimate-flow fix, 2026-06-23).
+      const resolvedEstimate = adaptQuoteEstimate(unwrapQuotingBody<unknown>(estimateResponse.value));
+      if (!resolvedEstimate) {
+        throw new ApiError(502, 'The estimate response did not match the expected quote shape.');
+      }
+      setEstimate(resolvedEstimate);
+      // U-3VIEW01: seed three-view from the in-batch call, then refine machine_hours
+      // from the estimate's real cycle_time_min so the cost floor reflects actual
+      // run time (the seed used a 0.5h default before the estimate was available).
+      if (threeViewResponse.status === 'fulfilled') {
+        // /quoting returns the engine body BARE (no { result } wrapper, unlike /quote/* routes);
+        // unwrapQuotingBody handles both shapes (U-QT04 fix -- the panels were silently dead).
+        const seed = unwrapQuotingBody<ThreeViewPricingResult>(threeViewResponse.value);
+        setThreeView(seed && seed.ok ? seed : null);
+      } else {
+        setThreeView(null);
+      }
+      const cycleMin = Number(resolvedEstimate?.cycle_time_min);
+      if (Number.isFinite(cycleMin) && cycleMin > 0) {
+        quoteThreeView({
+          material: form.material,
+          process: mapOperationToProcess(form.operation),
+          machine_hours_per_part: cycleMin / 60,
+          quantity: parseInt(form.quantity, 10) || 1,
+          verified_comparables: 0,
+        })
+          .then((refined) => {
+            const tv = unwrapQuotingBody<ThreeViewPricingResult>(refined);
+            if (tv && tv.ok) setThreeView(tv);
+          })
+          .catch(() => {
+            /* refine is best-effort; the seed value already rendered */
+          });
+      }
+      // U-LVP01: location/vendor sourcing -- price the MATERIAL line across current +
+      // alternative JM vendors by landed cost. Uses the estimate's material cost as the
+      // sourced value, the part weight (rough: 1 lb -> 0.45 kg default), and US buyer region.
+      const materialValue = Number(resolvedEstimate?.material_cost);
+      if (Number.isFinite(materialValue) && materialValue > 0) {
+        quoteLocationVendorPricing({
+          part_value_usd: materialValue,
+          quantity: parseInt(form.quantity, 10) || 1,
+          buyer_region: 'US',
+          category: 'material',
+        })
+          .then((vp) => {
+            const r = unwrapQuotingBody<LocationVendorPricingResult>(vp);
+            setVendorPricing(r && r.ok ? r : null);
+          })
+          .catch(() => setVendorPricing(null));
+      } else {
+        setVendorPricing(null);
+      }
+      // U-QT04: make-vs-buy recommendation -- compares this in-house quote total against an
+      // outsource-rate benchmark + capacity/material rules. Pairs with the vendor-sourcing panel.
+      const inHouseTotal = Number(resolvedEstimate?.total);
+      if (Number.isFinite(inHouseTotal) && inHouseTotal > 0) {
+        const qty = parseInt(form.quantity, 10) || 1;
+        const cyc = Number(resolvedEstimate?.cycle_time_min);
+        // Lead time: rough run-time + a fixed shop turnaround buffer (days). Conservative default
+        // shop loading (no live OEE field on the estimate -- labeled as an assumption in the panel).
+        const leadDays = Math.max(1, Math.ceil(((Number.isFinite(cyc) ? cyc : 0) * qty) / 480) + 3);
+        // Per-part volume proxy from the tolerance/complexity envelope (no volume field on the
+        // estimate). A coarse cm^3 surrogate keeps the outsource benchmark in a sane range.
+        const volProxy = form.complexity === 'complex' ? 120 : form.complexity === 'medium' ? 60 : 30;
+        quoteOutsourceRecommend({
+          in_house_total_usd: inHouseTotal,
+          in_house_lead_time_days: leadDays,
+          process: mapOperationToOutsourceProcess(form.operation),
+          material: mapMaterialToOutsourceEnum(form.material),
+          tolerance_class: mapToleranceMmToClass(parseFloat(form.tolerance_mm) || 0.05),
+          quantity: qty,
+          shop_loading_pct: 70, // assumption: no live OEE on the estimate; surfaced in the panel
+          estimated_volume_cm3_per_part: volProxy,
+        })
+          .then((o) => {
+            const r = unwrapQuotingBody<OutsourceReport>(o);
+            setOutsource(r && r.ok ? r : null);
+          })
+          .catch(() => setOutsource(null));
+      } else {
+        setOutsource(null);
+      }
+      // U-WHATIF01: unwrap the what-if array and re-attach the human labels by index (the engine
+      // emits generic "Scenario N" rows in the same order we sent the deltas). Defensive: only
+      // pair rows that line up with a label, and require finite numbers so a malformed row never
+      // renders. Empty / malformed -> null (the panel hides).
+      if (whatIfResponse.status === 'fulfilled') {
+        const rows = unwrapQuotingBody<WhatIfRow[]>(whatIfResponse.value);
+        if (Array.isArray(rows) && rows.length > 0) {
+          const labeled: LabeledWhatIfRow[] = [];
+          for (let i = 0; i < rows.length && i < whatIfScenarios.length; i += 1) {
+            const row = rows[i];
+            const meta = whatIfScenarios[i];
+            if (row && Number.isFinite(row.unit_price) && Number.isFinite(row.delta_pct)) {
+              labeled.push({ ...row, label: meta.label, hint: meta.hint });
+            }
+          }
+          setWhatIf(labeled.length > 0 ? labeled : null);
+        } else {
+          setWhatIf(null);
+        }
+      } else {
+        setWhatIf(null);
+      }
       if (compareResponse.status === 'fulfilled') {
-        setComparisons(
-          ((compareResponse.value.result as unknown as { comparisons?: MaterialComparison[] })?.comparisons ??
-            (compareResponse.value.result as unknown as MaterialComparison[])) ??
-            [],
-        );
+        // /quote/compare-materials returns the same MCP content envelope -> unwrap to the bare
+        // engine array [{ material, unit_price, total, lead_days, dfm_warnings }]. Reading .result
+        // raw gave the envelope, so comparisons was always empty (estimate-flow fix, 2026-06-23).
+        const unwrapped = unwrapQuotingBody<unknown>(compareResponse.value);
+        const arr = Array.isArray(unwrapped)
+          ? (unwrapped as MaterialComparison[])
+          : ((unwrapped as { comparisons?: MaterialComparison[] } | null)?.comparisons ?? []);
+        setComparisons(Array.isArray(arr) ? arr : []);
+      } else {
+        setComparisons([]);
       }
 
       if (dfmQuickResponse.status === 'fulfilled') {
@@ -1300,11 +1574,12 @@ export function QuoteBuilderPage() {
         quantity: parseInt(form.quantity, 10) || 1,
         materials: ['6061-T6', '7075-T6', '304 Stainless', '4140 Steel', 'Ti-6Al-4V'],
       });
-      setComparisons(
-        (response.result as unknown as { comparisons?: MaterialComparison[] })?.comparisons ??
-          (response.result as unknown as MaterialComparison[]) ??
-          [],
-      );
+      // Same MCP content-envelope unwrap as the in-batch compare path (estimate-flow fix, 2026-06-23).
+      const unwrapped = unwrapQuotingBody<unknown>(response);
+      const arr = Array.isArray(unwrapped)
+        ? (unwrapped as MaterialComparison[])
+        : ((unwrapped as { comparisons?: MaterialComparison[] } | null)?.comparisons ?? []);
+      setComparisons(Array.isArray(arr) ? arr : []);
       setTab('compare');
     } catch (issue) {
       setError(issue instanceof ApiError ? issue.message : 'Failed to compare materials');
@@ -1318,7 +1593,7 @@ export function QuoteBuilderPage() {
     setError(null);
     setQuoteGenerateNotice(null);
     try {
-      const recordLabel = upstreamRecordLabel || upstreamCustomer || 'PRISM internal quote';
+      const recordLabel = upstreamRecordLabel || upstreamCustomer || 'Kienzle internal quote';
       const packetRequest = quotingGenerate({
         material: form.material,
         operation: form.operation,
@@ -1416,11 +1691,15 @@ export function QuoteBuilderPage() {
 
   return (
     <div className="mx-auto flex w-full max-w-[1600px] flex-col gap-5">
-      <section className="overflow-hidden rounded-[30px] border border-cyan-300/12 bg-[linear-gradient(135deg,rgba(8,15,23,0.98)_0%,rgba(5,10,16,0.98)_48%,rgba(7,27,38,0.95)_100%)] p-5 shadow-[0_36px_108px_rgba(0,0,0,0.35)]">
+      {/* KIENZLE-MERGE U-KZ-QUOTEBUILDER: hero surface retargeted to the Kienzle
+          near-black tokens (--kz-bg/--kz-panel) + the brand accent border, replacing
+          the inlined PRISM blue-black gradient + cyan border (token-source-of-truth
+          per web/CLAUDE.md). Inert -> Kienzle only when data-brand='kienzle'. */}
+      <section className="overflow-hidden rounded-[30px] border border-accent/20 bg-[linear-gradient(135deg,var(--kz-bg)_0%,var(--kz-panel)_55%,var(--kz-panel-2)_100%)] p-5 shadow-[0_36px_108px_rgba(0,0,0,0.45)]">
         <div className="grid gap-6 lg:grid-cols-[minmax(0,1.72fr)_minmax(300px,0.78fr)]">
           <div className="space-y-4">
             <div className="flex flex-wrap items-center gap-3">
-              <span className="inline-flex rounded-full border border-cyan-300/16 bg-cyan-300/8 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.28em] text-cyan-100">
+              <span className="inline-flex rounded-full border border-accent/30 bg-accent/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.28em] text-accent">
                 Internal pricing desk
               </span>
               <span className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-slate-300">
@@ -1429,7 +1708,7 @@ export function QuoteBuilderPage() {
               </span>
             </div>
             <div className="space-y-3">
-              <h1 className="text-4xl font-semibold tracking-tight text-slate-50 sm:text-5xl">Quote Builder</h1>
+              <h1 className="text-4xl font-semibold tracking-tight text-slate-50 sm:text-5xl [font-family:var(--font-display)]">Quote Builder</h1>
               <p className="max-w-3xl text-base leading-7 text-slate-300">
                 Build the shop-best price first, compare margin-safe or network-ready alternatives, and keep every pricing decision tied to the real manufacturing posture.
               </p>
@@ -1655,7 +1934,7 @@ export function QuoteBuilderPage() {
                 onClick={handleEstimate}
                 className="rounded-2xl bg-emerald-300 px-5 py-3 text-sm font-semibold text-slate-950 transition hover:bg-emerald-200"
               >
-                Generate PRISM Price Strategy
+                Generate Kienzle Price Strategy
               </button>
               <button
                 type="button"
@@ -1677,8 +1956,8 @@ export function QuoteBuilderPage() {
           {tab === 'estimate' && estimate && quoteOptions ? (
             <>
               <PanelCard
-                title="PRISM shop best price"
-                subtitle="Lead with the PRISM-calculated in-house quote first, then compare controlled pricing scenarios around it."
+                title="Kienzle shop best price"
+                subtitle="Lead with the Kienzle-calculated in-house quote first, then compare controlled pricing scenarios around it."
               >
                 <div className={`rounded-[26px] border px-5 py-5 shadow-[0_24px_80px_rgba(0,0,0,0.18)] ${quoteOptions.recommended.toneClass}`}>
                   <div className="flex flex-wrap items-start justify-between gap-4">
@@ -1716,7 +1995,7 @@ export function QuoteBuilderPage() {
                     <SummaryTile
                       label="Confidence"
                       value={`${Math.round(quoteOptions.recommended.confidence * 100)}%`}
-                      hint="PRISM trust score for this internal pricing posture."
+                      hint="Kienzle trust score for this internal pricing posture."
                       accent="from-violet-400/22 via-violet-300/8 to-transparent"
                     />
                   </div>
@@ -1800,7 +2079,284 @@ export function QuoteBuilderPage() {
                     ))}
                   </div>
                 </div>
+
+                {threeView && threeView.ok ? (
+                  <div className="mt-6 border-t border-white/10 pt-5">
+                    <div className="flex items-center justify-between gap-3">
+                      <div className="text-sm font-semibold text-slate-50">Three-view pricing (canonical JM rates)</div>
+                      {threeView.belowMarginFloor ? (
+                        <span className="rounded-full border border-amber-400/40 bg-amber-500/10 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-amber-200">
+                          Below margin floor
+                        </span>
+                      ) : (
+                        <span className="rounded-full border border-emerald-400/30 bg-emerald-500/10 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-emerald-200">
+                          Clears {threeView.margin_floor_pct}% floor
+                        </span>
+                      )}
+                    </div>
+                    <div className="mt-1 text-xs leading-5 text-slate-400">
+                      Grounded in canonical shop rates, not heuristic deltas. Confidence widens when verified comparable orders are thin.
+                    </div>
+                    <div className="mt-3 grid gap-3 xl:grid-cols-3">
+                      {threeView.views.map((view) => (
+                        <div
+                          key={view.key}
+                          className={`rounded-[20px] border px-4 py-4 ${
+                            view.key === 'current'
+                              ? 'border-emerald-300/26 bg-emerald-300/[0.08] text-emerald-50'
+                              : view.key === 'optimal'
+                                ? 'border-amber-300/24 bg-amber-300/[0.07] text-amber-50'
+                                : 'border-sky-300/22 bg-sky-300/[0.07] text-sky-50'
+                          }`}
+                        >
+                          <div className="flex items-start justify-between gap-2">
+                            <div className="text-lg font-semibold">{view.label}</div>
+                            <span className="rounded-full border border-white/16 bg-black/15 px-2 py-0.5 text-[9px] font-semibold uppercase tracking-[0.14em] opacity-80">
+                              {view.advisory ? 'Advisory' : 'Headline'}
+                            </span>
+                          </div>
+                          <div className="mt-3 grid gap-1.5 text-sm">
+                            <div className="flex items-center justify-between gap-3">
+                              <span className="opacity-75">Unit</span>
+                              <span className="font-mono font-semibold">{formatCurrency(view.unit_price_usd)}</span>
+                            </div>
+                            <div className="flex items-center justify-between gap-3">
+                              <span className="opacity-75">Total</span>
+                              <span className="font-mono font-semibold">{formatCurrency(view.total_usd)}</span>
+                            </div>
+                            <div className="flex items-center justify-between gap-3">
+                              <span className="opacity-75">Margin</span>
+                              <span className="font-mono font-semibold">{view.margin_pct.toFixed(1)}%</span>
+                            </div>
+                            <div className="flex items-center justify-between gap-3">
+                              <span className="opacity-75">Range ({view.confidence.tier})</span>
+                              <span className="font-mono text-xs">
+                                {formatCurrency(view.confidence.low_usd)}-{formatCurrency(view.confidence.high_usd)}
+                              </span>
+                            </div>
+                          </div>
+                          <div className="mt-3 text-xs leading-5 opacity-80">{view.derivation}</div>
+                        </div>
+                      ))}
+                    </div>
+                    {threeView.improvement.length > 0 ? (
+                      <div className="mt-4 space-y-2">
+                        <div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-400">Pricing improvement advisor</div>
+                        {threeView.improvement.map((lever) => (
+                          <div
+                            key={lever.id}
+                            className={`rounded-[16px] border px-3 py-2.5 text-sm leading-6 ${
+                              lever.severity === 'warning'
+                                ? 'border-amber-400/40 bg-amber-500/10 text-amber-100'
+                                : lever.severity === 'opportunity'
+                                  ? 'border-emerald-400/30 bg-emerald-500/10 text-emerald-100'
+                                  : 'border-white/12 bg-black/15 text-slate-100'
+                            }`}
+                          >
+                            <div className="font-semibold">{lever.headline}</div>
+                            <div className="mt-1 opacity-90">{lever.action}</div>
+                            {lever.upside_usd_per_lot > 0 ? (
+                              <div className="mt-1 font-mono text-xs opacity-80">Upside ~{formatCurrency(lever.upside_usd_per_lot)}/lot</div>
+                            ) : null}
+                          </div>
+                        ))}
+                      </div>
+                    ) : null}
+                  </div>
+                ) : null}
               </PanelCard>
+
+              {vendorPricing && vendorPricing.ok && (vendorPricing.current || vendorPricing.alternatives.length > 0) ? (
+                <PanelCard
+                  title="Location & vendor sourcing"
+                  subtitle="Total landed cost (material + freight + customs) across your current vendors and alternatives, ranked. Local/domestic vendors often win on delivered cost despite a higher unit price."
+                >
+                  <div className="flex items-center justify-between gap-3">
+                    <div className="text-sm font-semibold text-slate-50">Material sourcing -- delivered cost</div>
+                    <span
+                      className={`rounded-full border px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] ${
+                        vendorPricing.suggestion.verdict === 'switch-opportunity'
+                          ? 'border-emerald-400/40 bg-emerald-500/10 text-emerald-200'
+                          : vendorPricing.suggestion.verdict === 'no-alternatives'
+                            ? 'border-white/16 bg-black/15 text-slate-300'
+                            : 'border-cyan-400/30 bg-cyan-500/10 text-cyan-200'
+                      }`}
+                    >
+                      {vendorPricing.suggestion.verdict === 'switch-opportunity'
+                        ? `Save ${formatCurrency(vendorPricing.suggestion.savings_usd_per_lot)}/lot`
+                        : vendorPricing.suggestion.verdict === 'no-alternatives'
+                          ? 'No alternatives'
+                          : 'Current competitive'}
+                    </span>
+                  </div>
+                  <div className="mt-1 text-xs leading-5 text-slate-400">
+                    {vendorPricing.provenance.vendors_considered} vendor(s) considered from the JM catalog.
+                  </div>
+
+                  {vendorPricing.current ? (
+                    <div className="mt-3 rounded-[18px] border border-cyan-300/22 bg-cyan-300/[0.06] px-4 py-3">
+                      <div className="flex items-center justify-between gap-3">
+                        <div className="font-semibold text-cyan-50">{vendorPricing.current.vendor_name}</div>
+                        <span className="rounded-full border border-white/16 bg-black/15 px-2 py-0.5 text-[9px] font-semibold uppercase tracking-[0.14em] text-cyan-100">
+                          Current
+                        </span>
+                      </div>
+                      <div className="mt-2 grid gap-1.5 text-sm md:grid-cols-3">
+                        <div className="flex items-center justify-between gap-2 md:block">
+                          <span className="opacity-70">Landed</span>{' '}
+                          <span className="font-mono font-semibold">{formatCurrency(vendorPricing.current.total_landed_usd)}</span>
+                        </div>
+                        <div className="flex items-center justify-between gap-2 md:block">
+                          <span className="opacity-70">Zone</span> <span className="font-mono">{vendorPricing.current.zone}</span>
+                        </div>
+                        <div className="flex items-center justify-between gap-2 md:block">
+                          <span className="opacity-70">Transit</span> <span className="font-mono">{vendorPricing.current.transit_days}d</span>
+                        </div>
+                      </div>
+                      {/* U-LVP02: advisory unit-price band -- the part component is an estimate, not a firm quote. */}
+                      <div className="mt-2 flex flex-wrap items-center gap-2 text-[11px] text-slate-300">
+                        <span className={`rounded-full border px-2 py-0.5 font-semibold uppercase tracking-[0.1em] ${vendorTierBadge(vendorPricing.current.unit_price_band.tier).cls}`}>
+                          {vendorTierBadge(vendorPricing.current.unit_price_band.tier).label}
+                        </span>
+                        <span className="opacity-70">
+                          Part ~{formatCurrency(vendorPricing.current.unit_price_band.unit_mid_usd)}/unit
+                          (band {formatCurrency(vendorPricing.current.unit_price_band.unit_low_usd)}-{formatCurrency(vendorPricing.current.unit_price_band.unit_high_usd)},
+                          {' '}{Math.round(vendorPricing.current.unit_price_band.confidence * 100)}% conf) -- advisory, not a firm quote
+                        </span>
+                      </div>
+                    </div>
+                  ) : null}
+
+                  {vendorPricing.alternatives.length > 0 ? (
+                    <div className="mt-3">
+                      <div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-400">Alternative vendors (ranked by landed cost)</div>
+                      <div className="mt-2 space-y-1.5">
+                        {vendorPricing.alternatives.slice(0, 5).map((alt) => (
+                          <div
+                            key={alt.vendor_id}
+                            className="flex items-center justify-between gap-3 rounded-[14px] border border-white/10 bg-black/15 px-3 py-2 text-sm"
+                          >
+                            <div className="min-w-0 flex-1 truncate text-slate-100">
+                              {alt.vendor_name}
+                              <span className={`ml-2 rounded-full border px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-[0.1em] ${vendorTierBadge(alt.unit_price_band.tier).cls}`}>
+                                {vendorTierBadge(alt.unit_price_band.tier).label}
+                              </span>
+                              <span className="ml-2 text-xs text-slate-400">
+                                {alt.vendor_region} {alt.region_assumed ? '(region assumed)' : ''} · {alt.zone} · {alt.transit_days}d · part ~{formatCurrency(alt.unit_price_band.unit_mid_usd)}/u
+                              </span>
+                            </div>
+                            <div className="font-mono font-semibold text-slate-50">{formatCurrency(alt.total_landed_usd)}</div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ) : null}
+
+                  <div
+                    className={`mt-3 rounded-[16px] border px-4 py-3 text-sm leading-6 ${
+                      vendorPricing.suggestion.verdict === 'switch-opportunity'
+                        ? 'border-emerald-400/30 bg-emerald-500/10 text-emerald-100'
+                        : 'border-white/12 bg-black/15 text-slate-100'
+                    }`}
+                  >
+                    <div className="font-semibold">{vendorPricing.suggestion.headline}</div>
+                    <div className="mt-1 opacity-90">{vendorPricing.suggestion.action}</div>
+                  </div>
+                </PanelCard>
+              ) : null}
+
+              {/* U-QT04: make-vs-buy recommendation -- in-house vs outsource verdict + savings + reason. */}
+              {outsource && outsource.ok ? (
+                <PanelCard
+                  title="Make vs buy"
+                  subtitle="In-house quote vs an outsource-rate benchmark, with capacity and material rules. Decision support -- confirm with a real RFQ before committing."
+                >
+                  <div className="flex flex-wrap items-center justify-between gap-3">
+                    <div className="text-sm font-semibold text-slate-50">Recommendation</div>
+                    <span
+                      className={`rounded-full border px-3 py-1 text-xs font-semibold uppercase tracking-[0.14em] ${
+                        outsource.recommendation === 'outsource'
+                          ? 'border-amber-400/35 bg-amber-500/12 text-amber-100'
+                          : outsource.recommendation === 'in-house'
+                            ? 'border-emerald-400/35 bg-emerald-500/12 text-emerald-100'
+                            : 'border-white/16 bg-black/20 text-slate-200'
+                      }`}
+                    >
+                      {outsource.recommendation === 'toss-up' ? 'Toss-up' : outsource.recommendation === 'in-house' ? 'Keep in-house' : 'Outsource'}
+                    </span>
+                  </div>
+                  <div className="mt-3 grid gap-1.5 text-sm md:grid-cols-3">
+                    <div className="flex items-center justify-between gap-2 md:block">
+                      <span className="opacity-70">In-house</span>{' '}
+                      <span className="font-mono font-semibold">{formatCurrency(outsource.in_house_total_usd)}</span>
+                    </div>
+                    <div className="flex items-center justify-between gap-2 md:block">
+                      <span className="opacity-70">Outsource est.</span>{' '}
+                      <span className="font-mono">{formatCurrency(outsource.outsource_estimate_usd)}</span>
+                    </div>
+                    <div className="flex items-center justify-between gap-2 md:block">
+                      <span className="opacity-70">{outsource.savings_usd >= 0 ? 'Outsource saves' : 'In-house saves'}</span>{' '}
+                      <span className="font-mono font-semibold">
+                        {formatCurrency(Math.abs(outsource.savings_usd))} ({Math.abs(outsource.savings_pct).toFixed(1)}%)
+                      </span>
+                    </div>
+                  </div>
+                  <div className="mt-3 rounded-[16px] border border-white/12 bg-black/15 px-4 py-3 text-sm leading-6 text-slate-100">
+                    <div className="font-semibold">{outsource.reason_text}</div>
+                    <div className="mt-1 text-xs opacity-70">
+                      Assumes ~{outsource.shop_loading_pct}% shop loading and a {(outsource.margin_threshold * 100).toFixed(0)}% decision band.
+                      Outsource figure is a rate-card benchmark, not a vendor quote.
+                    </div>
+                  </div>
+                </PanelCard>
+              ) : null}
+
+              {/* U-WHATIF01: scenario re-pricing -- the same base quote run under labeled deltas
+                  (qty x10, finer tolerance, alt material) so price sensitivity is visible at a glance. */}
+              {whatIf && whatIf.length > 0 ? (
+                <PanelCard
+                  title="What-if scenarios"
+                  subtitle="The same base quote re-priced under common changes. Each row shows the new unit price and its change vs the current shop-best price."
+                >
+                  <div className="space-y-2.5">
+                    {whatIf.map((row) => {
+                      const cheaper = row.delta_pct < 0;
+                      const flat = Math.abs(row.delta_pct) < 0.05;
+                      return (
+                        <div
+                          key={`${row.label}-${row.scenario}`}
+                          className="flex flex-wrap items-center justify-between gap-3 rounded-[16px] border border-white/10 bg-black/15 px-4 py-3"
+                        >
+                          <div className="min-w-0">
+                            <div className="text-sm font-semibold text-slate-50">{row.label}</div>
+                            <div className="mt-0.5 text-xs leading-5 text-slate-400">{row.hint}</div>
+                          </div>
+                          <div className="flex items-center gap-3">
+                            <span className="font-mono text-sm font-semibold text-slate-100">
+                              {formatCurrency(row.unit_price)}
+                            </span>
+                            <span
+                              className={`rounded-full border px-2.5 py-1 font-mono text-xs font-semibold ${
+                                flat
+                                  ? 'border-white/16 bg-black/20 text-slate-300'
+                                  : cheaper
+                                    ? 'border-emerald-400/35 bg-emerald-500/12 text-emerald-100'
+                                    : 'border-amber-400/35 bg-amber-500/12 text-amber-100'
+                              }`}
+                            >
+                              {flat ? '0.0%' : `${row.delta_pct > 0 ? '+' : ''}${row.delta_pct.toFixed(1)}%`}
+                            </span>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                  <div className="mt-3 text-xs leading-5 text-slate-500">
+                    Scenario prices are estimates from the same engine and pricing rules as the headline quote -- use
+                    them to compare directions, then re-run a full quote on the option you want to commit.
+                  </div>
+                </PanelCard>
+              ) : null}
 
               <PanelCard title="Cost breakdown" subtitle="Keep the cost stack readable so scenario planning never hides the manufacturing story underneath.">
                 <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
@@ -1809,6 +2365,19 @@ export function QuoteBuilderPage() {
                   <SummaryTile label="Machining cost" value={formatCurrency(estimate.machining_cost)} hint="Core spindle / process cost driving the quote." />
                   <SummaryTile label="Margin stack" value={formatCurrency(estimate.margin)} hint="Margin currently carried in the recommended shop price." />
                 </div>
+
+                {estimate.pricing?.below_margin_floor ? (
+                  <div
+                    role="alert"
+                    className="mt-5 rounded-[22px] border border-amber-400/40 bg-amber-500/10 px-4 py-3 text-sm leading-6 text-amber-100"
+                  >
+                    <span className="font-semibold text-amber-200">Margin floor alert.</span>{' '}
+                    This quote&apos;s margin
+                    {typeof estimate.pricing.margin_pct === 'number' ? ` (${estimate.pricing.margin_pct.toFixed(1)}%)` : ''}{' '}
+                    is below the {estimate.pricing.margin_floor_pct ?? 20}% floor -- discount stacking has eroded
+                    contribution margin. Review before sending this quote.
+                  </div>
+                ) : null}
 
                 <div className="mt-5 rounded-[22px] border border-white/8 bg-black/15 p-4">
                   <div className="text-sm font-semibold text-slate-50">Base cost ladder</div>
@@ -2099,7 +2668,7 @@ export function QuoteBuilderPage() {
                             <div>
                               <span className="font-semibold text-slate-100">History entries:</span>{' '}
                               {quoteGenerateWorkspace.history
-                                ? `${quoteGenerateWorkspace.history.revisions.length} revision(s) · ${quoteGenerateWorkspace.history.status_history.length} status change(s)`
+                                ? `${quoteGenerateWorkspace.history.revisions?.length ?? 0} revision(s) · ${quoteGenerateWorkspace.history.status_history?.length ?? 0} status change(s)`
                                 : 'Mounted history surface did not return revisions yet.'}
                             </div>
                             <div>
@@ -2112,7 +2681,7 @@ export function QuoteBuilderPage() {
                             </div>
                             <div>
                               <span className="font-semibold text-slate-100">Recent status trail:</span>{' '}
-                              {quoteGenerateWorkspace.history?.status_history.length
+                              {quoteGenerateWorkspace.history?.status_history?.length
                                 ? quoteGenerateWorkspace.history.status_history
                                   .slice(0, 3)
                                   .map((entry) => `${entry.from_status} → ${entry.to_status}`)
@@ -2217,7 +2786,7 @@ export function QuoteBuilderPage() {
         </div>
 
         <div className="space-y-5">
-          <PanelCard title="Internal pricing controls" subtitle="Leadership can tune the quote posture here, but the PRISM shop-best strategy remains the default anchor.">
+          <PanelCard title="Internal pricing controls" subtitle="Leadership can tune the quote posture here, but the Kienzle shop-best strategy remains the default anchor.">
             <div className="grid gap-3">
               <SummaryTile label="Material" value={form.material} hint="Selected stock family for pricing and machining posture." accent="from-sky-400/22 via-sky-300/8 to-transparent" />
               <SummaryTile label="Operation" value={form.operation} hint="Dominant manufacturing process for this quote." accent="from-violet-400/22 via-violet-300/8 to-transparent" />
@@ -2429,7 +2998,7 @@ export function QuoteBuilderPage() {
           <PanelCard title="Pricing strategy" subtitle="This desk should protect the shop price first, then stage any future external-network target deliberately.">
             <div className="space-y-3 text-sm leading-6 text-slate-300">
               <div className="rounded-[20px] border border-white/8 bg-white/[0.03] px-4 py-4">
-                1. Lead with one PRISM shop-best price that reflects the full system, not a loose menu of equal-weight choices.
+                1. Lead with one Kienzle shop-best price that reflects the full system, not a loose menu of equal-weight choices.
               </div>
               <div className="rounded-[20px] border border-white/8 bg-white/[0.03] px-4 py-4">
                 2. Keep the future Axhera network target separate so outside-channel pricing never overwrites the true in-house recommendation.

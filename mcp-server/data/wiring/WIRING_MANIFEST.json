@@ -1,0 +1,348 @@
+{
+  "schemaVersion": "1.0.0",
+  "updatedAt": "2026-04-13T19:30:00.000Z",
+  "consumers": [
+    {
+      "id": "tribal-knowledge-engine",
+      "name": "TribalKnowledgeEngine",
+      "type": "engine",
+      "file_path": "src/engines/TribalKnowledgeEngine.ts",
+      "accepts": ["tip", "safety", "workflow", "process"],
+      "domains": ["milling", "turning", "wire_edm", "sinker_edm", "grinding", "5axis", "mill_turn", "general"],
+      "wiring_method": "tip_inject",
+      "priority": 100,
+      "enabled": true
+    },
+    {
+      "id": "machining-playbook-engine",
+      "name": "MachiningPlaybookEngine",
+      "type": "engine",
+      "file_path": "src/engines/MachiningPlaybookEngine.ts",
+      "accepts": ["tip", "workflow", "process"],
+      "domains": ["milling", "turning", "5axis", "mill_turn", "general"],
+      "wiring_method": "registry_add",
+      "priority": 95,
+      "enabled": true
+    },
+    {
+      "id": "speed-feed-orchestrator",
+      "name": "SpeedFeedOrchestratorEngine",
+      "type": "engine",
+      "file_path": "src/engines/SpeedFeedOrchestratorEngine.ts",
+      "accepts": ["parameter", "formula", "tool", "material"],
+      "domains": ["milling", "turning", "drilling", "general"],
+      "wiring_method": "config_update",
+      "priority": 95,
+      "enabled": true
+    },
+    {
+      "id": "formula-registry",
+      "name": "FormulaRegistry",
+      "type": "registry",
+      "file_path": "src/registries/FormulaRegistry.ts",
+      "accepts": ["formula", "algorithm"],
+      "domains": ["general"],
+      "wiring_method": "formula_register",
+      "priority": 90,
+      "enabled": true
+    },
+    {
+      "id": "material-registry",
+      "name": "MaterialRegistry",
+      "type": "registry",
+      "file_path": "src/registries/MaterialRegistry.ts",
+      "accepts": ["material"],
+      "domains": ["general"],
+      "wiring_method": "registry_add",
+      "priority": 90,
+      "enabled": true
+    },
+    {
+      "id": "tool-registry",
+      "name": "ToolRegistry",
+      "type": "registry",
+      "file_path": "src/registries/ToolRegistry.ts",
+      "accepts": ["tool"],
+      "domains": ["general"],
+      "wiring_method": "registry_add",
+      "priority": 90,
+      "enabled": true
+    },
+    {
+      "id": "tool-selection-engine",
+      "name": "ToolSelectionEngine",
+      "type": "engine",
+      "file_path": "src/engines/ToolSelectionEngine.ts",
+      "accepts": ["tool", "parameter"],
+      "domains": ["milling", "turning", "drilling", "general"],
+      "wiring_method": "config_update",
+      "priority": 85,
+      "enabled": true
+    },
+    {
+      "id": "workflow-template-engine",
+      "name": "WorkflowTemplateEngine",
+      "type": "engine",
+      "file_path": "src/engines/WorkflowTemplateEngine.ts",
+      "accepts": ["workflow"],
+      "domains": ["cad", "cam", "milling", "turning", "5axis", "general"],
+      "wiring_method": "direct_import",
+      "priority": 85,
+      "enabled": true
+    },
+    {
+      "id": "intelligent-sequencing-engine",
+      "name": "IntelligentSequencingEngine",
+      "type": "engine",
+      "file_path": "src/engines/IntelligentSequencingEngine.ts",
+      "accepts": ["workflow", "tip"],
+      "domains": ["milling", "turning", "5axis", "mill_turn", "general"],
+      "wiring_method": "direct_import",
+      "priority": 85,
+      "enabled": true
+    },
+    {
+      "id": "knowledge-graph-engine",
+      "name": "KnowledgeGraphEngine",
+      "type": "engine",
+      "file_path": "src/engines/KnowledgeGraphEngine.ts",
+      "accepts": ["tip", "formula", "tool", "material", "algorithm", "workflow", "general"],
+      "domains": ["general"],
+      "wiring_method": "tip_inject",
+      "priority": 50,
+      "enabled": true
+    },
+    {
+      "id": "controller-profile-engine",
+      "name": "ControllerProfileEngine",
+      "type": "engine",
+      "file_path": "src/engines/ControllerProfileEngine.ts",
+      "accepts": ["controller", "machine"],
+      "domains": ["general"],
+      "wiring_method": "config_update",
+      "priority": 80,
+      "enabled": true
+    },
+    {
+      "id": "machine-registry",
+      "name": "MachineRegistry",
+      "type": "registry",
+      "file_path": "src/registries/MachineRegistry.ts",
+      "accepts": ["machine"],
+      "domains": ["general"],
+      "wiring_method": "registry_add",
+      "priority": 90,
+      "enabled": true
+    },
+    {
+      "id": "learning-pipeline-engine",
+      "name": "LearningPipelineEngine",
+      "type": "engine",
+      "file_path": "src/engines/LearningPipelineEngine.ts",
+      "accepts": ["algorithm", "formula"],
+      "domains": ["general"],
+      "wiring_method": "direct_import",
+      "priority": 75,
+      "enabled": true
+    },
+    {
+      "id": "compliance-engine",
+      "name": "ComplianceEngine",
+      "type": "engine",
+      "file_path": "src/engines/ComplianceEngine.ts",
+      "accepts": ["quality"],
+      "domains": ["general"],
+      "wiring_method": "config_update",
+      "priority": 70,
+      "enabled": true
+    }
+  ],
+  "wiring_rules": [
+    {
+      "source_category": "tool_catalog",
+      "knowledge_types": ["tool", "parameter"],
+      "targets": [
+        { "consumer_id": "tool-registry", "priority": "1" },
+        { "consumer_id": "tool-selection-engine", "priority": "1" },
+        { "consumer_id": "speed-feed-orchestrator", "priority": "2" },
+        { "consumer_id": "knowledge-graph-engine", "priority": "3" }
+      ],
+      "enabled": true,
+      "description": "Route tool catalog data to tool-related consumers"
+    },
+    {
+      "source_category": "handbook",
+      "knowledge_types": ["formula", "material", "parameter", "algorithm"],
+      "targets": [
+        { "consumer_id": "formula-registry", "priority": "1" },
+        { "consumer_id": "material-registry", "priority": "1" },
+        { "consumer_id": "speed-feed-orchestrator", "priority": "2" }
+      ],
+      "enabled": true,
+      "description": "Route handbook data to formulas and materials"
+    },
+    {
+      "source_category": "mit_course",
+      "knowledge_types": ["algorithm", "formula"],
+      "targets": [
+        { "consumer_id": "formula-registry", "priority": "1" },
+        { "consumer_id": "learning-pipeline-engine", "priority": "2" },
+        { "consumer_id": "knowledge-graph-engine", "priority": "3" }
+      ],
+      "enabled": true,
+      "description": "Route MIT course content to algorithms and formulas"
+    },
+    {
+      "source_category": "academic_paper",
+      "knowledge_types": ["formula", "algorithm"],
+      "targets": [
+        { "consumer_id": "formula-registry", "priority": "1" }
+      ],
+      "enabled": true,
+      "description": "Route academic papers to formula registry with citations"
+    },
+    {
+      "source_category": "machine_manual",
+      "knowledge_types": ["machine", "controller", "parameter"],
+      "targets": [
+        { "consumer_id": "machine-registry", "priority": "1" },
+        { "consumer_id": "controller-profile-engine", "priority": "1" },
+        { "consumer_id": "speed-feed-orchestrator", "priority": "2" }
+      ],
+      "enabled": true,
+      "description": "Route machine manual data to machine-related consumers"
+    },
+    {
+      "source_category": "standard",
+      "knowledge_types": ["formula", "quality", "material"],
+      "targets": [
+        { "consumer_id": "compliance-engine", "priority": "1" },
+        { "consumer_id": "formula-registry", "priority": "2" }
+      ],
+      "enabled": true,
+      "description": "Route ISO/ANSI standards to compliance and formulas"
+    },
+    {
+      "source_category": "tribal_knowledge",
+      "knowledge_types": ["tip", "workflow", "safety", "process"],
+      "targets": [
+        { "consumer_id": "tribal-knowledge-engine", "priority": "1" },
+        { "consumer_id": "machining-playbook-engine", "priority": "2" },
+        { "consumer_id": "intelligent-sequencing-engine", "priority": "2" },
+        { "consumer_id": "knowledge-graph-engine", "priority": "3" }
+      ],
+      "enabled": true,
+      "description": "Route tribal knowledge to tip engines and playbooks"
+    },
+    {
+      "source_category": "video_tutorial",
+      "knowledge_types": ["tip", "workflow", "parameter"],
+      "targets": [
+        { "consumer_id": "tribal-knowledge-engine", "priority": "1" },
+        { "consumer_id": "workflow-template-engine", "priority": "2" },
+        { "consumer_id": "speed-feed-orchestrator", "priority": "2" }
+      ],
+      "enabled": true,
+      "description": "Route video tutorial extractions"
+    },
+    {
+      "source_category": "cnc_program",
+      "knowledge_types": ["parameter", "workflow"],
+      "targets": [
+        { "consumer_id": "speed-feed-orchestrator", "priority": "1", "action": "updateProvenParameters" },
+        { "consumer_id": "tribal-knowledge-engine", "priority": "2" },
+        { "consumer_id": "intelligent-sequencing-engine", "priority": "2" }
+      ],
+      "enabled": true,
+      "description": "Route proven CNC program parameters"
+    }
+  ],
+  "domain_routing": [
+    {
+      "domain": "milling",
+      "patterns": ["mill", "face_mill", "end_mill", "pocket", "contour", "slot", "adaptive"],
+      "keywords": ["milling", "pocket", "contour", "face", "slot", "adaptive", "trochoidal"],
+      "preferred_consumers": ["speed-feed-orchestrator", "tribal-knowledge-engine", "tool-selection-engine"]
+    },
+    {
+      "domain": "turning",
+      "patterns": ["lathe", "turn", "bore", "thread", "face", "groove", "part_off"],
+      "keywords": ["turning", "lathe", "boring", "threading", "facing", "grooving", "parting"],
+      "preferred_consumers": ["speed-feed-orchestrator", "tribal-knowledge-engine"]
+    },
+    {
+      "domain": "wire_edm",
+      "patterns": ["wire", "wedm", "wire_edm", "wire_cut"],
+      "keywords": ["wire", "wedm", "spark", "wire cut", "taper", "skim"],
+      "preferred_consumers": ["tribal-knowledge-engine"]
+    },
+    {
+      "domain": "sinker_edm",
+      "patterns": ["sinker", "sedm", "plunge", "electrode"],
+      "keywords": ["sinker", "sedm", "electrode", "graphite", "copper", "burn"],
+      "preferred_consumers": ["tribal-knowledge-engine"]
+    },
+    {
+      "domain": "5axis",
+      "patterns": ["5axis", "5-axis", "multiaxis", "simultaneous"],
+      "keywords": ["5axis", "simultaneous", "swarf", "toolpath", "collision"],
+      "preferred_consumers": ["tribal-knowledge-engine", "intelligent-sequencing-engine"]
+    },
+    {
+      "domain": "grinding",
+      "patterns": ["grind", "surface_grind", "cylindrical_grind", "centerless"],
+      "keywords": ["grinding", "wheel", "dress", "surface", "cylindrical"],
+      "preferred_consumers": ["tribal-knowledge-engine"]
+    }
+  ],
+  "transforms": [
+    {
+      "id": "tip-to-playbook",
+      "name": "Tip to Playbook Entry",
+      "source_type": "tip",
+      "target_format": "playbook_entry",
+      "field_mappings": {
+        "content": "description",
+        "category": "operation_type",
+        "tags": "keywords",
+        "materialGroups": "materials"
+      },
+      "defaults": {
+        "verified": false,
+        "source_type": "extracted"
+      }
+    },
+    {
+      "id": "formula-to-registry",
+      "name": "Formula to Registry Entry",
+      "source_type": "formula",
+      "target_format": "formula_registry_entry",
+      "field_mappings": {
+        "content": "expression",
+        "title": "name",
+        "source.citation": "citation",
+        "source.authority": "authority_level"
+      },
+      "defaults": {
+        "validated": false,
+        "physics_checked": false
+      },
+      "validations": [
+        "expression must contain '=' or 'return'",
+        "name must be alphanumeric with underscores"
+      ]
+    }
+  ],
+  "settings": {
+    "default_priority": "2",
+    "min_confidence": 0.7,
+    "detect_conflicts": true,
+    "audit_logging": true,
+    "dry_run": false
+  },
+  "metadata": {
+    "source": "KAR-MS0 U-KAR02",
+    "generated_by": "WiringManifest schema implementation",
+    "notes": "PRISM wiring manifest — declarative knowledge routing configuration. Extend this file to add new consumers or rules."
+  }
+}

@@ -1,0 +1,228 @@
+{
+  "schemaVersion": "1.0.0",
+  "_lastBackfillTs": "2026-05-08T16:41:54.025Z",
+  "audit_id": "QA-MS12-P0-U04",
+  "title": "Hook-to-Dispatcher Interaction Audit",
+  "audited_at": "2026-04-13T21:05:00Z",
+  "auditor": "claude-opus-4.5",
+  "scope": "Hook-dispatcher interaction matrix, circular dependencies, ordering conflicts",
+  "dispatcher_hook_integration": {
+    "dispatchers_with_hooks": 34,
+    "dispatchers_without_hooks": 49,
+    "total_dispatchers": 83,
+    "hook_calls_in_dispatchers": 104
+  },
+  "hooks_referencing_dispatchers": {
+    "count": 6,
+    "files": [
+      "extractionMaintenanceHook.ts",
+      "EnforcementHooks.ts",
+      "SafetyQualityHooks.ts",
+      "HyperMillDataFreshnessHook.ts",
+      "OrchestrationHooks.ts",
+      "pre-roadmap-execute.ts"
+    ]
+  },
+  "phase_to_dispatcher_mapping": {
+    "pre-calculation": {
+      "hook_count": 28,
+      "dispatchers": [
+        "calcDispatcher",
+        "adaptiveControlDispatcher",
+        "fluidThermalDispatcher",
+        "scientificMathDispatcher"
+      ],
+      "blocking_capable": true
+    },
+    "post-calculation": {
+      "hook_count": 19,
+      "dispatchers": [
+        "calcDispatcher",
+        "mechanicalDesignDispatcher",
+        "vibrationPhysicsDispatcher"
+      ],
+      "blocking_capable": false
+    },
+    "post-output": {
+      "hook_count": 18,
+      "dispatchers": [
+        "documentDispatcher",
+        "dataDispatcher"
+      ],
+      "blocking_capable": false
+    },
+    "on-session-checkpoint": {
+      "hook_count": 13,
+      "dispatchers": [
+        "sessionDispatcher"
+      ],
+      "blocking_capable": false
+    },
+    "pre-file-write": {
+      "hook_count": 11,
+      "dispatchers": [
+        "dataDispatcher",
+        "documentDispatcher"
+      ],
+      "blocking_capable": true
+    },
+    "pre-swarm-execute": {
+      "hook_count": 4,
+      "dispatchers": [
+        "orchestrationDispatcher"
+      ],
+      "blocking_capable": true
+    },
+    "pre-agent-execute": {
+      "hook_count": 4,
+      "dispatchers": [
+        "orchestrationDispatcher"
+      ],
+      "blocking_capable": true
+    }
+  },
+  "category_distribution": {
+    "enforcement": 58,
+    "validation": 28,
+    "manufacturing": 28,
+    "observability": 23,
+    "lifecycle": 19,
+    "automation": 19,
+    "cognitive": 10,
+    "recovery": 9,
+    "schema": 7,
+    "orchestration": 7,
+    "agent": 7,
+    "quality": 5,
+    "controller": 5
+  },
+  "interaction_matrix": {
+    "calculation_flow": {
+      "dispatchers": [
+        "calcDispatcher",
+        "adaptiveControlDispatcher"
+      ],
+      "pre_hooks": [
+        "pre-calculation",
+        "pre-kienzle",
+        "pre-taylor"
+      ],
+      "post_hooks": [
+        "post-calculation"
+      ],
+      "blocking_hooks": "enforcement, manufacturing"
+    },
+    "file_operations_flow": {
+      "dispatchers": [
+        "dataDispatcher",
+        "documentDispatcher"
+      ],
+      "pre_hooks": [
+        "pre-file-write",
+        "pre-file-read"
+      ],
+      "post_hooks": [
+        "post-file-write",
+        "post-output"
+      ],
+      "blocking_hooks": "enforcement, schema"
+    },
+    "orchestration_flow": {
+      "dispatchers": [
+        "orchestrationDispatcher"
+      ],
+      "pre_hooks": [
+        "pre-swarm-execute",
+        "pre-agent-execute"
+      ],
+      "post_hooks": [
+        "post-swarm-complete"
+      ],
+      "blocking_hooks": "orchestration, agent"
+    },
+    "session_flow": {
+      "dispatchers": [
+        "sessionDispatcher"
+      ],
+      "pre_hooks": [
+        "on-session-start"
+      ],
+      "post_hooks": [
+        "on-session-checkpoint",
+        "on-session-end"
+      ],
+      "blocking_hooks": "lifecycle"
+    },
+    "manufacturing_flow": {
+      "dispatchers": [
+        "turningDispatcher",
+        "grindingDispatcher",
+        "edmDispatcher",
+        "fiveAxisDispatcher"
+      ],
+      "pre_hooks": [
+        "pre-toolpath",
+        "pre-calculation"
+      ],
+      "post_hooks": [
+        "post-toolpath",
+        "on-force-limit",
+        "on-thermal-limit"
+      ],
+      "blocking_hooks": "manufacturing, enforcement"
+    }
+  },
+  "circular_dependency_analysis": {
+    "detection_method": "Hook phase does not invoke dispatcher that triggers it",
+    "potential_cycles_found": 0,
+    "safe_patterns": [
+      "Dispatchers call hookExecutor.execute() which runs hooks synchronously",
+      "Hooks do not call dispatcher methods directly",
+      "Hook-to-dispatcher coupling is one-way (dispatcher → hook)"
+    ],
+    "verification": "No circular dependencies detected"
+  },
+  "ordering_conflict_analysis": {
+    "priority_based_ordering": true,
+    "priority_values": {
+      "critical": 0,
+      "high": 25,
+      "normal": 50,
+      "low": 75,
+      "background": 100
+    },
+    "conflicts_found": 0,
+    "potential_issues": [
+      "Multiple critical hooks on same phase may have undefined order within critical tier",
+      "No explicit hook dependency specification beyond priority"
+    ],
+    "mitigation": "Priority + alphabetical fallback ensures deterministic order"
+  },
+  "findings": {
+    "strengths": [
+      "One-way coupling (dispatcher → hook) prevents circular dependencies",
+      "Priority-based ordering ensures critical hooks run first",
+      "Phase-specific hooks enable targeted enforcement",
+      "58 enforcement hooks provide comprehensive validation coverage",
+      "Hook failure in blocking mode prevents dangerous operations"
+    ],
+    "concerns": [
+      "49 dispatchers lack hook integration (potential enforcement gaps)",
+      "Critical dispatchers (safetyDispatcher, validationDispatcher) have no hooks",
+      "No explicit inter-hook dependencies (only priority ordering)",
+      "Multiple critical hooks on same phase have undefined internal order"
+    ],
+    "recommendations": [
+      "Add hook integration to safety-critical dispatchers",
+      "Consider adding explicit hook dependency declarations",
+      "Add registration-time validation for conflicting hook priorities",
+      "Document expected hook ordering for each phase"
+    ]
+  },
+  "verification_status": {
+    "interaction_matrix_documented": true,
+    "circular_dependency_check_complete": true,
+    "ordering_conflict_analysis_complete": true,
+    "unit_complete": true
+  }
+}

@@ -1,16 +1,31 @@
 ---
 description: Force-claim slot HOTEL + run the full /checkin pipeline. NATO-phonetic shortcut for `/checkin --preferSlot hotel --force`.
 allowed-tools: Bash, Read, Edit, Write, Glob, Grep, TodoWrite, Task, AskUserQuestion
+composes_with:
+  - "/checkin"
+  - "/handoff"
+  - "/pick-unit"
 ---
-
 # /checkin-hotel — slot-locked /checkin
 
 Force-takes the **hotel** slot (evicting any prior owner with `--force true --confirmRecent true`), binds the handoff to `hotel-work`, then runs the standard `/checkin` pipeline. Use when you want this specific slot regardless of who currently holds it.
 
 ## Slot binding (replaces /checkin Step 2)
 
+> **AUTO-ENFORCED (U-SLOT-BIND-ENFORCE, 2026-05-18).** The
+> `slot-bind-enforce.mjs` UserPromptSubmit hook already force-claimed `hotel`
+> deterministically from the harness `session_id` the instant this
+> `/checkin-hotel` prompt was submitted. If a `✅ slot-bind-enforce: slot
+> hotel deterministically bound to claude-<id>` line is in context, use THAT
+> chat id everywhere this session and skip the bash below (its idempotent
+> fast-path already no-ops a correct binding). Run the bash manually ONLY if
+> the hook emitted a `⚠️ no harness session_id` advisory — and then STABLE
+> MUST come from the LIVE `**Chat Isolation:**` line in THIS session, NEVER
+> from a conversation summary/handoff (a stale id there is the exact
+> cross-chat unit-collision this hook was built to kill).
+
 ```bash
-STABLE="claude-<8hex-from-Chat-Isolation-line>"
+STABLE="claude-<8hex-from-the-LIVE-Chat-Isolation-line>"   # fallback only
 BRANCH=$(git -C H:/prism rev-parse --abbrev-ref HEAD 2>/dev/null)
 SLOT="hotel"
 TOPIC="hotel-work"

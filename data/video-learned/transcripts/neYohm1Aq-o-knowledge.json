@@ -1,0 +1,350 @@
+{
+  "video_id": "neYohm1Aq-o",
+  "title": "DMG MORI NLX 2500 - CNC Machining Our FIRST PART, 3.0\" dia 6Al-4V Titanium, Vlog #15",
+  "source": "Titans of CNC",
+  "presenters": ["Titan (host)", "Tyson (programmer/machinist)"],
+  "academy_content": true,
+  "machine": {
+    "make": "DMG MORI",
+    "model": "NLX-2500",
+    "variant": "NLX 2500/700",
+    "type": "turning_center",
+    "controller": "MAPPS IV (Mitsubishi)",
+    "capabilities": [
+      "turning",
+      "live_tooling",
+      "milling",
+      "grooving",
+      "boring",
+      "c_axis",
+      "y_axis"
+    ],
+    "live_tooling_spindle_rpm": 10000,
+    "turret_interface": "KM50 (ball lock quick-change system)",
+    "controller_features": [
+      "Context-sensitive controls (auto mode shows program controls, jog mode shows rapid access)",
+      "Autoload program capability",
+      "Modal soft-key interface (relevant buttons shown per operation mode)"
+    ],
+    "notes": "First part ever made on this machine by Tyson. DMG MORI service tech praised the work. Live tooling spindle goes to 10,000 RPM with good horsepower. Machine described as 'so dialed' that tool marks are nearly invisible."
+  },
+  "material": {
+    "name": "Ti-6Al-4V",
+    "common_name": "6Al-4V Titanium",
+    "iso_group": "S",
+    "uns": "R56400",
+    "category": "titanium_alloy",
+    "hardness_range_hrc": "30-36",
+    "condition": "annealed",
+    "classification": "aerospace_titanium",
+    "stock_diameter_in": 3.0,
+    "stock_diameter_mm": 76.2,
+    "stock_length_in": 8.0,
+    "stock_length_mm": 203.2,
+    "stock_form": "round_bar",
+    "notes": "3.0 inch diameter, 8 inches long Ti-6Al-4V bar stock. This is the most common aerospace titanium alloy, classified as ISO Group S (heat-resistant superalloys)."
+  },
+  "software": {
+    "cam_primary": "not_explicitly_stated",
+    "notes": "CAM system not explicitly named in transcript. Programming done by Tyson. Part is a complete single-operation (done-in-one) setup combining turning and live tooling milling."
+  },
+  "operations": [
+    {
+      "sequence": 1,
+      "type": "od_roughing",
+      "operation_name": "OD rough turning with DNMG insert",
+      "tool": {
+        "type": "turning_insert",
+        "insert_designation": "DNMG",
+        "insert_shape": "55_degree_diamond",
+        "brand": "not_specified",
+        "holder": "KM50 holder",
+        "notes": "DNMG 55-degree diamond insert. Diamond shape allows undercuts and access to tight geometry. Can rough out most of the OD profile in a single tool."
+      },
+      "cutting_parameters": {
+        "doc_thou": 70,
+        "doc_in": 0.070,
+        "doc_mm": 1.778,
+        "sfm_low": 200,
+        "sfm_high": 250,
+        "sfm_unit": "SFM",
+        "notes": "70 thou (0.070 in) depth of cut at 200-250 SFM for OD roughing Ti-6Al-4V. These are moderate-aggressive parameters for titanium turning."
+      },
+      "strategy": "Rough as much OD as possible with DNMG insert, utilizing the diamond shape to reach undercuts. Then step down for deeper features.",
+      "notes": "Main OD roughing tool. 70 thou DOC at 200-250 SFM is a solid, production-proven parameter set for Ti-6Al-4V roughing on a rigid machine like the NLX-2500."
+    },
+    {
+      "sequence": 2,
+      "type": "grooving",
+      "operation_name": "OD grooving with 0.125 inch wide insert",
+      "tool": {
+        "type": "grooving_insert",
+        "width_in": 0.125,
+        "width_mm": 3.175,
+        "brand": "not_specified",
+        "holder": "grooving_holder_with_cartridge",
+        "notes": "0.125 inch (1/8 inch) wide grooving insert in a cartridge-style holder. Same holder body used for face grooving by swapping cartridge."
+      },
+      "strategy": "Groove multiple features including OD grooves. Insert also used to rough out areas the DNMG cannot reach. Finishes the middle groove and surrounding features.",
+      "notes": "Grooving holder uses interchangeable cartridges - same holder body, different blades/inserts for different groove widths and orientations."
+    },
+    {
+      "sequence": 3,
+      "type": "profiling",
+      "operation_name": "Full radius profiling tool",
+      "tool": {
+        "type": "profiling_insert",
+        "insert_type": "full_radius",
+        "brand": "not_specified",
+        "notes": "Full radius insert for profiling the center section of the part."
+      },
+      "cutting_parameters": {
+        "doc_thou": 79,
+        "doc_in": 0.079,
+        "doc_mm": 2.007,
+        "notes": "79 thou depth of cut mentioned for this tool. Used for the center profile section."
+      },
+      "strategy": "Machines the entire center section of the part profile.",
+      "notes": "Full radius profiling tool handles the complex center geometry that other tools cannot efficiently reach."
+    },
+    {
+      "sequence": 4,
+      "type": "od_finishing",
+      "operation_name": "OD finish turning",
+      "tool": {
+        "type": "turning_insert",
+        "insert_type": "finish",
+        "brand": "not_specified",
+        "notes": "Dedicated finish tool separate from roughing insert."
+      },
+      "strategy": "Finishes as much of the OD as possible - comes across the top, then steps down to finish the back end of the part.",
+      "notes": "Achieved 25.1 microinch Ra surface finish on titanium, as-machined with no polishing or deburring. This is an excellent finish for Ti-6Al-4V turning."
+    },
+    {
+      "sequence": 5,
+      "type": "face_grooving",
+      "operation_name": "Face grooving with cartridge swap",
+      "tool": {
+        "type": "face_grooving_insert",
+        "holder": "same_grooving_holder_different_cartridge",
+        "brand": "not_specified",
+        "notes": "Same grooving holder body from operation 2, but with a different cartridge installed for face grooving orientation."
+      },
+      "strategy": "Finishes the inside features and face grooves. Roughs and finishes everything on the inside that it can reach.",
+      "notes": "Interchangeable cartridge system saves turret stations - one holder body, multiple insert cartridges for different operations."
+    },
+    {
+      "sequence": 6,
+      "type": "id_boring",
+      "operation_name": "Upside-down boring bar for ID features",
+      "tool": {
+        "type": "boring_bar",
+        "orientation": "upside_down",
+        "brand": "not_specified",
+        "notes": "Boring bar mounted upside-down with a slight angle. Inverted orientation allows it to function as a grooving tool for internal features."
+      },
+      "strategy": "Finishes roughing the remaining internal features, then finish passes to blend with previous operations.",
+      "notes": "Upside-down boring bar mounting is a clever technique to reach features that a conventional boring bar orientation cannot access. The angled orientation enables it to groove internally."
+    },
+    {
+      "sequence": 7,
+      "type": "milling_roughing",
+      "operation_name": "Live tooling milling with 4-flute end mill",
+      "tool": {
+        "type": "end_mill",
+        "flutes": 4,
+        "brand": "not_specified",
+        "notes": "4-flute end mill for roughing milled features. Used in live tooling spindle."
+      },
+      "strategy": "Mills flats/pads across the face and stepped features on the sides using C-axis positioning.",
+      "notes": "Live tooling spindle runs at up to 10,000 RPM. This is where the turning center transitions to milling mode for features that require it."
+    },
+    {
+      "sequence": 8,
+      "type": "milling_finish",
+      "operation_name": "Ball mill finish surfacing",
+      "tool": {
+        "type": "ball_end_mill",
+        "brand": "not_specified",
+        "notes": "Ball end mill for finishing contoured surfaces created by milling operations."
+      },
+      "strategy": "Final surface finish pass on milled features.",
+      "notes": "Ball mill provides smooth surface finish on contoured milled features."
+    }
+  ],
+  "cutting_parameters": {
+    "od_roughing_titanium": {
+      "material": "Ti-6Al-4V",
+      "tool": "DNMG insert (55-degree diamond)",
+      "sfm_low": 200,
+      "sfm_high": 250,
+      "doc_thou": 70,
+      "doc_in": 0.070,
+      "doc_mm": 1.778,
+      "calculated_rpm_at_3in_dia_200sfm": 255,
+      "calculated_rpm_at_3in_dia_250sfm": 318,
+      "calculated_rpm_note": "RPM = (SFM x 12) / (pi x 3.0). At 200 SFM: 255 RPM, at 250 SFM: 318 RPM. As diameter reduces, RPM increases to maintain constant SFM.",
+      "assessment": "200-250 SFM with 0.070 DOC is a solid production parameter set for Ti-6Al-4V roughing on a rigid turning center. This aligns well with industry recommendations of 150-300 SFM for carbide inserts on titanium depending on grade and coating."
+    },
+    "profiling_titanium": {
+      "material": "Ti-6Al-4V",
+      "tool": "Full radius profiling insert",
+      "doc_thou": 79,
+      "doc_in": 0.079,
+      "doc_mm": 2.007,
+      "assessment": "79 thou DOC for profiling is slightly deeper than the roughing DOC, suggesting this tool handles a specific geometry where deeper engagement is needed."
+    }
+  },
+  "surface_finish": {
+    "measured_ra_microinch": 25.1,
+    "measured_ra_um": 0.638,
+    "measurement_location": "OD turned surface",
+    "condition": "as_machined",
+    "post_processing": "none (no polishing, deburring, or secondary finishing)",
+    "assessment": "25.1 microinch Ra on Ti-6Al-4V as-machined is excellent. Typical specification for aerospace titanium finish turning is 32-63 microinch Ra. Achieving 25 microinch without secondary finishing demonstrates both machine rigidity and well-chosen finish parameters.",
+    "notes": "Measured by scribing a profilometer across the surface. Presenters were impressed with the result."
+  },
+  "workholding": {
+    "method": "chuck",
+    "setup_count": 1,
+    "description": "Single setup (done-in-one) operation — all turning, grooving, boring, and milling completed in one chucking",
+    "notes": "3-inch diameter, 8-inch long titanium bar held in chuck. All operations (OD turning, grooving, profiling, ID boring, live tooling milling) completed in a single setup. This eliminates re-chucking error and is ideal for tight-tolerance aerospace parts."
+  },
+  "tooling_system": {
+    "interface": "KM50",
+    "type": "ball_lock_quick_change",
+    "brand": "Kennametal (KM is Kennametal modular)",
+    "advantages": [
+      "Quick change — pop out, pop back in, no need to re-touch off",
+      "Ball lock provides rigid, repeatable connection",
+      "Crash protection — adapter breaks before turret damage",
+      "Just offset after insert change, no full tool touch-off needed"
+    ],
+    "notes": "KM50 holders praised for quick-change capability. When changing inserts, you just pop the tool out, swap the insert, pop it back in and offset — no need to completely re-touch the tool. This saves significant setup time in production."
+  },
+  "process_strategy": {
+    "approach": "done_in_one_turning_plus_milling",
+    "total_tools": 8,
+    "turning_tools": 6,
+    "milling_tools": 2,
+    "description": "Complete part machined in single setup combining 6 turning/grooving/boring operations followed by 2 milling operations using live tooling. Sequence: OD rough -> groove -> profile -> OD finish -> face groove -> ID boring bar -> end mill -> ball mill.",
+    "rationale": "Single-setup strategy eliminates re-chucking error on aerospace titanium part. Turning operations handle all rotational features first, then live tooling handles milled features (flats, pads, contours). Interchangeable cartridge grooving system maximizes turret station usage.",
+    "key_techniques": [
+      "DNMG diamond insert for maximum OD roughing coverage including undercuts",
+      "Interchangeable grooving cartridges to save turret stations",
+      "Upside-down boring bar for internal grooving access",
+      "Full radius insert for complex center profile",
+      "Live tooling with 10K RPM spindle for milling operations",
+      "Done-in-one eliminates setup error on 8-inch long part"
+    ]
+  },
+  "tribal_tips": [
+    {
+      "tip": "For Ti-6Al-4V OD roughing on DMG MORI NLX-2500, use 200-250 SFM with 0.070 inch DOC using a DNMG (55-degree diamond) insert — production-proven parameters for titanium turning",
+      "confidence": 0.90,
+      "source": "video",
+      "category": "speeds_and_feeds"
+    },
+    {
+      "tip": "A DNMG 55-degree diamond insert can reach undercuts and tight geometry on OD turning — use it as the primary roughing tool to remove maximum material before switching to specialty tools",
+      "confidence": 0.90,
+      "source": "video",
+      "category": "tooling"
+    },
+    {
+      "tip": "25.1 microinch Ra surface finish is achievable on Ti-6Al-4V as-machined (no polishing) on a well-dialed DMG MORI NLX-2500 — far exceeding typical 32-63 microinch aerospace specs",
+      "confidence": 0.95,
+      "source": "video",
+      "category": "surface_finish"
+    },
+    {
+      "tip": "Use interchangeable cartridge grooving holders to save turret stations — same holder body with different cartridges for OD grooving and face grooving operations",
+      "confidence": 0.90,
+      "source": "video",
+      "category": "tooling"
+    },
+    {
+      "tip": "Mount a boring bar upside-down with a slight angle to use it as an internal grooving tool — allows access to features that a conventional boring bar orientation cannot reach",
+      "confidence": 0.85,
+      "source": "video",
+      "category": "process_strategy"
+    },
+    {
+      "tip": "KM50 quick-change tooling on DMG MORI NLX-2500: when changing inserts, just pop the tool out, swap the insert, pop back in and offset — no full re-touch-off needed",
+      "confidence": 0.95,
+      "source": "video",
+      "category": "tooling"
+    },
+    {
+      "tip": "For 8-inch long Ti-6Al-4V parts, a done-in-one strategy (all turning + live tooling milling in single setup) eliminates re-chucking error critical for aerospace tolerances",
+      "confidence": 0.90,
+      "source": "video",
+      "category": "process_strategy"
+    },
+    {
+      "tip": "The DMG MORI NLX-2500 live tooling spindle runs at 10,000 RPM with good horsepower — sufficient for milling titanium with end mills and ball mills directly on the turning center",
+      "confidence": 0.90,
+      "source": "video",
+      "category": "machine_capability"
+    },
+    {
+      "tip": "When first setting up a new CNC lathe, start with a moderately complex part that exercises all capabilities (turning, grooving, boring, milling) — builds operator confidence across all machine modes before tackling harder projects",
+      "confidence": 0.85,
+      "source": "video",
+      "category": "training"
+    },
+    {
+      "tip": "DMG MORI MAPPS IV controller uses context-sensitive soft keys — in auto mode it shows program controls, in jog mode it shows rapid access controls. This reduces button clutter and speeds up operation.",
+      "confidence": 0.85,
+      "source": "video",
+      "category": "machine_controls"
+    },
+    {
+      "tip": "Use a 4-flute end mill for roughing milled features on titanium in live tooling, followed by a ball end mill for finish contouring — same strategy as dedicated milling centers",
+      "confidence": 0.85,
+      "source": "video",
+      "category": "process_strategy"
+    },
+    {
+      "tip": "When accidents happen on a lathe (e.g., accidentally spinning the turret and clearing something), KM50 ball lock interface provides crash protection — the adapter breaks away before the turret is damaged",
+      "confidence": 0.90,
+      "source": "video",
+      "category": "safety"
+    }
+  ],
+  "key_learnings": [
+    "Ti-6Al-4V OD roughing: 200-250 SFM, 0.070 DOC with DNMG insert is production-proven on DMG MORI NLX-2500",
+    "25.1 microinch Ra surface finish achieved on Ti-6Al-4V as-machined — exceeds typical 32-63 microinch aerospace specs",
+    "Done-in-one strategy with 8 tools (6 turning + 2 milling) completes a complex aerospace titanium part in single setup",
+    "DNMG 55-degree diamond insert provides maximum coverage for OD roughing including undercuts",
+    "Interchangeable cartridge grooving system saves turret stations — OD and face grooving from same holder body",
+    "Upside-down boring bar technique enables internal grooving in features otherwise inaccessible",
+    "NLX-2500 live tooling spindle reaches 10,000 RPM for milling titanium with end mills and ball mills",
+    "KM50 quick-change system eliminates full re-touch-off — just pop out, swap insert, pop back in, offset",
+    "MAPPS IV controller context-sensitive interface reduces operator complexity on complex operations",
+    "First-part experience validates the machine for progressively harder aerospace projects (SpaceX, Aerojet mentioned as target customers)",
+    "3.0 inch diameter x 8.0 inch long Ti-6Al-4V bar stock is the starting material",
+    "Full radius profiling insert at 79 thou DOC handles complex center geometry"
+  ],
+  "related_videos": {
+    "same_machine": "u3wHT31kmuw (Multi-Axis Milling on NLX-2500, Inconel 625)",
+    "series": "Titans of CNC Vlog series — progressive difficulty on NLX-2500",
+    "progression": "This video (Vlog #15) is the first part on the NLX-2500; subsequent vlogs tackle harder materials and more complex parts"
+  },
+  "metadata": {
+    "extracted_date": "2026-03-27",
+    "transcript_quality": "auto_generated",
+    "confidence_note": "Auto-generated YouTube subtitles with significant transcription errors (e.g., 'BMG Mori' for 'DMG MORI', 'intellect when T 500' likely 'NLX 2500', 'exhale for the' for '6Al-4V'). Numerical values (200-250 SFM, 70 thou DOC, 79 thou, 25.1 microinch, 10000 RPM, 0.125 inch) were clearly spoken and cross-confirmed between speakers. Tool types (DNMG, KM50, boring bar, ball mill, end mill) confirmed by visual context in the video walkthrough.",
+    "video_duration_approx": "9:25",
+    "content_type": "shop_floor_walkthrough_and_tool_explanation",
+    "part_type": "aerospace_titanium_component",
+    "part_features": [
+      "OD profiles with undercuts",
+      "Multiple OD grooves",
+      "Face grooves",
+      "Internal bore with grooves",
+      "Milled flats/pads",
+      "Complex center profile with full radius"
+    ]
+  }
+}

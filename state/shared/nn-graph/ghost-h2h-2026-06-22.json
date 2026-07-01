@@ -1,0 +1,670 @@
+{
+  "generatedAt": "2026-06-22T12:27:05.183Z",
+  "tau": 0.7,
+  "productionGate": 0.7,
+  "gates": {
+    "auroc": 0.78,
+    "macroF1": 0.55,
+    "brier": 0.15
+  },
+  "stemToClassSize": 3208,
+  "seedResults": [
+    {
+      "seed": 1337,
+      "holdoutN": 84,
+      "neighborCoverage": {
+        "covered": 12,
+        "total": 84,
+        "coverage": 0.1429,
+        "avgNeighbors": 4.5
+      },
+      "arms": {
+        "direct": {
+          "n": 84,
+          "covered": 84,
+          "coverage": 1,
+          "metrics": {
+            "auroc": 0.7891,
+            "macroF1": 0.4101,
+            "brier": 0.1887,
+            "accuracy": 0.619
+          },
+          "selective": {
+            "deployPoint": {
+              "found": true,
+              "productionMinConf": 0.7,
+              "productionPoint": {
+                "tau": 0.7,
+                "coverage": 0.2738,
+                "emitted": 23,
+                "brier": 0.0417,
+                "macroF1": 1,
+                "accuracy": 1,
+                "classesEmitted": 2,
+                "brierClears": true,
+                "macroF1Clears": true
+              },
+              "maxCoveragePoint": {
+                "tau": 0.5,
+                "coverage": 0.4167,
+                "emitted": 35,
+                "brier": 0.0996,
+                "macroF1": 0.7222,
+                "accuracy": 0.9143,
+                "classesEmitted": 4,
+                "brierClears": true,
+                "macroF1Clears": true
+              },
+              "robustAboveGate": true,
+              "totalClasses": 13
+            },
+            "deployGrade": {
+              "pass": true,
+              "verdict": "deploy-ready-selective",
+              "failures": [],
+              "productionGate": 0.7,
+              "operatingPoint": {
+                "tau": 0.7,
+                "coverage": 0.2738,
+                "emitted": 23,
+                "brier": 0.0417,
+                "macroF1": 1,
+                "accuracy": 1,
+                "classesEmitted": 2,
+                "totalClasses": 13
+              },
+              "maxCoveragePoint": {
+                "tau": 0.5,
+                "coverage": 0.4167,
+                "brier": 0.0996,
+                "macroF1": 0.7222
+              },
+              "robustAboveGate": true,
+              "concentrated": true,
+              "globalAuroc": 0.7891,
+              "note": "Anchored on the PRODUCTION confidence gate (GNN_DEFAULTS.minConf), NOT the most-favorable τ. tier-5 emits above the gate and DEFERS the rest (coverage<1) to the LLM tier. AUROC is the full-holdout ranking metric; Brier+macro-F1 are the emitted-set quality at the production gate. NOTE: the emitted set spans only 2 of 13 dispatcher classes — macro-F1 is over that subset (the high-confidence band is concentrated), NOT all classes. Full-holdout grade is retained for transparency. maxCoveragePoint shows the tradeoff if the gate were lowered."
+            }
+          }
+        },
+        "neighbor": {
+          "n": 84,
+          "covered": 12,
+          "coverage": 0.1429,
+          "metrics": {
+            "auroc": 0.9646,
+            "macroF1": 0.0372,
+            "brier": 0.053,
+            "accuracy": 0.0595
+          },
+          "selective": {
+            "deployPoint": {
+              "found": false,
+              "productionMinConf": 0.7,
+              "productionPoint": {
+                "tau": 0.7,
+                "coverage": 0.0952,
+                "emitted": 8,
+                "brier": 0.4531,
+                "macroF1": 0.2222,
+                "accuracy": 0.5,
+                "classesEmitted": 5,
+                "brierClears": false,
+                "macroF1Clears": false
+              },
+              "maxCoveragePoint": null,
+              "robustAboveGate": false,
+              "totalClasses": 13
+            },
+            "deployGrade": {
+              "pass": false,
+              "verdict": "no-deployable-operating-point",
+              "failures": [
+                "at the production gate τ=0.7 the emitted set fails: Brier 0.4531 > 0.15, macro-F1 0.2222 < 0.55"
+              ],
+              "productionGate": 0.7,
+              "operatingPoint": {
+                "tau": 0.7,
+                "coverage": 0.0952,
+                "emitted": 8,
+                "brier": 0.4531,
+                "macroF1": 0.2222,
+                "accuracy": 0.5,
+                "classesEmitted": 5,
+                "totalClasses": 13
+              },
+              "maxCoveragePoint": null,
+              "robustAboveGate": false,
+              "concentrated": true,
+              "globalAuroc": 0.9646,
+              "note": "Anchored on the PRODUCTION confidence gate (GNN_DEFAULTS.minConf), NOT the most-favorable τ. tier-5 emits above the gate and DEFERS the rest (coverage<1) to the LLM tier. AUROC is the full-holdout ranking metric; Brier+macro-F1 are the emitted-set quality at the production gate. NOTE: the emitted set spans only 5 of 13 dispatcher classes — macro-F1 is over that subset (the high-confidence band is concentrated), NOT all classes. Full-holdout grade is retained for transparency. maxCoveragePoint shows the tradeoff if the gate were lowered."
+            }
+          }
+        },
+        "hybrid": {
+          "n": 84,
+          "covered": 84,
+          "coverage": 1,
+          "metrics": {
+            "auroc": 0.7073,
+            "macroF1": 0.4267,
+            "brier": 0.2182,
+            "accuracy": 0.6667
+          },
+          "selective": {
+            "deployPoint": {
+              "found": false,
+              "productionMinConf": 0.7,
+              "productionPoint": {
+                "tau": 0.7,
+                "coverage": 0.369,
+                "emitted": 31,
+                "brier": 0.1479,
+                "macroF1": 0.3953,
+                "accuracy": 0.871,
+                "classesEmitted": 6,
+                "brierClears": true,
+                "macroF1Clears": false
+              },
+              "maxCoveragePoint": {
+                "tau": 0.55,
+                "coverage": 0.4286,
+                "emitted": 36,
+                "brier": 0.1497,
+                "macroF1": 0.6101,
+                "accuracy": 0.8889,
+                "classesEmitted": 7,
+                "brierClears": true,
+                "macroF1Clears": true
+              },
+              "robustAboveGate": false,
+              "totalClasses": 13
+            },
+            "deployGrade": {
+              "pass": false,
+              "verdict": "no-deployable-operating-point",
+              "failures": [
+                "AUROC 0.7073 < 0.78 (global ranking)",
+                "at the production gate τ=0.7 the emitted set fails: macro-F1 0.3953 < 0.55"
+              ],
+              "productionGate": 0.7,
+              "operatingPoint": {
+                "tau": 0.7,
+                "coverage": 0.369,
+                "emitted": 31,
+                "brier": 0.1479,
+                "macroF1": 0.3953,
+                "accuracy": 0.871,
+                "classesEmitted": 6,
+                "totalClasses": 13
+              },
+              "maxCoveragePoint": {
+                "tau": 0.55,
+                "coverage": 0.4286,
+                "brier": 0.1497,
+                "macroF1": 0.6101
+              },
+              "robustAboveGate": false,
+              "concentrated": true,
+              "globalAuroc": 0.7073,
+              "note": "Anchored on the PRODUCTION confidence gate (GNN_DEFAULTS.minConf), NOT the most-favorable τ. tier-5 emits above the gate and DEFERS the rest (coverage<1) to the LLM tier. AUROC is the full-holdout ranking metric; Brier+macro-F1 are the emitted-set quality at the production gate. NOTE: the emitted set spans only 6 of 13 dispatcher classes — macro-F1 is over that subset (the high-confidence band is concentrated), NOT all classes. Full-holdout grade is retained for transparency. maxCoveragePoint shows the tradeoff if the gate were lowered."
+            }
+          }
+        }
+      },
+      "decision": {
+        "wireEdges": false,
+        "recommendation": "keep direct-embed (hybrid below gate)",
+        "reasons": [
+          "direct-embed: PASSES selective gate (coverage 0.2738, 2/13 classes)",
+          "hybrid@tau: fails selective gate (coverage 0.369, 6/13 classes)",
+          "hybrid does not pass the selective gate -> edges do NOT improve the deployed tier."
+        ]
+      }
+    },
+    {
+      "seed": 7,
+      "holdoutN": 84,
+      "neighborCoverage": {
+        "covered": 7,
+        "total": 84,
+        "coverage": 0.0833,
+        "avgNeighbors": 2.4286
+      },
+      "arms": {
+        "direct": {
+          "n": 84,
+          "covered": 84,
+          "coverage": 1,
+          "metrics": {
+            "auroc": 0.8185,
+            "macroF1": 0.4206,
+            "brier": 0.1971,
+            "accuracy": 0.6429
+          },
+          "selective": {
+            "deployPoint": {
+              "found": true,
+              "productionMinConf": 0.7,
+              "productionPoint": {
+                "tau": 0.7,
+                "coverage": 0.2619,
+                "emitted": 22,
+                "brier": 0.04,
+                "macroF1": 1,
+                "accuracy": 1,
+                "classesEmitted": 1,
+                "brierClears": true,
+                "macroF1Clears": true
+              },
+              "maxCoveragePoint": {
+                "tau": 0.45,
+                "coverage": 0.381,
+                "emitted": 32,
+                "brier": 0.0966,
+                "macroF1": 0.5804,
+                "accuracy": 0.9063,
+                "classesEmitted": 5,
+                "brierClears": true,
+                "macroF1Clears": true
+              },
+              "robustAboveGate": true,
+              "totalClasses": 13
+            },
+            "deployGrade": {
+              "pass": true,
+              "verdict": "deploy-ready-selective",
+              "failures": [],
+              "productionGate": 0.7,
+              "operatingPoint": {
+                "tau": 0.7,
+                "coverage": 0.2619,
+                "emitted": 22,
+                "brier": 0.04,
+                "macroF1": 1,
+                "accuracy": 1,
+                "classesEmitted": 1,
+                "totalClasses": 13
+              },
+              "maxCoveragePoint": {
+                "tau": 0.45,
+                "coverage": 0.381,
+                "brier": 0.0966,
+                "macroF1": 0.5804
+              },
+              "robustAboveGate": true,
+              "concentrated": true,
+              "globalAuroc": 0.8185,
+              "note": "Anchored on the PRODUCTION confidence gate (GNN_DEFAULTS.minConf), NOT the most-favorable τ. tier-5 emits above the gate and DEFERS the rest (coverage<1) to the LLM tier. AUROC is the full-holdout ranking metric; Brier+macro-F1 are the emitted-set quality at the production gate. NOTE: the emitted set spans only 1 of 13 dispatcher classes — macro-F1 is over that subset (the high-confidence band is concentrated), NOT all classes. Full-holdout grade is retained for transparency. maxCoveragePoint shows the tradeoff if the gate were lowered."
+            }
+          }
+        },
+        "neighbor": {
+          "n": 84,
+          "covered": 7,
+          "coverage": 0.0833,
+          "metrics": {
+            "auroc": 1,
+            "macroF1": 0.0465,
+            "brier": 0.0089,
+            "accuracy": 0.0714
+          },
+          "selective": {
+            "deployPoint": {
+              "found": true,
+              "productionMinConf": 0.7,
+              "productionPoint": {
+                "tau": 0.7,
+                "coverage": 0.0476,
+                "emitted": 4,
+                "brier": 0.0156,
+                "macroF1": 1,
+                "accuracy": 1,
+                "classesEmitted": 1,
+                "brierClears": true,
+                "macroF1Clears": true
+              },
+              "maxCoveragePoint": {
+                "tau": 0.45,
+                "coverage": 0.0714,
+                "emitted": 6,
+                "brier": 0.0938,
+                "macroF1": 1,
+                "accuracy": 1,
+                "classesEmitted": 2,
+                "brierClears": true,
+                "macroF1Clears": true
+              },
+              "robustAboveGate": true,
+              "totalClasses": 13
+            },
+            "deployGrade": {
+              "pass": true,
+              "verdict": "deploy-ready-selective",
+              "failures": [],
+              "productionGate": 0.7,
+              "operatingPoint": {
+                "tau": 0.7,
+                "coverage": 0.0476,
+                "emitted": 4,
+                "brier": 0.0156,
+                "macroF1": 1,
+                "accuracy": 1,
+                "classesEmitted": 1,
+                "totalClasses": 13
+              },
+              "maxCoveragePoint": {
+                "tau": 0.45,
+                "coverage": 0.0714,
+                "brier": 0.0938,
+                "macroF1": 1
+              },
+              "robustAboveGate": true,
+              "concentrated": true,
+              "globalAuroc": 1,
+              "note": "Anchored on the PRODUCTION confidence gate (GNN_DEFAULTS.minConf), NOT the most-favorable τ. tier-5 emits above the gate and DEFERS the rest (coverage<1) to the LLM tier. AUROC is the full-holdout ranking metric; Brier+macro-F1 are the emitted-set quality at the production gate. NOTE: the emitted set spans only 1 of 13 dispatcher classes — macro-F1 is over that subset (the high-confidence band is concentrated), NOT all classes. Full-holdout grade is retained for transparency. maxCoveragePoint shows the tradeoff if the gate were lowered."
+            }
+          }
+        },
+        "hybrid": {
+          "n": 84,
+          "covered": 84,
+          "coverage": 1,
+          "metrics": {
+            "auroc": 0.8342,
+            "macroF1": 0.4307,
+            "brier": 0.1855,
+            "accuracy": 0.6667
+          },
+          "selective": {
+            "deployPoint": {
+              "found": true,
+              "productionMinConf": 0.7,
+              "productionPoint": {
+                "tau": 0.7,
+                "coverage": 0.3095,
+                "emitted": 26,
+                "brier": 0.0363,
+                "macroF1": 1,
+                "accuracy": 1,
+                "classesEmitted": 2,
+                "brierClears": true,
+                "macroF1Clears": true
+              },
+              "maxCoveragePoint": {
+                "tau": 0.45,
+                "coverage": 0.4286,
+                "emitted": 36,
+                "brier": 0.0876,
+                "macroF1": 0.5931,
+                "accuracy": 0.9167,
+                "classesEmitted": 5,
+                "brierClears": true,
+                "macroF1Clears": true
+              },
+              "robustAboveGate": true,
+              "totalClasses": 13
+            },
+            "deployGrade": {
+              "pass": true,
+              "verdict": "deploy-ready-selective",
+              "failures": [],
+              "productionGate": 0.7,
+              "operatingPoint": {
+                "tau": 0.7,
+                "coverage": 0.3095,
+                "emitted": 26,
+                "brier": 0.0363,
+                "macroF1": 1,
+                "accuracy": 1,
+                "classesEmitted": 2,
+                "totalClasses": 13
+              },
+              "maxCoveragePoint": {
+                "tau": 0.45,
+                "coverage": 0.4286,
+                "brier": 0.0876,
+                "macroF1": 0.5931
+              },
+              "robustAboveGate": true,
+              "concentrated": true,
+              "globalAuroc": 0.8342,
+              "note": "Anchored on the PRODUCTION confidence gate (GNN_DEFAULTS.minConf), NOT the most-favorable τ. tier-5 emits above the gate and DEFERS the rest (coverage<1) to the LLM tier. AUROC is the full-holdout ranking metric; Brier+macro-F1 are the emitted-set quality at the production gate. NOTE: the emitted set spans only 2 of 13 dispatcher classes — macro-F1 is over that subset (the high-confidence band is concentrated), NOT all classes. Full-holdout grade is retained for transparency. maxCoveragePoint shows the tradeoff if the gate were lowered."
+            }
+          }
+        }
+      },
+      "decision": {
+        "wireEdges": true,
+        "recommendation": "WIRE the confidence-hybrid into tier-5",
+        "reasons": [
+          "direct-embed: PASSES selective gate (coverage 0.2619, 1/13 classes)",
+          "hybrid@tau: PASSES selective gate (coverage 0.3095, 2/13 classes)",
+          "hybrid beats direct-embed (more classes + more coverage) AND is robust above the gate."
+        ]
+      }
+    },
+    {
+      "seed": 42,
+      "holdoutN": 84,
+      "neighborCoverage": {
+        "covered": 7,
+        "total": 84,
+        "coverage": 0.0833,
+        "avgNeighbors": 6.7143
+      },
+      "arms": {
+        "direct": {
+          "n": 84,
+          "covered": 84,
+          "coverage": 1,
+          "metrics": {
+            "auroc": 0.7676,
+            "macroF1": 0.2684,
+            "brier": 0.1813,
+            "accuracy": 0.5
+          },
+          "selective": {
+            "deployPoint": {
+              "found": true,
+              "productionMinConf": 0.7,
+              "productionPoint": {
+                "tau": 0.7,
+                "coverage": 0.2262,
+                "emitted": 19,
+                "brier": 0.04,
+                "macroF1": 1,
+                "accuracy": 1,
+                "classesEmitted": 1,
+                "brierClears": true,
+                "macroF1Clears": true
+              },
+              "maxCoveragePoint": {
+                "tau": 0.55,
+                "coverage": 0.2857,
+                "emitted": 24,
+                "brier": 0.0787,
+                "macroF1": 0.9106,
+                "accuracy": 0.9583,
+                "classesEmitted": 4,
+                "brierClears": true,
+                "macroF1Clears": true
+              },
+              "robustAboveGate": true,
+              "totalClasses": 13
+            },
+            "deployGrade": {
+              "pass": false,
+              "verdict": "no-deployable-operating-point",
+              "failures": [
+                "AUROC 0.7676 < 0.78 (global ranking)"
+              ],
+              "productionGate": 0.7,
+              "operatingPoint": {
+                "tau": 0.7,
+                "coverage": 0.2262,
+                "emitted": 19,
+                "brier": 0.04,
+                "macroF1": 1,
+                "accuracy": 1,
+                "classesEmitted": 1,
+                "totalClasses": 13
+              },
+              "maxCoveragePoint": {
+                "tau": 0.55,
+                "coverage": 0.2857,
+                "brier": 0.0787,
+                "macroF1": 0.9106
+              },
+              "robustAboveGate": true,
+              "concentrated": true,
+              "globalAuroc": 0.7676,
+              "note": "Anchored on the PRODUCTION confidence gate (GNN_DEFAULTS.minConf), NOT the most-favorable τ. tier-5 emits above the gate and DEFERS the rest (coverage<1) to the LLM tier. AUROC is the full-holdout ranking metric; Brier+macro-F1 are the emitted-set quality at the production gate. NOTE: the emitted set spans only 1 of 13 dispatcher classes — macro-F1 is over that subset (the high-confidence band is concentrated), NOT all classes. Full-holdout grade is retained for transparency. maxCoveragePoint shows the tradeoff if the gate were lowered."
+            }
+          }
+        },
+        "neighbor": {
+          "n": 84,
+          "covered": 7,
+          "coverage": 0.0833,
+          "metrics": {
+            "auroc": 0.9875,
+            "macroF1": 0.0308,
+            "brier": 0.0204,
+            "accuracy": 0.0476
+          },
+          "selective": {
+            "deployPoint": {
+              "found": false,
+              "productionMinConf": 0.7,
+              "productionPoint": {
+                "tau": 0.7,
+                "coverage": 0.0476,
+                "emitted": 4,
+                "brier": 0.2656,
+                "macroF1": 0.4286,
+                "accuracy": 0.75,
+                "classesEmitted": 1,
+                "brierClears": false,
+                "macroF1Clears": false
+              },
+              "maxCoveragePoint": null,
+              "robustAboveGate": false,
+              "totalClasses": 13
+            },
+            "deployGrade": {
+              "pass": false,
+              "verdict": "no-deployable-operating-point",
+              "failures": [
+                "at the production gate τ=0.7 the emitted set fails: Brier 0.2656 > 0.15, macro-F1 0.4286 < 0.55"
+              ],
+              "productionGate": 0.7,
+              "operatingPoint": {
+                "tau": 0.7,
+                "coverage": 0.0476,
+                "emitted": 4,
+                "brier": 0.2656,
+                "macroF1": 0.4286,
+                "accuracy": 0.75,
+                "classesEmitted": 1,
+                "totalClasses": 13
+              },
+              "maxCoveragePoint": null,
+              "robustAboveGate": false,
+              "concentrated": true,
+              "globalAuroc": 0.9875,
+              "note": "Anchored on the PRODUCTION confidence gate (GNN_DEFAULTS.minConf), NOT the most-favorable τ. tier-5 emits above the gate and DEFERS the rest (coverage<1) to the LLM tier. AUROC is the full-holdout ranking metric; Brier+macro-F1 are the emitted-set quality at the production gate. NOTE: the emitted set spans only 1 of 13 dispatcher classes — macro-F1 is over that subset (the high-confidence band is concentrated), NOT all classes. Full-holdout grade is retained for transparency. maxCoveragePoint shows the tradeoff if the gate were lowered."
+            }
+          }
+        },
+        "hybrid": {
+          "n": 84,
+          "covered": 84,
+          "coverage": 1,
+          "metrics": {
+            "auroc": 0.7618,
+            "macroF1": 0.2845,
+            "brier": 0.1867,
+            "accuracy": 0.5357
+          },
+          "selective": {
+            "deployPoint": {
+              "found": true,
+              "productionMinConf": 0.7,
+              "productionPoint": {
+                "tau": 0.7,
+                "coverage": 0.2738,
+                "emitted": 23,
+                "brier": 0.0792,
+                "macroF1": 0.619,
+                "accuracy": 0.9565,
+                "classesEmitted": 2,
+                "brierClears": true,
+                "macroF1Clears": true
+              },
+              "maxCoveragePoint": {
+                "tau": 0.55,
+                "coverage": 0.3333,
+                "emitted": 28,
+                "brier": 0.1054,
+                "macroF1": 0.7062,
+                "accuracy": 0.9286,
+                "classesEmitted": 4,
+                "brierClears": true,
+                "macroF1Clears": true
+              },
+              "robustAboveGate": true,
+              "totalClasses": 13
+            },
+            "deployGrade": {
+              "pass": false,
+              "verdict": "no-deployable-operating-point",
+              "failures": [
+                "AUROC 0.7618 < 0.78 (global ranking)"
+              ],
+              "productionGate": 0.7,
+              "operatingPoint": {
+                "tau": 0.7,
+                "coverage": 0.2738,
+                "emitted": 23,
+                "brier": 0.0792,
+                "macroF1": 0.619,
+                "accuracy": 0.9565,
+                "classesEmitted": 2,
+                "totalClasses": 13
+              },
+              "maxCoveragePoint": {
+                "tau": 0.55,
+                "coverage": 0.3333,
+                "brier": 0.1054,
+                "macroF1": 0.7062
+              },
+              "robustAboveGate": true,
+              "concentrated": true,
+              "globalAuroc": 0.7618,
+              "note": "Anchored on the PRODUCTION confidence gate (GNN_DEFAULTS.minConf), NOT the most-favorable τ. tier-5 emits above the gate and DEFERS the rest (coverage<1) to the LLM tier. AUROC is the full-holdout ranking metric; Brier+macro-F1 are the emitted-set quality at the production gate. NOTE: the emitted set spans only 2 of 13 dispatcher classes — macro-F1 is over that subset (the high-confidence band is concentrated), NOT all classes. Full-holdout grade is retained for transparency. maxCoveragePoint shows the tradeoff if the gate were lowered."
+            }
+          }
+        }
+      },
+      "decision": {
+        "wireEdges": false,
+        "recommendation": "keep direct-embed (hybrid below gate)",
+        "reasons": [
+          "direct-embed: fails selective gate (coverage 0.2262, 1/13 classes)",
+          "hybrid@tau: fails selective gate (coverage 0.2738, 2/13 classes)",
+          "hybrid does not pass the selective gate -> edges do NOT improve the deployed tier."
+        ]
+      }
+    }
+  ],
+  "aggregate": {
+    "seeds": [
+      1337,
+      7,
+      42
+    ],
+    "liveSeeds": 3,
+    "wireEdges": false,
+    "recommendation": "KEEP direct-embed -- the edges lever does not beat the deployed classifier on the live ghost holdout"
+  }
+}

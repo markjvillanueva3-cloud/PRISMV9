@@ -1,0 +1,455 @@
+[
+  {
+    "id": "S0-MS1",
+    "title": "System Health Verification",
+    "track": "S0",
+    "deps": [],
+    "status": "complete",
+    "units": 11,
+    "completed": 11,
+    "sessions": "1",
+    "brief": "Verify PRISM MCP server health: build, tests, dispatcher count, engine count, registry counts, skills/scripts/hooks inventory."
+  },
+  {
+    "id": "L0-NEW-MS0",
+    "title": "Data Consolidation & Deduplication",
+    "track": "L0",
+    "deps": [
+      "S0-MS1"
+    ],
+    "status": "not_started",
+    "units": 12,
+    "completed": 0,
+    "sessions": "2-3",
+    "brief": "Merge 1,775 files (216MB) from extracted/ and extracted_modules/ into data/registries/. Triage: port useful data, archive rest, eliminate duplicates."
+  },
+  {
+    "id": "L0-P0-MS1",
+    "title": "Create 12 Core Databases",
+    "track": "L0",
+    "deps": [
+      "L0-NEW-MS0"
+    ],
+    "status": "not_started",
+    "units": 12,
+    "completed": 0,
+    "sessions": "3-4",
+    "brief": "Create 12 new databases: WorkholdingDB, InsertDB, ThreadDB, GradeDB, SurfaceFinishDB, ToleranceDB, ControllerDB, PostProcessorDB, CuttingFluidDB, FeatureDB + 2 consolidated DBs."
+  },
+  {
+    "id": "L0-P0-MS2",
+    "title": "Create 12 PASS2 Specialty Databases",
+    "track": "L0",
+    "deps": [
+      "L0-P0-MS1"
+    ],
+    "status": "not_started",
+    "units": 12,
+    "completed": 0,
+    "sessions": "2-3",
+    "brief": "Create 12 specialty databases from PASS2: FRF, BearingFit, SpindleConfig, ChipBreaker, ToolHolder, CoolantNozzle, HSK/BT30, NanoCoating, CuttingForce, RoughnessProfile, ThermalDeformation, VibrationSignature."
+  },
+  {
+    "id": "L0-P1-MS1",
+    "title": "Registry Enrichment — Full Coverage",
+    "track": "L0",
+    "deps": [
+      "L0-P0-MS2"
+    ],
+    "status": "not_started",
+    "units": 10,
+    "completed": 0,
+    "sessions": "2-3",
+    "brief": "Enrich ALL 18,516 registry entries: MaterialRegistry (kc1.1/mc, J-C, Taylor, thermal), ToolRegistry (geometry), MachineRegistry (spindle curves), AlarmRegistry (troubleshooting trees)."
+  },
+  {
+    "id": "L0-P2-MS1",
+    "title": "Registry Infrastructure + Cross-Registry Index + DSL",
+    "track": "L0",
+    "deps": [
+      "L0-P1-MS1"
+    ],
+    "status": "not_started",
+    "units": 11,
+    "completed": 0,
+    "sessions": "2-3",
+    "brief": "Fix 6 critical DSL gaps: file-based formula/algorithm loading, MiniSearch FTS indexing, DecisionTreeEngine registration, expand CompoundActions to 10, InferenceChains to 5, AlgorithmGateway to full registry."
+  },
+  {
+    "id": "L1-P0-MS1",
+    "title": "Port ALL 14 Monolith Algorithms",
+    "track": "L1",
+    "deps": [
+      "L0-P2-MS1"
+    ],
+    "status": "not_started",
+    "units": 14,
+    "completed": 0,
+    "sessions": "3-4",
+    "brief": "Port 14 algorithms from monolith JS to TypeScript: 8 core (Kienzle, Taylor, Johnson-Cook, SurfaceFinish, StabilityLobe, ChipThinning, ThermalPartition, PowerTorque) + 6 extended (ChipFormation, ToolWear, CostOptimizer, ThreadForce, Deflection, MRR)."
+  },
+  {
+    "id": "L1-P1-MS1",
+    "title": "18 New General-Purpose Algorithms",
+    "track": "L1",
+    "deps": [
+      "L1-P0-MS1"
+    ],
+    "status": "not_started",
+    "units": 18,
+    "completed": 0,
+    "sessions": "2-3",
+    "brief": "Implement 18 new algorithms: Genetic, SimAnnealing, PSO, Neural, Bayesian, MonteCarlo, Fuzzy, DigitalTwin, TimeSeries, AnomalyDetect, Clustering, DecisionTree, Regression, Interpolation, Kalman, PID, FEA2D, FFT."
+  },
+  {
+    "id": "L1-P1-MS2",
+    "title": "14 New Manufacturing-Specific Algorithms (PASS2)",
+    "track": "L1",
+    "deps": [
+      "L1-P1-MS1"
+    ],
+    "status": "not_started",
+    "units": 14,
+    "completed": 0,
+    "sessions": "2",
+    "brief": "Implement 14 PASS2 manufacturing algorithms: MinkowskiSum, SweptVolume, ChipVolume, JaegerTemp, UsuiWear, FRFStability, RCSA, CWEZBuffer, AntColony, DPMultiPass, ILP, CSP, STFTChatter, WaveletBreakage. 8 are SAFETY-CRITICAL."
+  },
+  {
+    "id": "L1-P2-MS1",
+    "title": "Algorithm Engine & Wiring",
+    "track": "L1",
+    "deps": [
+      "L1-P1-MS2"
+    ],
+    "status": "not_started",
+    "units": 8,
+    "completed": 0,
+    "sessions": "1",
+    "brief": "Wire all 46 algorithms into AlgorithmEngine: AlgorithmRegistry registration, AlgorithmGateway routing, benchmark suite, cross-validation against prism_calc."
+  },
+  {
+    "id": "L2-P0-MS1",
+    "title": "Port 8 Monolith Engines",
+    "track": "L2",
+    "deps": [
+      "L1-P2-MS1"
+    ],
+    "status": "not_started",
+    "units": 8,
+    "completed": 0,
+    "sessions": "2-3",
+    "brief": "Port 8 monolith engines: CADKernel, CAMKernel, Simulation, Visualization, AIML, FileIO, Report, Settings."
+  },
+  {
+    "id": "L2-P1-MS1",
+    "title": "20 Manufacturing Intelligence Engines",
+    "track": "L2",
+    "deps": [
+      "L2-P0-MS1"
+    ],
+    "status": "not_started",
+    "units": 20,
+    "completed": 0,
+    "sessions": "4",
+    "brief": "Create 20 manufacturing intelligence engines: ToolSelection, MaterialSelection, MachineSelection, FixtureDesign, ProcessPlan, CostEstimation, Quote, Scheduling, QualityPrediction, Troubleshooting, TribalKnowledge, LearningPath, DigitalTwin, PredictiveMaint, EnergyOpt, BatchOpt, Nesting, ProbeRoutine, SetupSheet, ToolCrib."
+  },
+  {
+    "id": "L2-P2-MS1",
+    "title": "16 CAD/CAM Engines",
+    "track": "L2",
+    "deps": [
+      "L2-P1-MS1"
+    ],
+    "status": "not_started",
+    "units": 16,
+    "completed": 0,
+    "sessions": "3",
+    "brief": "Create 16 CAD/CAM engines including geometry, toolpath, collision, surface analysis. 4 safety engines with blocking hooks."
+  },
+  {
+    "id": "L2-P3-MS1",
+    "title": "16 Infrastructure Engines",
+    "track": "L2",
+    "deps": [
+      "L2-P2-MS1"
+    ],
+    "status": "not_started",
+    "units": 16,
+    "completed": 0,
+    "sessions": "3",
+    "brief": "Create 16 infrastructure engines: Auth, Tenant, Plugin, Backup, Migration, Audit, Notification, Cache, Search, Queue, Rate, Monitor, Health, Config, License, Telemetry."
+  },
+  {
+    "id": "L2-P4-MS1",
+    "title": "44 PASS2 Specialty Engines",
+    "track": "L2",
+    "deps": [
+      "L2-P3-MS1"
+    ],
+    "status": "not_started",
+    "units": 44,
+    "completed": 0,
+    "sessions": "8-10",
+    "brief": "Create 44 PASS2 specialty engines across manufacturing domains: turning, grinding, EDM, threading, 5-axis, and more. 9 safety-critical engines."
+  },
+  {
+    "id": "L3-P0-MS1",
+    "title": "6 Core New Dispatchers",
+    "track": "L3",
+    "deps": [
+      "L2-P4-MS1"
+    ],
+    "status": "not_started",
+    "units": 8,
+    "completed": 0,
+    "sessions": "2-3",
+    "brief": "Create 6 new dispatchers: prism_cad (10 actions), prism_cam (9), prism_quality (8), prism_scheduling (8), prism_auth (8), prism_export (8). Plus extend prism_intelligence (+4) and prism_data (+8)."
+  },
+  {
+    "id": "L3-P1-MS1",
+    "title": "6 PASS2 Specialty Dispatchers",
+    "track": "L3",
+    "deps": [
+      "L3-P0-MS1"
+    ],
+    "status": "not_started",
+    "units": 6,
+    "completed": 0,
+    "sessions": "2-3",
+    "brief": "Create 6 PASS2 specialty dispatchers: prism_turning, prism_5axis, prism_edm, prism_grinding, prism_additive, prism_composite."
+  },
+  {
+    "id": "L4-P0-MS1",
+    "title": "20 Core Hooks + 6 Cadences",
+    "track": "L4",
+    "deps": [
+      "L3-P1-MS1"
+    ],
+    "status": "not_started",
+    "units": 26,
+    "completed": 0,
+    "sessions": "2-3",
+    "brief": "Create 20 core hooks (5 blocking safety + 4 warning quality + 4 business + 4 system + 3 API) and 6 time-based cadences (daily, weekly, hourly, shift, monthly, quarterly)."
+  },
+  {
+    "id": "L4-P1-MS1",
+    "title": "20 PASS2 Specialty Hooks + 6 Cadences",
+    "track": "L4",
+    "deps": [
+      "L4-P0-MS1"
+    ],
+    "status": "not_started",
+    "units": 26,
+    "completed": 0,
+    "sessions": "1-2",
+    "brief": "Create 20 PASS2 specialty hooks (6 blocking + 14 warning across manufacturing domains) and 6 specialty cadences."
+  },
+  {
+    "id": "L5-P0-MS1",
+    "title": "22 Core Product/Feature Skills",
+    "track": "L5",
+    "deps": [
+      "L4-P1-MS1"
+    ],
+    "status": "not_started",
+    "units": 22,
+    "completed": 0,
+    "sessions": "2",
+    "brief": "Create 22 core skills: 4 product quick-starts (SFC, PPG, Learning, ERP), 18 feature guides (CAD import, CAM toolpath, digital twin, scheduling, quality, cost, maintenance, troubleshooting, etc.)."
+  },
+  {
+    "id": "L5-P0-MS2",
+    "title": "22 PASS2 Specialty Skills",
+    "track": "L5",
+    "deps": [
+      "L5-P0-MS1"
+    ],
+    "status": "not_started",
+    "units": 22,
+    "completed": 0,
+    "sessions": "2-3",
+    "brief": "Create 22 PASS2 specialty skills for aerospace, automotive, medical, energy, and other industry verticals."
+  },
+  {
+    "id": "L5-P1-MS1",
+    "title": "14 Core + 14 PASS2 Scripts",
+    "track": "L5",
+    "deps": [
+      "L5-P0-MS2"
+    ],
+    "status": "not_started",
+    "units": 28,
+    "completed": 0,
+    "sessions": "1-2",
+    "brief": "Create 28 automation scripts: 14 core (material-lookup, tool-recommend, safety-check, cost-estimate, etc.) + 14 PASS2 (aerospace-check, medical-validate, etc.)."
+  },
+  {
+    "id": "L6-P0-MS1",
+    "title": "Core REST API Routes",
+    "track": "L6",
+    "deps": [
+      "L5-P1-MS1"
+    ],
+    "status": "not_started",
+    "units": 10,
+    "completed": 0,
+    "sessions": "2",
+    "brief": "Create core REST API: SFC 11 endpoints, PPG 8 endpoints, Learning 6 endpoints, ERP 8 endpoints. Express.js routes with validation middleware, response formatting, OpenAPI specs."
+  },
+  {
+    "id": "L6-P1-MS1",
+    "title": "Auth, Admin, WebSocket & OpenAPI",
+    "track": "L6",
+    "deps": [
+      "L6-P0-MS1"
+    ],
+    "status": "not_started",
+    "units": 8,
+    "completed": 0,
+    "sessions": "1-2",
+    "brief": "Auth middleware (JWT), admin endpoints, WebSocket real-time updates, consolidated OpenAPI spec, rate limiting, CORS."
+  },
+  {
+    "id": "S3-MS1",
+    "title": "SFC Calculator Core UI",
+    "track": "S3",
+    "deps": [
+      "L6-P1-MS1"
+    ],
+    "status": "not_started",
+    "units": 12,
+    "completed": 0,
+    "sessions": "2-3",
+    "brief": "Build SFC Calculator page: 7 sub-calculators (Speed/Feed, Force, Power, Surface, Stability, Cost, Tool Life), shared input/results panels, safety badge, unit toggle."
+  },
+  {
+    "id": "S3-MS2",
+    "title": "SFC Smart Selectors",
+    "track": "S3",
+    "deps": [
+      "S3-MS1"
+    ],
+    "status": "not_started",
+    "units": 8,
+    "completed": 0,
+    "sessions": "1-2",
+    "brief": "Add material/tool/machine smart search selectors with autocomplete, filters, recent history, and favorites."
+  },
+  {
+    "id": "S3-MS3",
+    "title": "SFC Advanced Features",
+    "track": "S3",
+    "deps": [
+      "S3-MS2"
+    ],
+    "status": "not_started",
+    "units": 10,
+    "completed": 0,
+    "sessions": "2",
+    "brief": "Add what-if analysis, parameter comparison, formula browser (KaTeX), data export (PDF/CSV), presets, batch calculation."
+  },
+  {
+    "id": "S4-MS1",
+    "title": "SFC Testing, Polish & Ship",
+    "track": "S4",
+    "deps": [
+      "S3-MS3"
+    ],
+    "status": "not_started",
+    "units": 8,
+    "completed": 0,
+    "sessions": "2-3",
+    "brief": "Full SFC release: E2E tests, performance optimization, accessibility, documentation, deployment. Ralph loop + Omega validation."
+  },
+  {
+    "id": "L8-P0-MS1",
+    "title": "PPG Engine + API",
+    "track": "L8",
+    "deps": [
+      "L6-P1-MS1"
+    ],
+    "status": "not_started",
+    "units": 10,
+    "completed": 0,
+    "sessions": "3-4",
+    "brief": "Post Processor Generator backend: G-code translation engine for 6+ controllers (Fanuc, Siemens, Haas, Mazak, Okuma, Heidenhain), validation, syntax highlighting."
+  },
+  {
+    "id": "L8-P0-MS2",
+    "title": "PPG Web UI",
+    "track": "L8",
+    "deps": [
+      "L8-P0-MS1"
+    ],
+    "status": "not_started",
+    "units": 12,
+    "completed": 0,
+    "sessions": "5-6",
+    "brief": "PPG web interface: Monaco editor for G-code, dual-pane translator, controller selector, syntax validation, diff view, export."
+  },
+  {
+    "id": "L8-P1-MS1",
+    "title": "CAD/CAM Learning Engine + API",
+    "track": "L8",
+    "deps": [
+      "L6-P1-MS1"
+    ],
+    "status": "not_started",
+    "units": 10,
+    "completed": 0,
+    "sessions": "2-3",
+    "brief": "Learning platform backend: lesson engine, progress tracking, formula explanations, troubleshooting wizard, knowledge assessment."
+  },
+  {
+    "id": "L8-P1-MS2",
+    "title": "CAD/CAM Learning Web UI",
+    "track": "L8",
+    "deps": [
+      "L8-P1-MS1"
+    ],
+    "status": "not_started",
+    "units": 14,
+    "completed": 0,
+    "sessions": "7-9",
+    "brief": "Learning web interface: interactive lessons with KaTeX formulas, progress dashboard, quiz system, troubleshooting wizard, 3D visualization."
+  },
+  {
+    "id": "L8-P2-MS1",
+    "title": "ERP/Business Engine + API",
+    "track": "L8",
+    "deps": [
+      "L6-P1-MS1"
+    ],
+    "status": "not_started",
+    "units": 10,
+    "completed": 0,
+    "sessions": "3-4",
+    "brief": "ERP backend: job management, quoting, scheduling, cost tracking, inventory, work orders, purchase orders."
+  },
+  {
+    "id": "L8-P2-MS2",
+    "title": "ERP/Business Web UI",
+    "track": "L8",
+    "deps": [
+      "L8-P2-MS1"
+    ],
+    "status": "not_started",
+    "units": 15,
+    "completed": 0,
+    "sessions": "8-11",
+    "brief": "ERP web interface: job dashboard, quote generator, Gantt scheduler, cost tracker, inventory management, reports."
+  },
+  {
+    "id": "L8-P3-MS1",
+    "title": "PASS2 Additional Pages",
+    "track": "L8",
+    "deps": [
+      "L8-P2-MS2"
+    ],
+    "status": "not_started",
+    "units": 6,
+    "completed": 0,
+    "sessions": "2-3",
+    "brief": "3 additional product pages: Digital Work Instructions, Shift Dashboard, Material Cert Viewer."
+  }
+]

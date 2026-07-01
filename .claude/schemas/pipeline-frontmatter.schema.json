@@ -1,0 +1,203 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://prism/schemas/pipeline-frontmatter.schema.json",
+  "title": "PRISM Pipeline Frontmatter Schema (COMMAND-KERNEL-MS0 / U-CK12)",
+  "description": "Canonical YAML frontmatter for pipeline entries under knowledge/wiki/os/pipelines/*.md. Each entry registers one automation chain — the schema is the kernel's contract for the U-CK13 pipeline executor + U-CK14 pipeline_integrations wiring + U-CK25 /pipeline meta-command. Adopts the ACP-MS0A automation-chain shape; ACP-MS0A is `not_started` at U-CK12 claim time, so this schema BUILDS the contract and is contributed back to ACP-MS1 (see knowledge/wiki/os/pipelines/_schema.md §contribution-back).",
+  "type": "object",
+  "additionalProperties": true,
+  "required": ["title", "slug", "kind", "status", "date"],
+  "properties": {
+    "title": {
+      "type": "string",
+      "minLength": 4,
+      "maxLength": 160,
+      "description": "Human-readable pipeline name shown in wiki UIs (e.g. 'PRISM pipeline — /loop autonomous iteration')."
+    },
+    "slug": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 64,
+      "pattern": "^[a-z][a-z0-9-]*(:[a-z0-9-]+)?$",
+      "description": "Stable pipeline id — kebab-case, optional one-level namespace (e.g. `forge:audit`). Matches the filename (loop.md → slug:loop). Becomes the chain-id in the U-CK13 executor + the key in event-to-chain / command-to-chain mappings."
+    },
+    "kind": {
+      "type": "string",
+      "enum": ["pipeline"],
+      "description": "Discriminator — must be the literal string 'pipeline'. Distinguishes pipeline entries from other wiki/os/ artifact types (commands, processes, syscalls, sessions). Uses `enum: [...]` rather than `const:` because the CK06-derived validator subset does not implement `const` (P0 fix from U-CK12 Arm-B scrutiny)."
+    },
+    "status": {
+      "type": "string",
+      "enum": ["draft", "shipped", "deprecated", "experimental"],
+      "description": "Lifecycle stage. `shipped` = production-wired and load-bearing; `draft` = documented but not wired; `experimental` = wired behind a knob; `deprecated` = scheduled for removal (must carry `replacement` if soft-deprecation)."
+    },
+    "date": {
+      "type": "string",
+      "format": "date",
+      "description": "ISO date (YYYY-MM-DD) the entry was authored or last materially revised. Pairs with `status` to detect rot — a `shipped` entry whose `date` predates the last load-bearing commit to its `composed_of` surfaces is a regen candidate."
+    },
+    "milestone": {
+      "type": "string",
+      "pattern": "^[A-Z][A-Z0-9-]+$",
+      "description": "Roadmap milestone this pipeline ships under (e.g. 'COMMAND-KERNEL-MS0'). Cross-referenced by build-milestone-progress.mjs to surface envelope-vs-disk drift."
+    },
+    "unit": {
+      "type": "string",
+      "description": "Unit id(s) that shipped this entry (e.g. 'U-CK04-extension' or 'U-KIP01 + U-KIP02')."
+    },
+    "author": {
+      "type": "string",
+      "description": "Authoring chat / slot (e.g. 'claude-41db1b82 (slot india)'). Diagnostic only; not load-bearing for execution."
+    },
+    "trigger": {
+      "oneOf": [
+        {
+          "type": "string",
+          "enum": ["cron", "hook", "command", "event", "manual", "compose"],
+          "description": "Shorthand trigger kind when the pipeline fires by a single mechanism."
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "kind": {
+              "type": "string",
+              "enum": ["cron", "hook", "command", "event", "manual", "compose"]
+            },
+            "cron": {
+              "type": "string",
+              "description": "5-field cron expression (when kind=cron)."
+            },
+            "events": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": ["UserPromptSubmit", "PreToolUse", "PostToolUse", "Stop", "SessionStart", "PreCompact", "SubagentStart"]
+              },
+              "uniqueItems": true,
+              "description": "Hook events that fire the pipeline (when kind=hook)."
+            },
+            "command": {
+              "type": "string",
+              "pattern": "^/[a-z][a-z0-9-]*(:[a-z0-9-]+)?$",
+              "description": "Slash-command that fires the pipeline (when kind=command)."
+            }
+          },
+          "required": ["kind"]
+        }
+      ],
+      "description": "How the pipeline is initiated. ACP-MS0A P0-U02 — event-to-chain + command-to-chain mappings."
+    },
+    "composed_of": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 },
+      "minItems": 1,
+      "uniqueItems": true,
+      "description": "Ordered list of stages / commands / engines this pipeline orchestrates. Canonical field name. Backward-compat alias: `composes` (see x-aliases). ACP-MS0A P0-U01 — the `steps` array."
+    },
+    "composes": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 },
+      "minItems": 1,
+      "uniqueItems": true,
+      "deprecated": true,
+      "description": "DEPRECATED alias for `composed_of` (admitted for back-compat with the 3 seed entries authored before U-CK12). New entries SHOULD use `composed_of`. Both fields validate equivalently; presence of either satisfies the steps requirement."
+    },
+    "stages": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 },
+      "minItems": 1,
+      "uniqueItems": true,
+      "description": "Optional named stage labels (e.g. ['extract','route','plan','inject']). Where `composed_of` lists the TOOLS, `stages` lists the LOGICAL PHASES — both may be present for richer entries."
+    },
+    "token_budget": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "tier": {
+          "type": "string",
+          "enum": ["entry-router", "coding", "product-autopilot", "custom"],
+          "description": "ACP-MS0A P0-U05 tier name. entry-router < 500 tokens; coding < 2000; product-autopilot < 5000; custom uses the explicit max_tokens."
+        },
+        "max_tokens": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 200000,
+          "description": "Hard ceiling on token spend per fire. Defaults derived from tier when omitted."
+        },
+        "enforcement": {
+          "type": "string",
+          "enum": ["soft-warn", "hard-stop", "downgrade-model"],
+          "description": "What happens when the budget is exceeded. `hard-stop` aborts the chain; `downgrade-model` switches to a smaller model and continues; `soft-warn` logs only."
+        }
+      },
+      "description": "ACP-MS0A P0-U05 — per-chain token budget + enforcement contract."
+    },
+    "downgrade": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "mode": {
+          "type": "string",
+          "enum": ["silent-degrade", "user-prompt", "hard-stop"],
+          "description": "ACP-MS0A P0-U03 — chain-tier downgrade behavior. silent-degrade = fail-soft + telemetry; user-prompt = AskUserQuestion before fallback; hard-stop = abort."
+        },
+        "fallback_to": {
+          "type": "string",
+          "description": "Slug of an alternate pipeline to invoke on degrade (e.g. a simpler version of the same chain)."
+        }
+      },
+      "description": "ACP-MS0A P0-U03 — downgrade / fail-closed behavior."
+    },
+    "telemetry": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "ledger": {
+          "type": "string",
+          "description": "Path to the JSONL ledger this pipeline appends to (e.g. 'state/shared/pipeline-telemetry.jsonl'). Read by U-CK27 adaptive-thresholds."
+        },
+        "fields": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": ["fire_ts", "chain_id", "step_id", "token_cost", "latency_ms", "outcome", "session_id", "slot"]
+          },
+          "uniqueItems": true,
+          "description": "ACP-MS0A P0-U04 — fields emitted per telemetry event. fire_ts + chain_id + outcome are the floor."
+        }
+      },
+      "description": "ACP-MS0A P0-U04 — telemetry event schema for this pipeline's fires."
+    },
+    "consumes": {
+      "type": "array",
+      "items": { "type": "string" },
+      "uniqueItems": true,
+      "description": "Upstream inputs (file paths, dispatcher actions, other pipelines). Mirrors the command-frontmatter `consumes` field — same shape, different namespace."
+    },
+    "produces": {
+      "type": "array",
+      "items": { "type": "string" },
+      "uniqueItems": true,
+      "description": "Outputs written (file paths, dispatcher actions, persistent state). Mirrors command-frontmatter `produces`."
+    },
+    "replacement": {
+      "type": "string",
+      "description": "Slug of the replacement pipeline (only when status='deprecated')."
+    }
+  },
+  "x-aliases": {
+    "composed_of": ["composes"]
+  },
+  "x-rationale": {
+    "acp_ms0a_coverage": {
+      "P0-U01": "composed_of / composes / stages (chain steps) + slug (chain-id) + trigger (triggers) + token_budget (token-budget)",
+      "P0-U02": "trigger.events (event-to-chain) + trigger.command (command-to-chain)",
+      "P0-U03": "downgrade.mode + downgrade.fallback_to",
+      "P0-U04": "telemetry.fields + telemetry.ledger",
+      "P0-U05": "token_budget.tier + token_budget.max_tokens + token_budget.enforcement"
+    },
+    "contribution_back": "ACP-MS0A is `not_started` at U-CK12 claim time. This schema is the EXTEND-path build per the unit's disposition_conditional; it should be adopted verbatim by ACP-MS1 (or the schema MAY be promoted to ACP-MS0A P0 when that milestone reopens). See knowledge/wiki/os/pipelines/_schema.md §contribution-back.",
+    "no_steps_required": "composed_of / composes / stages are ALL optional at the root — this is INTENTIONAL. A pipeline MAY register without any orchestration list when the work lives entirely in an external trigger (e.g. a hook-only pipeline whose body runs inside a single .mjs hook script). The U-CK12 validator (scripts/validate-pipeline-registry.mjs) emits a WARNING on entries with no composed_of+composes+stages — schema-level enforcement would require `anyOf` (not implemented by the CK06 validator subset) and would break the back-compat alias path. The U-CK13 pipeline executor enforces step-presence at runtime when the trigger expects orchestration.",
+    "validator_subset_limits": "The CK06 validator subset cannot enforce: const (use enum-of-one), anyOf, allOf, if/then/else, dependentSchemas, dependentRequired, $ref. Semantic constraints (tier↔max_tokens, deprecated↔replacement, trigger.kind↔payload-shape, at-least-one-steps-field) are documented in prose and enforced by the U-CK13 runtime executor + the validator script's warning layer."
+  }
+}

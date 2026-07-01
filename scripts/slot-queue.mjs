@@ -13,10 +13,12 @@
 // Exit codes: 0 ok / 1 queue-empty-or-all-blocked / 2 usage-error / 3 io-error
 
 import fs from "node:fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+import { buildShippedIdsUnion } from "./lib/shipped-units-source-of-truth.mjs";
 
 const QUEUE_FILE = "H:/prism/state/shared/slot-task-queues.json";
 const CLAIMS_FILE = "H:/prism/state/shared/slot-task-claims.json";
-const PROGRESS_FILE = "H:/prism/state/shared/MILESTONE_PROGRESS.json";
 
 function readJsonSafe(p) {
   try { return JSON.parse(fs.readFileSync(p, "utf8")); }
@@ -32,15 +34,32 @@ function loadQueue() {
   return data;
 }
 
-function loadShippedSet() {
-  const prog = readJsonSafe(PROGRESS_FILE) || {};
-  const shipped = new Set();
-  const milestones = Array.isArray(prog.milestones) ? prog.milestones : Object.values(prog.milestones || {});
-  for (const m of milestones) {
-    const ships = Array.isArray(m?.shipped) ? m.shipped : [];
-    for (const u of ships) shipped.add(typeof u === "string" ? u : u?.unit_id || u?.id || "");
-  }
-  return shipped;
+// Canonical shipped-detection (was broken: read m.shipped as if it were an array
+// of unit-ids, but MILESTONE_PROGRESS.shipped is a count number — so the set
+// was always empty fleet-wide and every unit appeared unshipped).
+// Now delegates to shipped-units-source-of-truth which unions:
+//   (a) MILESTONE_PROGRESS m.units[].shipped===true (git-inferred)
+//   (b) milestone envelope status ∈ {complete,completed,shipped,superseded}
+function loadShippedSet() { return buildShippedIdsUnion(); }
+const normId = (id) => String(id || "").trim().toUpperCase();
+
+// Entry-level done marker — complements the envelope/git shipped-set for
+// generator/enroller queue entries whose own id is in no envelope (so the
+// SSOT in shipped-units-source-of-truth.mjs structurally can't see them).
+// Stamped by slot-queue-mark-done.mjs post-commit. Back-compat: pre-existing
+// entries lack the field → not "done" here.
+//
+// STRICTLY ADDITIVE to the SSOT, never authoritative over it: every caller
+// skips an entry if entryCompleted() OR shipped.has(uid) — a union, the same
+// shape as the echo SSOT's own (git ∪ envelope) union. It therefore cannot
+// contradict the SSOT (a unit done by either signal is skipped); it only
+// covers the queue-entry class the SSOT structurally cannot. No drift path.
+const TERMINAL_STATUS = new Set(["shipped", "completed", "done"]);
+export function entryCompleted(entry) {
+  if (!entry || typeof entry !== "object") return false;
+  if (entry.completed_at) return true;
+  const s = typeof entry.status === "string" ? entry.status.trim().toLowerCase() : "";
+  return TERMINAL_STATUS.has(s);
 }
 
 function loadActiveClaims() {
@@ -61,10 +80,12 @@ function pickNext(slot, shipped, claimed) {
   const q = loadQueue();
   const slotQueue = q.queues[slot] || [];
   for (const entry of slotQueue) {
-    if (shipped.has(entry.unit_id)) continue;
-    if (claimed.has(entry.unit_id)) continue;
+    const uid = normId(entry.unit_id);
+    if (entryCompleted(entry)) continue;
+    if (shipped.has(uid)) continue;
+    if (claimed.has(entry.unit_id) || claimed.has(uid)) continue;
     const deps = entry.depends_on || [];
-    const depsBlocked = deps.some(d => !shipped.has(d));
+    const depsBlocked = deps.some(d => !shipped.has(normId(d)));
     if (depsBlocked) continue;
     return { ...entry, _eligible: true };
   }
@@ -74,12 +95,16 @@ function pickNext(slot, shipped, claimed) {
 function listQueue(slot, shipped, claimed) {
   const q = loadQueue();
   const slotQueue = q.queues[slot] || [];
-  return slotQueue.map(e => ({
-    ...e,
-    _shipped: shipped.has(e.unit_id),
-    _claimed: claimed.has(e.unit_id),
-    _dep_blocked: (e.depends_on || []).some(d => !shipped.has(d)),
-  }));
+  return slotQueue.map(e => {
+    const uid = normId(e.unit_id);
+    return {
+      ...e,
+      _completed: entryCompleted(e),
+      _shipped: shipped.has(uid),
+      _claimed: claimed.has(e.unit_id) || claimed.has(uid),
+      _dep_blocked: (e.depends_on || []).some(d => !shipped.has(normId(d))),
+    };
+  });
 }
 
 function statusAll(shipped, claimed) {
@@ -88,9 +113,10 @@ function statusAll(shipped, claimed) {
   for (const [slot, queue] of Object.entries(q.queues)) {
     let s = 0, c = 0, blocked = 0, eligible = 0;
     for (const e of queue) {
-      if (shipped.has(e.unit_id)) s++;
-      else if (claimed.has(e.unit_id)) c++;
-      else if ((e.depends_on || []).some(d => !shipped.has(d))) blocked++;
+      const uid = normId(e.unit_id);
+      if (entryCompleted(e) || shipped.has(uid)) s++;
+      else if (claimed.has(e.unit_id) || claimed.has(uid)) c++;
+      else if ((e.depends_on || []).some(d => !shipped.has(normId(d)))) blocked++;
       else eligible++;
     }
     out[slot] = { total: queue.length, shipped: s, claimed: c, dep_blocked: blocked, eligible };
@@ -103,14 +129,24 @@ function remaining(slot, shipped, claimed) {
   const slotQueue = q.queues[slot] || [];
   let remain = 0;
   for (const e of slotQueue) {
-    if (shipped.has(e.unit_id)) continue;
-    if (claimed.has(e.unit_id)) continue;
-    if ((e.depends_on || []).some(d => !shipped.has(d))) continue;
+    const uid = normId(e.unit_id);
+    if (entryCompleted(e)) continue;
+    if (shipped.has(uid)) continue;
+    if (claimed.has(e.unit_id) || claimed.has(uid)) continue;
+    if ((e.depends_on || []).some(d => !shipped.has(normId(d)))) continue;
     remain++;
   }
   return remain;
 }
 
+const isMain = (() => {
+  try {
+    return process.argv[1]
+      && path.normalize(fs.realpathSync(process.argv[1])) === path.normalize(fileURLToPath(import.meta.url));
+  } catch { return false; }
+})();
+
+if (isMain) {
 const args = process.argv.slice(2);
 function getArg(name) {
   const i = args.indexOf(name);
@@ -143,7 +179,7 @@ if (args.includes("--pick")) {
   } else {
     if (!list.length) { console.log(`${slot}: queue empty`); process.exit(0); }
     for (const e of list) {
-      const flag = e._shipped ? "SHIPPED " : e._claimed ? "IN-FLIGHT" : e._dep_blocked ? "DEP-BLOCK" : "ELIGIBLE ";
+      const flag = e._completed ? "DONE     " : e._shipped ? "SHIPPED " : e._claimed ? "IN-FLIGHT" : e._dep_blocked ? "DEP-BLOCK" : "ELIGIBLE ";
       console.log(`  ${flag}  ${e.unit_id.padEnd(38)} [${e.wave} ${e.cost}]`);
     }
   }
@@ -172,4 +208,5 @@ if (args.includes("--pick")) {
   console.error("  slot-queue.mjs --status [--json]");
   console.error("  slot-queue.mjs --remaining --slot <nato> [--json]");
   process.exit(2);
+}
 }

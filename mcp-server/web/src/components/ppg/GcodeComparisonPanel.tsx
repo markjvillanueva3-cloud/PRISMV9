@@ -84,7 +84,7 @@ export function GcodeComparisonPanel({
   return (
     <PanelCard
       title="Before / After comparison"
-      subtitle={`Traditional vs PRISM-optimized output for ${controller}. ${changedCount} lines differ.`}
+      subtitle={`Traditional vs Kienzle-optimized output for ${controller}. ${changedCount} lines differ.`}
     >
       <div className="mb-4 flex flex-wrap gap-2">
         <StatusPill
@@ -132,7 +132,7 @@ export function GcodeComparisonPanel({
         <div className="overflow-hidden rounded-[22px] border border-cyan-300/14 bg-slate-950/90">
           <div className="border-b border-cyan-300/10 bg-cyan-300/[0.03] px-4 py-2">
             <span className="text-xs font-semibold uppercase tracking-[0.18em] text-cyan-200">
-              PRISM Optimized (per-block S/F)
+              Kienzle Optimized (per-block S/F)
             </span>
           </div>
           <pre className="max-h-[480px] overflow-auto p-4 text-xs leading-6">

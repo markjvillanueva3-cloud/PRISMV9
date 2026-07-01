@@ -1,0 +1,52 @@
+---
+session: claude-571d4bdd
+topic: lima-html-rtk-upgrades
+slot: mike
+written_at: 2026-05-19T01:16:06.090Z
+machine: DESKTOP-N7MI1VB
+family: Claude
+session_key: claude-571d4bdd
+status: active
+---
+
+# HANDOFF: claude-571d4bdd
+Updated: 2026-05-19T01:16:06.090Z
+Family: Claude | Machine: DESKTOP-N7MI1VB | Session: claude-571d4bdd
+
+## STATE
+Iter1 RTK committed 60dbc72116; Iter2 HTML half mid-fix (kilo cluster adopted, R9 gap filled 19/19, Arm B P1 fix Option B applied to guard, needs main()-text + integration test + re-scrutiny + commit)
+
+## RESUME
+Complete Iter2 HTML adopt on slot lima (main tree, cad-fusion-live-ms0). State: html-companion-guard.mjs ALREADY edited (ROOT_DOC_RE removed from isCompanionTarget per Arm B P1#1 — Option B defer). NEXT: (1) fix main() text 'patches / root CLAUDE.md / MEMORY.md'→'patches' ~line 133-140; (2) add checkTwin() patch-sibling integration test (matching/stale/missing-meta) to html-companion-guard.test.mjs for P1#2; (3) re-run both test suites; (4) re-capture state/shared/scrutiny/_html-adopt-iter2.diff + RE-DISPATCH both scrutiny arms (Arm B FAILed); (5) commit [MAIN] [HTML-ADOPT]/U-HTML-COMPANION-SRCHASH co-attr kilo. Then Iter3 HTML-PRIMARY followups, Iter4 rtk coverage. Full detail: H:/prism/.git/LIMA_HTMLRTK_HANDOFF.md
+
+## CONTEXT
+# LIMA — HTML+RTK upgrades /loop (slot lima, claude-bca3789f)
+
+## DONE
+- **Iter1 RTK half COMMITTED** `60dbc72116 [MAIN] [RTK-ADOPT]/U-RTK-RATELIMIT` — adopted kilo's stranded rtk-prefix-reminder rate-limiter + cat/ls→Read/Glob redirect + bash-bundle swap (disable rtk-auto-suggest) + rtk-setup.md path fix + 15-case test. 2-reviewer scrutiny PASS/PASS, 0 P0/P1. Co-attributed kilo.
+- **Iter2 HTML half — IN PROGRESS, NOT committed.** Adopted kilo's html cluster (html-companion-guard.mjs 20/20, md-to-html.mjs, html-report-render.mjs, emit-all-spec-html.ts). Filled R9 gap: added 3 tests to `scripts/lib/md-to-html.test.mjs` (note-suppression, deterministic generatedAt byte-identical, CLI subprocess E2E asserting `<meta prism-source-hash>`==sha256(raw bytes)) — 19/19 PASS.
+
+## SCRUTINY VERDICTS (Iter2)
+- Arm A (code-analyzer): PASS, 0 findings.
+- Arm B (reviewer): **FAIL** — suspected P0 (cross-renderer false-positive) DISPROVEN. 2 real P1s:
+  - P1#1: kilo's broadening targets root CLAUDE.md/MEMORY.md but CLAUDE.html twin is stale-hash + MEMORY.html has no source-hash meta → guaranteed false-DRIFT noise on hottest file. CLAUDE.md is peer-dirty so regenerating its twin would bake peer prose.
+  - P1#2: no integration test exercises checkTwin()/main() over the new target class.
+
+## FIX STRATEGY APPLIED (Option B — defer ROOT_DOC arm)
+Edited `.claude/hooks/html-companion-guard.mjs` ALREADY: removed `ROOT_DOC_RE` const + its clause from `isCompanionTarget()` (now `SPEC_FILE_RE || PATCH_FILE_RE` only); added deferral-rationale comment naming follow-up unit `U-HTML-GUARD-ROOTDOC`. Patch-sibling arm (PATCH_FILE_RE) ships — net-new surface, no stale-twin landmine. Root-doc arm deferred.
+
+## RESUME — exact next steps (Iter2 completion)
+1. `.claude/hooks/html-companion-guard.mjs` main() fix-instruction text still says `fix (patches / root CLAUDE.md / MEMORY.md): node .../md-to-html.mjs` — change to `fix (patches): ...` (root docs no longer targeted). It's near line ~133-140.
+2. Add P1#2 integration test to `.claude/hooks/__tests__/html-companion-guard.test.mjs`: a `checkTwin()`-level test over a tmp PATCH-SIBLING `state/shared/dashboards/patches/X.md`+`.html` pair — 3 cases: matching hash (no drift), stale hash (drift reported), missing `<meta prism-source-hash>` (drift reported). Proves classifier↔drift-engine composition for the shipped target class.
+3. Re-run: `node --test .claude/hooks/__tests__/html-companion-guard.test.mjs` (expect 20+N) + `node --test scripts/lib/md-to-html.test.mjs` (19/19).
+4. Re-capture diff to `state/shared/scrutiny/_html-adopt-iter2.diff`, RE-DISPATCH BOTH scrutiny arms (Arm A code-analyzer, Arm B reviewer) — Arm B FAILed so must re-verify both PASS.
+5. Commit Iter2: `[MAIN] [HTML-ADOPT]/U-HTML-COMPANION-SRCHASH` — files: html-companion-guard.mjs, md-to-html.mjs, html-report-render.mjs, emit-all-spec-html.ts, scripts/lib/md-to-html.test.mjs, .claude/hooks/__tests__/html-companion-guard.test.mjs. NOT CLAUDE.html/MEMORY.html/design-system.html (auto-generated). Co-Authored-By kilo + Opus. Use lock-backoff bash commit pattern; stage ONLY deliverable paths, verify `git diff --cached --name-only`, reset any peer-staged files.
+6. Then Iter3 (task#3): HTML-PRIMARY follow-ups — emit-all-spec-html.ts process.kill(pid,0) Windows stale-lock; check-spec-html-a11y.mjs case-fold argv main-guard; devDispatcher spec_html_render path-escape mirror; SpecHTMLCompanionEngine sourceLink double-escape.
+7. Then Iter4 (task#4): rtk hook-coverage gap analysis.
+8. Queue follow-up unit `U-HTML-GUARD-ROOTDOC`: re-add ROOT_DOC targeting + regenerated non-drifted CLAUDE.html/MEMORY.html + root-doc checkTwin integration test, all one commit.
+
+## ENV / DISCIPLINE
+- Slot lima, working in MAIN tree H:/prism on cad-fusion-live-ms0 (kilo's cluster lives there; slot-lima worktree's bash-bundle.mjs diverged). `[MAIN]` commit prefix. Commit via temp msg file + `git commit -F`, lock-backoff loop, stage only deliverables.
+- Shared tree under heavy peer contention — auto-reset peer-staged files before commit.
+- Per-file 2-reviewer scrutiny mandatory each iter (Arm A code-analyzer, Arm B reviewer).
+- This chat ALSO consolidated prior delta work into claude-68aad091 earlier — that handoff still valid, independent of this lima work.

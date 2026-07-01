@@ -1,0 +1,27 @@
+{
+  "mcpServers": {
+    "prism": {
+      "type": "stdio",
+      "command": "C:/Program Files/nodejs/node.exe",
+      "args": [
+        "H:/PRISM/mcp-server/dist/index.js"
+      ],
+      "env": {
+        "TRANSPORT": "stdio",
+        "LOG_LEVEL": "info",
+        "NODE_OPTIONS": "--max-old-space-size=4096"
+      }
+    },
+    "prism_safe": {
+      "type": "stdio",
+      "command": "C:/Program Files/nodejs/node.exe",
+      "args": [
+        "H:/PRISM/mcp-server/node_modules/tsx/dist/cli.mjs",
+        "H:/PRISM/mcp-server/scripts/prism-context-only.ts"
+      ],
+      "env": {
+        "LOG_LEVEL": "info"
+      }
+    }
+  }
+}

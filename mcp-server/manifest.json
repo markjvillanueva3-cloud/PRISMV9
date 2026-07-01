@@ -1,0 +1,2265 @@
+{
+  "version": "1.0.0",
+  "generatedAt": "2026-05-25T03:09:33.157Z",
+  "server": {
+    "name": "PRISM Manufacturing Intelligence MCP Server",
+    "description": "Safety-critical CNC manufacturing platform: print-to-program across mill/lathe/wire-EDM. 103+ dispatchers, 12 000+ MCP actions covering physics calculations, CAD/CAM toolpaths, quality, quoting, scheduling, AI reasoning, and shop-floor intelligence.",
+    "transport": [
+      "stdio",
+      "http"
+    ],
+    "url": "http://localhost:3100/mcp",
+    "stdioCommand": "node",
+    "stdioArgs": [
+      "H:/prism/mcp-server/dist/index.js"
+    ]
+  },
+  "stats": {
+    "dispatcherCount": 103,
+    "totalActions": 12257,
+    "engineCount": 3217,
+    "externalAgentsSupported": 7
+  },
+  "dispatchers": [
+    {
+      "name": "adaptiveControlDispatcher",
+      "description": "prism_adaptive_control — Adaptive Control & Digital Twin dispatcher — real-time fe...",
+      "actionCount": 51,
+      "useCases": [
+        "AI Reasoning & Machine Learning"
+      ],
+      "exampleClients": [
+        "Cline",
+        "Continue.dev",
+        "Aider",
+        "Gemini CLI",
+        "Goose",
+        "Codex",
+        "Claude Code"
+      ],
+      "psnLegs": [
+        "leg10_nn_gnn"
+      ]
+    },
+    {
+      "name": "agentDispatcher",
+      "description": "prism_agent — PRISM Agent — Intelligent manufacturing agent exposing me...",
+      "actionCount": 24,
+      "useCases": [
+        "AI Agent Orchestration"
+      ],
+      "exampleClients": [
+        "Cline",
+        "Continue.dev",
+        "Aider",
+        "Gemini CLI",
+        "Goose",
+        "Codex",
+        "Claude Code"
+      ],
+      "psnLegs": [
+        "leg2_prism_os"
+      ]
+    },
+    {
+      "name": "aiReasoningDispatcher",
+      "description": "(no server.tool found)",
+      "actionCount": 463,
+      "useCases": [
+        "AI Reasoning & Machine Learning"
+      ],
+      "exampleClients": [
+        "Cline",
+        "Continue.dev",
+        "Aider",
+        "Gemini CLI",
+        "Goose",
+        "Codex",
+        "Claude Code"
+      ],
+      "psnLegs": [
+        "leg10_nn_gnn",
+        "leg11_prism_ai"
+      ]
+    },
+    {
+      "name": "algorithmDispatcher",
+      "description": "prism_algorithm — Algorithm execution dispatcher (35 actions). Signal proce...",
+      "actionCount": 40,
+      "useCases": [
+        "Manufacturing Intelligence"
+      ],
+      "exampleClients": [
+        "Cline",
+        "Continue.dev",
+        "Aider",
+        "Gemini CLI",
+        "Goose",
+        "Codex",
+        "Claude Code"
+      ],
+      "psnLegs": [
+        "leg8_algorithms"
+      ]
+    },
+    {
+      "name": "atcsDispatcher",
+      "description": "prism_atcs — Autonomous Task Completion System — file-system state mac...",
+      "actionCount": 12,
+      "useCases": [
+        "Session & Memory Management",
+        "AI Agent Orchestration"
+      ],
+      "exampleClients": [
+        "Cline",
+        "Continue.dev",
+        "Aider",
+        "Gemini CLI",
+        "Goose",
+        "Codex",
+        "Claude Code"
+      ],
+      "psnLegs": [
+        "leg2_prism_os"
+      ]
+    },
+    {
+      "name": "authDispatcher",
+      "description": "prism_auth — Authentication & Authorization dispatcher — login, regist...",
+      "actionCount": 10,
+      "useCases": [
+        "Security, Auth & Compliance"
+      ],
+      "exampleClients": [
+        "Cline",
+        "Continue.dev",
+        "Aider",
+        "Gemini CLI",
+        "Goose",
+        "Codex",
+        "Claude Code"
+      ],
+      "psnLegs": [
+        "leg7_engines"
+      ]
+    },
+    {
+      "name": "autoPilotDispatcher",
+      "description": "prism_autopilot_d — AutoPilot workflow orchestration. Actions: ${ACTIONS.join...",
+      "actionCount": 7,
+      "useCases": [
+        "AI Agent Orchestration"
+      ],
+      "exampleClients": [
+        "Cline",
+        "Continue.dev",
+        "Aider",
+        "Gemini CLI",
+        "Goose",
+        "Codex",
+        "Claude Code"
+      ],
+      "psnLegs": [
+        "leg2_prism_os"
+      ]
+    },
+    {
+      "name": "automationDispatcher",
+      "description": "prism_automation — Shop Floor Automation dispatcher — OEE calculation, bottl...",
+      "actionCount": 9,
+      "useCases": [
+        "Manufacturing Physics & Calculations"
+      ],
+      "exampleClients": [
+        "Cline",
+        "Continue.dev",
+        "Aider",
+        "Gemini CLI",
+        "Goose",
+        "Codex",
+        "Claude Code"
+      ],
+      "psnLegs": [
+        "leg7_engines"
+      ]
+    },
+    {
+      "name": "autonomousDispatcher",
+      "description": "prism_autonomous — Autonomous execution engine — bridges ATCS state machine ...",
+      "actionCount": 8,
+      "useCases": [
+        "Session & Memory Management",
+        "AI Agent Orchestration",
+        "External System Integration"
+      ],
+      "exampleClients": [
+        "Cline",
+        "Continue.dev",
+        "Aider",
+        "Gemini CLI",
+        "Goose",
+        "Codex",
+        "Claude Code"
+      ],
+      "psnLegs": [
+        "leg2_prism_os"
+      ]
+    },
+    {
+      "name": "awarenessMiddleware",
+      "description": "(no server.tool found)",
+      "actionCount": 0,
+      "useCases": [
+        "Manufacturing Intelligence"
+      ],
+      "exampleClients": [
+        "Cline",
+        "Continue.dev",
+        "Aider",
+        "Gemini CLI",
+        "Goose",
+        "Codex",
+        "Claude Code"
+      ],
+      "psnLegs": [
+        "leg7_engines"
+      ]
+    },
+    {
+      "name": "bridgeDispatcher",
+      "description": "prism_bridge — Multi-protocol API gateway for external system integratio...",
+      "actionCount": 13,
+      "useCases": [
+        "External System Integration"
+      ],
+      "exampleClients": [
+        "Cline",
+        "Continue.dev",
+        "Aider",
+        "Gemini CLI",
+        "Goose",
+        "Codex",
+        "Claude Code"
+      ],
+      "psnLegs": [
+        "leg7_engines"
+      ]
+    },
+    {
+      "name": "businessDispatcher",
+      "description": "prism_business — Business Operations dispatcher — financial analysis (NPV/...",
+      "actionCount": 549,
+      "useCases": [
+        "Quoting, Scheduling & ERP"
+      ],
+      "exampleClients": [
+        "Cline",
+        "Continue.dev",
+        "Aider",
+        "Gemini CLI",
+        "Goose",
+        "Codex",
+        "Claude Code"
+      ],
+      "psnLegs": [
+        "leg7_engines"
+      ]
+    },
+    {
+      "name": "cadAutomationDispatcher",
+      "description": "prism_cad_automation — CAD automation router â€” unified access to SolidWorks/In...",
+      "actionCount": 367,
+      "useCases": [
+        "CAD & Geometry"
+      ],
+      "exampleClients": [
+        "Cline",
+        "Continue.dev",
+        "Aider",
+        "Gemini CLI",
+        "Goose",
+        "Codex",
+        "Claude Code"
+      ],
+      "psnLegs": [
+        "leg7_engines"
+      ]
+    },
+    {
+      "name": "cadDispatcher",
+      "description": "prism_cad — CAD/Geometry dispatcher — geometry operations, meshing, f...",
+      "actionCount": 548,
+      "useCases": [
+        "CAD & Geometry"
+      ],
+      "exampleClients": [
+        "Cline",
+        "Continue.dev",
+        "Aider",
+        "Gemini CLI",
+        "Goose",
+        "Codex",
+        "Claude Code"
+      ],
+      "psnLegs": [
+        "leg7_engines"
+      ]
+    },
+    {
+      "name": "cadDrawingKnowledgeDispatcher",
+      "description": "prism_cad_drawing_kb — CAD Drawing Knowledge — GD&T selection (14 symbols per Y1...",
+      "actionCount": 11,
+      "useCases": [
+        "CAD & Geometry",
+        "Manufacturing Knowledge Base"
+      ],
+      "exampleClients": [
+        "Cline",
+        "Continue.dev",
+        "Aider",
+        "Gemini CLI",
+        "Goose",
+        "Codex",
+        "Claude Code"
+      ],
+      "psnLegs": [
+        "leg3_wiki"
+      ]
+    },
+    {
+      "name": "cadRegressionDispatcher",
+      "description": "prism_cad_regression — CAD Regression — index/classify/run/checkpoint/triage/art...",
+      "actionCount": 37,
+      "useCases": [
+        "CAD & Geometry"
+      ],
+      "exampleClients": [
+        "Cline",
+        "Continue.dev",
+        "Aider",
+        "Gemini CLI",
+        "Goose",
+        "Codex",
+        "Claude Code"
+      ],
+      "psnLegs": [
+        "leg7_engines"
+      ]
+    },
+    {
+      "name": "calcDispatcher",
+      "description": "prism_calc — Manufacturing calculations: cutting force, tool life, spe...",
+      "actionCount": 1360,
+      "useCases": [
+        "Manufacturing Physics & Calculations"
+      ],
+      "exampleClients": [
+        "Cline",
+        "Continue.dev",
+        "Aider",
+        "Gemini CLI",
+        "Goose",
+        "Codex",
+        "Claude Code"
+      ],
+      "psnLegs": [
+        "leg7_engines",
+        "leg9_formulas"
+      ]
+    },
+    {
+      "name": "camDispatcher",
+      "description": "prism_cam — CAM/Toolpath dispatcher — toolpath generation, simulation...",
+      "actionCount": 2359,
+      "useCases": [
+        "CAM & Toolpath Generation"
+      ],
+      "exampleClients": [
+        "Cline",
+        "Continue.dev",
+        "Aider",
+        "Gemini CLI",
+        "Goose",
+        "Codex",
+        "Claude Code"
+      ],
+      "psnLegs": [
+        "leg7_engines"
+      ]
+    },
+    {
+      "name": "camFunctionDispatcher",
+      "description": "prism_cam_function — CAM Function Index dispatcher — routes natural-language i...",
+      "actionCount": 8,
+      "useCases": [
+        "CAM & Toolpath Generation"
+      ],
+      "exampleClients": [
+        "Cline",
+        "Continue.dev",
+        "Aider",
+        "Gemini CLI",
+        "Goose",
+        "Codex",
+        "Claude Code"
+      ],
+      "psnLegs": [
+        "leg7_engines"
+      ]
+    },
+    {
+      "name": "cncOpsDispatcher",
+      "description": "prism_cnc_ops — CNC operations: ball end mill, broaching, chamfer, circul...",
+      "actionCount": 72,
+      "useCases": [
+        "CAM & Toolpath Generation",
+        "Post-Processing & G-code"
+      ],
+      "exampleClients": [
+        "Cline",
+        "Continue.dev",
+        "Aider",
+        "Gemini CLI",
+        "Goose",
+        "Codex",
+        "Claude Code"
+      ],
+      "psnLegs": [
+        "leg7_engines"
+      ]
+    },
+    {
+      "name": "complianceDispatcher",
+      "description": "prism_compliance — Compliance-as-Code + Legal Operating Layer. 6 regulatory ...",
+      "actionCount": 35,
+      "useCases": [
+        "Security, Auth & Compliance"
+      ],
+      "exampleClients": [
+        "Cline",
+        "Continue.dev",
+        "Aider",
+        "Gemini CLI",
+        "Goose",
+        "Codex",
+        "Claude Code"
+      ],
+      "psnLegs": [
+        "leg7_engines"
+      ]
+    },
+    {
+      "name": "contextDispatcher",
+      "description": "prism_context — Context engineering: KV-cache stability, tool masking, me...",
+      "actionCount": 118,
+      "useCases": [
+        "Session & Memory Management"
+      ],
+      "exampleClients": [
+        "Cline",
+        "Continue.dev",
+        "Aider",
+        "Gemini CLI",
+        "Goose",
+        "Codex",
+        "Claude Code"
+      ],
+      "psnLegs": [
+        "leg1_obsidian_brain"
+      ]
+    },
+    {
+      "name": "cplDispatcher",
+      "description": "(no server.tool found)",
+      "actionCount": 54,
+      "useCases": [
+        "Manufacturing Intelligence"
+      ],
+      "exampleClients": [
+        "Cline",
+        "Continue.dev",
+        "Aider",
+        "Gemini CLI",
+        "Goose",
+        "Codex",
+        "Claude Code"
+      ],
+      "psnLegs": [
+        "leg7_engines"
+      ]
+    },
+    {
+      "name": "dataDispatcher",
+      "description": "prism_data — Registry data access: material/machine/tool/alarm/formula...",
+      "actionCount": 232,
+      "useCases": [
+        "Manufacturing Intelligence"
+      ],
+      "exampleClients": [
+        "Cline",
+        "Continue.dev",
+        "Aider",
+        "Gemini CLI",
+        "Goose",
+        "Codex",
+        "Claude Code"
+      ],
+      "psnLegs": [
+        "leg7_engines"
+      ]
+    },
+    {
+      "name": "devDispatcher",
+      "description": "prism_dev — Dev workflow tools. Actions: ${ACTIONS.join(\", \")}",
+      "actionCount": 890,
+      "useCases": [
+        "Developer Tooling"
+      ],
+      "exampleClients": [
+        "Cline",
+        "Continue.dev",
+        "Aider",
+        "Gemini CLI",
+        "Goose",
+        "Codex",
+        "Claude Code"
+      ],
+      "psnLegs": [
+        "leg7_engines"
+      ]
+    },
+    {
+      "name": "diagnosisDispatcher",
+      "description": "prism_diagnosis — Diagnostics & analysis: failure forensics (tool autopsy, ...",
+      "actionCount": 64,
+      "useCases": [
+        "AI Reasoning & Machine Learning"
+      ],
+      "exampleClients": [
+        "Cline",
+        "Continue.dev",
+        "Aider",
+        "Gemini CLI",
+        "Goose",
+        "Codex",
+        "Claude Code"
+      ],
+      "psnLegs": [
+        "leg7_engines"
+      ]
+    },
+    {
+      "name": "documentDispatcher",
+      "description": "prism_doc — Document management dispatcher. Actions: list, read, writ...",
+      "actionCount": 7,
+      "useCases": [
+        "Manufacturing Knowledge Base"
+      ],
+      "exampleClients": [
+        "Cline",
+        "Continue.dev",
+        "Aider",
+        "Gemini CLI",
+        "Goose",
+        "Codex",
+        "Claude Code"
+      ],
+      "psnLegs": [
+        "leg3_wiki"
+      ]
+    },
+    {
+      "name": "documentLearningDispatcher",
+      "description": "prism_doc_learn — Document knowledge extraction: upload PDFs/notes/articles...",
+      "actionCount": 5,
+      "useCases": [
+        "Manufacturing Knowledge Base"
+      ],
+      "exampleClients": [
+        "Cline",
+        "Continue.dev",
+        "Aider",
+        "Gemini CLI",
+        "Goose",
+        "Codex",
+        "Claude Code"
+      ],
+      "psnLegs": [
+        "leg3_wiki"
+      ]
+    },
+    {
+      "name": "edmDispatcher",
+      "description": "prism_edm — Non-traditional machining: EDM (electrode, wire, surface,...",
+      "actionCount": 327,
+      "useCases": [
+        "Wire EDM & EDM"
+      ],
+      "exampleClients": [
+        "Cline",
+        "Continue.dev",
+        "Aider",
+        "Gemini CLI",
+        "Goose",
+        "Codex",
+        "Claude Code"
+      ],
+      "psnLegs": [
+        "leg7_engines"
+      ]
+    },
+    {
+      "name": "exportDispatcher",
+      "description": "prism_export — Document Export dispatcher — render PDF, CSV, Excel, DXF,...",
+      "actionCount": 10,
+      "useCases": [
+        "Manufacturing Knowledge Base",
+        "External System Integration"
+      ],
+      "exampleClients": [
+        "Cline",
+        "Continue.dev",
+        "Aider",
+        "Gemini CLI",
+        "Goose",
+        "Codex",
+        "Claude Code"
+      ],
+      "psnLegs": [
+        "leg7_engines"
+      ]
+    },
+    {
+      "name": "feasibilityDispatcher",
+      "description": "prism_feasibility — Machining feasibility intelligence: workpiece state track...",
+      "actionCount": 37,
+      "useCases": [
+        "Session & Memory Management",
+        "AI Reasoning & Machine Learning"
+      ],
+      "exampleClients": [
+        "Cline",
+        "Continue.dev",
+        "Aider",
+        "Gemini CLI",
+        "Goose",
+        "Codex",
+        "Claude Code"
+      ],
+      "psnLegs": [
+        "leg7_engines"
+      ]
+    },
+    {
+      "name": "fiveAxisDispatcher",
+      "description": "prism_5axis — 5-Axis Kinematics dispatcher — SAFETY CRITICAL. RTCP comp...",
+      "actionCount": 10,
+      "useCases": [
+        "CAM & Toolpath Generation",
+        "Safety Validation & Collision Detection"
+      ],
+      "exampleClients": [
+        "Cline",
+        "Continue.dev",
+        "Aider",
+        "Gemini CLI",
+        "Goose",
+        "Codex",
+        "Claude Code"
+      ],
+      "psnLegs": [
+        "leg7_engines"
+      ]
+    },
+    {
+      "name": "fluidThermalDispatcher",
+      "description": "prism_fluid_thermal — Fluid, thermal & material science: heat exchangers (shell...",
+      "actionCount": 53,
+      "useCases": [
+        "Manufacturing Physics & Calculations"
+      ],
+      "exampleClients": [
+        "Cline",
+        "Continue.dev",
+        "Aider",
+        "Gemini CLI",
+        "Goose",
+        "Codex",
+        "Claude Code"
+      ],
+      "psnLegs": [
+        "leg7_engines"
+      ]
+    },
+    {
+      "name": "formingCastingDispatcher",
+      "description": "prism_forming — Forming & casting: blow molding, casting defect analysis,...",
+      "actionCount": 40,
+      "useCases": [
+        "Manufacturing Intelligence"
+      ],
+      "exampleClients": [
+        "Cline",
+        "Continue.dev",
+        "Aider",
+        "Gemini CLI",
+        "Goose",
+        "Codex",
+        "Claude Code"
+      ],
+      "psnLegs": [
+        "leg7_engines"
+      ]
+    },
+    {
+      "name": "generatorDispatcher",
+      "description": "prism_generator — Hook generator tools (7 tools → 1). Actions: ${ACTIONS.jo...",
+      "actionCount": 6,
+      "useCases": [
+        "Developer Tooling"
+      ],
+      "exampleClients": [
+        "Cline",
+        "Continue.dev",
+        "Aider",
+        "Gemini CLI",
+        "Goose",
+        "Codex",
+        "Claude Code"
+      ],
+      "psnLegs": [
+        "leg7_engines"
+      ]
+    },
+    {
+      "name": "grindingDispatcher",
+      "description": "prism_grinding — Grinding Process dispatcher — wheel selection, dressing p...",
+      "actionCount": 10,
+      "useCases": [
+        "Manufacturing Physics & Calculations",
+        "Monitoring & Observability"
+      ],
+      "exampleClients": [
+        "Cline",
+        "Continue.dev",
+        "Aider",
+        "Gemini CLI",
+        "Goose",
+        "Codex",
+        "Claude Code"
+      ],
+      "psnLegs": [
+        "leg7_engines"
+      ]
+    },
+    {
+      "name": "gsdDispatcher",
+      "description": "prism_gsd — GSD (Get Shit Done) protocol access — FILE-BASED v3.0.\\nA...",
+      "actionCount": 6,
+      "useCases": [
+        "Manufacturing Intelligence"
+      ],
+      "exampleClients": [
+        "Cline",
+        "Continue.dev",
+        "Aider",
+        "Gemini CLI",
+        "Goose",
+        "Codex",
+        "Claude Code"
+      ],
+      "psnLegs": [
+        "leg3_wiki"
+      ]
+    },
+    {
+      "name": "guardDispatcher",
+      "description": "prism_guard — Reasoning + Enforcement + AutoHook diagnostics (8 actions...",
+      "actionCount": 58,
+      "useCases": [
+        "Manufacturing Physics & Calculations",
+        "Safety Validation & Collision Detection",
+        "AI Reasoning & Machine Learning"
+      ],
+      "exampleClients": [
+        "Cline",
+        "Continue.dev",
+        "Aider",
+        "Gemini CLI",
+        "Goose",
+        "Codex",
+        "Claude Code"
+      ],
+      "psnLegs": [
+        "leg6_system_viz"
+      ]
+    },
+    {
+      "name": "holePatternDispatcher",
+      "description": "prism_hole_pattern — Hole Pattern Pipeline — pattern recognition, sequence opt...",
+      "actionCount": 3,
+      "useCases": [
+        "Manufacturing Intelligence"
+      ],
+      "exampleClients": [
+        "Cline",
+        "Continue.dev",
+        "Aider",
+        "Gemini CLI",
+        "Goose",
+        "Codex",
+        "Claude Code"
+      ],
+      "psnLegs": [
+        "leg7_engines"
+      ]
+    },
+    {
+      "name": "hookDispatcher",
+      "description": "prism_hook — Hook & event management (${ACTIONS.length} actions, conso...",
+      "actionCount": 31,
+      "useCases": [
+        "Developer Tooling"
+      ],
+      "exampleClients": [
+        "Cline",
+        "Continue.dev",
+        "Aider",
+        "Gemini CLI",
+        "Goose",
+        "Codex",
+        "Claude Code"
+      ],
+      "psnLegs": [
+        "leg7_engines"
+      ]
+    },
+    {
+      "name": "inboxDispatcher",
+      "description": "prism_inbox — DocuRead document inbox — intake, classify, and match man...",
+      "actionCount": 8,
+      "useCases": [
+        "Manufacturing Knowledge Base"
+      ],
+      "exampleClients": [
+        "Cline",
+        "Continue.dev",
+        "Aider",
+        "Gemini CLI",
+        "Goose",
+        "Codex",
+        "Claude Code"
+      ],
+      "psnLegs": [
+        "leg4_memories"
+      ]
+    },
+    {
+      "name": "industryDispatcher",
+      "description": "prism_industry — Industry Compliance dispatcher — aerospace (AS9100/NADCAP...",
+      "actionCount": 4,
+      "useCases": [
+        "Security, Auth & Compliance"
+      ],
+      "exampleClients": [
+        "Cline",
+        "Continue.dev",
+        "Aider",
+        "Gemini CLI",
+        "Goose",
+        "Codex",
+        "Claude Code"
+      ],
+      "psnLegs": [
+        "leg7_engines"
+      ]
+    },
+    {
+      "name": "infraDispatcher",
+      "description": "prism_infra — Infrastructure tools: DB health, search, jobs, events, ML...",
+      "actionCount": 65,
+      "useCases": [
+        "AI Reasoning & Machine Learning",
+        "Monitoring & Observability"
+      ],
+      "exampleClients": [
+        "Cline",
+        "Continue.dev",
+        "Aider",
+        "Gemini CLI",
+        "Goose",
+        "Codex",
+        "Claude Code"
+      ],
+      "psnLegs": [
+        "leg6_system_viz"
+      ]
+    },
+    {
+      "name": "intakeDispatcher",
+      "description": "(no server.tool found)",
+      "actionCount": 1,
+      "useCases": [
+        "Manufacturing Intelligence"
+      ],
+      "exampleClients": [
+        "Cline",
+        "Continue.dev",
+        "Aider",
+        "Gemini CLI",
+        "Goose",
+        "Codex",
+        "Claude Code"
+      ],
+      "psnLegs": [
+        "leg7_engines"
+      ]
+    },
+    {
+      "name": "integrationDispatcher",
+      "description": "prism_integration — External system integration: CAM software, DNC transfer, ...",
+      "actionCount": 62,
+      "useCases": [
+        "CAM & Toolpath Generation",
+        "External System Integration"
+      ],
+      "exampleClients": [
+        "Cline",
+        "Continue.dev",
+        "Aider",
+        "Gemini CLI",
+        "Goose",
+        "Codex",
+        "Claude Code"
+      ],
+      "psnLegs": [
+        "leg7_engines"
+      ]
+    },
+    {
+      "name": "intelligenceDispatcher",
+      "description": "prism_intelligence — Manufacturing intelligence: job planning, setup sheets, c...",
+      "actionCount": 366,
+      "useCases": [
+        "AI Reasoning & Machine Learning"
+      ],
+      "exampleClients": [
+        "Cline",
+        "Continue.dev",
+        "Aider",
+        "Gemini CLI",
+        "Goose",
+        "Codex",
+        "Claude Code"
+      ],
+      "psnLegs": [
+        "leg10_nn_gnn",
+        "leg11_prism_ai"
+      ]
+    },
+    {
+      "name": "knowledgeDispatcher",
+      "description": "prism_knowledge — Unified knowledge query across 9 PRISM registries. Action...",
+      "actionCount": 253,
+      "useCases": [
+        "Manufacturing Knowledge Base"
+      ],
+      "exampleClients": [
+        "Cline",
+        "Continue.dev",
+        "Aider",
+        "Gemini CLI",
+        "Goose",
+        "Codex",
+        "Claude Code"
+      ],
+      "psnLegs": [
+        "leg3_wiki"
+      ]
+    },
+    {
+      "name": "knowledgeExtDispatcher",
+      "description": "prism_knowledge_ext — Knowledge management: apprentice training, manufacturing ...",
+      "actionCount": 44,
+      "useCases": [
+        "Manufacturing Knowledge Base",
+        "AI Reasoning & Machine Learning",
+        "Post-Processing & G-code"
+      ],
+      "exampleClients": [
+        "Cline",
+        "Continue.dev",
+        "Aider",
+        "Gemini CLI",
+        "Goose",
+        "Codex",
+        "Claude Code"
+      ],
+      "psnLegs": [
+        "leg3_wiki"
+      ]
+    },
+    {
+      "name": "l2EngineDispatcher",
+      "description": "prism_l2 — L2 Engine dispatcher — 8 ported monolith engines (AI/ML, ...",
+      "actionCount": 73,
+      "useCases": [
+        "AI Reasoning & Machine Learning"
+      ],
+      "exampleClients": [
+        "Cline",
+        "Continue.dev",
+        "Aider",
+        "Gemini CLI",
+        "Goose",
+        "Codex",
+        "Claude Code"
+      ],
+      "psnLegs": [
+        "leg10_nn_gnn"
+      ]
+    },
+    {
+      "name": "localDispatcher",
+      "description": "prism_local — Local LLM operations for token savings + learning. Action...",
+      "actionCount": 26,
+      "useCases": [
+        "Manufacturing Intelligence"
+      ],
+      "exampleClients": [
+        "Cline",
+        "Continue.dev",
+        "Aider",
+        "Gemini CLI",
+        "Goose",
+        "Codex",
+        "Claude Code"
+      ],
+      "psnLegs": [
+        "leg7_engines"
+      ]
+    },
+    {
+      "name": "machineDispatcher",
+      "description": "(no server.tool found)",
+      "actionCount": 69,
+      "useCases": [
+        "Manufacturing Intelligence"
+      ],
+      "exampleClients": [
+        "Cline",
+        "Continue.dev",
+        "Aider",
+        "Gemini CLI",
+        "Goose",
+        "Codex",
+        "Claude Code"
+      ],
+      "psnLegs": [
+        "leg7_engines"
+      ]
+    },
+    {
+      "name": "machineLiveDispatcher",
+      "description": "prism_machine_live — Machine live monitoring & control: real-time connectivity...",
+      "actionCount": 74,
+      "useCases": [
+        "Monitoring & Observability"
+      ],
+      "exampleClients": [
+        "Cline",
+        "Continue.dev",
+        "Aider",
+        "Gemini CLI",
+        "Goose",
+        "Codex",
+        "Claude Code"
+      ],
+      "psnLegs": [
+        "leg7_engines"
+      ]
+    },
+    {
+      "name": "machineSetupDispatcher",
+      "description": "prism_machine_setup — Machine setup & quality: spindle analysis (load/runout/sp...",
+      "actionCount": 112,
+      "useCases": [
+        "Quality & Metrology"
+      ],
+      "exampleClients": [
+        "Cline",
+        "Continue.dev",
+        "Aider",
+        "Gemini CLI",
+        "Goose",
+        "Codex",
+        "Claude Code"
+      ],
+      "psnLegs": [
+        "leg7_engines"
+      ]
+    },
+    {
+      "name": "machiningKnowledgeBaseDispatcher",
+      "description": "prism_machining_kb — Machining Knowledge Base — canonical reference for cuttin...",
+      "actionCount": 56,
+      "useCases": [
+        "Manufacturing Knowledge Base"
+      ],
+      "exampleClients": [
+        "Cline",
+        "Continue.dev",
+        "Aider",
+        "Gemini CLI",
+        "Goose",
+        "Codex",
+        "Claude Code"
+      ],
+      "psnLegs": [
+        "leg3_wiki",
+        "leg5_tribal"
+      ]
+    },
+    {
+      "name": "manusDispatcher",
+      "description": "prism_manus — Manus AI agent + development hooks. Actions: ${ACTIONS.jo...",
+      "actionCount": 11,
+      "useCases": [
+        "AI Agent Orchestration",
+        "AI Reasoning & Machine Learning",
+        "Developer Tooling"
+      ],
+      "exampleClients": [
+        "Cline",
+        "Continue.dev",
+        "Aider",
+        "Gemini CLI",
+        "Goose",
+        "Codex",
+        "Claude Code"
+      ],
+      "psnLegs": [
+        "leg11_prism_ai"
+      ]
+    },
+    {
+      "name": "materialProcessingDispatcher",
+      "description": "prism_material_processing — Material processing: anodizing (Type I/II/III), carburizi...",
+      "actionCount": 32,
+      "useCases": [
+        "Monitoring & Observability"
+      ],
+      "exampleClients": [
+        "Cline",
+        "Continue.dev",
+        "Aider",
+        "Gemini CLI",
+        "Goose",
+        "Codex",
+        "Claude Code"
+      ],
+      "psnLegs": [
+        "leg7_engines"
+      ]
+    },
+    {
+      "name": "mechanicalDesignDispatcher",
+      "description": "prism_mechanical — Mechanical design: ball screws, bearings (journal/rolling...",
+      "actionCount": 53,
+      "useCases": [
+        "Manufacturing Intelligence"
+      ],
+      "exampleClients": [
+        "Cline",
+        "Continue.dev",
+        "Aider",
+        "Gemini CLI",
+        "Goose",
+        "Codex",
+        "Claude Code"
+      ],
+      "psnLegs": [
+        "leg7_engines"
+      ]
+    },
+    {
+      "name": "memoryDispatcher",
+      "description": "(no server.tool found)",
+      "actionCount": 51,
+      "useCases": [
+        "Session & Memory Management"
+      ],
+      "exampleClients": [
+        "Cline",
+        "Continue.dev",
+        "Aider",
+        "Gemini CLI",
+        "Goose",
+        "Codex",
+        "Claude Code"
+      ],
+      "psnLegs": [
+        "leg1_obsidian_brain",
+        "leg4_memories"
+      ]
+    },
+    {
+      "name": "millDispatcher",
+      "description": "prism_mill — Mill-specific dispatcher — strategy, toolpath, physics, A...",
+      "actionCount": 203,
+      "useCases": [
+        "CAM & Toolpath Generation",
+        "Manufacturing Physics & Calculations"
+      ],
+      "exampleClients": [
+        "Cline",
+        "Continue.dev",
+        "Aider",
+        "Gemini CLI",
+        "Goose",
+        "Codex",
+        "Claude Code"
+      ],
+      "psnLegs": [
+        "leg7_engines"
+      ]
+    },
+    {
+      "name": "mlDispatcher",
+      "description": "(no server.tool found)",
+      "actionCount": 129,
+      "useCases": [
+        "AI Reasoning & Machine Learning"
+      ],
+      "exampleClients": [
+        "Cline",
+        "Continue.dev",
+        "Aider",
+        "Gemini CLI",
+        "Goose",
+        "Codex",
+        "Claude Code"
+      ],
+      "psnLegs": [
+        "leg10_nn_gnn"
+      ]
+    },
+    {
+      "name": "monitoringDispatcher",
+      "description": "prism_monitoring — Monitoring & Observability dispatcher — Grafana/Prometheu...",
+      "actionCount": 30,
+      "useCases": [
+        "Monitoring & Observability"
+      ],
+      "exampleClients": [
+        "Cline",
+        "Continue.dev",
+        "Aider",
+        "Gemini CLI",
+        "Goose",
+        "Codex",
+        "Claude Code"
+      ],
+      "psnLegs": [
+        "leg6_system_viz"
+      ]
+    },
+    {
+      "name": "multiAxisProgramDispatcher",
+      "description": "prism_multiaxis_program — Multi-Axis Print-to-Program — generates CNC programs for ...",
+      "actionCount": 2,
+      "useCases": [
+        "CAM & Toolpath Generation",
+        "Post-Processing & G-code"
+      ],
+      "exampleClients": [
+        "Cline",
+        "Continue.dev",
+        "Aider",
+        "Gemini CLI",
+        "Goose",
+        "Codex",
+        "Claude Code"
+      ],
+      "psnLegs": [
+        "leg7_engines"
+      ]
+    },
+    {
+      "name": "multiDispatcher",
+      "description": "(no server.tool found)",
+      "actionCount": 49,
+      "useCases": [
+        "Manufacturing Intelligence"
+      ],
+      "exampleClients": [
+        "Cline",
+        "Continue.dev",
+        "Aider",
+        "Gemini CLI",
+        "Goose",
+        "Codex",
+        "Claude Code"
+      ],
+      "psnLegs": [
+        "leg7_engines"
+      ]
+    },
+    {
+      "name": "multiOpDispatcher",
+      "description": "prism_multi_op — Multi-Operation Orchestration dispatcher — rest machining...",
+      "actionCount": 12,
+      "useCases": [
+        "AI Agent Orchestration"
+      ],
+      "exampleClients": [
+        "Cline",
+        "Continue.dev",
+        "Aider",
+        "Gemini CLI",
+        "Goose",
+        "Codex",
+        "Claude Code"
+      ],
+      "psnLegs": [
+        "leg7_engines"
+      ]
+    },
+    {
+      "name": "nlHookDispatcher",
+      "description": "prism_nl_hook — Natural language hook authoring (8 actions). Parse NL des...",
+      "actionCount": 8,
+      "useCases": [
+        "Security, Auth & Compliance",
+        "Developer Tooling"
+      ],
+      "exampleClients": [
+        "Cline",
+        "Continue.dev",
+        "Aider",
+        "Gemini CLI",
+        "Goose",
+        "Codex",
+        "Claude Code"
+      ],
+      "psnLegs": [
+        "leg7_engines"
+      ]
+    },
+    {
+      "name": "omegaDispatcher",
+      "description": "prism_omega — Omega quality equation dispatcher. Ω(x) = 0.25R + 0.20C +...",
+      "actionCount": 6,
+      "useCases": [
+        "Quality & Metrology"
+      ],
+      "exampleClients": [
+        "Cline",
+        "Continue.dev",
+        "Aider",
+        "Gemini CLI",
+        "Goose",
+        "Codex",
+        "Claude Code"
+      ],
+      "psnLegs": [
+        "leg11_prism_ai"
+      ]
+    },
+    {
+      "name": "operatingSystemDispatcher",
+      "description": "prism_operating_system — Operating-system shell, desk, program release, scheduling...",
+      "actionCount": 51,
+      "useCases": [
+        "Quoting, Scheduling & ERP"
+      ],
+      "exampleClients": [
+        "Cline",
+        "Continue.dev",
+        "Aider",
+        "Gemini CLI",
+        "Goose",
+        "Codex",
+        "Claude Code"
+      ],
+      "psnLegs": [
+        "leg2_prism_os"
+      ]
+    },
+    {
+      "name": "orchestrationDispatcher",
+      "description": "prism_orchestrate — Agent orchestration, swarm coordination, and roadmap exec...",
+      "actionCount": 51,
+      "useCases": [
+        "AI Agent Orchestration"
+      ],
+      "exampleClients": [
+        "Cline",
+        "Continue.dev",
+        "Aider",
+        "Gemini CLI",
+        "Goose",
+        "Codex",
+        "Claude Code"
+      ],
+      "psnLegs": [
+        "leg2_prism_os"
+      ]
+    },
+    {
+      "name": "outcomeDispatcher",
+      "description": "(no server.tool found)",
+      "actionCount": 40,
+      "useCases": [
+        "Manufacturing Intelligence"
+      ],
+      "exampleClients": [
+        "Cline",
+        "Continue.dev",
+        "Aider",
+        "Gemini CLI",
+        "Goose",
+        "Codex",
+        "Claude Code"
+      ],
+      "psnLegs": [
+        "leg7_engines"
+      ]
+    },
+    {
+      "name": "partsLibraryDispatcher",
+      "description": "prism_parts — Parts Library & File Storage — upload files with SHA-256 ...",
+      "actionCount": 18,
+      "useCases": [
+        "Manufacturing Intelligence"
+      ],
+      "exampleClients": [
+        "Cline",
+        "Continue.dev",
+        "Aider",
+        "Gemini CLI",
+        "Goose",
+        "Codex",
+        "Claude Code"
+      ],
+      "psnLegs": [
+        "leg7_engines"
+      ]
+    },
+    {
+      "name": "pfpDispatcher",
+      "description": "prism_pfp — Predictive Failure Prevention. Actions: get_dashboard, as...",
+      "actionCount": 6,
+      "useCases": [
+        "AI Reasoning & Machine Learning"
+      ],
+      "exampleClients": [
+        "Cline",
+        "Continue.dev",
+        "Aider",
+        "Gemini CLI",
+        "Goose",
+        "Codex",
+        "Claude Code"
+      ],
+      "psnLegs": [
+        "leg7_engines"
+      ]
+    },
+    {
+      "name": "ppDispatcher",
+      "description": "prism_pp — PostProcessor dispatcher — G-code generation, optimizatio...",
+      "actionCount": 801,
+      "useCases": [
+        "Monitoring & Observability",
+        "Post-Processing & G-code"
+      ],
+      "exampleClients": [
+        "Cline",
+        "Continue.dev",
+        "Aider",
+        "Gemini CLI",
+        "Goose",
+        "Codex",
+        "Claude Code"
+      ],
+      "psnLegs": [
+        "leg7_engines"
+      ]
+    },
+    {
+      "name": "processControlDispatcher",
+      "description": "prism_process_control — Process Control & DOE dispatcher — cycle-to-cycle feedbac...",
+      "actionCount": 9,
+      "useCases": [
+        "Manufacturing Physics & Calculations",
+        "Monitoring & Observability"
+      ],
+      "exampleClients": [
+        "Cline",
+        "Continue.dev",
+        "Aider",
+        "Gemini CLI",
+        "Goose",
+        "Codex",
+        "Claude Code"
+      ],
+      "psnLegs": [
+        "leg7_engines"
+      ]
+    },
+    {
+      "name": "processDispatcher",
+      "description": "(no server.tool found)",
+      "actionCount": 17,
+      "useCases": [
+        "Monitoring & Observability"
+      ],
+      "exampleClients": [
+        "Cline",
+        "Continue.dev",
+        "Aider",
+        "Gemini CLI",
+        "Goose",
+        "Codex",
+        "Claude Code"
+      ],
+      "psnLegs": [
+        "leg7_engines"
+      ]
+    },
+    {
+      "name": "productDispatcher",
+      "description": "prism_product — Product tools: SFC (surface finish calc), PPG (post proce...",
+      "actionCount": 76,
+      "useCases": [
+        "Manufacturing Physics & Calculations",
+        "Post-Processing & G-code"
+      ],
+      "exampleClients": [
+        "Cline",
+        "Continue.dev",
+        "Aider",
+        "Gemini CLI",
+        "Goose",
+        "Codex",
+        "Claude Code"
+      ],
+      "psnLegs": [
+        "leg7_engines"
+      ]
+    },
+    {
+      "name": "provenPipelineDispatcher",
+      "description": "prism_proven_pipeline — Proven Pipeline dispatcher — proven part recipes, similar...",
+      "actionCount": 26,
+      "useCases": [
+        "Manufacturing Intelligence"
+      ],
+      "exampleClients": [
+        "Cline",
+        "Continue.dev",
+        "Aider",
+        "Gemini CLI",
+        "Goose",
+        "Codex",
+        "Claude Code"
+      ],
+      "psnLegs": [
+        "leg7_engines"
+      ]
+    },
+    {
+      "name": "qualityDispatcher",
+      "description": "prism_quality — Quality & Metrology dispatcher — SPC, Cpk prediction, CMM...",
+      "actionCount": 25,
+      "useCases": [
+        "Quality & Metrology"
+      ],
+      "exampleClients": [
+        "Cline",
+        "Continue.dev",
+        "Aider",
+        "Gemini CLI",
+        "Goose",
+        "Codex",
+        "Claude Code"
+      ],
+      "psnLegs": [
+        "leg7_engines"
+      ]
+    },
+    {
+      "name": "quotingDispatcher",
+      "description": "prism_quoting — PRISM camera-intake + quoting bridges (QUOTING-PIPELINE-M...",
+      "actionCount": 25,
+      "useCases": [
+        "CAM & Toolpath Generation",
+        "Quoting, Scheduling & ERP",
+        "External System Integration"
+      ],
+      "exampleClients": [
+        "Cline",
+        "Continue.dev",
+        "Aider",
+        "Gemini CLI",
+        "Goose",
+        "Codex",
+        "Claude Code"
+      ],
+      "psnLegs": [
+        "leg7_engines"
+      ]
+    },
+    {
+      "name": "ralphDispatcher",
+      "description": "prism_ralph — Execute 4-phase Ralph validation with REAL Claude API cal...",
+      "actionCount": 3,
+      "useCases": [
+        "Safety Validation & Collision Detection"
+      ],
+      "exampleClients": [
+        "Cline",
+        "Continue.dev",
+        "Aider",
+        "Gemini CLI",
+        "Goose",
+        "Codex",
+        "Claude Code"
+      ],
+      "psnLegs": [
+        "leg11_prism_ai"
+      ]
+    },
+    {
+      "name": "realtimeDispatcher",
+      "description": "prism_realtime — Real-time WebSocket messaging. Actions: ${ACTIONS.join(\",...",
+      "actionCount": 6,
+      "useCases": [
+        "Manufacturing Intelligence"
+      ],
+      "exampleClients": [
+        "Cline",
+        "Continue.dev",
+        "Aider",
+        "Gemini CLI",
+        "Goose",
+        "Codex",
+        "Claude Code"
+      ],
+      "psnLegs": [
+        "leg7_engines"
+      ]
+    },
+    {
+      "name": "resourceExtractionDispatcher",
+      "description": "prism_resource_extraction — Content extraction pipeline — archives, OCR, drawings, of...",
+      "actionCount": 21,
+      "useCases": [
+        "CAD & Geometry",
+        "External System Integration"
+      ],
+      "exampleClients": [
+        "Cline",
+        "Continue.dev",
+        "Aider",
+        "Gemini CLI",
+        "Goose",
+        "Codex",
+        "Claude Code"
+      ],
+      "psnLegs": [
+        "leg7_engines"
+      ]
+    },
+    {
+      "name": "resourceHarvesterDispatcher",
+      "description": "prism_resource_harvester — Resource scanning & harvesting dispatcher — scan folders,...",
+      "actionCount": 24,
+      "useCases": [
+        "External System Integration"
+      ],
+      "exampleClients": [
+        "Cline",
+        "Continue.dev",
+        "Aider",
+        "Gemini CLI",
+        "Goose",
+        "Codex",
+        "Claude Code"
+      ],
+      "psnLegs": [
+        "leg4_memories"
+      ]
+    },
+    {
+      "name": "resourceHarvestingDispatcher",
+      "description": "prism_resource_harvesting — Automated resource harvesting pipeline — scan, ingest, an...",
+      "actionCount": 8,
+      "useCases": [
+        "External System Integration"
+      ],
+      "exampleClients": [
+        "Cline",
+        "Continue.dev",
+        "Aider",
+        "Gemini CLI",
+        "Goose",
+        "Codex",
+        "Claude Code"
+      ],
+      "psnLegs": [
+        "leg4_memories"
+      ]
+    },
+    {
+      "name": "safetyDispatcher",
+      "description": "prism_safety — Safety-critical manufacturing validations: collision dete...",
+      "actionCount": 80,
+      "useCases": [
+        "Safety Validation & Collision Detection"
+      ],
+      "exampleClients": [
+        "Cline",
+        "Continue.dev",
+        "Aider",
+        "Gemini CLI",
+        "Goose",
+        "Codex",
+        "Claude Code"
+      ],
+      "psnLegs": [
+        "leg7_engines"
+      ]
+    },
+    {
+      "name": "schedulingDispatcher",
+      "description": "prism_scheduling — Production Scheduling dispatcher — job scheduling, machin...",
+      "actionCount": 13,
+      "useCases": [
+        "Quoting, Scheduling & ERP"
+      ],
+      "exampleClients": [
+        "Cline",
+        "Continue.dev",
+        "Aider",
+        "Gemini CLI",
+        "Goose",
+        "Codex",
+        "Claude Code"
+      ],
+      "psnLegs": [
+        "leg7_engines"
+      ]
+    },
+    {
+      "name": "scientificMathDispatcher",
+      "description": "prism_scientific_math — Scientific Mathematics dispatcher — stochastic processes ...",
+      "actionCount": 10,
+      "useCases": [
+        "Monitoring & Observability"
+      ],
+      "exampleClients": [
+        "Cline",
+        "Continue.dev",
+        "Aider",
+        "Gemini CLI",
+        "Goose",
+        "Codex",
+        "Claude Code"
+      ],
+      "psnLegs": [
+        "leg8_algorithms"
+      ]
+    },
+    {
+      "name": "secondaryOpsDispatcher",
+      "description": "prism_secondary_ops — Secondary Operations — deburring, probing, engraving, was...",
+      "actionCount": 3,
+      "useCases": [
+        "Manufacturing Intelligence"
+      ],
+      "exampleClients": [
+        "Cline",
+        "Continue.dev",
+        "Aider",
+        "Gemini CLI",
+        "Goose",
+        "Codex",
+        "Claude Code"
+      ],
+      "psnLegs": [
+        "leg7_engines"
+      ]
+    },
+    {
+      "name": "securityDispatcher",
+      "description": "prism_security — Security operations — tenant isolation, encryption, acces...",
+      "actionCount": 227,
+      "useCases": [
+        "Security, Auth & Compliance"
+      ],
+      "exampleClients": [
+        "Cline",
+        "Continue.dev",
+        "Aider",
+        "Gemini CLI",
+        "Goose",
+        "Codex",
+        "Claude Code"
+      ],
+      "psnLegs": [
+        "leg7_engines"
+      ]
+    },
+    {
+      "name": "sessionDispatcher",
+      "description": "prism_session — Session state management: save/load/checkpoint/diff, hand...",
+      "actionCount": 324,
+      "useCases": [
+        "Session & Memory Management"
+      ],
+      "exampleClients": [
+        "Cline",
+        "Continue.dev",
+        "Aider",
+        "Gemini CLI",
+        "Goose",
+        "Codex",
+        "Claude Code"
+      ],
+      "psnLegs": [
+        "leg1_obsidian_brain"
+      ]
+    },
+    {
+      "name": "shopDispatcher",
+      "description": "(no server.tool found)",
+      "actionCount": 117,
+      "useCases": [
+        "Manufacturing Intelligence"
+      ],
+      "exampleClients": [
+        "Cline",
+        "Continue.dev",
+        "Aider",
+        "Gemini CLI",
+        "Goose",
+        "Codex",
+        "Claude Code"
+      ],
+      "psnLegs": [
+        "leg7_engines"
+      ]
+    },
+    {
+      "name": "shopPracticeDispatcher",
+      "description": "prism_shop_practice — Shop practice knowledge base: ingest/search/audit machini...",
+      "actionCount": 50,
+      "useCases": [
+        "Manufacturing Knowledge Base",
+        "Post-Processing & G-code"
+      ],
+      "exampleClients": [
+        "Cline",
+        "Continue.dev",
+        "Aider",
+        "Gemini CLI",
+        "Goose",
+        "Codex",
+        "Claude Code"
+      ],
+      "psnLegs": [
+        "leg5_tribal"
+      ]
+    },
+    {
+      "name": "skillScriptDispatcher",
+      "description": "prism_skill_script — Skills, scripts, and bundles: list/get/search/execute/rec...",
+      "actionCount": 34,
+      "useCases": [
+        "Manufacturing Knowledge Base",
+        "Developer Tooling"
+      ],
+      "exampleClients": [
+        "Cline",
+        "Continue.dev",
+        "Aider",
+        "Gemini CLI",
+        "Goose",
+        "Codex",
+        "Claude Code"
+      ],
+      "psnLegs": [
+        "leg3_wiki"
+      ]
+    },
+    {
+      "name": "spDispatcher",
+      "description": "prism_sp — Development protocol dispatcher (19 actions). Superpowers...",
+      "actionCount": 19,
+      "useCases": [
+        "Quoting, Scheduling & ERP",
+        "Developer Tooling"
+      ],
+      "exampleClients": [
+        "Cline",
+        "Continue.dev",
+        "Aider",
+        "Gemini CLI",
+        "Goose",
+        "Codex",
+        "Claude Code"
+      ],
+      "psnLegs": [
+        "leg3_wiki"
+      ]
+    },
+    {
+      "name": "telemetryDispatcher",
+      "description": "prism_telemetry — Dispatcher telemetry & self-optimization. Actions: get_da...",
+      "actionCount": 12,
+      "useCases": [
+        "Monitoring & Observability"
+      ],
+      "exampleClients": [
+        "Cline",
+        "Continue.dev",
+        "Aider",
+        "Gemini CLI",
+        "Goose",
+        "Codex",
+        "Claude Code"
+      ],
+      "psnLegs": [
+        "leg6_system_viz"
+      ]
+    },
+    {
+      "name": "tenantDispatcher",
+      "description": "prism_tenant — Multi-tenant isolation with Shared Learning Bus. Tenant n...",
+      "actionCount": 15,
+      "useCases": [
+        "Security, Auth & Compliance"
+      ],
+      "exampleClients": [
+        "Cline",
+        "Continue.dev",
+        "Aider",
+        "Gemini CLI",
+        "Goose",
+        "Codex",
+        "Claude Code"
+      ],
+      "psnLegs": [
+        "leg7_engines"
+      ]
+    },
+    {
+      "name": "threadDispatcher",
+      "description": "prism_thread — Threading calculations: tap drill, thread milling, depth,...",
+      "actionCount": 17,
+      "useCases": [
+        "CAM & Toolpath Generation",
+        "Manufacturing Physics & Calculations"
+      ],
+      "exampleClients": [
+        "Cline",
+        "Continue.dev",
+        "Aider",
+        "Gemini CLI",
+        "Goose",
+        "Codex",
+        "Claude Code"
+      ],
+      "psnLegs": [
+        "leg7_engines"
+      ]
+    },
+    {
+      "name": "threadingPipelineDispatcher",
+      "description": "prism_threading_pipeline — Threading Pipeline — complete thread programming for lath...",
+      "actionCount": 3,
+      "useCases": [
+        "Manufacturing Intelligence"
+      ],
+      "exampleClients": [
+        "Cline",
+        "Continue.dev",
+        "Aider",
+        "Gemini CLI",
+        "Goose",
+        "Codex",
+        "Claude Code"
+      ],
+      "psnLegs": [
+        "leg7_engines"
+      ]
+    },
+    {
+      "name": "toolpathDispatcher",
+      "description": "prism_toolpath — Toolpath strategy engine: strategy selection, parameter c...",
+      "actionCount": 34,
+      "useCases": [
+        "CAM & Toolpath Generation"
+      ],
+      "exampleClients": [
+        "Cline",
+        "Continue.dev",
+        "Aider",
+        "Gemini CLI",
+        "Goose",
+        "Codex",
+        "Claude Code"
+      ],
+      "psnLegs": [
+        "leg7_engines"
+      ]
+    },
+    {
+      "name": "turningDispatcher",
+      "description": "prism_turning — Turning-specific dispatcher â€” SAFETY CRITICAL. Chuck ja...",
+      "actionCount": 269,
+      "useCases": [
+        "Turning / Lathe Programming",
+        "Safety Validation & Collision Detection"
+      ],
+      "exampleClients": [
+        "Cline",
+        "Continue.dev",
+        "Aider",
+        "Gemini CLI",
+        "Goose",
+        "Codex",
+        "Claude Code"
+      ],
+      "psnLegs": [
+        "leg7_engines"
+      ]
+    },
+    {
+      "name": "turningProgramDispatcher",
+      "description": "prism_turning_program — Turning Print-to-Program — generates CNC lathe programs f...",
+      "actionCount": 14,
+      "useCases": [
+        "Turning / Lathe Programming",
+        "Post-Processing & G-code"
+      ],
+      "exampleClients": [
+        "Cline",
+        "Continue.dev",
+        "Aider",
+        "Gemini CLI",
+        "Goose",
+        "Codex",
+        "Claude Code"
+      ],
+      "psnLegs": [
+        "leg7_engines"
+      ]
+    },
+    {
+      "name": "validationDispatcher",
+      "description": "prism_validate — Validation dispatcher. Actions: material, kienzle, taylor...",
+      "actionCount": 18,
+      "useCases": [
+        "Manufacturing Physics & Calculations",
+        "Safety Validation & Collision Detection"
+      ],
+      "exampleClients": [
+        "Cline",
+        "Continue.dev",
+        "Aider",
+        "Gemini CLI",
+        "Goose",
+        "Codex",
+        "Claude Code"
+      ],
+      "psnLegs": [
+        "leg7_engines"
+      ]
+    },
+    {
+      "name": "vibrationPhysicsDispatcher",
+      "description": "prism_vibration_physics — Vibration, dynamics & cutting physics: VAM, vibration dam...",
+      "actionCount": 36,
+      "useCases": [
+        "Manufacturing Physics & Calculations"
+      ],
+      "exampleClients": [
+        "Cline",
+        "Continue.dev",
+        "Aider",
+        "Gemini CLI",
+        "Goose",
+        "Codex",
+        "Claude Code"
+      ],
+      "psnLegs": [
+        "leg7_engines"
+      ]
+    },
+    {
+      "name": "weldingJoiningDispatcher",
+      "description": "prism_welding — Welding & joining: adhesive bonding, brazing/soldering, u...",
+      "actionCount": 12,
+      "useCases": [
+        "Manufacturing Intelligence"
+      ],
+      "exampleClients": [
+        "Cline",
+        "Continue.dev",
+        "Aider",
+        "Gemini CLI",
+        "Goose",
+        "Codex",
+        "Claude Code"
+      ],
+      "psnLegs": [
+        "leg7_engines"
+      ]
+    }
+  ],
+  "psn_leg_mapping": {
+    "leg1_obsidian_brain": [
+      "contextDispatcher",
+      "memoryDispatcher",
+      "sessionDispatcher"
+    ],
+    "leg2_prism_os": [
+      "agentDispatcher",
+      "atcsDispatcher",
+      "autoPilotDispatcher",
+      "autonomousDispatcher",
+      "operatingSystemDispatcher",
+      "orchestrationDispatcher"
+    ],
+    "leg3_wiki": [
+      "cadDrawingKnowledgeDispatcher",
+      "documentDispatcher",
+      "documentLearningDispatcher",
+      "gsdDispatcher",
+      "knowledgeDispatcher",
+      "knowledgeExtDispatcher",
+      "machiningKnowledgeBaseDispatcher",
+      "skillScriptDispatcher",
+      "spDispatcher"
+    ],
+    "leg4_memories": [
+      "inboxDispatcher",
+      "memoryDispatcher",
+      "resourceHarvesterDispatcher",
+      "resourceHarvestingDispatcher"
+    ],
+    "leg5_tribal": [
+      "machiningKnowledgeBaseDispatcher",
+      "shopPracticeDispatcher"
+    ],
+    "leg6_system_viz": [
+      "guardDispatcher",
+      "infraDispatcher",
+      "monitoringDispatcher",
+      "telemetryDispatcher"
+    ],
+    "leg7_engines": [
+      "authDispatcher",
+      "automationDispatcher",
+      "awarenessMiddleware",
+      "bridgeDispatcher",
+      "businessDispatcher",
+      "cadAutomationDispatcher",
+      "cadDispatcher",
+      "cadRegressionDispatcher",
+      "calcDispatcher",
+      "camDispatcher",
+      "camFunctionDispatcher",
+      "cncOpsDispatcher",
+      "complianceDispatcher",
+      "cplDispatcher",
+      "dataDispatcher",
+      "devDispatcher",
+      "diagnosisDispatcher",
+      "edmDispatcher",
+      "exportDispatcher",
+      "feasibilityDispatcher",
+      "fiveAxisDispatcher",
+      "fluidThermalDispatcher",
+      "formingCastingDispatcher",
+      "generatorDispatcher",
+      "grindingDispatcher",
+      "holePatternDispatcher",
+      "hookDispatcher",
+      "industryDispatcher",
+      "intakeDispatcher",
+      "integrationDispatcher",
+      "localDispatcher",
+      "machineDispatcher",
+      "machineLiveDispatcher",
+      "machineSetupDispatcher",
+      "materialProcessingDispatcher",
+      "mechanicalDesignDispatcher",
+      "millDispatcher",
+      "multiAxisProgramDispatcher",
+      "multiDispatcher",
+      "multiOpDispatcher",
+      "nlHookDispatcher",
+      "outcomeDispatcher",
+      "partsLibraryDispatcher",
+      "pfpDispatcher",
+      "ppDispatcher",
+      "processControlDispatcher",
+      "processDispatcher",
+      "productDispatcher",
+      "provenPipelineDispatcher",
+      "qualityDispatcher",
+      "quotingDispatcher",
+      "realtimeDispatcher",
+      "resourceExtractionDispatcher",
+      "safetyDispatcher",
+      "schedulingDispatcher",
+      "secondaryOpsDispatcher",
+      "securityDispatcher",
+      "shopDispatcher",
+      "tenantDispatcher",
+      "threadDispatcher",
+      "threadingPipelineDispatcher",
+      "toolpathDispatcher",
+      "turningDispatcher",
+      "turningProgramDispatcher",
+      "validationDispatcher",
+      "vibrationPhysicsDispatcher",
+      "weldingJoiningDispatcher"
+    ],
+    "leg8_algorithms": [
+      "algorithmDispatcher",
+      "scientificMathDispatcher"
+    ],
+    "leg9_formulas": [
+      "calcDispatcher"
+    ],
+    "leg10_nn_gnn": [
+      "adaptiveControlDispatcher",
+      "aiReasoningDispatcher",
+      "intelligenceDispatcher",
+      "l2EngineDispatcher",
+      "mlDispatcher"
+    ],
+    "leg11_prism_ai": [
+      "aiReasoningDispatcher",
+      "intelligenceDispatcher",
+      "manusDispatcher",
+      "omegaDispatcher",
+      "ralphDispatcher"
+    ]
+  },
+  "integration": {
+    "protocols": [
+      "MCP 1.0",
+      "stdio",
+      "HTTP/SSE"
+    ],
+    "authentication": "none (localhost) / token (HTTP)",
+    "safetyNote": "Safety-critical system. S(x) >= 0.70 hard gate enforced. All physics calculations must be verified against machine capabilities before use.",
+    "externalAgentGuide": "See mcp-server/README.md §External AI Agent Integration"
+  }
+}

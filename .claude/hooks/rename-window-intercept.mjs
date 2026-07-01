@@ -81,6 +81,24 @@ export function isPeerForm(arg, slotNames) {
   return slotNames.includes(first);
 }
 
+/**
+ * Pure: compose the window caption for a chat. The caption ALWAYS leads with
+ * `PRISM <slot>` — the stable, always-present slot identity — so the zebra
+ * orchestrator can title-resolve a chat window even before it has a topic
+ * (resolve-hwnd-by-title.mjs matches the `PRISM <slot>` prefix via its
+ * `contains` tier). The volatile topic, when present, is appended for the
+ * operator. An empty slot yields "" (caller skips the title set).
+ * The `PRISM <slot>` prefix MUST stay in sync with the search term in
+ * scripts/zebra-orchestrator-sweep.mjs and the boot caption in
+ * H:/Tools/prism-fleet/slot-tab-boot.ps1.
+ */
+export function composeSlotTitle(slot, topic) {
+  const s = String(slot ?? "").trim();
+  if (!s) return "";
+  const t = String(topic ?? "").trim();
+  return t ? `PRISM ${s} - ${t}` : `PRISM ${s}`;
+}
+
 /** Read THIS chat's current slot + topic from chat-slots.json (never throws). */
 function currentSlot(chatId) {
   try {
@@ -145,9 +163,11 @@ async function main() {
       return passthrough(); // e.g. no_slot_owned → skill instructs /checkin
     }
 
-    const title = renameRes.newTopic || arg;
+    // U-ZM1-05: caption keeps the stable `PRISM <slot>` prefix so the zebra
+    // orchestrator can title-resolve this chat by slot identity.
+    const title = composeSlotTitle(renameRes.slot, renameRes.newTopic || arg);
     const r = setWindowTitle(title, { stampFile, force: true });
-    verbose(`renamed slot=${renameRes.slot} "${renameRes.oldTopic}"→"${renameRes.newTopic}" title=${JSON.stringify(r)}`);
+    verbose(`renamed slot=${renameRes.slot} "${renameRes.oldTopic}"->"${renameRes.newTopic}" title=${JSON.stringify(r)}`);
 
     const note =
       `✓ chat renamed: slot ${renameRes.slot} "${renameRes.oldTopic}" → "${renameRes.newTopic}"` +
@@ -161,10 +181,14 @@ async function main() {
   }
 
   // Not a rename → always-match: cheap re-assert (stamp-cached, no force).
+  // U-ZM1-05: re-assert on `cur.slot` (not `cur.topic`) so a topicless chat
+  // still carries a deterministic `PRISM <slot>` caption — a missing topic
+  // was the `hwnd:title-missing` root cause for the zebra orchestrator.
   const cur = currentSlot(chatId);
-  if (cur && cur.topic) {
-    const r = setWindowTitle(cur.topic, { stampFile });
-    verbose(`always-match slot=${cur.slot} topic="${cur.topic}" → ${JSON.stringify(r)}`);
+  if (cur && cur.slot) {
+    const title = composeSlotTitle(cur.slot, cur.topic);
+    const r = setWindowTitle(title, { stampFile });
+    verbose(`always-match slot=${cur.slot} title="${title}" -> ${JSON.stringify(r)}`);
   }
   return passthrough();
 }

@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="generator" content="SpecHTMLCompanionEngine">
+<meta name="prism-source-hash" content="11e4dfcb18153d45659fc8e201a920fbcd9edf5512568a3c4ee9233ed7d2da64">
+<title>REAPER-PERMFIX — Permanent Fleet-Reaper + CPU/GPU/Windows Optimization Plan</title>
+<style>
+:root, [data-theme="light"] {
+  --bg:#ffffff; --bg-soft:#f6f8fa; --bg-code:#f6f8fa; --fg:#1f2328; --fg-muted:#636c76;
+  --border:#d0d7de; --accent:#0969da; --accent-soft:#ddf4ff; --thead:#f6f8fa; --quote:#656d76;
+  --table-stripe:#f6f8fa;
+}
+[data-theme="dark"] {
+  --bg:#0d1117; --bg-soft:#161b22; --bg-code:#161b22; --fg:#e6edf3; --fg-muted:#8b949e;
+  --border:#30363d; --accent:#2f81f7; --accent-soft:#163356; --thead:#161b22; --quote:#8b949e;
+  --table-stripe:#11151c;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg:#0d1117; --bg-soft:#161b22; --bg-code:#161b22; --fg:#e6edf3; --fg-muted:#8b949e;
+    --border:#30363d; --accent:#2f81f7; --accent-soft:#163356; --thead:#161b22; --quote:#8b949e;
+    --table-stripe:#11151c;
+  }
+}
+* { box-sizing:border-box; }
+html { scroll-behavior:smooth; }
+body { margin:0; background:var(--bg); color:var(--fg); font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif; line-height:1.6; font-size:16px; }
+.skip-link { position:absolute; left:-9999px; top:0; background:var(--accent); color:#fff; padding:8px 14px; z-index:100; border-radius:0 0 6px 0; }
+.skip-link:focus { left:0; }
+.layout { display:grid; grid-template-columns:minmax(0,1fr); max-width:1180px; margin:0 auto; padding:0 20px; }
+@media (min-width:1000px) { .layout { grid-template-columns:260px minmax(0,1fr); gap:40px; } }
+header.doc-head { grid-column:1 / -1; padding:28px 0 16px; border-bottom:1px solid var(--border); }
+header.doc-head h1.page-title { margin:0 0 6px; font-size:1.9rem; line-height:1.25; }
+header.doc-head .provenance { color:var(--fg-muted); font-size:.85rem; margin:0; }
+header.doc-head .theme-toggle { float:right; background:var(--bg-soft); color:var(--fg); border:1px solid var(--border); border-radius:6px; padding:5px 10px; font-size:.8rem; cursor:pointer; }
+nav.toc { align-self:start; position:sticky; top:16px; max-height:calc(100vh - 32px); overflow:auto; font-size:.85rem; padding:14px 0; }
+@media (max-width:999px) { nav.toc { position:static; max-height:none; border-bottom:1px solid var(--border); margin-bottom:12px; } }
+nav.toc .toc-title { font-weight:600; color:var(--fg-muted); text-transform:uppercase; letter-spacing:.04em; font-size:.7rem; margin-bottom:8px; }
+nav.toc ul { list-style:none; margin:0; padding:0; }
+nav.toc li a { color:var(--fg-muted); text-decoration:none; display:block; padding:3px 6px; border-left:2px solid transparent; border-radius:0 4px 4px 0; }
+nav.toc li a:hover { color:var(--accent); background:var(--accent-soft); border-left-color:var(--accent); }
+nav.toc li a.active { color:var(--accent); background:var(--accent-soft); border-left-color:var(--accent); font-weight:600; }
+nav.toc .toc-l2 a { padding-left:14px; } nav.toc .toc-l3 a { padding-left:26px; font-size:.95em; } nav.toc .toc-l4 a { padding-left:38px; font-size:.9em; }
+nav.toc input.toc-search { width:100%; box-sizing:border-box; margin:0 0 8px; padding:5px 8px; font-size:.82rem; border:1px solid var(--border); border-radius:5px; background:var(--bg); color:var(--fg); }
+nav.toc input.toc-search:focus { outline:2px solid var(--accent); outline-offset:-1px; }
+nav.toc .toc-search-status { font-size:.7rem; color:var(--fg-muted); min-height:1em; margin:-4px 0 6px; }
+nav.toc li.toc-hidden { display:none; }
+main.doc-body mark.search-hit { background:#fff3a3; color:#1f2328; border-radius:2px; padding:0 1px; }
+main.doc-body mark.search-hit.current { outline:2px solid var(--accent); outline-offset:1px; }
+main.doc-body { min-width:0; padding:24px 0 64px; }
+main.doc-body h1,main.doc-body h2,main.doc-body h3,main.doc-body h4,main.doc-body h5,main.doc-body h6 { line-height:1.3; margin-top:1.8em; margin-bottom:.6em; scroll-margin-top:16px; position:relative; }
+main.doc-body h1 { font-size:1.7rem; border-bottom:1px solid var(--border); padding-bottom:.3em; }
+main.doc-body h2 { font-size:1.4rem; border-bottom:1px solid var(--border); padding-bottom:.3em; }
+main.doc-body h3 { font-size:1.18rem; } main.doc-body h4 { font-size:1.02rem; }
+main.doc-body a.anchor { position:absolute; left:-1.1em; opacity:0; text-decoration:none; color:var(--fg-muted); font-weight:400; padding-right:.3em; }
+main.doc-body h1:hover a.anchor,main.doc-body h2:hover a.anchor,main.doc-body h3:hover a.anchor,main.doc-body h4:hover a.anchor { opacity:1; }
+main.doc-body a { color:var(--accent); text-decoration:none; } main.doc-body a:hover { text-decoration:underline; }
+main.doc-body p { margin:.8em 0; }
+main.doc-body code { background:var(--bg-code); border-radius:4px; padding:.15em .35em; font-size:.88em; font-family:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace; }
+main.doc-body pre { background:var(--bg-code); border:1px solid var(--border); border-radius:8px; padding:14px 16px; overflow:auto; line-height:1.45; }
+main.doc-body pre code { background:none; padding:0; font-size:.86rem; }
+main.doc-body blockquote { margin:1em 0; padding:.4em 1em; border-left:4px solid var(--border); color:var(--quote); }
+main.doc-body ul,main.doc-body ol { margin:.6em 0; padding-left:1.6em; }
+main.doc-body li { margin:.2em 0; }
+main.doc-body hr { border:0; border-top:1px solid var(--border); margin:2em 0; }
+main.doc-body .table-wrap { overflow-x:auto; margin:1em 0; }
+main.doc-body table { border-collapse:collapse; width:100%; font-size:.9rem; }
+main.doc-body th,main.doc-body td { border:1px solid var(--border); padding:6px 11px; text-align:left; vertical-align:top; }
+main.doc-body thead th { background:var(--thead); }
+main.doc-body tbody tr:nth-child(2n) { background:var(--table-stripe); }
+main.doc-body details.frontmatter { background:var(--bg-soft); border:1px solid var(--border); border-radius:8px; padding:6px 14px; margin:0 0 22px; }
+main.doc-body details.frontmatter summary { cursor:pointer; font-weight:600; color:var(--fg-muted); }
+main.doc-body details.frontmatter table { font-size:.82rem; }
+main.doc-body details.frontmatter th { width:1%; white-space:nowrap; background:transparent; color:var(--fg-muted); }
+main.doc-body .mermaid { background:var(--bg-soft); border:1px solid var(--border); border-radius:8px; padding:14px; margin:1em 0; text-align:center; overflow:auto; white-space:pre-wrap; }
+main.doc-body .truncation-notice { background:var(--accent-soft); border:1px solid var(--accent); border-radius:6px; padding:10px 14px; font-size:.9rem; }
+footer.doc-foot { grid-column:1 / -1; border-top:1px solid var(--border); margin-top:48px; padding:18px 0 40px; color:var(--fg-muted); font-size:.82rem; }
+footer.doc-foot code { background:var(--bg-code); border-radius:4px; padding:.12em .3em; }
+</style>
+</head>
+<body>
+<a class="skip-link" href="#content">Skip to content</a>
+<div class="layout">
+<header class="doc-head">
+<button id="themeToggle" class="theme-toggle" type="button" aria-label="Toggle color theme">◐ theme</button>
+<h1 class="page-title" id="top">REAPER-PERMFIX — Permanent Fleet-Reaper + CPU/GPU/Windows Optimization Plan</h1>
+<p class="provenance">Generated 2026-05-18T17:34:20.836Z by <code>scripts/emit-all-spec-html.ts</code> · the Markdown alongside is canonical</p>
+</header>
+<nav class="toc" aria-label="Table of contents"><div class="toc-title">On this page</div><input type="search" class="toc-search" placeholder="Search this page…" aria-label="Search this page" autocomplete="off"><div class="toc-search-status" aria-live="polite"></div><ul>
+<li class="toc-l1"><a href="#reaper-permfix-permanent-fleet-reaper-cpugpuwindows-optimization-plan">REAPER-PERMFIX — Permanent Fleet-Reaper + CPU/GPU/Windows Optimization Plan</a></li>
+<li class="toc-l2"><a href="#diagnosis-why-the-reaper-keeps-crashing">DIAGNOSIS — why the reaper keeps crashing</a></li>
+<li class="toc-l2"><a href="#solution-hierarchy">SOLUTION HIERARCHY</a></li>
+<li class="toc-l2"><a href="#tier-1-reaper-permfix-ms0-6-units-all-cheapreversible">TIER 1 — REAPER-PERMFIX-MS0 (6 units, all cheap+reversible)</a></li>
+<li class="toc-l3"><a href="#u-b1-aggressive-reaper-thresholds">U-B1: aggressive reaper thresholds</a></li>
+<li class="toc-l3"><a href="#u-b3-256mb-memory-ballast">U-B3: 256MB memory ballast</a></li>
+<li class="toc-l3"><a href="#u-e1-docker-probe-down-auto-restart-gated">U-E1: Docker probe-down auto-restart (gated)</a></li>
+<li class="toc-l3"><a href="#u-e2-postgres-prometheus-probe-down-auto-restart-gated">U-E2: Postgres + Prometheus probe-down auto-restart (gated)</a></li>
+<li class="toc-l3"><a href="#u-d4-drop-ollama-offload-threshold">U-D4: drop Ollama offload threshold</a></li>
+<li class="toc-l3"><a href="#u-f2-scheduled-task-priority-normal-restartcount">U-F2: scheduled-task priority Normal + RestartCount</a></li>
+<li class="toc-l3"><a href="#u-g1g2g4-surface-operator-uac-commands">U-G1+G2+G4: surface operator UAC commands</a></li>
+<li class="toc-l2"><a href="#tier-2-reaper-permfix-ms1-4-units-architectural">TIER 2 — REAPER-PERMFIX-MS1 (4 units, architectural)</a></li>
+<li class="toc-l3"><a href="#u-a5-refactor-sweep-to-pure-node-api">U-A5: refactor sweep to pure-Node API</a></li>
+<li class="toc-l3"><a href="#u-c1-windows-job-object-per-slot">U-C1: Windows Job Object per slot</a></li>
+<li class="toc-l3"><a href="#u-c3-shared-5s-ttl-probe-cache">U-C3: shared 5s-TTL probe cache</a></li>
+<li class="toc-l3"><a href="#u-d1d2-ollama-in-docker-gpu-container">U-D1+D2: Ollama in Docker GPU container</a></li>
+<li class="toc-l2"><a href="#tier-3-reaper-permfix-ms2-1-3-units-the-permanent-fix">TIER 3 — REAPER-PERMFIX-MS2 (1-3 units, THE PERMANENT FIX)</a></li>
+<li class="toc-l3"><a href="#u-h1-prism-fleet-supervisor-windows-service">U-H1: prism-fleet-supervisor Windows Service</a></li>
+<li class="toc-l3"><a href="#u-h2-optional-supervisor-health-endpoint-dashboard">U-H2 (optional): supervisor health endpoint + dashboard</a></li>
+<li class="toc-l3"><a href="#u-h3-optional-wsl2-namespace-isolation">U-H3 (optional): WSL2 namespace isolation</a></li>
+<li class="toc-l2"><a href="#safety-reversibility-matrix">SAFETY + REVERSIBILITY MATRIX</a></li>
+<li class="toc-l2"><a href="#worktree-strategy">WORKTREE STRATEGY</a></li>
+<li class="toc-l2"><a href="#per-file-2-reviewer-gate-every-file">PER-FILE 2-REVIEWER GATE (every file)</a></li>
+<li class="toc-l2"><a href="#peer-claims-do-not-touch">PEER CLAIMS — DO NOT TOUCH</a></li>
+<li class="toc-l2"><a href="#success-criteria-measurable">SUCCESS CRITERIA (measurable)</a></li>
+<li class="toc-l2"><a href="#status">STATUS</a></li>
+</ul></nav>
+<main id="content" class="doc-body" role="main">
+<h1 id="reaper-permfix-permanent-fleet-reaper-cpugpuwindows-optimization-plan"><a class="anchor" href="#reaper-permfix-permanent-fleet-reaper-cpugpuwindows-optimization-plan" aria-label="Permalink to REAPER-PERMFIX — Permanent Fleet-Reaper + CPU/GPU/Windows Optimization Plan">#</a>REAPER-PERMFIX — Permanent Fleet-Reaper + CPU/GPU/Windows Optimization Plan</h1>
+<p><strong>Author:</strong> claude-420260fa (slot alpha) · <strong>Date:</strong> 2026-05-17 · <strong>Driver:</strong> user directive 2026-05-17 — &quot;find a permanent fix to keep reaper up and design it for 12 simultaneous chats calling 5-10 parallel chats at any given time. use gpu, cpu and docker further if we can or improve windows system to handle everything. right now reaper keeps crashing&quot; + &quot;it goes aways during your compaction which means its down for several minutes&quot; + &quot;add everything to your queue, loop until you complete all units&quot;</p>
+<hr>
+<h2 id="diagnosis-why-the-reaper-keeps-crashing"><a class="anchor" href="#diagnosis-why-the-reaper-keeps-crashing" aria-label="Permalink to DIAGNOSIS — why the reaper keeps crashing">#</a>DIAGNOSIS — why the reaper keeps crashing</h2>
+<p>Three distinct root causes confirmed live:</p>
+<div class="table-wrap"><table>
+<thead><tr><th>#</th><th>Cause</th><th>Where</th><th>Evidence</th></tr></thead>
+<tbody>
+<tr><td>1</td><td><strong>Compaction kills in-session Monitor</strong></td><td>Chat-bound <code>Monitor</code> armed by /fleet-reaper dies the moment /compact starts. Coverage gap = compaction duration (1-3 min).</td><td>User-reported: &quot;it goes aways during your compaction&quot;</td></tr>
+<tr><td>2</td><td><strong>--monitor-loop forks 5 subprocesses/cycle</strong></td><td>nvidia-smi + curl(ollama/api/tags) + curl(api/ps) + docker-health spawn + git invocation, every 300s</td><td>At commit memory ≥95% any fork() returns ENOMEM → &quot;xmalloc: cannot allocate 8192 bytes&quot;</td></tr>
+<tr><td>3</td><td><strong>Scheduled task is Interactive-only, no S4U, no AtStartup, no restart-on-fail</strong></td><td>install-fleet-reaper-task.ps1 default config</td><td><code>schtasks /Query</code> shows <code>Logon Mode: Interactive only</code> — does not run when user is logged out / locked screen drops session</td></tr>
+</tbody>
+</table></div>
+<p>Plus environmental gaps the user named explicitly:</p>
+<ul>
+<li><strong>Docker STOPPED</strong> — Postgres + Prometheus + Qdrant all down → cross-process learning loop dead</li>
+<li><strong>Ollama loaded=0 models</strong> — host-install, not Docker, not GPU-resident → cold-load every prompt</li>
+<li><strong>MemCompression OFF</strong> — Windows feature disabled → losing ~30% effective RAM</li>
+<li><strong>Pagefile only 4GB</strong> on a 64GB box (should be 96-128GB for fork() safety)</li>
+<li><strong>GPU RTX 4080 SUPER 15.1GB free / 16% util IDLE</strong> — premium compute sitting unused</li>
+</ul>
+<p>Fleet scope: <strong>12 chats × 5-10 parallel subagents = 60-120 process tree</strong>. Current 9 claude + 54 node + 7 bash = 70 procs already pushing 97% commit memory. Without an architectural fix this scales to OOM hang within a single multi-agent forge run.</p>
+<hr>
+<h2 id="solution-hierarchy"><a class="anchor" href="#solution-hierarchy" aria-label="Permalink to SOLUTION HIERARCHY">#</a>SOLUTION HIERARCHY</h2>
+<div class="table-wrap"><table>
+<thead><tr><th>Tier</th><th>Goal</th><th>Units</th><th>Reversibility</th><th>Time</th></tr></thead>
+<tbody>
+<tr><td><strong>Tier 1 (MS0)</strong></td><td>Immediate relief — make today&#39;s reaper survive 12-chat load</td><td>6</td><td>All env-var toggleable</td><td>1 session</td></tr>
+<tr><td><strong>Tier 2 (MS1)</strong></td><td>Architectural — eliminate fork-storm root cause</td><td>4</td><td>New code, old paths kept</td><td>2-3 sessions</td></tr>
+<tr><td><strong>Tier 3 (MS2)</strong></td><td>Permanent — reaper lifetime independent of Claude</td><td>1-3</td><td>Windows Service, uninstallable</td><td>Multi-day</td></tr>
+</tbody>
+</table></div>
+<hr>
+<h2 id="tier-1-reaper-permfix-ms0-6-units-all-cheapreversible"><a class="anchor" href="#tier-1-reaper-permfix-ms0-6-units-all-cheapreversible" aria-label="Permalink to TIER 1 — REAPER-PERMFIX-MS0 (6 units, all cheap+reversible)">#</a>TIER 1 — REAPER-PERMFIX-MS0 (6 units, all cheap+reversible)</h2>
+<p>Strictly additive; every change is one env var away from off.</p>
+<h3 id="u-b1-aggressive-reaper-thresholds"><a class="anchor" href="#u-b1-aggressive-reaper-thresholds" aria-label="Permalink to U-B1: aggressive reaper thresholds">#</a>U-B1: aggressive reaper thresholds</h3>
+<p><strong>File:</strong> <code>H:/prism/scripts/fleet-reaper-sweep.mjs</code> (constants block) <strong>Change:</strong> drop <code>KILL_AFTER</code> from default 2 → tiered:</p>
+<ul>
+<li><code>usedPct &lt; 80</code> → kill-after 2 (current behavior)</li>
+<li><code>usedPct ≥ 80 &amp;&amp; &lt; 95</code> → kill-after 1 (single-sweep confirmation)</li>
+<li><code>usedPct ≥ 95</code> → kill-after 0 (immediate reap, no confirm)</li>
+</ul>
+<p><strong>Why:</strong> at 95% commit memory the cost of false-positive reap (kill a healthy proc) is much lower than the cost of waiting another 300s for confirmation while fork() ENOMEM-storms. <strong>Knob:</strong> <code>PRISM_FLEET_REAPER_KILL_AFTER_TIERED=0</code> reverts to flat behavior. <strong>Smoke:</strong> force memUsedPct=96 via env override; verify <code>decision: &quot;tiered: immediate&quot;</code> on candidates.</p>
+<h3 id="u-b3-256mb-memory-ballast"><a class="anchor" href="#u-b3-256mb-memory-ballast" aria-label="Permalink to U-B3: 256MB memory ballast">#</a>U-B3: 256MB memory ballast</h3>
+<p><strong>File:</strong> <code>H:/prism/scripts/fleet-reaper-sweep.mjs</code> (boot section, before main()) <strong>Change:</strong> <code>globalThis.__REAPER_BALLAST = Buffer.allocUnsafe(256 * 1024 * 1024);</code> at sweep start. On <code>mem.usedPct &gt;= 95</code> alarm in coordinator, release: <code>globalThis.__REAPER_BALLAST = null; global.gc?.();</code></p>
+<p><strong>Why:</strong> guarantees fork() always has ≥256MB free even when host commit hits 100%. The reaper IS the relief mechanism — it cannot itself xmalloc-fail. <strong>Knob:</strong> <code>PRISM_FLEET_REAPER_BALLAST_MB=N</code> (default 256, 0 disables). <strong>Smoke:</strong> stress host to 98% via Buffer.allocUnsafe(8GB) ladder, verify reaper still spawns sub-calls.</p>
+<h3 id="u-e1-docker-probe-down-auto-restart-gated"><a class="anchor" href="#u-e1-docker-probe-down-auto-restart-gated" aria-label="Permalink to U-E1: Docker probe-down auto-restart (gated)">#</a>U-E1: Docker probe-down auto-restart (gated)</h3>
+<p><strong>File:</strong> <code>H:/prism/scripts/ollama-docker-health.mjs</code> + coordinator hook in sweep <strong>Change:</strong> when probe reports <code>docker.available=false</code> AND <code>PRISM_FLEET_REAPER_AUTO_DOCKER_RESTART=1</code>, spawn detached <code>&quot;Docker Desktop.exe&quot;</code> startup. Single attempt per 30-min cooldown stamp. <strong>Why:</strong> Postgres/Prometheus/Qdrant downtime breaks the cross-process learning bus (NN-STACK-INTEG depends on Qdrant). Auto-restart instead of silent-degrade. <strong>Default:</strong> OFF — flip on after manual smoke shows it doesn&#39;t loop-restart on shutdown.</p>
+<h3 id="u-e2-postgres-prometheus-probe-down-auto-restart-gated"><a class="anchor" href="#u-e2-postgres-prometheus-probe-down-auto-restart-gated" aria-label="Permalink to U-E2: Postgres + Prometheus probe-down auto-restart (gated)">#</a>U-E2: Postgres + Prometheus probe-down auto-restart (gated)</h3>
+<p><strong>Same file/gate as E1.</strong> Additional service-name array (<code>postgresql-x64-16</code>, <code>prometheus</code>) reached via <code>Get-Service | Start-Service</code> (PowerShell child) when docker is reachable but containers are down. <strong>Why:</strong> services occasionally stop after Windows Update; manual diagnosis wastes operator time. <strong>Default:</strong> OFF.</p>
+<h3 id="u-d4-drop-ollama-offload-threshold"><a class="anchor" href="#u-d4-drop-ollama-offload-threshold" aria-label="Permalink to U-D4: drop Ollama offload threshold">#</a>U-D4: drop Ollama offload threshold</h3>
+<p><strong>File:</strong> <code>H:/prism/.claude/hooks/ollama-task-offloader.mjs</code> <strong>Change:</strong> <code>INJECT_THRESHOLD</code> 0.90 → 0.50 (loosened — more tasks classify as offload-eligible). Current 22.2% offload rate vs 30% target. <strong>Why:</strong> with GPU sitting at 16% util the cost of false-offload (round-trip to Ollama) is cheap; the cost of false-keep (Claude burns context) is expensive at high-iteration loops. <strong>Knob:</strong> <code>PRISM_OLLAMA_INJECT_THRESHOLD=0.5</code> (already exists, just retune default). <strong>Smoke:</strong> /loop iteration should now route summarize/explain/classify/lint to Ollama.</p>
+<h3 id="u-f2-scheduled-task-priority-normal-restartcount"><a class="anchor" href="#u-f2-scheduled-task-priority-normal-restartcount" aria-label="Permalink to U-F2: scheduled-task priority Normal + RestartCount">#</a>U-F2: scheduled-task priority Normal + RestartCount</h3>
+<p><strong>File:</strong> <code>H:/prism/.claude/helpers/install-fleet-reaper-task.ps1</code> <strong>Change:</strong> add to settings block:</p>
+<ul>
+<li><code>-Priority 5</code> (Normal, not Below-Normal default)</li>
+<li><code>-RestartCount 3 -RestartInterval (New-TimeSpan -Minutes 1)</code></li>
+<li>Document the elevated re-install one-liner.</li>
+</ul>
+<p><strong>Why:</strong> Below-Normal lets the reaper get starved during exactly the host stress when it&#39;s most needed. RestartCount catches crashes (xmalloc, ENOMEM). <strong>Reversal:</strong> <code>Set-ScheduledTask -Priority 7</code> restores Below-Normal.</p>
+<h3 id="u-g1g2g4-surface-operator-uac-commands"><a class="anchor" href="#u-g1g2g4-surface-operator-uac-commands" aria-label="Permalink to U-G1+G2+G4: surface operator UAC commands">#</a>U-G1+G2+G4: surface operator UAC commands</h3>
+<p><strong>File:</strong> new <code>H:/prism/state/shared/specs/HOST-OPTIMIZATION-UAC-COMMANDS.md</code> + /checkin-alpha skill report line. <strong>Content:</strong> copy-paste-ready elevated PowerShell commands the operator runs manually (NOT code commits, NOT auto-run):</p>
+<ul>
+<li><strong>G1 pagefile→96GB:</strong> <code>wmic computersystem set AutomaticManagedPagefile=False; wmic pagefileset set InitialSize=98304, MaximumSize=131072</code></li>
+<li><strong>G2 MemCompression on:</strong> <code>Enable-MMAgent -MemoryCompression</code></li>
+<li><strong>G4 Defender exclusions:</strong> <code>Add-MpPreference -ExclusionPath &quot;H:\prism&quot;,&quot;H:\Tools\nodejs&quot;,&quot;H:\.claude&quot; -ExclusionProcess &quot;node.exe&quot;,&quot;claude.exe&quot;,&quot;esbuild.exe&quot;</code></li>
+</ul>
+<p><strong>Why:</strong> these are the highest-ROI Windows host changes but require UAC. PRISM should surface the exact commands, not silently expect them.</p>
+<hr>
+<h2 id="tier-2-reaper-permfix-ms1-4-units-architectural"><a class="anchor" href="#tier-2-reaper-permfix-ms1-4-units-architectural" aria-label="Permalink to TIER 2 — REAPER-PERMFIX-MS1 (4 units, architectural)">#</a>TIER 2 — REAPER-PERMFIX-MS1 (4 units, architectural)</h2>
+<p>Eliminate fork-storm at the source. Tier 1 mitigates symptoms; Tier 2 removes the disease.</p>
+<h3 id="u-a5-refactor-sweep-to-pure-node-api"><a class="anchor" href="#u-a5-refactor-sweep-to-pure-node-api" aria-label="Permalink to U-A5: refactor sweep to pure-Node API">#</a>U-A5: refactor sweep to pure-Node API</h3>
+<p><strong>File:</strong> <code>H:/prism/scripts/fleet-reaper-sweep.mjs</code> <strong>Change:</strong> replace every <code>execFileSync</code>/<code>spawnSync</code> in the hot path:</p>
+<ul>
+<li><code>nvidia-smi --query-gpu=...</code> → cached read from new probe-cache (U-C3) OR direct NVML binding (<code>nvidia-ml-py</code> equiv for Node — package <code>node-nvidia-ml</code>)</li>
+<li><code>curl http://127.0.0.1:11434/api/tags</code> → native <code>node:http</code> request (already in stdlib)</li>
+<li><code>docker-health</code> subprocess → inline the probe in-process (it&#39;s just 3 curl calls)</li>
+<li><code>git rev-parse</code> → read <code>.git/HEAD</code> directly</li>
+</ul>
+<p><strong>Why:</strong> each sweep currently forks 5 subprocesses. At 12-chat × every-5-min cadence = 720 forks/hour just for the reaper. Pure-Node = 0 forks per sweep. <strong>Backward compat:</strong> keep old execFileSync paths behind <code>PRISM_FLEET_REAPER_LEGACY_EXEC=1</code> for one milestone before deletion.</p>
+<h3 id="u-c1-windows-job-object-per-slot"><a class="anchor" href="#u-c1-windows-job-object-per-slot" aria-label="Permalink to U-C1: Windows Job Object per slot">#</a>U-C1: Windows Job Object per slot</h3>
+<p><strong>File:</strong> new <code>H:/prism/.claude/helpers/slot-job-object.ps1</code> <strong>Change:</strong> wrap each slot&#39;s <code>claude.exe</code> launch in a Windows Job Object with:</p>
+<ul>
+<li><code>JOB_OBJECT_LIMIT_ACTIVE_PROCESS = 50</code> (cap child-process count per slot)</li>
+<li><code>JOB_OBJECT_LIMIT_JOB_MEMORY = 8GB</code> (commit limit per slot)</li>
+<li><code>JOB_OBJECT_LIMIT_KILL_ON_JOB_CLOSE</code> (auto-reap on chat exit)</li>
+</ul>
+<p><strong>Why:</strong> today a single runaway forge run can spawn 200+ node procs and bring down the host. Job Objects = OS-level fork containment. Kernel enforces, no userspace polling. <strong>Integration:</strong> <code>/checkin-&lt;slot&gt;</code> adds the Job Object membership check.</p>
+<h3 id="u-c3-shared-5s-ttl-probe-cache"><a class="anchor" href="#u-c3-shared-5s-ttl-probe-cache" aria-label="Permalink to U-C3: shared 5s-TTL probe cache">#</a>U-C3: shared 5s-TTL probe cache</h3>
+<p><strong>File:</strong> new <code>H:/prism/scripts/probe-cache-daemon.mjs</code> + <code>state/shared/.probe-cache.json</code> <strong>Change:</strong> single daemon polls nvidia-smi + ollama + docker every 5s; all 12 slots READ the JSON. Locked via file-lock (lockfile-guarded atomic write). <strong>Why:</strong> today 12 chats × 5 probes × 12 sweeps/hour = 720 nvidia-smi forks/hour. After cache = 720 forks/hour → 12 forks/hour (just the daemon). <strong>Failure mode:</strong> stale cache (&gt;15s) → individual sweeps fall back to direct probe (graceful degrade).</p>
+<h3 id="u-d1d2-ollama-in-docker-gpu-container"><a class="anchor" href="#u-d1d2-ollama-in-docker-gpu-container" aria-label="Permalink to U-D1+D2: Ollama in Docker GPU container">#</a>U-D1+D2: Ollama in Docker GPU container</h3>
+<p><strong>File:</strong> new <code>H:/prism/docker/ollama-gpu/docker-compose.yml</code> <strong>Change:</strong> containerize Ollama with <code>--gpus all</code> + persistent volume + <code>qwen2.5-coder:32b-q4</code> preloaded (14GB VRAM, fits in 16GB). <strong>Why:</strong> host-install Ollama has 0 models loaded — cold-load every prompt = 30-90s latency. Container with <code>keep_alive=24h</code> + GPU residency = &lt;100ms first-token. <strong>Side effect:</strong> frees 0.5GB CPU RAM (host ollama daemon process gone).</p>
+<hr>
+<h2 id="tier-3-reaper-permfix-ms2-1-3-units-the-permanent-fix"><a class="anchor" href="#tier-3-reaper-permfix-ms2-1-3-units-the-permanent-fix" aria-label="Permalink to TIER 3 — REAPER-PERMFIX-MS2 (1-3 units, THE PERMANENT FIX)">#</a>TIER 3 — REAPER-PERMFIX-MS2 (1-3 units, THE PERMANENT FIX)</h2>
+<p>The canonical answer to the compaction-gap problem: own the reaper lifetime at the OS level.</p>
+<h3 id="u-h1-prism-fleet-supervisor-windows-service"><a class="anchor" href="#u-h1-prism-fleet-supervisor-windows-service" aria-label="Permalink to U-H1: prism-fleet-supervisor Windows Service">#</a>U-H1: prism-fleet-supervisor Windows Service</h3>
+<p><strong>Files:</strong></p>
+<ul>
+<li><code>H:/prism/services/prism-fleet-supervisor/main.mjs</code> (Node.js daemon)</li>
+<li><code>H:/prism/services/prism-fleet-supervisor/install-service.ps1</code> (NSSM wrapper or node-windows)</li>
+<li><code>H:/prism/services/prism-fleet-supervisor/README.md</code></li>
+</ul>
+<p><strong>Architecture:</strong></p>
+<ul>
+<li>Windows Service <code>PRISMFleetSupervisor</code> runs as LocalSystem (S4U-equivalent, survives logout)</li>
+<li>Auto-start at boot, restart-on-failure (3 attempts, 60s interval)</li>
+<li>Owns: fleet-reaper sweep cadence (replaces scheduled task), probe-cache daemon (U-C3), Ollama container watchdog (U-D1)</li>
+<li>Exposes: named-pipe <code>\\.\pipe\prism-fleet-supervisor</code> for status query from any chat</li>
+</ul>
+<p><strong>Why this is THE permanent fix:</strong></p>
+<ul>
+<li>Independent of any Claude chat lifetime</li>
+<li>Survives /compact (the user&#39;s stated pain)</li>
+<li>Survives logout, lock-screen, RDP disconnect</li>
+<li>One install, set-and-forget — no per-chat arming</li>
+<li>OS-managed restart (kernel does the restart, not userspace polling)</li>
+<li>LocalSystem privilege = can soft-kill any user-mode process without UAC prompts</li>
+</ul>
+<p><strong>Why deferred to MS2 not MS0:</strong></p>
+<ul>
+<li>Windows Service install needs UAC + careful service-account selection</li>
+<li>Replacing the scheduled task is a single-point cutover (failure = no reaper at all)</li>
+<li>Node.js service runtime needs hardening (uncaught-exception handler must not crash the service)</li>
+<li>Want Tier 1 + Tier 2 stable first as fallback layers</li>
+</ul>
+<h3 id="u-h2-optional-supervisor-health-endpoint-dashboard"><a class="anchor" href="#u-h2-optional-supervisor-health-endpoint-dashboard" aria-label="Permalink to U-H2 (optional): supervisor health endpoint + dashboard">#</a>U-H2 (optional): supervisor health endpoint + dashboard</h3>
+<p>HTTP <code>/health</code> endpoint on <code>127.0.0.1:8765</code> mirroring <code>/system-viz</code> port. Status panel in the system-viz UI showing supervisor liveness + last reap + ballast state.</p>
+<h3 id="u-h3-optional-wsl2-namespace-isolation"><a class="anchor" href="#u-h3-optional-wsl2-namespace-isolation" aria-label="Permalink to U-H3 (optional): WSL2 namespace isolation">#</a>U-H3 (optional): WSL2 namespace isolation</h3>
+<p>Move the per-slot Job Objects (U-C1) into a WSL2 namespace for true memory governor (cgroups v2). Linux kernel has better OOM behavior than Windows commit-charge. Tier-3 stretch goal.</p>
+<hr>
+<h2 id="safety-reversibility-matrix"><a class="anchor" href="#safety-reversibility-matrix" aria-label="Permalink to SAFETY + REVERSIBILITY MATRIX">#</a>SAFETY + REVERSIBILITY MATRIX</h2>
+<div class="table-wrap"><table>
+<thead><tr><th>Unit</th><th>Touches production</th><th>Reversal</th></tr></thead>
+<tbody>
+<tr><td>B1</td><td>reaper thresholds</td><td><code>PRISM_FLEET_REAPER_KILL_AFTER_TIERED=0</code></td></tr>
+<tr><td>B3</td><td>reaper memory</td><td><code>PRISM_FLEET_REAPER_BALLAST_MB=0</code></td></tr>
+<tr><td>E1</td><td>service lifetime</td><td>gate <code>PRISM_FLEET_REAPER_AUTO_DOCKER_RESTART=1</code> default OFF</td></tr>
+<tr><td>E2</td><td>service lifetime</td><td>gate default OFF</td></tr>
+<tr><td>D4</td><td>hook threshold</td><td><code>PRISM_OLLAMA_INJECT_THRESHOLD=0.9</code> reverts</td></tr>
+<tr><td>F2</td><td>scheduled task</td><td><code>Set-ScheduledTask -Priority 7</code> reverts</td></tr>
+<tr><td>G1/G2/G4</td><td>host (UAC)</td><td>operator-manual, fully reversible by operator</td></tr>
+<tr><td>A5</td><td>sweep API</td><td><code>PRISM_FLEET_REAPER_LEGACY_EXEC=1</code> one milestone</td></tr>
+<tr><td>C1</td><td>slot launch</td><td>unwrap Job Object membership</td></tr>
+<tr><td>C3</td><td>probe cache</td><td>daemon stops → sweeps fall back to direct probe</td></tr>
+<tr><td>D1/D2</td><td>Ollama install</td><td><code>docker compose down</code></td></tr>
+<tr><td>H1</td><td>Windows service</td><td><code>nssm remove PRISMFleetSupervisor</code></td></tr>
+</tbody>
+</table></div>
+<p>Universal kill: <code>PRISM_FLEET_REAPER_DISABLE=1</code> still disables ALL reaping fleet-wide.</p>
+<hr>
+<h2 id="worktree-strategy"><a class="anchor" href="#worktree-strategy" aria-label="Permalink to WORKTREE STRATEGY">#</a>WORKTREE STRATEGY</h2>
+<ul>
+<li>Branch: <code>work/reaper-permfix-ms0</code> from <code>cad-fusion-live-ms0</code></li>
+<li>Worktree: <code>H:/prism-reaper-permfix</code></li>
+<li>One commit per unit (B1, B3, E1, E2, D4, F2, G124) with subject <code>[REAPER-PERMFIX-MS0]/U-&lt;TAG&gt;: &lt;title&gt;</code></li>
+<li>After MS0 complete: ff-merge worktree → cad-fusion-live-ms0, close envelope, post chat-bus</li>
+<li>MS1/MS2 each get fresh worktrees (<code>work/reaper-permfix-ms1</code>, <code>work/reaper-permfix-ms2</code>)</li>
+</ul>
+<h2 id="per-file-2-reviewer-gate-every-file"><a class="anchor" href="#per-file-2-reviewer-gate-every-file" aria-label="Permalink to PER-FILE 2-REVIEWER GATE (every file)">#</a>PER-FILE 2-REVIEWER GATE (every file)</h2>
+<p>Per <code>CLAUDE.md §PER-FILE SCRUTINY GATE</code>:</p>
+<ol>
+<li>Generate file</li>
+<li>Self-cross-check</li>
+<li><strong>Dispatch 2 parallel reviewer agents in one tool block:</strong>
+<ul>
+<li>Arm A: <code>code-analyzer</code> (or specialty agent if file type matches)</li>
+<li>Arm B: independent <code>reviewer</code> weighted on integration + security + naming</li>
+</ul></li>
+<li>Wait both verdicts → fix P0/P1 → only then next file</li>
+</ol>
+<h2 id="peer-claims-do-not-touch"><a class="anchor" href="#peer-claims-do-not-touch" aria-label="Permalink to PEER CLAIMS — DO NOT TOUCH">#</a>PEER CLAIMS — DO NOT TOUCH</h2>
+<ul>
+<li><code>H:/prism/CLAUDE.md</code> — claude-416be9ac</li>
+<li><code>H:/prism/state/shared/specs/CLAUDE-MD-DUPLICATION-CANDIDATES-2026-05-17.md</code> — claude-416be9ac</li>
+<li><code>H:/prism/state/shared/specs/INJECTOR-UTILIZATION-2026-05-17.md</code> — claude-416be9ac</li>
+<li><code>H:/prism/.claude/commands/checkin-mike.md</code> — claude-416be9ac</li>
+<li><code>H:/prism/.claude/helpers/chat-slots.mjs</code> + <code>chat-slots-pid-gate.test.mjs</code> — claude-339c8ff7</li>
+<li><code>H:/prism/scripts/fleet-memory-monitor.mjs</code> + <code>.test.mjs</code> — claude-629a6355</li>
+<li><code>H:/prism/.claude/hooks/pick-prefresh-inject.mjs</code> + tests — claude-77971357</li>
+<li>infraDispatcher — claude-6655163e</li>
+</ul>
+<p>If any Tier-2 architectural change would touch a peer-claimed file: fork to a sibling worktree, don&#39;t fight.</p>
+<hr>
+<h2 id="success-criteria-measurable"><a class="anchor" href="#success-criteria-measurable" aria-label="Permalink to SUCCESS CRITERIA (measurable)">#</a>SUCCESS CRITERIA (measurable)</h2>
+<ul>
+<li><strong>MS0:</strong> commit memory stays ≤95% under 12-chat × 10-subagent load (today: hits 97% in 1-2 forge runs)</li>
+<li><strong>MS0:</strong> zero &quot;xmalloc: cannot allocate&quot; errors in fleet-reaper.log over 24h</li>
+<li><strong>MS0:</strong> Ollama offload rate ≥30% (today: 22.2%)</li>
+<li><strong>MS1:</strong> sweep fork count &lt;2/cycle (today: 5)</li>
+<li><strong>MS1:</strong> per-slot proc count capped at 50 (today: unbounded)</li>
+<li><strong>MS2:</strong> reaper continuity through /compact verified — no <code>&gt;60s reaper-down</code> window</li>
+<li><strong>MS2:</strong> reaper continuity through logout verified — task runs unattended</li>
+</ul>
+<hr>
+<h2 id="status"><a class="anchor" href="#status" aria-label="Permalink to STATUS">#</a>STATUS</h2>
+<ul>
+<li>Plan written ✓</li>
+<li>Worktree NOT YET created</li>
+<li>Tasks #24-#33 created in TaskList</li>
+<li>Next: create worktree + post chat-bus claim + begin U-B1</li>
+</ul>
+</main>
+<footer class="doc-foot">
+<p>HTML companion — the canonical document is the Markdown file alongside it. <a href="REAPER-PERMFIX-PLAN.md">REAPER-PERMFIX-PLAN.md</a> Regenerate: <code>node scripts/emit-spec-html.mjs &lt;path.md&gt;</code></p>
+
+</footer>
+</div>
+<script>(function(){
+  try {
+    var k = "prism-spec-theme";
+    var saved = localStorage.getItem(k);
+    if (saved === "dark" || saved === "light") document.documentElement.setAttribute("data-theme", saved);
+  } catch (e) { /* localStorage blocked — keep default theme */ }
+  var b = document.getElementById("themeToggle");
+  if (!b) return;
+  b.addEventListener("click", function () {
+    var cur = document.documentElement.getAttribute("data-theme");
+    var sysDark = !!(window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches);
+    var next = cur === "dark" ? "light" : cur === "light" ? "dark" : (sysDark ? "light" : "dark");
+    document.documentElement.setAttribute("data-theme", next);
+    b.textContent = next === "dark" ? "\u263E dark" : "\u2600 light";
+    try { localStorage.setItem(k, next); } catch (e) { /* persistence unavailable — non-fatal */ }
+  });
+})();</script>
+<script>(function(){
+  var body = document.querySelector("main.doc-body");
+  var toc = document.querySelector("nav.toc");
+  if (!body) return;
+  // TOC active-section highlight.
+  if (toc) {
+    var links = {};
+    toc.querySelectorAll("a[href^='#']").forEach(function(a){ links[a.getAttribute("href").slice(1)] = a; });
+    var heads = body.querySelectorAll("h1[id],h2[id],h3[id],h4[id]");
+    var active = null;
+    function setActive(id){
+      if (active === id) return;
+      if (active && links[active]) links[active].classList.remove("active");
+      active = id;
+      if (active && links[active]) links[active].classList.add("active");
+    }
+    var io = new IntersectionObserver(function(entries){
+      var top = null, topY = Infinity;
+      entries.forEach(function(e){ if (e.isIntersecting) { var y = e.boundingClientRect.top; if (y < topY) { topY = y; top = e.target.id; } } });
+      if (!top) {
+        var best = null;
+        heads.forEach(function(h){ if (h.getBoundingClientRect().top < 80) best = h.id; });
+        top = best || (heads[0] && heads[0].id);
+      }
+      if (top) setActive(top);
+    }, { rootMargin: "0px 0px -70% 0px", threshold: [0, 1] });
+    heads.forEach(function(h){ io.observe(h); });
+  }
+  // In-page search: wrap matches in <mark>, jump to first, filter the TOC.
+  var input = toc && toc.querySelector("input.toc-search");
+  var status = toc && toc.querySelector(".toc-search-status");
+  if (!input) return;
+  var SKIP = { SCRIPT:1, STYLE:1, MARK:1, NOSCRIPT:1 };
+  function clearMarks(){
+    body.querySelectorAll("mark.search-hit").forEach(function(m){ var p = m.parentNode; if (p) { p.replaceChild(document.createTextNode(m.textContent), m); p.normalize(); } });
+    if (toc) toc.querySelectorAll("li.toc-hidden").forEach(function(li){ li.classList.remove("toc-hidden"); });
+  }
+  function doSearch(q){
+    clearMarks();
+    if (status) status.textContent = "";
+    if (!q || q.length < 2) return;
+    var needle = q.toLowerCase(), hits = 0, first = null;
+    var walker = document.createTreeWalker(body, NodeFilter.SHOW_TEXT, { acceptNode: function(n){
+      if (!n.nodeValue || !n.nodeValue.trim()) return NodeFilter.FILTER_REJECT;
+      var p = n.parentNode; while (p && p !== body) { if (SKIP[p.nodeName]) return NodeFilter.FILTER_REJECT; p = p.parentNode; }
+      return n.nodeValue.toLowerCase().indexOf(needle) >= 0 ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT;
+    }});
+    var targets = [];
+    while (walker.nextNode()) targets.push(walker.currentNode);
+    targets.forEach(function(node){
+      if (hits > 2000) return;
+      var text = node.nodeValue, lower = text.toLowerCase(), frag = document.createDocumentFragment(), i = 0, idx;
+      while ((idx = lower.indexOf(needle, i)) >= 0 && hits <= 2000) {
+        if (idx > i) frag.appendChild(document.createTextNode(text.slice(i, idx)));
+        var m = document.createElement("mark"); m.className = "search-hit"; m.textContent = text.slice(idx, idx + needle.length);
+        if (hits === 0) { m.classList.add("current"); first = m; }
+        frag.appendChild(m); hits++; i = idx + needle.length;
+      }
+      if (i < text.length) frag.appendChild(document.createTextNode(text.slice(i)));
+      if (node.parentNode) node.parentNode.replaceChild(frag, node);
+    });
+    if (status) status.textContent = hits ? (hits + " match" + (hits === 1 ? "" : "es")) : "no matches";
+    if (toc) toc.querySelectorAll("li").forEach(function(li){ var a = li.querySelector("a"); if (a && a.textContent.toLowerCase().indexOf(needle) < 0) li.classList.add("toc-hidden"); });
+    if (first) first.scrollIntoView({ block: "center", behavior: "smooth" });
+  }
+  var t;
+  input.addEventListener("input", function(){ clearTimeout(t); t = setTimeout(function(){ doSearch(input.value.trim()); }, 180); });
+  input.addEventListener("keydown", function(e){ if (e.key === "Escape") { input.value = ""; doSearch(""); input.blur(); } });
+})();</script>
+</body>
+</html>

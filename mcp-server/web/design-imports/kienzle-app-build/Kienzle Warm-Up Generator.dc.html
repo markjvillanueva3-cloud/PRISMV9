@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Archivo:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; background: #070809; height: 100%; overflow: hidden; }
+    select, input { font-family: 'Archivo', sans-serif; }
+    select { -webkit-appearance: none; appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%236B7280' stroke-width='2.5' stroke-linecap='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 10px center; }
+    .kz-scroll::-webkit-scrollbar { width: 8px; } .kz-scroll::-webkit-scrollbar-thumb { background: #23262E; border-radius: 8px; }
+    @keyframes kzpulse { 0%,100% { opacity:.4 } 50% { opacity:1 } }
+  </style>
+</helmet>
+<div style="position:fixed;inset:0;background:#070809;display:flex;align-items:center;justify-content:center;overflow:hidden;">
+<div style="width:1600px;height:980px;flex:none;transform:scale({{ scale }});transform-origin:center;display:flex;background:#0A0B0D;color:#F3F4F6;font-family:'Archivo',sans-serif;overflow:hidden;border-radius:16px;box-shadow:0 40px 120px rgba(0,0,0,0.6);">
+  <aside style="width:72px;flex:none;background:#0C0D10;border-right:1px solid rgba(255,255,255,0.06);display:flex;flex-direction:column;align-items:center;padding:18px 0;gap:6px;">
+    <svg viewBox="0 0 120 120" width="34" height="34" style="margin-bottom:14px;"><rect x="22" y="20" width="13" height="80" rx="1.5" fill="#F3F4F6"/><path d="M35 60 L86 22" stroke="#F3F4F6" stroke-width="13" stroke-linecap="round"/><path d="M35 60 L92 98 L92 74 L58 60 Z" fill="#FF5A2B"/></svg>
+    <div style="width:50px;height:48px;border-radius:12px;border:1px solid rgba(255,90,43,0.35);background:rgba(255,90,43,0.1);color:#FF7A4D;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-family:'JetBrains Mono',monospace;font-size:9px;"><span style="font-size:15px;">♨</span>WARM</div>
+    <div style="flex:1;"></div>
+    <div style="width:38px;height:38px;border-radius:50%;background:#1B1E24;border:1px solid rgba(255,255,255,0.1);display:flex;align-items:center;justify-content:center;font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:13px;color:#AEB4BE;">JM</div>
+  </aside>
+  <main style="flex:1;display:flex;flex-direction:column;min-width:0;">
+    <header style="flex:none;height:64px;border-bottom:1px solid rgba(255,255,255,0.06);display:flex;align-items:center;justify-content:space-between;padding:0 24px;background:#0C0D10;">
+      <div><div style="font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:19px;">Warm-Up Generator</div><div style="font-family:'JetBrains Mono',monospace;font-size:10.5px;color:#6B7280;margin-top:1px;">JM DIE · COLLISION-SAFE · FIXTURE-AWARE · {{ dialectLabel }}</div></div>
+      <div style="display:flex;align-items:center;gap:10px;">
+        <div style="display:flex;align-items:center;gap:7px;padding:7px 12px;border:1px solid {{ safeBorder }};background:{{ safeBg }};border-radius:9px;font-family:'JetBrains Mono',monospace;font-size:11px;color:{{ safeColor }};"><span style="width:6px;height:6px;border-radius:50%;background:{{ safeColor }};"></span>{{ safeLabel }}</div>
+        <button onClick="{{ saveProgram }}" style="border:none;background:#FF5A2B;color:#0A0B0D;border-radius:9px;padding:9px 16px;font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:13px;cursor:pointer;">{{ saveLabel }}</button>
+      </div>
+    </header>
+    <div style="flex:1;display:grid;grid-template-columns:336px minmax(0,1fr) 372px;min-height:0;">
+
+      <section class="kz-scroll" style="border-right:1px solid rgba(255,255,255,0.06);overflow-y:auto;min-width:0;padding:18px 20px 44px;background:#0A0B0D;">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:0.18em;color:#FF5A2B;margin-bottom:11px;">MACHINE</div>
+        <select value="{{ mid }}" onChange="{{ setMid }}" style="width:100%;height:42px;background:#14161B;border:1px solid rgba(255,255,255,0.1);border-radius:10px;color:#F3F4F6;font-size:13px;padding:0 32px 0 12px;margin-bottom:10px;">
+          <option value="m460v">Okuma M460V-5AX · OSP</option>
+          <option value="vm30i">Hurco VM30i · WinMAX</option>
+          <option value="vf2">Haas VF-2 · Fanuc</option>
+          <option value="roku">Roku-Roku HC658-II · Fanuc</option>
+          <option value="multus">Okuma Multus B250II · OSP</option>
+          <option value="lb3000">Okuma LB3000EX · OSP lathe</option>
+        </select>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px;margin-bottom:18px;">
+          <sc-for list="{{ travelChips }}" as="c" hint-placeholder-count="3"><div style="background:#0E0F12;border:1px solid rgba(255,255,255,0.07);border-radius:8px;padding:7px 9px;"><div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:#6B7280;">{{ c.k }}</div><div style="font-family:'JetBrains Mono',monospace;font-size:12px;color:#C7CCD4;margin-top:2px;">{{ c.v }}</div></div></sc-for>
+        </div>
+
+        <div style="font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:0.18em;color:#FF5A2B;margin-bottom:11px;">EXISTING FIXTURE</div>
+        <div style="font-size:11px;color:#6B7280;margin-bottom:8px;line-height:1.4;">All warm-up motion stays clear of this. The program never enters the fixture envelope.</div>
+        <label style="display:block;font-size:11.5px;color:#9398A2;margin-bottom:5px;">In the machine now</label>
+        <select value="{{ fixType }}" onChange="{{ setFixType }}" style="width:100%;height:42px;background:#14161B;border:1px solid rgba(255,255,255,0.1);border-radius:10px;color:#F3F4F6;font-size:12.5px;padding:0 32px 0 12px;margin-bottom:11px;">
+          <option value="none">Empty table</option>
+          <option value="vise">Kurt vise</option>
+          <option value="plate">Fixture plate + parts</option>
+          <option value="trunnion">5-ax trunnion</option>
+          <option value="chuck">Chuck + part (lathe)</option>
+        </select>
+        <label style="display:flex;justify-content:space-between;font-size:11.5px;color:#9398A2;margin-bottom:6px;">Fixture height Z ({{ unit }}) <span style="font-family:'JetBrains Mono',monospace;color:#FF7A4D;">clear @ {{ safeZ }}</span></label>
+        <input type="range" min="0" max="{{ fixMax }}" step="0.25" value="{{ fixHeight }}" onChange="{{ setFixHeight }}" oninput="{{ setFixHeight }}" style="width:100%;margin-bottom:14px;">
+        <div style="display:flex;flex-wrap:wrap;gap:6px;">
+          <button onClick="{{ toggleProbe }}" style="{{ probeStyle }}">End w/ datum probe</button>
+          <button onClick="{{ toggleThru }}" style="{{ thruStyle }}">Coolant purge</button>
+        </div>
+
+        <div style="font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:0.18em;color:#FF5A2B;margin:18px 0 11px;">DURATION</div>
+        <div style="display:flex;gap:6px;"><sc-for list="{{ durOpts }}" as="d" hint-placeholder-count="3"><button onClick="{{ d.on }}" style="{{ d.style }}">{{ d.label }}</button></sc-for></div>
+      </section>
+
+      <section style="overflow:hidden;min-width:0;padding:16px 18px;background:radial-gradient(900px 480px at 70% -12%, rgba(255,90,43,0.05), transparent 60%),#0B0C0F;display:flex;flex-direction:column;gap:13px;">
+        <div style="flex:none;background:#0C0D11;border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:13px 16px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;"><span style="font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:13.5px;">Safe-motion envelope</span><span style="font-family:'JetBrains Mono',monospace;font-size:10px;color:#36D399;">all moves above fixture + {{ clearance }} clear</span></div>
+          <svg viewBox="0 0 700 150" preserveAspectRatio="xMidYMid meet" width="100%" height="148" style="display:block;">
+            <rect x="40" y="14" width="620" height="118" rx="4" fill="none" stroke="rgba(127,178,255,0.3)" stroke-width="1" stroke-dasharray="4 3"></rect>
+            <text x="46" y="26" font-family="JetBrains Mono" font-size="8" fill="#7FB2FF">machine travel</text>
+            <rect x="60" y="20" width="580" height="{{ envH }}" rx="3" fill="rgba(54,211,153,0.07)" stroke="#36D399" stroke-width="1.2"></rect>
+            <text x="66" y="34" font-family="JetBrains Mono" font-size="8" fill="#36D399">SAFE WARM-UP ZONE</text>
+            <rect x="{{ fixX }}" y="{{ fixY }}" width="{{ fixW }}" height="{{ fixHpx }}" rx="2" fill="rgba(255,82,71,0.14)" stroke="#FF5247" stroke-width="1.2"></rect>
+            <text x="{{ fixTextX }}" y="126" text-anchor="middle" font-family="JetBrains Mono" font-size="8" fill="#FF6B6B">{{ fixLabel }}</text>
+            <line x1="40" y1="{{ safeLineY }}" x2="660" y2="{{ safeLineY }}" stroke="#FF7A4D" stroke-width="1" stroke-dasharray="3 2"></line>
+            <text x="654" y="{{ safeLineTextY }}" text-anchor="end" font-family="JetBrains Mono" font-size="8" fill="#FF7A4D">safe Z floor</text>
+            <polyline points="{{ pathPts }}" fill="none" stroke="#FF7A4D" stroke-width="1.4" stroke-dasharray="3 2" opacity="0.8"></polyline>
+          </svg>
+        </div>
+        <div style="flex:1;min-height:0;background:#0C0D11;border:1px solid rgba(255,255,255,0.1);border-radius:14px;display:flex;flex-direction:column;overflow:hidden;">
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:11px 16px;background:#121317;border-bottom:1px solid rgba(255,255,255,0.07);">
+            <div style="display:flex;align-items:center;gap:9px;"><span style="width:9px;height:9px;border-radius:50%;background:#FF5A2B;"></span><span style="width:9px;height:9px;border-radius:50%;background:#F4B740;"></span><span style="width:9px;height:9px;border-radius:50%;background:#36D399;"></span><span style="margin-left:6px;font-family:'JetBrains Mono',monospace;font-size:11.5px;color:#9398A2;">{{ progName }}</span></div>
+            <span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#6B7280;">{{ dialectLabel }} · {{ progLines }} lines · {{ estTime }}</span>
+          </div>
+          <div class="kz-scroll" style="flex:1;min-height:0;overflow-y:auto;padding:11px 0;background:#0B0C0F;">
+            <sc-for list="{{ program }}" as="g" hint-placeholder-count="22">
+              <div style="display:flex;gap:12px;padding:1px 16px;font-family:'JetBrains Mono',monospace;font-size:12px;line-height:1.5;">
+                <span style="flex:none;width:26px;text-align:right;color:#3A3D44;user-select:none;">{{ g.ln }}</span>
+                <span style="color:{{ g.c }};white-space:pre;">{{ g.t }}</span>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </section>
+
+      <section class="kz-scroll" style="border-left:1px solid rgba(255,255,255,0.06);overflow-y:auto;min-width:0;padding:18px 20px 44px;background:#0A0B0D;">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:0.16em;color:#FF5A2B;margin-bottom:11px;">CYCLE</div>
+        <div style="background:#0E0F12;border:1px solid rgba(255,255,255,0.08);border-radius:13px;padding:13px 15px;margin-bottom:13px;">
+          <sc-for list="{{ phases }}" as="p" hint-placeholder-count="5">
+            <div style="display:flex;align-items:center;gap:11px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.05);">
+              <span style="flex:none;width:22px;height:22px;border-radius:50%;background:rgba(255,90,43,0.14);display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;font-size:10px;color:#FF7A4D;">{{ p.n }}</span>
+              <div style="flex:1;min-width:0;"><div style="font-size:12px;color:#C7CCD4;">{{ p.label }}</div></div>
+              <span style="flex:none;font-family:'JetBrains Mono',monospace;font-size:10px;color:#9398A2;">{{ p.dur }}</span>
+            </div>
+          </sc-for>
+        </div>
+        <div style="background:linear-gradient(135deg,rgba(54,211,153,0.06),#0E0F12);border:1px solid rgba(54,211,153,0.2);border-radius:13px;padding:14px 16px;margin-bottom:13px;">
+          <div style="font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.1em;color:#36D399;margin-bottom:10px;">✓ COLLISION SAFEGUARDS</div>
+          <sc-for list="{{ safeguards }}" as="g" hint-placeholder-count="4">
+            <div style="display:flex;gap:9px;align-items:flex-start;padding:5px 0;"><span style="flex:none;margin-top:3px;color:#36D399;font-size:11px;">✓</span><span style="font-size:11.5px;color:#C7CCD4;line-height:1.4;">{{ g }}</span></div>
+          </sc-for>
+        </div>
+        <div style="background:#0E0F12;border:1px solid rgba(255,90,43,0.2);border-radius:13px;padding:14px 16px;">
+          <div style="font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.1em;color:#FF7A4D;margin-bottom:9px;">◆ ALWAYS-ON</div>
+          <div style="font-size:12px;color:#C7CCD4;line-height:1.55;">{{ insight }}</div>
+        </div>
+      </section>
+    </div>
+  </main>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = { mid: 'm460v', fixType: 'vise', fixHeight: 4, dur: 'std', probe: true, thru: true, scale: (typeof window !== 'undefined') ? Math.min(window.innerWidth / 1600, window.innerHeight / 980) : 0.6 };
+  componentDidMount() { this._fit = () => this.setState({ scale: Math.min(window.innerWidth / 1600, window.innerHeight / 980) }); window.addEventListener('resize', this._fit); this._fit(); }
+  componentWillUnmount() { if (this._fit) window.removeEventListener('resize', this._fit); }
+  MACH = {
+    m460v: { name: 'Okuma M460V', dialect: 'osp', x: 30, y: 18, z: 18, maxRpm: 15000, kind: 'mill' },
+    vm30i: { name: 'Hurco VM30i', dialect: 'fanuc', x: 30, y: 20, z: 20, maxRpm: 12000, kind: 'mill' },
+    vf2: { name: 'Haas VF-2', dialect: 'fanuc', x: 30, y: 16, z: 20, maxRpm: 8100, kind: 'mill' },
+    roku: { name: 'Roku-Roku HC658', dialect: 'fanuc', x: 25, y: 20, z: 16, maxRpm: 40000, kind: 'mill' },
+    multus: { name: 'Okuma Multus B250II', dialect: 'osp', x: 9, y: 0, z: 30, maxRpm: 5000, kind: 'millturn' },
+    lb3000: { name: 'Okuma LB3000EX', dialect: 'osplathe', x: 9, y: 0, z: 22, maxRpm: 3200, kind: 'lathe' },
+  };
+  DUR = { quick: { label: 'Quick 8m', soak: 1, ramps: 2 }, std: { label: 'Standard 18m', soak: 3, ramps: 3 }, full: { label: 'Full 30m', soak: 6, ramps: 4 } };
+  L(t, c) { return { t, c }; }
+  gen(m, s) {
+    const C = { cmt: '#6B7280', head: '#7FB2FF', mot: '#C7CCD4', m: '#FF7A4D', safe: '#F4B740' };
+    const dur = this.DUR[s.dur], rpmSteps = [0.25, 0.5, 0.75, 1.0].slice(0, dur.ramps).map(f => Math.round(m.maxRpm * f / 100) * 100);
+    const safeZ = '-' + (m.z - s.fixHeight - 1).toFixed(1);
+    const L = [];
+    if (m.dialect === 'osp' || m.dialect === 'osplathe') {
+      L.push(this.L('(KIENZLE WARM-UP / ' + m.name + ')', C.cmt));
+      L.push(this.L('(FIXTURE: ' + s.fixType.toUpperCase() + ' H=' + s.fixHeight + ' / SAFE-Z ABOVE)', C.cmt));
+      L.push(this.L('G20 G90 G40 G80', C.head));
+      L.push(this.L('G00 G53 Z0 (RETRACT FULL UP - CLEAR OF FIXTURE)', C.safe));
+      L.push(this.L('G00 G53 X0 Y0 (TABLE CENTER, NO TOOL)', C.safe));
+      L.push(this.L('M19 (ORIENT, NO TOOL IN SPINDLE)', C.m));
+      rpmSteps.forEach((r, i) => { L.push(this.L('M03 S' + r, C.m)); L.push(this.L('G04 F' + (40 + i * 20) + '. (SOAK ' + r + ' RPM)', C.safe)); });
+      if (s.thru) L.push(this.L('M08 G04 F5. M09 (COOLANT PURGE)', C.m));
+      L.push(this.L('(AXIS EXERCISE - ABOVE FIXTURE ONLY)', C.cmt));
+      for (let i = 0; i < dur.soak; i++) {
+        L.push(this.L('G00 G53 Z0', C.safe));
+        L.push(this.L('G00 X' + (m.x / 2 - 2).toFixed(1) + ' Y' + (m.y / 2 - 2).toFixed(1), C.mot));
+        L.push(this.L('G00 X-' + (m.x / 2 - 2).toFixed(1) + ' Y-' + (m.y / 2 - 2).toFixed(1), C.mot));
+      }
+      L.push(this.L('M05', C.m));
+      if (s.probe) L.push(this.L('CALL O9100 (RENISHAW THERMAL DATUM)', C.safe));
+      L.push(this.L('G00 G53 Z0', C.safe));
+      L.push(this.L('M02', C.m));
+    } else {
+      L.push(this.L('%', C.cmt));
+      L.push(this.L('O0099 (KIENZLE WARM-UP ' + m.name + ')', C.cmt));
+      L.push(this.L('(FIXTURE: ' + s.fixType.toUpperCase() + ' H=' + s.fixHeight + ' - STAY ABOVE)', C.cmt));
+      L.push(this.L('N10 G20 G17 G40 G49 G80 G90', C.head));
+      L.push(this.L('N20 G91 G28 Z0. (FULL Z RETRACT - CLEAR FIXTURE)', C.safe));
+      L.push(this.L('N30 G91 G28 X0. Y0.', C.safe));
+      L.push(this.L('N40 G90 G54 G00 X0. Y0. (TABLE CENTER)', C.mot));
+      rpmSteps.forEach((r, i) => { L.push(this.L('N' + (50 + i * 10) + ' M03 S' + r, C.m)); L.push(this.L('G04 P' + (40 + i * 20) + '000 (SOAK)', C.safe)); });
+      if (s.thru) L.push(this.L('M08', C.m)), L.push(this.L('G04 P5000', C.safe)), L.push(this.L('M09', C.m));
+      L.push(this.L('(AXIS EXERCISE - Z STAYS AT G28 HOME)', C.cmt));
+      for (let i = 0; i < dur.soak; i++) {
+        L.push(this.L('G91 G28 Z0.', C.safe));
+        L.push(this.L('G90 G00 X' + (m.x / 2 - 2).toFixed(1) + ' Y' + (m.y / 2 - 2).toFixed(1), C.mot));
+        L.push(this.L('G00 X-' + (m.x / 2 - 2).toFixed(1) + ' Y-' + (m.y / 2 - 2).toFixed(1), C.mot));
+      }
+      L.push(this.L('M05', C.m));
+      if (s.probe) L.push(this.L('G65 P9810 (PROBE THERMAL DATUM)', C.safe));
+      L.push(this.L('G91 G28 Z0. M09', C.safe));
+      L.push(this.L('M30', C.m));
+      L.push(this.L('%', C.cmt));
+    }
+    return L;
+  }
+  ext(m) { return m.dialect === 'fanuc' ? '.NC' : '.MIN'; }
+  fileName(m, s) { return 'WARMUP_' + s.mid.toUpperCase() + this.ext(m); }
+  save(m, s) {
+    try {
+      const text = this.gen(m, s).map(g => g.t).join('\r\n') + '\r\n';
+      const blob = new Blob([text], { type: 'text/plain' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = this.fileName(m, s);
+      document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 1500);
+      this.setState({ saved: true });
+      clearTimeout(this._savedT); this._savedT = setTimeout(() => this.setState({ saved: false }), 2500);
+    } catch (e) { /* no-op */ }
+  }
+  renderVals() {
+    const s = this.state, m = this.MACH[s.mid] || this.MACH.m460v;
+    const dur = this.DUR[s.dur];
+    const prog = this.gen(m, s).map((g, i) => ({ ln: i + 1, t: g.t, c: g.c }));
+    const dLabel = { osp: 'Okuma OSP', osplathe: 'Okuma OSP (lathe)', fanuc: 'Fanuc/ISNC' }[m.dialect];
+    const estMin = dur.ramps * 1.5 + dur.soak * 2 + (s.probe ? 2 : 0);
+    // envelope viz
+    const fixMax = m.z - 2;
+    const fh = Math.min(s.fixHeight, fixMax);
+    const fixHpx = Math.max(8, (fh / m.z) * 100);
+    const fixY = 132 - fixHpx;
+    const safeLineY = fixY - 6;
+    const fixW = s.fixType === 'plate' ? 360 : s.fixType === 'none' ? 0 : 150;
+    const fixX = 350 - fixW / 2;
+    const phases = [];
+    let pn = 1;
+    phases.push({ n: pn++, label: 'Full-retract to G28/G53 home', dur: '—' });
+    phases.push({ n: pn++, label: 'Spindle ramp ' + dur.ramps + ' steps → ' + (m.maxRpm / 1000) + 'k', dur: (dur.ramps * 1.5).toFixed(0) + 'm' });
+    phases.push({ n: pn++, label: 'Axis exercise above fixture × ' + dur.soak, dur: (dur.soak * 2).toFixed(0) + 'm' });
+    if (s.thru) phases.push({ n: pn++, label: 'Coolant purge', dur: '<1m' });
+    if (s.probe) phases.push({ n: pn++, label: 'Probe thermal datum', dur: '2m' });
+    const chip = (on) => `border:1px solid ${on ? 'rgba(255,90,43,0.5)' : 'rgba(255,255,255,0.12)'};background:${on ? 'rgba(255,90,43,0.1)' : 'transparent'};color:${on ? '#FF7A4D' : '#9398A2'};border-radius:8px;padding:8px 11px;font-size:11px;cursor:pointer;font-family:'Archivo',sans-serif;`;
+    return {
+      scale: s.scale, mid: s.mid, dialectLabel: dLabel, unit: 'in',
+      setMid: (e) => this.setState({ mid: e.target.value }),
+      travelChips: [{ k: 'X', v: m.x + '"' }, { k: 'Y', v: (m.y || '—') + (m.y ? '"' : '') }, { k: 'Z', v: m.z + '"' }],
+      fixType: s.fixType, setFixType: (e) => this.setState({ fixType: e.target.value }),
+      fixHeight: s.fixHeight, fixMax, setFixHeight: (e) => this.setState({ fixHeight: parseFloat(e.target.value) }),
+      unit: 'in', safeZ: '-' + (m.z - s.fixHeight - 1).toFixed(1) + '"', clearance: '1.0"',
+      probeStyle: chip(s.probe), thruStyle: chip(s.thru), toggleProbe: () => this.setState({ probe: !s.probe }), toggleThru: () => this.setState({ thru: !s.thru }),
+      durOpts: Object.keys(this.DUR).map(k => ({ label: this.DUR[k].label, on: () => this.setState({ dur: k }), style: `flex:1;border:1px solid ${s.dur === k ? 'rgba(255,90,43,0.5)' : 'rgba(255,255,255,0.12)'};background:${s.dur === k ? 'rgba(255,90,43,0.12)' : 'transparent'};color:${s.dur === k ? '#FF7A4D' : '#9398A2'};border-radius:8px;padding:8px 0;font-size:10.5px;font-weight:600;cursor:pointer;font-family:'Archivo',sans-serif;` })),
+      program: prog, progName: this.fileName(m, s), progLines: prog.length, estTime: '~' + estMin.toFixed(0) + ' min',
+      saveProgram: () => this.save(m, s), saveLabel: s.saved ? '✓ Saved ' + this.fileName(m, s) : '↓ Save ' + this.fileName(m, s),
+      envH: 100 - fixHpx, fixX: fixX.toFixed(0), fixY: fixY.toFixed(0), fixW, fixHpx: fixHpx.toFixed(0), fixTextX: 350, fixLabel: s.fixType === 'none' ? '' : s.fixType.toUpperCase() + ' H=' + s.fixHeight + '"',
+      safeLineY: safeLineY.toFixed(0), safeLineTextY: (safeLineY - 3).toFixed(0),
+      pathPts: '70,30 630,30 630,45 70,45 70,30',
+      phases, estTime: '~' + estMin.toFixed(0) + ' min',
+      safeColor: '#36D399', safeLabel: 'COLLISION-SAFE', safeBorder: 'rgba(54,211,153,0.25)', safeBg: 'rgba(54,211,153,0.06)',
+      safeguards: [
+        'Opens with full Z retract to machine home (G53/G28) before any X-Y motion — never assumes tool position.',
+        'All exercise moves return Z to home first, so the spindle stays above the ' + s.fixHeight + '" fixture at all times.',
+        'X-Y travel capped 2" inside soft limits — no rapid into a hard stop.',
+        'No tool in spindle assumed; M19 orient only. No Z plunge anywhere in the cycle.',
+      ],
+      insight: 'Generated fresh for ' + m.name + ' every time it\u2019s opened, so the warm-up always matches the machine and whatever fixture is loaded now. Pair it with the Thermal Comp gate — run this, and the "cleared for precision" light goes green before the first real part.',
+    };
+  }
+}
+</script>
+</body>
+</html>

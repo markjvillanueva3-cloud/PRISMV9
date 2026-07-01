@@ -23,13 +23,20 @@ related:
 |-------|-------|
 | Name | `forge-tests` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/forge-tests.md` |
+| Source | `C:/Users/wompu/.claude/commands/forge-tests.md` |
 | Model | default |
 | Tags | _(none)_ |
 
 ## Description (first paragraph)
 
-_(no body content)_
+
+# Forge Tests — Test Gap Discovery + Generation Autopilot
+
+You are running a specialized autopilot pipeline focused on discovering test coverage gaps, generating comprehensive test suites, running them, and reporting coverage improvements across the PRISM system.
+
+## Args: $ARGUMENTS
+- Empty: full discovery — analyze the system, find test gaps, generate tests for the worst gaps
+- `[file-pa
 
 <!-- AUTO-END -->
 

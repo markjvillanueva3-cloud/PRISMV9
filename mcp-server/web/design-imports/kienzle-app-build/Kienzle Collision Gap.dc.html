@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Archivo:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; background: #070809; }
+    @media print { body { background:#fff; } .kz-page { box-shadow:none !important; } }
+  </style>
+</helmet>
+<div style="min-height:100vh;background:#070809;display:flex;justify-content:center;padding:40px 20px;">
+<div class="kz-page" style="width:940px;max-width:100%;background:#0A0B0D;color:#E6E8EC;font-family:'Archivo',sans-serif;border-radius:16px;box-shadow:0 40px 120px rgba(0,0,0,0.6);overflow:hidden;">
+
+  <div style="padding:44px 52px 30px;border-bottom:1px solid rgba(255,255,255,0.08);background:radial-gradient(700px 320px at 100% -20%, rgba(255,90,43,0.12), transparent 60%);">
+    <div style="display:flex;align-items:center;gap:14px;margin-bottom:18px;">
+      <svg viewBox="0 0 120 120" width="38" height="38"><rect x="22" y="20" width="13" height="80" rx="1.5" fill="#F3F4F6"/><path d="M35 60 L86 22" stroke="#F3F4F6" stroke-width="13" stroke-linecap="round"/><path d="M35 60 L92 98 L92 74 L58 60 Z" fill="#FF5A2B"/></svg>
+      <div><div style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:15px;letter-spacing:0.04em;">KIENZLE</div><div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:#6B7280;letter-spacing:0.12em;">SAFETY-CRITICAL · COLLISION</div></div>
+    </div>
+    <h1 style="margin:0;font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:32px;letter-spacing:-0.01em;">Collision Avoidance — Gap to Provable</h1>
+    <p style="margin:13px 0 0;font-size:15px;line-height:1.55;color:#AEB4BE;max-width:720px;">How far the existing PRISM stack is from <span style="color:#F3F4F6;">"always mathematically correct."</span> Verdict up front: you have most of the <span style="color:#F3F4F6;">components</span>, but not a <span style="color:#F3F4F6;">conservative, continuous, validated</span> engine. Until that exists, <span style="color:#FF7A4D;">hyperMILL's simulator stays the authority</span> — your original plan was right.</p>
+  </div>
+
+  <div style="padding:26px 52px 6px;display:grid;grid-template-columns:repeat(3,1fr);gap:12px;">
+    <div style="background:#0E0F12;border:1px solid rgba(54,211,153,0.25);border-radius:12px;padding:14px 16px;"><div style="font-family:'JetBrains Mono',monospace;font-weight:700;font-size:24px;color:#36D399;">~65%</div><div style="font-size:11.5px;color:#9398A2;margin-top:3px;">of the components exist</div></div>
+    <div style="background:#0E0F12;border:1px solid rgba(244,183,64,0.25);border-radius:12px;padding:14px 16px;"><div style="font-family:'JetBrains Mono',monospace;font-weight:700;font-size:24px;color:#F4B740;">3 / 7</div><div style="font-size:11.5px;color:#9398A2;margin-top:3px;">proof pillars still open</div></div>
+    <div style="background:#0E0F12;border:1px solid rgba(255,82,71,0.25);border-radius:12px;padding:14px 16px;"><div style="font-family:'JetBrains Mono',monospace;font-weight:700;font-size:24px;color:#FF6B6B;">0</div><div style="font-size:11.5px;color:#9398A2;margin-top:3px;">validation corpus today</div></div>
+  </div>
+
+  <div style="padding:20px 52px 8px;">
+    <div style="font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:0.14em;color:#FF5A2B;margin-bottom:12px;">THE 7 PILLARS OF PROVABLE (CONSERVATIVE CCD)</div>
+    <sc-for list="{{ pillars }}" as="p" hint-placeholder-count="7">
+      <div style="display:grid;grid-template-columns:24px 1fr 150px;gap:13px;align-items:start;padding:11px 14px;margin-bottom:7px;border-radius:11px;background:{{ p.bg }};border:1px solid {{ p.border }};">
+        <span style="font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:700;color:{{ p.dot }};">{{ p.n }}</span>
+        <div style="min-width:0;"><div style="font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:13.5px;color:#F3F4F6;">{{ p.name }}</div><div style="font-size:11.5px;color:#9398A2;line-height:1.4;margin-top:2px;">{{ p.detail }}</div></div>
+        <div style="text-align:right;"><div style="display:inline-block;font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:700;letter-spacing:0.04em;color:{{ p.statusColor }};border:1px solid {{ p.statusColor }};border-radius:6px;padding:3px 8px;">{{ p.status }}</div><div style="font-size:10px;color:#6B7280;margin-top:5px;line-height:1.3;">{{ p.have }}</div></div>
+      </div>
+    </sc-for>
+  </div>
+
+  <div style="padding:14px 52px 8px;">
+    <div style="border:1px solid rgba(255,82,71,0.25);border-radius:13px;background:linear-gradient(135deg,rgba(255,82,71,0.06),#0C0D11);padding:16px 20px;">
+      <div style="font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.1em;color:#FF6B6B;margin-bottom:10px;">⚠ THE TWO THINGS THAT BLOCK "PROVABLE"</div>
+      <div style="font-size:13px;color:#C7CCD4;line-height:1.55;margin-bottom:9px;"><span style="color:#FF8A8A;font-weight:600;">1. "Probabilistic collision" is the wrong default.</span> A provable system must be <span style="color:#F3F4F6;">conservative</span> — it may cry wolf, but it can never miss. <span style="font-family:'JetBrains Mono',monospace;">PRISM_PROBABILISTIC_COLLISION</span> optimizes the opposite way. Re-base on conservative bounds; keep probability only for ranking warnings.</div>
+      <div style="font-size:13px;color:#C7CCD4;line-height:1.55;"><span style="color:#FF8A8A;font-weight:600;">2. Discrete sampling misses between steps.</span> Checking poses every N ms lets a tool pass <span style="font-style:italic;">through</span> a clamp between samples. Provable = swept-volume across the whole move (CCD), not point checks. <span style="font-family:'JetBrains Mono',monospace;">SWEEP_LOFT_ENGINE</span> exists but must be wired as conservative CCD, not visual lofting.</div>
+    </div>
+  </div>
+
+  <div style="padding:14px 52px 46px;">
+    <div style="font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:0.14em;color:#FF5A2B;margin-bottom:12px;">THE ROAD TO INDEPENDENT VERIFIER</div>
+    <sc-for list="{{ road }}" as="r" hint-placeholder-count="3">
+      <div style="border:1px solid {{ r.border }};border-radius:13px;background:#0C0D11;padding:15px 18px;margin-bottom:11px;">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:7px;"><span style="font-family:'JetBrains Mono',monospace;font-size:9.5px;font-weight:700;letter-spacing:0.06em;color:{{ r.tagColor }};padding:3px 9px;border:1px solid {{ r.tagColor }};border-radius:6px;">{{ r.tag }}</span><span style="font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:15px;color:#F3F4F6;">{{ r.title }}</span><span style="margin-left:auto;font-family:'JetBrains Mono',monospace;font-size:10px;color:#6B7280;">{{ r.authority }}</span></div>
+        <div style="font-size:12.5px;color:#C7CCD4;line-height:1.5;">{{ r.detail }}</div>
+      </div>
+    </sc-for>
+    <div style="margin-top:14px;font-family:'JetBrains Mono',monospace;font-size:10.5px;color:#6B7280;line-height:1.7;">
+      PIPELINE (unchanged from your plan): CAD model + fixture in Fusion / hyperCAD → CAM in hyperMILL → <span style="color:#FF7A4D;">hyperMILL sim = collision authority</span> → Kienzle physics (feeds, lobes, thermal, life) → post.<br>
+      Kienzle's in-app check is now labeled <span style="color:#9398A2;">"pre-flight triage — not CAM sim"</span> so the product never overclaims. It earns "verifier" status only after a zero-false-clear validation corpus.
+    </div>
+  </div>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  renderVals() {
+    const have = { dot: '#36D399', statusColor: '#36D399', bg: 'rgba(54,211,153,0.04)', border: 'rgba(54,211,153,0.16)', status: 'HAVE' };
+    const partial = { dot: '#F4B740', statusColor: '#F4B740', bg: 'rgba(244,183,64,0.04)', border: 'rgba(244,183,64,0.16)', status: 'PARTIAL' };
+    const gap = { dot: '#FF5247', statusColor: '#FF5247', bg: 'rgba(255,82,71,0.04)', border: 'rgba(255,82,71,0.16)', status: 'GAP' };
+    const pillars = [
+      { n: 1, name: 'Exact watertight geometry of every body', detail: 'Tool, holder, spindle, turret/B-axis, tailstock, fixture, part, table, way covers — as closed meshes.', have: 'Fusion + GrabCAD machine assemblies on hand', ...have },
+      { n: 2, name: 'Full kinematic chain per machine', detail: 'DH / screw params, joint limits, axis directions for each of the 12 machines.', have: 'DH_KINEMATICS + MACHINE_CONFIGS; "most have full data"', ...have },
+      { n: 3, name: 'Forward kinematics from G-code axis words', detail: 'Pose every body from the actual NC program, incl. RTCP for 5-axis/mill-turn.', have: 'FK / IK / Jacobian / RTCP engines exist', ...have },
+      { n: 4, name: 'Conservative swept-volume between poses', detail: 'Continuous sweep across each move — the core of CCD. Not discrete point checks.', have: 'SWEEP_LOFT engine exists; not wired as conservative CCD', ...partial },
+      { n: 5, name: 'Broadphase + exact narrowphase', detail: 'BVH to cull, then exact triangle-triangle test on candidates.', have: 'BVH_ENGINE present; narrowphase exactness unproven', ...partial },
+      { n: 6, name: 'Conservative no-miss certificate', detail: 'Math guarantee it never reports clear when a collision exists. Errs to STOP.', have: 'Current default is PROBABILISTIC — opposite of conservative', ...gap },
+      { n: 7, name: 'Validation corpus vs known crashes', detail: 'A test set of real near-misses + hyperMILL/Vericut cross-checks with zero false-clears.', have: 'None yet — required before any "verified" claim', ...gap },
+    ];
+    const road = [
+      { tag: 'NOW', title: 'hyperMILL sim is the authority', authority: 'trusted', border: 'rgba(54,211,153,0.2)', tagColor: '#36D399', detail: 'Keep the planned flow. Kienzle shows fast pre-flight triage (reach, swing, Z-clearance) to catch the obvious before you ever open CAM — but the sign-off is hyperMILL\u2019s simulator. The Tool Crib panel now says exactly that.' },
+      { tag: 'BUILD', title: 'Conservative CCD engine from existing parts', authority: 'co-validate', border: 'rgba(244,183,64,0.2)', tagColor: '#F4B740', detail: 'Wire BVH + DH-kinematics + swept-volume into one continuous, conservative checker fed by the Fusion/GrabCAD machine models. Swap "probabilistic" for conservative bounds (probability only ranks warnings). Run it in parallel with hyperMILL on every job and log disagreements.' },
+      { tag: 'EARN', title: 'Independent verifier status', authority: 'after proof', border: 'rgba(127,178,255,0.2)', tagColor: '#7FB2FF', detail: 'Once it clears a corpus of N real jobs with zero false-clears against hyperMILL/Vericut, Kienzle can stand as its own check — and feed the collective-mind so every shop\u2019s near-miss hardens the model. Not before.' },
+    ];
+    return { pillars, road };
+  }
+}
+</script>
+</body>
+</html>

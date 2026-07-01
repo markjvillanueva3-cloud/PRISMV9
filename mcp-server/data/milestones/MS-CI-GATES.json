@@ -1,0 +1,276 @@
+{
+  "id": "MS-CI-GATES",
+  "version": "7.6.0",
+  "title": "Revenue CI-gate cluster — non-stub / wiring / page-wiring / doc-backflow gates",
+  "brief": "The Week-0 cluster that gates every later milestone. Builds the CI scripts that enforce 'no stub, no false-green, every engine wired, every page renders real data'. Self-bootstrapping — the revenue roadmap's first execution work is the tooling the rest of it needs. NOTE: touches scripts/*.mjs + .github/workflows/ci.yml = peer dev-tools/infra lane — coordinate on the chat bus before building; fallback is an MS0-EXTENSION pull page.",
+  "created_at": "2026-05-11T18:00:32.098Z",
+  "created_by": "claude-99eca613 (register-revenue-roadmap-envelopes.mjs, v7.6 §R10)",
+  "track": "revenue",
+  "track_name": "REVENUE-ROADMAP v7.6",
+  "roadmap_priority": 1,
+  "tier": 0,
+  "status": "not_started",
+  "source": "§R5.1 B5 / §R7.5 blocker #2 / §R8.1 U-WIRE-BE-P0-01 / §R8.2 U-WF-CI-00 / §R8.5 U-DOCFLOW audit-doc-backflow.mjs",
+  "viz_node_id": "ghost.ms.ms-ci-gates",
+  "doc_propagation": [
+    "claude.md",
+    "gsd",
+    "wiki",
+    "system-viz"
+  ],
+  "dependencies": [],
+  "blocks": [
+    "MS-CRITWIRE",
+    "MS-PAY",
+    "MS-FRONTEND",
+    "MS-WIRE-BACKEND",
+    "MS-WIRE-FRONTEND",
+    "MS0-EXTENSION",
+    "MS-DOCFLOW"
+  ],
+  "phases": [
+    {
+      "id": "P0",
+      "title": "Revenue CI-gate cluster — non-stub / wiring / page-wiring / doc-backflow gates",
+      "sessions": "3",
+      "units": [
+        {
+          "id": "U-REV-CI-00a",
+          "title": "scripts/check-engine-wired.mjs — assert import+call+action-enum+Zod+round-trip-E2E exist per engine named in a unit; --ci mode",
+          "effort": 90,
+          "dependencies": [],
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit",
+            "Dispatcher wiring verified: import + call + action-enum + Zod schema all match (test invokes through the dispatcher, not only the engine singleton)"
+          ],
+          "description": "scripts/check-engine-wired.mjs — assert import+call+action-enum+Zod+round-trip-E2E exist per engine named in a unit; --ci mode — follow the 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP); run duplicationGuardEngine.checkBeforeCreating() before any new asset; wire to ALL logical dispatchers; doc-backflow per MS-DOCFLOW.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "viz_node_id": "ghost.ms.ms-ci-gates.urev-ci-00a",
+          "doc_propagation": [
+            "wiki",
+            "skill",
+            "digest",
+            "system-viz"
+          ]
+        },
+        {
+          "id": "U-REV-CI-00b",
+          "title": "scripts/audit-test-assertion-density.mjs — flag toBeDefined()-only test files (the 16-false-green class)",
+          "effort": 90,
+          "dependencies": [],
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit",
+            "Dispatcher wiring verified: import + call + action-enum + Zod schema all match (test invokes through the dispatcher, not only the engine singleton)"
+          ],
+          "description": "scripts/audit-test-assertion-density.mjs — flag toBeDefined()-only test files (the 16-false-green class) — follow the 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP); run duplicationGuardEngine.checkBeforeCreating() before any new asset; wire to ALL logical dispatchers; doc-backflow per MS-DOCFLOW.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "viz_node_id": "ghost.ms.ms-ci-gates.urev-ci-00b",
+          "doc_propagation": [
+            "wiki",
+            "skill",
+            "digest",
+            "system-viz"
+          ]
+        },
+        {
+          "id": "U-REV-CI-00c",
+          "title": "scripts/audit-stub-engine-returns.mjs — grep dispatched engine outputs for {ok:false,stub:true} / placeholder returns",
+          "effort": 90,
+          "dependencies": [],
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit",
+            "Dispatcher wiring verified: import + call + action-enum + Zod schema all match (test invokes through the dispatcher, not only the engine singleton)"
+          ],
+          "description": "scripts/audit-stub-engine-returns.mjs — grep dispatched engine outputs for {ok:false,stub:true} / placeholder returns — follow the 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP); run duplicationGuardEngine.checkBeforeCreating() before any new asset; wire to ALL logical dispatchers; doc-backflow per MS-DOCFLOW.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "viz_node_id": "ghost.ms.ms-ci-gates.urev-ci-00c",
+          "doc_propagation": [
+            "wiki",
+            "skill",
+            "digest",
+            "system-viz"
+          ]
+        },
+        {
+          "id": "U-REV-CI-00d",
+          "title": "scripts/spans-config-matrix.mjs — assert ≥3 spanning configs exercised per N-config domain (materials/dialects/machines/CAMs)",
+          "effort": 90,
+          "dependencies": [],
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit",
+            "Dispatcher wiring verified: import + call + action-enum + Zod schema all match (test invokes through the dispatcher, not only the engine singleton)"
+          ],
+          "description": "scripts/spans-config-matrix.mjs — assert ≥3 spanning configs exercised per N-config domain (materials/dialects/machines/CAMs) — follow the 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP); run duplicationGuardEngine.checkBeforeCreating() before any new asset; wire to ALL logical dispatchers; doc-backflow per MS-DOCFLOW.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "viz_node_id": "ghost.ms.ms-ci-gates.urev-ci-00d",
+          "doc_propagation": [
+            "wiki",
+            "skill",
+            "digest",
+            "system-viz"
+          ]
+        },
+        {
+          "id": "U-REV-CI-00e",
+          "title": "expectNotStub(result) test helper",
+          "effort": 90,
+          "dependencies": [],
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit",
+            "Dispatcher wiring verified: import + call + action-enum + Zod schema all match (test invokes through the dispatcher, not only the engine singleton)"
+          ],
+          "description": "expectNotStub(result) test helper — follow the 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP); run duplicationGuardEngine.checkBeforeCreating() before any new asset; wire to ALL logical dispatchers; doc-backflow per MS-DOCFLOW.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "viz_node_id": "ghost.ms.ms-ci-gates.urev-ci-00e",
+          "doc_propagation": [
+            "wiki",
+            "skill",
+            "digest",
+            "system-viz"
+          ]
+        },
+        {
+          "id": "U-REV-CI-00f",
+          "title": "revenue-gates job in .github/workflows/ci.yml running 00a-00d, fails the build on violation",
+          "effort": 90,
+          "dependencies": [],
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit",
+            "Dispatcher wiring verified: import + call + action-enum + Zod schema all match (test invokes through the dispatcher, not only the engine singleton)"
+          ],
+          "description": "revenue-gates job in .github/workflows/ci.yml running 00a-00d, fails the build on violation — follow the 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP); run duplicationGuardEngine.checkBeforeCreating() before any new asset; wire to ALL logical dispatchers; doc-backflow per MS-DOCFLOW.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "viz_node_id": "ghost.ms.ms-ci-gates.urev-ci-00f",
+          "doc_propagation": [
+            "wiki",
+            "skill",
+            "digest",
+            "system-viz"
+          ]
+        },
+        {
+          "id": "U-WF-CI-00",
+          "title": "scripts/audit-page-wiring.mjs — AST: every page imports ≥1 hook/client + E2E renders non-empty data; produce the explicit ~146-row FRONTEND_WIRING_MATRIX.json (NOT just the AST check — 'every page' must be a checklist not a clause)",
+          "effort": 90,
+          "dependencies": [],
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit",
+            "Dispatcher wiring verified: import + call + action-enum + Zod schema all match (test invokes through the dispatcher, not only the engine singleton)"
+          ],
+          "description": "scripts/audit-page-wiring.mjs — AST: every page imports ≥1 hook/client + E2E renders non-empty data; produce the explicit ~146-row FRONTEND_WIRING_MATRIX.json (NOT just the AST check — 'every page' must be a checklist not a clause) — follow the 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP); run duplicationGuardEngine.checkBeforeCreating() before any new asset; wire to ALL logical dispatchers; doc-backflow per MS-DOCFLOW.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "viz_node_id": "ghost.ms.ms-ci-gates.uwf-ci-00",
+          "doc_propagation": [
+            "wiki",
+            "skill",
+            "digest",
+            "system-viz"
+          ]
+        },
+        {
+          "id": "U-DOCFLOW-AUDIT",
+          "title": "scripts/audit-doc-backflow.mjs — assert CLAUDE.md/skills/GSD/Obsidian/system-viz/memories updated when the code surface they describe changed",
+          "effort": 90,
+          "dependencies": [],
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit",
+            "Dispatcher wiring verified: import + call + action-enum + Zod schema all match (test invokes through the dispatcher, not only the engine singleton)"
+          ],
+          "description": "scripts/audit-doc-backflow.mjs — assert CLAUDE.md/skills/GSD/Obsidian/system-viz/memories updated when the code surface they describe changed — follow the 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP); run duplicationGuardEngine.checkBeforeCreating() before any new asset; wire to ALL logical dispatchers; doc-backflow per MS-DOCFLOW.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "viz_node_id": "ghost.ms.ms-ci-gates.udocflow-audit",
+          "doc_propagation": [
+            "wiki",
+            "skill",
+            "digest",
+            "system-viz"
+          ]
+        },
+        {
+          "id": "U-WIRE-BE-P0-01",
+          "title": "scripts/wiring-batch.mjs — engine→dispatcher wiring batch tool (drives the ~756-engine MS-WIRE-BACKEND) + audit-script upgrade",
+          "effort": 90,
+          "dependencies": [],
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit",
+            "Dispatcher wiring verified: import + call + action-enum + Zod schema all match (test invokes through the dispatcher, not only the engine singleton)"
+          ],
+          "description": "scripts/wiring-batch.mjs — engine→dispatcher wiring batch tool (drives the ~756-engine MS-WIRE-BACKEND) + audit-script upgrade — follow the 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP); run duplicationGuardEngine.checkBeforeCreating() before any new asset; wire to ALL logical dispatchers; doc-backflow per MS-DOCFLOW.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "viz_node_id": "ghost.ms.ms-ci-gates.uwire-be-p0-01",
+          "doc_propagation": [
+            "wiki",
+            "skill",
+            "digest",
+            "system-viz"
+          ]
+        }
+      ]
+    }
+  ],
+  "total_units": 9,
+  "completed_units": 0
+}

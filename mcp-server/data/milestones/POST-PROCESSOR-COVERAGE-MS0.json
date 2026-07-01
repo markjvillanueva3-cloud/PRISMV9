@@ -1,0 +1,69 @@
+{
+  "id": "POST-PROCESSOR-COVERAGE-MS0",
+  "version": "1.0.0",
+  "title": "Post-Processor Coverage Audit — Brand × Machine-Class Gap Matrix",
+  "brief": "Heuristic gap-audit that scans engines/ for *MasterPost*Engine.ts + *Post*Engine.ts and cross-references against a canonical 12-brand × 7-machine-class matrix. Closes the user's 'add post processor full coverage' directive with a measurable starting point. Compounds across the fleet — every chat that runs this sees the matrix and the gaps.",
+  "created_at": "2026-05-23T22:50:00Z",
+  "created_by": "claude-64f03cee (slot echo)",
+  "track": "POST",
+  "track_name": "Post-Processor Proving-Out",
+  "status": "complete",
+  "completed_at": "2026-05-23T23:00:00Z",
+  "completed_by": "claude-64f03cee (slot echo)",
+  "close_out_log": [
+    {
+      "unit": "P0-U01",
+      "status": "shipped",
+      "note": "scripts/audit-post-processor-coverage.mjs — pure Node script that walks mcp-server/src/engines/ for *MasterPost*Engine.ts + Post*Engine.ts files (72 found this run), classifies each by brand (12 canonical: Hurco/Haas/Mazak/DMG Mori/Brother/Okuma/Fanuc/Siemens/Mitsubishi/Sodick/Agie/Makino) + machine class (7 canonical: mill 3-axis/mill 5-axis/lathe/mill-turn/swiss/wedm-wire/wedm-sinker), and emits a 12×7=84 cell matrix to state/shared/post-processor-coverage.{json,md}. First run: 64/84 cells covered, 20 gaps — ALL on wedm-sinker. R1: brand-regex is loose, will count co-occurrence as coverage (Hurco engine that mentions 'mill' anywhere is counted as Hurco-mill); real coverage is lower than 76% but the wedm-sinker universal gap is robust because the wedm-sinker regex is narrow."
+    }
+  ],
+  "linked_roadmap": "state/shared/specs/ROADMAP-CONSOLIDATED.md",
+  "phases": [
+    {
+      "id": "P0",
+      "title": "Coverage matrix audit + universal-gap surfacing",
+      "sessions": "1",
+      "units": [
+        {
+          "id": "P0-U01",
+          "title": "scripts/audit-post-processor-coverage.mjs + matrix output",
+          "effort": 20,
+          "dependencies": [],
+          "exit_conditions": [
+            "Walks mcp-server/src/engines/ bounded scan (no recursion explosion)",
+            "Classifies each engine by brand (regex on class name + JSDoc head) + machine class (regex)",
+            "Emits 12×7 matrix with per-cell engine list",
+            "Operator-readable .md output with ✓/❌ matrix + gap punch list",
+            "JSON output for downstream consumers (gap-fill milestones)",
+            "Coverage % computed and reported"
+          ],
+          "description": "Single audit that reveals the post-processor coverage shape. First-run finding: wedm-sinker is a universal gap across all 12 canonical brands. Coverage % is optimistic (R1) because brand+machine co-occurrence in unrelated text counts as covered — real coverage is lower, but the gap class (wedm-sinker) is robust. Operator-actionable: next ship is a wedm-sinker master-post family.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        }
+      ]
+    }
+  ],
+  "acceptance": "scripts/audit-post-processor-coverage.mjs runs to completion. state/shared/post-processor-coverage.{json,md} produced. First-run output: 72 engines scanned, 64/84 cells covered, 20 gaps (all wedm-sinker). Operator can read the matrix and pick the next-highest-ROI master post to ship.",
+  "risks": [
+    {
+      "id": "R1",
+      "description": "Brand+machine-class classification is REGEX-HEURISTIC on the engine filename + first 4KB of source. False positives where brand string appears incidentally (a Hurco engine that mentions 'Mazak' in a comparison comment will be tagged for both brands). Real coverage is LOWER than the reported 76% — but the gap class (wedm-sinker) is robust because that regex is narrow. Mitigation: MS1 would parse JSDoc @brand / @machine annotations explicitly + reject co-occurrence without explicit declaration."
+    },
+    {
+      "id": "R2",
+      "description": "Canonical 12-brand × 7-machine-class matrix is hand-curated for small-shop America. Misses some real cells (Tornos Swiss, Star Swiss, Citizen Swiss are merged into 'swiss'; Index/Schütte have no row). MS1 would expand to 20+ brands + 10+ machine classes once the heuristic tightens."
+    },
+    {
+      "id": "R3",
+      "description": "The audit identifies engine PRESENCE, not quality. An engine matching the brand+class regex may still be a stub (Math.random) or pre-PROVE-OUT pattern. MS1 would cross-reference test count + dispatcher wiring + prove-out support per engine to grade each cell as production-ready vs research-only."
+    }
+  ],
+  "blocks": [],
+  "blocked_by": [],
+  "updated_at": "2026-05-24T04:20:00Z"
+}

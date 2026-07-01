@@ -1,0 +1,85 @@
+# mit-curriculum galaxy CROSS-SESSION SYNTHESIS (41 of 41 mineable, model gpt-oss:120b, 2026-06-17)
+
+## What this galaxy is building
+- End‑to‑end **PRISM manufacturing‑AI platform** spanning CAD/CAM emitters, quoting & cost engines, post‑processor learning, PSN knowledge graph (Obsidian + Wiki + Memories), MIT‑OCW curriculum extraction, and autonomous fleet‑reaper hygiene.  
+- Unified **Hermes ↔ Zulu ↔ PRISM** stack: Hermes planner per galaxy, Zulu build‑loop queue, PRISM ledger & iteration engine.  
+- AI‑systems layer: model routing ladder (Ollama → Sonnet → Opus), GNN/NN/LoRA pipelines, RAG with Qdrant vector store, Ollama `nomic‑embed‑text` for tribal graph embeddings.  
+- Slot‑anchoring via PowerShell PID (persistent work slots) and slot‑worktree model (one worktree per chat slot).  
+- Goal: populate all 14 galaxies (34 domains total) to world‑leading depth, exhaust internal data then external research, achieve 100 % dispatcher coverage and full knowledge‑ledger saturation.
+
+## Shipped capabilities
+- **Core loops & bridges**: `zulu-build-queue.mjs`, `zulu-build-loop.mjs`, cron installer, Hermes bridge (`ask-hermes.mjs`, `U‑HB‑ROUTINE‑PLAN*`), auto‑advance loop (`U‑LOOP‑AUTO‑ADVANCE`).  
+- **Model routing & fallback**: `U‑BRIDGE‑FALLBACK` (120B→32B→20B→1.5B ladder), dedup guard on SDK tools.  
+- **Capability engines**: 30+ `U‑ZULU‑CAP-*`, C4–C8 engines (`c907480111`, `857d35fa41`, etc.), Octopus probe panel, PSN orchestrator, Quoting stack (Xometry‑style inputs, deep reasoning bridge, calibration), CAD emitters (`U‑KEC‑CAD‑PARAM‑EMITTER`, `PSN‑CAD‑PRODUCER`), post‑processor learning engines, Adaptive Real‑Time Controller.  
+- **Curriculum & video pipeline**: 35–60 academy courses (UI `/learning/academy`, PWA assets, Whisper + Ollama vision extraction, auto‑select/persist picks).  
+- **NN/GNN pipelines**: `U‑NN‑PREDICTOR‑EMBED‑WIRE`, graph‑node bridge, AUROC 0.39 (pre‑promotion), LoRA dataset pipeline (`vault-to-lora-dataset.mjs`, 512 pairs).  
+- **Knowledge libraries**: tribal‑graph clustering & embedding (`tribal-graph-clusters.mjs`, `tribal-graph-embedding.mjs`), formula/algorithm ledgers (`U‑KC‑C1`, `U‑KC‑C2`), tip sets (`U‑KC‑B1/B2`).  
+- **Fleet hygiene**: reaper task (frees 1.7 GB), auto‑compact at 80 % token usage (configurable to 60 %), memory‑pressure relief scripts, zombie process killers.  
+- **System‑viz & audit**: `U‑SYSTEM‑VIZ‑PSN‑AWARE`, ghost node rosters, regen‑viz merge guard, high‑ROI skill rank (`high-roi-skill-rank.mjs`).  
+
+## Key decisions + rationale
+- Two‑tier architecture (Hermes cron tier + WebFetch verification) isolates heavy API calls and enforces deterministic loss functions.  
+- Slot‑worktree per chat slot eliminates Git index lock contention; atomic `git add <pathspec>` with 3‑of‑3 scrutiny gate ensures R12 fail‑loud compliance.  
+- Ultrafast “yolo” mode runs parallel agents with fallback ladder to maintain throughput under rate limits.  
+- PowerShell PID as universal slot anchor provides stable persistence across terminal sessions; cross‑tier alias‑match deferred.  
+- Auto‑compact thresholds (80 % → 60 %) and pre‑compact handoff JSON guard prevent token overflow during long loops.  
+- Cron scaling with lockfile `O_EXCL` guards against lost‑update races when bursting agents (5→12→18).  
+- GPU allocation strategy: default `qwen2.5-coder:7b` for CAD/engine labeling, `deepseek-r1:14b` as tier‑4 fallback reranker, NIM keepalive (`nim‑llama32‑3b`).  
+
+## Standing operator directives
+- `/loop [5m] /goal complete all remaining tasks | prioritize high‑ROI units`.  
+- Slot start wrappers: `/startup-mike`, `/startup-lima`, `/startup-india`, `/startup-bravo`, `/startup-hotel`, `/startup-echo`, `/startup-golf`.  
+- `/checkin‑<slot>` to claim and resume work; `/yolo-mode` for autonomous runs (max 3 auto‑fix attempts).  
+- Auto‑compact when ledger reaches 90 % token usage (`/self‑compact`).  
+- Launch fleet: `LAUNCH‑PRISM‑FLEET.bat`; ensure reaper task is active.  
+- Register milestones via `/rgs` (e.g., `KNOWLEDGE‑CONVERSION‑MS0`).  
+
+## What is still to build (open threads)
+- Cross‑galaxy shared substrates: machine kinematics, GD&T graph, UQ spine, cost accounting core.  
+- Complete **PROGRAM‑PROOF‑MS0** units (U‑PP04–U‑PP10) and WEDM pilot layers.  
+- Full PSN automation loop with ΔΨ reward tuning and per‑customer calibration.  
+- Raise NN/GNN AUROC to ≥ 0.78; integrate tier‑4 fallback engine.  
+- Finish remaining **Lathe** (≈ 82 engines), **Okuma**, **Hurco** G‑code fixes, and WEDM gap audits.  
+- Deploy Quoting UI (web/phone) with live OCR & AI chat pricing.  
+- Exhaust external knowledge ingestion (`OutsideKnowledgeSourceCatalogEngine`).  
+- Implement P1 alias‑match for PID drift handling; Bash ancestor walk fallback for `ps-window-pin.mjs`.  
+- Build `/ollama-route-check`, `/wiki-summarize-via-ollama`, and `/route-to-obsidian` hooks.  
+- Run KnowledgeInjectionPipelineEngine with `--apply` to write extracted MIT‑OCW knowledge into PRISM repo/Obsidian.  
+- Lower auto‑compact threshold to 60 % after monitoring; ensure handoff JSON regeneration works.  
+
+## How to build it (patterns/sequence)
+1. **Slot claim** → `/checkin‑<slot>` → `session-start-terminal-pin.mjs` writes PID pin.  
+2. **Extract & spec generation**: unzip assets, syllabus extraction, course‑embed pipeline; embed via Ollama `nomic‑embed‑text`.  
+3. **Graph construction**: run `tribal-graph-clusters.mjs`, then `tribal-graph-embedding.mjs`; persist checkpoints.  
+4. **Engine wiring**: add capability files (`U‑ZULU‑CAP-*`), update dispatchers (`prism_cad.ts`, `camDispatcher.ts`, `adaptiveControlDispatcher`).  
+5. **Training & calibration**: execute NN/GNN retrain (`run-calibration-cycle.mjs`), LoRA dataset generation, quoting calibration cycles.  
+6. **Hermes planning**: `ask-hermes.mjs` creates per‑galaxy plan; `U‑HB‑ROUTINE‑PLAN*` executes.  
+7. **Loop execution**: start `/loop [5m]`; yolo mode runs agents with fallback ladder; auto‑advance moves to next galaxy when loss saturates.  
+8. **Audit & health**: run `U‑SYSTEM‑VIZ‑PSN‑AWARE`, `kill-zombie-tsservers.ps1`, memory‑pressure relief, reaper sweep.  
+9. **Compact & handoff**: on token threshold trigger `/compact`; generate `HANDOFF-<STABLE>.json` and resume automatically.  
+10. **Deployment**: flip envelopes (`/forge-audit-v2`), push to production paths, verify via system‑viz regeneration.  
+
+## Tools to use
+- **Dispatchers / Skills**: `prism_dev`, `prism_cad.ts`, `camDispatcher.ts`, `adaptiveControlDispatcher`, `skill-auto-trigger.mjs`, `slot-bind-enforce.mjs`, cron create/delete utilities.  
+- **Scripts / Hooks**: `zulu-build-queue.mjs`, `zulu-build-loop.mjs`, `install-zulu-build-loop-cron.ps1`, `ask-hermes.mjs`, `U‑HB‑ROUTINE‑PLAN*`, `U‑BRIDGE‑FALLBACK`, `pickBestOllamaModel`, `graph-io.mjs` (streaming JSON), `embed-engines-into-tribal-index.mjs`, `vault-to-lora-dataset.mjs`, `curriculum-scaffolder.mjs`, `high-roi-skill-rank.mjs`, `session-start-terminal-pin.mjs`, `ps-window-pin.mjs`, `chat-slots.mjs`, `parseTriggers.mjs`, `knowledge-injection-pipeline.mjs`.  
+- **System‑viz**: `U‑SYSTEM‑VIZ‑PSN‑AWARE`, `regen-viz.mjs`, `regen-viz-merge-guard.mjs`.  
+- **AI systems**: Ollama (local models qwen2.5‑coder, qwen2.5‑vl, nomic‑embed‑text), Anthropic Sonnet/Opus APIs, NVIDIA NIM endpoints (`nim‑llama32‑3b`).  
+- **Vector store / Knowledge base**: Qdrant for embeddings, Obsidian vault sync scripts, CLAUDE.md pointers.  
+
+## Recurring findings + bugs
+- **Git lock contention** solved by slot‑worktrees and atomic pathspec commits.  
+- **Fork‑bomb/orphan processes** mitigated via fleet reaper task and scheduled cron jobs.  
+- **API rate‑limit & GPU serialization** addressed with agent burst scaling, fallback ladder, and tier‑4 reranker.  
+- **V8 “Invalid string length”** fixed by streaming JSON I/O (`graph-io.mjs`).  
+- **Memory pressure spikes (>94 % tokens)** trigger auto‑relief scripts; auto‑compact threshold now 80 % (configurable).  
+- **Duplicate tool registration crashes** eliminated with SDK dedup guard.  
+- **Physics fence leaks** enforced via `physicsSafe:true` in galaxy descriptors.  
+- **Slot claim misrouting** (e.g., “kilo” → bravo) fixed by forcing explicit `/checkin‑<slot>`.  
+- **Embedding idempotency bug** resolved; duplicate vectors no longer created on resume.  
+- **Cron mis‑schedule** corrected to fire at intended intervals.  
+- **AUROC low (0.39)** identified; plan to add more seed data and tier‑4 fallback engine.  
+- **Missing exports / NaN bugs** in GNN trainer and quoting engines fixed; R12 fail‑loud compliance restored.  
+- **Pre‑compact token threshold reached (~967 k tokens)** required manual `/compact`.  
+- **Cross‑tier PID drift** when parent process dies; pending P1 alias‑match implementation.  
+- **Bash ancestor walk failure** for `ps-window-pin.mjs`; to be added.  
+- **Telemetry missing** on memory‑relevance‑inject hook; instrumentation needed.

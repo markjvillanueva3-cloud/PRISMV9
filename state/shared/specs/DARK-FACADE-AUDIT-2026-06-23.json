@@ -1,0 +1,1166 @@
+{
+  "total": 324,
+  "dark": 85,
+  "unresolved": 0,
+  "darkActions": [
+    {
+      "dispatcher": "aiReasoningDispatcher.ts",
+      "action": "uncertainty_pipeline_run",
+      "enginePath": "../../engines/UncertaintyPropagationPipelineEngine.js",
+      "probedMethods": [
+        "run",
+        "execute",
+        "process"
+      ],
+      "line": 4306,
+      "dark": true,
+      "foundMethods": [],
+      "reason": "none of [run, execute, process] is a method on the engine"
+    },
+    {
+      "dispatcher": "aiReasoningDispatcher.ts",
+      "action": "mit_course_knowledge_query",
+      "enginePath": "../../engines/MITCourseKnowledgeEngine.js",
+      "probedMethods": [
+        "query",
+        "search",
+        "getCourse"
+      ],
+      "line": 4513,
+      "dark": true,
+      "foundMethods": [],
+      "reason": "none of [query, search, getCourse] is a method on the engine"
+    },
+    {
+      "dispatcher": "aiReasoningDispatcher.ts",
+      "action": "machine_lora_base_info",
+      "enginePath": "../../engines/MachineLoRABaseEngine.js",
+      "probedMethods": [
+        "getInfo"
+      ],
+      "line": 4528,
+      "dark": true,
+      "foundMethods": [],
+      "reason": "none of [getInfo] is a method on the engine"
+    },
+    {
+      "dispatcher": "aiReasoningDispatcher.ts",
+      "action": "cross_domain_orchestrate",
+      "enginePath": "../../engines/CrossDomainOrchestratorEngine.js",
+      "probedMethods": [
+        "orchestrate",
+        "plan",
+        "execute"
+      ],
+      "line": 4684,
+      "dark": true,
+      "foundMethods": [],
+      "reason": "none of [orchestrate, plan, execute] is a method on the engine"
+    },
+    {
+      "dispatcher": "authDispatcher.ts",
+      "action": "session_insights_query",
+      "enginePath": "../../engines/SessionInsightsLedgerEngine.js",
+      "probedMethods": [
+        "query",
+        "get",
+        "analyze"
+      ],
+      "line": 169,
+      "dark": true,
+      "foundMethods": [],
+      "reason": "none of [query, get, analyze] is a method on the engine"
+    },
+    {
+      "dispatcher": "authDispatcher.ts",
+      "action": "user_model_get",
+      "enginePath": "../../engines/UserModelEngine.js",
+      "probedMethods": [
+        "get",
+        "getModel",
+        "query"
+      ],
+      "line": 185,
+      "dark": true,
+      "foundMethods": [],
+      "reason": "none of [get, getModel, query] is a method on the engine"
+    },
+    {
+      "dispatcher": "authDispatcher.ts",
+      "action": "authority_ranking_compute",
+      "enginePath": "../../engines/AuthorityRankingEngine.js",
+      "probedMethods": [
+        "compute",
+        "rank",
+        "calculate"
+      ],
+      "line": 190,
+      "dark": true,
+      "foundMethods": [],
+      "reason": "none of [compute, rank, calculate] is a method on the engine"
+    },
+    {
+      "dispatcher": "cadDispatcher.ts",
+      "action": "engine_digest_get",
+      "enginePath": "../../engines/EngineDigestEngine.js",
+      "probedMethods": [
+        "getDigest",
+        "run",
+        "list"
+      ],
+      "line": 5744,
+      "dark": true,
+      "foundMethods": [],
+      "reason": "none of [getDigest, run, list] is a method on the engine"
+    },
+    {
+      "dispatcher": "cadDispatcher.ts",
+      "action": "fusion360_generator_adapt",
+      "enginePath": "../../engines/Fusion360CADGeneratorAdapter.js",
+      "probedMethods": [
+        "generate",
+        "run",
+        "adapt"
+      ],
+      "line": 5796,
+      "dark": true,
+      "foundMethods": [],
+      "reason": "none of [generate, run, adapt] is a method on the engine"
+    },
+    {
+      "dispatcher": "calcDispatcher.ts",
+      "action": "optimization_engine_run",
+      "enginePath": "../../engines/OptimizationEngine.js",
+      "probedMethods": [
+        "optimization",
+        "optimizeParameters"
+      ],
+      "line": 10257,
+      "dark": true,
+      "foundMethods": [],
+      "reason": "none of [optimization, optimizeParameters] is a method on the engine"
+    },
+    {
+      "dispatcher": "calcDispatcher.ts",
+      "action": "algorithm_orchestrator_run",
+      "enginePath": "../../engines/AlgorithmOrchestratorEngine.js",
+      "probedMethods": [
+        "run",
+        "execute",
+        "orchestrate"
+      ],
+      "line": 10437,
+      "dark": true,
+      "foundMethods": [],
+      "reason": "none of [run, execute, orchestrate] is a method on the engine"
+    },
+    {
+      "dispatcher": "calcDispatcher.ts",
+      "action": "multi_obj_pareto_optimize",
+      "enginePath": "../../engines/MultiObjectiveParetoEngine.js",
+      "probedMethods": [
+        "optimize",
+        "run",
+        "calculate"
+      ],
+      "line": 10498,
+      "dark": true,
+      "foundMethods": [],
+      "reason": "none of [optimize, run, calculate] is a method on the engine"
+    },
+    {
+      "dispatcher": "calcDispatcher.ts",
+      "action": "process_digital_twin_calc",
+      "enginePath": "../../engines/ProcessDigitalTwinEngine.js",
+      "probedMethods": [
+        "simulate",
+        "calculate",
+        "run"
+      ],
+      "line": 10564,
+      "dark": true,
+      "foundMethods": [],
+      "reason": "none of [simulate, calculate, run] is a method on the engine"
+    },
+    {
+      "dispatcher": "calcDispatcher.ts",
+      "action": "process_robustness_calc",
+      "enginePath": "../../engines/ProcessRobustnessEngine.js",
+      "probedMethods": [
+        "analyze",
+        "calculate",
+        "run"
+      ],
+      "line": 10570,
+      "dark": true,
+      "foundMethods": [],
+      "reason": "none of [analyze, calculate, run] is a method on the engine"
+    },
+    {
+      "dispatcher": "calcDispatcher.ts",
+      "action": "amsaa_reliability_growth_calc",
+      "enginePath": "../../engines/AMSAAReliabilityGrowthEngine.js",
+      "probedMethods": [
+        "calculate",
+        "analyze",
+        "run"
+      ],
+      "line": 10576,
+      "dark": true,
+      "foundMethods": [],
+      "reason": "none of [calculate, analyze, run] is a method on the engine"
+    },
+    {
+      "dispatcher": "calcDispatcher.ts",
+      "action": "kalman_filter_calc",
+      "enginePath": "../../engines/KalmanFilterEngine.js",
+      "probedMethods": [
+        "filter",
+        "calculate",
+        "run"
+      ],
+      "line": 10582,
+      "dark": true,
+      "foundMethods": [],
+      "reason": "none of [filter, calculate, run] is a method on the engine"
+    },
+    {
+      "dispatcher": "calcDispatcher.ts",
+      "action": "swept_volume_calc",
+      "enginePath": "../../engines/SweptVolumeEngine.js",
+      "probedMethods": [
+        "compute",
+        "calculate",
+        "run"
+      ],
+      "line": 10606,
+      "dark": true,
+      "foundMethods": [],
+      "reason": "none of [compute, calculate, run] is a method on the engine"
+    },
+    {
+      "dispatcher": "calcDispatcher.ts",
+      "action": "surface_location_error_calc",
+      "enginePath": "../../engines/SurfaceLocationErrorEngine.js",
+      "probedMethods": [
+        "calculate",
+        "predict",
+        "run"
+      ],
+      "line": 10612,
+      "dark": true,
+      "foundMethods": [],
+      "reason": "none of [calculate, predict, run] is a method on the engine"
+    },
+    {
+      "dispatcher": "calcDispatcher.ts",
+      "action": "receptance_coupling_calc",
+      "enginePath": "../../engines/ReceptanceCouplingEngine.js",
+      "probedMethods": [
+        "couple",
+        "calculate",
+        "run"
+      ],
+      "line": 10618,
+      "dark": true,
+      "foundMethods": [],
+      "reason": "none of [couple, calculate, run] is a method on the engine"
+    },
+    {
+      "dispatcher": "calcDispatcher.ts",
+      "action": "process_variability_integration_calc",
+      "enginePath": "../../engines/ProcessVariabilityIntegrationEngine.js",
+      "probedMethods": [
+        "integrate",
+        "run",
+        "calculate"
+      ],
+      "line": 10636,
+      "dark": true,
+      "foundMethods": [],
+      "reason": "none of [integrate, run, calculate] is a method on the engine"
+    },
+    {
+      "dispatcher": "calcDispatcher.ts",
+      "action": "physics_prediction_calc",
+      "enginePath": "../../engines/PhysicsPredictionEngine.js",
+      "probedMethods": [
+        "physicsPrediction"
+      ],
+      "line": 10642,
+      "dark": true,
+      "foundMethods": [],
+      "reason": "none of [physicsPrediction] is a method on the engine"
+    },
+    {
+      "dispatcher": "calcDispatcher.ts",
+      "action": "fixture_clamping_calc",
+      "enginePath": "../../engines/FixtureClampingEngine.js",
+      "probedMethods": [
+        "calculate",
+        "analyze",
+        "run"
+      ],
+      "line": 10660,
+      "dark": true,
+      "foundMethods": [],
+      "reason": "none of [calculate, analyze, run] is a method on the engine"
+    },
+    {
+      "dispatcher": "calcDispatcher.ts",
+      "action": "runout_effect_calc",
+      "enginePath": "../../engines/RunoutEffectEngine.js",
+      "probedMethods": [
+        "calculate",
+        "analyze",
+        "run"
+      ],
+      "line": 10666,
+      "dark": true,
+      "foundMethods": [],
+      "reason": "none of [calculate, analyze, run] is a method on the engine"
+    },
+    {
+      "dispatcher": "calcDispatcher.ts",
+      "action": "iso286_extended_calc",
+      "enginePath": "../../engines/ISO286ExtendedEngine.js",
+      "probedMethods": [
+        "calculate",
+        "analyze",
+        "run"
+      ],
+      "line": 10673,
+      "dark": true,
+      "foundMethods": [],
+      "reason": "none of [calculate, analyze, run] is a method on the engine"
+    },
+    {
+      "dispatcher": "calcDispatcher.ts",
+      "action": "complete_machining_plan",
+      "enginePath": "../../engines/CompleteMachiningEngine.js",
+      "probedMethods": [
+        "plan",
+        "analyze",
+        "run"
+      ],
+      "line": 10681,
+      "dark": true,
+      "foundMethods": [],
+      "reason": "none of [plan, analyze, run] is a method on the engine"
+    },
+    {
+      "dispatcher": "calcDispatcher.ts",
+      "action": "advanced_cnc_config_analyze",
+      "enginePath": "../../engines/AdvancedCNCConfigEngine.js",
+      "probedMethods": [
+        "analyze",
+        "configure",
+        "run"
+      ],
+      "line": 10688,
+      "dark": true,
+      "foundMethods": [],
+      "reason": "none of [analyze, configure, run] is a method on the engine"
+    },
+    {
+      "dispatcher": "calcDispatcher.ts",
+      "action": "virtual_machining_simulate",
+      "enginePath": "../../engines/VirtualMachiningDeepLearningEngine.js",
+      "probedMethods": [
+        "simulate",
+        "analyze",
+        "run"
+      ],
+      "line": 10695,
+      "dark": true,
+      "foundMethods": [],
+      "reason": "none of [simulate, analyze, run] is a method on the engine"
+    },
+    {
+      "dispatcher": "calcDispatcher.ts",
+      "action": "micro_milling_size_effect_calc",
+      "enginePath": "../../engines/MicroMillingSizeEffectEngine.js",
+      "probedMethods": [
+        "calculate",
+        "analyze",
+        "run"
+      ],
+      "line": 10921,
+      "dark": true,
+      "foundMethods": [],
+      "reason": "none of [calculate, analyze, run] is a method on the engine"
+    },
+    {
+      "dispatcher": "calcDispatcher.ts",
+      "action": "rcsa_frf_predict",
+      "enginePath": "../../engines/RCSAEngine.js",
+      "probedMethods": [
+        "predict",
+        "calculate",
+        "run"
+      ],
+      "line": 10928,
+      "dark": true,
+      "foundMethods": [],
+      "reason": "none of [predict, calculate, run] is a method on the engine"
+    },
+    {
+      "dispatcher": "calcDispatcher.ts",
+      "action": "swiss_guide_bushing_physics_calc",
+      "enginePath": "../../engines/SwissGuideBushingPhysicsEngine.js",
+      "probedMethods": [
+        "calculate",
+        "analyze",
+        "run"
+      ],
+      "line": 10935,
+      "dark": true,
+      "foundMethods": [],
+      "reason": "none of [calculate, analyze, run] is a method on the engine"
+    },
+    {
+      "dispatcher": "calcDispatcher.ts",
+      "action": "trilobe_deformation_calc",
+      "enginePath": "../../engines/TrilobeDeformationEngine.js",
+      "probedMethods": [
+        "calculate",
+        "predict",
+        "run"
+      ],
+      "line": 10942,
+      "dark": true,
+      "foundMethods": [],
+      "reason": "none of [calculate, predict, run] is a method on the engine"
+    },
+    {
+      "dispatcher": "calcDispatcher.ts",
+      "action": "stock_feed_cycle_track",
+      "enginePath": "../../engines/StockFeedCycleEngine.js",
+      "probedMethods": [
+        "track",
+        "update",
+        "run"
+      ],
+      "line": 10949,
+      "dark": true,
+      "foundMethods": [],
+      "reason": "none of [track, update, run] is a method on the engine"
+    },
+    {
+      "dispatcher": "calcDispatcher.ts",
+      "action": "in_process_stock_model_update",
+      "enginePath": "../../engines/InProcessStockModelEngine.js",
+      "probedMethods": [
+        "update",
+        "simulate",
+        "run"
+      ],
+      "line": 10956,
+      "dark": true,
+      "foundMethods": [],
+      "reason": "none of [update, simulate, run] is a method on the engine"
+    },
+    {
+      "dispatcher": "calcDispatcher.ts",
+      "action": "inter_operation_state_transfer",
+      "enginePath": "../../engines/InterOperationStateEngine.js",
+      "probedMethods": [
+        "transfer",
+        "get",
+        "run"
+      ],
+      "line": 10963,
+      "dark": true,
+      "foundMethods": [],
+      "reason": "none of [transfer, get, run] is a method on the engine"
+    },
+    {
+      "dispatcher": "calcDispatcher.ts",
+      "action": "process_environment_sensitivity_analyze",
+      "enginePath": "../../engines/ProcessEnvironmentSensitivityEngine.js",
+      "probedMethods": [
+        "analyze",
+        "calculate",
+        "run"
+      ],
+      "line": 10970,
+      "dark": true,
+      "foundMethods": [],
+      "reason": "none of [analyze, calculate, run] is a method on the engine"
+    },
+    {
+      "dispatcher": "calcDispatcher.ts",
+      "action": "physics_aware_data_augmentation_run",
+      "enginePath": "../../engines/PhysicsAwareDataAugmentationEngine.js",
+      "probedMethods": [
+        "augment",
+        "run",
+        "generate"
+      ],
+      "line": 10984,
+      "dark": true,
+      "foundMethods": [],
+      "reason": "none of [augment, run, generate] is a method on the engine"
+    },
+    {
+      "dispatcher": "camDispatcher.ts",
+      "action": "cam_utility_batch_run",
+      "enginePath": "../../engines/CAMUtilityEngines.js",
+      "probedMethods": [
+        "run"
+      ],
+      "line": 20077,
+      "dark": true,
+      "foundMethods": [],
+      "reason": "none of [run] is a method on the engine"
+    },
+    {
+      "dispatcher": "camDispatcher.ts",
+      "action": "cimatron_cam_bridge_run",
+      "enginePath": "../../engines/CimatronCAMBridgeEngine.js",
+      "probedMethods": [
+        "run",
+        "process"
+      ],
+      "line": 20097,
+      "dark": true,
+      "foundMethods": [],
+      "reason": "none of [run, process] is a method on the engine"
+    },
+    {
+      "dispatcher": "camDispatcher.ts",
+      "action": "tebis_cam_bridge_run",
+      "enginePath": "../../engines/TebisCAMBridgeEngine.js",
+      "probedMethods": [
+        "run",
+        "process"
+      ],
+      "line": 20102,
+      "dark": true,
+      "foundMethods": [],
+      "reason": "none of [run, process] is a method on the engine"
+    },
+    {
+      "dispatcher": "camDispatcher.ts",
+      "action": "radial_engagement_analyze",
+      "enginePath": "../../engines/RadialEngagementControllerEngine.js",
+      "probedMethods": [
+        "analyze"
+      ],
+      "line": 20112,
+      "dark": true,
+      "foundMethods": [],
+      "reason": "none of [analyze] is a method on the engine"
+    },
+    {
+      "dispatcher": "camDispatcher.ts",
+      "action": "blameless_post_mortem_run",
+      "enginePath": "../../engines/BlamelessPostMortemEngine.js",
+      "probedMethods": [
+        "run",
+        "analyze"
+      ],
+      "line": 20122,
+      "dark": true,
+      "foundMethods": [],
+      "reason": "none of [run, analyze] is a method on the engine"
+    },
+    {
+      "dispatcher": "camDispatcher.ts",
+      "action": "cam_bridge_kit_run",
+      "enginePath": "../../engines/CamBridgeKitEngine.js",
+      "probedMethods": [
+        "run",
+        "process"
+      ],
+      "line": 20522,
+      "dark": true,
+      "foundMethods": [],
+      "reason": "none of [run, process] is a method on the engine"
+    },
+    {
+      "dispatcher": "camDispatcher.ts",
+      "action": "epack_table_import",
+      "enginePath": "../../engines/EPackTableImportEngine.js",
+      "probedMethods": [
+        "import",
+        "run"
+      ],
+      "line": 20556,
+      "dark": true,
+      "foundMethods": [],
+      "reason": "none of [import, run] is a method on the engine"
+    },
+    {
+      "dispatcher": "camDispatcher.ts",
+      "action": "macro_conversion_analyze",
+      "enginePath": "../../engines/MacroConversionAnalyzerEngine.js",
+      "probedMethods": [
+        "analyze",
+        "run"
+      ],
+      "line": 20568,
+      "dark": true,
+      "foundMethods": [],
+      "reason": "none of [analyze, run] is a method on the engine"
+    },
+    {
+      "dispatcher": "camDispatcher.ts",
+      "action": "nc_pattern_mine",
+      "enginePath": "../../engines/NCPatternMinerEngine.js",
+      "probedMethods": [
+        "mine",
+        "run"
+      ],
+      "line": 20574,
+      "dark": true,
+      "foundMethods": [],
+      "reason": "none of [mine, run] is a method on the engine"
+    },
+    {
+      "dispatcher": "camDispatcher.ts",
+      "action": "prism_addin_architecture_get",
+      "enginePath": "../../engines/PrismAddinArchitectureEngine.js",
+      "probedMethods": [
+        "get",
+        "run"
+      ],
+      "line": 20587,
+      "dark": true,
+      "foundMethods": [],
+      "reason": "none of [get, run] is a method on the engine"
+    },
+    {
+      "dispatcher": "devDispatcher.ts",
+      "action": "batch_query_exec",
+      "enginePath": "../../engines/BatchQueryEngine.js",
+      "probedMethods": [
+        "execute",
+        "run"
+      ],
+      "line": 11309,
+      "dark": true,
+      "foundMethods": [],
+      "reason": "none of [execute, run] is a method on the engine"
+    },
+    {
+      "dispatcher": "devDispatcher.ts",
+      "action": "tool_redirect_suggest",
+      "enginePath": "../../engines/ToolRedirectEngine.js",
+      "probedMethods": [
+        "suggest",
+        "run"
+      ],
+      "line": 11315,
+      "dark": true,
+      "foundMethods": [],
+      "reason": "none of [suggest, run] is a method on the engine"
+    },
+    {
+      "dispatcher": "devDispatcher.ts",
+      "action": "master_index_generate",
+      "enginePath": "../../engines/MasterIndexGenerator.js",
+      "probedMethods": [
+        "generate",
+        "scan",
+        "run"
+      ],
+      "line": 11328,
+      "dark": true,
+      "foundMethods": [],
+      "reason": "none of [generate, scan, run] is a method on the engine"
+    },
+    {
+      "dispatcher": "devDispatcher.ts",
+      "action": "response_cache_manage",
+      "enginePath": "../../engines/ResponseCacheEngine.js",
+      "probedMethods": [
+        "run",
+        "get"
+      ],
+      "line": 11334,
+      "dark": true,
+      "foundMethods": [],
+      "reason": "none of [run, get] is a method on the engine"
+    },
+    {
+      "dispatcher": "devDispatcher.ts",
+      "action": "utilization_contract_audit",
+      "enginePath": "../../engines/UtilizationContractEngine.js",
+      "probedMethods": [
+        "audit",
+        "run"
+      ],
+      "line": 11370,
+      "dark": true,
+      "foundMethods": [],
+      "reason": "none of [audit, run] is a method on the engine"
+    },
+    {
+      "dispatcher": "devDispatcher.ts",
+      "action": "report_render",
+      "enginePath": "../../engines/ReportRenderer.js",
+      "probedMethods": [
+        "renderReport"
+      ],
+      "line": 11382,
+      "dark": true,
+      "foundMethods": [],
+      "reason": "none of [renderReport] is a method on the engine"
+    },
+    {
+      "dispatcher": "devDispatcher.ts",
+      "action": "execution_verification_run",
+      "enginePath": "../../engines/ExecutionVerificationEngine.js",
+      "probedMethods": [
+        "verify",
+        "run"
+      ],
+      "line": 11400,
+      "dark": true,
+      "foundMethods": [],
+      "reason": "none of [verify, run] is a method on the engine"
+    },
+    {
+      "dispatcher": "devDispatcher.ts",
+      "action": "vision_action_analyze",
+      "enginePath": "../../engines/VisionActionAnalyzerEngine.js",
+      "probedMethods": [
+        "analyze",
+        "run"
+      ],
+      "line": 11406,
+      "dark": true,
+      "foundMethods": [],
+      "reason": "none of [analyze, run] is a method on the engine"
+    },
+    {
+      "dispatcher": "devDispatcher.ts",
+      "action": "qt_validation_run",
+      "enginePath": "../../engines/QTValidationSuiteEngine.js",
+      "probedMethods": [
+        "run",
+        "validate"
+      ],
+      "line": 11412,
+      "dark": true,
+      "foundMethods": [],
+      "reason": "none of [run, validate] is a method on the engine"
+    },
+    {
+      "dispatcher": "devDispatcher.ts",
+      "action": "pdf_handbook_batch_process",
+      "enginePath": "../../engines/PDFHandbookBatchProcessorEngine.js",
+      "probedMethods": [
+        "process",
+        "run"
+      ],
+      "line": 11418,
+      "dark": true,
+      "foundMethods": [],
+      "reason": "none of [process, run] is a method on the engine"
+    },
+    {
+      "dispatcher": "devDispatcher.ts",
+      "action": "pdf_source_registry_manage",
+      "enginePath": "../../engines/PDFSourceRegistryEngine.js",
+      "probedMethods": [
+        "run",
+        "list"
+      ],
+      "line": 11424,
+      "dark": true,
+      "foundMethods": [],
+      "reason": "none of [run, list] is a method on the engine"
+    },
+    {
+      "dispatcher": "devDispatcher.ts",
+      "action": "pdf_table_extract",
+      "enginePath": "../../engines/PDFTableExtractionEngine.js",
+      "probedMethods": [
+        "extract",
+        "run"
+      ],
+      "line": 11430,
+      "dark": true,
+      "foundMethods": [],
+      "reason": "none of [extract, run] is a method on the engine"
+    },
+    {
+      "dispatcher": "devDispatcher.ts",
+      "action": "resource_extraction_state_track",
+      "enginePath": "../../engines/ResourceExtractionStateEngine.js",
+      "probedMethods": [
+        "track",
+        "run"
+      ],
+      "line": 11436,
+      "dark": true,
+      "foundMethods": [],
+      "reason": "none of [track, run] is a method on the engine"
+    },
+    {
+      "dispatcher": "fiveAxisDispatcher.ts",
+      "action": "so3_kinematics_encode",
+      "enginePath": "../../engines/SO3KinematicsEncoderEngine.js",
+      "probedMethods": [
+        "encode",
+        "compute",
+        "calculate"
+      ],
+      "line": 131,
+      "dark": true,
+      "foundMethods": [],
+      "reason": "none of [encode, compute, calculate] is a method on the engine"
+    },
+    {
+      "dispatcher": "fiveAxisDispatcher.ts",
+      "action": "five_axis_ai_ultra_predict",
+      "enginePath": "../../engines/FiveAxisAIUltraIntelligenceEngine.js",
+      "probedMethods": [
+        "predict",
+        "analyze",
+        "run"
+      ],
+      "line": 172,
+      "dark": true,
+      "foundMethods": [],
+      "reason": "none of [predict, analyze, run] is a method on the engine"
+    },
+    {
+      "dispatcher": "orchestrationDispatcher.ts",
+      "action": "operator_dashboard_orchestrate",
+      "enginePath": "../../engines/OperatorDashboardOrchestratorEngine.js",
+      "probedMethods": [
+        "run",
+        "orchestrate",
+        "analyze"
+      ],
+      "line": 1047,
+      "dark": true,
+      "foundMethods": [],
+      "reason": "none of [run, orchestrate, analyze] is a method on the engine"
+    },
+    {
+      "dispatcher": "orchestrationDispatcher.ts",
+      "action": "tribal_explain",
+      "enginePath": "../../engines/TribalExplanationEngine.js",
+      "probedMethods": [
+        "explain",
+        "run",
+        "generate"
+      ],
+      "line": 1057,
+      "dark": true,
+      "foundMethods": [],
+      "reason": "none of [explain, run, generate] is a method on the engine"
+    },
+    {
+      "dispatcher": "orchestrationDispatcher.ts",
+      "action": "smart_tool_select",
+      "enginePath": "../../engines/SmartToolSelectorOrchestratorAdapter.js",
+      "probedMethods": [
+        "select",
+        "run",
+        "recommend"
+      ],
+      "line": 1072,
+      "dark": true,
+      "foundMethods": [],
+      "reason": "none of [select, run, recommend] is a method on the engine"
+    },
+    {
+      "dispatcher": "orchestrationDispatcher.ts",
+      "action": "wet_run_pilot_orchestrate",
+      "enginePath": "../../engines/WetRunPilotOrchestratorEngine.js",
+      "probedMethods": [
+        "run",
+        "orchestrate",
+        "execute"
+      ],
+      "line": 1082,
+      "dark": true,
+      "foundMethods": [],
+      "reason": "none of [run, orchestrate, execute] is a method on the engine"
+    },
+    {
+      "dispatcher": "orchestrationDispatcher.ts",
+      "action": "sampling_plan_generate",
+      "enginePath": "../../engines/SamplingPlanEngine.js",
+      "probedMethods": [
+        "generate",
+        "plan",
+        "calculate"
+      ],
+      "line": 1087,
+      "dark": true,
+      "foundMethods": [],
+      "reason": "none of [generate, plan, calculate] is a method on the engine"
+    },
+    {
+      "dispatcher": "orchestrationDispatcher.ts",
+      "action": "roadmap_dag_build",
+      "enginePath": "../../engines/RoadmapDAGEngine.js",
+      "probedMethods": [
+        "build",
+        "compute",
+        "analyze"
+      ],
+      "line": 1112,
+      "dark": true,
+      "foundMethods": [],
+      "reason": "none of [build, compute, analyze] is a method on the engine"
+    },
+    {
+      "dispatcher": "orchestrationDispatcher.ts",
+      "action": "rollback_plan_build",
+      "enginePath": "../../engines/RollbackPlannerEngine.js",
+      "probedMethods": [
+        "plan",
+        "generate",
+        "run"
+      ],
+      "line": 1117,
+      "dark": true,
+      "foundMethods": [],
+      "reason": "none of [plan, generate, run] is a method on the engine"
+    },
+    {
+      "dispatcher": "orchestrationDispatcher.ts",
+      "action": "foresight_orchestrate",
+      "enginePath": "../../engines/ForesightOrchestratorEngine.js",
+      "probedMethods": [
+        "foresee",
+        "run",
+        "analyze"
+      ],
+      "line": 1132,
+      "dark": true,
+      "foundMethods": [],
+      "reason": "none of [foresee, run, analyze] is a method on the engine"
+    },
+    {
+      "dispatcher": "orchestrationDispatcher.ts",
+      "action": "print_corpus_orchestrate",
+      "enginePath": "../../engines/PrintCorpusOrchestratorEngine.js",
+      "probedMethods": [
+        "orchestrate",
+        "run",
+        "process"
+      ],
+      "line": 1137,
+      "dark": true,
+      "foundMethods": [],
+      "reason": "none of [orchestrate, run, process] is a method on the engine"
+    },
+    {
+      "dispatcher": "qualityDispatcher.ts",
+      "action": "spc_process_capability_analyze",
+      "enginePath": "../../engines/SPCProcessCapabilityEngine.js",
+      "probedMethods": [
+        "analyze",
+        "calculate",
+        "run"
+      ],
+      "line": 288,
+      "dark": true,
+      "foundMethods": [],
+      "reason": "none of [analyze, calculate, run] is a method on the engine"
+    },
+    {
+      "dispatcher": "qualityDispatcher.ts",
+      "action": "hypermill_fai_bridge_run",
+      "enginePath": "../../engines/HyperMillFAIBridge.js",
+      "probedMethods": [
+        "run",
+        "process",
+        "analyze"
+      ],
+      "line": 293,
+      "dark": true,
+      "foundMethods": [],
+      "reason": "none of [run, process, analyze] is a method on the engine"
+    },
+    {
+      "dispatcher": "qualityDispatcher.ts",
+      "action": "hypermill_spc_bridge_run",
+      "enginePath": "../../engines/HyperMillSPCBridge.js",
+      "probedMethods": [
+        "run",
+        "analyze",
+        "calculate"
+      ],
+      "line": 299,
+      "dark": true,
+      "foundMethods": [],
+      "reason": "none of [run, analyze, calculate] is a method on the engine"
+    },
+    {
+      "dispatcher": "qualityDispatcher.ts",
+      "action": "concentration_inequality_analyze",
+      "enginePath": "../../engines/ConcentrationInequalityEngine.js",
+      "probedMethods": [
+        "analyze",
+        "calculate",
+        "run"
+      ],
+      "line": 304,
+      "dark": true,
+      "foundMethods": [],
+      "reason": "none of [analyze, calculate, run] is a method on the engine"
+    },
+    {
+      "dispatcher": "qualityDispatcher.ts",
+      "action": "multivariate_spc_analyze",
+      "enginePath": "../../engines/MultivariateSPCEngine.js",
+      "probedMethods": [
+        "analyze",
+        "calculate",
+        "run"
+      ],
+      "line": 309,
+      "dark": true,
+      "foundMethods": [],
+      "reason": "none of [analyze, calculate, run] is a method on the engine"
+    },
+    {
+      "dispatcher": "qualityDispatcher.ts",
+      "action": "data_quality_validate",
+      "enginePath": "../../engines/DataQualityEngine.js",
+      "probedMethods": [
+        "validate",
+        "analyze",
+        "run"
+      ],
+      "line": 314,
+      "dark": true,
+      "foundMethods": [],
+      "reason": "none of [validate, analyze, run] is a method on the engine"
+    },
+    {
+      "dispatcher": "qualityDispatcher.ts",
+      "action": "iso13485_qms_validate",
+      "enginePath": "../../engines/ISO13485QMSEngine.js",
+      "probedMethods": [
+        "validate",
+        "score",
+        "run"
+      ],
+      "line": 351,
+      "dark": true,
+      "foundMethods": [],
+      "reason": "none of [validate, score, run] is a method on the engine"
+    },
+    {
+      "dispatcher": "qualityDispatcher.ts",
+      "action": "design_history_file_compile",
+      "enginePath": "../../engines/DesignHistoryFileEngine.js",
+      "probedMethods": [
+        "compile",
+        "generate",
+        "run"
+      ],
+      "line": 357,
+      "dark": true,
+      "foundMethods": [],
+      "reason": "none of [compile, generate, run] is a method on the engine"
+    },
+    {
+      "dispatcher": "qualityDispatcher.ts",
+      "action": "process_validation_iqoqpq_generate",
+      "enginePath": "../../engines/ProcessValidationIQOQPQEngine.js",
+      "probedMethods": [
+        "generate",
+        "build",
+        "run"
+      ],
+      "line": 363,
+      "dark": true,
+      "foundMethods": [],
+      "reason": "none of [generate, build, run] is a method on the engine"
+    },
+    {
+      "dispatcher": "qualityDispatcher.ts",
+      "action": "capa_workflow_open",
+      "enginePath": "../../engines/CAPAWorkflowEngine.js",
+      "probedMethods": [
+        "open",
+        "create",
+        "run"
+      ],
+      "line": 369,
+      "dark": true,
+      "foundMethods": [],
+      "reason": "none of [open, create, run] is a method on the engine"
+    },
+    {
+      "dispatcher": "qualityDispatcher.ts",
+      "action": "iso14971_risk_assess",
+      "enginePath": "../../engines/ISO14971RiskManagementEngine.js",
+      "probedMethods": [
+        "assess",
+        "analyze",
+        "run"
+      ],
+      "line": 375,
+      "dark": true,
+      "foundMethods": [],
+      "reason": "none of [assess, analyze, run] is a method on the engine"
+    },
+    {
+      "dispatcher": "turningDispatcher.ts",
+      "action": "lathe_program_audit_pipeline_run",
+      "enginePath": "../../engines/LatheProgramAuditPipelineEngine.js",
+      "probedMethods": [
+        "audit",
+        "run",
+        "process"
+      ],
+      "line": 3652,
+      "dark": true,
+      "foundMethods": [],
+      "reason": "none of [audit, run, process] is a method on the engine"
+    },
+    {
+      "dispatcher": "turningDispatcher.ts",
+      "action": "multi_spindle_automatic_plan",
+      "enginePath": "../../engines/MultiSpindleAutomaticEngine.js",
+      "probedMethods": [
+        "plan",
+        "run",
+        "analyze"
+      ],
+      "line": 3674,
+      "dark": true,
+      "foundMethods": [],
+      "reason": "none of [plan, run, analyze] is a method on the engine"
+    },
+    {
+      "dispatcher": "turningDispatcher.ts",
+      "action": "swiss_type_intelligence_analyze",
+      "enginePath": "../../engines/SwissTypeIntelligenceEngine.js",
+      "probedMethods": [
+        "analyze",
+        "run"
+      ],
+      "line": 3680,
+      "dark": true,
+      "foundMethods": [],
+      "reason": "none of [analyze, run] is a method on the engine"
+    },
+    {
+      "dispatcher": "turningDispatcher.ts",
+      "action": "insert_grade_select",
+      "enginePath": "../../engines/InsertGradeSelectionEngine.js",
+      "probedMethods": [
+        "select",
+        "recommend",
+        "run"
+      ],
+      "line": 3686,
+      "dark": true,
+      "foundMethods": [],
+      "reason": "none of [select, recommend, run] is a method on the engine"
+    }
+  ]
+}

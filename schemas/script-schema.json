@@ -1,0 +1,68 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "prism-script-schema-v1",
+  "title": "PRISM Script Schema",
+  "description": "Python script metadata for execution",
+  "type": "object",
+  "required": ["id", "name", "path", "category"],
+  "properties": {
+    "id": { "type": "string", "pattern": "^SCRIPT-[A-Z]+-[0-9]{3}$" },
+    "name": { "type": "string" },
+    "path": { "type": "string" },
+    "category": {
+      "type": "string",
+      "enum": ["extraction", "materials", "validation", "gsd", "orchestration", "api", "utility", "testing", "controller"]
+    },
+    "description": { "type": "string" },
+    "purpose": { "type": "string" },
+    "inputs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": { "type": "string" },
+          "type": { "type": "string" },
+          "required": { "type": "boolean" },
+          "description": { "type": "string" }
+        }
+      }
+    },
+    "outputs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": { "type": "string" },
+          "type": { "type": "string" },
+          "path": { "type": "string" }
+        }
+      }
+    },
+    "dependencies": {
+      "type": "object",
+      "properties": {
+        "python_packages": { "type": "array", "items": { "type": "string" } },
+        "other_scripts": { "type": "array", "items": { "type": "string" } },
+        "data_files": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "execution": {
+      "type": "object",
+      "properties": {
+        "command": { "type": "string" },
+        "timeout_ms": { "type": "integer" },
+        "requires_api": { "type": "boolean" },
+        "parallel_safe": { "type": "boolean" }
+      }
+    },
+    "status": { "type": "string", "enum": ["active", "deprecated", "experimental"] },
+    "metadata": {
+      "type": "object",
+      "properties": {
+        "created": { "type": "string", "format": "date-time" },
+        "author": { "type": "string" },
+        "lines": { "type": "integer" }
+      }
+    }
+  }
+}

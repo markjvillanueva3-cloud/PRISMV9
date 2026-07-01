@@ -30,8 +30,9 @@
 
 import {
   existsSync, readFileSync, writeFileSync, mkdirSync, renameSync, unlinkSync,
+  readdirSync, statSync,
 } from 'node:fs';
-import { dirname } from 'node:path';
+import { dirname, basename } from 'node:path';
 
 const STATS_PATH = 'H:/prism/mcp-server/data/state/ollama-offload-stats.json';
 const EVENT_RETENTION_MS = 24 * 60 * 60 * 1000;
@@ -57,10 +58,43 @@ function loadStats() {
   };
 }
 
+function isPidAlive(pid) {
+  if (!Number.isInteger(pid) || pid <= 0) return false;
+  try { process.kill(pid, 0); return true; } catch (e) { return e && e.code === 'EPERM'; }
+}
+
+/**
+ * Reap our own orphaned atomic-write temps for `path`. These leak when a hook's node.exe is
+ * KILLED (fleet-reaper / OOM) between writeFileSync(tmp) and renameSync — no catch runs, so the
+ * tmp survives. The old suffix (`.tmp.<pid>.<rand>`) matched NO fleet janitor → 100s accumulated
+ * unswept (golf, 2026-05-31). Reap when the embedded pid is dead OR the file is >5min old. The
+ * regex matches BOTH the legacy `.tmp.<pid>` and the new `.tmp-<pid>` so the backlog drains too.
+ */
+function reapStaleTmps(path) {
+  try {
+    const dir = dirname(path);
+    const base = basename(path) + '.tmp';
+    const now = Date.now();
+    for (const name of readdirSync(dir)) {
+      if (!name.startsWith(base)) continue;
+      const m = name.match(/\.tmp[.-](\d+)/);
+      const pid = m ? Number(m[1]) : NaN;
+      let old = false;
+      try { old = (now - statSync(`${dir}/${name}`).mtimeMs) > 300000; } catch { continue; }
+      if ((Number.isInteger(pid) && !isPidAlive(pid)) || old) {
+        try { unlinkSync(`${dir}/${name}`); } catch { /* best-effort */ }
+      }
+    }
+  } catch { /* best-effort — never fail a stats write on cleanup */ }
+}
+
 function atomicWrite(path, data) {
   const dir = dirname(path);
   if (!existsSync(dir)) mkdirSync(dir, { recursive: true });
-  const tmp = `${path}.tmp.${process.pid}.${Math.random().toString(36).slice(2, 8)}`;
+  reapStaleTmps(path); // self-heal: clear our own prior orphans before writing
+  // `.tmp-<pid>` is the janitor-matched pattern (tmp-orphan-janitor sweeps /\.tmp-\d+$/), so a
+  // kill-mid-write orphan is ALSO caught by the durable PRISM Tmp Sweep as a backstop.
+  const tmp = `${path}.tmp-${process.pid}`;
   try {
     writeFileSync(tmp, data, 'utf8');
     renameSync(tmp, path);
@@ -94,6 +128,18 @@ function bumpHookCounter(stats, hook, decision, tokensSaved) {
 
 function bumpTotals(stats, decision, tokensSaved, mode) {
   if (decision === 'offload') {
+    // U-OFFLOAD-ACTION (2026-06-12, scrutiny P1): an EXECUTED offload
+    // (ask-ollama actually ran -- extras.mode:"executed") is the ADOPTION
+    // metric, not a second directive. Folding it into offloaded/
+    // estimatedTokensSaved would double-count one adopted action (directive
+    // estimate + measured delta summed) and inflate the headline offload rate
+    // exactly as adoption succeeds. Separate counters; byHook still tracks it
+    // under its own hook bucket.
+    if (mode === 'executed') {
+      stats.executedOffloads = (stats.executedOffloads || 0) + 1;
+      stats.measuredTokensSaved = (stats.measuredTokensSaved || 0) + (tokensSaved || 0);
+      return;
+    }
     stats.offloaded = (stats.offloaded || 0) + 1;
     stats.estimatedTokensSaved = (stats.estimatedTokensSaved || 0) + (tokensSaved || 0);
   } else if (decision === 'keep') {
@@ -139,7 +185,11 @@ export function recordOllamaEvent({
     bumpHookCounter(stats, hook, decision, tokensSaved);
     bumpTotals(stats, decision, tokensSaved, extras?.mode);
 
-    if (decision === 'offload' && category) {
+    // Executed events carry ask-ollama MODE names (summarize/explain/ask), a
+    // different taxonomy from the classifier categories (summary/explanation/..)
+    // -- keep them out of byCategory so the two namespaces never interleave
+    // (scrutiny P2 2026-06-12). byHook["ask-ollama"] carries the executed view.
+    if (decision === 'offload' && category && extras?.mode !== 'executed') {
       if (!stats.byCategory) stats.byCategory = {};
       stats.byCategory[category] = (stats.byCategory[category] || 0) + 1;
     }

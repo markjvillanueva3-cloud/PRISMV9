@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Archivo:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; background: #070809; height: 100%; overflow: hidden; }
+    .kz-scroll::-webkit-scrollbar { width: 8px; } .kz-scroll::-webkit-scrollbar-thumb { background: #23262E; border-radius: 8px; }
+    @keyframes kzpulse { 0%,100% { opacity:.4 } 50% { opacity:1 } }
+  </style>
+</helmet>
+<div style="position:fixed;inset:0;background:#070809;display:flex;align-items:center;justify-content:center;overflow:hidden;">
+<div style="width:1600px;height:980px;flex:none;transform:scale({{ scale }});transform-origin:center;display:flex;background:#0A0B0D;color:#F3F4F6;font-family:'Archivo',sans-serif;overflow:hidden;border-radius:16px;box-shadow:0 40px 120px rgba(0,0,0,0.6);">
+  <aside style="width:72px;flex:none;background:#0C0D10;border-right:1px solid rgba(255,255,255,0.06);display:flex;flex-direction:column;align-items:center;padding:18px 0;gap:6px;">
+    <svg viewBox="0 0 120 120" width="34" height="34" style="margin-bottom:14px;"><rect x="22" y="20" width="13" height="80" rx="1.5" fill="#F3F4F6"/><path d="M35 60 L86 22" stroke="#F3F4F6" stroke-width="13" stroke-linecap="round"/><path d="M35 60 L92 98 L92 74 L58 60 Z" fill="#FF5A2B"/></svg>
+    <div style="width:50px;height:48px;border-radius:12px;border:1px solid rgba(255,90,43,0.35);background:rgba(255,90,43,0.1);color:#FF7A4D;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-family:'JetBrains Mono',monospace;font-size:9px;"><span style="font-size:15px;">♨</span>THERM</div>
+    <div style="flex:1;"></div>
+    <div style="width:38px;height:38px;border-radius:50%;background:#1B1E24;border:1px solid rgba(255,255,255,0.1);display:flex;align-items:center;justify-content:center;font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:13px;color:#AEB4BE;">JM</div>
+  </aside>
+  <main style="flex:1;display:flex;flex-direction:column;min-width:0;">
+    <header style="flex:none;height:64px;border-bottom:1px solid rgba(255,255,255,0.06);display:flex;align-items:center;justify-content:space-between;padding:0 24px;background:#0C0D10;">
+      <div><div style="font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:19px;">Thermal Compensation</div><div style="font-family:'JetBrains Mono',monospace;font-size:10.5px;color:#6B7280;margin-top:1px;">JM DIE · WARM-UP &amp; GROWTH · {{ clock }}</div></div>
+      <select value="{{ mid }}" onChange="{{ setMid }}" style="height:38px;background:#14161B;border:1px solid rgba(255,255,255,0.1);border-radius:9px;color:#F3F4F6;font-size:12.5px;padding:0 30px 0 12px;font-family:'Archivo',sans-serif;-webkit-appearance:none;appearance:none;">
+        <option value="m460v">Okuma M460V-5AX</option>
+        <option value="vm30i">Hurco VM30i</option>
+        <option value="multus">Okuma Multus B250II</option>
+        <option value="roku">Roku-Roku HC658-II</option>
+      </select>
+    </header>
+    <div style="flex:1;display:grid;grid-template-columns:minmax(0,1fr) 416px;min-height:0;">
+
+      <section style="min-width:0;padding:18px 20px;background:radial-gradient(900px 480px at 60% -12%, rgba(255,90,43,0.05), transparent 60%),#0B0C0F;display:flex;flex-direction:column;gap:13px;">
+        <div style="flex:none;display:flex;align-items:center;gap:13px;background:{{ gateBg }};border:1px solid {{ gateBorder }};border-radius:14px;padding:14px 18px;">
+          <span style="flex:none;width:40px;height:40px;border-radius:10px;background:{{ gateIconBg }};display:flex;align-items:center;justify-content:center;font-size:19px;">{{ gateIcon }}</span>
+          <div style="flex:1;"><div style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:16px;color:{{ gateColor }};">{{ gateTitle }}</div><div style="font-size:12px;color:#9398A2;margin-top:2px;">{{ gateDetail }}</div></div>
+          <div style="flex:none;text-align:right;"><div style="font-family:'JetBrains Mono',monospace;font-size:9.5px;color:#6B7280;">WARM-UP</div><div style="font-family:'JetBrains Mono',monospace;font-size:16px;color:{{ gateColor }};">{{ warmPct }}%</div></div>
+        </div>
+
+        <div style="flex:1;min-height:0;background:#0C0D11;border:1px solid rgba(255,255,255,0.08);border-radius:15px;padding:14px 18px;display:flex;flex-direction:column;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;"><span style="font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:14px;">Spindle temp &amp; Z-growth · this morning</span><div style="display:flex;gap:12px;font-family:'JetBrains Mono',monospace;font-size:10px;color:#9398A2;"><span style="display:flex;align-items:center;gap:5px;"><span style="width:9px;height:9px;border-radius:2px;background:#FF5A2B;"></span>spindle °C</span><span style="display:flex;align-items:center;gap:5px;"><span style="width:9px;height:9px;border-radius:2px;background:#7FB2FF;"></span>Z growth µm</span></div></div>
+          <div style="flex:1;min-height:0;">
+            <svg viewBox="0 0 740 300" preserveAspectRatio="xMidYMid meet" width="100%" height="100%" style="display:block;">
+              <line x1="42" y1="262" x2="724" y2="262" stroke="#23262E" stroke-width="1"></line>
+              <line x1="42" y1="20" x2="42" y2="262" stroke="#23262E" stroke-width="1"></line>
+              <sc-for list="{{ yGrid }}" as="g" hint-placeholder-count="4"><line x1="42" y1="{{ g.y }}" x2="724" y2="{{ g.y }}" stroke="rgba(255,255,255,0.04)" stroke-width="1"></line><text x="38" y="{{ g.ty }}" text-anchor="end" font-family="JetBrains Mono" font-size="8" fill="#6B7280">{{ g.label }}</text></sc-for>
+              <line x1="{{ stableX }}" y1="20" x2="{{ stableX }}" y2="262" stroke="#36D399" stroke-width="1" stroke-dasharray="4 3" opacity="0.6"></line>
+              <text x="{{ stableX }}" y="16" text-anchor="middle" font-family="JetBrains Mono" font-size="8" fill="#36D399">stable</text>
+              <polyline points="{{ tempLine }}" fill="none" stroke="#FF5A2B" stroke-width="2" stroke-linejoin="round"></polyline>
+              <polyline points="{{ growthLine }}" fill="none" stroke="#7FB2FF" stroke-width="2" stroke-linejoin="round"></polyline>
+              <line x1="{{ nowX }}" y1="20" x2="{{ nowX }}" y2="262" stroke="#FF7A4D" stroke-width="1" stroke-dasharray="2 2"></line>
+              <circle cx="{{ nowX }}" cy="{{ nowTempY }}" r="4" fill="#FF5A2B" stroke="#0C0D11" stroke-width="2"></circle>
+              <circle cx="{{ nowX }}" cy="{{ nowGrowthY }}" r="4" fill="#7FB2FF" stroke="#0C0D11" stroke-width="2"></circle>
+              <text x="383" y="284" text-anchor="middle" font-family="JetBrains Mono" font-size="9" fill="#6B7280">minutes since cold start</text>
+            </svg>
+          </div>
+        </div>
+
+        <div style="flex:none;display:grid;grid-template-columns:repeat(3,1fr);gap:12px;">
+          <sc-for list="{{ axisCards }}" as="a" hint-placeholder-count="3">
+            <div style="background:#0E0F12;border:1px solid rgba(255,255,255,0.08);border-radius:13px;padding:13px 15px;">
+              <div style="display:flex;justify-content:space-between;align-items:baseline;"><span style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:15px;color:#F3F4F6;">{{ a.axis }}</span><span style="font-family:'JetBrains Mono',monospace;font-size:10px;color:#6B7280;">growth</span></div>
+              <div style="font-family:'JetBrains Mono',monospace;font-size:20px;color:{{ a.color }};margin-top:5px;">{{ a.growth }}</div>
+              <div style="font-size:10.5px;color:#9398A2;margin-top:3px;">comp applied {{ a.comp }}</div>
+            </div>
+          </sc-for>
+        </div>
+      </section>
+
+      <section class="kz-scroll" style="border-left:1px solid rgba(255,255,255,0.06);overflow-y:auto;min-width:0;padding:18px 20px 44px;background:#0A0B0D;">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:0.16em;color:#FF5A2B;margin-bottom:11px;">RECOMMENDED WARM-UP</div>
+        <div style="background:#0E0F12;border:1px solid rgba(255,255,255,0.08);border-radius:13px;padding:13px 15px;margin-bottom:13px;">
+          <sc-for list="{{ warmSteps }}" as="w" hint-placeholder-count="4">
+            <div style="display:flex;align-items:center;gap:11px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.05);">
+              <span style="flex:none;width:20px;height:20px;border-radius:50%;background:{{ w.bg }};display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;font-size:10px;color:{{ w.numColor }};">{{ w.icon }}</span>
+              <div style="flex:1;min-width:0;"><div style="font-size:12px;color:#C7CCD4;">{{ w.label }}</div></div>
+              <span style="flex:none;font-family:'JetBrains Mono',monospace;font-size:10.5px;color:#9398A2;">{{ w.dur }}</span>
+            </div>
+          </sc-for>
+          <button onClick="{{ runWarm }}" style="width:100%;margin-top:11px;border:none;background:{{ warmBtnBg }};color:{{ warmBtnColor }};border-radius:10px;padding:11px;font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:13px;cursor:pointer;">{{ warmBtnLabel }}</button>
+        </div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:0.16em;color:#FF5A2B;margin-bottom:11px;">PROBE CYCLE</div>
+        <div style="background:#0E0F12;border:1px solid rgba(255,255,255,0.08);border-radius:13px;padding:13px 15px;margin-bottom:13px;">
+          <div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid rgba(255,255,255,0.05);"><span style="font-size:11.5px;color:#9398A2;">Last datum probe</span><span style="font-family:'JetBrains Mono',monospace;font-size:12px;color:#C7CCD4;">{{ lastProbe }}</span></div>
+          <div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid rgba(255,255,255,0.05);"><span style="font-size:11.5px;color:#9398A2;">Drift since probe</span><span style="font-family:'JetBrains Mono',monospace;font-size:12px;color:{{ driftColor }};">{{ drift }}</span></div>
+          <div style="display:flex;justify-content:space-between;padding:5px 0;"><span style="font-size:11.5px;color:#9398A2;">Re-probe due</span><span style="font-family:'JetBrains Mono',monospace;font-size:12px;color:{{ reprobeColor }};">{{ reprobe }}</span></div>
+        </div>
+        <div style="background:linear-gradient(135deg,rgba(255,90,43,0.06),#0E0F12);border:1px solid rgba(255,90,43,0.2);border-radius:13px;padding:14px 16px;">
+          <div style="font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.1em;color:#FF7A4D;margin-bottom:9px;">◆ KIENZLE SEES</div>
+          <div style="font-size:12px;color:#C7CCD4;line-height:1.55;">{{ insight }}</div>
+        </div>
+      </section>
+    </div>
+  </main>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = { mid: 'm460v', warming: false, scale: (typeof window !== 'undefined') ? Math.min(window.innerWidth / 1600, window.innerHeight / 980) : 0.6 };
+  componentDidMount() { this._fit = () => this.setState({ scale: Math.min(window.innerWidth / 1600, window.innerHeight / 980) }); window.addEventListener('resize', this._fit); this._fit(); }
+  componentWillUnmount() { if (this._fit) window.removeEventListener('resize', this._fit); }
+  // tAmbient cold; tSat saturated spindle temp; growthMax µm at Z; tau warm-up time const (min); elapsed since cold start
+  MACH = {
+    m460v: { name: 'Okuma M460V', tAmb: 19, tSat: 42, gx: 8, gy: 6, gz: 24, tau: 28, elapsed: 22, precise: true },
+    vm30i: { name: 'Hurco VM30i', tAmb: 20, tSat: 38, gx: 6, gy: 5, gz: 18, tau: 25, elapsed: 40, precise: true },
+    multus: { name: 'Multus B250II', tAmb: 19, tSat: 45, gx: 10, gy: 0, gz: 30, tau: 35, elapsed: 12, precise: true },
+    roku: { name: 'Roku-Roku HC658', tAmb: 20, tSat: 36, gx: 4, gy: 4, gz: 10, tau: 20, elapsed: 8, precise: true },
+  };
+  renderVals() {
+    const s = this.state, m = this.MACH[s.mid] || this.MACH.m460v;
+    const sat = (t) => 1 - Math.exp(-t / m.tau); // 0..1 saturation
+    const stableMin = Math.round(m.tau * 3); // ~95% at 3 tau
+    const cur = sat(m.elapsed);
+    const warmPct = Math.min(100, Math.round(cur / sat(stableMin) * 100));
+    const ready = warmPct >= 90;
+    // chart geometry, 0..stableMin*1.15 min
+    const span = stableMin * 1.15, L = 42, R = 724, T = 20, B = 262;
+    const X = (t) => L + (t / span) * (R - L);
+    const tempY = (v) => B - ((v - m.tAmb) / (m.tSat - m.tAmb + 1)) * (B - T) * 0.92;
+    const gMax = m.gz * 1.1, growthY = (v) => B - (v / gMax) * (B - T) * 0.92;
+    const tempPts = [], growthPts = [];
+    for (let i = 0; i <= 60; i++) { const t = (i / 60) * span; const f = sat(t); tempPts.push(X(t).toFixed(1) + ',' + tempY(m.tAmb + (m.tSat - m.tAmb) * f).toFixed(1)); growthPts.push(X(t).toFixed(1) + ',' + growthY(m.gz * f).toFixed(1)); }
+    const yGrid = [0.25, 0.5, 0.75, 1].map(fr => ({ y: (B - fr * (B - T) * 0.92).toFixed(1), ty: (B - fr * (B - T) * 0.92 + 3).toFixed(1), label: Math.round(m.tAmb + (m.tSat - m.tAmb) * fr) + '°' }));
+    const nowX = X(m.elapsed), nowTempY = tempY(m.tAmb + (m.tSat - m.tAmb) * cur), nowGrowthY = growthY(m.gz * cur);
+    const axisCards = [['X', m.gx], ['Y', m.gy], ['Z', m.gz]].map(([axis, gmax]) => { const g = gmax * cur; const comp = g * 0.85; return {
+      axis, growth: '+' + g.toFixed(1) + ' µm', comp: '+' + comp.toFixed(1) + ' µm', color: g > 15 ? '#FF6B6B' : g > 8 ? '#F4B740' : '#36D399',
+    }; });
+    const warmSteps = [
+      ['1', 'Spindle ramp 25% → 100% max RPM', '6 min', ready],
+      ['2', 'All-axis exercise full travel', '4 min', ready],
+      ['3', 'Spindle soak at 50% RPM', '8 min', warmPct > 60],
+      ['4', 'Probe master + set thermal datum', '2 min', false],
+    ].map(([icon, label, dur, done]) => ({ icon: done ? '✓' : icon, label, dur, bg: done ? 'rgba(54,211,153,0.15)' : 'rgba(255,255,255,0.06)', numColor: done ? '#36D399' : '#9398A2' }));
+    const driftUm = (m.gz * cur * 0.15);
+    return {
+      scale: s.scale, clock: 'WED JUN 24 · 7:22 AM', mid: s.mid, setMid: (e) => this.setState({ mid: e.target.value }),
+      warmPct, gateTitle: ready ? 'CLEARED FOR PRECISION' : 'WARMING — ROUGH ONLY', gateColor: ready ? '#36D399' : '#F4B740',
+      gateDetail: ready ? 'Thermal state saturated; comp active. Tight-tolerance ops are safe to run.' : `~${Math.max(1, stableMin - m.elapsed)} min to thermal stability. Hold ±.0002 work until cleared — rough/non-critical OK now.`,
+      gateBg: ready ? 'rgba(54,211,153,0.06)' : 'rgba(244,183,64,0.05)', gateBorder: ready ? 'rgba(54,211,153,0.25)' : 'rgba(244,183,64,0.3)',
+      gateIcon: ready ? '✓' : '♨', gateIconBg: ready ? 'rgba(54,211,153,0.14)' : 'rgba(244,183,64,0.14)',
+      yGrid, tempLine: tempPts.join(' '), growthLine: growthPts.join(' '),
+      stableX: X(stableMin).toFixed(1), nowX: nowX.toFixed(1), nowTempY: nowTempY.toFixed(1), nowGrowthY: nowGrowthY.toFixed(1),
+      axisCards,
+      warmSteps, warmBtnLabel: ready ? '✓ Warm-up complete' : (s.warming ? 'Warm-up running…' : 'Start warm-up cycle'),
+      warmBtnBg: ready ? 'rgba(54,211,153,0.12)' : '#FF5A2B', warmBtnColor: ready ? '#36D399' : '#0A0B0D', runWarm: () => this.setState({ warming: true }),
+      lastProbe: m.elapsed < 5 ? 'cold start' : (m.elapsed - 4) + ' min ago', drift: '+' + driftUm.toFixed(1) + ' µm', driftColor: driftUm > 3 ? '#F4B740' : '#36D399',
+      reprobe: ready ? 'in 2 hr (stable)' : 'at stability', reprobeColor: ready ? '#36D399' : '#F4B740',
+      insight: ready
+        ? `${m.name} is thermally stable — Z grew ${m.gz.toFixed(0)} µm during warm-up and comp absorbed it. The first-part-of-the-day size drift you used to scrap is gone once this gate is green.`
+        : `${m.name} is still climbing — Z has grown ${(m.gz * cur).toFixed(1)} µm and will reach ~${m.gz} µm. Running a ±.0002 part now would walk out of print as it heats. This gate is why the Quality control chart shows morning drift on un-warmed machines.`,
+    };
+  }
+}
+</script>
+</body>
+</html>

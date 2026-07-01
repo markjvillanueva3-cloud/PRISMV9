@@ -1,0 +1,64 @@
+{
+  "schemaVersion": "1.0.0",
+  "id": "SFC-ACCURACY-MS1",
+  "milestone": "SFC-ACCURACY-MS1",
+  "title": "Speed-Feed Accuracy MS1 — Full-Envelope Backend Variability + Auto-Adjust + PRISM Enhanced",
+  "owner": "india",
+  "status": "in_progress",
+  "createdAt": "2026-05-18T00:00:00Z",
+  "updatedAt": "2026-05-20T05:00:00Z",
+  "priority": "HIGH",
+  "source_specs": [
+    "state/shared/specs/SFC-ACCURACY-MS1-DESIGN.md"
+  ],
+  "doctrine": "Full enumeration of compatibility-filtered envelope across 18 dimensions (mill build/quality × spindle taper × controller × coolant × material × strategy × holder × tooling × stickout × extension × spindle curve × kinematics × build type × quality class × insert × fixture × toolpath × geometry) feeding speedFeedOrchestratorEngine. Predecessor: SFC-ACCURACY-MS0/U-SFC-MATRIX01 (frontend matrix shipped HEAD f00a1e6de7). Envelope created post-hoc 2026-05-20 by alpha after audit found 4 ship commits but no formal envelope.",
+  "units": [
+    {
+      "id": "U-DESIGN-SPEC",
+      "owner_slot": "india",
+      "wave": "DESIGN",
+      "cost": "S",
+      "roi_score": 7.0,
+      "status": "shipped",
+      "spec": "state/shared/specs/SFC-ACCURACY-MS1-DESIGN.md",
+      "summary": "289L design spec backing U-STAGE4 AutoAdjustCascade + U-STAGE5 PrismEnhancedRecommender",
+      "shipped_at": "2026-05-18T19:11:48-05:00",
+      "ship_commit": "0ee7855eab"
+    },
+    {
+      "id": "U-STAGE4",
+      "owner_slot": "india",
+      "wave": "STAGE4",
+      "cost": "L",
+      "roi_score": 8.5,
+      "status": "shipped",
+      "summary": "AutoAdjustCascade — parameter auto-tuning as inputs change",
+      "shipped_at": "2026-05-18T00:00:00Z",
+      "ship_commit": "e20115d9d0"
+    },
+    {
+      "id": "U-STAGE5",
+      "owner_slot": "india",
+      "wave": "STAGE5",
+      "cost": "L",
+      "roi_score": 9.0,
+      "status": "shipped",
+      "summary": "PrismEnhancedRecommender — PRISM Enhanced + system-viz node training nodes",
+      "shipped_at": "2026-05-18T00:00:00Z",
+      "ship_commit": "58cb87d117"
+    },
+    {
+      "id": "U-STAGE5-FIX",
+      "owner_slot": "india",
+      "wave": "STAGE5",
+      "cost": "S",
+      "roi_score": 7.5,
+      "status": "shipped",
+      "summary": "3-of-3 arm-C P1 — materialize optimizer zod default",
+      "shipped_at": "2026-05-18T00:00:00Z",
+      "ship_commit": "52fdada4d8",
+      "ship_notes": "Per CLAUDE.md Recent regressions 2026-05-18."
+    }
+  ],
+  "notes": "Full milestone scope per design spec is much larger than the 4 currently-shipped units — hundreds of millions of compatibility-filtered combinations to enumerate. Envelope is intentionally slim; future stages (U-STAGE1/2/3/6+, U-MATRIX-EXEC, U-NODE-PERSIST etc.) appended as they land. Status stays in_progress until india declares the full envelope enumeration complete."
+}

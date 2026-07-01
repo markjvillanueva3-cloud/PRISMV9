@@ -1,0 +1,22 @@
+---
+session: claude-7b9d1810
+topic: prism-stab-ms0
+written_at: 2026-05-10T03:31:18.370Z
+machine: DESKTOP-N7MI1VB
+family: Claude
+session_key: claude-7b9d1810
+status: active
+---
+
+# HANDOFF: claude-7b9d1810
+Updated: 2026-05-10T03:31:18.370Z
+Family: Claude | Machine: DESKTOP-N7MI1VB | Session: claude-7b9d1810
+
+## STATE
+B1 shipped (commit 2b9a4f820, mock-MCP-server smoke test green). C4 applied (10 redundant injectors retired, mirror C:==H: hash match). Daemons relaunched post-OOM. Per-prompt fork count dropped ~50%. Pre-existing FormulaOrchestrator.ts TS errors (lines 186, 378) unrelated to stab cycle — separate concern.
+
+## RESUME
+PRISM-STAB-MS0 15/15 spec units shipped + C4 applied. Bundle daemon (PID 27156) + dashboard (PID 42928) running. UserPromptSubmit hooks: 21->11. Backup at C:/Users/wompu/.claude/settings.json.u-c4.bak (rollback: node scripts/u-c4-retire-redundant-injectors.mjs --rollback). NEXT: ready for 6-chat launch. If C2 injection looks thin/wrong over next session, rollback C4. If solid, mark stab cycle closed in roadmap-index.json.
+
+## CONTEXT
+

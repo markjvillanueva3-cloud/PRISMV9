@@ -174,6 +174,12 @@ async function post<T>(action: string, params: Record<string, unknown>): Promise
       signal: controller.signal,
     });
     if (!res.ok) {
+      // 404 = the /api/v1/ai/reasoning bridge route is not mounted (lathe-AI backend pending).
+      // Surface a clear, honest message instead of a cryptic "Not Found" so shop-floor testers
+      // see the real state of the feature, not a raw HTTP status. (U-LATHEAI-404-MSG, quebec.)
+      if (res.status === 404) {
+        throw new Error(`Lathe AI is not available yet -- its backend (POST ${API_BASE}, action "${action}") is not implemented.`);
+      }
       const errorData = await res.json().catch(() => ({}));
       throw new Error(errorData.message ?? res.statusText);
     }

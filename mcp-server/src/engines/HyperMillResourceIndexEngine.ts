@@ -174,9 +174,9 @@ export class HyperMillResourceIndexEngine {
   ): Promise<void> {
     if (depth > MAX_DEPTH) return;
 
-    let entries: Awaited<ReturnType<typeof readdir>>;
+    let entries: import("fs").Dirent<string>[];
     try {
-      entries = await readdir(dirPath, { withFileTypes: true });
+      entries = await readdir(dirPath, { withFileTypes: true, encoding: "utf8" });
     } catch {
       return;
     }

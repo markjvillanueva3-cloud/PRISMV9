@@ -511,6 +511,57 @@ Like circular runout but checks the ENTIRE surface (all cross-sections simultane
 | **Parallelism** | Plate parts, top/bottom relationship |
 
 Master these 5 and you'll handle 90% of GD&T on shop drawings.` }] }],
+
+  13: [{ id: `${CID}-m13-l1`, moduleId: `${CID}-mod-13`, title: "Citation Discipline — Drafting Standards Edition", order: 1, content: [{ type: "text",
+    body: `# Citation Discipline — Blueprint Reading & GD&T
+
+**Prerequisite:** Modules 1-12 of this course (you should already recognize the symbols being cited).
+**Learning objective:** For every GD&T symbol, dimension callout, and surface-finish mark on a drawing, identify the *standard* (ASME or ISO) that defines its meaning. A drawing without a referenced standard is ambiguous — and ambiguous drawings end in scrap.
+**Assessment:** Pull a real shop drawing. Find its title-block "interpret per" or "drawn to" clause. If absent → that drawing has no traceable interpretation rules.
+
+## Why Drafting Needs a Cited Standard
+
+The same symbol (⊕, ⌖, ▱) means slightly different things under different standards. **ASME Y14.5-2009 vs ASME Y14.5-2018** changed the symbology for surface texture, the rules for composite position tolerance, and the default tolerance interpretation. **ISO 1101 vs ASME Y14.5** disagree on default modifiers (independency principle vs envelope principle, Rule #1). If a drawing doesn't cite which standard governs, two inspectors can both correctly call the same part PASS and FAIL.
+
+## The Citation Pattern (Drafting Variant)
+
+\`<symbol/rule/callout> [per <standard>, <year/revision>, <clause or paragraph>]\`
+
+Examples revisiting earlier modules of THIS course with explicit standards:
+
+- **"⊕ Position (true position) feature control frame"** [per ASME Y14.5-2018, §7.4 (Position) — issuing body: ASME. Mathematical basis: ASME Y14.5.1M-1994 (re-affirmed 2012).]
+- **"True position calculation TP = 2 × √(ΔX² + ΔY²)"** [per ASME Y14.5.1M, §6.3.4 (radial deviation to diametric tolerance) — the factor of 2 converts radial to diametric.]
+- **"Datum reference frame (A | B | C)"** [per ASME Y14.5-2018, §4 (Datum Reference Frames) — or ISO 5459:2011 for ISO drawings.]
+- **"Default tolerance interpretation"** [per ASME Y14.5-2018, §2.1.1.3 (Rule #1 — Taylor's Principle / Envelope Principle) — *NOTE: ISO uses Independency Principle by default; the GG&T standard cited in the title block determines which rule applies.*]
+- **"Surface roughness symbol ∇ with Ra value"** [per ASME Y14.36M-1996 (R2008) for the symbol itself + ASME B46.1-2019 for the surface-texture parameters (Ra, Rz, etc.) — *or* ISO 1302:2002 for ISO drawings.]
+- **"Thread callout 1/4-20 UNC-2B"** [per ASME B1.1 (Unified Inch Screw Threads) — 2B = tolerance class. For metric: M6 × 1 - 6H per ISO 261.]
+- **"Hole tolerance class H7"** [per ISO 286-2:2010, *Geometrical product specifications — ISO code system for tolerances on linear sizes* — clause 7.]
+- **"Section line spacing + angle"** [per ASME Y14.2-2014, §6 (Section Lines / Hatching).]
+
+## Doctrine vs Technique vs Reference (Drafting Lens)
+
+| Category | In drafting | Examples |
+|----------|-------------|----------|
+| **Doctrine** | Standards that govern *every* drawing in your shop. | The shop's chosen base standard (e.g., "ASME Y14.5-2018 unless noted otherwise") + Rule #1 vs Independency Principle |
+| **Technique** | Procedure to derive the inspection plan from the drawing. | Reading a feature control frame left-to-right · Building a tolerance stack · Deriving the part-coordinate system from the datum reference frame |
+| **Reference** | Symbol-by-symbol, callout-by-callout meaning. Look up the latest revision when in doubt. | ASME Y14.5 symbol glossary · ISO 1101 symbol glossary · Surface-finish parameter definitions (Ra vs Rz vs Rt) |
+
+## The Drawing-Ambiguity Failure Mode
+
+A real scenario: a customer drawing shows a hole position callout ⊕ 0.05 | A | B | C. Inspection at supplier A uses ASME Y14.5-2009 (composite position rules); inspection at supplier B uses ASME Y14.5-2018 (which changed the composite-tolerance interpretation). Both inspectors measure the same parts and arrive at different verdicts. The customer audits supplier B and finds the parts non-conforming — but they conform under the standard the drawing was *originally drawn to* (2009). The drawing's title block didn't cite the revision; ambiguity caused real scrap.
+
+**Floor rule:** *if the title block doesn't cite the drafting standard + revision, query the drawing back to engineering before machining a single chip.* The cost of one round-trip query is always less than the cost of a misinterpreted GD&T callout.
+
+## Practice (Assessment)
+
+Open the next real shop drawing you encounter and audit its title block:
+
+1. What **base drafting standard** is cited? (e.g., "ASME Y14.5-2018", "ISO 8015 + ISO 1101")
+2. If GD&T appears, is the **standard revision** explicit?
+3. Is **Rule #1 / Envelope Principle** stated or implied? (Often noted as "unless otherwise specified, dimensions apply per ASME Y14.5 Rule #1")
+4. Is the **surface-finish standard** explicit (ASME Y14.36M vs ISO 1302)?
+
+If any answer is *missing* → that drawing has interpretation debt. Flag it; query engineering; do not assume the latest revision unless told.` }] }],
 };
 
 // Quizzes
@@ -566,6 +617,23 @@ export const COURSE_0C_QUIZZES: Record<string, Question[]> = {
       tags: ["gdt", "position", "calculation"],
     },
   ],
+  [`${CID}-mod-13-quiz`]: [
+    {
+      id: "c0c-q5", type: "multiple_choice", difficulty: 2,
+      text: "A drawing arrives with no revision noted on its base drafting standard — title block just says 'ASME Y14.5'. The position callout ⊕ 0.05 | A | B | C governs a critical interface hole. What is the correct lima-discipline action?",
+      options: [
+        { id: "a", text: "Machine to current shop default (latest ASME Y14.5)", isCorrect: false,
+          explanation: "Defaulting to latest revision changes the composite-tolerance interpretation vs 2009/2018; this can flip pass/fail." },
+        { id: "b", text: "Query engineering for the governing revision before machining", isCorrect: true },
+        { id: "c", text: "Inspect to both revisions and use whichever passes", isCorrect: false,
+          explanation: "This is biasing toward acceptance, not toward interpretation truth. The standard governs both manufacturing AND inspection rules." },
+        { id: "d", text: "Skip the GD&T callout and machine to the basic dimension only", isCorrect: false,
+          explanation: "Ignoring the feature control frame is interpretation by omission — exactly what the citation rule exists to prevent." },
+      ],
+      explanation: "Citation: per the lima soul mandate (cite at claim) + ASME Y14.5 itself (which has materially different composite-tolerance rules between revisions). A round-trip query to engineering always costs less than misinterpreted GD&T.",
+      tags: ["citation_discipline", "gdt", "drafting_standards", "interpretation"],
+    },
+  ],
 };
 
 // Module Assembly
@@ -594,4 +662,5 @@ export const COURSE_0C_MODULES: Module[] = [
   mk(10, "GD&T Form Controls", 50),
   mk(11, "GD&T Location Controls", 55),
   mk(12, "GD&T Orientation & Runout", 50),
+  mk(13, "Citation Discipline — Drafting Standards Edition", 40),
 ];

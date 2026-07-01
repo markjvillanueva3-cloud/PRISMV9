@@ -1,0 +1,240 @@
+{
+  "title": "Wire EDM Published Benchmark Data — Compiled from Industry Sources",
+  "version": "1.0.0",
+  "compiled": "2026-04-10",
+  "sources": [
+    "Modern Machine Shop (mmsonline.com) — Buying a Wire EDM series",
+    "Makino DUO64 specifications (productivity.com)",
+    "Wikipedia — Electrical Discharge Machining",
+    "Reliable EDM Handbook (reliableedm.com)",
+    "Sumitomo Electric wire specifications",
+    "MIT Fab Lab Sodick SL400G documentation",
+    "Practical Machinist forum (shop floor data)",
+    "CNC EDM Machine (cncedmmachine.in)"
+  ],
+
+  "wire_specifications": {
+    "brass_0.25mm": {
+      "diameter_mm": 0.25, "diameter_in": 0.010,
+      "composition": "60Cu/40Zn",
+      "tensile_MPa": 900,
+      "max_current_A": 30,
+      "spool_weight_kg": 8, "spool_length_km": 19,
+      "cost_per_m_usd": 0.02,
+      "source": "Wikipedia, Sumitomo, industry standard"
+    },
+    "coated_0.25mm": {
+      "diameter_mm": 0.25,
+      "composition": "zinc-coated brass",
+      "tensile_MPa": 1000,
+      "max_current_A": 35,
+      "cost_per_m_usd": 0.04,
+      "note": "25-40% faster than uncoated brass",
+      "source": "Sumitomo, Makino"
+    },
+    "heat_extreme_0.40mm": {
+      "diameter_mm": 0.40, "diameter_in": 0.016,
+      "composition": "double-layer zinc-rich brass over CuZn20 core",
+      "max_current_A": 60,
+      "speed_vs_brass": "2-3x faster roughing",
+      "wire_consumption_lbs_hr": 0.65,
+      "source": "Makino U6 H.E.A.T. Extreme, Modern Machine Shop"
+    }
+  },
+
+  "cutting_speed_benchmarks": {
+    "note": "Rough cut speeds with 0.25mm brass wire unless noted",
+    "historical_progression_in2_hr": {
+      "1980s": { "speed": 4, "source": "Modern Machine Shop" },
+      "1990s": { "speed": 17, "source": "Modern Machine Shop" },
+      "2020s_standard": { "speed": 24, "source": "Modern Machine Shop" },
+      "2020s_fast": { "speed": 37, "source": "Modern Machine Shop" },
+      "2020s_extreme": { "speed": 45, "source": "Modern Machine Shop" }
+    },
+    "makino_duo64_benchmark": {
+      "material": "SKD11 (D2 equivalent)",
+      "thickness_mm": 50,
+      "wire": "0.3mm coated",
+      "speed_mm2_min": 320,
+      "note": "With high speed generator booster",
+      "source": "Makino DUO64 specifications"
+    },
+    "shop_floor_typical": {
+      "brass_wire_closed_nozzles_mm2_min": 160,
+      "note": "Typical production rate with 0.25mm brass, closed nozzles",
+      "source": "Practical Machinist forum consensus"
+    },
+    "carbide_G4_specific": {
+      "material": "Tungsten carbide G4",
+      "speed_1_mm_min": 0.42,
+      "speed_2_mm_min": 0.35,
+      "accuracy_inch": 0.0001,
+      "surface_finish_Ra_uin": 5,
+      "source": "Modern Machine Shop"
+    }
+  },
+
+  "accuracy_specifications": {
+    "positional_accuracy_mm": 0.004,
+    "geometry_precision_um": 1,
+    "best_finish_with_skims_Ra_um": 0.125,
+    "best_finish_Ra_uin": 5,
+    "aluminum_practical_limit_Ra_um": 0.75,
+    "aluminum_practical_limit_Ra_uin": 30,
+    "skim_passes_for_best_finish": 7,
+    "final_offset_um": 3,
+    "temperature_stability_F": 1,
+    "source": "Modern Machine Shop, Wikipedia"
+  },
+
+  "machine_specifications": {
+    "makino_duo64": {
+      "max_speed_mm2_min": 320,
+      "wire_feed_range_mm_min": [0.5, 360],
+      "wire_tension_range_N": [2, 30],
+      "source": "Makino DUO64 spec sheet"
+    },
+    "sodick_sl400g": {
+      "default_wire_in": 0.010,
+      "feedrate_in_min": 0.1,
+      "wire_kerf_guideline": "wire_diameter × 1.5 for corner radii",
+      "source": "MIT Fab Lab"
+    }
+  },
+
+  "maximum_capabilities": {
+    "max_plate_thickness_mm": 300,
+    "min_wire_diameter_um": 20,
+    "min_kerf_mm": 0.021,
+    "max_kerf_mm": 0.335,
+    "start_hole_range_mm": [0.3, 6.1],
+    "start_hole_100mm_steel_time_sec": 10,
+    "source": "Wikipedia"
+  },
+
+  "sample_programs": {
+    "sodick_basic_profile": {
+      "controller": "sodick",
+      "control": "Mark 25",
+      "program": [
+        "N005 G54",
+        "N010 G92 X0.250 Y-0.300",
+        "N015 G90",
+        "N020 C411",
+        "N025 G42 H061",
+        "N030 G01 X1.000 Y0.000",
+        "N035 G01 X1.000 Y1.000",
+        "N040 G02 X0.500 Y1.250 I-0.500 J0.000",
+        "N045 G01 X-0.500 Y1.250",
+        "N050 G02 X-1.000 Y1.000 I0.000 J-0.250",
+        "N055 G01 X-1.000 Y0.000",
+        "N060 G01 X0.250 Y-0.300",
+        "N065 G40",
+        "N070 M02"
+      ],
+      "notes": "C411 = cutting condition set, H061 = wire offset 0.061mm",
+      "source": "HelmanCNC / CNC Programming blog"
+    },
+    "fanuc_simple_bore": {
+      "controller": "fanuc",
+      "program": [
+        "S100 H021",
+        "G22 H1000",
+        "S200 H022",
+        "G22 H1000",
+        "N1000 (0.103 BORE)",
+        "G01 G41 X0.0515",
+        "G03 X-0.0515 I-0.0515 J0",
+        "G03 X0.0515 I0.0515 J0",
+        "G01 G40 X0",
+        "M99"
+      ],
+      "notes": "S100/S200 = rough/skim conditions, H021/H022 = offsets",
+      "source": "HelmanCNC"
+    }
+  },
+
+  "benchmark_test_parts": [
+    {
+      "id": "BM-001",
+      "name": "D2 blanking die — industry standard benchmark",
+      "material": "AISI D2 tool steel (HRC 58-62)",
+      "iso_group": "H",
+      "thickness_mm": 25,
+      "profile_length_mm": 200,
+      "corners": 4,
+      "min_corner_radius_mm": 0.3,
+      "tolerance_mm": 0.01,
+      "wire": "brass 0.25mm",
+      "expected": {
+        "rough_speed_mm2_min_range": [140, 200],
+        "rough_speed_mm_min_range": [5.6, 8.0],
+        "total_passes": 4,
+        "final_Ra_um_range": [0.4, 0.8],
+        "kerf_mm_range": [0.27, 0.33],
+        "total_time_min_range": [30, 60],
+        "wire_consumed_m_range": [200, 500]
+      }
+    },
+    {
+      "id": "BM-002",
+      "name": "Aluminum extrusion die — fast cut benchmark",
+      "material": "6061 Aluminum",
+      "iso_group": "N",
+      "thickness_mm": 25,
+      "profile_length_mm": 300,
+      "tolerance_mm": 0.02,
+      "wire": "brass 0.25mm",
+      "expected": {
+        "rough_speed_mm2_min_range": [250, 350],
+        "rough_speed_mm_min_range": [10, 14],
+        "note": "Aluminum fastest ISO group but poor surface finish"
+      }
+    },
+    {
+      "id": "BM-003",
+      "name": "Carbide insert — precision benchmark",
+      "material": "Tungsten carbide",
+      "iso_group": "K",
+      "thickness_mm": 10,
+      "profile_length_mm": 50,
+      "tolerance_mm": 0.005,
+      "wire": "brass 0.25mm",
+      "expected": {
+        "rough_speed_mm2_min_range": [200, 300],
+        "final_Ra_um": 0.125,
+        "passes": 6,
+        "accuracy_mm": 0.003
+      }
+    },
+    {
+      "id": "BM-004",
+      "name": "Thick forging die — extreme thickness benchmark",
+      "material": "AISI D2",
+      "iso_group": "H",
+      "thickness_mm": 100,
+      "profile_length_mm": 400,
+      "tolerance_mm": 0.02,
+      "wire": "brass 0.25mm",
+      "expected": {
+        "rough_speed_mm2_min_range": [140, 200],
+        "rough_speed_mm_min_range": [1.4, 2.0],
+        "note": "Speed in mm/min drops proportionally with thickness"
+      }
+    },
+    {
+      "id": "BM-005",
+      "name": "Titanium medical implant — superalloy benchmark",
+      "material": "Ti-6Al-4V",
+      "iso_group": "S",
+      "thickness_mm": 5,
+      "profile_length_mm": 60,
+      "tolerance_mm": 0.005,
+      "wire": "brass 0.20mm",
+      "expected": {
+        "rough_speed_mm2_min_range": [80, 120],
+        "note": "S group slowest, high resistivity"
+      }
+    }
+  ]
+}

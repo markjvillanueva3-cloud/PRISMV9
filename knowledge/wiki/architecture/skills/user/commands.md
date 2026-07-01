@@ -23,13 +23,20 @@ related:
 |-------|-------|
 | Name | `commands` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/commands.md` |
+| Source | `C:/Users/wompu/.claude/commands/commands.md` |
 | Model | default |
 | Tags | _(none)_ |
 
 ## Description (first paragraph)
 
-_(no body content)_
+
+# List All Available Slash Commands
+
+You are listing all slash commands available in this environment. Scan both user-level and project-level command directories, then present them in an organized table.
+
+## Directories to Scan
+1. `C:\Users\Admin.DIGITALSTORM-PC\.claude\commands\` — User-level (always available)
+2. `H:\prism\.claude\commands\` — PRISM project-level (available in PRISM cont
 
 <!-- AUTO-END -->
 

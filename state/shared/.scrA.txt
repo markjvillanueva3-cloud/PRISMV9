@@ -1,0 +1,1359 @@
+You are reviewer A of three independent Claude PRISM agents — a strict, holistic code reviewer for the PRISM manufacturing-intelligence platform.
+Target: commit 54b1f40d1e.
+
+Acceptance criteria:
+  1. No stubs, TODOs, or placeholder returns
+  2. Tests use concrete assertions (no toBeDefined()/toBeTruthy() blanket stubs)
+  3. ≥3 failure modes covered for any new engine
+  4. Physics constants imported from src/physics/constants.ts (never inlined)
+  5. New engines wired to every consuming dispatcher
+  6. No floating promises, no any-spread anti-patterns introduced
+
+First line of your response MUST be 'VERDICT: PASS' or 'VERDICT: FAIL'.
+Then list BLOCKER: lines for any violations, then optional notes (≤5 lines).
+If unsure between PASS and FAIL, choose FAIL.
+
+--- DIFF ---
+commit 54b1f40d1e34b980b946371d0601f4cb82ff68aa
+Author: markjvillanueva3-cloud <markjvillanueva3@gmail.com>
+Date:   Tue Jun 9 19:09:16 2026 -0500
+
+    [MAIN] [BOOTSTRAP-SLOT-ENFORCE] [HOTEL-FORGE-ROADMAP]/U-HOTEL-WRITE-REVIEW-SPEC-UPDATE (slot:hotel): mark ALLOWLIST-WRITE-ENABLE shipped in the review spec (no doc-drift)
+    
+    Appends the SHIPPED status to the write-review spec: 4 handoff writes opened
+    behind the role gate (18f37c812e + d8d2824cf2), what stays 403, the open
+    identity-binding follow-up (A-P2), and the 3 pre-existing PTO/PO bugs grounding
+    flagged.
+
+diff --git a/.claude/hooks/grep-index-first.mjs b/.claude/hooks/grep-index-first.mjs
+index c6929f5ccc..274a266578 100644
+--- a/.claude/hooks/grep-index-first.mjs
++++ b/.claude/hooks/grep-index-first.mjs
+@@ -44,11 +44,15 @@ try {
+ // it for its exports. Without this guard, `import { recordTelemetry } from
+ // './grep-index-first.mjs'` would crash on the empty-stdin JSON.parse.
+ const _entry = process.argv[1] ? fileURLToPath(import.meta.url) === process.argv[1] : false;
+-let input = { tool_name: '', tool_input: {} };
++let input = { tool_name: '', tool_input: {}, session_id: '' };
+ if (_entry) {
+   input = JSON.parse(readFileSync(0, 'utf8'));
+ }
+ const { tool_name, tool_input } = input;
++// session_id is present in the PreToolUse stdin payload; fall back to '' so the
++// pending-marker write degrades gracefully (a sessionless run just writes under
++// the '' key -- still correlatable within that orphan session, never throws).
++const session_id = input.session_id || '';
+ 
+ if (_entry && tool_name !== 'Grep') {
+   console.log(JSON.stringify({ continue: true }));
+@@ -136,7 +140,7 @@ export function getGraphNodeHits(searchPattern, opts = {}) {
+ // ------------------------------------------------------------------
+ // Matches the byHook[] schema set by ollama-route-pretooluse so the
+ // existing /offload-stats dashboard surfaces this hook automatically.
+-export function recordTelemetry({ suggested, statsPath } = {}) {
++export function recordTelemetry({ suggested, offloaded, statsPath } = {}) {
+   const file = statsPath || join(process.cwd(), 'mcp-server', 'data', 'state', 'ollama-offload-stats.json');
+   try {
+     let stats;
+@@ -146,9 +150,20 @@ export function recordTelemetry({ suggested, statsPath } = {}) {
+       stats = { schemaVersion: '2.0.0', byHook: {} };
+     }
+     if (!stats.byHook || typeof stats.byHook !== 'object') stats.byHook = {};
+-    const slot = stats.byHook['grep-index-first'] || { fired: 0, suggested: 0 };
+-    slot.fired = (slot.fired || 0) + 1;
+-    if (suggested) slot.suggested = (slot.suggested || 0) + 1;
++    // Initialize with offloaded:0 so the KEY exists -- this alone flips
++    // advisory-decay classify() from 'unmeasurable' (no offloaded key) to a
++    // measurable state. The taken-signal (grep-index-taken-correlator) bumps it.
++    const slot = stats.byHook['grep-index-first'] || { fired: 0, suggested: 0, offloaded: 0 };
++    if (typeof slot.offloaded !== 'number') slot.offloaded = 0;
++    // An offloaded-only call (the taken-event from the correlator) bumps the
++    // taken counter WITHOUT touching fired/suggested. A normal hook-fire bumps
++    // fired (+ suggested when an advisory was injected) and leaves offloaded.
++    if (offloaded) {
++      slot.offloaded = (slot.offloaded || 0) + 1;
++    } else {
++      slot.fired = (slot.fired || 0) + 1;
++      if (suggested) slot.suggested = (slot.suggested || 0) + 1;
++    }
+     stats.byHook['grep-index-first'] = slot;
+     stats.lastUpdated = new Date().toISOString();
+     // Atomic write: tmp + rename. PID-stamped tmp avoids peer-fleet collision
+@@ -163,6 +178,96 @@ export function recordTelemetry({ suggested, statsPath } = {}) {
+   }
+ }
+ 
++// ------------------------------------------------------------------
++// Taken-signal: PENDING marker (U-GREP-TAKEN-SIGNAL)
++// ------------------------------------------------------------------
++// When this hook injects a suggestion naming target path(s), it writes a
++// session-scoped marker. The PreToolUse:Read correlator
++// (grep-index-taken-correlator.mjs) reads it: if the SAME session shortly
++// after Reads one of those exact target paths, that is the advice being
++// followed -> a real `offloaded` (taken) event. This gives the hook the
++// numeric taken-signal that advisory-decay.classify() needs to leave
++// 'unmeasurable'.
++export const PENDING_FILE = join(os.tmpdir(), 'prism-hook-state', 'grep-index-pending.json');
++export const PENDING_TTL_MS = 10 * 60_000; // 10 minutes
++
++// extractSuggestionPaths -- PURE. Pull the set of target file paths a
++// suggestion named: the `-> <path>` tails of graph hits + the index-file
++// paths surfaced. De-duped, falsy-filtered, string-only.
++export function extractSuggestionPaths(graphHits = [], surfacedIndexFiles = []) {
++  const out = [];
++  for (const h of Array.isArray(graphHits) ? graphHits : []) {
++    const p = h && h.path;
++    if (typeof p === 'string' && p.trim()) out.push(p.trim());
++  }
++  for (const f of Array.isArray(surfacedIndexFiles) ? surfacedIndexFiles : []) {
++    const p = f && f.path;
++    if (typeof p === 'string' && p.trim()) out.push(p.trim());
++  }
++  // De-dupe preserving order.
++  return [...new Set(out)];
++}
++
++// readPending -- fail-safe read of the session pending marker map.
++// Returns {} on any error (absent/corrupt). Optional pendingPath for tests.
++export function readPending({ pendingPath } = {}) {
++  const file = pendingPath || PENDING_FILE;
++  try {
++    const j = JSON.parse(readFileSync(file, 'utf8'));
++    return j && typeof j === 'object' ? j : {};
++  } catch {
++    return {};
++  }
++}
++
++// writePendingMap -- atomic write of the FULL pending-marker map. Used by the
++// correlator to persist a trimmed/dropped session entry after a take converts.
++// Atomic tmp+rename. Fail-safe: never throws. Optional pendingPath for tests.
++export function writePendingMap(map, { pendingPath } = {}) {
++  const file = pendingPath || PENDING_FILE;
++  try {
++    const safe = map && typeof map === 'object' ? map : {};
++    const dir = dirname(file);
++    if (!existsSync(dir)) mkdirSync(dir, { recursive: true });
++    const tmp = `${file}.${process.pid}.${Date.now()}.tmp`;
++    writeFileSync(tmp, JSON.stringify(safe));
++    renameSync(tmp, file);
++    return { ok: true };
++  } catch (err) {
++    return { ok: false, error: String((err && err.message) || err) };
++  }
++}
++
++// writePending -- merge this session's {ts, paths} entry into the marker map,
++// prune entries older than TTL, atomic tmp+rename. Fail-safe: never throws.
++// Optional pendingPath + now (epoch ms) for tests.
++export function writePending(sessionId, paths, { pendingPath, now } = {}) {
++  const file = pendingPath || PENDING_FILE;
++  const ts = typeof now === 'number' ? now : Date.now();
++  try {
++    const list = (Array.isArray(paths) ? paths : []).filter(
++      (p) => typeof p === 'string' && p.trim(),
++    );
++    if (list.length === 0) return { ok: true, skipped: 'no-paths' };
++    const map = readPending({ pendingPath: file });
++    // Prune stale entries (including this session's about-to-be-replaced one).
++    for (const k of Object.keys(map)) {
++      const e = map[k];
++      if (!e || typeof e.ts !== 'number' || ts - e.ts > PENDING_TTL_MS) delete map[k];
++    }
++    // Merge/replace this session's entry.
++    map[String(sessionId || '')] = { ts, paths: list };
++    const dir = dirname(file);
++    if (!existsSync(dir)) mkdirSync(dir, { recursive: true });
++    const tmp = `${file}.${process.pid}.${Date.now()}.tmp`;
++    writeFileSync(tmp, JSON.stringify(map));
++    renameSync(tmp, file);
++    return { ok: true };
++  } catch (err) {
++    return { ok: false, error: String((err && err.message) || err) };
++  }
++}
++
+ // Index files that might already have the answer
+ const indexFiles = [
+   { path: 'mcp-server/data/docs/ENGINE_DIGEST.md', covers: ['Engine', 'engine', 'calculate', 'compute'] },
+@@ -234,6 +339,22 @@ Which index should be checked first? Reply with just the index name and why in 1
+   return null;
+ }
+ 
++// surfacedIndexFiles -- PURE. The subset of indexFiles whose `covers`
++// keywords matched the pattern AND which exist on disk. This is exactly the
++// set getRegexSuggestions() emits "Check <path>" lines for, so the pending
++// marker captures the SAME target paths the advisory named.
++export function surfacedIndexFiles(searchPattern, files = indexFiles, cwd = process.cwd()) {
++  const patternLower = String(searchPattern || '').toLowerCase();
++  const out = [];
++  for (const entry of Array.isArray(files) ? files : []) {
++    const covers = Array.isArray(entry?.covers) ? entry.covers : [];
++    if (covers.some((kw) => patternLower.includes(String(kw).toLowerCase()))) {
++      if (existsSync(join(cwd, entry.path))) out.push(entry);
++    }
++  }
++  return out;
++}
++
+ async function main() {
+   // PSN-SYNERGIZE wire: direct system-graph node-name hits beat keyword
+   // hints. If the grep pattern names a known asset, Claude should `Read`
+@@ -290,6 +411,14 @@ async function main() {
+   ].join('\n');
+ 
+   recordTelemetry({ suggested: true });
++  // Taken-signal: write the session-scoped pending marker naming the exact
++  // target paths this advisory surfaced (graph-hit paths + named index files).
++  // The PreToolUse:Read correlator converts a matching Read into an offloaded
++  // (taken) event. Fail-safe -- writePending never throws into the hook.
++  try {
++    const targetPaths = extractSuggestionPaths(graphHits, surfacedIndexFiles(pattern));
++    if (targetPaths.length > 0) writePending(session_id, targetPaths);
++  } catch { /* never block the Grep on a marker write */ }
+   console.log(JSON.stringify({ continue: true, hookSpecificOutput: { hookEventName: "PreToolUse", additionalContext: message } }));
+ }
+ 
+diff --git a/.claude/hooks/grep-index-taken-correlator.mjs b/.claude/hooks/grep-index-taken-correlator.mjs
+new file mode 100644
+index 0000000000..4cf21cefb9
+--- /dev/null
++++ b/.claude/hooks/grep-index-taken-correlator.mjs
+@@ -0,0 +1,154 @@
++#!/usr/bin/env node
++// tier: T1
++/**
++ * grep-index-taken-correlator.mjs - PreToolUse Read
++ *
++ * U-GREP-TAKEN-SIGNAL (2026-06-09): the TAKEN half of the grep-index-first
++ * advisory loop. grep-index-first.mjs (PreToolUse:Grep) injects "index-first"
++ * suggestions naming target path(s) and writes a session-scoped PENDING marker.
++ * This hook (PreToolUse:Read) watches Reads: when the SAME session shortly after
++ * Reads one of those exact target paths instead of continuing to grep, that Read
++ * IS the advice being followed -> a real `offloaded` (taken) event.
++ *
++ * That converts grep-index-first's byHook slot from {fired,suggested} (NO
++ * offloaded key -> advisory-decay classify() marks it 'unmeasurable', can never
++ * decay) into a measurable hook with a numeric `offloaded` taken-counter.
++ *
++ * NEVER blocks a Read. Fail-safe: ANY error -> {continue:true}. A correlator
++ * failure must never break the host Read call. Module-vs-CLI gate (_entry) so
++ * the test file can import without the stdin JSON.parse firing.
++ */
++
++import { fileURLToPath } from 'url';
++import { basename } from 'path';
++import { readFileSync } from 'fs';
++
++import {
++  recordTelemetry,
++  readPending,
++  writePendingMap,
++  PENDING_TTL_MS,
++} from './grep-index-first.mjs';
++
++// ---------------------------------------------------------------------------
++// Path matching -- robust to / vs \ and absolute vs repo-relative.
++// ---------------------------------------------------------------------------
++// A pending target path is typically repo-relative with forward slashes
++// (e.g. "mcp-server/data/docs/ENGINE_DIGEST.md" or
++// "mcp-server/src/engines/OutcomeCaptureBusEngine.ts"). The Read file_path may
++// be absolute and may use backslashes (Windows) -- e.g.
++// "H:\\prism\\mcp-server\\data\\docs\\ENGINE_DIGEST.md". We match when the
++// normalized Read path ENDS WITH the normalized target (repo-relative tail) on
++// a path-segment boundary, OR the basenames are equal. Basename equality is the
++// robust fallback when directory prefixes diverge (worktree roots, drive
++// letters).
++function normalizePath(p) {
++  return String(p || '')
++    .replace(/\\/g, '/') // backslash -> forward slash
++    .replace(/\/+/g, '/') // collapse repeats
++    .replace(/^\.\//, '') // drop leading ./
++    .toLowerCase()
++    .replace(/\/+$/, ''); // drop trailing slash
++}
++
++export function pathMatches(readPath, targetPath) {
++  const r = normalizePath(readPath);
++  const t = normalizePath(targetPath);
++  if (!r || !t) return false;
++  if (r === t) return true;
++  // Read path ends with the repo-relative target on a segment boundary so
++  // "...foo/bar.ts" matches "bar.ts" / "foo/bar.ts" but NOT "obar.ts".
++  if (r.endsWith('/' + t)) return true;
++  if (r.endsWith(t) && (r.length === t.length || r[r.length - t.length - 1] === '/')) return true;
++  // Basename fallback (handles divergent prefixes / drive letters).
++  const tb = basename(t);
++  return tb.length > 0 && basename(r) === tb;
++}
++
++/**
++ * correlateRead -- core RMW. Given a Read's file_path + session id, look up the
++ * session's pending marker; if the Read matches a non-expired pending target
++ * path, record an offloaded (taken) event and remove that ONE matched path (so a
++ * single suggestion converts at most once -- duplicate-named paths still drop
++ * only the first match). Persists the trimmed/dropped session entry back to the
++ * marker map via the atomic writePendingMap.
++ *
++ * Injected seams (statsPath, pendingPath, now, recordFn) keep it unit-testable
++ * with no real I/O. Fail-safe: any throw -> {matched:false, error}; never blocks.
++ */
++export function correlateRead(filePath, sessionId, {
++  statsPath,
++  pendingPath,
++  now,
++  recordFn,
++} = {}) {
++  try {
++    const ts = typeof now === 'number' ? now : Date.now();
++    const sid = String(sessionId || '');
++    const map = readPending({ pendingPath });
++    const entry = map[sid];
++    if (!entry || typeof entry.ts !== 'number' || !Array.isArray(entry.paths)) {
++      return { matched: false, reason: 'no-pending-for-session' };
++    }
++    if (ts - entry.ts > PENDING_TTL_MS) {
++      return { matched: false, reason: 'expired' };
++    }
++    const idx = entry.paths.findIndex((p) => pathMatches(filePath, p));
++    if (idx === -1) {
++      return { matched: false, reason: 'no-path-match' };
++    }
++    const matchedPath = entry.paths[idx];
++
++    // Record the taken event (offloaded bump). Injectable for tests.
++    const rec = recordFn || recordTelemetry;
++    rec({ offloaded: true, statsPath });
++
++    // Remove the matched path so this suggestion converts at most once. Persist
++    // the trimmed map back (drop the whole session entry if nothing remains).
++    const remaining = entry.paths.filter((_, i) => i !== idx);
++    if (remaining.length > 0) {
++      map[sid] = { ts: entry.ts, paths: remaining };
++    } else {
++      delete map[sid];
++    }
++    writePendingMap(map, { pendingPath });
++
++    return { matched: true, matchedPath, statsRecorded: true, remaining: remaining.length };
++  } catch (err) {
++    return { matched: false, error: String((err && err.message) || err) };
++  }
++}
++
++// ---------------------------------------------------------------------------
++// CLI entry
++// ---------------------------------------------------------------------------
++const _entry = process.argv[1] ? fileURLToPath(import.meta.url) === process.argv[1] : false;
++
++function main() {
++  let input;
++  try {
++    input = JSON.parse(readFileSync(0, 'utf8'));
++  } catch {
++    console.log(JSON.stringify({ continue: true }));
++    return;
++  }
++  const { tool_name, tool_input } = input || {};
++  if (tool_name !== 'Read') {
++    console.log(JSON.stringify({ continue: true }));
++    return;
++  }
++  const filePath = (tool_input && tool_input.file_path) || '';
++  const sessionId = (input && input.session_id) || '';
++  try {
++    correlateRead(filePath, sessionId);
++  } catch { /* never block the Read */ }
++  console.log(JSON.stringify({ continue: true }));
++}
++
++if (_entry) {
++  try {
++    main();
++  } catch {
++    console.log(JSON.stringify({ continue: true }));
++  }
++}
+diff --git a/.claude/hooks/grep-index-taken-correlator.test.mjs b/.claude/hooks/grep-index-taken-correlator.test.mjs
+new file mode 100644
+index 0000000000..5a37f492fe
+--- /dev/null
++++ b/.claude/hooks/grep-index-taken-correlator.test.mjs
+@@ -0,0 +1,371 @@
++// tier: T3
++// grep-index-taken-correlator.test.mjs
++// Tests for U-GREP-TAKEN-SIGNAL: the taken-signal that gives grep-index-first a
++// real numeric `offloaded` counter so advisory-decay classify() stops marking it
++// 'unmeasurable'.
++//
++// Covers:
++//   - recordTelemetry({offloaded:true}) bumps byHook['grep-index-first'].offloaded
++//     and creates the key (exact integer assertions, real temp stats file).
++//   - extractSuggestionPaths + writePending/readPending capture the right paths.
++//   - correlateRead on a matching Read bumps offloaded by exactly 1 + removes the
++//     matched path; non-matching bumps nothing; expired (>TTL) bumps nothing.
++//   - pathMatches robust to absolute-vs-repo-relative + slash direction.
++//
++// Run: node --test H:/prism/.claude/hooks/grep-index-taken-correlator.test.mjs
++
++import { test } from 'node:test';
++import assert from 'node:assert/strict';
++import { mkdtempSync, writeFileSync, readFileSync, existsSync } from 'fs';
++import { tmpdir } from 'os';
++import { join } from 'path';
++
++import {
++  recordTelemetry,
++  extractSuggestionPaths,
++  surfacedIndexFiles,
++  readPending,
++  writePending,
++  writePendingMap,
++  PENDING_TTL_MS,
++} from './grep-index-first.mjs';
++import { pathMatches, correlateRead } from './grep-index-taken-correlator.mjs';
++
++// ---------------------------------------------------------------------------
++// Helpers
++// ---------------------------------------------------------------------------
++
++function mkTempDir(prefix) {
++  return mkdtempSync(join(tmpdir(), `grep-taken-${prefix}-`));
++}
++
++function readStats(statsPath) {
++  return JSON.parse(readFileSync(statsPath, 'utf8'));
++}
++
++// A realistic suggestion set: two graph-hit nodes (with paths) + one named
++// index file. extractSuggestionPaths must yield exactly these three paths.
++const GRAPH_HITS = [
++  { name: 'OutcomeCaptureBusEngine', layer: 'L10', built: 'built', path: 'mcp-server/src/engines/OutcomeCaptureBusEngine.ts' },
++  { name: 'sessionDispatcher', layer: 'L8', built: 'built', path: 'mcp-server/src/tools/dispatchers/sessionDispatcher.ts' },
++  { name: 'FutureGhost', layer: 'L8', built: 'ghost', path: null }, // ghost: no path -> excluded
++];
++const INDEX_FILES = [
++  { path: 'mcp-server/data/docs/ENGINE_DIGEST.md', covers: ['Engine'] },
++];
++
++// ---------------------------------------------------------------------------
++// recordTelemetry({offloaded:true})
++// ---------------------------------------------------------------------------
++
++test('recordTelemetry({offloaded:true}) creates offloaded key on a fresh file', () => {
++  const dir = mkTempDir('off-new');
++  const statsPath = join(dir, 'stats.json');
++
++  const res = recordTelemetry({ offloaded: true, statsPath });
++
++  assert.equal(res.ok, true);
++  const stats = readStats(statsPath);
++  const slot = stats.byHook['grep-index-first'];
++  // offloaded-only call: offloaded bumped to 1, fired/suggested untouched (0).
++  assert.equal(slot.offloaded, 1, 'offloaded created and bumped to exactly 1');
++  assert.equal(slot.fired, 0, 'offloaded-only call does NOT bump fired');
++  assert.equal(slot.suggested, 0, 'offloaded-only call does NOT bump suggested');
++  // typeof number is what flips advisory-decay classify() off 'unmeasurable'.
++  assert.equal(typeof slot.offloaded, 'number');
++});
++
++test('recordTelemetry({suggested:true}) initializes offloaded:0 (measurable key exists)', () => {
++  const dir = mkTempDir('off-init');
++  const statsPath = join(dir, 'stats.json');
++
++  recordTelemetry({ suggested: true, statsPath });
++
++  const slot = readStats(statsPath).byHook['grep-index-first'];
++  assert.equal(slot.fired, 1);
++  assert.equal(slot.suggested, 1);
++  // The offloaded:0 init is the whole point: classify() needs typeof number.
++  assert.equal(slot.offloaded, 0);
++  assert.equal(typeof slot.offloaded, 'number');
++});
++
++test('recordTelemetry({offloaded:true}) bumps an existing numeric offloaded by exactly 1', () => {
++  const dir = mkTempDir('off-inc');
++  const statsPath = join(dir, 'stats.json');
++  writeFileSync(statsPath, JSON.stringify({
++    schemaVersion: '2.0.0',
++    byHook: { 'grep-index-first': { fired: 40, suggested: 12, offloaded: 3 } },
++  }));
++
++  recordTelemetry({ offloaded: true, statsPath });
++
++  const slot = readStats(statsPath).byHook['grep-index-first'];
++  assert.equal(slot.offloaded, 4, '3 -> 4');
++  assert.equal(slot.fired, 40, 'fired untouched by offloaded call');
++  assert.equal(slot.suggested, 12, 'suggested untouched by offloaded call');
++});
++
++test('recordTelemetry({offloaded:true}) preserves peer hooks (no clobber)', () => {
++  const dir = mkTempDir('off-peer');
++  const statsPath = join(dir, 'stats.json');
++  writeFileSync(statsPath, JSON.stringify({
++    schemaVersion: '2.0.0',
++    byHook: {
++      'ollama-route-pretooluse': { fired: 177, offloaded: 2, suggested: 13 },
++      'grep-index-first': { fired: 10, suggested: 5, offloaded: 0 },
++    },
++  }));
++
++  recordTelemetry({ offloaded: true, statsPath });
++
++  const stats = readStats(statsPath);
++  assert.equal(stats.byHook['grep-index-first'].offloaded, 1);
++  assert.equal(stats.byHook['ollama-route-pretooluse'].fired, 177, 'peer untouched');
++  assert.equal(stats.byHook['ollama-route-pretooluse'].offloaded, 2, 'peer untouched');
++});
++
++// ---------------------------------------------------------------------------
++// extractSuggestionPaths + pending marker write
++// ---------------------------------------------------------------------------
++
++test('extractSuggestionPaths captures graph-hit paths + index-file paths (ghost no-path excluded)', () => {
++  const paths = extractSuggestionPaths(GRAPH_HITS, INDEX_FILES);
++  assert.deepEqual(paths, [
++    'mcp-server/src/engines/OutcomeCaptureBusEngine.ts',
++    'mcp-server/src/tools/dispatchers/sessionDispatcher.ts',
++    'mcp-server/data/docs/ENGINE_DIGEST.md',
++  ]);
++  // The ghost node (path:null) must NOT appear.
++  assert.ok(!paths.some((p) => p == null));
++});
++
++test('extractSuggestionPaths de-dupes repeated paths', () => {
++  const dup = extractSuggestionPaths(
++    [{ path: 'a/b.ts' }, { path: 'a/b.ts' }],
++    [{ path: 'a/b.ts' }],
++  );
++  assert.deepEqual(dup, ['a/b.ts']);
++});
++
++test('writePending captures the target paths from a sample suggestion set', () => {
++  const dir = mkTempDir('pend-write');
++  const pendingPath = join(dir, 'pending.json');
++  const sid = 'sess-ABC';
++  const now = 1_700_000_000_000;
++
++  const paths = extractSuggestionPaths(GRAPH_HITS, INDEX_FILES);
++  const res = writePending(sid, paths, { pendingPath, now });
++
++  assert.equal(res.ok, true);
++  const map = readPending({ pendingPath });
++  assert.equal(map[sid].ts, now);
++  assert.deepEqual(map[sid].paths, paths);
++});
++
++test('writePending prunes entries older than TTL', () => {
++  const dir = mkTempDir('pend-prune');
++  const pendingPath = join(dir, 'pending.json');
++  const now = 1_700_000_000_000;
++  // Seed a stale entry (older than TTL) directly.
++  writePendingMap({
++    'old-sess': { ts: now - PENDING_TTL_MS - 1, paths: ['stale/x.ts'] },
++  }, { pendingPath });
++
++  writePending('new-sess', ['fresh/y.ts'], { pendingPath, now });
++
++  const map = readPending({ pendingPath });
++  assert.equal(map['old-sess'], undefined, 'stale session pruned');
++  assert.deepEqual(map['new-sess'].paths, ['fresh/y.ts']);
++});
++
++// ---------------------------------------------------------------------------
++// correlateRead -- matching / non-matching / expired
++// ---------------------------------------------------------------------------
++
++test('correlateRead on a matching Read bumps offloaded by exactly 1 and removes that path', () => {
++  const dir = mkTempDir('corr-match');
++  const pendingPath = join(dir, 'pending.json');
++  const statsPath = join(dir, 'stats.json');
++  const sid = 'sess-MATCH';
++  const now = 1_700_000_000_000;
++
++  // Seed pending with two paths.
++  writePending(sid, [
++    'mcp-server/data/docs/ENGINE_DIGEST.md',
++    'mcp-server/src/engines/OutcomeCaptureBusEngine.ts',
++  ], { pendingPath, now });
++
++  // Read the first target (repo-relative, exact).
++  const res = correlateRead('mcp-server/data/docs/ENGINE_DIGEST.md', sid, {
++    statsPath, pendingPath, now,
++  });
++
++  assert.equal(res.matched, true);
++  assert.equal(res.matchedPath, 'mcp-server/data/docs/ENGINE_DIGEST.md');
++  // offloaded bumped by exactly 1.
++  assert.equal(readStats(statsPath).byHook['grep-index-first'].offloaded, 1);
++  // Matched path removed; the other remains (one suggestion converts once).
++  const map = readPending({ pendingPath });
++  assert.deepEqual(map[sid].paths, ['mcp-server/src/engines/OutcomeCaptureBusEngine.ts']);
++});
++
++test('correlateRead converts at most once -- a 2nd Read of the same path bumps nothing', () => {
++  const dir = mkTempDir('corr-once');
++  const pendingPath = join(dir, 'pending.json');
++  const statsPath = join(dir, 'stats.json');
++  const sid = 'sess-ONCE';
++  const now = 1_700_000_000_000;
++
++  writePending(sid, ['mcp-server/data/docs/ENGINE_DIGEST.md'], { pendingPath, now });
++
++  const first = correlateRead('mcp-server/data/docs/ENGINE_DIGEST.md', sid, { statsPath, pendingPath, now });
++  assert.equal(first.matched, true);
++  assert.equal(readStats(statsPath).byHook['grep-index-first'].offloaded, 1);
++
++  // Session entry now has empty paths (dropped) -> 2nd read does not bump.
++  const second = correlateRead('mcp-server/data/docs/ENGINE_DIGEST.md', sid, { statsPath, pendingPath, now });
++  assert.equal(second.matched, false);
++  assert.equal(readStats(statsPath).byHook['grep-index-first'].offloaded, 1, 'still 1, not 2');
++});
++
++test('correlateRead on a NON-matching Read bumps nothing', () => {
++  const dir = mkTempDir('corr-nomatch');
++  const pendingPath = join(dir, 'pending.json');
++  const statsPath = join(dir, 'stats.json');
++  const sid = 'sess-NOMATCH';
++  const now = 1_700_000_000_000;
++
++  writePending(sid, ['mcp-server/data/docs/ENGINE_DIGEST.md'], { pendingPath, now });
++
++  const res = correlateRead('some/unrelated/file.ts', sid, { statsPath, pendingPath, now });
++
++  assert.equal(res.matched, false);
++  assert.equal(res.reason, 'no-path-match');
++  // No stats file created at all (no bump occurred).
++  assert.equal(existsSync(statsPath), false, 'no offloaded bump -> no stats write');
++  // Pending entry intact.
++  assert.deepEqual(readPending({ pendingPath })[sid].paths, ['mcp-server/data/docs/ENGINE_DIGEST.md']);
++});
++
++test('correlateRead on an EXPIRED pending entry (>TTL) bumps nothing', () => {
++  const dir = mkTempDir('corr-expired');
++  const pendingPath = join(dir, 'pending.json');
++  const statsPath = join(dir, 'stats.json');
++  const sid = 'sess-EXPIRED';
++  const seededTs = 1_700_000_000_000;
++
++  writePending(sid, ['mcp-server/data/docs/ENGINE_DIGEST.md'], { pendingPath, now: seededTs });
++
++  // Read happens after TTL has elapsed.
++  const readNow = seededTs + PENDING_TTL_MS + 1;
++  const res = correlateRead('mcp-server/data/docs/ENGINE_DIGEST.md', sid, {
++    statsPath, pendingPath, now: readNow,
++  });
++
++  assert.equal(res.matched, false);
++  assert.equal(res.reason, 'expired');
++  assert.equal(existsSync(statsPath), false, 'expired -> no offloaded bump');
++});
++
++test('correlateRead with no pending entry for the session bumps nothing', () => {
++  const dir = mkTempDir('corr-none');
++  const pendingPath = join(dir, 'pending.json');
++  const statsPath = join(dir, 'stats.json');
++  // No writePending at all -> empty marker file does not exist.
++  const res = correlateRead('mcp-server/data/docs/ENGINE_DIGEST.md', 'ghost-sess', {
++    statsPath, pendingPath, now: 1_700_000_000_000,
++  });
++  assert.equal(res.matched, false);
++  assert.equal(res.reason, 'no-pending-for-session');
++});
++
++// ---------------------------------------------------------------------------
++// pathMatches -- robust to absolute-vs-relative + slash direction
++// ---------------------------------------------------------------------------
++
++test('pathMatches: absolute Windows backslash path matches repo-relative forward-slash target', () => {
++  // Known pair: the Read tool delivers an absolute backslash path; the pending
++  // marker stored a repo-relative forward-slash path. These MUST match.
++  assert.equal(
++    pathMatches(
++      'H:\\prism\\mcp-server\\data\\docs\\ENGINE_DIGEST.md',
++      'mcp-server/data/docs/ENGINE_DIGEST.md',
++    ),
++    true,
++  );
++});
++
++test('pathMatches: absolute forward-slash path matches repo-relative target (segment boundary)', () => {
++  assert.equal(
++    pathMatches(
++      'H:/prism/mcp-server/src/engines/OutcomeCaptureBusEngine.ts',
++      'mcp-server/src/engines/OutcomeCaptureBusEngine.ts',
++    ),
++    true,
++  );
++});
++
++test('pathMatches: basename fallback matches divergent prefixes / drive letters', () => {
++  assert.equal(
++    pathMatches('C:/some-worktree/x/y/ENGINE_DIGEST.md', 'mcp-server/data/docs/ENGINE_DIGEST.md'),
++    true,
++    'basenames equal -> match even when dir prefixes diverge',
++  );
++});
++
++test('pathMatches: does NOT match on a non-segment-boundary suffix', () => {
++  // "obar.ts" must NOT be matched by target "bar.ts" via endsWith -- guarded by
++  // the segment-boundary check AND basename inequality (obar.ts != bar.ts).
++  assert.equal(pathMatches('a/b/obar.ts', 'bar.ts'), false);
++});
++
++test('pathMatches: case-insensitive + collapses repeated slashes', () => {
++  assert.equal(
++    pathMatches('H:/PRISM//mcp-server/data/docs/Engine_Digest.MD', 'mcp-server/data/docs/engine_digest.md'),
++    true,
++  );
++});
++
++test('pathMatches: empty / null inputs return false (no crash)', () => {
++  assert.equal(pathMatches('', 'a.ts'), false);
++  assert.equal(pathMatches('a.ts', ''), false);
++  assert.equal(pathMatches(null, undefined), false);
++});
++
++// ---------------------------------------------------------------------------
++// correlateRead -- robustness: matches absolute Read against repo-relative pending
++// ---------------------------------------------------------------------------
++
++test('correlateRead matches an absolute backslash Read against a repo-relative pending path', () => {
++  const dir = mkTempDir('corr-abs');
++  const pendingPath = join(dir, 'pending.json');
++  const statsPath = join(dir, 'stats.json');
++  const sid = 'sess-ABS';
++  const now = 1_700_000_000_000;
++
++  writePending(sid, ['mcp-server/data/docs/ENGINE_DIGEST.md'], { pendingPath, now });
++
++  const res = correlateRead('H:\\prism\\mcp-server\\data\\docs\\ENGINE_DIGEST.md', sid, {
++    statsPath, pendingPath, now,
++  });
++
++  assert.equal(res.matched, true);
++  assert.equal(readStats(statsPath).byHook['grep-index-first'].offloaded, 1);
++});
++
++// ---------------------------------------------------------------------------
++// correlateRead -- fail-safe: corrupt pending marker never throws
++// ---------------------------------------------------------------------------
++
++test('correlateRead is fail-safe on a corrupt pending marker (returns matched:false, no throw)', () => {
++  const dir = mkTempDir('corr-corrupt');
++  const pendingPath = join(dir, 'pending.json');
++  const statsPath = join(dir, 'stats.json');
++  writeFileSync(pendingPath, '{not valid json');
++
++  const res = correlateRead('mcp-server/data/docs/ENGINE_DIGEST.md', 'sess-X', {
++    statsPath, pendingPath, now: 1_700_000_000_000,
++  });
++  // readPending fail-soft returns {} -> no entry -> matched:false (not a throw).
++  assert.equal(res.matched, false);
++});
+diff --git a/scripts/lib/system-viz-graph-findcache.test.mjs b/scripts/lib/system-viz-graph-findcache.test.mjs
+new file mode 100644
+index 0000000000..547cfd61c9
+--- /dev/null
++++ b/scripts/lib/system-viz-graph-findcache.test.mjs
+@@ -0,0 +1,309 @@
++/**
++ * system-viz-graph-findcache.test.mjs -- hermetic coverage for the
++ * loadFindCache() serve-stale-then-async-heal fallback (2026-06-09 durable
++ * OOM fix, slot:sierra).
++ *
++ * THE CONTRACT UNDER TEST: loadFindCache()'s stale/absent fallback MUST NOT call
++ * loadGraph() (which materializes the ~643MB graph into V8 heap -> OOM inside a
++ * ~1500ms hook budget). Instead it serves the STALE sidecar's nodes (stale:true)
++ * or a fail-soft empty result (cold), and fires a DETACHED + DEBOUNCED
++ * regen-find-cache subprocess so the next call self-heals.
++ *
++ * HERMETIC: every test points PRISM_VIZ_FIND_CACHE_PATH at a per-test temp dir,
++ * writes a small fixture sidecar (NOT the real 643MB graph, NO real 643MB I/O),
++ * and injects spawn / loadGraph / now via the loadFindCache DI seams. The
++ * injected loadGraph THROWS, so any test in which the fallback wrongly reached
++ * loadGraph fails loud. R9: real values + real behavior assertions, no stubs
++ * that hide intent.
++ */
++import { test } from "node:test";
++import assert from "node:assert/strict";
++import fs from "node:fs";
++import os from "node:os";
++import path from "node:path";
++import { loadFindCache, findInGraph, __test } from "./system-viz-graph.mjs";
++
++// ---------------------------------------------------------------------------
++// Test harness: per-test temp sidecar + a loadGraph that THROWS if ever called
++// (proves the stale/cold fallback never materializes the graph).
++// ---------------------------------------------------------------------------
++
++function mkTmpDir() {
++  return fs.mkdtempSync(path.join(os.tmpdir(), "prism-findcache-"));
++}
++
++// A loadGraph seam that fails loud the instant the fallback touches it. The
++// whole point of the fix is that the stale/cold path NEVER reaches loadGraph.
++function explodingLoadGraph() {
++  throw new Error("loadGraph MUST NOT be called in the stale/cold fallback path");
++}
++
++// Minimal sidecar fixture -- the slim-node shape loadFindCache returns + the
++// freshness fields readSidecarIfFresh checks. Sized in bytes, not megabytes.
++function writeSidecarFixture(cachePath, { fresh, graphPath }) {
++  // When fresh:true we mirror the live graph's stat so readSidecarIfFresh()
++  // treats it as a hit. When fresh:false (stale) we deliberately mismatch.
++  let sourceMtimeMs = 1, sourceSize = 1;
++  if (fresh && graphPath) {
++    const st = fs.statSync(graphPath);
++    sourceMtimeMs = st.mtimeMs;
++    sourceSize = st.size;
++  }
++  const sidecar = {
++    schemaVersion: 1,
++    generatedAt: new Date().toISOString(),
++    sourceMtimeMs,
++    sourceSize,
++    nodes: [
++      { id: "KienzleForceModel", label: "Kienzle Force Model", info: "cutting force", layer: "L5" },
++      { id: "FooEngine", label: "Foo Engine", info: "", layer: "L5" },
++    ],
++  };
++  fs.writeFileSync(cachePath, JSON.stringify(sidecar), "utf8");
++}
++
++// Write a tiny "graph" file so readSidecarIfFresh's statSync(graphPath()) and the
++// fresh-fixture path have a real file to stat. This is a few-byte JSON, NEVER the
++// 643MB graph -- the fallback under test never parses it (loadGraph is injected).
++function writeTinyGraph(graphPath) {
++  fs.writeFileSync(graphPath, JSON.stringify({ nodes: [{ id: "x", label: "x" }] }), "utf8");
++}
++
++// Spy spawn seam: records calls, returns an object with a no-op unref (matches
++// the ChildProcess.unref() contract spawnDebouncedRegen calls).
++function makeSpawnSpy() {
++  const calls = [];
++  const fn = (...args) => { calls.push(args); return { unref() {} }; };
++  return { fn, calls };
++}
++
++// Run a block with PRISM_VIZ_FIND_CACHE_PATH + PRISM_VIZ_GRAPH_PATH pinned to a
++// temp dir, restoring env afterwards. Returns the chosen paths.
++function withTempEnv(run) {
++  const dir = mkTmpDir();
++  const cachePath = path.join(dir, "find-cache.json");
++  const graphPath = path.join(dir, "system-graph.json");
++  const prevCache = process.env.PRISM_VIZ_FIND_CACHE_PATH;
++  const prevGraph = process.env.PRISM_VIZ_GRAPH_PATH;
++  const prevDisable = process.env.PRISM_VIZ_FIND_CACHE_DISABLE;
++  process.env.PRISM_VIZ_FIND_CACHE_PATH = cachePath;
++  process.env.PRISM_VIZ_GRAPH_PATH = graphPath;
++  delete process.env.PRISM_VIZ_FIND_CACHE_DISABLE;
++  try {
++    return run({ dir, cachePath, graphPath });
++  } finally {
++    if (prevCache === undefined) delete process.env.PRISM_VIZ_FIND_CACHE_PATH;
++    else process.env.PRISM_VIZ_FIND_CACHE_PATH = prevCache;
++    if (prevGraph === undefined) delete process.env.PRISM_VIZ_GRAPH_PATH;
++    else process.env.PRISM_VIZ_GRAPH_PATH = prevGraph;
++    if (prevDisable === undefined) delete process.env.PRISM_VIZ_FIND_CACHE_DISABLE;
++    else process.env.PRISM_VIZ_FIND_CACHE_DISABLE = prevDisable;
++    try { fs.rmSync(dir, { recursive: true, force: true }); } catch { /* ignore */ }
++  }
++}
++
++// ---------------------------------------------------------------------------
++// 1. FRESH sidecar -> plain hit, no stale flag, NO spawn.
++// ---------------------------------------------------------------------------
++test("fresh sidecar -> plain cache hit (no stale flag, no regen spawn)", () => {
++  withTempEnv(({ cachePath, graphPath }) => {
++    writeTinyGraph(graphPath);
++    writeSidecarFixture(cachePath, { fresh: true, graphPath });
++    const spawnSpy = makeSpawnSpy();
++
++    const res = loadFindCache({}, {
++      _spawn: spawnSpy.fn,
++      _loadGraph: explodingLoadGraph,
++    });
++
++    assert.ok(Array.isArray(res.nodes) && res.nodes.length === 2, "fresh hit returns the sidecar nodes");
++    assert.equal(res.stale, undefined, "fresh hit must NOT carry a stale flag");
++    assert.equal(res.cold, undefined, "fresh hit must NOT carry a cold flag");
++    assert.equal(spawnSpy.calls.length, 0, "fresh hit must NOT spawn a regen");
++    // The fresh hit must be findable -- prove the projection round-trips findInGraph.
++    const hits = findInGraph(res, "kienzle", { limit: 5 });
++    assert.ok(hits.length >= 1, "fresh-hit nodes are searchable via findInGraph");
++  });
++});
++
++// ---------------------------------------------------------------------------
++// 2. STALE sidecar present -> returns the stale nodes WITH stale:true AND spawns
++//    the regen exactly once. loadGraph (injected) must NOT be called.
++// ---------------------------------------------------------------------------
++test("stale sidecar -> serves stale nodes (stale:true) + spawns regen once, never loadGraph", () => {
++  withTempEnv(({ cachePath, graphPath }) => {
++    writeTinyGraph(graphPath);
++    // fresh:false -> sourceMtimeMs/Size deliberately mismatch the live graph,
++    // so readSidecarIfFresh() rejects it as stale but the bytes still parse.
++    writeSidecarFixture(cachePath, { fresh: false, graphPath });
++    const spawnSpy = makeSpawnSpy();
++
++    const res = loadFindCache({}, {
++      _spawn: spawnSpy.fn,
++      _loadGraph: explodingLoadGraph, // throws if the fallback wrongly hits it
++      _now: () => 0, // ensure no pre-existing lock debounces us
++    });
++
++    assert.equal(res.stale, true, "stale path must flag stale:true");
++    assert.notEqual(res.cold, true, "a present-but-stale sidecar is NOT cold");
++    assert.ok(Array.isArray(res.nodes) && res.nodes.length === 2, "stale path serves the stale sidecar nodes");
++    assert.equal(spawnSpy.calls.length, 1, "stale path must spawn the regen exactly once");
++    // Prove the detached spawn flags: detached:true + stdio:'ignore'.
++    const [, , opts] = spawnSpy.calls[0];
++    assert.equal(opts.detached, true, "regen spawn must be detached");
++    assert.equal(opts.stdio, "ignore", "regen spawn stdio must be ignore");
++    // The served stale nodes are still searchable (the value of serve-stale).
++    assert.ok(findInGraph(res, "foo", { limit: 5 }).length >= 1, "stale nodes remain searchable");
++  });
++});
++
++// ---------------------------------------------------------------------------
++// 3. COLD (no sidecar) -> fail-soft empty (stale:true, cold:true), spawns regen
++//    once, and PROVES loadGraph is never invoked (injected loadGraph throws).
++// ---------------------------------------------------------------------------
++test("cold (no sidecar) -> fail-soft empty {stale,cold} + spawn once + loadGraph NEVER called", () => {
++  withTempEnv(({ cachePath, graphPath }) => {
++    writeTinyGraph(graphPath);
++    // Deliberately do NOT write a sidecar -> cold start.
++    assert.equal(fs.existsSync(cachePath), false, "precondition: no sidecar on disk (cold)");
++    const spawnSpy = makeSpawnSpy();
++
++    let loadGraphCalled = false;
++    const res = loadFindCache({}, {
++      _spawn: spawnSpy.fn,
++      _loadGraph: () => { loadGraphCalled = true; throw new Error("loadGraph called in cold path"); },
++      _now: () => 0,
++    });
++
++    assert.equal(loadGraphCalled, false, "PROOF: loadGraph must NEVER be called in the cold fallback");
++    assert.deepEqual(res.nodes, [], "cold path returns an empty nodes array");
++    assert.equal(res.stale, true, "cold path flags stale:true");
++    assert.equal(res.cold, true, "cold path flags cold:true");
++    assert.equal(spawnSpy.calls.length, 1, "cold path must spawn the regen exactly once");
++    // findInGraph over the empty result must return [] -- the caller renders
++    // "Found 0 node(s)" rather than crashing (fail-soft for the hot path).
++    assert.deepEqual(findInGraph(res, "anything", { limit: 5 }), [], "empty cold result is safe to search");
++  });
++});
++
++// ---------------------------------------------------------------------------
++// 4. DEBOUNCE: a fresh regen lock (< 60s old) -> the next stale/cold call does
++//    NOT spawn again.
++// ---------------------------------------------------------------------------
++test("debounce: a fresh regen lock (<60s) suppresses a second spawn", () => {
++  withTempEnv(({ cachePath, graphPath }) => {
++    writeTinyGraph(graphPath);
++    writeSidecarFixture(cachePath, { fresh: false, graphPath }); // stale
++    const spawnSpy = makeSpawnSpy();
++
++    // Pin "now" to a fixed clock so the lock written by call #1 is, to call #2,
++    // 0ms old -- well inside the 60s debounce window.
++    const fixedNow = () => 1_000_000;
++
++    const first = loadFindCache({}, { _spawn: spawnSpy.fn, _loadGraph: explodingLoadGraph, _now: fixedNow });
++    const second = loadFindCache({}, { _spawn: spawnSpy.fn, _loadGraph: explodingLoadGraph, _now: fixedNow });
++
++    assert.equal(first.stale, true, "first stale call serves stale");
++    assert.equal(second.stale, true, "second stale call still serves stale");
++    assert.equal(spawnSpy.calls.length, 1, "debounce: only the FIRST call spawns; the second is suppressed");
++    // Sanity: the lock file actually exists (the debounce signal is real, on disk).
++    assert.ok(fs.existsSync(__test.regenLockPath()), "the debounce lock file was written");
++  });
++});
++
++// ---------------------------------------------------------------------------
++// 4b. DEBOUNCE EXPIRES: a lock older than 60s -> a new spawn IS issued.
++//     Proves the debounce is a sliding window, not a permanent suppressor (R9:
++//     the test fails if the window logic is inverted or the lock never expires).
++// ---------------------------------------------------------------------------
++test("debounce expiry: a lock older than the window allows a new spawn", () => {
++  withTempEnv(({ cachePath, graphPath }) => {
++    writeTinyGraph(graphPath);
++    writeSidecarFixture(cachePath, { fresh: false, graphPath }); // stale
++    const spawnSpy = makeSpawnSpy();
++    const win = __test.regenDebounceMs();
++
++    // Call #1 at t=0 writes the lock.
++    loadFindCache({}, { _spawn: spawnSpy.fn, _loadGraph: explodingLoadGraph, _now: () => 0 });
++    assert.equal(spawnSpy.calls.length, 1, "first call spawns");
++
++    // Call #2 at t = window + 1 -> the lock is now stale, so a new spawn fires.
++    loadFindCache({}, { _spawn: spawnSpy.fn, _loadGraph: explodingLoadGraph, _now: () => win + 1 });
++    assert.equal(spawnSpy.calls.length, 2, "after the debounce window expires, a new spawn is issued");
++  });
++});
++
++// ---------------------------------------------------------------------------
++// 5. SPAWN FAILURE -> no throw; loadFindCache still returns its (stale) result.
++// ---------------------------------------------------------------------------
++test("spawn failure is fail-safe: loadFindCache still returns (no throw)", () => {
++  withTempEnv(({ cachePath, graphPath }) => {
++    writeTinyGraph(graphPath);
++    writeSidecarFixture(cachePath, { fresh: false, graphPath }); // stale
++    const throwingSpawn = () => { throw new Error("spawn EACCES / ENOENT"); };
++
++    let res;
++    assert.doesNotThrow(() => {
++      res = loadFindCache({}, { _spawn: throwingSpawn, _loadGraph: explodingLoadGraph, _now: () => 0 });
++    }, "a spawn failure must NEVER throw into loadFindCache");
++    assert.equal(res.stale, true, "even on spawn failure the stale result is returned");
++    assert.ok(Array.isArray(res.nodes) && res.nodes.length === 2, "stale nodes still served despite spawn failure");
++  });
++});
++
++// ---------------------------------------------------------------------------
++// 5b. SPAWN FAILURE on a COLD start -> still fail-soft empty, no throw.
++// ---------------------------------------------------------------------------
++test("spawn failure on cold start is fail-safe (empty result, no throw)", () => {
++  withTempEnv(({ cachePath, graphPath }) => {
++    writeTinyGraph(graphPath);
++    // no sidecar -> cold
++    const throwingSpawn = () => { throw new Error("spawn failed"); };
++    let res;
++    assert.doesNotThrow(() => {
++      res = loadFindCache({}, { _spawn: throwingSpawn, _loadGraph: explodingLoadGraph, _now: () => 0 });
++    }, "cold-path spawn failure must not throw");
++    assert.deepEqual(res.nodes, [], "cold + spawn-fail still returns empty nodes");
++    assert.equal(res.cold, true, "cold flag preserved despite spawn failure");
++  });
++});
++
++// ---------------------------------------------------------------------------
++// 6. CORRUPT sidecar -> treated as COLD (cannot serve garbage), not a crash.
++//    Guards the readSidecarNodesUnchecked fail-soft -> null path.
++// ---------------------------------------------------------------------------
++test("corrupt sidecar -> treated as cold (empty result), no throw", () => {
++  withTempEnv(({ cachePath, graphPath }) => {
++    writeTinyGraph(graphPath);
++    fs.writeFileSync(cachePath, "{ not valid json", "utf8"); // corrupt
++    const spawnSpy = makeSpawnSpy();
++    let res;
++    assert.doesNotThrow(() => {
++      res = loadFindCache({}, { _spawn: spawnSpy.fn, _loadGraph: explodingLoadGraph, _now: () => 0 });
++    }, "a corrupt sidecar must not throw -- it degrades to cold");
++    assert.deepEqual(res.nodes, [], "corrupt sidecar serves nothing (cold)");
++    assert.equal(res.cold, true, "corrupt sidecar is treated as cold");
++    assert.equal(spawnSpy.calls.length, 1, "corrupt sidecar still triggers a heal regen");
++  });
++});
++
++// ---------------------------------------------------------------------------
++// 7. readSidecarNodesUnchecked unit coverage: present-valid -> nodes; absent
++//    -> null; corrupt -> null; schema-missing-nodes -> null.
++// ---------------------------------------------------------------------------
++test("readSidecarNodesUnchecked: present/absent/corrupt/schema-mismatch", () => {
++  withTempEnv(({ cachePath }) => {
++    // absent
++    assert.equal(__test.readSidecarNodesUnchecked(), null, "absent sidecar -> null");
++    // valid
++    fs.writeFileSync(cachePath, JSON.stringify({ nodes: [{ id: "a" }] }), "utf8");
++    const n = __test.readSidecarNodesUnchecked();
++    assert.ok(Array.isArray(n) && n.length === 1, "valid sidecar -> nodes array");
++    // corrupt
++    fs.writeFileSync(cachePath, "{bad", "utf8");
++    assert.equal(__test.readSidecarNodesUnchecked(), null, "corrupt sidecar -> null");
++    // schema missing nodes
++    fs.writeFileSync(cachePath, JSON.stringify({ notNodes: 1 }), "utf8");
++    assert.equal(__test.readSidecarNodesUnchecked(), null, "no nodes array -> null");
++  });
++});
+diff --git a/scripts/lib/system-viz-graph.mjs b/scripts/lib/system-viz-graph.mjs
+index e107bfefc2..190f7987cc 100644
+--- a/scripts/lib/system-viz-graph.mjs
++++ b/scripts/lib/system-viz-graph.mjs
+@@ -11,6 +11,21 @@
+  * BEFORE the read so a concurrent rewrite can only ever cause a *false
+  * miss* (an extra re-parse), never a *false hit* (serving stale bytes).
+  *
++ * CONTRACT AMENDMENT -- loadFindCache serve-stale-then-async-heal (2026-06-09,
++ * sierra, find-cache OOM durable fix): loadGraph()'s "never serve stale bytes"
++ * invariant above STILL HOLDS for loadGraph itself. But loadFindCache()'s
++ * stale/absent FALLBACK no longer falls through to loadGraph() (which
++ * materializes the ~643MB graph into V8 heap -> OOM inside a ~1500ms hook
++ * budget). For SEARCH, an OOM-dead hook is strictly worse than a slightly-stale
++ * find projection (a stale sidecar is ~99% accurate for `find`). So the
++ * fallback now: (a) serves the STALE sidecar's nodes with `stale:true` when one
++ * exists, or returns a fail-soft `{nodes:[], stale:true, cold:true}` when none
++ * does, and (b) triggers a DETACHED, lockfile-DEBOUNCED `regen-find-cache.mjs`
++ * subprocess (the only OOM-safe rebuild path -- it self-re-execs with a 24GB
++ * heap) so the NEXT call self-heals to fresh. The fresh-hit fast path is
++ * unchanged: a fresh sidecar is still a plain cache hit, no stale flag, no
++ * regen spawn. This change is scoped to the loadFindCache fallback ONLY.
++ *
+  * SCOPE — who actually benefits (be honest, per /forge-audit-v2 reviewer):
+  * the cache is IN-PROCESS only. PRISM hooks and the system-viz-query.mjs
+  * CLI are spawned as fresh `node` processes per invocation — they call
+@@ -32,6 +47,7 @@
+ 
+ import fs from "node:fs";
+ import path from "node:path";
++import { spawn } from "node:child_process";
+ import { fileURLToPath } from "node:url";
+ import { readGraphStreaming } from "./graph-io.mjs";
+ 
+@@ -218,13 +234,25 @@ export function findInGraph(G, terms, { limit = 30 } = {}) {
+  * STRATEGY: emit a tiny sidecar JSON at findCachePath() containing only the
+  * fields findInGraph() actually reads — label, id, info, subgroup, layer,
+  * kind (kept for downstream UI). The sidecar is ~2MB instead of ~370MB
+- * (≈170× smaller, ≈170× faster cold parse). On first call when the sidecar
+- * is stale or absent we fall through to loadGraph() and atomically write a
+- * fresh sidecar.
++ * (≈170× smaller, ≈170× faster cold parse).
++ *
++ * STALE/ABSENT FALLBACK (2026-06-09 durable OOM fix -- see CONTRACT AMENDMENT in
++ * the file header): the stale/absent path NO LONGER falls through to loadGraph()
++ * in the hook hot path (that materializes the ~643MB graph -> OOM in a ~1500ms
++ * budget). Instead it serves the STALE sidecar's nodes (`stale:true`) or a
++ * fail-soft empty result (`stale:true, cold:true`), and fires a DETACHED +
++ * lockfile-DEBOUNCED `regen-find-cache.mjs` subprocess so the NEXT call
++ * self-heals. The explicit-opt-in `fresh:true` / `PRISM_VIZ_FIND_CACHE_DISABLE`
++ * path (used by the OFFLINE regenerator, NOT the hooks) still does the full
++ * loadGraph() parse + sidecar write -- that is where the graph is meant to load.
+  *
+- * RETURN SHAPE: ALWAYS `{nodes: Array<slim-node>}`. SYMMETRIC across cache-hit
+- * and cache-miss paths — both project to the same minimal shape. The function
+- * is for `findInGraph` ONLY. DO NOT USE if you need `graph.edges`,
++ * RETURN SHAPE: `{nodes: Array<slim-node>}` on a fresh hit and on the explicit
++ * full-parse path; `{nodes: Array, stale:true}` when serving a stale sidecar;
++ * `{nodes: [], stale:true, cold:true}` on a cold start (no usable sidecar). The
++ * `nodes` key is ALWAYS present (callers that do `findInGraph(result, ...)` over
++ * `result.nodes` never crash; an empty array yields 0 hits). `stale`/`cold` are
++ * advisory flags -- existing callers that ignore them are unaffected. The
++ * function is for `findInGraph` ONLY. DO NOT USE if you need `graph.edges`,
+  * `graph.meta`, `graph.schemaVersion`, `graph.fsCoverage`, or any field beyond
+  * the projected six (label/id/info/subgroup/layer/kind on nodes). For those,
+  * call `loadGraph()` directly. Sibling consumers in scripts/generate-*.mjs
+@@ -252,7 +280,9 @@ export function findInGraph(G, terms, { limit = 30 } = {}) {
+  *
+  * @param {object} [opts]
+  * @param {boolean} [opts.fresh=false] - bypass sidecar entirely; do not write.
+- * @returns {{nodes: Array}} ALWAYS this shape. See RETURN SHAPE above.
++ * @returns {{nodes: Array, stale?:boolean, cold?:boolean}} `nodes` is always
++ *          present; `stale`/`cold` flag the serve-stale fallback. See RETURN
++ *          SHAPE above.
+  */
+ 
+ // Read at CALL time, not module-eval, so tests/callers can toggle per-invocation
+@@ -359,24 +389,165 @@ function writeSidecarAtomic(graph, sourceStat) {
+   }
+ }
+ 
+-export function loadFindCache({ fresh = false } = {}) {
++// ---------------------------------------------------------------------------
++// SERVE-STALE-THEN-ASYNC-HEAL fallback support (2026-06-09 durable OOM fix).
++// See the CONTRACT AMENDMENT in the file header. These three helpers exist so
++// loadFindCache's stale/absent fallback NEVER calls loadGraph() in the hook hot
++// path (which OOMs on the ~643MB graph). They are exposed via __test for
++// hermetic DI/coverage but are NOT part of the public contract.
++// ---------------------------------------------------------------------------
++
++// Lockfile path for the detached-regen debounce. Lives beside the sidecar so a
++// custom PRISM_VIZ_FIND_CACHE_PATH keeps lock + sidecar co-located (tests point
++// both at a temp dir via the env override).
++function regenLockPath() {
++  return path.join(path.dirname(findCachePath()), ".find-cache-regen.lock");
++}
++
++// Debounce window: 26 concurrent fleet chats hitting a stale/absent sidecar must
++// not all spawn a 24GB-heap regen at once. If a lock file's mtime is younger
++// than this window, a regen is presumed in-flight (or just finished) and we skip.
++const REGEN_DEBOUNCE_MS = 60_000;
++
++/**
++ * Read + JSON.parse the sidecar WITHOUT any freshness gate. Returns the parsed
++ * nodes array when the file exists and carries a valid `nodes` array, else null
++ * (absent / corrupt / schema-mismatch). Used ONLY by the serve-stale fallback to
++ * disambiguate "stale sidecar present" (serve its nodes) from "cold, no sidecar"
++ * (return empty). NEVER touches the graph. Fail-soft: any error -> null.
++ */
++function readSidecarNodesUnchecked() {
++  let raw;
++  try { raw = fs.readFileSync(findCachePath(), "utf8"); }
++  catch { return null; } // absent / unreadable -> cold
++  let sidecar;
++  try { sidecar = JSON.parse(raw); }
++  catch { return null; } // corrupt -> treat as cold (cannot serve garbage)
++  if (!sidecar || !Array.isArray(sidecar.nodes)) return null;
++  return sidecar.nodes;
++}
++
++/**
++ * Spawn `node scripts/regen-find-cache.mjs` DETACHED + DEBOUNCED so the next
++ * loadFindCache call self-heals to a fresh sidecar. The regenerator self-re-execs
++ * with a 24GB heap (the ONLY OOM-safe rebuild path), so it can NEVER run in the
++ * hook hot path -- this fire-and-forget spawn is the bridge.
++ *
++ * DEBOUNCE: a lockfile whose mtime is < REGEN_DEBOUNCE_MS old means a regen is
++ * presumed in-flight; we skip spawning. The lock mtime is refreshed (touched)
++ * immediately before each real spawn so the window slides forward.
++ *
++ * FAIL-SAFE: every step is wrapped -- a spawn/lock failure must NEVER throw into
++ * loadFindCache (a perf-heal failure must not break SEARCH). Returns true when a
++ * spawn was issued, false when debounced or it fail-soft no-op'd.
++ *
++ * DI: `now` + `spawnFn` are injectable for hermetic tests. Defaults are the real
++ * Date.now and node:child_process.spawn. We do NOT import regen-find-cache (that
++ * would self-re-exec/heap-bump IN-PROCESS); we SPAWN it as a subprocess.
++ */
++function spawnDebouncedRegen({ now = Date.now, spawnFn = spawn } = {}) {
++  const lockPath = regenLockPath();
++  // Debounce: skip if a recent lock exists. The lock STORES its creation
++  // timestamp as its file CONTENT (the `now()` value at write time) and we
++  // compare against that stored stamp -- NOT the filesystem mtime. This keeps
++  // the debounce clock-consistent with whatever `now` is in use (DI-injectable
++  // clock in tests; Date.now in production), and is immune to mtime granularity
++  // / NTFS sub-ms quirks. Fall back to the fs mtime only if the stored stamp is
++  // missing/unparseable (e.g. a lock from an older build).
++  try {
++    let stamp = NaN;
++    try { stamp = Number(fs.readFileSync(lockPath, "utf8").trim()); } catch { stamp = NaN; }
++    if (!Number.isFinite(stamp)) {
++      try { stamp = fs.statSync(lockPath).mtimeMs; } catch { stamp = NaN; }
++    }
++    if (Number.isFinite(stamp) && now() - stamp < REGEN_DEBOUNCE_MS) {
++      return false; // regen presumed in-flight
++    }
++  } catch { /* no lock yet -> proceed to spawn */ }
++
++  // Refresh / create the lock BEFORE spawning so concurrent callers in this same
++  // window debounce off it even if the child is slow to start. The content is the
++  // authoritative debounce timestamp (see above). Best-effort.
++  try {
++    fs.mkdirSync(path.dirname(lockPath), { recursive: true });
++    fs.writeFileSync(lockPath, String(now()), "utf8");
++  } catch { /* lock write failed -> still attempt the spawn below */ }
++
++  try {
++    const regenScript = path.join(ROOT, "scripts", "regen-find-cache.mjs");
++    const child = spawnFn(process.execPath, [regenScript], {
++      detached: true,
++      stdio: "ignore",
++      // Preserve env so the child honors the same PRISM_VIZ_FIND_CACHE_PATH /
++      // PRISM_VIZ_GRAPH_PATH the parent is using (critical for tests + custom paths).
++      env: process.env,
++    });
++    if (child && typeof child.unref === "function") child.unref();
++    return true;
++  } catch {
++    return false; // spawn failed -> fail-soft; SEARCH still returns its (stale/empty) result
++  }
++}
++
++export function loadFindCache(
++  { fresh = false } = {},
++  // DI seams (hermetic tests only; default to real impls -- existing call sites
++  // pass no second arg and get production behavior). _readSidecarFresh +
++  // _readSidecarNodes let a test inject fresh/stale/cold sidecar states without
++  // real disk; _spawn + _now drive the detached-regen debounce; _loadGraph is
++  // injected ONLY to PROVE the fallback never calls it (a throwing loadGraph
++  // in the test fails loud if the hot path ever reaches it).
++  {
++    _readSidecarFresh = readSidecarIfFresh,
++    _readSidecarNodes = readSidecarNodesUnchecked,
++    _spawn = spawn,
++    _now = Date.now,
++    _loadGraph = loadGraph,
++  } = {}
++) {
++  if (!fresh && !findCacheDisabled()) {
++    const sidecar = _readSidecarFresh();
++    if (sidecar) return { nodes: sidecar.nodes }; // FRESH HIT -- byte-for-byte unchanged
++  }
++
++  // -------------------------------------------------------------------------
++  // STALE / ABSENT FALLBACK (the durable OOM fix -- NEVER loadGraph() here).
++  // The legacy fallthrough materialized the ~643MB graph -> OOM in the hook
++  // budget. Serve-stale-then-async-heal instead. This branch is taken on the
++  // normal hook path (NOT fresh, NOT disabled) when the sidecar is stale/absent.
++  // -------------------------------------------------------------------------
+   if (!fresh && !findCacheDisabled()) {
+-    const sidecar = readSidecarIfFresh();
+-    if (sidecar) return { nodes: sidecar.nodes };
++    const staleNodes = _readSidecarNodes();
++    // Trigger a detached, debounced regen so the NEXT call self-heals. Fail-safe.
++    spawnDebouncedRegen({ now: _now, spawnFn: _spawn });
++    if (Array.isArray(staleNodes)) {
++      // STALE: a sidecar file exists -- serve its (slightly-stale) nodes. ~99%
++      // accurate for SEARCH, and infinitely better than an OOM-dead hook.
++      return { nodes: staleNodes, stale: true };
++    }
++    // COLD: no usable sidecar at all. Return fail-soft empty THIS call; the
++    // regen we just kicked off makes the next call fresh. findInGraph over an
++    // empty nodes array returns [] -- the caller (system-viz-query find) renders
++    // "Found 0 node(s)" rather than crashing.
++    return { nodes: [], stale: true, cold: true };
+   }
+-  // Cache miss / disabled / fresh — full parse + repopulate sidecar.
+-  // Stat BEFORE the (slow) parse so writeSidecarAtomic's TOCTOU re-check
+-  // has a stable baseline; this mirrors loadGraph's own pattern (line 132).
++
++  // -------------------------------------------------------------------------
++  // EXPLICIT-OPT-IN PATH: fresh:true or PRISM_VIZ_FIND_CACHE_DISABLE=1. This is
++  // NOT the hook hot path -- it's the offline regenerator (regenFindCache calls
++  // loadGraph({fresh:true})) and the disable knob. Preserve the original full
++  // parse + repopulate exactly. Stat BEFORE the (slow) parse so
++  // writeSidecarAtomic's TOCTOU re-check has a stable baseline (mirrors
++  // loadGraph's own pattern).
++  // -------------------------------------------------------------------------
+   let st;
+   try { st = fs.statSync(graphPath()); }
+   catch { st = null; }
+-  const graph = loadGraph({ fresh });
++  const graph = _loadGraph({ fresh });
+   if (!findCacheDisabled() && !fresh && st) {
+     writeSidecarAtomic(graph, st);
+   }
+-  // SYMMETRIC RETURN: project the cache-miss path to the same shape as
+-  // cache-hit ({nodes: [...]}). Callers documented as findInGraph-only;
+-  // any consumer that needs edges/meta MUST use loadGraph() directly.
++  // SYMMETRIC RETURN: project to the same shape as the fresh-hit ({nodes:[...]}).
+   return { nodes: projectForFind(graph) };
+ }
+ 
+@@ -526,4 +697,9 @@ export const __test = {
+   findFields: () => [...FIND_FIELDS],
+   readSidecarIfFresh,
+   writeSidecarAtomic,
++  // SERVE-STALE fallback seams (2026-06-09 durable OOM fix).
++  readSidecarNodesUnchecked,
++  spawnDebouncedRegen,
++  regenLockPath,
++  regenDebounceMs: () => REGEN_DEBOUNCE_MS,
+ };
+diff --git a/state/shared/specs/HOTEL-ALLOWLIST-WRITE-REVIEW-2026-06-09.md b/state/shared/specs/HOTEL-ALLOWLIST-WRITE-REVIEW-2026-06-09.md
+index 25d93df007..d884208c55 100644
+--- a/state/shared/specs/HOTEL-ALLOWLIST-WRITE-REVIEW-2026-06-09.md
++++ b/state/shared/specs/HOTEL-ALLOWLIST-WRITE-REVIEW-2026-06-09.md
+@@ -68,3 +68,21 @@ e.g. a milestone-advance or quote-update actually emits a forwarded bus event is
+ - Part B (REALTIME-VERIFY): **DONE — verified backed** (with the producer-depth caveat above).
+ - Part A (ALLOWLIST-WRITE-REVIEW): **DONE — reviewed; recommendation = keep deny-by-default; opening
+   writes is operator-gated `U-HOTEL-ALLOWLIST-WRITE-ENABLE`.** No allowlist change made this unit.
++
++---
++
++## UPDATE 2026-06-09 -- U-HOTEL-ALLOWLIST-WRITE-ENABLE SHIPPED (operator approved the role model)
++
++Commits `18f37c812e` (core) + `d8d2824cf2` (polish). 3-of-3 PASS, 23/23 route tests.
++- OPENED behind a per-action manager-tier role gate (`BUSINESS_WRITE_ROLE_MAP`; lead|supervisor|hr_manager|admin):
++  `handoff_counterparty_respond`, `handoff_manager_approve`, `handoff_mark_executed`, `handoff_cancel`
++  -- workflow-state only, frozen audit trail, status-guarded. Reused existing RBAC (`requireRole`/`ROLE_DB`/
++  `req.userRoles`) + the global `auditLog` middleware (`routes/index.ts:114`) -- no new auth/audit code.
++- STAYS 403 (proven for admin in tests): `po_approve`, `hr_pto_approve`, `pto_approve_request`, all
++  `gl_*`/`payroll_*`/`order_create` -- in neither the read Set nor the write-map.
++- OPEN FOLLOW-UP (scrutiny A-P2, NOT built): bind the engine identity param (responder_employee_id etc.)
++  to `req.userId` server-side -- the HTTP gate is role-only; the engine identity-check uses caller-asserted
++  params. Needs an auth-user -> employee-id mapping that does not yet exist. Bounded (workflow-only,
++  PII-free, audited with the true userId).
++- PRE-EXISTING BUGS flagged by grounding (all in still-403 actions; separate units): `hr_pto_approve`
++  double-apply (no status guard), empty `approved_by` accepted, two divergent PTO approval engines (R7).
+
+--- END DIFF ---

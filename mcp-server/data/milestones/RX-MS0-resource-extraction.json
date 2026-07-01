@@ -1,0 +1,670 @@
+{
+  "milestone_id": "RX-MS0",
+  "title": "Resource Archive Extraction Pipeline",
+  "description": "Extract all actionable knowledge from PRISM_ARCHIVE resource PDFs (excluding MIT courses) into PRISM engines, registries, tribal knowledge, and tool databases",
+  "status": "in_progress",
+  "source": "C:\\PRISM_ARCHIVE_2026-02-01\\RESOURCES",
+  "phases": [
+    {
+      "phase_id": "RX-P1",
+      "title": "Manufacturer Tool Catalogs → Tool Registry + Speed/Feed Data",
+      "priority": "CRITICAL",
+      "estimated_sessions": 4,
+      "notes": "DEFERRED — being handled by separate parallel chat session (tooling catalog extraction)",
+      "units": [
+        {
+          "unit_id": "RX-P1-U01",
+          "title": "Tungaloy GC_2023-2024 Drilling + Tooling (US editions)",
+          "source_files": [
+            "GC_2023-2024_US_Drilling.pdf",
+            "GC_2023-2024_US_Tooling.pdf"
+          ],
+          "extract": [
+            "drill geometries",
+            "insert grades",
+            "speed/feed tables by material",
+            "chipbreaker selection"
+          ],
+          "target": [
+            "ToolRegistry",
+            "DrillCycleOptimizationEngine",
+            "ToolCoatingSelectionEngine"
+          ],
+          "status": "NOT_STARTED",
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit"
+          ],
+          "description": "Tungaloy GC_2023-2024 Drilling + Tooling (US editions) — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "id": "RX-P1-U01"
+        },
+        {
+          "unit_id": "RX-P1-U02",
+          "title": "Tungaloy GC_2023-2024 Milling + Turning-Grooving (US editions)",
+          "source_files": [
+            "GC_2023-2024_US_Milling.pdf",
+            "GC_2023-2024_US_Turning-Grooving.pdf"
+          ],
+          "extract": [
+            "milling insert grades",
+            "turning insert geometries",
+            "grooving widths/depths",
+            "speed/feed per ISO group"
+          ],
+          "target": [
+            "ToolRegistry",
+            "StrategyDB enrichment",
+            "TurningParameterEngine"
+          ],
+          "status": "NOT_STARTED",
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit"
+          ],
+          "description": "Tungaloy GC_2023-2024 Milling + Turning-Grooving (US editions) — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "id": "RX-P1-U02"
+        },
+        {
+          "unit_id": "RX-P1-U03",
+          "title": "SGS + MA Ford + OSG End Mill Catalogs",
+          "source_files": [
+            "SGS_Global_Catalog_v26.1.pdf",
+            "MA_Ford_US_Product_Catalog_vol105interactiveweb.pdf",
+            "OSG.pdf",
+            "Solid End Mills.pdf"
+          ],
+          "extract": [
+            "end mill geometries (flute count, helix angle, LOC)",
+            "speed/feed by material",
+            "coating types",
+            "application notes"
+          ],
+          "target": [
+            "ToolRegistry",
+            "SpeedFeedEngine",
+            "ToolCoatingSelectionEngine"
+          ],
+          "status": "PARTIAL",
+          "notes": "SGS extracted: 18 series, 9 coatings, 36 speed/feed records, 16 part numbers → sgs-tool-catalog.ts + 42 tests. MA Ford, OSG, Solid End Mills still pending.",
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit"
+          ],
+          "description": "SGS + MA Ford + OSG End Mill Catalogs — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "id": "RX-P1-U03"
+        },
+        {
+          "unit_id": "RX-P1-U04",
+          "title": "Master Catalog 2018 Turning + Rotating Tools",
+          "source_files": [
+            "Master Catalog 2018 Vol. 1 Turning Tools English Inch.pdf",
+            "Master Catalog 2018 Vol. 2 Rotating Tools English Inch.pdf"
+          ],
+          "extract": [
+            "turning insert catalog",
+            "boring bar specs",
+            "drill/reamer specs",
+            "toolholder compatibility"
+          ],
+          "target": [
+            "ToolRegistry",
+            "BoreFinishingEngine",
+            "DrillCycleOptimizationEngine"
+          ],
+          "status": "NOT_STARTED",
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit"
+          ],
+          "description": "Master Catalog 2018 Turning + Rotating Tools — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "id": "RX-P1-U04"
+        },
+        {
+          "unit_id": "RX-P1-U05",
+          "title": "Milling/Turning/Threading 2018 Catalogs",
+          "source_files": [
+            "Milling 2018.1.pdf",
+            "Turning 2018.1.pdf",
+            "Threading 2018.1.pdf"
+          ],
+          "extract": [
+            "milling cutter geometries",
+            "turning parameters",
+            "thread milling specs",
+            "tap drill charts"
+          ],
+          "target": [
+            "ToolRegistry",
+            "ThreadMillingEngine",
+            "SpeedFeedEngine"
+          ],
+          "status": "NOT_STARTED",
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit"
+          ],
+          "description": "Milling/Turning/Threading 2018 Catalogs — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "id": "RX-P1-U05"
+        },
+        {
+          "unit_id": "RX-P1-U06",
+          "title": "Specialty Tool Catalogs (Accupro, Rapidkut, Flash, Global CNC, AMPC)",
+          "source_files": [
+            "Accupro 2013.pdf",
+            "2018 Rapidkut Catalog.pdf",
+            "Flash_Solid_catalog_INCH.pdf",
+            "01-Global-CNC-Full-Catalog-2023.pdf",
+            "AMPC_US-EN.pdf"
+          ],
+          "extract": [
+            "specialty tool geometries",
+            "application recommendations",
+            "material compatibility"
+          ],
+          "target": [
+            "ToolRegistry",
+            "TribalKnowledgeEngine"
+          ],
+          "status": "NOT_STARTED",
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit"
+          ],
+          "description": "Specialty Tool Catalogs (Accupro, Rapidkut, Flash, Global CNC, AMPC) — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "id": "RX-P1-U06"
+        }
+      ]
+    },
+    {
+      "phase_id": "RX-P2",
+      "title": "Toolholder + Workholding Catalogs → Holder Registry + Collision Data",
+      "priority": "HIGH",
+      "estimated_sessions": 2,
+      "notes": "COMPLETE — BIG DAISHOWA + Orange Vise extracted. REGO-FIX image-only (needs OCR). Metalmorphosis/CAMFIX misclassified (not workholding).",
+      "units": [
+        {
+          "unit_id": "RX-P2-U01",
+          "title": "BIG DAISHOWA + REGO-FIX + Tooling Systems + CAMFIX",
+          "source_files": [
+            "BIG DAISHOWA High Performance Tooling Solutions Vol 5.pdf",
+            "REGO-FIX Catalogue 2026 ENGLISH.pdf",
+            "Tooling Systems.pdf",
+            "Tooling Systems News 2018 English MetricInch.pdf",
+            "CAMFIX_Catalog.pdf"
+          ],
+          "extract": [
+            "holder types (shrink-fit, hydraulic, collet, milling chuck)",
+            "taper specs (BT/CAT/HSK/Capto)",
+            "runout specs",
+            "gauge lengths",
+            "max RPM ratings",
+            "pull stud specs"
+          ],
+          "target": [
+            "ToolholderDynamicsEngine",
+            "CollisionEngine",
+            "MachineProfileEngine"
+          ],
+          "status": "COMPLETE",
+          "notes": "BIG DAISHOWA extracted: 120+ holder specs across 10 families, 14 taper types → big-daishowa-holders.ts + 44 tests. REGO-FIX: image-based PDF, no text extraction possible without OCR. CAMFIX: actually ISCAR turning tooling (misclassified), excluded.",
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit"
+          ],
+          "description": "BIG DAISHOWA + REGO-FIX + Tooling Systems + CAMFIX — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "id": "RX-P2-U01"
+        },
+        {
+          "unit_id": "RX-P2-U02",
+          "title": "Orange Vise + Metalmorphosis (Workholding)",
+          "source_files": [
+            "543f80b8_2016_orange_vise_catalog.pdf",
+            "Metalmorphosis-2021-FINAL-reduced-for-Web.pdf",
+            "TURNING_CATALOG_PART 1.pdf"
+          ],
+          "extract": [
+            "vise jaw dimensions",
+            "clamping force specs",
+            "modular fixturing systems",
+            "chuck specs",
+            "soft jaw profiles"
+          ],
+          "target": [
+            "WorkholdingEngine",
+            "FixtureDesignEngine",
+            "SoftJawProfileEngine",
+            "ChuckJawForceEngine"
+          ],
+          "status": "COMPLETE",
+          "notes": "Orange Vise extracted: 44 entries (7 vises, zero-point, tombstones, soft jaws, subplates, jaw plates, fixture plates) → workholding-catalog.ts + 64 tests. Metalmorphosis: actually IMCO end mill catalog (misclassified), excluded.",
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit"
+          ],
+          "description": "Orange Vise + Metalmorphosis (Workholding) — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "id": "RX-P2-U02"
+        }
+      ]
+    },
+    {
+      "phase_id": "RX-P3",
+      "title": "Machine Simulation Models → MachineProfileEngine Enrichment",
+      "priority": "HIGH",
+      "estimated_sessions": 2,
+      "notes": "P3-U01 COMPLETE (52 machines from archive). P3-U02 still NOT_STARTED (CAD files need separate processing).",
+      "units": [
+        {
+          "unit_id": "RX-P3-U01",
+          "title": "Extract machine specs from 12 brands (HAAS, MAZAK, DMG MORI, OKUMA, MAKINO, etc.)",
+          "source_dir": "MACHINE_SIMULATION_MODELS/",
+          "extract": [
+            "axis travel limits",
+            "spindle specs (RPM, HP, torque curves)",
+            "rapid traverse rates",
+            "tool changer capacity",
+            "table load limits",
+            "accuracy specs"
+          ],
+          "target": [
+            "MachineProfileEngine (expand from 12 to 50+ profiles)",
+            "MachineRegistry"
+          ],
+          "status": "COMPLETE",
+          "notes": "52 machine profiles from 7 brands (Haas 12, DMG MORI 3, Mazak 11, Makino 10, Okuma 11, Hermle 1, Doosan 4) → machine-profiles-catalog.ts + 79 tests. Source: PRISM_ARCHIVE EXTRACTED/machines/ENHANCED/ JS files.",
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit"
+          ],
+          "description": "Extract machine specs from 12 brands (HAAS, MAZAK, DMG MORI, OKUMA, MAKINO, etc.) — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "id": "RX-P3-U01"
+        },
+        {
+          "unit_id": "RX-P3-U02",
+          "title": "Tool holder CAD files → gauge length database",
+          "source_dir": "TOOL_HOLDER_CAD_FILES/",
+          "extract": [
+            "holder dimensions from STEP/IGES files",
+            "gauge lengths",
+            "interference volumes"
+          ],
+          "target": [
+            "CollisionEngine",
+            "ToolholderDynamicsEngine"
+          ],
+          "status": "NOT_STARTED",
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit"
+          ],
+          "description": "Tool holder CAD files → gauge length database — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "id": "RX-P3-U02"
+        }
+      ]
+    },
+    {
+      "phase_id": "RX-P4",
+      "title": "CAM Algorithm Roadmaps → Engine Implementations",
+      "priority": "HIGH",
+      "estimated_sessions": 6,
+      "units": [
+        {
+          "unit_id": "RX-P4-U01",
+          "title": "SolidCAM iMachining Algorithms (from SOLIDCAM/ roadmap)",
+          "source_files": [
+            "SOLIDCAM/PRISM_CAM_ALGORITHMS_SKILL_ROADMAP.md",
+            "SOLIDCAM/SESSION_1_1_CHIP_THICKNESS_MATH.js",
+            "SOLIDCAM/SESSION_1_2_ENGAGEMENT_GEOMETRY.js"
+          ],
+          "extract": [
+            "Morphing spiral toolpaths",
+            "Chip thickness control algorithms",
+            "Technology Wizard logic",
+            "Multi-pass dynamic profiling"
+          ],
+          "already_have": [
+            "ChipThinningCompensation algo",
+            "CWEZBuffer algo",
+            "ChipVolumeRate algo"
+          ],
+          "remaining": [
+            "Morphing spiral generation",
+            "iMachining wizard step-over/step-down logic",
+            "Voronoi-based rest detection",
+            "Adaptive spiral entry/exit"
+          ],
+          "target": [
+            "ToolpathGenerationEngine",
+            "CAMKernelEngine",
+            "EngagementGeometryEngine"
+          ],
+          "status": "COMPLETE",
+          "notes": "SESSION_1_1 → ChipThinningCompensation algorithm. SESSION_1_2 → EngagementGeometryEngine (12 methods, 8 dispatcher actions in calcDispatcher). Remaining 23/25 sessions are roadmap-only with no source implementations.",
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit"
+          ],
+          "description": "SolidCAM iMachining Algorithms (from SOLIDCAM/ roadmap) — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "id": "RX-P4-U01"
+        },
+        {
+          "unit_id": "RX-P4-U02",
+          "title": "Fusion 360 CAM Intelligence (from FUSION360/ roadmap)",
+          "source_files": [
+            "FUSION360/FUSION360_SKILL_ROADMAP.md"
+          ],
+          "extract": [
+            "Parameter tables",
+            "Material engagement guidelines",
+            "Surface finish targets"
+          ],
+          "already_have": [
+            "MultiCamStrategyEngine (23 Fusion strategies)",
+            "FeatureRecognitionEngine",
+            "EngagementGeometryEngine (covers FCEOM)"
+          ],
+          "remaining": [
+            "Tribal knowledge tips from parameter tables"
+          ],
+          "target": [
+            "TribalKnowledgeEngine"
+          ],
+          "status": "COMPLETE",
+          "notes": "Roadmap document only — no implementations exist. Contains parameter tables extracted as tribal knowledge tips (TK-RX-*).",
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit"
+          ],
+          "description": "Fusion 360 CAM Intelligence (from FUSION360/ roadmap) — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "id": "RX-P4-U02"
+        },
+        {
+          "unit_id": "RX-P4-U03",
+          "title": "hyperMILL Advanced Algorithms (remaining from HYPERMILL/ roadmap)",
+          "source_files": [
+            "HYPERMILL/HYPERMILL_SKILL_ROADMAP.md"
+          ],
+          "extract": [
+            "Barrel cutter benchmarks",
+            "Trochoidal life multipliers",
+            "Collision avoidance priorities"
+          ],
+          "already_have": [
+            "HyperMillStrategyEngine (25 strategies)",
+            "HyperMillSafetyHooks (6 validators)",
+            "HyperMillCycleCatalogEngine (125+ cycles)",
+            "HyperMillControllerCatalogEngine (59 variants)"
+          ],
+          "remaining": [
+            "Tribal knowledge tips from benchmark data"
+          ],
+          "target": [
+            "TribalKnowledgeEngine"
+          ],
+          "status": "COMPLETE",
+          "notes": "Roadmap document only — no implementations exist. hyperMILL manual already fully extracted in prior session. Contains benchmark tables extracted as tribal knowledge tips.",
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit"
+          ],
+          "description": "hyperMILL Advanced Algorithms (remaining from HYPERMILL/ roadmap) — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "id": "RX-P4-U03"
+        }
+      ]
+    },
+    {
+      "phase_id": "RX-P5",
+      "title": "Forge-Triple: Wire New Extractions into PRISM",
+      "priority": "MEDIUM",
+      "estimated_sessions": 3,
+      "units": [
+        {
+          "unit_id": "RX-P5-U01",
+          "title": "New engines from catalog data + tests + dispatcher wiring",
+          "target": [
+            "New engines as needed",
+            "Dispatcher action additions",
+            "Test suites"
+          ],
+          "status": "COMPLETE",
+          "notes": "ToolCatalogAdaptiveEngine created — bridges 260K+ lines of tool catalog data to Phase 0.26 adaptive system. 19 tests. Wired to index.ts exports.",
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit"
+          ],
+          "description": "New engines from catalog data + tests + dispatcher wiring — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "id": "RX-P5-U01"
+        },
+        {
+          "unit_id": "RX-P5-U02",
+          "title": "Registry enrichment — merge extracted data into existing registries",
+          "target": [
+            "ToolRegistry",
+            "MachineRegistry",
+            "MaterialRegistry (cross-ref)"
+          ],
+          "status": "COMPLETE",
+          "notes": "CatalogRegistryBridgeEngine created — 8 tool catalog mappings + 1 machine catalog mapping. Field mapping system with dot notation, batch enrichAll(). 23 tests.",
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit"
+          ],
+          "description": "Registry enrichment — merge extracted data into existing registries — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "id": "RX-P5-U02"
+        },
+        {
+          "unit_id": "RX-P5-U03",
+          "title": "Tribal knowledge extraction — practical tips from catalog application notes",
+          "target": [
+            "TribalKnowledgeEngine (TK-RX-* tips)"
+          ],
+          "status": "COMPLETE",
+          "notes": "15 tips (TK-RX-001..015) extracted from Fusion360 + hyperMILL roadmap parameter tables. Covers: radial engagement by material, trochoidal life multipliers, barrel cutter benchmarks, surface finish targets, collision avoidance priority, strategy selection by wall angle, stock-to-leave by tolerance, rest machining detection, steep/shallow boundaries, morphing spiral entry, swarf cutting, impeller sequencing, scallop height formula, FCEOM corner engagement, high-feed milling parameters.",
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit"
+          ],
+          "description": "Tribal knowledge extraction — practical tips from catalog application notes — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "id": "RX-P5-U03"
+        }
+      ]
+    }
+  ],
+  "total_estimated_sessions": "15-17",
+  "total_source_pdfs": 30,
+  "total_source_dirs": 3,
+  "excluded": [
+    "MIT COURSES (per user request)",
+    "NAPS2 (scanner executable)",
+    "Virtual_Machine_* (binary executables)"
+  ],
+  "pipeline": "/pdf-learn → extraction → /forge-triple (engine + test + wire)",
+  "priority_order": "P1 (tool catalogs) → P2 (holders/workholding) → P3 (machine models) → P4 (CAM algorithms) → P5 (integration)",
+  "smart_config": {
+    "role": "senior-architect + domain-specialist",
+    "model": "opus",
+    "effort": "MAX",
+    "context_budget": "65%"
+  },
+  "mcp_lifecycle": {
+    "session_start": [
+      "prism_session:context_boot",
+      "prism_session:dispatcher_map",
+      "prism_session:memory_recall",
+      "prism_session:system_snapshot",
+      "prism_session:action_search"
+    ],
+    "during_work": [
+      "prism_session:auto_checkpoint",
+      "prism_session:tool_route_best",
+      "prism_session:wip_capture"
+    ],
+    "session_end": [
+      "prism_session:memory_save",
+      "prism_session:system_snapshot",
+      "prism_session:checkpoint_enhanced"
+    ]
+  },
+  "forge_triple": {
+    "protective_hook": "rx-ms0-resource-extraction-gate",
+    "mcp_action": "prism_rx:rx_ms0_resource_extraction_run",
+    "skill_command": "/rx-ms0-resource-extraction",
+    "ownership": "DECLARED — BUILT in terminal unit of this milestone"
+  },
+  "feature_cascade": {
+    "new_hooks": [
+      "rx-ms0-resource-extraction-gate"
+    ],
+    "new_actions": [
+      "rx_ms0_resource_extraction_run"
+    ],
+    "new_skills": [
+      "/rx-ms0-resource-extraction"
+    ],
+    "available_to": [
+      "downstream CAMX milestones",
+      "prism app consumers"
+    ]
+  },
+  "knowledge_sources": {
+    "engines": [
+      "ENGINE_DIGEST.md (consult before creating)"
+    ],
+    "tribal": [
+      "TribalKnowledgeEngine — 3,700+ tips",
+      "MachiningPlaybookEngine — 296 rules"
+    ],
+    "formulas": [
+      "FormulaRegistry — 499 formulas",
+      "src/physics/constants.ts — canonical"
+    ],
+    "reference": [
+      "EXTERNAL-REFERENCE-PROGRAMS-INDEX.md",
+      "MaterialRegistry",
+      "MachineRegistry",
+      "ToolCatalogEngine (95,608 tools)"
+    ]
+  },
+  "intent": "Extract all actionable knowledge from PRISM_ARCHIVE resource PDFs (excluding MIT courses) into PRISM engines, registries, tribal knowledge, and tool databases",
+  "compact_checkpoint": "every 3 units — auto-triggered by hook",
+  "enforcement_hooks_active": [
+    "physics agent",
+    "wiring agent",
+    "constants checker",
+    "stub detector",
+    "test quality",
+    "forge-triple gate",
+    "session audit agent"
+  ]
+}

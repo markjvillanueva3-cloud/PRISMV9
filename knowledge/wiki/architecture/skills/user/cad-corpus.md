@@ -23,13 +23,14 @@ related:
 |-------|-------|
 | Name | `cad-corpus` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/cad-corpus.md` |
+| Source | `C:/Users/wompu/.claude/commands/cad-corpus.md` |
 | Model | default |
 | Tags | _(none)_ |
 
 ## Description (first paragraph)
 
-Manage the JM Die CAD training corpus for neural CAD generation.
+
+# /cad-corpus — CAD Training Corpus Management
 
 <!-- AUTO-END -->
 

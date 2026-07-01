@@ -376,6 +376,56 @@ Track measurements over many parts:
 - **Cpk** = centered capability (is it centered?)
 - **Cp ≥ 1.33** = capable. **Cpk ≥ 1.33** = capable AND centered.
 - If Cpk < 1.0 → process is producing defects. **Stop and adjust.**` }] }],
+
+  11: [{ id: `${CID}-m11-l1`, moduleId: `${CID}-mod-11`, title: "Citation Discipline — Metrology Edition", order: 1, content: [{ type: "text",
+    body: `# Citation Discipline — Metrology & Inspection
+
+**Prerequisite:** Modules 1-10 of this course (you should already use the instruments being cited).
+**Learning objective:** For every measurement claim you make on an inspection report, identify the *standard* that defines acceptance. An uncited measurement is an opinion; an opinion does not survive an audit.
+**Assessment:** Pick one tool from your tool crib. Write the calibration standard it traces to. If you cannot, that tool is operating uncertified.
+
+## Why Metrology Needs Citations More Than Most
+
+A speed/feed wrong by 10% wastes a tool. A *measurement* wrong by 10% scrapes a part, fails an audit, or — in aerospace/medical — gets a customer killed. Metrology claims are the hardest-traceability part of the shop, and the citations are the chain that holds the traceability together.
+
+## The Citation Pattern (Metrology Variant)
+
+\`<measurement claim> [traceable to <standard>, <issuing body>, <year/revision>, <clause>]\`
+
+Examples revisiting earlier modules of THIS course with explicit standards:
+
+- **"Micrometer accuracy ±0.002 mm at 20 °C"** [per ASME B89.1.13-2013, *Micrometers* — issuing body: American Society of Mechanical Engineers; clause: accuracy class table.]
+- **"Caliper accuracy ±0.02 mm"** [per JIS B 7507:2016, *Vernier, dial and digital callipers* — Japanese Industrial Standards Committee; section on accuracy classes.]
+- **"Calibration lab traceability"** [per ISO/IEC 17025:2017, *General requirements for the competence of testing and calibration laboratories* — International Organization for Standardization; clause 6.4 (equipment) + clause 7.6 (measurement uncertainty).]
+- **"Go/No-Go thread gauge dimensions"** [per ANSI B47.1 (Unified Inch Screw Threads, gauging system) — or ISO 1502 for metric — issuing body: ANSI / ISO; consult the latest revision.]
+- **"Cp/Cpk ≥ 1.33 capability rule"** [per Juran & Gryna, *Quality Control Handbook*, 5th ed., 1999, McGraw-Hill — Section 22 (Process Capability). PRISM dispatcher reference: \`SPCProcessCapability\` engine.]
+- **"Mill certificate traceability for critical work"** [per AS9100D (aerospace) clause 8.5.2 (Identification & Traceability) — or ISO 9001:2015 clause 8.5.2 for general industry — issuing body: SAE International / ISO.]
+- **"Reference temperature 20 °C for all dimensional measurement"** [per ISO 1:2016, *Geometrical product specifications (GPS) — Standard reference temperature for the specification of geometrical and dimensional properties* — ISO; clause 4.]
+
+## Doctrine vs Technique vs Reference (Metrology Lens)
+
+| Category | In metrology | Examples |
+|----------|--------------|----------|
+| **Doctrine** | Universal measurement law. Memorize. | Reference temperature = 20 °C · always measure parallel to the dimension axis · Abbe's principle (offset = error) |
+| **Technique** | Procedure with the instrument in hand. | Zero a micrometer with a setting block · Sweep a bore with a 2-point bore gauge · Build a stack from gauge blocks |
+| **Reference** | Tables and standards that change by instrument/industry. | Calibration intervals per ISO 17025 · Cp/Cpk thresholds per industry · Tolerance class per ANSI/ISO gauge series |
+
+## The Audit Failure Mode
+
+A specific scenario: an aerospace customer issues an SCAR (Supplier Corrective Action Request) because a measurement on a recent FAI couldn't be traced to a calibrated instrument. The instrument was in fact calibrated, but the *certificate* was 13 months old (interval per the shop's QMS = 12). The measurement claim was therefore *uncalibrated by record*, and every part shipped against that FAI is now suspect. This is a real class of finding — preventable only by citing the calibration certificate (number + date + interval) on every report.
+
+**Floor rule:** *every measurement on every report cites the standard the instrument traces to + the calibration certificate that proves it.* The customer doesn't trust your tape measure; they trust the chain.
+
+## Practice (Assessment)
+
+Walk to your tool crib. Pick up any precision instrument (micrometer, caliper, gauge block, bore gauge, height gauge). Find its calibration sticker. Identify:
+
+1. The **standard** the instrument traces to (e.g., ASME B89.1.13).
+2. The **certificate number** + issue date.
+3. The **next calibration due date**.
+4. The **lab** that performed the calibration (must hold ISO 17025 accreditation for the relevant scope).
+
+If any of these is missing → the instrument is **out of certification** and any measurement made with it is uncited. Tag it and report to the calibration coordinator.` }] }],
 };
 
 // Quizzes
@@ -418,6 +468,23 @@ export const COURSE_0B_QUIZZES: Record<string, Question[]> = {
       tags: ["threads", "tap_drill"],
     },
   ],
+  [`${CID}-mod-11-quiz`]: [
+    {
+      id: "c0b-q4", type: "multiple_choice", difficulty: 2,
+      text: "Your micrometer reads 25.003 mm on a 25.000 mm gauge block. Its calibration sticker shows 14 months since last cal (your QMS calls for 12-month intervals). Can you use this reading on an FAI for aerospace work?",
+      options: [
+        { id: "a", text: "Yes — the reading is within typical micrometer accuracy (±0.002 mm)", isCorrect: false,
+          explanation: "Accuracy alone is not traceability. An aerospace FAI fails without a current calibration certificate." },
+        { id: "b", text: "No — instrument is out of calibration interval; any measurement is uncited per ISO 17025", isCorrect: true },
+        { id: "c", text: "Yes if you re-zero against the gauge block first", isCorrect: false,
+          explanation: "Operator zeroing does not substitute for accredited calibration. The traceability chain to ASME B89.1.13 is broken once the interval lapses." },
+        { id: "d", text: "Yes — gauge blocks are themselves a primary standard", isCorrect: false,
+          explanation: "Even with a certified gauge block, the *instrument* must hold a current calibration certificate." },
+      ],
+      explanation: "Citation: ISO/IEC 17025:2017 clause 6.4 (equipment must be within stated calibration interval) + AS9100D clause 8.5.2 (traceability). The reading is plausible but uncited — fix the calibration first, re-measure, then claim PASS on the FAI.",
+      tags: ["citation_discipline", "metrology", "calibration", "traceability"],
+    },
+  ],
 };
 
 // Module Assembly
@@ -444,4 +511,5 @@ export const COURSE_0B_MODULES: Module[] = [
   mk(8, "Thread Identification", 50),
   mk(9, "Material Identification", 40),
   mk(10, "Inspection Reports", 45),
+  mk(11, "Citation Discipline — Metrology Edition", 35),
 ];

@@ -1,0 +1,40 @@
+{
+  "id": "CK-MS12",
+  "title": "Natural Language CAM + Program Compare + Result Cache",
+  "track": "CK",
+  "status": "not_started",
+  "total_units": 4,
+  "completed_units": 0,
+  "description": "User experience: NLP parser for /cam-generate natural language input, program comparison engine (diff two G-code programs with physics overlay), result caching for identical inputs, and batch CAM generation.",
+  "units": [
+    {
+      "id": "CK-MS12/U01",
+      "title": "NLPCAMParserEngine — natural language to CAMFeature[] interface",
+      "status": "not_started"
+    },
+    {
+      "id": "CK-MS12/U02",
+      "title": "ProgramCompareEngine — diff two G-code programs with physics",
+      "status": "completed",
+      "completed_at": "2026-05-18T01:30:00Z",
+      "completed_by": "claude-51013954-india",
+      "exit_evidence": {
+        "engine": "mcp-server/src/engines/ProgramCompareEngine.ts",
+        "test": "mcp-server/src/__tests__/ProgramCompareEngine.test.ts",
+        "tests_passing": 18,
+        "dispatcher": "camDispatcher lazy-import :514 + prism_quality:program_compare",
+        "note": "Engine already built+wired; gap=zero coverage. 18-case real-invariant suite (LCS diff/normalization/physics-const-force/cycle-time-ordering/tool-set-algebra/safety-set-diff/report). Per-file scrutiny 2/2 PASS 0 P0/P1."
+      }
+    },
+    {
+      "id": "CK-MS12/U03",
+      "title": "CAMResultCacheEngine — cache results for identical inputs",
+      "status": "not_started"
+    },
+    {
+      "id": "CK-MS12/U04",
+      "title": "BatchCAMEngine — generate programs for multiple parts in one call",
+      "status": "not_started"
+    }
+  ]
+}

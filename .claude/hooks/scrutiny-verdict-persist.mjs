@@ -163,7 +163,7 @@ function headCommit() {
     // short-sha and is vanishingly unlikely in a subject. indexOf-split
     // separates them correctly (the prior no-separator format + split made
     // sha a single char and folded the rest of the sha into the subject).
-    const out = execFileSync("git", ["-C", REPO, "log", "-1", "--format=%h%x1f%s"], {
+    const out = execFileSync("git", ["-C", REPO, "log", "-1", "--format=%h%x1f%s"], { windowsHide: true,
       encoding: "utf8", timeout: TIMEOUT_MS, stdio: ["ignore", "pipe", "ignore"],
     }).trim();
     const sep = out.indexOf("\x1f");

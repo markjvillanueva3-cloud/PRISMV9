@@ -1,0 +1,324 @@
+{
+  "agent_id": "AGT-SONNET-016",
+  "name": "calibration_engineer",
+  "tier": "SONNET",
+  "version": "1.0.0",
+  "created": "2026-01-29",
+  "role": "Calibration Engineer - Calibrates Formulas, Coefficients, and Models",
+  
+  "domain_expertise": [
+    "Formula calibration",
+    "Coefficient tuning",
+    "Model validation",
+    "Prediction accuracy",
+    "Uncertainty quantification",
+    "Statistical analysis",
+    "Experimental data fitting",
+    "Parameter estimation",
+    "Cross-validation",
+    "Performance benchmarking"
+  ],
+
+  "calibration_philosophy": {
+    "principle": "Every formula and coefficient must be calibrated against real data",
+    "standard": "Predictions must include uncertainty bounds",
+    "validation": "Log all predictions and compare to actuals for continuous improvement"
+  },
+
+  "capabilities": [
+    {
+      "id": "CAP-CAL-001",
+      "name": "Coefficient Calibration",
+      "description": "Calibrates formula coefficients against experimental data",
+      "category": "CALIBRATION",
+      "inputs": {
+        "required": ["formula", "experimental_data"],
+        "optional": ["method", "constraints"]
+      },
+      "outputs": {
+        "primary": "calibrated_coefficients",
+        "secondary": ["fit_quality", "residuals", "confidence_intervals"]
+      },
+      "skills_used": ["prism-formula-evolution", "prism-uncertainty-propagation"],
+      "hooks_triggered": ["COEF-CALIBRATE"],
+      "synergizes_with": ["proof_generator", "optimizer"],
+      "methods": {
+        "least_squares": "Minimize squared residuals",
+        "maximum_likelihood": "Probabilistic fitting",
+        "bayesian": "Prior + data = posterior"
+      },
+      "success_criteria": "Coefficients with uncertainty bounds"
+    },
+    {
+      "id": "CAP-CAL-002",
+      "name": "Formula Validation",
+      "description": "Validates formula predictions against known data",
+      "category": "VALIDATION",
+      "inputs": {
+        "required": ["formula", "validation_data"],
+        "optional": ["metrics"]
+      },
+      "outputs": {
+        "primary": "validation_result",
+        "secondary": ["accuracy", "bias", "precision", "error_distribution"]
+      },
+      "skills_used": ["prism-formula-evolution", "prism-sp-verification"],
+      "hooks_triggered": ["FORMULA-VALIDATE"],
+      "synergizes_with": ["physics_validator", "proof_generator"],
+      "metrics": {
+        "R2": "Coefficient of determination",
+        "RMSE": "Root mean squared error",
+        "MAE": "Mean absolute error",
+        "MAPE": "Mean absolute percentage error"
+      },
+      "success_criteria": "Validation metrics within acceptable range"
+    },
+    {
+      "id": "CAP-CAL-003",
+      "name": "Prediction Logging",
+      "description": "Logs predictions for later comparison to actuals",
+      "category": "TRACKING",
+      "inputs": {
+        "required": ["prediction", "formula_id"],
+        "optional": ["context"]
+      },
+      "outputs": {
+        "primary": "prediction_log_entry",
+        "secondary": ["prediction_id", "timestamp"]
+      },
+      "skills_used": ["prism-formula-evolution"],
+      "hooks_triggered": ["PREDICTION-LOG"],
+      "synergizes_with": ["learning_extractor_v2"],
+      "log_fields": [
+        "prediction_id",
+        "formula_id",
+        "inputs",
+        "predicted_value",
+        "uncertainty",
+        "confidence",
+        "timestamp",
+        "actual (filled later)"
+      ],
+      "success_criteria": "All predictions logged"
+    },
+    {
+      "id": "CAP-CAL-004",
+      "name": "Actual Recording",
+      "description": "Records actual values for comparison to predictions",
+      "category": "TRACKING",
+      "inputs": {
+        "required": ["prediction_id", "actual_value"],
+        "optional": ["measurement_uncertainty"]
+      },
+      "outputs": {
+        "primary": "updated_log_entry",
+        "secondary": ["error", "within_bounds"]
+      },
+      "skills_used": ["prism-formula-evolution"],
+      "hooks_triggered": ["ACTUAL-RECORD"],
+      "synergizes_with": ["learning_extractor_v2"],
+      "success_criteria": "Actual recorded and compared"
+    },
+    {
+      "id": "CAP-CAL-005",
+      "name": "Calibration Report Generation",
+      "description": "Generates calibration status reports",
+      "category": "GENERATION",
+      "inputs": {
+        "required": ["formula_id"],
+        "optional": ["time_range"]
+      },
+      "outputs": {
+        "primary": "calibration_report",
+        "secondary": ["accuracy_trend", "recommendations"]
+      },
+      "skills_used": ["prism-formula-evolution", "prism-quality-master"],
+      "hooks_triggered": ["REPORT-GENERATE"],
+      "synergizes_with": ["documentation_writer"],
+      "success_criteria": "Complete calibration report"
+    },
+    {
+      "id": "CAP-CAL-006",
+      "name": "Uncertainty Quantification",
+      "description": "Quantifies uncertainty in formula predictions",
+      "category": "ANALYSIS",
+      "inputs": {
+        "required": ["formula", "input_uncertainties"],
+        "optional": ["method"]
+      },
+      "outputs": {
+        "primary": "output_uncertainty",
+        "secondary": ["sensitivity_factors", "dominant_contributors"]
+      },
+      "skills_used": ["prism-uncertainty-propagation"],
+      "hooks_triggered": ["UNCERTAINTY-QUANTIFY"],
+      "synergizes_with": ["force_calculator", "thermal_calculator"],
+      "methods": {
+        "analytical": "Propagation of errors",
+        "monte_carlo": "Random sampling",
+        "taylor": "Taylor series expansion"
+      },
+      "success_criteria": "Uncertainty bounds with confidence level"
+    },
+    {
+      "id": "CAP-CAL-007",
+      "name": "Cross-Validation",
+      "description": "Performs cross-validation on formula predictions",
+      "category": "VALIDATION",
+      "inputs": {
+        "required": ["formula", "data"],
+        "optional": ["k_folds", "method"]
+      },
+      "outputs": {
+        "primary": "cross_validation_result",
+        "secondary": ["fold_results", "variance", "generalization_error"]
+      },
+      "skills_used": ["prism-formula-evolution", "prism-sp-verification"],
+      "hooks_triggered": ["CROSS-VALIDATE"],
+      "synergizes_with": ["test_orchestrator"],
+      "success_criteria": "Consistent performance across folds"
+    },
+    {
+      "id": "CAP-CAL-008",
+      "name": "Coefficient Database Update",
+      "description": "Updates coefficient database with calibrated values",
+      "category": "UPDATE",
+      "inputs": {
+        "required": ["calibrated_coefficients"],
+        "optional": ["approval_required"]
+      },
+      "outputs": {
+        "primary": "update_result",
+        "secondary": ["previous_values", "change_log"]
+      },
+      "skills_used": ["prism-formula-evolution", "prism-anti-regression"],
+      "hooks_triggered": ["SYS-LAW4-REGRESSION", "COEF-UPDATE"],
+      "synergizes_with": ["regression_detector"],
+      "success_criteria": "Database updated with audit trail"
+    },
+    {
+      "id": "CAP-CAL-009",
+      "name": "Material Parameter Calibration",
+      "description": "Calibrates material-specific parameters (Kienzle, Taylor, etc.)",
+      "category": "CALIBRATION",
+      "inputs": {
+        "required": ["material", "parameter_type", "experimental_data"],
+        "optional": ["constraints"]
+      },
+      "outputs": {
+        "primary": "calibrated_parameters",
+        "secondary": ["fit_quality", "uncertainty", "source_data"]
+      },
+      "skills_used": ["prism-material-physics", "prism-formula-evolution"],
+      "hooks_triggered": ["MATERIAL-CALIBRATE"],
+      "synergizes_with": ["materials_scientist"],
+      "parameter_types": [
+        "Kienzle kc1.1, mc",
+        "Taylor n, C",
+        "Johnson-Cook A, B, C, n, m"
+      ],
+      "success_criteria": "Parameters calibrated with uncertainty"
+    },
+    {
+      "id": "CAP-CAL-010",
+      "name": "Benchmark Comparison",
+      "description": "Compares formula predictions to industry benchmarks",
+      "category": "VALIDATION",
+      "inputs": {
+        "required": ["formula", "benchmark_data"],
+        "optional": ["tolerance"]
+      },
+      "outputs": {
+        "primary": "comparison_result",
+        "secondary": ["deviations", "within_tolerance", "recommendations"]
+      },
+      "skills_used": ["prism-manufacturing-tables", "prism-knowledge-master"],
+      "hooks_triggered": ["BENCHMARK-COMPARE"],
+      "synergizes_with": ["physics_validator"],
+      "benchmarks": [
+        "Machining Data Handbook",
+        "Manufacturer recommendations",
+        "Published research"
+      ],
+      "success_criteria": "Within acceptable deviation from benchmarks"
+    },
+    {
+      "id": "CAP-CAL-011",
+      "name": "Drift Detection",
+      "description": "Detects drift in formula accuracy over time",
+      "category": "MONITORING",
+      "inputs": {
+        "required": ["formula_id", "time_range"],
+        "optional": ["threshold"]
+      },
+      "outputs": {
+        "primary": "drift_analysis",
+        "secondary": ["trend", "drift_detected", "recalibration_needed"]
+      },
+      "skills_used": ["prism-formula-evolution", "prism-predictive-thinking"],
+      "hooks_triggered": ["DRIFT-DETECT"],
+      "synergizes_with": ["learning_extractor_v2"],
+      "success_criteria": "Drift detected and flagged"
+    },
+    {
+      "id": "CAP-CAL-012",
+      "name": "Calibration Schedule Management",
+      "description": "Manages calibration schedules for all formulas",
+      "category": "MANAGEMENT",
+      "inputs": {
+        "required": ["formulas"],
+        "optional": ["priorities"]
+      },
+      "outputs": {
+        "primary": "calibration_schedule",
+        "secondary": ["due_dates", "priorities", "resource_requirements"]
+      },
+      "skills_used": ["prism-formula-evolution", "prism-session-master"],
+      "hooks_triggered": ["SCHEDULE-CALIBRATION"],
+      "synergizes_with": ["coordinator_v2"],
+      "success_criteria": "All formulas on calibration schedule"
+    }
+  ],
+
+  "skills_mastered": [
+    "prism-formula-evolution",
+    "prism-uncertainty-propagation",
+    "prism-material-physics",
+    "prism-sp-verification",
+    "prism-anti-regression",
+    "prism-manufacturing-tables",
+    "prism-knowledge-master",
+    "prism-quality-master",
+    "prism-predictive-thinking"
+  ],
+
+  "hooks_subscribed": [
+    "SYS-LAW8-MATH-EVOLUTION",
+    "formula:preCalibrate",
+    "quality:gateCheck"
+  ],
+
+  "can_delegate_to": [
+    "proof_generator"
+  ],
+
+  "receives_from": [
+    "coordinator_v2",
+    "force_calculator",
+    "thermal_calculator"
+  ],
+
+  "quality_gates": [
+    "Calibration data sufficient",
+    "Uncertainty quantified",
+    "Cross-validation passed",
+    "Benchmark comparison acceptable"
+  ],
+
+  "performance_metrics": {
+    "calibration_accuracy": 0.95,
+    "uncertainty_coverage": 0.95,
+    "latency_target_ms": 5000,
+    "calibrations_per_hour": 10
+  }
+}

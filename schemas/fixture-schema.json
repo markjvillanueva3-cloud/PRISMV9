@@ -1,0 +1,62 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "prism-fixture-schema-v1",
+  "title": "PRISM Fixture Schema",
+  "description": "Workholding and fixture definition",
+  "type": "object",
+  "required": ["id", "type", "clamping_force"],
+  "properties": {
+    "id": { "type": "string", "pattern": "^FIX-[A-Z]+-[0-9]{3}$" },
+    "name": { "type": "string" },
+    "manufacturer": { "type": "string" },
+    "type": {
+      "type": "string",
+      "enum": ["vise", "chuck", "collet", "faceplate", "angle_plate", "v_block", "magnetic", "vacuum", "tombstone", "pallet", "custom"]
+    },
+    "subtype": { "type": "string" },
+    "clamping_method": { "type": "string", "enum": ["manual", "hydraulic", "pneumatic", "vacuum", "magnetic", "mechanical"] },
+    "clamping_force": { "type": "number", "description": "kN" },
+    "dimensions": {
+      "type": "object",
+      "properties": {
+        "length": { "type": "number" },
+        "width": { "type": "number" },
+        "height": { "type": "number" },
+        "jaw_width": { "type": "number" },
+        "max_opening": { "type": "number" },
+        "min_opening": { "type": "number" }
+      }
+    },
+    "capacity": {
+      "type": "object",
+      "properties": {
+        "max_workpiece_weight": { "type": "number", "description": "kg" },
+        "max_workpiece_diameter": { "type": "number" },
+        "max_workpiece_length": { "type": "number" }
+      }
+    },
+    "accuracy": {
+      "type": "object",
+      "properties": {
+        "repeatability": { "type": "number", "description": "mm" },
+        "parallelism": { "type": "number" },
+        "perpendicularity": { "type": "number" }
+      }
+    },
+    "compatibility": {
+      "type": "object",
+      "properties": {
+        "machine_types": { "type": "array", "items": { "type": "string" } },
+        "table_slot_pattern": { "type": "string" },
+        "mounting_holes": { "type": "string" }
+      }
+    },
+    "metadata": {
+      "type": "object",
+      "properties": {
+        "created": { "type": "string", "format": "date-time" },
+        "source": { "type": "string" }
+      }
+    }
+  }
+}

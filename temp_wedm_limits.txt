@@ -1,0 +1,9 @@
+### wire_consumption_model
+EDMCostDocumentationEngine calculates wire from speed×time, not contour_length×passes. During WEDM-MS1 U-WEDM27 implementation, the backend engine's estimateWireCost() must be patched to accept contour_length_mm and pass_count as inputs. Tab waste (30-50% extra) and wire break loss (5-15%) must also be added. This is a backend engine fix, not just a UI task.
+
+### threading_events
+Threading events default to 1 with flat 3min per event. Must auto-calculate from start_hole_count + Weibull break prediction (λ from EDMCuttingParamFlushEngine). Threading time should vary by method: auto=2min, mechanical=5min, manual=8min. Machine-specific threading times from MachineRegistry.
+
+### machine_rate
+Machine hourly rate is manual input. Should integrate MachineRegistry lookup by selected machine model. Rate should vary by machine capability tier (2-axis vs 4-axis) and shop utilization.
+

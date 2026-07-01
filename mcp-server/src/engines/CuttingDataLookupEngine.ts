@@ -105,6 +105,16 @@ const MATERIAL_TO_ISO: Record<string, ISOGroup> = {
 // ============================================================================
 // CUTTING DATA TABLES — By ISO Group × Operation × Cut Type
 // ============================================================================
+// ROLE: a CONSERVATIVE vendor-style REFERENCE lookup keyed by ISO group x operation x cut type
+// -- a safe "starting point" a programmer dials up. This is DELIBERATELY DISTINCT from
+// UltimateSpeedFeedEngine.CUTTING_PARAMS (the canonical PHYSICS-optimized SFC: per-tool /
+// per-machine, hardness+strategy+tool+coolant factors, Kienzle forces, goal blending incl.
+// shop_recommended). The two tables are NOT meant to be byte-identical and must NOT be
+// force-synced (R7 surface-don't-average): this one is the conservative reference floor, that one
+// is the physics-optimized recommendation -- values here run conservative vs modern coated-carbide
+// catalog BY DESIGN. (Confirmed intentional 2026-06-19: AutoSpeedFeedEngine orchestrates BOTH
+// engines in distinct roles; this engine's tests assert internal consistency, not parity with the
+// physics calc. Cross-ref reference_oscar_sfc_shop_recommended_2026_06_19.)
 // SFM values (Imperial); multiply by 0.3048 for m/min
 // fz = feed per tooth (inches) for milling/drilling; fn = feed per rev for turning
 

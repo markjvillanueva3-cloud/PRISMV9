@@ -1,0 +1,1588 @@
+{
+  "schemaVersion": "1.0.0",
+  "_lastBackfillTs": "2026-05-08T16:41:54.025Z",
+  "timestamp": "2026-04-15T03:12:51.561Z",
+  "duration_sec": 3,
+  "training": {
+    "programs_parsed": 27,
+    "proven_programs": 6,
+    "operations_learned": 100,
+    "customers": [
+      "ALL STAR",
+      "FONTANA",
+      "SFS GROUP USA",
+      "TAPTITE",
+      "ITW SHAKEPROOF"
+    ],
+    "materials": [
+      "P",
+      "N"
+    ],
+    "issues_found": 96
+  },
+  "optimization": {
+    "total_programs": 27,
+    "programs_optimized": 27,
+    "programs_unchanged": 16,
+    "programs_with_issues": 6,
+    "total_time_savings_min": 7824.4,
+    "avg_improvement_pct": 23.41481481481481,
+    "issues_fixed": 106,
+    "issues_remaining": -10,
+    "customers_processed": [
+      "ALL STAR",
+      "FONTANA",
+      "SFS GROUP USA",
+      "TAPTITE",
+      "ITW SHAKEPROOF"
+    ],
+    "materials_processed": [
+      "P",
+      "N"
+    ],
+    "per_customer_stats": {
+      "ALL STAR": {
+        "programs": 2,
+        "time_saved": 0
+      },
+      "FONTANA": {
+        "programs": 14,
+        "time_saved": 3039.3999999999996
+      },
+      "SFS GROUP USA": {
+        "programs": 6,
+        "time_saved": 886.2
+      },
+      "TAPTITE": {
+        "programs": 4,
+        "time_saved": 0
+      },
+      "ITW SHAKEPROOF": {
+        "programs": 1,
+        "time_saved": 3898.8
+      }
+    }
+  },
+  "optimizations": [
+    {
+      "original_path": "H:\\PRISM\\JM DIE\\CNC MILL HAAS\\ALL STAR\\ALL STAR .NC",
+      "program_number": "1",
+      "customer": "ALL STAR",
+      "material_iso": "P",
+      "original_cycle_time_min": 1.5,
+      "optimized_cycle_time_min": 1.5,
+      "time_savings_pct": 0,
+      "operations_optimized": [
+        {
+          "tool_number": 15,
+          "operation_type": "face",
+          "original_rpm": 500,
+          "optimized_rpm": 255,
+          "original_feed": 7.5,
+          "optimized_feed": 7.5,
+          "original_doc": 0,
+          "optimized_doc": 0,
+          "improvement_reason": "SFM correction: 393 → 200",
+          "tool_recommendation": "FACE-76.2"
+        }
+      ],
+      "issues_fixed": 0,
+      "issues_remaining": 0,
+      "recommended_machine": "Haas VF-2SS",
+      "confidence": 0.85
+    },
+    {
+      "original_path": "H:\\PRISM\\JM DIE\\CNC MILL HAAS\\ALL STAR\\ALL STAR.NC",
+      "program_number": "1",
+      "customer": "ALL STAR",
+      "material_iso": "P",
+      "original_cycle_time_min": 16.3,
+      "optimized_cycle_time_min": 16.3,
+      "time_savings_pct": 0,
+      "operations_optimized": [
+        {
+          "tool_number": 1,
+          "operation_type": "drill",
+          "original_rpm": 1000,
+          "optimized_rpm": 3056,
+          "original_feed": 3.5,
+          "optimized_feed": 3.5,
+          "original_doc": 0,
+          "optimized_doc": 0,
+          "improvement_reason": "SFM correction: 65 → 200",
+          "tool_recommendation": "SPOT-6.35"
+        },
+        {
+          "tool_number": 2,
+          "operation_type": "peck_drill",
+          "original_rpm": 1018,
+          "optimized_rpm": 255,
+          "original_feed": 1.8,
+          "optimized_feed": 1.8,
+          "original_doc": 0,
+          "optimized_doc": 0,
+          "improvement_reason": "SFM correction: 800 → 200"
+        },
+        {
+          "tool_number": 17,
+          "operation_type": "peck_drill",
+          "original_rpm": 1193,
+          "optimized_rpm": 4775,
+          "original_feed": 2.4,
+          "optimized_feed": 2.4,
+          "original_doc": 0,
+          "optimized_doc": 0,
+          "improvement_reason": "SFM correction: 50 → 200",
+          "tool_recommendation": "DRILL-4.76"
+        },
+        {
+          "tool_number": 16,
+          "operation_type": "chamfer",
+          "original_rpm": 5000,
+          "optimized_rpm": 2037,
+          "original_feed": 15,
+          "optimized_feed": 15,
+          "original_doc": 0,
+          "optimized_doc": 0,
+          "improvement_reason": "SFM correction: 491 → 200",
+          "tool_recommendation": "CHAM-9.53"
+        },
+        {
+          "tool_number": 3,
+          "operation_type": "tap",
+          "original_rpm": 603,
+          "optimized_rpm": 76,
+          "original_feed": 18.9,
+          "optimized_feed": 18.9,
+          "original_doc": 0,
+          "optimized_doc": 0,
+          "improvement_reason": "SFM correction: 1579 → 200"
+        }
+      ],
+      "issues_fixed": 2,
+      "issues_remaining": 3,
+      "recommended_machine": "Haas VF-2SS",
+      "confidence": 0.85
+    },
+    {
+      "original_path": "H:\\PRISM\\JM DIE\\CNC MILL HAAS\\FONTANA\\GRIP BLOCKS\\B-0506 JOBS\\B-0506-6.NC",
+      "program_number": "0",
+      "customer": "FONTANA",
+      "material_iso": "N",
+      "original_cycle_time_min": 11.4,
+      "optimized_cycle_time_min": 7.8,
+      "time_savings_pct": 32,
+      "operations_optimized": [
+        {
+          "tool_number": 14,
+          "operation_type": "unknown",
+          "original_rpm": 1151,
+          "optimized_rpm": 3071,
+          "original_feed": 13.8,
+          "optimized_feed": 16.9,
+          "original_doc": 0.0193,
+          "optimized_doc": 0.0193,
+          "improvement_reason": "SFM correction: 300 → 800"
+        },
+        {
+          "tool_number": 16,
+          "operation_type": "chamfer",
+          "original_rpm": 1919,
+          "optimized_rpm": 8149,
+          "original_feed": 10,
+          "optimized_feed": 12,
+          "original_doc": 0,
+          "optimized_doc": 0,
+          "improvement_reason": "SFM correction: 188 → 800",
+          "tool_recommendation": "CHAM-9.53"
+        }
+      ],
+      "issues_fixed": 3,
+      "issues_remaining": -1,
+      "recommended_machine": "Haas VF-2SS",
+      "confidence": 0.85
+    },
+    {
+      "original_path": "H:\\PRISM\\JM DIE\\CNC MILL HAAS\\FONTANA\\GRIP BLOCKS\\B-0506 JOBS\\B-0506-2\\B-0506-2.NC",
+      "program_number": "0",
+      "customer": "FONTANA",
+      "material_iso": "N",
+      "original_cycle_time_min": 4943.8,
+      "optimized_cycle_time_min": 2118.8,
+      "time_savings_pct": 57.1,
+      "operations_optimized": [
+        {
+          "tool_number": 15,
+          "operation_type": "face",
+          "original_rpm": 916,
+          "optimized_rpm": 916,
+          "original_feed": 18.3,
+          "optimized_feed": 18.3,
+          "original_doc": 0,
+          "optimized_doc": 0,
+          "improvement_reason": "No optimization needed",
+          "tool_recommendation": "FACE-76.2"
+        },
+        {
+          "tool_number": 14,
+          "operation_type": "unknown",
+          "original_rpm": 1919,
+          "optimized_rpm": 3071,
+          "original_feed": 30.7,
+          "optimized_feed": 22.5,
+          "original_doc": 0.025,
+          "optimized_doc": 0.025,
+          "improvement_reason": "SFM correction: 500 → 800"
+        },
+        {
+          "tool_number": 9,
+          "operation_type": "unknown",
+          "original_rpm": 3667,
+          "optimized_rpm": 9778,
+          "original_feed": 22,
+          "optimized_feed": 22,
+          "original_doc": 0.0011000000000000003,
+          "optimized_doc": 0.0011000000000000003,
+          "improvement_reason": "SFM correction: 300 → 800",
+          "tool_recommendation": "EM-6.35-4FL"
+        },
+        {
+          "tool_number": 19,
+          "operation_type": "unknown",
+          "original_rpm": 2700,
+          "optimized_rpm": 6112,
+          "original_feed": 17,
+          "optimized_feed": 17,
+          "original_doc": 0.0006000000000000033,
+          "optimized_doc": 0.0006000000000000033,
+          "improvement_reason": "SFM correction: 353 → 800"
+        },
+        {
+          "tool_number": 1,
+          "operation_type": "drill",
+          "original_rpm": 1000,
+          "optimized_rpm": 12223,
+          "original_feed": 3.5,
+          "optimized_feed": 3.5,
+          "original_doc": 0,
+          "optimized_doc": 0,
+          "improvement_reason": "SFM correction: 65 → 800"
+        },
+        {
+          "tool_number": 2,
+          "operation_type": "peck_drill",
+          "original_rpm": 545,
+          "optimized_rpm": 8731,
+          "original_feed": 1.6,
+          "optimized_feed": 1.6,
+          "original_doc": 0,
+          "optimized_doc": 0,
+          "improvement_reason": "SFM correction: 50 → 800"
+        },
+        {
+          "tool_number": 10,
+          "operation_type": "unknown",
+          "original_rpm": 3886,
+          "optimized_rpm": 8372,
+          "original_feed": 18.7,
+          "optimized_feed": 11.8,
+          "original_doc": 0.0007,
+          "optimized_doc": 0.0007,
+          "improvement_reason": "SFM correction: 371 → 800"
+        },
+        {
+          "tool_number": 11,
+          "operation_type": "drill",
+          "original_rpm": 1018,
+          "optimized_rpm": 8149,
+          "original_feed": 0.3,
+          "optimized_feed": 0.7,
+          "original_doc": 0,
+          "optimized_doc": 0,
+          "improvement_reason": "SFM correction: 100 → 800"
+        },
+        {
+          "tool_number": 16,
+          "operation_type": "chamfer",
+          "original_rpm": 3056,
+          "optimized_rpm": 8149,
+          "original_feed": 15.9,
+          "optimized_feed": 12,
+          "original_doc": 0,
+          "optimized_doc": 0,
+          "improvement_reason": "SFM correction: 300 → 800",
+          "tool_recommendation": "CHAM-9.53"
+        }
+      ],
+      "issues_fixed": 4,
+      "issues_remaining": 7,
+      "recommended_machine": "Haas VF-2SS",
+      "confidence": 0.85
+    },
+    {
+      "original_path": "H:\\PRISM\\JM DIE\\CNC MILL HAAS\\FONTANA\\GRIP BLOCKS\\B-0506 JOBS\\B-0506-6  1.15625\\B-0506-6.NC",
+      "program_number": "0",
+      "customer": "FONTANA",
+      "material_iso": "N",
+      "original_cycle_time_min": 11.4,
+      "optimized_cycle_time_min": 7.8,
+      "time_savings_pct": 32,
+      "operations_optimized": [
+        {
+          "tool_number": 14,
+          "operation_type": "unknown",
+          "original_rpm": 1151,
+          "optimized_rpm": 3071,
+          "original_feed": 13.8,
+          "optimized_feed": 16.9,
+          "original_doc": 0.0193,
+          "optimized_doc": 0.0193,
+          "improvement_reason": "SFM correction: 300 → 800"
+        },
+        {
+          "tool_number": 16,
+          "operation_type": "chamfer",
+          "original_rpm": 1919,
+          "optimized_rpm": 8149,
+          "original_feed": 10,
+          "optimized_feed": 12,
+          "original_doc": 0,
+          "optimized_doc": 0,
+          "improvement_reason": "SFM correction: 188 → 800",
+          "tool_recommendation": "CHAM-9.53"
+        }
+      ],
+      "issues_fixed": 3,
+      "issues_remaining": -1,
+      "recommended_machine": "Haas VF-2SS",
+      "confidence": 0.85
+    },
+    {
+      "original_path": "H:\\PRISM\\JM DIE\\CNC MILL HAAS\\FONTANA\\GRIP BLOCKS\\B-1289-11  1.1875\\PROVEN PRG\\OP1\\O01289.nc",
+      "program_number": "01289",
+      "customer": "FONTANA",
+      "material_iso": "P",
+      "original_cycle_time_min": 2975.2,
+      "optimized_cycle_time_min": 2975.2,
+      "time_savings_pct": 0,
+      "operations_optimized": [
+        {
+          "tool_number": 9,
+          "operation_type": "unknown",
+          "original_rpm": 5000,
+          "optimized_rpm": 153,
+          "original_feed": 50,
+          "optimized_feed": 49.6,
+          "original_doc": 0.0005999999999999998,
+          "optimized_doc": 0.0005999999999999998,
+          "improvement_reason": "SFM correction: 6545 → 200"
+        },
+        {
+          "tool_number": 10,
+          "operation_type": "unknown",
+          "original_rpm": 5000,
+          "optimized_rpm": 153,
+          "original_feed": 50,
+          "optimized_feed": 49.6,
+          "original_doc": 0.0006000000000000001,
+          "optimized_doc": 0.0006000000000000001,
+          "improvement_reason": "SFM correction: 6545 → 200"
+        }
+      ],
+      "issues_fixed": 2,
+      "issues_remaining": 0,
+      "recommended_machine": "Haas VF-2SS",
+      "confidence": 0.85
+    },
+    {
+      "original_path": "H:\\PRISM\\JM DIE\\CNC MILL HAAS\\FONTANA\\GRIP BLOCKS\\B-1289-11  1.1875\\PROVEN PRG\\OP2\\B-1289-11.2.NC",
+      "program_number": "12892",
+      "customer": "FONTANA",
+      "material_iso": "P",
+      "original_cycle_time_min": 3,
+      "optimized_cycle_time_min": 3,
+      "time_savings_pct": 0,
+      "operations_optimized": [
+        {
+          "tool_number": 11,
+          "operation_type": "unknown",
+          "original_rpm": 2500,
+          "optimized_rpm": 109,
+          "original_feed": 20,
+          "optimized_feed": 20,
+          "original_doc": 0.04,
+          "optimized_doc": 0.04,
+          "improvement_reason": "SFM correction: 4581 → 200"
+        }
+      ],
+      "issues_fixed": 1,
+      "issues_remaining": 0,
+      "recommended_machine": "Haas VF-2SS",
+      "confidence": 0.85
+    },
+    {
+      "original_path": "H:\\PRISM\\JM DIE\\CNC MILL HAAS\\FONTANA\\GRIP BLOCKS\\C-0127\\C-01271.NC",
+      "program_number": "01271",
+      "customer": "FONTANA",
+      "material_iso": "P",
+      "original_cycle_time_min": 1456.3,
+      "optimized_cycle_time_min": 1456.3,
+      "time_savings_pct": 0,
+      "operations_optimized": [
+        {
+          "tool_number": 10,
+          "operation_type": "unknown",
+          "original_rpm": 5000,
+          "optimized_rpm": 153,
+          "original_feed": 40,
+          "optimized_feed": 39.7,
+          "original_doc": 0.00009999999999999983,
+          "optimized_doc": 0.00009999999999999983,
+          "improvement_reason": "SFM correction: 6545 → 200"
+        }
+      ],
+      "issues_fixed": 1,
+      "issues_remaining": 0,
+      "recommended_machine": "Haas VF-2SS",
+      "confidence": 0.85
+    },
+    {
+      "original_path": "H:\\PRISM\\JM DIE\\CNC MILL HAAS\\FONTANA\\GRIP BLOCKS\\C-0127\\C-01272.NC",
+      "program_number": "01272",
+      "customer": "FONTANA",
+      "material_iso": "P",
+      "original_cycle_time_min": 17.5,
+      "optimized_cycle_time_min": 17.5,
+      "time_savings_pct": 0,
+      "operations_optimized": [
+        {
+          "tool_number": 9,
+          "operation_type": "unknown",
+          "original_rpm": 5000,
+          "optimized_rpm": 153,
+          "original_feed": 40,
+          "optimized_feed": 39.7,
+          "original_doc": 0.0247,
+          "optimized_doc": 0.0247,
+          "improvement_reason": "SFM correction: 6545 → 200"
+        }
+      ],
+      "issues_fixed": 1,
+      "issues_remaining": 0,
+      "recommended_machine": "Haas VF-2SS",
+      "confidence": 0.85
+    },
+    {
+      "original_path": "H:\\PRISM\\JM DIE\\CNC MILL HAAS\\FONTANA\\GRIP BLOCKS\\C-0127\\tc-0127-03\\C-01271.NC",
+      "program_number": "01271",
+      "customer": "FONTANA",
+      "material_iso": "P",
+      "original_cycle_time_min": 1456.3,
+      "optimized_cycle_time_min": 1456.3,
+      "time_savings_pct": 0,
+      "operations_optimized": [
+        {
+          "tool_number": 10,
+          "operation_type": "unknown",
+          "original_rpm": 5000,
+          "optimized_rpm": 153,
+          "original_feed": 40,
+          "optimized_feed": 39.7,
+          "original_doc": 0.00009999999999999983,
+          "optimized_doc": 0.00009999999999999983,
+          "improvement_reason": "SFM correction: 6545 → 200"
+        }
+      ],
+      "issues_fixed": 1,
+      "issues_remaining": 0,
+      "recommended_machine": "Haas VF-2SS",
+      "confidence": 0.85
+    },
+    {
+      "original_path": "H:\\PRISM\\JM DIE\\CNC MILL HAAS\\FONTANA\\GRIP BLOCKS\\C-0127\\tc-0127-03\\C-01272.NC",
+      "program_number": "01272",
+      "customer": "FONTANA",
+      "material_iso": "P",
+      "original_cycle_time_min": 17.5,
+      "optimized_cycle_time_min": 17.5,
+      "time_savings_pct": 0,
+      "operations_optimized": [
+        {
+          "tool_number": 9,
+          "operation_type": "unknown",
+          "original_rpm": 5000,
+          "optimized_rpm": 153,
+          "original_feed": 40,
+          "optimized_feed": 39.7,
+          "original_doc": 0.0247,
+          "optimized_doc": 0.0247,
+          "improvement_reason": "SFM correction: 6545 → 200"
+        }
+      ],
+      "issues_fixed": 1,
+      "issues_remaining": 0,
+      "recommended_machine": "Haas VF-2SS",
+      "confidence": 0.85
+    },
+    {
+      "original_path": "H:\\PRISM\\JM DIE\\CNC MILL HAAS\\FONTANA\\GRIP BLOCKS\\C-0127\\TC-0127-5\\TC-0127-5.2.NC",
+      "program_number": "12752",
+      "customer": "FONTANA",
+      "material_iso": "P",
+      "original_cycle_time_min": 2228.5,
+      "optimized_cycle_time_min": 2021.3,
+      "time_savings_pct": 9.3,
+      "operations_optimized": [
+        {
+          "tool_number": 9,
+          "operation_type": "unknown",
+          "original_rpm": 4500,
+          "optimized_rpm": 153,
+          "original_feed": 40,
+          "optimized_feed": 44.1,
+          "original_doc": 0.00009999999999999996,
+          "optimized_doc": 0.00009999999999999996,
+          "improvement_reason": "SFM correction: 5890 → 200"
+        },
+        {
+          "tool_number": 10,
+          "operation_type": "unknown",
+          "original_rpm": 5000,
+          "optimized_rpm": 153,
+          "original_feed": 40,
+          "optimized_feed": 39.7,
+          "original_doc": 0.0001,
+          "optimized_doc": 0.0001,
+          "improvement_reason": "SFM correction: 6545 → 200"
+        }
+      ],
+      "issues_fixed": 3,
+      "issues_remaining": -1,
+      "recommended_machine": "Haas VF-2SS",
+      "confidence": 0.85
+    },
+    {
+      "original_path": "H:\\PRISM\\JM DIE\\CNC MILL HAAS\\FONTANA\\GRIP BLOCKS\\FD-1500-006\\FD1500-006.NC",
+      "program_number": "1506",
+      "customer": "FONTANA",
+      "material_iso": "P",
+      "original_cycle_time_min": 1603.4,
+      "optimized_cycle_time_min": 1603.4,
+      "time_savings_pct": 0,
+      "operations_optimized": [
+        {
+          "tool_number": 18,
+          "operation_type": "unknown",
+          "original_rpm": 4500,
+          "optimized_rpm": 153,
+          "original_feed": 45,
+          "optimized_feed": 24.9,
+          "original_doc": 0.0002999999999999999,
+          "optimized_doc": 0.0002999999999999999,
+          "improvement_reason": "SFM correction: 5890 → 200"
+        },
+        {
+          "tool_number": 16,
+          "operation_type": "unknown",
+          "original_rpm": 5000,
+          "optimized_rpm": 153,
+          "original_feed": 45,
+          "optimized_feed": 44.6,
+          "original_doc": 0.00010000000000000005,
+          "optimized_doc": 0.00010000000000000005,
+          "improvement_reason": "SFM correction: 6545 → 200"
+        }
+      ],
+      "issues_fixed": 2,
+      "issues_remaining": 0,
+      "recommended_machine": "Haas VF-2SS",
+      "confidence": 0.85
+    },
+    {
+      "original_path": "H:\\PRISM\\JM DIE\\CNC MILL HAAS\\FONTANA\\GRIP BLOCKS\\FD-1500-006\\O01506.nc",
+      "program_number": "01506",
+      "customer": "FONTANA",
+      "material_iso": "P",
+      "original_cycle_time_min": 1603.4,
+      "optimized_cycle_time_min": 1603.4,
+      "time_savings_pct": 0,
+      "operations_optimized": [
+        {
+          "tool_number": 18,
+          "operation_type": "unknown",
+          "original_rpm": 4500,
+          "optimized_rpm": 153,
+          "original_feed": 45,
+          "optimized_feed": 24.9,
+          "original_doc": 0.0002999999999999999,
+          "optimized_doc": 0.0002999999999999999,
+          "improvement_reason": "SFM correction: 5890 → 200"
+        },
+        {
+          "tool_number": 16,
+          "operation_type": "unknown",
+          "original_rpm": 5000,
+          "optimized_rpm": 153,
+          "original_feed": 45,
+          "optimized_feed": 44.6,
+          "original_doc": 0.00010000000000000005,
+          "optimized_doc": 0.00010000000000000005,
+          "improvement_reason": "SFM correction: 6545 → 200"
+        }
+      ],
+      "issues_fixed": 2,
+      "issues_remaining": 0,
+      "recommended_machine": "Haas VF-2SS",
+      "confidence": 0.85
+    },
+    {
+      "original_path": "H:\\PRISM\\JM DIE\\CNC MILL HAAS\\FONTANA\\GRIP BLOCKS\\FD-1500-006\\pass with undercut\\FD-1500-006A.NC",
+      "program_number": "15006",
+      "customer": "FONTANA",
+      "material_iso": "P",
+      "original_cycle_time_min": 1475.4,
+      "optimized_cycle_time_min": 1475.4,
+      "time_savings_pct": 0,
+      "operations_optimized": [
+        {
+          "tool_number": 18,
+          "operation_type": "unknown",
+          "original_rpm": 4000,
+          "optimized_rpm": 153,
+          "original_feed": 45,
+          "optimized_feed": 28,
+          "original_doc": 0.0002999999999999999,
+          "optimized_doc": 0.0002999999999999999,
+          "improvement_reason": "SFM correction: 5236 → 200"
+        },
+        {
+          "tool_number": 16,
+          "operation_type": "unknown",
+          "original_rpm": 5000,
+          "optimized_rpm": 153,
+          "original_feed": 45,
+          "optimized_feed": 44.6,
+          "original_doc": 0.00010000000000000005,
+          "optimized_doc": 0.00010000000000000005,
+          "improvement_reason": "SFM correction: 6545 → 200"
+        }
+      ],
+      "issues_fixed": 2,
+      "issues_remaining": 0,
+      "recommended_machine": "Haas VF-2SS",
+      "confidence": 0.85
+    },
+    {
+      "original_path": "H:\\PRISM\\JM DIE\\CNC MILL HAAS\\FONTANA\\GRIP BLOCKS\\FD-1500-006\\pass with undercut\\PROVEN PRG\\O15006.nc",
+      "program_number": "15006",
+      "customer": "FONTANA",
+      "material_iso": "P",
+      "original_cycle_time_min": 1475.4,
+      "optimized_cycle_time_min": 1475.4,
+      "time_savings_pct": 0,
+      "operations_optimized": [
+        {
+          "tool_number": 18,
+          "operation_type": "unknown",
+          "original_rpm": 4000,
+          "optimized_rpm": 153,
+          "original_feed": 45,
+          "optimized_feed": 28,
+          "original_doc": 0.0002999999999999999,
+          "optimized_doc": 0.0002999999999999999,
+          "improvement_reason": "SFM correction: 5236 → 200"
+        },
+        {
+          "tool_number": 16,
+          "operation_type": "unknown",
+          "original_rpm": 5000,
+          "optimized_rpm": 153,
+          "original_feed": 45,
+          "optimized_feed": 44.6,
+          "original_doc": 0.00010000000000000005,
+          "optimized_doc": 0.00010000000000000005,
+          "improvement_reason": "SFM correction: 6545 → 200"
+        }
+      ],
+      "issues_fixed": 2,
+      "issues_remaining": 0,
+      "recommended_machine": "Haas VF-2SS",
+      "confidence": 0.85
+    },
+    {
+      "original_path": "H:\\PRISM\\JM DIE\\CNC MILL HAAS\\SFS GROUP USA\\Guided back stops\\1563247\\OP1\\O32471.NC",
+      "program_number": "32471",
+      "customer": "SFS GROUP USA",
+      "material_iso": "P",
+      "original_cycle_time_min": 195.2,
+      "optimized_cycle_time_min": 22.8,
+      "time_savings_pct": 88.3,
+      "operations_optimized": [
+        {
+          "tool_number": 3,
+          "operation_type": "unknown",
+          "original_rpm": 2500,
+          "optimized_rpm": 764,
+          "original_feed": 20,
+          "optimized_feed": 21.6,
+          "original_doc": 0,
+          "optimized_doc": 0,
+          "improvement_reason": "SFM correction: 654 → 200"
+        },
+        {
+          "tool_number": 1,
+          "operation_type": "unknown",
+          "original_rpm": 2800,
+          "optimized_rpm": 109,
+          "original_feed": 20,
+          "optimized_feed": 20.4,
+          "original_doc": 0.007899999999999999,
+          "optimized_doc": 0.007899999999999999,
+          "improvement_reason": "SFM correction: 5131 → 200"
+        },
+        {
+          "tool_number": 2,
+          "operation_type": "unknown",
+          "original_rpm": 2500,
+          "optimized_rpm": 1352,
+          "original_feed": 20,
+          "optimized_feed": 20,
+          "original_doc": 0,
+          "optimized_doc": 0,
+          "improvement_reason": "SFM correction: 370 → 200",
+          "tool_recommendation": "EM-12.7-4FL"
+        },
+        {
+          "tool_number": 4,
+          "operation_type": "unknown",
+          "original_rpm": 1250,
+          "optimized_rpm": 255,
+          "original_feed": 15,
+          "optimized_feed": 18.5,
+          "original_doc": 0.0098,
+          "optimized_doc": 0.0098,
+          "improvement_reason": "SFM correction: 982 → 200"
+        },
+        {
+          "tool_number": 5,
+          "operation_type": "unknown",
+          "original_rpm": 1350,
+          "optimized_rpm": 255,
+          "original_feed": 15,
+          "optimized_feed": 17.2,
+          "original_doc": 0,
+          "optimized_doc": 0,
+          "improvement_reason": "SFM correction: 1060 → 200"
+        },
+        {
+          "tool_number": 4,
+          "operation_type": "unknown",
+          "original_rpm": 1250,
+          "optimized_rpm": 255,
+          "original_feed": 15,
+          "optimized_feed": 18.5,
+          "original_doc": 0.0085,
+          "optimized_doc": 0.0085,
+          "improvement_reason": "SFM correction: 982 → 200"
+        },
+        {
+          "tool_number": 6,
+          "operation_type": "unknown",
+          "original_rpm": 1250,
+          "optimized_rpm": 764,
+          "original_feed": 15,
+          "optimized_feed": 23.9,
+          "original_doc": 0.0004000000000000002,
+          "optimized_doc": 0.0004000000000000002,
+          "improvement_reason": "SFM correction: 327 → 200",
+          "tool_recommendation": "EM-25.4-4FL"
+        },
+        {
+          "tool_number": 7,
+          "operation_type": "unknown",
+          "original_rpm": 1250,
+          "optimized_rpm": 153,
+          "original_feed": 15,
+          "optimized_feed": 29.9,
+          "original_doc": 0.008799999999999999,
+          "optimized_doc": 0.008799999999999999,
+          "improvement_reason": "SFM correction: 1636 → 200"
+        },
+        {
+          "tool_number": 8,
+          "operation_type": "unknown",
+          "original_rpm": 2000,
+          "optimized_rpm": 153,
+          "original_feed": 12,
+          "optimized_feed": 14.9,
+          "original_doc": 0,
+          "optimized_doc": 0,
+          "improvement_reason": "SFM correction: 2618 → 200"
+        },
+        {
+          "tool_number": 9,
+          "operation_type": "drill",
+          "original_rpm": 1000,
+          "optimized_rpm": 255,
+          "original_feed": 5,
+          "optimized_feed": 5,
+          "original_doc": 0.21199999999999997,
+          "optimized_doc": 0.21199999999999997,
+          "improvement_reason": "SFM correction: 785 → 200"
+        },
+        {
+          "tool_number": 10,
+          "operation_type": "peck_drill",
+          "original_rpm": 1000,
+          "optimized_rpm": 153,
+          "original_feed": 5,
+          "optimized_feed": 5,
+          "original_doc": 0.5472,
+          "optimized_doc": 0.5472,
+          "improvement_reason": "SFM correction: 1309 → 200"
+        },
+        {
+          "tool_number": 11,
+          "operation_type": "chamfer",
+          "original_rpm": 2500,
+          "optimized_rpm": 764,
+          "original_feed": 20,
+          "optimized_feed": 21.2,
+          "original_doc": 0,
+          "optimized_doc": 0,
+          "improvement_reason": "SFM correction: 654 → 200"
+        },
+        {
+          "tool_number": 12,
+          "operation_type": "chamfer",
+          "original_rpm": 2500,
+          "optimized_rpm": 255,
+          "original_feed": 20,
+          "optimized_feed": 21.3,
+          "original_doc": 0.050000000000000044,
+          "optimized_doc": 0.050000000000000044,
+          "improvement_reason": "SFM correction: 1963 → 200"
+        }
+      ],
+      "issues_fixed": 21,
+      "issues_remaining": -9,
+      "recommended_machine": "Haas VF-2SS",
+      "confidence": 0.85
+    },
+    {
+      "original_path": "H:\\PRISM\\JM DIE\\CNC MILL HAAS\\SFS GROUP USA\\Guided back stops\\1563247\\OP1\\proven prg\\O32471.NC",
+      "program_number": "32471",
+      "customer": "SFS GROUP USA",
+      "material_iso": "P",
+      "original_cycle_time_min": 196,
+      "optimized_cycle_time_min": 26.2,
+      "time_savings_pct": 86.7,
+      "operations_optimized": [
+        {
+          "tool_number": 3,
+          "operation_type": "unknown",
+          "original_rpm": 2800,
+          "optimized_rpm": 764,
+          "original_feed": 20,
+          "optimized_feed": 19.3,
+          "original_doc": 0,
+          "optimized_doc": 0,
+          "improvement_reason": "SFM correction: 733 → 200"
+        },
+        {
+          "tool_number": 1,
+          "operation_type": "unknown",
+          "original_rpm": 2900,
+          "optimized_rpm": 109,
+          "original_feed": 20,
+          "optimized_feed": 19.7,
+          "original_doc": 0.007899999999999999,
+          "optimized_doc": 0.007899999999999999,
+          "improvement_reason": "SFM correction: 5315 → 200"
+        },
+        {
+          "tool_number": 2,
+          "operation_type": "unknown",
+          "original_rpm": 2500,
+          "optimized_rpm": 1352,
+          "original_feed": 20,
+          "optimized_feed": 20,
+          "original_doc": 0,
+          "optimized_doc": 0,
+          "improvement_reason": "SFM correction: 370 → 200",
+          "tool_recommendation": "EM-12.7-4FL"
+        },
+        {
+          "tool_number": 4,
+          "operation_type": "unknown",
+          "original_rpm": 1250,
+          "optimized_rpm": 255,
+          "original_feed": 15,
+          "optimized_feed": 18.5,
+          "original_doc": 0.0098,
+          "optimized_doc": 0.0098,
+          "improvement_reason": "SFM correction: 982 → 200"
+        },
+        {
+          "tool_number": 5,
+          "operation_type": "unknown",
+          "original_rpm": 1658,
+          "optimized_rpm": 255,
+          "original_feed": 15,
+          "optimized_feed": 14,
+          "original_doc": 0,
+          "optimized_doc": 0,
+          "improvement_reason": "SFM correction: 1302 → 200"
+        },
+        {
+          "tool_number": 4,
+          "operation_type": "unknown",
+          "original_rpm": 1550,
+          "optimized_rpm": 255,
+          "original_feed": 15,
+          "optimized_feed": 14.9,
+          "original_doc": 0.0085,
+          "optimized_doc": 0.0085,
+          "improvement_reason": "SFM correction: 1217 → 200"
+        },
+        {
+          "tool_number": 6,
+          "operation_type": "unknown",
+          "original_rpm": 1550,
+          "optimized_rpm": 764,
+          "original_feed": 15,
+          "optimized_feed": 19.2,
+          "original_doc": 0.0004000000000000002,
+          "optimized_doc": 0.0004000000000000002,
+          "improvement_reason": "SFM correction: 406 → 200",
+          "tool_recommendation": "EM-25.4-4FL"
+        },
+        {
+          "tool_number": 7,
+          "operation_type": "unknown",
+          "original_rpm": 2000,
+          "optimized_rpm": 153,
+          "original_feed": 15,
+          "optimized_feed": 18.7,
+          "original_doc": 0.008799999999999999,
+          "optimized_doc": 0.008799999999999999,
+          "improvement_reason": "SFM correction: 2618 → 200"
+        },
+        {
+          "tool_number": 8,
+          "operation_type": "unknown",
+          "original_rpm": 700,
+          "optimized_rpm": 153,
+          "original_feed": 8,
+          "optimized_feed": 28.5,
+          "original_doc": 0,
+          "optimized_doc": 0,
+          "improvement_reason": "SFM correction: 916 → 200"
+        },
+        {
+          "tool_number": 9,
+          "operation_type": "drill",
+          "original_rpm": 1000,
+          "optimized_rpm": 255,
+          "original_feed": 5,
+          "optimized_feed": 5,
+          "original_doc": 0.21199999999999997,
+          "optimized_doc": 0.21199999999999997,
+          "improvement_reason": "SFM correction: 785 → 200"
+        },
+        {
+          "tool_number": 10,
+          "operation_type": "peck_drill",
+          "original_rpm": 1000,
+          "optimized_rpm": 153,
+          "original_feed": 5,
+          "optimized_feed": 5,
+          "original_doc": 0.5472,
+          "optimized_doc": 0.5472,
+          "improvement_reason": "SFM correction: 1309 → 200"
+        },
+        {
+          "tool_number": 11,
+          "operation_type": "chamfer",
+          "original_rpm": 2800,
+          "optimized_rpm": 764,
+          "original_feed": 20,
+          "optimized_feed": 18.9,
+          "original_doc": 0,
+          "optimized_doc": 0,
+          "improvement_reason": "SFM correction: 733 → 200"
+        },
+        {
+          "tool_number": 12,
+          "operation_type": "chamfer",
+          "original_rpm": 2500,
+          "optimized_rpm": 255,
+          "original_feed": 16,
+          "optimized_feed": 17.1,
+          "original_doc": 0.050000000000000044,
+          "optimized_doc": 0.050000000000000044,
+          "improvement_reason": "SFM correction: 1963 → 200"
+        }
+      ],
+      "issues_fixed": 16,
+      "issues_remaining": -4,
+      "recommended_machine": "Haas VF-2SS",
+      "confidence": 0.85
+    },
+    {
+      "original_path": "H:\\PRISM\\JM DIE\\CNC MILL HAAS\\SFS GROUP USA\\Guided back stops\\1563247\\OP2\\O32472.NC",
+      "program_number": "32472",
+      "customer": "SFS GROUP USA",
+      "material_iso": "P",
+      "original_cycle_time_min": 20.5,
+      "optimized_cycle_time_min": 7.7,
+      "time_savings_pct": 62.4,
+      "operations_optimized": [
+        {
+          "tool_number": 3,
+          "operation_type": "unknown",
+          "original_rpm": 2750,
+          "optimized_rpm": 764,
+          "original_feed": 20,
+          "optimized_feed": 19.6,
+          "original_doc": 0,
+          "optimized_doc": 0,
+          "improvement_reason": "SFM correction: 720 → 200"
+        },
+        {
+          "tool_number": 7,
+          "operation_type": "unknown",
+          "original_rpm": 1000,
+          "optimized_rpm": 153,
+          "original_feed": 5,
+          "optimized_feed": 12.5,
+          "original_doc": 0.005,
+          "optimized_doc": 0.005,
+          "improvement_reason": "SFM correction: 1309 → 200"
+        },
+        {
+          "tool_number": 12,
+          "operation_type": "chamfer",
+          "original_rpm": 3000,
+          "optimized_rpm": 255,
+          "original_feed": 20,
+          "optimized_feed": 17.8,
+          "original_doc": 0.013200000000000003,
+          "optimized_doc": 0.013200000000000003,
+          "improvement_reason": "SFM correction: 2356 → 200"
+        },
+        {
+          "tool_number": 11,
+          "operation_type": "chamfer",
+          "original_rpm": 2500,
+          "optimized_rpm": 255,
+          "original_feed": 20,
+          "optimized_feed": 21.3,
+          "original_doc": 0,
+          "optimized_doc": 0,
+          "improvement_reason": "SFM correction: 1963 → 200"
+        }
+      ],
+      "issues_fixed": 6,
+      "issues_remaining": -2,
+      "recommended_machine": "Haas VF-2SS",
+      "confidence": 0.85
+    },
+    {
+      "original_path": "H:\\PRISM\\JM DIE\\CNC MILL HAAS\\SFS GROUP USA\\Guided back stops\\1563247\\OP2\\PROVEN PRG\\O32472.NC",
+      "program_number": "32472",
+      "customer": "SFS GROUP USA",
+      "material_iso": "P",
+      "original_cycle_time_min": 20.5,
+      "optimized_cycle_time_min": 7.7,
+      "time_savings_pct": 62.4,
+      "operations_optimized": [
+        {
+          "tool_number": 3,
+          "operation_type": "unknown",
+          "original_rpm": 2750,
+          "optimized_rpm": 764,
+          "original_feed": 20,
+          "optimized_feed": 19.6,
+          "original_doc": 0,
+          "optimized_doc": 0,
+          "improvement_reason": "SFM correction: 720 → 200"
+        },
+        {
+          "tool_number": 7,
+          "operation_type": "unknown",
+          "original_rpm": 1000,
+          "optimized_rpm": 153,
+          "original_feed": 5,
+          "optimized_feed": 12.5,
+          "original_doc": 0.005,
+          "optimized_doc": 0.005,
+          "improvement_reason": "SFM correction: 1309 → 200"
+        },
+        {
+          "tool_number": 12,
+          "operation_type": "chamfer",
+          "original_rpm": 3000,
+          "optimized_rpm": 255,
+          "original_feed": 20,
+          "optimized_feed": 17.8,
+          "original_doc": 0.013200000000000003,
+          "optimized_doc": 0.013200000000000003,
+          "improvement_reason": "SFM correction: 2356 → 200"
+        },
+        {
+          "tool_number": 11,
+          "operation_type": "chamfer",
+          "original_rpm": 2500,
+          "optimized_rpm": 255,
+          "original_feed": 20,
+          "optimized_feed": 21.3,
+          "original_doc": 0,
+          "optimized_doc": 0,
+          "improvement_reason": "SFM correction: 1963 → 200"
+        }
+      ],
+      "issues_fixed": 6,
+      "issues_remaining": -2,
+      "recommended_machine": "Haas VF-2SS",
+      "confidence": 0.85
+    },
+    {
+      "original_path": "H:\\PRISM\\JM DIE\\CNC MILL HAAS\\SFS GROUP USA\\Guided back stops\\1563247\\OP3\\O32473.NC",
+      "program_number": "32743",
+      "customer": "SFS GROUP USA",
+      "material_iso": "P",
+      "original_cycle_time_min": 409.8,
+      "optimized_cycle_time_min": 265.5,
+      "time_savings_pct": 35.2,
+      "operations_optimized": [
+        {
+          "tool_number": 9,
+          "operation_type": "spot_drill",
+          "original_rpm": 1000,
+          "optimized_rpm": 255,
+          "original_feed": 5,
+          "optimized_feed": 5,
+          "original_doc": 0,
+          "optimized_doc": 0,
+          "improvement_reason": "SFM correction: 785 → 200"
+        },
+        {
+          "tool_number": 14,
+          "operation_type": "peck_drill",
+          "original_rpm": 1000,
+          "optimized_rpm": 1000,
+          "original_feed": 5,
+          "optimized_feed": 5,
+          "original_doc": 0,
+          "optimized_doc": 0,
+          "improvement_reason": "No optimization needed"
+        },
+        {
+          "tool_number": 5,
+          "operation_type": "unknown",
+          "original_rpm": 1350,
+          "optimized_rpm": 255,
+          "original_feed": 15,
+          "optimized_feed": 17.2,
+          "original_doc": 0,
+          "optimized_doc": 0,
+          "improvement_reason": "SFM correction: 1060 → 200"
+        },
+        {
+          "tool_number": 13,
+          "operation_type": "unknown",
+          "original_rpm": 2100,
+          "optimized_rpm": 255,
+          "original_feed": 10,
+          "optimized_feed": 7.4,
+          "original_doc": 0.0002999999999999982,
+          "optimized_doc": 0.0002999999999999982,
+          "improvement_reason": "SFM correction: 1649 → 200"
+        },
+        {
+          "tool_number": 4,
+          "operation_type": "unknown",
+          "original_rpm": 1250,
+          "optimized_rpm": 255,
+          "original_feed": 15,
+          "optimized_feed": 18.5,
+          "original_doc": 0,
+          "optimized_doc": 0,
+          "improvement_reason": "SFM correction: 982 → 200"
+        },
+        {
+          "tool_number": 15,
+          "operation_type": "unknown",
+          "original_rpm": 1850,
+          "optimized_rpm": 255,
+          "original_feed": 20,
+          "optimized_feed": 16.7,
+          "original_doc": 0.019700000000000002,
+          "optimized_doc": 0.019700000000000002,
+          "improvement_reason": "SFM correction: 1453 → 200"
+        },
+        {
+          "tool_number": 18,
+          "operation_type": "unknown",
+          "original_rpm": 2852,
+          "optimized_rpm": 255,
+          "original_feed": 6.16,
+          "optimized_feed": 5.8,
+          "original_doc": 0.0004999999999999996,
+          "optimized_doc": 0.0004999999999999996,
+          "improvement_reason": "SFM correction: 2240 → 200"
+        },
+        {
+          "tool_number": 8,
+          "operation_type": "unknown",
+          "original_rpm": 2444,
+          "optimized_rpm": 153,
+          "original_feed": 20,
+          "optimized_feed": 20.4,
+          "original_doc": 0,
+          "optimized_doc": 0,
+          "improvement_reason": "SFM correction: 3199 → 200"
+        },
+        {
+          "tool_number": 17,
+          "operation_type": "unknown",
+          "original_rpm": 2500,
+          "optimized_rpm": 764,
+          "original_feed": 20,
+          "optimized_feed": 15.9,
+          "original_doc": 0.00010000000000000286,
+          "optimized_doc": 0.00010000000000000286,
+          "improvement_reason": "SFM correction: 654 → 200",
+          "tool_recommendation": "EM-25.4-4FL"
+        },
+        {
+          "tool_number": 18,
+          "operation_type": "unknown",
+          "original_rpm": 2500,
+          "optimized_rpm": 255,
+          "original_feed": 20,
+          "optimized_feed": 21.4,
+          "original_doc": 0.00010000000000000113,
+          "optimized_doc": 0.00010000000000000113,
+          "improvement_reason": "SFM correction: 1963 → 200"
+        }
+      ],
+      "issues_fixed": 13,
+      "issues_remaining": -3,
+      "recommended_machine": "Haas VF-2SS",
+      "confidence": 0.85
+    },
+    {
+      "original_path": "H:\\PRISM\\JM DIE\\CNC MILL HAAS\\SFS GROUP USA\\Guided back stops\\1563247\\OP3\\PROVEN PRG\\O32473.nc",
+      "program_number": "32473",
+      "customer": "SFS GROUP USA",
+      "material_iso": "P",
+      "original_cycle_time_min": 460.5,
+      "optimized_cycle_time_min": 86.4,
+      "time_savings_pct": 81.2,
+      "operations_optimized": [
+        {
+          "tool_number": 9,
+          "operation_type": "spot_drill",
+          "original_rpm": 1000,
+          "optimized_rpm": 255,
+          "original_feed": 5,
+          "optimized_feed": 5,
+          "original_doc": 0,
+          "optimized_doc": 0,
+          "improvement_reason": "SFM correction: 785 → 200"
+        },
+        {
+          "tool_number": 14,
+          "operation_type": "peck_drill",
+          "original_rpm": 1000,
+          "optimized_rpm": 1000,
+          "original_feed": 5,
+          "optimized_feed": 5,
+          "original_doc": 0,
+          "optimized_doc": 0,
+          "improvement_reason": "No optimization needed"
+        },
+        {
+          "tool_number": 5,
+          "operation_type": "unknown",
+          "original_rpm": 1452,
+          "optimized_rpm": 255,
+          "original_feed": 15,
+          "optimized_feed": 16,
+          "original_doc": 0,
+          "optimized_doc": 0,
+          "improvement_reason": "SFM correction: 1140 → 200"
+        },
+        {
+          "tool_number": 13,
+          "operation_type": "unknown",
+          "original_rpm": 2100,
+          "optimized_rpm": 255,
+          "original_feed": 10,
+          "optimized_feed": 7.4,
+          "original_doc": 0.0002999999999999982,
+          "optimized_doc": 0.0002999999999999982,
+          "improvement_reason": "SFM correction: 1649 → 200"
+        },
+        {
+          "tool_number": 4,
+          "operation_type": "unknown",
+          "original_rpm": 1352,
+          "optimized_rpm": 255,
+          "original_feed": 12,
+          "optimized_feed": 13.7,
+          "original_doc": 0,
+          "optimized_doc": 0,
+          "improvement_reason": "SFM correction: 1062 → 200"
+        },
+        {
+          "tool_number": 15,
+          "operation_type": "unknown",
+          "original_rpm": 1850,
+          "optimized_rpm": 255,
+          "original_feed": 20,
+          "optimized_feed": 16.7,
+          "original_doc": 0.019700000000000002,
+          "optimized_doc": 0.019700000000000002,
+          "improvement_reason": "SFM correction: 1453 → 200"
+        },
+        {
+          "tool_number": 18,
+          "operation_type": "unknown",
+          "original_rpm": 2852,
+          "optimized_rpm": 255,
+          "original_feed": 6.16,
+          "optimized_feed": 5.8,
+          "original_doc": 0.0004999999999999996,
+          "optimized_doc": 0.0004999999999999996,
+          "improvement_reason": "SFM correction: 2240 → 200"
+        },
+        {
+          "tool_number": 7,
+          "operation_type": "unknown",
+          "original_rpm": 2444,
+          "optimized_rpm": 10000,
+          "original_feed": 18,
+          "optimized_feed": 73.6,
+          "original_doc": 0,
+          "optimized_doc": 0,
+          "improvement_reason": "AI: RPM 2444 → 10000 (proven pattern), Feed 18 → 73.6"
+        },
+        {
+          "tool_number": 17,
+          "operation_type": "unknown",
+          "original_rpm": 2650,
+          "optimized_rpm": 764,
+          "original_feed": 17,
+          "optimized_feed": 12.8,
+          "original_doc": 0.00010000000000000286,
+          "optimized_doc": 0.00010000000000000286,
+          "improvement_reason": "SFM correction: 694 → 200",
+          "tool_recommendation": "EM-25.4-4FL"
+        },
+        {
+          "tool_number": 18,
+          "operation_type": "unknown",
+          "original_rpm": 2500,
+          "optimized_rpm": 255,
+          "original_feed": 17,
+          "optimized_feed": 18.2,
+          "original_doc": 0.00010000000000000113,
+          "optimized_doc": 0.00010000000000000113,
+          "improvement_reason": "SFM correction: 1963 → 200"
+        }
+      ],
+      "issues_fixed": 12,
+      "issues_remaining": -3,
+      "recommended_machine": "Haas VF-2SS",
+      "confidence": 0.85
+    },
+    {
+      "original_path": "H:\\PRISM\\JM DIE\\CNC MILL HAAS\\TAPTITE\\Taptite 2000\\TT2_206H_It-065523A_MILL_ELE1.NC",
+      "program_number": "0000",
+      "customer": "TAPTITE",
+      "material_iso": "P",
+      "original_cycle_time_min": 82.3,
+      "optimized_cycle_time_min": 82.3,
+      "time_savings_pct": 0,
+      "operations_optimized": [
+        {
+          "tool_number": 1,
+          "operation_type": "unknown",
+          "original_rpm": 27500,
+          "optimized_rpm": 10000,
+          "original_feed": 80,
+          "optimized_feed": 29.1,
+          "original_doc": 0.015,
+          "optimized_doc": 0.015,
+          "improvement_reason": "AI: RPM 27500 → 10000 (proven pattern), Feed 80 → 29.1"
+        },
+        {
+          "tool_number": 2,
+          "operation_type": "unknown",
+          "original_rpm": 20000,
+          "optimized_rpm": 10000,
+          "original_feed": 50,
+          "optimized_feed": 25,
+          "original_doc": 0.001,
+          "optimized_doc": 0.001,
+          "improvement_reason": "AI: RPM 20000 → 10000 (proven pattern), Feed 50 → 25"
+        }
+      ],
+      "issues_fixed": 0,
+      "issues_remaining": 2,
+      "recommended_machine": "Haas VF-2SS",
+      "confidence": 0.85
+    },
+    {
+      "original_path": "H:\\PRISM\\JM DIE\\CNC MILL HAAS\\TAPTITE\\Taptite 2000\\TT2_206H_It-065523A_MILL_ELE2.NC",
+      "program_number": "0000",
+      "customer": "TAPTITE",
+      "material_iso": "P",
+      "original_cycle_time_min": 24.9,
+      "optimized_cycle_time_min": 24.9,
+      "time_savings_pct": 0,
+      "operations_optimized": [
+        {
+          "tool_number": 1,
+          "operation_type": "unknown",
+          "original_rpm": 27500,
+          "optimized_rpm": 10000,
+          "original_feed": 80,
+          "optimized_feed": 29.1,
+          "original_doc": 0.0146,
+          "optimized_doc": 0.0146,
+          "improvement_reason": "AI: RPM 27500 → 10000 (proven pattern), Feed 80 → 29.1"
+        },
+        {
+          "tool_number": 2,
+          "operation_type": "unknown",
+          "original_rpm": 30000,
+          "optimized_rpm": 10000,
+          "original_feed": 50,
+          "optimized_feed": 16.7,
+          "original_doc": 0.002,
+          "optimized_doc": 0.002,
+          "improvement_reason": "AI: RPM 30000 → 10000 (proven pattern), Feed 50 → 16.7"
+        }
+      ],
+      "issues_fixed": 0,
+      "issues_remaining": 2,
+      "recommended_machine": "Haas VF-2SS",
+      "confidence": 0.85
+    },
+    {
+      "original_path": "H:\\PRISM\\JM DIE\\CNC MILL HAAS\\TAPTITE\\Taptite 2000\\TT2_206H_It-068040A_MILL_ELE1.NC",
+      "program_number": "0000",
+      "customer": "TAPTITE",
+      "material_iso": "P",
+      "original_cycle_time_min": 70.2,
+      "optimized_cycle_time_min": 70.2,
+      "time_savings_pct": 0,
+      "operations_optimized": [
+        {
+          "tool_number": 1,
+          "operation_type": "unknown",
+          "original_rpm": 27500,
+          "optimized_rpm": 10000,
+          "original_feed": 80,
+          "optimized_feed": 29.1,
+          "original_doc": 0.0148,
+          "optimized_doc": 0.0148,
+          "improvement_reason": "AI: RPM 27500 → 10000 (proven pattern), Feed 80 → 29.1"
+        },
+        {
+          "tool_number": 2,
+          "operation_type": "unknown",
+          "original_rpm": 30000,
+          "optimized_rpm": 10000,
+          "original_feed": 50,
+          "optimized_feed": 16.7,
+          "original_doc": 0.002,
+          "optimized_doc": 0.002,
+          "improvement_reason": "AI: RPM 30000 → 10000 (proven pattern), Feed 50 → 16.7"
+        }
+      ],
+      "issues_fixed": 0,
+      "issues_remaining": 2,
+      "recommended_machine": "Haas VF-2SS",
+      "confidence": 0.85
+    },
+    {
+      "original_path": "H:\\PRISM\\JM DIE\\CNC MILL HAAS\\TAPTITE\\Taptite 2000\\TT2_206H_It-068040A_MILL_ELE2.NC",
+      "program_number": "0000",
+      "customer": "TAPTITE",
+      "material_iso": "P",
+      "original_cycle_time_min": 44.2,
+      "optimized_cycle_time_min": 44.2,
+      "time_savings_pct": 0,
+      "operations_optimized": [
+        {
+          "tool_number": 1,
+          "operation_type": "unknown",
+          "original_rpm": 27500,
+          "optimized_rpm": 10000,
+          "original_feed": 80,
+          "optimized_feed": 29.1,
+          "original_doc": 0.014799999999999999,
+          "optimized_doc": 0.014799999999999999,
+          "improvement_reason": "AI: RPM 27500 → 10000 (proven pattern), Feed 80 → 29.1"
+        },
+        {
+          "tool_number": 2,
+          "operation_type": "unknown",
+          "original_rpm": 30000,
+          "optimized_rpm": 10000,
+          "original_feed": 50,
+          "optimized_feed": 16.7,
+          "original_doc": 0.002,
+          "optimized_doc": 0.002,
+          "improvement_reason": "AI: RPM 30000 → 10000 (proven pattern), Feed 50 → 16.7"
+        }
+      ],
+      "issues_fixed": 0,
+      "issues_remaining": 2,
+      "recommended_machine": "Haas VF-2SS",
+      "confidence": 0.85
+    },
+    {
+      "original_path": "H:\\PRISM\\JM DIE\\ROKU-ROKU\\ITW SHAKEPROOF\\FLATS\\014-41009H-00.NC",
+      "program_number": "0000",
+      "customer": "ITW SHAKEPROOF",
+      "material_iso": "P",
+      "original_cycle_time_min": 4554.5,
+      "optimized_cycle_time_min": 655.7,
+      "time_savings_pct": 85.6,
+      "operations_optimized": [
+        {
+          "tool_number": 1,
+          "operation_type": "unknown",
+          "original_rpm": 4500,
+          "optimized_rpm": 10000,
+          "original_feed": 30,
+          "optimized_feed": 66.7,
+          "original_doc": 0.0001,
+          "optimized_doc": 0.0001,
+          "improvement_reason": "AI: RPM 4500 → 10000 (proven pattern), Feed 30 → 66.7"
+        },
+        {
+          "tool_number": 2,
+          "operation_type": "unknown",
+          "original_rpm": 3200,
+          "optimized_rpm": 10000,
+          "original_feed": 25,
+          "optimized_feed": 78.1,
+          "original_doc": 0.00010000000000000005,
+          "optimized_doc": 0.00010000000000000005,
+          "improvement_reason": "AI: RPM 3200 → 10000 (proven pattern), Feed 25 → 78.1"
+        }
+      ],
+      "issues_fixed": 2,
+      "issues_remaining": -2,
+      "recommended_machine": "Haas VF-2SS",
+      "confidence": 0.85
+    }
+  ]
+}

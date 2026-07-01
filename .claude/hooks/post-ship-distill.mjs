@@ -32,7 +32,7 @@ function approve() { process.stdout.write(JSON.stringify({ continue: true })); }
 
 function readHeadSubject() {
   try {
-    return execFileSync("git", ["-C", PRISM_ROOT, "log", "-1", "--format=%s"], {
+    return execFileSync("git", ["-C", PRISM_ROOT, "log", "-1", "--format=%s"], { windowsHide: true,
       encoding: "utf8", timeout: 2000, stdio: ["ignore", "pipe", "ignore"],
     }).trim();
   } catch {
@@ -49,7 +49,7 @@ function distillSync() {
   try {
     const scriptPath = path.join(PRISM_ROOT, "scripts", "distill-session-learnings.mjs");
     if (!fs.existsSync(scriptPath)) return;
-    execFileSync(process.execPath, [scriptPath], {
+    execFileSync(process.execPath, [scriptPath], { windowsHide: true,
       encoding: "utf8", timeout: TIMEOUT_MS, stdio: ["ignore", "ignore", "ignore"],
     });
   } catch {

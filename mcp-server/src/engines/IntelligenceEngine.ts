@@ -72,6 +72,7 @@ import { alarmRegistry } from "../registries/AlarmRegistry.js";
 import { toolpathRegistry } from "../registries/ToolpathStrategyRegistry.js";
 import { log } from "../utils/Logger.js";
 import { formatByLevel, type ResponseLevel } from "../types/ResponseLevel.js";
+import { resolveSpindlePowerKw } from "../registries/machine-normalizer.js";
 
 // ============================================================================
 // INTELLIGENCE SOURCE FILE CATALOG (87 LOW-priority AI/ML modules, 62,397 lines)
@@ -1514,7 +1515,7 @@ async function machineRecommend(params: Record<string, any>): Promise<any> {
     }
 
     // Spindle power (0-0.15)
-    const power = m.spindle?.power_continuous ?? m.spindle?.power_30min ?? 0;
+    const power = resolveSpindlePowerKw(m.spindle).value ?? m.spindle?.power_continuous ?? m.spindle?.power_30min ?? 0; // U-MACHDB-07: 8-key variant union
     if (params.min_spindle_power && power >= params.min_spindle_power) {
       score += 0.15;
       reasons.push(`Power ${power} kW`);

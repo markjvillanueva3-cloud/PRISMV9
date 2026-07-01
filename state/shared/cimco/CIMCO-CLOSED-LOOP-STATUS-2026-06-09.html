@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta name="prism-source-hash" content="08118ce937768d2f0ba90246902e0b20216431a150154d82215574cb84853e43">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CIMCO Closed-Loop Status</title>
+<style>
+  :root {
+    --bg: #0f1014;
+    --panel: #1a1c23;
+    --panel-2: #232631;
+    --fg: #e4e6eb;
+    --fg-dim: #9aa0a8;
+    --border: #2c303a;
+    --ok: #4ade80;
+    --warn: #fbbf24;
+    --fail: #f87171;
+    --info: #60a5fa;
+    --link: #93c5fd;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; padding: 1.5rem; background: var(--bg); color: var(--fg);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, sans-serif;
+    font-size: 14px; line-height: 1.5; }
+  h1 { font-size: 1.6rem; margin: 0 0 0.25rem 0; }
+  h2 { font-size: 1.15rem; margin: 1.5rem 0 0.5rem 0; padding-bottom: 0.25rem;
+    border-bottom: 1px solid var(--border); color: var(--fg); }
+  .meta { color: var(--fg-dim); font-size: 0.85rem; margin-bottom: 1rem; }
+  .panel { background: var(--panel); border: 1px solid var(--border); border-radius: 6px;
+    padding: 0.75rem 1rem; margin-bottom: 1rem; }
+  .headline-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 0.5rem; margin-bottom: 1rem; }
+  .card { background: var(--panel-2); border: 1px solid var(--border); border-radius: 6px;
+    padding: 0.65rem 0.85rem; }
+  .card .lbl { font-size: 0.8rem; color: var(--fg-dim); }
+  .card .val { font-size: 1.4rem; font-weight: 600; margin: 0.15rem 0; font-variant-numeric: tabular-nums; }
+  .card .hint { font-size: 0.75rem; color: var(--fg-dim); }
+  .card.ok    { border-left: 3px solid var(--ok); }
+  .card.warn  { border-left: 3px solid var(--warn); }
+  .card.fail  { border-left: 3px solid var(--fail); }
+  .card.info  { border-left: 3px solid var(--info); }
+  table { width: 100%; border-collapse: collapse; margin: 0.5rem 0 1rem; font-size: 0.9rem;
+    background: var(--panel); border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }
+  caption { text-align: left; padding: 0.4rem 0.65rem; color: var(--fg-dim);
+    background: var(--panel-2); font-weight: 500; }
+  th, td { padding: 0.4rem 0.65rem; text-align: left; border-bottom: 1px solid var(--border);
+    font-variant-numeric: tabular-nums; vertical-align: top; }
+  th { background: var(--panel-2); color: var(--fg-dim); font-weight: 500;
+    text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.04em; }
+  tr:last-child td { border-bottom: none; }
+  td.right { text-align: right; }
+  ul, ol { margin: 0.4rem 0 1rem 1.25rem; }
+  li { margin: 0.15rem 0; }
+  .badge { display: inline-block; padding: 0.1rem 0.5rem; border-radius: 999px;
+    font-size: 0.75rem; font-weight: 500; background: var(--panel-2); color: var(--fg-dim);
+    border: 1px solid var(--border); }
+  .badge.ok   { background: rgba(74, 222, 128, 0.12); color: var(--ok);   border-color: rgba(74,222,128,0.3); }
+  .badge.warn { background: rgba(251, 191, 36, 0.12); color: var(--warn); border-color: rgba(251,191,36,0.3); }
+  .badge.fail { background: rgba(248, 113, 113, 0.12); color: var(--fail); border-color: rgba(248,113,113,0.3); }
+  .badge.info { background: rgba(96, 165, 250, 0.12); color: var(--info); border-color: rgba(96,165,250,0.3); }
+  .badge-grid { display: flex; flex-wrap: wrap; gap: 0.3rem; margin: 0.3rem 0 1rem 0; }
+  .kv { display: grid; grid-template-columns: max-content 1fr; gap: 0.2rem 0.85rem;
+    margin: 0.4rem 0 1rem 0; }
+  .kv .k { color: var(--fg-dim); }
+  svg.bar-chart { display: block; max-width: 100%; height: auto; }
+  svg .bar { fill: var(--info); }
+  svg .bar.ok   { fill: var(--ok); }
+  svg .bar.warn { fill: var(--warn); }
+  svg .bar.fail { fill: var(--fail); }
+  svg text { fill: var(--fg); font-family: monospace; font-size: 11px; }
+  svg .axis text { fill: var(--fg-dim); }
+  code { background: var(--panel-2); padding: 0 0.3rem; border-radius: 3px;
+    font-family: "Fira Code", Consolas, Menlo, monospace; font-size: 0.85em; }
+  a { color: var(--link); }
+  footer { margin-top: 2rem; padding-top: 0.75rem; border-top: 1px solid var(--border);
+    font-size: 0.8rem; color: var(--fg-dim); }
+</style>
+</head>
+<body>
+<h1>CIMCO Closed-Loop Status</h1>
+<div class="meta">rendered from state/shared/cimco/CIMCO-CLOSED-LOOP-STATUS-2026-06-09.md</div>
+<div class="meta">Generated 2026-06-09T19:49:30.926Z</div>
+<style>
+  .prism-md-body { max-width: 70rem; margin: 0 auto; }
+  .prism-h1 { font-size: 1.6rem; }
+  .prism-h2 { font-size: 1.25rem; border-bottom: 1px solid var(--border); padding-bottom: 0.25rem; }
+  .prism-h3 { font-size: 1.1rem; color: var(--info); }
+  .prism-h4, .prism-h5, .prism-h6 { font-size: 1rem; color: var(--fg-dim); }
+  .prism-md-body p { margin: 0.5rem 0; }
+  .prism-md-list { margin: 0.5rem 0 0.5rem 1.25rem; padding: 0; }
+  .prism-md-list li { margin: 0.15rem 0; }
+  .prism-md-table { border-collapse: collapse; margin: 0.75rem 0; width: 100%; }
+  .prism-md-table th, .prism-md-table td { border: 1px solid var(--border); padding: 0.35rem 0.6rem; text-align: left; }
+  .prism-md-table th { background: var(--panel-2); }
+  .prism-codeblock { background: var(--panel-2); border: 1px solid var(--border); border-radius: 4px; padding: 0.6rem 0.8rem; overflow-x: auto; font-family: "Cascadia Code", Consolas, monospace; font-size: 13px; }
+  .prism-inline-code { background: var(--panel-2); padding: 0 0.25rem; border-radius: 3px; font-family: "Cascadia Code", Consolas, monospace; font-size: 0.92em; }
+  .prism-quote { border-left: 3px solid var(--info); background: var(--panel-2); padding: 0.5rem 0.85rem; margin: 0.75rem 0; color: var(--fg-dim); }
+  .prism-hr { border: 0; border-top: 1px solid var(--border); margin: 1rem 0; }
+  .prism-link { color: var(--link); text-decoration: none; }
+  .prism-link:hover { text-decoration: underline; }
+  .prism-bad-link { color: var(--fail); text-decoration: line-through; }
+  .prism-unclosed::before { content: "⚠ unterminated code block"; display: block; color: var(--warn); font-size: 0.85em; margin-bottom: 0.25rem; }
+  </style><main class="prism-md-body"><h1 class="prism-h1">CIMCO CLOSED-LOOP TESTING — status + operator handoff</h1>
+<p><strong>Date:</strong> 2026-06-09 · <strong>Slot:</strong> echo · <strong>Goal:</strong> begin closed-loop testing of post-processors using CIMCO as the editor to check (a) code is correct and (b) simulations.</p>
+<h2 class="prism-h2">Bottom line</h2>
+<p>The CIMCO closed loop is <strong>code-complete end-to-end on both arms</strong>. The <strong>code-correctness arm is operationally testing today</strong>; the <strong>simulation arm is code-complete and gated on one operator action</strong> (open CIMCO Edit on VMC-01 — no code path around it, proven across 4 ribbon-realization probes).</p>
+<h2 class="prism-h2">Arm A — &quot;check if code is correct&quot; (STATIC) — OPERATIONAL NOW</h2>
+<p>Runs with zero operator involvement. Demonstrated this session:</p>
+<ul class="prism-md-list"><li><code class="prism-inline-code">node scripts/cimco-post-proof.mjs</code> -&gt; <strong>15 machines, 9191 goldens byte-compared, 240 true copy-drift + 7 name-collisions</strong> flagged (<code class="prism-inline-code">state/shared/cimco/jm-post-proof.json</code>).</li><li>Byte-equivalence comparator: <code class="prism-inline-code">scripts/lib/nc-normalize.mjs</code> (shipped, tested) — normalizes non-semantic diffs, fails on real drift.</li><li>Dialect lint: <code class="prism-inline-code">cimco_dialect_lint</code> / <code class="prism-inline-code">scripts/post-nc-dialect-lint.mjs</code> — flags G/M codes a post emits that JM&#39;s goldens never used.</li><li>Golden round-trip classifier: <code class="prism-inline-code">scripts/lib/nc-dialect-masks.mjs</code> — byte-identical | volatile-header-only | semantic-drift.</li></ul>
+<p>This IS closed-loop code-correctness testing: emit/golden -&gt; normalize -&gt; compare -&gt; drift verdict, across the fleet.</p>
+<h2 class="prism-h2">Arm B — &quot;for simulations&quot; (LIVE) — CODE-COMPLETE, operator-gated</h2>
+<p>The full chain composes in code (all shipped + tested this session):</p>
+<ul class="prism-md-list"><li><strong>SIM-1A</strong> <code class="prism-inline-code">--op read-report</code> (C# MSAA reader) + <code class="prism-inline-code">cimco-report-normalize.mjs</code> (rows + fail-closed ladder) — commits <code class="prism-inline-code">01c53f6872</code>, <code class="prism-inline-code">679565fcb5</code>.</li><li><strong>FSM-LIVE-DRIVE</strong> <code class="prism-inline-code">driveLiveFsm</code> — navigate (ui-map FSM) -&gt; run Machine Sim -&gt; poll read-report to quiescence -&gt; <code class="prism-inline-code">assessReadReport</code> verdict, fail-closed at every hop — commit <code class="prism-inline-code">dba50eb3da</code>.</li><li><strong>CLEARANCE-COMPOSE</strong> <code class="prism-inline-code">composeClearanceInput</code> — maps the drive result into <code class="prism-inline-code">prism_cimco:cimco_live_run_clearance</code> (the TS 5-gate: bound + units + kinematics + sim-cleared + run-complete) — this commit.</li><li>Fleet rollup: <code class="prism-inline-code">cimco-sim-fleet.mjs</code> already classifies the fleet (12 sim-able mill/lathe + 3 EDM-routed).</li></ul>
+<p>97 tests green across the loop (69 driver + 15 normalizer + the bind/completion/fleet suites).</p>
+<h3 class="prism-h3">The ONE operator action to begin live simulation testing</h3>
+<ol class="prism-md-list"><li>Open <strong>CIMCO Edit</strong> interactively on <strong>VMC-01</strong> (the Codejock ribbon realizes only in a foreground session).</li><li>Then: <code class="prism-inline-code">node scripts/cimco-sim-driver.mjs --machine VMC-01 --nc &lt;posted.nc&gt; --mode drive-live --no-mock</code> with <code class="prism-inline-code">PRISM_CIMCO_MOCK=0</code> (the double-gate that permits live transport).</li><li>The driver navigates -&gt; runs the sim -&gt; reads the report -&gt; emits a verdict; feed <code class="prism-inline-code">composeClearanceInput</code> output to <code class="prism-inline-code">prism_cimco:cimco_live_run_clearance</code> for the final 5-gate go/no-go.</li></ol>
+<p>The operator&#39;s first live run also confirms the report-grid + (future) progress-control MSAA shapes — which is why <code class="prism-inline-code">U-CIMCO-SIM-PROGRESS-READ</code> (auto completion-detection) is best built WITH that live session rather than blind.</p>
+<h2 class="prism-h2">Remaining CIMCO work</h2>
+<table class="prism-md-table"><thead><tr><th>item</th><th>state</th></tr></thead><tbody><tr><td>All SPINE-1 + SIM-2..7 + SIM-1A + FSM-LIVE-DRIVE + CLEARANCE-COMPOSE</td><td>SHIPPED</td></tr>
+<tr><td>Static code-correctness arm</td><td>OPERATIONAL (runs today)</td></tr>
+<tr><td><code class="prism-inline-code">U-CIMCO-SIM-PROGRESS-READ</code> (auto terminalComplete/coverage from a CIMCO progress read)</td><td>buildable but SPECULATIVE — best built with the operator&#39;s live CIMCO to confirm the control shape</td></tr>
+<tr><td><code class="prism-inline-code">U-CIMCO-OPEN-VMC01</code> -&gt; live E2E -&gt; fleet rollout</td><td>OPERATOR-GATED</td></tr>
+<tr><td><code class="prism-inline-code">U-LEGAL-13</code> (public-manuals-only provenance)</td><td>OPERATOR-GATED (legal)</td></tr></tbody></table>
+<h2 class="prism-h2">Method note (per operator directive)</h2>
+<p>Ollama (local <code class="prism-inline-code">qwen2.5-coder:32b</code>) did the bulk corpus deep-dive (17 slices) for the forge roadmap; Claude built the safety-critical clearance/orchestration logic and exact-signature reads (where local-model accuracy is insufficient for a CNC safety gate). Roadmap: <code class="prism-inline-code">state/shared/specs/ECHO-FORGE-ROADMAP-2026-06-09.md</code>.</p></main><footer>
+<div>html-report-render schemaVersion 1.0.0</div>
+</footer>
+</body>
+</html>

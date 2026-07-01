@@ -764,6 +764,18 @@ export interface QuoteEstimate {
   cycle_time_min: number;
   confidence: number;
   price_breaks?: { quantity: number; unit_price: number; savings_pct: number }[];
+  /**
+   * Margin-floor safety gate, surfaced verbatim from QuoteEstimatorEngine via
+   * quote_estimate (round-trip proven in QuoteEstimatorEngine.marginFloor.test.ts).
+   * Optional because legacy/quick estimate paths may omit it.
+   */
+  pricing?: {
+    margin_pct?: number;
+    /** True when post-discount margin fell below the config-sourced floor -- review before sending. */
+    below_margin_floor?: boolean;
+    /** The margin floor % this quote was checked against. */
+    margin_floor_pct?: number;
+  };
 }
 
 export interface InstantQuoteQuantityBreak {
@@ -936,13 +948,17 @@ export interface BlueprintQuoteResult {
 // === Sheet Metal Quote Types ===
 
 export interface SheetMetalQuoteResult {
-  material_cost: number;
-  cutting_cost: number;
-  bending_cost: number;
-  finishing_cost: number;
-  total: number;
-  unit_price: number;
-  lead_time_days: number;
+  // Cost-breakdown fields are AUTHED-ONLY: the /sheet-metal route redacts the cost basis for an
+  // anonymous caller, so these are absent (undefined) on an anon quote. The page filters to the
+  // present ones (U-SHEETMETAL-FLAT-ADAPT). Customer-facing price/total/lead can be null on a
+  // degraded/unpriced result. The type encodes the real wire, not just the happy path.
+  material_cost?: number;
+  cutting_cost?: number;
+  bending_cost?: number;
+  finishing_cost?: number;
+  total: number | null;
+  unit_price: number | null;
+  lead_time_days: number | null;
 }
 
 // === Additive Quote Types ===
@@ -1126,4 +1142,115 @@ export interface PriceComparison {
   material: string;
   total_per_kg: number;
   rank: number;
+}
+
+// ── Job Traveler: auto-generated print->shipping order-of-operations ──
+export interface TravelerChecklistItem {
+  id: string;
+  label: string;
+  required: boolean;
+  signoff: boolean;
+  acceptance_criteria?: string;
+  checked?: boolean;
+  checked_by_employee_id?: string;
+  checked_at?: string;
+  note?: string;
+}
+
+export interface GeneratedTravelerStep {
+  seq: number;
+  op_num: number;
+  operation: string;
+  department: string;
+  role: string;
+  machine_domain?: string;
+  est_setup_min: number;
+  est_cycle_min: number;
+  is_inspection_gate: boolean;
+  is_outside_service: boolean;
+  checklist: TravelerChecklistItem[];
+}
+
+export interface GeneratedTraveler {
+  job_id: string;
+  part_number: string;
+  revision: string;
+  customer: string;
+  total_steps: number;
+  departments: string[];
+  steps: GeneratedTravelerStep[];
+  est_total_min: number;
+  notes: string[];
+}
+
+export interface TravelerStepChecklist {
+  job_id: string;
+  step_seq: number;
+  operation: string;
+  department: string;
+  is_inspection_gate: boolean;
+  items: TravelerChecklistItem[];
+  required_total: number;
+  required_checked: number;
+  complete: boolean;
+}
+
+export interface TravelerJobChecklist {
+  job_id: string;
+  steps: TravelerStepChecklist[];
+  total_required: number;
+  total_required_checked: number;
+  pct_complete: number;
+}
+
+export interface TravelerMyTasks {
+  job_id: string;
+  employee_id: string | null;
+  department: string | null;
+  steps: TravelerStepChecklist[];
+  step_count: number;
+}
+
+// ── ERP Autofeed (QUOTING-ERP-AUTOFEED) ──
+// FE-facing view of the ErpAutofeedPayload the backend projection emits.
+// All fields null-safe -- the projection records gaps rather than throwing.
+export interface ErpAutofeedPayload {
+  pipeline_id: string;
+  pipeline_status: string;
+  job_id: string;
+  front_office: {
+    quote_id: string | null;
+    customer_id: string | null;
+    part_number: string | null;
+    revision: string | null;
+    quantity: number | null;
+    quoted_price_usd: number | null;
+    lead_time_days: number | null;
+    complexity: string | null;
+  };
+  cost_breakdown: {
+    total_cost_usd: number | null;
+    labor_usd: number | null;
+    material_usd: number | null;
+    tooling_usd: number | null;
+    machine_usd: number | null;
+    overhead_usd: number | null;
+  };
+  tooling: { upgrade_roi: Record<string, unknown> | null };
+  material: { material_spec: string | null; stock: Record<string, unknown> | null };
+  cad_cam: { entitled: boolean; program_paths: string[] };
+  employee_portal: {
+    traveler: GeneratedTraveler | null;
+    checklist: TravelerJobChecklist | null;
+  };
+  manager_notes: { lean_watchouts: string[]; manager_notes: string[]; advisory: boolean };
+  gaps: Array<{ stage: string; reason: string }>;
+}
+
+export interface ErpCommitResult {
+  job_id: string;
+  dry_run: boolean;
+  authorized: boolean;
+  writes: Array<{ step: string; status: string; ref: string | null; detail: string }>;
+  summary: string;
 }

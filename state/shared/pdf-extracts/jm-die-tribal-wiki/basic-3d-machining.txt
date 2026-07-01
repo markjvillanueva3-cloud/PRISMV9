@@ -1,0 +1,1923 @@
+  Basic 3D
+Machining
+mastercam x getting started tutorials
+
+          Basic 3D
+          Machining
+
+                               October 2010
+
+                                          Be sure you have the latest information!
+
+                                               Information might have been changed or added since this document was
+                                               published. Contact your local Reseller for the latest information.
+II · BASIC 3D MACHINING
+
+TERMS OF USE  Mastercam® X5 Basic 3D Machining
+
+              Date: October 2010
+              Copyright © 2010 CNC Software, Inc.-- All rights reserved.
+              First Printing: October 2010
+              Software: Mastercam X5
+              Part Number: X5-PDF-TUT-3M
+
+              Use of this document is subject to the Mastercam End User License Agreement. A
+              copy of the Mastercam End User License Agreement is included with the
+              Mastercam product package of which this document is part. The Mastercam End
+              User License Agreement can also be found at:
+              www.mastercam.com/legal/licenseagreement/
+                                                                                                                                                                                     III
+
+Contents
+
+                Introduction ......................................................................................... 1
+
+                            Tutorial Goals................................................................................... 1
+                            Before You Begin............................................................................. 1
+                            If You Need More Help.................................................................... 3
+                            Additional Documentation.............................................................. 3
+
+                Machining the Connector ......................................................... 5
+
+                    1. Toolpath Setup........................................................... 7
+
+                            Lesson Goals.................................................................................... 7
+                            Exercise 1: Assigning a Machine Definition.............................. 7
+                            Exercise 2: Setting Stock for Machining ................................... 8
+                            Exercise 3: Creating Toolpath Groups ..................................... 10
+
+                    2. Roughing the Interior ................................................ 13
+
+                            Lesson Goals.................................................................................. 13
+                            Exercise 1: Drilling the Holes .................................................. 13
+                            Exercise 2: Roughing the Pocket ............................................ 19
+                            Exercise 3: Roughing the Slot ................................................. 23
+                            Exercise 4: Rest Roughing the Interior.................................... 28
+
+                    3. Finishing the Interior................................................. 33
+
+                            Lesson Goals.................................................................................. 33
+                            Exercise 1: Finishing the Pocket Floor .................................... 33
+                            Exercise 2: Finishing the Slot.................................................. 36
+
+                    4. Machining the Exterior ............................................. 41
+
+                            Lesson Goals.................................................................................. 41
+                            Exercise 1: Roughing the Exterior ........................................... 41
+                            Exercise 2: Finishing the Exterior............................................ 46
+                            Exercise 3: Drilling a hole from the Front Plane....................... 49
+IV · BASIC 3D MACHINING
+
+                    5. Adding Details .......................................................... 53
+
+                            Lesson Goals..................................................................................53
+                            Exercise 1: Lettering with a Project Toolpath..........................53
+                            Exercise 2: Lettering with a Contour Toolpath.........................57
+
+                    6. Backplot/Verify Your Toolpaths ............................... 63
+
+                            Lesson Goals..................................................................................63
+                            Exercise 1: Backplotting All Toolpaths ....................................63
+                            Exercise 2: Verifying All Toolpaths ..........................................64
+
+                    7. Posting Toolpaths ..................................................... 67
+
+                            Lesson Goals..................................................................................67
+                            Exercise 1: Posting All Toolpath Operations............................67
+                            Sending NC Files to the Machine ................................................69
+
+                Machining the Tool Holder..................................................... 71
+
+                    1. Toolpath Setup.......................................................... 73
+
+                            Lesson Goals..................................................................................73
+                            Exercise 1: Assigning a Machine Definition ............................73
+                            Exercise 2: Setting Stock for Machining .................................74
+
+                    2. Roughing the Part ..................................................... 77
+
+                            Lesson Goals..................................................................................77
+                            Exercise 1: Roughing the Part .................................................77
+                            Exercise 2: Creating a Leftover Toolpath .................................82
+
+                    3. Semi-Finishing the Part ............................................ 85
+
+                            Lesson Goals..................................................................................85
+                            Exercise 1: Creating a Surface Finish Blend ............................85
+                            Exercise 2: Creating a Surface Finish Parallel Steep ...............89
+                            Exercise 3: Copy and Modify an Operation .............................91
+
+                    4. Finishing the Part...................................................... 95
+
+                            Lesson Goals..................................................................................95
+                            Exercise 1: Creating a Swept 3D.............................................95
+                            Exercise 2: Creating a second Swept 3D ................................98
+                            Exercise 3: Creating a Flowline ............................................. 101
+                                                                                                                                            V
+
+5. Backplot/Verify Your Toolpaths.............................. 105
+
+    Lesson Goals................................................................................ 105
+    Exercise 1: Backplotting all Toolpaths .................................. 105
+    Exercise 2: Verifying All Toolpaths........................................ 106
+
+6. Posting Toolpaths ................................................... 109
+
+    Lesson Goals................................................................................ 109
+    Exercise 1: Posting All Toolpath Operations ......................... 109
+    Sending NC Files to the Machine .............................................. 111
+
+Conclusion ......................................................................................... 112
+
+   ............................................................................................................. 112
+VI · BASIC 3D MACHINING
+INTRODUCTION
+
+This tutorial focuses on applying several milling toolpaths to parts previously designed in
+Mastercam. The objective is to provide a general overview of a handful of the toolpath options
+available to you. The options and parameters selected are intended to get you started on the path
+toward learning and exploring all of the features Mastercam has to offer.
+
+The toolpaths created illustrate possible solutions for machining parts using 3D toolpaths - mainly
+surfacing operations. There are many solutions for machining these and similar parts. The goal of
+this tutorial is to provide the basic concepts for you to explore and expand upon. Alter and adjust
+the outline to fit your learning and programming environment after completing the lessons.
+
+Toolpath creation is a repetitive, step-by-step process as demonstrated by this tutorial.
+Comprehensive and conceptual information can be found in the Help and other documentation
+installed with Mastercam.
+
+Tutorial Goals
+
+       Open multiple part files, assign default machine definitions, and create stock boundaries
+           for the geometry
+
+       Create and rename toolpath groups
+       Create roughing operations to efficiently remove material from the part
+       Create semi-finishing operations to safely transition between roughing and finishing the
+
+           part
+       Create finishing operations to create a complete part with final dimensions
+       Copy operations, change parameters, and regenerate the operation
+       Assign toolpath parameters to meet the roughing, semi-finishing, and finishing
+
+           requirements
+       Backplot toolpath operations to review tool motion
+       Verify the machining of the part from a stock model display
+       Post all toolpath operations to an NC file, review/edit the code as necessary, and save the
+
+           NC file
+
+Before You Begin
+
+This is a module of the Mastercam Getting Started Tutorial Series. The series introduces general
+Mastercam functions and teaches basic skills for getting started with Mastercam. Other tutorial
+series include:
+
+       Focus Series: Focuses on a specific Mastercam feature--for example, Setup Sheets or FBM
+           Drill, and teaches basic and advanced skills.
+
+       Exploring Series: Explores a single Mastercam product--for example, Mill, Solids, or Wire,
+           and teaches in-depth skills for working with the product.
+
+The Mastercam tutorial series is in continual development, and we will add modules as we
+complete them. For information and availability, please contact your local Mastercam Reseller.
+2 · BASIC 3D MACHINING
+
+       IMPORTANT: Screen colors in the tutorial pictures were modified to enhance image
+       quality; they may not match your Mastercam settings or the tutorial results. These color
+       differences do not affect the lesson or the exercise results.
+
+General Tutorial Requirements
+
+All Mastercam tutorials have the following general requirements:
+
+       You must be comfortable using the Windows® operating system.
+       The tutorials cannot be used with Mastercam Demo/Home Learning Edition (HLE). The
+
+           Demo/HLE file format (EMCX) is different from Mastercam (MCX), and basic Mastercam
+           functions, such as file conversions and posting, are unavailable.
+       Each lesson in the tutorial builds on the mastery of preceding lesson's skills. We
+           recommend that you complete them in order.
+       Focus Series and Exploring Series tutorials require, at minimum, a mastery of the basic
+           Mastercam skills taught in the Getting Started Series modules. A general knowledge of
+           machining principals and practices is also required.
+       You must have a seat of Mastercam X5 Design or higher to complete most of the tutorials in
+           the Getting Started Series.
+       The Basic 2D Machining module in the Getting Started Series requires, at minimum, a seat
+           of Mill Entry or Router Entry.
+       The Basic 3D Machining module in the Getting Started Series requires Mill Level 3 or Router
+           Pro.
+       Additional files may accompany a tutorial. Unless the tutorial provides specific
+           instructions on where to place these files, store them in a folder that can be accessed from
+           the Mastercam workstation, either with the tutorial or in any location that you prefer.
+       The Getting Started Series tutorials are available in an Adobe® Flash® compatible video
+           format. Additional tutorial videos may also be available. Contact your local Mastercam
+           Reseller for more information.
+       You must install Adobe Flash Player to display tutorial videos. You can download Adobe
+           Flash Player from www.adobe.com.
+       You must configure Mastercam to work in metric units. Complete the instructions in the
+           following section Preparing for a Tutorial to set Mastercam to metric.
+
+Preparing for a Tutorial
+
+Before you start a tutorial, be sure you have completed the following tasks:
+
+       1 Start Mastercam using your preferred method:
+           Double-click Mastercam's desktop icon.
+               Or
+           Launch Mastercam from the Windows Start menu.
+                                                                                                                                                        INTRODUCTION · 3
+
+       2 Select the metric configuration file:
+
+           a Select Settings, Configuration from
+               Mastercam's menu.
+
+           b Choose ...\mcamxm.config <Metric>
+               from the Current drop-down list.
+
+           c Click OK.
+
+If You Need More Help
+
+There are many ways to get help with Mastercam, including the following:
+       Mastercam Help--Access Mastercam Help by selecting Help, Contents from Mastercam's
+           menu bar or by pressing [Alt+H] on your keyboard. Also, most dialog boxes and ribbon
+
+           bars feature a Help button that opens Mastercam Help directly to related information.
+       Online help--You can search for information or ask questions on the Mastercam Web
+
+           forum, located at www.emastercam.com. You can also find a wealth of information,
+           including many videos, at www.mastercam.com and www.mastercamedu.com.
+       Mastercam Reseller--Your local Mastercam Reseller can help with most questions about
+           Mastercam.
+       Technical Support--CNC Software's Technical Support department (860-875-5006 or
+           support@mastercam.com) is open Monday through Friday from 8:00 a.m. to 5:30 p.m. USA
+           Eastern Standard Time.
+       Documentation feedback--For questions about this or other Mastercam documentation,
+           contact the Technical Documentation department by email at techdocs@mastercam.com.
+       Mastercam University--CNC Software sponsors Mastercam University, an affordable
+           online learning platform that gives you 24/7 access to Mastercam training materials. Take
+           advantage of more than 180 videos to master your skills at your own pace and help prepare
+           yourself for Mastercam Certification. For more information on Mastercam University,
+           please contact your Authorized Mastercam Reseller, visit www.mastercamu.com, or email
+           training@mastercam.com.
+
+Additional Documentation
+
+You can find more information on using Mastercam in the following materials, located in the
+\Documentation folder of your Mastercam installation:
+
+       Mastercam X5 Installation Guide
+       Mastercam X5 Administrator Guide
+       Mastercam X5 Quick Start
+       Mastercam X5 Reference Guide
+       Mastercam X5 Transition Guide
+       Mastercam X5 Quick Reference Card
+4 · BASIC 3D MACHINING
+
+       Mastercam X5 Wire Getting Started Guide
+       Version 9 to X Function Map
+       Mastercam X5 NCI & Parameter Reference
+       Mastercam X5 Post Debugger User's Guide
+Section 1
+  Machining the Connector
+6 · BASIC 3D MACHINING
+LESSON 1
+
+Toolpath Setup
+
+1
+
+Before generating toolpaths for a part, you must select a machine definition. Defining stock creates
+a visual representation of the stock placed in your machine. Creating and naming toolpath groups
+will organize operations and maintain a logical structure for the part. This lesson covers these
+topics.
+
+Lesson Goals
+
+       Open a part file and assign a machine definition.
+       Define stock to be used in machining the part.
+       Rename toolpath groups.
+
+Exercise 1: Assigning a Machine Definition
+
+Toolpaths are organized in machine groups and toolpath groups. A machine group is created when
+a machine definition is assigned. This exercise guides you through selecting a machine definition.
+
+       1 Open the tutorial part file Basic_3D_Machining_Part1_Start.MCX-5, which was
+           provided with the tutorial.
+8 · BASIC 3D MACHINING
+
+       2 Click OK if prompted to switch to a metric
+           configuration.
+
+       3 Choose Machine Type, Mill, Default to
+           open the default Mill machine definition.
+           In Mastercam, you select a machine
+           definition before creating any toolpaths.
+           The machine definition is a model of your
+           machine tool's capabilities and features. It
+           acts like a template for setting up
+           machining jobs.
+
+       Note: Parts that have previously been saved with a machine definition automatically load the
+       associated machine definition.
+
+       4 Choose File, Save As, and save the part under a different file name. This protects the
+           original tutorial file from being overwritten.
+
+Exercise 2: Setting Stock for Machining
+
+Define stock to help you more clearly visualize toolpaths. The stock can help to generate toolpaths,
+or be used when backplotting or verifying toolpaths. This exercise guides you through creating a
+stock boundary for your part.
+
+       1 In the Toolpath Manager, select Stock
+           setup. If necessary, click the [+] next to
+           Properties to expand the list.
+           The Machine Group Properties dialog box
+           opens to the Stock Setup tab.
+                                                TOOLPATH SETUP · 9
+
+2 Click Bounding box.
+    The Bounding Box dialog box opens.
+    Bounding box is a quick and convenient
+    method for creating stock around the outer
+    boundary of your geometry.
+
+3 Set the options and parameters as shown,
+    then click OK.
+
+4 Click OK in the Machine Group Properties
+    dialog box.
+10 · BASIC 3D MACHINING
+
+       5 Press [Alt+F1], or right-click and select Fit, to fit the geometry to the screen.
+
+       6 Choose File, Save or click the Save button
+           to save the part with the machine
+           definition and defined stock.
+
+Exercise 3: Creating Toolpath Groups
+
+Toolpath groups aid in organizing toolpaths logically. A well organized part file makes it easy for
+any user to understand the process involved in making the part. This exercise guides you through
+creating and renaming toolpath groups.
+
+       1 In the Toolpath Manager, right-click
+           Toolpath Group-1, select Groups,
+           Rename.
+                                                TOOLPATH SETUP · 11
+
+2 Type Interior and press [Enter].
+
+3 In the Toolpath Manager, right-click on
+    Machine Group-1, select Groups, New
+    Toolpath Group.
+
+    The new toolpath group is named
+    Toolpath Group-1. If you create the second
+    toolpath group before renaming the first,
+    the new group is named Toolpath Group-2.
+
+TIP: Right-clicking the machine group name creates the new toolpath group at the same
+level in the tree as the Interior toolpath group. You can right-click Interior to create a new
+toolpath group one level below Interior.
+
+4 Type Exterior and press [Enter].
+    The Toolpath Manager should look as
+    shown.
+
+Note: If the second toolpath group is created but you are unable to type the new name, return to
+step 1 to rename the second toolpath group.
+
+5 Choose File, Save or click the Save button
+    to save the part.
+12 · BASIC 3D MACHINING
+LESSON 2
+
+Roughing the Interior
+
+2
+
+The first toolpaths for a part typically involve removing large amounts of material. This is referred
+to as roughing the part. This lesson guides you through several roughing toolpaths. These include
+drilling the holes, roughing the inner pocket, roughing the inner slot, and rest roughing the interior
+portion of the part.
+
+Lesson Goals
+
+       Create a drill toolpath (including drill point selection, choosing tooling, and setting
+           machine values).
+
+       Create High Speed and surface roughing operations.
+       Create a High Speed rest roughing operation (including toolpath refinement).
+
+Exercise 1: Drilling the Holes
+
+       1 In the Toolpath Manager, click the Move
+           insert arrow up one item button.
+           The Toolpath Manager should look as
+           shown after performing this step.
+           The insert arrow controls the location
+           where new toolpaths will be added to the
+           Toolpath Manager.
+14 · BASIC 3D MACHINING
+
+       2 Right-click in the graphics window and
+           choose Isometric (WCS) from the menu to
+           view the part and toolpath in the isometric
+           view.
+           You may need to center the part in the
+           graphics window to see it. The easiest way
+           to do this is to use the graphics window
+           right-click menu and select Fit to fit the
+           part to the screen size [Alt+F1]. Then
+           unzoom using [Alt+F2]. You can also use
+           the fit/zoom/unzoom buttons in the View
+           Manipulation toolbar.
+
+       3 Choose Toolpaths, Drill.
+
+       4 Click OK when prompted to enter new NC
+           name.
+           The name displayed will be the name you
+           chose to save the file under. You may
+           change the NC file name now if necessary.
+
+       5 Use the default option for Select drill
+           point position in the graphics screen in
+           the Drill Point Selection dialog box.
+                                                ROUGHING THE INTERIOR · 15
+
+6 Select the arc centers of the four holes as
+    indicated.
+
+    The autocursor changes to indicate the arc
+    center as you approach.
+
+7 Click OK in the Drill Point Selection dialog box.
+
+    The 2D Toolpaths dialog box opens to the Toolpath Type page. Drill is selected as the
+    toolpath type. (Do not click OK on the 2D Toolpaths dialog box until all pages are
+    complete.)
+16 · BASIC 3D MACHINING
+
+       8 Select Tool from the Tree View pane on the
+           left.
+
+       9 Click the Select library tool button.
+           The tool library defined in the Machine
+           Group Properties opens.
+
+     10 Select the 10mm drill and click OK.
+
+       TIP: Use the default tool settings for the purposes of the tutorial. Tool speeds, feeds,
+       number, and other parameters should be changed to fit your machine and tooling before
+       cutting the part.
+                                                                                                                               ROUGHING THE INTERIOR · 17
+
+11 Select Linking Parameters from the Tree View pane and enter values as shown.
+
+      These values will control the depth the tool will move to, where the top of stock is located,
+      as well as the height to retract the tool to.
+12 Select Tip Comp from the Tree View pane.
+      Click the Tip Comp checkbox to activate
+      this feature. Use default values for the tip
+      comp parameters.
+18 · BASIC 3D MACHINING
+
+     13 Click OK in the 2D Toolpath dialog box to generate the drill toolpath.
+
+     14 Click the Toggle display on selected
+           operations button. If necessary, select the
+           Drill/Counterbore operation.
+           The toolpath display for the Drill toolpath
+           is turned off. Perform this step after the
+           creation of each operation for clarity in
+           selecting geometry for subsequent steps.
+
+     15 Save your part file.
+                                               ROUGHING THE INTERIOR · 19
+
+Exercise 2: Roughing the Pocket
+
+      1 Choose Toolpaths, Surface High Speed.
+
+2 If the New 3D Advanced Toolpath Refinement Feature! dialog box opens, select the
+    option to eliminate this dialog box and make refinement available for use. Click OK to close
+    the dialog box.
+
+Note: This dialog box introduces the 3D Advanced Toolpath Refinement feature. Use this feature
+to fine-tune your toolpath motion.
+20 · BASIC 3D MACHINING
+
+       3 Follow the prompt to select drive surfaces as shown.
+
+       4 Press [Enter] or click the End Selection
+           button to accept the selection.
+
+       5 Click the Select button in the
+           Containment area of the Toolpath/Surface
+           selection dialog box.
+           The Chaining dialog box opens.
+
+       6 Click the C-plane radio button.
+           C-plane selection limits chaining to
+           entities that are parallel to the current
+           construction plane.
+                                                 ROUGHING THE INTERIOR · 21
+
+7 Select the chain on the top of the part. The
+    selection can be in either direction for a
+    closed containment boundary.
+
+ 8 Click OK on the Chaining dialog box to return to the Toolpath/Surface selection dialog box.
+ 9 Click OK on the Toolpath/surface selection dialog box.
+
+      The Surface High Speed toolpaths dialog box opens on the Toolpath Type page.
+10 Select Roughing and Area Clearance on
+
+      the Toolpath Type page.
+
+11 Select Tool from the Tree View pane.
+12 Click the Select library tool button. The
+
+      default metric tool library opens.
+
+13 Select the 10mm bull endmill with 2mm
+      corner radius and click OK.
+
+ TIP: Adjust the Filter options on the right of
+ the dialog box to limit the types of tools
+ displayed.
+22 · BASIC 3D MACHINING
+
+     14 Select Cut Parameters from the Tree View pane. Set the parameters as indicated.
+                                                          ROUGHING THE INTERIOR · 23
+
+15 Click OK to generate the area clearance toolpath.
+
+     16 Turn off the toolpath display for the operation.
+     17 Save your part file.
+
+Exercise 3: Roughing the Slot
+
+      1 Choose Toolpaths, Surface Rough,
+           Pocket.
+24 · BASIC 3D MACHINING
+
+       2 Follow the prompt to select drive surfaces
+           as shown.
+
+       3 Press [Enter] or click the End Selection button.
+       4 Click the Select button in the Containment area of the Toolpath/Surface selection dialog
+
+           box.
+           The Chaining dialog box opens.
+       5 Click the C-plane radio button in the Chaining dialog box.
+       6 Select the chain at the top of the slot as
+           shown.
+
+       7 Click OK on the Chaining dialog box.
+       8 Click OK on the Toolpaths/surface selection dialog box.
+
+           The Surface Rough Pocket dialog box opens to the Toolpath parameters tab.
+       9 Select the 10mm bull endmill with the
+
+           2mm corner radius showing in the tool list.
+
+     10 Click the Surface parameters tab.
+                                                ROUGHING THE INTERIOR · 25
+
+11 Set Stock to leave on drive to a value of
+      1mm.
+      Remaining parameters on this tab will be
+      left at defaults.
+
+12 Click the Rough parameters tab.
+
+13 Click the Cut Depths button.
+14 Set the parameters as shown and click OK.
+
+15 Click the Pocket parameters tab.
+26 · BASIC 3D MACHINING
+
+     16 Click Constant Overlap Spiral, set the parameters as shown, and click OK.
+
+     17 The following warning message displays because the finish passes are turned off. Click OK
+           to continue.
+                                                                                                                               ROUGHING THE INTERIOR · 27
+
+18 The surface rough pocket toolpath is generated on the selected geometry.
+
+19 Turn off the toolpath display for the operation.
+20 Save your part file.
+28 · BASIC 3D MACHINING
+
+Exercise 4: Rest Roughing the Interior
+
+       1 Choose Toolpaths, Surface High Speed.
+       2 Follow the prompt to select drive surfaces as shown.
+
+       3 Press [Enter] or click End Selection to accept the selection.
+       4 Click the Select button in the Containment area of the Toolpath/Surface selection dialog
+
+           box.
+           The Chaining dialog box opens.
+       5 Click the C-plane radio button.
+                                                                                                                               ROUGHING THE INTERIOR · 29
+
+ 6 Follow the prompt to chain a containment boundary as shown.
+
+ 7 Click OK in the Chaining and the Toolpath/surface selection dialog boxes.
+      The Surface High Speed toolpaths dialog box opens.
+
+ 8 Select Toolpath Type from the Tree View
+      pane, and then select Roughing and Rest
+      Roughing on the Toolpath Type page.
+
+ 9 Select Tool from the Tree View pane.
+10 Click the Select library tool button. The
+
+      tool library defined in the Machine Group
+      Properties opens.
+30 · BASIC 3D MACHINING
+
+     11 Select the 6mm bull endmill with the 2mm
+           corner radius and click OK.
+
+     12 Select Cut Parameters from the Tree View
+           pane.
+           Set the stock to leave values as indicated.
+
+     13 Select Rest Material from the Tree View
+           pane.
+           Click the plus sign in front of Cut
+           Parameters to expand the tree if necessary.
+
+     14 Select Roughing Tool and set the values as
+           shown.
+
+     15 Select Arc Filter/Tolerance from the Tree
+           View pane.
+
+     16 Click the Refine toolpath button.
+           The Refine Toolpath dialog box opens.
+                                                               ROUGHING THE INTERIOR · 31
+
+17 Move the slider for Surface quality to the Better setting.
+
+ Note: Move the slider(s) to quickly adjust parameters in the dialog box. Consult Help for more
+ detailed information.
+
+18 Click OK to accept the settings on the Refine Toolpath dialog.
+19 Click OK in the Surface High Speed Toolpath dialog box.
+20 The rest roughing toolpath is generated on the selected geometry.
+32 · BASIC 3D MACHINING
+
+     21 Turn off the toolpath display for the operation.
+     22 Save your part file.
+LESSON 3
+
+Finishing the Interior
+
+3
+
+After roughing a part, or section of a part, finishing operations will generally need to be performed.
+Finishing operations remove remaining stock while improving surface finish quality. Tighter
+tolerances, smaller stepover values, smaller tools, as well as toolpath refinement will be used in this
+lesson to achieve the desired finish quality.
+
+Lesson Goals
+
+       Create a finishing operation for the pocket floor.
+       Create a finishing operation for the slot.
+
+Exercise 1: Finishing the Pocket Floor
+
+       1 Choose Toolpaths, Surface High Speed.
+           The prompt to select Drive Surfaces appears.
+
+       2 Follow the prompt to select drive surfaces as shown.
+
+       3 Press [Enter] or click the End Selection button to accept the selection.
+       4 Click the Select button in the Containment area of the Toolpath/Surface selection dialog
+
+           box.
+34 · BASIC 3D MACHINING
+
+           The Chaining dialog box opens.
+       5 Click the C-plane radio button.
+       6 Follow the prompt to chain a containment boundary as shown.
+
+       7 Click OK in the Chaining and the Toolpath/surface selection dialog boxes.
+           The Surface High Speed toolpaths dialog box opens on the Toolpath Type page.
+
+       8 Select the Toolpath Type page, and then
+           Finishing and Horizontal Area.
+           Horizontal Area is designed to quickly and
+           efficiently machine flat areas of a part.
+
+       9 Select Tool from the Tree View pane.
+     10 Select the 6mm bull endmill with the 2mm corner radius showing in the tool list.
+                                                                   FINISHING THE INTERIOR · 35
+
+11 Select Cut Parameters from the Tree View
+      pane. Set the tool containment as shown.
+
+12 Select Arc Filter/Tolerance from the Tree View pane.
+13 Click the Refine Toolpath button.
+14 Move the slider for Surface quality to the Best setting.
+
+15 Click OK to accept the settings on the Refine Toolpath dialog.
+36 · BASIC 3D MACHINING
+
+     16 Click OK in the Surface High Speed Toolpath dialog box to generate the horizontal area
+           toolpath.
+
+     17 Turn off the toolpath display for the operation.
+     18 Save your part file.
+
+Exercise 2: Finishing the Slot
+
+       1 Choose Toolpaths, Surface Finish,
+           Contour.
+                                              FINISHING THE INTERIOR · 37
+
+2 Follow the prompt to select drive surfaces
+    as shown.
+
+3 Press [Enter] or click the End Selection button to accept the selection.
+4 Click the Select button in the Containment area of the Toolpath/Surface selection dialog
+
+    box.
+    The Chaining dialog box opens.
+5 Click the C-plane radio button.
+6 Follow the prompt to chain a containment
+    boundary as shown.
+
+7 Click OK on the Chaining and Toolpaths/surface selection dialog box.
+    The Surface Finish Contour dialog box opens to the Toolpath parameters tab.
+
+8 Select the 6mm bull endmill with the 2mm corner radius showing in the tool list.
+38 · BASIC 3D MACHINING
+
+       9 Click the Surface parameters tab. Set the parameters as shown.
+
+       Note: Retract is set to absolute to ensure proper clearance when the tool is pulling out of the deep
+       slot.
+     10 Click the Finish contour parameters tab.
+     11 Set the parameters as shown.
+
+     12 Click the Total tolerance button.
+     13 Move the slider for Surface quality to the Best setting and click OK.
+                                                     FINISHING THE INTERIOR · 39
+
+14 Click the Cut Depths button.
+15 Set the parameters as shown and click OK.
+
+16 Click OK from the Surface Finish Contour dialog box to generate the finish contour
+      toolpath.
+
+17 Turn off the toolpath display for the operation.
+18 Save your part file.
+40 · BASIC 3D MACHINING
+LESSON 4
+
+Machining the Exterior
+
+4
+
+Roughing and finishing are required on the exterior of the part provided. The simplicity of the
+exterior surfaces allows for a single roughing and a single finishing operation. This lesson will cover
+each of those as well as using a different tool plane to drill a hole.
+
+Lesson Goals
+
+       Create a Core Roughing toolpath.
+       Create a Surface Finish Contour toolpath.
+       Create a Drill toolpath in the Front plane.
+
+Exercise 1: Roughing the Exterior
+
+       1 Select the toolpath group Exterior.
+           Click the minus (-) in front of the Interior
+           toolpath group to collapse the tree.
+
+       2 Click the Position insert arrow after
+           selected operation or after selected
+           group button.
+           The insertion arrow is placed in the
+           Exterior group.
+           Moving the insertion arrow ensures new
+           toolpaths are created in the Exterior
+           toolpath group. Toolpath organization is
+           an important ability as the number of
+           operations grows.
+
+       3 Choose Toolpaths, Surface High Speed.
+       4 Click the All button on the General
+
+           Selection ribbon bar when prompted to
+           select drive surfaces.
+42 · BASIC 3D MACHINING
+
+       5 Select the Entities and Surfaces
+           checkboxes in the Select All dialog box as
+           shown.
+
+       6 Click OK in the Select All dialog box.
+       7 Press [Enter] or click the End Selection button.
+       8 Click the Select button in the Containment area of the Toolpath/Surface selection dialog
+
+           box.
+           The Chaining dialog box opens.
+       9 Click the C-plane radio button.
+                                                                                                                            MACHINING THE EXTERIOR · 43
+
+10 Select two chains as shown to be used as containment boundaries. The chains lie on the
+      top of the part and the top of the stock boundary created in the Toolpath Setup lesson.
+
+11 Click OK in the Chaining and the Toolpath/surface selection dialog boxes.
+      The Surface High Speed toolpaths dialog box opens on the Toolpath Type page.
+
+12 Select the Toolpath Type page, and then
+      Roughing and Core Roughing.
+
+13 Select Tool from the Tree View pane.
+14 Select the 10mm bull endmill with the 2mm corner radius showing in the tool list.
+44 · BASIC 3D MACHINING
+
+     15 Select Cut Parameters from the Tree View pane. Set the tool containment and stock to
+           leave values as indicated.
+
+     16 Select Steep/Shallow from the Tree View
+           pane. Set the parameters as shown.
+           Click the plus [+] in front of Cut
+           Parameters if necessary to expand the tree.
+                                                                                                                            MACHINING THE EXTERIOR · 45
+
+17 Click OK in the Surface High Speed Toolpath dialog box to generate the core roughing
+      toolpath.
+
+18 Turn off the toolpath display for the operation.
+19 Save your part file.
+46 · BASIC 3D MACHINING
+
+Exercise 2: Finishing the Exterior
+
+       1 Choose Toolpaths, Surface Finish, Contour.
+       2 Follow the prompt to select drive surfaces as shown.
+
+       3 Press [Enter] or click the End Selection button to accept the selection.
+       4 Click the Select button in the Check
+
+           Surfaces area of the Toolpath/Surface
+           selection dialog box.
+                                                                                                                            MACHINING THE EXTERIOR · 47
+
+ 5 Follow the prompt to select check surfaces as shown.
+
+ 6 Press [Enter] or click the End Selection button to accept the selection.
+ 7 Click OK on the Toolpath/Surface selection dialog box.
+ 8 Click the Select library tool button.
+ 9 Select the 6mm flat endmill and click OK.
+
+10 Click the Surface parameters tab and set
+      the stock to leave values as shown.
+
+11 Click the Finish contour parameters tab.
+12 Click the Total tolerance button.
+13 Move the slider for Surface quality to the Best setting and click OK.
+48 · BASIC 3D MACHINING
+
+     14 Click the Cut Depths button.
+     15 Set the parameters as shown and click OK.
+
+     16 Click OK to generate the surface finish contour toolpath.
+
+     17 Turn off the toolpath display for the operation.
+     18 Save your part file.
+                                                                                                                                   MACHINING THE EXTERIOR · 49
+
+Exercise 3: Drilling a hole from the Front Plane
+
+      1 Click the Planes button located on the
+           Status bar at the bottom of the screen.
+
+      2 Select Front (WCS) from the list.
+           Planes selection sets your construction
+           and tool plane.
+
+      3 Choose Toolpaths, Drill.
+      4 Use the default option for Select drill
+
+           point position in the graphics screen in
+           the Drill Point Selection dialog box.
+
+      5 Select the arc center as indicated.
+
+      6 Click OK in the Drill Point Selection dialog box.
+           The 2D Toolpaths dialog box opens to the Toolpath Type page. Drill is selected as the
+           toolpath type.
+
+      7 Select Tool from the Tree View pane.
+      8 Click the Select library tool button.
+50 · BASIC 3D MACHINING
+
+       9 Select the 6mm drill and click OK.
+
+     10 Select Linking Parameters from the Tree
+           View pane and enter values as shown.
+
+     11 Select Tip Comp from the Tree View pane. Click the Tip Comp checkbox to activate this
+           feature. Use default values for the tip comp parameters.
+                                                     MACHINING THE EXTERIOR · 51
+
+12 Click OK to generate the drill toolpath.
+
+13 Turn off the toolpath display for the operation.
+14 Save your part file.
+52 · BASIC 3D MACHINING
+LESSON 5
+
+Adding Details
+
+5
+
+The basic part has been machined to the desired quality. Remaining details may now be added to
+the part such as engraved numbers or letters, tapping of holes, or any other detail work not
+included in the previous operations. This lesson covers two methods for adding lettering to your
+part.
+
+Lesson Goals
+
+       Create lettering using a Surface Finish Project toolpath in the front plane.
+       Create lettering using a Contour toolpath in a custom plane.
+
+Exercise 1: Lettering with a Project Toolpath
+
+       1 Choose Toolpaths, Surface Finish,
+           Project.
+           The tool and construction planes should
+           be set to Front from the previous exercise.
+           If not, reset them to Front.
+54 · BASIC 3D MACHINING
+
+       2 Follow the prompt to select drive surfaces as shown.
+
+       3 Press [Enter] or click the End Selection button.
+       4 Click OK from the Toolpath/Surface selection dialog box.
+
+           The Surface Finish Project dialog box opens to the toolpath parameters tab.
+       5 Click the Select library tool button.
+       6 Select the 2mm ball endmill and click OK.
+
+       7 Click the Surface parameters tab and set
+           the stock to leave values as shown.
+           A negative stock to leave value creates the
+           toolpath below the surface. The letters
+           become engraved into the part.
+
+       8 Click the Finish project parameters tab.
+                                                                          ADDING DETAILS · 55
+
+9 Set the Projection type to Curves.
+
+10 Click the Total tolerance button.
+11 Move the slider for Surface quality to the Best setting and click OK.
+12 Click the Gap Settings button.
+
+13 Adjust the Distance value in Gap settings
+      as shown.
+      Only the value preceded by the radio
+      button selection will be used in the
+      toolpath calculation.
+
+14 Click OK in the Gap settings dialog.
+15 Click OK from the Surface Finish Project dialog.
+
+      The Chaining dialog box opens.
+16 Set the chaining mode to window by
+
+      clicking the Window button.
+
+17 To select the curves to be used in the
+      toolpath, click and hold the mouse button
+      above and to the left of the text.
+
+18 Drag your mouse down and to the right to
+      draw a selection rectangle.
+
+19 Click again to set the lower right corner of
+      the rectangle and complete the window.
+56 · BASIC 3D MACHINING
+
+     20 Click the lower left endpoint of the text
+           when prompted to Sketch approximate
+           start point.
+
+     21 Click OK to generate the surface finish project toolpath.
+
+     22 Turn off the toolpath display for the operation.
+     23 Save your part file.
+                                                                   ADDING DETAILS · 57
+
+Exercise 2: Lettering with a Contour Toolpath
+
+      1 Click the Planes button on the Status bar.
+      2 Select Named Views from the list.
+
+           The View Selection dialog opens.
+
+3 Select Text Plane from the list of available
+    planes. Click OK to set the new plane.
+
+    Review Basic 3D Design to see a procedure
+    for creating named planes.
+
+4 Choose Toolpaths, Contour.
+
+5 Set the chaining mode to window by clicking the Window button.
+
+6 Window-select the Mastercam letters that lie in the Text Plane.
+
+7 Click the lower left endpoint of the text
+    when prompted to Sketch approximate
+    start point.
+
+ 8 Click OK from the Chaining dialog box.
+      The 2D Toolpath dialog box opens to the Toolpath Type page.
+
+ 9 Select Tool from the Tree View pane.
+10 Click the Select library tool button.
+58 · BASIC 3D MACHINING
+
+     11 Select the 1mm ball endmill (tool 1) and
+           click OK.
+
+     12 Select Cut Parameters from the Tree View pane.
+     13 Set Compensation type to Off.
+
+     14 Select Lead In/Out from the Tree View
+           pane.
+           Expand Cut Parameters by clicking the [+],
+           if necessary.
+
+     15 Uncheck lead in/out moves.
+                                                                                                                                            ADDING DETAILS · 59
+
+16 Select Linking Parameters from the Tree View pane and set the parameters as shown.
+
+17 Select Planes (WCS) from the Tree View
+      pane.
+      The Planes (WCS) page is displayed.
+60 · BASIC 3D MACHINING
+
+     18 Click the Copy to WCS button highlighted below.
+
+     19 The resulting working coordinate system is
+           as shown.
+           Click the Help button for details on
+           working with WCS.
+                                                                                                                                            ADDING DETAILS · 61
+
+20 Click OK from the 2D Toolpaths dialog box to generate the contour toolpath.
+
+21 Turn off the toolpath display for the operation.
+22 Save your part file.
+62 · BASIC 3D MACHINING
+LESSON 6
+
+Backplot/Verify Your Toolpaths
+
+6
+
+Now that all toolpaths are complete, it is time to backplot and verify your operations. This process
+allows you to review the tool motion before any cutting takes place on the actual machine. This
+lesson guides you through the backplot and verify functions.
+
+Lesson Goals
+
+       Backplot all toolpaths.
+       Verify all toolpaths.
+
+Exercise 1: Backplotting All Toolpaths
+
+       1 In the Toolpath Manager, click the Select
+           all operations button.
+           All operations should now have a green
+           check on them.
+
+       2 Click the Backplot selected operations
+           button in the Toolpath Manager.
+           The Backplot dialog box and Backplot VCR
+           bar open.
+
+       3 In the Backplot dialog box, select the
+           Display tool and Display rapid moves
+           buttons.
+           These options will display a simulation of
+           the tool as well as the rapid motion.
+64 · BASIC 3D MACHINING
+
+TIP: To further customize your backplot display, choose other buttons on the Backplot
+dialog box. For example, choose the Options button to open the Backplot Options dialog
+box. This dialog box lets you set various backplot options such as tool display, holder
+display, and tool motion colors. Setting the option to Cleanup screen on Tool change is
+recommended with a large number of operations.
+
+4 Use the buttons and sliders on the       I
+
+Backplot VCR bar to backplot the
+
+operations. The Play button (shown to the
+
+right) begins the backplot.
+
+Click the Help button on the VCR bar for more information on each of the controls.
+
+      5 When finished, click OK on the backplot dialog box to exit the backplot function.
+
+      TIP: The backplot display is easily customizable. See the Mastercam Help for details on
+      each of the buttons, fields, and display options in the Backplot and the Backplot Options
+      dialog boxes.
+
+Exercise 2: Verifying All Toolpaths
+
+      1 In the Toolpath Manager, make sure all
+           operations are selected and click the Verify
+           selected operations button.
+           The Verify dialog box opens.
+
+      2 In the Verify dialog box, select the Machine
+           button.
+
+           The part, stock, and toolpaths are simulated.
+
+      TIP: Use the buttons, fields, and controls in the Verify dialog box to customize and manage
+      the toolpath verification process. Click the Help button in the dialog box for details.
+                                                                                                  BACKPLOT/VERIFY YOUR TOOLPATHS · 65
+
+When the verification process is complete, the part should look similar to the image shown
+here.
+66 · BASIC 3D MACHINING
+LESSON 7
+
+Posting Toolpaths
+
+7
+
+Operations must be run through a post processor in order to be usable by your machine. This
+process is commonly referred to as posting. This lesson will guide you through selecting and
+posting all of your operations. Communicating the posted code to your machine is the last step of
+the toolpathing process in Mastercam.
+
+Lesson Goals
+
+       Post all toolpaths to create an NC file.
+
+Exercise 1: Posting All Toolpath Operations
+
+       1 In the Toolpath Manager, click the Select
+           all operations button.
+
+       2 Click the Post selected operations button.
+           The Post processing dialog box opens.
+68 · BASIC 3D MACHINING
+
+       3 Set the post processing options as shown.
+
+       4 Click OK.
+           The Save As dialog box opens.
+
+       5 Click Save to save the NC file in the default location with the recommended file name.
+       Notes:
+        · Posting may take several minutes. When it is complete, the NC code will display in your
+
+          default editor/communicator. This tutorial uses Mastercam Editor to display the NC code.
+        · Producing the correct NC code for your machine and application depends on properly
+
+          configuring the machine definition, control definition, and .PST file. For detailed
+          information on machine definitions, control, definitions, and posting, please see the
+          following documentation supplied with Mastercam:
+
+                 - Mastercam Help
+                 - Mastercam X5 Reference Guide (choose Reference Guide from the
+
+                    Mastercam Help menu)
+                 - Mastercam NCI & Parameter Reference Guide (in the Documentation folder
+
+                   under your Mastercam installation folder)
+                                                                                                                                            POSTING TOOLPATHS · 69
+
+       6 Your chosen editor opens (in this case, Mastercam Editor), displaying the posted NC code
+           as shown below.
+
+       7 Scroll through the NC code to verify that each line of code meets your expectations. Edit
+           and save as necessary.
+
+Sending NC Files to the Machine
+
+       IMPORTANT: This tutorial is based on the Mastercam Mill Default machine definition for
+       training purposes only. It is not possible to provide a step-by-step procedure for sending the
+       NC code to your machine control because machine setups are customizable and most likely
+       different from the machine definition used here. Following is a general description of how
+       the NC code is communicated to machines and their controls for machining.
+After the NC file is reviewed, edited, and saved, you can set up your machine control to accept the
+NC file. This is done according to your machine and control manufacturer's procedures.
+70 · BASIC 3D MACHINING
+
+When the machine control is ready to receive the NC file, configure your preferred editor or
+communications program to communicate with your machine control. Refer to your
+communications program documentation for details.
+
+Send the NC code to your machine control according to your machine and control manufacturer's
+documentation. Once you start the communication process, the send/receive data processing is
+mostly managed by your machine control.
+
+Contact your local Mastercam Reseller for customized machine/control definitions, post (PST)
+files, and support.
+Section 2
+ Machining the Tool Holder
+72 · BASIC 3D MACHINING
+LESSON 1
+
+Toolpath Setup
+
+1
+
+Before generating toolpaths for a part, you must select a machine definition. Defining stock creates
+a visual representation of the stock placed in your machine. This lesson covers these topics.
+
+Lesson Goals
+
+       Open a part file and assign a machine definition.
+       Define stock to be used in machining the part.
+
+Exercise 1: Assigning a Machine Definition
+
+       1 Open the tutorial part file Basic_3D_Machining_Part2_Start.MCX-5, which was
+           provided with the tutorial.
+
+       2 Click OK if prompted to switch to a metric
+           configuration.
+74 · BASIC 3D MACHINING
+
+       3 Choose Machine Type, Mill, Default to
+           open the default Mill machine definition.
+           In Mastercam, you select a machine
+           definition before creating any toolpaths.
+           The machine definition is a model of your
+           machine tool's capabilities and features. It
+           acts like a template for setting up
+           machining jobs.
+
+       Note: Parts that have previously been saved with a machine definition automatically load the
+       associated machine definition.
+
+       4 Choose File, Save As, and save the part under a different file name. This protects the
+           original tutorial file from being overwritten.
+
+Exercise 2: Setting Stock for Machining
+
+       1 In the Toolpath Manager, select Stock
+           setup. If necessary, click the [+] next to
+           Properties to expand the list.
+           The Machine Group Properties dialog box
+           opens to the Stock Setup tab.
+
+       2 Click Bounding box.
+           The Bounding Box dialog box opens.
+           Bounding box is a quick and convenient
+           method for creating stock around the outer
+           boundary of your geometry.
+                                                      TOOLPATH SETUP · 75
+
+3 Set the options and parameters as shown,
+    and then click OK.
+
+4 Click OK in the Machine Group Properties
+    dialog box.
+
+5 Press [Alt+S] to shade the geometry, if necessary.
+76 · BASIC 3D MACHINING
+
+       6 Press [Alt+F1] to fit the geometry to the screen.
+
+       7 Choose File, Save or click the Save button
+           to save the part with the machine
+           definition and defined stock.
+LESSON 2
+
+Roughing the Part
+
+2
+
+The first toolpaths for a part typically involve removing large amounts of material. This is referred
+to as roughing the part. This lesson guides you through several roughing toolpaths. These include
+using a core roughing operation and a leftover operation.
+
+Lesson Goals
+
+       Create a core roughing toolpath to efficiently remove material.
+       Create a leftover toolpath.
+
+Exercise 1: Roughing the Part
+
+       1 Choose Toolpaths, Surface High Speed.
+
+       2 If the New 3D Advanced Toolpath Refinement Feature! dialog box opens, select the
+           option to eliminate this dialog box and make refinement available for use. Click OK to close
+           the dialog box.
+78 · BASIC 3D MACHINING
+
+       Note: This dialog box introduces the 3D Advanced Toolpath Refinement feature. Use this feature
+       to fine-tune your toolpath motion.
+       3 Click OK when prompted to enter new NC
+
+           name.
+           The name displayed will be the name you
+           chose to save the file under. You may
+           change the NC file name now if necessary.
+       4 Press [Alt+S] to shade the geometry, if necessary.
+       5 Follow the prompt to select drive surfaces as shown.
+
+       6 Press [Enter] or click the End Selection
+           button to accept the selection.
+                                               ROUGHING THE PART · 79
+
+7 Click the Select button in the
+    Containment area of the Toolpath/Surface
+    selection dialog box.
+    The Chaining dialog box opens.
+
+8 Click the C-plane radio button.
+    C-plane selection limits chaining to
+    entities that are parallel to the current
+    construction plane.
+
+9 Select the chain on top of the stock
+    boundary.
+
+10 Click OK on the Chaining dialog box to return to the Toolpath/Surface selection dialog box.
+11 Click OK on the Toolpath/surface selection dialog box.
+
+      The Surface High Speed toolpaths dialog box opens on the Toolpath Type page.
+12 Select Roughing and Core Roughing on
+
+      the Toolpath Type page.
+
+13 Select Tool from the Tree View pane.
+14 Click the Select library tool button.
+80 · BASIC 3D MACHINING
+
+           The tool library defined in the Machine
+           Group Properties opens.
+     15 Select the 10mm bull endmill with 2mm
+           corner radius and click OK.
+       TIP: Adjust the Filter options on the right of
+       the dialog box to limit the types of tools
+       displayed.
+     16 Select Cut Parameters from the Tree View pane. Set the parameters as indicated.
+
+     17 Select Steep / Shallow from the Tree View
+           pane. Set the parameters as indicated.
+                                                                                                                                     ROUGHING THE PART · 81
+
+18 Click OK to generate the core roughing toolpath. It might take a few moments to generate.
+
+19 Click the Toggle display on selected
+      operations button. If necessary, select the
+      Core Roughing operation.
+      The toolpath display for the Core Roughing
+      operation is turned off. Perform this step
+      after the creation of each operation for
+      clarity in selecting geometry for
+      subsequent steps.
+
+20 Save your part file.
+82 · BASIC 3D MACHINING
+
+Exercise 2: Creating a Leftover Toolpath
+
+       1 Choose Toolpaths, Surface Finish,
+           Leftover.
+
+       2 Click the Select last button on the General
+           Selection ribbon bar when prompted for
+           drive surfaces.
+           The surface(s) used in the previous operation are selected.
+
+       3 Press [Enter] or click the End Selection button to accept the selection.
+       4 Click OK on the Toolpath/surface selection dialog box.
+
+           The Surface Finish Leftover dialog box opens to the Toolpath parameters tab.
+       5 Click the Select library tool button.
+
+           The default metric tool library opens.
+       6 Select the 4mm bull endmill with 0.2mm
+
+           corner radius and click OK.
+
+       7 Click the Surface parameters tab. Set the
+           stock to leave on drive to 1.0.
+
+       8 Click the Finish leftover parameters tab.
+                                ROUGHING THE PART · 83
+
+9 Set the parameters as shown.
+
+10 Click the Leftover material parameters
+      tab. Enter the roughing tool information as
+      shown.
+
+11 Click OK to generate the surface finish leftover toolpath. It might take a few moments to
+      generate.
+84 · BASIC 3D MACHINING
+
+       Note: Additional toolpath calculation lines may be displayed after generating the toolpath. Your
+       screen may look slightly different from the image above.
+     12 Turn off the toolpath display for the operation.
+     13 Save your part file.
+LESSON 3
+
+Semi-Finishing the Part
+
+3
+
+After roughing a part, it may be necessary to perform semi-finishing operations. These operations
+remove material that remains from roughing while leaving material for finishing operations. They
+are an intermediate step in the process to a finished part. In general, the tolerance value, the
+stepover, and the stock to leave separate the finishing operations from the semi-finishing
+operations. This lesson guides you through surface finish blend, surface finish parallel steep, and
+copying and modifying an operation.
+
+Lesson Goals
+
+       Create several finishing operations, including parallel steep and blend.
+       Set parameters to create semi-finishing operations.
+       Copy an operation and change parameters.
+
+Exercise 1: Creating a Surface Finish Blend
+
+       1 Choose Toolpaths, Surface Finish, Blend.
+
+       2 Click the Select last button when
+           prompted for drive surfaces.
+
+       3 Press [Enter] or click the End Selection
+           button to accept the selection.
+
+       4 Click OK on the Toolpath/surface selection dialog box.
+           The Surface Finish Blend dialog box opens on the Toolpath parameters tab.
+
+       5 Select the 4mm bull endmill with the 0.2mm corner radius showing in the tool list.
+       6 Click the Surface parameters tab. Set the stock to leave on drive to 0.25.
+86 · BASIC 3D MACHINING
+
+       7 Click the Finish blend parameters tab.
+       8 Set the parameters as shown.
+
+       9 Click the Total tolerance button to open the Refine Toolpath dialog box.
+                                                       SEMI-FINISHING THE PART · 87
+
+10 Set the parameters as shown and click OK.
+
+11 Click OK from the Surface Finish Blend dialog box.
+      The Chaining dialog box opens.
+
+12 Click the C-plane radio button.
+
+13 Click the Partial button.
+      Partial is used to select a section of a full
+      chain.
+88 · BASIC 3D MACHINING
+
+     14 Select chain 1 as shown. The start of the chain is at 1 (narrow end of the part) with the end
+           of the chain at 2 (wide end of the part). Zoom in and out as necessary.
+
+     15 Select chain 2 on the opposite side of the part as shown. The start of the chain is at 1
+           (narrow end of the part) with the end of the chain at 2 (wide end of the part). It will be
+           necessary to rotate the part to view the left side as shown by the images below. Zoom and
+           rotate as necessary.
+
+     16 Right-click in the graphics area and select Isometric (WCS).
+                                                                                                                                    SEMI-FINISHING THE PART · 89
+
+     17 Click OK from the chaining dialog box to generate the surface finish blend toolpath.
+
+     18 Turn off the toolpath display for the operation.
+     19 Save your part file.
+
+Exercise 2: Creating a Surface Finish Parallel Steep
+
+      1 Choose Toolpaths, Surface Finish, Parallel
+           Steep.
+
+      2 Click the Select last button when prompted for drive surfaces.
+      3 Press [Enter] or click the End Selection button to accept the selection.
+      4 Click OK on the Toolpath/surface selection dialog box.
+
+           The Surface Finish Parallel Steep dialog box opens to the Toolpath parameters tab.
+      5 Click the Select library tool button.
+90 · BASIC 3D MACHINING
+
+           The tool library defined in the Machine
+           Group Properties opens.
+       6 Select the 2mm ball endmill and click OK.
+
+       7 Click the Surface parameters tab. Set the
+           stock to leave on drive to 0.25.
+
+       8 Click the Finish parallel steep parameters
+           tab.
+
+       9 Set the parameters as shown.
+
+     10 Click the Total tolerance button to open the Refine Toolpath dialog box.
+     11 Set the surface quality to Better, and then click OK.
+                                                          SEMI-FINISHING THE PART · 91
+
+12 Click OK to generate the parallel steep toolpath.
+
+     13 Turn off the toolpath display for the operation.
+     14 Save your part file.
+
+Exercise 3: Copy and Modify an Operation
+
+      1 Right-click and hold the button down on
+           the Surface Finish Parallel Steep operation.
+
+      2 Drag the operation below the Surface
+           Finish Parallel Steep operation and release
+           the mouse button.
+92 · BASIC 3D MACHINING
+
+       3 Select Copy after from the list of choices.
+
+       4 Click Parameters in the new operation.
+           Click the plus [+] to expand the operation
+           if necessary.
+
+       5 Click the Finish parallel steep parameters
+           tab.
+
+       6 Set the Machining angle to 0.
+       7 Click OK.
+       8 Turn on the toolpath display for the copied operation.
+       Note: The copied operation inherits display settings from the original operation.
+       9 Click the Regenerate all dirty operations
+
+           button in the Toolpath Manager.
+                                                                                                                             SEMI-FINISHING THE PART · 93
+
+10 The parallel steep toolpath with the new parameters will be generated as shown.
+
+11 In the Toolpath Manager, click the Move
+      insert arrow down one item button.
+
+12 Turn off the toolpath display for the operation.
+13 Save your part file.
+94 · BASIC 3D MACHINING
+LESSON 4
+
+Finishing the Part
+
+4
+
+After roughing and semi-finishing the part, finishing operations will generally need to be
+performed. Finishing operations remove remaining stock while improving surface finish quality.
+Tighter tolerances, smaller stepover values, smaller tools, as well as toolpath refinement will be
+used in this lesson to achieve the desired finish quality.
+
+Lesson Goals
+
+       Create Swept 3D toolpaths to finish the front and back of the part.
+       Create a Flowline toolpath to finish the entire part.
+
+Exercise 1: Creating a Swept 3D
+
+       1 Zoom in on the front of the part.
+           Zooming allows for easier chain selection.
+
+       2 Choose Toolpaths, Wireframe, Swept 3D.
+
+       3 Type 1 for the number of across contours
+           and press [Enter].
+           The chaining dialog box opens.
+
+       4 Click the Single button in the chaining
+           dialog box.
+96 · BASIC 3D MACHINING
+
+       5 Select the line segment as shown when
+           prompted to define the across contour.
+           The prompt changes to define along
+           contour 1.
+           Chain direction directly affects the
+           toolpath outcome. Be sure to select the
+           chain in the indicated direction.
+
+       6 Click the Partial button and the Wait
+           checkbox in the chaining dialog.
+
+       7 Select the arc as shown when prompted to
+           define along contour 1.
+           The prompt changes to select the last
+           entity. The wait option allows you to select
+           multiple entities to add to the chain.
+           Review Mastercam's Help for more
+           information.
+
+       8 Select the next arc as indicated.
+           The resulting chain is shown.
+           Subsequent segments can be selected at
+           any location along the entity. Chain
+           direction has been set by the first entity in
+           the chain.
+
+       9 Select the last arc as indicated.
+           The resulting chain is shown.
+                                                                                                                                      FINISHING THE PART · 97
+
+10 Click OK on the Chaining dialog box.
+      The Swept 3D dialog box opens to the Toolpath parameters tab.
+
+11 Select the 4mm bull endmill with the
+      0.2mm corner radius showing in the tool
+      list.
+
+12 Click the Swept 3D Parameters tab.
+
+13 Set the parameters as shown.
+98 · BASIC 3D MACHINING
+
+     14 Click OK to generate the swept 3D toolpath.
+
+     15 Turn off the toolpath display for the operation.
+     16 Save your part file.
+
+Exercise 2: Creating a second Swept 3D
+
+       1 Rotate your part so you can clearly see the
+           back face. Zoom in to make chain selection
+           easier.
+           Chaining is possible through the part in an
+           isometric view. Manipulating the part
+           simply makes chaining easier.
+
+       2 Choose Toolpaths, Wireframe, Swept 3D.
+       3 Type 1 for the number of across contours and press [Enter].
+
+           The chaining dialog box opens.
+       4 Click the Single button in the chaining dialog box.
+                                            FINISHING THE PART · 99
+
+5 Select the line segment as shown when
+    prompted to define the across contour.
+
+6 Click the Partial button and the Wait
+    checkbox in the chaining dialog.
+
+7 Select the arc as shown when prompted to
+    define along contour 1.
+
+ 8 Select the remaining arcs using the same
+      method as on the front of the part.
+      The resulting chain should be as shown.
+
+ 9 Click OK on the Chaining dialog box.
+      The Swept 3D dialog box opens to the Toolpath parameters tab.
+
+10 Select the 4mm bull endmill with the 0.2mm corner radius showing in the tool list.
+11 Click the Swept 3D Parameters tab.
+100 · BASIC 3D MACHINING
+
+     12 Set the parameters as shown.
+
+     13 Click OK to generate the swept 3D toolpath on the rear of the part.
+
+     14 Right-click in the graphics area and select Isometric (WCS).
+     15 Turn off the toolpath display for the operation.
+     16 Save your part file.
+                                           FINISHING THE PART · 101
+
+Exercise 3: Creating a Flowline
+
+      1 Choose Toolpaths, Surface Finish,
+           Flowline.
+
+2 Click the Select last button when prompted for drive surfaces.
+3 Press [Enter] or click the End Selection button to accept the selection.
+4 Click the Flow button in the Toolpath/
+
+    Surface selection dialog box.
+
+5 Use the buttons in the Flowline data
+    dialog box to manipulate the flow pattern.
+    Click the buttons to toggle the related
+    direction as needed. The pattern should be
+    set as shown. Click Help for detailed
+    information about these buttons.
+
+6 Click OK on the Flowline data dialog and the Toolpath/Surface selection dialog box.
+    The Surface Finish Flowline dialog box opens to the Toolpath parameters page.
+
+7 Click the Select library tool button.
+    The default metric tool library opens.
+
+8 Select the 1mm ball endmill and click OK.
+
+9 Click the Surface parameters tab. Set the stock to leave on drive to 0.
+102 · BASIC 3D MACHINING
+
+     10 Click the Finish flowline parameters tab.
+     11 Set the parameters as shown.
+
+     12 Click the Total tolerance button to open the Refine Toolpath dialog box.
+                                                  FINISHING THE PART · 103
+
+13 Set the parameters as shown and click OK.
+
+14 Click OK.
+
+      A Warning dialog box pops up.
+
+      The warning is a result of unchecking the
+      Check flowline motion for gouge option
+      on the Finish flowline parameters tab (see
+      step 11).
+104 · BASIC 3D MACHINING
+
+     15 Click OK to generate the flowline toolpath.
+
+     16 Turn off the toolpath display for the operation.
+     17 Save your part file.
+LESSON 5
+
+Backplot/Verify Your Toolpaths
+
+5
+
+Now that all toolpaths are complete, it is time to backplot and verify your operations. This process
+allows you to review the tool motion before any cutting takes place on the actual machine. This
+lesson guides you through the backplot and verify functions.
+
+Lesson Goals
+
+       Backplot all toolpaths.
+       Verify all toolpaths.
+
+Exercise 1: Backplotting all Toolpaths
+
+       1 In the Toolpath Manager, click the Select
+           all operations button.
+           All operations should now have a green
+           check on them.
+
+       2 Click the Backplot selected operations
+           button in the Toolpath Manager.
+           The Backplot dialog box and Backplot VCR
+           bar open.
+
+       3 n the Backplot dialog box, select the
+           Display tool and Display rapid moves
+           buttons.
+           These options will display a simulation of
+           the tool as well as the rapid motion.
+106 · BASIC 3D MACHINING
+
+TIP: To further customize your backplot display, choose other buttons on the Backplot
+dialog box. For example, choose the Options button to open the Backplot Options dialog
+box. This dialog box lets you set various backplot options such as tool display, holder
+display, and tool motion colors.
+
+4 Use the buttons and sliders on the       I
+
+Backplot VCR bar to backplot the
+
+operations. The Play button (shown to the
+
+right) begins the backplot.
+
+Click the Help button on the VCR bar for more information on each of the controls.
+
+      5 When finished, click OK on the Backplot dialog box to exit the backplot function.
+
+      TIP: The backplot display is easily customizable. See the Mastercam Help for details on
+      each of the buttons, fields, and display options in the Backplot and the Backplot Options
+      dialog boxes.
+
+Exercise 2: Verifying All Toolpaths
+
+      1 In the Toolpath Manager, make sure all
+           operations are selected and click the Verify
+           selected operations button.
+           The Verify dialog box opens.
+
+      2 In the Verify dialog box, select the Machine
+           button.
+
+           The part, stock, and toolpaths are simulated.
+
+      TIP: Use the buttons, fields, and controls in the Verify dialog box to customize and manage
+      the toolpath verification process. Click the Help button in the dialog box for details.
+                                                                                                BACKPLOT/VERIFY YOUR TOOLPATHS · 107
+
+When the verification process is complete, the part should look similar to the image shown
+here.
+108 · BASIC 3D MACHINING
+LESSON 6
+
+Posting Toolpaths
+
+6
+
+Operations must be run through a post processor in order to be usable by your machine. This
+process is commonly referred to as posting. This lesson will guide you through selecting and
+posting all of your operations. Communicating the posted code to your machine is the last step of
+the toolpathing process in Mastercam.
+
+Lesson Goals
+
+       Post all toolpaths to create an NC file.
+
+Exercise 1: Posting All Toolpath Operations
+
+       1 In the Toolpath Manager, click the Select
+           all operations button.
+
+       2 Click the Post selected operations button.
+           The Post processing dialog box opens.
+110 · BASIC 3D MACHINING
+
+       3 Set the post processing options as shown.
+
+       4 Click OK.
+           The Save As dialog box opens.
+
+       5 Click Save to save the NC file in the default location with the recommended file name.
+       Notes:
+        · Posting may take several minutes. When it is complete, the NC code will display in your
+
+          default editor/communicator. This tutorial uses Mastercam Editor to display the NC code.
+        · Producing the correct NC code for your machine and application depends on properly
+
+          configuring the machine definition, control definition, and .PST file. For detailed
+          information on machine definitions, control, definitions, and posting, please see the
+          following documentation supplied with Mastercam:
+
+                 - Mastercam Help
+                 - Mastercam X5 Reference Guide (choose Reference Guide from the
+
+                    Mastercam Help menu)
+                 - Mastercam NCI & Parameter Reference Guide (in the Documentation folder
+
+                   under your Mastercam installation folder)
+                                                                                                                                          POSTING TOOLPATHS · 111
+
+       6 Your chosen editor opens (in this case, Mastercam Editor), displaying the posted NC code
+           similar to the image below.
+
+       7 Scroll through the NC code to verify that each line of code meets your expectations. Edit
+           and save as necessary.
+
+Sending NC Files to the Machine
+
+       IMPORTANT: This tutorial is based on the Mastercam Mill Default machine definition for
+       training purposes only. It is not possible to provide a step-by-step procedure for sending the
+       NC code to your machine control because machine setups are customizable and most likely
+       different from the machine definition used here. Following is a general description of how
+       the NC code is communicated to machines and their controls for machining.
+After the NC file is reviewed, edited, and saved, you can set up your machine control to accept the
+NC file. This is done according to your machine and control manufacturer's procedures.
+When the machine control is ready to receive the NC file, configure your preferred editor or
+communications program to communicate with your machine control. Refer to your
+communications program documentation for details.
+112 · BASIC 3D MACHINING
+
+Send the NC code to your machine control according to your machine and control manufacturer's
+documentation. Once you start the communication process, the send/receive data processing is
+mostly managed by your machine control.
+Contact your local Mastercam Reseller for customized machine/control definitions, post (PST)
+files, and support.
+
+Conclusion
+
+Congratulations! You have completed the Basic 3D Machining tutorial. Now that you have mastered
+the skills in this tutorial, we encourage you to explore Mastercam's other features and functions.
+Additional tutorials may be available in this or other series. Please contact your authorized
+Mastercam Reseller for further training.
+               Attention! Updates may be available.
+  Go to Mastercam.com/Support for the latest downloads.
+
+671 Old Post Road
+Tolland, CT 06084 USA
+www.mastercam.com
+
+X5-PDF-TUT-3M
+

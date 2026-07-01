@@ -6,7 +6,6 @@
  * Pipeline: video → FFmpeg keyframes → Claude Vision analysis → ExtractedAction[]
  */
 import { log } from "../utils/Logger.js";
-import Anthropic from "@anthropic-ai/sdk";
 import * as fs from "fs";
 import * as path from "path";
 import { execFile } from "child_process";
@@ -108,22 +107,6 @@ Set is_significant=false if only the viewing angle, zoom, or selection changed (
 // ── Engine ─────────────────────────────────────────────────────────
 
 export class VisionActionAnalyzerEngine {
-  private client: Anthropic | null = null;
-  private defaultModel = "claude-sonnet-4-20250514";
-
-  /** Lazy-init the Anthropic client */
-  private getClient(): Anthropic {
-    if (!this.client) {
-      const apiKey = process.env.ANTHROPIC_API_KEY;
-      if (!apiKey) {
-        throw new Error(
-          "ANTHROPIC_API_KEY not set. Load .env or set the environment variable.",
-        );
-      }
-      this.client = new Anthropic({ apiKey });
-    }
-    return this.client;
-  }
 
   /** Get media type from file extension */
   private getMediaType(filePath: string): "image/jpeg" | "image/png" | "image/gif" | "image/webp" {
@@ -140,49 +123,34 @@ export class VisionActionAnalyzerEngine {
     return buffer.toString("base64");
   }
 
-  /** Call Claude Vision API with retry logic */
+  /**
+   * Run a vision prompt through the shared FREE Ollama-first llmEngine substrate
+   * (FREE-AI-MIGRATION/U-VISION-ACTION-ANALYZER-LLM-ROUTE). Was a direct PAID Claude
+   * Vision call (new Anthropic().messages.create); now routes through
+   * `llmEngine.queryVision` -- Ollama vision model first (free), Claude vision backup
+   * (on an inadequate local read or ollama down + key set), then offline.
+   * complexity:"high" -- CAD-frame reads are non-trivial, so a weak local read
+   * escalates to the Claude backup.
+   *
+   * R12: VisionAnalyzer needs a REAL vision provider; an "offline" result is a generic
+   * stub, not a real frame read, so we THROW (callers already handle a throw). `_model`
+   * is advisory now -- the provider is chosen by the llmEngine vision ladder.
+   */
   private async callVisionAPI(
-    messages: Anthropic.MessageCreateParamsNonStreaming["messages"],
-    model?: string,
+    prompt: string,
+    images: Array<{ data: string; media_type: string }>,
+    _model?: string,
   ): Promise<{ text: string; tokens_used: number }> {
-    const client = this.getClient();
-    const modelId = model || this.defaultModel;
-    const maxRetries = 1;
-    let lastError: Error | null = null;
-
-    for (let attempt = 0; attempt <= maxRetries; attempt++) {
-      try {
-        const startMs = Date.now();
-        const response = await client.messages.create({
-          model: modelId,
-          max_tokens: 1024,
-          messages,
-        });
-
-        const elapsed = Date.now() - startMs;
-        const text =
-          response.content[0]?.type === "text" ? response.content[0].text : "";
-        const tokensUsed =
-          (response.usage?.input_tokens || 0) +
-          (response.usage?.output_tokens || 0);
-
-        log.info(
-          `[VisionAnalyzer] API call: ${elapsed}ms, ${tokensUsed} tokens (model: ${modelId})`,
-        );
-
-        return { text, tokens_used: tokensUsed };
-      } catch (err: unknown) {
-        lastError = err instanceof Error ? err : new Error(String(err));
-        log.warn(
-          `[VisionAnalyzer] API call attempt ${attempt + 1} failed: ${lastError.message}`,
-        );
-        if (attempt < maxRetries) {
-          await new Promise((r) => setTimeout(r, 2000));
-        }
-      }
+    const { llmEngine } = await import("./LLMEngine.js");
+    const res = await llmEngine.queryVision({ prompt, images, complexity: "high", max_tokens: 1024 });
+    if (res.model === "offline") {
+      throw new Error(
+        "No vision AI provider available (Ollama vision model down and no Claude backup key) -- VisionActionAnalyzer requires a real provider for frame reads.",
+      );
     }
-
-    throw lastError || new Error("Vision API call failed after retries");
+    const tokensUsed = res.tokens_used.input + res.tokens_used.output;
+    log.info(`[VisionAnalyzer] vision read via ${res.model} (${tokensUsed} tokens)`);
+    return { text: res.answer, tokens_used: tokensUsed };
   }
 
   /** Parse JSON from Claude response, handling markdown fences */
@@ -217,17 +185,8 @@ export class VisionActionAnalyzerEngine {
       prompt += `\n\nPrevious step context: ${previousDescription}`;
     }
 
-    const { text, tokens_used } = await this.callVisionAPI([
-      {
-        role: "user",
-        content: [
-          {
-            type: "image",
-            source: { type: "base64", media_type: mediaType, data: base64 },
-          },
-          { type: "text", text: prompt },
-        ],
-      },
+    const { text } = await this.callVisionAPI(prompt, [
+      { data: base64, media_type: mediaType },
     ]);
 
     const parsed = this.parseJSON<{
@@ -266,21 +225,10 @@ export class VisionActionAnalyzerEngine {
     const afterType = this.getMediaType(afterPath);
 
     const { text } = await this.callVisionAPI(
+      FRAME_PAIR_PROMPT,
       [
-        {
-          role: "user",
-          content: [
-            {
-              type: "image",
-              source: { type: "base64", media_type: beforeType, data: beforeB64 },
-            },
-            {
-              type: "image",
-              source: { type: "base64", media_type: afterType, data: afterB64 },
-            },
-            { type: "text", text: FRAME_PAIR_PROMPT },
-          ],
-        },
+        { data: beforeB64, media_type: beforeType },
+        { data: afterB64, media_type: afterType },
       ],
       model,
     );

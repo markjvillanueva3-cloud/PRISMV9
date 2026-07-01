@@ -48,7 +48,7 @@ function readPressure() {
           '"$([math]::Round(($os.TotalVirtualMemorySize-$os.FreeVirtualMemory)/1MB,1)) ' +
           '$([math]::Round($os.TotalVirtualMemorySize/1MB,1))"',
       ],
-      { encoding: 'utf8', timeout: 5000 }
+      { windowsHide: true, encoding: 'utf8', timeout: 5000 }
     );
     const [used, limit] = out.trim().split(/\s+/).map(Number);
     return { used, limit, pct: limit > 0 ? (used / limit) * 100 : 0 };
@@ -80,11 +80,11 @@ if (pct >= HEAL && !NO_HEAL) {
       if (isPs) {
         execFileSync('powershell.exe',
           ['-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', scriptToRun],
-          { encoding: 'utf8', timeout: RELIEF_TIMEOUT_MS, stdio: ['ignore', 'pipe', 'pipe'] }
+          { windowsHide: true, encoding: 'utf8', timeout: RELIEF_TIMEOUT_MS, stdio: ['ignore', 'pipe', 'pipe'] }
         );
       } else {
-        execFileSync('node', [scriptToRun],
-          { encoding: 'utf8', timeout: RELIEF_TIMEOUT_MS, stdio: ['ignore', 'pipe', 'pipe'] }
+        execFileSync(process.execPath, [scriptToRun],
+          { windowsHide: true, encoding: 'utf8', timeout: RELIEF_TIMEOUT_MS, stdio: ['ignore', 'pipe', 'pipe'] }
         );
       }
       // Re-read pressure

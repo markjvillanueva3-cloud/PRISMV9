@@ -621,7 +621,7 @@ export function buildCoolantCommerceView(input: {
         roiStrength: 'Capability-first ROI',
         estimatedPrice: '$320 - $1,280',
         payback: 'Recovered when better coolant behavior protects finish, evacuation, or tool life on this operation',
-        whyNow: `Use this when PRISM is recommending ${input.recommendedCoolantLabel} and you want the supporting package to match.`,
+        whyNow: `Use this when Kienzle is recommending ${input.recommendedCoolantLabel} and you want the supporting package to match.`,
         distributors: blendDistributors(input.selection, '$320 - $1,280', 'coolant-best-capability', coolantSpecialists()),
       },
       {

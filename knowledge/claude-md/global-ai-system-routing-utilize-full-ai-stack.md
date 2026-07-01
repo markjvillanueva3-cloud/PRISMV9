@@ -10,7 +10,7 @@ indexed_at: 2026-04-28T00:49:50.583Z
 ### When to use which system
 | Task Type | Route To | How |
 |-----------|----------|-----|
-| Code explanation | Ollama qwen2.5-coder:7b | `ollama-task-offloader.mjs` |
+| Code explanation | Ollama qwen2.5-coder:32b | `ollama-task-offloader.mjs` |
 | Deep reasoning | Claude (current) | Default |
 | Physics validation | `prism_safety:validate_physics` | MCP dispatcher |
 | Batch processing (>100 files) | Docker batch-processor | `prism_orchestrate` |

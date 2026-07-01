@@ -8,9 +8,14 @@
  * Output: state/shared/UNWIRED-REFINED-2026-05-07.json
  */
 import { readdirSync, readFileSync, writeFileSync, existsSync } from "node:fs";
-import { join } from "node:path";
+import { join, dirname, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
 
-const ROOT = "H:/prism/mcp-server/src";
+// Derive the repo root from THIS script's location (mcp-server/scripts/) instead
+// of the old hardcoded "H:/prism" literal -- that broke every worktree (e.g. a
+// slot worktree at H:/prism-slot-tango wrote its audit into the WRONG repo).
+const REPO_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
+const ROOT = join(REPO_ROOT, "mcp-server", "src");
 const ENGINES_DIR = join(ROOT, "engines");
 const DISPATCHERS_DIR = join(ROOT, "tools/dispatchers");
 const ROUTES_DIR = join(ROOT, "routes");
@@ -87,8 +92,12 @@ for (const [k, v] of Object.entries(cat)) {
   console.log("  " + k.padEnd(8) + ": " + v.length);
 }
 
+// Date-stamp the output (was frozen at 2026-05-07, so re-runs overwrote the same
+// stale-named file). PRISM_UNWIRED_AUDIT_DATE overrides for frozen-time runs.
+const AUDIT_DATE = process.env.PRISM_UNWIRED_AUDIT_DATE || new Date().toISOString().slice(0, 10);
+const OUT_PATH = join(REPO_ROOT, "state", "shared", `UNWIRED-REFINED-${AUDIT_DATE}.json`);
 writeFileSync(
-  "H:/prism/state/shared/UNWIRED-REFINED-2026-05-07.json",
+  OUT_PATH,
   JSON.stringify({ generated_at: new Date().toISOString(), total_unwired: unwired.length, by_domain: cat }, null, 2),
 );
-console.log("Saved.");
+console.log("Saved: " + OUT_PATH);

@@ -23,11 +23,12 @@ related:
 |-------|-------|
 | Name | `pdf-learn` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/pdf-learn.md` |
+| Source | `C:/Users/wompu/.claude/commands/pdf-learn.md` |
 | Model | default |
 | Tags | _(none)_ |
 
 ## Description (first paragraph)
+
 
 ---
 name: pdf-learn
@@ -35,7 +36,6 @@ description: Document → PRISM components pipeline (engines, skills, hooks, tri
 version: 2.0.0
 milestone: INTEL-OLLAMA-OBSIDIAN-MS0/P21-U03
 vision_pipeline:
-
 
 <!-- AUTO-END -->
 

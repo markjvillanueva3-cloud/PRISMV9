@@ -1,8 +1,12 @@
 ---
 description: One-shot PRISM awareness snapshot — built/wired/utilized/drifted in 60 lines. Regenerates state/shared/AWARENESS-SNAPSHOT.md by orchestrating BUILD_STATE + MILESTONE_PROGRESS + system-graph utilization classifier. Cron-able session warmup.
 allowed-tools: Bash, Read
+composes_with:
+  - "/build-state"
+  - "/master-index"
+  - "/system-viz"
+  - "/utilization-dashboard"
 ---
-
 # /awareness-snapshot — Session warmup digest
 
 Generates `state/shared/AWARENESS-SNAPSHOT.md` — a human-readable + agent-readable digest answering:

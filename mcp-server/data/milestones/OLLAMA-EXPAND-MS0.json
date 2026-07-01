@@ -1,0 +1,133 @@
+{
+  "id": "OLLAMA-EXPAND-MS0",
+  "version": "1.0.0",
+  "title": "Expand Ollama Integration — active callables + agent-loop bridge + Docker deployment",
+  "brief": "Closes the gap where 21 Ollama hooks + 8 engines existed but only 9% offload rate was observed (vs 30% healthy target). Hooks could only SUGGEST offloads — nothing forced one. This milestone adds three layered active surfaces: (L1) ask-ollama CLI callable Claude invokes via Bash so token-heavy work never enters the context window; (L2) ollama-prism-bridge — read-only agentic harness where an Ollama model autonomously chains 3 knowledge tools (viz_search/wiki_lookup/read_excerpt) via /api/chat tools, running call->execute->feed-back loop locally at ~0 Claude tokens; (L2b) live MCP-dispatcher tools via Streamable HTTP + 4 added tools (tribal_lookup, semantic_search, dispatcher_map, obsidian-precheck) for full PRISM-knowledge reach; ancillary: Docker compose deployment, offload dashboard refinement (adjusted rate computation + keep-category breakdown); deferred L3 = full agent loop (blocked on >3B model availability).",
+  "created_at": "2026-05-19T15:10:00Z",
+  "created_by": "delta/claude-41794360",
+  "created_by_notes": "Backfilled envelope — silent close-out drift. Milestone shipped 7 units across 10 commits (2026-05-17 21:45 to 2026-05-18 19:41) without an envelope file. Documented in CLAUDE.md OLLAMA-EXPAND-MS0 section + memory reference_ollama_expand_ms0 + reference_ollama_prism_bridge_l2 + wiki knowledge/wiki/architecture/ollama-expand-ms0.md + knowledge/wiki/architecture/ollama-prism-bridge.md.",
+  "track": "INTEL",
+  "track_name": "Local LLM Offload & Active Callable Surface",
+  "status": "in_progress",
+  "completed_units": 7,
+  "total_units": 8,
+  "shipped": [
+    {
+      "unit": "U-OE01",
+      "commit": "2f04a2563a",
+      "title": "ask-ollama local query service + /ask-local skill",
+      "shipped_at": "2026-05-17T21:45:37Z",
+      "shipped_by": "charlie",
+      "description": "Active local-Ollama CLI callable: viz <query> (ranked keyword search of system-viz graph, ~0 Claude tokens, --synth adds Ollama answer), summarize/explain/triage <file> (Ollama digest), ask. Single model qwen2.5-coder:3b + keep_alive. 55 tests incl. 2 real-data E2E; 80MB MAX_GRAPH_BYTES OOM-cap on the ~370MB system-graph.json fallback (scrutiny arm-B P1). Skill /ask-local."
+    },
+    {
+      "unit": "U-OE-BRIDGE-L2",
+      "commit": "84c43ca234",
+      "commits": ["84c43ca234", "7d376edfb4", "36f7bb42d6"],
+      "title": "ollama-prism-bridge — read-only Ollama agentic harness",
+      "shipped_at": "2026-05-17T22:33:56Z",
+      "shipped_by": "charlie",
+      "description": "L2 layer: agent-loop harness where an Ollama model autonomously chains 3 read-only PRISM knowledge tools (viz_search/wiki_lookup/read_excerpt) via /api/chat tools, ~0 Claude tokens. Read-only by construction (confinePath lexical+realpathSync confinement, Object.freeze'd 3-tool allowlist, hard loop cap, fail-loud R12). 86-case node:test suite incl. real-data E2E + main() subprocess oracle. Skill /ollama-bridge. Follow-up commits hardened the WIKI_INDEX_REL regression oracle (3-of-3 arm-B P2) + CLAUDE.md doc-reflection."
+    },
+    {
+      "unit": "U-OE-DASH-KEEP-BREAKDOWN",
+      "commit": "baef3c361d",
+      "title": "Offload dashboard: adjusted rate + keep-category breakdown",
+      "shipped_at": "2026-05-18T10:27:47Z",
+      "shipped_by": "charlie",
+      "description": "Dashboard re-engineering: adjusted offload rate (raw 10.9% lifetime -> 42.1% last-24h once correctly-kept orchestration excluded) + keep-by-category breakdown. 14 tests incl. drift-guard regex-scanning the hook source. Surfaces routing health vs static lifetime average."
+    },
+    {
+      "unit": "U-OE-BRIDGE-L2B-WIKI-LEAVES",
+      "commit": "94d4d0feac",
+      "title": "33x wiki recall via leaf-file scan",
+      "shipped_at": "2026-05-18T10:57:09Z",
+      "shipped_by": "charlie",
+      "description": "wiki_lookup now scans 22,734 architecture leaf .md files (was 722 index entries) — 33x wiki recall expansion. Live: kienzle-force query returns engines/physics/kienzleforcemodelengine.md as a read_excerpt drill-in. 96 tests, 2-arm scrutiny PASS. R12 fail-loud when leaves dir absent."
+    },
+    {
+      "unit": "U-OE-DOC-REFLECT-CHARLIE-2026-05-18",
+      "commit": "cba2ce0334",
+      "title": "Doc reflection — wiki + memory for U-OE-DASH-KEEP-BREAKDOWN + U-OE-BRIDGE-L2B-WIKI-LEAVES",
+      "shipped_at": "2026-05-18T11:07:50Z",
+      "shipped_by": "charlie",
+      "description": "4-surface reflection (CLAUDE.md + MEMORY.md + wiki + Obsidian memory). Memory reference_ollama_expand_charlie_iter_2026_05_18 captures the iter 2+3 chain."
+    },
+    {
+      "unit": "U-OE-BRIDGE-L2B",
+      "commit": "2518aa3514",
+      "commits": ["2518aa3514", "90103705e8"],
+      "title": "Live MCP-dispatcher tools via Streamable HTTP",
+      "shipped_at": "2026-05-18T17:58:31Z",
+      "shipped_by": "foxtrot",
+      "description": "L2b layer: pivots ollama-prism-bridge from in-process read-only knowledge tools to LIVE PRISM MCP-dispatcher tools via Streamable HTTP transport at :3100/mcp. The model can now call prism_calc / prism_session / prism_ai actions through the agent loop. Earlier blocker (port-3100 transport surface) resolved with Streamable HTTP. Follow-up commit 90103705e8 = 4-surface doc reflection."
+    },
+    {
+      "unit": "U-OE-DOCKER-COMPOSE",
+      "commit": "5322711b93",
+      "title": "ollama-bridge Docker deployment topology + design-doc reconcile",
+      "shipped_at": "2026-05-18T19:41:45Z",
+      "shipped_by": "echo",
+      "description": "Last non-deferred OLLAMA-EXPAND-MS0 unit. docker-compose.ollama-bridge.yml additive override: flips prism-server stdio->TRANSPORT=http+PRISM_BIND_HOST=0.0.0.0 (index.ts:1053/1023), adds profile-gated one-shot ollama-bridge svc (node:22-alpine, repo :ro, OLLAMA_URL=ollama:11434 + PRISM_MCP_URL=prism-server:3000/mcp). 8/8 tests (docker-config merge + docker-independent source arm). 2-reviewer PASS; P1 model-prereq header + base-env-survival assert fixed in-session. Memory reference_u_oe_docker_compose_2026_05_18."
+    }
+  ],
+  "phases": [
+    {
+      "id": "L1",
+      "title": "Active local-Ollama callable",
+      "units": ["U-OE01"]
+    },
+    {
+      "id": "L2",
+      "title": "Read-only agentic harness (in-process tools)",
+      "units": ["U-OE-BRIDGE-L2", "U-OE-DASH-KEEP-BREAKDOWN", "U-OE-BRIDGE-L2B-WIKI-LEAVES", "U-OE-DOC-REFLECT-CHARLIE-2026-05-18"]
+    },
+    {
+      "id": "L2b",
+      "title": "Live MCP-dispatcher tools via Streamable HTTP",
+      "units": ["U-OE-BRIDGE-L2B", "U-OE-DOCKER-COMPOSE"]
+    },
+    {
+      "id": "L3",
+      "title": "Full agent loop (deferred)",
+      "sessions": "deferred",
+      "units": [
+        {
+          "id": "U-OE-L3",
+          "title": "Full agent loop — sustained multi-step autonomous reasoning",
+          "effort": 240,
+          "dependencies": ["U-OE-BRIDGE-L2B", "U-OE-DOCKER-COMPOSE"],
+          "status": "deferred",
+          "deferral_reason": "Needs >3B model. qwen2.5-coder:3b (current keep_alive model) emits mcp_call as text rather than via tool_calls — known L2b deferred limitation documented in reference_audit_actionmap_synergy_chain_2026_05_18. A 7B+ model with reliable tool_use grammar required before sustained multi-step loop is reliable.",
+          "deferral_owner": "any slot with >3B GPU headroom + DUE re-evaluation when NIM llama-3.2-3b setup matures (reference_nvidia_nim_local_setup_2026_05_18)",
+          "exit_conditions": [
+            "Agent autonomously chains >=4 tool calls in a single session without text-emitted-as-tool drift",
+            "Tool_use grammar emitted via /api/chat tool_calls field (not as model text)",
+            "Test: 5-step PRISM-knowledge investigation runs to completion locally with no Claude tokens consumed",
+            "Sustained call-execute-feedback loop survives a tool failure (retry on different tool)",
+            "Read-only invariant preserved: no write tools added without explicit scope-expansion roadmap unit"
+          ],
+          "description": "L3 graduates the bridge from per-task one-shot tool chains (L2/L2b) to a sustained agent loop. Same read-only invariant; only the autonomy depth changes."
+        }
+      ]
+    }
+  ],
+  "acceptance": "ask-ollama callable surface live (verified by /ask-local skill); ollama-prism-bridge agent harness operational with read-only invariant proven; live MCP-dispatcher tools reachable via Streamable HTTP at :3100/mcp; Docker compose deployment validates the bridge config; offload dashboard surfaces adjusted-rate + keep-category metrics; L3 deferred with clear unblock criteria.",
+  "risks": [
+    {"id": "R1", "description": "Tool_use drift in <7B models — qwen2.5-coder:3b emits mcp_call as text rather than via tool_calls field; mitigation = treat 3B as L2/L2b ceiling, gate L3 on >=7B with verified tool_use grammar"},
+    {"id": "R2", "description": "OOM on full system-graph.json (~370MB); mitigation = MAX_GRAPH_BYTES=80MB cap with R12 fail-loud (already shipped in U-OE01)"},
+    {"id": "R3", "description": "Read-only invariant erosion if a future contributor adds write tools without scope expansion; mitigation = Object.freeze'd allowlist + confinePath in bridge code + this envelope's L3 exit_conditions"}
+  ],
+  "blocks": [],
+  "blocked_by": [],
+  "linked_wiki": [
+    "knowledge/wiki/architecture/ollama-expand-ms0.md",
+    "knowledge/wiki/architecture/ollama-prism-bridge.md"
+  ],
+  "linked_memory": [
+    "knowledge/memories/reference/reference_ollama_expand_ms0.md",
+    "knowledge/memories/reference/reference_ollama_prism_bridge_l2.md",
+    "knowledge/memories/reference/reference_ollama_expand_charlie_iter_2026_05_18.md",
+    "knowledge/memories/reference/reference_u_oe_docker_compose_2026_05_18.md"
+  ]
+}

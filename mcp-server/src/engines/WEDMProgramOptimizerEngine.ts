@@ -282,8 +282,8 @@ const JM_DIE_MACHINE = {
 const JM_DIE_WIRE_INVENTORY = {
   plain_brass: { available: true, diameter_mm: [0.25, 0.20, 0.10], spools: 5 },
   zinc_coated: { available: true, diameter_mm: [0.25, 0.20], spools: 2 },
-  gamma_coated: { available: false, diameter_mm: [], spools: 0 },
-  diffusion_annealed: { available: false, diameter_mm: [], spools: 0 },
+  gamma_coated: { available: false, diameter_mm: [] as number[], spools: 0 },
+  diffusion_annealed: { available: false, diameter_mm: [] as number[], spools: 0 },
 };
 
 /** JM Die typical materials and their characteristics */

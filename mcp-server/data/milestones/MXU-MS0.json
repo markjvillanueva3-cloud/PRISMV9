@@ -1,0 +1,229 @@
+{
+  "id": "MXU-MS0",
+  "version": "1.0.0",
+  "title": "Capability Census & Activation Matrix",
+  "brief": "Inventory all source surfaces + external stores. Run live registry loads vs filesystem. Build activation matrix (on disk/loadable/callable/surfaced/product-relevant). Include Physics Fusion system (3 engines, 5 plugins, 95 tests) as a Tier 2+ product capability.",
+  "created_at": "2026-03-25T14:30:00Z",
+  "created_by": "claude-opus-4.6",
+  "track": "MXU",
+  "track_name": "Max Utilization",
+  "status": "not_started",
+  "phases": [
+    {
+      "id": "P0",
+      "title": "Source Surface Inventory",
+      "sessions": "1-2",
+      "units": [
+        {
+          "id": "P0-U01",
+          "title": "Inventory all source surfaces: engines, plugins, routes, MCP tools, hooks, scripts, skills",
+          "effort": 60,
+          "dependencies": [],
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit"
+          ],
+          "description": "Inventory all source surfaces: engines, plugins, routes, MCP tools, hooks, scripts, skills — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P0-U02",
+          "title": "Inventory external stores: memory files, benchmark data, course assets, config",
+          "effort": 50,
+          "dependencies": [],
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit"
+          ],
+          "description": "Inventory external stores: memory files, benchmark data, course assets, config — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P0-U03",
+          "title": "Run live registry loads vs filesystem — identify gaps between registered and on-disk",
+          "effort": 70,
+          "dependencies": [
+            "P0-U01"
+          ],
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit"
+          ],
+          "description": "Run live registry loads vs filesystem — identify gaps between registered and on-disk — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "P1",
+      "title": "Activation Matrix Build",
+      "sessions": "1-2",
+      "units": [
+        {
+          "id": "P1-U01",
+          "title": "Build activation matrix columns: on_disk / loadable / callable / surfaced / product_relevant",
+          "effort": 60,
+          "dependencies": [
+            "P0-U03",
+            "P0-U02"
+          ],
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit"
+          ],
+          "description": "Build activation matrix columns: on_disk / loadable / callable / surfaced / product_relevant — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P1-U02",
+          "title": "Classify Physics Fusion system (3 engines, 5 plugins, 95 tests) as Tier 2+ product capability",
+          "effort": 50,
+          "dependencies": [
+            "P1-U01"
+          ],
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit"
+          ],
+          "description": "Classify Physics Fusion system (3 engines, 5 plugins, 95 tests) as Tier 2+ product capability — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P1-U03",
+          "title": "Produce activation-matrix.json with per-capability status using MXU-MS0A taxonomy",
+          "effort": 60,
+          "dependencies": [
+            "P1-U02"
+          ],
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit"
+          ],
+          "description": "Produce activation-matrix.json with per-capability status using MXU-MS0A taxonomy — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        }
+      ]
+    }
+  ],
+  "dependencies": [
+    "MXU-MS0A"
+  ],
+  "exit_conditions": [
+    "Activation matrix covers every discoverable capability",
+    "Physics Fusion classified as Tier 2+",
+    "Gap count between on-disk and surfaced is quantified"
+  ],
+  "spec_path": "docs/superpowers/specs/2026-03-25-mcp-max-utilization-roadmap-design.md",
+  "smart_config": {
+    "role": "implementer + reviewer",
+    "model": "sonnet",
+    "effort": "HIGH",
+    "context_budget": "65%"
+  },
+  "mcp_lifecycle": {
+    "session_start": [
+      "prism_session:context_boot",
+      "prism_session:dispatcher_map",
+      "prism_session:memory_recall",
+      "prism_session:system_snapshot",
+      "prism_session:action_search"
+    ],
+    "during_work": [
+      "prism_session:auto_checkpoint",
+      "prism_session:tool_route_best",
+      "prism_session:wip_capture"
+    ],
+    "session_end": [
+      "prism_session:memory_save",
+      "prism_session:system_snapshot",
+      "prism_session:checkpoint_enhanced"
+    ]
+  },
+  "forge_triple": {
+    "protective_hook": "mxu-ms0-gate",
+    "mcp_action": "prism_mxu:mxu_ms0_run",
+    "skill_command": "/mxu-ms0",
+    "ownership": "DECLARED — BUILT in terminal unit of this milestone"
+  },
+  "feature_cascade": {
+    "new_hooks": [
+      "mxu-ms0-gate"
+    ],
+    "new_actions": [
+      "mxu_ms0_run"
+    ],
+    "new_skills": [
+      "/mxu-ms0"
+    ],
+    "available_to": [
+      "downstream CAMX milestones",
+      "prism app consumers"
+    ]
+  },
+  "knowledge_sources": {
+    "engines": [
+      "ENGINE_DIGEST.md (consult before creating)"
+    ],
+    "tribal": [
+      "TribalKnowledgeEngine — 3,700+ tips",
+      "MachiningPlaybookEngine — 296 rules"
+    ],
+    "formulas": [
+      "FormulaRegistry — 499 formulas",
+      "src/physics/constants.ts — canonical"
+    ],
+    "reference": [
+      "EXTERNAL-REFERENCE-PROGRAMS-INDEX.md",
+      "MaterialRegistry",
+      "MachineRegistry",
+      "ToolCatalogEngine (95,608 tools)"
+    ]
+  },
+  "intent": "Inventory all source surfaces + external stores. Run live registry loads vs filesystem. Build activation matrix (on disk/loadable/callable/surfaced/product-relevant). Include Physics Fusion system (3 engines, 5 plugins, 95 tests) as a Tier 2+ product capability.",
+  "compact_checkpoint": "every 3 units — auto-triggered by hook",
+  "enforcement_hooks_active": [
+    "physics agent",
+    "wiring agent",
+    "constants checker",
+    "stub detector",
+    "test quality",
+    "forge-triple gate",
+    "session audit agent"
+  ]
+}

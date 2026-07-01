@@ -1,0 +1,59 @@
+{
+  "//": "PRISM workspace tsserver/watcher caps — written 2026-05-20 (golf) to address 16-tsserver / 16.5 GB cascade. Additive: does NOT affect tsc/build (tsconfig.json untouched).",
+  "typescript.tsserver.maxTsServerMemory": 2048,
+  "typescript.tsserver.experimental.enableProjectDiagnostics": false,
+  "typescript.disableAutomaticTypeAcquisition": true,
+  "typescript.tsserver.useSyntaxServer": "auto",
+  "typescript.tsserver.watchOptions": {
+    "watchFile": "useFsEventsOnParentDirectory",
+    "watchDirectory": "useFsEvents",
+    "fallbackPolling": "dynamicPriority",
+    "synchronousWatchDirectory": false,
+    "excludeDirectories": [
+      "**/node_modules",
+      "**/dist",
+      "**/.git",
+      "**/.tsbuildinfo",
+      "**/state/shared/system-viz",
+      "**/state/shared/handoffs/consolidated",
+      "**/knowledge/wiki",
+      "**/knowledge/memories",
+      "**/JM DIE",
+      "**/prism-slot-*",
+      "**/mcp-server/data/cache",
+      "**/mcp-server/data/state",
+      "**/coverage"
+    ]
+  },
+  "files.watcherExclude": {
+    "**/.git/objects/**": true,
+    "**/.git/subtree-cache/**": true,
+    "**/node_modules/**": true,
+    "**/dist/**": true,
+    "**/state/shared/system-viz/**": true,
+    "**/state/shared/handoffs/consolidated/**": true,
+    "**/knowledge/wiki/**": true,
+    "**/knowledge/memories/**": true,
+    "**/JM DIE/**": true,
+    "**/prism-slot-*/**": true,
+    "**/mcp-server/data/cache/**": true,
+    "**/mcp-server/data/state/**.log": true,
+    "**/coverage/**": true
+  },
+  "search.exclude": {
+    "**/node_modules": true,
+    "**/dist": true,
+    "**/state/shared/system-viz": true,
+    "**/state/shared/handoffs/consolidated": true,
+    "**/knowledge/wiki/_embeddings.jsonl": true,
+    "**/JM DIE": true,
+    "**/prism-slot-*": true,
+    "**/mcp-server/data/cache": true,
+    "**/coverage": true,
+    "**/*.tsbuildinfo": true
+  },
+  "files.exclude": {
+    "**/.tsbuildinfo": true,
+    "**/coverage": true
+  }
+}

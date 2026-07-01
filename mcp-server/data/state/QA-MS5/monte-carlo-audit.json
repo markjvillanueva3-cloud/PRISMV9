@@ -1,0 +1,106 @@
+{
+  "schemaVersion": "1.0.0",
+  "_lastBackfillTs": "2026-05-08T16:41:54.025Z",
+  "audit_id": "QA-MS5-P0-U03",
+  "title": "Monte Carlo Simulation Implementations",
+  "audited_at": "2026-04-12T20:00:00.000Z",
+  "auditor": "claude-opus-4.5",
+  "primary_file": "src/algorithms/MonteCarlo.ts",
+  "reference": "Metropolis & Ulam (1949); Saltelli (2002)",
+  "random_sampling_distributions": {
+    "normal": {
+      "method": "Box-Muller transform",
+      "formula": "√(-2×ln(u1)) × cos(2π×u2)",
+      "lines": "116-119",
+      "verified": true
+    },
+    "uniform": {
+      "method": "Linear transformation",
+      "formula": "a + rand × (b - a)",
+      "line": 128,
+      "verified": true
+    },
+    "triangular": {
+      "method": "Inverse CDF",
+      "formula": "Piecewise sqrt formula based on mode position",
+      "lines": "129-135",
+      "verified": true
+    },
+    "lognormal": {
+      "method": "exp(normal)",
+      "formula": "exp(μ + σ × Z)",
+      "line": 137,
+      "verified": true
+    }
+  },
+  "sample_size_adequacy": {
+    "default_samples": 10000,
+    "minimum_warning": 100,
+    "configurable": true,
+    "validation_line": 99,
+    "note": "Sample size affects CI width and sensitivity convergence"
+  },
+  "confidence_interval_verification": {
+    "method": "Percentile method",
+    "formula": "CI = [X_{α/2}, X_{1-α/2}]",
+    "default_level": 0.95,
+    "lines": "172-174",
+    "calculation": {
+      "alpha_half": "(1 - confidence_level) / 2",
+      "ci_low": "results[floor(α/2 × n)]",
+      "ci_high": "results[floor((1-α/2) × n)]"
+    },
+    "verified": true
+  },
+  "statistics_computed": {
+    "mean": "Sum / n",
+    "std_dev": "√(variance)",
+    "median": "50th percentile",
+    "percentiles": [
+      "p5",
+      "p25",
+      "p50",
+      "p75",
+      "p95"
+    ],
+    "failure_probability": "Count(X > threshold) / n"
+  },
+  "sensitivity_analysis": {
+    "method": "Correlation-based (R-squared)",
+    "lines": "195-200",
+    "formula": "S_i = Cov(X_i, Y)² / (Var(X_i) × Var(Y))",
+    "bug_fix_noted": {
+      "issue": "Sorting destroyed sample correspondence",
+      "fix": "Keep unsorted copy for Sobol calculation",
+      "line": 165
+    },
+    "limitations": "Linear correlation only — nonlinear effects missed",
+    "alternative": "StochasticCuttingForceEngine uses true Saltelli Sobol"
+  },
+  "prng_verification": {
+    "algorithm": "mulberry32",
+    "seeded": true,
+    "reproducible": true,
+    "period": "2^32"
+  },
+  "related_engines": {
+    "StochasticCuttingForceEngine": "True Sobol indices via Saltelli scheme",
+    "StochasticDeflectionEngine": "Monte Carlo with uncertainty propagation",
+    "StochasticSurfaceFinishEngine": "Monte Carlo surface prediction",
+    "AdvancedUncertaintyEngine": "Copula-based correlated sampling"
+  },
+  "exit_conditions_met": {
+    "sampling_distributions_verified": true,
+    "sample_size_logic_verified": true,
+    "confidence_interval_verified": true
+  },
+  "audit_result": "PASS",
+  "safety_score": 0.95,
+  "notes": [
+    "4 distribution types correctly implemented (normal, uniform, triangular, lognormal)",
+    "Box-Muller transform for normal deviates verified",
+    "Percentile-based confidence intervals correctly computed",
+    "Sensitivity indices are correlation-based (not true Sobol)",
+    "Sample correspondence bug fixed with unsorted copy"
+  ]
+}

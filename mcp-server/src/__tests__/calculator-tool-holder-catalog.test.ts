@@ -475,4 +475,28 @@ describe("calculator tool holder catalog", () => {
     expect(allowed.some((item) => item.holderType === "CAPTO_HYDRO")).toBe(true);
     expect(allowed.every((item) => item.requiresMillingHead)).toBe(true);
   });
+
+  it("surfaces interface specs for an UNSCOPED {mode} browse (the SFC bare query) without leaking them into scoped queries", () => {
+    // The SFC frontend sends a bare {mode} query; every rich file holder is machine-filtered
+    // out, so the ToolHolderDatabaseEngine interface specs are the baseline that surfaces.
+    const millBrowse = getCalculatorToolHolderCatalog({ mode: "mill" });
+    expect(millBrowse.map((item) => item.id)).toContain("iface-cat40");
+    expect(millBrowse.some((item) => (item.spindleInterface ?? "") === "CAT40")).toBe(true);
+    expect(millBrowse.some((item) => item.holderType === "er_collet")).toBe(true);
+
+    const latheBrowse = getCalculatorToolHolderCatalog({ mode: "lathe" });
+    expect(latheBrowse.some((item) => item.holderType === "capto")).toBe(true);
+
+    // A SCOPED query (machine + tool context) must NOT include the generic interface specs --
+    // they carry no compatibility ids and would bypass the spindle/turret/milling-head gating.
+    const scoped = getCalculatorToolHolderCatalog({
+      mode: "mill",
+      layoutKind: "magazine",
+      spindleConnectionTypeId: "cat40",
+      toolId: "finisher",
+      toolGeometryClass: "square-endmill",
+      toolOperation: "finishing",
+    });
+    expect(scoped.some((item) => item.id.startsWith("iface-"))).toBe(false);
+  });
 });

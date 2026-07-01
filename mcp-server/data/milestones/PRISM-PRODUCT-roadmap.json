@@ -1,0 +1,682 @@
+{
+  "roadmapId": "PRISM-PRODUCT-v1",
+  "version": "1.0.0",
+  "created": "2026-03-22",
+  "title": "PRISM PRODUCT — Customer-Value Feature Roadmap",
+  "description": "Features prioritized by revenue impact from 5 customer perspectives: shop owner, programmer, dealer, CAM vendor, training institution",
+  "tracks": 5,
+  "milestones": 10,
+  "units": [
+    {
+      "id": "U-PRIS01",
+      "title": "PRISM-PRODUCT-roadmap — Coordinator",
+      "description": "Master coordinator envelope for PRISM-PRODUCT-roadmap. Tracks sub-milestones, aggregates their exit gates, and opens closure after every child milestone flips to complete. Follow 4-LOOP at the aggregation layer.",
+      "exit_conditions": [
+        "All sub-milestones listed in dependencies reach status=complete",
+        "Aggregate scrutiny score ≥80 across children",
+        "Cross-track coherence verified: no orphan engines, no duplicate actions",
+        "Final /rgs pass through the 10-agent gate returns PASS"
+      ],
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ],
+      "status": "pending",
+      "role": "coordinator"
+    }
+  ],
+  "milestones_list": [
+    {
+      "id": "VAL-MS0",
+      "track": "A",
+      "title": "ROI Proof Engine — Cost Savings Tracker + Scrap Reduction Reports",
+      "units": 6,
+      "quarter": "Q2-2026",
+      "status": "complete",
+      "dependencies": [],
+      "smart": "Role: Applied Math/Physics + Business Analyst | OPUS | HIGH",
+      "unit_ids": [
+        "V0-U01",
+        "V0-U02",
+        "V0-U03",
+        "V0-U04",
+        "V0-U05",
+        "V0-U06"
+      ],
+      "units_detail": [
+        {
+          "id": "V0-U01",
+          "title": "CostSavingsTrackerEngine — persistent event log",
+          "smart": "Role: Senior TS Engineer + Data Scientist | OPUS | HIGH",
+          "description": "Engine that logs every PRISM recommendation (S/F, tool change, RPM) with timestamp, predicted outcome, and optional actual outcome. Persistent JSON store at ~/.prism/savings.json. Actions: log_recommendation, log_outcome, query_savings, reset_period.",
+          "exit": "Engine passes 15+ tests, persists across sessions"
+        },
+        {
+          "id": "V0-U02",
+          "title": "ScrapReductionReportEngine — monthly value reports",
+          "smart": "Role: Business Analyst + Data Scientist | SONNET | MEDIUM",
+          "description": "Generates monthly/weekly reports showing: crashes prevented (from safety analyzer), tool life savings (Taylor predictions vs premature changes), cycle time reductions (before/after S/F optimization), scrap cost avoided. Output: structured report with dollar amounts.",
+          "exit": "Report generates with realistic $ estimates"
+        },
+        {
+          "id": "V0-U03",
+          "title": "ROI Dashboard data model",
+          "smart": "Role: Database Architect + API Specialist | SONNET | MEDIUM",
+          "description": "Define the data model for ROI tracking: savings_events, tool_changes, crash_avoidances, cycle_time_deltas. Aggregate queries for daily/weekly/monthly/yearly views. Compatible with future PostgreSQL migration.",
+          "exit": "Schema defined, in-memory queries work"
+        },
+        {
+          "id": "V0-U04",
+          "title": "Wire to existing engines for auto-logging",
+          "smart": "Role: Senior TS Engineer | SONNET | MEDIUM",
+          "description": "Hook into SpeedFeedOrchestrator, GCodeSafetyAnalyzer, ToolLifeCountdown to auto-log savings events. Each time PRISM optimizes S/F, catches a safety issue, or extends tool life, a savings event is recorded automatically.",
+          "exit": "3+ engines auto-log to CostSavingsTracker"
+        },
+        {
+          "id": "V0-U05",
+          "title": "CLI: prism roi — show savings summary",
+          "smart": "Role: Senior TS Engineer | HAIKU | LOW",
+          "description": "Add 'prism roi' CLI command that prints: This month: $X saved across N recommendations. Breakdown by category (tool life, cycle time, crash prevention).",
+          "exit": "prism roi outputs formatted savings"
+        },
+        {
+          "id": "V0-U06",
+          "title": "Dispatcher actions + MCP resource",
+          "smart": "Role: API Specialist | SONNET | MEDIUM",
+          "description": "Wire to businessDispatcher: roi_summary, roi_log, roi_report, roi_reset. Add MCP resource: savings://prism/current for dashboard consumption.",
+          "exit": "4 actions wired, MCP resource returns data"
+        }
+      ],
+      "completed_at": "2026-03-22"
+    },
+    {
+      "id": "VAL-MS1",
+      "track": "A",
+      "title": "Programmer Productivity Engine — Gamified Performance Tracking",
+      "units": 5,
+      "quarter": "Q2-2026",
+      "status": "complete",
+      "dependencies": [],
+      "smart": "Role: Data Scientist + Senior TS Engineer | OPUS | HIGH",
+      "unit_ids": [
+        "V1-U01",
+        "V1-U02",
+        "V1-U03",
+        "V1-U04",
+        "V1-U05"
+      ],
+      "units_detail": [
+        {
+          "id": "V1-U01",
+          "title": "ProgrammerProductivityEngine — metrics tracker",
+          "smart": "Role: Data Scientist + Senior TS Engineer | OPUS | HIGH",
+          "description": "Track per-user metrics: programs checked, crashes prevented, cycle time saved, S/F optimizations applied, tribal tips viewed, academy progress. Leaderboard scoring. Persistent store at ~/.prism/productivity.json.",
+          "exit": "Engine tracks 6+ metric categories, 20+ tests"
+        },
+        {
+          "id": "V1-U02",
+          "title": "Achievement system — badges and milestones",
+          "smart": "Role: Senior TS Engineer | SONNET | MEDIUM",
+          "description": "Define 20+ achievements: First Optimization, 100 Programs Checked, Crash Preventer (10 crashes avoided), Speed Demon (1000 S/F calcs), Material Master (all ISO groups used), etc. Unlockable badges with progress tracking.",
+          "exit": "20 achievements defined, unlock logic works"
+        },
+        {
+          "id": "V1-U03",
+          "title": "Weekly digest generator",
+          "smart": "Role: Business Analyst | HAIKU | LOW",
+          "description": "Generate weekly summary: 'This week you optimized 47 programs, saved est. 12.3 hours of cycle time, prevented 2 potential crashes. You earned the Speed Demon badge!'",
+          "exit": "Digest generates with real metrics"
+        },
+        {
+          "id": "V1-U04",
+          "title": "Team comparison (anonymized)",
+          "smart": "Role: Data Scientist | SONNET | MEDIUM",
+          "description": "For multi-user shops: show how your optimization rate compares to team average. 'You're in the top 20% for cycle time improvement this month.' Privacy-preserving aggregate stats.",
+          "exit": "Comparison works with 2+ users"
+        },
+        {
+          "id": "V1-U05",
+          "title": "Wire to dispatchers + CLI",
+          "smart": "Role: Senior TS Engineer | HAIKU | LOW",
+          "description": "businessDispatcher: productivity_summary, productivity_achievements, productivity_digest, productivity_compare. CLI: prism stats.",
+          "exit": "4 actions + CLI command working"
+        }
+      ],
+      "completed_at": "2026-03-22"
+    },
+    {
+      "id": "VAL-MS2",
+      "track": "B",
+      "title": "Instructor Dashboard Engine — Academy LMS Features",
+      "units": 6,
+      "quarter": "Q2-2026",
+      "status": "complete",
+      "dependencies": [],
+      "smart": "Role: Senior TS Engineer + Technical Doc Lead | OPUS | HIGH",
+      "unit_ids": [
+        "V2-U01",
+        "V2-U02",
+        "V2-U03",
+        "V2-U04",
+        "V2-U05",
+        "V2-U06"
+      ],
+      "units_detail": [
+        {
+          "id": "V2-U01",
+          "title": "InstructorDashboardEngine — class management",
+          "smart": "Role: Senior TS Engineer + Database Architect | OPUS | HIGH",
+          "description": "Create/manage classes with enrolled students, assigned courses, due dates. Instructor can see all student progress, grades, time spent. Supports multiple classes per instructor.",
+          "exit": "CRUD for classes, enrollment, 15+ tests"
+        },
+        {
+          "id": "V2-U02",
+          "title": "Assignment engine — custom assessments",
+          "smart": "Role: Senior QA Engineer | SONNET | MEDIUM",
+          "description": "Instructors create custom assignments: select questions from AssessmentEngine pool, set time limits, due dates. Auto-grading with override capability.",
+          "exit": "Assignments create/submit/grade flow works"
+        },
+        {
+          "id": "V2-U03",
+          "title": "Grade export — CSV/PDF report cards",
+          "smart": "Role: Senior TS Engineer | HAIKU | LOW",
+          "description": "Export student grades as CSV (for LMS import) or PDF report cards. Include: course completion %, quiz scores, time spent, certification status.",
+          "exit": "CSV and PDF export work"
+        },
+        {
+          "id": "V2-U04",
+          "title": "Student analytics — learning patterns",
+          "smart": "Role: Data Scientist | SONNET | MEDIUM",
+          "description": "Identify struggling students (low quiz scores, long time per module), fast learners (ready for next course), and knowledge gaps (specific topics with low scores across class).",
+          "exit": "Analytics identify 3+ student patterns"
+        },
+        {
+          "id": "V2-U05",
+          "title": "Content authoring — custom lessons",
+          "smart": "Role: Technical Doc Lead | SONNET | MEDIUM",
+          "description": "Instructors can create custom lessons using PRISM's content types (text, calculator, formula card, quiz). Insert from existing 146 modules or create new.",
+          "exit": "Custom lesson creation works"
+        },
+        {
+          "id": "V2-U06",
+          "title": "Wire to knowledgeDispatcher + MCP",
+          "smart": "Role: API Specialist | SONNET | MEDIUM",
+          "description": "knowledgeDispatcher: instructor_create_class, instructor_enroll, instructor_grades, instructor_analytics, instructor_export, instructor_assign. MCP resource: academy://prism/classes.",
+          "exit": "6 actions wired, build passes"
+        }
+      ],
+      "completed_at": "2026-03-22"
+    },
+    {
+      "id": "VAL-MS3",
+      "track": "B",
+      "title": "White-Label Config Engine — Dealer/OEM Branding",
+      "units": 4,
+      "quarter": "Q3-2026",
+      "status": "complete",
+      "dependencies": [],
+      "smart": "Role: Principal Systems Architect | SONNET | MEDIUM",
+      "unit_ids": [
+        "V3-U01",
+        "V3-U02",
+        "V3-U03",
+        "V3-U04"
+      ],
+      "units_detail": [
+        {
+          "id": "V3-U01",
+          "title": "WhiteLabelConfigEngine — brand customization",
+          "smart": "Role: Principal Systems Architect | SONNET | MEDIUM",
+          "description": "Configure: company name, logo URL, color scheme, default machine fleet, pre-loaded tool library, custom greeting, support URL. Stored in ~/.prism/brand.json.",
+          "exit": "Brand config loads and applies"
+        },
+        {
+          "id": "V3-U02",
+          "title": "Machine fleet pre-configuration",
+          "smart": "Role: Manufacturing Expert | SONNET | MEDIUM",
+          "description": "Dealer selects which machines from 910 profiles are relevant for their customer. PRISM filters recommendations to only those machines. Tool library scoped to compatible tools.",
+          "exit": "Fleet filter works across all engines"
+        },
+        {
+          "id": "V3-U03",
+          "title": "Custom tribal tips injection",
+          "smart": "Role: Senior TS Engineer | HAIKU | LOW",
+          "description": "Dealer can add custom tribal tips tagged with their brand. Tips appear alongside PRISM's 3700+ with dealer attribution.",
+          "exit": "Custom tips appear in playbook queries"
+        },
+        {
+          "id": "V3-U04",
+          "title": "Wire + CLI: prism brand",
+          "smart": "Role: Senior TS Engineer | HAIKU | LOW",
+          "description": "businessDispatcher: brand_configure, brand_status, brand_reset. CLI: prism brand set/show.",
+          "exit": "3 actions + CLI command"
+        }
+      ],
+      "completed_at": "2026-03-22"
+    },
+    {
+      "id": "VAL-MS4",
+      "track": "C",
+      "title": "CAM Plugin SDK — Embeddable Physics API",
+      "units": 5,
+      "quarter": "Q3-2026",
+      "status": "complete",
+      "dependencies": [],
+      "smart": "Role: API Specialist + Principal Systems Architect | OPUS | HIGH",
+      "unit_ids": [
+        "V4-U01",
+        "V4-U02",
+        "V4-U03",
+        "V4-U04",
+        "V4-U05"
+      ],
+      "units_detail": [
+        {
+          "id": "V4-U01",
+          "title": "CAMPluginSDKEngine — lightweight API wrapper",
+          "smart": "Role: API Specialist + Senior TS Engineer | OPUS | HIGH",
+          "description": "Thin wrapper exposing PRISM's physics as a simple API: optimizeSpeedFeed(material, tool, operation) -> {rpm, feed, doc, woc, confidence}. Also: checkSafety(gcode), suggestTool(material, operation), getTribalTip(cam, operation). <50ms response target.",
+          "exit": "4 API methods work with <50ms latency"
+        },
+        {
+          "id": "V4-U02",
+          "title": "OpenAPI 3.1 spec auto-generation",
+          "smart": "Role: API Specialist | SONNET | MEDIUM",
+          "description": "Auto-generate OpenAPI spec from Zod schemas for all 67+ dispatchers. Swagger UI at /api/docs. Enables developer self-service.",
+          "exit": "Swagger UI renders all endpoints"
+        },
+        {
+          "id": "V4-U03",
+          "title": "Rate limiting + API key management",
+          "smart": "Role: Senior Security Auditor | OPUS | HIGH",
+          "description": "Per-key rate limits: free=100/day, pro=10K/day, enterprise=unlimited. API key CRUD with scoping (read-only, compute, admin). Token bucket algorithm.",
+          "exit": "Rate limits enforce per key tier"
+        },
+        {
+          "id": "V4-U04",
+          "title": "SDK client libraries (TypeScript + Python)",
+          "smart": "Role: Senior TS Engineer | SONNET | MEDIUM",
+          "description": "Auto-generate TypeScript and Python client libraries from OpenAPI spec. npm: @prism/sdk, pip: prism-manufacturing-sdk. Include type definitions and examples.",
+          "exit": "Both SDKs install and call API successfully"
+        },
+        {
+          "id": "V4-U05",
+          "title": "Developer portal + getting started guide",
+          "smart": "Role: Technical Doc Lead | SONNET | MEDIUM",
+          "description": "Markdown docs: Getting Started (5 min), API Reference (auto-gen), Examples (speed/feed, safety check, tool selection), Rate Limits, Authentication.",
+          "exit": "Docs render, examples work"
+        }
+      ],
+      "completed_at": "2026-03-22"
+    },
+    {
+      "id": "VAL-MS5",
+      "track": "C",
+      "title": "SaaS REST API Layer — HTTP Access to All Dispatchers",
+      "units": 5,
+      "quarter": "Q3-2026",
+      "status": "complete",
+      "dependencies": [
+        "VAL-MS4"
+      ],
+      "smart": "Role: API Specialist + Senior Security Auditor | OPUS | HIGH",
+      "unit_ids": [
+        "V5-U01",
+        "V5-U02",
+        "V5-U03",
+        "V5-U04",
+        "V5-U05"
+      ],
+      "units_detail": [
+        {
+          "id": "V5-U01",
+          "title": "Express REST routes wrapping MCP dispatchers",
+          "smart": "Role: API Specialist + Senior TS Engineer | OPUS | HIGH",
+          "description": "POST /api/v2/{dispatcher}/{action} routes that validate auth, parse body, call dispatcher, return JSON. All 70 dispatchers accessible. CORS configured.",
+          "exit": "All dispatchers accessible via HTTP"
+        },
+        {
+          "id": "V5-U02",
+          "title": "Usage metering + billing integration",
+          "smart": "Role: Database Architect + Business Analyst | SONNET | MEDIUM",
+          "description": "Track API calls per key per day. Stripe integration for billing (metered pricing). Usage dashboard endpoint: GET /api/v2/usage.",
+          "exit": "Usage counts tracked, Stripe webhook processes"
+        },
+        {
+          "id": "V5-U03",
+          "title": "Webhook notifications",
+          "smart": "Role: Senior TS Engineer | SONNET | MEDIUM",
+          "description": "Customers register webhook URLs for events: tool_life_warning, safety_violation, job_complete, alarm_triggered. POST to webhook with signed payload.",
+          "exit": "Webhooks fire on 4+ event types"
+        },
+        {
+          "id": "V5-U04",
+          "title": "GraphQL alternative endpoint",
+          "smart": "Role: API Specialist | SONNET | MEDIUM",
+          "description": "Optional GraphQL endpoint at /api/graphql for clients who prefer query flexibility. Schema auto-generated from dispatcher schemas.",
+          "exit": "GraphQL playground works with all dispatchers"
+        },
+        {
+          "id": "V5-U05",
+          "title": "API versioning + deprecation policy",
+          "smart": "Role: Principal Systems Architect | HAIKU | LOW",
+          "description": "Version prefix /api/v2/. Header: X-PRISM-Deprecation for sunset dates. Migration guide template.",
+          "exit": "Versioning headers present"
+        }
+      ],
+      "completed_at": "2026-03-22"
+    },
+    {
+      "id": "VAL-MS6",
+      "track": "D",
+      "title": "Shop Floor Kiosk Engine — Touch-First Interface Data",
+      "units": 5,
+      "quarter": "Q3-2026",
+      "status": "complete",
+      "dependencies": [],
+      "smart": "Role: Manufacturing Expert + Senior Frontend Engineer | SONNET | MEDIUM",
+      "unit_ids": [
+        "V6-U01",
+        "V6-U02",
+        "V6-U03",
+        "V6-U04",
+        "V6-U05"
+      ],
+      "units_detail": [
+        {
+          "id": "V6-U01",
+          "title": "KioskModeEngine — simplified data provider",
+          "smart": "Role: Manufacturing Expert + Senior TS Engineer | SONNET | MEDIUM",
+          "description": "Provides kiosk-optimized data: large text, minimal fields, big touch targets. Actions: kiosk_quick_sf (3-tap: material->tool->go), kiosk_alarm_decode, kiosk_setup_sheet, kiosk_tool_life.",
+          "exit": "4 kiosk actions return simplified data"
+        },
+        {
+          "id": "V6-U02",
+          "title": "Quick S/F calculator — 3-tap flow",
+          "smart": "Role: Manufacturing Expert | SONNET | MEDIUM",
+          "description": "Step 1: Pick material (top 20 with photos). Step 2: Pick tool type + diameter. Step 3: Results with big RPM/Feed numbers. Operator-friendly, no jargon.",
+          "exit": "3-step flow returns S/F in <1 second"
+        },
+        {
+          "id": "V6-U03",
+          "title": "Alarm scanner — type code, get fix",
+          "smart": "Role: Manufacturing Expert | HAIKU | LOW",
+          "description": "Big input field for alarm code. Instant results: alarm meaning, probable cause, fix steps (numbered), related tribal tips.",
+          "exit": "Works for 10K+ alarm codes"
+        },
+        {
+          "id": "V6-U04",
+          "title": "Tool life tracker — scan/enter tool",
+          "smart": "Role: Manufacturing Expert + Data Scientist | SONNET | MEDIUM",
+          "description": "Enter tool ID -> see remaining life %, estimated parts remaining, Taylor prediction vs actual. Color-coded: green/yellow/red. Optional barcode scanner integration.",
+          "exit": "Tool life display with color coding"
+        },
+        {
+          "id": "V6-U05",
+          "title": "Wire to machineLiveDispatcher",
+          "smart": "Role: Senior TS Engineer | HAIKU | LOW",
+          "description": "machineLiveDispatcher: kiosk_quick_sf, kiosk_alarm, kiosk_setup, kiosk_tool_life. Simplified schemas with required-only fields.",
+          "exit": "4 actions wired, build passes"
+        }
+      ],
+      "completed_at": "2026-03-22"
+    },
+    {
+      "id": "VAL-MS7",
+      "track": "D",
+      "title": "Docker + CI/CD Pipeline — One-Command Deployment",
+      "units": 5,
+      "quarter": "Q2-2026",
+      "status": "complete",
+      "dependencies": [],
+      "smart": "Role: Principal Systems Architect + Performance Specialist | OPUS | HIGH",
+      "unit_ids": [
+        "V7-U01",
+        "V7-U02",
+        "V7-U03",
+        "V7-U04",
+        "V7-U05"
+      ],
+      "units_detail": [
+        {
+          "id": "V7-U01",
+          "title": "Dockerfile + docker-compose.yml",
+          "smart": "Role: Principal Systems Architect | OPUS | HIGH",
+          "description": "Multi-stage Dockerfile: build (tsc+esbuild) -> runtime (node:22-alpine). docker-compose with server + web + optional postgres. Single 'docker compose up' to run entire stack.",
+          "exit": "docker compose up starts server"
+        },
+        {
+          "id": "V7-U02",
+          "title": "GitHub Actions CI — lint + test on PR",
+          "smart": "Role: Senior TS Engineer | SONNET | MEDIUM",
+          "description": ".github/workflows/ci.yml: checkout, npm ci, tsc --noEmit, vitest run. Status checks on PR. Fail-fast on type errors.",
+          "exit": "PRs get green/red status checks"
+        },
+        {
+          "id": "V7-U03",
+          "title": "GitHub Actions CD — build + push Docker image",
+          "smart": "Role: Principal Systems Architect | SONNET | MEDIUM",
+          "description": "On tag push: build Docker image, push to GitHub Container Registry. Semantic versioning from package.json.",
+          "exit": "Tagged release creates Docker image"
+        },
+        {
+          "id": "V7-U04",
+          "title": "ARCHITECTURE.md + GETTING_STARTED.md",
+          "smart": "Role: Technical Doc Lead | SONNET | MEDIUM",
+          "description": "Architecture doc: 11-layer diagram, key engines, data flow. Getting Started: clone, npm install, npm run dev, first API call in 5 minutes.",
+          "exit": "New dev onboards in 15 minutes"
+        },
+        {
+          "id": "V7-U05",
+          "title": "SECURITY.md + dependency audit",
+          "smart": "Role: Senior Security Auditor | OPUS | HIGH",
+          "description": "Document: OAuth 2.1 flow, JWT lifecycle, RBAC matrix, rate limiting, input validation (Zod). Run npm audit, fix critical/high. Add Dependabot config.",
+          "exit": "0 critical vulnerabilities, docs complete"
+        }
+      ],
+      "completed_at": "2026-03-22"
+    },
+    {
+      "id": "VAL-MS8",
+      "track": "E",
+      "title": "Desktop App Shell (Tauri) — Offline Manufacturing Intelligence",
+      "units": 5,
+      "quarter": "Q4-2026",
+      "status": "complete",
+      "dependencies": [
+        "VAL-MS7"
+      ],
+      "smart": "Role: Senior Frontend Engineer + Principal Systems Architect | OPUS | HIGH",
+      "unit_ids": [
+        "V8-U01",
+        "V8-U02",
+        "V8-U03",
+        "V8-U04",
+        "V8-U05"
+      ],
+      "units_detail": [
+        {
+          "id": "V8-U01",
+          "title": "Tauri shell — wrap web app in native window",
+          "smart": "Role: Senior Frontend Engineer | OPUS | HIGH",
+          "description": "Initialize Tauri project. Embed mcp-server/web as frontend. Configure window title, icon, menu. Target: Windows + macOS + Linux.",
+          "exit": "App launches with native window"
+        },
+        {
+          "id": "V8-U02",
+          "title": "Embedded MCP server — offline sidecar",
+          "smart": "Role: Principal Systems Architect | OPUS | HIGH",
+          "description": "Bundle MCP server as Tauri sidecar process. stdio transport for local communication. No network required for core calculations.",
+          "exit": "Works completely offline"
+        },
+        {
+          "id": "V8-U03",
+          "title": "File associations — .nc, .stp, .igs",
+          "smart": "Role: Senior Frontend Engineer | SONNET | MEDIUM",
+          "description": "Register file associations: double-click .nc opens in PRISM (G-code viewer + safety check). .stp/.igs triggers STEP import + feasibility analysis.",
+          "exit": "File double-click opens in PRISM"
+        },
+        {
+          "id": "V8-U04",
+          "title": "System tray — machine status",
+          "smart": "Role: Senior Frontend Engineer | SONNET | MEDIUM",
+          "description": "System tray icon showing machine connection status (via MTConnect/MQTT). Click for quick status popup. Notification on alarm or tool life warning.",
+          "exit": "Tray icon shows live status"
+        },
+        {
+          "id": "V8-U05",
+          "title": "Auto-updater — GitHub Releases",
+          "smart": "Role: Principal Systems Architect | HAIKU | LOW",
+          "description": "Tauri updater plugin checking GitHub Releases for new versions. User notification + one-click update.",
+          "exit": "Update notification works"
+        }
+      ],
+      "completed_at": "2026-03-22"
+    },
+    {
+      "id": "VAL-MS9",
+      "track": "E",
+      "title": "Training Marketplace — Monetize Academy Content",
+      "units": 6,
+      "quarter": "Q4-2026",
+      "status": "complete",
+      "dependencies": [
+        "VAL-MS2"
+      ],
+      "smart": "Role: Strategic Business Analyst + Senior TS Engineer | OPUS | HIGH",
+      "unit_ids": [
+        "V9-U01",
+        "V9-U02",
+        "V9-U03",
+        "V9-U04",
+        "V9-U05",
+        "V9-U06"
+      ],
+      "units_detail": [
+        {
+          "id": "V9-U01",
+          "title": "CourseBuilderEngine — auto-generate from tribal tips",
+          "smart": "Role: Senior TS Engineer + Manufacturing Expert | OPUS | HIGH",
+          "description": "Auto-generate lesson content from 3700+ tribal tips. Group by CAM system, operation, material. Add quiz questions from playbook rules. One command: buildCourse(camSystem, level) -> full course.",
+          "exit": "Auto-generated course renders with quizzes"
+        },
+        {
+          "id": "V9-U02",
+          "title": "Quiz from playbook rules",
+          "smart": "Role: Senior QA Engineer | SONNET | MEDIUM",
+          "description": "Auto-generate scenario-based quiz questions from 296+ playbook rules. 'You're face milling 304 stainless with a 50mm cutter. What's the recommended approach?' with physics-validated correct answer.",
+          "exit": "50+ auto-generated quiz questions"
+        },
+        {
+          "id": "V9-U03",
+          "title": "Student progress persistence",
+          "smart": "Role: Database Architect | SONNET | MEDIUM",
+          "description": "Persist student progress, quiz scores, badges, certification status. Multi-device sync via server. Leaderboard across organization.",
+          "exit": "Progress persists and syncs"
+        },
+        {
+          "id": "V9-U04",
+          "title": "CAM comparison modules",
+          "smart": "Role: Manufacturing Expert | SONNET | MEDIUM",
+          "description": "Side-by-side comparison modules for 18 CAM systems. Student picks primary CAM, sees how concepts apply in their tool. Cross-CAM strategy recommendations.",
+          "exit": "18 CAM systems compared"
+        },
+        {
+          "id": "V9-U05",
+          "title": "Video integration — VideoLearningEngine content",
+          "smart": "Role: Senior TS Engineer | SONNET | MEDIUM",
+          "description": "Embed VideoLearningEngine extracted knowledge into course modules. Video clips with AI-extracted annotations, linked to relevant PRISM engines.",
+          "exit": "Video content plays in courses"
+        },
+        {
+          "id": "V9-U06",
+          "title": "Subscription model — pricing tiers",
+          "smart": "Role: Strategic Business Analyst | HAIKU | LOW",
+          "description": "Define tiers: Free (courses 0A-0C), Individual ($29/mo, all courses), Team ($19/seat/mo, 5+ seats, instructor dashboard), Enterprise (custom, white-label). Stripe integration points.",
+          "exit": "Tier config defined with feature gates"
+        }
+      ],
+      "completed_at": "2026-03-22"
+    }
+  ],
+  "status": "not_started",
+  "smart_config": {
+    "role": "implementer + reviewer",
+    "model": "sonnet",
+    "effort": "HIGH",
+    "context_budget": "65%"
+  },
+  "mcp_lifecycle": {
+    "session_start": [
+      "prism_session:context_boot",
+      "prism_session:dispatcher_map",
+      "prism_session:memory_recall",
+      "prism_session:system_snapshot",
+      "prism_session:action_search"
+    ],
+    "during_work": [
+      "prism_session:auto_checkpoint",
+      "prism_session:tool_route_best",
+      "prism_session:wip_capture"
+    ],
+    "session_end": [
+      "prism_session:memory_save",
+      "prism_session:system_snapshot",
+      "prism_session:checkpoint_enhanced"
+    ]
+  },
+  "forge_triple": {
+    "protective_hook": "prism-product-roadmap-gate",
+    "mcp_action": "prism_prism-product:prism_product_roadmap_run",
+    "skill_command": "/prism-product-roadmap",
+    "ownership": "DECLARED — BUILT in terminal unit of this milestone"
+  },
+  "feature_cascade": {
+    "new_hooks": [
+      "prism-product-roadmap-gate"
+    ],
+    "new_actions": [
+      "prism_product_roadmap_run"
+    ],
+    "new_skills": [
+      "/prism-product-roadmap"
+    ],
+    "available_to": [
+      "downstream CAMX milestones",
+      "prism app consumers"
+    ]
+  },
+  "knowledge_sources": {
+    "engines": [
+      "ENGINE_DIGEST.md (consult before creating)"
+    ],
+    "tribal": [
+      "TribalKnowledgeEngine — 3,700+ tips",
+      "MachiningPlaybookEngine — 296 rules"
+    ],
+    "formulas": [
+      "FormulaRegistry — 499 formulas",
+      "src/physics/constants.ts — canonical"
+    ],
+    "reference": [
+      "EXTERNAL-REFERENCE-PROGRAMS-INDEX.md",
+      "MaterialRegistry",
+      "MachineRegistry",
+      "ToolCatalogEngine (95,608 tools)"
+    ]
+  },
+  "intent": "Features prioritized by revenue impact from 5 customer perspectives: shop owner, programmer, dealer, CAM vendor, training institution",
+  "compact_checkpoint": "every 3 units — auto-triggered by hook",
+  "enforcement_hooks_active": [
+    "physics agent",
+    "wiring agent",
+    "constants checker",
+    "stub detector",
+    "test quality",
+    "forge-triple gate",
+    "session audit agent"
+  ],
+  "_role": "coordinator"
+}

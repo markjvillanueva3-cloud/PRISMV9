@@ -1,0 +1,92 @@
+{
+  "schemaVersion": 1,
+  "id": "HYPERMILL_SDK_APIS",
+  "title": "hyperMILL Python SDK — machine-readable API surface",
+  "unit": "CAD-COMPLETE-MS0/U-CADC40",
+  "generated_at": "2026-05-23",
+  "slot": "delta",
+  "categories": {
+    "session_lifecycle": {
+      "python_module": "OpenMind.Automation.Application",
+      "prism_action": "cad_hypercads_plan_execution",
+      "operations": [
+        { "name": "start", "args": ["project_name"], "returns": "Session" },
+        { "name": "close", "args": [], "returns": "void" },
+        { "name": "save", "args": ["path"], "returns": "void" },
+        { "name": "export", "args": ["format", "path"], "returns": "void" }
+      ]
+    },
+    "geometry": {
+      "python_module": "OpenMind.Automation.Geometry",
+      "prism_action": "cad_hypercads_outcome_adapter",
+      "operations": [
+        { "name": "import_step", "args": ["path"], "returns": "BRepBody" },
+        { "name": "import_iges", "args": ["path"], "returns": "BRepBody" },
+        { "name": "import_parasolid", "args": ["path"], "returns": "BRepBody" }
+      ]
+    },
+    "toolpath": {
+      "python_module": "OpenMind.Automation.Toolpath",
+      "prism_action": "cad_hypermill_generate_toolpath",
+      "operations": [
+        { "name": "generate_2d_pocket", "args": ["body", "depth", "tool"], "returns": "Toolpath" },
+        { "name": "generate_3d_finish", "args": ["body", "surface", "step_over"], "returns": "Toolpath" },
+        { "name": "generate_drill", "args": ["body", "holes", "tool"], "returns": "Toolpath" }
+      ]
+    },
+    "post": {
+      "python_module": "OpenMind.Automation.Post",
+      "prism_action": "cad_hypermill_post_run",
+      "operations": [
+        { "name": "post_to_controller", "args": ["toolpath", "controller", "out_path"], "returns": "string" }
+      ]
+    },
+    "live_drawing": {
+      "python_module": "OpenMind.HyperCAD.Sketch + Feature",
+      "prism_action": "cad_draw_any_part",
+      "operations": [
+        { "name": "sketch_circle", "args": ["diameter"], "fallback_args": ["radius"], "transform": "radius*2 → diameter" },
+        { "name": "sketch_rectangle", "args": ["width", "height"] },
+        { "name": "sketch_slot", "args": ["width", "length"] },
+        { "name": "feature_extrude", "args": ["depth"], "fallback_args": ["distance"] },
+        { "name": "feature_revolve", "args": ["angle"] },
+        { "name": "feature_hole", "args": ["diameter", "depth"] },
+        { "name": "feature_thread", "args": ["diameter", "pitch"] },
+        { "name": "sketch_fillet", "args": ["radius"] },
+        { "name": "sketch_chamfer", "args": ["distance"] }
+      ],
+      "supported_op_kinds_count": 18
+    },
+    "outcome_publishing": {
+      "prism_action": "cad_regen_feedback_publish",
+      "schema": "cross_process_decision v1.1.0",
+      "adapter_id": "cad_hypercads_outcome_adapter",
+      "subscribers": ["LP04 closed-loop learner", "CADRegenFeedbackAdapterEngine"]
+    }
+  },
+  "extraction_table": {
+    "description": "Maps op kind → numeric args extracted by CADModelDimensionExtractorEngine",
+    "rules": {
+      "sketch_circle": ["diameter", { "radius": "×2" }],
+      "sketch_rectangle": ["width", "height"],
+      "sketch_slot": ["width", "length"],
+      "sketch_dimension": ["value"],
+      "sketch_fillet": ["radius"],
+      "sketch_chamfer": ["distance"],
+      "feature_extrude": ["depth", "distance"],
+      "feature_revolve": ["angle"],
+      "feature_hole": ["diameter", "depth"],
+      "feature_thread": ["diameter", "pitch"]
+    }
+  },
+  "regression_harness": {
+    "batch_file_walker": "scripts/cad-regen-test.mjs",
+    "end_to_end_round_trip": "mcp-server/src/engines/CADRoundTripValidationEngine.ts",
+    "perception_adapters": [
+      "mcp-server/src/engines/CADLiveBlueprintOcrAdapter.ts",
+      "mcp-server/src/engines/CADModelDimensionExtractorEngine.ts",
+      "mcp-server/src/engines/CADPrintRegeneratorEngine.ts"
+    ]
+  },
+  "doc_companion": "mcp-server/data/docs/HYPERMILL_SDK_REFERENCE.md"
+}

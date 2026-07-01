@@ -1,0 +1,132 @@
+{
+  "schemaVersion": "1.0.0",
+  "_lastBackfillTs": "2026-05-08T16:41:54.025Z",
+  "audit_id": "QA-MS13-P0-U05",
+  "title": "Build Health and Bundle Size Regression Baseline",
+  "audited_at": "2026-04-13T22:45:00Z",
+  "auditor": "claude-opus-4.5",
+  "scope": "Build success, warnings, TypeScript errors, bundle size",
+  "build_status": {
+    "command": "npm run build:fast",
+    "result": "SUCCESS",
+    "duration_ms": 1717,
+    "output_file": "dist/index.js"
+  },
+  "bundle_metrics": {
+    "size_bytes": 65210695,
+    "size_mb": 62.2,
+    "target": "node18",
+    "platform": "node",
+    "format": "esm",
+    "externals": [
+      "@modelcontextprotocol/sdk",
+      "zod",
+      "better-sqlite3",
+      "cpu-features",
+      "ssh2",
+      "playwright",
+      "bufferutil",
+      "utf-8-validate",
+      "ws",
+      "node-opcua",
+      "occt-import-js"
+    ]
+  },
+  "build_warnings": {
+    "count": 4,
+    "by_type": {
+      "empty-glob": 3,
+      "direct-eval": 1
+    },
+    "details": [
+      {
+        "type": "empty-glob",
+        "file": "src/tools/dispatchers/fluidThermalDispatcher.ts:21",
+        "message": "The glob pattern import(\"../../engines/**/*.js\") did not match any files",
+        "severity": "LOW",
+        "action": "Dispatcher has no matching engines - expected for future expansion"
+      },
+      {
+        "type": "empty-glob",
+        "file": "src/tools/dispatchers/mechanicalDesignDispatcher.ts:19",
+        "message": "The glob pattern import(\"../../engines/**/*.js\") did not match any files",
+        "severity": "LOW",
+        "action": "Dispatcher has no matching engines - expected for future expansion"
+      },
+      {
+        "type": "empty-glob",
+        "file": "src/engines/SourceCatalogAggregator.ts:71",
+        "message": "The glob pattern import(\"./**/*.js\") did not match any files",
+        "severity": "LOW",
+        "action": "Dynamic module resolution - intentional pattern"
+      },
+      {
+        "type": "direct-eval",
+        "file": "src/engines/OkumaParametricProgramEngine.ts:2370",
+        "message": "Using direct eval with a bundler is not recommended",
+        "severity": "MEDIUM",
+        "action": "Parametric program evaluation requires eval - consider sandboxed alternative"
+      }
+    ]
+  },
+  "typescript_health": {
+    "type_check_command": "npx tsc --noEmit",
+    "result": "FAIL",
+    "error_count": 238,
+    "error_breakdown": {
+      "TS2322_type_assignment": 52,
+      "TS2739_missing_properties": 44,
+      "TS2559_interface_mismatch": 42,
+      "TS2300_duplicate_identifier": 26,
+      "TS2339_property_access": 24,
+      "TS2345_argument_mismatch": 17,
+      "other": 33
+    },
+    "blocking_build": false,
+    "note": "esbuild ignores type errors, but they should be fixed"
+  },
+  "regression_baseline": {
+    "baseline_date": "2026-04-13",
+    "bundle_size_mb": 62.2,
+    "build_warnings": 4,
+    "ts_errors": 238,
+    "test_count": 31585,
+    "thresholds": {
+      "bundle_size_max_mb": 70,
+      "build_warnings_max": 10,
+      "ts_errors_max": 250,
+      "test_count_min": 31000
+    }
+  },
+  "postbuild_processing": {
+    "script": "scripts/postbuild-fix-createRequire.cjs",
+    "fixes_applied": 1,
+    "description": "Fixed duplicate createRequire imports"
+  },
+  "findings": {
+    "strengths": [
+      "Build completes successfully in <2 seconds",
+      "Only 4 build warnings (all non-critical)",
+      "Bundle size (62MB) reasonable for feature set",
+      "Postbuild script handles ESM/CJS compatibility"
+    ],
+    "concerns": [
+      "238 TypeScript errors (should be 0 for type safety)",
+      "Direct eval in OkumaParametricProgramEngine is security risk",
+      "Empty glob warnings indicate unused/placeholder dispatchers"
+    ],
+    "recommendations": [
+      "Fix TS errors before next release (see ts-error-audit.json)",
+      "Replace eval with safer sandboxed execution (vm module)",
+      "Remove or populate empty glob dispatchers",
+      "Add bundle size check to CI to prevent regression"
+    ]
+  },
+  "verification_status": {
+    "build_succeeds": true,
+    "warnings_cataloged": true,
+    "bundle_size_documented": true,
+    "regression_baseline_set": true,
+    "unit_complete": true
+  }
+}

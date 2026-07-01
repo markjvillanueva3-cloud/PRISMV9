@@ -66,7 +66,7 @@ function resolveSessionId(stdinSid) {
     return `claude-${stdinSid.slice(0, 8)}`;
   }
   try {
-    const r = spawnSync(process.execPath, [STABLE_ID_HELPER], { encoding: "utf-8", timeout: STABLE_ID_TIMEOUT_MS });
+    const r = spawnSync(process.execPath, [STABLE_ID_HELPER], { windowsHide: true, encoding: "utf-8", timeout: STABLE_ID_TIMEOUT_MS });
     const id = (r.stdout || "").trim();
     if (id && id.length >= MIN_SID_LENGTH) return id;
   } catch {
@@ -128,7 +128,7 @@ function getCwdFromPayload(payload) {
 }
 
 function runGit(args, cwd) {
-  const r = spawnSync("git", args, { cwd, encoding: "utf-8", timeout: GIT_TIMEOUT_MS });
+  const r = spawnSync("git", args, { windowsHide: true, cwd, encoding: "utf-8", timeout: GIT_TIMEOUT_MS });
   if (r.status !== 0) return null;
   return r.stdout || "";
 }

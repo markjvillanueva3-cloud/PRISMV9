@@ -36,7 +36,7 @@ related:
 
 ## Primary dispatcher
 
-[[dispatcher-processcontrol]] — `processControl` (manufacturing)
+[[dispatcher-process]] — `process` (other)
 
 ## Doctrine
 

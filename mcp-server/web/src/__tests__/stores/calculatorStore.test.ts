@@ -335,7 +335,7 @@ describe('calculatorStore', () => {
         persist: { getOptions: () => { name?: string; version?: number } };
       }).persist;
       const opts = persistApi.getOptions();
-      expect(opts.name).toBe('prism-calculator-store');
+      expect(opts.name).toBe('kienzle-calculator-store');
       expect(opts.version).toBe(1);
     });
 
@@ -361,7 +361,7 @@ describe('calculatorStore', () => {
         },
         version: 1,
       };
-      localStorage.setItem('prism-calculator-store', JSON.stringify(payload));
+      localStorage.setItem('kienzle-calculator-store', JSON.stringify(payload));
       const persistApi = (useCalculatorStore as unknown as {
         persist: { rehydrate: () => Promise<void> };
       }).persist;
@@ -377,7 +377,7 @@ describe('calculatorStore', () => {
       // Ephemeral state should remain at defaults.
       expect(s.loading).toBe(false);
       expect(s.result).toBeNull();
-      localStorage.removeItem('prism-calculator-store');
+      localStorage.removeItem('kienzle-calculator-store');
     });
 
     it('migrate returns input unchanged for cold-start (no persisted payload)', () => {

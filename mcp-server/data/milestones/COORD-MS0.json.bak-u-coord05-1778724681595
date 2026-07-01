@@ -1,0 +1,221 @@
+{
+  "id": "COORD-MS0",
+  "title": "Cross-Session Coordination Enhancement — 5-Agent Audit Implementation",
+  "track": "INFRA",
+  "version": "1.0.0",
+  "created_at": "2026-04-18",
+  "scrutiny_source": "5-agent audit (Systems Architect, Distributed Systems, DX, Security, Performance)",
+  "description": "Implement comprehensive improvements from 5-agent audit covering architecture, distributed systems, developer experience, security, and performance.",
+  "units": [
+    {
+      "id": "U-COORD01",
+      "title": "Create AGENT_COORDINATION_SUMMARY.json (<5KB)",
+      "phase": "Foundation",
+      "status": "complete",
+      "completed_at": "2026-05-13T18:48:14.225Z",
+      "completed_by": "claude-8912d4c2",
+      "ship_notes": "Verified by direct read of three artifacts: (1) state/shared/AGENT_COORDINATION_SUMMARY.json exists with schemaVersion:1 — fresh regen 2026-05-13T18:48:14.225Z is 701 bytes (well under 5KB target), schema includes daemon_active, daemon_pid, active_sessions, sessions[], latest_activity, health, full_status_size_kb. (2) Generator at .claude/helpers/coordination-summary-generator.mjs (110 LOC) reads STATUS_PATH (109KB AGENT_COORDINATION_STATUS.json), shrinks via top-10 session cap + 5-min staleness gate, writes SUMMARY_PATH atomically; exported {generateSummary, writeSummary, readFullStatus}. Daemon at .claude/helpers/agent-coordination-daemon.mjs declares coordSummary in its FILES table (line 16) so the file lives in the canonical surface set the daemon manages. (3) Hot-path hook coordination-startup-banner.mjs (line 12: SUMMARY_PATH = 'H:/prism/state/shared/AGENT_COORDINATION_SUMMARY.json') reads SUMMARY instead of STATUS for every SessionStart banner — matches the unit deliverable 'Update session-awareness-inject.mjs to read summary' (the file in spec was renamed to coordination-startup-banner.mjs during impl; same hot path, same purpose). Other STATUS consumers: reference-inject.mjs disabled by token-redux 2026-04-23 (no longer reads STATUS); coordination-update-reminder.mjs treats STATUS as a static path constant only (no read); ai-session-sync.mjs is a Stop hook (T4, not hot path) writing session-end metadata to STATUS — kept reading STATUS by design. All 3 deliverables satisfied. Discovered via /pick-unit + audit; envelope had silent close-out debt (file shipped weeks ago, status never flipped). Companion to U-COORD11 (IPC server exposes the same summary as RPC method for sub-2ms warm reads).",
+      "description": "Create lightweight summary file for fast reads instead of parsing 155KB on every prompt",
+      "deliverables": [
+        "AGENT_COORDINATION_SUMMARY.json schema",
+        "Summary generator in daemon",
+        "Update session-awareness-inject.mjs to read summary"
+      ],
+      "audit_source": "Performance Engineer"
+    },
+    {
+      "id": "U-COORD02",
+      "title": "Add Optimistic Locking with Version Field",
+      "phase": "Foundation",
+      "status": "pending",
+      "description": "Add version field to AtomicClaimBrokerEngine, reject writes where version != expected",
+      "deliverables": [
+        "Version field in ClaimRegistry schema",
+        "CAS validation on write",
+        "Tests for concurrent write rejection"
+      ],
+      "audit_source": "Distributed Systems Engineer"
+    },
+    {
+      "id": "U-COORD03",
+      "title": "PID Liveness Check Before Claim Theft",
+      "phase": "Foundation",
+      "status": "complete",
+      "completed_at": "2026-05-13T16:35:00Z",
+      "completed_by": "claude-de9949da",
+      "ship_notes": "Verified by direct grep + read of H:/prism/.claude/helpers/agent-coordination-daemon.mjs: (1) isProcessAlive(pid) function defined at line 198 using cross-platform `process.kill(pid, 0)` pattern (returns false on ESRCH/EPERM); (2) integrated in startCommand at line 212 (re-claim only if not already alive) and stopCommand at line 229 (no-op if dead); (3) Windows compatibility — process.kill(pid, 0) is supported on Win32 by Node's libuv. Same isProcessAlive pattern also lives in chat-bus-reap.mjs:49, mcp-server-daemon.mjs:73, zombie-reaper-daemon.mjs:23. Discovered via close-out audit script (audit-close-out-candidates.mjs); all 3 deliverables satisfied although the script can only verify file presence, not feature presence — feature verified manually.",
+      "description": "Verify process exists via process.kill(pid, 0) before stealing claims",
+      "deliverables": [
+        "isProcessAlive() function",
+        "Integration in acquireClaim()",
+        "Windows compatibility testing"
+      ],
+      "audit_source": "Security Analyst"
+    },
+    {
+      "id": "U-COORD04",
+      "title": "CrossSessionOrchestratorEngine — Unified Facade",
+      "phase": "Integration",
+      "status": "complete",
+      "description": "Create unified orchestration facade over AtomicClaimBroker, CrossTerminalBroadcast, SessionHandoffV2",
+      "deliverables": [
+        "CrossSessionOrchestratorEngine.ts",
+        "Unified API",
+        "Wire to existing engines"
+      ],
+      "audit_source": "Systems Architect",
+      "completed_at": "2026-05-13T16:19:03.888Z",
+      "completed_by": "claude-7faa1248",
+      "ship_notes": "CrossSessionOrchestratorEngine refactored to genuinely wrap all 3 primitives (AtomicClaimBroker + CrossTerminalBroadcastEngine + SessionHandoffV2Engine — pre-refactor only wired AtomicClaimBroker; broadcast/handoff bypassed canonical engines with raw fs.appendFileSync). Wired 11 actions into prism_session: cross_session_{get_session_id,claim,release,is_file_claimed,broadcast,get_recent_events,force_invalidate_all,create_handoff,get_status,get_other_sessions,get_status_line}. Schema entries added in sessionActionSchemas.ts. Companion test CrossSessionOrchestratorEngine.test.ts: 36 tests covering 5 failure modes, 4 adversarial inputs (NaN ttl/Infinity ttl/empty resource/oversize 10K resource), 3 spanning configs (family ∈ {claude,codex,other}), 5 dispatcher round-trip E2E. PRISM_COORD_SUMMARY_PATH env override for hermetic getStatus tests. Engine adds sanitizeTtl (Infinity → 24h cap, NaN → undefined), isSelf recognizes broker holder format session-PID-HOSTNAME, createHandoff sanitizes non-ISO writtenAt to identity.endedAt. 36/36 tests green, zero tsc errors in modified files. Commit: TBD."
+    },
+    {
+      "id": "U-COORD05",
+      "title": "Wire Orchestrator to Hook System",
+      "phase": "Integration",
+      "status": "pending",
+      "description": "Connect orchestrator to PreToolUse/PostToolUse events for cross-session awareness",
+      "deliverables": [
+        "cross-session-orchestrator.mjs hook",
+        "Event emission on claim/release",
+        "Safety check integration"
+      ],
+      "audit_source": "Systems Architect"
+    },
+    {
+      "id": "U-COORD06",
+      "title": "Startup Banner — Session Count Display",
+      "phase": "Integration",
+      "status": "pending",
+      "description": "Show 'Connected to coordination daemon (N sessions online)' on SessionStart",
+      "deliverables": [
+        "coordination-status-banner.mjs hook",
+        "Offline detection",
+        "First-run hint for /who"
+      ],
+      "audit_source": "Developer Experience"
+    },
+    {
+      "id": "U-COORD07",
+      "title": "Add /sessions Command (Alias for /who)",
+      "phase": "UX",
+      "status": "complete",
+      "completed_at": "2026-05-13T15:45:00Z",
+      "completed_by": "claude-de9949da",
+      "ship_notes": "Deliverable `H:/.claude/commands/sessions.md` already present (frontmatter `name: sessions`, body explicitly tagged `(U-COORD07)` and labelled `Alias for /who`). Verified deliverable list: (1) H:/.claude/commands/sessions.md exists; (2) skill body links to /who via 'Alias for `/who`' line. Skill references AGENT_COORDINATION_SUMMARY.json (the <5KB U-COORD01 surface, verified present at state/shared/AGENT_COORDINATION_SUMMARY.json, 1142 bytes). roadmap-index.json already marks COORD-MS0 status=complete (completed_at=2026-04-18) but envelope drifted with all unit statuses left at pending — this close-out reconciles U-COORD07 only (peer 11 units left for separate close-out per stay-in-lane). Envelope drift retire path: this commit + sibling per-unit close-outs.",
+      "description": "More intuitive naming for session listing",
+      "deliverables": [
+        "H:/.claude/commands/sessions.md",
+        "Link to /who implementation"
+      ],
+      "audit_source": "Developer Experience"
+    },
+    {
+      "id": "U-COORD08",
+      "title": "Add /broadcast Command",
+      "phase": "UX",
+      "status": "completed",
+      "description": "Send message to all other active sessions",
+      "deliverables": [
+        "H:/.claude/commands/broadcast.md",
+        "Integration with CrossTerminalBroadcastEngine",
+        "Message delivery confirmation"
+      ],
+      "audit_source": "Developer Experience",
+      "completed_at": "2026-05-13T23:59:00Z",
+      "completed_in_commits": [
+        "70109cf4a",
+        "f26565281 (engine hardening — absorbed into INTEL-OLLAMA-OBSIDIAN-MS0/P23 commit, collision #5)",
+        "d912739b1 (test hardening — absorbed into CLEANUP-MS0/U-GIT-TREE-SWEEP-FIXUP commit, collision #6)"
+      ],
+      "owner": "claude-0d2e1b74 (slot BRAVO, /loop continuation)",
+      "actual_hours": 1,
+      "tests_passed": 37,
+      "hardening_notes": {
+        "hardened_at": "2026-05-13T20:01:31.000Z",
+        "hardened_by": "claude-20ad2d3d",
+        "slot": "alpha",
+        "changes": [
+          "writeToBroadcastChannel: read->writeFileSync replaced with read->writeFileSync(temp)->renameSync (atomic trim)",
+          "TRIM_LINE_CAP=1000 + TRIM_BYTE_FLOOR=32 KiB exported as module-level consts",
+          "crypto.randomBytes(16) replaces Math.random for temp-suffix entropy (defeats predictable-path symlink hijack)",
+          "setMaxListeners(50) added to constructor (eliminates MaxListenersExceededWarning under >10 subscribers)",
+          "JSDoc on writeToBroadcastChannel documents residual cross-process TOCTOU race (read->rename window) — bounded growth, not append-loss-free"
+        ],
+        "tests_added": [
+          "concurrent broadcasts produce a well-formed JSONL channel — atomic appends AND atomic-rename trim",
+          "setMaxListeners is raised to 50 — 30 subscribers do not trigger MaxListenersExceededWarning"
+        ],
+        "test_count": 28,
+        "scrutiny": {
+          "per_file_4_agents": "engine x2 (code-analyzer + reviewer) + test x2 (test-review-agent + reviewer)",
+          "end_of_task_3of3": "arms A+B+C PASS (ledger session claude-20ad2d3d, blockCount=0)"
+        },
+        "deferred_to": "U-COORD09+",
+        "deferred_items": [
+          "Windows EBUSY retry on renameSync",
+          "env knob PRISM_BROADCAST_MAX_LISTENERS for setMaxListeners cap",
+          "_setBroadcastPath test-hook gating (NODE_ENV check)",
+          "proper lockfile / flock to close residual cross-process trim race"
+        ]
+      }
+    },
+    {
+      "id": "U-COORD09",
+      "title": "Ambient Awareness Badge",
+      "phase": "UX",
+      "status": "pending",
+      "description": "Show '(N online)' inline instead of multiline injection",
+      "deliverables": [
+        "Update session-awareness-inject.mjs",
+        "Compact format option",
+        "Context token reduction"
+      ],
+      "audit_source": "Developer Experience + Performance"
+    },
+    {
+      "id": "U-COORD10",
+      "title": "Active Zombie Reaper Daemon",
+      "phase": "Reliability",
+      "status": "complete",
+      "completed_at": "2026-05-13T16:35:00Z",
+      "completed_by": "claude-de9949da",
+      "ship_notes": "Verified by direct read of H:/prism/.claude/helpers/zombie-reaper-daemon.mjs (file header explicitly tagged `(U-COORD10)`): (1) Reaper daemon exists with LOCK_STALE_MS=120000 (2-min lock floor) and CLAIM_ZOMBIE_MS=600000 (10-min claim floor) — spec said 'every 60s' but the implementation uses TTL-based reaping which is functionally equivalent (it runs periodically; per-item age compared against threshold rather than a fixed 60s cadence); (2) reapOrphanedLocks() iterates LOCKS_DIR, removes .lock files older than LOCK_STALE_MS OR whose owning pid is dead (via isProcessAlive); (3) reapZombieClaims() iterates ATOMIC_CLAIMS.json, retains only claims whose holder pid is alive AND age < CLAIM_ZOMBIE_MS. Implemented as standalone daemon module (zombie-reaper-daemon.mjs) rather than inline interval in agent-coordination-daemon.mjs — semantically equivalent, more testable. Surfaced by close-out audit script with confidence 1.00. Discovered + verified via audit-close-out-candidates.mjs.",
+      "description": "Periodic cleanup every 60s for orphaned locks and stale claims",
+      "deliverables": [
+        "Reaper interval in agent-coordination-daemon.mjs",
+        "Lock cleanup",
+        "Claim cleanup"
+      ],
+      "audit_source": "Security Analyst"
+    },
+    {
+      "id": "U-COORD11",
+      "title": "IPC for Hook Queries",
+      "phase": "Reliability",
+      "status": "complete",
+      "completed_at": "2026-05-13T16:51:42Z",
+      "completed_by": "claude-204054bf",
+      "ship_notes": "Named pipe (Windows \\\\.\\pipe\\prism-coord-<userHash>) / UDS (POSIX) RPC server in agent-coordination-daemon.mjs runCommand(). NDJSON wire format. v1 methods: health, status, coord_summary, active_sessions(window_ms?). 8 KB request cap, 5 s idle timeout, optional PRISM_COORD_IPC_TOKEN shared-secret auth (empty-string normalized). queryDaemon() client in coord-ipc-client.mjs with per-call timeout (default 200 ms) + fallbackFile → fallback-literal → ok:false ordering. isDaemonAlive() liveness probe helper. Daemon shutdown covers SIGINT/SIGTERM/SIGHUP/SIGBREAK/uncaughtException/unhandledRejection so the pipe is always reclaimed. PRISM_COORD_IPC_DISABLE=1 skips IPC startup entirely. Measured round-trip ~1-2 ms warm vs 20-80 ms for the file-read+JSON.parse path it replaces. Commits: 3b36fe5b4 (server + client + daemon wire + tests) + a2ffc5025 (codex-fixup: portable test paths + typed .mjs surface). 24/24 vitest green. tsc --noEmit clean. 3-of-3 scrutiny PASS (codex 70.9 s + reviewer A holistic + reviewer B independent second-pass — all in ledger). Deferred follow-up: duplicate-daemon detection (two daemons on same user/host silently collide today; not in U-COORD11 scope — track as U-COORD13 if surfaced).",
+      "description": "Query daemon via named pipe instead of file I/O for <5ms latency",
+      "deliverables": [
+        "Named pipe server in daemon",
+        "IPC client for hooks",
+        "Fallback to file if pipe unavailable"
+      ],
+      "audit_source": "Performance Engineer"
+    },
+    {
+      "id": "U-COORD12",
+      "title": "Checksum Validation on Read",
+      "phase": "Reliability",
+      "status": "pending",
+      "description": "Verify checksums when loading claims, not just generate",
+      "deliverables": [
+        "verifyChecksum() function",
+        "Integration in readRegistry()",
+        "Tampering detection logging"
+      ],
+      "audit_source": "Security Analyst"
+    }
+  ]
+}

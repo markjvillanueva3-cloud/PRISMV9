@@ -8,12 +8,25 @@
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { readGraphStreaming } from "./lib/graph-io.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, "..");
 const VIZ_DIR = path.join(ROOT, "state", "shared", "system-viz");
 const GRAPH = path.join(VIZ_DIR, "system-graph.json");
 const SCRIPTS_DIR = path.join(ROOT, "scripts");
+
+function loadGraph(p) {
+  try {
+    const sz = fs.statSync(p).size;
+    return sz > 256 * 1024 * 1024
+      ? readGraphStreaming(p)
+      : JSON.parse(fs.readFileSync(p, "utf8"));
+  } catch (e) {
+    if (e && e.code === "ERR_STRING_TOO_LONG") return readGraphStreaming(p);
+    throw e;
+  }
+}
 
 const EXCLUDED_PREFIX = new Set(["_archive", "_completed_utilities", "node_modules"]);
 const EXTS = new Set([".mjs", ".js", ".cjs", ".ts", ".py", ".sh", ".ps1", ".bat"]);
@@ -44,7 +57,7 @@ function listScripts() {
 
 function generate() {
   if (!fs.existsSync(GRAPH)) return { error: "graph-missing", newNodes: [], newEdges: [], stats: {} };
-  const graph = JSON.parse(fs.readFileSync(GRAPH, "utf8"));
+  const graph = loadGraph(GRAPH);
   const existingIds = new Set(graph.nodes.map(n => n.id));
 
   const files = listScripts();

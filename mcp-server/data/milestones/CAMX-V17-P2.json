@@ -1,0 +1,190 @@
+{
+  "id": "CAMX-V17-P2",
+  "version": "8.0.0",
+  "title": "Machine Selection + ROI + Outsourcing + Stock Tracking",
+  "brief": "Wire machine auto-selection, ROI advisory for purchases, outsourcing with revenue calc, tool ROI at every selection, stock model tracking through operations.",
+  "created_at": "2026-03-23T11:07:22Z",
+  "created_by": "claude-opus-4.6",
+  "roadmap_version": "v17-final",
+  "phases": [
+    {
+      "id": "P0",
+      "title": "Business Logic Integration",
+      "units": [
+        {
+          "id": "U-CAMX01",
+          "title": "Wire MachineSelection + ROI into pipeline",
+          "description": "After features extracted, query MachineMatcherEngine. Rank user machines by capability+cost+availability. If no capable machine: ROIAdvisorEngine computes purchase ROI. ShopNetworkEngine + MakeVsBuyDecisionEngine for outsource option with revenue calc.",
+          "smart_config": "OPUS/HIGH",
+          "exit_conditions": [
+            "Machine selection in output",
+            "Outsource when needed",
+            "ROI for purchases"
+          ],
+          "status": "not_started",
+          "legacy_id": "U01",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-CAMX02",
+          "title": "Wire ToolROIEngine at EVERY tool selection",
+          "description": "Every tool recommendation: crib option + 3 catalog price points + ROI calculation + annual savings at user's volume.",
+          "smart_config": "OPUS/HIGH",
+          "exit_conditions": [
+            "3 price points per tool",
+            "ROI in output",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
+          ],
+          "status": "not_started",
+          "legacy_id": "U02",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-CAMX03",
+          "title": "Wire OEECalculatorEngine + CapacityPlanningEngine",
+          "description": "Check availability before generating. Report OEE impact. Scheduling suggestion for batch.",
+          "smart_config": "SONNET/HIGH",
+          "exit_conditions": [
+            "Wire OEECalculatorEngine + CapacityPlanningEngine complete",
+            "Build passes",
+            "/prism-review passes",
+            "Tests pass"
+          ],
+          "status": "not_started",
+          "legacy_id": "U03",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-CAMX04",
+          "title": "Wire stock model tracking (StockModel + VoxelStock + CumulativeStockChain)",
+          "description": "After each operation, update stock model. Finishing ops receive ACTUAL remaining stock. RestMachiningEngine uses stock to find uncut areas.",
+          "smart_config": "OPUS/HIGH",
+          "exit_conditions": [
+            "Stock tracked through operations",
+            "Rest machining detects remaining stock",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
+          ],
+          "status": "not_started",
+          "legacy_id": "U04",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-CAMX05",
+          "title": "Wire SecondaryOpsEngine + StockAllowanceEngine",
+          "description": "When part needs anodizing/plating/grinding: add dimensional allowance. Include secondary op cost in total.",
+          "smart_config": "OPUS/HIGH",
+          "exit_conditions": [
+            "Allowances added for secondary ops",
+            "Cost includes secondary",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
+          ],
+          "status": "not_started",
+          "legacy_id": "U05",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        }
+      ]
+    }
+  ],
+  "status": "not_started",
+  "smart_config": {
+    "role": "implementer + reviewer",
+    "model": "sonnet",
+    "effort": "HIGH",
+    "context_budget": "65%"
+  },
+  "mcp_lifecycle": {
+    "session_start": [
+      "prism_session:context_boot",
+      "prism_session:dispatcher_map",
+      "prism_session:memory_recall",
+      "prism_session:system_snapshot",
+      "prism_session:action_search"
+    ],
+    "during_work": [
+      "prism_session:auto_checkpoint",
+      "prism_session:tool_route_best",
+      "prism_session:wip_capture"
+    ],
+    "session_end": [
+      "prism_session:memory_save",
+      "prism_session:system_snapshot",
+      "prism_session:checkpoint_enhanced"
+    ]
+  },
+  "forge_triple": {
+    "protective_hook": "camx-v17-p2-gate",
+    "mcp_action": "prism_camx-v17:camx_v17_p2_run",
+    "skill_command": "/camx-v17-p2",
+    "ownership": "DECLARED — BUILT in terminal unit of this milestone"
+  },
+  "feature_cascade": {
+    "new_hooks": [
+      "camx-v17-p2-gate"
+    ],
+    "new_actions": [
+      "camx_v17_p2_run"
+    ],
+    "new_skills": [
+      "/camx-v17-p2"
+    ],
+    "available_to": [
+      "downstream CAMX milestones",
+      "prism app consumers"
+    ]
+  },
+  "knowledge_sources": {
+    "engines": [
+      "ENGINE_DIGEST.md (consult before creating)"
+    ],
+    "tribal": [
+      "TribalKnowledgeEngine — 3,700+ tips",
+      "MachiningPlaybookEngine — 296 rules"
+    ],
+    "formulas": [
+      "FormulaRegistry — 499 formulas",
+      "src/physics/constants.ts — canonical"
+    ],
+    "reference": [
+      "EXTERNAL-REFERENCE-PROGRAMS-INDEX.md",
+      "MaterialRegistry",
+      "MachineRegistry",
+      "ToolCatalogEngine (95,608 tools)"
+    ]
+  },
+  "intent": "Wire machine auto-selection, ROI advisory for purchases, outsourcing with revenue calc, tool ROI at every selection, stock model tracking through operations.",
+  "compact_checkpoint": "every 3 units — auto-triggered by hook",
+  "enforcement_hooks_active": [
+    "physics agent",
+    "wiring agent",
+    "constants checker",
+    "stub detector",
+    "test quality",
+    "forge-triple gate",
+    "session audit agent"
+  ]
+}

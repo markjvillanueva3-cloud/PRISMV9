@@ -1,0 +1,329 @@
+{
+  "coefficientDatabase": {
+    "metadata": {
+      "version": "1.1",
+      "lastUpdated": "2026-01-26T14:30:00Z",
+      "totalCoefficients": 32,
+      "calibratedCoefficients": 0,
+      "estimatedCoefficients": 30,
+      "fixedCoefficients": 2,
+      "changelog": [
+        {"version": "1.1", "date": "2026-01-26", "changes": "Added 9 hook/overhead coefficients (K-HOOK-*, K-COORD-*, K-VERIFY-*, K-LEARN-*, K-LATENCY-*)"}
+      ]
+    },
+    "coefficients": {
+      "K-EFFORT-001": {
+        "id": "K-EFFORT-001",
+        "name": "File I/O Complexity Factor",
+        "symbol": "k_io",
+        "usedIn": ["F-PLAN-002"],
+        "value": {"current": 0.5, "uncertainty": 0.25, "confidenceLevel": 0.68, "unit": "dimensionless", "source": "initial_estimate"},
+        "calibration": {"status": "UNCALIBRATED", "method": null, "dataPoints": 0, "lastCalibrated": null, "r2": null},
+        "history": [{"version": "0.1", "value": 0.5, "uncertainty": 0.25, "source": "initial_estimate", "date": "2026-01-26T00:00:00Z"}]
+      },
+      "K-EFFORT-002": {
+        "id": "K-EFFORT-002",
+        "name": "Validation Complexity Factor",
+        "symbol": "k_val",
+        "usedIn": ["F-PLAN-002"],
+        "value": {"current": 0.5, "uncertainty": 0.25, "confidenceLevel": 0.68, "unit": "dimensionless", "source": "initial_estimate"},
+        "calibration": {"status": "UNCALIBRATED", "dataPoints": 0},
+        "history": [{"version": "0.1", "value": 0.5, "source": "initial_estimate", "date": "2026-01-26T00:00:00Z"}]
+      },
+      "K-EFFORT-003": {
+        "id": "K-EFFORT-003",
+        "name": "Cross-Reference Complexity Factor",
+        "symbol": "k_xref",
+        "usedIn": ["F-PLAN-002"],
+        "value": {"current": 1.0, "uncertainty": 0.5, "confidenceLevel": 0.68, "unit": "dimensionless", "source": "initial_estimate"},
+        "calibration": {"status": "UNCALIBRATED", "dataPoints": 0},
+        "history": [{"version": "0.1", "value": 1.0, "source": "initial_estimate", "date": "2026-01-26T00:00:00Z"}]
+      },
+      "K-EFFORT-004": {
+        "id": "K-EFFORT-004",
+        "name": "Dependency Complexity Factor",
+        "symbol": "k_dep",
+        "usedIn": ["F-PLAN-002"],
+        "value": {"current": 1.0, "uncertainty": 0.5, "confidenceLevel": 0.68, "unit": "dimensionless", "source": "initial_estimate"},
+        "calibration": {"status": "UNCALIBRATED", "dataPoints": 0},
+        "history": [{"version": "0.1", "value": 1.0, "source": "initial_estimate", "date": "2026-01-26T00:00:00Z"}]
+      },
+      "K-EFFORT-005": {
+        "id": "K-EFFORT-005",
+        "name": "Calculation Complexity Factor",
+        "symbol": "k_calc",
+        "usedIn": ["F-PLAN-002"],
+        "value": {"current": 2.0, "uncertainty": 1.0, "confidenceLevel": 0.68, "unit": "dimensionless", "source": "initial_estimate"},
+        "calibration": {"status": "UNCALIBRATED", "dataPoints": 0},
+        "history": [{"version": "0.1", "value": 2.0, "source": "initial_estimate", "date": "2026-01-26T00:00:00Z"}]
+      },
+      "K-EFFORT-006": {
+        "id": "K-EFFORT-006",
+        "name": "Learning Curve Factor",
+        "symbol": "k_learn",
+        "usedIn": ["F-PLAN-002"],
+        "value": {"current": 0.5, "uncertainty": 0.25, "confidenceLevel": 0.68, "unit": "dimensionless", "source": "initial_estimate"},
+        "calibration": {"status": "UNCALIBRATED", "dataPoints": 0},
+        "history": [{"version": "0.1", "value": 0.5, "source": "initial_estimate", "date": "2026-01-26T00:00:00Z"}]
+      },
+      "K-TIME-001": {
+        "id": "K-TIME-001",
+        "name": "Average Time Per Tool Call",
+        "symbol": "t_avg",
+        "usedIn": ["F-PLAN-005"],
+        "value": {"current": 3.0, "uncertainty": 1.5, "confidenceLevel": 0.68, "unit": "seconds/call", "source": "initial_estimate"},
+        "calibration": {"status": "UNCALIBRATED", "dataPoints": 0},
+        "history": [{"version": "0.1", "value": 3.0, "source": "initial_estimate", "date": "2026-01-26T00:00:00Z"}]
+      },
+      "K-TIME-002": {
+        "id": "K-TIME-002",
+        "name": "Time Buffer Multiplier",
+        "symbol": "t_buffer",
+        "usedIn": ["F-PLAN-005"],
+        "value": {"current": 1.5, "uncertainty": 0.3, "confidenceLevel": 0.68, "unit": "dimensionless", "source": "initial_estimate"},
+        "calibration": {"status": "UNCALIBRATED", "dataPoints": 0},
+        "history": [{"version": "0.1", "value": 1.5, "source": "initial_estimate", "date": "2026-01-26T00:00:00Z"}]
+      },
+      "K-SESSION-001": {
+        "id": "K-SESSION-001",
+        "name": "Microsession Size Limit",
+        "symbol": "ms_size",
+        "usedIn": ["F-PLAN-004"],
+        "value": {"current": 15, "uncertainty": 0, "confidenceLevel": 1.0, "unit": "calls/session", "source": "design_constraint"},
+        "calibration": {"status": "FIXED", "dataPoints": null},
+        "history": [{"version": "1.0", "value": 15, "source": "design_constraint", "date": "2026-01-26T00:00:00Z"}]
+      },
+      "K-UTIL-001": {
+        "id": "K-UTIL-001",
+        "name": "Target Consumer Count",
+        "symbol": "n_target",
+        "usedIn": ["F-MAT-002"],
+        "value": {"current": 6, "uncertainty": 0, "confidenceLevel": 1.0, "unit": "consumers", "source": "commandment_1"},
+        "calibration": {"status": "FIXED", "dataPoints": null},
+        "history": [{"version": "1.0", "value": 6, "source": "commandment_1", "date": "2026-01-26T00:00:00Z"}]
+      },
+      "K-MAT-WEIGHT-001": {
+        "id": "K-MAT-WEIGHT-001",
+        "name": "Identity Parameter Weight",
+        "symbol": "w_identity",
+        "usedIn": ["F-MAT-001"],
+        "value": {"current": 1.0, "uncertainty": 0, "confidenceLevel": 1.0, "unit": "dimensionless", "source": "required"},
+        "calibration": {"status": "FIXED", "dataPoints": null},
+        "history": []
+      },
+      "K-MAT-WEIGHT-002": {
+        "id": "K-MAT-WEIGHT-002",
+        "name": "Kienzle Parameter Weight",
+        "symbol": "w_kienzle",
+        "usedIn": ["F-MAT-001"],
+        "value": {"current": 0.95, "uncertainty": 0.05, "confidenceLevel": 0.90, "unit": "dimensionless", "source": "expert_judgment"},
+        "calibration": {"status": "ESTIMATED", "dataPoints": null},
+        "history": []
+      },
+      "K-MAT-WEIGHT-003": {
+        "id": "K-MAT-WEIGHT-003",
+        "name": "Johnson-Cook Parameter Weight",
+        "symbol": "w_jc",
+        "usedIn": ["F-MAT-001"],
+        "value": {"current": 0.90, "uncertainty": 0.05, "confidenceLevel": 0.90, "unit": "dimensionless", "source": "expert_judgment"},
+        "calibration": {"status": "ESTIMATED", "dataPoints": null},
+        "history": []
+      },
+      "K-MAT-WEIGHT-004": {
+        "id": "K-MAT-WEIGHT-004",
+        "name": "Taylor Parameter Weight",
+        "symbol": "w_taylor",
+        "usedIn": ["F-MAT-001"],
+        "value": {"current": 0.85, "uncertainty": 0.05, "confidenceLevel": 0.90, "unit": "dimensionless", "source": "expert_judgment"},
+        "calibration": {"status": "ESTIMATED", "dataPoints": null},
+        "history": []
+      },
+      "K-MAT-WEIGHT-005": {
+        "id": "K-MAT-WEIGHT-005",
+        "name": "Mechanical Parameter Weight",
+        "symbol": "w_mech",
+        "usedIn": ["F-MAT-001"],
+        "value": {"current": 0.80, "uncertainty": 0.05, "confidenceLevel": 0.90, "unit": "dimensionless", "source": "expert_judgment"},
+        "calibration": {"status": "ESTIMATED", "dataPoints": null},
+        "history": []
+      },
+      "K-MAT-WEIGHT-006": {
+        "id": "K-MAT-WEIGHT-006",
+        "name": "Physical Parameter Weight",
+        "symbol": "w_phys",
+        "usedIn": ["F-MAT-001"],
+        "value": {"current": 0.70, "uncertainty": 0.10, "confidenceLevel": 0.90, "unit": "dimensionless", "source": "expert_judgment"},
+        "calibration": {"status": "ESTIMATED", "dataPoints": null},
+        "history": []
+      },
+      "K-MAT-WEIGHT-007": {
+        "id": "K-MAT-WEIGHT-007",
+        "name": "Other Parameter Weight",
+        "symbol": "w_other",
+        "usedIn": ["F-MAT-001"],
+        "value": {"current": 0.50, "uncertainty": 0.15, "confidenceLevel": 0.90, "unit": "dimensionless", "source": "expert_judgment"},
+        "calibration": {"status": "ESTIMATED", "dataPoints": null},
+        "history": []
+      },
+      "K-OMEGA-R": {
+        "id": "K-OMEGA-R",
+        "name": "Reasoning Weight",
+        "symbol": "w_R",
+        "usedIn": ["F-QUAL-001"],
+        "value": {"current": 0.20, "uncertainty": 0.02, "confidenceLevel": 0.90, "unit": "dimensionless", "source": "expert_judgment"},
+        "calibration": {"status": "ESTIMATED", "dataPoints": null},
+        "history": []
+      },
+      "K-OMEGA-C": {
+        "id": "K-OMEGA-C",
+        "name": "Code Quality Weight",
+        "symbol": "w_C",
+        "usedIn": ["F-QUAL-001"],
+        "value": {"current": 0.18, "uncertainty": 0.02, "confidenceLevel": 0.90, "unit": "dimensionless", "source": "expert_judgment"},
+        "calibration": {"status": "ESTIMATED", "dataPoints": null},
+        "history": []
+      },
+      "K-OMEGA-P": {
+        "id": "K-OMEGA-P",
+        "name": "Process Efficiency Weight",
+        "symbol": "w_P",
+        "usedIn": ["F-QUAL-001"],
+        "value": {"current": 0.12, "uncertainty": 0.02, "confidenceLevel": 0.90, "unit": "dimensionless", "source": "expert_judgment"},
+        "calibration": {"status": "ESTIMATED", "dataPoints": null},
+        "history": []
+      },
+      "K-OMEGA-S": {
+        "id": "K-OMEGA-S",
+        "name": "Safety Weight",
+        "symbol": "w_S",
+        "usedIn": ["F-QUAL-001"],
+        "value": {"current": 0.28, "uncertainty": 0.02, "confidenceLevel": 0.90, "unit": "dimensionless", "source": "expert_judgment"},
+        "calibration": {"status": "ESTIMATED", "dataPoints": null},
+        "history": []
+      },
+      "K-OMEGA-L": {
+        "id": "K-OMEGA-L",
+        "name": "Learning Weight",
+        "symbol": "w_L",
+        "usedIn": ["F-QUAL-001"],
+        "value": {"current": 0.08, "uncertainty": 0.02, "confidenceLevel": 0.90, "unit": "dimensionless", "source": "expert_judgment"},
+        "calibration": {"status": "ESTIMATED", "dataPoints": null},
+        "history": []
+      },
+      "K-OMEGA-M": {
+        "id": "K-OMEGA-M",
+        "name": "Mathematical Rigor Weight",
+        "symbol": "w_M",
+        "usedIn": ["F-QUAL-001"],
+        "value": {"current": 0.14, "uncertainty": 0.02, "confidenceLevel": 0.90, "unit": "dimensionless", "source": "expert_judgment"},
+        "calibration": {"status": "ESTIMATED", "dataPoints": null},
+        "history": []
+      },
+      "K-HOOK-001": {
+        "id": "K-HOOK-001",
+        "name": "Average Hook Execution Time",
+        "symbol": "t_hook",
+        "usedIn": ["F-PLAN-002", "F-PLAN-005"],
+        "value": {"current": 5, "uncertainty": 2, "confidenceLevel": 0.68, "unit": "ms", "source": "initial_estimate"},
+        "calibration": {"status": "UNCALIBRATED", "method": "timing_measurements", "dataPoints": 0, "lastCalibrated": null},
+        "history": [{"version": "0.1", "value": 5, "uncertainty": 2, "source": "initial_estimate", "date": "2026-01-26T14:30:00Z"}],
+        "notes": "Time to execute a single hook handler. Depends on hook complexity and payload size."
+      },
+      "K-HOOK-002": {
+        "id": "K-HOOK-002",
+        "name": "Average Hooks Per Operation",
+        "symbol": "n_hooks",
+        "usedIn": ["F-PLAN-002", "F-PLAN-005"],
+        "value": {"current": 3.2, "uncertainty": 0.8, "confidenceLevel": 0.68, "unit": "hooks/op", "source": "initial_estimate"},
+        "calibration": {"status": "UNCALIBRATED", "method": "operation_profiling", "dataPoints": 0, "lastCalibrated": null},
+        "history": [{"version": "0.1", "value": 3.2, "uncertainty": 0.8, "source": "initial_estimate", "date": "2026-01-26T14:30:00Z"}],
+        "notes": "Average number of hooks fired per tool call. Varies by operation type (file ops ~2, DB ops ~5)."
+      },
+      "K-COORD-001": {
+        "id": "K-COORD-001",
+        "name": "Agent Coordination Overhead",
+        "symbol": "k_coord",
+        "usedIn": ["F-PLAN-002"],
+        "value": {"current": 0.05, "uncertainty": 0.02, "confidenceLevel": 0.68, "unit": "dimensionless", "source": "initial_estimate"},
+        "calibration": {"status": "UNCALIBRATED", "method": "swarm_profiling", "dataPoints": 0, "lastCalibrated": null},
+        "history": [{"version": "0.1", "value": 0.05, "uncertainty": 0.02, "source": "initial_estimate", "date": "2026-01-26T14:30:00Z"}],
+        "notes": "5% overhead per additional agent in swarm. Formula: total_overhead = (agents-1) * k_coord"
+      },
+      "K-VERIFY-001": {
+        "id": "K-VERIFY-001",
+        "name": "Verification Level Overhead",
+        "symbol": "k_verify",
+        "usedIn": ["F-PLAN-002", "F-PLAN-005"],
+        "value": {"current": 0.08, "uncertainty": 0.03, "confidenceLevel": 0.68, "unit": "dimensionless", "source": "initial_estimate"},
+        "calibration": {"status": "UNCALIBRATED", "method": "verification_timing", "dataPoints": 0, "lastCalibrated": null},
+        "history": [{"version": "0.1", "value": 0.08, "uncertainty": 0.03, "source": "initial_estimate", "date": "2026-01-26T14:30:00Z"}],
+        "notes": "8% overhead per verification level (4 levels = 32% max). For safety-critical outputs only."
+      },
+      "K-LEARN-001": {
+        "id": "K-LEARN-001",
+        "name": "Learning Extraction Overhead",
+        "symbol": "k_extract",
+        "usedIn": ["F-PLAN-002", "F-PLAN-005"],
+        "value": {"current": 0.03, "uncertainty": 0.01, "confidenceLevel": 0.68, "unit": "dimensionless", "source": "initial_estimate"},
+        "calibration": {"status": "UNCALIBRATED", "method": "learning_profiling", "dataPoints": 0, "lastCalibrated": null},
+        "history": [{"version": "0.1", "value": 0.03, "uncertainty": 0.01, "source": "initial_estimate", "date": "2026-01-26T14:30:00Z"}],
+        "notes": "3% overhead for learning extraction at task completion. Applied once per task, not per operation."
+      },
+      "K-LATENCY-001": {
+        "id": "K-LATENCY-001",
+        "name": "State Load Latency",
+        "symbol": "t_state",
+        "usedIn": ["F-PLAN-005"],
+        "value": {"current": 50, "uncertainty": 20, "confidenceLevel": 0.68, "unit": "ms", "source": "initial_estimate"},
+        "calibration": {"status": "UNCALIBRATED", "method": "timing_measurements", "dataPoints": 0, "lastCalibrated": null},
+        "history": [{"version": "0.1", "value": 50, "uncertainty": 20, "source": "initial_estimate", "date": "2026-01-26T14:30:00Z"}],
+        "notes": "Time to load CURRENT_STATE.json at session start. Increases with state file size."
+      },
+      "K-LATENCY-002": {
+        "id": "K-LATENCY-002",
+        "name": "Context Build Latency",
+        "symbol": "t_context",
+        "usedIn": ["F-PLAN-005"],
+        "value": {"current": 100, "uncertainty": 40, "confidenceLevel": 0.68, "unit": "ms", "source": "initial_estimate"},
+        "calibration": {"status": "UNCALIBRATED", "method": "timing_measurements", "dataPoints": 0, "lastCalibrated": null},
+        "history": [{"version": "0.1", "value": 100, "uncertainty": 40, "source": "initial_estimate", "date": "2026-01-26T14:30:00Z"}],
+        "notes": "Time to build task context (load skills, formulas, coefficients). Per-task overhead."
+      },
+      "K-LATENCY-003": {
+        "id": "K-LATENCY-003",
+        "name": "Verification Latency Per Level",
+        "symbol": "t_verify_level",
+        "usedIn": ["F-PLAN-005"],
+        "value": {"current": 200, "uncertainty": 80, "confidenceLevel": 0.68, "unit": "ms", "source": "initial_estimate"},
+        "calibration": {"status": "UNCALIBRATED", "method": "timing_measurements", "dataPoints": 0, "lastCalibrated": null},
+        "history": [{"version": "0.1", "value": 200, "uncertainty": 80, "source": "initial_estimate", "date": "2026-01-26T14:30:00Z"}],
+        "notes": "Time per verification chain level. 4 levels = 800ms total for safety-critical outputs."
+      },
+      "K-LATENCY-004": {
+        "id": "K-LATENCY-004",
+        "name": "Learning Extraction Latency",
+        "symbol": "t_learn",
+        "usedIn": ["F-PLAN-005"],
+        "value": {"current": 150, "uncertainty": 50, "confidenceLevel": 0.68, "unit": "ms", "source": "initial_estimate"},
+        "calibration": {"status": "UNCALIBRATED", "method": "timing_measurements", "dataPoints": 0, "lastCalibrated": null},
+        "history": [{"version": "0.1", "value": 150, "uncertainty": 50, "source": "initial_estimate", "date": "2026-01-26T14:30:00Z"}],
+        "notes": "Time to extract learnings at task completion. Per-task overhead."
+      }
+    },
+    "calibrationQueue": [],
+    "alerts": [
+      {
+        "level": "NOTICE",
+        "message": "All effort estimation coefficients (K-EFFORT-*) are uncalibrated",
+        "recommendation": "Collect prediction vs actual data to enable calibration",
+        "created": "2026-01-26T01:00:00Z"
+      },
+      {
+        "level": "NOTICE",
+        "message": "New hook-related coefficients (K-HOOK-*, K-COORD-*, K-VERIFY-*, K-LEARN-*, K-LATENCY-*) added v1.1",
+        "recommendation": "Collect timing data during operations to calibrate these coefficients",
+        "created": "2026-01-26T14:30:00Z"
+      }
+    ]
+  }
+}

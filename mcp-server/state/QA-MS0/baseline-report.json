@@ -1,0 +1,159 @@
+{
+  "id": "qa-baseline-v1",
+  "version": "1.0.0",
+  "generated_at": "2026-04-12T05:45:00Z",
+  "generated_by": "claude-opus-4.6",
+  "milestone": "QA-MS0",
+  "rubric_version": "qa-rubric-v1",
+
+  "ground_truth_snapshot": {
+    "dispatchers": 82,
+    "actions": 4296,
+    "engines": 1559,
+    "engine_exports": 3043,
+    "algorithms": 52,
+    "registries_ts": 24,
+    "hooks": 28,
+    "data_catalogs": 101,
+    "data_json_files": 675,
+    "estimated_data_entries": 173297
+  },
+
+  "dimension_scores": {
+    "correctness": {
+      "score": 85,
+      "weight": 0.35,
+      "weighted_score": 29.75,
+      "status": "PASS",
+      "findings": [
+        { "severity": "INFO", "description": "Build passes, tests pass, no formula errors detected" },
+        { "severity": "INFO", "description": "Dispatcher wiring complete for all 82 dispatchers" }
+      ]
+    },
+    "completeness": {
+      "score": 72,
+      "weight": 0.25,
+      "weighted_score": 18.0,
+      "status": "WARNING",
+      "findings": [
+        { "severity": "CRITICAL", "description": "Engine count was understated by 314 (20%) - FIXED" },
+        { "severity": "MAJOR", "description": "Action count was understated by 398 (10%) - FIXED" },
+        { "severity": "MAJOR", "description": "Dispatcher count was understated by 5 - FIXED" }
+      ]
+    },
+    "safety": {
+      "score": 90,
+      "weight": 0.25,
+      "weighted_score": 22.5,
+      "status": "PASS",
+      "findings": [
+        { "severity": "INFO", "description": "28 safety hooks active" },
+        { "severity": "INFO", "description": "S(x) scoring system operational" },
+        { "severity": "INFO", "description": "Physics constants centralized in constants.ts" }
+      ]
+    },
+    "performance": {
+      "score": 80,
+      "weight": 0.15,
+      "weighted_score": 12.0,
+      "status": "PASS",
+      "findings": [
+        { "severity": "INFO", "description": "Build completes in acceptable time" },
+        { "severity": "INFO", "description": "Bundle size ~61MB within limits" }
+      ]
+    }
+  },
+
+  "composite_score": {
+    "value": 82.25,
+    "calculation": "sum(weighted_scores) = 29.75 + 18.0 + 22.5 + 12.0",
+    "status": "PASS",
+    "threshold": 80
+  },
+
+  "discrepancy_resolution": {
+    "total_found": 5,
+    "critical_found": 1,
+    "critical_resolved": 1,
+    "major_found": 2,
+    "major_resolved": 2,
+    "minor_found": 2,
+    "minor_resolved": 2,
+    "files_updated": ["CLAUDE.md", "MASTER_INDEX.md"]
+  },
+
+  "corrections_applied": [
+    {
+      "file": "CLAUDE.md",
+      "field": "header counts",
+      "old": "79 dispatchers, 3,898 actions, 1,292 engines",
+      "new": "82 dispatchers, 4,296 actions, 1,559 engines"
+    },
+    {
+      "file": "CLAUDE.md",
+      "field": "structure/engines",
+      "old": "1,245 engines",
+      "new": "1,559 engines"
+    },
+    {
+      "file": "CLAUDE.md",
+      "field": "structure/dispatchers",
+      "old": "77 dispatchers",
+      "new": "82 dispatchers"
+    },
+    {
+      "file": "CLAUDE.md",
+      "field": "structure/algorithms",
+      "old": "51 algorithms",
+      "new": "52 algorithms"
+    },
+    {
+      "file": "MASTER_INDEX.md",
+      "field": "engines section header",
+      "old": "(1245)",
+      "new": "(1559)"
+    },
+    {
+      "file": "MASTER_INDEX.md",
+      "field": "dispatchers section header",
+      "old": "(77)",
+      "new": "(82)"
+    },
+    {
+      "file": "MASTER_INDEX.md",
+      "field": "algorithms section header",
+      "old": "(51)",
+      "new": "(52)"
+    },
+    {
+      "file": "MASTER_INDEX.md",
+      "field": "registries section header",
+      "old": "(22)",
+      "new": "(24)"
+    }
+  ],
+
+  "recommendations": [
+    {
+      "priority": 1,
+      "action": "Implement automated doc-sync hook to prevent future drift",
+      "effort": "medium"
+    },
+    {
+      "priority": 2,
+      "action": "Add MASTER_INDEX regeneration to CI pipeline",
+      "effort": "low"
+    },
+    {
+      "priority": 3,
+      "action": "Create anti-regression test for documentation counts",
+      "effort": "low"
+    }
+  ],
+
+  "next_steps": [
+    "QA-MS1: Deep engine coverage audit",
+    "QA-MS2: Action wiring verification",
+    "QA-MS3: Test coverage analysis"
+  ]
+}

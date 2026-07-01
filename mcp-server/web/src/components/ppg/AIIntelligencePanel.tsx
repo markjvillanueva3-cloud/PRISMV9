@@ -637,7 +637,7 @@ export default function AIIntelligencePanel({
             </div>
 
             {/* KB Result Display */}
-            {kbResult && (
+            {Boolean(kbResult) && (
               <div className="p-2 rounded bg-slate-900/50 border border-slate-700/30 max-h-48 overflow-y-auto">
                 <KBResultDisplay data={kbResult} />
               </div>

@@ -1,0 +1,145 @@
+{
+  "schemaVersion": "1.0.0",
+  "_lastBackfillTs": "2026-05-08T16:41:54.025Z",
+  "audit_id": "QA-MS11-P0-U02",
+  "title": "ComplianceEngine Regulatory Rule Evaluation Audit",
+  "audited_at": "2026-04-14T17:45:00Z",
+  "auditor": "claude-opus-4.5",
+  "status": "PASS",
+  "location": "src/engines/ComplianceEngine.ts",
+  "version": "1.0.0",
+  "feature": "F8 - Compliance-as-Code",
+  "safety_principle": "Compliance is ADDITIVE, never gating. All existing S(x)>=0.70 enforcement, hooks, and Ω gates continue to operate independently.",
+  "regulatory_frameworks": {
+    "count": 6,
+    "templates": [
+      {
+        "id": "iso_13485_v2016",
+        "framework": "ISO_13485",
+        "version": "2016",
+        "title": "Medical Devices QMS",
+        "strictness_rank": 2,
+        "retention_days": 365,
+        "requirements_count": 3
+      },
+      {
+        "id": "as9100_rev_d",
+        "framework": "AS9100",
+        "version": "Rev D",
+        "title": "Aerospace QMS",
+        "strictness_rank": 3,
+        "retention_days": 730,
+        "requirements_count": 2
+      },
+      {
+        "id": "itar_22cfr",
+        "framework": "ITAR",
+        "version": "22 CFR 120-130",
+        "title": "Export Control",
+        "strictness_rank": 1,
+        "retention_days": 1825,
+        "requirements_count": 2
+      },
+      {
+        "id": "soc2_type2",
+        "framework": "SOC2",
+        "version": "Type II",
+        "title": "Trust Services",
+        "strictness_rank": 5,
+        "requirements_count": "varies"
+      },
+      {
+        "id": "gdpr",
+        "framework": "GDPR",
+        "title": "Data Protection",
+        "requirements_count": "varies"
+      },
+      {
+        "id": "iso_9001",
+        "framework": "ISO_9001",
+        "title": "Quality Management",
+        "requirements_count": "varies"
+      }
+    ]
+  },
+  "rule_evaluation": {
+    "method": "Severity-weighted scoring",
+    "severity_weights": {
+      "mandatory": 3,
+      "recommended": 2,
+      "optional": 1
+    },
+    "score_calculation": "weightedPassing / totalWeight",
+    "status_thresholds": {
+      "compliant": ">= 90%",
+      "partial": ">= 50%",
+      "non_compliant": "< 50%"
+    }
+  },
+  "requirement_structure": {
+    "fields": [
+      "id",
+      "regulation_clause",
+      "title",
+      "severity",
+      "description",
+      "hook_spec",
+      "audit_policy",
+      "certificate_config",
+      "access_control",
+      "conflict_priority"
+    ],
+    "hook_spec": {
+      "natural_language": "NL description for hook generation",
+      "phase": "pre-calculation | post-calculation | pre-output | post-output",
+      "mode": "log | warning | block"
+    },
+    "audit_policy": {
+      "mode": "cadence | synchronous | both",
+      "retain_days": "number",
+      "include_in_certificate": "boolean"
+    }
+  },
+  "compliance_reporting": {
+    "audit_log": "Append-only JSONL at state/compliance/audit.jsonl",
+    "registry": "state/compliance/registry.json",
+    "entry_fields": [
+      "framework",
+      "template_id",
+      "action",
+      "status",
+      "notes",
+      "timestamp"
+    ]
+  },
+  "integration_points": {
+    "nlHookEngine": "F6 - Auto-provision hooks for requirements",
+    "certificateEngine": "F4 - Certificate signing for compliance",
+    "quality_sources": [
+      "PRISM_INSPECTION_ENGINE.js (206 lines)",
+      "PRISM_PHASE2_QUALITY_SYSTEM.js (404 lines)",
+      "PRISM_QUALITY_MANAGER.js (378 lines)"
+    ]
+  },
+  "api_methods": {
+    "provisionTemplate": "Apply template, create hooks, configure certs",
+    "runAudit": "Severity-weighted compliance audit",
+    "gapAnalysis": "Identify missing controls per template",
+    "resolveConflicts": "Multi-template conflict resolution",
+    "getStatus": "Current compliance status",
+    "listTemplates": "Available templates",
+    "decommissionTemplate": "Remove template and hooks"
+  },
+  "related_engines": [
+    "IndustryStandardsComplianceEngine.ts",
+    "OSHAComplianceEngine.ts",
+    "LegalComplianceOperatingEngine.ts",
+    "HRComplianceEngine.ts"
+  ],
+  "findings": [],
+  "exit_conditions_met": {
+    "rule_evaluation_logic_verified": true,
+    "regulatory_standard_mapping_verified": true,
+    "compliance_reporting_format_validated": true
+  }
+}

@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="generator" content="SpecHTMLCompanionEngine">
+<meta name="prism-source-hash" content="42680a1023709479f08f062b2987d3df762d701a2975393767e883b201fdf619">
+<title>JULIETT 12-CHAT ROI ALLOCATION — V1 (2026-05-17, iter-2)</title>
+<style>
+:root, [data-theme="light"] {
+  --bg:#ffffff; --bg-soft:#f6f8fa; --bg-code:#f6f8fa; --fg:#1f2328; --fg-muted:#636c76;
+  --border:#d0d7de; --accent:#0969da; --accent-soft:#ddf4ff; --thead:#f6f8fa; --quote:#656d76;
+  --table-stripe:#f6f8fa;
+}
+[data-theme="dark"] {
+  --bg:#0d1117; --bg-soft:#161b22; --bg-code:#161b22; --fg:#e6edf3; --fg-muted:#8b949e;
+  --border:#30363d; --accent:#2f81f7; --accent-soft:#163356; --thead:#161b22; --quote:#8b949e;
+  --table-stripe:#11151c;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg:#0d1117; --bg-soft:#161b22; --bg-code:#161b22; --fg:#e6edf3; --fg-muted:#8b949e;
+    --border:#30363d; --accent:#2f81f7; --accent-soft:#163356; --thead:#161b22; --quote:#8b949e;
+    --table-stripe:#11151c;
+  }
+}
+* { box-sizing:border-box; }
+html { scroll-behavior:smooth; }
+body { margin:0; background:var(--bg); color:var(--fg); font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif; line-height:1.6; font-size:16px; }
+.skip-link { position:absolute; left:-9999px; top:0; background:var(--accent); color:#fff; padding:8px 14px; z-index:100; border-radius:0 0 6px 0; }
+.skip-link:focus { left:0; }
+.layout { display:grid; grid-template-columns:minmax(0,1fr); max-width:1180px; margin:0 auto; padding:0 20px; }
+@media (min-width:1000px) { .layout { grid-template-columns:260px minmax(0,1fr); gap:40px; } }
+header.doc-head { grid-column:1 / -1; padding:28px 0 16px; border-bottom:1px solid var(--border); }
+header.doc-head h1.page-title { margin:0 0 6px; font-size:1.9rem; line-height:1.25; }
+header.doc-head .provenance { color:var(--fg-muted); font-size:.85rem; margin:0; }
+header.doc-head .theme-toggle { float:right; background:var(--bg-soft); color:var(--fg); border:1px solid var(--border); border-radius:6px; padding:5px 10px; font-size:.8rem; cursor:pointer; }
+nav.toc { align-self:start; position:sticky; top:16px; max-height:calc(100vh - 32px); overflow:auto; font-size:.85rem; padding:14px 0; }
+@media (max-width:999px) { nav.toc { position:static; max-height:none; border-bottom:1px solid var(--border); margin-bottom:12px; } }
+nav.toc .toc-title { font-weight:600; color:var(--fg-muted); text-transform:uppercase; letter-spacing:.04em; font-size:.7rem; margin-bottom:8px; }
+nav.toc ul { list-style:none; margin:0; padding:0; }
+nav.toc li a { color:var(--fg-muted); text-decoration:none; display:block; padding:3px 6px; border-left:2px solid transparent; border-radius:0 4px 4px 0; }
+nav.toc li a:hover { color:var(--accent); background:var(--accent-soft); border-left-color:var(--accent); }
+nav.toc li a.active { color:var(--accent); background:var(--accent-soft); border-left-color:var(--accent); font-weight:600; }
+nav.toc .toc-l2 a { padding-left:14px; } nav.toc .toc-l3 a { padding-left:26px; font-size:.95em; } nav.toc .toc-l4 a { padding-left:38px; font-size:.9em; }
+nav.toc input.toc-search { width:100%; box-sizing:border-box; margin:0 0 8px; padding:5px 8px; font-size:.82rem; border:1px solid var(--border); border-radius:5px; background:var(--bg); color:var(--fg); }
+nav.toc input.toc-search:focus { outline:2px solid var(--accent); outline-offset:-1px; }
+nav.toc .toc-search-status { font-size:.7rem; color:var(--fg-muted); min-height:1em; margin:-4px 0 6px; }
+nav.toc li.toc-hidden { display:none; }
+main.doc-body mark.search-hit { background:#fff3a3; color:#1f2328; border-radius:2px; padding:0 1px; }
+main.doc-body mark.search-hit.current { outline:2px solid var(--accent); outline-offset:1px; }
+main.doc-body { min-width:0; padding:24px 0 64px; }
+main.doc-body h1,main.doc-body h2,main.doc-body h3,main.doc-body h4,main.doc-body h5,main.doc-body h6 { line-height:1.3; margin-top:1.8em; margin-bottom:.6em; scroll-margin-top:16px; position:relative; }
+main.doc-body h1 { font-size:1.7rem; border-bottom:1px solid var(--border); padding-bottom:.3em; }
+main.doc-body h2 { font-size:1.4rem; border-bottom:1px solid var(--border); padding-bottom:.3em; }
+main.doc-body h3 { font-size:1.18rem; } main.doc-body h4 { font-size:1.02rem; }
+main.doc-body a.anchor { position:absolute; left:-1.1em; opacity:0; text-decoration:none; color:var(--fg-muted); font-weight:400; padding-right:.3em; }
+main.doc-body h1:hover a.anchor,main.doc-body h2:hover a.anchor,main.doc-body h3:hover a.anchor,main.doc-body h4:hover a.anchor { opacity:1; }
+main.doc-body a { color:var(--accent); text-decoration:none; } main.doc-body a:hover { text-decoration:underline; }
+main.doc-body p { margin:.8em 0; }
+main.doc-body code { background:var(--bg-code); border-radius:4px; padding:.15em .35em; font-size:.88em; font-family:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace; }
+main.doc-body pre { background:var(--bg-code); border:1px solid var(--border); border-radius:8px; padding:14px 16px; overflow:auto; line-height:1.45; }
+main.doc-body pre code { background:none; padding:0; font-size:.86rem; }
+main.doc-body blockquote { margin:1em 0; padding:.4em 1em; border-left:4px solid var(--border); color:var(--quote); }
+main.doc-body ul,main.doc-body ol { margin:.6em 0; padding-left:1.6em; }
+main.doc-body li { margin:.2em 0; }
+main.doc-body hr { border:0; border-top:1px solid var(--border); margin:2em 0; }
+main.doc-body .table-wrap { overflow-x:auto; margin:1em 0; }
+main.doc-body table { border-collapse:collapse; width:100%; font-size:.9rem; }
+main.doc-body th,main.doc-body td { border:1px solid var(--border); padding:6px 11px; text-align:left; vertical-align:top; }
+main.doc-body thead th { background:var(--thead); }
+main.doc-body tbody tr:nth-child(2n) { background:var(--table-stripe); }
+main.doc-body details.frontmatter { background:var(--bg-soft); border:1px solid var(--border); border-radius:8px; padding:6px 14px; margin:0 0 22px; }
+main.doc-body details.frontmatter summary { cursor:pointer; font-weight:600; color:var(--fg-muted); }
+main.doc-body details.frontmatter table { font-size:.82rem; }
+main.doc-body details.frontmatter th { width:1%; white-space:nowrap; background:transparent; color:var(--fg-muted); }
+main.doc-body .mermaid { background:var(--bg-soft); border:1px solid var(--border); border-radius:8px; padding:14px; margin:1em 0; text-align:center; overflow:auto; white-space:pre-wrap; }
+main.doc-body .truncation-notice { background:var(--accent-soft); border:1px solid var(--accent); border-radius:6px; padding:10px 14px; font-size:.9rem; }
+footer.doc-foot { grid-column:1 / -1; border-top:1px solid var(--border); margin-top:48px; padding:18px 0 40px; color:var(--fg-muted); font-size:.82rem; }
+footer.doc-foot code { background:var(--bg-code); border-radius:4px; padding:.12em .3em; }
+</style>
+</head>
+<body>
+<a class="skip-link" href="#content">Skip to content</a>
+<div class="layout">
+<header class="doc-head">
+<button id="themeToggle" class="theme-toggle" type="button" aria-label="Toggle color theme">◐ theme</button>
+<h1 class="page-title" id="top">JULIETT 12-CHAT ROI ALLOCATION — V1 (2026-05-17, iter-2)</h1>
+<p class="provenance">Generated 2026-05-18T17:34:20.568Z by <code>scripts/emit-all-spec-html.ts</code> · the Markdown alongside is canonical</p>
+</header>
+<nav class="toc" aria-label="Table of contents"><div class="toc-title">On this page</div><input type="search" class="toc-search" placeholder="Search this page…" aria-label="Search this page" autocomplete="off"><div class="toc-search-status" aria-live="polite"></div><ul>
+<li class="toc-l1"><a href="#juliett-12-chat-roi-allocation-v1-2026-05-17-iter-2">JULIETT 12-CHAT ROI ALLOCATION — V1 (2026-05-17, iter-2)</a></li>
+<li class="toc-l2"><a href="#0-top-line">§0 — TOP-LINE</a></li>
+<li class="toc-l2"><a href="#1-clear-not-compact-doctrine-new-2026-05-17-per-user-directive">§1 — CLEAR-NOT-COMPACT DOCTRINE (NEW, 2026-05-17 per user directive)</a></li>
+<li class="toc-l3"><a href="#bypass-systems-supporting-clear-use-these-instead-of-conversational-memory">Bypass systems supporting /clear (use these instead of conversational memory)</a></li>
+<li class="toc-l3"><a href="#clear-not-compact-chat-flow">CLEAR-NOT-COMPACT chat flow</a></li>
+<li class="toc-l3"><a href="#new-unit-u-clear-auto-resume-s-alpha">NEW UNIT — U-CLEAR-AUTO-RESUME (S, alpha)</a></li>
+<li class="toc-l2"><a href="#2-wave-ordering-5-waves">§2 — WAVE ORDERING (5 waves)</a></li>
+<li class="toc-l3"><a href="#wave-0-operator-pre-flight-must-finish-before-any-chat-work">WAVE 0 — Operator + pre-flight (must finish before any chat work)</a></li>
+<li class="toc-l3"><a href="#wave-1-foundation-parallel-safe-no-file-conflicts">WAVE 1 — Foundation (parallel-safe, no file conflicts)</a></li>
+<li class="toc-l3"><a href="#wave-2-forward-feedback-enablers-settingsjson-serialization-required">WAVE 2 — Forward-feedback enablers (settings.json serialization required)</a></li>
+<li class="toc-l3"><a href="#wave-3-fleet-integrity-quiesce-required-for-cutover">WAVE 3 — Fleet integrity (quiesce required for cutover)</a></li>
+<li class="toc-l3"><a href="#wave-4-backend-dev-wiring-scope-gated-by-w0">WAVE 4 — Backend-dev wiring (scope-gated by W0)</a></li>
+<li class="toc-l2"><a href="#3-12-chat-assignment-matrix-final">§3 — 12-CHAT ASSIGNMENT MATRIX (final)</a></li>
+<li class="toc-l2"><a href="#4-per-unit-tool-plan-rgs-tool-autoinvoke-format-manual">§4 — PER-UNIT TOOL PLAN (RGS-TOOL-AUTOINVOKE format, manual)</a></li>
+<li class="toc-l3"><a href="#w0-units">W0 units</a></li>
+<li class="toc-l3"><a href="#w1-units">W1 units</a></li>
+<li class="toc-l3"><a href="#w2-units-all-need-prismdevroadmaptoolplanbuild-post-w0">W2 units (all need prismdev:roadmaptoolplanbuild post-W0)</a></li>
+<li class="toc-l3"><a href="#w3-units">W3 units</a></li>
+<li class="toc-l3"><a href="#w4-units-all-identical-recipe-pattern-clone-of-u-wire-bloom-commit-3d5291f010">W4 units (all identical recipe — pattern-clone of U-WIRE-BLOOM commit 3d5291f010)</a></li>
+<li class="toc-l2"><a href="#5-pre-flight-checklist-before-any-chat-picks-up">§5 — PRE-FLIGHT CHECKLIST (before any chat picks up)</a></li>
+<li class="toc-l2"><a href="#6-critical-alerts-live-not-deferrable">§6 — CRITICAL ALERTS (live, not deferrable)</a></li>
+<li class="toc-l2"><a href="#7-scrutiny-discoveries-5-already-shipped-cost-downgrade">§7 — SCRUTINY DISCOVERIES (5 already-shipped / cost-downgrade)</a></li>
+<li class="toc-l2"><a href="#8-new-units-proposed-from-a8-vault-mining-iter-discoveries">§8 — NEW UNITS PROPOSED (from A8 vault mining + iter discoveries)</a></li>
+<li class="toc-l2"><a href="#9-termination-criteria">§9 — TERMINATION CRITERIA</a></li>
+<li class="toc-l2"><a href="#10-references">§10 — REFERENCES</a></li>
+</ul></nav>
+<main id="content" class="doc-body" role="main">
+<h1 id="juliett-12-chat-roi-allocation-v1-2026-05-17-iter-2"><a class="anchor" href="#juliett-12-chat-roi-allocation-v1-2026-05-17-iter-2" aria-label="Permalink to JULIETT 12-CHAT ROI ALLOCATION — V1 (2026-05-17, iter-2)">#</a>JULIETT 12-CHAT ROI ALLOCATION — V1 (2026-05-17, iter-2)</h1>
+<blockquote>
+<p>Generated by juliett (claude-de04081e) after 10-agent post-<code>/compact</code> ROI swarm. Supersedes ad-hoc unit dispatch from V2.1. <strong>All slot picks are CLEAR-NOT-COMPACT-ready</strong> — see §CLEAR-NOT-COMPACT DOCTRINE. User work order: &quot;highest ROI tasks for the 12 chats first, divide tasks between 12 chats, use /system-viz + obsidian to determine tools per task/unit&quot;. User addendum mid-iteration: &quot;plan for session clears instead of compactions; utilize obsidian, system-viz and other bypass systems&quot;.</p>
+</blockquote>
+<hr>
+<h2 id="0-top-line"><a class="anchor" href="#0-top-line" aria-label="Permalink to §0 — TOP-LINE">#</a>§0 — TOP-LINE</h2>
+<ul>
+<li><strong>Wave count:</strong> 5 (W0 operator-only, W1-W4 chat-executable)</li>
+<li><strong>Critical-path estimate:</strong> ~5 chat-hours through W3, +3h W4 = ~8h wall-clock with 12-chat parallelism</li>
+<li><strong>Bottleneck:</strong> U-SLOT-WORKTREE-FORCED-CUTOVER (requires fleet-wide /handoff quiesce) → schedule LAST in W3</li>
+<li><strong>Discovered shipped:</strong> 3 of 8 V2.1 Stage-2 BLOCKERS are partially-built (cost downgrades: M→S, M→S, L→M)</li>
+<li><strong>Pre-flight unit ADDED:</strong> <strong>U-RGS-RULE-BACKEND-DEV</strong> must ship before invoking RGS-TOOL-AUTOINVOKE (per A6: backend-dev tasks currently fall to 0.30-confidence generic fallback — invalid for allocation signal)</li>
+<li><strong>NEW Wave-1 unit ADDED:</strong> <strong>U-PRECOMMIT-PATHSPEC-ONLY</strong> (per A8 — 5 collateral-staging incidents in 48h; protects every other unit from peer-file absorption)</li>
+</ul>
+<hr>
+<h2 id="1-clear-not-compact-doctrine-new-2026-05-17-per-user-directive"><a class="anchor" href="#1-clear-not-compact-doctrine-new-2026-05-17-per-user-directive" aria-label="Permalink to §1 — CLEAR-NOT-COMPACT DOCTRINE (NEW, 2026-05-17 per user directive)">#</a>§1 — CLEAR-NOT-COMPACT DOCTRINE (NEW, 2026-05-17 per user directive)</h2>
+<p>Prefer <code>/clear</code> (full reset) over <code>/compact</code> (keeps summary in context) to maximize token headroom across the up-to-13-chat fleet. Every unit in this plan is <code>/clear</code>-ready: a fresh chat can pick up the unit cold using only on-disk state.</p>
+<h3 id="bypass-systems-supporting-clear-use-these-instead-of-conversational-memory"><a class="anchor" href="#bypass-systems-supporting-clear-use-these-instead-of-conversational-memory" aria-label="Permalink to Bypass systems supporting /clear (use these instead of conversational memory)">#</a>Bypass systems supporting /clear (use these instead of conversational memory)</h3>
+<div class="table-wrap"><table>
+<thead><tr><th>System</th><th>Path / Command</th><th>Purpose</th></tr></thead>
+<tbody>
+<tr><td><strong>Per-agent handoff (rich)</strong></td><td><code>node H:/prism/.claude/helpers/per-agent-handoff.mjs read --terminal $STABLE</code></td><td>Reads the slot&#39;s handoff RESUME — first action after /clear</td></tr>
+<tr><td><strong>terminal-pin</strong></td><td><code>session-start-terminal-pin.mjs</code> SessionStart hook</td><td>Same PowerShell window keeps the same slot across /clear</td></tr>
+<tr><td><strong>Auto-resume injector</strong></td><td><code>session-start-auto-resume.mjs</code> (SessionStart matcher <code>compact</code>; NEEDS <code>clear</code> matcher per CLEAR-NOT-COMPACT)</td><td>Auto-injects RESUME directive on <code>/clear</code> (PENDING — see U-CLEAR-AUTO-RESUME below)</td></tr>
+<tr><td><strong>Obsidian vault — memory</strong></td><td><code>C:/Users/wompu/.claude/projects/H--PRISM/memory/&lt;slug&gt;.md</code> + <code>MEMORY.md</code> index</td><td>Cross-session feedback / reference notes</td></tr>
+<tr><td><strong>Obsidian vault — wiki</strong></td><td><code>H:/prism/knowledge/wiki/{architecture,memories,tribal,canvas}/**</code></td><td>Project-lifetime architecture docs</td></tr>
+<tr><td><strong>/system-viz query</strong></td><td><code>node H:/prism/scripts/system-viz-query.mjs {headline|roadmap-candidates|find|coverage-by-domain|dispatcher-summary|build-order|blast-radius}</code></td><td>Live graph, never read system-graph.json direct (347MB)</td></tr>
+<tr><td><strong>Master-index</strong></td><td><code>prism_dev:master_index_query</code> (MCP)</td><td>Unified search across engines + dispatchers + tribal + wiki</td></tr>
+<tr><td><strong>Awareness inject</strong></td><td><code>awareness-snapshot-inject.mjs</code> SessionStart hook</td><td>Auto-injects engine count + orphans + drift on every chat start</td></tr>
+<tr><td><strong>Build-state snapshot</strong></td><td><code>H:/prism/state/shared/BUILD_STATE.{md,json}</code> + <code>build-state-inject</code> hook</td><td>What&#39;s built/wired/pending</td></tr>
+<tr><td><strong>Per-unit spec</strong></td><td><code>state/shared/specs/UNITS/&lt;unit_id&gt;.md</code> <em>(NEW convention, this milestone)</em></td><td>Stand-alone unit brief readable cold</td></tr>
+<tr><td><strong>Chat-bus</strong></td><td><code>state/shared/AGENT_CHAT.jsonl</code> + <code>chat-bus-inject</code> hook</td><td>Peer claims + 10-min unread messages</td></tr>
+<tr><td><strong>Slot-task-claim</strong></td><td><code>node H:/prism/.claude/helpers/slot-task-claim.mjs status</code></td><td>Active per-slot unit locks</td></tr>
+</tbody>
+</table></div>
+<h3 id="clear-not-compact-chat-flow"><a class="anchor" href="#clear-not-compact-chat-flow" aria-label="Permalink to CLEAR-NOT-COMPACT chat flow">#</a>CLEAR-NOT-COMPACT chat flow</h3>
+<ol>
+<li>Operator says <code>/clear</code> (instead of <code>/compact</code>)</li>
+<li>Terminal-pin auto-rebinds the slot (terminalWindowId matches)</li>
+<li>SessionStart hooks fire: awareness-snapshot + build-state + auto-resume</li>
+<li>Chat reads its per-slot handoff via <code>per-agent-handoff.mjs read</code></li>
+<li>Chat reads its assigned unit&#39;s brief at <code>state/shared/specs/UNITS/&lt;unit_id&gt;.md</code></li>
+<li>Chat reads its RGS tool plan via <code>prism_dev:roadmap_tool_plan_query { unit_key: &quot;&lt;MILESTONE&gt;::&lt;unit_id&gt;&quot; }</code></li>
+<li>Chat works. NO recall of prior conversation needed.</li>
+</ol>
+<h3 id="new-unit-u-clear-auto-resume-s-alpha"><a class="anchor" href="#new-unit-u-clear-auto-resume-s-alpha" aria-label="Permalink to NEW UNIT — U-CLEAR-AUTO-RESUME (S, alpha)">#</a>NEW UNIT — U-CLEAR-AUTO-RESUME (S, alpha)</h3>
+<p>Add <code>clear</code> matcher to <code>session-start-auto-resume.mjs</code> (currently <code>compact</code>-only per CLAUDE.md §SESSION CONTINUITY STACK). When a /clear session starts, inject the slot&#39;s RESUME directive (same path as /compact). <strong>Without this, /clear loses the auto-resume that /compact has — making /clear strictly worse than /compact.</strong></p>
+<hr>
+<h2 id="2-wave-ordering-5-waves"><a class="anchor" href="#2-wave-ordering-5-waves" aria-label="Permalink to §2 — WAVE ORDERING (5 waves)">#</a>§2 — WAVE ORDERING (5 waves)</h2>
+<h3 id="wave-0-operator-pre-flight-must-finish-before-any-chat-work"><a class="anchor" href="#wave-0-operator-pre-flight-must-finish-before-any-chat-work" aria-label="Permalink to WAVE 0 — Operator + pre-flight (must finish before any chat work)">#</a>WAVE 0 — Operator + pre-flight (must finish before any chat work)</h3>
+<div class="table-wrap"><table>
+<thead><tr><th>Unit</th><th>Owner</th><th>Cost</th><th>Notes</th></tr></thead>
+<tbody>
+<tr><td><strong>U-WIRE-DOCTRINE-RESOLUTION</strong></td><td>operator decision</td><td>0h</td><td>Pick: (a) WIRE-UNWIRED-MS0 closes / re-scopes as MS1 with the 10 A4 candidates only; (b) bulk-wire continues</td></tr>
+<tr><td><strong>U-RGS-RULE-BACKEND-DEV</strong></td><td>lima</td><td>S (~1h)</td><td>Add backend-dev rule to <code>scripts/lib/rgs-pipeline-rules.mjs</code> (matcher: dispatcher/schema/frontmatter/hook/lockfile/telemetry; confidence 0.75; polysemy-guarded against mill/lathe/wedm/cam). Skill: <code>/wire-unwired</code>. <strong>Required before invoking RGS for backend-dev units.</strong></td></tr>
+<tr><td><strong>U-CLEAR-AUTO-RESUME</strong></td><td>alpha</td><td>S (~1h)</td><td>Add <code>clear</code> matcher to <code>session-start-auto-resume.mjs</code>. Without this /clear is strictly worse than /compact.</td></tr>
+</tbody>
+</table></div>
+<h3 id="wave-1-foundation-parallel-safe-no-file-conflicts"><a class="anchor" href="#wave-1-foundation-parallel-safe-no-file-conflicts" aria-label="Permalink to WAVE 1 — Foundation (parallel-safe, no file conflicts)">#</a>WAVE 1 — Foundation (parallel-safe, no file conflicts)</h3>
+<div class="table-wrap"><table>
+<thead><tr><th>Unit</th><th>Owner</th><th>Cost</th><th>Why ship before W2</th><th>Pre-existing scaffolding (activate)</th></tr></thead>
+<tbody>
+<tr><td><strong>U-MEMORY-COMPRESS-V2</strong> (compress-only; watchdog ALREADY SHIPPED)</td><td>mike</td><td>S (~2h, downgrade from M)</td><td>MEMORY.md at 97.7% — 570B from truncation; hard-blocks U-AUTO-MEMORY-WRITE</td><td><code>scripts/memory-size-watch.mjs</code>, <code>stop-memory-size-watchdog.mjs</code> (U-OBS-B1 shipped by mike 2026-05-17). Only the deterministic-reflow compress script is net-new.</td></tr>
+<tr><td><strong>U-ACTIVATE-BEFORE-BUILD-PRECHECK</strong></td><td>alpha</td><td>S (~2h)</td><td>Gates all new-file creation in W2-W4 from 12 concurrent chats</td><td><code>duplication-hard-block.mjs</code>, <code>master-index-precheck-inject.mjs</code>, <code>master-index-search-lib.mjs</code>, <code>dedup-auto-invoke.mjs</code>. Compose, do not duplicate.</td></tr>
+<tr><td><strong>U-PRECOMMIT-PATHSPEC-ONLY</strong> <em>(NEW from A8)</em></td><td>echo</td><td>S (~1h)</td><td>Prevents 6th collateral-staging incident (5 in last 48h per regression log)</td><td>pre-commit hook layer + chat-bus claim reader</td></tr>
+<tr><td><strong>U-MEMORY-GROWTH-GATE</strong> <em>(NEW from A8)</em></td><td>mike (paired with V2)</td><td>S (~1h)</td><td>Closes watchdog gap (advisory-only ≠ blocking); PreToolUse:Edit on MEMORY.md</td><td>reuse <code>memory-size-watch.mjs</code> ceiling check</td></tr>
+</tbody>
+</table></div>
+<p><strong>Files touched:</strong> distinct hook .mjs + distinct compression script. NO file conflicts.</p>
+<h3 id="wave-2-forward-feedback-enablers-settingsjson-serialization-required"><a class="anchor" href="#wave-2-forward-feedback-enablers-settingsjson-serialization-required" aria-label="Permalink to WAVE 2 — Forward-feedback enablers (settings.json serialization required)">#</a>WAVE 2 — Forward-feedback enablers (settings.json serialization required)</h3>
+<div class="table-wrap"><table>
+<thead><tr><th>Unit</th><th>Owner</th><th>Cost</th><th>Stop chain ordering</th><th>Activate (do-not-build)</th></tr></thead>
+<tbody>
+<tr><td><strong>U-AUTO-MEMORY-WRITE</strong></td><td>bravo</td><td>S (~2h, downgrade from M)</td><td>Lands first in Stop[]</td><td><code>post-ship-distill.mjs</code>, <code>distill-session-learnings.mjs</code>, <code>doc-reflection-check.mjs</code>. <strong>Gap is MEMORY.md index APPEND</strong> — writer chain works, just doesn&#39;t append the <code>- [name](path) — summary</code> line. New: <code>scripts/memory-index-append.mjs</code> (1 file) + 1 patch to distill script.</td></tr>
+<tr><td><strong>U-NEW-TOOL-AUTO-WIRE</strong></td><td>charlie</td><td>S (~2h)</td><td>After AUTO-MEMORY (rebase splice)</td><td><code>stop-auto-wire.mjs</code> (already detects orphans, generic suggestion). New: <code>scripts/suggest-dispatcher-for-orphan.mjs</code> (1 file: keyword→dispatcher mapping using DISPATCHER_DIGEST.md) + 1 patch.</td></tr>
+<tr><td><strong>U-DOCTRINE-OBSOLESCENCE-SWEEP</strong></td><td>delta</td><td>M (~3h)</td><td>Last in PostToolUse:Bash chain</td><td><code>scripts/scan-memory-obsolete-refs.mjs</code> (META auditor, missing-file class). New: <code>scripts/detect-supersedes-in-commit.mjs</code> + <code>.claude/hooks/post-ship-supersedes-flag.mjs</code>. ADVISORY ONLY (never auto-mutate per <code>feedback_never_delete_only_disable</code>).</td></tr>
+</tbody>
+</table></div>
+<p><strong>Shared ledger across all 3:</strong> <code>state/shared/.post-ship-feedback-loops.jsonl</code> (one row per Stop fire, fields: <code>{at,sha,scope,unit,loops:{newToolAutoWire,autoMemoryWrite,doctrineSupersedesFlag}}</code>). Eliminates 3 separate dedup ledgers.</p>
+<p><strong>File-conflicts (serialize within wave):</strong></p>
+<ul>
+<li><code>C:/Users/wompu/.claude/settings.json</code> Stop[]: bravo lands → charlie rebases</li>
+<li><code>settings.json</code> PostToolUse:Bash matcher: charlie lands → delta rebases</li>
+<li><strong>Mirror to <code>H:/.claude/settings.json</code> manually</strong> — c-to-h-mirror does NOT fire on Bash node-writes (documented gap)</li>
+</ul>
+<h3 id="wave-3-fleet-integrity-quiesce-required-for-cutover"><a class="anchor" href="#wave-3-fleet-integrity-quiesce-required-for-cutover" aria-label="Permalink to WAVE 3 — Fleet integrity (quiesce required for cutover)">#</a>WAVE 3 — Fleet integrity (quiesce required for cutover)</h3>
+<div class="table-wrap"><table>
+<thead><tr><th>Unit</th><th>Owner</th><th>Cost</th><th>Notes</th></tr></thead>
+<tbody>
+<tr><td><strong>U-GOLF-CRASH-FAILOVER</strong></td><td>golf (or alpha if golf still crashed)</td><td>S (~1h, downgrade from M)</td><td>Activate <code>alpha-slot-reaper-guardian.mjs</code> (preserved, not deleted per <code>feedback_never_delete_only_disable</code>) as FALLBACK matcher behind <code>golf-is-dead</code> predicate. New: <code>scripts/golf-liveness-failover.mjs</code> (next-eligible NATO ranking). Advisory-only.</td></tr>
+<tr><td><strong>U-CHECKIN-VAULT-INJECT</strong></td><td>delta (after W2)</td><td>S (~2h)</td><td>Pattern-clone <code>pick-prefresh-inject.mjs</code>. Reuses <code>master-index-search-lib.mjs</code> for dedup (token-budget protection). Knobs: <code>PRISM_VAULT_INJECT_DISABLE=1</code>, <code>PRISM_VAULT_INJECT_K=N</code>.</td></tr>
+<tr><td><strong>U-SLOT-WORKTREE-FORCED-CUTOVER</strong></td><td>charlie (or alpha)</td><td>M (~3h)</td><td>LAST in W3 — requires 11 peers at <code>/handoff</code> (5-min quiesce window). Activate <code>main-tree-write-block.mjs</code> + <code>worktree-commit-route.mjs</code> (currently default-OFF). New: <code>.claude/hooks/stop-slot-worktree-cutover-advisory.mjs</code> (advisory listing slots still on shared branch) + <code>scripts/slot-worktree-cutover-report.mjs</code> (% adoption dashboard) + <code>.claude/commands/slot-cutover-force.md</code> skill.</td></tr>
+</tbody>
+</table></div>
+<h3 id="wave-4-backend-dev-wiring-scope-gated-by-w0"><a class="anchor" href="#wave-4-backend-dev-wiring-scope-gated-by-w0" aria-label="Permalink to WAVE 4 — Backend-dev wiring (scope-gated by W0)">#</a>WAVE 4 — Backend-dev wiring (scope-gated by W0)</h3>
+<p>Per A4 (validate-unwired-signal: 6% truly-unwired): <strong>10 hand-picked backend-dev orphans</strong> that pass all 3 gates (zero-dispatcher-grep, existing test file, name = pure infra). Assigned to 7 chats × ~1.4 units each = ~10 wirings.</p>
+<div class="table-wrap"><table>
+<thead><tr><th>Unit</th><th>Engine</th><th>→ Dispatcher</th><th>Owner</th><th>Cost</th></tr></thead>
+<tbody>
+<tr><td>U-WIRE-DLQ</td><td>DeadLetterQueueEngine [17KB]</td><td>devDispatcher</td><td>foxtrot</td><td>S</td></tr>
+<tr><td>U-WIRE-OTEL</td><td>OpenTelemetryTracingEngine [14KB]</td><td>devDispatcher</td><td>foxtrot</td><td>S</td></tr>
+<tr><td>U-WIRE-PROM</td><td>PrometheusMetricsEngine [18KB]</td><td>devDispatcher</td><td>hotel</td><td>S</td></tr>
+<tr><td>U-WIRE-CHAOS</td><td>ChaosDrillSchedulerEngine [20KB]</td><td>devDispatcher</td><td>hotel</td><td>S</td></tr>
+<tr><td>U-WIRE-LATBUDGET</td><td>LatencyBudgetDecompositionEngine [19KB]</td><td>devDispatcher</td><td>india</td><td>S</td></tr>
+<tr><td>U-WIRE-PACT</td><td>PactContractTestEngine [19KB]</td><td>devDispatcher</td><td>india</td><td>S</td></tr>
+<tr><td>U-WIRE-DLOCK</td><td>DistributedLockEngine [11KB]</td><td>localDispatcher</td><td>kilo</td><td>S</td></tr>
+<tr><td>U-WIRE-LSH</td><td>LSHDedupEngine [9KB]</td><td>devDispatcher</td><td>kilo</td><td>S</td></tr>
+<tr><td>U-WIRE-ENTROPY</td><td>EntropyTrackerEngine [12KB]</td><td>devDispatcher</td><td>lima</td><td>S</td></tr>
+<tr><td>U-WIRE-OLLAMA-FLOOR</td><td>OllamaContextFloorEngine [11KB]</td><td>localDispatcher</td><td>mike</td><td>S</td></tr>
+</tbody>
+</table></div>
+<p><strong>Mike&#39;s pick (OllamaContextFloorEngine)</strong> is intentionally low-coupling — mike has only 2 commits to date (per A9), needs onboarding work that won&#39;t compound errors.</p>
+<hr>
+<h2 id="3-12-chat-assignment-matrix-final"><a class="anchor" href="#3-12-chat-assignment-matrix-final" aria-label="Permalink to §3 — 12-CHAT ASSIGNMENT MATRIX (final)">#</a>§3 — 12-CHAT ASSIGNMENT MATRIX (final)</h2>
+<div class="table-wrap"><table>
+<thead><tr><th>Slot</th><th>Status (A9)</th><th>W0</th><th>W1</th><th>W2</th><th>W3</th><th>W4</th></tr></thead>
+<tbody>
+<tr><td><strong>alpha</strong></td><td>ACTIVE (infra, fleet-reaper, NN-GRAPH)</td><td>U-CLEAR-AUTO-RESUME</td><td>U-ACTIVATE-BEFORE-BUILD-PRECHECK</td><td>—</td><td>(overflow: U-GOLF-CRASH-FAILOVER if golf still crashed)</td><td>—</td></tr>
+<tr><td><strong>bravo</strong></td><td>ACTIVE (ollama, autocompact, per-slot-claim)</td><td>—</td><td>—</td><td><strong>U-AUTO-MEMORY-WRITE</strong></td><td>—</td><td>—</td></tr>
+<tr><td><strong>charlie</strong></td><td>ACTIVE (OIMS3 in-flight, slot-worktree)</td><td>—</td><td>—</td><td><strong>U-NEW-TOOL-AUTO-WIRE</strong></td><td>U-SLOT-WORKTREE-FORCED-CUTOVER</td><td>—</td></tr>
+<tr><td><strong>delta</strong></td><td>IDLE (tribal-by-domain, wiki-bias)</td><td>—</td><td>—</td><td><strong>U-DOCTRINE-OBSOLESCENCE-SWEEP</strong></td><td>U-CHECKIN-VAULT-INJECT</td><td>—</td></tr>
+<tr><td><strong>echo</strong></td><td>ACTIVE (SVB-MS0 wave)</td><td>—</td><td><strong>U-PRECOMMIT-PATHSPEC-ONLY</strong></td><td>(rest: continue SVB-MS0 close-outs)</td><td>—</td><td>—</td></tr>
+<tr><td><strong>foxtrot</strong></td><td>IDLE (lathe/cost-cascade — but ALL operator-deferred per PRISM-APP-QUEUE)</td><td>—</td><td>—</td><td>—</td><td>—</td><td>U-WIRE-DLQ + U-WIRE-OTEL</td></tr>
+<tr><td><strong>golf</strong></td><td>CRASHED — fleet-reaper only</td><td>—</td><td>—</td><td>—</td><td><strong>U-GOLF-CRASH-FAILOVER</strong> (self-rescue)</td><td>—</td></tr>
+<tr><td><strong>hotel</strong></td><td>IDLE (OIMS3-adjacent, slot-worktree-c2)</td><td>—</td><td>—</td><td>—</td><td>—</td><td>U-WIRE-PROM + U-WIRE-CHAOS</td></tr>
+<tr><td><strong>india</strong></td><td>STALE (TRIBAL-GRAPH)</td><td>—</td><td>—</td><td>—</td><td>—</td><td>U-WIRE-LATBUDGET + U-WIRE-PACT</td></tr>
+<tr><td><strong>juliett (ME)</strong></td><td>SATURATED — running this swarm</td><td>(writing this plan)</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
+<tr><td><strong>kilo</strong></td><td>STALE (AAM04, error-pattern)</td><td>—</td><td>—</td><td>—</td><td>—</td><td>U-WIRE-DLOCK + U-WIRE-LSH</td></tr>
+<tr><td><strong>lima</strong></td><td>ACTIVE (REGEN-VIZ-FAILLOUD, U-DOMAIN-RULES, WIRE-UNWIRED)</td><td><strong>U-RGS-RULE-BACKEND-DEV</strong></td><td>—</td><td>—</td><td>—</td><td>U-WIRE-ENTROPY</td></tr>
+<tr><td><strong>mike</strong></td><td>UNDER-UTILIZED (envelope-sync only)</td><td>—</td><td><strong>U-MEMORY-COMPRESS-V2 + U-MEMORY-GROWTH-GATE</strong></td><td>—</td><td>—</td><td>U-WIRE-OLLAMA-FLOOR</td></tr>
+</tbody>
+</table></div>
+<p><strong>Reconciliation rules applied:</strong></p>
+<ul>
+<li>juliett gets NO new assignments (saturated; specialty is ROUTING work, not receiving it)</li>
+<li>mike gets paired low-coupling work (V2 + growth-gate are both on the same MEMORY.md domain — single mental model)</li>
+<li>echo&#39;s W1 unit ships fast; rest of session continues SVB-MS0 wave (don&#39;t disrupt momentum)</li>
+<li>hotel + charlie OIMS3 conflict: hotel gets WIRE-UNWIRED-W4 work, charlie keeps OIMS3 in-flight (already 4 units deep)</li>
+<li>delta gets 2 units across waves (idle → can absorb both)</li>
+<li>foxtrot/hotel/india/kilo all idle → all get W4 wiring pairs</li>
+</ul>
+<hr>
+<h2 id="4-per-unit-tool-plan-rgs-tool-autoinvoke-format-manual"><a class="anchor" href="#4-per-unit-tool-plan-rgs-tool-autoinvoke-format-manual" aria-label="Permalink to §4 — PER-UNIT TOOL PLAN (RGS-TOOL-AUTOINVOKE format, manual)">#</a>§4 — PER-UNIT TOOL PLAN (RGS-TOOL-AUTOINVOKE format, manual)</h2>
+<p>RGS pipeline currently DEGRADED (sidecar <code>degraded:true, plans:{}</code> — root cause: Ollama bridge unavailable per A6). Until U-RGS-RULE-BACKEND-DEV ships AND Ollama daemon is up, use these manual tool plans (3-tool max per unit per A6 doctrine).</p>
+<h3 id="w0-units"><a class="anchor" href="#w0-units" aria-label="Permalink to W0 units">#</a>W0 units</h3>
+<ul>
+<li><strong>U-RGS-RULE-BACKEND-DEV</strong> | tools: <code>Read scripts/lib/rgs-pipeline-rules.mjs</code> (read existing rules) · <code>Edit</code> (add backend-dev rule) · <code>node scripts/rgs-tool-planner.mjs --unit &lt;test-id&gt; --force --json</code> (verify) | skill: <code>/rgs</code></li>
+<li><strong>U-CLEAR-AUTO-RESUME</strong> | tools: <code>Read .claude/hooks/session-start-auto-resume.mjs</code> · <code>Edit</code> (add <code>clear</code> matcher) · <code>Bash grep clear C:/Users/wompu/.claude/settings.json</code> (verify) | skill: <code>/checkin</code></li>
+</ul>
+<h3 id="w1-units"><a class="anchor" href="#w1-units" aria-label="Permalink to W1 units">#</a>W1 units</h3>
+<ul>
+<li><strong>U-MEMORY-COMPRESS-V2</strong> | tools: <code>Read C:/Users/wompu/.claude/projects/H--PRISM/memory/MEMORY.md</code> · <code>Write scripts/memory-compress-v2.mjs</code> · <code>node scripts/memory-size-watch.mjs --json</code> (verify ≤22000 bytes) | skill: <code>/memory-compress</code></li>
+<li><strong>U-MEMORY-GROWTH-GATE</strong> | tools: <code>Read .claude/hooks/stop-memory-size-watchdog.mjs</code> (pattern) · <code>Write .claude/hooks/pretool-memory-size-gate.mjs</code> · <code>Edit settings.json</code> (wire PreToolUse:Edit MEMORY.md matcher) | skill: <code>/forge-triple</code></li>
+<li><strong>U-ACTIVATE-BEFORE-BUILD-PRECHECK</strong> | tools: <code>Read .claude/hooks/duplication-hard-block.mjs</code> (pattern) · <code>Read scripts/master-index-search-lib.mjs</code> (shared lib) · <code>Write .claude/hooks/activate-before-build-precheck.mjs</code> | skill: <code>/dedup</code> + <code>/forge-triple</code></li>
+<li><strong>U-PRECOMMIT-PATHSPEC-ONLY</strong> | tools: <code>Read .git/hooks/pre-commit</code> (existing) · <code>Edit</code> (or <code>Write .git/hooks/pre-commit.d/05-pathspec-only.sh</code>) · <code>Read state/shared/AGENT_CHAT.jsonl</code> (claim reader pattern) | skill: <code>/wire-unwired</code> (until backend-dev rule lands)</li>
+</ul>
+<h3 id="w2-units-all-need-prismdevroadmaptoolplanbuild-post-w0"><a class="anchor" href="#w2-units-all-need-prismdevroadmaptoolplanbuild-post-w0" aria-label="Permalink to W2 units (all need prismdev:roadmaptoolplanbuild post-W0)">#</a>W2 units (all need <code>prism_dev:roadmap_tool_plan_build</code> post-W0)</h3>
+<ul>
+<li><strong>U-AUTO-MEMORY-WRITE</strong> | tools: <code>Read scripts/distill-session-learnings.mjs</code> · <code>Write scripts/memory-index-append.mjs</code> · <code>Edit distill-session-learnings.mjs</code> (spawn-sync append at end of main()) | skill: <code>/auto-memory</code></li>
+<li><strong>U-NEW-TOOL-AUTO-WIRE</strong> | tools: <code>Read .claude/hooks/stop-auto-wire.mjs</code> · <code>Write scripts/suggest-dispatcher-for-orphan.mjs</code> · <code>Edit stop-auto-wire.mjs</code> (replace generic prose with suggester output) | skill: <code>/wire-unwired</code></li>
+<li><strong>U-DOCTRINE-OBSOLESCENCE-SWEEP</strong> | tools: <code>Read scripts/scan-memory-obsolete-refs.mjs</code> (sibling pattern) · <code>Write scripts/detect-supersedes-in-commit.mjs</code> · <code>Write .claude/hooks/post-ship-supersedes-flag.mjs</code> + wire | skill: <code>/quick-archive</code></li>
+</ul>
+<h3 id="w3-units"><a class="anchor" href="#w3-units" aria-label="Permalink to W3 units">#</a>W3 units</h3>
+<ul>
+<li><strong>U-GOLF-CRASH-FAILOVER</strong> | tools: <code>Read .claude/hooks/golf-slot-reaper-guardian.mjs</code> · <code>Write scripts/golf-liveness-failover.mjs</code> · <code>Write .claude/hooks/stop-golf-crash-failover-advisory.mjs</code> + wire | skill: <code>/fleet-reaper</code></li>
+<li><strong>U-CHECKIN-VAULT-INJECT</strong> | tools: <code>Read .claude/hooks/pick-prefresh-inject.mjs</code> (pattern) · <code>Write .claude/hooks/vault-state-inject.mjs</code> · <code>Edit C:/Users/wompu/.claude/settings.json</code> (UserPromptSubmit T2 matcher <code>/checkin</code>) | skill: <code>/checkin</code></li>
+<li><strong>U-SLOT-WORKTREE-FORCED-CUTOVER</strong> | tools: <code>Read state/shared/SLOT-WORKTREE-ARCHITECTURE.md</code> · <code>Write .claude/hooks/stop-slot-worktree-cutover-advisory.mjs</code> · <code>Write scripts/slot-worktree-cutover-report.mjs</code> · <code>Write .claude/commands/slot-cutover-force.md</code> | skill: <code>/checkin-&lt;nato&gt;</code> Step 2c</li>
+</ul>
+<h3 id="w4-units-all-identical-recipe-pattern-clone-of-u-wire-bloom-commit-3d5291f010"><a class="anchor" href="#w4-units-all-identical-recipe-pattern-clone-of-u-wire-bloom-commit-3d5291f010" aria-label="Permalink to W4 units (all identical recipe — pattern-clone of U-WIRE-BLOOM commit 3d5291f010)">#</a>W4 units (all identical recipe — pattern-clone of <code>U-WIRE-BLOOM</code> commit <code>3d5291f010</code>)</h3>
+<ul>
+<li>tools per WIRE-* unit: <code>Read mcp-server/src/engines/&lt;EngineName&gt;.ts</code> · <code>Edit mcp-server/src/schemas/&lt;targetDispatcher&gt;ActionSchemas.ts</code> (add action + schema) · <code>Edit mcp-server/src/tools/dispatchers/&lt;targetDispatcher&gt;.ts</code> (add ACTIONS entry + handler case) · <code>Write mcp-server/src/__tests__/&lt;dispatcher&gt;.&lt;unit&gt;.test.ts</code> (3-of-3 gate: at-least-1 action smoke + at-least-1 wire-test + at-least-1 fault path) | skill: <code>/wire-unwired</code></li>
+</ul>
+<hr>
+<h2 id="5-pre-flight-checklist-before-any-chat-picks-up"><a class="anchor" href="#5-pre-flight-checklist-before-any-chat-picks-up" aria-label="Permalink to §5 — PRE-FLIGHT CHECKLIST (before any chat picks up)">#</a>§5 — PRE-FLIGHT CHECKLIST (before any chat picks up)</h2>
+<p>Each chat must do this BEFORE editing any file (enforced by U-ACTIVATE-BEFORE-BUILD-PRECHECK once shipped):</p>
+<ol>
+<li><code>node H:/prism/.claude/helpers/slot-task-claim.mjs claim --slot &lt;nato&gt; --unitId &lt;MILESTONE&gt;::&lt;unit_id&gt;</code></li>
+<li><code>node H:/prism/.claude/helpers/per-agent-handoff.mjs read --terminal $STABLE</code> (recovers slot context)</li>
+<li><code>Read state/shared/specs/UNITS/&lt;unit_id&gt;.md</code> (per-unit brief — to be written by juliett next iter)</li>
+<li><code>prism_dev:roadmap_tool_plan_query { unit_key: &quot;&lt;MILESTONE&gt;::&lt;unit_id&gt;&quot; }</code> (post-W0)</li>
+<li><code>prism_dev:master_index_query { q: &quot;&lt;engine-or-domain-keyword&gt;&quot; }</code> (verify nothing already-built)</li>
+<li><code>node scripts/system-viz-query.mjs find &quot;&lt;keyword&gt;&quot;</code> (live graph check)</li>
+<li>Chat-bus claim the engine file: <code>prism_context:chat_post { kind:&quot;claim&quot;, path:&quot;&lt;file&gt;&quot;, ttlMin:30 }</code></li>
+<li>NOW edit.</li>
+</ol>
+<hr>
+<h2 id="6-critical-alerts-live-not-deferrable"><a class="anchor" href="#6-critical-alerts-live-not-deferrable" aria-label="Permalink to §6 — CRITICAL ALERTS (live, not deferrable)">#</a>§6 — CRITICAL ALERTS (live, not deferrable)</h2>
+<div class="table-wrap"><table>
+<thead><tr><th>Alert</th><th>Source</th><th>Action</th></tr></thead>
+<tbody>
+<tr><td><strong>MEMORY.md 97.7%</strong> (570B from truncation)</td><td>V2.1 P0-1 + A1 + A8</td><td>mike runs U-MEMORY-COMPRESS-V2 as FIRST W1 action</td></tr>
+<tr><td><strong>Docker DOWN</strong></td><td>V2.1 carryover</td><td>bravo verifies during W2 ollama-pipeline checks; not blocking but degrades RGS</td></tr>
+<tr><td><strong>System-viz classifier degenerate (partially)</strong></td><td>V2.1 P0-15 + A7</td><td>Per A7, only L7 ghost layer is null; tier-3 nodes ARE populated — workaround documented</td></tr>
+<tr><td><strong>Graph headline triple-drift</strong></td><td>V2.1 P0-14 + A7 confirmed</td><td>Trust ONLY <code>system-viz-query.mjs headline --json</code> (live 145440n) — CLAUDE-BRIEF + awareness are stale by 2.27-2.56×</td></tr>
+<tr><td><strong>Fleet 8 crashed / 4 stale / 1 active</strong></td><td>V2.1 P0-17/P0-18</td><td>U-GOLF-CRASH-FAILOVER + U-SLOT-WORKTREE-FORCED-CUTOVER in W3 address this</td></tr>
+<tr><td><strong>HALT WIRE-UNWIRED-MS0 unrescoped</strong></td><td>V2.1 P1-27 + A4 + A5</td><td>W0 operator-decision required; A4 names 10 hand-picked candidates if operator wants to continue with rigor</td></tr>
+<tr><td><strong>RGS-TOOL-AUTOINVOKE degraded</strong></td><td>A6 (sidecar <code>degraded:true, plans:{}</code>)</td><td>W0 U-RGS-RULE-BACKEND-DEV + Ollama-up pre-flight clears it</td></tr>
+</tbody>
+</table></div>
+<hr>
+<h2 id="7-scrutiny-discoveries-5-already-shipped-cost-downgrade"><a class="anchor" href="#7-scrutiny-discoveries-5-already-shipped-cost-downgrade" aria-label="Permalink to §7 — SCRUTINY DISCOVERIES (5 already-shipped / cost-downgrade)">#</a>§7 — SCRUTINY DISCOVERIES (5 already-shipped / cost-downgrade)</h2>
+<p>Per A1+A3 inventory verification:</p>
+<ol>
+<li><strong>U-MEMORY-COMPRESS-V2 watchdog</strong> is SHIPPED as <code>stop-memory-size-watchdog.mjs</code> (U-OBS-B1, mike, 2026-05-17). Only the deterministic-reflow script is net-new. Cost M → S.</li>
+<li><strong>U-GOLF-CRASH-FAILOVER alpha-guardian</strong> is preserved on disk per <code>feedback_never_delete_only_disable</code>. Activation = re-wire as FALLBACK matcher. Cost M → S.</li>
+<li><strong>U-DOCTRINE-OBSOLESCENCE-SWEEP</strong> OBSOLESCENCE-CLEANUP-MS0 has shipped units (A4/B1/B2/C1 per MEMORY.md). Treat as CONTINUATION, not net-new.</li>
+<li><strong>U-AUTO-MEMORY-WRITE</strong> writer chain (<code>distill-session-learnings.mjs</code> + <code>memory-mirror-to-vault.mjs</code>) already works end-to-end EXCEPT for MEMORY.md index append. Cost M → S.</li>
+<li><strong>U-CHECKIN-VAULT-INJECT</strong> has 4 sibling injectors that already fire on UserPromptSubmit; risk = token-budget blowout. MUST share <code>master-index-search-lib.mjs</code> dedup path.</li>
+</ol>
+<hr>
+<h2 id="8-new-units-proposed-from-a8-vault-mining-iter-discoveries"><a class="anchor" href="#8-new-units-proposed-from-a8-vault-mining-iter-discoveries" aria-label="Permalink to §8 — NEW UNITS PROPOSED (from A8 vault mining + iter discoveries)">#</a>§8 — NEW UNITS PROPOSED (from A8 vault mining + iter discoveries)</h2>
+<p>Beyond V2.1&#39;s 5 NEW units + 3 forward-feedback loops, A8 + this iter propose:</p>
+<ol>
+<li><strong>U-PRECOMMIT-PATHSPEC-ONLY</strong> <em>(W1 — assigned echo)</em> — 5 collateral-staging incidents in 48h</li>
+<li><strong>U-MEMORY-GROWTH-GATE</strong> <em>(W1 — assigned mike, paired with V2)</em> — closes watchdog gap (advisory-only ≠ blocking)</li>
+<li><strong>U-CLEAR-AUTO-RESUME</strong> <em>(W0 — assigned alpha)</em> — <code>clear</code> matcher in auto-resume hook (CLEAR-NOT-COMPACT enabler)</li>
+<li><strong>U-RGS-RULE-BACKEND-DEV</strong> <em>(W0 — assigned lima)</em> — backend-dev rule in RGS pipeline rules table</li>
+<li><strong>U-HOOK-FIRE-BUNDLE-WALK</strong> <em>(P1 backlog)</em> — extend <code>hook-fire-rank</code> to walk bundle template literals (P1-3 fix)</li>
+<li><strong>U-SPEC-FRESHNESS-GATE</strong> <em>(P1 backlog)</em> — <code>/loop</code> reads spec mtime vs current code mtime (multi-session staleness pattern)</li>
+<li><strong>U-REGEN-VIZ-FAILLOUD-EXTEND</strong> <em>(P1 backlog)</em> — apply <code>decideMergePostState</code> to 5 silent-continue siblings</li>
+</ol>
+<hr>
+<h2 id="9-termination-criteria"><a class="anchor" href="#9-termination-criteria" aria-label="Permalink to §9 — TERMINATION CRITERIA">#</a>§9 — TERMINATION CRITERIA</h2>
+<p>This allocation plan is &quot;done&quot; when:</p>
+<ol>
+<li>W0-W3 all units ship + commit + per-agent handoff written</li>
+<li>W4 wiring sweep: 8 of 10 units shipped (mike + lima may lag — that&#39;s OK)</li>
+<li>SLOT-PICKUPS-ALL.md regenerated from this V1 allocation</li>
+<li>CLOSE-OUT-CANDIDATES.json refreshed (audit)</li>
+<li>24h re-audit registered (juliett spawns next-iter ROI swarm after 24h)</li>
+</ol>
+<p>If a unit gets blocked by a peer-claim or doctrine-resolution-pending: re-route to runner-up slot per A9 affinity matrix or defer to next allocation cycle.</p>
+<hr>
+<h2 id="10-references"><a class="anchor" href="#10-references" aria-label="Permalink to §10 — REFERENCES">#</a>§10 — REFERENCES</h2>
+<ul>
+<li><strong>V2.1 deltas:</strong> <code>state/shared/specs/JULIETT-PLAN-V2.1-SCRUTINY-DELTAS-2026-05-17.md</code></li>
+<li><strong>V2 plan:</strong> <code>state/shared/specs/JULIETT-CONSOLIDATED-WORK-PLAN-V2.md</code></li>
+<li><strong>V1.1 deltas + V1 master + PRISM-APP-QUEUE</strong> — same dir</li>
+<li><strong>ROADMAP-CONSOLIDATED:</strong> <code>state/shared/specs/ROADMAP-CONSOLIDATED.{json,md}</code> (5826 items)</li>
+<li><strong>CLAUDE.md (project):</strong> <code>H:/prism/CLAUDE.md</code> — §RGS-TOOL-AUTOINVOKE-MS0/MS1, §GOLF SLOT, §FLEET-REAPER-MS0/MS1, §SESSION CONTINUITY STACK, §CLEAR-NOT-COMPACT (to be added per this milestone)</li>
+<li><strong>Bypass systems wiki:</strong> <code>knowledge/wiki/architecture/session-continuity-stack.md</code>, <code>knowledge/wiki/architecture/master-index-surface.md</code></li>
+<li><strong>Per-slot specs (to be written next iter):</strong> <code>state/shared/specs/UNITS/&lt;unit_id&gt;.md</code> × ~17 units</li>
+</ul>
+</main>
+<footer class="doc-foot">
+<p>HTML companion — the canonical document is the Markdown file alongside it. <a href="JULIETT-12CHAT-ROI-ALLOCATION-2026-05-17.md">JULIETT-12CHAT-ROI-ALLOCATION-2026-05-17.md</a> Regenerate: <code>node scripts/emit-spec-html.mjs &lt;path.md&gt;</code></p>
+
+</footer>
+</div>
+<script>(function(){
+  try {
+    var k = "prism-spec-theme";
+    var saved = localStorage.getItem(k);
+    if (saved === "dark" || saved === "light") document.documentElement.setAttribute("data-theme", saved);
+  } catch (e) { /* localStorage blocked — keep default theme */ }
+  var b = document.getElementById("themeToggle");
+  if (!b) return;
+  b.addEventListener("click", function () {
+    var cur = document.documentElement.getAttribute("data-theme");
+    var sysDark = !!(window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches);
+    var next = cur === "dark" ? "light" : cur === "light" ? "dark" : (sysDark ? "light" : "dark");
+    document.documentElement.setAttribute("data-theme", next);
+    b.textContent = next === "dark" ? "\u263E dark" : "\u2600 light";
+    try { localStorage.setItem(k, next); } catch (e) { /* persistence unavailable — non-fatal */ }
+  });
+})();</script>
+<script>(function(){
+  var body = document.querySelector("main.doc-body");
+  var toc = document.querySelector("nav.toc");
+  if (!body) return;
+  // TOC active-section highlight.
+  if (toc) {
+    var links = {};
+    toc.querySelectorAll("a[href^='#']").forEach(function(a){ links[a.getAttribute("href").slice(1)] = a; });
+    var heads = body.querySelectorAll("h1[id],h2[id],h3[id],h4[id]");
+    var active = null;
+    function setActive(id){
+      if (active === id) return;
+      if (active && links[active]) links[active].classList.remove("active");
+      active = id;
+      if (active && links[active]) links[active].classList.add("active");
+    }
+    var io = new IntersectionObserver(function(entries){
+      var top = null, topY = Infinity;
+      entries.forEach(function(e){ if (e.isIntersecting) { var y = e.boundingClientRect.top; if (y < topY) { topY = y; top = e.target.id; } } });
+      if (!top) {
+        var best = null;
+        heads.forEach(function(h){ if (h.getBoundingClientRect().top < 80) best = h.id; });
+        top = best || (heads[0] && heads[0].id);
+      }
+      if (top) setActive(top);
+    }, { rootMargin: "0px 0px -70% 0px", threshold: [0, 1] });
+    heads.forEach(function(h){ io.observe(h); });
+  }
+  // In-page search: wrap matches in <mark>, jump to first, filter the TOC.
+  var input = toc && toc.querySelector("input.toc-search");
+  var status = toc && toc.querySelector(".toc-search-status");
+  if (!input) return;
+  var SKIP = { SCRIPT:1, STYLE:1, MARK:1, NOSCRIPT:1 };
+  function clearMarks(){
+    body.querySelectorAll("mark.search-hit").forEach(function(m){ var p = m.parentNode; if (p) { p.replaceChild(document.createTextNode(m.textContent), m); p.normalize(); } });
+    if (toc) toc.querySelectorAll("li.toc-hidden").forEach(function(li){ li.classList.remove("toc-hidden"); });
+  }
+  function doSearch(q){
+    clearMarks();
+    if (status) status.textContent = "";
+    if (!q || q.length < 2) return;
+    var needle = q.toLowerCase(), hits = 0, first = null;
+    var walker = document.createTreeWalker(body, NodeFilter.SHOW_TEXT, { acceptNode: function(n){
+      if (!n.nodeValue || !n.nodeValue.trim()) return NodeFilter.FILTER_REJECT;
+      var p = n.parentNode; while (p && p !== body) { if (SKIP[p.nodeName]) return NodeFilter.FILTER_REJECT; p = p.parentNode; }
+      return n.nodeValue.toLowerCase().indexOf(needle) >= 0 ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT;
+    }});
+    var targets = [];
+    while (walker.nextNode()) targets.push(walker.currentNode);
+    targets.forEach(function(node){
+      if (hits > 2000) return;
+      var text = node.nodeValue, lower = text.toLowerCase(), frag = document.createDocumentFragment(), i = 0, idx;
+      while ((idx = lower.indexOf(needle, i)) >= 0 && hits <= 2000) {
+        if (idx > i) frag.appendChild(document.createTextNode(text.slice(i, idx)));
+        var m = document.createElement("mark"); m.className = "search-hit"; m.textContent = text.slice(idx, idx + needle.length);
+        if (hits === 0) { m.classList.add("current"); first = m; }
+        frag.appendChild(m); hits++; i = idx + needle.length;
+      }
+      if (i < text.length) frag.appendChild(document.createTextNode(text.slice(i)));
+      if (node.parentNode) node.parentNode.replaceChild(frag, node);
+    });
+    if (status) status.textContent = hits ? (hits + " match" + (hits === 1 ? "" : "es")) : "no matches";
+    if (toc) toc.querySelectorAll("li").forEach(function(li){ var a = li.querySelector("a"); if (a && a.textContent.toLowerCase().indexOf(needle) < 0) li.classList.add("toc-hidden"); });
+    if (first) first.scrollIntoView({ block: "center", behavior: "smooth" });
+  }
+  var t;
+  input.addEventListener("input", function(){ clearTimeout(t); t = setTimeout(function(){ doSearch(input.value.trim()); }, 180); });
+  input.addEventListener("keydown", function(e){ if (e.key === "Escape") { input.value = ""; doSearch(""); input.blur(); } });
+})();</script>
+</body>
+</html>

@@ -1,0 +1,112 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "PRISM Roadmap Index",
+  "description": "Schema for data/roadmap-index.json — central milestone tracking file.",
+  "version": "1.0.0",
+  "type": "object",
+  "required": ["version", "title", "total_milestones", "completed_milestones", "milestones"],
+  "properties": {
+    "version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$",
+      "description": "Semantic version of the roadmap"
+    },
+    "title": {
+      "type": "string",
+      "minLength": 1
+    },
+    "updated_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "total_milestones": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Must equal milestones array length"
+    },
+    "completed_milestones": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Must equal count of milestones with status=complete"
+    },
+    "milestones": {
+      "type": "array",
+      "items": { "$ref": "#/definitions/milestone_entry" },
+      "description": "All milestones in execution order"
+    }
+  },
+  "definitions": {
+    "milestone_entry": {
+      "type": "object",
+      "required": ["id", "title", "status"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[A-Z0-9]+-[A-Z0-9]+(-[A-Z0-9]+)?$",
+          "description": "Unique milestone ID"
+        },
+        "title": {
+          "type": "string",
+          "minLength": 3
+        },
+        "track": {
+          "type": "string",
+          "description": "Track code (e.g., S0, L2, CC, QA, PROD)"
+        },
+        "priority": {
+          "type": "string",
+          "enum": ["P0", "P1", "P2", "P3"]
+        },
+        "status": {
+          "type": "string",
+          "enum": ["pending", "active", "complete", "blocked"]
+        },
+        "total_units": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "completed_units": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "sessions": {
+          "type": ["string", "integer"],
+          "description": "Estimated sessions (e.g., '2-3' or 3)"
+        },
+        "envelope_path": {
+          "type": "string",
+          "pattern": "^milestones/.+\\.json$",
+          "description": "Relative path to envelope file"
+        },
+        "position_path": {
+          "type": "string",
+          "description": "Relative path to position state file"
+        },
+        "dependencies": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Milestone IDs that must complete first"
+        },
+        "completed_at": {
+          "type": "string",
+          "description": "Completion date (ISO 8601 date or date-time)"
+        },
+        "description": {
+          "type": "string"
+        },
+        "notes": {
+          "type": "string"
+        },
+        "version": {
+          "type": "string"
+        },
+        "units": {
+          "type": "integer"
+        },
+        "phases": {
+          "type": "integer"
+        }
+      }
+    }
+  }
+}

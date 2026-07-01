@@ -23,13 +23,14 @@ related:
 |-------|-------|
 | Name | `audit-duplicates` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/audit-duplicates.md` |
+| Source | `C:/Users/wompu/.claude/commands/audit-duplicates.md` |
 | Model | default |
 | Tags | _(none)_ |
 
 ## Description (first paragraph)
 
-Surfaces existing duplicate assets across the PRISM codebase for cleanup.
+
+# /audit-duplicates — Retroactive Duplicate Surface Skill
 
 <!-- AUTO-END -->
 

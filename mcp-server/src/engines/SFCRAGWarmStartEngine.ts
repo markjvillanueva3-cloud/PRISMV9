@@ -1,4 +1,6 @@
-// WIRE-EXEMPT: Middleware engine called by SFC engines internally, not exposed via dispatcher
+// Consumed internally by SFCMultiHypothesisRankerEngine + SFCProvenanceWireEngine, AND exposed
+// read-only via prism_calc (sfc_rag_warmstart / sfc_rag_warmstart_stats) for direct operator JM Die
+// corpus visibility -- U-SFC-RAG-WARMSTART-WIRE, slot:india 2026-06-22.
 /**
  * SFCRAGWarmStartEngine — U-PPG-SFC-07
  * =====================================

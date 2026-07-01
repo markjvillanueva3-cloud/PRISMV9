@@ -13,7 +13,11 @@
  */
 
 import { describe, it, expect } from "vitest";
-import { ultimateSpeedFeedEngine } from "../../../src/engines/UltimateSpeedFeedEngine.js";
+// Canonical engine lives at mcp-server/src/engines. The prior `../../../src/engines/`
+// path resolved to an UNTRACKED stale duplicate tree at repo-root H:/prism/src/engines
+// (dated Apr-6, not in git) — so this suite was validating a dead copy, not production.
+// Fixed 2026-06-06 (oscar) to the canonical relative path its sibling suites use.
+import { ultimateSpeedFeedEngine } from "../engines/UltimateSpeedFeedEngine.js";
 
 describe("UltimateSpeedFeedEngine — Physics Validation", () => {
   describe("Dimensional Consistency", () => {
@@ -738,6 +742,97 @@ describe("UltimateSpeedFeedEngine — Physics Validation", () => {
 
       expect(stats.materials_count).toBeGreaterThan(0);
       expect(stats.strategies_count).toBeGreaterThan(0);
+    });
+  });
+
+  // SFC-WIRING-MS0: shop_recommended default goal. Blends balanced->aggressive at 80% on Vc + fz,
+  // keeps ap/ae at the balanced index. cut_type is pinned to "roughing" so all three goals read the
+  // SAME table row (productivity would otherwise re-infer the row via inferCutType, breaking the
+  // factor-cancellation invariants below). The load-bearing safety property is force-consistency:
+  // forces MUST be computed at the shop_recommended (higher) chip load, never the balanced one --
+  // otherwise downstream power/workholding clamps under-protect (the 2026-06-10 regression class).
+  describe("shop_recommended goal (SFC-WIRING-MS0)", () => {
+    const bal = ultimateSpeedFeedEngine.calculate({
+      material: "steel", tool_diameter_mm: 12, operation: "milling", cut_type: "roughing",
+      optimize_for: "balanced",
+    });
+    const shop = ultimateSpeedFeedEngine.calculate({
+      material: "steel", tool_diameter_mm: 12, operation: "milling", cut_type: "roughing",
+      optimize_for: "shop_recommended",
+    });
+    const prod = ultimateSpeedFeedEngine.calculate({
+      material: "steel", tool_diameter_mm: 12, operation: "milling", cut_type: "roughing",
+      optimize_for: "productivity",
+    });
+
+    it("Vc sits strictly between balanced and productivity", () => {
+      expect(shop.cutting_speed.value).toBeGreaterThan(bal.cutting_speed.value);
+      expect(shop.cutting_speed.value).toBeLessThan(prod.cutting_speed.value);
+    });
+
+    it("Vc interpolates balanced->aggressive at the 80% blend (factor + row agnostic)", () => {
+      // Vc = baseVc * F where F (hardness/strategy/tool/coolant factors) is identical across goals,
+      // so F cancels and the blend fraction is exact: (208-160)/(220-160) = 0.80.
+      const frac = (shop.cutting_speed.value - bal.cutting_speed.value)
+                 / (prod.cutting_speed.value - bal.cutting_speed.value);
+      expect(frac).toBeCloseTo(0.80, 2);
+    });
+
+    it("KEYSTONE: forces track the shop_recommended chip load, not the balanced one", () => {
+      // shop fz > balanced fz at IDENTICAL ae -> larger chip thickness -> larger Kienzle Fc. If the
+      // forces were computed off the balanced chip load (the under-protection bug) these would be equal.
+      expect(shop.chip_load_actual.value).toBeGreaterThan(bal.chip_load_actual.value);
+      expect(shop.forces.tangential_force_N.value).toBeGreaterThan(bal.forces.tangential_force_N.value);
+    });
+
+    it("keeps axial + radial engagement at the balanced level (not aggressive)", () => {
+      expect(shop.axial_depth.value).toBeCloseTo(bal.axial_depth.value, 5);
+      expect(shop.radial_depth.value).toBeCloseTo(bal.radial_depth.value, 5);
+      expect(shop.axial_depth.value).toBeLessThan(prod.axial_depth.value);
+    });
+
+    it("MRR >= balanced (higher feed at equal engagement)", () => {
+      expect(shop.mrr.value).toBeGreaterThanOrEqual(bal.mrr.value);
+    });
+
+    it("an explicit cutting speed overrides the shop_recommended interpolation", () => {
+      const fixed = ultimateSpeedFeedEngine.calculate({
+        material: "steel", tool_diameter_mm: 12, operation: "milling", cut_type: "roughing",
+        optimize_for: "shop_recommended", cutting_speed_mpm: 150,
+      });
+      expect(fixed.cutting_speed.value).toBeCloseTo(150, 5);
+    });
+
+    it("respects the machine RPM cap under shop_recommended (no over-speed)", () => {
+      const capped = ultimateSpeedFeedEngine.calculate({
+        material: "steel", tool_diameter_mm: 12, operation: "milling", cut_type: "roughing",
+        optimize_for: "shop_recommended", machine_max_rpm: 3000,
+      });
+      expect(capped.spindle_rpm.value).toBeLessThanOrEqual(3000);
+      expect(Number.isFinite(capped.cutting_speed.value)).toBe(true);
+      expect(capped.cutting_speed.value).toBeGreaterThan(0);
+    });
+
+    it("adversarial: 1mm tool stays finite (no NaN/Inf forces)", () => {
+      const tiny = ultimateSpeedFeedEngine.calculate({
+        material: "steel", tool_diameter_mm: 1, operation: "milling", cut_type: "roughing",
+        optimize_for: "shop_recommended",
+      });
+      expect(Number.isFinite(tiny.forces.tangential_force_N.value)).toBe(true);
+      expect(tiny.cutting_speed.value).toBeGreaterThan(0);
+    });
+
+    it("adversarial: different ISO group (aluminum N) stays safe + monotone", () => {
+      const alBal = ultimateSpeedFeedEngine.calculate({
+        material: "aluminum", tool_diameter_mm: 10, operation: "milling", cut_type: "roughing",
+        optimize_for: "balanced",
+      });
+      const alShop = ultimateSpeedFeedEngine.calculate({
+        material: "aluminum", tool_diameter_mm: 10, operation: "milling", cut_type: "roughing",
+        optimize_for: "shop_recommended",
+      });
+      expect(alShop.cutting_speed.value).toBeGreaterThanOrEqual(alBal.cutting_speed.value);
+      expect(Number.isFinite(alShop.forces.tangential_force_N.value)).toBe(true);
     });
   });
 });

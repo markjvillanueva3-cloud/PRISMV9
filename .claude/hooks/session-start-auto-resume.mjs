@@ -16,9 +16,21 @@
  *   the prior chat's exit state.
  *
  * Wiring:
- *   Wired under a `matcher: "compact"` arm in SessionStart (which only fires
- *   on the compact trigger). Belt-and-suspenders: the hook also self-gates
- *   on stdin.source === "compact" so it's safe to wire under an empty arm.
+ *   Three SessionStart arms, one per trigger this hook handles: `matcher:
+ *   "compact"`, `matcher: "clear"`, and `matcher: "startup"`. Belt-and-
+ *   suspenders: the hook self-gates on stdin.source, so it is safe even if
+ *   wired under an empty (all-events) arm.
+ *
+ * Three resume paths (SESSION-CONTINUITY-MS0 hardening, 2026-05-22):
+ *   - source=compact / clear : read the per-chat handoff by stable session id
+ *     (the id survives an in-process /compact or /clear).
+ *   - source=startup + PRISM_BOOT_SLOT set : a FULL terminal restart gives a
+ *     brand-new session id, so the handoff is unreachable by id. The fleet
+ *     launcher (slot-tab-boot.ps1) exports PRISM_BOOT_SLOT — the only durable
+ *     slot signal at startup — and this hook resolves the slot-keyed handoff
+ *     directly, injecting RESUME before the launcher's /checkin-<slot> submit.
+ *   - source=startup without PRISM_BOOT_SLOT : silent no-op (a plain,
+ *     non-launcher claude launch is unchanged).
  *
  * Failure mode policy:
  *   ANY failure (no handoff, parse error, stale handoff, missing helper) is
@@ -27,9 +39,9 @@
  *
  * Knobs:
  *   PRISM_AUTO_RESUME_DISABLE=1   — disable entirely (emit silent continue)
- *   PRISM_AUTO_RESUME_MAX_AGE_MIN — drop handoffs older than this (default 240)
+ *   PRISM_AUTO_RESUME_MAX_AGE_MIN — drop handoffs older than this (default 720 = 12h)
  *
- * Designed for the 13-chat fleet (alpha..mike work slots + golf hygiene;
+ * Designed for the 26-chat fleet (alpha..zulu (25 work + 1 hygiene golf);
  * SLOT_NAMES is kept byte-equal to chat-slots.mjs). The stable id resolution
  * is fleet-size-agnostic — it uses the first 8 hex of session_id directly.
  */
@@ -44,7 +56,7 @@ const HELPER = "H:/prism/.claude/helpers/per-agent-handoff.mjs";
 const NODE_BIN = process.env.PRISM_NODE_BIN || process.execPath;
 
 // Constants
-const DEFAULT_MAX_AGE_MIN = 240;             // 4 hour staleness threshold
+const DEFAULT_MAX_AGE_MIN = 720;             // 12 hour staleness threshold (F5 2026-06-08: was 240/4h — new-PC GPU/OCR bakes routinely exceed 4h, dropping valid handoffs as "stale" = silent resume loss)
 const HELPER_TIMEOUT_MS = 8000;              // per-agent-handoff.mjs read budget
 const SESSION_ID_HEX_LEN = 8;                // stable id = first 8 hex of UUID
 const MIN_RESUME_BODY_LEN = 8;               // shorter than this = empty placeholder
@@ -63,15 +75,19 @@ const MAX_THREAD_HEADERS = 5;                // headers shown inline; rest in fi
 // git-log) without needing a separate Stop-hook producer.
 const CONSOLIDATE_THROTTLE_MS = 180000;      // 3 min
 
-// Canonical 13-slot fleet (NATO phonetic): 12 work slots + golf hygiene.
-// Reviewer P1: was 10 (alpha..juliett) — silently dropped kilo/lima/mike,
-// violating the "accommodate up to 13, never hard-code a short count"
-// fleet directive (CLAUDE.md). Kept as a literal (this is a latency-
-// critical SessionStart hook — a dynamic import adds init risk); MUST
-// stay byte-equal to chat-slots.mjs SLOT_NAMES (canonical source).
+// Canonical 26-slot fleet — the full NATO phonetic alphabet (alpha..zulu).
+// MUST stay byte-equal to chat-slots.mjs SLOT_NAMES (the canonical source).
+// History of the recurring drift this literal causes: 10 (alpha..juliett) →
+// 13 (alpha..mike) → 26 (alpha..zulu, realigned 2026-05-19). Kept as a
+// literal because this is a latency-critical SessionStart hook; the price is
+// that every chat-slots.mjs SLOT_NAMES change must be mirrored here in the
+// same commit (the 13→26 gap let november..zulu slots silently fail every
+// SLOT_NAMES.has() membership check fleet-wide).
 export const SLOT_NAMES = new Set([
   "alpha", "bravo", "charlie", "delta", "echo", "foxtrot", "golf",
-  "hotel", "india", "juliett", "kilo", "lima", "mike",
+  "hotel", "india", "juliett", "kilo", "lima", "mike", "november",
+  "oscar", "papa", "quebec", "romeo", "sierra", "tango", "uniform",
+  "victor", "whiskey", "xray", "yankee", "zulu",
 ]);
 
 const MAX_AGE_MIN = Number(process.env.PRISM_AUTO_RESUME_MAX_AGE_MIN || DEFAULT_MAX_AGE_MIN);
@@ -90,7 +106,7 @@ function emit(o) { process.stdout.write(JSON.stringify(o)); }
 
 function safeSpawn(args, opts = {}) {
   try {
-    return spawnSync(NODE_BIN, args, { encoding: "utf-8", timeout: HELPER_TIMEOUT_MS, ...opts });
+    return spawnSync(NODE_BIN, args, { windowsHide: true, encoding: "utf-8", timeout: HELPER_TIMEOUT_MS, ...opts });
   } catch { return { status: 1, stdout: "", stderr: "" }; }
 }
 
@@ -99,6 +115,97 @@ function getHandoff(stableId) {
   const r = safeSpawn([HELPER, "read", "--terminal", stableId]);
   if (!r || r.status !== 0 || !r.stdout) return null;
   try { return JSON.parse(r.stdout); } catch { return null; }
+}
+
+/**
+ * SESSION-CONTINUITY-MS0 hardening (2026-05-22) — read the handoff bound to a
+ * slot via the authoritative `read --slot` tier of per-agent-handoff.mjs. That
+ * tier resolves by the durable `slot:` frontmatter field (topic-prefix
+ * fallback) and is authoritative: it returns `no_slot_handoff` rather than ever
+ * falling through to a peer's file. Used on the full-restart boot path, where
+ * the ephemeral session id is useless but the operator-typed slot name (passed
+ * by the fleet launcher as PRISM_BOOT_SLOT) is durable. Fail-soft → null.
+ */
+function getHandoffBySlot(slot) {
+  if (!fs.existsSync(HELPER)) return null;
+  const r = safeSpawn([HELPER, "read", "--slot", slot]);
+  if (!r || r.status !== 0 || !r.stdout) return null;
+  try { return JSON.parse(r.stdout); } catch { return null; }
+}
+
+// SESSION-CONTINUITY-FIX/U-PSPIN-WINDOW-TIER (2026-06-18, slot:alpha):
+// defense-in-depth for getHandoffPreferSlot. Pure: given a resolved terminal
+// windowId + parsed chat-slots.json state, return the slot whose
+// terminalWindowId matches (and is a canonical slot), else null. This is the
+// terminal-SCOPED resolution that runs BEFORE the family-latest fallthrough in
+// per-agent-handoff (which returns the newest handoff fleet-wide = a possibly
+// RANDOM peer's chat). The terminal-window-id resolver is functional on hosts
+// where ps-window-pin's findPsAncestorPid is not, so this closes the
+// wrong-chat-resume gap even when the ps-pin tier misses. Exported for unit
+// testing (R9).
+export function slotForWindowId(windowId, slotsState, slotNames = SLOT_NAMES) {
+  if (!windowId || typeof windowId !== "string") return null;
+  const slots = slotsState && slotsState.slots ? slotsState.slots : null;
+  if (!slots || typeof slots !== "object") return null;
+  for (const [name, st] of Object.entries(slots)) {
+    if (st && typeof st === "object"
+        && st.terminalWindowId === windowId
+        && slotNames.has(name)) {
+      return name;
+    }
+  }
+  return null;
+}
+
+// I/O wrapper around slotForWindowId: resolve THIS terminal's windowId via
+// terminal-window-id.mjs, read chat-slots.json, return the matching slot.
+// Fully fail-soft (dynamic import / fs / parse errors -> null).
+const CHAT_SLOTS_JSON = (process.env.PRISM_ROOT || "H:/prism") + "/state/shared/chat-slots.json";
+async function resolveSlotFromWindowId(sessionId) {
+  try {
+    const twMod = await import("../helpers/terminal-window-id.mjs");
+    const windowId = twMod.resolveTerminalWindowId?.({ sessionId });
+    if (!windowId || typeof windowId !== "string") return null;
+    const data = JSON.parse(fs.readFileSync(CHAT_SLOTS_JSON, "utf-8"));
+    return slotForWindowId(windowId, data);
+  } catch { return null; }
+}
+
+/**
+ * HIGHVALUE-DISCOVERY #6 (2026-06-08, slot:alpha): read the handoff SLOT-FIRST
+ * on the compact/clear path to eliminate the wrong-chat resume. `read --terminal`
+ * falls through to family-latest / global-latest in per-agent-handoff.mjs — on a
+ * FRESH post-compact session id that can return a PEER's handoff (silent
+ * cross-contamination: you resume another chat's work). When THIS terminal's slot
+ * is resolvable (ps-window-pin, durable across /compact; or PRISM_BOOT_SLOT), read
+ * the authoritative `--slot` tier first — it returns `no_slot_handoff` rather than
+ * ever falling to a peer's file. Falls back to the `--terminal` read ONLY when no
+ * slot resolves (preserves prior behavior exactly). Fully fail-soft.
+ */
+async function getHandoffPreferSlot(stableId, sessionId) {
+  let slot = null;
+  try {
+    const psPinMod = await import("../helpers/ps-window-pin.mjs");
+    const pin = psPinMod.readPinForCurrentWindow({ sessionId });
+    if (pin && pin.slot && SLOT_NAMES.has(pin.slot)) slot = pin.slot;
+  } catch { /* fail-soft — fall through to PRISM_BOOT_SLOT / --terminal */ }
+  if (!slot && process.env.PRISM_BOOT_SLOT) {
+    const boot = String(process.env.PRISM_BOOT_SLOT).toLowerCase();
+    if (SLOT_NAMES.has(boot)) slot = boot;
+  }
+  // U-PSPIN-WINDOW-TIER (2026-06-18): terminal-SCOPED chat-slots.json lookup by
+  // terminalWindowId BEFORE the family-latest fleet-global fallthrough inside
+  // getHandoff() (which returns the newest handoff across ALL chats = a possibly
+  // RANDOM peer). Functional on hosts where the ps-pin tier above misses.
+  if (!slot) {
+    const byWindow = await resolveSlotFromWindowId(sessionId);
+    if (byWindow && SLOT_NAMES.has(byWindow)) slot = byWindow;
+  }
+  if (slot) {
+    const bySlot = getHandoffBySlot(slot);
+    if (bySlot?.ok && bySlot?.content) return bySlot;
+  }
+  return getHandoff(stableId); // --terminal fallback (prior behavior, no slot resolvable)
 }
 
 /**
@@ -194,6 +301,30 @@ export function extractResume(content) {
     if (!body || body.length < MIN_RESUME_BODY_LEN) return null;
     if (body.length > MAX_INJECTED_RESUME_BYTES) {
       return body.slice(0, MAX_INJECTED_RESUME_BYTES) + "\n\n…[truncated — full RESUME in handoff file]";
+    }
+    return body;
+  }
+  return null;
+}
+
+// HIGHVALUE-DISCOVERY #2 (2026-06-08, slot:alpha): the Stop hook
+// handoff-memory-seed-stop.mjs distills recent error-events + memos + tribal
+// learnings into a `## MEMORY_SEED` section appended to the handoff — but NO
+// consumer ever read it (grep -c MEMORY_SEED here was 0). Every Stop paid to
+// distill it; resume discarded 100%. This reader mirrors extractResume so the
+// next session also gets the distilled signals. Bounded tighter (seed is
+// secondary to RESUME). Fail-soft: absent section → null → nothing appended.
+export function extractMemorySeed(content) {
+  if (!content || typeof content !== "string") return null;
+  const MAX_SEED_BYTES = 2000;
+  const sections = ("\n" + content).split(/\n##\s/);
+  for (let i = 1; i < sections.length; i++) {
+    const sec = sections[i];
+    if (!/^MEMORY_SEED\b/i.test(sec)) continue;
+    const body = sec.replace(/^[^\n]*\n/, "").trim();
+    if (!body || body.length < MIN_RESUME_BODY_LEN) return null;
+    if (body.length > MAX_SEED_BYTES) {
+      return body.slice(0, MAX_SEED_BYTES) + "\n\n…[truncated — full MEMORY_SEED in handoff]";
     }
     return body;
   }
@@ -301,7 +432,154 @@ export function buildCheckinDirective({ slot, topic } = {}) {
   ].join("\n");
 }
 
-function main() {
+/**
+ * SLOT-RECLAIM (2026-05-19) — NEXT-ACTION directive pointing at the
+ * `/checkin-<nato>` slot wrapper.
+ *
+ * Supersedes buildCheckinDirective on the post-/compact path WHEN a
+ * ps-window-pin resolves this terminal's authoritative slot. Why a different
+ * directive: the generic `/checkin --topic <slot>-<topic>` that
+ * buildCheckinDirective emits does NOT force-take a named slot —
+ * slot-bind-enforce.mjs (the UserPromptSubmit hook that deterministically
+ * force-claims a slot) only fires on the hyphenated `/checkin-<nato>` /
+ * `/startup-<nato>` wrapper form. So if a peer drifted into this terminal's
+ * slot during the /compact release window, a generic /checkin would leave it
+ * there. `/checkin-<nato>` force-re-claims the exact slot this PowerShell
+ * terminal owns.
+ *
+ * Returns "" when `slot` is not a canonical NATO slot — the caller then
+ * falls back to buildCheckinDirective (handoff-derived advisory directive).
+ *
+ * @param {string} slot — canonical NATO slot resolved from the ps-window-pin
+ * @param {string} source — "compact" | "clear" (message wording only)
+ * @returns {string} markdown block, or "" when slot is not canonical
+ */
+export function buildSlotWrapperDirective(slot, source, opts = {}) {
+  if (!slot || !SLOT_NAMES.has(slot)) return "";
+  const verb = source === "clear" ? "clear" : "compact";
+  // Operator directive (2026-06-10): the post-/compact session AUTO-STARTS the
+  // full autonomous sequence -- `/startup-<slot> /loop [10m] /goal` -- so the
+  // chat re-enters the Hermes loop on the standing goal and drives the build to
+  // 100% instead of idling after a bare heartbeat. `/startup-<slot>` still
+  // force-claims the exact slot via slot-bind-enforce (same slot-safety as the
+  // old `/checkin-<slot>`) AND re-runs the startup audit; `/loop [10m] /goal`
+  // re-enters the autonomous loop. `loopGoal:false` (knob
+  // PRISM_AUTO_RESUME_LOOP_GOAL=0, read at the call site) reverts to the lighter
+  // `/checkin-<slot>` heartbeat for operators who want pure-RESUME resumes.
+  const loopGoal = opts.loopGoal !== false;
+  const cmd = loopGoal ? `/startup-${slot} /loop [10m] /goal` : `/checkin-${slot}`;
+  const tail = loopGoal
+    ? [
+        `This PowerShell terminal previously owned slot \`${slot}\`. \`/startup-${slot}\``,
+        `force-re-claims that exact slot via slot-bind-enforce (survives the /${verb}`,
+        `release window where a peer could drift in) and re-runs the startup audit;`,
+        "`/loop [10m] /goal` then re-enters the autonomous loop. CONTINUE THE BUILD TO",
+        "100% -- eval-gate each iteration (real tests + per-file scrutiny), never",
+        "abandon mid-build, checkpoint at YELLOW and let auto-compact reset before a",
+        "spiral. The RESUME directive above IS the standing goal to continue; re-read",
+        "the handoff + roadmap + Obsidian brain/PSN as you go. Run this FIRST.",
+      ]
+    : [
+        `This PowerShell terminal previously owned slot \`${slot}\`; \`/checkin-${slot}\``,
+        `force-re-claims that exact slot via slot-bind-enforce (the generic \`/checkin\``,
+        `does NOT force-take a named slot, so a peer that drifted into \`${slot}\` during`,
+        `the /${verb} window would otherwise keep it). Run this FIRST, then proceed with`,
+        "the resume directive above.",
+      ];
+  return [
+    "",
+    "**NEXT ACTION (auto-fire BEFORE following the resume directive):**",
+    "",
+    "```",
+    cmd,
+    "```",
+    "",
+    ...tail,
+  ].join("\n");
+}
+
+/**
+ * SESSION-CONTINUITY-MS0 hardening (2026-05-22) — pure builder for the
+ * full-restart boot RESUME block. Given a slot-keyed handoff's content +
+ * metadata, returns the SessionStart additionalContext markdown, or null when
+ * the handoff is too stale (older than maxAgeMin) or has no usable RESUME
+ * section. Pure (no env reads, no I/O) so it is unit-testable like the other
+ * build* exports; main()'s `startup` branch wraps it with the env read +
+ * getHandoffBySlot subprocess call.
+ *
+ * Returns null (caller emits SILENCE) on: missing/non-string content, a slot
+ * that is not canonical, a handoff staler than maxAgeMin, or an empty RESUME.
+ *
+ * @param {{content: string, slot: string, file?: string, maxAgeMin?: number}} a
+ * @returns {string|null}
+ */
+export function buildBootResumeContext({ content, slot, file, maxAgeMin = MAX_AGE_MIN } = {}) {
+  if (!content || typeof content !== "string") return null;
+  if (!slot || !SLOT_NAMES.has(slot)) return null;
+  const age = ageMinutesFromFrontmatter(content);
+  if (age != null && age > maxAgeMin) return null;
+  const resume = extractResume(content);
+  if (!resume) return null;
+  const memSeed = extractMemorySeed(content);
+  return [
+    `## 🔁 AUTO-RESUME on fleet boot — slot \`${slot}\``,
+    ``,
+    `Handoff: ${file || "?"} (age ${age != null ? Math.round(age) + "m" : "unknown"})`,
+    `Resolved by the durable slot name (PRISM_BOOT_SLOT) — this survives a`,
+    `full terminal restart, where the per-chat handoff is unreachable by the`,
+    `fresh process's new session id.`,
+    ``,
+    `**Resume directive:**`,
+    ``,
+    resume,
+    ...(memSeed ? [``, `## 🌱 Memory seed — distilled signals from last session`, ``, memSeed] : []),
+    ``,
+    `The fleet launcher submits the slot's boot sequence as the first prompt --`,
+    `\`/startup-${slot} /loop [10m] /goal\` by default, or \`/checkin-${slot}\` when`,
+    `PRISM_BOOT_LOOP_GOAL=0 -- and this context anchors that turn. When the loop`,
+    `sequence runs, \`/startup-${slot}\` force-claims the slot + runs the startup`,
+    `audit, then \`/loop [10m] /goal\` re-enters the autonomous loop on the resume`,
+    `directive above: CONTINUE THE BUILD TO 100% -- eval-gate each iteration (real`,
+    `tests + per-file scrutiny), never abandon mid-build. Proceed with the resume`,
+    `directive once startup has completed its §Report.`,
+  ].join("\n");
+}
+
+// -- CONTEXT-RECOVERY-MS0 (2026-06-10, slot:tango) --------------------------
+// scripts/recover-today-context.mjs harvests each slot's full today-context
+// (operator directives + commits + every IN-PLACE compaction summary the live
+// window rolled up) into state/shared/context-recovery/<slot>-TODAY-<date>.md.
+// The fleet launcher reopens active slots via `claude --resume` (source=
+// "resume"), which this hook otherwise SILENCEs -- so the resumed-but-amnesiac
+// window never sees that recovery. This pointer surfaces it on BOTH the resume
+// and startup paths. The file is date-stamped so the pointer self-expires the
+// next day (a stale yesterday-file never resurfaces). Fail-soft: any error or a
+// missing/absent recovery file returns "" -> the existing path is unchanged.
+const RECOVERY_DIR = "H:/prism/state/shared/context-recovery";
+function todayStamp() {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+}
+export function getRecoveryPointer(slot) {
+  try {
+    if (!slot || !SLOT_NAMES.has(slot)) return "";
+    const file = `${RECOVERY_DIR}/${slot}-TODAY-${todayStamp()}.md`;
+    if (!fs.existsSync(file)) return "";
+    return [
+      `## 🔁 CONTEXT RECOVERY available - slot \`${slot}\``,
+      ``,
+      `Your live window compacted earlier today, which rolled up and dropped earlier`,
+      `detail from context. A VERBATIM recovery of today's full context (operator`,
+      `directives, commits shipped, and every compaction summary) is at:`,
+      ``,
+      `  ${file}`,
+      ``,
+      `READ THAT FILE before continuing so no task you were mid-way through earlier today is dropped.`,
+    ].join("\n");
+  } catch { return ""; }
+}
+
+async function main() {
   if (process.env.PRISM_AUTO_RESUME_DISABLE === "1") { emit(SILENCE); return; }
 
   const stdin = readStdinSync() || {};
@@ -316,12 +594,81 @@ function main() {
   // hook); /clear has no PreClear event so the Stop-hook write is the
   // mirror-image fix. Same RESUME extraction, same auto-fire of /checkin.
   const source = stdin.source || stdin.trigger || "";
+
+  // SESSION-CONTINUITY-MS0 hardening (2026-05-22) — full-restart resume.
+  // On a full terminal restart the fresh process gets source="startup" with a
+  // brand-new session id, so the per-chat handoff is unreachable by id and the
+  // ps-window-pin cannot map a brand-new window to a slot. The fleet launcher
+  // (slot-tab-boot.ps1) is the ONLY entity that knows "this tab is <slot>" at
+  // startup time; it exports that as PRISM_BOOT_SLOT. When set, resolve the
+  // slot-keyed handoff directly and inject the RESUME here — so the chat has
+  // prior context from its very first token, independent of whether the
+  // launcher's /checkin-<slot> auto-submit lands (that submit is otherwise the
+  // sole, silent-on-failure resume path for the full-restart case). A plain
+  // (non-launcher) `startup` carries no PRISM_BOOT_SLOT and falls through to
+  // SILENCE — no behaviour change for any chat not booted by the fleet launcher.
+  if (source === "startup") {
+    const bootSlot = (process.env.PRISM_BOOT_SLOT || "").trim().toLowerCase();
+    if (!bootSlot || !SLOT_NAMES.has(bootSlot)) { emit(SILENCE); return; }
+    const bootHandoff = getHandoffBySlot(bootSlot);
+    if (!bootHandoff?.ok || !bootHandoff?.content) { emit(SILENCE); return; }
+    // F5 2026-06-08: boot path used to emit(SILENCE) on a stale handoff — a
+    // silent resume loss (the boot chat got NO context AND no signal it had
+    // prior work). The compact path (below) surfaces a STALE hint; give the
+    // boot path parity so a >threshold gap is visible, not invisible.
+    const bootAge = ageMinutesFromFrontmatter(bootHandoff.content);
+    if (bootAge != null && bootAge > MAX_AGE_MIN) {
+      emit({
+        continue: true,
+        hookSpecificOutput: {
+          hookEventName: "SessionStart",
+          additionalContext: `## 🔁 Boot handoff for slot \`${bootSlot}\` is STALE (${Math.round(bootAge)}m old, threshold ${MAX_AGE_MIN}m)\n\nThe slot's handoff (${bootHandoff.file || "?"}) is older than the auto-resume threshold. Treat this as a fresh session — re-read CLAUDE.md context, run /checkin-${bootSlot}, then decide next action.`,
+        },
+      });
+      return;
+    }
+    const bootContext = buildBootResumeContext({
+      content: bootHandoff.content,
+      slot: bootSlot,
+      file: bootHandoff.file,
+    });
+    if (!bootContext) { emit(SILENCE); return; }
+    // CONTEXT-RECOVERY-MS0: a fresh /checkin-<slot> boot (source=startup) also
+    // surfaces today's recovery file if one exists -- additive, fail-soft "".
+    const startupPtr = getRecoveryPointer(bootSlot);
+    emit({
+      continue: true,
+      hookSpecificOutput: {
+        hookEventName: "SessionStart",
+        additionalContext: startupPtr ? `${bootContext}\n\n${startupPtr}` : bootContext,
+      },
+    });
+    return;
+  }
+
+  // CONTEXT-RECOVERY-MS0 (2026-06-10, slot:tango): the fleet launcher reopens
+  // active slots with `claude --resume` -> source="resume", which this hook has
+  // always SILENCEd. But that resumed window lost earlier-today detail across
+  // in-place compactions. When a fresh per-slot recovery file exists, surface a
+  // pointer so the resumed chat reads it on its first turn. Fail-soft: no boot
+  // slot / no recovery file -> falls through to the existing SILENCE below.
+  if (source === "resume") {
+    const resumeSlot = (process.env.PRISM_BOOT_SLOT || "").trim().toLowerCase();
+    const ptr = getRecoveryPointer(resumeSlot);
+    if (ptr) {
+      emit({ continue: true, hookSpecificOutput: { hookEventName: "SessionStart", additionalContext: ptr } });
+      return;
+    }
+    emit(SILENCE);
+    return;
+  }
+
   if (source !== "compact" && source !== "clear") { emit(SILENCE); return; }
 
   const stable = stableIdFromSession(stdin.session_id);
   if (!stable) { emit(SILENCE); return; }
 
-  const handoff = getHandoff(stable);
+  const handoff = await getHandoffPreferSlot(stable, stdin.session_id);
   if (!handoff?.ok || !handoff?.content) { emit(SILENCE); return; }
 
   // U-SDF07: source-aware messaging — say "post-clear" on /clear, not "post-compact".
@@ -341,15 +688,51 @@ function main() {
 
   const resume = extractResume(handoff.content);
   if (!resume) { emit(SILENCE); return; }
+  const memSeed = extractMemorySeed(handoff.content);
 
-  // Gap 3: append `/checkin --topic <slot>-<topic>` auto-fire directive so
-  // the post-/compact chat re-claims its slot heartbeat (lapsed during the
-  // compact-release window) BEFORE following the resume body. Suppressed
-  // when slot/topic parse fails OR when operator disables via knob.
+  // Gap 3 / SLOT-RECLAIM: append a slot-recovery NEXT-ACTION directive so the
+  // post-/compact chat re-claims its slot BEFORE following the resume body.
+  //
+  // SLOT-RECLAIM (2026-05-19): resolve THIS PowerShell terminal's authoritative
+  // slot from the ps-window-pin (keyed on the terminal's PowerShell ancestor
+  // PID). When found, emit the `/checkin-<nato>` wrapper — it force-re-claims
+  // the slot via slot-bind-enforce; the generic `/checkin --topic` does NOT
+  // force-take a named slot, so a peer that drifted into this terminal's slot
+  // during the /compact release window would keep it. Dynamic import + full
+  // fail-soft: a missing or broken ps-window-pin helper must never break
+  // auto-resume — it falls through to the handoff-derived advisory directive.
+  let psPinnedSlot = null;
+  try {
+    const psPinMod = await import("../helpers/ps-window-pin.mjs");
+    const pin = psPinMod.readPinForCurrentWindow({ sessionId: stdin.session_id });
+    if (pin && pin.slot && SLOT_NAMES.has(pin.slot)) psPinnedSlot = pin.slot;
+  } catch { /* fail-soft — handoff-derived fallback below */ }
+
+  // Resolve the slot to direct the chat at: ps-window-pin FIRST (window-keyed,
+  // ideal), then the per-chat handoff frontmatter. The ps-window-pin is
+  // frequently empty on this host (findPsAncestorPid resolves nothing), so the
+  // handoff is the signal that actually carries the slot identity in practice
+  // — without this fallback the /checkin-<nato> directive would almost never
+  // fire and the chat would get the weaker generic /checkin.
+  const parsed = parseSlotAndTopic(handoff.content);
+  const slotForDirective = psPinnedSlot
+    || (SLOT_NAMES.has(parsed.slot) ? parsed.slot : "");
+
   const noCheckin = process.env.PRISM_AUTO_RESUME_NO_CHECKIN === "1";
-  const checkinBlock = noCheckin
-    ? ""
-    : buildCheckinDirective(parseSlotAndTopic(handoff.content));
+  // Operator directive (2026-06-10): default the slot directive to the full
+  // `/startup-<slot> /loop [10m] /goal` autonomous re-entry. PRISM_AUTO_RESUME_LOOP_GOAL=0
+  // reverts to the lighter `/checkin-<slot>` heartbeat (env read at the call
+  // site so buildSlotWrapperDirective stays pure/testable).
+  const loopGoal = process.env.PRISM_AUTO_RESUME_LOOP_GOAL !== "0";
+  let checkinBlock = "";
+  if (!noCheckin) {
+    // /startup-<nato> /loop [10m] /goal (slot-bind-enforce force-claims it +
+    // re-enters the autonomous loop) whenever the slot is known; the generic
+    // /checkin --topic only as a last resort when no canonical slot resolves.
+    checkinBlock = slotForDirective
+      ? buildSlotWrapperDirective(slotForDirective, source, { loopGoal })
+      : buildCheckinDirective(parsed);
+  }
 
   const lines = [
     `## 🔁 AUTO-RESUME after /${source} (per-chat handoff)`,
@@ -361,6 +744,7 @@ function main() {
     ``,
     resume,
   ];
+  if (memSeed) lines.push(``, `## 🌱 Memory seed — distilled signals from last session (recent errors / memos / tribal)`, ``, memSeed);
   if (checkinBlock) lines.push(checkinBlock);
 
   // U-OBF02: append the bounded consolidated cross-topic open-threads summary
@@ -384,4 +768,23 @@ function main() {
   });
 }
 
-try { main(); } catch { emit(SILENCE); }
+// main() is async (SLOT-RECLAIM dynamic-imports ps-window-pin.mjs). A rejected
+// promise — from any throw, sync or post-await — resolves to a silent
+// {continue:true} so a failure here can never block SessionStart.
+//
+// Run main() ONLY when invoked as a script — not when a test imports this
+// module for the exported pure functions. main() calls readStdinSync()
+// (fs.readFileSync(0)), which BLOCKS on a test runner's open-but-unclosed
+// stdin pipe — running it on import hangs `node --test`. FAIL-OPEN: if the
+// argv/import.meta probe throws, default to running (a SessionStart hook must
+// never be silently dead). A test file's basename is *.test.mjs, never equal
+// to this hook's basename, so __isMain resolves false there.
+const __isMain = (() => {
+  try {
+    const argv1 = (process.argv[1] || "").replace(/\\/g, "/");
+    const argv1Base = argv1.split("/").pop() || "";
+    return argv1Base.length > 0
+      && import.meta.url.replace(/\\/g, "/").endsWith(argv1Base);
+  } catch { return true; }
+})();
+if (__isMain) main().catch(() => emit(SILENCE));

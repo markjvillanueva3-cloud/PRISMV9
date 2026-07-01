@@ -150,10 +150,10 @@ export function PreventiveMaintenancePage() {
     <WorkspaceRecoveryScaffold
       eyebrow="Maintenance operations"
       title="Preventive Maintenance"
-      description="This APPW maintenance desk is back on a live scaffold: PM alerts, work orders, and completion flow are mounted to the backend while PRISM AI reasons over the current shop-floor maintenance posture."
+      description="This APPW maintenance desk is back on a live scaffold: PM alerts, work orders, and completion flow are mounted to the backend while Kienzle AI reasons over the current shop-floor maintenance posture."
       surfaces={['inventoryOperations', 'shopFloor']}
       metrics={metrics}
-      aiSummary="PRISM AI can prioritize PM alerts, decide which work order should move first, and explain the likely maintenance risk if the current queue does not move."
+      aiSummary="Kienzle AI can prioritize PM alerts, decide which work order should move first, and explain the likely maintenance risk if the current queue does not move."
       aiContext={aiContext}
       suggestions={[
         {

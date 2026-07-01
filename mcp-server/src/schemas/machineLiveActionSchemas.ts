@@ -1,13 +1,19 @@
 /**
  * Zod Action Schemas — machineLiveDispatcher
  * =============================================
- * 40 actions across 4 sub-engines:
+ * 45 actions across 5 sub-engines / inline groups:
  *   machineConnectivity    (16 actions)
  *   adaptiveControl        (10 actions)
  *   predictiveMaintenance  (10 actions)
  *   l3Industry (inline)    (4 actions)
+ *   mtConnectLiveStatus    (1 action — mtconnect_parse_status, pure parser)
+ *   kiosk (inline)         (4 actions)
  *
- * @version 1.0.0
+ * Note: MQTT, RTMI and the eight MTConnect adapter actions are routed by the
+ * dispatcher but currently rely on engine-internal validation (no entries in
+ * this map). Adding their schemas is tracked separately.
+ *
+ * @version 1.1.0
  */
 
 import { z } from "zod";
@@ -358,6 +364,19 @@ const energy_report = z.object({
   response_level,
 }).passthrough();
 
+/** mtconnect_parse_status — Parse already-extracted MTConnect data items into canonical live status.
+ *  Pure: no network call. Use when the caller already has parsed XML payload or path/value pairs. */
+const mtconnect_parse_status = z.object({
+  items: z.array(z.object({
+    type: z.string().describe("Canonical MTConnect item type (execution, controller_mode, spindle_speed, position, alarm, ...)"),
+    value: z.union([z.string(), z.number()]).describe("Data value as reported"),
+    timestamp: z.string().optional().describe("ISO 8601 timestamp"),
+    axis: z.string().optional().describe("Sub-axis tag for position items (X, Y, Z, S1)"),
+  })).default([]).describe("MTConnect data items already extracted from /current or /sample"),
+  total_blocks: z.number().int().positive().optional().describe("Total program blocks — enables progress estimate"),
+  response_level,
+}).passthrough();
+
 // ============================================================================
 // EXPORT MAP
 // ============================================================================
@@ -407,6 +426,8 @@ export const MACHINE_LIVE_ACTION_SCHEMAS: ActionSchemaMap = {
   digital_twin_state,
   predictive_maintenance_alert,
   energy_report,
+  // MTConnect canonical-state parser (1)
+  mtconnect_parse_status,
   // Kiosk Mode (4)
   kiosk_quick_sf: z.object({
     materialCategory: z.enum([

@@ -1,0 +1,52 @@
+[
+  {
+    "document_id": "cnc-handbook-ch3",
+    "title": "CNC Machining Handbook Chapter 3 - Speeds and Feeds",
+    "author": "Alan Overby",
+    "format": "text",
+    "expected_domain": "cam",
+    "expected_doc_type": "handbook",
+    "page_count": 12,
+    "text": "Chapter 3: Speeds and Feeds for CNC Machining\n\nCutting speed is the most important parameter in machining. For aluminum 6061-T6, use 300 to 600 surface feet per minute (SFM). For mild steel, reduce to 100-200 SFM. For stainless steel 304, use 60-120 SFM.\n\nThe formula for RPM is: N = Vc × 3.82 / D where N is spindle speed in RPM, Vc is cutting speed in SFM, and D is tool diameter in inches.\n\nFeed rate depends on chip load per tooth. For aluminum with a half inch end mill, chip load is 0.003 to 0.005 inches per tooth. For steel, reduce to 0.001-0.003 per tooth. Feed rate Vf = fz × z × N where fz is chip load, z is number of teeth, and N is RPM.\n\nDepth of cut should be 0.5 to 1.5 times the tool diameter for roughing. For finishing, use 0.010 to 0.020 inches.\n\nNever exceed the recommended SFM for your material. Always start conservative and increase speed based on the sound and chip formation. If you get chatter, reduce depth of cut and increase spindle speed.\n\nMaterial removal rate MRR = ae × ap × Vf where ae is width of cut, ap is depth of cut, and Vf is feed rate. Higher MRR means faster machining but more tool wear.\n\nBest practice: always use climb milling when possible. Use trochoidal milling for hard materials like Inconel and titanium. Make sure to use proper coolant — never machine titanium dry due to fire risk.\n\nRule of thumb: for carbide end mills in aluminum, you can run 3 times faster than HSS. For stainless steel, use cobalt or carbide only."
+  },
+  {
+    "document_id": "shop-safety-manual",
+    "title": "Machine Shop Safety Manual - Standard Operating Procedures",
+    "author": "Safety Department",
+    "format": "text",
+    "expected_domain": "shop",
+    "expected_doc_type": "technical_manual",
+    "page_count": 8,
+    "text": "Machine Shop Safety Manual\n\nTable of Contents\n1. General Safety Rules\n2. Machine-Specific Procedures\n3. Emergency Procedures\n\nChapter 1: General Safety Rules\n\nNever operate any machine without proper training. Always wear safety glasses in the shop. Never wear loose clothing or jewelry near rotating machinery. Warning: long hair must be tied back or covered.\n\nDanger: never reach into a running machine. Always wait for the spindle to stop completely before making adjustments. Do not remove chips by hand — use a brush or air.\n\nChapter 2: Machine-Specific Procedures\n\nCNC Mill Setup Procedure:\nStep one: verify the machine is homed and all axes are referenced.\nStep two: mount the vise on the table and indicate it to within 0.0005 inches.\nStep three: load the tool holders into the magazine and verify tool offsets.\nStep four: set the work coordinate system using an edge finder or probe.\nStep five: run the program in single block mode first to verify all moves.\nFinally: check the first part dimensions before running production.\n\nCritical: always verify the tool length offset before starting a new program. An incorrect offset can cause a crash.\n\nTroubleshooting: if you hear chatter during cutting, reduce depth of cut by 50 percent and increase spindle speed. If you see blue chips in steel, increase coolant flow — the workpiece is overheating.\n\nAlways indicate your vise to 0.0005 inches before precision work."
+  },
+  {
+    "document_id": "python-api-design",
+    "title": "Best Practices for Python REST API Design",
+    "author": "Dev Team",
+    "format": "markdown",
+    "expected_domain": "software",
+    "expected_doc_type": "blog_article",
+    "page_count": 3,
+    "text": "# Best Practices for Python REST API Design\n\nIn this post, I found that following these patterns leads to better maintainable APIs.\n\n## Authentication\n\nYou should always use JWT tokens for stateless authentication. Best practice: set token expiration to 15 minutes for access tokens. Configure refresh tokens to 7 days.\n\nThe key is to validate tokens on every request using middleware.\n\n## Error Handling\n\nFunction handle_error takes an exception and returns a structured JSON response. The endpoint /api/users returns user data with pagination.\n\nMake sure to log all 500 errors with stack traces. Don't forget to sanitize user input before database queries.\n\n## Database\n\nUse connection pooling with a pool size of 10-20 connections. Set query timeout to 30 seconds. Best practice: always use parameterized queries to prevent SQL injection.\n\nConfigure database_pool_size to 15. Set max_overflow to 5. Set connection_timeout to 30.\n\n## Deployment\n\nRemember to use environment variables for all configuration. Never hardcode secrets in source code. The trick is to use a secrets manager in production."
+  },
+  {
+    "document_id": "3d-printing-guide",
+    "title": "FDM 3D Printing Settings Guide",
+    "author": "MakerSpace",
+    "format": "text",
+    "expected_domain": "additive",
+    "expected_doc_type": "handbook",
+    "page_count": 5,
+    "text": "FDM 3D Printing Settings Guide\n\nBest practice: always calibrate your printer before starting a new material.\n\nPLA Settings:\nLayer height of 0.2 mm for standard prints. Nozzle temperature of 210 degrees C. Bed temperature of 60 degrees C. Print speed of 50 mm/s. Infill of 20 percent for most parts.\n\nABS Settings:\nLayer height of 0.2 mm. Nozzle temperature of 240 degrees C. Bed temperature of 100 degrees C. Print speed of 40 mm/s. Infill of 25 percent. Warning: ABS releases fumes — always use in ventilated area.\n\nPETG Settings:\nNozzle temperature of 230 degrees C. Bed temperature of 80 degrees C. Print speed of 45 mm/s.\n\nTroubleshooting:\nIf you get stringing, reduce nozzle temperature by 5 degrees and increase retraction distance.\nIf you have poor bed adhesion, make sure to clean the build plate with isopropyl alcohol.\nIf you see layer shifting, check the belt tension on both axes.\n\nNever exceed the maximum temperature for your hotend. Make sure to level the bed before every print. The key is consistent first layer adhesion."
+  },
+  {
+    "document_id": "electronics-arduino",
+    "title": "Arduino Sensor Integration Guide",
+    "author": "Electronics Lab",
+    "format": "text",
+    "expected_domain": "electronics",
+    "expected_doc_type": "technical_manual",
+    "page_count": 6,
+    "text": "Arduino Sensor Integration Guide\n\nTable of Contents\n1. Temperature Sensor\n2. Load Cell\n3. Accelerometer\n\nChapter 1: Temperature Sensor (DS18B20)\n\nConnect pin 1 (GND) to Arduino GND. Connect pin 2 (Data) to Arduino GPIO 4. Connect pin 3 (VCC) to Arduino 5V. Use a 4.7k ohm pull-up resistor between Data and VCC.\n\nThe sensor operates at 3.3V to 5V and reads temperature from -55 to 125 degrees C with accuracy of 0.5 degrees.\n\nChapter 2: Load Cell (HX711)\n\nConnect VCC to 5V. Connect GND to GND. Connect DT to GPIO 2. Connect SCK to GPIO 3.\n\nThe HX711 amplifier has a 10 ohm input and provides 24-bit resolution. Use a 100nF capacitor across the power pins for noise filtering.\n\nStep one: mount the load cell on a flat surface.\nStep two: connect the HX711 amplifier board.\nStep three: calibrate with a known weight.\nStep four: read the calibrated values in your sketch.\n\nNever exceed the rated capacity of the load cell. Always use proper shielded cables for the Wheatstone bridge connections.\n\nThe important thing is proper grounding to avoid noise in measurements."
+  }
+]

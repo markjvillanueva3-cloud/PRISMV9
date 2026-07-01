@@ -318,7 +318,7 @@ describe('ShopFloorClockPage', () => {
     });
   });
 
-  it('keeps the PRISM AI copilot built into the opening shop-floor desk and auto-briefs the live floor context', async () => {
+  it('keeps the Kienzle AI copilot built into the opening shop-floor desk and auto-briefs the live floor context', async () => {
     renderPage(`/shop-clock?scan=${encodeURIComponent(SCAN_PAYLOAD)}`);
 
     await waitFor(() => expect(screen.getByText(/Avery Stone/)).toBeDefined());
@@ -327,9 +327,9 @@ describe('ShopFloorClockPage', () => {
 
     await waitFor(() => expect(screen.getByText(/JOB-TRACK-1 registered/i)).toBeDefined());
 
-    expect(screen.getByText(/PRISM AI copilot/i)).toBeDefined();
+    expect(screen.getByText(/Kienzle AI copilot/i)).toBeDefined();
     expect(screen.getByRole('button', { name: /Preview route/i })).toBeDefined();
-    expect(screen.getByRole('button', { name: /Ask PRISM AI/i })).toBeDefined();
+    expect(screen.getByRole('button', { name: /Ask Kienzle AI/i })).toBeDefined();
     expect(screen.getByRole('button', { name: /Summarize floor risk/i })).toBeDefined();
     expect(screen.getByText(/Autonomous desk brief on/i)).toBeDefined();
     expect(screen.getByRole('button', { name: /Refresh AI brief/i })).toBeDefined();
@@ -551,7 +551,7 @@ describe('ShopFloorClockPage', () => {
 
   it('shows shop-wide hot-job awareness on the floor tracker', async () => {
     window.localStorage.setItem(
-      'prism.hot-jobs.v1',
+      'kienzle.hot-jobs.v1',
       JSON.stringify([
         {
           jobId: 'JOB-TRACK-1',

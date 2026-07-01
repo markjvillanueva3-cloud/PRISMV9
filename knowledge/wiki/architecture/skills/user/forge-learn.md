@@ -23,13 +23,16 @@ related:
 |-------|-------|
 | Name | `forge-learn` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/forge-learn.md` |
+| Source | `C:/Users/wompu/.claude/commands/forge-learn.md` |
 | Model | default |
 | Tags | _(none)_ |
 
 ## Description (first paragraph)
 
-_(no body content)_
+
+# Forge Learn — Continuous Learning Pipeline Orchestrator
+
+You are running a meta-pipeline that chains learning engines with forge engines to create a closed-loop continuous improvement system. This connects the **ingestion** layer (video-learn, pdf-learn) with the **creation** layer (forge-engines, forge-skills, forge-hooks) through the **knowledge bridge**, so that every piece of learned kno
 
 <!-- AUTO-END -->
 

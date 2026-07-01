@@ -1,0 +1,115 @@
+{
+  "$schema": "milestone-envelope-v1",
+  "schemaVersion": "1.0.0",
+  "milestone_id": "HERMES-BRIDGE-MS0",
+  "title": "Bidirectional Claude Code CLI <-> Hermes Agent CLI bridge (CC drives Hermes sandboxed; Hermes zulu launches the CC fleet on the subscription)",
+  "status": "in_progress",
+  "created_at": "2026-06-13T00:00:00.000Z",
+  "created_by": "slot sierra/echo (reconstructed 2026-06-16 by claude-7efaddb4 slot zulu -- envelope was missing from the milestones dir though units shipped)",
+  "spec_file": "state/shared/specs/CC-HERMES-BRIDGE-STATUS-2026-06-16.md",
+  "derived_from": [
+    "operator directive 2026-06-14: 'build the bridge for claude code cli to run the hermes app fully sandboxed like cimco/fusion; then the opposite way so hermes zulu can run the CC fleet'",
+    "operator directive 2026-06-16: 'did we finish the full bridge? both clis need to be updated' -> 4-track completion mandate (finish+verify, version-bump, config/context wire, new capability)",
+    "reference_hermes_cc_bridge_ms0_2026_06_14 (memory)",
+    "H:/.claude/plans/cozy-riding-origami.md (operator-approved plan)"
+  ],
+  "psn_legs_touched": [2, 11],
+  "notes": "Bridge premise: Hermes desktop login dropped OAuth, so keep heavy agentic work on the Claude SUBSCRIPTION by driving Hermes from Claude Code. auth.json holds 12 healthy subscription OAuth creds (0 expired, verified live 2026-06-16). Deliberately conservative: MOCK-default + dual-key (Bridge A), bounded + dry-run + burn-in (Bridge B) to prevent an autonomous Hermes runaway-spawning an expensive Opus fleet (fork-storm class). NEVER auto-rewrite Hermes auth.",
+  "units": [
+    {
+      "id": "U-HERMES-DELEGATION-PIN",
+      "title": "Pin Hermes delegation children to free-local ollama",
+      "status": "shipped",
+      "commit": "b1ff295da7",
+      "by": "slot echo"
+    },
+    {
+      "id": "U-PROXY-ENSURE",
+      "title": "Hermes proxy ensure",
+      "status": "shipped",
+      "wiki": "knowledge/wiki/code-tribal/learnings/hermes-bridge-ms0-u-proxy-ensure.md"
+    },
+    {
+      "id": "U-HYBRID-OLLAMA",
+      "title": "Hybrid Ollama routing for Hermes",
+      "status": "shipped",
+      "wiki": "knowledge/wiki/code-tribal/learnings/hermes-bridge-ms0-u-hybrid-ollama.md"
+    },
+    {
+      "id": "U-HERMES-UTIL-TRACK",
+      "title": "Hermes utilization tracking",
+      "status": "shipped",
+      "wiki": "knowledge/wiki/code-tribal/learnings/hermes-bridge-ms0-u-hermes-util-track.md"
+    },
+    {
+      "id": "U-ASK-HERMES-SKILL",
+      "title": "/ask-hermes slash command -- Hermes access from Claude Code",
+      "status": "shipped",
+      "wiki": "knowledge/wiki/code-tribal/learnings/hermes-bridge-ms0-u-ask-hermes-skill.md"
+    },
+    {
+      "id": "U-HB-A1-CC-TO-HERMES",
+      "title": "Bridge A: HermesAutomationBridge engine + prism_hermes dispatcher (CC drives Hermes CLI sandboxed; MOCK-default + dual-key live; 7 actions; 21 tests)",
+      "status": "shipped",
+      "commit": "80236a3f6e",
+      "by": "slot sierra"
+    },
+    {
+      "id": "U-HB-B1-HERMES-TO-CC-FLEET",
+      "title": "Bridge B: bounded fleet launcher (dry-run default, MaxSlots cap, reuses slot-tab-boot liveness) + zulu prism-fleet-launcher skill",
+      "status": "shipped",
+      "commit": "b2e21d47f1",
+      "by": "slot sierra",
+      "warning": "shipped WITHOUT a 3-of-3 scrutiny pass (ledger arms A/B/C all empty) -- see U-HB-B1-SCRUTINY"
+    },
+    {
+      "id": "U-HB-A1-LIVE-VERIFY",
+      "title": "LIVE verify Bridge A against the real Hermes install (read-only + dual-key spawn)",
+      "status": "shipped",
+      "commit": "(this session, claude-7efaddb4 slot zulu, 2026-06-16)",
+      "exit_criteria": "engine read-only actions (status/probe/auth/cron/skill) + a dual-key live spawn run against the REAL install",
+      "result": "PASS -- BRIDGE-A-LIVE-READONLY-OK installed=true exeExists=true profiles=21 oauthCreds=12 expired=0; dual-key spawn `hermes --version` conf=0.95 returned 'Hermes Agent v0.16.0 (2026.6.5)'. Artifact: mcp-server/scripts/verify-hermes-bridge-live.ts"
+    },
+    {
+      "id": "U-HB-ROUTINE-PLAN",
+      "title": "Open-source-verified Hermes manufacturing-routine planner: HermesAutomationBridge.routinePlan() emits ready-to-run 'hermes cron create' automations (shop-brief/fleet-pulse/regression-watch/closeout-watch) that deliver PRISM intel to the operator's phone; wired prism_hermes:hermes_routine_plan (read-only, 7->8 actions)",
+      "status": "shipped",
+      "commit": "011a032deb",
+      "by": "slot zulu (claude-7efaddb4, 2026-06-16)",
+      "derived_from": "operator directive 2026-06-16: 'hermes is completely open sourced so lets make sure we're taking full advantage of it in our build'",
+      "result": "EMIT-ONLY (never spawns, install-independent). cron / --deliver / --script / [SILENT] grammar verified from the open-source NousResearch/hermes-agent repo (hermes-already-has-routines.md @ v2026.6.5, MIT). 34/34 tests; per-file 2-arm scrutiny PASS (4 P2 latent, 2 hardened inline: runtime quote + whitespace guards). Operator deploys each command or via hermes_run dual-key; PRISM never auto-deploys."
+    },
+    {
+      "id": "U-HB-B1-SCRUTINY",
+      "title": "3-of-3 scrutiny of the Bridge-B bounded fleet launcher (it can spawn expensive Opus fleet sessions -- highest-risk unreviewed artifact)",
+      "status": "shipped",
+      "priority": "P1",
+      "commit": "c5bca80f4d (launcher) -- scrutiny completed by claude-7efaddb4 slot zulu 2026-06-16",
+      "exit_criteria": "scripts/fleet/launch-fleet-bounded.ps1 + prism-fleet-launcher SKILL.md reviewed by arms A/B/C, verdicts recorded",
+      "result": "3-of-3 PASS on c5bca80f4d. Arm A (holistic) PASS: all 5 fixes hold in live code (hard-clamp=6, de-dup-then-cap, up-front marker claim, dry-run default + non-zero-exit-stop, honest handed-to-wt!=attached). Arm B (adversarial) PASS: could NOT find a path exceeding the hard ceiling or fail-open on corrupt; clamp un-bypassable, fail-closed-on-present-but-unparseable correct, absent-file=fresh correct. Arm C (regression) PASS: slot names enum-validated vs the 26-NATO set BEFORE filesystem use (no marker path-traversal), JSON well-formed in every branch, launch record reflects actual launched/failed not intent, stale markers self-expire @240s TTL (no permanent pool shrink). All findings P2 (no P0/P1): residual concurrent-launcher read->claim TOCTOU (bounded by the hard cap, honestly documented, single-caller threat model -- NOT a fork-storm escape; full close = acquire the reserved .launcher.lock); failed-spawn marker persists 240s (conservative/self-healing); zero-byte chat-slots.json parses to null not flagged corrupt (conservative direction). Deferred follow-ups: U-HB-B1-LOCK (acquire .launcher.lock around read->claim) + delete-marker-on-spawn-failure."
+    },
+    {
+      "id": "U-CLI-VERSION-BUMP",
+      "title": "Bump both CLIs + re-target the bridge (Hermes reports 'Update available: 312 commits' on v0.16.0; Claude Code latest npm = 2.1.178)",
+      "status": "not_started",
+      "priority": "P1",
+      "gate": "OPERATOR-GATED -- bumping the Claude Code CLI the operator is running mid-session, and a 312-commit Hermes jump that could break the 21 profiles / 12 OAuth creds, are sensitive live changes. Procedure documented in the spec_file; operator executes at a safe boundary.",
+      "source_verified_2026_06_16": "Hermes is the open-source git repo at C:/Users/wompu/AppData/Local/hermes/hermes-agent (origin github.com/NousResearch/hermes-agent, MIT), branch main, HEAD v2026.6.5-810-g7d183f649, EXACTLY 312 commits behind @{u} (git rev-list --count HEAD..@{u}). So the bump is a TRACKED `git -C <repo> pull` + `uv pip install -e .` re-link -- NOT a mystery Nous installer. Still operator-gated (back up auth.json/profiles/ first; a 312-commit jump may touch the auth schema).",
+      "exit_criteria": "both CLIs on current versions; re-verify the bridge paths/flags/exe via verify-hermes-bridge-live.ts; re-target HermesAutomationBridge defaults only if paths/flags changed"
+    },
+    {
+      "id": "U-MCP-ROUNDTRIP-VERIFY",
+      "title": "LIVE prism_hermes round-trip through an MCP client (not just engine-direct)",
+      "status": "blocked",
+      "blocked_by": "MCP bridge currently down (0 bridge processes); needs a session-level /mcp reconnect (a hook cannot respawn the harness bridge). Engine-direct live verification (U-HB-A1-LIVE-VERIFY) already proves the same code path the dispatcher invokes.",
+      "exit_criteria": "prism_hermes hermes_status/probe round-trip returns through a live MCP client"
+    },
+    {
+      "id": "U-BRIDGE-NEW-CAP",
+      "title": "New bridge capability (track 4) -- formalize Bridge-B skill-deploy + fleet-launch as engine actions; add hermes_profile_list/switch, hermes_delegate (route a task to Hermes-on-subscription)",
+      "status": "not_started",
+      "priority": "P2",
+      "exit_criteria": "proposal confirmed by operator; engine actions + dispatcher wire + round-trip tests per comprehensive-build"
+    }
+  ]
+}

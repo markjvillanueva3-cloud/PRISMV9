@@ -24,7 +24,11 @@ import {
 } from "./HyperMillDeepLearningEngine.js";
 import { hyperMillStrategyEngine } from "./HyperMillStrategyEngine.js";
 import { hyperMillMaterialBridgeEngine } from "./HyperMillMaterialBridgeEngine.js";
-import { hyperMillMaterialPhysicsBridge } from "./HyperMillMaterialPhysicsBridge.js";
+// Milling-physics is computed via the shared MastercamMaterialPhysicsBridge —
+// it is the canonical Kienzle/Taylor milling-physics bridge and produces the
+// MillingPhysicsOutput shape consumed below. HyperMillMaterialPhysicsBridge
+// exposes only material-resolution, not a full milling-physics pass.
+import { mastercamMaterialPhysicsBridge } from "./MastercamMaterialPhysicsBridge.js";
 import { hyperMillStrategyKnowledgeEngine } from "./HyperMillStrategyKnowledgeEngine.js";
 
 // ============================================================================
@@ -253,7 +257,7 @@ export class HyperMillAIOrchestrationEngine {
       });
 
       if (request.material_id) {
-        materialProfile = hyperMillMaterialBridgeEngine.getPhysicsProfile(request.material_id);
+        materialProfile = hyperMillMaterialBridgeEngine.lookupMaterial(request.material_id);
         enginesInvoked.push("HyperMillMaterialBridgeEngine");
       }
     }
@@ -288,8 +292,8 @@ export class HyperMillAIOrchestrationEngine {
           parameters: {
             ae_pct: (deepResult.selected_strategy.ae_factor || 0.1) * 100,
             ap_factor: deepResult.selected_strategy.ap_factor || 2.0,
-            speed_m_min: deepResult.cutting_parameters.speed_m_min,
-            feed_mm_tooth: deepResult.cutting_parameters.feed_mm_tooth
+            feed_factor: deepResult.parameter_suggestions["feed_factor_for_material"] ?? 1.0,
+            cutting_mode: deepResult.parameter_suggestions["cutting_mode"] ?? "climb"
           },
           rationale: deepResult.reasoning_chain.join(" → ")
         };
@@ -355,7 +359,7 @@ export class HyperMillAIOrchestrationEngine {
         source: "HyperMillMaterialPhysicsBridge"
       });
 
-      const physicsResult = hyperMillMaterialPhysicsBridge.calculateMillingPhysics({
+      const physicsResult = mastercamMaterialPhysicsBridge.calculateMillingPhysics({
         material_id: request.material_id,
         tool_diameter_mm: request.tool_diameter_mm,
         tool_flutes: request.tool_flutes || 4,

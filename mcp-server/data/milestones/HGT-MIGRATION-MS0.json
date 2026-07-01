@@ -1,0 +1,37 @@
+{
+  "id": "HGT-MIGRATION-MS0",
+  "title": "HGT replaces GraphSAGE in NN tier-5 — architecture-side AUROC fix (R4 pick #9)",
+  "track": "NN-GNN",
+  "status": "pending",
+  "owner": "papa",
+  "spec_path": "state/shared/specs/PSN-INCORPORATION-RESEARCH-R4-2026-05-25.md",
+  "rationale": "PRISM's tier-5 GNN is HOMOGENEOUS (GraphSAGE) on a HETEROGENEOUS graph (L1-L11 layers + multiple status types + multiple edge types). HGT (Heterogeneous Graph Transformer, Hu et al. 2020) is designed for exactly this graph shape. Expected AUROC: 0.6129 (current with embed-coverage fix iter4 commit b0e9e31638) → 0.85+ post-HGT, clearing the 0.78 promotion gate.",
+  "estimated_duration": "3 weeks",
+  "total_units": 8,
+  "completed_units": 0,
+  "units": [
+    {"id": "HGT-01", "title": "Add type-aware message-passing primitive (per-edge-type weight matrices)", "status": "pending", "owner_slot": "papa"},
+    {"id": "HGT-02", "title": "Per-node-type linear projection (W_τ per layer type L1..L11)", "status": "pending", "owner_slot": "papa"},
+    {"id": "HGT-03", "title": "Multi-head attention with type-specific Q/K/V matrices", "status": "pending", "owner_slot": "papa"},
+    {"id": "HGT-04", "title": "Relative temporal encoding (RTE) — newer nodes get higher attention weight", "status": "pending", "owner_slot": "papa"},
+    {"id": "HGT-05", "title": "HGT-trainer drop-in replacement for graphsage-trainer.mjs (same interface)", "status": "pending", "owner_slot": "papa"},
+    {"id": "HGT-06", "title": "Side-by-side eval: GraphSAGE vs HGT on identical held-out split", "status": "pending", "owner_slot": "papa"},
+    {"id": "HGT-07", "title": "Promotion run — HGT clears AUROC≥0.78, macroF1≥0.55, Brier≤0.15", "status": "pending", "owner_slot": "papa"},
+    {"id": "HGT-08", "title": "Migrate live checkpoint + retire GraphSAGE (archive, don't delete)", "status": "pending", "owner_slot": "papa"}
+  ],
+  "exit_gate": {
+    "auroc_promoted": "≥ 0.78 on production eval split",
+    "macro_f1_promoted": "≥ 0.55",
+    "brier_promoted": "≤ 0.15",
+    "speedup_or_neutral": "training time per epoch within 1.5x of GraphSAGE (no regression)",
+    "rollback_path_proven": "graphsage checkpoint archived + can be restored via lifecycle flag"
+  },
+  "depends_on": ["AI-STACK-PER-DOMAIN-MS0"],
+  "blocks": ["AI-STACK-PER-DOMAIN-MS0 (all L4 units)"],
+  "summary": "Architecture-side AUROC fix. GraphSAGE is the wrong tool for PRISM's L1-L11 + status-type heterogeneous graph. HGT is the right tool. 3 weeks; expected +3-5% AUROC carrying past the 0.78 promotion gate. Papa owns; the existing nn-graph-retrain-lifecycle.mjs handles promotion logic, just swap the trainer.",
+  "references": [
+    "reference_psn_r4_deep_stack_2026_05_25 — R4 spec § HGT pick #9",
+    "reference_nn_retrain_2026_05_25_2056 — iter4 retrain result (AUROC 0.6129)",
+    "scripts/lib/graphsage-trainer.mjs — current implementation (replace, don't extend)"
+  ]
+}

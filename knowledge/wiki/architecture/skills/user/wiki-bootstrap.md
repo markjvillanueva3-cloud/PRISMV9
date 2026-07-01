@@ -23,13 +23,14 @@ related:
 |-------|-------|
 | Name | `wiki-bootstrap` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/wiki-bootstrap.md` |
+| Source | `C:/Users/wompu/.claude/commands/wiki-bootstrap.md` |
 | Model | default |
 | Tags | _(none)_ |
 
 ## Description (first paragraph)
 
-Cold-start the PRISM wiki vault. Idempotent — re-running on a populated vault is a no-op (every entry is upserted, not appended).
+
+# /wiki-bootstrap
 
 <!-- AUTO-END -->
 

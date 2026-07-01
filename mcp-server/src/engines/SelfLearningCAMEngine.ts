@@ -31,6 +31,10 @@
  * @module SelfLearningCAMEngine
  */
 
+import { existsSync, readFileSync, renameSync } from "node:fs";
+import { join, resolve } from "node:path";
+import { atomicWriteJson } from "../utils/atomicSessionWrite.js";
+
 // ============================================================================
 // INTERFACES — Cut-to-Learn Pipeline
 // ============================================================================
@@ -548,8 +552,54 @@ function diagKalmanUpdate(
  *
  * Maintains per-material Bayesian priors, per-machine digital twin states,
  * strategy performance matrices, and fleet-level hierarchical models.
- * All state is in-memory; persistence via export/import methods.
+ * State persists to disk via saveState()/loadState() (atomic, fail-loud on a
+ * present-but-corrupt file) and auto-loads on construction, so learning
+ * survives process restart instead of resetting to literature priors. That
+ * persistence boundary is what makes the loop actually *closed* across runs.
+ *
+ * [SCOPED] This engine intentionally performs filesystem I/O (the persistence
+ * boundary) -- a deliberate deviation from the "engines are pure calculation"
+ * convention, taken because it is the lowest-friction place to close the loop
+ * without a separate repository layer. KNOWN LIMITATION (follow-up U1b): the
+ * default path is shared (state/shared/cam-drive), so concurrent processes are
+ * last-writer-wins on the snapshot (no inter-process merge/lock yet). Single-
+ * process use is durable; multi-writer needs withLock or per-slot paths.
  */
+
+// -- Durable-persistence config (the closed-loop boundary) --
+const LEARN_STATE_SCHEMA_VERSION = "1.0.0";
+/** Schema versions loadState() will import. A version outside this set (e.g. a
+ *  future forward-incompatible major) is refused rather than imported blind. */
+const ACCEPTED_STATE_SCHEMA_VERSIONS = new Set(["1.0.0", "0.9.0"]);
+const IN_TEST = !!process.env.VITEST || process.env.NODE_ENV === "test";
+/** Whether autosave is off, evaluated at CALL time so the env knob takes effect
+ *  at runtime (not frozen at import) and tests can force-enable the production
+ *  path. PRISM_CAM_LEARN_AUTOSAVE: "0" = hard off, "1" = force on, unset = on in
+ *  production / off under vitest. */
+function autosaveDisabled(): boolean {
+  if (process.env.PRISM_CAM_LEARN_AUTOSAVE === "0") return true;
+  if (process.env.PRISM_CAM_LEARN_AUTOSAVE === "1") return false;
+  return IN_TEST;
+}
+/** Bound the persisted snapshot so a long-running session cannot grow the file
+ *  without limit (the observation/strategy logs are append-only / O(n)). Each
+ *  atomic write stays O(cap), so autosave is O(n) total instead of O(n^2). Only
+ *  the on-disk snapshot is truncated to the most-recent rows -- in-memory state
+ *  is never altered, so live strategyRanking/fleetLearn see the full history. */
+const PERSIST_MAX_OBS_PER_MACHINE = 1000;
+const PERSIST_MAX_STRATEGY_RECORDS = 5000;
+
+/**
+ * Resolve the learned-state file path. PRISM_CAM_LEARN_STATE_PATH overrides
+ * (tests inject a temp path); else PRISM_ROOT-anchored (cwd is unreliable when
+ * the server runs from mcp-server/), else cwd.
+ */
+function resolveLearnStatePath(): string {
+  if (process.env.PRISM_CAM_LEARN_STATE_PATH) return resolve(process.env.PRISM_CAM_LEARN_STATE_PATH);
+  const root = process.env.PRISM_ROOT ?? process.cwd();
+  return join(root, "state", "shared", "cam-drive", "learned-cam-state.json");
+}
+
 class SelfLearningCAMEngine {
   /** Per-material-group Bayesian priors */
   private materialPriors: Map<string, MaterialPriors> = new Map();
@@ -566,10 +616,20 @@ class SelfLearningCAMEngine {
   /** Observation history for fleet learning */
   private machineObservations: Map<string, MachiningObservation[]> = new Map();
 
+  /** Set when loadState found a present-but-corrupt file, so saveState
+   *  preserves it aside instead of clobbering (the 2026-06-08 fail-open lesson). */
+  private _loadCorrupt = false;
+
   constructor() {
     // Initialize default priors for all ISO material groups
     for (const group of ["P", "M", "K", "N", "S", "H"]) {
       this.initMaterialPriors(group);
+    }
+    // Closed-loop durability: reload persisted learning so the engine does not
+    // reset to literature priors on every restart. Off under vitest unless a
+    // test opts in via PRISM_CAM_LEARN_FORCE_LOAD=1 (exercises the prod path).
+    if (!IN_TEST || process.env.PRISM_CAM_LEARN_FORCE_LOAD === "1") {
+      try { this.loadState(); } catch { /* never -- loadState is internally fail-safe */ }
     }
   }
 
@@ -649,10 +709,14 @@ class SelfLearningCAMEngine {
         return this.anomalyRelearn(params as AnomalyRelearnInput);
       case "fleet_learn":
         return this.fleetLearn(params as FleetLearnInput);
+      case "save_state":
+        return this.saveState(params?.path);
+      case "load_state":
+        return this.loadState(params?.path);
       default:
         return { error: `Unknown action: ${action}`, availableActions: [
           "cut_to_learn", "digital_twin_sync", "strategy_ranking",
-          "anomaly_relearn", "fleet_learn",
+          "anomaly_relearn", "fleet_learn", "save_state", "load_state",
         ]};
     }
   }
@@ -907,6 +971,7 @@ class SelfLearningCAMEngine {
       recommendations.push("Substantial learning data accumulated — model confidence is increasing");
     }
 
+    this.autoPersist(); // closed-loop: flush updated posteriors to disk
     return {
       observationsProcessed: observations.length,
       kienzleUpdates: Object.keys(kienzleUpdates).length > 0 ? kienzleUpdates : undefined,
@@ -1085,6 +1150,7 @@ class SelfLearningCAMEngine {
       recommendations.push(`Twin updated with ${readings.length} sensor readings. Kalman filter converging.`);
     }
 
+    this.autoPersist(); // closed-loop: flush twin state to disk
     return {
       machineId,
       twinState: twin,
@@ -1415,6 +1481,7 @@ class SelfLearningCAMEngine {
       }
     }
 
+    this.autoPersist(); // closed-loop: persist Welford residual updates (run every obs, anomaly or not)
     return {
       observationsChecked: observations.length,
       anomaliesDetected: anomalies,
@@ -1671,8 +1738,110 @@ class SelfLearningCAMEngine {
   }
 
   // ========================================================================
-  // UTILITY: Export / Import / Reset
+  // UTILITY: Persist / Export / Import / Reset
   // ========================================================================
+
+  /**
+   * Persist all learned state to disk (atomic tmp+rename). This is the
+   * closed-loop's durability boundary: without it every restart resets to
+   * literature priors and nothing is actually "learned" across runs. Returns a
+   * structured result and never throws (a tool call must not die because state
+   * could not be saved). Honors PRISM_CAM_LEARN_STATE_PATH.
+   *
+   * Clobber-guard: if the prior load found a corrupt file, it is renamed aside
+   * (`.corrupt-<ts>`) before the fresh write so a human can recover it, never
+   * silently overwritten (the 2026-06-08 fail-open-then-clobber lesson).
+   *
+   * @param filePath optional override path (else resolveLearnStatePath()).
+   * @returns `{ ok, path, records, reason? }`.
+   */
+  saveState(filePath?: string): { ok: boolean; path: string; records: number; reason?: string } {
+    const target = filePath || resolveLearnStatePath();
+    if (this._loadCorrupt && existsSync(target)) {
+      try { renameSync(target, `${target}.corrupt-${Date.now()}`); } catch { /* best-effort preserve */ }
+      this._loadCorrupt = false;
+    }
+    const state = this.exportState();
+    // Bound the on-disk snapshot to the most-recent rows (in-memory untouched).
+    const boundedObs: Record<string, MachiningObservation[]> = {};
+    for (const [m, obs] of Object.entries(state.machineObservations)) {
+      boundedObs[m] = obs.length > PERSIST_MAX_OBS_PER_MACHINE ? obs.slice(-PERSIST_MAX_OBS_PER_MACHINE) : obs;
+    }
+    const boundedStrategy =
+      state.strategyRecords.length > PERSIST_MAX_STRATEGY_RECORDS
+        ? state.strategyRecords.slice(-PERSIST_MAX_STRATEGY_RECORDS)
+        : state.strategyRecords;
+    const snapshot = { ...state, machineObservations: boundedObs, strategyRecords: boundedStrategy };
+    const records =
+      snapshot.strategyRecords.length +
+      Object.keys(snapshot.twinStates).length +
+      Object.values(snapshot.machineObservations).reduce((s, a) => s + a.length, 0);
+    atomicWriteJson(target, {
+      schemaVersion: LEARN_STATE_SCHEMA_VERSION,
+      savedAt: new Date().toISOString(),
+      records,
+      state: snapshot,
+    });
+    // R12 honesty: confirm the write actually landed (atomicWriteJson is fail-soft).
+    const ok = existsSync(target);
+    return { ok, path: target, records, reason: ok ? undefined : "write-not-confirmed" };
+  }
+
+  /**
+   * Load previously persisted learned state and merge it via importState().
+   * Fail-LOUD on a present-but-corrupt file (logs + sets _loadCorrupt so a
+   * later saveState preserves it aside) and does NOT reset to empty, the
+   * opposite of the fail-open clobber that destroyed the tribal brain
+   * (2026-06-08). An absent file is a legitimate cold start (literature priors
+   * stand). Never throws.
+   *
+   * @param filePath optional override path (else resolveLearnStatePath()).
+   * @returns `{ loaded, path, records?, reason? }`.
+   */
+  loadState(filePath?: string): { loaded: boolean; path: string; records?: number; reason?: string } {
+    const target = filePath || resolveLearnStatePath();
+    if (!existsSync(target)) return { loaded: false, path: target, reason: "no-file" };
+    let raw: string;
+    try {
+      raw = readFileSync(target, "utf8");
+    } catch (err) {
+      this._loadCorrupt = true;
+      return { loaded: false, path: target, reason: `read-failed: ${String(err)}` };
+    }
+    let parsed: any;
+    try {
+      parsed = JSON.parse(raw);
+    } catch (err) {
+      this._loadCorrupt = true;
+      console.error(`[SelfLearningCAM] learned-state file is corrupt, NOT clobbering: ${target} -- ${String(err)}`);
+      return { loaded: false, path: target, reason: "corrupt-json" };
+    }
+    if (!parsed || typeof parsed !== "object" || !parsed.state || typeof parsed.state !== "object") {
+      this._loadCorrupt = true;
+      console.error(`[SelfLearningCAM] learned-state has no .state envelope, NOT clobbering: ${target}`);
+      return { loaded: false, path: target, reason: "no-state-envelope" };
+    }
+    if (parsed.schemaVersion && !ACCEPTED_STATE_SCHEMA_VERSIONS.has(parsed.schemaVersion)) {
+      this._loadCorrupt = true; // preserve aside on next save; do not import blind
+      console.error(`[SelfLearningCAM] learned-state schemaVersion ${parsed.schemaVersion} not in accepted set {${[...ACCEPTED_STATE_SCHEMA_VERSIONS].join(", ")}} -- NOT importing`);
+      return { loaded: false, path: target, reason: "unsupported-schema" };
+    }
+    try {
+      this.importState(parsed.state);
+    } catch (err) {
+      this._loadCorrupt = true;
+      return { loaded: false, path: target, reason: `import-failed: ${String(err)}` };
+    }
+    return { loaded: true, path: target, records: typeof parsed.records === "number" ? parsed.records : undefined };
+  }
+
+  /** Autosave after a learning mutation (closed-loop persistence). Writes every
+   *  time so a final low-frequency outcome is never lost to a throttle window;
+   *  the state is small and the write is atomic. Disabled in tests / by env. */
+  private autoPersist(): void {
+    if (autosaveDisabled()) return;
+    this.saveState();
+  }
 
   /** Export all learning state for persistence */
   exportState(): {

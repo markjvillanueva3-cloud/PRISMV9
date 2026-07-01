@@ -1,0 +1,1906 @@
+{
+  "schemaVersion": 1,
+  "artifact": "hermes-knowledge-tips-staging",
+  "generatedBy": "scripts/stage-hermes-knowledge-tips.mjs (slot:zulu)",
+  "note": "ADVISORY staging. Review-then-embed via the shard-safe tribal writer (golf/india). NOT the live index. safety/needs_specialist_confirm items: specialist confirms threshold vs the cited source before any gate fires.",
+  "sourceSpecs": [
+    "state/shared/specs/HERMES-KNOWLEDGE-ENRICHMENT-PRIMARY-DOMAINS-2026-06-29.md",
+    "state/shared/specs/HERMES-KNOWLEDGE-ENRICHMENT-WAVE2-2026-06-29.md"
+  ],
+  "count": 84,
+  "tips": [
+    {
+      "title": "Chip-thinning feed correction for ae<0.5D",
+      "body": "Chip-thinning feed correction for ae<0.5D | formula/threshold: fz_corr = fz/sin(acos(1-2ae/D))",
+      "category": "milling",
+      "tags": [
+        "domain:mill",
+        "hermes:grok-4.20-0309-reasoning",
+        "wave:1",
+        "verify:confirms-doctrine"
+      ],
+      "material_groups": [],
+      "operation_types": [
+        "milling"
+      ],
+      "confidence": 70,
+      "source": "hermes:grok-4.20 (wave 1) | cite: Altintas, Manufacturing Automation 2e",
+      "id": "hk-w1-mill-001",
+      "created_at": "2026-06-29",
+      "usage_count": 0,
+      "safety": false,
+      "needs_specialist_confirm": false
+    },
+    {
+      "title": "Pick speeds at stability-lobe peaks from measured FRF (chatter-free heavy roughing)",
+      "body": "Pick speeds at stability-lobe peaks from measured FRF (chatter-free heavy roughing) | formula/threshold: n/a",
+      "category": "milling",
+      "tags": [
+        "domain:mill",
+        "hermes:grok-4.20-0309-reasoning",
+        "wave:1",
+        "verify:new"
+      ],
+      "material_groups": [],
+      "operation_types": [
+        "milling"
+      ],
+      "confidence": 55,
+      "source": "hermes:grok-4.20 (wave 1) | cite: Altintas 2e",
+      "id": "hk-w1-mill-002",
+      "created_at": "2026-06-29",
+      "usage_count": 0,
+      "safety": false,
+      "needs_specialist_confirm": false
+    },
+    {
+      "title": "Maintain min tilt offset from rotary-axis alignment to avoid RTCP singularity",
+      "body": "Maintain min tilt offset from rotary-axis alignment to avoid RTCP singularity | formula/threshold: n/a",
+      "category": "milling",
+      "tags": [
+        "domain:mill",
+        "hermes:grok-4.20-0309-reasoning",
+        "wave:1",
+        "safety:gate-candidate",
+        "verify:confirms-doctrine"
+      ],
+      "material_groups": [],
+      "operation_types": [
+        "milling"
+      ],
+      "confidence": 70,
+      "source": "hermes:grok-4.20 (wave 1) | cite: Siemens 840D sl Manual",
+      "id": "hk-w1-mill-003",
+      "created_at": "2026-06-29",
+      "usage_count": 0,
+      "safety": true,
+      "needs_specialist_confirm": true
+    },
+    {
+      "title": "Trochoidal = constant radial engagement -> higher feed within deflection limit",
+      "body": "Trochoidal = constant radial engagement -> higher feed within deflection limit | formula/threshold: n/a",
+      "category": "milling",
+      "tags": [
+        "domain:mill",
+        "hermes:grok-4.20-0309-reasoning",
+        "wave:1",
+        "verify:confirms-doctrine"
+      ],
+      "material_groups": [],
+      "operation_types": [
+        "milling"
+      ],
+      "confidence": 70,
+      "source": "hermes:grok-4.20 (wave 1) | cite: Schulz, High Speed Machining 2001",
+      "id": "hk-w1-mill-004",
+      "created_at": "2026-06-29",
+      "usage_count": 0,
+      "safety": false,
+      "needs_specialist_confirm": false
+    },
+    {
+      "title": "End-mill deflection (finish tolerance) Euler-Bernoulli",
+      "body": "End-mill deflection (finish tolerance) Euler-Bernoulli | formula/threshold: delta = F*L^3/(3*E*I)",
+      "category": "milling",
+      "tags": [
+        "domain:mill",
+        "hermes:grok-4.20-0309-reasoning",
+        "wave:1",
+        "verify:confirms-doctrine"
+      ],
+      "material_groups": [],
+      "operation_types": [
+        "milling"
+      ],
+      "confidence": 70,
+      "source": "hermes:grok-4.20 (wave 1) | cite: Stephenson & Agapiou 3e",
+      "id": "hk-w1-mill-005",
+      "created_at": "2026-06-29",
+      "usage_count": 0,
+      "safety": false,
+      "needs_specialist_confirm": false
+    },
+    {
+      "title": "Derate MRR if cutting power > available spindle power at RPM (torque curve)",
+      "body": "Derate MRR if cutting power > available spindle power at RPM (torque curve) | formula/threshold: n/a",
+      "category": "milling",
+      "tags": [
+        "domain:mill",
+        "hermes:grok-4.20-0309-reasoning",
+        "wave:1",
+        "safety:gate-candidate",
+        "verify:confirms-doctrine"
+      ],
+      "material_groups": [],
+      "operation_types": [
+        "milling"
+      ],
+      "confidence": 70,
+      "source": "hermes:grok-4.20 (wave 1) | cite: DMG Mori Programming Manual",
+      "id": "hk-w1-mill-006",
+      "created_at": "2026-06-29",
+      "usage_count": 0,
+      "safety": true,
+      "needs_specialist_confirm": true
+    },
+    {
+      "title": "Ti: climb + through-spindle coolant (work-hardening + heat + chip flow)",
+      "body": "Ti: climb + through-spindle coolant (work-hardening + heat + chip flow) | formula/threshold: n/a",
+      "category": "milling",
+      "tags": [
+        "domain:mill",
+        "hermes:grok-4.20-0309-reasoning",
+        "wave:1",
+        "verify:new"
+      ],
+      "material_groups": [],
+      "operation_types": [
+        "milling"
+      ],
+      "confidence": 55,
+      "source": "hermes:grok-4.20 (wave 1) | cite: Kennametal Titanium Machining Guide",
+      "id": "hk-w1-mill-007",
+      "created_at": "2026-06-29",
+      "usage_count": 0,
+      "safety": false,
+      "needs_specialist_confirm": false
+    },
+    {
+      "title": "G96 paired with G50 S-limit from min dia + jaw-grip derating (centrifugal unloading)",
+      "body": "G96 paired with G50 S-limit from min dia + jaw-grip derating (centrifugal unloading) | formula/threshold: n/a",
+      "category": "turning",
+      "tags": [
+        "domain:lathe",
+        "hermes:grok-4.20-0309-reasoning",
+        "wave:1",
+        "safety:gate-candidate",
+        "verify:confirms-doctrine"
+      ],
+      "material_groups": [],
+      "operation_types": [
+        "turning"
+      ],
+      "confidence": 70,
+      "source": "hermes:grok-4.20 (wave 1) | cite: Fanuc 0i-TB Operator Manual",
+      "id": "hk-w1-lathe-001",
+      "created_at": "2026-06-29",
+      "usage_count": 0,
+      "safety": true,
+      "needs_specialist_confirm": true
+    },
+    {
+      "title": "Nose radius from print Ra -> solve feed (cusp geometry)",
+      "body": "Nose radius from print Ra -> solve feed (cusp geometry) | formula/threshold: Ra = f^2/(32*r)",
+      "category": "turning",
+      "tags": [
+        "domain:lathe",
+        "hermes:grok-4.20-0309-reasoning",
+        "wave:1",
+        "verify:new"
+      ],
+      "material_groups": [],
+      "operation_types": [
+        "turning"
+      ],
+      "confidence": 55,
+      "source": "hermes:grok-4.20 (wave 1) | cite: Machinery's Handbook 31e",
+      "id": "hk-w1-lathe-002",
+      "created_at": "2026-06-29",
+      "usage_count": 0,
+      "safety": false,
+      "needs_specialist_confirm": false
+    },
+    {
+      "title": "Derate chuck pressure for centrifugal grip loss at RPM (OEM tables)",
+      "body": "Derate chuck pressure for centrifugal grip loss at RPM (OEM tables) | formula/threshold: F_loss ~ m*r*RPM^2",
+      "category": "turning",
+      "tags": [
+        "domain:lathe",
+        "hermes:grok-4.20-0309-reasoning",
+        "wave:1",
+        "safety:gate-candidate",
+        "verify:confirms-doctrine"
+      ],
+      "material_groups": [],
+      "operation_types": [
+        "turning"
+      ],
+      "confidence": 70,
+      "source": "hermes:grok-4.20 (wave 1) | cite: Kitagawa Chuck Manual",
+      "id": "hk-w1-lathe-003",
+      "created_at": "2026-06-29",
+      "usage_count": 0,
+      "safety": true,
+      "needs_specialist_confirm": true
+    },
+    {
+      "title": "Compound thread infeed at half the included angle (favor one flank)",
+      "body": "Compound thread infeed at half the included angle (favor one flank) | formula/threshold: n/a",
+      "category": "turning",
+      "tags": [
+        "domain:lathe",
+        "hermes:grok-4.20-0309-reasoning",
+        "wave:1",
+        "verify:confirms-doctrine"
+      ],
+      "material_groups": [],
+      "operation_types": [
+        "turning"
+      ],
+      "confidence": 70,
+      "source": "hermes:grok-4.20 (wave 1) | cite: Smid, CNC Programming Handbook 3e",
+      "id": "hk-w1-lathe-004",
+      "created_at": "2026-06-29",
+      "usage_count": 0,
+      "safety": false,
+      "needs_specialist_confirm": false
+    },
+    {
+      "title": "Peck/vector parting per chip-compression to keep side clearance (deep groove)",
+      "body": "Peck/vector parting per chip-compression to keep side clearance (deep groove) | formula/threshold: n/a",
+      "category": "turning",
+      "tags": [
+        "domain:lathe",
+        "hermes:grok-4.20-0309-reasoning",
+        "wave:1",
+        "safety:gate-candidate",
+        "verify:new"
+      ],
+      "material_groups": [],
+      "operation_types": [
+        "turning"
+      ],
+      "confidence": 55,
+      "source": "hermes:grok-4.20 (wave 1) | cite: Sandvik Parting Technical Guide",
+      "id": "hk-w1-lathe-005",
+      "created_at": "2026-06-29",
+      "usage_count": 0,
+      "safety": true,
+      "needs_specialist_confirm": true
+    },
+    {
+      "title": "Maximize boring-bar D before minimizing L (deflection scales L^3/D^4)",
+      "body": "Maximize boring-bar D before minimizing L (deflection scales L^3/D^4) | formula/threshold: delta ~ L^3/D^4",
+      "category": "turning",
+      "tags": [
+        "domain:lathe",
+        "hermes:grok-4.20-0309-reasoning",
+        "wave:1",
+        "verify:confirms-doctrine"
+      ],
+      "material_groups": [],
+      "operation_types": [
+        "turning"
+      ],
+      "confidence": 70,
+      "source": "hermes:grok-4.20 (wave 1) | cite: Machinery's Handbook 31e",
+      "id": "hk-w1-lathe-006",
+      "created_at": "2026-06-29",
+      "usage_count": 0,
+      "safety": false,
+      "needs_specialist_confirm": false
+    },
+    {
+      "title": "Sub-spindle: match RPM+phase, drop main pressure before pull (no handoff marking)",
+      "body": "Sub-spindle: match RPM+phase, drop main pressure before pull (no handoff marking) | formula/threshold: n/a",
+      "category": "turning",
+      "tags": [
+        "domain:lathe",
+        "hermes:grok-4.20-0309-reasoning",
+        "wave:1",
+        "safety:gate-candidate",
+        "verify:confirms-doctrine"
+      ],
+      "material_groups": [],
+      "operation_types": [
+        "turning"
+      ],
+      "confidence": 70,
+      "source": "hermes:grok-4.20 (wave 1) | cite: Okuma LU-S Programming Manual",
+      "id": "hk-w1-lathe-007",
+      "created_at": "2026-06-29",
+      "usage_count": 0,
+      "safety": true,
+      "needs_specialist_confirm": true
+    },
+    {
+      "title": "Program offset from feature tol: kerf = wire radius + spark gap (gap by conductivity/energy)",
+      "body": "Program offset from feature tol: kerf = wire radius + spark gap (gap by conductivity/energy) | formula/threshold: kerf = wire_radius + spark_gap",
+      "category": "wedm",
+      "tags": [
+        "domain:wedm",
+        "hermes:grok-4.20-0309-reasoning",
+        "wave:1",
+        "verify:confirms-doctrine"
+      ],
+      "material_groups": [],
+      "operation_types": [
+        "wire_edm"
+      ],
+      "confidence": 70,
+      "source": "hermes:grok-4.20 (wave 1) | cite: Jameson, EDM (SME 2001)",
+      "id": "hk-w1-wedm-001",
+      "created_at": "2026-06-29",
+      "usage_count": 0,
+      "safety": false,
+      "needs_specialist_confirm": false
+    },
+    {
+      "title": "Map thickness -> reduced jet velocity to hold wire bow below stable threshold",
+      "body": "Map thickness -> reduced jet velocity to hold wire bow below stable threshold | formula/threshold: n/a",
+      "category": "wedm",
+      "tags": [
+        "domain:wedm",
+        "hermes:grok-4.20-0309-reasoning",
+        "wave:1",
+        "safety:gate-candidate",
+        "verify:new"
+      ],
+      "material_groups": [],
+      "operation_types": [
+        "wire_edm"
+      ],
+      "confidence": 55,
+      "source": "hermes:grok-4.20 (wave 1) | cite: Sommer, Wire EDM Handbook 4e",
+      "id": "hk-w1-wedm-002",
+      "created_at": "2026-06-29",
+      "usage_count": 0,
+      "safety": true,
+      "needs_specialist_confirm": true
+    },
+    {
+      "title": "On gap collapse, reduce on-time BEFORE raising tension (prevent break)",
+      "body": "On gap collapse, reduce on-time BEFORE raising tension (prevent break) | formula/threshold: n/a",
+      "category": "wedm",
+      "tags": [
+        "domain:wedm",
+        "hermes:grok-4.20-0309-reasoning",
+        "wave:1",
+        "safety:gate-candidate",
+        "verify:confirms-doctrine"
+      ],
+      "material_groups": [],
+      "operation_types": [
+        "wire_edm"
+      ],
+      "confidence": 70,
+      "source": "hermes:grok-4.20 (wave 1) | cite: Fanuc Alpha-iC Wire Manual",
+      "id": "hk-w1-wedm-003",
+      "created_at": "2026-06-29",
+      "usage_count": 0,
+      "safety": true,
+      "needs_specialist_confirm": true
+    },
+    {
+      "title": "Taper: add wire-bow compensation to UV offset (thickness+angle, exit lag)",
+      "body": "Taper: add wire-bow compensation to UV offset (thickness+angle, exit lag) | formula/threshold: n/a",
+      "category": "wedm",
+      "tags": [
+        "domain:wedm",
+        "hermes:grok-4.20-0309-reasoning",
+        "wave:1",
+        "verify:confirms-doctrine"
+      ],
+      "material_groups": [],
+      "operation_types": [
+        "wire_edm"
+      ],
+      "confidence": 70,
+      "source": "hermes:grok-4.20 (wave 1) | cite: GF AgieCharmilles Taper Guide",
+      "id": "hk-w1-wedm-004",
+      "created_at": "2026-06-29",
+      "usage_count": 0,
+      "safety": false,
+      "needs_specialist_confirm": false
+    },
+    {
+      "title": "Multi-skim Ra cascade: step discharge energy down per pass (erode recast, update offset)",
+      "body": "Multi-skim Ra cascade: step discharge energy down per pass (erode recast, update offset) | formula/threshold: n/a",
+      "category": "wedm",
+      "tags": [
+        "domain:wedm",
+        "hermes:grok-4.20-0309-reasoning",
+        "wave:1",
+        "verify:confirms-doctrine"
+      ],
+      "material_groups": [],
+      "operation_types": [
+        "wire_edm"
+      ],
+      "confidence": 70,
+      "source": "hermes:grok-4.20 (wave 1) | cite: Jameson, EDM (SME 2001)",
+      "id": "hk-w1-wedm-005",
+      "created_at": "2026-06-29",
+      "usage_count": 0,
+      "safety": false,
+      "needs_specialist_confirm": false
+    },
+    {
+      "title": "Corner control: scale on-time + servo gain at vector changes (wire lag, kerf preserved)",
+      "body": "Corner control: scale on-time + servo gain at vector changes (wire lag, kerf preserved) | formula/threshold: n/a",
+      "category": "wedm",
+      "tags": [
+        "domain:wedm",
+        "hermes:grok-4.20-0309-reasoning",
+        "wave:1",
+        "verify:confirms-doctrine"
+      ],
+      "material_groups": [],
+      "operation_types": [
+        "wire_edm"
+      ],
+      "confidence": 70,
+      "source": "hermes:grok-4.20 (wave 1) | cite: Mitsubishi MV Programming Manual",
+      "id": "hk-w1-wedm-006",
+      "created_at": "2026-06-29",
+      "usage_count": 0,
+      "safety": false,
+      "needs_specialist_confirm": false
+    },
+    {
+      "title": "Thick section: raise gap-voltage compensation (debris ionization delay, restore stability)",
+      "body": "Thick section: raise gap-voltage compensation (debris ionization delay, restore stability) | formula/threshold: n/a",
+      "category": "wedm",
+      "tags": [
+        "domain:wedm",
+        "hermes:grok-4.20-0309-reasoning",
+        "wave:1",
+        "safety:gate-candidate",
+        "verify:new"
+      ],
+      "material_groups": [],
+      "operation_types": [
+        "wire_edm"
+      ],
+      "confidence": 55,
+      "source": "hermes:grok-4.20 (wave 1) | cite: Sommer, Wire EDM Handbook 4e",
+      "id": "hk-w1-wedm-007",
+      "created_at": "2026-06-29",
+      "usage_count": 0,
+      "safety": true,
+      "needs_specialist_confirm": true
+    },
+    {
+      "title": "Cap radial engagement (dynamic force model) below chatter in adaptive/trochoidal",
+      "body": "Cap radial engagement (dynamic force model) below chatter in adaptive/trochoidal | formula/threshold: n/a",
+      "category": "cam",
+      "tags": [
+        "domain:cam",
+        "hermes:grok-4.20-0309-reasoning",
+        "wave:1",
+        "safety:gate-candidate",
+        "verify:confirms-doctrine"
+      ],
+      "material_groups": [],
+      "operation_types": [
+        "cam_strategy"
+      ],
+      "confidence": 70,
+      "source": "hermes:grok-4.20 (wave 1) | cite: Altintas 2e",
+      "id": "hk-w1-cam-001",
+      "created_at": "2026-06-29",
+      "usage_count": 0,
+      "safety": true,
+      "needs_specialist_confirm": true
+    },
+    {
+      "title": "Trigger rest-machining when cusp from bulk removal > next tool scallop x shop multiplier",
+      "body": "Trigger rest-machining when cusp from bulk removal > next tool scallop x shop multiplier | formula/threshold: n/a",
+      "category": "cam",
+      "tags": [
+        "domain:cam",
+        "hermes:grok-4.20-0309-reasoning",
+        "wave:1",
+        "verify:new"
+      ],
+      "material_groups": [],
+      "operation_types": [
+        "cam_strategy"
+      ],
+      "confidence": 55,
+      "source": "hermes:grok-4.20 (wave 1) | cite: Smith, CNC Machining Technology (Springer 1993)",
+      "id": "hk-w1-cam-002",
+      "created_at": "2026-06-29",
+      "usage_count": 0,
+      "safety": false,
+      "needs_specialist_confirm": false
+    },
+    {
+      "title": "Gouge clearance = tool runout + kinematic error band (not a static offset)",
+      "body": "Gouge clearance = tool runout + kinematic error band (not a static offset) | formula/threshold: n/a",
+      "category": "cam",
+      "tags": [
+        "domain:cam",
+        "hermes:grok-4.20-0309-reasoning",
+        "wave:1",
+        "safety:gate-candidate",
+        "verify:new"
+      ],
+      "material_groups": [],
+      "operation_types": [
+        "cam_strategy"
+      ],
+      "confidence": 55,
+      "source": "hermes:grok-4.20 (wave 1) | cite: Mastercam Dynamic Toolpath Ref 2023",
+      "id": "hk-w1-cam-003",
+      "created_at": "2026-06-29",
+      "usage_count": 0,
+      "safety": true,
+      "needs_specialist_confirm": true
+    },
+    {
+      "title": "Post must keep full kinematic TCP sync or 5-axis gouges despite passing virtual sim",
+      "body": "Post must keep full kinematic TCP sync or 5-axis gouges despite passing virtual sim | formula/threshold: n/a",
+      "category": "cam",
+      "tags": [
+        "domain:cam",
+        "hermes:grok-4.20-0309-reasoning",
+        "wave:1",
+        "safety:gate-candidate",
+        "verify:confirms-doctrine"
+      ],
+      "material_groups": [],
+      "operation_types": [
+        "cam_strategy"
+      ],
+      "confidence": 70,
+      "source": "hermes:grok-4.20 (wave 1) | cite: OPEN MIND hyperMILL Post Handbook 2022",
+      "id": "hk-w1-cam-004",
+      "created_at": "2026-06-29",
+      "usage_count": 0,
+      "safety": true,
+      "needs_specialist_confirm": true
+    },
+    {
+      "title": "Ball-nose stepover from scallop height (chord width)",
+      "body": "Ball-nose stepover from scallop height (chord width) | formula/threshold: 2*sqrt(r^2-(r-h)^2)",
+      "category": "cam",
+      "tags": [
+        "domain:cam",
+        "hermes:grok-4.20-0309-reasoning",
+        "wave:1",
+        "verify:new"
+      ],
+      "material_groups": [],
+      "operation_types": [
+        "cam_strategy"
+      ],
+      "confidence": 55,
+      "source": "hermes:grok-4.20 (wave 1) | cite: Smid, CNC Programming Handbook 3e",
+      "id": "hk-w1-cam-005",
+      "created_at": "2026-06-29",
+      "usage_count": 0,
+      "safety": false,
+      "needs_specialist_confirm": false
+    },
+    {
+      "title": "Prefer lead tilt over lag on positive-curvature features (force to stronger tool center)",
+      "body": "Prefer lead tilt over lag on positive-curvature features (force to stronger tool center) | formula/threshold: n/a",
+      "category": "cam",
+      "tags": [
+        "domain:cam",
+        "hermes:grok-4.20-0309-reasoning",
+        "wave:1",
+        "safety:gate-candidate",
+        "verify:new"
+      ],
+      "material_groups": [],
+      "operation_types": [
+        "cam_strategy"
+      ],
+      "confidence": 55,
+      "source": "hermes:grok-4.20 (wave 1) | cite: Erdel, High-Speed Machining (SME 2003)",
+      "id": "hk-w1-cam-006",
+      "created_at": "2026-06-29",
+      "usage_count": 0,
+      "safety": true,
+      "needs_specialist_confirm": true
+    },
+    {
+      "title": "Mark IPW stock stale after any engagement-cap change; regen before rest verify",
+      "body": "Mark IPW stock stale after any engagement-cap change; regen before rest verify | formula/threshold: n/a",
+      "category": "cam",
+      "tags": [
+        "domain:cam",
+        "hermes:grok-4.20-0309-reasoning",
+        "wave:1",
+        "verify:new"
+      ],
+      "material_groups": [],
+      "operation_types": [
+        "cam_strategy"
+      ],
+      "confidence": 55,
+      "source": "hermes:grok-4.20 (wave 1) | cite: Siemens NX CAM IPW White Paper 2021",
+      "id": "hk-w1-cam-007",
+      "created_at": "2026-06-29",
+      "usage_count": 0,
+      "safety": false,
+      "needs_specialist_confirm": false
+    },
+    {
+      "title": "Dwell G04 P[ms] on Fanuc vs G4 F[sec] on Okuma OSP (else pause-length error)",
+      "body": "Dwell G04 P[ms] on Fanuc vs G4 F[sec] on Okuma OSP (else pause-length error) | formula/threshold: Fanuc/Okuma",
+      "category": "post_processor",
+      "tags": [
+        "domain:post-processor",
+        "hermes:grok-4.20-0309-reasoning",
+        "wave:1",
+        "verify:confirms-doctrine"
+      ],
+      "material_groups": [],
+      "operation_types": [
+        "post"
+      ],
+      "confidence": 70,
+      "source": "hermes:grok-4.20 (wave 1) | cite: Fanuc 0i-D B-64384EN p.367; Okuma OSP-P300S p.118",
+      "id": "hk-w1-post-processor-001",
+      "created_at": "2026-06-29",
+      "usage_count": 0,
+      "safety": false,
+      "needs_specialist_confirm": false
+    },
+    {
+      "title": "OSP comments use [] vs Fanuc () (else syntax alarm on load)",
+      "body": "OSP comments use [] vs Fanuc () (else syntax alarm on load) | formula/threshold: Okuma OSP",
+      "category": "post_processor",
+      "tags": [
+        "domain:post-processor",
+        "hermes:grok-4.20-0309-reasoning",
+        "wave:1",
+        "verify:confirms-doctrine"
+      ],
+      "material_groups": [],
+      "operation_types": [
+        "post"
+      ],
+      "confidence": 70,
+      "source": "hermes:grok-4.20 (wave 1) | cite: Okuma OSP-P300S Rev.4 p.28",
+      "id": "hk-w1-post-processor-002",
+      "created_at": "2026-06-29",
+      "usage_count": 0,
+      "safety": false,
+      "needs_specialist_confirm": false
+    },
+    {
+      "title": "Fanuc G76 2-block threading (P/Q/R) vs OSP G71 multi-pass (I/K remap)",
+      "body": "Fanuc G76 2-block threading (P/Q/R) vs OSP G71 multi-pass (I/K remap) | formula/threshold: Fanuc/Okuma",
+      "category": "post_processor",
+      "tags": [
+        "domain:post-processor",
+        "hermes:grok-4.20-0309-reasoning",
+        "wave:1",
+        "safety:gate-candidate",
+        "verify:confirms-doctrine"
+      ],
+      "material_groups": [],
+      "operation_types": [
+        "post"
+      ],
+      "confidence": 70,
+      "source": "hermes:grok-4.20 (wave 1) | cite: Fanuc B-64484EN p.215; Okuma Lathe p.176",
+      "id": "hk-w1-post-processor-003",
+      "created_at": "2026-06-29",
+      "usage_count": 0,
+      "safety": true,
+      "needs_specialist_confirm": true
+    },
+    {
+      "title": "Haas G187 Px + Setting 9 (HSM chord tol) vs Fanuc G05.1 Q1 Hx (AI nano)",
+      "body": "Haas G187 Px + Setting 9 (HSM chord tol) vs Fanuc G05.1 Q1 Hx (AI nano) | formula/threshold: Haas/Fanuc",
+      "category": "post_processor",
+      "tags": [
+        "domain:post-processor",
+        "hermes:grok-4.20-0309-reasoning",
+        "wave:1",
+        "verify:new"
+      ],
+      "material_groups": [],
+      "operation_types": [
+        "post"
+      ],
+      "confidence": 55,
+      "source": "hermes:grok-4.20 (wave 1) | cite: Haas Mill Workbook 06/2020 p.142; Fanuc B-64485EN p.89",
+      "id": "hk-w1-post-processor-004",
+      "created_at": "2026-06-29",
+      "usage_count": 0,
+      "safety": false,
+      "needs_specialist_confirm": false
+    },
+    {
+      "title": "Siemens CYCLE832(_TOL,_TOLM) dynamic smoothing vs Fanuc G05.1 (post-specific call)",
+      "body": "Siemens CYCLE832(_TOL,_TOLM) dynamic smoothing vs Fanuc G05.1 (post-specific call) | formula/threshold: Siemens",
+      "category": "post_processor",
+      "tags": [
+        "domain:post-processor",
+        "hermes:grok-4.20-0309-reasoning",
+        "wave:1",
+        "verify:new"
+      ],
+      "material_groups": [],
+      "operation_types": [
+        "post"
+      ],
+      "confidence": 55,
+      "source": "hermes:grok-4.20 (wave 1) | cite: Siemens 840D sl 03/2013 p.521",
+      "id": "hk-w1-post-processor-005",
+      "created_at": "2026-06-29",
+      "usage_count": 0,
+      "safety": false,
+      "needs_specialist_confirm": false
+    },
+    {
+      "title": "G93 inverse-time must cancel via G94 (NOT G95) on Fanuc/Haas (else F-scale gouge)",
+      "body": "G93 inverse-time must cancel via G94 (NOT G95) on Fanuc/Haas (else F-scale gouge) | formula/threshold: Fanuc/Haas",
+      "category": "post_processor",
+      "tags": [
+        "domain:post-processor",
+        "hermes:grok-4.20-0309-reasoning",
+        "wave:1",
+        "safety:gate-candidate",
+        "verify:confirms-doctrine"
+      ],
+      "material_groups": [],
+      "operation_types": [
+        "post"
+      ],
+      "confidence": 70,
+      "source": "hermes:grok-4.20 (wave 1) | cite: Fanuc B-64484EN p.312; Haas VF 2019 p.189",
+      "id": "hk-w1-post-processor-006",
+      "created_at": "2026-06-29",
+      "usage_count": 0,
+      "safety": true,
+      "needs_specialist_confirm": true
+    },
+    {
+      "title": "M3 S precede M8 in coolant block on Fanuc/Okuma verticals (bearing ingress)",
+      "body": "M3 S precede M8 in coolant block on Fanuc/Okuma verticals (bearing ingress) | formula/threshold: Fanuc/Okuma",
+      "category": "post_processor",
+      "tags": [
+        "domain:post-processor",
+        "hermes:grok-4.20-0309-reasoning",
+        "wave:1",
+        "safety:gate-candidate",
+        "verify:confirms-doctrine"
+      ],
+      "material_groups": [],
+      "operation_types": [
+        "post"
+      ],
+      "confidence": 70,
+      "source": "hermes:grok-4.20 (wave 1) | cite: Fanuc B-64384EN p.45; Okuma MC Ops p.67",
+      "id": "hk-w1-post-processor-007",
+      "created_at": "2026-06-29",
+      "usage_count": 0,
+      "safety": true,
+      "needs_specialist_confirm": true
+    },
+    {
+      "title": "AP242 preserves semantic PMI (tol-to-face); AP214 drops it -> breaks auto datum-ref in electrode paths",
+      "body": "AP242 preserves semantic PMI (tol-to-face); AP214 drops it -> breaks auto datum-ref in electrode paths | formula/threshold: n/a",
+      "category": "cad_gdt",
+      "tags": [
+        "domain:cad",
+        "hermes:grok-4.20-0309-reasoning",
+        "wave:1",
+        "verify:confirms-doctrine"
+      ],
+      "material_groups": [],
+      "operation_types": [
+        "cad"
+      ],
+      "confidence": 70,
+      "source": "hermes:grok-4.20 (wave 1) | cite: ISO 10303-242:2022 / -214:2010",
+      "id": "hk-w1-cad-001",
+      "created_at": "2026-06-29",
+      "usage_count": 0,
+      "safety": false,
+      "needs_specialist_confirm": false
+    },
+    {
+      "title": "Y14.5-2018 sec10.3.3: composite-position lower segment controls feature-to-feature only (not datums) unless overridden",
+      "body": "Y14.5-2018 sec10.3.3: composite-position lower segment controls feature-to-feature only (not datums) unless overridden | formula/threshold: n/a",
+      "category": "cad_gdt",
+      "tags": [
+        "domain:cad",
+        "hermes:grok-4.20-0309-reasoning",
+        "wave:1",
+        "safety:gate-candidate",
+        "verify:new"
+      ],
+      "material_groups": [],
+      "operation_types": [
+        "cad"
+      ],
+      "confidence": 55,
+      "source": "hermes:grok-4.20 (wave 1) | cite: ASME Y14.5-2018",
+      "id": "hk-w1-cad-002",
+      "created_at": "2026-06-29",
+      "usage_count": 0,
+      "safety": true,
+      "needs_specialist_confirm": true
+    },
+    {
+      "title": "Periodic B-spline knot multiplicity = degree+1 at seam (else duplicate C0 edges fragment B-rep)",
+      "body": "Periodic B-spline knot multiplicity = degree+1 at seam (else duplicate C0 edges fragment B-rep) | formula/threshold: n/a",
+      "category": "cad_gdt",
+      "tags": [
+        "domain:cad",
+        "hermes:grok-4.20-0309-reasoning",
+        "wave:1",
+        "verify:confirms-doctrine"
+      ],
+      "material_groups": [],
+      "operation_types": [
+        "cad"
+      ],
+      "confidence": 70,
+      "source": "hermes:grok-4.20 (wave 1) | cite: ISO 10303-42:2018",
+      "id": "hk-w1-cad-003",
+      "created_at": "2026-06-29",
+      "usage_count": 0,
+      "safety": false,
+      "needs_specialist_confirm": false
+    },
+    {
+      "title": "EDM electrode undersize = spark gap + side overcut + wear allowance",
+      "body": "EDM electrode undersize = spark gap + side overcut + wear allowance | formula/threshold: undersize = gap + overcut + wear",
+      "category": "cad_gdt",
+      "tags": [
+        "domain:cad",
+        "hermes:grok-4.20-0309-reasoning",
+        "wave:1",
+        "safety:gate-candidate"
+      ],
+      "material_groups": [],
+      "operation_types": [
+        "cad"
+      ],
+      "confidence": 50,
+      "source": "hermes:grok-4.20 (wave 1) | cite: shop-dependent",
+      "id": "hk-w1-cad-004",
+      "created_at": "2026-06-29",
+      "usage_count": 0,
+      "safety": true,
+      "needs_specialist_confirm": true
+    },
+    {
+      "title": "Validate manifold B-rep (no free edges, correct orientation) BEFORE PMI attach (topology-first)",
+      "body": "Validate manifold B-rep (no free edges, correct orientation) BEFORE PMI attach (topology-first) | formula/threshold: n/a",
+      "category": "cad_gdt",
+      "tags": [
+        "domain:cad",
+        "hermes:grok-4.20-0309-reasoning",
+        "wave:1",
+        "verify:confirms-doctrine"
+      ],
+      "material_groups": [],
+      "operation_types": [
+        "cad"
+      ],
+      "confidence": 70,
+      "source": "hermes:grok-4.20 (wave 1) | cite: ISO 10303-42:2018",
+      "id": "hk-w1-cad-005",
+      "created_at": "2026-06-29",
+      "usage_count": 0,
+      "safety": false,
+      "needs_specialist_confirm": false
+    },
+    {
+      "title": "Parse header unit independently; inch/mm mismatch scales all features + electrode geometry 25.4x",
+      "body": "Parse header unit independently; inch/mm mismatch scales all features + electrode geometry 25.4x | formula/threshold: scale = 25.4",
+      "category": "cad_gdt",
+      "tags": [
+        "domain:cad",
+        "hermes:grok-4.20-0309-reasoning",
+        "wave:1",
+        "safety:gate-candidate",
+        "verify:confirms-doctrine"
+      ],
+      "material_groups": [],
+      "operation_types": [
+        "cad"
+      ],
+      "confidence": 70,
+      "source": "hermes:grok-4.20 (wave 1) | cite: ISO 10303-21:2016",
+      "id": "hk-w1-cad-006",
+      "created_at": "2026-06-29",
+      "usage_count": 0,
+      "safety": true,
+      "needs_specialist_confirm": true
+    },
+    {
+      "title": "Imported STEP is B-rep only (CSG lost) -> feature recognition must be topology-driven (face adjacency)",
+      "body": "Imported STEP is B-rep only (CSG lost) -> feature recognition must be topology-driven (face adjacency) | formula/threshold: n/a",
+      "category": "cad_gdt",
+      "tags": [
+        "domain:cad",
+        "hermes:grok-4.20-0309-reasoning",
+        "wave:1",
+        "verify:confirms-doctrine"
+      ],
+      "material_groups": [],
+      "operation_types": [
+        "cad"
+      ],
+      "confidence": 70,
+      "source": "hermes:grok-4.20 (wave 1) | cite: ISO 10303-203:2011 / -242",
+      "id": "hk-w1-cad-007",
+      "created_at": "2026-06-29",
+      "usage_count": 0,
+      "safety": false,
+      "needs_specialist_confirm": false
+    },
+    {
+      "title": "Helical ramp plunge angle by tool/material",
+      "body": "Helical ramp plunge angle by tool/material | formula/threshold: max 2.0deg carbide in Ti/Inconel, 4.5deg SS, 7deg Al; pitch=pi*D*tan(a) | CAUTION: worked example arithmetic flagged by zulu -- use rule+formula, recompute the number",
+      "category": "milling",
+      "tags": [
+        "domain:mill",
+        "hermes:grok-4.20-0309-reasoning",
+        "wave:2",
+        "safety:gate-candidate",
+        "verify:worked-number-suspect"
+      ],
+      "material_groups": [],
+      "operation_types": [
+        "milling"
+      ],
+      "confidence": 40,
+      "source": "hermes:grok-4.20 (wave 2) | cite: Sandvik Milling App Guide C-2900:4 p.68",
+      "id": "hk-w2-mill-001",
+      "created_at": "2026-06-29",
+      "usage_count": 0,
+      "safety": true,
+      "needs_specialist_confirm": true
+    },
+    {
+      "title": "Entry/exit arc-lead radius caps chip-thickness spike",
+      "body": "Entry/exit arc-lead radius caps chip-thickness spike | formula/threshold: R_lead=1.25*ae (ae<=0.3D), 0.75*ae (ae>0.4D)",
+      "category": "milling",
+      "tags": [
+        "domain:mill",
+        "hermes:grok-4.20-0309-reasoning",
+        "wave:2",
+        "safety:gate-candidate",
+        "verify:new"
+      ],
+      "material_groups": [],
+      "operation_types": [
+        "milling"
+      ],
+      "confidence": 55,
+      "source": "hermes:grok-4.20 (wave 2) | cite: Boothroyd-Knight 3e p.167 sec 6.2",
+      "id": "hk-w2-mill-002",
+      "created_at": "2026-06-29",
+      "usage_count": 0,
+      "safety": true,
+      "needs_specialist_confirm": true
+    },
+    {
+      "title": "Min fz floor stops rubbing/work-hardening in austenitics",
+      "body": "Min fz floor stops rubbing/work-hardening in austenitics | formula/threshold: fz>=0.075 mm/t 300-SS, >=0.102 mm/t Inconel 718",
+      "category": "milling",
+      "tags": [
+        "domain:mill",
+        "hermes:grok-4.20-0309-reasoning",
+        "wave:2",
+        "safety:gate-candidate",
+        "verify:confirms-doctrine"
+      ],
+      "material_groups": [],
+      "operation_types": [
+        "milling"
+      ],
+      "confidence": 70,
+      "source": "hermes:grok-4.20 (wave 2) | cite: Kennametal H-2000 p.14 sec 3.1",
+      "id": "hk-w2-mill-003",
+      "created_at": "2026-06-29",
+      "usage_count": 0,
+      "safety": true,
+      "needs_specialist_confirm": true
+    },
+    {
+      "title": "Through-spindle coolant pressure scaled to pocket depth",
+      "body": "Through-spindle coolant pressure scaled to pocket depth | formula/threshold: P_bar>=55*(depth/D), floor 70 bar",
+      "category": "milling",
+      "tags": [
+        "domain:mill",
+        "hermes:grok-4.20-0309-reasoning",
+        "wave:2",
+        "safety:gate-candidate",
+        "verify:new"
+      ],
+      "material_groups": [],
+      "operation_types": [
+        "milling"
+      ],
+      "confidence": 55,
+      "source": "hermes:grok-4.20 (wave 2) | cite: Stephenson-Agapiou 3e p.481 sec 10.4",
+      "id": "hk-w2-mill-004",
+      "created_at": "2026-06-29",
+      "usage_count": 0,
+      "safety": true,
+      "needs_specialist_confirm": true
+    },
+    {
+      "title": "Surface speed derate vs flank wear, constant-life",
+      "body": "Surface speed derate vs flank wear, constant-life | formula/threshold: Vc_corr=Vc*(1-0.22*(VB/VB_max)), VB_max=0.3 finish | CAUTION: worked example arithmetic flagged by zulu -- use rule+formula, recompute the number",
+      "category": "milling",
+      "tags": [
+        "domain:mill",
+        "hermes:grok-4.20-0309-reasoning",
+        "wave:2",
+        "verify:worked-number-suspect"
+      ],
+      "material_groups": [],
+      "operation_types": [
+        "milling"
+      ],
+      "confidence": 40,
+      "source": "hermes:grok-4.20 (wave 2) | cite: Altintas 2e p.289 sec 7.5",
+      "id": "hk-w2-mill-005",
+      "created_at": "2026-06-29",
+      "usage_count": 0,
+      "safety": false,
+      "needs_specialist_confirm": true
+    },
+    {
+      "title": "ap:ae ratio for tool-life HSM vs conventional",
+      "body": "ap:ae ratio for tool-life HSM vs conventional | formula/threshold: 3.5:1 HSM (ae<0.1D); 1:2 below 180 m/min",
+      "category": "milling",
+      "tags": [
+        "domain:mill",
+        "hermes:grok-4.20-0309-reasoning",
+        "wave:2",
+        "verify:new"
+      ],
+      "material_groups": [],
+      "operation_types": [
+        "milling"
+      ],
+      "confidence": 55,
+      "source": "hermes:grok-4.20 (wave 2) | cite: Machinery's Handbook 31e p.1089",
+      "id": "hk-w2-mill-006",
+      "created_at": "2026-06-29",
+      "usage_count": 0,
+      "safety": false,
+      "needs_specialist_confirm": false
+    },
+    {
+      "title": "Spindle thermal-growth Z comp on long programs",
+      "body": "Spindle thermal-growth Z comp on long programs | formula/threshold: dZ=+0.009*(t_hr-0.5) mm, CAT50 >30 min",
+      "category": "milling",
+      "tags": [
+        "domain:mill",
+        "hermes:grok-4.20-0309-reasoning",
+        "wave:2",
+        "safety:gate-candidate",
+        "verify:new"
+      ],
+      "material_groups": [],
+      "operation_types": [
+        "milling"
+      ],
+      "confidence": 55,
+      "source": "hermes:grok-4.20 (wave 2) | cite: Heidenhain iTNC 530 p.312 sec 12.4",
+      "id": "hk-w2-mill-007",
+      "created_at": "2026-06-29",
+      "usage_count": 0,
+      "safety": true,
+      "needs_specialist_confirm": true
+    },
+    {
+      "title": "Min DOC > nose radius for chip control (no ploughing)",
+      "body": "Min DOC > nose radius for chip control (no ploughing) | formula/threshold: DOC_min=0.75*r_nose (>0.3mm for 0.4mm radius)",
+      "category": "turning",
+      "tags": [
+        "domain:lathe",
+        "hermes:grok-4.20-0309-reasoning",
+        "wave:2",
+        "verify:new"
+      ],
+      "material_groups": [],
+      "operation_types": [
+        "turning"
+      ],
+      "confidence": 55,
+      "source": "hermes:grok-4.20 (wave 2) | cite: Kalpakjian 8e p.579 sec 20.3",
+      "id": "hk-w2-lathe-001",
+      "created_at": "2026-06-29",
+      "usage_count": 0,
+      "safety": false,
+      "needs_specialist_confirm": false
+    },
+    {
+      "title": "Lead angle transfers force axially, unloads slender parts",
+      "body": "Lead angle transfers force axially, unloads slender parts | formula/threshold: radial drop ~ 1-cos(lead); 30deg | CAUTION: worked example arithmetic flagged by zulu -- use rule+formula, recompute the number",
+      "category": "turning",
+      "tags": [
+        "domain:lathe",
+        "hermes:grok-4.20-0309-reasoning",
+        "wave:2",
+        "verify:worked-number-suspect"
+      ],
+      "material_groups": [],
+      "operation_types": [
+        "turning"
+      ],
+      "confidence": 40,
+      "source": "hermes:grok-4.20 (wave 2) | cite: Shaw 2e p.91 sec 4.4",
+      "id": "hk-w2-lathe-002",
+      "created_at": "2026-06-29",
+      "usage_count": 0,
+      "safety": false,
+      "needs_specialist_confirm": true
+    },
+    {
+      "title": "Spring passes at zero infeed hit thread class fit",
+      "body": "Spring passes at zero infeed hit thread class fit | formula/threshold: 3 passes class 6, 5 passes class 3",
+      "category": "turning",
+      "tags": [
+        "domain:lathe",
+        "hermes:grok-4.20-0309-reasoning",
+        "wave:2",
+        "verify:new"
+      ],
+      "material_groups": [],
+      "operation_types": [
+        "turning"
+      ],
+      "confidence": 55,
+      "source": "hermes:grok-4.20 (wave 2) | cite: Smid 3e p.405 sec 13.6",
+      "id": "hk-w2-lathe-003",
+      "created_at": "2026-06-29",
+      "usage_count": 0,
+      "safety": false,
+      "needs_specialist_confirm": false
+    },
+    {
+      "title": "Peck depth decreases with L/D to fracture chips",
+      "body": "Peck depth decreases with L/D to fracture chips | formula/threshold: peck_max=15*D/(L/D) mm, floor 0.5*D",
+      "category": "turning",
+      "tags": [
+        "domain:lathe",
+        "hermes:grok-4.20-0309-reasoning",
+        "wave:2",
+        "safety:gate-candidate",
+        "verify:confirms-doctrine"
+      ],
+      "material_groups": [],
+      "operation_types": [
+        "turning"
+      ],
+      "confidence": 70,
+      "source": "hermes:grok-4.20 (wave 2) | cite: Machinery's Handbook 31e p.1062",
+      "id": "hk-w2-lathe-004",
+      "created_at": "2026-06-29",
+      "usage_count": 0,
+      "safety": true,
+      "needs_specialist_confirm": true
+    },
+    {
+      "title": "Plunge-feed derate by groove width/depth",
+      "body": "Plunge-feed derate by groove width/depth | formula/threshold: f_plunge=0.15*(w/d) mm/rev (w/d<2.5)",
+      "category": "turning",
+      "tags": [
+        "domain:lathe",
+        "hermes:grok-4.20-0309-reasoning",
+        "wave:2",
+        "verify:new"
+      ],
+      "material_groups": [],
+      "operation_types": [
+        "turning"
+      ],
+      "confidence": 55,
+      "source": "hermes:grok-4.20 (wave 2) | cite: Sandvik Turning Guide 2020 p.84",
+      "id": "hk-w2-lathe-005",
+      "created_at": "2026-06-29",
+      "usage_count": 0,
+      "safety": false,
+      "needs_specialist_confirm": false
+    },
+    {
+      "title": "Drop RPM near centerline on parting (bending spike)",
+      "body": "Drop RPM near centerline on parting (bending spike) | formula/threshold: RPM_floor=0.4*RPM_init when stock<6mm",
+      "category": "turning",
+      "tags": [
+        "domain:lathe",
+        "hermes:grok-4.20-0309-reasoning",
+        "wave:2",
+        "safety:gate-candidate",
+        "verify:confirms-doctrine"
+      ],
+      "material_groups": [],
+      "operation_types": [
+        "turning"
+      ],
+      "confidence": 70,
+      "source": "hermes:grok-4.20 (wave 2) | cite: Kennametal Grooving/Parting p.37 sec 5.2",
+      "id": "hk-w2-lathe-006",
+      "created_at": "2026-06-29",
+      "usage_count": 0,
+      "safety": true,
+      "needs_specialist_confirm": true
+    },
+    {
+      "title": "Limit nose radius on interrupted cuts (impact ~ r^1.3)",
+      "body": "Limit nose radius on interrupted cuts (impact ~ r^1.3) | formula/threshold: max r=0.4mm for >6 impacts/rev",
+      "category": "turning",
+      "tags": [
+        "domain:lathe",
+        "hermes:grok-4.20-0309-reasoning",
+        "wave:2",
+        "safety:gate-candidate",
+        "verify:new"
+      ],
+      "material_groups": [],
+      "operation_types": [
+        "turning"
+      ],
+      "confidence": 55,
+      "source": "hermes:grok-4.20 (wave 2) | cite: Shaw 2e p.214 sec 8.5",
+      "id": "hk-w2-lathe-007",
+      "created_at": "2026-06-29",
+      "usage_count": 0,
+      "safety": true,
+      "needs_specialist_confirm": true
+    },
+    {
+      "title": "Wire tension by dia+material (~55% UTS)",
+      "body": "Wire tension by dia+material (~55% UTS) | formula/threshold: 0.25mm brass=1.35kg(13.2N); 0.15mm Mo-coat=0.55kg max",
+      "category": "wedm",
+      "tags": [
+        "domain:wedm",
+        "hermes:grok-4.20-0309-reasoning",
+        "wave:2",
+        "safety:gate-candidate",
+        "verify:new"
+      ],
+      "material_groups": [],
+      "operation_types": [
+        "wire_edm"
+      ],
+      "confidence": 55,
+      "source": "hermes:grok-4.20 (wave 2) | cite: Sommer Wire EDM Handbook 4e p.89-91",
+      "id": "hk-w2-wedm-001",
+      "created_at": "2026-06-29",
+      "usage_count": 0,
+      "safety": true,
+      "needs_specialist_confirm": true
+    },
+    {
+      "title": "Taper flushing: bottom 45-55% of top when angle>0.8deg",
+      "body": "Taper flushing: bottom 45-55% of top when angle>0.8deg | formula/threshold: top 18 bar / bottom 8.5 bar @1.2deg, 80mm, 0.25 wire",
+      "category": "wedm",
+      "tags": [
+        "domain:wedm",
+        "hermes:grok-4.20-0309-reasoning",
+        "wave:2",
+        "verify:confirms-doctrine"
+      ],
+      "material_groups": [],
+      "operation_types": [
+        "wire_edm"
+      ],
+      "confidence": 70,
+      "source": "hermes:grok-4.20 (wave 2) | cite: Guitrau EDM Handbook p.198-200",
+      "id": "hk-w2-wedm-002",
+      "created_at": "2026-06-29",
+      "usage_count": 0,
+      "safety": false,
+      "needs_specialist_confirm": false
+    },
+    {
+      "title": "Recast/HAZ depth per skim on-time",
+      "body": "Recast/HAZ depth per skim on-time | formula/threshold: final skim <0.5us -> recast<5um, HAZ<18um (tool steel)",
+      "category": "wedm",
+      "tags": [
+        "domain:wedm",
+        "hermes:grok-4.20-0309-reasoning",
+        "wave:2",
+        "safety:gate-candidate",
+        "verify:confirms-doctrine"
+      ],
+      "material_groups": [],
+      "operation_types": [
+        "wire_edm"
+      ],
+      "confidence": 70,
+      "source": "hermes:grok-4.20 (wave 2) | cite: Jameson EDM SME 2001 sec 5.3 p.98-101",
+      "id": "hk-w2-wedm-003",
+      "created_at": "2026-06-29",
+      "usage_count": 0,
+      "safety": true,
+      "needs_specialist_confirm": true
+    },
+    {
+      "title": "Auto-thread reliability vs start-hole dia",
+      "body": "Auto-thread reliability vs start-hole dia | formula/threshold: hole>=1.75*wire dia for >50mm thick (>95% first-try) | CAUTION: worked example arithmetic flagged by zulu -- use rule+formula, recompute the number",
+      "category": "wedm",
+      "tags": [
+        "domain:wedm",
+        "hermes:grok-4.20-0309-reasoning",
+        "wave:2",
+        "verify:worked-number-suspect"
+      ],
+      "material_groups": [],
+      "operation_types": [
+        "wire_edm"
+      ],
+      "confidence": 40,
+      "source": "hermes:grok-4.20 (wave 2) | cite: Mitsubishi FA Series Threading p.52",
+      "id": "hk-w2-wedm-004",
+      "created_at": "2026-06-29",
+      "usage_count": 0,
+      "safety": false,
+      "needs_specialist_confirm": true
+    },
+    {
+      "title": "Tab land width resists wire pull (no part drop)",
+      "body": "Tab land width resists wire pull (no part drop) | formula/threshold: land=thickness*0.022, min 3 tabs (14N pull)",
+      "category": "wedm",
+      "tags": [
+        "domain:wedm",
+        "hermes:grok-4.20-0309-reasoning",
+        "wave:2",
+        "safety:gate-candidate",
+        "verify:new"
+      ],
+      "material_groups": [],
+      "operation_types": [
+        "wire_edm"
+      ],
+      "confidence": 55,
+      "source": "hermes:grok-4.20 (wave 2) | cite: Benedict Nontraditional Mfg p.171",
+      "id": "hk-w2-wedm-005",
+      "created_at": "2026-06-29",
+      "usage_count": 0,
+      "safety": true,
+      "needs_specialist_confirm": true
+    },
+    {
+      "title": "Min corner radius vs wire dia (servo dither)",
+      "body": "Min corner radius vs wire dia (servo dither) | formula/threshold: program R >= wire_dia*1.35",
+      "category": "wedm",
+      "tags": [
+        "domain:wedm",
+        "hermes:grok-4.20-0309-reasoning",
+        "wave:2",
+        "safety:gate-candidate",
+        "verify:new"
+      ],
+      "material_groups": [],
+      "operation_types": [
+        "wire_edm"
+      ],
+      "confidence": 55,
+      "source": "hermes:grok-4.20 (wave 2) | cite: El-Hofy Advanced Machining p.238-239",
+      "id": "hk-w2-wedm-006",
+      "created_at": "2026-06-29",
+      "usage_count": 0,
+      "safety": true,
+      "needs_specialist_confirm": true
+    },
+    {
+      "title": "Stress-relief sequence for hardened die steel",
+      "body": "Stress-relief sequence for hardened die steel | formula/threshold: rough -> 510-560C x1h/25mm -> slow cool -> skim",
+      "category": "wedm",
+      "tags": [
+        "domain:wedm",
+        "hermes:grok-4.20-0309-reasoning",
+        "wave:2",
+        "safety:gate-candidate",
+        "verify:new"
+      ],
+      "material_groups": [],
+      "operation_types": [
+        "wire_edm"
+      ],
+      "confidence": 55,
+      "source": "hermes:grok-4.20 (wave 2) | cite: Guitrau EDM Handbook sec 6.5 p.265-267",
+      "id": "hk-w2-wedm-007",
+      "created_at": "2026-06-29",
+      "usage_count": 0,
+      "safety": true,
+      "needs_specialist_confirm": true
+    },
+    {
+      "title": "Tilt ball-nose lead/lean >=7deg, keep SFM>30 m/min",
+      "body": "Tilt ball-nose lead/lean >=7deg, keep SFM>30 m/min | formula/threshold: SFM=rpm*pi*(dia*sin(tilt))/1000 | CAUTION: worked example arithmetic flagged by zulu -- use rule+formula, recompute the number",
+      "category": "cam",
+      "tags": [
+        "domain:cam",
+        "hermes:grok-4.20-0309-reasoning",
+        "wave:2",
+        "safety:gate-candidate",
+        "verify:worked-number-suspect"
+      ],
+      "material_groups": [],
+      "operation_types": [
+        "cam_strategy"
+      ],
+      "confidence": 40,
+      "source": "hermes:grok-4.20 (wave 2) | cite: Altintas 2e p.185 sec 5.4",
+      "id": "hk-w2-cam-001",
+      "created_at": "2026-06-29",
+      "usage_count": 0,
+      "safety": true,
+      "needs_specialist_confirm": true
+    },
+    {
+      "title": "Adaptive stepover as material % of tool dia",
+      "body": "Adaptive stepover as material % of tool dia | formula/threshold: Al 18%, 4140 9%, Ti 5.5% of dia",
+      "category": "cam",
+      "tags": [
+        "domain:cam",
+        "hermes:grok-4.20-0309-reasoning",
+        "wave:2",
+        "safety:gate-candidate",
+        "verify:new"
+      ],
+      "material_groups": [],
+      "operation_types": [
+        "cam_strategy"
+      ],
+      "confidence": 55,
+      "source": "hermes:grok-4.20 (wave 2) | cite: Mastercam Adaptive Clearing p.28",
+      "id": "hk-w2-cam-002",
+      "created_at": "2026-06-29",
+      "usage_count": 0,
+      "safety": true,
+      "needs_specialist_confirm": true
+    },
+    {
+      "title": "Stage stock-to-leave rough/semi/finish",
+      "body": "Stage stock-to-leave rough/semi/finish | formula/threshold: 0.75 / 0.15 / 0.025 mm (steel)",
+      "category": "cam",
+      "tags": [
+        "domain:cam",
+        "hermes:grok-4.20-0309-reasoning",
+        "wave:2",
+        "safety:gate-candidate",
+        "verify:new"
+      ],
+      "material_groups": [],
+      "operation_types": [
+        "cam_strategy"
+      ],
+      "confidence": 55,
+      "source": "hermes:grok-4.20 (wave 2) | cite: Smid 3e p.442 sec 11.6",
+      "id": "hk-w2-cam-003",
+      "created_at": "2026-06-29",
+      "usage_count": 0,
+      "safety": true,
+      "needs_specialist_confirm": true
+    },
+    {
+      "title": "3D contour stepdown by wall slope, constant cusp",
+      "body": "3D contour stepdown by wall slope, constant cusp | formula/threshold: stepdown=0.45*D*cos(slope), cap 0.2D >65deg",
+      "category": "cam",
+      "tags": [
+        "domain:cam",
+        "hermes:grok-4.20-0309-reasoning",
+        "wave:2",
+        "verify:new"
+      ],
+      "material_groups": [],
+      "operation_types": [
+        "cam_strategy"
+      ],
+      "confidence": 55,
+      "source": "hermes:grok-4.20 (wave 2) | cite: Siemens NX CAM Z-Level p.76",
+      "id": "hk-w2-cam-004",
+      "created_at": "2026-06-29",
+      "usage_count": 0,
+      "safety": false,
+      "needs_specialist_confirm": false
+    },
+    {
+      "title": "Feed reduction in concave corners by radius ratio",
+      "body": "Feed reduction in concave corners by radius ratio | formula/threshold: factor=corner_r/(corner_r+0.5*tool_r), apply <2.5 | CAUTION: worked example arithmetic flagged by zulu -- use rule+formula, recompute the number",
+      "category": "cam",
+      "tags": [
+        "domain:cam",
+        "hermes:grok-4.20-0309-reasoning",
+        "wave:2",
+        "safety:gate-candidate",
+        "verify:worked-number-suspect"
+      ],
+      "material_groups": [],
+      "operation_types": [
+        "cam_strategy"
+      ],
+      "confidence": 40,
+      "source": "hermes:grok-4.20 (wave 2) | cite: Altintas 2e p.259 sec 7.3",
+      "id": "hk-w2-cam-005",
+      "created_at": "2026-06-29",
+      "usage_count": 0,
+      "safety": true,
+      "needs_specialist_confirm": true
+    },
+    {
+      "title": "Entry by pocket aspect: helical>2.8:1, ramp<1.8:1, plunge<1.5:1",
+      "body": "Entry by pocket aspect: helical>2.8:1, ramp<1.8:1, plunge<1.5:1 | formula/threshold: helical pitch=0.02*D steel, max 1.8deg",
+      "category": "cam",
+      "tags": [
+        "domain:cam",
+        "hermes:grok-4.20-0309-reasoning",
+        "wave:2",
+        "safety:gate-candidate",
+        "verify:new"
+      ],
+      "material_groups": [],
+      "operation_types": [
+        "cam_strategy"
+      ],
+      "confidence": 55,
+      "source": "hermes:grok-4.20 (wave 2) | cite: Zeid Mastering CAD/CAM p.589 sec 14.7",
+      "id": "hk-w2-cam-006",
+      "created_at": "2026-06-29",
+      "usage_count": 0,
+      "safety": true,
+      "needs_specialist_confirm": true
+    },
+    {
+      "title": "Smooth 5-axis tool vectors, limit rotary jerk",
+      "body": "Smooth 5-axis tool vectors, limit rotary jerk | formula/threshold: <800 deg/s^2; 0.35deg change per 10mm",
+      "category": "cam",
+      "tags": [
+        "domain:cam",
+        "hermes:grok-4.20-0309-reasoning",
+        "wave:2",
+        "safety:gate-candidate",
+        "verify:confirms-doctrine"
+      ],
+      "material_groups": [],
+      "operation_types": [
+        "cam_strategy"
+      ],
+      "confidence": 70,
+      "source": "hermes:grok-4.20 (wave 2) | cite: OPEN MIND hyperMILL 5-Axis p.134",
+      "id": "hk-w2-cam-007",
+      "created_at": "2026-06-29",
+      "usage_count": 0,
+      "safety": true,
+      "needs_specialist_confirm": true
+    },
+    {
+      "title": "Tool-length comp: emit H with G43 Fanuc/Haas; NO H Okuma (auto from T)",
+      "body": "Tool-length comp: emit H with G43 Fanuc/Haas; NO H Okuma (auto from T) | formula/threshold: Fanuc G43 Z5. H12 / Okuma T12;G56 Z5.",
+      "category": "post_processor",
+      "tags": [
+        "domain:post-processor",
+        "hermes:grok-4.20-0309-reasoning",
+        "wave:2",
+        "safety:gate-candidate",
+        "verify:new"
+      ],
+      "material_groups": [],
+      "operation_types": [
+        "post"
+      ],
+      "confidence": 55,
+      "source": "hermes:grok-4.20 (wave 2) | cite: Smid 3e p.392; Fanuc B-64484EN p.148; Okuma OSP-P300S p.52",
+      "id": "hk-w2-post-processor-001",
+      "created_at": "2026-06-29",
+      "usage_count": 0,
+      "safety": true,
+      "needs_specialist_confirm": true
+    },
+    {
+      "title": "Extended work offsets vary by control",
+      "body": "Extended work offsets vary by control | formula/threshold: Fanuc G54.1 Pn / Siemens G505+ / Okuma G15 Hn",
+      "category": "post_processor",
+      "tags": [
+        "domain:post-processor",
+        "hermes:grok-4.20-0309-reasoning",
+        "wave:2",
+        "safety:gate-candidate",
+        "verify:confirms-doctrine"
+      ],
+      "material_groups": [],
+      "operation_types": [
+        "post"
+      ],
+      "confidence": 70,
+      "source": "hermes:grok-4.20 (wave 2) | cite: Fanuc B-64384EN p.189; Siemens 840Dsl p.112",
+      "id": "hk-w2-post-processor-002",
+      "created_at": "2026-06-29",
+      "usage_count": 0,
+      "safety": true,
+      "needs_specialist_confirm": true
+    },
+    {
+      "title": "Canned-cycle return plane: Fanuc G98/G99; Okuma none (modal Z clear)",
+      "body": "Canned-cycle return plane: Fanuc G98/G99; Okuma none (modal Z clear) | formula/threshold: Fanuc G98 G81... / Okuma G81... no G98/G99",
+      "category": "post_processor",
+      "tags": [
+        "domain:post-processor",
+        "hermes:grok-4.20-0309-reasoning",
+        "wave:2",
+        "safety:gate-candidate",
+        "verify:confirms-doctrine"
+      ],
+      "material_groups": [],
+      "operation_types": [
+        "post"
+      ],
+      "confidence": 70,
+      "source": "hermes:grok-4.20 (wave 2) | cite: Fanuc B-64484EN p.217; Okuma OSP-P300S p.118",
+      "id": "hk-w2-post-processor-003",
+      "created_at": "2026-06-29",
+      "usage_count": 0,
+      "safety": true,
+      "needs_specialist_confirm": true
+    },
+    {
+      "title": "Subprogram call: Fanuc M98 P / Okuma CALL O / Siemens by name",
+      "body": "Subprogram call: Fanuc M98 P / Okuma CALL O / Siemens by name | formula/threshold: M98 P1234 L2 / CALL O1234 / SUB call",
+      "category": "post_processor",
+      "tags": [
+        "domain:post-processor",
+        "hermes:grok-4.20-0309-reasoning",
+        "wave:2",
+        "verify:new"
+      ],
+      "material_groups": [],
+      "operation_types": [
+        "post"
+      ],
+      "confidence": 55,
+      "source": "hermes:grok-4.20 (wave 2) | cite: Smid 3e p.315; Siemens 840Dsl p.78; Fanuc B-64484EN p.301",
+      "id": "hk-w2-post-processor-004",
+      "created_at": "2026-06-29",
+      "usage_count": 0,
+      "safety": false,
+      "needs_specialist_confirm": false
+    },
+    {
+      "title": "Modal reset on M06 differs: Haas resets grp01+G20/21; Fanuc keeps",
+      "body": "Modal reset on M06 differs: Haas resets grp01+G20/21; Fanuc keeps | formula/threshold: Haas force G1 after M06; Fanuc no force",
+      "category": "post_processor",
+      "tags": [
+        "domain:post-processor",
+        "hermes:grok-4.20-0309-reasoning",
+        "wave:2",
+        "safety:gate-candidate",
+        "verify:new"
+      ],
+      "material_groups": [],
+      "operation_types": [
+        "post"
+      ],
+      "confidence": 55,
+      "source": "hermes:grok-4.20 (wave 2) | cite: Haas Mill Workbook p.45; Fanuc B-64384EN p.67",
+      "id": "hk-w2-post-processor-005",
+      "created_at": "2026-06-29",
+      "usage_count": 0,
+      "safety": true,
+      "needs_specialist_confirm": true
+    },
+    {
+      "title": "Rotary rollover/shortest-path param-gated",
+      "body": "Rotary rollover/shortest-path param-gated | formula/threshold: Fanuc #1008 bit / Haas P2020 / Siemens ORIAXES",
+      "category": "post_processor",
+      "tags": [
+        "domain:post-processor",
+        "hermes:grok-4.20-0309-reasoning",
+        "wave:2",
+        "safety:gate-candidate",
+        "verify:confirms-doctrine"
+      ],
+      "material_groups": [],
+      "operation_types": [
+        "post"
+      ],
+      "confidence": 70,
+      "source": "hermes:grok-4.20 (wave 2) | cite: Fanuc B-64484EN p.512; Siemens 840Dsl p.245",
+      "id": "hk-w2-post-processor-006",
+      "created_at": "2026-06-29",
+      "usage_count": 0,
+      "safety": true,
+      "needs_specialist_confirm": true
+    },
+    {
+      "title": "Spindle orient M19 variants",
+      "body": "Spindle orient M19 variants | formula/threshold: Fanuc M19 Sdeg / Haas M19 Pn (no decimal) / Okuma needs M110/111",
+      "category": "post_processor",
+      "tags": [
+        "domain:post-processor",
+        "hermes:grok-4.20-0309-reasoning",
+        "wave:2",
+        "safety:gate-candidate",
+        "verify:new"
+      ],
+      "material_groups": [],
+      "operation_types": [
+        "post"
+      ],
+      "confidence": 55,
+      "source": "hermes:grok-4.20 (wave 2) | cite: Fanuc B-64484EN p.267; Haas Lathe p.112; Okuma p.89",
+      "id": "hk-w2-post-processor-007",
+      "created_at": "2026-06-29",
+      "usage_count": 0,
+      "safety": true,
+      "needs_specialist_confirm": true
+    },
+    {
+      "title": "MMC bonus tolerance = feature departure from MMC",
+      "body": "MMC bonus tolerance = feature departure from MMC | formula/threshold: bonus=",
+      "category": "cad_gdt",
+      "tags": [
+        "domain:cad",
+        "hermes:grok-4.20-0309-reasoning",
+        "wave:2"
+      ],
+      "material_groups": [],
+      "operation_types": [
+        "cad"
+      ],
+      "confidence": 50,
+      "source": "hermes:grok-4.20 (wave 2) | cite: D_actual-D_MMC",
+      "id": "hk-w2-cad-001",
+      "created_at": "2026-06-29",
+      "usage_count": 0,
+      "safety": false,
+      "needs_specialist_confirm": false
+    },
+    {
+      "title": "Datum precedence 3-2-1 locks 6 DOF in sequence",
+      "body": "Datum precedence 3-2-1 locks 6 DOF in sequence | formula/threshold: primary 3 / secondary 2 / tertiary 1 DOF",
+      "category": "cad_gdt",
+      "tags": [
+        "domain:cad",
+        "hermes:grok-4.20-0309-reasoning",
+        "wave:2",
+        "safety:gate-candidate",
+        "verify:confirms-doctrine"
+      ],
+      "material_groups": [],
+      "operation_types": [
+        "cad"
+      ],
+      "confidence": 70,
+      "source": "hermes:grok-4.20 (wave 2) | cite: ASME Y14.5-2018 cl6.3.2 p.79",
+      "id": "hk-w2-cad-002",
+      "created_at": "2026-06-29",
+      "usage_count": 0,
+      "safety": true,
+      "needs_specialist_confirm": true
+    },
+    {
+      "title": "Projected tolerance zone on threaded holes (fastener tilt)",
+      "body": "Projected tolerance zone on threaded holes (fastener tilt) | formula/threshold: P symbol + height (~2x thickness or 25mm)",
+      "category": "cad_gdt",
+      "tags": [
+        "domain:cad",
+        "hermes:grok-4.20-0309-reasoning",
+        "wave:2",
+        "safety:gate-candidate",
+        "verify:new"
+      ],
+      "material_groups": [],
+      "operation_types": [
+        "cad"
+      ],
+      "confidence": 55,
+      "source": "hermes:grok-4.20 (wave 2) | cite: ASME Y14.5-2018 cl7.6.2 p.142",
+      "id": "hk-w2-cad-003",
+      "created_at": "2026-06-29",
+      "usage_count": 0,
+      "safety": true,
+      "needs_specialist_confirm": true
+    },
+    {
+      "title": "Profile unilateral U directs whole zone one side",
+      "body": "Profile unilateral U directs whole zone one side | formula/threshold: 0.5 U 0.3 = 0.3 out / 0.2 in (Fig 11-23)",
+      "category": "cad_gdt",
+      "tags": [
+        "domain:cad",
+        "hermes:grok-4.20-0309-reasoning",
+        "wave:2",
+        "verify:new"
+      ],
+      "material_groups": [],
+      "operation_types": [
+        "cad"
+      ],
+      "confidence": 55,
+      "source": "hermes:grok-4.20 (wave 2) | cite: ASME Y14.5-2018 cl11.3.2 p.200",
+      "id": "hk-w2-cad-004",
+      "created_at": "2026-06-29",
+      "usage_count": 0,
+      "safety": false,
+      "needs_specialist_confirm": false
+    },
+    {
+      "title": "NURBS rational weights non-unity for exact conics",
+      "body": "NURBS rational weights non-unity for exact conics | formula/threshold: quarter-circle weights [1, 0.7071, 1] exact",
+      "category": "cad_gdt",
+      "tags": [
+        "domain:cad",
+        "hermes:grok-4.20-0309-reasoning",
+        "wave:2",
+        "verify:confirms-doctrine"
+      ],
+      "material_groups": [],
+      "operation_types": [
+        "cad"
+      ],
+      "confidence": 70,
+      "source": "hermes:grok-4.20 (wave 2) | cite: ISO 10303-42 cl4.4.2.3 p.37; Zeid p.248",
+      "id": "hk-w2-cad-005",
+      "created_at": "2026-06-29",
+      "usage_count": 0,
+      "safety": false,
+      "needs_specialist_confirm": false
+    },
+    {
+      "title": "Tessellation chord tol << downstream CAM tol (no gouge)",
+      "body": "Tessellation chord tol << downstream CAM tol (no gouge) | formula/threshold: chord<=tol/10 (0.01mm chord for 0.1mm profile)",
+      "category": "cad_gdt",
+      "tags": [
+        "domain:cad",
+        "hermes:grok-4.20-0309-reasoning",
+        "wave:2",
+        "safety:gate-candidate",
+        "verify:new"
+      ],
+      "material_groups": [],
+      "operation_types": [
+        "cad"
+      ],
+      "confidence": 55,
+      "source": "hermes:grok-4.20 (wave 2) | cite: ASME Y14.41-2019 Annex B; ISO 10303-242 cl8.3.2",
+      "id": "hk-w2-cad-006",
+      "created_at": "2026-06-29",
+      "usage_count": 0,
+      "safety": true,
+      "needs_specialist_confirm": true
+    },
+    {
+      "title": "Recognize pocket faces BEFORE fillet/round edges",
+      "body": "Recognize pocket faces BEFORE fillet/round edges | formula/threshold: tag const-radius adjacent if r<0.25*depth",
+      "category": "cad_gdt",
+      "tags": [
+        "domain:cad",
+        "hermes:grok-4.20-0309-reasoning",
+        "wave:2",
+        "verify:confirms-doctrine"
+      ],
+      "material_groups": [],
+      "operation_types": [
+        "cad"
+      ],
+      "confidence": 70,
+      "source": "hermes:grok-4.20 (wave 2) | cite: ISO 10303-42 cl4.5.1 p.52; Zeid p.352",
+      "id": "hk-w2-cad-007",
+      "created_at": "2026-06-29",
+      "usage_count": 0,
+      "safety": false,
+      "needs_specialist_confirm": false
+    }
+  ]
+}

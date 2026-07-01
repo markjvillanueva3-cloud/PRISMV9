@@ -29,8 +29,11 @@ related:
 
 ## Description (first paragraph)
 
-
-# /grinder-validate — Grinding Program Validation
+Validate grinding programs:
+- Wheel speed limits
+- Material removal rate check
+- Thermal damage prevention
+- Safety score calculation
 
 <!-- AUTO-END -->
 

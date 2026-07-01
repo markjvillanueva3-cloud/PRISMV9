@@ -323,7 +323,7 @@ export class CadQueryCodeGeneratorEngine {
         hasWorkplane = true;
       }
 
-      const code = cadOperationTaxonomyEngine.generateCadQueryCode(action);
+      const code = this._actionToCode(action);
       if (code.startsWith("# unknown")) {
         warnings.push(
           `Step ${action.step_number}: unknown action '${action.action_type}'`,
@@ -376,7 +376,7 @@ export class CadQueryCodeGeneratorEngine {
         hasWorkplane = true;
       }
 
-      const code = cadOperationTaxonomyEngine.generateCadQueryCode(action);
+      const code = this._actionToCode(action);
       const stepCode = `${comment}\n${code}`;
 
       cumulativeLines.push(comment);
@@ -556,6 +556,119 @@ export class CadQueryCodeGeneratorEngine {
     return [
       "extrude", "extrude_cut", "revolve", "sweep", "loft",
     ].includes(type);
+  }
+
+  /**
+   * Translate a single extracted CAD action into a CadQuery Python expression.
+   * Returns a real cadquery line for emittable ops, a descriptive comment for ops
+   * with no single-line cadquery equivalent (assembly/CAM/pattern/boolean across
+   * bodies), or "# unknown action '<type>'" for unrecognized types (the caller
+   * surfaces those as warnings). Geometry params are read from action.parameters.
+   */
+  private _actionToCode(action: ExtractedAction): string {
+    const p = action.parameters || {};
+    const n = (key: string, dflt: number): number => {
+      const v = p[key];
+      const parsed = typeof v === "number" ? v : typeof v === "string" ? parseFloat(v) : NaN;
+      return Number.isFinite(parsed) ? parsed : dflt;
+    };
+    const str = (key: string, dflt: string): string => {
+      const v = p[key];
+      return typeof v === "string" && v ? v : typeof v === "number" ? String(v) : dflt;
+    };
+
+    switch (action.action_type) {
+      // -- Sketch --
+      case "sketch_create":
+        return `result = cq.Workplane('${str("plane", "XY")}')`;
+      case "sketch_line":
+        return `result = result.lineTo(${n("x", 0)}, ${n("y", 0)})`;
+      case "sketch_arc":
+        return `result = result.threePointArc((${n("mid_x", 0)}, ${n("mid_y", 0)}), (${n("end_x", 0)}, ${n("end_y", 0)}))`;
+      case "sketch_circle":
+        return `result = result.circle(${n("radius", n("diameter", 10) / 2)})`;
+      case "sketch_rectangle":
+        return `result = result.rect(${n("width", 10)}, ${n("height", 10)})`;
+      case "sketch_spline":
+        return `result = result.spline([(0, 0), (${n("x", 10)}, ${n("y", 10)})])  # approximate spline`;
+      case "sketch_offset":
+        return `result = result.offset2D(${n("distance", 1)})`;
+      case "sketch_close":
+        return `result = result.close()`;
+      case "sketch_dimension":
+      case "sketch_constraint":
+        return `# ${action.action_type} (implicit in parametric CadQuery)`;
+      case "sketch_trim":
+      case "sketch_mirror":
+        return `# ${action.action_type} (no direct CadQuery op; encode geometrically)`;
+
+      // -- Solid features --
+      case "extrude":
+        return `result = result.extrude(${n("distance", n("depth", 10))})`;
+      case "extrude_cut":
+        return `result = result.cutBlind(-${Math.abs(n("distance", n("depth", 10)))})`;
+      case "revolve":
+        return `result = result.revolve(${n("angle", 360)})`;
+      case "sweep":
+        return `# sweep: result = result.sweep(path)  # define the path wire first`;
+      case "loft":
+        return `result = result.loft()`;
+      case "fillet":
+        return `result = result.edges().fillet(${n("radius", 1)})`;
+      case "chamfer":
+        return `result = result.edges().chamfer(${n("distance", n("radius", 1))})`;
+      case "shell":
+        return `result = result.shell(${-Math.abs(n("thickness", 2))})`;
+      case "draft":
+        return `# draft ${n("angle", 3)}deg (apply via tapered extrude in CadQuery)`;
+      case "hole":
+        return `result = result.faces('>Z').workplane().hole(${n("diameter", n("radius", 3) * 2)})`;
+
+      // -- Boolean (across bodies) --
+      case "boolean_union":
+        return `# boolean_union: result = result.union(other_solid)`;
+      case "boolean_subtract":
+        return `# boolean_subtract: result = result.cut(other_solid)`;
+      case "boolean_intersect":
+        return `# boolean_intersect: result = result.intersect(other_solid)`;
+
+      // -- Pattern / mirror --
+      case "pattern_linear":
+        return `# pattern_linear: result = result.rarray(${n("spacing_x", 10)}, ${n("spacing_y", 10)}, ${n("count_x", 2)}, ${n("count_y", 1)})`;
+      case "pattern_circular":
+        return `# pattern_circular: result = result.polarArray(${n("radius", 10)}, 0, 360, ${n("count", 4)})`;
+      case "mirror_body":
+        return `result = result.mirror('${str("plane", "XY")}')`;
+
+      // -- Assembly (separate cq.Assembly graph) --
+      case "assembly_insert":
+      case "assembly_mate":
+      case "assembly_constrain":
+        return `# ${action.action_type}: build via cq.Assembly().add(...).constrain(...)`;
+
+      // -- CAM ops (not CadQuery geometry) --
+      case "toolpath_create":
+      case "toolpath_2d":
+      case "toolpath_3d":
+      case "toolpath_drill":
+        return `# ${action.action_type} (CAM operation; not emitted to CadQuery geometry)`;
+
+      // -- Parametric --
+      case "parameter_set":
+        return `${str("name", "param")} = ${n("value", 0)}`;
+      case "material_assign":
+        return `# material: ${str("material", str("name", "unspecified"))}`;
+
+      // -- UI / no-op --
+      case "view_change":
+      case "selection":
+      case "menu_navigate":
+        return `# (UI: ${action.operation || action.action_type})`;
+
+      case "unknown":
+      default:
+        return `# unknown action '${action.action_type}'`;
+    }
   }
 }
 

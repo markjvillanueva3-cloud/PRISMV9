@@ -1,0 +1,220 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta name="prism-source-hash" content="a0fc77ee3c3488610140f3408511138eeab7f30d84401611b7a9f364deb45bfb">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CAD Pipeline Audit 2026-05-20 (amended)</title>
+<style>
+  :root {
+    --bg: #0f1014;
+    --panel: #1a1c23;
+    --panel-2: #232631;
+    --fg: #e4e6eb;
+    --fg-dim: #9aa0a8;
+    --border: #2c303a;
+    --ok: #4ade80;
+    --warn: #fbbf24;
+    --fail: #f87171;
+    --info: #60a5fa;
+    --link: #93c5fd;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; padding: 1.5rem; background: var(--bg); color: var(--fg);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, sans-serif;
+    font-size: 14px; line-height: 1.5; }
+  h1 { font-size: 1.6rem; margin: 0 0 0.25rem 0; }
+  h2 { font-size: 1.15rem; margin: 1.5rem 0 0.5rem 0; padding-bottom: 0.25rem;
+    border-bottom: 1px solid var(--border); color: var(--fg); }
+  .meta { color: var(--fg-dim); font-size: 0.85rem; margin-bottom: 1rem; }
+  .panel { background: var(--panel); border: 1px solid var(--border); border-radius: 6px;
+    padding: 0.75rem 1rem; margin-bottom: 1rem; }
+  .headline-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 0.5rem; margin-bottom: 1rem; }
+  .card { background: var(--panel-2); border: 1px solid var(--border); border-radius: 6px;
+    padding: 0.65rem 0.85rem; }
+  .card .lbl { font-size: 0.8rem; color: var(--fg-dim); }
+  .card .val { font-size: 1.4rem; font-weight: 600; margin: 0.15rem 0; font-variant-numeric: tabular-nums; }
+  .card .hint { font-size: 0.75rem; color: var(--fg-dim); }
+  .card.ok    { border-left: 3px solid var(--ok); }
+  .card.warn  { border-left: 3px solid var(--warn); }
+  .card.fail  { border-left: 3px solid var(--fail); }
+  .card.info  { border-left: 3px solid var(--info); }
+  table { width: 100%; border-collapse: collapse; margin: 0.5rem 0 1rem; font-size: 0.9rem;
+    background: var(--panel); border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }
+  caption { text-align: left; padding: 0.4rem 0.65rem; color: var(--fg-dim);
+    background: var(--panel-2); font-weight: 500; }
+  th, td { padding: 0.4rem 0.65rem; text-align: left; border-bottom: 1px solid var(--border);
+    font-variant-numeric: tabular-nums; vertical-align: top; }
+  th { background: var(--panel-2); color: var(--fg-dim); font-weight: 500;
+    text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.04em; }
+  tr:last-child td { border-bottom: none; }
+  td.right { text-align: right; }
+  ul, ol { margin: 0.4rem 0 1rem 1.25rem; }
+  li { margin: 0.15rem 0; }
+  .badge { display: inline-block; padding: 0.1rem 0.5rem; border-radius: 999px;
+    font-size: 0.75rem; font-weight: 500; background: var(--panel-2); color: var(--fg-dim);
+    border: 1px solid var(--border); }
+  .badge.ok   { background: rgba(74, 222, 128, 0.12); color: var(--ok);   border-color: rgba(74,222,128,0.3); }
+  .badge.warn { background: rgba(251, 191, 36, 0.12); color: var(--warn); border-color: rgba(251,191,36,0.3); }
+  .badge.fail { background: rgba(248, 113, 113, 0.12); color: var(--fail); border-color: rgba(248,113,113,0.3); }
+  .badge.info { background: rgba(96, 165, 250, 0.12); color: var(--info); border-color: rgba(96,165,250,0.3); }
+  .badge-grid { display: flex; flex-wrap: wrap; gap: 0.3rem; margin: 0.3rem 0 1rem 0; }
+  .kv { display: grid; grid-template-columns: max-content 1fr; gap: 0.2rem 0.85rem;
+    margin: 0.4rem 0 1rem 0; }
+  .kv .k { color: var(--fg-dim); }
+  svg.bar-chart { display: block; max-width: 100%; height: auto; }
+  svg .bar { fill: var(--info); }
+  svg .bar.ok   { fill: var(--ok); }
+  svg .bar.warn { fill: var(--warn); }
+  svg .bar.fail { fill: var(--fail); }
+  svg text { fill: var(--fg); font-family: monospace; font-size: 11px; }
+  svg .axis text { fill: var(--fg-dim); }
+  code { background: var(--panel-2); padding: 0 0.3rem; border-radius: 3px;
+    font-family: "Fira Code", Consolas, Menlo, monospace; font-size: 0.85em; }
+  a { color: var(--link); }
+  footer { margin-top: 2rem; padding-top: 0.75rem; border-top: 1px solid var(--border);
+    font-size: 0.8rem; color: var(--fg-dim); }
+</style>
+</head>
+<body>
+<h1>CAD Pipeline Audit 2026-05-20 (amended)</h1>
+<div class="meta">rendered from H:/prism/state/shared/specs/CAD-PIPELINE-AUDIT-2026-05-20.md</div>
+<div class="meta">Generated 2026-05-20T03:44:29.353Z</div>
+<style>
+  .prism-md-body { max-width: 70rem; margin: 0 auto; }
+  .prism-h1 { font-size: 1.6rem; }
+  .prism-h2 { font-size: 1.25rem; border-bottom: 1px solid var(--border); padding-bottom: 0.25rem; }
+  .prism-h3 { font-size: 1.1rem; color: var(--info); }
+  .prism-h4, .prism-h5, .prism-h6 { font-size: 1rem; color: var(--fg-dim); }
+  .prism-md-body p { margin: 0.5rem 0; }
+  .prism-md-list { margin: 0.5rem 0 0.5rem 1.25rem; padding: 0; }
+  .prism-md-list li { margin: 0.15rem 0; }
+  .prism-md-table { border-collapse: collapse; margin: 0.75rem 0; width: 100%; }
+  .prism-md-table th, .prism-md-table td { border: 1px solid var(--border); padding: 0.35rem 0.6rem; text-align: left; }
+  .prism-md-table th { background: var(--panel-2); }
+  .prism-codeblock { background: var(--panel-2); border: 1px solid var(--border); border-radius: 4px; padding: 0.6rem 0.8rem; overflow-x: auto; font-family: "Cascadia Code", Consolas, monospace; font-size: 13px; }
+  .prism-inline-code { background: var(--panel-2); padding: 0 0.25rem; border-radius: 3px; font-family: "Cascadia Code", Consolas, monospace; font-size: 0.92em; }
+  .prism-quote { border-left: 3px solid var(--info); background: var(--panel-2); padding: 0.5rem 0.85rem; margin: 0.75rem 0; color: var(--fg-dim); }
+  .prism-hr { border: 0; border-top: 1px solid var(--border); margin: 1rem 0; }
+  .prism-link { color: var(--link); text-decoration: none; }
+  .prism-link:hover { text-decoration: underline; }
+  .prism-bad-link { color: var(--fail); text-decoration: line-through; }
+  .prism-unclosed::before { content: "⚠ unterminated code block"; display: block; color: var(--warn); font-size: 0.85em; margin-bottom: 0.25rem; }
+  </style><main class="prism-md-body"><nav class="prism-toc"><strong>Contents</strong><ul><li class="prism-toc-l1">CAD Pipeline Audit — 2026-05-20 (AMENDED post peer-review)</li><li class="prism-toc-l2">1. Scope statement</li><li class="prism-toc-l2">2. Headline empirical result (normalized, post peer-review)</li><li class="prism-toc-l2">3. Findings (each with verification channel)</li><li class="prism-toc-l3">F1 — Fusion 360 leads CAD generation among CAD-modeling platforms (AMENDED → OPEN-QUESTION on runtime)</li><li class="prism-toc-l3">F2 — The 9-stage pipeline has full coverage by scorer&#39;s static scan; integration completeness is unverified (AMENDED)</li><li class="prism-toc-l3">F3 — HyperMill is the dominant CAM substrate, NOT a peer CAD generator (AMENDED)</li><li class="prism-toc-l3">F4 — 4 named per-machine master post engines exist (AMENDED)</li><li class="prism-toc-l3">F5 — CadQuery is the headless fast-path (PASS, unchanged)</li><li class="prism-toc-l3">F6 — Inspection stage has the least per-platform differentiation (PASS, unchanged)</li><li class="prism-toc-l3">F7 — Stage coverage by static scan is tautologically true under shared-engine credit (NEW — peer-reviewer&#39;s strongest missed finding)</li><li class="prism-toc-l2">4. Recommendation — keep existing plan, with corrected confidence</li><li class="prism-toc-l2">5. Regressions detected during audit</li><li class="prism-toc-l2">6. Compounding-gains tax</li><li class="prism-toc-l2">7. Re-run schedule</li><li class="prism-toc-l2">8. Honest caveats</li><li class="prism-toc-l2">9. See also</li><li class="prism-toc-l2">10. Peer review verdicts and resolutions (2026-05-20)</li></ul></nav><h1 class="prism-h1">CAD Pipeline Audit — 2026-05-20 (AMENDED post peer-review)</h1>
+<blockquote class="prism-quote">Slot=echo, claude-3db3fb3d, <code class="prism-inline-code">/forge-audit-v2</code>. Empirical determination of the</blockquote>
+<blockquote class="prism-quote">easiest CAD platform for the print → 3D → hyperMILL → CAM → sim → post →</blockquote>
+<blockquote class="prism-quote">setup-sheet → inspection pipeline, with the existing substrate mapped onto</blockquote>
+<blockquote class="prism-quote">the user&#39;s brief.</blockquote>
+<blockquote class="prism-quote"></blockquote>
+<blockquote class="prism-quote"><strong>Status: AMENDED 2026-05-20</strong> following peer-reviewer FAIL. F1, F2, F3, F4</blockquote>
+<blockquote class="prism-quote">patched; F7 added (peer-reviewer&#39;s strongest missed finding). META artifact</blockquote>
+<blockquote class="prism-quote">patched to add normalized score and platform-specific-evidence count.</blockquote>
+<blockquote class="prism-quote">Verification commands rewritten without bash builtins so they run on the</blockquote>
+<blockquote class="prism-quote">project&#39;s native PowerShell shell.</blockquote>
+<h2 class="prism-h2">1. Scope statement</h2>
+<p>I am auditing <strong>which CAD program is the easiest to drive end-to-end through PRISM for the print → inspection pipeline</strong>, looking for <strong>the highest-leverage CAD-platform choice + the smallest gap between today&#39;s substrate and the user&#39;s 9-stage brief</strong>. The verification channel is <code class="prism-inline-code">scripts/cad-pipeline-coverage-scorer.mjs</code> (re-runnable, scores every (platform × stage) cell with both raw and normalized score + a <code class="prism-inline-code">hasPlatformEvidence</code> flag).</p>
+<h2 class="prism-h2">2. Headline empirical result (normalized, post peer-review)</h2>
+<p>Re-runnable measure: <code class="prism-inline-code">node scripts/cad-pipeline-coverage-scorer.mjs</code>.</p>
+<table class="prism-md-table"><thead><tr><th>Rank</th><th>Platform</th><th>Raw</th><th><strong>Normalized</strong></th><th>Plat-specific stages</th><th>Bridge kind</th><th>Autodesk MCP</th></tr></thead><tbody><tr><td>1</td><td>HyperMill (+HyperCAD-S)</td><td>148.25</td><td><strong>80.25</strong></td><td>9/9</td><td>in-host</td><td>no</td></tr>
+<tr><td>2</td><td>Fusion 360</td><td>107.75</td><td><strong>51.75</strong></td><td>9/9</td><td><strong>socket</strong></td><td><strong>yes</strong></td></tr>
+<tr><td>3</td><td>Inventor</td><td>107.25</td><td><strong>51.25</strong></td><td>9/9</td><td>none</td><td>yes</td></tr>
+<tr><td>4</td><td>Mastercam</td><td>106.75</td><td><strong>50.75</strong></td><td>9/9</td><td>none</td><td>no</td></tr>
+<tr><td>5</td><td>SolidWorks</td><td>106.75</td><td><strong>50.75</strong></td><td>9/9</td><td>none</td><td>no</td></tr>
+<tr><td>6</td><td>CadQuery (headless STEP)</td><td>81.75</td><td><strong>25.75</strong></td><td><strong>1/9</strong></td><td>none</td><td>no</td></tr></tbody></table>
+<p>Two columns shifted post-peer-review:</p>
+<ul class="prism-md-list"><li><strong>Normalized</strong>: caps per-stage engine credit at 5 intersect-engines and 4</li></ul>
+<p>shared-engines (peer reviewer flagged unnormalized score over-credits   high-engine-count platforms). HyperMill&#39;s lead shrank from 41 points raw   → 29 normalized; the margin to Fusion 360 is still real but smaller.</p>
+<ul class="prism-md-list"><li><strong>Plat-specific stages</strong>: counts stages with platform-specific evidence</li></ul>
+<p>(a named PrintTo&lt;Platform&gt;Bridge OR an engine matching the platform   prefix OR a platform-tokened dispatcher action). CadQuery drops from   &quot;9/9&quot; to <strong>1/9</strong> — exposing that its earlier &quot;100% coverage&quot; was   tautological under shared-engine credit (peer reviewer&#39;s strongest   missed finding, now surfaced as F7).</p>
+<ul class="prism-md-list"><li><strong>Bridge kind</strong>: <code class="prism-inline-code">socket</code> = TCP/HTTP independent-process driving;</li></ul>
+<p><code class="prism-inline-code">in-host</code> = plugin/automation inside the host app; <code class="prism-inline-code">none</code> = no live   driving. HyperMill&#39;s &quot;live bridge&quot; is <code class="prism-inline-code">in-host</code> (HyperMillInHostRunnerEngine)   — peer reviewer flagged this as a category error vs Fusion 360&#39;s <code class="prism-inline-code">socket</code>   bridge at <code class="prism-inline-code">:18360</code>. Both are useful; they are not equivalent and the   audit no longer conflates them.</p>
+<p><strong>Decision splits cleanly:</strong></p>
+<ul class="prism-md-list"><li><strong>CAD generation from print → Fusion 360.</strong> Highest normalized score</li></ul>
+<p>among platforms with native CAD modeling (51.75); only platform with   socket bridge AND Autodesk Claude MCP; validated by canonical memory   <code class="prism-inline-code">reference_cad_software_pipeline_recommendation</code>. F1 caveat applies —   see §3.</p>
+<ul class="prism-md-list"><li><strong>CAM downstream → keep hyperMILL.</strong> Empirically dominant CAM</li></ul>
+<p>substrate (80.25 normalized) even after the over-credit cap. The lead   is over CAM stages (CAM_TRANSFER, CAM_PROG, SIMULATE), not CAD_GEN.</p>
+<ul class="prism-md-list"><li><strong>Headless STEP fast-path → CadQuery is a NICHE, not a peer.</strong> With</li></ul>
+<p>only 1/9 platform-specific stages, CadQuery covers the CAD-script step   ONLY. Stages 3–9 are reached through generic shared engines, not   CadQuery-aware ones. It&#39;s a Stage-2 fast-path, not a full pipeline.</p>
+<h2 class="prism-h2">3. Findings (each with verification channel)</h2>
+<h3 class="prism-h3">F1 — Fusion 360 leads CAD generation among CAD-modeling platforms (AMENDED → OPEN-QUESTION on runtime)</h3>
+<ul class="prism-md-list"><li><strong>Claim:</strong> Fusion 360 has the highest normalized score among platforms</li></ul>
+<p>with native CAD modeling and is the only platform with a socket-style   live bridge AND the Autodesk Claude MCP connector.</p>
+<ul class="prism-md-list"><li><strong>Verify via:</strong> <code class="prism-inline-code">node scripts/cad-pipeline-coverage-scorer.mjs --json</code> then read <code class="prism-inline-code">.totals.fusion360.normalizedTotalScore</code>, <code class="prism-inline-code">.bridgeKind</code>, <code class="prism-inline-code">.autodeskMcp</code></li><li><strong>Expected signal:</strong> normalizedTotalScore ≥ 50, bridgeKind = &quot;socket&quot;, autodeskMcp = true</li><li><strong>Re-run cost:</strong> ~1 sec</li><li><strong>Baseline (2026-05-20):</strong> 51.75, &quot;socket&quot;, true</li><li><strong>OPEN-QUESTION (peer-review):</strong> system-viz <code class="prism-inline-code">MISC-305</code> flags</li></ul>
+<p><code class="prism-inline-code">Fusion360LiveBridgeEngine + PrintToFusion360Bridge appear incomplete</code>.   The scorer is a pure static file scan — it does NOT verify runtime   socket connectivity at <code class="prism-inline-code">:18360</code>. The finding is correct directionally   (Fusion 360 leads on paper), but <strong>operational readiness of the live   bridge is unverified by this audit</strong>. Resolving MISC-305 (or running   a live <code class="prism-inline-code">:18360</code> handshake test) is the prerequisite for treating F1   as production-confident.</p>
+<h3 class="prism-h3">F2 — The 9-stage pipeline has full coverage by scorer&#39;s static scan; integration completeness is unverified (AMENDED)</h3>
+<ul class="prism-md-list"><li><strong>Claim:</strong> Every CAD platform shows ≥ 1 engine present per stage by the</li></ul>
+<p>scorer&#39;s static file scan. <code class="prism-inline-code">PrintToProgramPipelineEngine</code> runs a 5-stage   flow (intake → features → plan → program → validation).   <code class="prism-inline-code">PrintToCADOrchestratorEngine</code> covers print → CAD (5 stages). The gap is   the unified operator-facing 9-stage composition.</p>
+<ul class="prism-md-list"><li><strong>Verify via:</strong> <code class="prism-inline-code">node scripts/cad-pipeline-coverage-scorer.mjs --json</code> then read <code class="prism-inline-code">[.totals[].stagesWithEvidence] | min</code></li><li><strong>Expected signal:</strong> ≥ 9</li><li><strong>Baseline (2026-05-20):</strong> 9</li><li><strong>AMENDED (peer-review):</strong> the prior version of this finding claimed</li></ul>
+<p>&quot;85% substrate built&quot; as a prose figure not derived from the scorer.   Removed. The scorer reports <strong>100% stage coverage by static file scan</strong>;   it does <strong>not</strong> measure integration completeness. The honest claim is   &quot;every stage has ≥ 1 engine on disk; how well those engines compose   end-to-end is a separate wet-run question.&quot;</p>
+<h3 class="prism-h3">F3 — HyperMill is the dominant CAM substrate, NOT a peer CAD generator (AMENDED)</h3>
+<ul class="prism-md-list"><li><strong>Claim:</strong> HyperMill leads CAM stages (CAM_TRANSFER score=20,</li></ul>
+<p>CAM_PROG=34, SIMULATE=15 — raw; normalized still ranks #1 overall).   Its 80+ engines drive CAM-side coverage breadth.</p>
+<ul class="prism-md-list"><li><strong>Verify via:</strong> <code class="prism-inline-code">node scripts/cad-pipeline-coverage-scorer.mjs --json</code> then read <code class="prism-inline-code">.matrix.hypermill.CAM_TRANSFER.score, .matrix.hypermill.CAM_PROG.score, .matrix.hypermill.SIMULATE.score</code></li><li><strong>Expected signal:</strong> all three ≥ 15 (raw)</li><li><strong>Baseline (2026-05-20):</strong> 20, 34, 15</li><li><strong>AMENDED (peer-review):</strong> the prior version implied HyperMill&#39;s</li></ul>
+<p>in-host runner was a peer to Fusion 360&#39;s socket bridge — peer   reviewer flagged this as a category error. The scorer now tracks   <code class="prism-inline-code">bridgeKind</code> explicitly (<code class="prism-inline-code">socket</code> vs <code class="prism-inline-code">in-host</code> vs <code class="prism-inline-code">none</code>). Both   enable PRISM-driven automation but with different deployment shapes;   socket bridges run independent of the host app, in-host runners   require the host app to be running with the plugin loaded. This   matters for batch/cloud workflows.</p>
+<h3 class="prism-h3">F4 — 4 named per-machine master post engines exist (AMENDED)</h3>
+<ul class="prism-md-list"><li><strong>Claim:</strong> 4 per-machine master posts on disk:</li></ul>
+<p><code class="prism-inline-code">OkumaB250LatheMasterPostEngine</code>, <code class="prism-inline-code">OkumaOSPMillMasterPostEngine</code>,   <code class="prism-inline-code">HurcoV11MillMasterPostEngine</code>,   <code class="prism-inline-code">MitsubishiMV1200RWireEDMMasterPostEngine</code>. Plus the master-post   family of orchestration engines.</p>
+<ul class="prism-md-list"><li><strong>Verify via:</strong> see the file list via Glob <code class="prism-inline-code">H:/prism/mcp-server/src/engines/<em>MasterPost</em>.ts</code></li><li><strong>Expected signal:</strong> at least 18 files match the glob (master-post family); exactly 4 are per-machine endpoints</li><li><strong>Baseline (2026-05-20):</strong> 18 files match the glob; 4 are per-machine endpoints</li><li><strong>AMENDED (peer-review):</strong> the prior verification command was</li></ul>
+<p><code class="prism-inline-code">grep -l MasterPostEngine</code> which returns 5, not 18 — the baseline and   the command didn&#39;t match. The corrected version uses the broader   Glob (<code class="prism-inline-code"><em>MasterPost</em>.ts</code>) for the 18 family count, and the prose   separates the broad family (18) from the per-machine endpoints (4)   so the two numbers are explicit, not conflated.</p>
+<h3 class="prism-h3">F5 — CadQuery is the headless fast-path (PASS, unchanged)</h3>
+<ul class="prism-md-list"><li><strong>Claim:</strong> CadQuery is the only platform with zero app/license/UI</li></ul>
+<p>requirement, suitable for batch processing the JM Die archive (24,545   files). It covers Stage 2 (CAD_GEN) only — see F7.</p>
+<ul class="prism-md-list"><li><strong>Verify via:</strong> Read <code class="prism-inline-code">H:/prism/mcp-server/src/tools/dispatchers/cadDispatcher.ts</code> and search for both <code class="prism-inline-code">cadquery_execute_script</code> and <code class="prism-inline-code">blueprint_to_cadquery_script</code></li><li><strong>Expected signal:</strong> both literals present</li><li><strong>Baseline (2026-05-20):</strong> both confirmed present in <code class="prism-inline-code">cadDispatcher.ts</code></li></ul>
+<h3 class="prism-h3">F6 — Inspection stage has the least per-platform differentiation (PASS, unchanged)</h3>
+<ul class="prism-md-list"><li><strong>Claim:</strong> INSPECTION cell scores 7 across most platforms (4 for</li></ul>
+<p>CadQuery). <code class="prism-inline-code">FirstArticleInspectionPipelineEngine</code>,   <code class="prism-inline-code">CMMPathPlanningEngine</code>, <code class="prism-inline-code">ProbeRoutineGeneratorEngine</code> are   platform-agnostic. Inspection logic implements once, reuses for   every CAD platform.</p>
+<ul class="prism-md-list"><li><strong>Verify via:</strong> <code class="prism-inline-code">node scripts/cad-pipeline-coverage-scorer.mjs --json</code> then read each platform&#39;s <code class="prism-inline-code">.matrix.&lt;id&gt;.INSPECTION.score</code></li><li><strong>Expected signal:</strong> unique values ≤ 2</li><li><strong>Baseline (2026-05-20):</strong> {4, 7} — CadQuery=4, all others=7</li></ul>
+<h3 class="prism-h3">F7 — Stage coverage by static scan is tautologically true under shared-engine credit (NEW — peer-reviewer&#39;s strongest missed finding)</h3>
+<ul class="prism-md-list"><li><strong>Claim:</strong> The scorer&#39;s <code class="prism-inline-code">shared</code> term credits every platform for any</li></ul>
+<p>engine that doesn&#39;t match a platform prefix. This makes 9/9 stage   coverage trivially true — any stage with one platform-agnostic engine   (e.g. <code class="prism-inline-code">PrintReadingEngine</code>, <code class="prism-inline-code">ShopConfigurationEngine</code>, master-post   engines) shows coverage &gt; 0 for ALL six CAD platforms. CadQuery&#39;s   &quot;9/9 coverage&quot; was vacuous: it has only <strong>1/9 platform-specific   stages</strong>.</p>
+<ul class="prism-md-list"><li><strong>Verify via:</strong> <code class="prism-inline-code">node scripts/cad-pipeline-coverage-scorer.mjs --json</code> then read each platform&#39;s <code class="prism-inline-code">.totals.&lt;id&gt;.stagesWithPlatformSpecificEvidence</code> (added 2026-05-20)</li><li><strong>Expected signal:</strong> CadQuery = 1/9; Fusion / Mastercam / HyperMill / SolidWorks / Inventor = 9/9 (named PrintTo bridges + per-platform CAM/CAD engines)</li><li><strong>Baseline (2026-05-20):</strong> 1, 9, 9, 9, 9, 9 respectively</li><li><strong>Resolution:</strong> future ranking decisions should weight</li></ul>
+<p><code class="prism-inline-code">stagesWithPlatformSpecificEvidence</code> higher than <code class="prism-inline-code">stagesWithEvidence</code>.   The scorer&#39;s new <code class="prism-inline-code">hasPlatformEvidence</code> flag (per-cell) and   <code class="prism-inline-code">stagesWithPlatformSpecificEvidence</code> (per-platform) close the   tautology.</p>
+<h2 class="prism-h2">4. Recommendation — keep existing plan, with corrected confidence</h2>
+<p>Empirically (post-amendment), the existing plan is correct but with narrower margins than the pre-amendment audit suggested:</p>
+<ul class="prism-md-list"><li><strong>hyperMILL stays as first-choice CAM.</strong> Normalized score 80.25</li></ul>
+<p>still leads, even after the engine-count cap.</p>
+<ul class="prism-md-list"><li><strong>Fusion 360 is the right CAD generator.</strong> Normalized score 51.75 ties</li></ul>
+<p>with the other CAD-native peers numerically (within 1 point of Inventor,   Mastercam, SolidWorks), but wins on TWO tiebreakers nothing else has:   socket bridge + Autodesk MCP connector. <strong>Subject to MISC-305 resolution   for production confidence.</strong></p>
+<ul class="prism-md-list"><li><strong>CadQuery is a Stage-2 niche fast-path.</strong> Not a full-pipeline peer.</li></ul>
+<p>Actionable gap: a single composition engine — spec&#39;d in <code class="prism-inline-code">state/shared/specs/PRINT-TO-INSPECTION-PIPELINE-V2.md</code> (also amended post peer-review).</p>
+<h2 class="prism-h2">5. Regressions detected during audit</h2>
+<p><strong>One regression class flagged by peer review:</strong> verification commands in audit documents use the bash <code class="prism-inline-code">command</code> builtin (e.g., <code class="prism-inline-code">command grep</code>), which does not exist in PowerShell — the project&#39;s native shell. This audit&#39;s prior F4/F5 verification commands would fail on a fresh PowerShell session. <strong>Fix this session:</strong> all verification commands rewritten using plain <code class="prism-inline-code">node ...</code> invocations and PRISM tool primitives (Read, Glob) that work in both shells.</p>
+<p>CLAUDE.md back-flow line proposed (patch-sibling, since CLAUDE.md is peer-locked on this shared tree — see <code class="prism-inline-code">state/shared/dashboards/patches/CLAUDE-MD-PATCH-cad-pipeline-audit.md</code>).</p>
+<h2 class="prism-h2">6. Compounding-gains tax</h2>
+<p>META artifact: <code class="prism-inline-code">scripts/cad-pipeline-coverage-scorer.mjs</code> (this audit&#39;s score producer). Patched 2026-05-20 to add normalized score, bridge-kind, platform-specific-evidence tracking. Re-runnable in ~1 sec. Baseline at <code class="prism-inline-code">state/shared/specs/cad-pipeline-coverage-LATEST.{md,json}</code>. Future audits diff against this baseline and call out any platform whose NORMALIZED score moves ≥ 10 points or whose <code class="prism-inline-code">stagesWithPlatformSpecificEvidence</code> changes.</p>
+<h2 class="prism-h2">7. Re-run schedule</h2>
+<p>7-day cadence — cron job 61361ec9, every Thursday 09:17 local, durable.</p>
+<h2 class="prism-h2">8. Honest caveats</h2>
+<ul class="prism-md-list"><li>Coverage score = engine-file count + dispatcher-action mentions + test</li></ul>
+<p>count; it measures <strong>breadth of substrate</strong>, NOT runtime correctness.</p>
+<ul class="prism-md-list"><li>The normalized score caps engine-count credit; it still does not</li></ul>
+<p>measure integration depth or operator-ready completeness. A wet-run   pipeline test against real JM Die prints is the next step — out of   scope for this audit.</p>
+<ul class="prism-md-list"><li>F1&#39;s runtime caveat (MISC-305) means the Fusion 360 lead is &quot;on paper</li></ul>
+<p>+socket bridge file exists&quot;; whether the bridge serves requests at   <code class="prism-inline-code">:18360</code> is unverified.</p>
+<ul class="prism-md-list"><li>The HyperMill engine count includes <code class="prism-inline-code">HyperCAD-S</code> engines (6) under the</li></ul>
+<p><code class="prism-inline-code">/^Hyper(Mill|CAD)/</code> regex. Splitting them changes HyperMill&#39;s   CAD_GEN score very little (HyperCAD-S has 6 engines vs HyperMill&#39;s   80+); the overall CAM-dominance verdict survives.</p>
+<ul class="prism-md-list"><li>&quot;Autodesk MCP&quot; benefit assumes the official Autodesk Claude connector</li></ul>
+<p>(released 2026-04-28) is reachable. PRISM&#39;s own   <code class="prism-inline-code">AutodeskFusionMCPProxyEngine</code> is the JSON-RPC client for it.</p>
+<h2 class="prism-h2">9. See also</h2>
+<ul class="prism-md-list"><li><code class="prism-inline-code">state/shared/specs/PRINT-TO-INSPECTION-PIPELINE-V2.md</code> — pipeline spec (also amended post peer-review)</li><li><code class="prism-inline-code">state/shared/specs/CAD-PIPELINE-AUDIT-2026-05-20.html</code> — HTML companion</li><li><code class="prism-inline-code">state/shared/specs/cad-pipeline-coverage-LATEST.{json,md}</code> — baseline data</li><li><code class="prism-inline-code">state/shared/dashboards/patches/CLAUDE-MD-PATCH-cad-pipeline-audit.md</code> — regression back-flow patch sibling</li><li><code class="prism-inline-code">knowledge/memories/reference/reference_cad_software_pipeline_recommendation.md</code> — canonical PRISM CAD recommendation</li><li><code class="prism-inline-code">scripts/cad-pipeline-coverage-scorer.mjs</code> — META artifact (peer-review-patched)</li></ul>
+<h2 class="prism-h2">10. Peer review verdicts and resolutions (2026-05-20)</h2>
+<p>Reviewer agent ae9df739c4735b122 returned <strong>OVERALL FAIL</strong> on the original audit. Resolutions per finding:</p>
+<table class="prism-md-table"><thead><tr><th>Finding</th><th>Original verdict</th><th>Resolution</th></tr></thead><tbody><tr><td>F1</td><td>FAIL — overstated, MISC-305 contradicts</td><td>Downgraded to OPEN-QUESTION; MISC-305 explicitly noted; framing is &quot;leads on paper, runtime unverified&quot;</td></tr>
+<tr><td>F2</td><td>PASS with caveat — &quot;85%&quot; unsupported</td><td>Removed the unsupported 85%; replaced with grounded scorer language (100% by static scan, integration completeness unverified)</td></tr>
+<tr><td>F3</td><td>OPEN-QUESTION — in-host runner ≠ socket bridge</td><td>Scorer now tracks <code class="prism-inline-code">bridgeKind</code> explicitly (socket/in-host/none); audit no longer conflates them</td></tr>
+<tr><td>F4</td><td>FAIL — verification returned 5, claimed baseline 18</td><td>Verification command changed to Glob <code class="prism-inline-code"><em>MasterPost</em>.ts</code> (matches 18); prose separates family (18) from per-machine endpoints (4)</td></tr>
+<tr><td>F5</td><td>PASS</td><td>Unchanged</td></tr>
+<tr><td>F6</td><td>PASS</td><td>Unchanged</td></tr>
+<tr><td>(F7)</td><td>Strongest missed finding</td><td>Added: scorer&#39;s shared-engine term made 9/9 coverage tautological. New <code class="prism-inline-code">stagesWithPlatformSpecificEvidence</code> metric exposes the truth (CadQuery = 1/9).</td></tr>
+<tr><td>META — no normalization</td><td>FAIL</td><td>Added <code class="prism-inline-code">normalizedTotalScore</code> (caps engine-count credit); ranking now uses normalized</td></tr>
+<tr><td>META — verification commands use bash <code class="prism-inline-code">command</code> builtin</td><td>FAIL</td><td>All verification commands rewritten to plain <code class="prism-inline-code">node ...</code> / Read / Glob primitives that work in PowerShell</td></tr>
+<tr><td>V2 — GD&amp;T propagation gap</td><td>Valid composition bug</td><td>Addressed in V2 spec amendment (Stage 2→3 side-channel)</td></tr>
+<tr><td>V2 — Stage 4 safety gate downgrade</td><td>Valid safety bug</td><td>V2 spec amended: HARD BLOCK on envelope mismatch</td></tr>
+<tr><td>V2 — inspection table missing surface plate / height gauge / optical comparator</td><td>Valid metrology gap</td><td>V2 spec amendment expands the routing table</td></tr>
+<tr><td>V2 — delta under-scoped</td><td>Valid scope honesty</td><td>V2 spec re-labels delta as &quot;net-new orchestration&quot; not &quot;composition only&quot;</td></tr></tbody></table>
+<p>After resolutions, the audit&#39;s directional conclusions stand but the confidence framing is more honest. The V2 spec amendments address all composition-bug critiques.</p></main><footer>
+<div>html-report-render schemaVersion 1.0.0</div>
+</footer>
+</body>
+</html>

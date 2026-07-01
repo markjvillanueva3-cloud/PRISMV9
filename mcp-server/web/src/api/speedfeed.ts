@@ -3,6 +3,7 @@
  * Routes: orchestrate (full pipeline), quick (no stochastic), stochastic (full UQ)
  */
 import type { PrismResponse } from './types';
+import type { TriCompareInput, TriCompareResult } from '../types/speedfeed';
 
 const API_BASE = '/api/v1/speed-feed';
 const TOOL_ROI_CACHE_TTL_MS = 30_000;
@@ -254,6 +255,24 @@ export async function sfOptimize(params: SpeedFeedParams, objectives?: string[])
   return sfRequest('/optimize', { ...params, objectives });
 }
 
+/**
+ * Vendor parity: PRISM vs baseline(literature) vs HSMAdvisor(live) vs G-Wizard(crib)
+ * for one canonical cut (the sfc.vendor_parity feature). The dispatcher wraps its output
+ * as { success, result }, so unwrap the envelope here and hand the consumer a clean
+ * TriCompareResult; throw on an engine-side failure so the hook surfaces an error state.
+ */
+export async function sfTriCompare(input: TriCompareInput): Promise<TriCompareResult> {
+  const resp = await sfRequest<{ success: boolean; result?: TriCompareResult; error?: string }>(
+    '/tri-compare',
+    input,
+  );
+  const env = resp.result;
+  if (!env?.success || !env.result) {
+    throw new Error(env?.error || 'Vendor comparison failed');
+  }
+  return env.result;
+}
+
 export async function sfInventoryToolSelect(params: unknown) {
   return sfRequest('/inventory-select', params);
 }
@@ -289,6 +308,7 @@ export const speedFeedApi = {
   resolveTool: sfResolveTool,
   resolveMaterial: sfResolveMaterial,
   compare: sfCompare,
+  triCompare: sfTriCompare,
   optimize: sfOptimize,
   inventoryToolSelect: sfInventoryToolSelect,
   toolRoiAnalysis: sfToolRoiAnalysis,

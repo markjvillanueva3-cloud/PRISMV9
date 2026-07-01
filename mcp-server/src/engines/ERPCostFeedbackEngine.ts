@@ -1,3 +1,4 @@
+// WIRE-EXEMPT: ERP bridge engine awaiting Tier-3 erp dispatcher (L2-P4-MS1/P0-U02 Batch 3). Cost-feedback sender to external ERP systems; consumer (ERP variance dashboard) not yet built; engine is intentionally unwired until its consumer ships.
 /**
  * ERPCostFeedbackEngine — Actual Cost Feedback to ERP
  * ====================================================
@@ -39,7 +40,7 @@ export const CostSummarySchema = z.object({
   actualCost: z.number(),
   variance: z.number(),
   variancePercent: z.number(),
-  byCategory: z.record(z.number()),
+  byCategory: z.record(z.string(), z.number()),
   entries: z.array(CostEntrySchema),
   lastUpdated: z.string(),
 });

@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `cpk-calc` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/cpk-calc.md` |
+| Source | `C:/Users/wompu/.claude/commands/cpk-calc.md` |
 | Model | default |
 | Tags | _(none)_ |
 

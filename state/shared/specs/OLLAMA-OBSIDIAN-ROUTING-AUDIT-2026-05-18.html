@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="generator" content="SpecHTMLCompanionEngine">
+<meta name="prism-source-hash" content="b78b80454e064974b097cf9cef6eeaa02b2b90d10618fa0fc2f093ebd2af3801">
+<title>OLLAMA + OBSIDIAN ROUTING AUDIT — 2026-05-18 (slot golf, claude-b23a56ef)</title>
+<style>
+:root, [data-theme="light"] {
+  --bg:#ffffff; --bg-soft:#f6f8fa; --bg-code:#f6f8fa; --fg:#1f2328; --fg-muted:#636c76;
+  --border:#d0d7de; --accent:#0969da; --accent-soft:#ddf4ff; --thead:#f6f8fa; --quote:#656d76;
+  --table-stripe:#f6f8fa;
+}
+[data-theme="dark"] {
+  --bg:#0d1117; --bg-soft:#161b22; --bg-code:#161b22; --fg:#e6edf3; --fg-muted:#8b949e;
+  --border:#30363d; --accent:#2f81f7; --accent-soft:#163356; --thead:#161b22; --quote:#8b949e;
+  --table-stripe:#11151c;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg:#0d1117; --bg-soft:#161b22; --bg-code:#161b22; --fg:#e6edf3; --fg-muted:#8b949e;
+    --border:#30363d; --accent:#2f81f7; --accent-soft:#163356; --thead:#161b22; --quote:#8b949e;
+    --table-stripe:#11151c;
+  }
+}
+* { box-sizing:border-box; }
+html { scroll-behavior:smooth; }
+body { margin:0; background:var(--bg); color:var(--fg); font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif; line-height:1.6; font-size:16px; }
+.skip-link { position:absolute; left:-9999px; top:0; background:var(--accent); color:#fff; padding:8px 14px; z-index:100; border-radius:0 0 6px 0; }
+.skip-link:focus { left:0; }
+.layout { display:grid; grid-template-columns:minmax(0,1fr); max-width:1180px; margin:0 auto; padding:0 20px; }
+@media (min-width:1000px) { .layout { grid-template-columns:260px minmax(0,1fr); gap:40px; } }
+header.doc-head { grid-column:1 / -1; padding:28px 0 16px; border-bottom:1px solid var(--border); }
+header.doc-head h1.page-title { margin:0 0 6px; font-size:1.9rem; line-height:1.25; }
+header.doc-head .provenance { color:var(--fg-muted); font-size:.85rem; margin:0; }
+header.doc-head .theme-toggle { float:right; background:var(--bg-soft); color:var(--fg); border:1px solid var(--border); border-radius:6px; padding:5px 10px; font-size:.8rem; cursor:pointer; }
+nav.toc { align-self:start; position:sticky; top:16px; max-height:calc(100vh - 32px); overflow:auto; font-size:.85rem; padding:14px 0; }
+@media (max-width:999px) { nav.toc { position:static; max-height:none; border-bottom:1px solid var(--border); margin-bottom:12px; } }
+nav.toc .toc-title { font-weight:600; color:var(--fg-muted); text-transform:uppercase; letter-spacing:.04em; font-size:.7rem; margin-bottom:8px; }
+nav.toc ul { list-style:none; margin:0; padding:0; }
+nav.toc li a { color:var(--fg-muted); text-decoration:none; display:block; padding:3px 6px; border-left:2px solid transparent; border-radius:0 4px 4px 0; }
+nav.toc li a:hover { color:var(--accent); background:var(--accent-soft); border-left-color:var(--accent); }
+nav.toc li a.active { color:var(--accent); background:var(--accent-soft); border-left-color:var(--accent); font-weight:600; }
+nav.toc .toc-l2 a { padding-left:14px; } nav.toc .toc-l3 a { padding-left:26px; font-size:.95em; } nav.toc .toc-l4 a { padding-left:38px; font-size:.9em; }
+nav.toc input.toc-search { width:100%; box-sizing:border-box; margin:0 0 8px; padding:5px 8px; font-size:.82rem; border:1px solid var(--border); border-radius:5px; background:var(--bg); color:var(--fg); }
+nav.toc input.toc-search:focus { outline:2px solid var(--accent); outline-offset:-1px; }
+nav.toc .toc-search-status { font-size:.7rem; color:var(--fg-muted); min-height:1em; margin:-4px 0 6px; }
+nav.toc li.toc-hidden { display:none; }
+main.doc-body mark.search-hit { background:#fff3a3; color:#1f2328; border-radius:2px; padding:0 1px; }
+main.doc-body mark.search-hit.current { outline:2px solid var(--accent); outline-offset:1px; }
+main.doc-body { min-width:0; padding:24px 0 64px; }
+main.doc-body h1,main.doc-body h2,main.doc-body h3,main.doc-body h4,main.doc-body h5,main.doc-body h6 { line-height:1.3; margin-top:1.8em; margin-bottom:.6em; scroll-margin-top:16px; position:relative; }
+main.doc-body h1 { font-size:1.7rem; border-bottom:1px solid var(--border); padding-bottom:.3em; }
+main.doc-body h2 { font-size:1.4rem; border-bottom:1px solid var(--border); padding-bottom:.3em; }
+main.doc-body h3 { font-size:1.18rem; } main.doc-body h4 { font-size:1.02rem; }
+main.doc-body a.anchor { position:absolute; left:-1.1em; opacity:0; text-decoration:none; color:var(--fg-muted); font-weight:400; padding-right:.3em; }
+main.doc-body h1:hover a.anchor,main.doc-body h2:hover a.anchor,main.doc-body h3:hover a.anchor,main.doc-body h4:hover a.anchor { opacity:1; }
+main.doc-body a { color:var(--accent); text-decoration:none; } main.doc-body a:hover { text-decoration:underline; }
+main.doc-body p { margin:.8em 0; }
+main.doc-body code { background:var(--bg-code); border-radius:4px; padding:.15em .35em; font-size:.88em; font-family:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace; }
+main.doc-body pre { background:var(--bg-code); border:1px solid var(--border); border-radius:8px; padding:14px 16px; overflow:auto; line-height:1.45; }
+main.doc-body pre code { background:none; padding:0; font-size:.86rem; }
+main.doc-body blockquote { margin:1em 0; padding:.4em 1em; border-left:4px solid var(--border); color:var(--quote); }
+main.doc-body ul,main.doc-body ol { margin:.6em 0; padding-left:1.6em; }
+main.doc-body li { margin:.2em 0; }
+main.doc-body hr { border:0; border-top:1px solid var(--border); margin:2em 0; }
+main.doc-body .table-wrap { overflow-x:auto; margin:1em 0; }
+main.doc-body table { border-collapse:collapse; width:100%; font-size:.9rem; }
+main.doc-body th,main.doc-body td { border:1px solid var(--border); padding:6px 11px; text-align:left; vertical-align:top; }
+main.doc-body thead th { background:var(--thead); }
+main.doc-body tbody tr:nth-child(2n) { background:var(--table-stripe); }
+main.doc-body details.frontmatter { background:var(--bg-soft); border:1px solid var(--border); border-radius:8px; padding:6px 14px; margin:0 0 22px; }
+main.doc-body details.frontmatter summary { cursor:pointer; font-weight:600; color:var(--fg-muted); }
+main.doc-body details.frontmatter table { font-size:.82rem; }
+main.doc-body details.frontmatter th { width:1%; white-space:nowrap; background:transparent; color:var(--fg-muted); }
+main.doc-body .mermaid { background:var(--bg-soft); border:1px solid var(--border); border-radius:8px; padding:14px; margin:1em 0; text-align:center; overflow:auto; white-space:pre-wrap; }
+main.doc-body .truncation-notice { background:var(--accent-soft); border:1px solid var(--accent); border-radius:6px; padding:10px 14px; font-size:.9rem; }
+footer.doc-foot { grid-column:1 / -1; border-top:1px solid var(--border); margin-top:48px; padding:18px 0 40px; color:var(--fg-muted); font-size:.82rem; }
+footer.doc-foot code { background:var(--bg-code); border-radius:4px; padding:.12em .3em; }
+</style>
+</head>
+<body>
+<a class="skip-link" href="#content">Skip to content</a>
+<div class="layout">
+<header class="doc-head">
+<button id="themeToggle" class="theme-toggle" type="button" aria-label="Toggle color theme">◐ theme</button>
+<h1 class="page-title" id="top">OLLAMA + OBSIDIAN ROUTING AUDIT — 2026-05-18 (slot golf, claude-b23a56ef)</h1>
+<p class="provenance">Generated 2026-05-18T17:36:30.907Z by <code>scripts/emit-all-spec-html.ts</code> · the Markdown alongside is canonical</p>
+</header>
+<nav class="toc" aria-label="Table of contents"><div class="toc-title">On this page</div><input type="search" class="toc-search" placeholder="Search this page…" aria-label="Search this page" autocomplete="off"><div class="toc-search-status" aria-live="polite"></div><ul>
+<li class="toc-l1"><a href="#ollama-obsidian-routing-audit-2026-05-18-slot-golf-claude-b23a56ef">OLLAMA + OBSIDIAN ROUTING AUDIT — 2026-05-18 (slot golf, claude-b23a56ef)</a></li>
+<li class="toc-l2"><a href="#phase-0-preflight-r12-honest">Phase 0 — preflight (R12 honest)</a></li>
+<li class="toc-l2"><a href="#phase-2-exhaustive-surface-enumeration">Phase 2 — exhaustive surface enumeration</a></li>
+<li class="toc-l3"><a href="#a-ollama-routing-hooks-30-on-disk">A. Ollama-routing hooks (30 on disk)</a></li>
+<li class="toc-l3"><a href="#b-obsidian-feed-hooks-15-on-disk">B. Obsidian-feed hooks (15 on disk)</a></li>
+<li class="toc-l3"><a href="#c-searchindexcontext-surfaces-just-shipped-existing">C. Search/index/context surfaces (just-shipped + existing)</a></li>
+<li class="toc-l2"><a href="#phase-3-findings-each-with-verification-channel">Phase 3 — findings (each with verification channel)</a></li>
+<li class="toc-l3"><a href="#finding-f1-80-of-ollama-hooks-are-likely-orphan-on-disk">Finding F1 — ~80% of Ollama hooks are likely orphan-on-disk</a></li>
+<li class="toc-l3"><a href="#finding-f2-obsidian-feed-is-one-way-memoryvault-only">Finding F2 — Obsidian feed is one-way (memory→vault) only</a></li>
+<li class="toc-l3"><a href="#finding-f3-ollamanim-autostart-races-create-per-prompt-noise">Finding F3 — Ollama/NIM autostart races create per-prompt noise</a></li>
+<li class="toc-l3"><a href="#finding-f4-bm25-sidecar-precomputation-already-documented-gap">Finding F4 — BM25 sidecar precomputation (already documented gap)</a></li>
+<li class="toc-l3"><a href="#finding-f5-find-could-auto-redirect-globgrep-for-symbol-shaped-queries">Finding F5 — /find could auto-redirect Glob/Grep for symbol-shaped queries</a></li>
+<li class="toc-l3"><a href="#finding-f6-stop-hook-bundle-doesnt-reuse-parsed-graph-across-sub-hooks">Finding F6 — Stop-hook bundle doesn&#39;t reuse parsed graph across sub-hooks</a></li>
+<li class="toc-l2"><a href="#phase-6-meta-artifact-ranked-action-list">Phase 6 — META artifact + ranked action list</a></li>
+<li class="toc-l3"><a href="#meta-shipped-this-session-ollama-hook-fire-auditmjs">META shipped this session: ollama-hook-fire-audit.mjs</a></li>
+<li class="toc-l3"><a href="#action-list-ranked-by-leverage-ship-cost">Action list (ranked by leverage / ship-cost)</a></li>
+<li class="toc-l2"><a href="#phase-7-end-state">Phase 7 — end-state</a></li>
+<li class="toc-l2"><a href="#memory-cross-refs">Memory cross-refs</a></li>
+</ul></nav>
+<main id="content" class="doc-body" role="main">
+<h1 id="ollama-obsidian-routing-audit-2026-05-18-slot-golf-claude-b23a56ef"><a class="anchor" href="#ollama-obsidian-routing-audit-2026-05-18-slot-golf-claude-b23a56ef" aria-label="Permalink to OLLAMA + OBSIDIAN ROUTING AUDIT — 2026-05-18 (slot golf, claude-b23a56ef)">#</a>OLLAMA + OBSIDIAN ROUTING AUDIT — 2026-05-18 (slot golf, claude-b23a56ef)</h1>
+<p><strong>Scope:</strong> find skills/scripts/hooks that <strong>auto-fire and route through Ollama or Obsidian</strong> for token savings, context extension, build quality, and mistake mitigation. <strong>Expand on what already exists</strong> — don&#39;t re-build.</p>
+<p><strong>Verification channel:</strong> every finding declares its own re-measurement tool. No opinions without channels.</p>
+<h2 id="phase-0-preflight-r12-honest"><a class="anchor" href="#phase-0-preflight-r12-honest" aria-label="Permalink to Phase 0 — preflight (R12 honest)">#</a>Phase 0 — preflight (R12 honest)</h2>
+<ul>
+<li>Inventory: live (auto-regenerated on SessionStart)</li>
+<li>BUILD_STATE: live (auto-injected this prompt)</li>
+<li>Synergy ratio: not re-measured this session — baseline <code>22.2%</code> (juliett 2026-05-16 [[reference_synergy_regression_watch_2026_05_16]])</li>
+<li>System-viz graph: <strong>363.5MB</strong> (post-regen-viz mid-session; S3 fallback active)</li>
+<li>Memory: stable 70-80% range, reaper task <code>Running ✓</code></li>
+<li>Context: heavy (this is the final big-ship of the session)</li>
+</ul>
+<h2 id="phase-2-exhaustive-surface-enumeration"><a class="anchor" href="#phase-2-exhaustive-surface-enumeration" aria-label="Permalink to Phase 2 — exhaustive surface enumeration">#</a>Phase 2 — exhaustive surface enumeration</h2>
+<h3 id="a-ollama-routing-hooks-30-on-disk"><a class="anchor" href="#a-ollama-routing-hooks-30-on-disk" aria-label="Permalink to A. Ollama-routing hooks (30 on disk)">#</a>A. Ollama-routing hooks (30 on disk)</h3>
+<p><code>ai-feature-recommend</code>, <code>ai-system-router-inject</code>, <code>claudemd-ollama-enforcer</code>, <code>commit-draft-suggest</code>, <code>directive-summary-refresh-iooms</code>, <code>directive-summary-refresh</code>, <code>embed-vault-on-save</code>, <code>embedder-inject-qdrant</code>, <code>grep-index-first</code>, <code>local-compute-intent</code>, <code>mcp-route-suggest</code>, <code>memory-mirror-to-vault</code>, <code>memory-system-init</code>, <code>neural-ai-optimizer</code>, <code>nim-autostart</code>, <code>octopus-provider-probe</code>, <code>ollama-auto-router</code>, <code>ollama-autostart</code>, <code>ollama-context-aggregator</code>, <code>ollama-engine-api-extractor</code>, <code>ollama-obsidian-rag</code>, <code>ollama-pipeline-injector</code>, <code>ollama-prewarm-on-pipeline</code>, <code>ollama-prism-intelligence</code>, <code>ollama-reviewer-second-opinion</code>, <code>ollama-route-check-inject</code>, <code>ollama-route-pretooluse</code>, <code>ollama-route-recommender</code>, <code>ollama-schema-engine-sync-gate</code>, <code>ollama-session-continuity</code>.</p>
+<h3 id="b-obsidian-feed-hooks-15-on-disk"><a class="anchor" href="#b-obsidian-feed-hooks-15-on-disk" aria-label="Permalink to B. Obsidian-feed hooks (15 on disk)">#</a>B. Obsidian-feed hooks (15 on disk)</h3>
+<p><code>auto-postmortem-on-failure-restart</code>, <code>error-fix-vault-bridge</code>, <code>inbox-capture-sharpen</code>, <code>inbox-lag-advisory</code>, <code>master-index-precheck-inject</code>, <code>memory-mirror-to-vault</code>, <code>memory-rag-inject</code>, <code>memory-system-init</code>, <code>ollama-obsidian-rag</code>, <code>optimal-context-inject</code>, <code>recall-counter-track</code>, <code>scrutiny-verdict-persist</code>, <code>session-start-auto-resume</code>, + test files.</p>
+<h3 id="c-searchindexcontext-surfaces-just-shipped-existing"><a class="anchor" href="#c-searchindexcontext-surfaces-just-shipped-existing" aria-label="Permalink to C. Search/index/context surfaces (just-shipped + existing)">#</a>C. Search/index/context surfaces (just-shipped + existing)</h3>
+<div class="table-wrap"><table>
+<thead><tr><th>surface</th><th>status</th><th>fires</th></tr></thead>
+<tbody>
+<tr><td><code>master-index-precheck-inject</code></td><td>wired</td><td>every UserPromptSubmit</td></tr>
+<tr><td><code>wiki-precheck-inject</code></td><td>wired</td><td>3588/session</td></tr>
+<tr><td><code>viz-first-redirect</code></td><td>wired</td><td>1728/session</td></tr>
+<tr><td><code>archived-skill-suggest</code></td><td>wired</td><td>2329/session</td></tr>
+<tr><td><code>skill-auto-trigger</code></td><td>wired</td><td>2296/session</td></tr>
+<tr><td><code>subagent-start-context</code></td><td>wired</td><td>every Agent spawn</td></tr>
+<tr><td><code>read-bundle</code> (9 sub-hooks)</td><td>wired</td><td>per Read</td></tr>
+<tr><td><code>pre-read-graph-inject</code> ← <strong>NEW today</strong></td><td>wired</td><td>per Read (graph context)</td></tr>
+<tr><td><code>find-symbol.mjs</code> + <code>/find</code> ← <strong>NEW today</strong></td><td>shipped</td><td>on-demand</td></tr>
+<tr><td><code>/ask-local</code>, <code>/ollama-bridge</code> (U-OE01+L2)</td><td>shipped</td><td>on-demand</td></tr>
+<tr><td><code>loop-inject-dedup</code></td><td>wired (goal-prereq only)</td><td>per matching prompt</td></tr>
+</tbody>
+</table></div>
+<h2 id="phase-3-findings-each-with-verification-channel"><a class="anchor" href="#phase-3-findings-each-with-verification-channel" aria-label="Permalink to Phase 3 — findings (each with verification channel)">#</a>Phase 3 — findings (each with verification channel)</h2>
+<h3 id="finding-f1-80-of-ollama-hooks-are-likely-orphan-on-disk"><a class="anchor" href="#finding-f1-80-of-ollama-hooks-are-likely-orphan-on-disk" aria-label="Permalink to Finding F1 — ~80% of Ollama hooks are likely orphan-on-disk">#</a>Finding F1 — ~80% of Ollama hooks are likely orphan-on-disk</h3>
+<p><strong>Claim:</strong> 30 Ollama-routing hooks exist; per the prior selection-bias finding ([[reference_hook_fire_counts_selection_bias_2026_05_18]]) only ~10 of all 510 hooks actively fire per telemetry. The Ollama subset likely has the same orphan ratio — most of those 30 files are wired in NO settings.json matcher, costing zero but providing zero token savings either.</p>
+<p><strong>Verification channel:</strong></p>
+<pre><code class="language-bash">node scripts/ollama-hook-fire-audit.mjs --json
+</code></pre>
+<p><strong>Expected signal:</strong> wired-and-firing / wired-but-zero-fire / unwired-on-disk counts. <strong>Re-run cost:</strong> ~1s. <strong>Baseline:</strong> unmeasured pre-this-audit (the META artifact this audit ships).</p>
+<h3 id="finding-f2-obsidian-feed-is-one-way-memoryvault-only"><a class="anchor" href="#finding-f2-obsidian-feed-is-one-way-memoryvault-only" aria-label="Permalink to Finding F2 — Obsidian feed is one-way (memory→vault) only">#</a>Finding F2 — Obsidian feed is one-way (memory→vault) only</h3>
+<p><strong>Claim:</strong> <code>stop-obsidian-memory-feed.mjs</code> writes auto-memories TO the vault but the <strong>reverse flow</strong> (vault content surfaced INTO Claude prompts on tag match) does NOT exist for hand-written Obsidian notes. The <code>memory-rag-inject</code> hook surfaces auto-memories, not the user&#39;s own notes.</p>
+<p><strong>Verification channel:</strong></p>
+<pre><code class="language-bash">grep -lE &quot;knowledge.*vault.*read|obsidian.*inject&quot; .claude/hooks/*.mjs
+</code></pre>
+<p><strong>Expected signal:</strong> at least one PreUserPromptSubmit hook that reads <code>knowledge/vault/*.md</code> tags and injects relevant notes. <strong>Currently: 0 hooks match.</strong> <strong>Re-run cost:</strong> ~2s. <strong>Baseline:</strong> 0 inbound-vault hooks today.</p>
+<h3 id="finding-f3-ollamanim-autostart-races-create-per-prompt-noise"><a class="anchor" href="#finding-f3-ollamanim-autostart-races-create-per-prompt-noise" aria-label="Permalink to Finding F3 — Ollama/NIM autostart races create per-prompt noise">#</a>Finding F3 — Ollama/NIM autostart races create per-prompt noise</h3>
+<p><strong>Claim:</strong> This session emitted &quot;Auto-started PRISM local compute&quot; 3+ times across prompts (<code>local-compute-intent</code> + <code>ollama-autostart</code> + <code>nim-autostart</code> overlap). The current cooldown logic is per-hook, not cross-hook. Each autostart attempt costs ~50ms and a noise line.</p>
+<p><strong>Verification channel:</strong></p>
+<pre><code class="language-bash">grep -c &quot;Auto-started PRISM local compute&quot; state/shared/handoffs/HANDOFF-claude-b23a56ef-*.md
+</code></pre>
+<p><strong>Expected signal:</strong> number of redundant autostart injections per session. <strong>Re-run cost:</strong> ~0.5s. <strong>Baseline this session:</strong> 3+ (visible in injected context blocks above).</p>
+<h3 id="finding-f4-bm25-sidecar-precomputation-already-documented-gap"><a class="anchor" href="#finding-f4-bm25-sidecar-precomputation-already-documented-gap" aria-label="Permalink to Finding F4 — BM25 sidecar precomputation (already documented gap)">#</a>Finding F4 — BM25 sidecar precomputation (already documented gap)</h3>
+<p><strong>Claim:</strong> <code>master-index-search-lib.mjs:132-133</code> explicitly names this as the unshipped fix. Every subagent spawn re-pays ~2-3s cold-parse of the 363.5MB graph. A pre-tokenized <code>.master-index-bm25.sidecar.json</code> (cron-regenerated alongside graph) cuts that to ~100ms.</p>
+<p><strong>Verification channel:</strong></p>
+<pre><code class="language-bash"># Cold-load measurement:
+time node -e &quot;import(&#39;./scripts/lib/master-index-search-lib.mjs&#39;).then(m=&gt;m.runMasterIndexSearch(&#39;kienzle&#39;,{topK:1}))&quot;
+</code></pre>
+<p><strong>Expected signal:</strong> wall-clock time per spawn × subagent-spawn-rate. <strong>Re-run cost:</strong> ~3s. <strong>Baseline:</strong> ~2-3s per cold load; ~50+ spawns/active session = ~100-150s wasted/session.</p>
+<h3 id="finding-f5-find-could-auto-redirect-globgrep-for-symbol-shaped-queries"><a class="anchor" href="#finding-f5-find-could-auto-redirect-globgrep-for-symbol-shaped-queries" aria-label="Permalink to Finding F5 — /find could auto-redirect Glob/Grep for symbol-shaped queries">#</a>Finding F5 — <code>/find</code> could auto-redirect Glob/Grep for symbol-shaped queries</h3>
+<p><strong>Claim:</strong> <code>viz-first-redirect.mjs</code> exists but only SUGGESTS viz before Glob/Grep. When the query is a clear identifier (PascalCase, camelCase, well-known symbol), it should AUTO-INVOKE <code>/find</code> and return the result inline, saving the Glob→Grep→Read chain entirely.</p>
+<p><strong>Verification channel:</strong></p>
+<pre><code class="language-bash">grep &quot;auto.*invoke\|auto.*substitute&quot; .claude/hooks/viz-first-redirect.mjs
+</code></pre>
+<p><strong>Expected signal:</strong> ≥1 line that performs auto-substitution (currently 0 — only suggests). <strong>Re-run cost:</strong> ~0.3s. <strong>Baseline:</strong> 0 auto-substitutions today; all viz-first-redirect hits are advisory.</p>
+<h3 id="finding-f6-stop-hook-bundle-doesnt-reuse-parsed-graph-across-sub-hooks"><a class="anchor" href="#finding-f6-stop-hook-bundle-doesnt-reuse-parsed-graph-across-sub-hooks" aria-label="Permalink to Finding F6 — Stop-hook bundle doesn&#39;t reuse parsed graph across sub-hooks">#</a>Finding F6 — Stop-hook bundle doesn&#39;t reuse parsed graph across sub-hooks</h3>
+<p><strong>Claim:</strong> Each Stop sub-hook that wants graph data spawns a fresh node + re-parses the 363.5MB JSON. The bundle pattern works for IPC but each hook is its own process. A shared graph-cache daemon (or single bundled process holding the graph in-memory) would amortize the parse across all consumers.</p>
+<p><strong>Verification channel:</strong></p>
+<pre><code class="language-bash">node scripts/hook-fire-rank.mjs --json | jq &#39;[.ranked[] | select(.hook | contains(&quot;graph&quot;) or contains(&quot;viz&quot;) or contains(&quot;master-index&quot;))] | length&#39;
+</code></pre>
+<p><strong>Expected signal:</strong> number of telemetrized hooks doing independent graph parse. <strong>Re-run cost:</strong> ~1s. <strong>Baseline:</strong> ≥5 known graph-consumers (master-index-precheck, viz-first-redirect, subagent-start-context, pre-read-graph-inject [NEW], wiki-precheck).</p>
+<h2 id="phase-6-meta-artifact-ranked-action-list"><a class="anchor" href="#phase-6-meta-artifact-ranked-action-list" aria-label="Permalink to Phase 6 — META artifact + ranked action list">#</a>Phase 6 — META artifact + ranked action list</h2>
+<h3 id="meta-shipped-this-session-ollama-hook-fire-auditmjs"><a class="anchor" href="#meta-shipped-this-session-ollama-hook-fire-auditmjs" aria-label="Permalink to META shipped this session: ollama-hook-fire-audit.mjs">#</a>META shipped this session: <code>ollama-hook-fire-audit.mjs</code></h3>
+<p>See sibling file: <code>scripts/ollama-hook-fire-audit.mjs</code>. Re-runnable. Closes F1&#39;s verification channel.</p>
+<h3 id="action-list-ranked-by-leverage-ship-cost"><a class="anchor" href="#action-list-ranked-by-leverage-ship-cost" aria-label="Permalink to Action list (ranked by leverage / ship-cost)">#</a>Action list (ranked by leverage / ship-cost)</h3>
+<div class="table-wrap"><table>
+<thead><tr><th>#</th><th>unit</th><th>LOC</th><th>win</th><th>cost</th></tr></thead>
+<tbody>
+<tr><td>F1-build</td><td><code>ollama-hook-fire-audit.mjs</code> META</td><td>~80</td><td>quantifies the orphan ratio for the 30 Ollama hooks</td><td>✅ shipping this session</td></tr>
+<tr><td>F3-fix</td><td><code>local-compute-autostart-coalesce.mjs</code></td><td>~40</td><td>cross-hook lock, dedup the 3+ autostart fires</td><td>next session</td></tr>
+<tr><td>F4-build</td><td><code>build-master-index-sidecar.mjs</code> + lib opportunistic read</td><td>~150</td><td>2-3s → 100ms cold-load per subagent</td><td>next session</td></tr>
+<tr><td>F5-extend</td><td>viz-first-redirect auto-invoke mode</td><td>~30</td><td>replaces Glob→Grep→Read chain when query is symbol-shaped</td><td>next session</td></tr>
+<tr><td>F2-build</td><td><code>obsidian-vault-precheck-inject.mjs</code></td><td>~60</td><td>surfaces user-written notes by tag on UserPromptSubmit</td><td>follow-up session</td></tr>
+<tr><td>F6-build</td><td>shared graph-cache daemon</td><td>~200</td><td>amortize 363MB parse across 5+ hooks</td><td>architectural — bigger plan</td></tr>
+</tbody>
+</table></div>
+<h2 id="phase-7-end-state"><a class="anchor" href="#phase-7-end-state" aria-label="Permalink to Phase 7 — end-state">#</a>Phase 7 — end-state</h2>
+<ul>
+<li>Surfaces enumerated: <strong>45 hooks</strong> (30 Ollama, 15 Obsidian)</li>
+<li>Findings: <strong>6</strong> (all with verification channels)</li>
+<li>Peer reviewer: <strong>DEFERRED</strong> — context-pressure trade-off; mark this audit as <code>unreviewed-by-peer</code> per R12 honesty rather than skipping silently.</li>
+<li>Regressions: <strong>1</strong> flowed to <code>CLAUDE.md ## Recent regressions</code> (F1 selection-bias compounds the orphan problem)</li>
+<li>META artifact: <code>scripts/ollama-hook-fire-audit.mjs</code> (sibling file)</li>
+<li><code>/loop</code> re-run: not auto-scheduled this session (would need user-approved cron entry)</li>
+<li>HTML companion: deferred (audit is text-only matrices, no diagrams worth SVG)</li>
+</ul>
+<h2 id="memory-cross-refs"><a class="anchor" href="#memory-cross-refs" aria-label="Permalink to Memory cross-refs">#</a>Memory cross-refs</h2>
+<ul>
+<li>[[reference_hook_fire_counts_selection_bias_2026_05_18]] — F1 root cause class</li>
+<li>[[reference_dev_tools_audit_meta_scripts_2026_05_17]] — prior META scripts</li>
+<li>[[reference_juliett_devtools_synergy_map_2026_05_17]] — synergy baseline</li>
+<li>[[reference_ollama_pipeline_ms0_2026_05_15]] — Ollama pipeline injector</li>
+<li>[[reference_ollama_expand_ms0]] — /ask-local + /ollama-bridge</li>
+</ul>
+</main>
+<footer class="doc-foot">
+<p>HTML companion — the canonical document is the Markdown file alongside it. <a href="OLLAMA-OBSIDIAN-ROUTING-AUDIT-2026-05-18.md">OLLAMA-OBSIDIAN-ROUTING-AUDIT-2026-05-18.md</a> Regenerate: <code>node scripts/emit-spec-html.mjs &lt;path.md&gt;</code></p>
+
+</footer>
+</div>
+<script>(function(){
+  try {
+    var k = "prism-spec-theme";
+    var saved = localStorage.getItem(k);
+    if (saved === "dark" || saved === "light") document.documentElement.setAttribute("data-theme", saved);
+  } catch (e) { /* localStorage blocked — keep default theme */ }
+  var b = document.getElementById("themeToggle");
+  if (!b) return;
+  b.addEventListener("click", function () {
+    var cur = document.documentElement.getAttribute("data-theme");
+    var sysDark = !!(window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches);
+    var next = cur === "dark" ? "light" : cur === "light" ? "dark" : (sysDark ? "light" : "dark");
+    document.documentElement.setAttribute("data-theme", next);
+    b.textContent = next === "dark" ? "\u263E dark" : "\u2600 light";
+    try { localStorage.setItem(k, next); } catch (e) { /* persistence unavailable — non-fatal */ }
+  });
+})();</script>
+<script>(function(){
+  var body = document.querySelector("main.doc-body");
+  var toc = document.querySelector("nav.toc");
+  if (!body) return;
+  // TOC active-section highlight.
+  if (toc) {
+    var links = {};
+    toc.querySelectorAll("a[href^='#']").forEach(function(a){ links[a.getAttribute("href").slice(1)] = a; });
+    var heads = body.querySelectorAll("h1[id],h2[id],h3[id],h4[id]");
+    var active = null;
+    function setActive(id){
+      if (active === id) return;
+      if (active && links[active]) links[active].classList.remove("active");
+      active = id;
+      if (active && links[active]) links[active].classList.add("active");
+    }
+    var io = new IntersectionObserver(function(entries){
+      var top = null, topY = Infinity;
+      entries.forEach(function(e){ if (e.isIntersecting) { var y = e.boundingClientRect.top; if (y < topY) { topY = y; top = e.target.id; } } });
+      if (!top) {
+        var best = null;
+        heads.forEach(function(h){ if (h.getBoundingClientRect().top < 80) best = h.id; });
+        top = best || (heads[0] && heads[0].id);
+      }
+      if (top) setActive(top);
+    }, { rootMargin: "0px 0px -70% 0px", threshold: [0, 1] });
+    heads.forEach(function(h){ io.observe(h); });
+  }
+  // In-page search: wrap matches in <mark>, jump to first, filter the TOC.
+  var input = toc && toc.querySelector("input.toc-search");
+  var status = toc && toc.querySelector(".toc-search-status");
+  if (!input) return;
+  var SKIP = { SCRIPT:1, STYLE:1, MARK:1, NOSCRIPT:1 };
+  function clearMarks(){
+    body.querySelectorAll("mark.search-hit").forEach(function(m){ var p = m.parentNode; if (p) { p.replaceChild(document.createTextNode(m.textContent), m); p.normalize(); } });
+    if (toc) toc.querySelectorAll("li.toc-hidden").forEach(function(li){ li.classList.remove("toc-hidden"); });
+  }
+  function doSearch(q){
+    clearMarks();
+    if (status) status.textContent = "";
+    if (!q || q.length < 2) return;
+    var needle = q.toLowerCase(), hits = 0, first = null;
+    var walker = document.createTreeWalker(body, NodeFilter.SHOW_TEXT, { acceptNode: function(n){
+      if (!n.nodeValue || !n.nodeValue.trim()) return NodeFilter.FILTER_REJECT;
+      var p = n.parentNode; while (p && p !== body) { if (SKIP[p.nodeName]) return NodeFilter.FILTER_REJECT; p = p.parentNode; }
+      return n.nodeValue.toLowerCase().indexOf(needle) >= 0 ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT;
+    }});
+    var targets = [];
+    while (walker.nextNode()) targets.push(walker.currentNode);
+    targets.forEach(function(node){
+      if (hits > 2000) return;
+      var text = node.nodeValue, lower = text.toLowerCase(), frag = document.createDocumentFragment(), i = 0, idx;
+      while ((idx = lower.indexOf(needle, i)) >= 0 && hits <= 2000) {
+        if (idx > i) frag.appendChild(document.createTextNode(text.slice(i, idx)));
+        var m = document.createElement("mark"); m.className = "search-hit"; m.textContent = text.slice(idx, idx + needle.length);
+        if (hits === 0) { m.classList.add("current"); first = m; }
+        frag.appendChild(m); hits++; i = idx + needle.length;
+      }
+      if (i < text.length) frag.appendChild(document.createTextNode(text.slice(i)));
+      if (node.parentNode) node.parentNode.replaceChild(frag, node);
+    });
+    if (status) status.textContent = hits ? (hits + " match" + (hits === 1 ? "" : "es")) : "no matches";
+    if (toc) toc.querySelectorAll("li").forEach(function(li){ var a = li.querySelector("a"); if (a && a.textContent.toLowerCase().indexOf(needle) < 0) li.classList.add("toc-hidden"); });
+    if (first) first.scrollIntoView({ block: "center", behavior: "smooth" });
+  }
+  var t;
+  input.addEventListener("input", function(){ clearTimeout(t); t = setTimeout(function(){ doSearch(input.value.trim()); }, 180); });
+  input.addEventListener("keydown", function(e){ if (e.key === "Escape") { input.value = ""; doSearch(""); input.blur(); } });
+})();</script>
+</body>
+</html>

@@ -7,7 +7,7 @@
   "created_by": "claude-02436db5",
   "track": "RGS",
   "track_name": "Roadmap Guidance System",
-  "status": "in_progress",
+  "status": "complete",
   "depends_on": [
     "RGS-TOOL-AUTOINVOKE-MS0"
   ],
@@ -38,7 +38,8 @@
             ".claude/commands/rgs.md (route handlers — gitignored)"
           ]
         }
-      ]
+      ],
+      "status": "complete"
     },
     {
       "id": "P1",
@@ -97,23 +98,36 @@
           "title": "RoadmapIntelligenceEngine complexity adapter",
           "description": "Replace the complexityFor heuristic (57.6% of units have effort:0 -> all default tier M) with a synthetic-Milestone adapter over RoadmapIntelligenceEngine, per-MS cache.",
           "effort": 75,
-          "status": "not_started"
+          "status": "complete",
+          "completion_note": "shipped as [LIMA-ROSTER]/U-LIMA-A6",
+          "commits": [
+            "87e9cf3eb3"
+          ]
         },
         {
           "id": "U-CALIBRATION",
           "title": "Outcome confidence calibration",
           "description": "Compose CAMConfidenceCalibrationEngine once >=50 outcomes accumulate (degenerate before that threshold).",
           "effort": 60,
-          "status": "not_started"
+          "status": "complete",
+          "completion_note": "shipped as [RGS-TOOL-AUTOINVOKE-MS1]/U-LIMA-A7",
+          "commits": [
+            "1e82525ee3"
+          ]
         },
         {
           "id": "U-TRANSFER",
           "title": "Cross-milestone transfer priors",
           "description": "Use prism_ai:xproc_transfer_* to seed cold-start milestones with priors from completed sibling milestones.",
           "effort": 75,
-          "status": "not_started"
+          "status": "complete",
+          "completion_note": "shipped as [RGS-TOOL-AUTOINVOKE-MS1]/U-LIMA-A8",
+          "commits": [
+            "23eb5cd88b"
+          ]
         }
-      ]
+      ],
+      "status": "complete"
     }
   ],
   "dependencies": [],
@@ -128,5 +142,8 @@
   "total_units": 8,
   "updated_at": "2026-05-17T02:23:23.711Z",
   "notes": "Core MS0 lesson encoded in U-INTEG-FIX-P0: a 'pure core + injected readers' design MUST ship one real-data E2E test — hermetic fakes do not prove production wiring. Punch list: docs/superpowers/specs/2026-05-16-rgs-tool-autoinvoke-MS1-punchlist.md.",
-  "last_updated": "2026-05-17T02:34:57.261Z"
+  "last_updated": "2026-05-17T02:34:57.261Z",
+  "completed_at": "2026-05-22T00:00:00Z",
+  "completed_by": "claude-e5840fb7 (slot:mike close-out)",
+  "completion_note": "All P0+P1 units shipped. U-RIE-ADAPTER/U-CALIBRATION/U-TRANSFER shipped under U-LIMA-A6/A7/A8 commit IDs (lima slot) — deliverables verified: rgs-{rie,calibration,transfer-priors}-adapter.mjs all wired into rgs-tool-planner.mjs."
 }

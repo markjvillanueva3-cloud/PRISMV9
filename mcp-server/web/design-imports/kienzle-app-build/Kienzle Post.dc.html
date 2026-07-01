@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Archivo:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; background: #070809; height: 100%; overflow: hidden; }
+    select { -webkit-appearance: none; appearance: none; font-family: 'Archivo', sans-serif; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%236B7280' stroke-width='2.5' stroke-linecap='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; }
+    .kz-scroll::-webkit-scrollbar { width: 9px; }
+    .kz-scroll::-webkit-scrollbar-thumb { background: #23262E; border-radius: 9px; }
+    @keyframes kzpulse { 0%,100% { opacity:.5 } 50% { opacity:1 } }
+  </style>
+</helmet>
+<div style="position:fixed;inset:0;background:#070809;display:flex;align-items:center;justify-content:center;overflow:hidden;">
+<div style="width:1360px;height:852px;flex:none;transform:scale({{ scale }});transform-origin:center center;display:flex;background:#0A0B0D;color:#F3F4F6;font-family:'Archivo',sans-serif;overflow:hidden;border-radius:16px;box-shadow:0 40px 120px rgba(0,0,0,0.6);">
+
+  <aside style="width:74px;flex:none;background:#0C0D10;border-right:1px solid rgba(255,255,255,0.06);display:flex;flex-direction:column;align-items:center;padding:18px 0;gap:7px;">
+    <svg viewBox="0 0 120 120" width="34" height="34" style="margin-bottom:16px;"><rect x="22" y="20" width="13" height="80" rx="1.5" fill="#F3F4F6"/><path d="M35 60 L86 22" stroke="#F3F4F6" stroke-width="13" stroke-linecap="round"/><path d="M35 60 L92 98 L92 74 L58 60 Z" fill="#FF5A2B"/></svg>
+    <button style="width:52px;height:50px;border-radius:13px;border:1px solid rgba(255,90,43,0.35);background:rgba(255,90,43,0.1);color:#FF7A4D;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:9px;">⌀<span>MAKE</span></button>
+    <button style="width:52px;height:50px;border-radius:13px;border:1px solid transparent;background:transparent;color:#6B7280;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:9px;">$<span>QUOTE</span></button>
+    <button style="width:52px;height:50px;border-radius:13px;border:1px solid transparent;background:transparent;color:#6B7280;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:9px;">▤<span>RUN</span></button>
+    <button style="width:52px;height:50px;border-radius:13px;border:1px solid transparent;background:transparent;color:#6B7280;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:9px;">⌂<span>SHOP</span></button>
+    <div style="flex:1;"></div>
+    <div style="width:40px;height:40px;border-radius:50%;background:#1B1E24;border:1px solid rgba(255,255,255,0.1);display:flex;align-items:center;justify-content:center;font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:14px;color:#AEB4BE;">JM</div>
+  </aside>
+
+  <main style="flex:1;display:flex;flex-direction:column;min-width:0;">
+    <header style="flex:none;height:68px;border-bottom:1px solid rgba(255,255,255,0.06);display:flex;align-items:center;justify-content:space-between;padding:0 26px;background:#0C0D10;">
+      <div>
+        <div style="font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:20px;letter-spacing:-0.01em;">Post Processor</div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#6B7280;letter-spacing:0.04em;margin-top:1px;">MASTERPOST · {{ jobLabel }}</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;">
+        <div style="display:flex;align-items:center;gap:7px;padding:8px 13px;border:1px solid rgba(42,111,219,0.3);background:rgba(42,111,219,0.08);border-radius:9px;font-family:'JetBrains Mono',monospace;font-size:11px;color:#7FB2FF;">{{ camLabel }} → {{ dialectShort }}</div>
+        <button style="border:none;background:{{ dlBg }};color:{{ dlColor }};border-radius:9px;padding:9px 16px;font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:13px;cursor:pointer;display:flex;align-items:center;gap:8px;">↓ {{ dlLabel }}</button>
+      </div>
+    </header>
+
+    <div style="flex:1;display:grid;grid-template-columns:330px minmax(0,1fr);min-height:0;">
+
+      <section class="kz-scroll" style="border-right:1px solid rgba(255,255,255,0.06);overflow-y:auto;min-width:0;padding:20px 22px 40px;background:#0A0B0D;">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:0.18em;color:#FF5A2B;margin-bottom:12px;">SOURCE</div>
+        <div style="display:flex;align-items:center;gap:11px;background:#0E0F12;border:1px solid rgba(255,255,255,0.08);border-radius:11px;padding:13px 15px;margin-bottom:18px;">
+          <span style="flex:none;width:34px;height:34px;border-radius:8px;background:rgba(42,111,219,0.12);display:flex;align-items:center;justify-content:center;color:#7FB2FF;font-family:'JetBrains Mono',monospace;font-size:11px;">NC</span>
+          <div style="min-width:0;"><div style="font-size:13px;color:#F3F4F6;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ sourceFile }}</div><div style="font-size:11px;color:#6B7280;">{{ camLabel }} · {{ rawLines }} lines raw</div></div>
+        </div>
+
+        <div style="font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:0.18em;color:#FF5A2B;margin-bottom:12px;">MACHINE &amp; CONTROL</div>
+        <label style="display:block;font-size:11.5px;color:#9398A2;margin-bottom:5px;">Machine</label>
+        <select value="{{ machineId }}" onChange="{{ setMachine }}" style="width:100%;height:42px;background:#14161B;border:1px solid rgba(255,255,255,0.1);border-radius:10px;color:#F3F4F6;font-size:13px;padding:0 36px 0 12px;margin-bottom:10px;">
+          <option value="multus">Okuma Multus U3000</option>
+          <option value="m460v">Okuma M460V-5AX</option>
+          <option value="vf2">Haas VF-2</option>
+          <option value="mikron">Mikron Mill (Heidenhain)</option>
+          <option value="mitsubishi">Mitsubishi MV1200 (Wire)</option>
+        </select>
+        <div style="font-size:11.5px;color:#9398A2;margin-bottom:7px;">Controller dialect</div>
+        <div style="display:flex;flex-direction:column;gap:7px;margin-bottom:18px;">
+          <sc-for list="{{ dialects }}" as="d" hint-placeholder-count="4">
+            <button onClick="{{ d.on }}" style="{{ d.style }}">
+              <div style="display:flex;align-items:center;justify-content:space-between;"><span style="font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:13.5px;color:#F3F4F6;">{{ d.name }}</span><span style="font-family:'JetBrains Mono',monospace;font-size:10px;color:{{ d.tagColor }};">{{ d.tag }}</span></div>
+              <div style="font-size:11px;color:#9398A2;margin-top:3px;line-height:1.3;">{{ d.note }}</div>
+            </button>
+          </sc-for>
+        </div>
+
+        <div style="font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:0.18em;color:#FF5A2B;margin-bottom:12px;">OPERATION</div>
+        <select value="{{ operationId }}" onChange="{{ setOperation }}" style="width:100%;height:42px;background:#14161B;border:1px solid rgba(255,255,255,0.1);border-radius:10px;color:#F3F4F6;font-size:13px;padding:0 36px 0 12px;margin-bottom:16px;">
+          <option value="finish">Profile finish · trilobe</option>
+          <option value="rough">Adaptive rough</option>
+          <option value="drill">Peck drill cycle</option>
+          <option value="bore">Bore + chamfer</option>
+        </select>
+
+        <div style="font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:0.18em;color:#FF5A2B;margin-bottom:10px;">POST OPTIONS</div>
+        <div style="display:flex;flex-wrap:wrap;gap:6px;">
+          <button onClick="{{ toggleModal }}" style="{{ optModalStyle }}">Full modal/line</button>
+          <button onClick="{{ toggleCoolant }}" style="{{ optCoolantStyle }}">Coolant M08</button>
+          <button onClick="{{ toggleHsm }}" style="{{ optHsmStyle }}">High-speed mode</button>
+          <button onClick="{{ toggleProbe }}" style="{{ optProbeStyle }}">Probe datum</button>
+          <button onClick="{{ toggleOpt }}" style="{{ optOptStyle }}">Kienzle S/F inject</button>
+        </div>
+        <div style="margin-top:14px;padding:11px 13px;border:1px solid rgba(244,183,64,0.25);background:rgba(244,183,64,0.05);border-radius:10px;">
+          <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:#F4B740;letter-spacing:0.06em;margin-bottom:4px;">JM TRIBAL RULE — APPLIED</div>
+          <div style="font-size:11.5px;color:#C7CCD4;line-height:1.4;">{{ tribalRule }}</div>
+        </div>
+      </section>
+
+      <section class="kz-scroll" style="overflow-y:auto;min-width:0;padding:18px 24px 40px;background:radial-gradient(900px 480px at 82% -12%, rgba(255,90,43,0.05), transparent 60%),#0B0C0F;">
+
+        <div style="background:#0E0F12;border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:14px 18px;margin-bottom:13px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:11px;">
+            <div style="font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:14px;">38-stage pipeline</div>
+            <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#36D399;">{{ stagesPassed }}/38 passed</div>
+          </div>
+          <div style="display:flex;gap:6px;align-items:stretch;">
+            <sc-for list="{{ phases }}" as="ph" hint-placeholder-count="5">
+              <div style="flex:{{ ph.flex }};min-width:0;">
+                <div style="display:flex;gap:2px;margin-bottom:5px;">
+                  <sc-for list="{{ ph.ticks }}" as="t" hint-placeholder-count="6">
+                    <div style="flex:1;height:6px;border-radius:2px;background:{{ t }};"></div>
+                  </sc-for>
+                </div>
+                <div style="font-family:'JetBrains Mono',monospace;font-size:9.5px;color:{{ ph.color }};letter-spacing:0.04em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ ph.label }}</div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+
+        <div style="display:flex;align-items:center;gap:13px;background:{{ gateBg }};border:1px solid {{ gateBorder }};border-radius:14px;padding:14px 18px;margin-bottom:13px;">
+          <span style="flex:none;width:38px;height:38px;border-radius:10px;background:{{ gateIconBg }};display:flex;align-items:center;justify-content:center;font-size:19px;">{{ gateIcon }}</span>
+          <div style="flex:1;min-width:0;">
+            <div style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:15px;color:{{ gateColor }};">{{ gateTitle }}</div>
+            <div style="font-size:12px;color:#9398A2;line-height:1.35;margin-top:2px;">{{ gateDetail }}</div>
+          </div>
+          <div style="flex:none;text-align:right;"><div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#6B7280;">EXPORT AS</div><div style="font-family:'JetBrains Mono',monospace;font-size:13px;color:{{ gateColor }};margin-top:2px;">{{ exportName }}</div></div>
+        </div>
+
+        <div style="background:#0E0F12;border:1px solid rgba(255,255,255,0.1);border-radius:14px;overflow:hidden;margin-bottom:13px;">
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:11px 16px;background:#121317;border-bottom:1px solid rgba(255,255,255,0.07);">
+            <div style="display:flex;align-items:center;gap:9px;"><span style="width:9px;height:9px;border-radius:50%;background:#FF5A2B;"></span><span style="width:9px;height:9px;border-radius:50%;background:#F4B740;"></span><span style="width:9px;height:9px;border-radius:50%;background:#36D399;"></span><span style="margin-left:6px;font-family:'JetBrains Mono',monospace;font-size:11.5px;color:#9398A2;">{{ exportName }}</span></div>
+            <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#6B7280;">{{ dialectName }} · {{ outLines }} lines</div>
+          </div>
+          <div class="kz-scroll" style="height:286px;overflow-y:auto;padding:13px 0;background:#0B0C0F;">
+            <sc-for list="{{ gcode }}" as="g" hint-placeholder-count="24">
+              <div style="display:flex;gap:14px;padding:1.5px 18px;font-family:'JetBrains Mono',monospace;font-size:12.5px;line-height:1.55;">
+                <span style="flex:none;width:30px;text-align:right;color:#3A3D44;user-select:none;">{{ g.ln }}</span>
+                <span style="color:{{ g.c }};white-space:pre;">{{ g.t }}</span>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;">
+          <div style="min-width:0;background:#0E0F12;border:1px solid rgba(255,255,255,0.08);border-radius:13px;padding:14px 16px;"><div style="font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.08em;color:#9398A2;">RAW CAM CYCLE</div><div style="font-family:'JetBrains Mono',monospace;font-weight:700;font-size:23px;color:#9398A2;line-height:1;margin-top:8px;text-decoration:line-through;">{{ rawCycle }}</div><div style="font-size:11px;color:#6B7280;margin-top:5px;">unoptimized post</div></div>
+          <div style="min-width:0;background:linear-gradient(180deg,rgba(54,211,153,0.1),#0E0F12);border:1px solid rgba(54,211,153,0.28);border-radius:13px;padding:14px 16px;"><div style="font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.08em;color:#36D399;">KIENZLE CYCLE</div><div style="font-family:'JetBrains Mono',monospace;font-weight:700;font-size:23px;color:#F3F4F6;line-height:1;margin-top:8px;">{{ optCycle }}</div><div style="font-size:11px;color:#36D399;margin-top:5px;">{{ cycleSave }} faster</div></div>
+          <div style="min-width:0;background:#0E0F12;border:1px solid rgba(255,255,255,0.08);border-radius:13px;padding:14px 16px;"><div style="font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.08em;color:#9398A2;">SAFETY GATE</div><div style="font-family:'JetBrains Mono',monospace;font-weight:700;font-size:23px;color:{{ gateColor }};line-height:1;margin-top:8px;">{{ safetyScore }}</div><div style="font-size:11px;color:#6B7280;margin-top:5px;">collision + limits</div></div>
+          <div style="min-width:0;background:#0E0F12;border:1px solid rgba(255,255,255,0.08);border-radius:13px;padding:14px 16px;"><div style="font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.08em;color:#9398A2;">FEEDS FROM</div><div style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:18px;color:#FF7A4D;line-height:1.1;margin-top:8px;">Kienzle<br>solver</div><div style="font-size:11px;color:#6B7280;margin-top:4px;">{{ rpmFeed }}</div></div>
+        </div>
+      </section>
+    </div>
+  </main>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = {
+    machineId: 'multus', dialect: 'okuma', operationId: 'finish',
+    optModal: true, optCoolant: true, optHsm: false, optProbe: true, optOpt: true,
+    scale: (typeof window !== 'undefined') ? Math.min(window.innerWidth / 1360, window.innerHeight / 852) : 0.7,
+  };
+  componentDidMount() { this._fit = () => this.setState({ scale: Math.min(window.innerWidth / 1360, window.innerHeight / 852) }); window.addEventListener('resize', this._fit); this._fit(); }
+  componentWillUnmount() { if (this._fit) window.removeEventListener('resize', this._fit); }
+
+  MACH = {
+    multus: { name: 'Okuma Multus U3000', native: 'okuma' },
+    m460v: { name: 'Okuma M460V', native: 'okuma' },
+    vf2: { name: 'Haas VF-2', native: 'haas' },
+    mikron: { name: 'Mikron Mill', native: 'heidenhain' },
+    mitsubishi: { name: 'Mitsubishi MV1200', native: 'fanuc' },
+  };
+  DIA = {
+    okuma: { name: 'Okuma OSP-P300', short: 'OSP-P300', tag: 'NATIVE', note: 'OSP — G15 work offset, M02 end' },
+    fanuc: { name: 'Fanuc 31i', short: 'Fanuc 31i', tag: '20k files', note: 'ISO G-code, O-number, % wrap' },
+    haas: { name: 'Haas NGC', short: 'Haas NGC', tag: 'shop std', note: 'Fanuc-like, G53 home moves' },
+    heidenhain: { name: 'Heidenhain TNC', short: 'Heidenhain', tag: 'conversational', note: 'Plain-text klartext blocks' },
+  };
+  C = { cmt: '#6B7280', head: '#7FB2FF', mot: '#C7CCD4', m: '#FF7A4D', safe: '#F4B740', num: '#36D399' };
+
+  L(t, c) { return { t, c }; }
+
+  // Per-dialect program generators — genuinely different syntax
+  genOkuma(s, p) {
+    const C = this.C, modal = s.optModal, cool = s.optCoolant;
+    const L = [];
+    L.push(this.L('(' + p.title + ')', C.cmt));
+    L.push(this.L('(POST: KIENZLE MASTERPOST / OKUMA OSP-P300)', C.cmt));
+    L.push(this.L('(MAT: ' + p.mat + '  TOOL: ' + p.tool + ')', C.cmt));
+    L.push(this.L('G21 G17 G40 G80 G90', C.head));
+    if (s.optProbe) L.push(this.L('CALL O9100 (RENISHAW DATUM SET)', C.safe));
+    L.push(this.L('G00 G90 G15 H1 X-0.25 Y-0.25', C.mot));
+    L.push(this.L('T1 M06', C.m));
+    L.push(this.L('G56 H1', C.head));
+    L.push(this.L('M03 S' + p.rpm, C.m));
+    L.push(this.L('G00 Z25.4' + (cool ? ' M08' : ''), cool ? C.m : C.mot));
+    if (s.optHsm) L.push(this.L('G131 (HI-CUT MODE ON)', C.safe));
+    L.push(this.L('G00 Z2.5', C.mot));
+    L.push(this.L('G01 Z-0.6 F' + p.plunge, C.mot));
+    L.push(this.L('G41 D1 X0. Y0. F' + p.feed, C.mot));
+    L.push(this.L((modal ? 'G01 ' : '') + 'X38.1 Y0.', C.mot));
+    L.push(this.L((modal ? 'G03 ' : '') + 'X38.1 Y0. I-19.05 J0.', C.mot));
+    L.push(this.L((modal ? 'G01 ' : '') + 'X0. Y0.', C.mot));
+    L.push(this.L('G40 X-0.25 Y-0.25', C.mot));
+    if (s.optHsm) L.push(this.L('G130 (HI-CUT MODE OFF)', C.safe));
+    L.push(this.L('G00 Z25.4' + (cool ? ' M09' : ''), cool ? C.m : C.mot));
+    L.push(this.L('M05', C.m));
+    L.push(this.L('M02', C.m));
+    return L;
+  }
+  genFanuc(s, p) {
+    const C = this.C, modal = s.optModal, cool = s.optCoolant;
+    const L = [];
+    L.push(this.L('%', C.cmt));
+    L.push(this.L('O0420 (' + p.title + ')', C.cmt));
+    L.push(this.L('(POST: KIENZLE MASTERPOST / FANUC 31i)', C.cmt));
+    L.push(this.L('(MAT: ' + p.mat + '  TOOL: ' + p.tool + ')', C.cmt));
+    L.push(this.L('N10 G21 G17 G40 G49 G80 G90', C.head));
+    L.push(this.L('N20 G91 G28 Z0.', C.safe));
+    if (s.optProbe) L.push(this.L('N25 G65 P9810 (PROBE DATUM)', C.safe));
+    L.push(this.L('N30 G90 G54 G00 X-.25 Y-.25', C.mot));
+    L.push(this.L('N40 T01 M06', C.m));
+    L.push(this.L('N50 S' + p.rpm + ' M03', C.m));
+    L.push(this.L('N60 G43 H01 Z1.' + (cool ? ' M08' : ''), cool ? C.m : C.mot));
+    if (s.optHsm) L.push(this.L('N65 G05.1 Q1 (AICC ON)', C.safe));
+    L.push(this.L('N70 G00 Z.1', C.mot));
+    L.push(this.L('N80 G01 Z-.025 F' + p.plungeIn, C.mot));
+    L.push(this.L('N90 G41 D01 X0. Y0. F' + p.feedIn, C.mot));
+    L.push(this.L('N100 ' + (modal ? 'G01 ' : '') + 'X1.5 Y0.', C.mot));
+    L.push(this.L('N110 ' + (modal ? 'G03 ' : '') + 'X1.5 Y0. I-.75 J0.', C.mot));
+    L.push(this.L('N120 ' + (modal ? 'G01 ' : '') + 'X0. Y0.', C.mot));
+    L.push(this.L('N130 G40 G00 Z1.' + (cool ? ' M09' : ''), cool ? C.m : C.mot));
+    if (s.optHsm) L.push(this.L('N135 G05.1 Q0 (AICC OFF)', C.safe));
+    L.push(this.L('N140 G91 G28 Z0. M05', C.safe));
+    L.push(this.L('N150 G28 X0. Y0.', C.safe));
+    L.push(this.L('N160 M30', C.m));
+    L.push(this.L('%', C.cmt));
+    return L;
+  }
+  genHaas(s, p) {
+    const C = this.C, modal = s.optModal, cool = s.optCoolant;
+    const L = [];
+    L.push(this.L('%', C.cmt));
+    L.push(this.L('O00420 (' + p.title + ')', C.cmt));
+    L.push(this.L('(HAAS VF-2 / KIENZLE MASTERPOST)', C.cmt));
+    L.push(this.L('(MAT: ' + p.mat + '  TOOL: ' + p.tool + ')', C.cmt));
+    L.push(this.L('N10 G00 G17 G40 G49 G80 G90', C.head));
+    L.push(this.L('N20 G53 Z0.', C.safe));
+    L.push(this.L('N30 T1 M06', C.m));
+    L.push(this.L('N40 G54 G00 X-.25 Y-.25', C.mot));
+    L.push(this.L('N50 S' + p.rpm + ' M03', C.m));
+    L.push(this.L('N60 G43 H01 Z1.' + (cool ? ' M08' : ''), cool ? C.m : C.mot));
+    if (s.optHsm) L.push(this.L('N65 G187 P3 E.002 (SMOOTHING)', C.safe));
+    L.push(this.L('N70 G00 Z.1', C.mot));
+    L.push(this.L('N80 G01 Z-.025 F' + p.plungeIn, C.mot));
+    L.push(this.L('N90 G41 D01 X0. Y0. F' + p.feedIn, C.mot));
+    L.push(this.L('N100 ' + (modal ? 'G01 ' : '') + 'X1.5 Y0.', C.mot));
+    L.push(this.L('N110 ' + (modal ? 'G03 ' : '') + 'X1.5 Y0. I-.75 J0.', C.mot));
+    L.push(this.L('N120 ' + (modal ? 'G01 ' : '') + 'X0. Y0.', C.mot));
+    L.push(this.L('N130 G40 G00 Z1.' + (cool ? ' M09' : ''), cool ? C.m : C.mot));
+    L.push(this.L('N140 G53 Z0. M05', C.safe));
+    L.push(this.L('N150 G53 Y0.', C.safe));
+    L.push(this.L('N160 M30', C.m));
+    L.push(this.L('%', C.cmt));
+    return L;
+  }
+  genHeidenhain(s, p) {
+    const C = this.C, cool = s.optCoolant;
+    const L = [];
+    L.push(this.L('0 BEGIN PGM TRILOBE MM', C.head));
+    L.push(this.L('1 BLK FORM 0.1 Z X-10 Y-10 Z-25', C.cmt));
+    L.push(this.L('2 BLK FORM 0.2 X+60 Y+40 Z+0', C.cmt));
+    L.push(this.L('3 ; KIENZLE MASTERPOST / ' + p.mat, C.cmt));
+    L.push(this.L('4 TOOL CALL 1 Z S' + p.rpm, C.m));
+    if (s.optProbe) L.push(this.L('5 CYCL DEF 247 DATUM SETTING', C.safe));
+    L.push(this.L('6 L Z+250 R0 FMAX M3', C.m));
+    L.push(this.L('7 L X+0 Y+0 R0 FMAX' + (cool ? ' M8' : ''), cool ? C.m : C.mot));
+    L.push(this.L('8 L Z+2.5 FMAX', C.mot));
+    if (s.optHsm) L.push(this.L('9 CYCL DEF 32.0 TOLERANCE T0.01', C.safe));
+    L.push(this.L('10 L Z-0.6 F' + p.plungeMM, C.mot));
+    L.push(this.L('11 RL X+0 Y+0 F' + p.feed, C.mot));
+    L.push(this.L('12 L X+38.1 Y+0', C.mot));
+    L.push(this.L('13 CC X+19.05 Y+0', C.mot));
+    L.push(this.L('14 C X+38.1 Y+0 DR-', C.mot));
+    L.push(this.L('15 L X+0 Y+0', C.mot));
+    L.push(this.L('16 R0 L Z+250 R0 FMAX' + (cool ? ' M9' : ''), cool ? C.m : C.mot));
+    L.push(this.L('17 L M5', C.m));
+    L.push(this.L('18 END PGM TRILOBE MM', C.head));
+    return L;
+  }
+
+  renderVals() {
+    const s = this.state;
+    const mach = this.MACH[s.machineId];
+    const dia = this.DIA[s.dialect];
+
+    // Operation drives speed/feed (from Kienzle solver) + titles
+    const ops = {
+      finish: { title: 'SEMBLEX TRILOBE PUNCH - OP20 FINISH', rpm: 3104, feed: 460, feedIn: '18.', plunge: 90, plungeIn: '3.5', plungeMM: 90, rawCycle: '14.2m', optCycle: '9.8m', cycleSave: '31%', safety: 0.94 },
+      rough: { title: 'SEMBLEX TRILOBE PUNCH - OP10 ROUGH', rpm: 2380, feed: 720, feedIn: '28.', plunge: 120, plungeIn: '5.', plungeMM: 120, rawCycle: '22.6m', optCycle: '15.1m', cycleSave: '33%', safety: 0.88 },
+      drill: { title: 'EJECTOR HOLES - PECK DRILL', rpm: 1850, feed: 180, feedIn: '7.', plunge: 60, plungeIn: '2.5', plungeMM: 60, rawCycle: '6.4m', optCycle: '4.9m', cycleSave: '23%', safety: 0.97 },
+      bore: { title: 'CORE BORE + CHAMFER', rpm: 1450, feed: 95, feedIn: '3.8', plunge: 40, plungeIn: '1.5', plungeMM: 40, rawCycle: '8.1m', optCycle: '6.2m', cycleSave: '23%', safety: 0.95 },
+    };
+    const p = { ...ops[s.operationId], mat: 'D2 58HRC', tool: '1/2 4FL CRB TiAlN' };
+
+    let gcode;
+    if (s.dialect === 'okuma') gcode = this.genOkuma(s, p);
+    else if (s.dialect === 'fanuc') gcode = this.genFanuc(s, p);
+    else if (s.dialect === 'haas') gcode = this.genHaas(s, p);
+    else gcode = this.genHeidenhain(s, p);
+    gcode = gcode.map((g, i) => ({ ln: i + 1, t: g.t, c: g.c }));
+
+    // Safety gate: validated only if optimizer injected + not unsafe combo
+    const validated = s.optOpt && !(s.optHsm && !s.optModal);
+    const gateColor = validated ? '#36D399' : '#F4B740';
+
+    // Pipeline phases (38 stages grouped)
+    const phaseDef = [
+      { label: 'P1 PHYSICS', n: 8, flex: 8 },
+      { label: 'P2 GEOMETRY', n: 7, flex: 7 },
+      { label: 'P3 TOOLPATH', n: 8, flex: 8 },
+      { label: 'P4 DIALECT', n: 9, flex: 9 },
+      { label: 'P5 SAFETY', n: 6, flex: 6 },
+    ];
+    const phases = phaseDef.map((ph, idx) => {
+      const isGate = idx === 4;
+      const tickColor = isGate && !validated ? '#F4B740' : '#36D399';
+      return { label: ph.label, flex: ph.flex, color: isGate && !validated ? '#F4B740' : '#6B7280', ticks: Array.from({ length: ph.n }, () => tickColor) };
+    });
+    const stagesPassed = validated ? 38 : 32;
+
+    const dStyle = (id) => {
+      const on = s.dialect === id;
+      const nat = mach.native === id;
+      return `text-align:left;cursor:pointer;border-radius:11px;padding:11px 13px;transition:all .15s;background:${on ? 'linear-gradient(180deg,rgba(255,90,43,0.13),#0E0F12)' : '#0E0F12'};border:1px solid ${on ? 'rgba(255,90,43,0.5)' : (nat ? 'rgba(54,211,153,0.25)' : 'rgba(255,255,255,0.08)')};`;
+    };
+    const dialects = Object.keys(this.DIA).map(id => ({
+      name: this.DIA[id].name, note: this.DIA[id].note,
+      tag: mach.native === id ? 'NATIVE' : this.DIA[id].tag,
+      tagColor: mach.native === id ? '#36D399' : '#6B7280',
+      style: dStyle(id), on: () => this.setState({ dialect: id }),
+    }));
+
+    const chip = (on) => `border:1px solid ${on ? 'rgba(255,90,43,0.5)' : 'rgba(255,255,255,0.12)'};background:${on ? 'rgba(255,90,43,0.1)' : 'transparent'};color:${on ? '#FF7A4D' : '#9398A2'};border-radius:8px;padding:7px 10px;font-size:11px;cursor:pointer;font-family:'Archivo',sans-serif;`;
+    const tog = (k) => () => this.setState({ [k]: !this.state[k] });
+
+    const tribal = s.dialect === 'okuma' ? 'Okuma programs need G15 H-call work offsets and an M02 end-of-program — never M30.'
+      : (s.dialect === 'fanuc' || s.dialect === 'haas')
+        ? (s.optModal ? 'Full modal G-state forced on every motion line — older Fanuc/Haas controls drop un-stated modes.' : '⚠ Turn on Full modal/line — JM\'s older Fanuc/Haas controls need it.')
+        : 'Heidenhain klartext: arcs as CC/C center-point blocks, tolerance via CYCL DEF 32.';
+
+    const dlLabel = validated ? 'Download .nc' : 'Download preview';
+
+    return {
+      scale: s.scale,
+      jobLabel: p.title.split(' - ')[0], machineId: s.machineId, operationId: s.operationId,
+      camLabel: 'hyperMILL', dialectShort: dia.short, dialectName: dia.name,
+      sourceFile: 'TRILOBE_PUNCH_OP20.h', rawLines: p === ops.rough ? 1840 : 1120,
+      dialects, gcode, outLines: gcode.length,
+      phases, stagesPassed,
+      tribalRule: tribal,
+      gateTitle: validated ? 'MACHINE-READY' : 'PREVIEW ONLY',
+      gateDetail: validated ? 'Passed P5 safety gate — collision, limits, and modal checks cleared.' : 'Did not clear the safety gate. Inspect before running — not a release packet.',
+      gateColor, gateBg: validated ? 'rgba(54,211,153,0.06)' : 'rgba(244,183,64,0.05)',
+      gateBorder: validated ? 'rgba(54,211,153,0.3)' : 'rgba(244,183,64,0.35)',
+      gateIcon: validated ? '✓' : '!', gateIconBg: validated ? 'rgba(54,211,153,0.14)' : 'rgba(244,183,64,0.14)',
+      exportName: 'TRILOBE_PUNCH_OP20' + (validated ? '_KIENZLE.nc' : '_PREVIEW.nc'),
+      dlLabel, dlBg: validated ? '#FF5A2B' : '#23262E', dlColor: validated ? '#0A0B0D' : '#9398A2',
+      rawCycle: p.rawCycle, optCycle: p.optCycle, cycleSave: p.cycleSave,
+      safetyScore: validated ? p.safety.toFixed(2) : 'HOLD',
+      rpmFeed: 'S' + p.rpm + ' F' + p.feedIn,
+      optModalStyle: chip(s.optModal), optCoolantStyle: chip(s.optCoolant), optHsmStyle: chip(s.optHsm), optProbeStyle: chip(s.optProbe), optOptStyle: chip(s.optOpt),
+      setMachine: (e) => { const id = e.target.value; this.setState({ machineId: id, dialect: this.MACH[id].native }); },
+      setOperation: (e) => this.setState({ operationId: e.target.value }),
+      toggleModal: tog('optModal'), toggleCoolant: tog('optCoolant'), toggleHsm: tog('optHsm'), toggleProbe: tog('optProbe'), toggleOpt: tog('optOpt'),
+    };
+  }
+}
+</script>
+</body>
+</html>

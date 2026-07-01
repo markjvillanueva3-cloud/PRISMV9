@@ -38,7 +38,7 @@ describe('fixtureOperatingSystemServices', () => {
       cadSourceId: catalog.cadSources[0].id,
     });
 
-    expect(catalog.cadSources.some((source) => source.id === 'prism-native')).toBe(true);
+    expect(catalog.cadSources.some((source) => source.id === 'kienzle-native')).toBe(true);
     expect(workspace.operationPlan.length).toBeGreaterThan(0);
     expect(workspace.setupSheet.length).toBeGreaterThan(0);
     expect(workspace.quoteLines.length).toBeGreaterThan(0);

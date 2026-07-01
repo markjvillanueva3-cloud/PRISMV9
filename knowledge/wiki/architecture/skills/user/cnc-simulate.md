@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `cnc-simulate` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/cnc-simulate.md` |
+| Source | `C:/Users/wompu/.claude/commands/cnc-simulate.md` |
 | Model | default |
 | Tags | _(none)_ |
 

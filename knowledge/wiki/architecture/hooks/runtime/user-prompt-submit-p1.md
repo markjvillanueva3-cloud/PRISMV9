@@ -21,9 +21,7 @@ related:
 
 ## Description (from file header)
 
-user-prompt-submit-p1.mjs — Phase 1 Tier 0
-UserPromptSubmit hook that processes user input before execution.
-Tracks prompts and injects awareness context.
+_(no header docblock — read source for behavior)_
 
 ## Events
 

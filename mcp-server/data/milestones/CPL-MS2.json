@@ -1,0 +1,179 @@
+{
+  "id": "CPL-MS2",
+  "version": "1.0.0",
+  "title": "Novel Algorithms — 10 True Innovations",
+  "brief": "10 genuinely new algorithms not found in any existing PRISM engine: clothoid blending, wear-pattern refinishing, PH curves, multi-body vibration, thermal field toolpath, minimum-jerk trajectory, Voronoi-medial-axis pocketing, stochastic toolpath routing, inverse thermal compensation, contact-mechanics surface integrity.",
+  "created_at": "2026-03-22T12:30:00Z",
+  "created_by": "claude-sonnet-4.6",
+  "phases": [
+    {
+      "id": "P0",
+      "title": "Toolpath Geometry Innovations",
+      "units": [
+        {
+          "id": "U01",
+          "title": "ClothoidBlendingEngine — G2-continuous Euler spiral transitions",
+          "description": "Implement clothoid/Euler spiral blending for toolpath corners. Curvature varies linearly with arc length: κ(s) = s/A². Use Fresnel integrals C(t)=∫cos(πu²/2)du, S(t)=∫sin(πu²/2)du for XY coordinates. Taylor series approximation (5 terms sufficient for <0.1μm error). Replaces quadratic Bezier corner rounding with G2-continuous transitions that eliminate jerk at blend boundaries. Methods: blendCorners(path, min_radius), computeClothoid(L, A), fresnelIntegral(t). Material: 6 materials from existing thermal DB.",
+          "exit_conditions": [
+            "Clothoid geometry computed via Fresnel integrals",
+            "G2 continuity verified (curvature continuous at junctions)",
+            "Chord error < tolerance",
+            "Comparison vs Bezier/arc blending quality",
+            "Tests: 15+"
+          ],
+          "status": "shipped",
+          "auto_close_out_at": "2026-05-24T00:59:31.191Z",
+          "auto_close_out_reason": "dispatcher-wired engine ClothoidBlendingEngine found in corpus"
+        },
+        {
+          "id": "U02",
+          "title": "PHCurveToolpathEngine — Pythagorean-Hodograph exact arc-length",
+          "description": "Implement PH quintic curves per Farouki (2008). Property: x'(t)² + y'(t)² = σ(t)² where σ is a polynomial — exact arc length in closed form. Build PH quintic Hermite interpolant from endpoint positions and tangents. Exact feed rate = ds/dt without approximation. Methods: phQuinticInterpolate(p0, t0, p1, t1), exactArcLength(t0, t1), constantFeedParameterization(targetFeed). Eliminates feed approximation errors in constant-speed machining.",
+          "exit_conditions": [
+            "PH quintic interpolation working",
+            "Exact arc length verified against numerical integration",
+            "Constant feed parameterization accurate to <0.1%",
+            "Tests: 12+"
+          ],
+          "status": "shipped",
+          "auto_close_out_at": "2026-05-24T00:59:31.191Z",
+          "auto_close_out_reason": "dispatcher-wired engine PHCurveToolpathEngine found in corpus"
+        },
+        {
+          "id": "U03",
+          "title": "VoronoiMedialAxisPocketEngine — Mathematically optimal pocketing",
+          "description": "Implement Voronoi diagram of pocket boundary → medial axis → offset pocketing. Fortune's sweep-line O(n log n) for Voronoi construction. Extract medial axis as Voronoi edges interior to pocket. Generate toolpath by offsetting from medial axis at variable distance to maintain constant engagement angle θ = arccos(1-ae/R). Methods: computeVoronoi(boundary), extractMedialAxis(voronoi, boundary), generateOffsetPath(medialAxis, toolDiameter, targetEngagement). Superior to heuristic spiral patterns.",
+          "exit_conditions": [
+            "Voronoi diagram computed from pocket boundary",
+            "Medial axis extracted correctly",
+            "Constant engagement maintained along path",
+            "Comparison vs spiral/zigzag pocketing",
+            "Tests: 15+"
+          ],
+          "status": "shipped",
+          "auto_close_out_at": "2026-05-24T00:59:31.191Z",
+          "auto_close_out_reason": "dispatcher-wired engine VoronoiMedialAxisPocketEngine found in corpus"
+        },
+        {
+          "id": "U04",
+          "title": "MinimumJerkTrajectoryEngine — Smoothest possible CNC motion",
+          "description": "Implement minimum-jerk trajectory per Flash & Hogan (1985). Minimize ∫j²dt via 5th-order polynomial segments: x(t) = a0 + a1*t + a2*t² + a3*t³ + a4*t⁴ + a5*t⁵ with boundary conditions on position, velocity, acceleration. Solve 6x6 linear system per segment. Produces smoother motion than trapezoidal or S-curve profiles. Methods: minimumJerkSegment(x0, v0, a0, xf, vf, af, T), planTrajectory(waypoints, maxVel, maxAccel), computeJerkProfile(trajectory).",
+          "exit_conditions": [
+            "5th-order polynomial coefficients computed",
+            "Boundary conditions satisfied (position, velocity, acceleration)",
+            "Jerk is minimized (verified by comparison with S-curve)",
+            "Tests: 10+"
+          ],
+          "status": "shipped",
+          "auto_close_out_at": "2026-05-24T00:59:31.191Z",
+          "auto_close_out_reason": "dispatcher-wired engine MinimumJerkTrajectoryEngine found in corpus"
+        }
+      ]
+    },
+    {
+      "id": "P1",
+      "title": "Physics-Based Novel Algorithms",
+      "units": [
+        {
+          "id": "U05",
+          "title": "WearPatternRefinishEngine — Spatial wear compensation",
+          "description": "TRUE GAP: No system compensates for spatial wear variation. Map non-uniform VB(z) along cutting edge → predict surface error profile e(z) = f(VB(z), forces, geometry) → generate compensating finish pass with offset = -e(z). Uses AdvancedWearPhysicsEngine flank VB ODE output as input. Interpolate VB along edge from discrete measurements. Methods: mapWearProfile(vb_measurements), predictSurfaceError(wearProfile, forces, geometry), generateCompensatingPass(errorProfile, originalPath), estimateLifeExtension(wearProfile).",
+          "exit_conditions": [
+            "Non-uniform VB mapped along cutting edge",
+            "Surface error predicted from wear pattern",
+            "Compensating pass coordinates offset correctly",
+            "Tool life extension quantified (1-2 extra finish passes)",
+            "Tests: 12+"
+          ],
+          "status": "shipped",
+          "auto_close_out_at": "2026-05-24T00:59:31.191Z",
+          "auto_close_out_reason": "dispatcher-wired engine WearPatternRefinishEngine found in corpus"
+        },
+        {
+          "id": "U06",
+          "title": "MultiBodyVibrationEngine — Coupled tool-holder-workpiece dynamics",
+          "description": "Model tool + holder + spindle + workpiece + fixture as coupled mass-spring-damper system. Transfer matrix method: [M]{ẍ} + [C]{ẋ} + [K]{x} = {F(t)}. Assemble system from component FRFs (Frequency Response Functions). Predict system natural frequencies and mode shapes. Identify coupled chatter modes invisible to single-body analysis. Methods: assembleSystem(components), computeSystemFRF(freq_range), predictCoupledModes(), stabilityLobesCoupled(rpm_range, depths). Uses receptance coupling substructure analysis (RCSA).",
+          "exit_conditions": [
+            "System mass/stiffness/damping matrices assembled",
+            "Coupled natural frequencies computed",
+            "System FRF matches expected peaks",
+            "Coupled stability lobes differ from single-body",
+            "Tests: 12+"
+          ],
+          "status": "shipped",
+          "auto_close_out_at": "2026-05-24T00:59:31.191Z",
+          "auto_close_out_reason": "dispatcher-wired engine MultiBodyVibrationEngine found in corpus"
+        },
+        {
+          "id": "U07",
+          "title": "ThermalFieldToolpathEngine — 2D transient thermal field routing",
+          "description": "Solve 2D transient heat equation ∂T/∂t = α∇²T + Q̇ on coarse grid (32×32) via explicit finite difference. Track cumulative thermal field as toolpath progresses. Route toolpath to avoid heat accumulation zones (T > threshold → skip zone, return later when cooled). Extends TGAR (point estimates) to full 2D field tracking. Methods: initializeGrid(workpiece_dims), applyHeatSource(x, y, Q, dt), stepTimeForward(dt), findCoolZones(threshold), routeToolpath(zones, strategy).",
+          "exit_conditions": [
+            "2D heat equation solved via finite difference",
+            "Temperature field evolves correctly over time",
+            "Hot zones avoided during toolpath routing",
+            "Comparison vs TGAR point-estimate approach",
+            "Tests: 12+"
+          ],
+          "status": "shipped",
+          "auto_close_out_at": "2026-05-24T00:59:31.191Z",
+          "auto_close_out_reason": "dispatcher-wired engine ThermalFieldToolpathEngine found in corpus"
+        },
+        {
+          "id": "U08",
+          "title": "ContactMechanicsSurfaceEngine — Hertz contact + sub-surface integrity",
+          "description": "Hertz contact stress at tool-workpiece interface: p_max = (6*F*E*²/(π³*R²))^(1/3). Sub-surface von Mises stress field: σ_VM(z) from Huber solution. Predict plastic zone depth where σ_VM > yield. White layer risk when temperature exceeds austenite threshold. Residual stress sign from mechanical (compressive) vs thermal (tensile) contributions. Methods: hertzContact(F, R, E_star), subSurfaceStress(p_max, a, z), plasticZoneDepth(stressField, yield), whiteLaverRisk(Vc, feed, material), residualStressSign(mechanical, thermal).",
+          "exit_conditions": [
+            "Hertz contact pressure computed correctly",
+            "Sub-surface stress field matches analytical solution",
+            "Plastic zone depth predicted",
+            "White layer risk assessed",
+            "Tests: 12+"
+          ],
+          "status": "shipped",
+          "auto_close_out_at": "2026-05-24T00:59:31.191Z",
+          "auto_close_out_reason": "dispatcher-wired engine ContactMechanicsSurfaceEngine found in corpus"
+        }
+      ]
+    },
+    {
+      "id": "P2",
+      "title": "Stochastic & Optimization Algorithms",
+      "units": [
+        {
+          "id": "U09",
+          "title": "StochasticToolpathRoutingEngine — Monte Carlo strategy optimization",
+          "description": "Treat toolpath strategy selection as stochastic optimization. Sample N=100 toolpath variants by perturbing: entry point (random boundary point), cut direction (±15°), step pattern (zigzag/spiral/contour), engagement (±20%). Evaluate each with Kienzle force, Taylor tool life, cycle time. Build Pareto front (time vs quality vs life). Select by user priority or return full Pareto set. Methods: sampleVariants(pocket, N, perturbation_ranges), evaluateVariant(variant, material, tool), buildParetoFront(evaluations), selectOptimal(pareto, priority).",
+          "exit_conditions": [
+            "100 variants sampled with controlled perturbation",
+            "Each evaluated with Kienzle + Taylor physics",
+            "Pareto front constructed (non-dominated sorting)",
+            "Optimal variant selected by priority",
+            "Tests: 12+"
+          ],
+          "status": "shipped",
+          "auto_close_out_at": "2026-05-24T00:59:31.191Z",
+          "auto_close_out_reason": "dispatcher-wired engine StochasticToolpathRoutingEngine found in corpus"
+        },
+        {
+          "id": "U10",
+          "title": "InverseThermalCompensationEngine — Real-time machine thermal correction",
+          "description": "Combine MachineToolErrorBudgetEngine thermal model with EnvironmentalVariationEngine to compute inverse compensation field. Predict thermal growth at each axis position: δ(x,y,z) = Σ αᵢ × ΔTᵢ × Lᵢ for each error source. Apply inverse offset: corrected = nominal - δ. Support real-time updating from temperature sensor inputs. Methods: predictThermalField(machine, temperatures, run_time), computeCompensation(thermalField, toolPosition), applyCompensation(blocks, compensationField), updateFromSensors(sensorReadings).",
+          "exit_conditions": [
+            "Thermal field predicted from machine model + environment",
+            "Inverse compensation offsets computed",
+            "Coordinates corrected by inverse field",
+            "Sensor update pathway works",
+            "Tests: 10+"
+          ],
+          "status": "shipped",
+          "auto_close_out_at": "2026-05-24T00:59:31.191Z",
+          "auto_close_out_reason": "dispatcher-wired engine InverseThermalCompensationEngine found in corpus"
+        }
+      ]
+    }
+  ],
+  "status": "not_started",
+  "units": {},
+  "updated_at": "2026-05-24"
+}

@@ -36,7 +36,7 @@ related:
 
 ## Primary dispatcher
 
-[[dispatcher-multiaxisprogram]] — `multiAxisProgram` (manufacturing)
+[[dispatcher-multi]] — `multi` (other)
 
 ## Doctrine
 

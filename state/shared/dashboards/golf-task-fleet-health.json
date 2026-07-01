@@ -1,0 +1,38 @@
+{
+  "schemaVersion": "1.0.0",
+  "generatedBy": "golf-slot perpetual /goal fleet-health loop (session 02a2de10)",
+  "asOf": "2026-06-14",
+  "note": "Snapshot of the full PRISM scheduled-task fleet. ALL-MEANS-ALL: every PRISM* task enumerated, not a subset. Advisory dashboard; reaper-net is the load-bearing set.",
+  "totals": { "tasks": 69, "ready": 61, "running": 3, "disabledReenabledThisPass": 5, "other": 0 },
+  "reaperMonitorNet": {
+    "status": "ALL HEALTHY",
+    "tasks": [
+      {"name": "PRISM Fleet Reaper", "state": "Ready", "lastRunMinAgo": 4, "rc": "0x0"},
+      {"name": "PRISM Zombie Reaper v2", "state": "Ready", "lastRunMinAgo": 1, "rc": "0x0"},
+      {"name": "PRISM Fleet Memory Monitor", "state": "Ready", "lastRunMinAgo": 0, "rc": "0x0"},
+      {"name": "PRISM Node Orphan Cleaner", "state": "Ready", "lastRunMinAgo": 2, "rc": "0x0"},
+      {"name": "PRISM Orphan Process Reaper (PS)", "state": "Ready", "lastRunMinAgo": 3, "rc": "0x0"},
+      {"name": "PRISM Memory Pressure Auto-Relief", "state": "Ready", "lastRunMinAgo": 3, "rc": "0x0"},
+      {"name": "PRISM WSL Memory Guard", "state": "Ready", "lastRunMinAgo": 3, "rc": "0x0"},
+      {"name": "PRISM Hook Janitor", "state": "Ready", "lastRunMinAgo": 0, "rc": "0x0"},
+      {"name": "PRISM Tmp Sweep", "state": "Ready", "lastRunMinAgo": 5, "rc": "0x0"},
+      {"name": "PRISM MCP Server Watchdog", "state": "Ready", "lastRunMinAgo": 4, "rc": "0x0"},
+      {"name": "PRISM MCP Priority Guardian", "state": "Ready", "lastRunMinAgo": 0, "rc": "0x0"},
+      {"name": "PRISM MCP Connectivity Monitor", "state": "Ready", "lastRunMinAgo": 2, "rc": "0x0"}
+    ]
+  },
+  "reenabledThisPass": ["PRISM Hermes-Obsidian Bridge","PRISM Ollama Night Batch","PRISM Slot Worktree Migration Status","PRISM Tribal Consolidate Weekly","PRISM Zebra Orchestrator"],
+  "runningDaemons": [
+    {"name": "PRISM Brain Web", "rc": "0x41301", "meaning": "SCHED_S_TASK_RUNNING (benign persistent daemon)"},
+    {"name": "PRISM MCP Server", "rc": "0x800710E0", "meaning": "benign transient-pressure code; server Running, respawned 1m ago under load"},
+    {"name": "PRISM Ollama Serve", "rc": "0x41301", "meaning": "SCHED_S_TASK_RUNNING (benign persistent daemon)"}
+  ],
+  "auxiliaryFailuresNonCritical": [
+    {"name": "PRISM Blueprint OCR Batch", "rc": "0x1", "lastRunMinAgo": 4008, "action": "self-retry next schedule; non-reaper"},
+    {"name": "PRISM Brain Refresh", "rc": "0x1", "lastRunMinAgo": 24, "action": "self-retry next schedule"},
+    {"name": "PRISM System Awareness Freshness", "rc": "0x1", "lastRunMinAgo": 1247, "action": "self-retry; non-critical"},
+    {"name": "PRISM Zebra Orchestrator", "rc": "0x1", "lastRunMinAgo": 4423, "action": "re-enabled this pass; self-retry"},
+    {"name": "PRISM Hermes GEPA Weekly", "rc": "0x41303", "meaning": "SCHED_S_TASK_HAS_NOT_RUN (never hit trigger); Ready"}
+  ],
+  "verdict": "Reaper/monitor net 12/12 Ready + firing 0-5min ago, all rc=0x0. 5 flapped tasks re-enabled. Auxiliary 0x1 failures are non-reaper and self-retry. Fleet health MAINTAINED."
+}

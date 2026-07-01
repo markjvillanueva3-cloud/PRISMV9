@@ -217,12 +217,21 @@ describe("TurningInsertLifeEngine.insertChangeSchedule", () => {
   });
 
   it("never lets a single edge carry more than {threshold} wear", () => {
-    const ops: OpSpec[] = [{ conditions: roughingConditions(), duration_min: 3 }];
+    // Derive the per-part duration from the ACTUAL predicted life so wear_per_part
+    // stays a safe fraction below the threshold. This keeps the batch schedulable
+    // (multiple parts per edge) and robust to predictLife re-calibration: a fixed
+    // 3-min part exceeds an aggressive ~3-min insert life (wear_per_part > 0.80),
+    // which is infeasible by construction and would correctly throw.
+    const lifeMin = turningInsertLifeEngine.predictLife(roughingConditions()).tool_life_min;
+    const ops: OpSpec[] = [
+      { conditions: roughingConditions(), duration_min: lifeMin * 0.3 },
+    ];
     const s = turningInsertLifeEngine.insertChangeSchedule({
       ops,
       batch_size: 40,
       reliability_threshold: 0.80,
     });
+    expect(s.schedule.length).toBeGreaterThan(0);
     for (const e of s.schedule) {
       expect(e.final_wear).toBeLessThanOrEqual(0.80 + 1e-9);
     }

@@ -1,0 +1,592 @@
+{
+  "file_name": "PUNCH PIN OP 1",
+  "file_id": "urn:adsk.wipprod:dm.lineage:tl1ORnkjSz-azE3SotsQxQ",
+  "project": "Mark Villanueva",
+  "folder": "Mark Villanueva",
+  "extracted_at": "2026-04-05T11:03:35",
+  "design": {
+    "body_count": 0,
+    "occurrence_count": 1,
+    "feature_count": 0,
+    "bodies": []
+  },
+  "cam": {
+    "has_cam": true,
+    "setup_count": 2,
+    "setups": [
+      {
+        "name": "OKUMA OP1",
+        "type": "0",
+        "operations": [
+          {
+            "name": "Face1",
+            "strategy": "face",
+            "tool": {
+              "description": "#43 - \u00d83/4\"R0.015\" face (3/4\" INGERSOLL FINISH)",
+              "tool_diameter": "0.75in",
+              "tool_numberOfFlutes": "5",
+              "tool_bodyLength": "2.5in",
+              "tool_fluteLength": "0.15in",
+              "tool_cornerRadius": "0.015in",
+              "tool_shaftDiameter": "0.7in",
+              "tool_shoulderLength": "tool_fluteLength",
+              "tool_productId": "'.4943 ROC, .03 DOC'",
+              "tool_vendor": "'INGERSOLL'"
+            },
+            "parameters": {
+              "tool_spindleSpeed": "2546.47908947032602",
+              "tool_feedCutting": "38.1971863420549in/min",
+              "tool_feedPlunge": "100.in/min",
+              "tool_surfaceSpeed": "tool_diameter * Math.PI * tool_spindleSpeed",
+              "tool_feedPerTooth": "tool_spindleSpeed > 0 ? tool_feedCutting/(tool_spindleSpeed * tool_numberOfFlutes) : 0.0",
+              "tool_feedPerRevolution": "tool_spindleSpeed > 0 ? tool_feedPlunge/tool_spindleSpeed : 0.0",
+              "stepover": "tool_stepover",
+              "maximumStepdown": ".02in",
+              "tolerance": "0.0001in"
+            }
+          },
+          {
+            "name": "Ramp1",
+            "strategy": "ramp",
+            "tool": {
+              "description": "#43 - \u00d83/4\"R0.015\" face (3/4\" INGERSOLL FINISH)",
+              "tool_diameter": "0.75in",
+              "tool_numberOfFlutes": "5",
+              "tool_bodyLength": "2.5in",
+              "tool_fluteLength": "0.15in",
+              "tool_cornerRadius": "0.015in",
+              "tool_shaftDiameter": "0.7in",
+              "tool_shoulderLength": "tool_fluteLength",
+              "tool_productId": "'.4943 ROC, .03 DOC'",
+              "tool_vendor": "'INGERSOLL'"
+            },
+            "parameters": {
+              "tool_spindleSpeed": "3989",
+              "tool_feedCutting": "208in/min",
+              "tool_feedPlunge": "100.in/min",
+              "tool_surfaceSpeed": "tool_diameter * Math.PI * tool_spindleSpeed",
+              "tool_feedPerTooth": "tool_spindleSpeed > 0 ? tool_feedCutting/(tool_spindleSpeed * tool_numberOfFlutes) : 0.0",
+              "tool_feedPerRevolution": "tool_spindleSpeed > 0 ? tool_feedPlunge/tool_spindleSpeed : 0.0",
+              "maximumStepdown": ".005in",
+              "tolerance": "0.0004in"
+            }
+          },
+          {
+            "name": "Ramp1 (2)",
+            "strategy": "ramp",
+            "tool": {
+              "description": "#29 - \u00d81/4\" flat (1/4 7 FLUTE  IMCO EXTENDED REACH)",
+              "tool_diameter": "0.25in",
+              "tool_numberOfFlutes": "5",
+              "tool_bodyLength": "1.25in",
+              "tool_fluteLength": "0.75in",
+              "tool_cornerRadius": "0.0in",
+              "tool_shaftDiameter": "tool_diameter",
+              "tool_shoulderLength": "tool_fluteLength",
+              "tool_productId": "'ADAPTIVE ROUGHING'",
+              "tool_vendor": "'.25 DOC'"
+            },
+            "parameters": {
+              "tool_spindleSpeed": "10000.",
+              "tool_feedCutting": "100.in/min",
+              "tool_feedPlunge": "200.in/min",
+              "tool_surfaceSpeed": "tool_diameter * Math.PI * tool_spindleSpeed",
+              "tool_feedPerTooth": "tool_spindleSpeed > 0 ? tool_feedCutting/(tool_spindleSpeed * tool_numberOfFlutes) : 0.0",
+              "tool_feedPerRevolution": "tool_spindleSpeed > 0 ? tool_feedPlunge/tool_spindleSpeed : 0.0",
+              "maximumStepdown": ".004in",
+              "tolerance": "0.0004in"
+            }
+          },
+          {
+            "name": "Adaptive1",
+            "strategy": "adaptive",
+            "tool": {
+              "description": "#20 - \u00d81/8\" bullnose (1/8 5 FLUTE)",
+              "tool_diameter": "0.125in",
+              "tool_numberOfFlutes": "5",
+              "tool_bodyLength": "0.55in",
+              "tool_fluteLength": "0.5in",
+              "tool_cornerRadius": "0.0in",
+              "tool_shaftDiameter": "tool_diameter",
+              "tool_shoulderLength": "tool_fluteLength",
+              "tool_productId": "'ADAPTIVE ROUGHING'",
+              "tool_vendor": "'.500\" DOC'"
+            },
+            "parameters": {
+              "tool_spindleSpeed": "15000.",
+              "tool_feedCutting": "95.in/min",
+              "tool_feedPlunge": "100.in/min",
+              "tool_surfaceSpeed": "tool_diameter * Math.PI * tool_spindleSpeed",
+              "tool_feedPerTooth": "tool_spindleSpeed > 0 ? tool_feedCutting/(tool_spindleSpeed * tool_numberOfFlutes) : 0.0",
+              "tool_feedPerRevolution": "tool_spindleSpeed > 0 ? tool_feedPlunge/tool_spindleSpeed : 0.0",
+              "maximumStepdown": "Math.min(tool_fluteLength; 10mm)",
+              "tolerance": "0.004in",
+              "optimalLoad": ".005in"
+            }
+          },
+          {
+            "name": "Adaptive1 (2)",
+            "strategy": "adaptive",
+            "tool": {
+              "description": "#20 - \u00d81/8\" bullnose (1/8 5 FLUTE)",
+              "tool_diameter": "0.125in",
+              "tool_numberOfFlutes": "5",
+              "tool_bodyLength": "0.55in",
+              "tool_fluteLength": "0.5in",
+              "tool_cornerRadius": "0.0in",
+              "tool_shaftDiameter": "tool_diameter",
+              "tool_shoulderLength": "tool_fluteLength",
+              "tool_productId": "'ADAPTIVE ROUGHING'",
+              "tool_vendor": "'.500\" DOC'"
+            },
+            "parameters": {
+              "tool_spindleSpeed": "15000.",
+              "tool_feedCutting": "95.in/min",
+              "tool_feedPlunge": "100.in/min",
+              "tool_surfaceSpeed": "tool_diameter * Math.PI * tool_spindleSpeed",
+              "tool_feedPerTooth": "tool_spindleSpeed > 0 ? tool_feedCutting/(tool_spindleSpeed * tool_numberOfFlutes) : 0.0",
+              "tool_feedPerRevolution": "tool_spindleSpeed > 0 ? tool_feedPlunge/tool_spindleSpeed : 0.0",
+              "maximumStepdown": "Math.min(tool_fluteLength; 10mm)",
+              "tolerance": "0.004in",
+              "optimalLoad": ".005in"
+            }
+          },
+          {
+            "name": "Adaptive1 (3)",
+            "strategy": "adaptive",
+            "tool": {
+              "description": "#20 - \u00d81/8\" bullnose (1/8 5 FLUTE)",
+              "tool_diameter": "0.125in",
+              "tool_numberOfFlutes": "5",
+              "tool_bodyLength": "0.55in",
+              "tool_fluteLength": "0.5in",
+              "tool_cornerRadius": "0.0in",
+              "tool_shaftDiameter": "tool_diameter",
+              "tool_shoulderLength": "tool_fluteLength",
+              "tool_productId": "'ADAPTIVE ROUGHING'",
+              "tool_vendor": "'.500\" DOC'"
+            },
+            "parameters": {
+              "tool_spindleSpeed": "15000.",
+              "tool_feedCutting": "95.in/min",
+              "tool_feedPlunge": "100.in/min",
+              "tool_surfaceSpeed": "tool_diameter * Math.PI * tool_spindleSpeed",
+              "tool_feedPerTooth": "tool_spindleSpeed > 0 ? tool_feedCutting/(tool_spindleSpeed * tool_numberOfFlutes) : 0.0",
+              "tool_feedPerRevolution": "tool_spindleSpeed > 0 ? tool_feedPlunge/tool_spindleSpeed : 0.0",
+              "maximumStepdown": "Math.min(tool_fluteLength; 10mm)",
+              "tolerance": "0.004in",
+              "optimalLoad": ".005in"
+            }
+          },
+          {
+            "name": "2D Pocket3",
+            "strategy": "pocket2d",
+            "tool": {
+              "description": "#22 - \u00d80.062\" flat (1/8 5 FLUTE)",
+              "tool_diameter": "0.062in",
+              "tool_numberOfFlutes": "5",
+              "tool_bodyLength": "0.625in",
+              "tool_fluteLength": "0.093in",
+              "tool_cornerRadius": "0.0in",
+              "tool_shaftDiameter": "0.125in",
+              "tool_shoulderLength": "tool_fluteLength",
+              "tool_productId": "'FINISHING 2D CONTOUR'",
+              "tool_vendor": "''"
+            },
+            "parameters": {
+              "tool_spindleSpeed": "10695.21217577536663",
+              "tool_feedCutting": "26.73803043943841in/min",
+              "tool_feedPlunge": "50.in/min",
+              "tool_surfaceSpeed": "tool_diameter * Math.PI * tool_spindleSpeed",
+              "tool_feedPerTooth": "tool_spindleSpeed > 0 ? tool_feedCutting/(tool_spindleSpeed * tool_numberOfFlutes) : 0.0",
+              "tool_feedPerRevolution": "tool_spindleSpeed > 0 ? tool_feedPlunge/tool_spindleSpeed : 0.0",
+              "maximumStepdown": "Math.min(tool_fluteLength * 0.75; tool_diameter * 0.1)",
+              "maximumStepover": ".01in",
+              "tolerance": ".0004in"
+            }
+          },
+          {
+            "name": "2D Pocket3 (8)",
+            "strategy": "pocket2d",
+            "tool": {
+              "description": "#22 - \u00d80.062\" flat (1/8 5 FLUTE)",
+              "tool_diameter": "0.062in",
+              "tool_numberOfFlutes": "5",
+              "tool_bodyLength": "0.625in",
+              "tool_fluteLength": "0.093in",
+              "tool_cornerRadius": "0.0in",
+              "tool_shaftDiameter": "0.125in",
+              "tool_shoulderLength": "tool_fluteLength",
+              "tool_productId": "'FINISHING 2D CONTOUR'",
+              "tool_vendor": "''"
+            },
+            "parameters": {
+              "tool_spindleSpeed": "10695.21217577536663",
+              "tool_feedCutting": "26.73803043943841in/min",
+              "tool_feedPlunge": "50.in/min",
+              "tool_surfaceSpeed": "tool_diameter * Math.PI * tool_spindleSpeed",
+              "tool_feedPerTooth": "tool_spindleSpeed > 0 ? tool_feedCutting/(tool_spindleSpeed * tool_numberOfFlutes) : 0.0",
+              "tool_feedPerRevolution": "tool_spindleSpeed > 0 ? tool_feedPlunge/tool_spindleSpeed : 0.0",
+              "maximumStepdown": "Math.min(tool_fluteLength * 0.75; tool_diameter * 0.1)",
+              "maximumStepover": ".01in",
+              "tolerance": ".0004in"
+            }
+          },
+          {
+            "name": "2D Pocket3 (2)",
+            "strategy": "pocket2d",
+            "tool": {
+              "description": "#22 - \u00d80.062\" flat (1/8 5 FLUTE)",
+              "tool_diameter": "0.062in",
+              "tool_numberOfFlutes": "5",
+              "tool_bodyLength": "0.625in",
+              "tool_fluteLength": "0.093in",
+              "tool_cornerRadius": "0.0in",
+              "tool_shaftDiameter": "0.125in",
+              "tool_shoulderLength": "tool_fluteLength",
+              "tool_productId": "'FINISHING 2D CONTOUR'",
+              "tool_vendor": "''"
+            },
+            "parameters": {
+              "tool_spindleSpeed": "10695.21217577536663",
+              "tool_feedCutting": "26.73803043943841in/min",
+              "tool_feedPlunge": "50.in/min",
+              "tool_surfaceSpeed": "tool_diameter * Math.PI * tool_spindleSpeed",
+              "tool_feedPerTooth": "tool_spindleSpeed > 0 ? tool_feedCutting/(tool_spindleSpeed * tool_numberOfFlutes) : 0.0",
+              "tool_feedPerRevolution": "tool_spindleSpeed > 0 ? tool_feedPlunge/tool_spindleSpeed : 0.0",
+              "maximumStepdown": "Math.min(tool_fluteLength * 0.75; tool_diameter * 0.1)",
+              "maximumStepover": ".005in",
+              "tolerance": ".0004in"
+            }
+          },
+          {
+            "name": "2D Pocket3 (3)",
+            "strategy": "pocket2d",
+            "tool": {
+              "description": "#22 - \u00d80.062\" flat (1/8 5 FLUTE)",
+              "tool_diameter": "0.062in",
+              "tool_numberOfFlutes": "5",
+              "tool_bodyLength": "0.625in",
+              "tool_fluteLength": "0.093in",
+              "tool_cornerRadius": "0.0in",
+              "tool_shaftDiameter": "0.125in",
+              "tool_shoulderLength": "tool_fluteLength",
+              "tool_productId": "'FINISHING 2D CONTOUR'",
+              "tool_vendor": "''"
+            },
+            "parameters": {
+              "tool_spindleSpeed": "10695.21217577536663",
+              "tool_feedCutting": "26.73803043943841in/min",
+              "tool_feedPlunge": "50.in/min",
+              "tool_surfaceSpeed": "tool_diameter * Math.PI * tool_spindleSpeed",
+              "tool_feedPerTooth": "tool_spindleSpeed > 0 ? tool_feedCutting/(tool_spindleSpeed * tool_numberOfFlutes) : 0.0",
+              "tool_feedPerRevolution": "tool_spindleSpeed > 0 ? tool_feedPlunge/tool_spindleSpeed : 0.0",
+              "maximumStepdown": "Math.min(tool_fluteLength * 0.75; tool_diameter * 0.1)",
+              "maximumStepover": ".005in",
+              "tolerance": ".0004in"
+            }
+          },
+          {
+            "name": "2D Pocket3 (4)",
+            "strategy": "pocket2d",
+            "tool": {
+              "description": "#22 - \u00d80.062\" flat (1/8 5 FLUTE)",
+              "tool_diameter": "0.062in",
+              "tool_numberOfFlutes": "5",
+              "tool_bodyLength": "0.625in",
+              "tool_fluteLength": "0.093in",
+              "tool_cornerRadius": "0.0in",
+              "tool_shaftDiameter": "0.125in",
+              "tool_shoulderLength": "tool_fluteLength",
+              "tool_productId": "'FINISHING 2D CONTOUR'",
+              "tool_vendor": "''"
+            },
+            "parameters": {
+              "tool_spindleSpeed": "10695.21217577536663",
+              "tool_feedCutting": "26.73803043943841in/min",
+              "tool_feedPlunge": "50.in/min",
+              "tool_surfaceSpeed": "tool_diameter * Math.PI * tool_spindleSpeed",
+              "tool_feedPerTooth": "tool_spindleSpeed > 0 ? tool_feedCutting/(tool_spindleSpeed * tool_numberOfFlutes) : 0.0",
+              "tool_feedPerRevolution": "tool_spindleSpeed > 0 ? tool_feedPlunge/tool_spindleSpeed : 0.0",
+              "maximumStepdown": "Math.min(tool_fluteLength * 0.75; tool_diameter * 0.1)",
+              "maximumStepover": ".005in",
+              "tolerance": ".0004in"
+            }
+          },
+          {
+            "name": "2D Pocket3 (5)",
+            "strategy": "pocket2d",
+            "tool": {
+              "description": "#22 - \u00d80.062\" flat (1/8 5 FLUTE)",
+              "tool_diameter": "0.062in",
+              "tool_numberOfFlutes": "5",
+              "tool_bodyLength": "0.625in",
+              "tool_fluteLength": "0.093in",
+              "tool_cornerRadius": "0.0in",
+              "tool_shaftDiameter": "0.125in",
+              "tool_shoulderLength": "tool_fluteLength",
+              "tool_productId": "'FINISHING 2D CONTOUR'",
+              "tool_vendor": "''"
+            },
+            "parameters": {
+              "tool_spindleSpeed": "10695.21217577536663",
+              "tool_feedCutting": "26.73803043943841in/min",
+              "tool_feedPlunge": "50.in/min",
+              "tool_surfaceSpeed": "tool_diameter * Math.PI * tool_spindleSpeed",
+              "tool_feedPerTooth": "tool_spindleSpeed > 0 ? tool_feedCutting/(tool_spindleSpeed * tool_numberOfFlutes) : 0.0",
+              "tool_feedPerRevolution": "tool_spindleSpeed > 0 ? tool_feedPlunge/tool_spindleSpeed : 0.0",
+              "maximumStepdown": "Math.min(tool_fluteLength * 0.75; tool_diameter * 0.1)",
+              "maximumStepover": ".005in",
+              "tolerance": ".0004in"
+            }
+          },
+          {
+            "name": "2D Pocket3 (6)",
+            "strategy": "pocket2d",
+            "tool": {
+              "description": "#22 - \u00d80.062\" flat (1/8 5 FLUTE)",
+              "tool_diameter": "0.062in",
+              "tool_numberOfFlutes": "5",
+              "tool_bodyLength": "0.625in",
+              "tool_fluteLength": "0.093in",
+              "tool_cornerRadius": "0.0in",
+              "tool_shaftDiameter": "0.125in",
+              "tool_shoulderLength": "tool_fluteLength",
+              "tool_productId": "'FINISHING 2D CONTOUR'",
+              "tool_vendor": "''"
+            },
+            "parameters": {
+              "tool_spindleSpeed": "10695.21217577536663",
+              "tool_feedCutting": "26.73803043943841in/min",
+              "tool_feedPlunge": "50.in/min",
+              "tool_surfaceSpeed": "tool_diameter * Math.PI * tool_spindleSpeed",
+              "tool_feedPerTooth": "tool_spindleSpeed > 0 ? tool_feedCutting/(tool_spindleSpeed * tool_numberOfFlutes) : 0.0",
+              "tool_feedPerRevolution": "tool_spindleSpeed > 0 ? tool_feedPlunge/tool_spindleSpeed : 0.0",
+              "maximumStepdown": "Math.min(tool_fluteLength * 0.75; tool_diameter * 0.1)",
+              "maximumStepover": ".005in",
+              "tolerance": ".0004in"
+            }
+          },
+          {
+            "name": "2D Pocket3 (7)",
+            "strategy": "pocket2d",
+            "tool": {
+              "description": "#22 - \u00d80.062\" flat (1/8 5 FLUTE)",
+              "tool_diameter": "0.062in",
+              "tool_numberOfFlutes": "5",
+              "tool_bodyLength": "0.625in",
+              "tool_fluteLength": "0.093in",
+              "tool_cornerRadius": "0.0in",
+              "tool_shaftDiameter": "0.125in",
+              "tool_shoulderLength": "tool_fluteLength",
+              "tool_productId": "'FINISHING 2D CONTOUR'",
+              "tool_vendor": "''"
+            },
+            "parameters": {
+              "tool_spindleSpeed": "10695.21217577536663",
+              "tool_feedCutting": "26.73803043943841in/min",
+              "tool_feedPlunge": "50.in/min",
+              "tool_surfaceSpeed": "tool_diameter * Math.PI * tool_spindleSpeed",
+              "tool_feedPerTooth": "tool_spindleSpeed > 0 ? tool_feedCutting/(tool_spindleSpeed * tool_numberOfFlutes) : 0.0",
+              "tool_feedPerRevolution": "tool_spindleSpeed > 0 ? tool_feedPlunge/tool_spindleSpeed : 0.0",
+              "maximumStepdown": "Math.min(tool_fluteLength * 0.75; tool_diameter * 0.1)",
+              "maximumStepover": ".005in",
+              "tolerance": ".0004in"
+            }
+          },
+          {
+            "name": "Ramp1 (3)",
+            "strategy": "ramp",
+            "tool": {
+              "description": "#39 - \u00d80.062\" ball (1/8)",
+              "tool_diameter": "0.062in",
+              "tool_numberOfFlutes": "4",
+              "tool_bodyLength": "tool_shoulderLength",
+              "tool_fluteLength": "0.75in",
+              "tool_cornerRadius": "0.031in",
+              "tool_shaftDiameter": "tool_diameter",
+              "tool_shoulderLength": "tool_fluteLength",
+              "tool_productId": "''",
+              "tool_vendor": "''"
+            },
+            "parameters": {
+              "tool_spindleSpeed": "12000",
+              "tool_feedCutting": "tool_feedPerTooth * tool_spindleSpeed * tool_numberOfFlutes",
+              "tool_feedPlunge": "100.in/min",
+              "tool_surfaceSpeed": "tool_diameter * Math.PI * tool_spindleSpeed",
+              "tool_feedPerTooth": ".001in",
+              "tool_feedPerRevolution": "tool_spindleSpeed > 0 ? tool_feedPlunge/tool_spindleSpeed : 0.0",
+              "maximumStepdown": ".0005in",
+              "tolerance": "0.0004in"
+            }
+          },
+          {
+            "name": "Ramp2",
+            "strategy": "ramp",
+            "tool": {
+              "description": "#38 - \u00d80.062\" flat (1/16)",
+              "tool_diameter": "0.062in",
+              "tool_numberOfFlutes": "4",
+              "tool_bodyLength": "0.75in",
+              "tool_fluteLength": "0.1875in",
+              "tool_cornerRadius": "0.0in",
+              "tool_shaftDiameter": "0.125in",
+              "tool_shoulderLength": "tool_fluteLength",
+              "tool_productId": "''",
+              "tool_vendor": "''"
+            },
+            "parameters": {
+              "tool_spindleSpeed": "12000",
+              "tool_feedCutting": "tool_feedPerTooth * tool_spindleSpeed * tool_numberOfFlutes",
+              "tool_feedPlunge": "100.in/min",
+              "tool_surfaceSpeed": "tool_diameter * Math.PI * tool_spindleSpeed",
+              "tool_feedPerTooth": ".001in",
+              "tool_feedPerRevolution": "tool_spindleSpeed > 0 ? tool_feedPlunge/tool_spindleSpeed : 0.0",
+              "maximumStepdown": ".0003in",
+              "tolerance": "0.0004in"
+            }
+          },
+          {
+            "name": "Parallel1",
+            "strategy": "parallel",
+            "tool": {
+              "description": "#21 - \u00d80.02\" ball (.02)",
+              "tool_diameter": "0.02in",
+              "tool_numberOfFlutes": "4",
+              "tool_bodyLength": "0.6in",
+              "tool_fluteLength": "0.03in",
+              "tool_cornerRadius": "0.01in",
+              "tool_shaftDiameter": "0.125in",
+              "tool_shoulderLength": "tool_fluteLength",
+              "tool_productId": "''",
+              "tool_vendor": "''"
+            },
+            "parameters": {
+              "tool_spindleSpeed": "15000.",
+              "tool_feedCutting": "30.in/min",
+              "tool_feedPlunge": "100.in/min",
+              "tool_surfaceSpeed": "tool_diameter * Math.PI * tool_spindleSpeed",
+              "tool_feedPerTooth": "tool_spindleSpeed > 0 ? tool_feedCutting/(tool_spindleSpeed * tool_numberOfFlutes) : 0.0",
+              "tool_feedPerRevolution": "tool_spindleSpeed > 0 ? tool_feedPlunge/tool_spindleSpeed : 0.0",
+              "stepover": ".0003in",
+              "maximumStepdown": "0.04in",
+              "tolerance": "0.0004in"
+            }
+          },
+          {
+            "name": "Parallel1 (2)",
+            "strategy": "parallel",
+            "tool": {
+              "description": "#21 - \u00d80.02\" ball (.02)",
+              "tool_diameter": "0.02in",
+              "tool_numberOfFlutes": "4",
+              "tool_bodyLength": "0.6in",
+              "tool_fluteLength": "0.03in",
+              "tool_cornerRadius": "0.01in",
+              "tool_shaftDiameter": "0.125in",
+              "tool_shoulderLength": "tool_fluteLength",
+              "tool_productId": "''",
+              "tool_vendor": "''"
+            },
+            "parameters": {
+              "tool_spindleSpeed": "15000.",
+              "tool_feedCutting": "30.in/min",
+              "tool_feedPlunge": "100.in/min",
+              "tool_surfaceSpeed": "tool_diameter * Math.PI * tool_spindleSpeed",
+              "tool_feedPerTooth": "tool_spindleSpeed > 0 ? tool_feedCutting/(tool_spindleSpeed * tool_numberOfFlutes) : 0.0",
+              "tool_feedPerRevolution": "tool_spindleSpeed > 0 ? tool_feedPlunge/tool_spindleSpeed : 0.0",
+              "stepover": ".0003in",
+              "maximumStepdown": "0.04in",
+              "tolerance": "0.0004in"
+            }
+          }
+        ]
+      },
+      {
+        "name": "HAAS OP2",
+        "type": "0",
+        "operations": [
+          {
+            "name": "Face1 (2)",
+            "strategy": "face",
+            "tool": {
+              "description": "#13 - \u00d81\"R0.063\" face (1\" HI FEED ZENI)",
+              "tool_diameter": "1.in",
+              "tool_numberOfFlutes": "3",
+              "tool_bodyLength": "2.in",
+              "tool_fluteLength": "0.078in",
+              "tool_cornerRadius": "0.063in",
+              "tool_shaftDiameter": "0.95in",
+              "tool_shoulderLength": "tool_fluteLength",
+              "tool_productId": "''",
+              "tool_vendor": "'20 DEGREE LEAD IN'"
+            },
+            "parameters": {
+              "tool_spindleSpeed": "1704.",
+              "tool_feedCutting": "tool_feedPerTooth * tool_spindleSpeed * tool_numberOfFlutes",
+              "tool_feedPlunge": "100.in/min",
+              "tool_surfaceSpeed": "tool_diameter * Math.PI * tool_spindleSpeed",
+              "tool_feedPerTooth": ".03in",
+              "tool_feedPerRevolution": "tool_spindleSpeed > 0 ? tool_feedPlunge/tool_spindleSpeed : 0.0",
+              "stepover": ".5in",
+              "maximumStepdown": ".02in",
+              "tolerance": "0.0001in"
+            }
+          },
+          {
+            "name": "Face1 (3)",
+            "strategy": "face",
+            "tool": {
+              "description": "#15 - \u00d82\"R0.0315\" bullnose (2\" 4F FINISH)",
+              "tool_diameter": "2.in",
+              "tool_numberOfFlutes": "6",
+              "tool_bodyLength": "1.5in",
+              "tool_fluteLength": "0.375in",
+              "tool_cornerRadius": "0.0315in",
+              "tool_shaftDiameter": "tool_diameter",
+              "tool_shoulderLength": "tool_fluteLength",
+              "tool_productId": "'1.2 ROC, .03 DOC'",
+              "tool_vendor": "'.0315R'"
+            },
+            "parameters": {
+              "tool_spindleSpeed": "1000",
+              "tool_feedCutting": "tool_feedPerTooth * tool_spindleSpeed * tool_numberOfFlutes",
+              "tool_feedPlunge": "100.in/min",
+              "tool_surfaceSpeed": "tool_diameter * Math.PI * tool_spindleSpeed",
+              "tool_feedPerTooth": ".003in",
+              "tool_feedPerRevolution": "tool_spindleSpeed > 0 ? tool_feedPlunge/tool_spindleSpeed : 0.0",
+              "stepover": "tool_stepover",
+              "maximumStepdown": ".02in",
+              "tolerance": "0.0001in"
+            }
+          },
+          {
+            "name": "2D Chamfer2",
+            "strategy": "chamfer2d",
+            "tool": {
+              "description": "#16 - \u00d81/4\" 45\u00b0 chamfer (.375 Chamfer Mill)",
+              "tool_diameter": "0.25in",
+              "tool_numberOfFlutes": "4",
+              "tool_bodyLength": "0.925in",
+              "tool_fluteLength": "0.25in",
+              "tool_cornerRadius": "0.0in",
+              "tool_shaftDiameter": "tool_diameter",
+              "tool_shoulderLength": "0.375in",
+              "tool_productId": "''",
+              "tool_vendor": "''"
+            },
+            "parameters": {
+              "tool_spindleSpeed": "7500",
+              "tool_feedCutting": "tool_feedPerTooth * tool_spindleSpeed * tool_numberOfFlutes",
+              "tool_feedPlunge": "100.in/min",
+              "tool_surfaceSpeed": "tool_diameter * Math.PI * tool_spindleSpeed",
+              "tool_feedPerTooth": ".001in",
+              "tool_feedPerRevolution": "tool_spindleSpeed > 0 ? tool_feedPlunge/tool_spindleSpeed : 0.0",
+              "tolerance": "0.0004in"
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

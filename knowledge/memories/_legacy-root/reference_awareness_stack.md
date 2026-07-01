@@ -1,0 +1,86 @@
+---
+name: reference-awareness-stack
+description: "PRISM Awareness Stack — 6 surfaces shipped overnight 2026-05-12..13 that together answer \"what's built / wired / utilized / drifted\" in one auto-injected glance. Replaces N Grep/Glob/Agent calls. Use master_index_query FIRST before any search."
+metadata:  
+source: prism-memory
+synced: 2026-05-18T01:02:09.211Z
+aliases: reference_awareness_stack
+---
+
+
+# PRISM Awareness Stack — search-first cuts Grep/Glob/Agent waste
+
+Shipped 2026-05-12..13 in OBSIDIAN-PRISM-OS-MS0 (slot alpha, claude-7f79dd78, autonomous overnight /loop). Together these 6 surfaces answer the user's complete ask:
+
+> *"prism awareness system so we know exactly what is built, still needs building, what is wired and needs wiring and how to determine whether a node is being fully utilized."*
+> *"set it up so we can utilize the obsidian brain and /system-viz as a master index for quick searching to hopefully save on search tool calls."*
+
+## The 6 surfaces
+
+| # | Commit | Unit | Surface | What it does |
+|---|--------|------|---------|--------------|
+| 1 | `3cd27c288` | U-MASTER-INDEX | `MasterIndexEngine.ts` + `prism_session:master_index_query` + `master_index_node_status` + `/master-index` skill + `master-index-precheck-inject.mjs` hook | Unified ranked search across system-graph (110K nodes, pre-joined w/ wiki+memory) + PRISMSelfAwarenessEngine + BUILD_STATE. Hit shape: `source` + `confidence` + `utilization` (log-normalized in-degree) + `buildClass` + pre-joined wiki/memory entry names. Hook auto-injects top-5 on every UserPromptSubmit. |
+| 2 | `28fccde44` | U-NODE-UTILIZATION | `MasterIndexEngine.classifyAllNodes()` + `prism_session:master_index_utilization_dashboard` action + `/utilization-dashboard` skill | Buckets every graph node into hub / sink / source / orphan (built+documented+unwired) / ghost (dead-code candidate) / normal. Dynamic 85th-pct degree threshold. |
+| 3 | `b13f220cd` | U-AWARENESS-SNAPSHOT | `scripts/awareness-snapshot.mjs` + `/awareness-snapshot` skill | One-shot 60-line digest at `state/shared/AWARENESS-SNAPSHOT.md`. Built/utilization/top-hubs/top-orphans/drift. Cron-able. |
+| 4 | `0089b2de7` | U-AWARENESS-INJECT | `.claude/hooks/awareness-snapshot-inject.mjs` (T2 SessionStart) | Auto-injects a compact 15-line subset of the snapshot at every SessionStart. Auto-regens if stale (>24h). |
+| 5 | `79b6366fd` | U-DEEP-SEARCH | `/deep-search` policy skill | Defines the search→reason→neural escalation order: master_index_query first → node_status if borderline → reason on pre-loaded context → prism_intelligence as last resort → Grep/Glob/Agent as absolute fallback. |
+| 6 | `aae8e7b64` | U-ORPHAN-INVENTORY | `scripts/orphan-inventory.mjs` + `/orphan-inventory` skill | Built-but-unwired audit punch list at `state/shared/ORPHAN-INVENTORY.md`. Groups orphans by suggested dispatcher (22 heuristic patterns) + by layer. First run: 86 orphans, 6 hinted. |
+
+Plus follow-on `ad45acd77` (CLAUDE.md rollup).
+
+## How to use (the order)
+
+**Default flow for any "where/what/how" question about PRISM:**
+
+1. **`master-index-precheck-inject` already fired** on the prompt — read the top-5 hits in your context window first. They're free.
+2. If the question is unresolved, call `prism_session:master_index_query` directly (full hit list, ~200 tokens). Most "where is X" questions resolve here.
+3. Borderline confidence? `prism_session:master_index_node_status` for the top hit adds in/out degree.
+4. Still unresolved? Reason on the loaded hits — DON'T fire another tool.
+5. Cross-domain question? `prism_intelligence:ai_milling_deep_reason` with hits as context.
+6. **Absolute last resort:** `Grep` / `Glob` / `Agent`. The master index covers ~80% of code-archaeology questions.
+
+**For audit/punch-list work:**
+
+- `/awareness-snapshot` → headline rollup (also auto-injected at SessionStart)
+- `/utilization-dashboard` → full per-node classifier with hub/sink/source/orphan/ghost
+- `/orphan-inventory` → just the punch list, with dispatcher hints
+
+**For vault content questions:** `/emerging-thesis` (TF-IDF synthesis of recent memories) — separate from the master index.
+
+## Knobs (env vars)
+
+| Knob | Effect | Default |
+|------|--------|---------|
+| `PRISM_MASTER_INDEX_INJECT=0` | Disable UserPromptSubmit injection | enabled |
+| `PRISM_MASTER_INDEX_K=N` | Top-K in injection block | 5 |
+| `PRISM_AWARENESS_INJECT=0` | Disable SessionStart injection | enabled |
+| `PRISM_AWARENESS_INJECT_FORCE_REGEN=1` | Always regen snapshot before read | off |
+| `PRISM_AWARENESS_INJECT_STALE_HOURS=N` | Snapshot stale threshold | 24 |
+
+## Companion infra (pre-existed, not in this stack)
+
+- `system-viz-query.mjs` — CLI adapter with `headline`, `roadmap-candidates`, `blast-radius`, `find`, etc.
+- `system-viz-obsidian-bridge-v2.mjs` — joins wiki+memory entries onto graph nodes (the join this stack consumes)
+- `BUILD_STATE.json` — built/wired/pending headline regenerated by `build-state-snapshot.mjs`
+- `MILESTONE_PROGRESS.json` — envelope vs git delta from `build-milestone-progress.mjs`
+- `wiki-precheck-inject.mjs` — older sibling hook covering only `wiki/index.md` (BM25); master-index covers full graph
+
+## When master-index FAILS to help (fall through to Grep)
+
+- Looking for a literal error message string
+- Looking inside a file the graph doesn't index (e.g. `mcp-server/data/state/*.json` raw values)
+- Master-index returns hits but all have `confidence < 0.3`
+
+Otherwise: master-index FIRST, every time. Token savings compound across every session.
+
+## Cross-links
+
+- [[reference_master_index_surface]] — original MasterIndexEngine reference (iter 1)
+- [[reference_system_viz]] — system-viz 3D viewer + graph file format
+- [[reference_build_state_surface]] — BUILD_STATE.{md,json} explanation
+- [[reference_milestone_progress_surface]] — MILESTONE_PROGRESS delta surface
+- [[feedback_roadmap_close_out]] — close-out rule that drove the chat-bus + envelope updates
+
+
+## Related
+[[engines/MasterIndexEngine|MasterIndexEngine]] • [[engines/PRISMSelfAwarenessEngine|PRISMSelfAwarenessEngine]] • [[dispatchers/prism_session|prism_session]] • [[dispatchers/prism_intelligence|prism_intelligence]] • [[skills/loop|/loop]] • [[skills/system-viz|/system-viz]] • [[skills/master-index|/master-index]] • [[skills/memory|/memory]] • [[skills/utilization-dashboard|/utilization-dashboard]] • [[skills/awareness-snapshot|/awareness-snapshot]]

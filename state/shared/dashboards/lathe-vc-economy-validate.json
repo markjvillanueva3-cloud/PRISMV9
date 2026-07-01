@@ -1,0 +1,884 @@
+{
+  "summary": {
+    "ok": true,
+    "sample_parts": 15,
+    "parts_with_cost": 15,
+    "avg_cost_usd": {
+      "baseline_nocap": 17.66,
+      "min_cost_capped": 17.64,
+      "delta_pct": -0.12
+    },
+    "uneconomical_tool_life_parts": {
+      "baseline_nocap": 9,
+      "min_cost_capped": 0
+    },
+    "avg_min_tool_life_min": {
+      "baseline_nocap": 1.4,
+      "min_cost_capped": 1.4
+    },
+    "invariants": {
+      "cost_dropped_or_equal": "14/15",
+      "safety_verdict_identical": "15/15",
+      "rough_vc_lowered_or_equal": "15/15"
+    },
+    "verdict": "PASS -- min_cost(capped) is cheaper or equal on avg, fewer uneconomical parts, safety unchanged",
+    "legend": "A = balanced + NO cap (true pre-fix baseline); B = min_cost (Gilbert economic Vc cap)"
+  },
+  "rows": [
+    {
+      "part": "Bosscrew tool block(1) v1.step",
+      "A": {
+        "cost": 4.17,
+        "min_tool_life": 1,
+        "economical": false,
+        "tool_cost_share": 0.283,
+        "dom_free_op_life": 6,
+        "t_econ": 7.81,
+        "verdict": "PARTIAL",
+        "rough_vc": 220,
+        "binding_op": {
+          "type": "od_finish",
+          "vc": 320,
+          "life": 1
+        },
+        "ops": [
+          {
+            "type": "od_rough",
+            "vc": 220,
+            "life": 6
+          },
+          {
+            "type": "od_finish",
+            "vc": 320,
+            "life": 1
+          }
+        ]
+      },
+      "B": {
+        "cost": 4.18,
+        "min_tool_life": 1,
+        "economical": true,
+        "tool_cost_share": 0.278,
+        "dom_free_op_life": 8,
+        "t_econ": 7.81,
+        "verdict": "PARTIAL",
+        "rough_vc": 209,
+        "binding_op": {
+          "type": "od_finish",
+          "vc": 320,
+          "life": 1
+        },
+        "ops": [
+          {
+            "type": "od_rough",
+            "vc": 209,
+            "life": 8
+          },
+          {
+            "type": "od_finish",
+            "vc": 320,
+            "life": 1
+          }
+        ]
+      }
+    },
+    {
+      "part": "FEED ROLL FACE GROOVES v1.step",
+      "A": {
+        "cost": 7.37,
+        "min_tool_life": 1,
+        "economical": true,
+        "tool_cost_share": 0.199,
+        "dom_free_op_life": 6,
+        "t_econ": 7.81,
+        "verdict": "PARTIAL",
+        "rough_vc": 220,
+        "binding_op": {
+          "type": "od_finish",
+          "vc": 320,
+          "life": 1
+        },
+        "ops": [
+          {
+            "type": "od_rough",
+            "vc": 220,
+            "life": 6
+          },
+          {
+            "type": "od_finish",
+            "vc": 320,
+            "life": 1
+          }
+        ]
+      },
+      "B": {
+        "cost": 7.37,
+        "min_tool_life": 1,
+        "economical": true,
+        "tool_cost_share": 0.196,
+        "dom_free_op_life": 8,
+        "t_econ": 7.81,
+        "verdict": "PARTIAL",
+        "rough_vc": 209,
+        "binding_op": {
+          "type": "od_finish",
+          "vc": 320,
+          "life": 1
+        },
+        "ops": [
+          {
+            "type": "od_rough",
+            "vc": 209,
+            "life": 8
+          },
+          {
+            "type": "od_finish",
+            "vc": 320,
+            "life": 1
+          }
+        ]
+      }
+    },
+    {
+      "part": "FULL ASSEMBLY v1.step",
+      "A": {
+        "cost": 3.25,
+        "min_tool_life": 1,
+        "economical": false,
+        "tool_cost_share": 0.276,
+        "dom_free_op_life": 6,
+        "t_econ": 7.81,
+        "verdict": "PARTIAL",
+        "rough_vc": 220,
+        "binding_op": {
+          "type": "od_finish",
+          "vc": 320,
+          "life": 1
+        },
+        "ops": [
+          {
+            "type": "od_rough",
+            "vc": 220,
+            "life": 6
+          },
+          {
+            "type": "od_finish",
+            "vc": 320,
+            "life": 1
+          }
+        ]
+      },
+      "B": {
+        "cost": 3.23,
+        "min_tool_life": 1,
+        "economical": true,
+        "tool_cost_share": 0.27,
+        "dom_free_op_life": 8,
+        "t_econ": 7.81,
+        "verdict": "PARTIAL",
+        "rough_vc": 209,
+        "binding_op": {
+          "type": "od_finish",
+          "vc": 320,
+          "life": 1
+        },
+        "ops": [
+          {
+            "type": "od_rough",
+            "vc": 209,
+            "life": 8
+          },
+          {
+            "type": "od_finish",
+            "vc": 320,
+            "life": 1
+          }
+        ]
+      }
+    },
+    {
+      "part": "2475-037 (EXTRUDE PUNCH) v1.step",
+      "A": {
+        "cost": 4.6,
+        "min_tool_life": 1,
+        "economical": false,
+        "tool_cost_share": 0.305,
+        "dom_free_op_life": 6,
+        "t_econ": 7.81,
+        "verdict": "PARTIAL",
+        "rough_vc": 220,
+        "binding_op": {
+          "type": "od_finish",
+          "vc": 320,
+          "life": 1
+        },
+        "ops": [
+          {
+            "type": "od_rough",
+            "vc": 220,
+            "life": 6
+          },
+          {
+            "type": "od_finish",
+            "vc": 320,
+            "life": 1
+          }
+        ]
+      },
+      "B": {
+        "cost": 4.6,
+        "min_tool_life": 1,
+        "economical": true,
+        "tool_cost_share": 0.299,
+        "dom_free_op_life": 8,
+        "t_econ": 7.81,
+        "verdict": "PARTIAL",
+        "rough_vc": 209,
+        "binding_op": {
+          "type": "od_finish",
+          "vc": 320,
+          "life": 1
+        },
+        "ops": [
+          {
+            "type": "od_rough",
+            "vc": 209,
+            "life": 8
+          },
+          {
+            "type": "od_finish",
+            "vc": 320,
+            "life": 1
+          }
+        ]
+      }
+    },
+    {
+      "part": "EXTRUSION PIN HOLDER v1.step",
+      "A": {
+        "cost": 4.6,
+        "min_tool_life": 1,
+        "economical": false,
+        "tool_cost_share": 0.212,
+        "dom_free_op_life": 6,
+        "t_econ": 7.81,
+        "verdict": "PARTIAL",
+        "rough_vc": 220,
+        "binding_op": {
+          "type": "od_finish",
+          "vc": 320,
+          "life": 1
+        },
+        "ops": [
+          {
+            "type": "od_rough",
+            "vc": 220,
+            "life": 6
+          },
+          {
+            "type": "od_finish",
+            "vc": 320,
+            "life": 1
+          }
+        ]
+      },
+      "B": {
+        "cost": 4.57,
+        "min_tool_life": 1,
+        "economical": true,
+        "tool_cost_share": 0.207,
+        "dom_free_op_life": 8,
+        "t_econ": 7.81,
+        "verdict": "PARTIAL",
+        "rough_vc": 209,
+        "binding_op": {
+          "type": "od_finish",
+          "vc": 320,
+          "life": 1
+        },
+        "ops": [
+          {
+            "type": "od_rough",
+            "vc": 209,
+            "life": 8
+          },
+          {
+            "type": "od_finish",
+            "vc": 320,
+            "life": 1
+          }
+        ]
+      }
+    },
+    {
+      "part": "OP1 v1.step",
+      "A": {
+        "cost": 6.69,
+        "min_tool_life": 1,
+        "economical": false,
+        "tool_cost_share": 0.275,
+        "dom_free_op_life": 6,
+        "t_econ": 7.81,
+        "verdict": "PARTIAL",
+        "rough_vc": 220,
+        "binding_op": {
+          "type": "od_finish",
+          "vc": 320,
+          "life": 1
+        },
+        "ops": [
+          {
+            "type": "od_rough",
+            "vc": 220,
+            "life": 6
+          },
+          {
+            "type": "od_finish",
+            "vc": 320,
+            "life": 1
+          }
+        ]
+      },
+      "B": {
+        "cost": 6.65,
+        "min_tool_life": 1,
+        "economical": true,
+        "tool_cost_share": 0.27,
+        "dom_free_op_life": 8,
+        "t_econ": 7.81,
+        "verdict": "PARTIAL",
+        "rough_vc": 209,
+        "binding_op": {
+          "type": "od_finish",
+          "vc": 320,
+          "life": 1
+        },
+        "ops": [
+          {
+            "type": "od_rough",
+            "vc": 209,
+            "life": 8
+          },
+          {
+            "type": "od_finish",
+            "vc": 320,
+            "life": 1
+          }
+        ]
+      }
+    },
+    {
+      "part": "haas vf-2 v1.step",
+      "A": {
+        "cost": 55.55,
+        "min_tool_life": 1,
+        "economical": true,
+        "tool_cost_share": 0.141,
+        "dom_free_op_life": 6,
+        "t_econ": 7.81,
+        "verdict": "PARTIAL",
+        "rough_vc": 220,
+        "binding_op": {
+          "type": "od_finish",
+          "vc": 320,
+          "life": 1
+        },
+        "ops": [
+          {
+            "type": "od_rough",
+            "vc": 220,
+            "life": 6
+          },
+          {
+            "type": "od_finish",
+            "vc": 320,
+            "life": 1
+          }
+        ]
+      },
+      "B": {
+        "cost": 55.49,
+        "min_tool_life": 1,
+        "economical": true,
+        "tool_cost_share": 0.139,
+        "dom_free_op_life": 8,
+        "t_econ": 7.81,
+        "verdict": "PARTIAL",
+        "rough_vc": 209,
+        "binding_op": {
+          "type": "od_finish",
+          "vc": 320,
+          "life": 1
+        },
+        "ops": [
+          {
+            "type": "od_rough",
+            "vc": 209,
+            "life": 8
+          },
+          {
+            "type": "od_finish",
+            "vc": 320,
+            "life": 1
+          }
+        ]
+      }
+    },
+    {
+      "part": "hurco vm30i WITH FIXTURES v1.step",
+      "A": {
+        "cost": 2.38,
+        "min_tool_life": 1,
+        "economical": false,
+        "tool_cost_share": 0.225,
+        "dom_free_op_life": 6,
+        "t_econ": 7.81,
+        "verdict": "PARTIAL",
+        "rough_vc": 220,
+        "binding_op": {
+          "type": "od_finish",
+          "vc": 320,
+          "life": 1
+        },
+        "ops": [
+          {
+            "type": "od_rough",
+            "vc": 220,
+            "life": 6
+          },
+          {
+            "type": "od_finish",
+            "vc": 320,
+            "life": 1
+          }
+        ]
+      },
+      "B": {
+        "cost": 2.36,
+        "min_tool_life": 1,
+        "economical": true,
+        "tool_cost_share": 0.219,
+        "dom_free_op_life": 8,
+        "t_econ": 7.81,
+        "verdict": "PARTIAL",
+        "rough_vc": 209,
+        "binding_op": {
+          "type": "od_finish",
+          "vc": 320,
+          "life": 1
+        },
+        "ops": [
+          {
+            "type": "od_rough",
+            "vc": 209,
+            "life": 8
+          },
+          {
+            "type": "od_finish",
+            "vc": 320,
+            "life": 1
+          }
+        ]
+      }
+    },
+    {
+      "part": "LEFT AND RIGHT HAND OP 2 v1.step",
+      "A": {
+        "cost": 3.15,
+        "min_tool_life": 1,
+        "economical": false,
+        "tool_cost_share": 0.285,
+        "dom_free_op_life": 6,
+        "t_econ": 7.81,
+        "verdict": "PARTIAL",
+        "rough_vc": 220,
+        "binding_op": {
+          "type": "od_finish",
+          "vc": 320,
+          "life": 1
+        },
+        "ops": [
+          {
+            "type": "od_rough",
+            "vc": 220,
+            "life": 6
+          },
+          {
+            "type": "od_finish",
+            "vc": 320,
+            "life": 1
+          }
+        ]
+      },
+      "B": {
+        "cost": 3.13,
+        "min_tool_life": 1,
+        "economical": true,
+        "tool_cost_share": 0.279,
+        "dom_free_op_life": 8,
+        "t_econ": 7.81,
+        "verdict": "PARTIAL",
+        "rough_vc": 209,
+        "binding_op": {
+          "type": "od_finish",
+          "vc": 320,
+          "life": 1
+        },
+        "ops": [
+          {
+            "type": "od_rough",
+            "vc": 209,
+            "life": 8
+          },
+          {
+            "type": "od_finish",
+            "vc": 320,
+            "life": 1
+          }
+        ]
+      }
+    },
+    {
+      "part": "DC-NPF-121 OP1 v1.step",
+      "A": {
+        "cost": 141.77,
+        "min_tool_life": 1,
+        "economical": true,
+        "tool_cost_share": 0.088,
+        "dom_free_op_life": 6,
+        "t_econ": 7.81,
+        "verdict": "PARTIAL",
+        "rough_vc": 220,
+        "binding_op": {
+          "type": "od_finish",
+          "vc": 320,
+          "life": 1
+        },
+        "ops": [
+          {
+            "type": "od_rough",
+            "vc": 220,
+            "life": 6
+          },
+          {
+            "type": "od_finish",
+            "vc": 320,
+            "life": 1
+          }
+        ]
+      },
+      "B": {
+        "cost": 141.67,
+        "min_tool_life": 1,
+        "economical": true,
+        "tool_cost_share": 0.086,
+        "dom_free_op_life": 8,
+        "t_econ": 7.81,
+        "verdict": "PARTIAL",
+        "rough_vc": 209,
+        "binding_op": {
+          "type": "od_finish",
+          "vc": 320,
+          "life": 1
+        },
+        "ops": [
+          {
+            "type": "od_rough",
+            "vc": 209,
+            "life": 8
+          },
+          {
+            "type": "od_finish",
+            "vc": 320,
+            "life": 1
+          }
+        ]
+      }
+    },
+    {
+      "part": ".25 SALVI PIN COLLARS v1.step",
+      "A": {
+        "cost": 6.29,
+        "min_tool_life": 1,
+        "economical": false,
+        "tool_cost_share": 0.326,
+        "dom_free_op_life": 6,
+        "t_econ": 7.81,
+        "verdict": "PARTIAL",
+        "rough_vc": 220,
+        "binding_op": {
+          "type": "od_finish",
+          "vc": 320,
+          "life": 1
+        },
+        "ops": [
+          {
+            "type": "od_rough",
+            "vc": 220,
+            "life": 6
+          },
+          {
+            "type": "od_finish",
+            "vc": 320,
+            "life": 1
+          }
+        ]
+      },
+      "B": {
+        "cost": 6.28,
+        "min_tool_life": 1,
+        "economical": true,
+        "tool_cost_share": 0.32,
+        "dom_free_op_life": 8,
+        "t_econ": 7.81,
+        "verdict": "PARTIAL",
+        "rough_vc": 209,
+        "binding_op": {
+          "type": "od_finish",
+          "vc": 320,
+          "life": 1
+        },
+        "ops": [
+          {
+            "type": "od_rough",
+            "vc": 209,
+            "life": 8
+          },
+          {
+            "type": "od_finish",
+            "vc": 320,
+            "life": 1
+          }
+        ]
+      }
+    },
+    {
+      "part": ".25 SALVI WIRE STOPS OP 1 AND OP 2 v1.step",
+      "A": {
+        "cost": 2.38,
+        "min_tool_life": 1,
+        "economical": false,
+        "tool_cost_share": 0.225,
+        "dom_free_op_life": 6,
+        "t_econ": 7.81,
+        "verdict": "PARTIAL",
+        "rough_vc": 220,
+        "binding_op": {
+          "type": "od_finish",
+          "vc": 320,
+          "life": 1
+        },
+        "ops": [
+          {
+            "type": "od_rough",
+            "vc": 220,
+            "life": 6
+          },
+          {
+            "type": "od_finish",
+            "vc": 320,
+            "life": 1
+          }
+        ]
+      },
+      "B": {
+        "cost": 2.36,
+        "min_tool_life": 1,
+        "economical": true,
+        "tool_cost_share": 0.219,
+        "dom_free_op_life": 8,
+        "t_econ": 7.81,
+        "verdict": "PARTIAL",
+        "rough_vc": 209,
+        "binding_op": {
+          "type": "od_finish",
+          "vc": 320,
+          "life": 1
+        },
+        "ops": [
+          {
+            "type": "od_rough",
+            "vc": 209,
+            "life": 8
+          },
+          {
+            "type": "od_finish",
+            "vc": 320,
+            "life": 1
+          }
+        ]
+      }
+    },
+    {
+      "part": "1111 HAMMER INSERT v1.step",
+      "A": {
+        "cost": 2.24,
+        "min_tool_life": 3,
+        "economical": true,
+        "tool_cost_share": 0.103,
+        "dom_free_op_life": 15,
+        "t_econ": 7.81,
+        "verdict": "PARTIAL",
+        "rough_vc": 220,
+        "binding_op": {
+          "type": "od_finish",
+          "vc": 320,
+          "life": 3
+        },
+        "ops": [
+          {
+            "type": "od_rough",
+            "vc": 220,
+            "life": 15
+          },
+          {
+            "type": "od_finish",
+            "vc": 320,
+            "life": 3
+          }
+        ]
+      },
+      "B": {
+        "cost": 2.24,
+        "min_tool_life": 3,
+        "economical": true,
+        "tool_cost_share": 0.103,
+        "dom_free_op_life": 15,
+        "t_econ": 7.81,
+        "verdict": "PARTIAL",
+        "rough_vc": 220,
+        "binding_op": {
+          "type": "od_finish",
+          "vc": 320,
+          "life": 3
+        },
+        "ops": [
+          {
+            "type": "od_rough",
+            "vc": 220,
+            "life": 15
+          },
+          {
+            "type": "od_finish",
+            "vc": 320,
+            "life": 3
+          }
+        ]
+      }
+    },
+    {
+      "part": "8928-654-02 (SECOND BLOW UPSET) v1.step",
+      "A": {
+        "cost": 16.23,
+        "min_tool_life": 3,
+        "economical": true,
+        "tool_cost_share": 0.096,
+        "dom_free_op_life": 15,
+        "t_econ": 7.81,
+        "verdict": "PARTIAL",
+        "rough_vc": 220,
+        "binding_op": {
+          "type": "od_finish",
+          "vc": 320,
+          "life": 3
+        },
+        "ops": [
+          {
+            "type": "od_rough",
+            "vc": 220,
+            "life": 15
+          },
+          {
+            "type": "od_finish",
+            "vc": 320,
+            "life": 3
+          }
+        ]
+      },
+      "B": {
+        "cost": 16.23,
+        "min_tool_life": 3,
+        "economical": true,
+        "tool_cost_share": 0.096,
+        "dom_free_op_life": 15,
+        "t_econ": 7.81,
+        "verdict": "PARTIAL",
+        "rough_vc": 220,
+        "binding_op": {
+          "type": "od_finish",
+          "vc": 320,
+          "life": 3
+        },
+        "ops": [
+          {
+            "type": "od_rough",
+            "vc": 220,
+            "life": 15
+          },
+          {
+            "type": "od_finish",
+            "vc": 320,
+            "life": 3
+          }
+        ]
+      }
+    },
+    {
+      "part": "9064618 v2.step",
+      "A": {
+        "cost": 4.2,
+        "min_tool_life": 3,
+        "economical": true,
+        "tool_cost_share": 0.096,
+        "dom_free_op_life": 15,
+        "t_econ": 7.81,
+        "verdict": "PARTIAL",
+        "rough_vc": 220,
+        "binding_op": {
+          "type": "od_finish",
+          "vc": 320,
+          "life": 3
+        },
+        "ops": [
+          {
+            "type": "od_rough",
+            "vc": 220,
+            "life": 15
+          },
+          {
+            "type": "od_finish",
+            "vc": 320,
+            "life": 3
+          }
+        ]
+      },
+      "B": {
+        "cost": 4.2,
+        "min_tool_life": 3,
+        "economical": true,
+        "tool_cost_share": 0.096,
+        "dom_free_op_life": 15,
+        "t_econ": 7.81,
+        "verdict": "PARTIAL",
+        "rough_vc": 220,
+        "binding_op": {
+          "type": "od_finish",
+          "vc": 320,
+          "life": 3
+        },
+        "ops": [
+          {
+            "type": "od_rough",
+            "vc": 220,
+            "life": 15
+          },
+          {
+            "type": "od_finish",
+            "vc": 320,
+            "life": 3
+          }
+        ]
+      }
+    }
+  ]
+}

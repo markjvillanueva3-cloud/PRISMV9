@@ -36,7 +36,7 @@ related:
 
 ## Primary dispatcher
 
-[[dispatcher-machinelive]] — `machineLive` (ai_intel)
+[[dispatcher-machine]] — `machine` (other)
 
 ## Doctrine
 

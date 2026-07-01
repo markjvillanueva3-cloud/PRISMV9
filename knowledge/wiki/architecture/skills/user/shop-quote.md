@@ -23,13 +23,14 @@ related:
 |-------|-------|
 | Name | `shop-quote` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/shop-quote.md` |
+| Source | `C:/Users/wompu/.claude/commands/shop-quote.md` |
 | Model | default |
 | Tags | _(none)_ |
 
 ## Description (first paragraph)
 
-Generate accurate quotes based on shop-specific rates and capabilities.
+
+# /shop-quote — Quick Shop Floor Quote
 
 <!-- AUTO-END -->
 

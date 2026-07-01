@@ -1,0 +1,26 @@
+---
+session: claude-be5e37e8
+topic: mike-sfc-accuracy-ms1
+slot: mike
+written_at: 2026-05-19T00:43:29.099Z
+machine: DESKTOP-N7MI1VB
+family: Claude
+session_key: claude-be5e37e8
+status: active
+---
+
+# HANDOFF: claude-be5e37e8
+Updated: 2026-05-19T00:43:29.100Z
+Family: Claude | Machine: DESKTOP-N7MI1VB | Session: claude-be5e37e8
+
+## STATE
+## U-TDP07 STATE (slot mike claude-be5e37e8)
+Uncommitted H:/prism-slot-mike: scripts/lib/pdf-text-extract-lib.mjs (inline-± + OUT_OF_ROUND + TIR + left-boundary OCR-fragment guard); scripts/lib/pdf-text-extract-lib.test.mjs (+11 = 44/44 pass); scripts/harvest-pdf-text-batch.{py,mjs} (new prior session); state/U-TDP07-CORPUS-REPORT.json.
+PROVEN (cite in commit): A/B old d85573b7d4 vs new on 10 rich-text PDFs = 4→6 PDFs w/dims, 4→30 dims. Continental Midland TT2000: 10 clean dims conf 0.85, 476/3345/5 garbage REFUSED by guard. 600-PDF: 81/600=13.5% text, die mean_conf 0.165 → deterministic = high-precision floor ~13%; 87% image-only NEEDS vision (qwen2.5vl:7b queued, log H:/prism/.cache/temp/_qwen25vl_pull2.log).
+PENDING: per-file 2-reviewer scrutiny on lib → commit [SFC-ACCURACY-MS1]/U-TDP07 → 3-of-3 → verify qwen2.5vl pull → run vision path on 87% image-only.
+
+## RESUME
+U-TDP07 inline-± parser DONE+verified (44/44 tests; A/B-proven 4→6 PDFs/4→30 dims rich-text subset; 0 garbage on real Continental Midland PDF; OCR-fragment guard added). Corpus: 600-PDF=13.5% text-coverage conf0.165 → 87% needs vision. NEXT: per-file scrutiny pdf-text-extract-lib.mjs → commit slot/mike → 3-of-3 → verify qwen2.5vl:7b pull.
+
+## CONTEXT
+

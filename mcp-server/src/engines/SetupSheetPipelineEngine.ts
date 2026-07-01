@@ -166,6 +166,10 @@ export interface SetupSheetPipelineForms {
 
 // ── Engine ─────────────────────────────────────────────────────────────────
 
+import { emitPipelineOutcome } from "./pipelineOutcomeEmit.js"; // CLOSE-THE-LOOPS-MS0: feed generation outcomes to the learning bus
+
+// WIRE-EXEMPT: consumed by MachiningIntelligenceOrchestratorEngine (orchestrator layer, not a dispatcher).
+// generate() now also publishes a DATA outcome to the learning bus via emitPipelineOutcome (CLOSE-THE-LOOPS-MS0).
 export class SetupSheetPipelineEngine {
   private store: Map<string, SetupSheetPipeline> = new Map();
   private counter = 0;
@@ -279,6 +283,17 @@ export class SetupSheetPipelineEngine {
     };
 
     this.store.set(setupId, pipeline);
+    // CLOSE-THE-LOOPS-MS0: DATA-only, fire-and-forget -- a setup sheet must still render if the bus is down.
+    emitPipelineOutcome({
+      domain: "setup_sheet",
+      engineName: "SetupSheetPipelineEngine",
+      outcomeEventId: "setup_sheet_generated",
+      predictionId: input.job_id ? `${input.job_id}-setup` : undefined,
+      inline: { part_number: input.part_number, customer: input.customer ?? "N/A" },
+      adapted: { operation_count: operations.length, total_tools: allTools.length, unique_tools: uniqueToolIds.size },
+      reward: { objective: "other", raw_value: operations.length, sign_convention: "maximize" },
+      metadata: { setup_id: setupId, warning_count: warnings.length },
+    });
     return pipeline;
   }
 

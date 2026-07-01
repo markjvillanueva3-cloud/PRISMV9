@@ -2035,6 +2035,79 @@ export class GrindingProgramAssemblerEngine {
   /**
    * Return engine metadata.
    */
+  /**
+   * U-CAMX22 adapter: cylindrical (OD) grind program from a flat job spec.
+   * Maps the simplified {od_start/od_target/length/feed} request onto a full
+   * CylindricalGrindProfile and delegates to assembleCylindricalGrind (which
+   * auto-generates roughing infeed + finish + spark-out passes). Radial stock =
+   * (od_start - od_target)/2 (per side). Sensible precision-OD-grind defaults
+   * fill the geometry the flat spec omits (wheel 350x25mm, Ra 0.4um).
+   */
+  generateCylindricalGrindProgram(input: {
+    part_id?: string;
+    material: string;
+    wheel_spec?: string;
+    od_start_mm: number;
+    od_target_mm: number;
+    length_mm: number;
+    wheel_speed_mps?: number;
+    feed_rate_mmpm?: number;
+    spark_out_passes?: number;
+    target_Ra_um?: number;
+    wheel_diameter_mm?: number;
+    wheel_width_mm?: number;
+  }): GrindingProgram {
+    return this.assembleCylindricalGrind({
+      operation_subtype: "od_plunge",
+      material: input.material,
+      workpiece_od_mm: input.od_start_mm,
+      workpiece_length_mm: input.length_mm,
+      stock_mm: Math.max(0, (input.od_start_mm - input.od_target_mm) / 2),
+      target_Ra_um: input.target_Ra_um ?? 0.4,
+      wheel_diameter_mm: input.wheel_diameter_mm ?? 350,
+      wheel_width_mm: input.wheel_width_mm ?? 25,
+      wheel_spec: input.wheel_spec,
+      traverse_feed_mm_min: input.feed_rate_mmpm,
+      coolant: true,
+    });
+  }
+
+  /**
+   * U-CAMX22 adapter: surface (reciprocating) grind program from a flat job spec.
+   * Maps {length/width/depth/step_over/table_speed} onto a SurfaceGrindProfile and
+   * delegates to assembleSurfaceGrind. depth_mm -> total stock; step_over -> cross
+   * feed; table_speed -> v_w. Surface-grinder defaults (wheel 200x13mm, Ra 0.4um).
+   */
+  generateSurfaceGrindProgram(input: {
+    part_id?: string;
+    material: string;
+    wheel_spec?: string;
+    length_mm: number;
+    width_mm: number;
+    depth_mm: number;
+    step_over_mm?: number;
+    wheel_speed_mps?: number;
+    table_speed_mmpm?: number;
+    target_Ra_um?: number;
+    wheel_diameter_mm?: number;
+    wheel_width_mm?: number;
+  }): GrindingProgram {
+    return this.assembleSurfaceGrind({
+      operation_subtype: "horizontal_reciprocating",
+      material: input.material,
+      part_length_mm: input.length_mm,
+      part_width_mm: input.width_mm,
+      stock_mm: input.depth_mm,
+      target_Ra_um: input.target_Ra_um ?? 0.4,
+      wheel_diameter_mm: input.wheel_diameter_mm ?? 200,
+      wheel_width_mm: input.wheel_width_mm ?? 13,
+      wheel_spec: input.wheel_spec,
+      v_w_mm_min: input.table_speed_mmpm,
+      cross_feed_step_mm: input.step_over_mm,
+      coolant: true,
+    });
+  }
+
   stats(): { methods: string[]; engineName: string } {
     return {
       engineName: this.engineName,
@@ -2044,9 +2117,14 @@ export class GrindingProgramAssemblerEngine {
         "assembleCenterlessGrind",
         "assembleCreepFeedGrind",
         "assembleSpecialGrind",
+        "generateCylindricalGrindProgram",
+        "generateSurfaceGrindProgram",
         "computeUncertainty",
         "stats",
       ],
     };
   }
 }
+
+/** Singleton -- U-CAMX22 + every dispatcher/test consumer references this. */
+export const grindingProgramAssemblerEngine = new GrindingProgramAssemblerEngine();

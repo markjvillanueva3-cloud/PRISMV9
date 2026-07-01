@@ -23,11 +23,12 @@ related:
 |-------|-------|
 | Name | `claim-phase` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/claim-phase.md` |
+| Source | `C:/Users/wompu/.claude/commands/claim-phase.md` |
 | Model | default |
 | Tags | _(none)_ |
 
 ## Description (first paragraph)
+
 
 ---
 policy:

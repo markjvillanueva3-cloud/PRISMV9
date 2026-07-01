@@ -1,0 +1,211 @@
+{
+  "id": "ARCH-MS0",
+  "title": "Structural Hierarchy — Foundation Layer (BaseEngine + Service Contracts)",
+  "track": "ARCH",
+  "status": "complete",
+  "description": "Create the missing BaseEngine contract and Service layer interfaces. This is the foundation that all subsequent ARCH milestones depend on. Establishes IEngine interface, BaseEngine abstract class, and service contracts (IMaterialService, IMachineService, IToolService, IPhysicsService, IConfigService) that mediate between engines and registries. Also ensures thermal/stability constants exist in canonical constants.ts before downstream rewiring.",
+  "dependencies": [],
+  "knowledge_sources": {
+    "engines": [
+      "PipelineRegistryBridge.ts (correct mediation pattern)",
+      "SpeedFeedOrchestratorEngine.ts (largest engine, 2851 LOC)",
+      "engines/CLAUDE.md (mandates BaseEngine)"
+    ],
+    "registries": [
+      "registries/index.ts (24 registries, all export singletons)",
+      "registries/base.ts (BaseRegistry class)"
+    ],
+    "services": [
+      "services/UserMachineProfileService.ts (only real service pattern)",
+      "services/FileUserMachineProfileRepository.ts (repository interface example)"
+    ],
+    "physics": [
+      "src/physics/constants.ts (canonical source — verify CHIP_HEAT_FRACTION, TOOL_HEAT_FRACTION, STEEL_THERMAL_EXPANSION exist)"
+    ],
+    "reference": [
+      "src/types.ts (shared types)",
+      "src/schemas/ (Zod action schemas)"
+    ]
+  },
+  "forge_triple": {
+    "hook": "engine-contract-enforcer — DECLARED here, BUILT in ARCH-MS4 U-ENFO01",
+    "action": "prism_system:architecture_health — DECLARED here, BUILT in ARCH-MS4 U-ENFO03",
+    "skill": "/arch-health — DECLARED here, BUILT in ARCH-MS4 U-ENFO03"
+  },
+  "enforcement": {
+    "pre_level": [
+      "knowledge-consult (verify services/registries read before coding)"
+    ],
+    "post_level": [
+      "stub-detector (no placeholder returns)",
+      "constants-checker (no inline physics)"
+    ],
+    "compact_level": [
+      "review-gate",
+      "forge-triple-gate"
+    ]
+  },
+  "mcp_lifecycle": {
+    "session_start": [
+      "prism_session:context_boot",
+      "prism_session:dispatcher_map",
+      "prism_session:memory_recall",
+      "prism_session:system_snapshot"
+    ],
+    "during_work": [
+      "prism_session:auto_checkpoint (every 5-10 tool calls)",
+      "prism_session:wip_capture"
+    ],
+    "session_end": [
+      "prism_session:memory_save",
+      "prism_session:system_snapshot",
+      "prism_session:checkpoint_enhanced"
+    ]
+  },
+  "sessions": [
+    {
+      "id": "ARCH-MS0-S1",
+      "title": "IEngine Contract + BaseEngine Abstract Class + Service Layer",
+      "smart_config": {
+        "role": "Software Architect + TypeScript Specialist",
+        "model": "opus",
+        "effort": "MAX",
+        "context_budget": "40%"
+      },
+      "knowledge": [
+        "engines/CLAUDE.md",
+        "registries/base.ts (BaseRegistry pattern to mirror)",
+        "services/UserMachineProfileService.ts",
+        "src/physics/constants.ts (verify thermal constants exist)"
+      ],
+      "intent": "Every engine has a contract to implement. New engines get type errors if they skip required methods. Existing engines continue to work unchanged (opt-in adoption). Service layer provides the mediation seam for data access.",
+      "skills": [
+        "/forge-engines",
+        "/prism-review",
+        "/test",
+        "/trace",
+        "/checkpoint"
+      ],
+      "plugins": [
+        "Vitest MCP (mcp__vitest__run_tests)",
+        "ESLint MCP (mcp__eslint__lint-files)"
+      ],
+      "units": [
+        {
+          "id": "U-ARCH01",
+          "title": "Create IEngine interface and BaseEngine abstract class",
+          "description": "Define src/engines/IEngine.ts with: name, version, execute(), validate(), getCapabilities(). Create src/engines/BaseEngine.ts abstract class implementing IEngine with default validate() (Zod) and logging. Pattern: mirror BaseRegistry from src/registries/base.ts. Must be opt-in — existing engines don't break.",
+          "depends_on": [],
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "exit_criteria": [
+            "IEngine.ts exports interface with 5+ methods",
+            "BaseEngine.ts extends IEngine with default implementations",
+            "npx tsc --noEmit passes with 0 errors",
+            "git diff shows zero changes to existing engine files (opt-in verified)"
+          ],
+          "rollback": {
+            "files_created": [
+              "src/engines/IEngine.ts",
+              "src/engines/BaseEngine.ts"
+            ],
+            "files_modified": [],
+            "abort_criteria": [
+              "tsc errors > 0",
+              "existing test failures",
+              "circular dependency detected"
+            ],
+            "rollback_procedure": "git checkout -- src/engines/IEngine.ts src/engines/BaseEngine.ts"
+          }
+        },
+        {
+          "id": "U-ARCH02",
+          "title": "Create service layer interfaces (5 contracts) with unit-type enforcement",
+          "description": "Create src/services/interfaces/ directory with: IMaterialService.ts, IMachineService.ts, IToolService.ts, IPhysicsConstantsService.ts, IConfigService.ts. Each interface defines query methods that engines will call instead of importing registries directly. IPhysicsConstantsService MUST propagate unit metadata (e.g., getConstant returns {value, unit, source} not bare number) to preserve dimensional consistency.",
+          "depends_on": [
+            "U-ARCH01"
+          ],
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "exit_criteria": [
+            "5 interface files in src/services/interfaces/",
+            "Each interface has 3+ methods matching current registry usage patterns",
+            "IPhysicsConstantsService methods return {value, unit, source} tuples",
+            "Interfaces use types from src/types.ts not inline definitions",
+            "tsc passes"
+          ],
+          "rollback": {
+            "files_created": [
+              "src/services/interfaces/IMaterialService.ts",
+              "src/services/interfaces/IMachineService.ts",
+              "src/services/interfaces/IToolService.ts",
+              "src/services/interfaces/IPhysicsConstantsService.ts",
+              "src/services/interfaces/IConfigService.ts",
+              "src/services/interfaces/index.ts"
+            ],
+            "files_modified": [],
+            "abort_criteria": [
+              "tsc errors > 0",
+              "interface methods don't match actual registry API"
+            ],
+            "rollback_procedure": "rm -rf src/services/interfaces/"
+          }
+        },
+        {
+          "id": "U-ARCH03",
+          "title": "Implement concrete services + ensure canonical constants coverage",
+          "description": "Create src/services/MaterialService.ts implementing IMaterialService by delegating to MaterialRegistry singleton. Same for MachineService.ts → MachineRegistry, ToolService.ts → ToolRegistry, PhysicsConstantsService.ts → src/physics/constants.ts, ConfigService.ts → new src/data/shop-config.json. Export all from src/services/index.ts. CRITICAL: Before implementing PhysicsConstantsService, verify that CHIP_HEAT_FRACTION, TOOL_HEAT_FRACTION, STEEL_THERMAL_EXPANSION exist in constants.ts. If missing, ADD them with cited sources before wrapping.",
+          "depends_on": [
+            "U-ARCH02"
+          ],
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "exit_criteria": [
+            "5 service implementations matching their interfaces",
+            "services/index.ts re-exports all services",
+            "Unit tests for each service (5 test files)",
+            "PhysicsConstantsService exposes all thermal/stability constants with units",
+            "constants.ts contains CHIP_HEAT_FRACTION, TOOL_HEAT_FRACTION, STEEL_THERMAL_EXPANSION (added if missing)",
+            "tsc passes",
+            "vitest passes"
+          ],
+          "rollback": {
+            "files_created": [
+              "src/services/MaterialService.ts",
+              "src/services/MachineService.ts",
+              "src/services/ToolService.ts",
+              "src/services/PhysicsConstantsService.ts",
+              "src/services/ConfigService.ts",
+              "src/data/shop-config.json"
+            ],
+            "files_modified": [
+              "src/services/index.ts",
+              "src/physics/constants.ts (if thermal constants added)"
+            ],
+            "abort_criteria": [
+              "tsc errors > 0",
+              "test failures > 0",
+              "service doesn't match registry API",
+              "physics constants added without cited source"
+            ],
+            "rollback_procedure": "git checkout -- src/services/ src/physics/constants.ts"
+          }
+        }
+      ],
+      "exit_gate": "✓ IEngine interface exported | ✓ BaseEngine abstract class exported | ✓ 5 service interfaces + 5 implementations | ✓ IPhysicsConstantsService returns {value,unit,source} tuples | ✓ constants.ts has thermal/stability constants | ✓ services/index.ts re-exports all | ✓ 5 service test files pass | ✓ tsc 0 errors | omega_floor >= 0.90 | SVI delta: +2%",
+      "feature_cascade": {
+        "new_hooks": [],
+        "new_actions": [],
+        "new_skills": [],
+        "available_to": [
+          "ARCH-MS1",
+          "ARCH-MS2",
+          "ARCH-MS3",
+          "ARCH-MS4"
+        ]
+      },
+      "compact_checkpoint": true
+    }
+  ],
+  "total_units": 3,
+  "completed_units": 0,
+  "completed_at": "2026-04-04T16:15:00Z",
+  "completion_note": "Verified: engines exist and are substantive. Build PASS."
+}

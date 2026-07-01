@@ -23,13 +23,18 @@ related:
 |-------|-------|
 | Name | `tool-enrich` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/tool-enrich.md` |
+| Source | `C:/Users/wompu/.claude/commands/tool-enrich.md` |
 | Model | default |
 | Tags | _(none)_ |
 
 ## Description (first paragraph)
 
-_(no body content)_
+
+# Tool Enrich — Unified Tool Database Enrichment Pipeline
+
+You are running a specialized pipeline that enriches the PRISM ToolCatalogEngine with cutting tool data extracted from PDFs, manufacturer websites, and video tutorials. The goal is comprehensive physical dimensions for collision avoidance, optimized cutting parameters per material, and manufacturer-specific recommendations.
+
+## Args:
 
 <!-- AUTO-END -->
 

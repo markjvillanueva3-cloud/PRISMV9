@@ -23,13 +23,14 @@ related:
 |-------|-------|
 | Name | `scout` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/scout.md` |
+| Source | `C:/Users/wompu/.claude/commands/scout.md` |
 | Model | default |
 | Tags | _(none)_ |
 
 ## Description (first paragraph)
 
-Scans public sources for new capabilities that PRISM should integrate. Adds findings to a prioritized build queue. Run periodically (weekly) or on-demand.
+
+# Scout — Discover New MCP Servers, Plugins, Tools & Claude Features
 
 <!-- AUTO-END -->
 

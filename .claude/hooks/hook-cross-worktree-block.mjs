@@ -19,21 +19,36 @@
  *      (worktree-local scrutiny runs against the worktree's own diff, not
  *      against the cross-worktree blast radius).
  *
- * Both modes have happened in this fleet already (see `feedback_conflict_fork_rule`
- * and `reference_harness_hang_prevention`). The conflict-fork rule says
- * "fork to your own tree on conflict" — this hook makes the corollary explicit:
- * **once you're in your own tree, you may not write to the main tree's
- * shared-state files.**
+ * ── TWO-TIER POLICY (2026-05-31, operator grant: "each chat galaxy has
+ *    permission to add to the main tree") ────────────────────────────────────
+ * The operator grant supersedes the original blanket conflict-fork block for
+ * DOC / COORDINATION state, but the silent-drift hazard is genuinely worst for
+ * the harness-EXECUTION files (settings.json, hooks/*.mjs, .mcp.json) — a drift
+ * there changes which hooks fire fleet-wide. So the firewall is now tiered:
+ *
+ *   - HARD_BLOCK_PATTERNS (harness-exec): STILL HARD-BLOCKED from a non-main
+ *     worktree. settings(.local).json, .claude/hooks/*.mjs, .mcp.json.
+ *   - ADVISORY_PATTERNS (doc/coordination): ALLOWED with a drift advisory —
+ *     CLAUDE.md / AGENTS.md / CODEX.md / GEMINI.md, state/shared/*.{json,md},
+ *     mcp-server/data/state/*.json, milestone envelopes, the roadmap.
+ *
+ * Re-arm knob: `PRISM_CROSS_WORKTREE_HARD=1` restores the original blanket
+ * HARD-block for the advisory tier too (every shared-state pattern blocks).
+ * Full bypass (no block, no advisory): `PRISM_CROSS_WORKTREE_BYPASS=1`.
  *
  * BLOCKS when ALL of:
- *   - tool is Edit / Write / MultiEdit
+ *   - tool is Edit / Write / MultiEdit / NotebookEdit
  *   - cwd is a git worktree whose top-level is NOT the canonical main tree
  *     (`H:/prism`, case-insensitive)
- *   - target file resolves under the main tree (either via absolute path or
- *     via the worktree's symlink/junction back to a shared file)
- *   - target file matches one of the SHARED_STATE_PATTERNS
+ *   - target file resolves under the main tree
+ *   - target file matches a HARD_BLOCK_PATTERN  (OR any shared-state pattern
+ *     when PRISM_CROSS_WORKTREE_HARD=1)
  *
- * ALLOWS when ANY of:
+ * ADVISES (allow + drift warning) when:
+ *   - all of the block conditions hold BUT the matched pattern is in the
+ *     ADVISORY tier and PRISM_CROSS_WORKTREE_HARD is not set
+ *
+ * ALLOWS (silently) when ANY of:
  *   - cwd is the main tree itself
  *   - target is a worktree-local file (lives under the worktree, not the main tree)
  *   - target matches no shared-state pattern
@@ -41,8 +56,9 @@
  *   - the hook can't tell (no git binary, no .git, malformed stdin) — fail-open
  *
  * EXIT CONTRACT (Claude Code PreToolUse):
- *   - allow: prints {continue:true}, exit 0
- *   - block: prints {decision:"block", reason:"..."}, exit 0  (the decision field
+ *   - allow:  prints {continue:true}, exit 0
+ *   - advise: prints {continue:true, systemMessage:"..."}, exit 0  (write proceeds)
+ *   - block:  prints {decision:"block", reason:"..."}, exit 0  (the decision field
  *     is what the harness reads — non-zero exit also blocks but emits to stderr)
  *
  * The hook is intentionally NEVER fatal: any unexpected error path falls through
@@ -67,14 +83,23 @@ const MAIN_TREE = "h:/prism";
 const NESTED_WORKTREE_PREFIX = "h:/prism/.claude/worktrees/";
 
 /**
- * Files whose writes are dangerous to perform from a non-main worktree. Paths
- * are matched as POSIX-style relative-to-main-tree strings; each entry is a
- * RegExp tested against the relative path.
+ * HARNESS-EXECUTION files. A drift here changes which hooks fire / which MCP
+ * servers load across the fleet — "the worst kind: silent, asymmetric, survives
+ * reboots." These stay HARD-BLOCKED from a non-main worktree even under the
+ * 2026-05-31 main-tree-write grant.
  */
-const SHARED_STATE_PATTERNS = [
+const HARD_BLOCK_PATTERNS = [
   /^\.claude\/settings(\.local)?\.json$/i,                  // harness hook config
   /^\.claude\/hooks\/[^/]+\.mjs$/i,                          // hook scripts the harness loads
   /^\.mcp\.json$/i,                                          // MCP server registry
+];
+
+/**
+ * DOC / COORDINATION state. Every chat galaxy may write these to the main tree
+ * (operator grant 2026-05-31). The firewall ADVISES (warns about drift) but
+ * ALLOWS — unless PRISM_CROSS_WORKTREE_HARD=1 re-arms the blanket block.
+ */
+const ADVISORY_PATTERNS = [
   /^state\/shared\/[^/]+\.(?:json|md)$/i,                   // shared coordination state
   /^mcp-server\/data\/state\/[A-Z_]+\.json$/i,              // shared BUILD/STATE/MASTER files (uppercase-name convention)
   /^mcp-server\/data\/milestones\/[A-Z0-9._-]+\.json$/i,   // milestone envelopes
@@ -141,8 +166,8 @@ function defaultProbeWorktree(cwd) {
  *                                    For a linked worktree this points at the MAIN tree's
  *                                    `.git` dir, so it's the most reliable "where's main?"
  *                                    signal — but we also fall back to MAIN_TREE.
- * @param {object} opts.env            process.env (we read PRISM_CROSS_WORKTREE_BYPASS).
- * @returns {{decision:"allow"|"block", reason:string, target?:string, worktree?:string}}
+ * @param {object} opts.env            process.env (PRISM_CROSS_WORKTREE_BYPASS / _HARD).
+ * @returns {{decision:"allow"|"advise"|"block", reason:string, advisory?:boolean, target?:string, worktree?:string}}
  */
 export function evaluate({ stdin, cwd, gitToplevel, gitCommonDir, env }) {
   // 1. Tool gate — we only fire on Edit/Write/MultiEdit, but check defensively.
@@ -206,27 +231,44 @@ export function evaluate({ stdin, cwd, gitToplevel, gitCommonDir, env }) {
     return { decision: "allow", reason: "target is outside the main tree; not a firewall concern" };
   }
 
-  // 8. The target IS under the main tree from a non-main worktree. Check whether
-  //    it matches the shared-state patterns. If not → allow (per-file pollution is
-  //    annoying but not the multi-chat-clobber class we're guarding against).
+  // 8. The target IS under the main tree from a non-main worktree. Classify it:
+  //    harness-exec (hard) vs doc/coordination (advisory) vs not-shared-state (allow).
   const relToMain = canonical(absTarget).slice(MAIN_TREE.length + 1); // strip "h:/prism/"
-  const matched = SHARED_STATE_PATTERNS.find((rx) => rx.test(relToMain));
-  if (!matched) {
+  const hardMatch = HARD_BLOCK_PATTERNS.find((rx) => rx.test(relToMain));
+  const advisoryMatch = ADVISORY_PATTERNS.find((rx) => rx.test(relToMain));
+  if (!hardMatch && !advisoryMatch) {
     return { decision: "allow", reason: "target is under main tree but not shared-state" };
   }
 
-  // 9. BLOCK with a remediation-oriented reason.
+  const reArmed = env?.PRISM_CROSS_WORKTREE_HARD === "1";
+
+  // 9a. DOC / COORDINATION shared-state. Operator grant 2026-05-31: every chat galaxy
+  //     may write these to the main tree. ADVISE (warn + allow) unless re-armed.
+  if (advisoryMatch && !hardMatch && !reArmed) {
+    const reason =
+      `Cross-worktree ADVISORY: writing main-tree shared-state ${relToMain} from worktree ${wtRoot}.\n` +
+      `Permitted — operator grant 2026-05-31: every chat galaxy may add to the main tree. ` +
+      `Heads-up: this lands on the shared tree where peers read it. Make sure it clears the ` +
+      `scrutiny gate and does not silently clobber a peer's uncommitted edit (read fresh, ` +
+      `re-stage if a peer just committed). Re-arm the hard block fleet-wide with ` +
+      `PRISM_CROSS_WORKTREE_HARD=1.`;
+    return { decision: "advise", advisory: true, reason, target: absTarget, worktree: wtRoot };
+  }
+
+  // 9b. HARNESS-EXEC files (settings/hooks/mcp) OR PRISM_CROSS_WORKTREE_HARD=1 re-arm →
+  //     HARD block with a remediation-oriented reason.
+  const tier = hardMatch ? "harness-exec (always hard)" : "re-armed via PRISM_CROSS_WORKTREE_HARD=1";
+  const matchedSrc = (hardMatch || advisoryMatch).source;
   const reason =
     `Cross-worktree write blocked: this chat is in worktree ${wtRoot} but the target ` +
-    `${absTarget} is a shared-state file in the main tree (${relToMain} — matched ${matched.source}).\n\n` +
-    `Why this is blocked: edits to shared-state files from a non-main worktree silently ` +
-    `drift behaviour across the 6-chat fleet (different chats see different settings.json, ` +
-    `different hook wirings, different milestone state). The conflict-fork rule says ` +
-    `"fork on conflict" — once forked, leave the main tree's shared state to the main tree.\n\n` +
+    `${absTarget} is a HARD-blocked shared-state file in the main tree (${relToMain} — ` +
+    `matched ${matchedSrc}; tier: ${tier}).\n\n` +
+    `Why this stays blocked: drift in harness-execution files (settings.json, hooks/*.mjs, ` +
+    `.mcp.json) changes which hooks fire across the fleet — silent, asymmetric, survives ` +
+    `reboots. The 2026-05-31 main-tree-write grant relaxed DOC/coordination files to ` +
+    `advisory, but NOT these.\n\n` +
     `To proceed:\n` +
     `  - Make the change from the main tree (H:/prism): cd there, edit, commit, then return.\n` +
-    `  - OR: change a worktree-local equivalent (most shared-state files have nothing equivalent — ` +
-    `that's the point).\n` +
     `  - Emergency override: set PRISM_CROSS_WORKTREE_BYPASS=1 (the hook still logs the bypass).`;
   return { decision: "block", reason, target: absTarget, worktree: wtRoot };
 }
@@ -256,6 +298,8 @@ function main() {
   }
   if (result.decision === "block") {
     process.stdout.write(JSON.stringify({ decision: "block", reason: result.reason }));
+  } else if (result.decision === "advise") {
+    process.stdout.write(JSON.stringify({ continue: true, systemMessage: result.reason }));
   } else {
     process.stdout.write(JSON.stringify({ continue: true }));
   }

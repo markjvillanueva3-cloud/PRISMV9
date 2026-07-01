@@ -1,0 +1,77 @@
+{
+  "schemaVersion": "1.0.0",
+  "_lastBackfillTs": "2026-05-08T16:41:54.025Z",
+  "audit_id": "PP-MOAT-MS1-VERIFY",
+  "title": "PP Engine Wiring — LineByLine, SLD Rewriter, Probing, Thread Milling Audit",
+  "audited_at": "2026-04-12T23:10:00.000Z",
+  "auditor": "claude-opus-4.5",
+  "milestone": "PP-MOAT-MS1",
+  "verdict": "COMPLETE — all 4 units pre-implemented",
+  "unit_verification": {
+    "U01_line_by_line_adaptive": {
+      "status": "complete",
+      "file": "src/engines/LineByLineAdaptiveEngine.ts",
+      "lines": 1037,
+      "features": [
+        "10 per-line optimization modules",
+        "Chip thinning compensation",
+        "Engagement-adaptive feed",
+        "Corner deceleration"
+      ]
+    },
+    "U02_stability_rpm_rewriter": {
+      "status": "complete",
+      "file": "src/engines/StabilityRPMRewriterEngine.ts",
+      "lines": 297,
+      "features": [
+        "SLD-aware G-code RPM rewriting",
+        "Altintas SDOF stability model",
+        "Chatter zone avoidance",
+        "Feed proportional adjustment"
+      ]
+    },
+    "U03_probing_cycle": {
+      "status": "complete",
+      "file": "src/engines/ProbingCycleEngine.ts",
+      "lines": 510,
+      "features": [
+        "4 controller dialects (Renishaw, Heidenhain, Siemens, Fanuc)",
+        "12 probe operations",
+        "Corner, surface, bore, boss probing",
+        "Multi-dialect G-code generation"
+      ]
+    },
+    "U04_thread_milling_physics": {
+      "status": "complete",
+      "file": "src/engines/ThreadMillingPhysicsEngine.ts",
+      "lines": 1228,
+      "features": [
+        "Helical kinematics Vc correction",
+        "Radial/axial thread force modeling",
+        "Deflection → pitch error → thread class",
+        "ISO 68-1 tolerance prediction"
+      ]
+    }
+  },
+  "test_summary": {
+    "test_files": [
+      "PostProcessorMOAT-MS1.test.ts (20 tests)",
+      "stability-rpm-rewriter.test.ts",
+      "thread-milling-physics.test.ts",
+      "post-processor-engines.test.ts (55 tests)"
+    ],
+    "total_tests": 122,
+    "all_passing": true
+  },
+  "total_lines": 3072,
+  "pipeline_integration": {
+    "stages_wired": [
+      "Stage 2.0: LineByLineAdaptiveEngine (replaces inline Phase 2)",
+      "Stage 3.5: StabilityRPMRewriterEngine (SLD-aware RPM)",
+      "Stage 6.2: ProbingCycleEngine (multi-dialect probing)",
+      "Stage 1.8: ThreadMillingPhysicsEngine (thread class prediction)"
+    ]
+  },
+  "audit_result": "PASS",
+  "recommendation": "Mark PP-MOAT-MS1 complete — all 4 units fully implemented with 3,072 lines and 122+ tests"
+}

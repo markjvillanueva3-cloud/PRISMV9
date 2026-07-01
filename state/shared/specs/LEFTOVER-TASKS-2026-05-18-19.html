@@ -1,0 +1,223 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta name="prism-source-hash" content="08bbb89e591172b96aa0dc1cdd5c4851e5520180ff04c0ef380b82d4ab7f0822">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>LEFTOVER TASKS — 2026-05-18 → 2026-05-19 window</title>
+<style>
+  :root {
+    --bg: #0f1014;
+    --panel: #1a1c23;
+    --panel-2: #232631;
+    --fg: #e4e6eb;
+    --fg-dim: #9aa0a8;
+    --border: #2c303a;
+    --ok: #4ade80;
+    --warn: #fbbf24;
+    --fail: #f87171;
+    --info: #60a5fa;
+    --link: #93c5fd;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; padding: 1.5rem; background: var(--bg); color: var(--fg);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, sans-serif;
+    font-size: 14px; line-height: 1.5; }
+  h1 { font-size: 1.6rem; margin: 0 0 0.25rem 0; }
+  h2 { font-size: 1.15rem; margin: 1.5rem 0 0.5rem 0; padding-bottom: 0.25rem;
+    border-bottom: 1px solid var(--border); color: var(--fg); }
+  .meta { color: var(--fg-dim); font-size: 0.85rem; margin-bottom: 1rem; }
+  .panel { background: var(--panel); border: 1px solid var(--border); border-radius: 6px;
+    padding: 0.75rem 1rem; margin-bottom: 1rem; }
+  .headline-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 0.5rem; margin-bottom: 1rem; }
+  .card { background: var(--panel-2); border: 1px solid var(--border); border-radius: 6px;
+    padding: 0.65rem 0.85rem; }
+  .card .lbl { font-size: 0.8rem; color: var(--fg-dim); }
+  .card .val { font-size: 1.4rem; font-weight: 600; margin: 0.15rem 0; font-variant-numeric: tabular-nums; }
+  .card .hint { font-size: 0.75rem; color: var(--fg-dim); }
+  .card.ok    { border-left: 3px solid var(--ok); }
+  .card.warn  { border-left: 3px solid var(--warn); }
+  .card.fail  { border-left: 3px solid var(--fail); }
+  .card.info  { border-left: 3px solid var(--info); }
+  table { width: 100%; border-collapse: collapse; margin: 0.5rem 0 1rem; font-size: 0.9rem;
+    background: var(--panel); border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }
+  caption { text-align: left; padding: 0.4rem 0.65rem; color: var(--fg-dim);
+    background: var(--panel-2); font-weight: 500; }
+  th, td { padding: 0.4rem 0.65rem; text-align: left; border-bottom: 1px solid var(--border);
+    font-variant-numeric: tabular-nums; vertical-align: top; }
+  th { background: var(--panel-2); color: var(--fg-dim); font-weight: 500;
+    text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.04em; }
+  tr:last-child td { border-bottom: none; }
+  td.right { text-align: right; }
+  ul, ol { margin: 0.4rem 0 1rem 1.25rem; }
+  li { margin: 0.15rem 0; }
+  .badge { display: inline-block; padding: 0.1rem 0.5rem; border-radius: 999px;
+    font-size: 0.75rem; font-weight: 500; background: var(--panel-2); color: var(--fg-dim);
+    border: 1px solid var(--border); }
+  .badge.ok   { background: rgba(74, 222, 128, 0.12); color: var(--ok);   border-color: rgba(74,222,128,0.3); }
+  .badge.warn { background: rgba(251, 191, 36, 0.12); color: var(--warn); border-color: rgba(251,191,36,0.3); }
+  .badge.fail { background: rgba(248, 113, 113, 0.12); color: var(--fail); border-color: rgba(248,113,113,0.3); }
+  .badge.info { background: rgba(96, 165, 250, 0.12); color: var(--info); border-color: rgba(96,165,250,0.3); }
+  .badge-grid { display: flex; flex-wrap: wrap; gap: 0.3rem; margin: 0.3rem 0 1rem 0; }
+  .kv { display: grid; grid-template-columns: max-content 1fr; gap: 0.2rem 0.85rem;
+    margin: 0.4rem 0 1rem 0; }
+  .kv .k { color: var(--fg-dim); }
+  svg.bar-chart { display: block; max-width: 100%; height: auto; }
+  svg .bar { fill: var(--info); }
+  svg .bar.ok   { fill: var(--ok); }
+  svg .bar.warn { fill: var(--warn); }
+  svg .bar.fail { fill: var(--fail); }
+  svg text { fill: var(--fg); font-family: monospace; font-size: 11px; }
+  svg .axis text { fill: var(--fg-dim); }
+  code { background: var(--panel-2); padding: 0 0.3rem; border-radius: 3px;
+    font-family: "Fira Code", Consolas, Menlo, monospace; font-size: 0.85em; }
+  a { color: var(--link); }
+  footer { margin-top: 2rem; padding-top: 0.75rem; border-top: 1px solid var(--border);
+    font-size: 0.8rem; color: var(--fg-dim); }
+</style>
+</head>
+<body>
+<h1>LEFTOVER TASKS — 2026-05-18 → 2026-05-19 window</h1>
+<div class="meta">rendered from state/shared/specs/LEFTOVER-TASKS-2026-05-18-19.md</div>
+<div class="meta">Generated 2026-05-20T02:50:36.622Z</div>
+<style>
+  .prism-md-body { max-width: 70rem; margin: 0 auto; }
+  .prism-h1 { font-size: 1.6rem; }
+  .prism-h2 { font-size: 1.25rem; border-bottom: 1px solid var(--border); padding-bottom: 0.25rem; }
+  .prism-h3 { font-size: 1.1rem; color: var(--info); }
+  .prism-h4, .prism-h5, .prism-h6 { font-size: 1rem; color: var(--fg-dim); }
+  .prism-md-body p { margin: 0.5rem 0; }
+  .prism-md-list { margin: 0.5rem 0 0.5rem 1.25rem; padding: 0; }
+  .prism-md-list li { margin: 0.15rem 0; }
+  .prism-md-table { border-collapse: collapse; margin: 0.75rem 0; width: 100%; }
+  .prism-md-table th, .prism-md-table td { border: 1px solid var(--border); padding: 0.35rem 0.6rem; text-align: left; }
+  .prism-md-table th { background: var(--panel-2); }
+  .prism-codeblock { background: var(--panel-2); border: 1px solid var(--border); border-radius: 4px; padding: 0.6rem 0.8rem; overflow-x: auto; font-family: "Cascadia Code", Consolas, monospace; font-size: 13px; }
+  .prism-inline-code { background: var(--panel-2); padding: 0 0.25rem; border-radius: 3px; font-family: "Cascadia Code", Consolas, monospace; font-size: 0.92em; }
+  .prism-quote { border-left: 3px solid var(--info); background: var(--panel-2); padding: 0.5rem 0.85rem; margin: 0.75rem 0; color: var(--fg-dim); }
+  .prism-hr { border: 0; border-top: 1px solid var(--border); margin: 1rem 0; }
+  .prism-link { color: var(--link); text-decoration: none; }
+  .prism-link:hover { text-decoration: underline; }
+  .prism-bad-link { color: var(--fail); text-decoration: line-through; }
+  .prism-unclosed::before { content: "⚠ unterminated code block"; display: block; color: var(--warn); font-size: 0.85em; margin-bottom: 0.25rem; }
+  </style><main class="prism-md-body"><h1 class="prism-h1">LEFTOVER TASKS — 2026-05-18 → 2026-05-19 window</h1>
+<p><strong>Compiled by:</strong> <code class="prism-inline-code">claude-30dbe35a</code> (slot alpha, /checkin-alpha work-order) <strong>Compiled at:</strong> 2026-05-20T02:45Z <strong>Scope:</strong> all work <em>identified but not closed</em> in the 36-48h window 2026-05-18 00:00 → 2026-05-19 23:59 CDT.</p>
+<blockquote class="prism-quote"><strong>Source-roll-up:</strong> per-slot leftover specs (bravo+charlie+foxtrot+juliett — already compiled by their owning chats) + 52 <code class="prism-inline-code">running</code> loop-states whose last tick falls in the window + 50 commits via <code class="prism-inline-code">git log --since</code> + 9 dated audit specs + <code class="prism-inline-code">CLOSE-OUT-DEFERRED.md</code> + <code class="prism-inline-code">CLOSE-OUT-CANDIDATES.md</code> (silent-close-out-debt block). Per the silent-close-out-drift class ([[reference_silent_close_out_drift_2026_05_17]]), <code class="prism-inline-code">running</code> status on a loop-state file is <strong>not</strong> proof of in-flight work — most were /compact-superseded; flagged below.</blockquote>
+<blockquote class="prism-quote"></blockquote>
+<blockquote class="prism-quote"><strong>R12 honesty:</strong> this is an <em>inventory</em>, not a triage. Every line still needs the per-iter <code class="prism-inline-code">git log -S &quot;&lt;U-ID&gt;&quot;</code> verification (per [[feedback_verify_actual_contract_not_proxy]]) before pickup — a peer slot may have already shipped it since the source spec was written.</blockquote>
+<hr class="prism-hr">
+<h2 class="prism-h2">0. Headline counts</h2>
+<table class="prism-md-table"><thead><tr><th>Surface</th><th>Count</th></tr></thead><tbody><tr><td>Distinct <code class="prism-inline-code">[SCOPE]</code> families touched in window</td><td>21</td></tr>
+<tr><td>Commits in window (deduped by hash)</td><td>50</td></tr>
+<tr><td>Distinct <code class="prism-inline-code">/U-…</code> ids shipped in window</td><td>21</td></tr>
+<tr><td><code class="prism-inline-code">running</code> loops with last-tick in window</td><td><strong>52</strong></td></tr>
+<tr><td>Per-slot leftover specs already compiled this morning</td><td>4 (bravo, charlie, foxtrot, juliett)</td></tr>
+<tr><td>Dated audit specs in window</td><td>9</td></tr>
+<tr><td>CLOSE-OUT-DEFERRED entries (cumulative)</td><td>17</td></tr>
+<tr><td>Silent-close-out-debt milestones (envelope-complete, MILESTONE_PROGRESS.shipped=0)</td><td>51 (319 hidden-shipped units)</td></tr>
+<tr><td><strong>Net unique leftover pickup candidates after dedup</strong></td><td><strong>≈ 60-80</strong> (P1 column below)</td></tr></tbody></table>
+<hr class="prism-hr">
+<h2 class="prism-h2">1. Already-compiled per-slot leftover queues (read these FIRST before re-deriving)</h2>
+<p>The following are canonical for their owning slot — do not re-compile if claiming that slot:</p>
+<table class="prism-md-table"><thead><tr><th>Slot</th><th>Spec</th><th>Top finding</th></tr></thead><tbody><tr><td><strong>bravo</strong></td><td>[[BRAVO-TRIAGE-2026-05-19]]</td><td>10 genuinely pending units; ~30 of 40 consolidated-open-threads are templated-RESUME false positives (silent-close-out-drift class).</td></tr>
+<tr><td><strong>charlie</strong></td><td>[[CHARLIE-LEFTOVERS-2026-05-19]]</td><td>2 pre-prepped wire-unwired units (U-WIRE-WASTE-DETECTOR, U-WIRE-TOOL-CALL-THROTTLE) at P1; 8-unit P2 backend-dev queue (OBSIDIAN-INTELLIGENCE-MS3 + COMMAND-KERNEL-MS0).</td></tr>
+<tr><td><strong>foxtrot</strong></td><td>[[FOXTROT-TASKS-PENDING-2026-05-19]]</td><td>1 deferred doc-reflection (U-CK26), 1 ready pickup (U-VOICE-CAPTURE phase-1), 3+ large P2 tribal-wire units.</td></tr>
+<tr><td><strong>juliett</strong></td><td>[[JULIETT-OPEN-TASKS-2026-05-19]]</td><td><strong>87 units in runtime queue</strong> (1 shipped + ~86 unset), 5 docker units (U-DOCKER-MCP-DISPATCHER first), 4 GAP-HERMES units, 15 top-of-queue speed-feed units.</td></tr></tbody></table>
+<p>Slots <strong>without</strong> a published leftover spec for this window (need a <code class="prism-inline-code">/checkin-&lt;slot&gt; compile leftover tasks</code> pass): <strong>alpha</strong>, <strong>delta</strong>, <strong>echo</strong>, <strong>golf</strong> (hygiene), <strong>hotel</strong>, <strong>india</strong>, <strong>kilo</strong>, <strong>lima</strong>, <strong>mike</strong>.</p>
+<hr class="prism-hr">
+<h2 class="prism-h2">2. Running loops as of 2026-05-19 (last-tick in window) — 52 entries</h2>
+<blockquote class="prism-quote">Treat <code class="prism-inline-code">running</code> as a hint, not ground truth. Most are /compact-superseded but never <code class="prism-inline-code">loop-state.mjs end</code>-marked (see [[feedback_autonomous_loop_drift_discipline]]). The ones with high iter + recent last-tick (2026-05-19 late) are the most likely truly-live.</blockquote>
+<h3 class="prism-h3">2A. High-confidence live (last-tick ≥ 2026-05-19 15:00 CDT)</h3>
+<table class="prism-md-table"><thead><tr><th>sid</th><th>iter/tgt</th><th>task</th></tr></thead><tbody><tr><td><code class="prism-inline-code">6437979f</code></td><td>1/12</td><td>AUTOINVOKE-HITRATE-MS0 (build skill+memory auto-invoke hit-rate)</td></tr>
+<tr><td><code class="prism-inline-code">da2a4f78</code></td><td>9/20</td><td>COMMAND-KERNEL-MS0/U-CK09 hand-tune lifecycle → thin psk clients</td></tr>
+<tr><td><code class="prism-inline-code">ec095dfd</code></td><td>2/20</td><td>vision-ocr-tier-for-scanned-prints</td></tr>
+<tr><td><code class="prism-inline-code">f09b33aa</code></td><td>5/20</td><td>foxtrot tasks compile + complete (this is the source of FOXTROT-TASKS-PENDING)</td></tr>
+<tr><td><code class="prism-inline-code">a237a122</code></td><td>5/20</td><td>lima leftover units — high-ROI first</td></tr>
+<tr><td><code class="prism-inline-code">bf3268c7</code></td><td>5/20</td><td>wire WasteDetector + ToolCallThrottle + COMMAND-KERNEL (charlie)</td></tr>
+<tr><td><code class="prism-inline-code">f851db05</code></td><td>0/20</td><td>find+close high-ROI synergy gaps (claude-code/mcp/system-viz/obsidian/wiki)</td></tr>
+<tr><td><code class="prism-inline-code">claude-d…</code></td><td>1/20</td><td>echo /loop wire-unwired/backend-dev units</td></tr>
+<tr><td><code class="prism-inline-code">5a2d6313</code></td><td>0/20</td><td>bravo queue completion — high-ROI first</td></tr>
+<tr><td><code class="prism-inline-code">9aab2d98</code></td><td>5/20</td><td>india tasks compile from last night</td></tr>
+<tr><td><code class="prism-inline-code">ddda9e7c</code></td><td>3/20</td><td>bravo compile + clear (this is the source of BRAVO-TRIAGE)</td></tr></tbody></table>
+<h3 class="prism-h3">2B. Likely-stale running loops from earlier in window (last-tick 2026-05-18 or 2026-05-19 ≤ 14:00)</h3>
+<table class="prism-md-table"><thead><tr><th>sid</th><th>iter/tgt</th><th>task</th></tr></thead><tbody><tr><td><code class="prism-inline-code">c0eb54b9</code></td><td>15/30</td><td>upgrade JM Die lathe programs using system-viz + obsidian + wiki + tribal</td></tr>
+<tr><td><code class="prism-inline-code">9c7dcf3e</code></td><td>3/8</td><td>hotel queue — high-ROI/backend-first</td></tr>
+<tr><td><code class="prism-inline-code">00a9c6dc</code></td><td>3/8</td><td>wire unwired engines</td></tr>
+<tr><td><code class="prism-inline-code">b7530614</code></td><td>2/30</td><td>compile alpha-relevant work ahead of RGS (alpha queue compile — predecessor of this current chat)</td></tr>
+<tr><td><code class="prism-inline-code">78d985bc</code></td><td>3/20</td><td>Train CAD AI + produce drawing templates from existing CAD/prints</td></tr>
+<tr><td><code class="prism-inline-code">df944902</code></td><td>9/50</td><td>bravo compile → queue → complete units</td></tr>
+<tr><td><code class="prism-inline-code">58b92d2e</code></td><td>0/20</td><td>wire lathe tribal knowledge into lathe AI</td></tr>
+<tr><td><code class="prism-inline-code">e91338dc</code></td><td>0/20</td><td>high-ROI knowledge-injection skills + PRISM app features</td></tr>
+<tr><td><code class="prism-inline-code">68aad091</code></td><td>11/10</td><td>golf-redistributed work — INFRA-CONSENSUS-WIRE-MS0/U-P0-U…  <em>(iter ≥ target — confirm closed)</em></td></tr>
+<tr><td><code class="prism-inline-code">571d4bdd</code></td><td>1/30</td><td>MCP scaling 15-chat/5-10-agents + mike+golf task compilation</td></tr>
+<tr><td><code class="prism-inline-code">3f96bb5e</code></td><td>2/20</td><td>Ollama+Obsidian upgrades — BACKEND-DEV-LOOP iter5+</td></tr>
+<tr><td><code class="prism-inline-code">be5e37e8</code></td><td>13/60</td><td>train CAD/CAM AI: print→CAD→CAM, start Fusion360</td></tr>
+<tr><td><code class="prism-inline-code">9033b60c</code></td><td>8/20</td><td>bravo task queue — reorient + complete + continue</td></tr>
+<tr><td><code class="prism-inline-code">b23a56ef</code></td><td>7/20</td><td>reorient + complete + git tree organization</td></tr>
+<tr><td><code class="prism-inline-code">689b3203</code></td><td>1/20</td><td>complete alpha task queue (domain=mill)</td></tr>
+<tr><td><code class="prism-inline-code">2bb41e8a</code></td><td>0/20</td><td>hotel ERP-bridge queue</td></tr>
+<tr><td><code class="prism-inline-code">a613d591</code></td><td>1/20</td><td>delta cad task queue</td></tr>
+<tr><td><code class="prism-inline-code">5cdd4c01</code></td><td>0/20</td><td>kilo expand obsidian wiki + prism safe</td></tr>
+<tr><td><code class="prism-inline-code">5b5817ea</code></td><td>1/20</td><td>foxtrot task queue reorient</td></tr>
+<tr><td><code class="prism-inline-code">2b50a95c</code></td><td>0/20</td><td>india NIM activation — U-NIM-MIGRATE queue</td></tr>
+<tr><td><code class="prism-inline-code">f429615a</code></td><td>0/20</td><td>juliett reorient + queue completion</td></tr>
+<tr><td><code class="prism-inline-code">b36c6085</code></td><td>0/20</td><td>kilo reorient + docker + leftover pickup</td></tr>
+<tr><td><code class="prism-inline-code">732a6b5a</code></td><td>2/20</td><td>drastically improve obsidian wiki + injection</td></tr>
+<tr><td><code class="prism-inline-code">claude-c…</code></td><td>3/20</td><td>octopus multi-LLM review bridge (Codex/Ollama/Grok)</td></tr>
+<tr><td><code class="prism-inline-code">e4d781f4</code></td><td>4/10</td><td>hunt + fix bugs/conflicts/errors (isolated slot/alpha)</td></tr>
+<tr><td><code class="prism-inline-code">claude-0…</code>, <code class="prism-inline-code">claude-8…</code>, <code class="prism-inline-code">926109c5</code></td><td>0/20</td><td>fix tsc errors and wire unwired engines (THREE concurrent loops on same task — coalesce)</td></tr>
+<tr><td><code class="prism-inline-code">cdc4a2c4</code></td><td>5/11</td><td>COMMAND-KERNEL-MS0 — 11 remaining units in logical order</td></tr>
+<tr><td><code class="prism-inline-code">51013954</code></td><td>4/20</td><td>india post-domain queue (FEATURE-GAP + wiring)</td></tr>
+<tr><td><code class="prism-inline-code">35ac1d3c</code></td><td>4/20</td><td>lima — work all 1606 queue units</td></tr>
+<tr><td><code class="prism-inline-code">9876118b</code></td><td>5/20</td><td>nvidia nim working + synergized with prism os/obsidian/system-viz</td></tr>
+<tr><td><code class="prism-inline-code">148fd42f</code></td><td>5/10</td><td>build kilo incomplete-task inventory in logical order</td></tr>
+<tr><td><code class="prism-inline-code">a574347e</code></td><td>0/20</td><td>bravo + juliett task queue for bravo</td></tr>
+<tr><td><code class="prism-inline-code">claude-3…</code></td><td>0/20</td><td>delta queue</td></tr>
+<tr><td><code class="prism-inline-code">4f9091a6</code></td><td>6/20</td><td>juliett — complete all speed-feed units</td></tr>
+<tr><td><code class="prism-inline-code">73d86100</code></td><td>0/20</td><td>resume crashed bravo: COMMAND-KERNEL-MS0 + bravo task queue</td></tr>
+<tr><td><code class="prism-inline-code">cdfb103c</code></td><td>9/50</td><td>lima compile + queue + complete units</td></tr>
+<tr><td><code class="prism-inline-code">5b5817ea</code>, <code class="prism-inline-code">f09b33aa</code></td><td>dup</td><td>foxtrot loops — consolidate to the live <code class="prism-inline-code">f09b33aa</code></td></tr></tbody></table>
+<p><strong>Action for 2B:</strong> the chat owning each slot should call <code class="prism-inline-code">loop-state.mjs end --sessionId &lt;sid&gt; --status pre-empted</code> next time it picks up that slot, then start a fresh loop ([[feedback_autonomous_loop_drift_discipline]]).</p>
+<hr class="prism-hr">
+<h2 class="prism-h2">3. Window-shipped units (50 commits) — for <strong>dedup</strong> against new pickup</h2>
+<blockquote class="prism-quote">Before claiming any of the §4 pending units, grep this list (or run <code class="prism-inline-code">git log --grep=&#39;&lt;U-ID&gt;&#39; --since=&#39;2026-05-18&#39;</code>) to confirm the unit didn&#39;t ship.</blockquote>
+<p>Distinct <code class="prism-inline-code">[SCOPE]</code> families that landed work in window: <code class="prism-inline-code">[AI-TRAINING-FIRST-MS0]</code> · <code class="prism-inline-code">[AWARENESS-READINESS]</code> · <code class="prism-inline-code">[BACKEND-DEV-LOOP]</code> · <code class="prism-inline-code">[BRIDGE-WIRING]</code> · <code class="prism-inline-code">[CLOSE-OUT]</code> · <code class="prism-inline-code">[COMMAND-KERNEL-MS0]</code> · <code class="prism-inline-code">[DELTA]</code> · <code class="prism-inline-code">[DEVTOOLS]</code> · <code class="prism-inline-code">[DOCKER-MCP-WIRE-MS0]</code> · <code class="prism-inline-code">[DOCTRINE]</code> · <code class="prism-inline-code">[FLEET-REAPER-FIX]</code> · <code class="prism-inline-code">[FLEET-REAPER-MS3]</code> · <code class="prism-inline-code">[FLEET-RESILIENCE-MS0]</code> · <code class="prism-inline-code">[FLEET-WATCHDOG-FIX]</code> · <code class="prism-inline-code">[GOLF]</code> · <code class="prism-inline-code">[INFRA-CONSENSUS-WIRE-MS0]</code> · <code class="prism-inline-code">[JULIETT]</code> · <code class="prism-inline-code">[LIMA]</code> · <code class="prism-inline-code">[SLOT-CHARLIE]</code> · <code class="prism-inline-code">[SLOT-COMPACT-SYNERGY-MS0]</code> · <code class="prism-inline-code">[SLOT-ECHO]</code> · <code class="prism-inline-code">[SLOT-RECLAIM]</code> · <code class="prism-inline-code">[SYSTEM-SYNERGY-AUDIT]</code> · <code class="prism-inline-code">[TESTFIX]</code> · <code class="prism-inline-code">[WIRE-UNWIRED-MS0]</code></p>
+<p>Notable ships (commit-verified, NOT pending):</p>
+<ul class="prism-md-list"><li>AWARENESS-READINESS (<code class="prism-inline-code">1694bec82f</code>) — built ∩ wired surfacing</li><li>SLOT-RECLAIM (<code class="prism-inline-code">ed5c49044b</code> + wiki <code class="prism-inline-code">500b2b9907</code>) — post-/compact force-reclaim</li><li>DOCKER-MCP-WIRE-MS0/U-DOCKER-<em>, U-MODELS-</em>, U-CATALOG-* — juliett&#39;s Docker block</li><li>FLEET-REAPER-MS3 (<code class="prism-inline-code">c30889550e</code>, <code class="prism-inline-code">5d410e09d6</code>, <code class="prism-inline-code">97d60775ec</code>, <code class="prism-inline-code">51b2d04a10</code>) — per-chat-tree compact advisory + reaper-self CPU priority guard + HTML twin + chat-capacity design</li><li>FLEET-RESILIENCE-MS0 (<code class="prism-inline-code">a942538d72</code>) — U-FR-TRIGG…</li><li>FLEET-WATCHDOG-FIX (<code class="prism-inline-code">571608afa1</code>) — U-WD-ASCII</li><li>COMMAND-KERNEL-MS0/U-CK09 (<code class="prism-inline-code">eb2697ac01</code>, <code class="prism-inline-code">fbf6509209</code>, <code class="prism-inline-code">017fb8dfc7</code>) — 3-of-3 PASS lifecycle hand-tune</li><li>COMMAND-KERNEL-MS0/U-CK15 (per BRAVO-TRIAGE, <code class="prism-inline-code">f3dad18253</code>) — command-frontmatter populator</li><li>COMMAND-KERNEL-MS0/U-CK26 (<code class="prism-inline-code">202b2ae892</code>, <code class="prism-inline-code">1656d055a6</code>) — producer build spec + doc-reflection</li><li>INFRA-CONSENSUS-WIRE-MS0/P0-U03 (<code class="prism-inline-code">ac907e31c4</code>), P0-U04 (<code class="prism-inline-code">86337a35ce</code>), DELTA P0-U… (<code class="prism-inline-code">b39248edee</code>), CLOSE-OUT (<code class="prism-inline-code">8a5c7f6cfc</code>)</li><li>WIRE-UNWIRED-MS0/U-WIRE-TOOL-CA… (multiple <code class="prism-inline-code">c49df07fed</code>, <code class="prism-inline-code">9a31d03a90</code>, <code class="prism-inline-code">5e1a711452</code>, <code class="prism-inline-code">2ed91ab127</code>, <code class="prism-inline-code">9aeb5031b4</code>, <code class="prism-inline-code">9f0a3c2ff2</code>)</li><li>BRIDGE-WIRING/U-WIRE-TRILOBE-ELE… (<code class="prism-inline-code">b6da645f4c</code>)</li><li>LIMA BACKEND-DEV-LOOP — U-LIMA-A1-OLLA… (<code class="prism-inline-code">cd17a3a62c</code>), U-LIMA-A4-EXTR… (<code class="prism-inline-code">ef1a44f4a4</code>), U-LIMA-A5-SKIL… (<code class="prism-inline-code">b69e66732f</code>)</li><li>SLOT-COMPACT-SYNERGY-MS0 — multiple U-WAVE… ships (<code class="prism-inline-code">7e91a892b7</code>, <code class="prism-inline-code">b343b6bfd7</code>, <code class="prism-inline-code">e0b116c5ae</code>, <code class="prism-inline-code">85e282fe59</code>, <code class="prism-inline-code">9445b05e2e</code>, <code class="prism-inline-code">67dab70068</code>, <code class="prism-inline-code">defdf07c00</code>, <code class="prism-inline-code">ba04aff4c1</code>)</li><li>AI-TRAINING-FIRST-MS0/U-AITRAIN… (<code class="prism-inline-code">75e6ad694e</code>)</li><li>DEVTOOLS (<code class="prism-inline-code">e09856ae1d</code>) — claude.bat shadow-wrapper</li><li>TESTFIX (<code class="prism-inline-code">33f1229ead</code>) — ConsensusCoordi… rename</li><li>SYSTEM-SYNERGY-AUDIT/U-HANDOFF-… (<code class="prism-inline-code">79a9462921</code>)</li><li>DOCTRINE/U-BRIDGE-RECONCILE-MIS… (<code class="prism-inline-code">a302a99fec</code>)</li><li>CLOSE-OUT/MILESTONE-PROGRESS-RE… (<code class="prism-inline-code">a98c55ce07</code>, <code class="prism-inline-code">37df4c78e3</code>) + OLLAMA-EXPAND-MS0-ENVELOPE (<code class="prism-inline-code">c020ebb7b6</code>)</li></ul>
+<hr class="prism-hr">
+<h2 class="prism-h2">4. CONSOLIDATED LEFTOVER QUEUE — pickup order (highest-leverage first)</h2>
+<p>Per [[feedback_prioritize_devtools_backend]] backend-dev units stay P0 over revenue/UI; per [[feedback_ai_training_first_before_revenue]] AI-training units beat revenue too.</p>
+<h3 class="prism-h3">4A. P0 — backend-dev wirings + critical fixes (start here)</h3>
+<ol class="prism-md-list"><li><strong>U-WIRE-WASTE-DETECTOR</strong> <em>(charlie carryover)</em> — <code class="prism-inline-code">WasteDetectorEngine</code> exists, 0 dispatcher refs; op-discriminator wire into <code class="prism-inline-code">devDispatcher.ts</code>.</li><li><strong>U-WIRE-TOOL-CALL-THROTTLE</strong> <em>(charlie carryover)</em> — <code class="prism-inline-code">ToolCallThrottleEngine</code> exists, 0 dispatcher refs; same pattern.</li><li><strong>U-DOCKER-MCP-DISPATCHER</strong> <em>(juliett carryover, top of docker block)</em> — unblocks 6 CAM bridges in PRISM-APP-QUEUE.</li><li><strong>U-DOCKER-MODELS-FALLBACK</strong> — resilience when Ollama wedges.</li><li><strong>U-DOCKER-CATALOG-AUDIT</strong> — surfaces upstream MCP servers PRISM could call instead of build (R8 dedup-preflight at stack level).</li><li><strong>U-VOICE-CAPTURE</strong> <em>(foxtrot)</em> — Whisper local bridge for tribal-knowledge ingest, phase-1 watcher only.</li><li><strong>U-CK11, U-CK28, U-CK29</strong> <em>(charlie P2 / charlie loop bf3268c7)</em> — COMMAND-KERNEL-MS0 per-category scrutiny + skill-tier loop + outcome→memory.</li><li><strong>A1 / U-DOCKER-HOOK-BROKER</strong> <em>(charlie P2, OBSIDIAN-INTELLIGENCE-MS3)</em> — persistent prism-hooks container holds 50+ hooks warm.</li><li><strong>A2 / U-REREAD-SIGNAL-FINISH</strong> <em>(charlie P2)</em> — wire Write/Edit/MultiEdit matcher to recall counter.</li><li><strong>U-MULTI-AGENT-COST-TELEMETRY / COST-CASCADE-MS0</strong> <em>(bravo)</em> — hotel shipped <code class="prism-inline-code">/two_pass</code> cascade engine (<code class="prism-inline-code">0d9d79bc89</code>); multi-agent telemetry leg may still be open.</li></ol>
+<h3 class="prism-h3">4B. P1 — domain-specific carryover</h3>
+<table class="prism-md-table"><thead><tr><th>Slot/domain</th><th>Unit cluster</th><th>Source</th></tr></thead><tbody><tr><td>juliett (speed-feed)</td><td>U-DOCKER-SCOUT-SCHEDULED + HUB-PUBLISH, U-GAP-SF-ADVANCED-FEED-OPT, U-GAP-SF-NC-CALIBRATION, U-WIRE-BACKLOG-SF, μS-D30..D33, U-CAMX22, U-CH03 / U-CH12 / U-CH13, U-CW-01 / U-CW-02 / U-CW-06 + 15 more SFC units</td><td>JULIETT-OPEN-TASKS-2026-05-19</td></tr>
+<tr><td>foxtrot (tribal)</td><td>U-WIRE-BACKLOG-TRIBAL (12 unwired tribal engines incl. PlaybookRulesEngine 133KB), U-CAMAGI12 TribalKnowledgeApplicator, U-CAMX13 MachiningPlaybook integration, U-CK26 deferred doc-reflection</td><td>FOXTROT-TASKS-PENDING-2026-05-19</td></tr>
+<tr><td>bravo (general)</td><td>U-HTML-* family (CLAUDE-MD-EDIT, DOCTRINE-UPDATE, COMPANION-GENERATOR, BACKFILL, HPS01, HTML-COMPANION-MS0, HTML-PRIMARY-MS0), U-COORD08-HARDEN, U-AAM01..04 / AUTOCOMPACT-AUTONOMOUS-MS0, U-PTR01/02 / PILLAR-TELEMETRY-RECOVERY-MS0, U-PPL-A5 docu-print-org, U-ALL02/03 / BACKEND-DEVTOOLS-RGS6-AUTO-LEARNING-LOOP-MS0, ACP-MS0 orphan-rescue, OBSIDIAN-PRISM-OS-MS0 orphan-rescue, BLUEPRINT-OCR-TRAINING-MS1</td><td>BRAVO-TRIAGE-2026-05-19</td></tr>
+<tr><td>charlie tail</td><td>OBSIDIAN-INTELLIGENCE-MS3 B-series (B1 / U-DAILY-CONTEXT-WORKFLOW, B3 / U-QUEUE-PROCESSOR, B6 / U-KNOWLEDGE-DISTILLATION)</td><td>CHARLIE-LEFTOVERS-2026-05-19</td></tr>
+<tr><td>juliett (hermes)</td><td>U-GAP-HERMES-EVAL, U-GAP-SKILL-AUTO-GEN-MS0, U-GAP-HERMES-MULTI-SURFACE-MSG, U-GAP-POST-BUILD-UTILITY-SCAN</td><td>JULIETT-OPEN-TASKS-2026-05-19 §1D</td></tr></tbody></table>
+<h3 class="prism-h3">4C. P2 — operator-gated / research-complete (do NOT auto-ship)</h3>
+<ul class="prism-md-list"><li><strong>U-LLM-DEV-CORPUS + U-LLM-TRAINER</strong> — bravo shipped 5 LoRA-research units, needs operator greenlight for MVP implementation.</li><li><strong>SYSTEM-VIZ-BRAIN-MS0/U-P5-COORD-SQLITE-LIVE-SWAP</strong> — operator-gated by design (live swap of WORK_CLAIMS.json → SQLite under live traffic); spec delivered.</li><li><strong>U-OE-BRIDGE-L2b</strong> — Ollama-PRISM agent bridge, blocked on <code class="prism-inline-code">:3100/mcp</code> HTTP transport surface.</li><li><strong>U-OE-BRIDGE-L3</strong> — full agent loop, deferred for &gt;3B model on this host.</li><li><strong>U-DOCKER-HUB-PUBLISH</strong> — blocked on operator <code class="prism-inline-code">docker login</code> + <code class="prism-inline-code">docker scout config organization &lt;org&gt;</code>.</li></ul>
+<h3 class="prism-h3">4D. Audit + cleanup punch-lists from window</h3>
+<ul class="prism-md-list"><li><strong>AUTOINVOKE-HITRATE-MS0-PLAN-2026-05-19</strong> — auto-invoke hit-rate build plan, loop <code class="prism-inline-code">6437979f</code> iter 1/12 running.</li><li><strong>SKILL-AUTOINVOKE-COVERAGE-AUDIT-2026-05-19</strong> — open punch list.</li><li><strong>SESSIONSTART-HOOK-AUDIT-2026-05-19</strong> — open punch list. CLAUDE.md notes &quot;2 of 5 SessionStart file-reader injectors converted to pointer mode (ai-deep-intelligence + claude-brief-inject). Per SESSIONSTART-HOOK-A…&quot; — 3 remaining.</li><li><strong>DOCKER-MCP-CATALOG-AUDIT-2026-05-19</strong> — Juliett&#39;s Docker block audit, drives §4B juliett docker units.</li><li><strong>OLLAMA-OBSIDIAN-ROUTING-AUDIT-2026-05-18</strong> — open punch list.</li><li><strong>SLOT-WORKTREE-MIGRATION-STATUS-2026-05-19</strong> — partial; per-chat cutover gradual.</li><li><strong>U-OBF-F4-HOOK-FIRE-AUDIT-PUNCHLIST-2026-05-18</strong> — hook fire-rate audit, <strong>516 zero-fire categorized into 136 wired-silent + 380 unwired-on-disk</strong> (CLAUDE.md regression line: <code class="prism-inline-code">e467a4ca0</code>).</li><li><strong>U-OBF-F4-ARCHIVE-CROSSREF-2026-05-18</strong> — companion archive cross-ref.</li><li><strong>DOCKER-BUSINESS-USAGE-ASSESSMENT-2026-05-19</strong> — Docker business-account rationale, prerequisite for §4B juliett docker block.</li></ul>
+<h3 class="prism-h3">4E. CLOSE-OUT-DEFERRED entries still open (from <code class="prism-inline-code">state/shared/CLOSE-OUT-DEFERRED.md</code>)</h3>
+<p>All entries <code class="prism-inline-code">defer-to-followup</code> or <code class="prism-inline-code">partial</code> — each is its own pickup candidate; older entries (pre-2026-05-18) included for context since the gate is cumulative:</p>
+<ul class="prism-md-list"><li><strong>U-CAMP01, U-CAMP13, U-CAMP14, U-CAMP15</strong> (CAM-PARITY-AGI-MS0) — cross-CAM parity + wiring + training-loop verification still pending (CAMP13 <em>re-triaged</em> to closed-in-commit <code class="prism-inline-code">57f0ceb47a</code>).</li><li><strong>U-CLEANUP-B7</strong> — <code class="prism-inline-code">peer-audit.md</code> untracked at audit time; verify owning peer committed.</li><li><strong>U-CLEANUP-B9</strong> — golf-reviewer-eval slope/floor alerts + xproc_aps_calibrate wiring + prompt-version drift detection.</li><li><strong>U-CLEANUP-G9</strong> — <code class="prism-inline-code">pr-ci-watch.ps1</code> not present, deferred until release process lands.</li><li><strong>FEATURE-GAP-AUDIT-MS0/U-GAP-CAD-COMPLETE-GEN</strong> — recommendation = create focused <strong>U-GAP-CAD-FEATURE-PRIMITIVES</strong> (Part 4 fillet/pocket/slot generators) rather than re-port 2914 lines.</li><li><strong>HTML-COMPANION-MS0/U-HTML-CLAUDE-MD-EDIT</strong> — peer-claimed; ready when peer releases CLAUDE.md edit-lock.</li><li><strong>SYSTEM-VIZ-BRAIN-MS0/U-P5-COORD-SQLITE-LIVE-SWAP</strong> — operator-gated by design (§4C).</li></ul>
+<h3 class="prism-h3">4F. Silent-close-out debt (319 hidden-shipped units across 51 milestones)</h3>
+<p><strong>Not pickup work</strong> — these are envelope-complete milestones whose <code class="prism-inline-code">MILESTONE_PROGRESS.shipped=0</code> because pre-2026-05-12 ship commits used non-tagged subjects. Reconciliation = <code class="prism-inline-code">node scripts/close-out-milestone.mjs --milestone &lt;ID&gt;</code> (operator-flip), not a re-build. Top 20:</p>
+<p><code class="prism-inline-code">CAMX-MS22</code> (+20), <code class="prism-inline-code">CALC-HARDEN-MS0</code> (+18), <code class="prism-inline-code">CAMX-MS19</code> (+15), <code class="prism-inline-code">PIPELINE-VAR-MS0</code> (+15), <code class="prism-inline-code">CAMX-MS12</code> (+13), <code class="prism-inline-code">CAMX-MS18</code> (+10), <code class="prism-inline-code">CAMX-MS21</code> (+10), <code class="prism-inline-code">CAMX-MS0</code> (+8), <code class="prism-inline-code">CAMX-MS15</code> (+8), <code class="prism-inline-code">CAMX-MS16</code> (+8), <code class="prism-inline-code">CAMX-MS2</code> (+8), <code class="prism-inline-code">CAMX-MS20</code> (+8), <code class="prism-inline-code">CAMX-MS13</code> (+6), <code class="prism-inline-code">CAMX-MS14</code> (+6), <code class="prism-inline-code">CAMX-MS17</code> (+6), <code class="prism-inline-code">CAMX-V17-P0A</code> (+6), <code class="prism-inline-code">HTML-PRIMARY-MS0</code> (+6), <code class="prism-inline-code">PP-MOAT-MS0</code> (+6), <code class="prism-inline-code">PP-MS0</code> (+6), <code class="prism-inline-code">PROD-MS0</code> (+6).</p>
+<p>Plus 31 more smaller-drift milestones — see <code class="prism-inline-code">state/shared/CLOSE-OUT-CANDIDATES.md</code> for the full table.</p>
+<hr class="prism-hr">
+<h2 class="prism-h2">5. Slots that still owe a <code class="prism-inline-code">/checkin-&lt;slot&gt;</code> leftover compile</h2>
+<p>The following slots <strong>did NOT publish</strong> a per-slot leftover spec for the 5/18-19 window. The chat next claiming each slot should run <code class="prism-inline-code">compile leftover tasks from last night&#39;s sessions</code>:</p>
+<ul class="prism-md-list"><li><strong>alpha</strong> (this chat — file replaces that obligation; ALPHA-QUEUE-COMPILED-2026-05-18 is the alpha PREDECESSOR queue but is pre-/compact)</li><li><strong>delta</strong> — <code class="prism-inline-code">a613d591</code> loop running at iter 1/20 since 2026-05-18 13:13; needs delta-tasks compile + close (CAD domain)</li><li><strong>echo</strong> — <code class="prism-inline-code">claude-d…</code> loop running at iter 1/20 since 2026-05-19 16:51</li><li><strong>golf</strong> — fleet-reaper-MS3 + fleet-watchdog-fix shipped; pending compile of the rest of the FLEET-* family + fleet-task-health follow-ups</li><li><strong>hotel</strong> — <code class="prism-inline-code">9c7dcf3e</code> loop at iter 3/8; &quot;complete hotel queue, high-ROI/backend-first&quot;; ERP-bridge queue from <code class="prism-inline-code">2bb41e8a</code> iter 0/20</li><li><strong>india</strong> — <code class="prism-inline-code">9aab2d98</code> (15:00 last-tick) iter 5/20 &quot;complete-india-tasks-from-last-night&quot; + <code class="prism-inline-code">2b50a95c</code> NIM activation</li><li><strong>kilo</strong> — <code class="prism-inline-code">5cdd4c01</code> + <code class="prism-inline-code">b36c6085</code> + <code class="prism-inline-code">148fd42f</code> all running, no published compile</li><li><strong>lima</strong> — <code class="prism-inline-code">a237a122</code> iter 5/20 + <code class="prism-inline-code">35ac1d3c</code> iter 4/20 + <code class="prism-inline-code">cdfb103c</code> iter 9/50 — three concurrent lima loops, no compile</li><li><strong>mike</strong> — <code class="prism-inline-code">571d4bdd</code> loop &quot;MCP scaling 15-chat/5-10-agents + mike+golf task compilation&quot; — compile-scope but no published artifact yet</li></ul>
+<hr class="prism-hr">
+<h2 class="prism-h2">6. Suggested next moves</h2>
+<ol class="prism-md-list"><li><strong>For this chat (alpha):</strong> treat §4A items 1-2 (U-WIRE-WASTE-DETECTOR + U-WIRE-TOOL-CALL-THROTTLE) as alpha pickup if not peer-claimed; charlie already has them prepped. <strong>Or</strong> stay on the AUTOINVOKE-HITRATE work attached to ec095dfd? No — that&#39;s not an alpha loop, leave it. Alpha is the mill domain per <code class="prism-inline-code">domain partition</code> (CLAUDE.md §<code class="prism-inline-code">/checkin-&lt;nato&gt; /loop</code>).</li><li><strong>Fleet hygiene</strong> (one-shot, single chat): walk §2B and call <code class="prism-inline-code">loop-state.mjs end --status pre-empted</code> on the 30+ stale running loops; reduces the false-positive noise in this very inventory.</li><li><strong>Per-slot compiles</strong> (§5): the 9 slots without specs should each do a <code class="prism-inline-code">/checkin-&lt;slot&gt; compile leftover tasks from 5/18-5/19</code> pass to surface their own queues.</li><li><strong>Silent-close-out reconciliation</strong> (§4F): <code class="prism-inline-code">node scripts/close-out-milestone.mjs --milestone CAMX-MS22</code> (and the rest of the top-20). Pure data fix, no build.</li><li><strong>R8 dedup-preflight</strong> before any P0 pickup: <code class="prism-inline-code">git log -S &quot;&lt;UnitName&gt;&quot; --since=&quot;2026-05-18&quot;</code> to catch peer-already-shipped (per [[feedback_verify_actual_contract_not_proxy]]).</li></ol>
+<hr class="prism-hr">
+<h2 class="prism-h2">See also</h2>
+<ul class="prism-md-list"><li>[[BRAVO-TRIAGE-2026-05-19]] · [[CHARLIE-LEFTOVERS-2026-05-19]] · [[FOXTROT-TASKS-PENDING-2026-05-19]] · [[JULIETT-OPEN-TASKS-2026-05-19]]</li><li>[[DOCKER-BUSINESS-USAGE-ASSESSMENT-2026-05-19]] · [[DOCKER-MCP-CATALOG-AUDIT-2026-05-19]] · [[AUTOINVOKE-HITRATE-MS0-PLAN-2026-05-19]]</li><li>[[SKILL-AUTOINVOKE-COVERAGE-AUDIT-2026-05-19]] · [[SESSIONSTART-HOOK-AUDIT-2026-05-19]] · [[OLLAMA-OBSIDIAN-ROUTING-AUDIT-2026-05-18]]</li><li>[[U-OBF-F4-HOOK-FIRE-AUDIT-PUNCHLIST-2026-05-18]] · [[SLOT-WORKTREE-MIGRATION-STATUS-2026-05-19]]</li><li><code class="prism-inline-code">state/shared/CLOSE-OUT-DEFERRED.md</code> · <code class="prism-inline-code">state/shared/CLOSE-OUT-CANDIDATES.md</code> · <code class="prism-inline-code">state/shared/loop-state/</code></li><li>[[feedback_autonomous_loop_drift_discipline]] (close stale loops before re-claiming) · [[reference_silent_close_out_drift_2026_05_17]] (debt-class definition)</li></ul></main><footer>
+<div>html-report-render schemaVersion 1.0.0</div>
+</footer>
+</body>
+</html>

@@ -1,0 +1,389 @@
+{
+  "id": "BIZ-MS0",
+  "version": "1.0.0",
+  "title": "Persistence & Data Model Hardening",
+  "brief": "BLOCKING first milestone for the Business Management track. Wires all 9 unpersisted business engines to PersistenceBridge so data survives server restarts. Enhances Employee, JobTimeEntry, and ShiftEntry data models with HR and production-quality fields. Fixes the /job-time-pause routing bug, adds missing dispatcher actions, strips .passthrough() from schemas, adds secondary indexes for O(1) active job lookups, and applies XSS sanitization to all user text inputs.",
+  "created_at": "2026-04-08T23:00:00Z",
+  "created_by": "claude-opus-4-6",
+  "track": "BIZ",
+  "track_name": "Business Management Platform",
+  "status": "complete",
+  "total_units": 6,
+  "total_sessions": "3-4",
+  "plan_file": "H:/prism/plans/erp-employee/BUSINESS-MANAGEMENT-MASTER-PLAN.md",
+  "phases": [
+    {
+      "id": "BIZ-MS0-P0",
+      "title": "Persistence, Data Models & Route Hardening",
+      "description": "Wire all 9 un-persisted business engines to PersistenceBridge, enhance Employee/JobTimeEntry/ShiftEntry models with production-quality HR and lean-manufacturing fields, create DB migrations, fix the /job-time-pause routing bug, add missing dispatcher actions, remove .passthrough() from schemas, add secondary in-memory indexes for O(1) active job lookups, and apply XSS sanitization to all user-supplied text fields.",
+      "sessions": "3-4",
+      "primary_role": "R2",
+      "primary_model": "opus-4.6",
+      "units": [
+        {
+          "id": "U-BIZ01",
+          "title": "Wire PayrollEngine to PersistenceBridge",
+          "phase": "BIZ-MS0-P0",
+          "sequence": 1,
+          "role": "R2",
+          "role_name": "Builder",
+          "model": "opus-4.6",
+          "effort": 90,
+          "dependencies": [],
+          "steps": [
+            {"number": 1, "instruction": "Read PayrollEngine.ts in full to identify all in-memory Maps (payroll_periods, pay_stubs, deduction_configs, ytd_earnings) and all mutating methods"},
+            {"number": 2, "instruction": "Import persistenceBridge from src/db/PersistenceBridge.ts at the top of PayrollEngine.ts"},
+            {"number": 3, "instruction": "In the PayrollEngine constructor, call persistenceBridge.register('payroll_periods', this.payrollPeriods), register('pay_stubs', this.payStubs), register('deduction_configs', this.deductionConfigs), register('ytd_earnings', this.ytdEarnings)"},
+            {"number": 4, "instruction": "Add await persistenceBridge.persist('payroll_periods') at the end of createPeriod()"},
+            {"number": 5, "instruction": "Add await persistenceBridge.persist('pay_stubs') at the end of calculatePayStub()"},
+            {"number": 6, "instruction": "Add await persistenceBridge.persist('deduction_configs') at the end of configureDeductions()"},
+            {"number": 7, "instruction": "Add await persistenceBridge.persist('ytd_earnings') wherever ytd_earnings Map is mutated"},
+            {"number": 8, "instruction": "Open BusinessStore.ts and add ENTITY_CONFIGS entries for payroll_periods, pay_stubs, deduction_configs, ytd_earnings with correct knownColumns and jsonColumns"},
+            {"number": 9, "instruction": "Run npm run build:fast and verify 0 errors"},
+            {"number": 10, "instruction": "Manual smoke test: create a payroll period, restart the server process, verify period is still present"}
+          ],
+          "deliverables": [
+            {"path": "src/engines/PayrollEngine.ts", "type": "source", "description": "PayrollEngine with PersistenceBridge registration and persist() calls"},
+            {"path": "src/db/BusinessStore.ts", "type": "source", "description": "ENTITY_CONFIGS updated with payroll entity entries"}
+          ],
+          "exit_conditions": [
+            "payroll_periods, pay_stubs, deduction_configs, ytd_earnings Maps are registered with PersistenceBridge",
+            "persist() is called in createPeriod(), calculatePayStub(), configureDeductions()",
+            "Server restart preserves all payroll data",
+            "npm run build:fast produces 0 errors"
+          ],
+          "knowledge_sources": [
+            "src/engines/PayrollEngine.ts",
+            "src/db/PersistenceBridge.ts",
+            "src/db/BusinessStore.ts",
+            "src/engines/EmployeeEngine.ts (reference — already wired, use as pattern)"
+          ],
+          "abort_criteria": [
+            "PersistenceBridge API has changed and register() signature is incompatible — escalate to lead",
+            "PayrollEngine has no in-memory Maps (data stored elsewhere) — re-read and re-plan"
+          ],
+          "rollback": {
+            "files_created": [],
+            "files_modified": ["src/engines/PayrollEngine.ts", "src/db/BusinessStore.ts"],
+            "procedure": "git checkout -- src/engines/PayrollEngine.ts src/db/BusinessStore.ts"
+          }
+        },
+        {
+          "id": "U-BIZ02",
+          "title": "Wire remaining 8 engines to PersistenceBridge",
+          "phase": "BIZ-MS0-P0",
+          "sequence": 2,
+          "role": "R2",
+          "role_name": "Builder",
+          "model": "opus-4.6",
+          "effort": 90,
+          "dependencies": ["U-BIZ01"],
+          "steps": [
+            {"number": 1, "instruction": "For each of the 8 engines below, read the file, identify all in-memory Maps, import persistenceBridge, register each Map in the constructor, and add persist() calls at the end of every mutating method. Engines: HRComplianceEngine.ts, ActualCostEngine.ts, OEECalculatorEngine.ts, QualityManagementEngine.ts, OrderManagerEngine.ts, JobLifecycleEngine.ts, QuoteAnalyticsEngine.ts, ApprovalWorkflowEngine.ts"},
+            {"number": 2, "instruction": "HRComplianceEngine: register compliance_records, training_records, incident_reports (or equivalent Maps). Add persist() in recordIncident(), completeTraining(), acknowledgePolicy()"},
+            {"number": 3, "instruction": "ActualCostEngine: register cost_entries, cost_summaries Maps. Add persist() in recordCost(), closePeriod()"},
+            {"number": 4, "instruction": "OEECalculatorEngine: register oee_records, downtime_events Maps. Add persist() in recordDowntime(), calculateShiftOEE()"},
+            {"number": 5, "instruction": "QualityManagementEngine: register quality_events, ncr_records, inspection_results Maps. Add persist() in recordDefect(), createNCR(), closeInspection()"},
+            {"number": 6, "instruction": "OrderManagerEngine: register orders, order_lines Maps. Add persist() in createOrder(), updateOrderStatus(), shipOrder()"},
+            {"number": 7, "instruction": "JobLifecycleEngine: register jobs, job_events Maps. Add persist() in createJob(), transitionJob(), closeJob()"},
+            {"number": 8, "instruction": "QuoteAnalyticsEngine: register quotes, quote_line_items Maps. Add persist() in createQuote(), updateQuote(), convertQuote()"},
+            {"number": 9, "instruction": "ApprovalWorkflowEngine: register approval_requests, approval_decisions Maps. Add persist() in submitRequest(), approve(), reject()"},
+            {"number": 10, "instruction": "Add ENTITY_CONFIGS entries in BusinessStore.ts for every newly registered entity (knownColumns + jsonColumns for any object-valued fields)"},
+            {"number": 11, "instruction": "Run npm run build:fast and fix any type errors before proceeding"},
+            {"number": 12, "instruction": "Verify all 15 business engines now have PersistenceBridge wiring by grepping for 'persistenceBridge.register' in each engine file"}
+          ],
+          "deliverables": [
+            {"path": "src/engines/HRComplianceEngine.ts", "type": "source", "description": "Persistent HR compliance records"},
+            {"path": "src/engines/ActualCostEngine.ts", "type": "source", "description": "Persistent actual cost entries"},
+            {"path": "src/engines/OEECalculatorEngine.ts", "type": "source", "description": "Persistent OEE and downtime events"},
+            {"path": "src/engines/QualityManagementEngine.ts", "type": "source", "description": "Persistent quality events and NCRs"},
+            {"path": "src/engines/OrderManagerEngine.ts", "type": "source", "description": "Persistent orders and order lines"},
+            {"path": "src/engines/JobLifecycleEngine.ts", "type": "source", "description": "Persistent job lifecycle events"},
+            {"path": "src/engines/QuoteAnalyticsEngine.ts", "type": "source", "description": "Persistent quote analytics"},
+            {"path": "src/engines/ApprovalWorkflowEngine.ts", "type": "source", "description": "Persistent approval workflow state"},
+            {"path": "src/db/BusinessStore.ts", "type": "source", "description": "ENTITY_CONFIGS updated for all 8 engines"}
+          ],
+          "exit_conditions": [
+            "All 15 business engines have at least one persistenceBridge.register() call in their constructor",
+            "All mutating methods call persist() for the Map they modify",
+            "BusinessStore.ts ENTITY_CONFIGS covers every registered entity name",
+            "npm run build:fast produces 0 errors",
+            "grep 'persistenceBridge.register' in each of the 8 engine files returns at least 1 match"
+          ],
+          "knowledge_sources": [
+            "src/engines/PayrollEngine.ts (completed in U-BIZ01 — use as pattern)",
+            "src/engines/EmployeeEngine.ts (already wired — use as pattern)",
+            "src/db/PersistenceBridge.ts",
+            "src/db/BusinessStore.ts"
+          ],
+          "abort_criteria": [
+            "An engine stores data in PostgreSQL directly (not in-memory Maps) — skip PersistenceBridge for that engine and document why",
+            "More than 3 type errors from a single engine edit — revert that engine and treat it separately"
+          ],
+          "rollback": {
+            "files_created": [],
+            "files_modified": [
+              "src/engines/HRComplianceEngine.ts",
+              "src/engines/ActualCostEngine.ts",
+              "src/engines/OEECalculatorEngine.ts",
+              "src/engines/QualityManagementEngine.ts",
+              "src/engines/OrderManagerEngine.ts",
+              "src/engines/JobLifecycleEngine.ts",
+              "src/engines/QuoteAnalyticsEngine.ts",
+              "src/engines/ApprovalWorkflowEngine.ts",
+              "src/db/BusinessStore.ts"
+            ],
+            "procedure": "git checkout -- src/engines/HRComplianceEngine.ts src/engines/ActualCostEngine.ts src/engines/OEECalculatorEngine.ts src/engines/QualityManagementEngine.ts src/engines/OrderManagerEngine.ts src/engines/JobLifecycleEngine.ts src/engines/QuoteAnalyticsEngine.ts src/engines/ApprovalWorkflowEngine.ts src/db/BusinessStore.ts"
+          }
+        },
+        {
+          "id": "U-BIZ03",
+          "title": "Employee data model enhancements + migration 011",
+          "phase": "BIZ-MS0-P0",
+          "sequence": 3,
+          "role": "R2",
+          "role_name": "Builder",
+          "model": "opus-4.6",
+          "effort": 60,
+          "dependencies": ["U-BIZ01"],
+          "steps": [
+            {"number": 1, "instruction": "Read EmployeeEngine.ts and locate the Employee interface — check which of clearance_level, auth_user_id, overtime_policy, shift_differential are ALREADY present before making changes"},
+            {"number": 2, "instruction": "Add any missing fields to the Employee interface: clearance_level: 'shop_floor' | 'lead' | 'hr_manager' | 'admin' (if absent), auth_user_id: string | undefined (if absent), overtime_policy: OvertimePolicy (object with threshold_hours, multiplier) (if absent), shift_differential: ShiftDifferential (object with shift_name, multiplier) | undefined (if absent)"},
+            {"number": 3, "instruction": "If overtime_policy or shift_differential are added as object types, define their interfaces in the same file above the Employee interface"},
+            {"number": 4, "instruction": "In create(), ensure clearance_level defaults to 'shop_floor' if not provided"},
+            {"number": 5, "instruction": "Update BusinessStore.ts ENTITY_CONFIGS.employees: add clearance_level, auth_user_id to knownColumns; add overtime_policy, shift_differential to jsonColumns"},
+            {"number": 6, "instruction": "Create src/db/migrations/011-employee-enhancements.sql with ALTER TABLE employees ADD COLUMN IF NOT EXISTS clearance_level VARCHAR(20) DEFAULT 'shop_floor', ADD COLUMN IF NOT EXISTS auth_user_id VARCHAR(255), ADD COLUMN IF NOT EXISTS overtime_policy JSONB, ADD COLUMN IF NOT EXISTS shift_differential JSONB; CREATE INDEX IF NOT EXISTS idx_employees_clearance_level ON employees (clearance_level); CREATE INDEX IF NOT EXISTS idx_employees_auth_user_id ON employees (auth_user_id)"},
+            {"number": 7, "instruction": "Run npm run build:fast and verify 0 errors"}
+          ],
+          "deliverables": [
+            {"path": "src/engines/EmployeeEngine.ts", "type": "source", "description": "Employee interface with clearance_level, auth_user_id, overtime_policy, shift_differential"},
+            {"path": "src/db/migrations/011-employee-enhancements.sql", "type": "data", "description": "Employee schema migration with new HR fields and indexes"},
+            {"path": "src/db/BusinessStore.ts", "type": "source", "description": "ENTITY_CONFIGS.employees updated with new column mappings"}
+          ],
+          "exit_conditions": [
+            "Employee interface has clearance_level, auth_user_id, overtime_policy, shift_differential",
+            "create() defaults clearance_level to 'shop_floor'",
+            "Migration 011 applies cleanly against a fresh schema (no errors)",
+            "npm run build:fast produces 0 errors"
+          ],
+          "knowledge_sources": [
+            "src/engines/EmployeeEngine.ts",
+            "src/db/BusinessStore.ts",
+            "src/db/migrations/ (examine existing migrations for SQL style conventions)"
+          ],
+          "abort_criteria": [
+            "All 4 fields already exist in the Employee interface — skip model changes, only verify ENTITY_CONFIGS and migration are present"
+          ],
+          "rollback": {
+            "files_created": ["src/db/migrations/011-employee-enhancements.sql"],
+            "files_modified": ["src/engines/EmployeeEngine.ts", "src/db/BusinessStore.ts"],
+            "procedure": "git checkout -- src/engines/EmployeeEngine.ts src/db/BusinessStore.ts && git rm src/db/migrations/011-employee-enhancements.sql"
+          }
+        },
+        {
+          "id": "U-BIZ04",
+          "title": "Job time tracking model enhancements + migration 012",
+          "phase": "BIZ-MS0-P0",
+          "sequence": 4,
+          "role": "R2",
+          "role_name": "Builder",
+          "model": "opus-4.6",
+          "effort": 90,
+          "dependencies": ["U-BIZ03"],
+          "steps": [
+            {"number": 1, "instruction": "Read TimeClockEngine.ts in full. Identify the JobTimeEntry interface, ShiftEntry interface, jobPause(), jobStop(), clockOut() method signatures"},
+            {"number": 2, "instruction": "Add to JobTimeEntry interface: process_type: 'setup' | 'run' | 'inspection' | 'rework' | 'teardown' (if absent); pause_periods: Array<{ started_at: string; resumed_at: string | null; reason: string; reason_category: PauseReasonCategory }> (if absent, default []); good_parts: number (if absent, default 0); scrap_count: number (if absent, default 0); scrap_reason: string | undefined; improvement_note: string | undefined; takt_time_sec: number | undefined"},
+            {"number": 3, "instruction": "Define PauseReasonCategory as: type PauseReasonCategory = 'material_wait' | 'machine_down' | 'tooling' | 'quality_hold' | 'personal' | 'meeting' | 'other'"},
+            {"number": 4, "instruction": "Enhance jobPause(jobId, reason, reasonCategory) to accept reason: string and reason_category: PauseReasonCategory parameters. Push a new pause period object to pause_periods with started_at = now, resumed_at = null, reason, reason_category. Call persist() after mutation"},
+            {"number": 5, "instruction": "Enhance jobResume(jobId) to find the last pause_period with resumed_at = null and set resumed_at = now. Call persist() after mutation"},
+            {"number": 6, "instruction": "Enhance jobStop(jobId, params: { good_parts: number; scrap_count: number; scrap_reason?: string }) to accept production count params, store them on the entry, and call persist() after mutation"},
+            {"number": 7, "instruction": "Add getActiveAndPausedJobs(employeeId): JobTimeEntry[] method that returns entries for the employee where status is 'active' or 'paused' and shift is still open"},
+            {"number": 8, "instruction": "Add handoff_notes: string | undefined field to ShiftEntry interface"},
+            {"number": 9, "instruction": "Enhance clockOut(shiftId, handoffNotes?: string) to accept optional handoff_notes and store on the ShiftEntry. Call persist() after mutation"},
+            {"number": 10, "instruction": "Add getShiftHandoff(employeeId): { shift: ShiftEntry; activeJobs: JobTimeEntry[] } | null method that returns the current open shift plus all active/paused jobs for handoff display"},
+            {"number": 11, "instruction": "Create src/db/migrations/012-job-time-enhancements.sql with: ALTER TABLE job_time_entries ADD COLUMN IF NOT EXISTS process_type VARCHAR(20), ADD COLUMN IF NOT EXISTS pause_periods JSONB DEFAULT '[]', ADD COLUMN IF NOT EXISTS good_parts INTEGER DEFAULT 0, ADD COLUMN IF NOT EXISTS scrap_count INTEGER DEFAULT 0, ADD COLUMN IF NOT EXISTS scrap_reason VARCHAR(500), ADD COLUMN IF NOT EXISTS improvement_note VARCHAR(500), ADD COLUMN IF NOT EXISTS takt_time_sec NUMERIC(10,2); ALTER TABLE shift_entries ADD COLUMN IF NOT EXISTS handoff_notes VARCHAR(500); CREATE INDEX IF NOT EXISTS idx_job_time_entries_process_type ON job_time_entries (process_type); CREATE INDEX IF NOT EXISTS idx_job_time_entries_status_employee ON job_time_entries (employee_id, status) WHERE status IN ('active', 'paused')"},
+            {"number": 12, "instruction": "Update BusinessStore.ts ENTITY_CONFIGS.job_time_entries: add process_type, scrap_reason, improvement_note to knownColumns; add pause_periods to jsonColumns. Update shift_entries ENTITY_CONFIGS: add handoff_notes to knownColumns"},
+            {"number": 13, "instruction": "Run npm run build:fast and verify 0 errors"}
+          ],
+          "deliverables": [
+            {"path": "src/engines/TimeClockEngine.ts", "type": "source", "description": "Enhanced time tracking with pause reasons, production counts, process_type, handoff support"},
+            {"path": "src/db/migrations/012-job-time-enhancements.sql", "type": "data", "description": "Job time and shift entry schema migration"},
+            {"path": "src/db/BusinessStore.ts", "type": "source", "description": "ENTITY_CONFIGS updated for enhanced job time and shift entries"}
+          ],
+          "exit_conditions": [
+            "JobTimeEntry has process_type, pause_periods, good_parts, scrap_count, scrap_reason, improvement_note, takt_time_sec",
+            "ShiftEntry has handoff_notes",
+            "jobPause() accepts reason + reason_category and appends to pause_periods",
+            "jobResume() closes the open pause period with resumed_at timestamp",
+            "jobStop() stores good_parts, scrap_count, scrap_reason",
+            "getActiveAndPausedJobs(employeeId) returns correct entries",
+            "getShiftHandoff(employeeId) returns shift + job list",
+            "clockOut() stores handoff_notes",
+            "Migration 012 applies cleanly",
+            "npm run build:fast produces 0 errors"
+          ],
+          "knowledge_sources": [
+            "src/engines/TimeClockEngine.ts",
+            "src/db/migrations/011-employee-enhancements.sql (just created — follow same SQL style)",
+            "src/db/BusinessStore.ts"
+          ],
+          "abort_criteria": [
+            "TimeClockEngine already has pause_periods on JobTimeEntry — verify each field individually and skip fields that already exist",
+            "More than 5 type errors after adding pause_periods — check whether JobTimeEntry is used across many callers and update them incrementally"
+          ],
+          "rollback": {
+            "files_created": ["src/db/migrations/012-job-time-enhancements.sql"],
+            "files_modified": ["src/engines/TimeClockEngine.ts", "src/db/BusinessStore.ts"],
+            "procedure": "git checkout -- src/engines/TimeClockEngine.ts src/db/BusinessStore.ts && git rm src/db/migrations/012-job-time-enhancements.sql"
+          }
+        },
+        {
+          "id": "U-BIZ05",
+          "title": "Fix route bug + add missing dispatcher actions",
+          "phase": "BIZ-MS0-P0",
+          "sequence": 5,
+          "role": "R2",
+          "role_name": "Builder",
+          "model": "opus-4.6",
+          "effort": 60,
+          "dependencies": ["U-BIZ04"],
+          "steps": [
+            {"number": 1, "instruction": "Read src/routes/erp.ts and find the POST /job-time-pause route. Verify it currently calls timeClockEngine.jobStart() (or job_time_start handler) instead of jobPause(). Fix it to call timeClockEngine.jobPause(params.job_id, params.reason, params.reason_category)"},
+            {"number": 2, "instruction": "Read businessDispatcher.ts and locate the z.enum action list (approx line 346). Check whether 'job_time_pause' and 'job_time_resume' are already present. If absent, add them to the enum"},
+            {"number": 3, "instruction": "In businessDispatcher.ts, add or verify case 'job_time_pause': calls timeClockEngine.jobPause(args.job_id, args.reason, args.reason_category) and returns the updated entry"},
+            {"number": 4, "instruction": "In businessDispatcher.ts, add or verify case 'job_time_resume': calls timeClockEngine.jobResume(args.job_id) and returns the updated entry"},
+            {"number": 5, "instruction": "Read businessActionSchemas.ts and add or verify schema for job_time_pause with fields: job_id (string required), reason (string required), reason_category (z.enum PauseReasonCategory values required). Add schema for job_time_resume with field: job_id (string required). Ensure neither schema uses .passthrough()"},
+            {"number": 6, "instruction": "Add 'employee_update' to z.enum in businessDispatcher.ts if absent. Add case 'employee_update': calls employeeEngine.update(args.employee_id, args) and returns the updated employee"},
+            {"number": 7, "instruction": "Add 'who_clocked_in_live' to z.enum in businessDispatcher.ts if absent. Add case 'who_clocked_in_live': calls timeClockEngine.getActiveEmployees() (or equivalent) and returns the list"},
+            {"number": 8, "instruction": "Scan businessActionSchemas.ts for any remaining .passthrough() calls and remove them all"},
+            {"number": 9, "instruction": "Run npm run build:fast and verify 0 errors"},
+            {"number": 10, "instruction": "Manually test the /job-time-pause route: POST to it with job_id + reason, verify it calls jobPause (not jobStart)"}
+          ],
+          "deliverables": [
+            {"path": "src/routes/erp.ts", "type": "source", "description": "/job-time-pause route fixed to call jobPause()"},
+            {"path": "src/tools/dispatchers/businessDispatcher.ts", "type": "source", "description": "Extended dispatcher with job_time_pause, job_time_resume, employee_update, who_clocked_in_live actions"},
+            {"path": "src/schemas/businessActionSchemas.ts", "type": "source", "description": "Schemas for new actions, .passthrough() removed"}
+          ],
+          "exit_conditions": [
+            "POST /job-time-pause calls timeClockEngine.jobPause() with reason and reason_category",
+            "job_time_pause and job_time_resume are in the z.enum list in businessDispatcher.ts",
+            "employee_update and who_clocked_in_live are in the z.enum list",
+            "All 4 new actions have case handlers in businessDispatcher.ts",
+            "businessActionSchemas.ts has no .passthrough() calls",
+            "npm run build:fast produces 0 errors"
+          ],
+          "knowledge_sources": [
+            "src/routes/erp.ts",
+            "src/tools/dispatchers/businessDispatcher.ts",
+            "src/schemas/businessActionSchemas.ts",
+            "src/engines/TimeClockEngine.ts (U-BIZ04 result — check updated method signatures)"
+          ],
+          "abort_criteria": [
+            "businessDispatcher.ts uses a different schema validation pattern (not z.enum) — adapt the approach to match the existing pattern exactly"
+          ],
+          "rollback": {
+            "files_created": [],
+            "files_modified": [
+              "src/routes/erp.ts",
+              "src/tools/dispatchers/businessDispatcher.ts",
+              "src/schemas/businessActionSchemas.ts"
+            ],
+            "procedure": "git checkout -- src/routes/erp.ts src/tools/dispatchers/businessDispatcher.ts src/schemas/businessActionSchemas.ts"
+          }
+        },
+        {
+          "id": "U-BIZ06",
+          "title": "Input sanitization + secondary in-memory indexes",
+          "phase": "BIZ-MS0-P0",
+          "sequence": 6,
+          "role": "R2",
+          "role_name": "Builder",
+          "model": "opus-4.6",
+          "effort": 60,
+          "dependencies": ["U-BIZ04"],
+          "steps": [
+            {"number": 1, "instruction": "Read TimeClockEngine.ts. Check if a sanitizeText() helper already exists (either in this file or in src/utils/). If not present in utils, create it in src/utils/sanitize.ts: export function sanitizeText(raw: string, maxLen = 500): string — strips HTML tags via regex /<[^>]*>/g, trims whitespace, enforces maxLen, and throws a 400-class error (or returns '') if the input matches /<script|onerror|javascript:/i patterns"},
+            {"number": 2, "instruction": "Import sanitizeText in TimeClockEngine.ts"},
+            {"number": 3, "instruction": "Apply sanitizeText() to handoff_notes before storing in clockOut()"},
+            {"number": 4, "instruction": "Apply sanitizeText() to the pause reason string before pushing to pause_periods in jobPause()"},
+            {"number": 5, "instruction": "Apply sanitizeText() to scrap_reason and improvement_note before storing in jobStop() and any setImprovementNote() method"},
+            {"number": 6, "instruction": "Add two secondary indexes as private Maps in TimeClockEngine: activeJobsByEmployee: Map<string, Set<string>> mapping employee_id -> Set<job_entry_id> for status='active'; pausedJobsByEmployee: Map<string, Set<string>> mapping employee_id -> Set<job_entry_id> for status='paused'"},
+            {"number": 7, "instruction": "Populate both indexes on engine initialization by iterating the job_time_entries Map"},
+            {"number": 8, "instruction": "Keep indexes in sync: add to activeJobsByEmployee when a job becomes active (jobStart), move from active to paused index on jobPause(), move from paused to active index on jobResume(), remove from both indexes on jobStop()"},
+            {"number": 9, "instruction": "Update getActiveAndPausedJobs(employeeId) to use the secondary indexes instead of iterating all entries — O(1) lookup via activeJobsByEmployee.get(employeeId) and pausedJobsByEmployee.get(employeeId)"},
+            {"number": 10, "instruction": "Run npm run build:fast and verify 0 errors"},
+            {"number": 11, "instruction": "Write a quick sanity check: create 3 jobs for an employee, pause 2, verify getActiveAndPausedJobs returns all 3 in correct states using the index path"}
+          ],
+          "deliverables": [
+            {"path": "src/utils/sanitize.ts", "type": "source", "description": "sanitizeText() helper: HTML strip, max length, XSS rejection"},
+            {"path": "src/engines/TimeClockEngine.ts", "type": "source", "description": "sanitizeText() applied to all user text fields; O(1) secondary indexes for active/paused jobs by employee"}
+          ],
+          "exit_conditions": [
+            "sanitizeText() exists and strips <script>, onerror, javascript: patterns",
+            "handoff_notes, pause reason, scrap_reason, improvement_note all go through sanitizeText() before storage",
+            "activeJobsByEmployee and pausedJobsByEmployee Maps exist in TimeClockEngine",
+            "getActiveAndPausedJobs() uses index lookup, not full Map iteration",
+            "Indexes stay in sync through jobStart/jobPause/jobResume/jobStop lifecycle",
+            "npm run build:fast produces 0 errors"
+          ],
+          "knowledge_sources": [
+            "src/engines/TimeClockEngine.ts (U-BIZ04 result)",
+            "src/utils/ (check for existing sanitize helpers before creating new ones)"
+          ],
+          "abort_criteria": [
+            "A sanitize utility already exists in src/utils/ — import and use it rather than creating a duplicate"
+          ],
+          "rollback": {
+            "files_created": ["src/utils/sanitize.ts"],
+            "files_modified": ["src/engines/TimeClockEngine.ts"],
+            "procedure": "git checkout -- src/engines/TimeClockEngine.ts && git rm src/utils/sanitize.ts"
+          }
+        }
+      ],
+      "gate": {
+        "omega_floor": 1.0,
+        "safety_floor": 1.0,
+        "test_required": true,
+        "build_required": true,
+        "anti_regression": true,
+        "checkpoint": true,
+        "learning_save": true
+      },
+      "scrutiny_checkpoint": true,
+      "scrutiny_focus": [
+        "Persistence: all 15 business engines survive server restart",
+        "Data models: Employee and JobTimeEntry have all required fields",
+        "Route correctness: /job-time-pause calls jobPause not jobStart",
+        "Dispatcher completeness: all 4 new actions have z.enum entries + case handlers + schemas",
+        "XSS safety: sanitizeText() covers all user text inputs",
+        "Performance: secondary indexes are in sync and used by getActiveAndPausedJobs()"
+      ]
+    }
+  ],
+  "dependencies": [],
+  "exit_conditions": [
+    "All 15 business engines (including PayrollEngine + 8 from U-BIZ02) have PersistenceBridge wiring",
+    "Server restart preserves all business engine data",
+    "Employee interface has clearance_level, auth_user_id, overtime_policy, shift_differential",
+    "JobTimeEntry has process_type, pause_periods, good_parts, scrap_count, scrap_reason, improvement_note, takt_time_sec",
+    "ShiftEntry has handoff_notes",
+    "Migrations 011 and 012 apply cleanly",
+    "POST /job-time-pause routes to timeClockEngine.jobPause()",
+    "job_time_pause, job_time_resume, employee_update, who_clocked_in_live are in businessDispatcher z.enum",
+    "No .passthrough() in businessActionSchemas.ts",
+    "sanitizeText() applied to all user-supplied text fields",
+    "activeJobsByEmployee and pausedJobsByEmployee secondary indexes in TimeClockEngine",
+    "npm run build:fast produces 0 errors",
+    "npx vitest run shows no regressions"
+  ],
+  "forge_triple": {
+    "hook": "biz-persistence-guard — warns on engine edits to any business engine file when that engine has no persistenceBridge.register() call, blocking commit until persistence is wired",
+    "action": "prism_business:biz_persistence_status — enumerates all 15 business engines, reports which have PersistenceBridge wiring, which Maps are registered, and last persist() timestamp per entity",
+    "skill": "/biz-health — checks business engine persistence health: lists engines missing PersistenceBridge, reports entity count per registered Map, flags any ENTITY_CONFIGS gaps"
+  },
+  "enforcement": {
+    "pre_hooks": ["search-router-hook.mjs", "navigate-first-hook.mjs"],
+    "post_hooks": ["build-guard-hook.mjs", "token-economy-hook.mjs"],
+    "review_required": true
+  }
+}

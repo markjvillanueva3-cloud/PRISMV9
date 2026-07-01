@@ -304,4 +304,63 @@ export class ToolWearPrediction implements Algorithm<TWPInput, TWPOutput> {
       },
     };
   }
+
+  // ==========================================================================
+  // FLANK WEAR VB COMPAT SHIM (SF-PSN-WIRE-MS0 U-SFPSN-02C-A, 2026-05-23 juliett)
+  // ==========================================================================
+  //
+  // Verbatim formula relocation of UltimateSpeedFeedEngine.predictFlankWear()
+  // (line 1089) into a module-native static method. Closes the SF-PSN
+  // composition gap (audit F1): predictFlankWear was an inline engine
+  // function; now it's an addressable algorithm module surface.
+  //
+  // Formula: VB(t) = a × hardness_factor × coolant_factor × (Vc/100)^b × (feed/0.1)^c × √t
+  //   where (a, b, c) per WEAR_COEFFICIENTS_COMPAT (relocated verbatim).
+  // Source: MIT 2.008, empirical tool wear coefficients (Taylor 1907, Loewen-Shaw scaling).
+  //
+  // Pattern-equivalent to GilbertMRRModel.calculateOptimalSpeed (U-05),
+  // JaegerTempField.cuttingTemperatureCompat (U-03),
+  // StabilityLobeDiagram.stabilityEstimateCompat (U-04),
+  // KienzleForceModel shim (U-02A).
+  //
+  // Bit-equivalence verified by src/__tests__/FlankWearVBShimEquivalence.test.ts.
+
+  static readonly WEAR_COEFFICIENTS_COMPAT: Record<string, { a: number; b: number; c: number }> = {
+    hss:     { a: 0.001,   b: 1.5, c: 0.3 },
+    carbide: { a: 0.0003,  b: 1.2, c: 0.2 },
+    cermet:  { a: 0.00025, b: 1.1, c: 0.18 },
+    ceramic: { a: 0.0001,  b: 0.9, c: 0.15 },
+    cbn:     { a: 0.00005, b: 0.7, c: 0.1 },
+    pcd:     { a: 0.00003, b: 0.6, c: 0.08 },
+  };
+
+  /**
+   * Static-shim predictFlankWearVB (compat with UltimateSpeedFeedEngine inline).
+   *
+   * @param Vc_mpm Cutting speed [m/min]
+   * @param feed_mm Feed per revolution [mm]
+   * @param hardness_hb Material Brinell hardness [HB]
+   * @param toolMat Tool material key (carbide/hss/cermet/ceramic/cbn/pcd; unknowns fall back to carbide)
+   * @param hasCoolant True applies 0.7 coolant factor; false applies 1.0
+   * @returns VB_15min (mm), time_to_03mm (min, clamped 600), time_to_06mm (min, clamped 600)
+   */
+  static predictFlankWearVBCompat(
+    Vc_mpm: number,
+    feed_mm: number,
+    hardness_hb: number,
+    toolMat: string,
+    hasCoolant: boolean,
+  ): { VB_15min: number; time_to_03mm: number; time_to_06mm: number } {
+    const { a, b, c } = ToolWearPrediction.WEAR_COEFFICIENTS_COMPAT[toolMat]
+      || ToolWearPrediction.WEAR_COEFFICIENTS_COMPAT.carbide;
+    const hFactor = hardness_hb / 200;
+    const coolFactor = hasCoolant ? 0.7 : 1.0;
+    const baseRate = a * coolFactor * hFactor
+      * Math.pow(Vc_mpm / 100, b) * Math.pow(Math.max(0.01, feed_mm) / 0.1, c);
+    // VB(t) = baseRate × √t
+    const VB_15 = baseRate * Math.sqrt(15);
+    const time03 = Math.pow(0.3 / baseRate, 2);
+    const time06 = Math.pow(0.6 / baseRate, 2);
+    return { VB_15min: VB_15, time_to_03mm: Math.min(600, time03), time_to_06mm: Math.min(600, time06) };
+  }
 }

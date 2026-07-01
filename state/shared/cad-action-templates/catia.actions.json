@@ -1,0 +1,351 @@
+{
+  "schemaVersion": 1,
+  "platform": "catia",
+  "writtenAt": "2026-05-25T19:37:45.560Z",
+  "atomicOpCount": 38,
+  "actions": [
+    {
+      "op": "sketch.create-plane",
+      "fn": "Sketches.Add",
+      "args": [
+        "refPlane"
+      ],
+      "notes": "CATIA V5 returns Sketch object"
+    },
+    {
+      "op": "sketch.line-2pt",
+      "fn": "Factory2D.CreateLine",
+      "args": [
+        "x1",
+        "y1",
+        "x2",
+        "y2"
+      ],
+      "notes": ""
+    },
+    {
+      "op": "sketch.line-polyline",
+      "fn": "Factory2D.CreateLine (sequential)",
+      "args": [
+        "points[]"
+      ],
+      "notes": ""
+    },
+    {
+      "op": "sketch.arc-3pt",
+      "fn": "Factory2D.CreateClosedCircle (with constraints)",
+      "args": [
+        "p1",
+        "p2",
+        "p3"
+      ],
+      "notes": "V5 lacks direct 3-pt arc"
+    },
+    {
+      "op": "sketch.arc-cse",
+      "fn": "Factory2D.CreateArc",
+      "args": [
+        "cx",
+        "cy",
+        "r",
+        "startAngle",
+        "endAngle"
+      ],
+      "notes": "Angles in radians"
+    },
+    {
+      "op": "sketch.circle-cr",
+      "fn": "Factory2D.CreateClosedCircle",
+      "args": [
+        "cx",
+        "cy",
+        "radius"
+      ],
+      "notes": ""
+    },
+    {
+      "op": "sketch.ellipse-axes",
+      "fn": "Factory2D.CreateClosedEllipse",
+      "args": [
+        "cx",
+        "cy",
+        "a",
+        "b"
+      ],
+      "notes": ""
+    },
+    {
+      "op": "sketch.spline-poly",
+      "fn": "Factory2D.CreateSpline",
+      "args": [
+        "points[]"
+      ],
+      "notes": ""
+    },
+    {
+      "op": "sketch.rect-2pt",
+      "fn": "(four CreateLine calls)",
+      "args": [
+        "p1",
+        "p2"
+      ],
+      "notes": "V5 builds rect from lines"
+    },
+    {
+      "op": "sketch.rect-center",
+      "fn": "(four CreateLine + constraints)",
+      "args": [],
+      "notes": ""
+    },
+    {
+      "op": "sketch.polygon-n",
+      "fn": "(N CreateLine + constraints)",
+      "args": [],
+      "notes": "Manual N-gon"
+    },
+    {
+      "op": "sketch.slot-straight",
+      "fn": "(2 arcs + 2 lines)",
+      "args": [],
+      "notes": ""
+    },
+    {
+      "op": "sketch.slot-arc",
+      "fn": "(arc + 2 endcaps)",
+      "args": [],
+      "notes": ""
+    },
+    {
+      "op": "sketch.offset",
+      "fn": "Sketch.Offset",
+      "args": [
+        "entities",
+        "distance"
+      ],
+      "notes": ""
+    },
+    {
+      "op": "sketch.trim",
+      "fn": "Sketch.Trim",
+      "args": [
+        "entity",
+        "trimPoint"
+      ],
+      "notes": ""
+    },
+    {
+      "op": "sketch.fillet-2d",
+      "fn": "Sketch.CreateFillet",
+      "args": [
+        "c1",
+        "c2",
+        "radius"
+      ],
+      "notes": ""
+    },
+    {
+      "op": "op.extrude",
+      "fn": "ShapeFactory.AddNewPad",
+      "args": [
+        "sketch",
+        "distance"
+      ],
+      "notes": "Pad = positive extrude"
+    },
+    {
+      "op": "op.extrude-cut",
+      "fn": "ShapeFactory.AddNewPocket",
+      "args": [
+        "sketch",
+        "distance"
+      ],
+      "notes": "Pocket = negative extrude"
+    },
+    {
+      "op": "op.revolve",
+      "fn": "ShapeFactory.AddNewShaft",
+      "args": [
+        "sketch",
+        "axis",
+        "angle"
+      ],
+      "notes": ""
+    },
+    {
+      "op": "op.loft",
+      "fn": "ShapeFactory.AddNewLoft",
+      "args": [
+        "sections[]"
+      ],
+      "notes": ""
+    },
+    {
+      "op": "op.sweep",
+      "fn": "ShapeFactory.AddNewRib",
+      "args": [
+        "sketch",
+        "path"
+      ],
+      "notes": "Rib = sweep"
+    },
+    {
+      "op": "op.shell",
+      "fn": "ShapeFactory.AddNewShell",
+      "args": [
+        "body",
+        "facesToRemove[]",
+        "innerThickness",
+        "outerThickness"
+      ],
+      "notes": ""
+    },
+    {
+      "op": "op.fillet",
+      "fn": "ShapeFactory.AddNewEdgeFillet",
+      "args": [
+        "edges[]",
+        "radius"
+      ],
+      "notes": ""
+    },
+    {
+      "op": "op.chamfer",
+      "fn": "ShapeFactory.AddNewChamfer",
+      "args": [
+        "edges[]",
+        "L",
+        "angle"
+      ],
+      "notes": ""
+    },
+    {
+      "op": "op.draft",
+      "fn": "ShapeFactory.AddNewDraft",
+      "args": [
+        "faces[]",
+        "plane",
+        "angle"
+      ],
+      "notes": ""
+    },
+    {
+      "op": "op.mirror",
+      "fn": "ShapeFactory.AddNewMirror",
+      "args": [
+        "entities[]",
+        "plane"
+      ],
+      "notes": ""
+    },
+    {
+      "op": "op.pattern-rect",
+      "fn": "ShapeFactory.AddNewRectPattern",
+      "args": [
+        "..."
+      ],
+      "notes": ""
+    },
+    {
+      "op": "op.pattern-circ",
+      "fn": "ShapeFactory.AddNewCircPattern",
+      "args": [
+        "..."
+      ],
+      "notes": ""
+    },
+    {
+      "op": "op.hole-simple",
+      "fn": "ShapeFactory.AddNewHole",
+      "args": [
+        "face",
+        "position",
+        "diameter",
+        "depth"
+      ],
+      "notes": ""
+    },
+    {
+      "op": "op.hole-threaded",
+      "fn": "ShapeFactory.AddNewThreadedHole",
+      "args": [
+        "face",
+        "position",
+        "size",
+        "depth"
+      ],
+      "notes": ""
+    },
+    {
+      "op": "op.thread-external",
+      "fn": "ShapeFactory.AddNewThread",
+      "args": [
+        "face",
+        "threadInfo"
+      ],
+      "notes": ""
+    },
+    {
+      "op": "op.boolean-add",
+      "fn": "ShapeFactory.AddNewAdd",
+      "args": [
+        "target",
+        "tool"
+      ],
+      "notes": ""
+    },
+    {
+      "op": "op.boolean-cut",
+      "fn": "ShapeFactory.AddNewRemove",
+      "args": [
+        "target",
+        "tool"
+      ],
+      "notes": ""
+    },
+    {
+      "op": "op.boolean-intersect",
+      "fn": "ShapeFactory.AddNewIntersect",
+      "args": [
+        "target",
+        "tool"
+      ],
+      "notes": ""
+    },
+    {
+      "op": "asm.insert-component",
+      "fn": "Product.AddComponent",
+      "args": [
+        "file"
+      ],
+      "notes": ""
+    },
+    {
+      "op": "asm.mate-coincident",
+      "fn": "Constraints.AddMonoEltCst(Coincidence)",
+      "args": [
+        "geo1",
+        "geo2"
+      ],
+      "notes": ""
+    },
+    {
+      "op": "asm.mate-concentric",
+      "fn": "Constraints.AddMonoEltCst(Concentricity)",
+      "args": [
+        "axis1",
+        "axis2"
+      ],
+      "notes": ""
+    },
+    {
+      "op": "asm.mate-distance",
+      "fn": "Constraints.AddBiEltCst(Distance)",
+      "args": [
+        "geo1",
+        "geo2",
+        "distance"
+      ],
+      "notes": ""
+    }
+  ]
+}

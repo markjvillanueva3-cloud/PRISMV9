@@ -85,6 +85,23 @@ const BALL_FZ: Record<string, number> = {
 
 export class BallEndMillEngine {
   /**
+   * Effective cutting diameter of a ball-end mill at axial depth ap (PURE geometry).
+   * At ap < R the contact circle is smaller than the nominal diameter -> lower surface speed:
+   *   Deff_flat = 2*sqrt(apEff*(D - apEff)),  apEff = clamp(ap, 0, R)   (D = 2R)
+   * On an inclined surface the contact shifts toward the periphery:
+   *   Deff = max(Deff_flat*cos(theta) + D*sin(theta), 0.5)
+   * Reference: Sandvik ball nose guide (C-2920:25); Machinery's Handbook Ch.24.
+   * SINGLE SOURCE for the Deff formula -- consumed by calculate() AND the SFC (gap #8).
+   */
+  effectiveDiameter(D_mm: number, ap_mm: number, surfaceAngleDeg = 0): number {
+    const R = D_mm / 2;
+    const apEff = Math.min(Math.max(ap_mm, 0), R);
+    const dEffFlat = 2 * Math.sqrt(apEff * (D_mm - apEff));
+    const angleRad = (surfaceAngleDeg * Math.PI) / 180;
+    return Math.max(dEffFlat * Math.cos(angleRad) + D_mm * Math.sin(angleRad), 0.5);
+  }
+
+  /**
    * Calculate ball end mill parameters with effective diameter
    * correction and scallop height.
    */
@@ -100,14 +117,8 @@ export class BallEndMillEngine {
     // Effective cutting diameter
     // Deff = 2 × sqrt(ap × (D - ap)) for flat surfaces
     // Adjusted for surface inclination
-    const apEff = Math.min(ap, R);
-    const dEffFlat = 2 * Math.sqrt(apEff * (D - apEff));
-    // On inclined surface, effective diameter changes
-    const angleRad = (surfAngle * Math.PI) / 180;
-    const dEff = Math.max(
-      dEffFlat * Math.cos(angleRad) + D * Math.sin(angleRad),
-      0.5
-    );
+    // Effective diameter -- single source (the pure effectiveDiameter() method above).
+    const dEff = this.effectiveDiameter(D, ap, surfAngle);
 
     // Cutting speed at effective diameter
     const vcNominal = BALL_SPEEDS[iso] ?? 180;

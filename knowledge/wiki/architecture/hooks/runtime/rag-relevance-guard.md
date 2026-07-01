@@ -21,7 +21,7 @@ related:
 
 ## Description (from file header)
 
-rag-relevance-guard.mjs — PostToolUse hookCADCAM-DAGI-MS0/U-DAGI06Monitors RAG retrieval quality and warns on issues:- Empty retrieval results (no similar parts found)- Low similarity scores (potential poor matches)- Customer mismatch warnings (cross-customer retrieval)- High retrieval latency (> 500ms)
+_(no header docblock — read source for behavior)_
 
 ## Events
 

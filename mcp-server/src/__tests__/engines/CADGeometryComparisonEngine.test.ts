@@ -198,6 +198,74 @@ END-ISO-10303-21;`;
   });
 
   // ─────────────────────────────────────────────────────────────────────────
+  // STEP UNIT NORMALIZATION (U-CAD-COMPARE-UNIT-NORMALIZE)
+  // ─────────────────────────────────────────────────────────────────────────
+
+  describe("STEP Unit Normalization", () => {
+    const tmpDir = os.tmpdir();
+    const PT = (x: number) =>
+      `#1=CARTESIAN_POINT('O',(0.0,0.0,0.0));\n#2=CARTESIAN_POINT('P',(${x},${x * 0.5},${x * 0.25}));`;
+    const stepWith = (unitDecl: string, x: number) =>
+      `ISO-10303-21;\nHEADER;\nFILE_SCHEMA(('AUTOMOTIVE_DESIGN'));\nENDSEC;\nDATA;\n${unitDecl}\n${PT(x)}\n#9=MANIFOLD_SOLID_BREP('B',#8);\nENDSEC;\nEND-ISO-10303-21;`;
+    const MM = "#100=( LENGTH_UNIT() NAMED_UNIT(*) SI_UNIT(.MILLI.,.METRE.) );";
+    const METRE = "#100=( LENGTH_UNIT() NAMED_UNIT(*) SI_UNIT($,.METRE.) );";
+    // inch model: CONVERSION_BASED_UNIT('INCH') whose BASE is SI_UNIT(.MILLI.,.METRE.) -- the trap
+    // that must NOT cause the file to be classified as mm.
+    const INCH =
+      "#100=( LENGTH_UNIT() NAMED_UNIT(*) SI_UNIT(.MILLI.,.METRE.) );\n#101=CONVERSION_BASED_UNIT('INCH',#102);\n#102=LENGTH_MEASURE_WITH_UNIT(LENGTH_MEASURE(25.4),#100);";
+    const write = (name: string, content: string): string => {
+      const p = path.join(tmpDir, `${name}_${Date.now()}.step`);
+      fs.writeFileSync(p, content);
+      return p;
+    };
+
+    it("normalizes an inch-authored STEP to mm (x25.4)", () => {
+      const f = write("uninch", stepWith(INCH, 10)); // 10 inch
+      try {
+        const m = cadGeometryComparisonEngine.extractMetrics(f);
+        expect(m.boundingBox.sizeX).toBeCloseTo(254.0, 3); // 10 in * 25.4
+        expect(m.parseWarnings.some(w => w.includes("inch") && w.includes("25.4"))).toBe(true);
+      } finally { fs.unlinkSync(f); }
+    });
+
+    it("leaves a mm-authored STEP unchanged", () => {
+      const f = write("unmm", stepWith(MM, 10));
+      try {
+        const m = cadGeometryComparisonEngine.extractMetrics(f);
+        expect(m.boundingBox.sizeX).toBeCloseTo(10.0, 6);
+      } finally { fs.unlinkSync(f); }
+    });
+
+    it("scales a metre-authored STEP to mm (x1000)", () => {
+      const f = write("unmetre", stepWith(METRE, 2)); // 2 m
+      try {
+        const m = cadGeometryComparisonEngine.extractMetrics(f);
+        expect(m.boundingBox.sizeX).toBeCloseTo(2000.0, 3);
+      } finally { fs.unlinkSync(f); }
+    });
+
+    it("does NOT mislabel an inch model as mm despite its SI_UNIT(.MILLI.,.METRE.) conversion base", () => {
+      const f = write("untrap", stepWith(INCH, 1)); // 1 inch -> 25.4 mm, NOT 1.0
+      try {
+        const m = cadGeometryComparisonEngine.extractMetrics(f);
+        expect(m.boundingBox.sizeX).toBeCloseTo(25.4, 3);
+      } finally { fs.unlinkSync(f); }
+    });
+
+    it("inch + mm models of the SAME physical size compare EQUAL (blisk-replica regression)", () => {
+      // 47.51968504 in * 25.4 = 1206.9 mm  (the live blisk-replica vs blisk.stp case)
+      const inchFile = write("unsizein", stepWith(INCH, 47.51968504));
+      const mmFile = write("unsizemm", stepWith(MM, 1206.9));
+      try {
+        const c = cadGeometryComparisonEngine.compare(mmFile, inchFile);
+        const bbox = c.metrics.find(m => m.metric === "Bounding Box");
+        expect(bbox?.deltaPercent).toBeLessThan(0.1); // ~0 once unit-normalized (was ~96%)
+        expect(bbox?.passed).toBe(true);
+      } finally { fs.unlinkSync(inchFile); fs.unlinkSync(mmFile); }
+    });
+  });
+
+  // ─────────────────────────────────────────────────────────────────────────
   // STL EXTRACTION
   // ─────────────────────────────────────────────────────────────────────────
 

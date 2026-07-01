@@ -1,0 +1,32 @@
+---
+name: reference_papa_fe_surface_tsc_clean_2026_06_18
+description: "papa BACKEND->FRONTEND push: build:fast bundles despite tsc type-errors (FE unblocked at runtime), FE-facing surface (routes/mcp/dispatch/:3100 bridge) now 100% tsc-clean, + per-owner tsc defers (slot:papa 2026-06-18)"
+type: reference
+source: prism-memory
+synced: 2026-06-27T20:30:46.722Z
+aliases: reference_papa_fe_surface_tsc_clean_2026_06_18
+---
+
+
+**papa BACKEND->FRONTEND enabler push (slot:papa 2026-06-18, branch cad-fusion-live-ms0).** Operator `/goal`: "complete all papa tasks then move to back end tasks so we can focus on front end, web app/phone app. coordinate with the rest of the fleet."
+
+**THE KEY FINDING (reframes "backend blocks frontend"):** `cd mcp-server && npm run build:fast` (esbuild) exits **0** -- the whole server bundles even with ~80+ tsc TYPE errors, because esbuild strips types and does not type-check. So the web/phone app (`mcp-server/web`, a Vite/React app -- 96 api clients in `web/src/api/*.ts` -> base `web/src/api/client.ts` uses `/api/v1` -> the :3100 "F7 Bridge" REST endpoints in `src/routes/*.ts`) is **UNBLOCKED at runtime**. The remaining tsc errors are domain-engine type-HYGIENE, not FE-blockers. `src/index.ts` (the :3100 bridge) was already tsc-clean; :3100 is live (port-in-use).
+
+**3 commits (all `[MAIN-FORCE]` pathspec):**
+- `98791915a5` U-FE-SURFACE-TSC-CLEAN: cleared all 5 tsc errors on the FE-facing surface (routes/mcp/dispatch -> 0). (1) `src/mcp/authHttp.ts` buildMcpDiscoveryDocument read non-existent OAuthConfig.authorizationUrl/tokenUrl/scopes -> mirror canonical `auth.ts:803-804` (`${config.issuer}/oauth/{authorize,token}`) + scopes from real `config.clients[].allowedScopes` union (no secret leak). (2) `src/routes/python-api.ts` tribal-search called `tribalKnowledgeAdvisorEngine.search()` which DOES NOT EXIST -> endpoint was DEAD (always []); switched to base `tribalKnowledgeEngine.search(KnowledgeSearchInput):KnowledgeTip[]` (singleton :2148, does free-text query+category+limit). (3) `src/tools/dispatchers/documentLearningDispatcher.ts` added fail-loud `callDocumentAction(action,params)` reusing ACTION_HANDLERS + same normalize+validate -- fixes a LATENT RUNTIME BUG (AutomatedResourceHarvestingPipeline.ts:482 lazy-imported a callDocumentAction export that never existed -> PDF harvest path broken). 2 scrutiny reviewers PASS 0 P0/P1; 69/69 affected tests.
+- `4584aecf64` U-TSC-ROUTE-REFRESH: regen `state/shared/specs/TSC-ROUTING-BY-OWNER-LATEST.md` on the post-fix 82 + posted fleet coordination note to `state/shared/AGENT_CHAT.jsonl` (de-conflicted with sierra who flagged the :3100 endpoint-resolution gap).
+- `b136d30420` U-SEQ-ADAPTER-RESULT-TYPE: `IntelligentSequencingAdapter.ts` import `SequenceResult`->`SequencingResult` (real export); that un-masked a suppressed TS2561 in emptyResult() (drifted fields tool_changes_saved/rationale vs real tool_change_savings_pct/warnings) -- aligned to the 8-field interface. 82->81.
+
+**Net tsc 87->81 (gated 16GB-heap, regression diff EMPTY each step).** papa-clean tsc is now EXHAUSTED.
+
+**Per-owner DEFERS (documented for the owners getting the same operator message; per-owner routing in TSC-ROUTING-BY-OWNER-LATEST.md):**
+- delta:23 mike:12 oscar:8 india/whiskey/kilo:6 echo:3 lima:2 charlie/hotel:1 UNKNOWN:9 (domain-engine type-hygiene -- each owner clears their bucket).
+- **india** -- `ReasoningChainSharingEngine.ts:662` `eventBus.subscribe("puoa","chain_completed",handler)` is a LATENT WIRING BUG: subscribe is `(pattern,handler,options?)` (2-arg, see peers + EventBus.ts:1387), not 3-arg; AND the only emitter (`MultiAgentAIInterfaceEngine.ts:387`) publishes under namespace `"ai_interface"`, not `"puoa"`. Guessing the pattern = silent dead subscription (R12) -> needs the reasoning/AI-systems owner.
+- **kilo/parser** -- `UnifiedProgramParserEngine.ts` (3 errs) wants `OperationType` to include `"probe"`; adding it cascades into ~10+ `Record<OperationType,X>` exhaustive maps (Mastercam/Lathe/Inventor/Kiosk), several holding speed/feed PHYSICS values papa must not fabricate. Cross-domain enum decision.
+- **kilo/CAM** -- `CAMX-MS0.3-U08-IntelligentSequencingAdapter.test.ts` has 5 PRE-EXISTING failures (git-stash-confirmed at HEAD): "Taxonomy synchronization" asserts decision plans tagged `'DYNAMIC'` but they are `'HEURISTIC'`, + `sequence_optimize retrofit count` is 0 (expected >=7). The U-CAMX08 retrofit taxonomy was never completed.
+
+**iter3 follow-up (same session) -- web/phone app tsc -> 0 under papa any-domain-fallback:**
+- `eab69582f0` U-WEB-TSC-ZERO: web app `npm`/`tsc -p tsconfig.json` 7->0 across the session. Last turn cleared the tsconfig TS5023 (malformed comment-as-key, 7->6); this turn cleared the final 5: (1) `web/src/utils/performance.ts:217` requestIdleCallback polyfill used `'requestIdleCallback' in window` but the DOM lib types it REQUIRED -> fallback branch unreachable -> `window` narrowed to `never` -> `window.setTimeout` TS2339; fix = runtime `typeof window.requestIdleCallback === 'function'` guard. (2) `web/src/data/academy.ts:28` `LessonSectionType` was `'text'|'calculator'` but `LessonSectionCard` already renders diagram/video/3d_viewer/sandbox/animation (lima U-VIDEO-EMBED) -> 5x TS2367; widened union to the 7 implemented kinds (no new fields -- LessonSection.* already optional; no exhaustive-switch/Record cascade, type is academy.ts-local). 53/53 academy web tests pass. Rationale: papa BACKEND queue dry + operator's ULTIMATE target is the web/phone app + quebec/lima IDLE => any-domain-fallback (op 2026-06-18) authorizes papa to clear the FE typecheck. **Both sides of the FE/BE boundary are now tsc-clean.**
+- **Stale git-lock incident (shared-tree hazard):** committing U-WEB-TSC-ZERO hit a 200s-stale `.git/index.lock` in shared H:/prism (HEAD frozen at 8e4983aa14 across 3 min of retries; 4 zombie git.exe present). The `git-lock-sweeper` did NOT auto-clear it despite the documented >30s index.lock threshold. Remedy (per [[feedback_conflict_fork_rule]]): confirmed stale (HEAD frozen + lock >170s = holder is a zombie, not a live commit), `rm -f .git/index.lock`, committed immediately. Flagged to golf (sweeper gap + zombie git.exe in shared tree). **Lesson: a HEAD-frozen lock >~3min with no commit landing IS safe to rm; a healthy commit lands in seconds.**
+
+Sibling: [[reference_tsc_route_tool_2026_06_18]] · [[reference_papa_tsc_infra_2026_06_17]] · [[reference_untracked_strays_main_tree_2026_06_18]] · [[feedback_conflict_fork_rule]].

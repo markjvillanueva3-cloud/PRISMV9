@@ -23,13 +23,20 @@ related:
 |-------|-------|
 | Name | `forge-wiring` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/forge-wiring.md` |
+| Source | `C:/Users/wompu/.claude/commands/forge-wiring.md` |
 | Model | default |
 | Tags | _(none)_ |
 
 ## Description (first paragraph)
 
-_(no body content)_
+
+# Forge Wiring — Architecture Wiring Validator
+
+You are running a specialized autopilot pipeline that validates the full dispatcher-to-engine-to-algorithm wiring chains across the PRISM 11-layer architecture. Designed to run in the **background** — produces a wiring integrity report.
+
+## Args: $ARGUMENTS
+- Empty: full wiring validation — all dispatchers, engines, algorithms, hooks
+- `[disp
 
 <!-- AUTO-END -->
 

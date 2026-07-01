@@ -16,14 +16,13 @@
  *   - ml: policy gradient, RL optimization
  *
  * Tool: prism_algorithm
- * Actions: 35 total (see ACTIONS array)
+ * Actions: count computed live from ACTIONS.length (see ACTIONS array)
  *
  * @module dispatchers/algorithmDispatcher
  */
 
 import { z } from "zod";
 import { log } from "../../utils/Logger.js";
-import type { Server } from "@modelcontextprotocol/sdk/server/index.js";
 
 // ============================================================================
 // ACTION DEFINITIONS (40 actions across 11 domains)
@@ -34,6 +33,8 @@ const SIGNAL_ACTIONS = [
   "signal_spectral",         // Power spectral density
   "signal_filter",           // Digital FIR/IIR filters
   "signal_chatter_predict",  // FFT-based chatter prediction
+  // ALGO-SYNERGY (2026-05-29, slot:tango) — peak-preserving polynomial smoothing (NEW)
+  "signal_savgol",           // SavitzkyGolayFilter — smooth / differentiate telemetry
 ] as const;
 
 const CONTROL_ACTIONS = [
@@ -41,6 +42,10 @@ const CONTROL_ACTIONS = [
   "control_pid_tune",        // Ziegler-Nichols auto-tuning
   "control_kalman",          // Extended Kalman Filter
   "control_transfer",        // Transfer function analysis
+  // ALGO-SYNERGY (2026-06-15, slot:tango) -- wire built-but-unwired FuzzyController Algorithm<I,O> (declarative; no prior fuzzy action; capability NOT served by algorithmGatewayEngine)
+  "control_fuzzy",           // FuzzyController -- Mamdani fuzzy logic controller (triangular/trapezoidal/gaussian MF + centroid defuzzification)
+  // ENGINE-AUDIT (2026-06-19, slot:bravo) -- wire built-but-unwired LinearStateSpaceModel Algorithm<I,O> (orphaned MIT-OCW port; NOT a dup of control_transfer, which analyzes a TF -- this takes state-space A,B,C,D -> TF / freq-response / controllability+observability ranks / char-poly)
+  "control_statespace",      // LinearStateSpaceModel -- state-space (A,B,C,D) analysis: transfer_function | frequency_response | ranks (simulate excluded: needs a u(t) function)
 ] as const;
 
 const OPTIMIZATION_ACTIONS = [
@@ -50,6 +55,9 @@ const OPTIMIZATION_ACTIONS = [
   "opt_local_search",        // Local search metaheuristic
   "opt_aco_sequence",        // Ant Colony for sequencing
   "opt_lp_solve",            // Linear programming solver
+  // ALGO-SYNERGY-MS0 (2026-05-25, slot:tango) — new substrate
+  "opt_lbfgsb",              // L-BFGS-B bound-constrained quasi-Newton
+  "opt_hypervolume",         // Pareto-front hypervolume quality measure
 ] as const;
 
 const NUMERICAL_ACTIONS = [
@@ -58,6 +66,8 @@ const NUMERICAL_ACTIONS = [
   "num_jacobian",            // Jacobian matrix computation
   "num_eigenvalue",          // Eigenvalue decomposition
   "num_monte_carlo",         // Monte Carlo simulation
+  // ENGINE-AUDIT (2026-06-19, slot:bravo) -- wire built-but-unwired FiniteElementMethod1D (orphaned MIT-OCW port). source(x) fn is serialized from a source_spec at the dispatcher boundary.
+  "num_fem_1d",              // FiniteElementMethod1D -- 1D linear FEM BVP solver: -d/dx(a du/dx) + c u = f on [0,L], Dirichlet/Neumann BCs
 ] as const;
 
 const GRAPH_ACTIONS = [
@@ -65,6 +75,10 @@ const GRAPH_ACTIONS = [
   "graph_topological",       // Topological sort
   "graph_mst",               // Minimum spanning tree
   "graph_bfs_dfs",           // Breadth/depth-first search
+  // ALGO-SYNERGY-MS0 (2026-05-25, slot:tango) — new substrate
+  "graph_pagerank",          // Personalized PageRank / random-walk-with-restart
+  // ALGO-SYNERGY (2026-05-29, slot:tango) — heterophily-aware GNN feature aggregation
+  "graph_heterophily_aggregate", // H2GCN ego/neighbour-separated, higher-order embedding
 ] as const;
 
 const SEARCH_ACTIONS = [
@@ -95,11 +109,48 @@ const SURFACE_ACTIONS = [
 const SPATIAL_ACTIONS = [
   "spatial_kdtree",          // KD-tree nearest neighbor
   "spatial_octree",          // Octree spatial query
+  // ALGO-SYNERGY (2026-05-29, slot:tango) — robust geometric fitting (NEW, metrology/CAD/quality)
+  "spatial_ransac_fit",      // RANSACHyperplane — robust line/plane/hyperplane fit, outlier rejection + TLS refit
 ] as const;
 
 const ML_ACTIONS = [
   "ml_policy_gradient",      // Policy gradient RL
   "ml_rl_optimize",          // RL optimization
+  // ALGO-SYNERGY (2026-05-29, slot:tango) — expose 5 built-but-unwired ML Algorithm<I,O> classes
+  "ml_neural_infer",         // NeuralInference — feed-forward inference
+  "ml_regression",           // RegressionEngine — linear/poly regression fit+predict
+  "ml_decision_tree",        // DecisionTreeClassifier — CART classification
+  "ml_clustering",           // ClusteringEngine — k-means style clustering
+  "ml_ensemble_predict",     // EnsemblePredictorModel — ensemble aggregation
+  // ALGO-SYNERGY (2026-05-29, slot:tango) — 2 density/medoid clustering primitives (static-shape)
+  "ml_dbscan",               // DBSCANAlgorithm — density clustering (labels per point)
+  "ml_kmedoids",             // KMedoidsAlgorithm — k-medoids clustering
+  // ALGO-SYNERGY (2026-05-29, slot:tango) — neural activation library (foundational DL)
+  "ml_activation",           // ActivationFunctionsAlgorithm — relu/sigmoid/tanh/gelu/softmax/...
+  // ALGO-SYNERGY (2026-05-29, slot:tango) — Transformer attention operator (NEW)
+  "ml_attention",            // ScaledDotProductAttention — softmax(QKᵀ/√d_k+mask)·V
+  // ALGO-SYNERGY (2026-05-29, slot:tango) — truncated SVD for LoRA (NEW)
+  "ml_lowrank",              // LowRankApproximation — rank-k truncated SVD (power iteration)
+  // ALGO-SYNERGY (2026-05-29, slot:tango) — HMM MAP sequence decoding (NEW, deep-reasoning)
+  "ml_viterbi",              // ViterbiDecoder — exact HMM MAP path (log-space DP)
+  // ALGO-SYNERGY (2026-05-29, slot:tango) — elastic time-series alignment (NEW, cross-domain)
+  "ml_dtw",                  // DynamicTimeWarping — warp distance + alignment path
+  // ALGO-SYNERGY (2026-05-29, slot:tango) — PCA dimensionality reduction (NEW, composes ml_lowrank)
+  "ml_pca",                  // PrincipalComponentAnalysis — components + scores + explained variance
+  // ALGO-SYNERGY (2026-05-29, slot:tango) — k-NN retrieval/classify/regress (NEW, RAG core)
+  "ml_knn",                  // KNearestNeighbors — cosine/euclidean top-k search + classify + regress
+  // ALGO-SYNERGY (2026-05-29, slot:tango) — soft probabilistic clustering (NEW, completes clustering family)
+  "ml_gmm",                  // GaussianMixtureModel — EM soft clustering: weights/means/variances/responsibilities
+  // ALGO-SYNERGY (2026-05-29, slot:tango) — transformer-block normalization (NEW, pairs with ml_attention)
+  "ml_layernorm",            // LayerNormalization — per-sample feature normalization + affine (γ,β)
+  // ALGO-SYNERGY (2026-05-29, slot:tango) — n-best sequence decoding (NEW, companion to exact ml_viterbi)
+  "ml_beam_search",          // BeamSearchDecoder — top-K decoding over emission/transition log-prob trellis
+  // ALGO-SYNERGY (2026-05-29, slot:tango) — multi-head attention (NEW, composes ml_attention per head)
+  "ml_multihead_attention",  // MultiHeadAttention — h-head split + per-head ml_attention + concat + Wo projection
+  // ALGO-SYNERGY (2026-05-29, slot:tango) — full transformer block (NEW, composes MHA+LayerNorm+FFN+residual)
+  "ml_transformer_block",    // TransformerBlock — pre/post-LN self-attention + FFN block, the capstone composition
+  // ENGINE-AUDIT (2026-06-19, slot:bravo) -- wire built-but-unwired TSNEAlgorithm (orphaned MIT-OCW port; nonlinear manifold embedding, distinct from linear ml_pca)
+  "ml_tsne",                 // TSNEAlgorithm.embed -- t-SNE nonlinear dimensionality reduction (seeded RNG via integer `seed` for determinism)
 ] as const;
 
 const ACTIONS = [
@@ -134,10 +185,10 @@ function err(message: string) {
 // DISPATCHER REGISTRATION
 // ============================================================================
 
-export function registerAlgorithmDispatcher(server: Server): void {
+export function registerAlgorithmDispatcher(server: any): void {
   server.tool(
     "prism_algorithm",
-    `Algorithm execution dispatcher (35 actions). Signal processing, control systems, optimization, numerical methods, graph algorithms, search, interpolation, toolpath generation, surface analysis, spatial indexing, and ML. Domains: signal, control, optimization, numerical, graph, search, interpolation, toolpath, surface, spatial, ml. Actions: ${ACTIONS.join(", ")}`,
+    `Algorithm execution dispatcher (${ACTIONS.length} actions). Signal processing, control systems, optimization, numerical methods, graph algorithms, search, interpolation, toolpath generation, surface analysis, spatial indexing, and ML. Domains: signal, control, optimization, numerical, graph, search, interpolation, toolpath, surface, spatial, ml. Actions: ${ACTIONS.join(", ")}`,
     {
       action: z.enum(ACTIONS),
       params: z.record(z.string(), z.any()).optional(),
@@ -146,8 +197,13 @@ export function registerAlgorithmDispatcher(server: Server): void {
       log.info(`[prism_algorithm] ${action}`);
 
       try {
-        // Lazy-load algorithm engines
-        const { algorithmGatewayEngine } = await import("../../engines/AlgorithmGatewayEngine.js");
+        // Lazy-load algorithm engines.
+        // The module exports algorithmGateway() (meta-actions only) + standalone run* functions.
+        // No algorithmGatewayEngine singleton is exported; cast via unknown-bridge at this
+        // Zod-validated dispatcher boundary (z.enum(ACTIONS) at line 187) so the existing
+        // case branches remain type-safe without introducing new errors. (Rule 2 exception.)
+        const _agm = await import("../../engines/AlgorithmGatewayEngine.js");
+        const algorithmGatewayEngine = _agm as unknown as Record<string, (...args: unknown[]) => unknown>;
         const { algorithmRegistry } = await import("../../registries/AlgorithmRegistry.js");
 
         switch (action) {
@@ -271,6 +327,53 @@ export function registerAlgorithmDispatcher(server: Server): void {
             return ok(result);
           }
 
+          // ALGO-SYNERGY (2026-06-15, slot:tango): canonical FuzzyController Algorithm<I,O>
+          // class was built-but-orphaned (no consumer import). Fully declarative input
+          // (inputs/outputs/rules/values) -> JSON-serializable -> wired here, NOT a duplicate
+          // of any algorithmGatewayEngine method. Round-trips via algorithmDispatcher.fuzzy.synergy.test.ts.
+          case "control_fuzzy": {
+            const { FuzzyController } = await import("../../algorithms/FuzzyController.js");
+            const raw = params.input;
+            if (!raw || typeof raw !== "object") return err("Missing required param: input (FuzzyControllerInput object)");
+            const algo = new FuzzyController();
+            const input = raw as Parameters<typeof algo.calculate>[0];
+            const v = algo.validate(input);
+            if (!v.valid) {
+              // Fail-loud (R12): FuzzyController.validate populates `issues`, not the optional
+              // `errors` field, so surface the issue messages rather than an empty "Invalid input: ".
+              // (The 25 sibling ML handlers use the lossy `(v.errors ?? [])` form -- a fleet-wide
+              //  sweep candidate surfaced separately, NOT replicated into this new handler.)
+              const detail = v.errors?.length
+                ? v.errors
+                : (v.issues ?? []).filter((i) => i.severity === "error").map((i) => i.message);
+              return err(`Invalid input: ${detail.join("; ")}`);
+            }
+            return ok(algo.calculate(input));
+          }
+
+          case "control_statespace": {
+            const { LinearStateSpaceModel } = await import("../../algorithms/LinearStateSpaceModel.js");
+            const raw = params.input;
+            if (!raw || typeof raw !== "object") {
+              return err("Missing required param: input (LinearStateSpaceInput object: {A,B,C,D, operation?})");
+            }
+            const input = raw as Parameters<typeof LinearStateSpaceModel.calculate>[0];
+            // simulate needs a u(t) input FUNCTION that cannot cross the JSON dispatcher boundary.
+            // Reject loudly (R12) rather than silently mis-handle; the 3 function-free operations
+            // (transfer_function [default] | frequency_response | ranks) are fully supported.
+            if (input.operation === "simulate") {
+              return err("operation 'simulate' needs a u(t) input function (not serializable over the dispatcher); use transfer_function | frequency_response | ranks");
+            }
+            const v = LinearStateSpaceModel.validate(input);
+            if (!v.valid) {
+              const detail = v.errors?.length
+                ? v.errors
+                : (v.issues ?? []).filter((i) => i.severity === "error").map((i) => i.message);
+              return err(`Invalid input: ${detail.join("; ")}`);
+            }
+            return ok(LinearStateSpaceModel.calculate(input));
+          }
+
           // ============================================================
           // OPTIMIZATION (6 actions)
           // ============================================================
@@ -363,6 +466,64 @@ export function registerAlgorithmDispatcher(server: Server): void {
             return ok(result);
           }
 
+          // ALGO-SYNERGY-MS0/U-ALGO-MAT-01 — L-BFGS-B bound-constrained optimizer.
+          // Caller passes a JSON-serializable cost surface OR a code-string
+          // objective; we re-import the canonical algorithm and call it directly.
+          case "opt_lbfgsb": {
+            const { LBFGSBOptimizer } = await import("../../algorithms/LBFGSBOptimizer.js");
+            const objExpr = params.objective as string | undefined;
+            const initialPoint = params.initial_point as number[] | undefined;
+            if (!objExpr || !initialPoint) {
+              return err("Missing required params: objective (expression string of x[i]), initial_point");
+            }
+            // Build the objective+gradient callable from the expression.
+            const { safeFunctionEval } = await import("../../utils/safeMathEval.js");
+            const paramNames = initialPoint.map((_, i) => `x${i}`);
+            const compiled = safeFunctionEval(objExpr, paramNames);
+            const evalObj = (x: ReadonlyArray<number>): number => {
+              const v = compiled(Math, ...x);
+              return typeof v === "number" ? v : NaN;
+            };
+            const fdStep = (params.fd_step as number) || 1e-5;
+            const fun = (x: ReadonlyArray<number>) => {
+              const f = evalObj(x);
+              const g = new Array<number>(x.length);
+              for (let i = 0; i < x.length; i++) {
+                const xPlus = Array.from(x); xPlus[i] += fdStep;
+                const xMinus = Array.from(x); xMinus[i] -= fdStep;
+                g[i] = (evalObj(xPlus) - evalObj(xMinus)) / (2 * fdStep);
+              }
+              return { f, g };
+            };
+            const result = LBFGSBOptimizer.calculate({
+              fun,
+              x0: initialPoint,
+              lower: params.lower as number[] | undefined,
+              upper: params.upper as number[] | undefined,
+              memory: params.memory as number | undefined,
+              maxIter: params.max_iterations as number | undefined,
+              tolGrad: params.tol_grad as number | undefined,
+              tolF: params.tol_f as number | undefined,
+            });
+            return ok(result);
+          }
+
+          // ALGO-SYNERGY-MS0/U-ALGO-MAT-10 — Hypervolume indicator for Pareto fronts.
+          case "opt_hypervolume": {
+            const { HypervolumeIndicator } = await import("../../algorithms/HypervolumeIndicator.js");
+            const points = params.points as number[][] | undefined;
+            if (!points || !Array.isArray(points)) {
+              return err("Missing required param: points (array of objective vectors)");
+            }
+            const result = HypervolumeIndicator.calculate({
+              points,
+              reference: params.reference as number[] | undefined,
+              reference_inflation: params.reference_inflation as number | undefined,
+              assume_non_dominated: params.assume_non_dominated as boolean | undefined,
+            });
+            return ok(result);
+          }
+
           // ============================================================
           // NUMERICAL (5 actions)
           // ============================================================
@@ -432,6 +593,58 @@ export function registerAlgorithmDispatcher(server: Server): void {
             return ok(result);
           }
 
+          case "num_fem_1d": {
+            const { FiniteElementMethod1D } = await import("../../algorithms/FiniteElementMethod1D.js");
+            const raw = params.input;
+            if (!raw || typeof raw !== "object") {
+              return err("Missing required param: input ({length, elements, a, c, source_spec, bc})");
+            }
+            const r = raw as Record<string, unknown>;
+            // The algorithm's source term is a (x)=>number FUNCTION that cannot cross the JSON
+            // dispatcher boundary, so we build it from a serializable `source_spec`. Default: f(x)=0.
+            const spec = (r.source_spec ?? { type: "constant", value: 0 }) as Record<string, unknown>;
+            let source: (x: number) => number;
+            switch (spec.type) {
+              case "constant": {
+                const v = Number(spec.value ?? 0);
+                if (!Number.isFinite(v)) return err("source_spec.constant requires a finite `value`");
+                source = () => v;
+                break;
+              }
+              case "polynomial": {
+                const coeffs = spec.coeffs;
+                if (!Array.isArray(coeffs) || coeffs.length === 0 || !coeffs.every((k) => Number.isFinite(k))) {
+                  return err("source_spec.polynomial requires coeffs: non-empty number[] (ascending powers)");
+                }
+                source = (x: number) => (coeffs as number[]).reduce((acc, ck, k) => acc + ck * x ** k, 0);
+                break;
+              }
+              case "sinusoidal": {
+                const amp = Number(spec.amplitude ?? 1);
+                const freq = Number(spec.frequency ?? 1);
+                const phase = Number(spec.phase ?? 0);
+                if (![amp, freq, phase].every(Number.isFinite)) {
+                  return err("source_spec.sinusoidal requires finite amplitude, frequency, phase");
+                }
+                source = (x: number) => amp * Math.sin(freq * x + phase);
+                break;
+              }
+              default:
+                return err(`Unknown source_spec.type '${String(spec.type)}' (use constant | polynomial | sinusoidal)`);
+            }
+            const input = {
+              length: r.length, elements: r.elements, a: r.a, c: r.c, source, bc: r.bc,
+            } as Parameters<typeof FiniteElementMethod1D.calculate>[0];
+            const v = FiniteElementMethod1D.validate(input);
+            if (!v.valid) {
+              const detail = v.errors?.length
+                ? v.errors
+                : (v.issues ?? []).filter((i) => i.severity === "error").map((i) => i.message);
+              return err(`Invalid input: ${detail.join("; ")}`);
+            }
+            return ok(FiniteElementMethod1D.calculate(input));
+          }
+
           // ============================================================
           // GRAPH (4 actions)
           // ============================================================
@@ -476,6 +689,48 @@ export function registerAlgorithmDispatcher(server: Server): void {
               return err("Missing required params: graph, start");
             }
             const result = algorithmGatewayEngine.bfsDfs({ graph, start, mode });
+            return ok(result);
+          }
+
+          // ALGO-SYNERGY-MS0/U-ALGO-RET-04 — Personalized PageRank on a typed graph.
+          case "graph_pagerank": {
+            const { PersonalizedPageRank } = await import("../../algorithms/PersonalizedPageRank.js");
+            const nodes = params.nodes as string[] | undefined;
+            const edges = params.edges as Array<{ from: string; to: string; weight?: number }> | undefined;
+            if (!nodes || !edges) {
+              return err("Missing required params: nodes (string[]), edges ({from, to, weight?}[])");
+            }
+            const result = PersonalizedPageRank.calculate({
+              graph: { nodes, edges },
+              seed: params.seed as string[] | Record<string, number> | undefined,
+              damping: params.damping as number | undefined,
+              maxIter: params.max_iterations as number | undefined,
+              tol: params.tolerance as number | undefined,
+              topK: params.top_k as number | undefined,
+            });
+            return ok(result);
+          }
+
+          // ALGO-SYNERGY (2026-05-29, slot:tango) — H2GCN heterophily-aware aggregation.
+          // Model-side lever for the deferred NN/GNN deploy gate (AUROC≈0.096 heterophily);
+          // produces richer node embeddings for india's GraphSAGE pipeline + sierra's graph.
+          case "graph_heterophily_aggregate": {
+            const { HeterophilyAwareAggregator } = await import("../../algorithms/HeterophilyAwareAggregator.js");
+            const features = params.features as number[][] | undefined;
+            const edges = params.edges as Array<[number, number]> | undefined;
+            if (!features || !edges) {
+              return err("Missing required params: features (number[][]), edges ([number,number][])");
+            }
+            const validation = HeterophilyAwareAggregator.validate({ features, edges });
+            if (!validation.valid) {
+              return err(`Invalid input: ${(validation.errors ?? []).join("; ")}`);
+            }
+            const result = HeterophilyAwareAggregator.calculate({
+              features,
+              edges,
+              maxHops: params.max_hops as number | undefined,
+              normalize: params.normalize as "mean" | "sum" | undefined,
+            });
             return ok(result);
           }
 
@@ -681,7 +936,7 @@ export function registerAlgorithmDispatcher(server: Server): void {
           }
 
           // ============================================================
-          // SPATIAL (2 actions)
+          // SPATIAL (3 actions)
           // ============================================================
           case "spatial_kdtree": {
             const points = params.points as number[][];
@@ -710,8 +965,27 @@ export function registerAlgorithmDispatcher(server: Server): void {
             return ok(result);
           }
 
+          // ALGO-SYNERGY (2026-05-29, slot:tango) — RANSAC robust hyperplane fit (metrology/CAD/quality).
+          case "spatial_ransac_fit": {
+            const { RANSACHyperplane } = await import("../../algorithms/RANSACHyperplane.js");
+            const points = params.points as number[][] | undefined;
+            const threshold = params.threshold as number | undefined;
+            if (!points || typeof threshold !== "number") {
+              return err("Missing required params: points (number[][]), threshold (number)");
+            }
+            const ransacInput = {
+              points, threshold,
+              iterations: params.iterations as number | undefined,
+              seed: params.seed as number | undefined,
+              refit: params.refit as boolean | undefined,
+            };
+            const rv = RANSACHyperplane.validate(ransacInput);
+            if (!rv.valid) return err(`Invalid input: ${(rv.errors ?? []).join("; ")}`);
+            return ok(RANSACHyperplane.calculate(ransacInput));
+          }
+
           // ============================================================
-          // ML (2 actions)
+          // ML (21 actions)
           // ============================================================
           case "ml_policy_gradient": {
             const state = params.state as number[];
@@ -741,9 +1015,413 @@ export function registerAlgorithmDispatcher(server: Server): void {
             return ok(result);
           }
 
+          // ALGO-SYNERGY (2026-05-29, slot:tango) — 5 built-but-unwired ML classes exposed.
+          // Uniform Algorithm<I,O> pattern: caller passes a typed `input` object;
+          // each class's own validate() gates before calculate() (R12 — err, not crash).
+          case "ml_neural_infer": {
+            const { NeuralInference } = await import("../../algorithms/NeuralInference.js");
+            const raw = params.input;
+            if (!raw || typeof raw !== "object") return err("Missing required param: input (NeuralInferenceInput object)");
+            const algo = new NeuralInference();
+            const input = raw as Parameters<typeof algo.calculate>[0];
+            const v = algo.validate(input);
+            if (!v.valid) return err(`Invalid input: ${(v.errors ?? []).join("; ")}`);
+            return ok(algo.calculate(input));
+          }
+
+          case "ml_regression": {
+            const { RegressionEngine } = await import("../../algorithms/RegressionEngine.js");
+            const raw = params.input;
+            if (!raw || typeof raw !== "object") return err("Missing required param: input (RegressionEngineInput object)");
+            const algo = new RegressionEngine();
+            const input = raw as Parameters<typeof algo.calculate>[0];
+            const v = algo.validate(input);
+            if (!v.valid) return err(`Invalid input: ${(v.errors ?? []).join("; ")}`);
+            return ok(algo.calculate(input));
+          }
+
+          case "ml_decision_tree": {
+            const { DecisionTreeClassifier } = await import("../../algorithms/DecisionTreeClassifier.js");
+            const raw = params.input;
+            if (!raw || typeof raw !== "object") return err("Missing required param: input (DecisionTreeClassifierInput object)");
+            const algo = new DecisionTreeClassifier();
+            const input = raw as Parameters<typeof algo.calculate>[0];
+            const v = algo.validate(input);
+            if (!v.valid) return err(`Invalid input: ${(v.errors ?? []).join("; ")}`);
+            return ok(algo.calculate(input));
+          }
+
+          case "ml_clustering": {
+            const { ClusteringEngine } = await import("../../algorithms/ClusteringEngine.js");
+            const raw = params.input;
+            if (!raw || typeof raw !== "object") return err("Missing required param: input (ClusteringEngineInput object)");
+            const algo = new ClusteringEngine();
+            const input = raw as Parameters<typeof algo.calculate>[0];
+            const v = algo.validate(input);
+            if (!v.valid) return err(`Invalid input: ${(v.errors ?? []).join("; ")}`);
+            return ok(algo.calculate(input));
+          }
+
+          case "ml_ensemble_predict": {
+            const { EnsemblePredictorModel } = await import("../../algorithms/EnsemblePredictorModel.js");
+            const raw = params.input;
+            if (!raw || typeof raw !== "object") return err("Missing required param: input (EnsemblePredictorInput object)");
+            const algo = new EnsemblePredictorModel();
+            const input = raw as Parameters<typeof algo.calculate>[0];
+            const v = algo.validate(input);
+            if (!v.valid) return err(`Invalid input: ${(v.errors ?? []).join("; ")}`);
+            return ok(algo.calculate(input));
+          }
+
+          // ALGO-SYNERGY (2026-05-29, slot:tango) — 2 clustering primitives (static-shape, THROW on bad
+          // input → wrap in try/catch so the dispatcher returns err() not a crash, R12).
+          case "ml_dbscan": {
+            const { DBSCANAlgorithm } = await import("../../algorithms/DBSCANAlgorithm.js");
+            const points = params.points as number[][] | undefined;
+            const eps = params.eps as number | undefined;
+            const minPts = params.min_pts as number | undefined;
+            if (!points || typeof eps !== "number" || typeof minPts !== "number") {
+              return err("Missing required params: points (number[][]), eps (number), min_pts (number)");
+            }
+            try {
+              const labels = DBSCANAlgorithm.cluster(points, eps, minPts);
+              const clusterCount = labels.length ? Math.max(0, ...labels) : 0;
+              const noise = labels.filter((l) => l === 0).length;
+              return ok({ labels, clusterCount, noise });
+            } catch (e) {
+              return err(`DBSCAN failed: ${e instanceof Error ? e.message : String(e)}`);
+            }
+          }
+
+          case "ml_kmedoids": {
+            const { KMedoidsAlgorithm } = await import("../../algorithms/KMedoidsAlgorithm.js");
+            const points = params.points as number[][] | undefined;
+            const k = params.k as number | undefined;
+            if (!points || typeof k !== "number") {
+              return err("Missing required params: points (number[][]), k (number)");
+            }
+            try {
+              const result = KMedoidsAlgorithm.cluster(points, k, {
+                maxIter: params.max_iterations as number | undefined,
+              });
+              return ok(result);
+            } catch (e) {
+              return err(`KMedoids failed: ${e instanceof Error ? e.message : String(e)}`);
+            }
+          }
+
+          // ALGO-SYNERGY (2026-05-29, slot:tango) — neural activation library (apply() THROWS on
+          // unknown name → try/catch err-not-crash, R12). softmax/logSoftmax are vector ops.
+          case "ml_activation": {
+            const { ActivationFunctionsAlgorithm } = await import("../../algorithms/ActivationFunctionsAlgorithm.js");
+            const values = params.values as number | number[] | undefined;
+            const name = params.name as string | undefined;
+            if (values === undefined || !name) {
+              return err("Missing required params: values (number|number[]), name (e.g. relu/sigmoid/tanh/gelu/softmax)");
+            }
+            try {
+              let result: number | number[];
+              if (name === "softmax" || name === "logSoftmax") {
+                if (!Array.isArray(values)) return err(`${name} requires values to be number[]`);
+                result = name === "softmax"
+                  ? ActivationFunctionsAlgorithm.softmax(values)
+                  : ActivationFunctionsAlgorithm.logSoftmax(values);
+              } else {
+                result = ActivationFunctionsAlgorithm.apply(
+                  values,
+                  name as Parameters<typeof ActivationFunctionsAlgorithm.apply>[1],
+                  ...((params.params as number[] | undefined) ?? []),
+                );
+              }
+              return ok({ result, activation: name });
+            } catch (e) {
+              return err(`Activation failed: ${e instanceof Error ? e.message : String(e)}`);
+            }
+          }
+
+          // ALGO-SYNERGY (2026-05-29, slot:tango) — Transformer scaled dot-product attention.
+          case "ml_attention": {
+            const { ScaledDotProductAttention } = await import("../../algorithms/ScaledDotProductAttention.js");
+            const query = params.query as number[][] | undefined;
+            const key = params.key as number[][] | undefined;
+            const value = params.value as number[][] | undefined;
+            if (!query || !key || !value) {
+              return err("Missing required params: query (number[][]), key (number[][]), value (number[][])");
+            }
+            const attnInput = {
+              query, key, value,
+              scale: params.scale as number | undefined,
+              causal: params.causal as boolean | undefined,
+              mask: params.mask as number[][] | undefined,
+            };
+            const av = ScaledDotProductAttention.validate(attnInput);
+            if (!av.valid) return err(`Invalid input: ${(av.errors ?? []).join("; ")}`);
+            return ok(ScaledDotProductAttention.calculate(attnInput));
+          }
+
+          // ALGO-SYNERGY (2026-05-29, slot:tango) — truncated SVD / low-rank approximation (LoRA).
+          case "ml_lowrank": {
+            const { LowRankApproximation } = await import("../../algorithms/LowRankApproximation.js");
+            const matrix = params.matrix as number[][] | undefined;
+            const rank = params.rank as number | undefined;
+            if (!matrix || typeof rank !== "number") {
+              return err("Missing required params: matrix (number[][]), rank (number)");
+            }
+            const lrInput = {
+              matrix, rank,
+              maxIter: params.max_iterations as number | undefined,
+              tol: params.tolerance as number | undefined,
+              seed: params.seed as number | undefined,
+            };
+            const lv = LowRankApproximation.validate(lrInput);
+            if (!lv.valid) return err(`Invalid input: ${(lv.errors ?? []).join("; ")}`);
+            return ok(LowRankApproximation.calculate(lrInput));
+          }
+
+          // ALGO-SYNERGY (2026-05-29, slot:tango) — Viterbi HMM MAP sequence decoding.
+          case "ml_viterbi": {
+            const { ViterbiDecoder } = await import("../../algorithms/ViterbiDecoder.js");
+            const observations = params.observations as number[] | undefined;
+            const startProb = params.start_prob as number[] | undefined;
+            const transitionProb = params.transition_prob as number[][] | undefined;
+            const emissionProb = params.emission_prob as number[][] | undefined;
+            if (!observations || !startProb || !transitionProb || !emissionProb) {
+              return err("Missing required params: observations (number[]), start_prob (number[]), transition_prob (number[][]), emission_prob (number[][])");
+            }
+            const vitInput = {
+              observations, startProb, transitionProb, emissionProb,
+              logInput: params.log_input as boolean | undefined,
+            };
+            const vv = ViterbiDecoder.validate(vitInput);
+            if (!vv.valid) return err(`Invalid input: ${(vv.errors ?? []).join("; ")}`);
+            return ok(ViterbiDecoder.calculate(vitInput));
+          }
+
+          // ALGO-SYNERGY (2026-05-29, slot:tango) — Dynamic Time Warping (elastic alignment).
+          case "ml_dtw": {
+            const { DynamicTimeWarping } = await import("../../algorithms/DynamicTimeWarping.js");
+            const a = params.a as number[][] | undefined;
+            const b = params.b as number[][] | undefined;
+            if (!a || !b) {
+              return err("Missing required params: a (number[][]), b (number[][]) — each row a timestep vector");
+            }
+            const dtwInput = {
+              a, b,
+              metric: params.metric as "euclidean" | "manhattan" | "sqeuclidean" | undefined,
+              window: params.window as number | undefined,
+            };
+            const dv = DynamicTimeWarping.validate(dtwInput);
+            if (!dv.valid) return err(`Invalid input: ${(dv.errors ?? []).join("; ")}`);
+            return ok(DynamicTimeWarping.calculate(dtwInput));
+          }
+
+          // ALGO-SYNERGY (2026-05-29, slot:tango) — PCA (composes ml_lowrank truncated SVD).
+          case "ml_pca": {
+            const { PrincipalComponentAnalysis } = await import("../../algorithms/PrincipalComponentAnalysis.js");
+            const data = params.data as number[][] | undefined;
+            const components = params.components as number | undefined;
+            if (!data || typeof components !== "number") {
+              return err("Missing required params: data (number[][]), components (number)");
+            }
+            const pcaInput = {
+              data, components,
+              center: params.center as boolean | undefined,
+              scale: params.scale as boolean | undefined,
+              maxIter: params.max_iterations as number | undefined,
+              seed: params.seed as number | undefined,
+            };
+            const pv = PrincipalComponentAnalysis.validate(pcaInput);
+            if (!pv.valid) return err(`Invalid input: ${(pv.errors ?? []).join("; ")}`);
+            return ok(PrincipalComponentAnalysis.calculate(pcaInput));
+          }
+
+          // ALGO-SYNERGY (2026-05-29, slot:tango) — k-NN retrieval / classify / regress (RAG core).
+          case "ml_knn": {
+            const { KNearestNeighbors } = await import("../../algorithms/KNearestNeighbors.js");
+            const queries = params.queries as number[][] | undefined;
+            const corpus = params.corpus as number[][] | undefined;
+            const kk = params.k as number | undefined;
+            if (!queries || !corpus || typeof kk !== "number") {
+              return err("Missing required params: queries (number[][]), corpus (number[][]), k (number)");
+            }
+            const knnInput = {
+              queries, corpus, k: kk,
+              metric: params.metric as "cosine" | "euclidean" | "manhattan" | undefined,
+              task: params.task as "search" | "classify" | "regress" | undefined,
+              labels: params.labels as Array<number | string> | undefined,
+              weighted: params.weighted as boolean | undefined,
+            };
+            const kv = KNearestNeighbors.validate(knnInput);
+            if (!kv.valid) return err(`Invalid input: ${(kv.errors ?? []).join("; ")}`);
+            return ok(KNearestNeighbors.calculate(knnInput));
+          }
+
+          // ALGO-SYNERGY (2026-05-29, slot:tango) — GMM soft clustering (EM, completes clustering family).
+          case "ml_gmm": {
+            const { GaussianMixtureModel } = await import("../../algorithms/GaussianMixtureModel.js");
+            const data = params.data as number[][] | undefined;
+            const k = params.k as number | undefined;
+            if (!data || typeof k !== "number") {
+              return err("Missing required params: data (number[][]), k (number)");
+            }
+            const gmmInput = {
+              data, k,
+              maxIter: params.max_iterations as number | undefined,
+              tol: params.tol as number | undefined,
+              seed: params.seed as number | undefined,
+              varianceFloor: params.variance_floor as number | undefined,
+            };
+            const gv = GaussianMixtureModel.validate(gmmInput);
+            if (!gv.valid) return err(`Invalid input: ${(gv.errors ?? []).join("; ")}`);
+            return ok(GaussianMixtureModel.calculate(gmmInput));
+          }
+
+          // ALGO-SYNERGY (2026-05-29, slot:tango) — LayerNorm (pairs with ml_attention → transformer block).
+          case "ml_layernorm": {
+            const { LayerNormalization } = await import("../../algorithms/LayerNormalization.js");
+            const data = params.data as number[][] | undefined;
+            if (!data) {
+              return err("Missing required param: data (number[][])");
+            }
+            const lnInput = {
+              data,
+              gamma: params.gamma as number[] | undefined,
+              beta: params.beta as number[] | undefined,
+              epsilon: params.epsilon as number | undefined,
+            };
+            const lv = LayerNormalization.validate(lnInput);
+            if (!lv.valid) return err(`Invalid input: ${(lv.errors ?? []).join("; ")}`);
+            return ok(LayerNormalization.calculate(lnInput));
+          }
+
+          // ALGO-SYNERGY (2026-05-29, slot:tango) — beam-search n-best decoding (companion to exact ml_viterbi).
+          case "ml_beam_search": {
+            const { BeamSearchDecoder } = await import("../../algorithms/BeamSearchDecoder.js");
+            const emissions = params.emissions as number[][] | undefined;
+            const beamWidth = params.beam_width as number | undefined;
+            if (!emissions || typeof beamWidth !== "number") {
+              return err("Missing required params: emissions (number[][]), beam_width (number)");
+            }
+            const bsInput = {
+              emissions, beamWidth,
+              transition: params.transition as number[][] | undefined,
+              initial: params.initial as number[] | undefined,
+              topK: params.top_k as number | undefined,
+            };
+            const bv = BeamSearchDecoder.validate(bsInput);
+            if (!bv.valid) return err(`Invalid input: ${(bv.errors ?? []).join("; ")}`);
+            return ok(BeamSearchDecoder.calculate(bsInput));
+          }
+
+          // ALGO-SYNERGY (2026-05-29, slot:tango) — multi-head attention (composes ml_attention per head).
+          case "ml_multihead_attention": {
+            const { MultiHeadAttention } = await import("../../algorithms/MultiHeadAttention.js");
+            const query = params.query as number[][] | undefined;
+            const key = params.key as number[][] | undefined;
+            const value = params.value as number[][] | undefined;
+            const numHeads = params.num_heads as number | undefined;
+            if (!query || !key || !value || typeof numHeads !== "number") {
+              return err("Missing required params: query (number[][]), key (number[][]), value (number[][]), num_heads (number)");
+            }
+            const mhaInput = {
+              query, key, value, numHeads,
+              wq: params.wq as number[][] | undefined,
+              wk: params.wk as number[][] | undefined,
+              wv: params.wv as number[][] | undefined,
+              wo: params.wo as number[][] | undefined,
+              causal: params.causal as boolean | undefined,
+              mask: params.mask as number[][] | undefined,
+              scale: params.scale as number | undefined,
+            };
+            const mv = MultiHeadAttention.validate(mhaInput);
+            if (!mv.valid) return err(`Invalid input: ${(mv.errors ?? []).join("; ")}`);
+            return ok(MultiHeadAttention.calculate(mhaInput));
+          }
+
+          // ALGO-SYNERGY (2026-05-29, slot:tango) — full transformer block (composes MHA + LayerNorm + FFN + residual).
+          case "ml_transformer_block": {
+            const { TransformerBlock } = await import("../../algorithms/TransformerBlock.js");
+            const x = params.x as number[][] | undefined;
+            const numHeads = params.num_heads as number | undefined;
+            const w1 = params.w1 as number[][] | undefined;
+            const b1 = params.b1 as number[] | undefined;
+            const w2 = params.w2 as number[][] | undefined;
+            const b2 = params.b2 as number[] | undefined;
+            if (!x || typeof numHeads !== "number" || !w1 || !b1 || !w2 || !b2) {
+              return err("Missing required params: x (number[][]), num_heads (number), w1, b1, w2, b2 (FFN weights)");
+            }
+            const tbInput = {
+              x, numHeads, w1, b1, w2, b2,
+              activation: params.activation as "relu" | "gelu" | undefined,
+              preNorm: params.pre_norm as boolean | undefined,
+              wq: params.wq as number[][] | undefined,
+              wk: params.wk as number[][] | undefined,
+              wv: params.wv as number[][] | undefined,
+              wo: params.wo as number[][] | undefined,
+              gamma1: params.gamma1 as number[] | undefined,
+              beta1: params.beta1 as number[] | undefined,
+              gamma2: params.gamma2 as number[] | undefined,
+              beta2: params.beta2 as number[] | undefined,
+              epsilon: params.epsilon as number | undefined,
+              causal: params.causal as boolean | undefined,
+            };
+            const tv = TransformerBlock.validate(tbInput);
+            if (!tv.valid) return err(`Invalid input: ${(tv.errors ?? []).join("; ")}`);
+            return ok(TransformerBlock.calculate(tbInput));
+          }
+
+          // ENGINE-AUDIT (2026-06-19, slot:bravo) -- t-SNE nonlinear dimensionality reduction.
+          case "ml_tsne": {
+            const { TSNEAlgorithm } = await import("../../algorithms/TSNEAlgorithm.js");
+            const X = params.X as number[][] | undefined;
+            if (!Array.isArray(X) || X.length < 2 || !Array.isArray(X[0])) {
+              return err("Missing/invalid required param: X (number[][], n>=2 points each of equal dimensionality)");
+            }
+            const opts: Record<string, unknown> = {
+              dims: (params.dims as number) ?? 2,
+              perplexity: (params.perplexity as number) ?? 30,
+              maxIter: (params.max_iter as number) ?? 500,
+              learningRate: (params.learning_rate as number) ?? 100,
+            };
+            // embed() takes an rng FUNCTION (defaults to Math.random) -- a function can't cross the
+            // dispatcher boundary, so accept a serializable integer `seed` and build a deterministic
+            // mulberry32 PRNG here (reproducible embeddings for tests / repeatable runs).
+            if (typeof params.seed === "number") {
+              let s = (params.seed as number) >>> 0;
+              opts.rng = () => {
+                s = (s + 0x6d2b79f5) | 0;
+                let t = Math.imul(s ^ (s >>> 15), 1 | s);
+                t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+                return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+              };
+            }
+            return ok(TSNEAlgorithm.embed(X, opts as Parameters<typeof TSNEAlgorithm.embed>[1]));
+          }
+
+          // ALGO-SYNERGY (2026-05-29, slot:tango) — Savitzky-Golay smoothing/differentiation.
+          case "signal_savgol": {
+            const { SavitzkyGolayFilter } = await import("../../algorithms/SavitzkyGolayFilter.js");
+            const signal = params.signal as number[] | undefined;
+            const windowSize = params.window_size as number | undefined;
+            if (!signal || typeof windowSize !== "number") {
+              return err("Missing required params: signal (number[]), window_size (odd integer ≥3)");
+            }
+            const sgInput = {
+              signal, windowSize,
+              polyOrder: params.poly_order as number | undefined,
+              deriv: params.deriv as number | undefined,
+              delta: params.delta as number | undefined,
+            };
+            const sv = SavitzkyGolayFilter.validate(sgInput);
+            if (!sv.valid) return err(`Invalid input: ${(sv.errors ?? []).join("; ")}`);
+            return ok(SavitzkyGolayFilter.calculate(sgInput));
+          }
+
           default: {
-            // Fallback: use algorithm gateway selection
-            const actionParts = action.split("_");
+            // Fallback: use algorithm gateway selection.
+            // action is narrowed to never here (all enum members handled above);
+            // cast to string so .split compiles -- runtime path exists for future actions.
+            const actionParts = (action as string).split("_");
             const domain = actionParts[0];
             const result = algorithmGatewayEngine.select({
               problem_type: params.problem_type as string || "optimize",

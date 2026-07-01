@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+<machine xmlns="http://www.hsmworks.com/xml/2009/machine">
+  <vendor>Haas</vendor>
+  <model>OM-2</model>
+  <description>Haas OM-2 (3-axis, PRE-NGC)</description>
+  <control>PRE-NGC</control>
+  <machining additive="no" inspection="no" jet="no" milling="yes" turning="no"/>
+  <dimensions depth="0mm" height="0mm" weight="0kg" width="0mm"/>
+  <capacities depth="0mm" height="0mm" weight="0kg" width="0mm"/>
+  <coolant options="FLOOD MIST"/>
+  <multiAxis adjust="yes" angle="10deg" feedrateMethod="fpm" linearizationTolerance="0.04mm" maximumFeedrate="9999" method="off" reconfigure="no" safePlungeFeedrate="250mm/min" safeRetractDistance="25mm" safeRetractFeedrate="500mm/min" tolerance="0.04mm" virtualToolTip="no"/>
+  <tooling maximumToolDiameter="0mm" maximumToolLength="0mm" maximumToolWeight="0kg" numberOfTools="10" toolChanger="yes" toolPreload="yes"/>
+  <machiningTime ratio="1" toolChangeTime="15s"/>
+  <capabilities maximumBlockProcessingSpeed="0" maximumFeedrate="0mm/min" workOffsets="100"/>
+  <simulation tableAttachPoint="0mm 0mm 0mm" toolAttachPoint="0mm 0mm 0mm" wcs="0mm 0mm 0mm">
+    <machineAssembly></machineAssembly>
+  </simulation>
+  <post>
+    <postProcessor>system://HAAS_OM-2_PRE-NGC_PRISM.cps</postProcessor>
+    <postProperties><Parameters/></postProperties>
+  </post>
+
+  <axis actuator="linear" coordinate="X" homePosition="0mm" id="X" link="head" maximumFeed="0mm/min" name="" offset="0mm 0mm 0mm" range="0mm 305mm" rapidFeed="0mm/min" resolution="0mm"/>
+
+  <axis actuator="linear" coordinate="Y" homePosition="0mm" id="Y" link="head" maximumFeed="0mm/min" name="" offset="0mm 0mm 0mm" range="0mm 254mm" rapidFeed="0mm/min" resolution="0mm"/>
+
+  <axis actuator="linear" coordinate="Z" homePosition="0mm" id="Z" link="head" maximumFeed="0mm/min" name="" offset="0mm 0mm 0mm" range="-305mm 0mm" rapidFeed="0mm/min" resolution="0mm"/>
+
+  <spindle axis="0 0 1" maximumSpeed="30000rpm" minimumSpeed="0rpm"><description>7.5 kW, BT30</description></spindle>
+</machine>

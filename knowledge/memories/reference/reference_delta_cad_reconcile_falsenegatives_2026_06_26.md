@@ -1,0 +1,25 @@
+---
+name: reference_delta_cad_reconcile_falsenegatives_2026_06_26
+description: "Three stale-status corrections in CAD-COMPLETION reconcile - U-CAD-BOOLEAN false-NEGATIVE (wrong filename) + U-CAD-NURBS-STEP-EMIT false-POSITIVE (git --grep matched a body-mention in the reconcile commit) + the fanout-gate \"blocker\" is actually advisory. A status-reconcile that greps commit MESSAGES self-matches because status/roadmap commits list every unit id."
+type: reference
+source: prism-memory
+synced: 2026-06-27T20:30:46.542Z
+aliases: reference_delta_cad_reconcile_falsenegatives_2026_06_26
+---
+
+
+`scripts/cad-completion-reconcile.mjs` (the CAD-COMPLETION roadmap's git+disk reconciler) carried THREE false status claims, all fixed 2026-06-26 (slot:delta) under the `/goal` "plan remaining delta/CAD units -> train+test CAD model + print-gen". Two of three were caught by the 3-of-3 scrutiny gate (reviewer B caught the false-POSITIVE that A and C missed).
+
+1. **`U-CAD-BOOLEAN` false-NEGATIVE.** Detector probed `engine file: "CADBooleanFeatureEngine.ts"` - a filename never built. The boolean gap was actually closed by `CADBooleanEngine` (real composer: `GeometryEngine.boolean` estimate + `BooleanKernelEngine` real CSG), wired at `cad_boolean` (`cadDispatcher.ts:737`, commit `03e270285f`). Fixed detector -> `CADBooleanEngine.ts`.
+
+2. **`U-CAD-NURBS-STEP-EMIT` false-POSITIVE (the deeper bug).** The `git`-type detector ran `git log --all --grep <unitId>`, which matches commit MESSAGES (subject + body). Commit `9ed946a7b4` is the reconcile-harness commit itself; its body contains the literal `next=U-CAD-NURBS-STEP-EMIT` (the status names it as the NEXT pending unit) -> self-match -> falsely SHIPPED. No NURBS STEP-emit deliverable exists; it is genuinely PENDING. Same class also gave `U-CAD-LEARN-LOOP-CLOSE` the wrong cited commit (`1c788cf7a2` cad_mate body-mention vs the real `19e9c0af6b`). **Fix:** harden `gitGrep` to require the unit id in the commit SUBJECT (PRISM commits are `[SCOPE]/U-ID: title`); `--grep` stays only as a cheap body-level prefilter. Honest count 11/20 -> **10/20**; critical-next corrected to `U-CAD-NURBS-STEP-EMIT`.
+
+3. **The fanout-gate "blocker" is ADVISORY, not blocking.** Roadmap §4 claimed the parallel-hermes-opus vision was "not executable without lifting the fanout-gate." Verified `PRISM_AGENT_FANOUT_GATE = "warn"` (`C:/Users/wompu/.claude/settings.json:115`); `agent-fanout-pressure-gate.mjs:22-28` emits a systemMessage, NEVER blocks, fail-opens. The prior 429s were Anthropic-side concurrency limits from bursting Claude agents. Infra already built: `scripts/hermes-graph-improvement-driver.mts` (`U-ALPHA-HERMES-GRAPH-IMPROVE`) plans the opus-fast-max fan-out; EXECUTION is consumer-gated (a live chat / Workflow fires it). Scale lever = Hermes(Grok)/Ollama lanes (outside Anthropic limits) + higher driver `--count`, NOT a gate flip.
+
+4. **`U-CAD-OLLAMA-OFFLOAD` already SATISFIED-BY-EXISTING (verify-before-build).** The roadmap's own "dedup vs existing ollama-task-offloader first" check resolved it: CAD generative work is already Ollama-first routed (`AISystemRouterEngine.ts:211` `cad_drawing` -> `local-mcp` primary, Claude failsafe), `OllamaTaskOffloaderEngine.isOffloadable` covers the mechanical categories, and the LIVE fleet offload ratio is 35.8% (67/187, `ollama-offload-dashboard.mjs`) -- already ABOVE the unit's 30% done-test, + 552 true off-Claude bridge execs (~974K tok). Building a CAD offloader would duplicate working infra (duplicationGuard would block). Closed with live evidence, no build.
+
+**Why:** FOUR roadmap units this session were either already-done or misframed (boolean wired, nurbs not-real, fanout-gate advisory-not-blocker, ollama-offload metric-already-met). "existence != content / read the body" applies to STATUS DETECTORS and to ROADMAP UNIT CLAIMS. A git-grep over commit MESSAGES is self-poisoning the moment a reconcile/status/roadmap commit lists every unit id - it matches its own "pending" enumeration as a deliverable. And a roadmap that names a non-blocker (an advisory hook) as the #1 blocker silently misdirects the operator's decision. Both directions (false-negative -> duplicate build; false-positive -> phantom completion) corrupt the plan.
+
+**How to apply:** a unit-completion detector must match a DELIVERABLE signal, not a mention - grep the commit SUBJECT (or require a deliverable file path touched), never the whole message. Before propagating any "blocker" in a plan, read the gate's actual env mode (`warn` = advisory != blocker). CAD-COMPLETION terminal milestone is gated by OPERATOR/GPU decisions (merge slot/delta 432-ahead -> unblocks smooth-solid emitter that U-CAD-NURBS-STEP-EMIT builds on · Blackwell GPU window for real QLoRA `U-CAD-REAL-TRAIN-RUN`), NOT by the fanout gate.
+
+Related: [[reference_delta_cad_completion_roadmap_2026_06_26]] · [[feedback_read_full_content_not_titles]] · [[reference_zulu_parseshipped_prose_miscount_fix_2026_06_15]] · [[reference_hermes_graph_improvement_loop_2026_06_25]]

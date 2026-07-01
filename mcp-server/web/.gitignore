@@ -1,0 +1,31 @@
+# Generated native + packaged build artifacts (regenerated from committed config).
+# The SOURCE OF TRUTH for the desktop/mobile shells is:
+#   - electron/main.cjs + electron/preload.cjs   (committed)
+#   - capacitor.config.json                       (committed)
+#   - package.json "build" + cap/electron scripts (committed)
+# The dirs below are produced by `cap add android|ios`, `cap sync`, and
+# `npm run electron:build` — large, reproducible, and must not be committed
+# (dist_electron alone holds a ~180MB PRISM.exe + ~373MB app.asar).
+
+# electron-builder output (electron:build --dir)
+/dist_electron/
+
+# Capacitor generated native projects (regenerate: cap add android|ios; cap sync)
+/android/
+/ios/
+
+# Build / test scratch logs written during verification runs
+/electron-build*.log
+/cap-add-*.log
+/cap-sync-*.log
+/e2e-stdout.log
+/e2e-result.json
+
+# Playwright run artifacts (regenerated every `playwright test`)
+/test-results/
+/tmp-playwright/
+/vitest-*-output.txt
+
+# Stray scratch dirs (env-var that failed to expand on Windows; scratch sandbox)
+/%TEMP%/
+/.quebec/

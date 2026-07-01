@@ -1,0 +1,991 @@
+Tool Setter: Measuring Tools for Length [Easy Guide]  https://www.cnccookbook.com/touch-off-tool-setter-measuring-tools-for...
+
+                         Back to Homepage                             a
+
+      7 months by cncdivi                                              4084253617
+
+                                                                         Shop All Our Products
+
+         Tool Setter: Measuring Tools for Length [Tool Data
+         Management]
+
+         CNC operations heavily rely on precise tool measurements in terms of
+         length. CNC machinery requires data related to the length and
+         diameter of the tools in order to accurately pinpoint where cutting is
+         taking place. The CNC controller requires information about the tool's
+         length in relation to an applied standard (for instance, the "gage line").
+         Also, knowing the exact diameter of a tool is beneficial because tool
+         diameters abide by a specific tolerance level that can impact the
+         precision of the created parts. In this article, we will discuss how to
+         measure tool length using methods such as touch off and tool setter.
+
+         There are lots of ways to measuring tools for length ranging from ad
+
+1 of 43                                               10/10/2024, 5:00 PM
+Tool Setter: Measuring Tools for Length [Easy Guide]  https://www.cnccookbook.com/touch-off-tool-setter-measuring-tools-for...
+
+         hoc just-in-time methods to more elaborate systems that involve tool
+         presetters, tool setters on the machine, and potentially even tool
+         management software. If you're running a shop, you'd obviously like
+         to minimize the cost of managing the tool data as well as minimizing
+         the chances the wrong data is in use when a part program is run. Just
+         imagine what happens if the tool is actually an inch longer than what
+         the controller thinks it is­CRASH!!!!
+
+         In shops with more than one machinist, it's also vitally important that
+         the whole shop be on the same page with respect to measuring tools
+         for length. Otherwise, one machinist will do things one way, and the
+         next machinist to try to run the job on the machine will do things
+         another, and we may once again have a CRASH!!!!
+
+         Measuring Tools for Length
+
+         Let's focus on tool length data, and moreover, let's start out on the
+         dead simple end of the spectrum. How do we go about getting the
+         length offset?
+
+         Touch Off
+
+         The simplest way to measuring tools for length is to take a gage block
+         of known dimensions, put the tool in the spindle, and start to lower the
+         tool until you can no longer slide your gage block under the tool. Note
+
+2 of 43                                                                         10/10/2024, 5:00 PM
+Tool Setter: Measuring Tools for Length [Easy Guide]  https://www.cnccookbook.com/touch-off-tool-setter-measuring-tools-for...
+
+         that you don't want to just lower the tool onto the gage block­bad for
+         tool and gage block alike!
+
+         Instead pull the gage block out of the way each time, lower the tool,
+         and then attempt to slide it back under. With this method of measuring
+         tools for length you can determine exactly how far the tip of the tool is
+         from whatever your gage block is resting on­vise jaw, machine table,
+         or top of the part. You would then use this information to determine
+         your tool length relative to some standard, and you'd enter that into the
+         tool table on your controller.
+
+         Another method of measuring tools for length is the paper touch off.
+         Originally this was done with cigarette rolling papers, because they're
+         very thin. I find it is convenient to use post-its, because they're in a pad
+         that's about the right size. You want to stick the paper down between
+         the touch off point and the whirling cutter using a little bit of oil. Lower
+         the cutter until it makes the paper move.
+
+         You'll be 0.002 ­ 0.005 or so above the touch off point, depending on
+         your paper thickness. You want to use the same kind of paper every
+         time so you can determine its thickness by experiment and thereby
+         know how to correct the touch off for paper thickness.
+
+         Let me state the obvious: the paper touch off and the automatic tool
+
+3 of 43                                               10/10/2024, 5:00 PM
+Tool Setter: Measuring Tools for Length [Easy Guide]  https://www.cnccookbook.com/touch-off-tool-setter-measuring-tools-for...
+
+         setter mentioned below are the only cases I know where the touch off
+         is performed while the cutter is moving. In all other cases the spindle
+         should be stopped when measuring tools for length!
+
+         There are endless variations on this method
+
+         Tool Setter
+
+         Okay, the next step up in measuring tools for length is to use some
+         form of measuring device or tool setter instead of a gage block. With
+         this method, you're going to put an indicator of some kind down, and
+         lower the tool onto the measuring pad or tip of the indicator until the
+         indicator needle goes to zero. There are also electronic indicators that
+         light up at the right point. Here is a typical dial gage-based tool setter:
+
+4 of 43                                               10/10/2024, 5:00 PM
+Tool Setter: Measuring Tools for Length [Easy Guide]  https://www.cnccookbook.com/touch-off-tool-setter-measuring-tools-for...
+
+                   A typical Z-Axis tool setter available from Amazon...
+         Here is a typical video of a dial indicator touch off gage in use:
+
+         Positive or Negative Length Offsets?
+
+         You can set things up when measuring tools for length either way, but
+         pick one and stick to it as your standard for your shop. Negative length
+         offsets mean you're working "backward" from some reference on the
+
+5 of 43                                                                      10/10/2024, 5:00 PM
+Tool Setter: Measuring Tools for Length [Easy Guide]  https://www.cnccookbook.com/touch-off-tool-setter-measuring-tools-for...
+
+         table, fixturing (like a vise jaw) or part. Positive length offsets mean
+         you're working "forward" from a fixed feature relative to your spindle.
+
+         Positive offsets are often referred to as being relative to the "gage line".
+         Gage line is a little more independent across machines, and is better
+         suited to situations where the offsets will be preset, meaning they're
+         determined off the machine before the tool is installed in the machine.
+         The term "gage line" refers to a specific spot on the taper where tool
+         zero is located by convention. For example, on a CAT40 taper, the
+         maximum diameter of the taper is 1.75. On a CAT50, it's 2.75. It's
+         straightforward to locate that spot and use it as tool zero on a tool
+         holder.
+
+         The thing to standardize in a shop is where tool length zero is, and
+         from there, whether positive or negative offsets will be used when
+         measuring tools for length. BTW, there are pros and cons to positives
+         and negatives and whether to reference relative to the longest or the
+         shortest tool.
+
+         For example, some people like negative offsets because if the offset
+         table is cleared, then every offset is 0, you won't crash a tool. In other
+         words, the negatives make the spindle move towards the work, less
+         negative is further from the work. Negatives are often more natural
+         when referencing via touch off. But there are some significant cons to
+
+6 of 43                                               10/10/2024, 5:00 PM
+Tool Setter: Measuring Tools for Length [Easy Guide]  https://www.cnccookbook.com/touch-off-tool-setter-measuring-tools-for...
+
+      using a negative standard:
+
+            1. It seems less "logical" to many because it works against the right
+            hand rule coordinate system. The actions required to touch off are
+            simple. But for anything more complex, you'll be scratching your
+            head.
+            2. The touch off becomes problematic with fixturing moving around
+            the table. Do you touch off the bare table? Do you touch off the fixed
+            vise jaw? What happens when you put a different set of vise jaws in
+            the vise, let alone remove the vise and use some other fixture?
+            When that happens, all of your length offsets are now invalid
+            because their reference has been moved. Gage line (positive tool
+            offsets) are referenced relative to the spindle, and so can't change
+            like that.
+            3. The aforementioned safety feature. If the tool offsets are zeroed,
+            the machine just cuts air. If a minus sign is inadvertently forgotten
+            and a positive value is entered, you just cut even more air. With
+            positive offsets, if you enter a spurious minus, you get a crash.
+
+         People like gage line or positive offsets when measuring tools for
+         length because:
+
+         1. Gauge length offset is "logical" (a long tool has a bigger offset
+
+7 of 43                                                                        10/10/2024, 5:00 PM
+Tool Setter: Measuring Tools for Length [Easy Guide]  https://www.cnccookbook.com/touch-off-tool-setter-measuring-tools-for...
+
+         value)
+         2. Can be measured out of the machine with some sort of presetter.
+         3. Literally can be used unchanged for years if the tool is an
+         indexable face mill etc.
+         4. How do you "touch-off" a curved surface?
+         5. Is independent of fixturing on the table. With negative offsets, if
+         you change or remove the fixtures, you've lost the touch off
+         measuring point.
+         6. Positive offsets let you manage all the other offsets more
+         intuitively, because they're not tied to the reference. For example,
+         you may have measured your workpiece height offline with a height
+         gage and want to mess with the offsets around that without affecting
+         your tool length offsets. With negative offsets, you have to keep your
+         calculator handy and really understand the interactions of the
+         various offsets and part dimensions. Note that if you like to measure
+         parts and fixtures offline, it is often convenient to make Z=0 your
+         table, and use the work offsets to account for the height of the top of
+         the part above the table. You could even set a height gage on the
+         table or touch off with a probe to measure and set that work offset.
+
+         Most of the pros prefer gage line / positive length offsets because
+         they're more productive through use of presetters and because you
+         can carry the tooling around to any machine in a multi-machine shop
+
+8 of 43                                               10/10/2024, 5:00 PM
+Tool Setter: Measuring Tools for Length [Easy Guide]  https://www.cnccookbook.com/touch-off-tool-setter-measuring-tools-for...
+
+         and the offsets are constant regardless of the machine or the fixtures.
+         The time spent touching off is completely eliminated with gage line
+         offsets (or to be precise, it is shifted to a presetter and done once), and
+         you can perform other tricks more easily. It's a very efficient method
+         of measuring tools for length.
+
+         Beginners find negative length offsets are great for measuring tools for
+         length because the touch off is easy to understand, if not very
+         reusable, and the percieved safety features of making a crash less
+         likely.
+
+         There are some methods to add a little more safety to positive offsets.
+         For example, a subprogram can check for positive offsets that are
+         shorter than some minimum and halt the part program if any are
+         encountered. This will prevent operation with zeroed or negative values
+         quite easily, for example.
+
+         There are methods to add flexibility to a negative offset system. For
+         example, if you use a toolsetter (see below) on your machine table, you
+         don't have to worry about losing the touch off point because you
+         change fixturing.
+
+         Okay, one last bit of confusion. You can convert from one system to the
+         other, at least in principle.
+
+9 of 43                                               10/10/2024, 5:00 PM
+Tool Setter: Measuring Tools for Length [Easy Guide]  https://www.cnccookbook.com/touch-off-tool-setter-measuring-tools-for...
+
+          Referencing Via Touch Off
+
+          Let's step away from gage line referencing for a minute and look at
+          referencing via touch off when measuring tools for length. In this case,
+          you're using the DRO or Axis readouts from your controller to tell you
+          the position of the tip. For this procedure to work, you need a reference
+          with which to zero the Axis readout. There are two approaches to this
+          problem. One is to use an actual reference tool, the other is that the
+          tool setter is precisely calibrated so that you know that when it zeros,
+          you are exactly 2 (or some other value) above the surface the tool
+          setter is resting on.
+
+          If you use a reference tool, set up your reference tool first, and then
+          zero the Z-axis. You're ready for measuring tools for length. When you
+          zero your other tools, the Axis readout will give you the tool length. For
+          obvious reasons, you'd like your reference tool to be shorter than the
+          other tools so that the tool length offsets come out positive. Even if
+          your reference tool is quite long, it's just a matter of checking its length
+          and then setting the Z-axis indicator to the appropriate value so that
+          "zero" is in a place such all other tools have a positive length. For
+          example, instead of zeroing with the reference tool, set a positive value
+          that is always the same.
+
+          It's important not to use an actual cutter as the reference tool. If you cut
+
+10 of 43                                              10/10/2024, 5:00 PM
+Tool Setter: Measuring Tools for Length [Easy Guide]  https://www.cnccookbook.com/touch-off-tool-setter-measuring-tools-for...
+
+          with it, your reference may change as the tool wears. You might even
+          consider using an empty tool holder (always the same one!) for that
+          reason.
+
+          If you use a tool setter of known precise height, you can touch set a
+          short tool and decide where you want zero to be. You might also touch
+          set an empty tool holder when measuring tools for length.
+
+          Positive Offset Touch Offs (aka Turn Your VMC into a Zillion Dollar Height Gage)
+
+          Let's say you've decided to use positive offsets, but you don't have a
+          tool presetter. Or, you have the presetter and are using positive offsets,
+          and you'd like to use your machine as a height gage to figure out the
+          height of some feature on a fixture or part above your machine table.
+          Both are straightforward.
+
+          There is some number that represents your gage line tool zero being
+          on the table. In other words, the distance from the table to the gage
+          line, which if you've defined it as I did above for the CAT tapers, is the
+          spindle face. The point is to standardize this number for all your
+          machines. Let's say you pick a value of 15 so that when the spindle
+          face is touching the table, you have Z set to read 15.
+
+          How can we use this for measuring tools for length?
+
+          Start with measuring a positive tool table offset for a tool of unknown
+
+11 of 43                                                       10/10/2024, 5:00 PM
+Tool Setter: Measuring Tools for Length [Easy Guide]  https://www.cnccookbook.com/touch-off-tool-setter-measuring-tools-for...
+
+          offset. Mount the tool and do a touch off on the table. The difference
+          between your standard value for tool zero (15) and the touch off "Z"
+          value is the tool table offset for that tool.
+
+          To use the machine as a height gage, enable the tool height offset for
+          the tool you're probing with. Now the machine's Z readout is the same
+          as a height gage readout relative to that probe tip!
+
+          Since you can now use your machine as a height gage, you can use it
+          to measure the height of some feature, like a fixed vise jaw, that you
+          want to use for tool length offset touchoffs because it is inconvenient o
+          reach the table. Given the height of the feature, its easy to adjust the
+          touch off to once again wind up with a positive tool length offset.
+
+          Are we getting too confusing yet? Probably. The important thing is to
+          pick a standard method when measuring tools for length and then use
+          it constantly until it is second nature. Master the simple stuff before you
+          try to get fancy.
+
+          Work Offset Touch Off
+
+          Okay, let's assume you've got your tool table filled out with a bunch of
+          tool offsets. Let's moreover assume you've used positive offsets. You
+          want to make sure your work offset for Z is also properly set. One way
+          to do this is to keep a "tool" that is an edge finder of some kind that can
+
+12 of 43                                              10/10/2024, 5:00 PM
+Tool Setter: Measuring Tools for Length [Easy Guide]  https://www.cnccookbook.com/touch-off-tool-setter-measuring-tools-for...
+
+          be used to find an exact position in Z.
+
+          For example, you could mount a dial indicator in a tool holder, and
+          make it your reference tool. Give it a position in the tool table. Give it a
+          tool length offset that measures a positive offset when the dial is
+          zeroed. Stick it in the machine. Select the reference tool's length offset.
+          Bring it down until it zeros on the top of part, and then set your Z to
+          whatever you want the top of part to be. Z=0 for top of part is very
+          common so that any positive Z is inside the part. Z=height of part is
+          also common. Either way, between having the correct work offset and
+          the correct tool length offset, you machine can now precisely locate
+          things in the Z dimension.
+
+          Here is a good intro from Tormach on how to put all of these concepts
+          together in Mach3 when measuring tools for length:
+
+13 of 43                                              10/10/2024, 5:00 PM
+Tool Setter: Measuring Tools for Length [Easy Guide]  https://www.cnccookbook.com/touch-off-tool-setter-measuring-tools-for...
+
+                          Be sure to pick up Part 2 of the video as well!
+
+          Probe-Style Tool Setters (also called tool touch setters)
+
+          The most sophisticated tool setters are based on probing-style
+          technology, and are integrated with the machine's controller. These tool
+          setters let you press a button and have the machine automatically
+          probe the tool's length (and sometimes diameter), and then the data is
+          automatically entered into the controller's tool table. It automates the
+          entire business of measuring tools for length.
+
+          Here is a typical tool setter:
+
+14 of 43                                              10/10/2024, 5:00 PM
+Tool Setter: Measuring Tools for Length [Easy Guide]  https://www.cnccookbook.com/touch-off-tool-setter-measuring-tools-for...
+
+          Note how the probe is set up­we can both measure tool length by
+          dropping down onto the probe tip, as well as diameter. Typically, the
+          tool is spun in reverse at a slow speed while the measurement is being
+          made. The reverse spin is so the tool doesn't cut the tool setter, and
+          the rotation itself ensures the measurement of the lowest hanging
+          insert or cutter tooth.
+
+          Note that the probe software or the machine controller will usually have
+          parameters that let you decide whether the probe sets up the tool
+          length offsets in the table as positive or negative offsets.
+
+15 of 43                                              10/10/2024, 5:00 PM
+Tool Setter: Measuring Tools for Length [Easy Guide]  https://www.cnccookbook.com/touch-off-tool-setter-measuring-tools-for...
+
+          Are tool setters the ultimate measuring tools for length?
+
+          At this point, you may be thinking tool setters are the ultimate in
+          automation and productivity when measuring tools for length. That may
+          be true, but it really depends on whether your shop needs to optimize
+          Cycle Time (the time the machine is running) or Setup Time (the time
+          when the machine is idle).
+
+          If you have a lot of Machine idle time, you probably should focus on
+          reducing Setup time. A tool setter is ideal because it takes Setup tasks
+          and automates them. On the other hand, if your machine is busy all the
+          time and you need more production from it, while your operators have
+          available idle time, you may want to try Tool Presetters to take this
+          problem off the machine table and reclaim that time.
+
+          In Part 2 (below), we'll talk about Tool Presetters among other things.
+          For more information about optimizing Cycle Time versus Setup Time,
+          see our CNC Machining and Manufacturing Cookbook, and
+          especially our article on Cycle Time vs Setup Time.
+
+          Part 2: Tool Presetters, Tool Data Management, and the Importantance of
+          Consistency of Tool Lengths for Chatter...
+          Getting Organized and Systematic About Tool Management
+
+16 of 43                                                                           10/10/2024, 5:00 PM
+Tool Setter: Measuring Tools for Length [Easy Guide]  https://www.cnccookbook.com/touch-off-tool-setter-measuring-tools-for...
+
+          How does one get their Tool Management organized? Remember, you
+          have to manage this data both from the standpoint of the Shop Floor
+          and the Design Office, even if you have a small business and the two
+          share the same desk. The two generally have slightly different
+          concerns. In the Design Office, its a matter of making sure you have
+          access to what tooling is available on the Shop Floor as the CAM work
+          is being done. You don't want to specify tooling your Shop Floor
+          doesn't have. On the other hand, the Shop Floor is going to be more
+          worried about all the details needed to make sure the job comes off
+          accurately and efficiently. That involves a lot more than just knowing
+          what tooling is available, because you want to optimize your setup
+          time. Therefore, you also have to keep up with all the offset data and
+          make sure its loaded into the machine correctly so it knows what to do
+          with the tools in its changer.
+
+          The first step is to standardize what you're doing in terms of offsets, as
+          was mentioned in Part 1. The second step is have a system for
+          managing the information. That system can range from some means of
+          record keeping to some fixed process and even involve both. Any such
+          system should make it easy for you to look back over some history and
+          see how to optimize further. For example, which tools are you most
+          commonly using? Can that information lead to a notion of standardizing
+          some of the slots in your toolchanger across all machines? You'll want
+
+17 of 43                                              10/10/2024, 5:00 PM
+Tool Setter: Measuring Tools for Length [Easy Guide]  https://www.cnccookbook.com/touch-off-tool-setter-measuring-tools-for...
+
+          to leave some slots open for job-specific tooling, but what is the optimal
+          split between standard slots and special slots, and which tools should
+          you put into your standard slots?
+
+          At the simplest level, your machine controller's tool table is your record
+          keeping system. But that's probably also the least efficient and most
+          error-prone approach. To offset that, if you're going to use the
+          controller, you should have a touch setter, and use it every time you
+          load a new tool in the changer so that the controller's information stays
+          up to date. If you're trying to keep up with it through manual data entry
+          on the controller, that's asking for trouble, not to mention being time
+          inefficient. The other issue is your machine controller isn't keeping the
+          historical data you need to make other critical decisions, so even if you
+          choose to have it be the source of truth for tool offsets, you're still going
+          to need more.
+
+          A step up would be a tagging system. As soon as a tool goes into a
+          tool holder, you measure the offsets with your tool presetter and record
+          them on a tag, which is then attached to the tool. Before launching into
+          more discussion of managing your tool data, let's detour to talk about
+          methods of tagging tools and tool presetting.
+
+          Labelling and Barcoding Tools
+
+          In order to reliably tell one tool apart from another, you need some kind
+
+18 of 43                                              10/10/2024, 5:00 PM
+Tool Setter: Measuring Tools for Length [Easy Guide]  https://www.cnccookbook.com/touch-off-tool-setter-measuring-tools-for...
+
+      of labeling system.
+
+          There are a number of different approaches to labeling tools (or to
+          be more precise, labeling a toolholder and its tool) including:
+
+          ­ Sharpie: Get out your marker and write its serial numbers and offsets
+          right on the toolholder.
+
+          ­ Tags: Various kinds of tags are made that clip onto the taper or that
+          can be hung or twist tied on the tooling.
+
+          ­ Stick on Labels: All sorts of stick on labels are available
+          from companies like ToolWall.
+
+          ­ Laser Engraving: This is a more durable approach if you have access
+          to a laser marker.
+
+19 of 43                                              10/10/2024, 5:00 PM
+Tool Setter: Measuring Tools for Length [Easy Guide]  https://www.cnccookbook.com/touch-off-tool-setter-measuring-tools-for...
+
+          Barcodes can make it easier to automate your tool management if you
+          have the software to deal with the barcodes. Tags can either have the
+          tool offset information written right on the tag, or if you have a more
+          sophisticated system involving serial numbers or barcodes, you may
+          use those to cross reference the information in some kind of software.
+          One thing is for sure, any time a new tool goes into a holder, and
+          anytime you find a tagless or unidentified holder, the offset information
+          needs to be measured on your tool presetter.
+
+          Serial numbers, whether via barcodes, hand written, or on printed
+          labels, are important for a variety of reasons. If nothing else, they will
+          uniquely identify the tool and holder for your inventory system, but also
+          for your historical record that you will use to optimize your shop's best
+          practices. While you may initially be focused strictly on tool offset data,
+          take the opportunity to start tracking serial numbers too.
+
+          Tool Presetters
+
+          Tool Presetters are measuring arrangements that make it easy to
+          measure the Tool Offset Data off the machine. They range from utter
+          simplicity­a way to reliably position a tool holder on a surface plate
+          plus a height gage­to the super sophisticated models with digital
+          cameras, lasers, shrink fit induction heaters and probably someone
+          makes one with an integrated espresso machine too! Here is a typical
+
+20 of 43                                              10/10/2024, 5:00 PM
+Tool Setter: Measuring Tools for Length [Easy Guide]  https://www.cnccookbook.com/touch-off-tool-setter-measuring-tools-for...
+
+          super-simple height gage arrangement from Techniks:
+
+              Techniks has a nice integrated tightening stand with surface
+                      plate so you can use a height gage as a presetter...
+
+          The simplest versions are little more than height gages with a
+          repeatable way to secure the tooling. Such presetters are only able to
+          accomodate Tool Length Offsets.
+
+          The next step up would provide a means of rotating the tool so that
+          diameter measurements could be taken. Such systems typically add a
+          precision DRO and leadscrews for motion. Here is such a
+          system Frank Mari had looked at (MariTool doesn't seem to sell it
+          though):
+
+21 of 43                                                       10/10/2024, 5:00 PM
+Tool Setter: Measuring Tools for Length [Easy Guide]  https://www.cnccookbook.com/touch-off-tool-setter-measuring-tools-for...
+
+          Glass scale DRO, leadscrew adjustment, dial indicators, and rotating
+                                              taper holder...
+
+22 of 43                                              10/10/2024, 5:00 PM
+Tool Setter: Measuring Tools for Length [Easy Guide]  https://www.cnccookbook.com/touch-off-tool-setter-measuring-tools-for...
+
+           For diameter, rotate to maximum reading on the dial indicator, turn the
+             leadscrew to zero the indicator, and read the diameter off the glass
+                                                    scale...
+
+          After that, the sky is the limit. The axes get motorized, data is collected
+
+23 of 43                                              10/10/2024, 5:00 PM
+Tool Setter: Measuring Tools for Length [Easy Guide]  https://www.cnccookbook.com/touch-off-tool-setter-measuring-tools-for...
+
+          via computer, digital cameras allow you to check and measure the
+          cutting edges precisely, etc. The most automated models let you drop
+          in a tool, push a button, and invoke everything from automated data
+          transfer to your machining center to label printing with barcodes for the
+          toolholder or your tooling cart.
+
+          The alternative to presetting is to use your machine with touch offs as a
+          way to measure, so:
+
+          Why Use a Tool Presetter Instead of Measuring on the Machine?
+          Let's review our choices:
+
+          ­ Measure on machine with a touch off of some kind
+
+          ­ Measure on machine with a tool setter
+
+          ­ Measure offline with a tool presetter
+
+          Obviously a touch off is easy, but it's also the most time consuming.
+
+          A tool setter is very easy, its on the machine, and you can use it to
+          improve reliability by checking every so often for a worn or broken tool.
+          There is no possibility for errors managing the tool data if you measure
+          every time you load a tool or even every time you run a program.
+
+24 of 43                                                      10/10/2024, 5:00 PM
+Tool Setter: Measuring Tools for Length [Easy Guide]  https://www.cnccookbook.com/touch-off-tool-setter-measuring-tools-for...
+
+          So why use a Tool Presetter? Consider these possibilities:
+
+          ­ Your machine may not have a touch setter.
+
+          ­ You may be in a manufacturing situation where it makes better
+          economic sense to keep the machine cutting at all times, and there is
+          enough spare time for the machinists to use a presetter to take
+          measurements offline.
+
+          ­ There are various checks it may be convenient to make before the
+          tool gets to the machine. For example, your tool crib may want to check
+          indexable tooling before it is sent out to a machine.
+
+          ­ Assuming you have no touch setter, and you want to share the
+          tooling among machines, the data has to be tracked somehow. If
+          you've got a tracking system, at least you only have to measure once
+          on the presetter, and then the tool can be shared throughout the shop.
+
+          ­ As we've discussed, if you will want to track tools by serial number
+          and record lots of information beyond just the offsets in order to have
+          all that information available for analysis of your shop's best practices.
+          If you're going to do a little bit offline, it's easier to justify doing the
+          presetting for tool offsets as well.
+
+          There are more reasons for using a Tool Presetter, but that's a good
+
+25 of 43                                                              10/10/2024, 5:00 PM
+Tool Setter: Measuring Tools for Length [Easy Guide]  https://www.cnccookbook.com/touch-off-tool-setter-measuring-tools-for...
+
+          start.
+
+          How do we get the offset data out of the Tool Presetter?
+          Depending on your presetter, a variety of options are available that
+          range from:
+
+          ­ You write it down on a tool tag or scrap of paper.
+
+          ­ You type it into some other program.
+
+          ­ The presetter gives you the data in some electronic way. Popular
+          electronic formats include g-code programs that use G10 to load the
+          offsets into your control, direct RS-232 (DNC) or other links back to
+          your machine, and USB keys that can carry the data.
+
+          Tool Data Management
+
+          Getting back to Tool Data Management, by now you have some way of
+          capturing tool data and keeping up with which tool holder and tool goes
+          with which data. Or do you? How do you connect your offset data with
+          each tool holder?
+
+          Here are your choices in order of operational and organizational
+          efficiency:
+
+          1. Use a Touch Setter or other process and keep the offset information
+
+26 of 43                                                                        10/10/2024, 5:00 PM
+Tool Setter: Measuring Tools for Length [Easy Guide]  https://www.cnccookbook.com/touch-off-tool-setter-measuring-tools-for...
+
+          in the machine controller. As mentioned, you'll want to be diligent about
+          always checking that data every time you move a tool into the changer,
+          and you won't have the information available for analysis in any
+          convenient form.
+
+          2. Use a presetter, and write the offset data right on a tag that is
+          attached to the tooling. When loading the tool in the machine, detach
+          the tag and enter the data in the controller. Not bad, but there is room
+          for error any time you write data down or have to key it in. You want to
+          minimize that as much as possible.
+
+          3. Use a presetter, and keep tool are serial numbered, whether by tag
+          or engraving. Use the serial number to look up the offsets and get them
+          into the controller. If your serial number software is clever, it will make
+          sure that if the serial # has to be entered by hand, missing a digit will
+          immediately produce a bad serial # and it can ask you to try again.
+          Now you are starting to have the opportunity to record and track all the
+          data against the serial numbers.
+
+          4. Use a presetter, and keep tools tagged, but the serial number and
+          possibly the offset data is encoded in a barcode that can be read with a
+          wand. This is pretty cool, because the opportunity for manual data
+          entry and errors has really been minimized. Once the data gets into the
+          system correctly, and your presetter probably printed that barcode, you
+
+27 of 43                                              10/10/2024, 5:00 PM
+Tool Setter: Measuring Tools for Length [Easy Guide]  https://www.cnccookbook.com/touch-off-tool-setter-measuring-tools-for...
+
+          should be good to go from there on out.
+
+          5. Use some centralized way of managing all the tool data. When I put
+          together the tools for a job, I can punch a button and get the right data
+          for those tools loaded into my machine. This is the most sophisticated
+          alternative. Instead of having to access physical tooling, you can work
+          it all via software and then go get the tooling as identified on a job
+          sheet from the same software.
+
+          Example Tool Data Management from G-Wizard Editor
+
+          CNCCookbook's G-Wizard G-Code Editor has some simple Tool Data
+          Management functions to give you some idea what's possible. For full
+          details on how it works, visit the GWE Tool Managment page. From a
+          broad brush stroke standpoint, GWE has the facilities to cover each
+          step in the process:
+
+          Step 1: Determine What Tooling is Needed by the G-Code Program
+
+28 of 43                                              10/10/2024, 5:00 PM
+Tool Setter: Measuring Tools for Length [Easy Guide]  https://www.cnccookbook.com/touch-off-tool-setter-measuring-tools-for...
+
+           The Tools View scans your g-code program and makes a list of which
+            tools are being used both by T# and by identifying comments if they
+
+                                               are available...
+
+          Step 2: Map the Tools Called for by the G-Code Program to Real
+
+29 of 43                                              10/10/2024, 5:00 PM
+Tool Setter: Measuring Tools for Length [Easy Guide]  https://www.cnccookbook.com/touch-off-tool-setter-measuring-tools-for...
+
+          Tooling in the Tool Crib
+
+          You can see by the mapping options in the screen shot above that
+          GWE can match tools up either by T# or by matching the comments. If
+          you've set your CAM program up to use a particular set of tool names
+          that it outputs as comments, and you've set up your GWE Tool Crib
+          with the same comments as tool names, you are good to go. Here is a
+          shot of the Tool Crib:
+
+                                               The Tool Crib...
+          Step 3: Collect the Tool Offset Information Via Tool Presetter
+
+30 of 43                                                                  10/10/2024, 5:00 PM
+Tool Setter: Measuring Tools for Length [Easy Guide]  https://www.cnccookbook.com/touch-off-tool-setter-measuring-tools-for...
+
+          If your presetter outputs a G10 program, you can load it right into
+          GWE, run it in the simulator, and pull the offsets into the Tool Crib.
+
+          Step 4: Load the Tool Offset Information into your Controller
+
+          After you map tools in the Tool Crib to the T# slots needed by your g-
+          code program, GWE generate a G10 program for those slots. Just load
+          the G10 program into your controller and run it, and you've now loaded
+          the offsets into your controller. The GWE Tool Crib serves as a central
+          repository for tracking that offset information.
+
+          What About the Design Office?
+
+          Here you need to make sure the Design Office has access to some
+          sort of Tooling Catalog so both the Shop Floor and the Design Office
+          are on the same page about what Tooling is available. Something like
+          G-Wizard's Tool Crib is one way to approach the problem. There are a
+          number of packages available in the industry whose purpose it is to
+          facilitate management of tooling inventory.
+
+          Wear Offsets and Other Fine Tuning
+
+          By the way, how can you feed tooling data back to the Design Office or
+          use it to improve the efficiency of your Shop Floor? So you're running a
+          job shop or small manufacturer. You frequently run parts that you have
+          run before. Good tool data management can save you a lot of time and
+
+31 of 43                                                                          10/10/2024, 5:00 PM
+Tool Setter: Measuring Tools for Length [Easy Guide]  https://www.cnccookbook.com/touch-off-tool-setter-measuring-tools-for...
+
+          effort by managing not just the length offsets, but also the wear offsets.
+
+          Let's say you ran the part the first time, and discovered it was coming
+          out just a little too big by a few thou. A skilled machinist can tweak that
+          in by adjusting wear offsets. If you record those wear offsets in some
+          sort of Tool Data Management software, they'll be there for you the
+          next time you need to run the job. Maybe you can even use a G10
+          program to automate the process. Or, you can send that information up
+          to the Design Office. Eventually they may figure out some
+          commonalities in the data that tell them how to tweak their CAM
+          programs so things are right the first time.
+
+          You may even be able to tell when a machine is about to have a
+          problem by monitoring what's happening with the wear offsets.
+
+          You've also got all the data by job on which tools were needed. This
+          can be cross-referenced and turned into standard tooling
+          recommendations. From that data it's possible to understand the
+          answers to what is the optimal split between standard slots and special
+          slots, and which tools should you put into your standard slots. You can
+          play with scenarios that involve minimizing the variety of tooling you
+          keep in inventory, and have some idea what impact that will have on
+          your jobs. You'll have a much better understanding of tool life and the
+          cost of tooling if you can actually track which jobs each tool participated
+
+32 of 43                                                                  10/10/2024, 5:00 PM
+Tool Setter: Measuring Tools for Length [Easy Guide]  https://www.cnccookbook.com/touch-off-tool-setter-measuring-tools-for...
+
+          in and how many parts were made.
+
+          Without good tool data management record keeping, it's impossible to
+          answer those questions.
+
+          Importance of Consistency of Tool Lengths for Chatter
+
+          Phew! It's getting to be kind of a long article, but I want to leave you
+          with one last thought about tool data management.
+
+          Chatter is a subject worth long articles all by itself. For now, I just want
+          to focus on consistency. Machine tools are actually quite consistent
+          about chatter. It's a resonance effect or vibration, kind of like a tuning
+          fork. Assuming your machine and tooling are in good working order
+          (i.e. no bad bearings or spring washers in the spindle!), it is most
+          prominently affected by four factors:
+
+          ­ Spindle RPM
+
+          ­ Tool Holder Type
+
+          ­ Tool
+
+          ­ Tool Stickout
+
+          If you match those four factors up to exactly what they were when you
+          got chatter, you are just as likely to get chatter again if your toolpath,
+
+33 of 43                                              10/10/2024, 5:00 PM
+Tool Setter: Measuring Tools for Length [Easy Guide]  https://www.cnccookbook.com/touch-off-tool-setter-measuring-tools-for...
+
+          material, and workpiece apply the same or more force to the tooling.
+
+          Can you see how consistent tool data management can help?
+
+          If we use the same tool holder type every time, the same brand and
+          type of cutter, and we standardize the tool stickout instead of just letting
+          it be whatever it turns out to be when the collet is tightened, we are on
+          to something. By keeping careful notes on these factors, we can begin
+          to deduce which rpm ranges are most chatter prone and we can avoid
+          them. We can also "tune the tool". Suppose you find a situation that is
+          a total chatter box. The easiest thing to vary is spindle rpm. And BTW,
+          make sure to vary it both faster and slower­you're just trying to get
+          away from the resonance.
+
+34 of 43                                                             10/10/2024, 5:00 PM
+Tool Setter: Measuring Tools for Length [Easy Guide]  https://www.cnccookbook.com/touch-off-tool-setter-measuring-tools-for...
+
+          But if you have the time to experiment, you will discover that changing
+          the tool's stickout is a way of tuning that resonance too. If you can find
+          the amount of stickout that lets you maximize your spindle rpm to the
+          high end of what your cutter can use, you'll get the best material
+          removal rates. There are systematic experiments you can perform to
+          map all this out, or you can keep careful notes whenever you're
+          cranking up your speeds and feeds on a job to see how fast you can
+          go. Either way, if you control those four factors, you will have a
+          configuration with repeatable chatter characteristics and you won't
+          have to guess.
+
+          More Good Tool Setting Threads
+
+          Still haven't had enough on Tool Offsets, Tool Setting, and the like? Try
+          these threads:
+
+          ­ PM Setting Tools
+
+          ­ PM: Benefits of Gage Line Offsets
+
+          ­ PM: Height Gage Presetters
+
+          ­ PM: Beginner Intro to Tool Offsets and Presetters
+
+          Interested in optimizing job setup? Try these threads:
+
+          LinkedIn
+
+35 of 43                                                          10/10/2024, 5:00 PM
+Tool Setter: Measuring Tools for Length [Easy Guide]  https://www.cnccookbook.com/touch-off-tool-setter-measuring-tools-for...
+
+          Like what you read on CNCCookbook?
+
+          Join 100,000+ CNC'ers! Get our latest blog posts delivered straight to
+          your email inbox once a week for free. Plus, we'll give you access to
+          some great CNC reference materials including:
+          · Our Big List of over 200 CNC Tips and Techniques
+          · Our Free GCode Programming Basics Course
+          · And more!
+          Just enter your name and email address below:
+
+          Full Name
+
+          Email *
+
+           Subscribe
+
+          100% Privacy: We will never Spam you!
+
+          5/5 - (4 votes)
+
+           Bob Warfield
+
+           Bob is responsible for the development and implementation of the popular G-Wizard CNC Software. Bob
+           is also the founder of CNCCookbook, the largest CNC-related blog on the Internet.
+
+36 of 43                                              10/10/2024, 5:00 PM
+Tool Setter: Measuring Tools for Length [Easy Guide]  https://www.cnccookbook.com/touch-off-tool-setter-measuring-tools-for...
+
+                         Learn more about Bob from his Author Bio page.
+
+          Related Posts
+
+          Use a          CNCCookb                     Truths and   28 Feeds     Thread
+          Digital        ook 2018                     Lies About   and          Calculator
+          Microscop      CAD                          China and    Speeds       [
+          e to           Survey ­                     Manufactur   Features to  Comprehe
+          Monitor        Part 2                       ing: A Rant  Try in G-    nsive
+          Insert                                                   Wizard       Awesome
+          Wear                                                     Calculator   Software ]
+
+                         CNC
+
+          Hardness       Manufactur                   What Do      Off Road     Slitting
+          Conversio      ing                          The Top      Go Kart /    Saw
+                         Technique
+
+37 of 43                                                                                  10/10/2024, 5:00 PM
+Tool Setter: Measuring Tools for Length [Easy Guide]  https://www.cnccookbook.com/touch-off-tool-setter-measuring-tools-for...
+
+          n Chart,     s                              Shops Do  Mini-Sand  Speeds
+                                                      That      Rail       and Feeds
+          Calculator                                  Makes                Calculator,
+                                                      Them                 Arbor, &
+          & Tests for                                 Special?             Blades
+                                                                           [Easy
+          Rockwell,                                                        Guide]
+
+          Brinell,
+
+          Vickers
+
+          and More
+
+          Table of Contents
+
+38 of 43                     New CNC Software Sale Underway.
+                             Big Savings on great CNC Software.
+
+                                                Sale Details
+
+                                                                                                                                    10/10/2024, 5:00 PM
+Tool Setter: Measuring Tools for Length [Easy Guide]  https://www.cnccookbook.com/touch-off-tool-setter-measuring-tools-for...
+
+                                                        Join our Newsletter
+                                                      CNC Training Courses
+
+                                                       27 CNC Calculators
+                                                      GCode Editor / Viewer
+
+39 of 43                                                                     10/10/2024, 5:00 PM
+Tool Setter: Measuring Tools for Length [Easy Guide]  https://www.cnccookbook.com/touch-off-tool-setter-measuring-tools-for...
+
+                                                      Conversational CNC
+
+                                                      World's Easiest CAM
+
+                                                      More CNC Software
+
+                             G-Wizard Thread Calculator:
+                        Your Go-To Source for Thread Data.
+                     Check out our Special Introductory Offer
+
+                                      Try G-Wizard
+
+             Search                                                        10/10/2024, 5:00 PM
+
+40 of 43
+Tool Setter: Measuring Tools for Length [Easy Guide]  https://www.cnccookbook.com/touch-off-tool-setter-measuring-tools-for...
+
+                 Get Better Feeds and
+                     Speeds Instantly
+
+          Get Better Tool Life, Surface Finish, and Material Removal Rates Fast.
+           It's that easy. You can install and get results in a matter of minutes.
+
+                           Try G-Wizard Now, It's Free!
+
+                     Nah, I don't need any Feeds & Speeds Help
+
+                                                      ?  Help Desk
+
+                                                         How can we
+
+                                                         help you today?
+
+41 of 43                                                                            10/10/2024, 5:00 PM
+Tool Setter: Measuring Tools for Length [Easy Guide]  https://www.cnccookbook.com/touch-off-tool-setter-measuring-tools-for...
+
+                                                                    All Material © 2024
+                                                                   CNC Cookbook, Inc.
+
+                                                                    Software
+
+                                                                          GW Calc
+                                                                         GW Editor
+                                                                    GW Thread Calc
+                                                                      GW Estimator
+                                                                          Gearotic
+                                                                    Conversational
+                                                                         MeshCAM
+
+                                                      CNC Programming / GCode
+
+                                                           CNC Programming Courses
+                                                                  G-Code Simulator
+
+                                                               G-Code / M-Code List
+
+                                                               Feeds & Speeds
+
+                                                                        Calculator
+                                                                    Free Calculator
+
+                                                                           About
+                                                                       Media Guide
+                                                                      Privacy Policy
+
+                                                                          Sitemap
+
+                                                                      Learn
+
+                                                                             Blog
+                                                                    CNC With Jaime
+                                                                   Information Hubs
+                                                                  Free CNC Training
+                                                                    Free Calculators
+
+42 of 43                                                                                 10/10/2024, 5:00 PM
+Tool Setter: Measuring Tools for Length [Easy Guide]               https://www.cnccookbook.com/touch-off-tool-setter-measuring-tools-for...
+
+                                                      CNC
+                                                      Dictionary
+
+                                                           Free Trial
+
+                                                      Contact Us
+
+43 of 43                                                               10/10/2024, 5:00 PM
+

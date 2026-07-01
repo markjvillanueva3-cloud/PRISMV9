@@ -1,0 +1,148 @@
+{
+  "id": "MF-MS5",
+  "version": "6.2.0",
+  "title": "Integration Tests + Benchmarks + Skills + Hooks",
+  "created_at": "2026-03-14T16:00:00Z",
+  "description": "End-to-end integration testing across all 43 failure modes. Benchmark feasibility analysis performance. Create slash commands for interactive use. Build hooks for auto-triggering feasibility checks.",
+  "phases": [
+    {
+      "id": "P0",
+      "title": "Integration Tests",
+      "units": [
+        {
+          "id": "U-MF01",
+          "title": "End-to-end tests: 43 failure modes × multiple part geometries",
+          "status": "pending",
+          "steps": [
+            "Test each of 7 geometry/access failure modes with specific test cases",
+            "Test each of 9 workholding failure modes with specific test cases",
+            "Test each of 7 rigidity failure modes with specific test cases",
+            "Test each of 5 force/power failure modes with specific test cases",
+            "Test each of 7 sequence/logic failure modes with specific test cases",
+            "Test each of 5 simulation failure modes with specific test cases",
+            "Test each of 3 stock/material failure modes with specific test cases",
+            "Cross-system integration: PP pipeline → feasibility → simulation → output",
+            "Performance: full analysis <2s for 15-operation job"
+          ],
+          "exit_conditions": [
+            "All 43 failure modes covered with at least 1 test each",
+            "No false negatives (every real dead-end detected)",
+            "Performance targets met",
+            "80+ integration tests"
+          ],
+          "legacy_id": "U01",
+          "description": "End-to-end tests: 43 failure modes × multiple part geometries — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-MF02",
+          "title": "Skills: /feasibility-check, /sequence-validate, /what-if + Hooks",
+          "status": "pending",
+          "steps": [
+            "Create /feasibility-check skill: interactive full analysis via MCP chat",
+            "Create /sequence-validate skill: validate operation order with dead-end detection",
+            "Create /what-if skill: explore alternate operation sequences",
+            "Hookify: autofire-feasibility — run quick check before /program-gen output",
+            "Hookify: warn-sequence-risk — warn when operation sequence has >20% failure risk",
+            "Update /commands list with new skills"
+          ],
+          "exit_conditions": [
+            "All 3 skills functional",
+            "Hooks fire correctly",
+            "Total MF track tests: 150+"
+          ],
+          "legacy_id": "U02",
+          "description": "Skills: /feasibility-check, /sequence-validate, /what-if + Hooks — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        }
+      ]
+    }
+  ],
+  "status": "not_started",
+  "smart_config": {
+    "role": "implementer + reviewer",
+    "model": "sonnet",
+    "effort": "HIGH",
+    "context_budget": "65%"
+  },
+  "mcp_lifecycle": {
+    "session_start": [
+      "prism_session:context_boot",
+      "prism_session:dispatcher_map",
+      "prism_session:memory_recall",
+      "prism_session:system_snapshot",
+      "prism_session:action_search"
+    ],
+    "during_work": [
+      "prism_session:auto_checkpoint",
+      "prism_session:tool_route_best",
+      "prism_session:wip_capture"
+    ],
+    "session_end": [
+      "prism_session:memory_save",
+      "prism_session:system_snapshot",
+      "prism_session:checkpoint_enhanced"
+    ]
+  },
+  "forge_triple": {
+    "protective_hook": "mf-ms5-gate",
+    "mcp_action": "prism_mf:mf_ms5_run",
+    "skill_command": "/mf-ms5",
+    "ownership": "DECLARED — BUILT in terminal unit of this milestone"
+  },
+  "feature_cascade": {
+    "new_hooks": [
+      "mf-ms5-gate"
+    ],
+    "new_actions": [
+      "mf_ms5_run"
+    ],
+    "new_skills": [
+      "/mf-ms5"
+    ],
+    "available_to": [
+      "downstream CAMX milestones",
+      "prism app consumers"
+    ]
+  },
+  "knowledge_sources": {
+    "engines": [
+      "ENGINE_DIGEST.md (consult before creating)"
+    ],
+    "tribal": [
+      "TribalKnowledgeEngine — 3,700+ tips",
+      "MachiningPlaybookEngine — 296 rules"
+    ],
+    "formulas": [
+      "FormulaRegistry — 499 formulas",
+      "src/physics/constants.ts — canonical"
+    ],
+    "reference": [
+      "EXTERNAL-REFERENCE-PROGRAMS-INDEX.md",
+      "MaterialRegistry",
+      "MachineRegistry",
+      "ToolCatalogEngine (95,608 tools)"
+    ]
+  },
+  "intent": "End-to-end integration testing across all 43 failure modes. Benchmark feasibility analysis performance. Create slash commands for interactive use. Build hooks for auto-triggering feasibility checks.",
+  "compact_checkpoint": "every 3 units — auto-triggered by hook",
+  "enforcement_hooks_active": [
+    "physics agent",
+    "wiring agent",
+    "constants checker",
+    "stub detector",
+    "test quality",
+    "forge-triple gate",
+    "session audit agent"
+  ]
+}

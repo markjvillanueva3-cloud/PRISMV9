@@ -1,0 +1,56 @@
+{
+  "id": "L6-BACKPROP-REGISTRY-MS25",
+  "version": "1.0.0",
+  "title": "Calibrated-coefficient writeback into atomic registries with provenance (closes L6->L1 NN loop)",
+  "brief": "The 7-layer NN model demands backprop from L6 (learning) into L1 (atomic registries). MS18 trains LoRA adapters; MS10 calibrates predictions. But neither writes the calibrated kc/Taylor/Johnson-Cook coefficients BACK to FormulaRegistry/MaterialRegistry. This MS closes that loop with provenance + rollback. Architect Gap #4. Critical path.",
+  "created_at": "2026-05-05T13:00:00Z",
+  "created_by": "claude-opus-4-7-v2",
+  "track": "INFRA",
+  "track_name": "Learning Loop / L6->L1 Backprop",
+  "status": "not_started",
+  "linked_roadmap": "state/shared/PRISM-COMPREHENSIVE-ROADMAP-2026-05-04-V2.md",
+  "phases": [
+    {
+      "id": "P0",
+      "title": "Provenance writeback + rollback engine",
+      "sessions": "4",
+      "units": [
+        {
+          "id": "P0-U01",
+          "title": "Define CalibrationProvenance schema + atomic-write contract",
+          "effort": 75,
+          "dependencies": [],
+          "exit_conditions": ["schema versioned: {coefId, oldValue, newValue, jobId, sampleN, confidenceBand, source, ts, schemaVersion}", "every registry write requires provenance object", "tests: schema validation 3 happy + 3 fail (missing field, NaN sample, future ts)"],
+          "description": "No untagged writes. Every coefficient change carries traceable audit.",
+          "four_loop": ["BUILD", "SCRUTINIZE", "GAP FILL", "TIE UP"]
+        },
+        {
+          "id": "P0-U02",
+          "title": "BackpropRegistryEngine: write to FormulaRegistry/MaterialRegistry with delta + journal",
+          "effort": 150,
+          "dependencies": ["P0-U01"],
+          "exit_conditions": ["engine writes calibrated kc/Taylor/Johnson-Cook coefficients to canonical registries", "old value journaled to backprop-journal.jsonl before each write", "tests: 5 happy writes + 2 invariant violations (out-of-range coefficient blocked)"],
+          "description": "Connect MS10 calibration output to L1 registries. Reuses physics/constants.ts as canonical source; writes update the in-memory registry mirror first, then atomic-write to disk.",
+          "four_loop": ["BUILD", "SCRUTINIZE", "GAP FILL", "TIE UP"]
+        },
+        {
+          "id": "P0-U03",
+          "title": "Rollback path with monotonic regression test",
+          "effort": 90,
+          "dependencies": ["P0-U02"],
+          "exit_conditions": ["rollback restores any prior coefficient from journal", "monotonic regression: rolling 50-job MAPE never increases by >5% post-write (else auto-rollback)", "tests: 1 known-bad calibration triggers auto-rollback within 1 cycle"],
+          "description": "Risk auditor flagged this as a tech-debt bomb (will ship without monotonic test under deadline). Build the test FIRST; rollback validates against it.",
+          "four_loop": ["BUILD", "SCRUTINIZE", "GAP FILL", "TIE UP"]
+        }
+      ]
+    }
+  ],
+  "acceptance": "calibrated kc/Taylor/Johnson-Cook coefficients written back to FormulaRegistry/MaterialRegistry with provenance (job_id, sample_n, confidence_band); rollback path verified with 1 known-bad calibration triggering auto-rollback; monotonic regression test green; closes L6->L1 NN backprop loop.",
+  "risks": [
+    {"id": "R1", "description": "Bad calibration silently degrades all downstream pipelines; mitigation = monotonic regression auto-rollback + 24h shadow mode before live writes"},
+    {"id": "R2", "description": "Journal grows unbounded; mitigation = compaction every 10K entries with snapshot anchor"},
+    {"id": "R3", "description": "Concurrent writes from multiple chats; mitigation = registry write-lock via prism_context:claim_file with 30s TTL"}
+  ],
+  "blocks": ["LEARN-XPROC-TRANSFER-MS18", "SHIP-RELEASE-MS19"],
+  "blocked_by": ["FEEDBACK-CALIB-MS10", "SAFETY-OMEGA-GATE-MS9"]
+}

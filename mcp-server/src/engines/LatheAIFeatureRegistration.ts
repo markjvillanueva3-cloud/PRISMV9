@@ -500,7 +500,7 @@ export async function registerLatheAIEngines(): Promise<{
           name: engine.name,
           description: engine.description,
           capabilities: engine.capabilities,
-          domain: engine.domain,
+          domains: [engine.domain],
         });
         results.registered++;
       } catch (e) {

@@ -1,0 +1,764 @@
+{
+  "models": [
+    "qwen2.5-coder:7b"
+  ],
+  "perTask": [
+    {
+      "task": "ordering-puzzle",
+      "category": "multi-step-reasoning",
+      "perModel": [
+        {
+          "model": "qwen2.5-coder:7b",
+          "passRate": 0.8333333333333334,
+          "passed": 5,
+          "total": 6,
+          "medianTokPerSec": 306,
+          "medianLatencyMs": 136
+        }
+      ],
+      "frontier": {
+        "verdict": "beyond-local",
+        "smallestPassing": null,
+        "beyondLocal": true,
+        "confident": true,
+        "sampleSize": 6
+      }
+    },
+    {
+      "task": "algebra-word-problem",
+      "category": "multi-step-reasoning",
+      "perModel": [
+        {
+          "model": "qwen2.5-coder:7b",
+          "passRate": 1,
+          "passed": 6,
+          "total": 6,
+          "medianTokPerSec": 377.5,
+          "medianLatencyMs": 120
+        }
+      ],
+      "frontier": {
+        "verdict": "trivial-local",
+        "smallestPassing": "qwen2.5-coder:7b",
+        "beyondLocal": false,
+        "confident": true,
+        "sampleSize": 6
+      }
+    },
+    {
+      "task": "unit-rate",
+      "category": "multi-step-reasoning",
+      "perModel": [
+        {
+          "model": "qwen2.5-coder:7b",
+          "passRate": 1,
+          "passed": 6,
+          "total": 6,
+          "medianTokPerSec": 240.6,
+          "medianLatencyMs": 125
+        }
+      ],
+      "frontier": {
+        "verdict": "trivial-local",
+        "smallestPassing": "qwen2.5-coder:7b",
+        "beyondLocal": false,
+        "confident": true,
+        "sampleSize": 6
+      }
+    },
+    {
+      "task": "logical-deduction",
+      "category": "multi-step-reasoning",
+      "perModel": [
+        {
+          "model": "qwen2.5-coder:7b",
+          "passRate": 1,
+          "passed": 6,
+          "total": 6,
+          "medianTokPerSec": 311,
+          "medianLatencyMs": 120
+        }
+      ],
+      "frontier": {
+        "verdict": "trivial-local",
+        "smallestPassing": "qwen2.5-coder:7b",
+        "beyondLocal": false,
+        "confident": true,
+        "sampleSize": 6
+      }
+    },
+    {
+      "task": "sequence-reasoning",
+      "category": "multi-step-reasoning",
+      "perModel": [
+        {
+          "model": "qwen2.5-coder:7b",
+          "passRate": 1,
+          "passed": 6,
+          "total": 6,
+          "medianTokPerSec": 299.5,
+          "medianLatencyMs": 122
+        }
+      ],
+      "frontier": {
+        "verdict": "trivial-local",
+        "smallestPassing": "qwen2.5-coder:7b",
+        "beyondLocal": false,
+        "confident": true,
+        "sampleSize": 6
+      }
+    },
+    {
+      "task": "comparative-counting",
+      "category": "multi-step-reasoning",
+      "perModel": [
+        {
+          "model": "qwen2.5-coder:7b",
+          "passRate": 0.8333333333333334,
+          "passed": 5,
+          "total": 6,
+          "medianTokPerSec": 380.6,
+          "medianLatencyMs": 118
+        }
+      ],
+      "frontier": {
+        "verdict": "beyond-local",
+        "smallestPassing": null,
+        "beyondLocal": true,
+        "confident": true,
+        "sampleSize": 6
+      }
+    },
+    {
+      "task": "multistep-arithmetic",
+      "category": "multi-step-reasoning",
+      "perModel": [
+        {
+          "model": "qwen2.5-coder:7b",
+          "passRate": 0.5,
+          "passed": 3,
+          "total": 6,
+          "medianTokPerSec": 284.2,
+          "medianLatencyMs": 124
+        }
+      ],
+      "frontier": {
+        "verdict": "beyond-local",
+        "smallestPassing": null,
+        "beyondLocal": true,
+        "confident": true,
+        "sampleSize": 6
+      }
+    },
+    {
+      "task": "long-context-needle",
+      "category": "long-context",
+      "perModel": [
+        {
+          "model": "qwen2.5-coder:7b",
+          "passRate": 1,
+          "passed": 9,
+          "total": 9,
+          "medianTokPerSec": 213.1,
+          "medianLatencyMs": 237
+        }
+      ],
+      "frontier": {
+        "verdict": "trivial-local",
+        "smallestPassing": "qwen2.5-coder:7b",
+        "beyondLocal": false,
+        "confident": true,
+        "sampleSize": 9
+      }
+    },
+    {
+      "task": "json-tool-spec",
+      "category": "json-structured-output",
+      "perModel": [
+        {
+          "model": "qwen2.5-coder:7b",
+          "passRate": 1,
+          "passed": 5,
+          "total": 5,
+          "medianTokPerSec": 212.4,
+          "medianLatencyMs": 282
+        }
+      ],
+      "frontier": {
+        "verdict": "trivial-local",
+        "smallestPassing": "qwen2.5-coder:7b",
+        "beyondLocal": false,
+        "confident": true,
+        "sampleSize": 5
+      }
+    },
+    {
+      "task": "json-cutting-params",
+      "category": "json-structured-output",
+      "perModel": [
+        {
+          "model": "qwen2.5-coder:7b",
+          "passRate": 1,
+          "passed": 5,
+          "total": 5,
+          "medianTokPerSec": 213.2,
+          "medianLatencyMs": 315
+        }
+      ],
+      "frontier": {
+        "verdict": "trivial-local",
+        "smallestPassing": "qwen2.5-coder:7b",
+        "beyondLocal": false,
+        "confident": true,
+        "sampleSize": 5
+      }
+    },
+    {
+      "task": "json-material-props",
+      "category": "json-structured-output",
+      "perModel": [
+        {
+          "model": "qwen2.5-coder:7b",
+          "passRate": 1,
+          "passed": 5,
+          "total": 5,
+          "medianTokPerSec": 212.4,
+          "medianLatencyMs": 365
+        }
+      ],
+      "frontier": {
+        "verdict": "trivial-local",
+        "smallestPassing": "qwen2.5-coder:7b",
+        "beyondLocal": false,
+        "confident": true,
+        "sampleSize": 5
+      }
+    },
+    {
+      "task": "json-operation-list",
+      "category": "json-structured-output",
+      "perModel": [
+        {
+          "model": "qwen2.5-coder:7b",
+          "passRate": 1,
+          "passed": 5,
+          "total": 5,
+          "medianTokPerSec": 210.9,
+          "medianLatencyMs": 290
+        }
+      ],
+      "frontier": {
+        "verdict": "trivial-local",
+        "smallestPassing": "qwen2.5-coder:7b",
+        "beyondLocal": false,
+        "confident": true,
+        "sampleSize": 5
+      }
+    },
+    {
+      "task": "json-nested-machine",
+      "category": "json-structured-output",
+      "perModel": [
+        {
+          "model": "qwen2.5-coder:7b",
+          "passRate": 1,
+          "passed": 5,
+          "total": 5,
+          "medianTokPerSec": 214.7,
+          "medianLatencyMs": 365
+        }
+      ],
+      "frontier": {
+        "verdict": "trivial-local",
+        "smallestPassing": "qwen2.5-coder:7b",
+        "beyondLocal": false,
+        "confident": true,
+        "sampleSize": 5
+      }
+    },
+    {
+      "task": "json-tolerance-stack",
+      "category": "json-structured-output",
+      "perModel": [
+        {
+          "model": "qwen2.5-coder:7b",
+          "passRate": 1,
+          "passed": 5,
+          "total": 5,
+          "medianTokPerSec": 213.5,
+          "medianLatencyMs": 586
+        }
+      ],
+      "frontier": {
+        "verdict": "trivial-local",
+        "smallestPassing": "qwen2.5-coder:7b",
+        "beyondLocal": false,
+        "confident": true,
+        "sampleSize": 5
+      }
+    },
+    {
+      "task": "gcode-mnemonics",
+      "category": "manufacturing-knowledge",
+      "perModel": [
+        {
+          "model": "qwen2.5-coder:7b",
+          "passRate": 0.6666666666666666,
+          "passed": 4,
+          "total": 6,
+          "medianTokPerSec": 226.5,
+          "medianLatencyMs": 142
+        }
+      ],
+      "frontier": {
+        "verdict": "beyond-local",
+        "smallestPassing": null,
+        "beyondLocal": true,
+        "confident": true,
+        "sampleSize": 6
+      }
+    },
+    {
+      "task": "iso-insert-grade",
+      "category": "manufacturing-knowledge",
+      "perModel": [
+        {
+          "model": "qwen2.5-coder:7b",
+          "passRate": 0.16666666666666666,
+          "passed": 1,
+          "total": 6,
+          "medianTokPerSec": 243.4,
+          "medianLatencyMs": 124
+        }
+      ],
+      "frontier": {
+        "verdict": "beyond-local",
+        "smallestPassing": null,
+        "beyondLocal": true,
+        "confident": true,
+        "sampleSize": 6
+      }
+    },
+    {
+      "task": "tolerance-limit-math",
+      "category": "deterministic-transform",
+      "perModel": [
+        {
+          "model": "qwen2.5-coder:7b",
+          "passRate": 1,
+          "passed": 6,
+          "total": 6,
+          "medianTokPerSec": 219.3,
+          "medianLatencyMs": 145
+        }
+      ],
+      "frontier": {
+        "verdict": "trivial-local",
+        "smallestPassing": "qwen2.5-coder:7b",
+        "beyondLocal": false,
+        "confident": true,
+        "sampleSize": 6
+      }
+    },
+    {
+      "task": "thread-tpi",
+      "category": "manufacturing-knowledge",
+      "perModel": [
+        {
+          "model": "qwen2.5-coder:7b",
+          "passRate": 0.6666666666666666,
+          "passed": 4,
+          "total": 6,
+          "medianTokPerSec": 240.3,
+          "medianLatencyMs": 127
+        }
+      ],
+      "frontier": {
+        "verdict": "beyond-local",
+        "smallestPassing": null,
+        "beyondLocal": true,
+        "confident": true,
+        "sampleSize": 6
+      }
+    },
+    {
+      "task": "spindle-rpm-formula",
+      "category": "deterministic-transform",
+      "perModel": [
+        {
+          "model": "qwen2.5-coder:7b",
+          "passRate": 0,
+          "passed": 0,
+          "total": 6,
+          "medianTokPerSec": 220.4,
+          "medianLatencyMs": 143
+        }
+      ],
+      "frontier": {
+        "verdict": "beyond-local",
+        "smallestPassing": null,
+        "beyondLocal": true,
+        "confident": true,
+        "sampleSize": 6
+      }
+    },
+    {
+      "task": "tap-drill-size",
+      "category": "manufacturing-knowledge",
+      "perModel": [
+        {
+          "model": "qwen2.5-coder:7b",
+          "passRate": 0,
+          "passed": 0,
+          "total": 6,
+          "medianTokPerSec": 234.9,
+          "medianLatencyMs": 129
+        }
+      ],
+      "frontier": {
+        "verdict": "beyond-local",
+        "smallestPassing": null,
+        "beyondLocal": true,
+        "confident": true,
+        "sampleSize": 6
+      }
+    },
+    {
+      "task": "surface-roughness-convert",
+      "category": "deterministic-transform",
+      "perModel": [
+        {
+          "model": "qwen2.5-coder:7b",
+          "passRate": 1,
+          "passed": 6,
+          "total": 6,
+          "medianTokPerSec": 221.5,
+          "medianLatencyMs": 147
+        }
+      ],
+      "frontier": {
+        "verdict": "trivial-local",
+        "smallestPassing": "qwen2.5-coder:7b",
+        "beyondLocal": false,
+        "confident": true,
+        "sampleSize": 6
+      }
+    },
+    {
+      "task": "material-hardness-facts",
+      "category": "manufacturing-knowledge",
+      "perModel": [
+        {
+          "model": "qwen2.5-coder:7b",
+          "passRate": 0.5,
+          "passed": 3,
+          "total": 6,
+          "medianTokPerSec": 231.9,
+          "medianLatencyMs": 135
+        }
+      ],
+      "frontier": {
+        "verdict": "beyond-local",
+        "smallestPassing": null,
+        "beyondLocal": true,
+        "confident": true,
+        "sampleSize": 6
+      }
+    },
+    {
+      "task": "exactly-three-words",
+      "category": "instruction-following",
+      "perModel": [
+        {
+          "model": "qwen2.5-coder:7b",
+          "passRate": 0.2,
+          "passed": 1,
+          "total": 5,
+          "medianTokPerSec": 212.2,
+          "medianLatencyMs": 170
+        }
+      ],
+      "frontier": {
+        "verdict": "beyond-local",
+        "smallestPassing": null,
+        "beyondLocal": true,
+        "confident": true,
+        "sampleSize": 5
+      }
+    },
+    {
+      "task": "all-uppercase",
+      "category": "instruction-following",
+      "perModel": [
+        {
+          "model": "qwen2.5-coder:7b",
+          "passRate": 1,
+          "passed": 5,
+          "total": 5,
+          "medianTokPerSec": 221.1,
+          "medianLatencyMs": 147
+        }
+      ],
+      "frontier": {
+        "verdict": "trivial-local",
+        "smallestPassing": "qwen2.5-coder:7b",
+        "beyondLocal": false,
+        "confident": true,
+        "sampleSize": 5
+      }
+    },
+    {
+      "task": "exactly-5-numbered-lines",
+      "category": "instruction-following",
+      "perModel": [
+        {
+          "model": "qwen2.5-coder:7b",
+          "passRate": 1,
+          "passed": 5,
+          "total": 5,
+          "medianTokPerSec": 211.1,
+          "medianLatencyMs": 373
+        }
+      ],
+      "frontier": {
+        "verdict": "trivial-local",
+        "smallestPassing": "qwen2.5-coder:7b",
+        "beyondLocal": false,
+        "confident": true,
+        "sampleSize": 5
+      }
+    },
+    {
+      "task": "single-word-starts-m",
+      "category": "instruction-following",
+      "perModel": [
+        {
+          "model": "qwen2.5-coder:7b",
+          "passRate": 0.6,
+          "passed": 3,
+          "total": 5,
+          "medianTokPerSec": 223.7,
+          "medianLatencyMs": 136
+        }
+      ],
+      "frontier": {
+        "verdict": "beyond-local",
+        "smallestPassing": null,
+        "beyondLocal": true,
+        "confident": true,
+        "sampleSize": 5
+      }
+    },
+    {
+      "task": "no-letter-e",
+      "category": "instruction-following",
+      "perModel": [
+        {
+          "model": "qwen2.5-coder:7b",
+          "passRate": 0,
+          "passed": 0,
+          "total": 5,
+          "medianTokPerSec": 208.1,
+          "medianLatencyMs": 227
+        }
+      ],
+      "frontier": {
+        "verdict": "beyond-local",
+        "smallestPassing": null,
+        "beyondLocal": true,
+        "confident": true,
+        "sampleSize": 5
+      }
+    },
+    {
+      "task": "exactly-one-sentence",
+      "category": "instruction-following",
+      "perModel": [
+        {
+          "model": "qwen2.5-coder:7b",
+          "passRate": 1,
+          "passed": 5,
+          "total": 5,
+          "medianTokPerSec": 215.6,
+          "medianLatencyMs": 263
+        }
+      ],
+      "frontier": {
+        "verdict": "trivial-local",
+        "smallestPassing": "qwen2.5-coder:7b",
+        "beyondLocal": false,
+        "confident": true,
+        "sampleSize": 5
+      }
+    },
+    {
+      "task": "word-count-echo",
+      "category": "instruction-following",
+      "perModel": [
+        {
+          "model": "qwen2.5-coder:7b",
+          "passRate": 0,
+          "passed": 0,
+          "total": 5,
+          "medianTokPerSec": 262.7,
+          "medianLatencyMs": 124
+        }
+      ],
+      "frontier": {
+        "verdict": "beyond-local",
+        "smallestPassing": null,
+        "beyondLocal": true,
+        "confident": true,
+        "sampleSize": 5
+      }
+    },
+    {
+      "task": "yes-or-no-only",
+      "category": "instruction-following",
+      "perModel": [
+        {
+          "model": "qwen2.5-coder:7b",
+          "passRate": 0.6,
+          "passed": 3,
+          "total": 5,
+          "medianTokPerSec": 285,
+          "medianLatencyMs": 123
+        }
+      ],
+      "frontier": {
+        "verdict": "beyond-local",
+        "smallestPassing": null,
+        "beyondLocal": true,
+        "confident": true,
+        "sampleSize": 5
+      }
+    },
+    {
+      "task": "codegen-isPrime",
+      "category": "code-generation",
+      "perModel": [
+        {
+          "model": "qwen2.5-coder:7b",
+          "passRate": 1,
+          "passed": 5,
+          "total": 5,
+          "medianTokPerSec": 214.5,
+          "medianLatencyMs": 399
+        }
+      ],
+      "frontier": {
+        "verdict": "trivial-local",
+        "smallestPassing": "qwen2.5-coder:7b",
+        "beyondLocal": false,
+        "confident": true,
+        "sampleSize": 5
+      }
+    },
+    {
+      "task": "codegen-fibonacci",
+      "category": "code-generation",
+      "perModel": [
+        {
+          "model": "qwen2.5-coder:7b",
+          "passRate": 1,
+          "passed": 5,
+          "total": 5,
+          "medianTokPerSec": 215.4,
+          "medianLatencyMs": 462
+        }
+      ],
+      "frontier": {
+        "verdict": "trivial-local",
+        "smallestPassing": "qwen2.5-coder:7b",
+        "beyondLocal": false,
+        "confident": true,
+        "sampleSize": 5
+      }
+    },
+    {
+      "task": "codegen-reverseWords",
+      "category": "code-generation",
+      "perModel": [
+        {
+          "model": "qwen2.5-coder:7b",
+          "passRate": 1,
+          "passed": 5,
+          "total": 5,
+          "medianTokPerSec": 211.3,
+          "medianLatencyMs": 251
+        }
+      ],
+      "frontier": {
+        "verdict": "trivial-local",
+        "smallestPassing": "qwen2.5-coder:7b",
+        "beyondLocal": false,
+        "confident": true,
+        "sampleSize": 5
+      }
+    },
+    {
+      "task": "codegen-gcd",
+      "category": "code-generation",
+      "perModel": [
+        {
+          "model": "qwen2.5-coder:7b",
+          "passRate": 1,
+          "passed": 5,
+          "total": 5,
+          "medianTokPerSec": 209.8,
+          "medianLatencyMs": 336
+        }
+      ],
+      "frontier": {
+        "verdict": "trivial-local",
+        "smallestPassing": "qwen2.5-coder:7b",
+        "beyondLocal": false,
+        "confident": true,
+        "sampleSize": 5
+      }
+    },
+    {
+      "task": "codegen-flattenArray",
+      "category": "code-generation",
+      "perModel": [
+        {
+          "model": "qwen2.5-coder:7b",
+          "passRate": 1,
+          "passed": 6,
+          "total": 6,
+          "medianTokPerSec": 210.1,
+          "medianLatencyMs": 251
+        }
+      ],
+      "frontier": {
+        "verdict": "trivial-local",
+        "smallestPassing": "qwen2.5-coder:7b",
+        "beyondLocal": false,
+        "confident": true,
+        "sampleSize": 6
+      }
+    },
+    {
+      "task": "codegen-isPalindrome",
+      "category": "code-generation",
+      "perModel": [
+        {
+          "model": "qwen2.5-coder:7b",
+          "passRate": 1,
+          "passed": 5,
+          "total": 5,
+          "medianTokPerSec": 207.4,
+          "medianLatencyMs": 328
+        }
+      ],
+      "frontier": {
+        "verdict": "trivial-local",
+        "smallestPassing": "qwen2.5-coder:7b",
+        "beyondLocal": false,
+        "confident": true,
+        "sampleSize": 5
+      }
+    }
+  ],
+  "skipped": []
+}

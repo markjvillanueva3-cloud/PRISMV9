@@ -686,14 +686,26 @@ export class MitsubishiMV1200RWireEDMMasterPostEngine {
         }
       }
 
-      // Position to start
-      gcode.push(`G00 X${op.start_x.toFixed(3)} Y${op.start_y.toFixed(3)} (RAPID TO START)`);
+      // Position to start. U-PP-NONFINITE-EMIT-SWEEP: a non-finite start_x/start_y would
+      // emit a literal `XNaN`/`YInfinity` the M800 control rejects -- emit a flagged ERROR
+      // comment instead of the rapid + warn (never leak the token).
+      if (!Number.isFinite(op.start_x) || !Number.isFinite(op.start_y)) {
+        warnings.push(`Op ${i + 1} (${op.operation_type}) has non-finite start XY (${op.start_x},${op.start_y}) -- rapid-to-start replaced with an ERROR marker to avoid a literal XNaN/YNaN the M800 control rejects; fix the upstream wire path.`);
+        gcode.push(`(ERROR: OP ${i + 1} NON-FINITE START COORD - NO RAPID EMITTED, REVIEW WIRE PATH)`);
+      } else {
+        gcode.push(`G00 X${op.start_x.toFixed(3)} Y${op.start_y.toFixed(3)} (RAPID TO START)`);
+      }
 
       // Enable offset compensation
       const offsetCode = op.offset_direction === "left" ? "G41" :
                          op.offset_direction === "right" ? "G42" : "G40";
       if (offsetCode !== "G40") {
-        gcode.push(`${offsetCode} D${(offset * 1000).toFixed(0)} (WIRE OFFSET ${offset.toFixed(4)}mm ${op.offset_direction.toUpperCase()})`);
+        // A non-finite wire offset would emit `DNaN` -- skip the comp line + warn.
+        if (!Number.isFinite(offset)) {
+          warnings.push(`Op ${i + 1} has a non-finite wire offset (${offset}) -- offset-comp (${offsetCode}) line omitted to avoid a literal DNaN; verify the wire-offset table / radius input.`);
+        } else {
+          gcode.push(`${offsetCode} D${(offset * 1000).toFixed(0)} (WIRE OFFSET ${offset.toFixed(4)}mm ${op.offset_direction.toUpperCase()})`);
+        }
       }
 
       // Taper mode
@@ -709,7 +721,7 @@ export class MitsubishiMV1200RWireEDMMasterPostEngine {
       }
 
       // Generate profile cutting
-      const profile = this.generateProfile(op, cfg);
+      const profile = this.generateProfile(op, cfg, warnings);
       gcode.push(...profile);
 
       // Taper mode off
@@ -900,11 +912,21 @@ export class MitsubishiMV1200RWireEDMMasterPostEngine {
   /**
    * Generate profile cutting G-code
    */
-  private generateProfile(op: WireEDMOperation, cfg: MitsubishiWEDMPostConfig): string[] {
+  private generateProfile(op: WireEDMOperation, cfg: MitsubishiWEDMPostConfig, warnings: string[]): string[] {
     const lines: string[] = [];
     const decimals = cfg.units === "metric" ? 3 : 5;
 
+    let pIdx = 0;
     for (const point of op.profile_points) {
+      pIdx++;
+      // U-PP-NONFINITE-EMIT-SWEEP: a non-finite X/Y would emit a literal `XNaN`/`YInfinity`
+      // the M800 control rejects -- skip the move + warn, never leak the token (sibling of
+      // the RokuRoku/HaasNGC/OkumaOSP/HurcoV11 mill fixes + OkumaB250 lathe).
+      if (!Number.isFinite(point.x) || !Number.isFinite(point.y)) {
+        warnings.push(`Profile point ${pIdx} (${point.type}) has non-finite XY (${point.x},${point.y}) -- skipped to avoid a literal XNaN/YNaN the M800 control rejects; fix the upstream wire path.`);
+        lines.push(`(ERROR: PROFILE POINT ${pIdx} NON-FINITE COORD SKIPPED - REVIEW WIRE PATH)`);
+        continue;
+      }
       let line = "";
 
       switch (point.type) {
@@ -914,27 +936,35 @@ export class MitsubishiMV1200RWireEDMMasterPostEngine {
 
         case "linear":
           line = `G01 X${point.x.toFixed(decimals)} Y${point.y.toFixed(decimals)}`;
-          // Add UV for taper
+          // Add UV for taper -- a non-finite U/V is the same class: omit + warn.
           if (point.u !== undefined && point.v !== undefined) {
-            line += ` U${point.u.toFixed(decimals)} V${point.v.toFixed(decimals)}`;
+            if (Number.isFinite(point.u) && Number.isFinite(point.v)) {
+              line += ` U${point.u.toFixed(decimals)} V${point.v.toFixed(decimals)}`;
+            } else {
+              warnings.push(`Profile point ${pIdx} has non-finite taper U/V (${point.u},${point.v}) -- omitted to avoid a literal UNaN/VNaN; review the taper geometry.`);
+            }
           }
           break;
 
         case "arc_cw":
           line = `G02 X${point.x.toFixed(decimals)} Y${point.y.toFixed(decimals)}`;
           if (point.r !== undefined) {
-            line += ` R${point.r.toFixed(decimals)}`;
+            if (Number.isFinite(point.r)) line += ` R${point.r.toFixed(decimals)}`;
+            else warnings.push(`Profile point ${pIdx} has non-finite arc R (${point.r}) -- omitted to avoid a literal RNaN; review the arc geometry.`);
           } else if (point.i !== undefined && point.j !== undefined) {
-            line += ` I${point.i.toFixed(decimals)} J${point.j.toFixed(decimals)}`;
+            if (Number.isFinite(point.i) && Number.isFinite(point.j)) line += ` I${point.i.toFixed(decimals)} J${point.j.toFixed(decimals)}`;
+            else warnings.push(`Profile point ${pIdx} has non-finite arc I/J (${point.i},${point.j}) -- omitted to avoid a literal INaN/JNaN; review the arc geometry.`);
           }
           break;
 
         case "arc_ccw":
           line = `G03 X${point.x.toFixed(decimals)} Y${point.y.toFixed(decimals)}`;
           if (point.r !== undefined) {
-            line += ` R${point.r.toFixed(decimals)}`;
+            if (Number.isFinite(point.r)) line += ` R${point.r.toFixed(decimals)}`;
+            else warnings.push(`Profile point ${pIdx} has non-finite arc R (${point.r}) -- omitted to avoid a literal RNaN; review the arc geometry.`);
           } else if (point.i !== undefined && point.j !== undefined) {
-            line += ` I${point.i.toFixed(decimals)} J${point.j.toFixed(decimals)}`;
+            if (Number.isFinite(point.i) && Number.isFinite(point.j)) line += ` I${point.i.toFixed(decimals)} J${point.j.toFixed(decimals)}`;
+            else warnings.push(`Profile point ${pIdx} has non-finite arc I/J (${point.i},${point.j}) -- omitted to avoid a literal INaN/JNaN; review the arc geometry.`);
           }
           break;
       }

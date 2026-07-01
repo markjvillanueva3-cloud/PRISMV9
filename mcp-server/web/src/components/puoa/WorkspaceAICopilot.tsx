@@ -128,7 +128,7 @@ function buildPersistentMemoryQuery(
   suggestions: WorkspaceCopilotSuggestion[],
 ) {
   const suggestionLead = suggestions[0]?.query ? ` First desk question: ${suggestions[0].query}` : '';
-  return `What mission-critical PRISM context, product intent, roadmap posture, safety constraints, and architectural guidance should the ${workspaceLabel} desk preserve? Desk summary: ${summary}. Desk context snapshot: ${summarizeContext(context)}.${suggestionLead}`;
+  return `What mission-critical Kienzle context, product intent, roadmap posture, safety constraints, and architectural guidance should the ${workspaceLabel} desk preserve? Desk summary: ${summary}. Desk context snapshot: ${summarizeContext(context)}.${suggestionLead}`;
 }
 
 function collectMemoryHighlights(memoryRecall: SessionMemoryRecall | null) {
@@ -229,7 +229,7 @@ export function WorkspaceAICopilot({
         if (memoryResult.status === 'fulfilled') {
           setMemoryRecall(memoryResult.value);
         } else {
-          setMemoryError(memoryResult.reason instanceof Error ? memoryResult.reason.message : 'PRISM memory recall unavailable');
+          setMemoryError(memoryResult.reason instanceof Error ? memoryResult.reason.message : 'Kienzle memory recall unavailable');
         }
 
         if (healthResult.status === 'fulfilled') {
@@ -251,7 +251,7 @@ export function WorkspaceAICopilot({
     const suggestionLead = suggestions[0]?.query
       ? ` Use this live desk context to answer: ${suggestions[0].query}`
       : '';
-    return `Autonomously brief the ${workspaceLabel} desk. Summarize current posture from the live page context, identify the top risks or blockers, explain likely routing complexity, and recommend the next two or three actions. Use recalled PRISM mission, safety, roadmap, and architecture context when it materially changes the recommendation.${suggestionLead}`;
+    return `Autonomously brief the ${workspaceLabel} desk. Summarize current posture from the live page context, identify the top risks or blockers, explain likely routing complexity, and recommend the next two or three actions. Use recalled Kienzle mission, safety, roadmap, and architecture context when it materially changes the recommendation.${suggestionLead}`;
   }, [suggestions, workspaceLabel]);
 
   const autoBriefKey = useMemo(
@@ -314,7 +314,7 @@ export function WorkspaceAICopilot({
       ]);
       await orchestrator.execute(input);
     } catch (issue) {
-      setAutoBriefError(issue instanceof Error ? issue.message : 'Autonomous PRISM AI briefing failed');
+      setAutoBriefError(issue instanceof Error ? issue.message : 'Autonomous Kienzle AI briefing failed');
     } finally {
       setAutoBriefLoading(false);
     }
@@ -349,7 +349,7 @@ export function WorkspaceAICopilot({
         orchestrator.route({ intent, context: copilotContext, constraints: { allow_escalation: true } }),
       ]);
     } catch (issue) {
-      setPlanningError(issue instanceof Error ? issue.message : 'PRISM AI preview failed');
+      setPlanningError(issue instanceof Error ? issue.message : 'Kienzle AI preview failed');
     } finally {
       setPlanning(false);
     }
@@ -368,7 +368,7 @@ export function WorkspaceAICopilot({
 
   return (
     <PanelCard
-      title="PRISM AI copilot"
+      title="Kienzle AI copilot"
       subtitle={`${workspaceLabel} is AI-native: route preview, tier-aware execution, and actionable guidance are built directly into this desk.`}
     >
       <div className="space-y-4">
@@ -380,7 +380,7 @@ export function WorkspaceAICopilot({
           <div className="flex flex-wrap items-center gap-2">
             <StatusPill label={autonomousMode ? 'Autonomous desk brief on' : 'Manual AI mode'} tone={autonomousMode ? 'emerald' : 'slate'} />
             {autoBriefLoading ? <StatusPill label="Reasoning now" tone="amber" /> : null}
-            {memoryLoading ? <StatusPill label="Syncing PRISM memory" tone="amber" /> : null}
+            {memoryLoading ? <StatusPill label="Syncing Kienzle memory" tone="amber" /> : null}
             {orchestrator.routing?.complexity ? <StatusPill label={`Complexity ${orchestrator.routing.complexity}`} tone="violet" /> : null}
             {sessionHealth?.health_status ? <StatusPill label={`Session ${sessionHealth.health_status}`} tone={healthTone(sessionHealth.health_status)} /> : null}
             {formatConfidence(orchestrator.classification?.confidence) ? (
@@ -416,7 +416,7 @@ export function WorkspaceAICopilot({
 
           {memoryHighlights.length > 0 || sessionHealth ? (
             <div className="mt-4 rounded-2xl border border-white/8 bg-slate-950/60 px-3 py-3">
-              <div className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">Persistent PRISM memory</div>
+              <div className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">Persistent Kienzle memory</div>
               <div className="mt-3 flex flex-wrap gap-2">
                 {(memoryRecall?.categories ?? []).slice(0, 5).map((category) => (
                   <StatusPill key={category} label={labelize(category)} tone="slate" />
@@ -477,10 +477,10 @@ export function WorkspaceAICopilot({
 
         <label className="block">
           <span className="mb-1.5 block text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">
-            Ask PRISM AI
+            Ask Kienzle AI
           </span>
           <textarea
-            aria-label={`Ask PRISM AI about ${workspaceLabel}`}
+            aria-label={`Ask Kienzle AI about ${workspaceLabel}`}
             value={query}
             onChange={(event) => {
               setQueryDirty(true);
@@ -512,7 +512,7 @@ export function WorkspaceAICopilot({
             {planning ? 'Previewing...' : 'Preview route'}
           </ActionButton>
           <ActionButton onClick={() => void handleExecute()} disabled={orchestrator.loading || !query.trim()} tone="emerald">
-            {orchestrator.loading ? 'Running...' : 'Ask PRISM AI'}
+            {orchestrator.loading ? 'Running...' : 'Ask Kienzle AI'}
           </ActionButton>
           {orchestrator.tier ? <StatusPill label={`Tier ${orchestrator.tier}`} tone="sky" /> : null}
           {orchestrator.data?.authority_resolution?.winning_source ? (
@@ -549,7 +549,7 @@ export function WorkspaceAICopilot({
               </div>
             ) : (
               <div className="mt-3 rounded-2xl border border-white/8 bg-slate-950/60 px-3 py-3">
-                PRISM AI returned a result for this desk, but no short summary fields were exposed in the current payload.
+                Kienzle AI returned a result for this desk, but no short summary fields were exposed in the current payload.
               </div>
             )}
           </div>

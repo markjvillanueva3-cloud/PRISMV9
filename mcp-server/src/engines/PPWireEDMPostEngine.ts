@@ -193,12 +193,24 @@ export class PPWireEDMPostEngine {
         lines.push(`M28 (DIELECTRIC FILL — SUBMERGED CUT)`);
       }
 
-      // Wire offset compensation
-      lines.push(`${offsetDir} D${(offset * 1000).toFixed(0)} (WIRE OFFSET ${offset.toFixed(3)}mm ${op.offset_direction ?? "left"})`);
+      // Wire offset compensation. U-PP-NONFINITE-EMIT-SWEEP: a non-finite offset would
+      // emit a literal `DNaN` the M800 control rejects -- skip the comp line + warn.
+      if (!Number.isFinite(offset)) {
+        warnings.push(`Op (${op.type}): non-finite wire offset (${offset}) -- offset-comp line omitted to avoid a literal DNaN; verify the wire-offset table / radius input.`);
+      } else {
+        lines.push(`${offsetDir} D${(offset * 1000).toFixed(0)} (WIRE OFFSET ${offset.toFixed(3)}mm ${op.offset_direction ?? "left"})`);
+      }
 
-      // Move to start — U-WGAP01: imperial coordinate conversion
+      // Move to start (U-WGAP01: imperial coordinate conversion). U-PP-NONFINITE-EMIT-SWEEP:
+      // a non-finite start X/Y would emit a literal `XNaN`/`YInfinity` -- emit an ERROR
+      // marker instead of the rapid + warn (never leak the token).
       if (op.start_x !== undefined && op.start_y !== undefined) {
-        lines.push(`G0 X${formatCoord(op.start_x, dp, cs)} Y${formatCoord(op.start_y, dp, cs)} (START POSITION)`);
+        if (Number.isFinite(op.start_x) && Number.isFinite(op.start_y)) {
+          lines.push(`G0 X${formatCoord(op.start_x, dp, cs)} Y${formatCoord(op.start_y, dp, cs)} (START POSITION)`);
+        } else {
+          warnings.push(`Op (${op.type}): non-finite start XY (${op.start_x},${op.start_y}) -- rapid-to-start replaced with an ERROR marker to avoid a literal XNaN/YNaN the M800 control rejects; fix the upstream wire path.`);
+          lines.push(`(ERROR: NON-FINITE START COORD - NO RAPID EMITTED, REVIEW WIRE PATH)`);
+        }
       }
 
       // Taper setup
@@ -209,12 +221,26 @@ export class PPWireEDMPostEngine {
         }
       }
 
-      // Profile points — U-WGAP01: imperial coordinate conversion
+      // Profile points (U-WGAP01: imperial coordinate conversion).
       if (op.profile_points && op.profile_points.length > 0) {
+        let ptIdx = 0;
         for (const pt of op.profile_points) {
+          ptIdx++;
+          // U-PP-NONFINITE-EMIT-SWEEP: a non-finite X/Y would emit a literal `XNaN`/`YInfinity`
+          // the M800 control rejects -- skip the point + warn (never leak the token).
+          if (!Number.isFinite(pt.x) || !Number.isFinite(pt.y)) {
+            warnings.push(`Profile point ${ptIdx} (${op.type}) has non-finite XY (${pt.x},${pt.y}) -- skipped to avoid a literal XNaN/YNaN the M800 control rejects; fix the upstream wire path.`);
+            lines.push(`(ERROR: PROFILE POINT ${ptIdx} NON-FINITE COORD SKIPPED - REVIEW WIRE PATH)`);
+            continue;
+          }
           let line = `G1 X${formatCoord(pt.x, dp, cs)} Y${formatCoord(pt.y, dp, cs)}`;
           if (pt.u !== undefined && pt.v !== undefined) {
-            line += ` U${formatCoord(pt.u, dp, cs)} V${formatCoord(pt.v, dp, cs)}`;
+            // A non-finite taper U/V is the same class -- omit + warn.
+            if (Number.isFinite(pt.u) && Number.isFinite(pt.v)) {
+              line += ` U${formatCoord(pt.u, dp, cs)} V${formatCoord(pt.v, dp, cs)}`;
+            } else {
+              warnings.push(`Profile point ${ptIdx} has non-finite taper U/V (${pt.u},${pt.v}) -- omitted to avoid a literal UNaN/VNaN; review the taper geometry.`);
+            }
           }
           lines.push(line);
         }

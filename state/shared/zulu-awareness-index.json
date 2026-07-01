@@ -1,0 +1,641 @@
+{
+  "schemaVersion": "1.0.0",
+  "generatedAt": "2026-05-23T04:08:29.479Z",
+  "slotCount": 27,
+  "fingerprints": [
+    {
+      "slot": "alpha",
+      "ok": true,
+      "hermesRole": "specialist-mill",
+      "domains": [
+        "mill",
+        "milling",
+        "cutting-force",
+        "tool-life",
+        "kienzle",
+        "taylor",
+        "chip-load",
+        "spindle"
+      ],
+      "refuseList": [
+        "inline-physics-constants",
+        "stub-engine-creation",
+        "softening-safety-thresholds"
+      ],
+      "queueLength": 80,
+      "recentCommitScopes": [],
+      "skillUsageCount": 0,
+      "tribalDomainScores": {
+        "mill": 295,
+        "milling": 295
+      },
+      "vizNodeCount": 21387,
+      "successRate": 0.5,
+      "successSampleSize": 0
+    },
+    {
+      "slot": "bravo",
+      "ok": true,
+      "hermesRole": "specialist-mill",
+      "domains": [
+        "mill",
+        "milling",
+        "cutting-force",
+        "tool-life",
+        "kienzle",
+        "taylor",
+        "chip-load",
+        "spindle"
+      ],
+      "refuseList": [
+        "inline-physics-constants",
+        "stub-engine-creation",
+        "softening-safety-thresholds"
+      ],
+      "queueLength": 365,
+      "recentCommitScopes": [
+        "ZEBRA-ORCHESTRATOR-MS2"
+      ],
+      "skillUsageCount": 0,
+      "tribalDomainScores": {
+        "mill": 295,
+        "milling": 295
+      },
+      "vizNodeCount": 21387,
+      "successRate": 0.5,
+      "successSampleSize": 0
+    },
+    {
+      "slot": "charlie",
+      "ok": true,
+      "hermesRole": "specialist-wire-edm",
+      "domains": [
+        "wedm",
+        "wire-edm",
+        "wire-cut",
+        "edm",
+        "electrode",
+        "spark",
+        "recast",
+        "haz",
+        "kerf",
+        "flush"
+      ],
+      "refuseList": [
+        "inline-spark-erosion-constants",
+        "softening-recast-thresholds",
+        "skipping-wire-break-pre-flight"
+      ],
+      "queueLength": 123,
+      "recentCommitScopes": [],
+      "skillUsageCount": 0,
+      "tribalDomainScores": {
+        "wedm": 636,
+        "edm": 636
+      },
+      "vizNodeCount": 9703,
+      "successRate": 0.5,
+      "successSampleSize": 0
+    },
+    {
+      "slot": "delta",
+      "ok": true,
+      "hermesRole": "specialist-cad",
+      "domains": [
+        "cad",
+        "geometry",
+        "brep",
+        "step",
+        "iges",
+        "sketch",
+        "feature-recognition",
+        "gdt",
+        "tolerance",
+        "pmi"
+      ],
+      "refuseList": [
+        "inline-iso286-fit-values",
+        "silent-feature-recognition-fallback",
+        "dropping-pmi-data-on-import"
+      ],
+      "queueLength": 340,
+      "recentCommitScopes": [],
+      "skillUsageCount": 0,
+      "tribalDomainScores": {
+        "cad": 882
+      },
+      "vizNodeCount": 23677,
+      "successRate": 0.5,
+      "successSampleSize": 0
+    },
+    {
+      "slot": "echo",
+      "ok": true,
+      "hermesRole": "specialist-cam",
+      "domains": [
+        "cam",
+        "toolpath",
+        "fusion",
+        "mastercam",
+        "hypermill",
+        "esprit",
+        "nx-cam",
+        "catia",
+        "powermill",
+        "solidcam",
+        "adaptive",
+        "trochoidal"
+      ],
+      "refuseList": [
+        "emitting-gcode-without-collision-check",
+        "inline-feed-speed-without-physics-route",
+        "dropping-cam-system-context-on-translate"
+      ],
+      "queueLength": 196,
+      "recentCommitScopes": [
+        "HIGH-ROI-MEMORY-PROMOTE",
+        "GRAPH-OCTOPUS-AUTOWIRE-MS0"
+      ],
+      "skillUsageCount": 0,
+      "tribalDomainScores": {
+        "hypermill": 295,
+        "powermill": 295,
+        "cam": 2683,
+        "mastercam": 2683,
+        "nx-cam": 2683,
+        "solidcam": 2683
+      },
+      "vizNodeCount": 41261,
+      "successRate": 0.5,
+      "successSampleSize": 0
+    },
+    {
+      "slot": "foxtrot",
+      "ok": true,
+      "hermesRole": "specialist-tribal",
+      "domains": [
+        "tribal",
+        "machining-knowhow",
+        "shop-floor",
+        "operator-wisdom",
+        "handbook",
+        "playbook",
+        "mit-ocw"
+      ],
+      "refuseList": [
+        "promoting-low-confidence-tribal-to-doctrine",
+        "dropping-source-attribution-on-ingest",
+        "softening-tribal-conflict-by-averaging"
+      ],
+      "queueLength": 27,
+      "recentCommitScopes": [
+        "PLAYBOOK-CAPABILITY"
+      ],
+      "skillUsageCount": 0,
+      "tribalDomainScores": {},
+      "vizNodeCount": 4193,
+      "successRate": 0.5,
+      "successSampleSize": 0
+    },
+    {
+      "slot": "golf",
+      "ok": true,
+      "hermesRole": "full-stack",
+      "domains": [
+        "any"
+      ],
+      "refuseList": [],
+      "queueLength": 5,
+      "recentCommitScopes": [
+        "RAG-UPGRADE-MS0"
+      ],
+      "skillUsageCount": 0,
+      "tribalDomainScores": {},
+      "vizNodeCount": 2280,
+      "successRate": 0.5,
+      "successSampleSize": 0
+    },
+    {
+      "slot": "hotel",
+      "ok": true,
+      "hermesRole": "specialist-erp-hr",
+      "domains": [
+        "erp",
+        "hr",
+        "employee",
+        "payroll",
+        "invoice",
+        "quote",
+        "customer",
+        "order",
+        "po",
+        "gl",
+        "wip",
+        "cogs"
+      ],
+      "refuseList": [
+        "softening-financial-invariants",
+        "dropping-pii-redaction-on-export",
+        "silent-financial-clobber"
+      ],
+      "queueLength": 134,
+      "recentCommitScopes": [
+        "OLLAMA-EXPAND-MS0",
+        "DOCKER-HOOK-BROKER"
+      ],
+      "skillUsageCount": 0,
+      "tribalDomainScores": {},
+      "vizNodeCount": 28505,
+      "successRate": 0.5,
+      "successSampleSize": 0
+    },
+    {
+      "slot": "india",
+      "ok": true,
+      "hermesRole": "specialist-post-processor",
+      "domains": [
+        "post-processor",
+        "gcode",
+        "controller",
+        "dialect",
+        "fanuc",
+        "okuma",
+        "haas",
+        "siemens",
+        "heidenhain",
+        "mitsubishi",
+        "fadal",
+        "hurco",
+        "master-post"
+      ],
+      "refuseList": [
+        "emitting-gcode-without-controller-dialect-resolve",
+        "softening-master-post-validation",
+        "silent-dialect-cross-map"
+      ],
+      "queueLength": 380,
+      "recentCommitScopes": [],
+      "skillUsageCount": 0,
+      "tribalDomainScores": {},
+      "vizNodeCount": 10276,
+      "successRate": 0.5,
+      "successSampleSize": 0
+    },
+    {
+      "slot": "juliett",
+      "ok": true,
+      "hermesRole": "specialist-speed-feed",
+      "domains": [
+        "speed-feed",
+        "sfm",
+        "chipload",
+        "css",
+        "adaptive-feed",
+        "surface-speed",
+        "rpm",
+        "feed-rate",
+        "stochastic-feed"
+      ],
+      "refuseList": [
+        "inline-speed-feed-fallback-values",
+        "dropping-material-context-on-recommend",
+        "softening-chipload-safety-margin"
+      ],
+      "queueLength": 87,
+      "recentCommitScopes": [
+        "SF-PSN-WIRE-MS0"
+      ],
+      "skillUsageCount": 0,
+      "tribalDomainScores": {},
+      "vizNodeCount": 1939,
+      "successRate": 0.5,
+      "successSampleSize": 0
+    },
+    {
+      "slot": "kilo",
+      "ok": true,
+      "hermesRole": "specialist-print-to-program",
+      "domains": [
+        "print-to-program",
+        "blueprint",
+        "drawing-extract",
+        "p2p",
+        "drawing-to-gcode",
+        "pdf-blueprint",
+        "ocr",
+        "pmi-extract"
+      ],
+      "refuseList": [
+        "emitting-program-without-pmi-validation",
+        "dropping-tolerance-stack-on-translate",
+        "silent-fallback-on-ambiguous-callouts"
+      ],
+      "queueLength": 35,
+      "recentCommitScopes": [],
+      "skillUsageCount": 0,
+      "tribalDomainScores": {},
+      "vizNodeCount": 1128,
+      "successRate": 0.5,
+      "successSampleSize": 0
+    },
+    {
+      "slot": "lima",
+      "ok": true,
+      "hermesRole": "specialist-academy",
+      "domains": [
+        "academy",
+        "learning",
+        "course",
+        "lesson",
+        "certification",
+        "tutorial",
+        "education",
+        "curriculum",
+        "mit-ocw"
+      ],
+      "refuseList": [
+        "promoting-uncited-claim-to-curriculum",
+        "dropping-source-attribution-on-course-build",
+        "softening-pedagogical-rigor"
+      ],
+      "queueLength": 1615,
+      "recentCommitScopes": [],
+      "skillUsageCount": 0,
+      "tribalDomainScores": {
+        "academy": 882
+      },
+      "vizNodeCount": 4800,
+      "successRate": 0.5,
+      "successSampleSize": 0
+    },
+    {
+      "slot": "mike",
+      "ok": true,
+      "hermesRole": "specialist-misc",
+      "domains": [
+        "misc",
+        "cleanup",
+        "hygiene",
+        "inventory",
+        "orphan-rescue",
+        "misc-tasks",
+        "docustrata"
+      ],
+      "refuseList": [],
+      "queueLength": 69,
+      "recentCommitScopes": [
+        "HIGH-ROI-MISC-HYGIENE",
+        "COMMAND-KERNEL-MS0"
+      ],
+      "skillUsageCount": 0,
+      "tribalDomainScores": {},
+      "vizNodeCount": 3151,
+      "successRate": 0.5,
+      "successSampleSize": 0
+    },
+    {
+      "slot": "november",
+      "ok": true,
+      "hermesRole": "work",
+      "domains": [
+        "any"
+      ],
+      "refuseList": [],
+      "queueLength": 0,
+      "recentCommitScopes": [
+        "DEA-MS0"
+      ],
+      "skillUsageCount": 0,
+      "tribalDomainScores": {},
+      "vizNodeCount": 2280,
+      "successRate": 0.5,
+      "successSampleSize": 0
+    },
+    {
+      "slot": "oscar",
+      "ok": true,
+      "hermesRole": "work",
+      "domains": [
+        "any"
+      ],
+      "refuseList": [],
+      "queueLength": 0,
+      "recentCommitScopes": [
+        "PSN-SYNERGY"
+      ],
+      "skillUsageCount": 0,
+      "tribalDomainScores": {},
+      "vizNodeCount": 2280,
+      "successRate": 0.5,
+      "successSampleSize": 0
+    },
+    {
+      "slot": "papa",
+      "ok": true,
+      "hermesRole": "work",
+      "domains": [
+        "any"
+      ],
+      "refuseList": [],
+      "queueLength": 0,
+      "recentCommitScopes": [],
+      "skillUsageCount": 0,
+      "tribalDomainScores": {},
+      "vizNodeCount": 2280,
+      "successRate": 0.5,
+      "successSampleSize": 0
+    },
+    {
+      "slot": "quebec",
+      "ok": true,
+      "hermesRole": "work",
+      "domains": [
+        "any"
+      ],
+      "refuseList": [],
+      "queueLength": 0,
+      "recentCommitScopes": [],
+      "skillUsageCount": 0,
+      "tribalDomainScores": {},
+      "vizNodeCount": 2280,
+      "successRate": 0.5,
+      "successSampleSize": 0
+    },
+    {
+      "slot": "romeo",
+      "ok": true,
+      "hermesRole": "work",
+      "domains": [
+        "any"
+      ],
+      "refuseList": [],
+      "queueLength": 0,
+      "recentCommitScopes": [],
+      "skillUsageCount": 0,
+      "tribalDomainScores": {},
+      "vizNodeCount": 2280,
+      "successRate": 0.5,
+      "successSampleSize": 0
+    },
+    {
+      "slot": "sierra",
+      "ok": true,
+      "hermesRole": "work",
+      "domains": [
+        "any"
+      ],
+      "refuseList": [],
+      "queueLength": 0,
+      "recentCommitScopes": [
+        "PSN-SYNERGIZE",
+        "GPU-OFFLOAD-MAXIMIZE-MS0"
+      ],
+      "skillUsageCount": 0,
+      "tribalDomainScores": {},
+      "vizNodeCount": 2280,
+      "successRate": 0.5,
+      "successSampleSize": 0
+    },
+    {
+      "slot": "tango",
+      "ok": true,
+      "hermesRole": "work",
+      "domains": [
+        "any"
+      ],
+      "refuseList": [],
+      "queueLength": 0,
+      "recentCommitScopes": [],
+      "skillUsageCount": 0,
+      "tribalDomainScores": {},
+      "vizNodeCount": 2280,
+      "successRate": 0.5,
+      "successSampleSize": 0
+    },
+    {
+      "slot": "uniform",
+      "ok": true,
+      "hermesRole": "work",
+      "domains": [
+        "any"
+      ],
+      "refuseList": [],
+      "queueLength": 0,
+      "recentCommitScopes": [],
+      "skillUsageCount": 0,
+      "tribalDomainScores": {},
+      "vizNodeCount": 2280,
+      "successRate": 0.5,
+      "successSampleSize": 0
+    },
+    {
+      "slot": "victor",
+      "ok": true,
+      "hermesRole": "work",
+      "domains": [
+        "any"
+      ],
+      "refuseList": [],
+      "queueLength": 0,
+      "recentCommitScopes": [],
+      "skillUsageCount": 0,
+      "tribalDomainScores": {},
+      "vizNodeCount": 2280,
+      "successRate": 0.5,
+      "successSampleSize": 0
+    },
+    {
+      "slot": "whiskey",
+      "ok": true,
+      "hermesRole": "work",
+      "domains": [
+        "any"
+      ],
+      "refuseList": [],
+      "queueLength": 0,
+      "recentCommitScopes": [
+        "NODE-CAPABILITY-INJECT-MS0",
+        "NODE-MEM-POINTER"
+      ],
+      "skillUsageCount": 0,
+      "tribalDomainScores": {},
+      "vizNodeCount": 2280,
+      "successRate": 0.5,
+      "successSampleSize": 0
+    },
+    {
+      "slot": "xray",
+      "ok": true,
+      "hermesRole": "work",
+      "domains": [
+        "any"
+      ],
+      "refuseList": [],
+      "queueLength": 0,
+      "recentCommitScopes": [],
+      "skillUsageCount": 0,
+      "tribalDomainScores": {},
+      "vizNodeCount": 2280,
+      "successRate": 0.5,
+      "successSampleSize": 0
+    },
+    {
+      "slot": "yankee",
+      "ok": true,
+      "hermesRole": "work",
+      "domains": [
+        "any"
+      ],
+      "refuseList": [],
+      "queueLength": 0,
+      "recentCommitScopes": [],
+      "skillUsageCount": 0,
+      "tribalDomainScores": {},
+      "vizNodeCount": 2280,
+      "successRate": 0.5,
+      "successSampleSize": 0
+    },
+    {
+      "slot": "zulu",
+      "ok": true,
+      "hermesRole": "work",
+      "domains": [
+        "any"
+      ],
+      "refuseList": [],
+      "queueLength": 0,
+      "recentCommitScopes": [],
+      "skillUsageCount": 0,
+      "tribalDomainScores": {},
+      "vizNodeCount": 2280,
+      "successRate": 0.5,
+      "successSampleSize": 0
+    },
+    {
+      "slot": "zebra",
+      "ok": true,
+      "hermesRole": "orchestrator-hermes",
+      "domains": [
+        "orchestration",
+        "routing",
+        "coordination",
+        "fleet-hygiene",
+        "backend-dev"
+      ],
+      "refuseList": [
+        "scope-expansion-beyond-orchestrator-role",
+        "speculative-feature-additions",
+        "committing-domain-work-itself"
+      ],
+      "queueLength": 0,
+      "recentCommitScopes": [],
+      "skillUsageCount": 0,
+      "tribalDomainScores": {
+        "backend-dev": 369
+      },
+      "vizNodeCount": 1965,
+      "successRate": 0.5,
+      "successSampleSize": 0
+    }
+  ]
+}

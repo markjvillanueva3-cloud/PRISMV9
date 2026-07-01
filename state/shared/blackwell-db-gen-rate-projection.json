@@ -1,0 +1,43 @@
+{
+  "tool": "measure-catalog-extraction-rate",
+  "measuredFrom": {
+    "checkpoint": "H:\\prism\\state\\shared\\blueprint-ocr-checkpoint.jsonl",
+    "records": 280,
+    "intervals": 276,
+    "idleGapsSkipped": 3,
+    "activeMin": 311.7,
+    "gapMinutes": 30
+  },
+  "measuredSerialRate_pagesPerMinPerWorker": 0.189,
+  "gpuProfile": {
+    "name": "blackwell",
+    "minVramGB": 48,
+    "visionModel": "qwen3-vl:8b-instruct",
+    "concurrency": 3,
+    "overnightGated": false,
+    "vramFloorMB": 24576,
+    "rationale": "≥48GB VRAM: VL(8GB)+coder(9GB)+embed(0.3GB) co-resident with ~70GB headroom — extract CONCURRENTLY with the live fleet, no overnight window. Realized ×N inference also needs OLLAMA_NUM_PARALLEL≥N on the server (each parallel slot adds ~num_ctx of KV-cache); worker concurrency overlaps render/IO regardless.",
+    "vramGB": 95.5927734375,
+    "source": "nvidia-smi",
+    "summary": "catalog-gpu: tier=blackwell (96GB, via nvidia-smi) → qwen3-vl:8b-instruct ×3 workers, concurrent (no overnight gate)"
+  },
+  "ollamaNumParallel": 2,
+  "recommendedOllamaNumParallel": 4,
+  "caveat": "measuredSerialRate is a THROUGHPUT FLOOR derived from completion-timestamp deltas — it includes per-print IO/model-load/render, not pure GPU inference. The real concurrent speedup is therefore conservative (biased low), never inflated.",
+  "projection": {
+    "ok": true,
+    "workers": 3,
+    "effectiveWorkers": 2,
+    "ollamaParallel": 2,
+    "inferenceSerialized": true,
+    "overnightGated": false,
+    "serialComputeMin": 312.2,
+    "computeMin": 156.1,
+    "concurrencySpeedup": 2,
+    "overnightWaitMin": 0,
+    "wallClockMin": 156.1,
+    "note": "3 workers but only 2× inference (OLLAMA_NUM_PARALLEL=2); raise the server's parallel slots for the full ×3"
+  },
+  "note": "realized concurrency bounded by OLLAMA_NUM_PARALLEL=2 → 2× effective (2× faster than serial on the same workload)",
+  "action": "LEVER: OLLAMA_NUM_PARALLEL=2 is below this host's recommended 4 → run `scripts/system-health/05-soft-config-tweaks.ps1` (host-aware, sets 4) and let Ollama restart on the next idle window to unlock up to ×3 inference (currently ×2)."
+}

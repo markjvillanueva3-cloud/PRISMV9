@@ -48,7 +48,7 @@ describe('portal api auth guards', () => {
     ).rejects.toMatchObject({
       name: 'ApiError',
       status: 401,
-      message: 'PRISM rejected this request because the current session is not authorized.',
+      message: 'Kienzle rejected this request because the current session is not authorized.',
     });
 
     expect(mockFetchJson).not.toHaveBeenCalled();

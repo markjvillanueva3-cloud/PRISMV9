@@ -23,11 +23,12 @@ related:
 |-------|-------|
 | Name | `scrutinize` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/scrutinize.md` |
+| Source | `C:/Users/wompu/.claude/commands/scrutinize.md` |
 | Model | default |
 | Tags | _(none)_ |
 
 ## Description (first paragraph)
+
 
 ---
 effort: medium
@@ -38,8 +39,7 @@ maxTurns: 15
 
 You are performing a focused code quality review. This is the standalone version of Autopilot Phase 6 — lighter than a full audit, heavier than a glance. Use before committing, before shipping, or anytime you want a quick quality check.
 
-## Args: $ARGUMENTS
-- Empty: review all uncommitted changes (`git di
+> **OFFLOAD + FAN-OUT (DEVTOOL-AUTOINVOKE-MS0/U6):** add a free loc
 
 <!-- AUTO-END -->
 

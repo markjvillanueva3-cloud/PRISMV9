@@ -226,11 +226,11 @@ router.get("/formula/list", async (_req: Request, res: Response) => {
       });
     }
 
-    const formulas = formulaRegistry.list?.() || [];
+    const listed = (await formulaRegistry.list?.()) ?? { formulas: [], total: 0 };
 
     return res.json({
-      count: formulas.length,
-      formulas,
+      count: listed.total,
+      formulas: listed.formulas,
     });
   } catch (error) {
     return res.status(500).json({
@@ -249,16 +249,21 @@ router.post("/tribal/search", async (req: Request, res: Response) => {
     const input = TribalSearchSchema.parse(req.body);
     const { query, limit, category } = input;
 
-    const { tribalKnowledgeAdvisorEngine } = await import("../engines/TribalKnowledgeAdvisorEngine.js").catch(() => ({ tribalKnowledgeAdvisorEngine: null }));
+    const { tribalKnowledgeEngine } = await import("../engines/TribalKnowledgeEngine.js").catch(() => ({ tribalKnowledgeEngine: null }));
 
-    if (!tribalKnowledgeAdvisorEngine) {
+    if (!tribalKnowledgeEngine) {
       return res.status(503).json({
         error: "ENGINE_UNAVAILABLE",
-        message: "TribalKnowledgeAdvisorEngine not available",
+        message: "TribalKnowledgeEngine not available",
       });
     }
 
-    const results = tribalKnowledgeAdvisorEngine.search?.(query, { limit, category }) || [];
+    // TribalKnowledgeEngine.search() does free-text query + category + limit and
+    // returns KnowledgeTip[]. The advisor engine (previously imported here) has no
+    // search() -- only a structured query(context) -- so this endpoint always
+    // returned []. category is Zod-validated string narrowed to the engine union
+    // at this validated route boundary.
+    const results = tribalKnowledgeEngine.search({ query, category, limit } as Parameters<typeof tribalKnowledgeEngine.search>[0]);
 
     return res.json({
       success: true,
@@ -360,13 +365,13 @@ router.post("/tool/search", async (req: Request, res: Response) => {
       });
     }
 
-    const results = toolRegistry.search?.(input) || [];
+    const results = toolRegistry.search?.(input) ?? { tools: [], total: 0 };
 
     return res.json({
       success: true,
       query: input,
-      count: results.length,
-      tools: results.slice(0, input.limit),
+      count: results.total,
+      tools: results.tools.slice(0, input.limit),
       timestamp: new Date().toISOString(),
     });
   } catch (error) {

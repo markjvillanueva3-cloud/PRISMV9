@@ -1,3 +1,4 @@
+// WIRE-EXEMPT: U-CAD-APP live-collab adapter -- heavy injected session/transport deps, no singleton; driven by the Onshape live-collaboration host (delta/CAD), not a standalone prism_* dispatcher action.
 /**
  * OnshapeLiveCollabAdapter — U-CAD-APP-10 (PHASE-48)
  *

@@ -29,8 +29,7 @@ related:
 
 ## Description (first paragraph)
 
-
-# /post-diff — Compare Post-Processor Outputs
+Compare NC code from different posts or versions for validation.
 
 <!-- AUTO-END -->
 

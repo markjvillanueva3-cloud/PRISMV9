@@ -15,7 +15,11 @@
  * @module ProvenSpeedFeedAggregatorEngine
  */
 
+import * as fs from "node:fs";
+import * as path from "node:path";
 import { log } from "../utils/Logger.js";
+import { PATHS } from "../constants.js";
+import { safeWriteSync } from "../utils/atomicWrite.js";
 import type { DetailedSpeedFeed } from "./OkumaOSPParserEngine.js";
 import type { ChipLoadSample } from "./MillPatternMinerEngine.js";
 
@@ -112,6 +116,30 @@ export interface AggregationResult {
   byOperationCategory: Record<OperationCategory, number>;
 }
 
+/**
+ * Persisted, versioned proven-S/F store. Serialized form of the in-memory
+ * `provenParams` Map so the aggregated parameters survive across processes and
+ * the live MCP server can hydrate them at first read (the orchestrator's
+ * proven-blend at SpeedFeedOrchestratorEngine.ts:2196 is otherwise dead because
+ * the singleton starts empty every process). The aggregated store is small
+ * (~hundreds of material:op:machine keys) even though the raw mined corpus is
+ * large, so load-at-init is cheap and synchronous.
+ */
+export interface ProvenSpeedFeedStore {
+  /** Store schema version (gate hydration on a match) */
+  schemaVersion: string;
+  /** ISO timestamp the store was generated */
+  generatedAt: string;
+  /** Provenance of the aggregated data (e.g. "jm-die-corpus") */
+  source: string;
+  /** Total programs mined into this store */
+  totalPrograms: number;
+  /** Total speed/feed samples aggregated */
+  totalSamples: number;
+  /** Serialized proven parameters (the Map values) */
+  params: ProvenParameter[];
+}
+
 // ============================================================================
 // MATERIAL INFERENCE
 // ============================================================================
@@ -151,7 +179,12 @@ const OPERATION_DESC_TO_MATERIAL: Array<{ pattern: RegExp; material: MaterialGro
 // ============================================================================
 
 export class ProvenSpeedFeedAggregatorEngine {
+  /** Store schema version -- hydration is skipped on a mismatch (fail-soft). */
+  static readonly STORE_SCHEMA_VERSION = "1.0.0";
+
   private provenParams: Map<string, ProvenParameter> = new Map();
+  /** Whether a load-at-init hydration attempt has already run this process. */
+  private hydrated = false;
 
   /**
    * Aggregate lathe speed/feed data from Okuma parser.
@@ -260,6 +293,7 @@ export class ProvenSpeedFeedAggregatorEngine {
    * Get proven parameters for a given material/operation combination.
    */
   getProvenParams(materialGroup: MaterialGroup, opCategory: OperationCategory): ProvenParameter | null {
+    this.ensureHydrated();
     // Try exact match first
     for (const [key, param] of this.provenParams) {
       if (param.materialGroup === materialGroup && param.operationCategory === opCategory) {
@@ -273,6 +307,7 @@ export class ProvenSpeedFeedAggregatorEngine {
    * Get all proven parameters above a confidence threshold.
    */
   getHighConfidenceParams(minConfidence: number = 0.7): ProvenParameter[] {
+    this.ensureHydrated();
     return Array.from(this.provenParams.values()).filter(p => p.confidence >= minConfidence);
   }
 
@@ -287,6 +322,7 @@ export class ProvenSpeedFeedAggregatorEngine {
     confidence: number;
     sampleCount: number;
   }> {
+    this.ensureHydrated();
     const exports: Array<{
       materialGroup: string;
       operation: string;
@@ -323,6 +359,125 @@ export class ProvenSpeedFeedAggregatorEngine {
    */
   clear(): void {
     this.provenParams.clear();
+  }
+
+  // --------------------------------------------------------------------------
+  // PERSISTENCE (load-at-init + serialize) -- KAR-MS2 U-SFC-PROVEN-PIPELINE-ACTIVATE
+  //
+  // The calculation methods above stay pure (no I/O). These I/O methods are the
+  // separated persistence layer that lets the live MCP server hydrate the
+  // aggregated proven parameters at first read. Fail-soft on every path: a
+  // missing/corrupt/schema-mismatched store must NEVER crash the server or the
+  // orchestrator's proven-blend; it just leaves the map empty (the prior
+  // behaviour, so this is strictly additive).
+  // --------------------------------------------------------------------------
+
+  /** Resolve the on-disk store path (env override, then canonical mcp-server/data/state). */
+  resolveStorePath(explicit?: string): string {
+    if (explicit && explicit.trim()) return explicit.trim();
+    const env = process.env.PRISM_PROVEN_SF_STORE;
+    if (env && env.trim()) return env.trim();
+    return path.join(PATHS.MCP_SERVER, "data", "state", "proven-speed-feed-store.json");
+  }
+
+  /**
+   * Serialize the in-memory proven parameters into a versioned store object.
+   * Pure (no I/O) -- the persist path stringifies + writes this.
+   */
+  serialize(meta?: { source?: string; totalPrograms?: number; totalSamples?: number }): ProvenSpeedFeedStore {
+    return {
+      schemaVersion: ProvenSpeedFeedAggregatorEngine.STORE_SCHEMA_VERSION,
+      generatedAt: new Date().toISOString(),
+      source: meta?.source ?? "jm-die-corpus",
+      totalPrograms: meta?.totalPrograms ?? 0,
+      totalSamples: meta?.totalSamples ?? 0,
+      params: Array.from(this.provenParams.values()),
+    };
+  }
+
+  /**
+   * Hydrate the in-memory map from a (already-parsed) store object. Pure (no I/O).
+   * Gated on a schema-version match; malformed entries are skipped, not fatal.
+   * Marks the engine hydrated so a subsequent first-read does not re-load.
+   * @returns counts {loaded, skipped} and an optional skip reason.
+   */
+  hydrate(store: ProvenSpeedFeedStore | null | undefined): { loaded: number; skipped: number; reason?: string } {
+    this.hydrated = true;
+    if (!store || typeof store !== "object") {
+      return { loaded: 0, skipped: 0, reason: "empty-store" };
+    }
+    if (store.schemaVersion !== ProvenSpeedFeedAggregatorEngine.STORE_SCHEMA_VERSION) {
+      return {
+        loaded: 0,
+        skipped: Array.isArray(store.params) ? store.params.length : 0,
+        reason: `schema-mismatch:${store.schemaVersion}`,
+      };
+    }
+    let loaded = 0;
+    let skipped = 0;
+    for (const p of store.params ?? []) {
+      if (!p || !p.id || !p.materialGroup || !p.operationCategory) {
+        skipped++;
+        continue;
+      }
+      this.provenParams.set(p.id, p);
+      loaded++;
+    }
+    return { loaded, skipped };
+  }
+
+  /**
+   * Synchronously load the persisted store from disk into the in-memory map.
+   * Fail-soft: a missing file, parse error, or schema mismatch leaves the map
+   * unchanged and returns ok:false (never throws).
+   */
+  loadFromStore(explicitPath?: string): { loaded: number; skipped: number; source: string; ok: boolean; reason?: string } {
+    const file = this.resolveStorePath(explicitPath);
+    this.hydrated = true;
+    try {
+      if (!fs.existsSync(file)) {
+        return { loaded: 0, skipped: 0, source: file, ok: false, reason: "absent" };
+      }
+      const raw = fs.readFileSync(file, "utf-8");
+      const store = JSON.parse(raw) as ProvenSpeedFeedStore;
+      const res = this.hydrate(store);
+      if (res.reason) {
+        log.warn(`[ProvenSF] store hydration skipped (${res.reason}) from ${file}`);
+      }
+      return { ...res, source: file, ok: res.loaded > 0 };
+    } catch (err) {
+      log.warn(`[ProvenSF] loadFromStore fail-soft: ${(err as Error).message}`);
+      return { loaded: 0, skipped: 0, source: file, ok: false, reason: (err as Error).message };
+    }
+  }
+
+  /**
+   * Persist the current in-memory proven parameters to the versioned store on
+   * disk (atomic write). Used by the corpus-mining harness after aggregation.
+   */
+  persistToStore(
+    explicitPath?: string,
+    meta?: { source?: string; totalPrograms?: number; totalSamples?: number },
+  ): { file: string; params: number } {
+    const file = this.resolveStorePath(explicitPath);
+    const store = this.serialize(meta);
+    safeWriteSync(file, JSON.stringify(store, null, 2));
+    return { file, params: store.params.length };
+  }
+
+  /**
+   * Load-at-init guard: hydrate from the persisted store exactly once per
+   * process, on the first read (getProvenParams / getHighConfidenceParams /
+   * exportForSpeedFeedOrchestrator). This is what makes the orchestrator's
+   * proven-blend live in the MCP server. Disable via PRISM_PROVEN_SF_NO_HYDRATE=1.
+   */
+  private ensureHydrated(): void {
+    if (this.hydrated) return;
+    if (process.env.PRISM_PROVEN_SF_NO_HYDRATE === "1") {
+      this.hydrated = true;
+      return;
+    }
+    this.loadFromStore();
   }
 
   // --------------------------------------------------------------------------

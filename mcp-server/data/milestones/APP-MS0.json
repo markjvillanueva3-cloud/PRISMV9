@@ -1,0 +1,409 @@
+{
+  "id": "APP-MS0",
+  "title": "Product & UI Overhaul — Pricing, Features, Web App",
+  "track": "APP",
+  "version": "1.0.0",
+  "created_at": "2026-03-15T00:00:00Z",
+  "status": "not_started",
+  "total_units": 12,
+  "completed_units": 0,
+  "description": "Complete product redesign: 5-tier pricing model, feature packaging for 1003 engines, à la carte add-ons, new web UI with dark industrial theme, feature gating, Stripe integration, and dashboard pages for all 67 dispatchers.",
+  "units": [
+    {
+      "id": "P0-U01",
+      "title": "Product Catalog & Feature Registry",
+      "status": "not_started",
+      "description": "Create a product catalog that maps every engine/dispatcher/action to a pricing tier and feature flag. This is the source of truth for what each tier gets.",
+      "acceptance_criteria": [
+        "src/data/product-catalog.ts with tier definitions (Free/Machinist/Programmer/Engineer/Enterprise)",
+        "Every dispatcher action mapped to a tier",
+        "Add-on definitions with action lists",
+        "Feature flag system: checkAccess(userId, action) → boolean",
+        "Usage metering types: per-calculation, unlimited, or daily-limit",
+        "Build passes"
+      ],
+      "exit_conditions": [
+        "Implementation complete per description",
+        "Tests pass: npx vitest run",
+        "Typecheck clean: npx tsc --noEmit"
+      ],
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ]
+    },
+    {
+      "id": "P0-U02",
+      "title": "Design System — Extract & Modernize",
+      "status": "not_started",
+      "description": "Extract design tokens from v8.89 monolith, modernize into Tailwind config. Dark industrial theme with PRISM brand identity.",
+      "acceptance_criteria": [
+        "tailwind.config.ts with PRISM colors (dark bg, blue primary, green success, amber warning, purple pro)",
+        "CSS variables matching monolith :root vars",
+        "Component library: Button, Card, Badge, Input, Select, Tabs, Modal, Table, Chart",
+        "Tier badge components (Free=gray, Machinist=blue, Programmer=green, Engineer=purple, Enterprise=amber)",
+        "Lock overlay component for gated features",
+        "Responsive breakpoints matching monolith (600px, 1801px, 2401px)",
+        "Dark mode only (matches monolith aesthetic)"
+      ],
+      "exit_conditions": [
+        "Implementation complete per description",
+        "Tests pass: npx vitest run",
+        "Typecheck clean: npx tsc --noEmit"
+      ],
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ]
+    },
+    {
+      "id": "P0-U03",
+      "title": "App Shell — Navigation & Layout",
+      "status": "not_started",
+      "description": "New app shell with sidebar navigation, user menu, tier indicator, search, and responsive layout. Groups 67 dispatchers into logical categories.",
+      "acceptance_criteria": [
+        "Sidebar with collapsible categories: Machining, Programming, Engineering, Quality, Business, Machine, Admin",
+        "Each category lists its feature pages with tier badges",
+        "Top bar: search, notifications, user avatar, tier badge",
+        "Mobile-responsive hamburger menu",
+        "Breadcrumb navigation",
+        "Active route highlighting",
+        "Settings gear icon → settings page"
+      ],
+      "exit_conditions": [
+        "Implementation complete per description",
+        "Tests pass: npx vitest run",
+        "Typecheck clean: npx tsc --noEmit"
+      ],
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ]
+    },
+    {
+      "id": "P1-U01",
+      "title": "Landing Page & Pricing Page",
+      "status": "not_started",
+      "description": "Public-facing landing page with product overview, feature comparison, and pricing table. Stripe checkout integration.",
+      "acceptance_criteria": [
+        "Hero section with PRISM branding and value prop",
+        "Feature grid showing key capabilities by tier",
+        "Pricing table with 5 tiers + toggle annual/monthly",
+        "Feature comparison matrix (checkmarks per tier)",
+        "Add-on cards with prices",
+        "CTA buttons linking to Stripe checkout",
+        "Social proof section (metrics: 1003 engines, 86K tools, 910 machines)",
+        "Mobile responsive"
+      ],
+      "exit_conditions": [
+        "Implementation complete per description",
+        "Tests pass: npx vitest run",
+        "Typecheck clean: npx tsc --noEmit"
+      ],
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ]
+    },
+    {
+      "id": "P1-U02",
+      "title": "Dashboard — Home Page",
+      "status": "not_started",
+      "description": "User dashboard showing recent calculations, usage stats, quick actions, and featured tools for their tier.",
+      "acceptance_criteria": [
+        "Recent calculations feed (last 10)",
+        "Usage meter (calculations used / limit)",
+        "Quick action cards: Speed/Feed, Quote, Simulate, Program",
+        "Tier-specific featured tools",
+        "Upgrade prompts for locked features",
+        "System status indicator"
+      ],
+      "exit_conditions": [
+        "Implementation complete per description",
+        "Tests pass: npx vitest run",
+        "Typecheck clean: npx tsc --noEmit"
+      ],
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ]
+    },
+    {
+      "id": "P1-U03",
+      "title": "Speed & Feed Calculator Page",
+      "status": "not_started",
+      "description": "Flagship calculator page — the most-used feature. Full SpeedFeedOrchestratorEngine UI with material/tool/machine selection, results display, and recommendations.",
+      "acceptance_criteria": [
+        "Material selector with 2957 materials (searchable, grouped by ISO)",
+        "Tool selector with 86K tools (searchable by manufacturer/type/diameter)",
+        "Machine selector with 910 machines (searchable by manufacturer)",
+        "Operation type selector (milling, turning, drilling, etc.)",
+        "Real-time results: speed, feed, DOC, WOC, power, force, MRR",
+        "Confidence indicator and uncertainty range",
+        "Playbook warnings and recommendations",
+        "Export results (CSV, PDF, clipboard)",
+        "Tier gating: Free=5/day, Machinist+=unlimited"
+      ],
+      "exit_conditions": [
+        "Implementation complete per description",
+        "Tests pass: npx vitest run",
+        "Typecheck clean: npx tsc --noEmit"
+      ],
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ]
+    },
+    {
+      "id": "P2-U01",
+      "title": "CNC Programming Suite",
+      "status": "not_started",
+      "description": "Combined page for G-code tools: program assembly, post-processing, simulation, validation, auto speed/feed.",
+      "acceptance_criteria": [
+        "G-code editor with syntax highlighting",
+        "Post-processor pipeline visualization (28 stages)",
+        "Controller dialect selector (20 dialects)",
+        "Simulation results with force/thermal/wear plots",
+        "Safety analyzer results (24 rules)",
+        "Auto speed/feed overlay on G-code",
+        "Program compare (diff view)",
+        "Tier gating: Programmer+ for full features"
+      ],
+      "exit_conditions": [
+        "Implementation complete per description",
+        "Tests pass: npx vitest run",
+        "Typecheck clean: npx tsc --noEmit"
+      ],
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ]
+    },
+    {
+      "id": "P2-U02",
+      "title": "Quoting & Estimation Suite",
+      "status": "not_started",
+      "description": "Full quoting pipeline: part analysis, cycle time, material cost, tooling cost, secondary ops, price breaks.",
+      "acceptance_criteria": [
+        "New quote wizard (step-by-step)",
+        "Part geometry input (dimensions or file upload placeholder)",
+        "Automatic cycle time estimation",
+        "Material cost with market pricing",
+        "Tooling cost breakdown",
+        "Secondary operations selector and pricing",
+        "Price break calculator (1/10/100/1000 qty)",
+        "Quote PDF export",
+        "Quote history and analytics",
+        "Tier gating: Machinist+ basic, Engineer+ full"
+      ],
+      "exit_conditions": [
+        "Implementation complete per description",
+        "Tests pass: npx vitest run",
+        "Typecheck clean: npx tsc --noEmit"
+      ],
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ]
+    },
+    {
+      "id": "P2-U03",
+      "title": "Feasibility & Process Planning",
+      "status": "not_started",
+      "description": "MF Track UI — feasibility check, sequence validation, workholding analysis, rigidity checks.",
+      "acceptance_criteria": [
+        "Operation sequence builder (drag-drop reorder)",
+        "Feasibility check results: accessibility, workholding, rigidity, force, sequence",
+        "Dead-end detection visualization",
+        "Wall thickness heat map",
+        "Clamping zone diagram",
+        "Setup transition planner",
+        "Risk score per operation",
+        "Tier gating: Engineer+"
+      ],
+      "exit_conditions": [
+        "Implementation complete per description",
+        "Tests pass: npx vitest run",
+        "Typecheck clean: npx tsc --noEmit"
+      ],
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ]
+    },
+    {
+      "id": "P3-U01",
+      "title": "Engineering Calculators Hub",
+      "status": "not_started",
+      "description": "Hub page linking to all engineering calculator categories: mechanical design, thermal, vibration, forming, welding, etc.",
+      "acceptance_criteria": [
+        "Category cards with icons and action counts",
+        "Mechanical Design (51 actions): gears, bearings, springs, bolts",
+        "Thermal & Fluid (35 actions): heat exchangers, pumps, piping",
+        "Vibration (16 actions): stability lobes, chatter, modal",
+        "CNC Operations (32 actions): facing, slotting, threading",
+        "Machine Setup (25 actions): spindle, balancing, RTCP",
+        "Each category page with tabbed calculator interface",
+        "Tier gating: varies by category"
+      ],
+      "exit_conditions": [
+        "Implementation complete per description",
+        "Tests pass: npx vitest run",
+        "Typecheck clean: npx tsc --noEmit"
+      ],
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ]
+    },
+    {
+      "id": "P3-U02",
+      "title": "Tool & Machine Database Pages",
+      "status": "not_started",
+      "description": "Browsable databases for tools, machines, and materials with search, filter, and detail views.",
+      "acceptance_criteria": [
+        "Tool catalog browser: 86K tools, filterable by manufacturer/type/diameter/material",
+        "Tool detail card with dimensions, collision data, grades",
+        "Machine database browser: 910 machines, filterable by manufacturer/type/specs",
+        "Machine detail card with specs, kinematics, controller",
+        "Material database browser: 2957 materials, filterable by ISO group",
+        "Material detail card with properties, machinability, cutting data",
+        "Comparison mode (select 2-3 items to compare side-by-side)"
+      ],
+      "exit_conditions": [
+        "Implementation complete per description",
+        "Tests pass: npx vitest run",
+        "Typecheck clean: npx tsc --noEmit"
+      ],
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ]
+    },
+    {
+      "id": "P3-U03",
+      "title": "Settings, Account & Billing",
+      "status": "not_started",
+      "description": "User settings, account management, subscription billing, usage analytics.",
+      "acceptance_criteria": [
+        "Profile settings (name, email, company, role)",
+        "Subscription management (current tier, upgrade/downgrade)",
+        "Add-on management (enable/disable add-ons)",
+        "Billing history and invoices",
+        "Usage analytics (calculations by type, most-used tools)",
+        "Default preferences (units, CAM system, machine, material)",
+        "API key management (for API access add-on)",
+        "Data export (all user data)"
+      ],
+      "exit_conditions": [
+        "Implementation complete per description",
+        "Tests pass: npx vitest run",
+        "Typecheck clean: npx tsc --noEmit"
+      ],
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ]
+    }
+  ],
+  "smart_config": {
+    "role": "implementer + reviewer",
+    "model": "sonnet",
+    "effort": "HIGH",
+    "context_budget": "65%"
+  },
+  "mcp_lifecycle": {
+    "session_start": [
+      "prism_session:context_boot",
+      "prism_session:dispatcher_map",
+      "prism_session:memory_recall",
+      "prism_session:system_snapshot",
+      "prism_session:action_search"
+    ],
+    "during_work": [
+      "prism_session:auto_checkpoint",
+      "prism_session:tool_route_best",
+      "prism_session:wip_capture"
+    ],
+    "session_end": [
+      "prism_session:memory_save",
+      "prism_session:system_snapshot",
+      "prism_session:checkpoint_enhanced"
+    ]
+  },
+  "forge_triple": {
+    "protective_hook": "app-ms0-gate",
+    "mcp_action": "prism_app:app_ms0_run",
+    "skill_command": "/app-ms0",
+    "ownership": "DECLARED — BUILT in terminal unit of this milestone"
+  },
+  "feature_cascade": {
+    "new_hooks": [
+      "app-ms0-gate"
+    ],
+    "new_actions": [
+      "app_ms0_run"
+    ],
+    "new_skills": [
+      "/app-ms0"
+    ],
+    "available_to": [
+      "downstream CAMX milestones",
+      "prism app consumers"
+    ]
+  },
+  "knowledge_sources": {
+    "engines": [
+      "ENGINE_DIGEST.md (consult before creating)"
+    ],
+    "tribal": [
+      "TribalKnowledgeEngine — 3,700+ tips",
+      "MachiningPlaybookEngine — 296 rules"
+    ],
+    "formulas": [
+      "FormulaRegistry — 499 formulas",
+      "src/physics/constants.ts — canonical"
+    ],
+    "reference": [
+      "EXTERNAL-REFERENCE-PROGRAMS-INDEX.md",
+      "MaterialRegistry",
+      "MachineRegistry",
+      "ToolCatalogEngine (95,608 tools)"
+    ]
+  },
+  "intent": "Complete product redesign: 5-tier pricing model, feature packaging for 1003 engines, à la carte add-ons, new web UI with dark industrial theme, feature gating, Stripe integration, and dashboard pages for all 67 dispatchers.",
+  "compact_checkpoint": "every 3 units — auto-triggered by hook",
+  "enforcement_hooks_active": [
+    "physics agent",
+    "wiring agent",
+    "constants checker",
+    "stub detector",
+    "test quality",
+    "forge-triple gate",
+    "session audit agent"
+  ]
+}

@@ -25,7 +25,7 @@ const cases = [
 let fail = 0;
 for (const c of cases) {
   const payload = JSON.stringify({ tool_name: "Write", tool_input: { file_path: c.path } });
-  const res = spawnSync("node", ["H:/prism/.claude/hooks/h-drive-enforcement.mjs"], {
+  const res = spawnSync(process.execPath, ["H:/prism/.claude/hooks/h-drive-enforcement.mjs"], {
     input: payload,
     encoding: "utf-8",
   });

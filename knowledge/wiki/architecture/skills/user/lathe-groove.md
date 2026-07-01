@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `lathe-groove` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/lathe-groove.md` |
+| Source | `C:/Users/wompu/.claude/commands/lathe-groove.md` |
 | Model | default |
 | Tags | _(none)_ |
 

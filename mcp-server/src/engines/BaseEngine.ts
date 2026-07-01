@@ -16,6 +16,10 @@ export interface EngineCapability {
   name: string;
   description: string;
   actions?: string[];
+  /** Optional input contract description (free-text shape hint). */
+  input?: string;
+  /** Optional output contract description (free-text shape hint). */
+  output?: string;
 }
 
 export abstract class BaseEngine {

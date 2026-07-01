@@ -149,7 +149,7 @@ export interface MacroFillCandidate {
    * The `formula` field MUST be a parsable Okuma expression — never a
    * resolved number. Test guards: VC130/VC150 expressions stay intact.
    */
-  calculatedVars: Record<string, { formula: string; result: number; description: string }>;
+  calculatedVars: Record<string, { formula: string; result: number; description?: string }>;
 
   warnings: string[];
 
@@ -402,7 +402,12 @@ class MacroFillOrchestratorEngineImpl {
         type: f.idLargeFeatureType!,
         angleDeg: f.idLargeFeatureAngleDeg!,
       },
-      idUndercut: f.idUndercut!,
+      idUndercut: {
+        enable: f.idUndercut!.enable,
+        length: f.idUndercut!.length_in,
+        leadInAngleDeg: f.idUndercut!.leadInAngleDeg,
+        depthBeyondFinish: f.idUndercut!.depthBeyondFinish_in,
+      },
       spotDrill: {
         diameter: f.spotDrill.diameter_in,
         sfm: f.spotDrill.sfm,

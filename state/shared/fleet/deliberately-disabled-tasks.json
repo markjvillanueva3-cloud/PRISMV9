@@ -1,0 +1,15 @@
+{
+  "schemaVersion": "1.0.0",
+  "purpose": "Tasks the PRISM Task Hardener (harden-prism-tasks.ps1) must NOT re-enable, even though their script exists. Without this ledger the self-healer's 'Enabled = -not scriptMissing' rule resurrects completed one-shot migrations + tasks an operator deliberately retired. Seeded 2026-06-25 (slot:sierra, U-SIERRA-UTIL-GOVERNOR) from the dark set that survived the heavy-cron reclaim.",
+  "updated": "2026-06-25",
+  "tasks": [
+    { "name": "PRISM Slot Bindings Seed",            "reason": "completed one-shot migration (slot-binding backfill); re-running is noise, not capability" },
+    { "name": "PRISM Slot Bindings Backfill",        "reason": "completed one-shot migration; re-running is noise" },
+    { "name": "PRISM Slot Bindings Verify",          "reason": "completed one-shot migration verifier; re-running is noise" },
+    { "name": "PRISM Slot Worktree Migration Status","reason": "completed one-shot slot-worktree migration status; migration is done" }
+  ],
+  "notExtListed_handledElsewhere": {
+    "PRISM Zebra Orchestrator": "script H:/PRISM/scripts/zebra-orchestrator-sweep.mjs is MISSING (unmerged by bravo/zulu) -> already kept dark by the hardener's scriptMissing guard; will auto-enable when the script is merged",
+    "PRISM Task Hardener": "the self-healer itself; never re-enabled by itself mid-run (the script skips its own name)"
+  }
+}

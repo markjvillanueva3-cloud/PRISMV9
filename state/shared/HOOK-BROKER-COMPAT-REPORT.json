@@ -1,0 +1,5183 @@
+{
+  "schemaVersion": "1.0.0",
+  "total": 602,
+  "byCategory": {
+    "module-safe": 78,
+    "cli-safe-stdin-stdout": 0,
+    "mutates-process": 372,
+    "imports-only": 5,
+    "empty": 1,
+    "unknown": 146
+  },
+  "brokerStrategy": {
+    "sharable_in_process": 78,
+    "spawn_cache": 0,
+    "spawn_isolate": 518,
+    "ignore": 6
+  },
+  "topMutators": [
+    "H:\\prism\\.claude\\hooks\\active-chat-priority-boost.mjs",
+    "H:\\prism\\.claude\\hooks\\agent-pid-tracker.mjs",
+    "H:\\prism\\.claude\\hooks\\agent-util-log.mjs",
+    "H:\\prism\\.claude\\hooks\\agent-watchdog.mjs",
+    "H:\\prism\\.claude\\hooks\\agent-worktree-stale-unlock.mjs",
+    "H:\\prism\\.claude\\hooks\\aggressive-killer-stop.mjs",
+    "H:\\prism\\.claude\\hooks\\agi-safety-envelope-guard.mjs",
+    "H:\\prism\\.claude\\hooks\\ai-duplication-guard.mjs",
+    "H:\\prism\\.claude\\hooks\\ai-session-sync.mjs",
+    "H:\\prism\\.claude\\hooks\\allow-superseding.mjs",
+    "H:\\prism\\.claude\\hooks\\alpha-slot-reaper-guardian.mjs",
+    "H:\\prism\\.claude\\hooks\\always-build-guard.mjs",
+    "H:\\prism\\.claude\\hooks\\anti-regression-auto-sweep.mjs",
+    "H:\\prism\\.claude\\hooks\\appdata-junction-guard.mjs",
+    "H:\\prism\\.claude\\hooks\\archived-skill-suggest.mjs",
+    "H:\\prism\\.claude\\hooks\\audit-viz-first-inject.mjs",
+    "H:\\prism\\.claude\\hooks\\auto-bug-hunt-after-build.mjs",
+    "H:\\prism\\.claude\\hooks\\auto-consensus-critical-edit.mjs",
+    "H:\\prism\\.claude\\hooks\\auto-consensus-userprompt.mjs",
+    "H:\\prism\\.claude\\hooks\\auto-fork-executor.mjs",
+    "H:\\prism\\.claude\\hooks\\auto-learn-budget-guard.mjs",
+    "H:\\prism\\.claude\\hooks\\auto-lint-post-edit.mjs",
+    "H:\\prism\\.claude\\hooks\\auto-postmortem-on-failure-restart.mjs",
+    "H:\\prism\\.claude\\hooks\\auto-precompact-watchdog.mjs",
+    "H:\\prism\\.claude\\hooks\\auto-record-tool-call.mjs"
+  ],
+  "mutatorsTruncated": 347,
+  "invalidEntries": 0,
+  "generated": "2026-05-22T23:11:37.365Z",
+  "hooksDir": "H:\\prism\\.claude\\hooks",
+  "readFailures": [],
+  "perFile": [
+    {
+      "filePath": "H:/prism/.claude/hooks/activate-before-build-precheck.mjs",
+      "category": "module-safe",
+      "signals": [
+        "named-export-fn"
+      ],
+      "sizeBytes": 12926
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/active-chat-priority-boost.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "named-export-fn",
+        "mutation:writeFileSync",
+        "mutation:mkdirSync"
+      ],
+      "sizeBytes": 5766
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/active-chat-priority-decay.mjs",
+      "category": "module-safe",
+      "signals": [
+        "named-export-fn"
+      ],
+      "sizeBytes": 4964
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/agent-boundary-guard.mjs",
+      "category": "unknown",
+      "signals": [],
+      "sizeBytes": 3464
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/agent-pid-tracker.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:execSync",
+        "mutation:writeFileAsync"
+      ],
+      "sizeBytes": 4502
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/agent-registry-load.mjs",
+      "category": "unknown",
+      "signals": [],
+      "sizeBytes": 1519
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/agent-rules-inject.mjs",
+      "category": "unknown",
+      "signals": [],
+      "sizeBytes": 2138
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/agent-util-log.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:spawnSync"
+      ],
+      "sizeBytes": 2828
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/agent-vs-direct.mjs",
+      "category": "unknown",
+      "signals": [
+        "top-writes-stdout"
+      ],
+      "sizeBytes": 3187
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/agent-watchdog.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "named-export-fn",
+        "mutation:writeFileSync",
+        "mutation:appendFile",
+        "mutation:mkdirSync"
+      ],
+      "sizeBytes": 9472
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/agent-worktree-stale-unlock.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:spawnSync",
+        "mutation:appendFile",
+        "mutation:mkdirSync"
+      ],
+      "sizeBytes": 4487
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/aggressive-killer-stop.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:execFile"
+      ],
+      "sizeBytes": 2335
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/agi-safety-envelope-guard.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:appendFile"
+      ],
+      "sizeBytes": 3922
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/ai-auto-command-router.mjs",
+      "category": "unknown",
+      "signals": [],
+      "sizeBytes": 5319
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/ai-command-awareness.mjs",
+      "category": "unknown",
+      "signals": [],
+      "sizeBytes": 3027
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/ai-deep-intelligence.mjs",
+      "category": "unknown",
+      "signals": [],
+      "sizeBytes": 3925
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/ai-duplication-guard.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:fetch"
+      ],
+      "sizeBytes": 14807
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/ai-feature-recommend.mjs",
+      "category": "module-safe",
+      "signals": [
+        "named-export-fn"
+      ],
+      "sizeBytes": 3389
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/ai-reasoning-inject.mjs",
+      "category": "unknown",
+      "signals": [],
+      "sizeBytes": 4729
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/ai-session-sync.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:writeFileAsync"
+      ],
+      "sizeBytes": 2250
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/ai-system-activate.mjs",
+      "category": "unknown",
+      "signals": [],
+      "sizeBytes": 4824
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/ai-system-router-inject.mjs",
+      "category": "unknown",
+      "signals": [],
+      "sizeBytes": 2710
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/allow-superseding.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "default-export",
+        "mutation:writeFileSync"
+      ],
+      "sizeBytes": 3755
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/alpha-slot-reaper-guardian.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:spawnSync",
+        "mutation:spawn",
+        "mutation:writeFileSync",
+        "mutation:mkdirSync"
+      ],
+      "sizeBytes": 14573
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/always-build-guard.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:writeFileSync"
+      ],
+      "sizeBytes": 11385
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/anti-pattern-detector.mjs",
+      "category": "unknown",
+      "signals": [],
+      "sizeBytes": 8572
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/anti-regression-auto-sweep.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:spawnSync"
+      ],
+      "sizeBytes": 7298
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/api-contract-enforcer.mjs",
+      "category": "unknown",
+      "signals": [],
+      "sizeBytes": 6680
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/appdata-junction-guard.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:appendFile",
+        "mutation:mkdirSync"
+      ],
+      "sizeBytes": 4397
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/archived-skill-suggest.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:writeFileSync",
+        "mutation:appendFile",
+        "mutation:mkdirSync"
+      ],
+      "sizeBytes": 19227
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/asset-deletion-block.mjs",
+      "category": "unknown",
+      "signals": [],
+      "sizeBytes": 4174
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/async-pattern-checker.mjs",
+      "category": "unknown",
+      "signals": [],
+      "sizeBytes": 6173
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/audit-viz-first-inject.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "named-export-fn",
+        "mutation:execFile"
+      ],
+      "sizeBytes": 8633
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/auto-bug-hunt-after-build.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:writeFileSync",
+        "mutation:mkdirSync"
+      ],
+      "sizeBytes": 7879
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/auto-consensus-critical-edit.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:appendFile",
+        "mutation:mkdirSync"
+      ],
+      "sizeBytes": 7208
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/auto-consensus-sync-bash.mjs",
+      "category": "module-safe",
+      "signals": [
+        "named-export-fn"
+      ],
+      "sizeBytes": 14276
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/auto-consensus-userprompt.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:writeFileSync",
+        "mutation:appendFile",
+        "mutation:mkdirSync"
+      ],
+      "sizeBytes": 7821
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/auto-fork-executor.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "top-writes-stdout",
+        "mutation:spawnSync"
+      ],
+      "sizeBytes": 12665
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/auto-learn-budget-guard.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "named-export-fn",
+        "mutation:writeFileSync",
+        "mutation:mkdirSync"
+      ],
+      "sizeBytes": 6614
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/auto-lint-post-edit.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:spawn",
+        "mutation:execFile",
+        "mutation:mkdirSync"
+      ],
+      "sizeBytes": 3599
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/auto-postmortem-on-failure-restart.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:execSync",
+        "mutation:appendFile"
+      ],
+      "sizeBytes": 5989
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/auto-precompact-watchdog.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:spawn",
+        "mutation:writeFileSync",
+        "mutation:mkdirSync"
+      ],
+      "sizeBytes": 5532
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/auto-record-tool-call.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:writeFileSync",
+        "mutation:mkdirSync"
+      ],
+      "sizeBytes": 2769
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/autonomous-loop-defer.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "named-export-fn",
+        "mutation:writeFileSync",
+        "mutation:appendFile",
+        "mutation:rename",
+        "mutation:mkdirSync"
+      ],
+      "sizeBytes": 10477
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/autonomous-loop-watchdog.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:writeFileSync"
+      ],
+      "sizeBytes": 2968
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/awareness-bootstrap.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "default-export",
+        "mutation:writeFileSync"
+      ],
+      "sizeBytes": 2226
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/awareness-snapshot-inject.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:spawnSync",
+        "mutation:spawn",
+        "mutation:writeFileSync"
+      ],
+      "sizeBytes": 9058
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/awareness-snapshot.mjs",
+      "category": "unknown",
+      "signals": [],
+      "sizeBytes": 7170
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/ban-facade-patterns.mjs",
+      "category": "unknown",
+      "signals": [],
+      "sizeBytes": 5973
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/bash-destructive-guard.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:writeFileSync",
+        "mutation:mkdirSync"
+      ],
+      "sizeBytes": 12856
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/bash-orphan-cleaner.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:execFile",
+        "mutation:writeFileSync",
+        "mutation:appendFile",
+        "mutation:unlink",
+        "mutation:mkdirSync"
+      ],
+      "sizeBytes": 7507
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/bash-result-cache.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:writeFileAsync",
+        "mutation:appendFile"
+      ],
+      "sizeBytes": 6132
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/blueprint-accuracy-guard.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "named-export-fn",
+        "mutation:writeFileSync",
+        "mutation:appendFile",
+        "mutation:unlink",
+        "mutation:rename",
+        "mutation:mkdirSync"
+      ],
+      "sizeBytes": 25136
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/blueprint-coverage-floor-guard.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "named-export-fn",
+        "mutation:writeFileSync",
+        "mutation:appendFile",
+        "mutation:mkdirSync"
+      ],
+      "sizeBytes": 21732
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/blueprint-join-index-stale-check.mjs",
+      "category": "unknown",
+      "signals": [],
+      "sizeBytes": 4795
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/build-cache-guard.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "named-export-fn",
+        "mutation:writeFileSync",
+        "mutation:appendFile",
+        "mutation:unlink",
+        "mutation:mkdirSync"
+      ],
+      "sizeBytes": 14299
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/build-create-detector.mjs",
+      "category": "unknown",
+      "signals": [],
+      "sizeBytes": 3752
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/build-state-inject.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:spawnSync"
+      ],
+      "sizeBytes": 7278
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/bundles/bash-bundle.mjs",
+      "category": "unknown",
+      "signals": [],
+      "sizeBytes": 3903
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/bundles/edit-bundle.mjs",
+      "category": "unknown",
+      "signals": [],
+      "sizeBytes": 8695
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/bundles/lib/hook-runner.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "named-export-fn",
+        "mutation:spawn"
+      ],
+      "sizeBytes": 11433
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/bundles/lib/obsidian-cache.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "named-export-fn",
+        "mutation:writeFileSync",
+        "mutation:unlink",
+        "mutation:mkdirSync"
+      ],
+      "sizeBytes": 3963
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/bundles/lib/ollama-fuse.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "named-export-fn",
+        "mutation:fetch"
+      ],
+      "sizeBytes": 4375
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/bundles/posttool-bash-read-bundle.mjs",
+      "category": "unknown",
+      "signals": [],
+      "sizeBytes": 4247
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/bundles/posttool-edit-bundle.mjs",
+      "category": "unknown",
+      "signals": [],
+      "sizeBytes": 6668
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/bundles/read-bundle.mjs",
+      "category": "unknown",
+      "signals": [],
+      "sizeBytes": 1974
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/bundles/sessionstart-bundle.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:fetch"
+      ],
+      "sizeBytes": 4989
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/bundles/smoke-test.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:writeFileSync"
+      ],
+      "sizeBytes": 5663
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/bundles/stop-bundle.mjs",
+      "category": "unknown",
+      "signals": [],
+      "sizeBytes": 5063
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/bundles/stop-regression-bundle.mjs",
+      "category": "unknown",
+      "signals": [],
+      "sizeBytes": 6435
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/c-to-h-mirror.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:mkdirSync"
+      ],
+      "sizeBytes": 4303
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/cad-accuracy-gate.mjs",
+      "category": "module-safe",
+      "signals": [
+        "default-export"
+      ],
+      "sizeBytes": 2805
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/cad-coverage-auto-refresh.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:spawn"
+      ],
+      "sizeBytes": 5312
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/cad-coverage-surface.mjs",
+      "category": "unknown",
+      "signals": [],
+      "sizeBytes": 1712
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/cad-graph-integrity.mjs",
+      "category": "module-safe",
+      "signals": [
+        "default-export"
+      ],
+      "sizeBytes": 4047
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/cad-token-vocabulary-guard.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "default-export",
+        "mutation:writeFileSync"
+      ],
+      "sizeBytes": 4035
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/cad-unknown-ext-surface.mjs",
+      "category": "unknown",
+      "signals": [],
+      "sizeBytes": 2028
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/canonical-constants.mjs",
+      "category": "module-safe",
+      "signals": [
+        "default-export"
+      ],
+      "sizeBytes": 2987
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/capability-manifest-surface.mjs",
+      "category": "unknown",
+      "signals": [],
+      "sizeBytes": 1545
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/capability-reminder.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:writeFileAsync",
+        "mutation:appendFile"
+      ],
+      "sizeBytes": 5286
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/chat-bus-inject.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "named-export-fn",
+        "mutation:spawnSync",
+        "mutation:writeFileSync",
+        "mutation:rename",
+        "mutation:mkdirSync"
+      ],
+      "sizeBytes": 11394
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/chat-cleanup-on-stop.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:spawnSync"
+      ],
+      "sizeBytes": 5917
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/chat-slot-heartbeat.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:spawnSync"
+      ],
+      "sizeBytes": 5267
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/chat-state-isolator.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:writeFileSync",
+        "mutation:mkdirSync"
+      ],
+      "sizeBytes": 4652
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/checkin-args-surface.mjs",
+      "category": "module-safe",
+      "signals": [
+        "named-export-fn"
+      ],
+      "sizeBytes": 7197
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/checkpoint-auto-trigger.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:writeFileSync",
+        "mutation:unlink",
+        "mutation:mkdirSync"
+      ],
+      "sizeBytes": 4142
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/claim-registry-precompact.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:spawnSync"
+      ],
+      "sizeBytes": 1181
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/claim-registry-release.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:spawnSync"
+      ],
+      "sizeBytes": 1393
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/claim-registry-surface.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:spawnSync"
+      ],
+      "sizeBytes": 1592
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/claim-required.mjs",
+      "category": "module-safe",
+      "signals": [
+        "default-export"
+      ],
+      "sizeBytes": 3222
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/claude-brief-inject.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:spawnSync"
+      ],
+      "sizeBytes": 5426
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/claude-brief-precompact.mjs",
+      "category": "unknown",
+      "signals": [],
+      "sizeBytes": 4143
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/claude-brief-staleness-check.mjs",
+      "category": "unknown",
+      "signals": [],
+      "sizeBytes": 4803
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/claude-md-golf-only-guard.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:spawnSync"
+      ],
+      "sizeBytes": 12072
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/claude-md-mirror.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:rename"
+      ],
+      "sizeBytes": 2013
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/claude-no-delete-files.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "named-export-fn",
+        "mutation:appendFile",
+        "mutation:mkdirSync"
+      ],
+      "sizeBytes": 6803
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/claudemd-ollama-enforcer.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:writeFileSync",
+        "mutation:appendFile",
+        "mutation:mkdirSync",
+        "mutation:fetch"
+      ],
+      "sizeBytes": 11381
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/claudemd-section-update.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:spawn",
+        "mutation:mkdirSync"
+      ],
+      "sizeBytes": 3113
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/close-out-audit-suggest.mjs",
+      "category": "unknown",
+      "signals": [],
+      "sizeBytes": 5124
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/code-completeness-gate.mjs",
+      "category": "unknown",
+      "signals": [],
+      "sizeBytes": 7711
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/coding-pattern-hint.mjs",
+      "category": "unknown",
+      "signals": [],
+      "sizeBytes": 4068
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/cog-bridge-ai-memory-capture.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:appendFile",
+        "mutation:mkdirSync"
+      ],
+      "sizeBytes": 3646
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/cog-bridge-awareness-rebuild.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:appendFile",
+        "mutation:mkdirSync"
+      ],
+      "sizeBytes": 3596
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/cog-bridge-context-auto-compact.mjs",
+      "category": "unknown",
+      "signals": [],
+      "sizeBytes": 3672
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/cognitive-budget-allocator.mjs",
+      "category": "unknown",
+      "signals": [],
+      "sizeBytes": 5682
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/command-telemetry-record.mjs",
+      "category": "module-safe",
+      "signals": [
+        "named-export-fn"
+      ],
+      "sizeBytes": 10893
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/commit-coordination-acquire.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:execFile"
+      ],
+      "sizeBytes": 5632
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/commit-coordination-release.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:execFile"
+      ],
+      "sizeBytes": 2588
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/commit-draft-suggest.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:execSync",
+        "mutation:appendFile",
+        "mutation:mkdirSync",
+        "mutation:fetch"
+      ],
+      "sizeBytes": 7144
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/commit-format-validator.mjs",
+      "category": "module-safe",
+      "signals": [
+        "named-export-fn"
+      ],
+      "sizeBytes": 4094
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/commit-ownership-guard.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:execFile",
+        "mutation:writeFileSync",
+        "mutation:mkdirSync"
+      ],
+      "sizeBytes": 9830
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/commit-pressure-stop-gate.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "top-writes-stdout",
+        "top-process-exit",
+        "mutation:execFile"
+      ],
+      "sizeBytes": 5179
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/compact-interval-warning.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "named-export-fn",
+        "mutation:execSync"
+      ],
+      "sizeBytes": 4026
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/compaction-budget-nudge.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:writeFileSync"
+      ],
+      "sizeBytes": 3938
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/compaction-survival-auto.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:writeFileSync",
+        "mutation:mkdirSync"
+      ],
+      "sizeBytes": 3334
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/complexity-gate.mjs",
+      "category": "unknown",
+      "signals": [
+        "top-writes-stdout"
+      ],
+      "sizeBytes": 8807
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/comprehensive-build-enforce.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "top-writes-stdout",
+        "mutation:writeFileSync",
+        "mutation:mkdirSync"
+      ],
+      "sizeBytes": 9656
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/compression-precompact.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:writeFileSync",
+        "mutation:unlink",
+        "mutation:rename",
+        "mutation:mkdirSync"
+      ],
+      "sizeBytes": 6133
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/consistent-return-checker.mjs",
+      "category": "unknown",
+      "signals": [],
+      "sizeBytes": 6025
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/context-priority-coordinator.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:writeFileSync",
+        "mutation:mkdirSync"
+      ],
+      "sizeBytes": 4044
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/coordination-startup-banner.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:writeFileSync",
+        "mutation:mkdirSync"
+      ],
+      "sizeBytes": 8070
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/coordination-update-reminder.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:writeFileSync",
+        "mutation:mkdirSync"
+      ],
+      "sizeBytes": 2473
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/corpus-integrity.mjs",
+      "category": "module-safe",
+      "signals": [
+        "default-export"
+      ],
+      "sizeBytes": 3763
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/cost-ceiling-stop.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:writeFileSync"
+      ],
+      "sizeBytes": 3705
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/critical-file-guard.mjs",
+      "category": "module-safe",
+      "signals": [
+        "default-export"
+      ],
+      "sizeBytes": 7109
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/critical-memory-compact-nudge.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "named-export-fn",
+        "mutation:writeFileSync",
+        "mutation:mkdirSync"
+      ],
+      "sizeBytes": 11625
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/cross-chat-directive-detector.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:spawnSync"
+      ],
+      "sizeBytes": 7870
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/cross-session-awareness.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:writeFileSync"
+      ],
+      "sizeBytes": 6577
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/cross-session-orchestrator.mjs",
+      "category": "unknown",
+      "signals": [],
+      "sizeBytes": 7758
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/cross-terminal-conflict.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "default-export",
+        "mutation:writeFileSync",
+        "mutation:unlink",
+        "mutation:mkdirSync"
+      ],
+      "sizeBytes": 3096
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/curiosity-explorer.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:writeFileSync",
+        "mutation:mkdirSync"
+      ],
+      "sizeBytes": 7121
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/customer-directory-watcher.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:writeFileSync",
+        "mutation:appendFile",
+        "mutation:mkdirSync"
+      ],
+      "sizeBytes": 4765
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/dead-pixel-guard.mjs",
+      "category": "unknown",
+      "signals": [],
+      "sizeBytes": 2281
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/decision-capture.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:writeFileSync"
+      ],
+      "sizeBytes": 2647
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/dedup-auto-invoke.mjs",
+      "category": "unknown",
+      "signals": [],
+      "sizeBytes": 1959
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/dep-graph-impact.mjs",
+      "category": "module-safe",
+      "signals": [
+        "default-export"
+      ],
+      "sizeBytes": 2792
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/dev-outcome-tracker.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:writeFileSync",
+        "mutation:mkdirSync"
+      ],
+      "sizeBytes": 8795
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/dfm-block.mjs",
+      "category": "module-safe",
+      "signals": [
+        "default-export"
+      ],
+      "sizeBytes": 2489
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/directive-summary-refresh-iooms.mjs",
+      "category": "module-safe",
+      "signals": [
+        "named-export-fn"
+      ],
+      "sizeBytes": 4318
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/directive-summary-refresh.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:spawn",
+        "mutation:mkdirSync"
+      ],
+      "sizeBytes": 3888
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/discipline-expert-inject.mjs",
+      "category": "unknown",
+      "signals": [],
+      "sizeBytes": 41111
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/dispatcher-digest-regen.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:spawn"
+      ],
+      "sizeBytes": 4772
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/dispatcher-import-validator.mjs",
+      "category": "unknown",
+      "signals": [],
+      "sizeBytes": 2986
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/dist-integrity-check.mjs",
+      "category": "module-safe",
+      "signals": [
+        "named-export-fn"
+      ],
+      "sizeBytes": 8392
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/doc-cascade.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "default-export",
+        "mutation:writeFileSync"
+      ],
+      "sizeBytes": 2041
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/doc-freshness-check.mjs",
+      "category": "module-safe",
+      "signals": [
+        "default-export"
+      ],
+      "sizeBytes": 2029
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/document-preserve-guard.mjs",
+      "category": "module-safe",
+      "signals": [
+        "default-export"
+      ],
+      "sizeBytes": 4691
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/dotclaude-junctions-guard.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:appendFile",
+        "mutation:mkdirSync"
+      ],
+      "sizeBytes": 2808
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/dsl-output-compressor.mjs",
+      "category": "unknown",
+      "signals": [],
+      "sizeBytes": 4123
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/duplication-guard-stop.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:writeFileSync"
+      ],
+      "sizeBytes": 5624
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/duplication-hard-block.mjs",
+      "category": "unknown",
+      "signals": [],
+      "sizeBytes": 5779
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/edit-batch-detector.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:writeFileSync",
+        "mutation:mkdirSync"
+      ],
+      "sizeBytes": 2914
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/edit-multiedit-suggest.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:writeFileSync",
+        "mutation:rename",
+        "mutation:mkdirSync"
+      ],
+      "sizeBytes": 3747
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/edit-old-string-verify.mjs",
+      "category": "unknown",
+      "signals": [
+        "top-writes-stdout"
+      ],
+      "sizeBytes": 3793
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/efficiency-monitor.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:writeFileSync"
+      ],
+      "sizeBytes": 2367
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/embed-vault-on-save.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "named-export-fn",
+        "mutation:writeFileSync",
+        "mutation:rename",
+        "mutation:mkdirSync"
+      ],
+      "sizeBytes": 8684
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/embedder-inject-qdrant.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:fetch"
+      ],
+      "sizeBytes": 4782
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/embedding-cache-guard.mjs",
+      "category": "module-safe",
+      "signals": [
+        "default-export"
+      ],
+      "sizeBytes": 2943
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/encoding-guard.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:writeFileSync",
+        "mutation:appendFile",
+        "mutation:rename",
+        "mutation:mkdirSync"
+      ],
+      "sizeBytes": 18118
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/enforce-handoff-topic.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:spawnSync",
+        "mutation:writeFileSync",
+        "mutation:unlink",
+        "mutation:rename"
+      ],
+      "sizeBytes": 5962
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/enforce-roadmap-closeout.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "named-export-fn",
+        "mutation:writeFileSync",
+        "mutation:rename",
+        "mutation:mkdirSync"
+      ],
+      "sizeBytes": 19269
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/engine-digest-precheck.mjs",
+      "category": "module-safe",
+      "signals": [
+        "named-export-fn"
+      ],
+      "sizeBytes": 5404
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/erp-quote-variance-guard.mjs",
+      "category": "unknown",
+      "signals": [],
+      "sizeBytes": 3393
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/error-block-capture.mjs",
+      "category": "unknown",
+      "signals": [],
+      "sizeBytes": 4283
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/error-block-prewarn.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:fetch"
+      ],
+      "sizeBytes": 7852
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/error-fix-vault-bridge.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "named-export-fn",
+        "mutation:execFile",
+        "mutation:writeFileSync",
+        "mutation:unlink",
+        "mutation:rename",
+        "mutation:mkdirSync"
+      ],
+      "sizeBytes": 16968
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/error-learner-hook.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:writeFileSync"
+      ],
+      "sizeBytes": 3769
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/error-pattern-capture.mjs",
+      "category": "unknown",
+      "signals": [],
+      "sizeBytes": 6859
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/error-pattern-learner.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:writeFileSync",
+        "mutation:appendFile",
+        "mutation:mkdirSync"
+      ],
+      "sizeBytes": 9387
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/error-pattern-memory.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:writeFileSync",
+        "mutation:mkdirSync"
+      ],
+      "sizeBytes": 10092
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/error-pattern-promote.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:writeFileSync",
+        "mutation:appendFile",
+        "mutation:mkdirSync"
+      ],
+      "sizeBytes": 8710
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/error-recovery-memory.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "top-writes-stdout",
+        "mutation:writeFileSync",
+        "mutation:mkdirSync"
+      ],
+      "sizeBytes": 4516
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/expert-role-inject.mjs",
+      "category": "unknown",
+      "signals": [],
+      "sizeBytes": 1229
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/extended-thinking-auto.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:writeFileSync"
+      ],
+      "sizeBytes": 19231
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/extraction-log-drift.mjs",
+      "category": "module-safe",
+      "signals": [
+        "default-export"
+      ],
+      "sizeBytes": 2400
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/extraction-to-tribal.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:writeFileAsync"
+      ],
+      "sizeBytes": 4828
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/figma-ui-consistency.mjs",
+      "category": "unknown",
+      "signals": [],
+      "sizeBytes": 4566
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/file-claim-commit-guard.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:spawnSync"
+      ],
+      "sizeBytes": 8933
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/file-claim-guard.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:spawnSync",
+        "mutation:writeFileSync",
+        "mutation:rename",
+        "mutation:mkdirSync"
+      ],
+      "sizeBytes": 7837
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/file-ownership-tracker.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:writeFileSync",
+        "mutation:mkdirSync"
+      ],
+      "sizeBytes": 5013
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/file-read-cache.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "named-export-fn",
+        "mutation:writeFileAsync",
+        "mutation:appendFile",
+        "mutation:rename"
+      ],
+      "sizeBytes": 12464
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/fix-stdin-pattern.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:writeFileSync"
+      ],
+      "sizeBytes": 2424
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/fleet-reaper-stop.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:spawn",
+        "mutation:writeFileSync",
+        "mutation:mkdirSync"
+      ],
+      "sizeBytes": 6634
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/fleet-task-health-stop.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "named-export-fn",
+        "mutation:spawn",
+        "mutation:writeFileSync",
+        "mutation:rename",
+        "mutation:mkdirSync"
+      ],
+      "sizeBytes": 10149
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/forge-intent-claim.mjs",
+      "category": "module-safe",
+      "signals": [
+        "default-export"
+      ],
+      "sizeBytes": 3550
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/formula-algorithm-suggest.mjs",
+      "category": "unknown",
+      "signals": [],
+      "sizeBytes": 3871
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/git-add-lane-guard.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "named-export-fn",
+        "mutation:spawnSync"
+      ],
+      "sizeBytes": 17433
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/git-anti-clobber-release.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:unlink"
+      ],
+      "sizeBytes": 4402
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/git-anti-clobber.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:writeFileSync",
+        "mutation:unlink",
+        "mutation:rename",
+        "mutation:mkdirSync"
+      ],
+      "sizeBytes": 10190
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/git-commit-checkin.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:spawn"
+      ],
+      "sizeBytes": 6383
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/git-health-guard.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:execFile",
+        "mutation:writeFileSync",
+        "mutation:unlink",
+        "mutation:mkdirSync"
+      ],
+      "sizeBytes": 7121
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/git-lock-sweeper.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:unlink"
+      ],
+      "sizeBytes": 7123
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/git-output-condenser.mjs",
+      "category": "unknown",
+      "signals": [],
+      "sizeBytes": 3686
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/git-sync-fetch.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:execFile",
+        "mutation:writeFileSync",
+        "mutation:unlink",
+        "mutation:mkdirSync",
+        "mutation:fetch"
+      ],
+      "sizeBytes": 6444
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/git-sync-stop.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:spawn",
+        "mutation:execFile",
+        "mutation:writeFileSync",
+        "mutation:appendFile",
+        "mutation:unlink",
+        "mutation:mkdirSync",
+        "mutation:fetch"
+      ],
+      "sizeBytes": 10984
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/glob-narrow-path.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:writeFileSync",
+        "mutation:mkdirSync"
+      ],
+      "sizeBytes": 3171
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/goal-complete-gate.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:execSync",
+        "mutation:appendFile",
+        "mutation:mkdirSync"
+      ],
+      "sizeBytes": 13197
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/goal-prereq-inject.mjs",
+      "category": "unknown",
+      "signals": [],
+      "sizeBytes": 10605
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/goal-stack-init.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "default-export",
+        "mutation:writeFileSync"
+      ],
+      "sizeBytes": 2021
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/goal-stack-inject.mjs",
+      "category": "unknown",
+      "signals": [
+        "top-reads-stdin"
+      ],
+      "sizeBytes": 1652
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/goal-synergy-status-inject.mjs",
+      "category": "module-safe",
+      "signals": [
+        "named-export-fn"
+      ],
+      "sizeBytes": 5512
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/golf-slot-reaper-guardian.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:spawnSync",
+        "mutation:spawn",
+        "mutation:writeFileSync",
+        "mutation:mkdirSync"
+      ],
+      "sizeBytes": 16490
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/golf-slot-write-allowlist.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:spawnSync",
+        "mutation:rename"
+      ],
+      "sizeBytes": 14680
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/grep-index-first.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:writeFileSync",
+        "mutation:mkdirSync"
+      ],
+      "sizeBytes": 5825
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/grep-result-cache.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "top-writes-stdout",
+        "mutation:writeFileSync",
+        "mutation:mkdirSync"
+      ],
+      "sizeBytes": 3299
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/gsd-inject.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "top-writes-stdout",
+        "mutation:writeFileSync",
+        "mutation:mkdirSync"
+      ],
+      "sizeBytes": 3912
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/gsd-section-retrieve.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:writeFileSync",
+        "mutation:mkdirSync",
+        "mutation:fetch"
+      ],
+      "sizeBytes": 4549
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/gsd-section-update.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:spawn",
+        "mutation:mkdirSync"
+      ],
+      "sizeBytes": 2913
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/h-drive-audit.mjs",
+      "category": "unknown",
+      "signals": [],
+      "sizeBytes": 3313
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/h-drive-enforcement.mjs",
+      "category": "unknown",
+      "signals": [],
+      "sizeBytes": 7896
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/handoff-memory-seed-stop.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:spawn",
+        "mutation:execFile",
+        "mutation:writeFileSync",
+        "mutation:unlink",
+        "mutation:mkdirSync"
+      ],
+      "sizeBytes": 11276
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/harness-audit-staleness.mjs",
+      "category": "unknown",
+      "signals": [],
+      "sizeBytes": 2943
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/heartbeat-keepalive.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:spawnSync"
+      ],
+      "sizeBytes": 8366
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/hook-basin-drift.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "default-export",
+        "mutation:writeFileSync"
+      ],
+      "sizeBytes": 4078
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/hook-circular-dep-check.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "default-export",
+        "mutation:writeFileSync"
+      ],
+      "sizeBytes": 3480
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/hook-condition-number.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "default-export",
+        "mutation:writeFileSync"
+      ],
+      "sizeBytes": 2657
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/hook-creation-gate.mjs",
+      "category": "module-safe",
+      "signals": [
+        "named-export-fn"
+      ],
+      "sizeBytes": 11739
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/hook-cross-worktree-block.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "named-export-fn",
+        "mutation:spawnSync"
+      ],
+      "sizeBytes": 12763
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/hook-modification-justification.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:writeFileSync",
+        "mutation:appendFile",
+        "mutation:mkdirSync"
+      ],
+      "sizeBytes": 7994
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/hook-registry-regen.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:spawn"
+      ],
+      "sizeBytes": 4027
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/hook-saturation-alert.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "default-export",
+        "mutation:writeFileSync",
+        "mutation:mkdirSync"
+      ],
+      "sizeBytes": 3810
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/hook-stability-check.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "default-export",
+        "mutation:writeFileSync",
+        "mutation:mkdirSync"
+      ],
+      "sizeBytes": 4378
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/hook-tier-validator.mjs",
+      "category": "unknown",
+      "signals": [
+        "top-writes-stdout"
+      ],
+      "sizeBytes": 3088
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/hook-tla-invariant.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "default-export",
+        "mutation:writeFileSync"
+      ],
+      "sizeBytes": 7924
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/html-companion-guard.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "named-export-fn",
+        "mutation:execFile"
+      ],
+      "sizeBytes": 10030
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/import-verifier.mjs",
+      "category": "unknown",
+      "signals": [],
+      "sizeBytes": 8636
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/inbox-capture-sharpen.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "named-export-fn",
+        "mutation:writeFileSync",
+        "mutation:appendFile"
+      ],
+      "sizeBytes": 7356
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/inbox-lag-advisory.mjs",
+      "category": "module-safe",
+      "signals": [
+        "named-export-fn"
+      ],
+      "sizeBytes": 2829
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/ingestion-cache-root-guard.mjs",
+      "category": "module-safe",
+      "signals": [
+        "default-export"
+      ],
+      "sizeBytes": 4604
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/inventory-check-guard.mjs",
+      "category": "module-safe",
+      "signals": [
+        "named-export-fn"
+      ],
+      "sizeBytes": 6674
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/inventory-on-write.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:spawn",
+        "mutation:writeFileSync",
+        "mutation:mkdirSync"
+      ],
+      "sizeBytes": 3651
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/inventory-refresh.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:spawn",
+        "mutation:writeFileSync",
+        "mutation:appendFile",
+        "mutation:mkdirSync"
+      ],
+      "sizeBytes": 3710
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/iterate-retrieve-suggest.mjs",
+      "category": "unknown",
+      "signals": [],
+      "sizeBytes": 2983
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/jm-die-provenance-guard.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "default-export",
+        "mutation:appendFile",
+        "mutation:mkdirSync"
+      ],
+      "sizeBytes": 6434
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/json-read-summarizer.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:writeFileAsync",
+        "mutation:appendFile"
+      ],
+      "sizeBytes": 7592
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/karpathy-discipline-inject.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:writeFileSync",
+        "mutation:mkdirSync"
+      ],
+      "sizeBytes": 3613
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/kienzle-coeff-check.mjs",
+      "category": "module-safe",
+      "signals": [
+        "default-export"
+      ],
+      "sizeBytes": 2698
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/knowledge-link-audit-inject.mjs",
+      "category": "module-safe",
+      "signals": [
+        "named-export-fn"
+      ],
+      "sizeBytes": 7222
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/lathe-master-post-quality-gate.mjs",
+      "category": "unknown",
+      "signals": [
+        "top-writes-stdout"
+      ],
+      "sizeBytes": 8286
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/lathe-p2p-suggest.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:appendFile"
+      ],
+      "sizeBytes": 4200
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/leave-a-copy-behind-guard.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:execFile"
+      ],
+      "sizeBytes": 8328
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/lib/action-triple-sync.mjs",
+      "category": "unknown",
+      "signals": [],
+      "sizeBytes": 6122
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/lib/agent-spawn-guard-hook.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:writeFileSync",
+        "mutation:mkdirSync"
+      ],
+      "sizeBytes": 1892
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/lib/autonomous-foolproof-logic.mjs",
+      "category": "module-safe",
+      "signals": [
+        "named-export-fn"
+      ],
+      "sizeBytes": 33117
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/lib/bash-redirect-hook.mjs",
+      "category": "unknown",
+      "signals": [],
+      "sizeBytes": 2317
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/lib/bootstrap-mode.mjs",
+      "category": "module-safe",
+      "signals": [
+        "named-export-fn"
+      ],
+      "sizeBytes": 3067
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/lib/build-guard-hook.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:writeFileSync",
+        "mutation:mkdirSync"
+      ],
+      "sizeBytes": 2558
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/lib/chain-recovery-hook.mjs",
+      "category": "unknown",
+      "signals": [
+        "top-writes-stdout"
+      ],
+      "sizeBytes": 1444
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/lib/context-chain-hook.mjs",
+      "category": "unknown",
+      "signals": [
+        "top-writes-stdout"
+      ],
+      "sizeBytes": 1052
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/lib/copilot-dedup-hook.mjs",
+      "category": "unknown",
+      "signals": [],
+      "sizeBytes": 2515
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/lib/engine-digest-hook.mjs",
+      "category": "unknown",
+      "signals": [],
+      "sizeBytes": 2027
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/lib/error-pattern-memo-guard.mjs",
+      "category": "module-safe",
+      "signals": [
+        "named-export-fn"
+      ],
+      "sizeBytes": 1649
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/lib/large-read-guard-hook.mjs",
+      "category": "unknown",
+      "signals": [],
+      "sizeBytes": 2667
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/lib/local-llm-bridge.mjs",
+      "category": "module-safe",
+      "signals": [
+        "named-export-fn"
+      ],
+      "sizeBytes": 4536
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/lib/navigate-first-hook.mjs",
+      "category": "unknown",
+      "signals": [],
+      "sizeBytes": 2220
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/lib/night-mode-guard.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:writeFileSync"
+      ],
+      "sizeBytes": 3448
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/lib/nim-embed-bridge.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "named-export-fn",
+        "mutation:fetch"
+      ],
+      "sizeBytes": 3399
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/lib/nim-hook-bridge.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "named-export-fn",
+        "mutation:fetch"
+      ],
+      "sizeBytes": 5885
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/lib/ollama-cost-router.mjs",
+      "category": "module-safe",
+      "signals": [
+        "named-export-fn"
+      ],
+      "sizeBytes": 4928
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/lib/ollama-hook-bridge.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "default-export",
+        "named-export-fn",
+        "mutation:fetch"
+      ],
+      "sizeBytes": 6593
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/lib/ollama-stats.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "named-export-fn",
+        "mutation:writeFileSync",
+        "mutation:unlink",
+        "mutation:rename",
+        "mutation:mkdirSync"
+      ],
+      "sizeBytes": 6436
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/lib/orphan-detection-hook.mjs",
+      "category": "unknown",
+      "signals": [
+        "top-reads-stdin"
+      ],
+      "sizeBytes": 6214
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/lib/prompt-classifier-hook.mjs",
+      "category": "unknown",
+      "signals": [],
+      "sizeBytes": 1818
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/lib/search-router-hook.mjs",
+      "category": "unknown",
+      "signals": [],
+      "sizeBytes": 6072
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/lib/token-economy-hook.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "top-writes-stdout",
+        "mutation:writeFileSync",
+        "mutation:mkdirSync"
+      ],
+      "sizeBytes": 4401
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/lib/vllm-hook-bridge.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "named-export-fn",
+        "mutation:fetch"
+      ],
+      "sizeBytes": 4090
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/lib/wedm-batch-validate.mjs",
+      "category": "unknown",
+      "signals": [
+        "top-writes-stdout"
+      ],
+      "sizeBytes": 6522
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/lib/wedm-digest-freshness.mjs",
+      "category": "module-safe",
+      "signals": [
+        "default-export",
+        "named-export-fn"
+      ],
+      "sizeBytes": 1092
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/lib/wedm-physics-constants-gate.mjs",
+      "category": "unknown",
+      "signals": [],
+      "sizeBytes": 3422
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/lib/wedm-program-safety-gate.mjs",
+      "category": "module-safe",
+      "signals": [
+        "default-export",
+        "named-export-fn"
+      ],
+      "sizeBytes": 2201
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/lib/wedm-synthetic-block.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "default-export",
+        "named-export-fn",
+        "mutation:execSync"
+      ],
+      "sizeBytes": 1254
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/literature-citation.mjs",
+      "category": "module-safe",
+      "signals": [
+        "default-export"
+      ],
+      "sizeBytes": 2931
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/local-compute-intent.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:spawn",
+        "mutation:execFile",
+        "mutation:writeFileSync",
+        "mutation:appendFile",
+        "mutation:unlink",
+        "mutation:mkdirSync"
+      ],
+      "sizeBytes": 15713
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/loop-detector.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:writeFileSync",
+        "mutation:mkdirSync"
+      ],
+      "sizeBytes": 4202
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/loop-iteration-inject.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:spawnSync"
+      ],
+      "sizeBytes": 4630
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/macro-bulk-emit-guard.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "named-export-fn",
+        "mutation:appendFile",
+        "mutation:mkdirSync"
+      ],
+      "sizeBytes": 8473
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/magic-number-detector.mjs",
+      "category": "module-safe",
+      "signals": [
+        "named-export-fn"
+      ],
+      "sizeBytes": 6807
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/main-tree-write-block.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "named-export-fn",
+        "mutation:spawnSync"
+      ],
+      "sizeBytes": 12150
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/managed-block-guard.mjs",
+      "category": "module-safe",
+      "signals": [
+        "default-export"
+      ],
+      "sizeBytes": 3906
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/master-coder-protocol.mjs",
+      "category": "unknown",
+      "signals": [],
+      "sizeBytes": 7088
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/master-index-precheck-inject.mjs",
+      "category": "module-safe",
+      "signals": [
+        "named-export-fn"
+      ],
+      "sizeBytes": 8183
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/master-index-search-gate.mjs",
+      "category": "unknown",
+      "signals": [],
+      "sizeBytes": 3104
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/mcp-config-resolve.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:spawnSync",
+        "mutation:writeFileSync",
+        "mutation:mkdirSync"
+      ],
+      "sizeBytes": 3814
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/mcp-connection-coordinator.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:writeFileSync",
+        "mutation:unlink",
+        "mutation:mkdirSync"
+      ],
+      "sizeBytes": 4156
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/mcp-connectivity-check.mjs",
+      "category": "module-safe",
+      "signals": [
+        "named-export-fn"
+      ],
+      "sizeBytes": 8503
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/mcp-daemon-autostart.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:spawn"
+      ],
+      "sizeBytes": 2715
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/mcp-readonly-cache.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "named-export-fn",
+        "mutation:writeFileSync",
+        "mutation:appendFile",
+        "mutation:unlink",
+        "mutation:mkdirSync"
+      ],
+      "sizeBytes": 11492
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/mcp-route-suggest.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "named-export-fn",
+        "mutation:writeFileSync",
+        "mutation:mkdirSync"
+      ],
+      "sizeBytes": 13222
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/mcp-safety-bridge.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "named-export-fn",
+        "mutation:appendFile",
+        "mutation:mkdirSync",
+        "mutation:fetch"
+      ],
+      "sizeBytes": 7621
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/memory-autocompact-stop.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "named-export-fn",
+        "mutation:writeFileSync",
+        "mutation:unlink",
+        "mutation:rename"
+      ],
+      "sizeBytes": 9281
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/memory-index-precheck-inject.mjs",
+      "category": "unknown",
+      "signals": [],
+      "sizeBytes": 3205
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/memory-index-sidecar-regen.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:spawn",
+        "mutation:writeFileSync",
+        "mutation:mkdirSync"
+      ],
+      "sizeBytes": 3649
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/memory-mirror-to-vault.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "named-export-fn",
+        "mutation:writeFileSync",
+        "mutation:mkdirSync",
+        "mutation:fetch"
+      ],
+      "sizeBytes": 18105
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/memory-rag-inject.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:spawn",
+        "mutation:writeFileSync",
+        "mutation:appendFile",
+        "mutation:unlink",
+        "mutation:mkdirSync"
+      ],
+      "sizeBytes": 7090
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/memory-relevance-inject.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "named-export-fn",
+        "mutation:writeFileSync",
+        "mutation:mkdirSync"
+      ],
+      "sizeBytes": 10437
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/memory-system-init.mjs",
+      "category": "unknown",
+      "signals": [],
+      "sizeBytes": 4507
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/meta-learning-trigger.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "top-writes-stdout",
+        "mutation:writeFileSync",
+        "mutation:mkdirSync"
+      ],
+      "sizeBytes": 4797
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/metacognition-check.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "default-export",
+        "mutation:writeFileSync",
+        "mutation:mkdirSync"
+      ],
+      "sizeBytes": 2583
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/mio-proactive-intelligence.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "default-export",
+        "mutation:writeFileSync"
+      ],
+      "sizeBytes": 5296
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/mirror-c-to-h.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "named-export-fn",
+        "mutation:writeFileSync",
+        "mutation:mkdirSync"
+      ],
+      "sizeBytes": 6309
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/multi-computer-awareness.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "top-process-exit",
+        "mutation:writeFileSync",
+        "mutation:rename",
+        "mutation:mkdirSync"
+      ],
+      "sizeBytes": 4017
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/multi-session-awareness.mjs",
+      "category": "unknown",
+      "signals": [],
+      "sizeBytes": 3402
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/naming-convention-enforcer.mjs",
+      "category": "unknown",
+      "signals": [
+        "top-writes-stdout"
+      ],
+      "sizeBytes": 7750
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/neural-ai-optimizer.mjs",
+      "category": "unknown",
+      "signals": [],
+      "sizeBytes": 7082
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/neural-cad-validation.mjs",
+      "category": "module-safe",
+      "signals": [
+        "default-export"
+      ],
+      "sizeBytes": 3189
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/neural-roadmap-resume-detect.mjs",
+      "category": "unknown",
+      "signals": [],
+      "sizeBytes": 3806
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/nim-autostart.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:spawn",
+        "mutation:writeFileSync",
+        "mutation:unlink",
+        "mutation:mkdirSync",
+        "mutation:fetch"
+      ],
+      "sizeBytes": 3548
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/nn-graph-health-inject.mjs",
+      "category": "module-safe",
+      "signals": [
+        "named-export-fn"
+      ],
+      "sizeBytes": 8757
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/no-re-extract.mjs",
+      "category": "module-safe",
+      "signals": [
+        "default-export"
+      ],
+      "sizeBytes": 2837
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/no-silent-catch.mjs",
+      "category": "module-safe",
+      "signals": [
+        "default-export"
+      ],
+      "sizeBytes": 926
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/node-orphan-cleaner.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:execFile",
+        "mutation:appendFile"
+      ],
+      "sizeBytes": 3615
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/node-process-janitor.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:execSync",
+        "mutation:writeFileSync",
+        "mutation:unlink",
+        "mutation:mkdirSync"
+      ],
+      "sizeBytes": 9793
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/npm-output-condenser.mjs",
+      "category": "unknown",
+      "signals": [],
+      "sizeBytes": 4051
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/obsidian-precheck-inject.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "named-export-fn",
+        "mutation:writeFileSync",
+        "mutation:mkdirSync"
+      ],
+      "sizeBytes": 11433
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/octopus-provider-probe.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:spawn",
+        "mutation:writeFileAsync",
+        "mutation:fetch"
+      ],
+      "sizeBytes": 6669
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/ollama-auto-router.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:execSync",
+        "mutation:writeFileSync",
+        "mutation:mkdirSync"
+      ],
+      "sizeBytes": 6425
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/ollama-autostart.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:spawn",
+        "mutation:writeFileSync",
+        "mutation:unlink",
+        "mutation:mkdirSync",
+        "mutation:fetch"
+      ],
+      "sizeBytes": 4390
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/ollama-context-aggregator.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:execSync"
+      ],
+      "sizeBytes": 8914
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/ollama-engine-api-extractor.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:writeFileSync",
+        "mutation:mkdirSync",
+        "mutation:fetch"
+      ],
+      "sizeBytes": 7982
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/ollama-obsidian-rag.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:execSync",
+        "mutation:writeFileSync",
+        "mutation:fetch"
+      ],
+      "sizeBytes": 7862
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/ollama-pipeline-injector.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:spawnSync"
+      ],
+      "sizeBytes": 7272
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/ollama-prewarm-on-pipeline.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:spawnSync",
+        "mutation:spawn",
+        "mutation:writeFileSync",
+        "mutation:mkdirSync"
+      ],
+      "sizeBytes": 5710
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/ollama-prism-intelligence.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:execSync",
+        "mutation:writeFileSync",
+        "mutation:mkdirSync"
+      ],
+      "sizeBytes": 7930
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/ollama-reviewer-second-opinion.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:execSync",
+        "mutation:writeFileSync",
+        "mutation:mkdirSync",
+        "mutation:fetch"
+      ],
+      "sizeBytes": 9303
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/ollama-route-check-inject.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:writeFileSync",
+        "mutation:mkdirSync"
+      ],
+      "sizeBytes": 6541
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/ollama-route-pretooluse.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "named-export-fn",
+        "mutation:writeFileSync",
+        "mutation:appendFile",
+        "mutation:rename",
+        "mutation:mkdirSync",
+        "mutation:fetch"
+      ],
+      "sizeBytes": 20953
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/ollama-route-recommender.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:execSync",
+        "mutation:writeFileSync",
+        "mutation:fetch"
+      ],
+      "sizeBytes": 8679
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/ollama-schema-engine-sync-gate.mjs",
+      "category": "unknown",
+      "signals": [],
+      "sizeBytes": 5514
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/ollama-session-continuity.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:execSync",
+        "mutation:writeFileSync",
+        "mutation:mkdirSync"
+      ],
+      "sizeBytes": 4726
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/ollama-skill-suggester.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:writeFileSync",
+        "mutation:mkdirSync",
+        "mutation:fetch"
+      ],
+      "sizeBytes": 8908
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/ollama-task-offloader.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "named-export-fn",
+        "mutation:writeFileSync",
+        "mutation:mkdirSync",
+        "mutation:fetch"
+      ],
+      "sizeBytes": 30440
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/ollama-terminal-watcher.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:execSync",
+        "mutation:writeFileSync",
+        "mutation:mkdirSync"
+      ],
+      "sizeBytes": 5932
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/ollama-unified-semantic-router.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:execSync",
+        "mutation:writeFileSync",
+        "mutation:rename",
+        "mutation:mkdirSync"
+      ],
+      "sizeBytes": 11055
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/omega-floor.mjs",
+      "category": "module-safe",
+      "signals": [
+        "default-export"
+      ],
+      "sizeBytes": 1300
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/optimal-context-inject.mjs",
+      "category": "unknown",
+      "signals": [],
+      "sizeBytes": 7344
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/orchestrator-advisory-inject.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "named-export-fn",
+        "mutation:writeFileSync",
+        "mutation:rename",
+        "mutation:mkdirSync"
+      ],
+      "sizeBytes": 11775
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/orphan-type-detector.mjs",
+      "category": "unknown",
+      "signals": [
+        "top-reads-stdin"
+      ],
+      "sizeBytes": 6489
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/output-cache-capture.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:writeFileSync",
+        "mutation:mkdirSync"
+      ],
+      "sizeBytes": 3257
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/output-cache-inject.mjs",
+      "category": "unknown",
+      "signals": [],
+      "sizeBytes": 1710
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/path-frequency-tracker.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:writeFileSync",
+        "mutation:mkdirSync"
+      ],
+      "sizeBytes": 3860
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/path-shortener.mjs",
+      "category": "unknown",
+      "signals": [],
+      "sizeBytes": 3916
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/performance-pattern-detector.mjs",
+      "category": "unknown",
+      "signals": [
+        "top-writes-stdout"
+      ],
+      "sizeBytes": 8106
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/periodic-checkin.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:spawnSync",
+        "mutation:spawn",
+        "mutation:writeFileSync",
+        "mutation:mkdirSync"
+      ],
+      "sizeBytes": 4423
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/permission-denied-retry.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "named-export-fn",
+        "mutation:writeFileSync",
+        "mutation:appendFile",
+        "mutation:rename",
+        "mutation:mkdirSync"
+      ],
+      "sizeBytes": 17828
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/physics-canonical-constants-guard.mjs",
+      "category": "module-safe",
+      "signals": [
+        "default-export"
+      ],
+      "sizeBytes": 4048
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/pick-prefresh-inject.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:appendFile"
+      ],
+      "sizeBytes": 22231
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/plugin-inventory-surface.mjs",
+      "category": "unknown",
+      "signals": [],
+      "sizeBytes": 1383
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/plugin-path-fixer.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:writeFileSync"
+      ],
+      "sizeBytes": 2964
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/portable-node-guard.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:execFile",
+        "mutation:appendFile",
+        "mutation:mkdirSync"
+      ],
+      "sizeBytes": 2464
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/portable-python-guard.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:spawnSync",
+        "mutation:appendFile",
+        "mutation:mkdirSync"
+      ],
+      "sizeBytes": 2649
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/post-extract-sync.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:writeFileSync"
+      ],
+      "sizeBytes": 2142
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/post-memory-context-eval.mjs",
+      "category": "unknown",
+      "signals": [],
+      "sizeBytes": 6810
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/post-pipeline-integrity-check.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:writeFileAsync",
+        "mutation:rename"
+      ],
+      "sizeBytes": 6243
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/post-recommendation-capture.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:writeFileAsync",
+        "mutation:rename"
+      ],
+      "sizeBytes": 10032
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/post-ship-distill.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:spawn",
+        "mutation:execFile",
+        "mutation:mkdirSync"
+      ],
+      "sizeBytes": 2971
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/post-tool-batch-budget.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "named-export-fn",
+        "mutation:writeFileSync",
+        "mutation:appendFile",
+        "mutation:rename",
+        "mutation:mkdirSync"
+      ],
+      "sizeBytes": 11631
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/post-tool-p1.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "default-export",
+        "mutation:writeFileSync"
+      ],
+      "sizeBytes": 2194
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/postgen-validator-skip-guard.mjs",
+      "category": "module-safe",
+      "signals": [
+        "default-export"
+      ],
+      "sizeBytes": 5398
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/posttool-bayesian-update.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:writeFileSync",
+        "mutation:mkdirSync"
+      ],
+      "sizeBytes": 6040
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/posttool-curiosity-tick.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:writeFileSync",
+        "mutation:appendFile",
+        "mutation:mkdirSync"
+      ],
+      "sizeBytes": 3712
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/posttool-emergence-scan.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:writeFileSync",
+        "mutation:appendFile",
+        "mutation:mkdirSync"
+      ],
+      "sizeBytes": 4895
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/posttool-error-explain.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:writeFileSync",
+        "mutation:mkdirSync"
+      ],
+      "sizeBytes": 7178
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/posttool-mcp-backend-audit.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "top-writes-stdout",
+        "top-process-exit",
+        "mutation:spawn",
+        "mutation:writeFileSync",
+        "mutation:mkdirSync"
+      ],
+      "sizeBytes": 4809
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/pre-bash-graph-inject.mjs",
+      "category": "module-safe",
+      "signals": [
+        "named-export-fn"
+      ],
+      "sizeBytes": 5068
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/pre-commit-conflict-sim.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:execSync"
+      ],
+      "sizeBytes": 4299
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/pre-compact-p1.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "default-export",
+        "mutation:writeFileSync",
+        "mutation:mkdirSync"
+      ],
+      "sizeBytes": 2803
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/pre-delete-guard.mjs",
+      "category": "module-safe",
+      "signals": [
+        "default-export"
+      ],
+      "sizeBytes": 2952
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/pre-edit-impact-analyzer.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "top-writes-stdout",
+        "mutation:writeFileSync",
+        "mutation:mkdirSync"
+      ],
+      "sizeBytes": 5052
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/pre-edit-lane-guard.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:spawnSync"
+      ],
+      "sizeBytes": 8584
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/pre-flight-check.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:execSync"
+      ],
+      "sizeBytes": 2881
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/pre-grep-graph-inject.mjs",
+      "category": "module-safe",
+      "signals": [
+        "named-export-fn"
+      ],
+      "sizeBytes": 4741
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/pre-read-graph-inject.mjs",
+      "category": "module-safe",
+      "signals": [
+        "named-export-fn"
+      ],
+      "sizeBytes": 5711
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/pre-rename-guard.mjs",
+      "category": "module-safe",
+      "signals": [
+        "default-export"
+      ],
+      "sizeBytes": 2770
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/pre-tool-p1.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "default-export",
+        "mutation:writeFileSync"
+      ],
+      "sizeBytes": 2259
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/pre-write-graph-inject.mjs",
+      "category": "module-safe",
+      "signals": [
+        "named-export-fn"
+      ],
+      "sizeBytes": 5007
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/pre-write-roadmap-home.mjs",
+      "category": "unknown",
+      "signals": [
+        "top-reads-stdin"
+      ],
+      "sizeBytes": 533
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/precompact-auto-trigger.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:writeFileSync",
+        "mutation:appendFile",
+        "mutation:unlink",
+        "mutation:mkdirSync"
+      ],
+      "sizeBytes": 23038
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/precompact-dossier.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:execSync",
+        "mutation:writeFileSync",
+        "mutation:unlink",
+        "mutation:mkdirSync"
+      ],
+      "sizeBytes": 8396
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/precompact-pending-guard.mjs",
+      "category": "imports-only",
+      "signals": [],
+      "sizeBytes": 1900
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/precompact-release-slot.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "named-export-fn",
+        "mutation:spawnSync"
+      ],
+      "sizeBytes": 3875
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/precompact-stale-prune-suggest.mjs",
+      "category": "unknown",
+      "signals": [],
+      "sizeBytes": 2243
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/pretool-causal-trace.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:appendFile",
+        "mutation:mkdirSync"
+      ],
+      "sizeBytes": 3407
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/pretool-change-radius.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:writeFileSync",
+        "mutation:mkdirSync"
+      ],
+      "sizeBytes": 4819
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/pretool-context-forecast.mjs",
+      "category": "unknown",
+      "signals": [],
+      "sizeBytes": 2325
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/pretool-gap-predictor.mjs",
+      "category": "imports-only",
+      "signals": [],
+      "sizeBytes": 4617
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/pretool-memory-size-gate.mjs",
+      "category": "module-safe",
+      "signals": [
+        "named-export-fn"
+      ],
+      "sizeBytes": 8314
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/pretool-world-simulator.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:appendFile",
+        "mutation:mkdirSync"
+      ],
+      "sizeBytes": 5105
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/prism-ai-memo-coverage-inject.mjs",
+      "category": "module-safe",
+      "signals": [
+        "named-export-fn"
+      ],
+      "sizeBytes": 7773
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/prism-awareness-cache.mjs",
+      "category": "unknown",
+      "signals": [],
+      "sizeBytes": 3569
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/prism-awareness-v2.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:writeFileAsync"
+      ],
+      "sizeBytes": 12095
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/prism-http-autostart.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:spawn",
+        "mutation:execSync",
+        "mutation:writeFileSync",
+        "mutation:mkdirSync"
+      ],
+      "sizeBytes": 3405
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/prism-intelligence-briefing.mjs",
+      "category": "unknown",
+      "signals": [],
+      "sizeBytes": 5234
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/prompt-context-inject.mjs",
+      "category": "unknown",
+      "signals": [],
+      "sizeBytes": 4679
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/prompt-rewriter-ollama.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:appendFile",
+        "mutation:mkdirSync",
+        "mutation:fetch"
+      ],
+      "sizeBytes": 11653
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/prompt-rules-inject.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:spawnSync",
+        "mutation:writeFileSync",
+        "mutation:mkdirSync"
+      ],
+      "sizeBytes": 7984
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/protect-document-content.mjs",
+      "category": "empty",
+      "signals": [],
+      "sizeBytes": 12
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/publish-pipeline-metrics.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:writeFileAsync",
+        "mutation:rename"
+      ],
+      "sizeBytes": 4832
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/quality-dashboard-alert.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "named-export-fn",
+        "mutation:spawnSync"
+      ],
+      "sizeBytes": 9041
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/quality-dashboard-inject.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:spawnSync"
+      ],
+      "sizeBytes": 2295
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/rag-relevance-guard.mjs",
+      "category": "module-safe",
+      "signals": [
+        "default-export"
+      ],
+      "sizeBytes": 3112
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/read-already-have.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "top-writes-stdout",
+        "mutation:writeFileSync",
+        "mutation:mkdirSync"
+      ],
+      "sizeBytes": 2671
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/read-auto-limit.mjs",
+      "category": "imports-only",
+      "signals": [],
+      "sizeBytes": 2446
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/read-once-cache.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:writeFileSync",
+        "mutation:mkdirSync"
+      ],
+      "sizeBytes": 3978
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/reasoning-completeness.mjs",
+      "category": "module-safe",
+      "signals": [
+        "default-export"
+      ],
+      "sizeBytes": 2654
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/recall-counter-track.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:writeFileSync",
+        "mutation:rename",
+        "mutation:mkdirSync"
+      ],
+      "sizeBytes": 5311
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/reference-inject.mjs",
+      "category": "unknown",
+      "signals": [
+        "top-writes-stdout"
+      ],
+      "sizeBytes": 8616
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/reference-value-injector.mjs",
+      "category": "unknown",
+      "signals": [],
+      "sizeBytes": 8239
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/regression-auto-write.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "named-export-fn",
+        "mutation:execFile",
+        "mutation:writeFileSync",
+        "mutation:unlink",
+        "mutation:rename"
+      ],
+      "sizeBytes": 10397
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/rename-window-intercept.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "named-export-fn",
+        "mutation:rename"
+      ],
+      "sizeBytes": 8365
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/reviewer-fail-latch.mjs",
+      "category": "unknown",
+      "signals": [],
+      "sizeBytes": 2714
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/rgs-outcome-record-stop.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:spawnSync",
+        "mutation:writeFileSync"
+      ],
+      "sizeBytes": 9002
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/roadmap-checkpoint.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:execSync",
+        "mutation:writeFileSync",
+        "mutation:unlink",
+        "mutation:rename",
+        "mutation:mkdirSync"
+      ],
+      "sizeBytes": 7150
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/roadmap-completion-logger.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:execFile",
+        "mutation:appendFile"
+      ],
+      "sizeBytes": 6886
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/roadmap-reconcile.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:writeFileSync"
+      ],
+      "sizeBytes": 3861
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/roadmap-resume.mjs",
+      "category": "unknown",
+      "signals": [],
+      "sizeBytes": 4347
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/rtk-archive-and-index.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:appendFile",
+        "mutation:mkdirSync"
+      ],
+      "sizeBytes": 4057
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/rtk-auto-suggest.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "top-writes-stdout",
+        "mutation:writeFileSync",
+        "mutation:mkdirSync"
+      ],
+      "sizeBytes": 3638
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/rtk-path-ensure.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:execSync"
+      ],
+      "sizeBytes": 2186
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/rtk-prefix-reminder.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "named-export-fn",
+        "mutation:writeFileSync",
+        "mutation:mkdirSync"
+      ],
+      "sizeBytes": 9089
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/schema-version-bump.mjs",
+      "category": "module-safe",
+      "signals": [
+        "default-export"
+      ],
+      "sizeBytes": 993
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/schema-version-read.mjs",
+      "category": "module-safe",
+      "signals": [
+        "default-export"
+      ],
+      "sizeBytes": 2732
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/script-summary-inject.mjs",
+      "category": "unknown",
+      "signals": [],
+      "sizeBytes": 4011
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/scrutinize-before-stop.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:execSync"
+      ],
+      "sizeBytes": 12850
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/scrutiny-verdict-persist.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "named-export-fn",
+        "mutation:execFile",
+        "mutation:writeFileSync",
+        "mutation:unlink",
+        "mutation:rename",
+        "mutation:mkdirSync"
+      ],
+      "sizeBytes": 15895
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/self-awareness-enforce.mjs",
+      "category": "imports-only",
+      "signals": [],
+      "sizeBytes": 1973
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/self-improvement-activate.mjs",
+      "category": "unknown",
+      "signals": [
+        "top-writes-stdout"
+      ],
+      "sizeBytes": 7102
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/session-action-memory.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:writeFileSync",
+        "mutation:mkdirSync"
+      ],
+      "sizeBytes": 2605
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/session-cleanup.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:execSync"
+      ],
+      "sizeBytes": 2097
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/session-consolidate-graph.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:writeFileSync",
+        "mutation:mkdirSync",
+        "mutation:fetch"
+      ],
+      "sizeBytes": 7721
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/session-continuity-chain.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "default-export",
+        "mutation:execSync",
+        "mutation:writeFileSync"
+      ],
+      "sizeBytes": 5170
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/session-cost-summary.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:writeFileAsync"
+      ],
+      "sizeBytes": 4720
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/session-end-goal-synthesis.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:writeFileSync",
+        "mutation:appendFile",
+        "mutation:mkdirSync"
+      ],
+      "sizeBytes": 5941
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/session-end-p1.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "default-export",
+        "mutation:writeFileSync"
+      ],
+      "sizeBytes": 3049
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/session-end-peer-share.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:appendFile",
+        "mutation:mkdirSync"
+      ],
+      "sizeBytes": 3859
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/session-handoff-load.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:spawnSync"
+      ],
+      "sizeBytes": 6767
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/session-id-pin.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:spawnSync",
+        "mutation:writeFileSync",
+        "mutation:unlink",
+        "mutation:rename",
+        "mutation:mkdirSync"
+      ],
+      "sizeBytes": 5084
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/session-learning-feedback.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:appendFile",
+        "mutation:mkdirSync"
+      ],
+      "sizeBytes": 7140
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/session-reorient-capture.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:writeFileSync",
+        "mutation:mkdirSync"
+      ],
+      "sizeBytes": 5832
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/session-reorient-inject.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:spawnSync",
+        "mutation:writeFileSync",
+        "mutation:mkdirSync"
+      ],
+      "sizeBytes": 9331
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/session-start-auto-resume.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "named-export-fn",
+        "mutation:spawnSync"
+      ],
+      "sizeBytes": 28759
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/session-start-causal-trace.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:writeFileSync",
+        "mutation:mkdirSync"
+      ],
+      "sizeBytes": 5590
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/session-start-claim-slot.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:spawnSync"
+      ],
+      "sizeBytes": 4410
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/session-start-compact-p1.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "default-export",
+        "mutation:writeFileSync"
+      ],
+      "sizeBytes": 2856
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/session-start-dev-keyword-launcher.mjs",
+      "category": "unknown",
+      "signals": [],
+      "sizeBytes": 3923
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/session-start-goal-inject.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:appendFile",
+        "mutation:mkdirSync"
+      ],
+      "sizeBytes": 2764
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/session-start-p1.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "default-export",
+        "mutation:writeFileSync",
+        "mutation:mkdirSync"
+      ],
+      "sizeBytes": 2811
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/session-start-terminal-pin.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "named-export-fn",
+        "mutation:spawnSync"
+      ],
+      "sizeBytes": 27486
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/session-start-zombie-reap.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:spawnSync"
+      ],
+      "sizeBytes": 5731
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/session-state-auto.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:writeFileSync"
+      ],
+      "sizeBytes": 1930
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/session-write-tracker.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:writeFileAsync",
+        "mutation:appendFile"
+      ],
+      "sizeBytes": 4019
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/sessionstart-critical-path.mjs",
+      "category": "unknown",
+      "signals": [],
+      "sizeBytes": 3972
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/sessionstart-graph-staleness-inject.mjs",
+      "category": "module-safe",
+      "signals": [
+        "named-export-fn"
+      ],
+      "sizeBytes": 8522
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/session_start_inventory_inject.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:writeFileSync"
+      ],
+      "sizeBytes": 7056
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/session_start_local_compute_warm.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:execFile"
+      ],
+      "sizeBytes": 3097
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/settings-baseline-snapshot.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:writeFileSync",
+        "mutation:mkdirSync"
+      ],
+      "sizeBytes": 1324
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/settings-json-addonly-guard.mjs",
+      "category": "unknown",
+      "signals": [],
+      "sizeBytes": 7168
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/settings-mirror-guard.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:appendFile",
+        "mutation:mkdirSync"
+      ],
+      "sizeBytes": 4221
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/signature-drift-detector.mjs",
+      "category": "module-safe",
+      "signals": [
+        "default-export"
+      ],
+      "sizeBytes": 3645
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/silent-suggestion-surfacer-stop.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "named-export-fn",
+        "mutation:writeFileSync",
+        "mutation:mkdirSync"
+      ],
+      "sizeBytes": 8236
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/skill-3q-gate.mjs",
+      "category": "unknown",
+      "signals": [],
+      "sizeBytes": 8920
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/skill-auto-trigger.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "named-export-fn",
+        "mutation:writeFileSync",
+        "mutation:appendFile",
+        "mutation:rename"
+      ],
+      "sizeBytes": 22627
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/skill-candidate-observe.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:execFile",
+        "mutation:writeFileSync",
+        "mutation:appendFile",
+        "mutation:mkdirSync"
+      ],
+      "sizeBytes": 5556
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/skill-chain-suggest.mjs",
+      "category": "unknown",
+      "signals": [],
+      "sizeBytes": 4082
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/skill-lint-stop.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:execFile"
+      ],
+      "sizeBytes": 4822
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/skill-usage-tracker.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:writeFileSync",
+        "mutation:mkdirSync"
+      ],
+      "sizeBytes": 3242
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/skill-utilization-index.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "top-writes-stdout",
+        "mutation:writeFileSync",
+        "mutation:mkdirSync"
+      ],
+      "sizeBytes": 7636
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/slash-command-registry-load.mjs",
+      "category": "unknown",
+      "signals": [],
+      "sizeBytes": 1587
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/slot-bind-enforce.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "named-export-fn",
+        "mutation:spawnSync"
+      ],
+      "sizeBytes": 16098
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/slot-signature-advisory.mjs",
+      "category": "module-safe",
+      "signals": [
+        "named-export-fn"
+      ],
+      "sizeBytes": 8556
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/slot-soul-inject.mjs",
+      "category": "unknown",
+      "signals": [],
+      "sizeBytes": 3215
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/slot-worktree-cwd-advisory.mjs",
+      "category": "module-safe",
+      "signals": [
+        "named-export-fn"
+      ],
+      "sizeBytes": 9477
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/smart-skill-suggest.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "top-writes-stdout",
+        "mutation:writeFileSync",
+        "mutation:mkdirSync"
+      ],
+      "sizeBytes": 5322
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/sparc-optin-gate.mjs",
+      "category": "unknown",
+      "signals": [],
+      "sizeBytes": 3025
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/staged-hygiene-check.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:execFile",
+        "mutation:appendFile"
+      ],
+      "sizeBytes": 7446
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/stale-claim-sweeper.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "named-export-fn",
+        "mutation:execFile",
+        "mutation:writeFileSync",
+        "mutation:appendFile",
+        "mutation:unlink",
+        "mutation:rename",
+        "mutation:mkdirSync"
+      ],
+      "sizeBytes": 20272
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/stale-state-warn.mjs",
+      "category": "unknown",
+      "signals": [],
+      "sizeBytes": 3578
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/state-write-watch.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:writeFileAsync",
+        "mutation:appendFile"
+      ],
+      "sizeBytes": 5659
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/stop-auto-wire.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:spawnSync",
+        "mutation:spawn",
+        "mutation:writeFileSync",
+        "mutation:mkdirSync"
+      ],
+      "sizeBytes": 8374
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/stop-bash-orphan-cleaner.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:execFile",
+        "mutation:writeFileSync",
+        "mutation:appendFile",
+        "mutation:unlink",
+        "mutation:mkdirSync"
+      ],
+      "sizeBytes": 7804
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/stop-bg-runner.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:spawn",
+        "mutation:writeFileSync",
+        "mutation:unlink",
+        "mutation:mkdirSync"
+      ],
+      "sizeBytes": 4033
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/stop-bug-finding-wiki-gate.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "named-export-fn",
+        "mutation:spawnSync",
+        "mutation:writeFileSync",
+        "mutation:mkdirSync"
+      ],
+      "sizeBytes": 14834
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/stop-compounding-budget.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:execFile",
+        "mutation:writeFileSync",
+        "mutation:mkdirSync"
+      ],
+      "sizeBytes": 4271
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/stop-consensus-drain.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:spawn"
+      ],
+      "sizeBytes": 2229
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/stop-cross-tree-collision-advisory.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:spawnSync",
+        "mutation:writeFileSync",
+        "mutation:mkdirSync"
+      ],
+      "sizeBytes": 7553
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/stop-dashboard-regen.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "named-export-fn",
+        "mutation:spawn",
+        "mutation:writeFileSync",
+        "mutation:mkdirSync"
+      ],
+      "sizeBytes": 3088
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/stop-force-handoff.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:execFile"
+      ],
+      "sizeBytes": 10096
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/stop-force-loop-continue.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:execFile",
+        "mutation:writeFileSync",
+        "mutation:rename",
+        "mutation:mkdirSync"
+      ],
+      "sizeBytes": 8248
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/stop-graph-staleness-backstop.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "named-export-fn",
+        "mutation:spawn",
+        "mutation:writeFileSync"
+      ],
+      "sizeBytes": 6800
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/stop-hook-aggregator.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:spawnSync",
+        "mutation:appendFile",
+        "mutation:mkdirSync"
+      ],
+      "sizeBytes": 4875
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/stop-index-sync.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:spawn"
+      ],
+      "sizeBytes": 3473
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/stop-mark-completed-tasks.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:spawnSync",
+        "mutation:writeFileSync",
+        "mutation:rename"
+      ],
+      "sizeBytes": 4181
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/stop-memory-size-watchdog.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:spawnSync",
+        "mutation:writeFileSync",
+        "mutation:mkdirSync"
+      ],
+      "sizeBytes": 8332
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/stop-obsidian-memory-extract.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:spawn",
+        "mutation:execSync",
+        "mutation:writeFileSync",
+        "mutation:mkdirSync"
+      ],
+      "sizeBytes": 8678
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/stop-obsidian-memory-feed.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:spawn",
+        "mutation:writeFileSync",
+        "mutation:mkdirSync"
+      ],
+      "sizeBytes": 3965
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/stop-regression-backflow.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:appendFile",
+        "mutation:mkdirSync"
+      ],
+      "sizeBytes": 8163
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/stop-release-slot.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:spawnSync"
+      ],
+      "sizeBytes": 2624
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/stop-slot-task-claims-advisory.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "named-export-fn",
+        "mutation:writeFileSync",
+        "mutation:mkdirSync"
+      ],
+      "sizeBytes": 6759
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/stop-system-awareness-freshness.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "named-export-fn",
+        "mutation:writeFileSync"
+      ],
+      "sizeBytes": 7764
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/stop-system-viz-drift.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:writeFileSync",
+        "mutation:rename",
+        "mutation:mkdirSync"
+      ],
+      "sizeBytes": 6832
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/stop-system-viz-reminder.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:writeFileSync",
+        "mutation:mkdirSync"
+      ],
+      "sizeBytes": 7206
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/stop-tab-blink.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:spawn",
+        "mutation:writeFileSync"
+      ],
+      "sizeBytes": 3734
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/stop-wiring-audit-suggest.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:writeFileSync",
+        "mutation:mkdirSync"
+      ],
+      "sizeBytes": 4408
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/stop_close_prism_nodes.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:execFile",
+        "mutation:writeFileSync",
+        "mutation:appendFile",
+        "mutation:unlink",
+        "mutation:mkdirSync"
+      ],
+      "sizeBytes": 7952
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/stop_close_prism_nodes_v2.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:spawnSync",
+        "mutation:spawn",
+        "mutation:appendFile",
+        "mutation:mkdirSync"
+      ],
+      "sizeBytes": 6243
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/stop_on_awareness_degraded.mjs",
+      "category": "unknown",
+      "signals": [],
+      "sizeBytes": 1232
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/stop_on_broken_imports.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:execSync"
+      ],
+      "sizeBytes": 3228
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/stop_on_build_error.mjs",
+      "category": "unknown",
+      "signals": [],
+      "sizeBytes": 1385
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/stop_on_circular_deps.mjs",
+      "category": "unknown",
+      "signals": [],
+      "sizeBytes": 1516
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/stop_on_content_deletion.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:writeFileSync"
+      ],
+      "sizeBytes": 4745
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/stop_on_cutting_calculation_protocol.mjs",
+      "category": "unknown",
+      "signals": [],
+      "sizeBytes": 6879
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/stop_on_c_drive_write.mjs",
+      "category": "unknown",
+      "signals": [],
+      "sizeBytes": 5100
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/stop_on_dirty_registry.mjs",
+      "category": "unknown",
+      "signals": [],
+      "sizeBytes": 1657
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/stop_on_duplicate_created.mjs",
+      "category": "unknown",
+      "signals": [],
+      "sizeBytes": 1275
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/stop_on_extraction_incomplete.mjs",
+      "category": "unknown",
+      "signals": [],
+      "sizeBytes": 1275
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/stop_on_failing_tests.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:appendFile",
+        "mutation:mkdirSync"
+      ],
+      "sizeBytes": 9266
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/stop_on_formula_uncited.mjs",
+      "category": "unknown",
+      "signals": [],
+      "sizeBytes": 1384
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/stop_on_hook_unregistered.mjs",
+      "category": "unknown",
+      "signals": [],
+      "sizeBytes": 1554
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/stop_on_hook_unregistration.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:unlink"
+      ],
+      "sizeBytes": 7118
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/stop_on_incomplete_pipeline.mjs",
+      "category": "unknown",
+      "signals": [],
+      "sizeBytes": 1634
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/stop_on_missing_tests.mjs",
+      "category": "unknown",
+      "signals": [],
+      "sizeBytes": 1431
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/stop_on_non_h_roadmap.mjs",
+      "category": "unknown",
+      "signals": [
+        "top-reads-stdin"
+      ],
+      "sizeBytes": 512
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/stop_on_open_claim.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:writeFileSync",
+        "mutation:mkdirSync"
+      ],
+      "sizeBytes": 5804
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/stop_on_open_lock.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:unlink"
+      ],
+      "sizeBytes": 1955
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/stop_on_orphan_children.mjs",
+      "category": "unknown",
+      "signals": [],
+      "sizeBytes": 1468
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/stop_on_orphan_engine.mjs",
+      "category": "unknown",
+      "signals": [],
+      "sizeBytes": 1519
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/stop_on_repeat_error.mjs",
+      "category": "unknown",
+      "signals": [],
+      "sizeBytes": 3106
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/stop_on_roadmap_drift.mjs",
+      "category": "unknown",
+      "signals": [],
+      "sizeBytes": 1669
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/stop_on_session_mistake_digest.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:execFile",
+        "mutation:appendFile"
+      ],
+      "sizeBytes": 3892
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/stop_on_skill_unwired.mjs",
+      "category": "unknown",
+      "signals": [],
+      "sizeBytes": 1534
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/stop_on_stale_handoff.mjs",
+      "category": "unknown",
+      "signals": [],
+      "sizeBytes": 1687
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/stop_on_svi_regression.mjs",
+      "category": "unknown",
+      "signals": [],
+      "sizeBytes": 1216
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/stop_on_sx_fail.mjs",
+      "category": "unknown",
+      "signals": [],
+      "sizeBytes": 1284
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/stop_on_uncommitted_critical.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:execSync"
+      ],
+      "sizeBytes": 1782
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/stop_on_uncommitted_memory.mjs",
+      "category": "unknown",
+      "signals": [],
+      "sizeBytes": 1681
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/stop_on_undocumented_action.mjs",
+      "category": "unknown",
+      "signals": [],
+      "sizeBytes": 1340
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/stop_on_unregistered_asset.mjs",
+      "category": "unknown",
+      "signals": [],
+      "sizeBytes": 2182
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/stop_on_unsafe_gcode.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:execSync"
+      ],
+      "sizeBytes": 3081
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/stop_on_unwired_assets.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:execSync"
+      ],
+      "sizeBytes": 17686
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/stop_on_user_correction.mjs",
+      "category": "unknown",
+      "signals": [],
+      "sizeBytes": 4196
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/stress-harness-emit.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:execFile",
+        "mutation:appendFile",
+        "mutation:mkdirSync"
+      ],
+      "sizeBytes": 4292
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/subagent-start-context.mjs",
+      "category": "unknown",
+      "signals": [
+        "top-reads-stdin"
+      ],
+      "sizeBytes": 2799
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/subagent-stop-verifier.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "named-export-fn",
+        "mutation:appendFile",
+        "mutation:mkdirSync"
+      ],
+      "sizeBytes": 12466
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/substrate-health-inject.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "named-export-fn",
+        "mutation:spawnSync",
+        "mutation:writeFileSync",
+        "mutation:rename",
+        "mutation:mkdirSync"
+      ],
+      "sizeBytes": 7983
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/success-pattern-tracker.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:writeFileSync",
+        "mutation:mkdirSync"
+      ],
+      "sizeBytes": 2597
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/svi-inject.mjs",
+      "category": "module-safe",
+      "signals": [
+        "default-export"
+      ],
+      "sizeBytes": 1731
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/svi-projection.mjs",
+      "category": "module-safe",
+      "signals": [
+        "default-export"
+      ],
+      "sizeBytes": 2336
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/svi-regression-guard.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:writeFileSync",
+        "mutation:mkdirSync"
+      ],
+      "sizeBytes": 3059
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/svi-watch-refresh.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "default-export",
+        "mutation:writeFileSync",
+        "mutation:appendFile"
+      ],
+      "sizeBytes": 2097
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/sx-gate.mjs",
+      "category": "module-safe",
+      "signals": [
+        "default-export"
+      ],
+      "sizeBytes": 3216
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/system-viz-live-bridge.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "named-export-fn",
+        "mutation:writeFileSync",
+        "mutation:appendFile",
+        "mutation:unlink",
+        "mutation:mkdirSync",
+        "mutation:fetch"
+      ],
+      "sizeBytes": 11563
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/task-created-claim-guard.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "named-export-fn",
+        "mutation:writeFileSync",
+        "mutation:appendFile",
+        "mutation:rename",
+        "mutation:mkdirSync"
+      ],
+      "sizeBytes": 10255
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/task-freshness-gate.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:appendFile",
+        "mutation:mkdirSync"
+      ],
+      "sizeBytes": 13687
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/task-goal-tracker.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "top-writes-stdout",
+        "mutation:writeFileSync",
+        "mutation:mkdirSync"
+      ],
+      "sizeBytes": 3064
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/taylor-coeff-check.mjs",
+      "category": "module-safe",
+      "signals": [
+        "default-export"
+      ],
+      "sizeBytes": 2549
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/telemetry-autofire.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "top-process-exit",
+        "mutation:spawnSync"
+      ],
+      "sizeBytes": 3973
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/terminal-title-update.mjs",
+      "category": "unknown",
+      "signals": [],
+      "sizeBytes": 2501
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/test-100-percent-gate.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:spawnSync",
+        "mutation:execSync"
+      ],
+      "sizeBytes": 19028
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/test-coverage-enforcer.mjs",
+      "category": "unknown",
+      "signals": [],
+      "sizeBytes": 4647
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/test-legitimacy.mjs",
+      "category": "module-safe",
+      "signals": [
+        "default-export"
+      ],
+      "sizeBytes": 4650
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/text-to-cad-validation.mjs",
+      "category": "module-safe",
+      "signals": [
+        "default-export"
+      ],
+      "sizeBytes": 2372
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/tier1-context-pack.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:writeFileSync",
+        "mutation:mkdirSync"
+      ],
+      "sizeBytes": 7295
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/tier1-data-refresh.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:spawn"
+      ],
+      "sizeBytes": 3255
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/token-awareness-inject.mjs",
+      "category": "module-safe",
+      "signals": [
+        "named-export-fn"
+      ],
+      "sizeBytes": 6733
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/token-awareness-sidecar.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "named-export-fn",
+        "mutation:writeFileSync",
+        "mutation:rename",
+        "mutation:mkdirSync"
+      ],
+      "sizeBytes": 8993
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/token-awareness-stop-advisory.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "named-export-fn",
+        "mutation:writeFileSync",
+        "mutation:appendFile",
+        "mutation:rename",
+        "mutation:mkdirSync"
+      ],
+      "sizeBytes": 5254
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/token-budget-gate.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "named-export-fn",
+        "mutation:writeFileSync",
+        "mutation:appendFile",
+        "mutation:mkdirSync"
+      ],
+      "sizeBytes": 6488
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/tolerance-stack-guard.mjs",
+      "category": "module-safe",
+      "signals": [
+        "default-export"
+      ],
+      "sizeBytes": 3059
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/tool-pattern-learner.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:writeFileSync",
+        "mutation:mkdirSync"
+      ],
+      "sizeBytes": 4225
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/tool-watchdog.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:writeFileSync",
+        "mutation:rename",
+        "mutation:mkdirSync"
+      ],
+      "sizeBytes": 9128
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/training-convergence-guard.mjs",
+      "category": "module-safe",
+      "signals": [
+        "default-export"
+      ],
+      "sizeBytes": 2730
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/tribal-autowire.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "top-reads-stdin",
+        "mutation:spawn"
+      ],
+      "sizeBytes": 1958
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/tribal-by-domain-inject.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "named-export-fn",
+        "mutation:execFile",
+        "mutation:appendFile"
+      ],
+      "sizeBytes": 14304
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/tribal-inject-on-edit.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "top-reads-stdin",
+        "mutation:spawnSync"
+      ],
+      "sizeBytes": 4098
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/tribal-spike.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:appendFile",
+        "mutation:mkdirSync"
+      ],
+      "sizeBytes": 1156
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/try-before-asking.mjs",
+      "category": "module-safe",
+      "signals": [
+        "default-export"
+      ],
+      "sizeBytes": 1874
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/tsc-baseline-regression-gate.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:execSync",
+        "mutation:writeFileSync",
+        "mutation:mkdirSync"
+      ],
+      "sizeBytes": 8025
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/tsc-error-dedup.mjs",
+      "category": "unknown",
+      "signals": [],
+      "sizeBytes": 3839
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/type-safety-checker.mjs",
+      "category": "unknown",
+      "signals": [],
+      "sizeBytes": 6858
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/unified-edit-tap.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "top-process-exit",
+        "mutation:appendFile",
+        "mutation:mkdirSync"
+      ],
+      "sizeBytes": 2106
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/unified-local-validation.mjs",
+      "category": "unknown",
+      "signals": [],
+      "sizeBytes": 5196
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/unit-knowledge-pack-inject.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "named-export-fn",
+        "mutation:writeFileSync",
+        "mutation:mkdirSync"
+      ],
+      "sizeBytes": 8516
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/unknown-cad-extensions-surface.mjs",
+      "category": "unknown",
+      "signals": [],
+      "sizeBytes": 2441
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/user-prompt-submit-p1.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "default-export",
+        "mutation:writeFileSync",
+        "mutation:appendFile",
+        "mutation:mkdirSync"
+      ],
+      "sizeBytes": 2145
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/vitest-output-condenser.mjs",
+      "category": "unknown",
+      "signals": [],
+      "sizeBytes": 3565
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/viz-first-redirect.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "named-export-fn",
+        "mutation:execFile",
+        "mutation:appendFile"
+      ],
+      "sizeBytes": 8139
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/volume-delta-alert.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:writeFileSync",
+        "mutation:appendFile"
+      ],
+      "sizeBytes": 5103
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/warn-redundant-read.mjs",
+      "category": "unknown",
+      "signals": [],
+      "sizeBytes": 2654
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/wiki-link-suggest.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:writeFileSync",
+        "mutation:fetch"
+      ],
+      "sizeBytes": 11222
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/wiki-precheck-inject.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:writeFileSync",
+        "mutation:appendFile",
+        "mutation:rename",
+        "mutation:mkdirSync",
+        "mutation:fetch"
+      ],
+      "sizeBytes": 30754
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/wiki-propagation-watchdog-stop.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "named-export-fn",
+        "mutation:spawn",
+        "mutation:writeFileSync",
+        "mutation:rename",
+        "mutation:mkdirSync"
+      ],
+      "sizeBytes": 15185
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/wiki-read-offload-advisory.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "named-export-fn",
+        "mutation:writeFileSync",
+        "mutation:rename"
+      ],
+      "sizeBytes": 8518
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/wiki-recall-on-read.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:appendFile"
+      ],
+      "sizeBytes": 7544
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/wiki-recall-on-write.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "named-export-fn",
+        "mutation:writeFileSync",
+        "mutation:rename",
+        "mutation:mkdirSync"
+      ],
+      "sizeBytes": 6173
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/wiki-tribal-coverage-inject.mjs",
+      "category": "module-safe",
+      "signals": [
+        "named-export-fn"
+      ],
+      "sizeBytes": 6732
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/work-broadcast.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:writeFileSync",
+        "mutation:mkdirSync"
+      ],
+      "sizeBytes": 4509
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/work-claim.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:writeFileSync",
+        "mutation:mkdirSync"
+      ],
+      "sizeBytes": 7368
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/working-set-awareness.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:writeFileSync",
+        "mutation:mkdirSync"
+      ],
+      "sizeBytes": 2677
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/worktree-commit-route.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "mutation:spawnSync"
+      ],
+      "sizeBytes": 24663
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/write-import-check.mjs",
+      "category": "imports-only",
+      "signals": [],
+      "sizeBytes": 2649
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/write-tracker.mjs",
+      "category": "mutates-process",
+      "signals": [
+        "top-writes-stdout",
+        "mutation:writeFileSync",
+        "mutation:mkdirSync"
+      ],
+      "sizeBytes": 1951
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/zany-reintroduction-block.mjs",
+      "category": "module-safe",
+      "signals": [
+        "named-export-fn"
+      ],
+      "sizeBytes": 7128
+    },
+    {
+      "filePath": "H:/prism/.claude/hooks/zebra-advisory-inject.mjs",
+      "category": "module-safe",
+      "signals": [
+        "named-export-fn"
+      ],
+      "sizeBytes": 5864
+    }
+  ]
+}

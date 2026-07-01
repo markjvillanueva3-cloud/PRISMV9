@@ -380,7 +380,7 @@ describe('CalculatorPage machinist workflow solves', () => {
     if (mode) clickModeButton(mode);
     await configure();
     await saveSnapshot(snapshot);
-    fireEvent.click(screen.getByRole('button', { name: /run prism calculation/i }));
+    fireEvent.click(screen.getByRole('button', { name: /run kienzle calculation/i }));
     const normalized = normalizeCalculatorSpeedFeedResult(response);
     await waitFor(() => expect(metricValue('RPM')).toBe(formatMetric(normalized.rpm)), { timeout: 4000 });
     expect(metricValue('Cutting speed')).toBe(formatMetric(normalized.cuttingSpeed, 1));
@@ -427,7 +427,7 @@ describe('CalculatorPage machinist workflow solves', () => {
     setNumber(/tool diameter/i, 0.25); setNumber(/flutes \/ stations/i, 1); setNumber(/^DOC$/i, 40); setNumber(/WOC \/ engagement/i, 0.25);
     await chooseOption(/coolant strategy/i, /dielectric/i);
     await saveSnapshot(/C600iB/i);
-    fireEvent.click(screen.getByRole('button', { name: /run prism calculation/i }));
+    fireEvent.click(screen.getByRole('button', { name: /run kienzle calculation/i }));
     await waitFor(() => expect(metricValue('First cut speed')).toBe(formatMetric(6.8, 1)), { timeout: 5000 });
     expect(metricValue('Total time')).toBe(formatMetric(97, 1));
     expect(metricValue('Wire used')).toBe(formatMetric(285, 1));

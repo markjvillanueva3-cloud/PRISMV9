@@ -130,7 +130,7 @@ export function OSHACompliancePage() {
       description="This APPW compliance desk is rebuilt as a live, AI-assisted safety surface: incident posture, OSHA 300 exposure, training, and PPE records are mounted while the front end regains stability."
       surfaces={['inventoryOperations']}
       metrics={metrics}
-      aiSummary="PRISM AI can summarize the current safety posture, flag compliance gaps, and translate OSHA activity into concrete plant-level actions."
+      aiSummary="Kienzle AI can summarize the current safety posture, flag compliance gaps, and translate OSHA activity into concrete plant-level actions."
       aiContext={aiContext}
       suggestions={[
         {

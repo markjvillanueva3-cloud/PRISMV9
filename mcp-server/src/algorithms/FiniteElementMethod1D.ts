@@ -317,7 +317,7 @@ class FiniteElementMethod1DImpl
 
 export const FiniteElementMethod1D = new FiniteElementMethod1DImpl();
 
-// WIRE-EXEMPT: numerical primitive intentionally not wired this commit —
-// shares deferred U-COURSE-FORGE-P1-DISPATCHER (prism_calc:fem_1d_solve).
-// Fully usable via direct import. Weak-form sibling of FiniteDifferenceMethod;
+// WIRED: prism_algorithm:num_fem_1d (ENGINE-AUDIT 2026-06-19, slot:bravo) -- the source(x)
+// function is built from a serializable source_spec at the dispatcher boundary.
+// Also fully usable via direct import. Weak-form sibling of FiniteDifferenceMethod;
 // together they are the two canonical MIT-OCW PDE discretizations.

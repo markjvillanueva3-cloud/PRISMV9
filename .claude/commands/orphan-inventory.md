@@ -1,8 +1,12 @@
 ---
 description: Generate the built-but-unwired audit punch list. Reads system-graph orphans (low in/out-degree but documented) + groups by suggested dispatcher (heuristic name match) + by layer. Outputs state/shared/ORPHAN-INVENTORY.md.
 allowed-tools: Bash, Read
+composes_with:
+  - "/awareness-snapshot"
+  - "/deep-search"
+  - "/master-index"
+  - "/utilization-dashboard"
 ---
-
 # /orphan-inventory — Audit punch list for built-but-unwired nodes
 
 Generates `state/shared/ORPHAN-INVENTORY.md` from `system-graph.json`:

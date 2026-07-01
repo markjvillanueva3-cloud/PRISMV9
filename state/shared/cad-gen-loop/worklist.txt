@@ -1,0 +1,275 @@
+# cad-gen-overnight-loop worklist -- one text part-spec per line (# = comment).
+# JM Die convention is INCH. Seeded 2026-06-26 (slot:delta). Extend by appending lines;
+# the loop is resumable by stable spec-hash so reorder/append never re-gens done specs.
+a 1.0 inch cube
+a 2.0 inch by 1.0 inch by 0.5 inch rectangular plate
+a 1.5 inch diameter by 2.0 inch tall cylinder
+a 1.0 inch cube with a 0.25 inch diameter through hole centered on the top face
+a 2.0 inch square plate 0.375 inch thick with a 0.5 inch diameter hole in each corner inset 0.375 inch
+a 1.5 inch diameter disc 0.25 inch thick with a 0.75 inch diameter central bore
+a bushing: 1.0 inch outer diameter, 0.5 inch bore, 1.25 inch long
+a stepped bore part: 2.0 inch diameter by 1.0 inch tall, with a 1.0 inch diameter bore 0.6 inch deep stepping down to a 0.5 inch diameter bore through the rest
+a 3.0 inch by 2.0 inch by 0.75 inch block with a 1.0 inch deep 0.75 inch wide pocket centered on top
+a 1.0 inch diameter shaft 4.0 inch long with a 0.125 inch by 0.0625 inch keyway running the full length
+a flat washer: 0.5 inch inner diameter, 1.0 inch outer diameter, 0.0625 inch thick
+a hex standoff: 0.375 inch across flats, 1.0 inch long, with a 0.190 inch through hole
+an L-bracket: 2.0 inch by 2.0 inch legs, 0.25 inch thick, 1.5 inch wide, with two 0.25 inch mounting holes per leg
+a spacer ring: 1.25 inch outer diameter, 1.0 inch inner diameter, 0.5 inch tall
+a 0.75 inch diameter ball-nose punch blank 2.0 inch long
+a rectangular die plate 4.0 inch by 3.0 inch by 1.0 inch with a 1.5 inch by 0.75 inch through slot centered
+a counterbored plate 2.0 inch square 0.5 inch thick with a 0.25 inch through hole counterbored 0.5 inch diameter 0.2 inch deep
+a tapered plug: 1.0 inch diameter at base tapering to 0.5 inch over a 1.5 inch length
+a v-block 2.0 inch cube with a 90 degree v-groove 0.75 inch deep across the top
+a 1.0 inch diameter flange 0.25 inch thick on a 0.5 inch diameter 1.0 inch long hub
+a gauge block 1.0 inch by 0.5 inch by 0.25 inch
+a 2.0 inch diameter gear blank 0.5 inch thick with a 0.625 inch bore
+a slotted collar: 1.0 inch outer diameter, 0.5 inch bore, 0.75 inch long, with a 0.125 inch wide radial slot
+a dowel pin: 0.250 inch diameter, 1.5 inch long, with 0.02 inch chamfers on both ends
+
+# --- parametric expansion (cad-gen-worklist-expand.mjs) ---
+a 0.5 inch cube
+a 1 inch cube
+a 1.5 inch cube
+a 2 inch cube
+a 1 inch diameter by 1 inch tall cylinder
+a 1.5 inch diameter by 2 inch tall cylinder
+a 0.75 inch diameter by 3 inch tall cylinder
+a 2 inch diameter by 0.5 inch tall cylinder
+a 2 inch by 1 inch by 0.25 inch rectangular plate
+a 3 inch by 2 inch by 0.5 inch rectangular plate
+a 4 inch by 3 inch by 0.75 inch rectangular plate
+a 1.5 inch by 1.5 inch by 0.375 inch rectangular plate
+a 1 inch cube with a 0.25 inch diameter through hole centered on the top face
+a 1.5 inch cube with a 0.375 inch diameter through hole centered on the top face
+a 2 inch cube with a 0.5 inch diameter through hole centered on the top face
+a 1.5 inch diameter disc 0.25 inch thick with a 0.5 inch diameter central bore
+a 2 inch diameter disc 0.375 inch thick with a 0.75 inch diameter central bore
+a 1 inch diameter disc 0.1875 inch thick with a 0.375 inch diameter central bore
+a bushing: 1 inch outer diameter, 0.5 inch bore, 1.25 inch long
+a bushing: 0.75 inch outer diameter, 0.375 inch bore, 1 inch long
+a bushing: 1.5 inch outer diameter, 0.75 inch bore, 2 inch long
+a stepped bore part: 2 inch diameter by 1 inch tall, with a 0.6 inch diameter bore stepping down to a 0.5 inch diameter bore through the rest
+a stepped bore part: 1.5 inch diameter by 0.875 inch tall, with a 0.5 inch diameter bore stepping down to a 0.4 inch diameter bore through the rest
+a stepped bore part: 2.5 inch diameter by 1.25 inch tall, with a 0.75 inch diameter bore stepping down to a 0.625 inch diameter bore through the rest
+a 3 inch by 2 inch by 0.75 inch block with a 0.75 inch deep 1 inch wide pocket centered on top
+a 2 inch by 2 inch by 0.75 inch block with a 0.5 inch deep 0.75 inch wide pocket centered on top
+a 4 inch by 3 inch by 0.75 inch block with a 1 inch deep 1.5 inch wide pocket centered on top
+a 1 inch diameter shaft 4 inch long with a 0.125 inch by 0.0625 inch keyway running the full length
+a 0.75 inch diameter shaft 3 inch long with a 0.125 inch by 0.0625 inch keyway running the full length
+a 1.25 inch diameter shaft 5 inch long with a 0.125 inch by 0.0625 inch keyway running the full length
+a flat washer: 0.5 inch inner diameter, 1 inch outer diameter, 0.0625 inch thick
+a flat washer: 0.375 inch inner diameter, 0.875 inch outer diameter, 0.0625 inch thick
+a flat washer: 0.625 inch inner diameter, 1.25 inch outer diameter, 0.125 inch thick
+a 1 inch diameter flange 0.25 inch thick on a 0.5 inch diameter 1 inch long hub
+a 1.5 inch diameter flange 0.375 inch thick on a 0.75 inch diameter 1.25 inch long hub
+a 2 inch diameter flange 0.5 inch thick on a 1 inch diameter 1.5 inch long hub
+a spacer ring: 1.25 inch outer diameter, 1 inch inner diameter, 0.5 inch tall
+a spacer ring: 1.5 inch outer diameter, 1.25 inch inner diameter, 0.75 inch tall
+a spacer ring: 1 inch outer diameter, 0.75 inch inner diameter, 0.375 inch tall
+
+# --- parametric expansion (cad-gen-worklist-expand.mjs) ---
+a die button: a 0.75 inch diameter head 0.25 inch tall on a 0.5 inch diameter body, 1 inch tall overall
+a die button: a 1 inch diameter head 0.25 inch tall on a 0.625 inch diameter body, 1.25 inch tall overall
+a die button: a 0.5 inch diameter head 0.25 inch tall on a 0.375 inch diameter body, 0.75 inch tall overall
+a punch blank: a 0.375 inch diameter cylinder 2 inch long with a 0.03 inch chamfer on each end
+a punch blank: a 0.5 inch diameter cylinder 2.5 inch long with a 0.03 inch chamfer on each end
+a punch blank: a 0.25 inch diameter cylinder 1.5 inch long with a 0.03 inch chamfer on each end
+a pilot punch: a 0.5 inch diameter body 1.5 inch long stepping down to a 0.25 inch diameter pilot tip 0.375 inch long
+a pilot punch: a 0.625 inch diameter body 1.5 inch long stepping down to a 0.3125 inch diameter pilot tip 0.5 inch long
+a pilot punch: a 0.375 inch diameter body 1.5 inch long stepping down to a 0.1875 inch diameter pilot tip 0.25 inch long
+a keyed bushing: 1 inch outer diameter, 0.5 inch bore, 1 inch long, with a 0.125 inch wide by 0.0625 inch deep keyway in the bore
+a keyed bushing: 1.25 inch outer diameter, 0.625 inch bore, 1.25 inch long, with a 0.125 inch wide by 0.0625 inch deep keyway in the bore
+a keyed bushing: 0.875 inch outer diameter, 0.5 inch bore, 0.875 inch long, with a 0.125 inch wide by 0.0625 inch deep keyway in the bore
+
+# --- parametric expansion (cad-gen-worklist-expand.mjs) ---
+a v-block: a 1.5 inch cube with a 90 degree v-groove 0.5 inch deep across the top face
+a v-block: a 2 inch cube with a 90 degree v-groove 0.75 inch deep across the top face
+a v-block: a 1 inch cube with a 90 degree v-groove 0.375 inch deep across the top face
+a 2 inch by 1 inch by 0.75 inch block with a 0.125 inch by 45 degree chamfer on all four top edges
+a 3 inch by 2 inch by 1 inch block with a 0.1875 inch by 45 degree chamfer on all four top edges
+a 1.5 inch by 1.5 inch by 0.5 inch block with a 0.0625 inch by 45 degree chamfer on all four top edges
+a 3 inch by 2 inch by 0.5 inch plate with a 1.5 inch long by 0.375 inch wide slot milled 0.25 inch deep, centered
+a 4 inch by 3 inch by 0.75 inch plate with a 2 inch long by 0.5 inch wide slot milled 0.375 inch deep, centered
+a 2 inch by 2 inch by 0.5 inch plate with a 1 inch long by 0.25 inch wide slot milled 0.25 inch deep, centered
+a 2 inch by 2 inch by 0.5 inch plate with a 0.25 inch diameter through hole counterbored to 0.5 inch diameter 0.25 inch deep on the top face
+a 3 inch by 2 inch by 0.75 inch plate with a 0.375 inch diameter through hole counterbored to 0.625 inch diameter 0.3 inch deep on the top face
+a 2.5 inch by 2.5 inch by 0.625 inch plate with a 0.3125 inch diameter through hole counterbored to 0.5625 inch diameter 0.25 inch deep on the top face
+a stepped shaft: 0.5 inch diameter by 1 inch long, stepping up to 0.75 inch diameter by 0.5 inch long
+a stepped shaft: 0.75 inch diameter by 1.5 inch long, stepping up to 1 inch diameter by 0.75 inch long
+a stepped shaft: 1 inch diameter by 2 inch long, stepping up to 1.5 inch diameter by 1 inch long
+a truncated cone: 2 inch diameter base tapering to 1 inch diameter top over 1.5 inch height
+a truncated cone: 1.5 inch diameter base tapering to 0.75 inch diameter top over 1 inch height
+a truncated cone: 1 inch diameter base tapering to 0.5 inch diameter top over 2 inch height
+a 1 inch diameter shaft 3 inch long with a 0.125 inch wide by 0.0625 inch deep groove cut around it 0.5 inch from one end
+a 0.75 inch diameter shaft 2.5 inch long with a 0.0938 inch wide by 0.0625 inch deep groove cut around it 0.375 inch from one end
+a 1.25 inch diameter shaft 4 inch long with a 0.1875 inch wide by 0.0938 inch deep groove cut around it 0.75 inch from one end
+a boss: a 1.5 inch diameter cylinder 1 inch tall with a 0.5 inch diameter bore counterbored to 0.75 inch diameter 0.375 inch deep
+a boss: a 2 inch diameter cylinder 1.25 inch tall with a 0.625 inch diameter bore counterbored to 1 inch diameter 0.5 inch deep
+a boss: a 1 inch diameter cylinder 0.75 inch tall with a 0.375 inch diameter bore counterbored to 0.5 inch diameter 0.25 inch deep
+a square tube: 1.5 inch square outside with 0.25 inch wall thickness, 3 inch long
+a square tube: 2 inch square outside with 0.375 inch wall thickness, 4 inch long
+a square tube: 1 inch square outside with 0.1875 inch wall thickness, 2 inch long
+a shouldered disc: a 2 inch diameter by 0.375 inch thick base with a 1 inch diameter by 0.5 inch tall raised boss centered on top
+a shouldered disc: a 2.5 inch diameter by 0.5 inch thick base with a 1.25 inch diameter by 0.625 inch tall raised boss centered on top
+a shouldered disc: a 1.5 inch diameter by 0.25 inch thick base with a 0.75 inch diameter by 0.375 inch tall raised boss centered on top
+
+# --- parametric expansion (cad-gen-worklist-expand.mjs) ---
+a 3 inch by 2 inch by 1 inch block with a 0.5 inch deep 1 inch wide pocket centered on top
+a 2 inch by 2 inch by 0.75 inch block with a 0.4 inch deep 0.75 inch wide pocket centered on top
+a 4 inch by 3 inch by 1.5 inch block with a 0.75 inch deep 1.5 inch wide pocket centered on top
+
+# --- gold-trainset synthesis (cad-gen-worklist-from-gold.mjs) ---
+a 28.6 mm diameter cylinder 19.05 mm long
+a turned bushing: 25.02 mm outer diameter, 22.1 mm bore, 25.44 mm long
+a 50.79 mm by 22.23 mm by 13.78 mm rectangular plate
+a 14.38 mm by 12.67 mm by 12.65 mm rectangular plate
+a 14.5 mm by 14.38 mm by 12.67 mm rectangular plate
+a 38.1 mm diameter cylinder 19.05 mm long
+a 27.32 mm diameter cylinder 74.19 mm long
+a turned bushing: 24.99 mm outer diameter, 11.99 mm bore, 15.01 mm long
+a turned bushing: 44.45 mm outer diameter, 22.1 mm bore, 6.35 mm long
+a 138.11 mm by 55.56 mm by 31.75 mm rectangular plate
+a 18.63 mm diameter cylinder 3.58 mm long
+a 19.08 mm by 19.02 mm by 3.73 mm rectangular plate
+a 28.55 mm by 9.46 mm by 9.46 mm rectangular plate
+a 4.83 mm diameter cylinder 28.52 mm long
+a turned bushing: 31.75 mm outer diameter, 16.21 mm bore, 76.2 mm long
+a 19.68 mm by 6.1 mm by 3 mm rectangular plate
+a 99.87 mm diameter cylinder 76.2 mm long
+a 13.13 mm by 12.88 mm by 1.27 mm rectangular plate
+a turned bushing: 59.98 mm outer diameter, 40.49 mm bore, 7.01 mm long
+a 12.04 mm diameter cylinder 31.78 mm long
+a 36.53 mm by 23.52 mm by 12.7 mm rectangular plate
+a 103.02 mm by 24.99 mm by 22.5 mm rectangular plate
+a 103.02 mm by 75.18 mm by 24.99 mm rectangular plate
+a 50.77 mm diameter cylinder 5.39 mm long
+a turned bushing: 36.27 mm outer diameter, 31.67 mm bore, 165.1 mm long
+a 31.68 mm diameter cylinder 19.81 mm long
+a turned bushing: 25.4 mm outer diameter, 13.46 mm bore, 1.55 mm long
+a 55.88 mm diameter cylinder 24.18 mm long
+a turned bushing: 49.53 mm outer diameter, 44.35 mm bore, 127 mm long
+a 37.59 mm diameter cylinder 14.22 mm long
+a 63.5 mm by 52.58 mm by 50.77 mm rectangular plate
+a 31.78 mm diameter cylinder 13.23 mm long
+a 101.6 mm by 23.88 mm by 22.4 mm rectangular plate
+a 101.6 mm by 86.66 mm by 74.3 mm rectangular plate
+a 14.27 mm by 9.5 mm by 7.89 mm rectangular plate
+a turned bushing: 38.66 mm outer diameter, 20.42 mm bore, 76.45 mm long
+a 95.25 mm by 61.93 mm by 21.97 mm rectangular plate
+a 61.82 mm diameter cylinder 95.25 mm long
+a 30.29 mm diameter cylinder 95.25 mm long
+a 95.25 mm by 95 mm by 44.13 mm rectangular plate
+a 95 mm by 19.66 mm by 19.56 mm rectangular plate
+a 50.83 mm diameter cylinder 28.07 mm long
+a 57.15 mm by 38.1 mm by 31.75 mm rectangular plate
+a 25 mm by 22.7 mm by 2.3 mm rectangular plate
+a 101.6 mm by 49.91 mm by 7.75 mm rectangular plate
+a 4.18 mm diameter cylinder 4.5 mm long
+a 115.01 mm by 27 mm by 18.49 mm rectangular plate
+a turned bushing: 18.29 mm outer diameter, 8.64 mm bore, 21.59 mm long
+a 6.86 mm by 6.35 mm by 3.73 mm rectangular plate
+a 225.43 mm by 150.39 mm by 120.65 mm rectangular plate
+
+# --- gold-trainset synthesis (cad-gen-worklist-from-gold.mjs) ---
+a turned bushing: 43.12 mm outer diameter, 18.69 mm bore, 33.35 mm long
+a 17.07 mm diameter cylinder 41.4 mm long
+a 17.32 mm diameter cylinder 41.4 mm long
+a 2.95 mm by 2.92 mm by 2.6 mm rectangular plate
+a turned bushing: 44.2 mm outer diameter, 16 mm bore, 17.86 mm long
+a turned bushing: 18.67 mm outer diameter, 9.32 mm bore, 25.4 mm long
+a 36.22 mm diameter cylinder 31.75 mm long
+a 82.55 mm diameter cylinder 120.65 mm long
+a 50.8 mm by 34.92 mm by 13.79 mm rectangular plate
+a turned bushing: 17.42 mm outer diameter, 14.22 mm bore, 41.28 mm long
+a 4.9 mm diameter cylinder 1.52 mm long
+a 34.95 mm by 1.93 mm by 0.97 mm rectangular plate
+a turned bushing: 19.11 mm outer diameter, 5.22 mm bore, 23.39 mm long
+a 69.98 mm by 57.35 mm by 16.05 mm rectangular plate
+a 15.88 mm diameter cylinder 2.92 mm long
+a 14.99 mm by 8.18 mm by 7.77 mm rectangular plate
+a turned bushing: 4.27 mm outer diameter, 1.75 mm bore, 15.8 mm long
+a 31.65 mm diameter cylinder 63.44 mm long
+a 31.75 mm diameter cylinder 38.15 mm long
+a turned bushing: 25.4 mm outer diameter, 17.78 mm bore, 25.4 mm long
+a 76.2 mm by 25.39 mm by 4.88 mm rectangular plate
+a 76.23 mm by 76.2 mm by 21.59 mm rectangular plate
+a 93.96 mm by 45.01 mm by 19.05 mm rectangular plate
+a 31.75 mm diameter cylinder 127 mm long
+a turned bushing: 31.76 mm outer diameter, 15.88 mm bore, 41.02 mm long
+a 34.54 mm by 28.58 mm by 25.4 mm rectangular plate
+a 34.92 mm by 31.72 mm by 10.54 mm rectangular plate
+a 66.68 mm by 35.23 mm by 5.16 mm rectangular plate
+a turned bushing: 25.4 mm outer diameter, 14.61 mm bore, 27.1 mm long
+a turned bushing: 37.85 mm outer diameter, 31.7 mm bore, 64.52 mm long
+a turned bushing: 31.5 mm outer diameter, 25.02 mm bore, 60.71 mm long
+a 107.95 mm by 95.25 mm by 76.2 mm rectangular plate
+a 9.91 mm by 9.91 mm by 9.91 mm rectangular plate
+a 92.71 mm by 44.45 mm by 17.27 mm rectangular plate
+a 36.5 mm by 23.88 mm by 18.54 mm rectangular plate
+a 5.42 mm by 4.5 mm by 4.1 mm rectangular plate
+a 26.92 mm diameter cylinder 8.26 mm long
+a 15.46 mm diameter cylinder 28.6 mm long
+a 15.46 mm diameter cylinder 28.55 mm long
+a turned bushing: 25.4 mm outer diameter, 10.92 mm bore, 42.55 mm long
+a turned bushing: 25.4 mm outer diameter, 10.92 mm bore, 76.2 mm long
+a 50.88 mm diameter cylinder 25.37 mm long
+a 203.2 mm by 69.85 mm by 48.39 mm rectangular plate
+a 82.55 mm by 31.42 mm by 19.05 mm rectangular plate
+a 82.55 mm by 20.57 mm by 19.05 mm rectangular plate
+a 101.6 mm by 60.96 mm by 38.1 mm rectangular plate
+a turned bushing: 9.53 mm outer diameter, 8.13 mm bore, 52.07 mm long
+a 52.07 mm by 33.02 mm by 19.05 mm rectangular plate
+a 50.8 mm by 8.13 mm by 2.54 mm rectangular plate
+a 20.4 mm by 20.19 mm by 14.56 mm rectangular plate
+
+# --- gold-trainset synthesis (cad-gen-worklist-from-gold.mjs) ---
+a 70.1 mm by 69.6 mm by 51.05 mm rectangular plate
+a 145.22 mm by 15.88 mm by 15.77 mm rectangular plate
+a 31.75 mm diameter cylinder 24.38 mm long
+a 18.62 mm by 9.91 mm by 3.58 mm rectangular plate
+a 18.63 mm diameter cylinder 9.88 mm long
+a 25.32 mm by 5.61 mm by 5.56 mm rectangular plate
+a turned bushing: 22.23 mm outer diameter, 12.32 mm bore, 25.4 mm long
+a turned bushing: 22.23 mm outer diameter, 12.32 mm bore, 1.88 mm long
+a 8.89 mm by 4.42 mm by 4.37 mm rectangular plate
+a 48.16 mm by 10.16 mm by 2.79 mm rectangular plate
+a turned bushing: 25.4 mm outer diameter, 11.15 mm bore, 38.1 mm long
+a 19.76 mm by 4.32 mm by 2.54 mm rectangular plate
+a 22.23 mm diameter cylinder 2.95 mm long
+a turned bushing: 50.95 mm outer diameter, 20.98 mm bore, 17.68 mm long
+a 17.27 mm by 15.88 mm by 12.83 mm rectangular plate
+a 126.11 mm by 125.6 mm by 24.38 mm rectangular plate
+a 25.32 mm diameter cylinder 41.28 mm long
+a 15.88 mm by 15.85 mm by 15.85 mm rectangular plate
+a 76.2 mm by 76.07 mm by 44.7 mm rectangular plate
+a 85.65 mm diameter cylinder 12.7 mm long
+a 73.66 mm by 73.41 mm by 11.46 mm rectangular plate
+a 37.96 mm diameter cylinder 8.9 mm long
+a 40.38 mm by 20.46 mm by 1.52 mm rectangular plate
+a 15.57 mm diameter cylinder 50.93 mm long
+a 18.29 mm by 5.64 mm by 5.54 mm rectangular plate
+a 44.96 mm diameter cylinder 100.08 mm long
+a 44.96 mm diameter cylinder 254 mm long
+a 31.42 mm by 31.42 mm by 25.43 mm rectangular plate
+a 31.34 mm diameter cylinder 6.86 mm long
+a 31.5 mm by 31.48 mm by 25.4 mm rectangular plate
+a turned bushing: 59.89 mm outer diameter, 31.75 mm bore, 115.54 mm long
+a 111.38 mm by 110.87 mm by 21.59 mm rectangular plate
+a 25.1 mm diameter cylinder 12.19 mm long
+a turned bushing: 17.91 mm outer diameter, 11.05 mm bore, 14.63 mm long
+a 21.79 mm diameter cylinder 3.71 mm long
+a 23.8 mm diameter cylinder 23.8 mm long
+a 33.32 mm diameter cylinder 23.8 mm long
+a 65.53 mm by 65.28 mm by 26.25 mm rectangular plate
+a 65.53 mm by 65.28 mm by 14.43 mm rectangular plate
+a 63.45 mm diameter cylinder 76.2 mm long
+a 210 mm by 13.6 mm by 10.12 mm rectangular plate
+a 15.57 mm diameter cylinder 50.8 mm long
+a turned bushing: 74.93 mm outer diameter, 7.62 mm bore, 23.41 mm long
+a 38.66 mm diameter cylinder 76.45 mm long
+a 58.8 mm by 58.67 mm by 38.13 mm rectangular plate
+a turned bushing: 25.4 mm outer diameter, 10.77 mm bore, 88.9 mm long
+a turned bushing: 12.69 mm outer diameter, 5.67 mm bore, 13.68 mm long
+a 5.94 mm diameter cylinder 5.4 mm long
+a turned bushing: 32.13 mm outer diameter, 19.05 mm bore, 69.85 mm long
+a turned bushing: 76.2 mm outer diameter, 37.9 mm bore, 38.1 mm long

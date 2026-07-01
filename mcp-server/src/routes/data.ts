@@ -8,6 +8,13 @@ import { getCalculatorProgrammingEnvironments } from "../data/calculatorProgramm
 import { getCalculatorToolHolderCatalog } from "../utils/calculatorToolHolderCatalog.js";
 import { getCalculatorMachineCatalogRows } from "../utils/calculatorMachineCatalog.js";
 import { getCalculatorWorkholdingCatalog } from "../utils/calculatorWorkholdingCatalog.js";
+import { getCalculatorCoatingCatalog } from "../utils/calculatorCoatingCatalog.js";
+import { getCalculatorInsertCatalog } from "../utils/calculatorInsertCatalog.js";
+import { getCalculatorCoolantCatalog } from "../utils/calculatorCoolantCatalog.js";
+import { getCalculatorCoolantProductCatalog } from "../utils/calculatorCoolantProductCatalog.js";
+import { getCalculatorTurningInsertCatalog } from "../utils/calculatorLatheInsertCatalog.js";
+import { getCalculatorStockCatalog } from "../utils/calculatorStockCatalog.js";
+import { getCalculatorMaterialCatalog } from "../utils/calculatorMaterialCatalog.js";
 import { materialRegistry } from "../registries/MaterialRegistry.js";
 import { machineRegistry } from "../registries/MachineRegistry.js";
 import { toolRegistry } from "../registries/ToolRegistry.js";
@@ -26,6 +33,17 @@ function normalizeMachineMode(value: unknown): MachineMode | undefined {
  */
 export function createDataRouter(callTool: CallToolFn): Router {
   const router = Router();
+
+  // GET /api/v1/data/material/catalog -- Workpiece-material select/datalist catalog
+  // from the full MaterialRegistry (245+ ISO-classified alloys). MUST be registered
+  // BEFORE "/material/:id" or Express routes "catalog" into the :id handler.
+  router.get("/material/catalog", async (_req, res, next) => {
+    try {
+      await materialRegistry.load();
+      const { materials } = await materialRegistry.search({ limit: 100000, offset: 0 });
+      res.json({ result: getCalculatorMaterialCatalog({ registryRows: materials }) });
+    } catch (e) { next(e); }
+  });
 
   // GET /api/v1/data/material/:id — Get material by ID
   router.get("/material/:id", async (req, res, next) => {
@@ -141,6 +159,48 @@ export function createDataRouter(callTool: CallToolFn): Router {
       }
 
       res.json({ result: getCalculatorWorkholdingCatalog(mode) });
+    } catch (e) { next(e); }
+  });
+
+  // GET /api/v1/data/coating/catalog -- Tool-coating select catalog from the consolidated reference DB
+  router.get("/coating/catalog", async (_req, res, next) => {
+    try {
+      res.json({ result: getCalculatorCoatingCatalog() });
+    } catch (e) { next(e); }
+  });
+
+  // GET /api/v1/data/insert/catalog -- Indexable-insert select catalog from the consolidated reference DB
+  router.get("/insert/catalog", async (_req, res, next) => {
+    try {
+      res.json({ result: getCalculatorInsertCatalog() });
+    } catch (e) { next(e); }
+  });
+
+  // GET /api/v1/data/coolant/catalog -- Coolant-method select catalog from the consolidated reference DB
+  router.get("/coolant/catalog", async (_req, res, next) => {
+    try {
+      res.json({ result: getCalculatorCoolantCatalog() });
+    } catch (e) { next(e); }
+  });
+
+  // GET /api/v1/data/coolant-product/catalog -- Coolant-PRODUCT select catalog (vendor brands, flood + MQL)
+  router.get("/coolant-product/catalog", async (_req, res, next) => {
+    try {
+      res.json({ result: getCalculatorCoolantProductCatalog() });
+    } catch (e) { next(e); }
+  });
+
+  // GET /api/v1/data/turning-insert/catalog -- Turning (lathe) insert select catalog from the consolidated reference DB
+  router.get("/turning-insert/catalog", async (_req, res, next) => {
+    try {
+      res.json({ result: getCalculatorTurningInsertCatalog() });
+    } catch (e) { next(e); }
+  });
+
+  // GET /api/v1/data/stock/catalog -- Raw-material stock select catalog from the persisted JM-Die stock store
+  router.get("/stock/catalog", async (_req, res, next) => {
+    try {
+      res.json({ result: getCalculatorStockCatalog() });
     } catch (e) { next(e); }
   });
 

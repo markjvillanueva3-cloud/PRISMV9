@@ -29,7 +29,8 @@ related:
 
 ## Description (first paragraph)
 
-End-to-end lathe post-processing with deep reasoning, ensemble cross-check, and regression validation.
+
+# /lathe-master-post — Unified Lathe Post-Processor
 
 <!-- AUTO-END -->
 

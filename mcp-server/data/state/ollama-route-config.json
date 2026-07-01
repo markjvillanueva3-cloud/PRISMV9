@@ -1,0 +1,6 @@
+{
+  "_comment": "GPU-OFFLOAD-MAXIMIZE-MS0/U2 (2026-05-22, slot:sierra): flipped 'suggest'->'auto' per safe-rollout gate. EXEMPT_BASENAMES in the hook prevents self-substitution on load-bearing state files. Operator override: write 'suggest' here OR set PRISM_OLLAMA_ROUTE_AUTO=0 to revert without code change. | BLACKWELL-MODEL-UPGRADE U-BW-RESEARCH-REFINE (2026-06-04, slot:alpha): model was 'qwen2.5-coder:7b' which was DELETED -> every auto-route hit cascade_model_missing -> 'pass' (the 5589-fired/0-offloaded dead-offloader bug). Re-pointed to 'qwen2.5-coder:32b'. | U-ZULU-ROUTE-MODEL-LATENCY (2026-06-24, slot:zulu): the 32b re-point fixed PRESENCE but broke LATENCY -- the 32b reasoner cold-loads SLOWER than defaultOllamaSummarize's 30s Read-path timeout, so every reroute timed out -> fail-open -> 0 offloads (live: 32b=pass@30042ms vs 1.5b=reroute@7825ms / 7b=reroute@10770ms on the same 279KB log). A log/dump GIST is a TRIVIAL mechanical task, so route it at the kept-trivial tier 'qwen2.5-coder:1.5b' (doctrine ':1.5b trivial', survives the 7b-style retirement; in /api/tags). Quicker turnaround AND reroutes actually complete. Revert path unchanged.",
+  "mode": "auto",
+  "minKb": 24,
+  "model": "qwen2.5-coder:1.5b"
+}

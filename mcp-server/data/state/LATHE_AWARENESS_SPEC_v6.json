@@ -1,0 +1,101 @@
+{
+  "schemaVersion": "1.0.0",
+  "milestone": "LATHE-AWARE-HARDEN-MS0",
+  "generated": "2026-04-15T00:00:00Z",
+  "prism_full_inventory": {
+    "total_engines": 1846,
+    "total_algorithms": 53,
+    "total_dispatchers": 84,
+    "total_actions": 4296,
+    "ai_categories": ["reasoning", "learning", "intelligence", "orchestration", "agent", "advisor", "prediction", "optimization", "knowledge", "nlp", "vision", "physics", "deep_ai"],
+    "discovery_api": "AIFeatureAutoRegistryEngine.discoverFeatures()",
+    "routing_api": "PRISMSelfAwarenessEngine.whoHandles(domain)",
+    "recommendation_api": "PRISMSelfAwarenessEngine.recommendAIFeatures(task)",
+    "note": "AGI routing (MS9-MS12) MUST query full PRISM inventory, not just lathe engines"
+  },
+  "baseline": {
+    "engines": {
+      "lathe_prefixed": 59,
+      "turning_prefixed": 12,
+      "total": 71
+    },
+    "dispatchers": {
+      "turningDispatcher": {
+        "actions": 77,
+        "file": "src/tools/dispatchers/turningDispatcher.ts"
+      },
+      "turningProgramDispatcher": {
+        "actions": 14,
+        "file": "src/tools/dispatchers/turningProgramDispatcher.ts"
+      },
+      "total_actions": 91
+    },
+    "tests": {
+      "lathe_test_files": 31,
+      "target_after_completion": 70
+    },
+    "quality_score": 94,
+    "tribal_tips_lathe_relevant": 285
+  },
+  "external_assets": {
+    "sandvik_tools": {
+      "file": "src/data/sandvik-tools-extracted.json",
+      "size_bytes": 693883,
+      "status": "partial",
+      "action": "extract_delta_in_MS2"
+    },
+    "hypermill_tips": {
+      "registered_in_log": 25,
+      "actual_in_file": 434,
+      "gap": 409,
+      "file": "data/extracted-knowledge/hypermill/hypermill-tribal-tips-1776036032655.json",
+      "status": "REGISTRATION_GAP",
+      "action": "fix_in_MS0.5"
+    },
+    "jm_die_programs": {
+      "count": 24545,
+      "status": "indexed",
+      "queryable_by_type": false,
+      "action": "add_type_query_in_MS10"
+    },
+    "okuma_osp_tips": {
+      "count": 63,
+      "status": "completed"
+    }
+  },
+  "critical_fixes_required": {
+    "eval_sites": [
+      "OkumaParametricProgramEngine.ts:2340",
+      "OkumaParametricProgramEngine.ts:2370",
+      "NLHookEngine.ts:68",
+      "NLHookEngine.ts:918",
+      "NLHookEngine.ts:929",
+      "TribalKnowledgeEngine.ts:1063"
+    ],
+    "as_any_cleanup": {
+      "file": "TurningPrintToProgramEngine.ts",
+      "count": 18
+    },
+    "writeFileSync_wrap": {
+      "file": "LatheFullArchiveTrainingEngine.ts",
+      "line": 518
+    }
+  },
+  "agi_routing_gaps": {
+    "programming_styles_supported": ["macro", "hardcode"],
+    "programming_styles_missing": ["cam", "conversational", "hybrid"],
+    "conversational_types_in_matrix": ["mazatrol", "klartext", "navi_mill", "shop_mill", "manual_guide_i"],
+    "conversational_types_missing": ["winmax"],
+    "action_required": "MS9_programming_style_selector"
+  },
+  "data_path_issues": {
+    "okuma_multus_pdfs": {
+      "claimed_path": "H:/PRISM/resources/OKUMA MULTUS PDFS/",
+      "status": "EMPTY_DIRECTORY",
+      "action": "verify_location_before_MS4"
+    }
+  },
+  "dedup_verified": true,
+  "extraction_log_read": true,
+  "delta_list_generated": true
+}

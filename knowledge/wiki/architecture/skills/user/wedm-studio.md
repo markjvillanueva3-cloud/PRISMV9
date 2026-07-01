@@ -23,18 +23,14 @@ related:
 |-------|-------|
 | Name | `wedm-studio` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/wedm-studio.md` |
+| Source | `C:/Users/wompu/.claude/commands/wedm-studio.md` |
 | Model | default |
 | Tags | _(none)_ |
 
 ## Description (first paragraph)
 
-Full-featured Wire EDM programming environment:
-- Complete part-to-program pipeline
-- Real-time parameter optimization
-- Neural-enhanced predictions
-- Interactive debugging
-- Integrated documentation
+
+# /wedm-studio — Interactive Wire EDM Programming Studio
 
 <!-- AUTO-END -->
 

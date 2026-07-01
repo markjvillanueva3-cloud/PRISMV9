@@ -1,0 +1,514 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PRISM 3D System Viz</title>
+<style>
+  :root {
+    --bg: #06070a; --panel: #11141b; --panel-2: #1a1e27;
+    --fg: #e4e6eb; --fg-dim: #9aa0a8; --border: #2c303a;
+    --ok: #4ade80; --warn: #fbbf24; --fail: #f87171;
+    --info: #60a5fa; --link: #93c5fd; --accent: #a78bfa;
+  }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; margin: 0; padding: 0; overflow: hidden;
+    background: var(--bg); color: var(--fg);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    font-size: 12px; }
+  #c { position: fixed; inset: 0; display: block; }
+  #topbar { position: fixed; top: 0; left: 0; right: 0; padding: 0.5rem 0.75rem;
+    background: rgba(6, 7, 10, 0.85); border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; gap: 0.75rem; z-index: 10; }
+  #topbar .title { font-weight: 600; font-size: 0.95rem; color: var(--fg); }
+  #topbar .stats { color: var(--fg-dim); font-size: 0.78rem; font-variant-numeric: tabular-nums; }
+  #search { background: var(--panel-2); color: var(--fg); border: 1px solid var(--border);
+    border-radius: 4px; padding: 0.3rem 0.6rem; font-size: 0.85rem; width: 260px; outline: none; }
+  #search:focus { border-color: var(--accent); }
+  .pill { display: inline-block; padding: 1px 8px; border-radius: 10px; font-size: 0.7rem;
+    font-weight: 500; margin-left: 0.4rem; }
+  .legend { display: flex; gap: 0.6rem; font-size: 0.72rem; color: var(--fg-dim); }
+  .legend .dot { display: inline-block; width: 9px; height: 9px; border-radius: 50%;
+    vertical-align: middle; margin-right: 4px; }
+  #sidepanel { position: fixed; top: 50px; right: 0; bottom: 0; width: 340px;
+    background: rgba(17, 20, 27, 0.95); border-left: 1px solid var(--border);
+    padding: 0.85rem 1rem; overflow-y: auto; z-index: 9; transform: translateX(100%);
+    transition: transform 0.18s ease; }
+  #sidepanel.open { transform: translateX(0); }
+  #sidepanel h2 { font-size: 0.95rem; margin: 0 0 0.25rem 0; word-break: break-all; }
+  #sidepanel .meta-row { color: var(--fg-dim); font-size: 0.78rem; margin: 0.15rem 0; }
+  #sidepanel .info { margin-top: 0.6rem; padding-top: 0.6rem; border-top: 1px solid var(--border);
+    color: var(--fg-dim); font-size: 0.82rem; line-height: 1.45; white-space: pre-wrap; }
+  #sidepanel .close { float: right; cursor: pointer; color: var(--fg-dim); font-size: 1rem;
+    background: none; border: none; padding: 0; }
+  #sidepanel .close:hover { color: var(--fg); }
+  #hint { position: fixed; bottom: 0.6rem; left: 0.75rem; color: var(--fg-dim); font-size: 0.72rem;
+    z-index: 8; }
+  #hint a { color: var(--link); text-decoration: none; }
+  #hint a:hover { text-decoration: underline; }
+  #legend { position: fixed; top: 3rem; left: 0.75rem; z-index: 8; background: rgba(20,22,28,0.82);
+    border: 1px solid var(--border); border-radius: 6px; padding: 0.4rem 0.55rem; font-size: 0.7rem;
+    color: var(--fg-dim); display: flex; flex-direction: column; gap: 0.22rem; pointer-events: none; }
+  #legend .legend-item { display: flex; align-items: center; gap: 0.4rem; }
+  #legend .legend-swatch { width: 0.7rem; height: 0.7rem; border-radius: 2px; display: inline-block; flex: none; }
+  #loader { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center;
+    background: var(--bg); color: var(--fg-dim); font-size: 0.9rem; z-index: 20; }
+  #loader.hidden { display: none; }
+  #hover-tip { position: fixed; pointer-events: none; padding: 4px 8px; background: rgba(0,0,0,0.85);
+    border: 1px solid var(--border); border-radius: 3px; font-size: 0.72rem; z-index: 12; display: none;
+    white-space: nowrap; }
+</style>
+</head>
+<body>
+
+<div id="loader">Loading graph snapshot…</div>
+
+<canvas id="c"></canvas>
+
+<div id="topbar">
+  <span class="title">PRISM 3D Viz</span>
+  <input id="search" placeholder="search label/id/layer · brain · gap (Obsidian coverage)…" autocomplete="off">
+  <span class="legend">
+    <span><span class="dot" style="background:#4ade80"></span>built</span>
+    <span><span class="dot" style="background:#fbbf24"></span>unwired</span>
+    <span><span class="dot" style="background:#60a5fa"></span>pending</span>
+    <span><span class="dot" style="background:#9aa0a8"></span>unknown</span>
+  </span>
+  <span class="stats" id="stats">…</span>
+  <span class="stats" id="searchstat"></span>
+  <a href="/" style="margin-left:auto;color:var(--link);font-size:0.8rem">/ dashboard</a>
+</div>
+
+<div id="sidepanel">
+  <button class="close" id="close-panel" aria-label="Close">×</button>
+  <h2 id="np-label">node</h2>
+  <div class="meta-row" id="np-id"></div>
+  <div class="meta-row" id="np-layer"></div>
+  <div class="meta-row" id="np-status"></div>
+  <div class="info" id="np-info"></div>
+  <div class="info" id="np-note"></div>
+<div class="info" id="np-neighbors"></div>
+</div>
+
+<div id="hover-tip"></div>
+<div id="legend"></div>
+
+<div id="hint">
+  drag to orbit · scroll to zoom · right-drag to pan · click a node for details + Obsidian notes · <kbd>/</kbd> to search · type <kbd>brain</kbd>/<kbd>gap</kbd> for coverage
+  &middot; <a href="/api/graph-snapshot?limit=5000">/api/graph-snapshot</a>
+</div>
+
+<script type="module">
+import * as THREE from "https://esm.sh/three@0.160.0";
+import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
+
+const STATUS_COLOR = {
+  built:        new THREE.Color(0x4ade80),
+  unwired:      new THREE.Color(0xfbbf24),
+  needs_wiring: new THREE.Color(0xfbbf24),
+  pending:      new THREE.Color(0x60a5fa),
+  in_progress:  new THREE.Color(0xa78bfa),
+};
+const DEFAULT_COLOR = new THREE.Color(0x9aa0a8);
+const HIGHLIGHT_COLOR = new THREE.Color(0xffffff);
+const DIM_COLOR = new THREE.Color(0x2a2c33);
+
+function colorFor(status) { return STATUS_COLOR[status] || DEFAULT_COLOR; }
+
+// Color legend, built from STATUS_COLOR (single source of truth — no duplicated hex).
+// The point-cloud colors are otherwise cryptic; this names them. Safe DOM only.
+function buildLegend() {
+  const el = document.getElementById("legend");
+  if (!el) return;
+  const items = [
+    [STATUS_COLOR.built, "built"],
+    [STATUS_COLOR.unwired, "unwired / needs-wiring"],
+    [STATUS_COLOR.pending, "pending"],
+    [STATUS_COLOR.in_progress, "in progress"],
+    [DEFAULT_COLOR, "other / unknown"],
+  ];
+  for (const [color, label] of items) {
+    const row = document.createElement("div");
+    row.className = "legend-item";
+    const sw = document.createElement("span");
+    sw.className = "legend-swatch";
+    sw.style.background = "#" + color.getHexString();
+    row.appendChild(sw);
+    row.appendChild(document.createTextNode(label));
+    el.appendChild(row);
+  }
+}
+buildLegend();
+
+const canvas = document.getElementById("c");
+const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: false });
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+renderer.setSize(window.innerWidth, window.innerHeight, false);
+renderer.setClearColor(0x06070a);
+
+const scene = new THREE.Scene();
+scene.fog = new THREE.Fog(0x06070a, 250, 700);
+
+const camera = new THREE.PerspectiveCamera(55, window.innerWidth / window.innerHeight, 0.1, 2000);
+camera.position.set(180, 140, 220);
+
+const controls = new OrbitControls(camera, canvas);
+controls.enableDamping = true;
+controls.dampingFactor = 0.07;
+controls.target.set(0, 0, 0);
+
+scene.add(new THREE.AmbientLight(0xffffff, 0.45));
+const keyLight = new THREE.DirectionalLight(0xffffff, 0.55);
+keyLight.position.set(150, 220, 180);
+scene.add(keyLight);
+
+// Layer Y-axis stratification — top to bottom: L0 personas → L13 system
+function layerY(layer, layerKeysSorted) {
+  const idx = layerKeysSorted.indexOf(layer);
+  if (idx === -1) return 0;
+  const span = 280;
+  return (span / 2) - (idx / Math.max(1, layerKeysSorted.length - 1)) * span;
+}
+
+const RADIUS_BASE = 1.4;
+let inst = null;
+let nodesData = [];
+let layerKeysSorted = [];
+let highlightedIdx = -1;
+
+async function load() {
+  const r = await fetch("/api/graph-snapshot?limit=5000", { cache: "no-store" });
+  if (!r.ok) throw new Error("snapshot HTTP " + r.status);
+  const snap = await r.json();
+  if (snap.error) throw new Error(snap.error);
+  nodesData = snap.nodes;
+  layerKeysSorted = Object.keys(snap.layerSummary).sort();
+  buildInstancedMesh(snap);
+  updateStats(snap);
+  applyDeepLink();
+  document.getElementById("loader").classList.add("hidden");
+}
+
+// Deep-link INTO the viz: /3d?q=<search> prefills + applies the search (including the
+// brain/gap coverage filters); /3d?node=<id> opens that node's side-panel (or, if the
+// node is outside the sampled set, highlights it by id). Makes views shareable /
+// bookmarkable and lets the dashboard, docs, or an Obsidian note link into a specific
+// graph view — the round-trip complement to the node→Obsidian deep-link. Best-effort.
+function applyDeepLink() {
+  try {
+    const params = new URLSearchParams(location.search);
+    const node = params.get("node");
+    const q = params.get("q");
+    const searchBox = document.getElementById("search");
+    if (node) {
+      const hit = nodesData.find((n) => n.id === node);
+      if (hit) { showNode(hit); return; }
+      if (searchBox) { searchBox.value = node; applySearch(node.toLowerCase()); }
+      return;
+    }
+    if (q && searchBox) {
+      searchBox.value = q;
+      const ql = q.toLowerCase();
+      applySearch(ql);
+      // If a ?q= deep-link resolves to exactly ONE node (e.g. a dashboard
+      // orphan-punch-list link to a specific engine), open its side panel so the
+      // user lands on the node's details + neighbors instead of hunting one dot
+      // in the cloud. Skip the brain/gap coverage reserved words (not node names).
+      const isCoverWord = ["brain","notes","has:notes","covered","gap","gaps","no:notes","uncovered"].includes(ql);
+      if (!isCoverWord) {
+        const hits = nodesData.filter((n) =>
+          n.label.toLowerCase().includes(ql) || n.id.toLowerCase().includes(ql) || n.layer.toLowerCase() === ql);
+        if (hits.length === 1) showNode(hits[0]);
+      }
+    }
+  } catch (e) { /* deep-link is best-effort */ }
+}
+
+function buildInstancedMesh(snap) {
+  if (inst) { scene.remove(inst); inst.geometry.dispose(); inst.material.dispose(); }
+  const geom = new THREE.SphereGeometry(RADIUS_BASE, 8, 6);
+  const mat = new THREE.MeshLambertMaterial({ vertexColors: false });
+  inst = new THREE.InstancedMesh(geom, mat, nodesData.length);
+  inst.instanceColor = new THREE.InstancedBufferAttribute(new Float32Array(nodesData.length * 3), 3);
+
+  const dummy = new THREE.Object3D();
+  // Layer-local random placement — deterministic via index-derived pseudo-random.
+  const RAD = 120;
+  for (let i = 0; i < nodesData.length; i++) {
+    const n = nodesData[i];
+    const y = layerY(n.layer, layerKeysSorted);
+    // Stable pseudo-random per node id
+    const h = hash(n.id);
+    const a = (h % 1000) / 1000 * Math.PI * 2;
+    const r = RAD * Math.sqrt(((h >> 10) % 1000) / 1000);
+    dummy.position.set(Math.cos(a) * r, y, Math.sin(a) * r);
+    dummy.scale.setScalar(1);
+    dummy.updateMatrix();
+    inst.setMatrixAt(i, dummy.matrix);
+    const c = colorFor(n.status);
+    inst.instanceColor.setXYZ(i, c.r, c.g, c.b);
+  }
+  inst.instanceMatrix.needsUpdate = true;
+  inst.instanceColor.needsUpdate = true;
+  scene.add(inst);
+
+  // Layer floor discs to provide context
+  for (const L of layerKeysSorted) {
+    const y = layerY(L, layerKeysSorted);
+    const ringGeom = new THREE.RingGeometry(118, 121, 60);
+    const ringMat = new THREE.MeshBasicMaterial({ color: 0x2c303a, side: THREE.DoubleSide, transparent: true, opacity: 0.35 });
+    const ring = new THREE.Mesh(ringGeom, ringMat);
+    ring.rotation.x = -Math.PI / 2;
+    ring.position.y = y;
+    scene.add(ring);
+  }
+}
+
+function hash(s) {
+  // Small, fast non-cryptographic hash (32-bit) — same for same input.
+  let h = 2166136261 >>> 0;
+  for (let i = 0; i < s.length; i++) {
+    h ^= s.charCodeAt(i);
+    h = Math.imul(h, 16777619) >>> 0;
+  }
+  return h;
+}
+
+function updateStats(snap) {
+  const s = document.getElementById("stats");
+  const covered = (snap.nodes || []).filter((n) => (n.noteCount || 0) > 0).length;
+  const brainPct = (snap.nodes && snap.nodes.length) ? Math.round((covered / snap.nodes.length) * 100) : 0;
+  const parts = [
+    `${snap.sampledNodes.toLocaleString()} of ${snap.totalNodes.toLocaleString()} nodes`,
+    `${Object.keys(snap.layerSummary).length} layers`,
+    `built=${(snap.statusCounts.built||0).toLocaleString()}`,
+    `unwired=${(snap.statusCounts.needs_wiring||snap.statusCounts.unwired||0).toLocaleString()}`,
+    `🧠 ${brainPct}% brain (${covered.toLocaleString()})`,
+  ];
+  s.textContent = parts.join(" · ");
+}
+
+// ─── Hover + click via Raycaster on InstancedMesh ────────────────────
+const raycaster = new THREE.Raycaster();
+const pointer = new THREE.Vector2();
+const tip = document.getElementById("hover-tip");
+
+let hoverIdx = -1;
+function onPointerMove(e) {
+  pointer.x = (e.clientX / window.innerWidth) * 2 - 1;
+  pointer.y = -(e.clientY / window.innerHeight) * 2 + 1;
+  if (!inst) return;
+  raycaster.setFromCamera(pointer, camera);
+  const hit = raycaster.intersectObject(inst);
+  if (hit.length > 0 && hit[0].instanceId != null) {
+    hoverIdx = hit[0].instanceId;
+    const n = nodesData[hoverIdx];
+    tip.style.display = "block";
+    tip.style.left = (e.clientX + 12) + "px";
+    tip.style.top = (e.clientY + 12) + "px";
+    tip.textContent = `${n.label}  [${n.layer}/${n.status}]`;
+  } else {
+    hoverIdx = -1;
+    tip.style.display = "none";
+  }
+}
+function onClick(e) {
+  if (hoverIdx >= 0) {
+    showNode(nodesData[hoverIdx]);
+  }
+}
+window.addEventListener("pointermove", onPointerMove);
+window.addEventListener("click", onClick);
+
+function showNode(n) {
+  document.getElementById("np-label").textContent = n.label || n.id;
+  document.getElementById("np-id").textContent = "id: " + n.id;
+  document.getElementById("np-layer").textContent = "layer: " + n.layer;
+  document.getElementById("np-status").textContent = "status: " + n.status;
+  document.getElementById("np-info").textContent = n.info || "(no info)";
+  // Render the node's Obsidian notes as clickable deep-links (graph = space,
+  // Obsidian = detail). Bounded list from /api/graph-snapshot node.notes (top-3
+  // wiki 📖 + top-2 mem 🧠). Safe DOM only (no innerHTML) — textContent escapes by
+  // construction; the href scheme is hardcoded ("obsidian://"/"file:///") with the
+  // path encodeURIComponent'd, so a javascript: href is impossible. Falls back to
+  // n.note (scalar) if served by an older server build that lacks n.notes.
+  const noteEl = document.getElementById("np-note");
+  noteEl.textContent = "";
+  const notes = (n.notes && typeof n.notes === "object") ? n.notes : null;
+  const wikiNotes = notes && Array.isArray(notes.wiki) ? notes.wiki : (n.note ? [n.note] : []);
+  const memNotes = notes && Array.isArray(notes.mem) ? notes.mem : [];
+  const addNoteRow = (icon, raw) => {
+    const s = String(raw);
+    // wiki entries are absolute file paths; memory entries are vault note slugs
+    // (e.g. "feedback_ai_upgrade_broadcast_protocol"). Path -> obsidian path= + a
+    // file:// fallback; slug -> obsidian file= (Obsidian resolves by note name).
+    const isPath = /[\\/]/.test(s) || /\.md$/i.test(s);
+    const row = document.createElement("div");
+    row.style.margin = "0.15rem 0";
+    row.style.wordBreak = "break-all";
+    row.appendChild(document.createTextNode(icon + " "));
+    const a = document.createElement("a");
+    if (isPath) {
+      a.href = "obsidian://open?path=" + encodeURIComponent(s);
+      a.textContent = (s.split(/[\\/]/).pop() || s).replace(/\.md$/i, "");
+    } else {
+      a.href = "obsidian://open?file=" + encodeURIComponent(s.replace(/\.md$/i, ""));
+      a.textContent = s;
+    }
+    a.title = s;
+    row.appendChild(a);
+    if (isPath) {
+      row.appendChild(document.createTextNode(" "));
+      const fa = document.createElement("a");
+      fa.href = "file:///" + s.replace(/\\/g, "/");
+      fa.title = "open file directly";
+      fa.textContent = "↗";
+      fa.style.color = "var(--fg-dim)";
+      fa.style.textDecoration = "none";
+      row.appendChild(fa);
+    }
+    noteEl.appendChild(row);
+  };
+  if (wikiNotes.length || memNotes.length) {
+    wikiNotes.forEach((p) => addNoteRow("📖", p));
+    memNotes.forEach((p) => addNoteRow("🧠", p));
+    const shown = wikiNotes.length + memNotes.length;
+    const total = n.noteCount || shown;
+    if (total > shown) {
+      const more = document.createElement("div");
+      more.style.color = "var(--fg-dim)";
+      more.style.fontSize = "0.72rem";
+      more.style.marginTop = "0.2rem";
+      more.textContent = "+" + (total - shown) + " more note" + ((total - shown) === 1 ? "" : "s") + " in the brain";
+      noteEl.appendChild(more);
+    }
+  } else {
+    const span = document.createElement("span");
+    span.style.color = "var(--fg-dim)";
+    span.style.fontSize = "0.78rem";
+    span.textContent = "no linked Obsidian note";
+    noteEl.appendChild(span);
+  }
+  // Blast-radius: fetch this node's capped in/out neighbors from /api/node-neighbors
+  // (served from the adjacency sidecar) and render them as clickable /3d?node= links —
+  // reuses applyDeepLink for click-through graph navigation. Async + best-effort; a
+  // token guards against a stale response overwriting a newer click. Safe DOM only.
+  const nbrEl = document.getElementById("np-neighbors");
+  nbrEl.textContent = "neighbors…";
+  const nbrToken = (showNode._t = (showNode._t || 0) + 1);
+  fetch("/api/node-neighbors?id=" + encodeURIComponent(n.id), { cache: "no-store" })
+    .then((r) => (r.ok ? r.json() : null))
+    .then((nb) => {
+      if (nbrToken !== showNode._t) return; // a newer node was clicked — drop stale response
+      nbrEl.textContent = "";
+      const inN = nb && Array.isArray(nb.in) ? nb.in : [];
+      const outN = nb && Array.isArray(nb.out) ? nb.out : [];
+      if (!inN.length && !outN.length) {
+        const s = document.createElement("span");
+        s.style.color = "var(--fg-dim)"; s.style.fontSize = "0.78rem";
+        s.textContent = "no graph edges for this node";
+        nbrEl.appendChild(s); return;
+      }
+      const cap = nb && nb.cappedAt ? nb.cappedAt : 8;
+      const section = (label, arr) => {
+        if (!arr.length) return;
+        const h = document.createElement("div");
+        h.style.color = "var(--fg-dim)"; h.style.fontSize = "0.7rem"; h.style.marginTop = "0.3rem";
+        h.textContent = label + " " + arr.length + (arr.length >= cap ? "+" : "");
+        nbrEl.appendChild(h);
+        for (const e of arr) {
+          const row = document.createElement("div");
+          row.style.wordBreak = "break-all"; row.style.margin = "0.1rem 0";
+          const a = document.createElement("a");
+          a.href = "/3d?node=" + encodeURIComponent(String(e.id));
+          a.textContent = String(e.id);
+          row.appendChild(a);
+          if (e.type) {
+            const t = document.createElement("span");
+            t.style.color = "var(--fg-dim)"; t.style.fontSize = "0.68rem";
+            t.textContent = "  " + e.type;
+            row.appendChild(t);
+          }
+          nbrEl.appendChild(row);
+        }
+      };
+      section("⬇ out", outN);
+      section("⬆ in", inN);
+    })
+    .catch(() => { if (nbrToken === showNode._t) nbrEl.textContent = ""; });
+  document.getElementById("sidepanel").classList.add("open");
+}
+document.getElementById("close-panel").addEventListener("click", () => {
+  document.getElementById("sidepanel").classList.remove("open");
+});
+
+// ─── Search ─────────────────────────────────────────────────────────
+const searchEl = document.getElementById("search");
+searchEl.addEventListener("input", () => applySearch(searchEl.value.trim().toLowerCase()));
+document.addEventListener("keydown", (e) => {
+  if (e.key === "/" && document.activeElement !== searchEl) { e.preventDefault(); searchEl.focus(); }
+  if (e.key === "Escape") {
+    searchEl.value = ""; applySearch("");
+    document.getElementById("sidepanel").classList.remove("open");
+    searchEl.blur();
+  }
+});
+function applySearch(q) {
+  if (!inst) return;
+  // Brain-coverage filter: highlight nodes by Obsidian-note coverage so the operator
+  // can see documented regions ("brain") vs knowledge gaps ("gap"). noteCount comes
+  // from /api/graph-snapshot (node.knowledge). These reserved words shadow text search.
+  const coverMode =
+    (q === "brain" || q === "notes" || q === "has:notes" || q === "covered") ? "covered" :
+    (q === "gap" || q === "gaps" || q === "no:notes" || q === "uncovered") ? "gap" : null;
+  let matched = 0;
+  for (let i = 0; i < nodesData.length; i++) {
+    const n = nodesData[i];
+    let c;
+    const hasBrain = (n.noteCount || 0) > 0;
+    if (coverMode === "covered") c = hasBrain ? HIGHLIGHT_COLOR : DIM_COLOR;
+    else if (coverMode === "gap") c = hasBrain ? DIM_COLOR : HIGHLIGHT_COLOR;
+    else if (!q) c = colorFor(n.status);
+    else if (n.label.toLowerCase().includes(q) || n.id.toLowerCase().includes(q) || n.layer.toLowerCase() === q) c = HIGHLIGHT_COLOR;
+    else c = DIM_COLOR;
+    if ((q || coverMode) && c === HIGHLIGHT_COLOR) matched++;
+    inst.instanceColor.setXYZ(i, c.r, c.g, c.b);
+  }
+  inst.instanceColor.needsUpdate = true;
+  // Match-count readout: without it, a deep-linked or typed query that matches
+  // 0 nodes (typo, or a node outside the sampled set) dims the cloud identically
+  // to a 1-node match somewhere off-screen — no feedback either way.
+  const ss = document.getElementById("searchstat");
+  if (ss) {
+    if (coverMode) {
+      ss.textContent = "· " + matched.toLocaleString() + (coverMode === "covered" ? " with notes" : " gaps");
+    } else if (q) {
+      ss.textContent = matched
+        ? "· " + matched.toLocaleString() + (matched === 1 ? " match" : " matches")
+        : "· no match (typo? or outside sampled set)";
+    } else {
+      ss.textContent = "";
+    }
+  }
+}
+
+// ─── Resize + render loop ──────────────────────────────────────────
+window.addEventListener("resize", () => {
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(window.innerWidth, window.innerHeight, false);
+});
+
+function animate() {
+  requestAnimationFrame(animate);
+  controls.update();
+  renderer.render(scene, camera);
+}
+animate();
+
+load().catch(err => {
+  document.getElementById("loader").textContent = "Load failed: " + (err.message || err);
+});
+</script>
+</body>
+</html>

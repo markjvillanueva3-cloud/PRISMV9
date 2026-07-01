@@ -92,7 +92,7 @@ function spawnRefresh(filePath) {
   try {
     const child = spawn(process.execPath, [SCRIPT], {
       stdio: ["ignore", fd, fd],
-      detached: true,
+      detached: true, windowsHide: true,
       shell: false,
       cwd: resolve("H:/prism"),
     });

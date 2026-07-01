@@ -553,3 +553,280 @@ export function findAchievableGrade(nominal_mm: number, deflection_mm: number): 
   // Deflection too large even for IT14
   return calculateITGrade(nominal_mm, 14);
 }
+
+// ============================================================================
+// ISO 2768 GENERAL TOLERANCES (for un-toleranced / general dimensions)
+// ----------------------------------------------------------------------------
+// Canonical single source for the fleet. References:
+//   ISO 2768-1:1989 — General tolerances for linear and angular dimensions
+//   ISO 2768-2:1989 — Geometrical tolerances for features without individual
+//                     tolerance indications
+// Consolidation note (JULIETT-DB-COVERAGE-MS0): the linear table previously
+// lived as a private `ISO_2768_LINEAR` copy inside AmbiguityResolutionEngine.
+// ToleranceEngine is PRISM's tolerance authority, so the canonical table now
+// lives here (byte-identical values) and AmbiguityResolutionEngine imports it.
+// The radius/chamfer (Part 1 Table 2), angular (Part 1 Table 3) and the full
+// geometrical Part-2 layers existed NOWHERE in the codebase and are added here.
+// ============================================================================
+
+/** ISO 2768-1 general-tolerance class for linear/angular dimensions. */
+export type ISO2768LinearClass = "f" | "m" | "c" | "v";
+/** ISO 2768-2 general geometrical-tolerance class. */
+export type ISO2768GeometricClass = "H" | "K" | "L";
+/** ISO 2768-2 geometrical characteristic covered by general tolerances. */
+export type ISO2768GeometricType =
+  | "straightness" | "flatness" | "perpendicularity" | "symmetry" | "circular_runout";
+
+/**
+ * ISO 2768-1:1989 Table 1 — permissible deviations for linear dimensions
+ * (excluding broken edges), in mm. Lookup = first row whose `up_to` ≥ nominal.
+ * f = fine, m = medium, c = coarse, v = very coarse.
+ */
+// NOTE: ISO 2768-1 grants NO general tolerance below 0.5 mm (such dimensions
+// must be toleranced explicitly), and several cells are blank in the standard —
+// encoded here as null: the very-coarse (v) class is undefined for the ≤3 mm
+// band, and the fine (f) class is undefined for the 2000–4000 mm band.
+export const ISO2768_LINEAR: Array<{ up_to: number; f: number | null; m: number; c: number; v: number | null }> = [
+  { up_to: 3,    f: 0.05, m: 0.10, c: 0.20, v: null },
+  { up_to: 6,    f: 0.05, m: 0.10, c: 0.30, v: 0.50 },
+  { up_to: 30,   f: 0.10, m: 0.20, c: 0.50, v: 1.00 },
+  { up_to: 120,  f: 0.15, m: 0.30, c: 0.80, v: 1.50 },
+  { up_to: 400,  f: 0.20, m: 0.50, c: 1.20, v: 2.50 },
+  { up_to: 1000, f: 0.30, m: 0.80, c: 2.00, v: 4.00 },
+  { up_to: 2000, f: 0.50, m: 1.20, c: 3.00, v: 6.00 },
+  { up_to: 4000, f: null, m: 2.00, c: 4.00, v: 8.00 },
+];
+
+/**
+ * ISO 2768-1:1989 Table 2 — permissible deviations for external radii and
+ * chamfer heights, in mm. Classes f & m share one column; c & v share another.
+ */
+export const ISO2768_RADIUS_CHAMFER: Array<{ up_to: number; fm: number; cv: number }> = [
+  { up_to: 3,        fm: 0.2, cv: 0.2 },
+  { up_to: 6,        fm: 0.5, cv: 1.0 },
+  { up_to: Infinity, fm: 1.0, cv: 2.0 },
+];
+
+/**
+ * ISO 2768-1:1989 Table 3 — permissible deviations of angular dimensions,
+ * in DECIMAL DEGREES, keyed by the length (mm) of the SHORTER side of the
+ * angle. (Standard tabulates degrees-minutes; 1° = 60′. e.g. 1/3 = 0°20′.)
+ */
+export const ISO2768_ANGULAR: Array<{ up_to: number; f: number; m: number; c: number; v: number }> = [
+  { up_to: 10,       f: 1.0,    m: 1.0,    c: 1.5,   v: 3.0 },   // ±1°00′ (f,m) / ±1°30′ (c) / ±3°00′ (v)
+  { up_to: 50,       f: 0.5,    m: 0.5,    c: 1.0,   v: 2.0 },   // ±0°30′ / ±1°00′ / ±2°00′
+  { up_to: 120,      f: 1 / 3,  m: 1 / 3,  c: 0.5,   v: 1.0 },   // ±0°20′ / ±0°30′ / ±1°00′
+  { up_to: 400,      f: 1 / 6,  m: 1 / 6,  c: 0.25,  v: 0.5 },   // ±0°10′ / ±0°15′ / ±0°30′
+  { up_to: Infinity, f: 1 / 12, m: 1 / 12, c: 1 / 6, v: 1 / 3 }, // ±0°05′ / ±0°10′ / ±0°20′
+];
+
+/** ISO 2768-2:1989 Table 1 — general tolerances on straightness & flatness, mm. */
+export const ISO2768_STRAIGHTNESS_FLATNESS: Array<{ up_to: number; H: number; K: number; L: number }> = [
+  { up_to: 10,   H: 0.02, K: 0.05, L: 0.10 },
+  { up_to: 30,   H: 0.05, K: 0.10, L: 0.20 },
+  { up_to: 100,  H: 0.10, K: 0.20, L: 0.40 },
+  { up_to: 300,  H: 0.20, K: 0.40, L: 0.80 },
+  { up_to: 1000, H: 0.30, K: 0.60, L: 1.20 },
+  { up_to: 3000, H: 0.40, K: 0.80, L: 1.60 },
+];
+
+/** ISO 2768-2:1989 Table 2 — general tolerances on perpendicularity, mm
+ * (keyed by length of the shorter side). */
+export const ISO2768_PERPENDICULARITY: Array<{ up_to: number; H: number; K: number; L: number }> = [
+  { up_to: 100,  H: 0.20, K: 0.40, L: 0.60 },
+  { up_to: 300,  H: 0.30, K: 0.60, L: 1.00 },
+  { up_to: 1000, H: 0.40, K: 0.80, L: 1.50 },
+  { up_to: 3000, H: 0.50, K: 1.00, L: 2.00 },
+];
+
+/** ISO 2768-2:1989 Table 3 — general tolerances on symmetry, mm. */
+export const ISO2768_SYMMETRY: Array<{ up_to: number; H: number; K: number; L: number }> = [
+  { up_to: 100,  H: 0.50, K: 0.60, L: 0.60 },
+  { up_to: 300,  H: 0.50, K: 0.60, L: 1.00 },
+  { up_to: 1000, H: 0.50, K: 0.80, L: 1.50 },
+  { up_to: 3000, H: 0.50, K: 1.00, L: 2.00 },
+];
+
+/** ISO 2768-2:1989 Table 4 — general tolerances on circular run-out, mm
+ * (independent of dimension). */
+export const ISO2768_CIRCULAR_RUNOUT: Record<ISO2768GeometricClass, number> = { H: 0.1, K: 0.2, L: 0.5 };
+
+/** Result of an ISO 2768-1 linear / radius-chamfer general-tolerance lookup. */
+export interface GeneralLinearToleranceResult {
+  /** Symmetric permissible deviation (±) in mm. */
+  plusMinus_mm: number;
+  toleranceClass: ISO2768LinearClass;
+  nominal_mm: number;
+  size_range: string;
+  standard: string;
+}
+
+/** Result of an ISO 2768-1 angular general-tolerance lookup. */
+export interface GeneralAngularToleranceResult {
+  /** Symmetric permissible deviation (±) in decimal degrees. */
+  plusMinus_deg: number;
+  /** Same deviation formatted as degrees-minutes (e.g. "0°20′"). */
+  plusMinus_dms: string;
+  toleranceClass: ISO2768LinearClass;
+  shorter_side_mm: number;
+  size_range: string;
+  standard: string;
+}
+
+/** Result of an ISO 2768-2 geometrical general-tolerance lookup. */
+export interface GeneralGeometricToleranceResult {
+  /** Tolerance-zone magnitude in mm (NOT a ± deviation — geometric zone). */
+  tolerance_mm: number;
+  toleranceClass: ISO2768GeometricClass;
+  type: ISO2768GeometricType;
+  nominal_mm: number;
+  size_range: string;
+  standard: string;
+}
+
+/** First row whose `up_to` ≥ value, else null. */
+function pickIso2768Row<T extends { up_to: number }>(rows: T[], value: number): T | null {
+  for (const r of rows) if (value <= r.up_to) return r;
+  return null;
+}
+
+/** Human-readable size range label for a matched row. */
+function iso2768RangeLabel(rows: Array<{ up_to: number }>, row: { up_to: number }, unit = "mm"): string {
+  const idx = rows.indexOf(row);
+  const lo = idx <= 0 ? 0 : rows[idx - 1].up_to;
+  if (lo === 0) return `≤${row.up_to} ${unit}`;
+  if (!Number.isFinite(row.up_to)) return `>${lo} ${unit}`;
+  return `>${lo}–${row.up_to} ${unit}`;
+}
+
+/** Convert decimal degrees to a `d°mm′` string (rounded to the nearest minute). */
+function degToDMS(deg: number): string {
+  const total_min = Math.round(deg * 60);
+  const d = Math.floor(total_min / 60);
+  const m = total_min % 60;
+  return `${d}°${String(m).padStart(2, "0")}′`;
+}
+
+/**
+ * ISO 2768-1 general tolerance (±mm) for an un-toleranced LINEAR dimension.
+ * e.g. `generalToleranceLinear(30, "m")` → ±0.2 mm.
+ * @param nominal_mm     Nominal linear size in mm (0.5–4000 tabulated).
+ * @param toleranceClass "f" | "m" | "c" | "v".
+ * @throws if the dimension is non-finite/≤0, below 0.5 mm (no general tolerance
+ *         applies — tolerance it explicitly), above the tabulated 4000 mm, the
+ *         class is invalid, or the class is blank in the standard for that band
+ *         (v for ≤3 mm, f for >2000 mm).
+ */
+export function generalToleranceLinear(nominal_mm: number, toleranceClass: ISO2768LinearClass): GeneralLinearToleranceResult {
+  if (!Number.isFinite(nominal_mm) || nominal_mm <= 0)
+    throw new Error(`[ToleranceEngine] ISO 2768 linear: nominal_mm must be a finite positive number, got ${nominal_mm}`);
+  if (nominal_mm < 0.5)
+    throw new Error(`[ToleranceEngine] ISO 2768-1 grants no general tolerance below 0.5mm (got ${nominal_mm}mm) — indicate the tolerance explicitly`);
+  if (!["f", "m", "c", "v"].includes(toleranceClass))
+    throw new Error(`[ToleranceEngine] ISO 2768 linear: invalid class "${toleranceClass}" (expected f|m|c|v)`);
+  const row = pickIso2768Row(ISO2768_LINEAR, nominal_mm);
+  if (!row)
+    throw new Error(`[ToleranceEngine] ISO 2768-1 linear: nominal ${nominal_mm}mm exceeds tabulated 4000mm — specify an explicit tolerance`);
+  const pm = row[toleranceClass];
+  if (pm === null)
+    throw new Error(`[ToleranceEngine] ISO 2768-1 linear: class "${toleranceClass}" is not tabulated for ${iso2768RangeLabel(ISO2768_LINEAR, row)} — use class ${toleranceClass === "v" ? "c" : "m"} or specify an explicit tolerance`);
+  return {
+    plusMinus_mm: pm,
+    toleranceClass,
+    nominal_mm,
+    size_range: iso2768RangeLabel(ISO2768_LINEAR, row),
+    standard: "ISO 2768-1:1989 Table 1",
+  };
+}
+
+/**
+ * ISO 2768-1 general tolerance (±mm) for an un-toleranced EXTERNAL RADIUS or
+ * CHAMFER HEIGHT. Classes f & m share a column; c & v share a column.
+ */
+export function generalToleranceRadiusChamfer(nominal_mm: number, toleranceClass: ISO2768LinearClass): GeneralLinearToleranceResult {
+  if (!Number.isFinite(nominal_mm) || nominal_mm <= 0)
+    throw new Error(`[ToleranceEngine] ISO 2768 radius/chamfer: nominal_mm must be a finite positive number, got ${nominal_mm}`);
+  if (nominal_mm < 0.5)
+    throw new Error(`[ToleranceEngine] ISO 2768-1 radius/chamfer: no general tolerance below 0.5mm (got ${nominal_mm}mm) — indicate it explicitly`);
+  if (!["f", "m", "c", "v"].includes(toleranceClass))
+    throw new Error(`[ToleranceEngine] ISO 2768 radius/chamfer: invalid class "${toleranceClass}" (expected f|m|c|v)`);
+  const row = pickIso2768Row(ISO2768_RADIUS_CHAMFER, nominal_mm)!; // last row up_to=Infinity always matches
+  const pm = toleranceClass === "f" || toleranceClass === "m" ? row.fm : row.cv;
+  return {
+    plusMinus_mm: pm,
+    toleranceClass,
+    nominal_mm,
+    size_range: iso2768RangeLabel(ISO2768_RADIUS_CHAMFER, row),
+    standard: "ISO 2768-1:1989 Table 2",
+  };
+}
+
+/**
+ * ISO 2768-1 general tolerance (±degrees) for an un-toleranced ANGULAR
+ * dimension, keyed by the length of the SHORTER side of the angle.
+ * e.g. `generalToleranceAngular(8, "m")` → ±1.0° (±1°00′).
+ */
+export function generalToleranceAngular(shorterSide_mm: number, toleranceClass: ISO2768LinearClass): GeneralAngularToleranceResult {
+  if (!Number.isFinite(shorterSide_mm) || shorterSide_mm <= 0)
+    throw new Error(`[ToleranceEngine] ISO 2768 angular: shorterSide_mm must be a finite positive number, got ${shorterSide_mm}`);
+  if (!["f", "m", "c", "v"].includes(toleranceClass))
+    throw new Error(`[ToleranceEngine] ISO 2768 angular: invalid class "${toleranceClass}" (expected f|m|c|v)`);
+  const row = pickIso2768Row(ISO2768_ANGULAR, shorterSide_mm)!; // last row up_to=Infinity always matches
+  const deg = row[toleranceClass];
+  return {
+    plusMinus_deg: Math.round(deg * 1e4) / 1e4,
+    plusMinus_dms: degToDMS(deg),
+    toleranceClass,
+    shorter_side_mm: shorterSide_mm,
+    size_range: iso2768RangeLabel(ISO2768_ANGULAR, row),
+    standard: "ISO 2768-1:1989 Table 3",
+  };
+}
+
+/**
+ * ISO 2768-2 general GEOMETRIC tolerance (zone, mm) for a feature without an
+ * individual geometric tolerance. e.g. `generalToleranceGeometric(50,"K","flatness")` → 0.2 mm.
+ * @param nominal_mm     Governing length in mm (>0). For circular_runout it is
+ *                       size-independent but still validated for API symmetry.
+ * @param toleranceClass "H" | "K" | "L".
+ * @param type           straightness | flatness | perpendicularity | symmetry | circular_runout.
+ */
+export function generalToleranceGeometric(
+  nominal_mm: number,
+  toleranceClass: ISO2768GeometricClass,
+  type: ISO2768GeometricType,
+): GeneralGeometricToleranceResult {
+  if (!Number.isFinite(nominal_mm) || nominal_mm <= 0)
+    throw new Error(`[ToleranceEngine] ISO 2768-2: nominal_mm must be a finite positive number, got ${nominal_mm}`);
+  if (!["H", "K", "L"].includes(toleranceClass))
+    throw new Error(`[ToleranceEngine] ISO 2768-2: invalid class "${toleranceClass}" (expected H|K|L)`);
+
+  if (type === "circular_runout") {
+    return {
+      tolerance_mm: ISO2768_CIRCULAR_RUNOUT[toleranceClass],
+      toleranceClass, type, nominal_mm,
+      size_range: "all sizes",
+      standard: "ISO 2768-2:1989 Table 4",
+    };
+  }
+
+  let table: Array<{ up_to: number; H: number; K: number; L: number }>;
+  let std: string;
+  switch (type) {
+    case "straightness":
+    case "flatness":         table = ISO2768_STRAIGHTNESS_FLATNESS; std = "ISO 2768-2:1989 Table 1"; break;
+    case "perpendicularity": table = ISO2768_PERPENDICULARITY;      std = "ISO 2768-2:1989 Table 2"; break;
+    case "symmetry":         table = ISO2768_SYMMETRY;              std = "ISO 2768-2:1989 Table 3"; break;
+    default:
+      throw new Error(`[ToleranceEngine] ISO 2768-2: invalid geometric type "${type}"`);
+  }
+  const row = pickIso2768Row(table, nominal_mm);
+  if (!row)
+    throw new Error(`[ToleranceEngine] ISO 2768-2 ${type}: nominal ${nominal_mm}mm exceeds tabulated 3000mm — specify an explicit tolerance`);
+  return {
+    tolerance_mm: row[toleranceClass],
+    toleranceClass, type, nominal_mm,
+    size_range: iso2768RangeLabel(table, row),
+    standard: std,
+  };
+}

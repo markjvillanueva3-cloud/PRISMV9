@@ -17,6 +17,7 @@
  */
 
 import { log } from "../utils/Logger.js";
+import { resolveSpindlePowerKw } from "../registries/machine-normalizer.js";
 import {
   CANONICAL_KIENZLE,
   CANONICAL_TAYLOR,
@@ -402,7 +403,7 @@ export async function resolveMachine(input: {
           type: machine.type ?? "VMC",
           max_spindle_rpm: machine.spindle?.max_rpm ?? max_rpm ?? 10000,
           min_spindle_rpm: machine.spindle?.min_rpm ?? 50,
-          max_power_kw: machine.spindle?.power_continuous ?? max_power_kw ?? 15,
+          max_power_kw: resolveSpindlePowerKw(machine.spindle).value ?? machine.spindle?.power_continuous ?? max_power_kw ?? 15, // U-MACHDB-07: 8-key variant union
           max_torque_nm: machine.spindle?.torque_max ?? 120,
           spindle_nose: machine.spindle?.spindle_nose ?? "BT40",
           controller_manufacturer: machine.controller?.manufacturer ?? "FANUC",

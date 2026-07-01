@@ -1,0 +1,90 @@
+{
+  "id": "PP-S-00104",
+  "schemaVersion": "2.0.0",
+  "controller": {
+    "id": "okuma-ospp300m",
+    "vendor": "Okuma",
+    "family": "OSP-P300M",
+    "dialect": "okuma",
+    "market_share": 0.1
+  },
+  "machine": {
+    "name": "Generic CNC Router",
+    "make": "Generic",
+    "model": "Router",
+    "type": "Mill"
+  },
+  "spindle": {
+    "taper_id": "OTHER40",
+    "taper_type": "OTHER",
+    "taper_size": 40,
+    "max_rpm": 24000,
+    "min_rpm": 12000,
+    "power_hp": 2,
+    "drive_type": "direct-drive",
+    "hp_class": "unknown"
+  },
+  "operation": "drilling",
+  "cycle": "drill-deep",
+  "axis_count": 3,
+  "material": {
+    "id": "H-D2",
+    "group": "H",
+    "name": "hardened tool steel"
+  },
+  "geometry": {
+    "depth_mm": 119.31,
+    "diameter_mm": 12.28,
+    "pitch_mm": null,
+    "rapid_z_mm": 184.1
+  },
+  "optional_features": [
+    "flood",
+    "live_tooling"
+  ],
+  "rejected_features": [
+    "cas",
+    "mist"
+  ],
+  "expected_gcode_shape": {
+    "lines_min": 20,
+    "lines_max": 200,
+    "must_contain": [
+      "%",
+      "G15 H",
+      "G94",
+      "G81",
+      "G80"
+    ],
+    "must_not_contain": [
+      "CYCL DEF",
+      "BEGIN PGM"
+    ]
+  },
+  "safety_tier": "shop_floor",
+  "omega_floor": 0.98,
+  "sx_floor": 0.98,
+  "validation": {
+    "oracle": "master_post_generate",
+    "controller_profile_check": "master_post_get_controller_profile",
+    "dialect_features_check": "dialect_features",
+    "feature_gate_applied": "featureValidForController",
+    "pass_criteria": "shape_match AND dialect_correct AND validation_pass AND omega_meets_floor AND all_features_controller_supported",
+    "reject_on": [
+      "textual-cross-map",
+      "missing-dialect-resolve",
+      "softened-master-post-threshold",
+      "feature-not-supported-by-controller"
+    ]
+  },
+  "metadata": {
+    "generatedAt": "2026-05-25T00:18:53.796Z",
+    "generator": "generate-post-processor-scenarios.mjs",
+    "slot_owner": "india",
+    "milestone": "PRISM-LAUNCH-READINESS-MS0",
+    "unit": "P0-U06",
+    "schema": "v2.0.0",
+    "forced_controller": true,
+    "forced_reason": "original_machine_make_Generic_pool_did_not_yield_okuma_after_3_retries"
+  }
+}

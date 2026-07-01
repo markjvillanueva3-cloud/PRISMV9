@@ -289,7 +289,7 @@ describe("E2E-6: coverage bySource reads the flat sidecar", () => {
 
 // ---------------------------------------------------------------------------
 // E2E-7: Ollama reader — IPv4 reachability + timeout  (catches P0-2, P0-3)
-//   P0-2: the bridge defaulted to http://localhost:11434; Node resolves
+//   P0-2: the bridge defaulted to http://127.0.0.1:11434; Node resolves
 //         `localhost` to IPv6 ::1, Ollama binds IPv4-only → ECONNREFUSED.
 //   P0-3: DEFAULT_TIMEOUT_MS=500 but qwen-7b takes 2.5-4.3s; the reader never
 //         overrode timeoutMs → every call AbortError.

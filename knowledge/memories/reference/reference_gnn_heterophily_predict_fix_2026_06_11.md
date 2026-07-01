@@ -1,0 +1,27 @@
+---
+name: gnn-heterophily-predict-fix-2026-06-11
+description: "GNN heterophily eval was silently DEFERRING on a predictor dim-mismatch (3072 vs 768) -> india's strongest lever could never be graded. Fixed in graphsage-predictor.mjs by inferring hops from inputDim. Also: API-error root cause = looping background chats."
+type: reference
+source: prism-memory
+synced: 2026-06-27T20:30:46.591Z
+aliases: reference_gnn_heterophily_predict_fix_2026_06_11
+---
+
+
+# GNN heterophily-predict fix + API-error diagnosis (slot:alpha 2026-06-11, operator-directed)
+
+**Operator: "run gnn loop for india" + "other chats are waiting on you to complete gnn build" + "figure out what is causing api errors, you're the only one running."**
+
+## GNN build bug FOUND + FIXED (U-AISYN-GNN-HETERO-PREDICT-FIX, committed)
+Running `nn-graph-retrain-lifecycle.mjs --force` surfaced two things:
+1. **Live checkpoint is the ancient inputDim=8 model (AUROC 0.096, 2026-05-16)** -- the GNN tier-5 runs on garbage because no model clears the 0.78 full-coverage gate and there is **no selective-promote path** (lifecycle promotes only on `verdict==="deploy-ready"`, full-coverage gates only). `graphsage-checkpoint.json`=8d live, `.candidate.json`=3072d, `-768d-rag-upgrade.json`=768d.
+2. **REAL BUG (fixed):** heterophily (H2GCN, india's strongest lever +0.138) was DEAD in the eval path. `graphsage-train-pipeline.mjs:683` widens features egoDim->egoDim*(1+hops) (768->3072) and trains a 3072-dim checkpoint, but `saveCheckpoint` persists ONLY inputDim (no hops), and `graphsage-predictor.mjs` fed RAW 768-dim features -> RangeError 'inputDim 3072 != feature dim 768' -> `nn-graph-eval` DEFERRED every heterophily run -> never graded, never promoted.
+
+**Fix (one file, inference-correct):** pure `heterophilyHopsForCheckpoint(inputDim, baseDim, featureSource)` in `graphsage-predictor.mjs` INFERS hops = inputDim/baseDim-1 when inputDim is a clean multiple (>1) of the embedding dim ON THE EMBEDDING PATH; predictor then mirrors `heterophilyAggregateMap` over the eval-graph edges (normalize "mean" = lifecycle default) before the dim-check + forward. Legacy/projected/non-multiple = byte-identical. VALIDATED LIVE: heterophily eval BEFORE="DEFERRED -- dim mismatch", AFTER="AUROC 0.5 macroF1 0.1053 Brier 0.2547" (grades). 7/7 new + 45/45 legacy tests. **Model still below 0.78 gate = honest research reality** (capped 6000-node subgraph heterophily is ~chance; full-coverage needs ref-pool growth + better arch, india's GPU lane).
+
+**Follow-up (a) DONE (U-AISYN-GNN-HETERO-CKPT-PROVENANCE, commit 676dd275b5, slot:alpha 2026-06-11):** heterophily {hops,normalize,egoDim} now PERSISTED in the checkpoint. Three coupled edits, one contract: train-pipeline stamps `model.config.heterophily` after createModel; `saveCheckpoint` persists it (additive+optional); `loadCheckpoint` MIRRORS it back through reconstruction (without the mirror, save persisted but load silently DROPPED it -> predictor read a dead no-op; caught by reading the actual loadCheckpoint config contract, R8). Predictor PREFERS persisted (robust to normalize="sum"), falls back to inference for legacy. +7 tests, 369/369 green. LIVE-validated: fresh candidate carries `{hops:3,normalize:mean,egoDim:768}`, inputDim=3072=768*(1+3); `loadCheckpoint(candidate).model.config.heterophily` reads it back intact. Live 8-dim checkpoint omits the key (legacy path preserved).
+
+**Follow-up (b) DONE (U-GNN-SELECTIVE-PROMOTE, commit 088e74fb92, slot:alpha 2026-06-11):** the SELECTIVE-DEPLOY promotion path is BUILT. `promoteDecision` (the lifecycle safety invariant) now promotes a robustly deploy-ready-selective candidate (AUROC certifies global confidence order + emitted set clears Brier+macroF1 at AND above tau=0.7, robustAboveGate) with `mode:selective`, so the production-ready selective checkpoint can finally become LIVE instead of the ancient 0.096 8-dim model. SAFE: opt-in `PRISM_NN_SELECTIVE_PROMOTE=1` (default OFF, production NEVER auto-flips); NO consumer change (tier-5 already abstains below minConf + defers to the LLM tier, so the selective model is strictly better -- good predictions above tau, 0 cost below); requires the full selective grade, not a favorable tau. 6 new tests (13/13 promoteDecision green, safety invariant preserved); LIVE-validated against real NN-EVAL.json: flag OFF=promote:false (byte-identical), flag ON=promote:true mode:selective. **To actually deploy: operator/india sets the flag + runs the lifecycle (the 548MB-graph end-to-end retrain was NOT run here -- gated behind the flag so zero production change until opted in).**
+
+## API-ERROR root cause (golf is reaping)
+~20 `claude.exe` launched together ~156min ago (fleet bootstrap), but only **2 actively calling the API**: alpha (99297b90) + **be279b4f** (whose literal last transcript line is "API Error: Server is temporarily limiting requests... Rate limited"). The operator believed only alpha ran -- the other ~19 are orphaned/looping background chats (esp. be279b4f stuck in a /goal-style retry loop) competing for API quota -> rate limiting. The 18 idle ones sit at a prompt (no recent transcript writes = not the cause). **"PRISM Fleet Reaper" scheduled task = Disabled** -> the reaper wasn't culling them. Operator activated golf (owns the fleet-reaper) to reap + re-enable monitors. Fix is golf's lane. Lesson: a fleet bootstrapped with /goal can leave N chats looping on an unsatisfiable gate, each burning API calls -> rate-limit storm; the reaper must stay enabled.

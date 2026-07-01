@@ -243,7 +243,7 @@ function familyAllowsToolpath(
         || toolpath.operationId === 'boring'
         || familyId === 'turning_finish';
     case 'live-tool-endmill':
-      return ['profiling', 'slotting', 'pocketing', 'finishing', 'surface_finish', 'multiaxis', 'live_milling'].includes(familyId);
+      return ['profiling', 'slotting', 'pocketing', 'finishing', 'surface_finish', 'multiaxis', 'live_milling', 'threading', 'drilling'].includes(familyId);
     case 'wire':
       return familyId === 'wire_profile' || familyId === 'skim';
     case 'electrode':

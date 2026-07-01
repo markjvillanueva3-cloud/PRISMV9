@@ -165,13 +165,13 @@ describe('InventoryPage', () => {
     expect(screen.getByRole('button', { name: /Documents/i })).toBeDefined();
   });
 
-  it('keeps the PRISM AI copilot built into the inventory desk with persistent memory context', async () => {
+  it('keeps the Kienzle AI copilot built into the inventory desk with persistent memory context', async () => {
     renderPage('/inventory');
 
     await waitFor(() => {
       expect(screen.getByRole('heading', { name: 'Inventory Optimization' })).toBeDefined();
-      expect(screen.getByText(/PRISM AI copilot/i)).toBeDefined();
-      expect(screen.getByText(/Persistent PRISM memory/i)).toBeDefined();
+      expect(screen.getByText(/Kienzle AI copilot/i)).toBeDefined();
+      expect(screen.getByText(/Persistent Kienzle memory/i)).toBeDefined();
       expect(screen.getByText(/Safety-critical CNC manufacturing control system\./i)).toBeDefined();
       expect(screen.getByText(/Mounted inventoryOperations workspace/i)).toBeDefined();
     });
@@ -323,9 +323,9 @@ describe('InventoryPage', () => {
     const shopFloorLink = screen.getByRole('link', { name: /Open Shop Floor follow-up/i });
     const messagesLink = screen.getByRole('link', { name: /Open Messages follow-up/i });
 
-    const captureUrl = new URL(captureLink.getAttribute('href')!, 'https://prism.local');
-    const shopFloorUrl = new URL(shopFloorLink.getAttribute('href')!, 'https://prism.local');
-    const messagesUrl = new URL(messagesLink.getAttribute('href')!, 'https://prism.local');
+    const captureUrl = new URL(captureLink.getAttribute('href')!, 'https://kienzle.local');
+    const shopFloorUrl = new URL(shopFloorLink.getAttribute('href')!, 'https://kienzle.local');
+    const messagesUrl = new URL(messagesLink.getAttribute('href')!, 'https://kienzle.local');
 
     expect(captureUrl.pathname).toBe('/capture');
     expect(captureUrl.searchParams.get('originSource')).toBe('quote-builder');
@@ -363,9 +363,9 @@ describe('InventoryPage', () => {
     const captureLink = screen.getByRole('link', { name: /Open Capture Ops/i });
     const shopFloorLink = screen.getByRole('link', { name: /Open Shop Floor follow-up/i });
     const messagesLink = screen.getByRole('link', { name: /Open Messages follow-up/i });
-    const captureUrl = new URL(captureLink.getAttribute('href')!, 'https://prism.local');
-    const shopFloorUrl = new URL(shopFloorLink.getAttribute('href')!, 'https://prism.local');
-    const messagesUrl = new URL(messagesLink.getAttribute('href')!, 'https://prism.local');
+    const captureUrl = new URL(captureLink.getAttribute('href')!, 'https://kienzle.local');
+    const shopFloorUrl = new URL(shopFloorLink.getAttribute('href')!, 'https://kienzle.local');
+    const messagesUrl = new URL(messagesLink.getAttribute('href')!, 'https://kienzle.local');
 
     expect(captureUrl.pathname).toBe('/capture');
     expect(captureUrl.searchParams.get('originSource')).toBe('customers');

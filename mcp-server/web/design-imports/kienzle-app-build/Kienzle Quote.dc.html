@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <script type="module" src="jm-data.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Archivo:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; background: #070809; height: 100%; overflow: hidden; }
+    select, input { font-family: 'Archivo', sans-serif; }
+    select { -webkit-appearance: none; appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%236B7280' stroke-width='2.5' stroke-linecap='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; }
+    input[type=range] { -webkit-appearance: none; appearance: none; background: transparent; cursor: pointer; }
+    input[type=range]::-webkit-slider-runnable-track { height: 8px; border-radius: 999px; background: linear-gradient(90deg,#36D399 0%,#2A6FDB 100%); }
+    input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 24px; height: 24px; border-radius: 50%; background: #F3F4F6; border: 3px solid #FF5A2B; margin-top: -8px; box-shadow: 0 2px 10px rgba(0,0,0,0.5); }
+    input::placeholder { color: #4B5563; }
+    .kz-scroll::-webkit-scrollbar { width: 9px; }
+    .kz-scroll::-webkit-scrollbar-thumb { background: #23262E; border-radius: 9px; }
+    @keyframes kzpulse { 0%,100% { opacity:.55 } 50% { opacity:1 } }
+  </style>
+</helmet>
+<div style="position:fixed;inset:0;background:#070809;display:flex;align-items:center;justify-content:center;overflow:hidden;">
+<div style="width:1360px;height:852px;flex:none;transform:scale({{ scale }});transform-origin:center center;display:flex;background:#0A0B0D;color:#F3F4F6;font-family:'Archivo',sans-serif;overflow:hidden;border-radius:16px;box-shadow:0 40px 120px rgba(0,0,0,0.6);">
+
+  <aside style="width:74px;flex:none;background:#0C0D10;border-right:1px solid rgba(255,255,255,0.06);display:flex;flex-direction:column;align-items:center;padding:18px 0;gap:7px;">
+    <svg viewBox="0 0 120 120" width="34" height="34" style="margin-bottom:16px;"><rect x="22" y="20" width="13" height="80" rx="1.5" fill="#F3F4F6"/><path d="M35 60 L86 22" stroke="#F3F4F6" stroke-width="13" stroke-linecap="round"/><path d="M35 60 L92 98 L92 74 L58 60 Z" fill="#FF5A2B"/></svg>
+    <button style="width:52px;height:50px;border-radius:13px;border:1px solid transparent;background:transparent;color:#6B7280;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:0.04em;"><span style="font-size:16px;">⌀</span>MAKE</button>
+    <button style="width:52px;height:50px;border-radius:13px;border:1px solid rgba(255,90,43,0.35);background:rgba(255,90,43,0.1);color:#FF7A4D;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:0.04em;"><span style="font-size:16px;">$</span>QUOTE</button>
+    <button style="width:52px;height:50px;border-radius:13px;border:1px solid transparent;background:transparent;color:#6B7280;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:0.04em;"><span style="font-size:16px;">▤</span>RUN</button>
+    <button style="width:52px;height:50px;border-radius:13px;border:1px solid transparent;background:transparent;color:#6B7280;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:0.04em;"><span style="font-size:16px;">⌂</span>SHOP</button>
+    <div style="flex:1;"></div>
+    <div style="width:40px;height:40px;border-radius:50%;background:#1B1E24;border:1px solid rgba(255,255,255,0.1);display:flex;align-items:center;justify-content:center;font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:14px;color:#AEB4BE;">JM</div>
+  </aside>
+
+  <main style="flex:1;display:flex;flex-direction:column;min-width:0;">
+    <header style="flex:none;height:68px;border-bottom:1px solid rgba(255,255,255,0.06);display:flex;align-items:center;justify-content:space-between;padding:0 26px;background:#0C0D10;">
+      <div>
+        <div style="font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:20px;letter-spacing:-0.01em;">Quote Builder</div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#6B7280;letter-spacing:0.04em;margin-top:1px;">JM DIE · {{ quoteNo }} · {{ customerId }}</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:12px;">
+        <div style="display:flex;align-items:center;gap:7px;padding:7px 12px;border:1px solid rgba(42,111,219,0.3);background:rgba(42,111,219,0.08);border-radius:9px;font-family:'JetBrains Mono',monospace;font-size:11px;color:#7FB2FF;">FEATURE-BASED · {{ histCount }} PRIOR JOBS</div>
+        <button style="border:none;background:#FF5A2B;color:#0A0B0D;border-radius:9px;padding:9px 18px;font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:13px;cursor:pointer;">Send quote →</button>
+      </div>
+    </header>
+
+    <div style="flex:1;display:grid;grid-template-columns:404px minmax(0,1fr);min-height:0;">
+
+      <section class="kz-scroll" style="border-right:1px solid rgba(255,255,255,0.06);overflow-y:auto;padding:20px 22px 48px;background:#0A0B0D;">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:0.18em;color:#FF5A2B;margin-bottom:12px;">01 · PART &amp; CUSTOMER</div>
+        <label style="display:block;font-size:11.5px;color:#9398A2;margin-bottom:5px;">Customer</label>
+        <select value="{{ customerId }}" onChange="{{ setCustomer }}" style="width:100%;height:42px;background:#14161B;border:1px solid rgba(255,255,255,0.1);border-radius:10px;color:#F3F4F6;font-size:13.5px;padding:0 36px 0 12px;margin-bottom:10px;">
+          <option value="SEMBLEX">SEMBLEX Corp.</option>
+          <option value="ALTRACS">ALTRACS (Taptite)</option>
+          <option value="OPTIMAS">OPTIMAS Solutions</option>
+          <option value="SFS">SFS Group</option>
+          <option value="TOPURA">TOPURA</option>
+          <option value="SIG SAUER">SIG SAUER</option>
+        </select>
+        <label style="display:block;font-size:11.5px;color:#9398A2;margin-bottom:5px;">Part</label>
+        <select value="{{ partId }}" onChange="{{ setPart }}" style="width:100%;height:42px;background:#14161B;border:1px solid rgba(255,255,255,0.1);border-radius:10px;color:#F3F4F6;font-size:13.5px;padding:0 36px 0 12px;margin-bottom:18px;">
+          <option value="punch">Trilobe forming punch</option>
+          <option value="die">Hex-flange die insert</option>
+          <option value="cavity">Carbide header die cavity</option>
+          <option value="pin">Ejector / KO pin</option>
+        </select>
+
+        <div style="font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:0.18em;color:#FF5A2B;margin-bottom:12px;">02 · MATERIAL &amp; STOCK</div>
+        <select value="{{ materialId }}" onChange="{{ setMaterial }}" style="width:100%;height:42px;background:#14161B;border:1px solid rgba(255,255,255,0.1);border-radius:10px;color:#F3F4F6;font-size:13.5px;padding:0 36px 0 12px;margin-bottom:10px;">
+          <option value="carbide">C2 Carbide blank</option>
+          <option value="d2">D2 Tool Steel</option>
+          <option value="m2">M2 HSS</option>
+          <option value="a2">A2 Tool Steel</option>
+          <option value="s7">S7 Shock Steel</option>
+          <option value="174ph">17-4 PH Stainless</option>
+        </select>
+        <label style="display:flex;justify-content:space-between;font-size:11.5px;color:#9398A2;margin-bottom:6px;">Stock Ø × L ({{ lenUnit }}) <span style="font-family:'JetBrains Mono',monospace;color:#9398A2;">{{ stockVol }} in³ · ${{ matUsd }}/blank</span></label>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:18px;">
+          <input type="number" step="0.05" value="{{ stockD }}" onChange="{{ setStockD }}" style="height:40px;background:#14161B;border:1px solid rgba(255,255,255,0.1);border-radius:9px;color:#F3F4F6;font-size:13px;padding:0 11px;" placeholder="Ø">
+          <input type="number" step="0.05" value="{{ stockLen }}" onChange="{{ setStockLen }}" style="height:40px;background:#14161B;border:1px solid rgba(255,255,255,0.1);border-radius:9px;color:#F3F4F6;font-size:13px;padding:0 11px;" placeholder="L">
+        </div>
+
+        <div style="font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:0.18em;color:#FF5A2B;margin-bottom:12px;">03 · PROCESS ROUTE</div>
+        <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:18px;">
+          <button onClick="{{ toggleMill }}" style="{{ procMillStyle }}">CNC mill</button>
+          <button onClick="{{ toggleTurn }}" style="{{ procTurnStyle }}">Turn (Multus)</button>
+          <button onClick="{{ toggleWire }}" style="{{ procWireStyle }}">Wire EDM</button>
+          <button onClick="{{ toggleSinker }}" style="{{ procSinkerStyle }}">Sinker EDM</button>
+          <button onClick="{{ toggleGrind }}" style="{{ procGrindStyle }}">Jig grind</button>
+          <button onClick="{{ toggleRoku }}" style="{{ procRokuStyle }}">Roku-Roku</button>
+        </div>
+
+        <div style="font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:0.18em;color:#FF5A2B;margin-bottom:12px;">04 · REQUIREMENTS</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:9px 10px;margin-bottom:12px;">
+          <div><label style="display:block;font-size:11.5px;color:#9398A2;margin-bottom:5px;">Tolerance</label><select value="{{ tolId }}" onChange="{{ setTol }}" style="width:100%;height:42px;background:#14161B;border:1px solid rgba(255,255,255,0.1);border-radius:10px;color:#F3F4F6;font-size:12.5px;padding:0 32px 0 12px;"><option value="std">±.001 standard</option><option value="tight">±.0005 tight</option><option value="precision">±.0002 precision</option><option value="jig">±.0001 jig-ground</option></select></div>
+          <div><label style="display:block;font-size:11.5px;color:#9398A2;margin-bottom:5px;">Finish Ra</label><select value="{{ finishId }}" onChange="{{ setFinish }}" style="width:100%;height:42px;background:#14161B;border:1px solid rgba(255,255,255,0.1);border-radius:10px;color:#F3F4F6;font-size:12.5px;padding:0 32px 0 12px;"><option value="32">32 µin</option><option value="16">16 µin</option><option value="8">8 µin polish</option><option value="4">4 µin mirror</option></select></div>
+          <div><label style="display:block;font-size:11.5px;color:#9398A2;margin-bottom:5px;">Inspection</label><select value="{{ inspId }}" onChange="{{ setInsp }}" style="width:100%;height:42px;background:#14161B;border:1px solid rgba(255,255,255,0.1);border-radius:10px;color:#F3F4F6;font-size:12.5px;padding:0 32px 0 12px;"><option value="std">Standard</option><option value="fai">FAI + AS9102</option><option value="cmm">CMM each pc</option></select></div>
+          <div><label style="display:block;font-size:11.5px;color:#9398A2;margin-bottom:5px;">Lead</label><select value="{{ rushId }}" onChange="{{ setRush }}" style="width:100%;height:42px;background:#14161B;border:1px solid rgba(255,255,255,0.1);border-radius:10px;color:#F3F4F6;font-size:12.5px;padding:0 32px 0 12px;"><option value="std">Standard</option><option value="expedite">Expedite</option><option value="hot">Hot / drop-in</option></select></div>
+        </div>
+        <label style="display:flex;justify-content:space-between;font-size:11.5px;color:#9398A2;margin-bottom:7px;">Quantity <span style="font-family:'JetBrains Mono',monospace;color:#F3F4F6;">{{ qty }} pcs</span></label>
+        <div style="display:flex;gap:6px;">
+          <sc-for list="{{ qtyOptions }}" as="q" hint-placeholder-count="5">
+            <button onClick="{{ q.on }}" style="{{ q.style }}">{{ q.n }}</button>
+          </sc-for>
+        </div>
+      </section>
+
+      <section class="kz-scroll" style="overflow-y:auto;padding:20px 26px 44px;background:radial-gradient(900px 480px at 82% -12%, rgba(255,90,43,0.06), transparent 60%),#0B0C0F;">
+
+        <div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:14px;">
+          <div style="background:linear-gradient(180deg,rgba(255,90,43,0.12),#0E0F12);border:1px solid rgba(255,90,43,0.3);border-radius:15px;padding:16px 15px;min-width:0;"><div style="font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:0.08em;color:#FF7A4D;">UNIT PRICE</div><div style="font-family:'JetBrains Mono',monospace;font-weight:700;font-size:29px;letter-spacing:-0.01em;color:#F3F4F6;line-height:1;margin-top:8px;">${{ unitPrice }}</div><div style="font-size:11.5px;color:#9398A2;margin-top:5px;">cost ${{ unitCost }} · {{ marginPct }}% margin</div></div>
+          <div style="background:#0E0F12;border:1px solid rgba(255,255,255,0.08);border-radius:15px;padding:16px 15px;min-width:0;"><div style="font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:0.08em;color:#9398A2;">LOT TOTAL</div><div style="font-family:'JetBrains Mono',monospace;font-weight:700;font-size:29px;letter-spacing:-0.01em;color:#F3F4F6;line-height:1;margin-top:8px;">${{ lotTotal }}</div><div style="font-size:11.5px;color:#9398A2;margin-top:5px;">{{ qty }} pcs</div></div>
+          <div style="background:#0E0F12;border:1px solid rgba(255,255,255,0.08);border-radius:15px;padding:16px 15px;min-width:0;"><div style="font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:0.08em;color:#9398A2;">LEAD TIME</div><div style="font-family:'JetBrains Mono',monospace;font-weight:700;font-size:29px;letter-spacing:-0.01em;color:#F3F4F6;line-height:1;margin-top:8px;">{{ leadDays }}</div><div style="font-size:11.5px;color:#9398A2;margin-top:5px;">working days</div></div>
+          <div style="background:#0E0F12;border:1px solid {{ confBorder }};border-radius:15px;padding:16px 15px;min-width:0;"><div style="font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:0.08em;color:#9398A2;">CONFIDENCE</div><div style="font-family:'JetBrains Mono',monospace;font-weight:700;font-size:29px;letter-spacing:-0.01em;color:{{ confColor }};line-height:1;margin-top:8px;">{{ confidence }}%</div><div style="font-size:11.5px;color:#9398A2;margin-top:5px;">{{ confNote }}</div></div>
+        </div>
+
+        <div style="background:#0E0F12;border:1px solid rgba(255,255,255,0.08);border-radius:15px;padding:17px 20px;margin-bottom:14px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;"><div style="font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:15px;">Where the price comes from</div><div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#6B7280;">feature-based · per part</div></div>
+          <div style="display:flex;height:16px;border-radius:6px;overflow:hidden;margin-bottom:16px;">
+            <sc-for list="{{ costBars }}" as="seg" hint-placeholder-count="6">
+              <div style="height:100%;width:{{ seg.pct }};background:{{ seg.color }};"></div>
+            </sc-for>
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px 22px;">
+            <sc-for list="{{ costRows }}" as="row" hint-placeholder-count="6">
+              <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;min-width:0;padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.05);">
+                <div style="display:flex;align-items:center;gap:8px;min-width:0;"><span style="flex:none;width:9px;height:9px;border-radius:2px;background:{{ row.color }};"></span><span style="font-size:12.5px;color:#C7CCD4;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{{ row.k }}</span></div>
+                <span style="flex:none;font-family:'JetBrains Mono',monospace;font-size:12.5px;color:#F3F4F6;">${{ row.v }}</span>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,0.85fr);gap:12px;margin-bottom:14px;">
+          <div style="background:#0E0F12;border:1px solid rgba(255,255,255,0.08);border-radius:15px;padding:17px 20px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;"><div style="font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:15px;">DFM review</div><div style="display:flex;align-items:center;gap:8px;"><span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#6B7280;">score</span><span style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:17px;color:{{ dfmColor }};">{{ dfmScore }}</span></div></div>
+            <sc-for list="{{ dfmItems }}" as="d" hint-placeholder-count="3">
+              <div style="display:flex;gap:11px;align-items:flex-start;padding:9px 0;border-top:1px solid rgba(255,255,255,0.05);">
+                <span style="flex:none;margin-top:2px;width:8px;height:8px;border-radius:50%;background:{{ d.color }};"></span>
+                <div style="flex:1;"><div style="font-size:13px;color:#F3F4F6;line-height:1.35;">{{ d.title }}</div><div style="font-size:11.5px;color:#9398A2;line-height:1.35;margin-top:2px;">{{ d.detail }}</div></div>
+                <span style="flex:none;font-family:'JetBrains Mono',monospace;font-size:10px;color:{{ d.color }};letter-spacing:0.04em;">{{ d.sev }}</span>
+              </div>
+            </sc-for>
+          </div>
+
+          <div style="background:linear-gradient(135deg,rgba(42,111,219,0.07),#0E0F12);border:1px solid {{ mbBorder }};border-radius:15px;padding:17px 20px;">
+            <div style="font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:0.1em;color:#7FB2FF;margin-bottom:10px;">MAKE VS. BUY</div>
+            <div style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:20px;color:{{ mbColor }};line-height:1.1;margin-bottom:4px;">{{ mbVerdict }}</div>
+            <div style="font-size:12px;color:#9398A2;line-height:1.4;margin-bottom:14px;">{{ mbDetail }}</div>
+            <div style="display:flex;justify-content:space-between;padding:8px 0;border-top:1px solid rgba(255,255,255,0.06);"><span style="font-size:12px;color:#9398A2;">In-house</span><span style="font-family:'JetBrains Mono',monospace;font-size:13px;color:#F3F4F6;">${{ unitPrice }}</span></div>
+            <div style="display:flex;justify-content:space-between;padding:8px 0;border-top:1px solid rgba(255,255,255,0.06);"><span style="font-size:12px;color:#9398A2;">Outsource est.</span><span style="font-family:'JetBrains Mono',monospace;font-size:13px;color:#9398A2;">${{ buyPrice }}</span></div>
+            <div style="display:flex;justify-content:space-between;padding:8px 0;border-top:1px solid rgba(255,255,255,0.06);"><span style="font-size:12px;color:#9398A2;">Capacity now</span><span style="font-family:'JetBrains Mono',monospace;font-size:13px;color:{{ capColor }};">{{ capLabel }}</span></div>
+          </div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;">
+          <div style="min-width:0;background:#0E0F12;border:1px solid rgba(255,255,255,0.08);border-radius:15px;padding:17px 20px;">
+            <div style="font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:15px;margin-bottom:12px;">Quantity breaks</div>
+            <sc-for list="{{ breaks }}" as="b" hint-placeholder-count="5">
+              <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-top:1px solid rgba(255,255,255,0.05);">
+                <span style="font-family:'JetBrains Mono',monospace;font-size:13px;color:{{ b.c }};">{{ b.q }} pcs</span>
+                <div style="flex:1;height:6px;margin:0 14px;border-radius:999px;background:#1B1E24;overflow:hidden;"><div style="height:100%;width:{{ b.bar }};background:{{ b.barc }};border-radius:999px;"></div></div>
+                <span style="font-family:'JetBrains Mono',monospace;font-size:13px;color:#F3F4F6;">${{ b.price }}</span>
+              </div>
+            </sc-for>
+          </div>
+          <div style="background:#0E0F12;border:1px solid rgba(255,255,255,0.08);border-radius:15px;padding:17px 20px;">
+            <div style="font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:15px;margin-bottom:12px;">What-if</div>
+            <sc-for list="{{ whatIf }}" as="w" hint-placeholder-count="3">
+              <div style="display:flex;align-items:center;justify-content:space-between;padding:9px 0;border-top:1px solid rgba(255,255,255,0.05);">
+                <div style="flex:1;"><div style="font-size:12.5px;color:#F3F4F6;">{{ w.label }}</div><div style="font-size:11px;color:#6B7280;margin-top:1px;">{{ w.hint }}</div></div>
+                <span style="font-family:'JetBrains Mono',monospace;font-size:13px;color:{{ w.c }};margin-left:12px;">{{ w.delta }}</span>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </section>
+    </div>
+  </main>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = {
+    customerId: 'SEMBLEX', partId: 'punch', materialId: 'carbide',
+    stockD: 0.75, stockLen: 3.0, qty: 10,
+    tolId: 'precision', finishId: '8', inspId: 'fai', rushId: 'std',
+    proc: { mill: true, turn: true, wire: true, sinker: false, grind: true, roku: false },
+    scale: (typeof window !== 'undefined') ? Math.min(window.innerWidth / 1360, window.innerHeight / 852) : 0.7,
+  };
+
+  componentDidMount() {
+    this._fit = () => this.setState({ scale: Math.min(window.innerWidth / 1360, window.innerHeight / 852) }); window.addEventListener('resize', this._fit); this._fit();
+    // ── live bind: confirm shared source present so quoting correlates with Job Cost / ERP customers ──
+    this._trySync = (n) => {
+      try {
+        const K = (typeof window !== 'undefined') && window.KIENZLE;
+        if (K && K.CUSTOMERS) { this._synced = true; this.forceUpdate(); }
+        else if ((n || 0) < 25) { setTimeout(() => this._trySync((n || 0) + 1), 100); }
+      } catch (e) { /* fall back to local data */ }
+    };
+    this._trySync(0);
+  }
+  componentWillUnmount() { if (this._fit) window.removeEventListener('resize', this._fit); }
+
+  // material: $/in³, machinability mrr (in³/min effective), needs-grind flag
+  MAT = {
+    carbide: { name:'C2 Carbide', usd: 9.5, mrr: 0.05, grind: true,  unc: 0.10 },
+    d2:      { name:'D2', usd: 0.45, mrr: 0.38, grind: false, unc: 0.08 },
+    m2:      { name:'M2 HSS', usd: 0.85, mrr: 0.30, grind: true, unc: 0.12 },
+    a2:      { name:'A2', usd: 0.42, mrr: 0.42, grind: false, unc: 0.12 },
+    s7:      { name:'S7', usd: 0.55, mrr: 0.46, grind: false, unc: 0.14 },
+    '174ph': { name:'17-4 PH', usd: 0.95, mrr: 0.55, grind: false, unc: 0.10 },
+  };
+  RATE = { mill: 92, turn: 125, wire: 75, sinker: 80, grind: 70, roku: 110, program: 88, cmm: 95 };
+  TOL = { std: { mult: 1.0, days: 0, insp: 1 }, tight: { mult: 1.25, days: 1, insp: 1.4 }, precision: { mult: 1.6, days: 2, insp: 2.0 }, jig: { mult: 2.1, days: 3, insp: 2.8 } };
+  FINISH = { '32': 1.0, '16': 1.12, '8': 1.3, '4': 1.6 };
+  INSP = { std: { lotHr: 0.3, perPc: 0 }, fai: { lotHr: 1.8, perPc: 0.05 }, cmm: { lotHr: 0.6, perPc: 0.25 } };
+  RUSH = { std: { mult: 1.0, days: 0 }, expedite: { mult: 1.18, days: -3 }, hot: { mult: 1.45, days: -6 } };
+  PARTS = { punch: 'Trilobe forming punch', die: 'Hex-flange die insert', cavity: 'Carbide header die cavity', pin: 'Ejector / KO pin' };
+
+  num(v, d) { const n = parseFloat(v); return Number.isFinite(n) ? n : d; }
+
+  compute() {
+    const s = this.state, mat = this.MAT[s.materialId], tol = this.TOL[s.tolId], insp = this.INSP[s.inspId], rush = this.RUSH[s.rushId];
+    const finishMult = this.FINISH[s.finishId], p = s.proc, Q = Math.max(1, s.qty);
+    const stockVol = Math.PI * Math.pow(s.stockD / 2, 2) * s.stockLen;
+    const removalVol = stockVol * 0.55;
+
+    // Material per part (buy the blank)
+    const matPerPart = stockVol * mat.usd * 1.12; // 12% stock overage
+
+    // Machining (mill/turn/roku) per part
+    let machMin = 0;
+    if (p.mill) machMin += (removalVol * 0.6) / mat.mrr;
+    if (p.turn) machMin += (removalVol * 0.25) / (mat.mrr * 1.2);
+    if (p.roku) machMin += 22 * finishMult; // fine hard-milling minutes
+    machMin *= tol.mult;
+    const millRate = p.roku ? this.RATE.roku : (p.turn && !p.mill ? this.RATE.turn : this.RATE.mill);
+    const machPerPart = (machMin / 60) * millRate;
+
+    // EDM per part
+    let edmPerPart = 0, edmMin = 0;
+    if (p.wire) { const wireMin = (s.stockLen * 9 + 25) * tol.mult; edmMin += wireMin; edmPerPart += (wireMin / 60) * this.RATE.wire; }
+    if (p.sinker) { const sinkMin = (removalVol * 0.3) / 0.012 * 0.5; edmMin += sinkMin; edmPerPart += (sinkMin / 60) * this.RATE.sinker; }
+
+    // Grind per part
+    let grindPerPart = 0;
+    if (p.grind || mat.grind) { const grindMin = (18 + (s.tolId === 'jig' ? 30 : s.tolId === 'precision' ? 16 : 6)) * finishMult; grindPerPart += (grindMin / 60) * this.RATE.grind; }
+
+    // Setup (per lot) — programming + first-off per process
+    let setupHr = 2.6;
+    ['turn','wire','sinker','grind','roku'].forEach(k => { if (p[k]) setupHr += 1.4; });
+    setupHr *= (s.tolId === 'jig' || s.tolId === 'precision' ? 1.3 : 1.0);
+    const setupPerPart = (setupHr * this.RATE.program) / Q;
+
+    // Inspection
+    const inspPerPart = (insp.lotHr * this.RATE.cmm) / Q + insp.perPc * tol.insp * this.RATE.cmm * 0.1 + (s.inspId === 'cmm' ? insp.perPc * this.RATE.cmm * 0.2 : 0);
+
+    // Tooling/consumables
+    const toolingPerPart = (machMin / 90) * (mat.grind ? 6 : 3) + (p.wire ? 2.2 : 0);
+
+    const unitCost = matPerPart + machPerPart + edmPerPart + grindPerPart + setupPerPart + inspPerPart + toolingPerPart;
+    const marginRate = 0.36;
+    const unitPrice = (unitCost / (1 - marginRate)) * rush.mult * finishMult * 0.0 + (unitCost / (1 - marginRate)) * rush.mult; // keep finish in cost not double
+    const lotTotal = unitPrice * Q;
+
+    // Lead time
+    let leadDays = 6 + (p.wire ? 2 : 0) + (p.sinker ? 3 : 0) + (p.grind || mat.grind ? 2 : 0) + tol.days + rush.days;
+    if (Q >= 50) leadDays += 2; if (Q >= 250) leadDays += 3;
+    leadDays = Math.max(3, Math.round(leadDays));
+
+    // Confidence
+    let conf = 0.9 - mat.unc * 1.1 - (tol.mult - 1) * 0.18 - (p.sinker ? 0.04 : 0) + 0.04;
+    conf = Math.max(0.45, Math.min(0.97, conf));
+
+    return { mat, stockVol, removalVol, matPerPart, machPerPart, edmPerPart, grindPerPart, setupPerPart, inspPerPart, toolingPerPart, unitCost, unitPrice, lotTotal, leadDays, conf, marginRate, machMin, edmMin, Q };
+  }
+
+  priceForQty(q) { const save = this.state.qty; this.state.qty = q; const r = this.compute(); this.state.qty = save; return r.unitPrice; }
+
+  renderVals() {
+    const s = this.state, r = this.compute();
+    const usd = (n, d = 2) => Number.isFinite(n) ? n.toLocaleString('en-US', { minimumFractionDigits: d, maximumFractionDigits: d }) : '—';
+    const C = { mat: '#FF5A2B', mach: '#2A6FDB', edm: '#A855F7', grind: '#36D399', setup: '#F4B740', insp: '#7FB2FF', tool: '#6B7280' };
+
+    const segs = [
+      { k: 'Material', v: r.matPerPart, color: C.mat },
+      { k: 'Machining', v: r.machPerPart, color: C.mach },
+      { k: 'EDM', v: r.edmPerPart, color: C.edm },
+      { k: 'Grind / finish', v: r.grindPerPart, color: C.grind },
+      { k: 'Setup (amort.)', v: r.setupPerPart, color: C.setup },
+      { k: 'Inspection', v: r.inspPerPart + r.toolingPerPart, color: C.insp },
+    ].filter(x => x.v > 0.005);
+    const tot = segs.reduce((a, b) => a + b.v, 0) || 1;
+    const costBars = segs.map(x => ({ pct: (x.v / tot * 100).toFixed(2) + '%', color: x.color }));
+    const costRows = segs.map(x => ({ k: x.k, v: usd(x.v), color: x.color }));
+
+    // DFM items by part/material/tolerance/process
+    const dfm = [];
+    if (s.materialId === 'carbide') dfm.push({ title: 'Carbide blank — sinker/wire EDM + jig grind only', detail: 'Not millable to net; EDM the form, grind to size. Cost is process-driven.', sev: 'MAJOR', color: '#F4B740' });
+    if (s.tolId === 'jig' || s.tolId === 'precision') dfm.push({ title: `${s.tolId === 'jig' ? '±.0001 jig-ground' : '±.0002'} — CMM each piece`, detail: 'Tolerance band needs temperature-controlled inspection; adds inspection + cycle.', sev: 'MAJOR', color: '#F4B740' });
+    if (s.partId === 'punch' || s.partId === 'pin') dfm.push({ title: 'Depth-to-Ø ratio high on form length', detail: 'Long slender form — wire EDM skim passes to hold straightness, watch taper.', sev: 'MINOR', color: '#2A6FDB' });
+    if (s.finishId === '8' || s.finishId === '4') dfm.push({ title: `${s.finishId} µin polish on working face`, detail: 'Hand-polish/lap after grind; allow secondary op + handling protection.', sev: 'MINOR', color: '#2A6FDB' });
+    if (s.proc.sinker && s.proc.wire) dfm.push({ title: 'Wire + sinker on one part', detail: 'Two EDM setups — confirm datum transfer to avoid mismatch at the blend.', sev: 'MINOR', color: '#2A6FDB' });
+    if (dfm.length === 0) dfm.push({ title: 'Clean, producible part', detail: 'No flagged manufacturability risks — standard release packet.', sev: 'OK', color: '#36D399' });
+    let dfmScore = 100 - dfm.reduce((a, d) => a + (d.sev === 'MAJOR' ? 16 : d.sev === 'MINOR' ? 6 : 0), 0);
+    const dfmColor = dfmScore >= 85 ? '#36D399' : dfmScore >= 65 ? '#F4B740' : '#FF5247';
+
+    // Quantity breaks
+    const qtyList = [1, 10, 50, 100, 250];
+    const prices = qtyList.map(q => this.priceForQty(q));
+    const maxP = Math.max(...prices);
+    const breaks = qtyList.map((q, i) => ({ q, price: usd(prices[i]), bar: (prices[i] / maxP * 100).toFixed(0) + '%', barc: q === s.qty ? '#FF5A2B' : '#2A6FDB', c: q === s.qty ? '#FF7A4D' : '#9398A2' }));
+
+    // What-if
+    const base = r.unitPrice;
+    const wWire = s.proc.wire ? this.withProc({ wire: false }) : this.withProc({ wire: true });
+    const wTol = this.withState({ tolId: s.tolId === 'std' ? 'tight' : 'std' });
+    const wQty = this.priceForQty(s.qty >= 100 ? s.qty : 100);
+    const pct = (v) => { const d = (v - base) / base * 100; return (d >= 0 ? '+' : '') + d.toFixed(0) + '%'; };
+    const pc = (v) => v >= base ? '#FF7A4D' : '#36D399';
+    const whatIf = [
+      { label: `Qty → ${s.qty >= 100 ? s.qty : 100} pcs`, hint: 'setup amortizes', delta: pct(wQty), c: pc(wQty) },
+      { label: s.proc.wire ? 'Drop wire EDM' : 'Add wire EDM', hint: 'route change', delta: pct(wWire), c: pc(wWire) },
+      { label: s.tolId === 'std' ? 'Tighten to ±.0005' : 'Relax to ±.001', hint: 'inspection + cycle', delta: pct(wTol), c: pc(wTol) },
+    ];
+
+    // Make vs buy
+    const buyPrice = r.unitPrice * (s.materialId === 'carbide' ? 1.32 : 1.18) * (s.tolId === 'jig' ? 1.2 : 1.0);
+    const capBusy = s.proc.sinker || s.proc.wire;
+    const mbMake = r.unitPrice <= buyPrice;
+    const mbVerdict = mbMake ? 'Make in-house' : 'Compare suppliers';
+    const mbColor = mbMake ? '#36D399' : '#F4B740';
+    const mbDetail = mbMake
+      ? `In-house wins by $${usd(buyPrice - r.unitPrice)}/pc — JM owns the EDM + grind this part needs.`
+      : `Outsourcing the blank prep could free EDM capacity; keep the form/grind here.`;
+
+    const chip = (on) => `border:1px solid ${on ? 'rgba(255,90,43,0.5)' : 'rgba(255,255,255,0.12)'};background:${on ? 'rgba(255,90,43,0.1)' : 'transparent'};color:${on ? '#FF7A4D' : '#9398A2'};border-radius:8px;padding:8px 12px;font-size:12px;cursor:pointer;font-family:'Archivo',sans-serif;`;
+    const qBtn = (q) => `flex:1;border:1px solid ${q === s.qty ? 'rgba(255,90,43,0.5)' : 'rgba(255,255,255,0.12)'};background:${q === s.qty ? 'rgba(255,90,43,0.12)' : '#14161B'};color:${q === s.qty ? '#FF7A4D' : '#C7CCD4'};border-radius:9px;padding:10px 0;font-family:'JetBrains Mono',monospace;font-size:13px;cursor:pointer;`;
+    const setVal = (k) => (e) => this.setState({ [k]: e.target.value });
+    const setNum = (k) => (e) => this.setState({ [k]: this.num(e.target.value, this.state[k]) });
+    const togP = (k) => () => this.setState({ proc: { ...this.state.proc, [k]: !this.state.proc[k] } });
+
+    return {
+      scale: s.scale,
+      quoteNo: 'Q-' + (4400 + (s.partId.length * 7 + s.customerId.length)), customerId: s.customerId, histCount: this._synced ? '1,140 · ⊹' : '1,140',
+      partId: s.partId, materialId: s.materialId, tolId: s.tolId, finishId: s.finishId, inspId: s.inspId, rushId: s.rushId,
+      lenUnit: 'in', stockD: s.stockD, stockLen: s.stockLen, qty: s.qty,
+      stockVol: r.stockVol.toFixed(2), matUsd: usd(r.matPerPart),
+      unitPrice: usd(r.unitPrice), unitCost: usd(r.unitCost), marginPct: Math.round(r.marginRate * 100),
+      lotTotal: usd(r.lotTotal, 0), leadDays: r.leadDays,
+      confidence: Math.round(r.conf * 100), confColor: r.conf >= 0.8 ? '#36D399' : r.conf >= 0.65 ? '#F4B740' : '#FF7A4D',
+      confBorder: r.conf >= 0.8 ? 'rgba(54,211,153,0.3)' : 'rgba(244,183,64,0.3)',
+      confNote: r.mat.unc < 0.1 ? 'priced from prior JM jobs' : 'fewer comparables',
+      costBars, costRows,
+      dfmItems: dfm, dfmScore, dfmColor,
+      breaks, whatIf,
+      buyPrice: usd(buyPrice), mbVerdict, mbColor, mbDetail,
+      mbBorder: mbMake ? 'rgba(54,211,153,0.25)' : 'rgba(244,183,64,0.25)',
+      capLabel: capBusy ? 'EDM 82% loaded' : 'Open', capColor: capBusy ? '#F4B740' : '#36D399',
+      qtyOptions: [1, 10, 50, 100, 250].map(q => ({ n: q, style: qBtn(q), on: () => this.setState({ qty: q }) })),
+      procMillStyle: chip(s.proc.mill), procTurnStyle: chip(s.proc.turn), procWireStyle: chip(s.proc.wire),
+      procSinkerStyle: chip(s.proc.sinker), procGrindStyle: chip(s.proc.grind), procRokuStyle: chip(s.proc.roku),
+      setCustomer: setVal('customerId'), setPart: setVal('partId'), setMaterial: setVal('materialId'),
+      setTol: setVal('tolId'), setFinish: setVal('finishId'), setInsp: setVal('inspId'), setRush: setVal('rushId'),
+      setStockD: setNum('stockD'), setStockLen: setNum('stockLen'),
+      toggleMill: togP('mill'), toggleTurn: togP('turn'), toggleWire: togP('wire'), toggleSinker: togP('sinker'), toggleGrind: togP('grind'), toggleRoku: togP('roku'),
+    };
+  }
+
+  withProc(delta) { const save = this.state.proc; this.state.proc = { ...save, ...delta }; const v = this.compute().unitPrice; this.state.proc = save; return v; }
+  withState(delta) { const save = {}; Object.keys(delta).forEach(k => save[k] = this.state[k]); Object.assign(this.state, delta); const v = this.compute().unitPrice; Object.assign(this.state, save); return v; }
+}
+</script>
+</body>
+</html>

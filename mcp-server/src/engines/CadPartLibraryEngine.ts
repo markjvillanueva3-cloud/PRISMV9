@@ -340,7 +340,7 @@ export class CadPartLibraryEngine {
     source: PartSource,
     parts: CadPart[]
   ): Promise<void> {
-    let entries: Awaited<ReturnType<typeof readdir>>;
+    let entries: import("fs").Dirent[];
     try {
       entries = await readdir(dirPath, { withFileTypes: true });
     } catch {

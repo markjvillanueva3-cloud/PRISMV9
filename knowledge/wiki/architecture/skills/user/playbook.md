@@ -23,13 +23,13 @@ related:
 |-------|-------|
 | Name | `playbook` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/playbook.md` |
+| Source | `C:/Users/wompu/.claude/commands/playbook.md` |
 | Model | default |
 | Tags | _(none)_ |
 
 ## Description (first paragraph)
 
-_(no body content)_
+Query, audit, and analyze the **~296-rule machining-knowhow corpus** maintained in `MachiningPlaybookEngine` (`mcp-server/src/engines/MachiningPlaybookEngine.ts`). Exposes the full **11-action surface** wired on `prism_shop_practice` (shipped across U-PB-EXPAND / U-PB-INTEGRITY-AUDIT / U-PB-CONFLICT-DETECT, 2026-05-22).
 
 <!-- AUTO-END -->
 

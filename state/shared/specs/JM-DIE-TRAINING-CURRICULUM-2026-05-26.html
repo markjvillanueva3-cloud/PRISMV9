@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta name="prism-source-hash" content="b48faef52ee928bf5ec8f41debed6ea998f343a4252d9d175562bb3e03b0dc90">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>JM Die Training Curriculum 2026-05-26</title>
+<style>
+  :root {
+    --bg: #0f1014;
+    --panel: #1a1c23;
+    --panel-2: #232631;
+    --fg: #e4e6eb;
+    --fg-dim: #9aa0a8;
+    --border: #2c303a;
+    --ok: #4ade80;
+    --warn: #fbbf24;
+    --fail: #f87171;
+    --info: #60a5fa;
+    --link: #93c5fd;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; padding: 1.5rem; background: var(--bg); color: var(--fg);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, sans-serif;
+    font-size: 14px; line-height: 1.5; }
+  h1 { font-size: 1.6rem; margin: 0 0 0.25rem 0; }
+  h2 { font-size: 1.15rem; margin: 1.5rem 0 0.5rem 0; padding-bottom: 0.25rem;
+    border-bottom: 1px solid var(--border); color: var(--fg); }
+  .meta { color: var(--fg-dim); font-size: 0.85rem; margin-bottom: 1rem; }
+  .panel { background: var(--panel); border: 1px solid var(--border); border-radius: 6px;
+    padding: 0.75rem 1rem; margin-bottom: 1rem; }
+  .headline-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 0.5rem; margin-bottom: 1rem; }
+  .card { background: var(--panel-2); border: 1px solid var(--border); border-radius: 6px;
+    padding: 0.65rem 0.85rem; }
+  .card .lbl { font-size: 0.8rem; color: var(--fg-dim); }
+  .card .val { font-size: 1.4rem; font-weight: 600; margin: 0.15rem 0; font-variant-numeric: tabular-nums; }
+  .card .hint { font-size: 0.75rem; color: var(--fg-dim); }
+  .card.ok    { border-left: 3px solid var(--ok); }
+  .card.warn  { border-left: 3px solid var(--warn); }
+  .card.fail  { border-left: 3px solid var(--fail); }
+  .card.info  { border-left: 3px solid var(--info); }
+  table { width: 100%; border-collapse: collapse; margin: 0.5rem 0 1rem; font-size: 0.9rem;
+    background: var(--panel); border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }
+  caption { text-align: left; padding: 0.4rem 0.65rem; color: var(--fg-dim);
+    background: var(--panel-2); font-weight: 500; }
+  th, td { padding: 0.4rem 0.65rem; text-align: left; border-bottom: 1px solid var(--border);
+    font-variant-numeric: tabular-nums; vertical-align: top; }
+  th { background: var(--panel-2); color: var(--fg-dim); font-weight: 500;
+    text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.04em; }
+  tr:last-child td { border-bottom: none; }
+  td.right { text-align: right; }
+  ul, ol { margin: 0.4rem 0 1rem 1.25rem; }
+  li { margin: 0.15rem 0; }
+  .badge { display: inline-block; padding: 0.1rem 0.5rem; border-radius: 999px;
+    font-size: 0.75rem; font-weight: 500; background: var(--panel-2); color: var(--fg-dim);
+    border: 1px solid var(--border); }
+  .badge.ok   { background: rgba(74, 222, 128, 0.12); color: var(--ok);   border-color: rgba(74,222,128,0.3); }
+  .badge.warn { background: rgba(251, 191, 36, 0.12); color: var(--warn); border-color: rgba(251,191,36,0.3); }
+  .badge.fail { background: rgba(248, 113, 113, 0.12); color: var(--fail); border-color: rgba(248,113,113,0.3); }
+  .badge.info { background: rgba(96, 165, 250, 0.12); color: var(--info); border-color: rgba(96,165,250,0.3); }
+  .badge-grid { display: flex; flex-wrap: wrap; gap: 0.3rem; margin: 0.3rem 0 1rem 0; }
+  .kv { display: grid; grid-template-columns: max-content 1fr; gap: 0.2rem 0.85rem;
+    margin: 0.4rem 0 1rem 0; }
+  .kv .k { color: var(--fg-dim); }
+  svg.bar-chart { display: block; max-width: 100%; height: auto; }
+  svg .bar { fill: var(--info); }
+  svg .bar.ok   { fill: var(--ok); }
+  svg .bar.warn { fill: var(--warn); }
+  svg .bar.fail { fill: var(--fail); }
+  svg text { fill: var(--fg); font-family: monospace; font-size: 11px; }
+  svg .axis text { fill: var(--fg-dim); }
+  code { background: var(--panel-2); padding: 0 0.3rem; border-radius: 3px;
+    font-family: "Fira Code", Consolas, Menlo, monospace; font-size: 0.85em; }
+  a { color: var(--link); }
+  footer { margin-top: 2rem; padding-top: 0.75rem; border-top: 1px solid var(--border);
+    font-size: 0.8rem; color: var(--fg-dim); }
+</style>
+</head>
+<body>
+<h1>JM Die Training Curriculum 2026-05-26</h1>
+<div class="meta">rendered from state/shared/specs/JM-DIE-TRAINING-CURRICULUM-2026-05-26.md</div>
+<div class="meta">Generated 2026-05-26T20:38:21.567Z</div>
+<style>
+  .prism-md-body { max-width: 70rem; margin: 0 auto; }
+  .prism-h1 { font-size: 1.6rem; }
+  .prism-h2 { font-size: 1.25rem; border-bottom: 1px solid var(--border); padding-bottom: 0.25rem; }
+  .prism-h3 { font-size: 1.1rem; color: var(--info); }
+  .prism-h4, .prism-h5, .prism-h6 { font-size: 1rem; color: var(--fg-dim); }
+  .prism-md-body p { margin: 0.5rem 0; }
+  .prism-md-list { margin: 0.5rem 0 0.5rem 1.25rem; padding: 0; }
+  .prism-md-list li { margin: 0.15rem 0; }
+  .prism-md-table { border-collapse: collapse; margin: 0.75rem 0; width: 100%; }
+  .prism-md-table th, .prism-md-table td { border: 1px solid var(--border); padding: 0.35rem 0.6rem; text-align: left; }
+  .prism-md-table th { background: var(--panel-2); }
+  .prism-codeblock { background: var(--panel-2); border: 1px solid var(--border); border-radius: 4px; padding: 0.6rem 0.8rem; overflow-x: auto; font-family: "Cascadia Code", Consolas, monospace; font-size: 13px; }
+  .prism-inline-code { background: var(--panel-2); padding: 0 0.25rem; border-radius: 3px; font-family: "Cascadia Code", Consolas, monospace; font-size: 0.92em; }
+  .prism-quote { border-left: 3px solid var(--info); background: var(--panel-2); padding: 0.5rem 0.85rem; margin: 0.75rem 0; color: var(--fg-dim); }
+  .prism-hr { border: 0; border-top: 1px solid var(--border); margin: 1rem 0; }
+  .prism-link { color: var(--link); text-decoration: none; }
+  .prism-link:hover { text-decoration: underline; }
+  .prism-bad-link { color: var(--fail); text-decoration: line-through; }
+  .prism-unclosed::before { content: "⚠ unterminated code block"; display: block; color: var(--warn); font-size: 0.85em; margin-bottom: 0.25rem; }
+  </style><main class="prism-md-body"><nav class="prism-toc"><strong>Contents</strong><ul><li class="prism-toc-l1">JM DIE TRIBAL+WIKI training curriculum — page-by-page easy→complex</li><li class="prism-toc-l2">Coverage reconciliation (R12 fail-loud)</li><li class="prism-toc-l2">Headline</li><li class="prism-toc-l2">Distribution by difficulty bucket</li><li class="prism-toc-l2">Distribution by classifier domain</li><li class="prism-toc-l2">First 5 pages (easiest)</li><li class="prism-toc-l2">Last 5 pages (hardest)</li><li class="prism-toc-l2">Consumer wiring</li></ul></nav><h1 class="prism-h1">JM DIE TRIBAL+WIKI training curriculum — page-by-page easy→complex</h1>
+<p><strong>Generated:</strong> 2026-05-26T20:38:21.566Z <strong>Slot:</strong> echo · <strong>Milestone:</strong> POST-PDF-NODE-MS0/U-JM-TRAINING-CURRICULUM · <strong>Iter:</strong> 9 <strong>Source corpus:</strong> <code class="prism-inline-code">H:/PRISM/JM DIE/TRIBAL + WIKI</code> · 67 extracts indexed (of 80 PDFs in corpus)</p>
+<h2 class="prism-h2">Coverage reconciliation (R12 fail-loud)</h2>
+<ul class="prism-md-list"><li>corpus PDFs:            80</li><li>extracts on disk:       67</li><li>indexed (echo-domain):  67</li><li>skipped other-domain:   0 (none)</li><li>orphan .txt extracts:   0</li><li>empty-extract failures: 0</li><li>corpus PDFs not yet extracted: 13</li></ul>
+<h2 class="prism-h2">Headline</h2>
+<ul class="prism-md-list"><li><strong>7565</strong> training-grade pages (after noise filter)</li><li><strong>8313</strong> total pages scanned · 748 dropped as noise (TOC / page-numbers / blanks)</li><li><strong>Output JSONL:</strong> <code class="prism-inline-code">mcp-server/data/ingestion_cache/training-curriculum/jm-die-easy-to-complex.jsonl</code> (sorted ascending by difficulty score, rank field assigned, schemaVersion=1.0.0)</li></ul>
+<h2 class="prism-h2">Distribution by difficulty bucket</h2>
+<table class="prism-md-table"><thead><tr><th>Bucket</th><th>Count</th><th>%</th></tr></thead><tbody><tr><td>unscored</td><td>3642</td><td>48.1%</td></tr>
+<tr><td>easy</td><td>2638</td><td>34.9%</td></tr>
+<tr><td>intermediate</td><td>1191</td><td>15.7%</td></tr>
+<tr><td>advanced</td><td>93</td><td>1.2%</td></tr>
+<tr><td>complex</td><td>1</td><td>0.0%</td></tr></tbody></table>
+<h2 class="prism-h2">Distribution by classifier domain</h2>
+<table class="prism-md-table"><thead><tr><th>Domain</th><th>Pages</th></tr></thead><tbody><tr><td>reference</td><td>3357</td></tr>
+<tr><td>mill</td><td>3200</td></tr>
+<tr><td>cam</td><td>533</td></tr>
+<tr><td>post</td><td>431</td></tr>
+<tr><td>wire</td><td>44</td></tr></tbody></table>
+<h2 class="prism-h2">First 5 pages (easiest)</h2>
+<table class="prism-md-table"><thead><tr><th>#</th><th>difficulty</th><th>score</th><th>filename · page</th><th>preview</th></tr></thead><tbody><tr><td>1</td><td>unscored</td><td>0</td><td>Autodesk_CNCBOOK.pdf · p3</td><td>Copyright �2012 HSMWorks, ApS All Rights Reserved. Reproduction or translation o…</td></tr>
+<tr><td>2</td><td>unscored</td><td>0</td><td>Autodesk_CNCBOOK.pdf · p8</td><td>Contents Fundamentals of CNC Machining Appendix B: AlternateTool Setting Methods…</td></tr>
+<tr><td>3</td><td>unscored</td><td>0</td><td>Autodesk_CNCBOOK.pdf · p51</td><td>Fundamentals of CNC Machining Lesson 4 Coordinate Systems WCS Example � Job 2 Af…</td></tr>
+<tr><td>4</td><td>unscored</td><td>0</td><td>Autodesk_CNCBOOK.pdf · p52</td><td>Lesson 4 Fundamentals of CNC Machining Coordinate Systems WCS Example � Job 3 Dr…</td></tr>
+<tr><td>5</td><td>unscored</td><td>0</td><td>Autodesk_CNCBOOK.pdf · p79</td><td>Fundamentals of CNC Machining Lesson 6 …</td></tr></tbody></table>
+<h2 class="prism-h2">Last 5 pages (hardest)</h2>
+<table class="prism-md-table"><thead><tr><th>#</th><th>difficulty</th><th>score</th><th>filename · page</th><th>preview</th></tr></thead><tbody><tr><td>7561</td><td>advanced</td><td>5.795</td><td>English - Mill Operator’s Manual -Interactive PDF Version - NGC - 2023 - english_mill_interactive_manual_print_version_2023.pdf · p111</td><td>12.4 \</td><td>MILL PROGRAMMING - SUBPROGRAMS Local Subprogram (M97) A local subprogram…</td></tr>
+<tr><td>7562</td><td>advanced</td><td>5.798</td><td>English - Mill Operator’s Manual -Interactive PDF Version - NGC - 2023 - english_mill_interactive_manual_print_version_2023.pdf · p112</td><td>12.4 \</td><td>MILL PROGRAMMING - SUBPROGRAMS External Subprogram (M98) An external sub…</td></tr>
+<tr><td>7563</td><td>advanced</td><td>5.852</td><td>Mazak EIA - Programming Manula for Mazatrol Matrix.pdf · p374</td><td>Return to Library 14 PROGRAM SUPPORT FUNCTIONS 5. Auxiliary command macro call (…</td></tr>
+<tr><td>7564</td><td>advanced</td><td>5.883</td><td>Mazak EIA - Programming Manula for Mazatrol Matrix.pdf · p407</td><td>Return to Library 14 PROGRAM SUPPORT FUNCTIONS [9] Branching into WHILE DOm is n…</td></tr>
+<tr><td>7565</td><td>complex</td><td>6.851</td><td>English - Mill Operator’s Manual -Interactive PDF Version - NGC - 2023 - english_mill_interactive_manual_print_version_2023.pdf · p115</td><td>13.1 \</td><td>MILL MACROS - INTRODUCTION Useful G and M Codes Input Signal is 0 M97 Px…</td></tr></tbody></table>
+<h2 class="prism-h2">Consumer wiring</h2>
+<ul class="prism-md-list"><li>Page-by-page records can feed any retrieval / fine-tune / curriculum-learning pipeline.</li><li>For a controller-aware progressive trainer: filter by <code class="prism-inline-code">domain</code> + <code class="prism-inline-code">controller</code>, then iterate in JSONL order.</li><li>Cross-references: classifier (<code class="prism-inline-code">scripts/lib/jm-die-tribal-wiki-classifier.mjs</code>), ranker (<code class="prism-inline-code">scripts/lib/training-difficulty-ranker.mjs</code>).</li></ul></main><footer>
+<div>html-report-render schemaVersion 1.0.0</div>
+</footer>
+</body>
+</html>

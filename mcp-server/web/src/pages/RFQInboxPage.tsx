@@ -20,6 +20,34 @@ interface RFQ {
   status: 'received' | 'reviewing' | 'quoted' | 'won' | 'lost';
 }
 
+/**
+ * Map a backend RFQToOrderOrchestratorEngine record onto the page's flat RFQ shape.
+ * The engine keys records by `id` (what assign/status target) and nests intake under `rfq`;
+ * the inbox triage state lives in `inbox_status` (distinct from the order-FSM `status`).
+ * material/quantity/process_type are not in the engine's RfqIntake (it carries `description`),
+ * so they fall through to the page's 'TBD'/'?' placeholders.
+ */
+function adaptRfqRecord(rec: any): RFQ {
+  const intake = rec?.rfq ?? {};
+  const inbox = rec?.inbox_status;
+  const status: RFQ['status'] =
+    inbox === 'reviewing' || inbox === 'quoted' || inbox === 'won' || inbox === 'lost'
+      ? inbox
+      : 'received';
+  return {
+    rfq_id: String(rec?.id ?? intake.rfq_id ?? ''),
+    customer: String(intake.customer_id ?? rec?.customer ?? 'Unknown'),
+    material: rec?.material ?? intake.material,
+    quantity: rec?.quantity ?? intake.quantity,
+    process_type: rec?.process_type ?? intake.process_type,
+    received_date: String(intake.received_at ?? rec?.received_date ?? ''),
+    deadline: intake.required_by ?? rec?.deadline,
+    assignee_id: rec?.assignee_id,
+    assignee_name: rec?.assignee_name,
+    status,
+  };
+}
+
 const statusTone: Record<string, 'slate' | 'sky' | 'emerald' | 'amber' | 'rose'> = {
   received: 'slate', reviewing: 'sky', quoted: 'amber', won: 'emerald', lost: 'rose',
 };
@@ -39,13 +67,21 @@ export function RFQInboxPage() {
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [statusFilter, setStatusFilter] = useState('');
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   const fetchRFQs = useCallback(async () => {
     setLoading(true);
+    setError(null);
     try {
       const res = await rfqList(statusFilter ? { status: statusFilter } : undefined);
-      setRfqs(((res as any).data ?? (res as any).result ?? []) as RFQ[]);
-    } catch { setRfqs([]); }
+      // The /erp/rfq-list route surfaces the engine record array at res.data (res.result legacy).
+      const raw = ((res as any).data ?? (res as any).result ?? []) as any[];
+      setRfqs(Array.isArray(raw) ? raw.map(adaptRfqRecord) : []);
+    } catch (e) {
+      // Surface the failure instead of silently showing an empty inbox (the spec's flagged swallow).
+      setError(e instanceof Error ? e.message : 'Failed to load RFQs. Sign in or check the connection.');
+      setRfqs([]);
+    }
     finally { setLoading(false); }
   }, [statusFilter]);
 
@@ -55,13 +91,21 @@ export function RFQInboxPage() {
   }, []);
 
   const handleAssign = async (rfqId: string, assigneeId: string) => {
-    await rfqAssign(rfqId, assigneeId);
-    void fetchRFQs();
+    try {
+      await rfqAssign(rfqId, assigneeId);
+      void fetchRFQs();
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Failed to assign estimator.');
+    }
   };
 
   const handleStatusChange = async (rfqId: string, status: string) => {
-    await rfqUpdateStatus(rfqId, status);
-    void fetchRFQs();
+    try {
+      await rfqUpdateStatus(rfqId, status);
+      void fetchRFQs();
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Failed to update RFQ status.');
+    }
   };
 
   const pending = rfqs.filter(r => r.status === 'received').length;
@@ -91,6 +135,11 @@ export function RFQInboxPage() {
           </Field>
         }
       />
+      {error && (
+        <div className="rounded-[14px] border border-rose-500/30 bg-rose-500/10 px-4 py-3 text-sm text-rose-200">
+          {error}
+        </div>
+      )}
       <PanelCard title="RFQ Queue" subtitle="All incoming requests for quote.">
         {loading ? <div className="text-sm text-slate-400">Loading...</div> : rfqs.length === 0 ? (
           <div className="text-sm text-slate-400">No RFQs found.</div>

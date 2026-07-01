@@ -29,7 +29,8 @@ related:
 
 ## Description (first paragraph)
 
-Audit the current context window to identify token waste and suggest pruning. This is a read-only diagnostic — it doesn't change anything.
+
+# Context Audit — What's Eating Your Context Window
 
 <!-- AUTO-END -->
 

@@ -1,0 +1,63 @@
+---
+session: claude-7efaddb4
+topic: knowledge-accretion-loop
+slot: zulu
+written_at: 2026-06-15T14:15:00.000Z
+machine: DESKTOP-N7MI1VB
+family: Claude
+session_key: claude-7efaddb4
+status: active
+---
+
+# HANDOFF: claude-7efaddb4 — knowledge-accretion-loop (slot:zulu)
+
+Family: Claude | Machine: DESKTOP-N7MI1VB | Session: claude-7efaddb4
+
+## STATE
+
+**VERIFIED quality tier: 34/34 galaxies COMPLETE.** U-ZKM-VERIFY W1-W8 all committed
+`[MAIN-FORCE]` on `cad-fusion-live-ms0`. Every galaxy now has
+`knowledge/wiki/<g>/<g>-foundations-verified-2026-06-14.md` (WebFetch-confirmed external
+sources + honest `fetched:false` markers + synthesis). Physics fence HELD on all
+physics + mill/MIT-adjacent galaxies (mill/lathe/wedm/cam/speed-feed/post-processor + pdf-corpus-mill + mit-curriculum):
+grep-confirmed ZERO numeric cutting constants (no SFM/IPR/chip-load/RPM/Taylor/Kienzle).
+
+**TIER-1 cron `PRISM Galaxy Knowledge Iterate` (rate-limit-IMMUNE, xAI Grok via :8645):**
+HEALTHY — State=Ready, LastResult=0, NextRun 09:50. All 34 galaxies at **iter 12**
+(past iter>=10), 82-129 novel sources each, lowStreak 0 (still finding fresh reputable
+sources — NOT yet saturated, which is correct: the goal runs until sources dry up).
+SATURATED = iter>=10 AND last2 iters <2 novel src, OR iter>=30. Cron keeps iterating toward that.
+
+**Account-switch autofire** (U-ACCT-SWITCH-AUTOFIRE): committed, dry-run-safe. Operator-only
+to ARM (OAuth capture >=2 accts + `PRISM_5H_WEIGHTED_TOKEN_TRIGGER` + `PRISM_ACCT_SWITCH_AUTO_APPLY=1`).
+
+## RESUME
+
+Verified tier is DONE (34/34). The operator's standing /goal (loop every galaxy >=10x,
+keep adding knowledge until no reputable sources remain) continues AUTONOMOUSLY via the
+rate-limit-immune cron — no in-session action required.
+
+OPTIONAL deeper passes: re-launch verified waves of <=5 galaxies via
+`Workflow({scriptPath: "C:/Users/wompu/.claude/projects/H--prism/7efaddb4-e737-4637-939f-3d15ea0c2610/workflows/scripts/galaxy-verify-deepen-wf_821ace04-636.js", args:{galaxies:[{g,p,hint}]}})`
++ `--force-fanout [SCOPED]` in the TOP-LEVEL description (gx.p=true = physics fence).
+Then persist with `node scripts/persist-galaxy-verified.mjs --input <output.json> --run <runid> --date <d>`.
+
+FLAGGED (operator): MCP :3100 bridge was flaky this session (reconnected via /mcp);
+`node scripts/singleton-service-guard.mjs --fix` if it drops again.
+
+## CONTEXT
+
+**CANONICAL PERSIST PATH (R5 — solves the wholesale-read context thrash):**
+`scripts/persist-galaxy-verified.mjs` reads a Workflow output JSON IN-PROCESS (node, zero
+LLM context cost) -> deterministically emits the foundations-verified markdown + `--record`s
+the ledger. Probe a file's galaxies without writing:
+`node --input-type=module -e "import{extractGalaxies}from 'file:///H:/prism/scripts/persist-galaxy-verified.mjs';..."`.
+NEVER read the ~30KB+ output files into an LLM context (thrashes — observed 2026-06-15).
+
+The 8 Workflow output files under
+`C:/Users/wompu/AppData/Local/Temp/claude/H--prism/7efaddb4-.../tasks/*.output`
+map all 34 galaxies (w2ny3hq9m, w812nq5lx, wc17kepp8, wdbisnt3w, wf041bwb0, wfqu587b5,
+wpuefqbqj, wu5x029v6 + wave-8 wb31cgogw).
+
+RATE-LIMIT LAW: 10 concurrent Workflow agents = instant Anthropic server rate-limit. Run <=5 galaxies/wave.
+Ledger: `state/shared/galaxy-knowledge-iterations.json` (O_EXCL cross-process lock; cron + --record serialized).

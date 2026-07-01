@@ -18,13 +18,14 @@ import {
   type SpecializationTrackId,
 } from '../../data/academy';
 import { useCourses } from '../../hooks/useCourses';
+import { useStudentId } from '../../hooks/useStudentId';
 
 const LEVELS: CourseLevel[] = ['L0', 'L1', 'L2', 'L3'];
 const DOMAINS: CourseDomain[] = ['Foundations', 'Programming', 'Machining', 'Optimization', 'Business'];
 
 export function CourseCatalog() {
   const navigate = useNavigate();
-  const { completedCourseIds, isCourseUnlocked, isCourseComplete, stats } = useCourses();
+  const { completedCourseIds, isCourseUnlocked, isCourseComplete, stats } = useCourses(useStudentId());
   const [levelFilter, setLevelFilter] = useState<CourseLevel | 'ALL'>('ALL');
   const [domainFilter, setDomainFilter] = useState<CourseDomain | 'ALL'>('ALL');
   const [programFilter, setProgramFilter] = useState<ProgramId | 'ALL'>('ALL');
@@ -64,14 +65,14 @@ export function CourseCatalog() {
         <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
           <div className="max-w-4xl space-y-4">
             <div className="inline-flex items-center rounded-full border border-white/15 bg-white/5 px-3 py-1 text-xs font-semibold uppercase tracking-[0.24em] text-slate-200">
-              PRISM Academy
+              Kienzle Academy
             </div>
             <div className="space-y-3">
               <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">
                 From first blueprint to 5-axis and mill-turn mastery
               </h1>
               <p className="max-w-3xl text-sm leading-6 text-slate-300 sm:text-base">
-                The web academy now mirrors PRISM&apos;s deeper curriculum: structured foundations,
+                The web academy now mirrors Kienzle&apos;s deeper curriculum: structured foundations,
                 operator development, advanced CAM fluency, multi-axis strategy, optimization,
                 troubleshooting, and business judgment. This is designed as a real progression,
                 not a handful of placeholder lessons.

@@ -17,11 +17,16 @@
   # installing user is interactively logged in (Logon Mode: Interactive only).
   # Default (this switch OFF) hardens the task to run whether-logged-on-or-not.
   [switch]$Interactive,
-  # Strongest principal: run as the SYSTEM machine account (LogonType
-  # ServiceAccount) instead of the default S4U (current user's context, no
-  # stored password). SYSTEM can reap ANY user's process; S4U only the
-  # installing user's. SYSTEM is appropriate for a host-wide reaper but changes
-  # the security context — opt in deliberately. Ignored when -Interactive.
+  # Conservative opt-out: run as the current user (S4U logon — current user's
+  # context, no stored password) instead of the default SYSTEM. S4U can reap
+  # ONLY the installing user's processes and gets "Access is denied" on any
+  # elevated / cross-security-context process — the exact orphan class the
+  # reaper was failing to kill. Use only if a SYSTEM-context reaper is
+  # unacceptable for this host. Ignored when -Interactive.
+  [switch]$AsCurrentUser,
+  # Back-compat: SYSTEM is now the DEFAULT principal (see the principal block
+  # below), so -AsSystem is redundant. Accepted as a no-op alias so existing
+  # install commands / scripts that still pass -AsSystem keep working unchanged.
   [switch]$AsSystem
 )
 
@@ -121,23 +126,30 @@ $settings = New-ScheduledTaskSettingsSet `
   -RestartInterval (New-TimeSpan -Minutes 1) `
   -MultipleInstances IgnoreNew
 
-# Principal — the load-bearing autonomy fix. With NO principal (legacy
+# Principal — the load-bearing privilege fix. With NO principal (legacy
 # -Interactive) the task's Logon Mode is "Interactive only": it does NOT run
-# unless the installing user is logged in. Default hardens it:
-#   S4U   = current user's security context, run whether-logged-on-or-not, no
-#           stored password (conservative — same processes the user-context
-#           reaper always reaped, just no login requirement).
-#   SYSTEM (-AsSystem) = machine account, can reap ANY user's process.
-# RunLevel Highest matches the elevated install context (the reaper kills
-# processes; it must not be a limited token).
+# unless the installing user is logged in. Otherwise:
+#   SYSTEM (DEFAULT) = the NT AUTHORITY\SYSTEM machine account. It can
+#           terminate ANY process on the host regardless of owner or integrity
+#           level, needs no UAC consent, and runs in session 0 so it never
+#           flashes a console window. This is the correct principal for a
+#           process reaper — a reaper that cannot kill its targets is not a
+#           reaper. S4U was returning "Access is denied" on elevated /
+#           cross-context node processes (the orphan class that piled up);
+#           SYSTEM has no such limit.
+#   S4U (-AsCurrentUser) = the installing user's security context, runs
+#           whether-logged-on-or-not, no stored password. Conservative
+#           opt-out — but it CANNOT kill elevated or cross-user processes.
+# RunLevel Highest matches the elevated install context either way.
 $principal = $null
 if (-not $Interactive) {
-  if ($AsSystem) {
-    $principal = New-ScheduledTaskPrincipal -UserId 'SYSTEM' `
-      -LogonType ServiceAccount -RunLevel Highest
-  } else {
+  if ($AsCurrentUser) {
     $principal = New-ScheduledTaskPrincipal -UserId "$env:USERDOMAIN\$env:USERNAME" `
       -LogonType S4U -RunLevel Highest
+  } else {
+    # DEFAULT — SYSTEM. Maximum kill privilege, no UAC prompt, no window.
+    $principal = New-ScheduledTaskPrincipal -UserId 'SYSTEM' `
+      -LogonType ServiceAccount -RunLevel Highest
   }
 }
 
@@ -159,10 +171,10 @@ Register-ScheduledTask @registerParams | Out-Null
 $mode = if ($DryRun) { 'DRY-RUN burn-in (never kills)' } else { 'live' }
 $autonomy = if ($Interactive) {
   'INTERACTIVE-ONLY (legacy — dies when you log off)'
-} elseif ($AsSystem) {
-  'AUTONOMOUS as SYSTEM (runs at boot + whether-logged-on-or-not)'
+} elseif ($AsCurrentUser) {
+  'AUTONOMOUS as S4U / current user (runs at boot + whether-logged-on-or-not; CANNOT kill elevated processes)'
 } else {
-  'AUTONOMOUS as S4U (runs at boot + whether-logged-on-or-not)'
+  'AUTONOMOUS as SYSTEM (admin — terminates any process, no UAC, no window; runs at boot + whether-logged-on-or-not)'
 }
 Write-Host "Registered: $TaskName ($mode, $autonomy, fleet-reaper-sweep.mjs --once, every $EveryMinutes min + AtStartup, +$($StartOffsetSeconds)s phase offset, node=$nodeExe)"
 

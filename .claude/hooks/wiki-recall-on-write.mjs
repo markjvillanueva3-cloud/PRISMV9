@@ -25,6 +25,7 @@
 
 import { readFileSync, writeFileSync, existsSync, mkdirSync, renameSync } from "node:fs";
 import { dirname, basename } from "node:path";
+import { withExclusiveLock } from "../../scripts/lib/exclusive-file-lock.mjs";
 
 const STATE_FILE = "H:/prism/mcp-server/data/state/wiki-recall-counts.json";
 const SCHEMA_VERSION = "1.0.0";
@@ -33,9 +34,14 @@ const WIKI_VAULT_PATTERN = /[\\/]knowledge[\\/]wiki[\\/]/i;
 const SOURCE_MEMORY_PATTERN = /[\\/]\.claude[\\/]projects[\\/][^\\/]*[\\/]memory[\\/]/i;
 const WRITE_TOOLS = new Set(["Write", "Edit", "MultiEdit"]);
 
-function emitContinue(msg) {
+// 2026-05-26 (U-A12-RECALL-COUNTER-NOISE-SUPPRESS, slot:alpha): mirror of the
+// read-side fix in recall-counter-track.mjs. Default-silent the +1 success
+// telemetry; errors still surface. Verbose: PRISM_RECALL_COUNTER_VERBOSE=1.
+const RECALL_VERBOSE = process.env.PRISM_RECALL_COUNTER_VERBOSE === "1";
+function emitContinue(msg, kind = "success") {
   const out = { continue: true };
-  if (msg) out.hookSpecificOutput = { hookEventName: "PostToolUse", additionalContext: `recall-counter-write: ${msg}` };
+  const shouldEmit = msg && (kind === "error" || RECALL_VERBOSE);
+  if (shouldEmit) out.hookSpecificOutput = { hookEventName: "PostToolUse", additionalContext: `recall-counter-write: ${msg}` };
   process.stdout.write(JSON.stringify(out));
 }
 
@@ -97,18 +103,27 @@ export function recordWriteEvent(filePath, toolName, opts = {}) {
   if (!isVaultPath(filePath)) return { ok: false, reason: "not-a-vault-path" };
   const derived = deriveKey(filePath);
   if (!derived) return { ok: false, reason: "could-not-derive-key" };
-  const state = loadState(stateFile);
-  const nowIso = new Date().toISOString();
-  const existing = state.entries[derived.key];
-  const updated = existing
-    ? { ...existing, count: existing.count + 1, lastSeenIso: nowIso }
-    : { kind: derived.kind, key: derived.key, count: 1, firstSeenIso: nowIso, lastSeenIso: nowIso };
-  state.entries[derived.key] = updated;
-  state.totalRecalls = (state.totalRecalls ?? 0) + 1;
-  state.entryCount = Object.keys(state.entries).length;
-  state.updatedAtIso = nowIso;
-  writeStateAtomic(state, stateFile);
-  return { ok: true, key: derived.key, count: updated.count };
+  // U-OBS-RECALL-COUNTER-SERIALIZE: serialize the RMW under the SAME lock path
+  // the read-side hook uses, so the two fleet-concurrent recall writers can't
+  // lost-update each other (atomic-rename guards corruption, NOT lost
+  // increments). ([[reference_recall_counter_concurrency_finding_2026_05_16]])
+  const res = withExclusiveLock(stateFile + ".lock", () => {
+    const state = loadState(stateFile);
+    const nowIso = new Date().toISOString();
+    const existing = state.entries[derived.key];
+    const updated = existing
+      ? { ...existing, count: existing.count + 1, lastSeenIso: nowIso }
+      : { kind: derived.kind, key: derived.key, count: 1, firstSeenIso: nowIso, lastSeenIso: nowIso };
+    state.entries[derived.key] = updated;
+    state.totalRecalls = (state.totalRecalls ?? 0) + 1;
+    state.entryCount = Object.keys(state.entries).length;
+    state.updatedAtIso = nowIso;
+    writeStateAtomic(state, stateFile);
+    return { ok: true, key: derived.key, count: updated.count };
+  });
+  // Unwrap withExclusiveLock's {ran,value}; ran:false = lock held through the
+  // retry window → preserve the {ok:false} contract (caller counts + continues).
+  return res.ran ? res.value : { ok: false, reason: "lock-unavailable" };
 }
 
 function main() {
@@ -122,10 +137,10 @@ function main() {
   if (!isVaultPath(filePath)) return emitContinue(null);
   try {
     const r = recordWriteEvent(filePath, tool);
-    if (r.ok) emitContinue(`+1 ${r.key} via ${tool} (count=${r.count})`);
-    else emitContinue(r.reason);
+    if (r.ok) emitContinue(`+1 ${r.key} via ${tool} (count=${r.count})`, "success");
+    else emitContinue(r.reason, "error");
   } catch (e) {
-    emitContinue(`write-fail (${e?.message ?? e})`);
+    emitContinue(`write-fail (${e?.message ?? e})`, "error");
   }
 }
 

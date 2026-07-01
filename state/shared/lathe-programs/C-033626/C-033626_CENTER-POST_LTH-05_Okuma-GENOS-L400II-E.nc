@@ -1,0 +1,90 @@
+( ============================================================ )
+( PART : CENTER POST / BORED BUSHING  (AISI D2, HT Rc 56-58) )
+( DWG  : C-033626  (PRECISION FORM "FLATTENING TOOL" / JM DIE) )
+( ITEM : 4  CENTER POST (BORED BUSHING) )
+( MACH : LTH-05  Okuma GENOS L400II-E )
+( CTRL : OSP-P300LA-E    SPINDLE-MAX CLAMP G50 S3500 )
+( HOLD : 10-12in 3-jaw )
+( WOFF : G15 H1   Z0 = TOP (COUNTERBORED) FACE   X0 = SPINDLE CENTERLINE  (DIAMETER PROGRAMMING) )
+( STK  : AISI D2 ANNEALED  1.625 (1-5/8) BAR )
+( ------------------------------------------------------------ )
+( FINISH (AFTER HT + GRIND): OD 1.501/1.500 x 2.25 ; THRU-BORE .515/.510 ; .80 x .70 C'BORE ; .06x45 BOTH OD ENDS ; DATUM A .0005 )
+( THIS OP (SOFT): OD 1.512 ; thru-bore .509 (HONE to .515) ; .80x.70 c'bore finished ; ~.012/dia OD GRIND STOCK + .005 on datum face )
+( NOTE : Roomy chucker - good for the BUSHING from a blank. )
+(  *** SOFT / PRE-HEAT-TREAT TURNING - LEAVES GRIND STOCK ***                 )
+(  *** FIRST RUN = PROVE OUT: single-block, rapid override <=25%, hand on FEED-HOLD )
+(  *** Speeds/feeds are CONSERVATIVE handbook starts for ANNEALED stock - verify )
+(  *** Work offset / feed-mode codes vary by OSP generation - VERIFY on the control )
+( ============================================================ )
+G20                ( INCH )
+G40                ( CANCEL TNR COMP )
+G50 S3500      ( SPINDLE SPEED MAX CLAMP )
+
+( --- T1  ROUGH+FINISH OD  (CNMG432 COATED CARBIDE) --- )
+N1 T0101
+G96 S250 M03       ( CSS 250 SFM )
+G95                ( FEED PER REV )
+G00 X1.700 Z.100 M08
+G00 Z0.005
+G01 X-.040 F.006   ( FACE TOP, LEAVE .005 ON DATUM FACE )
+G00 X1.700 Z.050
+G00 X1.560         ( OD ROUGH PASS 1 )
+G01 Z-2.270 F.012
+G00 X1.620 Z.050
+G00 X1.512         ( OD FINISH .512 )
+G96 S350
+G01 Z-2.270 F.006
+G00 X1.700 Z.100
+( --- T5  CENTER DRILL + DRILL .46 THRU (PECK) --- )
+N5 T0505
+G97 S1200 M03      ( DIRECT RPM FOR DRILL )
+G00 X0 Z.150
+G01 Z-.45 F.005    ( PECK 1 )
+G00 Z.05
+G01 Z-.95 F.005    ( PECK 2 )
+G00 Z.05
+G01 Z-1.55 F.005   ( PECK 3 )
+G00 Z.05
+G01 Z-2.40 F.005   ( PECK 4 - THRU )
+G00 Z.150
+G00 X6.000 Z3.000 T0500
+( --- T7  BORE SMALL THRU-BORE .509  (HONE TO .515/.510) --- )
+N7 T0707
+G96 S200 M03
+G42
+G00 X.509 Z.100
+G01 Z-2.40 F.005   ( BORE .509 FULL THRU )
+G00 X.470 Z.100    ( CLEAR OFF BORE WALL )
+G40
+G00 X6.000 Z3.000 T0700
+( --- T9  BORE .80 x .70 COUNTERBORE FROM TOP --- )
+N9 T0909
+G96 S200 M03
+G42
+G00 X.560 Z.100
+G00 Z.020
+G01 Z0.0 F.006
+G01 X.800 Z0.0     ( OPEN TO .80 AT FACE )
+G01 Z-.700 F.005   ( .80 C'BORE .70 DEEP )
+G01 X.520 Z-.700   ( FACE C'BORE FLOOR BACK TO BORE )
+G40
+G00 X.470 Z.100
+G00 X6.000 Z3.000 T0900
+( --- T11 CHAMFER TOP OD EDGE .06x45 --- )
+N11 T1111
+G96 S250 M03
+G00 X1.700 Z.100
+G00 X1.380 Z0.0
+G01 X1.512 Z-.066 F.004   ( .06x45 TOP OD CHAMFER )
+G00 X1.700 Z.050
+( --- T13 PART OFF AT 2.250 (BLADE .125 WIDE) --- )
+N13 T1313
+G97 S700 M03
+G00 X1.560 Z-2.316       ( BLADE LEFT EDGE AT 2.250 )
+G01 X.470 F.003          ( PART OFF TO BORE )
+G00 X1.700 M09
+G00 X6.000 Z3.000 T1300
+M05
+( OP2 (FLIP, soft-jaw on OD): FACE BOTTOM TO 2.250, .06x45 BOTTOM OD CHMF, DEBURR BORE. )
+( THEN HEAT TREAT Rc56-58 -> OD GRIND 1.501/1.500 + faces (datum A .0005), HONE BORE .515/.510 )
+M02

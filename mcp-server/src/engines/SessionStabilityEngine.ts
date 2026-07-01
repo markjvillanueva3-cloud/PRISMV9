@@ -273,7 +273,7 @@ class SessionStabilityEngine {
     const recent = this.stateHistory.slice(-5);
     const lyapunovValues = recent.map(s => this.computeLyapunov(s));
 
-    const diffs = [];
+    const diffs: number[] = [];
     for (let i = 1; i < lyapunovValues.length; i++) {
       diffs.push(lyapunovValues[i] - lyapunovValues[i - 1]);
     }

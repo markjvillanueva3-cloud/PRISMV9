@@ -28,7 +28,7 @@ related:
 | Course ID | `course-0b-hand-tools` |
 | Source | `mcp-server/src/data/academy/course-0b-hand-tools.ts` |
 | Level | Novice |
-| Modules (declared / counted) | 10 / 11 |
+| Modules (declared / counted) | 10 / 12 |
 | Lessons (counted) | ? |
 | Est. hours | 8 |
 

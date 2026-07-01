@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="generator" content="SpecHTMLCompanionEngine">
+<meta name="prism-source-hash" content="e35f92b90baa3ffab721b2803b1baafff8d200818ed78e50a730b1391d5580b6">
+<title>COURSE-DATA-ROUTING-PIPELINE — Design (U-KC-D1)</title>
+<style>
+:root, [data-theme="light"] {
+  --bg:#ffffff; --bg-soft:#f6f8fa; --bg-code:#f6f8fa; --fg:#1f2328; --fg-muted:#636c76;
+  --border:#d0d7de; --accent:#0969da; --accent-soft:#ddf4ff; --thead:#f6f8fa; --quote:#656d76;
+  --table-stripe:#f6f8fa;
+}
+[data-theme="dark"] {
+  --bg:#0d1117; --bg-soft:#161b22; --bg-code:#161b22; --fg:#e6edf3; --fg-muted:#8b949e;
+  --border:#30363d; --accent:#2f81f7; --accent-soft:#163356; --thead:#161b22; --quote:#8b949e;
+  --table-stripe:#11151c;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg:#0d1117; --bg-soft:#161b22; --bg-code:#161b22; --fg:#e6edf3; --fg-muted:#8b949e;
+    --border:#30363d; --accent:#2f81f7; --accent-soft:#163356; --thead:#161b22; --quote:#8b949e;
+    --table-stripe:#11151c;
+  }
+}
+* { box-sizing:border-box; }
+html { scroll-behavior:smooth; }
+body { margin:0; background:var(--bg); color:var(--fg); font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif; line-height:1.6; font-size:16px; }
+.skip-link { position:absolute; left:-9999px; top:0; background:var(--accent); color:#fff; padding:8px 14px; z-index:100; border-radius:0 0 6px 0; }
+.skip-link:focus { left:0; }
+.layout { display:grid; grid-template-columns:minmax(0,1fr); max-width:1180px; margin:0 auto; padding:0 20px; }
+@media (min-width:1000px) { .layout { grid-template-columns:260px minmax(0,1fr); gap:40px; } }
+header.doc-head { grid-column:1 / -1; padding:28px 0 16px; border-bottom:1px solid var(--border); }
+header.doc-head h1.page-title { margin:0 0 6px; font-size:1.9rem; line-height:1.25; }
+header.doc-head .provenance { color:var(--fg-muted); font-size:.85rem; margin:0; }
+header.doc-head .theme-toggle { float:right; background:var(--bg-soft); color:var(--fg); border:1px solid var(--border); border-radius:6px; padding:5px 10px; font-size:.8rem; cursor:pointer; }
+nav.toc { align-self:start; position:sticky; top:16px; max-height:calc(100vh - 32px); overflow:auto; font-size:.85rem; padding:14px 0; }
+@media (max-width:999px) { nav.toc { position:static; max-height:none; border-bottom:1px solid var(--border); margin-bottom:12px; } }
+nav.toc .toc-title { font-weight:600; color:var(--fg-muted); text-transform:uppercase; letter-spacing:.04em; font-size:.7rem; margin-bottom:8px; }
+nav.toc ul { list-style:none; margin:0; padding:0; }
+nav.toc li a { color:var(--fg-muted); text-decoration:none; display:block; padding:3px 6px; border-left:2px solid transparent; border-radius:0 4px 4px 0; }
+nav.toc li a:hover { color:var(--accent); background:var(--accent-soft); border-left-color:var(--accent); }
+nav.toc li a.active { color:var(--accent); background:var(--accent-soft); border-left-color:var(--accent); font-weight:600; }
+nav.toc .toc-l2 a { padding-left:14px; } nav.toc .toc-l3 a { padding-left:26px; font-size:.95em; } nav.toc .toc-l4 a { padding-left:38px; font-size:.9em; }
+nav.toc input.toc-search { width:100%; box-sizing:border-box; margin:0 0 8px; padding:5px 8px; font-size:.82rem; border:1px solid var(--border); border-radius:5px; background:var(--bg); color:var(--fg); }
+nav.toc input.toc-search:focus { outline:2px solid var(--accent); outline-offset:-1px; }
+nav.toc .toc-search-status { font-size:.7rem; color:var(--fg-muted); min-height:1em; margin:-4px 0 6px; }
+nav.toc li.toc-hidden { display:none; }
+main.doc-body mark.search-hit { background:#fff3a3; color:#1f2328; border-radius:2px; padding:0 1px; }
+main.doc-body mark.search-hit.current { outline:2px solid var(--accent); outline-offset:1px; }
+main.doc-body { min-width:0; padding:24px 0 64px; }
+main.doc-body h1,main.doc-body h2,main.doc-body h3,main.doc-body h4,main.doc-body h5,main.doc-body h6 { line-height:1.3; margin-top:1.8em; margin-bottom:.6em; scroll-margin-top:16px; position:relative; }
+main.doc-body h1 { font-size:1.7rem; border-bottom:1px solid var(--border); padding-bottom:.3em; }
+main.doc-body h2 { font-size:1.4rem; border-bottom:1px solid var(--border); padding-bottom:.3em; }
+main.doc-body h3 { font-size:1.18rem; } main.doc-body h4 { font-size:1.02rem; }
+main.doc-body a.anchor { position:absolute; left:-1.1em; opacity:0; text-decoration:none; color:var(--fg-muted); font-weight:400; padding-right:.3em; }
+main.doc-body h1:hover a.anchor,main.doc-body h2:hover a.anchor,main.doc-body h3:hover a.anchor,main.doc-body h4:hover a.anchor { opacity:1; }
+main.doc-body a { color:var(--accent); text-decoration:none; } main.doc-body a:hover { text-decoration:underline; }
+main.doc-body p { margin:.8em 0; }
+main.doc-body code { background:var(--bg-code); border-radius:4px; padding:.15em .35em; font-size:.88em; font-family:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace; }
+main.doc-body pre { background:var(--bg-code); border:1px solid var(--border); border-radius:8px; padding:14px 16px; overflow:auto; line-height:1.45; }
+main.doc-body pre code { background:none; padding:0; font-size:.86rem; }
+main.doc-body blockquote { margin:1em 0; padding:.4em 1em; border-left:4px solid var(--border); color:var(--quote); }
+main.doc-body ul,main.doc-body ol { margin:.6em 0; padding-left:1.6em; }
+main.doc-body li { margin:.2em 0; }
+main.doc-body hr { border:0; border-top:1px solid var(--border); margin:2em 0; }
+main.doc-body .table-wrap { overflow-x:auto; margin:1em 0; }
+main.doc-body table { border-collapse:collapse; width:100%; font-size:.9rem; }
+main.doc-body th,main.doc-body td { border:1px solid var(--border); padding:6px 11px; text-align:left; vertical-align:top; }
+main.doc-body thead th { background:var(--thead); }
+main.doc-body tbody tr:nth-child(2n) { background:var(--table-stripe); }
+main.doc-body details.frontmatter { background:var(--bg-soft); border:1px solid var(--border); border-radius:8px; padding:6px 14px; margin:0 0 22px; }
+main.doc-body details.frontmatter summary { cursor:pointer; font-weight:600; color:var(--fg-muted); }
+main.doc-body details.frontmatter table { font-size:.82rem; }
+main.doc-body details.frontmatter th { width:1%; white-space:nowrap; background:transparent; color:var(--fg-muted); }
+main.doc-body .mermaid { background:var(--bg-soft); border:1px solid var(--border); border-radius:8px; padding:14px; margin:1em 0; text-align:center; overflow:auto; white-space:pre-wrap; }
+main.doc-body .truncation-notice { background:var(--accent-soft); border:1px solid var(--accent); border-radius:6px; padding:10px 14px; font-size:.9rem; }
+footer.doc-foot { grid-column:1 / -1; border-top:1px solid var(--border); margin-top:48px; padding:18px 0 40px; color:var(--fg-muted); font-size:.82rem; }
+footer.doc-foot code { background:var(--bg-code); border-radius:4px; padding:.12em .3em; }
+</style>
+</head>
+<body>
+<a class="skip-link" href="#content">Skip to content</a>
+<div class="layout">
+<header class="doc-head">
+<button id="themeToggle" class="theme-toggle" type="button" aria-label="Toggle color theme">◐ theme</button>
+<h1 class="page-title" id="top">COURSE-DATA-ROUTING-PIPELINE — Design (U-KC-D1)</h1>
+<p class="provenance">Generated 2026-05-18T17:34:20.368Z by <code>scripts/emit-all-spec-html.ts</code> · the Markdown alongside is canonical</p>
+</header>
+<nav class="toc" aria-label="Table of contents"><div class="toc-title">On this page</div><input type="search" class="toc-search" placeholder="Search this page…" aria-label="Search this page" autocomplete="off"><div class="toc-search-status" aria-live="polite"></div><ul>
+<li class="toc-l1"><a href="#course-data-routing-pipeline-design-u-kc-d1">COURSE-DATA-ROUTING-PIPELINE — Design (U-KC-D1)</a></li>
+<li class="toc-l2"><a href="#problem">Problem</a></li>
+<li class="toc-l2"><a href="#architecture">Architecture</a></li>
+<li class="toc-l2"><a href="#node-type-taxonomy-what-course-data-can-populate">Node-type taxonomy — what course data can populate</a></li>
+<li class="toc-l2"><a href="#how-the-ai-system-uses-each-node-type">How the AI system uses each node type</a></li>
+<li class="toc-l2"><a href="#routing-rules-per-kind">Routing rules (per-kind)</a></li>
+<li class="toc-l3"><a href="#technique-always-tribal-shipped-lane-a">technique → ALWAYS TRIBAL-SHIPPED (Lane A)</a></li>
+<li class="toc-l3"><a href="#algorithm-duplicate-forge-queue-discard">algorithm → DUPLICATE / FORGE-QUEUE / DISCARD</a></li>
+<li class="toc-l3"><a href="#formula-always-forge-queue-lane-c-or-discard">formula → ALWAYS FORGE-QUEUE Lane C (or DISCARD)</a></li>
+<li class="toc-l3"><a href="#engine-duplicate-forge-queue-discard">engine → DUPLICATE / FORGE-QUEUE / DISCARD</a></li>
+<li class="toc-l2"><a href="#thresholds-adjustable-rgs6-tunable">Thresholds — adjustable, RGS6-tunable</a></li>
+<li class="toc-l2"><a href="#what-the-ai-system-can-use-it-for">What the AI system can use it for</a></li>
+<li class="toc-l2"><a href="#files">Files</a></li>
+<li class="toc-l2"><a href="#re-run">Re-run</a></li>
+<li class="toc-l2"><a href="#live-results-2026-05-17-first-run">Live results (2026-05-17 first run)</a></li>
+<li class="toc-l2"><a href="#future-extensions-not-in-this-unit">Future extensions (not in this unit)</a></li>
+<li class="toc-l2"><a href="#doctrine-alignment-claudemd">Doctrine alignment (CLAUDE.md)</a></li>
+</ul></nav>
+<main id="content" class="doc-body" role="main">
+<h1 id="course-data-routing-pipeline-design-u-kc-d1"><a class="anchor" href="#course-data-routing-pipeline-design-u-kc-d1" aria-label="Permalink to COURSE-DATA-ROUTING-PIPELINE — Design (U-KC-D1)">#</a>COURSE-DATA-ROUTING-PIPELINE — Design (U-KC-D1)</h1>
+<p><strong>Milestone:</strong> KNOWLEDGE-CONVERSION-MS0 Phase 3 Lane C <strong>Unit:</strong> U-KC-D1 <strong>Date:</strong> 2026-05-17 <strong>Author:</strong> claude-41db1b82 (slot india) <strong>Status:</strong> shipped (advisory-only — never auto-builds)</p>
+<h2 id="problem"><a class="anchor" href="#problem" aria-label="Permalink to Problem">#</a>Problem</h2>
+<p>Course data extracted from MIT-OCW (and future sources) lands in <code>state/shared/tribal-graph/course-content-candidates.jsonl</code> — 65 candidates, 126 assets, each pre-tagged with <code>kind</code> ∈ {algorithm, technique, formula, engine}. Phase 1 Lane A (<code>scripts/course-to-tribal-tips.mjs</code>) already emits tribal-tip knowledge entries for every candidate. The remaining question: <strong>what else can each piece of course data populate?</strong> An algorithm name might already exist as a PRISM algorithm file (DUPLICATE — no port needed). A formula might be a /forge candidate that needs physics-reviewer agent gating. An engine concept might warrant a <code>/forge-triple</code> proposal.</p>
+<p>The CLAUDE.md doctrine is explicit: never auto-emit physics constants, never auto-build engines/skills/hooks. So this layer is <strong>routing + advisory queue</strong>, not auto-emission. Downstream <code>/forge</code> + <code>physics-reviewer agent</code></p>
+<ul>
+<li>human review fan out from the queue.</li>
+</ul>
+<h2 id="architecture"><a class="anchor" href="#architecture" aria-label="Permalink to Architecture">#</a>Architecture</h2>
+<pre><code>┌────────────────────────────────────────────────────────────────────────┐
+│  course-content-candidates.jsonl  (65 candidates × ~2 assets each)     │
+│  schema: { courseId, candidateAssets:[{kind,name,rationale}],          │
+│            mfgRelevance, prismDomains, rank, ... }                     │
+└──────────────────────────────────┬─────────────────────────────────────┘
+                                   │
+                                   ▼
+              ┌──────────────────────────────────────────────┐
+              │  scripts/course-data-router.mjs (CLI)        │
+              │  ├ readCandidates() — JSONL parser           │
+              │  ├ readInventoryNames() — algos + engines    │
+              │  └ buildLedger() ──┐                         │
+              └────────────────────┼─────────────────────────┘
+                                   │
+                                   ▼
+              ┌──────────────────────────────────────────────┐
+              │  scripts/lib/course-data-router-lib.mjs      │
+              │  ├ normalizeNameTokens() — CamelCase-aware   │
+              │  ├ tokenMatchScore() — coverage-of-candidate │
+              │  ├ findBestMatch() — dedup against inventory │
+              │  ├ routeAsset() — per-kind routing rules     │
+              │  ├ routeCandidate() — fan-out per candidate  │
+              │  └ buildLedger() — aggregate + roll-up summary│
+              └────────────────────┬─────────────────────────┘
+                                   │
+                                   ▼
+       ┌───────────────────────────────────────────────────────┐
+       │  COURSE-DATA-ROUTING-LEDGER.{json,md}                 │
+       │  advisoryOnly: true, mustHumanVerify: true            │
+       │  summary: byDecision/byNodeType/byLane                │
+       │  items[]: {courseId, decisions[]}                     │
+       └────────────────────┬──────────────────────────────────┘
+                            │
+            ┌───────────────┼───────────────┬─────────────────┐
+            ▼               ▼               ▼                 ▼
+       TRIBAL-SHIPPED   DUPLICATE       FORGE-QUEUE       DISCARD
+        (Lane A)        (Lane B)         (Lane C)         (none)
+            │               │               │                 │
+      Phase 1 done    verify scope    /forge-triple        drop
+                      against PRISM   physics-reviewer
+                                      human gate
+</code></pre>
+<h2 id="node-type-taxonomy-what-course-data-can-populate"><a class="anchor" href="#node-type-taxonomy-what-course-data-can-populate" aria-label="Permalink to Node-type taxonomy — what course data can populate">#</a>Node-type taxonomy — what course data can populate</h2>
+<p>The router maps <code>candidateAssets[].kind</code> (the source-side categorization) to PRISM <strong>node types</strong> (the destination-side surface):</p>
+<div class="table-wrap"><table>
+<thead><tr><th>Source kind</th><th>Node type</th><th>Destination surface</th><th>Lane</th></tr></thead>
+<tbody>
+<tr><td><code>technique</code></td><td>knowledge</td><td><code>cad-engine/knowledge_store/mit-ocw-course-tips.json</code> (TribalKnowledgeEngine auto-load)</td><td>A (Phase 1 done)</td></tr>
+<tr><td><code>algorithm</code></td><td>algorithm</td><td><code>mcp-server/src/algorithms/*.ts</code> (computational procedure)</td><td>B if DUPLICATE, C if FORGE-QUEUE</td></tr>
+<tr><td><code>formula</code></td><td>formula</td><td><code>src/physics/constants.ts</code> + <code>prism_calc:&lt;action&gt;</code></td><td><strong>ALWAYS C</strong> (physics-reviewer agent gate)</td></tr>
+<tr><td><code>engine</code></td><td>engine</td><td><code>mcp-server/src/engines/*.ts</code> (stateful processing unit)</td><td>B if DUPLICATE, C if FORGE-QUEUE</td></tr>
+<tr><td><em>(derived)</em></td><td>skill</td><td><code>.claude/commands/*.md</code> runbook</td><td>C — emerges from multiple co-occurring techniques</td></tr>
+<tr><td><em>(derived)</em></td><td>pipeline</td><td>multi-step orchestration via <code>prism_orchestrate</code> or composed skill</td><td>C — emerges from technique clusters</td></tr>
+</tbody>
+</table></div>
+<p>The <code>skill</code> and <code>pipeline</code> node-types are not directly emitted by the router — they appear when the human operator reviews the forge-queue and recognizes a compound pattern. The router gives them the raw signal (per-asset routing decisions); composition is the operator&#39;s call.</p>
+<h2 id="how-the-ai-system-uses-each-node-type"><a class="anchor" href="#how-the-ai-system-uses-each-node-type" aria-label="Permalink to How the AI system uses each node type">#</a>How the AI system uses each node type</h2>
+<ul>
+<li><strong>knowledge</strong> (<code>prism_knowledge:tribal_search</code>) — semantic retrieval at prompt time. Already wired (Phase 1). Every chat surfaces relevant tips via <code>tribal-by-domain-inject</code> hook.</li>
+<li><strong>algorithm</strong> — discrete computational primitives composable into reasoning chains. Reachable via <code>prism_calc:algorithm_*</code> actions + direct import in engines.</li>
+<li><strong>formula</strong> — canonical equations + constants. The <code>src/physics/constants.ts</code> centralization rule means every formula gets one safe source-of-truth. AI reasoning chains call <code>prism_calc:&lt;action&gt;</code> rather than re-deriving.</li>
+<li><strong>engine</strong> — long-lived stateful processors. Wired into dispatchers, callable from any skill / hook / orchestrator action.</li>
+<li><strong>skill</strong> — slash-command runbooks the user invokes. Each captures a multi-step workflow.</li>
+<li><strong>pipeline</strong> — composed orchestrations via <code>prism_orchestrate</code> or chained skill+dispatcher calls. The highest-level surface for AI-driven reasoning.</li>
+</ul>
+<h2 id="routing-rules-per-kind"><a class="anchor" href="#routing-rules-per-kind" aria-label="Permalink to Routing rules (per-kind)">#</a>Routing rules (per-kind)</h2>
+<h3 id="technique-always-tribal-shipped-lane-a"><a class="anchor" href="#technique-always-tribal-shipped-lane-a" aria-label="Permalink to technique → ALWAYS TRIBAL-SHIPPED (Lane A)">#</a><code>technique</code> → ALWAYS TRIBAL-SHIPPED (Lane A)</h3>
+<p>No re-emission. Phase 1 already ingests every course technique as a <code>KnowledgeTip</code> and the engine loader (<code>TribalKnowledgeEngine.loadDocument- LearnedTips()</code>) auto-loads them. Verification: <code>prism_knowledge:tribal_search { query: &quot;&lt;technique&gt;&quot; }</code> returns the tip.</p>
+<h3 id="algorithm-duplicate-forge-queue-discard"><a class="anchor" href="#algorithm-duplicate-forge-queue-discard" aria-label="Permalink to algorithm → DUPLICATE / FORGE-QUEUE / DISCARD">#</a><code>algorithm</code> → DUPLICATE / FORGE-QUEUE / DISCARD</h3>
+<ol>
+<li>Tokenize <code>name</code> (CamelCase-aware: <code>OperatorSplittingMethod</code> → <code>[operator, splitting]</code> after stripping <code>Method</code> suffix).</li>
+<li>Against <code>mcp-server/src/algorithms/*.ts</code> name list, find best token-match score (<code>coverage-of-candidate</code> metric — full candidate-token coverage = 1.0).</li>
+<li>If score ≥ <code>DEDUP_MATCH_SCORE</code> (0.6) → <strong>DUPLICATE</strong> Lane B. Human verifies scope match; if course version adds variant, propose extension via <code>/forge</code> — never duplicate the file.</li>
+<li>Else if <code>mfgRelevance ≥ ALGORITHM_FORGE_MIN_RELEVANCE</code> (0.5) → <strong>FORGE-QUEUE</strong> Lane C. Action: <code>/forge-triple algorithm:&lt;name&gt;</code>.</li>
+<li>Else → <strong>DISCARD</strong> — below mfg-relevance floor for an algorithm port.</li>
+</ol>
+<h3 id="formula-always-forge-queue-lane-c-or-discard"><a class="anchor" href="#formula-always-forge-queue-lane-c-or-discard" aria-label="Permalink to formula → ALWAYS FORGE-QUEUE Lane C (or DISCARD)">#</a><code>formula</code> → ALWAYS FORGE-QUEUE Lane C (or DISCARD)</h3>
+<p>Doctrine pin (CLAUDE.md §SAFETY): NEVER inline physics constants. Formulas ALWAYS require physics-reviewer agent verification of:</p>
+<ul>
+<li>dimensional consistency</li>
+<li>equation form against canonical references</li>
+<li>constant values against <code>src/physics/constants.ts</code></li>
+</ul>
+<p>So formulas with <code>mfgRelevance ≥ FORMULA_DISCARD_FLOOR</code> (0.3) go to FORGE-QUEUE with recommendedAction citing the physics-reviewer step. Lower relevance → DISCARD.</p>
+<h3 id="engine-duplicate-forge-queue-discard"><a class="anchor" href="#engine-duplicate-forge-queue-discard" aria-label="Permalink to engine → DUPLICATE / FORGE-QUEUE / DISCARD">#</a><code>engine</code> → DUPLICATE / FORGE-QUEUE / DISCARD</h3>
+<p>Same dedup logic as algorithm, but against <code>mcp-server/src/engines/*.ts</code> and with a higher threshold (<code>ENGINE_FORGE_MIN_RELEVANCE</code> = 0.6 vs 0.5 for algorithms) — engines need the full <code>/forge-triple</code> (engine + skill + hook), not just a single algorithm file, so the bar is higher.</p>
+<h2 id="thresholds-adjustable-rgs6-tunable"><a class="anchor" href="#thresholds-adjustable-rgs6-tunable" aria-label="Permalink to Thresholds — adjustable, RGS6-tunable">#</a>Thresholds — adjustable, RGS6-tunable</h2>
+<div class="table-wrap"><table>
+<thead><tr><th>Constant</th><th>Value</th><th>Rationale</th></tr></thead>
+<tbody>
+<tr><td><code>DEDUP_MATCH_SCORE</code></td><td>0.6</td><td>Token-coverage required to call DUPLICATE — empirically distinguishes &quot;same concept&quot; from &quot;shares word&quot;</td></tr>
+<tr><td><code>ALGORITHM_FORGE_MIN_RELEVANCE</code></td><td>0.5</td><td>mfgRelevance floor for algorithm → forge-queue</td></tr>
+<tr><td><code>ENGINE_FORGE_MIN_RELEVANCE</code></td><td>0.6</td><td>Higher bar for engines (full /forge-triple cost)</td></tr>
+<tr><td><code>FORMULA_DISCARD_FLOOR</code></td><td>0.3</td><td>Formulas always forge-queue if above this; physics-reviewer gates further</td></tr>
+</tbody>
+</table></div>
+<p>Future: feed observed false-positive / false-negative rates into RGS6 <code>adaptive-thresholds</code> (the 6-magic-number self-tuner) for continuous calibration.</p>
+<h2 id="what-the-ai-system-can-use-it-for"><a class="anchor" href="#what-the-ai-system-can-use-it-for" aria-label="Permalink to What the AI system can use it for">#</a>What the AI system can use it for</h2>
+<p>This routing is the <strong>enrichment seam</strong> between MIT-OCW (or future-source) course material and PRISM&#39;s reasoning surfaces:</p>
+<ol>
+<li><strong>Logic/reasoning enrichment</strong> — every TRIBAL-SHIPPED entry feeds <code>tribal-by-domain-inject</code> hook → every chat prompt sees relevant course-derived tips at runtime.</li>
+<li><strong>Skill discovery</strong> — FORGE-QUEUE items become candidate proposals for new skills (<code>.claude/commands/*.md</code>) when the operator runs <code>/forge-triple</code>.</li>
+<li><strong>Algorithm corpus growth</strong> — FORGE-QUEUE algorithm items become candidate <code>mcp-server/src/algorithms/*.ts</code> files after physics-reviewer (for math-heavy) + scrutiny gate.</li>
+<li><strong>Engine inventory growth</strong> — FORGE-QUEUE engine items become candidate engines after the higher-bar review.</li>
+<li><strong>Cross-domain synthesis</strong> — <code>PRISMCreativeReasoningEngine</code> consumes tribal-tips + formula registry + algorithm registry to compose novel solutions. Every routed asset enlarges that surface.</li>
+<li><strong>Learning corpus</strong> — the ledger itself is training data: shows which course concepts already exist in PRISM (DUPLICATE) vs which are gaps (FORGE-QUEUE) → guides future course-mining priorities.</li>
+</ol>
+<h2 id="files"><a class="anchor" href="#files" aria-label="Permalink to Files">#</a>Files</h2>
+<div class="table-wrap"><table>
+<thead><tr><th>File</th><th>Role</th></tr></thead>
+<tbody>
+<tr><td><code>scripts/lib/course-data-router-lib.mjs</code></td><td>Pure-core routing library (14 exports, hermetic)</td></tr>
+<tr><td><code>scripts/lib/course-data-router-lib.test.mjs</code></td><td>30 tests (node:test) — 29 hermetic + 1 real-data E2E</td></tr>
+<tr><td><code>scripts/course-data-router.mjs</code></td><td>CLI runner — reads candidates + inventory, emits ledger</td></tr>
+<tr><td><code>state/shared/specs/COURSE-DATA-ROUTING-LEDGER.json</code></td><td>Generated ledger (advisory)</td></tr>
+<tr><td><code>state/shared/specs/COURSE-DATA-ROUTING-LEDGER.md</code></td><td>Human-readable ledger view</td></tr>
+<tr><td><code>state/shared/specs/COURSE-DATA-ROUTING-PIPELINE.md</code></td><td>This design doc</td></tr>
+</tbody>
+</table></div>
+<h2 id="re-run"><a class="anchor" href="#re-run" aria-label="Permalink to Re-run">#</a>Re-run</h2>
+<pre><code class="language-bash"># Standard (uses current Date.now()):
+node scripts/course-data-router.mjs
+
+# Deterministic (diff-friendly):
+node scripts/course-data-router.mjs --frozen-time 2026-05-17T00:00:00Z
+
+# Inspect without writing:
+node scripts/course-data-router.mjs --dry-run
+
+# Pipe ledger to stdout:
+node scripts/course-data-router.mjs --json | jq &#39;.summary&#39;
+</code></pre>
+<p>Tests:</p>
+<pre><code class="language-bash">&quot;H:/.claude/bin/portable-node&quot; --test scripts/lib/course-data-router-lib.test.mjs
+</code></pre>
+<h2 id="live-results-2026-05-17-first-run"><a class="anchor" href="#live-results-2026-05-17-first-run" aria-label="Permalink to Live results (2026-05-17 first run)">#</a>Live results (2026-05-17 first run)</h2>
+<ul>
+<li><strong>65</strong> candidates · <strong>126</strong> assets routed</li>
+<li><strong>TRIBAL-SHIPPED</strong>: 31 (Phase 1 covers these)</li>
+<li><strong>FORGE-QUEUE</strong>: 69 (Lane C candidates — real ask for human gate)</li>
+<li><strong>DUPLICATE</strong>: 10 (Lane B — verify scope; some dedup false-positives e.g. <code>pipeline-engine → AdaptivePipelineGeneratorEngine</code> need human filtering)</li>
+<li><strong>DISCARD</strong>: 16 (below mfg-relevance floor)</li>
+</ul>
+<p>Sample real candidates surfaced for /forge:</p>
+<ul>
+<li><code>algorithm:operator-splitting</code> (course 10.34 — numerical methods)</li>
+<li><code>algorithm:bernoullis-equation-solver</code> (course 1.060 — fluid mechanics)</li>
+<li><code>formula:moody-diagram-analysis</code> (1.060 — physics-reviewer first)</li>
+<li><code>engine:lean-enterprise-engine</code> (16.852j — lean manufacturing)</li>
+</ul>
+<h2 id="future-extensions-not-in-this-unit"><a class="anchor" href="#future-extensions-not-in-this-unit" aria-label="Permalink to Future extensions (not in this unit)">#</a>Future extensions (not in this unit)</h2>
+<ul>
+<li><strong><code>skill</code> + <code>pipeline</code> auto-detection</strong> — cluster co-occurring techniques within a candidate to suggest composed skill / pipeline candidates.</li>
+<li><strong><code>/forge-queue</code> skill</strong> — operator slash-command that consumes the ledger&#39;s FORGE-QUEUE items and walks the human through approve/reject.</li>
+<li><strong>Other source types</strong> — same router structure works for PDF-extracted candidates (<code>/pdf-learn</code> output), video-extracted candidates (<code>/video-learn</code>), and shop-floor tribal capture.</li>
+<li><strong>RGS6 threshold self-tuning</strong> — feed approve/reject rates back into <code>adaptive-thresholds</code>.</li>
+</ul>
+<h2 id="doctrine-alignment-claudemd"><a class="anchor" href="#doctrine-alignment-claudemd" aria-label="Permalink to Doctrine alignment (CLAUDE.md)">#</a>Doctrine alignment (CLAUDE.md)</h2>
+<ul>
+<li>✓ Karpathy R8 (read before write) — surveyed existing <code>course-mapper-lib</code>, <code>course-content-mine-lib</code>, <code>tribal-graph-*</code> scripts before designing.</li>
+<li>✓ Karpathy R11 (conform) — uses existing <code>course-content-candidates.jsonl</code> schema; pure-core + injected readers pattern from RGS-TOOL-MS1.</li>
+<li>✓ Karpathy R12 (fail-loud) — validators throw on malformed input; unknown asset kinds DISCARD with audit-trail rationale (not silent-drop).</li>
+<li>✓ NEVER inline physics constants — formula path always forge-queue.</li>
+<li>✓ NEVER create stub engines — router NEVER auto-emits; only proposes.</li>
+<li>✓ Advisory + <code>mustHumanVerify: true</code> — every downstream consumer is warned.</li>
+<li>✓ 1 real-data E2E test (RGS-TOOL-MS1 lesson) — hermetic-only fakes hide schema-seam bugs.</li>
+</ul>
+</main>
+<footer class="doc-foot">
+<p>HTML companion — the canonical document is the Markdown file alongside it. <a href="COURSE-DATA-ROUTING-PIPELINE.md">COURSE-DATA-ROUTING-PIPELINE.md</a> Regenerate: <code>node scripts/emit-spec-html.mjs &lt;path.md&gt;</code></p>
+
+</footer>
+</div>
+<script>(function(){
+  try {
+    var k = "prism-spec-theme";
+    var saved = localStorage.getItem(k);
+    if (saved === "dark" || saved === "light") document.documentElement.setAttribute("data-theme", saved);
+  } catch (e) { /* localStorage blocked — keep default theme */ }
+  var b = document.getElementById("themeToggle");
+  if (!b) return;
+  b.addEventListener("click", function () {
+    var cur = document.documentElement.getAttribute("data-theme");
+    var sysDark = !!(window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches);
+    var next = cur === "dark" ? "light" : cur === "light" ? "dark" : (sysDark ? "light" : "dark");
+    document.documentElement.setAttribute("data-theme", next);
+    b.textContent = next === "dark" ? "\u263E dark" : "\u2600 light";
+    try { localStorage.setItem(k, next); } catch (e) { /* persistence unavailable — non-fatal */ }
+  });
+})();</script>
+<script>(function(){
+  var body = document.querySelector("main.doc-body");
+  var toc = document.querySelector("nav.toc");
+  if (!body) return;
+  // TOC active-section highlight.
+  if (toc) {
+    var links = {};
+    toc.querySelectorAll("a[href^='#']").forEach(function(a){ links[a.getAttribute("href").slice(1)] = a; });
+    var heads = body.querySelectorAll("h1[id],h2[id],h3[id],h4[id]");
+    var active = null;
+    function setActive(id){
+      if (active === id) return;
+      if (active && links[active]) links[active].classList.remove("active");
+      active = id;
+      if (active && links[active]) links[active].classList.add("active");
+    }
+    var io = new IntersectionObserver(function(entries){
+      var top = null, topY = Infinity;
+      entries.forEach(function(e){ if (e.isIntersecting) { var y = e.boundingClientRect.top; if (y < topY) { topY = y; top = e.target.id; } } });
+      if (!top) {
+        var best = null;
+        heads.forEach(function(h){ if (h.getBoundingClientRect().top < 80) best = h.id; });
+        top = best || (heads[0] && heads[0].id);
+      }
+      if (top) setActive(top);
+    }, { rootMargin: "0px 0px -70% 0px", threshold: [0, 1] });
+    heads.forEach(function(h){ io.observe(h); });
+  }
+  // In-page search: wrap matches in <mark>, jump to first, filter the TOC.
+  var input = toc && toc.querySelector("input.toc-search");
+  var status = toc && toc.querySelector(".toc-search-status");
+  if (!input) return;
+  var SKIP = { SCRIPT:1, STYLE:1, MARK:1, NOSCRIPT:1 };
+  function clearMarks(){
+    body.querySelectorAll("mark.search-hit").forEach(function(m){ var p = m.parentNode; if (p) { p.replaceChild(document.createTextNode(m.textContent), m); p.normalize(); } });
+    if (toc) toc.querySelectorAll("li.toc-hidden").forEach(function(li){ li.classList.remove("toc-hidden"); });
+  }
+  function doSearch(q){
+    clearMarks();
+    if (status) status.textContent = "";
+    if (!q || q.length < 2) return;
+    var needle = q.toLowerCase(), hits = 0, first = null;
+    var walker = document.createTreeWalker(body, NodeFilter.SHOW_TEXT, { acceptNode: function(n){
+      if (!n.nodeValue || !n.nodeValue.trim()) return NodeFilter.FILTER_REJECT;
+      var p = n.parentNode; while (p && p !== body) { if (SKIP[p.nodeName]) return NodeFilter.FILTER_REJECT; p = p.parentNode; }
+      return n.nodeValue.toLowerCase().indexOf(needle) >= 0 ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT;
+    }});
+    var targets = [];
+    while (walker.nextNode()) targets.push(walker.currentNode);
+    targets.forEach(function(node){
+      if (hits > 2000) return;
+      var text = node.nodeValue, lower = text.toLowerCase(), frag = document.createDocumentFragment(), i = 0, idx;
+      while ((idx = lower.indexOf(needle, i)) >= 0 && hits <= 2000) {
+        if (idx > i) frag.appendChild(document.createTextNode(text.slice(i, idx)));
+        var m = document.createElement("mark"); m.className = "search-hit"; m.textContent = text.slice(idx, idx + needle.length);
+        if (hits === 0) { m.classList.add("current"); first = m; }
+        frag.appendChild(m); hits++; i = idx + needle.length;
+      }
+      if (i < text.length) frag.appendChild(document.createTextNode(text.slice(i)));
+      if (node.parentNode) node.parentNode.replaceChild(frag, node);
+    });
+    if (status) status.textContent = hits ? (hits + " match" + (hits === 1 ? "" : "es")) : "no matches";
+    if (toc) toc.querySelectorAll("li").forEach(function(li){ var a = li.querySelector("a"); if (a && a.textContent.toLowerCase().indexOf(needle) < 0) li.classList.add("toc-hidden"); });
+    if (first) first.scrollIntoView({ block: "center", behavior: "smooth" });
+  }
+  var t;
+  input.addEventListener("input", function(){ clearTimeout(t); t = setTimeout(function(){ doSearch(input.value.trim()); }, 180); });
+  input.addEventListener("keydown", function(e){ if (e.key === "Escape") { input.value = ""; doSearch(""); input.blur(); } });
+})();</script>
+</body>
+</html>

@@ -1,0 +1,224 @@
+{
+  "file_name": "PP-1005337 OP1 FUSION",
+  "file_id": "urn:adsk.wipprod:dm.lineage:jBZXc_izTseiau4FsUiMkA",
+  "project": "Mark Villanueva",
+  "folder": "Mark Villanueva",
+  "extracted_at": "2026-04-05T10:58:59",
+  "design": {
+    "body_count": 2,
+    "occurrence_count": 0,
+    "feature_count": 2,
+    "bodies": [
+      {
+        "name": "Solid1",
+        "volume_cm3": 5397.778235668669,
+        "area_cm2": 3117.7800690910144,
+        "face_count": 93,
+        "edge_count": 238
+      },
+      {
+        "name": "Solid2",
+        "volume_cm3": 0.4422560569891051,
+        "area_cm2": 5.658314855574014,
+        "face_count": 28,
+        "edge_count": 74
+      }
+    ]
+  },
+  "cam": {
+    "has_cam": true,
+    "setup_count": 1,
+    "setups": [
+      {
+        "name": "Setup1",
+        "type": "0",
+        "operations": [
+          {
+            "name": "2D Adaptive1",
+            "strategy": "adaptive2d",
+            "tool": {
+              "description": "#33 - \u00d81/2\"R0.047\" bullnose (1/2\" INGERSOLL .047R)",
+              "tool_diameter": "0.5in",
+              "tool_numberOfFlutes": "3",
+              "tool_bodyLength": "2.055in",
+              "tool_fluteLength": "0.125in",
+              "tool_cornerRadius": "0.047in",
+              "tool_shaftDiameter": "tool_diameter",
+              "tool_shoulderLength": "0.75in",
+              "tool_productId": "'.3187 ROC, .02 DOC'",
+              "tool_vendor": "''"
+            },
+            "parameters": {
+              "tool_spindleSpeed": "2962.",
+              "tool_feedCutting": "82.99999999999997in/min",
+              "tool_feedPlunge": "100.in/min",
+              "tool_surfaceSpeed": "tool_diameter * Math.PI * tool_spindleSpeed",
+              "tool_feedPerTooth": "tool_spindleSpeed > 0 ? tool_feedCutting/(tool_spindleSpeed * tool_numberOfFlutes) : 0.0",
+              "tool_feedPerRevolution": "tool_spindleSpeed > 0 ? tool_feedPlunge/tool_spindleSpeed : 0.0",
+              "maximumStepdown": ".02in",
+              "tolerance": "0.004in",
+              "optimalLoad": ".15in"
+            }
+          },
+          {
+            "name": "2D Adaptive1 (2)",
+            "strategy": "adaptive2d",
+            "tool": {
+              "description": "#26 - \u00d81/4\" flat (1/4 7F .5LOC)",
+              "tool_diameter": "0.25in",
+              "tool_numberOfFlutes": "7",
+              "tool_bodyLength": "0.625in",
+              "tool_fluteLength": "0.5in",
+              "tool_cornerRadius": "0.0in",
+              "tool_shaftDiameter": "tool_diameter",
+              "tool_shoulderLength": "tool_fluteLength",
+              "tool_productId": "'FINISHING CONTOUR'",
+              "tool_vendor": "'HELICAL'"
+            },
+            "parameters": {
+              "tool_spindleSpeed": "8403.38099525207326",
+              "tool_feedCutting": "tool_feedPerTooth * tool_spindleSpeed * tool_numberOfFlutes",
+              "tool_feedPlunge": "50.in/min",
+              "tool_surfaceSpeed": "tool_diameter * Math.PI * tool_spindleSpeed",
+              "tool_feedPerTooth": "0.0008 in",
+              "tool_feedPerRevolution": "tool_spindleSpeed > 0 ? tool_feedPlunge/tool_spindleSpeed : 0.0",
+              "maximumStepdown": ".02in",
+              "tolerance": "0.004in",
+              "optimalLoad": ".02in"
+            }
+          },
+          {
+            "name": "Ramp1",
+            "strategy": "ramp",
+            "tool": {
+              "description": "#33 - \u00d81/2\"R0.047\" bullnose (1/2\" INGERSOLL .047R)",
+              "tool_diameter": "0.5in",
+              "tool_numberOfFlutes": "3",
+              "tool_bodyLength": "2.055in",
+              "tool_fluteLength": "0.125in",
+              "tool_cornerRadius": "0.047in",
+              "tool_shaftDiameter": "tool_diameter",
+              "tool_shoulderLength": "0.75in",
+              "tool_productId": "'.3187 ROC, .02 DOC'",
+              "tool_vendor": "''"
+            },
+            "parameters": {
+              "tool_spindleSpeed": "3721 rpm",
+              "tool_feedCutting": "206 in/min",
+              "tool_feedPlunge": "100.in/min",
+              "tool_surfaceSpeed": "tool_diameter * Math.PI * tool_spindleSpeed",
+              "tool_feedPerTooth": "tool_spindleSpeed > 0 ? tool_feedCutting/(tool_spindleSpeed * tool_numberOfFlutes) : 0.0",
+              "tool_feedPerRevolution": "tool_spindleSpeed > 0 ? tool_feedPlunge/tool_spindleSpeed : 0.0",
+              "maximumStepdown": ".005in",
+              "tolerance": ".001in"
+            }
+          },
+          {
+            "name": "Ramp1 (2)",
+            "strategy": "ramp",
+            "tool": {
+              "description": "#55 - \u00d81/2\"R0.03\" bullnose (1/2\" .0248 ROC 6F YG-1 ROUGH)",
+              "tool_diameter": "0.5in",
+              "tool_numberOfFlutes": "6",
+              "tool_bodyLength": "1.625in",
+              "tool_fluteLength": "1.5in",
+              "tool_cornerRadius": "0.03in",
+              "tool_shaftDiameter": "tool_diameter",
+              "tool_shoulderLength": "tool_fluteLength",
+              "tool_productId": "'FINISHING CONTOUR'",
+              "tool_vendor": "'1.5 LOC'"
+            },
+            "parameters": {
+              "tool_spindleSpeed": "10000 rpm",
+              "tool_feedCutting": "tool_feedPerTooth * tool_spindleSpeed * tool_numberOfFlutes",
+              "tool_feedPlunge": "100.in/min",
+              "tool_surfaceSpeed": "tool_diameter * Math.PI * tool_spindleSpeed",
+              "tool_feedPerTooth": "0.003 in",
+              "tool_feedPerRevolution": "tool_spindleSpeed > 0 ? tool_feedPlunge/tool_spindleSpeed : 0.0",
+              "maximumStepdown": ".005in",
+              "tolerance": ".001in"
+            }
+          },
+          {
+            "name": "Rotary Parallel1",
+            "strategy": "rotary_finishing",
+            "tool": {
+              "description": "#38 - \u00d80.047\" ball (.047 BALL)",
+              "tool_diameter": "0.047in",
+              "tool_numberOfFlutes": "2",
+              "tool_bodyLength": "0.7in",
+              "tool_fluteLength": "0.075in",
+              "tool_cornerRadius": "0.0235in",
+              "tool_shaftDiameter": "0.125in",
+              "tool_shoulderLength": "0.125in",
+              "tool_productId": "''",
+              "tool_vendor": "''"
+            },
+            "parameters": {
+              "tool_spindleSpeed": "15000.",
+              "tool_feedCutting": "100.in/min",
+              "tool_feedPlunge": "100.in/min",
+              "tool_surfaceSpeed": "tool_diameter * Math.PI * tool_spindleSpeed",
+              "tool_feedPerTooth": "tool_spindleSpeed > 0 ? tool_feedCutting/(tool_spindleSpeed * tool_numberOfFlutes) : 0.0",
+              "tool_feedPerRevolution": "tool_spindleSpeed > 0 ? tool_feedPlunge/tool_spindleSpeed : 0.0",
+              "stepover": ".003in",
+              "tolerance": "0.002 in"
+            }
+          },
+          {
+            "name": "Rotary Parallel1 (2)",
+            "strategy": "rotary_finishing",
+            "tool": {
+              "description": "#39 - \u00d80.0393701\" ball (1mm Ball)",
+              "tool_diameter": "0.0393701in",
+              "tool_numberOfFlutes": "2",
+              "tool_bodyLength": "0.7in",
+              "tool_fluteLength": "0.075in",
+              "tool_cornerRadius": "0.01968505in",
+              "tool_shaftDiameter": "0.125in",
+              "tool_shoulderLength": "0.125in",
+              "tool_productId": "''",
+              "tool_vendor": "''"
+            },
+            "parameters": {
+              "tool_spindleSpeed": "15000.",
+              "tool_feedCutting": "tool_feedPerTooth * tool_spindleSpeed * tool_numberOfFlutes",
+              "tool_feedPlunge": "100.in/min",
+              "tool_surfaceSpeed": "tool_diameter * Math.PI * tool_spindleSpeed",
+              "tool_feedPerTooth": "0.002 in",
+              "tool_feedPerRevolution": "tool_spindleSpeed > 0 ? tool_feedPlunge/tool_spindleSpeed : 0.0",
+              "stepover": "0.001 in",
+              "tolerance": "0.0005in"
+            }
+          },
+          {
+            "name": "Rotary Parallel1 (3)",
+            "strategy": "rotary_finishing",
+            "tool": {
+              "description": "#23 - \u00d80.025\" ball (.025 ball)",
+              "tool_diameter": "0.025in",
+              "tool_numberOfFlutes": "2",
+              "tool_bodyLength": "0.7in",
+              "tool_fluteLength": "0.075in",
+              "tool_cornerRadius": "0.0125in",
+              "tool_shaftDiameter": "0.125in",
+              "tool_shoulderLength": "0.125in",
+              "tool_productId": "''",
+              "tool_vendor": "''"
+            },
+            "parameters": {
+              "tool_spindleSpeed": "15000.",
+              "tool_feedCutting": "60 in/min",
+              "tool_feedPlunge": "100.in/min",
+              "tool_surfaceSpeed": "tool_diameter * Math.PI * tool_spindleSpeed",
+              "tool_feedPerTooth": "tool_spindleSpeed > 0 ? tool_feedCutting/(tool_spindleSpeed * tool_numberOfFlutes) : 0.0",
+              "tool_feedPerRevolution": "tool_spindleSpeed > 0 ? tool_feedPlunge/tool_spindleSpeed : 0.0",
+              "stepover": "0.001 in",
+              "tolerance": "0.0005in"
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

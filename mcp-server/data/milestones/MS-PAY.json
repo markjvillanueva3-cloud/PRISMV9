@@ -1,0 +1,197 @@
+{
+  "id": "MS-PAY",
+  "version": "7.6.0",
+  "title": "MS-PAY — Stripe Checkout + verified webhook + tier gate (the security fix)",
+  "brief": "~70% exists. The live Stripe /webhook route's signature verification is a COMMENT not code (anyone can self-grant a paid tier); the verifying impl exists in BillingEngine.handleWebhook (real HMAC-SHA256 + 5-min replay + idempotency) — just wire the route to it. state/shared/feature-tiers.json is referenced as canonical but DOESN'T EXIST; pricing hardcoded in 4 disagreeing places.",
+  "created_at": "2026-05-11T18:00:32.098Z",
+  "created_by": "claude-99eca613 (register-revenue-roadmap-envelopes.mjs, v7.6 §R10)",
+  "track": "revenue",
+  "track_name": "REVENUE-ROADMAP v7.6",
+  "roadmap_priority": 1,
+  "tier": 0,
+  "status": "not_started",
+  "source": "§R7.2 / round6/03-pay.md — U-PAY-02 is a SECURITY blocker",
+  "viz_node_id": "ghost.ms.ms-pay",
+  "doc_propagation": [
+    "claude.md",
+    "gsd",
+    "wiki",
+    "system-viz"
+  ],
+  "dependencies": [
+    "MS-INFRA"
+  ],
+  "blocks": [
+    "MS-MASTERPOST",
+    "MS-CAM-MASTERY",
+    "MS-PRINT-PROGRAM-LOOP",
+    "MS1"
+  ],
+  "phases": [
+    {
+      "id": "P0",
+      "title": "MS-PAY — Stripe Checkout + verified webhook + tier gate (the security fix)",
+      "sessions": "2",
+      "units": [
+        {
+          "id": "U-PAY-01",
+          "title": "Stripe Checkout flow + verified webhook → tier flag (wire routes/billing.ts /webhook → BillingEngine.handleWebhook → userStore.setPlan; flip STRIPE_TEST_MODE=false)",
+          "effort": 90,
+          "dependencies": [],
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit",
+            "Dispatcher wiring verified: import + call + action-enum + Zod schema all match (test invokes through the dispatcher, not only the engine singleton)"
+          ],
+          "description": "Stripe Checkout flow + verified webhook → tier flag (wire routes/billing.ts /webhook → BillingEngine.handleWebhook → userStore.setPlan; flip STRIPE_TEST_MODE=false) — follow the 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP); run duplicationGuardEngine.checkBeforeCreating() before any new asset; wire to ALL logical dispatchers; doc-backflow per MS-DOCFLOW.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "viz_node_id": "ghost.ms.ms-pay.upay-01",
+          "doc_propagation": [
+            "wiki",
+            "skill",
+            "digest",
+            "system-viz"
+          ]
+        },
+        {
+          "id": "U-PAY-02",
+          "title": "[SECURITY] Fix the live-route webhook signature verification — it's a comment, not code; StripeBillingEngine.handleWebhookEvent's constructEvent is a no-op in live mode",
+          "effort": 90,
+          "dependencies": [],
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit",
+            "Dispatcher wiring verified: import + call + action-enum + Zod schema all match (test invokes through the dispatcher, not only the engine singleton)"
+          ],
+          "description": "[SECURITY] Fix the live-route webhook signature verification — it's a comment, not code; StripeBillingEngine.handleWebhookEvent's constructEvent is a no-op in live mode — follow the 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP); run duplicationGuardEngine.checkBeforeCreating() before any new asset; wire to ALL logical dispatchers; doc-backflow per MS-DOCFLOW.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "viz_node_id": "ghost.ms.ms-pay.upay-02",
+          "doc_propagation": [
+            "wiki",
+            "skill",
+            "digest",
+            "system-viz"
+          ]
+        },
+        {
+          "id": "U-PAY-03",
+          "title": "Mount requireTier middleware on SFC / Master-Post / CAD-CAM / lathe-direct routes",
+          "effort": 90,
+          "dependencies": [],
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit",
+            "Dispatcher wiring verified: import + call + action-enum + Zod schema all match (test invokes through the dispatcher, not only the engine singleton)"
+          ],
+          "description": "Mount requireTier middleware on SFC / Master-Post / CAD-CAM / lathe-direct routes — follow the 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP); run duplicationGuardEngine.checkBeforeCreating() before any new asset; wire to ALL logical dispatchers; doc-backflow per MS-DOCFLOW.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "viz_node_id": "ghost.ms.ms-pay.upay-03",
+          "doc_propagation": [
+            "wiki",
+            "skill",
+            "digest",
+            "system-viz"
+          ]
+        },
+        {
+          "id": "U-PAY-04",
+          "title": "Refresh user.plan per-request (not cached at login)",
+          "effort": 90,
+          "dependencies": [],
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit",
+            "Dispatcher wiring verified: import + call + action-enum + Zod schema all match (test invokes through the dispatcher, not only the engine singleton)"
+          ],
+          "description": "Refresh user.plan per-request (not cached at login) — follow the 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP); run duplicationGuardEngine.checkBeforeCreating() before any new asset; wire to ALL logical dispatchers; doc-backflow per MS-DOCFLOW.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "viz_node_id": "ghost.ms.ms-pay.upay-04",
+          "doc_propagation": [
+            "wiki",
+            "skill",
+            "digest",
+            "system-viz"
+          ]
+        },
+        {
+          "id": "U-PAY-05",
+          "title": "Billing Portal route + BillingPortalPage (Stripe customer portal)",
+          "effort": 90,
+          "dependencies": [],
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit",
+            "Dispatcher wiring verified: import + call + action-enum + Zod schema all match (test invokes through the dispatcher, not only the engine singleton)"
+          ],
+          "description": "Billing Portal route + BillingPortalPage (Stripe customer portal) — follow the 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP); run duplicationGuardEngine.checkBeforeCreating() before any new asset; wire to ALL logical dispatchers; doc-backflow per MS-DOCFLOW.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "viz_node_id": "ghost.ms.ms-pay.upay-05",
+          "doc_propagation": [
+            "wiki",
+            "skill",
+            "digest",
+            "system-viz"
+          ]
+        },
+        {
+          "id": "U-PAY-06",
+          "title": "One state/shared/pricing-config.json + create state/shared/feature-tiers.json (consolidate the 4 disagreeing tables)",
+          "effort": 90,
+          "dependencies": [],
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit",
+            "Dispatcher wiring verified: import + call + action-enum + Zod schema all match (test invokes through the dispatcher, not only the engine singleton)"
+          ],
+          "description": "One state/shared/pricing-config.json + create state/shared/feature-tiers.json (consolidate the 4 disagreeing tables) — follow the 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP); run duplicationGuardEngine.checkBeforeCreating() before any new asset; wire to ALL logical dispatchers; doc-backflow per MS-DOCFLOW.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "viz_node_id": "ghost.ms.ms-pay.upay-06",
+          "doc_propagation": [
+            "wiki",
+            "skill",
+            "digest",
+            "system-viz"
+          ]
+        }
+      ]
+    }
+  ],
+  "total_units": 6,
+  "completed_units": 0
+}

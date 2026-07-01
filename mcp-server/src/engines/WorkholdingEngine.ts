@@ -264,7 +264,7 @@ export interface WorkholdingValidationResult {
  * Friction coefficients by workholding type and surface condition
  * Conservative values for safety
  */
-const FRICTION_COEFFICIENTS: Record<WorkholdingType, Record<SurfaceCondition, number>> = {
+export const FRICTION_COEFFICIENTS: Record<WorkholdingType, Record<SurfaceCondition, number>> = {
   VICE_SMOOTH: {
     DRY: 0.15,
     OILY: 0.08,
@@ -383,7 +383,7 @@ const FRICTION_COEFFICIENTS: Record<WorkholdingType, Record<SurfaceCondition, nu
  * Dynamic force amplification factors
  * Interrupted cuts and entry/exit create impact loads
  */
-const DYNAMIC_FACTORS: Record<string, number> = {
+export const DYNAMIC_FACTORS: Record<string, number> = {
   CONTINUOUS_CUT: 1.0,
   LIGHT_INTERRUPTED: 1.5,
   HEAVY_INTERRUPTED: 2.0,
@@ -398,7 +398,7 @@ const DYNAMIC_FACTORS: Record<string, number> = {
 /**
  * Minimum safety factors by application
  */
-const SAFETY_FACTORS = {
+export const SAFETY_FACTORS = {
   ROUGHING: 3.0,
   SEMI_FINISH: 2.5,
   FINISHING: 2.0,
@@ -411,7 +411,7 @@ const SAFETY_FACTORS = {
 /**
  * Vacuum seal efficiency by type and surface finish
  */
-const VACUUM_SEAL_EFFICIENCY: Record<string, Record<string, number>> = {
+export const VACUUM_SEAL_EFFICIENCY: Record<string, Record<string, number>> = {
   O_RING: {
     'Ra<1.6': 0.95,
     'Ra1.6-3.2': 0.90,
@@ -441,7 +441,7 @@ const VACUUM_SEAL_EFFICIENCY: Record<string, Record<string, number>> = {
 /**
  * Magnetic permeability of common materials
  */
-const MAGNETIC_PERMEABILITY: Record<string, number> = {
+export const MAGNETIC_PERMEABILITY: Record<string, number> = {
   'CARBON_STEEL': 100,
   'LOW_ALLOY_STEEL': 80,
   'CAST_IRON': 60,

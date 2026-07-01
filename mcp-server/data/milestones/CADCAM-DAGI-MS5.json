@@ -1,0 +1,622 @@
+{
+  "id": "CADCAM-DAGI-MS5",
+  "version": "1.0.0",
+  "title": "Adaptive Execution System — LOC-Driven Real-Time Parameter Adjustment",
+  "brief": "Real-time parameter adjustment as LOC/engagement changes during execution. RPM, feed, stepover auto-adjust on 3D adaptive roughing. Handles ever-evolving cutting conditions: tool wear, thermal drift, material variability. Closes the loop between CAM plan (MS4) and execution (shop floor).",
+  "track": "CAD-CAM-DEEPAGI",
+  "parent": "CADCAM-DEEPAGI-MASTER",
+  "status": "not_started",
+  "priority": "P0",
+  "omega_target": 1,
+  "created_at": "2026-04-18T21:55:00Z",
+  "created_by": "forge /rgs via Opus 4.7",
+  "dependencies": [
+    "CADCAM-DAGI-MS4"
+  ],
+  "total_units": 10,
+  "total_sessions": 3,
+  "completed_units": 0,
+  "user_directive_coverage": "Directly addresses: 'as length of cut changes on 3D adaptive roughing toolpaths, rpm, feed rate and step over should be adjusted automatically'",
+  "session_plan": [
+    {
+      "session": 1,
+      "units": [
+        "U-DAAE01",
+        "U-DAAE02",
+        "U-DAAE03"
+      ],
+      "title": "Real-Time LOC & Engagement Perception",
+      "smart_config": {
+        "role": "Real-Time Systems Engineer + CNC Control Specialist",
+        "model": "opus",
+        "effort": "MAX",
+        "context_budget": 200000,
+        "must_include": [
+          "PRISM LOCDynamicParameterEngine (from MS4 U-CAMAGI05)",
+          "Engagement calculation: ae_actual from spindle load / force telemetry",
+          "Chip thinning compensation formulas",
+          "PRISM VibrationPhysicsEngine + telemetry engines"
+        ]
+      }
+    },
+    {
+      "session": 2,
+      "units": [
+        "U-DAAE04",
+        "U-DAAE05",
+        "U-DAAE06",
+        "U-DAAE07"
+      ],
+      "title": "Adaptive Parameter Solver & Safety Envelope",
+      "smart_config": {
+        "role": "Control Theory PhD + Safety Engineer",
+        "model": "opus",
+        "effort": "MAX",
+        "context_budget": 200000,
+        "must_include": [
+          "PRISM SafetyEngine (S(x) >= 0.70 hard gate)",
+          "PRISM Kienzle model + Taylor tool life",
+          "Existing AdaptiveControlEngine",
+          "WEDM failsafe patterns (22 safety hooks reference)"
+        ]
+      }
+    },
+    {
+      "session": 3,
+      "units": [
+        "U-DAAE08",
+        "U-DAAE09",
+        "U-DAAE10"
+      ],
+      "title": "Machine Communication + Dispatcher + Telemetry Feedback",
+      "smart_config": {
+        "role": "Machine Integration Expert + Telemetry Engineer",
+        "model": "opus",
+        "effort": "MAX",
+        "context_budget": 200000,
+        "must_include": [
+          "MTConnect/OPC-UA protocols",
+          "Fanuc FOCAS, Okuma THINC API, Haas MachineConnect",
+          "PRISM MachineLiveEngine + telemetry engines"
+        ]
+      }
+    }
+  ],
+  "units": [
+    {
+      "unit_id": "U-DAAE01",
+      "title": "LOCRealtimeSensingEngine — live LOC extraction from telemetry",
+      "intent": "Extract live length-of-cut and radial engagement from machine telemetry (spindle load, axis force, acoustic emission). Fuse multi-sensor signals into ae_actual estimate at 100Hz.",
+      "files_created": [
+        "mcp-server/src/engines/LOCRealtimeSensingEngine.ts",
+        "mcp-server/src/data/telemetry-signal-catalog.json",
+        "mcp-server/src/__tests__/LOCRealtimeSensingEngine.test.ts"
+      ],
+      "files_modified": [],
+      "loops": {
+        "loop_1_build": "Sensor fusion (Kalman): spindle load + feed force + acoustic. Inverse Kienzle to estimate ae. Sampling @ 100Hz with 10ms latency target.",
+        "loop_2_scrutinize": "Signal processing PhD + control engineer. Check: Kalman tuning stability, sensor outlier rejection, latency budget.",
+        "loop_3_gap_fill": "Multi-tool compensation (different kc1 per tool/material), sensor-failure fallback.",
+        "loop_4_tie_up": "JSDoc."
+      },
+      "exit_gate": {
+        "omega_floor": 1,
+        "svi_delta_target": "-1e-2",
+        "machinist_acceptance": "Live ae estimate within ±15% of ground truth (CMM measurement after cut) on 20 test cuts.",
+        "abort_criteria": "If latency > 50ms or estimate error > 25%.",
+        "rollback_procedure": "git revert; revert to open-loop CAM plan.",
+        "tests_required": 22,
+        "coverage_target": "93%"
+      },
+      "forge_triple": {
+        "hook": "loc-sensing-latency-monitor",
+        "action": "exec.loc.sense",
+        "skill": "/loc-live"
+      },
+      "exit_conditions": [
+        "Implementation complete per description",
+        "Tests pass: npx vitest run",
+        "Typecheck clean: npx tsc --noEmit"
+      ],
+      "description": "LOCRealtimeSensingEngine — live LOC extraction from telemetry — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ],
+      "id": "U-DAAE01"
+    },
+    {
+      "unit_id": "U-DAAE02",
+      "title": "ToolEngagementGeometryEngine — pre-compute engagement map",
+      "intent": "Pre-simulate every toolpath step → ae/ap map along path. 3D adaptive roughing has wildly varying ae — pre-computing at 1mm arc-length resolution gives baseline for sense/actuate loop.",
+      "files_created": [
+        "mcp-server/src/engines/ToolEngagementGeometryEngine.ts",
+        "mcp-server/src/__tests__/ToolEngagementGeometryEngine.test.ts"
+      ],
+      "files_modified": [],
+      "loops": {
+        "loop_1_build": "Stock-aware simulation. Marching along path. ae/ap sample at each micro-step. Output JSON engagement map.",
+        "loop_2_scrutinize": "CAM simulation expert + computational geometry PhD. Check: stock update accuracy, corner case handling (internal corners, step-over transitions).",
+        "loop_3_gap_fill": "Variable stepover paths, trochoidal patterns.",
+        "loop_4_tie_up": "JSDoc."
+      },
+      "exit_gate": {
+        "omega_floor": 1,
+        "svi_delta_target": "-5e-3",
+        "machinist_acceptance": "Engagement map accuracy within 10% of commercial CAM simulation (Vericut cross-check) on 15 parts.",
+        "abort_criteria": "If sim time > 5min per program (too slow for online use).",
+        "rollback_procedure": "git revert.",
+        "tests_required": 18,
+        "coverage_target": "94%"
+      },
+      "forge_triple": {
+        "hook": "engagement-map-integrity-check",
+        "action": "exec.engagement.precompute",
+        "skill": "/engagement-map"
+      },
+      "exit_conditions": [
+        "Implementation complete per description",
+        "Tests pass: npx vitest run",
+        "Typecheck clean: npx tsc --noEmit"
+      ],
+      "description": "ToolEngagementGeometryEngine — pre-compute engagement map — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ],
+      "id": "U-DAAE02"
+    },
+    {
+      "unit_id": "U-DAAE03",
+      "title": "ToolWearRealtimeEstimatorEngine — online wear via Taylor+ sensors",
+      "intent": "Estimate current tool wear from cumulative cutting time × load × temperature. Combines Taylor equation prediction with sensor-based deviation detection (force uptrend, surface finish degradation).",
+      "files_created": [
+        "mcp-server/src/engines/ToolWearRealtimeEstimatorEngine.ts",
+        "mcp-server/src/__tests__/ToolWearRealtimeEstimatorEngine.test.ts"
+      ],
+      "files_modified": [],
+      "loops": {
+        "loop_1_build": "Taylor-based integral predictor. Residual tracking from force signature. Fault probability scorer.",
+        "loop_2_scrutinize": "Tool wear specialist + ML reviewer. Check: Taylor C/n coefficient sources, residual bias.",
+        "loop_3_gap_fill": "Coolant breakdown detection, chip-packing events.",
+        "loop_4_tie_up": "JSDoc."
+      },
+      "exit_gate": {
+        "omega_floor": 1,
+        "svi_delta_target": "-5e-3",
+        "machinist_acceptance": "Predict end-of-life within 15% of real failure on 20 tracked tool lifecycles.",
+        "abort_criteria": "If error > 25% or false-alarm rate > 20%.",
+        "rollback_procedure": "git revert.",
+        "tests_required": 20,
+        "coverage_target": "93%"
+      },
+      "forge_triple": {
+        "hook": "tool-life-exhausted-alert",
+        "action": "exec.tool.wearEstimate",
+        "skill": "/tool-wear-live"
+      },
+      "exit_conditions": [
+        "Implementation complete per description",
+        "Tests pass: npx vitest run",
+        "Typecheck clean: npx tsc --noEmit"
+      ],
+      "description": "ToolWearRealtimeEstimatorEngine — online wear via Taylor+ sensors — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ],
+      "id": "U-DAAE03"
+    },
+    {
+      "unit_id": "U-DAAE04",
+      "title": "AdaptiveRPMSolverEngine — dynamic RPM command",
+      "intent": "Given live ae, material, tool, wear, compute new RPM. Uses MS4 LOC formula: RPM_new = RPM_base × (ae_ref / ae_actual)^0.3 with safety cap from spindle/stability envelope.",
+      "files_created": [
+        "mcp-server/src/engines/AdaptiveRPMSolverEngine.ts",
+        "mcp-server/src/__tests__/AdaptiveRPMSolverEngine.test.ts"
+      ],
+      "files_modified": [
+        "mcp-server/src/engines/LOCDynamicParameterEngine.ts"
+      ],
+      "loops": {
+        "loop_1_build": "RPM calc with safety cap (min from stability lobes, spindle max, chatter boundary). Rate-limited commands (slew-limited to prevent thermal shock).",
+        "loop_2_scrutinize": "Control theory specialist + safety-physics. Check: stability margin preservation, slew rate against spindle spec.",
+        "loop_3_gap_fill": "Multi-tool, variable helix compensation.",
+        "loop_4_tie_up": "JSDoc."
+      },
+      "exit_gate": {
+        "omega_floor": 1,
+        "svi_delta_target": "-1e-2",
+        "machinist_acceptance": "RPM adaptations keep chatter-free on 30 test cuts, MRR +10% avg vs static RPM.",
+        "abort_criteria": "If chatter events > 5% of cuts.",
+        "rollback_procedure": "git revert; reset to static RPM.",
+        "tests_required": 22,
+        "coverage_target": "95%"
+      },
+      "forge_triple": {
+        "hook": "rpm-slew-rate-enforcer",
+        "action": "exec.rpm.adapt",
+        "skill": "/adaptive-rpm"
+      },
+      "exit_conditions": [
+        "Implementation complete per description",
+        "Tests pass: npx vitest run",
+        "Typecheck clean: npx tsc --noEmit"
+      ],
+      "description": "AdaptiveRPMSolverEngine — dynamic RPM command — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ],
+      "id": "U-DAAE04"
+    },
+    {
+      "unit_id": "U-DAAE05",
+      "title": "AdaptiveFeedSolverEngine — dynamic feed with chip thinning",
+      "intent": "Compute adaptive feed per tooth (fz). Chip thinning factor = sqrt(ae/D) for radial engagement < 50%. Feed = fz × z × RPM with fz adjusted to maintain target chip thickness.",
+      "files_created": [
+        "mcp-server/src/engines/AdaptiveFeedSolverEngine.ts",
+        "mcp-server/src/__tests__/AdaptiveFeedSolverEngine.test.ts"
+      ],
+      "files_modified": [
+        "mcp-server/src/engines/LOCDynamicParameterEngine.ts"
+      ],
+      "loops": {
+        "loop_1_build": "Chip thinning formula. Target chip thickness lookup per material/tool. Machine feed limit enforcement.",
+        "loop_2_scrutinize": "Cutting mechanics expert + safety-physics. Check: chip formation adequacy (not too thin → rubbing), tool deflection budget.",
+        "loop_3_gap_fill": "Ramp-in/out, entry/exit special handling.",
+        "loop_4_tie_up": "JSDoc."
+      },
+      "exit_gate": {
+        "omega_floor": 1,
+        "svi_delta_target": "-1e-2",
+        "machinist_acceptance": "Chip thickness within target ±15% on 30 test cuts, tool life within 10% of prediction.",
+        "abort_criteria": "If tool life degradation > 25%.",
+        "rollback_procedure": "git revert.",
+        "tests_required": 22,
+        "coverage_target": "95%"
+      },
+      "forge_triple": {
+        "hook": "feed-chip-thinning-validator",
+        "action": "exec.feed.adapt",
+        "skill": "/adaptive-feed"
+      },
+      "exit_conditions": [
+        "Implementation complete per description",
+        "Tests pass: npx vitest run",
+        "Typecheck clean: npx tsc --noEmit"
+      ],
+      "description": "AdaptiveFeedSolverEngine — dynamic feed with chip thinning — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ],
+      "id": "U-DAAE05"
+    },
+    {
+      "unit_id": "U-DAAE06",
+      "title": "AdaptiveStepoverSolverEngine — dynamic stepover for constant MRR",
+      "intent": "Adjust stepover during 3D adaptive roughing to maintain constant MRR. If tool starts cutting easier (low ae), allow larger stepover on next pass; if hard, reduce.",
+      "files_created": [
+        "mcp-server/src/engines/AdaptiveStepoverSolverEngine.ts",
+        "mcp-server/src/__tests__/AdaptiveStepoverSolverEngine.test.ts"
+      ],
+      "files_modified": [
+        "mcp-server/src/engines/LOCDynamicParameterEngine.ts"
+      ],
+      "loops": {
+        "loop_1_build": "MRR target from baseline. Stepover from MRR = ae × ap × feed. Safety bound (max stepover per tool D — typically 50% D max).",
+        "loop_2_scrutinize": "CAM expert + safety-physics. Check: engagement staying below max, adaptive transitions not abrupt.",
+        "loop_3_gap_fill": "Pocket-only vs open-cut strategy divergence.",
+        "loop_4_tie_up": "JSDoc."
+      },
+      "exit_gate": {
+        "omega_floor": 1,
+        "svi_delta_target": "-5e-3",
+        "machinist_acceptance": "MRR within ±10% of target on 15 test programs.",
+        "abort_criteria": "If MRR variance > 25%.",
+        "rollback_procedure": "git revert.",
+        "tests_required": 18,
+        "coverage_target": "93%"
+      },
+      "forge_triple": {
+        "hook": "stepover-max-engagement-enforcer",
+        "action": "exec.stepover.adapt",
+        "skill": "/adaptive-stepover"
+      },
+      "exit_conditions": [
+        "Implementation complete per description",
+        "Tests pass: npx vitest run",
+        "Typecheck clean: npx tsc --noEmit"
+      ],
+      "description": "AdaptiveStepoverSolverEngine — dynamic stepover for constant MRR — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ],
+      "id": "U-DAAE06"
+    },
+    {
+      "unit_id": "U-DAAE07",
+      "title": "AdaptiveSafetyEnvelopeEngine — hard bounds + S(x) gate",
+      "intent": "Define hard safety envelope: spindle torque ceiling, tool deflection ceiling, chatter boundary, thermal ceiling. All adaptive commands must stay within. S(x) >= 0.70 hard gate.",
+      "files_created": [
+        "mcp-server/src/engines/AdaptiveSafetyEnvelopeEngine.ts",
+        "mcp-server/src/__tests__/AdaptiveSafetyEnvelopeEngine.test.ts"
+      ],
+      "files_modified": [
+        "mcp-server/src/engines/SafetyEngine.ts"
+      ],
+      "loops": {
+        "loop_1_build": "Envelope bounds loader (from machine profile + tool profile). S(x) computation per command. Reject-if-unsafe logic.",
+        "loop_2_scrutinize": "Safety-physics agent (BLOCKING). Check: S(x) correctness, envelope completeness.",
+        "loop_3_gap_fill": "Workholding envelope (fixture rigidity), coolant flow minimum.",
+        "loop_4_tie_up": "JSDoc."
+      },
+      "exit_gate": {
+        "omega_floor": 1,
+        "svi_delta_target": "-1e-2",
+        "machinist_acceptance": "0 tool breakage, 0 spindle overload events in 40-hour burn-in.",
+        "abort_criteria": "ANY safety incident → abort.",
+        "rollback_procedure": "git revert; require manual safety-physics re-review.",
+        "tests_required": 30,
+        "coverage_target": "100%"
+      },
+      "forge_triple": {
+        "hook": "adaptive-safety-envelope-guard (Stop hook)",
+        "action": "exec.safety.gate",
+        "skill": "/safety-envelope"
+      },
+      "exit_conditions": [
+        "Implementation complete per description",
+        "Tests pass: npx vitest run",
+        "Typecheck clean: npx tsc --noEmit"
+      ],
+      "description": "AdaptiveSafetyEnvelopeEngine — hard bounds + S(x) gate — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ],
+      "id": "U-DAAE07"
+    },
+    {
+      "unit_id": "U-DAAE08",
+      "title": "MachineCommOverrideBridgeEngine — push adaptive commands (HARDENED)",
+      "intent": "Deliver RPM/feed override commands to machine control via MTConnect/OPC-UA/FOCAS/THINC. Feed override %, spindle override %. Controller-specific dialects. Safety-critical channel: enforces token-bucket rate-limit, mTLS authenticated transport, deadman-timeout with abort-on-no-ACK, replay-nonce in HMAC to defeat replay attacks.",
+      "amendment_ref": "CADCAM-DEEPAGI-SCRUTINY-AMENDMENTS A6 (safety_physics reviewer finding)",
+      "files_created": [
+        "mcp-server/src/engines/MachineCommOverrideBridgeEngine.ts",
+        "mcp-server/src/engines/adapters/FanucFocasAdapter.ts",
+        "mcp-server/src/engines/adapters/OkumaThincAdapter.ts",
+        "mcp-server/src/engines/adapters/HaasMachineConnectAdapter.ts",
+        "mcp-server/src/engines/safety/MachineCommTokenBucket.ts",
+        "mcp-server/src/engines/safety/MachineCommDeadmanTimer.ts",
+        "mcp-server/src/engines/safety/ReplayNonceRegistry.ts",
+        "mcp-server/src/__tests__/MachineCommOverrideBridgeEngine.test.ts",
+        "mcp-server/src/__tests__/MachineCommTokenBucket.test.ts",
+        "mcp-server/src/__tests__/ReplayNonceRegistry.test.ts"
+      ],
+      "files_modified": [],
+      "safety_requirements": {
+        "token_bucket": "Rate-limit ≤ 10 overrides/sec per machine. Burst capacity = 20. Reject (and alarm) on exceed.",
+        "mtls": "Mutual TLS with pinned certs; min TLS 1.3; reject on cert validation failure. Per-machine client cert rotation ≤ 90d.",
+        "deadman_timeout": "200ms per-command ACK deadline. On timeout: abort command, escalate to safe state (feed-hold), alarm.",
+        "replay_nonce": "Monotonic counter included in HMAC-SHA256; server tracks last_seen_nonce per client; rejects if nonce <= last_seen.",
+        "sx_gate": "SafetyEngine.evaluate() must return S(x) >= 0.70 before override is transmitted. HARD BLOCK if below."
+      },
+      "loops": {
+        "loop_1_build": "Controller adapter interface with token-bucket wrapper. FOCAS C library binding (mTLS). THINC API (mTLS). Haas REST (mTLS). Command queue with HMAC+nonce, retries capped at 3 with exponential backoff. Deadman timer on every ACK path; expired ACK → feed-hold + alarm. S(x) precheck integrated via prism_safety dispatcher before transmit.",
+        "loop_2_scrutinize": "Machine integration expert + application security. Check: mTLS cert pinning correctness, token-bucket leak rate, deadman escalation path, replay-nonce monotonicity under concurrent callers, authenticated channels, no command flooding, controller firmware compatibility.",
+        "loop_3_gap_fill": "Heidenhain, Siemens 840D adapters; HSM token-bucket tuning; alarm ingestion into prism_monitoring.",
+        "loop_4_tie_up": "JSDoc. Controller compatibility matrix. Threat model doc. Security review sign-off."
+      },
+      "exit_gate": {
+        "omega_floor": 1,
+        "svi_delta_target": "-1e-2",
+        "machinist_acceptance": "Override commands land within 200ms on 3 controller types (Fanuc, Okuma, Haas). Replay attack simulation rejects all replayed packets. mTLS cert-rotation drill passes. Token-bucket drops requests >10/s cleanly. Deadman triggers feed-hold on forced 300ms-stall injection.",
+        "abort_criteria": "If controller rejects > 1% of commands; ANY security test fails (replay accepted, mTLS bypass, nonce regression); deadman fails to escalate within 250ms budget.",
+        "rollback_procedure": "git revert; manual override mode.",
+        "tests_required": 35,
+        "coverage_target": "97%"
+      },
+      "forge_triple": {
+        "hook": "machine-comm-latency-monitor",
+        "action": "exec.machine.override",
+        "skill": "/machine-override"
+      },
+      "exit_conditions": [
+        "Implementation complete per description",
+        "Tests pass: npx vitest run",
+        "Typecheck clean: npx tsc --noEmit"
+      ],
+      "description": "MachineCommOverrideBridgeEngine — push adaptive commands (HARDENED) — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ],
+      "id": "U-DAAE08"
+    },
+    {
+      "unit_id": "U-DAAE09",
+      "title": "AdaptiveExecutionOrchestratorEngine — master closed loop",
+      "intent": "Master closed-loop orchestrator. Ties: LOC sensing → engagement map → parameter solvers (RPM/feed/stepover) → safety gate → machine override. 100Hz loop.",
+      "files_created": [
+        "mcp-server/src/engines/AdaptiveExecutionOrchestratorEngine.ts",
+        "mcp-server/src/__tests__/AdaptiveExecutionOrchestratorEngine.test.ts"
+      ],
+      "files_modified": [],
+      "loops": {
+        "loop_1_build": "State machine: sensing → compute → gate → actuate → verify. Loop rate monitoring. Failure mode handling (sensor loss, gate reject, machine comm loss).",
+        "loop_2_scrutinize": "Control theory PhD + safety lead. Check: loop stability (no limit cycles), graceful degradation on failure.",
+        "loop_3_gap_fill": "Hot/cold-start handling, operator takeover path.",
+        "loop_4_tie_up": "JSDoc. Operator override procedure."
+      },
+      "exit_gate": {
+        "omega_floor": 1,
+        "svi_delta_target": "-2e-2",
+        "machinist_acceptance": "40-hour uninterrupted burn-in on JM Die real parts. 0 safety events. MRR +15%, tool life +10%.",
+        "abort_criteria": "ANY safety event or > 30 min cumulative downtime.",
+        "rollback_procedure": "git revert; manual-only mode.",
+        "tests_required": 35,
+        "coverage_target": "98%"
+      },
+      "forge_triple": {
+        "hook": "adaptive-orchestrator-watchdog",
+        "action": "exec.orchestrate",
+        "skill": "/adaptive-execute"
+      },
+      "exit_conditions": [
+        "Implementation complete per description",
+        "Tests pass: npx vitest run",
+        "Typecheck clean: npx tsc --noEmit"
+      ],
+      "description": "AdaptiveExecutionOrchestratorEngine — master closed loop — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ],
+      "id": "U-DAAE09"
+    },
+    {
+      "unit_id": "U-DAAE10",
+      "title": "MS5 Dispatcher Wiring + Feature Cascade",
+      "intent": "Wire 9 new engines. 10 actions. 10 skills. Cascade to MS6/MS7.",
+      "files_created": [
+        "mcp-server/src/data/CADCAM_DAGI_MS5_CASCADE.json",
+        "mcp-server/src/__tests__/cadCamDeepAgiDispatcher.ms5.test.ts"
+      ],
+      "files_modified": [
+        "mcp-server/src/tools/dispatchers/cadCamDeepAgiDispatcher.ts",
+        "mcp-server/src/tools/toolIndex.ts",
+        "mcp-server/src/hooks/registry.ts"
+      ],
+      "loops": {
+        "loop_1_build": "Extend dispatcher. Schemas. Skills. Cascade JSON.",
+        "loop_2_scrutinize": "Integration + safety-physics (adaptive exec is safety-critical).",
+        "loop_3_gap_fill": "Missing wiring.",
+        "loop_4_tie_up": "Cascade file."
+      },
+      "exit_gate": {
+        "omega_floor": 1,
+        "svi_delta_target": "-1e-2",
+        "machinist_acceptance": "10 actions callable; safety gate enforced.",
+        "abort_criteria": "If regressions.",
+        "rollback_procedure": "git revert.",
+        "tests_required": 12,
+        "coverage_target": "100%"
+      },
+      "forge_triple": {
+        "hook": "ms5-dispatcher-integrity",
+        "action": "cam.ms5.status",
+        "skill": "/ms5-status"
+      },
+      "exit_conditions": [
+        "Implementation complete per description",
+        "Tests pass: npx vitest run",
+        "Typecheck clean: npx tsc --noEmit"
+      ],
+      "description": "MS5 Dispatcher Wiring + Feature Cascade — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ],
+      "id": "U-DAAE10"
+    }
+  ],
+  "feature_cascade": {
+    "new_hooks": 10,
+    "new_actions": 10,
+    "new_skills": 10,
+    "available_to": [
+      "CADCAM-DAGI-MS6",
+      "CADCAM-DAGI-MS7"
+    ],
+    "safety_critical": "All adaptive commands gated by AdaptiveSafetyEnvelopeEngine with S(x) >= 0.70"
+  },
+  "adaptive_variability_touchpoints": [
+    "LOCRealtimeSensingEngine → VariabilitySourceTrackerEngine (thermal_drift, tool_wear, material_batch sources)",
+    "Telemetry residuals → AdaptiveParameterSpaceEngine to expand parameter envelope",
+    "Real shop-floor data completes the Phase 0.25 feedback loop"
+  ],
+  "smart_config": {
+    "role": "senior-architect + domain-specialist",
+    "model": "opus",
+    "effort": "MAX",
+    "context_budget": "65%"
+  },
+  "mcp_lifecycle": {
+    "session_start": [
+      "prism_session:context_boot",
+      "prism_session:dispatcher_map",
+      "prism_session:memory_recall",
+      "prism_session:system_snapshot",
+      "prism_session:action_search"
+    ],
+    "during_work": [
+      "prism_session:auto_checkpoint",
+      "prism_session:tool_route_best",
+      "prism_session:wip_capture"
+    ],
+    "session_end": [
+      "prism_session:memory_save",
+      "prism_session:system_snapshot",
+      "prism_session:checkpoint_enhanced"
+    ]
+  },
+  "forge_triple": {
+    "protective_hook": "cadcam-dagi-ms5-gate",
+    "mcp_action": "prism_cad-cam-deepagi:cadcam_dagi_ms5_run",
+    "skill_command": "/cadcam-dagi-ms5",
+    "ownership": "DECLARED — BUILT in terminal unit of this milestone"
+  },
+  "knowledge_sources": {
+    "engines": [
+      "ENGINE_DIGEST.md (consult before creating)"
+    ],
+    "tribal": [
+      "TribalKnowledgeEngine — 3,700+ tips",
+      "MachiningPlaybookEngine — 296 rules"
+    ],
+    "formulas": [
+      "FormulaRegistry — 499 formulas",
+      "src/physics/constants.ts — canonical"
+    ],
+    "reference": [
+      "EXTERNAL-REFERENCE-PROGRAMS-INDEX.md",
+      "MaterialRegistry",
+      "MachineRegistry",
+      "ToolCatalogEngine (95,608 tools)"
+    ]
+  },
+  "intent": "Real-time parameter adjustment as LOC/engagement changes during execution. RPM, feed, stepover auto-adjust on 3D adaptive roughing. Handles ever-evolving cutting conditions: tool wear, thermal drift, material variability. Closes the loop between CAM plan (MS4) and execution (shop floor).",
+  "compact_checkpoint": "every 3 units — auto-triggered by hook",
+  "enforcement_hooks_active": [
+    "physics agent",
+    "wiring agent",
+    "constants checker",
+    "stub detector",
+    "test quality",
+    "forge-triple gate",
+    "session audit agent"
+  ]
+}

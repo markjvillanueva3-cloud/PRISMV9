@@ -100,7 +100,7 @@ function _getShopRates(): ShopRates {
 const DEFAULT_RATES: ShopRates = _FALLBACK_RATES;
 
 // Session 5-3 (U-PHYSCOST2): Physics bridge for MRR-based cycle time and Taylor tool life
-import { resolveMaterial, getTaylor } from "../physics/constants.js";
+import { resolveMaterial, getTaylor, buildMaterialPhysics } from "../physics/constants.js";
 
 interface _PhysicsCostContext {
   mrr_cm3min: number;
@@ -141,8 +141,10 @@ function _getPhysicsForOp(materialType: string | undefined, opType: string | und
       source: "SpeedFeedOrchestrator",
     };
   } catch {
-    // Fallback: canonical MRR from material Vc + basic geometry
-    const mat = resolveMaterial(materialType);
+    // Fallback: canonical MRR from material Vc + basic geometry.
+    // resolveMaterial returns MaterialEntry | undefined; buildMaterialPhysics
+    // backstops with a complete, runtime-safe generic material.
+    const mat = resolveMaterial(materialType) ?? buildMaterialPhysics({ name: materialType });
     const vc = isFinish ? mat.vc_base_finishing : mat.vc_base_roughing;
     const rpm = (vc * 1000) / (Math.PI * toolDia);
     const fz = toolDia * (isFinish ? 0.01 : 0.02);
@@ -292,11 +294,11 @@ class JobCostingEngineImpl {
     let density = mat.density ?? 7850;
     let densitySource = "default_steel";
     if (mat.type) {
-      try {
-        const resolved = resolveMaterial(mat.type);
+      const resolved = resolveMaterial(mat.type);
+      if (resolved) {
         density = resolved.density_kg_m3;
         densitySource = "MaterialRegistry";
-      } catch { /* keep default */ }
+      }
     }
 
     const weightKg = volumeMm3 * 1e-9 * density;

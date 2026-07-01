@@ -1,0 +1,703 @@
+You are reviewer C of three independent Claude PRISM agents — an ANALYST-weighted third pass for the PRISM manufacturing-intelligence platform. Reviewers A and B cover holistic acceptance + test/wiring/scope axes; your job is what THEY are likely to under-emphasize. Do not assume they caught everything.
+Target: commit 19912d204c.
+
+Weight your attention toward analyst axes — hidden anti-patterns, silent regression risk, and integration breakage. FAIL on any violation you find:
+  1. Silent breakage — type drift across module boundaries, peer engines whose contract this diff secretly invalidates, swallowed errors that bury real failures
+  2. Hidden anti-patterns — sync fs in async paths that should yield, race conditions across concurrent chats, fields that look load-bearing but are dead code, dual-source constants that will drift
+  3. Error budget completeness — are ALL error variants reachable? Are ALL fs.write paths defended against EACCES / ENOENT / EEXIST without burying the failure? Does graceful-degrade log enough to debug post-incident?
+  4. Integration coupling — engines wired to EVERY dispatcher that would naturally consume them; type-level coupling between sibling engines surfaces compile-time errors on rename (not silent runtime degradation)
+  5. Security at I/O boundaries — every interpolated string sanitized for the medium it lands in (filenames, comment bodies, shell args, SQL, etc); path-traversal guards re-checked after construction (defense in depth)
+  6. Regression risk for downstream pipelines — does this diff change a type that downstream engines depend on without updating them? Does it change the shape of a dispatcher result without updating slimResponse exclusions?
+
+First line of your response MUST be 'VERDICT: PASS' or 'VERDICT: FAIL'.
+Then list BLOCKER: lines for any violations, then optional notes (≤5 lines).
+If unsure between PASS and FAIL, choose FAIL.
+
+--- DIFF ---
+commit 19912d204c7fe20a16faa3be65e88e9628e91bc7
+Author: markjvillanueva3-cloud <markjvillanueva3@gmail.com>
+Date:   Wed May 20 20:58:40 2026 -0500
+
+    [MAIN] [SYSTEM-VIZ-HIGH-ROI-MS0]/U-VIZ-SLOT-TOUCH-HEATMAP (slot:sierra): 7d per-slot file-activity heat map. Closes G6. scripts/generate-slot-touch-augmentation.mjs joins git log --since=7d --grep=slot:<nato> against fs.deep.* dirs; selecting two slots surfaces overlap = peer-claim hazard zone. Sister-aware: slot-synergy uses ghost.slot_synergy.slot.<name> (static); this uses slot.activity.<name> under ghost.slot_activity (dynamic). resolveFsNodeId stops above bare prism root (would produce false fleet-overlap). SLOT_NAMES from chat-slots.mjs. Pure generate() fixture-testable. 32/32 tests. Wiring: 3 merge sites + FAST[]. Live: 27 slots scanned, 12 emitted, 30 edges. Gap noted: slot-synergy SLOT_NAMES still frozen at 13 (separate follow-up).
+
+diff --git a/scripts/generate-slot-touch-augmentation.mjs b/scripts/generate-slot-touch-augmentation.mjs
+new file mode 100644
+index 0000000000..5911b6da89
+--- /dev/null
++++ b/scripts/generate-slot-touch-augmentation.mjs
+@@ -0,0 +1,338 @@
++#!/usr/bin/env node
++/**
++ * generate-slot-touch-augmentation.mjs — system-viz augmentation: per-slot
++ * 7-day FILE ACTIVITY heat map.
++ *
++ * SYSTEM-VIZ-HIGH-ROI-MS0 — G6 (post fleet-expansion to 26).
++ *
++ * Sister to scripts/generate-slot-synergy-features.mjs (which maps slots to
++ * SUBSYSTEMS as a static doctrine view). G6 covers the complementary dynamic
++ * signal: which filesystem regions each slot is *actively touching this week*.
++ *
++ * Emits:
++ *   ghost.slot_activity              — L8 rollup roost (created only if absent;
++ *                                       sibling of ghost.slot_synergy).
++ *   slot.activity.<name>             — one per slot with touches in the window.
++ *                                       Distinct id from ghost.slot_synergy.slot.<name>
++ *                                       so no collision.
++ *   (slot.activity.<name>) → (fs.deep.<dir>)  — edge type "touched-fs", with
++ *                                       intensity log10(count+1)*0.1, count,
++ *                                       last_touch_sha.
++ *
++ * Operator value (from audit): selecting one slot highlights its 7d region;
++ * selecting two surfaces overlap = peer-claim hazard zone BEFORE /pick-unit.
++ *
++ * Author identification: PRISM commits all share a single GitHub user, so
++ * `--author=` is useless. Slot ownership lives in commit-subject pattern
++ * `(slot:<nato>)` AND `[<NATO>]` per CLAUDE.md §`/checkin-<nato> /loop`
++ * §6. The CLI runs `git log --since=7d --grep='slot:<slot>' -i` per slot.
++ *
++ * Architecture (R8 — read first):
++ *   - Pure `generate({ graph, slotCommits, slotNames })` — no git, no fs.
++ *     `slotCommits` is `Record<slot, Array<{ sha, files: string[] }>>`.
++ *     Tested with fixtures, NO git subprocess required.
++ *   - `resolveFsNodeId(filePath, existingIds)` — climbs path from leaf dir up
++ *     until a real `fs.deep.<slug>` node is found in `existingIds`; returns
++ *     null if no ancestor is in the graph (R12 — degrade visibly, never
++ *     invent ids).
++ *   - CLI gathers slotCommits via execFileSync('git', ['log', ...]) per slot.
++ *
++ * Output: state/shared/system-viz/slot-touch-augmentation.json
++ * consumed by merge-augmentations.mjs mergeIndexedAugmentation().
++ */
++import fs from "node:fs";
++import path from "node:path";
++import { fileURLToPath } from "node:url";
++import { execFileSync } from "node:child_process";
++
++const __dirname = path.dirname(fileURLToPath(import.meta.url));
++const ROOT = path.resolve(__dirname, "..");
++const VIZ_DIR = path.join(ROOT, "state", "shared", "system-viz");
++const GRAPH_PATH = path.join(VIZ_DIR, "system-graph.json");
++
++// Mirror slugify from generate-fs-deep-inventory.mjs so fs.deep.* lookups hit.
++// MUST stay byte-equal to the inventory rule or we silently miss every node.
++export function slugify(s) {
++  return String(s == null ? "" : s)
++    .toLowerCase()
++    .replace(/[^a-z0-9._-]/g, "_")
++    .replace(/_+/g, "_")
++    .replace(/^_|_$/g, "");
++}
++
++// Strip drive letter + normalize slashes. Matches pathSegments() in
++// generate-fs-deep-inventory.mjs at the bytes that matter for id derivation.
++export function normalizeRel(filePath) {
++  if (filePath == null) return "";
++  let p = String(filePath).replace(/\\/g, "/");
++  // Strip leading H:/prism/ or H:/ or /prism/ — git log emits repo-relative
++  // paths under H:/prism, so the canonical fs.deep.* prefix is "prism_".
++  p = p.replace(/^[a-zA-Z]:\//, "");
++  // git log paths are already relative to repo root (no leading "/").
++  if (p.startsWith("/")) p = p.slice(1);
++  return p;
++}
++
++/**
++ * Given a git-log file path (repo-relative, e.g. "mcp-server/src/cam/foo.ts"),
++ * climb from the LEAF DIRECTORY (parent of the file) up the tree, returning
++ * the deepest `fs.deep.<slug>` id that exists in `existingIds`. Returns null
++ * if no ancestor is in the graph — R12 NEVER invent ids.
++ *
++ * The fs.deep.* convention from generate-fs-deep-inventory.mjs is
++ *   fs.deep.<slug-of-full-path-without-drive>
++ * where path segments are slugified + joined with "_". Repo-relative paths
++ * under H:/prism get prefixed with the literal "prism" segment, so a touched
++ * "mcp-server/src/cam/foo.ts" tries:
++ *   fs.deep.prism_mcp-server_src_cam   (parent dir)
++ *   fs.deep.prism_mcp-server_src       (grandparent)
++ *   fs.deep.prism_mcp-server           (top-level)
++ * The deepest hit wins. We do NOT climb to the bare `fs.deep.prism` root —
++ * every touch would resolve there, producing false fleet-overlap signal in
++ * the heat map. A touch that can only match the repo root counts as
++ * UNRESOLVED so operators see "this slot has many touches outside known
++ * dirs" rather than fake-overlap noise.
++ */
++export function resolveFsNodeId(filePath, existingIds) {
++  const rel = normalizeRel(filePath);
++  if (!rel) return null;
++  const segs = rel.split("/").filter(Boolean);
++  if (segs.length < 2) return null; // need at least one parent dir
++  // Drop the FILE name → only directory segments
++  const dirSegs = segs.slice(0, -1);
++  // Climb leaf → top-level (stopping ABOVE bare prism root; i >= 1 keeps at
++  // least one dir under prism in every match).
++  for (let i = dirSegs.length; i >= 1; i--) {
++    const sub = ["prism", ...dirSegs.slice(0, i)].map(slugify).filter(Boolean);
++    if (sub.length === 0) continue;
++    const cand = `fs.deep.${sub.join("_")}`;
++    if (existingIds.has(cand)) return cand;
++  }
++  return null;
++}
++
++/**
++ * Build the augmentation.
++ *   graph        — { nodes: [...] } source-of-truth for existingIds + refRoost
++ *                  (layer/parent copied from ghost.slot_synergy if present,
++ *                   else ghost.priority_queue, else fallback L8/null).
++ *   slotCommits  — Record<slot, Array<{ sha, files: string[] }>>.
++ *                  Iteration order over slots is the iteration order of
++ *                  slotNames so output is deterministic.
++ *   slotNames    — string[]. The fleet roster (read from chat-slots.mjs by
++ *                  the CLI; injected here for testability). Slots missing from
++ *                  slotCommits are silently skipped (no activity → no node).
++ */
++export function generate({ graph, slotCommits, slotNames } = {}) {
++  const stats = {
++    slotsScanned: 0, slotsEmitted: 0,
++    commitsScanned: 0, touchesScanned: 0,
++    touchesResolved: 0, touchesUnresolved: 0,
++    edgesEmitted: 0, parentCreated: false,
++    byCount: {},  // slot -> # of resolved edges (operator-visible distribution)
++  };
++  if (!graph || !Array.isArray(graph.nodes)) {
++    return { error: "graph-missing-or-malformed", newNodes: [], newEdges: [], stats };
++  }
++  if (!slotCommits || typeof slotCommits !== "object") {
++    return { error: "slot-commits-missing", newNodes: [], newEdges: [], stats };
++  }
++  if (!Array.isArray(slotNames) || slotNames.length === 0) {
++    return { error: "slot-names-missing", newNodes: [], newEdges: [], stats };
++  }
++
++  const existingIds = new Set(graph.nodes.map((n) => n && n.id));
++
++  // Roost: ghost.slot_activity, modeled on ghost.slot_synergy / ghost.priority_queue.
++  const refRoost = graph.nodes.find((n) => n && n.id === "ghost.slot_synergy")
++    || graph.nodes.find((n) => n && n.id === "ghost.priority_queue")
++    || graph.nodes.find((n) => n && typeof n.id === "string" && n.id.startsWith("ghost."));
++  const roostLayer = refRoost && refRoost.layer ? refRoost.layer : "L8";
++  const roostParent = refRoost && refRoost.parent ? refRoost.parent : null;
++  const slotLayer = refRoost && refRoost.id === "ghost.slot_synergy" && refRoost.layer ? refRoost.layer : "L9";
++
++  const newNodes = [];
++  const newEdges = [];
++  const seenSlotIds = new Set();
++  const ROOST_ID = "ghost.slot_activity";
++
++  if (!existingIds.has(ROOST_ID)) {
++    const rnode = {
++      id: ROOST_ID, layer: roostLayer, subgroup: "ghost",
++      kind: "ghost-roost",
++      label: "slot 7d activity",
++      status: "ghost",
++      color: "#a78bfa",
++      size: 0.45, tier: 0,
++      info: "Per-slot 7-day file-touch heat map — selecting two slots surfaces overlap (peer-claim hazard zone)",
++    };
++    if (roostParent) rnode.parent = roostParent;
++    newNodes.push(rnode);
++    seenSlotIds.add(ROOST_ID);
++    stats.parentCreated = true;
++  }
++
++  for (const slot of slotNames) {
++    stats.slotsScanned++;
++    const commits = Array.isArray(slotCommits[slot]) ? slotCommits[slot] : null;
++    if (!commits || commits.length === 0) continue;
++
++    // Aggregate per-dir touches for THIS slot.
++    const dirHits = new Map(); // fs.deep.<id> -> { count, lastSha }
++    let slotCommitCount = 0;
++    let slotTouchCount = 0;
++    let slotResolved = 0;
++    let slotUnresolved = 0;
++    for (const c of commits) {
++      slotCommitCount++;
++      stats.commitsScanned++;
++      const sha = typeof c.sha === "string" ? c.sha : "";
++      const files = Array.isArray(c.files) ? c.files : [];
++      for (const f of files) {
++        slotTouchCount++;
++        stats.touchesScanned++;
++        const fsId = resolveFsNodeId(f, existingIds);
++        if (!fsId) { slotUnresolved++; stats.touchesUnresolved++; continue; }
++        slotResolved++;
++        stats.touchesResolved++;
++        const prev = dirHits.get(fsId);
++        if (prev) {
++          prev.count++;
++          // last-touch sha wins (commits arrive newest-first from git log).
++          // Keep the FIRST sha seen for this dir (newest at top of git-log output).
++          if (!prev.lastSha) prev.lastSha = sha;
++        } else {
++          dirHits.set(fsId, { count: 1, lastSha: sha });
++        }
++      }
++    }
++
++    if (dirHits.size === 0) continue;
++
++    const slotId = `slot.activity.${slot}`;
++    if (existingIds.has(slotId)) continue; // already merged in prior regen
++    if (seenSlotIds.has(slotId)) continue;
++    seenSlotIds.add(slotId);
++
++    newNodes.push({
++      id: slotId, layer: slotLayer, subgroup: "slot-activity",
++      parent: ROOST_ID,
++      kind: "slot-activity-node",
++      label: `${slot.toUpperCase()} — ${dirHits.size} dir(s) · ${slotResolved} touch(es) · 7d`,
++      status: "ghost",
++      color: "#3b82f6",
++      size: 0.3 + Math.min(0.25, Math.log10(1 + dirHits.size) * 0.12),
++      tier: 0,
++      slot,
++      commits: slotCommitCount,
++      touchesResolved: slotResolved,
++      touchesUnresolved: slotUnresolved,
++      dirCount: dirHits.size,
++      info: `[${slot}] 7d activity · ${slotCommitCount} commit(s) · ${slotTouchCount} touch(es) (${slotResolved} resolved → fs.deep.*; ${slotUnresolved} ancestor-miss)`,
++    });
++    stats.slotsEmitted++;
++    stats.byCount[slot] = dirHits.size;
++
++    // Deterministic edge order: sort by fsId so re-runs produce identical JSON.
++    const sortedHits = [...dirHits.entries()].sort((a, b) => a[0] < b[0] ? -1 : a[0] > b[0] ? 1 : 0);
++    for (const [fsId, hit] of sortedHits) {
++      const intensity = Math.max(0.05, Math.min(0.5, Math.log10(1 + hit.count) * 0.1));
++      newEdges.push({
++        from: slotId, to: fsId,
++        type: "touched-fs",
++        status: "active",
++        intensity,
++        count: hit.count,
++        lastSha: hit.lastSha || null,
++      });
++      stats.edgesEmitted++;
++    }
++  }
++
++  return {
++    schemaVersion: "1.0.0",
++    generatedAt: new Date().toISOString(),
++    windowDays: 7,
++    newNodes,
++    newEdges,
++    stats,
++  };
++}
++
++// ── CLI ─────────────────────────────────────────────────────────────────
++// Gated so a test can `import` the exports without triggering a git subprocess
++// or a 405 MB graph load.
++const isCli = process.argv[1]
++  && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url);
++
++if (isCli) {
++  // SLOT_NAMES authoritative source: chat-slots.mjs (per [[feedback_fleet_design_10_chats]]).
++  // Resolve dynamically so a future expansion 26→N+ picks up automatically.
++  const slotsHelperUrl = new URL("../.claude/helpers/chat-slots.mjs", import.meta.url).href;
++  const { SLOT_NAMES } = await import(slotsHelperUrl);
++  if (!Array.isArray(SLOT_NAMES) || SLOT_NAMES.length === 0) {
++    console.error("ERROR: SLOT_NAMES import from chat-slots.mjs is missing or empty");
++    process.exit(2);
++  }
++
++  // Load graph for existingIds lookup.
++  if (!fs.existsSync(GRAPH_PATH)) {
++    console.error(`ERROR: ${GRAPH_PATH} missing — run scripts/regen-viz.mjs first`);
++    process.exit(2);
++  }
++  let graph;
++  try { graph = JSON.parse(fs.readFileSync(GRAPH_PATH, "utf8")); }
++  catch (e) { console.error(`ERROR: graph parse: ${e.message}`); process.exit(2); }
++
++  // Per-slot git log (--since=7d, slot-tagged commits).
++  // Format: %x01<sha>%x02<subject>%x01<files...>%x01 (control-char delim).
++  const slotCommits = {};
++  const SINCE = "7 days ago";
++  const GIT_TIMEOUT_MS = 30000;
++  for (const slot of SLOT_NAMES) {
++    let raw = "";
++    try {
++      raw = execFileSync("git", [
++        "log",
++        `--since=${SINCE}`,
++        `--grep=slot:${slot}`,
++        "-i",
++        "--pretty=format:%x01%H%x02%s",
++        "--name-only",
++      ], { cwd: ROOT, encoding: "utf8", timeout: GIT_TIMEOUT_MS, windowsHide: true, maxBuffer: 8 * 1024 * 1024 });
++    } catch {
++      raw = "";
++    }
++    const commits = [];
++    // Split on \x01 — each non-empty chunk is "<sha>\x02<subject>\n<file>\n<file>..."
++    const chunks = raw.split("\x01").filter((c) => c.length > 0);
++    for (const chunk of chunks) {
++      const lines = chunk.split("\n").map((l) => l.trim()).filter(Boolean);
++      if (lines.length === 0) continue;
++      const headParts = lines[0].split("\x02");
++      const sha = headParts[0] || "";
++      if (!sha) continue;
++      const files = lines.slice(1);
++      commits.push({ sha, files });
++    }
++    if (commits.length > 0) slotCommits[slot] = commits;
++  }
++
++  const result = generate({ graph, slotCommits, slotNames: [...SLOT_NAMES] });
++  const outPath = path.join(VIZ_DIR, "slot-touch-augmentation.json");
++  fs.writeFileSync(outPath, JSON.stringify(result));
++  console.log(`wrote ${outPath} (${(fs.statSync(outPath).size / 1e6).toFixed(2)}MB)`);
++  if (result.error) {
++    console.log(`  error: ${result.error}`);
++  } else {
++    console.log(`  slots scanned:       ${result.stats.slotsScanned}`);
++    console.log(`  slots emitted:       ${result.stats.slotsEmitted}`);
++    console.log(`  commits scanned:     ${result.stats.commitsScanned}`);
++    console.log(`  touches scanned:     ${result.stats.touchesScanned}`);
++    console.log(`  touches resolved:    ${result.stats.touchesResolved}`);
++    console.log(`  touches unresolved:  ${result.stats.touchesUnresolved}`);
++    console.log(`  edges emitted:       ${result.stats.edgesEmitted}`);
++    console.log(`  parent created:      ${result.stats.parentCreated}`);
++    console.log(`  per-slot dir count:  ${JSON.stringify(result.stats.byCount)}`);
++  }
++}
+diff --git a/scripts/generate-slot-touch-augmentation.test.mjs b/scripts/generate-slot-touch-augmentation.test.mjs
+new file mode 100644
+index 0000000000..8a8a2ec0de
+--- /dev/null
++++ b/scripts/generate-slot-touch-augmentation.test.mjs
+@@ -0,0 +1,289 @@
++// generate-slot-touch-augmentation.test.mjs
++// Run: node --test H:/prism/scripts/generate-slot-touch-augmentation.test.mjs
++//
++// Real-value assertions only. No git, no fs reads of the 405 MB live graph.
++// Covers slugify / normalizeRel / resolveFsNodeId pure helpers + generate()
++// against fixture graphs + fixture slotCommits.
++//
++// ≥3 failure modes (graph-missing, slot-commits-missing, slot-names-missing)
++// ≥2 adversarial (unresolved touches, slot-id collision via existingIds,
++//   non-array commits, null fields)
++// ≥3 spanning configurations (touches only the deep dir; touches that ONLY
++//   resolve to a parent dir; mixed resolved+unresolved; multi-slot overlap)
++
++import { test } from "node:test";
++import assert from "node:assert/strict";
++import {
++  slugify, normalizeRel, resolveFsNodeId, generate,
++} from "./generate-slot-touch-augmentation.mjs";
++
++// ── fixtures ──────────────────────────────────────────────────────────────
++const GHOST_SYNERGY = { id: "ghost.slot_synergy", layer: "L8", parent: "ghost.planned_features" };
++const FS_PRISM = { id: "fs.deep.prism", layer: "L9" };
++const FS_PRISM_MCP = { id: "fs.deep.prism_mcp-server", layer: "L10" };
++const FS_PRISM_MCP_SRC = { id: "fs.deep.prism_mcp-server_src", layer: "L11" };
++const FS_PRISM_MCP_SRC_CAM = { id: "fs.deep.prism_mcp-server_src_cam", layer: "L12" };
++const FS_PRISM_SCRIPTS = { id: "fs.deep.prism_scripts", layer: "L10" };
++
++const BASE_GRAPH = {
++  nodes: [
++    GHOST_SYNERGY, FS_PRISM, FS_PRISM_MCP, FS_PRISM_MCP_SRC, FS_PRISM_MCP_SRC_CAM, FS_PRISM_SCRIPTS,
++  ],
++};
++
++// ── slugify ───────────────────────────────────────────────────────────────
++test("slugify: matches fs-deep-inventory convention", () => {
++  assert.equal(slugify("MCP-Server"), "mcp-server");
++  assert.equal(slugify("Wire EDM"), "wire_edm");
++  assert.equal(slugify("foo.ts"), "foo.ts"); // dots + .ts preserved
++});
++test("slugify: collapses runs, trims edges", () => {
++  assert.equal(slugify("A  B//C"), "a_b_c");
++  assert.equal(slugify("///x///"), "x");
++});
++test("slugify: null/undefined/number safe", () => {
++  assert.equal(slugify(null), "");
++  assert.equal(slugify(undefined), "");
++  assert.equal(slugify(42), "42");
++});
++
++// ── normalizeRel ──────────────────────────────────────────────────────────
++test("normalizeRel: backslash → forward, strip drive letter", () => {
++  assert.equal(normalizeRel("H:\\prism\\mcp-server\\src\\foo.ts"), "prism/mcp-server/src/foo.ts");
++  assert.equal(normalizeRel("C:/foo/bar"), "foo/bar");
++});
++test("normalizeRel: strip leading slash on git-relative paths", () => {
++  assert.equal(normalizeRel("/mcp-server/src/foo.ts"), "mcp-server/src/foo.ts");
++});
++test("normalizeRel: null/undefined → empty", () => {
++  assert.equal(normalizeRel(null), "");
++  assert.equal(normalizeRel(undefined), "");
++});
++
++// ── resolveFsNodeId ───────────────────────────────────────────────────────
++test("resolveFsNodeId: returns deepest matching fs.deep.* node", () => {
++  const ids = new Set(BASE_GRAPH.nodes.map((n) => n.id));
++  // mcp-server/src/cam/ exists in graph → wins over mcp-server/src
++  assert.equal(resolveFsNodeId("mcp-server/src/cam/foo.ts", ids), "fs.deep.prism_mcp-server_src_cam");
++});
++test("resolveFsNodeId: climbs to ancestor when leaf dir not in graph", () => {
++  const ids = new Set(BASE_GRAPH.nodes.map((n) => n.id));
++  // mcp-server/src/quality/ NOT in graph → climbs to mcp-server/src/ → present
++  assert.equal(resolveFsNodeId("mcp-server/src/quality/foo.ts", ids), "fs.deep.prism_mcp-server_src");
++});
++test("resolveFsNodeId: returns null when NO ancestor exists", () => {
++  const ids = new Set(["ghost.something"]); // no fs.deep.prism at all
++  assert.equal(resolveFsNodeId("mcp-server/src/foo.ts", ids), null);
++});
++test("resolveFsNodeId: does NOT fall back to bare fs.deep.prism root", () => {
++  // The repo-root climb is intentionally disabled: every touch would resolve
++  // there, producing false fleet-overlap signal in the heat map. Operators
++  // need specificity — "this slot touched fs.deep.prism_scripts" is useful;
++  // "this slot touched fs.deep.prism" is noise.
++  const ids = new Set(["fs.deep.prism"]);
++  assert.equal(resolveFsNodeId("scripts/foo.ts", ids), null);
++});
++test("resolveFsNodeId: file with single parent dir resolves to that dir", () => {
++  const ids = new Set(["fs.deep.prism", "fs.deep.prism_scripts"]);
++  assert.equal(resolveFsNodeId("scripts/foo.ts", ids), "fs.deep.prism_scripts");
++});
++test("resolveFsNodeId: empty/null path → null", () => {
++  const ids = new Set(["fs.deep.prism"]);
++  assert.equal(resolveFsNodeId("", ids), null);
++  assert.equal(resolveFsNodeId(null, ids), null);
++});
++test("resolveFsNodeId: single-segment path (no parent) → null", () => {
++  const ids = new Set(["fs.deep.prism"]);
++  // "README.md" has zero parent dirs after dropping the filename — needs ≥2 segs total.
++  assert.equal(resolveFsNodeId("README.md", ids), null);
++});
++
++// ── generate: happy path ──────────────────────────────────────────────────
++test("generate: emits roost + per-slot node + per-dir edges", () => {
++  const slotCommits = {
++    sierra: [
++      { sha: "abc123def456", files: ["mcp-server/src/cam/foo.ts", "mcp-server/src/cam/bar.ts"] },
++    ],
++  };
++  const r = generate({ graph: BASE_GRAPH, slotCommits, slotNames: ["sierra"] });
++  assert.equal(r.error, undefined);
++  const roost = r.newNodes.find((n) => n.id === "ghost.slot_activity");
++  assert.ok(roost, "roost emitted");
++  assert.equal(roost.layer, "L8", "layer copied from ghost.slot_synergy");
++  assert.equal(roost.parent, "ghost.planned_features", "parent copied from ghost.slot_synergy");
++  assert.equal(r.stats.parentCreated, true);
++
++  const sierra = r.newNodes.find((n) => n.id === "slot.activity.sierra");
++  assert.ok(sierra, "sierra slot-activity node emitted");
++  assert.equal(sierra.parent, "ghost.slot_activity");
++  assert.equal(sierra.touchesResolved, 2);
++  assert.equal(sierra.touchesUnresolved, 0);
++  assert.equal(sierra.dirCount, 1);
++
++  // 1 edge — both touches collapse to the same dir node
++  const edges = r.newEdges.filter((e) => e.from === "slot.activity.sierra" && e.type === "touched-fs");
++  assert.equal(edges.length, 1);
++  assert.equal(edges[0].to, "fs.deep.prism_mcp-server_src_cam");
++  assert.equal(edges[0].count, 2);
++  assert.equal(edges[0].lastSha, "abc123def456");
++  // intensity = log10(3)*0.1 ≈ 0.0477 → clamped to 0.05 floor
++  assert.ok(edges[0].intensity >= 0.05 && edges[0].intensity <= 0.5);
++  assert.equal(r.stats.edgesEmitted, 1);
++});
++
++test("generate: deterministic edge order (sorted by fsId)", () => {
++  const slotCommits = {
++    alpha: [
++      { sha: "111", files: [
++        "scripts/foo.mjs",                  // → fs.deep.prism_scripts
++        "mcp-server/src/cam/x.ts",          // → fs.deep.prism_mcp-server_src_cam
++        "mcp-server/src/quality/y.ts",      // → fs.deep.prism_mcp-server_src
++      ] },
++    ],
++  };
++  const r = generate({ graph: BASE_GRAPH, slotCommits, slotNames: ["alpha"] });
++  const alphaEdges = r.newEdges.filter((e) => e.from === "slot.activity.alpha");
++  // Sorted ASC by fsId.
++  const ids = alphaEdges.map((e) => e.to);
++  const sorted = [...ids].sort();
++  assert.deepEqual(ids, sorted, "edges sorted by destination fs id");
++});
++
++test("generate: skips slots with NO commits", () => {
++  const slotCommits = { sierra: [{ sha: "a", files: ["mcp-server/src/cam/foo.ts"] }] };
++  const r = generate({ graph: BASE_GRAPH, slotCommits, slotNames: ["alpha", "sierra"] });
++  // alpha has no entry in slotCommits → no slot.activity.alpha emitted
++  assert.equal(r.newNodes.find((n) => n.id === "slot.activity.alpha"), undefined);
++  assert.equal(r.newNodes.find((n) => n.id === "slot.activity.sierra") !== undefined, true);
++  assert.equal(r.stats.slotsScanned, 2);
++  assert.equal(r.stats.slotsEmitted, 1);
++});
++
++test("generate: skips slots whose touches ALL fail to resolve", () => {
++  const slotCommits = {
++    alpha: [{ sha: "ghost", files: ["not-in-graph/dir/file.ts"] }],
++  };
++  const r = generate({ graph: BASE_GRAPH, slotCommits, slotNames: ["alpha"] });
++  // alpha touched only unresolvable paths → no node emitted (no value)
++  assert.equal(r.newNodes.find((n) => n.id === "slot.activity.alpha"), undefined);
++  assert.equal(r.stats.touchesUnresolved, 1);
++  assert.equal(r.stats.touchesResolved, 0);
++  assert.equal(r.stats.edgesEmitted, 0);
++});
++
++test("generate: mixed resolved + unresolved touches — node still emitted", () => {
++  const slotCommits = {
++    bravo: [{ sha: "mixedHash", files: [
++      "mcp-server/src/cam/ok.ts",     // → fs.deep.prism_mcp-server_src_cam
++      "ghost-path/nope.ts",           // unresolved
++    ] }],
++  };
++  const r = generate({ graph: BASE_GRAPH, slotCommits, slotNames: ["bravo"] });
++  const node = r.newNodes.find((n) => n.id === "slot.activity.bravo");
++  assert.ok(node);
++  assert.equal(node.touchesResolved, 1);
++  assert.equal(node.touchesUnresolved, 1);
++});
++
++test("generate: idempotent — slot.activity.<name> already in graph is skipped", () => {
++  const graph = { nodes: [...BASE_GRAPH.nodes, { id: "slot.activity.sierra", layer: "L9" }] };
++  const slotCommits = { sierra: [{ sha: "a", files: ["mcp-server/src/cam/foo.ts"] }] };
++  const r = generate({ graph, slotCommits, slotNames: ["sierra"] });
++  assert.equal(r.newNodes.find((n) => n.id === "slot.activity.sierra"), undefined,
++    "existing graph node not re-emitted");
++  assert.equal(r.stats.slotsEmitted, 0);
++});
++
++test("generate: roost NOT re-created when ghost.slot_activity already in graph", () => {
++  const graph = { nodes: [...BASE_GRAPH.nodes, { id: "ghost.slot_activity", layer: "L8" }] };
++  const slotCommits = { sierra: [{ sha: "a", files: ["mcp-server/src/cam/foo.ts"] }] };
++  const r = generate({ graph, slotCommits, slotNames: ["sierra"] });
++  assert.equal(r.stats.parentCreated, false);
++  assert.equal(r.newNodes.find((n) => n.id === "ghost.slot_activity"), undefined);
++});
++
++test("generate: multi-slot overlap — both slots get edges to same fs node", () => {
++  const slotCommits = {
++    alpha:  [{ sha: "alphaSha",  files: ["mcp-server/src/cam/x.ts"] }],
++    bravo:  [{ sha: "bravoSha",  files: ["mcp-server/src/cam/y.ts"] }],
++  };
++  const r = generate({ graph: BASE_GRAPH, slotCommits, slotNames: ["alpha", "bravo"] });
++  const aE = r.newEdges.find((e) => e.from === "slot.activity.alpha");
++  const bE = r.newEdges.find((e) => e.from === "slot.activity.bravo");
++  assert.ok(aE && bE, "both slots emit edges");
++  assert.equal(aE.to, "fs.deep.prism_mcp-server_src_cam");
++  assert.equal(bE.to, "fs.deep.prism_mcp-server_src_cam");
++  // Overlap is encoded as two edges with the SAME destination — viewer
++  // computes the set intersection. This is the operator-value lift.
++});
++
++test("generate: fallback layer L8 when graph has no ghost.* node", () => {
++  const graph = { nodes: [FS_PRISM_MCP_SRC_CAM] };
++  const slotCommits = { sierra: [{ sha: "a", files: ["mcp-server/src/cam/foo.ts"] }] };
++  const r = generate({ graph, slotCommits, slotNames: ["sierra"] });
++  assert.equal(r.newNodes.find((n) => n.id === "ghost.slot_activity").layer, "L8");
++});
++
++// ── failure modes ─────────────────────────────────────────────────────────
++test("generate: graph missing → graph-missing-or-malformed", () => {
++  const r = generate({ graph: undefined, slotCommits: {}, slotNames: ["a"] });
++  assert.equal(r.error, "graph-missing-or-malformed");
++  assert.deepEqual(r.newNodes, []);
++});
++test("generate: graph without nodes array → graph-missing-or-malformed", () => {
++  const r = generate({ graph: { nodes: "not-an-array" }, slotCommits: {}, slotNames: ["a"] });
++  assert.equal(r.error, "graph-missing-or-malformed");
++});
++test("generate: slotCommits missing → slot-commits-missing", () => {
++  const r = generate({ graph: BASE_GRAPH, slotCommits: null, slotNames: ["a"] });
++  assert.equal(r.error, "slot-commits-missing");
++});
++test("generate: slotNames missing → slot-names-missing", () => {
++  const r = generate({ graph: BASE_GRAPH, slotCommits: {} });
++  assert.equal(r.error, "slot-names-missing");
++});
++test("generate: empty slotNames → slot-names-missing", () => {
++  const r = generate({ graph: BASE_GRAPH, slotCommits: {}, slotNames: [] });
++  assert.equal(r.error, "slot-names-missing");
++});
++
++// ── adversarial ───────────────────────────────────────────────────────────
++test("generate: non-array commits for a slot → silently skip (no crash)", () => {
++  const slotCommits = { sierra: "not-an-array", alpha: [{ sha: "a", files: ["mcp-server/src/cam/x.ts"] }] };
++  const r = generate({ graph: BASE_GRAPH, slotCommits, slotNames: ["sierra", "alpha"] });
++  // sierra ignored; alpha emits normally
++  assert.equal(r.newNodes.find((n) => n.id === "slot.activity.sierra"), undefined);
++  assert.ok(r.newNodes.find((n) => n.id === "slot.activity.alpha"));
++});
++test("generate: commit with non-array files → silently skip files", () => {
++  const slotCommits = { sierra: [{ sha: "a", files: null }, { sha: "b", files: ["mcp-server/src/cam/y.ts"] }] };
++  const r = generate({ graph: BASE_GRAPH, slotCommits, slotNames: ["sierra"] });
++  const node = r.newNodes.find((n) => n.id === "slot.activity.sierra");
++  assert.ok(node, "second commit produces a node");
++  assert.equal(node.touchesResolved, 1);
++});
++test("generate: commit with empty sha → still recorded as touch", () => {
++  const slotCommits = { sierra: [{ sha: "", files: ["mcp-server/src/cam/x.ts"] }] };
++  const r = generate({ graph: BASE_GRAPH, slotCommits, slotNames: ["sierra"] });
++  const edge = r.newEdges.find((e) => e.from === "slot.activity.sierra");
++  assert.ok(edge);
++  assert.equal(edge.lastSha, null, "empty sha normalized to null");
++});
++test("generate: augmentation envelope has merge-augmentations contract shape", () => {
++  const slotCommits = { sierra: [{ sha: "a", files: ["mcp-server/src/cam/x.ts"] }] };
++  const r = generate({ graph: BASE_GRAPH, slotCommits, slotNames: ["sierra"] });
++  assert.equal(r.schemaVersion, "1.0.0");
++  assert.ok(typeof r.generatedAt === "string");
++  assert.equal(r.windowDays, 7);
++  assert.ok(Array.isArray(r.newNodes) && Array.isArray(r.newEdges));
++  assert.ok(r.stats && typeof r.stats === "object");
++});
++test("generate: intensity is clamped to [0.05, 0.5]", () => {
++  // Stress: 10,000 touches → log10(10001)*0.1 ≈ 0.4 (under cap)
++  const files = Array.from({ length: 10000 }, () => "mcp-server/src/cam/x.ts");
++  const slotCommits = { sierra: [{ sha: "a", files }] };
++  const r = generate({ graph: BASE_GRAPH, slotCommits, slotNames: ["sierra"] });
++  const edge = r.newEdges.find((e) => e.from === "slot.activity.sierra");
++  assert.ok(edge.intensity >= 0.05 && edge.intensity <= 0.5,
++    `intensity ${edge.intensity} out of [0.05, 0.5]`);
++});
+diff --git a/scripts/merge-augmentations.mjs b/scripts/merge-augmentations.mjs
+index 27ec2a7d83..1fa38eea30 100644
+--- a/scripts/merge-augmentations.mjs
++++ b/scripts/merge-augmentations.mjs
+@@ -113,6 +113,7 @@ const testsAtomic    = loadOptional("tests-atomic-augmentation.json");
+ const scriptsAtomic  = loadOptional("scripts-atomic-augmentation.json");
+ const scriptsLibAtm  = loadOptional("scripts-lib-atomic-augmentation.json");
+ const milestoneEnvAtm = loadOptional("milestone-envelope-atomic-augmentation.json");
++const slotTouchAug    = loadOptional("slot-touch-augmentation.json");
+ const memoriesAtomic = loadOptional("memories-atomic-augmentation.json");
+ const registryEnts   = loadOptional("registry-entries-augmentation.json");
+ const actionEngEdges = loadOptional("action-engine-edges-augmentation.json");
+@@ -182,6 +183,7 @@ if (testsAtomic)     versions.testsAtomic     = testsAtomic.generatedAt     ?? "
+ if (scriptsAtomic)   versions.scriptsAtomic   = scriptsAtomic.generatedAt   ?? "present";
+ if (scriptsLibAtm)   versions.scriptsLibAtomic = scriptsLibAtm.generatedAt   ?? "present";
+ if (milestoneEnvAtm) versions.milestoneEnvelopeAtomic = milestoneEnvAtm.generatedAt ?? "present";
++if (slotTouchAug)    versions.slotTouch       = slotTouchAug.generatedAt    ?? "present";
+ if (memoriesAtomic)  versions.memoriesAtomic  = memoriesAtomic.generatedAt  ?? "present";
+ if (registryEnts)    versions.registryEnts    = registryEnts.generatedAt    ?? "present";
+ if (actionEngEdges)  versions.actionEngEdges  = actionEngEdges.generatedAt  ?? "present";
+@@ -1526,6 +1528,7 @@ const [testNodes,    testEdges]    = mergeIndexedAugmentation(testsAtomic,    "t
+ const [scriptNodesA, scriptEdgesA] = mergeIndexedAugmentation(scriptsAtomic,  "scriptsAtomic");
+ const [scriptLibN,   scriptLibE]   = mergeIndexedAugmentation(scriptsLibAtm,  "scriptsLibAtomic");
+ const [msEnvN,       msEnvE]       = mergeIndexedAugmentation(milestoneEnvAtm, "milestoneEnvelopeAtomic");
++const [slotTouchN,   slotTouchE]   = mergeIndexedAugmentation(slotTouchAug,    "slotTouch");
+ const [memoryNodes,  memoryEdges]  = mergeIndexedAugmentation(memoriesAtomic, "memoriesAtomic");
+ const [regEntNodes,  regEntEdges]  = mergeIndexedAugmentation(registryEnts,   "registryEntries");
+ const [camVCNodes,   camVCEdges]   = mergeIndexedAugmentation(camVendorCat,   "camVendorCatalog");
+diff --git a/scripts/regen-viz.mjs b/scripts/regen-viz.mjs
+index 37693f9b93..4be7cf78a1 100644
+--- a/scripts/regen-viz.mjs
++++ b/scripts/regen-viz.mjs
+@@ -124,6 +124,7 @@ const FAST = [
+   "generate-scripts-atomic.mjs",
+   "generate-scripts-lib-atomic.mjs",
+   "generate-milestone-envelope-atomic.mjs",
++  "generate-slot-touch-augmentation.mjs",
+   "generate-memories-atomic.mjs",
+   "generate-registry-entries.mjs",
+   "generate-action-engine-edges.mjs",
+
+--- END DIFF ---

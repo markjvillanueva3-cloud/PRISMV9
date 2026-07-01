@@ -3,9 +3,9 @@
  * wired through prism_ai (U-WIRE10).
  *
  * Covers 3 actions on ReasoningExplainerEngine:
- *   - ai_explain              → explain(request) → Explanation
- *   - ai_explain_formula      → explainFormula(formula, audience) → string
- *   - ai_reading_level_label  → getReadingLevelLabel(grade) → label
+ *   - reasoning_explain         → explain(request) → Explanation
+ *   - reasoning_explain_formula → explainFormula(formula, audience) → string
+ *   - reasoning_reading_level   → getReadingLevelLabel(grade) → label
  *
  * Reference values come from the engine's own constant tables
  * (FORMULA_EXPLANATIONS map and reading-level threshold table at
@@ -34,7 +34,7 @@ async function invoke(
 
 describe("aiReasoningDispatcher — ai_explain (Explanation generation)", () => {
   it("emits a recommendation explanation with summary, sections, citations, ID", async () => {
-    const out = await invoke("ai_explain", {
+    const out = await invoke("reasoning_explain", {
       question: "Why are you recommending VC carbide for D2 tool steel?",
       audience: "machinist",
       context: {
@@ -60,12 +60,12 @@ describe("aiReasoningDispatcher — ai_explain (Explanation generation)", () => 
   });
 
   it("variability: engineer audience gets a 300-word ceiling vs machinist 150", async () => {
-    const machinist = await invoke("ai_explain", {
+    const machinist = await invoke("reasoning_explain", {
       question: "Why use HSM for this pocket?",
       audience: "machinist",
       context: { recommendation: "Use trochoidal HSM strategy" },
     });
-    const engineer = await invoke("ai_explain", {
+    const engineer = await invoke("reasoning_explain", {
       question: "Why use HSM for this pocket?",
       audience: "engineer",
       context: { recommendation: "Use trochoidal HSM strategy" },
@@ -79,7 +79,7 @@ describe("aiReasoningDispatcher — ai_explain (Explanation generation)", () => 
   });
 
   it("variability: auditor audience produces explanation up to 500 words", async () => {
-    const out = await invoke("ai_explain", {
+    const out = await invoke("reasoning_explain", {
       question: "Justify the speed/feed values for compliance.",
       audience: "auditor",
       context: {
@@ -98,7 +98,7 @@ describe("aiReasoningDispatcher — ai_explain (Explanation generation)", () => 
   });
 
   it("respects custom maxWords override", async () => {
-    const out = await invoke("ai_explain", {
+    const out = await invoke("reasoning_explain", {
       question: "Quick answer please.",
       audience: "engineer",
       maxWords: 50,
@@ -109,7 +109,7 @@ describe("aiReasoningDispatcher — ai_explain (Explanation generation)", () => 
   });
 
   it("Zod rejects empty question (boundary)", async () => {
-    const out = await invoke("ai_explain", {
+    const out = await invoke("reasoning_explain", {
       question: "",
       context: { recommendation: "x" },
     });
@@ -118,7 +118,7 @@ describe("aiReasoningDispatcher — ai_explain (Explanation generation)", () => 
   });
 
   it("Zod rejects unknown audience enum (adversarial)", async () => {
-    const out = await invoke("ai_explain", {
+    const out = await invoke("reasoning_explain", {
       question: "Why?",
       audience: "robot",
       context: { recommendation: "x" },
@@ -128,7 +128,7 @@ describe("aiReasoningDispatcher — ai_explain (Explanation generation)", () => 
   });
 
   it("Zod rejects maxWords > 2000 (range cap)", async () => {
-    const out = await invoke("ai_explain", {
+    const out = await invoke("reasoning_explain", {
       question: "Why?",
       maxWords: 5000,
       context: { recommendation: "x" },
@@ -142,7 +142,7 @@ describe("aiReasoningDispatcher — ai_explain (Explanation generation)", () => 
 
 describe("aiReasoningDispatcher — ai_explain_formula (formula simplifier)", () => {
   it("known Kienzle formula returns canonical plain-language explanation", async () => {
-    const out = await invoke("ai_explain_formula", {
+    const out = await invoke("reasoning_explain_formula", {
       formula: "Fc = kc1.1 × ap × fz^(1-mc)",
       audience: "machinist",
     });
@@ -159,7 +159,7 @@ describe("aiReasoningDispatcher — ai_explain_formula (formula simplifier)", ()
   });
 
   it("known Taylor formula explains tool-life vs speed inverse relationship", async () => {
-    const out = await invoke("ai_explain_formula", {
+    const out = await invoke("reasoning_explain_formula", {
       formula: "T = (C/Vc)^(1/n)",
     });
     const data = out.data as { explanation: string };
@@ -168,7 +168,7 @@ describe("aiReasoningDispatcher — ai_explain_formula (formula simplifier)", ()
   });
 
   it("known surface-finish formula references feed and tool radius", async () => {
-    const out = await invoke("ai_explain_formula", {
+    const out = await invoke("reasoning_explain_formula", {
       formula: "Ra = (fz^2) / (32 × r)",
       audience: "engineer",
     });
@@ -178,7 +178,7 @@ describe("aiReasoningDispatcher — ai_explain_formula (formula simplifier)", ()
   });
 
   it("unknown formula returns the generic fallback string with the formula echoed", async () => {
-    const out = await invoke("ai_explain_formula", {
+    const out = await invoke("reasoning_explain_formula", {
       formula: "U10_unknown_formula = x + y",
     });
     const data = out.data as { explanation: string };
@@ -188,13 +188,13 @@ describe("aiReasoningDispatcher — ai_explain_formula (formula simplifier)", ()
   });
 
   it("Zod rejects empty formula (boundary)", async () => {
-    const out = await invoke("ai_explain_formula", { formula: "" });
+    const out = await invoke("reasoning_explain_formula", { formula: "" });
     expect(out.success).toBe(false);
     expect(String(out.error)).toMatch(/formula/i);
   });
 
   it("Zod rejects unknown audience (adversarial)", async () => {
-    const out = await invoke("ai_explain_formula", {
+    const out = await invoke("reasoning_explain_formula", {
       formula: "Fc = kc1.1 × ap × fz^(1-mc)",
       audience: "child",
     });
@@ -207,45 +207,45 @@ describe("aiReasoningDispatcher — ai_explain_formula (formula simplifier)", ()
 
 describe("aiReasoningDispatcher — ai_reading_level_label (FK grade → label)", () => {
   it("variability: grade 5 → 'Easy to read' (≤6 band)", async () => {
-    const out = await invoke("ai_reading_level_label", { grade: 5 });
+    const out = await invoke("reasoning_reading_level", { grade: 5 });
     const data = out.data as { grade: number; label: string };
     expect(data.grade).toBe(5);
     expect(data.label).toBe("Easy to read");
   });
 
   it("variability: grade 8 → 'Moderate' (>6, ≤10 band)", async () => {
-    const out = await invoke("ai_reading_level_label", { grade: 8 });
+    const out = await invoke("reasoning_reading_level", { grade: 8 });
     expect((out.data as { label: string }).label).toBe("Moderate");
   });
 
   it("variability: grade 12 → 'Technical' (>10, ≤14 band)", async () => {
-    const out = await invoke("ai_reading_level_label", { grade: 12 });
+    const out = await invoke("reasoning_reading_level", { grade: 12 });
     expect((out.data as { label: string }).label).toBe("Technical");
   });
 
   it("variability: grade 18 → 'Expert level' (>14 band)", async () => {
-    const out = await invoke("ai_reading_level_label", { grade: 18 });
+    const out = await invoke("reasoning_reading_level", { grade: 18 });
     expect((out.data as { label: string }).label).toBe("Expert level");
   });
 
   it("boundary: grade 6 → 'Easy to read' (inclusive ≤6)", async () => {
-    const out = await invoke("ai_reading_level_label", { grade: 6 });
+    const out = await invoke("reasoning_reading_level", { grade: 6 });
     expect((out.data as { label: string }).label).toBe("Easy to read");
   });
 
   it("boundary: grade 6.01 → 'Moderate' (open >6)", async () => {
-    const out = await invoke("ai_reading_level_label", { grade: 6.01 });
+    const out = await invoke("reasoning_reading_level", { grade: 6.01 });
     expect((out.data as { label: string }).label).toBe("Moderate");
   });
 
   it("Zod rejects non-finite grade (NaN adversarial)", async () => {
-    const out = await invoke("ai_reading_level_label", { grade: Number.NaN });
+    const out = await invoke("reasoning_reading_level", { grade: Number.NaN });
     expect(out.success).toBe(false);
     expect(String(out.error)).toMatch(/grade/i);
   });
 
   it("Zod rejects Infinity grade (adversarial)", async () => {
-    const out = await invoke("ai_reading_level_label", {
+    const out = await invoke("reasoning_reading_level", {
       grade: Number.POSITIVE_INFINITY,
     });
     expect(out.success).toBe(false);

@@ -14,6 +14,7 @@ import { useCallback, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { WorkspaceHero, SummaryTile } from '../components/workspace/WorkspacePrimitives';
 import { ApiError, submitMillingWizard } from '../api/client';
+import { GatedError } from '../components/entitlement';
 
 // ── Data ─────────────────────────────────────────────────────────────────────
 
@@ -241,6 +242,7 @@ export function MillingWizardPage() {
   const [qualityTier, setQualityTier] = useState(() => defaultQualityTierForOperation(state.operation));
   const [submitting, setSubmitting]  = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
+  const [gateError, setGateError] = useState<unknown>(null);
 
   const totalSteps = 5;
 
@@ -253,6 +255,7 @@ export function MillingWizardPage() {
   const handleSubmit = useCallback(async () => {
     setSubmitting(true);
     setSubmitError(null);
+    setGateError(null);
 
     try {
       const response = await submitMillingWizard({
@@ -308,6 +311,7 @@ export function MillingWizardPage() {
         'The live /api/v1/milling/wizard-submit route returned no usable payload. The wizard stays here instead of implying a generated milling program.',
       );
     } catch (issue) {
+      setGateError(issue);
       setSubmitError(
         issue instanceof ApiError
           ? issue.message
@@ -495,9 +499,11 @@ export function MillingWizardPage() {
           <h3 className="mb-4 text-sm font-semibold text-zinc-200">Review & Generate</h3>
 
           {submitError ? (
-            <div className="mb-4 rounded-lg border border-rose-300/20 bg-rose-300/[0.08] px-4 py-3 text-sm text-rose-100">
-              {submitError}
-            </div>
+            <GatedError error={gateError} feature='wizard.mill' fallback={
+              <div className="mb-4 rounded-lg border border-rose-300/20 bg-rose-300/[0.08] px-4 py-3 text-sm text-rose-100">
+                {submitError}
+              </div>
+            } />
           ) : null}
 
           <div className="mb-6 grid grid-cols-2 gap-4 sm:grid-cols-3">

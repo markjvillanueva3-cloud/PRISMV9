@@ -118,3 +118,25 @@ describe("stop-force-loop-continue — never-block contract", () => {
     }
   });
 });
+
+describe("stop-force-loop-continue -- findHandoff short-chatId match (RESUME_LOOP append fix)", () => {
+  test("matches a SHORT-chatId handoff file given a FULL-UUID sid (pre-fix this was DEAD)", async () => {
+    const os = await import("node:os");
+    const fsx = await import("node:fs");
+    const px = await import("node:path");
+    const dir = fsx.mkdtempSync(px.join(os.tmpdir(), "sflc-handoffs-"));
+    fsx.writeFileSync(px.join(dir, "HANDOFF-claude-70add462-alpha-work.md"), "## RESUME\nx\n");
+    process.env.PRISM_TEST_HANDOFFS_DIR = dir;
+    const mod = await import("../stop-force-loop-continue.mjs");
+    const hit = mod.findHandoff("70add462-1791-4709-8720-39bf7ced2ecc");
+    assert.ok(hit && hit.replace(/\\/g, "/").endsWith("HANDOFF-claude-70add462-alpha-work.md"), `full-UUID sid must match short file; got ${hit}`);
+    const hit2 = mod.findHandoff("claude-70add462-1791-4709");
+    assert.ok(hit2, "claude-prefixed full form must also match");
+    assert.equal(mod.handoffNeedle("70add462-1791-4709"), "claude-70add462");
+    assert.equal(mod.handoffNeedle("claude-70add462"), "claude-70add462");
+    assert.equal(mod.handoffNeedle(""), "");
+    assert.equal(mod.findHandoff("zz999999-aaaa"), null, "non-matching sid -> null");
+    fsx.rmSync(dir, { recursive: true, force: true });
+    delete process.env.PRISM_TEST_HANDOFFS_DIR;
+  });
+});

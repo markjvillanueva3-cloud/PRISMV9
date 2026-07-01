@@ -1,0 +1,300 @@
+Application Tutorial | InventorCAM 2024
+
+Rotary Finishing 4x
+
+                                                iMachining 2D
+                                                iMachining 3D
+                                                2.5D Milling
+                                                Indexial Multi-Sided
+                                                HSS Machining
+                                                3D High Speed Milling
+                                                Simultaneous 5-Axis
+                                                Turning
+                                                Advanced Mill-Turn
+                                                Swiss-Type
+                                                Solid Probe
+          Contents
+
+Contents
+
+1. Introduction.....................................................................................................................................................1
+2. Defining CAM-Part, Stock and Target............................................................................................................5
+3. iMachining Operations....................................................................................................................................13
+4. Rotary Finishing..............................................................................................................................................19
+
+                                                                                                                                                                       i
+Introduction  1
+About this course
+This tutorial illustrates machining of an extruder using InventorCAM's Rotary Machining technology. Once you have
+developed a good foundation in basic skills, you can refer to the online help for information on the less frequently used
+options.
+Prerequisites
+Students attending this course are expected to have basic knowledge of the InventorCAM software.
+Course design
+This course is designed around a task-based approach to training. The guided exercises will teach you the necessary
+commands and options to complete a machining task. The theoretical explanations are embedded into these exercises to
+give an overview of machining an extruder.
+Using this book
+This tutorial is intended to be used in a classroom environment under the guidance of an experienced instructor. It is also
+intended to be a self-study tutorial.
+This book is made with Autodesk Inventor Professional 2024 and InventorCAM 2024 SP2.
+
+2
+                                                                                                                                       1. Introduction
+Rotary Machining
+The rotary machining operation is designed to generate rotary tool path to mill parts on a 4-axis machine. It can be used
+to mill cylindrical parts like bottle molds and core, electrodes, and wood work. The tool paths are directly calculated on
+3D geometry and not wrapped around.
+In this tutorial, you will use rotary machining as it has certain advantages over regular 4-axis machining. Firstly, in 4-axis
+machining, you require a dummy surface to project the actual surfaces to be machined. Secondly, in 4-axis machining, the
+tool axis is normal to the surface to be machined. Whereas in rotary machining, the tool axis is normal to the surface to
+be projected, resulting in not using the tool tip as it has 0 RPM that creates a rubbing effect and does not cut the material
+effectively. Thirdly, rotary machining is very effective in machining parts that have surfaces which are not meant to be
+used for morphed or flow line machining.
+
+                                                                                                                                                        3
+4
+Defining CAM-Part,  2
+ Stock and Target
+1. Click InventorCAM 2024 > CAM Settings.
+2. In the left pane, select CAM-Part.
+3. Ensure that the settings are as shown in the image.
+
+4. In the left pane, select Automatic CAM-Part definition.
+5. In the right pane, click the Milling tab.
+6. Ensure that the settings are as shown in the image.
+7. Click OK.
+
+8. Browse to open the Autodesk Inventor part ROTARY PART.ipt.
+9. Click InventorCAM 2024 > New > Milling.
+The New Milling Part window displays.
+10. Click
+11. In the CNC-Machine list, click 4X_FANUC_0i_new.
+12. Click CoordSys in the Define section.
+13. In the Definition options section, choose the option of Select face.
+14. In the Place Coordsys origin to list, click Center of revolution face.
+
+6
+                                                         2. Defining CAM Part, Stock and Target
+
+15. Select the face as shown in the image.
+
+16. Ensure that the axes are set as shown in the image.
+
+17. Click
+
+18. Click  in the CoordSys Data window.
+
+19. In the CoordSys Manager window, click Add.
+20. Select the face as shown in the image.
+
+21. Click Change to opposite.
+22. Ensure that the axes are set as shown in the image.
+
+23. Click
+
+24. Click  in the CoordSys Data window.
+
+25. Click  in the CoordSys Manager window.
+
+                                                         7
+26. Click the Model tab.
+27. Click Modeling.
+28. Click DesignModel: 1 > Solid Bodies(3).
+29. Switch off the Visibility of PART MAIN and switch on the Visibility of STOCK FEATURE.
+30. Click Stock in the Define section.
+31. Ensure that the settings are as shown in the image.
+
+32. Select the stock as shown.
+33. Click
+34. Click the Model tab and in Modeling view, switch off the Visibility
+of STOCK FEATURE and switch on the Visibility of PART MAIN.
+
+8
+                                                                    2. Defining CAM Part, Stock and Target
+
+35. Click Target in the Define section.
+36. Select the target as shown in the image.
+37. Set the Facet tolerance value as 0.1.
+38. Click
+
+39. Click Edit iMachining Database in the iMachining Data section.
+40. Right click Machines > New Machine to define a new machine.
+A new machine is added.
+41. In the left pane, right click New Machine to change the name.
+42. Enter Mazak as the machine name.
+
+43. Enter the parameters as shown in the image.
+44. Click Apply.
+
+45. Right click Materials > New Material to define a new material.
+A new material is added.
+46. In the left pane, right click New Material to change the name.
+47. Enter Al6061 as the material name.
+
+                                                                                                                                                                         9
+48. Enter the parameters as shown in the image.
+49. Click Save & Exit.
+50. In the iMachining Data section, select the Machine and Material you just
+defined and set the Machining level as 6.
+51. Click
+The CAM part, stock, target and iMachining data are now defined.
+
+10
+3 iMachining Operations
+1. Make a sketch as shown in the image.
+
+2. Right click Operations > Add Milling Operation > 3D iMachining.
+3. In the Technology list, click 3D General.
+4. Click the Geometry page.
+5. In the Coordsys list, click MAC 1 (1-Position).
+6. Click Define in the Working area section.
+The Working area window displays.
+7. Select the Working area check box.
+8. Click Define in the Auto Silhouette section.
+
+9. Select the boundary as shown in the image.
+10. Click Yes in OK to accept? window.
+11. Click
+
+14
+                                                                     3. iMachining Operations
+
+12. Click OK in the Working Area window.
+13. Click the Tool page > Select.
+14. Select BULL NOSE MILL as the tool.
+15. Enter the parameters as shown in the image.
+
+16. Select BT 40 ER 32x60 as the holder.
+
+17. Click
+
+18. Click the Levels page.
+
+19. Enter the parameters as shown in the image.
+It is important to set the Lower level value as -3 as you are using
+a tool with the corner radius of 3 mm. Setting the Lower level as
+-3 ensures no steps remain while machining.
+
+                                                                     15
+20. Click the Technology page.
+21. Enter the parameters as shown in the image.
+
+22. Save and calculate the operation.
+23. Simulate the operation once it is calculated.
+The tool path should look as displayed in the image.
+
+24. Close the operations manager window.
+25. Right click the operation > Copy and then Paste it.
+26. Right click the pasted operation > Edit.
+27. In the CoordSys list, click MAC 1 (2-Position).
+28. Reselect the working area geometry.
+
+16
+                                                      3. iMachining Operations
+
+29. Keep all the other parameters as they are.
+30. Save and calculate the operation.
+31. Simulate the operation once it is calculated.
+The tool path should look as displayed in the image.
+
+32. Close the operations manager window.
+
+                                                      17
+18
+Rotary Finishing  4
+1. Go to Design Model > Solid Bodies(3) and switch off the Visibility of PART MAIN and switch on the Visibility of
+PART ROTARY.
+2. Right click Operations > Add Milling Operation > Rotary Machining 4 axis.
+3. In the Coordsys list, click MAC 1 (1-Position).
+4. Click the Geometry page.
+5. In the Strategy list, click Along rotary axis.
+6. Click under Machining surfaces.
+
+7. Click CAD selection.
+8. Select the entire part.
+9. Click Resume.
+10. The select target must look as shown in the image.
+11. Click
+
+12. Click the Tool page > Select.
+13. Select TAPER BALL NOSE.
+14. Enter the parameters as shown in the image.
+15. Select BT 40 ER 32x60 as the holder.
+16. Click
+
+20
+                                                                                              4. Rotary Finishing
+
+17. Click the Tool path parameters page.
+18. Enter the parameters as shown in the image.
+19. Select the Sorting tab.
+20. Select Zigzag as the Cutting method.
+21. Select Clockwise as the Direction for closed cuts.
+22. Click the Tool axis control page.
+23. Select the Rotary axis button and ensure X-Axis is selected as Direction in the 4th Axis
+window.
+24. Click the Link page.
+25. In the lists, click Use Lead-In and Use Lead-Out.
+
+26. Click next to Use Lead-In.
+27. Enter the parameters as shown in the image.
+28. Click OK.
+
+29. Click next to Use Lead-Out.
+30. Enter the parameters as shown in the image.
+31. Click OK.
+
+                                                                                              21
+32. Save and calculate the operation.
+33. Simulate the operation once it is calculated.
+The tool path should look as displayed in the image.
+
+34. Close the operations manager window.
+35. Right click the operation > Copy. and then Paste it.
+36. Right click the pasted operation > Edit.
+37. Click the Geometry page.
+38. In the Strategy list, click Around rotary axis.
+39. Click the Tool path parameters page.
+40. Select the Sorting tab.
+41. Select Spiral as the Cutting method.
+42. Select Clockwise as the Direction for closed cuts.
+43. Save and calculate the operation.
+
+22
+                                                       4. Rotary Finishing
+
+44. Simulate the operation once it is calculated.
+The tool path should look as displayed in the image.
+
+45. Click SolidVerify.
+The simulation should look as displayed in the image.
+
+46. Close the operations manager window.
+
+                                                            End of tutorial.
+
+                                                                                                                                                                        23
+24
+4. Rotary Finishing
+                       25
+                                                                          The Complete CAM Solution, with
+                                                                          Revolutionary iMachining, best support
+                                                                          for Multi-Channel Mill-Turn and Swiss
+                                                                          CNCs, seamlessly Integrated in and
+                                                                          associative to SOLIDWORKS®, Inventor®
+                                                                          and Solid Edge®.
+                                                                          iMachining 2D
+                                                                          iMachining 3D
+                                                                          2.5D Milling
+                                                                          Indexial Multi-Sided
+                                                                          HSS Machining
+                                                                          3D High Speed Milling
+                                                                          Simultaneous 5-Axis
+                                                                          Turning
+                                                                          Advanced Mill-Turn
+                                                                          Swiss-Type
+                                                                          Solid Probe
+
+solidcam.com
+

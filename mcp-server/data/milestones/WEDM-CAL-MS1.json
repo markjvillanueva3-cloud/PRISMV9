@@ -1,0 +1,73 @@
+{
+  "id": "WEDM-CAL-MS1",
+  "title": "Engine Calibration vs Shop Data",
+  "track": "WEDM-CAL",
+  "version": "1.0.0",
+  "created": "2026-04-10",
+  "depends_on": [
+    "WEDM-CAL-MS0"
+  ],
+  "total_units": 5,
+  "completed_units": 5,
+  "status": "complete",
+  "sessions": "2",
+  "roadmap_path": "milestones/WEDM-CALIBRATE-ROADMAP.md",
+  "units": [
+    {
+      "id": "U-CAL05",
+      "title": "Map Real Offsets to Engine Kerf Model",
+      "status": "completed",
+      "session": 2,
+      "depends_on": [
+        "U-CAL04"
+      ],
+      "description": "Compare ITW SHAKEPROOF real offsets (0.216-0.135mm) to EDMEngine.wireEDM() predictions, calibrate via WEDMFeedbackCalibrationEngine if deviation >20%"
+    },
+    {
+      "id": "U-CAL06",
+      "title": "Map Real Feed Rates to Engine Speed Model",
+      "status": "completed",
+      "session": 2,
+      "depends_on": [
+        "U-CAL04"
+      ],
+      "description": "Compare real feed rates (ITW: 3.05-5.08 mm/min, NOZE: 4.06-7.62 mm/min) to engine speed predictions, calibrate if >20% off"
+    },
+    {
+      "id": "U-CAL07",
+      "title": "Calibration Validation — Cross-Material",
+      "status": "completed",
+      "session": 2,
+      "depends_on": [
+        "U-CAL05",
+        "U-CAL06"
+      ],
+      "description": "After calibrating on D2/SS, validate all 6 ISO groups still within ±30% of published ranges"
+    },
+    {
+      "id": "U-CAL08",
+      "title": "Multi-Pass Energy Cascade Validation",
+      "status": "completed",
+      "session": 3,
+      "depends_on": [
+        "U-CAL07"
+      ],
+      "description": "Map E-code progression to energy cascade, validate Toenshoff model (gamma=0.20-0.35) against real pass energy ratios"
+    },
+    {
+      "id": "U-CAL09",
+      "title": "Calibration Report Generator",
+      "status": "completed",
+      "session": 3,
+      "depends_on": [
+        "U-CAL08"
+      ],
+      "description": "Create WEDMCalibrationReportEngine that summarizes per-parameter deviation, calibration constants, and confidence intervals"
+    }
+  ],
+  "forge_triple": {
+    "hook": "wedm-calibration-regression",
+    "action": "prism_edm:wedm_calibration_report",
+    "skill": "/wedm-calibrate"
+  }
+}

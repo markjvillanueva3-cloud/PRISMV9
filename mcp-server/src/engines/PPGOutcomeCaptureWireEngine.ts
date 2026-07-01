@@ -1,4 +1,7 @@
-// WIRE-EXEMPT: Middleware engine called by PPG engines internally, not exposed via dispatcher
+// WIRED: prism_pp:pp_outcome_emit (ppDispatcher) -> recordEmission. INDIA-AI-ORPHAN-WIRE (bravo,
+// 2026-06-11): the prior "// WIRE-EXEMPT: called by PPG engines internally" marker was FALSE -- a grep
+// of mcp-server/src found ZERO real callers (the only hit was a doc reference in wiring/PATHS.md), so
+// the post->india OutcomeCaptureBus emit side was dark and the closed loop was OPEN. Now reachable.
 /**
  * PPGOutcomeCaptureWireEngine — U-PPG-SFC-02
  * ===========================================

@@ -1,0 +1,1693 @@
+Getting Started with
+Mastercam Solids
+
+July 2014
+TERMS OF USE     Mastercam® X8 Solids Getting Started
+
+                 Date: July 2014
+                 Copyright © 2014 CNC Software, Inc.-- All rights reserved.
+                 Software: Mastercam X8
+
+                 Use of this document is subject to the Mastercam End User License Agreement. A
+                 copy of the Mastercam End User License Agreement is included with the
+                 Mastercam product package of which this document is part. The Mastercam End
+                 User License Agreement can also be found at:
+                 http://www.mastercam.com/companyinfo/legal/LicenseAgreement.aspx
+
+Be sure you      Information might have been changed or added since this document was
+have the latest  published. The latest version of this document is installed with Mastercam or can
+information!
+                 be obtained from your local Reseller. A ReadMe file (ReadMe.pdf)--installed
+                 with each release--includes the latest information about Mastercam features and
+                 enhancements.
+                                                                                                                                                           i
+
+Contents
+
+Introduction ....................................................................................................... 1
+
+      Tutorial Goals................................................................................................. 1
+         General Tutorial Requirements....................................................................... 1
+
+ 1. Introduction to Mastercam Solids ........................................ 3
+
+      Getting Ready to Work................................................................................. 3
+      Exercise 1: Creating the Tray Base ....................................................... 4
+      Exercise 2: Creating the Upper Bosses ................................................. 8
+      Exercise 3: Creating the Finger Cutouts .............................................. 11
+      Exercise 4: Creating the Marker Cutouts............................................. 14
+      Exercise 5: Adding the Handle ............................................................ 15
+      Exercise 6: Adding Draft and Fillets .................................................... 20
+
+         Adding Draft ................................................................................................. 20
+         Adding Outside Fillets .................................................................................. 22
+         Adding Top Fillets ........................................................................................ 23
+      Exercise 7: Shelling the Part ............................................................... 24
+      Other Solids Functions ............................................................................... 26
+      Exercise 8: Using Solids Revolve ........................................................ 26
+      Exercise 9: Creating Solids with Sweep.............................................. 28
+      Exercise 10: Using Boolean to Create a Hole ...................................... 29
+      Exercise 11: Adding Chamfers ............................................................ 31
+      Challenge ..................................................................................................... 32
+
+ 2. Introduction to Model Prep................................................. 37
+
+      Getting Ready to Work............................................................................... 37
+      The Scenario................................................................................................ 37
+      Exercise 1: Splitting the Feet from the Part......................................... 38
+ii MASTERCAM X8
+
+      Exercise 2: Removing One Foot........................................................... 43
+      Exercise 3: Reducing the Foot Height.................................................. 45
+      Exercise 4: Repositioning the Feet ...................................................... 47
+      Exercise 5: Resizing the Foot Holes..................................................... 51
+      Exercise 6: Creating the Counterbore .................................................. 53
+      Exercise 7: Aligning the Vertical Wall.................................................. 57
+      Exercise 8: Expanding the Wall Opening ............................................. 60
+      Exercise 9: Increasing the Wall Height................................................ 62
+      Exercise 10: Adding the Fillet.............................................................. 64
+      Challenge ..................................................................................................... 66
+
+ Conclusion......................................................................................................... 69
+
+      Mastercam Resources ............................................................................... 70
+      Mastercam Documentation ....................................................................... 70
+
+         Contact Us.................................................................................................... 71
+Introduction
+
+Mastercam Solids features functions for creating and editing solid models, with
+support for both history-based and "brick" solids (no history tree). When you create a
+solid model in Mastercam, all operations appear in the solids history tree, where you
+can edit the solid model in many ways.
+
+Mastercam's Model Prep functions, let you modify solid models lacking a history tree.
+Mastercam can identify individual geometry elements and even entire features. Using
+Model Prep functions such as Push-Pull, Move, and Split Solid Face, you can make
+changes to a solid, despite having no access to the model's original wireframe.
+
+Tutorial Goals
+
+       Create a solid model from wireframe geometry.
+       Edit a solid model from the solid history tree.
+       Modify "brick" solid models with Mastercam's Model Prep functions.
+
+         IMPORTANT: Screen colors in the tutorial pictures were modified to
+         enhance image quality; they may not match your Mastercam settings or
+         the tutorial results. These color differences do not affect the lesson or
+         the exercise results.
+
+General Tutorial Requirements
+
+All Mastercam tutorials have the following general requirements:
+       You must be comfortable using the Windows® operating system.
+2 MASTERCAM X8/ Introduction
+
+       Each lesson in the tutorial builds on the mastery of preceding lesson's skills.
+           We recommend that you complete them in order.
+
+       Additional files may accompany a tutorial. Unless the tutorial provides specific
+           instructions on where to place these files, store them in a folder that can be
+           accessed from the Mastercam workstation, either with the tutorial or in any
+           location that you prefer.
+
+       You will need an internet connection to view videos that are referenced in the
+           tutorials. All videos can be found on our YouTube channel:
+           www.youtube.com/user/MastercamTechDocs.
+
+GETTING STARTED WITH MASTERCAM SOLIDS
+LESSON 1
+
+Introduction to Mastercam Solids
+
+1
+
+Mastercam Solids features the tools you need to create sophisticated solid models,
+using functions with dynamic preview so you can see results as soon you edit parame-
+ters. The solids history tree lists the operations that generate the solid, and you can
+open and edit any operation, as well as move, delete, and suppress operations.
+
+Getting Ready to Work
+
+This tutorial includes the files needed to complete the exercises. You can find these
+files in the tutorial's Parts folder, which itself contains the subfolders FlangeDemo,
+MarkerTray, PressurePlate, ShippingPullTab, and SpindlePartial. Place these
+files on your system wherever convenient, but be sure to keep an unmodified set. In
+preparation for the following exercises, set up Mastercam as described here.
+
+       1 Start Mastercam using your
+           preferred method:
+           Double-click Mastercam's
+               desktop icon.
+               Or
+           Launch Mastercam from the
+               Windows Start menu.
+
+       2 Select the default metric configuration file:
+           a Select Settings, Configuration
+               from Mastercam's menu.
+
+           b Choose ...\mcamxm.config <Metric> from the Current drop-down list.
+
+           c Click OK.
+4 MASTERCAM X8/ Introduction to Mastercam Solids
+
+In this lesson, you work on the file named MarkerTray, which is included with this
+tutorial. In most cases, this is the only file you will need to complete the lesson.
+However, a set of files named MarkerTray01 through MarkerTray07 are also included
+with this tutorial and are the results of each of the exercises. For example,
+MarkerTray01 is the results of Exercise 1 and so is the state the part should be in when
+starting Exercise 2.
+
+Exercise 1: Creating the Tray Base
+
+       1 Open the file MarkerTray.
+           The following picture shows the file loaded into Mastercam.
+
+       2 So you do not overwrite the original, save the file as MarkerTray-XXX, where
+           XXX is your intitials.
+
+       3 From Mastercam's menu, choose
+           Solids, Extrude.
+           The Chaining dialog box opens.
+
+GETTING STARTED WITH MASTERCAM SOLIDS
+                                       CREATING THE TRAY BASE 5
+
+4 Chain the outer rectangle, as shown
+    in the picture to the right.
+
+5 Click OK in the Chaining dialog box.
+
+    Mastercam performs an extrusion on the selected chain and displays the Solid
+    Extrude function panel.
+
+6 In the function panel, click the
+    Reverse All button.
+
+                                                                       GETTING STARTED WITH MASTERCAM SOLIDS
+6 MASTERCAM X8/ Introduction to Mastercam Solids
+
+           Mastercam reverses the extrude
+           direction.
+
+       7 Set the extrude distance to 2mm,
+           and press [Tab] to accept the new
+           setting.
+
+           Mastercam shows a preview of the
+           new extrusion, as shown in the
+           picture to the right.
+
+       8 Click OK and Create New
+           Operation to finalize the extrude
+           operation and begin a new one.
+
+       9 Chain the inside rectangle, and click
+           OK in the Chaining dialog box.
+
+GETTING STARTED WITH MASTERCAM SOLIDS
+                                                   CREATING THE TRAY BASE 7
+
+10 Reverse the extrude direction, and
+      set the distance to 5mm.
+
+Your part should now look like the picture below.
+
+11 Set the solids operation to Add
+      boss.
+      The Add boss option creates the
+      extrusion as new material on the
+      part.
+
+12 Click the Advanced tab, and turn on
+      Draft, leaving the angle at 5 degrees
+
+                                                                         GETTING STARTED WITH MASTERCAM SOLIDS
+8 MASTERCAM X8/ Introduction to Mastercam Solids
+
+           Mastercam updates the display to
+           show the draft on the extrusion.
+
+         TIP: If you have difficulty seeing the
+         draft on the part, toggle the Draft
+         option several times, watching how
+         the part's geometry changes.
+
+     13 In the function panel, click OK to
+           finalize the extrude operations.
+
+     14 Save the file as MarkerTray01-XXX, where XXX is your initials.
+
+Exercise 2: Creating the Upper Bosses
+
+Now that you have the tray's base, you can add the bosses that form the eraser holder
+and the marker storage area. For this exercise, continue with the part you just saved, or
+load MarkerTray01, which accompanies this tutorial. If you choose to start with
+MarkerTray01, remember to save it under the new name MarkerTray01-XXX, where
+XXX is your initials.
+
+       1 In Mastercam's status bar, click
+           Level.
+           The Level Manager opens.
+
+       2 Turn on level 2, by clicking in its
+           Visible column, and then click OK in
+           the Level Manager dialog box.
+
+GETTING STARTED WITH MASTERCAM SOLIDS
+                                          CREATING THE UPPER BOSSES 9
+
+    The part displays new geometry, as
+    shown in the picture to the right.
+    This geometry was previously
+    created for you and provides the
+    basis of the new bosses.
+
+3 In Mastercam's menu bar, choose
+    Solids, Extrude.
+    The Chaining dialog box opens.
+
+4 Chain the two new rectangles, and
+    click OK in the Chaining dialog box.
+
+Mastercam creates the two new
+extrusions.
+
+                               GETTING STARTED WITH MASTERCAM SOLIDS
+10 MASTERCAM X8/ Introduction to Mastercam Solids
+
+       5 Click the blue arrow, and then hover
+           your mouse over the ruler that
+           appears.
+           The ruler lets you enter linear values
+           visually. If you prefer, you can also
+           type values.
+
+       6 Using your mouse wheel, zoom in
+           closer to the ruler.
+           Mastercam displays smaller
+           increments on the ruler.
+
+       7 Move your mouse up over the ruler
+           until it snaps to 25mm, and then
+           click to set the new distance.
+
+         TIP: When you move your mouse
+         over the ruler, the selected value
+         snaps to the ruler's increments.
+         When you move the mouse outside
+         the ruler, no snapping is in effect.
+       8 In the function panel, select Add
+
+           boss.
+
+GETTING STARTED WITH MASTERCAM SOLIDS
+                                            CREATING THE FINGER CUTOUTS 11
+
+9 Click the Advanced tab, and notice
+    that the draft angle is still set to 5
+    degrees.
+
+    Mastercam remembers your solids
+    settings for the current session.
+
+     10 In the function panel, click OK to
+           finalize the extrude operations.
+
+     11 Save the file as MarkerTray02-XXX, where XXX is your initials.
+
+Exercise 3: Creating the Finger Cutouts
+
+Next, you create finger cutouts in the new extrusions. These cutouts make it easier for
+the tray's user to get his fingers under the eraser or the markers. For this exercise,
+continue with the part you just saved, or load MarkerTray02, which accompanies this
+tutorial. If you choose to start with the tutorial file, remember to save it under the new
+name MarkerTray02-XXX, where XXX is your initials.
+
+       1 In Mastercam's status bar, click
+           Level, and then in the Level
+           Manager, turn on level 4.
+
+2 In Mastercam's toolbar, click
+    Shading Translucency Toggle.
+
+                                            GETTING STARTED WITH MASTERCAM SOLIDS
+12 MASTERCAM X8/ Introduction to Mastercam Solids
+
+           The part becomes partially
+           transparent, allowing you to see the
+           two new rectangles hidden under
+           existing geometry.
+
+       3 In Mastercam's menu bar, choose
+           Solids, Extrude.
+
+       4 Chain the two new rectangles,
+           clicking OK in the Chaining dialog
+           box when finished.
+
+           Mastercam extrudes the two
+           chained rectangles, as shown in the
+           picture to the right.
+
+GETTING STARTED WITH MASTERCAM SOLIDS
+                                         CREATING THE FINGER CUTOUTS 13
+
+5 In the function panel, change the
+    operation to Cut body, and select
+    Through all.
+
+    The Cut body option is the opposite
+    of Add boss, removing material from
+    the part rather than adding it.
+
+6 On the Advanced tab, turn off Draft.
+
+7 Turn off translucency by clicking
+    Shading Translucency Toggle.
+
+    Now you can see the effect of the
+    two new cuts more easily.
+
+8 In the function panel, click OK to
+    finalize the extrude operation.
+
+9 Save the file as MarkerTray03-XXX, where XXX is your initials.
+
+                                                                       GETTING STARTED WITH MASTERCAM SOLIDS
+14 MASTERCAM X8/ Introduction to Mastercam Solids
+
+Exercise 4: Creating the Marker Cutouts
+
+Now you create the cutouts for each individual marker. For this exercise, continue with
+the part you just saved, or load MarkerTray03, which accompanies this tutorial. If you
+choose to start with the tutorial file, remember to save it under the new name
+MarkerTray03-XXX, where XXX is your initials.
+
+       1 In Mastercam's status bar, click
+           Level, and then in the Level
+           Manager, turn on level 3, and click
+           OK.
+
+           Mastercam displays the geometry
+           created for you on that level. This
+           geometry represents the shape of
+           the marker cutouts.
+
+       2 In Mastercam's menu bar, choose
+           Solids, Extrude.
+
+       3 Chain the new geometry, clicking
+           OK in the Chaining dialog box when
+           finished.
+
+GETTING STARTED WITH MASTERCAM SOLIDS
+                                        ADDING THE HANDLE 15
+
+4 In the function panel, select Cut
+    body.
+
+5 In the Distance section, select
+    Through all and Both directions.
+
+    Mastercam cuts the shape specified
+    by the chained geometry through
+    both sides of the boss, giving the
+    results shown.
+
+       6 In the function panel, click OK to
+           finalize the extrude operation.
+
+       7 Save the file as MarkerTray04-XXX, where XXX is your initials.
+
+Exercise 5: Adding the Handle
+
+Because Mastercam Solids maintains a history tree of all operations used to create a
+solid model, you can easily edit the model, to correct errors or add new features. To
+demonstrate this, you now add a handle to the marker tray using the solids tree. For
+this exercise, continue with the part you just saved, or load MarkerTray04, which
+accompanies this tutorial. If you choose to start with the tutorial file, remember to save
+it under the new name MarkerTray04-XXX, where XXX is your initials.
+
+                                                                                GETTING STARTED WITH MASTERCAM SOLIDS
+16 MASTERCAM X8/ Introduction to Mastercam Solids
+
+       1 In Mastercam's status bar, click
+           Level, and then in the Level
+           Manager, turn on level 5, and turn
+           off levels 2, 3, and 4.
+
+           Mastercam displays the geometry
+           that you need to create the handle.
+
+       2 In Mastercam's right-hand toolbar,
+           choose the wireframe quick mask.
+           Mastercam selects all wireframe
+           geometry.
+
+       3 Press [Alt+E] to hide all geometry
+           except the selected wireframe.
+
+GETTING STARTED WITH MASTERCAM SOLIDS
+                                           ADDING THE HANDLE 17
+
+4 In Mastercam's toolbar, select Trim /
+    Break / Extend.
+
+5 Select the Divide option in the trim
+    ribbon bar.
+
+6 Click the line indicated in the picture
+    to the right.
+
+    Mastercam trims the line, leaving the
+    handle merged with the main part of
+    the tray.
+
+7 At the bottom of the Toolpaths
+    Manager, click the Solids tab.
+    Mastercam displays the solids
+    operation tree.
+
+GETTING STARTED WITH MASTERCAM SOLIDS
+18 MASTERCAM X8/ Introduction to Mastercam Solids
+
+       8 Click the plus sign (+) next to the
+           item in the tree.
+           Mastercam opens the list to show
+           the operations you created to
+           generate the solid.
+
+       9 Notice that the first extrude
+           operation is marked dirty.
+           By adding the handle, you changed
+           the geometry that makes up the
+           tray's base, which means that the
+           extrude operation must be
+           regenerated.
+
+     10 Press [Alt+E] to turn the full
+           geometry back on, and then click
+           Regen all to regenerate the solids
+           operations.
+
+           The handle is now a full part of the
+           tray's base.
+
+     11 Double-click the first extrude in the
+           tree to reopen the operation.
+           Mastercam opens the Solid Extrude
+           function panel so you can make
+           changes to the operation.
+
+GETTING STARTED WITH MASTERCAM SOLIDS
+                                            ADDING THE HANDLE 19
+
+12 In the function panel, click the Add
+      Chains button.
+      Mastercam opens the Chaining
+      dialog box.
+
+13 Chain the inside of the handle, and
+      click OK.
+
+      Mastercam adds the chain to the
+      extrude operation, cutting the
+      handle opening.
+
+14 If the chaining arrow is not pointing
+      down, right-click Chain 2, and click
+      Reverse.
+
+                                         GETTING STARTED WITH MASTERCAM SOLIDS
+20 MASTERCAM X8/ Introduction to Mastercam Solids
+
+     15 Click OK and Regenerate to both
+           finalize and regenerate the
+           operation.
+           OK and Regenerate saves you from
+           going to the solids tree to
+           regenerate.
+
+     16 Save the file as MarkerTray05-XXX, where XXX is your initials.
+
+Exercise 6: Adding Draft and Fillets
+
+In this exercise, you add draft to a face and fillets to some edges. Continue with the
+part you just saved, or load MarkerTray05, which accompanies this tutorial. If you
+choose to start with the tutorial file, remember to save it under the new name
+MarkerTray05-XXX, where XXX is your initials.
+
+ Adding Draft
+
+       1 In Level Manager, turn off all levels
+           but 10.
+
+       2 Choose Solids, Draft, Draft to Face.
+
+GETTING STARTED WITH MASTERCAM SOLIDS
+                                           ADDING DRAFT AND FILLETS 21
+
+3 Select the face indicated in the
+    picture to the right, and click OK in
+    the Solid Selection dialog box.
+
+4 Select the top face of the same wall
+    (as indicated in the picture) as the
+    reference face.
+    Mastercam creates the draft relative
+    to the reference face.
+
+5 Change the draft angle to 10mm.
+
+6 Click OK to accept the changes.
+
+                                           GETTING STARTED WITH MASTERCAM SOLIDS
+22 MASTERCAM X8/ Introduction to Mastercam Solids
+
+ Adding Outside Fillets
+
+       1 Choose Solids, Fillet, Constant Radius Fillet.
+
+       2 Turn off all filters except edges.
+
+       3 Select all 4 of the tray's left outside vertical edges.
+
+       4 Click OK in the Solid Selection
+           dialog box, and then set the fillet
+           radius to 5mm.
+
+GETTING STARTED WITH MASTERCAM SOLIDS
+                            ADDING DRAFT AND FILLETS 23
+
+5 Select OK and Create New
+    Operation.
+
+ Adding Top Fillets
+
+      1 Turn the face selection filter back on, select the faces shown below, and click
+           OK in the Solid Selection dialog box.
+
+Notice the yellow warning that appears in the upper-right corner of the
+graphics area. This indicates that there is a problem with your current settings.
+
+                                                                GETTING STARTED WITH MASTERCAM SOLIDS
+24 MASTERCAM X8/ Introduction to Mastercam Solids
+
+       2 Click the warning to open the entire
+           message.
+           This warning displayed because the
+           fillet's radius is too large.
+
+       3 Reduce the fillet's radius to 1mm.
+           The warning closes, and you get the result shown in the following picture.
+
+       4 Click OK to finalize the operation.
+
+       5 Save the file as MarkerTray06-XXX, where XXX is your initials.
+         NOTE: The marker tray part has many other edges that should be filleted.
+         However, to avoid a lot of repetition, this tutorial leaves those steps out.
+
+Exercise 7: Shelling the Part
+
+To complete the part, you will now use Shell to remove extra interior material. For this
+exercise, continue with the part you just saved, or load MarkerTray06, which accom-
+panies this tutorial. If you choose to start with the tutorial file, remember to save it
+under the new name MarkerTray06-XXX, where XXX is your initials.
+
+GETTING STARTED WITH MASTERCAM SOLIDS
+                                      SHELLING THE PART 25
+
+1 Rotate the view so you can see the
+    bottom of the part.
+
+2 From Mastercam's menu bar, choose
+    Solids, Shell.
+    The Solid Selection dialog box
+    opens.
+
+3 Select the part's bottom face, and click OK in the Solid Selection dialog box.
+
+TIP: If you have trouble selecting the part's bottom face,
+turn off all filters in the Solid Selection dialog box, except
+the one for faces.
+
+                                                                   GETTING STARTED WITH MASTERCAM SOLIDS
+26 MASTERCAM X8/ Introduction to Mastercam Solids
+
+       4 Change the shell thickness for Direction 1 to 3mm.
+       5 Click OK to finalize the operation.
+       6 Save the file as MarkerTray07-XXX, where XXX is your initials.
+
+           This completes the MarkerTray part.
+
+Other Solids Functions
+
+In this section, you try other Mastercam Solids functions, including Revolve, Sweep,
+and Boolean.
+
+Exercise 8: Using Solids Revolve
+
+       1 Open the file SpindlePartial, which is included with this tutorial.
+           After loading the part, Mastercam looks like the following picture.
+
+       2 So you do not overwrite the original, save the file as SpindlePartial-XXX,
+           where XXX is your initials.
+
+GETTING STARTED WITH MASTERCAM SOLIDS
+                                          USING SOLIDS REVOLVE 27
+
+3 From Mastercam's menu bar, choose
+    Solids, Revolve.
+    The Chaining dialog box opens.
+
+4 Chain the geometry as shown, and
+    click OK in the Chaining dialog box.
+    You will revolve this geometry to
+    create the main part.
+
+5 Click the line indicated. This line is
+    your axis of rotation.
+
+Mastercam revolves the geometry
+around the line you clicked.
+
+                                          GETTING STARTED WITH MASTERCAM SOLIDS
+28 MASTERCAM X8/ Introduction to Mastercam Solids
+
+       6 Click OK to finalize the operation.
+       7 Save the file as SpindlePartial01-XXX, where XXX is your initials.
+
+Exercise 9: Creating Solids with Sweep
+
+       1 Rotate the view so you can see the
+           circle indicated.
+
+       2 From Mastercam's menu bar, choose
+           Solids, Sweep.
+
+       3 Chain the circle, and click OK in the
+           Chaining dialog box.
+
+GETTING STARTED WITH MASTERCAM SOLIDS
+                                            USING BOOLEAN TO CREATE A HOLE 29
+
+4 Chain the line indicated in the
+    picture to the right. This line is the
+    sweep's along curve.
+
+Mastercam sweeps the circle along
+the line forming the new solid
+shown in the picture to the right.
+
+      5 Click OK to finalize the operation.
+      6 Save the file as SpindlePartial02-XXX, where XXX is your initials.
+
+Exercise 10: Using Boolean to Create a Hole
+
+      1 From Mastercam's menu bar, choose
+           Solids, Boolean.
+
+                                                                                GETTING STARTED WITH MASTERCAM SOLIDS
+30 MASTERCAM X8/ Introduction to Mastercam Solids
+
+       2 Click the main body of the part. This
+           is the Boolean function's target
+           body.
+           The Solid Selection dialog box
+           opens.
+
+       3 Click the solid body you just created,
+           and click OK in the Solid Selection
+           dialog box.
+           Mastercam sets the selected feature
+           as the tool body, and the Boolean
+           function panel opens.
+
+       4 Change the operation type to
+           Remove.
+           Mastercam removes all material
+           from the selected area.
+
+       5 Click OK to finalize the operation.
+
+       6 Save the file as SpindlePartial03-XXX, where XXX is your initials.
+
+GETTING STARTED WITH MASTERCAM SOLIDS
+                                                                                                                       ADDING CHAMFERS 31
+
+Exercise 11: Adding Chamfers
+
+      1 From Mastercam's menu bar, choose Solids, Chamfer, One-Distance
+           Chamfer.
+
+      2 In the Solid Selection dialog box,
+           turn off all filters except edges.
+           Choosing the right filter makes
+           selection easier.
+
+      3 Select the edge indicated in the
+           picture to the right, and then click
+           OK in the Solid Selection dialog box.
+
+                                                                                GETTING STARTED WITH MASTERCAM SOLIDS
+32 MASTERCAM X8/ Introduction to Mastercam Solids
+
+       4 Change the chamfer's distance to
+           5mm., and press [Tab].
+
+           Mastercam creates the specified
+           chamfer.
+
+       5 Click OK to finalize the operation.
+       6 Save the file as SpindlePartial04-XXX, where XXX is your initials.
+
+           You have now completed the spindle part.
+
+Challenge
+
+In this section, you test your Solids knowledge and skills by applying Solids functions
+to supplied geometry to create a pressure plate part. If you have trouble with any step,
+refer to the page indicated in that step. The following pictures show two views of the
+part you will create.
+
+GETTING STARTED WITH MASTERCAM SOLIDS
+                                                                                                                         CHALLENGE 33
+
+  NOTE: In most steps, the left picture is a "before" screen shot and the
+  right is an "after."
+1 Load the file PressurePlate, included with this tutorial.
+
+    After loading the part, Mastercam should look like the following picture.
+
+2 So you do not overwrite the original, save the file as PressurePlate-XXX,
+    where XXX is your initials.
+
+3 Extrude the outside rectangle and the six large circles downward by 15mm.
+    (For help, refer to page 4.)
+
+                                                                       GETTING STARTED WITH MASTERCAM SOLIDS
+34 MASTERCAM X8/ Introduction to Mastercam Solids
+
+       4 Extrude the inner rectangle upward by 10mm. (For help, refer to page 8.)
+
+         VIDEO: Click the icon to watch a video of Steps 3 and 4.
+       5 Use Solids Shell to cut out the center rectangle to a thickness of 10mm. (For
+
+          help, refer to page 24.) Hint: Make sure to select only the face.
+
+         VIDEO: Click the icon to watch a video of Step 5.
+       6 Use Solids Boolean to join all features into a single solid. (For help, refer to
+
+           page 30.)
+
+GETTING STARTED WITH MASTERCAM SOLIDS
+                                                                                                                         CHALLENGE 35
+
+  VIDEO: Click the icon to watch a video of Step 6.
+7 Use Solids Extrude to create holes from the six smaller circles. (For help, refer
+
+    to page 11.)
+
+  VIDEO: Click the icon to watch a video of Step 7.
+8 Add a 3mm fillet to the part's bottom face. (For help, refer to page 20.)
+
+  VIDEO: Click the icon to watch a video of Step 8.
+
+                                                                       GETTING STARTED WITH MASTERCAM SOLIDS
+36 MASTERCAM X8/ Introduction to Mastercam Solids
+
+       9 Add 3mm fillets to the inner corners. (For help, refer to page 20.)
+
+         VIDEO: Click the icon to watch a video of Step 9.
+     10 Use the solids tree to change the 3mm bottom fillet to 2mm and to add 2mm
+
+           fillets to the 12 vertical edges of each rounded tab. (For help, refer to
+           page 15.)
+
+         VIDEO: Click the icon to watch a video of Step 10.
+
+GETTING STARTED WITH MASTERCAM SOLIDS
+LESSON 2
+
+Introduction to Model Prep
+
+2
+
+Model Prep provides functions, such as Push-Pull, Move, and Split Solid Faces, that let
+you edit solids without a history tree. When you use Model Prep functions, Mastercam
+recognizes edges, faces, and even complete features, giving you the power to make
+changes without the operations or wireframe used to create the solid.
+
+Getting Ready to Work
+
+In this lesson, you work on the file named FlangeDemo, which is included with this
+tutorial. This is the only file you need to complete the lesson. However, a set of files
+named FlangeDemo01 through FlangeDemo10 are also included with this tutorial and
+are the results of each of the exercises. For example, FlangeDemo01 is the results of
+Exercise 1 and so can be used when starting Exercise 2. If you have problems with an
+exercise, you can load the appropriate file and continue with the tutorial.
+
+The Scenario
+
+This lesson is based on the part file shown in the following picture.
+
+In the scenario, you have a part file that requires changes based on new specifications.
+The required changes are as follows:
+38 MASTERCAM X8/ Introduction to Model Prep
+
+       Remove one of the feet.
+       Reduce the foot height by 5mm.
+       Reposition the three remaining feet to be 120 degrees apart.
+       Increase the foot hole diameter to 12mm.
+       Reduce the part's center hole diameter to 20mm and add a 30mm
+
+           counterbore, 2mm deep.
+       Align the opening on the vertical wall with one of the feet.
+       Increase the opening width from 20 degrees to 45 degrees.
+       Increase the vertical wall height from 35mm to 50mm.
+       Add a 10mm fillet to the vertical wall's inside bottom edge.
+
+Exercise 1: Splitting the Feet from the Part
+
+To manipulate the part's feet as needed for the edits, you must first separate them
+from the rest of the part.
+
+       1 Load the file FlangeDemo.
+           The part should look like the picture
+           to the right.
+
+       2 Save the file as FlangeDemo-XXX,
+           where XXX is your initials.
+           Saving the file under a new name
+           ensures that you do not accidentally
+           overwrite the original.
+
+GETTING STARTED WITH MASTERCAM SOLIDS
+                                     SPLITTING THE FEET FROM THE PART 39
+
+3 In Mastercam's toolbar, click Top
+    (WCS).
+
+Mastercam displays the part in the
+top view.
+
+4 In Mastercam's toolbar, choose
+    Create Circle Center Point.
+
+5 Draw a circle centered on the part,
+    with a diameter (100mm) that
+    matches the outmost circular edge
+    of the part.
+    You will use this circle as helper
+    geometry to separate the feet from
+    the main body of the part.
+
+                                                                       GETTING STARTED WITH MASTERCAM SOLIDS
+40 MASTERCAM X8/ Introduction to Model Prep
+
+       6 From Mastercam's menu, choose
+           Model Prep, Split Solid Face.
+           This function splits single faces into
+           multiple faces that you can
+           manipulate separately.
+
+       7 In Mastercam's toolbar, choose
+           Isometric (WCS).
+
+           Mastercam displays the part in
+           isometric view.
+
+       8 Click the circle and one of the feet.
+           The circle projects down onto the selected face, indicating where the face will
+           be split.
+
+GETTING STARTED WITH MASTERCAM SOLIDS
+                                            SPLITTING THE FEET FROM THE PART 41
+
+9 In the Split Solid Face function
+    panel, make sure Wireframe is
+    selected and Project using
+    construction plane is not selected.
+
+10 Click OK and Create New
+      Operation to finalize your choices
+      and begin a new Split Solid Face
+      operation.
+
+      Mastercam splits the top face of the
+      feet from the rest of the part. (The
+      arrows in the picture indicate the
+      split on the front feet.)
+
+11 Hold down your mouse wheel and
+      move the mouse to flip the part
+      similarly to the picture.
+
+                                         GETTING STARTED WITH MASTERCAM SOLIDS
+42 MASTERCAM X8/ Introduction to Model Prep
+
+     12 Select the bottom of the part and
+           the circle.
+
+     13 In the Split Solid Face function
+           panel, ensure Wireframe and
+           Project using construction plane
+           are selected.
+           The circle projects onto the face
+           based on the construction plane, so
+           you can split the face from the
+           bottom.
+
+     14 Click OK to finalize the operation.
+
+           Mastercam splits the face. The red
+           arrow in the picture indicates the
+           new split.
+
+     15 Delete the circle, and save the file as FlangeDemo1-XXX, where XXX is your
+           initials.
+
+GETTING STARTED WITH MASTERCAM SOLIDS
+                                                                                                                    REMOVING ONE FOOT 43
+
+Exercise 2: Removing One Foot
+
+With the feet split from the rest of the part, you can remove one of them, leaving three
+as required by the modification instructions. For this exercise, continue with the part
+you just saved, or load FlangeDemo01, which accompanies this tutorial. If you choose
+to start with the tutorial file, remember to save it under the new name FlangeDemo01-
+XXX, where XXX is your initials.
+
+       1 From Mastercam's menu, choose
+           Model Prep, Push-Pull.
+           The Push-Pull function extends
+           bosses or produces cuts based on
+           selected faces or features. You can
+           also use Push-Pull to create fillets
+           from edges or to remove fillets.
+
+       2 Place the part into isometric view.
+
+       3 Click the lower-left foot, as shown. v
+
+                                                                                GETTING STARTED WITH MASTERCAM SOLIDS
+44 MASTERCAM X8/ Introduction to Model Prep
+
+           This is the foot you will remove from
+           the part. Mastercam highlights the
+           foot and places a red single-axis
+           arrow control on its face.
+
+       4 Click the red arrow, drag downward
+           to remove the foot, and click again
+           to set the change.
+
+           Your part should look like the picture below.
+
+       5 Click OK to finalize the operation.
+       6 Save the file as FlangeDemo02-XXX, where XXX is your initials.
+
+GETTING STARTED WITH MASTERCAM SOLIDS
+                                                                                                         REDUCING THE FOOT HEIGHT 45
+
+Exercise 3: Reducing the Foot Height
+
+Now that you have the required three feet, you reduce the thickness of the remaining
+feet, and center them on the part's outside rim. For this exercise, continue with the part
+you just saved, or load FlangeDemo02, which accompanies this tutorial. If you choose
+to start with the tutorial file, remember to save it under the new name FlangeDemo02-
+XXX, where XXX is your initials.
+
+       1 From Mastercam's menu, choose
+           Model Prep, Push-Pull.
+
+       2 Click the top face of each foot, and
+           press [Enter].
+
+       3 Click the red arrow, and type -2.5.
+           With the Push-Pull function, you can
+           type values or, as in the previous
+           exercise, drag the arrow with your
+           mouse.
+
+       4 Press [Enter] twice.
+           Mastercam reduces the foot height
+           by 2.5mm.
+
+                                                                                GETTING STARTED WITH MASTERCAM SOLIDS
+46 MASTERCAM X8/ Introduction to Model Prep
+
+         NOTE: The first time you press [Enter], Mastercam shows the result and
+         gives you a chance to type another value. The second time, Mastercam
+         accepts the entry, and closes the entry field.
+
+       5 Click OK and Create New
+           Operation to finalize your choices
+           and begin a new Push-Pull
+           operation.
+
+       6 Rotate the view to show the bottom
+           of the part, and select the bottom
+           faces of the three feet.
+
+       7 Click the red arrow, and type -2.5
+           into the box that appears.
+
+       8 Press [Enter] twice.
+           Mastercam reduces the foot height
+           by 2.5mm, leaving the feet centered
+           on the rim, as you can see by
+           rotating the part to view the edge.
+
+GETTING STARTED WITH MASTERCAM SOLIDS
+                                       REPOSITIONING THE FEET 47
+
+9 Click OK to finalize the operation.
+
+     10 Save the file as FlangeDemo03-XXX, where XXX is your initials.
+
+Exercise 4: Repositioning the Feet
+
+The next step is to reposition the feet so they are equidistant from each other. For this
+exercise, continue with the part you just saved, or load FlangeDemo03, which accom-
+panies this tutorial. If you choose to start with the tutorial file, remember to save it
+under the new name FlangeDemo03-XXX, where XXX is your initials.
+
+       1 Place the part into top view.
+
+2 From Mastercam's menu bar, choose
+    Model Prep, Move.
+    The Move function moves (and
+    sometimes resizes), rotates, or
+    copies solid features or faces.
+
+3 Use window selection to select all of
+    the faces of the left-hand foot.
+
+  TIP: Rotate the view and check that
+  you did not miss any faces.
+
+                                                                       GETTING STARTED WITH MASTERCAM SOLIDS
+48 MASTERCAM X8/ Introduction to Model Prep
+
+       4 Click the gnomon's button to
+           change from geometry
+           manipulation mode to gnomon
+           manipulation mode.
+           The gnomon's current location is the
+           center of rotation for the Move
+           command. The gnomon
+           manipulation mode lets you specify
+           a new center of rotation.
+
+       5 Click the ball at the gnomon's origin,
+           and place the gnomon at the center
+           of the part.
+           The part's center point is now the
+           center of rotation.
+
+       6 Click the gnomon's button again, to
+           change from gnomon manipulation
+           mode back to geometry
+           manipulation mode.
+           You can now use the gnomon as a
+           tool for rotating the selected foot
+           into a new position.
+
+         TIP: The image shown on the gnomon's button indicates
+         the gnomon's mode. In the picture to the right, the left icon
+         shows geometry manipulation mode and the right icon
+         shows gnomon manipulation mode.
+
+GETTING STARTED WITH MASTERCAM SOLIDS
+                                           REPOSITIONING THE FEET 49
+
+7 On the gnomon, click the center
+    segment of the blue control.
+
+    This segment of the control activates
+    2D rotation around the Z axis.
+
+8 Move your mouse, rotating the gnomon 30 degrees counter-clockwise, and
+    then click to accept the rotation.
+
+    The selected foot rotates with the mouse movement, as shown in the picture
+    below.
+
+GETTING STARTED WITH MASTERCAM SOLIDS
+50 MASTERCAM X8/ Introduction to Model Prep
+
+       9 In the Move function panel, click OK
+           and Create New Operation to
+           finalize your changes and begin a
+           new Move operation.
+
+     10 Window select the right-hand foot,
+           as shown.
+           This foot must be moved 30 degrees
+           clockwise.
+
+     11 Switch to gnomon manipulation
+           mode, and move the gnomon to the
+           center of the part.
+
+     12 Switch back to geometry
+           manipulation mode, and rotate the
+           gnomon 30 degrees clockwise (-30
+           degrees).
+           Mastercam rotates the foot into its
+           correct position.
+
+GETTING STARTED WITH MASTERCAM SOLIDS
+                                          RESIZING THE FOOT HOLES 51
+
+13 In the function panel, click OK to
+      finalize the rotation.
+
+      Your part should now look like the
+      picture to the right.
+
+     14 Save the file as FlangeDemo04-XXX, where XXX is your initials.
+
+Exercise 5: Resizing the Foot Holes
+
+Next, you resize the hole in each foot, increasing them from 10mm to 12mm. For this
+exercise, continue with the part you just saved, or load FlangeDemo04, which accom-
+panies this tutorial. If you choose to start with the tutorial file, remember to save it
+under the new name FlangeDemo04-XXX, where XXX is your initials.
+
+       1 Change the part's view to isometric.
+
+2 From Mastercam's menu bar, choose
+    Model Prep, Push-Pull.
+
+3 In Mastercam's toolbar, turn off the
+    Select edge filter. Only Select face
+    should be on.
+
+                                                                       GETTING STARTED WITH MASTERCAM SOLIDS
+52 MASTERCAM X8/ Introduction to Model Prep
+
+           You can now more easily select the
+           holes without accidentally selecting
+           the hole edges.
+       4 As shown in the picture below, click all three foot holes to select them as
+           geometry for the Push-Pull function.
+
+       5 Click the red arrow to display the
+           ruler control.
+
+       6 Use your mouse wheel to zoom in
+           on the part until the ruler shows
+           finer increments.
+           The closer you zoom, the smaller the
+           ruler's increments.
+
+GETTING STARTED WITH MASTERCAM SOLIDS
+                                      CREATING THE COUNTERBORE 53
+
+7 Move your mouse pointer over the
+    ruler, and click when the hole's
+    radius equals 6mm.
+
+         TIP: When you move your mouse outside the ruler, you can select any
+         value. When you move your mouse over the ruler, the displayed value
+         snaps to the ruler increments.
+
+       8 In the function panel, click OK to
+           finalize your change and end the
+           function.
+           The holes are now 12mm, as shown
+           in the picture to the right.
+
+       9 Save the file as FlangeDemo05-XXX, where XXX is your initials.
+
+Exercise 6: Creating the Counterbore
+
+The specifications state that your part's center hole be reduced to 20mm. You must
+also add a counterbore. You can use Model Prep to make these changes. For this exer-
+cise, continue with the part you just saved, or load FlangeDemo05, which accompanies
+this tutorial. If you choose to start with the tutorial file, remember to save it under the
+new name FlangeDemo05-XXX, where XXX is your initials.
+
+       1 From Mastercam's menu bar, choose
+           Model Prep, Push-Pull.
+
+                                      GETTING STARTED WITH MASTERCAM SOLIDS
+54 MASTERCAM X8/ Introduction to Model Prep
+
+       2 Click the center hole to select it as
+           geometry for the Push-Pull function.
+
+       3 Click the red arrow, type 10, and
+           press [Enter] twice.
+           Mastercam changes the hole's
+           diameter to 20mm.
+
+       4 In the function panel, click OK to
+           finalize the change.
+
+       5 In Top view, create a 30mm
+           diameter circle at the center of the
+           part.
+           You will use this circle to split the
+           part's inner face at the diameter
+           needed for the counterbore.
+
+GETTING STARTED WITH MASTERCAM SOLIDS
+                                   CREATING THE COUNTERBORE 55
+
+6 From Mastercam's menu, choose
+    Model Prep, Split Solid Face.
+
+7 Rotate the part's view until it looks
+    similar to the picture.
+    If the circle is laying completely on
+    top of the solid, you would have to
+    turn off the face filter in general
+    selection to pick the circle. When the
+    circle is positioned over "air" it can
+    be selected without changing the
+    filter.
+
+8 Click the circle and the part's inner face, as shown below.
+
+                                   GETTING STARTED WITH MASTERCAM SOLIDS
+56 MASTERCAM X8/ Introduction to Model Prep
+
+       9 In the function panel, make sure that
+           Wireframe is selected, and then
+           click OK.
+           Mastercam splits the face.
+
+     10 Delete the circle, as it's no longer
+           needed.
+
+     11 From Mastercam's menu bar, choose
+           Model Prep, Push-Pull.
+
+     12 Click the portion of the newly split
+           face shown in the picture.
+
+GETTING STARTED WITH MASTERCAM SOLIDS
+                                           ALIGNING THE VERTICAL WALL 57
+
+13 Click the red arrow, type -2, and then
+      press [Enter] twice.
+
+      Mastercam creates the counterbore.
+
+     14 In the function panel, click OK.
+
+     15 Save the file as FlangeDemo06-XXX, where XXX is your initials.
+
+Exercise 7: Aligning the Vertical Wall
+
+Next you rotate the vertical wall so the opening aligns with one of the feet. For this
+exercise, continue with the part you just saved, or load Flange DemoPart06, which
+accompanies this tutorial. If you choose to start with the tutorial file, remember to save
+it under the new name FlangeDemo06-XXX, where XXX is your initials.
+
+       1 From Mastercam's menu bar, choose
+           Model Prep, Move.
+
+       2 Double-click the top face of the
+           vertical wall, as shown.
+           Mastercam selects the entire feature.
+
+GETTING STARTED WITH MASTERCAM SOLIDS
+58 MASTERCAM X8/ Introduction to Model Prep
+
+         TIP: A single click picks a face, and a double-click picks a feature. Hold
+         down [Shift] while selecting to pick tangent faces.
+       3 Click the gnomon button to switch
+
+           to gnomon manipulation mode.
+
+       4 Click the center segment of the
+           gnomon's blue arc.
+           You have now set the gnomon for
+           2D rotation around the Z axis.
+
+       5 Type -10, and press [Enter] twice.
+
+           The gnomon's X axis rotates to
+           center on the opening in the vertical
+           wall, as shown (in top view).
+
+GETTING STARTED WITH MASTERCAM SOLIDS
+                                                                                             ALIGNING THE VERTICAL WALL 59
+
+6 Click the gnomon's button to change back to geometry manipulation mode,
+    and select the Snap to AutoCursor positions option.
+
+7 Click the right segment of the
+    gnomon's blue arc.
+    You are now in 3D rotation mode.
+
+8 Move your mouse cursor to the
+    center of the hole in the lower foot,
+    as shown.
+    Because you have Snap to
+    AutoCursor positions on, you can
+    easily snap the mouse to the hole's
+    exact center, which should be an
+    angle of -20 degrees.
+
+                                                                       GETTING STARTED WITH MASTERCAM SOLIDS
+60 MASTERCAM X8/ Introduction to Model Prep
+
+       9 Click to set the angle, and then click
+           OK in the function panel.
+           The opening in the wall is now
+           aligned with the hole in the foot, as
+           shown.
+
+     10 Save the file as FlangeDemo07-XXX, where XXX is your initials.
+
+Exercise 8: Expanding the Wall Opening
+
+According to the part's new specifications, you must expand the opening in the wall
+must be expanded from 20 degrees to 45 degrees. For this exercise, continue with the
+part you just saved, or load FlangeDemo07, which accompanies this tutorial. If you
+choose to start with the tutorial file, remember to save it under the new name
+FlangeDemo07-XXX, where XXX is your initials.
+
+       1 From Mastercam's menu bar, choose
+           Model Prep, Move.
+
+       2 Select all nine faces of the step-like
+           portion of the wall.
+
+GETTING STARTED WITH MASTERCAM SOLIDS
+                                          EXPANDING THE WALL OPENING 61
+
+3 Click the gnomon's button to select
+    gnomon manipulation mode, and
+    place the gnomon at the center of
+    the part.
+
+    The gnomon is now set to the center
+    of rotation.
+
+4 Switch back to geometry
+    manipulation mode, and rotate the
+    geometry -12.5 degrees.
+
+5 In the function panel, click OK and
+    Create New Operation.
+
+6 Select all three faces of the opposite
+    side of the wall opening.
+
+7 Click the gnomon's button to select
+    gnomon manipulation mode, and
+    place the gnomon at the center of
+    the part.
+
+                                                                       GETTING STARTED WITH MASTERCAM SOLIDS
+62 MASTERCAM X8/ Introduction to Model Prep
+
+       8 Switch back to geometry
+           manipulation mode, rotate the
+           selected geometry 12.5 degrees,
+           and click OK in the function panel.
+
+           By rotating each side of the opening by 12.5 degrees, you added 25 degrees
+           to the opening, while maintaining its centering on the foot's hole. Your part
+           should now look like the picture below.
+
+       9 Save the file as FlangeDemo08-XXX, where XXX is your initials.
+
+Exercise 9: Increasing the Wall Height
+
+In this exercise, you increase the height of the vertical wall. Continue with the part you
+just saved, or load FlangeDemo08, which accompanies this tutorial. If you choose to
+start with the tutorial file, remember to save it under the new name FlangeDemo08-
+XXX, where XXX is your initials.
+
+GETTING STARTED WITH MASTERCAM SOLIDS
+                                      INCREASING THE WALL HEIGHT 63
+
+1 Choose Model Prep, Push-Pull, and
+    select the top face of the wall.
+
+2 Drag the ball on the bottom of the
+    arrow down to the bottom of the
+    part, as shown in the picture.
+    The reference-point ball marks the
+    zero point from which the control's
+    setting is measured.
+
+3 Place the mouse pointer over the
+    arrow.
+    You see that the part's height is
+    35mm as measured from the
+    reference-point ball you placed at
+    the bottom of the part.
+
+4 Select all of the wall's six top faces,
+    selecting the largest one last, which
+    places the arrow in the correct
+    orientation.
+    These are the faces that you will
+    move upward to increase the wall's
+    height.
+
+                                                                       GETTING STARTED WITH MASTERCAM SOLIDS
+64 MASTERCAM X8/ Introduction to Model Prep
+
+       5 Drag the ball back to the bottom.
+
+         TIP: You can change the reference point at any time. Just click the ball
+         and move it as needed, including snapping it to other geometry.
+       6 Click the red arrow, type 50 followed by [Enter] twice, and click OK in the
+
+           function panel.
+           Mastercam changes the wall's height to 50mm, measured from the bottom of
+           the part.
+
+       7 Save the file as FlangeDemo09-XXX, where XXX is your initials.
+
+Exercise 10: Adding the Fillet
+
+In this exercise, you add a fillet to the part. Continue with the part you just saved, or
+load FlangeDemo09, which accompanies this tutorial. If you choose to start with the
+
+GETTING STARTED WITH MASTERCAM SOLIDS
+                                                                                                                        ADDING THE FILLET 65
+
+tutorial file, remember to save it under the new name FlangeDemo09-XXX, where XXX
+is your initials.
+
+       1 Choose Model Prep, Push-Pull.
+
+       2 In Mastercam's toolbar, turn off the
+           face selection filter and turn on the
+           edge selection filter.
+
+       3 Select the wall's inside edge, as
+           shown in the image to the right.
+           This is where you will create the
+           fillet.
+
+       4 Click the red arrow, drag to create a
+           10mm fillet, and click to accept the
+           change.
+
+       5 In the function panel, click OK to
+           finalize the change.
+
+                                                                                GETTING STARTED WITH MASTERCAM SOLIDS
+66 MASTERCAM X8/ Introduction to Model Prep
+
+           Your finished part should look like the picture below.
+
+       6 Save the file as Flange Demo_Part10-XXX, where XXX is your initials.
+           You have now finished modifying the flange part to meet the new
+           specifications.
+
+Challenge
+
+In this section, you test your Model Prep knowledge and skills as you make changes to
+a solid part. Try to complete the edits on your own. If you have trouble, refer to the
+page indicated in each step.
+In this challenge, you work on the file named ShippingPullTab, included with this
+tutorial. In most cases, this is the only file you need to complete the challenge.
+However, a set of files named ShippingPullTab03 through ShippingPullTab07 are
+also included with this tutorial and are the results of each of the challenge steps. For
+example, ShippingPullTab02 is the result of Step 3.
+
+         NOTE: In most steps, the left picture is a "before" screen shot and the
+         right is an "after."
+       1 Load the file ShippingPullTab, included with this tutorial. The picture below
+
+           shows the part as it appears in Mastercam.
+
+GETTING STARTED WITH MASTERCAM SOLIDS
+                                                                                                                         CHALLENGE 67
+
+2 To avoid overwriting the original, save the file as ShippingPullTab-XXX,
+    where XXX is your initials.
+
+3 Remove the flange shown below. (For help, refer to page 43.)
+
+  VIDEO: Click the icon to watch a video of Step 3.
+4 Add a 5mm circular cutout to the part, as shown in the following pictures. (For
+
+    help, refer to page 53.)
+
+                                                                       GETTING STARTED WITH MASTERCAM SOLIDS
+68 MASTERCAM X8/ Introduction to Model Prep
+
+         VIDEO: Click the icon to watch a video of Step 4.
+       5 Increase the diameter of the indicated features to 2mm. (For help, refer to
+
+           page 51.)
+
+         VIDEO: Click the icon to watch a video of Step 5.
+       6 Move the indicated feature 4mm to the right, as shown below. (For help, see
+
+           page page 47.)
+
+GETTING STARTED WITH MASTERCAM SOLIDS
+                                                                                                                                   CHALLENGE 69
+
+         VIDEO: Click the icon to watch a video of Step 6.
+       7 Add a 0.5mm fillet to the 5mm hole, as shown below. (For help, see page
+
+           page 64.)
+
+         VIDEO: Click the icon to watch a video of Step 7.
+
+Conclusion
+
+Congratulations! You have completed the Getting Started with Mastercam Solids tuto-
+rial. Now that you have mastered the skills in this tutorial, explore Mastercam's other
+features and functions.
+You may be interested in other tutorials that we offer. The Mastercam tutorial series is
+in continual development, and we will add modules as we complete them. For infor-
+mation and availability, please visit our website.
+
+                                                                                GETTING STARTED WITH MASTERCAM SOLIDS
+70 MASTERCAM X8/ Introduction to Model Prep
+
+Mastercam Resources
+
+Enhance your Mastercam experience by using the following resources:
+
+       Mastercam Help--Also, most dialog boxes and ribbon bars feature a Help
+           button that opens Mastercam Help directly to related information.
+
+       Mastercam Reseller--Your local Mastercam Reseller can help with most
+           questions about Mastercam.
+
+       Technical Support--CNC Software's Technical Support department (860-875-
+           5006 or support@mastercam.com) is open Monday through Friday from 8:00
+           a.m. to 5:30 p.m. USA Eastern Standard Time.
+
+       Mastercam University--CNC Software sponsors Mastercam University, an
+           affordable online learning platform that gives you 24/7 access to Mastercam
+           training materials. Take advantage of more than 180 videos to master your
+           skills at your own pace and help prepare yourself for Mastercam Certification.
+           For more information on Mastercam University, please contact your
+           Authorized Mastercam Reseller, visit www.mastercamu.com, or email
+           training@mastercam.com.
+
+       Online communities-- You can find a wealth of information, including many
+           videos, at www.mastercam.com.
+           For tech tips and the latest Mastercam news, you can join us on Facebook
+           (www.facebook.com/mastercam), follow us on Twitter (www.twitter.com/
+          mastercam), and subscribe to our blog, Mastercam Xtras (http://
+           blog.mastercam.com). Visit our YouTube channel to see Mastercam in action
+           (www.youtube.com/user/MastercamCadCam)!
+
+           Registered users can search for information or ask questions on the
+           Mastercam Web forum, forum.mastercam.com, or use the knowledge base at
+           kb.mastercam.com. To register, select Help, Link on Mastercam.com from
+           the Mastercam menu and follow the instructions.
+
+Mastercam Documentation
+
+Mastercam installs the following documents in the \Documentation folder of your
+Mastercam installation:
+
+       What's New in Mastercam X8
+       Mastercam X8 Installation Guide
+       Mastercam X8 Administrator Guide
+       Mastercam X8 Transition Guide
+       Mastercam X8 Quick Reference Card
+
+GETTING STARTED WITH MASTERCAM SOLIDS
+                                                                                                     MASTERCAM DOCUMENTATION 71
+
+       Mastercam X8 Post Debugger User's Guide
+       Mastercam X8 ReadMe
+
+Contact Us
+
+For questions about this or other Mastercam documentation, contact the Technical
+Documentation department by email at techdocs@mastercam.com.
+For assistance with installing Mastercam, its HASP or NetHASP, or to obtain more
+information on using Mastercam, contact your local Mastercam Reseller. If your
+Reseller is unavailable, you can call CNC Technical Support Services Monday through
+Friday, 8:00 a.m.­5:30 p.m., USA Eastern Standard Time.
+When calling CNC Software for technical support, please follow these guidelines:
+
+       Be sure you have already tried to contact your Mastercam Reseller.
+       Provide the serial number of your HASP or NetHASP.
+       Be ready to describe the problem in detail. Write down what happened,
+
+           particularly if you cannot call immediately after the problem occurs.
+       Be in front of your computer when you call.
+
+                                                                                GETTING STARTED WITH MASTERCAM SOLIDS
+72 MASTERCAM X8/ Introduction to Model Prep
+
+       If possible, try to duplicate the problem before calling. Our Support Services
+           technician may require you to duplicate the problem while you are on the
+           phone.
+
+       When you call, have ready a complete description of your hardware, including
+           your operating system (OS), central processing unit (CPU), graphics card and
+           settings, and memory.
+
+You can also leave a message for CNC Support Services twenty-four hours a day,
+seven days a week via our email or website addresses. When sending email, please
+include:
+
+       The serial number of your HASP or NetHASP
+       Telephone number and contact information where you can be reached
+
+         TIP: This utility makes it easy to provide your Reseller or CNC Support
+         Services with a file attachment that contains the information they need.
+         For more information on using Zip2Go, please refer to the Mastercam
+         Help.
+
+Important Contact Information
+
+Address      CNC Software, Inc.
+             671 Old Post Road
+Phone        Tolland, Connecticut, 06084-9970
+Fax          USA
+
+             (860) 875-5006
+
+             (860) 872-1565
+
+FTP Address  ftp://ftp.mastercam.com
+
+Internet Address http://www.mastercam.com
+
+Email        support@mastercam.com
+
+GETTING STARTED WITH MASTERCAM SOLIDS
+                   Attention! Updates may be available.
+      Go to Mastercam.com/Support for the latest downloads.
+
+671 Old Post Road
+Tolland, CT 06084 USA
+www.mastercam.com
+

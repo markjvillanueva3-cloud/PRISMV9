@@ -1,0 +1,890 @@
+{
+  "id": "CCM-MS13",
+  "version": "1.0.0",
+  "title": "Auto-Remediation Pipeline",
+  "brief": "Convert 71 warn rules to auto-fix. Target 80%+ auto-fixed. git auto-rewrite, output auto-cap, re-read redirect, glob combine, grep skip/scope, agent redirect, TSC auto-fix, type annotate, auto-compact, action restore, rate throttle, docs redirect, scorecard.",
+  "created_at": "2026-03-20T12:00:00Z",
+  "created_by": "claude-opus-4.6",
+  "track": "CCM",
+  "track_name": "Claude Code Modernization",
+  "status": "not_started",
+  "dependencies": [
+    "CCM-MS0",
+    "CCM-MS1"
+  ],
+  "wave": 2,
+  "phases": [
+    {
+      "id": "P0",
+      "title": "Core Auto-Fix Infrastructure",
+      "description": "Build the auto-remediation framework and implement the highest-impact auto-fix rules (git rewrite, output cap, re-read redirect, glob combine).",
+      "sessions": "1-2",
+      "primary_role": "R1",
+      "primary_model": "opus-4.6",
+      "units": [
+        {
+          "id": "P0-U01",
+          "title": "Git Auto-Rewrite",
+          "phase": "P0",
+          "sequence": 1,
+          "role": "R1",
+          "role_name": "Systems Architect",
+          "model": "opus-4.6",
+          "effort": 85,
+          "rationale": "Auto-fix git commands that trigger warn rules (e.g., git add -A to specific files, amend to new commit) by intercepting and rewriting before execution.",
+          "dependencies": [],
+          "entry_conditions": [
+            "CCM-MS0 hook infrastructure operational",
+            "Warn rules catalog available"
+          ],
+          "exit_conditions": [
+            "Git rewrite interceptor handles top 5 git warn patterns",
+            "Tests pass for each rewrite pattern",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
+          ],
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Catalog all git-related warn rules from pretooluse-unified and hookify"
+            },
+            {
+              "number": 2,
+              "instruction": "Implement git command rewriter in pretooluse-unified that transforms warned commands to safe equivalents"
+            },
+            {
+              "number": 3,
+              "instruction": "Add tests for each rewrite pattern (add -A, amend, force push, etc.)"
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "hooks/pretooluse-unified.sh",
+              "type": "script",
+              "description": "Git auto-rewrite logic in PreToolUse hook"
+            }
+          ],
+          "creates_skill": false,
+          "creates_script": true,
+          "creates_hook": true,
+          "creates_command": false,
+          "description": "Git Auto-Rewrite — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P0-U02",
+          "title": "Output Auto-Cap",
+          "phase": "P0",
+          "sequence": 2,
+          "role": "R1",
+          "role_name": "Systems Architect",
+          "model": "opus-4.6",
+          "effort": 85,
+          "rationale": "Automatically truncate or compress tool outputs that exceed budget thresholds, converting warn-level cap hints to actual enforcement.",
+          "dependencies": [],
+          "entry_conditions": [
+            "PostToolUse compression pipeline exists"
+          ],
+          "exit_conditions": [
+            "Output auto-cap activates for outputs exceeding 5K/10K/20K thresholds",
+            "Compression ratio logged per activation",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
+          ],
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Identify all output-size warn rules and their current thresholds"
+            },
+            {
+              "number": 2,
+              "instruction": "Convert warn-only logic to auto-truncate with structured summary preservation"
+            },
+            {
+              "number": 3,
+              "instruction": "Add metrics tracking for auto-cap activations and token savings"
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "hooks/posttooluse-unified.sh",
+              "type": "script",
+              "description": "Enhanced output auto-cap in PostToolUse hook"
+            }
+          ],
+          "creates_skill": false,
+          "creates_script": true,
+          "creates_hook": true,
+          "creates_command": false,
+          "description": "Output Auto-Cap — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P0-U03",
+          "title": "Re-Read Redirect",
+          "phase": "P0",
+          "sequence": 3,
+          "role": "R1",
+          "role_name": "Systems Architect",
+          "model": "opus-4.6",
+          "effort": 85,
+          "rationale": "Auto-block redundant file re-reads within the dedup window and return cached content instead of warning.",
+          "dependencies": [],
+          "entry_conditions": [
+            "read-after-edit block rule exists as warn"
+          ],
+          "exit_conditions": [
+            "Re-read within 60s window auto-returns cached content",
+            "No false positives on legitimate re-reads after external changes",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
+          ],
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Enhance file-read dedup tracker to cache last-read content hash"
+            },
+            {
+              "number": 2,
+              "instruction": "Convert warn to auto-serve cached result when file unchanged"
+            },
+            {
+              "number": 3,
+              "instruction": "Add bypass mechanism for explicit re-read requests"
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "hooks/pretooluse-unified.sh",
+              "type": "script",
+              "description": "Re-read redirect with cached content serving"
+            }
+          ],
+          "creates_skill": false,
+          "creates_script": true,
+          "creates_hook": true,
+          "creates_command": false,
+          "description": "Re-Read Redirect — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P0-U04",
+          "title": "Glob Combine",
+          "phase": "P0",
+          "sequence": 4,
+          "role": "R1",
+          "role_name": "Systems Architect",
+          "model": "opus-4.6",
+          "effort": 85,
+          "rationale": "Detect burst glob patterns (3+ in 30s) and auto-combine into a single broader glob, reducing tool calls.",
+          "dependencies": [],
+          "entry_conditions": [
+            "Glob burst throttle warn rule operational"
+          ],
+          "exit_conditions": [
+            "Sequential similar globs auto-merged into combined pattern",
+            "Token savings measured per merge",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
+          ],
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Analyze glob burst patterns to identify combinable sets (same dir, related extensions)"
+            },
+            {
+              "number": 2,
+              "instruction": "Implement pattern combiner that merges e.g. *.ts + *.tsx into *.ts{,x}"
+            },
+            {
+              "number": 3,
+              "instruction": "Add auto-combine trigger when 3+ globs detected within window"
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "hooks/pretooluse-unified.sh",
+              "type": "script",
+              "description": "Glob burst auto-combine logic"
+            }
+          ],
+          "creates_skill": false,
+          "creates_script": true,
+          "creates_hook": true,
+          "creates_command": false,
+          "description": "Glob Combine — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "P1",
+      "title": "Search & Agent Auto-Fix",
+      "description": "Auto-fix grep and agent warn rules: skip grep-on-just-read, auto-scope grep-no-path, redirect simple agent queries.",
+      "sessions": "1-2",
+      "primary_role": "R1",
+      "primary_model": "opus-4.6",
+      "units": [
+        {
+          "id": "P1-U01",
+          "title": "Grep-After-Read Skip",
+          "phase": "P1",
+          "sequence": 5,
+          "role": "R1",
+          "role_name": "Systems Architect",
+          "model": "opus-4.6",
+          "effort": 85,
+          "rationale": "When a grep targets a file just read, auto-skip and return results from the cached read content instead of re-searching.",
+          "dependencies": [
+            "P0-U03"
+          ],
+          "entry_conditions": [
+            "File read cache from P0-U03 available"
+          ],
+          "exit_conditions": [
+            "Grep on recently-read file auto-returns filtered cached content",
+            "No false skips on changed files",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
+          ],
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Cross-reference grep target paths with recent read cache"
+            },
+            {
+              "number": 2,
+              "instruction": "Implement in-memory grep over cached content when match found"
+            },
+            {
+              "number": 3,
+              "instruction": "Return formatted results matching Grep tool output format"
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "hooks/pretooluse-unified.sh",
+              "type": "script",
+              "description": "Grep-after-read auto-skip with cached search"
+            }
+          ],
+          "creates_skill": false,
+          "creates_script": true,
+          "creates_hook": true,
+          "creates_command": false,
+          "description": "Grep-After-Read Skip — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P1-U02",
+          "title": "Grep-No-Path Auto-Scope",
+          "phase": "P1",
+          "sequence": 6,
+          "role": "R1",
+          "role_name": "Systems Architect",
+          "model": "opus-4.6",
+          "effort": 85,
+          "rationale": "Auto-inject appropriate path scope when grep is called without a path, using PRISM file router knowledge to narrow search.",
+          "dependencies": [],
+          "entry_conditions": [
+            "PRISM file router rules (25 routes) available"
+          ],
+          "exit_conditions": [
+            "Unscoped greps auto-receive path based on pattern analysis",
+            "Scoping reduces average grep time by 50%+",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
+          ],
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Build pattern-to-directory mapping from PRISM file router rules"
+            },
+            {
+              "number": 2,
+              "instruction": "Implement auto-scope injection that adds path parameter based on search pattern keywords"
+            },
+            {
+              "number": 3,
+              "instruction": "Add fallback to project root when pattern is ambiguous"
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "hooks/pretooluse-unified.sh",
+              "type": "script",
+              "description": "Grep auto-scope injection logic"
+            }
+          ],
+          "creates_skill": false,
+          "creates_script": true,
+          "creates_hook": true,
+          "creates_command": false,
+          "description": "Grep-No-Path Auto-Scope — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P1-U03",
+          "title": "Agent Redirect",
+          "phase": "P1",
+          "sequence": 7,
+          "role": "R1",
+          "role_name": "Systems Architect",
+          "model": "opus-4.6",
+          "effort": 85,
+          "rationale": "Auto-redirect simple Agent queries to direct tool calls (Read/Grep/Glob) when the query doesn't need multi-step reasoning.",
+          "dependencies": [],
+          "entry_conditions": [
+            "Agent simple-query warn rule with pattern matching exists"
+          ],
+          "exit_conditions": [
+            "Simple agent queries auto-converted to equivalent direct tool calls",
+            "Complex queries pass through to Agent unchanged",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
+          ],
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Classify agent query patterns into simple (single-tool) vs complex (multi-step)"
+            },
+            {
+              "number": 2,
+              "instruction": "Implement query-to-tool translator for simple patterns (find file, read content, search text)"
+            },
+            {
+              "number": 3,
+              "instruction": "Add dedup check against recent Agent calls (120s window)"
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "hooks/pretooluse-unified.sh",
+              "type": "script",
+              "description": "Agent-to-direct-tool redirect logic"
+            }
+          ],
+          "creates_skill": false,
+          "creates_script": true,
+          "creates_hook": true,
+          "creates_command": false,
+          "description": "Agent Redirect — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "P2",
+      "title": "TypeScript & Build Auto-Fix",
+      "description": "Auto-fix TSC errors, auto-annotate ts-any violations, and auto-compact on context pressure.",
+      "sessions": "1-2",
+      "primary_role": "R1",
+      "primary_model": "opus-4.6",
+      "units": [
+        {
+          "id": "P2-U01",
+          "title": "TSC Auto-Fix",
+          "phase": "P2",
+          "sequence": 8,
+          "role": "R1",
+          "role_name": "Systems Architect",
+          "model": "opus-4.6",
+          "effort": 85,
+          "rationale": "Auto-fix common TSC errors (missing imports, type mismatches, unused vars) detected by posttooluse syntax checks.",
+          "dependencies": [],
+          "entry_conditions": [
+            "PostToolUse TS syntax check operational"
+          ],
+          "exit_conditions": [
+            "Top 5 TSC error patterns auto-fixed on detection",
+            "Fix success rate tracked",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
+          ],
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Catalog most frequent TSC error codes from build tracker history"
+            },
+            {
+              "number": 2,
+              "instruction": "Implement auto-fix for each: missing import (add), unused var (prefix _), type mismatch (cast)"
+            },
+            {
+              "number": 3,
+              "instruction": "Wire into posttooluse-unified as post-edit auto-fix pass"
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "hooks/posttooluse-unified.sh",
+              "type": "script",
+              "description": "TSC error auto-fix in PostToolUse"
+            }
+          ],
+          "creates_skill": false,
+          "creates_script": true,
+          "creates_hook": true,
+          "creates_command": false,
+          "description": "TSC Auto-Fix — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P2-U02",
+          "title": "Any-Type Auto-Annotate",
+          "phase": "P2",
+          "sequence": 9,
+          "role": "R1",
+          "role_name": "Systems Architect",
+          "model": "opus-4.6",
+          "effort": 85,
+          "rationale": "Auto-annotate `any` types with specific types inferred from usage context, converting any-count warnings to fixes.",
+          "dependencies": [
+            "P2-U01"
+          ],
+          "entry_conditions": [
+            "TS any-count tracker in posttooluse operational"
+          ],
+          "exit_conditions": [
+            "New `any` introductions auto-annotated with inferred types where possible",
+            "Annotation accuracy >90%",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
+          ],
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Build type inference rules from common any-usage patterns (function params, return types, variable assignments)"
+            },
+            {
+              "number": 2,
+              "instruction": "Implement auto-annotator that replaces `any` with inferred type or `unknown`"
+            },
+            {
+              "number": 3,
+              "instruction": "Add verification step that runs tsc after annotation to confirm type correctness"
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "hooks/posttooluse-unified.sh",
+              "type": "script",
+              "description": "Any-type auto-annotation logic"
+            }
+          ],
+          "creates_skill": false,
+          "creates_script": true,
+          "creates_hook": true,
+          "creates_command": false,
+          "description": "Any-Type Auto-Annotate — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P2-U03",
+          "title": "Auto-Compact on Pressure",
+          "phase": "P2",
+          "sequence": 10,
+          "role": "R1",
+          "role_name": "Systems Architect",
+          "model": "opus-4.6",
+          "effort": 85,
+          "rationale": "Trigger automatic context compaction when token pressure exceeds thresholds, preventing manual intervention.",
+          "dependencies": [],
+          "entry_conditions": [
+            "Session token tracker (150K/300K thresholds) operational"
+          ],
+          "exit_conditions": [
+            "Auto-compact triggers at 80% context window",
+            "Critical facts preserved through compaction",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
+          ],
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Integrate ContextWindowPressureEngine readings into session token tracker"
+            },
+            {
+              "number": 2,
+              "instruction": "Implement auto-compact trigger at configurable threshold (default 80%)"
+            },
+            {
+              "number": 3,
+              "instruction": "Wire precompact-save hook to preserve critical session facts"
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "hooks/pretooluse-unified.sh",
+              "type": "script",
+              "description": "Auto-compact trigger on context pressure"
+            }
+          ],
+          "creates_skill": false,
+          "creates_script": true,
+          "creates_hook": true,
+          "creates_command": false,
+          "description": "Auto-Compact on Pressure — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "P3",
+      "title": "Remaining Fixes & Scorecard",
+      "description": "Action restore, rate throttle, docs redirect, and the unified remediation scorecard tracking 80%+ auto-fix rate.",
+      "sessions": "1-2",
+      "primary_role": "R1",
+      "primary_model": "opus-4.6",
+      "units": [
+        {
+          "id": "P3-U01",
+          "title": "Action Restore",
+          "phase": "P3",
+          "sequence": 11,
+          "role": "R1",
+          "role_name": "Systems Architect",
+          "model": "opus-4.6",
+          "effort": 85,
+          "rationale": "Auto-restore dispatcher actions that get accidentally removed during edits, using z.enum as source of truth.",
+          "dependencies": [],
+          "entry_conditions": [
+            "Dispatcher action schemas and z.enum definitions accessible"
+          ],
+          "exit_conditions": [
+            "Removed actions auto-detected and restored within same edit cycle",
+            "Zero action loss across sessions",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
+          ],
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Snapshot dispatcher z.enum counts as baseline before each edit session"
+            },
+            {
+              "number": 2,
+              "instruction": "Implement post-edit diff check that detects action count decreases"
+            },
+            {
+              "number": 3,
+              "instruction": "Auto-restore missing actions from snapshot when decrease detected"
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "hooks/posttooluse-unified.sh",
+              "type": "script",
+              "description": "Dispatcher action auto-restore logic"
+            }
+          ],
+          "creates_skill": false,
+          "creates_script": true,
+          "creates_hook": true,
+          "creates_command": false,
+          "description": "Action Restore — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P3-U02",
+          "title": "Rate Throttle",
+          "phase": "P3",
+          "sequence": 12,
+          "role": "R1",
+          "role_name": "Systems Architect",
+          "model": "opus-4.6",
+          "effort": 85,
+          "rationale": "Auto-throttle repetitive tool calls that exceed rate limits, queuing or batching instead of warning.",
+          "dependencies": [],
+          "entry_conditions": [
+            "Tool call dedup windows defined (60s/120s per tool type)"
+          ],
+          "exit_conditions": [
+            "Repeated calls within window auto-batched or queued",
+            "Rate violation count reduced 80%+",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
+          ],
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Implement sliding window rate tracker per tool type"
+            },
+            {
+              "number": 2,
+              "instruction": "Add auto-queue for calls exceeding rate (return cached result or batch)"
+            },
+            {
+              "number": 3,
+              "instruction": "Expose rate stats in session metrics"
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "hooks/pretooluse-unified.sh",
+              "type": "script",
+              "description": "Rate throttle auto-queue logic"
+            }
+          ],
+          "creates_skill": false,
+          "creates_script": true,
+          "creates_hook": true,
+          "creates_command": false,
+          "description": "Rate Throttle — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P3-U03",
+          "title": "Docs Redirect",
+          "phase": "P3",
+          "sequence": 13,
+          "role": "R1",
+          "role_name": "Systems Architect",
+          "model": "opus-4.6",
+          "effort": 85,
+          "rationale": "Auto-redirect documentation fetches (WebFetch for docs) to context7 MCP or local cached docs instead of warning.",
+          "dependencies": [],
+          "entry_conditions": [
+            "WebFetch docs-to-context7 redirect warn rule exists"
+          ],
+          "exit_conditions": [
+            "Doc URL fetches auto-redirected to context7 query",
+            "Redirect covers top 10 documentation domains",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
+          ],
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Map documentation URL patterns to context7 library IDs"
+            },
+            {
+              "number": 2,
+              "instruction": "Implement auto-redirect that converts WebFetch doc URLs to context7 resolve-library-id + query-docs calls"
+            },
+            {
+              "number": 3,
+              "instruction": "Add local doc cache fallback for offline scenarios"
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "hooks/pretooluse-unified.sh",
+              "type": "script",
+              "description": "Docs fetch auto-redirect to context7"
+            }
+          ],
+          "creates_skill": false,
+          "creates_script": true,
+          "creates_hook": true,
+          "creates_command": false,
+          "description": "Docs Redirect — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P3-U04",
+          "title": "Remediation Scorecard",
+          "phase": "P3",
+          "sequence": 14,
+          "role": "R1",
+          "role_name": "Systems Architect",
+          "model": "opus-4.6",
+          "effort": 85,
+          "rationale": "Unified dashboard tracking auto-fix rate across all 71 warn rules, targeting 80%+ conversion from warn to auto-remediated.",
+          "dependencies": [
+            "P0-U01",
+            "P0-U02",
+            "P0-U03",
+            "P0-U04",
+            "P1-U01",
+            "P1-U02",
+            "P1-U03",
+            "P2-U01",
+            "P2-U02",
+            "P2-U03",
+            "P3-U01",
+            "P3-U02",
+            "P3-U03"
+          ],
+          "entry_conditions": [
+            "All 13 prior units complete"
+          ],
+          "exit_conditions": [
+            "Scorecard reports per-rule auto-fix rate",
+            "Overall rate >= 80%",
+            "Skill /remediation-score available"
+          ],
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Aggregate metrics from all auto-fix hooks (activations, successes, failures, token savings)"
+            },
+            {
+              "number": 2,
+              "instruction": "Build scorecard engine that computes per-rule and overall auto-fix percentages"
+            },
+            {
+              "number": 3,
+              "instruction": "Create /remediation-score skill command for on-demand reporting"
+            },
+            {
+              "number": 4,
+              "instruction": "Add session-end auto-report of remediation stats"
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "src/engines/RemediationScorecardEngine.ts",
+              "type": "script",
+              "description": "Scorecard engine tracking auto-fix rates"
+            },
+            {
+              "path": "hooks/lib/remediation-metrics.sh",
+              "type": "script",
+              "description": "Metrics aggregation helper"
+            }
+          ],
+          "creates_skill": true,
+          "creates_script": true,
+          "creates_hook": true,
+          "creates_command": true,
+          "description": "Remediation Scorecard — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        }
+      ]
+    }
+  ],
+  "smart_config": {
+    "role": "senior-architect + domain-specialist",
+    "model": "opus",
+    "effort": "MAX",
+    "context_budget": "65%"
+  },
+  "mcp_lifecycle": {
+    "session_start": [
+      "prism_session:context_boot",
+      "prism_session:dispatcher_map",
+      "prism_session:memory_recall",
+      "prism_session:system_snapshot",
+      "prism_session:action_search"
+    ],
+    "during_work": [
+      "prism_session:auto_checkpoint",
+      "prism_session:tool_route_best",
+      "prism_session:wip_capture"
+    ],
+    "session_end": [
+      "prism_session:memory_save",
+      "prism_session:system_snapshot",
+      "prism_session:checkpoint_enhanced"
+    ]
+  },
+  "forge_triple": {
+    "protective_hook": "ccm-ms13-gate",
+    "mcp_action": "prism_ccm:ccm_ms13_run",
+    "skill_command": "/ccm-ms13",
+    "ownership": "DECLARED — BUILT in terminal unit of this milestone"
+  },
+  "feature_cascade": {
+    "new_hooks": [
+      "ccm-ms13-gate"
+    ],
+    "new_actions": [
+      "ccm_ms13_run"
+    ],
+    "new_skills": [
+      "/ccm-ms13"
+    ],
+    "available_to": [
+      "downstream CAMX milestones",
+      "prism app consumers"
+    ]
+  },
+  "knowledge_sources": {
+    "engines": [
+      "ENGINE_DIGEST.md (consult before creating)"
+    ],
+    "tribal": [
+      "TribalKnowledgeEngine — 3,700+ tips",
+      "MachiningPlaybookEngine — 296 rules"
+    ],
+    "formulas": [
+      "FormulaRegistry — 499 formulas",
+      "src/physics/constants.ts — canonical"
+    ],
+    "reference": [
+      "EXTERNAL-REFERENCE-PROGRAMS-INDEX.md",
+      "MaterialRegistry",
+      "MachineRegistry",
+      "ToolCatalogEngine (95,608 tools)"
+    ]
+  },
+  "intent": "Convert 71 warn rules to auto-fix. Target 80%+ auto-fixed. git auto-rewrite, output auto-cap, re-read redirect, glob combine, grep skip/scope, agent redirect, TSC auto-fix, type annotate, auto-compact, action restore, rate throttle, docs redirect, scorecard.",
+  "compact_checkpoint": "every 3 units — auto-triggered by hook",
+  "enforcement_hooks_active": [
+    "physics agent",
+    "wiring agent",
+    "constants checker",
+    "stub detector",
+    "test quality",
+    "forge-triple gate",
+    "session audit agent"
+  ]
+}

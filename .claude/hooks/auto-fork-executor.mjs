@@ -169,7 +169,7 @@ if (!subject || !scope) {
 function findGit() {
   for (const g of GIT_CANDIDATES) {
     try {
-      const r = spawnSync(g, ["--version"], {
+      const r = spawnSync(g, ["--version"], { windowsHide: true,
         timeout: 1500,
         encoding: "utf-8",
       });
@@ -190,7 +190,7 @@ if (!git) {
 // -- Worktree topology ----------------------------------------------------
 
 function listWorktrees() {
-  const r = spawnSync(git, ["worktree", "list", "--porcelain"], {
+  const r = spawnSync(git, ["worktree", "list", "--porcelain"], { windowsHide: true,
     cwd: process.cwd(),
     timeout: WORKTREE_LIST_TIMEOUT_MS,
     encoding: "utf-8",
@@ -271,7 +271,7 @@ if (existingMatch) {
 
 function ownSessionId() {
   try {
-    const r = spawnSync(process.execPath, [STABLE_ID_HELPER], {
+    const r = spawnSync(process.execPath, [STABLE_ID_HELPER], { windowsHide: true,
       timeout: STABLE_ID_TIMEOUT_MS,
       encoding: "utf-8",
     });
@@ -310,7 +310,7 @@ if (!fork) {
 
 // -- Pre-flight: does the branch already exist? --------------------------
 
-const branchCheck = spawnSync(git, ["rev-parse", "--verify", fork.branch], {
+const branchCheck = spawnSync(git, ["rev-parse", "--verify", fork.branch], { windowsHide: true,
   cwd: process.cwd(),
   timeout: GIT_TIMEOUT_MS,
   encoding: "utf-8",
@@ -326,7 +326,7 @@ if (branchCheck.status === 0) {
 const wtAdd = spawnSync(
   git,
   ["worktree", "add", fork.newPath, "-b", fork.branch],
-  {
+  { windowsHide: true,
     cwd: process.cwd(),
     timeout: GIT_TIMEOUT_MS,
     encoding: "utf-8",
@@ -344,7 +344,7 @@ if (wtAdd.status !== 0) {
 const stashKey = `auto-fork-${scope}-${idTag}-${Date.now()}`;
 let stashed = false;
 
-const statusCheck = spawnSync(git, ["status", "--porcelain"], {
+const statusCheck = spawnSync(git, ["status", "--porcelain"], { windowsHide: true,
   cwd: process.cwd(),
   timeout: GIT_TIMEOUT_MS,
   encoding: "utf-8",
@@ -355,7 +355,7 @@ if (hasChanges) {
   const stashRes = spawnSync(
     git,
     ["stash", "push", "-u", "-m", stashKey],
-    {
+    { windowsHide: true,
       cwd: process.cwd(),
       timeout: STASH_TIMEOUT_MS,
       encoding: "utf-8",

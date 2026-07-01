@@ -21,7 +21,7 @@ related:
 
 ## Description (from file header)
 
-kienzle-coeff-check.mjs — Phase 1 Tier 5C Physics HookPreToolWrite hook that blocks edits to Kienzle coefficientswithout physics-review-agent sign-off.
+_(no header docblock — read source for behavior)_
 
 ## Events
 

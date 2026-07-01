@@ -1,0 +1,241 @@
+{
+  "id": "CAMX-MS14",
+  "version": "7.0.0",
+  "title": "Safety-First Decision Engine",
+  "brief": "Safety verification at every decision point. Hard vetoes. Automatic escalation. Real collision prevention. Tool breakage prediction.",
+  "created_at": "2026-03-22T14:54:56Z",
+  "created_by": "claude-opus-4.6",
+  "phases": [
+    {
+      "id": "P0",
+      "title": "Safety First",
+      "units": [
+        {
+          "id": "U-CAMX01",
+          "title": "PipelineSafetyOrchestratorEngine",
+          "description": "Aggregates collision/overload/chatter/thermal/breakage/workholding risk at every decision.",
+          "exit_conditions": [
+            "Safety orchestrator created",
+            "All risk types aggregated",
+            "Replaces vague criteria with measurable"
+          ],
+          "status": "complete",
+          "legacy_id": "U01",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-CAMX02",
+          "title": "SafetyVetoEngine",
+          "description": "Hard vetoes: power > 85%, deflection > tol/3, P(chatter) > 15%, P(collision) > 0.",
+          "exit_conditions": [
+            "Veto rules active",
+            "Never bypassed",
+            "Replaces vague criteria with measurable"
+          ],
+          "status": "complete",
+          "legacy_id": "U02",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-CAMX03",
+          "title": "SafetyEscalationEngine",
+          "description": "When tight: reduce DOC, reduce feed, switch strategy, add spring passes.",
+          "exit_conditions": [
+            "Escalation works",
+            "Automatic parameter reduction",
+            "Replaces vague criteria with measurable"
+          ],
+          "status": "complete",
+          "legacy_id": "U03",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-CAMX04",
+          "title": "CollisionPreventionEngine",
+          "description": "Pre-compute collision zones for entire toolpath. Reject + auto-reroute.",
+          "exit_conditions": [
+            "Real collision prevention",
+            "SweptVolume integrated",
+            "Replaces vague criteria with measurable"
+          ],
+          "status": "complete",
+          "legacy_id": "U04",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-CAMX05",
+          "title": "ToolBreakagePredictionEngine",
+          "description": "Miner cumulative damage + deflection stress + chip load peaks. Alert P(breakage) > 5%.",
+          "exit_conditions": [
+            "Breakage prediction works",
+            "Alert threshold",
+            "Replaces vague criteria with measurable"
+          ],
+          "status": "complete",
+          "legacy_id": "U05",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-CAMX06",
+          "title": "WorkholdingVerificationEngine",
+          "description": "Cutting force vs grip force margin at every operation.",
+          "exit_conditions": [
+            "Workholding verified",
+            "Safety factor > 1.5",
+            "Replaces vague criteria with measurable"
+          ],
+          "status": "complete",
+          "legacy_id": "U06",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-CAMX07",
+          "title": "Dispatcher wiring",
+          "description": "6 actions. — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "exit_conditions": [
+            "6 actions wired",
+            "Build passes",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
+          ],
+          "status": "complete",
+          "legacy_id": "U07",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-CAMX08",
+          "title": "Tests",
+          "description": "40+ tests. — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "exit_conditions": [
+            "40+ tests pass",
+            "Tests pass: npx vitest run (min 10 cases for engine units)",
+            "Typecheck clean: npx tsc --noEmit on touched files"
+          ],
+          "status": "complete",
+          "legacy_id": "U08",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        }
+      ]
+    }
+  ],
+  "status": "complete",
+  "completed_at": "2026-04-19T13:35:30Z",
+  "completed_units": 8,
+  "total_units": 8,
+  "closure_notes": "All 6 engines (PipelineSafetyOrchestrator, SafetyVeto, SafetyEscalation, CollisionPrevention, ToolBreakagePrediction, WorkholdingVerification) built, wired into camDispatcher + calcDispatcher, covered by CAMX-MS14-SafetyFirst.test.ts (43 tests pass).",
+  "smart_config": {
+    "role": "implementer + reviewer",
+    "model": "sonnet",
+    "effort": "HIGH",
+    "context_budget": "65%"
+  },
+  "mcp_lifecycle": {
+    "session_start": [
+      "prism_session:context_boot",
+      "prism_session:dispatcher_map",
+      "prism_session:memory_recall",
+      "prism_session:system_snapshot",
+      "prism_session:action_search"
+    ],
+    "during_work": [
+      "prism_session:auto_checkpoint",
+      "prism_session:tool_route_best",
+      "prism_session:wip_capture"
+    ],
+    "session_end": [
+      "prism_session:memory_save",
+      "prism_session:system_snapshot",
+      "prism_session:checkpoint_enhanced"
+    ]
+  },
+  "forge_triple": {
+    "protective_hook": "camx-ms14-gate",
+    "mcp_action": "prism_camx:camx_ms14_run",
+    "skill_command": "/camx-ms14",
+    "ownership": "DECLARED — BUILT in terminal unit of this milestone"
+  },
+  "feature_cascade": {
+    "new_hooks": [
+      "camx-ms14-gate"
+    ],
+    "new_actions": [
+      "camx_ms14_run"
+    ],
+    "new_skills": [
+      "/camx-ms14"
+    ],
+    "available_to": [
+      "downstream CAMX milestones",
+      "prism app consumers"
+    ]
+  },
+  "knowledge_sources": {
+    "engines": [
+      "ENGINE_DIGEST.md (consult before creating)"
+    ],
+    "tribal": [
+      "TribalKnowledgeEngine — 3,700+ tips",
+      "MachiningPlaybookEngine — 296 rules"
+    ],
+    "formulas": [
+      "FormulaRegistry — 499 formulas",
+      "src/physics/constants.ts — canonical"
+    ],
+    "reference": [
+      "EXTERNAL-REFERENCE-PROGRAMS-INDEX.md",
+      "MaterialRegistry",
+      "MachineRegistry",
+      "ToolCatalogEngine (95,608 tools)"
+    ]
+  },
+  "intent": "Safety verification at every decision point. Hard vetoes. Automatic escalation. Real collision prevention. Tool breakage prediction.",
+  "compact_checkpoint": "every 3 units — auto-triggered by hook",
+  "enforcement_hooks_active": [
+    "physics agent",
+    "wiring agent",
+    "constants checker",
+    "stub detector",
+    "test quality",
+    "forge-triple gate",
+    "session audit agent"
+  ]
+}

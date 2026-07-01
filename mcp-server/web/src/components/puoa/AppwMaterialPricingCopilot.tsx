@@ -70,7 +70,7 @@ function buildSummary(props: AppwMaterialPricingCopilotProps) {
   posture.push(`compare ${formatRefresh(props.compareRefreshedAt)}`);
   posture.push(`surcharge ${formatRefresh(props.surchargeRefreshedAt)}`);
 
-  return `PRISM AI is reasoning over live material price lookup posture, alloy comparison ranking, surcharge volatility, freshness, and degraded-lane signals for the Material Pricing desk. Current posture: ${posture.join(' | ')}.`;
+  return `Kienzle AI is reasoning over live material price lookup posture, alloy comparison ranking, surcharge volatility, freshness, and degraded-lane signals for the Material Pricing desk. Current posture: ${posture.join(' | ')}.`;
 }
 
 function buildSuggestions(props: AppwMaterialPricingCopilotProps): WorkspaceCopilotSuggestion[] {

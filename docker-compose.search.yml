@@ -1,0 +1,37 @@
+# ============================================================================
+# DRAFT PROPOSAL -- Phase 2 overlay of INFRA-SYNERGY-RESEARCH-2026-06-25 (slot:bravo)
+# Adds Elasticsearch as the durable lexical/structured search substrate.
+# Retires P2 (the 512MB V8 string-cap data-loss class: tribal-index clobber,
+# unreadable 548MB system-graph.json). Complements Qdrant (dense vectors).
+#
+# NOT part of the default compose -- apply explicitly (reversible):
+#   docker compose -f docker-compose.yml -f docker-compose.search.yml up -d elasticsearch
+# Revert: stop/remove the service, or omit this -f overlay. No production search
+# is re-pointed by this overlay alone -- cutover is a separate, gated step.
+# ============================================================================
+services:
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.15.0
+    container_name: prism-elasticsearch
+    restart: unless-stopped
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false      # DEV ONLY -- enable + ELASTIC_PASSWORD for prod
+      - "ES_JAVA_OPTS=-Xms2g -Xmx2g"      # Blackwell box has 136GB RAM; bump (<=50% RAM, <=31g) for the full corpus
+      - bootstrap.memory_lock=true
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    ports:
+      - "127.0.0.1:9200:9200"             # localhost-only; never expose ES publicly
+    volumes:
+      - ./data/docker-volumes/elasticsearch:/usr/share/elasticsearch/data
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:9200/_cluster/health || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 6
+      start_period: 30s
+    networks:
+      - prism-net   # defined in the base docker-compose.yml (overlay merge)

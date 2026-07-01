@@ -37,8 +37,13 @@ const CACHE_PATH = path.join(process.cwd(), "data", "state", "opus-capability-ca
 const CACHE_TTL_MS = 60 * 60 * 1000; // 1 hour for Opus queries
 const MAX_CACHE_ENTRIES = 500;
 
-// Token cost estimates per 1K tokens (relative units)
-const MODEL_COSTS = {
+// Token cost estimates per 1K tokens (relative units).
+// EXPORTED (U-ALPHA-HERMES-GRAPH-IMPROVE) as the single source of truth for
+// inter-tier cost RATIOS so downstream sizing (e.g. OpusFastMaxAgentSpecEngine's
+// opus budget table) derives opus ~= 5x sonnet from here instead of inlining a
+// magic multiplier. Relative units only -- anchor an absolute table to one tier,
+// then scale by the ratio.
+export const MODEL_COSTS = {
   haiku: 1,
   sonnet: 3,
   opus: 15,

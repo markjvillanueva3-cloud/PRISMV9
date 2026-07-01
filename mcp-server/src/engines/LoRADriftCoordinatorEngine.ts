@@ -72,10 +72,15 @@ class LoRADriftCoordinatorEngineImpl {
   }
 
   setConfig(patch: Partial<CoordinatorConfig>): CoordinatorConfig {
-    this.config = { ...this.config, ...patch };
-    if (this.config.windowMs <= 0) throw new Error("windowMs must be positive");
-    if (this.config.coordinatedThreshold < 2) throw new Error("coordinatedThreshold must be ≥ 2");
-    if (this.config.driftDeltaFloor < 0) throw new Error("driftDeltaFloor must be ≥ 0");
+    // Validate the merged config on a candidate BEFORE assigning -- a rejected patch
+    // must leave this.config untouched (mutate-then-validate previously left the
+    // singleton partially-applied with a bad value, polluting later record/check calls,
+    // and is reachable via the prism_ai:ledger_drift_config{set} wire).
+    const next = { ...this.config, ...patch };
+    if (next.windowMs <= 0) throw new Error("windowMs must be positive");
+    if (next.coordinatedThreshold < 2) throw new Error("coordinatedThreshold must be >= 2");
+    if (next.driftDeltaFloor < 0) throw new Error("driftDeltaFloor must be >= 0");
+    this.config = next;
     return { ...this.config };
   }
 

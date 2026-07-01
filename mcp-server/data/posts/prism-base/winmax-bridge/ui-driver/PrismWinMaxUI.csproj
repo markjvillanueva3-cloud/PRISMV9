@@ -1,0 +1,42 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    PrismWinMaxUI — drives the WinMax GUI via Windows UI Automation (UIA), the OS accessibility
+    tree. slot:echo, 2026-05-30. This is the `ui-automation` transport of the WinMax bridge.
+
+    WHY UIA (not the WCF): the WCF data service is gated by a Hurco Vendor ID. The UI is the
+    operator's own screen — automating it needs NO credential. UIA exposes every menu/button/
+    field with stable identifiers + Invoke/Value patterns, so we drive controls programmatically
+    (not blind pixel-clicking). Mirrors how delta drives CAD/CAM and the WCF shim drives net.tcp.
+
+    TARGET = net48: UIAutomationClient/UIAutomationTypes are .NET Framework assemblies present on
+    every Windows box (C:\Windows\Microsoft.NET\...\WPF) - no NuGet, builds with the SDK via the
+    reference-assemblies package (same toolchain as ../wcf-client).
+
+    SAFETY (load-bearing): read-only by default (probe / window-info / find / get-text). Any input
+    injection (invoke / set-value / menu / sendkeys) requires the allow-actions flag, and cycle-start
+    / program-run on REAL hardware is NEVER automated. The driver attaches to an already-running
+    WinMax; it never launches it.
+  -->
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net48</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <Nullable>disable</Nullable>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <AssemblyName>PrismWinMaxUI</AssemblyName>
+    <RootNamespace>PRISM.WinMax.UI</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Reference Include="UIAutomationClient" />
+    <Reference Include="UIAutomationTypes" />
+    <Reference Include="WindowsBase" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Drawing" />
+    <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.3" PrivateAssets="all" />
+    <PackageReference Include="System.Text.Json" Version="8.0.5" />
+  </ItemGroup>
+
+</Project>

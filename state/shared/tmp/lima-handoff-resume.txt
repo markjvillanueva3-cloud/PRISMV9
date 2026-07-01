@@ -1,0 +1,114 @@
+ITER 1 SHIPPED (with peer-absorption) — PRISM-ACADEMY-MOBILE-MS0/U-PAM-PWA-SHELL.
+
+ATTRIBUTION NOTE: All 9 PWA files were absorbed into peer commit 60009927bc
+(slot:foxtrot iter9, PLAYBOOK-CAPABILITY/U-PB-SUGGEST-RESOLUTION-DOCS) via
+the shared-main-tree git index race. The files ARE in HEAD — just not under
+a [PRISM-ACADEMY-MOBILE-MS0] commit subject. Real lima authorship documented
+here. See feedback_scrutiny_codex_captures_peer_work.md + feedback_conflict_fork_rule.md.
+
+GOAL (session-scoped Stop hook — DOES NOT survive /compact; re-arm via /goal):
+"make expansive upgrades to the prism app training academy. | get it setup for
+phone (ios and android) so workers can start utilizing it soon"
+
+CRON: 4a64743e fires /goal every 5min — SESSION-ONLY, dies on Claude restart.
+Recreate post-/compact with CronCreate(cron="*/5 * * * *", prompt="/goal", recurring=true).
+
+LOOP STATE: iter 1/20 (tick recorded), task="continue all remaining tasks for
+lima — completed AND wired". Continue with same session-id 578fef86-8ea2-4133-8129-1b7b89be9d70.
+
+═══════════════════════════════════════════════════
+ITER 1 — DONE (9 files in commit 60009927bc):
+═══════════════════════════════════════════════════
+- mcp-server/web/public/manifest.webmanifest (2.1K, PWA manifest, 3 shortcuts)
+- mcp-server/web/public/icon-192.svg (2.0K, Calculator-Studio dark theme prism)
+- mcp-server/web/public/icon-512.svg (2.1K)
+- mcp-server/web/public/icon-maskable-512.svg (1.5K, safe-zone variant)
+- mcp-server/web/public/apple-touch-icon.svg (1.5K, 180x180)
+- mcp-server/web/public/sw.js (3.9K, v1 cache, shell+asset+api strategies)
+- mcp-server/web/src/lib/registerServiceWorker.ts (prod-only, ?sw=off escape, prism:sw-update event)
+- mcp-server/web/index.html (manifest link, theme #06b6d4, apple-touch, viewport-fit=cover)
+- mcp-server/web/src/main.tsx (void registerServiceWorker() after createRoot)
+
+DEFERRED FROM ITER 1 (do these NEXT iter):
+1. mcp-server/web/src/lib/registerServiceWorker.test.ts — vitest mock of
+   navigator.serviceWorker.register. 3 cases:
+   (a) registers /sw.js with scope:/ when prod + supported,
+   (b) skips with reason 'no-sw-support' when navigator.serviceWorker missing,
+   (c) handles register-rejected error gracefully (returns reason 'register-failed: ...').
+2. RETROACTIVE 3-of-3 scrutiny on commit 60009927bc (PWA files specifically) —
+   per CLAUDE.md §SCRUTINY GATE. Run scripts/scrutiny-3way.mjs --target 60009927bc,
+   dispatch 3 parallel reviewer/code-analyzer agents, mark all 3 PASS.
+
+═══════════════════════════════════════════════════
+ITER 2 — shop-worker auth + per-user progress sync
+═══════════════════════════════════════════════════
+The academy actions use student_id="default" if no id passed (knowledgeDispatcher.ts:1753).
+For real shop-floor use, every worker needs their own progress.
+
+Tasks:
+- Add a simple shop-worker login screen (mobile-first, single input: employee#/PIN).
+  Component: mcp-server/web/src/components/ShopWorkerLogin.tsx (or extend AuthContext).
+- Wire student_id from auth context into the academy_* call sites (web/src/api/academy.ts
+  or wherever CourseViewerPage.tsx calls the dispatcher).
+- For persistence, route through LearningProgressionEngine.enroll(userId, courseId)
+  via operatingSystemDispatcher.course_enroll. The engine has 9 actions wired:
+  course_create/get/enroll/progress/search, checkpoint_submit, enrollment_summary,
+  learning_media_add/list.
+- Test: ShopWorkerLogin.test.tsx (vitest+jsdom).
+
+═══════════════════════════════════════════════════
+ITER 3 — content expansion (formula cards, quiz depth, course 0a/0b/0c mobile-verified)
+═══════════════════════════════════════════════════
+- mcp-server/web/src/data/academy.ts is 78.9K — read it first; check which courses
+  are populated (0a-shop-math, 0b-hand-tools, 0c-blueprint, 1-mfg-fundamentals,
+  2-speed-feed-mastery, 3-gcode-prog, 4-milling, 5-turning, 6-12-advanced exist
+  in graph but may be skeletal).
+- LessonRendererEngine.getAllFormulaCards() backs academy_formula_cards. Audit
+  formula-card content depth — JM Die's formula handbook (knowledge/wiki/architecture/...)
+  has more than what's surfaced here.
+- AssessmentEngine.generateSpeedFeedQuestions(difficulty) is the quiz generator —
+  expand question bank for difficulty 3-5 (currently default difficulty=2).
+- Manually verify courses 0a/0b/0c render correctly on mobile viewport (375x812).
+
+═══════════════════════════════════════════════════
+ITER 4 — 4-surface docs (CLAUDE.md + MEMORY + wiki + memory)
+═══════════════════════════════════════════════════
+Per CLAUDE.md "Doc reflection rule (2026-05-15)" — every change-set updates ALL FOUR:
+1. CLAUDE.md "## Recent regressions" row referencing this work
+2. knowledge/memories/_index/MEMORY.md index entry pointing to (4)
+3. knowledge/wiki/architecture/prism-academy-mobile-ms0.md (architecture page)
+4. knowledge/memories/reference/reference_prism_academy_mobile_ms0_2026_05_23.md (detail)
+
+═══════════════════════════════════════════════════
+KEY DISCOVERIES (preserve across /compact)
+═══════════════════════════════════════════════════
+1. Academy backbone: knowledgeDispatcher.ts:1735-1815 routes 11 academy_* actions
+   to CurriculumEngine + AssessmentEngine + LessonRendererEngine (lazy imports).
+   NOT to LearningProgressionEngine — that's BP-MS0's separate enrollment system.
+2. Frontend: mcp-server/web/src/data/academy.ts (78.9K content) +
+   CourseViewerPage.tsx (17.1K UI). Vite/React app at mcp-server/web/.
+   PWA layer added is purely ADDITIVE — no engine/page rewrites.
+   Per mcp-server/web/CLAUDE.md "DO NOT build over Codex frontend builds".
+3. pick-unit.mjs SLOT_TO_CHAT bug: maps alpha..golf only. lima→NaN. Workaround:
+   priority-queue.mjs --slot lima works correctly. Fix is adding hotel:8, india:9,
+   juliett:10, kilo:11, lima:12, mike:13, etc. + matching laneAssignments in
+   atomic-roadmap.json. Defer to a HIGH-ROI fix iter.
+4. Slot lima bound to claude-578fef86 via slot-bind-enforce (harness session_id
+   authoritative — different from stable-session-id which gave claude-9011dcc1
+   for this handoff file. Both IDs are valid; terminal-pin will re-resolve post-compact).
+5. Cron 4a64743e is session-only — DO NOT add durable=true unless user explicitly
+   says "make it permanent". Default behavior is correct for a /loop.
+6. CLAUDE.md §PER-FILE SCRUTINY GATE compressed under YELLOW token budget —
+   retroactive scrutiny owed for the 9 PWA files. Mark on commit 60009927bc.
+
+═══════════════════════════════════════════════════
+VERIFY POST-COMPACT (first steps)
+═══════════════════════════════════════════════════
+1. Re-arm /goal with same goal text (Stop hook does not survive compact).
+2. Re-create cron: CronCreate(cron="*/5 * * * *", prompt="/goal", recurring=true).
+3. Confirm PWA files present: ls H:/prism/mcp-server/web/public/ — should show
+   6 files (manifest + 4 icons + sw.js).
+4. Pick up from ITER 1 deferred (test file) OR jump to ITER 2 if user wants velocity.
+5. Continue loop-state tick: node H:/prism/.claude/helpers/loop-state.mjs tick
+   --session 578fef86-8ea2-4133-8129-1b7b89be9d70 --status ok
+   --note "iter1 PWA shipped (peer-absorbed 60009927bc); starting iter2 auth".

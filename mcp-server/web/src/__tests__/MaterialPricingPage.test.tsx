@@ -141,7 +141,7 @@ describe('MaterialPricingPage', () => {
     });
   });
 
-  it('keeps the PRISM AI copilot built into the material pricing desk and auto-briefs live pricing context', async () => {
+  it('keeps the Kienzle AI copilot built into the material pricing desk and auto-briefs live pricing context', async () => {
     mockMaterialPriceCompare.mockResolvedValue({
       result: {
         comparisons: [
@@ -165,7 +165,7 @@ describe('MaterialPricingPage', () => {
       expect(screen.getAllByText('6061-T6').length).toBeGreaterThan(0);
       expect(screen.getAllByText('7075-T6').length).toBeGreaterThan(0);
     });
-    await waitFor(() => expect(screen.getByText(/PRISM AI copilot/i)).toBeDefined());
+    await waitFor(() => expect(screen.getByText(/Kienzle AI copilot/i)).toBeDefined());
     await waitFor(() => expect(screen.getByText(/Autonomous desk brief on/i)).toBeDefined());
     expect(screen.getByRole('button', { name: /Refresh AI brief/i })).toBeDefined();
     await waitFor(() =>

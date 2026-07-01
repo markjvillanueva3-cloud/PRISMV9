@@ -23,13 +23,21 @@ related:
 |-------|-------|
 | Name | `release-ready` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/release-ready.md` |
+| Source | `C:/Users/wompu/.claude/commands/release-ready.md` |
 | Model | default |
 | Tags | _(none)_ |
 
 ## Description (first paragraph)
 
-_(no body content)_
+
+# Release Ready — Pre-Release Validation Suite
+
+Complete pre-release verification: full test suite, speed/feed gauntlet, code quality review, audit scan, drift check, type coverage, health check, and documentation sync. Proves the system is ship-ready.
+
+## Args:
+- Empty: full validation (all phases)
+- `quick`: build + test + critical checks only
+- `version=<X.Y.Z>`: tag with version after
 
 <!-- AUTO-END -->
 

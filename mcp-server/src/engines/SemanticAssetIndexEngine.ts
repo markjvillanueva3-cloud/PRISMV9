@@ -1,3 +1,4 @@
+// WIRE-EXEMPT: dependency-injected library engine (injectable IndexEmbedder, no singleton, no current consumer); semantic asset search is already exposed via memoryDispatcher (semantic_search / qdrant_vector_search / bulk_semantic_search / brain_recall), so a new dispatcher action would duplicate prism_memory. Verdict: obsidian recall + ollama + hermes all concur (BACKEND-COMPLETION, slot:zulu 2026-06-18).
 /**
  * SemanticAssetIndexEngine — Qdrant-backed semantic index for PRISM assets
  *

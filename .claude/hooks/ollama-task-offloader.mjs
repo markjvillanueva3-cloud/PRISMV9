@@ -31,7 +31,11 @@ import { recordOllamaEvent } from "./lib/ollama-stats.mjs";
 // Replaces the previous hardcoded preference list — same category, smaller
 // model when the task is trivial; escalates upward (never downward) when the
 // target tier is absent. Pure function, deterministic, fully tested.
-import { routeModelForTask } from "./lib/ollama-cost-router.mjs";
+import { routeModelForTask, claudeFallbackModel } from "./lib/ollama-cost-router.mjs";
+// BLACKWELL-TOKEN-SYNERGY-MS0/U-BW-OFFLOAD-TIER: resolve THIS host's GPU class
+// so the cost-router can promote balanced→strong on the 96GB Blackwell (the
+// 14B is free there) — fed into routeModelForTask below.
+import { detectHostClass } from "./lib/host-class.mjs";
 
 // OLLAMA-DEV-01: prefer 127.0.0.1 over `localhost` — on Windows the latter
 // often resolves to ::1 (IPv6) but Ollama binds IPv4 by default, causing
@@ -87,6 +91,8 @@ const OFFLOADABLE_PATTERNS = [
   { pattern: /\b(check|verify|audit)\s+.*(inventory|count|digest|orphan|wiring)\b/i, category: "prism_audit", savings: 0.82 },
   { pattern: /\bdescribe\s+(this|the)\s+(file|module|function|class|engine|hook)\b/i, category: "explanation", savings: 0.88 },
 
+  { pattern: /\b(triage\s+(the\s+)?(error|log|output|stack|trace)|(triage|summarize|read|digest)\s+(the\s+)?(error\s+)?(log|build\s+output|traceback|stack\s?trace))\b/i, category: "error_triage", savings: 0.85 },
+
   // Generic catalog patterns
   { pattern: /explain\s+(this|the|what|how|why)/i, category: "explanation", savings: 0.90 },
   { pattern: /what\s+(does|is|are)\s+/i, category: "explanation", savings: 0.85 },
@@ -123,6 +129,29 @@ const KEEP_ON_CLAUDE = [
   { pattern: /\b(fix|repair|diagnose|debug|investigate)\s+(this|the|that|prism|whatever|why)\b/i, category: "operator_directive" },
   { pattern: /\b(continue|resume|pick\s+up|where\s+you\s+left\s+off|keep\s+going|close\s+out|wrap\s+up|finish\s+up)\b/i, category: "operator_directive" },
   { pattern: /\b(sync|make\s+sure|ensure)\s+(the|h|c|files?|settings|drive|peer|chats)/i, category: "operator_directive" },
+  // OLLAMA-OFFLOAD-CLASSIFY-EXPAND (2026-05-20, U-OFFLOAD-LABEL-UNKNOWNS):
+  // 80/156 keeps were landing in "unknown" — labels-by-pattern below cover the
+  // recurring shapes sampled from ollama-offload-stats event log. Each pattern
+  // is conservative (left-anchored or word-boundaried) so casual mention of
+  // the verb in unrelated text doesn't mis-classify.
+  // Slot-binding / coordination directives ("check back into delta", "/startup-hotel").
+  { pattern: /\bcheck\s+(back\s+)?in(to)?\s+(alpha|bravo|charlie|delta|echo|foxtrot|golf|hotel|india|juliett|kilo|lima|mike|november|oscar|papa|quebec|romeo|sierra|tango|uniform|victor|whiskey|xray|yankee|zulu)\b/i, category: "coordination_directive" },
+  { pattern: /\b(coordinate|work)\s+with\s+\w+/i, category: "coordination_directive" },
+  // Cleanup / fleet-ops imperatives ("kill all zombie nodes", "reap orphan tasks").
+  { pattern: /\b(kill|reap|clean(\s*up)?|sweep|prune|nuke)\s+(all\s+)?(zombie|orphan|stale|dead|leftover)/i, category: "operator_directive" },
+  // Deep-reasoning verbs ("assess whether", "look into how", "evaluate if").
+  { pattern: /\b(assess|evaluate|determine|figure\s+out)\s+(whether|how|what|why|if)\b/i, category: "deep_reasoning" },
+  { pattern: /\blook\s+into\s+(how|what|why|the|whether)\b/i, category: "deep_reasoning" },
+  // Tool / mechanism directives ("use playwright to", "use the mcp to").
+  { pattern: /\buse\s+(playwright|the\s+mcp|the\s+\w+\s+(skill|tool|hook|engine|script))\s+to\b/i, category: "operator_directive" },
+  // System-level synergy / optimization ("synergize the X", "optimize for Y").
+  { pattern: /\b(synergize|optimize|consolidate|unify|harmonize)\s+(the\s+|for\s+)?\w+/i, category: "multi_file" },
+  // Search-with-judgment ("find high-roi engines", "find good candidates").
+  { pattern: /\bfind\s+(high[-\s]roi|good|relevant|the\s+best|the\s+right)\b/i, category: "operator_directive" },
+  // Build instructions ("keep building", "build out the", "build more").
+  { pattern: /\b(keep\s+building|build\s+(out|all|more|the\s+\w+))\b/i, category: "operator_directive" },
+  // Sequencing directives ("a then b", "first do X then Y").
+  { pattern: /\b(?:[a-z]\s+then\s+[a-z]|first\s+do\s+\w+\s+then)\b/i, category: "coordination_directive" },
 ];
 
 function loadStats() {
@@ -333,6 +362,146 @@ function classifyPrompt(prompt) {
 // the hook process. Same classifier the hook uses at runtime.
 export { classifyPrompt };
 
+// U-LIMA-A1: safe-category auto-offload. These offloader categories map to a
+// concrete `scripts/ask-ollama.mjs` mode — a self-contained file→digest task
+// with no cross-file reasoning, so the offload is genuinely safe to act on.
+// For these the hook emits an IMPERATIVE directive ("run this, relay it")
+// instead of the soft "you could delegate" suggestion — the adoption lever
+// behind the F1 audit's 8%→30% offload-rate target.
+//
+// R12 honesty: the hook does NOT itself call Ollama. A UserPromptSubmit hook
+// sees only the prompt text — never the file the task targets — so an in-hook
+// Ollama call would run blind, and a synchronous network call would add
+// latency to every qualifying prompt. "Auto-execute" here means the hook
+// hands Claude (which DOES have file context) a ready-to-run command and an
+// instruction not to re-derive. Claude still owns execution.
+const SAFE_AUTOEXEC = new Map([
+  ["explanation", "explain"],
+  ["summary", "summarize"],
+  ["git_summary", "summarize"],
+  ["documentation", "explain"],
+  // U-OFFLOAD-ACTION (2026-06-12): two more self-contained file→digest shapes.
+  // prism_introspect ("what actions does X dispatcher have") = explain the file;
+  // search_synthesis ("summarize the search results") = summarize the target.
+  // Both still gated on detectFileTarget like the rest of the map.
+  ["prism_introspect", "explain"],
+  ["search_synthesis", "summarize"],
+  // U-OFFLOAD-TRIAGE (india 2026-06-12): error/log analysis -> ask-ollama triage (an existing FILE_MODE).
+  ["error_triage", "triage"],
+]);
+
+// U-OFFLOAD-ACTION (2026-06-12): make the operator's live-but-dead opt-in knob
+// real. The 2026-06-11 fleet audit found PRISM_OLLAMA_OFFLOAD_AUTOEXEC=1 set in
+// the live env and read by NO wired hook (671 suggests -> 0 offloads). Semantics
+// here: for SAFE_AUTOEXEC categories the knob bypasses the per-category RATE
+// LIMIT -- the operator opted into action EVERY time, not once per minute. It
+// does NOT make this hook call Ollama itself (architecturally blocked: a
+// UserPromptSubmit hook has no file context -- see the R12 note above; in-hook
+// execution belongs to the routed U-BRIDGE-TOOLS lane). Events carry
+// extras.autoexecKnob so the dashboard can audit the knob's contribution.
+function autoexecKnobActive(category, env = process.env) {
+  return env.PRISM_OLLAMA_OFFLOAD_AUTOEXEC === "1" && SAFE_AUTOEXEC.has(category);
+}
+export { autoexecKnobActive, SAFE_AUTOEXEC };
+
+// A SAFE_AUTOEXEC task only benefits from the imperative ask-ollama directive
+// when the prompt actually names a file Claude can substitute. "explain how
+// promises work" is `explanation` but fileless — feeding ask-ollama a blank
+// <file> wastes a turn. Detect a file/path signal: an extension token, a
+// path with a separator, or an explicit "this/the file|module" phrase.
+const FILE_TARGET_RE = /(\.\w{1,5}\b.*?)|([\w./\\-]+[/\\][\w./\\-]+)|\b(this|the)\s+(file|module|script|hook|engine)\b/i;
+const FILE_EXT_RE = /\.(ts|tsx|js|jsx|mjs|cjs|md|json|ya?ml|py|sh|ps1|txt|html|css|sql)\b/i;
+
+/** True if the prompt plausibly names a concrete file/path the ask-ollama
+ *  directive can target. Pure. Conservative — false on ambiguity. */
+export function detectFileTarget(prompt) {
+  if (!prompt || typeof prompt !== "string") return false;
+  if (FILE_EXT_RE.test(prompt)) return true;
+  return FILE_TARGET_RE.test(prompt);
+}
+
+/**
+ * Build the additionalContext string for an offload opportunity.
+ * Pure — no I/O. A SAFE_AUTOEXEC category returns the imperative ask-ollama
+ * directive ONLY when `hasFileTarget` is true; a fileless safe task (and every
+ * non-safe category) gets the soft suggestion instead.
+ */
+export function buildOffloadDirective({ category, model, savedTokens, savingsPct, totalSaved, hasFileTarget = true }) {
+  const mode = SAFE_AUTOEXEC.get(category);
+  if (mode && hasFileTarget) {
+    return [
+      `⚡ AUTO-OFFLOAD (${category}) — route this to local Ollama, do NOT re-derive it.`,
+      `This is a self-contained "${category}" task. Run it on Ollama and relay the result:`,
+      `  node scripts/ask-ollama.mjs ${mode} <file>`,
+      `(substitute the file the user is asking about; for a non-file target use \`ask\`.)`,
+      `Est. savings: ~${savedTokens} tokens (${savingsPct}%) · session total ~${totalSaved}.`,
+      `Only do it yourself if the task needs cross-file reasoning Ollama can't see.`,
+    ].join("\n");
+  }
+  return [
+    `💡 OFFLOAD OPPORTUNITY (${category})`,
+    `This "${category}" task could run on local Ollama (${model})`,
+    `Est. token savings: ~${savedTokens} tokens (${savingsPct}%)`,
+    `Total saved this session: ~${totalSaved} tokens`,
+    "",
+    "To use: the prompt-rewriter-ollama hook may already handle this.",
+    "Or manually: ask Claude to delegate explanations/summaries to Ollama.",
+  ].join("\n");
+}
+
+// FLEET-OLLAMA-ROUTING-MS1/U-FLOR-CLAUDE-TIER (2026-06-11, operator directive):
+// directive injected when an OFFLOADABLE task is detected but Ollama is
+// unreachable. Routes the mechanical work to the CHEAP Claude tier (haiku/
+// sonnet) instead of letting it ride this Opus session -- the fleet fallback
+// ladder is Ollama (free) -> Sonnet/Haiku (cheap) -> Opus/Fable (reserved for
+// reasoning/planning/heavy-coding). Pure -- no I/O. claudeModel comes from
+// claudeFallbackModel() (the single source of truth in ollama-cost-router.mjs).
+export function buildClaudeFallbackDirective(category, claudeModel) {
+  return [
+    `[OLLAMA DOWN -> cheap-Claude fallback] (${category} -> ${claudeModel})`,
+    `Local Ollama is unreachable, so this mechanical "${category}" task cannot offload locally.`,
+    `Per the fleet fallback ladder (Ollama -> Sonnet/Haiku -> Opus reserved), do NOT run it`,
+    `on this Opus session -- dispatch it to the cheaper Claude tier instead:`,
+    `  Agent({ subagent_type: "general-purpose", model: "${claudeModel}", prompt: <the task> })`,
+    `Reserve this Opus/Fable session for reasoning / planning / heavy coding.`,
+  ].join("\n");
+}
+
+// CLOUD-OVERFLOW (slot:papa 2026-06-17, operator "wire the free Nemotron rung into the
+// offload fallback ladder"): the free Nemotron-3 cloud rung sits BETWEEN Ollama and
+// cheap-Claude -- the full fleet ladder is Ollama-free -> Nemotron-3-free (1M ctx, $0) ->
+// cheap-Claude (Sonnet/Haiku) -> Opus/Fable. When Ollama is down, a LARGE mechanical task is
+// better served by the free cloud model than by paying for a Claude tier; a SMALL task stays
+// on cheap-Claude (a third-party round-trip + the free-tier rate limit ~20 req/min are not
+// worth it for a quick classify/list). Pure -- size is the only signal the hook has.
+export const NEMOTRON_RUNG_MIN_CHARS = 1000;
+export function pickOllamaDownRung({ promptChars = 0, minChars = NEMOTRON_RUNG_MIN_CHARS } = {}) {
+  const n = Number(promptChars);
+  return Number.isFinite(n) && n >= Number(minChars) ? "nemotron-free" : "cheap-claude";
+}
+
+// CLOUD-OVERFLOW: directive for the free Nemotron-3 cloud rung. Points at the GUARDED
+// ask-openrouter.mjs (reuses looksLikeNcProgram -> refuses NC/G-code, redacts keys, defaults
+// to nemotron-super-free $0) -- NEVER raw openrouter-client -- so a safety/NC prompt that
+// slips the offload classifier is refused at execution, not POSTed to a third party. Carries
+// the cheap-Claude rung as the within-directive fallback for when OpenRouter is rate-limited
+// / the key is unset. Pure -- no I/O.
+export function buildNemotronFallbackDirective(category, cheapClaudeModel) {
+  return [
+    `[OLLAMA DOWN -> free Nemotron-3 cloud rung] (${category})`,
+    `Local Ollama is unreachable. This large mechanical "${category}" task fits the free`,
+    `Nemotron-3 cloud tier (1M ctx, $0). Per the fleet ladder (Ollama -> Nemotron-3-free ->`,
+    `cheap-Claude -> Opus), try the FREE cloud BEFORE paying for a Claude tier. Run it via the`,
+    `guarded client (refuses NC/G-code, redacts keys, $0 default model):`,
+    `  node H:/prism/scripts/ask-openrouter.mjs --ask "<the task>"`,
+    `If OpenRouter is rate-limited or OPENROUTER_API_KEY is unset, fall back to cheap Claude:`,
+    `  Agent({ subagent_type: "general-purpose", model: "${cheapClaudeModel}", prompt: <the task> })`,
+    `NOTE: this POSTs prompt content to api.openrouter.ai (third party) -- the guarded client`,
+    `refuses NC programs; do not route private/safety content to the cloud.`,
+    `Reserve this Opus/Fable session for reasoning / planning / heavy coding.`,
+  ].join("\n");
+}
+
 // Legacy `selectBestModel` was a single hardcoded preference list applied to
 // every task category. Replaced 2026-05-15 by U-P4-OLLAMA-COST-ROUTING — see
 // lib/ollama-cost-router.mjs (routeModelForTask) for the cost-aware decision.
@@ -375,7 +544,8 @@ async function main() {
     ? Math.max(0, Math.min(1, INJECT_THRESHOLD + hint.thresholdDelta))
     : INJECT_THRESHOLD;
 
-  if (isRateLimited(classification.category)) {
+  const knobActive = autoexecKnobActive(classification.category);
+  if (!knobActive && isRateLimited(classification.category)) {
     recordOllamaEvent({ hook: HOOK_NAME, decision: "suggest", extras: { mode: "silent", reason: "rate-limited" } });
     console.log(JSON.stringify({ continue: true }));
     return;
@@ -400,12 +570,29 @@ async function main() {
   if (!ollama.available) {
     // OLLAMA-DEV-01: record the would-be-offloaded event so dashboards
     // show the lost-opportunity volume.
+    // U-FLOR-CLAUDE-TIER: Ollama is down -- this mechanical task must NOT
+    // silently ride the session's Opus. Surface the cheap-Claude tier
+    // (haiku/sonnet) so it is dispatched to a cheaper agent (the operator's
+    // ollama-fail -> sonnet/haiku fallback). Reason rides on the event.
+    const fallbackClaudeModel = claudeFallbackModel(classification.category);
+    // CLOUD-OVERFLOW: insert the free Nemotron-3 cloud rung between Ollama and cheap-Claude.
+    // A large task -> free cloud (1M ctx, $0) first; a small task stays on cheap-Claude.
+    const rung = pickOllamaDownRung({ promptChars: prompt.length });
+    const additionalContext = rung === "nemotron-free"
+      ? buildNemotronFallbackDirective(classification.category, fallbackClaudeModel)
+      : buildClaudeFallbackDirective(classification.category, fallbackClaudeModel);
     recordOllamaEvent({
       hook: HOOK_NAME, decision: "suggest",
       category: classification.category,
-      extras: { mode: "ollama-down", snippet: prompt.slice(0, 80) },
+      extras: { mode: "ollama-down", rung, fallbackClaudeModel, snippet: prompt.slice(0, 80) },
     });
-    console.log(JSON.stringify({ continue: true }));
+    console.log(JSON.stringify({
+      continue: true,
+      hookSpecificOutput: {
+        hookEventName: "UserPromptSubmit",
+        additionalContext,
+      },
+    }));
     return;
   }
 
@@ -415,9 +602,14 @@ async function main() {
   // and `reason`, both of which ride along on the offload event so the
   // dashboard can audit whether the host actually held the model the task
   // wanted, or whether we escalated / fell back.
+  // U-BW-OFFLOAD-TIER: hardware-aware tiering. On the 96GB Blackwell the
+  // router promotes balanced→strong (the 14B is free with headroom). null =
+  // unknown host → conservative 4080-era behaviour preserved.
+  const hostClass = detectHostClass();
   const route = routeModelForTask({
     category: classification.category,
     available: ollama.models,
+    hardware: hostClass,
   });
   const model = route.model;
   const estimatedTokens = Math.ceil(prompt.length / 4) * 2;
@@ -430,6 +622,8 @@ async function main() {
   const costExtras = {
     modelTier: route.tier,
     modelReason: route.reason,
+    hostClass: hostClass || "unknown",
+    ...(knobActive ? { autoexecKnob: true } : {}),
   };
 
   recordOllamaEvent({
@@ -462,15 +656,26 @@ async function main() {
     totalSaved = cur.estimatedTokensSaved || savedTokens;
   } catch { /* best-effort */ }
 
-  const ctx = [
-    `💡 OFFLOAD OPPORTUNITY (${classification.category})`,
-    `This "${classification.category}" task could run on local Ollama (${model})`,
-    `Est. token savings: ~${savedTokens} tokens (${Math.round(classification.savings * 100)}%)`,
-    `Total saved this session: ~${totalSaved} tokens`,
-    "",
-    "To use: the prompt-rewriter-ollama hook may already handle this.",
-    "Or manually: ask Claude to delegate explanations/summaries to Ollama.",
-  ].join("\n");
+  const hasFileTarget = detectFileTarget(prompt);
+  const ctx = buildOffloadDirective({
+    category: classification.category,
+    model,
+    savedTokens,
+    savingsPct: Math.round(classification.savings * 100),
+    totalSaved,
+    hasFileTarget,
+  });
+
+  // Record the safe-category auto-exec directive ONLY when it actually fired
+  // (safe category AND a file target detected) — so the dashboard's adoption
+  // sub-metric reflects real imperative directives, not fileless fall-throughs.
+  if (SAFE_AUTOEXEC.has(classification.category) && hasFileTarget) {
+    recordOllamaEvent({
+      hook: HOOK_NAME, decision: "suggest",
+      category: classification.category,
+      extras: { mode: "auto-exec-directive", askOllamaMode: SAFE_AUTOEXEC.get(classification.category) },
+    });
+  }
 
   console.log(JSON.stringify({
     continue: true,

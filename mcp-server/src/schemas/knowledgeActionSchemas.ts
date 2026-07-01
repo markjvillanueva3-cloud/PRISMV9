@@ -274,6 +274,30 @@ const learn_video_knowledge = z.object({
   max_keyframes: z.number().int().positive().optional().describe("Max keyframes (default: 50)"),
 }).passthrough();
 
+// VAR-MS1 Phase 2 -- PlaywrightAutomationEngine. `actions` is the output of
+// learn_video_extract_actions (ExtractedAction[]); only action_type is strictly
+// required (the engine defaults the rest) but the canonical fields are accepted.
+const _extractedActionSchema = z.object({
+  action_type: z.string().describe("CAD action type (extrude, fillet, sketch_line, etc.)"),
+  step_number: z.number().int().optional().describe("Step number in sequence"),
+  timestamp_s: z.number().optional().describe("Video timestamp (s)"),
+  operation: z.string().optional().describe("Operation name (defaults to action_type)"),
+  parameters: z.record(z.string(), z.any()).optional().describe("Action parameters"),
+  confidence: z.number().min(0).max(1).optional().describe("Extraction confidence (0-1)"),
+  description: z.string().optional().describe("Human-readable description"),
+  keyframe_index: z.number().int().optional().describe("Source keyframe index"),
+}).passthrough();
+
+const learn_video_gui_script = z.object({
+  actions: z.array(_extractedActionSchema).describe("Extracted video actions (output of learn_video_extract_actions)"),
+  target_software: z.string().min(1).describe("Target web-CAD software: onshape, tinkercad, freecad, generic (unknown falls back to generic)"),
+}).passthrough();
+
+const learn_video_execution_plan = z.object({
+  actions: z.array(_extractedActionSchema).describe("Extracted video actions to plan cadquery-vs-playwright routing for"),
+  prefer: z.enum(["cadquery", "playwright"]).optional().describe("Preferred engine for ambiguous geometry actions (default: cadquery)"),
+}).passthrough();
+
 // ============================================================================
 // Interactive Learning Sessions (LEARN-MS1)
 // ============================================================================
@@ -937,7 +961,30 @@ const jmdie_pattern_analyze = z.object({}).passthrough().describe("JM Die curate
 const jmdie_pattern_rules = z.object({}).passthrough().describe("JM Die pattern rules in PlaybookRulesEngine format.");
 const jmdie_pattern_tips = z.object({}).passthrough().describe("JM Die pattern tips in TribalKnowledgeEngine format.");
 
+// FEATURE-GAP-AUDIT-MS0/U-WIRE-BACKLOG-TRIBAL (slot:india 2026-06-22): PlaybookRulesEngine wire.
+// domain/severity_min are enums; categories must be an ARRAY (string -> rejected); search keyword
+// and get id are non-empty strings; category is a permissive string (unknown -> engine returns []).
+const playbook_rules_query = z.object({
+  domain: z.enum(["lathe", "mill", "wedm", "general", "all"]).optional().describe("Machine domain filter"),
+  severity_min: z.enum(["critical", "important", "recommended", "tip"]).optional().describe("Minimum severity (inclusive)"),
+  categories: z.array(z.string()).optional().describe("Category filter (array of category names)"),
+}).passthrough().describe("Query playbook rules by domain / severity / categories.");
+const playbook_rules_stats = z.object({}).passthrough().describe("Playbook rule counts by domain / category / severity.");
+const playbook_rules_coverage = z.object({}).passthrough().describe("Per-domain rule coverage vs target.");
+const playbook_rules_search = z.object({ keyword: z.string().min(1).describe("Keyword to match against rule text") }).passthrough().describe("Keyword search across playbook rule text.");
+const playbook_rules_by_category = z.object({ category: z.string().min(1).describe("Rule category name") }).passthrough().describe("Playbook rules in a given category.");
+const playbook_rules_safety = z.object({}).passthrough().describe("Safety / anti-pattern / critical playbook rules.");
+const playbook_rules_get = z.object({ id: z.string().min(1).describe("Rule id") }).passthrough().describe("Fetch a single playbook rule by id.");
+
 export const ACTION_KNOWLEDGE_SCHEMAS: ActionSchemaMap = {
+  // FEATURE-GAP-AUDIT-MS0/U-WIRE-BACKLOG-TRIBAL
+  playbook_rules_query,
+  playbook_rules_stats,
+  playbook_rules_coverage,
+  playbook_rules_search,
+  playbook_rules_by_category,
+  playbook_rules_safety,
+  playbook_rules_get,
   search,
   cross_query,
   formula,
@@ -969,6 +1016,8 @@ export const ACTION_KNOWLEDGE_SCHEMAS: ActionSchemaMap = {
   learn_video_transcript,
   learn_video_keyframes,
   learn_video_knowledge,
+  learn_video_gui_script,
+  learn_video_execution_plan,
   learn_session_create,
   learn_session_submit,
   learn_session_clarify,

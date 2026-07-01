@@ -1,0 +1,316 @@
+{
+  "id": "HM-PLG-MS4",
+  "version": "8.3.0",
+  "title": "Post Enhancer Panel",
+  "track": "HM-PLUGIN",
+  "status": "not_started",
+  "description": "Build the PRISM Post Enhancer panel for hyperMILL. After NC generation, the panel offers per-block variable speed/feed enhancement via the 38-stage PostProcessorPipelineEngine (PPP). Shows side-by-side comparison of original vs PPP-optimized G-code with cycle time delta, peak force comparison, and tool life improvement estimate. Controller-specific verification ensures the enhanced output is safe for the target CNC.",
+  "dependencies": [
+    "HM-PLG-MS1",
+    "HM-REV-MS11"
+  ],
+  "knowledge_sources": {
+    "engines": [
+      "PostProcessorPipelineEngine",
+      "AutoSpeedFeedEngine",
+      "SpeedFeedOrchestratorEngine",
+      "HyperMillControllerCatalogEngine",
+      "CycleTimeEstimatorEngine",
+      "ToolWearProgressionEngine"
+    ],
+    "registries": [
+      "MachineRegistry",
+      "ToolRegistry",
+      "MaterialRegistry",
+      "FormulaRegistry"
+    ],
+    "services": [
+      "prism-mcp-server"
+    ],
+    "physics": [
+      "Per-block Kienzle force recalculation",
+      "Taylor tool life equation",
+      "Cycle time integration"
+    ],
+    "reference": [
+      "hypermill-post-configs",
+      "controller-dialect-specs"
+    ]
+  },
+  "forge_triple": {
+    "hook": "hm-plugin:post-enhance-safety-gate — BUILT (validates enhanced G-code against machine limits before write)",
+    "action": "hypermill_plugin:enhance_nc_output — BUILT (runs PPP 38-stage on generated NC file)",
+    "skill": "/hypermill-post-enhancer — BUILT (enhance hyperMILL NC output with per-block variable S/F)"
+  },
+  "enforcement": {
+    "pre_level": [
+      "knowledge-consult"
+    ],
+    "post_level": [
+      "stub-detector",
+      "constants-checker"
+    ],
+    "compact_level": [
+      "review-gate",
+      "forge-triple-gate"
+    ]
+  },
+  "mcp_lifecycle": {
+    "session_start": [
+      "prism_session:context_boot",
+      "prism_session:dispatcher_map",
+      "prism_session:memory_recall",
+      "prism_session:system_snapshot"
+    ],
+    "during_work": [
+      "prism_session:auto_checkpoint (every 5-10 tool calls)",
+      "prism_session:wip_capture"
+    ],
+    "session_end": [
+      "prism_session:memory_save",
+      "prism_session:system_snapshot",
+      "prism_session:checkpoint_enhanced"
+    ]
+  },
+  "sessions": [
+    {
+      "id": "HM-PLG-MS4-S1",
+      "title": "PPP Integration + Side-by-Side Comparison",
+      "smart_config": {
+        "role": "post-processor-specialist",
+        "model": "opus",
+        "effort": "MAX",
+        "context_budget": "45%"
+      },
+      "knowledge": [
+        "PostProcessorPipelineEngine (38 stages)",
+        "AutoSpeedFeedEngine",
+        "HyperMillControllerCatalogEngine (16 families, 60+ variants)"
+      ],
+      "intent": "Wire PostProcessorPipelineEngine to accept hyperMILL NC output, run per-block S/F optimization, and produce a side-by-side comparison with cycle time and force deltas.",
+      "skills": [
+        "/forge-engines",
+        "/forge-wiring",
+        "/test",
+        "/checkpoint"
+      ],
+      "plugins": [
+        "Vitest MCP",
+        "ESLint MCP"
+      ],
+      "units": [
+        {
+          "id": "U-PLG14",
+          "title": "PPP NC Enhancement Action",
+          "description": "Create hypermill_plugin:enhance_nc_output action that takes a hyperMILL-generated NC file path, parses it through PPP's 38-stage pipeline with per-block Kienzle force recalculation, and outputs an enhanced NC file with variable S/F. Map hyperMILL's post-processor output format to PPP input schema. Handle controller-specific G-code dialects (Fanuc, Siemens, Heidenhain, Okuma) via HyperMillControllerCatalogEngine.",
+          "depends_on": [],
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "exit_criteria": [
+            "PPP processes hyperMILL NC file and outputs enhanced version with per-block variable S/F",
+            "Controller dialect detection correctly identifies Fanuc/Siemens/Heidenhain/Okuma from G-code header",
+            "Enhanced output validates against target controller's G-code syntax rules"
+          ],
+          "rollback": {
+            "files_created": [
+              "src/engines/hypermill/plugin/PostEnhancerEngine.ts"
+            ],
+            "files_modified": [
+              "src/tools/dispatchers/hypermillPluginDispatcher.ts"
+            ],
+            "abort_criteria": [
+              "tsc errors > 0",
+              "PPP output fails syntax validation"
+            ],
+            "rollback_procedure": "git checkout -- src/engines/hypermill/plugin/PostEnhancerEngine.ts"
+          }
+        },
+        {
+          "id": "U-PLG15",
+          "title": "Side-by-Side Comparison Engine",
+          "description": "Build the comparison engine that aligns original and enhanced NC files block-by-block. Calculate deltas for: cycle time (integration of feed distances / feed rates), peak cutting force (Kienzle per block), estimated tool life improvement (Taylor equation ratio). Generate summary statistics and per-block diff view with color coding (green=improved, yellow=neutral, red=degraded).",
+          "depends_on": [
+            "U-PLG14"
+          ],
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "exit_criteria": [
+            "Block-by-block alignment handles tool changes, rapid moves, and sub-programs correctly",
+            "Cycle time delta calculated with <1% error vs actual feed integration",
+            "Tool life improvement estimate uses Taylor equation with material-specific n exponent"
+          ],
+          "rollback": {
+            "files_created": [],
+            "files_modified": [
+              "src/engines/hypermill/plugin/PostEnhancerEngine.ts"
+            ],
+            "abort_criteria": [
+              "tsc errors > 0"
+            ],
+            "rollback_procedure": "git checkout -- src/engines/hypermill/plugin/PostEnhancerEngine.ts"
+          }
+        }
+      ],
+      "exit_gate": "PPP enhances hyperMILL NC output + comparison engine produces valid deltas | omega_floor >= 0.90",
+      "feature_cascade": {
+        "new_hooks": [
+          "hm-plugin:post-enhance-safety-gate"
+        ],
+        "new_actions": [
+          "hypermill_plugin:enhance_nc_output",
+          "hypermill_plugin:compare_nc_versions"
+        ],
+        "new_skills": [],
+        "available_to": [
+          "HM-PLG-MS7"
+        ]
+      },
+      "compact_checkpoint": true
+    },
+    {
+      "id": "HM-PLG-MS4-S2",
+      "title": "Post Enhancer Panel UI + Verification",
+      "smart_config": {
+        "role": "post-processor-specialist",
+        "model": "opus",
+        "effort": "MAX",
+        "context_budget": "40%"
+      },
+      "knowledge": [
+        "AC HTML panel API",
+        "G-code syntax highlighting",
+        "Controller verification rules"
+      ],
+      "intent": "Build the Post Enhancer HTML/JS panel with side-by-side code view, delta summary cards, and controller-specific verification status badge.",
+      "skills": [
+        "/forge-engines",
+        "/test",
+        "/checkpoint"
+      ],
+      "plugins": [
+        "Vitest MCP",
+        "ESLint MCP"
+      ],
+      "units": [
+        {
+          "id": "U-PLG16",
+          "title": "Post Enhancer Panel HTML/JS UI",
+          "description": "Build the Post Enhancer panel with: 'Enhance with per-block variable S/F?' button, side-by-side G-code viewer with syntax highlighting and diff coloring, summary cards showing cycle time delta (%), peak force delta (%), tool life improvement (%), and controller-specific verification badge (pass/fail with dialect name).",
+          "depends_on": [
+            "U-PLG14",
+            "U-PLG15"
+          ],
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "exit_criteria": [
+            "Side-by-side viewer shows original (left) and enhanced (right) with line-level diff highlighting",
+            "Summary cards display cycle time savings, force reduction, and tool life gain as percentages",
+            "Controller verification badge shows green checkmark with dialect name (e.g., 'Fanuc 30i verified')"
+          ],
+          "rollback": {
+            "files_created": [
+              "src/engines/hypermill/plugin/panels/post-enhancer-panel.html"
+            ],
+            "files_modified": [],
+            "abort_criteria": [
+              "tsc errors > 0"
+            ],
+            "rollback_procedure": "git checkout -- src/engines/hypermill/plugin/panels/"
+          }
+        },
+        {
+          "id": "U-PLG17",
+          "title": "Controller Verification + Write-Back",
+          "description": "Implement controller-specific verification that checks enhanced G-code against machine limits (max RPM, max feed, axis limits, supported G-codes). Add 'Accept & Replace' button that overwrites the original NC file with the enhanced version (with backup). Add 'Export Report' for the comparison summary as PDF. Test with 4 controller dialects.",
+          "depends_on": [
+            "U-PLG16"
+          ],
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "exit_criteria": [
+            "Verification checks max RPM, max feed rate, and supported G-code set for target controller",
+            "Accept & Replace creates timestamped backup of original before overwriting",
+            "4 controller dialect tests pass (Fanuc 30i, Siemens 840D, Heidenhain TNC 640, Okuma OSP)"
+          ],
+          "rollback": {
+            "files_created": [],
+            "files_modified": [
+              "src/engines/hypermill/plugin/PostEnhancerEngine.ts"
+            ],
+            "abort_criteria": [
+              "tsc errors > 0"
+            ],
+            "rollback_procedure": "git checkout -- src/engines/hypermill/plugin/PostEnhancerEngine.ts"
+          }
+        }
+      ],
+      "exit_gate": "Panel shows side-by-side diff + 4 controller verifications pass + write-back works | omega_floor >= 0.90",
+      "feature_cascade": {
+        "new_hooks": [],
+        "new_actions": [
+          "hypermill_plugin:accept_enhanced_nc",
+          "hypermill_plugin:export_comparison_report"
+        ],
+        "new_skills": [
+          "/hypermill-post-enhancer"
+        ],
+        "available_to": [
+          "HM-PLG-MS7"
+        ]
+      },
+      "compact_checkpoint": true
+    }
+  ],
+  "total_units": 4,
+  "completed_units": 0,
+  "smart_config": {
+    "role": "implementer + reviewer",
+    "model": "sonnet",
+    "effort": "HIGH",
+    "context_budget": "65%"
+  },
+  "feature_cascade": {
+    "new_hooks": [
+      "hm-plg-ms4-gate"
+    ],
+    "new_actions": [
+      "hm_plg_ms4_run"
+    ],
+    "new_skills": [
+      "/hm-plg-ms4"
+    ],
+    "available_to": [
+      "downstream CAMX milestones",
+      "prism app consumers"
+    ]
+  },
+  "intent": "Build the PRISM Post Enhancer panel for hyperMILL. After NC generation, the panel offers per-block variable speed/feed enhancement via the 38-stage PostProcessorPipelineEngine (PPP). Shows side-by-side comparison of original vs PPP-optimized G-code with cycle time delta, peak force comparison, and tool life improvement estimate. Controller-specific verification ensures the enhanced output is safe for the target CNC.",
+  "compact_checkpoint": "every 3 units — auto-triggered by hook",
+  "enforcement_hooks_active": [
+    "physics agent",
+    "wiring agent",
+    "constants checker",
+    "stub detector",
+    "test quality",
+    "forge-triple gate",
+    "session audit agent"
+  ],
+  "units": [
+    {
+      "id": "U-HPPL01",
+      "title": "HM-PLG-MS4 — Coordinator",
+      "description": "Master coordinator envelope for HM-PLG-MS4. Tracks sub-milestones, aggregates their exit gates, and opens closure after every child milestone flips to complete. Follow 4-LOOP at the aggregation layer.",
+      "exit_conditions": [
+        "All sub-milestones listed in dependencies reach status=complete",
+        "Aggregate scrutiny score ≥80 across children",
+        "Cross-track coherence verified: no orphan engines, no duplicate actions",
+        "Final /rgs pass through the 10-agent gate returns PASS"
+      ],
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ],
+      "status": "pending",
+      "role": "coordinator"
+    }
+  ],
+  "_role": "coordinator"
+}

@@ -23,13 +23,20 @@ related:
 |-------|-------|
 | Name | `quality-gate` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/quality-gate.md` |
+| Source | `C:/Users/wompu/.claude/commands/quality-gate.md` |
 | Model | default |
 | Tags | _(none)_ |
 
 ## Description (first paragraph)
 
-_(no body content)_
+
+# Quality Gate — Full Quality Assurance Pipeline
+
+Complete quality assurance setup for production runs. Combines process capability analysis, SPC planning, inspection point definition, program verification, operator instructions, and first-article requirements.
+
+## Args:
+- Part + tolerance description (e.g., "aerospace bracket, ±0.0005 on bore, 32 Ra finish")
+- `first-article`: generate fi
 
 <!-- AUTO-END -->
 

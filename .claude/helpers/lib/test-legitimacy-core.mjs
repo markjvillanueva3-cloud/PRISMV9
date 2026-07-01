@@ -606,3 +606,100 @@ export function analyzeTestLegitimacy({
     summary: summaryParts.join(", "),
   };
 }
+
+// --- Test RIGOR floor -- shallow / happy-path-only critical-domain tests -----
+//
+// test-legitimacy blocks FAKE tests (placeholder / synthetic / mocked-SUT).
+// This is the ORTHOGONAL axis: a test can be 100% real yet SHALLOW -- an "easy
+// test just to say you passed" -- exercising only the happy path with no
+// failure-mode or adversarial coverage. For PRISM's 7 CRITICAL DOMAINS (whose
+// output drives real machines / real money) R15 requires happy + >=3 failure +
+// >=2 adversarial. A critical-domain test that probes NEITHER an error path NOR
+// an edge input verifies only that the sunny case works -- incomplete by
+// doctrine. Scoped to critical domains (not all ~6,000 test files) to keep the
+// false-positive rate near-zero; calibrated against the live corpus (see
+// scripts/measure-test-rigor-corpus.mjs).
+
+// "Strong assertion" matchers -- a real reference/behavior check (not presence).
+// Includes Testing-Library DOM matchers so React page tests are not under-counted
+// (toBeInTheDocument/toHaveValue/... are the behavioral assertions for UI tests).
+const RIGOR_STRONG_ASSERTION_RE = /\.(?:toEqual|toBe|toStrictEqual|toMatchObject|toMatchSnapshot|toMatchInlineSnapshot|toContain|toContainEqual|toMatch|toHaveLength|toBeCloseTo|toBeGreaterThan(?:OrEqual)?|toBeLessThan(?:OrEqual)?|toHaveProperty|toBeInstanceOf|toBeNull|toBeNaN|toThrow|toThrowError|toHaveBeenCalled(?:With|Times)?|toHaveReturned(?:With)?|toBeInTheDocument|toBeVisible|toHaveValue|toHaveTextContent|toHaveAttribute|toHaveClass|toBeChecked|toBeDisabled|toBeEnabled|toHaveStyle|toHaveFocus)\b/g;
+
+// Logical test cases: it( / test( and it.each / test.each. Non-backtracking --
+// counts the case-opening token, never spans the body.
+const RIGOR_CASE_RE = /\b(?:it|test)\s*\.\s*each\b|\b(?:it|test)\s*\(/g;
+
+// FAILURE-MODE evidence: the test verifies an error / rejection / NaN path.
+const RIGOR_FAILURE_MODE_RE = /\.toThrow(?:Error)?\s*\(|\.rejects\b|\btoBeNaN\s*\(|expect\s*\(\s*(?:\(\s*\)\s*=>|async\b)|\.toBeInstanceOf\s*\(\s*(?:Error|TypeError|RangeError|SyntaxError)\b|instanceof\s+(?:Error|TypeError|RangeError)\b/;
+
+// ADVERSARIAL-input evidence: edge / hostile literals used as inputs.
+// Deliberately EXCLUDES the ubiquitous null/undefined/'' -- they appear in
+// nearly every test and would make the floor trivially satisfiable (a false
+// NEGATIVE that lets shallow tests through).
+const RIGOR_ADVERSARIAL_RE = /\b(?:NaN|Infinity|Number\.(?:MAX_SAFE_INTEGER|MAX_VALUE|MIN_VALUE|EPSILON|POSITIVE_INFINITY|NEGATIVE_INFINITY)|overflow|underflow|malformed|out[-_ ]?of[-_ ]?range|out[-_ ]?of[-_ ]?bounds|boundary|adversarial|oversize)\b|[^.\w](?:invalid|negative)\b/i;
+
+/**
+ * Score the structural rigor of a test file. Pure -- no IO. Returns the raw
+ * signals so callers / calibration can apply their own thresholds.
+ */
+export function scoreTestRigor(content = "") {
+  const text = String(content);
+  const caseCount = (text.match(RIGOR_CASE_RE) || []).length;
+  const strongAssertions = (text.match(RIGOR_STRONG_ASSERTION_RE) || []).length;
+  const hasFailureMode = RIGOR_FAILURE_MODE_RE.test(text);
+  const hasAdversarialInput = RIGOR_ADVERSARIAL_RE.test(text);
+  return { caseCount, strongAssertions, hasFailureMode, hasAdversarialInput };
+}
+
+// ADVISORY thresholds (NOT a hard block). Calibrated against the live corpus
+// (scripts/measure-test-rigor-corpus.mjs, 2026-06-24): the broad "no failure-mode
+// AND no adversarial" rule trips 42.6% of critical-domain tests -- positive
+// reference-value tests (the R9 gold standard) and regression-locks are NOT
+// shallow, so it is UNSHIPPABLE as a block. The regex layer cannot separate
+// "thin but valuable" (a 2-assert regression lock) from "thin and lazy" without
+// false-positives, so this layer ADVISES only; the hard semantic call is the AI
+// rigor judge (octopus/ollama). The thin band (cases<=3 AND asserts<=6) narrows
+// the advisory to ~25 corpus files so the nudge stays sharp and low-noise.
+const RIGOR_MIN_CASES = 1;
+const RIGOR_THIN_MAX_CASES = 3;
+const RIGOR_THIN_MAX_ASSERTS = 6;
+
+/**
+ * Detect a SHALLOW critical-domain test: a real test for one of the 7 critical
+ * domains that exercises ONLY the happy path (no failure-mode assertion AND no
+ * adversarial input) AND is structurally THIN (few cases, few assertions).
+ *
+ * ADVISORY ONLY -- `block` is always false. The regex layer cannot tell a thin
+ * regression-lock (valuable) from a thin happy-path stub (lazy) without
+ * unacceptable false-positives; it nudges, the AI judge decides. Non-critical
+ * files never trip, so the ~6,000-file general corpus is untouched.
+ *
+ * Returns { block:false, advise:boolean, reason, domains, rigor }.
+ */
+export function detectShallowCriticalTest({ filePath = "", content = "" } = {}) {
+  const domains = classifyCriticalDomain(filePath, content);
+  if (domains.length === 0) return { block: false, advise: false, reason: null, domains: [] };
+
+  const rigor = scoreTestRigor(content);
+  const happyPathOnly = !rigor.hasFailureMode && !rigor.hasAdversarialInput;
+  const thin = rigor.caseCount <= RIGOR_THIN_MAX_CASES && rigor.strongAssertions <= RIGOR_THIN_MAX_ASSERTS;
+
+  if (rigor.caseCount >= RIGOR_MIN_CASES && happyPathOnly && thin) {
+    return {
+      block: false,
+      advise: true,
+      reason:
+        `THIN CRITICAL-DOMAIN TEST (advisory): file covers ${domains.map((d) => d.label).join(" + ")} ` +
+        `with only ${rigor.caseCount} case(s) and ${rigor.strongAssertions} assertion(s), exercising ` +
+        `the happy path only -- no failure-mode assertion (toThrow/rejects/NaN) and no adversarial ` +
+        `input (NaN/Infinity/boundary/overflow/invalid). Critical-domain output drives real ` +
+        `machines/money; confirm it probes at least one error path and one edge input ` +
+        `(R15 floor: happy + >=3 failure modes + >=2 adversarial). If this is an intentional ` +
+        `narrow regression-lock or render-smoke, ignore.`,
+      domains,
+      rigor,
+    };
+  }
+
+  return { block: false, advise: false, reason: null, domains, rigor };
+}

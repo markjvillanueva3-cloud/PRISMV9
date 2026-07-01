@@ -45,7 +45,7 @@ function readSessionId() {
 
 function getStableId() {
   if (!fs.existsSync(STABLE_HELPER)) return null;
-  const r = spawnSync(process.execPath, [STABLE_HELPER], { encoding: "utf8" });
+  const r = spawnSync(process.execPath, [STABLE_HELPER], { windowsHide: true, encoding: "utf8" });
   return (r.stdout || "").trim() || null;
 }
 
@@ -67,7 +67,7 @@ function reapStaleGhosts(stableId) {
     const ageMs = Date.now() - Math.max(lastTickMs, claimedMs);
     if (ageMs <= STALE_TICK_MS) continue;
     // Stale — release it
-    const r = spawnSync(process.execPath, [VIZ_PROGRESS, "release", "--phase", phaseId, "--owner", stableId], {
+    const r = spawnSync(process.execPath, [VIZ_PROGRESS, "release", "--phase", phaseId, "--owner", stableId], { windowsHide: true,
       encoding: "utf8",
       timeout: 5000,
     });
@@ -78,7 +78,7 @@ function reapStaleGhosts(stableId) {
 
 function reapChatBusClaims(stableId) {
   if (!fs.existsSync(CHAT_BUS_REAP)) return null;
-  const r = spawnSync(process.execPath, [CHAT_BUS_REAP, "--owner", stableId], {
+  const r = spawnSync(process.execPath, [CHAT_BUS_REAP, "--owner", stableId], { windowsHide: true,
     encoding: "utf8",
     timeout: 5000,
   });
@@ -87,7 +87,7 @@ function reapChatBusClaims(stableId) {
 
 function listGitArtifacts() {
   // Warn-only — count untracked files in cwd
-  const r = spawnSync("git", ["status", "--porcelain"], { encoding: "utf8", timeout: 3000 });
+  const r = spawnSync("git", ["status", "--porcelain"], { windowsHide: true, encoding: "utf8", timeout: 3000 });
   if (r.status !== 0) return null;
   const lines = (r.stdout || "").split("\n").filter(Boolean);
   const untracked = lines.filter((l) => l.startsWith("??")).length;
@@ -99,7 +99,7 @@ function listGitArtifacts() {
 function reapPhaseClaim(stableId) {
   // List phase claims; warn if any claimed but not transitioned
   if (!fs.existsSync(PHASE_CLAIM_HELPER)) return null;
-  const r = spawnSync(process.execPath, [PHASE_CLAIM_HELPER, "list", "--owner", stableId, "--json"], {
+  const r = spawnSync(process.execPath, [PHASE_CLAIM_HELPER, "list", "--owner", stableId, "--json"], { windowsHide: true,
     encoding: "utf8",
     timeout: 5000,
   });

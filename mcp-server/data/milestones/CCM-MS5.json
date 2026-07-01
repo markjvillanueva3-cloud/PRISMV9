@@ -1,0 +1,1126 @@
+{
+  "id": "CCM-MS5",
+  "version": "1.0.0",
+  "title": "Scheduling & Automation",
+  "brief": "Implement cron jobs, batch operations, and automated maintenance using CronCreate/CronDelete/CronList and /batch skill. Currently NO scheduled tasks exist. Add: hourly build health, 6h test regression, 12h dispatcher sync, 12h schema drift, daily catalog freshness, daily memory pruning, weekly dead code, weekly vulnerability scan, weekly doc coverage, weekly hook efficiency, monthly automation ROI.",
+  "created_at": "2026-03-20T12:00:00Z",
+  "created_by": "claude-opus-4.6",
+  "track": "CCM",
+  "track_name": "Claude Code Modernization",
+  "status": "not_started",
+  "dependencies": [
+    "CCM-MS0",
+    "CCM-MS2"
+  ],
+  "wave": 2,
+  "phases": [
+    {
+      "id": "P0",
+      "title": "Cron Jobs & Batch Automation",
+      "description": "Create all scheduled cron jobs for build health, test regression, dispatcher sync, schema drift, catalog freshness, memory cleanup, dead code, vulnerabilities, doc coverage, hook efficiency, and ROI reporting. Wire batch skill for parallel operations.",
+      "sessions": "3-5",
+      "primary_role": "R1",
+      "primary_model": "opus-4.6",
+      "units": [
+        {
+          "id": "P0-U01",
+          "title": "Build health cron",
+          "phase": "P0",
+          "sequence": 1,
+          "role": "R1",
+          "role_name": "Systems Architect",
+          "model": "opus-4.6",
+          "effort": 85,
+          "rationale": "Hourly build health checks catch regressions early, preventing broken builds from accumulating. CronCreate every 1h runs esbuild + reports errors to a status file.",
+          "tools": [
+            "CronCreate",
+            "CronList",
+            "Bash"
+          ],
+          "skills": [],
+          "scripts": [
+            "prism-build.sh"
+          ],
+          "hooks": [],
+          "features": [
+            "Hourly automated build verification"
+          ],
+          "dependencies": [],
+          "entry_conditions": [
+            "CCM-MS0 complete — settings.json structured",
+            "prism-build.sh exists in ~/.claude/hooks/lib/"
+          ],
+          "exit_conditions": [
+            "Cron created and firing on 1h schedule",
+            "Build errors written to state/CCM-MS5/build-health.json",
+            "CronList shows the cron entry"
+          ],
+          "rollback": "git checkout -- state/CCM-MS5/",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Create state/CCM-MS5/ directory for cron output artifacts."
+            },
+            {
+              "number": 2,
+              "instruction": "Write build-health-cron.sh script that runs prism-build.sh, captures exit code and stderr, writes JSON report to state/CCM-MS5/build-health.json with timestamp and status."
+            },
+            {
+              "number": 3,
+              "instruction": "Use CronCreate to schedule build-health-cron.sh every 1 hour."
+            },
+            {
+              "number": 4,
+              "instruction": "Verify with CronList that the cron is registered and firing."
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "state/CCM-MS5/build-health-cron.sh",
+              "type": "script",
+              "description": "Hourly build health check script"
+            },
+            {
+              "path": "state/CCM-MS5/build-health.json",
+              "type": "data",
+              "description": "Build health status output"
+            }
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": true,
+          "creates_hook": false,
+          "creates_command": false,
+          "description": "Build health cron — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P0-U02",
+          "title": "Test regression cron",
+          "phase": "P0",
+          "sequence": 2,
+          "role": "R1",
+          "role_name": "Systems Architect",
+          "model": "opus-4.6",
+          "effort": 85,
+          "rationale": "Every 6h full test suite run catches regressions before they compound. Tracks pass rate over time to detect degradation trends.",
+          "tools": [
+            "CronCreate",
+            "Bash"
+          ],
+          "skills": [],
+          "scripts": [],
+          "hooks": [],
+          "features": [
+            "6-hour test regression tracking"
+          ],
+          "dependencies": [
+            "P0-U01"
+          ],
+          "entry_conditions": [
+            "state/CCM-MS5/ directory exists from P0-U01"
+          ],
+          "exit_conditions": [
+            "Cron tracks test pass rate in state/CCM-MS5/test-regression.json",
+            "History of pass/fail counts maintained across runs",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
+          ],
+          "rollback": "git checkout -- state/CCM-MS5/",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Write test-regression-cron.sh that runs vitest with JSON reporter, parses pass/fail/skip counts, appends to test-regression.json with timestamp."
+            },
+            {
+              "number": 2,
+              "instruction": "Use CronCreate to schedule every 6 hours."
+            },
+            {
+              "number": 3,
+              "instruction": "Verify cron output after first manual trigger."
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "state/CCM-MS5/test-regression-cron.sh",
+              "type": "script",
+              "description": "6-hour test regression script"
+            },
+            {
+              "path": "state/CCM-MS5/test-regression.json",
+              "type": "data",
+              "description": "Test pass rate history"
+            }
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": true,
+          "creates_hook": false,
+          "creates_command": false,
+          "description": "Test regression cron — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P0-U03",
+          "title": "Dispatcher sync cron",
+          "phase": "P0",
+          "sequence": 3,
+          "role": "R1",
+          "role_name": "Systems Architect",
+          "model": "opus-4.6",
+          "effort": 85,
+          "rationale": "Engine-to-dispatcher wiring drift is a recurring issue. Every 12h verification catches new engines that lack dispatcher actions or orphaned actions pointing to missing engines.",
+          "tools": [
+            "CronCreate",
+            "Bash",
+            "Grep"
+          ],
+          "skills": [],
+          "scripts": [
+            "prism-scan.sh"
+          ],
+          "hooks": [],
+          "features": [
+            "12-hour dispatcher sync verification"
+          ],
+          "dependencies": [
+            "P0-U01"
+          ],
+          "entry_conditions": [
+            "state/CCM-MS5/ directory exists"
+          ],
+          "exit_conditions": [
+            "Mismatches auto-detected and written to state/CCM-MS5/dispatcher-sync.json",
+            "Report includes unwired engines and orphaned actions",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
+          ],
+          "rollback": "git checkout -- state/CCM-MS5/",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Write dispatcher-sync-cron.sh that scans src/engines/ exports vs dispatcher z.enum entries, reports mismatches."
+            },
+            {
+              "number": 2,
+              "instruction": "Use CronCreate to schedule every 12 hours."
+            },
+            {
+              "number": 3,
+              "instruction": "Validate by intentionally checking known wired vs unwired engines."
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "state/CCM-MS5/dispatcher-sync-cron.sh",
+              "type": "script",
+              "description": "12-hour dispatcher sync checker"
+            },
+            {
+              "path": "state/CCM-MS5/dispatcher-sync.json",
+              "type": "data",
+              "description": "Dispatcher sync status report"
+            }
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": true,
+          "creates_hook": false,
+          "creates_command": false,
+          "description": "Dispatcher sync cron — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P0-U04",
+          "title": "Memory cleanup cron",
+          "phase": "P0",
+          "sequence": 4,
+          "role": "R1",
+          "role_name": "Systems Architect",
+          "model": "opus-4.6",
+          "effort": 85,
+          "rationale": "Memory files accumulate stale entries that waste context tokens. Weekly pruning archives entries referencing deleted files or completed milestones older than 30 days.",
+          "tools": [
+            "CronCreate",
+            "Bash"
+          ],
+          "skills": [],
+          "scripts": [],
+          "hooks": [],
+          "features": [
+            "Weekly memory file pruning"
+          ],
+          "dependencies": [
+            "P0-U01"
+          ],
+          "entry_conditions": [
+            "state/CCM-MS5/ directory exists",
+            "~/.claude/projects/ memory files accessible"
+          ],
+          "exit_conditions": [
+            "Stale entries archived to state/CCM-MS5/memory-archive/",
+            "MEMORY.md index updated after pruning",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
+          ],
+          "rollback": "git checkout -- state/CCM-MS5/",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Write memory-cleanup-cron.sh that scans memory/*.md files for references to non-existent paths, completed milestones >30d old."
+            },
+            {
+              "number": 2,
+              "instruction": "Archive pruned entries to state/CCM-MS5/memory-archive/ with timestamps."
+            },
+            {
+              "number": 3,
+              "instruction": "Use CronCreate to schedule weekly."
+            },
+            {
+              "number": 4,
+              "instruction": "Verify archive contains expected pruned entries after manual trigger."
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "state/CCM-MS5/memory-cleanup-cron.sh",
+              "type": "script",
+              "description": "Weekly memory pruning script"
+            },
+            {
+              "path": "state/CCM-MS5/memory-archive/",
+              "type": "data",
+              "description": "Archived stale memory entries"
+            }
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": true,
+          "creates_hook": false,
+          "creates_command": false,
+          "description": "Memory cleanup cron — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P0-U05",
+          "title": "Catalog freshness cron",
+          "phase": "P0",
+          "sequence": 5,
+          "role": "R1",
+          "role_name": "Systems Architect",
+          "model": "opus-4.6",
+          "effort": 85,
+          "rationale": "Tool/material/machine catalogs should be checked daily for staleness — files not updated in 90+ days may have outdated data or missing new entries from manufacturer updates.",
+          "tools": [
+            "CronCreate",
+            "Bash"
+          ],
+          "skills": [],
+          "scripts": [],
+          "hooks": [],
+          "features": [
+            "Daily catalog freshness checks"
+          ],
+          "dependencies": [
+            "P0-U01"
+          ],
+          "entry_conditions": [
+            "state/CCM-MS5/ directory exists",
+            "src/data/ catalog files accessible"
+          ],
+          "exit_conditions": [
+            "Stale catalogs flagged in state/CCM-MS5/catalog-freshness.json",
+            "Report includes file path, last modified, and days stale",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
+          ],
+          "rollback": "git checkout -- state/CCM-MS5/",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Write catalog-freshness-cron.sh that checks mtime of all *-catalog*.ts files in src/data/, flags any >90 days old."
+            },
+            {
+              "number": 2,
+              "instruction": "Output JSON report with file, lastModified, daysStalee, and staleness tier (warning/critical)."
+            },
+            {
+              "number": 3,
+              "instruction": "Use CronCreate to schedule daily."
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "state/CCM-MS5/catalog-freshness-cron.sh",
+              "type": "script",
+              "description": "Daily catalog freshness checker"
+            },
+            {
+              "path": "state/CCM-MS5/catalog-freshness.json",
+              "type": "data",
+              "description": "Catalog freshness report"
+            }
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": true,
+          "creates_hook": false,
+          "creates_command": false,
+          "description": "Catalog freshness cron — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P0-U06",
+          "title": "Batch skill updater",
+          "phase": "P0",
+          "sequence": 6,
+          "role": "R1",
+          "role_name": "Systems Architect",
+          "model": "opus-4.6",
+          "effort": 85,
+          "rationale": "With 132+ skills, updating frontmatter or patterns across all of them manually is error-prone. Batch integration enables parallel worktree updates.",
+          "tools": [
+            "Bash",
+            "EnterWorktree",
+            "ExitWorktree"
+          ],
+          "skills": [
+            "/batch"
+          ],
+          "scripts": [],
+          "hooks": [],
+          "features": [
+            "Batch skill frontmatter updates across 132+ skills"
+          ],
+          "dependencies": [
+            "P0-U01"
+          ],
+          "entry_conditions": [
+            "state/CCM-MS5/ directory exists",
+            "/batch skill available"
+          ],
+          "exit_conditions": [
+            "Batch updates work across all 132+ skills in parallel worktrees",
+            "Frontmatter changes applied consistently",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
+          ],
+          "rollback": "git checkout -- state/CCM-MS5/",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Write batch-skill-update.sh that enumerates all skill files, applies a given sed/jq transformation to each."
+            },
+            {
+              "number": 2,
+              "instruction": "Integrate with /batch skill for parallel worktree execution."
+            },
+            {
+              "number": 3,
+              "instruction": "Test with a no-op transformation to verify all skills processed."
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "state/CCM-MS5/batch-skill-update.sh",
+              "type": "script",
+              "description": "Batch skill updater script"
+            }
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": true,
+          "creates_hook": false,
+          "creates_command": false,
+          "description": "Batch skill updater — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P0-U07",
+          "title": "Batch test runner",
+          "phase": "P0",
+          "sequence": 7,
+          "role": "R1",
+          "role_name": "Systems Architect",
+          "model": "opus-4.6",
+          "effort": 85,
+          "rationale": "Running 17K+ tests sequentially is slow. Batch integration splits test suites by domain and runs in parallel worktrees for faster feedback.",
+          "tools": [
+            "Bash",
+            "EnterWorktree",
+            "ExitWorktree"
+          ],
+          "skills": [
+            "/batch"
+          ],
+          "scripts": [],
+          "hooks": [],
+          "features": [
+            "Parallel test execution across domains"
+          ],
+          "dependencies": [
+            "P0-U06"
+          ],
+          "entry_conditions": [
+            "Batch skill integration from P0-U06 working"
+          ],
+          "exit_conditions": [
+            "Parallel test execution works across at least 4 domain splits",
+            "Results aggregated into unified report",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
+          ],
+          "rollback": "git checkout -- state/CCM-MS5/",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Define domain splits: engines/, algorithms/, dispatchers/, integration/."
+            },
+            {
+              "number": 2,
+              "instruction": "Write batch-test-runner.sh that launches vitest per domain in parallel worktrees."
+            },
+            {
+              "number": 3,
+              "instruction": "Aggregate results into state/CCM-MS5/batch-test-results.json."
+            },
+            {
+              "number": 4,
+              "instruction": "Verify all domains complete and results merge correctly."
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "state/CCM-MS5/batch-test-runner.sh",
+              "type": "script",
+              "description": "Batch parallel test runner"
+            },
+            {
+              "path": "state/CCM-MS5/batch-test-results.json",
+              "type": "data",
+              "description": "Aggregated test results"
+            }
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": true,
+          "creates_hook": false,
+          "creates_command": false,
+          "description": "Batch test runner — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P0-U08",
+          "title": "Cron management skill",
+          "phase": "P0",
+          "sequence": 8,
+          "role": "R1",
+          "role_name": "Systems Architect",
+          "model": "opus-4.6",
+          "effort": 85,
+          "rationale": "A /cron-manage skill provides a unified interface to list, create, and delete crons without remembering tool names or parameter formats.",
+          "tools": [
+            "CronCreate",
+            "CronDelete",
+            "CronList"
+          ],
+          "skills": [],
+          "scripts": [],
+          "hooks": [],
+          "features": [
+            "/cron-manage skill for cron CRUD"
+          ],
+          "dependencies": [
+            "P0-U01"
+          ],
+          "entry_conditions": [
+            "At least one cron exists from P0-U01"
+          ],
+          "exit_conditions": [
+            "Skill lists all active crons",
+            "Skill creates new crons with validated schedule",
+            "Skill deletes crons by ID"
+          ],
+          "rollback": "git checkout -- state/CCM-MS5/",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Create /cron-manage skill file with list/create/delete subcommands."
+            },
+            {
+              "number": 2,
+              "instruction": "Wire CronList for listing, CronCreate for creation with schedule validation, CronDelete for removal."
+            },
+            {
+              "number": 3,
+              "instruction": "Test all three operations end-to-end."
+            }
+          ],
+          "deliverables": [
+            {
+              "path": ".claude/skills/cron-manage.md",
+              "type": "skill",
+              "description": "/cron-manage skill for cron CRUD operations"
+            }
+          ],
+          "index_in_master": false,
+          "creates_skill": true,
+          "creates_script": false,
+          "creates_hook": false,
+          "creates_command": false,
+          "description": "Cron management skill — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P0-U09",
+          "title": "Schema drift cron",
+          "phase": "P0",
+          "sequence": 9,
+          "role": "R1",
+          "role_name": "Systems Architect",
+          "model": "opus-4.6",
+          "effort": 85,
+          "rationale": "Dispatcher z.enum schemas drift when new engines are added but their actions are not registered. Every 12h scan catches this before it causes runtime failures.",
+          "tools": [
+            "CronCreate",
+            "Bash",
+            "Grep"
+          ],
+          "skills": [],
+          "scripts": [],
+          "hooks": [],
+          "features": [
+            "12-hour schema drift detection"
+          ],
+          "dependencies": [
+            "P0-U03"
+          ],
+          "entry_conditions": [
+            "Dispatcher sync cron from P0-U03 exists as reference"
+          ],
+          "exit_conditions": [
+            "Drift auto-detected: z.enum entries vs engine exports compared",
+            "Missing actions listed in state/CCM-MS5/schema-drift.json",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
+          ],
+          "rollback": "git checkout -- state/CCM-MS5/",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Write schema-drift-cron.sh that extracts z.enum values from all dispatcher files and compares against exported engine action methods."
+            },
+            {
+              "number": 2,
+              "instruction": "Report missing and orphaned entries."
+            },
+            {
+              "number": 3,
+              "instruction": "Use CronCreate to schedule every 12 hours."
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "state/CCM-MS5/schema-drift-cron.sh",
+              "type": "script",
+              "description": "12-hour schema drift detector"
+            },
+            {
+              "path": "state/CCM-MS5/schema-drift.json",
+              "type": "data",
+              "description": "Schema drift report"
+            }
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": true,
+          "creates_hook": false,
+          "creates_command": false,
+          "description": "Schema drift cron — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P0-U10",
+          "title": "Dead code detection cron",
+          "phase": "P0",
+          "sequence": 10,
+          "role": "R1",
+          "role_name": "Systems Architect",
+          "model": "opus-4.6",
+          "effort": 85,
+          "rationale": "With 1078 engine files, dead code accumulates. Weekly scan identifies unexported or unreferenced engines that could be pruned to reduce bundle size.",
+          "tools": [
+            "CronCreate",
+            "Bash",
+            "Grep"
+          ],
+          "skills": [],
+          "scripts": [],
+          "hooks": [],
+          "features": [
+            "Weekly dead code detection"
+          ],
+          "dependencies": [
+            "P0-U01"
+          ],
+          "entry_conditions": [
+            "state/CCM-MS5/ directory exists"
+          ],
+          "exit_conditions": [
+            "Unexported/unreferenced engine candidates listed in state/CCM-MS5/dead-code.json",
+            "Report includes file path and reason (unexported/unreferenced)",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
+          ],
+          "rollback": "git checkout -- state/CCM-MS5/",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Write dead-code-cron.sh that checks each engine file against index.ts exports and import references across the codebase."
+            },
+            {
+              "number": 2,
+              "instruction": "Flag engines not exported from index.ts or not imported anywhere."
+            },
+            {
+              "number": 3,
+              "instruction": "Use CronCreate to schedule weekly."
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "state/CCM-MS5/dead-code-cron.sh",
+              "type": "script",
+              "description": "Weekly dead code detector"
+            },
+            {
+              "path": "state/CCM-MS5/dead-code.json",
+              "type": "data",
+              "description": "Dead code candidates report"
+            }
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": true,
+          "creates_hook": false,
+          "creates_command": false,
+          "description": "Dead code detection cron — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P0-U11",
+          "title": "Dependency vulnerability cron",
+          "phase": "P0",
+          "sequence": 11,
+          "role": "R1",
+          "role_name": "Systems Architect",
+          "model": "opus-4.6",
+          "effort": 85,
+          "rationale": "npm audit should run weekly to catch new CVEs. Critical vulnerabilities auto-create a task for immediate attention.",
+          "tools": [
+            "CronCreate",
+            "Bash",
+            "TaskCreate"
+          ],
+          "skills": [],
+          "scripts": [],
+          "hooks": [],
+          "features": [
+            "Weekly vulnerability scanning with auto-task creation"
+          ],
+          "dependencies": [
+            "P0-U01"
+          ],
+          "entry_conditions": [
+            "state/CCM-MS5/ directory exists",
+            "npm available"
+          ],
+          "exit_conditions": [
+            "Vulnerabilities detected and reported in state/CCM-MS5/vuln-scan.json",
+            "Critical vulns auto-create a task via TaskCreate",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
+          ],
+          "rollback": "git checkout -- state/CCM-MS5/",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Write vuln-scan-cron.sh that runs npm audit --json, parses severity counts."
+            },
+            {
+              "number": 2,
+              "instruction": "If critical count > 0, use TaskCreate to create a fix task."
+            },
+            {
+              "number": 3,
+              "instruction": "Use CronCreate to schedule weekly."
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "state/CCM-MS5/vuln-scan-cron.sh",
+              "type": "script",
+              "description": "Weekly vulnerability scanner"
+            },
+            {
+              "path": "state/CCM-MS5/vuln-scan.json",
+              "type": "data",
+              "description": "Vulnerability scan results"
+            }
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": true,
+          "creates_hook": false,
+          "creates_command": false,
+          "description": "Dependency vulnerability cron — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P0-U12",
+          "title": "Documentation coverage cron",
+          "phase": "P0",
+          "sequence": 12,
+          "role": "R1",
+          "role_name": "Systems Architect",
+          "model": "opus-4.6",
+          "effort": 85,
+          "rationale": "JSDoc coverage is at 97/100 (8,853 blocks). Weekly measurement ensures new code maintains coverage and flags gaps before they accumulate.",
+          "tools": [
+            "CronCreate",
+            "Bash"
+          ],
+          "skills": [],
+          "scripts": [],
+          "hooks": [],
+          "features": [
+            "Weekly JSDoc coverage tracking"
+          ],
+          "dependencies": [
+            "P0-U01"
+          ],
+          "entry_conditions": [
+            "state/CCM-MS5/ directory exists"
+          ],
+          "exit_conditions": [
+            "Coverage tracked in state/CCM-MS5/doc-coverage.json",
+            "New gaps flagged with file path and function name",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
+          ],
+          "rollback": "git checkout -- state/CCM-MS5/",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Write doc-coverage-cron.sh that counts exported functions/classes vs JSDoc blocks in src/engines/."
+            },
+            {
+              "number": 2,
+              "instruction": "Compare against previous run to detect coverage drops."
+            },
+            {
+              "number": 3,
+              "instruction": "Use CronCreate to schedule weekly."
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "state/CCM-MS5/doc-coverage-cron.sh",
+              "type": "script",
+              "description": "Weekly doc coverage tracker"
+            },
+            {
+              "path": "state/CCM-MS5/doc-coverage.json",
+              "type": "data",
+              "description": "Documentation coverage report"
+            }
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": true,
+          "creates_hook": false,
+          "creates_command": false,
+          "description": "Documentation coverage cron — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P0-U13",
+          "title": "Hook efficiency cron",
+          "phase": "P0",
+          "sequence": 13,
+          "role": "R1",
+          "role_name": "Systems Architect",
+          "model": "opus-4.6",
+          "effort": 85,
+          "rationale": "213 hookify rules need periodic efficiency review — fire rates, false positive rates, and latency impact. Weekly analysis identifies underperforming or redundant rules.",
+          "tools": [
+            "CronCreate",
+            "Bash"
+          ],
+          "skills": [],
+          "scripts": [],
+          "hooks": [],
+          "features": [
+            "Weekly hook efficiency analysis"
+          ],
+          "dependencies": [
+            "P0-U01"
+          ],
+          "entry_conditions": [
+            "state/CCM-MS5/ directory exists",
+            "Hook log files accessible"
+          ],
+          "exit_conditions": [
+            "Efficiency metrics produced in state/CCM-MS5/hook-efficiency.json",
+            "Metrics include fire count, false positive rate, avg latency per hook",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
+          ],
+          "rollback": "git checkout -- state/CCM-MS5/",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Write hook-efficiency-cron.sh that parses hook execution logs, calculates fire rate, false positive rate, and latency per hook."
+            },
+            {
+              "number": 2,
+              "instruction": "Flag hooks with >50% false positive rate or >500ms avg latency."
+            },
+            {
+              "number": 3,
+              "instruction": "Use CronCreate to schedule weekly."
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "state/CCM-MS5/hook-efficiency-cron.sh",
+              "type": "script",
+              "description": "Weekly hook efficiency analyzer"
+            },
+            {
+              "path": "state/CCM-MS5/hook-efficiency.json",
+              "type": "data",
+              "description": "Hook efficiency metrics"
+            }
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": true,
+          "creates_hook": false,
+          "creates_command": false,
+          "description": "Hook efficiency cron — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P0-U14",
+          "title": "Automation ROI report cron",
+          "phase": "P0",
+          "sequence": 14,
+          "role": "R1",
+          "role_name": "Systems Architect",
+          "model": "opus-4.6",
+          "effort": 85,
+          "rationale": "Monthly ROI report quantifies token savings from all automation (hooks, crons, batch ops) vs manual baseline, justifying continued investment in automation infrastructure.",
+          "tools": [
+            "CronCreate",
+            "Bash"
+          ],
+          "skills": [],
+          "scripts": [],
+          "hooks": [],
+          "features": [
+            "Monthly automation ROI reporting"
+          ],
+          "dependencies": [
+            "P0-U01",
+            "P0-U13"
+          ],
+          "entry_conditions": [
+            "All prior crons producing data",
+            "Hook efficiency data available from P0-U13"
+          ],
+          "exit_conditions": [
+            "ROI report generated in state/CCM-MS5/automation-roi.json",
+            "Report includes token savings, time savings, and cost reduction estimates",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
+          ],
+          "rollback": "git checkout -- state/CCM-MS5/",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Write automation-roi-cron.sh that aggregates data from all cron outputs, hook efficiency metrics, and session token ledger."
+            },
+            {
+              "number": 2,
+              "instruction": "Calculate token savings vs estimated manual baseline (e.g., manual build check = 500 tokens, automated = 0)."
+            },
+            {
+              "number": 3,
+              "instruction": "Produce summary ROI report with total savings, per-automation breakdown, and trend."
+            },
+            {
+              "number": 4,
+              "instruction": "Use CronCreate to schedule monthly."
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "state/CCM-MS5/automation-roi-cron.sh",
+              "type": "script",
+              "description": "Monthly ROI report generator"
+            },
+            {
+              "path": "state/CCM-MS5/automation-roi.json",
+              "type": "data",
+              "description": "Automation ROI report"
+            }
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": true,
+          "creates_hook": false,
+          "creates_command": false,
+          "description": "Automation ROI report cron — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        }
+      ]
+    }
+  ],
+  "smart_config": {
+    "role": "implementer + reviewer",
+    "model": "sonnet",
+    "effort": "HIGH",
+    "context_budget": "65%"
+  },
+  "mcp_lifecycle": {
+    "session_start": [
+      "prism_session:context_boot",
+      "prism_session:dispatcher_map",
+      "prism_session:memory_recall",
+      "prism_session:system_snapshot",
+      "prism_session:action_search"
+    ],
+    "during_work": [
+      "prism_session:auto_checkpoint",
+      "prism_session:tool_route_best",
+      "prism_session:wip_capture"
+    ],
+    "session_end": [
+      "prism_session:memory_save",
+      "prism_session:system_snapshot",
+      "prism_session:checkpoint_enhanced"
+    ]
+  },
+  "forge_triple": {
+    "protective_hook": "ccm-ms5-gate",
+    "mcp_action": "prism_ccm:ccm_ms5_run",
+    "skill_command": "/ccm-ms5",
+    "ownership": "DECLARED — BUILT in terminal unit of this milestone"
+  },
+  "feature_cascade": {
+    "new_hooks": [
+      "ccm-ms5-gate"
+    ],
+    "new_actions": [
+      "ccm_ms5_run"
+    ],
+    "new_skills": [
+      "/ccm-ms5"
+    ],
+    "available_to": [
+      "downstream CAMX milestones",
+      "prism app consumers"
+    ]
+  },
+  "knowledge_sources": {
+    "engines": [
+      "ENGINE_DIGEST.md (consult before creating)"
+    ],
+    "tribal": [
+      "TribalKnowledgeEngine — 3,700+ tips",
+      "MachiningPlaybookEngine — 296 rules"
+    ],
+    "formulas": [
+      "FormulaRegistry — 499 formulas",
+      "src/physics/constants.ts — canonical"
+    ],
+    "reference": [
+      "EXTERNAL-REFERENCE-PROGRAMS-INDEX.md",
+      "MaterialRegistry",
+      "MachineRegistry",
+      "ToolCatalogEngine (95,608 tools)"
+    ]
+  },
+  "intent": "Implement cron jobs, batch operations, and automated maintenance using CronCreate/CronDelete/CronList and /batch skill. Currently NO scheduled tasks exist. Add: hourly build health, 6h test regression, 12h dispatcher sync, 12h schema drift, daily catalog freshness, daily memory pruning, weekly dead code, weekly vulnerability scan, weekly doc coverage, weekly hook efficiency, monthly automation ROI.",
+  "compact_checkpoint": "every 3 units — auto-triggered by hook",
+  "enforcement_hooks_active": [
+    "physics agent",
+    "wiring agent",
+    "constants checker",
+    "stub detector",
+    "test quality",
+    "forge-triple gate",
+    "session audit agent"
+  ]
+}

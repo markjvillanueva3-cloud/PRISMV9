@@ -1,0 +1,4713 @@
+{
+  "id": "PRISM-AGENT",
+  "version": "1.0.0",
+  "title": "PRISM Agent — Internal AI Manufacturing Intelligence System",
+  "created_at": "2026-04-14",
+  "track": "AGENT",
+  "status": "not_started",
+  "description": "Build an internal Claude-powered AI agent with deep PRISM self-awareness, constant context retention, and manufacturing domain expertise. Replaces external Claude Code dependency with optimized internal equivalent.",
+  "objectives": [
+    "60-80% reduction in system prompt token overhead",
+    "Full self-awareness of 82 dispatchers, 4,296 actions, 1,559 engines",
+    "Persistent context retention across sessions",
+    "Opus-level reasoning with manufacturing specialization",
+    "MCP-native tool execution (no external CLI dependency)"
+  ],
+  "knowledge_sources": {
+    "engines": [
+      "LLMEngine (400 LOC) — Claude API integration",
+      "ChainOfThoughtEngine (350 LOC) — reasoning chains",
+      "PRISMIntelligenceLayer (800 LOC) — domain prompts",
+      "PersistentMemoryEngine (500 LOC) — cross-session learning",
+      "ConversationalMemoryEngine (400 LOC) — workflow state",
+      "IntentClassifierEngine — NL intent routing",
+      "ActionSchemaCacheEngine — schema caching",
+      "ContextPreloaderEngine — context hydration"
+    ],
+    "tribal": [
+      "Anthropic SDK tool_use patterns",
+      "Prompt caching strategies",
+      "Extended thinking for complex reasoning",
+      "MCP protocol dispatcher/handler patterns"
+    ],
+    "reference": [
+      "DISPATCHER_DIGEST.md — 82 dispatchers",
+      "ENGINE_DIGEST.md — 1,559 engines",
+      "src/tools/dispatchers/*.ts — action schemas"
+    ]
+  },
+  "milestones": [
+    {
+      "id": "AGENT-MS1",
+      "title": "Self-Awareness Schema & Capability Index",
+      "description": "Build the agent's understanding of itself — what dispatchers exist, what actions are available, what each can do. Live introspection of PRISM's full capability surface.",
+      "sessions": 2,
+      "units": [
+        {
+          "id": "U-AGT01",
+          "title": "CapabilityIndexEngine — Live Dispatcher Introspection",
+          "description": "Engine that introspects all 82 dispatchers at runtime, extracts action schemas, builds searchable capability index. No hardcoded lists — always live from source.",
+          "smart_config": {
+            "role": "AI Platform Architect",
+            "model": "opus",
+            "effort": "MAX",
+            "context_budget": "40%"
+          },
+          "knowledge_to_consult": [
+            "All 82 dispatcher files for z.enum action patterns",
+            "ActionSchemaCacheEngine for existing caching",
+            "IntentClassifierEngine for routing patterns"
+          ],
+          "exit_criteria": [
+            "Engine returns complete list of 82 dispatchers with action counts",
+            "Each action has name, description, parameter schema",
+            "Search by keyword returns relevant actions",
+            "Rebuild on file change (dev mode)"
+          ],
+          "files_created": [
+            "src/engines/CapabilityIndexEngine.ts"
+          ],
+          "files_modified": [],
+          "abort_criteria": [
+            "Cannot parse dispatcher z.enum patterns",
+            "Missing >10% of known actions",
+            "Build fails after implementation"
+          ],
+          "rollback_procedure": "git checkout src/engines/CapabilityIndexEngine.ts",
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "depends_on": []
+        },
+        {
+          "id": "U-AGT02",
+          "title": "EngineDigestEngine — Engine Capability Map",
+          "description": "Engine that scans ENGINE_DIGEST.md and/or src/engines/*.ts to build a semantic map of what each engine does. Powers 'what engine handles X?' queries.",
+          "smart_config": {
+            "role": "AI Platform Architect",
+            "model": "opus",
+            "effort": "MAX",
+            "context_budget": "35%"
+          },
+          "knowledge_to_consult": [
+            "ENGINE_DIGEST.md for existing digest",
+            "Engine file headers for JSDoc descriptions",
+            "KnowledgeGraphEngine for entity relationships"
+          ],
+          "exit_criteria": [
+            "1,559 engines indexed with descriptions",
+            "Search 'cutting force' returns KienzleForceModelEngine",
+            "Search 'quote' returns QuoteEstimatorEngine, QuoteEngine, etc.",
+            "Category groupings match CLAUDE.md patterns"
+          ],
+          "files_created": [
+            "src/engines/EngineDigestEngine.ts"
+          ],
+          "files_modified": [],
+          "abort_criteria": [
+            "Cannot parse engine files",
+            "Missing >5% of known engines",
+            "Search accuracy <80%"
+          ],
+          "rollback_procedure": "git checkout src/engines/EngineDigestEngine.ts",
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "depends_on": [
+            "U-AGT01"
+          ]
+        },
+        {
+          "id": "U-AGT03",
+          "title": "SelfAwarenessSchema — Agent Identity Model",
+          "description": "Zod schema defining agent's self-model: capabilities, constraints, current state, memory pointers, active context. The 'I know what I am' foundation.",
+          "smart_config": {
+            "role": "AI Platform Architect",
+            "model": "opus",
+            "effort": "HIGH",
+            "context_budget": "30%"
+          },
+          "knowledge_to_consult": [
+            "CapabilityIndexEngine output structure",
+            "EngineDigestEngine output structure",
+            "PersistentMemoryEngine types",
+            "ConversationalMemoryEngine types"
+          ],
+          "exit_criteria": [
+            "Schema covers: identity, capabilities, constraints, state, memory",
+            "Schema validates against test instances",
+            "Serializable to <2KB JSON for context injection"
+          ],
+          "files_created": [
+            "src/schemas/selfAwarenessSchema.ts"
+          ],
+          "files_modified": [],
+          "abort_criteria": [
+            "Schema exceeds 5KB serialized",
+            "Missing critical self-model fields"
+          ],
+          "rollback_procedure": "git checkout src/schemas/selfAwarenessSchema.ts",
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "depends_on": [
+            "U-AGT01",
+            "U-AGT02"
+          ]
+        }
+      ],
+      "forge_triple": {
+        "hook": "capability-index-refresh",
+        "action": "prism_intelligence:capability_search",
+        "skill": "/prism-capabilities"
+      },
+      "exit_gate": {
+        "criteria": [
+          "Agent can answer 'what actions handle quoting?' with correct dispatcher:action list",
+          "Agent can answer 'what engines calculate cutting force?' with correct engine list",
+          "Self-awareness schema passes validation"
+        ],
+        "omega_floor": 0.85,
+        "svi_delta": "+2%"
+      }
+    },
+    {
+      "id": "AGENT-MS2",
+      "title": "Context Retention & Memory Fabric",
+      "description": "Build persistent, cross-session context retention. Agent remembers what it learned, what worked, what failed, and user preferences.",
+      "sessions": 2,
+      "units": [
+        {
+          "id": "U-AGT04",
+          "title": "AgentMemoryFabric — Unified Memory Layer",
+          "description": "Consolidates PersistentMemoryEngine + ConversationalMemoryEngine into a unified agent memory fabric. Typed memories: learning, preference, calibration, pattern, decision, context, conversation.",
+          "smart_config": {
+            "role": "AI Memory Systems Specialist",
+            "model": "opus",
+            "effort": "MAX",
+            "context_budget": "45%"
+          },
+          "knowledge_to_consult": [
+            "PersistentMemoryEngine (500 LOC)",
+            "ConversationalMemoryEngine (400 LOC)",
+            "MemoryConsolidationEngine for consolidation patterns"
+          ],
+          "exit_criteria": [
+            "Unified API for all memory operations",
+            "Memory types: learning, preference, calibration, pattern, decision, context, conversation",
+            "Decay scoring for stale memories",
+            "Relevance retrieval by tags/domain",
+            "Serializes to <10KB for context injection"
+          ],
+          "files_created": [
+            "src/engines/AgentMemoryFabricEngine.ts"
+          ],
+          "files_modified": [],
+          "abort_criteria": [
+            "Memory retrieval >100ms for 10K entries",
+            "Missing memory types from existing engines"
+          ],
+          "rollback_procedure": "git checkout src/engines/AgentMemoryFabricEngine.ts",
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "depends_on": [
+            "U-AGT03"
+          ]
+        },
+        {
+          "id": "U-AGT05",
+          "title": "ContextRetentionEngine — Session Continuity",
+          "description": "Manages what context survives between sessions. Builds 'context snapshot' that captures: current job, recent actions, active recommendations, learned preferences.",
+          "smart_config": {
+            "role": "AI Memory Systems Specialist",
+            "model": "opus",
+            "effort": "MAX",
+            "context_budget": "40%"
+          },
+          "knowledge_to_consult": [
+            "ContextSnapshotEngine for existing snapshot patterns",
+            "ContextPreloaderEngine for hydration patterns",
+            "AgentMemoryFabricEngine (U-AGT04)"
+          ],
+          "exit_criteria": [
+            "Session end: auto-snapshot current state",
+            "Session start: auto-hydrate from last snapshot",
+            "User can say 'remember this' and agent persists it",
+            "User can say 'what did we work on yesterday?' and agent recalls"
+          ],
+          "files_created": [
+            "src/engines/ContextRetentionEngine.ts"
+          ],
+          "files_modified": [],
+          "abort_criteria": [
+            "Snapshot >50KB",
+            "Hydration >500ms"
+          ],
+          "rollback_procedure": "git checkout src/engines/ContextRetentionEngine.ts",
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "depends_on": [
+            "U-AGT04"
+          ]
+        },
+        {
+          "id": "U-AGT06",
+          "title": "LearningLoopEngine — Continuous Improvement",
+          "description": "Tracks what recommendations worked vs failed. Builds calibration data. Adjusts future recommendations based on outcomes.",
+          "smart_config": {
+            "role": "AI Learning Systems Specialist",
+            "model": "opus",
+            "effort": "HIGH",
+            "context_budget": "35%"
+          },
+          "knowledge_to_consult": [
+            "LearningAdaptationEngine for adaptation patterns",
+            "ProactiveLearningEngine for anticipatory patterns",
+            "CalibrationRecord type from PersistentMemoryEngine",
+            "FeedbackPersistenceEngine for outcome tracking"
+          ],
+          "exit_criteria": [
+            "Tracks recommendation → outcome pairs",
+            "Builds correction factors for systematic errors",
+            "Surfaces 'I've learned that X works better than Y for this material'",
+            "Decay old learnings, reinforce confirmed ones"
+          ],
+          "files_created": [
+            "src/engines/LearningLoopEngine.ts"
+          ],
+          "files_modified": [],
+          "abort_criteria": [
+            "Learning records exceed 1MB after 1000 entries",
+            "Correction factors diverge beyond ±50%"
+          ],
+          "rollback_procedure": "git checkout src/engines/LearningLoopEngine.ts",
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "depends_on": [
+            "U-AGT04"
+          ]
+        }
+      ],
+      "forge_triple": {
+        "hook": "memory-persist-on-compact",
+        "action": "prism_memory:agent_recall",
+        "skill": "/agent-memory"
+      },
+      "exit_gate": {
+        "criteria": [
+          "Agent recalls context from previous session without explicit reload",
+          "Agent says 'last time you preferred X for this material'",
+          "Learning loop shows measurable calibration improvement"
+        ],
+        "omega_floor": 0.85,
+        "svi_delta": "+3%"
+      }
+    },
+    {
+      "id": "AGENT-MS3",
+      "title": "Deep Reasoning & Chain-of-Thought",
+      "description": "Build sophisticated reasoning capabilities with explicit chains, backtracking, and multi-path exploration for complex manufacturing decisions.",
+      "sessions": 3,
+      "units": [
+        {
+          "id": "U-AGT07",
+          "title": "ManufacturingReasoningEngine — Domain-Grounded CoT",
+          "description": "Extends ChainOfThoughtEngine with manufacturing-specific reasoning patterns: material-first, safety-constrained, physics-validated, cost-aware.",
+          "smart_config": {
+            "role": "Manufacturing AI Specialist",
+            "model": "opus",
+            "effort": "MAX",
+            "context_budget": "50%"
+          },
+          "knowledge_to_consult": [
+            "ChainOfThoughtEngine (350 LOC)",
+            "PRISMIntelligenceLayer domain prompts",
+            "DecisionReasoningEngine for decision patterns",
+            "ScientificReasoningEngine for physics reasoning"
+          ],
+          "exit_criteria": [
+            "Reasoning chains show explicit manufacturing logic",
+            "Physics constraints checked at validation steps",
+            "Safety warnings surface early in reasoning",
+            "Cost implications quantified in conclusions",
+            "Reasoning auditable and explainable"
+          ],
+          "files_created": [
+            "src/engines/ManufacturingReasoningEngine.ts"
+          ],
+          "files_modified": [],
+          "abort_criteria": [
+            "Reasoning chains exceed 20 steps for simple queries",
+            "Physics validation missing from >10% of chains"
+          ],
+          "rollback_procedure": "git checkout src/engines/ManufacturingReasoningEngine.ts",
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "depends_on": [
+            "U-AGT06"
+          ]
+        },
+        {
+          "id": "U-AGT08",
+          "title": "MultiPathReasoningEngine — Tree-of-Thought",
+          "description": "Explores multiple reasoning paths in parallel, prunes dead ends, converges on best answer. For complex decisions with multiple valid approaches.",
+          "smart_config": {
+            "role": "AI Reasoning Specialist",
+            "model": "opus",
+            "effort": "MAX",
+            "context_budget": "45%"
+          },
+          "knowledge_to_consult": [
+            "ManufacturingReasoningEngine (U-AGT07)",
+            "ChainOfThoughtEngine tree-of-thought strategy",
+            "AlgorithmGatewayEngine for algorithm selection"
+          ],
+          "exit_criteria": [
+            "Explores 2-5 paths for complex queries",
+            "Prunes paths that violate constraints",
+            "Ranks paths by confidence, safety, cost",
+            "Returns best path with alternatives noted",
+            "Performance: <5s for 3-path exploration"
+          ],
+          "files_created": [
+            "src/engines/MultiPathReasoningEngine.ts"
+          ],
+          "files_modified": [],
+          "abort_criteria": [
+            "Path explosion (>10 paths)",
+            "Reasoning time >30s"
+          ],
+          "rollback_procedure": "git checkout src/engines/MultiPathReasoningEngine.ts",
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "depends_on": [
+            "U-AGT07"
+          ]
+        },
+        {
+          "id": "U-AGT09",
+          "title": "ExtendedThinkingBridge — Opus Thinking Integration",
+          "description": "Integrates Claude's extended thinking capability for deep analysis. Uses thinking blocks for complex manufacturing decisions before answering.",
+          "smart_config": {
+            "role": "AI Platform Architect",
+            "model": "opus",
+            "effort": "HIGH",
+            "context_budget": "40%"
+          },
+          "knowledge_to_consult": [
+            "Anthropic SDK extended thinking API",
+            "LLMEngine for Claude integration",
+            "ManufacturingReasoningEngine (U-AGT07)"
+          ],
+          "exit_criteria": [
+            "Extended thinking enabled for complex queries",
+            "Thinking budget configurable (1K-32K tokens)",
+            "Thinking traces stored for audit",
+            "Falls back gracefully when thinking unavailable"
+          ],
+          "files_created": [
+            "src/engines/ExtendedThinkingBridgeEngine.ts"
+          ],
+          "files_modified": [
+            "src/engines/LLMEngine.ts"
+          ],
+          "abort_criteria": [
+            "API integration fails",
+            "Thinking exceeds 60s timeout"
+          ],
+          "rollback_procedure": "git checkout src/engines/ExtendedThinkingBridgeEngine.ts src/engines/LLMEngine.ts",
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "depends_on": [
+            "U-AGT07"
+          ]
+        },
+        {
+          "id": "U-AGT10",
+          "title": "ReasoningExplainerEngine — Transparent AI",
+          "description": "Makes agent reasoning transparent to users. 'Why did you recommend this?' gets a clear, traceable explanation rooted in physics and shop data.",
+          "smart_config": {
+            "role": "AI Explainability Specialist",
+            "model": "sonnet",
+            "effort": "HIGH",
+            "context_budget": "35%"
+          },
+          "knowledge_to_consult": [
+            "ReasoningChainSharingEngine for chain sharing",
+            "ChainOfThoughtEngine for chain structure",
+            "TribalExplanationEngine for explanations"
+          ],
+          "exit_criteria": [
+            "Every recommendation has 'why' explanation",
+            "Explanations cite physics formulas used",
+            "Explanations cite shop data consulted",
+            "Explanations readable by machinist, not just engineer"
+          ],
+          "files_created": [
+            "src/engines/ReasoningExplainerEngine.ts"
+          ],
+          "files_modified": [],
+          "abort_criteria": [
+            "Explanations exceed 500 words",
+            "Missing physics citations for calculation-based recommendations"
+          ],
+          "rollback_procedure": "git checkout src/engines/ReasoningExplainerEngine.ts",
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "depends_on": [
+            "U-AGT08"
+          ]
+        }
+      ],
+      "forge_triple": {
+        "hook": "reasoning-trace-audit",
+        "action": "prism_intelligence:explain_reasoning",
+        "skill": "/why"
+      },
+      "exit_gate": {
+        "criteria": [
+          "Agent explains 'I recommended X because [physics], [shop data], [past learning]'",
+          "Multi-path reasoning shows alternatives with trade-offs",
+          "Extended thinking activates for complex process planning"
+        ],
+        "omega_floor": 0.9,
+        "svi_delta": "+4%"
+      }
+    },
+    {
+      "id": "AGENT-MS4",
+      "title": "Agentic Loop & Tool Execution",
+      "description": "Build the core agentic loop: observe → think → act. Agent receives intent, reasons about best approach, executes MCP tools, handles results.",
+      "sessions": 3,
+      "units": [
+        {
+          "id": "U-AGT11",
+          "title": "IntentRouterEngine — NL to Action Routing",
+          "description": "Routes natural language intents to optimal dispatcher actions. Uses CapabilityIndexEngine to find matching actions, ranks by relevance.",
+          "smart_config": {
+            "role": "AI Platform Architect",
+            "model": "opus",
+            "effort": "MAX",
+            "context_budget": "45%"
+          },
+          "knowledge_to_consult": [
+            "IntentClassifierEngine for existing classification",
+            "CapabilityIndexEngine (U-AGT01) for action search",
+            "NLHookEngine for NL processing"
+          ],
+          "exit_criteria": [
+            "'Calculate speed and feed for D2 at 40 HRC' → prism_calc:speed_feed",
+            "'Quote this part' → prism_business:quote_estimate",
+            "'What machine should I use?' → prism_cam:machine_selection",
+            "Ambiguous intents return ranked options",
+            "Unknown intents gracefully degraded to general AI"
+          ],
+          "files_created": [
+            "src/engines/IntentRouterEngine.ts"
+          ],
+          "files_modified": [],
+          "abort_criteria": [
+            "Routing accuracy <80% on test set",
+            "Routing latency >200ms"
+          ],
+          "rollback_procedure": "git checkout src/engines/IntentRouterEngine.ts",
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "depends_on": [
+            "U-AGT10"
+          ]
+        },
+        {
+          "id": "U-AGT12",
+          "title": "ToolExecutionEngine — MCP Tool Invocation",
+          "description": "Executes MCP tool calls via dispatchers. Handles parameter construction, validation, error handling, retry logic.",
+          "smart_config": {
+            "role": "AI Platform Architect",
+            "model": "opus",
+            "effort": "MAX",
+            "context_budget": "40%"
+          },
+          "knowledge_to_consult": [
+            "MCP protocol tool execution patterns",
+            "Dispatcher invocation patterns",
+            "Error handling patterns from existing dispatchers"
+          ],
+          "exit_criteria": [
+            "Invokes any of 4,296 actions programmatically",
+            "Validates parameters against Zod schemas",
+            "Returns structured results",
+            "Handles errors gracefully with retry",
+            "Logs all tool executions for audit"
+          ],
+          "files_created": [
+            "src/engines/ToolExecutionEngine.ts"
+          ],
+          "files_modified": [],
+          "abort_criteria": [
+            "Tool execution fails for >5% of valid inputs",
+            "Error handling misses critical failure modes"
+          ],
+          "rollback_procedure": "git checkout src/engines/ToolExecutionEngine.ts",
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "depends_on": [
+            "U-AGT11"
+          ]
+        },
+        {
+          "id": "U-AGT13",
+          "title": "AgenticLoopEngine — Observe-Think-Act Orchestrator",
+          "description": "The core agent loop. Receives user input, builds context, reasons about approach, executes tools, synthesizes results, learns from outcomes.",
+          "smart_config": {
+            "role": "AI Platform Architect",
+            "model": "opus",
+            "effort": "MAX",
+            "context_budget": "50%"
+          },
+          "knowledge_to_consult": [
+            "IntentRouterEngine (U-AGT11)",
+            "ToolExecutionEngine (U-AGT12)",
+            "ManufacturingReasoningEngine (U-AGT07)",
+            "AgentMemoryFabricEngine (U-AGT04)",
+            "ContextRetentionEngine (U-AGT05)"
+          ],
+          "exit_criteria": [
+            "Complete agentic loop: input → context → reason → act → result → learn",
+            "Multi-step workflows handled (quote → process plan → program)",
+            "Interruption handling (user changes mind mid-flow)",
+            "Progress tracking for long operations",
+            "Token budget management (stay under 32K working context)"
+          ],
+          "files_created": [
+            "src/engines/AgenticLoopEngine.ts"
+          ],
+          "files_modified": [],
+          "abort_criteria": [
+            "Loop hangs on complex queries",
+            "Token budget exceeded for simple queries"
+          ],
+          "rollback_procedure": "git checkout src/engines/AgenticLoopEngine.ts",
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "depends_on": [
+            "U-AGT11",
+            "U-AGT12"
+          ]
+        },
+        {
+          "id": "U-AGT14",
+          "title": "ContextCompactionEngine — Efficient Context Management",
+          "description": "Manages context window efficiently. Compacts history, summarizes prior turns, preserves critical facts, discards stale info.",
+          "smart_config": {
+            "role": "AI Memory Systems Specialist",
+            "model": "opus",
+            "effort": "HIGH",
+            "context_budget": "40%"
+          },
+          "knowledge_to_consult": [
+            "Claude Code compaction patterns",
+            "AgentMemoryFabricEngine (U-AGT04)",
+            "ContextRetentionEngine (U-AGT05)"
+          ],
+          "exit_criteria": [
+            "Auto-compact when context exceeds 24K tokens",
+            "Critical facts preserved across compaction",
+            "Prior turns summarized, not lost",
+            "User-marked 'remember this' survives compaction",
+            "Compaction visible to user ('I'm summarizing our conversation...')"
+          ],
+          "files_created": [
+            "src/engines/ContextCompactionEngine.ts"
+          ],
+          "files_modified": [],
+          "abort_criteria": [
+            "Compaction loses critical context",
+            "Compaction takes >5s"
+          ],
+          "rollback_procedure": "git checkout src/engines/ContextCompactionEngine.ts",
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "depends_on": [
+            "U-AGT13"
+          ]
+        },
+        {
+          "id": "U-AGT15",
+          "title": "MultiToolOrchestratorEngine — Parallel Tool Execution",
+          "description": "Orchestrates multiple tool calls in parallel when safe (independent operations). Sequences dependent operations correctly.",
+          "smart_config": {
+            "role": "AI Platform Architect",
+            "model": "opus",
+            "effort": "HIGH",
+            "context_budget": "35%"
+          },
+          "knowledge_to_consult": [
+            "ToolExecutionEngine (U-AGT12)",
+            "AgenticLoopEngine (U-AGT13)",
+            "Dependency analysis patterns"
+          ],
+          "exit_criteria": [
+            "Independent tools run in parallel",
+            "Dependent tools run in correct sequence",
+            "Partial failures handled gracefully",
+            "Progress reported for parallel operations"
+          ],
+          "files_created": [
+            "src/engines/MultiToolOrchestratorEngine.ts"
+          ],
+          "files_modified": [],
+          "abort_criteria": [
+            "Parallel execution causes race conditions",
+            "Dependency analysis incorrect"
+          ],
+          "rollback_procedure": "git checkout src/engines/MultiToolOrchestratorEngine.ts",
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "depends_on": [
+            "U-AGT13"
+          ]
+        }
+      ],
+      "forge_triple": {
+        "hook": "agentic-loop-audit",
+        "action": "prism_intelligence:agent_execute",
+        "skill": "/agent"
+      },
+      "exit_gate": {
+        "criteria": [
+          "Agent handles multi-step workflow: 'Quote this part, then generate a process plan'",
+          "Agent context stays under 32K tokens for 20-turn conversation",
+          "Parallel tool execution for independent operations"
+        ],
+        "omega_floor": 0.9,
+        "svi_delta": "+5%"
+      }
+    },
+    {
+      "id": "AGENT-MS5",
+      "title": "Agent API & Integration Layer",
+      "description": "Build the API layer exposing PRISM Agent to applications. REST endpoints, WebSocket for streaming, MCP action for internal use.",
+      "sessions": 2,
+      "units": [
+        {
+          "id": "U-AGT16",
+          "title": "AgentAPIEngine — REST/WebSocket Interface",
+          "description": "Exposes agent capabilities via REST API and WebSocket for streaming responses. Authentication, rate limiting, usage tracking.",
+          "smart_config": {
+            "role": "API Platform Engineer",
+            "model": "sonnet",
+            "effort": "HIGH",
+            "context_budget": "40%"
+          },
+          "knowledge_to_consult": [
+            "Existing route patterns in src/routes/",
+            "Auth middleware patterns",
+            "WebSocket patterns for streaming"
+          ],
+          "exit_criteria": [
+            "POST /api/agent/chat — synchronous chat",
+            "WebSocket /api/agent/stream — streaming responses",
+            "Authentication via API key or session",
+            "Rate limiting per user/key",
+            "Usage tracking per request"
+          ],
+          "files_created": [
+            "src/routes/agent/chat.ts",
+            "src/routes/agent/stream.ts",
+            "src/routes/agent/index.ts"
+          ],
+          "files_modified": [],
+          "abort_criteria": [
+            "API authentication fails",
+            "Streaming not working reliably"
+          ],
+          "rollback_procedure": "git checkout src/routes/agent/",
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "depends_on": [
+            "U-AGT15"
+          ]
+        },
+        {
+          "id": "U-AGT17",
+          "title": "AgentDispatcher — MCP Action Integration",
+          "description": "Wire agent capabilities into MCP dispatcher system. Actions: agent_chat, agent_stream, agent_context, agent_memory, agent_capabilities.",
+          "smart_config": {
+            "role": "MCP Integration Specialist",
+            "model": "sonnet",
+            "effort": "HIGH",
+            "context_budget": "35%"
+          },
+          "knowledge_to_consult": [
+            "Dispatcher wiring patterns",
+            "intelligenceDispatcher for AI action patterns",
+            "sessionDispatcher for context action patterns"
+          ],
+          "exit_criteria": [
+            "prism_agent:chat — conversational interaction",
+            "prism_agent:stream — streaming interaction",
+            "prism_agent:context — context management",
+            "prism_agent:memory — memory operations",
+            "prism_agent:capabilities — capability introspection"
+          ],
+          "files_created": [
+            "src/tools/dispatchers/agentDispatcher.ts"
+          ],
+          "files_modified": [],
+          "abort_criteria": [
+            "Dispatcher wiring fails",
+            "Actions not callable via MCP"
+          ],
+          "rollback_procedure": "git checkout src/tools/dispatchers/agentDispatcher.ts",
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "depends_on": [
+            "U-AGT16"
+          ]
+        },
+        {
+          "id": "U-AGT18",
+          "title": "OptimizedSystemPrompt — Minimal Token Footprint",
+          "description": "Build the optimized system prompt for PRISM Agent. Target: 60-80% smaller than Claude Code's system prompt while retaining full capability.",
+          "smart_config": {
+            "role": "Prompt Engineering Specialist",
+            "model": "opus",
+            "effort": "MAX",
+            "context_budget": "45%"
+          },
+          "knowledge_to_consult": [
+            "Claude Code system prompt structure",
+            "SelfAwarenessSchema (U-AGT03)",
+            "PRISMIntelligenceLayer domain prompts"
+          ],
+          "exit_criteria": [
+            "System prompt <5K tokens (vs 15-20K for Claude Code)",
+            "Manufacturing domain expertise embedded",
+            "Tool definitions dynamically loaded, not hardcoded",
+            "Safety constraints clearly stated",
+            "Identity and constraints clear"
+          ],
+          "files_created": [
+            "src/prompts/agentSystemPrompt.ts"
+          ],
+          "files_modified": [],
+          "abort_criteria": [
+            "System prompt exceeds 8K tokens",
+            "Agent capability degraded vs full prompt"
+          ],
+          "rollback_procedure": "git checkout src/prompts/agentSystemPrompt.ts",
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "depends_on": [
+            "U-AGT17"
+          ]
+        },
+        {
+          "id": "U-AGT19",
+          "title": "PromptCachingIntegration — Cache Optimization",
+          "description": "Integrate Anthropic prompt caching for system prompt and common context chunks. Minimize cache misses, maximize cache hits.",
+          "smart_config": {
+            "role": "AI Platform Architect",
+            "model": "sonnet",
+            "effort": "HIGH",
+            "context_budget": "35%"
+          },
+          "knowledge_to_consult": [
+            "Anthropic SDK prompt caching API",
+            "LLMEngine for Claude integration",
+            "OptimizedSystemPrompt (U-AGT18)"
+          ],
+          "exit_criteria": [
+            "System prompt cached on first request",
+            "Cache hit rate >80% for repeated queries",
+            "Cache TTL respected (5 min)",
+            "Cache warming on server start"
+          ],
+          "files_created": [],
+          "files_modified": [
+            "src/engines/LLMEngine.ts"
+          ],
+          "abort_criteria": [
+            "Caching API integration fails",
+            "Cache hit rate <50%"
+          ],
+          "rollback_procedure": "git stash",
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "depends_on": [
+            "U-AGT18"
+          ]
+        },
+        {
+          "id": "U-AGT20",
+          "title": "AgentMetricsEngine — Usage & Performance Tracking",
+          "description": "Track agent usage metrics: tokens consumed, cache hits, response times, tool usage, learning effectiveness.",
+          "smart_config": {
+            "role": "Platform Observability Specialist",
+            "model": "sonnet",
+            "effort": "HIGH",
+            "context_budget": "30%"
+          },
+          "knowledge_to_consult": [
+            "TelemetryDispatcher for existing telemetry",
+            "TokenEconomyEngine for token tracking",
+            "Existing metrics patterns"
+          ],
+          "exit_criteria": [
+            "Tokens consumed per request tracked",
+            "Cache hit/miss ratio tracked",
+            "Response time percentiles tracked",
+            "Tool usage frequency tracked",
+            "Dashboard-ready metrics export"
+          ],
+          "files_created": [
+            "src/engines/AgentMetricsEngine.ts"
+          ],
+          "files_modified": [],
+          "abort_criteria": [
+            "Metrics overhead >5ms per request",
+            "Missing critical metric categories"
+          ],
+          "rollback_procedure": "git checkout src/engines/AgentMetricsEngine.ts",
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "depends_on": [
+            "U-AGT17"
+          ]
+        }
+      ],
+      "forge_triple": {
+        "hook": "agent-usage-audit",
+        "action": "prism_agent:metrics",
+        "skill": "/agent-metrics"
+      },
+      "exit_gate": {
+        "criteria": [
+          "REST API returns agent responses <3s for simple queries",
+          "WebSocket streaming works for long responses",
+          "System prompt is <5K tokens",
+          "Cache hit rate >80% in steady state"
+        ],
+        "omega_floor": 0.9,
+        "svi_delta": "+3%"
+      }
+    },
+    {
+      "id": "AGENT-MS6",
+      "title": "Auto-Ingestion & Live Self-Update",
+      "description": "Build automatic ingestion of new engines, dispatchers, actions, and capabilities. Agent self-updates its knowledge when mcp-server changes. Zero manual intervention.",
+      "sessions": 3,
+      "units": [
+        {
+          "id": "U-AGT21",
+          "title": "FileWatcherEngine — Source Change Detection",
+          "description": "Watches src/engines/, src/tools/dispatchers/, src/registries/ for changes. Triggers re-indexing when files are added, modified, or deleted.",
+          "smart_config": {
+            "role": "Platform Infrastructure Engineer",
+            "model": "opus",
+            "effort": "MAX",
+            "context_budget": "40%"
+          },
+          "knowledge_to_consult": [
+            "Node.js fs.watch/chokidar patterns",
+            "Build system watch patterns",
+            "Debouncing strategies for rapid changes"
+          ],
+          "exit_criteria": [
+            "Detects new engine file within 1s",
+            "Detects dispatcher changes within 1s",
+            "Debounces rapid changes (npm run build)",
+            "Ignores irrelevant files (tests, docs)",
+            "Works in dev mode and production"
+          ],
+          "files_created": [
+            "src/engines/FileWatcherEngine.ts"
+          ],
+          "files_modified": [],
+          "abort_criteria": [
+            "Watch causes high CPU usage",
+            "Misses file changes",
+            "Triggers on irrelevant changes"
+          ],
+          "rollback_procedure": "git checkout src/engines/FileWatcherEngine.ts",
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "depends_on": [
+            "U-AGT20"
+          ]
+        },
+        {
+          "id": "U-AGT22",
+          "title": "IncrementalIndexEngine — Delta Re-indexing",
+          "description": "Re-indexes only changed files instead of full rebuild. Maintains capability index incrementally for fast updates.",
+          "smart_config": {
+            "role": "Platform Infrastructure Engineer",
+            "model": "opus",
+            "effort": "MAX",
+            "context_budget": "45%"
+          },
+          "knowledge_to_consult": [
+            "CapabilityIndexEngine (U-AGT01) for full indexing",
+            "EngineDigestEngine (U-AGT02) for engine indexing",
+            "Incremental build patterns from tsc"
+          ],
+          "exit_criteria": [
+            "Single file change re-indexes in <100ms",
+            "New engine available to agent within 2s of file write",
+            "Deleted engine removed from index immediately",
+            "Modified engine updates description and schema",
+            "Index consistency verified after incremental update"
+          ],
+          "files_created": [
+            "src/engines/IncrementalIndexEngine.ts"
+          ],
+          "files_modified": [
+            "src/engines/CapabilityIndexEngine.ts"
+          ],
+          "abort_criteria": [
+            "Incremental index diverges from full index",
+            "Re-index time >500ms for single file"
+          ],
+          "rollback_procedure": "git checkout src/engines/IncrementalIndexEngine.ts src/engines/CapabilityIndexEngine.ts",
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "depends_on": [
+            "U-AGT21"
+          ]
+        },
+        {
+          "id": "U-AGT23",
+          "title": "BuildHookIntegration — Post-Build Index Refresh",
+          "description": "Hooks into npm run build to refresh agent index after successful build. Ensures agent always knows about latest compiled code.",
+          "smart_config": {
+            "role": "DevOps Integration Specialist",
+            "model": "sonnet",
+            "effort": "HIGH",
+            "context_budget": "35%"
+          },
+          "knowledge_to_consult": [
+            "npm scripts lifecycle hooks",
+            "esbuild plugin system",
+            "Existing build:fast, build:verify patterns"
+          ],
+          "exit_criteria": [
+            "npm run build triggers index refresh",
+            "npm run build:fast triggers index refresh",
+            "Build failure does NOT trigger refresh",
+            "Index refresh completes before build exits",
+            "Refresh logged for observability"
+          ],
+          "files_created": [
+            "scripts/post-build-index.ts"
+          ],
+          "files_modified": [
+            "package.json"
+          ],
+          "abort_criteria": [
+            "Build time increases >2s",
+            "Index refresh fails silently"
+          ],
+          "rollback_procedure": "git checkout scripts/post-build-index.ts package.json",
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "depends_on": [
+            "U-AGT22"
+          ]
+        },
+        {
+          "id": "U-AGT24",
+          "title": "SchemaExtractionEngine — Live Zod Schema Parsing",
+          "description": "Extracts Zod schemas from dispatcher files at runtime. Understands action parameters, types, and constraints without hardcoding.",
+          "smart_config": {
+            "role": "TypeScript Parsing Specialist",
+            "model": "opus",
+            "effort": "MAX",
+            "context_budget": "50%"
+          },
+          "knowledge_to_consult": [
+            "Zod schema introspection API",
+            "TypeScript AST parsing (ts-morph or similar)",
+            "Existing dispatcher z.enum patterns"
+          ],
+          "exit_criteria": [
+            "Extracts all action names from z.enum",
+            "Extracts parameter schemas for each action",
+            "Converts Zod schema to JSON Schema for LLM",
+            "Handles optional, nullable, default values",
+            "Works with complex nested schemas"
+          ],
+          "files_created": [
+            "src/engines/SchemaExtractionEngine.ts"
+          ],
+          "files_modified": [],
+          "abort_criteria": [
+            "Cannot parse >5% of dispatcher schemas",
+            "Extraction time >1s per dispatcher"
+          ],
+          "rollback_procedure": "git checkout src/engines/SchemaExtractionEngine.ts",
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "depends_on": [
+            "U-AGT22"
+          ]
+        },
+        {
+          "id": "U-AGT25",
+          "title": "CapabilityAnnouncementEngine — Self-Update Notifications",
+          "description": "Agent announces new capabilities to active sessions. 'I just learned about a new engine: WEDMProgramAssemblerEngine'.",
+          "smart_config": {
+            "role": "AI UX Specialist",
+            "model": "sonnet",
+            "effort": "HIGH",
+            "context_budget": "30%"
+          },
+          "knowledge_to_consult": [
+            "WebSocket push patterns from AgentAPIEngine",
+            "Event bus patterns from EventBus.ts",
+            "Notification UX patterns"
+          ],
+          "exit_criteria": [
+            "New capability triggers notification to active sessions",
+            "Notification includes: name, description, what it can do",
+            "User can opt out of capability announcements",
+            "Announcements batched if many changes at once",
+            "Announcements logged for audit"
+          ],
+          "files_created": [
+            "src/engines/CapabilityAnnouncementEngine.ts"
+          ],
+          "files_modified": [],
+          "abort_criteria": [
+            "Announcements spam user",
+            "WebSocket push fails"
+          ],
+          "rollback_procedure": "git checkout src/engines/CapabilityAnnouncementEngine.ts",
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "depends_on": [
+            "U-AGT24"
+          ]
+        },
+        {
+          "id": "U-AGT26",
+          "title": "RegistryWatchEngine — Data Change Detection",
+          "description": "Watches registry files (materials, tools, machines) for changes. Updates agent knowledge when registries are enriched.",
+          "smart_config": {
+            "role": "Platform Infrastructure Engineer",
+            "model": "sonnet",
+            "effort": "HIGH",
+            "context_budget": "35%"
+          },
+          "knowledge_to_consult": [
+            "FileWatcherEngine (U-AGT21) for watch patterns",
+            "src/registries/ file structure",
+            "Registry hot-reload patterns"
+          ],
+          "exit_criteria": [
+            "Detects material registry changes",
+            "Detects tool catalog updates",
+            "Detects machine registry changes",
+            "Agent context reflects new data immediately",
+            "Old cached data invalidated"
+          ],
+          "files_created": [
+            "src/engines/RegistryWatchEngine.ts"
+          ],
+          "files_modified": [],
+          "abort_criteria": [
+            "Registry changes not detected",
+            "Stale data served after update"
+          ],
+          "rollback_procedure": "git checkout src/engines/RegistryWatchEngine.ts",
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "depends_on": [
+            "U-AGT21"
+          ]
+        },
+        {
+          "id": "U-AGT27",
+          "title": "SelfHealingIndexEngine — Consistency Verification",
+          "description": "Periodically verifies index consistency against actual source. Self-heals if index drifts from reality.",
+          "smart_config": {
+            "role": "Platform Reliability Engineer",
+            "model": "sonnet",
+            "effort": "HIGH",
+            "context_budget": "30%"
+          },
+          "knowledge_to_consult": [
+            "CapabilityIndexEngine (U-AGT01) for full index",
+            "IncrementalIndexEngine (U-AGT22) for delta updates",
+            "Health check patterns"
+          ],
+          "exit_criteria": [
+            "Runs consistency check every 5 minutes",
+            "Detects index drift (missing/stale entries)",
+            "Auto-triggers full re-index if drift detected",
+            "Logs drift events for debugging",
+            "Metrics: drift frequency, heal time"
+          ],
+          "files_created": [
+            "src/engines/SelfHealingIndexEngine.ts"
+          ],
+          "files_modified": [],
+          "abort_criteria": [
+            "Consistency check takes >10s",
+            "False positive drift detection"
+          ],
+          "rollback_procedure": "git checkout src/engines/SelfHealingIndexEngine.ts",
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "depends_on": [
+            "U-AGT22"
+          ]
+        }
+      ],
+      "forge_triple": {
+        "hook": "auto-ingest-on-build",
+        "action": "prism_agent:refresh_capabilities",
+        "skill": "/agent-refresh"
+      },
+      "exit_gate": {
+        "criteria": [
+          "Create new engine file → agent knows about it within 5s",
+          "Add new dispatcher action → agent can invoke it within 5s",
+          "Modify engine description → agent's explanation updated",
+          "Delete engine → agent no longer offers it",
+          "Build completes → agent has latest capabilities"
+        ],
+        "omega_floor": 0.95,
+        "svi_delta": "+5%"
+      }
+    },
+    {
+      "id": "AGENT-MS7",
+      "title": "Advisor Strategy Integration — Multi-Agent Build Quality",
+      "description": "Wire Anthropic's advisor tool into all safety-critical commands. Enable Sonnet executor with Opus advisor for physics validation, G-code generation, and process planning.",
+      "sessions": 2,
+      "units": [
+        {
+          "id": "U-AGT28",
+          "title": "AdvisorConfigEngine — Command-Level Advisor Routing",
+          "description": "Maps each command/action to its advisor configuration: which model, max_uses, when to invoke. Uses advisor-strategy.md as source of truth.",
+          "smart_config": {
+            "role": "AI Platform Architect",
+            "model": "opus",
+            "effort": "MAX",
+            "context_budget": "40%"
+          },
+          "knowledge_to_consult": [
+            ".claude/commands/advisor-strategy.md",
+            "LLMEngine advisor implementation",
+            "Dispatcher action categories"
+          ],
+          "exit_criteria": [
+            "All safety-critical commands mapped to advisor config",
+            "max_uses per command category defined",
+            "Config lookup <10ms",
+            "Fallback behavior for unknown commands"
+          ],
+          "files_created": [
+            "src/engines/AdvisorConfigEngine.ts"
+          ],
+          "files_modified": [],
+          "abort_criteria": [
+            "Config mapping incomplete for >10% of commands",
+            "Circular dependency with dispatchers"
+          ],
+          "rollback_procedure": "git checkout src/engines/AdvisorConfigEngine.ts",
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "depends_on": [
+            "U-AGT27"
+          ]
+        },
+        {
+          "id": "U-AGT29",
+          "title": "AdvisorIntegrationHook — Auto-Enable for Safety Commands",
+          "description": "Pre-execution hook that detects safety-critical commands and auto-enables advisor. Transparent to callers.",
+          "smart_config": {
+            "role": "Hook Integration Specialist",
+            "model": "opus",
+            "effort": "HIGH",
+            "context_budget": "35%"
+          },
+          "knowledge_to_consult": [
+            "AdvisorConfigEngine (U-AGT28)",
+            "Existing hook patterns in src/hooks/",
+            "Dispatcher execution flow"
+          ],
+          "exit_criteria": [
+            "program-optimize auto-uses advisor",
+            "wedm-program auto-uses advisor",
+            "Safety commands get Opus review before execution",
+            "Non-safety commands skip advisor (cost saving)"
+          ],
+          "files_created": [
+            "src/hooks/advisorIntegrationHook.ts"
+          ],
+          "files_modified": [],
+          "abort_criteria": [
+            "Hook adds >50ms latency to non-advisor commands",
+            "Advisor bypassed for safety-critical paths"
+          ],
+          "rollback_procedure": "git checkout src/hooks/advisorIntegrationHook.ts",
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "depends_on": [
+            "U-AGT28"
+          ]
+        },
+        {
+          "id": "U-AGT30",
+          "title": "MultiRoleBuildEngine — Internal Advisor Roles for Every Engine",
+          "description": "Embeds Pattern C (ARCHITECT/PHYSICIST/REVIEWER roles) into engine build prompts. Every new engine gets multi-perspective review.",
+          "smart_config": {
+            "role": "AI Build Quality Specialist",
+            "model": "opus",
+            "effort": "MAX",
+            "context_budget": "45%"
+          },
+          "knowledge_to_consult": [
+            "LLMEngine MANUFACTURING_ADVISOR_ROLES",
+            "forge-engine skill patterns",
+            "Existing code generation prompts"
+          ],
+          "exit_criteria": [
+            "All engine generation uses multi-role prompt",
+            "ARCHITECT validates interface design",
+            "PHYSICIST validates constants.ts usage",
+            "REVIEWER validates test coverage and edge cases",
+            "Roles add <1.5K tokens overhead"
+          ],
+          "files_created": [
+            "src/engines/MultiRoleBuildEngine.ts"
+          ],
+          "files_modified": [],
+          "abort_criteria": [
+            "Multi-role adds >3K tokens",
+            "Role conflicts not synthesized"
+          ],
+          "rollback_procedure": "git checkout src/engines/MultiRoleBuildEngine.ts",
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "depends_on": [
+            "U-AGT28"
+          ]
+        },
+        {
+          "id": "U-AGT31",
+          "title": "AdvisorMetricsEngine — Track Advisor Effectiveness",
+          "description": "Track advisor call frequency, acceptance rate, cost impact. Log recommendations and whether they prevented issues.",
+          "smart_config": {
+            "role": "Platform Observability Specialist",
+            "model": "sonnet",
+            "effort": "HIGH",
+            "context_budget": "30%"
+          },
+          "knowledge_to_consult": [
+            ".claude/helpers/advisor-session-log.mjs",
+            "AgentMetricsEngine (U-AGT20)",
+            "TelemetryEngine patterns"
+          ],
+          "exit_criteria": [
+            "Advisor calls logged with command, model, tokens",
+            "Acceptance rate tracked per command category",
+            "Cost impact calculated (advisor cost vs prevented errors)",
+            "Dashboard-ready metrics export"
+          ],
+          "files_created": [
+            "src/engines/AdvisorMetricsEngine.ts"
+          ],
+          "files_modified": [],
+          "abort_criteria": [
+            "Metrics collection fails",
+            "Missing critical metric categories"
+          ],
+          "rollback_procedure": "git checkout src/engines/AdvisorMetricsEngine.ts",
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "depends_on": [
+            "U-AGT29",
+            "U-AGT30"
+          ]
+        }
+      ],
+      "forge_triple": {
+        "hook": "advisor-auto-enable",
+        "action": "prism_agent:advisor_config",
+        "skill": "/advisor-status"
+      },
+      "exit_gate": {
+        "criteria": [
+          "Safety-critical commands auto-use Opus advisor",
+          "Engine builds get multi-role review",
+          "Advisor metrics show effectiveness"
+        ],
+        "omega_floor": 0.9,
+        "svi_delta": "+4%"
+      }
+    },
+    {
+      "id": "AGENT-MS8",
+      "title": "Safety Gate & Manufacturing Hardening",
+      "description": "Add explicit safety gates before tool execution. Ensure no recommendation exceeds machine limits or causes unsafe conditions. Address manufacturing domain review findings.",
+      "sessions": 2,
+      "units": [
+        {
+          "id": "U-AGT32",
+          "title": "SafetyGateEngine — Pre-Execution Validation",
+          "description": "Validates all recommendations against machine envelopes, tool limits, and material constraints before execution. Hard block on safety violations.",
+          "smart_config": {
+            "role": "Manufacturing Safety Specialist",
+            "model": "opus",
+            "effort": "MAX",
+            "context_budget": "50%"
+          },
+          "knowledge_to_consult": [
+            "SafetyEngine for S(x) scoring",
+            "MachineRegistry for machine envelopes",
+            "ToolCatalogEngine for tool limits",
+            "MaterialRegistry for material constraints"
+          ],
+          "exit_criteria": [
+            "All speed/feed recommendations validated against machine limits",
+            "Tool engagement validated against tool specs",
+            "Material removal rate validated against spindle power",
+            "S(x) < 0.70 causes hard block with explanation",
+            "Safety warnings surface in agent response"
+          ],
+          "files_created": [
+            "src/engines/SafetyGateEngine.ts"
+          ],
+          "files_modified": [],
+          "abort_criteria": [
+            "Safety gate bypassed for any recommendation",
+            "False positives >5% on valid recommendations"
+          ],
+          "rollback_procedure": "git checkout src/engines/SafetyGateEngine.ts",
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "depends_on": [
+            "U-AGT31"
+          ]
+        },
+        {
+          "id": "U-AGT33",
+          "title": "MachinePersonalityEngine — Per-Machine Calibration",
+          "description": "Tracks machine-specific quirks and calibrations. Each machine has learned offsets, thermal drift patterns, and known issues.",
+          "smart_config": {
+            "role": "Manufacturing Systems Specialist",
+            "model": "opus",
+            "effort": "HIGH",
+            "context_budget": "40%"
+          },
+          "knowledge_to_consult": [
+            "ShopConfigurationEngine for machine inventory",
+            "LearningLoopEngine (U-AGT06) for calibration patterns",
+            "Tribal knowledge about machine quirks"
+          ],
+          "exit_criteria": [
+            "Per-machine calibration offsets stored",
+            "Agent applies machine-specific corrections",
+            "'This Okuma runs hot, backing off 5%' type recommendations",
+            "Calibration data persists across sessions"
+          ],
+          "files_created": [
+            "src/engines/MachinePersonalityEngine.ts"
+          ],
+          "files_modified": [],
+          "abort_criteria": [
+            "Machine data not persisted",
+            "Corrections applied to wrong machine"
+          ],
+          "rollback_procedure": "git checkout src/engines/MachinePersonalityEngine.ts",
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "depends_on": [
+            "U-AGT32"
+          ]
+        },
+        {
+          "id": "U-AGT34",
+          "title": "TribalKnowledgeElicitationEngine — Active Expertise Capture",
+          "description": "Actively prompts for tribal knowledge during workflows. 'What would [senior machinist] do differently here?' Captures shop floor expertise.",
+          "smart_config": {
+            "role": "Knowledge Management Specialist",
+            "model": "opus",
+            "effort": "HIGH",
+            "context_budget": "35%"
+          },
+          "knowledge_to_consult": [
+            "TribalKnowledgeEngine for existing tips",
+            "TribalKnowledgeAdvisorEngine patterns",
+            "Conversational flow design"
+          ],
+          "exit_criteria": [
+            "Agent prompts for tribal knowledge at decision points",
+            "Captured knowledge persisted to tribal DB",
+            "Knowledge attributed to source operator",
+            "Confidence scoring based on source authority"
+          ],
+          "files_created": [
+            "src/engines/TribalKnowledgeElicitationEngine.ts"
+          ],
+          "files_modified": [],
+          "abort_criteria": [
+            "Elicitation interrupts workflow too frequently",
+            "Knowledge not persisted"
+          ],
+          "rollback_procedure": "git checkout src/engines/TribalKnowledgeElicitationEngine.ts",
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "depends_on": [
+            "U-AGT32"
+          ]
+        }
+      ],
+      "forge_triple": {
+        "hook": "safety-gate-pre-execute",
+        "action": "prism_agent:safety_validate",
+        "skill": "/safety-check"
+      },
+      "exit_gate": {
+        "criteria": [
+          "No recommendation exceeds machine limits",
+          "Machine-specific calibrations applied",
+          "Tribal knowledge actively captured"
+        ],
+        "omega_floor": 0.95,
+        "svi_delta": "+5%"
+      }
+    },
+    {
+      "id": "AGENT-MS9",
+      "title": "Architecture Refinements — Fault Tolerance & Efficiency",
+      "description": "Address architecture review findings: unified memory facade, circuit breaker for resilience, pre-computed constraint graphs for performance.",
+      "sessions": 2,
+      "units": [
+        {
+          "id": "U-AGT35",
+          "title": "MemoryOrchestratorEngine — Unified Memory Facade",
+          "description": "Single facade over AgentMemoryFabricEngine, ContextRetentionEngine, LearningLoopEngine. Reduces coupling, simplifies memory access.",
+          "smart_config": {
+            "role": "Systems Architect",
+            "model": "opus",
+            "effort": "HIGH",
+            "context_budget": "40%"
+          },
+          "knowledge_to_consult": [
+            "AgentMemoryFabricEngine (U-AGT04)",
+            "ContextRetentionEngine (U-AGT05)",
+            "LearningLoopEngine (U-AGT06)",
+            "Facade pattern best practices"
+          ],
+          "exit_criteria": [
+            "Single API for all memory operations",
+            "Underlying engines abstracted",
+            "Memory type routing transparent to callers",
+            "No direct engine imports in agent code"
+          ],
+          "files_created": [
+            "src/engines/MemoryOrchestratorEngine.ts"
+          ],
+          "files_modified": [],
+          "abort_criteria": [
+            "Facade adds >5ms latency",
+            "Memory operations fail silently"
+          ],
+          "rollback_procedure": "git checkout src/engines/MemoryOrchestratorEngine.ts",
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "depends_on": [
+            "U-AGT34"
+          ]
+        },
+        {
+          "id": "U-AGT36",
+          "title": "CircuitBreakerEngine — Resilient LLM/Tool Calls",
+          "description": "Wraps LLM and tool calls with circuit breaker. Opens after N failures, half-open retry, closed on success. Prevents cascade failures.",
+          "smart_config": {
+            "role": "Platform Reliability Engineer",
+            "model": "opus",
+            "effort": "HIGH",
+            "context_budget": "35%"
+          },
+          "knowledge_to_consult": [
+            "Circuit breaker pattern (Hystrix/Resilience4j)",
+            "LLMEngine error handling",
+            "ToolExecutionEngine (U-AGT12) retry logic"
+          ],
+          "exit_criteria": [
+            "Circuit opens after 3 consecutive failures",
+            "Half-open state allows single retry",
+            "Graceful degradation when open",
+            "Metrics: open/closed/half-open state transitions"
+          ],
+          "files_created": [
+            "src/engines/CircuitBreakerEngine.ts"
+          ],
+          "files_modified": [],
+          "abort_criteria": [
+            "Circuit breaker adds >10ms latency",
+            "False opens on transient failures"
+          ],
+          "rollback_procedure": "git checkout src/engines/CircuitBreakerEngine.ts",
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "depends_on": [
+            "U-AGT35"
+          ]
+        },
+        {
+          "id": "U-AGT37",
+          "title": "ConstraintGraphEngine — Pre-Computed Manufacturing Constraints",
+          "description": "Pre-computes material/machine constraint matrices for sub-second path pruning. Caches constraint checks to accelerate multi-path reasoning.",
+          "smart_config": {
+            "role": "Performance Optimization Specialist",
+            "model": "opus",
+            "effort": "MAX",
+            "context_budget": "45%"
+          },
+          "knowledge_to_consult": [
+            "MultiPathReasoningEngine (U-AGT08)",
+            "MaterialRegistry constraints",
+            "MachineRegistry envelopes",
+            "Graph algorithms for constraint satisfaction"
+          ],
+          "exit_criteria": [
+            "Constraint matrix built on startup (<5s)",
+            "Single constraint check <1ms",
+            "Path pruning uses cached constraints",
+            "3-path exploration in <3s (down from 5s)"
+          ],
+          "files_created": [
+            "src/engines/ConstraintGraphEngine.ts"
+          ],
+          "files_modified": [],
+          "abort_criteria": [
+            "Constraint graph >100MB memory",
+            "Build time >30s"
+          ],
+          "rollback_procedure": "git checkout src/engines/ConstraintGraphEngine.ts",
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "depends_on": [
+            "U-AGT35"
+          ]
+        },
+        {
+          "id": "U-AGT38",
+          "title": "ReasoningCalibrationEngine — Learning Weight Adjustment",
+          "description": "Stores (query, recommendation, outcome) tuples. Runs periodic recalibration to adjust confidence weights per reasoning pattern.",
+          "smart_config": {
+            "role": "ML/AI Systems Specialist",
+            "model": "opus",
+            "effort": "HIGH",
+            "context_budget": "40%"
+          },
+          "knowledge_to_consult": [
+            "LearningLoopEngine (U-AGT06)",
+            "ManufacturingReasoningEngine (U-AGT07)",
+            "Calibration algorithms (Bayesian updating)"
+          ],
+          "exit_criteria": [
+            "Outcome tracking for all recommendations",
+            "Weekly recalibration job",
+            "Confidence weights adjust based on outcomes",
+            "Calibration history persisted for audit"
+          ],
+          "files_created": [
+            "src/engines/ReasoningCalibrationEngine.ts"
+          ],
+          "files_modified": [],
+          "abort_criteria": [
+            "Calibration diverges (>50% weight swing)",
+            "Outcome data not captured"
+          ],
+          "rollback_procedure": "git checkout src/engines/ReasoningCalibrationEngine.ts",
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "depends_on": [
+            "U-AGT36"
+          ]
+        }
+      ],
+      "forge_triple": {
+        "hook": "reasoning-calibration-weekly",
+        "action": "prism_agent:calibrate",
+        "skill": "/agent-calibrate"
+      },
+      "exit_gate": {
+        "criteria": [
+          "Memory access through unified facade",
+          "Circuit breaker prevents cascade failures",
+          "3-path reasoning in <3s",
+          "Calibration improves recommendation accuracy"
+        ],
+        "omega_floor": 0.9,
+        "svi_delta": "+4%"
+      }
+    },
+    {
+      "id": "AGENT-MS10",
+      "title": "Multi-Tenant Architecture — User/Shop Isolation",
+      "description": "Add multi-user and multi-shop support. Isolate memory, learning, and calibration per tenant. Enable federated learning across shops.",
+      "sessions": 3,
+      "units": [
+        {
+          "id": "U-AGT39",
+          "title": "TenantContextEngine — User/Shop Identity Layer",
+          "description": "Extracts and propagates tenant context (userId, shopId, sessionId) through all agent operations. Foundation for multi-tenancy.",
+          "smart_config": {
+            "role": "Platform Architect",
+            "model": "opus",
+            "effort": "MAX",
+            "context_budget": "45%"
+          },
+          "knowledge_to_consult": [
+            "tenantDispatcher for existing tenant patterns",
+            "authDispatcher for user identity",
+            "SessionDispatcher for session context"
+          ],
+          "exit_criteria": [
+            "TenantContext type with userId, shopId, sessionId",
+            "Context propagates through all engine calls",
+            "No cross-tenant data leakage",
+            "Tenant-scoped logging for audit"
+          ],
+          "files_created": [
+            "src/engines/TenantContextEngine.ts"
+          ],
+          "files_modified": [],
+          "abort_criteria": [
+            "Context not propagated to >5% of engine calls"
+          ],
+          "rollback_procedure": "git checkout src/engines/TenantContextEngine.ts",
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "depends_on": [
+            "U-AGT38"
+          ]
+        },
+        {
+          "id": "U-AGT40",
+          "title": "PartitionedMemoryEngine — Tenant-Isolated Storage",
+          "description": "Partitions all memory storage by tenant. Each shop/user has isolated learning, preferences, and calibration data.",
+          "smart_config": {
+            "role": "Data Architect",
+            "model": "opus",
+            "effort": "MAX",
+            "context_budget": "45%"
+          },
+          "knowledge_to_consult": [
+            "AgentMemoryFabricEngine (U-AGT04)",
+            "MemoryOrchestratorEngine (U-AGT35)",
+            "Multi-tenant database patterns"
+          ],
+          "exit_criteria": [
+            "Memory keyed by shopId/userId",
+            "Cross-tenant queries impossible",
+            "Tiered storage: hot (context) / warm (recent) / cold (archive)",
+            "Tenant data exportable for GDPR compliance"
+          ],
+          "files_created": [
+            "src/engines/PartitionedMemoryEngine.ts"
+          ],
+          "files_modified": [
+            "src/engines/MemoryOrchestratorEngine.ts"
+          ],
+          "abort_criteria": [
+            "Cross-tenant data visible in any query"
+          ],
+          "rollback_procedure": "git checkout src/engines/PartitionedMemoryEngine.ts",
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "depends_on": [
+            "U-AGT39"
+          ]
+        },
+        {
+          "id": "U-AGT41",
+          "title": "FederatedLearningEngine — Cross-Shop Knowledge Sharing",
+          "description": "Enables anonymized learning transfer between shops. Aggregates calibration corrections without exposing shop-specific data.",
+          "smart_config": {
+            "role": "ML Systems Architect",
+            "model": "opus",
+            "effort": "MAX",
+            "context_budget": "50%"
+          },
+          "knowledge_to_consult": [
+            "Federated learning patterns",
+            "LearningLoopEngine (U-AGT06)",
+            "ReasoningCalibrationEngine (U-AGT38)",
+            "Differential privacy techniques"
+          ],
+          "exit_criteria": [
+            "Shop A learnings improve Shop B without data exposure",
+            "Differential privacy applied to shared corrections",
+            "Opt-in federation per shop",
+            "Federation audit trail"
+          ],
+          "files_created": [
+            "src/engines/FederatedLearningEngine.ts"
+          ],
+          "files_modified": [],
+          "abort_criteria": [
+            "Shop-specific data leaked in federation"
+          ],
+          "rollback_procedure": "git checkout src/engines/FederatedLearningEngine.ts",
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "depends_on": [
+            "U-AGT40"
+          ]
+        },
+        {
+          "id": "U-AGT42",
+          "title": "ScalableCapabilityIndexEngine — Lazy-Load & Pagination",
+          "description": "Scales capability index for 3000+ engines. Implements lazy loading, pagination, and inverted index for O(1) lookups.",
+          "smart_config": {
+            "role": "Performance Engineer",
+            "model": "opus",
+            "effort": "HIGH",
+            "context_budget": "40%"
+          },
+          "knowledge_to_consult": [
+            "CapabilityIndexEngine (U-AGT01)",
+            "Inverted index algorithms",
+            "Trie data structures for prefix search"
+          ],
+          "exit_criteria": [
+            "Capability search O(1) via inverted index",
+            "Lazy-load engine details on demand",
+            "Pagination for large result sets",
+            "Scales to 5000 engines without degradation"
+          ],
+          "files_created": [],
+          "files_modified": [
+            "src/engines/CapabilityIndexEngine.ts"
+          ],
+          "abort_criteria": [
+            "Search latency >100ms at 5000 engines"
+          ],
+          "rollback_procedure": "git stash",
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "depends_on": [
+            "U-AGT39"
+          ]
+        }
+      ],
+      "forge_triple": {
+        "hook": "tenant-isolation-verify",
+        "action": "prism_agent:tenant_context",
+        "skill": "/tenant-status"
+      },
+      "exit_gate": {
+        "criteria": [
+          "Multiple users operate without data collision",
+          "Shop A cannot see Shop B data",
+          "Federated learning improves global accuracy"
+        ],
+        "omega_floor": 0.9,
+        "svi_delta": "+5%"
+      }
+    },
+    {
+      "id": "AGENT-MS11",
+      "title": "Security Hardening — Encryption & Secret Management",
+      "description": "Encrypt memory at rest, redact secrets from logs/errors, add LLM provider fallback to eliminate single point of failure.",
+      "sessions": 2,
+      "units": [
+        {
+          "id": "U-AGT43",
+          "title": "EncryptedMemoryEngine — At-Rest Encryption",
+          "description": "Encrypts all persistent memory (learning, calibration, preferences) at rest. Uses AES-256-GCM with key management.",
+          "smart_config": {
+            "role": "Security Engineer",
+            "model": "opus",
+            "effort": "MAX",
+            "context_budget": "45%"
+          },
+          "knowledge_to_consult": [
+            "Node.js crypto module",
+            "PersistentMemoryEngine storage patterns",
+            "Key management best practices"
+          ],
+          "exit_criteria": [
+            "All memory files encrypted at rest",
+            "Encryption key rotatable",
+            "Decryption transparent to callers",
+            "No plaintext secrets in memory files"
+          ],
+          "files_created": [
+            "src/engines/EncryptedMemoryEngine.ts"
+          ],
+          "files_modified": [],
+          "abort_criteria": [
+            "Encryption adds >50ms per operation"
+          ],
+          "rollback_procedure": "git checkout src/engines/EncryptedMemoryEngine.ts",
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "depends_on": [
+            "U-AGT42"
+          ]
+        },
+        {
+          "id": "U-AGT44",
+          "title": "SecretRedactionEngine — Error & Log Sanitization",
+          "description": "Redacts API keys, tokens, and sensitive data from all error messages, logs, and circuit breaker state.",
+          "smart_config": {
+            "role": "Security Engineer",
+            "model": "opus",
+            "effort": "HIGH",
+            "context_budget": "35%"
+          },
+          "knowledge_to_consult": [
+            "LLMEngine error handling",
+            "Logger.ts patterns",
+            "OWASP secret management guidelines"
+          ],
+          "exit_criteria": [
+            "API keys never appear in logs or errors",
+            "Partial key masking (show last 4 chars only)",
+            "Circuit breaker state sanitized",
+            "Audit: grep confirms no secrets in output"
+          ],
+          "files_created": [
+            "src/engines/SecretRedactionEngine.ts"
+          ],
+          "files_modified": [
+            "src/engines/LLMEngine.ts",
+            "src/utils/Logger.ts"
+          ],
+          "abort_criteria": [
+            "Any secret found in log output"
+          ],
+          "rollback_procedure": "git stash",
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "depends_on": [
+            "U-AGT43"
+          ]
+        },
+        {
+          "id": "U-AGT45",
+          "title": "LLMProviderAdapterEngine — Multi-Provider Fallback",
+          "description": "Adds provider abstraction for LLM calls. Supports Anthropic, OpenAI, local models as fallbacks. Eliminates single point of failure.",
+          "smart_config": {
+            "role": "Platform Architect",
+            "model": "opus",
+            "effort": "MAX",
+            "context_budget": "50%"
+          },
+          "knowledge_to_consult": [
+            "LLMEngine API integration",
+            "OpenAI API compatibility",
+            "Ollama/local model patterns",
+            "Provider adapter patterns"
+          ],
+          "exit_criteria": [
+            "Provider interface abstracts Claude/OpenAI/Local",
+            "Automatic failover on provider errors",
+            "Cost-based routing (cheap provider for simple queries)",
+            "Provider health monitoring"
+          ],
+          "files_created": [
+            "src/engines/LLMProviderAdapterEngine.ts"
+          ],
+          "files_modified": [
+            "src/engines/LLMEngine.ts"
+          ],
+          "abort_criteria": [
+            "Failover takes >5s"
+          ],
+          "rollback_procedure": "git stash",
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "depends_on": [
+            "U-AGT44"
+          ]
+        }
+      ],
+      "forge_triple": {
+        "hook": "secret-audit-pre-commit",
+        "action": "prism_agent:security_status",
+        "skill": "/security-audit"
+      },
+      "exit_gate": {
+        "criteria": [
+          "No secrets in any log or error output",
+          "Memory encrypted at rest",
+          "LLM works even if Anthropic is down"
+        ],
+        "omega_floor": 0.95,
+        "svi_delta": "+4%"
+      }
+    },
+    {
+      "id": "AGENT-MS12",
+      "title": "Shop Floor Integration — Voice, Vision, MTConnect",
+      "description": "Connect agent to physical shop floor. Voice interface for hands-free operation, camera for setup verification, MTConnect for real-time machine data.",
+      "sessions": 4,
+      "units": [
+        {
+          "id": "U-AGT46",
+          "title": "VoiceInterfaceEngine — Hands-Free Agent Interaction",
+          "description": "Enables voice input/output for agent. Machinist can ask questions while hands are occupied. Uses Whisper for STT, TTS for responses.",
+          "smart_config": {
+            "role": "Voice Systems Engineer",
+            "model": "opus",
+            "effort": "MAX",
+            "context_budget": "45%"
+          },
+          "knowledge_to_consult": [
+            "OpenAI Whisper API",
+            "Web Speech API",
+            "Shop floor noise considerations",
+            "Manufacturing terminology recognition"
+          ],
+          "exit_criteria": [
+            "'What speed for D2 at 45 Rockwell?' recognized accurately",
+            "Response spoken aloud with safety warnings emphasized",
+            "Works with shop floor background noise",
+            "Push-to-talk and continuous listen modes"
+          ],
+          "files_created": [
+            "src/engines/VoiceInterfaceEngine.ts"
+          ],
+          "files_modified": [],
+          "abort_criteria": [
+            "Recognition accuracy <80% for manufacturing terms"
+          ],
+          "rollback_procedure": "git checkout src/engines/VoiceInterfaceEngine.ts",
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "depends_on": [
+            "U-AGT45"
+          ]
+        },
+        {
+          "id": "U-AGT47",
+          "title": "SetupVisionEngine — Camera-Based Setup Verification",
+          "description": "Uses computer vision to verify machine setup before cycle start. Checks fixture position, tool holder, part orientation.",
+          "smart_config": {
+            "role": "Computer Vision Engineer",
+            "model": "opus",
+            "effort": "MAX",
+            "context_budget": "50%"
+          },
+          "knowledge_to_consult": [
+            "Claude Vision API",
+            "Setup sheet templates",
+            "Fixture recognition patterns",
+            "Safety checklist verification"
+          ],
+          "exit_criteria": [
+            "Camera feed analyzed for setup verification",
+            "Detects: fixture type, tool in spindle, part orientation",
+            "Flags: wrong tool, missing clamps, unsafe setup",
+            "'Take a picture of your setup' workflow"
+          ],
+          "files_created": [
+            "src/engines/SetupVisionEngine.ts"
+          ],
+          "files_modified": [],
+          "abort_criteria": [
+            "False positive rate >10%"
+          ],
+          "rollback_procedure": "git checkout src/engines/SetupVisionEngine.ts",
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "depends_on": [
+            "U-AGT46"
+          ]
+        },
+        {
+          "id": "U-AGT48",
+          "title": "MTConnectBridgeEngine — Real-Time Machine Data",
+          "description": "Integrates with MTConnect/OPC-UA for real-time machine state. Agent sees spindle load, axis position, alarms, cycle status.",
+          "smart_config": {
+            "role": "Industrial IoT Engineer",
+            "model": "opus",
+            "effort": "MAX",
+            "context_budget": "50%"
+          },
+          "knowledge_to_consult": [
+            "MTConnect protocol",
+            "OPC-UA adapter patterns",
+            "machineLiveDispatcher for existing patterns",
+            "Real-time data streaming"
+          ],
+          "exit_criteria": [
+            "Live spindle load visible to agent",
+            "Axis positions tracked in real-time",
+            "Alarm conditions trigger agent alerts",
+            "Cycle time automatically captured"
+          ],
+          "files_created": [
+            "src/engines/MTConnectBridgeEngine.ts"
+          ],
+          "files_modified": [],
+          "abort_criteria": [
+            "Data latency >500ms"
+          ],
+          "rollback_procedure": "git checkout src/engines/MTConnectBridgeEngine.ts",
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "depends_on": [
+            "U-AGT46"
+          ]
+        },
+        {
+          "id": "U-AGT49",
+          "title": "PredictiveMaintenanceEngine — Machine Health Prediction",
+          "description": "Correlates machine data with historical patterns to predict maintenance needs. Detects spindle degradation, axis backlash, thermal drift.",
+          "smart_config": {
+            "role": "Predictive Analytics Engineer",
+            "model": "opus",
+            "effort": "MAX",
+            "context_budget": "45%"
+          },
+          "knowledge_to_consult": [
+            "MTConnectBridgeEngine (U-AGT48)",
+            "MachinePersonalityEngine (U-AGT33)",
+            "Time-series anomaly detection",
+            "Predictive maintenance patterns"
+          ],
+          "exit_criteria": [
+            "Spindle bearing wear predicted 2 weeks ahead",
+            "Axis backlash trends detected",
+            "Thermal drift patterns learned",
+            "Maintenance recommendations with confidence"
+          ],
+          "files_created": [
+            "src/engines/PredictiveMaintenanceEngine.ts"
+          ],
+          "files_modified": [],
+          "abort_criteria": [
+            "Prediction accuracy <70%"
+          ],
+          "rollback_procedure": "git checkout src/engines/PredictiveMaintenanceEngine.ts",
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "depends_on": [
+            "U-AGT48"
+          ]
+        },
+        {
+          "id": "U-AGT50",
+          "title": "ShopFloorDashboardEngine — Unified Physical/Digital View",
+          "description": "Combines voice, vision, and machine data into unified shop floor awareness. Agent knows what's happening across all machines.",
+          "smart_config": {
+            "role": "Systems Integration Engineer",
+            "model": "opus",
+            "effort": "HIGH",
+            "context_budget": "40%"
+          },
+          "knowledge_to_consult": [
+            "VoiceInterfaceEngine (U-AGT46)",
+            "SetupVisionEngine (U-AGT47)",
+            "MTConnectBridgeEngine (U-AGT48)",
+            "PredictiveMaintenanceEngine (U-AGT49)"
+          ],
+          "exit_criteria": [
+            "Single view of all machines' status",
+            "Voice commands route to correct machine context",
+            "Setup verification images linked to jobs",
+            "Maintenance predictions surfaced proactively"
+          ],
+          "files_created": [
+            "src/engines/ShopFloorDashboardEngine.ts"
+          ],
+          "files_modified": [],
+          "abort_criteria": [
+            "Integration incomplete for >1 data source"
+          ],
+          "rollback_procedure": "git checkout src/engines/ShopFloorDashboardEngine.ts",
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "depends_on": [
+            "U-AGT47",
+            "U-AGT48",
+            "U-AGT49"
+          ]
+        }
+      ],
+      "forge_triple": {
+        "hook": "shop-floor-data-sync",
+        "action": "prism_agent:shop_floor_status",
+        "skill": "/shop-floor"
+      },
+      "exit_gate": {
+        "criteria": [
+          "Voice commands work at machine",
+          "Setup photos verified by vision",
+          "Real-time machine data flows to agent",
+          "Maintenance predicted before failure"
+        ],
+        "omega_floor": 0.9,
+        "svi_delta": "+6%"
+      }
+    },
+    {
+      "id": "AGENT-MS13",
+      "title": "Deep Learning & Neural Architecture",
+      "description": "Add neural network capabilities for pattern recognition, embedding-based search, and learned manufacturing models.",
+      "sessions": 3,
+      "units": [
+        {
+          "id": "U-AGT51",
+          "title": "EmbeddingEngine — Semantic Vector Search",
+          "description": "Generates embeddings for engines, actions, tribal knowledge. Enables semantic similarity search beyond keyword matching.",
+          "smart_config": {
+            "role": "ML Engineer",
+            "model": "opus",
+            "effort": "MAX",
+            "context_budget": "50%"
+          },
+          "knowledge_to_consult": [
+            "Claude embeddings API / text-embedding models",
+            "Vector similarity algorithms (cosine, dot product)",
+            "HNSW index for fast nearest neighbor",
+            "EmbeddingPipelineEngine for existing patterns"
+          ],
+          "exit_criteria": [
+            "All 1559 engines have embeddings",
+            "Semantic search: 'cutting too fast' finds ChatterStabilityEngine",
+            "Embedding refresh on engine change",
+            "Search latency <50ms for 10K vectors"
+          ],
+          "files_created": [
+            "src/engines/SemanticEmbeddingEngine.ts"
+          ],
+          "files_modified": [],
+          "abort_criteria": [
+            "Embedding generation >1s per engine"
+          ],
+          "rollback_procedure": "git checkout src/engines/SemanticEmbeddingEngine.ts",
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "depends_on": [
+            "U-AGT50"
+          ]
+        },
+        {
+          "id": "U-AGT52",
+          "title": "PatternMiningEngine — Manufacturing Pattern Discovery",
+          "description": "Discovers patterns in job history, cycle times, quality outcomes. Finds 'when X material + Y tool, always use Z strategy'.",
+          "smart_config": {
+            "role": "Data Scientist",
+            "model": "opus",
+            "effort": "MAX",
+            "context_budget": "50%"
+          },
+          "knowledge_to_consult": [
+            "MillPatternMinerEngine for existing patterns",
+            "Association rule mining (Apriori, FP-Growth)",
+            "Job history data structures",
+            "Quality outcome correlations"
+          ],
+          "exit_criteria": [
+            "Discovers material/tool/strategy associations",
+            "Pattern confidence scoring",
+            "Surfaced patterns feed reasoning engine",
+            "Patterns validated against physics"
+          ],
+          "files_created": [
+            "src/engines/ManufacturingPatternMinerEngine.ts"
+          ],
+          "files_modified": [],
+          "abort_criteria": [
+            "Pattern discovery >1 hour for 10K jobs"
+          ],
+          "rollback_procedure": "git checkout src/engines/ManufacturingPatternMinerEngine.ts",
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "depends_on": [
+            "U-AGT51"
+          ]
+        },
+        {
+          "id": "U-AGT53",
+          "title": "NeuralCuttingModelEngine — Learned Physics Prediction",
+          "description": "Neural network trained on cutting data to predict force, temperature, surface finish. Complements physics models with learned corrections.",
+          "smart_config": {
+            "role": "ML Research Engineer",
+            "model": "opus",
+            "effort": "MAX",
+            "context_budget": "55%"
+          },
+          "knowledge_to_consult": [
+            "PhysicsPredictionEngine for physics baselines",
+            "AIMLEngine for existing ML patterns",
+            "Kienzle/Taylor as ground truth",
+            "TensorFlow.js / ONNX runtime"
+          ],
+          "exit_criteria": [
+            "Neural model predicts cutting force within 5% of Kienzle",
+            "Learns shop-specific corrections from outcomes",
+            "Combines with physics for hybrid prediction",
+            "Model size <10MB for edge deployment"
+          ],
+          "files_created": [
+            "src/engines/NeuralCuttingModelEngine.ts"
+          ],
+          "files_modified": [],
+          "abort_criteria": [
+            "Neural prediction worse than physics baseline"
+          ],
+          "rollback_procedure": "git checkout src/engines/NeuralCuttingModelEngine.ts",
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "depends_on": [
+            "U-AGT52"
+          ]
+        },
+        {
+          "id": "U-AGT54",
+          "title": "ReinforcementLearningEngine — Adaptive Parameter Optimization",
+          "description": "RL agent that learns optimal speed/feed through trial feedback. Balances exploration (try new params) vs exploitation (use known good).",
+          "smart_config": {
+            "role": "RL Research Engineer",
+            "model": "opus",
+            "effort": "MAX",
+            "context_budget": "50%"
+          },
+          "knowledge_to_consult": [
+            "Multi-armed bandit algorithms",
+            "Thompson sampling for exploration",
+            "SpeedFeedOrchestratorEngine for parameter space",
+            "Safety constraints as RL boundaries"
+          ],
+          "exit_criteria": [
+            "RL agent explores parameter space safely",
+            "Learns optimal params faster than random search",
+            "Respects safety constraints as hard boundaries",
+            "Convergence to good params within 10 iterations"
+          ],
+          "files_created": [
+            "src/engines/ReinforcementLearningEngine.ts"
+          ],
+          "files_modified": [],
+          "abort_criteria": [
+            "RL violates safety constraints"
+          ],
+          "rollback_procedure": "git checkout src/engines/ReinforcementLearningEngine.ts",
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "depends_on": [
+            "U-AGT53"
+          ]
+        }
+      ],
+      "forge_triple": {
+        "hook": "neural-model-retrain-weekly",
+        "action": "prism_agent:neural_predict",
+        "skill": "/neural-predict"
+      },
+      "exit_gate": {
+        "criteria": [
+          "Semantic search finds relevant engines",
+          "Patterns discovered from job history",
+          "Neural model improves on physics alone",
+          "RL safely explores parameter space"
+        ],
+        "omega_floor": 0.9,
+        "svi_delta": "+5%"
+      }
+    },
+    {
+      "id": "AGENT-MS14",
+      "title": "Advanced Reasoning & Problem Decomposition",
+      "description": "Sophisticated reasoning capabilities: hierarchical problem decomposition, counterfactual analysis, causal inference, uncertainty quantification.",
+      "sessions": 3,
+      "units": [
+        {
+          "id": "U-AGT55",
+          "title": "HierarchicalDecompositionEngine — Complex Problem Breakdown",
+          "description": "Breaks complex manufacturing problems into sub-problems. 'Make this part' → material selection → machine selection → tooling → operations → programs.",
+          "smart_config": {
+            "role": "AI Problem Solving Specialist",
+            "model": "opus",
+            "effort": "MAX",
+            "context_budget": "55%"
+          },
+          "knowledge_to_consult": [
+            "Goal-Oriented Action Planning (GOAP)",
+            "Hierarchical Task Networks (HTN)",
+            "ProcessPlanEngine for process decomposition",
+            "QuoteToShipOrchestratorEngine for end-to-end"
+          ],
+          "exit_criteria": [
+            "'Quote this part' decomposes into 10+ sub-tasks",
+            "Sub-tasks have dependencies and ordering",
+            "Each sub-task maps to specific engines",
+            "Decomposition adapts to part complexity"
+          ],
+          "files_created": [
+            "src/engines/HierarchicalDecompositionEngine.ts"
+          ],
+          "files_modified": [],
+          "abort_criteria": [
+            "Decomposition misses critical sub-tasks"
+          ],
+          "rollback_procedure": "git checkout src/engines/HierarchicalDecompositionEngine.ts",
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "depends_on": [
+            "U-AGT54"
+          ]
+        },
+        {
+          "id": "U-AGT56",
+          "title": "CounterfactualReasoningEngine — What-If Analysis",
+          "description": "Answers 'what if' questions. 'What if I used carbide instead of HSS?' 'What if spindle speed was 20% higher?' Simulates alternatives.",
+          "smart_config": {
+            "role": "AI Reasoning Specialist",
+            "model": "opus",
+            "effort": "MAX",
+            "context_budget": "50%"
+          },
+          "knowledge_to_consult": [
+            "MultiPathReasoningEngine (U-AGT08)",
+            "Physics simulation engines",
+            "Counterfactual reasoning in AI",
+            "Sensitivity analysis techniques"
+          ],
+          "exit_criteria": [
+            "'What if carbide?' shows: cost diff, life diff, speed diff",
+            "Multiple what-if scenarios compared side-by-side",
+            "Physics constraints checked for each scenario",
+            "Confidence intervals on predictions"
+          ],
+          "files_created": [
+            "src/engines/CounterfactualReasoningEngine.ts"
+          ],
+          "files_modified": [],
+          "abort_criteria": [
+            "Counterfactuals violate physics constraints"
+          ],
+          "rollback_procedure": "git checkout src/engines/CounterfactualReasoningEngine.ts",
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "depends_on": [
+            "U-AGT55"
+          ]
+        },
+        {
+          "id": "U-AGT57",
+          "title": "CausalInferenceEngine — Root Cause Analysis",
+          "description": "Determines causation not just correlation. 'Why did this part fail?' traces causal chain from symptoms to root cause.",
+          "smart_config": {
+            "role": "AI Causal Reasoning Specialist",
+            "model": "opus",
+            "effort": "MAX",
+            "context_budget": "50%"
+          },
+          "knowledge_to_consult": [
+            "DiagnosticReasoningEngine for diagnosis patterns",
+            "Bayesian networks for causal modeling",
+            "Fault tree analysis",
+            "AlarmDiagnosticsEngine for alarm tracing"
+          ],
+          "exit_criteria": [
+            "'Part out of tolerance' → 'tool deflection' → 'excessive DOC'",
+            "Causal chains with probability estimates",
+            "Distinguishes correlation from causation",
+            "Suggests interventions to break causal chain"
+          ],
+          "files_created": [
+            "src/engines/CausalInferenceEngine.ts"
+          ],
+          "files_modified": [],
+          "abort_criteria": [
+            "Causal chains >90% correlation-based"
+          ],
+          "rollback_procedure": "git checkout src/engines/CausalInferenceEngine.ts",
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "depends_on": [
+            "U-AGT55"
+          ]
+        },
+        {
+          "id": "U-AGT58",
+          "title": "UncertaintyQuantificationEngine — Confidence Calibration",
+          "description": "Quantifies uncertainty in all predictions. 'Speed should be 450 RPM ± 25 RPM (95% confidence)'. Calibrates confidence to match actual accuracy.",
+          "smart_config": {
+            "role": "Statistical Inference Specialist",
+            "model": "opus",
+            "effort": "HIGH",
+            "context_budget": "45%"
+          },
+          "knowledge_to_consult": [
+            "Bayesian uncertainty quantification",
+            "Calibration curves",
+            "MetrologyUncertaintyEngine for existing patterns",
+            "Prediction interval estimation"
+          ],
+          "exit_criteria": [
+            "All predictions include uncertainty bounds",
+            "95% confidence intervals contain true value 95% of time",
+            "Uncertainty propagates through reasoning chains",
+            "High uncertainty triggers human review"
+          ],
+          "files_created": [
+            "src/engines/UncertaintyQuantificationEngine.ts"
+          ],
+          "files_modified": [],
+          "abort_criteria": [
+            "Confidence intervals miscalibrated >20%"
+          ],
+          "rollback_procedure": "git checkout src/engines/UncertaintyQuantificationEngine.ts",
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "depends_on": [
+            "U-AGT56",
+            "U-AGT57"
+          ]
+        }
+      ],
+      "forge_triple": {
+        "hook": "reasoning-quality-audit",
+        "action": "prism_agent:analyze_problem",
+        "skill": "/analyze"
+      },
+      "exit_gate": {
+        "criteria": [
+          "Complex problems decomposed into sub-tasks",
+          "What-if scenarios compared accurately",
+          "Root cause identified for failures",
+          "Uncertainty calibrated to actual accuracy"
+        ],
+        "omega_floor": 0.9,
+        "svi_delta": "+5%"
+      }
+    },
+    {
+      "id": "AGENT-MS15",
+      "title": "PRISM CLI Agent — Autonomous Manufacturing Operations",
+      "description": "Full CLI agent capabilities: autonomous task execution, multi-step workflows, self-correction, and human-in-the-loop escalation.",
+      "sessions": 3,
+      "units": [
+        {
+          "id": "U-AGT59",
+          "title": "AutonomousTaskEngine — Self-Directed Task Execution",
+          "description": "Agent executes multi-step tasks autonomously. 'Optimize all D2 programs' runs through each program, analyzes, and recommends improvements.",
+          "smart_config": {
+            "role": "AI Autonomy Specialist",
+            "model": "opus",
+            "effort": "MAX",
+            "context_budget": "55%"
+          },
+          "knowledge_to_consult": [
+            "AgenticLoopEngine (U-AGT13)",
+            "HierarchicalDecompositionEngine (U-AGT55)",
+            "Autonomous agent patterns",
+            "Task queue management"
+          ],
+          "exit_criteria": [
+            "'Optimize all D2 programs' executes without intervention",
+            "Progress reported as task advances",
+            "Errors handled with retry/skip/escalate",
+            "Summary report at completion"
+          ],
+          "files_created": [
+            "src/engines/AutonomousTaskEngine.ts"
+          ],
+          "files_modified": [],
+          "abort_criteria": [
+            "Autonomous task makes irreversible change without approval"
+          ],
+          "rollback_procedure": "git checkout src/engines/AutonomousTaskEngine.ts",
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "depends_on": [
+            "U-AGT58"
+          ]
+        },
+        {
+          "id": "U-AGT60",
+          "title": "SelfCorrectionEngine — Error Detection & Recovery",
+          "description": "Agent detects when it made a mistake and self-corrects. 'Wait, that speed is too high for this insert — let me recalculate.'",
+          "smart_config": {
+            "role": "AI Self-Improvement Specialist",
+            "model": "opus",
+            "effort": "MAX",
+            "context_budget": "50%"
+          },
+          "knowledge_to_consult": [
+            "ChainOfThoughtEngine for reasoning traces",
+            "SafetyGateEngine (U-AGT32) for validation",
+            "ReasoningCalibrationEngine (U-AGT38) for learning",
+            "Self-critique patterns in LLMs"
+          ],
+          "exit_criteria": [
+            "Detects physics violations in own output",
+            "Self-corrects before user sees error",
+            "Logs self-corrections for learning",
+            "'I initially said X, but Y is more accurate because...'"
+          ],
+          "files_created": [
+            "src/engines/SelfCorrectionEngine.ts"
+          ],
+          "files_modified": [],
+          "abort_criteria": [
+            "Self-correction introduces new errors"
+          ],
+          "rollback_procedure": "git checkout src/engines/SelfCorrectionEngine.ts",
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "depends_on": [
+            "U-AGT59"
+          ]
+        },
+        {
+          "id": "U-AGT61",
+          "title": "EscalationEngine — Human-in-the-Loop Triggers",
+          "description": "Knows when to stop and ask human. High uncertainty, safety-critical decisions, novel situations trigger escalation.",
+          "smart_config": {
+            "role": "AI Safety Specialist",
+            "model": "opus",
+            "effort": "MAX",
+            "context_budget": "45%"
+          },
+          "knowledge_to_consult": [
+            "UncertaintyQuantificationEngine (U-AGT58)",
+            "SafetyGateEngine (U-AGT32)",
+            "Human-in-the-loop patterns",
+            "Escalation threshold design"
+          ],
+          "exit_criteria": [
+            "High uncertainty (>40%) triggers human review",
+            "Safety-critical decisions require approval",
+            "Novel situations (no similar past data) escalate",
+            "Clear escalation prompt: 'I need your input on...'"
+          ],
+          "files_created": [
+            "src/engines/EscalationEngine.ts"
+          ],
+          "files_modified": [],
+          "abort_criteria": [
+            "Safety-critical action taken without escalation"
+          ],
+          "rollback_procedure": "git checkout src/engines/EscalationEngine.ts",
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "depends_on": [
+            "U-AGT60"
+          ]
+        },
+        {
+          "id": "U-AGT62",
+          "title": "PRISMCLIAgentEngine — Full CLI Integration",
+          "description": "Complete CLI agent that can be invoked like Claude Code. 'prism-agent 'quote this part'' runs autonomously with all capabilities.",
+          "smart_config": {
+            "role": "CLI Platform Architect",
+            "model": "opus",
+            "effort": "MAX",
+            "context_budget": "50%"
+          },
+          "knowledge_to_consult": [
+            "Claude Code CLI architecture",
+            "All prior agent engines",
+            "MCP protocol for tool execution",
+            "Shell integration patterns"
+          ],
+          "exit_criteria": [
+            "prism-agent CLI executable",
+            "All PRISM capabilities accessible via CLI",
+            "Session persistence across CLI invocations",
+            "Rich terminal output with progress, warnings, results"
+          ],
+          "files_created": [
+            "src/cli/prism-agent.ts",
+            "src/engines/PRISMCLIAgentEngine.ts"
+          ],
+          "files_modified": [
+            "package.json"
+          ],
+          "abort_criteria": [
+            "CLI crashes on valid input"
+          ],
+          "rollback_procedure": "git checkout src/cli/ src/engines/PRISMCLIAgentEngine.ts package.json",
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "depends_on": [
+            "U-AGT59",
+            "U-AGT60",
+            "U-AGT61"
+          ]
+        }
+      ],
+      "forge_triple": {
+        "hook": "cli-agent-audit-log",
+        "action": "prism_agent:cli_execute",
+        "skill": "/prism-cli"
+      },
+      "exit_gate": {
+        "criteria": [
+          "Autonomous multi-step tasks complete successfully",
+          "Agent self-corrects errors before output",
+          "Uncertain/safety decisions escalate to human",
+          "prism-agent CLI fully functional"
+        ],
+        "omega_floor": 0.95,
+        "svi_delta": "+6%"
+      }
+    },
+    {
+      "id": "AGENT-MS16",
+      "title": "Deep Reasoning & Problem Solving Architecture",
+      "description": "Advanced reasoning patterns: abductive reasoning, case-based reasoning, meta-reasoning, constraint solving, MCTS, dynamic programming. Deep problem-solving beyond chain-of-thought.",
+      "sessions": 3,
+      "units": [
+        {
+          "id": "U-AGT63",
+          "title": "AbductiveReasoningEngine — Inference to Best Explanation",
+          "description": "Given observations, infer the most likely explanation. 'This chatter pattern + this tool wear → most likely cause is resonance at this frequency.'",
+          "smart_config": {
+            "role": "AI Reasoning Specialist",
+            "model": "opus",
+            "effort": "MAX",
+            "context_budget": "50%"
+          },
+          "knowledge_to_consult": [
+            "ChainOfThoughtEngine for reasoning chains",
+            "ManufacturingReasoningEngine for domain knowledge",
+            "Abductive reasoning in AI literature",
+            "Diagnostic reasoning patterns"
+          ],
+          "exit_criteria": [
+            "Given symptoms, generates ranked hypotheses",
+            "Explains why each hypothesis fits observations",
+            "Suggests tests to discriminate between hypotheses",
+            "Works on manufacturing diagnosis scenarios"
+          ],
+          "files_created": [
+            "src/engines/AbductiveReasoningEngine.ts"
+          ],
+          "files_modified": [],
+          "abort_criteria": [
+            "Generates implausible hypotheses for clear cases"
+          ],
+          "rollback_procedure": "git checkout src/engines/AbductiveReasoningEngine.ts",
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "depends_on": [
+            "U-AGT07"
+          ]
+        },
+        {
+          "id": "U-AGT64",
+          "title": "CaseBasedReasoningEngine — Similar Problem Retrieval",
+          "description": "Find similar past problems and adapt their solutions. 'This D2 punch problem is similar to the S7 case from last month — let me adapt that solution.'",
+          "smart_config": {
+            "role": "AI Knowledge Systems Specialist",
+            "model": "opus",
+            "effort": "HIGH",
+            "context_budget": "45%"
+          },
+          "knowledge_to_consult": [
+            "SemanticEmbeddingEngine for similarity",
+            "PersistentMemoryEngine for case storage",
+            "CBR systems in engineering",
+            "Solution adaptation patterns"
+          ],
+          "exit_criteria": [
+            "Retrieves top-K similar past cases",
+            "Explains similarity dimensions",
+            "Adapts past solutions to current context",
+            "Learns from case outcomes"
+          ],
+          "files_created": [
+            "src/engines/CaseBasedReasoningEngine.ts"
+          ],
+          "files_modified": [],
+          "abort_criteria": [
+            "Retrieves irrelevant cases for clear queries"
+          ],
+          "rollback_procedure": "git checkout src/engines/CaseBasedReasoningEngine.ts",
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "depends_on": [
+            "U-AGT47"
+          ]
+        },
+        {
+          "id": "U-AGT65",
+          "title": "MetaReasoningEngine — Reasoning About Reasoning",
+          "description": "Monitors its own reasoning process. 'I'm stuck in a loop — let me step back and try a different approach.' 'My confidence is low — I should gather more information.'",
+          "smart_config": {
+            "role": "AI Meta-Cognition Specialist",
+            "model": "opus",
+            "effort": "MAX",
+            "context_budget": "50%"
+          },
+          "knowledge_to_consult": [
+            "ChainOfThoughtEngine for reasoning traces",
+            "UncertaintyQuantificationEngine for confidence",
+            "Meta-cognitive monitoring in AI",
+            "Self-reflection patterns"
+          ],
+          "exit_criteria": [
+            "Detects when reasoning is stuck or circular",
+            "Switches strategies when current approach fails",
+            "Requests information when uncertainty is high",
+            "Explains its reasoning strategy choices"
+          ],
+          "files_created": [
+            "src/engines/MetaReasoningEngine.ts"
+          ],
+          "files_modified": [],
+          "abort_criteria": [
+            "Meta-reasoning adds overhead without improvement"
+          ],
+          "rollback_procedure": "git checkout src/engines/MetaReasoningEngine.ts",
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "depends_on": [
+            "U-AGT58"
+          ]
+        },
+        {
+          "id": "U-AGT66",
+          "title": "ConstraintSolverEngine — CSP for Manufacturing Optimization",
+          "description": "Constraint satisfaction for complex manufacturing decisions. 'Given these constraints (machine capacity, tool availability, due dates), find a valid schedule.'",
+          "smart_config": {
+            "role": "AI Optimization Specialist",
+            "model": "opus",
+            "effort": "MAX",
+            "context_budget": "55%"
+          },
+          "knowledge_to_consult": [
+            "ConstraintGraphEngine for constraint modeling",
+            "Arc consistency algorithms",
+            "Manufacturing scheduling constraints",
+            "Constraint propagation techniques"
+          ],
+          "exit_criteria": [
+            "Models manufacturing problems as CSPs",
+            "Applies constraint propagation",
+            "Finds valid solutions or proves none exist",
+            "Explains constraint violations"
+          ],
+          "files_created": [
+            "src/engines/ConstraintSolverEngine.ts"
+          ],
+          "files_modified": [],
+          "abort_criteria": [
+            "Fails on solvable constraint sets"
+          ],
+          "rollback_procedure": "git checkout src/engines/ConstraintSolverEngine.ts",
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "depends_on": [
+            "U-AGT36"
+          ]
+        },
+        {
+          "id": "U-AGT67",
+          "title": "MCTSEngine — Monte Carlo Tree Search for Planning",
+          "description": "MCTS for complex multi-step planning. 'Explore different process planning paths, simulate outcomes, converge on best approach.'",
+          "smart_config": {
+            "role": "AI Planning Specialist",
+            "model": "opus",
+            "effort": "MAX",
+            "context_budget": "50%"
+          },
+          "knowledge_to_consult": [
+            "HierarchicalDecompositionEngine for problem structure",
+            "MCTS algorithms (UCT, PUCT)",
+            "Game-tree search literature",
+            "Manufacturing process planning as search"
+          ],
+          "exit_criteria": [
+            "Builds search tree of process alternatives",
+            "Simulates outcomes with rollouts",
+            "Balances exploration vs exploitation",
+            "Converges on high-value plans"
+          ],
+          "files_created": [
+            "src/engines/MCTSEngine.ts"
+          ],
+          "files_modified": [],
+          "abort_criteria": [
+            "Search doesn't converge on large problems"
+          ],
+          "rollback_procedure": "git checkout src/engines/MCTSEngine.ts",
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "depends_on": [
+            "U-AGT55"
+          ]
+        },
+        {
+          "id": "U-AGT68",
+          "title": "DynamicProgrammingEngine — Optimal Substructure Solver",
+          "description": "DP for problems with optimal substructure. Cutting stock, nesting, sequencing optimizations using memoization and bottom-up construction.",
+          "smart_config": {
+            "role": "AI Algorithm Specialist",
+            "model": "opus",
+            "effort": "HIGH",
+            "context_budget": "45%"
+          },
+          "knowledge_to_consult": [
+            "Classical DP algorithms",
+            "Cutting stock problem (Gilmore-Gomory)",
+            "Sequence alignment algorithms",
+            "Manufacturing optimization literature"
+          ],
+          "exit_criteria": [
+            "Identifies DP-amenable problem structure",
+            "Applies memoization for subproblems",
+            "Reconstructs optimal solution path",
+            "Handles cutting stock, sequencing, nesting"
+          ],
+          "files_created": [
+            "src/engines/DynamicProgrammingEngine.ts"
+          ],
+          "files_modified": [],
+          "abort_criteria": [
+            "Wrong subproblem decomposition"
+          ],
+          "rollback_procedure": "git checkout src/engines/DynamicProgrammingEngine.ts",
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "depends_on": [
+            "U-AGT66"
+          ]
+        }
+      ],
+      "forge_triple": {
+        "hook": "deep-reasoning-audit",
+        "action": "prism_intelligence:deep_reason",
+        "skill": "/deep-reason"
+      },
+      "exit_gate": {
+        "criteria": [
+          "Abductive reasoning generates valid hypotheses",
+          "Case-based reasoning retrieves relevant cases",
+          "Meta-reasoning improves solution quality",
+          "CSP solver handles manufacturing constraints",
+          "MCTS converges on good plans",
+          "DP optimizes structured problems"
+        ],
+        "omega_floor": 0.9,
+        "svi_delta": "+5%"
+      }
+    },
+    {
+      "id": "AGENT-MS17",
+      "title": "Advanced CLI & Shell Integration",
+      "description": "Professional CLI experience: shell completions, dotfile configuration, rich terminal UI, plugin system, IDE integration. Makes PRISM CLI feel native to developers.",
+      "sessions": 2,
+      "units": [
+        {
+          "id": "U-AGT69",
+          "title": "ShellCompletionEngine — Bash/Zsh/Fish Completions",
+          "description": "Generate shell completions for all PRISM commands. Tab-completion for actions, parameters, file paths, material names.",
+          "smart_config": {
+            "role": "CLI Developer",
+            "model": "sonnet",
+            "effort": "HIGH",
+            "context_budget": "35%"
+          },
+          "knowledge_to_consult": [
+            "Bash completion API",
+            "Zsh compdef patterns",
+            "Fish completions",
+            "PRISMCLIAgentEngine command registry"
+          ],
+          "exit_criteria": [
+            "Bash completion script generated",
+            "Zsh completion script generated",
+            "Fish completion script generated",
+            "Tab completes actions, params, values"
+          ],
+          "files_created": [
+            "src/cli/completions/bash.sh",
+            "src/cli/completions/zsh.sh",
+            "src/cli/completions/fish.fish",
+            "src/engines/ShellCompletionEngine.ts"
+          ],
+          "files_modified": [],
+          "abort_criteria": [
+            "Completions conflict with existing shell config"
+          ],
+          "rollback_procedure": "git checkout src/cli/completions/ src/engines/ShellCompletionEngine.ts",
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "depends_on": [
+            "U-AGT62"
+          ]
+        },
+        {
+          "id": "U-AGT70",
+          "title": "CLIConfigEngine — Dotfile & Profile Management",
+          "description": "Support ~/.prismrc, XDG config dirs, environment variables, profiles. Persistent user preferences, shop defaults.",
+          "smart_config": {
+            "role": "CLI Developer",
+            "model": "sonnet",
+            "effort": "HIGH",
+            "context_budget": "35%"
+          },
+          "knowledge_to_consult": [
+            "XDG Base Directory Specification",
+            "dotenv patterns",
+            "cosmiconfig for config discovery",
+            "Profile management patterns"
+          ],
+          "exit_criteria": [
+            "Reads ~/.prismrc or $XDG_CONFIG_HOME/prism/config",
+            "Environment variables override config file",
+            "Named profiles (--profile=jmdie)",
+            "prism config get/set commands"
+          ],
+          "files_created": [
+            "src/engines/CLIConfigEngine.ts"
+          ],
+          "files_modified": [
+            "src/cli/prism-agent.ts"
+          ],
+          "abort_criteria": [
+            "Config conflicts with existing dotfiles"
+          ],
+          "rollback_procedure": "git checkout src/engines/CLIConfigEngine.ts src/cli/prism-agent.ts",
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "depends_on": [
+            "U-AGT69"
+          ]
+        },
+        {
+          "id": "U-AGT71",
+          "title": "TerminalUIEngine — Rich Terminal Output",
+          "description": "Progress bars, spinners, tables, colors, interactive prompts. Uses ink/blessed-style rendering for professional CLI experience.",
+          "smart_config": {
+            "role": "CLI UX Specialist",
+            "model": "sonnet",
+            "effort": "HIGH",
+            "context_budget": "40%"
+          },
+          "knowledge_to_consult": [
+            "ora for spinners",
+            "cli-progress for progress bars",
+            "cli-table3 for tables",
+            "chalk for colors",
+            "inquirer for prompts"
+          ],
+          "exit_criteria": [
+            "Progress bars for long operations",
+            "Spinners for async operations",
+            "Tables for data display",
+            "Color-coded output (errors red, success green)",
+            "Interactive prompts when needed"
+          ],
+          "files_created": [
+            "src/engines/TerminalUIEngine.ts"
+          ],
+          "files_modified": [],
+          "abort_criteria": [
+            "UI breaks on non-TTY output"
+          ],
+          "rollback_procedure": "git checkout src/engines/TerminalUIEngine.ts",
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "depends_on": [
+            "U-AGT70"
+          ]
+        },
+        {
+          "id": "U-AGT72",
+          "title": "CLIPluginEngine — User-Defined Commands",
+          "description": "Plugin system for extending PRISM CLI. Users can add custom commands, hooks, integrations. ~/.prism/plugins/ directory.",
+          "smart_config": {
+            "role": "CLI Platform Architect",
+            "model": "opus",
+            "effort": "HIGH",
+            "context_budget": "45%"
+          },
+          "knowledge_to_consult": [
+            "Plugin architectures (npm, VS Code)",
+            "Dynamic module loading",
+            "Sandboxed execution",
+            "Hook system patterns"
+          ],
+          "exit_criteria": [
+            "Discovers plugins in ~/.prism/plugins/",
+            "Loads plugin commands dynamically",
+            "Plugin lifecycle (init, execute, cleanup)",
+            "Plugin isolation (can't break core)"
+          ],
+          "files_created": [
+            "src/engines/CLIPluginEngine.ts"
+          ],
+          "files_modified": [
+            "src/cli/prism-agent.ts"
+          ],
+          "abort_criteria": [
+            "Plugin can crash core CLI"
+          ],
+          "rollback_procedure": "git checkout src/engines/CLIPluginEngine.ts src/cli/prism-agent.ts",
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "depends_on": [
+            "U-AGT71"
+          ]
+        },
+        {
+          "id": "U-AGT73",
+          "title": "IDEIntegrationEngine — VS Code & JetBrains Support",
+          "description": "IDE extensions for PRISM: VS Code extension, JetBrains plugin. In-editor PRISM commands, inline results, G-code syntax highlighting.",
+          "smart_config": {
+            "role": "IDE Extension Developer",
+            "model": "opus",
+            "effort": "MAX",
+            "context_budget": "50%"
+          },
+          "knowledge_to_consult": [
+            "VS Code extension API",
+            "JetBrains plugin SDK",
+            "Language server protocol (LSP)",
+            "G-code syntax definitions"
+          ],
+          "exit_criteria": [
+            "VS Code extension publishes to marketplace",
+            "Command palette integration",
+            "Inline PRISM results in editor",
+            "G-code syntax highlighting"
+          ],
+          "files_created": [
+            "vscode-extension/",
+            "src/engines/IDEIntegrationEngine.ts"
+          ],
+          "files_modified": [],
+          "abort_criteria": [
+            "Extension breaks editor stability"
+          ],
+          "rollback_procedure": "rm -rf vscode-extension/ && git checkout src/engines/IDEIntegrationEngine.ts",
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "depends_on": [
+            "U-AGT72"
+          ]
+        }
+      ],
+      "forge_triple": {
+        "hook": "cli-plugin-audit",
+        "action": "prism_agent:cli_config",
+        "skill": "/prism-config"
+      },
+      "exit_gate": {
+        "criteria": [
+          "Shell completions work in bash/zsh/fish",
+          "Config files respected with profile support",
+          "Rich terminal UI with progress/tables/colors",
+          "Plugin system loads user extensions",
+          "VS Code extension functional"
+        ],
+        "omega_floor": 0.85,
+        "svi_delta": "+4%"
+      }
+    },
+    {
+      "id": "AGENT-MS18",
+      "title": "Continuous Learning & Safety Hardening",
+      "description": "Online learning, active learning, curriculum learning for continuous improvement. Plus dry-run mode, kill switch, rate limiting for autonomous safety.",
+      "sessions": 3,
+      "units": [
+        {
+          "id": "U-AGT74",
+          "title": "OnlineLearningEngine — Continuous Improvement",
+          "description": "Learn from every interaction without full retraining. Update embeddings, adjust weights, refine predictions incrementally.",
+          "smart_config": {
+            "role": "ML Systems Engineer",
+            "model": "opus",
+            "effort": "MAX",
+            "context_budget": "50%"
+          },
+          "knowledge_to_consult": [
+            "Online learning algorithms",
+            "Incremental embedding updates",
+            "Gradient-free optimization",
+            "Catastrophic forgetting prevention"
+          ],
+          "exit_criteria": [
+            "Model improves without full retrain",
+            "Forgetting prevented with EWC or similar",
+            "Learning rate adapts to sample importance",
+            "Performance tracked over time"
+          ],
+          "files_created": [
+            "src/engines/OnlineLearningEngine.ts"
+          ],
+          "files_modified": [],
+          "abort_criteria": [
+            "Online updates degrade performance"
+          ],
+          "rollback_procedure": "git checkout src/engines/OnlineLearningEngine.ts",
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "depends_on": [
+            "U-AGT50"
+          ]
+        },
+        {
+          "id": "U-AGT75",
+          "title": "ActiveLearningEngine — Strategic Data Collection",
+          "description": "Identifies which data points would most improve the model. 'I'm uncertain about S7 at high speeds — can you run a test cut?'",
+          "smart_config": {
+            "role": "ML Research Engineer",
+            "model": "opus",
+            "effort": "HIGH",
+            "context_budget": "45%"
+          },
+          "knowledge_to_consult": [
+            "Uncertainty sampling",
+            "Query-by-committee",
+            "Expected model change",
+            "Manufacturing test planning"
+          ],
+          "exit_criteria": [
+            "Identifies high-value data points to collect",
+            "Explains why each point is valuable",
+            "Prioritizes by expected information gain",
+            "Integrates with test cut workflow"
+          ],
+          "files_created": [
+            "src/engines/ActiveLearningEngine.ts"
+          ],
+          "files_modified": [],
+          "abort_criteria": [
+            "Requests impractical test conditions"
+          ],
+          "rollback_procedure": "git checkout src/engines/ActiveLearningEngine.ts",
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "depends_on": [
+            "U-AGT74"
+          ]
+        },
+        {
+          "id": "U-AGT76",
+          "title": "CurriculumLearningEngine — Progressive Difficulty",
+          "description": "Learns complex patterns by starting with simple cases. 'Master basic turning before five-axis, then transfer knowledge.'",
+          "smart_config": {
+            "role": "ML Research Engineer",
+            "model": "opus",
+            "effort": "HIGH",
+            "context_budget": "45%"
+          },
+          "knowledge_to_consult": [
+            "Curriculum learning literature",
+            "Transfer learning",
+            "Self-paced learning",
+            "Manufacturing complexity hierarchy"
+          ],
+          "exit_criteria": [
+            "Orders learning tasks by difficulty",
+            "Transfers knowledge from simple to complex",
+            "Adapts curriculum based on progress",
+            "Improves sample efficiency"
+          ],
+          "files_created": [
+            "src/engines/CurriculumLearningEngine.ts"
+          ],
+          "files_modified": [],
+          "abort_criteria": [
+            "Curriculum ordering hurts performance"
+          ],
+          "rollback_procedure": "git checkout src/engines/CurriculumLearningEngine.ts",
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "depends_on": [
+            "U-AGT75"
+          ]
+        },
+        {
+          "id": "U-AGT77",
+          "title": "DryRunModeEngine — Simulation Before Execution",
+          "description": "Simulates autonomous actions before executing. Shows 'I would do X, Y, Z' before actually doing it. Essential for building trust.",
+          "smart_config": {
+            "role": "AI Safety Engineer",
+            "model": "opus",
+            "effort": "MAX",
+            "context_budget": "50%"
+          },
+          "knowledge_to_consult": [
+            "AutonomousTaskEngine for action planning",
+            "Simulation patterns",
+            "Dry-run modes in CI/CD tools",
+            "Action preview UX"
+          ],
+          "exit_criteria": [
+            "--dry-run flag on all commands",
+            "Shows planned actions without executing",
+            "Estimates time/cost of actions",
+            "User can approve/modify before execution"
+          ],
+          "files_created": [
+            "src/engines/DryRunModeEngine.ts"
+          ],
+          "files_modified": [
+            "src/engines/AutonomousTaskEngine.ts"
+          ],
+          "abort_criteria": [
+            "Dry run misses side effects"
+          ],
+          "rollback_procedure": "git checkout src/engines/DryRunModeEngine.ts src/engines/AutonomousTaskEngine.ts",
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "depends_on": [
+            "U-AGT59"
+          ]
+        },
+        {
+          "id": "U-AGT78",
+          "title": "KillSwitchEngine — Emergency Stop",
+          "description": "Immediate halt of all autonomous operations. Ctrl+C, SIGTERM, or explicit /stop command. Graceful cleanup, state preservation.",
+          "smart_config": {
+            "role": "AI Safety Engineer",
+            "model": "opus",
+            "effort": "MAX",
+            "context_budget": "45%"
+          },
+          "knowledge_to_consult": [
+            "Signal handling (SIGINT, SIGTERM)",
+            "Graceful shutdown patterns",
+            "Transaction rollback",
+            "State checkpointing"
+          ],
+          "exit_criteria": [
+            "Ctrl+C stops immediately",
+            "/stop command halts all tasks",
+            "State preserved for resume",
+            "No orphaned processes/resources"
+          ],
+          "files_created": [
+            "src/engines/KillSwitchEngine.ts"
+          ],
+          "files_modified": [
+            "src/cli/prism-agent.ts"
+          ],
+          "abort_criteria": [
+            "Kill switch leaves system in bad state"
+          ],
+          "rollback_procedure": "git checkout src/engines/KillSwitchEngine.ts src/cli/prism-agent.ts",
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "depends_on": [
+            "U-AGT77"
+          ]
+        },
+        {
+          "id": "U-AGT79",
+          "title": "RateLimiterEngine — Prevent Runaway Execution",
+          "description": "Rate limits on autonomous actions to prevent runaway. Max actions/minute, max cost/hour, max files touched per session.",
+          "smart_config": {
+            "role": "AI Safety Engineer",
+            "model": "opus",
+            "effort": "HIGH",
+            "context_budget": "40%"
+          },
+          "knowledge_to_consult": [
+            "Rate limiting algorithms (token bucket)",
+            "CircuitBreakerEngine for failure handling",
+            "Cost estimation",
+            "Resource quotas"
+          ],
+          "exit_criteria": [
+            "Configurable rate limits per action type",
+            "Cost-based limits (tokens/hour)",
+            "File-touch limits per session",
+            "Clear error when limit hit"
+          ],
+          "files_created": [
+            "src/engines/RateLimiterEngine.ts"
+          ],
+          "files_modified": [
+            "src/engines/AutonomousTaskEngine.ts"
+          ],
+          "abort_criteria": [
+            "Rate limiter blocks valid workflows"
+          ],
+          "rollback_procedure": "git checkout src/engines/RateLimiterEngine.ts src/engines/AutonomousTaskEngine.ts",
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "depends_on": [
+            "U-AGT78"
+          ]
+        },
+        {
+          "id": "U-AGT80",
+          "title": "ManufacturingOntologyEngine — OWL Knowledge Base",
+          "description": "Formal ontology for manufacturing domain. Machine → Lathe → CNCLathe hierarchy. Material properties, process capabilities, relationships.",
+          "smart_config": {
+            "role": "Knowledge Engineer",
+            "model": "opus",
+            "effort": "MAX",
+            "context_budget": "55%"
+          },
+          "knowledge_to_consult": [
+            "OWL 2 ontology language",
+            "Manufacturing ontologies (MASON, STEP)",
+            "Protégé for ontology design",
+            "Reasoning with ontologies"
+          ],
+          "exit_criteria": [
+            "OWL ontology covers PRISM domain",
+            "Reasoner infers implicit facts",
+            "Integrates with existing registries",
+            "Queryable via SPARQL-like interface"
+          ],
+          "files_created": [
+            "src/engines/ManufacturingOntologyEngine.ts",
+            "src/data/manufacturing.owl"
+          ],
+          "files_modified": [],
+          "abort_criteria": [
+            "Ontology too complex to maintain"
+          ],
+          "rollback_procedure": "git checkout src/engines/ManufacturingOntologyEngine.ts src/data/manufacturing.owl",
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "depends_on": [
+            "U-AGT64"
+          ]
+        },
+        {
+          "id": "U-AGT81",
+          "title": "TemporalReasoningEngine — Time-Dependent Knowledge",
+          "description": "Reason about time: schedules, deadlines, process sequences, maintenance intervals. 'This tool has 2 hours of life left at current conditions.'",
+          "smart_config": {
+            "role": "AI Temporal Reasoning Specialist",
+            "model": "opus",
+            "effort": "HIGH",
+            "context_budget": "45%"
+          },
+          "knowledge_to_consult": [
+            "Allen's interval algebra",
+            "Temporal logic (LTL, CTL)",
+            "Manufacturing scheduling",
+            "Tool life prediction"
+          ],
+          "exit_criteria": [
+            "Models temporal relationships (before, during, after)",
+            "Handles intervals and durations",
+            "Integrates with scheduling",
+            "Tool life remaining predictions"
+          ],
+          "files_created": [
+            "src/engines/TemporalReasoningEngine.ts"
+          ],
+          "files_modified": [],
+          "abort_criteria": [
+            "Temporal reasoning conflicts with scheduling engine"
+          ],
+          "rollback_procedure": "git checkout src/engines/TemporalReasoningEngine.ts",
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "depends_on": [
+            "U-AGT80"
+          ]
+        }
+      ],
+      "forge_triple": {
+        "hook": "continuous-learning-audit",
+        "action": "prism_intelligence:learn",
+        "skill": "/prism-learn"
+      },
+      "exit_gate": {
+        "criteria": [
+          "Online learning improves without retraining",
+          "Active learning identifies high-value data",
+          "Dry-run mode shows planned actions",
+          "Kill switch halts immediately",
+          "Rate limiter prevents runaway",
+          "Ontology enables rich reasoning",
+          "Temporal reasoning handles schedules"
+        ],
+        "omega_floor": 0.9,
+        "svi_delta": "+6%"
+      }
+    },
+    {
+      "id": "AGENT-MS19",
+      "title": "Deep Neural Architectures for Manufacturing",
+      "description": "Advanced neural network architectures: Transformers for sequence modeling, GNNs for topology/mesh analysis, LSTMs for time-series prediction, CNNs for vision tasks, Meta-learning for few-shot adaptation.",
+      "sessions": 4,
+      "units": [
+        {
+          "id": "U-AGT82",
+          "title": "ManufacturingTransformerEngine — Attention-Based Sequence Modeling",
+          "description": "Transformer architecture for G-code sequences, process sequences, and natural language understanding. Self-attention for long-range dependencies in manufacturing workflows.",
+          "smart_config": {
+            "role": "Deep Learning Architect",
+            "model": "opus",
+            "effort": "MAX",
+            "context_budget": "60%"
+          },
+          "knowledge_to_consult": [
+            "Transformer architecture (Vaswani et al.)",
+            "BERT/GPT for manufacturing NLP",
+            "SemanticEmbeddingEngine for embeddings",
+            "G-code tokenization patterns"
+          ],
+          "exit_criteria": [
+            "Transformer encodes G-code sequences",
+            "Attention weights interpretable",
+            "Predicts next operation in sequence",
+            "Fine-tunes on shop-specific data"
+          ],
+          "files_created": [
+            "src/engines/ManufacturingTransformerEngine.ts"
+          ],
+          "files_modified": [],
+          "abort_criteria": [
+            "Model too slow for real-time inference"
+          ],
+          "rollback_procedure": "git checkout src/engines/ManufacturingTransformerEngine.ts",
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "depends_on": [
+            "U-AGT47"
+          ]
+        },
+        {
+          "id": "U-AGT83",
+          "title": "ProcessGraphNeuralEngine — GNN for Topology Analysis",
+          "description": "Graph Neural Networks for part topology, toolpath graphs, machine connectivity. Message passing for learning from manufacturing graph structures.",
+          "smart_config": {
+            "role": "Graph ML Specialist",
+            "model": "opus",
+            "effort": "MAX",
+            "context_budget": "55%"
+          },
+          "knowledge_to_consult": [
+            "GNN architectures (GCN, GAT, GraphSAGE)",
+            "Part feature graphs",
+            "Toolpath as directed graph",
+            "PyTorch Geometric patterns"
+          ],
+          "exit_criteria": [
+            "Encodes part topology as graph",
+            "Learns from toolpath structure",
+            "Predicts machining difficulty from geometry",
+            "Handles variable-size graphs"
+          ],
+          "files_created": [
+            "src/engines/ProcessGraphNeuralEngine.ts"
+          ],
+          "files_modified": [],
+          "abort_criteria": [
+            "Graph encoding loses critical features"
+          ],
+          "rollback_procedure": "git checkout src/engines/ProcessGraphNeuralEngine.ts",
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "depends_on": [
+            "U-AGT82"
+          ]
+        },
+        {
+          "id": "U-AGT84",
+          "title": "ToolWearLSTMEngine — Time-Series Prediction",
+          "description": "LSTM networks for tool wear progression, vibration patterns, thermal history. Captures temporal dependencies for predictive maintenance.",
+          "smart_config": {
+            "role": "Time-Series ML Specialist",
+            "model": "opus",
+            "effort": "HIGH",
+            "context_budget": "50%"
+          },
+          "knowledge_to_consult": [
+            "LSTM/GRU architectures",
+            "Tool wear time-series data",
+            "Sensor fusion patterns",
+            "Sequence-to-sequence prediction"
+          ],
+          "exit_criteria": [
+            "Predicts remaining tool life from sensor history",
+            "Handles variable-length sequences",
+            "Detects anomalies in real-time",
+            "Uncertainty estimates on predictions"
+          ],
+          "files_created": [
+            "src/engines/ToolWearLSTMEngine.ts"
+          ],
+          "files_modified": [],
+          "abort_criteria": [
+            "Prediction latency >100ms"
+          ],
+          "rollback_procedure": "git checkout src/engines/ToolWearLSTMEngine.ts",
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "depends_on": [
+            "U-AGT83"
+          ]
+        },
+        {
+          "id": "U-AGT85",
+          "title": "SetupVisionCNNEngine — Computer Vision for Shop Floor",
+          "description": "CNN for setup verification, tool identification, part orientation detection. Visual inspection using convolutional neural networks.",
+          "smart_config": {
+            "role": "Computer Vision Specialist",
+            "model": "opus",
+            "effort": "MAX",
+            "context_budget": "55%"
+          },
+          "knowledge_to_consult": [
+            "CNN architectures (ResNet, EfficientNet)",
+            "Object detection (YOLO, Faster R-CNN)",
+            "SetupVisionEngine for integration",
+            "Manufacturing visual inspection"
+          ],
+          "exit_criteria": [
+            "Identifies tools from images",
+            "Verifies setup against expected",
+            "Detects part orientation",
+            "Works with shop floor camera feeds"
+          ],
+          "files_created": [
+            "src/engines/SetupVisionCNNEngine.ts"
+          ],
+          "files_modified": [
+            "src/engines/SetupVisionEngine.ts"
+          ],
+          "abort_criteria": [
+            "False positive rate >5%"
+          ],
+          "rollback_procedure": "git checkout src/engines/SetupVisionCNNEngine.ts src/engines/SetupVisionEngine.ts",
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "depends_on": [
+            "U-AGT84"
+          ]
+        },
+        {
+          "id": "U-AGT86",
+          "title": "MetaLearningEngine — Few-Shot Adaptation",
+          "description": "Meta-learning (MAML, Prototypical Networks) for rapid adaptation to new materials, machines, or processes with minimal data.",
+          "smart_config": {
+            "role": "Meta-Learning Specialist",
+            "model": "opus",
+            "effort": "MAX",
+            "context_budget": "55%"
+          },
+          "knowledge_to_consult": [
+            "MAML algorithm",
+            "Prototypical networks",
+            "Few-shot learning in manufacturing",
+            "Transfer from similar domains"
+          ],
+          "exit_criteria": [
+            "Adapts to new material with <10 samples",
+            "Transfers knowledge across machines",
+            "Meta-trains on diverse manufacturing tasks",
+            "Fast fine-tuning (<1 minute)"
+          ],
+          "files_created": [
+            "src/engines/MetaLearningEngine.ts"
+          ],
+          "files_modified": [],
+          "abort_criteria": [
+            "Meta-training diverges"
+          ],
+          "rollback_procedure": "git checkout src/engines/MetaLearningEngine.ts",
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "depends_on": [
+            "U-AGT85"
+          ]
+        },
+        {
+          "id": "U-AGT87",
+          "title": "NeuralArchitectureOrchestratorEngine — Model Selection & Ensemble",
+          "description": "Orchestrates multiple neural architectures. Selects best model per task, ensembles predictions, manages model lifecycle.",
+          "smart_config": {
+            "role": "ML Platform Architect",
+            "model": "opus",
+            "effort": "HIGH",
+            "context_budget": "50%"
+          },
+          "knowledge_to_consult": [
+            "Model selection heuristics",
+            "Ensemble methods",
+            "Neural architecture search (NAS)",
+            "Model versioning patterns"
+          ],
+          "exit_criteria": [
+            "Routes queries to best model",
+            "Ensembles for higher accuracy",
+            "Tracks model performance over time",
+            "Hot-swaps models without downtime"
+          ],
+          "files_created": [
+            "src/engines/NeuralArchitectureOrchestratorEngine.ts"
+          ],
+          "files_modified": [],
+          "abort_criteria": [
+            "Orchestration overhead >50ms"
+          ],
+          "rollback_procedure": "git checkout src/engines/NeuralArchitectureOrchestratorEngine.ts",
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "depends_on": [
+            "U-AGT82",
+            "U-AGT83",
+            "U-AGT84",
+            "U-AGT85",
+            "U-AGT86"
+          ]
+        }
+      ],
+      "forge_triple": {
+        "hook": "neural-architecture-audit",
+        "action": "prism_intelligence:neural_predict",
+        "skill": "/neural-arch"
+      },
+      "exit_gate": {
+        "criteria": [
+          "Transformer processes G-code sequences",
+          "GNN analyzes part topology",
+          "LSTM predicts tool wear",
+          "CNN verifies setups visually",
+          "Meta-learning adapts with few samples",
+          "Orchestrator selects best model"
+        ],
+        "omega_floor": 0.9,
+        "svi_delta": "+7%"
+      }
+    },
+    {
+      "id": "AGENT-MS20",
+      "title": "Spatial Reasoning & Belief Systems",
+      "description": "Spatial reasoning for CAD geometry, belief revision for knowledge updates, truth maintenance systems, analogical reasoning, and formal logic engines.",
+      "sessions": 3,
+      "units": [
+        {
+          "id": "U-AGT88",
+          "title": "SpatialReasoningEngine — Geometry & Topology Reasoning",
+          "description": "Reasons about spatial relationships: containment, adjacency, orientation, clearance. Essential for CAD/CAM collision detection and fixture planning.",
+          "smart_config": {
+            "role": "Computational Geometry Specialist",
+            "model": "opus",
+            "effort": "MAX",
+            "context_budget": "55%"
+          },
+          "knowledge_to_consult": [
+            "Region Connection Calculus (RCC-8)",
+            "Qualitative spatial reasoning",
+            "CAD geometry kernels",
+            "Collision detection algorithms"
+          ],
+          "exit_criteria": [
+            "Computes spatial relations (inside, overlaps, touches)",
+            "Detects collisions in toolpath",
+            "Reasons about fixture clearance",
+            "Handles 3D spatial queries"
+          ],
+          "files_created": [
+            "src/engines/SpatialReasoningEngine.ts"
+          ],
+          "files_modified": [],
+          "abort_criteria": [
+            "Spatial queries >500ms for complex parts"
+          ],
+          "rollback_procedure": "git checkout src/engines/SpatialReasoningEngine.ts",
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "depends_on": [
+            "U-AGT80"
+          ]
+        },
+        {
+          "id": "U-AGT89",
+          "title": "CADGeometryReasoningEngine — Feature Recognition & Analysis",
+          "description": "Reasons about CAD features: holes, pockets, bosses, fillets. Extracts manufacturing semantics from geometry.",
+          "smart_config": {
+            "role": "CAD/CAM Specialist",
+            "model": "opus",
+            "effort": "MAX",
+            "context_budget": "55%"
+          },
+          "knowledge_to_consult": [
+            "Feature recognition algorithms",
+            "STEP/IGES parsing",
+            "Manufacturing feature taxonomy",
+            "GD&T interpretation"
+          ],
+          "exit_criteria": [
+            "Recognizes holes, pockets, bosses, slots",
+            "Extracts feature parameters (depth, diameter)",
+            "Suggests machining operations per feature",
+            "Handles imported STEP files"
+          ],
+          "files_created": [
+            "src/engines/CADGeometryReasoningEngine.ts"
+          ],
+          "files_modified": [],
+          "abort_criteria": [
+            "Feature recognition accuracy <80%"
+          ],
+          "rollback_procedure": "git checkout src/engines/CADGeometryReasoningEngine.ts",
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "depends_on": [
+            "U-AGT88"
+          ]
+        },
+        {
+          "id": "U-AGT90",
+          "title": "TruthMaintenanceEngine — Dependency-Directed Backtracking",
+          "description": "ATMS/TMS for maintaining consistent beliefs. When new information contradicts old, traces dependencies and retracts minimal set.",
+          "smart_config": {
+            "role": "Knowledge Systems Specialist",
+            "model": "opus",
+            "effort": "MAX",
+            "context_budget": "50%"
+          },
+          "knowledge_to_consult": [
+            "ATMS (Assumption-based TMS)",
+            "JTMS (Justification-based TMS)",
+            "Dependency-directed backtracking",
+            "Non-monotonic reasoning"
+          ],
+          "exit_criteria": [
+            "Tracks belief dependencies",
+            "Detects contradictions",
+            "Retracts minimal belief set",
+            "Explains why beliefs changed"
+          ],
+          "files_created": [
+            "src/engines/TruthMaintenanceEngine.ts"
+          ],
+          "files_modified": [],
+          "abort_criteria": [
+            "TMS overhead >10% of reasoning time"
+          ],
+          "rollback_procedure": "git checkout src/engines/TruthMaintenanceEngine.ts",
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "depends_on": [
+            "U-AGT80"
+          ]
+        },
+        {
+          "id": "U-AGT91",
+          "title": "BeliefRevisionEngine — AGM-Style Knowledge Updates",
+          "description": "AGM belief revision for updating knowledge base when new information arrives. Contraction, expansion, revision operations.",
+          "smart_config": {
+            "role": "Knowledge Representation Specialist",
+            "model": "opus",
+            "effort": "HIGH",
+            "context_budget": "45%"
+          },
+          "knowledge_to_consult": [
+            "AGM postulates",
+            "Belief contraction/expansion",
+            "Epistemic entrenchment",
+            "Knowledge base update patterns"
+          ],
+          "exit_criteria": [
+            "Contracts beliefs minimally",
+            "Expands with new information",
+            "Revises on contradictions",
+            "Preserves core beliefs"
+          ],
+          "files_created": [
+            "src/engines/BeliefRevisionEngine.ts"
+          ],
+          "files_modified": [],
+          "abort_criteria": [
+            "Revision loses critical knowledge"
+          ],
+          "rollback_procedure": "git checkout src/engines/BeliefRevisionEngine.ts",
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "depends_on": [
+            "U-AGT90"
+          ]
+        },
+        {
+          "id": "U-AGT92",
+          "title": "AnalogicalReasoningEngine — Structure Mapping",
+          "description": "Reasons by analogy: 'This titanium job is like that Inconel job — apply similar strategies.' Structure-mapping theory for cross-domain transfer.",
+          "smart_config": {
+            "role": "AI Reasoning Specialist",
+            "model": "opus",
+            "effort": "HIGH",
+            "context_budget": "50%"
+          },
+          "knowledge_to_consult": [
+            "Structure-Mapping Theory (Gentner)",
+            "Analogical problem solving",
+            "CaseBasedReasoningEngine for retrieval",
+            "Cross-domain transfer in manufacturing"
+          ],
+          "exit_criteria": [
+            "Maps structure between source and target",
+            "Identifies relevant analogies",
+            "Transfers solutions across domains",
+            "Explains analogical reasoning"
+          ],
+          "files_created": [
+            "src/engines/AnalogicalReasoningEngine.ts"
+          ],
+          "files_modified": [],
+          "abort_criteria": [
+            "Analogies are superficial, not structural"
+          ],
+          "rollback_procedure": "git checkout src/engines/AnalogicalReasoningEngine.ts",
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "depends_on": [
+            "U-AGT64"
+          ]
+        },
+        {
+          "id": "U-AGT93",
+          "title": "FormalLogicEngine — Deductive & Inductive Reasoning",
+          "description": "First-order logic engine for deductive proofs. Inductive logic programming for learning rules from examples.",
+          "smart_config": {
+            "role": "Formal Methods Specialist",
+            "model": "opus",
+            "effort": "MAX",
+            "context_budget": "55%"
+          },
+          "knowledge_to_consult": [
+            "First-order logic (FOL)",
+            "Resolution theorem proving",
+            "Inductive Logic Programming (ILP)",
+            "Prolog-style inference"
+          ],
+          "exit_criteria": [
+            "Proves theorems from axioms",
+            "Learns rules from examples",
+            "Explains deductive chains",
+            "Handles manufacturing domain logic"
+          ],
+          "files_created": [
+            "src/engines/FormalLogicEngine.ts"
+          ],
+          "files_modified": [],
+          "abort_criteria": [
+            "Proof search times out on valid queries"
+          ],
+          "rollback_procedure": "git checkout src/engines/FormalLogicEngine.ts",
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "depends_on": [
+            "U-AGT80"
+          ]
+        }
+      ],
+      "forge_triple": {
+        "hook": "spatial-belief-audit",
+        "action": "prism_intelligence:spatial_reason",
+        "skill": "/spatial-reason"
+      },
+      "exit_gate": {
+        "criteria": [
+          "Spatial reasoning handles 3D queries",
+          "CAD feature recognition >80% accuracy",
+          "TMS maintains consistent beliefs",
+          "Belief revision preserves core knowledge",
+          "Analogical reasoning transfers solutions",
+          "Formal logic proves manufacturing theorems"
+        ],
+        "omega_floor": 0.9,
+        "svi_delta": "+6%"
+      }
+    },
+    {
+      "id": "AGENT-MS21",
+      "title": "Advanced Planning & Optimization Algorithms",
+      "description": "Hierarchical Task Networks (HTN), Goal-Oriented Action Planning (GOAP), A* search, genetic algorithms, simulated annealing for manufacturing optimization.",
+      "sessions": 3,
+      "units": [
+        {
+          "id": "U-AGT94",
+          "title": "HTNPlannerEngine — Hierarchical Task Decomposition",
+          "description": "HTN planning for manufacturing: decompose high-level goals into primitive operations. 'Make this part' → operations → toolpaths → G-code.",
+          "smart_config": {
+            "role": "AI Planning Specialist",
+            "model": "opus",
+            "effort": "MAX",
+            "context_budget": "55%"
+          },
+          "knowledge_to_consult": [
+            "HTN planning (SHOP2 algorithm)",
+            "Manufacturing process decomposition",
+            "HierarchicalDecompositionEngine",
+            "Task network representation"
+          ],
+          "exit_criteria": [
+            "Decomposes abstract tasks to primitives",
+            "Handles manufacturing domain methods",
+            "Produces valid operation sequences",
+            "Explains decomposition choices"
+          ],
+          "files_created": [
+            "src/engines/HTNPlannerEngine.ts"
+          ],
+          "files_modified": [],
+          "abort_criteria": [
+            "Decomposition produces invalid sequences"
+          ],
+          "rollback_procedure": "git checkout src/engines/HTNPlannerEngine.ts",
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "depends_on": [
+            "U-AGT55",
+            "U-AGT67"
+          ]
+        },
+        {
+          "id": "U-AGT95",
+          "title": "GOAPEngine — Goal-Oriented Action Planning",
+          "description": "GOAP for dynamic replanning. Defines goals, actions with preconditions/effects, searches for plans. Used in game AI, applies to manufacturing.",
+          "smart_config": {
+            "role": "AI Planning Specialist",
+            "model": "opus",
+            "effort": "MAX",
+            "context_budget": "55%"
+          },
+          "knowledge_to_consult": [
+            "GOAP algorithm (game AI)",
+            "STRIPS-style planning",
+            "Action preconditions/effects",
+            "Manufacturing action library"
+          ],
+          "exit_criteria": [
+            "Defines manufacturing actions with pre/post",
+            "Searches for goal-achieving plans",
+            "Replans when conditions change",
+            "Handles concurrent actions"
+          ],
+          "files_created": [
+            "src/engines/GOAPEngine.ts"
+          ],
+          "files_modified": [],
+          "abort_criteria": [
+            "Plan search exponential on moderate problems"
+          ],
+          "rollback_procedure": "git checkout src/engines/GOAPEngine.ts",
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "depends_on": [
+            "U-AGT94"
+          ]
+        },
+        {
+          "id": "U-AGT96",
+          "title": "AStarSearchEngine — Optimal Path Planning",
+          "description": "A* search for toolpath optimization, machine scheduling, and process sequencing. Heuristic-guided search for optimal solutions.",
+          "smart_config": {
+            "role": "Algorithm Specialist",
+            "model": "opus",
+            "effort": "HIGH",
+            "context_budget": "45%"
+          },
+          "knowledge_to_consult": [
+            "A* algorithm",
+            "Admissible heuristics",
+            "Toolpath optimization as search",
+            "Weighted A* for speed"
+          ],
+          "exit_criteria": [
+            "Finds optimal toolpath sequences",
+            "Uses domain-specific heuristics",
+            "Handles large search spaces",
+            "Returns near-optimal quickly when needed"
+          ],
+          "files_created": [
+            "src/engines/AStarSearchEngine.ts"
+          ],
+          "files_modified": [],
+          "abort_criteria": [
+            "Heuristic not admissible"
+          ],
+          "rollback_procedure": "git checkout src/engines/AStarSearchEngine.ts",
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "depends_on": [
+            "U-AGT67"
+          ]
+        },
+        {
+          "id": "U-AGT97",
+          "title": "GeneticAlgorithmEngine — Evolutionary Optimization",
+          "description": "GA for multi-objective manufacturing optimization. Cutting parameters, nesting layouts, scheduling — evolve solutions over generations.",
+          "smart_config": {
+            "role": "Optimization Specialist",
+            "model": "opus",
+            "effort": "HIGH",
+            "context_budget": "50%"
+          },
+          "knowledge_to_consult": [
+            "Genetic algorithm fundamentals",
+            "NSGA-II for multi-objective",
+            "Manufacturing optimization problems",
+            "Encoding schemes for parameters"
+          ],
+          "exit_criteria": [
+            "Evolves cutting parameters",
+            "Handles multi-objective (cost vs time vs quality)",
+            "Converges to Pareto front",
+            "Parallelizes population evaluation"
+          ],
+          "files_created": [
+            "src/engines/GeneticAlgorithmEngine.ts"
+          ],
+          "files_modified": [],
+          "abort_criteria": [
+            "Premature convergence to local optima"
+          ],
+          "rollback_procedure": "git checkout src/engines/GeneticAlgorithmEngine.ts",
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "depends_on": [
+            "U-AGT68"
+          ]
+        },
+        {
+          "id": "U-AGT98",
+          "title": "SimulatedAnnealingEngine — Global Optimization",
+          "description": "SA for escaping local optima in complex optimization landscapes. Schedule optimization, layout problems, parameter tuning.",
+          "smart_config": {
+            "role": "Optimization Specialist",
+            "model": "opus",
+            "effort": "HIGH",
+            "context_budget": "45%"
+          },
+          "knowledge_to_consult": [
+            "Simulated annealing algorithm",
+            "Cooling schedules",
+            "Neighborhood functions",
+            "Manufacturing scheduling as SA"
+          ],
+          "exit_criteria": [
+            "Escapes local optima",
+            "Adaptive cooling schedule",
+            "Handles discrete and continuous",
+            "Converges to near-global optimum"
+          ],
+          "files_created": [
+            "src/engines/SimulatedAnnealingEngine.ts"
+          ],
+          "files_modified": [],
+          "abort_criteria": [
+            "Cooling too fast, stuck in local"
+          ],
+          "rollback_procedure": "git checkout src/engines/SimulatedAnnealingEngine.ts",
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "depends_on": [
+            "U-AGT97"
+          ]
+        },
+        {
+          "id": "U-AGT99",
+          "title": "ReplanningEngine — Dynamic Plan Adaptation",
+          "description": "Replans when execution diverges from plan. Machine breakdown, tool wear faster than expected, material defect — adapt the plan.",
+          "smart_config": {
+            "role": "AI Planning Specialist",
+            "model": "opus",
+            "effort": "MAX",
+            "context_budget": "50%"
+          },
+          "knowledge_to_consult": [
+            "Continual planning",
+            "Plan repair algorithms",
+            "Execution monitoring",
+            "Manufacturing contingencies"
+          ],
+          "exit_criteria": [
+            "Detects plan-execution divergence",
+            "Repairs plan minimally",
+            "Handles multiple simultaneous failures",
+            "Explains adaptation reasoning"
+          ],
+          "files_created": [
+            "src/engines/ReplanningEngine.ts"
+          ],
+          "files_modified": [],
+          "abort_criteria": [
+            "Replanning slower than full replan"
+          ],
+          "rollback_procedure": "git checkout src/engines/ReplanningEngine.ts",
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "depends_on": [
+            "U-AGT94",
+            "U-AGT95"
+          ]
+        }
+      ],
+      "forge_triple": {
+        "hook": "planning-algorithm-audit",
+        "action": "prism_intelligence:plan_optimize",
+        "skill": "/plan-optimize"
+      },
+      "exit_gate": {
+        "criteria": [
+          "HTN decomposes manufacturing tasks",
+          "GOAP plans achieve goals dynamically",
+          "A* finds optimal sequences",
+          "GA optimizes multi-objective problems",
+          "SA escapes local optima",
+          "Replanning adapts to failures"
+        ],
+        "omega_floor": 0.9,
+        "svi_delta": "+6%"
+      }
+    },
+    {
+      "id": "AGENT-MS22",
+      "title": "LLM Optimization & Token Efficiency",
+      "description": "Batch API integration, model routing, prompt compression, semantic caching, response streaming. Maximize AI efficiency and minimize token costs.",
+      "sessions": 2,
+      "units": [
+        {
+          "id": "U-AGT100",
+          "title": "BatchAPIEngine — Asynchronous Bulk Processing",
+          "description": "Anthropic Batch API for bulk operations. Queue large jobs, process overnight, receive results. 50% cost reduction for non-urgent tasks.",
+          "smart_config": {
+            "role": "API Integration Specialist",
+            "model": "sonnet",
+            "effort": "HIGH",
+            "context_budget": "40%"
+          },
+          "knowledge_to_consult": [
+            "Anthropic Batch API documentation",
+            "Job queue patterns",
+            "Async processing",
+            "Cost optimization strategies"
+          ],
+          "exit_criteria": [
+            "Submits batch jobs to Anthropic API",
+            "Tracks job status and completion",
+            "Retrieves results when ready",
+            "Routes non-urgent to batch automatically"
+          ],
+          "files_created": [
+            "src/engines/BatchAPIEngine.ts"
+          ],
+          "files_modified": [
+            "src/engines/LLMEngine.ts"
+          ],
+          "abort_criteria": [
+            "Batch jobs lost or corrupted"
+          ],
+          "rollback_procedure": "git checkout src/engines/BatchAPIEngine.ts src/engines/LLMEngine.ts",
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "depends_on": [
+            "U-AGT01"
+          ]
+        },
+        {
+          "id": "U-AGT101",
+          "title": "ModelRouterEngine — Intelligent Model Selection",
+          "description": "Routes queries to optimal model based on complexity, cost, latency requirements. Simple queries → Haiku, complex → Opus, safety-critical → Opus+Advisor.",
+          "smart_config": {
+            "role": "ML Systems Specialist",
+            "model": "sonnet",
+            "effort": "HIGH",
+            "context_budget": "45%"
+          },
+          "knowledge_to_consult": [
+            "LLMProviderAdapterEngine for providers",
+            "Query complexity estimation",
+            "Cost/latency tradeoffs",
+            "Anthropic model capabilities"
+          ],
+          "exit_criteria": [
+            "Classifies query complexity",
+            "Routes to appropriate model",
+            "Tracks model performance",
+            "Adapts routing based on results"
+          ],
+          "files_created": [
+            "src/engines/ModelRouterEngine.ts"
+          ],
+          "files_modified": [],
+          "abort_criteria": [
+            "Routing adds >100ms latency"
+          ],
+          "rollback_procedure": "git checkout src/engines/ModelRouterEngine.ts",
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "depends_on": [
+            "U-AGT100"
+          ]
+        },
+        {
+          "id": "U-AGT102",
+          "title": "PromptCompressionEngine — Token Reduction",
+          "description": "Compresses prompts while preserving meaning. Removes redundancy, abbreviates context, uses efficient encodings. 30-50% token reduction.",
+          "smart_config": {
+            "role": "NLP Optimization Specialist",
+            "model": "opus",
+            "effort": "HIGH",
+            "context_budget": "45%"
+          },
+          "knowledge_to_consult": [
+            "Prompt compression techniques",
+            "Context distillation",
+            "Information-theoretic redundancy",
+            "Token-efficient prompting"
+          ],
+          "exit_criteria": [
+            "Compresses prompts by >30%",
+            "Preserves semantic meaning",
+            "No quality degradation",
+            "Reversible for debugging"
+          ],
+          "files_created": [
+            "src/engines/PromptCompressionEngine.ts"
+          ],
+          "files_modified": [],
+          "abort_criteria": [
+            "Compression loses critical information"
+          ],
+          "rollback_procedure": "git checkout src/engines/PromptCompressionEngine.ts",
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "depends_on": [
+            "U-AGT101"
+          ]
+        },
+        {
+          "id": "U-AGT103",
+          "title": "SemanticCacheEngine — Response Memoization",
+          "description": "Caches LLM responses by semantic similarity. Similar queries hit cache instead of API. 90%+ cache hit rate for repeated patterns.",
+          "smart_config": {
+            "role": "Caching Systems Specialist",
+            "model": "sonnet",
+            "effort": "HIGH",
+            "context_budget": "40%"
+          },
+          "knowledge_to_consult": [
+            "SemanticEmbeddingEngine for similarity",
+            "Cache eviction policies",
+            "Semantic hashing",
+            "Response freshness management"
+          ],
+          "exit_criteria": [
+            "Caches responses by semantic key",
+            "High similarity threshold (>0.95)",
+            "LRU eviction with TTL",
+            "Cache hit rate >80%"
+          ],
+          "files_created": [
+            "src/engines/SemanticCacheEngine.ts"
+          ],
+          "files_modified": [],
+          "abort_criteria": [
+            "Cache returns stale/wrong responses"
+          ],
+          "rollback_procedure": "git checkout src/engines/SemanticCacheEngine.ts",
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "depends_on": [
+            "U-AGT47",
+            "U-AGT102"
+          ]
+        },
+        {
+          "id": "U-AGT104",
+          "title": "StreamingResponseEngine — Progressive Output",
+          "description": "Streams LLM responses token-by-token for immediate feedback. Progressive rendering, early stopping on error detection, typing indicators.",
+          "smart_config": {
+            "role": "Real-time Systems Specialist",
+            "model": "sonnet",
+            "effort": "HIGH",
+            "context_budget": "40%"
+          },
+          "knowledge_to_consult": [
+            "Anthropic streaming API",
+            "Server-Sent Events (SSE)",
+            "Progressive UI rendering",
+            "Early stopping patterns"
+          ],
+          "exit_criteria": [
+            "Streams tokens in real-time",
+            "Detects errors mid-stream",
+            "Cancels on user interrupt",
+            "Renders progressively in CLI/web"
+          ],
+          "files_created": [
+            "src/engines/StreamingResponseEngine.ts"
+          ],
+          "files_modified": [
+            "src/engines/LLMEngine.ts"
+          ],
+          "abort_criteria": [
+            "Streaming adds latency vs batch"
+          ],
+          "rollback_procedure": "git checkout src/engines/StreamingResponseEngine.ts src/engines/LLMEngine.ts",
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "depends_on": [
+            "U-AGT103"
+          ]
+        }
+      ],
+      "forge_triple": {
+        "hook": "llm-efficiency-audit",
+        "action": "prism_ai:optimize_tokens",
+        "skill": "/token-optimize"
+      },
+      "exit_gate": {
+        "criteria": [
+          "Batch API processes bulk jobs at 50% cost",
+          "Model router selects optimal model",
+          "Prompt compression >30% reduction",
+          "Semantic cache >80% hit rate",
+          "Streaming provides real-time feedback"
+        ],
+        "omega_floor": 0.85,
+        "svi_delta": "+5%"
+      }
+    },
+    {
+      "id": "AGENT-MS23",
+      "title": "Probabilistic Reasoning & Bayesian Intelligence",
+      "description": "Bayesian networks, probabilistic graphical models, Markov decision processes, Monte Carlo inference. Principled uncertainty handling.",
+      "sessions": 2,
+      "units": [
+        {
+          "id": "U-AGT105",
+          "title": "BayesianNetworkEngine — Probabilistic Inference",
+          "description": "Bayesian networks for manufacturing reasoning. Model causal relationships, perform inference, update beliefs with evidence.",
+          "smart_config": {
+            "role": "Probabilistic Reasoning Specialist",
+            "model": "opus",
+            "effort": "MAX",
+            "context_budget": "55%"
+          },
+          "knowledge_to_consult": [
+            "Bayesian network fundamentals",
+            "Variable elimination, belief propagation",
+            "CausalInferenceEngine for integration",
+            "Manufacturing failure networks"
+          ],
+          "exit_criteria": [
+            "Builds BN from domain knowledge",
+            "Performs exact inference on small nets",
+            "Approximate inference on large nets",
+            "Updates with observed evidence"
+          ],
+          "files_created": [
+            "src/engines/BayesianNetworkEngine.ts"
+          ],
+          "files_modified": [],
+          "abort_criteria": [
+            "Inference times out on moderate nets"
+          ],
+          "rollback_procedure": "git checkout src/engines/BayesianNetworkEngine.ts",
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "depends_on": [
+            "U-AGT57"
+          ]
+        },
+        {
+          "id": "U-AGT106",
+          "title": "MDPSolverEngine — Markov Decision Processes",
+          "description": "MDP for sequential decision making under uncertainty. Value iteration, policy iteration for optimal manufacturing decisions.",
+          "smart_config": {
+            "role": "Decision Theory Specialist",
+            "model": "opus",
+            "effort": "MAX",
+            "context_budget": "50%"
+          },
+          "knowledge_to_consult": [
+            "MDP fundamentals",
+            "Value/policy iteration",
+            "Manufacturing as MDP",
+            "Approximate dynamic programming"
+          ],
+          "exit_criteria": [
+            "Models manufacturing as MDP",
+            "Computes optimal policy",
+            "Handles uncertainty in transitions",
+            "Recommends optimal actions"
+          ],
+          "files_created": [
+            "src/engines/MDPSolverEngine.ts"
+          ],
+          "files_modified": [],
+          "abort_criteria": [
+            "State space explosion on complex problems"
+          ],
+          "rollback_procedure": "git checkout src/engines/MDPSolverEngine.ts",
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "depends_on": [
+            "U-AGT105"
+          ]
+        },
+        {
+          "id": "U-AGT107",
+          "title": "MonteCarloInferenceEngine — Sampling-Based Reasoning",
+          "description": "MCMC, importance sampling, particle filtering for intractable distributions. Approximate inference when exact is too expensive.",
+          "smart_config": {
+            "role": "Statistical Inference Specialist",
+            "model": "opus",
+            "effort": "HIGH",
+            "context_budget": "50%"
+          },
+          "knowledge_to_consult": [
+            "MCMC (Metropolis-Hastings, Gibbs)",
+            "Importance sampling",
+            "Particle filtering",
+            "Convergence diagnostics"
+          ],
+          "exit_criteria": [
+            "Samples from complex distributions",
+            "Converges to stationary distribution",
+            "Provides uncertainty estimates",
+            "Handles high-dimensional spaces"
+          ],
+          "files_created": [
+            "src/engines/MonteCarloInferenceEngine.ts"
+          ],
+          "files_modified": [],
+          "abort_criteria": [
+            "Chains don't converge"
+          ],
+          "rollback_procedure": "git checkout src/engines/MonteCarloInferenceEngine.ts",
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "depends_on": [
+            "U-AGT105"
+          ]
+        },
+        {
+          "id": "U-AGT108",
+          "title": "ProbabilisticProgramEngine — Generative Models",
+          "description": "Probabilistic programming for manufacturing. Define generative models, condition on observations, infer latent variables.",
+          "smart_config": {
+            "role": "Probabilistic ML Specialist",
+            "model": "opus",
+            "effort": "MAX",
+            "context_budget": "55%"
+          },
+          "knowledge_to_consult": [
+            "Probabilistic programming (Pyro, Stan)",
+            "Generative models",
+            "Variational inference",
+            "Manufacturing process models"
+          ],
+          "exit_criteria": [
+            "Defines generative process models",
+            "Conditions on observed data",
+            "Infers unobserved parameters",
+            "Generates synthetic data"
+          ],
+          "files_created": [
+            "src/engines/ProbabilisticProgramEngine.ts"
+          ],
+          "files_modified": [],
+          "abort_criteria": [
+            "Inference doesn't converge"
+          ],
+          "rollback_procedure": "git checkout src/engines/ProbabilisticProgramEngine.ts",
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "depends_on": [
+            "U-AGT107"
+          ]
+        }
+      ],
+      "forge_triple": {
+        "hook": "probabilistic-reasoning-audit",
+        "action": "prism_intelligence:bayesian_infer",
+        "skill": "/bayesian"
+      },
+      "exit_gate": {
+        "criteria": [
+          "Bayesian networks model manufacturing causality",
+          "MDP solver finds optimal policies",
+          "MCMC samples from complex distributions",
+          "Probabilistic programs model processes"
+        ],
+        "omega_floor": 0.9,
+        "svi_delta": "+5%"
+      }
+    }
+  ],
+  "total_units": 108,
+  "estimated_sessions": 59,
+  "enforcement_hooks": {
+    "pre_level": [
+      "knowledge-consult",
+      "context-retention"
+    ],
+    "post_level": [
+      "stub-detector",
+      "test-quality",
+      "constants-checker",
+      "physics-agent",
+      "wiring-agent"
+    ],
+    "compact_level": [
+      "review-gate",
+      "wiring-gate",
+      "forge-triple-gate",
+      "session-audit-agent"
+    ],
+    "post_compact": [
+      "feature-cascade"
+    ]
+  },
+  "mcp_utilization": {
+    "session_start": [
+      "prism_session:context_boot",
+      "prism_session:dispatcher_map",
+      "prism_session:memory_recall",
+      "prism_session:system_snapshot"
+    ],
+    "during_work": [
+      "prism_session:auto_checkpoint",
+      "prism_session:action_search",
+      "prism_session:tool_route_best",
+      "prism_session:wip_capture"
+    ],
+    "session_end": [
+      "prism_session:memory_save",
+      "prism_session:system_snapshot",
+      "prism_session:checkpoint_enhanced"
+    ]
+  },
+  "plugins": [
+    "vitest-mcp",
+    "eslint-mcp",
+    "codebase-memory-mcp"
+  ],
+  "feature_cascade": {
+    "new_dispatchers": [
+      "agentDispatcher"
+    ],
+    "new_engines": [
+      "CapabilityIndexEngine",
+      "EngineDigestEngine",
+      "AgentMemoryFabricEngine",
+      "ContextRetentionEngine",
+      "LearningLoopEngine",
+      "ManufacturingReasoningEngine",
+      "MultiPathReasoningEngine",
+      "ExtendedThinkingBridgeEngine",
+      "ReasoningExplainerEngine",
+      "IntentRouterEngine",
+      "ToolExecutionEngine",
+      "AgenticLoopEngine",
+      "ContextCompactionEngine",
+      "MultiToolOrchestratorEngine",
+      "AgentAPIEngine",
+      "AgentMetricsEngine",
+      "FileWatcherEngine",
+      "IncrementalIndexEngine",
+      "SchemaExtractionEngine",
+      "CapabilityAnnouncementEngine",
+      "RegistryWatchEngine",
+      "SelfHealingIndexEngine",
+      "AdvisorConfigEngine",
+      "MultiRoleBuildEngine",
+      "AdvisorMetricsEngine",
+      "SafetyGateEngine",
+      "MachinePersonalityEngine",
+      "TribalKnowledgeElicitationEngine",
+      "MemoryOrchestratorEngine",
+      "CircuitBreakerEngine",
+      "ConstraintGraphEngine",
+      "ReasoningCalibrationEngine",
+      "TenantContextEngine",
+      "PartitionedMemoryEngine",
+      "FederatedLearningEngine",
+      "ScalableCapabilityIndexEngine",
+      "EncryptedMemoryEngine",
+      "SecretRedactionEngine",
+      "LLMProviderAdapterEngine",
+      "VoiceInterfaceEngine",
+      "SetupVisionEngine",
+      "MTConnectBridgeEngine",
+      "PredictiveMaintenanceEngine",
+      "ShopFloorDashboardEngine",
+      "SemanticEmbeddingEngine",
+      "ManufacturingPatternMinerEngine",
+      "NeuralCuttingModelEngine",
+      "ReinforcementLearningEngine",
+      "HierarchicalDecompositionEngine",
+      "CounterfactualReasoningEngine",
+      "CausalInferenceEngine",
+      "UncertaintyQuantificationEngine",
+      "AutonomousTaskEngine",
+      "SelfCorrectionEngine",
+      "EscalationEngine",
+      "PRISMCLIAgentEngine",
+      "AbductiveReasoningEngine",
+      "CaseBasedReasoningEngine",
+      "MetaReasoningEngine",
+      "ConstraintSolverEngine",
+      "MCTSEngine",
+      "DynamicProgrammingEngine",
+      "ShellCompletionEngine",
+      "CLIConfigEngine",
+      "TerminalUIEngine",
+      "CLIPluginEngine",
+      "IDEIntegrationEngine",
+      "OnlineLearningEngine",
+      "ActiveLearningEngine",
+      "CurriculumLearningEngine",
+      "DryRunModeEngine",
+      "KillSwitchEngine",
+      "RateLimiterEngine",
+      "ManufacturingOntologyEngine",
+      "TemporalReasoningEngine",
+      "ManufacturingTransformerEngine",
+      "ProcessGraphNeuralEngine",
+      "ToolWearLSTMEngine",
+      "SetupVisionCNNEngine",
+      "MetaLearningEngine",
+      "NeuralArchitectureOrchestratorEngine",
+      "SpatialReasoningEngine",
+      "CADGeometryReasoningEngine",
+      "TruthMaintenanceEngine",
+      "BeliefRevisionEngine",
+      "AnalogicalReasoningEngine",
+      "FormalLogicEngine",
+      "HTNPlannerEngine",
+      "GOAPEngine",
+      "AStarSearchEngine",
+      "GeneticAlgorithmEngine",
+      "SimulatedAnnealingEngine",
+      "ReplanningEngine",
+      "BatchAPIEngine",
+      "ModelRouterEngine",
+      "PromptCompressionEngine",
+      "SemanticCacheEngine",
+      "StreamingResponseEngine",
+      "BayesianNetworkEngine",
+      "MDPSolverEngine",
+      "MonteCarloInferenceEngine",
+      "ProbabilisticProgramEngine"
+    ],
+    "new_skills": [
+      "/prism-capabilities",
+      "/agent-memory",
+      "/why",
+      "/agent",
+      "/agent-metrics",
+      "/agent-refresh",
+      "/advisor-status",
+      "/safety-check",
+      "/agent-calibrate",
+      "/tenant-status",
+      "/security-audit",
+      "/shop-floor",
+      "/neural-predict",
+      "/analyze",
+      "/prism-cli",
+      "/deep-reason",
+      "/prism-config",
+      "/prism-learn",
+      "/neural-arch",
+      "/spatial-reason",
+      "/plan-optimize",
+      "/token-optimize",
+      "/bayesian"
+    ],
+    "new_hooks": [
+      "capability-index-refresh",
+      "auto-ingest-on-build",
+      "memory-persist-on-compact",
+      "reasoning-trace-audit",
+      "agentic-loop-audit",
+      "agent-usage-audit",
+      "advisor-auto-enable",
+      "safety-gate-pre-execute",
+      "reasoning-calibration-weekly",
+      "tenant-isolation-verify",
+      "secret-audit-pre-commit",
+      "shop-floor-data-sync",
+      "neural-model-retrain-weekly",
+      "reasoning-quality-audit",
+      "cli-agent-audit-log",
+      "deep-reasoning-audit",
+      "cli-plugin-audit",
+      "continuous-learning-audit",
+      "neural-architecture-audit",
+      "spatial-belief-audit",
+      "planning-algorithm-audit",
+      "llm-efficiency-audit",
+      "probabilistic-reasoning-audit"
+    ]
+  },
+  "quality_standard": {
+    "omega_floor": 0.85,
+    "test_coverage": ">80%",
+    "no_stubs": true,
+    "physics_validation": true,
+    "wiring_complete": true
+  },
+  "smart_config": {
+    "role": "implementer + reviewer",
+    "model": "sonnet",
+    "effort": "HIGH",
+    "context_budget": "65%"
+  },
+  "mcp_lifecycle": {
+    "session_start": [
+      "prism_session:context_boot",
+      "prism_session:dispatcher_map",
+      "prism_session:memory_recall",
+      "prism_session:system_snapshot",
+      "prism_session:action_search"
+    ],
+    "during_work": [
+      "prism_session:auto_checkpoint",
+      "prism_session:tool_route_best",
+      "prism_session:wip_capture"
+    ],
+    "session_end": [
+      "prism_session:memory_save",
+      "prism_session:system_snapshot",
+      "prism_session:checkpoint_enhanced"
+    ]
+  },
+  "forge_triple": {
+    "protective_hook": "prism-agent-gate",
+    "mcp_action": "prism_agent:prism_agent_run",
+    "skill_command": "/prism-agent",
+    "ownership": "DECLARED — BUILT in terminal unit of this milestone"
+  },
+  "intent": "Build an internal Claude-powered AI agent with deep PRISM self-awareness, constant context retention, and manufacturing domain expertise. Replaces external Claude Code dependency with optimized internal equivalent.",
+  "compact_checkpoint": "every 3 units — auto-triggered by hook",
+  "enforcement_hooks_active": [
+    "physics agent",
+    "wiring agent",
+    "constants checker",
+    "stub detector",
+    "test quality",
+    "forge-triple gate",
+    "session audit agent"
+  ],
+  "units": [
+    {
+      "id": "U-PRIS01",
+      "title": "PRISM-AGENT — Coordinator",
+      "description": "Master coordinator envelope for PRISM-AGENT. Tracks sub-milestones, aggregates their exit gates, and opens closure after every child milestone flips to complete. Follow 4-LOOP at the aggregation layer.",
+      "exit_conditions": [
+        "All sub-milestones listed in dependencies reach status=complete",
+        "Aggregate scrutiny score ≥80 across children",
+        "Cross-track coherence verified: no orphan engines, no duplicate actions",
+        "Final /rgs pass through the 10-agent gate returns PASS"
+      ],
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ],
+      "status": "pending",
+      "role": "coordinator"
+    }
+  ],
+  "_role": "coordinator"
+}

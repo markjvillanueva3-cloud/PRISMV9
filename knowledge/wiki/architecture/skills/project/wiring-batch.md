@@ -29,8 +29,8 @@ related:
 
 ## Description (first paragraph)
 
-Reads `state/shared/UNWIRED-ENGINE-AUDIT-*.json` (898 entries currently)
-and produces a **concrete wire-batch plan**:
+
+# /wiring-batch — Propose the next wire-batch from the unwired backlog
 
 <!-- AUTO-END -->
 

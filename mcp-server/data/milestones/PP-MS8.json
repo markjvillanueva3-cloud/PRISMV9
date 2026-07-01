@@ -1,0 +1,149 @@
+{
+  "id": "PP-MS8",
+  "version": "6.2.0",
+  "title": "Integration Testing + Optimization Benchmarking + Skills + Hooks",
+  "created_at": "2026-03-13T20:00:00Z",
+  "description": "End-to-end integration testing of the complete 35-stage pipeline across multiple machine/material/operation combinations. Benchmark optimization quality against constant S/F baseline and commercial post processors. Create slash commands for post processor interaction. Build hooks for auto-triggering. Create comprehensive documentation.",
+  "phases": [
+    {
+      "id": "P0",
+      "title": "Integration Test Suite",
+      "units": [
+        {
+          "id": "U01",
+          "title": "End-to-end pipeline tests: 20+ material × machine × operation combinations",
+          "status": "complete",
+          "steps": [
+            "Test matrix — materials: 4140 Steel, 316L Stainless, Ti-6Al-4V, 7075-T6 Aluminum, Inconel 718, PEEK, Cast Iron",
+            "Test matrix — machines: Haas VF-2 (3-axis), DMG DMU 50 (5-axis), Mazak QTN (lathe), Okuma LB3000 (mill-turn)",
+            "Test matrix — operations: facing, profiling, pocketing, drilling, tapping, 3D contouring, 5-axis simultaneous",
+            "Each test: run full pipeline from raw toolpath → optimized G-code → verification",
+            "Verify: G-code parses without errors per controller dialect",
+            "Verify: all S/F values within machine limits",
+            "Verify: all moves within machine work volume",
+            "Verify: chip thinning compensation active for light engagements",
+            "Verify: corner feed reduction active at direction changes",
+            "Verify: stability lobe RPM selection avoids chatter zones",
+            "Verify: analytics report generated with realistic values",
+            "Verify: setup sheet complete with all tool/operation data",
+            "Verify: cycle time estimate reasonable (within 20% of hand calculation)",
+            "Golden file tests: store reference outputs, regression check on future changes"
+          ],
+          "exit_conditions": [
+            "20+ material/machine/operation combinations tested",
+            "All generated G-code passes PostProcessorVerificationEngine",
+            "No safety violations in any test case",
+            "Golden file regression suite established",
+            "100+ integration tests total"
+          ]
+        },
+        {
+          "id": "U02",
+          "title": "Optimization benchmarking: PRISM vs constant S/F baseline",
+          "status": "complete",
+          "steps": [
+            "For each integration test case, generate TWO outputs:",
+            "  A) Constant S/F: single S and F per tool (traditional post processor behavior)",
+            "  B) PRISM optimized: full 35-stage pipeline variable S/F",
+            "Measure and compare:",
+            "  Cycle time: PRISM should be 10-30% faster due to higher feeds in light engagement zones",
+            "  Force variation: PRISM should show 30-50% less peak force variation (smoother cutting)",
+            "  Tool life prediction: PRISM should predict 15-40% longer tool life due to wear-aware derating",
+            "  Surface finish prediction: PRISM should predict better Ra consistency due to adaptive feed",
+            "  Process capability: PRISM Cpk should be higher due to deflection compensation",
+            "Generate benchmark report with before/after metrics for each test case",
+            "Aggregate: average improvement across all test cases",
+            "Store benchmark results for marketing/documentation"
+          ],
+          "exit_conditions": [
+            "Benchmark report generated for all integration test cases",
+            "PRISM shows measurable improvement in at least 4 of 5 metrics",
+            "No test case where PRISM produces WORSE results than constant S/F",
+            "Aggregate improvement numbers documented"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "P1",
+      "title": "Skills + Hooks + Dispatcher Wiring",
+      "units": [
+        {
+          "id": "U03",
+          "title": "Slash commands: /post-process, /post-optimize, /post-configure, /post-benchmark",
+          "status": "complete",
+          "steps": [
+            "Create /post-process skill: interactive full pipeline via MCP chat",
+            "  Prompts for: material, machine, operation type, tool(s), tolerances",
+            "  Accepts G-code paste or file path",
+            "  Runs pp_run_full action, returns optimized G-code + summary report",
+            "Create /post-optimize skill: Phase B re-optimization of existing G-code",
+            "  Accepts G-code paste/file + material/machine context",
+            "  Returns before/after comparison with improvement metrics",
+            "Create /post-configure skill: configure pipeline stages and preferences",
+            "  Interactive stage enable/disable",
+            "  Set default machine, material, aggressiveness",
+            "  Save as named profile for reuse",
+            "Create /post-benchmark skill: run optimization benchmark on sample programs",
+            "  Uses built-in test cases to demonstrate PRISM optimization impact",
+            "  Generates formatted benchmark report"
+          ],
+          "exit_conditions": [
+            "All 4 skills functional and documented in /commands list",
+            "Skills handle missing inputs gracefully (prompt for required, default for optional)",
+            "Output is formatted and actionable"
+          ]
+        },
+        {
+          "id": "U04",
+          "title": "Hooks: auto-optimize on G-code generation, warn on manual S/F, post-validation guard",
+          "status": "complete",
+          "steps": [
+            "Hookify rule: autofire-post-optimize — when /program-gen or /gcode generates output, auto-run optimization",
+            "Hookify rule: warn-constant-sf — warn when G-code has same S/F for entire tool section",
+            "Hookify rule: post-validate-guard — auto-run verification after any G-code generation",
+            "Hookify rule: post-machine-match — warn when G-code contains codes not in selected controller dialect",
+            "Hook: posttooluse — if camDispatcher returns G-code, include optimization improvement estimate",
+            "Hook: pretooluse — if user requests G-code for a machine, auto-load machine profile from catalog"
+          ],
+          "exit_conditions": [
+            "Auto-optimize hook fires after /program-gen",
+            "Constant S/F warning fires for traditional G-code",
+            "Validation runs automatically after generation",
+            "All hooks registered in hookify system"
+          ]
+        },
+        {
+          "id": "U05",
+          "title": "Final dispatcher wiring + action schema + documentation",
+          "status": "complete",
+          "steps": [
+            "Create postProcessorPipelineActionSchemas.ts with Zod schemas for all PP actions",
+            "Wire ALL new engines to appropriate dispatchers:",
+            "  PostProcessorPipelineEngine → camDispatcher (pp_run_full, pp_run_partial, pp_analyze, pp_configure, pp_reoptimize)",
+            "  ControllerDialectEngine → camDispatcher (dialect_translate, dialect_list, dialect_validate)",
+            "  FiveAxisPostEngine → camDispatcher (five_axis_post, five_axis_tcpc, five_axis_linearize)",
+            "  PostProcessorVerificationEngine → camDispatcher (pp_verify, pp_backplot, pp_grammar_check)",
+            "  MachineSequenceEngine → camDispatcher (machine_sequence_startup, machine_sequence_toolchange)",
+            "  MultiChannelPostEngine → camDispatcher (multi_channel_post, mill_turn_post)",
+            "Wire HTTP API actions to same engine instances (shared logic)",
+            "Update ToolRouter with new patterns for post processor actions",
+            "Update SYSTEM_INVENTORY.md with all new engines and actions",
+            "Update ENGINE_DIGEST.md with one-line descriptions",
+            "Update DISPATCHER_DIGEST.md with new action counts",
+            "Update CODE_SYSTEM_INDEX with DSL shortcodes for new files"
+          ],
+          "exit_conditions": [
+            "All new engines wired to dispatchers",
+            "All actions callable through dispatcher system",
+            "ToolRouter routes post-processor queries correctly",
+            "Documentation updated (SYSTEM_INVENTORY, ENGINE_DIGEST, DISPATCHER_DIGEST)",
+            "Build: 0 errors",
+            "Total test count for PP track: 200+"
+          ]
+        }
+      ]
+    }
+  ],
+  "status": "complete"
+}

@@ -822,7 +822,7 @@ export class LatheDeepAIHardeningEngine {
     });
 
     // Step 2 — Build operation sequence
-    const baseSequence = PART_FAMILY_SEQUENCES[partFamily] ?? PART_FAMILY_SEQUENCES.custom;
+    const baseSequence = PART_FAMILY_SEQUENCES[partFamily];
     const sequence = this._refineSequence(baseSequence, featureList);
     reasoning.push({
       step_number: 2,

@@ -40,7 +40,7 @@ function estimateSessionMetrics() {
 
   try {
     const health = JSON.parse(fs.readFileSync('H:/prism/mcp-server/data/state/HEALTH_CHECK_REPORT.json', 'utf-8'));
-    awareness = health.awareness?.score || 0.8;
+    awareness = ({pass:0.95,healthy:0.95,ok:0.95,operational:0.9,warning:0.6,degraded:0.6,fail:0.3,failed:0.3,critical:0.2})[String(health.status||"").toLowerCase()] ?? 0.8;
   } catch {}
 
   try {

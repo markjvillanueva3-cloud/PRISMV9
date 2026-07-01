@@ -408,6 +408,63 @@ A 30° chamfer, 1mm deep:
   }],
 }];
 
+const mod9: Lesson[] = [{
+  id: `${CID}-m9-l1`, moduleId: `${CID}-mod-9`,
+  title: "Citation Discipline & Source Attribution",
+  order: 1,
+  content: [{
+    type: "text",
+    body: `# Citation Discipline — Shop Math Edition
+
+**Prerequisite:** Modules 1-8 of this course (you should already recognize the formulas being cited).
+**Learning objective:** Recognize *which* shop-math claims need a source, *how* to format a citation at the claim, and *why* uncited rules cause silent failures on the floor.
+**Assessment:** Take any claim from modules 1-8 and write its full citation. If you cannot, that is a curriculum-debt item — escalate.
+
+## Why Citations Matter on the Shop Floor
+
+A speed/feed claim without a source is an opinion. An opinion can wreck a tool, scrap a part, or hurt an operator. On the shop floor — and in the academy that trains shop-floor workers — every claim that affects an outcome must be traceable to a source.
+
+**Lima (the canonical academy slot) discipline:**
+> *Cite sources at the claim, not in a bibliography. Distinguish doctrine (memorize) from technique (derive) from reference (look up).*
+
+## The Citation Pattern
+
+\`<claim> [per <source>, <year>, <page/clause>]\`
+
+Examples revisiting earlier modules of THIS course with explicit sources:
+
+- **"1 inch = 25.400 mm exactly"** [per International Yard and Pound Agreement, 1959 — ratified by US, UK, Canada, Australia, New Zealand, South Africa. Reference: Frank B. Schwab, *Refinement of values for the yard and the pound*, NBS Journal of Research, 1959.]
+- **"Kienzle cutting-force equation: Fc = kc1.1 × ap × fz^(1-mc)"** [per Kienzle, O., 1952. *Die Bestimmung von Kräften und Leistungen an spanenden Werkzeugen und Werkzeugmaschinen.* VDI-Zeitschrift 94 (11-12): 299-305. PRISM-specific kc1.1 values per ISO group live in \`mcp-server/src/physics/constants.ts\` (canonical: P=1800, M=2100, K=1100, N=700, S=2800, H=3200).]
+- **"L/D ≤ 3 for finishing, L/D ≤ 5 for roughing"** [per Sandvik Coromant, *Modern Metal Cutting* handbook, machining theory chapter — page references vary by region/edition; verify against your shop's copy on the rack.]
+- **"RPM = (Vc × 1000) / (π × D)"** [per ISO 3002-1:1982, *Basic quantities in cutting and grinding* — clause 4 (spindle speed definition).]
+- **"0.05 (5%) coolant concentration for general machining"** [per supplier MSDS for the specific coolant; PRISM JM Die default profile in \`src/data/jm-die-profile.ts\`. Always defer to the supplier — coolant concentrations are vendor-specific, not universal.]
+
+## Doctrine vs Technique vs Reference
+
+A claim's category tells you how to handle it on the floor:
+
+| Category | Definition | Lookup behavior | Examples |
+|----------|-----------|----------------|----------|
+| **Doctrine** | Universal constants and rules. Memorize cold. | Recall instantly | 1 inch = 25.4 mm · SOH-CAH-TOA · PEMDAS · 360°/N for bolt-circle spacing |
+| **Technique** | Procedures derived each time from inputs. | Re-derive from formula | Plug values into Kienzle · Rearrange RPM = Vc×1000/(πD) to solve for Vc · Decimal subtraction with aligned decimal points |
+| **Reference** | Tables and values that change by material/tool/standard. | Look up every time | kc1.1 per ISO material group · Thread-pitch tables · Coolant concentration per supplier MSDS · G-code syntax per controller dialect |
+
+Confusing the categories wastes time and creates risk. Trying to memorize every kc1.1 value is brittle (wrong values cause force-prediction failures); looking up SOH-CAH-TOA every day is slow (and a signal of incomplete training).
+
+## The Silent-Failure Mode
+
+A class of shop-floor mistakes comes from **inherited rules without sources**. Someone says "always run aluminum at 1000 SFM" — but *where does that come from*? What grade of aluminum (6061? 7075? cast 380?)? What tool coating? What machine rigidity? Without the source, the rule can't be debugged when chips load up, can't be updated when the alloy changes, and can't survive a coolant or tool-substrate swap.
+
+**Floor rule:** *if you can't cite it, you can't defend it. If you can't defend it, you can't ship it as curriculum or as a setup sheet.*
+
+## Practice (Assessment)
+
+Pick any claim from modules 1-8 of this course (e.g., "Keep L/D ≤ 3 for finishing"). Write the full citation in the pattern above. If you cannot identify the source, that is a **curriculum-debt** item — flag it for the academy maintainers (lima soul mandate: *"promoting an uncited claim to a curriculum → reject, demand source"*).
+
+Successful completion of this module means: the next time you read a shop-floor instruction, you ask *"per what source?"* before you trust it.`,
+  }],
+}];
+
 // ═══════════════════════════════════════════════════════════
 // Quizzes
 // ═══════════════════════════════════════════════════════════
@@ -470,6 +527,15 @@ export const COURSE_0A_QUIZZES: Record<string, Question[]> = {
       tags: ["trig", "bolt_circle"],
     },
   ],
+  [`${CID}-mod-9-quiz`]: [
+    {
+      id: "c0a-q7", type: "calculation", difficulty: 1,
+      text: "Convert 3.500 inches to millimeters using the canonical conversion factor (per International Yard and Pound Agreement, 1959).",
+      correctAnswer: 88.9, tolerance: 0.1,
+      explanation: "3.500 × 25.4 = 88.900 mm. Citation: International Yard and Pound Agreement, 1959 — '1 inch = 25.4 mm exactly' is a defined value, not a measured one.",
+      tags: ["citation_discipline", "unit_conversion", "doctrine"],
+    },
+  ],
 };
 
 // Module Assembly
@@ -496,4 +562,5 @@ export const COURSE_0A_MODULES: Module[] = [
   mk(6, "Ratios & Percentages", mod6, 35),
   mk(7, "Basic Algebra", mod7, 50),
   mk(8, "Trigonometry for Machinists", mod8, 50),
+  mk(9, "Citation Discipline & Source Attribution", mod9, 30),
 ];

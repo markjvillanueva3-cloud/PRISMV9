@@ -1,0 +1,144 @@
+{
+  "schemaVersion": "1.0.0",
+  "id": "PPG-MS1",
+  "version": "1.0.0",
+  "title": "PPG-MS1 — Block-by-Block Speed/Feed Runtime (3-layer: post-bake / parametric F[#101] / in-cycle FOCAS+OPC-UA)",
+  "track": "PPG",
+  "parent_roadmap": "PRISM-UNIFIED-ROADMAP-v2",
+  "pillar": "P3-PPG-SFC-LEARNING-LOOP",
+  "status": "not_started",
+  "created_at": "2026-04-28T21:30:00.000Z",
+  "last_updated": "2026-04-29T15:12:31.240Z",
+  "total_units": 10,
+  "completed_units": 0,
+  "description": "Replaces single-feed-per-operation posts with block-by-block recalculation that responds to changing engagement, depth-of-cut, chip thickness, and chatter risk. Three runtime layers: L1 (post-bake) emits per-block S/F into the program; L2 (shop-floor parametric) emits F[#101] macro variables an operator can scale on the controller; L3 (in-cycle) writes feed override via FOCAS (Fanuc) or OPC-UA (Hurco/Okuma/Heidenhain). Layer choice depends on controller capability and AGI tier (omega-thresholds.json from PPG-MS8).",
+  "rationale": "JM Die programs lose 8-22% cycle time to constant feed rates that pessimize for the worst block in an operation (typically corner engagement). The audit showed PostProcessorFeedOptimizerEngine + ChatterStabilityLobeEngine + KienzleForceModel can already compute per-block targets, but no post wires them block-level — only operation-level. This milestone closes that wiring gap.",
+  "leverage_existing": [
+    "CAMSpeedFeedBridgeEngine (E0093) — already wired in camDispatcher (cam_speedfeed_compute / cam_speedfeed_translate); host translation (hyperMILL/Fusion/Inventor HSM/Mastercam/generic)",
+    "SpeedFeedOrchestratorEngine (2,851 LOC) — central physics hub, AtomicValue outputs",
+    "AutoSpeedFeedEngine + UltimateSpeedFeedEngine + MachineAwareSpeedFeedEngine + LatheSpeedFeedCalculatorFacadeEngine + AutoSpeedFeedCalculatorEngine — domain-specific facades",
+    "PostProcessorFeedOptimizerEngine — physics-aware feed bake (chatter + tool life), already wired into MasterPostProcessorEngine.ts:33+426",
+    "MasterPostProcessorEngine + MasterPostProcessorUnifiedAGIEngine (E0322) + PostProcessorAGIMasterRegistryEngine + MasterPostFineTuningEngine (E0321) + PostProcessorUnificationEngine (E0383) — emit-side integrators",
+    "ChatterStabilityLobeEngine + BayesianToolLifeEngine — physics confidence overlays",
+    "KienzleForceModelEngine — per-block force given h, b, kc1.1, mc",
+    "InstantaneousEngagementEngine + EngagementDynamicsEngine (E0140) + EngagementOptimizerAdapter (E0141) — per-block radial/axial engagement",
+    "ChipThinningCompensationEngine (E0103) — gamma correction for ball-nose / round inserts",
+    "SFCInferenceGateWireEngine + SFCOutcomeCaptureWireEngine — SFC bridge engines (PSAU-PPG-SFC outputs)",
+    "MTConnect adapter (read-only) and OPC-UA adapter (write+read) — machine_live dispatcher (already wired)",
+    "CSSChipLoadInvariantCoordinatorEngine (E0125) — G96 CSS feed-rate continuity for lathe (LATHE-PROD-READY-MS0 U-LPR05)",
+    "LatheSpeedFeedCalculatorFacadeEngine — lathe-specific S/F facade (already in MS1 wiring)",
+    "OkumaB250LatheMasterPostEngine (E0355) + LatheMasterPostRouter (E0269) — lathe master post emit targets"
+  ],
+  "the_worked_example_that_proves_it": {
+    "scenario": "Hurco V11 roughing a D2 corner pocket. Engagement varies from 40% (open straight) to 95% (corner radius).",
+    "today_pre_ppg_ms1": "Post emits one F=320 mm/min for the entire roughing op, sized to survive the 95% corner. Open passes run 2.4× too slow. 18% cycle-time waste.",
+    "should_be_post_ppg_ms1": "L1: post bakes F=560 (open) → F=320 (corner) → F=560 transitions block-by-block. L2: F=#101*[engagement_scale_table] for shop tweak. L3: WinMax UltiMotion confirms via OPC-UA write of feed override based on live spindle load.",
+    "gap_now_closed": "Per-block math reaches the program. iMachining-class results without the iMachining license."
+  },
+  "units": [
+    {
+      "id": "U-PPGM07",
+      "title": "BlockByBlockFeedEngine — wire to PostProcessorFeedOptimizerEngine per-block",
+      "scope": "src/engines/BlockByBlockFeedEngine.ts — accept toolpath block stream, return F[] with confidence per block",
+      "files_to_modify": [
+        "src/engines/BlockByBlockFeedEngine.ts"
+      ],
+      "tests_to_add": [
+        "src/__tests__/BlockByBlockFeedEngine.test.ts"
+      ]
+    },
+    {
+      "id": "U-PPGM07b",
+      "title": "End-to-end SF-to-post chain wire (CAMSpeedFeedBridge → SpeedFeedOrchestrator → BlockByBlockFeedEngine → PostProcessorFeedOptimizer → MasterPostProcessor)",
+      "scope": "Wire the existing chain end-to-end so the orchestrator output reaches MasterPostProcessor emission, not parallel-track. Add integration test asserting the chain yields a per-block F[] array consistent with sf_calculate output for the same op tree.",
+      "files_to_modify": [
+        "src/engines/MasterPostProcessorEngine.ts",
+        "src/engines/BlockByBlockFeedEngine.ts"
+      ],
+      "tests_to_add": [
+        "src/__tests__/SfToPostChainEndToEnd.integration.test.ts"
+      ]
+    },
+    {
+      "id": "U-PPGM08",
+      "title": "Per-block Kienzle force corrected for engagement + chip thinning",
+      "scope": "Wire KienzleForceModel + InstantaneousEngagementEngine + ChipThinningCompensationEngine per block"
+    },
+    {
+      "id": "U-PPGM09",
+      "title": "Per-RPM-range chatter SLD lookup",
+      "scope": "Resolve current spindle RPM into ChatterStabilityLobeEngine lobe; flag UNSTABLE blocks; force F derate or RPM hop"
+    },
+    {
+      "id": "U-PPGM10",
+      "title": "L2 macro variable emit (F[#101] table)",
+      "scope": "Post emits parametric F[#101]*scale_table; sidecar carries the table; controller-agnostic"
+    },
+    {
+      "id": "U-PPGM11",
+      "title": "L3 FOCAS feed-override adapter (Fanuc 0i/16i/30i/31i)",
+      "scope": "src/adapters/FocasFeedOverrideAdapter.ts — write feed override during cut based on live spindle load"
+    },
+    {
+      "id": "U-PPGM12",
+      "title": "L3 OPC-UA feed-override adapter (Hurco WinMax / Okuma OSP / Heidenhain TNC)",
+      "scope": "src/adapters/OpcUaFeedOverrideAdapter.ts — same contract as FOCAS; routed by controller dialect"
+    },
+    {
+      "id": "U-PPGM13",
+      "title": "Cycle-time regression harness",
+      "scope": "src/__tests__/BlockByBlockFeed.regression.test.ts — 50 golden D2/M2/A2 toolpaths; assert ≥10% cycle-time win without violating chatter/force ceilings"
+    },
+    {
+      "id": "U-PPGM13b",
+      "title": "Lathe G96 CSS block-by-block path (E0125 wired through L1+L2)",
+      "scope": "Wire CSSChipLoadInvariantCoordinatorEngine (E0125) into BlockByBlockFeedEngine for lathe ops; emit per-block S (m/min) → spindle RPM under G96 with S-clamp at G50; L2 macro emits #101*scale_table for diameter-aware override; round-trip test on Okuma B250 OD turning + boring + grooving (≥3 ISO groups: P=4140, M=304SS, K=cast iron).",
+      "files_to_modify": [
+        "src/engines/BlockByBlockFeedEngine.ts",
+        "src/engines/CSSChipLoadInvariantCoordinatorEngine.ts"
+      ],
+      "tests_to_add": [
+        "src/__tests__/BlockByBlockFeedLatheCSS.integration.test.ts"
+      ]
+    },
+    {
+      "id": "U-PPGM13c",
+      "title": "WEDM block-by-block energy schedule (skim pass override at L1)",
+      "scope": "Wire EDMMultiPassStrategyEngine into BlockByBlockFeedEngine for WEDM dialects (Mitsubishi M800, Sodick MotionLink, AgieCharmilles, Makino, Fanuc 31i WEDM); per-block (E, TON, TOFF, IP) instead of per-pass; sidecar carries the per-pass schedule.",
+      "files_to_modify": [
+        "src/engines/BlockByBlockFeedEngine.ts"
+      ],
+      "tests_to_add": [
+        "src/__tests__/BlockByBlockFeedWEDM.integration.test.ts"
+      ]
+    }
+  ],
+  "completion_criteria": [
+    "Per-block F[] reaches the program for every operation in the 13 master posts",
+    "L1/L2 always available; L3 available when controller supports FOCAS or OPC-UA write",
+    "≥10% cycle-time reduction on the 50-program JM Die regression corpus, zero violations of chatter/force/torque ceilings",
+    "Tier-aware: L3 only enables at omega tier ≥ proven_out (from PPG-MS8)",
+    "Lathe G96 CSS path: per-block spindle RPM consistent with cutting-speed target across diameter sweep on Okuma B250 OD turn corpus (≥10 reference programs)",
+    "WEDM per-block energy schedule: 5 dialects emit pass-aware E/TON/TOFF without operator hand-edits"
+  ],
+  "depends_on": [
+    "PPG-MS0"
+  ],
+  "blocks": [
+    "PPG-MS2",
+    "PPG-MS9",
+    "PPG-MS11",
+    "PPG-MS4",
+    "PPG-MS14",
+    "PPG-MS16",
+    "PPG-MS19",
+    "PPG-MS33",
+    "PPG-MS34",
+    "PPG-MS35",
+    "PPG-MS36"
+  ],
+  "_patches": [
+    "ppg-leverage-16-2026-04-29"
+  ],
+  "_reverse_reciprocity_patch": "ppg-round3-novel-2026-04-29"
+}

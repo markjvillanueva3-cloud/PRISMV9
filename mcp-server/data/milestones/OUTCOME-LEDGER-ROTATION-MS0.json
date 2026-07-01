@@ -1,0 +1,26 @@
+{
+  "id": "OUTCOME-LEDGER-ROTATION-MS0",
+  "title": "Outcome ledger rotation + retention policy — per-domain JSONL hygiene",
+  "track": "TELEMETRY",
+  "status": "pending",
+  "owner": "tango",
+  "rationale": "13 domain chats emit OutcomeLedgerRecord JSONL hourly. Without rotation: <domain>-outcomes.jsonl grows unboundedly, query latency degrades, retrain ingest takes minutes instead of seconds. Need weekly rotation + 90-day retention + S3-equivalent archive.",
+  "estimated_duration": "3 days",
+  "total_units": 5,
+  "completed_units": 0,
+  "units": [
+    {"id": "OLR-01", "title": "training-ledger-rotate.mjs — rotates state/shared/training/<domain>-outcomes.jsonl to dated archive weekly", "status": "pending", "owner_slot": "tango"},
+    {"id": "OLR-02", "title": "Rotation cron — fires every Sunday 03:15 local (PRISM Outcome Ledger Rotation scheduled task)", "status": "pending", "owner_slot": "tango"},
+    {"id": "OLR-03", "title": "Retention policy — keep last 13 weeks online + archive older to .gz", "status": "pending", "owner_slot": "tango"},
+    {"id": "OLR-04", "title": "Audit hook — verify processLedger reads from BOTH live + archive when --since flag given", "status": "pending", "owner_slot": "tango"},
+    {"id": "OLR-05", "title": "Telemetry — record rotation stats (lines rotated, archive bytes) per ledger", "status": "pending", "owner_slot": "tango"}
+  ],
+  "exit_gate": {
+    "rotation_proven": "live ledger never exceeds 7 days of outcomes",
+    "archive_recoverable": "processLedger --since=30d successfully reads from archive",
+    "no_data_loss": "all rotated rows accounted for in archive byte-count audit",
+    "cron_health": "scheduled task has 4+ successful runs (≥1 month of live operation)"
+  },
+  "depends_on": ["AI-STACK-PER-DOMAIN-MS0"],
+  "summary": "Rotate per-domain outcome ledgers weekly, retain 13 weeks online, archive older as gzipped JSONL. Required before fleet-wide training stabilizes — otherwise ingest performance degrades and retrains slow to minutes per run."
+}

@@ -28,10 +28,9 @@ const mockHaasVF2: CanonicalMachinePackage = {
   spindle: {
     max_rpm: 8100,
     min_rpm: 100,
-    power_continuous_kw: 22.4,
-    power_kw: 22.4,
-    max_torque_nm: 122,
+    power: 22.4,
     base_rpm: 1750,
+    torque: 122,
     taper: "CAT40",
   },
   envelope: {
@@ -40,8 +39,10 @@ const mockHaasVF2: CanonicalMachinePackage = {
     z_travel: 508,
   },
   axes: {
-    max_feed_mmmin: 16500,
-    rapid_mmmin: 25400,
+    linear_axes: 3,
+    rotary_axes: 0,
+    max_cutting_feed_mmmin: 16500,
+    x_rapid: 25400,
   },
   controller_packages: [],
   spindle_packages: [],
@@ -82,10 +83,9 @@ const mockDMU50: CanonicalMachinePackage = {
   spindle: {
     max_rpm: 20000,
     min_rpm: 50,
-    power_continuous_kw: 35,
-    power_kw: 35,
-    max_torque_nm: 130,
+    power: 35,
     base_rpm: 2500,
+    torque: 130,
     taper: "HSK-A63",
   },
   envelope: {
@@ -94,8 +94,10 @@ const mockDMU50: CanonicalMachinePackage = {
     z_travel: 400,
   },
   axes: {
-    max_feed_mmmin: 30000,
-    rapid_mmmin: 42000,
+    linear_axes: 3,
+    rotary_axes: 2,
+    max_cutting_feed_mmmin: 30000,
+    x_rapid: 42000,
   },
   controller_packages: [],
   spindle_packages: [],

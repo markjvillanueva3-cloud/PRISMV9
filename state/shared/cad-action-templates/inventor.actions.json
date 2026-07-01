@@ -1,0 +1,367 @@
+{
+  "schemaVersion": 1,
+  "platform": "inventor",
+  "writtenAt": "2026-05-25T19:37:45.560Z",
+  "atomicOpCount": 38,
+  "actions": [
+    {
+      "op": "sketch.create-plane",
+      "fn": "PlanarSketches.Add",
+      "args": [
+        "planarEntity"
+      ],
+      "notes": "planarEntity is a Face or WorkPlane"
+    },
+    {
+      "op": "sketch.line-2pt",
+      "fn": "Sketch.SketchLines.AddByTwoPoints",
+      "args": [
+        "p1:Point2d",
+        "p2:Point2d"
+      ],
+      "notes": ""
+    },
+    {
+      "op": "sketch.line-polyline",
+      "fn": "SketchLines.AddByPolyline",
+      "args": [
+        "points[]"
+      ],
+      "notes": "Returns ObjectCollection"
+    },
+    {
+      "op": "sketch.arc-3pt",
+      "fn": "SketchArcs.AddByThreePoints",
+      "args": [
+        "p1",
+        "p2",
+        "p3"
+      ],
+      "notes": ""
+    },
+    {
+      "op": "sketch.arc-cse",
+      "fn": "SketchArcs.AddByCenterStartEndPoint",
+      "args": [
+        "center",
+        "start",
+        "end"
+      ],
+      "notes": ""
+    },
+    {
+      "op": "sketch.circle-cr",
+      "fn": "SketchCircles.AddByCenterRadius",
+      "args": [
+        "center",
+        "radius"
+      ],
+      "notes": ""
+    },
+    {
+      "op": "sketch.ellipse-axes",
+      "fn": "SketchEllipticalArcs.Add",
+      "args": [
+        "center",
+        "a",
+        "b"
+      ],
+      "notes": ""
+    },
+    {
+      "op": "sketch.spline-poly",
+      "fn": "SketchSplines.Add",
+      "args": [
+        "points[]"
+      ],
+      "notes": ""
+    },
+    {
+      "op": "sketch.rect-2pt",
+      "fn": "SketchLines.AddAsTwoPointRectangle",
+      "args": [
+        "p1",
+        "p2"
+      ],
+      "notes": ""
+    },
+    {
+      "op": "sketch.rect-center",
+      "fn": "SketchLines.AddAsThreePointCenterPointRectangle",
+      "args": [
+        "center",
+        "p2",
+        "p3"
+      ],
+      "notes": ""
+    },
+    {
+      "op": "sketch.polygon-n",
+      "fn": "SketchLines.AddAsPolygon",
+      "args": [
+        "center",
+        "N",
+        "radius"
+      ],
+      "notes": ""
+    },
+    {
+      "op": "sketch.slot-straight",
+      "fn": "SketchLines.AddAsStraightSlot",
+      "args": [
+        "p1",
+        "p2",
+        "width"
+      ],
+      "notes": ""
+    },
+    {
+      "op": "sketch.slot-arc",
+      "fn": "SketchLines.AddAsThreePointArcSlot",
+      "args": [
+        "arcCenter",
+        "p1",
+        "p2",
+        "width"
+      ],
+      "notes": ""
+    },
+    {
+      "op": "sketch.offset",
+      "fn": "Sketch.OffsetSketchEntitiesUsingDistance",
+      "args": [
+        "entities",
+        "distance"
+      ],
+      "notes": ""
+    },
+    {
+      "op": "sketch.trim",
+      "fn": "Sketch.TrimSketchObject",
+      "args": [
+        "object",
+        "pickPoint"
+      ],
+      "notes": ""
+    },
+    {
+      "op": "sketch.fillet-2d",
+      "fn": "Sketch.FilletSketchEntities",
+      "args": [
+        "c1",
+        "c2",
+        "radius"
+      ],
+      "notes": ""
+    },
+    {
+      "op": "op.extrude",
+      "fn": "ExtrudeFeatures.AddByDistanceExtent",
+      "args": [
+        "profile",
+        "distance",
+        "direction"
+      ],
+      "notes": ""
+    },
+    {
+      "op": "op.extrude-cut",
+      "fn": "ExtrudeFeatures.AddByDistanceExtent(...CutOperation)",
+      "args": [
+        "profile",
+        "distance"
+      ],
+      "notes": ""
+    },
+    {
+      "op": "op.revolve",
+      "fn": "RevolveFeatures.AddByFullAngle",
+      "args": [
+        "profile",
+        "axis"
+      ],
+      "notes": ""
+    },
+    {
+      "op": "op.loft",
+      "fn": "LoftFeatures.AddByLoftDefinition",
+      "args": [
+        "sections[]"
+      ],
+      "notes": ""
+    },
+    {
+      "op": "op.sweep",
+      "fn": "SweepFeatures.AddByPath",
+      "args": [
+        "profile",
+        "path"
+      ],
+      "notes": ""
+    },
+    {
+      "op": "op.shell",
+      "fn": "ShellFeatures.AddUsingFaceSet",
+      "args": [
+        "faceSet",
+        "thickness"
+      ],
+      "notes": ""
+    },
+    {
+      "op": "op.fillet",
+      "fn": "FilletFeatures.Add",
+      "args": [
+        "edges[]",
+        "radius"
+      ],
+      "notes": ""
+    },
+    {
+      "op": "op.chamfer",
+      "fn": "ChamferFeatures.AddUsingDistance",
+      "args": [
+        "edges[]",
+        "distance"
+      ],
+      "notes": ""
+    },
+    {
+      "op": "op.draft",
+      "fn": "FaceDraftFeatures.AddUsingFixedPlane",
+      "args": [
+        "faces[]",
+        "plane",
+        "angle"
+      ],
+      "notes": ""
+    },
+    {
+      "op": "op.mirror",
+      "fn": "MirrorFeatures.Add",
+      "args": [
+        "features[]",
+        "plane"
+      ],
+      "notes": ""
+    },
+    {
+      "op": "op.pattern-rect",
+      "fn": "RectangularPatternFeatures.Add",
+      "args": [
+        "features[]",
+        "dir1",
+        "qty1",
+        "spacing1",
+        "dir2",
+        "qty2",
+        "spacing2"
+      ],
+      "notes": ""
+    },
+    {
+      "op": "op.pattern-circ",
+      "fn": "CircularPatternFeatures.Add",
+      "args": [
+        "features[]",
+        "axis",
+        "qty",
+        "totalAngle"
+      ],
+      "notes": ""
+    },
+    {
+      "op": "op.hole-simple",
+      "fn": "HoleFeatures.AddDrilledByDistanceExtent",
+      "args": [
+        "sketch",
+        "diameter",
+        "depth"
+      ],
+      "notes": ""
+    },
+    {
+      "op": "op.hole-threaded",
+      "fn": "HoleFeatures.AddTapped",
+      "args": [
+        "sketch",
+        "size",
+        "depth"
+      ],
+      "notes": ""
+    },
+    {
+      "op": "op.thread-external",
+      "fn": "ThreadFeatures.Add",
+      "args": [
+        "face",
+        "threadInfo"
+      ],
+      "notes": ""
+    },
+    {
+      "op": "op.boolean-add",
+      "fn": "CombineFeatures.Add(JoinOperation)",
+      "args": [
+        "target",
+        "tools[]"
+      ],
+      "notes": ""
+    },
+    {
+      "op": "op.boolean-cut",
+      "fn": "CombineFeatures.Add(CutOperation)",
+      "args": [
+        "target",
+        "tools[]"
+      ],
+      "notes": ""
+    },
+    {
+      "op": "op.boolean-intersect",
+      "fn": "CombineFeatures.Add(IntersectOperation)",
+      "args": [
+        "target",
+        "tools[]"
+      ],
+      "notes": ""
+    },
+    {
+      "op": "asm.insert-component",
+      "fn": "OccurrencesEnumerator.Add",
+      "args": [
+        "file",
+        "matrix"
+      ],
+      "notes": ""
+    },
+    {
+      "op": "asm.mate-coincident",
+      "fn": "Constraints.AddMateConstraint",
+      "args": [
+        "geo1",
+        "geo2"
+      ],
+      "notes": ""
+    },
+    {
+      "op": "asm.mate-concentric",
+      "fn": "Constraints.AddInsertConstraint",
+      "args": [
+        "axis1",
+        "axis2"
+      ],
+      "notes": ""
+    },
+    {
+      "op": "asm.mate-distance",
+      "fn": "Constraints.AddMateConstraint(distance)",
+      "args": [
+        "geo1",
+        "geo2",
+        "distance"
+      ],
+      "notes": ""
+    }
+  ]
+}

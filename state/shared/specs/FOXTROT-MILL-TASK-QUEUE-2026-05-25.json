@@ -1,0 +1,2757 @@
+{
+  "schemaVersion": "1.0.0",
+  "generated_at": "2026-05-25T05:49:41.597Z",
+  "slot": "foxtrot",
+  "source_files": [
+    "data/roadmap-index.json",
+    "state/shared/specs/ROADMAP-CONSOLIDATED.json",
+    "state/shared/specs/MILL-PARITY-LATHE-GAPS-2026-05-25.txt",
+    "state/shared/specs/MILL-PARITY-WEDM-GAPS-2026-05-25.txt"
+  ],
+  "total_units": 391,
+  "by_source": {
+    "roadmap-index": 9,
+    "roadmap-consolidated": 35,
+    "mill-parity-lathe": 186,
+    "mill-parity-wedm": 161
+  },
+  "queue": [
+    {
+      "unit_id": "CAMX-MS6",
+      "source": "roadmap-index",
+      "status": "not_started",
+      "milestone": null,
+      "title": "PowerMill + CATIA Dedicated Infrastructure"
+    },
+    {
+      "unit_id": "CAMX-MS9",
+      "source": "roadmap-index",
+      "status": "not_started",
+      "milestone": null,
+      "title": "hyperMILL AC Bridge + Fusion 360 Parity"
+    },
+    {
+      "unit_id": "CAMX-V17-P0B",
+      "source": "roadmap-index",
+      "status": "not_started",
+      "milestone": null,
+      "title": "Critical Bug Fixes — Multi-Start Threading, Facing, MillTurn, Routing"
+    },
+    {
+      "unit_id": "CAMX-V17-P5",
+      "source": "roadmap-index",
+      "status": "not_started",
+      "milestone": null,
+      "title": "Milling Pipeline Completion"
+    },
+    {
+      "unit_id": "CAMX-V17-P7",
+      "source": "roadmap-index",
+      "status": "not_started",
+      "milestone": null,
+      "title": "Mill-Turn/Swiss Pipeline Completion"
+    },
+    {
+      "unit_id": "F360-REV-MS9",
+      "source": "roadmap-index",
+      "status": "not_started",
+      "milestone": null,
+      "title": "Multi-Axis + Mill-Turn F360 Wiring"
+    },
+    {
+      "unit_id": "LATHE-PRO-MS6a",
+      "source": "roadmap-index",
+      "status": "not_started",
+      "milestone": null,
+      "title": "Swiss/Mill-Turn Multi-Channel G-Code Emission"
+    },
+    {
+      "unit_id": "MILL-AWARE-MS0",
+      "source": "roadmap-index",
+      "status": "pending",
+      "milestone": null,
+      "title": "Mill AI Full-Awareness — Dispatcher, Resource Wiring, Tribal Knowledge, Machine Profiles"
+    },
+    {
+      "unit_id": "PPG-BASELINE-MS0",
+      "source": "roadmap-index",
+      "status": "not_started",
+      "milestone": null,
+      "title": "Milling Post Baseline — Fix v10.9 Bugs + Wire PRISM Intelligence"
+    },
+    {
+      "unit_id": "U-CAMX03",
+      "source": "roadmap-consolidated",
+      "status": "pending",
+      "milestone": "CAMX-V17-P11",
+      "title": "Cross-material test: same part in 12 materials (milling)"
+    },
+    {
+      "unit_id": "U-AITRAIN-MILL-MILLING-AI-ULTRA-INTELLIGENCE",
+      "source": "roadmap-consolidated",
+      "status": "pending",
+      "milestone": "AI-TRAINING-FIRST-MS0",
+      "title": "Train MillingAIUltraIntelligenceEngine on full pre-revenue corpus (JM-DIE 76K + MIT-OCW + v8.89 MIT kernels)"
+    },
+    {
+      "unit_id": "U-AITRAIN-MILL-MILLING-META-LEARNING",
+      "source": "roadmap-consolidated",
+      "status": "pending",
+      "milestone": "AI-TRAINING-FIRST-MS0",
+      "title": "Train MillingMetaLearningEngine on full pre-revenue corpus (JM-DIE 76K + MIT-OCW + v8.89 MIT kernels)"
+    },
+    {
+      "unit_id": "U-WIRE-BACKLOG-MILL",
+      "source": "roadmap-consolidated",
+      "status": "pending",
+      "milestone": "FEATURE-GAP-AUDIT-MS0",
+      "title": "Wire the ~20 unwired mill engines (MillingAIUltraIntelligence, FiveAxisAIUltraIntelligence, MillingUltimateAI, FiveAxisO"
+    },
+    {
+      "unit_id": "U-AUDIT-01-2B4677",
+      "source": "roadmap-consolidated",
+      "status": "pending",
+      "milestone": "MS-AUDIT-DERIVED-2026-05-10",
+      "title": "[gap] MillingForceEngine is a 15-line stub but millDispatcher routes 'physics' bucket to it and 533-line test file prete"
+    },
+    {
+      "unit_id": "U-AUDIT-02-B5F8AF",
+      "source": "roadmap-consolidated",
+      "status": "pending",
+      "milestone": "MS-AUDIT-DERIVED-2026-05-10",
+      "title": "[gap] MillScientificPipelineEngine is a 14-line stub wired as the millDispatcher 'scientific' bucket — mill_scientific_a"
+    },
+    {
+      "unit_id": "U-AUDIT-06-EB760E",
+      "source": "roadmap-consolidated",
+      "status": "pending",
+      "milestone": "MS-AUDIT-DERIVED-2026-05-10",
+      "title": "[gap] MillingForceEngine.test.ts (565 lines) imports MillingForceEngine class + named types — class doesn't exist on stu"
+    },
+    {
+      "unit_id": "U-AUDIT-15-8A7DB9",
+      "source": "roadmap-consolidated",
+      "status": "pending",
+      "milestone": "MS-AUDIT-DERIVED-2026-05-10",
+      "title": "Verify+remove dead-code: mcp-server/src/engines/MillingForceEngine.ts"
+    },
+    {
+      "unit_id": "U-AUDIT-18-56F99E",
+      "source": "roadmap-consolidated",
+      "status": "pending",
+      "milestone": "MS-AUDIT-DERIVED-2026-05-10",
+      "title": "Verify+remove dead-code: mcp-server/src/engines/MillingForceEngine.test.ts (test file)"
+    },
+    {
+      "unit_id": "U-CTE04",
+      "source": "roadmap-consolidated",
+      "status": "pending",
+      "milestone": "CAD-TRAINING-EXTRACT-MS0",
+      "title": "Extract InventorCAM 2.5D Milling + 3D HSM"
+    },
+    {
+      "unit_id": "U-CMCCL01",
+      "source": "roadmap-consolidated",
+      "status": "pending",
+      "milestone": "CAM-ML-CLOSEDLOOP-MS0",
+      "title": "MillingLoRADatasetBuilderEngine + MillingLoRACadenceEngine"
+    },
+    {
+      "unit_id": "U-CMCCL03",
+      "source": "roadmap-consolidated",
+      "status": "pending",
+      "milestone": "CAM-ML-CLOSEDLOOP-MS0",
+      "title": "MillTurnLoRADatasetBuilderEngine + MillTurnLoRACadenceEngine"
+    },
+    {
+      "unit_id": "U-DPM0-MILL-PRINT_INTAKE",
+      "source": "roadmap-consolidated",
+      "status": "pending",
+      "milestone": "DOMAIN-PIPELINE-MS0",
+      "title": "mill:PRINT_INTAKE promote partial → built (Print intake)"
+    },
+    {
+      "unit_id": "U-DPM0-MILL-PRINT_OCR",
+      "source": "roadmap-consolidated",
+      "status": "pending",
+      "milestone": "DOMAIN-PIPELINE-MS0",
+      "title": "mill:PRINT_OCR promote partial → built (Print OCR)"
+    },
+    {
+      "unit_id": "U-DPM0-MILL-MATERIAL_SELECT",
+      "source": "roadmap-consolidated",
+      "status": "pending",
+      "milestone": "DOMAIN-PIPELINE-MS0",
+      "title": "mill:MATERIAL_SELECT promote partial → built (Material select)"
+    },
+    {
+      "unit_id": "U-DPM0-MILL-TOOLING_SELECT",
+      "source": "roadmap-consolidated",
+      "status": "pending",
+      "milestone": "DOMAIN-PIPELINE-MS0",
+      "title": "mill:TOOLING_SELECT promote partial → built (Tooling select)"
+    },
+    {
+      "unit_id": "U-DPM0-MILL-FIXTURE_DESIGN",
+      "source": "roadmap-consolidated",
+      "status": "pending",
+      "milestone": "DOMAIN-PIPELINE-MS0",
+      "title": "mill:FIXTURE_DESIGN build missing stage (Fixture / workholding)"
+    },
+    {
+      "unit_id": "U-DPM0-MILL-OPERATION_SEQUENCE",
+      "source": "roadmap-consolidated",
+      "status": "pending",
+      "milestone": "DOMAIN-PIPELINE-MS0",
+      "title": "mill:OPERATION_SEQUENCE promote partial → built (Operation sequence)"
+    },
+    {
+      "unit_id": "U-DPM0-MILL-TOOLPATH_GEN",
+      "source": "roadmap-consolidated",
+      "status": "pending",
+      "milestone": "DOMAIN-PIPELINE-MS0",
+      "title": "mill:TOOLPATH_GEN promote partial → built (Toolpath generation)"
+    },
+    {
+      "unit_id": "U-DPM0-MILL-POST_PROCESS",
+      "source": "roadmap-consolidated",
+      "status": "pending",
+      "milestone": "DOMAIN-PIPELINE-MS0",
+      "title": "mill:POST_PROCESS promote partial → built (Post-process to NC)"
+    },
+    {
+      "unit_id": "U-DPM0-MILL-SIMULATE",
+      "source": "roadmap-consolidated",
+      "status": "pending",
+      "milestone": "DOMAIN-PIPELINE-MS0",
+      "title": "mill:SIMULATE build missing stage (Pre-cut simulate)"
+    },
+    {
+      "unit_id": "U-DPM0-MILL-OPERATOR_GATE",
+      "source": "roadmap-consolidated",
+      "status": "pending",
+      "milestone": "DOMAIN-PIPELINE-MS0",
+      "title": "mill:OPERATOR_GATE promote partial → built (Operator approval)"
+    },
+    {
+      "unit_id": "U-DPM0-MILL-MACHINE_RUN",
+      "source": "roadmap-consolidated",
+      "status": "pending",
+      "milestone": "DOMAIN-PIPELINE-MS0",
+      "title": "mill:MACHINE_RUN build missing stage (Machine execution)"
+    },
+    {
+      "unit_id": "U-DPM0-MILL-QUALITY_VERIFY",
+      "source": "roadmap-consolidated",
+      "status": "pending",
+      "milestone": "DOMAIN-PIPELINE-MS0",
+      "title": "mill:QUALITY_VERIFY build missing stage (Quality verify)"
+    },
+    {
+      "unit_id": "U-DPM0-MILL-LEARNING_LOOP",
+      "source": "roadmap-consolidated",
+      "status": "pending",
+      "milestone": "DOMAIN-PIPELINE-MS0",
+      "title": "mill:LEARNING_LOOP promote partial → built (Closed-loop learning)"
+    },
+    {
+      "unit_id": "U-MAW-VERIFY",
+      "source": "roadmap-consolidated",
+      "status": "pending",
+      "milestone": "WORKTREE-CONSOLIDATE-MS0",
+      "title": "Verify mill_prism_reason action + Mill tests + /physics-verify + 3-of-3"
+    },
+    {
+      "unit_id": "U-DDP03",
+      "source": "roadmap-consolidated",
+      "status": "pending",
+      "milestone": "WORKTREE-CONSOLIDATE-MS0",
+      "title": "Collision cluster canonical assignment + MillingAGI confirmation"
+    },
+    {
+      "unit_id": "U-PPGM48",
+      "source": "roadmap-consolidated",
+      "status": "pending",
+      "milestone": "PPG-MS7",
+      "title": "Dispatcher action mill_print_to_program"
+    },
+    {
+      "unit_id": "U-CAMM-HM-D",
+      "source": "roadmap-consolidated",
+      "status": "pending",
+      "milestone": "MS-CAM-MASTERY",
+      "title": "P1 hyperMILL pillar D — the 3-button bridge add-in (hypermill_addin_generate) + the hyperMILL SDK arm from MS-RES-HYPERM"
+    },
+    {
+      "unit_id": "U-CW-11",
+      "source": "roadmap-consolidated",
+      "status": "pending",
+      "milestone": "MS-CRITWIRE",
+      "title": "De-stub mill_chatter_predict — MillingForceEngine.ts stub → route to MillingPhysicsKernelEngine"
+    },
+    {
+      "unit_id": "U-CW-12",
+      "source": "roadmap-consolidated",
+      "status": "pending",
+      "milestone": "MS-CRITWIRE",
+      "title": "De-stub mill_scientific_analyze — MillScientificPipelineEngine.ts stub → prism_calc Merchant/Oxley/Zorev chain"
+    },
+    {
+      "unit_id": "U-CW-13",
+      "source": "roadmap-consolidated",
+      "status": "pending",
+      "milestone": "MS-CRITWIRE",
+      "title": "De-stub the other 4 mill_scientific_* stub actions"
+    },
+    {
+      "unit_id": "U-PPL-A6",
+      "source": "roadmap-consolidated",
+      "status": "pending",
+      "milestone": "MS-PRINT-PROGRAM-LOOP",
+      "title": "[Track A] Wire proven_generate_pipeline → final G-code; add proven_generate_program — bridge adapted-recipe → TurningPro"
+    },
+    {
+      "unit_id": "U-PPL-B2",
+      "source": "roadmap-consolidated",
+      "status": "pending",
+      "milestone": "MS-PRINT-PROGRAM-LOOP",
+      "title": "[Track B] Wire the optimizer engines to all logical dispatchers — MillProgramOptimizerEngine is skill-only → add prism_c"
+    },
+    {
+      "unit_id": "U-RES-DOC-07",
+      "source": "roadmap-consolidated",
+      "status": "pending",
+      "milestone": "MS-RES-CADCAM-DOCS",
+      "title": "hyperMILL Basic-Training-Day curriculum (curate the 1-/2-/3- Basic Training Day folders) + hyperMILL_2D_3D.pdf → hyperMI"
+    },
+    {
+      "unit_id": "U-MILL-PARITY-MillAGIContinuousLearningEngine",
+      "source": "mill-parity-lathe",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Build MillAGIContinuousLearningEngine mirroring LatheAGIContinuousLearningEngine"
+    },
+    {
+      "unit_id": "U-MILL-PARITY-MillAGIFeatureBridgeEngine",
+      "source": "mill-parity-lathe",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Build MillAGIFeatureBridgeEngine mirroring LatheAGIFeatureBridgeEngine"
+    },
+    {
+      "unit_id": "U-MILL-PARITY-MillAGIKnowledgeUnificationEngine",
+      "source": "mill-parity-lathe",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Build MillAGIKnowledgeUnificationEngine mirroring LatheAGIKnowledgeUnificationEngine"
+    },
+    {
+      "unit_id": "U-MILL-PARITY-MillAGISafetyContainmentEngine",
+      "source": "mill-parity-lathe",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Build MillAGISafetyContainmentEngine mirroring LatheAGISafetyContainmentEngine"
+    },
+    {
+      "unit_id": "U-MILL-PARITY-MillAIFeatureRegistration",
+      "source": "mill-parity-lathe",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Build MillAIFeatureRegistration mirroring LatheAIFeatureRegistration"
+    },
+    {
+      "unit_id": "U-MILL-PARITY-MillAIOrchestrationEngine",
+      "source": "mill-parity-lathe",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Build MillAIOrchestrationEngine mirroring LatheAIOrchestrationEngine"
+    },
+    {
+      "unit_id": "U-MILL-PARITY-MillAIReasoningEngine",
+      "source": "mill-parity-lathe",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Build MillAIReasoningEngine mirroring LatheAIReasoningEngine"
+    },
+    {
+      "unit_id": "U-MILL-PARITY-MillAITrainingEngine",
+      "source": "mill-parity-lathe",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Build MillAITrainingEngine mirroring LatheAITrainingEngine"
+    },
+    {
+      "unit_id": "U-MILL-PARITY-MillAIUltraEngine",
+      "source": "mill-parity-lathe",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Build MillAIUltraEngine mirroring LatheAIUltraEngine"
+    },
+    {
+      "unit_id": "U-MILL-PARITY-MillActiveLearningEngine",
+      "source": "mill-parity-lathe",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Build MillActiveLearningEngine mirroring LatheActiveLearningEngine"
+    },
+    {
+      "unit_id": "U-MILL-PARITY-MillActualCostReconciliationEngine",
+      "source": "mill-parity-lathe",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Build MillActualCostReconciliationEngine mirroring LatheActualCostReconciliationEngine"
+    },
+    {
+      "unit_id": "U-MILL-PARITY-MillActualFeedbackTuningEngine",
+      "source": "mill-parity-lathe",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Build MillActualFeedbackTuningEngine mirroring LatheActualFeedbackTuningEngine"
+    },
+    {
+      "unit_id": "U-MILL-PARITY-MillAdaptiveMachiningEngine",
+      "source": "mill-parity-lathe",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Build MillAdaptiveMachiningEngine mirroring LatheAdaptiveMachiningEngine"
+    },
+    {
+      "unit_id": "U-MILL-PARITY-MillAdvancedOperationsEngine",
+      "source": "mill-parity-lathe",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Build MillAdvancedOperationsEngine mirroring LatheAdvancedOperationsEngine"
+    },
+    {
+      "unit_id": "U-MILL-PARITY-MillAnomalyDetectionEngine",
+      "source": "mill-parity-lathe",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Build MillAnomalyDetectionEngine mirroring LatheAnomalyDetectionEngine"
+    },
+    {
+      "unit_id": "U-MILL-PARITY-MillAttentionMechanismEngine",
+      "source": "mill-parity-lathe",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Build MillAttentionMechanismEngine mirroring LatheAttentionMechanismEngine"
+    },
+    {
+      "unit_id": "U-MILL-PARITY-MillAutoQuoteFromPrintEngine",
+      "source": "mill-parity-lathe",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Build MillAutoQuoteFromPrintEngine mirroring LatheAutoQuoteFromPrintEngine"
+    },
+    {
+      "unit_id": "U-MILL-PARITY-MillAuxAxisTimingEngine",
+      "source": "mill-parity-lathe",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Build MillAuxAxisTimingEngine mirroring LatheAuxAxisTimingEngine"
+    },
+    {
+      "unit_id": "U-MILL-PARITY-MillBayesianOptimizationEngine",
+      "source": "mill-parity-lathe",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Build MillBayesianOptimizationEngine mirroring LatheBayesianOptimizationEngine"
+    },
+    {
+      "unit_id": "U-MILL-PARITY-MillBirdNestPredictorEngine",
+      "source": "mill-parity-lathe",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Build MillBirdNestPredictorEngine mirroring LatheBirdNestPredictorEngine"
+    },
+    {
+      "unit_id": "U-MILL-PARITY-MillBlockEngagementSimulatorEngine",
+      "source": "mill-parity-lathe",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Build MillBlockEngagementSimulatorEngine mirroring LatheBlockEngagementSimulatorEngine"
+    },
+    {
+      "unit_id": "U-MILL-PARITY-MillBlockTimeProfilerEngine",
+      "source": "mill-parity-lathe",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Build MillBlockTimeProfilerEngine mirroring LatheBlockTimeProfilerEngine"
+    },
+    {
+      "unit_id": "U-MILL-PARITY-MillCAMIntelligenceEngine",
+      "source": "mill-parity-lathe",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Build MillCAMIntelligenceEngine mirroring LatheCAMIntelligenceEngine"
+    },
+    {
+      "unit_id": "U-MILL-PARITY-MillCSSOptimizerEngine",
+      "source": "mill-parity-lathe",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Build MillCSSOptimizerEngine mirroring LatheCSSOptimizerEngine"
+    },
+    {
+      "unit_id": "U-MILL-PARITY-MillCausalInferenceEngine",
+      "source": "mill-parity-lathe",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Build MillCausalInferenceEngine mirroring LatheCausalInferenceEngine"
+    },
+    {
+      "unit_id": "U-MILL-PARITY-MillChangeoverBriefEngine",
+      "source": "mill-parity-lathe",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Build MillChangeoverBriefEngine mirroring LatheChangeoverBriefEngine"
+    },
+    {
+      "unit_id": "U-MILL-PARITY-MillChipMechanicsEngine",
+      "source": "mill-parity-lathe",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Build MillChipMechanicsEngine mirroring LatheChipMechanicsEngine"
+    },
+    {
+      "unit_id": "U-MILL-PARITY-MillChuckJawSetupEngine",
+      "source": "mill-parity-lathe",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Build MillChuckJawSetupEngine mirroring LatheChuckJawSetupEngine"
+    },
+    {
+      "unit_id": "U-MILL-PARITY-MillCoaxialityRunoutValidatorEngine",
+      "source": "mill-parity-lathe",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Build MillCoaxialityRunoutValidatorEngine mirroring LatheCoaxialityRunoutValidatorEngine"
+    },
+    {
+      "unit_id": "U-MILL-PARITY-MillCollisionZoneEngine",
+      "source": "mill-parity-lathe",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Build MillCollisionZoneEngine mirroring LatheCollisionZoneEngine"
+    },
+    {
+      "unit_id": "U-MILL-PARITY-MillCoolantAdvisorEngine",
+      "source": "mill-parity-lathe",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Build MillCoolantAdvisorEngine mirroring LatheCoolantAdvisorEngine"
+    },
+    {
+      "unit_id": "U-MILL-PARITY-MillCustomerOrderLifecycleEngine",
+      "source": "mill-parity-lathe",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Build MillCustomerOrderLifecycleEngine mirroring LatheCustomerOrderLifecycleEngine"
+    },
+    {
+      "unit_id": "U-MILL-PARITY-MillCuttingChemistryEngine",
+      "source": "mill-parity-lathe",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Build MillCuttingChemistryEngine mirroring LatheCuttingChemistryEngine"
+    },
+    {
+      "unit_id": "U-MILL-PARITY-MillDatumReferenceFrameEngine",
+      "source": "mill-parity-lathe",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Build MillDatumReferenceFrameEngine mirroring LatheDatumReferenceFrameEngine"
+    },
+    {
+      "unit_id": "U-MILL-PARITY-MillDeepAIHardeningEngine",
+      "source": "mill-parity-lathe",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Build MillDeepAIHardeningEngine mirroring LatheDeepAIHardeningEngine"
+    },
+    {
+      "unit_id": "U-MILL-PARITY-MillDeepLearningIntelligenceEngine",
+      "source": "mill-parity-lathe",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Build MillDeepLearningIntelligenceEngine mirroring LatheDeepLearningIntelligenceEngine"
+    },
+    {
+      "unit_id": "U-MILL-PARITY-MillDeepLogicEngine",
+      "source": "mill-parity-lathe",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Build MillDeepLogicEngine mirroring LatheDeepLogicEngine"
+    },
+    {
+      "unit_id": "U-MILL-PARITY-MillDeepReasoningEngine",
+      "source": "mill-parity-lathe",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Build MillDeepReasoningEngine mirroring LatheDeepReasoningEngine"
+    },
+    {
+      "unit_id": "U-MILL-PARITY-MillDeviationMapEngine",
+      "source": "mill-parity-lathe",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Build MillDeviationMapEngine mirroring LatheDeviationMapEngine"
+    },
+    {
+      "unit_id": "U-MILL-PARITY-MillERPOrchestratorEngine",
+      "source": "mill-parity-lathe",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Build MillERPOrchestratorEngine mirroring LatheERPOrchestratorEngine"
+    },
+    {
+      "unit_id": "U-MILL-PARITY-MillEnsembleLearningEngine",
+      "source": "mill-parity-lathe",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Build MillEnsembleLearningEngine mirroring LatheEnsembleLearningEngine"
+    },
+    {
+      "unit_id": "U-MILL-PARITY-MillEnvelopeBreachReplayEngine",
+      "source": "mill-parity-lathe",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Build MillEnvelopeBreachReplayEngine mirroring LatheEnvelopeBreachReplayEngine"
+    },
+    {
+      "unit_id": "U-MILL-PARITY-MillExpertAdvisorEngine",
+      "source": "mill-parity-lathe",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Build MillExpertAdvisorEngine mirroring LatheExpertAdvisorEngine"
+    },
+    {
+      "unit_id": "U-MILL-PARITY-MillFirstPieceApprovalEngine",
+      "source": "mill-parity-lathe",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Build MillFirstPieceApprovalEngine mirroring LatheFirstPieceApprovalEngine"
+    },
+    {
+      "unit_id": "U-MILL-PARITY-MillFullArchiveTrainingEngine",
+      "source": "mill-parity-lathe",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Build MillFullArchiveTrainingEngine mirroring LatheFullArchiveTrainingEngine"
+    },
+    {
+      "unit_id": "U-MILL-PARITY-MillGeneticAlgorithmEngine",
+      "source": "mill-parity-lathe",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Build MillGeneticAlgorithmEngine mirroring LatheGeneticAlgorithmEngine"
+    },
+    {
+      "unit_id": "U-MILL-PARITY-MillIntelligenceEngine",
+      "source": "mill-parity-lathe",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Build MillIntelligenceEngine mirroring LatheIntelligenceEngine"
+    },
+    {
+      "unit_id": "U-MILL-PARITY-MillInventoryIntelligenceEngine",
+      "source": "mill-parity-lathe",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Build MillInventoryIntelligenceEngine mirroring LatheInventoryIntelligenceEngine"
+    },
+    {
+      "unit_id": "U-MILL-PARITY-MillJMDieKnowledgeEngine",
+      "source": "mill-parity-lathe",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Build MillJMDieKnowledgeEngine mirroring LatheJMDieKnowledgeEngine"
+    },
+    {
+      "unit_id": "U-MILL-PARITY-MillJobProfitabilityAnalyticsEngine",
+      "source": "mill-parity-lathe",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Build MillJobProfitabilityAnalyticsEngine mirroring LatheJobProfitabilityAnalyticsEngine"
+    },
+    {
+      "unit_id": "U-MILL-PARITY-MillJobSchedulingEngine",
+      "source": "mill-parity-lathe",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Build MillJobSchedulingEngine mirroring LatheJobSchedulingEngine"
+    },
+    {
+      "unit_id": "U-MILL-PARITY-MillKinematicsDeepLearningEngine",
+      "source": "mill-parity-lathe",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Build MillKinematicsDeepLearningEngine mirroring LatheKinematicsDeepLearningEngine"
+    },
+    {
+      "unit_id": "U-MILL-PARITY-MillKnowledgeGraphEngine",
+      "source": "mill-parity-lathe",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Build MillKnowledgeGraphEngine mirroring LatheKnowledgeGraphEngine"
+    },
+    {
+      "unit_id": "U-MILL-PARITY-MillKnowledgeHarvesterEngine",
+      "source": "mill-parity-lathe",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Build MillKnowledgeHarvesterEngine mirroring LatheKnowledgeHarvesterEngine"
+    },
+    {
+      "unit_id": "U-MILL-PARITY-MillLiveToolingPlannerEngine",
+      "source": "mill-parity-lathe",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Build MillLiveToolingPlannerEngine mirroring LatheLiveToolingPlannerEngine"
+    },
+    {
+      "unit_id": "U-MILL-PARITY-MillLoRAAdaptiveRefinementEngine",
+      "source": "mill-parity-lathe",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Build MillLoRAAdaptiveRefinementEngine mirroring LatheLoRAAdaptiveRefinementEngine"
+    },
+    {
+      "unit_id": "U-MILL-PARITY-MillLoRAAttentionAnalyzerEngine",
+      "source": "mill-parity-lathe",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Build MillLoRAAttentionAnalyzerEngine mirroring LatheLoRAAttentionAnalyzerEngine"
+    },
+    {
+      "unit_id": "U-MILL-PARITY-MillLoRABenchmarkSuiteEngine",
+      "source": "mill-parity-lathe",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Build MillLoRABenchmarkSuiteEngine mirroring LatheLoRABenchmarkSuiteEngine"
+    },
+    {
+      "unit_id": "U-MILL-PARITY-MillLoRACadenceEngine",
+      "source": "mill-parity-lathe",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Build MillLoRACadenceEngine mirroring LatheLoRACadenceEngine"
+    },
+    {
+      "unit_id": "U-MILL-PARITY-MillLoRACadenceOrchestratorEngine",
+      "source": "mill-parity-lathe",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Build MillLoRACadenceOrchestratorEngine mirroring LatheLoRACadenceOrchestratorEngine"
+    },
+    {
+      "unit_id": "U-MILL-PARITY-MillLoRAContinualLearningEngine",
+      "source": "mill-parity-lathe",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Build MillLoRAContinualLearningEngine mirroring LatheLoRAContinualLearningEngine"
+    },
+    {
+      "unit_id": "U-MILL-PARITY-MillLoRACronJobEngine",
+      "source": "mill-parity-lathe",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Build MillLoRACronJobEngine mirroring LatheLoRACronJobEngine"
+    },
+    {
+      "unit_id": "U-MILL-PARITY-MillLoRADatasetBuilderEngine",
+      "source": "mill-parity-lathe",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Build MillLoRADatasetBuilderEngine mirroring LatheLoRADatasetBuilderEngine"
+    },
+    {
+      "unit_id": "U-MILL-PARITY-MillLoRADatasetValidatorEngine",
+      "source": "mill-parity-lathe",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Build MillLoRADatasetValidatorEngine mirroring LatheLoRADatasetValidatorEngine"
+    },
+    {
+      "unit_id": "U-MILL-PARITY-MillLoRADeploymentEngine",
+      "source": "mill-parity-lathe",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Build MillLoRADeploymentEngine mirroring LatheLoRADeploymentEngine"
+    },
+    {
+      "unit_id": "U-MILL-PARITY-MillLoRADriftDetectorEngine",
+      "source": "mill-parity-lathe",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Build MillLoRADriftDetectorEngine mirroring LatheLoRADriftDetectorEngine"
+    },
+    {
+      "unit_id": "U-MILL-PARITY-MillLoRAEmbeddingCacheEngine",
+      "source": "mill-parity-lathe",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Build MillLoRAEmbeddingCacheEngine mirroring LatheLoRAEmbeddingCacheEngine"
+    },
+    {
+      "unit_id": "U-MILL-PARITY-MillLoRAEnsembleCombinerEngine",
+      "source": "mill-parity-lathe",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Build MillLoRAEnsembleCombinerEngine mirroring LatheLoRAEnsembleCombinerEngine"
+    },
+    {
+      "unit_id": "U-MILL-PARITY-MillLoRAEnsembleOrchestratorEngine",
+      "source": "mill-parity-lathe",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Build MillLoRAEnsembleOrchestratorEngine mirroring LatheLoRAEnsembleOrchestratorEngine"
+    },
+    {
+      "unit_id": "U-MILL-PARITY-MillLoRAEnsembleVoterEngine",
+      "source": "mill-parity-lathe",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Build MillLoRAEnsembleVoterEngine mirroring LatheLoRAEnsembleVoterEngine"
+    },
+    {
+      "unit_id": "U-MILL-PARITY-MillLoRAExampleGeneratorEngine",
+      "source": "mill-parity-lathe",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Build MillLoRAExampleGeneratorEngine mirroring LatheLoRAExampleGeneratorEngine"
+    },
+    {
+      "unit_id": "U-MILL-PARITY-MillLoRAExperimentTrackerEngine",
+      "source": "mill-parity-lathe",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Build MillLoRAExperimentTrackerEngine mirroring LatheLoRAExperimentTrackerEngine"
+    },
+    {
+      "unit_id": "U-MILL-PARITY-MillLoRAHealthMonitorEngine",
+      "source": "mill-parity-lathe",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Build MillLoRAHealthMonitorEngine mirroring LatheLoRAHealthMonitorEngine"
+    },
+    {
+      "unit_id": "U-MILL-PARITY-MillLoRAHyperparameterOptimizerEngine",
+      "source": "mill-parity-lathe",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Build MillLoRAHyperparameterOptimizerEngine mirroring LatheLoRAHyperparameterOptimizerEngine"
+    },
+    {
+      "unit_id": "U-MILL-PARITY-MillLoRAInferenceGatewayEngine",
+      "source": "mill-parity-lathe",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Build MillLoRAInferenceGatewayEngine mirroring LatheLoRAInferenceGatewayEngine"
+    },
+    {
+      "unit_id": "U-MILL-PARITY-MillLoRAKnowledgeCuratorEngine",
+      "source": "mill-parity-lathe",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Build MillLoRAKnowledgeCuratorEngine mirroring LatheLoRAKnowledgeCuratorEngine"
+    },
+    {
+      "unit_id": "U-MILL-PARITY-MillLoRAKnowledgeGraphEngine",
+      "source": "mill-parity-lathe",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Build MillLoRAKnowledgeGraphEngine mirroring LatheLoRAKnowledgeGraphEngine"
+    },
+    {
+      "unit_id": "U-MILL-PARITY-MillLoRAMasterOrchestratorEngine",
+      "source": "mill-parity-lathe",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Build MillLoRAMasterOrchestratorEngine mirroring LatheLoRAMasterOrchestratorEngine"
+    },
+    {
+      "unit_id": "U-MILL-PARITY-MillLoRAMergeStrategyEngine",
+      "source": "mill-parity-lathe",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Build MillLoRAMergeStrategyEngine mirroring LatheLoRAMergeStrategyEngine"
+    },
+    {
+      "unit_id": "U-MILL-PARITY-MillLoRAModelOptimizerEngine",
+      "source": "mill-parity-lathe",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Build MillLoRAModelOptimizerEngine mirroring LatheLoRAModelOptimizerEngine"
+    },
+    {
+      "unit_id": "U-MILL-PARITY-MillLoRAModelRegistryEngine",
+      "source": "mill-parity-lathe",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Build MillLoRAModelRegistryEngine mirroring LatheLoRAModelRegistryEngine"
+    },
+    {
+      "unit_id": "U-MILL-PARITY-MillLoRAModelSelectorEngine",
+      "source": "mill-parity-lathe",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Build MillLoRAModelSelectorEngine mirroring LatheLoRAModelSelectorEngine"
+    },
+    {
+      "unit_id": "U-MILL-PARITY-MillLoRAMonitoringEngine",
+      "source": "mill-parity-lathe",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Build MillLoRAMonitoringEngine mirroring LatheLoRAMonitoringEngine"
+    },
+    {
+      "unit_id": "U-MILL-PARITY-MillLoRANeuralBridgeEngine",
+      "source": "mill-parity-lathe",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Build MillLoRANeuralBridgeEngine mirroring LatheLoRANeuralBridgeEngine"
+    },
+    {
+      "unit_id": "U-MILL-PARITY-MillLoRANeuralOrchestratorEngine",
+      "source": "mill-parity-lathe",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Build MillLoRANeuralOrchestratorEngine mirroring LatheLoRANeuralOrchestratorEngine"
+    },
+    {
+      "unit_id": "U-MILL-PARITY-MillLoRAOllamaDeployerEngine",
+      "source": "mill-parity-lathe",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Build MillLoRAOllamaDeployerEngine mirroring LatheLoRAOllamaDeployerEngine"
+    },
+    {
+      "unit_id": "U-MILL-PARITY-MillLoRAPhysicsAugmentedInferenceEngine",
+      "source": "mill-parity-lathe",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Build MillLoRAPhysicsAugmentedInferenceEngine mirroring LatheLoRAPhysicsAugmentedInferenceEngine"
+    },
+    {
+      "unit_id": "U-MILL-PARITY-MillLoRAPhysicsEvaluatorEngine",
+      "source": "mill-parity-lathe",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Build MillLoRAPhysicsEvaluatorEngine mirroring LatheLoRAPhysicsEvaluatorEngine"
+    },
+    {
+      "unit_id": "U-MILL-PARITY-MillLoRAPipelineCoordinatorEngine",
+      "source": "mill-parity-lathe",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Build MillLoRAPipelineCoordinatorEngine mirroring LatheLoRAPipelineCoordinatorEngine"
+    },
+    {
+      "unit_id": "U-MILL-PARITY-MillLoRAPipelineEngine",
+      "source": "mill-parity-lathe",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Build MillLoRAPipelineEngine mirroring LatheLoRAPipelineEngine"
+    },
+    {
+      "unit_id": "U-MILL-PARITY-MillLoRAProgramMinerEngine",
+      "source": "mill-parity-lathe",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Build MillLoRAProgramMinerEngine mirroring LatheLoRAProgramMinerEngine"
+    },
+    {
+      "unit_id": "U-MILL-PARITY-MillLoRAProgramParserEngine",
+      "source": "mill-parity-lathe",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Build MillLoRAProgramParserEngine mirroring LatheLoRAProgramParserEngine"
+    },
+    {
+      "unit_id": "U-MILL-PARITY-MillLoRAQuantizationOptimizerEngine",
+      "source": "mill-parity-lathe",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Build MillLoRAQuantizationOptimizerEngine mirroring LatheLoRAQuantizationOptimizerEngine"
+    },
+    {
+      "unit_id": "U-MILL-PARITY-MillLoRAReasoningChainInferenceEngine",
+      "source": "mill-parity-lathe",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Build MillLoRAReasoningChainInferenceEngine mirroring LatheLoRAReasoningChainInferenceEngine"
+    },
+    {
+      "unit_id": "U-MILL-PARITY-MillLoRAReasoningEvaluatorEngine",
+      "source": "mill-parity-lathe",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Build MillLoRAReasoningEvaluatorEngine mirroring LatheLoRAReasoningEvaluatorEngine"
+    },
+    {
+      "unit_id": "U-MILL-PARITY-MillLoRAResourceManagerEngine",
+      "source": "mill-parity-lathe",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Build MillLoRAResourceManagerEngine mirroring LatheLoRAResourceManagerEngine"
+    },
+    {
+      "unit_id": "U-MILL-PARITY-MillLoRARewardShapingEngine",
+      "source": "mill-parity-lathe",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Build MillLoRARewardShapingEngine mirroring LatheLoRARewardShapingEngine"
+    },
+    {
+      "unit_id": "U-MILL-PARITY-MillLoRASafetyEvaluatorEngine",
+      "source": "mill-parity-lathe",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Build MillLoRASafetyEvaluatorEngine mirroring LatheLoRASafetyEvaluatorEngine"
+    },
+    {
+      "unit_id": "U-MILL-PARITY-MillLoRATrainingMonitorEngine",
+      "source": "mill-parity-lathe",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Build MillLoRATrainingMonitorEngine mirroring LatheLoRATrainingMonitorEngine"
+    },
+    {
+      "unit_id": "U-MILL-PARITY-MillLoRATrainingScriptEngine",
+      "source": "mill-parity-lathe",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Build MillLoRATrainingScriptEngine mirroring LatheLoRATrainingScriptEngine"
+    },
+    {
+      "unit_id": "U-MILL-PARITY-MillLoRATransferStrategyEngine",
+      "source": "mill-parity-lathe",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Build MillLoRATransferStrategyEngine mirroring LatheLoRATransferStrategyEngine"
+    },
+    {
+      "unit_id": "U-MILL-PARITY-MillLoRATribalAugmentationEngine",
+      "source": "mill-parity-lathe",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Build MillLoRATribalAugmentationEngine mirroring LatheLoRATribalAugmentationEngine"
+    },
+    {
+      "unit_id": "U-MILL-PARITY-MillLoRATribalExtractorEngine",
+      "source": "mill-parity-lathe",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Build MillLoRATribalExtractorEngine mirroring LatheLoRATribalExtractorEngine"
+    },
+    {
+      "unit_id": "U-MILL-PARITY-MillLoRAVerificationEngine",
+      "source": "mill-parity-lathe",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Build MillLoRAVerificationEngine mirroring LatheLoRAVerificationEngine"
+    },
+    {
+      "unit_id": "U-MILL-PARITY-MillMachineIntelligenceEngine",
+      "source": "mill-parity-lathe",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Build MillMachineIntelligenceEngine mirroring LatheMachineIntelligenceEngine"
+    },
+    {
+      "unit_id": "U-MILL-PARITY-MillMasterPostAPIEngine",
+      "source": "mill-parity-lathe",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Build MillMasterPostAPIEngine mirroring LatheMasterPostAPIEngine"
+    },
+    {
+      "unit_id": "U-MILL-PARITY-MillMasterPostDeepReasoningEngine",
+      "source": "mill-parity-lathe",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Build MillMasterPostDeepReasoningEngine mirroring LatheMasterPostDeepReasoningEngine"
+    },
+    {
+      "unit_id": "U-MILL-PARITY-MillMasterPostEnsembleCrossCheckEngine",
+      "source": "mill-parity-lathe",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Build MillMasterPostEnsembleCrossCheckEngine mirroring LatheMasterPostEnsembleCrossCheckEngine"
+    },
+    {
+      "unit_id": "U-MILL-PARITY-MillMasterPostRegressionMatrixEngine",
+      "source": "mill-parity-lathe",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Build MillMasterPostRegressionMatrixEngine mirroring LatheMasterPostRegressionMatrixEngine"
+    },
+    {
+      "unit_id": "U-MILL-PARITY-MillMasterPostRouterEngine",
+      "source": "mill-parity-lathe",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Build MillMasterPostRouterEngine mirroring LatheMasterPostRouterEngine"
+    },
+    {
+      "unit_id": "U-MILL-PARITY-MillMasterPostSelfAwarenessEngine",
+      "source": "mill-parity-lathe",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Build MillMasterPostSelfAwarenessEngine mirroring LatheMasterPostSelfAwarenessEngine"
+    },
+    {
+      "unit_id": "U-MILL-PARITY-MillMasterPostUnifiedOutputEngine",
+      "source": "mill-parity-lathe",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Build MillMasterPostUnifiedOutputEngine mirroring LatheMasterPostUnifiedOutputEngine"
+    },
+    {
+      "unit_id": "U-MILL-PARITY-MillMetaLearningEngine",
+      "source": "mill-parity-lathe",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Build MillMetaLearningEngine mirroring LatheMetaLearningEngine"
+    },
+    {
+      "unit_id": "U-MILL-PARITY-MillMetallurgyEngine",
+      "source": "mill-parity-lathe",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Build MillMetallurgyEngine mirroring LatheMetallurgyEngine"
+    },
+    {
+      "unit_id": "U-MILL-PARITY-MillMultiOpPlannerEngine",
+      "source": "mill-parity-lathe",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Build MillMultiOpPlannerEngine mirroring LatheMultiOpPlannerEngine"
+    },
+    {
+      "unit_id": "U-MILL-PARITY-MillNeuralIntelligenceEngine",
+      "source": "mill-parity-lathe",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Build MillNeuralIntelligenceEngine mirroring LatheNeuralIntelligenceEngine"
+    },
+    {
+      "unit_id": "U-MILL-PARITY-MillOnMachineProbeCycleEngine",
+      "source": "mill-parity-lathe",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Build MillOnMachineProbeCycleEngine mirroring LatheOnMachineProbeCycleEngine"
+    },
+    {
+      "unit_id": "U-MILL-PARITY-MillOpTimeBreakdownEngine",
+      "source": "mill-parity-lathe",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Build MillOpTimeBreakdownEngine mirroring LatheOpTimeBreakdownEngine"
+    },
+    {
+      "unit_id": "U-MILL-PARITY-MillOpusReasoningEngine",
+      "source": "mill-parity-lathe",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Build MillOpusReasoningEngine mirroring LatheOpusReasoningEngine"
+    },
+    {
+      "unit_id": "U-MILL-PARITY-MillOrchestrationEngine",
+      "source": "mill-parity-lathe",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Build MillOrchestrationEngine mirroring LatheOrchestrationEngine"
+    },
+    {
+      "unit_id": "U-MILL-PARITY-MillPartCostModelEngine",
+      "source": "mill-parity-lathe",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Build MillPartCostModelEngine mirroring LathePartCostModelEngine"
+    },
+    {
+      "unit_id": "U-MILL-PARITY-MillPartFamilyPlanningEngine",
+      "source": "mill-parity-lathe",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Build MillPartFamilyPlanningEngine mirroring LathePartFamilyPlanningEngine"
+    },
+    {
+      "unit_id": "U-MILL-PARITY-MillPartingChipClearanceEngine",
+      "source": "mill-parity-lathe",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Build MillPartingChipClearanceEngine mirroring LathePartingChipClearanceEngine"
+    },
+    {
+      "unit_id": "U-MILL-PARITY-MillPartoffSafetyRailEngine",
+      "source": "mill-parity-lathe",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Build MillPartoffSafetyRailEngine mirroring LathePartoffSafetyRailEngine"
+    },
+    {
+      "unit_id": "U-MILL-PARITY-MillPerformanceSLORegistryEngine",
+      "source": "mill-parity-lathe",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Build MillPerformanceSLORegistryEngine mirroring LathePerformanceSLORegistryEngine"
+    },
+    {
+      "unit_id": "U-MILL-PARITY-MillPostGeneratorActiveLearningEngine",
+      "source": "mill-parity-lathe",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Build MillPostGeneratorActiveLearningEngine mirroring LathePostGeneratorActiveLearningEngine"
+    },
+    {
+      "unit_id": "U-MILL-PARITY-MillPostGeneratorDialectEngine",
+      "source": "mill-parity-lathe",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Build MillPostGeneratorDialectEngine mirroring LathePostGeneratorDialectEngine"
+    },
+    {
+      "unit_id": "U-MILL-PARITY-MillPostGeneratorSpecIngestEngine",
+      "source": "mill-parity-lathe",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Build MillPostGeneratorSpecIngestEngine mirroring LathePostGeneratorSpecIngestEngine"
+    },
+    {
+      "unit_id": "U-MILL-PARITY-MillPostGeneratorUncertaintyEngine",
+      "source": "mill-parity-lathe",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Build MillPostGeneratorUncertaintyEngine mirroring LathePostGeneratorUncertaintyEngine"
+    },
+    {
+      "unit_id": "U-MILL-PARITY-MillPostGeneratorValidatorWiringEngine",
+      "source": "mill-parity-lathe",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Build MillPostGeneratorValidatorWiringEngine mirroring LathePostGeneratorValidatorWiringEngine"
+    },
+    {
+      "unit_id": "U-MILL-PARITY-MillPostKnowledgeGraphEngine",
+      "source": "mill-parity-lathe",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Build MillPostKnowledgeGraphEngine mirroring LathePostKnowledgeGraphEngine"
+    },
+    {
+      "unit_id": "U-MILL-PARITY-MillPostProcessorAIEngine",
+      "source": "mill-parity-lathe",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Build MillPostProcessorAIEngine mirroring LathePostProcessorAIEngine"
+    },
+    {
+      "unit_id": "U-MILL-PARITY-MillPostProcessorDialectValidatorEngine",
+      "source": "mill-parity-lathe",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Build MillPostProcessorDialectValidatorEngine mirroring LathePostProcessorDialectValidatorEngine"
+    },
+    {
+      "unit_id": "U-MILL-PARITY-MillPostProcessorEngine",
+      "source": "mill-parity-lathe",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Build MillPostProcessorEngine mirroring LathePostProcessorEngine"
+    },
+    {
+      "unit_id": "U-MILL-PARITY-MillPostRegressionTestGeneratorEngine",
+      "source": "mill-parity-lathe",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Build MillPostRegressionTestGeneratorEngine mirroring LathePostRegressionTestGeneratorEngine"
+    },
+    {
+      "unit_id": "U-MILL-PARITY-MillPredictiveIntelligenceEngine",
+      "source": "mill-parity-lathe",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Build MillPredictiveIntelligenceEngine mirroring LathePredictiveIntelligenceEngine"
+    },
+    {
+      "unit_id": "U-MILL-PARITY-MillPrintFeatureStrategySelectorEngine",
+      "source": "mill-parity-lathe",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Build MillPrintFeatureStrategySelectorEngine mirroring LathePrintFeatureStrategySelectorEngine"
+    },
+    {
+      "unit_id": "U-MILL-PARITY-MillPrintIngestPipelineEngine",
+      "source": "mill-parity-lathe",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Build MillPrintIngestPipelineEngine mirroring LathePrintIngestPipelineEngine"
+    },
+    {
+      "unit_id": "U-MILL-PARITY-MillPrintProgramEmitterEngine",
+      "source": "mill-parity-lathe",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Build MillPrintProgramEmitterEngine mirroring LathePrintProgramEmitterEngine"
+    },
+    {
+      "unit_id": "U-MILL-PARITY-MillPrintProgramSignoffEngine",
+      "source": "mill-parity-lathe",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Build MillPrintProgramSignoffEngine mirroring LathePrintProgramSignoffEngine"
+    },
+    {
+      "unit_id": "U-MILL-PARITY-MillPrintSequencePlannerEngine",
+      "source": "mill-parity-lathe",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Build MillPrintSequencePlannerEngine mirroring LathePrintSequencePlannerEngine"
+    },
+    {
+      "unit_id": "U-MILL-PARITY-MillPrintSetupSelectionEngine",
+      "source": "mill-parity-lathe",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Build MillPrintSetupSelectionEngine mirroring LathePrintSetupSelectionEngine"
+    },
+    {
+      "unit_id": "U-MILL-PARITY-MillPrintToProgramDLIntelligenceEngine",
+      "source": "mill-parity-lathe",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Build MillPrintToProgramDLIntelligenceEngine mirroring LathePrintToProgramDLIntelligenceEngine"
+    },
+    {
+      "unit_id": "U-MILL-PARITY-MillPrintToProgramKnowledgeGraphEngine",
+      "source": "mill-parity-lathe",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Build MillPrintToProgramKnowledgeGraphEngine mirroring LathePrintToProgramKnowledgeGraphEngine"
+    },
+    {
+      "unit_id": "U-MILL-PARITY-MillPrintToProgramReasoningEngine",
+      "source": "mill-parity-lathe",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Build MillPrintToProgramReasoningEngine mirroring LathePrintToProgramReasoningEngine"
+    },
+    {
+      "unit_id": "U-MILL-PARITY-MillPrintToleranceStackEngine",
+      "source": "mill-parity-lathe",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Build MillPrintToleranceStackEngine mirroring LathePrintToleranceStackEngine"
+    },
+    {
+      "unit_id": "U-MILL-PARITY-MillPrintToolpathGeneratorEngine",
+      "source": "mill-parity-lathe",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Build MillPrintToolpathGeneratorEngine mirroring LathePrintToolpathGeneratorEngine"
+    },
+    {
+      "unit_id": "U-MILL-PARITY-MillProgramAuditPipelineEngine",
+      "source": "mill-parity-lathe",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Build MillProgramAuditPipelineEngine mirroring LatheProgramAuditPipelineEngine"
+    },
+    {
+      "unit_id": "U-MILL-PARITY-MillProgramBacktraceEngine",
+      "source": "mill-parity-lathe",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Build MillProgramBacktraceEngine mirroring LatheProgramBacktraceEngine"
+    },
+    {
+      "unit_id": "U-MILL-PARITY-MillProgramCatalogEngine",
+      "source": "mill-parity-lathe",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Build MillProgramCatalogEngine mirroring LatheProgramCatalogEngine"
+    },
+    {
+      "unit_id": "U-MILL-PARITY-MillProgramFeatureInferenceEngine",
+      "source": "mill-parity-lathe",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Build MillProgramFeatureInferenceEngine mirroring LatheProgramFeatureInferenceEngine"
+    },
+    {
+      "unit_id": "U-MILL-PARITY-MillProgramLibraryEngine",
+      "source": "mill-parity-lathe",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Build MillProgramLibraryEngine mirroring LatheProgramLibraryEngine"
+    },
+    {
+      "unit_id": "U-MILL-PARITY-MillProgramSignoffDossierEngine",
+      "source": "mill-parity-lathe",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Build MillProgramSignoffDossierEngine mirroring LatheProgramSignoffDossierEngine"
+    },
+    {
+      "unit_id": "U-MILL-PARITY-MillProgrammingCostEngine",
+      "source": "mill-parity-lathe",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Build MillProgrammingCostEngine mirroring LatheProgrammingCostEngine"
+    },
+    {
+      "unit_id": "U-MILL-PARITY-MillProgrammingStyleSelectorEngine",
+      "source": "mill-parity-lathe",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Build MillProgrammingStyleSelectorEngine mirroring LatheProgrammingStyleSelectorEngine"
+    },
+    {
+      "unit_id": "U-MILL-PARITY-MillProofCarryingEmitEngine",
+      "source": "mill-parity-lathe",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Build MillProofCarryingEmitEngine mirroring LatheProofCarryingEmitEngine"
+    },
+    {
+      "unit_id": "U-MILL-PARITY-MillPurchaseOrderAutomationEngine",
+      "source": "mill-parity-lathe",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Build MillPurchaseOrderAutomationEngine mirroring LathePurchaseOrderAutomationEngine"
+    },
+    {
+      "unit_id": "U-MILL-PARITY-MillQualityGateEngine",
+      "source": "mill-parity-lathe",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Build MillQualityGateEngine mirroring LatheQualityGateEngine"
+    },
+    {
+      "unit_id": "U-MILL-PARITY-MillReinforcementLearningEngine",
+      "source": "mill-parity-lathe",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Build MillReinforcementLearningEngine mirroring LatheReinforcementLearningEngine"
+    },
+    {
+      "unit_id": "U-MILL-PARITY-MillReplayFrameCompilerEngine",
+      "source": "mill-parity-lathe",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Build MillReplayFrameCompilerEngine mirroring LatheReplayFrameCompilerEngine"
+    },
+    {
+      "unit_id": "U-MILL-PARITY-MillResourceKnowledgeEngine",
+      "source": "mill-parity-lathe",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Build MillResourceKnowledgeEngine mirroring LatheResourceKnowledgeEngine"
+    },
+    {
+      "unit_id": "U-MILL-PARITY-MillSafetyPredicateEngine",
+      "source": "mill-parity-lathe",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Build MillSafetyPredicateEngine mirroring LatheSafetyPredicateEngine"
+    },
+    {
+      "unit_id": "U-MILL-PARITY-MillSafetySignalEngine",
+      "source": "mill-parity-lathe",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Build MillSafetySignalEngine mirroring LatheSafetySignalEngine"
+    },
+    {
+      "unit_id": "U-MILL-PARITY-MillScienceHardeningEngine",
+      "source": "mill-parity-lathe",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Build MillScienceHardeningEngine mirroring LatheScienceHardeningEngine"
+    },
+    {
+      "unit_id": "U-MILL-PARITY-MillSelfAwarenessIntegrationEngine",
+      "source": "mill-parity-lathe",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Build MillSelfAwarenessIntegrationEngine mirroring LatheSelfAwarenessIntegrationEngine"
+    },
+    {
+      "unit_id": "U-MILL-PARITY-MillSequenceOptimizerEngine",
+      "source": "mill-parity-lathe",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Build MillSequenceOptimizerEngine mirroring LatheSequenceOptimizerEngine"
+    },
+    {
+      "unit_id": "U-MILL-PARITY-MillShaftAdapterEngine",
+      "source": "mill-parity-lathe",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Build MillShaftAdapterEngine mirroring LatheShaftAdapterEngine"
+    },
+    {
+      "unit_id": "U-MILL-PARITY-MillShopAwareOptimizationEngine",
+      "source": "mill-parity-lathe",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Build MillShopAwareOptimizationEngine mirroring LatheShopAwareOptimizationEngine"
+    },
+    {
+      "unit_id": "U-MILL-PARITY-MillSpeedFeedCalculatorFacadeEngine",
+      "source": "mill-parity-lathe",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Build MillSpeedFeedCalculatorFacadeEngine mirroring LatheSpeedFeedCalculatorFacadeEngine"
+    },
+    {
+      "unit_id": "U-MILL-PARITY-MillSpeedFeedDeepLearningAdvisorEngine",
+      "source": "mill-parity-lathe",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Build MillSpeedFeedDeepLearningAdvisorEngine mirroring LatheSpeedFeedDeepLearningAdvisorEngine"
+    },
+    {
+      "unit_id": "U-MILL-PARITY-MillSpeedFeedReasoningBridgeEngine",
+      "source": "mill-parity-lathe",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Build MillSpeedFeedReasoningBridgeEngine mirroring LatheSpeedFeedReasoningBridgeEngine"
+    },
+    {
+      "unit_id": "U-MILL-PARITY-MillSpeedFeedShopAwareTuningEngine",
+      "source": "mill-parity-lathe",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Build MillSpeedFeedShopAwareTuningEngine mirroring LatheSpeedFeedShopAwareTuningEngine"
+    },
+    {
+      "unit_id": "U-MILL-PARITY-MillStockEvolutionEngine",
+      "source": "mill-parity-lathe",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Build MillStockEvolutionEngine mirroring LatheStockEvolutionEngine"
+    },
+    {
+      "unit_id": "U-MILL-PARITY-MillSubSpindleTransferPurgeEngine",
+      "source": "mill-parity-lathe",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Build MillSubSpindleTransferPurgeEngine mirroring LatheSubSpindleTransferPurgeEngine"
+    },
+    {
+      "unit_id": "U-MILL-PARITY-MillSwissPostGeneratorEngine",
+      "source": "mill-parity-lathe",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Build MillSwissPostGeneratorEngine mirroring LatheSwissPostGeneratorEngine"
+    },
+    {
+      "unit_id": "U-MILL-PARITY-MillThermodynamicsEngine",
+      "source": "mill-parity-lathe",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Build MillThermodynamicsEngine mirroring LatheThermodynamicsEngine"
+    },
+    {
+      "unit_id": "U-MILL-PARITY-MillTransferLearningEngine",
+      "source": "mill-parity-lathe",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Build MillTransferLearningEngine mirroring LatheTransferLearningEngine"
+    },
+    {
+      "unit_id": "U-MILL-PARITY-MillTransformerEngine",
+      "source": "mill-parity-lathe",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Build MillTransformerEngine mirroring LatheTransformerEngine"
+    },
+    {
+      "unit_id": "U-MILL-PARITY-MillTribalInjectorEngine",
+      "source": "mill-parity-lathe",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Build MillTribalInjectorEngine mirroring LatheTribalInjectorEngine"
+    },
+    {
+      "unit_id": "U-MILL-PARITY-MillTroubleshootingIntelligenceEngine",
+      "source": "mill-parity-lathe",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Build MillTroubleshootingIntelligenceEngine mirroring LatheTroubleshootingIntelligenceEngine"
+    },
+    {
+      "unit_id": "U-MILL-PARITY-MillTurningFeatureRecognizerEngine",
+      "source": "mill-parity-lathe",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Build MillTurningFeatureRecognizerEngine mirroring LatheTurningFeatureRecognizerEngine"
+    },
+    {
+      "unit_id": "U-MILL-PARITY-MillUnifiedAIEngine",
+      "source": "mill-parity-lathe",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Build MillUnifiedAIEngine mirroring LatheUnifiedAIEngine"
+    },
+    {
+      "unit_id": "U-MILL-PARITY-MillUnifiedAIOrchestrator",
+      "source": "mill-parity-lathe",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Build MillUnifiedAIOrchestrator mirroring LatheUnifiedAIOrchestrator"
+    },
+    {
+      "unit_id": "U-MILL-PARITY-MillUnifiedPhysicsOrchestrationEngine",
+      "source": "mill-parity-lathe",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Build MillUnifiedPhysicsOrchestrationEngine mirroring LatheUnifiedPhysicsOrchestrationEngine"
+    },
+    {
+      "unit_id": "U-MILL-PARITY-MillUnifiedScienceEngine",
+      "source": "mill-parity-lathe",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Build MillUnifiedScienceEngine mirroring LatheUnifiedScienceEngine"
+    },
+    {
+      "unit_id": "U-MILL-PARITY-MillWorkholdingEngine",
+      "source": "mill-parity-lathe",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Build MillWorkholdingEngine mirroring LatheWorkholdingEngine"
+    },
+    {
+      "unit_id": "U-MILL-WEDM-PARITY-MillAccessibilityEngine",
+      "source": "mill-parity-wedm",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Promote WEDMAccessibilityEngine pattern to MillAccessibilityEngine"
+    },
+    {
+      "unit_id": "U-MILL-WEDM-PARITY-MillActiveQueryEngine",
+      "source": "mill-parity-wedm",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Promote WEDMActiveQueryEngine pattern to MillActiveQueryEngine"
+    },
+    {
+      "unit_id": "U-MILL-WEDM-PARITY-MillAdaptivePassEngine",
+      "source": "mill-parity-wedm",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Promote WEDMAdaptivePassEngine pattern to MillAdaptivePassEngine"
+    },
+    {
+      "unit_id": "U-MILL-WEDM-PARITY-MillAnalogicalReasoningEngine",
+      "source": "mill-parity-wedm",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Promote WEDMAnalogicalReasoningEngine pattern to MillAnalogicalReasoningEngine"
+    },
+    {
+      "unit_id": "U-MILL-WEDM-PARITY-MillArchiveBackfillEngine",
+      "source": "mill-parity-wedm",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Promote WEDMArchiveBackfillEngine pattern to MillArchiveBackfillEngine"
+    },
+    {
+      "unit_id": "U-MILL-WEDM-PARITY-MillAutonomyAuditEngine",
+      "source": "mill-parity-wedm",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Promote WEDMAutonomyAuditEngine pattern to MillAutonomyAuditEngine"
+    },
+    {
+      "unit_id": "U-MILL-WEDM-PARITY-MillAutonomyEngine",
+      "source": "mill-parity-wedm",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Promote WEDMAutonomyEngine pattern to MillAutonomyEngine"
+    },
+    {
+      "unit_id": "U-MILL-WEDM-PARITY-MillAutonomySubstrateGateEngine",
+      "source": "mill-parity-wedm",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Promote WEDMAutonomySubstrateGateEngine pattern to MillAutonomySubstrateGateEngine"
+    },
+    {
+      "unit_id": "U-MILL-WEDM-PARITY-MillAwarenessAdoptionEngine",
+      "source": "mill-parity-wedm",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Promote WEDMAwarenessAdoptionEngine pattern to MillAwarenessAdoptionEngine"
+    },
+    {
+      "unit_id": "U-MILL-WEDM-PARITY-MillBatchProgramAnalyzerEngine",
+      "source": "mill-parity-wedm",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Promote WEDMBatchProgramAnalyzerEngine pattern to MillBatchProgramAnalyzerEngine"
+    },
+    {
+      "unit_id": "U-MILL-WEDM-PARITY-MillBenchmarkToleranceEngine",
+      "source": "mill-parity-wedm",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Promote WEDMBenchmarkToleranceEngine pattern to MillBenchmarkToleranceEngine"
+    },
+    {
+      "unit_id": "U-MILL-WEDM-PARITY-MillBlackboardEngine",
+      "source": "mill-parity-wedm",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Promote WEDMBlackboardEngine pattern to MillBlackboardEngine"
+    },
+    {
+      "unit_id": "U-MILL-WEDM-PARITY-MillCalculatorAIEngine",
+      "source": "mill-parity-wedm",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Promote WEDMCalculatorAIEngine pattern to MillCalculatorAIEngine"
+    },
+    {
+      "unit_id": "U-MILL-WEDM-PARITY-MillCalibrationReportEngine",
+      "source": "mill-parity-wedm",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Promote WEDMCalibrationReportEngine pattern to MillCalibrationReportEngine"
+    },
+    {
+      "unit_id": "U-MILL-WEDM-PARITY-MillCitationCheckEngine",
+      "source": "mill-parity-wedm",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Promote WEDMCitationCheckEngine pattern to MillCitationCheckEngine"
+    },
+    {
+      "unit_id": "U-MILL-WEDM-PARITY-MillCompleteOrchestrationEngine",
+      "source": "mill-parity-wedm",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Promote WEDMCompleteOrchestrationEngine pattern to MillCompleteOrchestrationEngine"
+    },
+    {
+      "unit_id": "U-MILL-WEDM-PARITY-MillContinuousLearningEngine",
+      "source": "mill-parity-wedm",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Promote WEDMContinuousLearningEngine pattern to MillContinuousLearningEngine"
+    },
+    {
+      "unit_id": "U-MILL-WEDM-PARITY-MillControllerDialectVerifierEngine",
+      "source": "mill-parity-wedm",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Promote WEDMControllerDialectVerifierEngine pattern to MillControllerDialectVerifierEngine"
+    },
+    {
+      "unit_id": "U-MILL-WEDM-PARITY-MillCornerPhysicsEngine",
+      "source": "mill-parity-wedm",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Promote WEDMCornerPhysicsEngine pattern to MillCornerPhysicsEngine"
+    },
+    {
+      "unit_id": "U-MILL-WEDM-PARITY-MillCreditCostEngine",
+      "source": "mill-parity-wedm",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Promote WEDMCreditCostEngine pattern to MillCreditCostEngine"
+    },
+    {
+      "unit_id": "U-MILL-WEDM-PARITY-MillCurrentDensityGuardEngine",
+      "source": "mill-parity-wedm",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Promote WEDMCurrentDensityGuardEngine pattern to MillCurrentDensityGuardEngine"
+    },
+    {
+      "unit_id": "U-MILL-WEDM-PARITY-MillDXFClosureValidatorEngine",
+      "source": "mill-parity-wedm",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Promote WEDMDXFClosureValidatorEngine pattern to MillDXFClosureValidatorEngine"
+    },
+    {
+      "unit_id": "U-MILL-WEDM-PARITY-MillDegradationModelEngine",
+      "source": "mill-parity-wedm",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Promote WEDMDegradationModelEngine pattern to MillDegradationModelEngine"
+    },
+    {
+      "unit_id": "U-MILL-WEDM-PARITY-MillDeviationToTipEngine",
+      "source": "mill-parity-wedm",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Promote WEDMDeviationToTipEngine pattern to MillDeviationToTipEngine"
+    },
+    {
+      "unit_id": "U-MILL-WEDM-PARITY-MillDielectricCorrectionEngine",
+      "source": "mill-parity-wedm",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Promote WEDMDielectricCorrectionEngine pattern to MillDielectricCorrectionEngine"
+    },
+    {
+      "unit_id": "U-MILL-WEDM-PARITY-MillDielectricFlushAdjustEngine",
+      "source": "mill-parity-wedm",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Promote WEDMDielectricFlushAdjustEngine pattern to MillDielectricFlushAdjustEngine"
+    },
+    {
+      "unit_id": "U-MILL-WEDM-PARITY-MillDriftDetectionEngine",
+      "source": "mill-parity-wedm",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Promote WEDMDriftDetectionEngine pattern to MillDriftDetectionEngine"
+    },
+    {
+      "unit_id": "U-MILL-WEDM-PARITY-MillDwgImportEngine",
+      "source": "mill-parity-wedm",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Promote WEDMDwgImportEngine pattern to MillDwgImportEngine"
+    },
+    {
+      "unit_id": "U-MILL-WEDM-PARITY-MillEWCMemoryEngine",
+      "source": "mill-parity-wedm",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Promote WEDMEWCMemoryEngine pattern to MillEWCMemoryEngine"
+    },
+    {
+      "unit_id": "U-MILL-WEDM-PARITY-MillExceptionHandlerEngine",
+      "source": "mill-parity-wedm",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Promote WEDMExceptionHandlerEngine pattern to MillExceptionHandlerEngine"
+    },
+    {
+      "unit_id": "U-MILL-WEDM-PARITY-MillFailsafeEngine",
+      "source": "mill-parity-wedm",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Promote WEDMFailsafeEngine pattern to MillFailsafeEngine"
+    },
+    {
+      "unit_id": "U-MILL-WEDM-PARITY-MillFaultDiagnosisEngine",
+      "source": "mill-parity-wedm",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Promote WEDMFaultDiagnosisEngine pattern to MillFaultDiagnosisEngine"
+    },
+    {
+      "unit_id": "U-MILL-WEDM-PARITY-MillFeatureImportanceEngine",
+      "source": "mill-parity-wedm",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Promote WEDMFeatureImportanceEngine pattern to MillFeatureImportanceEngine"
+    },
+    {
+      "unit_id": "U-MILL-WEDM-PARITY-MillFeedbackCalibrationEngine",
+      "source": "mill-parity-wedm",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Promote WEDMFeedbackCalibrationEngine pattern to MillFeedbackCalibrationEngine"
+    },
+    {
+      "unit_id": "U-MILL-WEDM-PARITY-MillFeedbackIngestionEngine",
+      "source": "mill-parity-wedm",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Promote WEDMFeedbackIngestionEngine pattern to MillFeedbackIngestionEngine"
+    },
+    {
+      "unit_id": "U-MILL-WEDM-PARITY-MillFewShotEngine",
+      "source": "mill-parity-wedm",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Promote WEDMFewShotEngine pattern to MillFewShotEngine"
+    },
+    {
+      "unit_id": "U-MILL-WEDM-PARITY-MillFewShotMaterialEngine",
+      "source": "mill-parity-wedm",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Promote WEDMFewShotMaterialEngine pattern to MillFewShotMaterialEngine"
+    },
+    {
+      "unit_id": "U-MILL-WEDM-PARITY-MillFixtureInterferenceEngine",
+      "source": "mill-parity-wedm",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Promote WEDMFixtureInterferenceEngine pattern to MillFixtureInterferenceEngine"
+    },
+    {
+      "unit_id": "U-MILL-WEDM-PARITY-MillFlushAdequacyGateEngine",
+      "source": "mill-parity-wedm",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Promote WEDMFlushAdequacyGateEngine pattern to MillFlushAdequacyGateEngine"
+    },
+    {
+      "unit_id": "U-MILL-WEDM-PARITY-MillGapVoltageControlEngine",
+      "source": "mill-parity-wedm",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Promote WEDMGapVoltageControlEngine pattern to MillGapVoltageControlEngine"
+    },
+    {
+      "unit_id": "U-MILL-WEDM-PARITY-MillGovernanceStore",
+      "source": "mill-parity-wedm",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Promote WEDMGovernanceStore pattern to MillGovernanceStore"
+    },
+    {
+      "unit_id": "U-MILL-WEDM-PARITY-MillGraphAttentionEngine",
+      "source": "mill-parity-wedm",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Promote WEDMGraphAttentionEngine pattern to MillGraphAttentionEngine"
+    },
+    {
+      "unit_id": "U-MILL-WEDM-PARITY-MillHeadClearanceEngine",
+      "source": "mill-parity-wedm",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Promote WEDMHeadClearanceEngine pattern to MillHeadClearanceEngine"
+    },
+    {
+      "unit_id": "U-MILL-WEDM-PARITY-MillHeatAffectedZoneEngine",
+      "source": "mill-parity-wedm",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Promote WEDMHeatAffectedZoneEngine pattern to MillHeatAffectedZoneEngine"
+    },
+    {
+      "unit_id": "U-MILL-WEDM-PARITY-MillHierarchicalPlannerEngine",
+      "source": "mill-parity-wedm",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Promote WEDMHierarchicalPlannerEngine pattern to MillHierarchicalPlannerEngine"
+    },
+    {
+      "unit_id": "U-MILL-WEDM-PARITY-MillHumanHandoffEngine",
+      "source": "mill-parity-wedm",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Promote WEDMHumanHandoffEngine pattern to MillHumanHandoffEngine"
+    },
+    {
+      "unit_id": "U-MILL-WEDM-PARITY-MillInvoiceLineEngine",
+      "source": "mill-parity-wedm",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Promote WEDMInvoiceLineEngine pattern to MillInvoiceLineEngine"
+    },
+    {
+      "unit_id": "U-MILL-WEDM-PARITY-MillJobCostEngine",
+      "source": "mill-parity-wedm",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Promote WEDMJobCostEngine pattern to MillJobCostEngine"
+    },
+    {
+      "unit_id": "U-MILL-WEDM-PARITY-MillJobCreatorEngine",
+      "source": "mill-parity-wedm",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Promote WEDMJobCreatorEngine pattern to MillJobCreatorEngine"
+    },
+    {
+      "unit_id": "U-MILL-WEDM-PARITY-MillJobOutcomeEngine",
+      "source": "mill-parity-wedm",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Promote WEDMJobOutcomeEngine pattern to MillJobOutcomeEngine"
+    },
+    {
+      "unit_id": "U-MILL-WEDM-PARITY-MillJobPatternLearnerEngine",
+      "source": "mill-parity-wedm",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Promote WEDMJobPatternLearnerEngine pattern to MillJobPatternLearnerEngine"
+    },
+    {
+      "unit_id": "U-MILL-WEDM-PARITY-MillKalmanFusionEngine",
+      "source": "mill-parity-wedm",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Promote WEDMKalmanFusionEngine pattern to MillKalmanFusionEngine"
+    },
+    {
+      "unit_id": "U-MILL-WEDM-PARITY-MillKerfWidthEngine",
+      "source": "mill-parity-wedm",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Promote WEDMKerfWidthEngine pattern to MillKerfWidthEngine"
+    },
+    {
+      "unit_id": "U-MILL-WEDM-PARITY-MillKnowledgeDistillationEngine",
+      "source": "mill-parity-wedm",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Promote WEDMKnowledgeDistillationEngine pattern to MillKnowledgeDistillationEngine"
+    },
+    {
+      "unit_id": "U-MILL-WEDM-PARITY-MillLatticeGraphEngine",
+      "source": "mill-parity-wedm",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Promote WEDMLatticeGraphEngine pattern to MillLatticeGraphEngine"
+    },
+    {
+      "unit_id": "U-MILL-WEDM-PARITY-MillLearningLoopEngine",
+      "source": "mill-parity-wedm",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Promote WEDMLearningLoopEngine pattern to MillLearningLoopEngine"
+    },
+    {
+      "unit_id": "U-MILL-WEDM-PARITY-MillLoRAAdapterEngine",
+      "source": "mill-parity-wedm",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Promote WEDMLoRAAdapterEngine pattern to MillLoRAAdapterEngine"
+    },
+    {
+      "unit_id": "U-MILL-WEDM-PARITY-MillLoRACadenceEngine",
+      "source": "mill-parity-wedm",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Promote WEDMLoRACadenceEngine pattern to MillLoRACadenceEngine"
+    },
+    {
+      "unit_id": "U-MILL-WEDM-PARITY-MillLoRADatasetBuilderEngine",
+      "source": "mill-parity-wedm",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Promote WEDMLoRADatasetBuilderEngine pattern to MillLoRADatasetBuilderEngine"
+    },
+    {
+      "unit_id": "U-MILL-WEDM-PARITY-MillMLParameterOptimizerEngine",
+      "source": "mill-parity-wedm",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Promote WEDMMLParameterOptimizerEngine pattern to MillMLParameterOptimizerEngine"
+    },
+    {
+      "unit_id": "U-MILL-WEDM-PARITY-MillMRRPhysicsEngine",
+      "source": "mill-parity-wedm",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Promote WEDMMRRPhysicsEngine pattern to MillMRRPhysicsEngine"
+    },
+    {
+      "unit_id": "U-MILL-WEDM-PARITY-MillMachineStateEngine",
+      "source": "mill-parity-wedm",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Promote WEDMMachineStateEngine pattern to MillMachineStateEngine"
+    },
+    {
+      "unit_id": "U-MILL-WEDM-PARITY-MillMaintenanceSchedulerEngine",
+      "source": "mill-parity-wedm",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Promote WEDMMaintenanceSchedulerEngine pattern to MillMaintenanceSchedulerEngine"
+    },
+    {
+      "unit_id": "U-MILL-WEDM-PARITY-MillMaterialCharacterizationEngine",
+      "source": "mill-parity-wedm",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Promote WEDMMaterialCharacterizationEngine pattern to MillMaterialCharacterizationEngine"
+    },
+    {
+      "unit_id": "U-MILL-WEDM-PARITY-MillMaterialSparkDatabaseEngine",
+      "source": "mill-parity-wedm",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Promote WEDMMaterialSparkDatabaseEngine pattern to MillMaterialSparkDatabaseEngine"
+    },
+    {
+      "unit_id": "U-MILL-WEDM-PARITY-MillModelUpdateEngine",
+      "source": "mill-parity-wedm",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Promote WEDMModelUpdateEngine pattern to MillModelUpdateEngine"
+    },
+    {
+      "unit_id": "U-MILL-WEDM-PARITY-MillMultiAgentDispatchEngine",
+      "source": "mill-parity-wedm",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Promote WEDMMultiAgentDispatchEngine pattern to MillMultiAgentDispatchEngine"
+    },
+    {
+      "unit_id": "U-MILL-WEDM-PARITY-MillMultiProfileBatchEngine",
+      "source": "mill-parity-wedm",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Promote WEDMMultiProfileBatchEngine pattern to MillMultiProfileBatchEngine"
+    },
+    {
+      "unit_id": "U-MILL-WEDM-PARITY-MillNeighborQueryEngine",
+      "source": "mill-parity-wedm",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Promote WEDMNeighborQueryEngine pattern to MillNeighborQueryEngine"
+    },
+    {
+      "unit_id": "U-MILL-WEDM-PARITY-MillNeuralFormulaFusionEngine",
+      "source": "mill-parity-wedm",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Promote WEDMNeuralFormulaFusionEngine pattern to MillNeuralFormulaFusionEngine"
+    },
+    {
+      "unit_id": "U-MILL-WEDM-PARITY-MillNeuralTrainingEngine",
+      "source": "mill-parity-wedm",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Promote WEDMNeuralTrainingEngine pattern to MillNeuralTrainingEngine"
+    },
+    {
+      "unit_id": "U-MILL-WEDM-PARITY-MillOffsetSPCEngine",
+      "source": "mill-parity-wedm",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Promote WEDMOffsetSPCEngine pattern to MillOffsetSPCEngine"
+    },
+    {
+      "unit_id": "U-MILL-WEDM-PARITY-MillOnlineLearningEngine",
+      "source": "mill-parity-wedm",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Promote WEDMOnlineLearningEngine pattern to MillOnlineLearningEngine"
+    },
+    {
+      "unit_id": "U-MILL-WEDM-PARITY-MillOverageApprovalEngine",
+      "source": "mill-parity-wedm",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Promote WEDMOverageApprovalEngine pattern to MillOverageApprovalEngine"
+    },
+    {
+      "unit_id": "U-MILL-WEDM-PARITY-MillParetoCacheEngine",
+      "source": "mill-parity-wedm",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Promote WEDMParetoCacheEngine pattern to MillParetoCacheEngine"
+    },
+    {
+      "unit_id": "U-MILL-WEDM-PARITY-MillParetoFrontierSearchEngine",
+      "source": "mill-parity-wedm",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Promote WEDMParetoFrontierSearchEngine pattern to MillParetoFrontierSearchEngine"
+    },
+    {
+      "unit_id": "U-MILL-WEDM-PARITY-MillPartRecognitionEngine",
+      "source": "mill-parity-wedm",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Promote WEDMPartRecognitionEngine pattern to MillPartRecognitionEngine"
+    },
+    {
+      "unit_id": "U-MILL-WEDM-PARITY-MillPostAgieEngine",
+      "source": "mill-parity-wedm",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Promote WEDMPostAgieEngine pattern to MillPostAgieEngine"
+    },
+    {
+      "unit_id": "U-MILL-WEDM-PARITY-MillPostDialectRouterEngine",
+      "source": "mill-parity-wedm",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Promote WEDMPostDialectRouterEngine pattern to MillPostDialectRouterEngine"
+    },
+    {
+      "unit_id": "U-MILL-WEDM-PARITY-MillPostFanucEngine",
+      "source": "mill-parity-wedm",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Promote WEDMPostFanucEngine pattern to MillPostFanucEngine"
+    },
+    {
+      "unit_id": "U-MILL-WEDM-PARITY-MillPostMakinoEngine",
+      "source": "mill-parity-wedm",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Promote WEDMPostMakinoEngine pattern to MillPostMakinoEngine"
+    },
+    {
+      "unit_id": "U-MILL-WEDM-PARITY-MillPostMitsubishiEngine",
+      "source": "mill-parity-wedm",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Promote WEDMPostMitsubishiEngine pattern to MillPostMitsubishiEngine"
+    },
+    {
+      "unit_id": "U-MILL-WEDM-PARITY-MillPostSodickEngine",
+      "source": "mill-parity-wedm",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Promote WEDMPostSodickEngine pattern to MillPostSodickEngine"
+    },
+    {
+      "unit_id": "U-MILL-WEDM-PARITY-MillPostTypes",
+      "source": "mill-parity-wedm",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Promote WEDMPostTypes pattern to MillPostTypes"
+    },
+    {
+      "unit_id": "U-MILL-WEDM-PARITY-MillPowerDensityGuardEngine",
+      "source": "mill-parity-wedm",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Promote WEDMPowerDensityGuardEngine pattern to MillPowerDensityGuardEngine"
+    },
+    {
+      "unit_id": "U-MILL-WEDM-PARITY-MillPreFlightCheckEngine",
+      "source": "mill-parity-wedm",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Promote WEDMPreFlightCheckEngine pattern to MillPreFlightCheckEngine"
+    },
+    {
+      "unit_id": "U-MILL-WEDM-PARITY-MillProcessCausalityEngine",
+      "source": "mill-parity-wedm",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Promote WEDMProcessCausalityEngine pattern to MillProcessCausalityEngine"
+    },
+    {
+      "unit_id": "U-MILL-WEDM-PARITY-MillProductionReadinessEngine",
+      "source": "mill-parity-wedm",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Promote WEDMProductionReadinessEngine pattern to MillProductionReadinessEngine"
+    },
+    {
+      "unit_id": "U-MILL-WEDM-PARITY-MillProgramComparisonEngine",
+      "source": "mill-parity-wedm",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Promote WEDMProgramComparisonEngine pattern to MillProgramComparisonEngine"
+    },
+    {
+      "unit_id": "U-MILL-WEDM-PARITY-MillProgramNeuralAnalysisEngine",
+      "source": "mill-parity-wedm",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Promote WEDMProgramNeuralAnalysisEngine pattern to MillProgramNeuralAnalysisEngine"
+    },
+    {
+      "unit_id": "U-MILL-WEDM-PARITY-MillProgramSafetyGateEngine",
+      "source": "mill-parity-wedm",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Promote WEDMProgramSafetyGateEngine pattern to MillProgramSafetyGateEngine"
+    },
+    {
+      "unit_id": "U-MILL-WEDM-PARITY-MillProgramVerificationEngine",
+      "source": "mill-parity-wedm",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Promote WEDMProgramVerificationEngine pattern to MillProgramVerificationEngine"
+    },
+    {
+      "unit_id": "U-MILL-WEDM-PARITY-MillProgressTrackerEngine",
+      "source": "mill-parity-wedm",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Promote WEDMProgressTrackerEngine pattern to MillProgressTrackerEngine"
+    },
+    {
+      "unit_id": "U-MILL-WEDM-PARITY-MillPrototypicalNetworkEngine",
+      "source": "mill-parity-wedm",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Promote WEDMPrototypicalNetworkEngine pattern to MillPrototypicalNetworkEngine"
+    },
+    {
+      "unit_id": "U-MILL-WEDM-PARITY-MillPulseLimitEngine",
+      "source": "mill-parity-wedm",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Promote WEDMPulseLimitEngine pattern to MillPulseLimitEngine"
+    },
+    {
+      "unit_id": "U-MILL-WEDM-PARITY-MillQuoteBridgeEngine",
+      "source": "mill-parity-wedm",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Promote WEDMQuoteBridgeEngine pattern to MillQuoteBridgeEngine"
+    },
+    {
+      "unit_id": "U-MILL-WEDM-PARITY-MillRLControllerEngine",
+      "source": "mill-parity-wedm",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Promote WEDMRLControllerEngine pattern to MillRLControllerEngine"
+    },
+    {
+      "unit_id": "U-MILL-WEDM-PARITY-MillRLPolicyPersistence",
+      "source": "mill-parity-wedm",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Promote WEDMRLPolicyPersistence pattern to MillRLPolicyPersistence"
+    },
+    {
+      "unit_id": "U-MILL-WEDM-PARITY-MillRULEngine",
+      "source": "mill-parity-wedm",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Promote WEDMRULEngine pattern to MillRULEngine"
+    },
+    {
+      "unit_id": "U-MILL-WEDM-PARITY-MillRaPredictorEngine",
+      "source": "mill-parity-wedm",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Promote WEDMRaPredictorEngine pattern to MillRaPredictorEngine"
+    },
+    {
+      "unit_id": "U-MILL-WEDM-PARITY-MillReasoningBridgeEngine",
+      "source": "mill-parity-wedm",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Promote WEDMReasoningBridgeEngine pattern to MillReasoningBridgeEngine"
+    },
+    {
+      "unit_id": "U-MILL-WEDM-PARITY-MillReasoningExplainEngine",
+      "source": "mill-parity-wedm",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Promote WEDMReasoningExplainEngine pattern to MillReasoningExplainEngine"
+    },
+    {
+      "unit_id": "U-MILL-WEDM-PARITY-MillReasoningTraceLedgerEngine",
+      "source": "mill-parity-wedm",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Promote WEDMReasoningTraceLedgerEngine pattern to MillReasoningTraceLedgerEngine"
+    },
+    {
+      "unit_id": "U-MILL-WEDM-PARITY-MillRecastDepthPredictorEngine",
+      "source": "mill-parity-wedm",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Promote WEDMRecastDepthPredictorEngine pattern to MillRecastDepthPredictorEngine"
+    },
+    {
+      "unit_id": "U-MILL-WEDM-PARITY-MillRecastLayerMLEngine",
+      "source": "mill-parity-wedm",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Promote WEDMRecastLayerMLEngine pattern to MillRecastLayerMLEngine"
+    },
+    {
+      "unit_id": "U-MILL-WEDM-PARITY-MillRecipeAdaptationEngine",
+      "source": "mill-parity-wedm",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Promote WEDMRecipeAdaptationEngine pattern to MillRecipeAdaptationEngine"
+    },
+    {
+      "unit_id": "U-MILL-WEDM-PARITY-MillRewardShapingEngine",
+      "source": "mill-parity-wedm",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Promote WEDMRewardShapingEngine pattern to MillRewardShapingEngine"
+    },
+    {
+      "unit_id": "U-MILL-WEDM-PARITY-MillRolloutSimulatorEngine",
+      "source": "mill-parity-wedm",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Promote WEDMRolloutSimulatorEngine pattern to MillRolloutSimulatorEngine"
+    },
+    {
+      "unit_id": "U-MILL-WEDM-PARITY-MillSafetyEnvelopeEngine",
+      "source": "mill-parity-wedm",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Promote WEDMSafetyEnvelopeEngine pattern to MillSafetyEnvelopeEngine"
+    },
+    {
+      "unit_id": "U-MILL-WEDM-PARITY-MillSchedulingEngine",
+      "source": "mill-parity-wedm",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Promote WEDMSchedulingEngine pattern to MillSchedulingEngine"
+    },
+    {
+      "unit_id": "U-MILL-WEDM-PARITY-MillSelfAwarenessEngine",
+      "source": "mill-parity-wedm",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Promote WEDMSelfAwarenessEngine pattern to MillSelfAwarenessEngine"
+    },
+    {
+      "unit_id": "U-MILL-WEDM-PARITY-MillSequencingEngine",
+      "source": "mill-parity-wedm",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Promote WEDMSequencingEngine pattern to MillSequencingEngine"
+    },
+    {
+      "unit_id": "U-MILL-WEDM-PARITY-MillSetupSheetEngine",
+      "source": "mill-parity-wedm",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Promote WEDMSetupSheetEngine pattern to MillSetupSheetEngine"
+    },
+    {
+      "unit_id": "U-MILL-WEDM-PARITY-MillSlugTabRetentionEngine",
+      "source": "mill-parity-wedm",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Promote WEDMSlugTabRetentionEngine pattern to MillSlugTabRetentionEngine"
+    },
+    {
+      "unit_id": "U-MILL-WEDM-PARITY-MillSparkErosionModelEngine",
+      "source": "mill-parity-wedm",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Promote WEDMSparkErosionModelEngine pattern to MillSparkErosionModelEngine"
+    },
+    {
+      "unit_id": "U-MILL-WEDM-PARITY-MillStartPointOptimizationEngine",
+      "source": "mill-parity-wedm",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Promote WEDMStartPointOptimizationEngine pattern to MillStartPointOptimizationEngine"
+    },
+    {
+      "unit_id": "U-MILL-WEDM-PARITY-MillStrategyLibraryEngine",
+      "source": "mill-parity-wedm",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Promote WEDMStrategyLibraryEngine pattern to MillStrategyLibraryEngine"
+    },
+    {
+      "unit_id": "U-MILL-WEDM-PARITY-MillTabStrategyEngine",
+      "source": "mill-parity-wedm",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Promote WEDMTabStrategyEngine pattern to MillTabStrategyEngine"
+    },
+    {
+      "unit_id": "U-MILL-WEDM-PARITY-MillTaperErrorBudgetEngine",
+      "source": "mill-parity-wedm",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Promote WEDMTaperErrorBudgetEngine pattern to MillTaperErrorBudgetEngine"
+    },
+    {
+      "unit_id": "U-MILL-WEDM-PARITY-MillThermalFieldEngine",
+      "source": "mill-parity-wedm",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Promote WEDMThermalFieldEngine pattern to MillThermalFieldEngine"
+    },
+    {
+      "unit_id": "U-MILL-WEDM-PARITY-MillThermalReleaseGateEngine",
+      "source": "mill-parity-wedm",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Promote WEDMThermalReleaseGateEngine pattern to MillThermalReleaseGateEngine"
+    },
+    {
+      "unit_id": "U-MILL-WEDM-PARITY-MillThinWireDerateEngine",
+      "source": "mill-parity-wedm",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Promote WEDMThinWireDerateEngine pattern to MillThinWireDerateEngine"
+    },
+    {
+      "unit_id": "U-MILL-WEDM-PARITY-MillTier6GeomGateEngine",
+      "source": "mill-parity-wedm",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Promote WEDMTier6GeomGateEngine pattern to MillTier6GeomGateEngine"
+    },
+    {
+      "unit_id": "U-MILL-WEDM-PARITY-MillTradeoffElicitationEngine",
+      "source": "mill-parity-wedm",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Promote WEDMTradeoffElicitationEngine pattern to MillTradeoffElicitationEngine"
+    },
+    {
+      "unit_id": "U-MILL-WEDM-PARITY-MillTransferLearningEngine",
+      "source": "mill-parity-wedm",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Promote WEDMTransferLearningEngine pattern to MillTransferLearningEngine"
+    },
+    {
+      "unit_id": "U-MILL-WEDM-PARITY-MillTribalRuntimeEngine",
+      "source": "mill-parity-wedm",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Promote WEDMTribalRuntimeEngine pattern to MillTribalRuntimeEngine"
+    },
+    {
+      "unit_id": "U-MILL-WEDM-PARITY-MillTribalTipLearnerEngine",
+      "source": "mill-parity-wedm",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Promote WEDMTribalTipLearnerEngine pattern to MillTribalTipLearnerEngine"
+    },
+    {
+      "unit_id": "U-MILL-WEDM-PARITY-MillUnitTagGateEngine",
+      "source": "mill-parity-wedm",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Promote WEDMUnitTagGateEngine pattern to MillUnitTagGateEngine"
+    },
+    {
+      "unit_id": "U-MILL-WEDM-PARITY-MillVirtualMachineEngine",
+      "source": "mill-parity-wedm",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Promote WEDMVirtualMachineEngine pattern to MillVirtualMachineEngine"
+    },
+    {
+      "unit_id": "U-MILL-WEDM-PARITY-MillWeibullWireLifeEngine",
+      "source": "mill-parity-wedm",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Promote WEDMWeibullWireLifeEngine pattern to MillWeibullWireLifeEngine"
+    },
+    {
+      "unit_id": "U-MILL-WEDM-PARITY-MillWhatIfSimulatorEngine",
+      "source": "mill-parity-wedm",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Promote WEDMWhatIfSimulatorEngine pattern to MillWhatIfSimulatorEngine"
+    },
+    {
+      "unit_id": "U-MILL-WEDM-PARITY-MillWireBreakPredictorEngine",
+      "source": "mill-parity-wedm",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Promote WEDMWireBreakPredictorEngine pattern to MillWireBreakPredictorEngine"
+    },
+    {
+      "unit_id": "U-MILL-WEDM-PARITY-MillWireBreakRiskCostEngine",
+      "source": "mill-parity-wedm",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Promote WEDMWireBreakRiskCostEngine pattern to MillWireBreakRiskCostEngine"
+    },
+    {
+      "unit_id": "U-MILL-WEDM-PARITY-MillWireDeflectionEngine",
+      "source": "mill-parity-wedm",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Promote WEDMWireDeflectionEngine pattern to MillWireDeflectionEngine"
+    },
+    {
+      "unit_id": "U-MILL-WEDM-PARITY-MillWireHeatingEngine",
+      "source": "mill-parity-wedm",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Promote WEDMWireHeatingEngine pattern to MillWireHeatingEngine"
+    },
+    {
+      "unit_id": "U-MILL-WEDM-PARITY-MillWirePathCollisionEngine",
+      "source": "mill-parity-wedm",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Promote WEDMWirePathCollisionEngine pattern to MillWirePathCollisionEngine"
+    },
+    {
+      "unit_id": "U-MILL-WEDM-PARITY-MillWirePremiumROIEngine",
+      "source": "mill-parity-wedm",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Promote WEDMWirePremiumROIEngine pattern to MillWirePremiumROIEngine"
+    },
+    {
+      "unit_id": "U-MILL-WEDM-PARITY-MillWireSpoolConsumptionEngine",
+      "source": "mill-parity-wedm",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Promote WEDMWireSpoolConsumptionEngine pattern to MillWireSpoolConsumptionEngine"
+    },
+    {
+      "unit_id": "U-MILL-WEDM-PARITY-MillWireStressAnalysisEngine",
+      "source": "mill-parity-wedm",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Promote WEDMWireStressAnalysisEngine pattern to MillWireStressAnalysisEngine"
+    },
+    {
+      "unit_id": "U-MILL-WEDM-PARITY-MillWireTensionOptimizerEngine",
+      "source": "mill-parity-wedm",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Promote WEDMWireTensionOptimizerEngine pattern to MillWireTensionOptimizerEngine"
+    },
+    {
+      "unit_id": "U-MILL-WEDM-PARITY-MillWireThreadingMinEngine",
+      "source": "mill-parity-wedm",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Promote WEDMWireThreadingMinEngine pattern to MillWireThreadingMinEngine"
+    },
+    {
+      "unit_id": "U-MILL-WEDM-PARITY-MillProgramIndexEngine",
+      "source": "mill-parity-wedm",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Promote WedmProgramIndexEngine pattern to MillProgramIndexEngine"
+    },
+    {
+      "unit_id": "U-MILL-WEDM-PARITY-MillAGIOrchestrator",
+      "source": "mill-parity-wedm",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Promote WireEDMAGIOrchestrator pattern to MillAGIOrchestrator"
+    },
+    {
+      "unit_id": "U-MILL-WEDM-PARITY-MillAIPrintToProgramEngine",
+      "source": "mill-parity-wedm",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Promote WireEDMAIPrintToProgramEngine pattern to MillAIPrintToProgramEngine"
+    },
+    {
+      "unit_id": "U-MILL-WEDM-PARITY-MillAdvancedNeuralEngine",
+      "source": "mill-parity-wedm",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Promote WireEDMAdvancedNeuralEngine pattern to MillAdvancedNeuralEngine"
+    },
+    {
+      "unit_id": "U-MILL-WEDM-PARITY-MillCAMKnowledgeEngine",
+      "source": "mill-parity-wedm",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Promote WireEDMCAMKnowledgeEngine pattern to MillCAMKnowledgeEngine"
+    },
+    {
+      "unit_id": "U-MILL-WEDM-PARITY-MillDeepAIHardeningEngine",
+      "source": "mill-parity-wedm",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Promote WireEDMDeepAIHardeningEngine pattern to MillDeepAIHardeningEngine"
+    },
+    {
+      "unit_id": "U-MILL-WEDM-PARITY-MillDeepLogicEngine",
+      "source": "mill-parity-wedm",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Promote WireEDMDeepLogicEngine pattern to MillDeepLogicEngine"
+    },
+    {
+      "unit_id": "U-MILL-WEDM-PARITY-MillDeepNeuralReasoningEngine",
+      "source": "mill-parity-wedm",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Promote WireEDMDeepNeuralReasoningEngine pattern to MillDeepNeuralReasoningEngine"
+    },
+    {
+      "unit_id": "U-MILL-WEDM-PARITY-MillDeepReasoningEngine",
+      "source": "mill-parity-wedm",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Promote WireEDMDeepReasoningEngine pattern to MillDeepReasoningEngine"
+    },
+    {
+      "unit_id": "U-MILL-WEDM-PARITY-MillKnowledgeSynthesisEngine",
+      "source": "mill-parity-wedm",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Promote WireEDMKnowledgeSynthesisEngine pattern to MillKnowledgeSynthesisEngine"
+    },
+    {
+      "unit_id": "U-MILL-WEDM-PARITY-MillMachineTechDataEngine",
+      "source": "mill-parity-wedm",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Promote WireEDMMachineTechDataEngine pattern to MillMachineTechDataEngine"
+    },
+    {
+      "unit_id": "U-MILL-WEDM-PARITY-MillMasterAIEngine",
+      "source": "mill-parity-wedm",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Promote WireEDMMasterAIEngine pattern to MillMasterAIEngine"
+    },
+    {
+      "unit_id": "U-MILL-WEDM-PARITY-MillNeuralOrchestrationEngine",
+      "source": "mill-parity-wedm",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Promote WireEDMNeuralOrchestrationEngine pattern to MillNeuralOrchestrationEngine"
+    },
+    {
+      "unit_id": "U-MILL-WEDM-PARITY-MillPredictiveIntelligenceEngine",
+      "source": "mill-parity-wedm",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Promote WireEDMPredictiveIntelligenceEngine pattern to MillPredictiveIntelligenceEngine"
+    },
+    {
+      "unit_id": "U-MILL-WEDM-PARITY-MillProgramParserEngine",
+      "source": "mill-parity-wedm",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Promote WireEDMProgramParserEngine pattern to MillProgramParserEngine"
+    },
+    {
+      "unit_id": "U-MILL-WEDM-PARITY-MillPunchDieAdapterEngine",
+      "source": "mill-parity-wedm",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Promote WireEDMPunchDieAdapterEngine pattern to MillPunchDieAdapterEngine"
+    },
+    {
+      "unit_id": "U-MILL-WEDM-PARITY-MillResearchAIEngine",
+      "source": "mill-parity-wedm",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Promote WireEDMResearchAIEngine pattern to MillResearchAIEngine"
+    },
+    {
+      "unit_id": "U-MILL-WEDM-PARITY-MillSelfAwarenessIntegrationEngine",
+      "source": "mill-parity-wedm",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Promote WireEDMSelfAwarenessIntegrationEngine pattern to MillSelfAwarenessIntegrationEngine"
+    },
+    {
+      "unit_id": "U-MILL-WEDM-PARITY-MillSettingsEngine",
+      "source": "mill-parity-wedm",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Promote WireEDMSettingsEngine pattern to MillSettingsEngine"
+    },
+    {
+      "unit_id": "U-MILL-WEDM-PARITY-MillUnifiedScienceEngine",
+      "source": "mill-parity-wedm",
+      "status": "not_started",
+      "milestone": "MILL-PARITY-UPGRADE-MS0",
+      "title": "Promote WireEDMUnifiedScienceEngine pattern to MillUnifiedScienceEngine"
+    }
+  ]
+}

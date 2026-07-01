@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="generator" content="SpecHTMLCompanionEngine">
+<meta name="prism-source-hash" content="4e5d2de6523e67ec441a401bb03676743215ca4f9084a0abe6ee549f9a77e1da">
+<title>Domain Studio Node Map — what each /lathe / /mill / /wedm mega-command must wire in</title>
+<style>
+:root, [data-theme="light"] {
+  --bg:#ffffff; --bg-soft:#f6f8fa; --bg-code:#f6f8fa; --fg:#1f2328; --fg-muted:#636c76;
+  --border:#d0d7de; --accent:#0969da; --accent-soft:#ddf4ff; --thead:#f6f8fa; --quote:#656d76;
+  --table-stripe:#f6f8fa;
+}
+[data-theme="dark"] {
+  --bg:#0d1117; --bg-soft:#161b22; --bg-code:#161b22; --fg:#e6edf3; --fg-muted:#8b949e;
+  --border:#30363d; --accent:#2f81f7; --accent-soft:#163356; --thead:#161b22; --quote:#8b949e;
+  --table-stripe:#11151c;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg:#0d1117; --bg-soft:#161b22; --bg-code:#161b22; --fg:#e6edf3; --fg-muted:#8b949e;
+    --border:#30363d; --accent:#2f81f7; --accent-soft:#163356; --thead:#161b22; --quote:#8b949e;
+    --table-stripe:#11151c;
+  }
+}
+* { box-sizing:border-box; }
+html { scroll-behavior:smooth; }
+body { margin:0; background:var(--bg); color:var(--fg); font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif; line-height:1.6; font-size:16px; }
+.skip-link { position:absolute; left:-9999px; top:0; background:var(--accent); color:#fff; padding:8px 14px; z-index:100; border-radius:0 0 6px 0; }
+.skip-link:focus { left:0; }
+.layout { display:grid; grid-template-columns:minmax(0,1fr); max-width:1180px; margin:0 auto; padding:0 20px; }
+@media (min-width:1000px) { .layout { grid-template-columns:260px minmax(0,1fr); gap:40px; } }
+header.doc-head { grid-column:1 / -1; padding:28px 0 16px; border-bottom:1px solid var(--border); }
+header.doc-head h1.page-title { margin:0 0 6px; font-size:1.9rem; line-height:1.25; }
+header.doc-head .provenance { color:var(--fg-muted); font-size:.85rem; margin:0; }
+header.doc-head .theme-toggle { float:right; background:var(--bg-soft); color:var(--fg); border:1px solid var(--border); border-radius:6px; padding:5px 10px; font-size:.8rem; cursor:pointer; }
+nav.toc { align-self:start; position:sticky; top:16px; max-height:calc(100vh - 32px); overflow:auto; font-size:.85rem; padding:14px 0; }
+@media (max-width:999px) { nav.toc { position:static; max-height:none; border-bottom:1px solid var(--border); margin-bottom:12px; } }
+nav.toc .toc-title { font-weight:600; color:var(--fg-muted); text-transform:uppercase; letter-spacing:.04em; font-size:.7rem; margin-bottom:8px; }
+nav.toc ul { list-style:none; margin:0; padding:0; }
+nav.toc li a { color:var(--fg-muted); text-decoration:none; display:block; padding:3px 6px; border-left:2px solid transparent; border-radius:0 4px 4px 0; }
+nav.toc li a:hover { color:var(--accent); background:var(--accent-soft); border-left-color:var(--accent); }
+nav.toc li a.active { color:var(--accent); background:var(--accent-soft); border-left-color:var(--accent); font-weight:600; }
+nav.toc .toc-l2 a { padding-left:14px; } nav.toc .toc-l3 a { padding-left:26px; font-size:.95em; } nav.toc .toc-l4 a { padding-left:38px; font-size:.9em; }
+nav.toc input.toc-search { width:100%; box-sizing:border-box; margin:0 0 8px; padding:5px 8px; font-size:.82rem; border:1px solid var(--border); border-radius:5px; background:var(--bg); color:var(--fg); }
+nav.toc input.toc-search:focus { outline:2px solid var(--accent); outline-offset:-1px; }
+nav.toc .toc-search-status { font-size:.7rem; color:var(--fg-muted); min-height:1em; margin:-4px 0 6px; }
+nav.toc li.toc-hidden { display:none; }
+main.doc-body mark.search-hit { background:#fff3a3; color:#1f2328; border-radius:2px; padding:0 1px; }
+main.doc-body mark.search-hit.current { outline:2px solid var(--accent); outline-offset:1px; }
+main.doc-body { min-width:0; padding:24px 0 64px; }
+main.doc-body h1,main.doc-body h2,main.doc-body h3,main.doc-body h4,main.doc-body h5,main.doc-body h6 { line-height:1.3; margin-top:1.8em; margin-bottom:.6em; scroll-margin-top:16px; position:relative; }
+main.doc-body h1 { font-size:1.7rem; border-bottom:1px solid var(--border); padding-bottom:.3em; }
+main.doc-body h2 { font-size:1.4rem; border-bottom:1px solid var(--border); padding-bottom:.3em; }
+main.doc-body h3 { font-size:1.18rem; } main.doc-body h4 { font-size:1.02rem; }
+main.doc-body a.anchor { position:absolute; left:-1.1em; opacity:0; text-decoration:none; color:var(--fg-muted); font-weight:400; padding-right:.3em; }
+main.doc-body h1:hover a.anchor,main.doc-body h2:hover a.anchor,main.doc-body h3:hover a.anchor,main.doc-body h4:hover a.anchor { opacity:1; }
+main.doc-body a { color:var(--accent); text-decoration:none; } main.doc-body a:hover { text-decoration:underline; }
+main.doc-body p { margin:.8em 0; }
+main.doc-body code { background:var(--bg-code); border-radius:4px; padding:.15em .35em; font-size:.88em; font-family:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace; }
+main.doc-body pre { background:var(--bg-code); border:1px solid var(--border); border-radius:8px; padding:14px 16px; overflow:auto; line-height:1.45; }
+main.doc-body pre code { background:none; padding:0; font-size:.86rem; }
+main.doc-body blockquote { margin:1em 0; padding:.4em 1em; border-left:4px solid var(--border); color:var(--quote); }
+main.doc-body ul,main.doc-body ol { margin:.6em 0; padding-left:1.6em; }
+main.doc-body li { margin:.2em 0; }
+main.doc-body hr { border:0; border-top:1px solid var(--border); margin:2em 0; }
+main.doc-body .table-wrap { overflow-x:auto; margin:1em 0; }
+main.doc-body table { border-collapse:collapse; width:100%; font-size:.9rem; }
+main.doc-body th,main.doc-body td { border:1px solid var(--border); padding:6px 11px; text-align:left; vertical-align:top; }
+main.doc-body thead th { background:var(--thead); }
+main.doc-body tbody tr:nth-child(2n) { background:var(--table-stripe); }
+main.doc-body details.frontmatter { background:var(--bg-soft); border:1px solid var(--border); border-radius:8px; padding:6px 14px; margin:0 0 22px; }
+main.doc-body details.frontmatter summary { cursor:pointer; font-weight:600; color:var(--fg-muted); }
+main.doc-body details.frontmatter table { font-size:.82rem; }
+main.doc-body details.frontmatter th { width:1%; white-space:nowrap; background:transparent; color:var(--fg-muted); }
+main.doc-body .mermaid { background:var(--bg-soft); border:1px solid var(--border); border-radius:8px; padding:14px; margin:1em 0; text-align:center; overflow:auto; white-space:pre-wrap; }
+main.doc-body .truncation-notice { background:var(--accent-soft); border:1px solid var(--accent); border-radius:6px; padding:10px 14px; font-size:.9rem; }
+footer.doc-foot { grid-column:1 / -1; border-top:1px solid var(--border); margin-top:48px; padding:18px 0 40px; color:var(--fg-muted); font-size:.82rem; }
+footer.doc-foot code { background:var(--bg-code); border-radius:4px; padding:.12em .3em; }
+</style>
+</head>
+<body>
+<a class="skip-link" href="#content">Skip to content</a>
+<div class="layout">
+<header class="doc-head">
+<button id="themeToggle" class="theme-toggle" type="button" aria-label="Toggle color theme">◐ theme</button>
+<h1 class="page-title" id="top">Domain Studio Node Map — what each /lathe / /mill / /wedm mega-command must wire in</h1>
+<p class="provenance">Generated 2026-05-12T18:55:24.731Z by <code>scripts/emit-all-spec-html.ts</code> · the Markdown alongside is canonical</p>
+</header>
+<nav class="toc" aria-label="Table of contents"><div class="toc-title">On this page</div><input type="search" class="toc-search" placeholder="Search this page…" aria-label="Search this page" autocomplete="off"><div class="toc-search-status" aria-live="polite"></div><ul>
+<li class="toc-l1"><a href="#domain-studio-node-map-what-each-lathe-mill-wedm-mega-command-must-wire-in">Domain Studio Node Map — what each /lathe / /mill / /wedm mega-command must wire in</a></li>
+<li class="toc-l2"><a href="#per-domain-nodes-from-system-viz">Per-domain nodes (from system-viz)</a></li>
+<li class="toc-l2"><a href="#cross-domain-nodes-every-studio-command-must-also-wire-in">Cross-domain nodes EVERY studio command must also wire in</a></li>
+<li class="toc-l2"><a href="#existing-skills-to-subsume-replace">Existing skills to subsume / replace</a></li>
+<li class="toc-l2"><a href="#build-order-recommendation">Build order (recommendation)</a></li>
+</ul></nav>
+<main id="content" class="doc-body" role="main">
+<h1 id="domain-studio-node-map-what-each-lathe-mill-wedm-mega-command-must-wire-in"><a class="anchor" href="#domain-studio-node-map-what-each-lathe-mill-wedm-mega-command-must-wire-in" aria-label="Permalink to Domain Studio Node Map — what each /lathe / /mill / /wedm mega-command must wire in">#</a>Domain Studio Node Map — what each <code>/lathe</code> / <code>/mill</code> / <code>/wedm</code> mega-command must wire in</h1>
+<p><strong>Generated:</strong> 2026-05-12 by claude-c47ec810 (slot charlie) from the live <code>state/shared/system-viz/system-graph.json</code> (19,950 nodes / 75,511 edges, regen&#39;d this session). <strong>Purpose:</strong> the source-of-truth list of system-viz nodes / engines / AI / NN / tribal / formulas / dispatchers that the next session must combine into one comprehensive slash command per machining domain (per the user&#39;s 2026-05-12 request: &quot;make a slash command for each domain machining type to combine engines, skills, tribal knowledge, ai systems, neural network paths, /system-viz … utilize the max amount of logic, deep learning, deep reasoning, all engines/formulas/algorithms (invent new ones for max variability if needed), speed/feed, physics engines, tooling … to generate perfected, hard-coded, machine-labeled programs; coding must match controller + machine capabilities&quot;). <strong>Status (updated 2026-05-12 by claude-8f2683e8 / alpha):</strong></p>
+<ul>
+<li>✅ ENUMERATION DONE (this file).</li>
+<li>✅ <strong>3 mega-commands BUILT</strong> — <code>H:/prism/.claude/commands/{lathe,mill,wedm}.md</code> (208 / 232 / 250+ lines each — <code>/lathe</code> has §9 macro-program detail + §10 training/learning; <code>/mill</code> and <code>/wedm</code> have §9 training/learning; <code>/wedm</code> §9a heavily references the taptite-electrode Excel macro). Slash commands surface in the project skill list.</li>
+<li>✅ <strong><code>MacroLibraryEngine</code> BUILT</strong> — <code>mcp-server/src/engines/MacroLibraryEngine.ts</code> cataloging the 4 Okuma OSP macros + priority-cascade family matcher + template-placement. Wired to <code>prism_cad</code> AND <code>prism_turning</code> (4 actions each: <code>macro_library_list</code>, <code>macro_match_family</code>, <code>macro_place_template</code>, <code>macro_fanout_dry_run</code>). 31/31 tests pass.</li>
+<li>✅ <strong>MACRO-PROGRAM-PIPELINE-MS0 SCOPED</strong> — <code>state/shared/specs/MACRO-PROGRAM-PIPELINE-MS0-2026-05-12.md</code> (7 units; macro-fill → S(x)-gated emit → per-machine native-dialect labelled programs).</li>
+<li>✅ <strong>TRAINING-LEARNING-MS0 SCOPED</strong> — <code>state/shared/specs/TRAINING-LEARNING-MS0-2026-05-12.md</code> (7 units; per-domain template-extractor engines + electrode-coverage audit + taptite-Excel-macro bridge + closed-loop continuous learning).</li>
+<li>⏳ <strong>MS0 unit execution = next sessions</strong> — the program-generation half is safety-critical (operator-in-the-loop, S(x) ≥ 0.70 hard block, no bulk-auto-emit).</li>
+</ul>
+<hr>
+<h2 id="per-domain-nodes-from-system-viz"><a class="anchor" href="#per-domain-nodes-from-system-viz" aria-label="Permalink to Per-domain nodes (from system-viz)">#</a>Per-domain nodes (from system-viz)</h2>
+<div class="table-wrap"><table>
+<thead><tr><th>layer</th><th>LATHE / TURNING</th><th>MILLING</th><th>WIRE-EDM</th></tr></thead>
+<tbody>
+<tr><td>L1 frontend</td><td><code>fe.pages.lathe</code> (7 React pages)</td><td><code>fe.pages.mill</code> (5)</td><td><code>fe.pages.wedm</code> (5)</td></tr>
+<tr><td>L3 Tier-3 AI</td><td><code>ai.t3.lathe</code> — <strong>LatheAGIOrchestrator + Knowledge Graph</strong></td><td><code>ai.t3.mill</code> — <strong>MillingAGIMasterEngine</strong></td><td><code>ai.t3.wedm</code> — <strong>WEDMAGIOrchestrator</strong></td></tr>
+<tr><td>L4 dispatchers (domain)</td><td><code>prism_turning</code> (<code>turningDispatcher</code>), <code>turningProgramDispatcher</code></td><td><code>prism_mill</code> (<code>millDispatcher</code>), <code>holePatternDispatcher</code></td><td><code>prism_edm</code> (<code>edmDispatcher</code>)</td></tr>
+<tr><td>L5 engine clusters</td><td><code>eng.lathe</code> (~89 engines), <code>eng.turning</code></td><td><code>eng.mill</code> (~240 engines)</td><td><code>eng.wedm</code> (62 WEDM engines — see <code>WEDM_DIGEST.json</code>)</td></tr>
+<tr><td>L8/L9/L10 state·registries·tribal</td><td>lathe state files, materials/tools/machines/strategies/formulas registries (domain-filtered), lathe wiki + 3,700+ tribal tips + playbook rules filtered to turning</td><td>mill state, registries (mill-filtered), mill wiki + tribal + playbook</td><td>WEDM state (<code>WEDM_*.json/jsonl</code>), registries (5 controller dialects: Mitsubishi/Sodick/Makino/AgieCharmilles/Fanuc), 46 WEDM tribal tips + 14 MIT-cited formulas</td></tr>
+</tbody>
+</table></div>
+<h2 id="cross-domain-nodes-every-studio-command-must-also-wire-in"><a class="anchor" href="#cross-domain-nodes-every-studio-command-must-also-wire-in" aria-label="Permalink to Cross-domain nodes EVERY studio command must also wire in">#</a>Cross-domain nodes EVERY studio command must also wire in</h2>
+<ul>
+<li><strong>Physics / formulas / algorithms (L5+L6):</strong> Kienzle force model, Taylor tool-life, tool-deflection, part-deflection, boring-bar deflection (lathe), cutting-temperature + thermal-wear-coupling (RK4 ODE), chatter stability lobe + regenerative-chatter, surface-finish predictor + surface-integrity + residual-stress, advanced-wear-physics, constitutive (Johnson-Cook) — plus the stochastic variants. Canonical constants ONLY from <code>mcp-server/src/physics/constants.ts</code> (kc1.1 P=1800 M=2100 K=1100 N=700 S=2800 H=3200). <strong>&quot;Invent new ones for max variability if needed&quot; → route through <code>prismCreativeReasoningEngine.explore(problem,&quot;optimal&quot;)</code> (15 sci domains, 120+ formulas) + <code>CrossDisciplinaryDeepLearningEngine</code>; any new formula must cite its source + be added to constants.ts / the formula registry, never inlined.</strong></li>
+<li><strong>Speed/feed:</strong> <code>SpeedFeedOrchestrator</code> (central hub, ~2,851 LOC), <code>UltimateSpeedFeed</code>, <code>AutoSpeedFeed</code>, chip-thinning, <code>prism_calc</code> actions; lathe bridge for turning S/F, mill bridge for milling. <code>/auto-speed-feed</code>, <code>/auto-speed-feed-lathe</code>.</li>
+<li><strong>Tooling:</strong> tool registry + crib + life-monitoring + standardization; <code>/tool-select</code>, <code>/tool-enrich</code>, <code>/tool-crib-guide</code>; tool-wear progression + stochastic-tool-life (Weibull).</li>
+<li><strong>Post-processing / controller match:</strong> <code>PostProcessorPipeline</code> (38 stages), <code>LathePostProcessor</code>, <code>FiveAxisPost</code>, the 18-CAM-system bridges; <strong>controller dialect resolution</strong> — Okuma OSP (the <code>Macro programs/</code> macros are OSP <code>VC</code>-variable), Fanuc, Siemens, Haas, Mazak, Mitsubishi/Sodick/Makino/AgieCharmilles for WEDM, HNC. <code>/post-generate</code>, <code>/post-validate</code>, <code>/ppg-quick-start</code>, <code>prism_dev</code> post actions. <strong>Per-machine programs require: ShopConfigurationEngine (21 JM Die machines) → each machine&#39;s controller + travel limits + spindle/turret/magazine capabilities → emit a program labelled <code>&lt;part&gt;__&lt;MACHINE-ID&gt;.MIN</code> whose codes match THAT machine&#39;s controller + envelope.</strong></li>
+<li><strong>Safety (UNCONDITIONAL):</strong> <code>prism_safety:validate_physics</code>, <code>S(x)</code> scoring (hard block &lt; 0.70), Omega gates, <code>CollisionPreventionEngine</code>, <code>machineLimitGuard</code>, <code>crossFieldPhysics</code>, <code>materialSanity</code>, the SafetyHooks validators. Every generated program is gated; operator-in-the-loop review is unconditional. <code>/safety-validation-guide</code>, <code>/forge-safety</code>.</li>
+<li><strong>AI hierarchy:</strong> Tier-1 Claude (orchestrate) → Tier-2 <code>FullSystemAICoordinator</code> (route) → the domain Tier-3 AGI above; <code>aiSystemRouterEngine.route(task)</code>; deep reasoning via <code>ManufacturingReasoningEngine</code> / <code>MultiPathReasoningEngine</code> / <code>prismCreativeReasoningEngine</code>. <code>prism_ai</code>, <code>prism_intelligence</code>, <code>aiReasoningDispatcher</code>.</li>
+<li><strong>Neural-network / deep-learning paths:</strong> <code>mlDispatcher</code> (<code>prism_ml</code>), <code>CrossDisciplinaryDeepLearningEngine</code>, <code>SurfaceFinishCnnEngine</code>, the LoRA fine-tuning paths (<code>/lathe-lora</code>, <code>/train-lora</code>), <code>SonaLearningOptimizer</code>, the <code>nnDeepLearn</code>/<code>cnn</code> engines. Closed-loop learning: every generated/run program → outcome → feeds <code>feedback_loop_record</code> + the domain AGI&#39;s KG so the system learns from it.</li>
+<li><strong>CAM kernel + bridges:</strong> <code>ai.t3.cam</code> (CAM kernel + 6 tier-1 bridges: Fusion 360, hyperMILL, Mastercam, Esprit, Inventor HSM, SolidWorks), <code>camDispatcher</code>, <code>camFunctionDispatcher</code>. Print→program: <code>BlueprintProgramJoinEngine</code>, <code>BlueprintOCREngine</code>, <code>PrintToProgram</code> pipeline, the new <code>PartFolderOrganizerEngine</code> (<code>prism_cad:create_part_folder</code> etc.).</li>
+<li><strong>/system-viz:</strong> each studio command should query <code>scripts/system-viz-query.mjs</code> / <code>state/shared/system-viz/system-graph.json</code> to self-report its own coverage (which domain nodes it touched) + flag unwired domain engines.</li>
+<li><strong>Macro library:</strong> <code>H:/PRISM/JM DIE/Macro programs/</code> (4 Okuma-OSP lathe macros: BASE WAFER INSERT MACRO <code>O1001</code>, BASIC-CASING, BASIC CASING WITH SINGLE COUNTERBORE, BASIC TOP HAT CASING WITH SINGLE COUNTERBORE — <code>VC1xx</code> parametric). ✅ <strong>BUILT:</strong> <code>MacroLibraryEngine</code> catalogs these + priority-cascade family matcher + template-placement; wired to <code>prism_cad</code> + <code>prism_turning</code> with 4 actions each; 31/31 tests pass. ⏳ The safety-gated <code>MacroFillOrchestratorEngine</code> (print-dims → VC vars → emit) is <strong>MACRO-PROGRAM-PIPELINE-MS0</strong> U2-U7.</li>
+<li><strong>Training corpus / starting templates (NEW 2026-05-12 per user — every print, program, CAD/CAM file is training data):</strong> ⏳ <strong>TRAINING-LEARNING-MS0</strong> (7 units) — <code>LathePartFamilyTemplateExtractorEngine</code> + <code>MillPartFamilyTemplateExtractorEngine</code> + <code>WEDMPartFamilyTemplateExtractorEngine</code> + their matchers, <code>ElectrodeCoverageAuditEngine</code>, <code>TaptiteElectrodeMacroBridgeEngine</code> (READ-ONLY adapter for <code>H:/PRISM/JM DIE/Automated Program_Corrected 5-25.xlsm</code> — 5.6 MB, the canonical electrode-program generator for copper-taptite-electrode → sinker-EDM-into-carbide-insert jobs; 73 electrode files + 22 taptite files in corpus to audit), <code>TrainingTemplateContinuousLearningEngine</code>, <code>/learn-corpus</code> skill. Corpus join via <code>H:/PRISM/Docustrata/.index/jm-die-index-v2.json</code> (10.3 MB, rebuilt 2026-05-09). Box-drive S/F values are NOT ground truth.</li>
+</ul>
+<h2 id="existing-skills-to-subsume-replace"><a class="anchor" href="#existing-skills-to-subsume-replace" aria-label="Permalink to Existing skills to subsume / replace">#</a>Existing skills to subsume / replace</h2>
+<p><code>/lathe-studio</code> <code>/lathe-ai</code> <code>/lathe-agi-explain</code> <code>/lathe-lora</code> <code>/lathe-optimize</code> <code>/lathe-postgen</code> <code>/lathe-print-to-program</code> <code>/lathe-thread</code> <code>/lathe-validate</code> <code>/lathe-masterpost</code> <code>/lathe-erp</code> <code>/lathe-groove</code> <code>/lathe-harden</code> <code>/lathe-learn</code> · <code>/mill-studio</code> <code>/mill-master</code> <code>/mill-agi</code> <code>/mill-awareness</code> <code>/mill-harden</code> <code>/mill-learn</code> <code>/mill-optimize</code> <code>/mill-validate</code> · <code>/wire-edm-studio</code> <code>/wedm-program</code> <code>/wedm-ai-advisor</code> <code>/wedm-optimize</code> <code>/wedm-validate</code> <code>/wedm-harden</code> <code>/wedm-learn</code> <code>/wedm-reason</code> (+ ~20 more <code>/wedm-*</code>). The new <code>/lathe</code> <code>/mill</code> <code>/wedm</code> mega-commands should be the single entry point that orchestrates the right subset of these + all the nodes above.</p>
+<h2 id="build-order-recommendation"><a class="anchor" href="#build-order-recommendation" aria-label="Permalink to Build order (recommendation)">#</a>Build order (recommendation)</h2>
+<ol>
+<li><code>/forge</code> + <code>/rgs</code> scoping run → milestone for the macro→program pipeline (the safety-critical part). Units: macro-library engine + tests; <code>MacroProgramFillEngine</code> (print-dims → VC vars, S(x)-gated) + tests; per-machine post-resolution; the bulk fan-out into part folders; operator-review workflow.</li>
+<li>The 3 mega-commands (<code>/lathe</code> <code>/mill</code> <code>/wedm</code>) — each ~300-500 line skill wiring everything above. Bounded, non-safety-critical, can build directly.</li>
+<li>Per-lathe-machine program generation — only after #1&#39;s safety pipeline exists. NEVER bulk-auto-emit G-code without S(x) ≥ 0.70 + sim + operator sign-off.</li>
+</ol>
+<p>&lt;/content&gt;</p>
+</main>
+<footer class="doc-foot">
+<p>HTML companion — the canonical document is the Markdown file alongside it. <a href="DOMAIN-STUDIO-NODE-MAP.md">DOMAIN-STUDIO-NODE-MAP.md</a> Regenerate: <code>node scripts/emit-spec-html.mjs &lt;path.md&gt;</code></p>
+
+</footer>
+</div>
+<script>(function(){
+  try {
+    var k = "prism-spec-theme";
+    var saved = localStorage.getItem(k);
+    if (saved === "dark" || saved === "light") document.documentElement.setAttribute("data-theme", saved);
+  } catch (e) { /* localStorage blocked — keep default theme */ }
+  var b = document.getElementById("themeToggle");
+  if (!b) return;
+  b.addEventListener("click", function () {
+    var cur = document.documentElement.getAttribute("data-theme");
+    var sysDark = !!(window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches);
+    var next = cur === "dark" ? "light" : cur === "light" ? "dark" : (sysDark ? "light" : "dark");
+    document.documentElement.setAttribute("data-theme", next);
+    b.textContent = next === "dark" ? "\u263E dark" : "\u2600 light";
+    try { localStorage.setItem(k, next); } catch (e) { /* persistence unavailable — non-fatal */ }
+  });
+})();</script>
+<script>(function(){
+  var body = document.querySelector("main.doc-body");
+  var toc = document.querySelector("nav.toc");
+  if (!body) return;
+  // TOC active-section highlight.
+  if (toc) {
+    var links = {};
+    toc.querySelectorAll("a[href^='#']").forEach(function(a){ links[a.getAttribute("href").slice(1)] = a; });
+    var heads = body.querySelectorAll("h1[id],h2[id],h3[id],h4[id]");
+    var active = null;
+    function setActive(id){
+      if (active === id) return;
+      if (active && links[active]) links[active].classList.remove("active");
+      active = id;
+      if (active && links[active]) links[active].classList.add("active");
+    }
+    var io = new IntersectionObserver(function(entries){
+      var top = null, topY = Infinity;
+      entries.forEach(function(e){ if (e.isIntersecting) { var y = e.boundingClientRect.top; if (y < topY) { topY = y; top = e.target.id; } } });
+      if (!top) {
+        var best = null;
+        heads.forEach(function(h){ if (h.getBoundingClientRect().top < 80) best = h.id; });
+        top = best || (heads[0] && heads[0].id);
+      }
+      if (top) setActive(top);
+    }, { rootMargin: "0px 0px -70% 0px", threshold: [0, 1] });
+    heads.forEach(function(h){ io.observe(h); });
+  }
+  // In-page search: wrap matches in <mark>, jump to first, filter the TOC.
+  var input = toc && toc.querySelector("input.toc-search");
+  var status = toc && toc.querySelector(".toc-search-status");
+  if (!input) return;
+  var SKIP = { SCRIPT:1, STYLE:1, MARK:1, NOSCRIPT:1 };
+  function clearMarks(){
+    body.querySelectorAll("mark.search-hit").forEach(function(m){ var p = m.parentNode; if (p) { p.replaceChild(document.createTextNode(m.textContent), m); p.normalize(); } });
+    if (toc) toc.querySelectorAll("li.toc-hidden").forEach(function(li){ li.classList.remove("toc-hidden"); });
+  }
+  function doSearch(q){
+    clearMarks();
+    if (status) status.textContent = "";
+    if (!q || q.length < 2) return;
+    var needle = q.toLowerCase(), hits = 0, first = null;
+    var walker = document.createTreeWalker(body, NodeFilter.SHOW_TEXT, { acceptNode: function(n){
+      if (!n.nodeValue || !n.nodeValue.trim()) return NodeFilter.FILTER_REJECT;
+      var p = n.parentNode; while (p && p !== body) { if (SKIP[p.nodeName]) return NodeFilter.FILTER_REJECT; p = p.parentNode; }
+      return n.nodeValue.toLowerCase().indexOf(needle) >= 0 ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT;
+    }});
+    var targets = [];
+    while (walker.nextNode()) targets.push(walker.currentNode);
+    targets.forEach(function(node){
+      if (hits > 2000) return;
+      var text = node.nodeValue, lower = text.toLowerCase(), frag = document.createDocumentFragment(), i = 0, idx;
+      while ((idx = lower.indexOf(needle, i)) >= 0 && hits <= 2000) {
+        if (idx > i) frag.appendChild(document.createTextNode(text.slice(i, idx)));
+        var m = document.createElement("mark"); m.className = "search-hit"; m.textContent = text.slice(idx, idx + needle.length);
+        if (hits === 0) { m.classList.add("current"); first = m; }
+        frag.appendChild(m); hits++; i = idx + needle.length;
+      }
+      if (i < text.length) frag.appendChild(document.createTextNode(text.slice(i)));
+      if (node.parentNode) node.parentNode.replaceChild(frag, node);
+    });
+    if (status) status.textContent = hits ? (hits + " match" + (hits === 1 ? "" : "es")) : "no matches";
+    if (toc) toc.querySelectorAll("li").forEach(function(li){ var a = li.querySelector("a"); if (a && a.textContent.toLowerCase().indexOf(needle) < 0) li.classList.add("toc-hidden"); });
+    if (first) first.scrollIntoView({ block: "center", behavior: "smooth" });
+  }
+  var t;
+  input.addEventListener("input", function(){ clearTimeout(t); t = setTimeout(function(){ doSearch(input.value.trim()); }, 180); });
+  input.addEventListener("keydown", function(e){ if (e.key === "Escape") { input.value = ""; doSearch(""); input.blur(); } });
+})();</script>
+</body>
+</html>

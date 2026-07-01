@@ -23,7 +23,7 @@ function main() {
     const output = execFileSync(
       process.execPath,
       [tsxCliPath, runnerPath, ...process.argv.slice(2)],
-      {
+      { windowsHide: true,
         cwd: mcpServerRoot,
         encoding: "utf8",
         stdio: ["inherit", "pipe", "pipe"]

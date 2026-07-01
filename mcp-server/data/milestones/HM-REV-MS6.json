@@ -1,0 +1,326 @@
+{
+  "id": "HM-REV-MS6",
+  "version": "8.3.0",
+  "title": "Grinding + EDM + Heat Treatment Routing",
+  "track": "HM-REV",
+  "status": "complete",
+  "description": "Wire PRISM's grinding pipeline (GrindingProgramAssemblerEngine — 5 types, 6 dialects) and EDM pipeline (EDMProgramAssemblerEngine — 6 dialects) to hyperMILL workflows. Add heat treatment routing so that operations requiring pre/post heat treatment are automatically sequenced. Addresses the gap where grinding/EDM engines exist and are production-ready but have zero connection to hyperMILL workflows.",
+  "dependencies": [
+    "HM-REV-MS2"
+  ],
+  "knowledge_sources": {
+    "engines": [
+      "GrindingProgramAssemblerEngine (5 grinding types: surface, cylindrical, centerless, creep feed, jig — 6 dialects, production-ready)",
+      "EDMProgramAssemblerEngine (wire/sinker/micro EDM — 6 dialects, production-ready)",
+      "HeatTreatmentRoutingEngine (if exists, or build routing logic)"
+    ],
+    "registries": [
+      "MaterialRegistry (heat treatment specs per material)",
+      "MachineRegistry (grinding/EDM machine capabilities)"
+    ],
+    "services": [],
+    "physics": [
+      "constants.ts (grinding burn thresholds, EDM spark gap parameters, heat treatment temperatures)"
+    ],
+    "reference": [
+      "Agent 6 report (hooks for burn risk, wheel check)",
+      "Agent 10 report (electrode design for EDM)"
+    ]
+  },
+  "forge_triple": {
+    "hook": "hypermill-grinding-burn-risk — DECLARED+BUILT here (blocks if specific grinding energy exceeds burn threshold)",
+    "action": "cam:hypermill_grinding_route — DECLARED+BUILT here",
+    "skill": "/hypermill-grinding — DECLARED here, BUILT in HM-REV-MS12 (Skills Phase 2)"
+  },
+  "enforcement": {
+    "pre_level": [
+      "knowledge-consult (read GrindingProgramAssemblerEngine + EDMProgramAssemblerEngine)"
+    ],
+    "post_level": [
+      "stub-detector",
+      "constants-checker"
+    ],
+    "compact_level": [
+      "review-gate",
+      "forge-triple-gate"
+    ]
+  },
+  "mcp_lifecycle": {
+    "session_start": [
+      "prism_session:context_boot",
+      "prism_session:dispatcher_map",
+      "prism_session:memory_recall",
+      "prism_session:system_snapshot"
+    ],
+    "during_work": [
+      "prism_session:auto_checkpoint (every 5-10 tool calls)",
+      "prism_session:wip_capture"
+    ],
+    "session_end": [
+      "prism_session:memory_save",
+      "prism_session:system_snapshot",
+      "prism_session:checkpoint_enhanced"
+    ]
+  },
+  "sessions": [
+    {
+      "id": "HM-REV-MS6-S1",
+      "title": "Grinding Pipeline Wiring + Burn Risk Gate",
+      "smart_config": {
+        "role": "Grinding Process Engineer + Safety Specialist",
+        "model": "opus",
+        "effort": "MAX",
+        "context_budget": "40%"
+      },
+      "knowledge": [
+        "GrindingProgramAssemblerEngine (5 types, 6 dialects)",
+        "constants.ts (burn thresholds)",
+        "MachineRegistry (grinding machines)"
+      ],
+      "intent": "Wire the production-ready grinding pipeline to hyperMILL workflows so that parts requiring grinding (hardened surfaces, tight tolerances, bearing bores) are automatically routed to grinding with physics-validated parameters. Build burn risk gate.",
+      "skills": [
+        "/forge-wiring",
+        "/forge-safety",
+        "/prism-review",
+        "/test",
+        "/checkpoint"
+      ],
+      "plugins": [
+        "Vitest MCP",
+        "ESLint MCP"
+      ],
+      "units": [
+        {
+          "id": "U-HMR32",
+          "title": "Wire GrindingProgramAssemblerEngine to hyperMILL finishing workflow",
+          "description": "Create HyperMillGrindingBridge that routes hyperMILL finishing operations to PRISM's GrindingProgramAssemblerEngine when: (1) surface finish requirement < Ra 0.4, (2) tolerance < 0.01mm, (3) material is hardened > 55 HRC, or (4) feature is bearing bore/journal. Bridge translates hyperMILL operation params to grinding params (wheel spec, dress cycle, infeed, traverse). Create cam:hypermill_grinding_route action.",
+          "depends_on": [],
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "exit_criteria": [
+            "HyperMillGrindingBridge.ts routes to GrindingProgramAssemblerEngine",
+            "4 routing triggers active (Ra, tolerance, hardness, feature type)",
+            "cam:hypermill_grinding_route action registered",
+            "Grinding params include wheel spec from GrindingEngine's database",
+            "A machinist would accept the grinding parameter recommendations",
+            "4 unit tests: Ra trigger, tolerance trigger, hardness trigger, bearing bore"
+          ],
+          "rollback": {
+            "files_created": [
+              "src/engines/hypermill/HyperMillGrindingBridge.ts",
+              "src/schemas/hypermillGrindingSchema.ts"
+            ],
+            "files_modified": [
+              "src/tools/dispatchers/camDispatcher.ts"
+            ],
+            "abort_criteria": [
+              "tsc errors > 0",
+              "test failures > 0"
+            ],
+            "rollback_procedure": "git checkout -- src/engines/hypermill/HyperMillGrindingBridge.ts src/schemas/hypermillGrindingSchema.ts src/tools/dispatchers/camDispatcher.ts"
+          }
+        },
+        {
+          "id": "U-HMR33",
+          "title": "Build hypermill-grinding-burn-risk hook + wheel check validation",
+          "description": "Build hypermill-grinding-burn-risk hook that computes specific grinding energy (u = Ft / (ae * b)) and blocks if exceeding material-specific burn threshold from constants.ts. Add wheel condition check: warn if estimated wheel life remaining < 20%, block if wheel spec incompatible with material (e.g., aluminum oxide wheel on carbide). Agent 6 designed 3 grinding hooks — this implements the most critical ones.",
+          "depends_on": [
+            "U-HMR32"
+          ],
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "exit_criteria": [
+            "hypermill-grinding-burn-risk hook blocks on burn threshold exceedance",
+            "Specific grinding energy formula uses constants.ts values",
+            "Wheel compatibility check validates wheel-material pairing",
+            "Wheel life warning at < 20% remaining",
+            "3 unit tests: safe operation, burn risk block, wheel incompatibility block"
+          ],
+          "rollback": {
+            "files_created": [],
+            "files_modified": [
+              "src/hooks/registry.ts"
+            ],
+            "abort_criteria": [
+              "tsc errors > 0",
+              "test failures > 0"
+            ],
+            "rollback_procedure": "git checkout -- src/hooks/registry.ts"
+          }
+        },
+        {
+          "id": "U-HMR34",
+          "title": "Wire EDMProgramAssemblerEngine to hyperMILL electrode workflow",
+          "description": "Create HyperMillEDMBridge that connects hyperMILL's electrode design (from HyperCADSAutomationEngine/MoldCycleEngine) to PRISM's EDMProgramAssemblerEngine. Route: electrode geometry → EDM type selection (wire/sinker/micro) → spark gap calculation → EDM program generation. Include overcut allowance transfer from mold electrode design.",
+          "depends_on": [],
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "exit_criteria": [
+            "HyperMillEDMBridge.ts routes electrode designs to EDMProgramAssemblerEngine",
+            "Wire/sinker/micro EDM type auto-selected from electrode geometry",
+            "Spark gap parameters from EDMEngine's database",
+            "Overcut allowance (rough/finish) transferred from electrode design",
+            "cam:hypermill_edm_route action registered",
+            "3 unit tests: sinker EDM cavity, wire EDM contour, micro EDM feature"
+          ],
+          "rollback": {
+            "files_created": [
+              "src/engines/hypermill/HyperMillEDMBridge.ts",
+              "src/schemas/hypermillEDMSchema.ts"
+            ],
+            "files_modified": [
+              "src/tools/dispatchers/camDispatcher.ts"
+            ],
+            "abort_criteria": [
+              "tsc errors > 0",
+              "test failures > 0"
+            ],
+            "rollback_procedure": "git checkout -- src/engines/hypermill/HyperMillEDMBridge.ts src/schemas/hypermillEDMSchema.ts src/tools/dispatchers/camDispatcher.ts"
+          }
+        }
+      ],
+      "exit_gate": "✓ Grinding bridge routes 4 trigger types | ✓ Burn risk hook active | ✓ EDM bridge routes electrode designs | ✓ tsc 0 errors | ✓ 10+ tests pass | omega_floor >= 0.90 | SVI delta: +2%",
+      "feature_cascade": {
+        "new_hooks": [
+          "hypermill-grinding-burn-risk"
+        ],
+        "new_actions": [
+          "cam:hypermill_grinding_route",
+          "cam:hypermill_edm_route"
+        ],
+        "new_skills": [],
+        "available_to": [
+          "HM-REV-MS10",
+          "HM-REV-MS13"
+        ]
+      },
+      "compact_checkpoint": true
+    },
+    {
+      "id": "HM-REV-MS6-S2",
+      "title": "Heat Treatment Routing + Combined Secondary Ops Sequencing",
+      "smart_config": {
+        "role": "Manufacturing Process Engineer + Heat Treatment Specialist",
+        "model": "opus",
+        "effort": "MAX",
+        "context_budget": "40%"
+      },
+      "knowledge": [
+        "MaterialRegistry (heat treatment specs)",
+        "HyperMillMaterialBridgeEngine.ts (material properties)",
+        "GrindingProgramAssemblerEngine",
+        "EDMProgramAssemblerEngine"
+      ],
+      "intent": "Build heat treatment routing so that hyperMILL operations on materials requiring heat treatment (case hardening, through hardening, stress relief, age hardening) are automatically sequenced with pre/post heat treatment steps. Create combined grinding + EDM + heat treatment secondary operations sequencer.",
+      "skills": [
+        "/forge-wiring",
+        "/prism-review",
+        "/test",
+        "/checkpoint"
+      ],
+      "plugins": [
+        "Vitest MCP",
+        "ESLint MCP"
+      ],
+      "units": [
+        {
+          "id": "U-HMR35",
+          "title": "Build heat treatment routing from material + hardness requirements",
+          "description": "Create HyperMillHeatTreatmentRouter that examines part material and hardness requirements to insert heat treatment steps: pre-machine anneal (if material is work-hardened), stress relief (after heavy roughing), through harden (before finish grinding), case harden (carburize/nitride before final finish). Uses MaterialRegistry heat treatment specs and material-specific temperature/time/quench data.",
+          "depends_on": [],
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "exit_criteria": [
+            "HyperMillHeatTreatmentRouter.ts determines required heat treatments from material + hardness",
+            "4 heat treatment types supported (anneal, stress relief, through harden, case harden)",
+            "Temperature/time/quench parameters from MaterialRegistry (not hardcoded)",
+            "cam:hypermill_heat_treat_route action registered",
+            "A heat treat shop would accept the temperature/time specifications",
+            "4 unit tests: anneal before rough, stress relief after rough, harden before grind, case harden sequence"
+          ],
+          "rollback": {
+            "files_created": [
+              "src/engines/hypermill/HyperMillHeatTreatmentRouter.ts",
+              "src/schemas/hypermillHeatTreatSchema.ts"
+            ],
+            "files_modified": [
+              "src/tools/dispatchers/camDispatcher.ts"
+            ],
+            "abort_criteria": [
+              "tsc errors > 0",
+              "test failures > 0"
+            ],
+            "rollback_procedure": "git checkout -- src/engines/hypermill/HyperMillHeatTreatmentRouter.ts src/schemas/hypermillHeatTreatSchema.ts src/tools/dispatchers/camDispatcher.ts"
+          }
+        },
+        {
+          "id": "U-HMR36",
+          "title": "Build combined secondary ops sequencer (grinding + EDM + heat treat)",
+          "description": "Create HyperMillSecondaryOpsSequencer that combines grinding, EDM, and heat treatment into a correct manufacturing sequence. Example: rough machine → stress relief → semi-finish → harden → finish grind → EDM features → final inspect. Enforces physical constraints (can't grind before hardening if grinding is for hardened finish, can't EDM before stress relief if EDM causes stress).",
+          "depends_on": [
+            "U-HMR32",
+            "U-HMR34",
+            "U-HMR35"
+          ],
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "exit_criteria": [
+            "HyperMillSecondaryOpsSequencer.ts sequences grinding + EDM + heat treat correctly",
+            "Physical constraints enforced (no grind before harden if hardened finish required)",
+            "cam:hypermill_secondary_ops_sequence action registered",
+            "Complete mold tool sequence validated (rough → stress relieve → harden → grind → EDM)",
+            "3 unit tests: mold tool sequence, bearing sequence, gear sequence"
+          ],
+          "rollback": {
+            "files_created": [
+              "src/engines/hypermill/HyperMillSecondaryOpsSequencer.ts"
+            ],
+            "files_modified": [
+              "src/tools/dispatchers/camDispatcher.ts"
+            ],
+            "abort_criteria": [
+              "tsc errors > 0",
+              "test failures > 0"
+            ],
+            "rollback_procedure": "git checkout -- src/engines/hypermill/HyperMillSecondaryOpsSequencer.ts src/tools/dispatchers/camDispatcher.ts"
+          }
+        },
+        {
+          "id": "U-HMR37",
+          "title": "Build material certification traceability for heat-treated parts",
+          "description": "Wire material certification tracking so that heat-treated parts maintain traceability: material cert → heat treat cert → final inspection cert. Each step records material lot, process parameters, and operator/furnace ID. Creates data structure compatible with MS10 quality chain and AS9102 FAI requirements.",
+          "depends_on": [
+            "U-HMR35"
+          ],
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "exit_criteria": [
+            "Material cert → heat treat cert → inspection cert chain tracked",
+            "Each cert records lot, process params, operator/equipment ID",
+            "Data structure compatible with FAI AS9102 format",
+            "3 unit tests: cert chain creation, cert chain query, AS9102 format export"
+          ],
+          "rollback": {
+            "files_created": [],
+            "files_modified": [],
+            "abort_criteria": [
+              "tsc errors > 0",
+              "test failures > 0"
+            ],
+            "rollback_procedure": "git checkout -- affected files"
+          }
+        }
+      ],
+      "exit_gate": "✓ Heat treatment routing active | ✓ Secondary ops sequencer correct | ✓ Material cert traceability chain | ✓ tsc 0 errors | ✓ 10+ tests pass | omega_floor >= 0.90 | SVI delta: +2%",
+      "feature_cascade": {
+        "new_hooks": [],
+        "new_actions": [
+          "cam:hypermill_heat_treat_route",
+          "cam:hypermill_secondary_ops_sequence"
+        ],
+        "new_skills": [],
+        "available_to": [
+          "HM-REV-MS10",
+          "HM-REV-MS13"
+        ]
+      },
+      "compact_checkpoint": true
+    }
+  ],
+  "total_units": 6,
+  "completed_units": 6
+}

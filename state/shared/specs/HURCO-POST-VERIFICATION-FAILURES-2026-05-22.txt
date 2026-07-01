@@ -1,0 +1,50 @@
+     × Kienzle Fc check uses CANONICAL_KIENZLE constants and matches hand calc (regression: prior NaN bug) 4ms
+     × PostMove arc_cw with R is preserved through to G02 R# output 1ms
+     × Taylor tool-life check uses canonical C and n constants and matches T = (C/Vc)^(1/n) 1ms
+     × UltiMotion G187 P3 emitted by default 1ms
+     × aggressiveness param flows through to output and header 0ms
+     × custom kc1_1 override is honored over canonical (custom value reflected in Fc check string) 1ms
+     × emits G54.1 P12 extended offset for work_offset 12 10ms
+     × emits S<rpm> M03 spindle CW with exact RPM value 2ms
+     × emits setup_sheet by default with machine='Hurco VMX24' and controller='WinMax V11' 1ms
+     × falls back to canonical kc1_1 when no material override given (ISO M) 1ms
+     × getStats reports machine, controller, 12 tips, 5 base physics checks, 12-feature list 1ms
+     × optimized feed produces Fc ≤ limit (verify bound by recomputing Kienzle) 2ms
+     × partial override (kc1_1 only) keeps canonical mc and surfaces both in check string (U-PPGH04) 1ms
+     × reduces feed when predicted Fc exceeds max_cutting_force_N 3ms
+     × rejects kc1_1 override above safe ceiling (U-PPGH04) 1ms
+     × rejects kc1_1 override below safe floor (silent-disable guard, U-PPGH04) 3ms
+     × rejects mc override outside [0.10, 0.45] (U-PPGH04) 1ms
+     × rejects mismatched iso_group between op.material_iso and op.material.iso_group (U-PPGH04) 1ms
+     × setup_sheet.operations rows have sequential 1-based sequence numbers in order 1ms
+     × setup_sheet.tools deduplicated and sorted ascending by tool number 1ms
+     × stickout deflection check appears only when tool.stickout_mm provided; fails when ratio > 4×D 1ms
+     × structured tool coating + stickout flow into setup sheet 0ms
+     × uses structured tool.description override when supplied (flat tool_description shadowed) 2ms
+     × warnings array contains operation index + RPM value when physics check fails 1ms
+     × wraps a single PostMove array into a complete program 1ms
+HurcoV11 — Kienzle-bounded feed optimization > optimized feed produces Fc ≤ limit (verify bound by recomputing Kienzle)
+HurcoV11 — Kienzle-bounded feed optimization > reduces feed when predicted Fc exceeds max_cutting_force_N
+HurcoV11 — UltiMotion & metadata > UltiMotion G187 P3 emitted by default
+HurcoV11 — UltiMotion & metadata > warnings array contains operation index + RPM value when physics check fails
+HurcoV11 — material constant overrides > custom kc1_1 override is honored over canonical (custom value reflected in Fc check string)
+HurcoV11 — material constant overrides > falls back to canonical kc1_1 when no material override given (ISO M)
+HurcoV11 — material constant overrides > partial override (kc1_1 only) keeps canonical mc and surfaces both in check string (U-PPGH04)
+HurcoV11 — material constant overrides > rejects kc1_1 override above safe ceiling (U-PPGH04)
+HurcoV11 — material constant overrides > rejects kc1_1 override below safe floor (silent-disable guard, U-PPGH04)
+HurcoV11 — material constant overrides > rejects mc override outside [0.10, 0.45] (U-PPGH04)
+HurcoV11 — material constant overrides > rejects mismatched iso_group between op.material_iso and op.material.iso_group (U-PPGH04)
+HurcoV11 — physics checks > Kienzle Fc check uses CANONICAL_KIENZLE constants and matches hand calc (regression: prior NaN bug)
+HurcoV11 — physics checks > Taylor tool-life check uses canonical C and n constants and matches T = (C/Vc)^(1/n)
+HurcoV11 — physics checks > stickout deflection check appears only when tool.stickout_mm provided; fails when ratio > 4×D
+HurcoV11 — postSingle simplified API > PostMove arc_cw with R is preserved through to G02 R# output
+HurcoV11 — postSingle simplified API > aggressiveness param flows through to output and header
+HurcoV11 — postSingle simplified API > structured tool coating + stickout flow into setup sheet
+HurcoV11 — postSingle simplified API > wraps a single PostMove array into a complete program
+HurcoV11 — setup sheet emission > emits setup_sheet by default with machine='Hurco VMX24' and controller='WinMax V11'
+HurcoV11 — setup sheet emission > setup_sheet.operations rows have sequential 1-based sequence numbers in order
+HurcoV11 — setup sheet emission > setup_sheet.tools deduplicated and sorted ascending by tool number
+HurcoV11 — singleton & stats > getStats reports machine, controller, 12 tips, 5 base physics checks, 12-feature list
+HurcoV11 — spindle & coolant > emits S<rpm> M03 spindle CW with exact RPM value
+HurcoV11 — tool change > uses structured tool.description override when supplied (flat tool_description shadowed)
+HurcoV11 — units & work offsets > emits G54.1 P12 extended offset for work_offset 12

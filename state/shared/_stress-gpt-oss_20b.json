@@ -1,0 +1,764 @@
+{
+  "models": [
+    "gpt-oss:20b"
+  ],
+  "perTask": [
+    {
+      "task": "ordering-puzzle",
+      "category": "multi-step-reasoning",
+      "perModel": [
+        {
+          "model": "gpt-oss:20b",
+          "passRate": 1,
+          "passed": 6,
+          "total": 6,
+          "medianTokPerSec": 219.8,
+          "medianLatencyMs": 681
+        }
+      ],
+      "frontier": {
+        "verdict": "trivial-local",
+        "smallestPassing": "gpt-oss:20b",
+        "beyondLocal": false,
+        "confident": true,
+        "sampleSize": 6
+      }
+    },
+    {
+      "task": "algebra-word-problem",
+      "category": "multi-step-reasoning",
+      "perModel": [
+        {
+          "model": "gpt-oss:20b",
+          "passRate": 1,
+          "passed": 6,
+          "total": 6,
+          "medianTokPerSec": 227.6,
+          "medianLatencyMs": 422
+        }
+      ],
+      "frontier": {
+        "verdict": "trivial-local",
+        "smallestPassing": "gpt-oss:20b",
+        "beyondLocal": false,
+        "confident": true,
+        "sampleSize": 6
+      }
+    },
+    {
+      "task": "unit-rate",
+      "category": "multi-step-reasoning",
+      "perModel": [
+        {
+          "model": "gpt-oss:20b",
+          "passRate": 1,
+          "passed": 6,
+          "total": 6,
+          "medianTokPerSec": 226,
+          "medianLatencyMs": 434
+        }
+      ],
+      "frontier": {
+        "verdict": "trivial-local",
+        "smallestPassing": "gpt-oss:20b",
+        "beyondLocal": false,
+        "confident": true,
+        "sampleSize": 6
+      }
+    },
+    {
+      "task": "logical-deduction",
+      "category": "multi-step-reasoning",
+      "perModel": [
+        {
+          "model": "gpt-oss:20b",
+          "passRate": 1,
+          "passed": 6,
+          "total": 6,
+          "medianTokPerSec": 225.8,
+          "medianLatencyMs": 617
+        }
+      ],
+      "frontier": {
+        "verdict": "trivial-local",
+        "smallestPassing": "gpt-oss:20b",
+        "beyondLocal": false,
+        "confident": true,
+        "sampleSize": 6
+      }
+    },
+    {
+      "task": "sequence-reasoning",
+      "category": "multi-step-reasoning",
+      "perModel": [
+        {
+          "model": "gpt-oss:20b",
+          "passRate": 1,
+          "passed": 6,
+          "total": 6,
+          "medianTokPerSec": 223,
+          "medianLatencyMs": 573
+        }
+      ],
+      "frontier": {
+        "verdict": "trivial-local",
+        "smallestPassing": "gpt-oss:20b",
+        "beyondLocal": false,
+        "confident": true,
+        "sampleSize": 6
+      }
+    },
+    {
+      "task": "comparative-counting",
+      "category": "multi-step-reasoning",
+      "perModel": [
+        {
+          "model": "gpt-oss:20b",
+          "passRate": 1,
+          "passed": 6,
+          "total": 6,
+          "medianTokPerSec": 226.4,
+          "medianLatencyMs": 595
+        }
+      ],
+      "frontier": {
+        "verdict": "trivial-local",
+        "smallestPassing": "gpt-oss:20b",
+        "beyondLocal": false,
+        "confident": true,
+        "sampleSize": 6
+      }
+    },
+    {
+      "task": "multistep-arithmetic",
+      "category": "multi-step-reasoning",
+      "perModel": [
+        {
+          "model": "gpt-oss:20b",
+          "passRate": 1,
+          "passed": 6,
+          "total": 6,
+          "medianTokPerSec": 227,
+          "medianLatencyMs": 473
+        }
+      ],
+      "frontier": {
+        "verdict": "trivial-local",
+        "smallestPassing": "gpt-oss:20b",
+        "beyondLocal": false,
+        "confident": true,
+        "sampleSize": 6
+      }
+    },
+    {
+      "task": "long-context-needle",
+      "category": "long-context",
+      "perModel": [
+        {
+          "model": "gpt-oss:20b",
+          "passRate": 0.7777777777777778,
+          "passed": 7,
+          "total": 9,
+          "medianTokPerSec": 216.3,
+          "medianLatencyMs": 1385
+        }
+      ],
+      "frontier": {
+        "verdict": "beyond-local",
+        "smallestPassing": null,
+        "beyondLocal": true,
+        "confident": true,
+        "sampleSize": 9
+      }
+    },
+    {
+      "task": "json-tool-spec",
+      "category": "json-structured-output",
+      "perModel": [
+        {
+          "model": "gpt-oss:20b",
+          "passRate": 1,
+          "passed": 5,
+          "total": 5,
+          "medianTokPerSec": 222.1,
+          "medianLatencyMs": 1111
+        }
+      ],
+      "frontier": {
+        "verdict": "trivial-local",
+        "smallestPassing": "gpt-oss:20b",
+        "beyondLocal": false,
+        "confident": true,
+        "sampleSize": 5
+      }
+    },
+    {
+      "task": "json-cutting-params",
+      "category": "json-structured-output",
+      "perModel": [
+        {
+          "model": "gpt-oss:20b",
+          "passRate": 1,
+          "passed": 5,
+          "total": 5,
+          "medianTokPerSec": 224.9,
+          "medianLatencyMs": 1048
+        }
+      ],
+      "frontier": {
+        "verdict": "trivial-local",
+        "smallestPassing": "gpt-oss:20b",
+        "beyondLocal": false,
+        "confident": true,
+        "sampleSize": 5
+      }
+    },
+    {
+      "task": "json-material-props",
+      "category": "json-structured-output",
+      "perModel": [
+        {
+          "model": "gpt-oss:20b",
+          "passRate": 1,
+          "passed": 5,
+          "total": 5,
+          "medianTokPerSec": 224.9,
+          "medianLatencyMs": 807
+        }
+      ],
+      "frontier": {
+        "verdict": "trivial-local",
+        "smallestPassing": "gpt-oss:20b",
+        "beyondLocal": false,
+        "confident": true,
+        "sampleSize": 5
+      }
+    },
+    {
+      "task": "json-operation-list",
+      "category": "json-structured-output",
+      "perModel": [
+        {
+          "model": "gpt-oss:20b",
+          "passRate": 1,
+          "passed": 5,
+          "total": 5,
+          "medianTokPerSec": 221.8,
+          "medianLatencyMs": 950
+        }
+      ],
+      "frontier": {
+        "verdict": "trivial-local",
+        "smallestPassing": "gpt-oss:20b",
+        "beyondLocal": false,
+        "confident": true,
+        "sampleSize": 5
+      }
+    },
+    {
+      "task": "json-nested-machine",
+      "category": "json-structured-output",
+      "perModel": [
+        {
+          "model": "gpt-oss:20b",
+          "passRate": 1,
+          "passed": 5,
+          "total": 5,
+          "medianTokPerSec": 222.8,
+          "medianLatencyMs": 839
+        }
+      ],
+      "frontier": {
+        "verdict": "trivial-local",
+        "smallestPassing": "gpt-oss:20b",
+        "beyondLocal": false,
+        "confident": true,
+        "sampleSize": 5
+      }
+    },
+    {
+      "task": "json-tolerance-stack",
+      "category": "json-structured-output",
+      "perModel": [
+        {
+          "model": "gpt-oss:20b",
+          "passRate": 0,
+          "passed": 0,
+          "total": 5,
+          "medianTokPerSec": 225.7,
+          "medianLatencyMs": 1389
+        }
+      ],
+      "frontier": {
+        "verdict": "beyond-local",
+        "smallestPassing": null,
+        "beyondLocal": true,
+        "confident": true,
+        "sampleSize": 5
+      }
+    },
+    {
+      "task": "gcode-mnemonics",
+      "category": "manufacturing-knowledge",
+      "perModel": [
+        {
+          "model": "gpt-oss:20b",
+          "passRate": 0.6666666666666666,
+          "passed": 4,
+          "total": 6,
+          "medianTokPerSec": 226,
+          "medianLatencyMs": 924
+        }
+      ],
+      "frontier": {
+        "verdict": "beyond-local",
+        "smallestPassing": null,
+        "beyondLocal": true,
+        "confident": true,
+        "sampleSize": 6
+      }
+    },
+    {
+      "task": "iso-insert-grade",
+      "category": "manufacturing-knowledge",
+      "perModel": [
+        {
+          "model": "gpt-oss:20b",
+          "passRate": 0,
+          "passed": 0,
+          "total": 6,
+          "medianTokPerSec": 221.1,
+          "medianLatencyMs": 1388
+        }
+      ],
+      "frontier": {
+        "verdict": "beyond-local",
+        "smallestPassing": null,
+        "beyondLocal": true,
+        "confident": true,
+        "sampleSize": 6
+      }
+    },
+    {
+      "task": "tolerance-limit-math",
+      "category": "deterministic-transform",
+      "perModel": [
+        {
+          "model": "gpt-oss:20b",
+          "passRate": 1,
+          "passed": 6,
+          "total": 6,
+          "medianTokPerSec": 227.2,
+          "medianLatencyMs": 616
+        }
+      ],
+      "frontier": {
+        "verdict": "trivial-local",
+        "smallestPassing": "gpt-oss:20b",
+        "beyondLocal": false,
+        "confident": true,
+        "sampleSize": 6
+      }
+    },
+    {
+      "task": "thread-tpi",
+      "category": "manufacturing-knowledge",
+      "perModel": [
+        {
+          "model": "gpt-oss:20b",
+          "passRate": 1,
+          "passed": 6,
+          "total": 6,
+          "medianTokPerSec": 225.8,
+          "medianLatencyMs": 626
+        }
+      ],
+      "frontier": {
+        "verdict": "trivial-local",
+        "smallestPassing": "gpt-oss:20b",
+        "beyondLocal": false,
+        "confident": true,
+        "sampleSize": 6
+      }
+    },
+    {
+      "task": "spindle-rpm-formula",
+      "category": "deterministic-transform",
+      "perModel": [
+        {
+          "model": "gpt-oss:20b",
+          "passRate": 0.3333333333333333,
+          "passed": 2,
+          "total": 6,
+          "medianTokPerSec": 226.1,
+          "medianLatencyMs": 1389
+        }
+      ],
+      "frontier": {
+        "verdict": "beyond-local",
+        "smallestPassing": null,
+        "beyondLocal": true,
+        "confident": true,
+        "sampleSize": 6
+      }
+    },
+    {
+      "task": "tap-drill-size",
+      "category": "manufacturing-knowledge",
+      "perModel": [
+        {
+          "model": "gpt-oss:20b",
+          "passRate": 0,
+          "passed": 0,
+          "total": 6,
+          "medianTokPerSec": 226.4,
+          "medianLatencyMs": 1384
+        }
+      ],
+      "frontier": {
+        "verdict": "beyond-local",
+        "smallestPassing": null,
+        "beyondLocal": true,
+        "confident": true,
+        "sampleSize": 6
+      }
+    },
+    {
+      "task": "surface-roughness-convert",
+      "category": "deterministic-transform",
+      "perModel": [
+        {
+          "model": "gpt-oss:20b",
+          "passRate": 1,
+          "passed": 6,
+          "total": 6,
+          "medianTokPerSec": 227,
+          "medianLatencyMs": 961
+        }
+      ],
+      "frontier": {
+        "verdict": "trivial-local",
+        "smallestPassing": "gpt-oss:20b",
+        "beyondLocal": false,
+        "confident": true,
+        "sampleSize": 6
+      }
+    },
+    {
+      "task": "material-hardness-facts",
+      "category": "manufacturing-knowledge",
+      "perModel": [
+        {
+          "model": "gpt-oss:20b",
+          "passRate": 0.8333333333333334,
+          "passed": 5,
+          "total": 6,
+          "medianTokPerSec": 224,
+          "medianLatencyMs": 772
+        }
+      ],
+      "frontier": {
+        "verdict": "beyond-local",
+        "smallestPassing": null,
+        "beyondLocal": true,
+        "confident": true,
+        "sampleSize": 6
+      }
+    },
+    {
+      "task": "exactly-three-words",
+      "category": "instruction-following",
+      "perModel": [
+        {
+          "model": "gpt-oss:20b",
+          "passRate": 0,
+          "passed": 0,
+          "total": 5,
+          "medianTokPerSec": 226.5,
+          "medianLatencyMs": 1383
+        }
+      ],
+      "frontier": {
+        "verdict": "beyond-local",
+        "smallestPassing": null,
+        "beyondLocal": true,
+        "confident": true,
+        "sampleSize": 5
+      }
+    },
+    {
+      "task": "all-uppercase",
+      "category": "instruction-following",
+      "perModel": [
+        {
+          "model": "gpt-oss:20b",
+          "passRate": 0.6,
+          "passed": 3,
+          "total": 5,
+          "medianTokPerSec": 226,
+          "medianLatencyMs": 1204
+        }
+      ],
+      "frontier": {
+        "verdict": "beyond-local",
+        "smallestPassing": null,
+        "beyondLocal": true,
+        "confident": true,
+        "sampleSize": 5
+      }
+    },
+    {
+      "task": "exactly-5-numbered-lines",
+      "category": "instruction-following",
+      "perModel": [
+        {
+          "model": "gpt-oss:20b",
+          "passRate": 0,
+          "passed": 0,
+          "total": 5,
+          "medianTokPerSec": 222.2,
+          "medianLatencyMs": 1427
+        }
+      ],
+      "frontier": {
+        "verdict": "beyond-local",
+        "smallestPassing": null,
+        "beyondLocal": true,
+        "confident": true,
+        "sampleSize": 5
+      }
+    },
+    {
+      "task": "single-word-starts-m",
+      "category": "instruction-following",
+      "perModel": [
+        {
+          "model": "gpt-oss:20b",
+          "passRate": 0.8,
+          "passed": 4,
+          "total": 5,
+          "medianTokPerSec": 224,
+          "medianLatencyMs": 995
+        }
+      ],
+      "frontier": {
+        "verdict": "beyond-local",
+        "smallestPassing": null,
+        "beyondLocal": true,
+        "confident": true,
+        "sampleSize": 5
+      }
+    },
+    {
+      "task": "no-letter-e",
+      "category": "instruction-following",
+      "perModel": [
+        {
+          "model": "gpt-oss:20b",
+          "passRate": 0,
+          "passed": 0,
+          "total": 5,
+          "medianTokPerSec": 222.6,
+          "medianLatencyMs": 1434
+        }
+      ],
+      "frontier": {
+        "verdict": "beyond-local",
+        "smallestPassing": null,
+        "beyondLocal": true,
+        "confident": true,
+        "sampleSize": 5
+      }
+    },
+    {
+      "task": "exactly-one-sentence",
+      "category": "instruction-following",
+      "perModel": [
+        {
+          "model": "gpt-oss:20b",
+          "passRate": 0,
+          "passed": 0,
+          "total": 5,
+          "medianTokPerSec": 225.3,
+          "medianLatencyMs": 1386
+        }
+      ],
+      "frontier": {
+        "verdict": "beyond-local",
+        "smallestPassing": null,
+        "beyondLocal": true,
+        "confident": true,
+        "sampleSize": 5
+      }
+    },
+    {
+      "task": "word-count-echo",
+      "category": "instruction-following",
+      "perModel": [
+        {
+          "model": "gpt-oss:20b",
+          "passRate": 0.6,
+          "passed": 3,
+          "total": 5,
+          "medianTokPerSec": 224.9,
+          "medianLatencyMs": 755
+        }
+      ],
+      "frontier": {
+        "verdict": "beyond-local",
+        "smallestPassing": null,
+        "beyondLocal": true,
+        "confident": true,
+        "sampleSize": 5
+      }
+    },
+    {
+      "task": "yes-or-no-only",
+      "category": "instruction-following",
+      "perModel": [
+        {
+          "model": "gpt-oss:20b",
+          "passRate": 1,
+          "passed": 5,
+          "total": 5,
+          "medianTokPerSec": 225,
+          "medianLatencyMs": 579
+        }
+      ],
+      "frontier": {
+        "verdict": "trivial-local",
+        "smallestPassing": "gpt-oss:20b",
+        "beyondLocal": false,
+        "confident": true,
+        "sampleSize": 5
+      }
+    },
+    {
+      "task": "codegen-isPrime",
+      "category": "code-generation",
+      "perModel": [
+        {
+          "model": "gpt-oss:20b",
+          "passRate": 0.6,
+          "passed": 3,
+          "total": 5,
+          "medianTokPerSec": 224.5,
+          "medianLatencyMs": 1266
+        }
+      ],
+      "frontier": {
+        "verdict": "beyond-local",
+        "smallestPassing": null,
+        "beyondLocal": true,
+        "confident": true,
+        "sampleSize": 5
+      }
+    },
+    {
+      "task": "codegen-fibonacci",
+      "category": "code-generation",
+      "perModel": [
+        {
+          "model": "gpt-oss:20b",
+          "passRate": 0.4,
+          "passed": 2,
+          "total": 5,
+          "medianTokPerSec": 222.6,
+          "medianLatencyMs": 1402
+        }
+      ],
+      "frontier": {
+        "verdict": "beyond-local",
+        "smallestPassing": null,
+        "beyondLocal": true,
+        "confident": true,
+        "sampleSize": 5
+      }
+    },
+    {
+      "task": "codegen-reverseWords",
+      "category": "code-generation",
+      "perModel": [
+        {
+          "model": "gpt-oss:20b",
+          "passRate": 0,
+          "passed": 0,
+          "total": 5,
+          "medianTokPerSec": 224.8,
+          "medianLatencyMs": 1393
+        }
+      ],
+      "frontier": {
+        "verdict": "beyond-local",
+        "smallestPassing": null,
+        "beyondLocal": true,
+        "confident": true,
+        "sampleSize": 5
+      }
+    },
+    {
+      "task": "codegen-gcd",
+      "category": "code-generation",
+      "perModel": [
+        {
+          "model": "gpt-oss:20b",
+          "passRate": 1,
+          "passed": 5,
+          "total": 5,
+          "medianTokPerSec": 222.7,
+          "medianLatencyMs": 1064
+        }
+      ],
+      "frontier": {
+        "verdict": "trivial-local",
+        "smallestPassing": "gpt-oss:20b",
+        "beyondLocal": false,
+        "confident": true,
+        "sampleSize": 5
+      }
+    },
+    {
+      "task": "codegen-flattenArray",
+      "category": "code-generation",
+      "perModel": [
+        {
+          "model": "gpt-oss:20b",
+          "passRate": 1,
+          "passed": 6,
+          "total": 6,
+          "medianTokPerSec": 218.9,
+          "medianLatencyMs": 1178
+        }
+      ],
+      "frontier": {
+        "verdict": "trivial-local",
+        "smallestPassing": "gpt-oss:20b",
+        "beyondLocal": false,
+        "confident": true,
+        "sampleSize": 6
+      }
+    },
+    {
+      "task": "codegen-isPalindrome",
+      "category": "code-generation",
+      "perModel": [
+        {
+          "model": "gpt-oss:20b",
+          "passRate": 0.2,
+          "passed": 1,
+          "total": 5,
+          "medianTokPerSec": 200.7,
+          "medianLatencyMs": 1715
+        }
+      ],
+      "frontier": {
+        "verdict": "beyond-local",
+        "smallestPassing": null,
+        "beyondLocal": true,
+        "confident": true,
+        "sampleSize": 5
+      }
+    }
+  ],
+  "skipped": []
+}

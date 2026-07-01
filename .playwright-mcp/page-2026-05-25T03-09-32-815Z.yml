@@ -1,0 +1,29 @@
+- generic [active] [ref=e1]:
+  - heading "PRISM System Viz Dashboard" [level=1] [ref=e2]
+  - generic [ref=e3]:
+    - text: loading… ·
+    - link "/briefing" [ref=e4] [cursor=pointer]:
+      - /url: /briefing
+    - text: · auto-refresh every 30s
+  - generic [ref=e5]:
+    - strong [ref=e6]: "3D viewer:"
+    - text: "not yet rebuilt — was missing from disk along with _server.cjs. Restoration scheduled as iter29. Today this dashboard surfaces the live build state, fleet, scrutiny, commits, and exec audit. Raw graph data:"
+    - link "/system-graph.json" [ref=e7] [cursor=pointer]:
+      - /url: /system-graph.json
+    - text: (546 MB) ·
+    - link "/system-graph-index.json" [ref=e8] [cursor=pointer]:
+      - /url: /system-graph-index.json
+    - text: (145 MB index variant).
+  - generic [ref=e9]:
+    - link "/healthz" [ref=e10] [cursor=pointer]:
+      - /url: /healthz
+    - link "/api/snapshot" [ref=e11] [cursor=pointer]:
+      - /url: /api/snapshot
+    - link "/briefing" [ref=e12] [cursor=pointer]:
+      - /url: /briefing
+    - link "/briefing.json" [ref=e13] [cursor=pointer]:
+      - /url: /briefing.json
+    - link "/system-graph-index.json" [ref=e14] [cursor=pointer]:
+      - /url: /system-graph-index.json
+  - generic [ref=e16]: Loading snapshot from /api/snapshot …
+  - generic [ref=e17]: "Served by _server.cjs at state/shared/system-viz/. Data: BUILD_STATE.json, chat-slots.json, EXECUTIVE-BRIEFING.json, SCRUTINY_LEDGER.json, git log."

@@ -1,0 +1,153 @@
+{
+  "schemaVersion": "1.0.0",
+  "generated": "2026-06-17T00:08:15.030Z",
+  "generatedBy": "scripts/audit-unwired-engines.mjs",
+  "canonicalEnginesFolder": "H:\\prism\\mcp-server\\src\\engines",
+  "counts": {
+    "totalCanonicalEngines": 3805,
+    "WIRED-DIRECT": 3591,
+    "WIRED-VIA-ORCH": 36,
+    "WIRE-EXEMPT": 114,
+    "WIRED-VIA-ROUTE": 12,
+    "WIRED-VIA-ENGINE": 22,
+    "UNWIRED": 18,
+    "WIRED-VIA-SINGLETON": 4,
+    "WIRED-VIA-HOOK": 8
+  },
+  "orphans": {
+    "legacyTopLevel": {
+      "path": "H:\\prism\\src\\engines",
+      "uniqueNotInCanonical": [
+        "MilestoneIntelligenceEngine.ts",
+        "OperatingSystemIntelligenceEngine.ts",
+        "PhysicsFusionOrchestrator.types.ts",
+        "SolidCAMiMachiningEngine.ts"
+      ]
+    },
+    "forgeArchive": {
+      "path": "H:\\prism-forge-archive\\src\\engines",
+      "note": "Full archive of canonical. Leave alone (per user policy: copy never move)."
+    },
+    "worktreeClones": {
+      "pattern": "H:/prism-*/mcp-server/src/engines/",
+      "note": "Per-milestone branch scaffolding (~30 worktrees). Expected, not orphans."
+    }
+  },
+  "unwiredEngines": [
+    {
+      "engine": "SemanticAssetIndexEngine",
+      "mtime": "2026-04-16T20:16:40.000Z",
+      "size_kb": 7,
+      "suggestedDispatcher": "UNKNOWN — review manually"
+    },
+    {
+      "engine": "CreoToolkitBridgeEngine",
+      "mtime": "2026-04-20T00:11:59.920Z",
+      "size_kb": 7,
+      "suggestedDispatcher": "UNKNOWN — review manually"
+    },
+    {
+      "engine": "CreoIntegrationTestSuiteEngine",
+      "mtime": "2026-04-20T00:20:55.413Z",
+      "size_kb": 7,
+      "suggestedDispatcher": "UNKNOWN — review manually"
+    },
+    {
+      "engine": "CATIACAAV5BridgeEngine",
+      "mtime": "2026-04-20T22:02:40.896Z",
+      "size_kb": 10,
+      "suggestedDispatcher": "UNKNOWN — review manually"
+    },
+    {
+      "engine": "WEDMLoRADatasetBuilderEngine",
+      "mtime": "2026-04-21T00:59:41.992Z",
+      "size_kb": 0,
+      "suggestedDispatcher": "prism_edm"
+    },
+    {
+      "engine": "RhinoCommonBridgeEngine",
+      "mtime": "2026-04-22T12:32:51.758Z",
+      "size_kb": 14,
+      "suggestedDispatcher": "UNKNOWN — review manually"
+    },
+    {
+      "engine": "OnshapeAPIBridgeEngine",
+      "mtime": "2026-04-22T12:59:43.150Z",
+      "size_kb": 14,
+      "suggestedDispatcher": "UNKNOWN — review manually"
+    },
+    {
+      "engine": "OnshapeLiveCollabAdapter",
+      "mtime": "2026-04-22T13:06:27.647Z",
+      "size_kb": 14,
+      "suggestedDispatcher": "UNKNOWN — review manually"
+    },
+    {
+      "engine": "NXOpenAssemblyDrawingEngine",
+      "mtime": "2026-04-22T13:51:34.668Z",
+      "size_kb": 40,
+      "suggestedDispatcher": "UNKNOWN — review manually"
+    },
+    {
+      "engine": "MastercamHeadlessIntegrationTestEngine",
+      "mtime": "2026-04-27T15:47:35.856Z",
+      "size_kb": 24,
+      "suggestedDispatcher": "prism_cam"
+    },
+    {
+      "engine": "DeepSeekClientEngine",
+      "mtime": "2026-05-05T14:45:12.345Z",
+      "size_kb": 6,
+      "suggestedDispatcher": "UNKNOWN — review manually"
+    },
+    {
+      "engine": "reactiveChainBootstrap",
+      "mtime": "2026-05-16T21:01:17.118Z",
+      "size_kb": 23,
+      "suggestedDispatcher": "prism_ai"
+    },
+    {
+      "engine": "GrokCLIClientEngine",
+      "mtime": "2026-05-18T03:21:42.580Z",
+      "size_kb": 12,
+      "suggestedDispatcher": "UNKNOWN — review manually"
+    },
+    {
+      "engine": "HyperMillACBridgeEngine",
+      "mtime": "2026-05-20T04:55:20.239Z",
+      "size_kb": 17,
+      "suggestedDispatcher": "UNKNOWN — review manually"
+    },
+    {
+      "engine": "BlueprintOCRAdapter",
+      "mtime": "2026-05-24T02:58:26.772Z",
+      "size_kb": 8,
+      "suggestedDispatcher": "UNKNOWN — review manually"
+    },
+    {
+      "engine": "BayesianAcquisitionRefiner",
+      "mtime": "2026-05-25T08:11:22.224Z",
+      "size_kb": 5,
+      "suggestedDispatcher": "prism_ai"
+    },
+    {
+      "engine": "XProcNeuralAutoFireEngine",
+      "mtime": "2026-06-16T02:26:31.140Z",
+      "size_kb": 22,
+      "suggestedDispatcher": "prism_ai"
+    },
+    {
+      "engine": "cycleSchedulingBridge",
+      "mtime": "2026-06-16T22:29:28.861Z",
+      "size_kb": 16,
+      "suggestedDispatcher": "prism_scheduling"
+    }
+  ],
+  "notes": [
+    "WIRE-EXEMPT engines have a `// WIRE-EXEMPT: <reason>` marker in the first 2KB.",
+    "Singleton wrappers count as WIRED-VIA-SINGLETON. The wrapping engine itself must still be wired separately.",
+    "WIRED-VIA-ENGINE means the engine is consumed by another engine (library-layer) -- a library dependency, NOT a dispatcher-wiring target. SINGLE-HOP: the pass does not verify the consuming engine is itself wired, so an engine consumed only by a dormant engine is still WIRED-VIA-ENGINE (the dormant ROOT stays UNWIRED, which is the actionable signal). Only UNWIRED (zero consumers of any kind) engines are candidate for wiring.",
+    "An engine can have multiple wiring paths; classification stops at first match in priority order.",
+    "Run with: node scripts/audit-unwired-engines.mjs"
+  ]
+}

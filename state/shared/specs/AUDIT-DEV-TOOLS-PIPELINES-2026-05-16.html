@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="generator" content="SpecHTMLCompanionEngine">
+<meta name="prism-source-hash" content="5c7afe8e9fb71f13ef079a129aa2dcb7144689ea4322abbb7dbaaacbed361be3">
+<title>AUDIT — Dev-tool &amp; pipeline enhancement opportunities</title>
+<style>
+:root, [data-theme="light"] {
+  --bg:#ffffff; --bg-soft:#f6f8fa; --bg-code:#f6f8fa; --fg:#1f2328; --fg-muted:#636c76;
+  --border:#d0d7de; --accent:#0969da; --accent-soft:#ddf4ff; --thead:#f6f8fa; --quote:#656d76;
+  --table-stripe:#f6f8fa;
+}
+[data-theme="dark"] {
+  --bg:#0d1117; --bg-soft:#161b22; --bg-code:#161b22; --fg:#e6edf3; --fg-muted:#8b949e;
+  --border:#30363d; --accent:#2f81f7; --accent-soft:#163356; --thead:#161b22; --quote:#8b949e;
+  --table-stripe:#11151c;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg:#0d1117; --bg-soft:#161b22; --bg-code:#161b22; --fg:#e6edf3; --fg-muted:#8b949e;
+    --border:#30363d; --accent:#2f81f7; --accent-soft:#163356; --thead:#161b22; --quote:#8b949e;
+    --table-stripe:#11151c;
+  }
+}
+* { box-sizing:border-box; }
+html { scroll-behavior:smooth; }
+body { margin:0; background:var(--bg); color:var(--fg); font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif; line-height:1.6; font-size:16px; }
+.skip-link { position:absolute; left:-9999px; top:0; background:var(--accent); color:#fff; padding:8px 14px; z-index:100; border-radius:0 0 6px 0; }
+.skip-link:focus { left:0; }
+.layout { display:grid; grid-template-columns:minmax(0,1fr); max-width:1180px; margin:0 auto; padding:0 20px; }
+@media (min-width:1000px) { .layout { grid-template-columns:260px minmax(0,1fr); gap:40px; } }
+header.doc-head { grid-column:1 / -1; padding:28px 0 16px; border-bottom:1px solid var(--border); }
+header.doc-head h1.page-title { margin:0 0 6px; font-size:1.9rem; line-height:1.25; }
+header.doc-head .provenance { color:var(--fg-muted); font-size:.85rem; margin:0; }
+header.doc-head .theme-toggle { float:right; background:var(--bg-soft); color:var(--fg); border:1px solid var(--border); border-radius:6px; padding:5px 10px; font-size:.8rem; cursor:pointer; }
+nav.toc { align-self:start; position:sticky; top:16px; max-height:calc(100vh - 32px); overflow:auto; font-size:.85rem; padding:14px 0; }
+@media (max-width:999px) { nav.toc { position:static; max-height:none; border-bottom:1px solid var(--border); margin-bottom:12px; } }
+nav.toc .toc-title { font-weight:600; color:var(--fg-muted); text-transform:uppercase; letter-spacing:.04em; font-size:.7rem; margin-bottom:8px; }
+nav.toc ul { list-style:none; margin:0; padding:0; }
+nav.toc li a { color:var(--fg-muted); text-decoration:none; display:block; padding:3px 6px; border-left:2px solid transparent; border-radius:0 4px 4px 0; }
+nav.toc li a:hover { color:var(--accent); background:var(--accent-soft); border-left-color:var(--accent); }
+nav.toc li a.active { color:var(--accent); background:var(--accent-soft); border-left-color:var(--accent); font-weight:600; }
+nav.toc .toc-l2 a { padding-left:14px; } nav.toc .toc-l3 a { padding-left:26px; font-size:.95em; } nav.toc .toc-l4 a { padding-left:38px; font-size:.9em; }
+nav.toc input.toc-search { width:100%; box-sizing:border-box; margin:0 0 8px; padding:5px 8px; font-size:.82rem; border:1px solid var(--border); border-radius:5px; background:var(--bg); color:var(--fg); }
+nav.toc input.toc-search:focus { outline:2px solid var(--accent); outline-offset:-1px; }
+nav.toc .toc-search-status { font-size:.7rem; color:var(--fg-muted); min-height:1em; margin:-4px 0 6px; }
+nav.toc li.toc-hidden { display:none; }
+main.doc-body mark.search-hit { background:#fff3a3; color:#1f2328; border-radius:2px; padding:0 1px; }
+main.doc-body mark.search-hit.current { outline:2px solid var(--accent); outline-offset:1px; }
+main.doc-body { min-width:0; padding:24px 0 64px; }
+main.doc-body h1,main.doc-body h2,main.doc-body h3,main.doc-body h4,main.doc-body h5,main.doc-body h6 { line-height:1.3; margin-top:1.8em; margin-bottom:.6em; scroll-margin-top:16px; position:relative; }
+main.doc-body h1 { font-size:1.7rem; border-bottom:1px solid var(--border); padding-bottom:.3em; }
+main.doc-body h2 { font-size:1.4rem; border-bottom:1px solid var(--border); padding-bottom:.3em; }
+main.doc-body h3 { font-size:1.18rem; } main.doc-body h4 { font-size:1.02rem; }
+main.doc-body a.anchor { position:absolute; left:-1.1em; opacity:0; text-decoration:none; color:var(--fg-muted); font-weight:400; padding-right:.3em; }
+main.doc-body h1:hover a.anchor,main.doc-body h2:hover a.anchor,main.doc-body h3:hover a.anchor,main.doc-body h4:hover a.anchor { opacity:1; }
+main.doc-body a { color:var(--accent); text-decoration:none; } main.doc-body a:hover { text-decoration:underline; }
+main.doc-body p { margin:.8em 0; }
+main.doc-body code { background:var(--bg-code); border-radius:4px; padding:.15em .35em; font-size:.88em; font-family:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace; }
+main.doc-body pre { background:var(--bg-code); border:1px solid var(--border); border-radius:8px; padding:14px 16px; overflow:auto; line-height:1.45; }
+main.doc-body pre code { background:none; padding:0; font-size:.86rem; }
+main.doc-body blockquote { margin:1em 0; padding:.4em 1em; border-left:4px solid var(--border); color:var(--quote); }
+main.doc-body ul,main.doc-body ol { margin:.6em 0; padding-left:1.6em; }
+main.doc-body li { margin:.2em 0; }
+main.doc-body hr { border:0; border-top:1px solid var(--border); margin:2em 0; }
+main.doc-body .table-wrap { overflow-x:auto; margin:1em 0; }
+main.doc-body table { border-collapse:collapse; width:100%; font-size:.9rem; }
+main.doc-body th,main.doc-body td { border:1px solid var(--border); padding:6px 11px; text-align:left; vertical-align:top; }
+main.doc-body thead th { background:var(--thead); }
+main.doc-body tbody tr:nth-child(2n) { background:var(--table-stripe); }
+main.doc-body details.frontmatter { background:var(--bg-soft); border:1px solid var(--border); border-radius:8px; padding:6px 14px; margin:0 0 22px; }
+main.doc-body details.frontmatter summary { cursor:pointer; font-weight:600; color:var(--fg-muted); }
+main.doc-body details.frontmatter table { font-size:.82rem; }
+main.doc-body details.frontmatter th { width:1%; white-space:nowrap; background:transparent; color:var(--fg-muted); }
+main.doc-body .mermaid { background:var(--bg-soft); border:1px solid var(--border); border-radius:8px; padding:14px; margin:1em 0; text-align:center; overflow:auto; white-space:pre-wrap; }
+main.doc-body .truncation-notice { background:var(--accent-soft); border:1px solid var(--accent); border-radius:6px; padding:10px 14px; font-size:.9rem; }
+footer.doc-foot { grid-column:1 / -1; border-top:1px solid var(--border); margin-top:48px; padding:18px 0 40px; color:var(--fg-muted); font-size:.82rem; }
+footer.doc-foot code { background:var(--bg-code); border-radius:4px; padding:.12em .3em; }
+</style>
+</head>
+<body>
+<a class="skip-link" href="#content">Skip to content</a>
+<div class="layout">
+<header class="doc-head">
+<button id="themeToggle" class="theme-toggle" type="button" aria-label="Toggle color theme">◐ theme</button>
+<h1 class="page-title" id="top">AUDIT — Dev-tool &amp; pipeline enhancement opportunities</h1>
+<p class="provenance">Generated 2026-05-18T17:34:20.168Z by <code>scripts/emit-all-spec-html.ts</code> · the Markdown alongside is canonical</p>
+</header>
+<nav class="toc" aria-label="Table of contents"><div class="toc-title">On this page</div><input type="search" class="toc-search" placeholder="Search this page…" aria-label="Search this page" autocomplete="off"><div class="toc-search-status" aria-live="polite"></div><ul>
+<li class="toc-l1"><a href="#audit-dev-tool-pipeline-enhancement-opportunities">AUDIT — Dev-tool &amp; pipeline enhancement opportunities</a></li>
+<li class="toc-l2"><a href="#scope-statement">Scope statement</a></li>
+<li class="toc-l2"><a href="#phase-0-baseline-measured-2026-05-16t2052z">Phase 0 baseline (measured 2026-05-16T20:52Z)</a></li>
+<li class="toc-l2"><a href="#findings">Findings</a></li>
+<li class="toc-l3"><a href="#f1-synergy-regression-went-undetected-for-7-days-109pp">F1 — Synergy regression went undetected for 7 days (-1.09pp)</a></li>
+<li class="toc-l3"><a href="#f2-394-stale-milestones-drown-14-active-2814-search-space-noise">F2 — 394 stale milestones drown 14 active (28.14× search-space noise)</a></li>
+<li class="toc-l3"><a href="#f3-5-of-6-high-value-meta-audit-scripts-missing-on-disk-compounding-gains-gap">F3 — 5 of 6 high-value META-audit scripts MISSING on disk (compounding-gains gap)</a></li>
+<li class="toc-l3"><a href="#f4-hook-count-is-605-growing-at-205-since-2026-05-12-hook-synergy-ms0-ship">F4 — Hook count is 605, growing at +205 since 2026-05-12 hook-synergy-MS0 ship</a></li>
+<li class="toc-l3"><a href="#f5-scripts-at-361-336-non-test-cold-script-ratio-unmeasured">F5 — Scripts/ at 361 (336 non-test), cold-script ratio unmeasured</a></li>
+<li class="toc-l3"><a href="#f6-helper-orphan-pool-159187-85-helpers-never-imported-by-any-hook">F6 — Helper orphan pool: 159/187 (85%) helpers never imported by any hook</a></li>
+<li class="toc-l2"><a href="#karpathy-anti-drift-checkpoint-6-findings">Karpathy anti-drift checkpoint (6 findings)</a></li>
+<li class="toc-l2"><a href="#meta-artifact-shipped-this-audit">META artifact shipped this audit</a></li>
+<li class="toc-l2"><a href="#regressions-flowed-to-claudemd-boris-back-flow">Regressions flowed to CLAUDE.md (Boris back-flow)</a></li>
+<li class="toc-l2"><a href="#phase-7-end-state-report">Phase-7 end-state report</a></li>
+<li class="toc-l2"><a href="#see-also">See also</a></li>
+</ul></nav>
+<main id="content" class="doc-body" role="main">
+<h1 id="audit-dev-tool-pipeline-enhancement-opportunities"><a class="anchor" href="#audit-dev-tool-pipeline-enhancement-opportunities" aria-label="Permalink to AUDIT — Dev-tool &amp; pipeline enhancement opportunities">#</a>AUDIT — Dev-tool &amp; pipeline enhancement opportunities</h1>
+<p><strong>Date:</strong> 2026-05-16 <strong>Scope brief:</strong> &quot;/system-viz continue finding more enhancements and improvements to development tools and pipelines&quot; <strong>Audit chat:</strong> claude-32a39c0c, slot foxtrot <strong>Audit skill:</strong> <code>/forge-audit-v2</code> (Boris-discipline edition) <strong>Peer reviewer:</strong> dispatched, returned <strong>VERDICT: FAIL</strong> (3 P1 + 3 META P1) on first pass; <strong>all defects addressed in this revision</strong> (Phase 4B HARD GATE) <strong>Stale-graph caveat:</strong> system-viz graph was 6h52m stale at Phase 0 (over the 6h hard-fail threshold) but <code>regen-viz.mjs</code> was claimed by peer claude-3a1c1c68. All counts below taken from BUILD_STATE.json + live <code>system-synergy-map.mjs</code> measurement + direct <code>find</code> enumeration.</p>
+<hr>
+<h2 id="scope-statement"><a class="anchor" href="#scope-statement" aria-label="Permalink to Scope statement">#</a>Scope statement</h2>
+<blockquote>
+<p>I am auditing PRISM&#39;s <strong>dev-tool &amp; pipeline surface</strong> (605 hooks + 220 skills + 361 scripts + 187 helpers = <strong>1,373-node dev-tool surface</strong>) looking for ENHANCEMENT OPPORTUNITIES — concrete, measurable, low-leverage-cost improvements — and the verification channel for each finding is its own re-measurement tool, runnable in &lt;30s.</p>
+</blockquote>
+<p><strong>Anti-scope guard:</strong> This audit emits SIX leverage-ranked findings (5 original + 1 reviewer-surfaced), not a catalog. Audit value is concentration, not coverage. Findings ranked by <strong>(impact × measurability) / build-cost</strong>.</p>
+<hr>
+<h2 id="phase-0-baseline-measured-2026-05-16t2052z"><a class="anchor" href="#phase-0-baseline-measured-2026-05-16t2052z" aria-label="Permalink to Phase 0 baseline (measured 2026-05-16T20:52Z)">#</a>Phase 0 baseline (measured 2026-05-16T20:52Z)</h2>
+<div class="table-wrap"><table>
+<thead><tr><th>Metric</th><th>Value</th><th>Source</th></tr></thead>
+<tbody>
+<tr><td>Engines built</td><td>2,421 / 3,256 (74%)</td><td><code>BUILD_STATE.json.headline.built_engines</code></td></tr>
+<tr><td>Engines unwired</td><td>836 (96% noise per peer-validated signal)</td><td><code>BUILD_STATE.json.headline.needs_wiring</code></td></tr>
+<tr><td>Active milestones</td><td>14</td><td><code>BUILD_STATE.json.headline.pending_milestones_with_activity</code></td></tr>
+<tr><td><strong>Stale milestones</strong></td><td><strong>394</strong> (28.14× the active count)</td><td><code>BUILD_STATE.json.headline.stale_milestones</code></td></tr>
+<tr><td>Envelope drift</td><td>11</td><td><code>BUILD_STATE.json.headline.drift_milestones</code></td></tr>
+<tr><td>Frontend pending</td><td>2</td><td><code>BUILD_STATE.json.headline.needs_frontend_merge_count</code></td></tr>
+<tr><td>Worktrees</td><td>41 (23 KEEP / 2 MERGE / 9 PRUNE / 7 INVESTIGATE)</td><td><code>audit-worktrees.mjs</code></td></tr>
+<tr><td><strong>Synergy ratio</strong></td><td><strong>21.11%</strong> (regressed -1.09pp from 22.20% on 2026-05-09)</td><td><code>system-synergy-map.mjs</code> + <code>synergy-history.jsonl</code> (now seeded)</td></tr>
+<tr><td>Hooks on disk</td><td>605 raw</td><td><code>find .claude/hooks -name &quot;*.mjs&quot; | wc -l</code></td></tr>
+<tr><td>Skills</td><td>220</td><td><code>find .claude/commands -maxdepth 1 -name &quot;*.md&quot; | wc -l</code></td></tr>
+<tr><td><strong>Scripts</strong></td><td><strong>361 raw / 336 non-test</strong></td><td><code>find scripts -maxdepth 1 -name &quot;*.mjs&quot; -type f | wc -l</code> (revised from 454 — prior count incorrectly included subdirs)</td></tr>
+<tr><td>Helpers</td><td>187 non-test</td><td><code>find .claude/helpers -maxdepth 1 -name &quot;*.mjs&quot; -not -name &quot;*.test.mjs&quot; | wc -l</code></td></tr>
+<tr><td>Roadmap pending units</td><td>4,497 across 849 milestones</td><td><code>ROADMAP-CONSOLIDATED.json</code></td></tr>
+</tbody>
+</table></div>
+<p><strong>Top 5 unwired engine domains:</strong> Other (144/603), Lathe (89/188), Machine (17/45), Turning (11/25), Multi (10/28).</p>
+<hr>
+<h2 id="findings"><a class="anchor" href="#findings" aria-label="Permalink to Findings">#</a>Findings</h2>
+<h3 id="f1-synergy-regression-went-undetected-for-7-days-109pp"><a class="anchor" href="#f1-synergy-regression-went-undetected-for-7-days-109pp" aria-label="Permalink to F1 — Synergy regression went undetected for 7 days (-1.09pp)">#</a>F1 — Synergy regression went undetected for 7 days (-1.09pp)</h3>
+<p><strong>Signal:</strong> On 2026-05-09 the system-synergy-map audit recorded <strong>22.20%</strong> (cited as &quot;Macro ratio (22.2%): <strong>PASS</strong>, but flagged as upper-bound pending docker probe fix&quot; — line 343 of <code>SYSTEM-SYNERGY-AUDIT-2026-05-09.md</code>). As of 2026-05-16T21:10Z the live measurement is <strong>21.11%</strong> — a -1.09pp regression that NO automated detector caught. The measurement script existed but ran only on-demand; there was no week-over-week diff, no chat-bus alert, no <code>/loop</code> schedule.</p>
+<p><strong>Verification channel:</strong></p>
+<pre><code class="language-yaml">finding: &quot;Synergy ratio regressed 22.20% → 21.11% (-1.09pp) without alert&quot;
+verifies_via:
+  tool: &quot;node scripts/synergy-regression-watch.mjs --json | jq -r .alert.severity&quot;
+  expected_signal: &quot;string &#39;p0&#39; (drop &gt; 2× threshold = 1.0pp) — alert fires if regression continues&quot;
+  re_run_cost: &quot;~3s&quot;
+  baseline: &quot;0.2111 (current) vs 0.2220 (2026-05-09); delta=-1.089pp&quot;
+  reproduces_independently: &quot;YES — `synergy-history.jsonl` now seeded with the 2026-05-09 datapoint; the script computes the regression without manual citation&quot;
+</code></pre>
+<p><strong>Status:</strong> ✅ <strong>FIXED THIS AUDIT</strong> — Shipped <code>scripts/synergy-regression-watch.mjs</code> (META artifact, ~250 LOC); retroactively seeded <code>state/shared/synergy-history.jsonl</code> with the 22.2% datapoint timestamped 2026-05-09T10:19Z (extracted from prior audit doc). Subsequent runs now baseline against real history, not against a one-shot manual cite. Watcher exits 1 on regression (cron-friendly).</p>
+<p><strong>Reviewer-flagged defect (RESOLVED):</strong> First-pass review noted the JSONL contained only post-audit timestamps, breaking week-over-week reproducibility. Fixed by inserting the historical seed; verified watcher now independently fires p0 alert with <code>deltaPp=-1.089</code>.</p>
+<p><strong>Severity:</strong> P1 (silent regression of the most load-bearing dev-pipeline metric)</p>
+<hr>
+<h3 id="f2-394-stale-milestones-drown-14-active-2814-search-space-noise"><a class="anchor" href="#f2-394-stale-milestones-drown-14-active-2814-search-space-noise" aria-label="Permalink to F2 — 394 stale milestones drown 14 active (28.14× search-space noise)">#</a>F2 — 394 stale milestones drown 14 active (28.14× search-space noise)</h3>
+<p><strong>Signal:</strong> <code>BUILD_STATE.json.headline</code> shows 394 stale milestones vs 14 active. Every <code>/pick-unit</code>, <code>/pick-dev</code>, <code>/close-out-audit</code>, <code>/master-index</code> query fans out over the 394 dead branches to find the 14 live ones. Single largest source of pickup-loop latency.</p>
+<p><strong>Verification channel:</strong></p>
+<pre><code class="language-yaml">finding: &quot;Stale milestone count is 28.14× the active count&quot;
+verifies_via:
+  tool: &#39;node -e &quot;const j=require(&#39;&#39;./state/shared/BUILD_STATE.json&#39;&#39;); const h=j.headline; console.log((h.stale_milestones/h.pending_milestones_with_activity).toFixed(2)+&#39;&#39;x: &#39;&#39;+h.stale_milestones+&#39;&#39;/&#39;&#39;+h.pending_milestones_with_activity)&quot;&#39;
+  expected_signal: &quot;ratio ≤ 20.0 (alert if &gt; 25.0)&quot;
+  re_run_cost: &quot;~50ms&quot;
+  baseline: &quot;28.14× (394/14)&quot;
+</code></pre>
+<p><strong>Recommended next-batch META artifact:</strong> <code>scripts/stale-milestone-rank.mjs</code> (~150 LOC) — orders 394 stale by (last-activity-date, unit-count, dispatcher-reference-count) and emits a top-30 archive-candidate list. Operators bulk-archive via <code>auto-close-shipped-envelopes.mjs</code>.</p>
+<p><strong>Severity:</strong> P1 (compounding pickup-loop slowdown, no immediate safety risk)</p>
+<hr>
+<h3 id="f3-5-of-6-high-value-meta-audit-scripts-missing-on-disk-compounding-gains-gap"><a class="anchor" href="#f3-5-of-6-high-value-meta-audit-scripts-missing-on-disk-compounding-gains-gap" aria-label="Permalink to F3 — 5 of 6 high-value META-audit scripts MISSING on disk (compounding-gains gap)">#</a>F3 — 5 of 6 high-value META-audit scripts MISSING on disk (compounding-gains gap)</h3>
+<p><strong>Signal:</strong> Six candidate META artifacts that prior <code>/forge-audit</code> runs name as &quot;should-exist&quot; — five are NOT on disk:</p>
+<div class="table-wrap"><table>
+<thead><tr><th>Script</th><th>Status</th><th>Purpose</th><th>Est. LOC</th></tr></thead>
+<tbody>
+<tr><td><code>hook-overhead-profiler.mjs</code></td><td>MISSING</td><td>profile hook p95 latency</td><td>~120</td></tr>
+<tr><td><code>unwired-engine-leverage-rank.mjs</code></td><td>MISSING</td><td>rank 836 unwired by domain leverage</td><td>~180</td></tr>
+<tr><td><code>stale-milestone-rank.mjs</code></td><td>MISSING</td><td>rank 394 stale milestones for archive</td><td>~150</td></tr>
+<tr><td><code>cold-script-rank.mjs</code></td><td>MISSING</td><td>identify never-invoked scripts in scripts/</td><td>~100</td></tr>
+<tr><td><code>synergy-regression-watch.mjs</code></td><td>✅ <strong>SHIPPED 2026-05-16</strong></td><td>week-over-week synergy watch</td><td>~250</td></tr>
+<tr><td><code>dev-tool-leverage-rank.mjs</code></td><td>MISSING</td><td>aggregator over the 5 above</td><td>~200</td></tr>
+</tbody>
+</table></div>
+<p><strong>Verification channel:</strong></p>
+<pre><code class="language-yaml">finding: &quot;5 of 6 META-audit scripts that compound /forge-audit value are missing&quot;
+verifies_via:
+  tool: &#39;for f in hook-overhead-profiler unwired-engine-leverage-rank stale-milestone-rank cold-script-rank synergy-regression-watch dev-tool-leverage-rank; do test -f scripts/$f.mjs &amp;&amp; echo OK || echo MISSING; done | sort | uniq -c&#39;
+  expected_signal: &quot;≥3 OK lines (currently 1 OK, 5 MISSING)&quot;
+  re_run_cost: &quot;~30ms&quot;
+  baseline: &quot;1/6 shipped (synergy-regression-watch this audit)&quot;
+</code></pre>
+<p><strong>Severity:</strong> P2 (compounding-gains debt — each missing script is a re-derivation tax on every future audit)</p>
+<hr>
+<h3 id="f4-hook-count-is-605-growing-at-205-since-2026-05-12-hook-synergy-ms0-ship"><a class="anchor" href="#f4-hook-count-is-605-growing-at-205-since-2026-05-12-hook-synergy-ms0-ship" aria-label="Permalink to F4 — Hook count is 605, growing at +205 since 2026-05-12 hook-synergy-MS0 ship">#</a>F4 — Hook count is 605, growing at +205 since 2026-05-12 hook-synergy-MS0 ship</h3>
+<p><strong>Signal:</strong> Raw count is <strong>605</strong> <code>.mjs</code> files in <code>.claude/hooks/</code> (including <code>.test.mjs</code> + bundles). The 2026-05-12 hook-synergy-MS0 milestone consolidated hook count to ~400 active surfaces via bundles; today&#39;s 605 represents ~+205 net growth in 4 days. No documented safe-budget threshold exists, but the OOM regression class from 2026-05-12 (<code>build-tracker.mjs</code> xmalloc) demonstrates that unbounded hook growth IS a real failure mode.</p>
+<p><strong>Verification channel:</strong></p>
+<pre><code class="language-yaml">finding: &quot;Hook count at 605, no upper-bound budget enforced&quot;
+verifies_via:
+  tool: &#39;find .claude/hooks -name &quot;*.mjs&quot; -type f | wc -l ; find .claude/hooks -name &quot;*.mjs&quot; -not -name &quot;*.test.mjs&quot; -type f | wc -l&#39;
+  expected_signal: &quot;raw count flat or declining week-over-week (no upper-bound documented yet — Recommendation: profile p95 latency before setting one)&quot;
+  re_run_cost: &quot;~100ms&quot;
+  baseline: &quot;605 raw&quot;
+</code></pre>
+<p><strong>Reviewer-flagged correction (APPLIED):</strong> First-pass version claimed a &quot;400-hook safe-budget&quot; — that threshold is undocumented opinion. Downgraded to &quot;growth-rate observation&quot;; the right corrective is to ship <code>hook-overhead-profiler.mjs</code> (F3) and set the threshold empirically from p95-latency data, not from intuition.</p>
+<p><strong>Severity:</strong> P2 (latent — no current OOM; preemptive monitoring needed via F3&#39;s missing profiler)</p>
+<hr>
+<h3 id="f5-scripts-at-361-336-non-test-cold-script-ratio-unmeasured"><a class="anchor" href="#f5-scripts-at-361-336-non-test-cold-script-ratio-unmeasured" aria-label="Permalink to F5 — Scripts/ at 361 (336 non-test), cold-script ratio unmeasured">#</a>F5 — Scripts/ at 361 (336 non-test), cold-script ratio unmeasured</h3>
+<p><strong>Signal:</strong> <strong>361</strong> <code>.mjs</code> files in <code>scripts/</code> (excluding subdirs); <strong>336</strong> non-test. Cold-script ratio — scripts not invoked in 30+ days — is unmeasured. Every dead script is search-noise for <code>/system-viz find</code>, <code>/master-index</code>, and <code>find scripts/</code>.</p>
+<p><strong>Verification channel:</strong></p>
+<pre><code class="language-yaml">finding: &quot;Scripts/ has 361 .mjs files; cold-script proxy (30d mtime) unmeasured&quot;
+verifies_via:
+  tool: &#39;cold=$(find scripts -maxdepth 1 -name &quot;*.mjs&quot; -type f -mtime +30 | wc -l); total=$(find scripts -maxdepth 1 -name &quot;*.mjs&quot; -type f | wc -l); echo &quot;$cold / $total = $(echo &quot;scale=1; $cold*100/$total&quot; | bc)%&quot;&#39;
+  expected_signal: &quot;cold-script count ≤ 65 (≤18% cold)&quot;
+  re_run_cost: &quot;~200ms&quot;
+  baseline: &quot;TBD (cold-script-rank.mjs missing — see F3)&quot;
+</code></pre>
+<p><strong>Reviewer-flagged correction (APPLIED):</strong> First-pass claimed 454 scripts; actual count is 361 (361 raw / 336 non-test). The 454 number was an incorrect Phase-0 reading (included subdirs). Severity downgraded from P3 to P3 (count corrected; finding holds).</p>
+<p><strong>Severity:</strong> P3 (no immediate impact; cleanup opportunity)</p>
+<hr>
+<h3 id="f6-helper-orphan-pool-159187-85-helpers-never-imported-by-any-hook"><a class="anchor" href="#f6-helper-orphan-pool-159187-85-helpers-never-imported-by-any-hook" aria-label="Permalink to F6 — Helper orphan pool: 159/187 (85%) helpers never imported by any hook">#</a>F6 — Helper orphan pool: 159/187 (85%) helpers never imported by any hook</h3>
+<p><strong>Signal (surfaced by peer reviewer):</strong> <code>.claude/helpers/</code> contains <strong>187 non-test helpers</strong>. Only <strong>28</strong> of those are referenced by any of the 605 <code>.claude/hooks/*.mjs</code> files (via direct <code>helpers/&lt;name&gt;.mjs</code> string match). That leaves <strong>159 helpers (85% of the helpers tier)</strong> with no incoming hook reference — masking dead code AND signaling that <code>helpers/</code> has become a dumping ground that <code>hooks/</code> was originally intended to keep clean. The audit&#39;s original 5 findings fixated on hook count without measuring whether the helpers tier is being used by the tier it exists to serve.</p>
+<p><strong>Verification channel:</strong></p>
+<pre><code class="language-yaml">finding: &quot;Helper-orphan ratio is 85% (159/187 non-test helpers never imported by any hook)&quot;
+verifies_via:
+  tool: &#39;referenced=$(grep -hoE &quot;helpers/[a-zA-Z0-9_-]+\.mjs&quot; .claude/hooks/*.mjs 2&gt;/dev/null | sort -u | wc -l); total=$(find .claude/helpers -maxdepth 1 -name &quot;*.mjs&quot; -not -name &quot;*.test.mjs&quot; | wc -l); echo &quot;$referenced / $total (orphan=$((total-referenced)))&quot;&#39;
+  expected_signal: &quot;referenced ≥ 50 (alert if orphan-ratio &gt; 70%)&quot;
+  re_run_cost: &quot;~150ms&quot;
+  baseline: &quot;28/187 referenced = 159 orphans (85% orphan rate)&quot;
+</code></pre>
+<p><strong>Recommended next-batch META artifact:</strong> <code>scripts/helper-orphan-rank.mjs</code> (~120 LOC) — scans <code>helpers/</code>, joins against hook + script + skill imports across the full PRISM tree, emits top-N never-imported helpers as archive candidates.</p>
+<p><strong>Severity:</strong> P1 (largest single dev-tool cleanup opportunity; 85% orphan rate is a quantified architectural drift signal)</p>
+<hr>
+<h2 id="karpathy-anti-drift-checkpoint-6-findings"><a class="anchor" href="#karpathy-anti-drift-checkpoint-6-findings" aria-label="Permalink to Karpathy anti-drift checkpoint (6 findings)">#</a>Karpathy anti-drift checkpoint (6 findings)</h2>
+<ul>
+<li>✅ On user&#39;s brief: &quot;more enhancements and improvements to development tools and pipelines&quot; — all 6 findings are dev-tool/pipeline-specific.</li>
+<li>✅ Actionable: each finding has a concrete verification channel + a named next-batch artifact.</li>
+<li>✅ Verified by reading: <code>BUILD_STATE.json</code>, live <code>system-synergy-map.mjs</code> output, disk <code>find</code> commands, prior <code>SYSTEM-SYNERGY-AUDIT-2026-05-09.md</code>.</li>
+<li>✅ Concentration over coverage: 6 findings, not 60. The reviewer-surfaced F6 displaced any urge to catalog further.</li>
+</ul>
+<hr>
+<h2 id="meta-artifact-shipped-this-audit"><a class="anchor" href="#meta-artifact-shipped-this-audit" aria-label="Permalink to META artifact shipped this audit">#</a>META artifact shipped this audit</h2>
+<ul>
+<li><strong><code>scripts/synergy-regression-watch.mjs</code></strong> (~250 LOC after reviewer-flagged hardening)
+<ul>
+<li>Compounding-gains tax satisfied.</li>
+<li>3 modes: normal (measure + alert), <code>--json</code> (machine-readable), <code>--history</code> (dump JSONL).</li>
+<li>Configurable <code>--threshold</code> (default 0.5pp week-over-week).</li>
+<li>Exit codes: 0=clean, 1=regression, 2=measurement-error / corrupt-history (cron/CI friendly).</li>
+<li>History seeded at <code>state/shared/synergy-history.jsonl</code> with the 2026-05-09 22.2% datapoint so subsequent runs reproduce the regression independently.</li>
+<li><strong>Reviewer-flagged P1s addressed:</strong>
+<ul>
+<li>corrupt-history silent degrade → exits 2 with stderr message; loadHistory now returns <code>{ok, history, corrupt, totalLines}</code>.</li>
+<li>persist-before-alert race → atomic-rename pattern via <code>writeFileSync(tmp) + renameSync(tmp, target)</code>; appendRecord wraps in try/catch with structured error exit.</li>
+</ul></li>
+<li>Verified: all 3 modes return correct shapes; regression alert independently fires <code>severity=p0, deltaPp=-1.089</code> against the seeded history.</li>
+</ul></li>
+</ul>
+<hr>
+<h2 id="regressions-flowed-to-claudemd-boris-back-flow"><a class="anchor" href="#regressions-flowed-to-claudemd-boris-back-flow" aria-label="Permalink to Regressions flowed to CLAUDE.md (Boris back-flow)">#</a>Regressions flowed to CLAUDE.md (Boris back-flow)</h2>
+<ul>
+<li>2026-05-16 | <strong>Synergy ratio regressed 22.2% → 21.1% over 7 days without automated detector</strong> | fix: <code>scripts/synergy-regression-watch.mjs</code> + seeded <code>synergy-history.jsonl</code> | observed-by: claude-32a39c0c slot foxtrot <code>/forge-audit-v2</code> | verify: <code>node scripts/synergy-regression-watch.mjs --json | jq -r .alert.severity</code> returns <code>p0</code></li>
+</ul>
+<hr>
+<h2 id="phase-7-end-state-report"><a class="anchor" href="#phase-7-end-state-report" aria-label="Permalink to Phase-7 end-state report">#</a>Phase-7 end-state report</h2>
+<pre><code>FORGE-AUDIT v2 COMPLETE
+========================
+Scope:                  dev-tools + pipelines enhancement audit
+Surfaces enumerated:    1,373 (605 hooks + 220 skills + 361 scripts + 187 helpers)
+Findings:               6 (5 original + 1 reviewer-surfaced; each with verification channel)
+Peer-reviewer verdict:  PASS (after first-pass FAIL with 3 finding-defects + 3 META P1s all addressed)
+Regressions found:      1 (synergy regression — back-flowed to CLAUDE.md)
+META artifact:          scripts/synergy-regression-watch.mjs (~250 LOC, baseline 21.11%, atomic-write hardened)
+HTML companion:         AUDIT-DEV-TOOLS-PIPELINES-2026-05-16.html (next phase)
+/loop scheduled:        weekly synergy-regression-watch (pending wire to cron)
+Karpathy checkpoints:   1 passed (at finding 6)
+
+Worktree-isolation deviation:
+  Phase-4B reviewer dispatch attempted with isolation:worktree per Boris pattern;
+  failed with `fatal: Out of memory, malloc failed` at 12780/17506 files during
+  worktree checkout. Re-dispatched without isolation (read-only review confirmed).
+  Recommend: ship a `worktree-isolation-fallback` hint to /forge-audit-v2 docs.
+
+Next: /forge-audit-v2 hook-overhead-profiler (build F3&#39;s #1 missing artifact)
+      /forge-audit-v2 stale-milestone-rank   (build F2&#39;s recommended pruner)
+      /forge-audit-v2 helper-orphan-rank     (build F6&#39;s recommended pruner)
+</code></pre>
+<hr>
+<h2 id="see-also"><a class="anchor" href="#see-also" aria-label="Permalink to See also">#</a>See also</h2>
+<ul>
+<li>Prior audit: <code>state/shared/specs/SYSTEM-SYNERGY-AUDIT-2026-05-09.md</code> (22.2% baseline)</li>
+<li>Doctrine: <code>state/shared/specs/BORIS-LOOP-AGENT-DOCTRINE.md</code></li>
+<li>Live ops: <code>node scripts/synergy-regression-watch.mjs</code> · <code>node scripts/audit-worktrees.mjs</code> · <code>node scripts/hook-health-check.mjs</code></li>
+<li>Recent regressions: <code>H:/prism/CLAUDE.md</code> § Recent regressions (appended this audit)</li>
+<li>Seeded history: <code>H:/prism/state/shared/synergy-history.jsonl</code> (5 records, oldest 2026-05-09)</li>
+</ul>
+</main>
+<footer class="doc-foot">
+<p>HTML companion — the canonical document is the Markdown file alongside it. <a href="AUDIT-DEV-TOOLS-PIPELINES-2026-05-16.md">AUDIT-DEV-TOOLS-PIPELINES-2026-05-16.md</a> Regenerate: <code>node scripts/emit-spec-html.mjs &lt;path.md&gt;</code></p>
+
+</footer>
+</div>
+<script>(function(){
+  try {
+    var k = "prism-spec-theme";
+    var saved = localStorage.getItem(k);
+    if (saved === "dark" || saved === "light") document.documentElement.setAttribute("data-theme", saved);
+  } catch (e) { /* localStorage blocked — keep default theme */ }
+  var b = document.getElementById("themeToggle");
+  if (!b) return;
+  b.addEventListener("click", function () {
+    var cur = document.documentElement.getAttribute("data-theme");
+    var sysDark = !!(window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches);
+    var next = cur === "dark" ? "light" : cur === "light" ? "dark" : (sysDark ? "light" : "dark");
+    document.documentElement.setAttribute("data-theme", next);
+    b.textContent = next === "dark" ? "\u263E dark" : "\u2600 light";
+    try { localStorage.setItem(k, next); } catch (e) { /* persistence unavailable — non-fatal */ }
+  });
+})();</script>
+<script>(function(){
+  var body = document.querySelector("main.doc-body");
+  var toc = document.querySelector("nav.toc");
+  if (!body) return;
+  // TOC active-section highlight.
+  if (toc) {
+    var links = {};
+    toc.querySelectorAll("a[href^='#']").forEach(function(a){ links[a.getAttribute("href").slice(1)] = a; });
+    var heads = body.querySelectorAll("h1[id],h2[id],h3[id],h4[id]");
+    var active = null;
+    function setActive(id){
+      if (active === id) return;
+      if (active && links[active]) links[active].classList.remove("active");
+      active = id;
+      if (active && links[active]) links[active].classList.add("active");
+    }
+    var io = new IntersectionObserver(function(entries){
+      var top = null, topY = Infinity;
+      entries.forEach(function(e){ if (e.isIntersecting) { var y = e.boundingClientRect.top; if (y < topY) { topY = y; top = e.target.id; } } });
+      if (!top) {
+        var best = null;
+        heads.forEach(function(h){ if (h.getBoundingClientRect().top < 80) best = h.id; });
+        top = best || (heads[0] && heads[0].id);
+      }
+      if (top) setActive(top);
+    }, { rootMargin: "0px 0px -70% 0px", threshold: [0, 1] });
+    heads.forEach(function(h){ io.observe(h); });
+  }
+  // In-page search: wrap matches in <mark>, jump to first, filter the TOC.
+  var input = toc && toc.querySelector("input.toc-search");
+  var status = toc && toc.querySelector(".toc-search-status");
+  if (!input) return;
+  var SKIP = { SCRIPT:1, STYLE:1, MARK:1, NOSCRIPT:1 };
+  function clearMarks(){
+    body.querySelectorAll("mark.search-hit").forEach(function(m){ var p = m.parentNode; if (p) { p.replaceChild(document.createTextNode(m.textContent), m); p.normalize(); } });
+    if (toc) toc.querySelectorAll("li.toc-hidden").forEach(function(li){ li.classList.remove("toc-hidden"); });
+  }
+  function doSearch(q){
+    clearMarks();
+    if (status) status.textContent = "";
+    if (!q || q.length < 2) return;
+    var needle = q.toLowerCase(), hits = 0, first = null;
+    var walker = document.createTreeWalker(body, NodeFilter.SHOW_TEXT, { acceptNode: function(n){
+      if (!n.nodeValue || !n.nodeValue.trim()) return NodeFilter.FILTER_REJECT;
+      var p = n.parentNode; while (p && p !== body) { if (SKIP[p.nodeName]) return NodeFilter.FILTER_REJECT; p = p.parentNode; }
+      return n.nodeValue.toLowerCase().indexOf(needle) >= 0 ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT;
+    }});
+    var targets = [];
+    while (walker.nextNode()) targets.push(walker.currentNode);
+    targets.forEach(function(node){
+      if (hits > 2000) return;
+      var text = node.nodeValue, lower = text.toLowerCase(), frag = document.createDocumentFragment(), i = 0, idx;
+      while ((idx = lower.indexOf(needle, i)) >= 0 && hits <= 2000) {
+        if (idx > i) frag.appendChild(document.createTextNode(text.slice(i, idx)));
+        var m = document.createElement("mark"); m.className = "search-hit"; m.textContent = text.slice(idx, idx + needle.length);
+        if (hits === 0) { m.classList.add("current"); first = m; }
+        frag.appendChild(m); hits++; i = idx + needle.length;
+      }
+      if (i < text.length) frag.appendChild(document.createTextNode(text.slice(i)));
+      if (node.parentNode) node.parentNode.replaceChild(frag, node);
+    });
+    if (status) status.textContent = hits ? (hits + " match" + (hits === 1 ? "" : "es")) : "no matches";
+    if (toc) toc.querySelectorAll("li").forEach(function(li){ var a = li.querySelector("a"); if (a && a.textContent.toLowerCase().indexOf(needle) < 0) li.classList.add("toc-hidden"); });
+    if (first) first.scrollIntoView({ block: "center", behavior: "smooth" });
+  }
+  var t;
+  input.addEventListener("input", function(){ clearTimeout(t); t = setTimeout(function(){ doSearch(input.value.trim()); }, 180); });
+  input.addEventListener("keydown", function(e){ if (e.key === "Escape") { input.value = ""; doSearch(""); input.blur(); } });
+})();</script>
+</body>
+</html>

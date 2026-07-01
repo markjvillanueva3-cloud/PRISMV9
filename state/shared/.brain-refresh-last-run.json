@@ -1,0 +1,64 @@
+{
+  "generatedAt": "2026-06-27T20:30:46.408Z",
+  "action": "ran",
+  "verdict": "failed",
+  "exitCode": 1,
+  "health": {
+    "daemon": false,
+    "generate": false,
+    "embeddings": false
+  },
+  "failedSteps": [
+    "vault-links"
+  ],
+  "steps": [
+    {
+      "id": "mem-index",
+      "status": "ok",
+      "exit": 0,
+      "ms": 7521
+    },
+    {
+      "id": "mem-embed",
+      "status": "deferred-ollama",
+      "exit": null,
+      "ms": null
+    },
+    {
+      "id": "galaxy-synth",
+      "status": "deferred-ollama",
+      "exit": null,
+      "ms": null
+    },
+    {
+      "id": "wiki-tribal",
+      "status": "deferred-ollama",
+      "exit": null,
+      "ms": null
+    },
+    {
+      "id": "vault-rot",
+      "status": "ok",
+      "exit": 0,
+      "ms": 7304
+    },
+    {
+      "id": "supersession",
+      "status": "ok",
+      "exit": 0,
+      "ms": 1600
+    },
+    {
+      "id": "vault-links",
+      "status": "failed",
+      "exit": 134,
+      "ms": 3866
+    },
+    {
+      "id": "vault-health",
+      "status": "ok",
+      "exit": 0,
+      "ms": 677
+    }
+  ]
+}

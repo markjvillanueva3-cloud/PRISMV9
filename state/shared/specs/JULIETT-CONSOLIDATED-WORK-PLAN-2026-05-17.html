@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="generator" content="SpecHTMLCompanionEngine">
+<meta name="prism-source-hash" content="52bf5cc8bc1be9b64807357cac8307d870ba3c1da91f9a665017f0ba06e49e76">
+<title>JULIETT CONSOLIDATED WORK PLAN — 2026-05-17</title>
+<style>
+:root, [data-theme="light"] {
+  --bg:#ffffff; --bg-soft:#f6f8fa; --bg-code:#f6f8fa; --fg:#1f2328; --fg-muted:#636c76;
+  --border:#d0d7de; --accent:#0969da; --accent-soft:#ddf4ff; --thead:#f6f8fa; --quote:#656d76;
+  --table-stripe:#f6f8fa;
+}
+[data-theme="dark"] {
+  --bg:#0d1117; --bg-soft:#161b22; --bg-code:#161b22; --fg:#e6edf3; --fg-muted:#8b949e;
+  --border:#30363d; --accent:#2f81f7; --accent-soft:#163356; --thead:#161b22; --quote:#8b949e;
+  --table-stripe:#11151c;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg:#0d1117; --bg-soft:#161b22; --bg-code:#161b22; --fg:#e6edf3; --fg-muted:#8b949e;
+    --border:#30363d; --accent:#2f81f7; --accent-soft:#163356; --thead:#161b22; --quote:#8b949e;
+    --table-stripe:#11151c;
+  }
+}
+* { box-sizing:border-box; }
+html { scroll-behavior:smooth; }
+body { margin:0; background:var(--bg); color:var(--fg); font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif; line-height:1.6; font-size:16px; }
+.skip-link { position:absolute; left:-9999px; top:0; background:var(--accent); color:#fff; padding:8px 14px; z-index:100; border-radius:0 0 6px 0; }
+.skip-link:focus { left:0; }
+.layout { display:grid; grid-template-columns:minmax(0,1fr); max-width:1180px; margin:0 auto; padding:0 20px; }
+@media (min-width:1000px) { .layout { grid-template-columns:260px minmax(0,1fr); gap:40px; } }
+header.doc-head { grid-column:1 / -1; padding:28px 0 16px; border-bottom:1px solid var(--border); }
+header.doc-head h1.page-title { margin:0 0 6px; font-size:1.9rem; line-height:1.25; }
+header.doc-head .provenance { color:var(--fg-muted); font-size:.85rem; margin:0; }
+header.doc-head .theme-toggle { float:right; background:var(--bg-soft); color:var(--fg); border:1px solid var(--border); border-radius:6px; padding:5px 10px; font-size:.8rem; cursor:pointer; }
+nav.toc { align-self:start; position:sticky; top:16px; max-height:calc(100vh - 32px); overflow:auto; font-size:.85rem; padding:14px 0; }
+@media (max-width:999px) { nav.toc { position:static; max-height:none; border-bottom:1px solid var(--border); margin-bottom:12px; } }
+nav.toc .toc-title { font-weight:600; color:var(--fg-muted); text-transform:uppercase; letter-spacing:.04em; font-size:.7rem; margin-bottom:8px; }
+nav.toc ul { list-style:none; margin:0; padding:0; }
+nav.toc li a { color:var(--fg-muted); text-decoration:none; display:block; padding:3px 6px; border-left:2px solid transparent; border-radius:0 4px 4px 0; }
+nav.toc li a:hover { color:var(--accent); background:var(--accent-soft); border-left-color:var(--accent); }
+nav.toc li a.active { color:var(--accent); background:var(--accent-soft); border-left-color:var(--accent); font-weight:600; }
+nav.toc .toc-l2 a { padding-left:14px; } nav.toc .toc-l3 a { padding-left:26px; font-size:.95em; } nav.toc .toc-l4 a { padding-left:38px; font-size:.9em; }
+nav.toc input.toc-search { width:100%; box-sizing:border-box; margin:0 0 8px; padding:5px 8px; font-size:.82rem; border:1px solid var(--border); border-radius:5px; background:var(--bg); color:var(--fg); }
+nav.toc input.toc-search:focus { outline:2px solid var(--accent); outline-offset:-1px; }
+nav.toc .toc-search-status { font-size:.7rem; color:var(--fg-muted); min-height:1em; margin:-4px 0 6px; }
+nav.toc li.toc-hidden { display:none; }
+main.doc-body mark.search-hit { background:#fff3a3; color:#1f2328; border-radius:2px; padding:0 1px; }
+main.doc-body mark.search-hit.current { outline:2px solid var(--accent); outline-offset:1px; }
+main.doc-body { min-width:0; padding:24px 0 64px; }
+main.doc-body h1,main.doc-body h2,main.doc-body h3,main.doc-body h4,main.doc-body h5,main.doc-body h6 { line-height:1.3; margin-top:1.8em; margin-bottom:.6em; scroll-margin-top:16px; position:relative; }
+main.doc-body h1 { font-size:1.7rem; border-bottom:1px solid var(--border); padding-bottom:.3em; }
+main.doc-body h2 { font-size:1.4rem; border-bottom:1px solid var(--border); padding-bottom:.3em; }
+main.doc-body h3 { font-size:1.18rem; } main.doc-body h4 { font-size:1.02rem; }
+main.doc-body a.anchor { position:absolute; left:-1.1em; opacity:0; text-decoration:none; color:var(--fg-muted); font-weight:400; padding-right:.3em; }
+main.doc-body h1:hover a.anchor,main.doc-body h2:hover a.anchor,main.doc-body h3:hover a.anchor,main.doc-body h4:hover a.anchor { opacity:1; }
+main.doc-body a { color:var(--accent); text-decoration:none; } main.doc-body a:hover { text-decoration:underline; }
+main.doc-body p { margin:.8em 0; }
+main.doc-body code { background:var(--bg-code); border-radius:4px; padding:.15em .35em; font-size:.88em; font-family:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace; }
+main.doc-body pre { background:var(--bg-code); border:1px solid var(--border); border-radius:8px; padding:14px 16px; overflow:auto; line-height:1.45; }
+main.doc-body pre code { background:none; padding:0; font-size:.86rem; }
+main.doc-body blockquote { margin:1em 0; padding:.4em 1em; border-left:4px solid var(--border); color:var(--quote); }
+main.doc-body ul,main.doc-body ol { margin:.6em 0; padding-left:1.6em; }
+main.doc-body li { margin:.2em 0; }
+main.doc-body hr { border:0; border-top:1px solid var(--border); margin:2em 0; }
+main.doc-body .table-wrap { overflow-x:auto; margin:1em 0; }
+main.doc-body table { border-collapse:collapse; width:100%; font-size:.9rem; }
+main.doc-body th,main.doc-body td { border:1px solid var(--border); padding:6px 11px; text-align:left; vertical-align:top; }
+main.doc-body thead th { background:var(--thead); }
+main.doc-body tbody tr:nth-child(2n) { background:var(--table-stripe); }
+main.doc-body details.frontmatter { background:var(--bg-soft); border:1px solid var(--border); border-radius:8px; padding:6px 14px; margin:0 0 22px; }
+main.doc-body details.frontmatter summary { cursor:pointer; font-weight:600; color:var(--fg-muted); }
+main.doc-body details.frontmatter table { font-size:.82rem; }
+main.doc-body details.frontmatter th { width:1%; white-space:nowrap; background:transparent; color:var(--fg-muted); }
+main.doc-body .mermaid { background:var(--bg-soft); border:1px solid var(--border); border-radius:8px; padding:14px; margin:1em 0; text-align:center; overflow:auto; white-space:pre-wrap; }
+main.doc-body .truncation-notice { background:var(--accent-soft); border:1px solid var(--accent); border-radius:6px; padding:10px 14px; font-size:.9rem; }
+footer.doc-foot { grid-column:1 / -1; border-top:1px solid var(--border); margin-top:48px; padding:18px 0 40px; color:var(--fg-muted); font-size:.82rem; }
+footer.doc-foot code { background:var(--bg-code); border-radius:4px; padding:.12em .3em; }
+</style>
+</head>
+<body>
+<a class="skip-link" href="#content">Skip to content</a>
+<div class="layout">
+<header class="doc-head">
+<button id="themeToggle" class="theme-toggle" type="button" aria-label="Toggle color theme">◐ theme</button>
+<h1 class="page-title" id="top">JULIETT CONSOLIDATED WORK PLAN — 2026-05-17</h1>
+<p class="provenance">Generated 2026-05-18T17:34:20.581Z by <code>scripts/emit-all-spec-html.ts</code> · the Markdown alongside is canonical</p>
+</header>
+<nav class="toc" aria-label="Table of contents"><div class="toc-title">On this page</div><input type="search" class="toc-search" placeholder="Search this page…" aria-label="Search this page" autocomplete="off"><div class="toc-search-status" aria-live="polite"></div><ul>
+<li class="toc-l1"><a href="#juliett-consolidated-work-plan-2026-05-17">JULIETT CONSOLIDATED WORK PLAN — 2026-05-17</a></li>
+<li class="toc-l2"><a href="#constraints-applied-user-directives-hard-filters">CONSTRAINTS APPLIED (user directives, hard filters)</a></li>
+<li class="toc-l2"><a href="#executive-summary">EXECUTIVE SUMMARY</a></li>
+<li class="toc-l2"><a href="#15-categories-assigned-items-sequenced-by-compounding-roi">15 CATEGORIES + ASSIGNED ITEMS (sequenced by compounding ROI)</a></li>
+<li class="toc-l3"><a href="#category-1-backend-dev-tools-rtklspgsdtdd">Category 1 — backend-dev-tools + RTK/LSP/GSD/TDD</a></li>
+<li class="toc-l3"><a href="#category-2-neural-net-gnn">Category 2 — neural-net + GNN</a></li>
+<li class="toc-l3"><a href="#category-3-tribal-knowledge-auto-memory-gen-wiki-injection">Category 3 — tribal-knowledge + auto-memory-gen + wiki-injection</a></li>
+<li class="toc-l3"><a href="#category-4-prism-awareness-system-viz-obsidian-2nd-brain">Category 4 — prism-awareness + system-viz + obsidian 2nd brain</a></li>
+<li class="toc-l3"><a href="#category-5-skills-scripts-hooks-auto-trigger-orphan-rescue">Category 5 — skills + scripts + hooks (auto-trigger / orphan-rescue)</a></li>
+<li class="toc-l3"><a href="#category-6-token-saving-compression-prompt-injection">Category 6 — token-saving + compression + prompt-injection</a></li>
+<li class="toc-l3"><a href="#category-7-hermes-docker-ollama">Category 7 — hermes + docker + ollama</a></li>
+<li class="toc-l3"><a href="#category-8-roadmap-consolidation-ms1">Category 8 — roadmap-consolidation MS1+</a></li>
+<li class="toc-l3"><a href="#category-9-bridge-layer-26-wiring-16-deep-integration">Category 9 — bridge layer (26 wiring + 16 deep-integration)</a></li>
+<li class="toc-l3"><a href="#category-10-todays-chat-unfinished-work">Category 10 — today&#39;s-chat unfinished work</a></li>
+<li class="toc-l3"><a href="#category-11-doc-currency-obsolescence-the-15th-meta-layer">Category 11 — doc-currency + obsolescence (THE 15th — META layer)</a></li>
+<li class="toc-l2"><a href="#per-slot-assignment-matrix-excluding-golf">PER-SLOT ASSIGNMENT MATRIX (excluding golf)</a></li>
+<li class="toc-l2"><a href="#dependencies-sequencing-notes">DEPENDENCIES + SEQUENCING NOTES</a></li>
+<li class="toc-l2"><a href="#refresh-self-schedule">REFRESH + SELF-SCHEDULE</a></li>
+<li class="toc-l2"><a href="#boris-peer-review">BORIS PEER-REVIEW</a></li>
+<li class="toc-l2"><a href="#verification-channels-re-runnable">VERIFICATION CHANNELS (re-runnable)</a></li>
+<li class="toc-l2"><a href="#sources">SOURCES</a></li>
+</ul></nav>
+<main id="content" class="doc-body" role="main">
+<h1 id="juliett-consolidated-work-plan-2026-05-17"><a class="anchor" href="#juliett-consolidated-work-plan-2026-05-17" aria-label="Permalink to JULIETT CONSOLIDATED WORK PLAN — 2026-05-17">#</a>JULIETT CONSOLIDATED WORK PLAN — 2026-05-17</h1>
+<blockquote>
+<p>Generated 2026-05-17T03:30Z · slot juliett (<code>claude-de04081e</code>) · <code>/forge7</code> doctrine Source: 11-agent parallel system-viz recon (scout #1..#11) + ROADMAP-CONSOLIDATED + MISC-TASKS + BUILD_STATE + MILESTONE_PROGRESS + today&#39;s chat audit + CLAUDE.md regressions ledger <strong>Advisory — human-verify before dispatch.</strong> Every line cites a verification channel; no claim without a re-runnable proof.</p>
+</blockquote>
+<hr>
+<h2 id="constraints-applied-user-directives-hard-filters"><a class="anchor" href="#constraints-applied-user-directives-hard-filters" aria-label="Permalink to CONSTRAINTS APPLIED (user directives, hard filters)">#</a>CONSTRAINTS APPLIED (user directives, hard filters)</h2>
+<div class="table-wrap"><table>
+<thead><tr><th>Filter</th><th>Effect</th></tr></thead>
+<tbody>
+<tr><td>BACKEND-DEV ONLY</td><td>Excludes PRISM-app features (CAM strategy UI, operator-facing G-code, lathe-shop dashboards). Backend = tooling that makes development itself faster/safer/cheaper.</td></tr>
+<tr><td>PRIORITIZE already-built-but-inactive/unwired</td><td>Wiring + activation &gt; new builds. ~70% of P0/P1 items below are wire-existing, not write-new.</td></tr>
+<tr><td>NO golf in slot assignment</td><td>Golf reserved for fleet-reaper + system perf monitoring per operator directive.</td></tr>
+<tr><td>Respect in-flight peer claims</td><td>F2-R1 owned by <code>claude-773c6214</code>, error-learn wiring HOLDING on charlie&#39;s <code>feedback_dont_wire_for_wiring_sake</code> doctrine.</td></tr>
+</tbody>
+</table></div>
+<hr>
+<h2 id="executive-summary"><a class="anchor" href="#executive-summary" aria-label="Permalink to EXECUTIVE SUMMARY">#</a>EXECUTIVE SUMMARY</h2>
+<p><strong>Headline numbers</strong> (from scout returns + live state):</p>
+<ul>
+<li><strong>15 categories</strong> covering the user&#39;s full axis list (added doc-currency + obsolescence as the 15th per mid-session directive).</li>
+<li><strong>~80 actionable items</strong> total after filters (vs the 5826-item raw ROADMAP-CONSOLIDATED inventory).</li>
+<li><strong>~55 items are wire-existing / activate-inactive</strong> (the bulk of the work; minimal new LOC).</li>
+<li><strong>~25 items are new backend-dev builds</strong> (META scripts, automation hooks, MS1 envelopes).</li>
+<li><strong>12 chat slots receive assignments</strong>; golf is exempt.</li>
+<li><strong>One META fix dominates everything</strong>: B1 <code>doc-backflow-watch.mjs</code> Stop hook prevents the entire class of regressions we keep eating (wiring revert, doc drift, named-not-invoked).</li>
+</ul>
+<p><strong>Headline P0 alerts</strong> (every chat should see, dispatch first):</p>
+<ol>
+<li>🔴 <strong>Docker engine DOWN</strong> this session — 5 services blocked (postgres, prism-server, prometheus, ollama, qdrant). &quot;Missing: docker&quot; auto-injects into every chat.</li>
+<li>🔴 <strong>MEMORY.md @ 97.68%</strong> of 24,576 B truncation ceiling — <code>stop-memory-size-watchdog.mjs</code> wired today by U-OBS-B1 but compression itself is one-shot. Re-growth coming.</li>
+<li>🔴 <strong>Utilization classifier degenerate</strong> — <code>AWARENESS-SNAPSHOT.md</code> reports 0 orphans across 372K-node graph (impossibly false). Every chat is misprioritizing pickup decisions.</li>
+<li>🟠 <strong>353 orphan hooks</strong> (61.9% of hooks-on-disk are dead code) + 6 dangling settings refs + 5 documented-not-wired error-learn hooks.</li>
+<li>🟠 <strong>Ollama offload stuck</strong> at 22.2% vs 30% target — R1 fix shipped today by <code>claude-773c6214</code>; R2/R4/R5 remaining.</li>
+<li>🟠 <strong>30 drifted milestones</strong> (<code>audit-roadmap-drift.mjs</code> output, mostly BP-MS0 + LATHE-PRO-MS* family).</li>
+<li>🟠 <strong>Bridge layer is 96% noise risk</strong> — validate-unwired-signal.mjs needs re-run BEFORE any chat dispatches wiring work on the 836-engine pool.</li>
+</ol>
+<hr>
+<h2 id="15-categories-assigned-items-sequenced-by-compounding-roi"><a class="anchor" href="#15-categories-assigned-items-sequenced-by-compounding-roi" aria-label="Permalink to 15 CATEGORIES + ASSIGNED ITEMS (sequenced by compounding ROI)">#</a>15 CATEGORIES + ASSIGNED ITEMS (sequenced by compounding ROI)</h2>
+<h3 id="category-1-backend-dev-tools-rtklspgsdtdd"><a class="anchor" href="#category-1-backend-dev-tools-rtklspgsdtdd" aria-label="Permalink to Category 1 — backend-dev-tools + RTK/LSP/GSD/TDD">#</a>Category 1 — backend-dev-tools + RTK/LSP/GSD/TDD</h3>
+<div class="table-wrap"><table>
+<thead><tr><th>ID</th><th>Title</th><th>Status</th><th>Slot</th><th>ROI</th><th>Verify</th></tr></thead>
+<tbody>
+<tr><td>U-DEV-TOOL-LEVERAGE-SKILL</td><td>Wire <code>/dev-tool-leverage</code> skill (runbook aggregator for 4 META tools)</td><td>BUILT, needs dispatcher wiring</td><td>foxtrot</td><td>4.2</td><td><code>grep dev-tool-leverage .claude/commands/*.md</code></td></tr>
+<tr><td>U-HOOK-FIRE-RANK</td><td>Wire empirical hook fire-rate ranker</td><td>BUILT, needs operator-visibility wiring</td><td>foxtrot</td><td>3.8</td><td><code>node scripts/hook-fire-rank.mjs --json</code> returns ranked list</td></tr>
+<tr><td>U-DEV-TOOL-LEVERAGE-RANK</td><td>Wire 4-META-tool aggregator</td><td>BUILT, needs skill registration</td><td>foxtrot</td><td>3.5</td><td>skill triggers ledger contains entry</td></tr>
+<tr><td>U-STALE-MILESTONE-RANK</td><td>Wire stale-milestone-rank.mjs to operator surface</td><td>BUILT (F2 audit), needs scheduled invoke</td><td>echo</td><td>3.0</td><td>runs in Stop or <code>/loop</code></td></tr>
+<tr><td>U-P4-RTK-AUTO-WRAP</td><td>RTK close-out — doc sync + hook cascade activation</td><td>BUILT, needs doc sync only</td><td>bravo</td><td>2.5</td><td>rtk-auto-suggest fires on first bash</td></tr>
+</tbody>
+</table></div>
+<h3 id="category-2-neural-net-gnn"><a class="anchor" href="#category-2-neural-net-gnn" aria-label="Permalink to Category 2 — neural-net + GNN">#</a>Category 2 — neural-net + GNN</h3>
+<div class="table-wrap"><table>
+<thead><tr><th>ID</th><th>Title</th><th>Status</th><th>Slot</th><th>ROI</th><th>Verify</th></tr></thead>
+<tbody>
+<tr><td>U-INTENT-WIRE</td><td>Wrap IntentClassifierEngine in <code>prism_session:classify_intent</code> action</td><td>BUILT (WIRE-EXEMPT, tests-only)</td><td>hotel</td><td>1.8</td><td><code>prism_session:classify_intent</code> works</td></tr>
+<tr><td>U-NEG-SAMPLE-STRATIFIED</td><td>Layer-stratified negative sampling — unblocks NN-GRAPH-MS0 tier-5 deploy</td><td>new build (1-2 days)</td><td>alpha</td><td>3.2</td><td>AUROC &gt; 0.5</td></tr>
+<tr><td>U-CONSENSUS-RECALL-ACTIVATE</td><td>Activate ConsensusRecallCacheEngine in response callback chain</td><td>BUILT but passive</td><td>lima</td><td>1.5</td><td>identical-prompt fan-out short-circuits</td></tr>
+<tr><td>U-NN-GRAPH-DEPLOY (DEFER)</td><td>Deploy GraphSAGE tier-5 GNN gate</td><td>BUILT + COMMITTED but data-blocked (poolSize 0)</td><td>alpha</td><td>DEFERRED until U-NEG-SAMPLE-STRATIFIED unblocks</td><td>data side</td></tr>
+</tbody>
+</table></div>
+<h3 id="category-3-tribal-knowledge-auto-memory-gen-wiki-injection"><a class="anchor" href="#category-3-tribal-knowledge-auto-memory-gen-wiki-injection" aria-label="Permalink to Category 3 — tribal-knowledge + auto-memory-gen + wiki-injection">#</a>Category 3 — tribal-knowledge + auto-memory-gen + wiki-injection</h3>
+<div class="table-wrap"><table>
+<thead><tr><th>ID</th><th>Title</th><th>Status</th><th>Slot</th><th>ROI</th><th>Verify</th></tr></thead>
+<tbody>
+<tr><td>U-TRIBAL-EMBED-SYMLINK</td><td>Re-symlink <code>mcp-server/data/tribal-embed-index.json</code> → <code>state/shared/</code> (currently 0-byte)</td><td>BUILT, broken symlink</td><td>delta</td><td>5.0</td><td><code>wc -c state/shared/tribal-embed-index.json</code> &gt; 0</td></tr>
+<tr><td>U-MEMORY-RELEVANCE-FIX</td><td>Fix MEMORY_DIR path derivation in memory-relevance-inject.mjs (0% fleet recall)</td><td>BUILT, broken path</td><td>bravo</td><td>4.5</td><td>recall test surfaces ≥1 memory hit</td></tr>
+<tr><td>U-WIKI-BOOTSTRAP-RUN</td><td>Run wiki bootstrap to refresh confidence scores (currently generic 0.7)</td><td>script exists</td><td>charlie</td><td>2.0</td><td>wiki/index.md re-emitted with varied confidences</td></tr>
+<tr><td>U-TRIBAL-CONSOLIDATE-CRON</td><td>Wire tribal-consolidate-weekly.mjs to cron (already exists, never scheduled)</td><td>BUILT, unwired</td><td>india</td><td>2.5</td><td>cron entry created</td></tr>
+<tr><td>U-MEMORY-CONSOLIDATION-WIRE</td><td>Wire MemoryConsolidationEngine to dispatcher</td><td>BUILT, no consumer</td><td>charlie</td><td>2.0</td><td>dispatcher action invokes engine</td></tr>
+<tr><td>U-MEMORY-GRAPH-WIRE</td><td>Wire MemoryGraphEngine to dispatcher</td><td>BUILT, no consumer</td><td>charlie</td><td>2.0</td><td>dispatcher action invokes engine</td></tr>
+<tr><td>U-TRIBAL-ENGINE-WIRE</td><td>Wire TribalKnowledgeEngine (referenced only in validation rule)</td><td>BUILT, no invoker</td><td>delta</td><td>2.0</td><td>dispatcher action invokes</td></tr>
+</tbody>
+</table></div>
+<h3 id="category-4-prism-awareness-system-viz-obsidian-2nd-brain"><a class="anchor" href="#category-4-prism-awareness-system-viz-obsidian-2nd-brain" aria-label="Permalink to Category 4 — prism-awareness + system-viz + obsidian 2nd brain">#</a>Category 4 — prism-awareness + system-viz + obsidian 2nd brain</h3>
+<div class="table-wrap"><table>
+<thead><tr><th>ID</th><th>Title</th><th>Status</th><th>Slot</th><th>ROI</th><th>Verify</th></tr></thead>
+<tbody>
+<tr><td>U-UTIL-CLASSIFIER-FIX</td><td>Fix utilization classifier (drop binary doc-edge rule, use degree percentile + has-source-file)</td><td>broken in <code>augment-graph-with-awareness.mjs</code></td><td>alpha</td><td>9.0</td><td><code>node scripts/node-staleness-rank.mjs --json | jq &#39;.utilization.orphan&#39;</code> &gt; 0</td></tr>
+<tr><td>U-DRIFT-GATE-VERIFY</td><td>Verify drift-gate-only mode <code>regen-viz.mjs --drift-gate-only</code> gates CI cleanly</td><td>shipped, needs verification</td><td>alpha</td><td>2.0</td><td>drift gate fires once on stale graph</td></tr>
+<tr><td>U-DSL-COVERAGE-AUDIT</td><td>Cross-check DSL reverse-lookup coverage (audit dead DSL codes in CODE_SYSTEM_INDEX)</td><td>shipped, needs audit</td><td>alpha</td><td>1.5</td><td>dead-code count documented</td></tr>
+<tr><td>U-OBSIDIAN-VAULT-AUDIT</td><td>Stale wiki audit — scan knowledge/wiki/ for ≥30-day-old entries without recent edits</td><td>n/a</td><td>charlie</td><td>1.5</td><td>candidate list produced</td></tr>
+<tr><td>U-MASTER-INDEX-CACHE-STRESS</td><td>Validate master-index mtime-cache invalidates on regen-viz</td><td>n/a</td><td>echo</td><td>1.5</td><td>concurrent regen + search returns fresh results</td></tr>
+</tbody>
+</table></div>
+<h3 id="category-5-skills-scripts-hooks-auto-trigger-orphan-rescue"><a class="anchor" href="#category-5-skills-scripts-hooks-auto-trigger-orphan-rescue" aria-label="Permalink to Category 5 — skills + scripts + hooks (auto-trigger / orphan-rescue)">#</a>Category 5 — skills + scripts + hooks (auto-trigger / orphan-rescue)</h3>
+<div class="table-wrap"><table>
+<thead><tr><th>ID</th><th>Title</th><th>Status</th><th>Slot</th><th>ROI</th><th>Verify</th></tr></thead>
+<tbody>
+<tr><td>U-ORPHAN-HOOK-TRIAGE</td><td>Triage 353 orphan hooks: classify legit-helper vs dead-code vs misplaced</td><td>scout #5 found</td><td>mike</td><td>6.5</td><td>orphan count reduces measurably</td></tr>
+<tr><td>U-DANGLING-REFS-REMOVE</td><td>Remove 6 dangling settings refs (C1a-f: context-economy-v2, context-pressure-tracker, posttooluse-compressor, read-optimizer, rtk-reminder, test-run-gate)</td><td>scout #5 + #11</td><td>mike</td><td>4.0</td><td><code>harness-wiring-audit</code> dangling count = 0</td></tr>
+<tr><td>U-BUNDLE-CHILD-FIX</td><td>Fix <code>posttool-edit-bundle.mjs:46-47</code> refs to <code>${HOOK_BASE}/build-cache-manager.mjs</code> + <code>${HOOK_BASE}/build-tracker.mjs</code> (both live in helpers/)</td><td>scout #5 + #11 (C2)</td><td>kilo</td><td>3.5</td><td>runtime smoke test</td></tr>
+<tr><td>U-AAM04-FOLLOWUP</td><td>AAM04 hook-wiring auditor scope-aware parser (separate scopeMismatch diagnostic)</td><td>follow-up from CLAUDE.md regression</td><td>kilo</td><td>3.0</td><td>scope-mismatch surfaces as separate severity</td></tr>
+<tr><td>U-ERROR-LEARN-5-WIRE (HOLD)</td><td>Wire 5 unwired error-learn hooks (capture/learner/memory/block-capture/block-prewarn)</td><td>BUILT, unwired</td><td>kilo (HOLD pending doctrine)</td><td>5.0 (if shipped)</td><td>wait on charlie&#39;s <code>feedback_dont_wire_for_wiring_sake_2026_05_16.md</code></td></tr>
+</tbody>
+</table></div>
+<h3 id="category-6-token-saving-compression-prompt-injection"><a class="anchor" href="#category-6-token-saving-compression-prompt-injection" aria-label="Permalink to Category 6 — token-saving + compression + prompt-injection">#</a>Category 6 — token-saving + compression + prompt-injection</h3>
+<div class="table-wrap"><table>
+<thead><tr><th>ID</th><th>Title</th><th>Status</th><th>Slot</th><th>ROI</th><th>Verify</th></tr></thead>
+<tbody>
+<tr><td>U-F2-R2</td><td>Lower INJECT_THRESHOLD 0.90→0.80 in ollama-task-offloader.mjs:56</td><td>pending</td><td>foxtrot</td><td>4.0</td><td>offload rate climbs</td></tr>
+<tr><td>U-F2-R4</td><td>Rate-limit 5min→60s in ollama-task-offloader.mjs:54</td><td>pending</td><td>foxtrot</td><td>3.5</td><td>burst /loop sessions clear more</td></tr>
+<tr><td>U-F2-R5</td><td>Auto-execute Ollama for {summary, format_convert, prism_inventory, prism_introspect, classification} in offloader.mjs:441</td><td>pending</td><td>foxtrot</td><td>5.0</td><td>offload rate ≥ 0.30</td></tr>
+<tr><td>U-F1-SPLIT</td><td>Static/dynamic split in 3 UserPromptSubmit injectors (master-index-precheck-inject, prompt-context-inject, ollama-pipeline-injector)</td><td>pending</td><td>foxtrot</td><td>4.5 (uncalibrated until F6)</td><td>total_est_tokens drops</td></tr>
+<tr><td>U-F6-CONTEXT-AUDIT</td><td>Build context-utilization-audit.mjs (Stop advisory, measures inject-blocks-never-referenced)</td><td>new build</td><td>echo</td><td>4.0</td><td>emits wasted_inject_pct</td></tr>
+<tr><td>U-F4-MODEL-ROUTER</td><td>Build agent-model-router.mjs (Sonnet for reviewers, Haiku for analyzer, Opus for synthesis)</td><td>new build</td><td>bravo</td><td>6.0 (multiplicative on 13-chat fleet)</td><td>model overrides present in spawn calls</td></tr>
+<tr><td>U-F3-LAZY-SKILLS (OPEN-Q)</td><td>PRISM_SKILL_LAZY_BODY mode for skill-auto-trigger.mjs</td><td>open question; needs transcript probe</td><td>bravo</td><td>OPEN</td><td>probe built</td></tr>
+<tr><td>U-F5-BETA-HEADERS (OPEN-Q)</td><td>verify-anthropic-beta-headers.mjs</td><td>open question</td><td>echo</td><td>OPEN</td><td>check script built</td></tr>
+</tbody>
+</table></div>
+<h3 id="category-7-hermes-docker-ollama"><a class="anchor" href="#category-7-hermes-docker-ollama" aria-label="Permalink to Category 7 — hermes + docker + ollama">#</a>Category 7 — hermes + docker + ollama</h3>
+<div class="table-wrap"><table>
+<thead><tr><th>ID</th><th>Title</th><th>Status</th><th>Slot</th><th>ROI</th><th>Verify</th></tr></thead>
+<tbody>
+<tr><td>U-DOCKER-RECOVERY</td><td>Docker recovery hook + /checkin alert (Docker DOWN this session, blocking 5 services)</td><td>new build</td><td>foxtrot</td><td>9.0 (P0)</td><td>docker engine reachable; ollama-docker-launcher autostart succeeds</td></tr>
+<tr><td>U-OLLAMA-CLASSIFIER-DIAG</td><td>Diagnose + rebuild OFFLOADABLE_PATTERNS (offloader broken, 0% successful offloads)</td><td>broken</td><td>foxtrot</td><td>7.5</td><td>offloader produces decision=offload events</td></tr>
+<tr><td>U-OLLAMA-13-WIRE</td><td>Wire 13 unwired Ollama hooks (route-recommender, skill-suggester, context-aggregator, obsidian-rag, etc.) after smoke tests</td><td>BUILT, 88% unwired</td><td>foxtrot</td><td>5.5</td><td>hooks fire in telemetry</td></tr>
+<tr><td>U-OLLAMA-COST-ROUTER-UNIFY</td><td>Integrate ollama-cost-router.mjs into ollama-auto-router (currently only offloader uses tier-aware)</td><td>partial</td><td>foxtrot</td><td>3.5</td><td>auto-router uses cost-router</td></tr>
+<tr><td>U-OLLAMA-REVIEWER-WIRE (CARE)</td><td>Wire ollama-reviewer-second-opinion.mjs (T0 BLOCKER tier — careful smoke-test first)</td><td>BUILT, unwired</td><td>foxtrot</td><td>4.0 (high-risk)</td><td>smoke test passes</td></tr>
+</tbody>
+</table></div>
+<h3 id="category-8-roadmap-consolidation-ms1"><a class="anchor" href="#category-8-roadmap-consolidation-ms1" aria-label="Permalink to Category 8 — roadmap-consolidation MS1+">#</a>Category 8 — roadmap-consolidation MS1+</h3>
+<div class="table-wrap"><table>
+<thead><tr><th>ID</th><th>Title</th><th>Status</th><th>Slot</th><th>ROI</th><th>Verify</th></tr></thead>
+<tbody>
+<tr><td>U-MS1-ENVELOPE</td><td>Create <code>ROADMAP-CONSOLIDATION-MS1.json</code> envelope (formalizes lane, scopes refresh cadence + prose-to-envelope + drift fix + misc triage)</td><td>juliett owns</td><td>juliett</td><td>5.0</td><td>envelope file exists with units array</td></tr>
+<tr><td>U-MS1-REFRESH-CRON</td><td>Refresh cadence script — wraps consolidate-roadmaps.mjs, delta-report, auto-commit-if-small, manual-approve-if-large</td><td>new build</td><td>juliett</td><td>4.5</td><td>cron entry + script runs</td></tr>
+<tr><td>U-PROSE-TO-ENVELOPE</td><td>Promote 969 unconsolidated REVENUE-ROADMAP-v7.6 units to envelope homes</td><td>distributed</td><td>lima + echo</td><td>4.0</td><td>promotion ledger emitted</td></tr>
+<tr><td>U-DRIFT-FIX</td><td>Reconcile 30 drifted milestones via /envelope-drift-fix</td><td>distributed</td><td>echo</td><td>3.5</td><td>drift count → 0</td></tr>
+<tr><td>U-MISC-TRIAGE</td><td>Triage 318 MISC-TASKS orphans (close / envelope / drop decisions)</td><td>distributed</td><td>mike</td><td>3.0</td><td>inventory flagged with decisions</td></tr>
+</tbody>
+</table></div>
+<h3 id="category-9-bridge-layer-26-wiring-16-deep-integration"><a class="anchor" href="#category-9-bridge-layer-26-wiring-16-deep-integration" aria-label="Permalink to Category 9 — bridge layer (26 wiring + 16 deep-integration)">#</a>Category 9 — bridge layer (26 wiring + 16 deep-integration)</h3>
+<blockquote>
+<p><strong>HARD GATE:</strong> Re-run <code>node H:/prism/scripts/validate-unwired-signal.mjs</code> BEFORE any chat dispatches wiring work. The 2026-05-15 baseline showed only 3 truly-unwired in a 50-engine sample (96% false-positive). The 836 estimate is domain-grouped, not classifier-validated. Without fresh numbers, chats waste hours wiring noise.</p>
+</blockquote>
+<div class="table-wrap"><table>
+<thead><tr><th>ID</th><th>Title</th><th>Status</th><th>Slot</th><th>Note</th></tr></thead>
+<tbody>
+<tr><td>U-BRIDGE-VALIDATE-RERUN</td><td>Re-run validate-unwired-signal.mjs, publish fresh false-positive %</td><td>gate</td><td>alpha</td><td>run before any wiring</td></tr>
+<tr><td>U-BRIDGE-PRISM-APP-FILTER</td><td>Filter Lathe (89) + Mobile (5) + Print (6) — likely PRISM-app contamination; backend-only assessment per engine</td><td>gate</td><td>alpha + mike</td><td>filter before wire</td></tr>
+</tbody>
+</table></div>
+<p><strong>Wiring units</strong> (verify count after gate; deploy in parallel across slots):</p>
+<div class="table-wrap"><table>
+<thead><tr><th>Domain</th><th>Engines</th><th>Slot</th><th>Status</th></tr></thead>
+<tbody>
+<tr><td>Other</td><td>144</td><td>alpha</td><td>post-gate</td></tr>
+<tr><td>Multi</td><td>10</td><td>alpha</td><td>post-gate</td></tr>
+<tr><td>Process</td><td>6</td><td>alpha</td><td>post-gate</td></tr>
+<tr><td>Speed</td><td>4</td><td>alpha</td><td>post-gate (SFC dep)</td></tr>
+<tr><td>Tribal</td><td>4</td><td>delta</td><td>post-gate</td></tr>
+<tr><td>Outcome</td><td>8</td><td>delta</td><td>post-gate</td></tr>
+<tr><td>Consensus</td><td>6</td><td>delta</td><td>post-gate</td></tr>
+<tr><td>Turning</td><td>11</td><td>foxtrot</td><td>post-gate</td></tr>
+<tr><td>Swiss</td><td>6</td><td>foxtrot</td><td>post-gate</td></tr>
+<tr><td>Shop</td><td>9</td><td>foxtrot</td><td>post-gate</td></tr>
+<tr><td>Fusion</td><td>7</td><td>hotel</td><td>post-gate</td></tr>
+<tr><td>Hyper</td><td>7</td><td>lima</td><td>post-gate</td></tr>
+<tr><td>Milling</td><td>7</td><td>lima</td><td>post-gate</td></tr>
+<tr><td>Mill</td><td>4</td><td>lima</td><td>post-gate</td></tr>
+<tr><td>Mastercam</td><td>5</td><td>lima</td><td>post-gate</td></tr>
+<tr><td>WET</td><td>7</td><td>lima</td><td>post-gate</td></tr>
+<tr><td>Wire</td><td>6</td><td>lima</td><td>post-gate</td></tr>
+<tr><td>Electrode</td><td>4</td><td>lima</td><td>post-gate</td></tr>
+<tr><td>Okuma</td><td>4</td><td>lima</td><td>post-gate</td></tr>
+<tr><td>Machine</td><td>17</td><td>lima</td><td>post-gate</td></tr>
+<tr><td>Tool</td><td>9</td><td>lima</td><td>post-gate</td></tr>
+<tr><td>Five</td><td>9</td><td>alpha</td><td>post-gate</td></tr>
+<tr><td>LongTail</td><td>442</td><td>BATCH-PARALLEL (all slots, 1-3 per batch)</td><td>post-gate</td></tr>
+<tr><td>Lathe (89), Mobile (5), Print (6)</td><td>100</td><td>HOLD</td><td>PRISM-app filter pending</td></tr>
+</tbody>
+</table></div>
+<p><strong>Deep-integration bridges</strong> (16 — each cross-subsystem, highest value, blocker-checked):</p>
+<div class="table-wrap"><table>
+<thead><tr><th>ID</th><th>From → To</th><th>Slot</th><th>Blocker check</th></tr></thead>
+<tbody>
+<tr><td>U-BRIDGE-SFC-FUSION</td><td>SFC → cam_fusion</td><td>hotel</td><td>SFC stable? Fusion CAM engine?</td></tr>
+<tr><td>U-BRIDGE-SFC-HYPERMILL</td><td>SFC → cam_hypermill</td><td>lima</td><td>SFC stable?</td></tr>
+<tr><td>U-BRIDGE-SFC-MASTERCAM</td><td>SFC → cam_mastercam</td><td>lima</td><td>—</td></tr>
+<tr><td>U-BRIDGE-SFC-ESPRIT</td><td>SFC → cam_esprit</td><td>hotel</td><td>Esprit bridge exists?</td></tr>
+<tr><td>U-BRIDGE-SFC-INVENTORHSM</td><td>SFC → cam_inventor_hsm</td><td>hotel</td><td>HSM bridge exists?</td></tr>
+<tr><td>U-BRIDGE-SFC-SOLIDWORKS</td><td>SFC → cam_solidworks</td><td>hotel</td><td>—</td></tr>
+<tr><td>U-BRIDGE-MASTERPOST-CAM</td><td>Master Post → 6 CAM bridges</td><td>lima</td><td>Master post unified?</td></tr>
+<tr><td>U-BRIDGE-CAD-CAM-HANDOFF</td><td>CAD-AI → CAM-AI</td><td>hotel + lima</td><td>CAD-gen + CAM-intake AI stable?</td></tr>
+<tr><td>U-BRIDGE-AI-TIER1-TIER2</td><td>Claude orch → FullSystemAICoordinator</td><td>alpha</td><td>Tier-2 defined?</td></tr>
+<tr><td>U-BRIDGE-AI-TIER2-TIER3</td><td>Tier-2 → 7 domain AIs</td><td>alpha</td><td>7 domain AIs exist?</td></tr>
+<tr><td>U-BRIDGE-SHOPFLOOR-LEARN</td><td>shop-floor / MTConnect → learning</td><td>NEW SLOT</td><td>MTConnect bridge live?</td></tr>
+<tr><td>U-BRIDGE-LEARN-SFC</td><td>learning → SFC params</td><td>foxtrot</td><td>SFC schema locked?</td></tr>
+<tr><td>U-BRIDGE-LEARN-CAM</td><td>learning → CAM strategy selectors</td><td>lima</td><td>strategy selector API stable?</td></tr>
+<tr><td>U-BRIDGE-ERP-SCHED</td><td>ERP → scheduling + capacity</td><td>NEW SLOT</td><td>ERP sync wired?</td></tr>
+<tr><td>U-BRIDGE-ERP-QUOTE</td><td>ERP → quoting + cost</td><td>NEW SLOT</td><td>cost engines wired?</td></tr>
+<tr><td>U-BRIDGE-OPERATOR-GATES</td><td>operator-approval → CAD/CAM/post pipelines</td><td>NEW SLOT</td><td>approval hook schema?</td></tr>
+</tbody>
+</table></div>
+<h3 id="category-10-todays-chat-unfinished-work"><a class="anchor" href="#category-10-todays-chat-unfinished-work" aria-label="Permalink to Category 10 — today&#39;s-chat unfinished work">#</a>Category 10 — today&#39;s-chat unfinished work</h3>
+<div class="table-wrap"><table>
+<thead><tr><th>ID</th><th>Title</th><th>Slot</th><th>Notes</th></tr></thead>
+<tbody>
+<tr><td>U-F2-META-RANK</td><td>Build stale-milestone-rank.mjs (150 LOC)</td><td>foxtrot</td><td>from AUDIT-DEV-TOOLS F2</td></tr>
+<tr><td>U-F3-HOOK-PROFILER</td><td>Build hook-overhead-profiler.mjs (120 LOC)</td><td>foxtrot</td><td>from AUDIT-DEV-TOOLS F3</td></tr>
+<tr><td>U-F3-UNWIRED-RANK</td><td>Build unwired-engine-leverage-rank.mjs (180 LOC)</td><td>foxtrot</td><td>from F3</td></tr>
+<tr><td>U-F3-COLD-SCRIPT-RANK</td><td>Build cold-script-rank.mjs (100 LOC)</td><td>foxtrot</td><td>from F3</td></tr>
+<tr><td>U-F3-DEV-TOOL-LEVERAGE-RANK</td><td>Build dev-tool-leverage-rank.mjs (200 LOC)</td><td>foxtrot</td><td>from F3 (already shipped 37feea659a — verify before re-build)</td></tr>
+<tr><td>U-MEMORY-WATCH-WIRE</td><td>Wire memory-size-watch.mjs to /loop --interval 1d (script + Stop hook both shipped; loop binding missing)</td><td>bravo</td><td>A1 + F-MEMORY-WATCH-WIRE</td></tr>
+<tr><td>U-SYNERGY-WATCH-WIRE</td><td>Wire synergy-regression-watch.mjs to /loop --interval 1d</td><td>foxtrot</td><td>A1 sibling</td></tr>
+<tr><td>U-STOP-FORCE-LOOP-1LINE</td><td><code>stop-force-loop-continue.mjs:174</code> → &quot;active&quot; → &quot;running&quot;</td><td>alpha</td><td>dead-code gate</td></tr>
+<tr><td>U-ENVELOPE-DRIFT-TRIAGE</td><td>Triage 12 dry-run envelope-drift advisories</td><td>mike</td><td>one per session, human-verify</td></tr>
+<tr><td>U-LOOP-ABANDONED-PICKUP</td><td>3 abandoned /loop sessions (bravo BLUEPRINT-OCR-TRAINING 6/8, hotel D2 ontology, alpha B4 weekly-synthesis) — resume / archive / triage</td><td>distributed</td><td>operator decision</td></tr>
+</tbody>
+</table></div>
+<h3 id="category-11-doc-currency-obsolescence-the-15th-meta-layer"><a class="anchor" href="#category-11-doc-currency-obsolescence-the-15th-meta-layer" aria-label="Permalink to Category 11 — doc-currency + obsolescence (THE 15th — META layer)">#</a>Category 11 — doc-currency + obsolescence (THE 15th — META layer)</h3>
+<blockquote>
+<p><strong>Highest-leverage META fix in the entire plan:</strong> B1 <code>doc-backflow-watch.mjs</code> Stop hook. Prevents the entire class of &quot;shipped without updating CLAUDE.md/MEMORY.md/wiki/skill-frontmatter&quot; regressions that have caused ≥8 of the recent regressions in CLAUDE.md ledger.</p>
+</blockquote>
+<div class="table-wrap"><table>
+<thead><tr><th>ID</th><th>Title</th><th>Slot</th><th>ROI</th><th>Why</th></tr></thead>
+<tbody>
+<tr><td>U-B1-DOC-BACKFLOW-WATCH</td><td>Stop hook — fail commit that touched engines/hooks/skills without updating ≥1 doc surface (CLAUDE.md, MEMORY.md index, wiki entry, skill frontmatter)</td><td>echo</td><td>9.0</td><td>prevents 80% of regression class</td></tr>
+<tr><td>U-B2-SKILL-TRIGGER-AUTO</td><td>Stop hook — re-scan .claude/commands/*.md frontmatters, rebuild <code>_skill-triggers.jsonl</code> post-build; fail if ledger diverges &gt;5 entries from reality</td><td>kilo</td><td>7.0</td><td>skill auto-trigger depends on accurate ledger</td></tr>
+<tr><td>U-B3-CLAUDE-MD-DRIFT</td><td>UserPromptSubmit hook — detect duplicated sections across global + project CLAUDE.md, emit advisory + suggest fold</td><td>echo</td><td>4.0</td><td>A3 collapse precondition</td></tr>
+<tr><td>U-B4-MEMORY-INDEX-VALIDATOR</td><td>Stop hook — parse MEMORY.md index entries, verify [[backlink]] files exist; fail if &gt;2 stale</td><td>bravo</td><td>5.0</td><td>catches deleted memory file orphans</td></tr>
+<tr><td>U-A3-CLAUDE-MD-COLLAPSE</td><td>Fold project H:/prism/CLAUDE.md §EXPERT ROLE, §ENFORCEMENT into pointer to global H:/.claude/CLAUDE.md</td><td>mike</td><td>4.0</td><td>stop the silent divergence</td></tr>
+<tr><td>U-A4-WIKI-BACKFLOW-WATCH</td><td>Wiki-index backflow detector (new entries audit against wiki/index.md)</td><td>echo</td><td>3.5</td><td>wiki query reliability</td></tr>
+<tr><td>U-A6-WIRING-AUDIT-STOP-GATE</td><td>Wire <code>harness-wiring-audit.mjs</code> to Stop[16] with exit non-zero on severity&gt;warn</td><td>kilo</td><td>5.0</td><td>prevents broken-wiring commits</td></tr>
+<tr><td>U-C1-DANGLING-REMOVE</td><td>Remove 6 dangling settings refs (see Category 5 — same ID)</td><td>mike</td><td>4.0</td><td>(duplicated for visibility)</td></tr>
+<tr><td>U-C7-INGEST-GATE</td><td>Gate <code>auto-ingested-tips.ts</code> ingestor behind quality threshold BEFORE re-publishing (title≥5 chars, body min-length, source validation) — else 326-file quarantine re-grows</td><td>mike</td><td>5.5</td><td>upstream noise prevention</td></tr>
+<tr><td>U-C9A-REGRESSIONS-ARCHIVE</td><td>Archive rule: after entry FIXED + verified for 2 days, move to REGRESSIONS_ARCHIVE_2026-05.md; keep ledger ≤10 live entries</td><td>echo</td><td>2.5</td><td>ledger clarity</td></tr>
+<tr><td>U-C9B-DIGEST-PARSER-FIX</td><td>Fix DISPATCHER_DIGEST parser to recognize <code>z.enum([...A, ...B] as const)</code> spread arrays (4 dispatchers show 0 actions when reality is 428/27/121/130)</td><td>kilo</td><td>4.5</td><td>every downstream audit consuming digest is mis-prioritizing</td></tr>
+</tbody>
+</table></div>
+<hr>
+<h2 id="per-slot-assignment-matrix-excluding-golf"><a class="anchor" href="#per-slot-assignment-matrix-excluding-golf" aria-label="Permalink to PER-SLOT ASSIGNMENT MATRIX (excluding golf)">#</a>PER-SLOT ASSIGNMENT MATRIX (excluding golf)</h2>
+<p>Each slot has its own pickup file at <code>state/shared/specs/SLOT-PICKUP-&lt;slot&gt;.md</code> with the ordered queue and verification commands. Summary below.</p>
+<div class="table-wrap"><table>
+<thead><tr><th>Slot</th><th>Items</th><th>Lane theme</th><th>P0 first move</th></tr></thead>
+<tbody>
+<tr><td><strong>alpha</strong></td><td>8</td><td>system-viz / orchestration / NN unblock</td><td><strong>U-UTIL-CLASSIFIER-FIX</strong> (P0, every chat is misprioritizing)</td></tr>
+<tr><td><strong>bravo</strong></td><td>6</td><td>memory / MEMORY.md / model-router / RTK / claude.md drift</td><td><strong>U-MEMORY-WATCH-WIRE</strong> (P0, durability for U-OBS-B1)</td></tr>
+<tr><td><strong>charlie</strong></td><td>4</td><td>obsidian / wiki bootstrap / memory engines</td><td>U-WIKI-BOOTSTRAP-RUN + U-MEMORY-CONSOLIDATION-WIRE</td></tr>
+<tr><td><strong>delta</strong></td><td>5</td><td>tribal / outcome / consensus</td><td><strong>U-TRIBAL-EMBED-SYMLINK</strong> (P0, 0-byte symlink)</td></tr>
+<tr><td><strong>echo</strong></td><td>8</td><td>audit / drift / doc-backflow / context-util</td><td><strong>U-B1-DOC-BACKFLOW-WATCH</strong> (the META)</td></tr>
+<tr><td><strong>foxtrot</strong></td><td>14</td><td>Ollama + Docker + dev-tools + META scripts</td><td><strong>U-DOCKER-RECOVERY</strong> (P0, Docker DOWN)</td></tr>
+<tr><td><strong>hotel</strong></td><td>7</td><td>CAD bridges (Fusion/Esprit/HSM/SW) + IntentClassifier wire</td><td>U-INTENT-WIRE (cheap activation)</td></tr>
+<tr><td><strong>india</strong></td><td>3</td><td>tribal-graph + 326-quarantine triage + course-data-router</td><td>continuation of in-flight</td></tr>
+<tr><td><strong>juliett</strong></td><td>4</td><td>THIS plan + ROADMAP-CONSOLIDATION-MS1 envelope + refresh cron + 24h re-audit</td><td>U-MS1-ENVELOPE next</td></tr>
+<tr><td><strong>kilo</strong></td><td>7</td><td>hook-wiring auditor / skill-triggers / dispatcher digest parser</td><td>U-BUNDLE-CHILD-FIX (P1, runtime ENOENT risk)</td></tr>
+<tr><td><strong>lima</strong></td><td>12</td><td>CAM bridges + Mill/Lathe/WEDM domain wiring + Master Post</td><td>post-gate (wait validate-unwired-signal re-run)</td></tr>
+<tr><td><strong>mike</strong></td><td>8</td><td>OBSOLESCENCE-CLEANUP-MS0 continuation + dangling-refs + MISC-tasks + CLAUDE.md fold</td><td><strong>U-DANGLING-REFS-REMOVE</strong> + U-C7-INGEST-GATE</td></tr>
+<tr><td><del>golf</del></td><td>EXCLUDED</td><td>fleet-reaper + perf monitoring only</td><td>n/a</td></tr>
+</tbody>
+</table></div>
+<hr>
+<h2 id="dependencies-sequencing-notes"><a class="anchor" href="#dependencies-sequencing-notes" aria-label="Permalink to DEPENDENCIES + SEQUENCING NOTES">#</a>DEPENDENCIES + SEQUENCING NOTES</h2>
+<p><strong>Strict prerequisites (must ship before downstream):</strong></p>
+<ul>
+<li><code>U-BRIDGE-VALIDATE-RERUN</code> blocks every Category-9 wiring item</li>
+<li><code>U-BRIDGE-PRISM-APP-FILTER</code> blocks Lathe (89) + Mobile (5) + Print (6) wiring</li>
+<li><code>U-NEG-SAMPLE-STRATIFIED</code> blocks <code>U-NN-GRAPH-DEPLOY</code></li>
+<li><code>U-F2-R5</code> should land before <code>U-OLLAMA-13-WIRE</code> (offload rate validates wiring correctness)</li>
+<li><code>U-F6-CONTEXT-AUDIT</code> is F1&#39;s calibration channel — F1 can ship without it but savings remain uncalibrated</li>
+<li><code>U-B1-DOC-BACKFLOW-WATCH</code> should land BEFORE the next ship-sprint — every commit after that is auto-verified</li>
+</ul>
+<p><strong>Held / in-flight conflicts:</strong></p>
+<ul>
+<li>F2-R1 — owned by <code>claude-773c6214</code> (3m old claim); foxtrot must wait or coordinate</li>
+<li>5 unwired error-learn hooks (<code>U-ERROR-LEARN-5-WIRE</code>) — HOLD pending charlie&#39;s <code>feedback_dont_wire_for_wiring_sake_2026_05_16.md</code> doctrine decision</li>
+</ul>
+<p><strong>New slots needed</strong> (3 deep-integration bridges have no obvious slot owner):</p>
+<ul>
+<li>shopfloor / MTConnect (U-BRIDGE-SHOPFLOOR-LEARN)</li>
+<li>ERP (U-BRIDGE-ERP-SCHED + U-BRIDGE-ERP-QUOTE)</li>
+<li>operator-gates (U-BRIDGE-OPERATOR-GATES)</li>
+</ul>
+<p>These could go to existing slots (alpha/lima/hotel) as secondary lanes, OR await a 13th-slot expansion / role assignment.</p>
+<hr>
+<h2 id="refresh-self-schedule"><a class="anchor" href="#refresh-self-schedule" aria-label="Permalink to REFRESH + SELF-SCHEDULE">#</a>REFRESH + SELF-SCHEDULE</h2>
+<p>This plan is a snapshot at 2026-05-17T03:30Z. It will drift:</p>
+<ul>
+<li>New commits land continuously across 13 chats</li>
+<li>Validate-unwired-signal re-run will change Category 9 sizing</li>
+<li>Charlie&#39;s doctrine decision will release / cancel the 5 error-learn wires</li>
+<li>Docker recovery + Ollama R5 will move offload telemetry</li>
+</ul>
+<p><strong>Recommended <code>/schedule</code> follow-up:</strong> re-run this plan generation in 24h (next juliett session, 2026-05-18T03:30Z) and diff. Items that completed → archive; new items from new commits → add; doctrine shifts → propagate.</p>
+<hr>
+<h2 id="boris-peer-review"><a class="anchor" href="#boris-peer-review" aria-label="Permalink to BORIS PEER-REVIEW">#</a>BORIS PEER-REVIEW</h2>
+<p>Per /forge7 doctrine: an independent reviewer agent (isolation:worktree) will audit this plan for:</p>
+<ul>
+<li>(a) PRISM-app contamination missed</li>
+<li>(b) Misclassified items</li>
+<li>(c) Wrong-slot assignments (e.g., load imbalance)</li>
+<li>(d) Missed already-built features</li>
+<li>(e) Un-acknowledged dependencies</li>
+<li>(f) ROI-rank obvious errors</li>
+</ul>
+<p>Findings → applied in v1.1 of this plan + back-flowed to CLAUDE.md if doctrine-level.</p>
+<hr>
+<h2 id="verification-channels-re-runnable"><a class="anchor" href="#verification-channels-re-runnable" aria-label="Permalink to VERIFICATION CHANNELS (re-runnable)">#</a>VERIFICATION CHANNELS (re-runnable)</h2>
+<p>Every claim in this plan carries a verify command. Spot-checks the operator can run right now:</p>
+<pre><code class="language-bash"># Headline alerts
+node H:/prism/scripts/memory-size-watch.mjs --json | jq &#39;.bytes,.pctOfCeiling,.status&#39;
+node H:/prism/scripts/ollama-offload-dashboard.mjs --json | jq &#39;.totals|(.offloaded/(.offloaded+.keptOnClaude))&#39;
+node H:/prism/scripts/node-staleness-rank.mjs --json | jq &#39;.utilization.orphan,.utilization.classifierDegenerate&#39;
+
+# Bridge gate
+node H:/prism/scripts/validate-unwired-signal.mjs
+
+# Wiring audit
+node H:/prism/scripts/harness-wiring-audit.mjs
+
+# Drift
+node H:/prism/scripts/audit-roadmap-drift.mjs
+
+# Per-slot pickup
+cat H:/prism/state/shared/specs/SLOT-PICKUP-&lt;your-slot&gt;.md
+</code></pre>
+<hr>
+<h2 id="sources"><a class="anchor" href="#sources" aria-label="Permalink to SOURCES">#</a>SOURCES</h2>
+<p>11 scout reports archived in chat transcript. Master inventory: <code>state/shared/specs/ROADMAP-CONSOLIDATED.{json,md,html}</code> (5826 items). Misc orphans: <code>state/shared/specs/MISC-TASKS-INVENTORY.json</code> (318). Milestone state: <code>state/shared/MILESTONE_PROGRESS.json</code>. Build state: <code>state/shared/BUILD_STATE.json</code>. Regressions: <code>H:/prism/CLAUDE.md</code> §Recent regressions. Skill triggers: <code>knowledge/wiki/architecture/_skill-triggers.jsonl</code>. Settings wiring: <code>C:/Users/wompu/.claude/settings.json</code> + <code>H:/.claude/settings.json</code>.</p>
+</main>
+<footer class="doc-foot">
+<p>HTML companion — the canonical document is the Markdown file alongside it. <a href="JULIETT-CONSOLIDATED-WORK-PLAN-2026-05-17.md">JULIETT-CONSOLIDATED-WORK-PLAN-2026-05-17.md</a> Regenerate: <code>node scripts/emit-spec-html.mjs &lt;path.md&gt;</code></p>
+
+</footer>
+</div>
+<script>(function(){
+  try {
+    var k = "prism-spec-theme";
+    var saved = localStorage.getItem(k);
+    if (saved === "dark" || saved === "light") document.documentElement.setAttribute("data-theme", saved);
+  } catch (e) { /* localStorage blocked — keep default theme */ }
+  var b = document.getElementById("themeToggle");
+  if (!b) return;
+  b.addEventListener("click", function () {
+    var cur = document.documentElement.getAttribute("data-theme");
+    var sysDark = !!(window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches);
+    var next = cur === "dark" ? "light" : cur === "light" ? "dark" : (sysDark ? "light" : "dark");
+    document.documentElement.setAttribute("data-theme", next);
+    b.textContent = next === "dark" ? "\u263E dark" : "\u2600 light";
+    try { localStorage.setItem(k, next); } catch (e) { /* persistence unavailable — non-fatal */ }
+  });
+})();</script>
+<script>(function(){
+  var body = document.querySelector("main.doc-body");
+  var toc = document.querySelector("nav.toc");
+  if (!body) return;
+  // TOC active-section highlight.
+  if (toc) {
+    var links = {};
+    toc.querySelectorAll("a[href^='#']").forEach(function(a){ links[a.getAttribute("href").slice(1)] = a; });
+    var heads = body.querySelectorAll("h1[id],h2[id],h3[id],h4[id]");
+    var active = null;
+    function setActive(id){
+      if (active === id) return;
+      if (active && links[active]) links[active].classList.remove("active");
+      active = id;
+      if (active && links[active]) links[active].classList.add("active");
+    }
+    var io = new IntersectionObserver(function(entries){
+      var top = null, topY = Infinity;
+      entries.forEach(function(e){ if (e.isIntersecting) { var y = e.boundingClientRect.top; if (y < topY) { topY = y; top = e.target.id; } } });
+      if (!top) {
+        var best = null;
+        heads.forEach(function(h){ if (h.getBoundingClientRect().top < 80) best = h.id; });
+        top = best || (heads[0] && heads[0].id);
+      }
+      if (top) setActive(top);
+    }, { rootMargin: "0px 0px -70% 0px", threshold: [0, 1] });
+    heads.forEach(function(h){ io.observe(h); });
+  }
+  // In-page search: wrap matches in <mark>, jump to first, filter the TOC.
+  var input = toc && toc.querySelector("input.toc-search");
+  var status = toc && toc.querySelector(".toc-search-status");
+  if (!input) return;
+  var SKIP = { SCRIPT:1, STYLE:1, MARK:1, NOSCRIPT:1 };
+  function clearMarks(){
+    body.querySelectorAll("mark.search-hit").forEach(function(m){ var p = m.parentNode; if (p) { p.replaceChild(document.createTextNode(m.textContent), m); p.normalize(); } });
+    if (toc) toc.querySelectorAll("li.toc-hidden").forEach(function(li){ li.classList.remove("toc-hidden"); });
+  }
+  function doSearch(q){
+    clearMarks();
+    if (status) status.textContent = "";
+    if (!q || q.length < 2) return;
+    var needle = q.toLowerCase(), hits = 0, first = null;
+    var walker = document.createTreeWalker(body, NodeFilter.SHOW_TEXT, { acceptNode: function(n){
+      if (!n.nodeValue || !n.nodeValue.trim()) return NodeFilter.FILTER_REJECT;
+      var p = n.parentNode; while (p && p !== body) { if (SKIP[p.nodeName]) return NodeFilter.FILTER_REJECT; p = p.parentNode; }
+      return n.nodeValue.toLowerCase().indexOf(needle) >= 0 ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT;
+    }});
+    var targets = [];
+    while (walker.nextNode()) targets.push(walker.currentNode);
+    targets.forEach(function(node){
+      if (hits > 2000) return;
+      var text = node.nodeValue, lower = text.toLowerCase(), frag = document.createDocumentFragment(), i = 0, idx;
+      while ((idx = lower.indexOf(needle, i)) >= 0 && hits <= 2000) {
+        if (idx > i) frag.appendChild(document.createTextNode(text.slice(i, idx)));
+        var m = document.createElement("mark"); m.className = "search-hit"; m.textContent = text.slice(idx, idx + needle.length);
+        if (hits === 0) { m.classList.add("current"); first = m; }
+        frag.appendChild(m); hits++; i = idx + needle.length;
+      }
+      if (i < text.length) frag.appendChild(document.createTextNode(text.slice(i)));
+      if (node.parentNode) node.parentNode.replaceChild(frag, node);
+    });
+    if (status) status.textContent = hits ? (hits + " match" + (hits === 1 ? "" : "es")) : "no matches";
+    if (toc) toc.querySelectorAll("li").forEach(function(li){ var a = li.querySelector("a"); if (a && a.textContent.toLowerCase().indexOf(needle) < 0) li.classList.add("toc-hidden"); });
+    if (first) first.scrollIntoView({ block: "center", behavior: "smooth" });
+  }
+  var t;
+  input.addEventListener("input", function(){ clearTimeout(t); t = setTimeout(function(){ doSearch(input.value.trim()); }, 180); });
+  input.addEventListener("keydown", function(e){ if (e.key === "Escape") { input.value = ""; doSearch(""); input.blur(); } });
+})();</script>
+</body>
+</html>

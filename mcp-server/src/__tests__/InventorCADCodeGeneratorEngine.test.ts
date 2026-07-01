@@ -243,7 +243,7 @@ describe("InventorCADCodeGeneratorEngine", () => {
 
     it("generates feature_loft between profiles", () => {
       const ops: CADOperation[] = [
-        { kind: "feature_loft", args: {} }
+        { kind: "feature_loft", args: { sections: [1, 2] } }
       ];
 
       const script = engine.buildScript(ops);
@@ -254,7 +254,7 @@ describe("InventorCADCodeGeneratorEngine", () => {
 
     it("generates feature_sweep along path", () => {
       const ops: CADOperation[] = [
-        { kind: "feature_sweep", args: {} }
+        { kind: "feature_sweep", args: { profile_sketch: 1, path_sketch: 2 } }
       ];
 
       const script = engine.buildScript(ops);
@@ -412,7 +412,7 @@ describe("InventorCADCodeGeneratorEngine", () => {
       const script = engine.buildScript(ops);
 
       expect(script.body.length).toBeGreaterThan(0);
-      expect(script.body).toContain("SaveAs");
+      expect(script.body).toContain("SaveCopyAs");
       expect(script.body).toContain("output.step");
     });
 
@@ -424,7 +424,7 @@ describe("InventorCADCodeGeneratorEngine", () => {
       const script = engine.buildScript(ops);
 
       expect(script.body.length).toBeGreaterThan(0);
-      expect(script.body).toContain("SaveAs");
+      expect(script.body).toContain("SaveCopyAs");
       expect(script.body).toContain("output.stl");
     });
 
@@ -436,7 +436,7 @@ describe("InventorCADCodeGeneratorEngine", () => {
       const script = engine.buildScript(ops);
 
       expect(script.body.length).toBeGreaterThan(0);
-      expect(script.body).toContain("SaveAs");
+      expect(script.body).toContain("SaveCopyAs");
       expect(script.body).toContain("output.dxf");
     });
 
@@ -480,7 +480,7 @@ describe("InventorCADCodeGeneratorEngine", () => {
 
     it("generates assembly_constrain mate", () => {
       const ops: CADOperation[] = [
-        { kind: "assembly_constrain", args: { type: "mate" } }
+        { kind: "assembly_constrain", args: { type: "mate", occurrence_a: 1, occurrence_b: 2 } }
       ];
 
       const script = engine.buildScript(ops);

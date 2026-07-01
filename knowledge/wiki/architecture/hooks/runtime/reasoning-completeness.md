@@ -21,7 +21,7 @@ related:
 
 ## Description (from file header)
 
-reasoning-completeness.mjs — PostToolUse hookCADCAM-DAGI-MS0/U-DAGI10Monitors CADReasoningChainEngine output quality:- Incomplete reasoning chains (<3 steps)- Low confidence decisions (<0.7)- Missing evidence sources- Unresolved assumptions
+_(no header docblock — read source for behavior)_
 
 ## Events
 

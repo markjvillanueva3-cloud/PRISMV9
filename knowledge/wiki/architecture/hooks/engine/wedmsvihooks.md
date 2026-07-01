@@ -21,7 +21,11 @@ related:
 
 ## Description (from file header)
 
-WEDM SVI Hooks — Phase 0.10 of WEDM AGI Roadmap2 WEDM-specific SVI coupling hooks:  - wedm-svi-inject: Session-start Ψ injection (logging)  - wedm-svi-milestone-gate: Milestone Ψ-delta gate (blocking)@version 1.0.0
+WEDM SVI Hooks — Phase 0.10 of WEDM AGI Roadmap
+2 WEDM-specific SVI coupling hooks:
+  - wedm-svi-inject: Session-start Ψ injection (logging)
+  - wedm-svi-milestone-gate: Milestone Ψ-delta gate (blocking)
+@version 1.0.0
 
 ## Events
 

@@ -61,7 +61,7 @@ function markNagged(sid) {
 function recentCommitCount(windowHours) {
   try {
     const since = new Date(Date.now() - windowHours * 3600 * 1000).toISOString();
-    const out = execFileSync("git", ["-C", REPO_DIR, "log", `--since=${since}`, "--pretty=format:%h", "--no-merges"], { encoding: "utf-8", timeout: 5000 });
+    const out = execFileSync("git", ["-C", REPO_DIR, "log", `--since=${since}`, "--pretty=format:%h", "--no-merges"], { windowsHide: true, encoding: "utf-8", timeout: 5000 });
     return out.trim() ? out.trim().split("\n").length : 0;
   } catch { return 0; }
 }

@@ -334,10 +334,15 @@ describe("Lathe P2P Full Pipeline E2E", () => {
       expect(camActions).toContain(action);
     });
 
-    it("total lathe_p2p_* action count is exactly 56 (full P4 pipeline)", () => {
+    it("total lathe_p2p_* action count is exactly 61 (full P4 pipeline + LATHE-P2P-CONSENSUS-MS4 gates)", () => {
+      // 56 was the LATHE-MASTER-P4 baseline. LATHE-P2P-CONSENSUS-MS4 added 5 actions:
+      //   P0-U02: lathe_p2p_sequence_plan_consensus
+      //   P0-U03: lathe_p2p_strategy_select_consensus, lathe_p2p_strategy_batch_consensus
+      //   P1-U02: lathe_p2p_emit_consensus
+      //   P1-U03: lathe_p2p_safety_gate_enforce  (Ω/S(x) hard gate)
       const p2pActions = (camActions as readonly string[]).filter(a => a.startsWith("lathe_p2p_"));
-      expect(p2pActions.length).toBe(56);
-      expect(requiredActions.length).toBe(56);
+      expect(p2pActions.length).toBe(61);
+      expect(requiredActions.length).toBe(56); // requiredActions = baseline set; consensus/safety actions are additive
     });
   });
 

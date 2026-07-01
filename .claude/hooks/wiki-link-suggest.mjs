@@ -23,7 +23,7 @@
  * memory write, gated to local infra, with a strict timeout.
  *
  * Disable: env PRISM_WIKILINK_SUGGEST=0
- * Tune: env OLLAMA_LINK_MODEL (default qwen2.5-coder:7b),
+ * Tune: env OLLAMA_LINK_MODEL (default qwen2.5-coder:32b),
  *       PRISM_WIKILINK_MAX_SUGGESTIONS (default 5),
  *       PRISM_WIKILINK_MIN_BODY_CHARS (default 200 — skip tiny notes)
  */
@@ -36,7 +36,7 @@ const VAULT_MEMORY_PATTERN = /[\\/]knowledge[\\/]memories[\\/]/i;
 const VAULT_WIKI_PATTERN = /[\\/]knowledge[\\/]wiki[\\/]/i;
 
 const OLLAMA_URL = process.env.OLLAMA_URL ?? "http://127.0.0.1:11434";
-const OLLAMA_MODEL = process.env.OLLAMA_LINK_MODEL ?? "qwen2.5-coder:7b";
+const OLLAMA_MODEL = process.env.OLLAMA_LINK_MODEL ?? "qwen2.5-coder:32b";
 const TIMEOUT_MS = 5_000;
 const MAX_SUGGESTIONS = Number.parseInt(process.env.PRISM_WIKILINK_MAX_SUGGESTIONS ?? "5", 10);
 const MIN_BODY_CHARS = Number.parseInt(process.env.PRISM_WIKILINK_MIN_BODY_CHARS ?? "200", 10);

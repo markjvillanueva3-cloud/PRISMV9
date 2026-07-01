@@ -23,13 +23,19 @@ related:
 |-------|-------|
 | Name | `forge-skills` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/forge-skills.md` |
+| Source | `C:/Users/wompu/.claude/commands/forge-skills.md` |
 | Model | default |
 | Tags | _(none)_ |
 
 ## Description (first paragraph)
 
-_(no body content)_
+
+# Forge Skills — Skill Discovery + Creation Autopilot
+
+You are running a specialized autopilot pipeline focused on discovering, designing, building, and registering new skills that benefit the PRISM system and app. This command chains system analysis, skill identification, creation, testing, and registration into one continuous flow.
+
+## Args: $ARGUMENTS
+- Empty: full discovery — analyze th
 
 <!-- AUTO-END -->
 

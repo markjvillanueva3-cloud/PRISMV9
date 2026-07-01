@@ -62,8 +62,10 @@ impact:
     - git index (force-add new commands-archive/ entries to track)
   bounded: true
   reversible: true   # mv back from commands-archive/ → commands/ restores any skill
+composes_with:
+  - "/dedup"
+  - "/scrutiny-batch"
 ---
-
 # /quick-archive — One-Command Skill/File Bucket Archive
 
 > **Goal:** turn the HS-06 Phase 3 multi-step manual archive (find + mv + git add + regen + commit) into a single skill invocation. Reversible per-file via `mv` back.

@@ -60,6 +60,21 @@ export function createDevRouter(callTool: CallToolFn): Router {
     try { res.json({ ok: true, data: await callTool("prism_dev", "svi_summary") }); }
     catch (e: any) { res.status(500).json({ ok: false, error: e.message }); }
   });
+  // QUEBEC/U-DEV-DASHBOARD-ROUTES: dead wires for web/src/api/dev.ts (qualityDashboard/pillarSummary/
+  // capabilityCensus). All 3 are real non-stub prism_dev actions. (devApi.inventory() is NOT wired here:
+  // there is no prism_dev:inventory action -- needs a backend action or a client re-point; left dead.)
+  router.get("/quality-dashboard", async (_req, res) => {
+    try { res.json({ ok: true, data: await callTool("prism_dev", "quality_dashboard") }); }
+    catch (e: any) { res.status(500).json({ ok: false, error: e.message }); }
+  });
+  router.get("/pillar-summary", async (_req, res) => {
+    try { res.json({ ok: true, data: await callTool("prism_dev", "pillar_summary") }); }
+    catch (e: any) { res.status(500).json({ ok: false, error: e.message }); }
+  });
+  router.get("/capability-census", async (_req, res) => {
+    try { res.json({ ok: true, data: await callTool("prism_dev", "capability_census") }); }
+    catch (e: any) { res.status(500).json({ ok: false, error: e.message }); }
+  });
 
   router.post("/forge", async (req, res) => {
     try { res.json({ ok: true, data: await callTool("prism_dev", "auto_forge", req.body) }); }

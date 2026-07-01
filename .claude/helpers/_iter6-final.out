@@ -1,0 +1,275 @@
+TAP version 13
+# Subtest: formatActionHint: isBroadGrep → master_index_query
+ok 1 - formatActionHint: isBroadGrep → master_index_query
+  ---
+  duration_ms: 2.081
+  ...
+# Subtest: formatActionHint: isVerboseBash → action_search
+ok 2 - formatActionHint: isVerboseBash → action_search
+  ---
+  duration_ms: 0.2105
+  ...
+# Subtest: formatActionHint: isLargeRead → dispatcher_map_compact
+ok 3 - formatActionHint: isLargeRead → dispatcher_map_compact
+  ---
+  duration_ms: 0.2497
+  ...
+# Subtest: formatActionHint: isLargeWrite → prism_dev:file_write
+ok 4 - formatActionHint: isLargeWrite → prism_dev:file_write
+  ---
+  duration_ms: 0.2453
+  ...
+# Subtest: formatActionHint: isBroadGlob → master_index_query
+ok 5 - formatActionHint: isBroadGlob → master_index_query
+  ---
+  duration_ms: 0.2188
+  ...
+# Subtest: formatActionHint: isBroadWebSearch → prism_knowledge:search
+ok 6 - formatActionHint: isBroadWebSearch → prism_knowledge:search
+  ---
+  duration_ms: 0.1131
+  ...
+# Subtest: formatActionHint: doctrineSurface (top-2 firer) → dispatcher_map_compact
+ok 7 - formatActionHint: doctrineSurface (top-2 firer) → dispatcher_map_compact
+  ---
+  duration_ms: 0.0934
+  ...
+# Subtest: formatActionHint: backendAuditChain → prism_dev:code_search
+ok 8 - formatActionHint: backendAuditChain → prism_dev:code_search
+  ---
+  duration_ms: 0.1444
+  ...
+# Subtest: formatActionHint: unknown classifier returns null (no false hint)
+ok 9 - formatActionHint: unknown classifier returns null (no false hint)
+  ---
+  duration_ms: 0.5491
+  ...
+# Subtest: formatActionHint: null/undefined/non-string inputs return null
+ok 10 - formatActionHint: null/undefined/non-string inputs return null
+  ---
+  duration_ms: 0.4501
+  ...
+# Subtest: formatActionHint: ollama classifier deliberately has no hint
+ok 11 - formatActionHint: ollama classifier deliberately has no hint
+  ---
+  duration_ms: 0.2059
+  ...
+# Subtest: appendActionHints: empty array passes through
+ok 12 - appendActionHints: empty array passes through
+  ---
+  duration_ms: 1.1775
+  ...
+# Subtest: appendActionHints: non-array passes through unchanged
+ok 13 - appendActionHints: non-array passes through unchanged
+  ---
+  duration_ms: 0.1109
+  ...
+# Subtest: appendActionHints: skips non-string entries (defensive)
+ok 14 - appendActionHints: skips non-string entries (defensive)
+  ---
+  duration_ms: 0.1237
+  ...
+# Subtest: appendActionHints: real broad-Grep nudge gets master_index_query suffix
+ok 15 - appendActionHints: real broad-Grep nudge gets master_index_query suffix
+  ---
+  duration_ms: 0.1688
+  ...
+# Subtest: appendActionHints: real doctrineSurface nudge gains a concrete action (iter22 gap)
+ok 16 - appendActionHints: real doctrineSurface nudge gains a concrete action (iter22 gap)
+  ---
+  duration_ms: 0.1288
+  ...
+# Subtest: appendActionHints: real backendAuditChain nudge gains code_search
+ok 17 - appendActionHints: real backendAuditChain nudge gains code_search
+  ---
+  duration_ms: 0.1105
+  ...
+# Subtest: appendActionHints: Ollama-prefixed message (🤖 Suggested route:) is NOT augmented
+ok 18 - appendActionHints: Ollama-prefixed message (🤖 Suggested route:) is NOT augmented
+  ---
+  duration_ms: 0.1341
+  ...
+# Subtest: appendActionHints: message with no classifier match passes through
+ok 19 - appendActionHints: message with no classifier match passes through
+  ---
+  duration_ms: 0.1013
+  ...
+# Subtest: U-PSN-TAKEUP-MAP-EXPORT: TAKEUP_CREDITED_ACTIONS derived non-empty + well-shaped (canonical source)
+ok 20 - U-PSN-TAKEUP-MAP-EXPORT: TAKEUP_CREDITED_ACTIONS derived non-empty + well-shaped (canonical source)
+  ---
+  duration_ms: 0.1695
+  ...
+# Subtest: PSN synergy: every action in _PREFERRED_ACTION_FOR_CLASSIFIER is credited by mcp-route-takeup
+ok 21 - PSN synergy: every action in _PREFERRED_ACTION_FOR_CLASSIFIER is credited by mcp-route-takeup
+  ---
+  duration_ms: 0.1233
+  ...
+# Subtest: PSN synergy: extractMcpAction (takeup) recognizes the hinted action shape
+ok 22 - PSN synergy: extractMcpAction (takeup) recognizes the hinted action shape
+  ---
+  duration_ms: 0.1437
+  ...
+# Subtest: _PREFERRED_ACTION_FOR_CLASSIFIER: all entries are non-empty strings
+ok 23 - _PREFERRED_ACTION_FOR_CLASSIFIER: all entries are non-empty strings
+  ---
+  duration_ms: 0.121
+  ...
+# Subtest: _PREFERRED_ACTION_FOR_CLASSIFIER: omits 'ollama' deliberately
+ok 24 - _PREFERRED_ACTION_FOR_CLASSIFIER: omits 'ollama' deliberately
+  ---
+  duration_ms: 0.0664
+  ...
+# Subtest: VERB_ROUTES: no fake `prism_intelligence:ollama_*` actions (iter4 R12 fix)
+ok 25 - VERB_ROUTES: no fake `prism_intelligence:ollama_*` actions (iter4 R12 fix)
+  ---
+  duration_ms: 2.8071
+  ...
+# Subtest: VERB_ROUTES: every prism_*:* token references a KNOWN-REAL MCP action
+ok 26 - VERB_ROUTES: every prism_*:* token references a KNOWN-REAL MCP action
+  ---
+  duration_ms: 1.0392
+  ...
+# Subtest: VERB_ROUTES: every verb has at least one route mentioning a real MCP action
+ok 27 - VERB_ROUTES: every verb has at least one route mentioning a real MCP action
+  ---
+  duration_ms: 0.4219
+  ...
+# Subtest: VERB_ROUTES: all 7 iter4 verb keys present
+ok 28 - VERB_ROUTES: all 7 iter4 verb keys present
+  ---
+  duration_ms: 0.165
+  ...
+# Subtest: VERB_ROUTES: no empty-string or whitespace-only routes
+ok 29 - VERB_ROUTES: no empty-string or whitespace-only routes
+  ---
+  duration_ms: 0.4826
+  ...
+# Subtest: VERB_ROUTES: frozen (defensive — can't be mutated by callers)
+ok 30 - VERB_ROUTES: frozen (defensive — can't be mutated by callers)
+  ---
+  duration_ms: 0.1368
+  ...
+# Subtest: matchVerbTrigger: 'summarize this file' → verb-summarize
+ok 31 - matchVerbTrigger: 'summarize this file' → verb-summarize
+  ---
+  duration_ms: 3.6842
+  ...
+# Subtest: matchVerbTrigger: 'explain how this code works' → verb-explain
+ok 32 - matchVerbTrigger: 'explain how this code works' → verb-explain
+  ---
+  duration_ms: 1.0308
+  ...
+# Subtest: matchVerbTrigger: 'walk me through the function' → verb-explain
+ok 33 - matchVerbTrigger: 'walk me through the function' → verb-explain
+  ---
+  duration_ms: 0.1991
+  ...
+# Subtest: matchVerbTrigger: 'classify these items' → verb-classify
+ok 34 - matchVerbTrigger: 'classify these items' → verb-classify
+  ---
+  duration_ms: 0.2118
+  ...
+# Subtest: matchVerbTrigger: 'add a docstring' → verb-docstring
+ok 35 - matchVerbTrigger: 'add a docstring' → verb-docstring
+  ---
+  duration_ms: 0.3739
+  ...
+# Subtest: matchVerbTrigger: 'lint check this' → verb-lint
+ok 36 - matchVerbTrigger: 'lint check this' → verb-lint
+  ---
+  duration_ms: 0.5028
+  ...
+# Subtest: matchVerbTrigger: 'summarize the diff' → verb-diff-summary (NOT verb-summarize)
+ok 37 - matchVerbTrigger: 'summarize the diff' → verb-diff-summary (NOT verb-summarize)
+  ---
+  duration_ms: 0.3037
+  ...
+# Subtest: matchVerbTrigger: 'why is this failing' → verb-error-triage
+ok 38 - matchVerbTrigger: 'why is this failing' → verb-error-triage
+  ---
+  duration_ms: 0.2479
+  ...
+# Subtest: matchVerbTrigger: diff-summary precedes summarize (specific > general)
+ok 39 - matchVerbTrigger: diff-summary precedes summarize (specific > general)
+  ---
+  duration_ms: 0.5296
+  ...
+# Subtest: matchVerbTrigger: empty string returns null
+ok 40 - matchVerbTrigger: empty string returns null
+  ---
+  duration_ms: 0.5396
+  ...
+# Subtest: matchVerbTrigger: null/undefined returns null
+ok 41 - matchVerbTrigger: null/undefined returns null
+  ---
+  duration_ms: 0.1717
+  ...
+# Subtest: matchVerbTrigger: non-string returns null
+ok 42 - matchVerbTrigger: non-string returns null
+  ---
+  duration_ms: 0.0984
+  ...
+# Subtest: matchVerbTrigger: prompt with no offload verbs returns null
+ok 43 - matchVerbTrigger: prompt with no offload verbs returns null
+  ---
+  duration_ms: 0.172
+  ...
+# Subtest: matchVerbTrigger: prompt with the word 'explain' but no target → no match (no over-fire)
+ok 44 - matchVerbTrigger: prompt with the word 'explain' but no target → no match (no over-fire)
+  ---
+  duration_ms: 1.0817
+  ...
+# Subtest: matchVerbTrigger: very long prompt with no verb match returns null in bounded time
+ok 45 - matchVerbTrigger: very long prompt with no verb match returns null in bounded time
+  ---
+  duration_ms: 0.2718
+  ...
+# Subtest: matchVerbTrigger: prompt with bracket/markup noise still matches
+ok 46 - matchVerbTrigger: prompt with bracket/markup noise still matches
+  ---
+  duration_ms: 0.1089
+  ...
+# Subtest: matchPipelineTrigger: /forge-audit → forge-audit
+ok 47 - matchPipelineTrigger: /forge-audit → forge-audit
+  ---
+  duration_ms: 0.2283
+  ...
+# Subtest: matchPipelineTrigger: /rgs → rgs
+ok 48 - matchPipelineTrigger: /rgs → rgs
+  ---
+  duration_ms: 0.2444
+  ...
+# Subtest: matchPipelineTrigger: bare verb-prompt returns null (verb fallback's job)
+ok 49 - matchPipelineTrigger: bare verb-prompt returns null (verb fallback's job)
+  ---
+  duration_ms: 0.3313
+  ...
+# Subtest: matchPipelineTrigger: null returns null (defensive)
+ok 50 - matchPipelineTrigger: null returns null (defensive)
+  ---
+  duration_ms: 1.0193
+  ...
+# Subtest: precedence: a prompt with BOTH /forge-audit AND 'summarize this file' takes pipeline route
+ok 51 - precedence: a prompt with BOTH /forge-audit AND 'summarize this file' takes pipeline route
+  ---
+  duration_ms: 0.1526
+  ...
+# Subtest: matchVerbTrigger: case-insensitive (Summarize / SUMMARIZE)
+ok 52 - matchVerbTrigger: case-insensitive (Summarize / SUMMARIZE)
+  ---
+  duration_ms: 0.1901
+  ...
+# Subtest: matchVerbTrigger: en-US vs en-GB spellings ('summarise' too)
+ok 53 - matchVerbTrigger: en-US vs en-GB spellings ('summarise' too)
+  ---
+  duration_ms: 0.0981
+  ...
+1..53
+# tests 53
+# suites 0
+# pass 53
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 142.7559

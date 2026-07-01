@@ -72,12 +72,12 @@ describe("KienzleForceModelEngine — Canonical Constants", () => {
 
   it("should have correct kc1.1 for ISO N (Aluminum)", () => {
     expect(CANONICAL_KIENZLE.N.kc1_1).toBe(700);
-    expect(CANONICAL_KIENZLE.N.mc).toBe(0.23);
+    expect(CANONICAL_KIENZLE.N.mc).toBe(0.22); // canonical (constants.ts + physics CLAUDE.md); was a stale fossil 0.23
   });
 
   it("should have correct kc1.1 for ISO S (Superalloys)", () => {
     expect(CANONICAL_KIENZLE.S.kc1_1).toBe(2800);
-    expect(CANONICAL_KIENZLE.S.mc).toBe(0.28);
+    expect(CANONICAL_KIENZLE.S.mc).toBe(0.27); // canonical (constants.ts + physics CLAUDE.md); was a stale fossil 0.28
   });
 
   it("should have correct kc1.1 for ISO H (Hardened)", () => {

@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta name="prism-source-hash" content="6366dc35428e8285c2af022827160b353f7a7296ae3139c26c6475642dc6960d">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FEATURE-GAP-AUDIT-MS0 — Dedup-Win Reconciler Ledger</title>
+<style>
+  :root {
+    --bg: #0f1014;
+    --panel: #1a1c23;
+    --panel-2: #232631;
+    --fg: #e4e6eb;
+    --fg-dim: #9aa0a8;
+    --border: #2c303a;
+    --ok: #4ade80;
+    --warn: #fbbf24;
+    --fail: #f87171;
+    --info: #60a5fa;
+    --link: #93c5fd;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; padding: 1.5rem; background: var(--bg); color: var(--fg);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, sans-serif;
+    font-size: 14px; line-height: 1.5; }
+  h1 { font-size: 1.6rem; margin: 0 0 0.25rem 0; }
+  h2 { font-size: 1.15rem; margin: 1.5rem 0 0.5rem 0; padding-bottom: 0.25rem;
+    border-bottom: 1px solid var(--border); color: var(--fg); }
+  .meta { color: var(--fg-dim); font-size: 0.85rem; margin-bottom: 1rem; }
+  .panel { background: var(--panel); border: 1px solid var(--border); border-radius: 6px;
+    padding: 0.75rem 1rem; margin-bottom: 1rem; }
+  .headline-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 0.5rem; margin-bottom: 1rem; }
+  .card { background: var(--panel-2); border: 1px solid var(--border); border-radius: 6px;
+    padding: 0.65rem 0.85rem; }
+  .card .lbl { font-size: 0.8rem; color: var(--fg-dim); }
+  .card .val { font-size: 1.4rem; font-weight: 600; margin: 0.15rem 0; font-variant-numeric: tabular-nums; }
+  .card .hint { font-size: 0.75rem; color: var(--fg-dim); }
+  .card.ok    { border-left: 3px solid var(--ok); }
+  .card.warn  { border-left: 3px solid var(--warn); }
+  .card.fail  { border-left: 3px solid var(--fail); }
+  .card.info  { border-left: 3px solid var(--info); }
+  table { width: 100%; border-collapse: collapse; margin: 0.5rem 0 1rem; font-size: 0.9rem;
+    background: var(--panel); border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }
+  caption { text-align: left; padding: 0.4rem 0.65rem; color: var(--fg-dim);
+    background: var(--panel-2); font-weight: 500; }
+  th, td { padding: 0.4rem 0.65rem; text-align: left; border-bottom: 1px solid var(--border);
+    font-variant-numeric: tabular-nums; vertical-align: top; }
+  th { background: var(--panel-2); color: var(--fg-dim); font-weight: 500;
+    text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.04em; }
+  tr:last-child td { border-bottom: none; }
+  td.right { text-align: right; }
+  ul, ol { margin: 0.4rem 0 1rem 1.25rem; }
+  li { margin: 0.15rem 0; }
+  .badge { display: inline-block; padding: 0.1rem 0.5rem; border-radius: 999px;
+    font-size: 0.75rem; font-weight: 500; background: var(--panel-2); color: var(--fg-dim);
+    border: 1px solid var(--border); }
+  .badge.ok   { background: rgba(74, 222, 128, 0.12); color: var(--ok);   border-color: rgba(74,222,128,0.3); }
+  .badge.warn { background: rgba(251, 191, 36, 0.12); color: var(--warn); border-color: rgba(251,191,36,0.3); }
+  .badge.fail { background: rgba(248, 113, 113, 0.12); color: var(--fail); border-color: rgba(248,113,113,0.3); }
+  .badge.info { background: rgba(96, 165, 250, 0.12); color: var(--info); border-color: rgba(96,165,250,0.3); }
+  .badge-grid { display: flex; flex-wrap: wrap; gap: 0.3rem; margin: 0.3rem 0 1rem 0; }
+  .kv { display: grid; grid-template-columns: max-content 1fr; gap: 0.2rem 0.85rem;
+    margin: 0.4rem 0 1rem 0; }
+  .kv .k { color: var(--fg-dim); }
+  svg.bar-chart { display: block; max-width: 100%; height: auto; }
+  svg .bar { fill: var(--info); }
+  svg .bar.ok   { fill: var(--ok); }
+  svg .bar.warn { fill: var(--warn); }
+  svg .bar.fail { fill: var(--fail); }
+  svg text { fill: var(--fg); font-family: monospace; font-size: 11px; }
+  svg .axis text { fill: var(--fg-dim); }
+  code { background: var(--panel-2); padding: 0 0.3rem; border-radius: 3px;
+    font-family: "Fira Code", Consolas, Menlo, monospace; font-size: 0.85em; }
+  a { color: var(--link); }
+  footer { margin-top: 2rem; padding-top: 0.75rem; border-top: 1px solid var(--border);
+    font-size: 0.8rem; color: var(--fg-dim); }
+</style>
+</head>
+<body>
+<h1>FEATURE-GAP-AUDIT-MS0 — Dedup-Win Reconciler Ledger</h1>
+<div class="meta">rendered from state/shared/specs/FEATURE-GAP-DEDUP-WIN-LEDGER.md</div>
+<div class="meta">Generated 2026-05-19T04:54:01.955Z</div>
+<style>
+  .prism-md-body { max-width: 70rem; margin: 0 auto; }
+  .prism-h1 { font-size: 1.6rem; }
+  .prism-h2 { font-size: 1.25rem; border-bottom: 1px solid var(--border); padding-bottom: 0.25rem; }
+  .prism-h3 { font-size: 1.1rem; color: var(--info); }
+  .prism-h4, .prism-h5, .prism-h6 { font-size: 1rem; color: var(--fg-dim); }
+  .prism-md-body p { margin: 0.5rem 0; }
+  .prism-md-list { margin: 0.5rem 0 0.5rem 1.25rem; padding: 0; }
+  .prism-md-list li { margin: 0.15rem 0; }
+  .prism-md-table { border-collapse: collapse; margin: 0.75rem 0; width: 100%; }
+  .prism-md-table th, .prism-md-table td { border: 1px solid var(--border); padding: 0.35rem 0.6rem; text-align: left; }
+  .prism-md-table th { background: var(--panel-2); }
+  .prism-codeblock { background: var(--panel-2); border: 1px solid var(--border); border-radius: 4px; padding: 0.6rem 0.8rem; overflow-x: auto; font-family: "Cascadia Code", Consolas, monospace; font-size: 13px; }
+  .prism-inline-code { background: var(--panel-2); padding: 0 0.25rem; border-radius: 3px; font-family: "Cascadia Code", Consolas, monospace; font-size: 0.92em; }
+  .prism-quote { border-left: 3px solid var(--info); background: var(--panel-2); padding: 0.5rem 0.85rem; margin: 0.75rem 0; color: var(--fg-dim); }
+  .prism-hr { border: 0; border-top: 1px solid var(--border); margin: 1rem 0; }
+  .prism-link { color: var(--link); text-decoration: none; }
+  .prism-link:hover { text-decoration: underline; }
+  .prism-bad-link { color: var(--fail); text-decoration: line-through; }
+  .prism-unclosed::before { content: "⚠ unterminated code block"; display: block; color: var(--warn); font-size: 0.85em; margin-bottom: 0.25rem; }
+  </style><main class="prism-md-body"><nav class="prism-toc"><strong>Contents</strong><ul><li class="prism-toc-l1">FEATURE-GAP-AUDIT-MS0 — Dedup-Win Reconciler Ledger</li><li class="prism-toc-l2">Summary (68 units)</li><li class="prism-toc-l2">Per-domain breakdown</li><li class="prism-toc-l3">academy (8)</li><li class="prism-toc-l3">cad (9)</li><li class="prism-toc-l3">cam (7)</li><li class="prism-toc-l3">database (7)</li><li class="prism-toc-l3">erp (9)</li><li class="prism-toc-l3">lathe (3)</li><li class="prism-toc-l3">mill (2)</li><li class="prism-toc-l3">misc (7)</li><li class="prism-toc-l3">post (4)</li><li class="prism-toc-l3">print2prog (3)</li><li class="prism-toc-l3">speedfeed (3)</li><li class="prism-toc-l3">tribal (4)</li><li class="prism-toc-l3">wire (2)</li><li class="prism-toc-l2">DEDUP-WIN — close these out (status: completed)</li><li class="prism-toc-l2">PARTIAL — real gap is named below (rescope the unit)</li><li class="prism-toc-l2">GENUINE-GAP — engine not on disk, port is real work</li><li class="prism-toc-l2">BATCH-WIRE — coarse units, inspect BUILD_STATE.NEEDS_WIRING</li><li class="prism-toc-l2">UNKNOWN — title did not match audit conventions</li></ul></nav><h1 class="prism-h1">FEATURE-GAP-AUDIT-MS0 — Dedup-Win Reconciler Ledger</h1>
+<p>Generated: 2026-05-19T04:53:59.734Z Advisory only — must human-verify before flipping unit status.</p>
+<h2 class="prism-h2">Summary (68 units)</h2>
+<ul class="prism-md-list"><li><strong>DEDUP-WIN</strong>: 8</li><li><strong>PARTIAL-NO-TESTS</strong>: 9</li><li><strong>PARTIAL-PORT-ONLY</strong>: 1</li><li><strong>GENUINE-GAP</strong>: 13</li><li><strong>BATCH-WIRE</strong>: 8</li><li><strong>UNKNOWN</strong>: 29</li></ul>
+<h2 class="prism-h2">Per-domain breakdown</h2>
+<h3 class="prism-h3">academy (8)</h3>
+<ul class="prism-md-list"><li>BATCH-WIRE: 1</li><li>GENUINE-GAP: 2</li><li>UNKNOWN: 5</li></ul>
+<h3 class="prism-h3">cad (9)</h3>
+<ul class="prism-md-list"><li>DEDUP-WIN: 3</li><li>GENUINE-GAP: 3</li><li>PARTIAL-NO-TESTS: 2</li><li>UNKNOWN: 1</li></ul>
+<h3 class="prism-h3">cam (7)</h3>
+<ul class="prism-md-list"><li>BATCH-WIRE: 1</li><li>DEDUP-WIN: 1</li><li>GENUINE-GAP: 2</li><li>PARTIAL-NO-TESTS: 2</li><li>UNKNOWN: 1</li></ul>
+<h3 class="prism-h3">database (7)</h3>
+<ul class="prism-md-list"><li>BATCH-WIRE: 1</li><li>UNKNOWN: 6</li></ul>
+<h3 class="prism-h3">erp (9)</h3>
+<ul class="prism-md-list"><li>DEDUP-WIN: 1</li><li>GENUINE-GAP: 3</li><li>PARTIAL-NO-TESTS: 2</li><li>UNKNOWN: 3</li></ul>
+<h3 class="prism-h3">lathe (3)</h3>
+<ul class="prism-md-list"><li>BATCH-WIRE: 1</li><li>DEDUP-WIN: 1</li><li>PARTIAL-NO-TESTS: 1</li></ul>
+<h3 class="prism-h3">mill (2)</h3>
+<ul class="prism-md-list"><li>BATCH-WIRE: 1</li><li>GENUINE-GAP: 1</li></ul>
+<h3 class="prism-h3">misc (7)</h3>
+<ul class="prism-md-list"><li>GENUINE-GAP: 1</li><li>PARTIAL-NO-TESTS: 1</li><li>PARTIAL-PORT-ONLY: 1</li><li>UNKNOWN: 4</li></ul>
+<h3 class="prism-h3">post (4)</h3>
+<ul class="prism-md-list"><li>BATCH-WIRE: 1</li><li>DEDUP-WIN: 2</li><li>UNKNOWN: 1</li></ul>
+<h3 class="prism-h3">print2prog (3)</h3>
+<ul class="prism-md-list"><li>UNKNOWN: 3</li></ul>
+<h3 class="prism-h3">speedfeed (3)</h3>
+<ul class="prism-md-list"><li>GENUINE-GAP: 1</li><li>UNKNOWN: 2</li></ul>
+<h3 class="prism-h3">tribal (4)</h3>
+<ul class="prism-md-list"><li>BATCH-WIRE: 1</li><li>PARTIAL-NO-TESTS: 1</li><li>UNKNOWN: 2</li></ul>
+<h3 class="prism-h3">wire (2)</h3>
+<ul class="prism-md-list"><li>BATCH-WIRE: 1</li><li>UNKNOWN: 1</li></ul>
+<h2 class="prism-h2">DEDUP-WIN — close these out (status: completed)</h2>
+<ul class="prism-md-list"><li><strong>U-GAP-LATHE-NOSE-RADIUS-COMP</strong> — engine ToolNoseRadiusCompensationEngine.ts exists, 1 dispatcher ref(s), 1 test file(s)</li><li><strong>U-GAP-CAD-GEODESIC</strong> — engine GeodesicDistanceEngine.ts exists, 1 dispatcher ref(s), 1 test file(s)</li><li><strong>U-GAP-CAD-MESH-DECIMATION</strong> — engine MeshDecimationEngine.ts exists, 1 dispatcher ref(s), 1 test file(s)</li><li><strong>U-GAP-CAD-SURFACE-RECON</strong> — engine SurfaceReconstructionEngine.ts exists, 1 dispatcher ref(s), 1 test file(s)</li><li><strong>U-GAP-CAM-REST-VOXEL</strong> — engine RestMachiningEngine.ts exists, 2 dispatcher ref(s), 1 test file(s)</li><li><strong>U-GAP-ERP-JOBSHOP-SCHEDULING</strong> — engine JobShopSchedulingEngine.ts exists, 2 dispatcher ref(s), 1 test file(s)</li><li><strong>U-GAP-POST-RL-POSTPROCESSOR</strong> — engine RLPostProcessorEngine.ts exists, 2 dispatcher ref(s), 1 test file(s)</li><li><strong>U-GAP-POST-GCODE-BACKPLOT</strong> — engine BackplotEngine.ts exists, 1 dispatcher ref(s), 3 test file(s)</li></ul>
+<h2 class="prism-h2">PARTIAL — real gap is named below (rescope the unit)</h2>
+<ul class="prism-md-list"><li><strong>U-GAP-LATHE-LIVE-TOOLING</strong> [PARTIAL-NO-TESTS] — engine + wiring present, NO test coverage — real gap is tests</li><li><strong>U-GAP-CAD-VORONOI-ISOSURFACE</strong> [PARTIAL-NO-TESTS] — engine + wiring present, NO test coverage — real gap is tests</li><li><strong>U-GAP-CAD-CURVATURE-OFFSET</strong> [PARTIAL-NO-TESTS] — engine + wiring present, NO test coverage — real gap is tests</li><li><strong>U-GAP-CAM-ADAPTIVE-CLEARING</strong> [PARTIAL-NO-TESTS] — engine + wiring present, NO test coverage — real gap is tests</li><li><strong>U-GAP-CAM-MULTIAXIS-TOOLPATH</strong> [PARTIAL-NO-TESTS] — engine + wiring present, NO test coverage — real gap is tests</li><li><strong>U-GAP-TRIBAL-KNOWLEDGE-GRAPH</strong> [PARTIAL-NO-TESTS] — engine + wiring present, NO test coverage — real gap is tests</li><li><strong>U-GAP-ERP-QUOTING-JOBCOST</strong> [PARTIAL-NO-TESTS] — engine + wiring present, NO test coverage — real gap is tests</li><li><strong>U-GAP-ERP-FINANCIAL-ANALYTICS</strong> [PARTIAL-NO-TESTS] — engine + wiring present, NO test coverage — real gap is tests</li><li><strong>U-GAP-MISC-OPTIMIZERS</strong> [PARTIAL-NO-TESTS] — engine + wiring present, NO test coverage — real gap is tests</li><li><strong>U-GAP-MISC-AI-ENGINES</strong> [PARTIAL-PORT-ONLY] — engine TransformerEngine.ts on disk, but neither wired nor tested</li></ul>
+<h2 class="prism-h2">GENUINE-GAP — engine not on disk, port is real work</h2>
+<ul class="prism-md-list"><li><strong>U-GAP-MILL-FFT-CHATTER</strong> — no engine class matched candidates: FftPredictiveChatterEngine, FFTPredictiveChatterEngine, PredictiveChatterEngine, ChatterEngine</li><li><strong>U-GAP-CAD-SPECTRAL-GRAPH</strong> — no engine class matched candidates: SpectralGraphCadEngine, GraphCadEngine, GRAPHCadEngine, GRAphCadEngine, CadEngine, CADEngine</li><li><strong>U-GAP-CAD-BREP-TESSELLATOR</strong> — no engine class matched candidates: BrepTessellatorEngine, BREPTessellatorEngine, BREpTessellatorEngine, TessellatorEngine</li><li><strong>U-GAP-CAD-COMPLETE-GEN</strong> — no engine class matched candidates: CompleteCadGenerationEngine, CadGenerationEngine, CADGenerationEngine, GenerationEngine</li><li><strong>U-GAP-CAM-CLIPPER2</strong> — no engine class matched candidates: Clipper2Engine</li><li><strong>U-GAP-CAM-AIRCUT-ELIM</strong> — no engine class matched candidates: AircutEliminationEngine, EliminationEngine</li><li><strong>U-GAP-ERP-SUBSCRIPTION-SYSTEM</strong> — no engine class matched candidates: SubscriptionSystemEngine, SystemEngine</li><li><strong>U-GAP-ERP-LEAN-SIXSIGMA</strong> — no engine class matched candidates: LeanSixSigmaKaizenEngine, LEANSixSigmaKaizenEngine, LEAnSixSigmaKaizenEngine, SixSigmaKaizenEngine, SIXSigmaKaizenEngine, SigmaKaizenEngine, SIGMAKaizenEngine, SIGmaKaizenEngine, KaizenEngine</li><li><strong>U-GAP-ERP-PURCHASING-INVENTORY</strong> — no engine class matched candidates: PurchasingSystemEngine, SystemEngine, InventoryEngine</li><li><strong>U-GAP-SF-ADVANCED-FEED-OPT</strong> — no engine class matched candidates: AdvancedFeedOptimizerEngine, FeedOptimizerEngine, FEEDOptimizerEngine, FEEdOptimizerEngine, OptimizerEngine</li><li><strong>U-GAP-ACADEMY-220-COURSES</strong> — no engine class matched candidates: 220CoursesMasterEngine, CoursesMasterEngine, MasterEngine, CourseGatewayGeneratorEngine, GatewayGeneratorEngine, GeneratorEngine</li><li><strong>U-GAP-ACADEMY-UNIVERSITY-ALGS</strong> — no engine class matched candidates: UniversityAlgorithmsEngine, AlgorithmsEngine</li><li><strong>U-GAP-MISC-DATA-STRUCTURES</strong> — no engine class matched candidates: KDTree, KDTreeEngine, Octree, OctreeEngine, Bezier, BezierEngine</li></ul>
+<h2 class="prism-h2">BATCH-WIRE — coarse units, inspect BUILD_STATE.NEEDS_WIRING</h2>
+<ul class="prism-md-list"><li><strong>U-WIRE-BACKLOG-MILL</strong> — wire-batch unit: 0/4 named representatives already wired (MillingAIUltraIntelligenceEngine.ts, FiveAxisAIUltraIntelligenceEngine.ts, MillingUltimateAIEngine.ts, FiveAxisOrchestrationEngine.ts)</li><li><strong>U-WIRE-BACKLOG-LATHE</strong> — wire-batch unit: 0/5 named representatives already wired (LatheThermodynamicsEngine.ts, LatheUnifiedPhysicsOrchestrationEngine.ts, LatheOpusReasoningEngine.ts, LatheMetaLearningEngine.ts, LatheQualityGateEngine.ts)</li><li><strong>U-WIRE-BACKLOG-WIRE</strong> — wire-batch unit: 1/5 named representatives already wired (WEDMNeuralTrainingEngine.ts, WireEDMDeepAIHardeningEngine.ts, ElectrodeUltimateAIEngine.ts, WEDMProgramOptimizerEngine.ts, WEDMStrategyLibraryEngine.ts)</li><li><strong>U-WIRE-BACKLOG-CAM</strong> — wire-batch unit: no named representatives in title</li><li><strong>U-WIRE-BACKLOG-TRIBAL</strong> — wire-batch unit: no named representatives in title</li><li><strong>U-WIRE-BACKLOG-POST</strong> — wire-batch unit: 2/3 named representatives already wired (RealTimeAdaptiveControllerEngine.ts, GapEscalationControllerEngine.ts, DNCGenerateEngine.ts)</li><li><strong>U-WIRE-BACKLOG-ACADEMY</strong> — wire-batch unit: 0/3 named representatives already wired (VideoELearningAIEngine.ts, MITCourseIntegrationEngine.ts, ToolDatabaseDeepLearningEngine.ts)</li><li><strong>U-WIRE-BACKLOG-DATABASE</strong> — wire-batch unit: 0/3 named representatives already wired (PDFSourceRegistryEngine.ts, PhysicsPluginRegistry.ts, WetRunDeviationRegistryEngine.ts)</li></ul>
+<h2 class="prism-h2">UNKNOWN — title did not match audit conventions</h2>
+<ul class="prism-md-list"><li><strong>U-GAP-WIRE-JMDIE-CORPUS</strong> — WEDM program-learning corpus from JM DIE WIRE EDM/ (4058 Mastercam .mcx-8 + Sodick .esp across ~100 customers)</li><li><strong>U-GAP-CAD-JMDIE-REVERSE-ENG</strong> — Reverse-engineering pipeline: scanned-image/JPG + DXF -&gt; solid model, from JM DIE REVERSE ENGINEERING/ (47 jpg+dxf+ipt triplets)</li><li><strong>U-GAP-CAM-HYPERMILL-SDK</strong> — hyperMILL SDK API mapper from Resources OPEN MIND/Shared SDK (~2110 Python automation scripts)</li><li><strong>U-GAP-TRIBAL-FORMULA-REGISTRY</strong> — Formula-registry harvester — 400+ formulas in Resources MACHINING KNOWLEDGE FORMULAS (3 JS files ~310KB)</li><li><strong>U-GAP-TRIBAL-MACRO-INTEL</strong> — Macro-program intelligence from JM DIE MACRO PROGRAMS/ — operator common-variable + part-counter loop patterns</li><li><strong>U-GAP-ERP-HR-EMPLOYEE</strong> — HR/employee subsystem — scheduling, skills matrix, certifications, labor tracking (no current PRISM engine)</li><li><strong>U-GAP-ERP-DRAWING-AUTOMATION</strong> — Drawing-automation workflow ingestion from JM DIE Automated Program xlsm (34-dim parametric VBA system)</li><li><strong>U-WIRE-BACKLOG-ERP</strong> — Wire the ~17 unwired erp/business engines (BusinessIntelligence, CustomerKnowledge, BusinessDocumentExtractor)</li><li><strong>U-GAP-POST-JMDIE-LEARNING</strong> — Post-processor learning from JM DIE PRISM MODIFIED POST PROCESSORS/ (12 PRISM-enhanced .cps: Haas/Hurco/Okuma/Roku-Roku)</li><li><strong>U-GAP-SF-NC-CALIBRATION</strong> — Shop-proven speed/feed calibration mined from 35K+ JM DIE NC programs (.min/.mcx-8/.cyc)</li><li><strong>U-WIRE-BACKLOG-SF</strong> — Wire the ~12 unwired speed-feed engines (SpeedFeedUltimateAI/AdvancedAI/DeepLearning — the SF-AI L1-L3 ladder)</li><li><strong>U-GAP-P2P-JMDIE-PARTLIB</strong> — Print-to-program training corpus from JM DIE _PART LIBRARY/ — 76K blueprint PDFs paired with 16.5K .min programs</li><li><strong>U-GAP-P2P-OCR-DIMENSION</strong> — Blueprint-OCR/vision dimension extraction (eDOCr2/PaddleOCR) — JM DIE GENERAL BANDAGES + QUEUE PDF prints</li><li><strong>U-GAP-P2P-VALIDATION-HARNESS</strong> — Print-&gt;program validation harness from JM DIE QUEUE/CLAUDE matched QT print+part+gcode triples</li><li><strong>U-GAP-ACADEMY-MIT-KERNELS</strong> — Re-modularize MIT algorithm kernels (NumericalMethods, NURBS, ODESolvers, ControlSystems, DigitalControl, DFM) from v8.89 monolith</li><li><strong>U-GAP-ACADEMY-MIT-OCW-INGEST</strong> — MIT-OCW course ingestion from Resources MIT COURSES/ (354 PDFs / 730 HTML across 8+ course dirs)</li><li><strong>U-GAP-ACADEMY-TRAINING-DAYS</strong> — Training-day curriculum ingestion from Resources Basic Training Day 1/2/3 + MILL INTRO CLASS.pptx</li><li><strong>U-GAP-DB-MASTER-ALARM</strong> — Ingest the v8.89 MASTER_ALARM_DATABASE — 2500 controller alarms + 68 vendor alarm files (Fanuc/Haas/Mazak/Siemens/...)</li><li><strong>U-GAP-DB-VERIFIED-FIX-PROC</strong> — Ingest v8.89 VERIFIED_FIX_PROCEDURES + ALARM_FIX_PROCEDURES — controller-diagnostic fix database</li><li><strong>U-GAP-DB-GCODE-MCODE</strong> — Ingest v8.89 GCODE_MCODE_DATABASE — canonical G/M-code reference</li><li><strong>U-GAP-DB-MACHINE-LIBRARY</strong> — Ingest v8.89 machines/ ALL_MACHINES.json + 12 ENHANCED batch JSONs + OEM STEP-model library from Resources</li><li><strong>U-GAP-DB-TOOL-CATALOG-HARVEST</strong> — Tool-database harvester — Resources OPEN MIND Tool DB + 287 .tooldb/.db/.mdb (~131MB)</li><li><strong>U-GAP-DB-PARTLIB-MASTER</strong> — JM DIE _PART LIBRARY part-master DB — 134K files, 29K JSON metadata, customer-&gt;part-number index + version dedup</li><li><strong>U-GAP-MISC-AS9100-TRACE</strong> — Wire AS9100TraceabilityEngine (47KB, self-labeled P0-CRITICAL aerospace traceability — built, unwired, unplanned)</li><li><strong>U-WIRE-BACKLOG-MISC</strong> — Wire/triage the ~328 unwired misc engines — bulk of the unwired-engine debt; rank by leverage via /wire-unwired</li><li><strong>U-GAP-HERMES-EVAL</strong> — Evaluate NousResearch Hermes Agent adoption strategy — full port vs cherry-pick (closed learning loop, soul.md personality, tool gateway, 20+ messaging surfaces); output go/no-go matrix per pattern. Source: hermes-shann-article.md + HERMES-EVOLVING-SKILLS-RESEARCH-2026-05-17.md.</li><li><strong>U-GAP-SKILL-AUTO-GEN-MS0</strong> — Build evolving-skills closed loop — harness observes successful workflows, clusters patterns, auto-emits /forge-triple stubs, reviewer-agent gate, ship-to-library (Hermes harness-writes-skills + Voyager skill-library evolution); compounding-capability lever across all 13 slots.</li><li><strong>U-GAP-HERMES-MULTI-SURFACE-MSG</strong> — Adapt Hermes 20+ messaging-surfaces pattern (Telegram/Discord/Slack/email/voice) — required for prism-revenue operator-in-the-loop hand-off + JM-Die shop-floor confirmation loops on Speed/Feed results.</li><li><strong>U-GAP-POST-BUILD-UTILITY-SCAN</strong> — Proactive post-build utility-scan: every chat that ships an asset auto-runs a 3-surface query (/system-viz neighbors + prism_session:master_index_query + prism awareness snapshot + Obsidian brain) to surface where the new asset can be utilized — wires, dispatchers, dependent engines, matching FEATURE-GAP units — and proposes memory node if feasible. Stop-chain advisory hook. Closes the &#39;we built X but never connected it to Y&#39; silent-waste class.</li></ul></main><footer>
+<div>html-report-render schemaVersion 1.0.0</div>
+</footer>
+</body>
+</html>

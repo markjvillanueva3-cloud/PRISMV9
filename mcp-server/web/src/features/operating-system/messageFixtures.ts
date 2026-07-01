@@ -47,7 +47,7 @@ const CHANNEL_LABELS: Record<string, { label: string; detail: string }> = {
   },
   supplier: {
     label: 'Supplier',
-    detail: 'Distributor, tooling, and purchase-order responses routed into PRISM.',
+    detail: 'Distributor, tooling, and purchase-order responses routed into Kienzle.',
   },
   planning: {
     label: 'Planning',
@@ -285,7 +285,7 @@ const ENTRIES_BY_THREAD: Record<string, MessageEntry[]> = {
     },
     {
       id: 'entry-admin-hot-job-2',
-      sender: 'PRISM workflow',
+      sender: 'Kienzle workflow',
       senderRole: 'System',
       sentLabel: '8 min ago',
       body: 'JOB-4821 was marked shop hot and moved to the front of the dispatch queue for all floor-facing desks.',
@@ -314,7 +314,7 @@ const ENTRIES_BY_THREAD: Record<string, MessageEntry[]> = {
     },
     {
       id: 'entry-admin-tooling-2',
-      sender: 'PRISM purchasing',
+      sender: 'Kienzle purchasing',
       senderRole: 'Workflow',
       sentLabel: '22 min ago',
       body: 'Local expedite option is likely positive ROI because the same insert pack protects two at-risk jobs.',
@@ -334,7 +334,7 @@ const ENTRIES_BY_THREAD: Record<string, MessageEntry[]> = {
     },
     {
       id: 'entry-admin-quality-2',
-      sender: 'PRISM workflow',
+      sender: 'Kienzle workflow',
       senderRole: 'System',
       sentLabel: '39 min ago',
       body: 'Release posture is now waiting on one management acknowledgment instead of two separate signatures.',
@@ -354,7 +354,7 @@ const ENTRIES_BY_THREAD: Record<string, MessageEntry[]> = {
     },
     {
       id: 'entry-machinist-handoff-2',
-      sender: 'PRISM workflow',
+      sender: 'Kienzle workflow',
       senderRole: 'System',
       sentLabel: '9 min ago',
       body: 'Traveler packet is still waiting on the op-30 department scan, so keep the handoff note attached to the current run.',
@@ -396,7 +396,7 @@ const ENTRIES_BY_THREAD: Record<string, MessageEntry[]> = {
     },
     {
       id: 'entry-inspector-fai-2',
-      sender: 'PRISM workflow',
+      sender: 'Kienzle workflow',
       senderRole: 'System',
       sentLabel: '11 min ago',
       body: 'The packet will unblock shipment as soon as the final signoff is attached to the traveler record.',
@@ -438,7 +438,7 @@ const ENTRIES_BY_THREAD: Record<string, MessageEntry[]> = {
     },
     {
       id: 'entry-planner-hot-job-2',
-      sender: 'PRISM workflow',
+      sender: 'Kienzle workflow',
       senderRole: 'System',
       sentLabel: '4 min ago',
       body: 'Jobs desk, shop clock, and employee shift-priority surfaces were reordered to put JOB-4821 first.',
@@ -513,12 +513,12 @@ function buildActionLabels(scope: MessageScope, source: MessageThreadSource) {
   if (scope === 'admin') {
     return source === 'email'
       ? ['Reply by email', 'Route to owner', 'Post shop-wide note']
-      : ['Acknowledge in PRISM', 'Promote to management note', 'Jump to linked record'];
+      : ['Acknowledge in Kienzle', 'Promote to management note', 'Jump to linked record'];
   }
 
   return source === 'email'
     ? ['Reply by email', 'Acknowledge in app', 'Jump to linked job']
-    : ['Acknowledge handoff', 'Reply in PRISM', 'Open linked record'];
+    : ['Acknowledge handoff', 'Reply in Kienzle', 'Open linked record'];
 }
 
 export function resolveEmailLoginFixture(email: string) {
@@ -556,7 +556,7 @@ export function buildMessagesWorkspaceFixture(input?: {
     identityLabel: `${identity.displayName} · ${identity.role}`,
     activeMailbox: identity.email,
     connectionNote:
-      'Email-linked conversations are staged as PRISM message threads here so the frontend can converge on Claude-owned mailbox ingestion, delivery, and read-state routes later.',
+      'Email-linked conversations are staged as Kienzle message threads here so the frontend can converge on Claude-owned mailbox ingestion, delivery, and read-state routes later.',
     channels: buildChannelSummaries(threads),
     threads,
     selectedThreadId,

@@ -101,6 +101,16 @@ export * from "./WEDMPerceptionHooks.js";
 export * from "./WEDMLearningHooks.js";
 export * from "./MachineValidationHooks.js";
 
+// `preMachineControllerCompatibility` is defined in BOTH CrossReferenceHooks (pre-machine-add
+// integrity check) and MachineValidationHooks (pre-calculation capability gate) -- they even
+// share id "pre-machine-controller-compatibility" (a latent DUPLICATE-ID for the hooks owner to
+// reconcile; routed in state/shared/specs/TSC-DEFER-ROUTING-2026-06-17.md). Both stay reachable
+// via their hook arrays (crossReferenceHooks / machineValidationHooks) and direct module import
+// (the MachineValidationHooks test imports it directly). The explicit re-export below resolves the
+// barrel name ambiguity (TS2308) to the CrossReferenceHooks version; import from
+// "./MachineValidationHooks.js" directly if you need that variant.
+export { preMachineControllerCompatibility } from "./CrossReferenceHooks.js";
+
 // ============================================================================
 // COMBINED EXPORTS
 // ============================================================================

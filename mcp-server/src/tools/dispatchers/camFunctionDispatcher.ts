@@ -90,12 +90,44 @@ export async function dispatchCamFunction(
     }
     case "cam_func_strategy_recommend": {
       const { camStrategyRecommenderEngine } = await import("../../engines/CAMStrategyRecommenderEngine.js");
+      // Closed-loop consume: feed the recommender the learned empirical strategy
+      // effectiveness (win-rates persisted across restarts by SelfLearningCAMEngine,
+      // U-CAM-LEARN-PERSIST). Opt-out via use_learned:false. Fail-soft -- a learner
+      // error must never block a recommendation.
+      let empirical_ranking:
+        | Array<{ strategy: string; winRate: number; confidence: "low" | "medium" | "high"; observations: number }>
+        | undefined;
+      if (params.use_learned !== false) {
+        try {
+          const { selfLearningCAMEngine } = await import("../../engines/SelfLearningCAMEngine.js");
+          const ranking = selfLearningCAMEngine.strategyRanking({
+            materialGroup:
+              params.material_group !== undefined
+                ? (String(params.material_group) as "P" | "M" | "K" | "N" | "S" | "H")
+                : undefined,
+            geometryClass: params.geometry_class !== undefined ? String(params.geometry_class) : undefined,
+            minObservations: 1,
+          });
+          empirical_ranking = (ranking?.rankings ?? []).map((r) => ({
+            strategy: r.strategy,
+            winRate: r.winRate.rate,
+            confidence: r.confidence,
+            observations: r.observations,
+          }));
+        } catch (err) {
+          // Fail-soft: a learner error must never block a recommendation -- but do
+          // NOT swallow it silently; a permanently-cold loop must be detectable (R12).
+          empirical_ranking = undefined;
+          console.warn(`[cam_func_strategy_recommend] learned re-rank unavailable (loop ran cold): ${String(err)}`);
+        }
+      }
       return camStrategyRecommenderEngine.recommend({
         target_cam: String(params.target_cam ?? ""),
         part_hint: params.part_hint !== undefined ? String(params.part_hint) : undefined,
         material: params.material !== undefined ? String(params.material) : undefined,
         max_alternatives:
           params.max_alternatives !== undefined ? Number(params.max_alternatives) : undefined,
+        empirical_ranking,
       });
     }
     case "cam_func_param_optimize": {

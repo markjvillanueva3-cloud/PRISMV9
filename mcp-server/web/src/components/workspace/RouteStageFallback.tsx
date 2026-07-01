@@ -149,7 +149,7 @@ export function RouteStageFallback() {
           <div className="text-[11px] font-semibold uppercase tracking-[0.24em] text-slate-500">Loading posture</div>
           <div className="mt-4 space-y-3 text-sm leading-6 text-slate-300">
             <p>The page shell is live and the route chunk is still streaming in.</p>
-            <p>PRISM keeps the navigation stable first, then mounts the full workspace once the split bundle is ready.</p>
+            <p>Kienzle keeps the navigation stable first, then mounts the full workspace once the split bundle is ready.</p>
           </div>
         </div>
       </div>

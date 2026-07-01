@@ -29,8 +29,7 @@ related:
 
 ## Description (first paragraph)
 
-
-# /spc — Statistical Process Control
+Real-time SPC monitoring with adaptive control limits and variability awareness.
 
 <!-- AUTO-END -->
 

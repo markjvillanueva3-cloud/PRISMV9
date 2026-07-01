@@ -187,7 +187,7 @@ Write-Output $killed
       `( (($3+0)>${MAX_AGE_SECONDS} && $0 ~ /\\.claude\\/(hooks|helpers)/) || ` +
       `($4=="git" && ($2+0)==1 && ($3+0)>${MAX_AGE_SECONDS} && tolower($0) ~ /prism/) ) {print $1}' | ` +
       `xargs -r kill -TERM 2>/dev/null; true`;
-    execSync(cmd, { timeout: PS_TIMEOUT_MS, stdio: "ignore", shell: "/bin/sh" });
+    execSync(cmd, { windowsHide: true, timeout: PS_TIMEOUT_MS, stdio: "ignore", shell: "/bin/sh" });
     log(`unix cleanup complete (full=${FULL})`);
   }
 } catch (err) {

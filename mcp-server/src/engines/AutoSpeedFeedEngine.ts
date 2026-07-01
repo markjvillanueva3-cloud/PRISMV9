@@ -15,8 +15,10 @@
  *
  * Novel: No CAM software or post-processor performs physics-backed speed/feed
  * calculation as an automated post-processing step. CAM systems use static
- * lookup tables; this engine uses Kienzle force, Taylor tool life, Loewen-Shaw
- * thermal, chip thinning, and machine power budgets — per line.
+ * lookup tables; this engine applies inline Kienzle force, Taylor tool life,
+ * Loewen-Shaw thermal approximation, chip thinning, and machine power budgets
+ * — per line. Physics is delegated to UltimateSpeedFeedEngine (applied inline);
+ * algorithm-module composition is tracked by milestone SF-PSN-WIRE-MS0.
  *
  * Orchestrates: UltimateSpeedFeedEngine, PostProcessorFeedOptimizerEngine,
  *   CuttingPowerBudgetEngine, CuttingDataLookupEngine
@@ -26,6 +28,13 @@
 
 import { log } from "../utils/Logger.js";
 import { machiningPlaybookEngine } from "./MachiningPlaybookEngine.js";
+// U-CAMX22-FIX-SILENT-SKIP (2026-05-18): static imports replace the prior
+// `await import()` lazy-load. No circular dependency exists (neither engine
+// imports AutoSpeedFeed/PrintToProgram), so static import is safe and removes
+// the only reason optimize() had to be async — enabling a true synchronous
+// optimizeSync() path for the sync PrintToProgram pipeline.
+import { ultimateSpeedFeedEngine } from "./UltimateSpeedFeedEngine.js";
+import { postProcessorFeedOptimizer } from "./PostProcessorFeedOptimizerEngine.js";
 
 // ============================================================================
 // TYPES
@@ -186,6 +195,52 @@ class AutoSpeedFeedEngineImpl {
    * Optimize G-code with physics-calculated S and F on every cutting line.
    */
   async optimize(input: AutoSpeedFeedInput): Promise<AutoSpeedFeedResult> {
+    const usfe = await this._getUltimateEngine();
+    const ppfo = await this._getFeedOptimizer();
+    return this._optimizeImpl(input, usfe, ppfo);
+  }
+
+  /**
+   * U-CAMX22-FIX-SILENT-SKIP (2026-05-18): synchronous optimization path.
+   *
+   * The orchestrated engines (UltimateSpeedFeedEngine,
+   * PostProcessorFeedOptimizerEngine) are now statically imported and have no
+   * async initialization, so the entire S/F optimization is pure synchronous
+   * CPU work. `PrintToProgramPipelineEngine.runFullPipeline` is sync and could
+   * not `await optimize()`; before this fix it surfaced a visible skip
+   * (U-CAMX22-VISIBLE-SKIP) and emitted the base G-code *unoptimized*.
+   * optimizeSync() lets the sync pipeline run the real physics S/F
+   * optimization. Identical result contract to {@link optimize}.
+   */
+  optimizeSync(input: AutoSpeedFeedInput): AutoSpeedFeedResult {
+    return this._optimizeImpl(
+      input,
+      this._getUltimateEngineSync(),
+      this._getFeedOptimizerSync(),
+    );
+  }
+
+  /**
+   * Resolve + cache the orchestrated engines. Kept for API-surface
+   * compatibility with the U-CAMX22 design note; with static imports it is a
+   * cheap idempotent cache-fill, never a blocking load. Safe to call
+   * repeatedly or never.
+   */
+  prewarm(): void {
+    this._getUltimateEngineSync();
+    this._getFeedOptimizerSync();
+  }
+
+  /**
+   * Synchronous optimization core shared by {@link optimize} (async wrapper)
+   * and {@link optimizeSync}. Takes the already-resolved orchestrated engines
+   * so it carries zero async dependency.
+   */
+  private _optimizeImpl(
+    input: AutoSpeedFeedInput,
+    usfe: any,
+    ppfo: any,
+  ): AutoSpeedFeedResult {
     const warnings: string[] = [];
     const lines = input.gcode.split("\n");
     const isoGroup = this._resolveISO(input.material, input.iso_group);
@@ -194,10 +249,6 @@ class AutoSpeedFeedEngineImpl {
     const annotate = input.annotate === true;
     const forceExplicit = input.force_explicit_sf === true;
     const aggressiveness = Math.max(0, Math.min(1, input.aggressiveness ?? 0.5));
-
-    // Lazy-load orchestrated engines
-    const usfe = await this._getUltimateEngine();
-    const ppfo = await this._getFeedOptimizer();
 
     // State tracking
     let currentTool: ToolDefinition | null = null;
@@ -660,20 +711,27 @@ class AutoSpeedFeedEngineImpl {
   private _usfe: any = null;
   private _ppfo: any = null;
 
-  private async _getUltimateEngine(): Promise<any> {
-    if (!this._usfe) {
-      const mod = await import("./UltimateSpeedFeedEngine.js");
-      this._usfe = mod.ultimateSpeedFeedEngine;
-    }
+  // U-CAMX22-FIX-SILENT-SKIP: sync getters resolve the statically-imported
+  // singletons (idempotent cache-fill). The async variants are retained
+  // verbatim-in-signature for backward compatibility with existing callers
+  // (`optimize()`, `batchCalculate()`) and now simply delegate to the sync
+  // path — no `await import()` remains, so no async work actually occurs.
+  private _getUltimateEngineSync(): any {
+    if (!this._usfe) this._usfe = ultimateSpeedFeedEngine;
     return this._usfe;
   }
 
-  private async _getFeedOptimizer(): Promise<any> {
-    if (!this._ppfo) {
-      const mod = await import("./PostProcessorFeedOptimizerEngine.js");
-      this._ppfo = mod.postProcessorFeedOptimizer;
-    }
+  private _getFeedOptimizerSync(): any {
+    if (!this._ppfo) this._ppfo = postProcessorFeedOptimizer;
     return this._ppfo;
+  }
+
+  private async _getUltimateEngine(): Promise<any> {
+    return this._getUltimateEngineSync();
+  }
+
+  private async _getFeedOptimizer(): Promise<any> {
+    return this._getFeedOptimizerSync();
   }
 
   // ==========================================================================

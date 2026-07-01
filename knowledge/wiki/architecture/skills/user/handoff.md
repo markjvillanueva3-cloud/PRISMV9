@@ -23,13 +23,19 @@ related:
 |-------|-------|
 | Name | `handoff` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/handoff.md` |
+| Source | `C:/Users/wompu/.claude/commands/handoff.md` |
 | Model | default |
 | Tags | _(none)_ |
 
 ## Description (first paragraph)
 
-_(no body content)_
+
+# Handoff — Session Continuity Protocol
+
+You are creating a structured handoff document that captures everything the next session needs to resume work seamlessly. This is the PROACTIVE alternative to `precompact-save` (which only fires reactively on compaction). Use `/handoff` before ending a session, when context is getting heavy, or when switching major tasks.
+
+## Args: $ARGUMENTS
+- Empty
 
 <!-- AUTO-END -->
 

@@ -1222,9 +1222,13 @@ export class DecisionReasoningEngine {
         category: "machine" as const,
         properties: {
           type: m.type,
-          work_envelope: m.work_envelope,
-          spindle: m.spindle,
-          capabilities: m.capabilities,
+          work_envelope_x: m.work_envelope.x_travel,
+          work_envelope_y: m.work_envelope.y_travel,
+          work_envelope_z: m.work_envelope.z_travel,
+          spindle_max_rpm: m.spindle.max_rpm,
+          spindle_power_kw: m.spindle.power_kw,
+          spindle_torque_nm: m.spindle.torque_nm,
+          capabilities: m.capabilities.join(","),
         },
         scores: {
           capability_match: capabilityMatch,

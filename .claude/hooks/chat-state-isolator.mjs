@@ -167,6 +167,13 @@ async function main() {
     lines.push(`⚠️ Exceeding expected chat limit`);
   }
 
+  // Silence knob (TOKEN-EFFICIENCY-INJECT/U-KNOB-CLOSE) -- the dir-isolation work
+  // above is load-bearing and ALWAYS runs; this only drops the context line.
+  if (process.env.PRISM_CHAT_STATE_ISOLATOR_SILENT === '1') {
+    console.log(JSON.stringify({ continue: true }));
+    return;
+  }
+
   console.log(JSON.stringify({
     continue: true,
     hookSpecificOutput: {

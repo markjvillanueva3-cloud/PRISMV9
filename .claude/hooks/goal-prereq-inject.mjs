@@ -20,8 +20,27 @@
 
 import * as fs from "node:fs";
 import * as path from "node:path";
+// NOTE: the loss-function detector is loaded LAZILY inside buildContext (see the
+// nudge block), NOT statically here -- this hook must never crash-on-load and kill
+// /goal pre-flight fleet-wide. A static import links before any try/catch can run;
+// the lazy await-import matches the loadVerifyUnitReady / loop-inject-dedup pattern.
 
 const TRIGGER_RX = /(^|\s)\/goal(\s|$)/i;
+
+// GOAL DISCIPLINE -- a /goal is usually an OPEN / exploratory loop, which is the
+// exact failure mode the agent-loop articles (2026-06-09) warn about: an open
+// loop on a loose standard is a "slop machine" that burns insane tokens. So /goal
+// must be BOUNDED up front. Synthesized from the same sources as the /loop rules
+// (wiki [[agent-loop-design-rules]]); injected on every /goal. Knob:
+// PRISM_GOAL_RULES_DISABLE=1 drops just this block.
+const GOAL_DISCIPLINE = [
+  `🎯 GOAL DISCIPLINE (bound the open loop -- wiki [[agent-loop-design-rules]]):`,
+  `   1. CONVERT open -> closed: name the GOAL, the EVAL gate (how you know each step is done -- tests/scrutiny/numbers), and the STOP condition (budget/iteration cap) BEFORE the first build. An unbounded /goal on a loose standard burns tokens into slop. [shann]`,
+  `   2. DECOMPOSE: orchestrate goal -> specialist steps -> narrow subagent work; keep coordination deterministic + ~zero-token (route, don't reason -- R5; a Workflow coordinator spends nothing). Route each MECHANICAL/text step (explain/summarize/docstring/classify/lint/diff/triage) to the local lane via the /smart executor contract (resolveExecutor -> ask-ollama.mjs, $0); reserve Claude for judgment + safety. [PawelHuryn]`,
+  `   3. EACH PASS FEEDS THE NEXT + checkpoint at YELLOW -- carry numbers forward, /compact before the spiral, never continue from a state you can't describe (R6/R10). [shann/IBuzovskyi]`,
+  `   4. BUILD across galaxy lines -- if you are a backend builder (alpha/bravo/golf/sierra/papa/quebec/india) an ownership gate is ADVISORY: coordinate, do not defer-and-wait. [[feedback_primary_backend_builders_no_galaxy_gate_block]]`,
+  `   5. FORCE 100% COMPLETION (R15 WIRE->TEST->VALIDATE->APPLY) -- nothing a /goal builds is "done" until ALL hold: (a) WIRE it to every natural dispatcher/consumer/surface in the same commit (no orphans); (b) TEST with real reference-value/invariant tests (happy + >=3 failure + >=2 adversarial), round-tripped THROUGH the dispatcher; (c) VALIDATE on LIVE data with numbers, never "looks fine"; (d) APPLY-TO-ALL-GALAXIES -- a general asset must serve EVERY galaxy, a domain-specific one is cloned (not forked) to each galaxy that shares the need. For EACH artifact, explicitly DETERMINE + state: its GALAXY placement (which engines/<galaxy>/ it belongs to), the consumer NODES to actively wire/bridge it into, whether it needs AUTO-INVOCATION (and if so the hook/trigger + WHEN it fires), and whether it is DOMAIN-ONLY or FLEET/ALL-GALAXY-WIDE. Partial/one-galaxy = [SCOPED] exception only. [[feedback_wire_test_validate_all_galaxies]]`,
+].join("\n");
 const STATE_DIR = path.join("H:", "prism", "state", "shared");
 const ENVELOPE_DIR = path.join("H:", "prism", "mcp-server", "data", "milestones");
 
@@ -50,7 +69,7 @@ function readStdin() {
 function readJson(p) { try { return JSON.parse(fs.readFileSync(p, "utf-8")); } catch { return null; } }
 function ageHours(p) { try { return (Date.now() - fs.statSync(p).mtimeMs) / 3600000; } catch { return null; } }
 
-async function buildContext() {
+async function buildContext(prompt = "") {
   const staleHrs = Number(process.env.PRISM_GOAL_PREREQ_STALE_HRS) || 2;
   const lines = [`─── /goal pre-flight ────────────────────────────`];
 
@@ -186,6 +205,18 @@ async function buildContext() {
     } catch { /* skip */ }
   }
 
+  // Targeted loss-function nudge -- fires ONLY when the goal text is unbounded
+  // prose with no measurable check (deterministic, R5; [[feedback_goal_needs_loss_function]]).
+  // The static GOAL_DISCIPLINE below is the always-on reminder; this is the sharp,
+  // conditional one that a static always-on reminder cannot be (it becomes wallpaper).
+  // Knob: PRISM_GOAL_LOSS_NUDGE_DISABLE=1.
+  if (String(process.env.PRISM_GOAL_LOSS_NUDGE_DISABLE ?? "") !== "1") {
+    try {
+      const lf = await import("../../scripts/lib/goal-loss-function-detect.mjs");
+      if (lf.detectMissingLossFunction(lf.extractGoalText(prompt)).unbounded) lines.push(lf.LOSS_FUNCTION_NUDGE);
+    } catch { /* lazy-import + classifier are fail-open: a fault here never blocks /goal entry */ }
+  }
+  if (String(process.env.PRISM_GOAL_RULES_DISABLE ?? "") !== "1") lines.push(GOAL_DISCIPLINE);
   lines.push(`💡 Reminder: /goal complete fires goal-complete-gate.mjs (Stop hook). Bypass: PRISM_GOAL_GATE_AUDIT_BYPASS=1 (logged).`);
   lines.push(`────────────────────────────────────────────────`);
   return lines.join("\n");
@@ -202,10 +233,43 @@ async function main() {
     process.stdout.write(JSON.stringify({ continue: true }));
     return;
   }
-  const ctx = await buildContext();
+  const ctx = await buildContext(prompt);
+  let additionalContext = ctx;
+  // Loop-context dedup (FOXTROT U-LOOP-INJECT-DEDUP, 2026-05-18): in a /loop the
+  // /goal pre-flight panel re-injects byte-identical content every iteration.
+  // If unchanged (after volatile-token normalization) since an earlier prompt
+  // this session, emit a compact pointer instead. Fail-open + kill-knob — a
+  // dedup fault can ONLY ever emit the FULL panel, never wrongly hide it.
+  if (String(process.env.PRISM_LOOP_INJECT_DEDUP_DISABLE ?? "") !== "1") {
+    try {
+      const { recordAndCheck } = await import("../../scripts/lib/loop-inject-dedup.mjs");
+      const sid = stdin?.session_id;
+      if (sid) {
+        const d = recordAndCheck({ sessionId: sid, hookName: "goal-prereq-inject", content: ctx });
+        if (d.suppress) additionalContext = d.pointer;
+      }
+    } catch { /* fail-open: keep the full panel */ }
+  }
+  // STACK ADVISOR (SELF-DRIVE-MS0/U-STACK-ADVISOR): append the "deploy the WHOLE PRISM
+  // stack optimally + variably + efficiently" plan AFTER the dedup decision -- so the
+  // (stable) pre-flight panel stays deduped while the (intent-routed) advisor is always
+  // fresh. iter 0 for a bare /goal; a /goal inside a /loop already gets the rotating
+  // advisor from loop-iteration-inject that same turn. Lazy-import + fail-open. Knob:
+  // PRISM_STACK_ADVISOR_DISABLE=1.
+  // Skip when the prompt ALSO triggers /loop -- loop-iteration-inject already injects
+  // the (rotating) advisor that same turn, so appending here would double the ~2KB
+  // block for no gain (arm C P2.1; efficiency is the feature's own goal).
+  const alsoLoop = /(^|\s)\/loop(\s|$)/.test(prompt);
+  if (!alsoLoop && String(process.env.PRISM_STACK_ADVISOR_DISABLE ?? "") !== "1") {
+    try {
+      const { buildStackAdvisory } = await import("../../scripts/lib/loop-goal-stack-advisor.mjs");
+      const adv = buildStackAdvisory({ prompt, iter: 0 });
+      if (adv) additionalContext += "\n" + adv;
+    } catch { /* fail-open: an advisor fault never blocks /goal pre-flight */ }
+  }
   process.stdout.write(JSON.stringify({
     continue: true,
-    hookSpecificOutput: { hookEventName: "UserPromptSubmit", additionalContext: ctx },
+    hookSpecificOutput: { hookEventName: "UserPromptSubmit", additionalContext },
   }));
 }
 

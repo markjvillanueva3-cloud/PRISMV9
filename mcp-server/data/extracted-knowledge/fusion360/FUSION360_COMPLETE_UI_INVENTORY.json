@@ -1,0 +1,2054 @@
+{
+  "system": "Fusion 360",
+  "vendor": "Autodesk",
+  "ui_inventory_version": 1,
+  "last_updated": "2026-04-18",
+  "fusion_version_base": "2.0.18719",
+  "workspaces": {
+    "Design": {
+      "description": "Primary CAD modeling workspace for solid, surface, sheet metal, mesh, and plastic design",
+      "toolbar_tabs": {
+        "Solid": {
+          "description": "Solid body modeling tools",
+          "panels": {
+            "Create": {
+              "tools": [
+                {"name": "New Component", "shortcut": null, "description": "Create a new component in the assembly"},
+                {"name": "Create Sketch", "shortcut": "S", "description": "Start a new 2D sketch on a plane or face"},
+                {"name": "Create Form", "shortcut": null, "description": "Enter T-Spline sculpting environment"},
+                {"name": "Extrude", "shortcut": "E", "description": "Extrude sketch profiles or faces"},
+                {"name": "Revolve", "shortcut": null, "description": "Revolve sketch profiles around an axis"},
+                {"name": "Sweep", "shortcut": null, "description": "Sweep a profile along a path"},
+                {"name": "Loft", "shortcut": null, "description": "Create smooth transitions between profiles"},
+                {"name": "Rib", "shortcut": null, "description": "Create structural ribs"},
+                {"name": "Web", "shortcut": null, "description": "Create web features between faces"},
+                {"name": "Hole", "shortcut": "H", "description": "Create holes with various types (simple, counterbore, countersink, tapped)"},
+                {"name": "Thread", "shortcut": null, "description": "Add threads to cylindrical faces"},
+                {"name": "Box", "shortcut": null, "description": "Create a primitive box"},
+                {"name": "Cylinder", "shortcut": null, "description": "Create a primitive cylinder"},
+                {"name": "Sphere", "shortcut": null, "description": "Create a primitive sphere"},
+                {"name": "Torus", "shortcut": null, "description": "Create a primitive torus"},
+                {"name": "Coil", "shortcut": null, "description": "Create helical coil geometry"},
+                {"name": "Pipe", "shortcut": null, "description": "Create pipe geometry along a path"},
+                {"name": "Pattern on Path", "shortcut": null, "description": "Pattern features along a path"},
+                {"name": "Mirror - Internal", "shortcut": null, "description": "Mirror features within a component"}
+              ]
+            },
+            "Modify": {
+              "tools": [
+                {"name": "Press Pull", "shortcut": "Q", "description": "Push or pull faces to modify geometry"},
+                {"name": "Fillet", "shortcut": "F", "description": "Add rounded edges"},
+                {"name": "Chamfer", "shortcut": null, "description": "Add beveled edges"},
+                {"name": "Shell", "shortcut": null, "description": "Hollow out a solid body"},
+                {"name": "Draft", "shortcut": null, "description": "Add draft angles to faces"},
+                {"name": "Scale", "shortcut": null, "description": "Scale bodies or components"},
+                {"name": "Combine", "shortcut": null, "description": "Boolean operations (join, cut, intersect)"},
+                {"name": "Offset Face", "shortcut": null, "description": "Offset selected faces"},
+                {"name": "Replace Face", "shortcut": null, "description": "Replace one face with another"},
+                {"name": "Split Face", "shortcut": null, "description": "Split faces with sketch or other geometry"},
+                {"name": "Split Body", "shortcut": null, "description": "Split bodies with planes or surfaces"},
+                {"name": "Silhouette Split", "shortcut": null, "description": "Split at silhouette from a direction"},
+                {"name": "Move/Copy", "shortcut": "M", "description": "Move or copy bodies, faces, or components"},
+                {"name": "Align", "shortcut": null, "description": "Align objects to each other"},
+                {"name": "Delete", "shortcut": "Delete", "description": "Delete selected geometry"},
+                {"name": "Physical Material", "shortcut": null, "description": "Assign physical material properties"},
+                {"name": "Appearance", "shortcut": "A", "description": "Assign visual appearance"},
+                {"name": "Manage Materials", "shortcut": null, "description": "Open material library manager"},
+                {"name": "Change Parameters", "shortcut": null, "description": "Edit design parameters"}
+              ]
+            },
+            "Assemble": {
+              "tools": [
+                {"name": "New Component", "shortcut": null, "description": "Create a new component"},
+                {"name": "Joint", "shortcut": "J", "description": "Create joints between components"},
+                {"name": "As-built Joint", "shortcut": null, "description": "Create joints from current positions"},
+                {"name": "Joint Origin", "shortcut": null, "description": "Define joint attachment points"},
+                {"name": "Rigid Group", "shortcut": null, "description": "Lock components together"},
+                {"name": "Tangent Relationship", "shortcut": null, "description": "Create tangent constraints"},
+                {"name": "Drive Joints", "shortcut": null, "description": "Animate joint movement"},
+                {"name": "Motion Link", "shortcut": null, "description": "Link motion between joints"},
+                {"name": "Enable Contact Sets", "shortcut": null, "description": "Enable collision detection"},
+                {"name": "Enable All Contact", "shortcut": null, "description": "Enable all contact detection"},
+                {"name": "Disable Contact", "shortcut": null, "description": "Disable contact detection"},
+                {"name": "Motion Study", "shortcut": null, "description": "Create motion analysis study"}
+              ]
+            },
+            "Construct": {
+              "tools": [
+                {"name": "Offset Plane", "shortcut": null, "description": "Create plane offset from another"},
+                {"name": "Plane at Angle", "shortcut": null, "description": "Create plane at angle to edge"},
+                {"name": "Tangent Plane", "shortcut": null, "description": "Create plane tangent to face"},
+                {"name": "Midplane", "shortcut": null, "description": "Create plane between two faces"},
+                {"name": "Plane Through Two Edges", "shortcut": null, "description": "Create plane through two edges"},
+                {"name": "Plane Through Three Points", "shortcut": null, "description": "Create plane through three points"},
+                {"name": "Plane Tangent to Face at Point", "shortcut": null, "description": "Create tangent plane at point"},
+                {"name": "Plane Along Path", "shortcut": null, "description": "Create plane along a path"},
+                {"name": "Axis Through Cylinder/Cone/Torus", "shortcut": null, "description": "Create axis through rotational geometry"},
+                {"name": "Axis Perpendicular at Point", "shortcut": null, "description": "Create perpendicular axis"},
+                {"name": "Axis Through Two Planes", "shortcut": null, "description": "Create axis at intersection"},
+                {"name": "Axis Through Two Points", "shortcut": null, "description": "Create axis through points"},
+                {"name": "Axis Through Edge", "shortcut": null, "description": "Create axis along edge"},
+                {"name": "Axis Perpendicular to Face at Point", "shortcut": null, "description": "Create perpendicular axis at point"},
+                {"name": "Point at Vertex", "shortcut": null, "description": "Create construction point at vertex"},
+                {"name": "Point Through Two Edges", "shortcut": null, "description": "Create point at edge intersection"},
+                {"name": "Point Through Three Planes", "shortcut": null, "description": "Create point at plane intersection"},
+                {"name": "Point at Center of Circle/Sphere/Torus", "shortcut": null, "description": "Create point at center"},
+                {"name": "Point at Edge and Plane", "shortcut": null, "description": "Create point at intersection"},
+                {"name": "Point Along Path", "shortcut": null, "description": "Create point along path"}
+              ]
+            },
+            "Inspect": {
+              "tools": [
+                {"name": "Measure", "shortcut": "I", "description": "Measure distances, angles, areas"},
+                {"name": "Interference", "shortcut": null, "description": "Check for body interference"},
+                {"name": "Curvature Comb Analysis", "shortcut": null, "description": "Analyze surface curvature"},
+                {"name": "Zebra Analysis", "shortcut": null, "description": "Analyze surface continuity with stripes"},
+                {"name": "Draft Analysis", "shortcut": null, "description": "Analyze draft angles for molding"},
+                {"name": "Curvature Map Analysis", "shortcut": null, "description": "Color-coded curvature display"},
+                {"name": "Isocurve Analysis", "shortcut": null, "description": "Display surface isocurves"},
+                {"name": "Accessibility Analysis", "shortcut": null, "description": "Analyze tool accessibility"},
+                {"name": "Minimum Radius Analysis", "shortcut": null, "description": "Find minimum radii"},
+                {"name": "Section Analysis", "shortcut": null, "description": "Create section views"},
+                {"name": "Center of Mass", "shortcut": null, "description": "Display center of mass"},
+                {"name": "Component Color Cycling Toggle", "shortcut": null, "description": "Toggle component colors"},
+                {"name": "Display Component Colors", "shortcut": null, "description": "Show component colors"}
+              ]
+            },
+            "Insert": {
+              "tools": [
+                {"name": "Insert Derive", "shortcut": null, "description": "Derive geometry from other designs"},
+                {"name": "Decal", "shortcut": null, "description": "Apply image decals to faces"},
+                {"name": "Attached Canvas", "shortcut": null, "description": "Attach reference images"},
+                {"name": "Insert Mesh", "shortcut": null, "description": "Import mesh files (STL, OBJ)"},
+                {"name": "Insert SVG", "shortcut": null, "description": "Import SVG files as sketches"},
+                {"name": "Insert DXF", "shortcut": null, "description": "Import DXF files"},
+                {"name": "Insert McMaster-Carr Component", "shortcut": null, "description": "Insert parts from McMaster-Carr"},
+                {"name": "Insert TraceParts Component", "shortcut": null, "description": "Insert parts from TraceParts"},
+                {"name": "Insert a manufacturer part", "shortcut": null, "description": "Insert from online catalogs"}
+              ]
+            },
+            "Select": {
+              "tools": [
+                {"name": "Selection Filters", "shortcut": null, "description": "Filter selectable entity types"},
+                {"name": "Selection Priority", "shortcut": null, "description": "Set selection priority"},
+                {"name": "Select All", "shortcut": "Ctrl+A", "description": "Select all visible geometry"},
+                {"name": "Invert Selection", "shortcut": null, "description": "Invert current selection"}
+              ]
+            }
+          }
+        },
+        "Surface": {
+          "description": "Surface modeling tools",
+          "panels": {
+            "Create": {
+              "tools": [
+                {"name": "Extrude", "shortcut": null, "description": "Extrude sketch to surface"},
+                {"name": "Revolve", "shortcut": null, "description": "Revolve sketch to surface"},
+                {"name": "Sweep", "shortcut": null, "description": "Sweep profile along path as surface"},
+                {"name": "Loft", "shortcut": null, "description": "Loft between profiles as surface"},
+                {"name": "Patch", "shortcut": null, "description": "Create patch surface from edges"},
+                {"name": "Ruled", "shortcut": null, "description": "Create ruled surface from edge"},
+                {"name": "Offset", "shortcut": null, "description": "Offset surface"},
+                {"name": "Thicken", "shortcut": null, "description": "Thicken surface to solid"}
+              ]
+            },
+            "Modify": {
+              "tools": [
+                {"name": "Trim", "shortcut": null, "description": "Trim surfaces"},
+                {"name": "Untrim", "shortcut": null, "description": "Restore trimmed surface"},
+                {"name": "Extend", "shortcut": null, "description": "Extend surface edges"},
+                {"name": "Stitch", "shortcut": null, "description": "Stitch surfaces into solid"},
+                {"name": "Unstitch", "shortcut": null, "description": "Separate stitched surfaces"},
+                {"name": "Reverse Normal", "shortcut": null, "description": "Flip surface normal direction"}
+              ]
+            }
+          }
+        },
+        "Sheet_Metal": {
+          "description": "Sheet metal design tools",
+          "panels": {
+            "Create": {
+              "tools": [
+                {"name": "Flange", "shortcut": null, "description": "Create sheet metal flange"},
+                {"name": "Bend", "shortcut": null, "description": "Add bend to sheet metal"},
+                {"name": "Flat Pattern", "shortcut": null, "description": "Generate flat pattern"},
+                {"name": "Convert to Sheet Metal", "shortcut": null, "description": "Convert solid to sheet metal"},
+                {"name": "Contour Flange", "shortcut": null, "description": "Create flange from sketch"},
+                {"name": "Loft", "shortcut": null, "description": "Sheet metal loft"}
+              ]
+            },
+            "Modify": {
+              "tools": [
+                {"name": "Unfold", "shortcut": null, "description": "Unfold bends"},
+                {"name": "Refold", "shortcut": null, "description": "Refold unfolded bends"},
+                {"name": "Hem", "shortcut": null, "description": "Create sheet metal hem"},
+                {"name": "Sheet Metal Rules", "shortcut": null, "description": "Define sheet metal rules"}
+              ]
+            }
+          }
+        },
+        "Mesh": {
+          "description": "Mesh editing tools for STL and other mesh files",
+          "panels": {
+            "Create": {
+              "tools": [
+                {"name": "Insert Mesh", "shortcut": null, "description": "Import mesh file"},
+                {"name": "Tessellate", "shortcut": null, "description": "Convert BRep to mesh"},
+                {"name": "BRep to Mesh", "shortcut": null, "description": "Convert solid to mesh"}
+              ]
+            },
+            "Prepare": {
+              "tools": [
+                {"name": "Generate Face Groups", "shortcut": null, "description": "Detect face groups"},
+                {"name": "Merge Face Groups", "shortcut": null, "description": "Merge selected face groups"},
+                {"name": "Merge Bodies", "shortcut": null, "description": "Merge mesh bodies"},
+                {"name": "Separate", "shortcut": null, "description": "Separate mesh bodies"}
+              ]
+            },
+            "Modify": {
+              "tools": [
+                {"name": "Direct Edit", "shortcut": null, "description": "Direct manipulation of mesh"},
+                {"name": "Remesh", "shortcut": null, "description": "Optimize mesh topology"},
+                {"name": "Reduce", "shortcut": null, "description": "Reduce mesh face count"},
+                {"name": "Smooth", "shortcut": null, "description": "Smooth mesh surface"},
+                {"name": "Plane Cut", "shortcut": null, "description": "Cut mesh with plane"},
+                {"name": "Fill Hole", "shortcut": null, "description": "Fill holes in mesh"},
+                {"name": "Erase and Fill", "shortcut": null, "description": "Erase faces and fill"},
+                {"name": "Close Holes", "shortcut": null, "description": "Automatically close all holes"},
+                {"name": "Delete Faces", "shortcut": null, "description": "Delete selected faces"},
+                {"name": "Reverse Normal", "shortcut": null, "description": "Flip mesh normals"},
+                {"name": "Scale Mesh", "shortcut": null, "description": "Scale mesh uniformly"},
+                {"name": "Convert Mesh", "shortcut": null, "description": "Convert mesh to BRep"}
+              ]
+            }
+          }
+        },
+        "Plastic": {
+          "description": "Tools for plastic part design",
+          "panels": {
+            "Create": {
+              "tools": [
+                {"name": "Boss", "shortcut": null, "description": "Create plastic boss"},
+                {"name": "Snap Fit", "shortcut": null, "description": "Create snap fit features"},
+                {"name": "Rest", "shortcut": null, "description": "Create rest features"},
+                {"name": "Vent", "shortcut": null, "description": "Create venting features"},
+                {"name": "Grill", "shortcut": null, "description": "Create grill patterns"},
+                {"name": "Rule Fillet", "shortcut": null, "description": "Apply rule-based fillets"}
+              ]
+            }
+          }
+        },
+        "Utilities": {
+          "description": "Utility tools",
+          "panels": {
+            "Make": {
+              "tools": [
+                {"name": "3D Print", "shortcut": null, "description": "Send to 3D print utility"},
+                {"name": "Custom Graphics", "shortcut": null, "description": "Add custom graphics"}
+              ]
+            },
+            "Add-Ins": {
+              "tools": [
+                {"name": "Scripts and Add-Ins", "shortcut": "Shift+S", "description": "Manage scripts and add-ins"},
+                {"name": "Add-In Manager", "shortcut": null, "description": "Manage installed add-ins"}
+              ]
+            },
+            "Compute_All": {
+              "tools": [
+                {"name": "Compute All", "shortcut": null, "description": "Recompute all features"}
+              ]
+            }
+          }
+        }
+      },
+      "sketch_tools": {
+        "description": "Tools available when editing a sketch",
+        "panels": {
+          "Create": {
+            "tools": [
+              {"name": "Line", "shortcut": "L", "description": "Draw line segments"},
+              {"name": "Rectangle", "shortcut": "R", "description": "Draw rectangles"},
+              {"name": "2-Point Rectangle", "shortcut": null, "description": "Rectangle from 2 corners"},
+              {"name": "3-Point Rectangle", "shortcut": null, "description": "Rectangle from 3 points"},
+              {"name": "Center Rectangle", "shortcut": null, "description": "Rectangle from center"},
+              {"name": "Circle", "shortcut": "C", "description": "Draw circles"},
+              {"name": "Center Diameter Circle", "shortcut": null, "description": "Circle from center and diameter"},
+              {"name": "2-Point Circle", "shortcut": null, "description": "Circle from 2 points"},
+              {"name": "3-Point Circle", "shortcut": null, "description": "Circle through 3 points"},
+              {"name": "2-Tangent Circle", "shortcut": null, "description": "Circle tangent to 2 elements"},
+              {"name": "3-Tangent Circle", "shortcut": null, "description": "Circle tangent to 3 elements"},
+              {"name": "Ellipse", "shortcut": null, "description": "Draw ellipses"},
+              {"name": "Arc", "shortcut": null, "description": "Draw arcs"},
+              {"name": "3-Point Arc", "shortcut": null, "description": "Arc through 3 points"},
+              {"name": "Center Point Arc", "shortcut": null, "description": "Arc from center"},
+              {"name": "Tangent Arc", "shortcut": null, "description": "Arc tangent to element"},
+              {"name": "Polygon", "shortcut": null, "description": "Draw regular polygons"},
+              {"name": "Circumscribed Polygon", "shortcut": null, "description": "Polygon outside circle"},
+              {"name": "Inscribed Polygon", "shortcut": null, "description": "Polygon inside circle"},
+              {"name": "Edge Polygon", "shortcut": null, "description": "Polygon by edge"},
+              {"name": "Slot", "shortcut": null, "description": "Draw slots"},
+              {"name": "Center to Center Slot", "shortcut": null, "description": "Slot by center points"},
+              {"name": "Overall Slot", "shortcut": null, "description": "Slot by overall dimensions"},
+              {"name": "Center Point Slot", "shortcut": null, "description": "Slot from center point"},
+              {"name": "3-Point Arc Slot", "shortcut": null, "description": "Arc slot through 3 points"},
+              {"name": "Center Point Arc Slot", "shortcut": null, "description": "Arc slot from center"},
+              {"name": "Spline", "shortcut": null, "description": "Draw spline curves"},
+              {"name": "Fit Point Spline", "shortcut": null, "description": "Spline through points"},
+              {"name": "Control Point Spline", "shortcut": null, "description": "Spline with control points"},
+              {"name": "Conic Curve", "shortcut": null, "description": "Draw conic curves"},
+              {"name": "Point", "shortcut": null, "description": "Create sketch points"},
+              {"name": "Text", "shortcut": "T", "description": "Add text to sketch"},
+              {"name": "Mirror", "shortcut": null, "description": "Mirror sketch entities"},
+              {"name": "Circular Pattern", "shortcut": null, "description": "Circular pattern of sketch entities"},
+              {"name": "Rectangular Pattern", "shortcut": null, "description": "Rectangular pattern of sketch entities"},
+              {"name": "Project", "shortcut": "P", "description": "Project geometry onto sketch"},
+              {"name": "Include 3D Geometry", "shortcut": null, "description": "Include 3D geometry in sketch"},
+              {"name": "Intersection Curve", "shortcut": null, "description": "Create curves at intersections"},
+              {"name": "Include", "shortcut": null, "description": "Include external sketch geometry"}
+            ]
+          },
+          "Modify": {
+            "tools": [
+              {"name": "Fillet", "shortcut": null, "description": "Fillet sketch corners"},
+              {"name": "Chamfer", "shortcut": null, "description": "Chamfer sketch corners"},
+              {"name": "Trim", "shortcut": "X", "description": "Trim sketch entities"},
+              {"name": "Extend", "shortcut": null, "description": "Extend sketch entities"},
+              {"name": "Break", "shortcut": null, "description": "Break sketch entities"},
+              {"name": "Offset", "shortcut": "O", "description": "Offset sketch entities"},
+              {"name": "Sketch Scale", "shortcut": null, "description": "Scale sketch entities"},
+              {"name": "Move/Copy", "shortcut": null, "description": "Move or copy sketch entities"}
+            ]
+          },
+          "Constraints": {
+            "tools": [
+              {"name": "Coincident", "shortcut": null, "description": "Coincident constraint"},
+              {"name": "Collinear", "shortcut": null, "description": "Collinear constraint"},
+              {"name": "Concentric", "shortcut": null, "description": "Concentric constraint"},
+              {"name": "Midpoint", "shortcut": null, "description": "Midpoint constraint"},
+              {"name": "Fix/Unfix", "shortcut": null, "description": "Fix or unfix position"},
+              {"name": "Parallel", "shortcut": null, "description": "Parallel constraint"},
+              {"name": "Perpendicular", "shortcut": null, "description": "Perpendicular constraint"},
+              {"name": "Horizontal/Vertical", "shortcut": null, "description": "Horizontal or vertical constraint"},
+              {"name": "Tangent", "shortcut": null, "description": "Tangent constraint"},
+              {"name": "Curvature", "shortcut": null, "description": "Curvature continuous constraint"},
+              {"name": "Smooth", "shortcut": null, "description": "Smooth (G2) constraint"},
+              {"name": "Equal", "shortcut": null, "description": "Equal constraint"},
+              {"name": "Symmetric", "shortcut": null, "description": "Symmetric constraint"}
+            ]
+          },
+          "Dimensions": {
+            "tools": [
+              {"name": "Sketch Dimension", "shortcut": "D", "description": "Add dimensions to sketch"}
+            ]
+          }
+        }
+      },
+      "form_tools": {
+        "description": "T-Spline sculpting tools in Form mode",
+        "panels": {
+          "Create": {
+            "tools": [
+              {"name": "Box", "shortcut": null, "description": "Create T-Spline box"},
+              {"name": "Plane", "shortcut": null, "description": "Create T-Spline plane"},
+              {"name": "Cylinder", "shortcut": null, "description": "Create T-Spline cylinder"},
+              {"name": "Sphere", "shortcut": null, "description": "Create T-Spline sphere"},
+              {"name": "Torus", "shortcut": null, "description": "Create T-Spline torus"},
+              {"name": "Quadball", "shortcut": null, "description": "Create T-Spline quadball"},
+              {"name": "Pipe", "shortcut": null, "description": "Create T-Spline pipe"},
+              {"name": "Face", "shortcut": null, "description": "Create T-Spline face"},
+              {"name": "Extrude", "shortcut": null, "description": "Extrude T-Spline faces"},
+              {"name": "Revolve", "shortcut": null, "description": "Revolve sketch to T-Spline"},
+              {"name": "Sweep", "shortcut": null, "description": "Sweep to T-Spline"},
+              {"name": "Loft", "shortcut": null, "description": "Loft to T-Spline"}
+            ]
+          },
+          "Modify": {
+            "tools": [
+              {"name": "Edit Form", "shortcut": null, "description": "Edit T-Spline vertices/edges/faces"},
+              {"name": "Insert Edge", "shortcut": null, "description": "Insert edges into T-Spline"},
+              {"name": "Subdivide", "shortcut": null, "description": "Subdivide T-Spline faces"},
+              {"name": "Insert Point", "shortcut": null, "description": "Insert points into T-Spline"},
+              {"name": "Merge Edge", "shortcut": null, "description": "Merge T-Spline edges"},
+              {"name": "Bridge", "shortcut": null, "description": "Bridge between T-Spline faces"},
+              {"name": "Fill Hole", "shortcut": null, "description": "Fill holes in T-Spline"},
+              {"name": "Erase and Fill", "shortcut": null, "description": "Erase and fill T-Spline area"},
+              {"name": "Weld Vertices", "shortcut": null, "description": "Weld T-Spline vertices"},
+              {"name": "Unweld Edges", "shortcut": null, "description": "Unweld T-Spline edges"},
+              {"name": "Crease", "shortcut": null, "description": "Crease T-Spline edges"},
+              {"name": "Uncrease", "shortcut": null, "description": "Remove creases"},
+              {"name": "Bevel Edge", "shortcut": null, "description": "Bevel T-Spline edges"},
+              {"name": "Slide Edge", "shortcut": null, "description": "Slide edge along surface"},
+              {"name": "Flatten", "shortcut": null, "description": "Flatten T-Spline to plane"},
+              {"name": "Straighten", "shortcut": null, "description": "Straighten T-Spline edges"},
+              {"name": "Smooth", "shortcut": null, "description": "Smooth T-Spline surface"},
+              {"name": "Pull", "shortcut": null, "description": "Pull T-Spline to surface"},
+              {"name": "Freeze", "shortcut": null, "description": "Freeze T-Spline subdivision"},
+              {"name": "Unfreeze", "shortcut": null, "description": "Unfreeze T-Spline subdivision"},
+              {"name": "Match", "shortcut": null, "description": "Match T-Spline to edge"},
+              {"name": "Thicken", "shortcut": null, "description": "Thicken T-Spline surface"},
+              {"name": "Convert", "shortcut": null, "description": "Convert T-Spline to BRep"}
+            ]
+          },
+          "Symmetry": {
+            "tools": [
+              {"name": "Mirror - Internal", "shortcut": null, "description": "Internal T-Spline mirror"},
+              {"name": "Circular - Internal", "shortcut": null, "description": "Internal circular symmetry"},
+              {"name": "Clear Symmetry", "shortcut": null, "description": "Remove T-Spline symmetry"}
+            ]
+          }
+        }
+      }
+    },
+    "Render": {
+      "description": "Photorealistic rendering workspace",
+      "toolbar_tabs": {
+        "Render": {
+          "panels": {
+            "Setup": {
+              "tools": [
+                {"name": "Appearance", "shortcut": "A", "description": "Assign visual materials"},
+                {"name": "Scene Settings", "shortcut": null, "description": "Configure render scene"},
+                {"name": "Texture Map Controls", "shortcut": null, "description": "Edit texture mapping"},
+                {"name": "Decal", "shortcut": null, "description": "Apply decal images"}
+              ]
+            },
+            "Render": {
+              "tools": [
+                {"name": "In-Canvas Render", "shortcut": null, "description": "Render in viewport"},
+                {"name": "Render", "shortcut": null, "description": "Create full render"},
+                {"name": "Render Gallery", "shortcut": null, "description": "View render history"}
+              ]
+            }
+          }
+        }
+      },
+      "scene_settings": {
+        "categories": [
+          {"name": "Environment", "settings": ["Environment Library", "Brightness", "Rotation", "Ground Plane", "Reflections"]},
+          {"name": "Camera", "settings": ["Perspective", "Orthographic", "Focal Length", "Depth of Field", "Exposure"]},
+          {"name": "Ground", "settings": ["Reflections", "Shadows", "Roughness"]},
+          {"name": "Background", "settings": ["Environment", "Solid Color", "Transparent"]},
+          {"name": "Advanced", "settings": ["Quality", "Exposure", "White Balance", "Depth Cue"]}
+        ]
+      }
+    },
+    "Animation": {
+      "description": "Motion animation and exploded views",
+      "toolbar_tabs": {
+        "Animation": {
+          "panels": {
+            "Transform": {
+              "tools": [
+                {"name": "Transform Components", "shortcut": null, "description": "Animate component transforms"},
+                {"name": "Auto Explode", "shortcut": null, "description": "Create automatic exploded view"},
+                {"name": "Manual Explode", "shortcut": null, "description": "Manually explode components"},
+                {"name": "Publish Video", "shortcut": null, "description": "Export animation video"}
+              ]
+            },
+            "View": {
+              "tools": [
+                {"name": "Storyboard", "shortcut": null, "description": "View storyboard timeline"}
+              ]
+            }
+          }
+        }
+      },
+      "timeline_controls": {
+        "elements": [
+          {"name": "Play", "description": "Play animation"},
+          {"name": "Pause", "description": "Pause animation"},
+          {"name": "Stop", "description": "Stop and reset"},
+          {"name": "Loop", "description": "Toggle loop playback"},
+          {"name": "Keyframe", "description": "Add keyframe"},
+          {"name": "Timeline Scrubber", "description": "Scrub through timeline"},
+          {"name": "Zoom Timeline", "description": "Zoom timeline view"},
+          {"name": "Frame Rate", "description": "Set animation frame rate"},
+          {"name": "Duration", "description": "Set animation duration"}
+        ]
+      }
+    },
+    "Simulation": {
+      "description": "Finite Element Analysis (FEA) workspace",
+      "toolbar_tabs": {
+        "Simulation": {
+          "panels": {
+            "Study": {
+              "tools": [
+                {"name": "New Study", "shortcut": null, "description": "Create new simulation study"},
+                {"name": "Static Stress", "shortcut": null, "description": "Static stress analysis"},
+                {"name": "Modal Frequencies", "shortcut": null, "description": "Modal frequency analysis"},
+                {"name": "Thermal", "shortcut": null, "description": "Thermal analysis"},
+                {"name": "Thermal Stress", "shortcut": null, "description": "Coupled thermal-stress"},
+                {"name": "Structural Buckling", "shortcut": null, "description": "Buckling analysis"},
+                {"name": "Nonlinear Static Stress", "shortcut": null, "description": "Nonlinear analysis"},
+                {"name": "Event Simulation", "shortcut": null, "description": "Dynamic event simulation"},
+                {"name": "Shape Optimization", "shortcut": null, "description": "Topology optimization"}
+              ]
+            },
+            "Materials": {
+              "tools": [
+                {"name": "Study Materials", "shortcut": null, "description": "Assign study materials"}
+              ]
+            },
+            "Constraints": {
+              "tools": [
+                {"name": "Structural Constraints", "shortcut": null, "description": "Apply boundary conditions"},
+                {"name": "Fixed", "shortcut": null, "description": "Fixed constraint"},
+                {"name": "Pin", "shortcut": null, "description": "Pin constraint"},
+                {"name": "Frictionless", "shortcut": null, "description": "Frictionless constraint"},
+                {"name": "Prescribed Displacement", "shortcut": null, "description": "Define displacement"}
+              ]
+            },
+            "Loads": {
+              "tools": [
+                {"name": "Structural Loads", "shortcut": null, "description": "Apply structural loads"},
+                {"name": "Force", "shortcut": null, "description": "Apply force"},
+                {"name": "Pressure", "shortcut": null, "description": "Apply pressure"},
+                {"name": "Moment", "shortcut": null, "description": "Apply moment"},
+                {"name": "Bearing Load", "shortcut": null, "description": "Apply bearing load"},
+                {"name": "Remote Force", "shortcut": null, "description": "Apply remote force"},
+                {"name": "Gravity", "shortcut": null, "description": "Apply gravity"},
+                {"name": "Body Force", "shortcut": null, "description": "Apply body force"},
+                {"name": "Thermal Loads", "shortcut": null, "description": "Apply thermal loads"}
+              ]
+            },
+            "Contacts": {
+              "tools": [
+                {"name": "Automatic Contacts", "shortcut": null, "description": "Auto-detect contacts"},
+                {"name": "Manual Contacts", "shortcut": null, "description": "Define manual contacts"}
+              ]
+            },
+            "Mesh": {
+              "tools": [
+                {"name": "Mesh Settings", "shortcut": null, "description": "Configure mesh"},
+                {"name": "Generate Mesh", "shortcut": null, "description": "Generate FEA mesh"},
+                {"name": "Local Mesh Control", "shortcut": null, "description": "Refine local mesh"}
+              ]
+            },
+            "Solve": {
+              "tools": [
+                {"name": "Pre-Check", "shortcut": null, "description": "Validate setup"},
+                {"name": "Solve", "shortcut": null, "description": "Run simulation"},
+                {"name": "Results", "shortcut": null, "description": "View results"}
+              ]
+            },
+            "Results": {
+              "tools": [
+                {"name": "Safety Factor", "shortcut": null, "description": "View safety factor"},
+                {"name": "Stress", "shortcut": null, "description": "View stress results"},
+                {"name": "Displacement", "shortcut": null, "description": "View displacement"},
+                {"name": "Reaction Force", "shortcut": null, "description": "View reaction forces"},
+                {"name": "Strain", "shortcut": null, "description": "View strain results"},
+                {"name": "Contact", "shortcut": null, "description": "View contact results"}
+              ]
+            }
+          }
+        }
+      }
+    },
+    "Manufacture": {
+      "description": "CAM workspace for CNC programming",
+      "toolbar_tabs": {
+        "Milling": {
+          "description": "2D and 3D milling operations",
+          "panels": {
+            "Job": {
+              "tools": [
+                {"name": "Setup", "shortcut": null, "description": "Define machining setup"},
+                {"name": "Manual NC", "shortcut": null, "description": "Add manual NC code"},
+                {"name": "Folder", "shortcut": null, "description": "Create operation folder"},
+                {"name": "Pattern", "shortcut": null, "description": "Pattern operations"}
+              ]
+            },
+            "2D": {
+              "tools": [
+                {"name": "Face", "shortcut": null, "description": "Face milling operation"},
+                {"name": "2D Pocket", "shortcut": null, "description": "2D pocket clearing"},
+                {"name": "2D Adaptive", "shortcut": null, "description": "2D adaptive clearing"},
+                {"name": "2D Contour", "shortcut": null, "description": "2D contour profiling"},
+                {"name": "Slot", "shortcut": null, "description": "Slot milling"},
+                {"name": "Trace", "shortcut": null, "description": "Trace toolpath"},
+                {"name": "Thread", "shortcut": null, "description": "Thread milling"},
+                {"name": "Bore", "shortcut": null, "description": "Boring operation"},
+                {"name": "Circular", "shortcut": null, "description": "Circular pocket"},
+                {"name": "Engrave", "shortcut": null, "description": "Engraving operation"},
+                {"name": "Chamfer", "shortcut": null, "description": "2D chamfer milling"}
+              ]
+            },
+            "3D": {
+              "tools": [
+                {"name": "Adaptive Clearing", "shortcut": null, "description": "3D adaptive roughing"},
+                {"name": "Pocket Clearing", "shortcut": null, "description": "3D pocket roughing"},
+                {"name": "Parallel", "shortcut": null, "description": "Parallel finishing"},
+                {"name": "Steep and Shallow", "shortcut": null, "description": "Steep and shallow finishing"},
+                {"name": "Contour", "shortcut": null, "description": "3D contour"},
+                {"name": "Ramp", "shortcut": null, "description": "Ramp finishing"},
+                {"name": "Horizontal", "shortcut": null, "description": "Horizontal finishing"},
+                {"name": "Pencil", "shortcut": null, "description": "Pencil finishing"},
+                {"name": "Scallop", "shortcut": null, "description": "Scallop finishing"},
+                {"name": "Radial", "shortcut": null, "description": "Radial finishing"},
+                {"name": "Spiral", "shortcut": null, "description": "Spiral finishing"},
+                {"name": "Morphed Spiral", "shortcut": null, "description": "Morphed spiral finishing"},
+                {"name": "Project", "shortcut": null, "description": "Project toolpath"},
+                {"name": "Morph", "shortcut": null, "description": "Morph between boundaries"},
+                {"name": "Blend", "shortcut": null, "description": "Blend finishing"},
+                {"name": "Flow", "shortcut": null, "description": "Flow finishing"}
+              ]
+            },
+            "Multi-Axis": {
+              "tools": [
+                {"name": "Swarf", "shortcut": null, "description": "Swarf milling"},
+                {"name": "Multi-Axis Contour", "shortcut": null, "description": "Multi-axis contouring"},
+                {"name": "Flow", "shortcut": null, "description": "Multi-axis flow"},
+                {"name": "Rotary", "shortcut": null, "description": "Rotary 4-axis"},
+                {"name": "Multi-Axis Pocket", "shortcut": null, "description": "Multi-axis pocketing"},
+                {"name": "Multi-Axis Parallel", "shortcut": null, "description": "Multi-axis parallel"},
+                {"name": "Multi-Axis Steep and Shallow", "shortcut": null, "description": "Multi-axis steep/shallow"}
+              ]
+            },
+            "Drilling": {
+              "tools": [
+                {"name": "Drill", "shortcut": null, "description": "Drilling cycle"},
+                {"name": "Spot", "shortcut": null, "description": "Spot drilling"},
+                {"name": "Peck", "shortcut": null, "description": "Peck drilling"},
+                {"name": "Deep Drill", "shortcut": null, "description": "Deep hole drilling"},
+                {"name": "Break-Through", "shortcut": null, "description": "Break-through drilling"},
+                {"name": "Counterbore", "shortcut": null, "description": "Counterbore"},
+                {"name": "Countersink", "shortcut": null, "description": "Countersink"},
+                {"name": "Tap", "shortcut": null, "description": "Tapping"},
+                {"name": "Ream", "shortcut": null, "description": "Reaming"},
+                {"name": "Circular Pocket Drilling", "shortcut": null, "description": "Circular pattern drilling"}
+              ]
+            },
+            "Probing": {
+              "tools": [
+                {"name": "Probe WCS", "shortcut": null, "description": "Probe work coordinate system"},
+                {"name": "Probe Geometry", "shortcut": null, "description": "Probe geometry"},
+                {"name": "Probe Surface", "shortcut": null, "description": "Probe surface"},
+                {"name": "Inspection", "shortcut": null, "description": "In-process inspection"}
+              ]
+            }
+          }
+        },
+        "Turning": {
+          "description": "Lathe turning operations",
+          "panels": {
+            "Turning": {
+              "tools": [
+                {"name": "Setup", "shortcut": null, "description": "Define turning setup"},
+                {"name": "Facing", "shortcut": null, "description": "Face turning"},
+                {"name": "Turning Rough", "shortcut": null, "description": "Rough turning"},
+                {"name": "Turning Finish", "shortcut": null, "description": "Finish turning"},
+                {"name": "Profile Rough", "shortcut": null, "description": "Profile roughing"},
+                {"name": "Profile Finish", "shortcut": null, "description": "Profile finishing"},
+                {"name": "Groove", "shortcut": null, "description": "Grooving"},
+                {"name": "Single Groove", "shortcut": null, "description": "Single groove cut"},
+                {"name": "Chamfer", "shortcut": null, "description": "Turning chamfer"},
+                {"name": "Thread", "shortcut": null, "description": "Threading"},
+                {"name": "Part", "shortcut": null, "description": "Part-off/cutoff"},
+                {"name": "Secondary Spindle Chuck", "shortcut": null, "description": "Transfer to sub-spindle"},
+                {"name": "Secondary Spindle Return", "shortcut": null, "description": "Return from sub-spindle"},
+                {"name": "Stock Transfer", "shortcut": null, "description": "Stock transfer operation"}
+              ]
+            },
+            "Mill-Turn": {
+              "tools": [
+                {"name": "Live Tooling", "shortcut": null, "description": "Mill-turn live tools"},
+                {"name": "Milling Setup", "shortcut": null, "description": "Mill-turn setup"},
+                {"name": "C-Axis Milling", "shortcut": null, "description": "C-axis milling operations"},
+                {"name": "Y-Axis Milling", "shortcut": null, "description": "Y-axis milling operations"}
+              ]
+            }
+          }
+        },
+        "Cutting": {
+          "description": "Cutting operations (laser, waterjet, plasma)",
+          "panels": {
+            "2D_Cutting": {
+              "tools": [
+                {"name": "2D Profile", "shortcut": null, "description": "2D profile cutting"},
+                {"name": "Etch", "shortcut": null, "description": "Etching/marking"},
+                {"name": "Lead-In/Lead-Out", "shortcut": null, "description": "Configure leads"},
+                {"name": "Nesting", "shortcut": null, "description": "Nest parts on sheet"}
+              ]
+            },
+            "Jet_Cutting": {
+              "tools": [
+                {"name": "Cutting Setup", "shortcut": null, "description": "Define cutting setup"},
+                {"name": "Laser", "shortcut": null, "description": "Laser cutting"},
+                {"name": "Waterjet", "shortcut": null, "description": "Waterjet cutting"},
+                {"name": "Plasma", "shortcut": null, "description": "Plasma cutting"}
+              ]
+            }
+          }
+        },
+        "Additive": {
+          "description": "Additive manufacturing / 3D printing",
+          "panels": {
+            "Additive": {
+              "tools": [
+                {"name": "FFF", "shortcut": null, "description": "Fused filament fabrication"},
+                {"name": "DMLS/SLM", "shortcut": null, "description": "Metal powder bed fusion"},
+                {"name": "Support Generation", "shortcut": null, "description": "Generate support structures"},
+                {"name": "Slicing", "shortcut": null, "description": "Slice model for printing"},
+                {"name": "Machine Setup", "shortcut": null, "description": "Configure printer"}
+              ]
+            }
+          }
+        }
+      },
+      "manage_panel": {
+        "tools": [
+          {"name": "Tool Library", "shortcut": null, "description": "Manage cutting tools"},
+          {"name": "Post Process", "shortcut": null, "description": "Generate NC code"},
+          {"name": "NC Program", "shortcut": null, "description": "View/edit NC program"},
+          {"name": "Simulate", "shortcut": null, "description": "Simulate toolpath"},
+          {"name": "Compare", "shortcut": null, "description": "Compare stock to model"},
+          {"name": "Machine Library", "shortcut": null, "description": "Manage CNC machines"}
+        ]
+      },
+      "inspect_panel": {
+        "tools": [
+          {"name": "Measure", "shortcut": null, "description": "Measure geometry"},
+          {"name": "Statistics", "shortcut": null, "description": "View operation statistics"},
+          {"name": "Generate Report", "shortcut": null, "description": "Generate setup sheet"}
+        ]
+      }
+    },
+    "Drawing": {
+      "description": "2D drawing and documentation workspace",
+      "toolbar_tabs": {
+        "Drawing": {
+          "panels": {
+            "Create": {
+              "tools": [
+                {"name": "Base View", "shortcut": null, "description": "Create base drawing view"},
+                {"name": "Projected View", "shortcut": null, "description": "Create projected view"},
+                {"name": "Section View", "shortcut": null, "description": "Create section view"},
+                {"name": "Detail View", "shortcut": null, "description": "Create detail view"},
+                {"name": "Break View", "shortcut": null, "description": "Create broken view"},
+                {"name": "Auxiliary View", "shortcut": null, "description": "Create auxiliary view"},
+                {"name": "Break Out", "shortcut": null, "description": "Create breakout view"}
+              ]
+            },
+            "Modify": {
+              "tools": [
+                {"name": "Move View", "shortcut": null, "description": "Move drawing view"},
+                {"name": "Rotate View", "shortcut": null, "description": "Rotate drawing view"},
+                {"name": "Edit View", "shortcut": null, "description": "Edit view properties"}
+              ]
+            },
+            "Dimensions": {
+              "tools": [
+                {"name": "Dimension", "shortcut": null, "description": "Add dimensions"},
+                {"name": "Ordinate Dimension", "shortcut": null, "description": "Add ordinate dimensions"},
+                {"name": "Linear Dimension", "shortcut": null, "description": "Add linear dimensions"},
+                {"name": "Angular Dimension", "shortcut": null, "description": "Add angular dimensions"},
+                {"name": "Diameter Dimension", "shortcut": null, "description": "Add diameter dimensions"},
+                {"name": "Radius Dimension", "shortcut": null, "description": "Add radius dimensions"},
+                {"name": "Baseline Dimension", "shortcut": null, "description": "Add baseline dimensions"},
+                {"name": "Chain Dimension", "shortcut": null, "description": "Add chain dimensions"},
+                {"name": "Auto Dimension", "shortcut": null, "description": "Auto-generate dimensions"}
+              ]
+            },
+            "Annotations": {
+              "tools": [
+                {"name": "Note", "shortcut": null, "description": "Add text notes"},
+                {"name": "Leader", "shortcut": null, "description": "Add leader notes"},
+                {"name": "Feature Control Frame", "shortcut": null, "description": "Add GD&T symbols"},
+                {"name": "Surface Texture", "shortcut": null, "description": "Add surface finish symbols"},
+                {"name": "Datum Identifier", "shortcut": null, "description": "Add datum identifiers"},
+                {"name": "Datum Target", "shortcut": null, "description": "Add datum targets"},
+                {"name": "Centerline", "shortcut": null, "description": "Add centerlines"},
+                {"name": "Center Mark", "shortcut": null, "description": "Add center marks"},
+                {"name": "Balloon", "shortcut": null, "description": "Add item balloons"},
+                {"name": "Hole Table", "shortcut": null, "description": "Create hole table"},
+                {"name": "Bill of Materials", "shortcut": null, "description": "Add bill of materials"},
+                {"name": "Parts List", "shortcut": null, "description": "Add parts list"},
+                {"name": "Revision Table", "shortcut": null, "description": "Add revision table"},
+                {"name": "Weld Symbol", "shortcut": null, "description": "Add weld symbols"}
+              ]
+            },
+            "Symbols": {
+              "tools": [
+                {"name": "Custom Symbol", "shortcut": null, "description": "Insert custom symbol"},
+                {"name": "Symbol Library", "shortcut": null, "description": "Access symbol library"}
+              ]
+            },
+            "Sketch": {
+              "tools": [
+                {"name": "Line", "shortcut": null, "description": "Draw line"},
+                {"name": "Circle", "shortcut": null, "description": "Draw circle"},
+                {"name": "Arc", "shortcut": null, "description": "Draw arc"},
+                {"name": "Rectangle", "shortcut": null, "description": "Draw rectangle"},
+                {"name": "Spline", "shortcut": null, "description": "Draw spline"}
+              ]
+            },
+            "Tables": {
+              "tools": [
+                {"name": "General Table", "shortcut": null, "description": "Create general table"},
+                {"name": "Bend Table", "shortcut": null, "description": "Create sheet metal bend table"},
+                {"name": "Punch Table", "shortcut": null, "description": "Create punch table"}
+              ]
+            }
+          }
+        }
+      },
+      "sheet_settings": {
+        "categories": [
+          {"name": "Size", "options": ["A", "B", "C", "D", "E", "A0", "A1", "A2", "A3", "A4", "Custom"]},
+          {"name": "Orientation", "options": ["Portrait", "Landscape"]},
+          {"name": "Template", "options": ["ISO", "ASME", "DIN", "JIS", "GB", "Custom"]},
+          {"name": "Title Block", "options": ["Standard", "Custom", "None"]},
+          {"name": "Scale", "options": ["1:1", "1:2", "1:4", "1:5", "1:10", "2:1", "4:1", "Custom"]}
+        ]
+      }
+    }
+  },
+  "data_panel": {
+    "description": "Left-side panel for project navigation and data management",
+    "sections": {
+      "Projects": {
+        "actions": [
+          {"name": "New Project", "description": "Create new cloud project"},
+          {"name": "Open Project", "description": "Open existing project"},
+          {"name": "Archive Project", "description": "Archive project"},
+          {"name": "Unarchive Project", "description": "Restore archived project"},
+          {"name": "Delete Project", "description": "Delete project"},
+          {"name": "Rename Project", "description": "Rename project"},
+          {"name": "Project Settings", "description": "Configure project settings"}
+        ]
+      },
+      "Designs": {
+        "actions": [
+          {"name": "New Design", "description": "Create new design"},
+          {"name": "Upload", "description": "Upload file to project"},
+          {"name": "Open", "description": "Open design"},
+          {"name": "Open Copy", "description": "Open copy of design"},
+          {"name": "Rename", "description": "Rename design"},
+          {"name": "Move", "description": "Move to folder"},
+          {"name": "Copy", "description": "Copy design"},
+          {"name": "Export", "description": "Export design"},
+          {"name": "Share", "description": "Share design"},
+          {"name": "Make Private", "description": "Set design to private"},
+          {"name": "Delete", "description": "Delete design"},
+          {"name": "Version History", "description": "View version history"},
+          {"name": "Restore Version", "description": "Restore previous version"},
+          {"name": "Create Branch", "description": "Create design branch"},
+          {"name": "Merge Branch", "description": "Merge branch into main"}
+        ]
+      },
+      "Folders": {
+        "actions": [
+          {"name": "New Folder", "description": "Create new folder"},
+          {"name": "Rename Folder", "description": "Rename folder"},
+          {"name": "Delete Folder", "description": "Delete folder"},
+          {"name": "Move Folder", "description": "Move folder"}
+        ]
+      },
+      "Samples": {
+        "description": "Sample designs provided by Autodesk"
+      },
+      "Recent": {
+        "description": "Recently opened designs"
+      },
+      "Shared_With_Me": {
+        "description": "Designs shared by other users"
+      },
+      "Trash": {
+        "actions": [
+          {"name": "Restore", "description": "Restore deleted item"},
+          {"name": "Delete Permanently", "description": "Permanently delete item"},
+          {"name": "Empty Trash", "description": "Delete all items in trash"}
+        ]
+      }
+    },
+    "search": {
+      "filters": ["All", "Designs", "Drawings", "Simulations", "CAM", "Components"],
+      "advanced_filters": ["Modified Date", "Created Date", "Owner", "Tags"]
+    }
+  },
+  "browser_panel": {
+    "description": "Left-side hierarchical tree showing design structure",
+    "tree_items": {
+      "Document_Settings": {
+        "context_menu": [
+          {"name": "Change Active Units", "description": "Switch unit system"}
+        ]
+      },
+      "Named_Views": {
+        "context_menu": [
+          {"name": "New Named View", "description": "Create new named view"},
+          {"name": "Delete", "description": "Delete named view"},
+          {"name": "Rename", "description": "Rename view"}
+        ]
+      },
+      "Origin": {
+        "children": ["Origin Point", "XY Plane", "XZ Plane", "YZ Plane", "X Axis", "Y Axis", "Z Axis"],
+        "context_menu": [
+          {"name": "Toggle Visibility", "description": "Show/hide origin"}
+        ]
+      },
+      "Component": {
+        "context_menu": [
+          {"name": "Activate", "description": "Make component active"},
+          {"name": "Isolate", "description": "Isolate component"},
+          {"name": "Ground", "description": "Ground component"},
+          {"name": "Unground", "description": "Unground component"},
+          {"name": "Edit In Place", "description": "Edit component in context"},
+          {"name": "Open", "description": "Open component in new tab"},
+          {"name": "Save As", "description": "Save component externally"},
+          {"name": "Copy", "description": "Copy component"},
+          {"name": "Paste", "description": "Paste component"},
+          {"name": "Paste New", "description": "Paste as new component"},
+          {"name": "Delete", "description": "Delete component"},
+          {"name": "Find in Window", "description": "Highlight in viewport"},
+          {"name": "Properties", "description": "View component properties"},
+          {"name": "Show/Hide", "description": "Toggle visibility"},
+          {"name": "Make Visible Only", "description": "Hide all except this"},
+          {"name": "Show All", "description": "Show all components"},
+          {"name": "Opacity", "description": "Set component opacity"},
+          {"name": "Break Link", "description": "Break external reference"},
+          {"name": "Suppress Features", "description": "Suppress component features"},
+          {"name": "Create Selection Set", "description": "Create selection set"}
+        ]
+      },
+      "Body": {
+        "context_menu": [
+          {"name": "Move to Component", "description": "Move body to component"},
+          {"name": "Copy to Component", "description": "Copy body to component"},
+          {"name": "Create Components from Bodies", "description": "Make each body a component"},
+          {"name": "Combine", "description": "Boolean combine"},
+          {"name": "Physical Material", "description": "Assign material"},
+          {"name": "Appearance", "description": "Assign appearance"},
+          {"name": "Delete", "description": "Delete body"},
+          {"name": "Properties", "description": "View body properties"},
+          {"name": "Show/Hide", "description": "Toggle visibility"}
+        ]
+      },
+      "Sketch": {
+        "context_menu": [
+          {"name": "Edit Sketch", "description": "Enter sketch edit mode"},
+          {"name": "Create Feature", "description": "Create feature from sketch"},
+          {"name": "Redefine Sketch Plane", "description": "Change sketch plane"},
+          {"name": "Share Sketch", "description": "Share with other components"},
+          {"name": "Stop Sharing", "description": "Stop sharing sketch"},
+          {"name": "Project To Sketch", "description": "Project geometry"},
+          {"name": "Delete", "description": "Delete sketch"},
+          {"name": "Properties", "description": "View sketch properties"},
+          {"name": "Show/Hide", "description": "Toggle visibility"},
+          {"name": "Show Profile", "description": "Highlight sketch profiles"}
+        ]
+      },
+      "Construction": {
+        "context_menu": [
+          {"name": "Delete", "description": "Delete construction geometry"},
+          {"name": "Show/Hide", "description": "Toggle visibility"},
+          {"name": "Properties", "description": "View properties"}
+        ]
+      },
+      "Joints": {
+        "context_menu": [
+          {"name": "Edit Joint", "description": "Modify joint"},
+          {"name": "Edit Joint Limits", "description": "Set motion limits"},
+          {"name": "Animate Joint", "description": "Preview joint motion"},
+          {"name": "Suppress", "description": "Suppress joint"},
+          {"name": "Delete", "description": "Delete joint"},
+          {"name": "Properties", "description": "View joint properties"}
+        ]
+      },
+      "Canvas": {
+        "context_menu": [
+          {"name": "Edit Canvas", "description": "Modify canvas image"},
+          {"name": "Calibrate", "description": "Calibrate canvas scale"},
+          {"name": "Delete", "description": "Delete canvas"},
+          {"name": "Show/Hide", "description": "Toggle visibility"}
+        ]
+      },
+      "Analysis": {
+        "context_menu": [
+          {"name": "Delete", "description": "Delete analysis"},
+          {"name": "Toggle", "description": "Toggle display"}
+        ]
+      }
+    }
+  },
+  "timeline": {
+    "description": "Bottom timeline showing feature history",
+    "elements": {
+      "Feature": {
+        "context_menu": [
+          {"name": "Edit Feature", "description": "Modify feature parameters"},
+          {"name": "Suppress", "description": "Suppress feature"},
+          {"name": "Unsuppress", "description": "Enable suppressed feature"},
+          {"name": "Delete", "description": "Delete feature"},
+          {"name": "Group", "description": "Create feature group"},
+          {"name": "Properties", "description": "View feature properties"},
+          {"name": "Find in Browser", "description": "Locate in browser"},
+          {"name": "Roll To", "description": "Roll timeline to feature"},
+          {"name": "Move Before", "description": "Reorder before"},
+          {"name": "Move After", "description": "Reorder after"}
+        ]
+      },
+      "Sketch": {
+        "context_menu": [
+          {"name": "Edit Sketch", "description": "Enter sketch edit mode"},
+          {"name": "Delete", "description": "Delete sketch"},
+          {"name": "Properties", "description": "View sketch properties"}
+        ]
+      },
+      "Group": {
+        "context_menu": [
+          {"name": "Rename Group", "description": "Rename feature group"},
+          {"name": "Expand Group", "description": "Show group contents"},
+          {"name": "Collapse Group", "description": "Hide group contents"},
+          {"name": "Ungroup", "description": "Dissolve group"},
+          {"name": "Suppress Group", "description": "Suppress all features in group"},
+          {"name": "Delete Group", "description": "Delete group and features"}
+        ]
+      }
+    },
+    "controls": {
+      "actions": [
+        {"name": "Roll Back", "description": "Roll back to earlier state"},
+        {"name": "Roll Forward", "description": "Roll forward to later state"},
+        {"name": "Roll to End", "description": "Roll to current state"},
+        {"name": "Playback", "description": "Animate feature creation"},
+        {"name": "Capture Position", "description": "Capture design state"},
+        {"name": "Design History", "description": "Toggle parametric history"}
+      ]
+    }
+  },
+  "preferences": {
+    "description": "Application preferences accessed via Account dropdown or Ctrl+,",
+    "categories": {
+      "General": {
+        "settings": [
+          {"name": "Default Modeling Orientation", "type": "dropdown", "options": ["Y Up", "Z Up"]},
+          {"name": "Pan, Zoom, Orbit shortcuts", "type": "dropdown", "options": ["Fusion 360", "Alias", "Inventor", "SolidWorks", "Tinkercad"]},
+          {"name": "Reverse zoom direction", "type": "toggle"},
+          {"name": "Default file type for design save", "type": "dropdown", "options": ["Cloud Design", "Local File"]},
+          {"name": "Prompt before closing unsaved designs", "type": "toggle"},
+          {"name": "Allow analytics data collection", "type": "toggle"},
+          {"name": "Show tips on startup", "type": "toggle"},
+          {"name": "Default launch workspace", "type": "dropdown"},
+          {"name": "Theme", "type": "dropdown", "options": ["Dark", "Light"]},
+          {"name": "UI Scaling", "type": "slider"},
+          {"name": "Language", "type": "dropdown"},
+          {"name": "Offline Mode Handling", "type": "toggle"}
+        ]
+      },
+      "Design": {
+        "settings": [
+          {"name": "Auto Project Edges on Reference", "type": "toggle"},
+          {"name": "Sketch Auto Constraints", "type": "toggle"},
+          {"name": "Constraint Inference", "type": "toggle"},
+          {"name": "Sketch Point Display Size", "type": "slider"},
+          {"name": "Dimension Display Precision", "type": "number"},
+          {"name": "Component Color Cycling", "type": "toggle"},
+          {"name": "Default Modeling Environment", "type": "dropdown"},
+          {"name": "Enable Design History", "type": "toggle"},
+          {"name": "Show Feature Dimensions", "type": "toggle"},
+          {"name": "Auto-Extrude Sketch Profiles", "type": "dropdown"},
+          {"name": "Close Sketch Plane Angle", "type": "number"},
+          {"name": "Default Thread Type", "type": "dropdown"},
+          {"name": "Form Display Mode", "type": "dropdown"},
+          {"name": "Snap Settings", "type": "object"},
+          {"name": "Grid Settings", "type": "object"}
+        ]
+      },
+      "Unit_and_Value_Display": {
+        "settings": [
+          {"name": "Default Units", "type": "dropdown", "options": ["millimeter", "centimeter", "meter", "inch", "foot"]},
+          {"name": "Unit Type", "type": "dropdown", "options": ["Metric", "Imperial"]},
+          {"name": "Degree Precision", "type": "number"},
+          {"name": "General Precision", "type": "number"},
+          {"name": "Mass Units", "type": "dropdown"},
+          {"name": "Volume Units", "type": "dropdown"},
+          {"name": "Material Density Units", "type": "dropdown"},
+          {"name": "Temperature Units", "type": "dropdown", "options": ["Celsius", "Fahrenheit", "Kelvin"]},
+          {"name": "Pressure Units", "type": "dropdown"},
+          {"name": "Force Units", "type": "dropdown"}
+        ]
+      },
+      "Graphics": {
+        "settings": [
+          {"name": "Effects", "type": "toggle"},
+          {"name": "Anti-Aliasing", "type": "dropdown"},
+          {"name": "Ground Shadows", "type": "toggle"},
+          {"name": "Ground Reflections", "type": "toggle"},
+          {"name": "Ambient Occlusion", "type": "toggle"},
+          {"name": "Object Shadows", "type": "toggle"},
+          {"name": "Raytraced Shadows", "type": "toggle"},
+          {"name": "Transparency Quality", "type": "dropdown"},
+          {"name": "Tessellation Quality", "type": "dropdown"},
+          {"name": "GPU Raytracing", "type": "toggle"},
+          {"name": "Hardware Acceleration", "type": "toggle"},
+          {"name": "Display FPS", "type": "toggle"},
+          {"name": "Selection Highlight Color", "type": "color"},
+          {"name": "Pre-Selection Highlight Color", "type": "color"},
+          {"name": "Hover Highlight Color", "type": "color"}
+        ]
+      },
+      "Material_and_Appearance": {
+        "settings": [
+          {"name": "Default Material", "type": "dropdown"},
+          {"name": "Default Appearance", "type": "dropdown"},
+          {"name": "Show In-Canvas Appearance Picker", "type": "toggle"},
+          {"name": "Appearance Texture Resolution", "type": "dropdown"},
+          {"name": "Procedural Texture Quality", "type": "dropdown"}
+        ]
+      },
+      "Preview_Features": {
+        "settings": [
+          {"name": "Enable Preview Features", "type": "toggle"},
+          {"name": "Individual Preview Toggles", "type": "list"}
+        ]
+      },
+      "API": {
+        "settings": [
+          {"name": "Enable API", "type": "toggle"},
+          {"name": "Python Executable Path", "type": "path"},
+          {"name": "C++ Compiler Path", "type": "path"},
+          {"name": "Debug Mode", "type": "toggle"},
+          {"name": "Log Script Execution", "type": "toggle"}
+        ]
+      },
+      "Manufacture": {
+        "settings": [
+          {"name": "Default Machine", "type": "dropdown"},
+          {"name": "Default Post Processor", "type": "dropdown"},
+          {"name": "NC Program Output Folder", "type": "path"},
+          {"name": "Default Tool Library", "type": "path"},
+          {"name": "Simulation Quality", "type": "dropdown"},
+          {"name": "Enable Cloud Simulation", "type": "toggle"},
+          {"name": "Feed/Speed Override Defaults", "type": "object"},
+          {"name": "Toolpath Calculation Priority", "type": "dropdown"},
+          {"name": "Show Setup Sheet on Post", "type": "toggle"}
+        ]
+      },
+      "Drawing": {
+        "settings": [
+          {"name": "Default Drawing Standard", "type": "dropdown", "options": ["ISO", "ASME", "DIN", "JIS", "GB"]},
+          {"name": "Default Sheet Size", "type": "dropdown"},
+          {"name": "Default Projection Angle", "type": "dropdown", "options": ["First Angle", "Third Angle"]},
+          {"name": "Default Line Weights", "type": "object"},
+          {"name": "Default Text Style", "type": "object"},
+          {"name": "Default Dimension Style", "type": "object"},
+          {"name": "Auto-Update Views", "type": "toggle"}
+        ]
+      },
+      "Simulation": {
+        "settings": [
+          {"name": "Default Element Size", "type": "number"},
+          {"name": "Default Solver", "type": "dropdown"},
+          {"name": "Use Cloud Solving", "type": "toggle"},
+          {"name": "Auto-Mesh", "type": "toggle"},
+          {"name": "Result Display Quality", "type": "dropdown"},
+          {"name": "Animation Frame Rate", "type": "number"}
+        ]
+      },
+      "Generative_Design": {
+        "settings": [
+          {"name": "Default Manufacturing Method", "type": "dropdown"},
+          {"name": "Default Material", "type": "dropdown"},
+          {"name": "Cloud Compute Credits Display", "type": "toggle"},
+          {"name": "Max Outcomes", "type": "number"},
+          {"name": "Outcome Preview Quality", "type": "dropdown"}
+        ]
+      },
+      "Electronics": {
+        "settings": [
+          {"name": "Default Grid", "type": "dropdown"},
+          {"name": "Schematic Editor Settings", "type": "object"},
+          {"name": "PCB Editor Settings", "type": "object"},
+          {"name": "Autorouter Settings", "type": "object"},
+          {"name": "DRC Settings", "type": "object"}
+        ]
+      },
+      "Network": {
+        "settings": [
+          {"name": "Proxy Settings", "type": "object"},
+          {"name": "Timeout Values", "type": "object"},
+          {"name": "Cache Settings", "type": "object"},
+          {"name": "Offline Mode", "type": "toggle"}
+        ]
+      }
+    }
+  },
+  "document_settings": {
+    "description": "Per-design settings accessed via browser tree",
+    "categories": {
+      "Units": {
+        "settings": [
+          {"name": "Unit Type", "type": "dropdown", "options": ["mm", "cm", "m", "in", "ft"]},
+          {"name": "Angle Units", "type": "dropdown", "options": ["degrees", "radians"]},
+          {"name": "Display Precision", "type": "number"}
+        ]
+      },
+      "Product_Units": {
+        "settings": [
+          {"name": "Length", "type": "dropdown"},
+          {"name": "Angle", "type": "dropdown"},
+          {"name": "Mass", "type": "dropdown"},
+          {"name": "Time", "type": "dropdown"}
+        ]
+      },
+      "Timeline": {
+        "settings": [
+          {"name": "Do Not Capture Design History", "type": "toggle"},
+          {"name": "Expand Timeline by Default", "type": "toggle"}
+        ]
+      }
+    }
+  },
+  "viewcube": {
+    "description": "3D navigation cube in upper-right corner",
+    "orientations": {
+      "faces": ["Front", "Back", "Left", "Right", "Top", "Bottom"],
+      "edges": ["Front-Top", "Front-Bottom", "Front-Left", "Front-Right", "Back-Top", "Back-Bottom", "Back-Left", "Back-Right", "Top-Left", "Top-Right", "Bottom-Left", "Bottom-Right"],
+      "corners": ["Front-Top-Left", "Front-Top-Right", "Front-Bottom-Left", "Front-Bottom-Right", "Back-Top-Left", "Back-Top-Right", "Back-Bottom-Left", "Back-Bottom-Right"]
+    },
+    "context_menu": [
+      {"name": "Home", "description": "Reset to home view"},
+      {"name": "Set Current View as Home", "description": "Set current view as home"},
+      {"name": "Set Current View as Front", "description": "Define front direction"},
+      {"name": "Orthographic", "description": "Switch to orthographic projection"},
+      {"name": "Perspective", "description": "Switch to perspective projection"},
+      {"name": "Perspective with Ortho Faces", "description": "Auto-switch mode"}
+    ],
+    "gestures": [
+      {"name": "Click Face", "action": "Orient to face"},
+      {"name": "Click Edge", "action": "Orient to edge view"},
+      {"name": "Click Corner", "action": "Orient to corner view"},
+      {"name": "Drag", "action": "Free orbit"},
+      {"name": "Shift+Drag", "action": "Constrained orbit"}
+    ]
+  },
+  "navigation_bar": {
+    "description": "Bottom navigation toolbar",
+    "tools": [
+      {"name": "Orbit", "shortcut": "Shift+Middle Mouse", "description": "Rotate view around model"},
+      {"name": "Look At", "shortcut": null, "description": "Orient view to face"},
+      {"name": "Pan", "shortcut": "Middle Mouse", "description": "Pan view"},
+      {"name": "Zoom", "shortcut": "Scroll Wheel", "description": "Zoom in/out"},
+      {"name": "Zoom Window", "shortcut": null, "description": "Zoom to window"},
+      {"name": "Zoom to Fit", "shortcut": "F6", "description": "Fit all in view"},
+      {"name": "Focus", "shortcut": null, "description": "Focus on selection"}
+    ],
+    "display_settings_dropdown": {
+      "visual_style": [
+        {"name": "Shaded", "description": "Solid shaded display"},
+        {"name": "Shaded with Hidden Edges", "description": "Shaded with hidden edges visible"},
+        {"name": "Shaded with Visible Edges Only", "description": "Shaded with visible edges only"},
+        {"name": "Wireframe", "description": "Wireframe display"},
+        {"name": "Wireframe with Hidden Edges", "description": "Wireframe with hidden edges"},
+        {"name": "Wireframe with Visible Edges Only", "description": "Wireframe visible edges only"}
+      ],
+      "environment": {
+        "library": ["Plaza", "Soft Light", "Rim Highlights", "Warm Light", "Cool Light", "Studio Light", "Photo Booth", "Grey Room", "Environment Library..."],
+        "settings": [
+          {"name": "Environment Visibility", "type": "toggle"},
+          {"name": "Ground Plane", "type": "toggle"},
+          {"name": "Ground Reflections", "type": "toggle"},
+          {"name": "Ground Shadows", "type": "toggle"}
+        ]
+      },
+      "effects": {
+        "settings": [
+          {"name": "Depth of Field", "type": "toggle"},
+          {"name": "Ambient Occlusion", "type": "toggle"},
+          {"name": "Anti-Aliasing", "type": "toggle"},
+          {"name": "Full-Screen Anti-Aliasing", "type": "toggle"}
+        ]
+      },
+      "object_visibility": [
+        {"name": "Bodies", "type": "toggle"},
+        {"name": "Sketches", "type": "toggle"},
+        {"name": "Construction", "type": "toggle"},
+        {"name": "Joints", "type": "toggle"},
+        {"name": "Origin", "type": "toggle"},
+        {"name": "Named Views", "type": "toggle"},
+        {"name": "Canvases", "type": "toggle"},
+        {"name": "Section Analysis", "type": "toggle"}
+      ],
+      "camera": {
+        "settings": [
+          {"name": "Perspective", "type": "toggle"},
+          {"name": "Orthographic", "type": "toggle"},
+          {"name": "Field of View", "type": "slider"}
+        ]
+      }
+    }
+  },
+  "display_settings": {
+    "description": "Visual display configuration",
+    "modes": {
+      "visual_styles": [
+        "Shaded",
+        "Shaded with Hidden Edges",
+        "Shaded with Visible Edges Only",
+        "Wireframe",
+        "Wireframe with Hidden Edges",
+        "Wireframe with Visible Edges Only"
+      ],
+      "render_modes": [
+        "Design",
+        "In-Canvas Render",
+        "Render"
+      ]
+    },
+    "environment_library": {
+      "built_in": [
+        "Plaza", "Soft Light", "Rim Highlights", "Warm Light", "Cool Light",
+        "Studio Light", "Photo Booth", "Grey Room", "Tranquility Blue",
+        "Sepia", "Black Glossy", "White Glossy", "Brushed Aluminum",
+        "Industrial Light", "Showroom"
+      ],
+      "custom": "User can add custom HDR environments"
+    }
+  },
+  "context_menus": {
+    "description": "Right-click context menus for different selection types",
+    "face_context_menu": [
+      {"name": "Press Pull", "description": "Push or pull face"},
+      {"name": "Offset Face", "description": "Offset selected face"},
+      {"name": "Extrude", "description": "Extrude from face"},
+      {"name": "Create Sketch", "description": "Create sketch on face"},
+      {"name": "Physical Material", "description": "Assign material"},
+      {"name": "Appearance", "description": "Assign appearance"},
+      {"name": "Measure", "description": "Measure face properties"},
+      {"name": "Isolate", "description": "Isolate face"},
+      {"name": "Copy Paste Tools", "description": "Copy/paste options"},
+      {"name": "Create Selection Set", "description": "Create selection set"},
+      {"name": "Properties", "description": "View face properties"}
+    ],
+    "edge_context_menu": [
+      {"name": "Fillet", "description": "Add fillet to edge"},
+      {"name": "Chamfer", "description": "Add chamfer to edge"},
+      {"name": "Measure", "description": "Measure edge"},
+      {"name": "Create Sketch", "description": "Create sketch through edge"},
+      {"name": "Select Tangent Chain", "description": "Select tangent edges"},
+      {"name": "Create Selection Set", "description": "Create selection set"},
+      {"name": "Properties", "description": "View edge properties"}
+    ],
+    "body_context_menu": [
+      {"name": "Move/Copy", "description": "Move or copy body"},
+      {"name": "Move to Component", "description": "Move body to component"},
+      {"name": "Copy to Component", "description": "Copy body to component"},
+      {"name": "Create Components from Bodies", "description": "Make each body a component"},
+      {"name": "Combine", "description": "Boolean combine"},
+      {"name": "Split Body", "description": "Split the body"},
+      {"name": "Physical Material", "description": "Assign material"},
+      {"name": "Appearance", "description": "Assign appearance"},
+      {"name": "Ground", "description": "Ground the body"},
+      {"name": "Isolate", "description": "Isolate body"},
+      {"name": "Show/Hide", "description": "Toggle visibility"},
+      {"name": "Delete", "description": "Delete body"},
+      {"name": "Properties", "description": "View body properties"}
+    ],
+    "component_context_menu": [
+      {"name": "Activate", "description": "Make component active"},
+      {"name": "Ground", "description": "Ground component"},
+      {"name": "Unground", "description": "Unground component"},
+      {"name": "Joint", "description": "Create joint"},
+      {"name": "Edit In Place", "description": "Edit in context"},
+      {"name": "Open", "description": "Open in new tab"},
+      {"name": "Isolate", "description": "Isolate component"},
+      {"name": "Show/Hide", "description": "Toggle visibility"},
+      {"name": "Show All", "description": "Show all components"},
+      {"name": "Opacity", "description": "Set opacity"},
+      {"name": "Copy", "description": "Copy component"},
+      {"name": "Paste", "description": "Paste component"},
+      {"name": "Paste New", "description": "Paste as new component"},
+      {"name": "Save As", "description": "Save externally"},
+      {"name": "Delete", "description": "Delete component"},
+      {"name": "Find in Browser", "description": "Locate in browser"},
+      {"name": "Properties", "description": "View properties"}
+    ],
+    "sketch_entity_context_menu": [
+      {"name": "Delete", "description": "Delete entity"},
+      {"name": "Trim", "description": "Trim entity"},
+      {"name": "Extend", "description": "Extend entity"},
+      {"name": "Break", "description": "Break at point"},
+      {"name": "Constraints submenu", "items": ["Fix/Unfix", "Horizontal", "Vertical", "Coincident", "Collinear", "Concentric", "Parallel", "Perpendicular", "Tangent", "Equal", "Symmetric", "Midpoint"]},
+      {"name": "Construction", "description": "Toggle construction geometry"},
+      {"name": "Normal/Construction", "description": "Toggle between normal and construction"}
+    ],
+    "canvas_context_menu": [
+      {"name": "Orbit", "description": "Orbit view"},
+      {"name": "Pan", "description": "Pan view"},
+      {"name": "Zoom", "description": "Zoom view"},
+      {"name": "Repeat Last Command", "description": "Repeat previous command"},
+      {"name": "Isolate", "description": "Isolate selection"},
+      {"name": "Look At", "description": "Look at selection"},
+      {"name": "Create Sketch", "description": "Start new sketch"},
+      {"name": "Measure", "description": "Measure tool"},
+      {"name": "Paste", "description": "Paste from clipboard"},
+      {"name": "Previous View", "description": "Return to previous view"},
+      {"name": "Home View", "description": "Reset to home view"}
+    ],
+    "cam_operation_context_menu": [
+      {"name": "Edit", "description": "Edit operation parameters"},
+      {"name": "Generate", "description": "Generate toolpath"},
+      {"name": "Simulate", "description": "Simulate toolpath"},
+      {"name": "Post Process", "description": "Generate NC code"},
+      {"name": "Suppress", "description": "Suppress operation"},
+      {"name": "Duplicate", "description": "Duplicate operation"},
+      {"name": "Move", "description": "Move operation"},
+      {"name": "Delete", "description": "Delete operation"},
+      {"name": "Properties", "description": "View operation properties"}
+    ],
+    "cam_setup_context_menu": [
+      {"name": "Edit", "description": "Edit setup parameters"},
+      {"name": "Generate All Toolpaths", "description": "Generate all toolpaths"},
+      {"name": "Simulate All", "description": "Simulate all operations"},
+      {"name": "Post Process All", "description": "Post process all"},
+      {"name": "Add Operation", "description": "Add new operation"},
+      {"name": "Duplicate", "description": "Duplicate setup"},
+      {"name": "Delete", "description": "Delete setup"},
+      {"name": "Generate Setup Sheet", "description": "Create setup sheet"}
+    ]
+  },
+  "keyboard_shortcuts": {
+    "description": "Default keyboard shortcuts",
+    "general": [
+      {"key": "Ctrl+N", "action": "New Design"},
+      {"key": "Ctrl+O", "action": "Open"},
+      {"key": "Ctrl+S", "action": "Save"},
+      {"key": "Ctrl+Shift+S", "action": "Save As"},
+      {"key": "Ctrl+W", "action": "Close"},
+      {"key": "Ctrl+Z", "action": "Undo"},
+      {"key": "Ctrl+Y", "action": "Redo"},
+      {"key": "Ctrl+Shift+Z", "action": "Redo (alternate)"},
+      {"key": "Ctrl+C", "action": "Copy"},
+      {"key": "Ctrl+V", "action": "Paste"},
+      {"key": "Ctrl+X", "action": "Cut"},
+      {"key": "Ctrl+A", "action": "Select All"},
+      {"key": "Delete", "action": "Delete"},
+      {"key": "Escape", "action": "Cancel/Clear Selection"},
+      {"key": "Enter", "action": "Confirm/OK"},
+      {"key": "Tab", "action": "Cycle through inputs"},
+      {"key": "Shift+Tab", "action": "Cycle backwards through inputs"},
+      {"key": "F1", "action": "Help"},
+      {"key": "Ctrl+,", "action": "Preferences"}
+    ],
+    "modeling": [
+      {"key": "S", "action": "Create Sketch"},
+      {"key": "E", "action": "Extrude"},
+      {"key": "Q", "action": "Press Pull"},
+      {"key": "F", "action": "Fillet"},
+      {"key": "H", "action": "Hole"},
+      {"key": "M", "action": "Move/Copy"},
+      {"key": "J", "action": "Joint"},
+      {"key": "A", "action": "Appearance"},
+      {"key": "I", "action": "Measure (Inspect)"},
+      {"key": "N", "action": "New Component"},
+      {"key": "Shift+N", "action": "New Body"},
+      {"key": "Ctrl+D", "action": "Toggle Do Not Capture Design History"},
+      {"key": "Shift+S", "action": "Scripts and Add-Ins"}
+    ],
+    "sketch": [
+      {"key": "L", "action": "Line"},
+      {"key": "C", "action": "Circle"},
+      {"key": "R", "action": "Rectangle"},
+      {"key": "D", "action": "Dimension"},
+      {"key": "X", "action": "Trim"},
+      {"key": "O", "action": "Offset"},
+      {"key": "P", "action": "Project"},
+      {"key": "T", "action": "Text"},
+      {"key": "Escape", "action": "Finish Sketch"},
+      {"key": "Enter", "action": "Finish Sketch"}
+    ],
+    "view_navigation": [
+      {"key": "F6", "action": "Zoom to Fit"},
+      {"key": "Home", "action": "Home View"},
+      {"key": "Numpad 1", "action": "Front View"},
+      {"key": "Ctrl+Numpad 1", "action": "Back View"},
+      {"key": "Numpad 3", "action": "Right View"},
+      {"key": "Ctrl+Numpad 3", "action": "Left View"},
+      {"key": "Numpad 7", "action": "Top View"},
+      {"key": "Ctrl+Numpad 7", "action": "Bottom View"},
+      {"key": "Numpad 5", "action": "Toggle Ortho/Perspective"},
+      {"key": "Middle Mouse", "action": "Pan"},
+      {"key": "Shift+Middle Mouse", "action": "Orbit"},
+      {"key": "Scroll Wheel", "action": "Zoom"},
+      {"key": "Ctrl+Scroll Wheel", "action": "Zoom (smooth)"},
+      {"key": "F7", "action": "Isolate/Unisolate"}
+    ],
+    "selection": [
+      {"key": "Ctrl+Click", "action": "Add to selection"},
+      {"key": "Shift+Click", "action": "Remove from selection"},
+      {"key": "Ctrl+Shift+Click", "action": "Toggle selection"},
+      {"key": "Double-Click", "action": "Edit feature/Open sketch"},
+      {"key": "Right-Click", "action": "Context menu"}
+    ],
+    "visibility": [
+      {"key": "V", "action": "Toggle visibility"},
+      {"key": "Ctrl+0", "action": "Show All"},
+      {"key": "Ctrl+1", "action": "Show Bodies"},
+      {"key": "Ctrl+2", "action": "Show Sketches"},
+      {"key": "Ctrl+3", "action": "Show Construction"}
+    ],
+    "cam": [
+      {"key": "Ctrl+G", "action": "Generate Toolpath"},
+      {"key": "Ctrl+Shift+G", "action": "Generate All Toolpaths"},
+      {"key": "Ctrl+P", "action": "Post Process"}
+    ]
+  },
+  "marking_menus": {
+    "description": "Radial marking menus activated by holding right-click",
+    "enabled_by_default": false,
+    "enable_setting": "Preferences > General > Use Marking Menu",
+    "structure": {
+      "sketch_mode": [
+        {"position": "N", "action": "Line"},
+        {"position": "NE", "action": "Arc"},
+        {"position": "E", "action": "Circle"},
+        {"position": "SE", "action": "Rectangle"},
+        {"position": "S", "action": "Dimension"},
+        {"position": "SW", "action": "Trim"},
+        {"position": "W", "action": "Offset"},
+        {"position": "NW", "action": "Project"}
+      ],
+      "model_mode": [
+        {"position": "N", "action": "Extrude"},
+        {"position": "NE", "action": "Fillet"},
+        {"position": "E", "action": "Chamfer"},
+        {"position": "SE", "action": "Shell"},
+        {"position": "S", "action": "Press Pull"},
+        {"position": "SW", "action": "Hole"},
+        {"position": "W", "action": "Move"},
+        {"position": "NW", "action": "Joint"}
+      ]
+    }
+  },
+  "properties_panel": {
+    "description": "Properties shown when objects are selected",
+    "selection_types": {
+      "face": {
+        "properties": [
+          {"name": "Surface Type", "type": "read-only"},
+          {"name": "Area", "type": "read-only"},
+          {"name": "Perimeter", "type": "read-only"},
+          {"name": "Normal Direction", "type": "read-only"},
+          {"name": "Curvature", "type": "read-only"},
+          {"name": "Appearance", "type": "editable"}
+        ]
+      },
+      "edge": {
+        "properties": [
+          {"name": "Curve Type", "type": "read-only"},
+          {"name": "Length", "type": "read-only"},
+          {"name": "Start Point", "type": "read-only"},
+          {"name": "End Point", "type": "read-only"},
+          {"name": "Tangent", "type": "read-only"}
+        ]
+      },
+      "body": {
+        "properties": [
+          {"name": "Name", "type": "editable"},
+          {"name": "Volume", "type": "read-only"},
+          {"name": "Surface Area", "type": "read-only"},
+          {"name": "Mass", "type": "read-only"},
+          {"name": "Center of Mass", "type": "read-only"},
+          {"name": "Material", "type": "editable"},
+          {"name": "Density", "type": "read-only"},
+          {"name": "Bounding Box", "type": "read-only"},
+          {"name": "Face Count", "type": "read-only"}
+        ]
+      },
+      "component": {
+        "properties": [
+          {"name": "Name", "type": "editable"},
+          {"name": "Description", "type": "editable"},
+          {"name": "Part Number", "type": "editable"},
+          {"name": "Manufacturer", "type": "editable"},
+          {"name": "Cost", "type": "editable"},
+          {"name": "Vendor", "type": "editable"},
+          {"name": "Material", "type": "editable"},
+          {"name": "Mass", "type": "read-only"},
+          {"name": "Volume", "type": "read-only"},
+          {"name": "Grounded", "type": "read-only"},
+          {"name": "Occurrences", "type": "read-only"}
+        ]
+      },
+      "sketch": {
+        "properties": [
+          {"name": "Name", "type": "editable"},
+          {"name": "Plane", "type": "read-only"},
+          {"name": "Profile Count", "type": "read-only"},
+          {"name": "Constraint Status", "type": "read-only"},
+          {"name": "Open Profiles", "type": "read-only"},
+          {"name": "Closed Profiles", "type": "read-only"}
+        ]
+      },
+      "joint": {
+        "properties": [
+          {"name": "Type", "type": "read-only"},
+          {"name": "Component 1", "type": "read-only"},
+          {"name": "Component 2", "type": "read-only"},
+          {"name": "Position", "type": "editable"},
+          {"name": "Rotation", "type": "editable"},
+          {"name": "Motion Limits", "type": "editable"},
+          {"name": "Suppressed", "type": "editable"}
+        ]
+      },
+      "feature": {
+        "properties": [
+          {"name": "Name", "type": "editable"},
+          {"name": "Type", "type": "read-only"},
+          {"name": "Suppressed", "type": "editable"},
+          {"name": "Error State", "type": "read-only"},
+          {"name": "Affected Bodies", "type": "read-only"}
+        ]
+      }
+    }
+  },
+  "inspect_tools": {
+    "description": "Analysis and inspection tools",
+    "tools": {
+      "Measure": {
+        "modes": ["Point to Point", "Minimum Distance", "Angular", "Radius", "Diameter", "Area", "Length", "Perimeter"],
+        "options": ["Snap to Vertex", "Snap to Edge", "Snap to Face", "Precision Display"]
+      },
+      "Section_Analysis": {
+        "options": ["Section Plane", "Clip Section", "Show Section Face", "Flip Direction", "Offset", "Angle"]
+      },
+      "Interference": {
+        "options": ["Include Coincident Faces", "Include Bodies in Same Component", "Create Copy of Interference Volume"]
+      },
+      "Curvature_Comb": {
+        "options": ["Density", "Scale", "Direction"]
+      },
+      "Zebra_Analysis": {
+        "options": ["Stripe Direction", "Stripe Count", "Environment Map"]
+      },
+      "Draft_Analysis": {
+        "options": ["Pull Direction", "Draft Angle", "Positive/Negative Display"]
+      },
+      "Curvature_Map": {
+        "options": ["Gaussian", "Mean", "Max Principal", "Min Principal", "Color Scale"]
+      },
+      "Accessibility_Analysis": {
+        "options": ["Tool Axis", "Half Angle", "Check Type"]
+      },
+      "Minimum_Radius": {
+        "options": ["Threshold", "Include Concave", "Include Convex"]
+      },
+      "Center_of_Mass": {
+        "options": ["Show Marker", "Component Level", "Full Assembly"]
+      }
+    }
+  },
+  "cam_workspace_details": {
+    "description": "Detailed CAM workspace configuration",
+    "setup_parameters": {
+      "General": {
+        "settings": [
+          {"name": "Setup Name", "type": "text"},
+          {"name": "Operation Type", "type": "dropdown", "options": ["Milling", "Turning", "Cutting"]},
+          {"name": "Work Coordinate System", "type": "selector"},
+          {"name": "Orientation", "type": "dropdown"}
+        ]
+      },
+      "Stock": {
+        "settings": [
+          {"name": "Mode", "type": "dropdown", "options": ["Relative Size Box", "Fixed Size Box", "Relative Size Cylinder", "Fixed Size Cylinder", "From Body", "From Setup", "None"]},
+          {"name": "Stock Offset Mode", "type": "dropdown"},
+          {"name": "Stock Side Offset", "type": "number"},
+          {"name": "Stock Top Offset", "type": "number"},
+          {"name": "Stock Bottom Offset", "type": "number"},
+          {"name": "Stock Point", "type": "selector"},
+          {"name": "Stock Material", "type": "dropdown"}
+        ]
+      },
+      "Post_Process": {
+        "settings": [
+          {"name": "Program Name/Number", "type": "text"},
+          {"name": "Program Comment", "type": "text"},
+          {"name": "Machine Definition", "type": "dropdown"},
+          {"name": "Post Processor", "type": "dropdown"},
+          {"name": "Output Folder", "type": "path"}
+        ]
+      }
+    },
+    "operation_parameters": {
+      "Tool": {
+        "settings": [
+          {"name": "Tool", "type": "tool-selector"},
+          {"name": "Feed per Tooth", "type": "number"},
+          {"name": "Spindle Speed", "type": "number"},
+          {"name": "Ramp Spindle Speed", "type": "number"},
+          {"name": "Surface Speed", "type": "number"},
+          {"name": "Coolant", "type": "dropdown", "options": ["Flood", "Mist", "Through Tool", "Air", "Off"]}
+        ]
+      },
+      "Geometry": {
+        "settings": [
+          {"name": "Machining Boundary", "type": "selector"},
+          {"name": "Tool Containment", "type": "dropdown"},
+          {"name": "Additional Offset", "type": "number"},
+          {"name": "Model", "type": "selector"},
+          {"name": "Fixture", "type": "selector"},
+          {"name": "Stock", "type": "selector"}
+        ]
+      },
+      "Heights": {
+        "settings": [
+          {"name": "Clearance Height", "type": "number"},
+          {"name": "Retract Height", "type": "number"},
+          {"name": "Feed Height", "type": "number"},
+          {"name": "Top Height", "type": "number"},
+          {"name": "Bottom Height", "type": "number"}
+        ]
+      },
+      "Passes": {
+        "settings": [
+          {"name": "Tolerance", "type": "number"},
+          {"name": "Maximum Stepdown", "type": "number"},
+          {"name": "Maximum Stepover", "type": "number"},
+          {"name": "Stock to Leave", "type": "number"},
+          {"name": "Radial Stock to Leave", "type": "number"},
+          {"name": "Axial Stock to Leave", "type": "number"},
+          {"name": "Smoothing", "type": "toggle"},
+          {"name": "High Speed Machining", "type": "toggle"}
+        ]
+      },
+      "Linking": {
+        "settings": [
+          {"name": "Retract Policy", "type": "dropdown"},
+          {"name": "Safe Distance", "type": "number"},
+          {"name": "Lead-In/Lead-Out", "type": "object"},
+          {"name": "Ramp", "type": "dropdown"},
+          {"name": "Helical Entry", "type": "object"},
+          {"name": "Smoothing Deviation", "type": "number"}
+        ]
+      }
+    },
+    "tool_library": {
+      "tool_types": [
+        "Flat End Mill", "Ball End Mill", "Bull Nose End Mill", "Chamfer Mill",
+        "Face Mill", "Lollipop Mill", "Dovetail Mill", "Slot Mill",
+        "Radius Mill", "Tapered Mill", "Thread Mill", "Drill",
+        "Center Drill", "Spot Drill", "Counter Bore", "Counter Sink",
+        "Tap", "Reamer", "Boring Bar", "Turning Tool", "Grooving Tool",
+        "Threading Tool", "Form Tool", "Probe"
+      ],
+      "tool_parameters": [
+        {"name": "Diameter", "type": "number"},
+        {"name": "Shaft Diameter", "type": "number"},
+        {"name": "Length", "type": "number"},
+        {"name": "Flute Length", "type": "number"},
+        {"name": "Shoulder Length", "type": "number"},
+        {"name": "Number of Flutes", "type": "number"},
+        {"name": "Taper Angle", "type": "number"},
+        {"name": "Corner Radius", "type": "number"},
+        {"name": "Holder", "type": "dropdown"},
+        {"name": "Coolant", "type": "dropdown"},
+        {"name": "Description", "type": "text"},
+        {"name": "Product ID", "type": "text"},
+        {"name": "Vendor", "type": "text"},
+        {"name": "Material", "type": "dropdown"},
+        {"name": "Feed per Tooth", "type": "number"},
+        {"name": "Ramp Feed per Tooth", "type": "number"},
+        {"name": "Plunge Feed per Tooth", "type": "number"},
+        {"name": "Surface Speed", "type": "number"},
+        {"name": "Ramp Surface Speed", "type": "number"}
+      ],
+      "tool_holder_parameters": [
+        {"name": "Type", "type": "dropdown"},
+        {"name": "Diameter", "type": "number"},
+        {"name": "Length", "type": "number"},
+        {"name": "Taper", "type": "dropdown"},
+        {"name": "Gauge Length", "type": "number"}
+      ]
+    },
+    "machine_library": {
+      "machine_types": [
+        "Vertical Mill - 3 axis",
+        "Vertical Mill - 4 axis",
+        "Vertical Mill - 5 axis",
+        "Horizontal Mill - 3 axis",
+        "Horizontal Mill - 4 axis",
+        "Horizontal Mill - 5 axis",
+        "Gantry Mill",
+        "Lathe - 2 axis",
+        "Lathe - with live tooling",
+        "Mill-Turn",
+        "Swiss-type Lathe",
+        "Wire EDM",
+        "Laser Cutter",
+        "Waterjet",
+        "Plasma Cutter",
+        "3D Printer - FFF",
+        "3D Printer - SLA",
+        "3D Printer - SLS"
+      ],
+      "machine_parameters": [
+        {"name": "Name", "type": "text"},
+        {"name": "Description", "type": "text"},
+        {"name": "Vendor", "type": "text"},
+        {"name": "Model", "type": "text"},
+        {"name": "Controller", "type": "dropdown"},
+        {"name": "Travel X", "type": "number"},
+        {"name": "Travel Y", "type": "number"},
+        {"name": "Travel Z", "type": "number"},
+        {"name": "Max Spindle Speed", "type": "number"},
+        {"name": "Max Feed Rate", "type": "number"},
+        {"name": "Max Rapid Rate", "type": "number"},
+        {"name": "Pallet Changer", "type": "toggle"},
+        {"name": "Tool Changer Capacity", "type": "number"},
+        {"name": "Coolant Types", "type": "multi-select"}
+      ]
+    }
+  },
+  "post_process_settings": {
+    "description": "Settings for generating NC code",
+    "parameters": [
+      {"name": "Post Processor", "type": "dropdown", "description": "Select post processor for machine/controller"},
+      {"name": "Program Name or Number", "type": "text"},
+      {"name": "Program Comment", "type": "text"},
+      {"name": "Output Folder", "type": "path"},
+      {"name": "Output File Type", "type": "dropdown", "options": ["NC", "TAP", "CNC", "ISO", "MPF", "Custom"]},
+      {"name": "Unit", "type": "dropdown", "options": ["Document", "Millimeters", "Inches"]},
+      {"name": "Open NC File in Editor", "type": "toggle"},
+      {"name": "Use Safe Start", "type": "toggle"},
+      {"name": "Write Machine Configurations", "type": "toggle"},
+      {"name": "Include Tool Information", "type": "toggle"},
+      {"name": "Include Operation Notes", "type": "toggle"},
+      {"name": "Split by Tool", "type": "toggle"},
+      {"name": "Split by Operation", "type": "toggle"},
+      {"name": "Split by Work Offset", "type": "toggle"},
+      {"name": "Sequence Number Start", "type": "number"},
+      {"name": "Sequence Number Increment", "type": "number"},
+      {"name": "Use Subroutines", "type": "toggle"},
+      {"name": "Minimize Tool Changes", "type": "toggle"}
+    ],
+    "common_post_processors": [
+      "Fanuc / Generic Fanuc",
+      "Haas NGC",
+      "Mazak",
+      "DMG MORI",
+      "Okuma",
+      "Siemens 840D",
+      "Heidenhain",
+      "Hurco",
+      "Brother",
+      "Makino",
+      "Grbl",
+      "LinuxCNC",
+      "Mach3",
+      "UCCNC",
+      "Custom"
+    ]
+  },
+  "cloud_collaboration": {
+    "description": "Cloud and collaboration features",
+    "features": {
+      "Version_Control": {
+        "actions": [
+          {"name": "Save Version", "description": "Create named version snapshot"},
+          {"name": "View Version History", "description": "View all versions"},
+          {"name": "Restore Version", "description": "Restore previous version"},
+          {"name": "Compare Versions", "description": "Compare two versions"},
+          {"name": "Create Branch", "description": "Create design branch"},
+          {"name": "Merge Branch", "description": "Merge branch changes"},
+          {"name": "Delete Branch", "description": "Delete branch"}
+        ]
+      },
+      "Sharing": {
+        "actions": [
+          {"name": "Share", "description": "Share design with others"},
+          {"name": "Invite to Project", "description": "Invite collaborators"},
+          {"name": "Generate Public Link", "description": "Create shareable link"},
+          {"name": "Set Permissions", "description": "Configure access levels"},
+          {"name": "Embed Viewer", "description": "Get embed code"}
+        ],
+        "permission_levels": [
+          {"name": "View", "description": "Can view only"},
+          {"name": "Comment", "description": "Can view and comment"},
+          {"name": "Edit", "description": "Can view, comment, and edit"},
+          {"name": "Admin", "description": "Full control including sharing"}
+        ]
+      },
+      "Comments": {
+        "actions": [
+          {"name": "Add Comment", "description": "Add design comment"},
+          {"name": "Reply to Comment", "description": "Reply to existing comment"},
+          {"name": "Resolve Comment", "description": "Mark comment as resolved"},
+          {"name": "Delete Comment", "description": "Remove comment"},
+          {"name": "Pin Comment", "description": "Pin comment to geometry"},
+          {"name": "Mention User", "description": "@mention a collaborator"}
+        ]
+      },
+      "Data_Management": {
+        "actions": [
+          {"name": "Export", "description": "Export design files"},
+          {"name": "Import", "description": "Import external files"},
+          {"name": "Archive", "description": "Archive project"},
+          {"name": "Transfer Ownership", "description": "Transfer to another user"},
+          {"name": "Data Extraction", "description": "Extract manufacturing data"},
+          {"name": "Batch Export", "description": "Export multiple designs"}
+        ],
+        "supported_import_formats": [
+          "Fusion Archive (.f3d)", "Fusion Design (.f3z)",
+          "Inventor (.ipt, .iam)", "SolidWorks (.sldprt, .sldasm)",
+          "STEP (.stp, .step)", "IGES (.igs, .iges)",
+          "SAT (.sat)", "SMT (.smt)",
+          "Parasolid (.x_t, .x_b)", "Catia V5 (.CATPart, .CATProduct)",
+          "Pro/E (.prt, .asm)", "NX (.prt)",
+          "Rhino (.3dm)", "SketchUp (.skp)",
+          "OBJ (.obj)", "STL (.stl)",
+          "DXF (.dxf)", "DWG (.dwg)",
+          "123D (.123dx)", "AutoCAD (.dwg)"
+        ],
+        "supported_export_formats": [
+          "Fusion Archive (.f3d)", "Fusion Design (.f3z)",
+          "Inventor 2020 (.ipt)", "SolidWorks (.sldprt)",
+          "STEP (.step, .stp)", "IGES (.igs, .iges)",
+          "SAT (.sat)", "SMT (.smt)",
+          "DXF (.dxf)", "DWG (.dwg)",
+          "OBJ (.obj)", "STL (.stl)",
+          "3MF (.3mf)", "F3D (.f3d)",
+          "SKP (.skp)", "FBX (.fbx)"
+        ]
+      },
+      "Notifications": {
+        "settings": [
+          {"name": "Email Notifications", "type": "toggle"},
+          {"name": "In-App Notifications", "type": "toggle"},
+          {"name": "Comment Notifications", "type": "toggle"},
+          {"name": "Sharing Notifications", "type": "toggle"},
+          {"name": "Version Notifications", "type": "toggle"},
+          {"name": "Task Notifications", "type": "toggle"}
+        ]
+      }
+    }
+  },
+  "extensions": {
+    "description": "Fusion 360 Extensions (paid add-ons)",
+    "available_extensions": [
+      {
+        "name": "Machining Extension",
+        "features": ["4 and 5 axis simultaneous machining", "Multi-axis contour", "Swarf", "Flow", "Steep and Shallow", "Automatic tool axis optimization", "Automatic collision avoidance"]
+      },
+      {
+        "name": "Nesting & Fabrication Extension",
+        "features": ["2D nesting", "Sheet optimization", "Material yield reports", "Export to cutting machines"]
+      },
+      {
+        "name": "Additive Build Extension",
+        "features": ["Metal additive manufacturing", "Support generation", "Build preparation", "Distortion simulation"]
+      },
+      {
+        "name": "Simulation Extension",
+        "features": ["Nonlinear static stress", "Event simulation", "Advanced materials", "Shape optimization"]
+      },
+      {
+        "name": "Generative Design Extension",
+        "features": ["AI-powered design exploration", "Manufacturing constraints", "Multi-material optimization", "Cloud compute"]
+      },
+      {
+        "name": "Product Design Extension",
+        "features": ["Plastic injection design", "Complex surfacing", "Reverse engineering"]
+      },
+      {
+        "name": "Manage Extension",
+        "features": ["PLM integration", "Part numbering", "Revision management", "Change management"]
+      }
+    ]
+  },
+  "api_scripting": {
+    "description": "Fusion 360 API and scripting capabilities",
+    "languages": ["Python", "C++"],
+    "api_modules": [
+      {
+        "name": "Application",
+        "description": "Core application access, documents, user interface"
+      },
+      {
+        "name": "Design",
+        "description": "Parametric design, components, features, sketches"
+      },
+      {
+        "name": "CAM",
+        "description": "CAM operations, toolpaths, post processing"
+      },
+      {
+        "name": "Drawing",
+        "description": "2D drawing creation and manipulation"
+      },
+      {
+        "name": "FusionDocument",
+        "description": "Document management, versions, data"
+      },
+      {
+        "name": "Core",
+        "description": "Base types, geometry, vectors, matrices"
+      }
+    ],
+    "scripting_tools": {
+      "Scripts_and_Add-ins_Dialog": {
+        "shortcut": "Shift+S",
+        "features": [
+          "Run scripts",
+          "Create new scripts",
+          "Edit scripts",
+          "Debug scripts",
+          "Create add-ins",
+          "Manage add-ins"
+        ]
+      },
+      "Text_Commands_Palette": {
+        "shortcut": "Ctrl+Alt+C",
+        "description": "Enter Fusion commands by text"
+      },
+      "API_Help": {
+        "description": "Built-in API documentation"
+      }
+    }
+  },
+  "total_inputs_summary": {
+    "workspaces": 6,
+    "toolbar_tools_design": 285,
+    "toolbar_tools_render": 6,
+    "toolbar_tools_animation": 9,
+    "toolbar_tools_simulation": 45,
+    "toolbar_tools_manufacture": 112,
+    "toolbar_tools_drawing": 52,
+    "sketch_tools": 65,
+    "form_tools": 38,
+    "data_panel_actions": 32,
+    "browser_context_items": 78,
+    "timeline_context_items": 18,
+    "preferences_settings": 147,
+    "document_settings": 12,
+    "viewcube_orientations": 26,
+    "navigation_tools": 7,
+    "display_settings": 35,
+    "context_menu_items": 95,
+    "keyboard_shortcuts": 72,
+    "marking_menu_items": 16,
+    "property_fields": 52,
+    "inspect_tools": 36,
+    "cam_parameters": 145,
+    "post_process_settings": 18,
+    "cloud_features": 48,
+    "extension_features": 35,
+    "api_modules": 6,
+    "total_inputs": 1510
+  },
+  "metadata": {
+    "source": "Exhaustive analysis of Autodesk Fusion 360 user interface",
+    "coverage": "Complete coverage of all workspaces, tools, menus, settings, and interactions",
+    "applicability": "CAD/CAM integration, automation scripting, UI automation, training systems",
+    "notes": [
+      "Tool availability may vary based on subscription level",
+      "Extension features require separate purchase",
+      "Some features are cloud-dependent",
+      "API requires scripting knowledge (Python or C++)",
+      "Preview features change frequently between updates"
+    ]
+  }
+}

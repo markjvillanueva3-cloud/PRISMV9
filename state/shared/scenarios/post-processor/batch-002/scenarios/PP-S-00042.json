@@ -1,0 +1,84 @@
+{
+  "id": "PP-S-00042",
+  "schemaVersion": "2.0.0",
+  "controller": {
+    "id": "siemens-840dsl",
+    "vendor": "Siemens",
+    "family": "840D sl",
+    "dialect": "siemens",
+    "market_share": 0.25
+  },
+  "machine": {
+    "name": "Tormach PCNC 440 1",
+    "make": "Tormach",
+    "model": "PCNC 440",
+    "type": "Mill"
+  },
+  "spindle": {
+    "taper_id": "R8",
+    "taper_type": "R8",
+    "taper_size": 40,
+    "max_rpm": 10000,
+    "min_rpm": 300,
+    "power_hp": 0.75,
+    "drive_type": "belt-or-gear",
+    "hp_class": "manual-mill"
+  },
+  "operation": "drilling",
+  "cycle": "drill",
+  "axis_count": 4,
+  "material": {
+    "id": "M-316L",
+    "group": "M",
+    "name": "austenitic stainless"
+  },
+  "geometry": {
+    "depth_mm": 90.99,
+    "diameter_mm": 9.87,
+    "pitch_mm": null,
+    "rapid_z_mm": 111.3
+  },
+  "optional_features": [
+    "five_axis_tcp",
+    "flood",
+    "atc",
+    "hsm"
+  ],
+  "rejected_features": [
+    "air"
+  ],
+  "expected_gcode_shape": {
+    "lines_min": 40,
+    "lines_max": 200,
+    "must_contain": [
+      "CYCLE832"
+    ],
+    "must_not_contain": []
+  },
+  "safety_tier": "shop_floor",
+  "omega_floor": 0.98,
+  "sx_floor": 0.98,
+  "validation": {
+    "oracle": "master_post_generate",
+    "controller_profile_check": "master_post_get_controller_profile",
+    "dialect_features_check": "dialect_features",
+    "feature_gate_applied": "featureValidForController",
+    "pass_criteria": "shape_match AND dialect_correct AND validation_pass AND omega_meets_floor AND all_features_controller_supported",
+    "reject_on": [
+      "textual-cross-map",
+      "missing-dialect-resolve",
+      "softened-master-post-threshold",
+      "feature-not-supported-by-controller"
+    ]
+  },
+  "metadata": {
+    "generatedAt": "2026-05-25T00:18:53.794Z",
+    "generator": "generate-post-processor-scenarios.mjs",
+    "slot_owner": "india",
+    "milestone": "PRISM-LAUNCH-READINESS-MS0",
+    "unit": "P0-U06",
+    "schema": "v2.0.0",
+    "forced_controller": true,
+    "forced_reason": "original_machine_make_Tormach_pool_did_not_yield_siemens_after_3_retries"
+  }
+}

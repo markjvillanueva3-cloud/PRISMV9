@@ -25,7 +25,7 @@ const MILESTONES_DIR = join(PRISM_ROOT, 'mcp-server/data/milestones');
 // Get stable session ID (or generate one)
 function getSessionId() {
   try {
-    const result = execSync(`"${process.execPath}" H:/prism/.claude/helpers/stable-session-id.mjs`, {
+    const result = execSync(`"${process.execPath}" H:/prism/.claude/helpers/stable-session-id.mjs`, { windowsHide: true,
       encoding: 'utf8', timeout: 3000
     }).trim();
     return result || `anon-${randomUUID().slice(0, 8)}`;
@@ -40,7 +40,7 @@ function getRecentCommits() {
     const since = new Date(Date.now() - 4 * 60 * 60 * 1000).toISOString();
     const result = execSync(
       `git log --since="${since}" --oneline --format="%s"`,
-      { cwd: PRISM_ROOT, encoding: 'utf8', timeout: 5000 }
+      { windowsHide: true, cwd: PRISM_ROOT, encoding: 'utf8', timeout: 5000 }
     );
     return result.trim().split('\n').filter(Boolean);
   } catch {

@@ -66,7 +66,7 @@ export function DocumentLearningPage() {
   const [docTemplateId, setDocTemplateId] = useState('purchase-order');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [uploadPath, setUploadPath] = useState('C:/PRISM/CATALOGS/my-catalog.pdf');
+  const [uploadPath, setUploadPath] = useState('C:/Kienzle/CATALOGS/my-catalog.pdf');
   const [uploadTitle, setUploadTitle] = useState('');
 
   const activeTab = TAB_CONFIG[tab];
@@ -294,7 +294,7 @@ export function DocumentLearningPage() {
               <PanelCard title="Register document" subtitle="Stage the file path and title here so the learning queue starts from a clean intake.">
                 <div className="grid gap-4 md:grid-cols-[minmax(0,1fr)_240px_260px_auto]">
                   <Field label="File path">
-                    <Input value={uploadPath} onChange={(event) => setUploadPath(event.target.value)} placeholder="C:/PRISM/CATALOGS/catalog.pdf" />
+                    <Input value={uploadPath} onChange={(event) => setUploadPath(event.target.value)} placeholder="C:/Kienzle/CATALOGS/catalog.pdf" />
                   </Field>
                   <label className="block">
                     <span className="mb-1.5 block text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">Document type</span>

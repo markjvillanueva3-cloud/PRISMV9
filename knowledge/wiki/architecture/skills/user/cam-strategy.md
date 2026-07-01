@@ -23,13 +23,14 @@ related:
 |-------|-------|
 | Name | `cam-strategy` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/cam-strategy.md` |
+| Source | `C:/Users/wompu/.claude/commands/cam-strategy.md` |
 | Model | default |
 | Tags | _(none)_ |
 
 ## Description (first paragraph)
 
-Recommend optimal machining strategies based on feature geometry, material, and goals.
+
+# /cam-strategy — Intelligent CAM Strategy Selection
 
 <!-- AUTO-END -->
 

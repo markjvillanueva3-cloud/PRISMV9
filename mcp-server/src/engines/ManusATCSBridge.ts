@@ -1,15 +1,17 @@
 /**
- * ManusATCSBridge — F2.3: Bridges ATCS work units to Manus-style Claude API execution
- * 
- * Allows ATCS to delegate individual work units to background Claude API calls,
- * then poll results back for unit_complete integration.
- * 
+ * ManusATCSBridge -- F2.3: Bridges ATCS work units to background AI execution
+ *
+ * Allows ATCS to delegate individual work units to background AI calls (FREE
+ * Ollama-first via llmEngine, with Claude as the adaptive backup), then poll
+ * results back for unit_complete integration. A unit that resolves to an offline
+ * stub (no provider available) is marked FAILED, never completed (R12).
+ *
  * Flow:
- *   ATCS queue_next(delegate:true) → bridge.delegateUnits() → Claude API calls (async)
- *   ATCS poll_delegated → bridge.pollResults() → completed results for unit_complete
+ *   ATCS queue_next(delegate:true) -> bridge.delegateUnits() -> llmEngine calls (async, free-first)
+ *   ATCS poll_delegated -> bridge.pollResults() -> completed results for unit_complete
  */
 import { log } from "../utils/Logger.js";
-import { hasValidApiKey, getApiKey, getModelForTier } from "../config/api-config.js";
+import { getModelForTier } from "../config/api-config.js";
 import * as fs from "fs";
 import * as path from "path";
 
@@ -64,44 +66,45 @@ function genDelegationId(): string {
 }
 
 // ============================================================================
-// CLAUDE API CALLER (same pattern as manusDispatcher)
+// LLM CALLER -- FREE-first via the Ollama-first llmEngine (Claude is the backup)
 // ============================================================================
 
-async function callClaude(
+/**
+ * Execute one delegated work-unit prompt through the shared free-AI substrate
+ * (FREE-AI-MIGRATION/U-MANUS-ATCS-LLM-ROUTE). Was a direct PAID Claude fetch;
+ * now routes through `llmEngine.query` which is Ollama-first (free) with an
+ * adaptive Claude backup on BOTH availability (down/timeout) AND capability
+ * (refusal / too-short-for-complexity:"high"), then offline. Delegated build
+ * units are non-trivial, so `complexity:"high"` raises the local-adequacy bar --
+ * a weak local answer escalates to the Claude backup, matching the operator's
+ * "Claude is the backup if Ollama can't handle it" rule.
+ *
+ * The caller's task-delegation `systemPrompt` is preserved via the `system`
+ * override (it replaces the default PRISM manufacturing prompt). Return contract
+ * is unchanged for `executeUnitTask`; `model` reports the REAL provider that
+ * answered ("...(ollama)" | "claude-sonnet-4-6" | "offline"), and `tokens` is
+ * {0,0} on the free local path (honest -- no billing). `_model` is accepted for
+ * call-site compatibility but is advisory: the provider is chosen by the ladder.
+ */
+export async function callClaude(
   systemPrompt: string,
   userPrompt: string,
-  model?: string,
+  _model?: string,
   maxTokens?: number
 ): Promise<{ text: string; tokens: { input: number; output: number }; duration_ms: number; model: string }> {
-  const apiKey = getApiKey();
-  const useModel = model || getModelForTier("sonnet");
   const startTime = Date.now();
-
-  const response = await fetch("https://api.anthropic.com/v1/messages", {
-    method: "POST",
-    headers: { "Content-Type": "application/json", "x-api-key": apiKey, "anthropic-version": "2023-06-01" },
-    body: JSON.stringify({
-      model: useModel,
-      max_tokens: maxTokens || 4096,
-      system: systemPrompt,
-      messages: [{ role: "user", content: userPrompt }]
-    })
+  const { llmEngine } = await import("./LLMEngine.js");
+  const res = await llmEngine.query({
+    prompt: userPrompt,
+    system: systemPrompt,
+    complexity: "high",
+    max_tokens: maxTokens || 4096,
   });
-
-  if (!response.ok) {
-    const errText = await response.text().catch(() => "unknown");
-    throw new Error(`Claude API ${response.status}: ${errText.slice(0, 200)}`);
-  }
-
-  const data = await response.json() as Record<string, unknown>;
-  const content = data.content as Array<Record<string, unknown>> | undefined;
-  const usage = data.usage as Record<string, number> | undefined;
-  const text = content?.map((c) => (c.text as string) || "").join("") || "";
   return {
-    text,
-    tokens: { input: usage?.input_tokens || 0, output: usage?.output_tokens || 0 },
+    text: res.answer,
+    tokens: res.tokens_used,
     duration_ms: Date.now() - startTime,
-    model: useModel
+    model: res.model,
   };
 }
 
@@ -117,12 +120,25 @@ async function executeUnitTask(task: DelegatedUnit, acceptanceCriteria?: any): P
 
     const r = await callClaude(systemPrompt, userPrompt, getModelForTier("sonnet"), 4096);
 
+    // R12 honesty: an "offline" result means NO real provider answered (Ollama down + no
+    // Claude key) -- the text is a generic offline stub, not a real delegated build result.
+    // Mark such a unit FAILED, never "completed", so callers don't trust a stub as work done.
+    if (r.model === "offline") {
+      task.status = "failed";
+      task.completed_at = new Date().toISOString();
+      task.error = "no AI provider available (Ollama down and no Claude backup key) -- delegation produced only an offline stub";
+      task.duration_ms = r.duration_ms;
+      log.error(`[manus-atcs] Unit ${task.unit_id} failed: no AI provider available`);
+      return;
+    }
+
     task.status = "completed";
     task.completed_at = new Date().toISOString();
     task.result = r.text;
     task.tokens = r.tokens;
     task.duration_ms = r.duration_ms;
-    log.info(`[manus-atcs] Unit ${task.unit_id} completed (${r.duration_ms}ms, ${r.tokens.output} tokens)`);
+    task.model = r.model; // honest provenance: the REAL provider that answered (ollama/claude)
+    log.info(`[manus-atcs] Unit ${task.unit_id} completed via ${r.model} (${r.duration_ms}ms, ${r.tokens.output} tokens)`);
   } catch (err: any) {
     task.status = "failed";
     task.completed_at = new Date().toISOString();
@@ -169,9 +185,11 @@ export async function delegateUnits(
   units: Array<{ unit_id: number; type: string; description: string }>,
   acceptanceCriteria?: any
 ): Promise<DelegationResult> {
-  if (!hasValidApiKey()) {
-    return { success: false, delegated: 0, task_ids: [], errors: ["ANTHROPIC_API_KEY not configured"] };
-  }
+  // FREE-AI-MIGRATION: delegation no longer REQUIRES a Claude key -- callClaude routes
+  // through the Ollama-first free substrate (Claude is only the backup). We proceed as long
+  // as ANY provider could serve: a local Ollama OR a Claude key. With neither, units would
+  // resolve to an offline stub, which executeUnitTask honestly marks FAILED (R12) rather
+  // than claiming a real result. (No hard pre-gate on the Claude key alone.)
 
   const taskIds: Array<{ unit_id: number; task_id: string }> = [];
   const errors: string[] = [];
@@ -201,7 +219,7 @@ export async function delegateUnits(
     }
   }
 
-  log.info(`[manus-atcs] Delegated ${taskIds.length}/${units.length} units to Claude API`);
+  log.info(`[manus-atcs] Delegated ${taskIds.length}/${units.length} units to the free AI substrate (Ollama-first, Claude backup)`);
 
   return {
     success: taskIds.length > 0,

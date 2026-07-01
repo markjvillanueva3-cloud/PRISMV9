@@ -29,8 +29,7 @@ related:
 
 ## Description (first paragraph)
 
-
-# Shared Agent Chat
+Post a shared note that both Claude and Codex can see through the PRISM coordination surfaces.
 
 <!-- AUTO-END -->
 

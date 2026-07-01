@@ -33,18 +33,31 @@ const STABLE_ID_HELPER = "H:/prism/.claude/helpers/stable-session-id.mjs";
 // cannot be reached — previously this hook ALWAYS used `default` because
 // CLAUDE_SESSION_ID is unset by Claude Code, leading to 6+ concurrent chats
 // sharing one reorientation state file and cross-contaminating their briefs.
+// Sanitize a raw sid candidate to claude-<8 of [A-Za-z0-9-]> or null. Cloned
+// in session-reorient-capture.mjs (resolveSid) -- keep the two in lockstep:
+// traversal chars (. / \) must never reach STATE_FILE or the handoff prefix.
+function safeSid8(raw) {
+  if (!raw || typeof raw !== "string" || raw.length < 8) return null;
+  const safe = raw.slice(0, 8).replace(/[^A-Za-z0-9-]/g, "");
+  return safe.length >= 8 ? `claude-${safe}` : null;
+}
+
 function resolveSessionId(stdinSid) {
-  if (stdinSid && typeof stdinSid === "string" && stdinSid.length >= 8) {
-    return `claude-${stdinSid.slice(0, 8)}`;
-  }
+  const fromStdin = safeSid8(stdinSid);
+  if (fromStdin) return fromStdin;
+  // Harness per-process env anchor (HS-01): strictly THIS chat's id -- prefer it
+  // over the stable-id subprocess (same answer the helper's anchor 1.5 returns,
+  // minus a 1.5s-timeout spawn per prompt; keeps sid parity with the PostToolUse
+  // capture companion which cannot afford the spawn on its hot path).
+  const fromEnv = safeSid8(process.env.CLAUDE_CODE_SESSION_ID);
+  if (fromEnv) return fromEnv;
   try {
-    const r = spawnSync(process.execPath, [STABLE_ID_HELPER], { encoding: "utf-8", timeout: 1500 });
+    const r = spawnSync(process.execPath, [STABLE_ID_HELPER], { windowsHide: true, encoding: "utf-8", timeout: 1500 });
     const id = (r.stdout || "").trim();
     if (id && id.length >= 8) return id;
   } catch { /* ignore */ }
-  if (process.env.CLAUDE_SESSION_ID) {
-    return `claude-${process.env.CLAUDE_SESSION_ID.slice(0, 8)}`;
-  }
+  const fromLegacy = safeSid8(process.env.CLAUDE_SESSION_ID);
+  if (fromLegacy) return fromLegacy;
   return "default";
 }
 
@@ -83,7 +96,57 @@ function detectDrift(state) {
   };
 }
 
-function buildBrief(state, trigger) {
+const HANDOFF_DIR = "H:/prism/state/shared/handoffs";
+const MAX_GOAL_CHARS = 600; // re-anchored goal cap (sub-bound of the MAX_BRIEF_TOKENS cap)
+
+// Reliable mid-session GOAL source (operator directive 2026-06-11). The anchor
+// capture pipeline is dormant for many live sessions (empty state.anchors), so the
+// brief used to emit nothing. The per-chat HANDOFF resume directive is reliably
+// written by precompact-handoff + /handoff and is what auto-resume trusts on
+// /compact -- re-anchoring to it every promptInterval keeps attention on the ACTUAL
+// objective deep into a 1M-context session (compaction-free refresh). Fail-soft: any
+// error / no handoff -> null, brief omits the goal section. Pure awareness, not a
+// context-pressure warning. Only emits on the interval brief, never per-prompt.
+function extractResume(txt) {
+  if (!txt || typeof txt !== "string") return null;
+  // Line-scan: find the "## RESUME" header, collect lines until the next "## "
+  // section header (robust to multi-line bodies; a regex with /m mis-truncates them).
+  const lines = txt.replace(/\r/g, "").split("\n");
+  // Match bare "## RESUME" and decorated variants ("## RESUME DIRECTIVE", "## RESUME (next)")
+  // via \b, but NOT "## RESUMED..." (word boundary excludes it). 96.8% of handoffs use the
+  // bare header the canonical writer emits; \b also covers the rare decorated minority.
+  const i = lines.findIndex((l) => /^##\s+RESUME\b/.test(l));
+  if (i < 0) return null;
+  const body = [];
+  for (let j = i + 1; j < lines.length; j++) {
+    if (/^##\s/.test(lines[j])) break; // stop at the next section header
+    body.push(lines[j]);
+  }
+  const out = body.join("\n").trim();
+  if (!out) return null;
+  return out.length > MAX_GOAL_CHARS ? out.slice(0, MAX_GOAL_CHARS).trim() + " ..." : out;
+}
+
+function readStandingGoal(sessionId, dir = HANDOFF_DIR) {
+  try {
+    if (!sessionId || sessionId === "default") return null;
+    if (!fs.existsSync(dir)) return null;
+    const prefix = `HANDOFF-${sessionId}-`;
+    const cands = fs.readdirSync(dir)
+      .filter((f) => f.startsWith(prefix) && f.endsWith(".md"))
+      .map((f) => {
+        const p = path.join(dir, f);
+        let mtime = 0;
+        try { mtime = fs.statSync(p).mtimeMs; } catch { /* skip unreadable */ }
+        return { p, mtime };
+      })
+      .sort((a, b) => b.mtime - a.mtime);
+    if (!cands.length) return null;
+    return extractResume(fs.readFileSync(cands[0].p, "utf8"));
+  } catch { return null; }
+}
+
+function buildBrief(state, trigger, standingGoal) {
   const active = (state.anchors || []).filter((a) => a.active);
   const objective = [...active].reverse().find(
     (a) => a.type === "task_anchor" || a.type === "user_directive"
@@ -119,6 +182,11 @@ function buildBrief(state, trigger) {
     `Trigger: ${trigger} | ${state.stats.promptsSeen} prompts | ${state.stats.toolCallsSeen} tool calls`
   );
   lines.push("");
+  if (standingGoal) {
+    lines.push("STANDING GOAL (from this chat's handoff -- your current objective; do not lose it):");
+    for (const ln of standingGoal.split("\n")) lines.push(`  ${ln}`);
+    lines.push("");
+  }
   if (objective) {
     lines.push(`OBJECTIVE: ${objective.summary}`);
     if (objective.rationale) lines.push(`WHY: ${objective.rationale}`);
@@ -159,6 +227,11 @@ function buildBrief(state, trigger) {
 }
 
 async function main() {
+  // Disable knob (TOKEN-EFFICIENCY-INJECT/U-KNOB-CLOSE) -- silence the reorientation brief.
+  if (process.env.PRISM_SESSION_REORIENT_DISABLE === "1") {
+    console.log(JSON.stringify({ continue: true }));
+    return;
+  }
   let input;
   try {
     // Read from stdin fd=0 — portable across Windows/Linux unlike /dev/stdin
@@ -172,23 +245,55 @@ async function main() {
   const sessionId = resolveSessionId(input?.session_id || input?.sessionId);
   const STATE_FILE = path.join(STATE_DIR, `reorientation-${sessionId}.json`);
 
+  // Read-parity with the capture companion (U-REORIENT-INJECT-READ-PARITY,
+  // 2026-06-12): unreadable=true means the file EXISTS but could not be
+  // read/parsed (AV lock, EBUSY, torn write). The caller must PASS THROUGH --
+  // synthesizing a fresh state here and saving it would clobber capture's
+  // anchors (the a3e6d3ca97 fail-open-read class; capture got this gate on
+  // 06-12, inject kept the fail-open read until now -- scrutiny arm-B P2).
   function loadStateLocal() {
-    try { if (fs.existsSync(STATE_FILE)) return JSON.parse(fs.readFileSync(STATE_FILE, "utf8")); } catch {}
-    return null;
+    let unreadable = false;
+    try {
+      if (fs.existsSync(STATE_FILE)) {
+        return { unreadable: false, state: JSON.parse(fs.readFileSync(STATE_FILE, "utf8")) };
+      }
+    } catch { unreadable = true; }
+    return { unreadable, state: null };
   }
   function saveStateLocal(s) {
+    // tmp+rename: the PostToolUse capture companion shares this file; a torn
+    // plain write here would feed its loadState a corrupt file (clobber class).
+    const tmp = `${STATE_FILE}.${process.pid}.tmp`;
     try {
       if (!fs.existsSync(STATE_DIR)) fs.mkdirSync(STATE_DIR, { recursive: true });
-      fs.writeFileSync(STATE_FILE, JSON.stringify(s, null, 2));
-    } catch {}
+      fs.writeFileSync(tmp, JSON.stringify(s, null, 2));
+      fs.renameSync(tmp, STATE_FILE);
+    } catch {
+      try { fs.unlinkSync(tmp); } catch { /* fail-soft: tmp may not exist */ }
+    }
   }
   // Shadow the closure-level load/save with per-chat variants
-  const state = loadStateLocal();
-  if (!state || !state.anchors || state.anchors.length === 0) {
-    // No anchors recorded yet — nothing to reorient to
+  const loaded = loadStateLocal();
+  if (loaded.unreadable) {
+    // Existing file we could not read: writing ANY state over it would clobber
+    // capture's anchors -- pure pass-through this prompt (mirrors capture).
     console.log(JSON.stringify({ continue: true }));
     return;
   }
+  let state = loaded.state;
+  const hasAnchors = !!(state && Array.isArray(state.anchors) && state.anchors.length > 0);
+  const sidReal = !!(sessionId && sessionId !== "default");
+  // Track counters when we have anchors OR a real session id (which MAY carry a handoff
+  // goal). The handoff is read LAZILY only when a brief actually fires (below), so the
+  // per-prompt hot path never touches disk for the goal -- only every promptInterval.
+  if (!hasAnchors && !sidReal) {
+    console.log(JSON.stringify({ continue: true }));
+    return;
+  }
+  // Synthesize a minimal state so the counter/interval logic works even when the
+  // anchor capture pipeline has not populated anchors yet (handoff-goal-only path).
+  if (!state) state = { anchors: [], config: {}, stats: null, briefHistory: [] };
+  if (!Array.isArray(state.anchors)) state.anchors = [];
 
   // Increment prompt counter
   state.stats = state.stats || {
@@ -223,7 +328,20 @@ async function main() {
     return;
   }
 
-  const brief = buildBrief(state, trigger);
+  // Lazy handoff read: only now that a brief is firing (at most once per promptInterval),
+  // never on the per-prompt hot path.
+  const standingGoal = sidReal ? readStandingGoal(sessionId) : null;
+  if (!hasAnchors && !standingGoal) {
+    // Brief would be empty (no anchors AND no handoff goal) -- skip it, but reset the
+    // counter so we re-check next interval rather than re-reading every prompt.
+    state.stats.promptsSinceLastBrief = 0;
+    state.stats.toolCallsSinceLastBrief = 0;
+    saveStateLocal(state);
+    console.log(JSON.stringify({ continue: true }));
+    return;
+  }
+
+  const brief = buildBrief(state, trigger, standingGoal);
   // Cap brief size to MAX_BRIEF_TOKENS * 4 chars
   const capped = brief.length > MAX_BRIEF_TOKENS * 4
     ? brief.slice(0, MAX_BRIEF_TOKENS * 4) + "\n[... brief truncated]"
@@ -234,6 +352,12 @@ async function main() {
   state.stats.lastBriefAt = new Date().toISOString();
   state.stats.promptsSinceLastBrief = 0;
   state.stats.toolCallsSinceLastBrief = 0;
+  // A full brief just re-anchored this chat -- restart the capture companion's
+  // mid-turn counter too, so its next re-anchor lands ~threshold tool calls AFTER
+  // this brief instead of duplicating its content ~25 calls later (scrutiny P2
+  // 2026-06-12). The empty-brief SKIP path above must NOT do this (no re-anchor
+  // happened there -- pinned by the capture suite's coordination test).
+  state.stats.toolCallsSinceMidTurnAnchor = 0;
   state.briefHistory = state.briefHistory || [];
   state.briefHistory.push({
     at: state.stats.lastBriefAt,
@@ -259,6 +383,16 @@ async function main() {
   );
 }
 
-main().catch(() => {
-  console.log(JSON.stringify({ continue: true }));
-});
+// Export pure helpers for testing; gate main() so a test import does not block on stdin.
+export { extractResume, readStandingGoal, buildBrief, detectDrift, resolveSessionId, safeSid8 };
+
+import { fileURLToPath } from "node:url";
+const __isCLI = process.argv[1] && (() => {
+  try { return fileURLToPath(import.meta.url) === process.argv[1]; }
+  catch { return false; }
+})();
+if (__isCLI) {
+  main().catch(() => {
+    console.log(JSON.stringify({ continue: true }));
+  });
+}

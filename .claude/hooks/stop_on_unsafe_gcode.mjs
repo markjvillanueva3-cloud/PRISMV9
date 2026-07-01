@@ -52,7 +52,7 @@ async function main() {
     try {
       const result = execSync(
         `git -C "H:/prism" diff --name-only HEAD~5 2>/dev/null | grep -E "\\.(nc|gcode|tap|mpf)$" | head -10`,
-        { encoding: "utf-8", timeout: 3000 }
+        { windowsHide: true, encoding: "utf-8", timeout: 3000 }
       ).trim();
 
       if (result) {

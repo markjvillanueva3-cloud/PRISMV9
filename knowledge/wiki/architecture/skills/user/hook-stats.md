@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `hook-stats` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/hook-stats.md` |
+| Source | `C:/Users/wompu/.claude/commands/hook-stats.md` |
 | Model | default |
 | Tags | _(none)_ |
 

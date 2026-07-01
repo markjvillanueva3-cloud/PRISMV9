@@ -1,0 +1,1091 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-04-19T23:48:23.232Z",
+  "note": "Session-scope capability manifest. Pointer index into AGENT_REGISTRY, SLASH_COMMAND_REGISTRY, PLUGIN_INVENTORY. Full lists at source paths.",
+  "selfAwareness": {
+    "version": "3.0.0",
+    "counts": {
+      "engines": 2528,
+      "dispatchers": 90,
+      "skills": 134,
+      "scripts": 79,
+      "hooks": 181,
+      "tribalTips": 3943,
+      "resourceFolders": 39,
+      "jmDieFolders": 15
+    }
+  },
+  "agents": {
+    "source": "mcp-server/data/state/AGENT_REGISTRY.json",
+    "total": 134,
+    "byCategory": {
+      "general": 18,
+      "explorer": 4,
+      "planner": 9,
+      "claude-flow": 28,
+      "sparc": 8,
+      "reviewer": 14,
+      "pr-review": 9,
+      "prism": 17,
+      "superpowers": 14,
+      "flow-nexus": 9,
+      "other": 4
+    },
+    "top": [
+      {
+        "name": "Explore",
+        "category": "explorer",
+        "triggers": [
+          "explore",
+          "find",
+          "locate",
+          "codebase",
+          "search",
+          "discover"
+        ],
+        "costTier": "low"
+      },
+      {
+        "name": "Plan",
+        "category": "planner",
+        "triggers": [
+          "plan",
+          "design",
+          "strategy",
+          "architect",
+          "implementation plan",
+          "approach"
+        ],
+        "costTier": "medium"
+      },
+      {
+        "name": "safety-physics",
+        "category": "prism",
+        "triggers": [
+          "safety",
+          "physics",
+          "cutting force",
+          "collision",
+          "stress",
+          "thermal"
+        ],
+        "costTier": "high"
+      },
+      {
+        "name": "adaptive-coordinator",
+        "category": "claude-flow",
+        "triggers": [
+          "topology",
+          "swarm",
+          "coordinate",
+          "adaptive",
+          "dynamic"
+        ],
+        "costTier": "high"
+      },
+      {
+        "name": "ml-developer",
+        "category": "general",
+        "triggers": [
+          "ml",
+          "machine learning",
+          "model",
+          "train",
+          "neural"
+        ],
+        "costTier": "high"
+      },
+      {
+        "name": "physics-reviewer",
+        "category": "prism",
+        "triggers": [
+          "physics",
+          "kienzle",
+          "taylor",
+          "formula",
+          "constants"
+        ],
+        "costTier": "medium"
+      },
+      {
+        "name": "byzantine-coordinator",
+        "category": "claude-flow",
+        "triggers": [
+          "byzantine",
+          "consensus",
+          "fault-tolerant",
+          "malicious"
+        ],
+        "costTier": "high"
+      },
+      {
+        "name": "consensus-coordinator",
+        "category": "claude-flow",
+        "triggers": [
+          "consensus",
+          "distributed",
+          "voting",
+          "agreement"
+        ],
+        "costTier": "high"
+      },
+      {
+        "name": "collective-intelligence-coordinator",
+        "category": "claude-flow",
+        "triggers": [
+          "hive",
+          "collective",
+          "cognitive",
+          "distributed"
+        ],
+        "costTier": "high"
+      },
+      {
+        "name": "crdt-synchronizer",
+        "category": "claude-flow",
+        "triggers": [
+          "crdt",
+          "synchronize",
+          "replication",
+          "eventual"
+        ],
+        "costTier": "medium"
+      },
+      {
+        "name": "hierarchical-coordinator",
+        "category": "claude-flow",
+        "triggers": [
+          "hierarchical",
+          "queen",
+          "worker",
+          "delegation"
+        ],
+        "costTier": "high"
+      },
+      {
+        "name": "Resource Allocator",
+        "category": "claude-flow",
+        "triggers": [
+          "resource",
+          "allocate",
+          "scale",
+          "capacity"
+        ],
+        "costTier": "medium"
+      },
+      {
+        "name": "coder",
+        "category": "general",
+        "triggers": [
+          "implement",
+          "code",
+          "write",
+          "build"
+        ],
+        "costTier": "medium"
+      },
+      {
+        "name": "backend-dev",
+        "category": "general",
+        "triggers": [
+          "backend",
+          "api",
+          "endpoint",
+          "server"
+        ],
+        "costTier": "medium"
+      },
+      {
+        "name": "mobile-dev",
+        "category": "general",
+        "triggers": [
+          "mobile",
+          "react-native",
+          "ios",
+          "android"
+        ],
+        "costTier": "medium"
+      },
+      {
+        "name": "system-architect",
+        "category": "planner",
+        "triggers": [
+          "architecture",
+          "system",
+          "design",
+          "pattern"
+        ],
+        "costTier": "high"
+      },
+      {
+        "name": "tdd-london-swarm",
+        "category": "sparc",
+        "triggers": [
+          "tdd",
+          "london",
+          "mock",
+          "test-driven"
+        ],
+        "costTier": "medium"
+      },
+      {
+        "name": "tester",
+        "category": "reviewer",
+        "triggers": [
+          "test",
+          "testing",
+          "qa",
+          "quality"
+        ],
+        "costTier": "medium"
+      },
+      {
+        "name": "code-archaeologist",
+        "category": "explorer",
+        "triggers": [
+          "archaeology",
+          "explore",
+          "understand",
+          "refactor"
+        ],
+        "costTier": "medium"
+      },
+      {
+        "name": "pr-review-toolkit:silent-failure-hunter",
+        "category": "pr-review",
+        "triggers": [
+          "silent",
+          "failure",
+          "error",
+          "swallow"
+        ],
+        "costTier": "medium"
+      },
+      {
+        "name": "perf-analyzer",
+        "category": "reviewer",
+        "triggers": [
+          "performance",
+          "perf",
+          "bottleneck",
+          "slow"
+        ],
+        "costTier": "medium"
+      },
+      {
+        "name": "implementer",
+        "category": "prism",
+        "triggers": [
+          "implement",
+          "wire",
+          "modify",
+          "prism"
+        ],
+        "costTier": "medium"
+      },
+      {
+        "name": "verifier",
+        "category": "prism",
+        "triggers": [
+          "verify",
+          "regression",
+          "test",
+          "orphan"
+        ],
+        "costTier": "low"
+      },
+      {
+        "name": "dispatcher-wirer",
+        "category": "prism",
+        "triggers": [
+          "wire",
+          "dispatcher",
+          "z.enum",
+          "action"
+        ],
+        "costTier": "medium"
+      },
+      {
+        "name": "catalog-enricher",
+        "category": "prism",
+        "triggers": [
+          "catalog",
+          "enrich",
+          "material",
+          "tool"
+        ],
+        "costTier": "medium"
+      },
+      {
+        "name": "cicd-engineer",
+        "category": "general",
+        "triggers": [
+          "ci",
+          "cd",
+          "github actions",
+          "pipeline"
+        ],
+        "costTier": "medium"
+      },
+      {
+        "name": "claude-code-guide",
+        "category": "general",
+        "triggers": [
+          "claude code",
+          "hooks",
+          "mcp",
+          "slash"
+        ],
+        "costTier": "low"
+      },
+      {
+        "name": "Consensus Builder",
+        "category": "claude-flow",
+        "triggers": [
+          "consensus",
+          "fault-tolerant",
+          "coordination"
+        ],
+        "costTier": "high"
+      },
+      {
+        "name": "gossip-coordinator",
+        "category": "claude-flow",
+        "triggers": [
+          "gossip",
+          "scalable",
+          "eventual"
+        ],
+        "costTier": "medium"
+      },
+      {
+        "name": "mesh-coordinator",
+        "category": "claude-flow",
+        "triggers": [
+          "mesh",
+          "p2p",
+          "peer"
+        ],
+        "costTier": "high"
+      }
+    ]
+  },
+  "slashCommands": {
+    "source": "mcp-server/data/state/SLASH_COMMAND_REGISTRY.json",
+    "total": 307,
+    "byCategory": {
+      "uncategorized": 307
+    },
+    "top": [
+      {
+        "category": null,
+        "triggers": [
+          "curiosity queue",
+          "curiosity-queue",
+          "what should i explore",
+          "next exploration target",
+          "idle exploration",
+          "show curiosity backlog",
+          "drain exploration queue",
+          "curiosity",
+          "queue",
+          "rank",
+          "prism",
+          "idle-time",
+          "exploration",
+          "never-accessed"
+        ]
+      },
+      {
+        "category": null,
+        "triggers": [
+          "generalize",
+          "generalise",
+          "lift to principle",
+          "abstract this tip",
+          "promote tip",
+          "what's the rule behind",
+          "what principle covers",
+          "lift",
+          "concrete",
+          "shop-floor",
+          "tip",
+          "abstraction",
+          "hierarchy"
+        ]
+      },
+      {
+        "category": null,
+        "triggers": [
+          "propose goal",
+          "propose-goal",
+          "what should i work on",
+          "suggest a goal",
+          "next goal",
+          "synthesize goal",
+          "propose",
+          "goal",
+          "top-ranked",
+          "session",
+          "goals",
+          "detected",
+          "gaps"
+        ]
+      },
+      {
+        "category": null,
+        "triggers": [
+          "simulate change",
+          "simulate-change",
+          "pre-play",
+          "will this break",
+          "risk of editing",
+          "dry-run edit",
+          "what would break if",
+          "simulate",
+          "change",
+          "proposed",
+          "file",
+          "through",
+          "prism"
+        ]
+      },
+      {
+        "category": null,
+        "triggers": [
+          "synthesize",
+          "synthesise",
+          "compose a pipeline",
+          "compose primitives",
+          "build a solution from primitives",
+          "how do i get from x to y",
+          "chain engines",
+          "compose",
+          "existing",
+          "prism",
+          "primitives",
+          "solution",
+          "candidates"
+        ]
+      },
+      {
+        "category": null,
+        "triggers": [
+          "wedm ai",
+          "optimize parameters",
+          "neural edm",
+          "best parameters",
+          "wedm",
+          "ai",
+          "advisor",
+          "wedm-ai-advisor",
+          "neural-powered",
+          "wire",
+          "edm",
+          "parameter",
+          "optimization"
+        ]
+      },
+      {
+        "category": null,
+        "triggers": [
+          "wedm citation",
+          "wedm citations",
+          "check citations",
+          "synthetic parameters",
+          "uncited values",
+          "wedm",
+          "cite",
+          "wedm-cite",
+          "check",
+          "validate",
+          "citation",
+          "coverage",
+          "engine"
+        ]
+      },
+      {
+        "category": null,
+        "triggers": [
+          "learn wedm",
+          "wedm pdf",
+          "wedm video",
+          "extract edm knowledge",
+          "wedm",
+          "learn",
+          "wedm-learn",
+          "extract",
+          "wire",
+          "edm",
+          "knowledge",
+          "pdfs",
+          "videos"
+        ]
+      },
+      {
+        "category": null,
+        "triggers": [
+          "wedm report",
+          "edm production report",
+          "wire edm analytics",
+          "wedm summary",
+          "wedm",
+          "report",
+          "wedm-report",
+          "generate",
+          "wire",
+          "edm",
+          "production",
+          "reports",
+          "analytics"
+        ]
+      },
+      {
+        "category": null,
+        "triggers": [
+          "extract dark content",
+          "find unextracted",
+          "scan for content",
+          "what haven't we learned",
+          "extract",
+          "dark",
+          "content",
+          "extract-dark-content",
+          "auto-scan",
+          "unextracted",
+          "files",
+          "drive"
+        ]
+      },
+      {
+        "category": null,
+        "triggers": [
+          "mill studio",
+          "cnc mill studio",
+          "interactive mill",
+          "full mill workflow",
+          "milling program",
+          "mill",
+          "studio",
+          "mill-studio",
+          "interactive",
+          "cnc",
+          "programming",
+          "full"
+        ]
+      },
+      {
+        "category": null,
+        "triggers": [
+          "optimize program",
+          "program optimization",
+          "speed up program",
+          "reduce cycle time",
+          "program",
+          "optimize",
+          "program-optimize",
+          "universal",
+          "cnc",
+          "optimizer",
+          "routes",
+          "family-specific"
+        ]
+      },
+      {
+        "category": null,
+        "triggers": [
+          "quote to ship",
+          "job lifecycle",
+          "order to ship",
+          "quote",
+          "to",
+          "ship",
+          "quote-to-ship",
+          "end-to-end",
+          "job",
+          "lifecycle",
+          "through",
+          "shipping"
+        ]
+      },
+      {
+        "category": null,
+        "triggers": [
+          "reap zombies",
+          "kill dead claims",
+          "release stale locks",
+          "clean up claims",
+          "reap",
+          "zombies",
+          "reap-zombies",
+          "kill",
+          "dead",
+          "claims",
+          "crashed",
+          "sessions"
+        ]
+      },
+      {
+        "category": null,
+        "triggers": [
+          "trend",
+          "show trajectory",
+          "projection for",
+          "when will we hit",
+          "rate of change",
+          "past week psi",
+          "show",
+          "past",
+          "present",
+          "projected",
+          "trajectory",
+          "named"
+        ]
+      },
+      {
+        "category": null,
+        "triggers": [
+          "compare wedm",
+          "wedm diff",
+          "compare edm programs",
+          "parameter comparison",
+          "wedm",
+          "compare",
+          "wedm-compare",
+          "wire",
+          "edm",
+          "programs",
+          "parameters",
+          "results"
+        ]
+      },
+      {
+        "category": null,
+        "triggers": [
+          "wedm feasibility",
+          "can we wire edm",
+          "edm this part",
+          "is this feasible",
+          "wedm",
+          "feasibility",
+          "wedm-feasibility",
+          "wire",
+          "edm",
+          "assessment",
+          "parts",
+          "features"
+        ]
+      },
+      {
+        "category": null,
+        "triggers": [
+          "harden wedm",
+          "wire edm hardening",
+          "calibrate wedm ai",
+          "wedm machine setup",
+          "wedm",
+          "harden",
+          "wedm-harden",
+          "prism",
+          "specific",
+          "wire",
+          "edm",
+          "machines"
+        ]
+      },
+      {
+        "category": null,
+        "triggers": [
+          "jm die wedm",
+          "our wire edm",
+          "shop wedm",
+          "wedm",
+          "jm",
+          "die",
+          "wedm-jm-die",
+          "company",
+          "wire",
+          "edm",
+          "shop",
+          "context"
+        ]
+      },
+      {
+        "category": null,
+        "triggers": [
+          "optimize wedm",
+          "wedm optimization",
+          "speed up wire edm",
+          "improve wedm cycle",
+          "wedm",
+          "optimize",
+          "wedm-optimize",
+          "wire",
+          "edm",
+          "programs",
+          "speed",
+          "surface"
+        ]
+      },
+      {
+        "category": null,
+        "triggers": [
+          "wire edm program",
+          "wedm program",
+          "generate wire edm",
+          "edm from drawing",
+          "wedm",
+          "program",
+          "wedm-program",
+          "complete",
+          "wire",
+          "edm",
+          "generation",
+          "drawing"
+        ]
+      },
+      {
+        "category": null,
+        "triggers": [
+          "wedm studio",
+          "wire edm studio",
+          "interactive wedm",
+          "full wedm workflow",
+          "wedm",
+          "studio",
+          "wedm-studio",
+          "interactive",
+          "wire",
+          "edm",
+          "programming",
+          "full"
+        ]
+      },
+      {
+        "category": null,
+        "triggers": [
+          "wire break",
+          "wedm problem",
+          "troubleshoot edm",
+          "wire keeps breaking",
+          "wedm",
+          "troubleshoot",
+          "wedm-troubleshoot",
+          "wire",
+          "edm",
+          "troubleshooting",
+          "break",
+          "diagnosis"
+        ]
+      },
+      {
+        "category": null,
+        "triggers": [
+          "validate wedm",
+          "check wedm program",
+          "wire edm validation",
+          "verify wedm code",
+          "wedm",
+          "validate",
+          "wedm-validate",
+          "wire",
+          "edm",
+          "programs",
+          "safety",
+          "correctness"
+        ]
+      },
+      {
+        "category": null,
+        "triggers": [
+          "recognize features",
+          "feature recognition",
+          "identify features",
+          "cad",
+          "feature",
+          "recognize",
+          "cad-feature-recognize",
+          "automatically",
+          "manufacturing",
+          "features",
+          "geometry"
+        ]
+      },
+      {
+        "category": null,
+        "triggers": [
+          "cam strategy",
+          "machining strategy",
+          "toolpath strategy",
+          "cam",
+          "strategy",
+          "cam-strategy",
+          "recommend",
+          "optimal",
+          "machining",
+          "strategies",
+          "features"
+        ]
+      },
+      {
+        "category": null,
+        "triggers": [
+          "check toolpath",
+          "toolpath verification",
+          "collision check",
+          "cam",
+          "toolpath",
+          "check",
+          "cam-toolpath-check",
+          "verify",
+          "quality",
+          "collision",
+          "safety"
+        ]
+      },
+      {
+        "category": null,
+        "triggers": [
+          "gdt check",
+          "gdnt validation",
+          "geometric tolerance",
+          "gdnt",
+          "check",
+          "gdnt-check",
+          "validate",
+          "callouts",
+          "against",
+          "manufacturing",
+          "capability"
+        ]
+      },
+      {
+        "category": null,
+        "triggers": [
+          "harden lathe",
+          "lathe hardening",
+          "calibrate lathe ai",
+          "lathe machine setup",
+          "lathe",
+          "harden",
+          "lathe-harden",
+          "prism",
+          "specific",
+          "cnc",
+          "machines"
+        ]
+      },
+      {
+        "category": null,
+        "triggers": [
+          "learn lathe",
+          "lathe learning",
+          "extract turning patterns",
+          "lathe knowledge",
+          "lathe",
+          "learn",
+          "lathe-learn",
+          "cnc",
+          "programs",
+          "outcomes",
+          "tribal"
+        ]
+      },
+      {
+        "category": null,
+        "triggers": [
+          "optimize lathe",
+          "lathe optimization",
+          "speed up lathe program",
+          "improve turning cycle",
+          "lathe",
+          "optimize",
+          "lathe-optimize",
+          "cnc",
+          "programs",
+          "speed",
+          "quality"
+        ]
+      },
+      {
+        "category": null,
+        "triggers": [
+          "validate lathe",
+          "check lathe program",
+          "lathe validation",
+          "verify turning code",
+          "lathe",
+          "validate",
+          "lathe-validate",
+          "cnc",
+          "programs",
+          "safety",
+          "correctness"
+        ]
+      },
+      {
+        "category": null,
+        "triggers": [
+          "harden mill",
+          "mill hardening",
+          "calibrate mill ai",
+          "mill machine setup",
+          "mill",
+          "harden",
+          "mill-harden",
+          "prism",
+          "specific",
+          "cnc",
+          "machines"
+        ]
+      },
+      {
+        "category": null,
+        "triggers": [
+          "learn mill",
+          "mill learning",
+          "extract mill patterns",
+          "mill knowledge",
+          "mill",
+          "learn",
+          "mill-learn",
+          "cnc",
+          "programs",
+          "outcomes",
+          "tribal"
+        ]
+      },
+      {
+        "category": null,
+        "triggers": [
+          "optimize mill",
+          "mill optimization",
+          "speed up mill program",
+          "improve mill cycle",
+          "mill",
+          "optimize",
+          "mill-optimize",
+          "cnc",
+          "programs",
+          "speed",
+          "quality"
+        ]
+      },
+      {
+        "category": null,
+        "triggers": [
+          "validate mill",
+          "check mill program",
+          "mill validation",
+          "verify mill code",
+          "mill",
+          "validate",
+          "mill-validate",
+          "cnc",
+          "programs",
+          "safety",
+          "correctness"
+        ]
+      },
+      {
+        "category": null,
+        "triggers": [
+          "simulate program",
+          "nc simulation",
+          "verify toolpath",
+          "visualize program",
+          "program",
+          "simulate",
+          "program-simulate",
+          "simulation",
+          "wrapper",
+          "machine",
+          "families"
+        ]
+      },
+      {
+        "category": null,
+        "triggers": [
+          "shop quote",
+          "generate quote",
+          "cost estimate",
+          "shop",
+          "quote",
+          "shop-quote",
+          "generate",
+          "shop-specific",
+          "quotes",
+          "accurate",
+          "costing"
+        ]
+      },
+      {
+        "category": null,
+        "triggers": [
+          "safety check",
+          "shop safety",
+          "compliance check",
+          "shop",
+          "safety",
+          "check",
+          "shop-safety-check",
+          "verify",
+          "floor",
+          "requirements",
+          "compliance"
+        ]
+      },
+      {
+        "category": null,
+        "triggers": [
+          "sinker studio",
+          "sinker edm studio",
+          "ram edm",
+          "die sinking",
+          "sinker",
+          "studio",
+          "sinker-studio",
+          "interactive",
+          "edm",
+          "programming",
+          "full"
+        ]
+      }
+    ]
+  },
+  "mcps": {
+    "source": "mcp-server/data/state/PLUGIN_INVENTORY.json",
+    "total": 8,
+    "byKind": {
+      "mcp-server": 5,
+      "agent-plugin": 3
+    },
+    "servers": [
+      {
+        "name": "claude-flow",
+        "description": "stdio MCP server (stdio)",
+        "health": "unknown"
+      },
+      {
+        "name": "postgres",
+        "description": "stdio MCP server (stdio)",
+        "health": "unknown"
+      },
+      {
+        "name": "prism",
+        "description": "stdio MCP server (stdio)",
+        "health": "unknown"
+      },
+      {
+        "name": "prism_safe",
+        "description": "stdio MCP server (stdio)",
+        "health": "unknown"
+      },
+      {
+        "name": "sentry",
+        "description": "stdio MCP server (stdio)",
+        "health": "unknown"
+      }
+    ]
+  }
+}

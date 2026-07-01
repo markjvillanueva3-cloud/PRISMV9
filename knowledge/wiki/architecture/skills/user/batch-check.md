@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `batch-check` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/batch-check.md` |
+| Source | `C:/Users/wompu/.claude/commands/batch-check.md` |
 | Model | default |
 | Tags | _(none)_ |
 

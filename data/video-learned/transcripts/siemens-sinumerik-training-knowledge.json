@@ -1,0 +1,741 @@
+{
+  "metadata": {
+    "title": "Siemens Sinumerik 840D/828D Training Knowledge Base",
+    "source": "Official Siemens CNC4You Webinar Series",
+    "presenter": "Chris Pollock, Siemens Dealer Support Specialist / Virtual Technical Application Center Manager",
+    "total_duration_hours": 7.4,
+    "extraction_date": "2026-03-28",
+    "video_count": 4,
+    "controller_platforms": ["Sinumerik 840D sl", "Sinumerik 828D"],
+    "software_versions_referenced": ["4.5", "4.7"],
+    "note": "Auto-generated captions with transcription corrections applied"
+  },
+
+  "videos": [
+    {
+      "video_id": "9WJM1yDKENo",
+      "title": "ShopMill Setup and Programming 840D 828D",
+      "duration": "2:30:13",
+      "focus": "ShopTurn conversational programming for 2-axis turning",
+      "topics_covered": [
+        "Jog mode operation and TSM screen",
+        "Tool creation with named tools (not number-limited)",
+        "Measure tool / measure workpiece functions",
+        "Work coordinate offset setup (G54-G59)",
+        "Program manager and file management",
+        "ShopTurn program header setup",
+        "Stock removal turning cycle (facing and OD)",
+        "Contour editor for irregular shapes",
+        "Threading cycle with variable speed support",
+        "Drilling centric cycle",
+        "Cutoff/parting cycle with speed reduction",
+        "2D and 3D simulation",
+        "Auto mode execution and block search",
+        "Sync thread (thread repair) function",
+        "Multiple cutting edges (D1-D9 per tool)",
+        "Residual material machining",
+        "Q&A: ShopTurn cannot convert to G-code",
+        "Q&A: Additive machining on Sinumerik"
+      ],
+      "knowledge": {
+        "tool_management": {
+          "naming": "Tools can have full text names (not limited to numbers). Example: 'CNMG_432_3-32_OD'. Supports letters, numbers, forward slashes, special characters.",
+          "max_tools": "Builder-selectable, typically 99 loaded positions but control supports thousands of tools total",
+          "cutting_edges": "Each tool supports up to 9 unique offsets (D1-D9). Multiple cutting edges can be completely different tool types on same turret position (e.g., gang tool with turning, threading, and parting tools)",
+          "loaded_vs_unloaded": "Tools can exist in loaded (in machine) or unloaded (stored but not in machine) states",
+          "tool_library": "Comprehensive library: favorites, end mills, drills, taps, turning tools, probes, grooving tools, right angle heads, die/mold cutters",
+          "insert_parameters": {
+            "radius": "Nose radius of insert",
+            "relief_angle": "Always added to 90 degrees (e.g., 5-degree relief = 95, 3-degree = 93, 7-degree = 97)",
+            "insert_angle": "Physical insert angle (e.g., 35 for VNMG, 80 for CNMG)",
+            "IC": "Inscribed circle diameter of insert",
+            "cutting_direction": "Primary and secondary cutting directions, system validates orientation"
+          }
+        },
+        "setup_workflow": {
+          "jog_mode": "Primary screen for machine movement, tool changes, offset setting. Designed for simplicity — no MDI G-code commands needed",
+          "tsm_screen": "Tool/Spindle/M-code screen. Handles tool changes, spindle start/stop with direction, work coordinate loading, coolant control, unit measure changes. All actions require physical cycle start",
+          "measure_tool": {
+            "manual_method": "Jog to part, take light cut, measure diameter, enter diametric value in X0 field (system halves it automatically), press Set Length. Repeat for Z axis",
+            "automatic_method": "For machines with tool presetters",
+            "offset_verification": "After setting offset, ALWAYS verify display reflects change. If it doesn't, stop and troubleshoot",
+            "tip": "Can stay within measure tool screen for multiple tool setups — just select next tool and cycle start"
+          },
+          "measure_workpiece": {
+            "purpose": "Sets work coordinate offsets. Moves ALL tools by same amount",
+            "workflow": "Touch part with tool, select work coordinate (G54-G59), enter value, press Set Work Coordinate",
+            "use_case": "Pre-establish all tools to base datum, then use measure workpiece to shift everything to new part"
+          }
+        },
+        "program_management": {
+          "nc_memory_structure": {
+            "part_programs": "Must have .MPF extension (Main Program File)",
+            "sub_programs": "Stored in sub programs folder",
+            "workpieces": "Can create subdirectories, support any file types including PDFs"
+          },
+          "naming_rules": "Letters, numbers, and underscores ONLY. No spaces, dashes, or other special characters",
+          "file_transfer": "USB, CF card, mapped network drives. Copy/paste between locations. Can edit files on remote storage",
+          "usb_warning": "USB not recommended for normal production — insecure connection, unreliable sticks. Use for emergencies only",
+          "setup_data_save": "Can save tool table + offsets + work coordinates as a file alongside part program"
+        },
+        "shopturn_programming": {
+          "header_page": {
+            "unit_of_measure": "Inch or Metric",
+            "work_coordinate": "G54-G59 selection",
+            "blank_definition": "Cylinder, pipe, square, hex stock with dimensions (for simulation only)",
+            "stock_dimensions": "OD, Z start (positive for facing stock), Z length, Z from chuck jaws",
+            "retract": "Incremental or absolute. Incremental preferred except for ID boring where absolute to smallest bore diameter is safer",
+            "tool_change_point": "Unique to turning — defines physical tool change location. Can use machine coordinates with teach position or work coordinate relative values",
+            "max_spindle_rpm": "S_max limiting value",
+            "safety_clearance": "Distance from part before feeding begins",
+            "climb_vs_conventional": "Default milling direction for live tooling"
+          },
+          "stock_removal_cycle": {
+            "parameters": "Tool, feed (per rev or per min), speed (RPM or CSS), rough/finish, OD/ID/face/turning, start/end dimensions, depth per pass, finish allowance (U fields)",
+            "interrupted_feed": "DI parameter — linear distance at which system breaks chip by stopping servo momentarily",
+            "blank_control": "BL parameter controls actual machining envelope (not header blank which is simulation only). Options: simple cylinder, contour, or allowance-based machining from cast/pre-machined parts",
+            "relief_handling": "System respects insert geometry and never overcuts. Uses insert checking for undercut detection",
+            "residual_material": "Picks different tool to machine areas where primary tool couldn't fit. System auto-detects remaining material"
+          },
+          "contour_editor": {
+            "elements": "Lines (single/two-axis), arcs (with tangent), chamfers, radii at corners",
+            "dimension_modes": "Absolute or incremental per axis, can mix within same element",
+            "tangent_function": "Arc tangent to previous element — auto-calculates center point",
+            "dialogue_select": "Chooses between two possible arc solutions (short/long segment)",
+            "coordinate_display": "System always calculates resulting angles and positions"
+          },
+          "threading": {
+            "parameters": "Pitch (threads per inch or metric), OD/ID start/end, thread height, in-feed angle, first cut depth, finish allowance, spring cuts, lead advance",
+            "css_threading": "Control supports constant surface speed threading (builder-dependent)",
+            "variable_speed_threading": "Spindle override is live during threading — can adjust speed while cutting thread",
+            "multi_lead_threads": "Supported with lead count and starting angle control",
+            "taper_threads": "Supported for both OD and ID",
+            "chain_threads": "Pitch and shape can change over length of thread"
+          },
+          "cutoff_parting": {
+            "insert_width": "System auto-compensates for back side of parting tool",
+            "speed_reduction": "FS field: at specified diameter, reduce feed rate and switch to constant RPM at specified value",
+            "chamfer_radius": "Can add chamfer (FS) or radius (R) to parted face"
+          }
+        },
+        "auto_mode": {
+          "entry_methods": "Execute button from program manager or Auto mode button",
+          "block_search": "Start from any point in program — highlight position determines start point. Reset key rewinds",
+          "basic_blocks": "Shows resulting G-code lines from conversational cycles",
+          "program_control": {
+            "optional_stops": "M01 equivalent — requires PRT flag",
+            "axis_lock": "Servos don't physically move",
+            "dry_run": "Run program without part in machine",
+            "rapid_reduction": "Slow down G0 rapid moves for new machines",
+            "single_block_fine": "Stops at every motion or command",
+            "single_block_rough": "Allows canned cycles to complete, stops between operations"
+          },
+          "simultaneous_record": "Real-time graphics display during actual cutting",
+          "cycle_time": "Timer and parts counter available",
+          "sync_thread": "Thread repair function — orient spindle to existing thread lead by engaging tool and pressing teach spindle"
+        }
+      }
+    },
+
+    {
+      "video_id": "xfIeiMA2vbM",
+      "title": "Shop Floor Programming 101 with ShopMill",
+      "duration": "1:43:53",
+      "focus": "ShopMill conversational programming for 3-axis milling",
+      "topics_covered": [
+        "ShopMill interface overview and program creation",
+        "Program header setup for milling",
+        "Face milling cycle with feed per tooth calculation",
+        "Spigot/profile milling (rectangular, rough and finish)",
+        "Circular pocket machining (helical and plane-by-plane)",
+        "Center drilling with countersink diameter calculation",
+        "Deep hole drilling / peck drilling",
+        "Tapping cycle (rigid and soft)",
+        "Position strategies (random, bolt hole pattern, row, grid, frame)",
+        "Position repeat functionality",
+        "Circumferential slot milling",
+        "Thread milling with calculated cutter feed",
+        "Chamfering/deburring with center drill",
+        "G-code insertion in conversational programs",
+        "MSG operator messages",
+        "Sequence numbering and renumbering",
+        "Build group for program organization",
+        "Cycle time estimation per operation",
+        "In-process measuring option",
+        "Simulation with show path, speed control, sectional views"
+      ],
+      "knowledge": {
+        "shopmill_header": {
+          "unit_of_measure": "Inch or Metric — toggle with Select key",
+          "work_coordinate": "G54-G59 selection",
+          "stock_definition": "Cylinder, pipe, block (center origin), block (corner origin), multi-sided, none",
+          "block_corner_setup": "Two opposing corners define stock. Accommodate for rough stock overage (e.g., 1/8 inch per side for 1/4 inch oversize stock)",
+          "tool_plane": "G17/G18/G19 — affects drilling orientation for right angle heads",
+          "retract_plane": "Where tool goes after each operation. Absolute Z value above part",
+          "safety_distance": "Incremental approach distance before feeding. Unsigned value",
+          "machining_state": "Down cut = climb milling, Up cut = conventional milling",
+          "retract_optimization": "Always retract to plane vs optimize (only retract when necessary)"
+        },
+        "tool_creation": {
+          "process": "Select tool → Tool List → New Tool → Pick type from library → Name → Parameters → To Program",
+          "face_mill": "Length, diameter, number of teeth, spindle direction, coolant on/off. Further data: body diameter for wall clearance",
+          "end_mill": "Length, diameter, number of flutes, direction, coolant. Diameter symbol vs radius depends on machine parameter",
+          "drills": "Length, diameter, tip angle (critical for depth compensation). Feed per rev mode",
+          "taps": "Length, diameter, pitch. Pitch in inch mode = threads per inch, metric mode = metric pitch value. Fraction support for fractional pitches (e.g., 20.5 TPI = 21/2)",
+          "thread_mills": "Under cutter library. Diameter, number of flutes/teeth, depth per tooth",
+          "center_drills": "True NC spot drill style. Countersink angle critical for automatic depth calculation from spot diameter",
+          "d_number": "D1 is default single offset. D2-D9 for multiple offsets per tool. D column in offset table"
+        },
+        "milling_cycles": {
+          "face_mill": {
+            "auto_fill": "Only cycle that pulls dimensions from header page",
+            "parameters": "Tool, feed (per tooth or per minute), speed (RPM or CSS), rough/finish, cutter direction (bi/uni in X and Y), start/end XYZ, step over (% or distance), finish allowance",
+            "css_calculation": "Enter surface footage and feed per tooth — system calculates RPM and feed per minute automatically"
+          },
+          "spigot_boss": {
+            "shapes": "Rectangular, circular, multi-sided",
+            "operations": "Rough (single diamond), finish (triple diamond), chamfer",
+            "reference_point": "Corner or center of feature",
+            "pattern": "Single position or linked pattern for multiple identical features",
+            "parameters": "Center XY, top Z, rough/finish dimensions, corner radius, angle, depth, depth per pass, finish allowance UX/UY/UZ"
+          },
+          "pocket": {
+            "shapes": "Rectangular or circular",
+            "circular_strategies": "Helical (continuous spiral — better chip evacuation for deep holes) or plane-by-plane (step down and spiral out)",
+            "helical_parameters": "Lead-in pitch (ramp angle), radial engagement percentage",
+            "removed_material": "Accommodate pre-drilled holes to avoid wasting time machining air. Unsigned depth value, cannot exceed cycle depth",
+            "ramp_strategies": "Helical ramp-in or vertical plunge"
+          },
+          "slot": {
+            "types": "Longitudinal (encapsulated/captured key), circumferential (wrapped around radius), open slot (trochoidal)",
+            "circumferential_params": "Center XY, Z start, number of slots, radius, start/end angles, slot width, slot depth, depth per pass, positioning strategy (shortest path or follow radius)",
+            "full_vs_partial": "Full circle = auto-indexed equally. Partial = specify start/end for each"
+          },
+          "thread_mill": {
+            "feed_calculation": "Control calculates true cutter edge feed from linear feed rate using formula: F_actual = F_programmed * (D_thread / D_thread_mill) for OD, inverse for ID",
+            "parameters": "Feed per tooth or linear, RPM/CSS, rough/finish, top-down or bottom-up, right/left hand, ID/OD, number of teeth per revolution, ending diameter, thread height, depth per pass, radial engagement, finish allowance",
+            "position_required": "Must add drilling position event to define XY location — thread mill event has no XY fields",
+            "thread_height_calc": "Example: 1 inch - 0.875 bore = 0.125 total, thread height = 0.0625 (half)"
+          }
+        },
+        "drilling_cycles": {
+          "center_drilling": {
+            "depth_modes": "True tip depth or countersink diameter (system calculates depth from tip angle and spot diameter)",
+            "dwell": "Optional dwell at bottom for breakthrough"
+          },
+          "deep_hole_drilling": {
+            "strategies": "Chip breaking (stop servo, break chip, continue) or chip removal (full retract from hole)",
+            "depth_compensation": "Tip or shank. Shank = drill deeper than Z1 by tip projection. Tip = drill to exactly Z1",
+            "progressive_reduction": "Percentage field reduces each subsequent peck depth",
+            "first_feed": "Separate slower feed rate and depth for initial engagement"
+          },
+          "tapping": {
+            "rigid_tapping": "Without compensating chuck. Allows peck tapping",
+            "soft_tapping": "With floating tap holder. Single cut only, no peck option",
+            "retract_rpm": "Can differ from cutting RPM",
+            "thread_types": "Threads per inch, module, metric pitch, inch pitch. Fraction support for half-pitches"
+          },
+          "drill_ream": {
+            "behavior": "Rapid to hole, feed to depth, controlled feed retract out"
+          }
+        },
+        "position_strategies": {
+          "random_holes": "Up to 9 locations per event (0-8). Delete all to clear",
+          "bolt_hole_pattern": {
+            "parameters": "Center XY, Z datum, radius, first hole angle (0=3 o'clock, 90=12 o'clock, counterclockwise), number of holes",
+            "positioning": "Shortest path or follow radius arc"
+          },
+          "row": "Linear row of equally spaced holes",
+          "grid": "Rectangular grid pattern",
+          "frame": "Holes around rectangular perimeter",
+          "repeat_positions": "Reference previous position set by number — single source of truth for geometry",
+          "z_datum": "Each position set specifies its own Z0, allowing different planes (e.g., holes on top surface at Z0 and holes in pocket at Z-0.5)"
+        },
+        "additional_features": {
+          "g_code_insertion": "Insert any G-code line in middle of conversational program via input key",
+          "msg_command": "MSG(\"text\") displays operator message on screen. MSG(\"\") clears message. Persists until cleared or replaced",
+          "optional_stop": "Under machine functions. Program stop = M01 (needs flag), Stop command = M00 (always stops)",
+          "build_group": "Consolidate multiple events into collapsible group for readability",
+          "sequence_numbers": "Renumber command adds N-numbers. Settings option for auto-insert. Useful for alarm troubleshooting",
+          "ctrl_g": "Quick wireframe graphic view — highlights show which event corresponds to which geometry",
+          "cycle_time": {
+            "simulation": "Total cycle time shown after simulation completes",
+            "per_operation": "Enable 'determined machine times' in settings for per-block or per-group breakdown",
+            "auto_recording": "In auto mode: settings → record cycle time to save to file"
+          },
+          "in_process_measuring": {
+            "option_required": "License option for auto mode measuring. Jog mode measuring is standard",
+            "capabilities": "Measure parts, create reports, reset work coordinates, check tool breakage, resize for wear",
+            "available_in": "Both G-code and ShopMill environments"
+          },
+          "straight_circle": {
+            "purpose": "Point-to-point tool path for geometry that doesn't fit canned cycles",
+            "elements": "Tool changes, straight line moves, circular arc moves"
+          },
+          "high_speed_machining": "Available under Various → Settings for CYCLE832 activation",
+          "sub_program_calls": "Available under Various menu"
+        }
+      }
+    },
+
+    {
+      "video_id": "H4nMX3aFVQo",
+      "title": "5-axis 3+2 G-code Programming with ProgramGuide",
+      "duration": "1:35:04",
+      "focus": "CYCLE800 swivel cycle for 3+2 indexed 5-axis programming in G-code",
+      "topics_covered": [
+        "5-axis machine setup workflow (plane → edge → zero)",
+        "Align plane (3-point surface measurement)",
+        "Align edge (2-point edge measurement)",
+        "Coordinate rotations vs direct axis offsets",
+        "WCS/MCS jogging modes",
+        "Swivel cycle in jog mode for setup",
+        "CYCLE800 programming (axis-by-axis, projected angles, direct axis)",
+        "Kinematic independent vs dependent programming",
+        "Tool carrier / swivel data names",
+        "Retract strategies (Z retract, max tool direction, incremental)",
+        "New vs additive rotation modes",
+        "Linear shifts before and after rotation",
+        "Tracking function (TRAORI requirement)",
+        "Safety line initialization sequence",
+        "Workpiece blank with clamping orientation",
+        "Collision avoidance with machine space model",
+        "CAD/CAM posted output handling",
+        "Cycle mask validation for posted programs",
+        "Job planning manual for external cycle programming",
+        "String variable for swivel data name portability",
+        "Over-store mode (MDI in auto)",
+        "Mid-program start with block search",
+        "Sinumerik password levels (SUNRISE = manufacturer)",
+        "SINUtrain emulator availability"
+      ],
+      "knowledge": {
+        "five_axis_setup": {
+          "sequence": "CRITICAL: Always follow this order: 1) Align Plane (square head to surface), 2) Align Edge (indicate edge), 3) Set Zero (find part datum). Skipping order causes offset errors because rotary motion invalidates previous measurements",
+          "align_plane": {
+            "method": "Probe 3 points on surface. Writes coordinate rotation offsets to active work coordinate (G54-G59)",
+            "offset_location": "Details section of work coordinate — coordinate rotations about X, Y, Z linear axes",
+            "note": "Machine does NOT physically move rotaries — only calculates and stores offset values"
+          },
+          "align_edge": {
+            "methods": "Coordinate rotation (writes to rotation fields) or direct axis (writes to A/C axis offset)",
+            "warning": "NEVER mix coordinate rotation and direct axis methods — offsets fight each other. Keep consistent with programming method"
+          },
+          "coordinate_rotations": {
+            "concept": "Rotation about linear axes (not direct rotary positioning). Every machine has XYZ so programs are portable",
+            "location": "Work coordinate Details button → rotation fields for X, Y, Z"
+          },
+          "wcs_mcs_jogging": {
+            "MCS_mode": "Jog relative to machine coordinate system. Moving X physically moves only X motor",
+            "WCS_mode": "Jog relative to rotated work coordinate system. Moving X may require multiple motors to track along rotated X direction",
+            "use_case": "WCS mode essential for indicating edges after coordinate rotation is applied. Enables tracking along rotated planes"
+          }
+        },
+        "cycle800_swivel_cycle": {
+          "purpose": "Creates inclined work planes and orients tool perpendicular to them. Work coordinate system moves to new plane",
+          "two_modes": {
+            "plane_rotation": "Creates plane, moves UCS to surface, Z perpendicular to plane. Used for 3+2 milling",
+            "tool_orientation": "Tips tool angle but UCS stays fixed. Used for 5-axis lathes and freeform surfaces"
+          },
+          "three_steps": "1) Linear shift of zero, 2) Rotation about axes, 3) Second linear shift on new plane",
+          "machine_kinematics": {
+            "supported": ["Head-head (both rotaries in spindle)", "Mixed (one rotary in head, one in table)", "Table-table (both rotaries in table, e.g., trunnion)", "Nutated axes (rotary not perpendicular to linear)"],
+            "same_cycle": "Identical CYCLE800 syntax works on ALL kinematic types — control automatically calculates required motion"
+          },
+          "programming_methods": {
+            "axis_by_axis": {
+              "type": "Kinematic INDEPENDENT",
+              "concept": "Describe rotation about X, Y, Z linear axes. Portable to any 5-axis machine",
+              "rotation_sequence": "ORDER MATTERS for compound rotations. XYZ vs ZYX gives different results. Single rotation = order irrelevant",
+              "best_practice": "Pick axis you want to rotate about first"
+            },
+            "projected_angles": {
+              "type": "Kinematic INDEPENDENT",
+              "concept": "Project angles onto planes"
+            },
+            "direct_axis": {
+              "type": "Kinematic DEPENDENT",
+              "concept": "Directly specify A, B, C rotary positions. ONLY runs on machines with matching rotary configuration",
+              "no_direction_option": "Only one solution exists — no alternate positions"
+            }
+          },
+          "direction_field": {
+            "purpose": "When kinematic independent, machine may have 2 possible positions. Direction field selects which solution",
+            "positive_negative": "Controls which way rotary tips (toward/away from operator)"
+          },
+          "retract_strategies": {
+            "z_retract": "Move Z to extent of travel in plus direction",
+            "max_tool_direction": "Move tool out at current angle until near overtravel",
+            "incremental": "Small incremental move up from current position",
+            "safety": "Full retract recommended before rotary moves. Incremental retract for tracking mode"
+          },
+          "new_vs_additive": {
+            "new": "Cancels previous rotations, applies new rotation from original work coordinate zero. Like absolute positioning",
+            "additive": "Builds on current rotation. Like incremental positioning. Useful for compound angles (e.g., 45 + 9 = 54 degree surface)"
+          },
+          "tracking": {
+            "purpose": "Tool follows rotation motion instead of retracting to Z max. Saves time on large machines",
+            "requirement": "Machine must have TRAORI or ETRAORI (5-axis dynamic function) commissioned",
+            "caution": "Tool may end up below surface during track — use adequate incremental retract before tracking",
+            "828d_note": "828D does NOT support TRAORI — no tracking option"
+          },
+          "cancellation": {
+            "at_control": "Swivel function → Zero → Cycle Start",
+            "in_gcode": "CYCLE800() — empty parentheses",
+            "best_practice": "Cancel at program end and before tool changes. Re-establish plane after tool change if builder's macro cancels it"
+          }
+        },
+        "program_structure": {
+          "safety_initialization": {
+            "line_1": "CYCLE800 with tool carrier enabled, retract to safe position, all rotations zero — squares up machine",
+            "line_2": "CYCLE800() — cancel swivel cycle",
+            "line_3": "Safety line: G17 G54 G90 G71/G70 — tool plane, work coordinate, absolute mode, unit",
+            "line_4": "Workpiece blank definition (for simulation)",
+            "critical_order": "Blank MUST come AFTER work coordinate and CYCLE800 cancel. If before, stock displays in wrong location"
+          },
+          "workpiece_blank": {
+            "clamping_field": "Required for 5-axis simulation. Set to C-axis for standard trunnion. If omitted, only 3-axis simulation shown",
+            "software_version": "Clamping field introduced in version 4.5"
+          },
+          "before_tool_change": "Cancel CYCLE800, retract to safe position, THEN do tool change. Never tool change with active rotation on head-head machines",
+          "program_end": "Retract to safe, cancel CYCLE800, M30"
+        },
+        "cadcam_integration": {
+          "cycle_validation": "Open any canned cycle in control mask to check for errors. Cycle mask validates parameter setup even if numeric values may be wrong",
+          "common_issues": {
+            "swivel_data_name": "Builder-definable, inconsistent across OEMs. Even same OEM uses different names across machine series",
+            "workaround": "Define string variable in header: DEF STRING[10] _SWIVEL = \"TC_1\" then use _SWIVEL in CYCLE800. Only change in one place",
+            "empty_name": "Leaving name blank works if machine has single swivel data record. NOT reliable for multi-record machines"
+          },
+          "comma_count": "More commas = newer software version. Cycles are upward compatible — older format works in newer control",
+          "documentation": "Job Planning Manual from support.industry.siemens.com → Chapter 19: Programming Cycles Externally. Details every variable position in each cycle",
+          "kinematic_mixed_output": "CAD/CAM may mix independent rotations with dependent retract moves. Only retract lines need updating for different machine types"
+        },
+        "auto_mode_features": {
+          "over_store_mode": "MDI during active program. Cycle stop → over store → type command → cycle start. Machine returns to stop point and continues. Essential for 5-axis where simple Z retract may require coordinated multi-axis motion",
+          "block_search": "Start from any point in program. System scans and establishes all modal states and rotations prior to selected block",
+          "collision_avoidance": "Machine space model shows full kinematic during execution. Optional feature requiring commissioning",
+          "password_level": "SUNRISE (all caps) = manufacturer level access for simulation activation and advanced features"
+        },
+        "sinutrain": {
+          "availability": "Free trial from CNC4You website (siemens CNC for you). Trial allows machine manipulation but not program import/export",
+          "full_version": "Purchased license. Supports external program management and virtual machine building",
+          "virtual_machines": "Can build exact replica from machine archive file. Archive: Ctrl+Alt+S (840D) or Ctrl+Alt+C (828D) to USB",
+          "version_licensing": "License version limits software version (e.g., 4.5 license = up to 4.5 ed.3, need new license for 4.7)"
+        }
+      }
+    },
+
+    {
+      "video_id": "N0Rf9gnbcQs",
+      "title": "Setup & Programming Turn Mill B-Axis Lathes in ShopTurn",
+      "duration": "1:34:47",
+      "focus": "B-axis turn-mill lathe programming with ShopTurn",
+      "topics_covered": [
+        "Turn mill vs mill turn terminology",
+        "B-axis kinematics and reference positions",
+        "Beta (B-axis angle) and Gamma (spindle orientation) fields",
+        "Dynamic offset calculation from B-axis center",
+        "Tool setup for B-axis (all tools built at B0/9 o'clock)",
+        "Multi-tool holders (MT capability)",
+        "Work offset setup with mirrored G55 for counter spindle",
+        "Chuck/spindle data for automatic offset calculation",
+        "OD turning with B-axis orientation",
+        "Part transfer between main and counter spindle",
+        "Peripheral milling (C-axis and Y-axis strategies)",
+        "Face milling on B-axis lathes (Face Y only)",
+        "Swivel plane for inclined plane creation",
+        "Face B strategy for machining on inclined planes",
+        "Centric drilling (stationary tool, spinning spindle)",
+        "Drilling on inclined planes with Face B strategy",
+        "Bolt hole patterns on inclined planes with C-axis rotation",
+        "Open slot milling with C-axis indexing",
+        "Repeat command with N-numbers for event repetition",
+        "Simulation with orientation verification via insert screw visual"
+      ],
+      "knowledge": {
+        "turn_mill_vs_mill_turn": {
+          "turn_mill": "Base technology is a LATHE with milling functionality added. Primary control technology is turning. This is what video covers",
+          "mill_turn": "Base technology is a MILLING MACHINE with turning added (typically using torque motors on platter for high RPM turning)",
+          "distinction": "Industry terminology shift to clarify base machine technology and primary control mode"
+        },
+        "b_axis_fundamentals": {
+          "b_zero_position": "Typically at 9 o'clock (tool pointing at main spindle/headstock). Builder-configurable but this is most common",
+          "rotation_convention": "Positive B rotation = counterclockwise. B45 = 7:30 position, B90 = 6 o'clock, B180 = 3 o'clock (facing sub spindle)",
+          "reference_datum": "Center of B rotary axis. Dynamic offset from rotary center to spindle face gauge line managed by control's kinematics engine",
+          "offset_tracking": "When B-axis moves via beta field, control automatically recalculates tool position. Linear axis display changes even without physical linear motion — this is dynamic offset compensation",
+          "beta_vs_direct_b": "Using beta field in TSM/cycles = dynamic offset tracking. Using direct B axis position = NO offset recalculation. ALWAYS use beta/gamma fields for proper compensation",
+          "controller": "B-axis functionality requires 840D sl — NOT available on 828D",
+          "typical_config": "X, Y, Z linear + B rotary + C main spindle + sub spindle. HSK63 or similar tool interface"
+        },
+        "beta_and_gamma": {
+          "beta": "B-axis rotation angle. Controls tool swing position around B rotary",
+          "gamma": "Milling spindle orientation angle. Controls rotation of tool in spindle (like M19 orient)",
+          "combined_use": "Beta=0, Gamma=0 = tool at 9 o'clock, OD turning. Beta=0, Gamma=180 = tool flipped for boring. Beta=90 = tool pointing down for face work. Beta=90, Gamma=180 = face work from opposite side",
+          "tsm_shortcuts": "Arrow left = B0, Arrow down = B90, Arrow right = B180",
+          "in_cycles": "Available in turning cycles. NOT in milling cycles (milling cycles determine B position from face/peripheral selection)",
+          "simulation_verification": "Watch for insert screw visual — visible means specific orientation. If screw disappears, tool has been flipped"
+        },
+        "tool_setup": {
+          "orientation_rule": "ALL tools built as if at B0 (9 o'clock position). System handles all orientation changes via beta/gamma",
+          "turning_tools": "Right-hand = first orientation position (OD at B0). Left-hand = third position (boring at B0). System auto-flips for sub spindle work",
+          "rotary_tools": "No X offset needed (concentric to spindle center). Only WF (gauge line to tip distance) and diameter required. Always built pointing toward headstock at B0",
+          "multi_tool": {
+            "purpose": "Multiple tool types in single tool pocket (e.g., roughing + finishing + threading inserts on one holder)",
+            "setup": "Create multi-tool → name + number of locations → optionally specify angles between locations → build each cutting edge as normal",
+            "mt_column": "MT indicator in tool table. Requires positionable (orientable) spindle",
+            "tool_change": "Select by name → system loads entire multi-tool assembly → orients spindle to selected location number"
+          },
+          "gauge_line": {
+            "hsk": "HSK mount: gauge line at spindle face (contact surface)",
+            "cat40": "CAT40: gauge line inside spindle, even on BIG Plus. Must know distance to face",
+            "critical_dimension": "Distance from B rotary center to gauge line is managed by control. If incorrect, all B-axis orientations will have position errors"
+          }
+        },
+        "work_offset_strategy": {
+          "main_spindle": "G54 — standard work coordinate at main spindle face",
+          "sub_spindle": "G55 — MIRRORED in Z. Mirror handles: Z direction, beta/gamma orientation flip, spindle direction reversal. Dramatically simplifies sub spindle programming",
+          "describe_function": "Can auto-calculate G55 from G54 + chuck data. Overwrites existing offset — use cautiously. Good for production (prevents operator offset changes)",
+          "chuck_spindle_data": "Offset table → Setting Data → Chuck body and jaw projection distances. MUST be accurate for automatic G55 calculation and part transfer",
+          "programming_rule": "ALWAYS program as if on main spindle. Mirrored G55 automatically handles all orientation, direction, and position changes for sub spindle operations"
+        },
+        "programming_operations": {
+          "turning_with_b_axis": {
+            "stock_removal": "Same cycle as standard turning plus beta/gamma fields",
+            "orientation_examples": "B0/G0 = standard OD right-hand. B90/G180 = tool inverted for face. B0/G180 = boring with right-hand tool",
+            "simulation_tip": "If chosen orientation is not viable, simulation will catch error"
+          },
+          "part_transfer": {
+            "same_as_sub_spindle": "Pick-and-place transfer with additional beta/gamma positioning during transfer",
+            "clearance_warning": "B-axis head is physically large — ensure adequate clearance during transfer. Account for longest tool + full head envelope",
+            "g55_mirror": "After transfer, system automatically handles all direction and orientation changes. No manual adjustment needed"
+          },
+          "milling_operations": {
+            "no_beta_gamma": "Milling cycles do NOT have beta/gamma fields. B position determined by face vs peripheral selection",
+            "face_c": "C-axis rotation (spindle indexes) for face milling",
+            "face_y": "Y-axis linear motion for face milling. Y-axis required",
+            "peripheral_c": "Wrapped around part OD using C-axis",
+            "peripheral_y": "Y-axis motion on OD (sheet Y)",
+            "face_b": "NEW — for machining on inclined planes created by swivel cycle. MUST have active swivel plane",
+            "face_mill_note": "Face milling only available as Face Y (not peripheral C). Facing is inherently flat"
+          },
+          "inclined_planes": {
+            "swivel_cycle": "Creates inclined plane with tool perpendicular to surface. Identical concept to CYCLE800 on 5-axis mills",
+            "parameters": "C orientation, linear shift (X0/Y0/Z0), rotation axis and angle, secondary shift on new plane",
+            "workflow": "1) Create swivel plane, 2) Use Face B strategy in milling/drilling cycle, 3) Cancel swivel plane when done",
+            "face_b_requirement": "Any cycle on inclined plane MUST use Face B. Face Y or Sheet Y will negate the swivel plane",
+            "c_axis_bolt_pattern": "Can drill bolt hole patterns around inclined plane using Face B with C-axis rotation option"
+          },
+          "centric_drilling": {
+            "concept": "Tool held stationary (no spindle), workpiece spins in main/sub spindle",
+            "b_limitation": "Only B0 or B180 — cannot drill at arbitrary B angles in centric mode",
+            "tool_type": "Solid drill (insert-style, flat bottom assumed — no tip angle required)"
+          },
+          "slotting": {
+            "open_slot": "Face or peripheral with C-axis indexing",
+            "c_orientation": "Clock position of slot feature. 0 = reference position, 90 = 90 degrees rotated",
+            "indexing": "Multiple features clocked relative to each other using C orientation field"
+          }
+        },
+        "repeat_command": {
+          "syntax": "REPEAT N[start] N[end] — repeats all events between specified sequence numbers",
+          "prerequisite": "Must have N-numbers assigned via renumber function",
+          "use_case": "Avoid copy/paste of identical operations on opposite sides. Single source of truth",
+          "goto": "GOTOB/GOTOF with N-number for program flow control"
+        }
+      }
+    }
+  ],
+
+  "controller_reference": {
+    "g_codes": {
+      "G0": "Rapid traverse / positioning",
+      "G1": "Linear interpolation (feed move)",
+      "G2": "Circular interpolation clockwise",
+      "G3": "Circular interpolation counterclockwise",
+      "G17": "XY plane selection (standard vertical mill)",
+      "G18": "XZ plane selection (right angle head orientation)",
+      "G19": "YZ plane selection",
+      "G54": "Work coordinate system 1 (primary)",
+      "G55": "Work coordinate system 2 (commonly used for sub spindle with Z mirror)",
+      "G56": "Work coordinate system 3",
+      "G57": "Work coordinate system 4",
+      "G58": "Work coordinate system 5",
+      "G59": "Work coordinate system 6",
+      "G70": "Imperial/Inch mode",
+      "G71": "Metric/Millimeter mode",
+      "G90": "Absolute dimension mode",
+      "G91": "Incremental dimension mode",
+      "G94": "Feed rate in mm/min or inches/min",
+      "G95": "Feed rate in mm/rev or inches/rev",
+      "G96": "Constant surface speed (CSS) — spindle varies RPM to maintain surface footage",
+      "G97": "Constant RPM — fixed spindle speed"
+    },
+    "m_codes": {
+      "M0": "Program stop (unconditional — always stops)",
+      "M1": "Optional stop (only stops when optional stop flag is set)",
+      "M3": "Spindle on clockwise",
+      "M4": "Spindle on counterclockwise",
+      "M5": "Spindle stop",
+      "M8": "Coolant on",
+      "M9": "Coolant off",
+      "M19": "Spindle orient (specific angular position)",
+      "M30": "End of program / program reset"
+    },
+    "sinumerik_cycles": {
+      "drilling": {
+        "CYCLE81": "Drilling — simple feed to depth",
+        "CYCLE82": "Drilling with dwell at depth",
+        "CYCLE83": "Deep hole drilling / peck drilling with full retract",
+        "CYCLE84": "Rigid tapping",
+        "CYCLE85": "Boring / reaming — controlled feed retract",
+        "CYCLE86": "Boring with oriented spindle stop and retract",
+        "CYCLE87": "Boring with spindle stop at depth",
+        "CYCLE88": "Boring with dwell and spindle stop",
+        "CYCLE89": "Boring with dwell"
+      },
+      "turning": {
+        "CYCLE95": "Stock removal turning cycle (contour-based rough/finish)",
+        "CYCLE93": "Grooving cycle",
+        "CYCLE94": "Undercut cycle (DIN/user-defined)",
+        "CYCLE96": "Thread cutting cycle",
+        "CYCLE92": "Cutoff / parting cycle"
+      },
+      "milling": {
+        "POCKET3": "Rectangular pocket milling",
+        "POCKET4": "Circular pocket milling",
+        "CYCLE71": "Face milling",
+        "CYCLE72": "Contour milling",
+        "SLOT1": "Longitudinal slot",
+        "SLOT2": "Circumferential slot",
+        "LONGHOLE": "Elongated hole / open slot"
+      },
+      "five_axis": {
+        "CYCLE800": {
+          "name": "Swivel cycle / plane rotation",
+          "purpose": "3+2 indexed positioning. Creates inclined work plane and orients coordinate system",
+          "cancel": "CYCLE800() — empty parentheses cancels all rotations and tool carrier",
+          "parameters": {
+            "tool_carrier_name": "Builder-defined string (e.g., 'TC_1', 'TRAORI_1'). Inconsistent across OEMs",
+            "retract_mode": "0=none, 1=Z retract, 2=max tool direction, 3=incremental",
+            "rotation_type": "57=axis-by-axis (kinematic independent), 0=direct axis (kinematic dependent)",
+            "direction": "Positive/negative for alternate solutions",
+            "new_additive": "0=new (absolute), 1=additive (incremental rotation)",
+            "tracking": "Requires TRAORI/ETRAORI. Tool follows rotation. Not on 828D"
+          }
+        }
+      },
+      "other": {
+        "CYCLE832": "High speed machining settings (tolerance, COMPCAD/COMPCURV activation)",
+        "CYCLE977": "Probing — calibrate tool length",
+        "CYCLE978": "Probing — calibrate tool radius",
+        "CYCLE998": "Probing — measure workpiece",
+        "TRANSMIT": "Polar coordinate transformation for face milling on lathes (C-axis interpolation)",
+        "TRACYL": "Cylinder surface transformation for peripheral milling on lathes",
+        "TRAORI": "5-axis orientation transformation (simultaneous 5-axis). Required for tracking in CYCLE800",
+        "TCARR": "Tool carrier activation (loads kinematic chain data)",
+        "COMPCAD": "Spline-based contour smoothing for high speed machining",
+        "COMPCURV": "Curvature-based contour compression for high speed machining"
+      }
+    },
+    "sinumerik_functions": {
+      "TSM_screen": "Tool/Spindle/M-code manual control interface in jog mode",
+      "measure_tool": "Manual or automatic tool offset setting with Set Length function",
+      "measure_workpiece": "Work coordinate setting with Set Work Coordinate function",
+      "align_plane": "3-point surface measurement for 5-axis plane alignment",
+      "align_edge": "2-point edge measurement for workpiece alignment (coordinate rotation or direct axis)",
+      "swivel_jog": "Simplified CYCLE800 in jog mode for setup. Drive to rotated position, cancel rotations, return to machine zero",
+      "sync_thread": "Thread repair/re-synchronization. Engage tool in thread, teach spindle orientation",
+      "over_store": "MDI mode during active program execution. Critical for 5-axis retract from angled positions",
+      "block_search": "Start program from any line. System establishes all modal states",
+      "basic_blocks": "Display resulting G-code from conversational ShopMill/ShopTurn programs",
+      "simultaneous_record": "Real-time simulation graphics during auto mode execution",
+      "residual_material": "Automatic detection and machining of areas unreachable by primary tool"
+    },
+    "sinumerik_variables": {
+      "R_parameters": "User variables R0-R99 for parametric programming",
+      "DEF_STRING": "Define string variable (e.g., DEF STRING[10] _SWIVEL for portable cycle names)",
+      "DEF_REAL": "Define floating-point variable",
+      "DEF_INT": "Define integer variable"
+    },
+    "offset_system": {
+      "tool_offsets": {
+        "location": "Tool table with named tools",
+        "geometry": "Length X (L1), Length Z (L2), Radius, Tip direction, Insert angle, Relief angle, IC, Insert width",
+        "wear": "Separate wear columns for incremental adjustment",
+        "d_numbers": "D1-D9 per tool for multiple cutting edges"
+      },
+      "work_offsets": {
+        "standard": "G54-G59 (6 standard offsets)",
+        "settable": "G505-G599 for extended offsets (builder-dependent)",
+        "fields": "X, Y, Z linear + Coordinate rotations (details) + Direct axis A, B, C",
+        "coordinate_rotations": "Rotation about X, Y, Z linear axes (in Details). Used for kinematic independent 5-axis",
+        "direct_axis": "Direct rotary axis offset. Used for kinematic dependent programming"
+      },
+      "tool_life_management": "Built-in tool life tracking by time, parts count, or wear measurement",
+      "magazine_management": "Random tool changer management for milling machines"
+    },
+    "file_system": {
+      "extensions": {
+        "MPF": "Main Program File — required for part programs in NC memory",
+        "SPF": "Sub Program File",
+        "INI": "Initialization file",
+        "TEA": "Tool data file (setup data save)",
+        "UFR": "User frame data file",
+        "SEA": "Setting data file"
+      },
+      "naming_rules": "Letters, numbers, underscores ONLY. No spaces, dashes, decimals, or special characters",
+      "nc_memory_structure": "Part Programs folder (MPF only) → Sub Programs folder → Workpieces folder (subdirectories, any extension)",
+      "storage_options": "NC internal memory, local drive (expanded), USB, CF card, network mapped drive"
+    },
+    "platform_differences": {
+      "840d_only": [
+        "B-axis turn-mill functionality",
+        "TRAORI/ETRAORI (simultaneous 5-axis transformation)",
+        "CYCLE800 tracking function",
+        "Multi-channel capability (e.g., robot loading as separate channel)",
+        "Advanced multi-tool (MT) support",
+        "Extended axis count"
+      ],
+      "both_828d_and_840d": [
+        "ShopMill conversational programming",
+        "ShopTurn conversational programming",
+        "ProgramGuide G-code editor with cycle support",
+        "CYCLE800 3+2 positioning (without tracking on 828D)",
+        "All standard drilling/milling/turning cycles",
+        "3D simulation",
+        "In-process measuring (option)",
+        "Tool life management",
+        "DXF reader (version 4.7+)",
+        "Collision avoidance (option)"
+      ]
+    },
+    "practical_tips": {
+      "offset_verification": "After setting ANY offset, verify display position changed. If unchanged, troubleshoot immediately — do not proceed",
+      "usb_warning": "Never use USB as primary program storage in production. Unreliable connection, security risk. Use network drive or internal memory",
+      "program_naming": "Only letters, numbers, underscores. Use descriptive names with underscores (e.g., WIDGET_OP10_ROUGH)",
+      "tool_naming": "Siemens allows full text tool names. Embed info: 'CNMG_432_3-32_OD' is clearer than 'T01'",
+      "feed_per_tooth": "Use feed per tooth with number of flutes defined — system auto-calculates feed rate. If tool changes, engagement changes automatically",
+      "css_vs_rpm": "Use CSS (G96) for turning OD work — maintains consistent surface speed. Use RPM (G97) for drilling, threading, and at spindle nose",
+      "insert_position": "In conversational editor, new events insert BELOW highlighted event. Keep highlight above insertion point",
+      "relief_angle_convention": "Always add to 90 degrees: 3-degree clearance = enter 93, 5-degree = enter 95, 7-degree = enter 97",
+      "simulation_speed": "Ctrl+M toggles max simulation speed. Program control overrides (separate from machine overrides) adjust speed. Simulation feed override does NOT affect machine execution",
+      "cycle800_before_tool_change": "Always cancel CYCLE800 and retract BEFORE tool change on head-head machines. Tool change with active rotation can cause collision",
+      "coordinate_rotation_consistency": "If using coordinate rotations for align plane, use coordinate rotations for align edge too. Never mix with direct axis offsets",
+      "b_axis_clearance": "B-axis head is physically large. Account for full head envelope plus longest tool when calculating clearances during tool change and part transfer",
+      "describe_caution": "Describe field in header overwrites work offset table values. Avoid in setup — use only in proven production programs",
+      "inclined_plane_strategy": "Any machining on inclined plane MUST use Face B strategy. Face Y or Sheet Y reverts to original coordinate system",
+      "shopturn_to_gcode": "ShopTurn programs CANNOT be converted to G-code or vice versa. However, Basic Blocks view shows resulting G-code for reference",
+      "thread_mill_formula": "F_actual = F_programmed * (D_thread / D_tool) for internal. Control calculates automatically from linear feed rate. Use catalog linear feed — system compensates for thread/tool diameter ratio",
+      "multi_axis_jogging": "After coordinate rotation, use WCS/MCS toggle to control jog direction relative to rotated or machine coordinates. Essential for setup on 5-axis",
+      "password_sunrise": "Type SUNRISE (all caps) in password field to access manufacturer-level settings. May be needed for simulation activation on some machines"
+    },
+    "alarm_troubleshooting": {
+      "cycle_mask_validation": "Open any canned cycle in editor to check parameter validity. System flags setup errors (e.g., missing direction for axis-by-axis mode)",
+      "accept_key_missing": "If Accept key disappears when filling out cycle, a parameter is out of range. Error message displayed above Edit key",
+      "strategy_mismatch": "Drilling positions must use same strategy as drilling cycle (Face B, Face Y, etc.). Mismatched strategies won't link",
+      "overtravel": "Tracking with too-small retract can cause overtravel alarm. Increase incremental retract distance",
+      "offset_consistency": "Mixed coordinate rotation and direct axis offsets in work coordinate cause unpredictable behavior. Use one method consistently"
+    }
+  }
+}

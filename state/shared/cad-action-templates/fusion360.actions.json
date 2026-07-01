@@ -1,0 +1,373 @@
+{
+  "schemaVersion": 1,
+  "platform": "fusion360",
+  "writtenAt": "2026-05-25T19:37:45.560Z",
+  "atomicOpCount": 38,
+  "actions": [
+    {
+      "op": "sketch.create-plane",
+      "fn": "rootComp.constructionPlanes.add(planeInput)",
+      "args": [
+        "planeInput"
+      ],
+      "notes": "Returns ConstructionPlane; pass to sketches.add"
+    },
+    {
+      "op": "sketch.line-2pt",
+      "fn": "sketchLines.addByTwoPoints",
+      "args": [
+        "p1:Point3D",
+        "p2:Point3D"
+      ],
+      "notes": "Returns SketchLine"
+    },
+    {
+      "op": "sketch.line-polyline",
+      "fn": "sketchLines.addThreePointArc (sequential)",
+      "args": [
+        "points:Point3D[]"
+      ],
+      "notes": "Chain addByTwoPoints calls"
+    },
+    {
+      "op": "sketch.arc-3pt",
+      "fn": "sketchArcs.addByThreePoints",
+      "args": [
+        "p1",
+        "p2",
+        "p3"
+      ],
+      "notes": ""
+    },
+    {
+      "op": "sketch.arc-cse",
+      "fn": "sketchArcs.addByCenterStartSweep",
+      "args": [
+        "center",
+        "start",
+        "sweepRad"
+      ],
+      "notes": "Signed sweep"
+    },
+    {
+      "op": "sketch.circle-cr",
+      "fn": "sketchCircles.addByCenterRadius",
+      "args": [
+        "center",
+        "radius"
+      ],
+      "notes": ""
+    },
+    {
+      "op": "sketch.ellipse-axes",
+      "fn": "sketchEllipses.add",
+      "args": [
+        "center",
+        "majorAxis",
+        "minorRadius"
+      ],
+      "notes": ""
+    },
+    {
+      "op": "sketch.spline-poly",
+      "fn": "sketchFittedSplines.add",
+      "args": [
+        "points:ObjectCollection"
+      ],
+      "notes": "Catmull-Rom by default"
+    },
+    {
+      "op": "sketch.rect-2pt",
+      "fn": "sketchLines.addTwoPointRectangle",
+      "args": [
+        "p1",
+        "p2"
+      ],
+      "notes": "Axis-aligned"
+    },
+    {
+      "op": "sketch.rect-center",
+      "fn": "sketchLines.addCenterPointRectangle",
+      "args": [
+        "center",
+        "corner"
+      ],
+      "notes": ""
+    },
+    {
+      "op": "sketch.polygon-n",
+      "fn": "sketchLines.addScribedPolygon",
+      "args": [
+        "center",
+        "N",
+        "circumRadius"
+      ],
+      "notes": "Inscribed in circle"
+    },
+    {
+      "op": "sketch.slot-straight",
+      "fn": "sketchLines.addCenterToCenterSlot",
+      "args": [
+        "p1",
+        "p2",
+        "width"
+      ],
+      "notes": ""
+    },
+    {
+      "op": "sketch.slot-arc",
+      "fn": "sketchLines.addCenterPointArcSlot",
+      "args": [
+        "arcCenter",
+        "p1",
+        "p2",
+        "width"
+      ],
+      "notes": ""
+    },
+    {
+      "op": "sketch.offset",
+      "fn": "sketchCurves.offset",
+      "args": [
+        "curves",
+        "directionPoint",
+        "distance"
+      ],
+      "notes": ""
+    },
+    {
+      "op": "sketch.trim",
+      "fn": "sketchCurves.trim",
+      "args": [
+        "curve",
+        "pointOnDiscard"
+      ],
+      "notes": ""
+    },
+    {
+      "op": "sketch.fillet-2d",
+      "fn": "sketchCurves.fillet",
+      "args": [
+        "curve1",
+        "curve2",
+        "radius"
+      ],
+      "notes": ""
+    },
+    {
+      "op": "op.extrude",
+      "fn": "features.extrudeFeatures.addSimple",
+      "args": [
+        "profile",
+        "distance:ValueInput",
+        "operation"
+      ],
+      "notes": ""
+    },
+    {
+      "op": "op.extrude-cut",
+      "fn": "features.extrudeFeatures.addSimple(... CutFeatureOperation)",
+      "args": [
+        "profile",
+        "distance",
+        "CutFeatureOperation"
+      ],
+      "notes": ""
+    },
+    {
+      "op": "op.revolve",
+      "fn": "features.revolveFeatures.add",
+      "args": [
+        "profile",
+        "axis",
+        "angle"
+      ],
+      "notes": ""
+    },
+    {
+      "op": "op.loft",
+      "fn": "features.loftFeatures.add(loftInput)",
+      "args": [
+        "sections[]",
+        "guides[]"
+      ],
+      "notes": ""
+    },
+    {
+      "op": "op.sweep",
+      "fn": "features.sweepFeatures.add(sweepInput)",
+      "args": [
+        "profile",
+        "path"
+      ],
+      "notes": ""
+    },
+    {
+      "op": "op.shell",
+      "fn": "features.shellFeatures.add",
+      "args": [
+        "bodies",
+        "facesToRemove[]",
+        "thickness"
+      ],
+      "notes": ""
+    },
+    {
+      "op": "op.fillet",
+      "fn": "features.filletFeatures.add",
+      "args": [
+        "edges[]",
+        "radius"
+      ],
+      "notes": ""
+    },
+    {
+      "op": "op.chamfer",
+      "fn": "features.chamferFeatures.add",
+      "args": [
+        "edges[]",
+        "distance",
+        "type"
+      ],
+      "notes": ""
+    },
+    {
+      "op": "op.draft",
+      "fn": "features.draftFeatures.add",
+      "args": [
+        "faces[]",
+        "plane",
+        "angle"
+      ],
+      "notes": ""
+    },
+    {
+      "op": "op.mirror",
+      "fn": "features.mirrorFeatures.add",
+      "args": [
+        "entities[]",
+        "mirrorPlane"
+      ],
+      "notes": ""
+    },
+    {
+      "op": "op.pattern-rect",
+      "fn": "features.rectangularPatternFeatures.add",
+      "args": [
+        "entities[]",
+        "dir1",
+        "qty1",
+        "spacing1",
+        "dir2",
+        "qty2",
+        "spacing2"
+      ],
+      "notes": ""
+    },
+    {
+      "op": "op.pattern-circ",
+      "fn": "features.circularPatternFeatures.add",
+      "args": [
+        "entities[]",
+        "axis",
+        "qty",
+        "totalAngle"
+      ],
+      "notes": ""
+    },
+    {
+      "op": "op.hole-simple",
+      "fn": "features.holeFeatures.createSimpleInput",
+      "args": [
+        "face",
+        "diameter",
+        "depth"
+      ],
+      "notes": ""
+    },
+    {
+      "op": "op.hole-threaded",
+      "fn": "features.holeFeatures.createTappedInput",
+      "args": [
+        "face",
+        "size",
+        "depth",
+        "threadSpec"
+      ],
+      "notes": "Threadspec from XMl"
+    },
+    {
+      "op": "op.thread-external",
+      "fn": "features.threadFeatures.add",
+      "args": [
+        "faces[]",
+        "threadInfo"
+      ],
+      "notes": ""
+    },
+    {
+      "op": "op.boolean-add",
+      "fn": "features.combineFeatures.add(JoinFeatureOperation)",
+      "args": [
+        "target",
+        "tools[]"
+      ],
+      "notes": ""
+    },
+    {
+      "op": "op.boolean-cut",
+      "fn": "features.combineFeatures.add(CutFeatureOperation)",
+      "args": [
+        "target",
+        "tools[]"
+      ],
+      "notes": ""
+    },
+    {
+      "op": "op.boolean-intersect",
+      "fn": "features.combineFeatures.add(IntersectFeatureOperation)",
+      "args": [
+        "target",
+        "tools[]"
+      ],
+      "notes": ""
+    },
+    {
+      "op": "asm.insert-component",
+      "fn": "occurrences.addByComponent",
+      "args": [
+        "component",
+        "transform"
+      ],
+      "notes": ""
+    },
+    {
+      "op": "asm.mate-coincident",
+      "fn": "joints.add(rigidJoint)",
+      "args": [
+        "geo1",
+        "geo2"
+      ],
+      "notes": "Rigid joint type"
+    },
+    {
+      "op": "asm.mate-concentric",
+      "fn": "joints.add(revoluteJoint)",
+      "args": [
+        "axis1",
+        "axis2"
+      ],
+      "notes": ""
+    },
+    {
+      "op": "asm.mate-distance",
+      "fn": "joints.add(slidingJoint)",
+      "args": [
+        "geo1",
+        "geo2",
+        "distance"
+      ],
+      "notes": ""
+    }
+  ]
+}

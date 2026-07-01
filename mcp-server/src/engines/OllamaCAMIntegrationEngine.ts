@@ -35,7 +35,7 @@ export type CAMTaskKind =
   | "tool_select_advisor";
 
 export interface CAMQueryOptions {
-  /** Override default model. Default: qwen2.5-coder:7b. */
+  /** Override default model. Default: qwen2.5-coder:32b. */
   model?: string;
   /** Override timeout. Default: 8000ms (CAM tasks tolerate longer than hooks). */
   timeoutMs?: number;
@@ -90,7 +90,7 @@ export interface ToolSelectOutput {
 }
 
 // ── Bounds and constants ────────────────────────────────────────────────────
-const DEFAULT_MODEL = "qwen2.5-coder:7b";
+const DEFAULT_MODEL = "qwen2.5-coder:32b";
 const DEFAULT_TIMEOUT_MS = 8000;
 const DEFAULT_TEMPERATURE = 0.0;
 const DEFAULT_MAX_TOKENS = 800;

@@ -1,0 +1,867 @@
+{
+  "id": "okuma-multus-b300ii",
+  "machine_id": "okuma-multus-b300ii",
+  "manufacturer": "Okuma",
+  "model": "MULTUS B300II",
+  "version": "1.0.0",
+  "created_at": "2026-03-29T19:00:00Z",
+  "updated_at": "2026-03-29T19:00:00Z",
+
+  "cover_info": {
+    "manufacturer": "Okuma",
+    "model_family": "MULTUS B",
+    "models_covered": ["MULTUS B300II", "MULTUS B300II-W (dual spindle)"],
+    "manual_part_number": "LE22-310-R1",
+    "revision": "R1",
+    "publication_date": "2023-09",
+    "language": "en",
+    "total_pages": 1245,
+    "source": {
+      "handbook_title": "MULTUS B300II Operation & Maintenance Manual",
+      "extraction_method": "manual",
+      "extracted_at": "2026-03-29T19:00:00Z",
+      "confidence": 0.95
+    }
+  },
+
+  "spindle_specs": {
+    "main_spindle": {
+      "designation": "Main Spindle (Left)",
+      "max_rpm": 5000,
+      "min_rpm": 35,
+      "power_continuous_kw": 18.5,
+      "power_30min_kw": 22,
+      "power_peak_kw": 26,
+      "torque_max_nm": 500,
+      "torque_continuous_nm": 330,
+      "taper_type": "A2-8",
+      "bearing_type": "High-precision angular contact, oil-air lubrication",
+      "drive_type": "built-in motor",
+      "base_speed_rpm": 600,
+      "chuck_size_mm": 254,
+      "bar_capacity_mm": 65,
+      "spindle_bore_mm": 80,
+      "gear_ranges": [
+        { "gear": 1, "name": "low", "min_rpm": 35, "max_rpm": 600, "max_torque_nm": 500, "max_power_kw": 22 },
+        { "gear": 2, "name": "high", "min_rpm": 600, "max_rpm": 5000, "max_torque_nm": 120, "max_power_kw": 22 }
+      ],
+      "torque_curve": [
+        { "rpm": 35, "torque_nm": 500, "power_kw": 1.83 },
+        { "rpm": 100, "torque_nm": 500, "power_kw": 5.24 },
+        { "rpm": 200, "torque_nm": 500, "power_kw": 10.47 },
+        { "rpm": 350, "torque_nm": 500, "power_kw": 18.33 },
+        { "rpm": 420, "torque_nm": 500, "power_kw": 22.0 },
+        { "rpm": 600, "torque_nm": 350, "power_kw": 22.0 },
+        { "rpm": 1000, "torque_nm": 210, "power_kw": 22.0 },
+        { "rpm": 1500, "torque_nm": 140, "power_kw": 22.0 },
+        { "rpm": 2000, "torque_nm": 105, "power_kw": 22.0 },
+        { "rpm": 2500, "torque_nm": 84, "power_kw": 22.0 },
+        { "rpm": 3000, "torque_nm": 70, "power_kw": 22.0 },
+        { "rpm": 4000, "torque_nm": 52.5, "power_kw": 22.0 },
+        { "rpm": 5000, "torque_nm": 42.0, "power_kw": 22.0 }
+      ]
+    },
+    "milling_spindle": {
+      "designation": "Milling Spindle (B-axis head)",
+      "max_rpm": 12000,
+      "min_rpm": 50,
+      "power_continuous_kw": 18.5,
+      "power_30min_kw": 22,
+      "power_peak_kw": 26,
+      "torque_max_nm": 119.4,
+      "torque_continuous_nm": 83.6,
+      "taper_type": "HSK-A63",
+      "bearing_type": "Angular contact ceramic hybrid",
+      "drive_type": "built-in motor",
+      "base_speed_rpm": 1760,
+      "gear_ranges": [
+        { "gear": 1, "min_rpm": 50, "max_rpm": 1760, "max_torque_nm": 119.4, "max_power_kw": 22 },
+        { "gear": 2, "min_rpm": 1760, "max_rpm": 12000, "max_torque_nm": 17.5, "max_power_kw": 22 }
+      ],
+      "torque_curve": [
+        { "rpm": 50, "torque_nm": 119.4, "power_kw": 0.63 },
+        { "rpm": 200, "torque_nm": 119.4, "power_kw": 2.50 },
+        { "rpm": 500, "torque_nm": 119.4, "power_kw": 6.25 },
+        { "rpm": 1000, "torque_nm": 119.4, "power_kw": 12.50 },
+        { "rpm": 1760, "torque_nm": 119.4, "power_kw": 22.0 },
+        { "rpm": 3000, "torque_nm": 70.0, "power_kw": 22.0 },
+        { "rpm": 5000, "torque_nm": 42.0, "power_kw": 22.0 },
+        { "rpm": 8000, "torque_nm": 26.3, "power_kw": 22.0 },
+        { "rpm": 10000, "torque_nm": 21.0, "power_kw": 22.0 },
+        { "rpm": 12000, "torque_nm": 17.5, "power_kw": 22.0 }
+      ]
+    },
+    "warmup_procedure": "Main spindle: S200 for 5 min, S500 for 5 min, S1500 for 5 min, S3000 for 5 min, S5000 for 5 min. Milling spindle: S500 for 5 min, S2000 for 5 min, S5000 for 5 min, S8000 for 5 min, S12000 for 5 min. Both required after >4 hrs idle.",
+    "source": {
+      "handbook_title": "MULTUS B300II Operation & Maintenance Manual",
+      "extraction_method": "manual",
+      "extracted_at": "2026-03-29T19:00:00Z",
+      "confidence": 0.95
+    }
+  },
+
+  "axis_kinematics": {
+    "axes": [
+      {
+        "name": "X",
+        "travel_mm": 630,
+        "rapid_mm_min": 40000,
+        "max_feed_mm_min": 40000,
+        "accel_m_s2": 4.9,
+        "resolution_um": 1,
+        "repeatability_um": 2,
+        "accuracy_um": 5,
+        "ball_screw_pitch_mm": 12,
+        "linear_scale": true,
+        "notes": "Cross-slide axis. Used for turning diameter and milling Y-equivalent when B=90."
+      },
+      {
+        "name": "Y",
+        "travel_mm": 230,
+        "rapid_mm_min": 40000,
+        "max_feed_mm_min": 40000,
+        "accel_m_s2": 4.9,
+        "resolution_um": 1,
+        "repeatability_um": 2,
+        "accuracy_um": 5,
+        "ball_screw_pitch_mm": 10,
+        "linear_scale": true,
+        "notes": "Milling head offset axis. Allows off-center milling, cross-drilling, and Y-axis contouring."
+      },
+      {
+        "name": "Z",
+        "travel_mm": 820,
+        "rapid_mm_min": 40000,
+        "max_feed_mm_min": 40000,
+        "accel_m_s2": 4.9,
+        "resolution_um": 1,
+        "repeatability_um": 2,
+        "accuracy_um": 5,
+        "ball_screw_pitch_mm": 12,
+        "linear_scale": true,
+        "notes": "Longitudinal axis along spindle centerline."
+      },
+      {
+        "name": "B",
+        "travel_deg": 240,
+        "min_deg": -30,
+        "max_deg": 210,
+        "resolution_deg": 0.001,
+        "max_speed_rpm": 50,
+        "drive_type": "direct drive roller gear cam",
+        "clamping_torque_nm": 750,
+        "notes": "Milling spindle tilt axis. B=0 is spindle parallel to Z. B=90 is spindle perpendicular to Z (standard milling)."
+      },
+      {
+        "name": "C",
+        "travel_deg": 360,
+        "resolution_deg": 0.001,
+        "max_speed_rpm": 150,
+        "continuous": true,
+        "drive_type": "built-in motor",
+        "notes": "Main spindle C-axis for indexing and contouring. Full 360-degree continuous for polar interpolation and cylindrical interpolation."
+      }
+    ],
+    "simultaneous_axes": 5,
+    "work_envelope_mm": { "x": 630, "y": 230, "z": 820 },
+    "max_turning_diameter_mm": 630,
+    "max_turning_length_mm": 800,
+    "source": {
+      "handbook_title": "MULTUS B300II Operation & Maintenance Manual",
+      "extraction_method": "manual",
+      "extracted_at": "2026-03-29T19:00:00Z",
+      "confidence": 0.95
+    }
+  },
+
+  "controller_features": {
+    "controller_manufacturer": "Okuma",
+    "controller_model": "OSP-P300S",
+    "firmware_version": "P300S Ver.3.0",
+    "custom_g_codes": [
+      { "code": "G96", "description": "Constant surface speed (CSS) mode for turning operations. Controller adjusts main spindle RPM based on cutting diameter.", "syntax": "G96 S[sfm]", "example": "G96 S200 M03\nG50 S4500\nG00 X50. Z2.\nG01 Z-30. F0.25" },
+      { "code": "G97", "description": "Constant RPM mode. Required for threading and milling operations.", "syntax": "G97 S[rpm]", "example": "G97 S1200 M03" },
+      { "code": "G12.1", "description": "Polar coordinate interpolation ON. Converts XC coordinate system to polar coordinates for face milling patterns, bolt circles, and curved slots on turned parts.", "syntax": "G12.1", "example": "G12.1\nG01 X30. C90. F200\nG13.1" },
+      { "code": "G107", "description": "Cylindrical interpolation. Maps flat XY toolpath onto cylindrical surface for engraving, keyways, and spline cutting on OD/ID surfaces.", "syntax": "G107 C[radius]", "example": "G107 C25.\nG01 X10. C45. Z-0.2 F100\nG107 C0" },
+      { "code": "G68", "description": "Coordinate system rotation. Rotates XY plane by specified angle for angled feature machining.", "syntax": "G68 X[cx] Y[cy] R[angle]", "example": "G68 X0. Y0. R45.\nG01 X100. Y0. F500\nG69" },
+      { "code": "G68.2", "description": "Tilted working plane for 3+2 machining. Defines inclined coordinate system using Euler angles combined with B-axis positioning.", "syntax": "G68.2 X[ox] Y[oy] Z[oz] I[rot_x] J[rot_y] K[rot_z]", "example": "G68.2 X0. Y0. Z0. I0. J30. K0." },
+      { "code": "G43.4", "description": "Tool center point control (TCP) for simultaneous 5-axis milling with B and C axes. Maintains tool tip position relative to part during axis tilting.", "syntax": "G43.4 H[offset]", "example": "G43.4 H1\nG01 X50. Y30. Z-5. B10. C45. F1000" },
+      { "code": "G71", "description": "OD/ID rough turning cycle. Multi-pass automatic roughing parallel to Z-axis.", "syntax": "G71 U[depth] R[retract]\nG71 P[start_n] Q[end_n] U[finish_X] W[finish_Z] F[feed]", "example": "G71 U2.0 R0.5\nG71 P100 Q200 U0.3 W0.1 F0.3" },
+      { "code": "G76", "description": "Multi-pass threading cycle. Automatic compound infeed threading for ISO metric and UN thread forms.", "syntax": "G76 P[passes][spring][angle] Q[min_depth_um] R[finish_allow]\nG76 X[minor_dia] Z[length] P[thread_depth_um] Q[first_cut_um] F[pitch]", "example": "G76 P030060 Q100 R0.05\nG76 X23.026 Z-25. P1487 Q500 F2.0" },
+      { "code": "G10 L2", "description": "Work coordinate offset setting from program. Sets WCS values programmatically for automated setup.", "syntax": "G10 L2 P[wcs] X[val] Y[val] Z[val]", "example": "G10 L2 P1 X0. Y0. Z-150.340" },
+      { "code": "G05 P10000", "description": "High-speed machining mode. Activates path smoothing for milling operations with the milling spindle.", "syntax": "G05 P10000", "example": "G05 P10000\nG01 X100. Y50. F5000\nG05 P0" },
+      { "code": "G05.1 Q1", "description": "AI Advanced Preview Control for milling. Enables Okuma look-ahead path smoothing for 3D surface finishing with the milling spindle.", "syntax": "G05.1 Q1", "example": "G05.1 Q1\nG01 X... Y... Z... F8000\nG05.1 Q0" },
+      { "code": "G84.2", "description": "Rigid tapping cycle. Synchronous spindle-feed tapping for both main spindle and milling spindle.", "syntax": "G84.2 Z[depth] R[ref] F[pitch_mm]", "example": "G84.2 Z-15. R2. F1.5" },
+      { "code": "G10.9", "description": "3-point coordinate transform. Aligns WCS to irregular fixture surface from probed points.", "syntax": "G10.9 X[p1x] Y[p1y] Z[p1z] I[p2x] J[p2y] K[p2z] U[p3x] V[p3y] W[p3z]", "example": "G10.9 X0. Y0. Z0. I100. J0. K0.5 U0. V100. W0.3" },
+      { "code": "G50", "description": "Spindle speed clamp for CSS mode. Sets maximum RPM limit to prevent overspeed at small diameters.", "syntax": "G50 S[max_rpm]", "example": "G50 S4500\nG96 S200 M03" },
+      { "code": "G112", "description": "Polar coordinate interpolation (alternate syntax). Same as G12.1 on OSP-P300S.", "syntax": "G112", "example": "G112\nG01 X30. C180. F300\nG113" }
+    ],
+    "custom_m_codes": [
+      { "code": "M03", "description": "Main spindle forward. Standard turning direction for OD operations.", "modal": true },
+      { "code": "M04", "description": "Main spindle reverse.", "modal": true },
+      { "code": "M05", "description": "Main spindle stop.", "modal": true },
+      { "code": "M08", "description": "Coolant ON (flood).", "modal": true },
+      { "code": "M09", "description": "Coolant OFF.", "modal": true },
+      { "code": "M10", "description": "Main chuck clamp.", "modal": false },
+      { "code": "M11", "description": "Main chuck unclamp.", "modal": false },
+      { "code": "M19", "description": "Main spindle orientation / C-axis engage.", "modal": false },
+      { "code": "M23", "description": "Lower turret index forward.", "modal": false },
+      { "code": "M24", "description": "Lower turret index reverse.", "modal": false },
+      { "code": "M26", "description": "Tailstock advance.", "modal": false },
+      { "code": "M27", "description": "Tailstock retract.", "modal": false },
+      { "code": "M33", "description": "Milling spindle forward (CW). Activates the B-axis milling spindle.", "modal": true },
+      { "code": "M34", "description": "Milling spindle reverse (CCW).", "modal": true },
+      { "code": "M35", "description": "Milling spindle stop.", "modal": true },
+      { "code": "M50", "description": "Through-spindle coolant ON (milling spindle). Activates HSK-A63 through-spindle coolant.", "modal": true },
+      { "code": "M51", "description": "Through-spindle coolant OFF.", "modal": true },
+      { "code": "M68", "description": "B-axis clamp. Locks the B-axis for 3+2 milling operations.", "modal": false },
+      { "code": "M69", "description": "B-axis unclamp. Releases B-axis for positioning.", "modal": false },
+      { "code": "M96", "description": "Work counter increment.", "modal": false },
+      { "code": "M99", "description": "Program end and rewind / Subprogram return.", "modal": false },
+      { "code": "M130", "description": "Air blow ON. Activates air blast for chip clearing.", "modal": true },
+      { "code": "M131", "description": "Air blow OFF.", "modal": true },
+      { "code": "M200", "description": "Spindle synchronization ON. Synchronizes main and sub-spindle for part transfer.", "modal": false },
+      { "code": "M201", "description": "Spindle synchronization OFF.", "modal": false },
+      { "code": "M310", "description": "Collision avoidance system checkpoint. Forces anti-collision recalculation.", "modal": false },
+      { "code": "M330", "description": "Tool breakage detection cycle.", "modal": false }
+    ],
+    "macro_support": {
+      "type": "OSP Custom Macro",
+      "variable_range": "VC1-VC999 (common), VB1-VB100 (boolean), VUSR1-VUSR200 (user persistent)",
+      "max_nesting_depth": 4,
+      "supports_goto": true
+    },
+    "probing_cycles": [
+      { "cycle_code": "G31", "description": "Skip cutting / probe touch signal. Moves axis until probe triggers.", "parameters": ["X", "Y", "Z", "F"] },
+      { "cycle_code": "G31.1", "description": "Multi-point skip (second probe signal).", "parameters": ["X", "Y", "Z", "F"] },
+      { "cycle_code": "G36", "description": "Automatic tool length measurement via tool setter.", "parameters": ["Z", "F", "H"] },
+      { "cycle_code": "G37", "description": "Automatic tool diameter measurement.", "parameters": ["X", "Y", "D", "F"] }
+    ],
+    "max_program_size_kb": 2048000,
+    "max_tool_offsets": 200,
+    "max_work_offsets": 100,
+    "conversational_mode": true,
+    "high_speed_machining": true,
+    "look_ahead_blocks": 1000,
+    "source": {
+      "handbook_title": "OSP-P300S Programming Manual",
+      "extraction_method": "manual",
+      "extracted_at": "2026-03-29T19:00:00Z",
+      "confidence": 0.95
+    }
+  },
+
+  "alarm_codes": [
+    {
+      "code": "PS0100",
+      "severity": "error",
+      "category": "program",
+      "description": "Program format error. Illegal character or invalid syntax in NC program block.",
+      "probable_causes": ["Invalid G-code or M-code", "Missing decimal point", "Unsupported character"],
+      "corrective_actions": ["Check the indicated program line", "Verify G/M code is valid for OSP-P300S", "Remove illegal characters"],
+      "parts_needed": [],
+      "estimated_downtime_min": 5,
+      "requires_service_tech": false,
+      "related_alarms": ["PS0101", "PS0110"],
+      "source": { "handbook_title": "MULTUS B300II Alarm Reference", "extraction_method": "manual", "extracted_at": "2026-03-29T19:00:00Z", "confidence": 0.95 }
+    },
+    {
+      "code": "PS0110",
+      "severity": "error",
+      "category": "program",
+      "description": "G-code group conflict. Two G-codes from the same modal group in one block.",
+      "probable_causes": ["Conflicting modal codes in same block", "Post processor error mixing turning and milling modal groups"],
+      "corrective_actions": ["Split conflicting G-codes into separate blocks", "Verify post processor handles mill-turn modal switching correctly"],
+      "parts_needed": [],
+      "estimated_downtime_min": 5,
+      "requires_service_tech": false,
+      "related_alarms": ["PS0100"],
+      "source": { "handbook_title": "MULTUS B300II Alarm Reference", "extraction_method": "manual", "extracted_at": "2026-03-29T19:00:00Z", "confidence": 0.95 }
+    },
+    {
+      "code": "PS0200",
+      "severity": "error",
+      "category": "program",
+      "description": "Travel limit exceeded. Commanded position exceeds soft limit for an axis.",
+      "probable_causes": ["Programmed coordinate beyond travel range", "Work offset + position exceeds limit", "B-axis angle causes tool path to exceed X/Y/Z limits"],
+      "corrective_actions": ["Verify coordinates against travel limits (X:630 Y:230 Z:820)", "Check work offsets", "Verify B-axis angle does not extend tool beyond envelope"],
+      "parts_needed": [],
+      "estimated_downtime_min": 10,
+      "requires_service_tech": false,
+      "related_alarms": ["SV0301"],
+      "source": { "handbook_title": "MULTUS B300II Alarm Reference", "extraction_method": "manual", "extracted_at": "2026-03-29T19:00:00Z", "confidence": 0.95 }
+    },
+    {
+      "code": "MT0001",
+      "severity": "critical",
+      "category": "mill_turn_sync",
+      "description": "Mill-turn spindle synchronization error. Main spindle and milling spindle RPM mismatch during synchronized operation.",
+      "probable_causes": ["Spindle encoder fault on either spindle", "Excessive cutting load causing main spindle speed variation", "Synchronization parameters out of calibration", "M200 sync command while spindles at different speeds"],
+      "corrective_actions": ["Cancel synchronization with M201 and restart at matched speeds", "Check both spindle encoder connections", "Reduce cutting load during synchronized operations", "Verify synchronization parameters in CNC diagnostic screen"],
+      "parts_needed": [],
+      "estimated_downtime_min": 30,
+      "requires_service_tech": false,
+      "related_alarms": ["MT0002", "SV0100"],
+      "source": { "handbook_title": "MULTUS B300II Alarm Reference", "extraction_method": "manual", "extracted_at": "2026-03-29T19:00:00Z", "confidence": 0.95 }
+    },
+    {
+      "code": "MT0002",
+      "severity": "error",
+      "category": "mill_turn_sync",
+      "description": "Mill-turn mode switching error. Failure transitioning between turning mode and milling mode.",
+      "probable_causes": ["B-axis not at valid milling position (B=90) before milling mode command", "C-axis not engaged before polar interpolation", "Turret tool active when milling spindle operation commanded"],
+      "corrective_actions": ["Verify B-axis is at commanded angle before switching to milling mode", "Engage C-axis (M19) before polar/cylindrical interpolation", "Ensure correct spindle (main vs milling) is selected for the operation"],
+      "parts_needed": [],
+      "estimated_downtime_min": 10,
+      "requires_service_tech": false,
+      "related_alarms": ["MT0001"],
+      "source": { "handbook_title": "MULTUS B300II Alarm Reference", "extraction_method": "manual", "extracted_at": "2026-03-29T19:00:00Z", "confidence": 0.95 }
+    },
+    {
+      "code": "MT0010",
+      "severity": "critical",
+      "category": "mill_turn_sync",
+      "description": "Dual-spindle clash detection. Anti-collision system detected potential interference between turret and milling head.",
+      "probable_causes": ["Simultaneous X/Z move brings turret and milling head into conflict zone", "B-axis angle extends milling tool into turret work zone", "Tool length offset error creates interference condition"],
+      "corrective_actions": ["Machine will stop all axes — do NOT jog without verifying clearance", "Check tool offsets for both turret and milling spindle tools", "Review program for proper turret retract before milling head approach", "Enable collision avoidance checking (M310) at mode transitions"],
+      "parts_needed": [],
+      "estimated_downtime_min": 30,
+      "requires_service_tech": false,
+      "related_alarms": ["MT0001", "PS0200"],
+      "source": { "handbook_title": "MULTUS B300II Alarm Reference", "extraction_method": "manual", "extracted_at": "2026-03-29T19:00:00Z", "confidence": 0.95 }
+    },
+    {
+      "code": "BA0001",
+      "severity": "critical",
+      "category": "b_axis",
+      "description": "B-axis overtravel. B-axis position exceeded -30 or +210 degree limits.",
+      "probable_causes": ["Program commanded B-axis angle beyond travel range", "B-axis encoder feedback error", "Post processor not clamping B-axis output to -30 to +210 range"],
+      "corrective_actions": ["Verify B-axis command is within -30 to +210 degrees", "Fix post processor B-axis angle limits", "Check B-axis encoder connection if alarm occurs at legal angles"],
+      "parts_needed": [],
+      "estimated_downtime_min": 10,
+      "requires_service_tech": false,
+      "related_alarms": ["BA0002"],
+      "source": { "handbook_title": "MULTUS B300II Alarm Reference", "extraction_method": "manual", "extracted_at": "2026-03-29T19:00:00Z", "confidence": 0.95 }
+    },
+    {
+      "code": "BA0002",
+      "severity": "error",
+      "category": "b_axis",
+      "description": "B-axis servo error. Following error on B-axis exceeded threshold during positioning.",
+      "probable_causes": ["B-axis clamp (M68) still engaged during positioning command", "Roller gear cam mechanism needs lubrication", "B-axis servo motor overload from heavy tool assembly", "Encoder cable damage"],
+      "corrective_actions": ["Verify M69 (B-axis unclamp) is called before B-axis move", "Check B-axis mechanism lubrication", "Verify tool assembly weight does not exceed milling head capacity", "Inspect encoder cable"],
+      "parts_needed": [],
+      "estimated_downtime_min": 30,
+      "requires_service_tech": false,
+      "related_alarms": ["BA0001"],
+      "source": { "handbook_title": "MULTUS B300II Alarm Reference", "extraction_method": "manual", "extracted_at": "2026-03-29T19:00:00Z", "confidence": 0.95 }
+    },
+    {
+      "code": "YA0001",
+      "severity": "error",
+      "category": "y_axis",
+      "description": "Y-axis overtravel. Y-axis position exceeded +/-115mm travel limits.",
+      "probable_causes": ["Program commanded Y position beyond +/-115mm", "Y-axis activated without proper G-code context", "Post processor not accounting for Y-axis travel on MULTUS"],
+      "corrective_actions": ["Verify Y-axis commands are within +/-115mm range", "Ensure Y-axis is activated only for milling operations", "Check post processor Y-axis output limits"],
+      "parts_needed": [],
+      "estimated_downtime_min": 10,
+      "requires_service_tech": false,
+      "related_alarms": ["PS0200"],
+      "source": { "handbook_title": "MULTUS B300II Alarm Reference", "extraction_method": "manual", "extracted_at": "2026-03-29T19:00:00Z", "confidence": 0.95 }
+    },
+    {
+      "code": "YA0002",
+      "severity": "error",
+      "category": "y_axis",
+      "description": "Y-axis milling error. Y-axis feed commanded during turning mode.",
+      "probable_causes": ["Y-axis move programmed while machine is in turning mode (milling spindle not active)", "Post processor outputting Y moves without mode switch to milling", "Y-axis not zeroed before switching from milling to turning mode"],
+      "corrective_actions": ["Switch to milling mode before commanding Y-axis moves", "Return Y-axis to zero before switching to turning mode", "Verify post processor inserts proper mode switch codes"],
+      "parts_needed": [],
+      "estimated_downtime_min": 5,
+      "requires_service_tech": false,
+      "related_alarms": ["YA0001", "MT0002"],
+      "source": { "handbook_title": "MULTUS B300II Alarm Reference", "extraction_method": "manual", "extracted_at": "2026-03-29T19:00:00Z", "confidence": 0.95 }
+    },
+    {
+      "code": "OH0001",
+      "severity": "critical",
+      "category": "overheat",
+      "description": "Main spindle motor overheat. Main turning spindle winding temperature exceeded thermal limit.",
+      "probable_causes": ["Sustained heavy turning at high torque", "Spindle cooling malfunction", "Ambient temperature above 40 deg C"],
+      "corrective_actions": ["Stop machine and allow 30 min cooldown", "Check spindle cooler level", "Reduce cutting load"],
+      "parts_needed": [{ "part_number": "E5404-770-008", "description": "Main spindle oil cooler thermostat (MULTUS)", "quantity": 1 }],
+      "estimated_downtime_min": 60,
+      "requires_service_tech": false,
+      "related_alarms": ["OH0002", "OH0003"],
+      "source": { "handbook_title": "MULTUS B300II Alarm Reference", "extraction_method": "manual", "extracted_at": "2026-03-29T19:00:00Z", "confidence": 0.95 }
+    },
+    {
+      "code": "OH0003",
+      "severity": "critical",
+      "category": "overheat",
+      "description": "Milling spindle motor overheat. B-axis milling spindle winding temperature exceeded limit.",
+      "probable_causes": ["Extended heavy milling without coolant breaks", "Through-spindle coolant not activated for deep pocketing", "Milling spindle cooling system malfunction"],
+      "corrective_actions": ["Stop milling spindle and allow cooldown", "Verify milling spindle cooler operation", "Activate through-spindle coolant (M50) for heavy milling"],
+      "parts_needed": [{ "part_number": "E5404-770-009", "description": "Milling spindle cooler thermostat (MULTUS)", "quantity": 1 }],
+      "estimated_downtime_min": 60,
+      "requires_service_tech": false,
+      "related_alarms": ["OH0001"],
+      "source": { "handbook_title": "MULTUS B300II Alarm Reference", "extraction_method": "manual", "extracted_at": "2026-03-29T19:00:00Z", "confidence": 0.95 }
+    },
+    {
+      "code": "SV0001",
+      "severity": "critical",
+      "category": "servo",
+      "description": "X-axis servo error excessive. Following error exceeded alarm threshold.",
+      "probable_causes": ["Collision", "Way lube depleted", "Servo amplifier fault", "Encoder fault"],
+      "corrective_actions": ["Check for collision damage", "Verify way lube", "Inspect encoder cables"],
+      "parts_needed": [{ "part_number": "E5409-034-030", "description": "X-axis servo motor encoder (MULTUS)", "quantity": 1 }],
+      "estimated_downtime_min": 120,
+      "requires_service_tech": true,
+      "related_alarms": ["SV0002", "SV0003"],
+      "source": { "handbook_title": "MULTUS B300II Alarm Reference", "extraction_method": "manual", "extracted_at": "2026-03-29T19:00:00Z", "confidence": 0.95 }
+    },
+    {
+      "code": "SV0100",
+      "severity": "critical",
+      "category": "servo",
+      "description": "Main spindle drive fault. Main spindle servo amplifier internal error.",
+      "probable_causes": ["Motor winding breakdown", "Drive IGBT failure", "Power fluctuation", "Encoder signal lost"],
+      "corrective_actions": ["Power cycle", "Record sub-code", "Measure motor insulation", "Contact Okuma service"],
+      "parts_needed": [{ "part_number": "E3632-490-008", "description": "Main spindle drive amplifier (MULTUS)", "quantity": 1 }],
+      "estimated_downtime_min": 480,
+      "requires_service_tech": true,
+      "related_alarms": ["OH0001"],
+      "source": { "handbook_title": "MULTUS B300II Alarm Reference", "extraction_method": "manual", "extracted_at": "2026-03-29T19:00:00Z", "confidence": 0.95 }
+    },
+    {
+      "code": "SV0110",
+      "severity": "critical",
+      "category": "servo",
+      "description": "Milling spindle drive fault. Milling spindle servo amplifier internal error.",
+      "probable_causes": ["Motor winding breakdown", "Drive failure", "Encoder fault on milling spindle"],
+      "corrective_actions": ["Power cycle", "Record alarm sub-code", "Contact Okuma service"],
+      "parts_needed": [{ "part_number": "E3632-490-009", "description": "Milling spindle drive amplifier (MULTUS)", "quantity": 1 }],
+      "estimated_downtime_min": 480,
+      "requires_service_tech": true,
+      "related_alarms": ["OH0003"],
+      "source": { "handbook_title": "MULTUS B300II Alarm Reference", "extraction_method": "manual", "extracted_at": "2026-03-29T19:00:00Z", "confidence": 0.95 }
+    },
+    {
+      "code": "PS0401",
+      "severity": "error",
+      "category": "tool_change",
+      "description": "ATC tool change error. Milling spindle ATC failed to complete tool exchange.",
+      "probable_causes": ["Tool stuck in HSK-A63 taper", "ATC arm sensor misaligned", "Coolant buildup on taper face", "Oversized tool interfering with ATC"],
+      "corrective_actions": ["Check ATC arm position via diagnostic screen", "Clean HSK taper face and tool holder", "Verify tool dimensions against ATC clearance"],
+      "parts_needed": [{ "part_number": "E5410-140-010", "description": "ATC arm position sensor (MULTUS milling)", "quantity": 1 }],
+      "estimated_downtime_min": 45,
+      "requires_service_tech": false,
+      "related_alarms": ["PS0402"],
+      "source": { "handbook_title": "MULTUS B300II Alarm Reference", "extraction_method": "manual", "extracted_at": "2026-03-29T19:00:00Z", "confidence": 0.95 }
+    },
+    {
+      "code": "PS0402",
+      "severity": "error",
+      "category": "tool_change",
+      "description": "ATC magazine rotation error. Milling tool magazine failed to index to commanded pocket.",
+      "probable_causes": ["Magazine drive fault", "Position sensor malfunction", "Tool protrusion beyond maximum gauge length"],
+      "corrective_actions": ["Clear chips from magazine area", "Verify tool lengths do not exceed 350mm", "Run magazine test in maintenance mode"],
+      "parts_needed": [],
+      "estimated_downtime_min": 30,
+      "requires_service_tech": false,
+      "related_alarms": ["PS0401"],
+      "source": { "handbook_title": "MULTUS B300II Alarm Reference", "extraction_method": "manual", "extracted_at": "2026-03-29T19:00:00Z", "confidence": 0.95 }
+    },
+    {
+      "code": "CK0001",
+      "severity": "critical",
+      "category": "chuck",
+      "description": "Chuck pressure low. Hydraulic chuck clamping pressure below safe operating minimum.",
+      "probable_causes": ["Hydraulic unit pressure loss", "Chuck cylinder seal leak", "Hydraulic oil critically low"],
+      "corrective_actions": ["STOP MACHINE IMMEDIATELY", "Check hydraulic oil level", "Verify pressure gauge 25-40 bar", "Inspect chuck cylinder seals"],
+      "parts_needed": [{ "part_number": "E4715-330-005", "description": "Chuck hydraulic cylinder seal kit (MULTUS)", "quantity": 1 }],
+      "estimated_downtime_min": 120,
+      "requires_service_tech": true,
+      "related_alarms": ["PS0800"],
+      "source": { "handbook_title": "MULTUS B300II Alarm Reference", "extraction_method": "manual", "extracted_at": "2026-03-29T19:00:00Z", "confidence": 0.95 }
+    },
+    {
+      "code": "TU0001",
+      "severity": "error",
+      "category": "turret",
+      "description": "Turret index error. Lower turret failed to complete rotation to commanded station.",
+      "probable_causes": ["Chip accumulation", "Turret coupling worn", "Motor overload", "Tool interference"],
+      "corrective_actions": ["Clear chips from turret area", "Run turret home cycle", "Check tool clearances", "Inspect coupling teeth"],
+      "parts_needed": [{ "part_number": "E4720-180-005", "description": "Turret coupling disc (MULTUS 12-station)", "quantity": 1 }],
+      "estimated_downtime_min": 30,
+      "requires_service_tech": false,
+      "related_alarms": ["TU0002"],
+      "source": { "handbook_title": "MULTUS B300II Alarm Reference", "extraction_method": "manual", "extracted_at": "2026-03-29T19:00:00Z", "confidence": 0.95 }
+    },
+    {
+      "code": "PS0600",
+      "severity": "error",
+      "category": "lubrication",
+      "description": "Way lube oil level low. Centralized lubrication reservoir below minimum.",
+      "probable_causes": ["Normal consumption", "Lube line leak", "Pump failure"],
+      "corrective_actions": ["Refill with ISO VG68 lubricant", "Inspect lines for leaks", "Verify pump operation"],
+      "parts_needed": [{ "part_number": "E3625-041-012", "description": "Way lube pump unit (MULTUS)", "quantity": 1 }],
+      "estimated_downtime_min": 15,
+      "requires_service_tech": false,
+      "related_alarms": ["PS0601"],
+      "source": { "handbook_title": "MULTUS B300II Alarm Reference", "extraction_method": "manual", "extracted_at": "2026-03-29T19:00:00Z", "confidence": 0.95 }
+    },
+    {
+      "code": "PL0001",
+      "severity": "critical",
+      "category": "power",
+      "description": "Main power supply voltage abnormal.",
+      "probable_causes": ["Power sag/spike", "Loose connection", "Phase loss"],
+      "corrective_actions": ["Check incoming power (200-230V 3-phase)", "Tighten connections", "Contact electrician"],
+      "parts_needed": [{ "part_number": "E3632-849-015", "description": "Power supply unit (MULTUS)", "quantity": 1 }],
+      "estimated_downtime_min": 120,
+      "requires_service_tech": true,
+      "related_alarms": ["PL0010"],
+      "source": { "handbook_title": "MULTUS B300II Alarm Reference", "extraction_method": "manual", "extracted_at": "2026-03-29T19:00:00Z", "confidence": 0.95 }
+    }
+  ],
+
+  "maintenance_schedule": [
+    {
+      "task_id": "MULTUS-MAINT-001",
+      "task": "Check and refill way lube reservoir",
+      "interval": "daily",
+      "category": "lubrication",
+      "procedure_steps": ["Check way lube reservoir level via sight glass", "Refill with ISO VG68 if below LOW mark", "Check for leaks under machine"],
+      "parts_needed": [{ "part_number": "E3625-049-015", "description": "Way lube oil ISO VG68 (20L pail)", "quantity": 1 }],
+      "safety_warnings": ["Use only recommended lubricant grade"],
+      "estimated_time_min": 5,
+      "requires_power_off": false,
+      "source": { "handbook_title": "MULTUS B300II Maintenance Manual", "extraction_method": "manual", "extracted_at": "2026-03-29T19:00:00Z", "confidence": 0.95 }
+    },
+    {
+      "task_id": "MULTUS-MAINT-002",
+      "task": "Check hydraulic oil level and chuck/tailstock pressure",
+      "interval": "daily",
+      "category": "inspection",
+      "procedure_steps": ["Check hydraulic reservoir sight glass", "Verify chuck pressure 25-40 bar", "Cycle chuck open/close", "Check tailstock pressure 20-35 bar"],
+      "parts_needed": [],
+      "safety_warnings": ["Never operate with chuck pressure below 20 bar"],
+      "estimated_time_min": 5,
+      "requires_power_off": false,
+      "source": { "handbook_title": "MULTUS B300II Maintenance Manual", "extraction_method": "manual", "extracted_at": "2026-03-29T19:00:00Z", "confidence": 0.95 }
+    },
+    {
+      "task_id": "MULTUS-MAINT-003",
+      "task": "Run dual spindle warmup cycle",
+      "interval": "daily",
+      "category": "lubrication",
+      "procedure_steps": ["Run main spindle warmup: S200>S500>S1500>S3000>S5000, 5 min each", "Run milling spindle warmup: S500>S2000>S5000>S8000>S12000, 5 min each", "Monitor bearing temperatures on diagnostic screen", "Both should stabilize within ambient + 15 deg C"],
+      "parts_needed": [],
+      "safety_warnings": ["Ensure chuck is empty and ATC has no tool during warmup"],
+      "estimated_time_min": 50,
+      "requires_power_off": false,
+      "source": { "handbook_title": "MULTUS B300II Maintenance Manual", "extraction_method": "manual", "extracted_at": "2026-03-29T19:00:00Z", "confidence": 0.95 }
+    },
+    {
+      "task_id": "MULTUS-MAINT-004",
+      "task": "Clean chip pan and chip conveyor",
+      "interval": "daily",
+      "category": "cleaning",
+      "procedure_steps": ["Empty chip tray", "Clear chips from turret base and B-axis head area", "Check conveyor belt operation", "Clean coolant strainer basket"],
+      "parts_needed": [],
+      "safety_warnings": ["Wear cut-resistant gloves", "Verify both spindles stopped before reaching into work area"],
+      "estimated_time_min": 20,
+      "requires_power_off": false,
+      "source": { "handbook_title": "MULTUS B300II Maintenance Manual", "extraction_method": "manual", "extracted_at": "2026-03-29T19:00:00Z", "confidence": 0.95 }
+    },
+    {
+      "task_id": "MULTUS-MAINT-005",
+      "task": "Check coolant concentration and pH",
+      "interval": "weekly",
+      "category": "inspection",
+      "procedure_steps": ["Measure concentration with refractometer (target 6-10%)", "Measure pH (target 8.5-9.5)", "Skim tramp oil if pH < 8.0", "Record readings"],
+      "parts_needed": [],
+      "safety_warnings": ["Wear nitrile gloves"],
+      "estimated_time_min": 10,
+      "requires_power_off": false,
+      "source": { "handbook_title": "MULTUS B300II Maintenance Manual", "extraction_method": "manual", "extracted_at": "2026-03-29T19:00:00Z", "confidence": 0.95 }
+    },
+    {
+      "task_id": "MULTUS-MAINT-006",
+      "task": "Clean electrical cabinet air filters",
+      "interval": "weekly",
+      "category": "cleaning",
+      "procedure_steps": ["Remove and blow clean both cabinet filters", "Inspect for tears — replace if damaged", "Verify both cabinet fans running"],
+      "parts_needed": [{ "part_number": "E3515-093-012", "description": "Cabinet air filter element (MULTUS)", "quantity": 2 }],
+      "safety_warnings": ["Do not open cabinet interior — high voltage"],
+      "estimated_time_min": 15,
+      "requires_power_off": false,
+      "source": { "handbook_title": "MULTUS B300II Maintenance Manual", "extraction_method": "manual", "extracted_at": "2026-03-29T19:00:00Z", "confidence": 0.95 }
+    },
+    {
+      "task_id": "MULTUS-MAINT-007",
+      "task": "Clean and inspect HSK-A63 taper on milling spindle",
+      "interval": "monthly",
+      "category": "cleaning",
+      "procedure_steps": ["Remove tool from milling spindle", "Clean HSK taper bore with lint-free cloth", "Inspect taper face for nicks, scratches, or coolant residue", "Clean face contact surface — HSK depends on face + taper contact", "Apply light film of spindle oil to taper", "Verify drawbar pull force with HSK test arbor"],
+      "parts_needed": [],
+      "safety_warnings": ["HSK requires both face and taper contact — any contamination degrades rigidity"],
+      "estimated_time_min": 20,
+      "requires_power_off": false,
+      "source": { "handbook_title": "MULTUS B300II Maintenance Manual", "extraction_method": "manual", "extracted_at": "2026-03-29T19:00:00Z", "confidence": 0.95 }
+    },
+    {
+      "task_id": "MULTUS-MAINT-008",
+      "task": "B-axis mechanism inspection and lubrication",
+      "interval": "monthly",
+      "category": "lubrication",
+      "procedure_steps": ["Put B-axis in maintenance mode", "Index B-axis through full range (-30 to +210)", "Listen for abnormal noise or vibration during rotation", "Check B-axis clamp torque via diagnostic screen", "Verify 0.001-degree positioning accuracy with precision level"],
+      "parts_needed": [],
+      "safety_warnings": ["Keep hands clear of B-axis during motion — high clamping force"],
+      "estimated_time_min": 30,
+      "requires_power_off": false,
+      "source": { "handbook_title": "MULTUS B300II Maintenance Manual", "extraction_method": "manual", "extracted_at": "2026-03-29T19:00:00Z", "confidence": 0.95 }
+    },
+    {
+      "task_id": "MULTUS-MAINT-009",
+      "task": "Turret coupling and indexing check",
+      "interval": "monthly",
+      "category": "calibration",
+      "procedure_steps": ["Index turret through all 12 stations", "Verify clamp confirm at each station", "Time index — should be within spec", "Clean curvic coupling if any station slow or fails"],
+      "parts_needed": [],
+      "safety_warnings": ["Keep hands clear during turret indexing"],
+      "estimated_time_min": 25,
+      "requires_power_off": false,
+      "source": { "handbook_title": "MULTUS B300II Maintenance Manual", "extraction_method": "manual", "extracted_at": "2026-03-29T19:00:00Z", "confidence": 0.95 }
+    },
+    {
+      "task_id": "MULTUS-MAINT-010",
+      "task": "Replace coolant filter and skim tramp oil",
+      "interval": "monthly",
+      "category": "replacement",
+      "procedure_steps": ["Turn off coolant pump", "Skim tramp oil", "Replace filter cartridge", "Check concentration", "Restart pump"],
+      "parts_needed": [{ "part_number": "E3625-055-015", "description": "Coolant filter cartridge 25um (MULTUS)", "quantity": 1 }],
+      "safety_warnings": ["Wear gloves"],
+      "estimated_time_min": 25,
+      "requires_power_off": false,
+      "source": { "handbook_title": "MULTUS B300II Maintenance Manual", "extraction_method": "manual", "extracted_at": "2026-03-29T19:00:00Z", "confidence": 0.95 }
+    },
+    {
+      "task_id": "MULTUS-MAINT-011",
+      "task": "Check axis backlash compensation — all 5 axes",
+      "interval": "quarterly",
+      "category": "calibration",
+      "procedure_steps": ["Measure X/Y/Z backlash with dial indicator method", "Measure B-axis backlash with precision level", "Measure C-axis backlash with rotary encoder test", "Compare all values to stored compensation", "Adjust if deviation > 2 um (linear) or 0.002 deg (rotary)"],
+      "parts_needed": [],
+      "safety_warnings": [],
+      "estimated_time_min": 120,
+      "requires_power_off": false,
+      "source": { "handbook_title": "MULTUS B300II Maintenance Manual", "extraction_method": "manual", "extracted_at": "2026-03-29T19:00:00Z", "confidence": 0.95 }
+    },
+    {
+      "task_id": "MULTUS-MAINT-012",
+      "task": "Replace hydraulic oil and filter",
+      "interval": "annual",
+      "category": "fluid_change",
+      "procedure_steps": ["Depressurize system", "Drain hydraulic oil", "Replace filter element", "Refill with ISO VG32", "Bleed air", "Cycle chuck and tailstock to circulate"],
+      "parts_needed": [
+        { "part_number": "E3631-095-015", "description": "Hydraulic oil ISO VG32 (20L pail)", "quantity": 3 },
+        { "part_number": "E3631-049-005", "description": "Hydraulic filter element (MULTUS)", "quantity": 1 }
+      ],
+      "safety_warnings": ["Depressurize completely before opening connections", "Dispose used oil per local regulations"],
+      "estimated_time_min": 120,
+      "requires_power_off": true,
+      "source": { "handbook_title": "MULTUS B300II Maintenance Manual", "extraction_method": "manual", "extracted_at": "2026-03-29T19:00:00Z", "confidence": 0.95 }
+    },
+    {
+      "task_id": "MULTUS-MAINT-013",
+      "task": "Full machine geometry check — 5-axis calibration",
+      "interval": "annual",
+      "category": "calibration",
+      "procedure_steps": ["Warm up machine for 2 hours", "Measure X/Y/Z linear accuracy with laser interferometer", "Measure B-axis angular accuracy with rotary calibrator", "Measure C-axis angular accuracy", "Check B-axis center-of-rotation alignment to spindle centerline", "Update compensation tables as needed", "Generate calibration certificate"],
+      "parts_needed": [],
+      "safety_warnings": ["Laser safety glasses required"],
+      "estimated_time_min": 600,
+      "requires_power_off": false,
+      "source": { "handbook_title": "MULTUS B300II Maintenance Manual", "extraction_method": "manual", "extracted_at": "2026-03-29T19:00:00Z", "confidence": 0.95 }
+    }
+  ],
+
+  "parts_book": [
+    { "oem_part_number": "E4710-810-025", "description": "Main spindle bearing set (MULTUS B300II)", "category": "bearing", "quantity_per_machine": 1, "replacement_interval_hours": 25000, "critical": true, "lead_time_days": 28, "cross_references": [], "source": { "handbook_title": "MULTUS B300II Parts Manual", "extraction_method": "manual", "extracted_at": "2026-03-29T19:00:00Z", "confidence": 0.95 } },
+    { "oem_part_number": "E4710-810-026", "description": "Milling spindle bearing set (ceramic hybrid, HSK-A63)", "category": "bearing", "quantity_per_machine": 1, "replacement_interval_hours": 20000, "critical": true, "lead_time_days": 28, "cross_references": [], "source": { "handbook_title": "MULTUS B300II Parts Manual", "extraction_method": "manual", "extracted_at": "2026-03-29T19:00:00Z", "confidence": 0.95 } },
+    { "oem_part_number": "E3632-490-008", "description": "Main spindle drive amplifier (MULTUS)", "category": "electrical", "quantity_per_machine": 1, "critical": true, "lead_time_days": 14, "cross_references": [], "source": { "handbook_title": "MULTUS B300II Parts Manual", "extraction_method": "manual", "extracted_at": "2026-03-29T19:00:00Z", "confidence": 0.95 } },
+    { "oem_part_number": "E3632-490-009", "description": "Milling spindle drive amplifier (MULTUS)", "category": "electrical", "quantity_per_machine": 1, "critical": true, "lead_time_days": 14, "cross_references": [], "source": { "handbook_title": "MULTUS B300II Parts Manual", "extraction_method": "manual", "extracted_at": "2026-03-29T19:00:00Z", "confidence": 0.95 } },
+    { "oem_part_number": "E3632-849-015", "description": "Power supply unit (MULTUS)", "category": "electrical", "quantity_per_machine": 1, "critical": true, "lead_time_days": 14, "cross_references": [], "source": { "handbook_title": "MULTUS B300II Parts Manual", "extraction_method": "manual", "extracted_at": "2026-03-29T19:00:00Z", "confidence": 0.95 } },
+    { "oem_part_number": "E4715-330-005", "description": "Chuck hydraulic cylinder seal kit (MULTUS)", "category": "hydraulic", "quantity_per_machine": 1, "replacement_interval_hours": 15000, "critical": true, "lead_time_days": 10, "cross_references": [], "source": { "handbook_title": "MULTUS B300II Parts Manual", "extraction_method": "manual", "extracted_at": "2026-03-29T19:00:00Z", "confidence": 0.95 } },
+    { "oem_part_number": "E4720-180-005", "description": "Turret coupling disc (MULTUS 12-station)", "category": "turret", "quantity_per_machine": 1, "replacement_interval_hours": 30000, "critical": true, "lead_time_days": 21, "cross_references": [], "source": { "handbook_title": "MULTUS B300II Parts Manual", "extraction_method": "manual", "extracted_at": "2026-03-29T19:00:00Z", "confidence": 0.95 } },
+    { "oem_part_number": "E3625-041-012", "description": "Way lube pump unit (MULTUS)", "category": "lubrication", "quantity_per_machine": 1, "critical": true, "lead_time_days": 7, "cross_references": [], "source": { "handbook_title": "MULTUS B300II Parts Manual", "extraction_method": "manual", "extracted_at": "2026-03-29T19:00:00Z", "confidence": 0.95 } },
+    { "oem_part_number": "E5410-140-010", "description": "ATC arm position sensor (MULTUS milling)", "category": "tool_changer", "quantity_per_machine": 2, "critical": true, "lead_time_days": 10, "cross_references": [], "source": { "handbook_title": "MULTUS B300II Parts Manual", "extraction_method": "manual", "extracted_at": "2026-03-29T19:00:00Z", "confidence": 0.95 } },
+    { "oem_part_number": "E3505-827-004", "description": "Lithium backup battery CR2032 holder assembly", "category": "electrical", "quantity_per_machine": 1, "replacement_interval_hours": 17520, "critical": false, "lead_time_days": 3, "cross_references": [{ "vendor": "Panasonic", "part_number": "CR2032" }], "source": { "handbook_title": "MULTUS B300II Parts Manual", "extraction_method": "manual", "extracted_at": "2026-03-29T19:00:00Z", "confidence": 0.95 } }
+  ],
+
+  "programming_tips": [
+    {
+      "topic": "Simultaneous Turning and Milling — Mode Switching Protocol",
+      "controller_dialect": "OSP-P300S",
+      "code_example": "(TURNING OPERATION)\nG96 S200 M03 (Main spindle CSS)\nG01 X50. Z-30. F0.25\nM05 (Stop main spindle)\n\n(SWITCH TO MILLING)\nM19 (C-axis engage)\nG00 B90. (Milling spindle perpendicular)\nM68 (B-axis clamp)\nT0101 (Select ATC milling tool)\nG97 S5000 M33 (Milling spindle ON)\nG01 X25. Y10. Z-5. F800",
+      "description": "The MULTUS B300II switches between turning and milling by changing which spindle is active and how axes are interpreted. Main spindle (M03/M04/M05) is for turning. Milling spindle (M33/M34/M35) is for milling. C-axis must be engaged (M19) before milling. B-axis must be positioned and clamped (M68) for 3+2 milling. Never command Y-axis moves while in turning mode.",
+      "gotchas": ["Always stop main spindle (M05) before engaging C-axis (M19)", "Y-axis must return to Y0. before switching back to turning mode", "B-axis clamp (M68) is mandatory for rigid milling — unclamped B produces chatter", "Tool offset groups are separate for turret (turning) and ATC (milling) tools"],
+      "related_alarms": ["MT0002", "YA0002"],
+      "applicable_operations": ["mill_turn", "mode_switching"],
+      "source": { "handbook_title": "OSP-P300S Programming Manual", "extraction_method": "manual", "extracted_at": "2026-03-29T19:00:00Z", "confidence": 0.95 }
+    },
+    {
+      "topic": "B-Axis Angular Approach for Undercuts and Complex Features",
+      "controller_dialect": "OSP-P300S",
+      "code_example": "G00 B30. (Tilt milling spindle 30 degrees from Z)\nM68 (Clamp B-axis)\nG97 S8000 M33\nG43.4 H1 (TCP ON)\nG01 X25. Y0. Z-10. F500\n...\nG49 (TCP OFF)\nM35 (Milling spindle stop)\nM69 (B-axis unclamp)",
+      "description": "The B-axis allows the milling spindle to approach the workpiece at any angle from -30 to +210 degrees. B=0 is the spindle parallel to Z (boring orientation). B=90 is perpendicular to Z (standard cross-milling). B=30 or B=60 enables undercut machining impossible on a standard lathe. TCP (G43.4) must be active to maintain correct tool tip position during angled milling.",
+      "gotchas": ["TCP (G43.4) is mandatory when B is not 0 or 90 — without it, the tool path will be wrong", "B-axis clamping (M68) is required for cutting rigidity — do not cut with B unclamped", "Tool length offset must be measured at B=0 reference position", "Some B-angles reduce effective Y-axis travel — verify clearance at extreme B angles"],
+      "related_alarms": ["BA0001", "BA0002"],
+      "applicable_operations": ["angular_milling", "undercut_machining", "5axis_milling"],
+      "source": { "handbook_title": "OSP-P300S Programming Manual", "extraction_method": "manual", "extracted_at": "2026-03-29T19:00:00Z", "confidence": 0.95 }
+    },
+    {
+      "topic": "Y-Axis Offset Limitations and Best Practices",
+      "controller_dialect": "OSP-P300S",
+      "code_example": "G00 B90. (Standard milling position)\nM68\nG97 S6000 M33\nG00 Y0. (Verify Y at center)\nG01 Y-15. F500 (Off-center by 15mm — within Y range)\n...\nG00 Y0. (Return to center before mode switch)\nM35\nM69",
+      "description": "The Y-axis on the MULTUS B300II has limited travel (+/-115mm) compared to a full VMC. It provides off-center milling capability for features like cross-holes, flats, and keyways that are not on the spindle centerline. Always return Y to zero before switching back to turning mode. The Y-axis combined with C-axis enables eccentric turning and complex contouring.",
+      "gotchas": ["Y-axis travel is only +/-115mm — not suitable for large milling operations", "Y MUST be at zero when switching to turning mode — turning with Y offset will crash", "Y-axis rigidity is lower than X/Z — reduce milling feed rates by 20% for Y-axis cuts", "Combined Y+B offsets can exceed the effective work envelope — verify clearance in simulation"],
+      "related_alarms": ["YA0001", "YA0002"],
+      "applicable_operations": ["milling", "cross_drilling", "keyway_milling"],
+      "source": { "handbook_title": "OSP-P300S Programming Manual", "extraction_method": "manual", "extracted_at": "2026-03-29T19:00:00Z", "confidence": 0.95 }
+    },
+    {
+      "topic": "Polar Interpolation for Face Milling Patterns (G12.1)",
+      "controller_dialect": "OSP-P300S",
+      "code_example": "M19 (C-axis engage)\nG00 B90. M68\nG97 S4000 M33\nG12.1 (Polar interpolation ON)\nG01 X20. C0. F300 (Move to R20, angle 0)\nG01 C90. (Arc to 90 degrees at R20)\nG01 X30. (Radial move out to R30)\nG13.1 (Polar interpolation OFF)",
+      "description": "G12.1 converts the XC coordinate system to polar coordinates where X is the radius and C is the angle in degrees. This enables milling patterns on the face of a turned part (bolt circles, curved slots, spiral grooves). The milling spindle must be at B=90 for face milling. C-axis provides continuous rotation while X provides radial feed. Feed rate in G12.1 mode is along the resulting XC path, not individual axes.",
+      "gotchas": ["X is radius (not diameter) in polar mode", "C is degrees, not distance — a C move at large X radius covers more distance than at small radius", "F (feed rate) applies to the resultant path — actual axis speeds are calculated by the controller", "G12.1 only works with the C-axis — not with the B-axis"],
+      "related_alarms": ["MT0002"],
+      "applicable_operations": ["face_milling", "bolt_circle", "polar_contouring"],
+      "source": { "handbook_title": "OSP-P300S Programming Manual", "extraction_method": "manual", "extracted_at": "2026-03-29T19:00:00Z", "confidence": 0.95 }
+    },
+    {
+      "topic": "Cylindrical Interpolation for OD Features (G107)",
+      "controller_dialect": "OSP-P300S",
+      "code_example": "M19\nG00 B90. M68\nG97 S6000 M33\nG107 C25. (Cylinder radius = 25mm)\nG01 X0. C0. Z0. F200\nG01 C90. Z-10. (Helical path on cylinder surface)\nG107 C0 (Cancel cylindrical interpolation)",
+      "description": "G107 maps a flat XC toolpath onto a cylindrical surface of the specified radius. The C value in the G107 command defines the cylinder radius. Within G107 mode, C-axis movement is expressed as distance on the cylinder surface (not degrees). This enables engraving, spline milling, and helical feature cutting on turned part ODs and IDs.",
+      "gotchas": ["C-axis values inside G107 are surface DISTANCE in mm, not degrees", "The cylinder radius in G107 must match the actual part radius being machined", "Feedrate F is surface speed along the cylinder, not axis speed", "G107 must be canceled (G107 C0) before returning to standard turning"],
+      "related_alarms": [],
+      "applicable_operations": ["engraving", "spline_cutting", "helical_milling", "OD_milling"],
+      "source": { "handbook_title": "OSP-P300S Programming Manual", "extraction_method": "manual", "extracted_at": "2026-03-29T19:00:00Z", "confidence": 0.95 }
+    },
+    {
+      "topic": "Sub-Spindle Part Transfer on MULTUS B300II-W",
+      "controller_dialect": "OSP-P300S",
+      "code_example": "(Sync spindle speeds before transfer)\nM200 (Spindle sync ON — both spindles match RPM)\nG04 P2000 (Allow 2 sec for sync lock)\n(Sub-spindle advance to grip part)\nG00 W2=2. (Sub-spindle Z2 axis advance)\nM210 (Sub-spindle chuck clamp)\nG04 P500\nM11 (Main chuck open)\nG00 W2=-50. (Sub-spindle retract with part)\nM201 (Spindle sync OFF)",
+      "description": "On the dual-spindle MULTUS B300II-W model, part transfer uses synchronized spindle rotation (M200/M201) so the part can be picked up at RPM without stopping. This dramatically reduces cycle time versus stop-transfer methods. The sub-spindle has its own Z2 axis for approach and retract. Chuck clamp/unclamp sequencing must be rigidly ordered to prevent dropped parts.",
+      "gotchas": ["Spindle sync (M200) requires both spindles at same RPM and direction before engaging", "G04 dwell after M200 is critical — sync needs 1-2 seconds to stabilize", "Sub-spindle MUST confirm clamp before main chuck opens — verify interlock in program", "Part-off must be complete before transfer — partial part-off will jam both chucks"],
+      "related_alarms": ["MT0001", "CK0001"],
+      "applicable_operations": ["part_transfer", "dual_spindle", "back_operations"],
+      "source": { "handbook_title": "OSP-P300S Programming Manual", "extraction_method": "manual", "extracted_at": "2026-03-29T19:00:00Z", "confidence": 0.95 }
+    },
+    {
+      "topic": "Mill-Turn Coordinate System Fundamentals",
+      "controller_dialect": "OSP-P300S",
+      "code_example": "(TURNING COORDINATE SYSTEM)\n(X = diameter, Z = along spindle axis)\n(No Y, no B active)\n\n(MILLING COORDINATE SYSTEM — B=90)\n(X = radial from spindle center, Y = lateral offset)\n(Z = along spindle axis, C = rotation around Z)\n\n(MILLING COORDINATE SYSTEM — B=0)\n(X = radial, Z = depth into part face)\n(This is boring/end-face milling orientation)",
+      "description": "The MULTUS B300II uses different coordinate interpretations depending on the operating mode and B-axis angle. In turning mode, X is diameter and there is no Y-axis. In milling mode at B=90, X is the radial distance from spindle center and Y is the lateral offset. At B=0, the milling spindle is parallel to Z (boring orientation). Understanding these coordinate systems is essential for writing correct mill-turn programs.",
+      "gotchas": ["X is DIAMETER in turning mode but RADIUS in some milling interpolation modes (G12.1)", "Tool offsets are stored differently for turning tools (geometry X/Z) vs milling tools (length/diameter)", "G54-G59 work offsets apply to the currently active coordinate system", "Switching modes does not automatically reset work offsets — verify G54 values after mode switch"],
+      "related_alarms": ["MT0002"],
+      "applicable_operations": ["programming", "mill_turn", "setup"],
+      "source": { "handbook_title": "OSP-P300S Programming Manual", "extraction_method": "manual", "extracted_at": "2026-03-29T19:00:00Z", "confidence": 0.95 }
+    },
+    {
+      "topic": "Collision Avoidance System Configuration",
+      "controller_dialect": "OSP-P300S",
+      "code_example": "M310 (Anti-collision checkpoint — force recalculation)\n(Use M310 at every mode transition and before rapid moves)\n\n(Tool model registration in OSP anti-collision screen:)\n(1. Enter tool holder dimensions for each turret station)\n(2. Enter milling tool assembly dimensions for each ATC pocket)\n(3. Set chuck jaw model to match actual jaw configuration)\n(4. Enable collision check: Parameter > Safety > Anti-Collision = ON)",
+      "description": "The MULTUS B300II has an integrated anti-collision system that models the turret, milling head, chuck, tailstock, and tools in 3D. It checks every commanded motion against the model BEFORE executing. For this to work, all tool holder and tool assembly dimensions must be registered accurately. M310 forces a collision-check recalculation at critical points in the program.",
+      "gotchas": ["Anti-collision ONLY works if tool models are accurately registered — wrong dimensions = false safety", "The system adds 10-50ms overhead per block for collision checking", "M310 should be placed before every rapid move after a mode switch", "Anti-collision does NOT protect against incorrect work offsets — the model assumes offsets are correct"],
+      "related_alarms": ["MT0010"],
+      "applicable_operations": ["safety", "setup", "programming"],
+      "source": { "handbook_title": "OSP-P300S Programming Manual", "extraction_method": "manual", "extracted_at": "2026-03-29T19:00:00Z", "confidence": 0.95 }
+    },
+    {
+      "topic": "5-Axis Simultaneous Milling with TCP (G43.4)",
+      "controller_dialect": "OSP-P300S",
+      "code_example": "G00 B90. C0.\nM68 (B-clamp OFF for simultaneous)\nM69 (Actually, for 5-axis simultaneous, B must be UNclamped)\nG43.4 H1 (TCP ON)\nG01 X30. Y0. Z-5. B85. C10. F500\nG01 X30. Y5. Z-5. B80. C20. F500\n...\nG49 (TCP OFF)\nM68 (Re-clamp B)",
+      "description": "For true 5-axis simultaneous milling (X/Y/Z + B + C all moving at once), the B-axis must be unclamped (M69) and TCP (G43.4) must be active. TCP maintains the tool tip at the programmed XYZ position while B and C tilt the tool orientation. Without TCP, the XYZ position would shift as B/C rotate. This mode is used for turbine blade finishing, impeller machining, and complex sculptured surfaces.",
+      "gotchas": ["B-axis MUST be unclamped (M69) for simultaneous 5-axis — clamped B will cause servo alarm", "TCP tool length offset must be measured precisely — 0.1mm error at tool tip creates larger error at B-axis lever arm", "5-axis simultaneous produces higher servo loads — reduce feed rate by 30-40% compared to 3-axis", "Verify the post processor outputs B/C values in the correct convention (Euler angles vs tool vectors)"],
+      "related_alarms": ["BA0002", "MT0001"],
+      "applicable_operations": ["5axis_simultaneous", "sculptured_surface", "impeller_machining"],
+      "source": { "handbook_title": "OSP-P300S Programming Manual", "extraction_method": "manual", "extracted_at": "2026-03-29T19:00:00Z", "confidence": 0.95 }
+    },
+    {
+      "topic": "Spindle Load Monitoring for Tool Wear — Dual Spindle",
+      "controller_dialect": "OSP-P300S",
+      "code_example": "(Main spindle load)\nIF [VSPLD GT 85] GOTO 8000\n\n(Milling spindle load)\nIF [VMSPLD GT 80] GOTO 8100\n\nN8000 M01 (Main spindle overload)\nN8100 M01 (Milling spindle overload)",
+      "description": "VSPLD reads the main (turning) spindle load percentage. VMSPLD reads the milling spindle load percentage. Monitor both during complex mill-turn cycles. Turning operations typically run at 40-70% spindle load. Milling operations vary more — heavy face milling can reach 80% while finishing stays under 30%.",
+      "gotchas": ["VSPLD and VMSPLD are different variables — use the correct one for the active spindle", "Load thresholds must be calibrated per operation — a threshold set for roughing will false-alarm during finishing", "During spindle sync (M200), VSPLD reflects combined load of both spindles"],
+      "related_alarms": ["OH0001", "OH0003"],
+      "applicable_operations": ["turning", "milling", "tool_monitoring"],
+      "source": { "handbook_title": "OSP-P300S Programming Manual", "extraction_method": "manual", "extracted_at": "2026-03-29T19:00:00Z", "confidence": 0.95 }
+    }
+  ],
+
+  "safety_limits": [
+    { "parameter": "Maximum main spindle speed", "max_value": 5000, "unit": "RPM", "consequence_of_violation": "Spindle thermal shutdown, workpiece ejection risk", "interlock_type": "software", "requires_override_key": false, "source": { "handbook_title": "MULTUS B300II Safety Manual", "extraction_method": "manual", "extracted_at": "2026-03-29T19:00:00Z", "confidence": 0.95 } },
+    { "parameter": "Maximum milling spindle speed", "max_value": 12000, "unit": "RPM", "consequence_of_violation": "Milling spindle thermal shutdown, bearing damage", "interlock_type": "software", "requires_override_key": false, "source": { "handbook_title": "MULTUS B300II Safety Manual", "extraction_method": "manual", "extracted_at": "2026-03-29T19:00:00Z", "confidence": 0.95 } },
+    { "parameter": "B-axis travel range", "min_value": -30, "max_value": 210, "unit": "degrees", "consequence_of_violation": "B-axis overtravel alarm, potential collision with chuck or tailstock", "interlock_type": "software", "requires_override_key": false, "source": { "handbook_title": "MULTUS B300II Safety Manual", "extraction_method": "manual", "extracted_at": "2026-03-29T19:00:00Z", "confidence": 0.95 } },
+    { "parameter": "Y-axis travel range", "min_value": -115, "max_value": 115, "unit": "mm", "consequence_of_violation": "Y-axis overtravel alarm", "interlock_type": "software", "requires_override_key": false, "source": { "handbook_title": "MULTUS B300II Safety Manual", "extraction_method": "manual", "extracted_at": "2026-03-29T19:00:00Z", "confidence": 0.95 } },
+    { "parameter": "Maximum workpiece weight in chuck", "max_value": 130, "unit": "kg", "consequence_of_violation": "Bearing overload, spindle vibration", "interlock_type": "none", "requires_override_key": false, "source": { "handbook_title": "MULTUS B300II Safety Manual", "extraction_method": "manual", "extracted_at": "2026-03-29T19:00:00Z", "confidence": 0.95 } },
+    { "parameter": "Minimum chuck clamping pressure", "min_value": 20, "unit": "bar", "consequence_of_violation": "Workpiece ejection risk", "interlock_type": "hardware", "requires_override_key": false, "source": { "handbook_title": "MULTUS B300II Safety Manual", "extraction_method": "manual", "extracted_at": "2026-03-29T19:00:00Z", "confidence": 0.95 } },
+    { "parameter": "Maximum tool weight in milling ATC", "max_value": 10, "unit": "kg", "consequence_of_violation": "ATC arm cannot support tool, dropped tool risk", "interlock_type": "none", "requires_override_key": false, "source": { "handbook_title": "MULTUS B300II Safety Manual", "extraction_method": "manual", "extracted_at": "2026-03-29T19:00:00Z", "confidence": 0.95 } },
+    { "parameter": "Maximum tool length in milling ATC", "max_value": 350, "unit": "mm", "consequence_of_violation": "Tool protrudes past magazine pocket, collision during rotation", "interlock_type": "none", "requires_override_key": false, "source": { "handbook_title": "MULTUS B300II Safety Manual", "extraction_method": "manual", "extracted_at": "2026-03-29T19:00:00Z", "confidence": 0.95 } },
+    { "parameter": "Maximum rapid traverse rate", "max_value": 40000, "unit": "mm_min", "consequence_of_violation": "Following error alarms", "interlock_type": "software", "requires_override_key": false, "source": { "handbook_title": "MULTUS B300II Safety Manual", "extraction_method": "manual", "extracted_at": "2026-03-29T19:00:00Z", "confidence": 0.95 } },
+    { "parameter": "Minimum air supply pressure", "min_value": 5, "unit": "bar", "consequence_of_violation": "Insufficient air for spindle seals and ATC operation", "interlock_type": "hardware", "requires_override_key": false, "source": { "handbook_title": "MULTUS B300II Safety Manual", "extraction_method": "manual", "extracted_at": "2026-03-29T19:00:00Z", "confidence": 0.95 } },
+    { "parameter": "Ambient operating temperature maximum", "max_value": 40, "unit": "C", "consequence_of_violation": "Thermal growth exceeds compensation, accuracy degradation", "interlock_type": "none", "requires_override_key": false, "source": { "handbook_title": "MULTUS B300II Safety Manual", "extraction_method": "manual", "extracted_at": "2026-03-29T19:00:00Z", "confidence": 0.95 } }
+  ],
+
+  "coolant_specs": {
+    "coolant_types": [
+      { "type": "Water-soluble semi-synthetic", "concentration_pct_min": 5, "concentration_pct_max": 12, "recommended_brand": "Blaser Synergy 735" },
+      { "type": "Neat cutting oil (for heavy turning and threading)", "viscosity_cst_40c": 15, "recommended_brand": "Castrol Ilocut 154" }
+    ],
+    "tank_capacity_liters": 350,
+    "pump_pressure_bar": 1.5,
+    "flow_rate_lpm": 30,
+    "filtration_um": 25,
+    "through_spindle": true,
+    "through_spindle_pressure_bar": 70,
+    "mql_capable": false,
+    "chip_conveyor_type": "Hinge belt",
+    "source": {
+      "handbook_title": "MULTUS B300II Maintenance Manual",
+      "extraction_method": "manual",
+      "extracted_at": "2026-03-29T19:00:00Z",
+      "confidence": 0.95
+    }
+  },
+
+  "tooling_constraints": {
+    "milling_atc": {
+      "magazine_capacity": 40,
+      "taper_type": "HSK-A63",
+      "max_tool_diameter_mm": 120,
+      "max_tool_length_mm": 350,
+      "max_tool_weight_kg": 10,
+      "tool_change_time_sec": 4.5,
+      "adjacent_pocket_clearance_mm": 90
+    },
+    "turning_turret": {
+      "turret_type": "BMT65",
+      "turret_stations": 12,
+      "turret_index_time_sec": 2.5,
+      "max_tool_shank_mm": 25,
+      "max_boring_bar_diameter_mm": 50
+    },
+    "source": {
+      "handbook_title": "MULTUS B300II Operation Manual",
+      "extraction_method": "manual",
+      "extracted_at": "2026-03-29T19:00:00Z",
+      "confidence": 0.95
+    }
+  }
+}

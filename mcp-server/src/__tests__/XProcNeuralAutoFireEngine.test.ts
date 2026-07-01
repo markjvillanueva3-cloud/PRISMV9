@@ -30,6 +30,7 @@ import { OutcomeDriftCalibrationBridgeEngine } from "../engines/OutcomeDriftCali
 import { OutcomeReplayBufferBridgeEngine } from "../engines/OutcomeReplayBufferBridgeEngine.js";
 import { OutcomeEpisodicMemoryBridgeEngine } from "../engines/OutcomeEpisodicMemoryBridgeEngine.js";
 import { OutcomeRLBridgeEngine } from "../engines/OutcomeRLBridgeEngine.js";
+import { ConformalCalibrationMonitorEngine } from "../engines/ConformalCalibrationMonitorEngine.js";
 import { feedbackBusEngine, type FeedbackEvent } from "../engines/FeedbackBusEngine.js";
 import { crossProcessOutcomeStore } from "../engines/CrossProcessOutcomeStore.js";
 
@@ -66,6 +67,7 @@ function hardResetAll(): void {
   OutcomeReplayBufferBridgeEngine.reset();
   OutcomeEpisodicMemoryBridgeEngine.reset();
   OutcomeRLBridgeEngine.reset(); // U-CN12 — 6th fan-out bridge
+  ConformalCalibrationMonitorEngine.unsubscribeFromOutcomes(); // U-NN-INTEG-04 7th component -- reset() only freshStates calibration; it does NOT detach the bus sub, so we MUST unsubscribe or the stale subscription pointer makes every activate see alreadySubscribed -> not_owned
   XProcNeuralAutoFireEngine.reset();
   crossProcessOutcomeStore.clear();
   feedbackBusEngine.reset();
@@ -78,7 +80,8 @@ function allActive(): boolean {
     OutcomeDriftCalibrationBridgeEngine.isSubscribedToOutcomes() &&
     OutcomeReplayBufferBridgeEngine.isSubscribedToOutcomes() &&
     OutcomeEpisodicMemoryBridgeEngine.isSubscribedToOutcomes() &&
-    OutcomeRLBridgeEngine.isSubscribedToOutcomes()
+    OutcomeRLBridgeEngine.isSubscribedToOutcomes() &&
+    ConformalCalibrationMonitorEngine.isSubscribedToOutcomes()
   );
 }
 
@@ -89,7 +92,8 @@ function noneActive(): boolean {
     !OutcomeDriftCalibrationBridgeEngine.isSubscribedToOutcomes() &&
     !OutcomeReplayBufferBridgeEngine.isSubscribedToOutcomes() &&
     !OutcomeEpisodicMemoryBridgeEngine.isSubscribedToOutcomes() &&
-    !OutcomeRLBridgeEngine.isSubscribedToOutcomes()
+    !OutcomeRLBridgeEngine.isSubscribedToOutcomes() &&
+    !ConformalCalibrationMonitorEngine.isSubscribedToOutcomes()
   );
 }
 
@@ -100,6 +104,7 @@ const COMPONENT_KEYS = [
   "replay_buffer_bridge",
   "episodic_memory_bridge",
   "rl_bridge", // U-CN12
+  "conformal_monitor_bridge", // U-NN-INTEG-04 (7th component)
 ] as const;
 
 beforeEach(() => {
@@ -140,8 +145,8 @@ describe("XProcNeuralAutoFireEngine — activate()", () => {
     XProcNeuralAutoFireEngine.activate();
     // NN auto-train listens on 'outcome.recorded'; CN04 tribal bridge also on 'outcome.recorded'.
     expect(feedbackBusEngine.subscriberCount("outcome.recorded")).toBe(2);
-    // CN06/07/08/12 bridges (drift_cal, replay, episodic, rl) all listen on 'outcome.completed'.
-    expect(feedbackBusEngine.subscriberCount("outcome.completed")).toBe(4);
+    // CN06/07/08/12 bridges (drift_cal, replay, episodic, rl) + U-NN-INTEG-04 conformal_monitor_bridge all listen on 'outcome.completed'.
+    expect(feedbackBusEngine.subscriberCount("outcome.completed")).toBe(5);
   });
 
   it("is idempotent: a second activate() while active is a no-op", () => {
@@ -189,8 +194,8 @@ describe("XProcNeuralAutoFireEngine — activate()", () => {
     const replay = r.components.find((c) => c.key === "replay_buffer_bridge");
     expect(replay?.action).toBe("already_active");
     expect(replay?.ownedByAutoFire).toBe(false);
-    // the other five (auto-train + tribal + drift_cal + episodic + rl) are owned
-    expect(r.components.filter((c) => c.ownedByAutoFire).length).toBe(5);
+    // the other six (auto-train + tribal + drift_cal + episodic + rl + conformal) are owned
+    expect(r.components.filter((c) => c.ownedByAutoFire).length).toBe(6);
   });
 });
 
@@ -207,9 +212,9 @@ describe("XProcNeuralAutoFireEngine — failure isolation", () => {
     expect(drift?.action).toBe("error");
     expect(drift?.ownedByAutoFire).toBe(false);
     expect(drift?.message).toContain("boom");
-    // the other five still came up
+    // the other six still came up (incl. U-NN-INTEG-04 conformal_monitor_bridge)
     const enabled = r.components.filter((c) => c.action === "enabled").map((c) => c.key).sort();
-    expect(enabled).toEqual(["episodic_memory_bridge", "neural_auto_train", "replay_buffer_bridge", "rl_bridge", "tribal_bridge"]);
+    expect(enabled).toEqual(["conformal_monitor_bridge", "episodic_memory_bridge", "neural_auto_train", "replay_buffer_bridge", "rl_bridge", "tribal_bridge"]);
     expect(crossProcessNeuralLearningEngine.autoTrainStatus().active).toBe(true);
     expect(OutcomeReplayBufferBridgeEngine.isSubscribedToOutcomes()).toBe(true);
   });
@@ -289,7 +294,7 @@ describe("XProcNeuralAutoFireEngine — status()", () => {
     const s = XProcNeuralAutoFireEngine.status();
     expect(s.activated).toBe(true);
     expect(s.autoTrainThreshold).toBe(12);
-    expect(s.components.length).toBe(6); // U-CN12 — auto-train + 5 fan-out bridges (tribal, drift_cal, replay, episodic, rl)
+    expect(s.components.length).toBe(7); // U-CN12 + U-NN-INTEG-04 -- auto-train + 6 fan-out bridges (tribal, drift_cal, replay, episodic, rl, conformal)
     for (const c of s.components) {
       expect(c.active).toBe(true);
       expect(c.ownedByAutoFire).toBe(true);

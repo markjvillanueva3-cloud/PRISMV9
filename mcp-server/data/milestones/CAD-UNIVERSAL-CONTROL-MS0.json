@@ -1,0 +1,198 @@
+{
+  "schemaVersion": 1,
+  "id": "CAD-UNIVERSAL-CONTROL-MS0",
+  "title": "Full AI System to Control All CAD Softwares + Generate Every CAD File on H: Drive",
+  "track": "AI-CAD",
+  "version": "1.0.0",
+  "created_at": "2026-04-19T20:45:00Z",
+  "status": "in_progress",
+  "total_units": 18,
+  "completed_units": 3,
+  "sessions": 1,
+  "estimated_hours": "40-60",
+  "complexity": "XL",
+  "description": "Build a full AI system that can drive every CAD application used on the H: drive through a single prism_ai entry point, and can GENERATE (not just read) every CAD file format found on disk. Coverage ground truth is CAD_COVERAGE_MATRIX.json, which must auto-refresh so newly-appearing file formats are detected without manual rebuild.",
+  "dependencies": ["CAD-AUTOMATION-MS0", "CAD-INFRA-MS0"],
+  "ground_truth": {
+    "coverage_matrix_path": "mcp-server/data/state/CAD_COVERAGE_MATRIX.json",
+    "scanner_script": "mcp-server/scripts/build-cad-coverage-matrix.ts",
+    "scan_root": "H:/prism/JM DIE",
+    "current_snapshot_at": "2026-04-19T20:30:00Z",
+    "total_cad_files": 16039,
+    "total_extensions": 18,
+    "fully_covered_exts": 6,
+    "fully_covered_volume": 4821,
+    "write_gap_exts": 4,
+    "write_gap_volume": 9249,
+    "full_gap_exts": 6,
+    "full_gap_volume": 1791
+  },
+  "bridges": {
+    "solidworks": { "reads": [".sldprt", ".sldasm"], "writes": [".sldprt", ".sldasm", ".step", ".pdf"] },
+    "inventor": { "reads": [".ipt", ".iam", ".idw"], "writes": [".ipt", ".iam", ".step"] },
+    "freecad": { "reads": [".FCStd", ".FCStd1"], "writes": [".FCStd"] },
+    "mastercam": { "reads": [".mcam", ".mcx", ".mcx-6", ".mcx-7", ".mcx-8"], "writes": [".mcam", ".step"] },
+    "fusion360": { "reads": [".f3d", ".f3z"], "writes": [".f3d"] },
+    "hypermill": { "reads": [".hmc"], "writes": [".hmc"] }
+  },
+  "ingestion_plan": {
+    "problem": "New CAD files and new extensions appear on H: drive over time (customer adds, acquisitions, new CAD apps). The matrix must not go stale.",
+    "mechanisms": [
+      {
+        "unit": "U-CUC03",
+        "name": "cad-coverage-auto-refresh",
+        "description": "SessionStart hook re-runs build-cad-coverage-matrix.ts if the existing matrix is >24h old OR if the newest file in JM DIE is newer than matrix.generatedAt. Debounced, <5s scan time.",
+        "trigger": "SessionStart",
+        "input": "H:/prism/JM DIE",
+        "output": "CAD_COVERAGE_MATRIX.json (refreshed)"
+      },
+      {
+        "unit": "U-CUC04",
+        "name": "unknown-extension-detector",
+        "description": "When scanner sees an extension NOT in CAD_EXTENSIONS set, log it to UNKNOWN_CAD_EXTENSIONS.jsonl with sample file paths. Hook surfaces this on SessionStart so the AI is forced to decide: classify as CAD (add to taxonomy + build bridge) or mark as non-CAD.",
+        "trigger": "scan-time",
+        "output": "data/state/UNKNOWN_CAD_EXTENSIONS.jsonl"
+      },
+      {
+        "unit": "U-CUC05",
+        "name": "new-customer-directory-watcher",
+        "description": "When JM DIE/ gains a new customer subfolder, scan it immediately, append summary to CUSTOMER_CAD_CATALOG.jsonl. Does not block other work; runs via Stop hook debounced.",
+        "trigger": "Stop (debounced hourly)",
+        "output": "data/state/CUSTOMER_CAD_CATALOG.jsonl"
+      },
+      {
+        "unit": "U-CUC06",
+        "name": "volume-delta-alert",
+        "description": "If a scan finds >5% volume change in any extension vs last matrix, emit a structured alert to AGENT_CHAT.md so concurrent sessions know the ground truth shifted.",
+        "trigger": "scan-time",
+        "output": "state/shared/AGENT_CHAT.md"
+      }
+    ]
+  },
+  "units": [
+    {
+      "id": "U-CUC01",
+      "title": "CAD Coverage Matrix Scanner + SessionStart Surface",
+      "commit": "a4b3d2770",
+      "status": "complete",
+      "completed_at": "2026-04-19T20:30:00Z",
+      "artifacts": [
+        "scripts/build-cad-coverage-matrix.ts",
+        "data/state/CAD_COVERAGE_MATRIX.json",
+        ".claude/hooks/cad-coverage-surface.mjs"
+      ]
+    },
+    {
+      "id": "U-CUC02",
+      "title": "AI-Level CAD Control Surface (10 prism_ai actions)",
+      "commit": "2d2dbeec2",
+      "status": "complete",
+      "completed_at": "2026-04-19T20:40:00Z",
+      "artifacts": [
+        "aiReasoningDispatcher.ts: 10 ai_cad_* actions wired to CADAutomationRouter"
+      ]
+    },
+    {
+      "id": "U-CUC03",
+      "title": "CAD coverage auto-refresh on SessionStart (staleness-gated)",
+      "status": "complete",
+      "completed_at": "2026-04-19T23:35:00Z",
+      "artifacts": [
+        ".claude/hooks/cad-coverage-auto-refresh.mjs",
+        ".claude/settings.json: hook wired before cad-coverage-surface",
+        "mcp-server/data/state/CAD_COVERAGE_REFRESH.log (runtime telemetry)"
+      ],
+      "acceptance_verified": "Backdated matrix mtime by 25h, ran hook, matrix rebuilt to 16039 files within 15s. Freshness one-liner shows 0.0h age after refresh. Scanner runs detached (non-blocking SessionStart). Stale check combines mtime>24h with newest-file-under-scan-root probe (500-dir cap).",
+      "acceptance": "If CAD_COVERAGE_MATRIX.json mtime >24h or newest .IPT/.MCX/.SLDPRT in JM DIE newer than matrix.generatedAt, re-run scanner in background. Matrix size grows monotonically."
+    },
+    {
+      "id": "U-CUC04",
+      "title": "Unknown-extension detector + surface",
+      "status": "not_started",
+      "acceptance": "Scanner flags any extension not in CAD_EXTENSIONS set, appends to UNKNOWN_CAD_EXTENSIONS.jsonl with samples. Hook surfaces on SessionStart."
+    },
+    {
+      "id": "U-CUC05",
+      "title": "New-customer-directory watcher (Stop hook, debounced hourly)",
+      "status": "not_started"
+    },
+    {
+      "id": "U-CUC06",
+      "title": "Volume-delta alert in AGENT_CHAT.md on >5% extension-volume shift",
+      "status": "not_started"
+    },
+    {
+      "id": "U-CUC07",
+      "title": "P0 gap: DXF generator — pure-JS DxfWriterEngine + bridge",
+      "status": "not_started",
+      "rationale": "1,445 files on H:, full gap, no CAD app needed, unlocks waterjet/laser/EDM nesting"
+    },
+    {
+      "id": "U-CUC08",
+      "title": "P0 gap: Mastercam native save (.mcx-8 / .mcx / .mcx-6)",
+      "status": "not_started",
+      "rationale": "8,977 combined files — largest write-gap volume"
+    },
+    {
+      "id": "U-CUC09",
+      "title": "P1 gap: DWG bridge (ODA File Converter or LibreDWG)",
+      "status": "not_started"
+    },
+    {
+      "id": "U-CUC10",
+      "title": "P2 gap: Inventor .idw drawing export",
+      "status": "not_started"
+    },
+    {
+      "id": "U-CUC11",
+      "title": "P2 gap: STL via CadQuery (trivial wrapper)",
+      "status": "not_started"
+    },
+    {
+      "id": "U-CUC12",
+      "title": "P3 gap: Parasolid .x_b / .x_t (STEP round-trip)",
+      "status": "not_started"
+    },
+    {
+      "id": "U-CUC13",
+      "title": "P3 gap: IGES .igs translator",
+      "status": "not_started"
+    },
+    {
+      "id": "U-CUC14",
+      "title": "Natural-language CAD routing tests (SlashCommandRecommender + AgentRegistry)",
+      "status": "not_started",
+      "acceptance": "Prompt 'open my SolidWorks part X' routes to prism_ai ai_cad_open; 'export STEP from Y.ipt' routes to ai_cad_export_step. At least 20 canary prompts pass."
+    },
+    {
+      "id": "U-CUC15",
+      "title": "Coverage regression test — integration smoke that all 6 bridges respond via prism_ai",
+      "status": "not_started"
+    },
+    {
+      "id": "U-CUC16",
+      "title": "CAD-coverage volume telemetry → SVI gated milestone gate",
+      "status": "not_started",
+      "acceptance": "Each closed gap increases coverage % tracked by Ψ; milestone cannot complete until coverage % reaches 95"
+    },
+    {
+      "id": "U-CUC17",
+      "title": "Write-path integration tests per bridge (export verification)",
+      "status": "not_started"
+    },
+    {
+      "id": "U-CUC18",
+      "title": "Milestone exit gate: coverage ≥ 95% by ext + by volume; ingestion mechanisms all live; AI routing canaries pass",
+      "status": "not_started"
+    }
+  ],
+  "exit_criteria": [
+    "CAD_COVERAGE_MATRIX.json auto-refreshes without manual intervention",
+    "Unknown extensions surface within 1 SessionStart of first appearance",
+    "≥95% of CAD file volume on H: drive is both readable AND writable via prism_ai",
+    "Natural-language CAD prompts route to correct ai_cad_* action (20 canary prompts)",
+    "All 6 bridges respond to at least open/close/getGeometry via prism_ai dispatcher"
+  ],
+  "envelope_path": "milestones/CAD-UNIVERSAL-CONTROL-MS0.json",
+  "position_path": "state/CAD-UNIVERSAL-CONTROL-MS0/position.json"
+}

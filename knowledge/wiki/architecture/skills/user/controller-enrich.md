@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `controller-enrich` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/controller-enrich.md` |
+| Source | `C:/Users/wompu/.claude/commands/controller-enrich.md` |
 | Model | default |
 | Tags | _(none)_ |
 

@@ -1,0 +1,79 @@
+{
+  "audit_id": "QA-MS11-P0-U01",
+  "title": "TelemetryEngine Data Collection + Aggregation Audit",
+  "auditor": "claude-opus-4.6",
+  "timestamp": "2026-02-28T07:00:00Z",
+  "status": "COMPLETE",
+  "verdict": "PASS - Robust telemetry with RingBuffer storage, sigma-based anomaly detection, SLO checking, and zero-impact safety guarantee",
+
+  "engine_overview": {
+    "file": "src/engines/TelemetryEngine.ts",
+    "lines": 607,
+    "class": "TelemetryEngine (singleton via getInstance())",
+    "safety_guarantee": "Telemetry failure = zero dispatcher impact. All methods wrapped in try/catch."
+  },
+
+  "data_collection": {
+    "record_method": "record(dispatcher, action, startMs, endMs, outcome, errorClass?, payloadSizeBytes?, contextDepthPercent?)",
+    "fields_captured": ["id (UUID)", "timestamp", "dispatcher", "action", "startMs", "endMs", "latencyMs", "outcome", "errorClass", "tokenEstimate", "payloadSizeBytes", "contextDepthPercent", "checksum"],
+    "semantic_validation": {
+      "latency": "Clamped 0-600,000ms (10 min max)",
+      "payload": "Clamped 0-100MB",
+      "context_depth": "Clamped 0-100%",
+      "token_estimate": "Math.ceil(payloadSizeBytes / 4)"
+    },
+    "data_integrity": "SHA-256 truncated to 16 hex chars (64 bits) per record, verified during aggregation"
+  },
+
+  "storage": {
+    "type": "RingBuffer per dispatcher",
+    "capacity": "Configurable (100-10,000, default from config)",
+    "overflow": "Circular overwrite, droppedOverflow counter tracked",
+    "persistence": "Snapshot to state/telemetry/telemetry_snapshot.json (baselines + route weights)"
+  },
+
+  "aggregation": {
+    "windows": ["1m (60s)", "5m (300s)", "1h (3600s)", "24h (86400s)"],
+    "metrics": {
+      "latency": ["avgLatencyMs", "p50LatencyMs", "p95LatencyMs", "p99LatencyMs"],
+      "counts": ["callCount", "successCount", "failureCount", "blockedCount"],
+      "breakdown": "actionBreakdown with per-action count, avgMs, errorRate, isSafetyCritical",
+      "tokens": "estimatedTokens (sum)",
+      "integrity": "checksumFailures, droppedOverflow"
+    },
+    "baseline": "Exponential moving average (alpha=0.2) updated per aggregation cycle"
+  },
+
+  "anomaly_detection": {
+    "algorithm": "Sigma-based deviation from EMA baseline",
+    "thresholds": {
+      "normal": "anomalySigma (0.5-4.0 configurable)",
+      "safety_critical": "safetyAnomalySigma (0.5-3.0 configurable, tighter for SAFETY_CRITICAL_ACTIONS)"
+    },
+    "types": ["LATENCY_SPIKE", "ERROR_RATE_INCREASE"],
+    "severity_mapping": "sigma >= 3 → CRITICAL, >= 2 → WARN, else → INFO",
+    "deduplication": "Key-based (dispatcher:type), configurable window (60s-600s), escalation instead of duplicate",
+    "escalation": "Up to level 3 for repeated anomalies within dedup window",
+    "cap": "500 anomalies max, trim to 250 on overflow"
+  },
+
+  "slo_checks": {
+    "avg_latency": "< maxLatencyMs (1,000-30,000ms)",
+    "error_rate": "< 5%",
+    "memory_usage": "< memoryLimitBytes (100KB-2MB)"
+  },
+
+  "route_optimization": {
+    "status": "DISABLED by default (optimizerEnabled: false)",
+    "freeze_control": "Operator can freeze/unfreeze weights per-dispatcher or globally",
+    "degradation_levels": ["HEALTHY (0-1 critical)", "WARNING (2-4 critical)", "DEGRADED (5+ critical)"]
+  },
+
+  "config_validation": {
+    "all_numeric_fields_clamped": true,
+    "clamp_ranges": "anomalySigma 0.5-4.0, minSamples 3-100, ringBuffer 100-10000, etc."
+  },
+
+  "findings": [],
+  "exit_conditions_met": { "data_collection_pipeline_verified": true, "aggregation_functions_verified": true, "data_retention_policies_documented": true }
+}

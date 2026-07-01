@@ -250,7 +250,7 @@ export class LathePostGeneratorActiveLearningEngine {
     if (category === "motion_error" || category === "spindle_error") {
       return "major";
     }
-    if (category === "performance_issue" || category === "cosmetic") {
+    if (category === "performance_issue") {
       return "cosmetic";
     }
 

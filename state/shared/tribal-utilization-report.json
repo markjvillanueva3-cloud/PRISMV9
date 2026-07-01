@@ -1,0 +1,64 @@
+{
+  "schemaVersion": "1.0.0",
+  "ts": "2026-06-11T19:28:02.253Z",
+  "index": {
+    "indexed_entries": 0,
+    "tip_files": 3920,
+    "coverage_pct": 0,
+    "index_generatedAt": null,
+    "schemaVersion": null
+  },
+  "citations": {
+    "citations_total": 4150,
+    "citations_recent": 419,
+    "recent_window_days": 7,
+    "tips_ever_cited": 0,
+    "tips_zero_citation": 3920,
+    "top_cited": []
+  },
+  "customers": {
+    "sampled_files": 1500,
+    "total_files": 3920,
+    "sampled_with_customer": 0,
+    "sampled_customer_pct": 0,
+    "extrapolated_with_customer_estimate": 0
+  },
+  "obsidian": {
+    "OBSIDIAN_VAULT_env": null,
+    "env_path_exists": false,
+    "mirror_script_exists": true,
+    "mirror_script_path": "H:/prism/.claude/scripts/tribal-obsidian-mirror.mjs",
+    "in_repo_memories_dir_exists": true,
+    "in_repo_memories_subdirs": 14,
+    "note": "OBSIDIAN_VAULT unset — mirror cannot run; in-repo knowledge/memories/ is the only 2nd brain surface."
+  },
+  "viz_query_ok": false,
+  "tribal_by_domain": {
+    "cam": 3346,
+    "general": 122,
+    "mill": 363,
+    "edm": 89
+  },
+  "viz_join": [],
+  "recommendations": [
+    {
+      "priority": "high",
+      "action": "Run a full tribal-embed-index sweep — current coverage is 0% (0/3920).",
+      "command": "node H:/prism/.claude/scripts/tribal-embed-index.mjs --update --full"
+    },
+    {
+      "priority": "high",
+      "action": "Backfill customer: frontmatter on tribal tips — currently 0% sampled. Map filename prefixes (itw_, alcoa_, optimas_, fontana_, atf_, …) to JM Die customer list.",
+      "command": "(write a tribal-customer-backfill.mjs against jm-die-profile.ts customer list)"
+    },
+    {
+      "priority": "medium",
+      "action": "OBSIDIAN_VAULT env var unset — mirror script cannot run. Either set the env to point at a real Obsidian vault path OR document that knowledge/memories/ is the canonical 2nd brain.",
+      "command": "(set OBSIDIAN_VAULT in user shell profile, or strip mirror script if vault is permanently in-repo)"
+    },
+    {
+      "priority": "low",
+      "action": ">95% of tips have never been cited. After full index sweep, consider archiving or re-distilling the cold-tier tips."
+    }
+  ]
+}

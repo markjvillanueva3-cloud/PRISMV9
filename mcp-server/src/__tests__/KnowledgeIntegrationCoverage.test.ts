@@ -126,6 +126,22 @@ describe("MS-KNOW-3: Video Knowledge Integration", () => {
 
     it("should have playbook rule extraction via extractPlaybookRules()", () => {
       expect(typeof videoLearningEngine.extractPlaybookRules).toBe("function");
+      // Real-output oracle (R9): a transcript with explicit operator rules yields
+      // classified PlaybookRule[]; a question is NOT a rule; blank source -> [].
+      const rules = videoLearningEngine.extractPlaybookRules(
+        "Always use climb milling for aluminum. " +
+        "Never run the spindle above 10000 RPM on this fixture. " +
+        "If the part chatters, then reduce the feed. " +
+        "What coolant should we use?"
+      );
+      expect(rules.length).toBeGreaterThanOrEqual(3);
+      const kinds = rules.map((r) => r.kind);
+      expect(kinds).toContain("imperative");
+      expect(kinds).toContain("prohibition");
+      expect(kinds).toContain("conditional");
+      expect(rules.every((r) => r.confidence > 0 && r.confidence <= 1)).toBe(true);
+      expect(rules.some((r) => r.rule.toLowerCase().includes("coolant"))).toBe(false);
+      expect(videoLearningEngine.extractPlaybookRules("")).toEqual([]);
     });
   });
 

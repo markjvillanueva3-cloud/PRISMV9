@@ -1,0 +1,244 @@
+{
+  "id": "LATHE-P2P-CONSENSUS-MS4",
+  "version": "1.0.0",
+  "title": "Lathe Print-to-Program with Consensus-Gated Decisions",
+  "brief": "End-to-end lathe pipeline. Drop a JM Die turning blueprint (PDF/STEP) → BlueprintVisionOCR → LatheFeatureRecognition → tolerance/material parsing → operation sequencing → insert/CSS/threading consensus → toolpath generation via TurningPrintToProgram → master-post emit → internal sim + collision check → output validated G-code. Acceptance is 5 real JM Die parts producing G-code that simulates clean. CLAUDE.md says lathe is 98% production-ready; this milestone closes the runtime gap and proves the multi-model consensus pattern on the most production-ready domain.",
+  "created_at": "2026-05-04T20:30:00Z",
+  "created_by": "claude-opus-4-7",
+  "track": "LATHE",
+  "track_name": "Lathe Print-to-Program Pipeline",
+  "status": "complete",
+  "completed_at": "2026-05-23T19:45:00Z",
+  "completed_by": "claude-64f03cee (slot echo)",
+  "close_out_log": [
+    {
+      "unit": "P0-U01",
+      "status": "verified_built",
+      "note": "lathe_p2p_ingest/recognize/tolerance suite + 152 E2E tests pre-existed; audit-pass"
+    },
+    {
+      "unit": "P0-U02",
+      "status": "shipped",
+      "note": "planSequenceWithConsensus + 3-candidate fanout (precedence/tool-min/setup-min) + lathe_p2p_sequence_plan_consensus dispatcher action + 12 new tests"
+    },
+    {
+      "unit": "P0-U03",
+      "status": "shipped",
+      "note": "selectStrategyWithConsensus + batchSelectStrategiesWithConsensus (parallel fanout R1) + 2 new dispatcher actions + 10 new tests; 3 materials produce distinct insert/CSS combos"
+    },
+    {
+      "unit": "P1-U01",
+      "status": "verified_built",
+      "note": "lathe_p2p_toolpath_* suite pre-existed; audit-pass"
+    },
+    {
+      "unit": "P1-U02",
+      "status": "shipped",
+      "note": "emitWithConsensus + single-candidate-skip optimization + lathe_p2p_emit_consensus action + 10 new tests"
+    },
+    {
+      "unit": "P1-U03",
+      "status": "shipped",
+      "note": "enforceSafetyGate + SafetyGateRejection class + lathe_p2p_safety_gate_enforce action + 8 new tests; Ω(x)/S(x) hard gate per shop_floor tier (0.95/0.98 floors)"
+    },
+    {
+      "unit": "P1-U04",
+      "status": "shipped",
+      "note": "5 JM Die parts (OD pin, threaded shaft, grooved bushing, hard turn D2, multi-OP bolt) run end-to-end with consensus + safety gate; 7/7 acceptance tests pass; report at state/shared/LATHE-P2P-MS4-ACCEPTANCE.md"
+    }
+  ],
+  "linked_roadmap": "state/shared/PRISM-COMPREHENSIVE-ROADMAP-2026-05-04.md",
+  "phases": [
+    {
+      "id": "P0",
+      "title": "Features + Strategy + Tolerance Pipeline",
+      "sessions": "9",
+      "units": [
+        {
+          "id": "P0-U01",
+          "title": "Wire BlueprintVisionOCR + LatheFeatureRecognition + tolerance parsing into single ingest call",
+          "effort": 150,
+          "dependencies": [],
+          "exit_conditions": [
+            "lathe_p2p_ingest action takes pdf|step|cad bytes, returns {features, material, tolerances, datums, surfaceFinish}",
+            "Uses existing turning_blueprint_intake + turning_parse_material + turning_parse_tolerance + turning_apply_iso2768",
+            "Tests: 3 sample blueprints (one with hole pattern, one with thread, one with groove) parse to expected feature counts ±1",
+            "Adversarial: corrupted PDF, OCR confidence <0.6, missing material callout"
+          ],
+          "description": "First step of the 11-step pipeline. Pull together the existing turning_* parsing actions from prism_turning_program. Output schema must match what downstream sequencing engine expects.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P0-U02",
+          "title": "Operation sequencing with consensus on operation order",
+          "effort": 135,
+          "dependencies": [
+            "P0-U01"
+          ],
+          "exit_conditions": [
+            "lathe_p2p_sequence calls lathe_p2p_sequence_plan + emits 3 candidate sequences",
+            "Calls prism_ai:consensus_decide(question='which sequence?', options=[3 candidates], voices=[claude,codex,gemini,ollama])",
+            "≥3-of-4 agreement required, else escalate to human_review",
+            "Tests: deterministic case (single obvious sequence) → unanimous; ambiguous case (2 reasonable orders) → consensus or escalate; failure case (all bad) → returns error"
+          ],
+          "description": "Where the goal-planner agent's milestone differs from a vanilla pipeline: operation order is a high-stakes decision (affects setups, fixturing, tool changes). Consensus must run here.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P0-U03",
+          "title": "Insert + CSS + threading parameter consensus gate",
+          "effort": 150,
+          "dependencies": [
+            "P0-U02"
+          ],
+          "exit_conditions": [
+            "Per-operation: select insert grade/geometry, decide G96 CSS vs G97 RPM, threading pass schedule",
+            "Each decision wrapped in prism_ai:consensus_decide",
+            "Decisions logged with provenance to consensus-decisions.jsonl + outcome events to feedback bus",
+            "Tests: 3 materials (304SS, 17-4PH, 6061-T6) produce 3 distinct insert/CSS combos with ≥0.75 agreement"
+          ],
+          "description": "The 'insert/CSS/threading consensus' from goal-planner's acceptance criterion. Use existing kb_select_insert_geometry + kb_get_css_g97_logic + kb_get_threading_strategy as candidate-generators; consensus picks among them.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "P1",
+      "title": "Program Emit + Sim + Acceptance",
+      "sessions": "8",
+      "units": [
+        {
+          "id": "P1-U01",
+          "title": "Toolpath generation through TurningPrintToProgramEngine",
+          "effort": 120,
+          "dependencies": [
+            "P0-U03"
+          ],
+          "exit_conditions": [
+            "lathe_p2p_toolpath_generate accepts the decisions from P0 + emits canonical toolpath JSON",
+            "Validates against existing lathe_p2p_toolpath_validate",
+            "Cycle time within ±15% of cycle_time_estimate",
+            "Tests: 5 JM Die parts (varied complexity) produce non-empty toolpath"
+          ],
+          "description": "Existing engine; this unit just wires it into the pipeline with the upstream decisions. No new physics.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P1-U02",
+          "title": "Master-post selection + G-code emit with consensus on post-processor",
+          "effort": 120,
+          "dependencies": [
+            "P1-U01"
+          ],
+          "exit_conditions": [
+            "lathe_p2p_emit calls lathe_master_post_route to pick a post (Hurco/Okuma/Mitsubishi/Mazak)",
+            "Post selection wrapped in consensus when machine has ambiguous post mapping",
+            "Emits G-code through lathe_master_post_emit + validates via lathe_master_post_validate",
+            "Tests: 5 JM Die parts emit valid G-code passing lathe_validate"
+          ],
+          "description": "Consensus gate at machine→post mapping where multiple posts are valid (e.g., Okuma B250IIW supports both OSP-P300L and legacy OSP-P200L). Default to highest-tier. Outcome event captures which post was picked.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P1-U03",
+          "title": "Internal simulation + collision check + Ω/S(x) safety gate",
+          "effort": 105,
+          "dependencies": [
+            "P1-U02"
+          ],
+          "exit_conditions": [
+            "cnc_simulate_physics runs on emitted G-code",
+            "lathe_collision_check + lathe_swing_check pass",
+            "Ω(x) ≥ 0.95 for shop-floor tier (per PRISM safety thresholds); S(x) ≥ 0.98 (five-sigma)",
+            "Failure → return rejection with specific blockers, do NOT emit G-code to caller",
+            "Tests: 5 acceptance parts pass; 2 known-bad fixtures (intentional collision) blocked by gate"
+          ],
+          "description": "Hard gate. If sim fails or safety thresholds aren't met, the pipeline returns failure not partial output. Outcome event captures gate result for learning. This unit also wires the second weakest-link consensus checkpoint (Gemini's #2 — simulated toolpath collision review).",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P1-U04",
+          "title": "Acceptance test: 5 JM Die parts produce validated G-code with consensus audit",
+          "effort": 120,
+          "dependencies": [
+            "P1-U03"
+          ],
+          "exit_conditions": [
+            "Pick 5 representative JM Die turning parts (varied: simple OD turn, threaded shaft, grooved part, hard-turn, multi-OP)",
+            "Each runs through lathe_p2p_ingest → lathe_p2p_emit pipeline end-to-end",
+            "All 5 produce valid G-code passing lathe_validate",
+            "consensus-decisions.jsonl shows ≥4 consensus calls per part with ≥0.75 agreement",
+            "outcome ledger shows 5 complete pipeline runs with confidence rollup",
+            "Wall time per part ≤ 5 minutes (Codex on critical path)"
+          ],
+          "description": "The actual demo. If this works, we have proven multi-model consensus + end-to-end runtime on the most production-ready domain. Document p50/p99 latency, agreement rates, and any human_review escalations. Write a one-page acceptance report at state/shared/LATHE-P2P-MS4-ACCEPTANCE.md.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        }
+      ]
+    }
+  ],
+  "acceptance": "5 JM Die turning parts ingest → toolpath → G-code → sim-clean. Consensus logged for sequence/insert/CSS/threading/post picks with ≥0.75 agreement. Ω≥0.95, S(x)≥0.98 gate green. Wall time per part ≤ 5 min.",
+  "risks": [
+    {
+      "id": "R1",
+      "description": "Codex 30-60s latency × 4 consensus calls per part = 2-4 min alone; mitigation = parallel fanout, voices subset for low-stakes decisions"
+    },
+    {
+      "id": "R2",
+      "description": "OCR confidence on hand-marked JM Die prints may be low; mitigation = adversarial test in P0-U01; fallback to manual feature input"
+    },
+    {
+      "id": "R3",
+      "description": "Existing lathe_master_post_validate may have unaddressed warnings; mitigation = treat warnings as blockers in this milestone, fix root cause"
+    },
+    {
+      "id": "R4",
+      "description": "Sim collision detection has known false-positives in tight back-bore scenarios; mitigation = log all gate decisions, manual override path documented"
+    }
+  ],
+  "blocks": [
+    "BIZ-QUOTE-FEED-MS12",
+    "LEARN-XPROC-TRANSFER-MS18",
+    "ORCH-MULTIDOMAIN-MS11"
+  ],
+  "blocked_by": [
+    "INFRA-AGI-ROUTER-MS2",
+    "ATOM-REGISTRY-AUDIT-MS0a"
+  ],
+  "updated_at": "2026-05-23T19:49:45.674Z"
+}

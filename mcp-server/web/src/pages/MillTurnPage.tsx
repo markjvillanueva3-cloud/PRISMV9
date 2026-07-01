@@ -19,7 +19,7 @@ interface BarState {
   pieces_left: number;
 }
 
-export default function MillTurnPage(): JSX.Element {
+export default function MillTurnPage() {
   const [channels, setChannels] = useState<ChannelState[]>([
     { id: "$1", program: "O1001", status: "running",     active_tool: "T0101 - OD rough" },
     { id: "$2", program: "O2001", status: "waiting_sync", active_tool: "T0505 - Live mill" },
@@ -30,6 +30,10 @@ export default function MillTurnPage(): JSX.Element {
   return (
     <div className="millturn-page" style={{ padding: 24, fontFamily: "system-ui" }}>
       <h1>Mill-Turn Control</h1>
+
+      <div data-testid="sample-data-notice" style={{ background: "#fef3c7", border: "1px solid #f59e0b", color: "#92400e", padding: "8px 12px", borderRadius: 4, marginBottom: 16, fontSize: 13 }}>
+        Sample data -- this view is a UI preview and is not yet connected to live machine telemetry.
+      </div>
 
       <section style={{ marginBottom: 24 }}>
         <h2>Channels</h2>

@@ -117,7 +117,7 @@ export class HookDAGValidatorEngine extends BaseEngine {
     ];
   }
 
-  validateInput(input: unknown): string | null {
+  validate(input: unknown): string | null {
     if (input == null) return "options object is required (pass at least `manifest` or `manifestPath`)";
     if (typeof input !== "object") return "expected an options object";
     const o = input as HookDAGValidatorOptions;
@@ -130,13 +130,13 @@ export class HookDAGValidatorEngine extends BaseEngine {
 
   /** BaseEngine compliance — overrides the protected stub. */
   protected async executeImpl(input: unknown): Promise<HookDAGValidation> {
-    return this.validate((input as HookDAGValidatorOptions) ?? {});
+    return this.validateManifest((input as HookDAGValidatorOptions) ?? {});
   }
 
   // ── Public API ───────────────────────────────────────────────────────────────
 
   /** Validate a manifest (or one read from disk). Pure compute aside from the optional disk read. */
-  validate(opts: HookDAGValidatorOptions): HookDAGValidation {
+  validateManifest(opts: HookDAGValidatorOptions): HookDAGValidation {
     const fs: DAGFS = opts.fsImpl ?? nodeFs;
 
     // 1) Resolve the manifest.
@@ -227,7 +227,7 @@ export class HookDAGValidatorEngine extends BaseEngine {
   async validateAndWrite(
     opts: HookDAGValidatorOptions & { outPath?: string },
   ): Promise<{ validation: HookDAGValidation; path: string }> {
-    const validation = this.validate(opts);
+    const validation = this.validateManifest(opts);
     const outPath = opts.outPath
       ? fwd(isAbsLike(opts.outPath) ? nodePath.normalize(opts.outPath) : nodePath.resolve(opts.outPath))
       : this.defaultValidationPath(validation.manifestRepoRoot);

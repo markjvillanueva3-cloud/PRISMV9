@@ -137,10 +137,65 @@ export class MITCourseRegistryEngine extends BaseEngine {
   private resourcesPath: string;
 
   constructor(resourcesPath?: string) {
-    super();
+    super({
+      name: "MITCourseRegistryEngine",
+      version: "1.0.0",
+      domain: "knowledge",
+      description: "Loads and manages MIT OpenCourseWare content for PRISM knowledge augmentation",
+    });
     // Default to actual resources path
     this.resourcesPath = resourcesPath || "H:/prism/resources/MIT COURSES";
     this.coursesRoot = this.resourcesPath;
+  }
+
+  getCapabilities(): import("./BaseEngine.js").EngineCapability[] {
+    return [
+      {
+        name: "getAlgorithmsForEngine",
+        description: "Get all MIT OCW algorithms mapped to a specific PRISM engine",
+        input: "{ engineName: string }",
+        output: "EngineAlgorithmMap",
+      },
+      {
+        name: "getAlgorithmsByCourse",
+        description: "Get all algorithms from a specific MIT course by courseId",
+        input: "{ courseId: string }",
+        output: "AlgorithmMapping[]",
+      },
+      {
+        name: "getCoursesByCategory",
+        description: "Get courses belonging to a named category",
+        input: "{ category: string }",
+        output: "Array<{ id, name, topics }>",
+      },
+      {
+        name: "getStats",
+        description: "Get overall registry statistics",
+        output: "{ totalAlgorithms, totalCourses, extractedCourses, archivedCourses, coverage, categories, manufacturingAlgorithms }",
+      },
+    ];
+  }
+
+  validate(input: unknown): string | null {
+    if (input === null || input === undefined) return null; // stats query requires no input
+    if (typeof input !== "object") return "Input must be an object or null";
+    return null;
+  }
+
+  protected async executeImpl(input: unknown): Promise<unknown> {
+    // Default action: return overall registry stats.
+    // Callers that need specific query methods invoke them directly.
+    const params = (input ?? {}) as Record<string, unknown>;
+    if (typeof params.engineName === "string") {
+      return this.getAlgorithmsForEngine(params.engineName);
+    }
+    if (typeof params.courseId === "string") {
+      return this.getAlgorithmsByCourse(params.courseId);
+    }
+    if (typeof params.category === "string") {
+      return this.getCoursesByCategory(params.category);
+    }
+    return this.getStats();
   }
 
   /**

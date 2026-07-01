@@ -4,6 +4,23 @@ import * as path from "path";
 import * as os from "os";
 import type { CallToolFn } from "./index.js";
 
+/** Authoritative max accepted upload size (DECODED bytes). NB the global `express.json({limit})`
+ *  body parser (default 50MB RAW) is the FIRST gate -- a payload whose base64 text exceeds it is 413'd
+ *  before this handler runs. This cap (32MiB decoded; base64 ~42.6MB, inside the 50MB body window) is
+ *  therefore the BINDING decoded-size policy and guards the (optionalToken, non-blocking) base64 write
+ *  against an unauthenticated disk-fill DoS. (A raw FILE read by /drawing/extract uses its own 64MB cap
+ *  -- different surface: that path is not base64-wrapped.) */
+export const MAX_UPLOAD_BYTES = 32 * 1024 * 1024;
+
+/** Decoded byte length of a base64 string (4 chars -> 3 bytes, minus padding), WITHOUT decoding it
+ *  (so an oversize payload is rejected before it is materialized in memory). */
+export function decodedBase64Bytes(b64: string): number {
+  const len = b64.length;
+  if (len === 0) return 0;
+  const padding = b64.endsWith("==") ? 2 : b64.endsWith("=") ? 1 : 0;
+  return Math.floor(len / 4) * 3 - padding;
+}
+
 export function createUploadRouter(callTool: CallToolFn): Router {
   const router = Router();
   const UPLOAD_DIR = path.join(os.tmpdir(), "prism-uploads");
@@ -26,6 +43,12 @@ export function createUploadRouter(callTool: CallToolFn): Router {
       let text: string | undefined;
 
       if (content_base64) {
+        // Size guard BEFORE decoding/writing -- reject an oversize payload up front (disk-fill DoS).
+        const approxBytes = decodedBase64Bytes(content_base64);
+        if (approxBytes > MAX_UPLOAD_BYTES) {
+          res.status(413).json({ error: `upload exceeds the ${MAX_UPLOAD_BYTES}-byte limit (${approxBytes} bytes)` });
+          return;
+        }
         // Save base64 file to temp directory
         const safeName = (filename || "upload").replace(/[^a-zA-Z0-9._-]/g, "_");
         filePath = path.join(UPLOAD_DIR, `${Date.now()}_${safeName}`);

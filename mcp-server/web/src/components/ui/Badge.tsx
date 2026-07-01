@@ -8,14 +8,21 @@ const colorStyles: Record<Color, string> = {
   slate: "bg-slate-100 text-slate-700 dark:bg-slate-700 dark:text-slate-300",
 };
 
+// 2026-05-27 (slot golf, GOAL-TSC-FIX iter5): broadened BadgeProps to accept
+// the prop names callers use (`variant`, `size`, `className`). Backward-compat:
+// existing `color` callers still work. variant/size are accepted-but-ignored
+// for now (future U-WEB-BADGE-V2 wires variant→color and size→className).
 interface BadgeProps {
   color?: Color;
-  children: React.ReactNode;
+  variant?: string;
+  size?: string;
+  className?: string;
+  children?: React.ReactNode;
 }
 
-export default function Badge({ color = "slate", children }: BadgeProps) {
+export default function Badge({ color = "slate", className, children }: BadgeProps) {
   return (
-    <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${colorStyles[color]}`}>
+    <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${colorStyles[color]} ${className ?? ""}`}>
       {children}
     </span>
   );

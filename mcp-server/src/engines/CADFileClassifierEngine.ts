@@ -78,6 +78,12 @@ const FORMAT_PROFILES: Record<CADFormat, FormatProfile> = {
   ".stl":    { category: "neutral",  testStrategy: "import_neutral",  handler: "OCCTMeshReader" },
   ".x_t":    { category: "kernel",   testStrategy: "import_kernel",   handler: "ParasolidKernelReader" },
   ".x_b":    { category: "kernel",   testStrategy: "import_kernel",   handler: "ParasolidKernelReader" },
+  // U-CADC01 R13-TE-02 additions
+  ".prt":    { category: "neutral",  testStrategy: "import_neutral",  handler: "OCCTStepReader" },
+  ".dwg":    { category: "drawing",  testStrategy: "open_drawing" },
+  ".dxf":    { category: "drawing",  testStrategy: "open_drawing" },
+  ".sat":    { category: "kernel",   testStrategy: "import_kernel" },
+  ".3dm":    { category: "neutral",  testStrategy: "import_neutral" },
 };
 
 // ── Pure classifier ───────────────────────────────────────────────────────────

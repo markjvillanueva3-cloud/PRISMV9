@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Archivo:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; background: #070809; height: 100%; overflow: hidden; }
+    select, input { font-family: 'Archivo', sans-serif; }
+    select { -webkit-appearance: none; appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%236B7280' stroke-width='2.5' stroke-linecap='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 10px center; }
+    .kz-scroll::-webkit-scrollbar { width: 8px; } .kz-scroll::-webkit-scrollbar-thumb { background: #23262E; border-radius: 8px; }
+    @keyframes kzpulse { 0%,100% { opacity:.4 } 50% { opacity:1 } }
+  </style>
+</helmet>
+<div style="position:fixed;inset:0;background:#070809;display:flex;align-items:center;justify-content:center;overflow:hidden;">
+<div style="width:1600px;height:980px;flex:none;transform:scale({{ scale }});transform-origin:center;display:flex;background:#0A0B0D;color:#F3F4F6;font-family:'Archivo',sans-serif;overflow:hidden;border-radius:16px;box-shadow:0 40px 120px rgba(0,0,0,0.6);">
+  <aside style="width:72px;flex:none;background:#0C0D10;border-right:1px solid rgba(255,255,255,0.06);display:flex;flex-direction:column;align-items:center;padding:18px 0;gap:6px;">
+    <svg viewBox="0 0 120 120" width="34" height="34" style="margin-bottom:14px;"><rect x="22" y="20" width="13" height="80" rx="1.5" fill="#F3F4F6"/><path d="M35 60 L86 22" stroke="#F3F4F6" stroke-width="13" stroke-linecap="round"/><path d="M35 60 L92 98 L92 74 L58 60 Z" fill="#FF5A2B"/></svg>
+    <div style="width:50px;height:48px;border-radius:12px;border:1px solid rgba(255,90,43,0.35);background:rgba(255,90,43,0.1);color:#FF7A4D;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-family:'JetBrains Mono',monospace;font-size:9px;"><span style="font-size:15px;">⚠</span>ALARM</div>
+    <div style="flex:1;"></div>
+    <div style="width:38px;height:38px;border-radius:50%;background:#1B1E24;border:1px solid rgba(255,255,255,0.1);display:flex;align-items:center;justify-content:center;font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:13px;color:#AEB4BE;">JM</div>
+  </aside>
+  <main style="flex:1;display:flex;flex-direction:column;min-width:0;">
+    <header style="flex:none;height:64px;border-bottom:1px solid rgba(255,255,255,0.06);display:flex;align-items:center;justify-content:space-between;padding:0 24px;background:#0C0D10;">
+      <div><div style="font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:19px;">Alarm Decoder</div><div style="font-family:'JetBrains Mono',monospace;font-size:10.5px;color:#6B7280;margin-top:1px;">JM DIE · CONTROLLER FAULTS → CAUSE + FIX</div></div>
+      <select value="{{ ctrl }}" onChange="{{ setCtrl }}" style="height:38px;background:#14161B;border:1px solid rgba(255,255,255,0.1);border-radius:9px;color:#F3F4F6;font-size:12.5px;padding:0 30px 0 12px;">
+        <option value="osp">Okuma OSP-P300</option>
+        <option value="fanuc">Fanuc 31i</option>
+        <option value="haas">Haas (pre-NGC)</option>
+        <option value="mitsi">Mitsubishi (WEDM)</option>
+      </select>
+    </header>
+    <div style="flex:1;display:grid;grid-template-columns:330px minmax(0,1fr);min-height:0;">
+
+      <section class="kz-scroll" style="border-right:1px solid rgba(255,255,255,0.06);overflow-y:auto;min-width:0;padding:18px 18px 40px;background:#0A0B0D;">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:0.16em;color:#FF5A2B;margin-bottom:10px;">ENTER ALARM</div>
+        <div style="display:flex;align-items:center;gap:8px;background:#14161B;border:1px solid rgba(255,90,43,0.25);border-radius:10px;padding:11px 13px;margin-bottom:8px;">
+          <span style="font-family:'JetBrains Mono',monospace;font-size:15px;color:#FF7A4D;">{{ codePrefix }}</span>
+          <span style="flex:1;font-family:'JetBrains Mono',monospace;font-size:15px;color:#F3F4F6;">{{ codeShown }}</span>
+          <span style="width:8px;height:8px;border-radius:50%;background:#FF5A2B;animation:kzpulse 1.4s infinite;"></span>
+        </div>
+        <div style="font-size:11px;color:#6B7280;margin-bottom:16px;line-height:1.4;">Tap a recent fault below, or it auto-reads from the machine's diagnostic port.</div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:0.16em;color:#FF5A2B;margin-bottom:10px;">RECENT · {{ ctrlLabel }}</div>
+        <sc-for list="{{ recent }}" as="a" hint-placeholder-count="6">
+          <div onClick="{{ a.on }}" style="{{ a.style }}">
+            <div style="display:flex;align-items:center;gap:10px;">
+              <span style="flex:none;width:8px;height:8px;border-radius:50%;background:{{ a.sevColor }};"></span>
+              <div style="flex:1;min-width:0;"><div style="font-family:'JetBrains Mono',monospace;font-size:12.5px;color:{{ a.codeColor }};">{{ a.code }}</div><div style="font-size:10.5px;color:#9398A2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ a.short }}</div></div>
+              <span style="flex:none;font-family:'JetBrains Mono',monospace;font-size:9px;color:#6B7280;">{{ a.machine }}</span>
+            </div>
+          </div>
+        </sc-for>
+      </section>
+
+      <section class="kz-scroll" style="overflow-y:auto;min-width:0;padding:20px 24px 44px;background:radial-gradient(900px 480px at 70% -12%, rgba(255,90,43,0.05), transparent 60%),#0B0C0F;">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:6px;">
+          <div><div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#FF7A4D;">{{ ctrlLabel }} · {{ sel.code }}</div><div style="font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:23px;margin-top:3px;">{{ sel.title }}</div></div>
+          <span style="flex:none;font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;color:{{ sevColor }};padding:6px 12px;border:1px solid {{ sevColor }};border-radius:8px;">{{ sevLabel }}</span>
+        </div>
+        <div style="font-size:14px;color:#AEB4BE;line-height:1.5;margin:10px 0 18px;max-width:760px;">{{ sel.plain }}</div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;">
+          <div style="background:#0C0D11;border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:16px 18px;">
+            <div style="font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.1em;color:#9398A2;margin-bottom:12px;">LIKELY CAUSES</div>
+            <sc-for list="{{ causes }}" as="c" hint-placeholder-count="3">
+              <div style="display:flex;gap:10px;align-items:flex-start;padding:7px 0;border-top:1px solid rgba(255,255,255,0.05);">
+                <span style="flex:none;font-family:'JetBrains Mono',monospace;font-size:11px;color:#FF7A4D;">{{ c.pct }}</span>
+                <span style="flex:1;font-size:12.5px;color:#C7CCD4;line-height:1.4;">{{ c.text }}</span>
+              </div>
+            </sc-for>
+          </div>
+          <div style="background:linear-gradient(135deg,rgba(54,211,153,0.06),#0C0D11);border:1px solid rgba(54,211,153,0.2);border-radius:14px;padding:16px 18px;">
+            <div style="font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.1em;color:#36D399;margin-bottom:12px;">FIX — IN ORDER</div>
+            <sc-for list="{{ fixes }}" as="f" hint-placeholder-count="4">
+              <div style="display:flex;gap:10px;align-items:flex-start;padding:7px 0;border-top:1px solid rgba(255,255,255,0.05);">
+                <span style="flex:none;width:18px;height:18px;border-radius:50%;background:rgba(54,211,153,0.15);display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;font-size:10px;color:#36D399;">{{ f.n }}</span>
+                <span style="flex:1;font-size:12.5px;color:#C7CCD4;line-height:1.4;">{{ f.text }}</span>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1.3fr 1fr;gap:14px;">
+          <div style="background:#0C0D11;border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:16px 18px;">
+            <div style="font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.1em;color:#9398A2;margin-bottom:10px;">RAW + REFERENCE</div>
+            <div style="font-family:'JetBrains Mono',monospace;font-size:12px;color:#C7CCD4;background:#0A0B0D;border:1px solid rgba(255,255,255,0.06);border-radius:8px;padding:10px 12px;line-height:1.6;margin-bottom:10px;">{{ sel.raw }}</div>
+            <div style="display:flex;justify-content:space-between;font-size:11.5px;color:#9398A2;padding:4px 0;"><span>Manual ref</span><span style="font-family:'JetBrains Mono',monospace;color:#C7CCD4;">{{ sel.ref }}</span></div>
+            <div style="display:flex;justify-content:space-between;font-size:11.5px;color:#9398A2;padding:4px 0;"><span>Resets without service</span><span style="font-family:'JetBrains Mono',monospace;color:{{ resetColor }};">{{ sel.reset }}</span></div>
+          </div>
+          <div style="background:linear-gradient(135deg,rgba(255,90,43,0.06),#0C0D11);border:1px solid rgba(255,90,43,0.2);border-radius:14px;padding:16px 18px;">
+            <div style="font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.1em;color:#FF7A4D;margin-bottom:9px;">◆ KIENZLE SEES</div>
+            <div style="font-size:12px;color:#C7CCD4;line-height:1.5;">{{ insight }}</div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </main>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = { ctrl: 'osp', sel: 'osp1', scale: (typeof window !== 'undefined') ? Math.min(window.innerWidth / 1600, window.innerHeight / 980) : 0.6 };
+  componentDidMount() { this._fit = () => this.setState({ scale: Math.min(window.innerWidth / 1600, window.innerHeight / 980) }); window.addEventListener('resize', this._fit); this._fit(); }
+  componentWillUnmount() { if (this._fit) window.removeEventListener('resize', this._fit); }
+  CTRL = { osp: 'Okuma OSP-P300', fanuc: 'Fanuc 31i', haas: 'Haas', mitsi: 'Mitsubishi WEDM' };
+  PREFIX = { osp: 'ALM', fanuc: 'AL', haas: 'AL', mitsi: 'E' };
+  ALARMS = {
+    osp: [
+      { id: 'osp1', code: '1234 P', title: 'P-axis overload', sev: 2, machine: 'M460V', short: 'Servo overload, P (B) axis', plain: 'The B/trunnion servo drew more current than its limit and tripped — almost always mechanical drag or an over-aggressive 5-axis move, not a bad drive.', raw: 'ALM 1234  P-AXIS OVERLOAD  (servo current > limit 3.2s)', ref: 'OSP Alarm-A 1234', reset: 'Yes — after cool-down', causes: [['55%', 'Trunnion clamp left engaged during a rotary move'], ['30%', 'Rapid 5-axis reorient — accel too high for the load'], ['15%', 'Way lube low → drag on the B-axis']], fixes: [['1', 'Confirm the B-axis unclamps (M10/M11) before rotary moves in the program'], ['2', 'Let the servo cool ~5 min, then reset'], ['3', 'Lower rotary accel / smoothing for the reorient'], ['4', 'Check way-lube level + B-axis backlash if it repeats']], insight: 'This fired on the SIG cavity 5-axis program — the same job over-budget in Job Cost. The reorient accel is too hot; the calculator\u2019s tuned 5-axis lead would also calm this alarm.' },
+      { id: 'osp2', code: '2010', title: 'Spindle overheat', sev: 1, machine: 'LB3000', short: 'Spindle temperature high', plain: 'Spindle bearing/winding temp crossed the warning band. Usually duty-cycle or coolant, not a failing spindle.', raw: 'ALM 2010  SPINDLE OVERHEAT  (temp 68C > 62C)', ref: 'OSP Alarm-B 2010', reset: 'Yes — auto when cool', causes: [['60%', 'Sustained high-RPM finishing with no spindle-chiller recovery'], ['25%', 'Coolant concentration low / nozzle aimed off'], ['15%', 'Chiller fault or clogged filter']], fixes: [['1', 'Pause; let the chiller pull temp back under 55C'], ['2', 'Check coolant concentration + nozzle aim'], ['3', 'Inspect chiller filter and pump flow'], ['4', 'Add a dwell between high-RPM passes if chronic']], insight: 'Roku-Roku and high-RPM finish jobs trigger this most. Kienzle\u2019s thermal readout predicts the climb before the alarm — watch the Cut-temp gauge on the calculator.' },
+      { id: 'osp3', code: '1056', title: 'Z overtravel', sev: 1, machine: 'Multus', short: 'Soft-limit Z+ exceeded', plain: 'A move commanded Z past its stored soft limit. The control stopped you before hitting a hard stop — this is the safety working.', raw: 'ALM 1056  OVERTRAVEL Z+  (target 615.0 > limit 610.0)', ref: 'OSP Alarm-A 1056', reset: 'Yes — jog off limit', causes: [['50%', 'Wrong work offset (G54 Z) — part zero set too high'], ['35%', 'Tool length offset missing or wrong'], ['15%', 'Long tool + short stickout mismatch vs the model']], fixes: [['1', 'Jog Z away from the limit in handle mode'], ['2', 'Re-verify G54 Z and the active H tool-length offset'], ['3', 'Cross-check the gauge length in the Tool Crib'], ['4', 'Re-run from a safe block']], insight: 'Overtravel is almost always an offset error upstream. The Tool Crib\u2019s work-offset + gauge-length tables are the place to catch this before it reaches the machine.' },
+    ],
+    fanuc: [
+      { id: 'fanuc1', code: '401', title: 'Servo not ready (VRDY off)', sev: 2, machine: 'VF-2', short: 'Servo amp ready signal off', plain: 'The CNC asked the servo amps to be ready and they didn\u2019t answer. It\u2019s an electrical/enable issue, not your program.', raw: 'AL 401  SERVO ALARM: VRDY OFF', ref: 'Fanuc OM 401', reset: 'Sometimes — power cycle', causes: [['45%', 'E-stop or door interlock not fully released'], ['30%', 'Servo amp fault / overheated'], ['25%', 'Low input voltage or blown fuse']], fixes: [['1', 'Release E-stop, confirm doors closed, press reset'], ['2', 'Power the control fully off ~30s, restart'], ['3', 'Check amp LEDs + input fuses if it persists'], ['4', 'Call service if VRDY stays off after power cycle']], insight: 'On the pre-NGC VF-2 this is the most common morning alarm — usually an interlock, not the amp. Document the fix as tribal knowledge so the next operator skips the panic.' },
+      { id: 'fanuc2', code: '720', title: 'Spindle alarm (overload)', sev: 2, machine: 'VF-2', short: 'Spindle amp overload', plain: 'The spindle drew over its current limit — the cut demanded more than the spindle could give, or the drive faulted.', raw: 'AL 720  SPINDLE: OVERLOAD / DETECT', ref: 'Fanuc 720', reset: 'Yes — after cool', causes: [['55%', 'Feed/DOC too aggressive for the 30hp limit'], ['25%', 'Dull tool dragging up cutting force'], ['20%', 'Spindle drive cooling fault']], fixes: [['1', 'Reduce feed or DOC; re-run'], ['2', 'Index/replace the tool if worn'], ['3', 'Verify spindle-drive fan + heatsink'], ['4', 'Re-post feeds through the calculator at the 30hp limit']], insight: 'This is exactly the alarm the calculator\u2019s power chart prevents — the 30hp redline is drawn so you never program past it. The VF-2\u2019s down-state in Shop Floor traces to this code.' },
+    ],
+    haas: [
+      { id: 'haas1', code: '102', title: 'Servo overload', sev: 2, machine: 'OM-2', short: 'Axis servo overload', plain: 'An axis motor pulled too much current too long. Mechanical bind or an over-hard cut.', raw: 'AL 102  SERVO OVERLOAD', ref: 'Haas 102', reset: 'Yes', causes: [['50%', 'Way bind / low lube'], ['30%', 'Cut too aggressive'], ['20%', 'Failing motor or cable']], fixes: [['1', 'Check lube + jog the axis by hand feel'], ['2', 'Reduce DOC/feed'], ['3', 'Inspect motor cable; call service if it repeats']], insight: 'The 30k OM-2 is a light machine — keep DOC modest. Tool-Saving mode on the calculator sets feeds it can hold.' },
+    ],
+    mitsi: [
+      { id: 'mitsi1', code: 'E331', title: 'Wire break', sev: 1, machine: 'Wire-1', short: 'Wire broke mid-cut', plain: 'The EDM wire snapped. Usually power/flush settings too hot for the section, not a machine fault — it auto-rethreads and resumes.', raw: 'E331  WIRE BREAK  @ N0840', ref: 'MV alarm E331', reset: 'Yes — auto-rethread', causes: [['45%', 'Power setting too aggressive for the part thickness'], ['30%', 'Flush pressure low / blocked nozzle'], ['25%', 'Dirty water / resin spent']], fixes: [['1', 'Let it auto-rethread and resume'], ['2', 'If repeating, drop the rough power one notch'], ['3', 'Check flush pressure + nozzle gap to the part'], ['4', 'Verify DI water resistivity / resin life']], insight: 'On the carbide trilobe punch, wire breaks cluster at the thick section — the Trilobe Creator\u2019s skim-pass plan stages power down to keep the wire intact.' },
+      { id: 'mitsi2', code: 'E710', title: 'Water resistivity low', sev: 1, machine: 'Wire-2', short: 'DI water conductivity high', plain: 'The deionized water is too conductive — the resin bed is spent. Cut quality and wire life drop until it\u2019s changed.', raw: 'E710  RESISTIVITY LOW  (12 < 50 kOhm)', ref: 'MV alarm E710', reset: 'After resin service', causes: [['70%', 'Ion-exchange resin exhausted'], ['20%', 'Filters spent, loading the resin'], ['10%', 'Water temp high']], fixes: [['1', 'Replace the ion-exchange resin'], ['2', 'Change water filters at the same time'], ['3', 'Run up to resistivity spec before restarting precision cuts']], insight: 'Resin + filters are tracked in Inventory — this alarm should auto-raise the PO before it stops a precision skim.' },
+    ],
+  };
+  renderVals() {
+    const s = this.state, list = this.ALARMS[s.ctrl] || this.ALARMS.osp;
+    let sel = list.find(a => a.id === s.sel) || list[0];
+    const sev = (n) => n === 2 ? ['CRITICAL', '#FF5247'] : n === 1 ? ['CAUTION', '#F4B740'] : ['INFO', '#7FB2FF'];
+    const recent = list.map(a => { const on = a.id === sel.id; const sc = sev(a.sev)[1]; return {
+      on: () => this.setState({ sel: a.id }), code: this.PREFIX[s.ctrl] + ' ' + a.code, short: a.short, machine: a.machine, sevColor: sc,
+      codeColor: on ? '#FF7A4D' : '#C7CCD4',
+      style: `padding:10px 12px;margin-bottom:6px;border-radius:10px;cursor:pointer;background:${on ? 'rgba(255,90,43,0.08)' : '#0C0D11'};border:1px solid ${on ? 'rgba(255,90,43,0.4)' : 'rgba(255,255,255,0.07)'};`,
+    }; });
+    const [sevLabel, sevColor] = sev(sel.sev);
+    return {
+      scale: s.scale, ctrl: s.ctrl, ctrlLabel: this.CTRL[s.ctrl], codePrefix: this.PREFIX[s.ctrl],
+      codeShown: sel.code, setCtrl: (e) => { const c = e.target.value; this.setState({ ctrl: c, sel: this.ALARMS[c][0].id }); },
+      recent, sel, sevLabel, sevColor,
+      causes: sel.causes.map(c => ({ pct: c[0], text: c[1] })),
+      fixes: sel.fixes.map((f) => ({ n: f[0], text: f[1] })),
+      resetColor: /^Yes/.test(sel.reset) ? '#36D399' : '#F4B740',
+      insight: sel.insight,
+    };
+  }
+}
+</script>
+</body>
+</html>

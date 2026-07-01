@@ -12,7 +12,9 @@ export type ProviderSurfaceId =
   | 'hotJobs'
   | 'learning'
   | 'inventoryOperations'
-  | 'commerce';
+  | 'commerce'
+  // 2026-05-27 iter20 — PrintDropPage WorkspaceRecoveryScaffold surface.
+  | 'printClassify';
 
 export type ProviderSurfaceMode = 'live' | 'live-fallback' | 'staged';
 export type ProviderRuntimeMode = 'live-provider' | 'fixture-provider';
@@ -110,6 +112,13 @@ export const OPERATING_SYSTEM_SURFACE_STATUS: Record<ProviderSurfaceId, Provider
     label: 'Commerce',
     mode: 'live-fallback',
     detail: 'Billing posture can now hydrate from live billing status with fixture fallback, while tier packaging, add-on catalogs, sourcing, and buy recommendations still remain staged seams.',
+  },
+  // 2026-05-27 iter20 — PrintDropPage WorkspaceRecoveryScaffold surface.
+  printClassify: {
+    id: 'printClassify',
+    label: 'Print classify',
+    mode: 'live-fallback',
+    detail: 'Print Drop OCR + machine-type classification uses live routes with fixture fallback.',
   },
 };
 

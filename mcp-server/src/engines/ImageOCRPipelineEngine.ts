@@ -95,7 +95,7 @@ export class ImageOCRPipelineEngine {
       sizeBytes: metadata.sizeBytes || 0,
     };
     this.imageQueue.push(image);
-    log.info();
+    log.info(`[ImageOCRPipeline] Registered image: ${name}`);
     return image;
   }
 
@@ -130,7 +130,7 @@ export class ImageOCRPipelineEngine {
     };
 
     this.results.set(imagePath, result);
-    log.info();
+    log.info(`[ImageOCRPipeline] Processed image: ${imagePath} quality=${quality}`);
     return result;
   }
 

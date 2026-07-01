@@ -1,0 +1,69 @@
+{
+  "id": "PP-S-00030",
+  "schemaVersion": "1.0.0",
+  "controller": {
+    "id": "fanuc-30i",
+    "vendor": "Fanuc",
+    "family": "30i-MODEL B",
+    "dialect": "fanuc"
+  },
+  "operation": "boring",
+  "cycle": "ream",
+  "axis_count": 4,
+  "material": {
+    "id": "P-1.0036",
+    "group": "P",
+    "name": "low-carbon steel"
+  },
+  "envelope": {
+    "id": "large",
+    "x_mm": 1626,
+    "y_mm": 813,
+    "z_mm": 762
+  },
+  "geometry": {
+    "depth_mm": 59.35,
+    "diameter_mm": 14.12,
+    "pitch_mm": null,
+    "rapid_z_mm": 223.1
+  },
+  "dialect_features": [
+    "sub-program"
+  ],
+  "expected_gcode_shape": {
+    "lines_min": 40,
+    "lines_max": 200,
+    "must_contain": [
+      "%",
+      "O",
+      "G90",
+      "G54"
+    ],
+    "must_not_contain": [
+      "CYCL DEF",
+      "BEGIN PGM",
+      "G15 H"
+    ]
+  },
+  "safety_tier": "shop_floor",
+  "omega_floor": 0.98,
+  "sx_floor": 0.98,
+  "validation": {
+    "oracle": "master_post_generate",
+    "controller_profile_check": "master_post_get_controller_profile",
+    "dialect_features_check": "dialect_features",
+    "pass_criteria": "shape_match AND dialect_correct AND validation_pass AND omega_meets_floor",
+    "reject_on": [
+      "textual-cross-map",
+      "missing-dialect-resolve",
+      "softened-master-post-threshold"
+    ]
+  },
+  "metadata": {
+    "generatedAt": "2026-05-25T00:00:26.726Z",
+    "generator": "generate-post-processor-scenarios.mjs",
+    "slot_owner": "india",
+    "milestone": "PRISM-LAUNCH-READINESS-MS0",
+    "unit": "P0-U06"
+  }
+}

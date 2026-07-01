@@ -21,7 +21,7 @@ related:
 
 ## Description (from file header)
 
-training-convergence-guard.mjs — PostToolUse hookCADCAM-DAGI-MS0/U-DAGI04Monitors training actions and warns on divergence indicators:- NaN/Inf loss- Perplexity > 100 (severe) or > 50 (warning)- featureValidityPct < 80%- Early stopping triggered
+_(no header docblock — read source for behavior)_
 
 ## Events
 

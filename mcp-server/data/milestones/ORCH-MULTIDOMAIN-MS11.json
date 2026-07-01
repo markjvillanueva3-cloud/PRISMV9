@@ -1,0 +1,71 @@
+{
+  "id": "ORCH-MULTIDOMAIN-MS11",
+  "version": "1.0.0",
+  "title": "Multi-Domain Job Orchestration",
+  "brief": "Routes a single manufacturing job across PRISM domain pipelines (mill / lathe / wedm / sinker / grinder / laser / waterjet) when the part needs features no single domain can produce alone. Examples: shaft with turned OD + milled flats; die plate with milled pocket + EDM corner; tool insert with ground OD + EDM punch. Produces the cross-domain plan (which features → which domain, in what order, with what handoff cost) — does NOT execute the per-domain pipelines (those live in LathePrintToProgram + MillingAGIMaster + WireEDMAGIOrchestrator).",
+  "created_at": "2026-05-04T20:30:00Z",
+  "created_by": "claude-opus-4-7",
+  "track": "ORCH",
+  "track_name": "Multi-Domain Orchestration",
+  "status": "complete",
+  "completed_at": "2026-05-23T20:15:00Z",
+  "completed_by": "claude-64f03cee (slot echo)",
+  "close_out_log": [
+    {
+      "unit": "P0-U01",
+      "status": "shipped",
+      "note": "CrossDomainOrchestratorEngine + FEATURE_DOMAIN_MAP (38 feature types → 9 domains) + handoff cost matrix (mill↔mill_turn=60s, lathe↔mill=600s, EDM/grinder handoffs=1200-1800s) + 3 dispatcher actions (orch_multidomain_plan / orch_multidomain_summarize / orch_multidomain_feature_map) wired into intelligenceDispatcher.ts. 27 tests including 3 happy-path JM Die fixtures (shaft+flats, die plate, tool insert), 5 domain-resolution paths (operator pin / preferred bias / unknown / all-unknown placeholder), 6 handoff invariants, 4 estimate paths, 5 schema/invariant guards, 3 dispatcher wiring assertions."
+    }
+  ],
+  "linked_roadmap": "state/shared/PRISM-COMPREHENSIVE-ROADMAP-2026-05-04.md",
+  "phases": [
+    {
+      "id": "P0",
+      "title": "Multi-domain routing + handoff sequencing",
+      "sessions": "1",
+      "units": [
+        {
+          "id": "P0-U01",
+          "title": "CrossDomainOrchestratorEngine + dispatcher wiring + tests",
+          "effort": 90,
+          "dependencies": [
+            "LATHE-P2P-CONSENSUS-MS4"
+          ],
+          "exit_conditions": [
+            "FEATURE_DOMAIN_MAP covers 9 domains × ≥30 feature types",
+            "planJob() returns segments[] grouped by consecutive same-domain features with handoff costs",
+            "Operator pin (feature.domain_pin) overrides catalog default",
+            "preferred_domains[] biases ambiguous features (chamfer_od → mill_turn vs lathe)",
+            "Unknown feature types surface in unresolved_features[] with reason",
+            "All-unknown features produce a placeholder segment + warning (never an empty plan)",
+            "3 dispatcher actions in intelligenceDispatcher ACTIONS enum + cases",
+            "Tests: 27 cases covering routing, handoff, estimate, invariants, dispatcher integration"
+          ],
+          "description": "Cross-domain planner — the missing 'Layer 3 enrichment' piece for jobs with mixed-domain features. Pure engine (no I/O, no MCP imports). Consensus is an optional caller seam following the LATHE-P2P-CONSENSUS-MS4 pattern; this MS ships the deterministic plan and leaves consensus integration to MS12+.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        }
+      ]
+    }
+  ],
+  "acceptance": "Single-engine orchestrator + 3 dispatcher actions + 27 tests passing. Covers 3 representative multi-domain fixtures: lathe→mill shaft, mill→wedm die plate, grinder→wedm tool insert.",
+  "risks": [
+    {
+      "id": "R1",
+      "description": "Handoff cost matrix is shop-floor-average — production shops should override per their actual fixture/inspection times via PrismCustomerProfile."
+    },
+    {
+      "id": "R2",
+      "description": "FEATURE_DOMAIN_MAP is surface-level — does NOT consult per-domain capability registries at runtime; drift between this map and (e.g.) MillFeatureRecognition will produce wrong routing. Mitigated by tests asserting disjoint canonical features (od_turn ∉ mill, pocket ∉ lathe)."
+    }
+  ],
+  "blocks": [],
+  "blocked_by": [
+    "LATHE-P2P-CONSENSUS-MS4"
+  ],
+  "updated_at": "2026-05-23T21:07:35.520Z"
+}

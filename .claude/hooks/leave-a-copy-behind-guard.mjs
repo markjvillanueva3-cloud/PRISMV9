@@ -59,7 +59,7 @@ function readJsonSafe(p) {
 
 function findRepoRoot(startDir) {
   try {
-    const out = execFileSync("git", ["rev-parse", "--show-toplevel"], {
+    const out = execFileSync("git", ["rev-parse", "--show-toplevel"], { windowsHide: true,
       cwd: startDir,
       encoding: "utf-8",
       stdio: ["ignore", "pipe", "ignore"],
@@ -72,7 +72,7 @@ function findRepoRoot(startDir) {
 
 function gitStatusPorcelain(repoRoot) {
   try {
-    const out = execFileSync("git", ["status", "--porcelain=v1", "-z"], {
+    const out = execFileSync("git", ["status", "--porcelain=v1", "-z"], { windowsHide: true,
       cwd: repoRoot,
       encoding: "buffer",
       stdio: ["ignore", "pipe", "ignore"],

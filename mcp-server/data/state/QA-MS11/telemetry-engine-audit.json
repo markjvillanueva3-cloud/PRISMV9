@@ -1,0 +1,128 @@
+{
+  "schemaVersion": "1.0.0",
+  "_lastBackfillTs": "2026-05-08T16:41:54.025Z",
+  "audit_id": "QA-MS11-P0-U01",
+  "title": "TelemetryEngine Data Collection + Aggregation Audit",
+  "audited_at": "2026-04-14T17:35:00Z",
+  "auditor": "claude-opus-4.5",
+  "status": "PASS",
+  "location": "src/engines/TelemetryEngine.ts",
+  "lines_of_code": 610,
+  "version": "2.0.0",
+  "architecture": {
+    "components": [
+      "RingBuffer - per-dispatcher circular buffer of TelemetryRecords",
+      "Aggregator - periodic metric computation across time windows",
+      "AnomalyDetector - sigma-based deviation alerts with escalation",
+      "RouteOptimizer - weight adjustments (DISABLED by default)"
+    ],
+    "safety_principle": "Telemetry failure = zero dispatcher impact (all methods wrapped in try/catch)"
+  },
+  "data_collection": {
+    "record_fields": [
+      "id (UUID)",
+      "timestamp",
+      "dispatcher",
+      "action",
+      "startMs",
+      "endMs",
+      "latencyMs",
+      "outcome",
+      "errorClass",
+      "tokenEstimate",
+      "payloadSizeBytes",
+      "contextDepthPercent",
+      "checksum (SHA-256 truncated to 64-bit)"
+    ],
+    "semantic_validation": {
+      "latency_range": "0-600,000ms (0-10min)",
+      "payload_max": "100MB",
+      "context_depth_range": "0-100%"
+    },
+    "integrity": "SHA-256 checksum on concatenated record fields"
+  },
+  "aggregation_functions": {
+    "metrics_windows": [
+      "1m",
+      "5m",
+      "1h",
+      "24h"
+    ],
+    "metrics_computed": {
+      "callCount": "Total calls in window",
+      "successCount": "Successful outcomes",
+      "failureCount": "Failed outcomes",
+      "blockedCount": "Blocked outcomes",
+      "avgLatencyMs": "Mean latency",
+      "p50LatencyMs": "Median latency",
+      "p95LatencyMs": "95th percentile",
+      "p99LatencyMs": "99th percentile",
+      "estimatedTokens": "Sum of token estimates",
+      "errorsByClass": "Error count by class",
+      "actionBreakdown": "Per-action metrics (count, avgMs, errorRate, isSafetyCritical)",
+      "dataIntegrity": "Records processed, checksum failures, overflow drops"
+    },
+    "percentile_implementation": "Simple array index: ceil(p/100 * n) - 1"
+  },
+  "data_retention": {
+    "ring_buffer_size": "Configurable, default 1000 (clamped 100-10000)",
+    "overflow_behavior": "Overwrite oldest, increment droppedOverflow counter",
+    "snapshot_persistence": {
+      "interval_seconds": "Configurable, default 60 (clamped 5-300)",
+      "file": "telemetry_snapshot.json",
+      "contents": [
+        "timestamp",
+        "baselines",
+        "anomalyCount",
+        "routeWeights"
+      ]
+    },
+    "window_based_queries": "Records filtered by time window on retrieval, not deletion"
+  },
+  "anomaly_detection": {
+    "method": "Sigma-based deviation from baseline",
+    "standard_sigma": "Configurable, default 2.0 (clamped 0.5-4.0)",
+    "safety_sigma": "Configurable, default 1.5 (clamped 0.5-3.0) for safety-critical actions",
+    "min_samples": "Configurable, default 10 (clamped 3-100)",
+    "severity_levels": [
+      "INFO",
+      "WARN",
+      "CRITICAL"
+    ],
+    "safety_critical_actions": "Defined in SAFETY_CRITICAL_ACTIONS constant from telemetry-types.ts"
+  },
+  "configuration": {
+    "defaults": {
+      "anomalySigma": 2,
+      "safetyAnomalySigma": 1.5,
+      "minSamples": 10,
+      "dampeningMax": 0.1,
+      "optimizerCycleSeconds": 60,
+      "ringBufferSize": 1000,
+      "snapshotIntervalSeconds": 60,
+      "optimizerEnabled": false,
+      "deduplicationWindowMs": 300000,
+      "maxLatencyMs": 10000,
+      "memoryLimitBytes": 524288
+    }
+  },
+  "api_methods": {
+    "init": "Start aggregator + snapshot timers",
+    "record": "Capture single dispatcher invocation",
+    "recordWrapperOverhead": "Track telemetry wrapper overhead",
+    "getDashboard": "Full system overview",
+    "getDispatcherDetail": "Deep metrics for one dispatcher",
+    "getAnomalies": "Filtered anomaly list",
+    "getOptimizationLog": "Route weight history",
+    "acknowledgeAnomaly": "Mark anomaly as reviewed",
+    "freezeWeights": "Lock route weights",
+    "unfreezeWeights": "Unlock route weights",
+    "shutdown": "Clean stop with final snapshot"
+  },
+  "findings": [],
+  "exit_conditions_met": {
+    "data_collection_pipeline_verified": true,
+    "aggregation_functions_verified": true,
+    "data_retention_policies_documented": true
+  }
+}

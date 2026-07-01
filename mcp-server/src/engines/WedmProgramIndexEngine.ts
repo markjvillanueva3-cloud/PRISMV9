@@ -18,6 +18,7 @@
  */
 
 import { readdir, stat } from "fs/promises";
+import type { Dirent } from "fs";
 import path from "path";
 import { log } from "../utils/Logger.js";
 
@@ -271,7 +272,7 @@ export class WedmProgramIndexEngine {
     defaultProgramType: "wire_edm" | "electrode_mill",
     programs: WedmProgramEntry[]
   ): Promise<void> {
-    let items: Awaited<ReturnType<typeof readdir>>;
+    let items: Dirent<string>[];
     try {
       items = await readdir(rootPath, { withFileTypes: true });
     } catch (err) {
@@ -328,7 +329,7 @@ export class WedmProgramIndexEngine {
   ): Promise<void> {
     if (depth > MAX_DEPTH) return;
 
-    let items: Awaited<ReturnType<typeof readdir>>;
+    let items: Dirent<string>[];
     try {
       items = await readdir(dirPath, { withFileTypes: true });
     } catch {

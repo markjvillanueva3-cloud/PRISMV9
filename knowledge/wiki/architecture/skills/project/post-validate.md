@@ -29,8 +29,7 @@ related:
 
 ## Description (first paragraph)
 
-
-# /post-validate — Post-Processor Output Validation
+Validate G-code output against machine capabilities and safety requirements.
 
 <!-- AUTO-END -->
 

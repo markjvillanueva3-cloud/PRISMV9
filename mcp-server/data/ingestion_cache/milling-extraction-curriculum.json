@@ -1,0 +1,144 @@
+{
+  "$schema": "milling-extraction-curriculum.v1",
+  "schemaVersion": "1.0.0",
+  "generatedAt": "2026-05-26T17:05:00Z",
+  "generator": "slot=foxtrot, session=claude-ef40a9d1, /loop iter8+",
+  "intent": "Page-by-page extraction curriculum for the milling-domain PDF corpus — ordered from EASIEST (small, focused, single-concept) to COMPLEX (large, multi-system, integrated). Drives /pdf-learn pipeline runs to convert URL refs in milling-pdf-cited-tips.ts into body-content tips with page citations. Each entry names the PDF, the target page ranges that carry highest training value, and the milling-wizard sub-system the extraction feeds.",
+  "advisoryOnly": true,
+  "mustHumanVerify": true,
+  "extractionOrder": "easiest-to-complex (training-pipeline canonical curriculum)",
+  "totalPdfs": 50,
+  "tiers": [
+    {
+      "tier": 1,
+      "name": "Easiest — Single-Concept Quick References (<2MB)",
+      "rationale": "Focused single-concept PDFs are the highest-yield first pass: every page is signal, no preamble. AI training starts here because the labels are unambiguous (one rule per page).",
+      "pdfs": [
+        { "id": "JMD-G-CODE-ARC-TUTORIAL", "file": "Quick G-Code Arc Tutorial_ Make G02 & G03 Easy, Avoid Mistakes.pdf", "size": "1.4M", "extractPages": "ALL", "feeds": "g_code_arc_subsystem", "expectedTips": 6 },
+        { "id": "JMD-MASTER-G41-G42-G40", "file": "Mastering GCode G41, G42, and G40_ Tool Compensation Power.pdf", "size": "1.5M", "extractPages": "ALL", "feeds": "cutter_compensation_subsystem", "expectedTips": 8 },
+        { "id": "JMD-GDT-BEGINNER", "file": "The Beginner's Guide to GD&T - Plus Minus Tolerancing.pdf", "size": "1.3M", "extractPages": "ALL", "feeds": "print_reading_pre_stage", "expectedTips": 10 },
+        { "id": "JMD-PROG-HAAS-G-M", "file": "Programming Haas CNC Control G-Codes and M-Codes.pdf", "size": "740K", "extractPages": "ALL", "feeds": "haas_ngc_controller", "expectedTips": 12 },
+        { "id": "JMD-HELICAL-INTERP", "file": "Helical Interpolation for Thread Milling, Holes, and Spiral Ramps.pdf", "size": "1.3M", "extractPages": "ALL", "feeds": "thread_milling + spiral_ramp_entry", "expectedTips": 7 },
+        { "id": "JMD-WHY-CUTTER-MISALIGN", "file": "Why Doesn't My CNC Machine Move the Cutter Where I Told It To...pdf", "size": "1.3M", "extractPages": "ALL", "feeds": "misalignment_diagnostic_tree", "expectedTips": 5 },
+        { "id": "JMD-ONE-SHOT-MODAL-G", "file": "One Shot G-Codes and Modal G-Codes.pdf", "size": "1.3M", "extractPages": "ALL", "feeds": "g_code_modality", "expectedTips": 4 },
+        { "id": "JMD-MAZAK-MAZATROL-3D", "file": "Mazak Programming Manual for Mazatrol Matrix 3D.pdf", "size": "1.2M", "extractPages": "ALL", "feeds": "mazatrol_matrix_3d", "expectedTips": 6 },
+        { "id": "JMD-MILL-HOLDERS", "file": "Ultimate Guide to Milling Tool Holders.pdf", "size": "1.8M", "extractPages": "ALL", "feeds": "tool_holder_selection", "expectedTips": 8 },
+        { "id": "JMD-POST-DOC-2021", "file": "Post+Processor+Documentation+-+2021-02-04.pdf", "size": "1.8M", "extractPages": "ALL", "feeds": "post_processor_basics", "expectedTips": 6 },
+        { "id": "JMD-WINMAX-MILL-WORKBOOK", "file": "WinMax-Mill-Intro-Class-Workbook.pdf", "size": "1.6M", "extractPages": "ALL", "feeds": "hurco_winmax_mill_conversational", "expectedTips": 10 }
+      ],
+      "totalExpectedTips": 82,
+      "estimatedRunTime": "low (small PDFs, focused content)"
+    },
+    {
+      "tier": 2,
+      "name": "Mid-Easy — Focused References 2-10MB",
+      "rationale": "Multi-concept but still narrow scope. Good second-pass training data — introduces some context-switching but each page still carries 1-2 actionable rules.",
+      "pdfs": [
+        { "id": "JMD-DYNAMIC-MILLING", "file": "Dynamic_Milling.pdf", "size": "3.5M", "extractPages": "ALL", "feeds": "adaptive_hsm_strategy", "expectedTips": 15 },
+        { "id": "JMD-INTRO-MULTIAX-TOOLPATHS", "file": "Introduction_to_Multiaxis_Toolpaths.pdf", "size": "3.5M", "extractPages": "ALL", "feeds": "multiaxis_intro", "expectedTips": 12 },
+        { "id": "JMD-INTRO-WCS", "file": "Introduction_to_WCS.pdf", "size": "3.7M", "extractPages": "ALL", "feeds": "work_coordinate_system", "expectedTips": 8 },
+        { "id": "JMD-FUNDAMENTALS-3D-SIM", "file": "Fundamentals3DDesign-SIM-ENG-SV.pdf", "size": "3.6M", "extractPages": "ALL", "feeds": "3d_design_simulation", "expectedTips": 10 },
+        { "id": "JMD-MANUAL-5AXIS", "file": "Manual 5-axis machining.pdf", "size": "4.3M", "extractPages": "ALL", "feeds": "5_axis_general", "expectedTips": 15 },
+        { "id": "JMD-INV-ROTARY-MACH", "file": "InventorCAM2024_Rotary_Machining_User_Guide.pdf", "size": "4.2M", "extractPages": "ALL", "feeds": "rotary_machining_4x", "expectedTips": 12 },
+        { "id": "JMD-MAZAK-MAZATROL", "file": "Mazak Mazatrol Programing Manual for Mazatrol Matrix.pdf", "size": "4.6M", "extractPages": "ALL", "feeds": "mazatrol_conversational", "expectedTips": 18 },
+        { "id": "JMD-MAZAK-EIA", "file": "Mazak EIA - Programming Manula for Mazatrol Matrix.pdf", "size": "4.7M", "extractPages": "ALL", "feeds": "mazatrol_eia_g_code", "expectedTips": 18 },
+        { "id": "JMD-OKUMA-ME32-128", "file": "ME32-128-R03a.pdf", "size": "4.8M", "extractPages": "ALL", "feeds": "okuma_osp_M_codes", "expectedTips": 14 },
+        { "id": "JMD-INV-GEODESIC", "file": "InventorCAM2024_Geodesic_Machining.pdf", "size": "5.2M", "extractPages": "ALL", "feeds": "geodesic_machining", "expectedTips": 10 },
+        { "id": "JMD-INV-MULTIAX-MACH", "file": "InventorCAM2024_Multiaxis_Machining_User_Guide.pdf", "size": "5.3M", "extractPages": "ALL", "feeds": "multiaxis_machining", "expectedTips": 15 },
+        { "id": "JMD-USING-MILL-CAM-FOR-LATHE", "file": "Using Your Mill CAM For the Lathe and Turning G-Code...pdf", "size": "5.5M", "extractPages": "ALL", "feeds": "mill_to_lathe_bridge", "expectedTips": 6 },
+        { "id": "JMD-INV-MULTIAX-DRILL", "file": "InventorCAM2024_Multiaxis_Drilling.pdf", "size": "6.2M", "extractPages": "ALL", "feeds": "multiaxis_drilling", "expectedTips": 12 },
+        { "id": "JMD-INV-CONTOUR-5X", "file": "InventorCAM2024_Contour_5X_Machining.pdf", "size": "6.5M", "extractPages": "ALL", "feeds": "contour_5x", "expectedTips": 10 },
+        { "id": "JMD-INV-PRO3D-HSM", "file": "InventorCAM2024_Pro3D_HSM_User_Guide.pdf", "size": "6.4M", "extractPages": "ALL", "feeds": "pro3d_hsm", "expectedTips": 12 },
+        { "id": "JMD-AUTODESK-CNCBOOK", "file": "Autodesk_CNCBOOK.pdf", "size": "6.8M", "extractPages": "1-50,TOC,index", "feeds": "fusion_cam_g_code_handbook", "expectedTips": 25 },
+        { "id": "JMD-HYPERMILL-MANUAL-3", "file": "hyperMILL_Manual-en-3.pdf", "size": "6.9M", "extractPages": "ALL", "feeds": "hypermill_part3", "expectedTips": 20 },
+        { "id": "JMD-MASTERCAM-SOLIDS", "file": "Getting Started with Mastercam Solids.pdf", "size": "7.3M", "extractPages": "ALL", "feeds": "mastercam_solids", "expectedTips": 18 },
+        { "id": "JMD-RC2024-PPG", "file": "RC2024-PPG-Reference.pdf", "size": "7.2M", "extractPages": "ALL", "feeds": "renishaw_probing_macros", "expectedTips": 14 },
+        { "id": "JMD-INV-5X-VOL1", "file": "InventorCAM2024_5-Axis_Basic_Training_Vol-1.pdf", "size": "7.2M", "extractPages": "ALL", "feeds": "5_axis_basic_vol1", "expectedTips": 18 },
+        { "id": "JMD-INV-SWARF", "file": "InventorCAM2024_SWARF_Machining.pdf", "size": "8.1M", "extractPages": "ALL", "feeds": "swarf_5x_machining", "expectedTips": 12 },
+        { "id": "JMD-FACE-MILL-SF", "file": "Face Mill Speeds and Feeds.pdf", "size": "8.1M", "extractPages": "ALL", "feeds": "face_mill_sf_chip_thinning", "expectedTips": 12 },
+        { "id": "JMD-TOOL-SETTER", "file": "Tool Setter Measuring Tools for Length.pdf", "size": "8.1M", "extractPages": "ALL", "feeds": "tool_length_measurement", "expectedTips": 8 },
+        { "id": "JMD-POST-TRAINING-GUIDE", "file": "Post Processor Training Guide.pdf", "size": "8.2M", "extractPages": "ALL", "feeds": "post_processor_training", "expectedTips": 20 },
+        { "id": "JMD-PROG-MANUAL-FUNDAMENTALS", "file": "Programming Manual Fundamentals.pdf", "size": "8.7M", "extractPages": "ALL", "feeds": "programming_fundamentals", "expectedTips": 22 },
+        { "id": "JMD-INV-5X-VOL3", "file": "InventorCAM2024_5-Axis_Basic_Training_Vol-3.pdf", "size": "8.5M", "extractPages": "ALL", "feeds": "5_axis_basic_vol3", "expectedTips": 18 },
+        { "id": "JMD-INV-5X-VOL2", "file": "InventorCAM2024_5-Axis_Basic_Training_Vol-2.pdf", "size": "8.7M", "extractPages": "ALL", "feeds": "5_axis_basic_vol2", "expectedTips": 18 },
+        { "id": "JMD-BASIC-3D-MACHINING", "file": "Basic_3D_Machining.pdf", "size": "8.7M", "extractPages": "ALL", "feeds": "3d_machining_intro", "expectedTips": 15 },
+        { "id": "JMD-OKUMA-ME32-123", "file": "ME32-123-R07a.pdf", "size": "8.9M", "extractPages": "ALL", "feeds": "okuma_osp_macros", "expectedTips": 18 },
+        { "id": "JMD-INV-HSS", "file": "InventorCAM2024_HSS_User_Guide.pdf", "size": "30.1M", "extractPages": "1-80,TOC,index", "feeds": "high_speed_surface", "expectedTips": 25 },
+        { "id": "JMD-HYPERMILL-MANUAL-2", "file": "hyperMILL_Manual-en-2.pdf", "size": "9.5M", "extractPages": "ALL", "feeds": "hypermill_part2", "expectedTips": 25 },
+        { "id": "JMD-INV-MULTIAX-ROUGH-1", "file": "InventorCAM2024_Multiaxis_Roughing_Pt1.pdf", "size": "9.1M", "extractPages": "ALL", "feeds": "multiaxis_roughing_1", "expectedTips": 20 },
+        { "id": "JMD-INV-MULTIAX-ROUGH-2", "file": "InventorCAM2024_Multiaxis_Roughing_Pt2.pdf", "size": "10.6M", "extractPages": "ALL", "feeds": "multiaxis_roughing_2", "expectedTips": 20 },
+        { "id": "JMD-FEEDS-SPEEDS-2024", "file": "Feeds and Speeds Ultimate Guide 2024.pdf", "size": "10.5M", "extractPages": "ALL", "feeds": "speeds_feeds_2024", "expectedTips": 30 },
+        { "id": "JMD-CNC-BASICS", "file": "CNC Basics Easy Learning Guide.pdf", "size": "10.9M", "extractPages": "ALL", "feeds": "cnc_fundamentals", "expectedTips": 18 },
+        { "id": "JMD-BRO-CAM-STRATEGIES", "file": "bro-cam-strategies-en.pdf", "size": "10.6M", "extractPages": "ALL", "feeds": "cam_strategies_overview", "expectedTips": 25 }
+      ],
+      "totalExpectedTips": 600,
+      "estimatedRunTime": "moderate"
+    },
+    {
+      "tier": 3,
+      "name": "Mid-Complex — Comprehensive References 10-25MB",
+      "rationale": "Full-document training data. Multiple chapters per PDF; each chapter delivers a sub-system. Page selection becomes critical — extract TOC + chapter intros + worked examples.",
+      "pdfs": [
+        { "id": "JMD-INV-ROTARY-4X", "file": "InventorCAM2024_Rotary_Finishing_4X.pdf", "size": "11.3M", "extractPages": "ALL", "feeds": "rotary_4x_finishing", "expectedTips": 22 },
+        { "id": "JMD-TOTAL-FIXTURES", "file": "Total Guide to CNC Jigs, Fixtures, and Workholding Solutions for Mills.pdf", "size": "11.9M", "extractPages": "ALL", "feeds": "workholding_fixtures_jigs", "expectedTips": 35 },
+        { "id": "JMD-CNC-PROGRAMMING-G-CODE-2024", "file": "CNC Programming with G Code Easy Free Tutorial 2024.pdf", "size": "11.9M", "extractPages": "ALL", "feeds": "g_code_programming_2024", "expectedTips": 30 },
+        { "id": "JMD-INV-3D-HSR", "file": "InventorCAM2024_3D_HSR_User_Guide.pdf", "size": "13.4M", "extractPages": "ALL", "feeds": "3d_high_speed_roughing", "expectedTips": 28 },
+        { "id": "JMD-FUSION-CAD", "file": "FUSION CAD.pdf", "size": "13.8M", "extractPages": "ALL", "feeds": "fusion_360_cad", "expectedTips": 30 },
+        { "id": "JMD-FUNDAMENTALS-CNC", "file": "Fundamentals_of_CNC_Machining.pdf", "size": "14.4M", "extractPages": "ALL", "feeds": "academic_fundamentals_baseline", "expectedTips": 50 },
+        { "id": "JMD-MECH-ENG-HANDBOOK", "file": "MECHANICAL ENGINEERS HANDBOOK.pdf", "size": "17.2M", "extractPages": "machining_chapters,materials_chapters", "feeds": "engineering_reference", "expectedTips": 40 },
+        { "id": "JMD-CNC-COMPLETE-ENG-GUIDE", "file": "CNC_Machining_The_Complete_Engineering_Guide.pdf", "size": "17.4M", "extractPages": "ALL", "feeds": "process_planning_engineering", "expectedTips": 40 },
+        { "id": "JMD-SIEMENS-5AXIS", "file": "Siemens 5 axis.pdf", "size": "18.3M", "extractPages": "ALL", "feeds": "siemens_5axis_tcp_cycle800", "expectedTips": 35 },
+        { "id": "JMD-SOLIDCAM-2015-2-5D", "file": "SolidCAM 2015 Milling Training Course - 2.5D.pdf", "size": "18.9M", "extractPages": "ALL", "feeds": "solidcam_2015_2_5d", "expectedTips": 40 },
+        { "id": "JMD-INV-3D-HSM", "file": "InventorCAM2024_3D_HSM_User_Guide.pdf", "size": "23.2M", "extractPages": "ALL", "feeds": "3d_high_speed_machining", "expectedTips": 35 },
+        { "id": "JMD-HYPERMILL-FUNCTION-CAT", "file": "function-catalog.pdf (hyperMILL)", "size": "23.1M", "extractPages": "ALL", "feeds": "hypermill_function_index", "expectedTips": 100 }
+      ],
+      "totalExpectedTips": 485,
+      "estimatedRunTime": "high"
+    },
+    {
+      "tier": 4,
+      "name": "Complex — Full Master Manuals + Software Docs 25-170MB",
+      "rationale": "Largest single PDFs. Selective page extraction critical — TOC + chapter intros + appendix tables. Train on chapter-summary level first, then deep-dive specific operations on demand.",
+      "pdfs": [
+        { "id": "JMD-HYPERMILL-MANUAL-1", "file": "hyperMILL_Manual-en-1.pdf", "size": "26.1M", "extractPages": "TOC,1-40,chapter_intros", "feeds": "hypermill_master_part1", "expectedTips": 35 },
+        { "id": "JMD-HYPERMILL-MANUAL-4", "file": "hyperMILL_Manual-en-4.pdf", "size": "26.6M", "extractPages": "TOC,1-40,chapter_intros", "feeds": "hypermill_master_part4", "expectedTips": 35 },
+        { "id": "JMD-INV-SIM-5X", "file": "InventorCAM2024_Sim_5X_Milling_User_Guide.pdf", "size": "30.6M", "extractPages": "TOC,1-60,chapter_intros", "feeds": "sim_5_axis_milling_master", "expectedTips": 50 },
+        { "id": "JMD-HYPERMILL-2D3D", "file": "hyperMILL_2D_3D.pdf", "size": "31.5M", "extractPages": "TOC,1-50,chapter_intros", "feeds": "hypermill_2d_3d_master", "expectedTips": 45 },
+        { "id": "JMD-INV-2-5D", "file": "InventorCAM2024_2.5D_Milling_Training_Course.pdf", "size": "47.8M", "extractPages": "TOC,1-80,worked_examples", "feeds": "inventorcam_2_5d_master_course", "expectedTips": 80 },
+        { "id": "JMD-INV-TURN-MILL-TURN", "file": "InventorCAM2024_Turning_&_Mill-Turn_Training_Course.pdf", "size": "36.5M", "extractPages": "mill_turn_chapters_only", "feeds": "mill_turn_training", "expectedTips": 40 },
+        { "id": "JMD-PLANCHARD-SW2021", "file": "David Planchard Engineering Graphics with SOLIDWORKS 2021.pdf", "size": "115.1M", "extractPages": "TOC,1-40,gd_t_chapter,assembly_chapter", "feeds": "solidworks_engineering_graphics", "expectedTips": 30 },
+        { "id": "JMD-HYPERMILL-2D3D-FULL", "file": "Software documentation - hyperMILL_2D_3D.pdf", "size": "167.6M", "extractPages": "TOC,chapter_intros_only", "feeds": "hypermill_full_software_doc", "expectedTips": 60 }
+      ],
+      "totalExpectedTips": 375,
+      "estimatedRunTime": "very high — selective extraction mandatory"
+    }
+  ],
+  "totals": {
+    "tier1": 82,
+    "tier2": 600,
+    "tier3": 485,
+    "tier4": 375,
+    "grandTotal": 1542,
+    "currentCorpus": 62
+  },
+  "growthRoute": "62 cited tips → ~1600 cited tips after full extraction (25× expansion). Each tip with page citation + body content + source attribution preserved end-to-end.",
+  "executionMode": {
+    "preferred": "Batch via /pdf-learn pipeline (background job, no main-context cost)",
+    "fallback": "Direct Read tool with `pages` parameter (current chat, expensive context-wise — use only for tier 1)",
+    "tooling": "scripts/pdf-learn-batch.mjs (when available) consumes this curriculum and emits ingestion-cache entries for each tier"
+  },
+  "trainingSampleStrategy": {
+    "tier1": "1 sample per page — high signal-to-noise, each page IS a rule",
+    "tier2": "1 sample per chapter section — chunked retrieval, page citations preserved",
+    "tier3": "1 sample per worked example + 1 per parameter table — examples + lookup tables are the training signal",
+    "tier4": "1 sample per chapter intro + 1 per appendix table — index-level retrieval, deep-dive on demand"
+  },
+  "nextActions": [
+    "Implement /pdf-learn batch script that consumes this curriculum tier-by-tier",
+    "After each tier, regenerate milling-training-index node count and verify embedding pipeline accepts the new tips",
+    "After tier 1: 144 cited tips total — gate on test pass before tier 2",
+    "After tier 2: 744 cited tips — verify BM25 search remains <100ms (linear scan ceiling)",
+    "After tier 3: 1229 cited tips — graduate to embedding index for sub-linear retrieval",
+    "After tier 4: 1604 cited tips — corpus is operator-curated comprehensive milling training data"
+  ]
+}

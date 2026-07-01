@@ -1,0 +1,44 @@
+{
+  "generatedAt": "2026-06-09T18:09:32.104Z",
+  "verdict": "PASS",
+  "allPass": true,
+  "autoRunOk": true,
+  "models": [
+    {
+      "model": "gpt-oss:20b",
+      "loads": true,
+      "correct": true,
+      "pass": true,
+      "why": "tool_calls[0].function.name=echo",
+      "error": null
+    },
+    {
+      "model": "gpt-oss:120b",
+      "loads": true,
+      "correct": true,
+      "pass": true,
+      "why": "tool_calls[0].function.name=echo",
+      "error": null
+    },
+    {
+      "model": "qwen2.5-coder:32b",
+      "loads": true,
+      "correct": true,
+      "pass": true,
+      "why": "fenced code block present",
+      "error": null
+    },
+    {
+      "model": "nomic-embed-text",
+      "loads": true,
+      "correct": true,
+      "pass": true,
+      "why": "768-dim finite vector",
+      "error": null
+    }
+  ],
+  "wiredAutoUsed": {
+    "search": "gpt-oss:20b",
+    "codegen": "qwen2.5-coder:32b"
+  }
+}

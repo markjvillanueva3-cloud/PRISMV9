@@ -23,13 +23,14 @@ related:
 |-------|-------|
 | Name | `lathe-erp` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/lathe-erp.md` |
+| Source | `C:/Users/wompu/.claude/commands/lathe-erp.md` |
 | Model | default |
 | Tags | _(none)_ |
 
 ## Description (first paragraph)
 
-Unified LATHE-MASTER P5 ERP orchestrator. One-shot wizard from print upload to invoice-ready state, consolidating U-LTH48 through U-LTH55.
+
+# /lathe-erp
 
 <!-- AUTO-END -->
 

@@ -1,0 +1,53 @@
+{
+  "id": "HBK-MS6",
+  "version": "1.0.0",
+  "title": "Controller Programming Intelligence",
+  "brief": "Build ControllerProgrammingIntelligenceEngine that extracts custom G/M codes, macro variable maps, option package inventories, parameter tables, and controller dialect specifics from handbook controller programming sections. Enriches PostProcessorPipeline with machine-specific controller knowledge.",
+  "created_at": "2026-03-28T19:00:00Z",
+  "created_by": "claude-opus-4.6",
+  "track": "HBK",
+  "track_name": "Machine Handbook Intelligence",
+  "status": "complete",
+  "completed_at": "2026-03-29T04:05:00Z",
+  "completed_by": "claude-opus-4.6",
+  "phases": [
+    {
+      "id": "P0",
+      "title": "Controller Intelligence",
+      "sessions": "2-3",
+      "units": [
+        {
+          "id": "P0-U01",
+          "title": "Extract custom G/M code tables from handbook controller sections: code number, syntax, parameters, description, and which option package enables each code",
+          "effort": 80,
+          "dependencies": []
+        },
+        {
+          "id": "P0-U02",
+          "title": "Extract macro variable maps and system parameter tables: variable numbers, ranges, default values, descriptions, and read/write permissions per controller model",
+          "effort": 75,
+          "dependencies": []
+        },
+        {
+          "id": "P0-U03",
+          "title": "Build ControllerProgrammingIntelligenceEngine: queryable index of custom codes, macros, parameters, and option packages per machine with controller version tracking",
+          "effort": 70,
+          "dependencies": ["P0-U01", "P0-U02"]
+        },
+        {
+          "id": "P0-U04",
+          "title": "Validate extracted controller data against PostProcessorPipeline existing dialect definitions: flag missing codes, incorrect syntax patterns, and option-gated features",
+          "effort": 65,
+          "dependencies": ["P0-U03"]
+        }
+      ]
+    }
+  ],
+  "dependencies": ["HBK-MS1"],
+  "exit_conditions": [
+    "Custom G/M code extraction captures at least 30 codes from a sample Fanuc controller handbook section",
+    "Macro variable maps correctly identify variable numbers, ranges, and descriptions with >90% accuracy",
+    "ControllerProgrammingIntelligenceEngine returns complete controller profile for any machine with ingested handbook",
+    "Validation report flags discrepancies between handbook controller data and existing PostProcessorPipeline dialect definitions"
+  ]
+}

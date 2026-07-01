@@ -1,4 +1,5 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { maintenanceWorkOrderQueue, maintenanceWorkOrderRefresh } from '../api/client';
 import {
   ActionButton,
   PanelCard,
@@ -46,27 +47,26 @@ export default function MaintenanceWorkOrderPage() {
   const [error, setError] = useState<string | null>(null);
   const [filter, setFilter] = useState<'all' | WorkOrderStatus>('all');
 
-  useEffect(() => {
-    let cancelled = false;
-    async function load() {
-      setLoading(true);
-      setError(null);
-      try {
-        const res = await fetch('/api/v1/erp/maintenance/work-orders');
-        if (!res.ok) throw new Error(res.statusText || 'Request failed');
-        const payload = (await res.json()) as { orders?: WorkOrder[] };
-        if (!cancelled) setOrders(payload.orders ?? []);
-      } catch (issue) {
-        if (!cancelled) setError(issue instanceof Error ? issue.message : 'Work-order queue unavailable');
-      } finally {
-        if (!cancelled) setLoading(false);
-      }
+  // Read the work-order queue through the typed api/client (auth header attached) rather than a raw fetch().
+  // The route returns { ok, orders: WorkOrder[] } (PMWorkOrder adapted to the FE shape server-side).
+  const load = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const payload = (await maintenanceWorkOrderQueue()) as unknown as { ok?: boolean; orders?: WorkOrder[]; error?: string };
+      if (payload?.ok === false) throw new Error(payload.error || 'Work-order queue unavailable');
+      setOrders(Array.isArray(payload?.orders) ? payload.orders : []);
+    } catch (issue) {
+      setOrders(EMPTY_ORDERS);
+      setError(issue instanceof Error ? issue.message : 'Work-order queue unavailable');
+    } finally {
+      setLoading(false);
     }
-    load();
-    return () => {
-      cancelled = true;
-    };
   }, []);
+
+  useEffect(() => {
+    void load();
+  }, [load]);
 
   const summary = useMemo(() => {
     const open = orders.filter((o) => o.status === 'open').length;
@@ -163,7 +163,14 @@ export default function MaintenanceWorkOrderPage() {
         )}
 
         <div className="mt-3 flex gap-2">
-          <ActionButton onClick={() => void fetch('/api/v1/erp/maintenance/refresh', { method: 'POST' })}>
+          <ActionButton
+            onClick={async () => {
+              // Refresh re-lists through the typed client (auth header attached); the route does a real re-list,
+              // and we reload local state from its response so the table reflects the fresh queue.
+              await maintenanceWorkOrderRefresh();
+              await load();
+            }}
+          >
             Refresh
           </ActionButton>
         </div>

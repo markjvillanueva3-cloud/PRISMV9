@@ -23,13 +23,21 @@ related:
 |-------|-------|
 | Name | `quality-check` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/quality-check.md` |
+| Source | `C:/Users/wompu/.claude/commands/quality-check.md` |
 | Model | default |
 | Tags | _(none)_ |
 
 ## Description (first paragraph)
 
-_(no body content)_
+
+# Quality Check — Shop Floor Quality Engineering Workflow
+
+Run quality engineering calculations: SPC analysis, process capability (Cpk), tolerance stack-up, GD&T validation, and CMM planning through the prism_quality dispatcher.
+
+## Args: $ARGUMENTS
+- Empty: show available quality actions and prompt for workflow
+- `spc [feature-name] [measurements...]`: run SPC control chart analysis
+- `c
 
 <!-- AUTO-END -->
 

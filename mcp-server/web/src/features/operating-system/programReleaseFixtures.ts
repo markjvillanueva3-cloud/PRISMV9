@@ -258,10 +258,10 @@ export const PROGRAM_RELEASE_CATALOG: ProgramReleaseCatalog = {
     },
     {
       id: 'prism-native',
-      label: 'PRISM native design brief',
+      label: 'Kienzle native design brief',
       status: 'fallback',
       simulationReadiness: 'Needs compare pass before full release confidence',
-      note: 'Use when the user wants to start design intent inside PRISM before handing off to CAD/CAM.',
+      note: 'Use when the user wants to start design intent inside Kienzle before handing off to CAD/CAM.',
       securityNote: 'Should later persist design brief + generated geometry lineage under one part revision id.',
     },
   ],
@@ -463,7 +463,7 @@ function buildChecklistItems(input: {
         label: 'Stock removal simulation',
         status: input.cadSourceId === 'prism-native' ? 'review' : 'ready',
         detail: input.cadSourceId === 'prism-native'
-          ? 'PRISM-native design brief should be compared against a neutral or Fusion model before trust.'
+          ? 'Kienzle-native design brief should be compared against a neutral or Fusion model before trust.'
           : 'Primary CAD source supports stock-model verification.',
       },
       {
@@ -589,7 +589,7 @@ function buildGdtFocuses(input: {
       requirement: 'Tie setup sheet, feature control posture, and first-article checkpoints to the same release revision.',
       note:
         input.cadSourceId === 'prism-native'
-          ? 'PRISM-native design briefs need compare geometry before inspection checkpoints can be trusted.'
+          ? 'Kienzle-native design briefs need compare geometry before inspection checkpoints can be trusted.'
           : 'Inspection checkpoints are ready to travel with the release packet once backend revision storage lands.',
       owner: 'Quality / release',
     },
@@ -687,7 +687,7 @@ export function buildProgramReleaseWorkspace(input: ProgramReleaseInput): Progra
   const setupMinutes = selectedFixture.setupCount * 42 + (selectedCadSource.status === 'compare' ? 18 : 10);
   const alerts = [
     selectedCadSource.status === 'fallback'
-      ? 'PRISM-native design brief should be compared against Fusion or neutral CAD before full release.'
+      ? 'Kienzle-native design brief should be compared against Fusion or neutral CAD before full release.'
       : null,
     selectedStock.volatility === 'High'
       ? 'Material pricing is volatile; refresh the stock snapshot before final quote release.'

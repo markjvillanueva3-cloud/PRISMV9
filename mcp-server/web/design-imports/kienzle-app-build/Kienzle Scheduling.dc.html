@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <script type="module" src="jm-data.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Archivo:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; background: #070809; height: 100%; overflow: hidden; }
+    .kz-scroll::-webkit-scrollbar { width: 8px; height: 8px; } .kz-scroll::-webkit-scrollbar-thumb { background: #23262E; border-radius: 8px; }
+    @keyframes kzpulse { 0%,100% { opacity:.4 } 50% { opacity:1 } }
+  </style>
+</helmet>
+<div style="position:fixed;inset:0;background:#070809;display:flex;align-items:center;justify-content:center;overflow:hidden;">
+<div style="width:1600px;height:980px;flex:none;transform:scale({{ scale }});transform-origin:center;display:flex;background:#0A0B0D;color:#F3F4F6;font-family:'Archivo',sans-serif;overflow:hidden;border-radius:16px;box-shadow:0 40px 120px rgba(0,0,0,0.6);">
+  <aside style="width:72px;flex:none;background:#0C0D10;border-right:1px solid rgba(255,255,255,0.06);display:flex;flex-direction:column;align-items:center;padding:18px 0;gap:6px;">
+    <svg viewBox="0 0 120 120" width="34" height="34" style="margin-bottom:14px;"><rect x="22" y="20" width="13" height="80" rx="1.5" fill="#F3F4F6"/><path d="M35 60 L86 22" stroke="#F3F4F6" stroke-width="13" stroke-linecap="round"/><path d="M35 60 L92 98 L92 74 L58 60 Z" fill="#FF5A2B"/></svg>
+    <div style="width:50px;height:48px;border-radius:12px;border:1px solid rgba(255,90,43,0.35);background:rgba(255,90,43,0.1);color:#FF7A4D;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-family:'JetBrains Mono',monospace;font-size:9px;"><span style="font-size:15px;">▦</span>PLAN</div>
+    <div style="flex:1;"></div>
+    <div style="width:38px;height:38px;border-radius:50%;background:#1B1E24;border:1px solid rgba(255,255,255,0.1);display:flex;align-items:center;justify-content:center;font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:13px;color:#AEB4BE;">JM</div>
+  </aside>
+  <main style="flex:1;display:flex;flex-direction:column;min-width:0;">
+    <header style="flex:none;height:64px;border-bottom:1px solid rgba(255,255,255,0.06);display:flex;align-items:center;justify-content:space-between;padding:0 24px;background:#0C0D10;">
+      <div><div style="font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:19px;">Scheduling &amp; Capacity</div><div style="font-family:'JetBrains Mono',monospace;font-size:10.5px;color:#6B7280;margin-top:1px;">JM DIE · FINITE-CAPACITY · {{ weekLabel }}</div></div>
+      <div style="display:flex;align-items:center;gap:10px;">
+        <div style="display:inline-flex;background:#16181D;border-radius:8px;padding:3px;border:1px solid rgba(255,255,255,0.07);"><sc-for list="{{ rules }}" as="r" hint-placeholder-count="3"><button onClick="{{ r.on }}" style="{{ r.style }}">{{ r.label }}</button></sc-for></div>
+        <div style="display:flex;align-items:center;gap:7px;padding:7px 12px;border:1px solid {{ otdBorder }};background:{{ otdBg }};border-radius:9px;font-family:'JetBrains Mono',monospace;font-size:11px;color:{{ otdColor }};">ON-TIME {{ otd }}%</div>
+      </div>
+    </header>
+    <div style="flex:1;display:grid;grid-template-columns:minmax(0,1fr) 392px;min-height:0;">
+
+      <section style="min-width:0;padding:18px 20px;background:radial-gradient(900px 480px at 60% -12%, rgba(255,90,43,0.05), transparent 60%),#0B0C0F;display:flex;flex-direction:column;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+          <div style="font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:15px;">Machine schedule · next 5 days</div>
+          <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:#9398A2;">{{ ruleNote }}</div>
+        </div>
+        <div class="kz-scroll" style="flex:1;min-height:0;overflow-y:auto;background:#0C0D11;border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:14px 16px;">
+          <div style="display:grid;grid-template-columns:96px 1fr;gap:0 8px;margin-bottom:6px;">
+            <div></div>
+            <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:0;">
+              <sc-for list="{{ dayHeads }}" as="d" hint-placeholder-count="5"><div style="font-family:'JetBrains Mono',monospace;font-size:9.5px;color:#6B7280;text-align:center;border-left:1px solid rgba(255,255,255,0.05);padding-bottom:5px;">{{ d }}</div></sc-for>
+            </div>
+          </div>
+          <sc-for list="{{ rows }}" as="r" hint-placeholder-count="9">
+            <div style="display:grid;grid-template-columns:96px 1fr;gap:0 8px;align-items:center;height:42px;border-top:1px solid rgba(255,255,255,0.04);">
+              <div style="min-width:0;"><div style="font-size:11.5px;color:#C7CCD4;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ r.machine }}</div><div style="font-family:'JetBrains Mono',monospace;font-size:8.5px;color:{{ r.loadColor }};">{{ r.load }}% load</div></div>
+              <div style="position:relative;height:42px;">
+                <div style="position:absolute;inset:0;display:grid;grid-template-columns:repeat(5,1fr);"><span style="border-left:1px solid rgba(255,255,255,0.04);"></span><span style="border-left:1px solid rgba(255,255,255,0.04);"></span><span style="border-left:1px solid rgba(255,255,255,0.04);"></span><span style="border-left:1px solid rgba(255,255,255,0.04);"></span><span style="border-left:1px solid rgba(255,255,255,0.04);"></span></div>
+                <sc-for list="{{ r.blocks }}" as="b" hint-placeholder-count="3">
+                  <div onClick="{{ b.on }}" style="position:absolute;top:7px;height:28px;left:{{ b.left }};width:{{ b.width }};background:{{ b.bg }};border:1px solid {{ b.border }};border-radius:6px;display:flex;align-items:center;padding:0 7px;cursor:pointer;overflow:hidden;"><span style="font-family:'JetBrains Mono',monospace;font-size:9.5px;color:{{ b.textColor }};white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ b.label }}</span></div>
+                </sc-for>
+              </div>
+            </div>
+          </sc-for>
+        </div>
+        <div style="flex:none;display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:13px;">
+          <div style="background:#0E0F12;border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:12px 14px;"><div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:#6B7280;">JOBS SCHEDULED</div><div style="font-family:'JetBrains Mono',monospace;font-weight:700;font-size:20px;color:#F3F4F6;margin-top:4px;">{{ jobsCount }}</div></div>
+          <div style="background:#0E0F12;border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:12px 14px;"><div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:#6B7280;">AVG UTILIZATION</div><div style="font-family:'JetBrains Mono',monospace;font-weight:700;font-size:20px;color:{{ utilColor }};margin-top:4px;">{{ avgUtil }}%</div></div>
+          <div style="background:#0E0F12;border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:12px 14px;"><div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:#6B7280;">LATE RISK</div><div style="font-family:'JetBrains Mono',monospace;font-weight:700;font-size:20px;color:{{ lateColor }};margin-top:4px;">{{ lateCount }}</div></div>
+          <div style="background:#0E0F12;border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:12px 14px;"><div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:#6B7280;">MAKESPAN</div><div style="font-family:'JetBrains Mono',monospace;font-weight:700;font-size:20px;color:#F3F4F6;margin-top:4px;">{{ makespan }}d</div></div>
+        </div>
+      </section>
+
+      <section class="kz-scroll" style="border-left:1px solid rgba(255,255,255,0.06);overflow-y:auto;min-width:0;padding:18px 20px 40px;background:#0A0B0D;">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:0.16em;color:#FF5A2B;margin-bottom:11px;">BOTTLENECKS</div>
+        <sc-for list="{{ bottlenecks }}" as="b" hint-placeholder-count="3">
+          <div style="background:#0E0F12;border:1px solid {{ b.border }};border-radius:13px;padding:13px 15px;margin-bottom:10px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;"><span style="font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:14px;">{{ b.machine }}</span><span style="font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:700;color:{{ b.color }};">{{ b.load }}%</span></div>
+            <div style="height:7px;border-radius:999px;background:#1B1E24;overflow:hidden;margin-bottom:8px;"><div style="height:100%;width:{{ b.bar }};background:{{ b.color }};border-radius:999px;"></div></div>
+            <div style="font-size:11px;color:#9398A2;line-height:1.4;">{{ b.note }}</div>
+          </div>
+        </sc-for>
+
+        <div style="font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:0.16em;color:#FF5A2B;margin:16px 0 11px;">SELECTED JOB</div>
+        <div style="background:#0E0F12;border:1px solid rgba(255,255,255,0.08);border-radius:13px;padding:14px 15px;margin-bottom:12px;">
+          <div style="font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:14px;">{{ selPart }}</div>
+          <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:#6B7280;margin-top:2px;margin-bottom:11px;">{{ selNo }} · {{ selCustomer }}</div>
+          <sc-for list="{{ selRoute }}" as="op" hint-placeholder-count="4">
+            <div style="display:flex;align-items:center;gap:9px;padding:6px 0;border-top:1px solid rgba(255,255,255,0.05);">
+              <span style="flex:none;width:18px;height:18px;border-radius:50%;background:{{ op.bg }};display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;font-size:9px;color:{{ op.numColor }};">{{ op.n }}</span>
+              <span style="flex:1;font-size:11.5px;color:#C7CCD4;">{{ op.label }}</span>
+              <span style="font-family:'JetBrains Mono',monospace;font-size:10px;color:#9398A2;">{{ op.when }}</span>
+            </div>
+          </sc-for>
+          <div style="display:flex;justify-content:space-between;margin-top:11px;padding-top:10px;border-top:1px solid rgba(255,255,255,0.08);"><span style="font-size:11px;color:#9398A2;">Promise date</span><span style="font-family:'JetBrains Mono',monospace;font-size:11.5px;color:{{ selDueColor }};">{{ selDue }}</span></div>
+        </div>
+
+        <div style="background:linear-gradient(135deg,rgba(255,90,43,0.06),#0E0F12);border:1px solid rgba(255,90,43,0.2);border-radius:13px;padding:14px 16px;">
+          <div style="font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.1em;color:#FF7A4D;margin-bottom:9px;">◆ KIENZLE SUGGESTS</div>
+          <div style="font-size:12px;color:#C7CCD4;line-height:1.5;">{{ insight }}</div>
+        </div>
+      </section>
+    </div>
+  </main>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = { rule: 'edd', sel: 'sig', scale: (typeof window !== 'undefined') ? Math.min(window.innerWidth / 1600, window.innerHeight / 980) : 0.6 };
+  componentDidMount() {
+    this._fit = () => this.setState({ scale: Math.min(window.innerWidth / 1600, window.innerHeight / 980) }); window.addEventListener('resize', this._fit); this._fit();
+    this._trySync = (n) => { try { const K = (typeof window !== 'undefined') && window.KIENZLE; if (K && K.JOBS) { this._synced = true; this.forceUpdate(); } else if ((n || 0) < 25) { setTimeout(() => this._trySync((n || 0) + 1), 100); } } catch (e) {} };
+    this._trySync(0);
+  }
+  componentWillUnmount() { if (this._fit) window.removeEventListener('resize', this._fit); }
+  // machines with day-blocks: [startDay, lenDays, jobId, late?]
+  MACH = [
+    { m: 'Multus U3000', load: 88, blk: [[0, 1.5, 'altracs', 0], [1.5, 2, 'sig', 0], [4, 1, 'topura', 0]] },
+    { m: 'Okuma LB3000', load: 72, blk: [[0, 2, 'semblex', 0], [2.5, 1.5, 'stalcop', 0]] },
+    { m: 'M460V 5-ax', load: 64, blk: [[0, 1, 'd2plate', 0], [2, 2, 'optimas', 0]] },
+    { m: 'Hurco VM30i', load: 81, blk: [[0.5, 2.5, 'sig', 0], [3.5, 1, 'core', 0]] },
+    { m: 'Roku-Roku', load: 59, blk: [[1, 1.5, 'electrode', 0], [3, 1, 'sigE', 0]] },
+    { m: 'Wire-1 MV1200', load: 94, blk: [[0, 1.5, 'carbide', 0], [1.5, 1.5, 'altracs', 0], [3.5, 1.5, 'topura', 1]] },
+    { m: 'Wire-2 MV2400', load: 86, blk: [[0, 2, 'optimas', 0], [2.5, 2, 'stalcop', 0]] },
+    { m: 'Sinker EDM', load: 42, blk: [[1, 1, 'sigE', 0]] },
+    { m: 'Jig grind', load: 55, blk: [[2, 1, 'semblex', 0], [3.5, 1, 'punch', 0]] },
+  ];
+  JOBS = {
+    altracs: ['ALTRACS punch', 'JOB-4475', 'ALTRACS', '#7FB2FF'], sig: ['SIG core cavity', 'JOB-4459', 'SIG SAUER', '#FF5A2B'], topura: ['TOPURA insert', 'JOB-4466', 'TOPURA', '#A855F7'],
+    semblex: ['SEMBLEX punch', 'JOB-4471', 'SEMBLEX', '#36D399'], stalcop: ['STALCOP collar', 'JOB-4477', 'STALCOP', '#F4B740'], d2plate: ['D2 ejector plate', 'JOB-4481', 'JM stock', '#7FB2FF'],
+    optimas: ['OPTIMAS window', 'JOB-4468', 'OPTIMAS', '#36D399'], core: ['Core cavity', 'JOB-4459', 'SIG SAUER', '#FF5A2B'], electrode: ['Graphite electrode', 'JOB-4459E', 'SIG SAUER', '#A855F7'],
+    sigE: ['SIG electrode', 'JOB-4459E', 'SIG SAUER', '#A855F7'], carbide: ['Carbide form punch', 'JOB-4480', 'SEMBLEX', '#36D399'], punch: ['Punch finish', 'JOB-4471', 'SEMBLEX', '#36D399'],
+  };
+  renderVals() {
+    const s = this.state, days = ['MON 24', 'TUE 25', 'WED 26', 'THU 27', 'FRI 28'];
+    const ruleNote = { edd: 'Earliest due date first', spt: 'Shortest processing time first', crit: 'Critical-ratio (slack ÷ work)' }[s.rule];
+    const rows = this.MACH.map(mc => ({
+      machine: mc.m, load: mc.load, loadColor: mc.load >= 90 ? '#FF5247' : mc.load >= 75 ? '#F4B740' : '#36D399',
+      blocks: mc.blk.map(([st, len, jid, late]) => { const j = this.JOBS[jid] || ['?', '', '', '#6B7280']; const on = jid === s.sel || (this.JOBS[s.sel] && j[1] === this.JOBS[s.sel][1]); return {
+        left: (st / 5 * 100) + '%', width: (len / 5 * 100 - 1.5) + '%', label: j[0], on: () => this.setState({ sel: jid }),
+        bg: late ? 'rgba(255,82,71,0.18)' : (on ? 'rgba(255,90,43,0.2)' : j[3].replace(')', ',0.16)').replace('#', 'rgba(') && this.hex(j[3], on ? 0.28 : 0.15)),
+        border: late ? '#FF5247' : (on ? '#FF7A4D' : this.hex(j[3], 0.5)), textColor: late ? '#FF8A8A' : '#E6E8EC',
+      }; }),
+    }));
+    const j = this.JOBS[s.sel] || this.JOBS.sig;
+    const routes = {
+      sig: [['Program', 'Mon', 1], ['VM30i rough', 'Mon-Tue', 0], ['M460V finish', 'Wed', 0], ['Inspect', 'Thu', 0]],
+      altracs: [['Wire rough', 'Mon', 0], ['Wire skim', 'Tue', 0], ['Grind', 'Wed', 0]],
+      carbide: [['Blank', 'Mon', 0], ['Wire form', 'Mon-Tue', 0], ['Skim', 'Tue', 0]],
+    };
+    const selRoute = (routes[s.sel] || routes.sig).map((r, i) => ({ n: i + 1, label: r[0], when: r[1], bg: r[2] ? 'rgba(54,211,153,0.15)' : 'rgba(255,255,255,0.06)', numColor: r[2] ? '#36D399' : '#9398A2' }));
+    const selLate = s.sel === 'topura';
+    const bottlenecks = [
+      { machine: 'Wire-1 MV1200', load: 94, color: '#FF5247', bar: '94%', border: 'rgba(255,82,71,0.3)', note: 'Over capacity — TOPURA insert will slip. Move it to Wire-2 (86%) or push lead +1 day.' },
+      { machine: 'Multus U3000', load: 88, color: '#F4B740', bar: '88%', border: 'rgba(244,183,64,0.25)', note: 'Near limit. The SIG cavity block is the long pole — re-post via calculator to shrink its cycle.' },
+      { machine: 'Wire-2 MV2400', load: 86, color: '#F4B740', bar: '86%', border: 'rgba(244,183,64,0.25)', note: 'Headroom for one more job if TOPURA reroutes here.' },
+    ];
+    const rule = (id, label) => ({ label, on: () => this.setState({ rule: id }), style: `border:none;background:${s.rule === id ? '#FF5A2B' : 'transparent'};color:${s.rule === id ? '#0A0B0D' : '#9398A2'};border-radius:6px;padding:6px 12px;font-size:11.5px;font-weight:600;cursor:pointer;font-family:'Archivo',sans-serif;` });
+    return {
+      scale: s.scale, weekLabel: this._synced ? 'WK 26 · JUN 24–28 · ⊹' : 'WK 26 · JUN 24–28', dayHeads: days, rules: [rule('edd', 'EDD'), rule('spt', 'SPT'), rule('crit', 'Critical')], ruleNote,
+      otd: 91, otdColor: '#36D399', otdBorder: 'rgba(54,211,153,0.25)', otdBg: 'rgba(54,211,153,0.06)',
+      rows, jobsCount: 14, avgUtil: 71, utilColor: '#F4B740', lateCount: selLate ? 1 : 1, lateColor: '#FF5247', makespan: 5,
+      bottlenecks,
+      selPart: j[0], selNo: j[1], selCustomer: j[2], selRoute, selDue: selLate ? 'FRI — at risk' : 'on track', selDueColor: selLate ? '#FF5247' : '#36D399',
+      insight: 'Wire-1 is the constraint at 94%. Rerouting the TOPURA insert to Wire-2 lifts on-time to 97% and costs nothing — one drag-drop. The deeper fix is the SIG cavity cycle: re-posting it frees ~3 hrs on the Multus.',
+    };
+  }
+  hex(h, a) { const n = parseInt(h.slice(1), 16); return `rgba(${(n >> 16) & 255},${(n >> 8) & 255},${n & 255},${a})`; }
+}
+</script>
+</body>
+</html>

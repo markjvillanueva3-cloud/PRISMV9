@@ -110,8 +110,11 @@ describe("resourceExtractionDispatcher", () => {
           action: "ocr_stats",
           params: {},
         });
-        expect(result).toBeDefined();
-        expect(result.totalProcessed).toBeDefined();
+        // getQueueStats() returns { queued, processed, pending, byFormat }
+        expect(typeof result).toBe("object");
+        expect(typeof result.processed).toBe("number");
+        expect(typeof result.queued).toBe("number");
+        expect(typeof result.pending).toBe("number");
       });
     });
 
@@ -121,8 +124,9 @@ describe("resourceExtractionDispatcher", () => {
           action: "drawing_extract",
           params: { path: "part.dxf" },
         });
-        expect(result).toBeDefined();
-        expect(result.filePath).toBe("part.dxf");
+        // ExtractionResult carries the source path at metadata.path (no top-level filePath)
+        expect(result.metadata.path).toBe("part.dxf");
+        expect(result.success).toBe(true);
       });
 
       it("requires path parameter", async () => {
@@ -150,8 +154,10 @@ describe("resourceExtractionDispatcher", () => {
           action: "office_process",
           params: { path: "report.docx", text: "Sample text" },
         });
-        expect(result).toBeDefined();
+        // real extractDocument result (not the {action,error} catch object)
         expect(result.action).toBe("office_process");
+        expect(result.metadata.path).toBe("report.docx");
+        expect(result.success).toBe(true);
       });
 
       it("requires path parameter", async () => {
@@ -169,7 +175,8 @@ describe("resourceExtractionDispatcher", () => {
           action: "office_search",
           params: { keyword: "machining" },
         });
-        expect(result).toBeDefined();
+        // { count, matches } from searchByKeyword (not the {action,error} catch object)
+        expect(typeof result.count).toBe("number");
       });
 
       it("searches by part number", async () => {
@@ -177,7 +184,8 @@ describe("resourceExtractionDispatcher", () => {
           action: "office_search",
           params: { partNumber: "ABC-123" },
         });
-        expect(result).toBeDefined();
+        // { count, matches } from findByPartNumber (not the {action,error} catch object)
+        expect(typeof result.count).toBe("number");
       });
 
       it("requires keyword or partNumber", async () => {
@@ -218,7 +226,8 @@ describe("resourceExtractionDispatcher", () => {
           action: "log_alarms",
           params: {},
         });
-        expect(result).toBeDefined();
+        // { total, alarms } from getAllAlarms (not the {action,error} catch object)
+        expect(typeof result.total).toBe("number");
       });
 
       it("filters by severity", async () => {
@@ -226,7 +235,9 @@ describe("resourceExtractionDispatcher", () => {
           action: "log_alarms",
           params: { severity: "critical" },
         });
-        expect(result).toBeDefined();
+        // severity is not classified by the harvester -> all alarms + honest flag (R12)
+        expect(typeof result.total).toBe("number");
+        expect(result.severityFilterApplied).toBe(false);
       });
     });
 

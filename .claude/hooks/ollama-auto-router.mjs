@@ -93,7 +93,7 @@ function recordRate() {
 
 function checkOllamaAvailable() {
   try {
-    execSync('curl -s --max-time 1 http://localhost:11434/api/tags', { encoding: 'utf-8' });
+    execSync('curl -s --max-time 1 http://127.0.0.1:11434/api/tags', { windowsHide: true, encoding: 'utf-8' });
     return true;
   } catch { return false; }
 }
@@ -127,15 +127,15 @@ function extractRelevantContent(prompt) {
 async function queryOllama(ollamaPrompt, maxPredict) {
   try {
     const body = JSON.stringify({
-      model: 'qwen2.5-coder:7b',
+      model: 'qwen2.5-coder:32b',
       prompt: ollamaPrompt,
       stream: false,
       options: { num_predict: maxPredict }
     });
 
     const result = execSync(
-      `curl -s --max-time ${OLLAMA_TIMEOUT / 1000} -X POST http://localhost:11434/api/generate -d '${body.replace(/'/g, "'\"'\"'")}'`,
-      { encoding: 'utf-8', timeout: OLLAMA_TIMEOUT }
+      `curl -s --max-time ${OLLAMA_TIMEOUT / 1000} -X POST http://127.0.0.1:11434/api/generate -d '${body.replace(/'/g, "'\"'\"'")}'`,
+      { windowsHide: true, encoding: 'utf-8', timeout: OLLAMA_TIMEOUT }
     );
 
     const parsed = JSON.parse(result);

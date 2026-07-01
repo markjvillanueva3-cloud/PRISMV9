@@ -1,3 +1,4 @@
+// WIRE-EXEMPT: U-CAD-APP add-in bridge -- heavy injected NX Open session deps, no singleton; awaits its NX Open add-in host (delta/CAD), not a standalone prism_* dispatcher action.
 /**
  * NXOpenAssemblyDrawingEngine — U-CAD-APP-18 (PHASE-48)
  *

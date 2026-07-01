@@ -34,11 +34,14 @@ describe("BlueprintVisionOCREngine", () => {
   // ── Error Handling (no API required) ──────────────────────────────
 
   describe("Error Handling", () => {
-    it("T04: throws on missing ANTHROPIC_API_KEY", async () => {
+    it("T04: throws no-provider when offline (free Ollama-first; no Claude key gate)", async () => {
+      // FREE-AI-MIGRATION/U-BLUEPRINT-VISION-OCR-LLM-ROUTE: the engine no longer holds an
+      // ANTHROPIC_API_KEY pre-call gate (getClient was removed). With no key AND the vision
+      // providers net-disabled under VITEST, queryVision returns model:"offline" and callVision
+      // throws the no-provider error (R12) -- NOT the old "ANTHROPIC_API_KEY not set" gate.
       const origKey = process.env.ANTHROPIC_API_KEY;
       delete process.env.ANTHROPIC_API_KEY;
 
-      // Create fresh engine to clear cached client
       const freshEngine = new BlueprintVisionOCREngine();
 
       try {
@@ -47,7 +50,8 @@ describe("BlueprintVisionOCREngine", () => {
         });
         expect.unreachable("Should have thrown");
       } catch (err: any) {
-        expect(err.message).toContain("ANTHROPIC_API_KEY");
+        expect(err.message).toMatch(/No vision AI provider available/i);
+        expect(err.message).not.toMatch(/ANTHROPIC_API_KEY not set/);
       } finally {
         if (origKey) process.env.ANTHROPIC_API_KEY = origKey;
       }

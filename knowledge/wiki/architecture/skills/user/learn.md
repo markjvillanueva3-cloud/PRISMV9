@@ -23,18 +23,14 @@ related:
 |-------|-------|
 | Name | `learn` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/learn.md` |
+| Source | `C:/Users/wompu/.claude/commands/learn.md` |
 | Model | default |
 | Tags | _(none)_ |
 
 ## Description (first paragraph)
 
-Route learning to appropriate specialist:
-- PDF documents → /pdf-learn
-- Videos → /video-learn
-- CAD files → /cad-learn
-- Excel/CSV → /data-learn
-- Machine logs → /machine-log-learn
+
+# /learn — Universal Learning Router
 
 <!-- AUTO-END -->
 

@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="generator" content="SpecHTMLCompanionEngine">
+<meta name="prism-source-hash" content="40674d465a30b57bf0450f8be077665df06ef4b3b90009f74899a3b00e2e1487">
+<title>OLLAMA → PRISM-MCP BRIDGE — design + honest scope</title>
+<style>
+:root, [data-theme="light"] {
+  --bg:#ffffff; --bg-soft:#f6f8fa; --bg-code:#f6f8fa; --fg:#1f2328; --fg-muted:#636c76;
+  --border:#d0d7de; --accent:#0969da; --accent-soft:#ddf4ff; --thead:#f6f8fa; --quote:#656d76;
+  --table-stripe:#f6f8fa;
+}
+[data-theme="dark"] {
+  --bg:#0d1117; --bg-soft:#161b22; --bg-code:#161b22; --fg:#e6edf3; --fg-muted:#8b949e;
+  --border:#30363d; --accent:#2f81f7; --accent-soft:#163356; --thead:#161b22; --quote:#8b949e;
+  --table-stripe:#11151c;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg:#0d1117; --bg-soft:#161b22; --bg-code:#161b22; --fg:#e6edf3; --fg-muted:#8b949e;
+    --border:#30363d; --accent:#2f81f7; --accent-soft:#163356; --thead:#161b22; --quote:#8b949e;
+    --table-stripe:#11151c;
+  }
+}
+* { box-sizing:border-box; }
+html { scroll-behavior:smooth; }
+body { margin:0; background:var(--bg); color:var(--fg); font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif; line-height:1.6; font-size:16px; }
+.skip-link { position:absolute; left:-9999px; top:0; background:var(--accent); color:#fff; padding:8px 14px; z-index:100; border-radius:0 0 6px 0; }
+.skip-link:focus { left:0; }
+.layout { display:grid; grid-template-columns:minmax(0,1fr); max-width:1180px; margin:0 auto; padding:0 20px; }
+@media (min-width:1000px) { .layout { grid-template-columns:260px minmax(0,1fr); gap:40px; } }
+header.doc-head { grid-column:1 / -1; padding:28px 0 16px; border-bottom:1px solid var(--border); }
+header.doc-head h1.page-title { margin:0 0 6px; font-size:1.9rem; line-height:1.25; }
+header.doc-head .provenance { color:var(--fg-muted); font-size:.85rem; margin:0; }
+header.doc-head .theme-toggle { float:right; background:var(--bg-soft); color:var(--fg); border:1px solid var(--border); border-radius:6px; padding:5px 10px; font-size:.8rem; cursor:pointer; }
+nav.toc { align-self:start; position:sticky; top:16px; max-height:calc(100vh - 32px); overflow:auto; font-size:.85rem; padding:14px 0; }
+@media (max-width:999px) { nav.toc { position:static; max-height:none; border-bottom:1px solid var(--border); margin-bottom:12px; } }
+nav.toc .toc-title { font-weight:600; color:var(--fg-muted); text-transform:uppercase; letter-spacing:.04em; font-size:.7rem; margin-bottom:8px; }
+nav.toc ul { list-style:none; margin:0; padding:0; }
+nav.toc li a { color:var(--fg-muted); text-decoration:none; display:block; padding:3px 6px; border-left:2px solid transparent; border-radius:0 4px 4px 0; }
+nav.toc li a:hover { color:var(--accent); background:var(--accent-soft); border-left-color:var(--accent); }
+nav.toc li a.active { color:var(--accent); background:var(--accent-soft); border-left-color:var(--accent); font-weight:600; }
+nav.toc .toc-l2 a { padding-left:14px; } nav.toc .toc-l3 a { padding-left:26px; font-size:.95em; } nav.toc .toc-l4 a { padding-left:38px; font-size:.9em; }
+nav.toc input.toc-search { width:100%; box-sizing:border-box; margin:0 0 8px; padding:5px 8px; font-size:.82rem; border:1px solid var(--border); border-radius:5px; background:var(--bg); color:var(--fg); }
+nav.toc input.toc-search:focus { outline:2px solid var(--accent); outline-offset:-1px; }
+nav.toc .toc-search-status { font-size:.7rem; color:var(--fg-muted); min-height:1em; margin:-4px 0 6px; }
+nav.toc li.toc-hidden { display:none; }
+main.doc-body mark.search-hit { background:#fff3a3; color:#1f2328; border-radius:2px; padding:0 1px; }
+main.doc-body mark.search-hit.current { outline:2px solid var(--accent); outline-offset:1px; }
+main.doc-body { min-width:0; padding:24px 0 64px; }
+main.doc-body h1,main.doc-body h2,main.doc-body h3,main.doc-body h4,main.doc-body h5,main.doc-body h6 { line-height:1.3; margin-top:1.8em; margin-bottom:.6em; scroll-margin-top:16px; position:relative; }
+main.doc-body h1 { font-size:1.7rem; border-bottom:1px solid var(--border); padding-bottom:.3em; }
+main.doc-body h2 { font-size:1.4rem; border-bottom:1px solid var(--border); padding-bottom:.3em; }
+main.doc-body h3 { font-size:1.18rem; } main.doc-body h4 { font-size:1.02rem; }
+main.doc-body a.anchor { position:absolute; left:-1.1em; opacity:0; text-decoration:none; color:var(--fg-muted); font-weight:400; padding-right:.3em; }
+main.doc-body h1:hover a.anchor,main.doc-body h2:hover a.anchor,main.doc-body h3:hover a.anchor,main.doc-body h4:hover a.anchor { opacity:1; }
+main.doc-body a { color:var(--accent); text-decoration:none; } main.doc-body a:hover { text-decoration:underline; }
+main.doc-body p { margin:.8em 0; }
+main.doc-body code { background:var(--bg-code); border-radius:4px; padding:.15em .35em; font-size:.88em; font-family:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace; }
+main.doc-body pre { background:var(--bg-code); border:1px solid var(--border); border-radius:8px; padding:14px 16px; overflow:auto; line-height:1.45; }
+main.doc-body pre code { background:none; padding:0; font-size:.86rem; }
+main.doc-body blockquote { margin:1em 0; padding:.4em 1em; border-left:4px solid var(--border); color:var(--quote); }
+main.doc-body ul,main.doc-body ol { margin:.6em 0; padding-left:1.6em; }
+main.doc-body li { margin:.2em 0; }
+main.doc-body hr { border:0; border-top:1px solid var(--border); margin:2em 0; }
+main.doc-body .table-wrap { overflow-x:auto; margin:1em 0; }
+main.doc-body table { border-collapse:collapse; width:100%; font-size:.9rem; }
+main.doc-body th,main.doc-body td { border:1px solid var(--border); padding:6px 11px; text-align:left; vertical-align:top; }
+main.doc-body thead th { background:var(--thead); }
+main.doc-body tbody tr:nth-child(2n) { background:var(--table-stripe); }
+main.doc-body details.frontmatter { background:var(--bg-soft); border:1px solid var(--border); border-radius:8px; padding:6px 14px; margin:0 0 22px; }
+main.doc-body details.frontmatter summary { cursor:pointer; font-weight:600; color:var(--fg-muted); }
+main.doc-body details.frontmatter table { font-size:.82rem; }
+main.doc-body details.frontmatter th { width:1%; white-space:nowrap; background:transparent; color:var(--fg-muted); }
+main.doc-body .mermaid { background:var(--bg-soft); border:1px solid var(--border); border-radius:8px; padding:14px; margin:1em 0; text-align:center; overflow:auto; white-space:pre-wrap; }
+main.doc-body .truncation-notice { background:var(--accent-soft); border:1px solid var(--accent); border-radius:6px; padding:10px 14px; font-size:.9rem; }
+footer.doc-foot { grid-column:1 / -1; border-top:1px solid var(--border); margin-top:48px; padding:18px 0 40px; color:var(--fg-muted); font-size:.82rem; }
+footer.doc-foot code { background:var(--bg-code); border-radius:4px; padding:.12em .3em; }
+</style>
+</head>
+<body>
+<a class="skip-link" href="#content">Skip to content</a>
+<div class="layout">
+<header class="doc-head">
+<button id="themeToggle" class="theme-toggle" type="button" aria-label="Toggle color theme">◐ theme</button>
+<h1 class="page-title" id="top">OLLAMA → PRISM-MCP BRIDGE — design + honest scope</h1>
+<p class="provenance">Generated 2026-05-18T17:34:20.784Z by <code>scripts/emit-all-spec-html.ts</code> · the Markdown alongside is canonical</p>
+</header>
+<nav class="toc" aria-label="Table of contents"><div class="toc-title">On this page</div><input type="search" class="toc-search" placeholder="Search this page…" aria-label="Search this page" autocomplete="off"><div class="toc-search-status" aria-live="polite"></div><ul>
+<li class="toc-l1"><a href="#ollama-prism-mcp-bridge-design-honest-scope">OLLAMA → PRISM-MCP BRIDGE — design + honest scope</a></li>
+<li class="toc-l2"><a href="#the-honest-answer">The honest answer</a></li>
+<li class="toc-l2"><a href="#layered-ladder-simplest-first-each-layer-ships-independently">Layered ladder (simplest first — each layer ships independently)</a></li>
+<li class="toc-l3"><a href="#layer-1-local-query-service-shipped-u-oe01">Layer 1 — local query service — SHIPPED (U-OE01)</a></li>
+<li class="toc-l3"><a href="#layer-2-read-only-agent-loop-shipped-u-oe-bridge-l2">Layer 2 — read-only agent loop — SHIPPED (U-OE-BRIDGE-L2)</a></li>
+<li class="toc-l3"><a href="#layer-2b-live-mcp-dispatcher-tools-queued-u-oe-bridge-l2b">Layer 2b — live MCP-dispatcher tools — QUEUED (U-OE-BRIDGE-L2B)</a></li>
+<li class="toc-l3"><a href="#layer-3-full-agent-loop-queued-not-scheduled-u-oe-bridge-l3">Layer 3 — full agent loop — QUEUED, NOT SCHEDULED (U-OE-BRIDGE-L3)</a></li>
+<li class="toc-l2"><a href="#docker-topology-layer-2-deployment-when-built">Docker topology (Layer 2+ deployment, when built)</a></li>
+<li class="toc-l2"><a href="#why-not-build-layer-2-now">Why not build Layer 2 now</a></li>
+<li class="toc-l2"><a href="#queued-units">Queued units</a></li>
+</ul></nav>
+<main id="content" class="doc-body" role="main">
+<h1 id="ollama-prism-mcp-bridge-design-honest-scope"><a class="anchor" href="#ollama-prism-mcp-bridge-design-honest-scope" aria-label="Permalink to OLLAMA → PRISM-MCP BRIDGE — design + honest scope">#</a>OLLAMA → PRISM-MCP BRIDGE — design + honest scope</h1>
+<p><strong>Created:</strong> 2026-05-18 · slot charlie · OLLAMA-EXPAND-MS0 <strong>Status:</strong> Layer 1 shipped (<code>ask-ollama.mjs</code>, U-OE01) · Layer 2 shipped (<code>ollama-prism-bridge.mjs</code>, U-OE-BRIDGE-L2 — read-only KNOWLEDGE-surface agent loop) · Layer 2b (live MCP-dispatcher tools) + Layer 3 (full agent loop) queued. <strong>Answers the operator questions:</strong> <em>&quot;can we hook Ollama up to the PRISM MCP server so it gets access to it like Claude Code? same with Docker?&quot;</em></p>
+<h2 id="the-honest-answer"><a class="anchor" href="#the-honest-answer" aria-label="Permalink to The honest answer">#</a>The honest answer</h2>
+<p><strong>Ollama is a model-inference server, not an MCP client.</strong> Its API surface is <code>/api/generate</code>, <code>/api/chat</code>, <code>/api/embeddings</code>, <code>/api/tags</code>. It has no agent loop, no tool-call orchestration, no concept of &quot;connecting to MCP&quot;. You cannot point Ollama at the PRISM MCP server and have it work — there is no config flag for it.</p>
+<p><strong>What IS true:</strong> modern Ollama models (qwen2.5-coder, mistral, llama3.x) support tool/function calling via the <code>tools</code> parameter on <code>/api/chat</code>. So a <strong>Node harness</strong> can: (a) act as the MCP client (or import the dispatchers directly), (b) advertise PRISM&#39;s dispatcher actions to an Ollama model as tools, (c) run the call→execute→feed-back loop. That harness — not Ollama itself — is what makes Ollama &quot;use PRISM like Claude Code&quot;. It is a real build, not a switch.</p>
+<p><strong>Docker:</strong> the PRISM MCP server (port 3100), Ollama (11434), and the Qdrant/Postgres/Prometheus containers can all be put on one Docker network via <code>docker-compose</code>. That is configuration, not new code. It does NOT by itself give Ollama tool access — the harness above is still required. Docker only matters here for <em>deployment topology</em> (running the harness + Ollama + MCP together, reproducibly).</p>
+<h2 id="layered-ladder-simplest-first-each-layer-ships-independently"><a class="anchor" href="#layered-ladder-simplest-first-each-layer-ships-independently" aria-label="Permalink to Layered ladder (simplest first — each layer ships independently)">#</a>Layered ladder (simplest first — each layer ships independently)</h2>
+<h3 id="layer-1-local-query-service-shipped-u-oe01"><a class="anchor" href="#layer-1-local-query-service-shipped-u-oe01" aria-label="Permalink to Layer 1 — local query service — SHIPPED (U-OE01)">#</a>Layer 1 — local query service — <strong>SHIPPED</strong> (U-OE01)</h3>
+<p><code>scripts/ask-ollama.mjs</code>. Ollama answers questions over the system-viz graph and over file content with <strong>no MCP tool-calling at all</strong> — direct, reliable, 0 Claude tokens for the heavy lifting. This is the 80% of the value at 5% of the risk. Done.</p>
+<h3 id="layer-2-read-only-agent-loop-shipped-u-oe-bridge-l2"><a class="anchor" href="#layer-2-read-only-agent-loop-shipped-u-oe-bridge-l2" aria-label="Permalink to Layer 2 — read-only agent loop — SHIPPED (U-OE-BRIDGE-L2)">#</a>Layer 2 — read-only agent loop — <strong>SHIPPED</strong> (U-OE-BRIDGE-L2)</h3>
+<p><code>scripts/ollama-prism-bridge.mjs</code> — the Node harness that runs the call → execute → feed-back loop. It advertises three READ-ONLY tools to an Ollama model via <code>/api/chat</code> <code>tools</code>, and the model autonomously chains them like Claude Code does — locally, ~0 Claude tokens. Tool surface:</p>
+<ul>
+<li><code>viz_search</code> — ranked search of the system-viz graph</li>
+<li><code>wiki_lookup</code> — keyword search of the architecture wiki index</li>
+<li><code>read_excerpt</code> — a byte-capped excerpt of a repo file (<code>confinePath</code>-confined)</li>
+</ul>
+<p>Realised scope guards:</p>
+<ul>
+<li><strong>Read-only by construction</strong> — the only three tools are file/graph reads; there is no write or exec path a 3B model could be coaxed into. <code>confinePath</code> (lexical + <code>realpathSync</code> symlink hardening) keeps <code>read_excerpt</code> inside the repo.</li>
+<li><strong>Frozen 3-tool allowlist</strong> — <code>TOOL_NAMES</code> is <code>Object.freeze</code>d; an unknown tool is rejected before execution and fed back so the model recovers.</li>
+<li><strong>Hard loop cap</strong> (<code>MAX_CALLS_CEIL</code> 12, default 6) + per-call timeout + <code>TOOL_RESULT_MAX_CHARS</code> cap on every tool result re-entering the context.</li>
+<li><strong>Fail-loud</strong> — a thrown <code>chatImpl</code>, an unreachable Ollama, a malformed message all become explicit <code>{ok:false,error}</code> (exit 3), never a crash.</li>
+</ul>
+<p>86-case <code>node:test</code> suite incl. real-data E2E + a <code>main()</code> subprocess oracle.</p>
+<p><strong>Honest scope:</strong> this L2 connects Ollama to PRISM&#39;s read-only KNOWLEDGE surface (graph + wiki + files) — the reliable, server-free 80% that delivers the token-saving win. It does NOT yet wire the live <code>prism_calc</code> / <code>prism_session</code> MCP dispatchers as tools — that is <strong>Layer 2b</strong>, a separate follow-on (the MCP server on port 3100 exposes no plain HTTP route; the protocol surface must be resolved first, and a small model routing the full 97-dispatcher surface is an unproven empirical risk).</p>
+<h3 id="layer-2b-live-mcp-dispatcher-tools-queued-u-oe-bridge-l2b"><a class="anchor" href="#layer-2b-live-mcp-dispatcher-tools-queued-u-oe-bridge-l2b" aria-label="Permalink to Layer 2b — live MCP-dispatcher tools — QUEUED (U-OE-BRIDGE-L2B)">#</a>Layer 2b — live MCP-dispatcher tools — <strong>QUEUED</strong> (U-OE-BRIDGE-L2B)</h3>
+<p>Extend the L2 harness with a curated, read-only subset of live MCP dispatcher actions (<code>prism_calc</code> physics, <code>prism_session</code> queries) as additional tools. Blocker: resolve the MCP server&#39;s HTTP/transport surface; schema-validate every dispatcher result before it re-enters the loop. Effort: ~1 milestone. Risk: medium (model reliability on tool selection across more actions).</p>
+<h3 id="layer-3-full-agent-loop-queued-not-scheduled-u-oe-bridge-l3"><a class="anchor" href="#layer-3-full-agent-loop-queued-not-scheduled-u-oe-bridge-l3" aria-label="Permalink to Layer 3 — full agent loop — QUEUED, NOT SCHEDULED (U-OE-BRIDGE-L3)">#</a>Layer 3 — full agent loop — <strong>QUEUED, NOT SCHEDULED</strong> (U-OE-BRIDGE-L3)</h3>
+<p>A general Ollama-driven agent that can plan multi-step PRISM work. Requires Layer 2 proven first + a much larger local model than the 3B currently installed (tool-calling accuracy scales hard with model size). Honest take: this is a genuine multi-milestone effort and should not be attempted until Layer 2 telemetry shows acceptable tool-selection accuracy.</p>
+<h2 id="docker-topology-layer-2-deployment-when-built"><a class="anchor" href="#docker-topology-layer-2-deployment-when-built" aria-label="Permalink to Docker topology (Layer 2+ deployment, when built)">#</a>Docker topology (Layer 2+ deployment, when built)</h2>
+<pre><code>docker-compose: prism-net
+  ├─ ollama          11434   (model server, GPU passthrough)
+  ├─ prism-mcp       3100    (the dispatcher surface)
+  ├─ ollama-bridge           (Layer-2 harness — MCP client + agent loop)
+  ├─ qdrant / postgres / prometheus
+</code></pre>
+<p>The bridge container is the only one that needs both <code>ollama</code> and <code>prism-mcp</code> on its network. This is deployment config authored when Layer 2 lands — not part of this design&#39;s code.</p>
+<h2 id="why-not-build-layer-2-now"><a class="anchor" href="#why-not-build-layer-2-now" aria-label="Permalink to Why not build Layer 2 now">#</a>Why not build Layer 2 now</h2>
+<p><code>/loop</code> autonomous discipline + R12: a flaky agent loop shipped half-built is worse than no agent loop. Layer 1 delivers the immediate token win reliably. Layer 2 deserves its own milestone with its own scrutiny — its hard part (getting a 3B model to reliably pick the right dispatcher) is an empirical question that needs real measurement, not optimism.</p>
+<h2 id="queued-units"><a class="anchor" href="#queued-units" aria-label="Permalink to Queued units">#</a>Queued units</h2>
+<ul>
+<li><code>U-OE-BRIDGE-L2</code> — read-only knowledge-surface agent loop. <strong>SHIPPED</strong> 2026-05-18 (<code>scripts/ollama-prism-bridge.mjs</code>, slot charlie).</li>
+<li><code>U-OE-BRIDGE-L2B</code> — live MCP-dispatcher tools (priority: high — extends L2 with <code>prism_calc</code> / <code>prism_session</code> read-only actions once the MCP HTTP surface is resolved).</li>
+<li><code>U-OE-BRIDGE-L3</code> — full agent loop (priority: deferred — needs L2b proven
+<ul>
+<li>a larger local model).</li>
+</ul></li>
+<li><code>U-OE-DOCKER-COMPOSE</code> — compose topology for L2b deployment.</li>
+</ul>
+</main>
+<footer class="doc-foot">
+<p>HTML companion — the canonical document is the Markdown file alongside it. <a href="OLLAMA-PRISM-MCP-BRIDGE-DESIGN.md">OLLAMA-PRISM-MCP-BRIDGE-DESIGN.md</a> Regenerate: <code>node scripts/emit-spec-html.mjs &lt;path.md&gt;</code></p>
+
+</footer>
+</div>
+<script>(function(){
+  try {
+    var k = "prism-spec-theme";
+    var saved = localStorage.getItem(k);
+    if (saved === "dark" || saved === "light") document.documentElement.setAttribute("data-theme", saved);
+  } catch (e) { /* localStorage blocked — keep default theme */ }
+  var b = document.getElementById("themeToggle");
+  if (!b) return;
+  b.addEventListener("click", function () {
+    var cur = document.documentElement.getAttribute("data-theme");
+    var sysDark = !!(window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches);
+    var next = cur === "dark" ? "light" : cur === "light" ? "dark" : (sysDark ? "light" : "dark");
+    document.documentElement.setAttribute("data-theme", next);
+    b.textContent = next === "dark" ? "\u263E dark" : "\u2600 light";
+    try { localStorage.setItem(k, next); } catch (e) { /* persistence unavailable — non-fatal */ }
+  });
+})();</script>
+<script>(function(){
+  var body = document.querySelector("main.doc-body");
+  var toc = document.querySelector("nav.toc");
+  if (!body) return;
+  // TOC active-section highlight.
+  if (toc) {
+    var links = {};
+    toc.querySelectorAll("a[href^='#']").forEach(function(a){ links[a.getAttribute("href").slice(1)] = a; });
+    var heads = body.querySelectorAll("h1[id],h2[id],h3[id],h4[id]");
+    var active = null;
+    function setActive(id){
+      if (active === id) return;
+      if (active && links[active]) links[active].classList.remove("active");
+      active = id;
+      if (active && links[active]) links[active].classList.add("active");
+    }
+    var io = new IntersectionObserver(function(entries){
+      var top = null, topY = Infinity;
+      entries.forEach(function(e){ if (e.isIntersecting) { var y = e.boundingClientRect.top; if (y < topY) { topY = y; top = e.target.id; } } });
+      if (!top) {
+        var best = null;
+        heads.forEach(function(h){ if (h.getBoundingClientRect().top < 80) best = h.id; });
+        top = best || (heads[0] && heads[0].id);
+      }
+      if (top) setActive(top);
+    }, { rootMargin: "0px 0px -70% 0px", threshold: [0, 1] });
+    heads.forEach(function(h){ io.observe(h); });
+  }
+  // In-page search: wrap matches in <mark>, jump to first, filter the TOC.
+  var input = toc && toc.querySelector("input.toc-search");
+  var status = toc && toc.querySelector(".toc-search-status");
+  if (!input) return;
+  var SKIP = { SCRIPT:1, STYLE:1, MARK:1, NOSCRIPT:1 };
+  function clearMarks(){
+    body.querySelectorAll("mark.search-hit").forEach(function(m){ var p = m.parentNode; if (p) { p.replaceChild(document.createTextNode(m.textContent), m); p.normalize(); } });
+    if (toc) toc.querySelectorAll("li.toc-hidden").forEach(function(li){ li.classList.remove("toc-hidden"); });
+  }
+  function doSearch(q){
+    clearMarks();
+    if (status) status.textContent = "";
+    if (!q || q.length < 2) return;
+    var needle = q.toLowerCase(), hits = 0, first = null;
+    var walker = document.createTreeWalker(body, NodeFilter.SHOW_TEXT, { acceptNode: function(n){
+      if (!n.nodeValue || !n.nodeValue.trim()) return NodeFilter.FILTER_REJECT;
+      var p = n.parentNode; while (p && p !== body) { if (SKIP[p.nodeName]) return NodeFilter.FILTER_REJECT; p = p.parentNode; }
+      return n.nodeValue.toLowerCase().indexOf(needle) >= 0 ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT;
+    }});
+    var targets = [];
+    while (walker.nextNode()) targets.push(walker.currentNode);
+    targets.forEach(function(node){
+      if (hits > 2000) return;
+      var text = node.nodeValue, lower = text.toLowerCase(), frag = document.createDocumentFragment(), i = 0, idx;
+      while ((idx = lower.indexOf(needle, i)) >= 0 && hits <= 2000) {
+        if (idx > i) frag.appendChild(document.createTextNode(text.slice(i, idx)));
+        var m = document.createElement("mark"); m.className = "search-hit"; m.textContent = text.slice(idx, idx + needle.length);
+        if (hits === 0) { m.classList.add("current"); first = m; }
+        frag.appendChild(m); hits++; i = idx + needle.length;
+      }
+      if (i < text.length) frag.appendChild(document.createTextNode(text.slice(i)));
+      if (node.parentNode) node.parentNode.replaceChild(frag, node);
+    });
+    if (status) status.textContent = hits ? (hits + " match" + (hits === 1 ? "" : "es")) : "no matches";
+    if (toc) toc.querySelectorAll("li").forEach(function(li){ var a = li.querySelector("a"); if (a && a.textContent.toLowerCase().indexOf(needle) < 0) li.classList.add("toc-hidden"); });
+    if (first) first.scrollIntoView({ block: "center", behavior: "smooth" });
+  }
+  var t;
+  input.addEventListener("input", function(){ clearTimeout(t); t = setTimeout(function(){ doSearch(input.value.trim()); }, 180); });
+  input.addEventListener("keydown", function(e){ if (e.key === "Escape") { input.value = ""; doSearch(""); input.blur(); } });
+})();</script>
+</body>
+</html>

@@ -1,0 +1,194 @@
+{
+  "schemaVersion": "1.0.0",
+  "_lastBackfillTs": "2026-05-08T16:41:54.025Z",
+  "audit_id": "QA-MS12-P0-U03",
+  "title": "Autopilot Action Verification (prism_autopilot_d)",
+  "audited_at": "2026-04-13T21:00:00Z",
+  "auditor": "claude-opus-4.5",
+  "scope": "Autopilot actions, decision logic, safety guardrails",
+  "autopilot_dispatcher": {
+    "tool": "prism_autopilot_d",
+    "file": "src/tools/dispatchers/autoPilotDispatcher.ts",
+    "action_count": 7,
+    "actions": {
+      "autopilot": {
+        "description": "Full autopilot workflow with swarms, Ralph loops, formula optimization",
+        "params": [
+          "task",
+          "context",
+          "enableSwarms",
+          "ralphLoops"
+        ],
+        "outputs": [
+          "task",
+          "duration",
+          "approach",
+          "metrics",
+          "ralph_loops",
+          "status"
+        ]
+      },
+      "autopilot_quick": {
+        "description": "Quick autopilot - no swarms, 1 Ralph loop, no formula optimization",
+        "params": [
+          "task"
+        ],
+        "outputs": [
+          "task",
+          "duration",
+          "approach",
+          "omega",
+          "status"
+        ]
+      },
+      "brainstorm_lenses": {
+        "description": "Apply 7 thinking lenses to a problem",
+        "params": [
+          "problem",
+          "context"
+        ],
+        "outputs": [
+          "assumptions",
+          "alternatives",
+          "inversions",
+          "fusions",
+          "tenX",
+          "simplifications",
+          "futureProof",
+          "approach",
+          "formula"
+        ]
+      },
+      "formula_optimize": {
+        "description": "Query formula registry for task optimization",
+        "params": [
+          "task",
+          "domain",
+          "objective"
+        ],
+        "outputs": [
+          "formulas_found",
+          "selected",
+          "all_matches",
+          "recommendation"
+        ]
+      },
+      "autopilot_v2": {
+        "description": "Run AutoPilotV2 with detailed/compact output",
+        "params": [
+          "task",
+          "format"
+        ],
+        "outputs": "Formatted autopilot output"
+      },
+      "registry_status": {
+        "description": "Display status of all registries",
+        "params": [],
+        "outputs": "Markdown table of registry status"
+      },
+      "working_tools": {
+        "description": "List working MCP tools by category",
+        "params": [
+          "category"
+        ],
+        "outputs": "Markdown list of tools"
+      }
+    }
+  },
+  "autopilot_engine": {
+    "file": "src/orchestration/AutoPilot.ts",
+    "version": "3.0",
+    "phases": [
+      "GSD → Load instructions",
+      "STATE → Load current state + task",
+      "BRAINSTORM → 7 lenses via PARALLEL API calls",
+      "EXECUTE → Real swarm deployment with live API",
+      "RALPH x4 → Scrutinize, Improve, Validate, ASSESS",
+      "UPDATE → State, hooks, memories"
+    ],
+    "brainstorm_lenses": [
+      "assumptions",
+      "alternatives",
+      "inversions",
+      "fusions",
+      "tenX",
+      "simplifications",
+      "futureProof"
+    ],
+    "api_integration": {
+      "mode": "LIVE_API or BLOCKED",
+      "parallel_brainstorm": true,
+      "real_api_required": true
+    }
+  },
+  "decision_logic": {
+    "task_classification": "Registry-aware classification from AutoPilotV2",
+    "swarm_deployment": "SwarmExecutor patterns (parallel, consensus, pipeline)",
+    "agent_selection": "AgentExecutor with tier selection (opus/sonnet/haiku)",
+    "formula_lookup": "FormulaRegistry search with domain filtering"
+  },
+  "safety_guardrails": {
+    "api_key_validation": {
+      "method": "hasValidApiKey()",
+      "behavior": "Returns BLOCKED mode if no API key"
+    },
+    "module_loading": {
+      "pattern": "Lazy loading with error handling",
+      "fallback": "Returns error object if module not available"
+    },
+    "parameter_validation": {
+      "method": "validateActionParams() with Zod schemas",
+      "schema_file": "schemas/autoPilotActionSchemas.ts"
+    },
+    "error_handling": {
+      "pattern": "try/catch with dispatcherError()",
+      "logging": "log.warn for non-critical, log.info for actions"
+    },
+    "ralph_loops": {
+      "purpose": "Scrutinize, Improve, Validate, Assess",
+      "default_iterations": 3,
+      "configurable": true
+    }
+  },
+  "human_in_the_loop": {
+    "autopilot_quick": "Reduced automation, faster response",
+    "registry_status": "Read-only inspection",
+    "working_tools": "Read-only tool listing",
+    "brainstorm_lenses": "Generates options for human decision"
+  },
+  "integration_points": {
+    "swarm_executor": "Multi-agent coordination",
+    "agent_executor": "Task execution with retries",
+    "formula_registry": "Formula lookup and optimization",
+    "registry_manager": "Status queries across all registries"
+  },
+  "findings": {
+    "strengths": [
+      "7 actions cover full autopilot workflow spectrum",
+      "API key validation prevents unauthorized execution",
+      "Lazy module loading reduces cold start impact",
+      "Zod schema validation ensures param correctness",
+      "Quick mode provides fast, safe alternative",
+      "Ralph loops provide multi-stage quality verification"
+    ],
+    "concerns": [
+      "No hook integration in autoPilotDispatcher (unlike orchestrationDispatcher)",
+      "No distributed locking for concurrent autopilot sessions",
+      "Module loading uses require() instead of dynamic import",
+      "formula_optimize falls back to prism_knowledge recommendation (not autonomous)"
+    ],
+    "recommendations": [
+      "Add hookExecutor integration for pre/post autopilot phases",
+      "Add session locking to prevent concurrent autopilot runs",
+      "Convert require() to await import() for consistency",
+      "Consider adding safety score requirement before execution"
+    ]
+  },
+  "verification_status": {
+    "actions_inventoried": true,
+    "decision_logic_verified": true,
+    "safety_guardrails_verified": true,
+    "human_in_loop_mechanisms_documented": true,
+    "unit_complete": true
+  }
+}

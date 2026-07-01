@@ -1,6 +1,6 @@
 // tier: T4
 // ollama-fuse.mjs — fuse multiple advisory hook outputs into one local LLM call.
-// When Ollama (qwen2.5-coder:7b) is healthy, sends one batched prompt asking
+// When Ollama (qwen2.5-coder:32b) is healthy, sends one batched prompt asking
 // for {antiPatterns, errorLearns, buildChecks} JSON. Falls back to running
 // the original hooks via runBundle() when Ollama is unhealthy or returns
 // invalid JSON.
@@ -9,7 +9,7 @@
 // result, skip the original hook stack. If it returns null, fall back.
 
 const OLLAMA_URL = process.env.OLLAMA_URL || "http://127.0.0.1:11434";
-const OLLAMA_MODEL = process.env.OLLAMA_HOOK_MODEL || "qwen2.5-coder:7b";
+const OLLAMA_MODEL = process.env.OLLAMA_HOOK_MODEL || "qwen2.5-coder:32b";
 const OLLAMA_TIMEOUT_MS = 4000;
 
 let healthCache = { ok: null, checkedAt: 0 };

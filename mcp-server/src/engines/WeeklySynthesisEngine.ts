@@ -12,7 +12,9 @@
  *   ## Emerging patterns
  *   ## Top-3 next-week leverage
  *
- * Default summarizer is Ollama qwen2.5-coder:7b (token-economy compliant).
+ * Default summarizer is a host-resolved local Ollama model (the 'best'
+ * search_synthesis tier -- gpt-oss:120b on Blackwell), with qwen2.5-coder:32b
+ * as the fail-soft fallback. Token-economy compliant (local, $0-Claude).
  *
  * The 4-section check is a NECESSARY (not sufficient) gate: the synthesizer
  * output is validated to contain all four `## ` headers — at line start,
@@ -56,6 +58,22 @@ import { fileURLToPath, pathToFileURL } from "node:url";
 // drift on ISO-week boundaries. (B4's spec `dependencies` lists only B1; the
 // B2 link is a pure-helper reuse — flagged for the envelope close-out.)
 import { weekIsoUTC } from "./ConnectionFinderEngine.js";
+// P5 last-mile wiring (U-FLEET-P5-WEEKLY-SYNTHESIS-OCTOPUS-LOADER): the cron +
+// singleton opt into the octopus consensus brief via the shared composer when
+// PRISM_WEEKLY_SYNTHESIS_OCTOPUS=1. Default-OFF → byte-identical prior behavior.
+// The loader is a plain .mjs (resolved by vitest + esbuild the same as the
+// existing OctopusWeeklySynthesisLoader test import).
+// @ts-expect-error - scripts/lib .mjs has no .d.ts (outside src include); resolved at
+// runtime by esbuild+vitest, typed `any`. Suppress the implicit-any TS7016 (U-WEEKLY-SYNTH-RESOLVER).
+import { composeOctopusLoader, OCTOPUS_OUTCOMES_DIR } from "../../../scripts/lib/octopus-weekly-synthesis-loader.mjs";
+// U-WEEKLY-SYNTH-RESOLVER (OLLAMA-SYNERGY): host-aware default model. REUSE the
+// shared resolver (BLACKWELL-TOKEN-SYNERGY-MS0) instead of hardcoding a model:
+// it routes category 'search_synthesis' to the host 'best' tier (live-validated
+// gpt-oss:120b on home_blackwell, 2026-06-09); weaker hosts get the conservative
+// installed model; Ollama-down -> the 32B fallback const. Same .mjs cross-boundary
+// import style as the octopus loader at L64.
+// @ts-expect-error - scripts/lib .mjs has no .d.ts; resolved at runtime, typed `any` (see above).
+import { resolveSynthesisModel } from "../../../scripts/lib/host-aware-synthesis-model.mjs";
 
 /* -------------------------- enums / schemas -------------------------- */
 
@@ -108,13 +126,23 @@ export interface SummarizerFn {
 
 /** Constants — exported so tests can assert defaults without hard-coding. */
 export const DEFAULT_OLLAMA_URL = "http://127.0.0.1:11434/api/generate";
-export const DEFAULT_OLLAMA_MODEL = "qwen2.5-coder:7b";
+export const DEFAULT_OLLAMA_MODEL = "qwen2.5-coder:32b";
 export const DAYS_PER_WEEK = 7;
 export const MAX_SOURCE_BYTES = 6_000; // truncate per daily-context to keep prompt cheap
 export const MIN_SOURCES_FOR_RETRO = 1; // <1 daily-context => nothing to retrospect
 export const OLLAMA_NUM_CTX = 32_768; // 7 x 6KB sources + prompt > the 2048 default
 export const DEFAULT_OLLAMA_TEMPERATURE = 0.3;
-export const OLLAMA_TIMEOUT_MS = 90_000;
+// 180s (was 90s): the host resolver can select a large reasoning model
+// (live-validated gpt-oss:120b on Blackwell) for this non-interactive Sunday
+// cron, which is far slower than the old hardcoded 32B. Latency is irrelevant
+// for a background retro; a too-short timeout would lose the whole synthesis.
+export const OLLAMA_TIMEOUT_MS = 180_000;
+// -1 = generate until the model stops (bounded by OLLAMA_TIMEOUT_MS). Explicit
+// because the host resolver can now select a harmony reasoning model
+// (gpt-oss:120b on Blackwell) that emits a reasoning preamble BEFORE the answer;
+// a low/defaulted cap could starve the 4-section retro into an empty `.response`
+// (the harmony empty-output failure mode). -1 never truncates the retro.
+export const OLLAMA_NUM_PREDICT = -1;
 
 /** The 4 mandatory retro sections — order is the document order. */
 export const WEEKLY_SECTIONS = [
@@ -290,16 +318,44 @@ export async function defaultLoader(opts: LoaderOpts): Promise<WeeklySource[]> {
 
 /* -------------------- default Ollama summarizer -------------------- */
 
+/** Injectable deps for `defaultOllamaSummarizer` (host resolver + fetch) so the
+ * model-selection + POST can be unit-tested without a GPU, Ollama, or network. */
+export interface DefaultSummarizerDeps {
+  resolveModel?: typeof resolveSynthesisModel;
+  fetchImpl?: typeof fetch;
+}
+
 /**
- * POST to Ollama `/api/generate` with qwen2.5-coder:7b. Returns ok=false on
- * any network / parse / refusal error — never throws. Honors env knobs:
+ * POST to Ollama `/api/generate` with a host-aware model: the 'best'
+ * search_synthesis tier per host (live-validated gpt-oss:120b on Blackwell),
+ * conservative on weaker hosts, 32B fail-soft fallback. Returns ok=false on any
+ * network / parse / refusal error -- never throws. Honors env knobs:
  *   PRISM_WEEKLY_SYNTHESIS_OLLAMA_URL   (default http://127.0.0.1:11434/api/generate)
- *   PRISM_WEEKLY_SYNTHESIS_OLLAMA_MODEL (default qwen2.5-coder:7b)
- *   PRISM_WEEKLY_SYNTHESIS_OLLAMA_TIMEOUT_MS (default 90000)
+ *   PRISM_WEEKLY_SYNTHESIS_OLLAMA_MODEL (operator pin -- wins over host resolution)
+ *   PRISM_WEEKLY_SYNTHESIS_OLLAMA_TIMEOUT_MS (default 180000 -- a large reasoning
+ *     model on a non-interactive Sunday cron needs more than the old 90s)
+ * Model resolution order: env pin > resolveSynthesisModel(search_synthesis) >
+ * DEFAULT_OLLAMA_MODEL (fail-soft when Ollama is down / no models installed).
  */
-export async function defaultOllamaSummarizer(opts: SummarizerOpts): Promise<SummarizerResult> {
+export async function defaultOllamaSummarizer(
+  opts: SummarizerOpts,
+  deps: DefaultSummarizerDeps = {},
+): Promise<SummarizerResult> {
+  const resolveModel = deps.resolveModel ?? resolveSynthesisModel;
+  const fetchImpl = deps.fetchImpl ?? fetch;
   const url = process.env.PRISM_WEEKLY_SYNTHESIS_OLLAMA_URL || DEFAULT_OLLAMA_URL;
-  const model = process.env.PRISM_WEEKLY_SYNTHESIS_OLLAMA_MODEL || DEFAULT_OLLAMA_MODEL;
+  const envModel = process.env.PRISM_WEEKLY_SYNTHESIS_OLLAMA_MODEL;
+  // Env pin wins (passed as `override`); else host-route; fail-soft to the const.
+  let model = envModel || DEFAULT_OLLAMA_MODEL;
+  try {
+    const resolved = await resolveModel({
+      fallback: DEFAULT_OLLAMA_MODEL,
+      override: envModel || null,
+    });
+    model = (resolved && resolved.model) || model;
+  } catch {
+    /* resolver only throws on a missing fallback (we always pass one); keep model. */
+  }
   const timeoutRaw = Number(process.env.PRISM_WEEKLY_SYNTHESIS_OLLAMA_TIMEOUT_MS);
   const timeoutMs = Number.isFinite(timeoutRaw) && timeoutRaw > 0 ? timeoutRaw : OLLAMA_TIMEOUT_MS;
 
@@ -312,14 +368,18 @@ export async function defaultOllamaSummarizer(opts: SummarizerOpts): Promise<Sum
   }, timeoutMs);
 
   try {
-    const resp = await fetch(url, {
+    const resp = await fetchImpl(url, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         model,
         prompt,
         stream: false,
-        options: { temperature: DEFAULT_OLLAMA_TEMPERATURE, num_ctx: OLLAMA_NUM_CTX },
+        options: {
+          temperature: DEFAULT_OLLAMA_TEMPERATURE,
+          num_ctx: OLLAMA_NUM_CTX,
+          num_predict: OLLAMA_NUM_PREDICT,
+        },
       }),
       signal: controller.signal,
     });
@@ -423,8 +483,24 @@ export class WeeklySynthesisEngine {
   private loader: LoaderFn;
   private summarizer: SummarizerFn;
 
-  constructor(opts: { loader?: LoaderFn; summarizer?: SummarizerFn } = {}) {
-    this.loader = opts.loader ?? defaultLoader;
+  constructor(opts: { loader?: LoaderFn; summarizer?: SummarizerFn; outcomesDir?: string } = {}) {
+    // Octopus folding (consensus brief + per-domain rollup from the U-FLEET-CONSUME
+    // feeds) is composed onto the DEFAULT loader only. The composer is default-OFF
+    // internally: it returns the base loader UNCHANGED unless PRISM_WEEKLY_SYNTHESIS_OCTOPUS=1,
+    // so production (no injected loader) is byte-identical when the knob is unset.
+    //
+    // An INJECTED loader is AUTHORITATIVE -- used as-is, never re-composed. Re-composing
+    // a caller-supplied loader double-counts the octopus ledger source AND force-reads the
+    // live OCTOPUS_OUTCOMES_DIR, which (a) broke the loader-injection contract that
+    // OctopusWeeklySynthesisLoader's tests rely on (they compose octopus themselves) and
+    // (b) leaked live outcome files into the daily-context E2E tests. Callers that want
+    // octopus on top of a custom loader compose it themselves (composeOctopusLoader).
+    if (opts.loader) {
+      this.loader = opts.loader;
+    } else {
+      const outcomesDir = opts.outcomesDir ?? OCTOPUS_OUTCOMES_DIR;
+      this.loader = composeOctopusLoader(defaultLoader, { outcomesDir });
+    }
     this.summarizer = opts.summarizer ?? defaultOllamaSummarizer;
   }
 

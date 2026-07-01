@@ -79,6 +79,7 @@ import type {
   TurningOpType,
   TurningFeatureType,
 } from "./TurningPrintToProgramEngine.js";
+import { turningPrintToProgramEngine } from "./TurningPrintToProgramEngine.js";
 
 // ============================================================================
 // STAGE ENUM — 35 stages in execution order
@@ -247,6 +248,8 @@ export interface LatheOrchestrationResult {
   physics_report?: string;
   /** Setup sheet text */
   setup_sheet_text?: string;
+  /** Cost-drivers report text (U-LW-SPINE-REPORTS): cycle time + tool-change breakdown. */
+  cost_report?: string;
   /** Backplot data for visualization */
   backplot?: Array<{ x: number; z: number; type: "rapid" | "cut" | "arc" }>;
 
@@ -277,6 +280,13 @@ const MAX_BAR_EXTENSION_MM = 300;
 
 /** Default chuck grip force (N) — 3-jaw hydraulic at 20 bar */
 const DEFAULT_GRIP_FORCE_N = 25000;
+
+/** U-LW-LIVETOOL-FAILLOUD: live-tooling / C-axis feature types the TURNING spine does NOT natively
+ *  program. inferOperations has no case for them, so they fall to the od_rough default; stageClampingPerOp
+ *  surfaces a LOUD warning so this is never silent (they require live-tool / mill-turn programming). */
+const LIVE_TOOLING_FEATURE_TYPES: ReadonlySet<string> = new Set([
+  "whistle_notch", "od_pocket_mill", "cross_drill", "cross_tap", "keyway", "flat_mill", "hex_mill",
+]);
 
 // ============================================================================
 // ENGINE
@@ -401,12 +411,21 @@ export class LatheOrchestrationEngine {
       safetyBlocks.push(`CLAMPING_PER_OP: Op ${c.op_number} (${c.operation_type}) — ${c.block_reason}`);
     }
 
+    // U-LW-AIHEAD-SPINE: a runPipeline fail-close in GCODE_GENERATE is a hard emission block
+    // (the verified pipeline is the program-emission authority) -- surface it so success +
+    // program_text reflect the block instead of silently emitting nothing.
+    if (state.program_gen_block) {
+      safetyBlocks.push(`GCODE_GENERATE: ${state.program_gen_block}`);
+    }
+
     const safetyPassed = safetyBlocks.length === 0;
     const programText = safetyPassed
       ? state.program_lines.join("\n") || "(program generation pending — orchestrator shell)"
       : `(SAFETY BLOCK — program generation prevented)\n(${safetyBlocks.join("\\n")})`;
 
     // ── Build result ──
+    // U-LW-SPINE-RESULT-SURFACE: prefer the verified pipeline's real metadata over the stub stages'.
+    const pr = state.pipeline_result;
     const result: LatheOrchestrationResult = {
       success: safetyPassed && stageTrace.filter(s => s.status === "failed").length === 0,
       stage_trace: stageTrace,
@@ -423,10 +442,10 @@ export class LatheOrchestrationEngine {
       material: input.material?.material_name ?? "unknown",
       bar_stock_od_mm: input.bar_stock_od_mm ?? 0,
       part_length_mm: input.part_length_mm ?? 0,
-      operations: state.operations,
-      total_operations: state.operations.length,
-      total_tool_changes: new Set(state.operations.map(op => op.tool?.tool_number)).size,
-      estimated_cycle_time_sec: state.operations.reduce((sum, op) => sum + (op.cycle_time_sec ?? 0), 0),
+      operations: pr?.operations ?? state.operations,
+      total_operations: pr?.total_operations ?? state.operations.length,
+      total_tool_changes: pr?.total_tool_changes ?? new Set(state.operations.map(op => op.tool?.tool_number)).size,
+      estimated_cycle_time_sec: pr?.estimated_cycle_time_sec ?? state.operations.reduce((sum, op) => sum + (op.cycle_time_sec ?? 0), 0),
       program_text: programText,
       program_line_count: state.program_lines.length,
       setup_notes: state.setup_notes,
@@ -434,12 +453,16 @@ export class LatheOrchestrationEngine {
 
       bar_stock_safety: state.bar_stock_safety,
       clamping_analysis: state.clamping_analysis,
-      collision_checks: [],
+      collision_checks: pr?.collision_checks ?? [],
 
       safety_passed: safetyPassed,
       safety_blocks: safetyBlocks,
 
       backplot: state.backplot_points,
+
+      physics_report: state.physics_report,
+      setup_sheet_text: state.setup_sheet,
+      cost_report: state.cost_report,
 
       release_gate: {
         passed: safetyPassed,
@@ -738,6 +761,27 @@ export class LatheOrchestrationEngine {
     // Analyze each feature's expected operations
     for (let i = 0; i < input.features.length; i++) {
       const feature = input.features[i];
+      // U-LW-LIVETOOL-FAILLOUD: a live-tooling feature type has no inferOperations case -> it silently falls
+      // back to od_rough. Surface a LOUD warning so the operator knows the turning spine does not natively
+      // plan it (needs live-tool / mill-turn programming) instead of trusting a fallback od_rough analysis.
+      if (LIVE_TOOLING_FEATURE_TYPES.has(feature.type)) {
+        warnings.push(
+          `[live-tooling] feature '${feature.type}' (feature ${i + 1}) requires live-tool / mill-turn programming -- ` +
+          `the turning spine does not natively plan it; clamping analysis falls back to od_rough. ` +
+          `Program the live-tool op via mill-turn (MillTurnSwissPipelineEngine) before running.`,
+        );
+      }
+      // U-LW-KNURL-ADVISORY: 'knurl' also has no inferOperations case -> it silently falls back to od_rough.
+      // Knurling is a FORMING op (not live-tooling), so warn distinctly: the spine does not emit a knurl cycle,
+      // and form-knurl radial force (5-20x cutting force) can deflect slender parts.
+      if (feature.type === "knurl") {
+        warnings.push(
+          `[knurl] feature '${feature.type}' (feature ${i + 1}) is a knurling (forming) operation -- the turning ` +
+          `spine does not natively emit a knurl cycle; clamping analysis falls back to od_rough. Use the knurl ` +
+          `advisory (KnurlingEngine) for pitch / blank-diameter / radial-force before running (form-knurl radial ` +
+          `force is 5-20x cutting force and can deflect slender parts).`,
+        );
+      }
       const opTypes = feature.required_operations ?? this.inferOperations(feature);
 
       for (const opType of opTypes) {
@@ -917,9 +961,29 @@ export class LatheOrchestrationEngine {
     // Stub — will wire to EntryExitStrategyEngine
   }
 
-  private stageGcodeGenerate(state: PipelineState, _warnings: string[]): void {
-    // Stub — will delegate to TurningPrintToProgramEngine for now
-    state.program_lines.push("(PRISM LatheOrchestrator — G-code generation pending)");
+  private stageGcodeGenerate(state: PipelineState, warnings: string[]): void {
+    // U-LW-AIHEAD-SPINE: delegate to the verified program-generation pipeline.
+    // LatheOrchestrationInput extends TurningInput, so state.input IS a valid TurningInput.
+    // runPipeline is the fail-CLOSED emission authority: if it suppresses output (a critical
+    // warning -> empty program_text), the orchestrator emits NO program and records the block,
+    // which the result assembly folds into safetyBlocks (-> success:false, program_text shows BLOCK).
+    const result: TurningProgramResult = turningPrintToProgramEngine.runPipeline(state.input);
+    // U-LW-SPINE-RESULT-SURFACE: store the full result so the result assembly surfaces the pipeline's
+    // REAL operations / cycle-time / collision-checks (the spine's own reporting stages 24-29 are stubs).
+    state.pipeline_result = result;
+
+    // Fail-LOUD: surface the pipeline's own critical warnings on this stage's trace.
+    for (const w of result.warnings ?? []) {
+      if (w.severity === "critical") warnings.push(`[runPipeline:${w.stage}] ${w.message}`);
+    }
+
+    if (result.success && result.program_text.trim().length > 0) {
+      for (const line of result.program_text.split("\n")) state.program_lines.push(line);
+    } else {
+      // Fail-CLOSED: no program emitted; record the block for the result + release gate.
+      state.program_gen_block =
+        "program emission BLOCKED by runPipeline safety gate (no program emitted)";
+    }
   }
 
   private stageTnrcResolve(_state: PipelineState, _warnings: string[]): void {
@@ -959,8 +1023,29 @@ export class LatheOrchestrationEngine {
   }
 
   private stageSetupSheet(state: PipelineState, _warnings: string[]): void {
-    // Stub — will generate printable setup sheet
-    state.setup_notes.push("[SETUP] Setup sheet generation — stub");
+    // U-LW-SPINE-REPORTS: build a real operator setup sheet from the verified pipeline result
+    // (operation sequence + per-op cutting params + tool list + stock). Honest fail-soft: if no
+    // program was emitted (runPipeline fail-closed), emit no sheet rather than a fabricated one.
+    const pr = state.pipeline_result;
+    if (!pr || !pr.success || pr.operations.length === 0) {
+      state.setup_notes.push("[SETUP] Setup sheet not generated (no emitted program).");
+      return;
+    }
+    const lines: string[] = [];
+    lines.push("=== LATHE SETUP SHEET ===");
+    lines.push(`Part: ${state.input.part_number ?? "(unnamed)"}  |  Material: ${state.input.material?.material_name ?? "?"} (ISO ${state.input.material?.iso_group ?? "?"})`);
+    lines.push(`Stock: OD ${state.input.bar_stock_od_mm ?? "?"}mm x L ${state.input.part_length_mm ?? "?"}mm  |  Operations: ${pr.total_operations}  |  Tool changes: ${pr.total_tool_changes}  |  Est. cycle: ${(pr.estimated_cycle_time_sec / 60).toFixed(2)} min`);
+    lines.push("");
+    lines.push("OP | TYPE | TOOL | Vc(m/min) | fn(mm/rev) | ap(mm) | RPM");
+    for (const op of pr.operations) {
+      const cp = op.cutting_params;
+      lines.push(`${op.op_number} | ${op.operation_type} | T${op.tool?.tool_number ?? "?"} | ${cp.cutting_speed_m_min} | ${cp.feed_mm_rev} | ${cp.depth_of_cut_mm} | ${Math.round(cp.spindle_rpm)}`);
+    }
+    const tools = Array.from(new Set(pr.operations.map((op) => op.tool?.tool_number).filter((t) => t != null)));
+    lines.push("");
+    lines.push(`Tools required (${tools.length}): ${tools.map((t) => "T" + t).join(", ")}`);
+    state.setup_sheet = lines.join("\n");
+    state.setup_notes.push("[SETUP] Setup sheet generated from verified pipeline result.");
   }
 
   private stageProveOut(_state: PipelineState, _warnings: string[]): void {
@@ -980,12 +1065,51 @@ export class LatheOrchestrationEngine {
     });
   }
 
-  private stagePhysicsReport(_state: PipelineState, _warnings: string[]): void {
-    // Stub — physics traceability document
+  private stagePhysicsReport(state: PipelineState, _warnings: string[]): void {
+    // U-LW-SPINE-REPORTS: build a physics traceability report from the verified pipeline result --
+    // the per-op Kienzle cutting force (computed in runPipeline) + cutting params + the peak-force op
+    // that the workholding + spindle-torque gates size to. Real numbers only; no fabrication.
+    const pr = state.pipeline_result;
+    if (!pr || !pr.success || pr.operations.length === 0) return;
+    const lines: string[] = [];
+    lines.push("=== PHYSICS TRACEABILITY REPORT ===");
+    lines.push(`Material: ${state.input.material?.material_name ?? "?"} (ISO ${state.input.material?.iso_group ?? "?"})`);
+    lines.push("Per-op physics (Kienzle Fc = kc1.1 * ap * fn^(1-mc), computed in runPipeline):");
+    lines.push("OP | TYPE | Fc(N) | Power(kW) | Torque(Nm) | ToolLife(min) | Ra(um)");
+    let peakFc = 0;
+    let peakOp = 0;
+    let peakPower = 0;
+    for (const op of pr.operations) {
+      const ph = op.physics;
+      const fc = Number.isFinite(ph?.cutting_force_N) ? ph.cutting_force_N : 0;
+      const pw = Number.isFinite(ph?.power_kW) ? ph.power_kW : 0;
+      if (fc > peakFc) { peakFc = fc; peakOp = op.op_number; }
+      if (pw > peakPower) peakPower = pw;
+      lines.push(`${op.op_number} | ${op.operation_type} | ${Math.round(fc)} | ${pw} | ${ph?.torque_Nm ?? 0} | ${ph?.tool_life_min ?? 0} | ${ph?.predicted_Ra_um ?? 0}`);
+    }
+    lines.push("");
+    lines.push(`Peak cutting force: ${Math.round(peakFc)} N at OP${peakOp}; peak power ${peakPower} kW -- the workholding + spindle torque/power gates size to these.`);
+    state.physics_report = lines.join("\n");
   }
 
-  private stageCostReport(_state: PipelineState, _warnings: string[]): void {
-    // Stub — tool cost, cycle time, per-part cost
+  private stageCostReport(state: PipelineState, _warnings: string[]): void {
+    // U-LW-SPINE-REPORTS: surface the physical cost DRIVERS from the verified pipeline result --
+    // total + per-op cycle time and tool-change count. R7/R12: per-part $ (machine rate x time +
+    // tooling + material) is owned by the ERP/quoting galaxy, so this report defers it rather than
+    // inventing a rate.
+    const pr = state.pipeline_result;
+    if (!pr || !pr.success || pr.operations.length === 0) return;
+    const lines: string[] = [];
+    lines.push("=== COST DRIVERS REPORT ===");
+    lines.push(`Total cycle time: ${(pr.estimated_cycle_time_sec / 60).toFixed(2)} min (${Math.round(pr.estimated_cycle_time_sec)} s)`);
+    lines.push(`Operations: ${pr.total_operations}  |  Tool changes: ${pr.total_tool_changes}`);
+    lines.push("Per-op cycle time:");
+    for (const op of pr.operations) {
+      lines.push(`  OP${op.op_number} ${op.operation_type}: ${(Number.isFinite(op.cycle_time_sec) ? op.cycle_time_sec : 0).toFixed(1)} s`);
+    }
+    lines.push("");
+    lines.push("NOTE: per-part $ (machine rate x time + tooling + material) is owned by the ERP/quoting galaxy; this report surfaces the physical cost DRIVERS (cycle time + tool changes) only.");
+    state.cost_report = lines.join("\n");
   }
 
   private stageFaiPlan(_state: PipelineState, _warnings: string[]): void {
@@ -1168,6 +1292,16 @@ interface PipelineState {
   bar_stock_safety?: BarStockSafetyResult;
   clamping_analysis: OperationForceAnalysis[];
   backplot_points: Array<{ x: number; z: number; type: "rapid" | "cut" | "arc" }>;
+  /** U-LW-AIHEAD-SPINE: set when runPipeline fail-closes in GCODE_GENERATE -> folded into safetyBlocks. */
+  program_gen_block?: string;
+  /** U-LW-SPINE-RESULT-SURFACE: the verified pipeline result, stored so the result assembly surfaces
+   *  runPipeline's REAL operations / cycle-time / collision-checks (the spine's stages 24-29 are stubs). */
+  pipeline_result?: TurningProgramResult;
+  /** U-LW-SPINE-REPORTS: real report text built from pipeline_result in the late report stages
+   *  (PHYSICS_REPORT/SETUP_SHEET/COST_REPORT, which run AFTER GCODE_GENERATE sets pipeline_result). */
+  physics_report?: string;
+  setup_sheet?: string;
+  cost_report?: string;
 }
 
 // ============================================================================

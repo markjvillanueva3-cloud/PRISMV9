@@ -342,6 +342,10 @@ class ContentIngestionPipelineEngineImpl {
       source: `ingestion:${source}`,
     });
 
+    if (storedTip === null) {
+      return null;
+    }
+
     return {
       tip_id: storedTip.id,
       title: storedTip.title,

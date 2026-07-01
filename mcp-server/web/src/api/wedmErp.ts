@@ -73,7 +73,7 @@ export interface WedmInvoiceResponse {
   error?: string;
 }
 
-function post<T>(path: string, body: Record<string, unknown>): Promise<T> {
+function post<T>(path: string, body: unknown): Promise<T> {
   return fetchJson<T>(`${BASE}${path}`, {
     method: 'POST',
     headers: getRequestHeaders(),

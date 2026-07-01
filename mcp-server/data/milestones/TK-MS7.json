@@ -1,0 +1,93 @@
+{
+  "id": "TK-MS7",
+  "title": "Tribal Knowledge LLM/PUOA Deep Integration",
+  "track": "TK",
+  "status": "complete",
+  "started_at": "2026-04-14",
+  "completed_at": "2026-04-14T14:25:00Z",
+  "total_units": 3,
+  "completed_units": 3,
+  "description": "Deep integration of tribal knowledge into PRISM's LLM-level AI reasoning. Enable natural language tribal queries, PUOA tribal synthesis for task execution, and learning from LLM interactions.",
+  "units": [
+    {
+      "id": "TK-MS7-U32",
+      "title": "Natural Language Tribal Query Engine",
+      "status": "complete",
+      "completed_at": "2026-04-14T14:20:00Z",
+      "tests": 23,
+      "test_file": "tk-ms7-natural-language-query.test.ts",
+      "files_modified": [
+        "src/engines/TribalKnowledgeEngine.ts"
+      ],
+      "description": "Enable LLM to query tribal knowledge using natural language intents.",
+      "key_methods": [
+        "queryTribalNaturalLanguage(intent: string): TribalNLQueryResult",
+        "parseNaturalLanguageIntent(intent: string): ParsedTribalIntent",
+        "searchByParsedIntent(parsed: ParsedTribalIntent): KnowledgeTip[]",
+        "extractModifiersFromTips(tips: KnowledgeTip[]): TribalModifier[]",
+        "formatTribalSummaryForLLM(tips, parsed): string"
+      ]
+    },
+    {
+      "id": "TK-MS7-U33",
+      "title": "PUOA Tribal Synthesis for Task Execution",
+      "status": "complete",
+      "completed_at": "2026-04-14T14:22:00Z",
+      "tests": 15,
+      "test_file": "tk-ms7-puoa-tribal-synthesis.test.ts",
+      "files_modified": [
+        "src/engines/PRISMUnifiedOrchestratorEngine.ts"
+      ],
+      "description": "Synthesize tribal knowledge into PUOA task execution with auto-injection of modifiers and constraints.",
+      "key_methods": [
+        "queryTribalKnowledge(intent: string): TribalNLQueryResult",
+        "synthesizeTribalForTask(input, routing): TribalSynthesis",
+        "buildTribalNLQuery(input, routing): string",
+        "generateTribalSynthesisReport(...): string"
+      ]
+    },
+    {
+      "id": "TK-MS7-U34",
+      "title": "LLM Interaction Learning Loop",
+      "status": "complete",
+      "completed_at": "2026-04-14T14:24:00Z",
+      "tests": 16,
+      "test_file": "tk-ms7-llm-learning-loop.test.ts",
+      "files_modified": [
+        "src/engines/TribalKnowledgeEngine.ts"
+      ],
+      "description": "Capture new tribal knowledge from LLM reasoning interactions with auto-categorization and validation.",
+      "key_methods": [
+        "captureFromLLMReasoning(reasoning: LLMReasoningTrace): CaptureCandidate[]",
+        "validateAndCaptureLLMTip(candidate: CaptureCandidate): CaptureResult",
+        "createCaptureCandidate(input): CaptureCandidate",
+        "calculateLLMCaptureConfidence(data): number",
+        "calculateSimilarity(text1, text2): number"
+      ]
+    }
+  ],
+  "exit_gate": {
+    "natural_language_query": true,
+    "puoa_synthesis": true,
+    "llm_learning_loop": true,
+    "total_tests": 54
+  },
+  "summary": {
+    "engines_enhanced": [
+      "TribalKnowledgeEngine",
+      "PRISMUnifiedOrchestratorEngine"
+    ],
+    "new_types": [
+      "ParsedTribalIntent",
+      "TribalModifier",
+      "TribalConstraint",
+      "TribalNLQueryResult",
+      "LLMReasoningTrace",
+      "CaptureCandidate",
+      "TribalSynthesis",
+      "TribalSynthesisModifier",
+      "TribalSynthesisConstraint"
+    ],
+    "ai_integration": "Full LLM/PUOA integration enabling natural language tribal queries, automatic synthesis into task execution, and learning loop for capturing insights from LLM reasoning"
+  }
+}

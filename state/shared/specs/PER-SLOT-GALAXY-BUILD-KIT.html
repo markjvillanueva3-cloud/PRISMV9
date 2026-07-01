@@ -1,0 +1,194 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta name="prism-source-hash" content="1bfb3e9195fd690b9e23f91b8fd7bd2f6aa33e85d3f3c81a47cde2bdafb4de23">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Per-Slot Galaxy Build-Kit (2026-05-28)</title>
+<style>
+  :root {
+    --bg: #0f1014;
+    --panel: #1a1c23;
+    --panel-2: #232631;
+    --fg: #e4e6eb;
+    --fg-dim: #9aa0a8;
+    --border: #2c303a;
+    --ok: #4ade80;
+    --warn: #fbbf24;
+    --fail: #f87171;
+    --info: #60a5fa;
+    --link: #93c5fd;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; padding: 1.5rem; background: var(--bg); color: var(--fg);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, sans-serif;
+    font-size: 14px; line-height: 1.5; }
+  h1 { font-size: 1.6rem; margin: 0 0 0.25rem 0; }
+  h2 { font-size: 1.15rem; margin: 1.5rem 0 0.5rem 0; padding-bottom: 0.25rem;
+    border-bottom: 1px solid var(--border); color: var(--fg); }
+  .meta { color: var(--fg-dim); font-size: 0.85rem; margin-bottom: 1rem; }
+  .panel { background: var(--panel); border: 1px solid var(--border); border-radius: 6px;
+    padding: 0.75rem 1rem; margin-bottom: 1rem; }
+  .headline-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 0.5rem; margin-bottom: 1rem; }
+  .card { background: var(--panel-2); border: 1px solid var(--border); border-radius: 6px;
+    padding: 0.65rem 0.85rem; }
+  .card .lbl { font-size: 0.8rem; color: var(--fg-dim); }
+  .card .val { font-size: 1.4rem; font-weight: 600; margin: 0.15rem 0; font-variant-numeric: tabular-nums; }
+  .card .hint { font-size: 0.75rem; color: var(--fg-dim); }
+  .card.ok    { border-left: 3px solid var(--ok); }
+  .card.warn  { border-left: 3px solid var(--warn); }
+  .card.fail  { border-left: 3px solid var(--fail); }
+  .card.info  { border-left: 3px solid var(--info); }
+  table { width: 100%; border-collapse: collapse; margin: 0.5rem 0 1rem; font-size: 0.9rem;
+    background: var(--panel); border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }
+  caption { text-align: left; padding: 0.4rem 0.65rem; color: var(--fg-dim);
+    background: var(--panel-2); font-weight: 500; }
+  th, td { padding: 0.4rem 0.65rem; text-align: left; border-bottom: 1px solid var(--border);
+    font-variant-numeric: tabular-nums; vertical-align: top; }
+  th { background: var(--panel-2); color: var(--fg-dim); font-weight: 500;
+    text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.04em; }
+  tr:last-child td { border-bottom: none; }
+  td.right { text-align: right; }
+  ul, ol { margin: 0.4rem 0 1rem 1.25rem; }
+  li { margin: 0.15rem 0; }
+  .badge { display: inline-block; padding: 0.1rem 0.5rem; border-radius: 999px;
+    font-size: 0.75rem; font-weight: 500; background: var(--panel-2); color: var(--fg-dim);
+    border: 1px solid var(--border); }
+  .badge.ok   { background: rgba(74, 222, 128, 0.12); color: var(--ok);   border-color: rgba(74,222,128,0.3); }
+  .badge.warn { background: rgba(251, 191, 36, 0.12); color: var(--warn); border-color: rgba(251,191,36,0.3); }
+  .badge.fail { background: rgba(248, 113, 113, 0.12); color: var(--fail); border-color: rgba(248,113,113,0.3); }
+  .badge.info { background: rgba(96, 165, 250, 0.12); color: var(--info); border-color: rgba(96,165,250,0.3); }
+  .badge-grid { display: flex; flex-wrap: wrap; gap: 0.3rem; margin: 0.3rem 0 1rem 0; }
+  .kv { display: grid; grid-template-columns: max-content 1fr; gap: 0.2rem 0.85rem;
+    margin: 0.4rem 0 1rem 0; }
+  .kv .k { color: var(--fg-dim); }
+  svg.bar-chart { display: block; max-width: 100%; height: auto; }
+  svg .bar { fill: var(--info); }
+  svg .bar.ok   { fill: var(--ok); }
+  svg .bar.warn { fill: var(--warn); }
+  svg .bar.fail { fill: var(--fail); }
+  svg text { fill: var(--fg); font-family: monospace; font-size: 11px; }
+  svg .axis text { fill: var(--fg-dim); }
+  code { background: var(--panel-2); padding: 0 0.3rem; border-radius: 3px;
+    font-family: "Fira Code", Consolas, Menlo, monospace; font-size: 0.85em; }
+  a { color: var(--link); }
+  footer { margin-top: 2rem; padding-top: 0.75rem; border-top: 1px solid var(--border);
+    font-size: 0.8rem; color: var(--fg-dim); }
+</style>
+</head>
+<body>
+<h1>Per-Slot Galaxy Build-Kit (2026-05-28)</h1>
+<div class="meta">rendered from H:/prism/state/shared/specs/PER-SLOT-GALAXY-BUILD-KIT.md</div>
+<div class="meta">Generated 2026-05-28T15:19:09.404Z</div>
+<style>
+  .prism-md-body { max-width: 70rem; margin: 0 auto; }
+  .prism-h1 { font-size: 1.6rem; }
+  .prism-h2 { font-size: 1.25rem; border-bottom: 1px solid var(--border); padding-bottom: 0.25rem; }
+  .prism-h3 { font-size: 1.1rem; color: var(--info); }
+  .prism-h4, .prism-h5, .prism-h6 { font-size: 1rem; color: var(--fg-dim); }
+  .prism-md-body p { margin: 0.5rem 0; }
+  .prism-md-list { margin: 0.5rem 0 0.5rem 1.25rem; padding: 0; }
+  .prism-md-list li { margin: 0.15rem 0; }
+  .prism-md-table { border-collapse: collapse; margin: 0.75rem 0; width: 100%; }
+  .prism-md-table th, .prism-md-table td { border: 1px solid var(--border); padding: 0.35rem 0.6rem; text-align: left; }
+  .prism-md-table th { background: var(--panel-2); }
+  .prism-codeblock { background: var(--panel-2); border: 1px solid var(--border); border-radius: 4px; padding: 0.6rem 0.8rem; overflow-x: auto; font-family: "Cascadia Code", Consolas, monospace; font-size: 13px; }
+  .prism-inline-code { background: var(--panel-2); padding: 0 0.25rem; border-radius: 3px; font-family: "Cascadia Code", Consolas, monospace; font-size: 0.92em; }
+  .prism-quote { border-left: 3px solid var(--info); background: var(--panel-2); padding: 0.5rem 0.85rem; margin: 0.75rem 0; color: var(--fg-dim); }
+  .prism-hr { border: 0; border-top: 1px solid var(--border); margin: 1rem 0; }
+  .prism-link { color: var(--link); text-decoration: none; }
+  .prism-link:hover { text-decoration: underline; }
+  .prism-bad-link { color: var(--fail); text-decoration: line-through; }
+  .prism-unclosed::before { content: "⚠ unterminated code block"; display: block; color: var(--warn); font-size: 0.85em; margin-bottom: 0.25rem; }
+  </style><main class="prism-md-body"><nav class="prism-toc"><strong>Contents</strong><ul><li class="prism-toc-l1">Per-Slot Galaxy Build-Kit — self-bootstrap protocol</li><li class="prism-toc-l2">Why this exists</li><li class="prism-toc-l2">Auto-fire flow</li><li class="prism-toc-l2">The 8-step galaxy build protocol (every slot executes)</li><li class="prism-toc-l3">Step 1 — Domain charter (5 min)</li><li class="prism-toc-l3">Step 2 — Galaxy dir scaffold (5 min)</li><li class="prism-toc-l3">Step 3 — Domain inventory (15 min, parallel-agent friendly)</li><li class="prism-toc-l3">Step 4 — H:/-wide path atlas (10 min)</li><li class="prism-toc-l3">Step 5 — High-ROI memory population (15 min)</li><li class="prism-toc-l3">Step 6 — Custom hook + skill manifest (10 min)</li><li class="prism-toc-l3">Step 7 — PSN edges + cross-galaxy bridges (5 min)</li><li class="prism-toc-l3">Step 8 — Commit + wire (5 min)</li><li class="prism-toc-l2">Surfaces each slot must populate (delivers the 4-surface model)</li><li class="prism-toc-l2">Master-brain sync</li><li class="prism-toc-l2">Anti-patterns (every slot refuses)</li><li class="prism-toc-l2">Verification gate (every slot self-checks before commit)</li><li class="prism-toc-l1">1. Galaxy dir has all 4 files (CLAUDE.md, MEMORY.md, PATHS.md, TOOLBELT.md)</li><li class="prism-toc-l1">2. Soul has domain-specific frontmatter (not generic)</li><li class="prism-toc-l1">3. SLOT_GALAXY_MAP has your slot</li><li class="prism-toc-l1">4. Tribal injection actually finds something for your slot</li><li class="prism-toc-l2">Time budget per slot</li></ul></nav><h1 class="prism-h1">Per-Slot Galaxy Build-Kit — self-bootstrap protocol</h1>
+<blockquote class="prism-quote">Operator directive (2026-05-28): <em>&quot;generate a detailed set of instructions for each chat slot so when I launch the fleet with the desktop icon, the very first thing each chat does is start building their own galaxy so you don&#39;t have to do it by yourself.&quot;</em></blockquote>
+<h2 class="prism-h2">Why this exists</h2>
+<p>Building 24 slot galaxies serially in one alpha chat = 80K+ tokens, slow, single-point-of-failure. The fleet has 24 idle chats on launch. Each chat owning its own galaxy buildout is parallelism × token-economy × domain-correctness (each chat KNOWS its domain better than alpha can simulate).</p>
+<h2 class="prism-h2">Auto-fire flow</h2>
+<pre class="prism-codeblock"><code>LAUNCH-PRISM-FLEET.bat
+  → slot-tab-boot.ps1 -Slot &lt;name&gt;
+      → tier-3 fallback: fresh /checkin-&lt;slot&gt;
+          → galaxy-buildout-detect: galaxy exists?
+              → YES: skip → normal checkin flow
+              → NO:  inject first prompt = /galaxy-buildout-&lt;slot&gt;
+                  → slot reads state/shared/per-slot-galaxy-buildout/&lt;slot&gt;.md
+                  → executes 8-step protocol
+                  → commits in slot worktree
+                  → resumes normal work</code></pre>
+<h2 class="prism-h2">The 8-step galaxy build protocol (every slot executes)</h2>
+<p>Each slot, on first launch with no galaxy dir, performs these 8 steps in order. Each step is parallelizable within itself; sequential between.</p>
+<h3 class="prism-h3">Step 1 — Domain charter (5 min)</h3>
+<ul class="prism-md-list"><li>Read <code class="prism-inline-code">H:/CHAT-SLOT-DOMAINS.md</code> for this slot&#39;s canonical line.</li><li>Read <code class="prism-inline-code">state/shared/slot-souls/&lt;slot&gt;.md</code> to confirm voice/refuses align.</li><li>If soul is still generic-stub frontmatter (<code class="prism-inline-code">role: work</code>, <code class="prism-inline-code">voice: direct</code>, <code class="prism-inline-code">domain_filter: any</code>), realign with domain-specific frontmatter + 4-7 refuses. Use <code class="prism-inline-code">state/shared/slot-souls/{romeo,uniform,victor,xray}.md</code> as the realignment pattern.</li></ul>
+<h3 class="prism-h3">Step 2 — Galaxy dir scaffold (5 min)</h3>
+<ul class="prism-md-list"><li>Galaxy path = <code class="prism-inline-code">mcp-server/src/engines/&lt;galaxy-name&gt;/</code> where <code class="prism-inline-code">&lt;galaxy-name&gt;</code> is the entry from <code class="prism-inline-code">SLOT_GALAXY_MAP</code> in <code class="prism-inline-code">.claude/hooks/slot-context-bundle-inject.mjs</code>.</li><li>If your slot isn&#39;t in <code class="prism-inline-code">SLOT_GALAXY_MAP</code> yet, add it (use existing entries as the pattern; commit the wire in step 8).</li><li>Create <code class="prism-inline-code">engines/&lt;galaxy&gt;/CLAUDE.md</code> (scope) and <code class="prism-inline-code">engines/&lt;galaxy&gt;/MEMORY.md</code> (cross-session learnings). Templates: any of <code class="prism-inline-code">engines/{wiring,bug-hunting,dormant-data,blueprint-vision}/CLAUDE.md</code> (operator-canonical 2026-05-28 model).</li></ul>
+<h3 class="prism-h3">Step 3 — Domain inventory (15 min, parallel-agent friendly)</h3>
+<p>Dispatch parallel <code class="prism-inline-code">Explore</code> agents (one per surface) to enumerate domain assets:</p>
+<ul class="prism-md-list"><li><strong>Engines + dispatchers</strong> — <code class="prism-inline-code">prism_session:master_index_query</code> keyword=&quot;&lt;domain&gt;&quot; then <code class="prism-inline-code">prism_session:dispatcher_map_compact</code></li><li><strong>Skills</strong> — <code class="prism-inline-code">find ~/.claude/commands .claude/commands -name &quot;*.md&quot;</code> filtered by domain keywords</li><li><strong>Hooks</strong> — <code class="prism-inline-code">grep -l &quot;&lt;domain-keyword&gt;&quot; .claude/hooks/</code></li><li><strong>Memories</strong> — <code class="prism-inline-code">node H:/prism/scripts/memory-search.mjs &quot;&lt;domain&gt;&quot;</code> (or <code class="prism-inline-code">prism_memory:semantic_search</code>)</li><li><strong>Wiki</strong> — <code class="prism-inline-code">prism_knowledge:search</code> topic=&quot;&lt;domain&gt;&quot;</li><li><strong>Tribal tips</strong> — <code class="prism-inline-code">prism_knowledge:tribal_search</code> slot=&quot;&lt;slot&gt;&quot;</li><li><strong>State files</strong> — <code class="prism-inline-code">Glob state/**/&lt;domain&gt;*.{json,md}</code></li><li><strong>Scripts</strong> — <code class="prism-inline-code">Glob scripts/**/&lt;domain&gt;*.{mjs,ts,ps1}</code></li><li><strong>JM Die corpus pointers</strong> (if domain has shop-floor coverage) — <code class="prism-inline-code">JM DIE/&lt;sub-domain&gt;/</code></li><li><strong>MIT-OCW corpus</strong> (if domain has academic coverage) — <code class="prism-inline-code">extracted/mit-ocw/&lt;topic&gt;/</code></li></ul>
+<p>Write findings to <code class="prism-inline-code">engines/&lt;galaxy&gt;/MEMORY.md</code> under <code class="prism-inline-code">## Initial state (YYYY-MM-DD baseline at galaxy birth)</code>.</p>
+<h3 class="prism-h3">Step 4 — H:/-wide path atlas (10 min)</h3>
+<p>Build the absolute-path quick-map for THIS domain across the entire H: drive — not just <code class="prism-inline-code">mcp-server/</code>:</p>
+<ul class="prism-md-list"><li><code class="prism-inline-code">H:/PRISM/extracted/&lt;domain&gt;/</code> (extraction roots)</li><li><code class="prism-inline-code">H:/PRISM/extracted_modules/&lt;domain&gt;/</code></li><li><code class="prism-inline-code">H:/PRISM/JM DIE/&lt;sub-domain&gt;/</code></li><li><code class="prism-inline-code">H:/Tools/&lt;domain-related-tools&gt;/</code></li><li><code class="prism-inline-code">H:/&lt;archive-or-corpus-roots&gt;/</code></li><li>Any vendor / customer / dataset paths discovered in Step 3.</li></ul>
+<p>Output: <code class="prism-inline-code">engines/&lt;galaxy&gt;/PATHS.md</code> — one file with <code class="prism-inline-code">&lt;path&gt; | &lt;purpose&gt; | &lt;maintainer-slot&gt;</code> per line. This is the slot&#39;s &quot;where everything lives&quot; atlas. Reduces Grep/Glob across H: from O(N) to O(1).</p>
+<h3 class="prism-h3">Step 5 — High-ROI memory population (15 min)</h3>
+<p>Pull the top 10 memories by relevance to THIS domain:</p>
+<ul class="prism-md-list"><li><code class="prism-inline-code">prism_memory:semantic_search</code> query=&quot;&lt;domain&gt;&quot; topK=20</li><li>Filter to top 10 by recency + relevance score</li><li>For each: copy frontmatter + summary to <code class="prism-inline-code">engines/&lt;galaxy&gt;/MEMORY.md</code> under <code class="prism-inline-code">## High-ROI memories</code></li><li>Cross-link with <code class="prism-inline-code">[[memory-name]]</code> so future sessions know what&#39;s already known</li></ul>
+<h3 class="prism-h3">Step 6 — Custom hook + skill manifest (10 min)</h3>
+<p>List the domain-specific hooks/skills this slot uses most:</p>
+<ul class="prism-md-list"><li>Hooks: which UserPromptSubmit/PostToolUse hooks add value for this domain?</li><li>Skills: which <code class="prism-inline-code">/&lt;verb&gt;-&lt;domain&gt;</code> skills exist (or should exist)?</li><li>Tool calls: which Grep/Glob/Bash patterns get used repeatedly?</li></ul>
+<p>Output: <code class="prism-inline-code">engines/&lt;galaxy&gt;/TOOLBELT.md</code> — <code class="prism-inline-code">&lt;tool-or-skill&gt; | &lt;when-to-use&gt; | &lt;typical-savings&gt;</code>.</p>
+<h3 class="prism-h3">Step 7 — PSN edges + cross-galaxy bridges (5 min)</h3>
+<p>Declare cross-galaxy synergy edges in <code class="prism-inline-code">engines/&lt;galaxy&gt;/CLAUDE.md</code> under <code class="prism-inline-code">## Related galaxies</code>:</p>
+<ul class="prism-md-list"><li>Which galaxies CONSUME this slot&#39;s output?</li><li>Which galaxies PRODUCE inputs this slot needs?</li><li>What&#39;s the SHAPE of the bridge (data, schema, dispatcher action)?</li></ul>
+<p>For each edge, ensure the OTHER galaxy&#39;s CLAUDE.md mentions THIS galaxy too. Symmetric edges = real synergy; asymmetric = misalignment.</p>
+<h3 class="prism-h3">Step 8 — Commit + wire (5 min)</h3>
+<ol class="prism-md-list"><li>Stage: <code class="prism-inline-code">engines/&lt;galaxy&gt;/{CLAUDE,MEMORY,PATHS,TOOLBELT}.md</code> + <code class="prism-inline-code">state/shared/slot-souls/&lt;slot&gt;.md</code> (if realigned) + <code class="prism-inline-code">.claude/hooks/slot-context-bundle-inject.mjs</code> (if SLOT_GALAXY_MAP needed entry).</li><li>Commit on <code class="prism-inline-code">slot/&lt;slot&gt;</code> worktree (NOT shared <code class="prism-inline-code">H:/prism</code>) with subject:</li></ol>
+<p>``<code class="prism-inline-code">    [&lt;slot&gt;] [PER-SLOT-GALAXY-BUILDOUT]/U-PSGB-&lt;slot-upper&gt;: galaxy scaffold + inventory + paths + toolbelt + PSN edges    </code>``</p>
+<ol class="prism-md-list"><li>Append <code class="prism-inline-code">state/shared/specs/PER-SLOT-GALAXY-SYNERGY-ASSESSMENT-2026-05-28.md</code> <code class="prism-inline-code">## 2026-05-28 EXPANSION</code> table with <code class="prism-inline-code">&lt;slot&gt; | engines/&lt;galaxy&gt;/ | ✅ | ✅ | shipped</code>.</li><li>Render HTML twin: <code class="prism-inline-code">node H:/prism/scripts/md-to-html.mjs &lt;assessment-md&gt;</code> (HTML companion discipline).</li></ol>
+<h2 class="prism-h2">Surfaces each slot must populate (delivers the 4-surface model)</h2>
+<table class="prism-md-table"><thead><tr><th>Surface</th><th>Path</th><th>Purpose</th></tr></thead><tbody><tr><td>Soul</td><td><code class="prism-inline-code">state/shared/slot-souls/&lt;slot&gt;.md</code></td><td>Personality + refuses (already exists; realign if generic-stub)</td></tr>
+<tr><td>CLAUDE.md</td><td><code class="prism-inline-code">mcp-server/src/engines/&lt;galaxy&gt;/CLAUDE.md</code></td><td>Operational scope</td></tr>
+<tr><td>MEMORY.md</td><td><code class="prism-inline-code">mcp-server/src/engines/&lt;galaxy&gt;/MEMORY.md</code></td><td>Cross-session learnings + high-ROI memory pointers</td></tr>
+<tr><td>PATHS.md</td><td><code class="prism-inline-code">mcp-server/src/engines/&lt;galaxy&gt;/PATHS.md</code></td><td>H:/-wide path atlas for this domain (NEW per this protocol)</td></tr>
+<tr><td>TOOLBELT.md</td><td><code class="prism-inline-code">mcp-server/src/engines/&lt;galaxy&gt;/TOOLBELT.md</code></td><td>Custom hooks/skills/tool-call patterns (NEW per this protocol)</td></tr>
+<tr><td>Wiki bridges</td><td><code class="prism-inline-code">knowledge/wiki/architecture/&lt;topic&gt;.md</code></td><td>Citable doctrine (auto-linked from CLAUDE.md)</td></tr>
+<tr><td>Tribal injection</td><td>(auto via <code class="prism-inline-code">tribal-by-domain-inject</code> hook)</td><td>Top-3 tips per UserPromptSubmit</td></tr>
+<tr><td>Master-index entry</td><td>(auto via <code class="prism-inline-code">system-viz</code> regen)</td><td>Findable in graph + master-index queries</td></tr></tbody></table>
+<h2 class="prism-h2">Master-brain sync</h2>
+<p>Obsidian-feed Stop hook (<code class="prism-inline-code">stop-obsidian-memory-feed.mjs</code>) already copies <code class="prism-inline-code">C:/.claude/projects/H--prism/memory/&lt;type&gt;/*.md</code> → <code class="prism-inline-code">H:/prism/knowledge/memories/&lt;type&gt;/</code> every session-end. Every slot&#39;s MEMORY.md inherits from this:</p>
+<ul class="prism-md-list"><li>Write per-slot learnings as <code class="prism-inline-code">feedback_&lt;slot&gt;_&lt;topic&gt;.md</code> or <code class="prism-inline-code">reference_&lt;slot&gt;_&lt;topic&gt;.md</code> in the auto-memory dir.</li><li>Stop hook auto-feeds the master brain.</li><li>Next session of ANY slot can <code class="prism-inline-code">memory_search</code> and find the learning.</li></ul>
+<p>PSN&#39;s 11-leg taxonomy ([[feedback_psn_definition]]) auto-aggregates: Obsidian + PRISM OS + Wiki + Memories + Tribal + System Viz + Engines + Algorithms + Formulas + NN/GNN + PRISM AI. Each slot&#39;s galaxy IS the per-domain interface to all 11 legs.</p>
+<h2 class="prism-h2">Anti-patterns (every slot refuses)</h2>
+<ul class="prism-md-list"><li><strong>Building someone else&#39;s galaxy</strong> — each slot owns ONLY its own. Romeo doesn&#39;t build foxtrot&#39;s CLAUDE.md.</li><li><strong>Skipping the H:/-wide PATHS atlas</strong> — this is what makes &quot;easy paths to resources in the H drive&quot; actually work. Without it, slots fall back to Grep across 26K wiki files (token-disaster).</li><li><strong>Generic CLAUDE.md that just copies the template</strong> — the value is the per-domain customization. If your CLAUDE.md doesn&#39;t list YOUR domain&#39;s specific engines/hooks/skills, it&#39;s not done.</li><li><strong>MEMORY.md with no high-ROI memory pointers</strong> — Step 5 is mandatory; an empty MEMORY.md means future sessions of your slot re-derive everything.</li><li><strong>Committing in shared H:/prism tree</strong> — slot-worktree discipline is enforced by hook. Use <code class="prism-inline-code">H:/prism-slot-&lt;slot&gt;</code> on <code class="prism-inline-code">slot/&lt;slot&gt;</code> branch.</li></ul>
+<h2 class="prism-h2">Verification gate (every slot self-checks before commit)</h2>
+<pre class="prism-codeblock" data-lang="bash"><code># 1. Galaxy dir has all 4 files (CLAUDE.md, MEMORY.md, PATHS.md, TOOLBELT.md)
+test -f mcp-server/src/engines/&lt;galaxy&gt;/CLAUDE.md
+test -f mcp-server/src/engines/&lt;galaxy&gt;/MEMORY.md
+test -f mcp-server/src/engines/&lt;galaxy&gt;/PATHS.md
+test -f mcp-server/src/engines/&lt;galaxy&gt;/TOOLBELT.md
+
+# 2. Soul has domain-specific frontmatter (not generic)
+grep -q &quot;domain_filter: any&quot; state/shared/slot-souls/&lt;slot&gt;.md &amp;&amp; echo &quot;FAIL: still generic&quot;
+
+# 3. SLOT_GALAXY_MAP has your slot
+grep -q &quot;^\s*&lt;slot&gt;:&quot; .claude/hooks/slot-context-bundle-inject.mjs
+
+# 4. Tribal injection actually finds something for your slot
+prism_knowledge:tribal_search slot=&lt;slot&gt;</code></pre>
+<p>If any check fails → fix → re-verify → THEN commit.</p>
+<h2 class="prism-h2">Time budget per slot</h2>
+<table class="prism-md-table"><thead><tr><th>Step</th><th>Est. time</th><th>Cumulative</th></tr></thead><tbody><tr><td>1. Charter</td><td>5 min</td><td>5</td></tr>
+<tr><td>2. Scaffold</td><td>5 min</td><td>10</td></tr>
+<tr><td>3. Inventory (parallel)</td><td>15 min</td><td>25</td></tr>
+<tr><td>4. PATHS atlas</td><td>10 min</td><td>35</td></tr>
+<tr><td>5. Memory population</td><td>15 min</td><td>50</td></tr>
+<tr><td>6. Toolbelt</td><td>10 min</td><td>60</td></tr>
+<tr><td>7. PSN edges</td><td>5 min</td><td>65</td></tr>
+<tr><td>8. Commit + wire</td><td>5 min</td><td>70</td></tr></tbody></table>
+<p><strong>Total per slot: ~70 minutes wall-clock (≤15K tokens for routine domains; ≤30K for high-coverage domains like mill/cam/wedm).</strong></p>
+<p>24 slots × 70 min = 28 hours serial. Parallel across 24 chats simultaneously = ~70 min wall-clock for the whole fleet.</p>
+<p>— Established 2026-05-28 by slot:alpha (a198ff5f) as the canonical self-bootstrap protocol per operator&#39;s &quot;so you don&#39;t have to do it by yourself&quot; directive.</p></main><footer>
+<div>html-report-render schemaVersion 1.0.0</div>
+</footer>
+</body>
+</html>

@@ -6,7 +6,9 @@
 // metadata, scrutiny ledger notes, file-touch list, decision-log diffs)
 // and write a single dedup'd entry to BOTH:
 //   - knowledge/wiki/code-tribal/learnings/<unit-id>.md (project-lifetime, git-tracked)
-//   - C:/Users/Mark Villanueva/.claude/projects/H--PRISM/memory/reference_<slug>.md (Obsidian, cross-session)
+//   - <obsidian-mem-dir>/reference_<slug>.md (Obsidian, cross-session) — dir
+//     resolved via resolveObsidianMemDir() (homedir-derived, NOT a hardcoded
+//     username; previously wrote to a dead foreign-machine path → split-brain).
 //
 // SHA-256 of normalized content prevents double-entries on re-runs.
 //
@@ -23,10 +25,11 @@ import { promises as fs } from "node:fs";
 import { existsSync, statSync, readFileSync } from "node:fs";
 import path from "node:path";
 import crypto from "node:crypto";
+import { resolveObsidianMemDir } from "./lib/obsidian-mem-dir.mjs";
 
 const PRISM_ROOT = process.env.PRISM_ROOT || "H:/prism";
 const WIKI_LEARNING_DIR = path.join(PRISM_ROOT, "knowledge", "wiki", "code-tribal", "learnings");
-const OBSIDIAN_MEM_DIR = process.env.PRISM_OBSIDIAN_MEM_DIR || "C:/Users/Mark Villanueva/.claude/projects/H--PRISM/memory";
+const OBSIDIAN_MEM_DIR = resolveObsidianMemDir();
 const DEDUP_LEDGER = path.join(PRISM_ROOT, "state", "shared", ".post-ship-distill-dedup.jsonl");
 
 function git(args) {

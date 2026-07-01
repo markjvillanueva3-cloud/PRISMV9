@@ -231,12 +231,12 @@ describe('DashboardPage', () => {
     expect(screen.getByRole('heading', { name: 'Manufacturing Dashboard' })).toBeDefined();
   });
 
-  it('keeps the PRISM AI copilot built into the dashboard with persistent memory context', async () => {
+  it('keeps the Kienzle AI copilot built into the dashboard with persistent memory context', async () => {
     await renderDashboard();
 
     await waitFor(() => {
-      expect(screen.getByText(/PRISM AI copilot/i)).toBeDefined();
-      expect(screen.getByText(/Persistent PRISM memory/i)).toBeDefined();
+      expect(screen.getByText(/Kienzle AI copilot/i)).toBeDefined();
+      expect(screen.getByText(/Persistent Kienzle memory/i)).toBeDefined();
       expect(screen.getByText(/Safety-critical CNC manufacturing control system\./i)).toBeDefined();
       expect(screen.getByText(/Mounted dashboard snapshot/i)).toBeDefined();
     });

@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `vam-analyze` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/vam-analyze.md` |
+| Source | `C:/Users/wompu/.claude/commands/vam-analyze.md` |
 | Model | default |
 | Tags | _(none)_ |
 

@@ -1,0 +1,1657 @@
+{
+  "id": "KNOWLEDGE-WIKI-MS0",
+  "title": "Karpathy LLM-Wiki Pattern — Compounding Persistent Knowledge with Ollama+Obsidian Synergy",
+  "track": "KNOWLEDGE",
+  "status": "planned",
+  "version": "1.1.0",
+  "created_at": "2026-04-26",
+  "rgs_pipeline_pass": "1",
+  "rgs_quality_standard": "20-point standard per /rgs",
+  "compact_cadence": "every_3_units",
+  "compact_checkpoints_machine_checkable": ["after:U-WIKI04B", "after:U-WIKI07"],
+  "compact_cadence_reconciled": "P1 has 4 units (02/03/04/04B) so compact slips from after:03 to after:04B. P2 has 3 units (05/06/07) so compact stays after:07. Fixes Agent D contradiction #4.",
+  "priority": "HIGH",
+  "description": "Adopt Andrej Karpathy's LLM-Wiki pattern across PRISM. Replace stateless RAG with a compounding LLM-maintained markdown wiki. Ollama owns ~70-80% of maintenance (free); Claude reserved for synthesis and contradiction resolution. Wiki is canonical persistence layer surviving compaction, multi-chat handoffs, and session boundaries. Reuses 16 existing engines wholesale (4 Obsidian, 9 Ollama/AI, 3 knowledge). Adds 5 new engines + 1 dispatcher + 4 hooks + 4 scripts + 7 skills. Vault: H:/prism/knowledge (existing — no migration). Post-bootstrap: 30-50% session token reduction.",
+  "goals": [
+    "Replace RAG-on-every-query with persistent compounding wiki maintained incrementally",
+    "Wire Ollama for free wiki maintenance: summarization, drafting, lint candidate detection",
+    "Establish wiki/index.md and wiki/log.md as canonical multi-chat coordination artifacts",
+    "Build WikiLintEngine that cross-checks claims against physics constants and tribal tips",
+    "Cut session startup token cost 30-50% by replacing full digest reads with targeted wiki page loads",
+    "File every PRISM AI/AGI/DL output back as wiki pages so insights compound instead of evaporating",
+    "Codify the protocol in WIKI_SCHEMA.md so all 6 concurrent chats + Codex + Ollama agents follow same rules"
+  ],
+  "total_units": 11,
+  "naming_exceptions": "U-WIKI00 is a pre-foundation Stop-hook + build-cache repair unit (gates all downstream work; user-approval required). U-WIKI04B is a late-added harvest pass between U-WIKI04 and U-WIKI05.",
+  "schemaVersion": 2,
+  "target_omega": 1.0,
+  "svi_delta_target": "+3.0%",
+  "domain_prefix": "WIKI",
+  "leverages": [
+    "ObsidianVaultSyncEngine",
+    "ObsidianPluginBridgeEngine",
+    "TribalTipExportEngine",
+    "ShopFloorNoteIngestionEngine",
+    "OllamaTaskOffloaderEngine",
+    "OllamaHookBridgeEngine",
+    "AISystemRouterEngine",
+    "LocalAwarenessRouterEngine",
+    "TokenEconomyTrackerEngine",
+    "PRISMCreativeReasoningEngine",
+    "CrossDisciplinaryDeepLearningEngine",
+    "prismSelfAwarenessEngine",
+    "DuplicationGuardEngine",
+    "ContentIngestionPipelineEngine",
+    "TribalRAGEngine",
+    "KnowledgeGraphEngine"
+  ],
+  "dispatcher_target": "prism_wiki",
+  "vault_location": "H:/prism/knowledge",
+  "vault_reuses_existing": "H:/prism/knowledge/memories/ ALREADY contains 55+ Karpathy-style pages organized by user/feedback/project/reference. The Karpathy pattern is HALF-IMPLEMENTED. MS0 wires the maintenance protocol on top — does NOT recreate memories/.",
+  "skill_hook_ollama_triples": {
+    "key_insight": "Most algorithms are DETERMINISTIC MATH (Kienzle, Taylor, FFT, JC, deflection) — biggest token win is BYPASS LLM ENTIRELY, not 'route to Ollama'. Ollama only wins when task needs NL understanding (tip ranking, OCR, alarm-fix selection, fuzzy engine name match).",
+    "top_20_triples_by_impact": "See agent report; total potential savings ~464K tokens/day per active session",
+    "quick_win_batch_one_hook": {
+      "hook_file": "H:/prism/.claude/hooks/algorithm-auto-fire.mjs (NEW — to build in U-WIKI10)",
+      "covers_triples": ["#1 chip-check", "#2 auto-feed-correct", "#4 tool-life-now", "#5 chatter-rpm", "#8 chip-eject", "#11 deflect-check", "#15 fft-now", "#20 code-index"],
+      "routing": "Direct algorithm execution — ZERO LLM tokens",
+      "estimated_savings": "~250K tokens/day with single hook file"
+    },
+    "true_ollama_wins": {
+      "triples": ["#3 tribal-suggest (rank tips)", "#6 dedup (semantic similarity)", "#7 engine-find (fuzzy match)", "#12 anomaly-watch (classify)", "#14 print-read (vision OCR)", "#16 alarm-decode (rank fixes)"],
+      "routing": "Existing OllamaHookBridgeEngine extended with these 6 entry points",
+      "estimated_savings": "~140K tokens/day"
+    },
+    "extension_pattern_NOT_new_hooks": {
+      "principle": "Existing hooks already pattern-match prompts: formula-algorithm-suggest.mjs, mcp-route-suggest.mjs, ollama-skill-suggester.mjs, ollama-auto-router.mjs, ollama-unified-semantic-router.mjs",
+      "action": "Add the 20 triples as new entries in their dispatch tables — DON'T create 20 new hooks",
+      "wiring_in_milestone": "U-WIKI10 extends 5 existing hooks instead of creating new ones"
+    },
+    "skills_that_need_hook_auto_fire_not_new_skills": [
+      "/chip-control (skill exists, no hook auto-fires it)",
+      "/defaults (exists)",
+      "/calc (exists)",
+      "/drill-calc (exists)",
+      "/formula-check (exists)",
+      "/alarm-decode (exists)",
+      "/code-index (exists)",
+      "/dedup (exists)"
+    ],
+    "skills_to_NEW_create": [
+      "/chip-check", "/auto-feed-correct", "/tool-life-now", "/chatter-rpm",
+      "/chip-eject", "/heat-check", "/jc-stress", "/deflect-check",
+      "/anomaly-watch", "/trend-forecast", "/print-read", "/fft-now",
+      "/mat-resolve", "/tool-cluster", "/risk-mc", "/engine-find",
+      "/tribal-suggest"
+    ]
+  },
+  "scrutiny_findings_pass2": {
+    "average_score": 45.4,
+    "critical_gaps_to_address_before_execution": {
+      "P1_STOP_HOOK_CRISIS": "Agent 15 (score 28): 33 orphaned stop_on_*.mjs hooks exist but are NOT registered in settings.json. always-build-guard.mjs unwired despite being promised in MEMORY.md. 19 hooks silently disabled via DISABLED_TOKEN_REDUX_2026_04_23 marker. Builds are NOT bulletproof — sessions can end with TS errors/failing tests/broken imports without any blocking gate. This is a PRE-EXISTING LIVE BUG, surfaces in this milestone but requires repair BEFORE U-WIKI01 starts. Added as U-WIKI00.",
+      "P2_1M_CONTEXT_UNUSED": "Agent 12 (score 32): context_budget_pct caps (50/60/65/40) leave 350-600K unused. Stable digests (ENGINE_DIGEST 77.8K, DISPATCHER_DIGEST, INVENTORY) re-loaded each session with no cache_control. Anthropic 5min TTL ignored.",
+      "P3_DRIFT_DEFENSES_THIN": "Agent 13 (score 47): no wiki-vs-wiki contradiction check; no quote-provenance tracking (paraphrase laundering risk across 6 chats); confidence reinforcement unidirectional; citations not resolve-validated; Ollama drift not quarantined separately.",
+      "P4_BUILD_TEST_GAPS": "Agent 14 (score 58): coverage floors absent; backend audit chain not referenced; index.cjs build cache invalid not addressed; some units use vacuous 'tests pass' phrasing.",
+      "P5_UTILIZATION_PARTIAL": "Agent 11 (score 62): 30+ relevant engines (WEDM AGI cluster 7, Lathe AGI cluster 4, MillingAGIMaster, postprocessor AGI cluster, ProactiveAI, ChainOfThought, TemporalReasoning) not in harvest_targets; 9/10 shared directives only globbed; 60+ hooks flattened with no cascade plan; 25 awareness skills (/karpathy /aware /foresight) not bridged."
+    }
+  },
+  "live_system_bugs_surfaced_by_scrutiny": {
+    "stop_hook_registration_drift": {
+      "severity": "CRITICAL",
+      "evidence": "Agent 15 audit: 6 of 6 settings.json Stop hooks have continueOnError:true except stop_on_hook_unregistration.mjs. 33 stop_on_*.mjs files orphaned. always-build-guard.mjs promised in MEMORY.md but unwired.",
+      "user_impact": "Sessions can ship with broken builds, failing tests, unwired engines — no blocking gate fires",
+      "fix_required_before_MS0_starts": "U-WIKI00 (NEW pre-foundation unit) re-registers orphan Stop hooks AND audits the 19 DISABLED_TOKEN_REDUX_2026_04_23 short-circuits"
+    },
+    "build_cache_invalid": {
+      "severity": "MAJOR",
+      "evidence": "Three PostToolUse Edit hook fires reported 'BUILD CACHE INVALID: Build artifact missing: index.cjs' during this session",
+      "user_impact": "MCP server may be running stale dist; affects every other chat",
+      "fix_required_before_MS0_starts": "U-WIKI00 step: rebuild dist/index.cjs via `npm run build` and assert artifact exists"
+    },
+    "memory_md_path_divergence": {
+      "severity": "MINOR",
+      "evidence": "Per global ~/.claude/CLAUDE.md, auto-memory writes to ~/.claude/projects/H--prism/memory/MEMORY.md. Per project state, memories live at H:/prism/knowledge/memories/. Two parallel memory stores, no sync.",
+      "user_impact": "Memories drift; same insight written to both, neither is authoritative",
+      "fix_in_U-WIKI04B": "Build sync hook + canonical-store election"
+    }
+  },
+  "context_window_strategy_1M_aware": {
+    "model": "Opus 4.7 [1M] — 1,000,000 token context window",
+    "stable_prefix_to_cache": [
+      "mcp-server/data/docs/ENGINE_DIGEST.md (~78K, regenerates rarely)",
+      "mcp-server/data/docs/DISPATCHER_DIGEST.md",
+      "mcp-server/data/docs/DIRECTORY_DIGEST.md",
+      "mcp-server/data/docs/CODE_SYSTEM_INDEX.json",
+      "PRISM-INVENTORY-LATEST.md (refreshed once/session)",
+      "state/shared/PRISM-SELF-AWARENESS-DIRECTIVE.md",
+      "state/shared/CLAUDE-CODEX-*.md (10 directives)",
+      "WIKI_SCHEMA.md (after U-WIKI01)"
+    ],
+    "estimated_cached_prefix_size": "~150-200K tokens",
+    "anthropic_cache_ttl_min": 5,
+    "keep_alive_strategy": "Tool call every 4 minutes during long thinking sessions to refresh TTL",
+    "context_budget_pct_revisions": {
+      "current_phase_caps": {"P0": 50, "P1": 60, "P2": 65, "P3": 40},
+      "1M_aware_phase_caps": {"P0": 75, "P1": 85, "P2": 85, "P3": 70},
+      "rationale": "Reserve 150K headroom for tool I/O, not 400-600K. Use freed budget to load ALL relevant context upfront in cached prefix, then 5-min TTL keeps it warm at near-zero cost."
+    },
+    "session_batch_strategy": "Queue ≥5 wiki ops per session before /handoff — amortizes the 150K cached prefix across all ops. Solo-op sessions are wasteful.",
+    "cache_breakpoint_directive_for_implementer": "Each engine's first call in a session should request cache_control: { type: 'ephemeral' } on the stable prefix block. See Anthropic SDK prompt-caching docs.",
+    "expected_savings": "~60-70% reduction on stable-content re-loads across sessions"
+  },
+  "drift_hallucination_defenses_added": {
+    "wiki_vs_wiki_contradiction_check": {
+      "engine": "WikiCrossPageContradictionEngine (NEW — to add to U-WIKI03 deliverables)",
+      "method": "Pairwise NLI (natural language inference) check across pages on same topic. Routed to Ollama. Flags contradictions to lint-reports/.",
+      "trigger": "Post-edit hook + nightly cron"
+    },
+    "citation_resolver": {
+      "method": "Every citation in frontmatter (engine path, formula ID, tribal tip ID) must resolve to a live target. Hard-block on dead refs.",
+      "wiring": "U-WIKI03 WikiLintEngine adds resolve_citations() check — extends the lint, not separate engine"
+    },
+    "quote_provenance_tracking": {
+      "frontmatter_field": "quote_lineage: [{claim_id, original_source, paraphrased_by_chat?}]",
+      "purpose": "Prevent paraphrase laundering — if chat-2 quotes chat-1's claim, lineage tracks back to original_source",
+      "hard_check": "If quote_lineage chain ends without an external source (registry/code/source-doc), flag as ungrounded"
+    },
+    "ollama_quarantine_tier": {
+      "rule": "Ollama-authored pages capped at confidence: 0.6 max until Claude-verified",
+      "frontmatter_field": "author: ollama|claude|hybrid + verified_by: chat-{id}",
+      "lint_check": "Ollama pages with confidence > 0.6 and no verified_by → flag CRITICAL"
+    },
+    "contradiction_decay": {
+      "rule": "When peer page asserts negation, both pages confidence drops by 0.2 until contradiction resolved",
+      "wiring": "WikiSelfAwarenessSyncEngine.applyContradictionDecay()"
+    },
+    "cascade_revert": {
+      "action": "prism_wiki:cascade_revert(claim_id) walks all citing pages via quote_lineage and reverts each",
+      "wiring": "Add to wikiDispatcher in U-WIKI06"
+    },
+    "canonical_re_derivation_job": {
+      "schedule": "Nightly cron (U-WIKI08)",
+      "method": "For every claim with formula/code source, recompute and diff against wiki value. >2% drift → flag CRITICAL.",
+      "engine": "Extends WikiLintEngine"
+    }
+  },
+  "build_test_hardening": {
+    "coverage_floors_per_engine_type": {
+      "new_safety_critical": 0.95,
+      "new_standard": 0.90,
+      "modified_existing": "must equal pre-modification floor (anti-regression)"
+    },
+    "banned_test_patterns_hard_block": [
+      "toBeGreaterThan(0)",
+      "toBeLessThan(1000)",
+      "toBeDefined()",
+      "toBeTruthy() without assertion on value",
+      "expect(array.length).toBeGreaterThan(0)",
+      "ranges wider than ±15% (e.g. 'between 0.004 and 0.020')"
+    ],
+    "tests_must_pass_threshold": {
+      "minimum_assertions_per_test": 3,
+      "must_use_real_fixtures": true,
+      "must_compare_to_published_or_canonical_values": true
+    },
+    "build_required_per_unit": "EVERY unit's exit_gate must include build_required: true with full `npm run build` (tsc + esbuild), NOT build:fast",
+    "backend_audit_chain_per_unit": "After every code-touching unit, run: prism_dev:test_smoke → auto_wiring_analyze → schema_gap_scan → quality_dashboard → build_guard_chain",
+    "tests_must_not_drop_from_baseline": "Per-unit assertion: vitest count must be >= baseline + N (where N is test files added by unit)",
+    "index_cjs_repair": "U-WIKI00 step 1: `npm run build && test -f mcp-server/dist/index.cjs` — repair the cache invalid state surfaced earlier in this session"
+  },
+  "additional_harvest_engines_round_2": {
+    "wedm_agi_cluster": [
+      "WEDMNeuralFormulaFusionEngine", "WEDMSelfAwarenessEngine",
+      "WEDMContinuousLearningEngine", "WEDMTransferLearningEngine",
+      "WEDMReasoningTraceLedgerEngine", "WEDMTribalRuntimeEngine",
+      "WEDMTribalTipLearnerEngine"
+    ],
+    "lathe_agi_cluster": [
+      "LatheAGIContinuousLearningEngine", "LatheAGIKnowledgeUnificationEngine",
+      "LatheAGIFeatureBridgeEngine", "LatheAGISafetyContainmentEngine"
+    ],
+    "postprocessor_agi_cluster": [
+      "MasterPostProcessorAGIOrchestrationEngine", "PostProcessorIntelligenceOrchestratorEngine",
+      "PostProcessorUltimateAIEngine", "PostProcessorKnowledgeEngine"
+    ],
+    "awareness_engines": [
+      "MillingAGIMasterEngine", "MillAISelfAwarenessIntegrationEngine",
+      "ModelAwareSelfAwarenessEngine", "HolisticMachiningIntelligenceEngine",
+      "MachiningIntelligenceOrchestratorEngine", "ProactiveAIIntelligenceEngine",
+      "ProactiveLearningEngine"
+    ],
+    "reasoning_engines": [
+      "ChainOfThoughtEngine", "DeepLogicTraceEngine",
+      "TemporalReasoningEngine", "MillingReasoningTraceLedgerEngine"
+    ],
+    "context_optimization_engines": [
+      "SkillInliningOptimizerEngine", "ProgressiveDisclosureEngine",
+      "SessionReorientationEngine", "ConversationStaleDetectorEngine",
+      "FileReadDeduplicationEngine", "ToolCallParallelizationEngine"
+    ],
+    "build_intelligence_engines": [
+      "BuildAdvisorEngine", "BuildPlannerEngine",
+      "ChangeImpactRadiusEngine", "CounterfactualBuildSimulatorEngine",
+      "SuccessPatternBankEngine", "MillingAILearningOrchestratorEngine"
+    ],
+    "skills_to_bridge_round_2": [
+      "/karpathy", "/aware", "/awareness-check", "/capability-manifest",
+      "/foresight", "/curiosity-queue", "/reflect", "/propose-goal",
+      "/synthesize", "/generalize", "/trend", "/simulate-change",
+      "/impact", "/pre-flight", "/error-learner", "/decision-log",
+      "/efficiency-pulse", "/self-improve", "/scout", "/forge-from-scout",
+      "/learn-everything", "/extract-dark-content", "/_self-awareness-protocol"
+    ],
+    "directives_per_file_ingestion": [
+      "AGENT_BOUNDARY_DIRECTIVE.md",
+      "CLAUDE-CODEX-COMMAND-AWARENESS-DIRECTIVE.md",
+      "CLAUDE-CODEX-SPAWNED-AGENT-DIRECTIVE.md",
+      "CLAUDE-CODEX-MCP-DIRECTIVE.md",
+      "CLAUDE-CODEX-COORDINATION-DIRECTIVE.md",
+      "CLAUDE-CODEX-TASK-QUEUE-DIRECTIVE.md",
+      "CLAUDE-CODEX-SVI-DIRECTIVE.md",
+      "CLAUDE-CODEX-SEARCH-TOKEN-DIRECTIVE.md",
+      "CLAUDE-CODEX-ROADMAP-EXECUTION-DIRECTIVE.md",
+      "PRISM-SELF-AWARENESS-DIRECTIVE.md"
+    ]
+  },
+  "robust_optimization_targets": {
+    "rtk_integration": {
+      "scope": "EVERY bash command spawned by wiki ops MUST use rtk prefix",
+      "wiring_in_units": "U-WIKI04 (ingest router shells out via rtk), U-WIKI04B (harvest script uses rtk for git/grep/find), U-WIKI08 (cron scripts use rtk wrappers)",
+      "audit_command": "grep -rn 'execSync\\|spawn\\|exec(' mcp-server/src/engines/Wiki*.ts mcp-server/scripts/wiki-*.mjs | grep -v 'rtk'",
+      "exit_criterion": "Audit returns 0 unwrapped bash invocations across all wiki engines + scripts",
+      "expected_savings": "60-90% on bash output across all wiki ops"
+    },
+    "claude_md_optimization": {
+      "current_state": "H:/prism/CLAUDE.md is 1 monolithic file, ~250 lines — read in full every session",
+      "target_state": "CLAUDE.md becomes a thin index pointing to wiki/index.md; section-on-demand load via Ollama enforcer",
+      "modifications_in_U-WIKI01": "+20 lines wiki protocol section",
+      "modifications_in_U-WIKI08": "Replace 'Read PRISM-INVENTORY-LATEST.md if you need counts' with 'Query wiki/index.md (cached, ~100 lines) first; fall back to digests only if wiki returns no relevant page'",
+      "ollama_enforcer_extension": "claudemd-ollama-enforcer.mjs already injects 3-5 relevant rules per prompt. Extend to also inject 1-2 wiki page refs based on prompt keywords (free, via Ollama)",
+      "expected_savings": "Per session: ~250 lines CLAUDE.md → ~50 lines (wiki-page-refs only). ~3K-5K tokens/session saved"
+    },
+    "memories_optimization": {
+      "current_state": "H:/prism/knowledge/memories/{user,feedback,project,reference}/*.md — 55+ loose pages, no MEMORY.md aggregator",
+      "issue": "Auto-memory hook system at ~/.claude/projects/H--prism/memory/MEMORY.md (different path) exists per global CLAUDE.md but H:/prism/knowledge/memories/ is the production set — diverged",
+      "fix_in_U-WIKI04B": "(1) Create MEMORY.md aggregator at H:/prism/knowledge/memories/MEMORY.md indexing all 55+ pages. (2) Reconcile with ~/.claude/projects/H--prism/memory/MEMORY.md by symlink or sync hook. (3) Wire SessionStart hook (wiki-session-start-digest.mjs) to surface 1-3 memory pages most relevant to today's intent (via HNSW), NOT all 55.",
+      "ollama_routing": "Memory page relevance scoring routed to Ollama (free); Claude only loads selected pages",
+      "expected_savings": "SessionStart no longer loads all memories — saves ~10K tokens/session at the high end. Ollama relevance scoring is free."
+    },
+    "prism_awareness_optimization": {
+      "current_state": "prismSelfAwarenessEngine.recommendAIFeatures(task) crawls source files when called",
+      "fix_in_U-WIKI05": "(1) Add getWikiContext(task) method returning 1-3 wiki pages via HNSW similarity. (2) Cache against wiki/index.md mtime. (3) Fall back to source crawl only if wiki returns nothing.",
+      "auto_self_awareness_pages": "Every session, post-Stop hook (wiki-stop-lint.mjs) appends a 'session learnings' bullet to wiki/trajectories/{date}.md — compounds awareness data",
+      "expected_savings": "recommendAIFeatures: ~5K tokens (source crawl) → ~500 tokens (wiki page read). 90%+ reduction."
+    },
+    "ollama_routing_expansion": {
+      "additions_beyond_baseline": [
+        "Memory page relevance scoring (currently no router)",
+        "CLAUDE.md rule selection extended to include wiki page refs",
+        "Drift candidate detection (lint engine — already in U-WIKI03)",
+        "Pattern-mined skill stub draft generation (U-WIKI04B — Ollama writes the .draft, Claude only reviews)",
+        "Coding/SE/UX tribal page summarization on harvest (U-WIKI04B bulk)",
+        "Error→lesson rendering (U-WIKI04B WikiErrorLearningBridge — Ollama drafts, Claude only on architecturally significant lessons)",
+        "Cross-reference suggestion across wiki pages (continuous, post-edit hook)"
+      ],
+      "target_ollama_share": "≥80% (up from baseline ≥70% in token_economy_targets)",
+      "measurement": "TokenEconomyTrackerEngine reports per op + per stage"
+    },
+    "obsidian_routing_expansion": {
+      "additions_beyond_baseline": [
+        "wiki/code-tribal/ syncs to Obsidian as 'Coding' folder — operator can browse SOLID/TDD/error patterns visually",
+        "wiki/architecture/ syncs as 'Architecture' with Obsidian graph view of cross-refs (this is where Obsidian shines)",
+        "wiki/lessons/ syncs as 'Lessons' — error-to-recovery patterns, browsable as a learning journal",
+        "Obsidian Web Clipper integration: when user clips an article, lands in raw/ → auto-triggers WikiIngestRouter (already wired in OBSIDIAN-MS0 sync)",
+        "Dataview YAML frontmatter on every page so Obsidian users can build dynamic tables (e.g. all decisions by confidence > 0.8)"
+      ]
+    }
+  },
+  "harvest_targets": {
+    "ai_agi_engines_to_wire": [
+      "CAMAGIMasterOrchestratorEngine", "CAMAGIReasoningEngine",
+      "MasterPostProcessorUnifiedAGIEngine", "CausalReasoningEngine",
+      "LatheMasterPostDeepReasoningEngine", "LatheMasterPostSelfAwarenessEngine",
+      "LatheSpeedFeedReasoningBridgeEngine", "ModelAwareSelfAwarenessEngine",
+      "KnowledgeGapAwarenessEngine", "MillingInferenceOrchestratorEngine",
+      "MillingReasoningTraceLedgerEngine", "PPValidatorAGIWiringEngine",
+      "PostProcessorDeepReasoningEngine", "MillMasterOrchestratorFacadeEngine"
+    ],
+    "deep_learning_engines_to_wire": [
+      "FusionDeepLearningEngine", "HyperMillDeepLearningEngine",
+      "LatheSpeedFeedDeepLearningAdvisorEngine", "MastercamDeepLearningEngine",
+      "MillDeepLearningEngine", "PostProcessorDeepLearningEngine",
+      "AdvancedStatisticalLearningEngine", "BayesianInferenceEngine",
+      "BayesianAdaptiveEngine", "FuzzyNeuralHybridEngine",
+      "MillStrategyNeuralEngine", "NeuralCADGenerationEngine",
+      "PhysicsNeuralBridgeEngine", "NeuralModelRegistryEngine",
+      "MachineLearningStrategyRankerEngine", "MachineLearningFeedbackEngine",
+      "FleetLearningStrategyEngine", "FleetDeploymentLearningEngine"
+    ],
+    "error_learning_engines_to_wire": [
+      "CADTrialErrorLearningEngine — explicit trial-and-error → wiki/lessons/*",
+      "CAMMachiningErrorPredictionEngine", "CADCrashRecoveryEngine",
+      "CADFailureTriageEngine", "ChainFailureRecoveryEngine",
+      "ErrorBudgetEngine", "ErrorContextEngine", "ErrorExplainerEngine",
+      "GateFailureHistoryEngine", "PredictiveFailureEngine",
+      "LessonRendererEngine — turns errors into wiki lessons",
+      "WEDMDriftDetectionEngine", "CAMMLDriftMonitorEngine",
+      "AnomalyDetectionEngine"
+    ],
+    "pattern_miners_to_wire_for_skill_generation": [
+      "MacroPatternMinerEngine — mines macros from JM Die programs",
+      "MillPatternMinerEngine", "NCPatternMinerEngine",
+      "SafetyPatternMinerEngine", "SelfImprovementPatternEngine",
+      "FileAccessPatternEngine", "MacroPatternMinerEngine"
+    ],
+    "auto_enforcement_engines_to_wire": [
+      "AIFeatureAutoRegistryEngine", "AutoFixPipelineEngine",
+      "AutonomousAIOrchestrationEngine", "AutomationChainEngine",
+      "MultiSignalAutoRollbackEngine", "HookEngine", "HookEfficiencyEngine",
+      "HookRuleMatcherEngine", "LocalHookAggregatorEngine",
+      "NLHookEngine — natural language hook authoring",
+      "PipelineConsistencyHookEngine", "PhysicsAutoCalibrationEngine"
+    ],
+    "token_context_engines_to_wire": [
+      "ActionSchemaCacheEngine", "CacheEngine", "OutputCacheEngine",
+      "CompactionStrategyEngine", "CompactionSurvivalEngine",
+      "ContextBudgetEngine", "ContextBudgetForecastEngine",
+      "ContextChainEngine", "ContextDigestEngine", "ContextIntegrityEngine",
+      "ContextInventoryEngine", "ContextPreloaderEngine", "ContextSnapshotEngine",
+      "ContextWindowMapEngine", "ContextWindowPressureEngine",
+      "ConversationBudgetEngine", "OutputBudgetEnforcerEngine",
+      "DiffTokenEstimatorEngine", "MemoryGraphEngine", "PersistentMemoryEngine",
+      "ProgramMemoryEngine", "MultiSessionHandoffCoordinatorEngine",
+      "PromptCompressionEngine", "CostAwareRouterEngine", "CostSavingsTrackerEngine"
+    ],
+    "tribal_knowledge_to_index": {
+      "cam_tip_files_24": [
+        "fusion360-cam-tips.ts", "nx-cam-tips.ts", "mastercam-cam-tips.ts",
+        "controller-knowledge-tips.ts", "edgecam-cam-tips.ts", "gibbscam-cam-tips.ts",
+        "esprit-cam-tips.ts", "catia-cam-tips.ts", "camworks-cam-tips.ts",
+        "surfcam-cam-tips.ts", "bobcad-cam-tips.ts", "topsolid-cam-tips.ts",
+        "worknc-cam-tips.ts", "tebis-cam-tips.ts", "cimatron-cam-tips.ts",
+        "powermill-cam-tips.ts", "sprutcam-cam-tips.ts", "hypermill-cam-tips-ext.ts",
+        "solidcam-cam-tips.ts", "hypermill-extracted-tips.ts", "auto-ingested-tips.ts",
+        "wedm-knowledge-tips.ts", "tribal-knowledge-tips.ts",
+        "fusion360-cam-tips-ext.ts", "nx-cam-tips-ext.ts"
+      ],
+      "knowledge_engines_to_query": [
+        "BoxKnowledgeIntegrationEngine", "CADDrawingKnowledgeEngine",
+        "CADKnowledgeGraphEngine", "CamKnowledgePortabilityEngine",
+        "CAMTribalKnowledgeEngine", "CAMTribalRAGEngine",
+        "CAMTribalKnowledgeInjectionEngine", "CAMTribalTipLinkerEngine",
+        "ControllerKnowledgeDBEngine", "FusionStrategyKnowledgeEngine",
+        "HyperMillStrategyKnowledgeEngine", "KnowledgeCurriculumBridgeEngine",
+        "KnowledgeIngestionOrchestratorEngine", "KnowledgeQueryEngine",
+        "KnowledgeLineageEngine", "MachiningPlaybookEngine",
+        "MachiningKnowledgeBaseEngine", "ManufacturingKnowledgeGraphEngine",
+        "MillTribalKnowledgeEngine", "OkumaDialectKnowledgeEngine",
+        "PipelineArchitectureEngine"
+      ],
+      "existing_memory_pages_55": "H:/prism/knowledge/memories/{user,feedback,project,reference}/*.md — already organized in Karpathy structure",
+      "shared_directives": "H:/prism/state/shared/*.md — 6-chat coordination directives, AGENT_WORKBOARD, ROADMAP_COLLABORATION_STATE",
+      "coding_se_ux_pillars": {
+        "coding": ["CodingCopilotEngine", "memories/feedback/feedback_no_delete_assets.md", "memories/feedback/feedback_dont_soften_completeness_gates.md", "memories/feedback/feedback_always_build.md", "memories/feedback/feedback_ai_first_development.md"],
+        "system_architecture": ["PipelineArchitectureEngine", "memories/reference/plugin_architecture.md", "memories/reference/distributed_locking.md", "memories/reference/devops_improvements.md"],
+        "software_engineering": ["SOLID expert tip", "feedback_safety_critical_tests.md", "feedback_esbuild_externals.md", "feedback_esm_toplevel_return.md", "feedback_post_development.md", "feedback_hook_process_hygiene.md"],
+        "ui_ux_design": ["mcp-server/web/* analysis", "feedback_frontend_codex.md", "feedback_ppg_frontend.md", "feedback_lightsaber_borders.md", "feedback_ppg_quality.md"]
+      }
+    },
+    "skill_generation_pattern": "When MacroPatternMinerEngine surfaces a recurring NC pattern (occurrence ≥ 5 across JM Die programs) AND confidence > 0.85, WikiPatternHarvesterEngine auto-generates a skill stub at ~/.claude/commands/auto-{pattern-name}.md (marked .draft, requires human approval before activation). Stops users + Claude from re-doing the same lookup."
+  },
+  "cross_track_dependencies": [
+    "OBSIDIAN-MS0 (complete) — reuses 4 engines wholesale",
+    "LOCAL-LLM-MS0 (in_progress) — soft dep on Ollama infra (already wired enough for MS0)",
+    "QA-MS0 — wiki test patterns must conform to safety-critical test law",
+    "SYS — no direct conflict; CLAUDE.md edits are additive",
+    "CAM-EXHAUST-MS0 (active per branch work/cam-exhaust-ms0) — no engine overlap; defer U-WIKI08 inventory refresh + roadmap-index write until CAM-EXHAUST quiescent OR coordinate via AGENT_WORKBOARD chat_post + claim_file lock"
+  ],
+  "baseline_inventory_reverification": {
+    "trigger": "After U-WIKI08 ships",
+    "expected_deltas": {
+      "engines": "+5 (2392 → 2397)",
+      "dispatchers": "+1 (91 → 92)",
+      "actions": "+14 (5685 → 5699)",
+      "claude_hooks": "+4 (314 → 318)",
+      "scripts": "+4 (32 → 36)",
+      "user_slash_commands": "+7 (301 → 308)"
+    },
+    "command": "node H:/prism/scripts/update-prism-inventory.mjs --refresh-baseline"
+  },
+  "mcp_lifecycle": {
+    "session_start": [
+      "prism_session:context_boot",
+      "prism_session:dispatcher_map_compact",
+      "prism_session:memory_recall",
+      "prism_session:system_snapshot",
+      "prism_session:action_search 'wiki ingest lint'"
+    ],
+    "during_work_every_5_to_10_calls": [
+      "prism_session:auto_checkpoint",
+      "prism_session:action_search",
+      "prism_session:tool_route_best",
+      "prism_session:wip_capture"
+    ],
+    "session_end": [
+      "prism_session:memory_save",
+      "prism_session:system_snapshot",
+      "prism_session:checkpoint_enhanced"
+    ]
+  },
+  "forge_triple": {
+    "title": "Wiki Maintenance Capability",
+    "protective_hook": "wiki-pre-edit.mjs (prevents wiki/* writes without claim_file lock and log.md entry)",
+    "mcp_action": "prism_wiki:ingest (calls WikiIngestRouterEngine staged pipeline)",
+    "skill_command": "/wiki-ingest",
+    "built_in": "MS=KNOWLEDGE-WIKI-MS0, hook BUILT in U-WIKI07, action BUILT in U-WIKI06, skill BUILT in U-WIKI06",
+    "consumed_by": [
+      "U-WIKI08 (production scripts call /wiki-ingest)",
+      "Future MS1 (per-customer wiki pages, transcript ingester)"
+    ]
+  },
+  "enforcement_hooks_active": {
+    "pre_level": [
+      "knowledge-consult — verify domain sources read before edit",
+      "context-retention — verify CLAUDE.md schema doc loaded"
+    ],
+    "post_level": [
+      "stub-detector — block placeholder returns in 5 new engines",
+      "test-quality — block toBeGreaterThan(0)/toBeDefined() patterns",
+      "constants-checker — block inline physics values in WikiLintEngine",
+      "physics-agent — review WikiLintEngine constant cross-check logic",
+      "wiring-agent — verify dispatcher z.enum matches schema"
+    ],
+    "compact_level": [
+      "review-gate — block /compact without 4-LOOP completion",
+      "wiring-gate — verify all 14 actions wired",
+      "forge-triple-gate — verify hook+action+skill triple complete",
+      "session-audit-agent — review work before compaction"
+    ],
+    "post_compact": [
+      "Feature Cascade auto-writes SESSION_ARTIFACTS.json"
+    ]
+  },
+  "token_economy_targets": {
+    "session_startup_reduction_pct": [30, 50],
+    "ollama_share_of_maintenance_pct": [70, 80],
+    "wiki_page_avg_size_lines": [100, 300],
+    "claude_reserved_for": ["synthesis", "contradiction_resolution", "schema_evolution", "novel_concept_creation"],
+    "measurement": "TokenEconomyTrackerEngine.report({op: 'wiki_*'}) at end of MS0"
+  },
+  "vault_layout": {
+    "raw/": "immutable sources — already exists, do not migrate",
+    "wiki/": "NEW — LLM-maintained markdown layer",
+    "wiki/index.md": "WikiIndexMaintainerEngine — append-on-event catalog",
+    "wiki/log.md": "WikiLogAppenderEngine — chronological audit (## [YYYY-MM-DD] op | title)",
+    "wiki/concepts/": "domain concept pages",
+    "wiki/entities/": "customer/machine/material pages",
+    "wiki/decisions/": "Creative Reasoning + AGI synthesis outputs",
+    "wiki/patterns/": "DL/ML pattern outputs",
+    "wiki/trajectories/": "SONA reinforcement trajectories",
+    "wiki/summaries/": "per-source ingest summaries",
+    "lint-reports/": "WikiLintEngine output, daily YYYY-MM-DD.md"
+  },
+  "phases": [
+    {
+      "id": "P-Pre",
+      "title": "Pre-Foundation — Stop Hook + Build Cache Repair",
+      "description": "REQUIRED BEFORE U-WIKI01. Repairs live system bugs surfaced by Agent 15 audit (Stop hook orphans, DISABLED_TOKEN_REDUX silent disables, missing dist/index.cjs). User approval gated.",
+      "sessions": "0.5",
+      "primary_role": "R3",
+      "primary_model": "sonnet-4.6",
+      "smart_config": {
+        "role": "Production Operator",
+        "model": "sonnet-4.6",
+        "effort": "MEDIUM",
+        "context_budget_pct": 70
+      },
+      "knowledge_sources": [
+        "Agent 15 audit findings (this milestone, scrutiny_findings_pass2)",
+        ".claude/hooks/*.mjs (40+ files)",
+        ".claude/settings.json (current Stop array)",
+        "MEMORY.md project notes on always-build-guard.mjs",
+        "feedback_dont_soften_completeness_gates.md (user policy)"
+      ],
+      "intent": "After this phase, builds become bulletproof. Re-registered Stop hooks block sessions ending with broken builds, failing tests, or unwired assets. Build cache repaired. Allowlist prevents future token-redux from re-disabling correctness hooks.",
+      "skills": ["/health", "/scrutinize", "/checkpoint"],
+      "plugins": ["Vitest MCP"],
+      "units": ["U-WIKI00"],
+      "compact_checkpoint": false,
+      "exit_gate": {
+        "omega_floor": 1.0,
+        "safety_floor": 0.7,
+        "test_required": true,
+        "build_required": true,
+        "anti_regression": false,
+        "checkpoint": true,
+        "user_approval_required": true,
+        "custom_checks": [
+          "scripts/audit-stop-hooks.mjs runs and writes audit report",
+          "User explicitly approves which orphan hooks to re-register",
+          "always-build-guard.mjs registered with continueOnError:false",
+          "Build cache repaired: dist/index.cjs exists and is current",
+          "apply-hook-fixes.mjs allowlist prevents future correctness-hook disables",
+          "Test session validates Stop hook actually blocks broken-build /handoff"
+        ]
+      },
+      "feature_cascade": {
+        "new_hooks": [],
+        "new_actions": [],
+        "new_skills": [],
+        "new_scripts": ["audit-stop-hooks.mjs"],
+        "new_docs": ["STOP_HOOK_AUDIT_2026-04-XX.md"],
+        "system_state_changes": ["Stop hooks re-registered", "Build cache repaired", "Token-redux allowlist active"],
+        "available_to": ["P0-Foundation", "P1-CoreEngines", "P2-Synergy", "P3-Production"]
+      }
+    },
+    {
+      "id": "P0-Foundation",
+      "title": "Foundation",
+      "description": "Schema doc, vault skeleton, bootstrap from existing digests so wiki has ~500 pages on day 1",
+      "sessions": "1",
+      "primary_role": "R1",
+      "primary_model": "opus-4.7",
+      "smart_config": {
+        "role": "Systems Architect + Knowledge Engineer",
+        "model": "opus-4.7",
+        "effort": "HIGH",
+        "context_budget_pct": 75,
+        "context_budget_pct_note": "Updated from 50 to 75 per context_window_strategy_1M_aware (resolves Agent D contradiction #3)"
+      },
+      "knowledge_sources": [
+        "Karpathy LLM-Wiki document (full text from Defileo article)",
+        "ENGINE_DIGEST.md (77.8K)",
+        "DISPATCHER_DIGEST.md",
+        "MASTER_INDEX_COMPACT.md (23.4K)",
+        "tribal-tips.json registry",
+        "OBSIDIAN-MS0.json envelope (for sibling pattern)"
+      ],
+      "intent": "After this session, the operator can drop into H:/prism/knowledge/wiki/ and see ~500 pre-seeded pages cross-referenced from existing digests. The wiki is real, not empty.",
+      "skills": ["/dedup", "/scrutinize", "/checkpoint"],
+      "plugins": ["codebase-memory-mcp"],
+      "units": ["U-WIKI01"],
+      "compact_checkpoint": false,
+      "exit_gate": {
+        "omega_floor": 1.0,
+        "safety_floor": 0.7,
+        "test_required": true,
+        "build_required": true,
+        "anti_regression": false,
+        "checkpoint": true,
+        "custom_checks": [
+          "wiki/index.md has ≥500 entries",
+          "WIKI_SCHEMA.md is referenced from both project and user CLAUDE.md",
+          "wiki-bootstrap.mjs is idempotent"
+        ]
+      },
+      "feature_cascade": {
+        "new_hooks": [],
+        "new_actions": [],
+        "new_skills": [],
+        "new_scripts": ["wiki-bootstrap.mjs"],
+        "new_docs": ["WIKI_SCHEMA.md"],
+        "available_to": ["P1-CoreEngines", "P2-Synergy", "P3-Production"]
+      }
+    },
+    {
+      "id": "P1-CoreEngines",
+      "title": "Core Engines",
+      "description": "5 wiki engines (Index, Log, Lint, IngestRouter, SelfAwarenessSync) — but synergy split: 3 here, 2 in P2",
+      "sessions": "2",
+      "primary_role": "R2",
+      "primary_model": "sonnet-4.6",
+      "smart_config": {
+        "role": "TypeScript Engineer + Token Economist",
+        "model": "sonnet-4.6 (impl) + opus-4.7 (lint design)",
+        "effort": "HIGH",
+        "context_budget_pct": 60
+      },
+      "knowledge_sources": [
+        "WIKI_SCHEMA.md (from U-WIKI01)",
+        "src/physics/constants.ts (lint engine cross-check target)",
+        "OllamaTaskOffloaderEngine.ts (routing pattern)",
+        "AISystemRouterEngine.ts (Ollama-vs-Claude decision)",
+        "ObsidianVaultSyncEngine.ts (file-lock pattern)",
+        "tribal-tips.json (lint cross-check corpus)"
+      ],
+      "intent": "After this session, ingest of a fresh source produces a summary page, updates index.md, appends a log entry, and the lint engine catches deliberate physics-constant drift in tribal-derived pages.",
+      "skills": ["/dedup", "/test", "/scrutinize", "/safety-audit", "/algorithm-inspect", "/checkpoint", "/scope"],
+      "plugins": ["Vitest MCP", "ESLint MCP", "codebase-memory-mcp"],
+      "units": ["U-WIKI02", "U-WIKI03", "U-WIKI04", "U-WIKI04B"],
+      "compact_checkpoint": true,
+      "compact_after_unit": "U-WIKI04B",
+      "compact_cadence_note": "P1 grew from 3→4 units; compact deferred from U-WIKI03 to U-WIKI04B so harvest unit lands cleanly",
+      "exit_gate": {
+        "omega_floor": 1.0,
+        "safety_floor": 0.7,
+        "test_required": true,
+        "build_required": true,
+        "anti_regression": true,
+        "checkpoint": true,
+        "custom_checks": [
+          "All 5 P1 engines have coverage ≥90%",
+          "Lint engine catches ≥3 deliberate drift fixtures",
+          "Concurrent-write test from 3 simulated chats passes (no race)",
+          "Token economy report: ≥70% of ingest tokens went through Ollama"
+        ]
+      },
+      "feature_cascade": {
+        "new_hooks": [],
+        "new_actions": [],
+        "new_skills": [],
+        "new_engines": [
+          "WikiIndexMaintainerEngine",
+          "WikiLogAppenderEngine",
+          "WikiLintEngine",
+          "WikiIngestRouterEngine"
+        ],
+        "available_to": ["P2-Synergy", "P3-Production", "Future MS1"]
+      }
+    },
+    {
+      "id": "P2-Synergy",
+      "title": "Synergy Layer",
+      "description": "Self-awareness bridge, dispatcher, slash commands, hook wiring",
+      "sessions": "2",
+      "primary_role": "R1",
+      "primary_model": "opus-4.7 (design) + sonnet-4.6 (impl)",
+      "smart_config": {
+        "role": "Systems Architect + LLM Ops Engineer",
+        "model": "opus-4.7 + sonnet-4.6",
+        "effort": "HIGH",
+        "context_budget_pct": 65
+      },
+      "knowledge_sources": [
+        "PRISMSelfAwarenessEngine.ts (existing methods)",
+        "PRISMCreativeReasoningEngine.ts (synthesis output structure)",
+        "CrossDisciplinaryDeepLearningEngine.ts (pattern output structure)",
+        "src/tools/dispatchers/*.ts (dispatcher patterns)",
+        "src/schemas/*.ts (Zod v4 conventions per H:/.claude/rules/schemas.md)",
+        "H:/.claude/rules/hooks.md (hook conventions)",
+        "claudemd-ollama-enforcer.mjs (rate-limit pattern)"
+      ],
+      "intent": "After this session, /wiki-ingest, /wiki-query, /wiki-lint, /wiki-morning are working slash commands. SessionStart fires the wiki-digest hook (saves ~2-3K tokens). Multi-chat-safe writes validated.",
+      "skills": ["/dedup", "/forge-wiring", "/check-dsl", "/test", "/hook-browse", "/checkpoint", "/scope"],
+      "plugins": ["Vitest MCP", "ESLint MCP", "codebase-memory-mcp"],
+      "units": ["U-WIKI05", "U-WIKI06", "U-WIKI07"],
+      "compact_checkpoint": true,
+      "compact_after_unit": "U-WIKI06",
+      "exit_gate": {
+        "omega_floor": 1.0,
+        "safety_floor": 0.7,
+        "test_required": true,
+        "build_required": true,
+        "anti_regression": true,
+        "checkpoint": true,
+        "custom_checks": [
+          "All 14 prism_wiki actions discoverable via prism_session:action_search 'wiki'",
+          "All 7 slash commands present in ~/.claude/commands/",
+          "All 4 hooks rate-limited (45s window) and non-blocking by default",
+          "SessionStart hook injects ≤3K tokens (down from ~5K full digest)",
+          "Creative Reasoning 'optimal' run files a wiki/decisions/*.md page"
+        ]
+      },
+      "feature_cascade": {
+        "new_hooks": [
+          "wiki-pre-edit.mjs",
+          "wiki-post-engine-create.mjs",
+          "wiki-session-start-digest.mjs",
+          "wiki-stop-lint.mjs"
+        ],
+        "new_actions": [
+          "prism_wiki:ingest",
+          "prism_wiki:query",
+          "prism_wiki:lint",
+          "prism_wiki:morning",
+          "prism_wiki:bootstrap",
+          "prism_wiki:page_open",
+          "prism_wiki:page_create",
+          "prism_wiki:sync_obsidian",
+          "prism_wiki:index_get",
+          "prism_wiki:index_search",
+          "prism_wiki:log_append",
+          "prism_wiki:log_tail",
+          "prism_wiki:status",
+          "prism_wiki:stats"
+        ],
+        "new_skills": [
+          "/wiki-ingest",
+          "/wiki-query",
+          "/wiki-lint",
+          "/wiki-morning",
+          "/wiki-bootstrap",
+          "/wiki-page",
+          "/wiki-sync"
+        ],
+        "new_engines": ["WikiSelfAwarenessSyncEngine"],
+        "available_to": ["P3-Production", "Future MS1", "all running sessions (live)"]
+      }
+    },
+    {
+      "id": "P3-Production",
+      "title": "Production Wiring",
+      "description": "Cron scripts, Obsidian export, doc updates, end-to-end demo, baseline inventory refresh",
+      "sessions": "1",
+      "primary_role": "R3",
+      "primary_model": "sonnet-4.6",
+      "smart_config": {
+        "role": "Production Operator + Documentation Engineer",
+        "model": "sonnet-4.6",
+        "effort": "MEDIUM",
+        "context_budget_pct": 40
+      },
+      "knowledge_sources": [
+        "Karpathy morning-briefing pattern (from source article)",
+        "scripts/update-prism-inventory.mjs (refresh pattern)",
+        "ObsidianVaultSyncEngine.ts (export delegation)",
+        "Existing cron registry"
+      ],
+      "intent": "After this session, the wiki self-maintains: nightly lint at 02:00, morning digest at 07:30. Obsidian vault opens cleanly with proper frontmatter and [[wikilinks]]. Inventory refreshed. Demo: ingest a fresh PDF, see it touch ≥10 wiki pages.",
+      "skills": ["/cron-bootstrap", "/test", "/scrutinize", "/health", "/checkpoint"],
+      "plugins": ["Vitest MCP"],
+      "units": ["U-WIKI08"],
+      "compact_checkpoint": false,
+      "exit_gate": {
+        "omega_floor": 1.0,
+        "safety_floor": 0.7,
+        "test_required": true,
+        "build_required": true,
+        "anti_regression": true,
+        "checkpoint": true,
+        "learning_save": true,
+        "custom_checks": [
+          "TokenEconomyTrackerEngine reports ≥70% Ollama share of wiki maintenance",
+          "End-to-end ingest demo touches ≥10 wiki pages with proper cross-refs",
+          "Cron jobs verified registered (scheduled task on Windows)",
+          "PRISM-INVENTORY-LATEST.md and BASELINE_INVENTORY.json reflect deltas",
+          "roadmap-index.json registers KNOWLEDGE-WIKI-MS0 entry"
+        ]
+      },
+      "feature_cascade": {
+        "new_hooks": [],
+        "new_actions": [],
+        "new_skills": [],
+        "new_scripts": [
+          "wiki-nightly-lint.mjs",
+          "wiki-morning-digest.mjs",
+          "wiki-obsidian-export.mjs"
+        ],
+        "available_to": ["MS shipped — wiki is operational"]
+      }
+    }
+  ],
+  "units": [
+    {
+      "id": "U-WIKI00",
+      "title": "PRE-FOUNDATION — Stop Hook Re-Registration + Build Cache Repair (gates all downstream work)",
+      "phase": "P-Pre",
+      "sequence": 0,
+      "status": "planned",
+      "role": "R3",
+      "role_name": "Production Operator + Hook Auditor",
+      "model": "sonnet-4.6",
+      "effort": 50,
+      "rationale": "Agent 15 audit (score 28/100) found 33 orphaned Stop hooks, 19 silently disabled via DISABLED_TOKEN_REDUX_2026_04_23 marker, and only 1 of 6 registered Stop hooks actually blocks. always-build-guard.mjs promised in MEMORY.md is unwired. Builds are NOT bulletproof. This is a PRE-EXISTING LIVE BUG that affects ALL downstream wiki work — every wiki engine commit could ship broken without a blocking gate. Must repair BEFORE U-WIKI01 starts.",
+      "description": "(1) Audit every stop_on_*.mjs file in .claude/hooks/ — list orphans not in settings.json. (2) USER REVIEW + APPROVAL (do NOT auto-register without user input — risk of breaking active sessions if a hook is buggy). (3) Re-register approved orphan Stop hooks in settings.json with continueOnError:false where correctness-critical. (4) Audit the 19 DISABLED_TOKEN_REDUX_2026_04_23 short-circuits — for each, document WHY it was disabled, then USER APPROVAL re-enables correctness-critical ones (per memory feedback_dont_soften_completeness_gates.md). (5) Repair build cache: `npm run build` and assert mcp-server/dist/index.cjs exists. (6) Add an allowlist to .claude/helpers/apply-hook-fixes.mjs so build/wiki-correctness Stop hooks are EXCLUDED from future token-redux disabling.",
+      "tools": [
+        {"tool": "prism_session", "action": "context_boot"},
+        {"tool": "prism_dev", "action": "build", "params_hint": "full npm run build, tsc + esbuild"},
+        {"tool": "prism_session", "action": "system_snapshot"}
+      ],
+      "skills": ["/dedup", "/scrutinize", "/health"],
+      "scripts": ["scripts/audit-stop-hooks.mjs (NEW — to build)"],
+      "hooks": [],
+      "dependencies": [],
+      "entry_conditions": [
+        "User explicitly approved the audit findings list",
+        "User reviewed each orphan Stop hook and selected which to re-register",
+        "User reviewed the 19 DISABLED_TOKEN_REDUX list and decided per-file"
+      ],
+      "exit_conditions": [
+        "scripts/audit-stop-hooks.mjs writes report to state/shared/STOP_HOOK_AUDIT_2026-04-XX.md listing all 40+ files with status (registered/orphan/disabled-via-marker)",
+        "settings.json Stop array re-registration applied per user-approved list",
+        "always-build-guard.mjs registered with continueOnError:false (per MEMORY.md promise)",
+        "stop_on_build_error.mjs, stop_on_failing_tests.mjs, stop_on_unwired_assets.mjs registered (these are the build-bulletproof trio)",
+        "Build cache repaired: `npm run build` returns 0 AND mcp-server/dist/index.cjs exists (size > 0)",
+        "apply-hook-fixes.mjs allowlist updated so future token-redux passes cannot disable: always-build-guard, stop_on_build_error, stop_on_failing_tests, stop_on_broken_imports, stop_on_unwired_assets, stop_on_dirty_registry, comprehensive-build-enforce, wiki-stop-lint (when it ships)",
+        "Test session: deliberately introduce a failing test, attempt to /handoff — verify Stop hook BLOCKS the session end",
+        "Test session: deliberately leave dist/index.cjs missing, attempt to use MCP — verify it's caught"
+      ],
+      "rollback": {
+        "files_created": [
+          "H:/prism/scripts/audit-stop-hooks.mjs",
+          "H:/prism/state/shared/STOP_HOOK_AUDIT_2026-04-XX.md"
+        ],
+        "files_modified": [
+          "H:/prism/.claude/settings.json (Stop array additions)",
+          "H:/prism/.claude/helpers/apply-hook-fixes.mjs (allowlist)",
+          "Selected stop_on_*.mjs files (remove DISABLED_TOKEN_REDUX marker per user approval)"
+        ],
+        "abort_criteria": [
+          "User does NOT approve the audit list — defer to next session",
+          "Re-enabling a Stop hook causes legitimate edits to be blocked spuriously (false positive rate > 10% in test session)",
+          "Build cache repair fails (tsc errors block build) — must triage tsc errors first"
+        ],
+        "rollback_procedure": "git checkout -- .claude/settings.json .claude/helpers/apply-hook-fixes.mjs && git checkout -- $(grep -l DISABLED_TOKEN_REDUX_2026_04_23 .claude/hooks/*.mjs) && git rm scripts/audit-stop-hooks.mjs state/shared/STOP_HOOK_AUDIT_*.md"
+      },
+      "four_loop": {
+        "build": "Audit script + report; user review; surgical settings.json edits",
+        "scrutinize": "Test each re-enabled hook fires correctly on intended trigger; no false positives in 30-min smoke session",
+        "gap_fill": "Add allowlist to apply-hook-fixes.mjs; document which hooks are protected",
+        "tie_up": "Run build verification; commit changes with explicit message naming each re-registered hook"
+      },
+      "deliverables": [
+        {"path": "H:/prism/scripts/audit-stop-hooks.mjs", "type": "script", "description": "Audits .claude/hooks/ for orphan/disabled Stop hooks; produces MD report", "line_count_est": 180},
+        {"path": "H:/prism/state/shared/STOP_HOOK_AUDIT_2026-04-XX.md", "type": "doc", "description": "Audit report with user-review checkboxes per hook", "line_count_est": 200},
+        {"path": "H:/prism/.claude/settings.json", "type": "config", "description": "Re-registered Stop hooks (modified, surgical)", "line_count_est": 0}
+      ],
+      "estimated_tokens": 70000,
+      "estimated_minutes": 90,
+      "creates_skill": false,
+      "creates_script": true,
+      "creates_hook": false,
+      "creates_command": false,
+      "user_approval_required": true,
+      "user_approval_rationale": "Re-enabling a buggy Stop hook can break ALL active sessions across 6 chats. Per memory feedback_no_delete_assets.md, no auto-disable. Apply same care to re-enabling — explicit per-hook approval required."
+    },
+    {
+      "id": "U-WIKI01",
+      "title": "WIKI_SCHEMA.md + Vault Skeleton + Bootstrap Script",
+      "phase": "P0-Foundation",
+      "sequence": 1,
+      "status": "planned",
+      "role": "R1",
+      "role_name": "Systems Architect",
+      "model": "opus-4.7",
+      "effort": 70,
+      "rationale": "Schema design is the load-bearing artifact for every other unit. Opus warranted; locked before engine work.",
+      "description": "Author the schema document codifying the Karpathy LLM-Wiki protocol for PRISM. Establish vault directory layout under H:/prism/knowledge/wiki/. Build wiki-bootstrap.mjs that seeds index.md from existing digests + tribal tips — wiki has ~500 pages from minute zero, no cold start.",
+      "tools": [
+        {"tool": "prism_dev", "action": "copilot_check_duplication"},
+        {"tool": "prism_session", "action": "context_boot"},
+        {"tool": "prism_session", "action": "memory_recall"}
+      ],
+      "skills": ["/dedup", "/scrutinize", "/checkpoint"],
+      "scripts": [],
+      "hooks": [],
+      "dependencies": [],
+      "entry_conditions": [
+        "OBSIDIAN-MS0 marked complete in roadmap-index",
+        "H:/prism/knowledge directory exists (it does)",
+        "Karpathy LLM-Wiki source text saved to data/docs/external/karpathy-llm-wiki.md"
+      ],
+      "exit_conditions": [
+        "WIKI_SCHEMA.md committed at repo root, ≥250 lines, references Karpathy source, contains ALL of these required sections (verify with grep): '## Three Layers', '## Three Operations', '## Frontmatter Spec', '## Multi-Chat Coordination Rules', '## Ollama vs Claude Responsibility Split', '## Naming Conventions', '## Deprecation Path for ollama-obsidian-rag.mjs'",
+        "wiki/{index,log,concepts,entities,decisions,patterns,trajectories,summaries}/.gitkeep present",
+        "wiki/index.md seeded with ≥500 entries (engines + dispatchers + tribal concepts)",
+        "wiki/log.md has bootstrap entry with grep prefix '## [2026-04-XX] bootstrap | initial seed'",
+        "wiki-bootstrap.mjs idempotent (second run produces zero new entries)",
+        "Project CLAUDE.md and user CLAUDE.md both reference WIKI_SCHEMA.md",
+        "/dedup pre-check: WIKI_SCHEMA.md not duplicating existing schema docs"
+      ],
+      "rollback": {
+        "files_created": [
+          "H:/prism/WIKI_SCHEMA.md",
+          "H:/prism/knowledge/wiki/{index,log}.md",
+          "H:/prism/knowledge/wiki/{concepts,entities,decisions,patterns,trajectories,summaries}/.gitkeep",
+          "H:/prism/knowledge/lint-reports/.gitkeep",
+          "H:/prism/mcp-server/scripts/wiki-bootstrap.mjs",
+          "H:/prism/data/docs/external/karpathy-llm-wiki.md"
+        ],
+        "files_modified": [
+          "H:/prism/CLAUDE.md (+20 lines, Wiki Protocol section)",
+          "C:/Users/wompu/.claude/CLAUDE.md (+10 lines, global wiki awareness)"
+        ],
+        "abort_criteria": [
+          "Bootstrap produces <400 entries (digests not parsed correctly)",
+          "Second bootstrap run adds duplicates (idempotency broken)",
+          "WIKI_SCHEMA.md is <200 lines (under-specified)"
+        ],
+        "rollback_procedure": "git checkout -- H:/prism/CLAUDE.md C:/Users/wompu/.claude/CLAUDE.md && git rm -r H:/prism/knowledge/wiki H:/prism/knowledge/lint-reports && git rm H:/prism/WIKI_SCHEMA.md H:/prism/mcp-server/scripts/wiki-bootstrap.mjs H:/prism/data/docs/external/karpathy-llm-wiki.md"
+      },
+      "four_loop": {
+        "build": "Author WIKI_SCHEMA.md, vault skeleton, bootstrap script",
+        "scrutinize": "/scrutinize WIKI_SCHEMA.md for completeness; verify protocol covers ingest/query/lint",
+        "gap_fill": "/test wiki-bootstrap.mjs --dry-run; verify ≥500 entries; add missing categories",
+        "tie_up": "Commit; CLAUDE.md updates; verify both CLAUDE.md files reference schema doc"
+      },
+      "deliverables": [
+        {"path": "H:/prism/WIKI_SCHEMA.md", "type": "doc", "description": "Karpathy LLM-Wiki protocol codified for PRISM (3 layers, 3 ops, 2 index files, frontmatter spec, multi-chat rules, Ollama vs Claude split)", "line_count_est": 300, "index_entry": "WIKI_SCHEMA.md — wiki maintenance protocol"},
+        {"path": "H:/prism/knowledge/wiki/index.md", "type": "data", "description": "LLM-maintained catalog seeded from digests + tribal tips", "line_count_est": 500},
+        {"path": "H:/prism/knowledge/wiki/log.md", "type": "data", "description": "Chronological log seeded with bootstrap entry", "line_count_est": 5},
+        {"path": "H:/prism/mcp-server/scripts/wiki-bootstrap.mjs", "type": "script", "description": "Idempotent bootstrap from ENGINE_DIGEST + DISPATCHER_DIGEST + MASTER_INDEX_COMPACT + tribal-tips", "line_count_est": 200},
+        {"path": "H:/prism/data/docs/external/karpathy-llm-wiki.md", "type": "doc", "description": "Karpathy's source text (quoted in Defileo article)", "line_count_est": 250}
+      ],
+      "estimated_tokens": 80000,
+      "estimated_minutes": 90,
+      "creates_skill": false,
+      "creates_script": true,
+      "creates_hook": false,
+      "creates_command": false
+    },
+    {
+      "id": "U-WIKI02",
+      "title": "WikiIndexMaintainerEngine + WikiLogAppenderEngine",
+      "phase": "P1-CoreEngines",
+      "sequence": 2,
+      "status": "planned",
+      "role": "R2",
+      "role_name": "TypeScript Engineer",
+      "model": "sonnet-4.6",
+      "effort": 65,
+      "description": "Build the two engines that own canonical index and log artifacts. WikiIndexMaintainerEngine: append-on-ingest, dedup-on-write, category-sorted, atomic writes with file lock (reuses claim_file infra). WikiLogAppenderEngine: enforces grep-friendly '## [YYYY-MM-DD] op | title' prefix, append-only, attribution per chat.",
+      "tools": [
+        {"tool": "prism_dev", "action": "copilot_check_duplication"},
+        {"tool": "prism_context", "action": "claim_file", "params_hint": "wiki/index.md before write"},
+        {"tool": "prism_context", "action": "chat_post", "params_hint": "broadcast wiki edits"}
+      ],
+      "skills": ["/dedup", "/test", "/scrutinize", "/checkpoint"],
+      "scripts": [],
+      "hooks": [],
+      "dependencies": ["U-WIKI01"],
+      "entry_conditions": [
+        "U-WIKI01 complete (WIKI_SCHEMA.md exists)",
+        "wiki/index.md and wiki/log.md exist",
+        "DuplicationGuardEngine confirms both names CLEAR"
+      ],
+      "exit_conditions": [
+        "WikiIndexMaintainerEngine.upsert(entry) is atomic; second call with same entry is no-op",
+        "WikiLogAppenderEngine.append(op, title) produces lines parseable by `grep '^## \\[' log.md | tail -5`",
+        "Both engines acquire file lock via prism_context:claim_file before writing",
+        "Concurrent-write test (3 simulated chats) passes with zero data loss",
+        "Coverage ≥90% on both engines (Vitest MCP report)",
+        "Zero inline physics constants (constants-checker hook satisfied)",
+        "Tests use REAL frontmatter parsing — not toBeDefined()/toBeGreaterThan(0)"
+      ],
+      "rollback": {
+        "files_created": [
+          "H:/prism/mcp-server/src/engines/WikiIndexMaintainerEngine.ts",
+          "H:/prism/mcp-server/src/engines/WikiLogAppenderEngine.ts",
+          "H:/prism/mcp-server/src/__tests__/WikiIndexMaintainerEngine.test.ts",
+          "H:/prism/mcp-server/src/__tests__/WikiLogAppenderEngine.test.ts"
+        ],
+        "files_modified": [],
+        "abort_criteria": [
+          "Concurrent-write test fails (race condition)",
+          "Test coverage <85% on either engine",
+          "Any test uses banned pattern (toBeGreaterThan(0), toBeDefined(), etc.)",
+          "Engine hits stub-detector hook"
+        ],
+        "rollback_procedure": "git checkout -- mcp-server/src/engines/Wiki{Index,Log}*.ts mcp-server/src/__tests__/Wiki{Index,Log}*.test.ts"
+      },
+      "four_loop": {
+        "build": "Implement both engines with claim_file lock pattern",
+        "scrutinize": "/prism-review for race conditions, atomicity, error paths",
+        "gap_fill": "/test concurrent writes, malformed input, dedup edge cases",
+        "tie_up": "Verify constants-checker, stub-detector pass; coverage report"
+      },
+      "deliverables": [
+        {"path": "H:/prism/mcp-server/src/engines/WikiIndexMaintainerEngine.ts", "type": "source", "description": "Append-on-event index.md owner with file lock, dedup, category sort", "line_count_est": 280},
+        {"path": "H:/prism/mcp-server/src/engines/WikiLogAppenderEngine.ts", "type": "source", "description": "Chronological log.md owner with grep-friendly prefix and chat attribution", "line_count_est": 180},
+        {"path": "H:/prism/mcp-server/src/__tests__/WikiIndexMaintainerEngine.test.ts", "type": "test", "description": "Concurrent writes, dedup, category sort, malformed input — REAL validations", "line_count_est": 250},
+        {"path": "H:/prism/mcp-server/src/__tests__/WikiLogAppenderEngine.test.ts", "type": "test", "description": "Prefix format validation, attribution, append idempotency", "line_count_est": 180}
+      ],
+      "estimated_tokens": 120000,
+      "estimated_minutes": 120,
+      "creates_skill": false,
+      "creates_script": false,
+      "creates_hook": false,
+      "creates_command": false
+    },
+    {
+      "id": "U-WIKI03",
+      "title": "WikiLintEngine — Safety-Aware Health Check",
+      "phase": "P1-CoreEngines",
+      "sequence": 3,
+      "status": "planned",
+      "role": "R2",
+      "role_name": "TypeScript Engineer + Safety Reviewer",
+      "model": "opus-4.7 (lint design) + sonnet-4.6 (impl)",
+      "effort": 80,
+      "rationale": "Biggest gap in existing infra. Cross-checking wiki claims against physics constants is safety-adjacent — Opus design warranted.",
+      "description": "Find: orphan pages, broken cross-refs, stale claims (page mtime older than source mtime), missing concepts (mentioned ≥3× but no page), and — uniquely — wiki-vs-physics-constants drift (e.g. tribal page asserting kc1.1 P=2000 when canonical is 1800). Outputs to lint-reports/YYYY-MM-DD.md.",
+      "tools": [
+        {"tool": "prism_dev", "action": "copilot_check_duplication"},
+        {"tool": "prism_safety", "action": "validate_physics", "params_hint": "lint-flagged constant drift"}
+      ],
+      "skills": ["/dedup", "/test", "/scrutinize", "/safety-audit", "/algorithm-inspect"],
+      "scripts": [],
+      "hooks": [],
+      "dependencies": ["U-WIKI02"],
+      "entry_conditions": [
+        "U-WIKI02 complete (Index + Log engines shipped)",
+        "src/physics/constants.ts is canonical reference (verified)",
+        "Lint test fixture vault prepared with 5 deliberate violations"
+      ],
+      "exit_conditions": [
+        "Detects orphan pages with 100% recall on fixture vault (all 5 deliberate violations caught)",
+        "Cross-checks every wiki page mentioning a physics constant against src/physics/constants.ts; flags drift ≥2% from canonical",
+        "Routes orphan/stale candidate detection to Ollama; reserves Claude for contradiction resolution suggestions",
+        "Outputs lint-reports/YYYY-MM-DD.md with severity prefix '[CRITICAL|MAJOR|MINOR]'",
+        "Test: deliberate kc1.1 P=2000 in fixture page (canonical 1800, ~11% drift) → flagged as CRITICAL",
+        "Test: deliberate kc1.1 P=1840 in fixture page (canonical 1800, +2.2% drift) → flagged as MINOR (just over ±2% threshold)",
+        "Test: kc1.1 P=1815 (+0.83%) → NOT flagged (under ±2% threshold)",
+        "Test: orphan page with zero inbound [[wikilinks]] → flagged as MAJOR",
+        "WikiLintEngine MUST `import { KC11, TAYLOR_C, TAYLOR_N } from \"../physics/constants.js\"` — NOT read constants.ts as text",
+        "Drift threshold: ±2% canonical floor; severity scaling: 2-5%=MINOR, 5-10%=MAJOR, >10%=CRITICAL",
+        "Tests use ±2% tolerance on physics drift detection (no toBeGreaterThan(0))",
+        "Coverage ≥90%"
+      ],
+      "rollback": {
+        "files_created": [
+          "H:/prism/mcp-server/src/engines/WikiLintEngine.ts",
+          "H:/prism/mcp-server/src/__tests__/WikiLintEngine.test.ts",
+          "H:/prism/mcp-server/src/__tests__/fixtures/wiki-lint/*.md (5 fixture pages)"
+        ],
+        "files_modified": [],
+        "abort_criteria": [
+          "Lint misses any of 5 deliberate violations (recall < 100%)",
+          "False-positive rate on clean fixture vault > 5% (exit-condition match)",
+          "Physics drift threshold not measurable: any test uses tolerance > ±2% (must be exact ±2% per severity scale)",
+          "WikiLintEngine.ts contains inline numeric kc1.1/Taylor values (constants-checker hook blocks)",
+          "Engine doesn't import KC11/TAYLOR_C/TAYLOR_N from src/physics/constants.ts",
+          "Engine doesn't fall back to Claude when Ollama unreachable (degradation test must verify)"
+        ],
+        "rollback_procedure": "git checkout -- mcp-server/src/engines/WikiLintEngine.ts mcp-server/src/__tests__/WikiLintEngine.test.ts mcp-server/src/__tests__/fixtures/wiki-lint/"
+      },
+      "four_loop": {
+        "build": "Implement 5 lint categories with Ollama-routed candidate detection",
+        "scrutinize": "/safety-audit drift detection threshold; /algorithm-inspect orphan algo complexity",
+        "gap_fill": "/test all 5 fixture violations; verify recall = 100%; add edge cases (NaN, missing files)",
+        "tie_up": "Verify physics-agent hook satisfied; coverage report"
+      },
+      "deliverables": [
+        {"path": "H:/prism/mcp-server/src/engines/WikiLintEngine.ts", "type": "source", "description": "5-category lint with safety-aware physics constant cross-check", "line_count_est": 450},
+        {"path": "H:/prism/mcp-server/src/__tests__/WikiLintEngine.test.ts", "type": "test", "description": "5 fixture violation cases; ±2% physics drift tolerance; orphan recall=100%", "line_count_est": 350},
+        {"path": "H:/prism/mcp-server/src/__tests__/fixtures/wiki-lint/", "type": "data", "description": "5 deliberate-violation fixture pages", "line_count_est": 100}
+      ],
+      "estimated_tokens": 180000,
+      "estimated_minutes": 180,
+      "creates_skill": false,
+      "creates_script": false,
+      "creates_hook": false,
+      "creates_command": false
+    },
+    {
+      "id": "U-WIKI04",
+      "title": "WikiIngestRouterEngine — Staged Ollama→Claude Pipeline",
+      "phase": "P1-CoreEngines",
+      "sequence": 4,
+      "status": "planned",
+      "role": "R2",
+      "role_name": "TypeScript Engineer + LLM Ops",
+      "model": "sonnet-4.6",
+      "effort": 60,
+      "description": "Routes 5-stage wiki ingest pipeline. Stage 1: read source via prism_knowledge:learn_ingest_*. Stage 2: summarize → Ollama (free). Stage 3: cross-ref suggest → Ollama. Stage 4: synthesize + resolve contradictions → Claude. Stage 5: file via WikiIndexMaintainer + WikiLogAppender. Per-stage token cost recorded.",
+      "tools": [
+        {"tool": "prism_dev", "action": "copilot_check_duplication"},
+        {"tool": "prism_dev", "action": "token_economy_report"},
+        {"tool": "prism_knowledge", "action": "learn_ingest_text"}
+      ],
+      "skills": ["/dedup", "/test", "/scrutinize"],
+      "scripts": [],
+      "hooks": [],
+      "dependencies": ["U-WIKI02"],
+      "entry_conditions": [
+        "U-WIKI02 complete",
+        "OllamaTaskOffloaderEngine reachable (LOCAL-LLM-MS0 partial OK)",
+        "AISystemRouterEngine.route() callable"
+      ],
+      "exit_conditions": [
+        "Stage 1 reuses existing prism_knowledge:learn_ingest_* (no new ingest logic)",
+        "Stages 2 + 3 route to Ollama by default; Claude fallback on Ollama unavailability",
+        "Stage 4 always Claude (synthesis is high-value)",
+        "Stage 5 calls WikiIndexMaintainerEngine.upsert + WikiLogAppenderEngine.append",
+        "Per-stage token cost logged via TokenEconomyTrackerEngine with op='wiki_ingest', stage=N",
+        "Test: ingest 5K-word fixture article — assert ≥70% of total tokens went through Ollama (real measurement, not estimate)",
+        "Coverage ≥90%"
+      ],
+      "rollback": {
+        "files_created": [
+          "H:/prism/mcp-server/src/engines/WikiIngestRouterEngine.ts",
+          "H:/prism/mcp-server/src/__tests__/WikiIngestRouterEngine.test.ts"
+        ],
+        "files_modified": [],
+        "abort_criteria": [
+          "Ollama share <60% on fixture article (routing broken)",
+          "No graceful fallback when Ollama unreachable (test must verify)",
+          "Stage 5 doesn't atomically call both Index + Log",
+          "Token economy tracker not receiving per-stage records"
+        ],
+        "rollback_procedure": "git checkout -- mcp-server/src/engines/WikiIngestRouterEngine.ts mcp-server/src/__tests__/WikiIngestRouterEngine.test.ts"
+      },
+      "four_loop": {
+        "build": "5-stage pipeline with per-stage routing decision",
+        "scrutinize": "/prism-review fallback logic, atomicity at Stage 5",
+        "gap_fill": "/test Ollama unavailable case; large article; per-stage token accounting",
+        "tie_up": "Verify TokenEconomyTrackerEngine receives all 5 stage records"
+      },
+      "deliverables": [
+        {"path": "H:/prism/mcp-server/src/engines/WikiIngestRouterEngine.ts", "type": "source", "description": "5-stage Ollama→Claude pipeline with per-stage token accounting", "line_count_est": 320},
+        {"path": "H:/prism/mcp-server/src/__tests__/WikiIngestRouterEngine.test.ts", "type": "test", "description": "Stage routing, Ollama fallback, ≥70% Ollama share assertion (real measurement)", "line_count_est": 250}
+      ],
+      "estimated_tokens": 130000,
+      "estimated_minutes": 120,
+      "creates_skill": false,
+      "creates_script": false,
+      "creates_hook": false,
+      "creates_command": false
+    },
+    {
+      "id": "U-WIKI04B",
+      "title": "Comprehensive H: Knowledge Harvest — Pattern Miners + Error Learning + Coding/SE/UX Tribal + Memory Aggregator",
+      "phase": "P1-CoreEngines",
+      "sequence": 5,
+      "status": "planned",
+      "role": "R1",
+      "role_name": "Knowledge Engineer",
+      "model": "opus-4.7 (design) + sonnet-4.6 (impl) + ollama:qwen2.5-coder:7b (bulk harvest)",
+      "effort": 75,
+      "rationale": "User explicitly requested: 'make sure we are utilizing all beneficial elements of H drive'. This unit wires 3 new bridge engines + harvests 55 existing memory files + 24 CAM tip files + 18 pattern miners/AGI/DL engines. Without it, MS0 ships an empty-shell wiki maintained by Ollama but unaware of what H: already contains.",
+      "description": "(1) Build WikiPatternHarvesterEngine: bridges MacroPatternMiner/MillPatternMiner/NCPatternMiner/SafetyPatternMiner/SelfImprovementPattern outputs to wiki/patterns/miner-*.md. When confidence > 0.85 AND occurrences ≥ 5, auto-generates skill stub at ~/.claude/commands/auto-{name}.md.draft (requires human approval to activate). (2) Build WikiCodingTribalEngine: curates wiki/code-tribal/, wiki/architecture/, wiki/software-engineering/, wiki/ux-design/ from CodingCopilotEngine, PipelineArchitectureEngine, SOLID feedback memories, frontend codex feedback. (3) Build WikiErrorLearningBridgeEngine: bridges CADTrialErrorLearning/ChainFailureRecovery/ErrorContext/ErrorExplainer/LessonRenderer outputs to wiki/lessons/* with cross-refs to triggering decisions. (4) Author MEMORY.md aggregator at H:/prism/knowledge/memories/MEMORY.md (currently missing — files exist as loose pages). (5) Build wiki-harvest-h-drive.mjs script that does the one-time bulk import via WikiIngestRouterEngine (Ollama summarizes, Claude only on contradictions).",
+      "tools": [
+        {"tool": "prism_dev", "action": "copilot_check_duplication"},
+        {"tool": "prism_knowledge", "action": "tribal_search"},
+        {"tool": "prism_ai", "action": "pattern_query"},
+        {"tool": "prism_dev", "action": "token_economy_report"}
+      ],
+      "skills": ["/dedup", "/test", "/scrutinize", "/scope", "/algorithm-inspect"],
+      "scripts": [],
+      "hooks": [],
+      "dependencies": ["U-WIKI04"],
+      "entry_conditions": [
+        "U-WIKI04 complete (WikiIngestRouterEngine functional)",
+        "Inventory of harvest_targets reviewed (60+ engines listed in milestone-level harvest_targets field)",
+        "H:/prism/knowledge/memories/ confirmed to contain 55+ existing pages organized by user/feedback/project/reference"
+      ],
+      "exit_conditions": [
+        "WikiPatternHarvesterEngine generates ≥1 skill stub from real MacroPatternMinerEngine output (verified by reading the .draft file)",
+        "Skill stub generation requires human approval (file extension .draft until manually renamed) — auto-activation BLOCKED",
+        "WikiCodingTribalEngine produces wiki/code-tribal/index.md, wiki/architecture/index.md, wiki/software-engineering/index.md, wiki/ux-design/index.md — all with ≥10 entries each cross-referencing existing memories",
+        "WikiErrorLearningBridgeEngine ingests last 30 days of error logs from existing engines; files ≥5 lessons in wiki/lessons/",
+        "MEMORY.md aggregator exists at H:/prism/knowledge/memories/MEMORY.md and indexes all 55+ memory pages by frontmatter type",
+        "wiki-harvest-h-drive.mjs script executes end-to-end on first run; second run is idempotent (no duplicates)",
+        "Token economy: ≥80% of harvest tokens routed through Ollama (large bulk; Claude only on contradictions)",
+        "All 3 new engines have ≥85% test coverage with REAL fixtures (banned patterns blocked)",
+        "Coding tribal must include: SOLID rule from expert tips, feedback_safety_critical_tests, feedback_dont_soften_completeness_gates, feedback_no_delete_assets, feedback_always_build, feedback_ai_first_development",
+        "Architecture tribal must include: plugin_architecture.md, distributed_locking.md, devops_improvements.md, PipelineArchitectureEngine output",
+        "UX tribal must include: feedback_frontend_codex, feedback_ppg_frontend, feedback_lightsaber_borders, feedback_ppg_quality, mcp-server/web/* page-level audit"
+      ],
+      "rollback": {
+        "files_created": [
+          "H:/prism/mcp-server/src/engines/WikiPatternHarvesterEngine.ts",
+          "H:/prism/mcp-server/src/engines/WikiCodingTribalEngine.ts",
+          "H:/prism/mcp-server/src/engines/WikiErrorLearningBridgeEngine.ts",
+          "H:/prism/mcp-server/src/__tests__/WikiPatternHarvesterEngine.test.ts",
+          "H:/prism/mcp-server/src/__tests__/WikiCodingTribalEngine.test.ts",
+          "H:/prism/mcp-server/src/__tests__/WikiErrorLearningBridgeEngine.test.ts",
+          "H:/prism/mcp-server/scripts/wiki-harvest-h-drive.mjs",
+          "H:/prism/knowledge/memories/MEMORY.md (aggregator)",
+          "H:/prism/knowledge/wiki/code-tribal/, wiki/architecture/, wiki/software-engineering/, wiki/ux-design/, wiki/lessons/, wiki/patterns/miner-*"
+        ],
+        "files_modified": [],
+        "abort_criteria": [
+          "Pattern harvester generates skill stubs WITHOUT .draft suffix (auto-activation security defect — would let machine code into permanent skill registry without review)",
+          "Coding/Architecture/SE/UX index pages have <10 entries each (under-harvest)",
+          "Token economy <70% Ollama share (over-using Claude on bulk import)",
+          "Idempotency broken (re-running harvest creates duplicates)",
+          "Any test uses banned patterns (toBeGreaterThan(0), toBeDefined())"
+        ],
+        "rollback_procedure": "git checkout -- mcp-server/src/engines/Wiki{PatternHarvester,CodingTribal,ErrorLearningBridge}Engine.ts mcp-server/src/__tests__/Wiki{PatternHarvester,CodingTribal,ErrorLearningBridge}Engine.test.ts && git rm mcp-server/scripts/wiki-harvest-h-drive.mjs knowledge/memories/MEMORY.md && git rm -r knowledge/wiki/{code-tribal,architecture,software-engineering,ux-design,lessons,patterns/miner-*}"
+      },
+      "four_loop": {
+        "build": "3 engines + harvest script + MEMORY.md aggregator",
+        "scrutinize": "/scope check downstream impact (touches 18 existing engines via output capture)",
+        "gap_fill": "/test idempotency, .draft suffix enforcement, ≥80% Ollama share on real fixtures",
+        "tie_up": "Run harvest end-to-end, verify all 4 tribal sections populated, log to wiki/log.md"
+      },
+      "deliverables": [
+        {"path": "H:/prism/mcp-server/src/engines/WikiPatternHarvesterEngine.ts", "type": "source", "description": "Bridges 6 pattern miners → wiki/patterns/miner-*.md + auto-generates skill stubs (.draft) when confidence > 0.85", "line_count_est": 380},
+        {"path": "H:/prism/mcp-server/src/engines/WikiCodingTribalEngine.ts", "type": "source", "description": "Curates 4 sections: code-tribal, architecture, software-engineering, ux-design", "line_count_est": 320},
+        {"path": "H:/prism/mcp-server/src/engines/WikiErrorLearningBridgeEngine.ts", "type": "source", "description": "Bridges CADTrialErrorLearning/ChainFailureRecovery/LessonRenderer → wiki/lessons/", "line_count_est": 280},
+        {"path": "H:/prism/mcp-server/scripts/wiki-harvest-h-drive.mjs", "type": "script", "description": "One-time bulk harvest of 55 memories + 24 CAM tip files + 18 engine outputs via Ollama-routed WikiIngestRouterEngine", "line_count_est": 250},
+        {"path": "H:/prism/knowledge/memories/MEMORY.md", "type": "data", "description": "Aggregator indexing all 55+ existing memory pages by frontmatter type", "line_count_est": 100},
+        {"path": "H:/prism/mcp-server/src/__tests__/WikiPatternHarvesterEngine.test.ts", "type": "test", "description": ".draft suffix enforcement, confidence threshold, idempotency, REAL pattern fixtures", "line_count_est": 250},
+        {"path": "H:/prism/mcp-server/src/__tests__/WikiCodingTribalEngine.test.ts", "type": "test", "description": "All 4 tribal sections populated; required entries verified", "line_count_est": 200},
+        {"path": "H:/prism/mcp-server/src/__tests__/WikiErrorLearningBridgeEngine.test.ts", "type": "test", "description": "Lesson generation from real error fixtures, cross-ref linking", "line_count_est": 200}
+      ],
+      "estimated_tokens": 220000,
+      "estimated_minutes": 200,
+      "creates_skill": false,
+      "creates_script": true,
+      "creates_hook": false,
+      "creates_command": false,
+      "auto_skill_generation_safety": "Skill stubs generated by WikiPatternHarvesterEngine MUST have .draft suffix. Auto-activation is BLOCKED. User reviews each stub, removes .draft to activate. This prevents pattern miners from injecting unverified skills into Claude's command surface."
+    },
+    {
+      "id": "U-WIKI05",
+      "title": "WikiSelfAwarenessSyncEngine + AGI/DL/Creative-Reasoning Bridge",
+      "phase": "P2-Synergy",
+      "sequence": 6,
+      "status": "planned",
+      "role": "R1",
+      "role_name": "Systems Architect",
+      "model": "opus-4.7 (design) + sonnet-4.6 (impl)",
+      "effort": 75,
+      "rationale": "Bridge to PRISMSelfAwarenessEngine, PRISMCreativeReasoningEngine, CrossDisciplinaryDeepLearningEngine — architectural touchpoints, Opus design warranted.",
+      "description": "Two-way bridge: (1) prismSelfAwarenessEngine.recommendAIFeatures(task) checks wiki concept pages BEFORE engine inventory. (2) Creative Reasoning outputs auto-file as wiki/decisions/*.md. (3) DL pattern outputs auto-file as wiki/patterns/*.md. (4) SONA trajectories auto-file as wiki/trajectories/*.md (writer captures intelligence_trajectory_start/step/end via post-tool hook). (5) Pattern records carry wiki_page_ref; reinforcement updates page confidence frontmatter. (6) AGI master facades (MillingAGIMasterEngine, MillMasterOrchestratorFacadeEngine, lathe_agi_reason action outputs) auto-file as wiki/decisions/agi-*.md. (7) LoRA adapter telemetry (cam_lora_*, wedm_lora_*, milling_lora_*, millturn_lora_*) writes per-adapter wiki/patterns/lora-{adapter-name}.md with confidence/drift/training-data fields.",
+      "tools": [
+        {"tool": "prism_dev", "action": "copilot_check_duplication"},
+        {"tool": "prism_ai", "action": "pattern_record"},
+        {"tool": "prism_ai", "action": "pattern_reinforce"}
+      ],
+      "skills": ["/dedup", "/test", "/scrutinize", "/scope"],
+      "scripts": [],
+      "hooks": [],
+      "dependencies": ["U-WIKI02", "U-WIKI04"],
+      "entry_conditions": [
+        "U-WIKI02 + U-WIKI04 complete",
+        "PRISMSelfAwarenessEngine, PRISMCreativeReasoningEngine, CrossDisciplinaryDeepLearningEngine sources read"
+      ],
+      "exit_conditions": [
+        "prismSelfAwarenessEngine.recommendAIFeatures(task) reads wiki/index.md before crawling source",
+        "New method getWikiContext(task) returns 1-3 most-relevant pages via HNSW similarity",
+        "Creative Reasoning 'optimal' synthesis writes wiki/decisions/*.md with frontmatter (date, sources, confidence)",
+        "DL pattern outputs file under wiki/patterns/ with cross-refs to source training run",
+        "Pattern reinforce bumps confidence field in linked wiki page (verify frontmatter mutation)",
+        "Test: full Creative Reasoning run produces wiki page; second run on same problem updates rather than duplicates",
+        "Test: ai_mill_agi_reason output writes wiki/decisions/agi-mill-{taskId}.md with frontmatter (confidence, sources, machine_target)",
+        "Test: lathe_agi_reason output files wiki/decisions/agi-lathe-{taskId}.md",
+        "Test: simulated cam_lora training event produces wiki/patterns/lora-cam-{adapter}.md with confidence + drift fields",
+        "Test: SONA trajectory_end event triggers wiki/trajectories/{date}/{taskId}.md write (PostToolUse hook on prism_ai actions)",
+        "anti-regression test files MUST exist and pass: PRISMSelfAwarenessEngine.test.ts, PRISMCreativeReasoningEngine.test.ts, CrossDisciplinaryDeepLearningEngine.test.ts (run via `npx vitest run src/__tests__/PRISMSelfAwarenessEngine.test.ts src/__tests__/PRISMCreativeReasoningEngine.test.ts src/__tests__/CrossDisciplinaryDeepLearningEngine.test.ts`)",
+        "Coverage ≥90% on WikiSelfAwarenessSyncEngine; modified existing engines must retain their pre-existing coverage (anti-regression)"
+      ],
+      "rollback": {
+        "files_created": [
+          "H:/prism/mcp-server/src/engines/WikiSelfAwarenessSyncEngine.ts",
+          "H:/prism/mcp-server/src/__tests__/WikiSelfAwarenessSyncEngine.test.ts"
+        ],
+        "files_modified": [
+          "H:/prism/mcp-server/src/engines/PRISMSelfAwarenessEngine.ts (+getWikiContext method)",
+          "H:/prism/mcp-server/src/engines/PRISMCreativeReasoningEngine.ts (+auto-file synthesis output)",
+          "H:/prism/mcp-server/src/engines/CrossDisciplinaryDeepLearningEngine.ts (+auto-file pattern output)"
+        ],
+        "abort_criteria": [
+          "Modified existing engines fail their own pre-existing tests (regression)",
+          "Pattern reinforce doesn't mutate frontmatter (state not persisted)",
+          "Second Creative Reasoning run duplicates page instead of updating"
+        ],
+        "rollback_procedure": "git checkout -- mcp-server/src/engines/{PRISMSelfAwareness,PRISMCreativeReasoning,CrossDisciplinaryDeepLearning}Engine.ts && git rm mcp-server/src/engines/WikiSelfAwarenessSyncEngine.ts mcp-server/src/__tests__/WikiSelfAwarenessSyncEngine.test.ts"
+      },
+      "four_loop": {
+        "build": "Bridge engine + 3 surgical edits to existing engines",
+        "scrutinize": "/scope check downstream impact of PRISMSelfAwarenessEngine change",
+        "gap_fill": "/test idempotent file-or-update logic; reinforce mutation",
+        "tie_up": "Run pre-existing tests on all 3 modified engines (anti-regression)"
+      },
+      "deliverables": [
+        {"path": "H:/prism/mcp-server/src/engines/WikiSelfAwarenessSyncEngine.ts", "type": "source", "description": "Bridge engine; ~250 lines; auto-files synthesis/patterns/trajectories", "line_count_est": 250},
+        {"path": "H:/prism/mcp-server/src/__tests__/WikiSelfAwarenessSyncEngine.test.ts", "type": "test", "description": "Idempotent file-or-update; reinforce mutation; cross-engine integration", "line_count_est": 220}
+      ],
+      "estimated_tokens": 160000,
+      "estimated_minutes": 150,
+      "creates_skill": false,
+      "creates_script": false,
+      "creates_hook": false,
+      "creates_command": false
+    },
+    {
+      "id": "U-WIKI06",
+      "title": "prism_wiki Dispatcher + 7 Slash Commands",
+      "phase": "P2-Synergy",
+      "sequence": 7,
+      "status": "planned",
+      "role": "R2",
+      "role_name": "TypeScript Engineer",
+      "model": "sonnet-4.6",
+      "effort": 60,
+      "description": "New dispatcher prism_wiki with 14 actions. 7 slash commands: /wiki-ingest, /wiki-query, /wiki-lint, /wiki-morning (Karpathy briefing), /wiki-bootstrap, /wiki-page, /wiki-sync (delegates to ObsidianVaultSyncEngine).",
+      "tools": [
+        {"tool": "prism_dev", "action": "copilot_check_duplication"},
+        {"tool": "prism_session", "action": "action_search", "params_hint": "verify no action collision"}
+      ],
+      "skills": ["/dedup", "/forge-wiring", "/check-dsl", "/test"],
+      "scripts": [],
+      "hooks": [],
+      "dependencies": ["U-WIKI03", "U-WIKI04", "U-WIKI05"],
+      "entry_conditions": [
+        "All 5 wiki engines exist",
+        "Zod v4 + snake_case + .describe() per H:/.claude/rules/schemas.md confirmed",
+        "/forge-wiring skill available"
+      ],
+      "exit_conditions": [
+        "prism_wiki dispatcher exposes exactly 14 actions: ingest, query, lint, morning, bootstrap, page_open, page_create, sync_obsidian, index_get, index_search, log_append, log_tail, status, stats",
+        "All schemas use Zod v4 with .describe() on every field",
+        "z.enum() values match dispatcher action enum exactly",
+        "/wiki-sync delegates to ObsidianVaultSyncEngine.push() — does not duplicate sync logic",
+        "All 7 slash commands documented with examples and parameter hints",
+        "Backend audit chain passes: prism_dev:test_smoke → auto_wiring_analyze → schema_gap_scan (must report 0 missing .describe())",
+        "prism_session:action_search 'wiki' returns EXACTLY 14 actions (count assertion, not ≥14)",
+        "Schema validation: every wikiActionSchemas field has .describe() (verify with `grep -c '.describe(' src/schemas/wikiActionSchemas.ts` ≥ 14 unique fields)"
+      ],
+      "rollback": {
+        "files_created": [
+          "H:/prism/mcp-server/src/tools/dispatchers/wikiDispatcher.ts",
+          "H:/prism/mcp-server/src/schemas/wikiActionSchemas.ts",
+          "H:/prism/mcp-server/src/__tests__/wikiDispatcher.test.ts",
+          "C:/Users/wompu/.claude/commands/wiki-{ingest,query,lint,morning,bootstrap,page,sync}.md"
+        ],
+        "files_modified": [
+          "H:/prism/mcp-server/src/tools/server.ts (+register prism_wiki)"
+        ],
+        "abort_criteria": [
+          "Schema gap scan reports any field missing .describe()",
+          "Auto-wiring analyze reports unwired action",
+          "/wiki-sync duplicates Obsidian sync logic instead of delegating",
+          "Any z.enum value mismatches its dispatcher action"
+        ],
+        "rollback_procedure": "git checkout -- mcp-server/src/tools/server.ts && git rm mcp-server/src/tools/dispatchers/wikiDispatcher.ts mcp-server/src/schemas/wikiActionSchemas.ts mcp-server/src/__tests__/wikiDispatcher.test.ts ~/.claude/commands/wiki-*.md"
+      },
+      "four_loop": {
+        "build": "Dispatcher + schemas + 7 skill files + register in server.ts",
+        "scrutinize": "/check-dsl on all 7 skill files; /forge-wiring on dispatcher",
+        "gap_fill": "/test action_search returns 14; backend audit chain pass",
+        "tie_up": "Build verify: npm run build (tsc + esbuild)"
+      },
+      "deliverables": [
+        {"path": "H:/prism/mcp-server/src/tools/dispatchers/wikiDispatcher.ts", "type": "source", "description": "14-action dispatcher routing to 5 wiki engines + ObsidianVaultSyncEngine", "line_count_est": 200},
+        {"path": "H:/prism/mcp-server/src/schemas/wikiActionSchemas.ts", "type": "schema", "description": "Zod v4 schemas for 14 actions; snake_case; .describe() per field", "line_count_est": 250},
+        {"path": "H:/prism/mcp-server/src/__tests__/wikiDispatcher.test.ts", "type": "test", "description": "Each action routes correctly; action_search visibility", "line_count_est": 200},
+        {"path": "C:/Users/wompu/.claude/commands/wiki-ingest.md", "type": "command", "description": "/wiki-ingest skill"},
+        {"path": "C:/Users/wompu/.claude/commands/wiki-query.md", "type": "command", "description": "/wiki-query skill"},
+        {"path": "C:/Users/wompu/.claude/commands/wiki-lint.md", "type": "command", "description": "/wiki-lint skill"},
+        {"path": "C:/Users/wompu/.claude/commands/wiki-morning.md", "type": "command", "description": "/wiki-morning Karpathy briefing skill"},
+        {"path": "C:/Users/wompu/.claude/commands/wiki-bootstrap.md", "type": "command", "description": "/wiki-bootstrap skill"},
+        {"path": "C:/Users/wompu/.claude/commands/wiki-page.md", "type": "command", "description": "/wiki-page open or create skill"},
+        {"path": "C:/Users/wompu/.claude/commands/wiki-sync.md", "type": "command", "description": "/wiki-sync delegates to ObsidianVaultSyncEngine"}
+      ],
+      "estimated_tokens": 130000,
+      "estimated_minutes": 110,
+      "creates_skill": true,
+      "creates_script": false,
+      "creates_hook": false,
+      "creates_command": true,
+      "index_in_master": true
+    },
+    {
+      "id": "U-WIKI07",
+      "title": "4 Wiki Hooks + Settings Wiring",
+      "phase": "P2-Synergy",
+      "sequence": 8,
+      "status": "planned",
+      "role": "R2",
+      "role_name": "TypeScript Engineer",
+      "model": "sonnet-4.6",
+      "effort": 55,
+      "description": "Wire 4 hooks per H:/.claude/rules/hooks.md (30-100 lines each, parse_hook_input, exit codes 0/2/non-blocking, telemetry to ~/.prism/telemetry/, NOT stdout). (1) wiki-pre-edit (PreToolUse Edit/Write to wiki/*) — auto-logs, claims file. (2) wiki-post-engine-create (PostToolUse Write to engines/*) — queues wiki update. (3) wiki-session-start-digest (SessionStart) — surfaces TODAY's wiki diff (~3K tokens). (4) wiki-stop-lint (Stop) — fires Ollama lint if >24h since last.",
+      "tools": [
+        {"tool": "prism_dev", "action": "copilot_check_duplication"}
+      ],
+      "skills": ["/dedup", "/hook-browse", "/test", "/checkpoint"],
+      "scripts": [],
+      "hooks": [],
+      "dependencies": ["U-WIKI06"],
+      "entry_conditions": [
+        "U-WIKI06 complete (dispatcher + skills wired)",
+        "H:/.claude/rules/hooks.md conventions confirmed",
+        "claudemd-ollama-enforcer.mjs rate-limit pattern (45s window) studied"
+      ],
+      "exit_conditions": [
+        "Each hook is 30-100 lines per convention",
+        "All hooks use parse_hook_input pattern (mjs version)",
+        "Exit codes: 0 success, 2 blocking, other non-blocking",
+        "Rate-limited (45s window) — no over-firing in test session",
+        "wiki-session-start-digest replaces full digest read with diff: ≤3K tokens injected per session (measured)",
+        "wiki-stop-lint only fires if >24h since last lint AND Ollama reachable",
+        "Settings.json hook entries valid JSON (jq passes)",
+        "All 4 hooks log to ~/.prism/telemetry/wiki-*.jsonl, NOT stdout"
+      ],
+      "rollback": {
+        "files_created": [
+          "H:/prism/.claude/hooks/wiki-pre-edit.mjs",
+          "H:/prism/.claude/hooks/wiki-post-engine-create.mjs",
+          "H:/prism/.claude/hooks/wiki-session-start-digest.mjs",
+          "H:/prism/.claude/hooks/wiki-stop-lint.mjs",
+          "H:/prism/mcp-server/src/__tests__/wiki-hooks.test.ts"
+        ],
+        "files_modified": [
+          "H:/prism/.claude/settings.json (+4 hook registrations)"
+        ],
+        "abort_criteria": [
+          "Any hook >100 lines (violates convention)",
+          "SessionStart hook injects >4K tokens (savings target missed)",
+          "wiki-stop-lint fires when Ollama unreachable (broken degradation)",
+          "Any hook writes to stdout (violates telemetry rule)",
+          "settings.json fails jq validation"
+        ],
+        "rollback_procedure": "git checkout -- .claude/settings.json && git rm .claude/hooks/wiki-{pre-edit,post-engine-create,session-start-digest,stop-lint}.mjs mcp-server/src/__tests__/wiki-hooks.test.ts"
+      },
+      "four_loop": {
+        "build": "4 hooks following template + settings.json registration",
+        "scrutinize": "/hook-browse comparison vs existing rate-limit hooks",
+        "gap_fill": "/test rate-limit window; token measurement on session-start-digest",
+        "tie_up": "jq validate settings.json; verify telemetry files created"
+      },
+      "deliverables": [
+        {"path": "H:/prism/.claude/hooks/wiki-pre-edit.mjs", "type": "hook", "description": "PreToolUse Edit/Write to wiki/* — auto-log + claim", "line_count_est": 80},
+        {"path": "H:/prism/.claude/hooks/wiki-post-engine-create.mjs", "type": "hook", "description": "PostToolUse Write to engines/* — queue wiki update", "line_count_est": 70},
+        {"path": "H:/prism/.claude/hooks/wiki-session-start-digest.mjs", "type": "hook", "description": "SessionStart — inject TODAY's wiki diff (~3K tokens)", "line_count_est": 90},
+        {"path": "H:/prism/.claude/hooks/wiki-stop-lint.mjs", "type": "hook", "description": "Stop — fire Ollama lint if >24h since last", "line_count_est": 75},
+        {"path": "H:/prism/mcp-server/src/__tests__/wiki-hooks.test.ts", "type": "test", "description": "Rate-limit window, token measurement, degradation paths", "line_count_est": 200}
+      ],
+      "estimated_tokens": 110000,
+      "estimated_minutes": 100,
+      "creates_skill": false,
+      "creates_script": false,
+      "creates_hook": true,
+      "creates_command": false,
+      "index_in_master": true
+    },
+    {
+      "id": "U-WIKI08",
+      "title": "Production Scripts + Cron Wiring + Documentation + Inventory Refresh",
+      "phase": "P3-Production",
+      "sequence": 9,
+      "status": "planned",
+      "role": "R3",
+      "role_name": "Production Operator",
+      "model": "sonnet-4.6",
+      "effort": 50,
+      "description": "Three production scripts + cron wiring + final integration tests + CLAUDE.md updates + roadmap-index registration + inventory refresh. End-to-end demo: ingest fresh PDF, see ≥10 wiki pages touched.",
+      "tools": [
+        {"tool": "prism_dev", "action": "copilot_check_duplication"},
+        {"tool": "prism_dev", "action": "token_economy_report"}
+      ],
+      "skills": ["/cron-bootstrap", "/test", "/scrutinize", "/health", "/checkpoint"],
+      "scripts": ["scripts/update-prism-inventory.mjs"],
+      "hooks": [],
+      "dependencies": ["U-WIKI07"],
+      "entry_conditions": [
+        "U-WIKI07 complete (all hooks wired)",
+        "Existing cron registry accessible (/cron-bootstrap skill works)",
+        "End-to-end test PDF available"
+      ],
+      "exit_conditions": [
+        "Three production scripts pass --dry-run smoke test",
+        "Cron registered: 02:00 lint + 07:30 morning digest (verify with `schtasks /Query /TN PRISM_Wiki_Lint` and `schtasks /Query /TN PRISM_Wiki_Morning_Digest` — both must return non-empty)",
+        "Obsidian export produces files rendering correctly (frontmatter, [[wikilinks]], #tags, Dataview YAML)",
+        "Final build passes: npm run build (tsc + esbuild) — zero errors",
+        "Final tests pass: npx vitest run — zero regressions",
+        "Token economy report: ≥70% Ollama share of wiki maintenance (real measurement on demo)",
+        "End-to-end demo: ingest fresh PDF → ≥10 wiki pages touched with cross-refs",
+        "PRISM-INVENTORY-LATEST.md and BASELINE_INVENTORY.json reflect deltas",
+        "roadmap-index.json registers KNOWLEDGE-WIKI-MS0 entry (acquire claim, post to chat bus first)",
+        "H:/prism/CLAUDE.md updated: 'Read PRISM-INVENTORY-LATEST.md' → 'Query wiki/index.md first; fall back to digests'"
+      ],
+      "rollback": {
+        "files_created": [
+          "H:/prism/mcp-server/scripts/wiki-nightly-lint.mjs",
+          "H:/prism/mcp-server/scripts/wiki-morning-digest.mjs",
+          "H:/prism/mcp-server/scripts/wiki-obsidian-export.mjs"
+        ],
+        "files_modified": [
+          "H:/prism/CLAUDE.md (replace digest-first guidance)",
+          "H:/prism/mcp-server/data/roadmap-index.json (+KNOWLEDGE-WIKI-MS0 entry)",
+          "H:/prism/PRISM-INVENTORY-LATEST.md (refreshed counts)",
+          "H:/prism/mcp-server/data/state/BASELINE_INVENTORY.json (refreshed)"
+        ],
+        "abort_criteria": [
+          "Token economy share <60% Ollama on demo",
+          "Demo ingest touches <8 wiki pages (under-coverage)",
+          "Build or test regressions",
+          "Cron jobs not actually registered (verify with task scheduler)"
+        ],
+        "rollback_procedure": "git checkout -- CLAUDE.md mcp-server/data/roadmap-index.json PRISM-INVENTORY-LATEST.md mcp-server/data/state/BASELINE_INVENTORY.json && git rm mcp-server/scripts/wiki-{nightly-lint,morning-digest,obsidian-export}.mjs"
+      },
+      "four_loop": {
+        "build": "3 scripts + cron registration + doc updates",
+        "scrutinize": "/health full system check post-wire",
+        "gap_fill": "/test end-to-end demo; verify cron registered",
+        "tie_up": "Inventory refresh; roadmap-index registration with claim_file lock"
+      },
+      "deliverables": [
+        {"path": "H:/prism/mcp-server/scripts/wiki-nightly-lint.mjs", "type": "script", "description": "Cron 02:00 — Ollama lint pass", "line_count_est": 100},
+        {"path": "H:/prism/mcp-server/scripts/wiki-morning-digest.mjs", "type": "script", "description": "Cron 07:30 — Karpathy morning briefing", "line_count_est": 120},
+        {"path": "H:/prism/mcp-server/scripts/wiki-obsidian-export.mjs", "type": "script", "description": "Obsidian-formatted export with [[wikilinks]] + Dataview YAML", "line_count_est": 150}
+      ],
+      "estimated_tokens": 90000,
+      "estimated_minutes": 80,
+      "creates_skill": false,
+      "creates_script": true,
+      "creates_hook": false,
+      "creates_command": false,
+      "index_in_master": true
+    }
+  ],
+  "unit_addendum": {
+    "id": "U-WIKI10",
+    "title": "Algorithm-Auto-Fire Hook + 17 New Skills (Ollama-routed where NL needed, direct-exec where deterministic)",
+    "phase": "P4-AutoFire",
+    "sequence": 10,
+    "status": "planned",
+    "role": "R2",
+    "role_name": "TypeScript Engineer + Hook Author",
+    "model": "sonnet-4.6",
+    "effort": 65,
+    "rationale": "Per Stage 12 scrutiny: most algorithm execution = deterministic math, doesn't need any LLM. Single hook `algorithm-auto-fire.mjs` covers 8 quick-win triples (~250K tokens/day saved). Plus 6 NL-routed triples through Ollama (~140K/day). Plus 17 new skill files. Existing hooks (formula-algorithm-suggest, mcp-route-suggest, ollama-skill-suggester, ollama-auto-router, ollama-unified-semantic-router) get NEW DISPATCH ENTRIES, not full rewrites.",
+    "description": "Build algorithm-auto-fire.mjs (PreToolUse + UserPromptSubmit hook) that maps prompt keywords to deterministic algorithm execution and injects the result into context — zero LLM tokens. For NL-routed triples, extend OllamaHookBridgeEngine dispatch table. Author 17 new /skill .md files. Wire all into existing 5 hook dispatch tables (no new hook files except algorithm-auto-fire.mjs).",
+    "dependencies": ["U-WIKI06", "U-WIKI07"],
+    "entry_conditions": [
+      "U-WIKI06 (dispatcher + 7 wiki skills) complete",
+      "U-WIKI07 (4 wiki hooks) complete",
+      "Stage 12 scrutiny report reviewed for triple priorities",
+      "User approved which of 17 new skills to ship in MS0 (vs deferred to MS1)"
+    ],
+    "exit_conditions": [
+      "algorithm-auto-fire.mjs ships and registers in settings.json with continueOnError:true (advisory)",
+      "8 deterministic-math triples wired (chip-check, auto-feed-correct, tool-life-now, chatter-rpm, chip-eject, deflect-check, fft-now, code-index)",
+      "6 Ollama-routed triples wired in OllamaHookBridgeEngine dispatch (tribal-suggest, dedup, engine-find, anomaly-watch, print-read, alarm-decode)",
+      "17 new /skill .md files written under ~/.claude/commands/",
+      "Existing 5 hook dispatch tables extended (formula-algorithm-suggest, mcp-route-suggest, ollama-skill-suggester, ollama-auto-router, ollama-unified-semantic-router)",
+      "Token economy report measures actual savings on a 1-day fixture session — must show ≥150K tokens saved (vs 250K target with margin)",
+      "Each direct-exec triple has a unit test verifying NO LLM call is made (mock fetch/anthropic SDK)",
+      "Each Ollama triple has a unit test verifying Claude is NOT invoked when Ollama responds within 2s"
+    ],
+    "rollback": {
+      "files_created": [
+        "H:/prism/.claude/hooks/algorithm-auto-fire.mjs",
+        "C:/Users/wompu/.claude/commands/{chip-check,auto-feed-correct,tool-life-now,chatter-rpm,chip-eject,heat-check,jc-stress,deflect-check,anomaly-watch,trend-forecast,print-read,fft-now,mat-resolve,tool-cluster,risk-mc,engine-find,tribal-suggest}.md (17 files)"
+      ],
+      "files_modified": [
+        "H:/prism/.claude/settings.json (+1 hook registration)",
+        "H:/prism/.claude/hooks/formula-algorithm-suggest.mjs (dispatch table extended)",
+        "H:/prism/.claude/hooks/mcp-route-suggest.mjs (dispatch table extended)",
+        "H:/prism/.claude/hooks/ollama-skill-suggester.mjs (dispatch table extended)",
+        "H:/prism/.claude/hooks/ollama-auto-router.mjs (dispatch table extended)",
+        "H:/prism/.claude/hooks/ollama-unified-semantic-router.mjs (dispatch table extended)"
+      ],
+      "abort_criteria": [
+        "Any direct-exec triple actually calls an LLM (defeats purpose)",
+        "False-positive rate on hook auto-fire >10% in 30-min fixture session (annoying)",
+        "Token savings <100K/day in measurement (under-delivers vs 150K floor)"
+      ],
+      "rollback_procedure": "git checkout -- .claude/settings.json .claude/hooks/{formula-algorithm-suggest,mcp-route-suggest,ollama-skill-suggester,ollama-auto-router,ollama-unified-semantic-router}.mjs && git rm .claude/hooks/algorithm-auto-fire.mjs ~/.claude/commands/{chip-check,auto-feed-correct,tool-life-now,chatter-rpm,chip-eject,heat-check,jc-stress,deflect-check,anomaly-watch,trend-forecast,print-read,fft-now,mat-resolve,tool-cluster,risk-mc,engine-find,tribal-suggest}.md"
+    },
+    "estimated_tokens": 140000,
+    "estimated_minutes": 130,
+    "creates_skill": true,
+    "creates_script": false,
+    "creates_hook": true,
+    "creates_command": true
+  },
+  "ollama_max_optimization_findings": {
+    "session_burn_baseline": "500K tokens",
+    "identified_savings_total_pct": "60-95% (470K-940K tokens/session)",
+    "key_insight": "Most wins are WIRING/CONSOLIDATING existing infra, NOT building new. 6+ pre-built Ollama hooks sit unwired. 5 hook clusters overlap and should merge.",
+    "five_agent_scrutiny_scores": {
+      "ollama_infra_audit": "27 surfaces, only 4 wired; 6+ idle (claudemd-ollama-enforcer, ollama-autostart, ollama-task-offloader 0/80, ollama-skill-suggester, ollama-terminal-watcher, prompt-rewriter-ollama)",
+      "algorithm_routability": "76% Tier A direct-exec, 16% Tier B Ollama, 8% Tier C Claude. Only 8/51 in ALGORITHM_REGISTRY",
+      "knowledge_resources": "87 files; 15 high-value knowledge->skill->hook mappings; 5 quick-win deterministic + Ollama-backstop",
+      "hook_surface": "294 hooks; 5 consolidation clusters; ai-deep-intelligence 416 LOC alone burns 50K/session, discipline-expert-inject 1050 LOC burns 30K",
+      "token_hotspots": "Top 5 hotspots = 150-300K/session: SessionStart digests, UserPromptSubmit injection stack, PreToolUse Edit stack, search re-derivation, reasoning loops"
+    },
+    "top_15_actions_prioritized": [
+      {"rank": 1,  "action": "Wire ollama-task-offloader.mjs (lower predicate threshold)",                    "type": "wire-existing", "savings": "30-50K/session", "ease": "1-line config"},
+      {"rank": 2,  "action": "Add cache_control to CLAUDE.md + ENGINE_DIGEST + DISPATCHER_DIGEST + manifest", "type": "prompt-cache",  "savings": "35K/session",   "ease": "1 file change"},
+      {"rank": 3,  "action": "SessionStart digest filtering (Ollama classifies task, slices to relevant 3K)", "type": "build-new",     "savings": "20-25K/session", "ease": "1 new hook"},
+      {"rank": 4,  "action": "Wire claudemd-ollama-enforcer.mjs (claims 85% savings, never registered)",      "type": "wire-existing", "savings": "15-20K/session", "ease": "1-line config"},
+      {"rank": 5,  "action": "Consolidate 5 prompt-intent classifiers into ollama-unified-semantic-router",   "type": "merge-delete",  "savings": "25K/session",    "ease": "delete 4 files"},
+      {"rank": 6,  "action": "Consolidate 5 context-briefing hooks (ai-deep-intelligence + discipline-expert-inject + 3 more) into one Ollama-routed primer", "type": "merge-delete", "savings": "80-110K/session", "ease": "1 orchestrator"},
+      {"rank": 7,  "action": "Wire ollama-terminal-watcher.mjs PostToolUse for Bash output >2KB",             "type": "wire-existing", "savings": "15-30K/session", "ease": "1-line config"},
+      {"rank": 8,  "action": "Register 43 unwired algorithms in ALGORITHM_REGISTRY (currently only 8/51)",    "type": "wire-existing", "savings": "enables 9", "ease": "50-line registry update"},
+      {"rank": 9,  "action": "Top 10 algorithm triples (Kienzle/Taylor/PowerTorque/ChipThin/StabilityLobe/SurfFinish/Anomaly/FFT/DT/Cluster) -> /skill + auto-fire hook", "type": "build-new", "savings": "2.2M/week", "ease": "1 hook + 10 skills"},
+      {"rank": 10, "action": "Wire ollama-autostart.mjs SessionStart",                                         "type": "wire-existing", "savings": "reliability",   "ease": "1-line config"},
+      {"rank": 11, "action": "Build /edit-anchor-check (deterministic, would have saved 15K this session)",   "type": "build-new",     "savings": "15-25K/session", "ease": "1 deterministic hook"},
+      {"rank": 12, "action": "Build /no-delete-check + /completeness-gate-check (knowledge: feedback memories)", "type": "build-new",  "savings": "reliability",    "ease": "2 hooks"},
+      {"rank": 13, "action": "Build /no-inline-physics regex hook (6 kc1.1 magic numbers, PreToolUse block)", "type": "build-new",     "savings": "safety",         "ease": "1 hook"},
+      {"rank": 14, "action": "Wire LocalCommitMessageEngine into auto-commit.sh",                              "type": "wire-existing", "savings": "5K/commit",      "ease": "1 script edit"},
+      {"rank": 15, "action": "Search caching via prism_memory:search_unified (pre-computed digest queries)",   "type": "wire-existing", "savings": "40-60K/session", "ease": "1 hook + memory store"}
+    ],
+    "duplications_to_delete": [
+      "ollama-route-recommender.mjs (superseded by ollama-context-aggregator)",
+      "ollama-unified-semantic-router.mjs (kept as consolidation target, peers deleted)",
+      "ollama-prism-intelligence.mjs (superseded)",
+      "LocalAwarenessRouterEngine vs LocalHookAggregatorEngine (overlapping)",
+      "OllamaTaskOffloaderEngine.ts vs ollama-task-offloader.mjs hook (two impls)",
+      "discipline-expert-inject.mjs 1050 LOC (merge into Ollama primer)",
+      "ai-deep-intelligence.mjs 416 LOC (merge into Ollama primer)",
+      "expert-role-inject.mjs (merge)",
+      "karpathy-discipline-inject.mjs (merge)",
+      "prompt-rules-inject.mjs (merge)",
+      "5 prompt-intent classifiers (local-compute-intent, prompt-classifier-hook, ollama-auto-router peers)"
+    ],
+    "phase_implementation_plan": {
+      "phase_1_wire_existing_first": "Actions 1, 4, 7, 10, 14 — pure config changes, ~95K/session saved with zero risk",
+      "phase_2_cache_stable_content": "Action 2 — prompt caching ~35K saved",
+      "phase_3_consolidate_redundant": "Actions 5, 6 — merge clusters ~110K saved, deletes 8+ files",
+      "phase_4_register_algorithms": "Action 8 — enables Action 9",
+      "phase_5_build_critical_new": "Actions 3, 9, 11, 12, 13 — new hooks for the gaps remaining after wire+merge"
+    },
+    "deferred_to_next_session": "All 15 actions designed for next session. Each is independently shippable. Recommend executing in phase order — Phase 1+2 alone delivers ~130K/session (~25% reduction) in <1 hour of work."
+  },
+  "differentiation_vs_OBSIDIAN-MS0": "OBSIDIAN-MS0 (complete) shipped sync + plugin bridge + tribal export + shop note ingest engines. KNOWLEDGE-WIKI-MS0 builds the Karpathy maintenance protocol layer ON TOP — index/log/lint/ingest-routing/self-awareness-sync — which is the actual compounding-wiki pattern OBSIDIAN-MS0 didn't address. No engine duplication.",
+  "deferred_to_MS1": [
+    "Per-customer JM Die wiki pages auto-built from program archive (24,545 files)",
+    "Customer call transcript ingester with action-item extraction",
+    "FAI/quality decision auto-filer",
+    "Brand/customer-specific wiki views",
+    "Wiki diff viewer UI in PRISM web app",
+    "qmd local hybrid BM25/vector search integration"
+  ],
+  "scrutiny": {
+    "target_score": 0.92,
+    "agent_count": 10,
+    "checks": [
+      "Protocol Structure — SMART CONFIG / KNOWLEDGE / INTENT / EXIT GATE / SKILLS / PLUGINS / MCP_LIFECYCLE all populated",
+      "Unit Naming — U-WIKI{NN} format, sequential, zero collisions",
+      "Dependency Graph — DAG, no cycles, compaction safe",
+      "Exit Gate Rigor — measurable, omega_floor=1.0, ≥3 criteria/unit",
+      "Completeness Coverage — all brief items addressed",
+      "Physics Rigor — WikiLintEngine cross-check ±2% drift, src/physics/constants.ts canonical",
+      "Forge-Triple Ownership — single ownership, BUILT in U-WIKI06+U-WIKI07",
+      "Feature Cascade — new_* only in building session, available_to includes terminal",
+      "MCP Utilization — context_boot/dispatcher_map/memory_recall present, /scope on cross-engine units",
+      "Cross-Roadmap Coherence — extends OBSIDIAN-MS0 cleanly, no SYS/QA conflict"
+    ]
+  }
+}

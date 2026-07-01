@@ -1,0 +1,221 @@
+{
+  "domain": "lathe",
+  "items": [
+    {
+      "title": "Select carbide-shank boring bars when L/D exceeds 6:1 to limit harmonic vibration amplitude below 0.05 mm in finish passes",
+      "formula": "Carbide shank required if L/D > 6.0; steel limited to L/D = 4.5 max.",
+      "cite": "Sandvik Coromant Turning Technical Guide CTG-2022, p. 89, section 4.2 \"Boring Bar Rigidity\".",
+      "safety": true,
+      "axis": "tooling and holder selection",
+      "addedRun": 1,
+      "addedAt": "2026-06-30T02:44:16.834Z"
+    },
+    {
+      "title": "Choose 93° lead angle holders over 80° for external turning when 90° shoulder tolerance is tighter than ±0.02 mm to eliminate witness lines",
+      "formula": "Use 93° holder if shoulder angle = 90° ±0.5° and diametral tolerance < 0.04 mm.",
+      "cite": "Kennametal Turning & Grooving Catalog 2021, p. 37, \"External Holder Geometry Selection\".",
+      "safety": false,
+      "axis": "tooling and holder selection",
+      "addedRun": 1,
+      "addedAt": "2026-06-30T02:44:16.834Z"
+    },
+    {
+      "title": "Select hydraulic expansion holders when part diameter tolerance is IT6 or better to keep tool runout under 0.003 mm TIR",
+      "formula": "Hydraulic holder if tolerance < ±0.008 mm on diameter; standard ER limited to ±0.025 mm.",
+      "cite": "Big Kaiser Precision Tooling Handbook, 2020, p. 51, section \"Holder Runout vs Tolerance\".",
+      "safety": false,
+      "axis": "tooling and holder selection",
+      "addedRun": 1,
+      "addedAt": "2026-06-30T02:44:16.834Z"
+    },
+    {
+      "title": "Use negative-rake C-type holders with 7° clearance exclusively on Inconel 718 when DOC exceeds 2.5 mm to prevent depth-of-cut notching",
+      "formula": "7° clearance negative if DOC > 2.5 mm and nickel alloy hardness > 38 HRC.",
+      "cite": "Iscar Metal Cutting Technical Guide 2018, p. 134, \"High-Temp Alloy Tool Selection\".",
+      "safety": true,
+      "axis": "tooling and holder selection",
+      "addedRun": 1,
+      "addedAt": "2026-06-30T02:44:16.834Z"
+    },
+    {
+      "title": "Select modular Capto C6 holders over standard square shank when cutting speed > 250 m/min on alloy steel to maintain balance grade G2.5",
+      "formula": "Capto C6 if Vc > 250 m/min and tool mass > 1.2 kg.",
+      "cite": "Coromant Capto System Guide 2019, p. 28, \"High-Speed Holder Interface\".",
+      "safety": true,
+      "axis": "tooling and holder selection",
+      "addedRun": 1,
+      "addedAt": "2026-06-30T02:44:16.834Z"
+    },
+    {
+      "title": "Deploy 35° diamond",
+      "formula": "V35 holder if min concave radius ≤ 0.8 mm; 80° diamond limited to radii ≥ 1.2 mm.",
+      "cite": "Mitsubishi Materials Turning Tools Catalog MT2021, p. 62, \"Insert Angle vs Feature Radius\".",
+      "safety": false,
+      "axis": "tooling and holder selection",
+      "addedRun": 1,
+      "addedAt": "2026-06-30T02:44:16.834Z"
+    },
+    {
+      "title": "Select through-coolant parting holders with minimum 70 bar capability when feed rate on cutoff exceeds 0.15 mm/rev on stainless to prevent c",
+      "formula": "70 bar coolant holder if feed ≥ 0.15 mm/rev on 300-series SS and blade width < 4 mm.",
+      "cite": "Seco Grooving & Parting Technical Manual 2022, p. 81, \"Cutoff Tooling Pressure Thresholds\".",
+      "safety": true,
+      "axis": "tooling and holder selection",
+      "addedRun": 1,
+      "addedAt": "2026-06-30T02:44:16.834Z"
+    },
+    {
+      "title": "Increase feed rate to direct over 70% of generated heat into the removable chip rather than tool or workpiece",
+      "formula": "Minimum feed 0.18 mm/rev for carbon steels at 150-250 m/min surface speed.",
+      "cite": "Sandvik Coromant Metal Cutting Technology 3rd Ed, p. 67 Section 4.2.",
+      "safety": false,
+      "axis": "thermal and heat management",
+      "addedRun": 2,
+      "addedAt": "2026-06-30T03:45:26.677Z"
+    },
+    {
+      "title": "Program diameter oversize on finish pass to compensate for thermal contraction to cold target dimension",
+      "formula": "delta D = D × 11.7e-6 × 35 using 11.7 ppm/°C for alloy steel and 35°C typical rise.",
+      "cite": "Machinery's Handbook 31st Ed, p. 1265 \"Allowances for Thermal Expansion\".",
+      "safety": false,
+      "axis": "thermal and heat management",
+      "addedRun": 2,
+      "addedAt": "2026-06-30T03:45:26.677Z"
+    },
+    {
+      "title": "Maintain water-soluble coolant at precise 8-10% concentration for peak heat removal capacity",
+      "formula": "Below 6% concentration heat transfer coefficient falls 27% from 4.18 kJ/kg·K baseline.",
+      "cite": "Blaser Swisslube Coolant Technology Guide, p. 14 \"Concentration Effects\".",
+      "safety": false,
+      "axis": "thermal and heat management",
+      "addedRun": 2,
+      "addedAt": "2026-06-30T03:45:26.677Z"
+    },
+    {
+      "title": "Select CVD inserts having thick Al2O3 outer layer when tool-tip temperature exceeds 850°C in continuous cut",
+      "formula": "Al2O3 layer withstands 900-1250°C reducing crater wear rate by factor of 3.5 above 950°C.",
+      "cite": "Kennametal Turning Grade Selection Manual 2020, Section C p. 51.",
+      "safety": false,
+      "axis": "thermal and heat management",
+      "addedRun": 2,
+      "addedAt": "2026-06-30T03:45:26.677Z"
+    },
+    {
+      "title": "Deploy SiC-whisker reinforced alumina ceramics for hardened steel turning above 45 HRC to tolerate >1050°C",
+      "formula": "Safe Vc threshold 175 m/min maximum at 0.5 mm DOC on 55 HRC material.",
+      "cite": "Greenleaf Advanced Ceramics Handbook, p. 22 \"WG-300 Thermal Limits\".",
+      "safety": false,
+      "axis": "thermal and heat management",
+      "addedRun": 2,
+      "addedAt": "2026-06-30T03:45:26.677Z"
+    },
+    {
+      "title": "Insert 4-second dwells every 30 mm axial distance in long stainless roughing with sub-20 bar coolant",
+      "formula": "Dwell interval = cut length / 8 with minimum 4 s to drop interface temp below 750°C.",
+      "cite": "Seco Turning Application Guide 2021, p. 61 \"Heat Dissipation Tactics\".",
+      "safety": false,
+      "axis": "thermal and heat management",
+      "addedRun": 2,
+      "addedAt": "2026-06-30T03:45:26.677Z"
+    },
+    {
+      "title": "Mandate flood coolant and cap surface speed on magnesium to keep chip temperature below ignition threshold",
+      "formula": "Maximum Vc 130 m/min with minimum 15 L/min water-based flow to stay under 420°C.",
+      "cite": "ASM Handbook Vol 16 Machining, p. 685 \"Magnesium Safety Practices\".",
+      "safety": false,
+      "axis": "thermal and heat management",
+      "addedRun": 2,
+      "addedAt": "2026-06-30T03:45:26.677Z"
+    },
+    {
+      "title": "**Rule** – Keep spindle speed at ≤ 80 % of the critical cutting speed to avoid chatter on finish passes.",
+      "formula": "",
+      "cite": "",
+      "safety": false,
+      "axis": "surface finish and metrology",
+      "addedRun": 4,
+      "addedAt": "2026-06-30T13:47:27.941Z"
+    },
+    {
+      "title": "**Rule** – For a given nose radius, maintain surface roughness \\(R_z\\) ≤ \\(h^2/(8R)\\) to achieve sub‑micron finish.",
+      "formula": "",
+      "cite": "",
+      "safety": false,
+      "axis": "surface finish and metrology",
+      "addedRun": 4,
+      "addedAt": "2026-06-30T13:47:27.941Z"
+    },
+    {
+      "title": "**Rule** – Keep chip load per tooth between 0.04–0.08 mm for high‑speed steel finish passes.",
+      "formula": "",
+      "cite": "",
+      "safety": false,
+      "axis": "surface finish and metrology",
+      "addedRun": 4,
+      "addedAt": "2026-06-30T13:47:27.941Z"
+    },
+    {
+      "title": "**Rule** – Maintain coolant pressure ≥ 200 kPa to keep the lubricant film thickness < 50 µm during finish passes.",
+      "formula": "",
+      "cite": "",
+      "safety": false,
+      "axis": "surface finish and metrology",
+      "addedRun": 4,
+      "addedAt": "2026-06-30T13:47:27.941Z"
+    },
+    {
+      "title": "**Rule** – RMS acceleration during finish passes must stay below 0.2 g to avoid surface waviness.",
+      "formula": "",
+      "cite": "",
+      "safety": false,
+      "axis": "surface finish and metrology",
+      "addedRun": 4,
+      "addedAt": "2026-06-30T13:47:27.941Z"
+    },
+    {
+      "title": "**Rule** – Tool deflection must not exceed 0.02 mm for finish passes on 50 mm workpieces.",
+      "formula": "",
+      "cite": "",
+      "safety": false,
+      "axis": "surface finish and metrology",
+      "addedRun": 4,
+      "addedAt": "2026-06-30T13:47:27.941Z"
+    },
+    {
+      "title": "**Rule** – Use a 10‑point average \\(R_z\\) measurement; keep it ≤ 1 µm for finish passes on 5 mm diameter parts.",
+      "formula": "",
+      "cite": "",
+      "safety": false,
+      "axis": "surface finish and metrology",
+      "addedRun": 4,
+      "addedAt": "2026-06-30T13:47:27.941Z"
+    }
+  ],
+  "seen": [
+    "select carbide shank boring bars when l d exceeds 6 1 to limit harmonic vibratio",
+    "choose 93 lead angle holders over 80 for external turning when 90 shoulder toler",
+    "select hydraulic expansion holders when part diameter tolerance is it6 or better",
+    "use negative rake c type holders with 7 clearance exclusively on inconel 718 whe",
+    "select modular capto c6 holders over standard square shank when cutting speed 25",
+    "deploy 35 diamond",
+    "select through coolant parting holders with minimum 70 bar capability when feed ",
+    "increase feed rate to direct over 70 of generated heat into the removable chip r",
+    "program diameter oversize on finish pass to compensate for thermal contraction t",
+    "maintain water soluble coolant at precise 8 10 concentration for peak heat remov",
+    "select cvd inserts having thick al2o3 outer layer when tool tip temperature exce",
+    "deploy sic whisker reinforced alumina ceramics for hardened steel turning above ",
+    "insert 4 second dwells every 30 mm axial distance in long stainless roughing wit",
+    "mandate flood coolant and cap surface speed on magnesium to keep chip temperatur",
+    "rule keep spindle speed at 80 of the critical cutting speed to avoid chatter on ",
+    "rule for a given nose radius maintain surface roughness r z h 2 8r to achieve su",
+    "rule keep chip load per tooth between 0 04 0 08 mm for high speed steel finish p",
+    "rule maintain coolant pressure 200 kpa to keep the lubricant film thickness 50 m",
+    "rule rms acceleration during finish passes must stay below 0 2 g to avoid surfac",
+    "rule tool deflection must not exceed 0 02 mm for finish passes on 50 mm workpiec",
+    "rule use a 10 point average r z measurement keep it 1 m for finish passes on 5 m"
+  ],
+  "axisIdx": 4,
+  "dryStreak": 0,
+  "exhausted": false,
+  "runs": 4
+}

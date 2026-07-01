@@ -183,7 +183,7 @@ describe('PurchasingPage', () => {
     });
   });
 
-  it('keeps the PRISM AI copilot built into the purchasing desk and auto-briefs live sourcing context', async () => {
+  it('keeps the Kienzle AI copilot built into the purchasing desk and auto-briefs live sourcing context', async () => {
     mockPurchasingRecommend.mockResolvedValue({
       result: {
         recommendations: [
@@ -211,7 +211,7 @@ describe('PurchasingPage', () => {
     await waitFor(() => {
       expect(screen.getAllByText('Ryerson').length).toBeGreaterThan(0);
     });
-    await waitFor(() => expect(screen.getByText(/PRISM AI copilot/i)).toBeDefined());
+    await waitFor(() => expect(screen.getByText(/Kienzle AI copilot/i)).toBeDefined());
     await waitFor(() => expect(screen.getByText(/Autonomous desk brief on/i)).toBeDefined());
     expect(screen.getByRole('button', { name: /Refresh AI brief/i })).toBeDefined();
     await waitFor(() =>
@@ -251,9 +251,9 @@ describe('PurchasingPage', () => {
     const messagesLink = screen.getByRole('link', { name: /Open Messages follow-up/i });
     const captureLink = screen.getByRole('link', { name: /Open Capture Ops/i });
 
-    const inventoryUrl = new URL(inventoryLink.getAttribute('href')!, 'https://prism.local');
-    const messagesUrl = new URL(messagesLink.getAttribute('href')!, 'https://prism.local');
-    const captureUrl = new URL(captureLink.getAttribute('href')!, 'https://prism.local');
+    const inventoryUrl = new URL(inventoryLink.getAttribute('href')!, 'https://kienzle.local');
+    const messagesUrl = new URL(messagesLink.getAttribute('href')!, 'https://kienzle.local');
+    const captureUrl = new URL(captureLink.getAttribute('href')!, 'https://kienzle.local');
 
     expect(inventoryUrl.pathname).toBe('/inventory');
     expect(inventoryUrl.searchParams.get('originSource')).toBe('customers');

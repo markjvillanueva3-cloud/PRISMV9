@@ -1,5 +1,6 @@
 import { useDeferredValue, useEffect, useMemo, useRef, useState } from 'react';
 import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
+import { safeAreaInset, safeAreaPadding } from './mobile/MobileSafeArea';
 import {
   MOBILE_NAV_ITEMS,
   NAV_SECTIONS,
@@ -1009,11 +1010,14 @@ export function Layout() {
         </div>
       ) : null}
 
-      <header className="border-b border-cyan-500/10 bg-[#050b10]/95 px-4 py-4 backdrop-blur lg:hidden">
+      <header
+        className="border-b border-cyan-500/10 bg-[#050b10]/95 px-4 pb-4 backdrop-blur lg:hidden"
+        style={safeAreaPadding(['top'], 16)}
+      >
         <div className="space-y-3">
           <div className="flex items-center justify-between gap-4">
             <div>
-              <div className="text-xl font-bold tracking-tight text-slate-50">PRISM</div>
+              <div className="text-xl font-bold tracking-tight text-slate-50">Kienzle</div>
               <div className="text-xs uppercase tracking-[0.24em] text-cyan-200/70">Manufacturing Intelligence</div>
             </div>
             <div className="flex items-center gap-2">
@@ -1104,7 +1108,7 @@ export function Layout() {
           >
             <div className="border-b border-cyan-500/10 px-5 py-5">
               <div>
-                <div className="text-xl font-bold tracking-tight text-slate-50">PRISM</div>
+                <div className="text-xl font-bold tracking-tight text-slate-50">Kienzle</div>
                 <div className="mt-1 text-[11px] uppercase tracking-[0.28em] text-cyan-200/65">Manufacturing Intelligence</div>
               </div>
               <div className="mt-4 space-y-3">
@@ -1432,7 +1436,7 @@ export function Layout() {
           </nav>
 
           <div className="border-t border-cyan-500/10 px-5 py-4 text-xs text-slate-500">
-            PRISM v19.1 - Manufacturing intelligence platform
+            Kienzle v19.1 - Manufacturing intelligence platform
           </div>
         </aside>
 
@@ -1601,6 +1605,12 @@ export function Layout() {
             className={`${isCalculatorWorkspace ? 'p-0' : 'p-3 md:p-5 xl:p-6'} lg:min-h-0 lg:flex-1 lg:overflow-y-auto lg:overscroll-y-contain`}
           >
             <Outlet />
+            {/* Home-indicator clearance: a self-collapsing spacer (height 0 on desktop /
+                non-notched via the env 0px fallback, = the bottom inset on notched phones)
+                so scrolled content clears the iOS home indicator / Android gesture bar.
+                A spacer (not a wrapper) avoids breaking pages that use h-full and leaves the
+                scroll region's own responsive padding untouched. */}
+            <div aria-hidden="true" data-testid="safe-area-bottom-spacer" style={{ height: safeAreaInset('bottom') }} />
           </div>
         </main>
       </div>

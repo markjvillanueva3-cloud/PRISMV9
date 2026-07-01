@@ -8,6 +8,7 @@
  */
 import { Router } from "express";
 import type { CallToolFn } from "./index.js";
+import { redactInternalMarginFields } from "./quote.js";
 
 /** Map common material names → ISO 513 group codes for dispatcher params */
 function materialToIso(material: string): string {
@@ -141,14 +142,19 @@ export function createPipelineRouter(callTool: CallToolFn): Router {
         material: req.body.material ?? "steel",
         quantity: req.body.quantity ?? 1,
       });
-      res.json({ result });
+      // U-COST-ROUTE-REDACT: process_cost returns the shop's internal cost stack (total/machine/tool/
+      // setup cost + inputs.machine_rate_per_hour). This route is mounted under /api optionalToken
+      // (never rejects anon), so strip the cost basis when the caller is unauthenticated (req.userId
+      // unset). Authenticated callers get the full breakdown. Same gate as cost.ts /estimate.
+      const safe = !req.userId ? redactInternalMarginFields(result) : result;
+      res.json({ result: safe });
     } catch (e) { next(e); }
   });
 
   // POST /api/v1/pipeline/roi — ROI upgrade suggestions
   router.post("/roi", async (req, res, next) => {
     try {
-      const result = await callTool("prism_business", "roi_advisor", req.body);
+      const result = await callTool("prism_business", "roi_advisor_analyze", req.body);
       res.json({ result });
     } catch (e) { next(e); }
   });

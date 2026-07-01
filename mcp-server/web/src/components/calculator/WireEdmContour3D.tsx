@@ -185,14 +185,22 @@ function ContourWireframe({ contour, thickness }: { contour: ContourData; thickn
   const bottomGeo = useMemo(() => new THREE.BufferGeometry().setFromPoints(points), [points]);
   const topGeo = useMemo(() => new THREE.BufferGeometry().setFromPoints(topPoints), [topPoints]);
 
+  // R3F's <line> intrinsic collides with the SVG line type in stricter TS; build
+  // the THREE.Line objects up front and mount via <primitive> to dodge the
+  // JSX.IntrinsicElements ambiguity (drei's <Line> would be an alternative but
+  // we already have BufferGeometry instances in hand).
+  const bottomLine = useMemo(
+    () => new THREE.Line(bottomGeo, new THREE.LineBasicMaterial({ color: '#22d3ee', linewidth: 1 })),
+    [bottomGeo],
+  );
+  const topLine = useMemo(
+    () => new THREE.Line(topGeo, new THREE.LineBasicMaterial({ color: '#22d3ee', linewidth: 1, opacity: 0.5, transparent: true })),
+    [topGeo],
+  );
   return (
     <group>
-      <line geometry={bottomGeo}>
-        <lineBasicMaterial color="#22d3ee" linewidth={1} />
-      </line>
-      <line geometry={topGeo}>
-        <lineBasicMaterial color="#22d3ee" linewidth={1} opacity={0.5} transparent />
-      </line>
+      <primitive object={bottomLine} />
+      <primitive object={topLine} />
     </group>
   );
 }

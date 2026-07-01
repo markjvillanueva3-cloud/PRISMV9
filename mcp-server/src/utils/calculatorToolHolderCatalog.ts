@@ -2,6 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { PATHS } from "../constants.js";
 import { getJMDieSelectorCatalog, type JMDieSelectorToolholderSeed } from "./jmDieSelectorCatalog.js";
+import { toolHolderDatabaseEngine, type ToolHolderSpec } from "../engines/ToolHolderDatabaseEngine.js";
 
 type MachineMode = "mill" | "lathe" | "edm" | "wire_edm" | "laser" | "waterjet";
 type ToolingLayoutKind = "magazine" | "turret" | "gang" | "wire" | "laser" | "waterjet" | "electrode";
@@ -583,11 +584,79 @@ function compareHolders(left: CalculatorToolHolderCatalogItem, right: Calculator
     || (right.maxRpm ?? 0) - (left.maxRpm ?? 0);
 }
 
+let cachedInterfaceSpecItems: CalculatorToolHolderCatalogItem[] | null = null;
+
+/**
+ * Map a ToolHolderDatabaseEngine interface spec (CAT/BT/HSK/CAPTO/ER/R8, ported from the
+ * v8.89 monolith PRISM_TOOL_HOLDER_INTERFACES_COMPLETE) into a calculator catalog item.
+ * These are the canonical spindle-interface + collet specs; without this source the
+ * calculator holder catalog was empty (TOOLHOLDERS.json is absent on disk + tool_holders/
+ * is empty). Machine-spindle compatibility ids are intentionally left undefined so the
+ * specs surface for a bare {mode} query (a generic interface picker, not machine-filtered).
+ */
+function mapHolderSpec(spec: ToolHolderSpec): CalculatorToolHolderCatalogItem | null {
+  const interfaceId = normalizeInterfaceId(spec.id);
+  const mode = inferModeFromInterface(interfaceId);
+  if (!mode) return null;
+  const typeLabel = humanizeToken(spec.type);
+  const standard = (spec.standard ?? "").trim();
+  const rpm = safeNum(spec.max_rpm);
+  const useCase = humanizeToken(spec.use_case ?? "");
+  const holderStyleIds = holderStyleIdsForRecord(mode, spec.type, spec.use_case ?? "", interfaceId);
+  const detail = [spec.id, typeLabel, standard, rpm > 0 ? `${rpm.toLocaleString()} RPM` : "", useCase]
+    .map((part) => part.trim())
+    .filter(Boolean)
+    .join(" - ");
+  return {
+    id: `iface-${optionId(spec.id, "holder")}`,
+    label: `${spec.id} - ${typeLabel}`,
+    detail,
+    mode,
+    brandId: "interface-standard",
+    brandLabel: standard.split(/\s+/)[0] || "Interface",
+    holderStyleId: primaryHolderStyleId(holderStyleIds),
+    holderStyleIds,
+    holderType: spec.type,
+    holderSubcategory: spec.use_case ?? "INTERFACE_SPEC",
+    spindleInterface: spec.id,
+    toolInterface: undefined,
+    compatibleLayoutKinds: mode === "mill" ? ["magazine"] : ["turret"],
+    compatibleSpindleConnectionTypeIds: undefined,
+    compatibleTurretTypeIds: undefined,
+    requiresLiveTooling: false,
+    requiresMillingHead: false,
+    coolantThrough: false,
+    maxRpm: rpm || undefined,
+    source: "database",
+  };
+}
+
+function loadHolderInterfaceSpecs(): CalculatorToolHolderCatalogItem[] {
+  if (cachedInterfaceSpecItems) return cachedInterfaceSpecItems;
+  // findByRpm(0) returns every spec (all have max_rpm >= 0) -- the engine has no list-all.
+  cachedInterfaceSpecItems = toolHolderDatabaseEngine
+    .findByRpm(0)
+    .map(mapHolderSpec)
+    .filter((entry): entry is CalculatorToolHolderCatalogItem => Boolean(entry));
+  return cachedInterfaceSpecItems;
+}
+
 export function buildCalculatorToolHolderCatalog(
   rows: RawHolderRecord[],
   query: CalculatorToolHolderCatalogQuery,
 ): CalculatorToolHolderCatalogItem[] {
-  const normalized = [...rows.map(mapHolderRecord), ...loadSharedSeedItems()]
+  // The interface specs (CAT/BT/HSK/ER...) are a FALLBACK baseline for an UNSCOPED browse
+  // (the SFC sends a bare {mode} query, which machine-filters out every rich file holder).
+  // When the caller supplies machine/tool context, the precise file catalog answers and the
+  // generic specs are excluded -- they carry no machine-interface compatibility, so adding
+  // them to a scoped query would bypass the spindle/turret/milling-head gating. (R7/R16)
+  const isScopedQuery =
+    Boolean(query.layoutKind) ||
+    Boolean(query.spindleConnectionTypeId) ||
+    Boolean(query.turretTypeId) ||
+    isToolScopedQuery(query);
+  const interfaceSpecs = isScopedQuery ? [] : loadHolderInterfaceSpecs();
+  const normalized = [...rows.map(mapHolderRecord), ...loadSharedSeedItems(), ...interfaceSpecs]
     .filter((entry): entry is CalculatorToolHolderCatalogItem => Boolean(entry))
     .filter((entry) => matchesMachine(query, entry));
 

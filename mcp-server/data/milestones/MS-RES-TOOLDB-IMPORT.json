@@ -1,0 +1,141 @@
+{
+  "id": "MS-RES-TOOLDB-IMPORT",
+  "version": "7.6.0",
+  "title": "MS-RES-TOOLDB-IMPORT (= RES-MS14) — import IM_Tool_DB.db (5,893 cutting profiles, 58 tables) + 133 Mastercam .tooldb + the Fusion CSV S/F tables → ToolCatalog + FormulaRegistry + calibration data",
+  "brief": "287 .tooldb/.db files: IM_Tool_DB.db 131MB/58 tables (Tools=282, NCTools=1,371, Technologies=1,211, Couplings=396, Formulas=14, CuttingProfiles=5,893, Materials=3) + IM_Macro_DB.db (12 tables) + Automation_Center_Standard_*.db + Training Tools.db 3.5MB + 133 Mastercam .tooldb (ISCAR/Sandvik/Kennametal/Valenite) + 7 Fusion CSV tool libs (225 rows × 26 S/F columns) → ToolCatalog enrichment (~95K→120K+) + FormulaRegistry (+14) + cutting-data calibration. Needs a dedup strategy vs the existing ToolCatalog. The 26-column S/F tables feed the bridge's 'Speed&Feed via PRISM' button. On the SFC-calibration critical path.",
+  "created_at": "2026-05-11T18:00:32.098Z",
+  "created_by": "claude-99eca613 (register-revenue-roadmap-envelopes.mjs, v7.6 §R10)",
+  "track": "revenue",
+  "track_name": "REVENUE-ROADMAP v7.6",
+  "roadmap_priority": 1,
+  "tier": 0,
+  "status": "not_started",
+  "source": "§R10.1 (= RES-MS14)",
+  "viz_node_id": "ghost.ms.ms-res-tooldb-import",
+  "doc_propagation": [
+    "claude.md",
+    "gsd",
+    "wiki",
+    "system-viz"
+  ],
+  "dependencies": [],
+  "blocks": [
+    "MS-SFC-CALIBRATE",
+    "MS-CAM-MASTERY"
+  ],
+  "phases": [
+    {
+      "id": "P0",
+      "title": "MS-RES-TOOLDB-IMPORT (= RES-MS14) — import IM_Tool_DB.db (5,893 cutting profiles, 58 tables) + 133 Mastercam .tooldb + the Fusion CSV S/F tables → ToolCatalog + FormulaRegistry + calibration data",
+      "sessions": "1",
+      "units": [
+        {
+          "id": "U-MS-RES-TOOLDB-IMPORT-01",
+          "title": "MS-RES-TOOLDB-IMPORT unit 1 of 4 (placeholder — enumerate from the §R-layer prose during execution)",
+          "effort": 90,
+          "dependencies": [],
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit",
+            "Dispatcher wiring verified: import + call + action-enum + Zod schema all match (test invokes through the dispatcher, not only the engine singleton)"
+          ],
+          "description": "MS-RES-TOOLDB-IMPORT unit 1 — follow the 4-LOOP; consult the §R-layer prose in REVENUE-ROADMAP-v7.6.md for the concrete deliverable; run duplicationGuardEngine.checkBeforeCreating() before any new asset.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "viz_node_id": "ghost.ms.ms-res-tooldb-import.u01",
+          "doc_propagation": [
+            "wiki",
+            "skill",
+            "digest",
+            "system-viz"
+          ]
+        },
+        {
+          "id": "U-MS-RES-TOOLDB-IMPORT-02",
+          "title": "MS-RES-TOOLDB-IMPORT unit 2 of 4 (placeholder — enumerate from the §R-layer prose during execution)",
+          "effort": 90,
+          "dependencies": [],
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit",
+            "Dispatcher wiring verified: import + call + action-enum + Zod schema all match (test invokes through the dispatcher, not only the engine singleton)"
+          ],
+          "description": "MS-RES-TOOLDB-IMPORT unit 2 — follow the 4-LOOP; consult the §R-layer prose in REVENUE-ROADMAP-v7.6.md for the concrete deliverable; run duplicationGuardEngine.checkBeforeCreating() before any new asset.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "viz_node_id": "ghost.ms.ms-res-tooldb-import.u02",
+          "doc_propagation": [
+            "wiki",
+            "skill",
+            "digest",
+            "system-viz"
+          ]
+        },
+        {
+          "id": "U-MS-RES-TOOLDB-IMPORT-03",
+          "title": "MS-RES-TOOLDB-IMPORT unit 3 of 4 (placeholder — enumerate from the §R-layer prose during execution)",
+          "effort": 90,
+          "dependencies": [],
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit",
+            "Dispatcher wiring verified: import + call + action-enum + Zod schema all match (test invokes through the dispatcher, not only the engine singleton)"
+          ],
+          "description": "MS-RES-TOOLDB-IMPORT unit 3 — follow the 4-LOOP; consult the §R-layer prose in REVENUE-ROADMAP-v7.6.md for the concrete deliverable; run duplicationGuardEngine.checkBeforeCreating() before any new asset.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "viz_node_id": "ghost.ms.ms-res-tooldb-import.u03",
+          "doc_propagation": [
+            "wiki",
+            "skill",
+            "digest",
+            "system-viz"
+          ]
+        },
+        {
+          "id": "U-MS-RES-TOOLDB-IMPORT-04",
+          "title": "MS-RES-TOOLDB-IMPORT unit 4 of 4 (placeholder — enumerate from the §R-layer prose during execution)",
+          "effort": 90,
+          "dependencies": [],
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit",
+            "Dispatcher wiring verified: import + call + action-enum + Zod schema all match (test invokes through the dispatcher, not only the engine singleton)"
+          ],
+          "description": "MS-RES-TOOLDB-IMPORT unit 4 — follow the 4-LOOP; consult the §R-layer prose in REVENUE-ROADMAP-v7.6.md for the concrete deliverable; run duplicationGuardEngine.checkBeforeCreating() before any new asset.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "viz_node_id": "ghost.ms.ms-res-tooldb-import.u04",
+          "doc_propagation": [
+            "wiki",
+            "skill",
+            "digest",
+            "system-viz"
+          ]
+        }
+      ]
+    }
+  ],
+  "total_units": 4,
+  "completed_units": 0
+}

@@ -14,6 +14,7 @@ import {
   listEmployees,
   ApiError,
 } from '../api/client';
+import { unwrapPrism } from '../api/unwrap';
 import { ErrorState, LoadingState } from '../components/LoadingState';
 import type { BenefitPlan, ComplianceAlert, Employee, HRDashboard, TrainingRecord } from '../api/types';
 import {
@@ -84,31 +85,36 @@ export function HRCompliancePage() {
     try {
       if (target === 'dashboard') {
         const response = await hrDashboard();
-        setDash((response.result as unknown as HRDashboard) ?? null);
+        setDash((unwrapPrism(response) as HRDashboard) ?? null);
       }
       if (target === 'benefits') {
         const response = await hrBenefitsList();
-        const next = (response.result as any)?.plans ?? (response.result as any) ?? [];
+        const payload = unwrapPrism(response);
+        const next = (payload as any)?.plans ?? payload ?? [];
         setPlans(Array.isArray(next) ? next : []);
       }
       if (target === 'training') {
         const response = await hrTrainingExpiring({ within_days: 90 });
-        const next = (response.result as any)?.records ?? (response.result as any) ?? [];
+        const payload = unwrapPrism(response);
+        const next = (payload as any)?.records ?? payload ?? [];
         setExpiring(Array.isArray(next) ? next : []);
       }
       if (target === 'alerts') {
         const response = await hrComplianceAlerts();
-        const next = (response.result as any)?.alerts ?? (response.result as any) ?? [];
+        const payload = unwrapPrism(response);
+        const next = (payload as any)?.alerts ?? payload ?? [];
         setAlerts(Array.isArray(next) ? next : []);
       }
       if (target === 'reviews') {
         const response = await hrReviews();
-        const next = (response.result as any)?.reviews ?? (response.result as any) ?? [];
+        const payload = unwrapPrism(response);
+        const next = (payload as any)?.reviews ?? payload ?? [];
         setReviews(Array.isArray(next) ? next : []);
       }
       if (target === 'employees') {
         const response = await listEmployees();
-        const next = (response.result as any)?.employees ?? (response.result as any) ?? [];
+        const payload = unwrapPrism(response);
+        const next = (payload as any)?.employees ?? payload ?? [];
         setEmployees(Array.isArray(next) ? next : []);
       }
     } catch (issue) {
@@ -125,7 +131,7 @@ export function HRCompliancePage() {
     setError(null);
     try {
       const response = await hrPTOBalance({ employee_id: String(form.get('pto_emp') ?? '') });
-      setPtoPayload((response.result as Record<string, unknown>) ?? null);
+      setPtoPayload((unwrapPrism(response) as Record<string, unknown>) ?? null);
     } catch (issue) {
       setError(issue instanceof ApiError ? issue.message : 'PTO balance request failed');
     } finally {
@@ -145,7 +151,7 @@ export function HRCompliancePage() {
         end_date: form.get('req_end'),
         type: form.get('req_type') || 'vacation',
       });
-      setPtoPayload((response.result as Record<string, unknown>) ?? null);
+      setPtoPayload((unwrapPrism(response) as Record<string, unknown>) ?? null);
     } catch (issue) {
       setError(issue instanceof ApiError ? issue.message : 'PTO request failed');
     } finally {
@@ -164,7 +170,7 @@ export function HRCompliancePage() {
         plan_id: form.get('plan_id'),
         tier: form.get('tier'),
       });
-      setEnrollPayload((response.result as Record<string, unknown>) ?? null);
+      setEnrollPayload((unwrapPrism(response) as Record<string, unknown>) ?? null);
     } catch (issue) {
       setError(issue instanceof ApiError ? issue.message : 'Enrollment failed');
     } finally {
@@ -183,7 +189,7 @@ export function HRCompliancePage() {
         type: form.get('review_type'),
         date: form.get('review_date'),
       });
-      setEnrollPayload((response.result as Record<string, unknown>) ?? null);
+      setEnrollPayload((unwrapPrism(response) as Record<string, unknown>) ?? null);
     } catch (issue) {
       setError(issue instanceof ApiError ? issue.message : 'Review creation failed');
     } finally {
@@ -200,8 +206,8 @@ export function HRCompliancePage() {
         hrCompensationHistory({ employee_id: historyEmployeeId }),
       ]);
       setHistoryPayload({
-        training: trainingResponse.result,
-        compensation: compensationResponse.result,
+        training: unwrapPrism(trainingResponse),
+        compensation: unwrapPrism(compensationResponse),
       });
     } catch (issue) {
       setError(issue instanceof ApiError ? issue.message : 'History lookup failed');

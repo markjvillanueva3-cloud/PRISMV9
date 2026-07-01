@@ -23,17 +23,14 @@ related:
 |-------|-------|
 | Name | `schedule` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/schedule.md` |
+| Source | `C:/Users/wompu/.claude/commands/schedule.md` |
 | Model | default |
 | Tags | _(none)_ |
 
 ## Description (first paragraph)
 
-Schedule jobs and plan capacity:
-- Machine availability
-- Priority-based scheduling
-- Constraint satisfaction
-- Lead time optimization
+
+# /schedule — Job Scheduling
 
 <!-- AUTO-END -->
 

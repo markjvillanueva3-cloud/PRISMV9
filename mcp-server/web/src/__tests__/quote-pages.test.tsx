@@ -10,34 +10,56 @@ import { MemoryRouter } from 'react-router-dom';
 import { OperatingSystemProvider } from '../features/operating-system/OperatingSystemProvider';
 import { fixtureOperatingSystemServices } from '../features/operating-system/fixtureProvider';
 
-// Mock API client
-vi.mock('../api/client', () => ({
+// Mock API client. Spread the REAL module first so the pure response-shape helpers
+// (unwrapQuotingBody + adaptQuoteEstimate, used by QuoteBuilderPage to parse /quote/* responses)
+// keep their real implementations -- only the network-call functions below are stubbed. Without the
+// importActual spread those helpers would be undefined and the page would throw on the first call
+// (estimate-flow fix, 2026-06-23).
+vi.mock('../api/client', async () => {
+  const actual = await vi.importActual<typeof import('../api/client')>('../api/client');
+  return {
+  ...actual,
   ApiError: class extends Error { status: number; constructor(s: number, m: string) { super(m); this.status = s; } },
+  // estimate-flow fix (2026-06-23): /quote/estimate returns the MCP content envelope
+  // { result: { type:"text", text } } wrapping the engine's NESTED QuoteEstimateResult (costs.*/
+  // pricing.*). The page unwraps + adaptQuoteEstimate maps nested->flat. A flat { result } mock is
+  // the WRONG contract (the dead-panel/estimate trap) -- mock the real shape so adapt re-derives
+  // material_cost 120 / machining 380 / setup 95 / tooling 40 / overhead 70 / unit 8.15 / total 815 /
+  // margin 110 (total-cost=705) / cycle 5.8 / confidence 0.87 (score 87) / 2 price breaks.
   quoteEstimate: vi.fn().mockResolvedValue({
     result: {
-      material_cost: 120,
-      machining_cost: 380,
-      setup_cost: 95,
-      tooling_cost: 40,
-      overhead: 70,
-      margin: 110,
-      total: 815,
-      unit_price: 8.15,
-      cycle_time_min: 5.8,
-      confidence: 0.87,
-      price_breaks: [
-        { quantity: 25, unit_price: 11.4, savings_pct: 0 },
-        { quantity: 100, unit_price: 8.15, savings_pct: 28.5 },
-      ],
+      type: 'text',
+      text: JSON.stringify({
+        quote_id: 'QE26-QP',
+        quantity: 100,
+        costs: {
+          material: { total: 120 },
+          machining: { total: 380, cycle_time_min: 5.8 },
+          setup: { total: 95 },
+          tooling: { total: 40 },
+          overhead: { total: 70 },
+          total_cost: 705,
+        },
+        pricing: { unit_price: 8.15, total_price: 815, margin_pct: 13.5, below_margin_floor: false, margin_floor_pct: 20 },
+        confidence_score: 87,
+        price_breaks: [
+          { qty: 25, unit_price: 11.4, total: 285, lead_days: 7 },
+          { qty: 100, unit_price: 8.15, total: 815, lead_days: 10 },
+        ],
+      }),
     },
   }),
+  // /quote/compare-materials returns the same envelope wrapping the engine's bare array.
   quoteCompareMaterials: vi.fn().mockResolvedValue({
-    result: [
-      { material: '6061-T6', unit_price: 8.15, total: 815, cycle_time_min: 5.8, tool_life_factor: 1.1 },
-      { material: '7075-T6', unit_price: 8.75, total: 875, cycle_time_min: 5.4, tool_life_factor: 0.96 },
-      { material: '304 Stainless', unit_price: 9.8, total: 980, cycle_time_min: 6.9, tool_life_factor: 0.82 },
-      { material: '4140 Steel', unit_price: 7.95, total: 795, cycle_time_min: 6.2, tool_life_factor: 1.08 },
-    ],
+    result: {
+      type: 'text',
+      text: JSON.stringify([
+        { material: '6061-T6', unit_price: 8.15, total: 815, cycle_time_min: 5.8, tool_life_factor: 1.1 },
+        { material: '7075-T6', unit_price: 8.75, total: 875, cycle_time_min: 5.4, tool_life_factor: 0.96 },
+        { material: '304 Stainless', unit_price: 9.8, total: 980, cycle_time_min: 6.9, tool_life_factor: 0.82 },
+        { material: '4140 Steel', unit_price: 7.95, total: 795, cycle_time_min: 6.2, tool_life_factor: 1.08 },
+      ]),
+    },
   }),
   dfmQuick: vi.fn().mockResolvedValue({
     result: {
@@ -116,10 +138,21 @@ vi.mock('../api/client', () => ({
   }),
   quoteHistory: vi.fn().mockResolvedValue({
     ok: true,
-    data: [
-      { id: 'Q-200-R1', status: 'draft' },
-      { id: 'Q-200-R2', status: 'review' },
-    ],
+    // Real InstantQuoteHistory contract (web/src/api/types.ts:840): a rich object,
+    // NOT a flat array. The component reads .revisions / .status_history / .current_*
+    // off this exact shape; feeding an array crashes the render at .revisions.length.
+    data: {
+      quote_id: 'Q-200',
+      current_status: 'sent',
+      current_revision: 2,
+      revisions: [
+        { id: 'Q-200-R1', quote_id: 'Q-200', revision_number: 1, unit_price_usd: 8.4, total_price_usd: 840, quantity: 100, cost_breakdown: {}, quantity_breaks: [], lead_time_options: [], dfm_issues: [], created_at: '2026-06-01T00:00:00Z' },
+        { id: 'Q-200-R2', quote_id: 'Q-200', revision_number: 2, unit_price_usd: 8.2, total_price_usd: 820, quantity: 100, cost_breakdown: {}, quantity_breaks: [], lead_time_options: [], dfm_issues: [], created_at: '2026-06-02T00:00:00Z' },
+      ],
+      status_history: [
+        { id: 'SH-1', quote_id: 'Q-200', from_status: 'draft', to_status: 'sent', created_at: '2026-06-02T00:00:00Z' },
+      ],
+    },
   }),
   quoteShareToken: vi.fn().mockResolvedValue({
     ok: true,
@@ -145,7 +178,8 @@ vi.mock('../api/client', () => ({
   materialPriceLookup: vi.fn().mockResolvedValue({ result: {} }),
   materialPriceCompare: vi.fn().mockResolvedValue({ result: [] }),
   materialSurcharge: vi.fn().mockResolvedValue({ result: {} }),
-}));
+  };
+});
 
 beforeEach(() => {
   cleanup();
@@ -167,17 +201,17 @@ describe('QuoteBuilderPage', () => {
     const { QuoteBuilderPage } = await import('../pages/QuoteBuilderPage');
     renderPage(QuoteBuilderPage);
     expect(screen.getByText('Quote Builder')).toBeDefined();
-    expect(screen.getByText('Generate PRISM Price Strategy')).toBeDefined();
+    expect(screen.getByText('Generate Kienzle Price Strategy')).toBeDefined();
   });
 
   it('surfaces a primary shop-best strategy with internal scenarios', async () => {
     const { QuoteBuilderPage } = await import('../pages/QuoteBuilderPage');
     renderPage(QuoteBuilderPage);
 
-    fireEvent.click(screen.getByText('Generate PRISM Price Strategy'));
+    fireEvent.click(screen.getByText('Generate Kienzle Price Strategy'));
 
     await waitFor(() => {
-      expect(screen.getAllByText('PRISM shop best price').length).toBeGreaterThan(0);
+      expect(screen.getAllByText('Kienzle shop best price').length).toBeGreaterThan(0);
     });
 
     expect(screen.getByText('Pricing scenario set')).toBeDefined();
@@ -240,12 +274,41 @@ describe('QuoteBuilderPage', () => {
     expect(screen.getByText('Q-200')).toBeDefined();
     expect(screen.getByText('Portal and revision readiness')).toBeDefined();
     expect(screen.getByText('share-token')).toBeDefined();
-    expect(screen.getByText(/Q-200-R1 \(draft\)/i)).toBeDefined();
+    // Verifies the component read the rich InstantQuoteHistory shape correctly:
+    // 2 revisions + 1 status-history entry must render their real counts.
+    const historyLine = screen.getByText(/revision\(s\)/);
+    expect(historyLine.textContent).toMatch(/2 revision\(s\).*1 status change\(s\)/);
     expect(screen.getByText('Mounted qty breaks')).toBeDefined();
     expect(screen.getByText('Lead-time options')).toBeDefined();
     expect(screen.getByText('standard')).toBeDefined();
     expect(screen.getByText('expedited')).toBeDefined();
     expect(screen.getByText('Check clamp clearance before release')).toBeDefined();
+  });
+
+  it('degrades gracefully when the history surface returns a partial object (no white-screen)', async () => {
+    const client = await import('../api/client');
+    // Backend returned history truthy but WITHOUT the revisions/status_history arrays
+    // (degraded/partial response). Compile-time types say those arrays are always present,
+    // but a real backend hiccup can violate that -- the packet view must degrade gracefully,
+    // not crash the entire quote with "Cannot read properties of undefined (reading 'length')".
+    vi.mocked(client.quoteHistory).mockResolvedValueOnce({
+      ok: true,
+      data: { quote_id: 'Q-200', current_status: 'draft', current_revision: 1 },
+    } as unknown as Awaited<ReturnType<typeof client.quoteHistory>>);
+
+    const { QuoteBuilderPage } = await import('../pages/QuoteBuilderPage');
+    renderPage(QuoteBuilderPage);
+
+    fireEvent.click(screen.getByText('Generate Pricing Packet'));
+
+    // findByText throws if the panel never mounts -- proving the render did NOT crash on
+    // the degraded history shape (the bug would white-screen before this text appears).
+    const packetHeader = await screen.findByText('Generated pricing packet');
+    expect(packetHeader.textContent).toBe('Generated pricing packet');
+
+    // The guard renders zero counts rather than throwing on the missing arrays.
+    const historyLine = screen.getByText(/revision\(s\)/);
+    expect(historyLine.textContent).toMatch(/0 revision\(s\).*0 status change\(s\)/);
   });
 
   it('shows upstream customer context when launched from customers', async () => {
@@ -258,10 +321,10 @@ describe('QuoteBuilderPage', () => {
     expect(screen.getByText(/Customer CUST-001 \(Acme Aerospace\)/i)).toBeDefined();
     expect(screen.getByText(/Carry credit review context into pricing/i)).toBeDefined();
 
-    fireEvent.click(screen.getByText('Generate PRISM Price Strategy'));
+    fireEvent.click(screen.getByText('Generate Kienzle Price Strategy'));
 
     await waitFor(() => {
-      expect(screen.getAllByText('PRISM shop best price').length).toBeGreaterThan(0);
+      expect(screen.getAllByText('Kienzle shop best price').length).toBeGreaterThan(0);
     });
 
     const releaseLink = await screen.findByText('Open matched Print to CNC packet');

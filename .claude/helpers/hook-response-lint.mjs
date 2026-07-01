@@ -58,7 +58,7 @@ function lintFile(fp) {
   const src = fs.readFileSync(fp, "utf-8");
 
   // Syntax check
-  const check = spawnSync(process.execPath, ["--check", fp], { encoding: "utf-8" });
+  const check = spawnSync(process.execPath, ["--check", fp], { windowsHide: true, encoding: "utf-8" });
   if (check.status !== 0) {
     issues.push({ rule: "SYNTAX", severity: "error", snippet: (check.stderr || "").split("\n").slice(0, 2).join(" | ") });
     return issues;

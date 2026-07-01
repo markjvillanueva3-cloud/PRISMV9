@@ -1,0 +1,839 @@
+You are reviewer B of three independent Claude PRISM agents — an INDEPENDENT second pass. Do not assume reviewer A caught everything; review the diff yourself, end to end.
+Target: commit 80cf19d2b.
+
+Weight your attention toward these high-risk axes (PRISM CLAUDE.md), but FAIL on any violation you find:
+  1. Test integrity — no assertions weakened or removed vs the prior version; no toBeDefined()/toBeTruthy() blanket stubs; no synthetic threshold/loop tests; tests must fail if the business logic changes
+  2. Dispatcher wiring — every new engine wired (import + call + action enum + Zod schema) to EVERY dispatcher that would naturally consume it (not just one)
+  3. Constants — Kienzle/Taylor/material/physics constants imported from src/physics/constants.ts, never inlined or duplicated in docs
+  4. Scope discipline — no changes beyond what the stated task requires; no stubs, TODOs, placeholder returns, facades, or 'deferred to follow-up'
+  5. Hygiene — no floating promises, no any-spread anti-patterns, no swallowed errors
+
+First line of your response MUST be 'VERDICT: PASS' or 'VERDICT: FAIL'.
+Then list BLOCKER: lines for any violations, then optional notes (≤5 lines).
+If unsure between PASS and FAIL, choose FAIL.
+
+--- DIFF ---
+commit 80cf19d2bd24f76106a781916784372ab2907b13
+Author: markjvillanueva3-cloud <markjvillanueva3@gmail.com>
+Date:   Sat May 16 14:57:34 2026 -0500
+
+    [MAIN] [COORD-MS0]/U-COORD02: optimistic locking with version field on AtomicClaimBrokerEngine
+    
+    ClaimRegistry gains a `version` field; atomicWrite() does a compare-and-swap
+    (re-reads on-disk version, throws StaleRegistryError on mismatch, writes
+    version+1). New commitWithRetry() helper routes releaseClaim/updateClaimState/
+    reapZombies through read->compute->CAS-write with bounded retry, converting
+    the common silent last-writer-wins clobber into detected-and-retried. Pure
+    exports casVersionCheck/normalizeVersion; getStats() surfaces version.
+    
+    33 vitest cases in AtomicClaimBrokerEngine-U-COORD02.test.ts — 33/33 green,
+    sibling -U-AWR25 still 12/12, tsc clean. Per-file 2-arm scrutiny PASS on both
+    files. Test isolated from the live fleet registry via a PRISM_ATOMIC_CLAIMS_FILE
+    env seam. COORD-MS0 9/12 -> 10/12.
+    
+    Co-Authored-By: Claude Opus 4.7 (1M context) <noreply@anthropic.com>
+
+diff --git a/mcp-server/data/milestones/COORD-MS0.json b/mcp-server/data/milestones/COORD-MS0.json
+index f71ad82a4..6cf2fba11 100644
+--- a/mcp-server/data/milestones/COORD-MS0.json
++++ b/mcp-server/data/milestones/COORD-MS0.json
+@@ -27,7 +27,10 @@
+       "id": "U-COORD02",
+       "title": "Add Optimistic Locking with Version Field",
+       "phase": "Foundation",
+-      "status": "pending",
++      "status": "complete",
++      "completed_at": "2026-05-16",
++      "completed_by": "claude-a61bbf34 (slot echo)",
++      "ship_notes": "Optimistic concurrency control added to AtomicClaimBrokerEngine. (1) ClaimRegistry schema + interface gained a `version` field — z.number().optional() so pre-U-COORD02 registry files still parse; readRegistry normalizes a missing/corrupt value to 0 via the new normalizeVersion(). (2) atomicWrite() now does a compare-and-swap: it re-reads the on-disk version and throws the new StaleRegistryError when it differs from the version the caller read, else writes version+1 — the pure decision is the exported casVersionCheck(). (3) A new commitWithRetry() helper does read->compute->CAS-write with bounded retry (3 attempts); releaseClaim/updateClaimState/reapZombies route through it so a stale-version rejection retries instead of spuriously failing. acquireClaim already had its own retry loop and absorbs the new error type unchanged. getStats() now surfaces `version`. Companion test AtomicClaimBrokerEngine-U-COORD02.test.ts — 33 vitest cases (casVersionCheck/normalizeVersion pure, StaleRegistryError, version threading through every mutation, white-box atomicWrite CAS-throw, commitWithRetry retry-on-stale + no-retry-on-real-IO-error, backward-compat with pre-version files); 33/33 green, sibling -U-AWR25 still 12/12, tsc clean. Per-file 2-arm scrutiny PASS on both files. A test-injection seam (PRISM_ATOMIC_CLAIMS_FILE env override) keeps the suite off the live fleet registry. Honest residual: the re-read->rename window is not a kernel mutex (sub-ms double-pass race remains, documented in the engine); external direct writers of ATOMIC_CLAIMS.json such as zombie-reaper-daemon.mjs bypass the CAS — a pre-existing seam, not closed here. Shipped slot echo, /loop iteration on COORD-MS0.",
+       "description": "Add version field to AtomicClaimBrokerEngine, reject writes where version != expected",
+       "deliverables": [
+         "Version field in ClaimRegistry schema",
+diff --git a/mcp-server/src/__tests__/AtomicClaimBrokerEngine-U-COORD02.test.ts b/mcp-server/src/__tests__/AtomicClaimBrokerEngine-U-COORD02.test.ts
+new file mode 100644
+index 000000000..b0d767afe
+--- /dev/null
++++ b/mcp-server/src/__tests__/AtomicClaimBrokerEngine-U-COORD02.test.ts
+@@ -0,0 +1,359 @@
++/**
++ * AtomicClaimBrokerEngine — Optimistic Locking with Version Field
++ * @unit COORD-MS0/U-COORD02
++ *
++ * Covers the version field, the compare-and-swap on write, concurrent-write
++ * rejection (casVersionCheck), backward compatibility with pre-U-COORD02
++ * registry files, and that claims survive version increments.
++ *
++ * The suite points the broker at a throwaway temp file via the
++ * PRISM_ATOMIC_CLAIMS_FILE env override so it never reads, writes, or unlinks
++ * the live fleet registry at H:/prism/state/shared/ATOMIC_CLAIMS.json.
++ */
++
++import { describe, it, expect, afterAll, afterEach, beforeEach } from "vitest";
++import * as fs from "fs";
++import * as os from "os";
++import * as path from "path";
++import {
++  atomicClaimBrokerEngine,
++  casVersionCheck,
++  normalizeVersion,
++  StaleRegistryError,
++  type ClaimRegistry,
++} from "../engines/AtomicClaimBrokerEngine.js";
++
++const TEST_CLAIMS_FILE = path.join(os.tmpdir(), `prism-coord02-claims-${process.pid}.json`);
++
++/** Write a raw registry object straight to the test file (simulates external state). */
++function writeRawRegistry(obj: unknown): void {
++  fs.writeFileSync(TEST_CLAIMS_FILE, JSON.stringify(obj, null, 2));
++}
++
++/** Read the test file back as a parsed object. */
++function readRawRegistry(): Record<string, unknown> {
++  return JSON.parse(fs.readFileSync(TEST_CLAIMS_FILE, "utf-8"));
++}
++
++// Scope the env override per-test (not beforeAll) so it can never leak into a
++// sibling test file that shares the worker — the sibling AtomicClaimBroker test
++// deliberately uses the live registry path.
++beforeEach(() => {
++  process.env.PRISM_ATOMIC_CLAIMS_FILE = TEST_CLAIMS_FILE;
++  try { fs.unlinkSync(TEST_CLAIMS_FILE); } catch { /* ignore */ }
++});
++
++afterEach(() => {
++  delete process.env.PRISM_ATOMIC_CLAIMS_FILE;
++});
++
++afterAll(() => {
++  try { fs.unlinkSync(TEST_CLAIMS_FILE); } catch { /* ignore */ }
++});
++
++// ===========================================================================
++// casVersionCheck — the pure compare-and-swap decision. A rejection here is
++// exactly what rejects a concurrent (stale) write.
++// ===========================================================================
++describe("casVersionCheck — concurrent write rejection", () => {
++  it("allows a write when on-disk version equals the expected version", () => {
++    expect(casVersionCheck(5, 5)).toEqual({ ok: true });
++  });
++
++  it("allows the first write when both versions are 0", () => {
++    expect(casVersionCheck(0, 0)).toEqual({ ok: true });
++  });
++
++  it("rejects when a concurrent writer advanced the on-disk version", () => {
++    const result = casVersionCheck(2, 1);
++    expect(result.ok).toBe(false);
++    expect(result.reason).toContain("2");
++    expect(result.reason).toContain("1");
++  });
++
++  it("rejects when the caller's expected version is ahead of disk", () => {
++    expect(casVersionCheck(1, 2).ok).toBe(false);
++  });
++
++  it("rejects a corrupt NaN on-disk version (NaN !== anything)", () => {
++    expect(casVersionCheck(NaN, 1).ok).toBe(false);
++  });
++
++  it("supplies a non-empty diagnostic reason on rejection", () => {
++    const reason = casVersionCheck(9, 4).reason;
++    expect(typeof reason).toBe("string");
++    expect((reason ?? "").length).toBeGreaterThan(0);
++  });
++
++  it("composes with normalizeVersion — a corrupt on-disk version and a missing expected both normalize to 0 and pass (the real atomicWrite path)", () => {
++    expect(
++      casVersionCheck(normalizeVersion(-5), normalizeVersion(undefined))
++    ).toEqual({ ok: true });
++  });
++});
++
++// ===========================================================================
++// normalizeVersion — coerces an untrusted on-disk version to a sane integer.
++// ===========================================================================
++describe("normalizeVersion", () => {
++  it("maps undefined (pre-U-COORD02 files) to 0", () => {
++    expect(normalizeVersion(undefined)).toBe(0);
++  });
++
++  it("keeps 0 as 0", () => {
++    expect(normalizeVersion(0)).toBe(0);
++  });
++
++  it("keeps a positive integer unchanged", () => {
++    expect(normalizeVersion(7)).toBe(7);
++  });
++
++  it("clamps a negative version to 0", () => {
++    expect(normalizeVersion(-3)).toBe(0);
++  });
++
++  it("truncates a fractional version toward zero", () => {
++    expect(normalizeVersion(4.9)).toBe(4);
++  });
++
++  it("clamps a negative fractional version to 0", () => {
++    expect(normalizeVersion(-1.5)).toBe(0);
++  });
++
++  it("maps NaN to 0", () => {
++    expect(normalizeVersion(NaN)).toBe(0);
++  });
++
++  it("maps Infinity to 0 (not finite)", () => {
++    expect(normalizeVersion(Infinity)).toBe(0);
++  });
++});
++
++// ===========================================================================
++// StaleRegistryError — thrown by atomicWrite when the CAS fails.
++// ===========================================================================
++describe("StaleRegistryError", () => {
++  it("is an Error subclass with the correct name", () => {
++    const err = new StaleRegistryError(3, 7);
++    expect(err).toBeInstanceOf(Error);
++    expect(err.name).toBe("StaleRegistryError");
++  });
++
++  it("carries the expected and actual versions and names both in the message", () => {
++    const err = new StaleRegistryError(3, 7);
++    expect(err.expectedVersion).toBe(3);
++    expect(err.actualVersion).toBe(7);
++    expect(err.message).toContain("3");
++    expect(err.message).toContain("7");
++  });
++});
++
++// ===========================================================================
++// Version field threads through every registry mutation.
++// ===========================================================================
++describe("version field — registry threading", () => {
++  it("lands version 1 on the first claim acquired against a fresh registry", () => {
++    atomicClaimBrokerEngine.acquireClaim("v-fresh");
++    expect(atomicClaimBrokerEngine.getStats().version).toBe(1);
++  });
++
++  it("increments the version monotonically across successive writes", () => {
++    atomicClaimBrokerEngine.acquireClaim("v-a");
++    expect(atomicClaimBrokerEngine.getStats().version).toBe(1);
++    atomicClaimBrokerEngine.acquireClaim("v-b");
++    expect(atomicClaimBrokerEngine.getStats().version).toBe(2);
++  });
++
++  it("increments the version when a claim is released", () => {
++    atomicClaimBrokerEngine.acquireClaim("v-rel");
++    const released = atomicClaimBrokerEngine.releaseClaim("v-rel");
++    expect(released).toBe(true);
++    expect(atomicClaimBrokerEngine.getStats().version).toBe(2);
++  });
++
++  it("increments the version when a claim state is updated", () => {
++    atomicClaimBrokerEngine.acquireClaim("v-state");
++    const updated = atomicClaimBrokerEngine.updateClaimState("v-state", "compacting");
++    expect(updated).toBe(true);
++    expect(atomicClaimBrokerEngine.getStats().version).toBe(2);
++  });
++
++  it("increments the version when reapZombies persists a sweep", () => {
++    atomicClaimBrokerEngine.acquireClaim("v-reap");
++    atomicClaimBrokerEngine.reapZombies();
++    expect(atomicClaimBrokerEngine.getStats().version).toBe(2);
++  });
++
++  it("does NOT increment the version when releasing a claim that is not held", () => {
++    atomicClaimBrokerEngine.acquireClaim("v-held");
++    expect(atomicClaimBrokerEngine.getStats().version).toBe(1);
++    const released = atomicClaimBrokerEngine.releaseClaim("v-never-held");
++    expect(released).toBe(false);
++    // commitWithRetry aborts without writing -> version unchanged.
++    expect(atomicClaimBrokerEngine.getStats().version).toBe(1);
++  });
++});
++
++// ===========================================================================
++// atomicWrite CAS — a stale write is rejected, a fresh one is accepted.
++// (atomicWrite/readRegistry are private; reached via cast for white-box test.)
++// ===========================================================================
++describe("atomicWrite compare-and-swap", () => {
++  it("throws StaleRegistryError when the supplied registry is behind disk", () => {
++    atomicClaimBrokerEngine.acquireClaim("cas-x"); // disk now at version 1
++    const stale: ClaimRegistry = {
++      schemaVersion: 1,
++      claims: [],
++      sequenceCounter: 0,
++      version: 0, // caller "read" version 0 but disk has moved to 1
++    };
++    expect(() =>
++      (atomicClaimBrokerEngine as unknown as {
++        atomicWrite: (r: ClaimRegistry) => void;
++      }).atomicWrite(stale)
++    ).toThrow(StaleRegistryError);
++  });
++
++  it("accepts a write whose version matches disk and bumps the persisted version", () => {
++    atomicClaimBrokerEngine.acquireClaim("cas-ok"); // disk now at version 1
++    const fresh = (atomicClaimBrokerEngine as unknown as {
++      readRegistry: () => ClaimRegistry;
++    }).readRegistry();
++    expect(fresh.version).toBe(1);
++    (atomicClaimBrokerEngine as unknown as {
++      atomicWrite: (r: ClaimRegistry) => void;
++    }).atomicWrite(fresh);
++    expect(atomicClaimBrokerEngine.getStats().version).toBe(2);
++  });
++});
++
++// ===========================================================================
++// Backward compatibility — registry files written before U-COORD02 have no
++// `version` key and must still parse and operate.
++// ===========================================================================
++describe("backward compatibility — pre-U-COORD02 registry files", () => {
++  it("parses a registry file with no version key and lands version 1 on the next write", () => {
++    writeRawRegistry({ schemaVersion: 1, claims: [], sequenceCounter: 3 });
++    atomicClaimBrokerEngine.acquireClaim("bc-new");
++    expect(atomicClaimBrokerEngine.getStats().version).toBe(1);
++    // sequenceCounter advances normally — the rest of the registry is intact.
++    expect(atomicClaimBrokerEngine.getStats().sequenceCounter).toBe(4);
++  });
++
++  it("preserves existing claims when a pre-version file gets its first versioned write", () => {
++    // Let the engine create a real, schema-valid claim, then strip `version`
++    // to simulate the pre-U-COORD02 on-disk format.
++    atomicClaimBrokerEngine.acquireClaim("bc-keep");
++    const raw = readRawRegistry();
++    delete raw.version;
++    writeRawRegistry(raw);
++
++    atomicClaimBrokerEngine.acquireClaim("bc-added");
++    const resources = atomicClaimBrokerEngine.getActiveClaims().map(c => c.resource);
++    expect(resources).toContain("bc-keep");
++    expect(resources).toContain("bc-added");
++    expect(atomicClaimBrokerEngine.getStats().version).toBe(1);
++  });
++
++  it("continues from a high on-disk version rather than resetting to 1", () => {
++    writeRawRegistry({ schemaVersion: 1, claims: [], sequenceCounter: 0, version: 50 });
++    atomicClaimBrokerEngine.acquireClaim("hv");
++    expect(atomicClaimBrokerEngine.getStats().version).toBe(51);
++  });
++
++  it("normalizes a corrupt negative on-disk version instead of propagating it", () => {
++    writeRawRegistry({ schemaVersion: 1, claims: [], sequenceCounter: 0, version: -7 });
++    atomicClaimBrokerEngine.acquireClaim("neg-ver");
++    // -7 normalizes to 0, so the first write lands version 1 (never -6).
++    expect(atomicClaimBrokerEngine.getStats().version).toBe(1);
++  });
++});
++
++// ===========================================================================
++// commitWithRetry — a stale-write rejection triggers a re-read + retry rather
++// than a spurious failure. Forced deterministically single-threaded by stubbing
++// atomicWrite to throw StaleRegistryError once, then delegate to the real impl.
++// ===========================================================================
++describe("commitWithRetry — retry on stale write", () => {
++  it("releaseClaim retries past a single StaleRegistryError and still commits", () => {
++    atomicClaimBrokerEngine.acquireClaim("retry-rel");
++    const engineAny = atomicClaimBrokerEngine as unknown as {
++      atomicWrite: (r: ClaimRegistry) => void;
++    };
++    const realAtomicWrite = engineAny.atomicWrite.bind(atomicClaimBrokerEngine);
++    let calls = 0;
++    engineAny.atomicWrite = (r: ClaimRegistry) => {
++      calls++;
++      if (calls === 1) {
++        throw new StaleRegistryError(r.version, r.version + 1);
++      }
++      realAtomicWrite(r);
++    };
++    try {
++      const released = atomicClaimBrokerEngine.releaseClaim("retry-rel");
++      expect(released).toBe(true); // committed despite the first stale rejection
++      expect(calls).toBeGreaterThanOrEqual(2); // proves a retry actually happened
++    } finally {
++      delete (engineAny as { atomicWrite?: unknown }).atomicWrite;
++    }
++  });
++
++  it("acquireClaim retries past a single StaleRegistryError and still succeeds", () => {
++    const engineAny = atomicClaimBrokerEngine as unknown as {
++      atomicWrite: (r: ClaimRegistry) => void;
++    };
++    const realAtomicWrite = engineAny.atomicWrite.bind(atomicClaimBrokerEngine);
++    let calls = 0;
++    engineAny.atomicWrite = (r: ClaimRegistry) => {
++      calls++;
++      if (calls === 1) {
++        throw new StaleRegistryError(r.version, r.version + 1);
++      }
++      realAtomicWrite(r);
++    };
++    try {
++      const result = atomicClaimBrokerEngine.acquireClaim("retry-acq");
++      expect(result.success).toBe(true);
++      expect(calls).toBeGreaterThanOrEqual(2);
++    } finally {
++      delete (engineAny as { atomicWrite?: unknown }).atomicWrite;
++    }
++  });
++
++  it("does NOT retry on a non-stale (real I/O) error — aborts after one attempt", () => {
++    atomicClaimBrokerEngine.acquireClaim("io-err");
++    const engineAny = atomicClaimBrokerEngine as unknown as {
++      atomicWrite: (r: ClaimRegistry) => void;
++    };
++    let calls = 0;
++    engineAny.atomicWrite = () => {
++      calls++;
++      throw new Error("simulated disk failure (EACCES)");
++    };
++    try {
++      const released = atomicClaimBrokerEngine.releaseClaim("io-err");
++      expect(released).toBe(false); // a real I/O error is not recoverable
++      expect(calls).toBe(1); // only StaleRegistryError retries — a plain error aborts
++    } finally {
++      delete (engineAny as { atomicWrite?: unknown }).atomicWrite;
++    }
++  });
++});
++
++// ===========================================================================
++// Integration — claims and counters stay consistent as the version advances.
++// ===========================================================================
++describe("integration — claims survive version increments", () => {
++  it("keeps the registry consistent across acquire + acquire + release", () => {
++    atomicClaimBrokerEngine.acquireClaim("int-1");
++    atomicClaimBrokerEngine.acquireClaim("int-2");
++    const released = atomicClaimBrokerEngine.releaseClaim("int-1");
++    expect(released).toBe(true);
++
++    const stats = atomicClaimBrokerEngine.getStats();
++    expect(stats.version).toBe(3); // two acquires + one release
++    expect(atomicClaimBrokerEngine.holdsClaim("int-1")).toBe(false);
++    expect(atomicClaimBrokerEngine.holdsClaim("int-2")).toBe(true);
++    expect(stats.totalClaims).toBe(1);
++  });
++});
+diff --git a/mcp-server/src/engines/AtomicClaimBrokerEngine.ts b/mcp-server/src/engines/AtomicClaimBrokerEngine.ts
+index 1f9d784dc..44656aed5 100644
+--- a/mcp-server/src/engines/AtomicClaimBrokerEngine.ts
++++ b/mcp-server/src/engines/AtomicClaimBrokerEngine.ts
+@@ -4,6 +4,7 @@
+  * Atomic Compare-And-Swap claim broker for cross-terminal coordination.
+  * Extends PRISM's existing coordination system with:
+  *   - Atomic CAS claim acquisition using temp+rename
++ *   - Optimistic concurrency control via a registry version field (CAS-on-write)
+  *   - Single-call claim API (fuses duplication-check + claim-acquire)
+  *   - Zombie reaper for agents stuck in 'compacting' state >600s
+  *   - Deadlock detection via claim-graph cycle check
+@@ -11,6 +12,7 @@
+  *   - Relative-TTL for clock-drift tolerance
+  *
+  * @unit AI-AWARE-HARDEN/U-AWR25
++ * @unit COORD-MS0/U-COORD02 — optimistic locking with version field
+  * @integrates H:/prism/.claude/helpers/agent-coordination-daemon.mjs
+  */
+ 
+@@ -41,6 +43,10 @@ const ClaimRegistrySchema = z.object({
+   schemaVersion: z.literal(1),
+   claims: z.array(ClaimSchema),
+   sequenceCounter: z.number(),
++  // Optimistic-locking version counter. Optional in the schema so registry
++  // files written before U-COORD02 (no `version` key) still parse; readRegistry
++  // normalizes a missing/invalid value to 0.
++  version: z.number().optional(),
+   lastReapedAt: z.string().optional(),
+   zombieCount: z.number().optional(),
+ });
+@@ -66,6 +72,8 @@ interface ClaimRegistry {
+   schemaVersion: 1;
+   claims: Claim[];
+   sequenceCounter: number;
++  /** Optimistic-locking version. Always present post-readRegistry normalization. */
++  version: number;
+   lastReapedAt?: string;
+   zombieCount?: number;
+ }
+@@ -88,11 +96,81 @@ interface ReapResult {
+ // Constants
+ // ============================================================================
+ 
+-const CLAIMS_FILE = "H:/prism/state/shared/ATOMIC_CLAIMS.json";
+-const CLAIMS_DIR = "H:/prism/state/shared";
++const DEFAULT_CLAIMS_FILE = "H:/prism/state/shared/ATOMIC_CLAIMS.json";
+ const DEFAULT_TTL_MS = 180000; // 3 minutes
+ const COMPACTING_ZOMBIE_THRESHOLD_MS = 600000; // 10 minutes
+ const ACTIVE_ZOMBIE_THRESHOLD_MS = 300000; // 5 minutes
++const COMMIT_RETRY_ATTEMPTS = 3;
++
++// ============================================================================
++// Optimistic locking (U-COORD02)
++// ============================================================================
++
++/**
++ * Thrown by atomicWrite when the on-disk registry version no longer matches the
++ * version the caller read — i.e. a concurrent writer committed in between. The
++ * caller's retry loop catches this, re-reads, recomputes, and re-writes.
++ */
++export class StaleRegistryError extends Error {
++  readonly expectedVersion: number;
++  readonly actualVersion: number;
++
++  constructor(expectedVersion: number, actualVersion: number) {
++    super(
++      `Stale registry write rejected: caller read version ${expectedVersion}, ` +
++        `on-disk version is now ${actualVersion} (a concurrent writer won the race)`
++    );
++    this.name = "StaleRegistryError";
++    this.expectedVersion = expectedVersion;
++    this.actualVersion = actualVersion;
++  }
++}
++
++/**
++ * Pure compare-and-swap decision for the registry version field.
++ *
++ * A write is permitted only when the version currently on disk equals the
++ * version the caller read before computing its update. Any inequality means a
++ * concurrent writer committed in between, so the caller's update was computed
++ * against stale state and must be rejected (then retried). Callers normalize
++ * both versions via normalizeVersion() before this check, so a corrupt
++ * non-numeric on-disk version has already been coerced to 0.
++ *
++ * @param currentVersion  version read from disk at write time
++ * @param expectedVersion version the caller read before computing its update
++ * @returns `{ ok: true }` to allow the write, `{ ok: false, reason }` to reject
++ */
++export function casVersionCheck(
++  currentVersion: number,
++  expectedVersion: number
++): { ok: boolean; reason?: string } {
++  if (currentVersion !== expectedVersion) {
++    return {
++      ok: false,
++      reason: `stale write: on-disk version ${currentVersion} != expected ${expectedVersion}`,
++    };
++  }
++  return { ok: true };
++}
++
++/**
++ * Normalize an untrusted version value read from disk to a non-negative integer.
++ * Missing (undefined) -> 0; negative or fractional -> floored to a sane integer.
++ */
++export function normalizeVersion(raw: number | undefined): number {
++  const n = Math.trunc(raw ?? 0);
++  return Number.isFinite(n) && n > 0 ? n : 0;
++}
++
++/**
++ * Resolve the claims-registry file path. Honors the PRISM_ATOMIC_CLAIMS_FILE
++ * env override (read per call, after module load) so tests can point the broker
++ * at a throwaway temp file instead of unlinking the live fleet registry.
++ */
++function resolveClaimsFile(): string {
++  const override = process.env.PRISM_ATOMIC_CLAIMS_FILE;
++  return override && override.length > 0 ? override : DEFAULT_CLAIMS_FILE;
++}
+ 
+ // ============================================================================
+ // Engine Class
+@@ -136,11 +214,13 @@ class AtomicClaimBrokerEngine {
+    */
+   private readRegistry(): ClaimRegistry {
+     try {
+-      const raw = fs.readFileSync(CLAIMS_FILE, "utf-8");
++      const raw = fs.readFileSync(resolveClaimsFile(), "utf-8");
+       const parsed = JSON.parse(raw);
+       const result = ClaimRegistrySchema.safeParse(parsed);
+       if (result.success) {
+-        return result.data;
++        // version is optional in the schema (pre-U-COORD02 files lack it) —
++        // normalize to a non-negative integer so callers always see a number.
++        return { ...result.data, version: normalizeVersion(result.data.version) };
+       }
+     } catch {
+       // File doesn't exist or is corrupted
+@@ -150,19 +230,49 @@ class AtomicClaimBrokerEngine {
+       schemaVersion: 1,
+       claims: [],
+       sequenceCounter: 0,
++      version: 0,
+     };
+   }
+ 
+   /**
+-   * Atomic write using temp file + rename (Windows-safe)
++   * Atomic write using temp file + rename (Windows-safe), guarded by an
++   * optimistic-locking compare-and-swap (U-COORD02).
++   *
++   * `registry.version` is the version the caller read before computing this
++   * update. Immediately before the temp+rename, the on-disk version is
++   * re-read; if it changed, a concurrent writer won the race so this update was
++   * computed against stale state and is rejected with StaleRegistryError. The
++   * persisted version is `expected + 1`.
++   *
++   * The re-read -> rename window is not itself a kernel mutex; two writers that
++   * both pass the CAS within the same sub-millisecond window still last-writer-
++   * wins (neither errors, so nothing retries). For a registry mutated O(10x/min)
++   * by the chat fleet that residual race is acceptably rare and tolerated. This
++   * converts the COMMON silent last-writer-wins clobber into a detected-and-
++   * retried StaleRegistryError.
++   *
++   * Scope: the CAS protects only writers that route through atomicWrite().
++   * External processes that write ATOMIC_CLAIMS.json directly (e.g.
++   * .claude/helpers/zombie-reaper-daemon.mjs) bypass it — a pre-existing seam,
++   * not closed by U-COORD02.
+    */
+   private atomicWrite(registry: ClaimRegistry): void {
+-    const tmpFile = path.join(CLAIMS_DIR, `.ATOMIC_CLAIMS.${this.pid}.tmp`);
++    const expectedVersion = normalizeVersion(registry.version);
++    const onDiskVersion = normalizeVersion(this.readRegistry().version);
++    const cas = casVersionCheck(onDiskVersion, expectedVersion);
++    if (!cas.ok) {
++      throw new StaleRegistryError(expectedVersion, onDiskVersion);
++    }
++
++    const toWrite: ClaimRegistry = { ...registry, version: expectedVersion + 1 };
++    const claimsFile = resolveClaimsFile();
++    const claimsDir = path.dirname(claimsFile);
++    const tmpFile = path.join(claimsDir, `.${path.basename(claimsFile)}.${this.pid}.tmp`);
+ 
+     try {
+-      fs.mkdirSync(CLAIMS_DIR, { recursive: true });
+-      fs.writeFileSync(tmpFile, JSON.stringify(registry, null, 2));
+-      fs.renameSync(tmpFile, CLAIMS_FILE);
++      fs.mkdirSync(claimsDir, { recursive: true });
++      fs.writeFileSync(tmpFile, JSON.stringify(toWrite, null, 2));
++      fs.renameSync(tmpFile, claimsFile);
+     } catch (err) {
+       try {
+         fs.unlinkSync(tmpFile);
+@@ -173,6 +283,39 @@ class AtomicClaimBrokerEngine {
+     }
+   }
+ 
++  /**
++   * Read -> compute -> CAS-write with bounded retry (U-COORD02).
++   *
++   * `compute` receives a fresh registry read and returns either the updated
++   * registry to persist, or `registry: null` to abort without writing (e.g. the
++   * target claim was not found — not an error, just nothing to do). On a
++   * StaleRegistryError the loop re-reads and recomputes; any other write error
++   * aborts immediately. `result` carries the caller's payload (recomputed each
++   * attempt) and is returned regardless of whether the commit succeeded.
++   */
++  private commitWithRetry<T>(
++    compute: (registry: ClaimRegistry) => { registry: ClaimRegistry | null; result: T }
++  ): { committed: boolean; result: T } {
++    let last!: { registry: ClaimRegistry | null; result: T };
++    for (let attempt = 0; attempt < COMMIT_RETRY_ATTEMPTS; attempt++) {
++      const registry = this.readRegistry();
++      last = compute(registry);
++      if (last.registry === null) {
++        return { committed: false, result: last.result };
++      }
++      try {
++        this.atomicWrite(last.registry);
++        return { committed: true, result: last.result };
++      } catch (err) {
++        if (err instanceof StaleRegistryError) {
++          continue; // concurrent writer won — re-read and recompute
++        }
++        return { committed: false, result: last.result }; // real I/O error
++      }
++    }
++    return { committed: false, result: last.result }; // retries exhausted
++  }
++
+   /**
+    * Check if a claim is expired based on relative TTL
+    */
+@@ -323,27 +466,22 @@ class AtomicClaimBrokerEngine {
+    */
+   releaseClaim(resource: string): boolean {
+     const holder = this.getHolderId();
+-    const registry = this.readRegistry();
+-
+-    const claimIndex = registry.claims.findIndex(
+-      c => c.resource === resource && c.holder === holder
+-    );
+-
+-    if (claimIndex === -1) {
+-      return false;
+-    }
+-
+-    const updatedRegistry: ClaimRegistry = {
+-      ...registry,
+-      claims: registry.claims.filter((_, i) => i !== claimIndex),
+-    };
+-
+-    try {
+-      this.atomicWrite(updatedRegistry);
+-      return true;
+-    } catch {
+-      return false;
+-    }
++    return this.commitWithRetry<null>((registry) => {
++      const claimIndex = registry.claims.findIndex(
++        c => c.resource === resource && c.holder === holder
++      );
++      // Not held by this terminal — abort without writing (not an error).
++      if (claimIndex === -1) {
++        return { registry: null, result: null };
++      }
++      return {
++        registry: {
++          ...registry,
++          claims: registry.claims.filter((_, i) => i !== claimIndex),
++        },
++        result: null,
++      };
++    }).committed;
+   }
+ 
+   /**
+@@ -351,73 +489,66 @@ class AtomicClaimBrokerEngine {
+    */
+   updateClaimState(resource: string, state: Claim["state"]): boolean {
+     const holder = this.getHolderId();
+-    const registry = this.readRegistry();
+-
+-    const claimIndex = registry.claims.findIndex(
+-      c => c.resource === resource && c.holder === holder
+-    );
+-
+-    if (claimIndex === -1) {
+-      return false;
+-    }
+-
+-    const updatedClaim: Claim = {
+-      ...registry.claims[claimIndex],
+-      state,
+-    };
+-
+-    const updatedRegistry: ClaimRegistry = {
+-      ...registry,
+-      claims: registry.claims.map((c, i) =>
+-        i === claimIndex ? updatedClaim : c
+-      ),
+-    };
+-
+-    try {
+-      this.atomicWrite(updatedRegistry);
+-      return true;
+-    } catch {
+-      return false;
+-    }
++    return this.commitWithRetry<null>((registry) => {
++      const claimIndex = registry.claims.findIndex(
++        c => c.resource === resource && c.holder === holder
++      );
++      // Not held by this terminal — abort without writing (not an error).
++      if (claimIndex === -1) {
++        return { registry: null, result: null };
++      }
++      const updatedClaim: Claim = { ...registry.claims[claimIndex], state };
++      return {
++        registry: {
++          ...registry,
++          claims: registry.claims.map((c, i) =>
++            i === claimIndex ? updatedClaim : c
++          ),
++        },
++        result: null,
++      };
++    }).committed;
+   }
+ 
+   /**
+    * Reap zombies and detect deadlocks
+    */
+   reapZombies(): ReapResult {
+-    const registry = this.readRegistry();
+-    const zombiesFound: string[] = [];
+-    const survivingClaims: Claim[] = [];
+-
+-    for (const claim of registry.claims) {
+-      if (this.isZombie(claim) || this.isExpired(claim)) {
+-        zombiesFound.push(`${claim.holder}:${claim.resource}`);
+-      } else {
+-        survivingClaims.push(claim);
++    // commitWithRetry recomputes the zombie set on each attempt (a concurrent
++    // writer may have added/removed claims), and returns the last-computed
++    // ReapResult whether or not the write ultimately committed. NOTE: if all
++    // retries fail, `reaped` reflects zombies DETECTED this pass, not
++    // necessarily zombies PERSISTED as removed — callers must not treat a
++    // non-zero `reaped` as proof the registry was mutated.
++    return this.commitWithRetry<ReapResult>((registry) => {
++      const zombiesFound: string[] = [];
++      const survivingClaims: Claim[] = [];
++
++      for (const claim of registry.claims) {
++        if (this.isZombie(claim) || this.isExpired(claim)) {
++          zombiesFound.push(`${claim.holder}:${claim.resource}`);
++        } else {
++          survivingClaims.push(claim);
++        }
+       }
+-    }
+ 
+-    // Detect cycles (simple: A waits for B waits for A)
+-    const cyclesDetected = this.detectCycles(survivingClaims);
+-
+-    const updatedRegistry: ClaimRegistry = {
+-      ...registry,
+-      claims: survivingClaims,
+-      lastReapedAt: new Date().toISOString(),
+-      zombieCount: zombiesFound.length,
+-    };
+-
+-    try {
+-      this.atomicWrite(updatedRegistry);
+-    } catch {
+-      // Ignore write errors during reap
+-    }
+-
+-    return {
+-      reaped: zombiesFound.length,
+-      zombiesFound,
+-      cyclesDetected,
+-    };
++      // Detect cycles (simple: A waits for B waits for A)
++      const cyclesDetected = this.detectCycles(survivingClaims);
++
++      return {
++        registry: {
++          ...registry,
++          claims: survivingClaims,
++          lastReapedAt: new Date().toISOString(),
++          zombieCount: zombiesFound.length,
++        },
++        result: {
++          reaped: zombiesFound.length,
++          zombiesFound,
++          cyclesDetected,
++        },
++      };
++    }).result;
+   }
+ 
+   /**
+@@ -480,6 +611,7 @@ class AtomicClaimBrokerEngine {
+     zombieClaims: number;
+     expiredClaims: number;
+     sequenceCounter: number;
++    version: number;
+   } {
+     const registry = this.readRegistry();
+     let activeClaims = 0;
+@@ -502,6 +634,7 @@ class AtomicClaimBrokerEngine {
+       zombieClaims,
+       expiredClaims,
+       sequenceCounter: registry.sequenceCounter,
++      version: registry.version,
+     };
+   }
+ }
+
+--- END DIFF ---

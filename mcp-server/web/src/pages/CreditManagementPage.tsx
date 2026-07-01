@@ -76,7 +76,12 @@ export function CreditManagementPage() {
   }
 
   const atRiskCount = reviews.filter((entry) => {
-    const status = firstText(entry, ['status', 'risk', 'credit_status']).toLowerCase();
+    // Prefer the engine's authoritative `risk` tier (at_risk | over_limit | on_hold | ok) -- read it FIRST,
+    // since the customer `status` ('active') would otherwise shadow it and under-count over-limit accounts.
+    const risk = firstText(entry, ['risk', 'credit_status']).toLowerCase();
+    if (risk) return risk === 'at_risk' || risk === 'over_limit' || risk === 'on_hold';
+    // Legacy fallback for any payload without a `risk` field.
+    const status = firstText(entry, ['status']).toLowerCase();
     return status.includes('hold') || status.includes('risk') || status.includes('past');
   }).length;
   const pipelineValue = pipeline.reduce((sum, entry) => sum + (firstNumber(entry, ['value', 'amount', 'quote_amount']) ?? 0), 0);
@@ -116,10 +121,10 @@ export function CreditManagementPage() {
     <WorkspaceRecoveryScaffold
       eyebrow="Commerce controls"
       title="Credit Management"
-      description="The APPW credit desk is restored on a live scaffold so leadership can read customer credit posture, compare it to pipeline exposure, and use PRISM AI to make safer release decisions."
+      description="The APPW credit desk is restored on a live scaffold so leadership can read customer credit posture, compare it to pipeline exposure, and use Kienzle AI to make safer release decisions."
       surfaces={['commerce']}
       metrics={metrics}
-      aiSummary="PRISM AI can explain the current credit posture, flag customer release risk, and recommend whether a quoted order should proceed."
+      aiSummary="Kienzle AI can explain the current credit posture, flag customer release risk, and recommend whether a quoted order should proceed."
       aiContext={aiContext}
       suggestions={[
         {

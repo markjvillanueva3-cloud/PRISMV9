@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `quality-check-lathe` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/quality-check-lathe.md` |
+| Source | `C:/Users/wompu/.claude/commands/quality-check-lathe.md` |
 | Model | default |
 | Tags | _(none)_ |
 

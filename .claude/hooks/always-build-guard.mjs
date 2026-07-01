@@ -9,7 +9,8 @@
  * 3. in-progress goal stack closeout state
  */
 
-import { existsSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
+import { writeAtomicSync } from "../helpers/atomic-write.mjs";
 import path from "node:path";
 
 const ROOT = (process.env.PRISM_ROOT || "H:/prism").replace(/\\/g, "/").replace(/\/$/, "");
@@ -300,7 +301,7 @@ if (goalStack.goals?.[0]?.turns > 2) {
   goalStack.completedToday = (goalStack.completedToday || 0) + 1;
 
   try {
-    writeFileSync(GOAL_STACK_PATH, JSON.stringify(goalStack, null, 2));
+    writeAtomicSync(GOAL_STACK_PATH, JSON.stringify(goalStack, null, 2), { fsync: false });
   } catch { /* ignore write errors */ }
 }
 

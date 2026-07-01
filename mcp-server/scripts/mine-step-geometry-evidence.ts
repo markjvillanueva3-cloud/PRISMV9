@@ -12,7 +12,7 @@ import * as fs from "node:fs";
 
 const MANIFEST_PATH = "H:/prism/mcp-server/data/state/cad-corpus-manifest-recovered.json";
 const REPORT_PATH = "H:/prism/mcp-server/data/state/cad-corpus-step-geometry-report.json";
-const MAX_FILES_PER_CLASS = 50; // sample cap — full corpus run is ~5GB read
+const MAX_FILES_PER_CLASS = Number(process.env.PRISM_STEP_MINE_CAP) || 50; // sample cap (env-overridable: PRISM_STEP_MINE_CAP) — full corpus run is ~5GB read
 
 interface PerClassEvidence {
   part_class: PartClass;

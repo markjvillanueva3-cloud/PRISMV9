@@ -21,7 +21,7 @@ related:
 
 ## Description (from file header)
 
-cad-graph-integrity.mjs — CADCAM-DAGI-MS0/U-DAGI02 guard hookPostToolUse(Write|Edit) hook that checks edits to CAD graph artifactsand persisted graph JSON payloads, blocking the write if:  1. CADKnowledgeGraphEngine edits remove a public method the dispatcher     or tests depend on (build, detectCycles, findOrphans,     ancestors, descendants, toJsonLd, fromJsonLd).  2. A persisted graph JSON (./data/cad-graphs/*.json) contains a     cycle — cycles are an abort-criterion for U-DAGI02.  3
+_(no header docblock — read source for behavior)_
 
 ## Events
 

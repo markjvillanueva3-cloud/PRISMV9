@@ -19,6 +19,10 @@ export type WorkflowRouteContext = {
   profile: string;
   origin: Required<WorkflowOriginContext>;
   focus: Required<WorkflowFocusContext>;
+  // 2026-05-27 iter13: PurchaseOrdersPage reads `routeContext.launcher?.source` —
+  // optional sub-context describing how the page was launched (different from origin,
+  // which describes the upstream record). Future U-WEB-WORKFLOW-LAUNCHER populates this.
+  launcher?: { source?: string; [key: string]: unknown };
 };
 
 type WorkflowBuildOptions = {

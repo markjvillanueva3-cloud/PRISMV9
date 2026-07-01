@@ -31,6 +31,7 @@ import * as fs from "fs";
 import * as path from "path";
 import { fileURLToPath } from "url";
 import { log } from "../utils/Logger.js";
+import { CANONICAL_KIENZLE } from "../physics/constants.js";
 import { adaptiveMachiningIntegrationEngine } from "./AdaptiveMachiningIntegrationEngine.js";
 import { adaptivePhysicsBridgeEngine } from "./AdaptivePhysicsBridgeEngine.js";
 import { latheAdaptiveMachiningEngine } from "./LatheAdaptiveMachiningEngine.js";
@@ -239,7 +240,7 @@ class LatheMasterOrchestratorFacadeEngineImpl {
             tool_type: req.tool_type,
             hardness_hrc: req.hardness_hrc,
           };
-          primary = tribalKnowledgeActivationEngine.activate(context, { limit: 5 });
+          primary = tribalKnowledgeActivationEngine.activateTipsForContext(context);
           confidence = 0.75;
         } catch (err) {
           primary = { error: `TribalKnowledgeActivationEngine: ${err}` };
@@ -258,10 +259,12 @@ class LatheMasterOrchestratorFacadeEngineImpl {
             task_type: "analyze_program",
             input: {
               material: req.material,
-              operation: req.operation,
-              cutting_speed: req.cutting_speed_m_min,
-              feed: req.feed_mm_rev,
-              depth: req.depth_of_cut_mm,
+              constraints: {
+                operation: req.operation,
+                cutting_speed: req.cutting_speed_m_min,
+                feed: req.feed_mm_rev,
+                depth: req.depth_of_cut_mm,
+              },
             },
             options: { depth: "deep" },
           });
@@ -448,10 +451,10 @@ class LatheMasterOrchestratorFacadeEngineImpl {
           } as any);
 
           primary = {
-            collision_safe: !collisionCheck?.collision,
+            collision_safe: collisionCheck?.safe ?? true,
             collision_check: collisionCheck,
             physics_valid: true,
-            overall_valid: !collisionCheck?.collision,
+            overall_valid: collisionCheck?.safe ?? true,
           };
           confidence = (primary as any).overall_valid ? 0.90 : 0.5;
         } catch (err) {
@@ -472,20 +475,37 @@ class LatheMasterOrchestratorFacadeEngineImpl {
         const rpm = req.rpm ?? 1500;
 
         // Get lathe-specific adaptive analysis
+        const isoGroup = req.material_iso ?? "P";
+        const kienzle = CANONICAL_KIENZLE[isoGroup];
+        const validOpTypes = ["od_turning", "id_boring", "facing", "grooving", "threading", "parting"] as const;
+        type ValidOpType = typeof validOpTypes[number];
+        const opType: ValidOpType = validOpTypes.includes(req.operation as ValidOpType)
+          ? (req.operation as ValidOpType)
+          : "od_turning";
         const latheIntegration = adaptiveMachiningIntegrationEngine.getLatheIntegration(
-          cuttingSpeed,
-          feed,
-          doc,
-          toolDia / 2, // nose radius estimate
-          rpm
+          req.material ?? "steel",          // material: string
+          isoGroup,                          // materialIso: "P"|"M"|"K"|"N"|"S"|"H"
+          toolDia,                           // diameter: number
+          doc,                               // depthOfCut: number
+          feed,                              // feedPerRev: number
+          90,                                // leadAngle: degrees (standard OD turning approach angle)
+          toolDia / 2 * 0.1,                 // noseRadius: estimate from tool diameter (mm)
+          cuttingSpeed,                      // cuttingSpeed: m/min
+          opType                             // operationType
         );
 
         // Get turning-specific engagement and forces
-        const turningEngagement = latheAdaptiveMachiningEngine.calculateTurningEngagement(
-          feed, doc, toolDia / 2, 90
-        );
+        const turningEngagement = latheAdaptiveMachiningEngine.calculateTurningEngagement({
+          operationType: opType,
+          diameter: toolDia,
+          depthOfCut: doc,
+          feedPerRev: feed,
+          leadAngle: 90,
+          noseRadius: toolDia / 2 * 0.1,
+          cuttingSpeed,
+        });
         const turningForces = latheAdaptiveMachiningEngine.calculateTurningForces(
-          turningEngagement, cuttingSpeed, req.material || "steel"
+          turningEngagement, kienzle.kc1_1, kienzle.mc
         );
 
         // Get physics bridge analysis
@@ -511,7 +531,7 @@ class LatheMasterOrchestratorFacadeEngineImpl {
             Fc: turningForces.Fc,
             Ff: turningForces.Ff,
             Fp: turningForces.Fp,
-            power_kW: turningForces.power_kW,
+            power_kW: turningForces.power,
           },
           physics_bridge: {
             overallStatus: physics.overallStatus,
@@ -541,7 +561,7 @@ class LatheMasterOrchestratorFacadeEngineImpl {
           material: req.material,
           operation: req.operation,
         };
-        supplemental.tribal_tips = tribalKnowledgeActivationEngine.activate(context, { limit: 3 });
+        supplemental.tribal_tips = tribalKnowledgeActivationEngine.activateTipsForContext(context);
         engines.push("TribalKnowledgeActivationEngine");
       } catch {
         // Tribal tips are supplemental, don't fail the main request
@@ -676,7 +696,7 @@ class LatheMasterOrchestratorFacadeEngineImpl {
     // Publish event (if EventBus is available)
     try {
       const { eventBus } = await import("./EventBus.js");
-      eventBus.emit("lathe_coordination_ready", {
+      await eventBus.publish("lathe_coordination_ready", {
         domain: "lathe",
         timestamp: snapshot.timestamp,
         ready: true,

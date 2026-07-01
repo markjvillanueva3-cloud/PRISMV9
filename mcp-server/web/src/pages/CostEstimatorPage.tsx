@@ -32,11 +32,22 @@ export default function CostEstimatorPage() {
     try {
       const res = await costApi.estimate(form);
       setResult(res);
-      toast(`Estimated: $${res.per_part_cost.toFixed(2)}/part`, "success");
+      // The cost basis is the shop's internal figure; the route redacts it for unauthenticated callers, so
+      // per_part_cost is absent unless signed in. Guard the deref (it was an unconditional .toFixed() crash)
+      // and surface the sign-in state instead of a false "Estimate failed" error toast.
+      if (typeof res.per_part_cost === "number") {
+        toast(`Estimated: $${res.per_part_cost.toFixed(2)}/part`, "success");
+      } else {
+        toast("Sign in to view shop cost", "info");
+      }
     } catch (e) {
       toast(e instanceof Error ? e.message : "Estimate failed", "error");
     } finally { setLoading(false); }
   };
+
+  // True only when the route returned the real cost basis (authenticated). When false (anon/redacted), the
+  // cost cards are hidden behind a sign-in prompt rather than crashing on an undefined .toFixed().
+  const hasCost = typeof result?.per_part_cost === "number";
 
   const update = (field: keyof CostEstimateRequest, value: string | number) => {
     setForm((f) => ({ ...f, [field]: value }));
@@ -45,10 +56,10 @@ export default function CostEstimatorPage() {
   return (
     <div className="flex flex-col gap-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-lg font-bold text-slate-800 dark:text-slate-100">
+        <h1 className="text-lg font-bold text-slate-800 dark:text-slate-100 [font-family:var(--font-display)]">
           Cost Estimator
         </h1>
-        {result && (
+        {result && hasCost && (
           <Badge color="green">
             ${result.per_part_cost.toFixed(2)}/part
           </Badge>
@@ -90,7 +101,7 @@ export default function CostEstimatorPage() {
 
         {/* Results */}
         <div className="flex flex-col gap-4 lg:col-span-2">
-          {result && (
+          {result && hasCost && (
             <>
               <Card title="Cost Summary">
                 <div className="grid grid-cols-2 gap-4">
@@ -145,6 +156,15 @@ export default function CostEstimatorPage() {
                 </div>
               </Card>
             </>
+          )}
+          {result && !hasCost && (
+            <Card title="Cost Hidden">
+              <p className="text-sm text-slate-500">
+                The shop cost basis is available to signed-in users only.
+                Sign in to view the per-part cost, total, and breakdown for
+                this job.
+              </p>
+            </Card>
           )}
           {!result && (
             <Card>

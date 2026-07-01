@@ -1,0 +1,170 @@
+{
+  "id": "QS-MS6",
+  "version": "6.3.0",
+  "title": "Cross-Pipeline Innovation",
+  "track": "QS",
+  "created_at": "2026-03-15T17:00:00Z",
+  "status": "complete",
+  "total_units": 11,
+  "completed_units": 11,
+  "description": "New capabilities unlocked by the shared physics backbone: UnifiedPhysicsVerifierEngine for cross-pipeline consistency checks, CrossPipelineWhatIfEngine for unified material/parameter change analysis, PhysicsAutoCalibrationEngine for Bayesian constant calibration from real cutting data, PipelineConsistencyHookEngine for automatic verification, and CLI integration for all new capabilities.",
+  "dependencies": [
+    "QS-MS5"
+  ],
+  "phases": [
+    {
+      "id": "P0",
+      "title": "UnifiedPhysicsVerifierEngine",
+      "units": [
+        {
+          "id": "P0-U01",
+          "title": "Create UnifiedPhysicsVerifierEngine",
+          "description": "Create new engine that runs the same cut through ALL physics paths (SFO, PostProcessor, CNCSimulation, PartGeometry). Compare results: force, power, life, Ra, deflection. Report max divergence %, which path disagrees, and confidence ranking.",
+          "acceptance": [
+            "Engine runs identical cut parameters through SFO, PostProcessor, CNCSimulation, and PartGeometry",
+            "Results compared for force, power, life, Ra, and deflection",
+            "Report includes max divergence %, disagreeing path, and confidence ranking"
+          ],
+          "status": "complete"
+        },
+        {
+          "id": "P0-U02",
+          "title": "Sanity check mode",
+          "description": "Enable 'sanity check' mode: if all pipelines agree within 5%, report high confidence. Flag specific metrics where divergence exceeds threshold.",
+          "acceptance": [
+            "Sanity check mode returns confidence level based on cross-pipeline agreement",
+            "5% threshold for high-confidence designation",
+            "Per-metric divergence flagging"
+          ],
+          "status": "complete"
+        },
+        {
+          "id": "P0-U03",
+          "title": "UnifiedPhysicsVerifier tests",
+          "description": "Add 15+ tests covering cross-pipeline verification with various materials, tools, and cutting conditions.",
+          "acceptance": [
+            "15+ tests pass",
+            "Tests cover multiple materials and cutting conditions",
+            "Build: 0 errors"
+          ],
+          "status": "complete"
+        }
+      ]
+    },
+    {
+      "id": "P1",
+      "title": "CrossPipelineWhatIfEngine",
+      "units": [
+        {
+          "id": "P1-U01",
+          "title": "Create CrossPipelineWhatIfEngine",
+          "description": "Create engine that takes a single input and fans out to all relevant engines for unified comparison. Example: 'What if I change material from 6061 to Ti6Al4V?' → instant delta across S/F, forces, cost, cycle time, tool life, feasibility. Leverages shared constants for physically consistent deltas.",
+          "acceptance": [
+            "Single input fans out to all relevant engines",
+            "Delta report covers S/F, forces, cost, cycle time, tool life, feasibility",
+            "Deltas are physically consistent via shared canonical constants"
+          ],
+          "status": "complete"
+        },
+        {
+          "id": "P1-U02",
+          "title": "CrossPipelineWhatIf tests",
+          "description": "Add 10+ tests covering material changes, tool changes, and parameter variations.",
+          "acceptance": [
+            "10+ tests pass",
+            "Material, tool, and parameter change scenarios covered",
+            "Build: 0 errors"
+          ],
+          "status": "complete"
+        }
+      ]
+    },
+    {
+      "id": "P2",
+      "title": "PhysicsAutoCalibrationEngine",
+      "units": [
+        {
+          "id": "P2-U01",
+          "title": "Create PhysicsAutoCalibrationEngine",
+          "description": "Accept actual cutting data (dynamometer force, measured Ra, actual tool life). Bayesian update CANONICAL constants (kc1_1, mc, C, n) per machine+material combo. Integrates with existing AdaptiveCalibrationEngine and SelfLearningCAMEngine.",
+          "acceptance": [
+            "Accepts dynamometer force, measured Ra, and actual tool life as calibration inputs",
+            "Bayesian updating of kc1_1, mc, C, n per machine+material combination",
+            "Integrates with AdaptiveCalibrationEngine and SelfLearningCAMEngine"
+          ],
+          "status": "complete"
+        },
+        {
+          "id": "P2-U02",
+          "title": "Calibration persistence",
+          "description": "Persist calibrated values in ~/.prism/calibration.json. Each pipeline automatically uses calibrated values when available, falling back to canonical defaults.",
+          "acceptance": [
+            "Calibrated values persisted to ~/.prism/calibration.json",
+            "Pipelines prefer calibrated values over defaults when available",
+            "Fallback to canonical defaults when no calibration exists"
+          ],
+          "status": "complete"
+        },
+        {
+          "id": "P2-U03",
+          "title": "PhysicsAutoCalibration tests",
+          "description": "Add 15+ tests covering Bayesian updating, persistence, and pipeline integration.",
+          "acceptance": [
+            "15+ tests pass",
+            "Bayesian updating convergence verified",
+            "Persistence round-trip tested",
+            "Build: 0 errors"
+          ],
+          "status": "complete"
+        }
+      ]
+    },
+    {
+      "id": "P3",
+      "title": "PipelineConsistencyHookEngine",
+      "units": [
+        {
+          "id": "P3-U01",
+          "title": "Create PipelineConsistencyHookEngine",
+          "description": "Hookify rule: after any pipeline runs, automatically verify result against UnifiedPhysicsVerifier. Warn if force predictions diverge >10% from canonical. Auto-fire on: print_to_program_full, cnc_simulate, sf_orchestrate, pp_run_full.",
+          "acceptance": [
+            "Hookify rule triggers after pipeline execution",
+            "Auto-fires on print_to_program_full, cnc_simulate, sf_orchestrate, pp_run_full",
+            "Warns when force predictions diverge >10% from canonical"
+          ],
+          "status": "complete"
+        },
+        {
+          "id": "P3-U02",
+          "title": "PipelineConsistencyHook tests",
+          "description": "Add 5+ tests verifying hook fires correctly and produces appropriate warnings.",
+          "acceptance": [
+            "5+ tests pass",
+            "Hook auto-fire verified for all 4 trigger actions",
+            "Warning thresholds tested"
+          ],
+          "status": "complete"
+        }
+      ]
+    },
+    {
+      "id": "P4",
+      "title": "CLI integration",
+      "units": [
+        {
+          "id": "P4-U01",
+          "title": "Add 3 CLI commands for QS capabilities",
+          "description": "Add CLI commands: 'prism verify --gcode program.nc' for cross-pipeline consistency check, 'prism what-if --material Ti6Al4V --from aluminum_6061' for unified delta analysis, 'prism calibrate --force 850 --material steel --tool-diameter 12' for live calibration.",
+          "acceptance": [
+            "prism verify command runs cross-pipeline consistency check",
+            "prism what-if command runs unified delta analysis",
+            "prism calibrate command performs live Bayesian calibration",
+            "All 3 commands produce formatted output"
+          ],
+          "status": "complete"
+        }
+      ]
+    }
+  ],
+  "completed_at": "2026-03-15T18:00:00Z"
+}

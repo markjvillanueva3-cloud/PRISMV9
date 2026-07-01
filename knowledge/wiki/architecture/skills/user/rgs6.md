@@ -23,11 +23,12 @@ related:
 |-------|-------|
 | Name | `rgs6` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/rgs6.md` |
+| Source | `C:/Users/wompu/.claude/commands/rgs6.md` |
 | Model | default |
 | Tags | _(none)_ |
 
 ## Description (first paragraph)
+
 
 ---
 policy:

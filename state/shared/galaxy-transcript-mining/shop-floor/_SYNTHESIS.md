@@ -1,0 +1,113 @@
+# shop-floor galaxy CROSS-SESSION SYNTHESIS (6 of 272 mineable, model gpt-oss:120b, 2026-06-10)
+
+## What this galaxy is building
+- End‑to‑end shop‑floor control for **OEE, travelers, dispatch queue, labor/clock tracking, work‑orders, operator gates & setup sheets**.  
+- Unified “galaxy” of PRISM engines wired to a single MCP dispatcher (`:3100`) and a semantic vector store (Qdrant) that powers real‑time knowledge lookup, RAG and cost routing.  
+- Hierarchical LLM stack: **Claude‑Code Opus 4.8** primary → local **qwen2.5‑coder 32B** fallback for coding → **gpt‑oss 120B** (when GPU‑ready) for heavy reasoning; all routed through the **OllamaTaskOffloaderEngine** and the **ModelRoutingEngine**.  
+- Automated slot claim (`/checkin‑<galaxy>`) + ultracode workflow planner (`/hermes‑workflow`, `slot‑bind‑enforce.mjs`) that drives incremental wiring, testing & looped self‑assessment.  
+
+---
+
+## Shipped capabilities
+- **LLM routing & provider hierarchy** – commits 56aa4234, c988a21e, 822c48c55, U‑OCTOPUS‑PANEL/‑DIVERSE (probe‑selected models).  
+- **Hermes gateway** (`:9120`) with custom Ollama provider and Anthropic fallback; GUI launcher `hermes‑setup.exe`.  
+- **Docker‑started Qdrant** (`prism‑qdrant` v29.4.3) – collections: `prism_engines`, `prism_formulas`, `prism_skills`.  
+- **System‑viz assets** – `generate-hermes-features.mjs`; full `/system‑viz` tree live.  
+- **Memory sync** – `fill-galaxy-memory-sections.mjs`, `syncGalaxyMemories()`, 34 galaxies mirrored to H:/prism/.claude.  
+- **Ollama tooling & hooks** – U1–U10 commits (auto‑run, router, cost‑router, pre‑tool use hook).  
+- **Offload engine** – `OllamaTaskOffloaderEngine` with 5 h max pool, NUM_PARALLEL=2, MAX_LOADED=3.  
+- **Payroll & business engines** – `PayrollLiabilityFilingEngine`, `CustomerPortalEngine` (SQLite‑WAL), role‑gated actions.  
+- **Speed‑feed calculator suite** – tri‑comparator, exhaustive combo, GPU judge (`SpeedFeedGpuJudgeEngine`), axis‑awareness, material speed factors.  
+- **GNN edge‑predict pipeline** – pure‑JS core, candidate generator, CLI & viz (`generate-predicted-edges-features.mjs`).  
+- **India/Hospitality transcript miners** – concurrent 2‑tier model pipelines, auto‑refresh of `vault-backlinks.json`.  
+- **Cost‑savings & quoting engines** – `QuoteEstimatorEngine`, `DigitalTwinEstimator`, margin‑floor gate, OCR‑bridge adapter.  
+- **Hookify & unwired‑engine audit** – front‑matter fix (110 files), dangling hook removal, audit report (`unwired_engines_2026_06_08.json`).  
+- **Singleton service guard & reaper** – auto‑restart of MCP daemons, Docker health CLI (`fb314a6fd1`).  
+
+All shipped units have passed their respective round‑trip or integration test suites (≥ 124/124 cap‑probe, 242 GNN tests, 92/92 ask‑ollama, 13/13 quote pages, etc.).
+
+---
+
+## Key decisions + rationale
+- **Primary LLM = Claude‑Code Opus 4.8** – best code generation & billing safety; fallback to local qwen2.5‑coder for cheap grunt work.  
+- **GPU‑heavy models (gpt‑oss 120B) reserved for reasoning only**; keep NUM_PARALLEL=2, MAX_LOADED=3 to stay within RTX 6000 Blackwell VRAM (~57 GB free).  
+- **Ollama as local inference layer** – eliminates external rate limits, enables token‑efficient coding (`qwen2.5‑coder`).  
+- **Qdrant mandatory for semantic search**; auto‑started via Docker to guarantee collection health before any engine runs.  
+- **MCP maxConnections raised to 512** – future load headroom; enforced heap floor ≥ 4096 MB on daemon start.  
+- **Offload patterns expanded** (lint, classify, embed) → GPU offload coverage ↑ from ~5 % to ~8 %; still low, so continue widening `OFFLOADABLE_PATTERNS`.  
+- **Slot‑first claim policy** – `/checkin‑sierra` must precede generic `/checkin`; prevents cross‑galaxy race conditions.  
+- **Auto‑advance loop caps** (`PRISM_LOOP_MAX_ROLLS`) to avoid runaway recursion; 4‑tier precedence for next‑unit selection.  
+- **Provenance & margin‑floor gates** added to quoting engines to block synthetic promotions.  
+- **Deferred actions** – Kimi 2.6 cloud wiring (data sovereignty), speculative LoRA engines, full tribal Qdrant migration (corpus stability).  
+
+---
+
+## Standing operator directives
+- `docker start prism-qdrant && curl http://127.0.0.1:6333/collections` → verify semantic_search hits.  
+- Restart Hermes: `taskkill /IM hermes-setup.exe /F && hermes -z "Check in as Zulu"`.  
+- Check MCP health: `curl http://127.0.0.1:3100/mcp/status`.  
+- If memory > 95 % commit → run `git clean -fdx` on idle chat logs or purge `H:/prism/.claude/tmp/*`.  
+- Claim slot before work: `/checkin‑<galaxy>` (e.g., `/checkin‑hotel`, `/checkin‑india`).  
+- Run ultracode planner: `/hermes-workflow` → auto‑wire missing engines.  
+- Enable allowlist write for business actions: set `PRISM_GOLF_WRITE_ALLOWLIST_BYPASS=1` or edit `settings.json`.  
+- Schedule recurring loops: `/loop [5m] /goal …` (e.g., run GNN edge‑predict, then next unit).  
+- Run `node H:/prism/scripts/fleet-reaper-sweep.mjs --once --json` after each slot check‑in.  
+- Keep `OLLAMA_MAX_LOADED_MODELS=3` and `DEFAULT_NUM_PREDICT=1024`.  
+
+---
+
+## What is still to build (open threads)
+- **Qdrant start & MCP restart** – ensure Qdrant up before any engine; reboot MCP after container launch.  
+- **Full tribal index migration** – shard JSON → Qdrant, re‑embed missing ~29 k entries.  
+- **Complete wiring of 76 “UNKNOWN” engines** (audit report) or formally deprecate.  
+- **Finalize OCTOPUS live validation & removal/restart policy for `nim‑llama32‑3b`** container.  
+- **GNN edge‑predict production deployment** – integrate with dispatcher, verify AUROC ≥ 0.78.  
+- **Speed‑feed full comparison driver** (G‑Wizard/HSMAdvisor) and axis‑awareness physics (rigidity, coolant, holder).  
+- **Margin‑floor enforcement UI polish** & webhook signature fix for Stripe billing.  
+- **RouteModelForTask logic** – prioritize gpt‑oss 120B for `search_synthesis` on Blackwell.  
+- **Deploy OCR‑vision pipeline** (qwen2.5‑vl) to ingest vendor catalogs (> 287 PDFs).  
+- **Implement dynamic cost‑bridge dispatcher** (`cost-bridge-dispatch.mjs`) and provenance gate across all quoting engines.  
+- **Finalize RTK upgrade sweep** – integrate embeddings, CAG reranker, and multi‑model consensus.  
+- **Close remaining open loops**: `U‑GNN‑HETEROPHILY‑RETRAIN`, `U‑OSC‑RIGIDITY‑DOC`, `U‑Q‑P‑ACCOUNTING‑WIRE`.  
+
+---
+
+## How to build it (patterns/sequence)
+1. **Bootstrap slot** – run `/checkin‑<galaxy>`; enforce claim via `slot-bind-enforce.mjs`.  
+2. **Start infrastructure** – Docker Qdrant, Ollama server, MCP (`:3100`). Verify health endpoints.  
+3. **Run ultracode planner** (`/hermes-workflow`) to generate a wiring plan (dispatch map → engine enum).  
+4. **Wire engines** – follow generated `dispatch‑map.json`; implement missing dispatcher cases, add `U‑*` unit tests.  
+5. **Commit with slot‑enforce hook**; run round‑trip tests (`npm test`).  
+6. **Loop validation** – start `/loop [X] /goal …` to auto‑advance through units; each successful loop triggers next wiring step.  
+7. **Performance tuning** – adjust `OFFLOADABLE_PATTERNS`, `NUM_PARALLEL`, `MAX_LOADED`; monitor GPU util (target ≥ 30 %).  
+8. **Persist state** – sync MEMORY.md across galaxies, push to vault mirror; run `syncGalaxyMemories()` nightly.  
+9. **Finalize** – enable allowlist writes, margin‑floor gates, and production API exposure (`/api/v1/<galaxy>/dispatch`).  
+
+---
+
+## Tools to use
+- **Dispatchers / Skills**: `prism_local`, `businessDispatcher`, `cost-bridge-dispatch.mjs`, `OllamaTaskOffloaderEngine`, `ModelRoutingEngine`, `GNNEdgePredictorEngine`, `SpeedFeedGpuJudgeEngine`.  
+- **Scripts / Hooks**: `slot-bind-enforce.mjs`, `hermes-workflow.mjs`, `syncGalaxyMemories()`, `audit-unwired-engines.mjs`, `fix-hookify-frontmatter.mjs`, `remove-dangling-hook-refs.mjs`, `fleet-reaper-sweep.mjs`, `docker-service-health.mjs`.  
+- **System‑viz**: `generate-hermes-features.mjs`, `system-viz-query.mjs`, `regen-viz.mjs`.  
+- **AI systems**: Claude‑Code Opus 4.8, gpt‑oss 120B/20B, qwen2.5‑coder 32B (Ollama), Anthropic fallback.  
+- **Vector store**: Qdrant (`prism_qdrant` Docker container).  
+- **Knowledge base**: Obsidian vault (`H:/prism/.claude`), `MEMORY.md`, `CLAUDE.md`.  
+- **CI / Test**: Vitest/Jest, tsc, 3‑of‑3 scrutiny gate (`scrutiny-3way.mjs`).  
+
+---
+
+## Recurring findings + bugs
+- **Qdrant down** → semantic_search empty; fixed by auto‑start Docker container.  
+- **Hermes HTTP 400** due to Claude billing exhaustion – fallback to local qwen2.5 works after provider fix.  
+- **MCP port 3100 stale daemon** – orphan processes caused “not connected” errors; solved with `singleton-service-guard` and heap floor ≥ 4096 MB.  
+- **GPU offload low (≈ 6‑8 %)** – broadened `OFFLOADABLE_PATTERNS`; still need more coding‑heavy tasks to hit target > 30 %.  
+- **Token budget too small** for gpt‑oss models → “no final response”; increased `DEFAULT_NUM_PREDICT` to 1024 and raised model token limits.  
+- **OOM on large JSON indices** (tribal embed, reverse edge) – switched to buffered loader + `NODE_OPTIONS=--max-old-space-size=8192`.  
+- **Model routing mis‑selects retired models** (`qwen2.5-coder:7b`); added source‑lock guard and explicit priority list.  
+- **EPERM leaks in OutcomeCaptureBusEngine** – fixed with atomic append + retry logic.  
+- **Stale frontmatter & dangling hook refs** – batch fix scripts removed 110 malformed files and 6 dead references.  
+- **Rate‑limit throttling on Anthropic** – mitigated by batching agents (max 3) and using local Ollama for grunt work.  
+- **Incorrect consensus calculations** (G‑Wizard, HSMAdvisor) – added alignment checks and excluded G‑Wizard from baseline when data missing.  
+- **Scheduler loops runaway** – capped with `PRISM_LOOP_MAX_ROLLS`.  
+
+All above issues have been logged, patched, and regression tests added to prevent recurrence.

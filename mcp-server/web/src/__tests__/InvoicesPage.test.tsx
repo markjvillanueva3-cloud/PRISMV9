@@ -203,7 +203,7 @@ describe('InvoicesPage', () => {
     });
   });
 
-  it('keeps the PRISM AI copilot built into the invoices desk with persistent memory context', async () => {
+  it('keeps the Kienzle AI copilot built into the invoices desk with persistent memory context', async () => {
     mockListInvoices.mockResolvedValue({
       result: {
         invoices: [
@@ -229,8 +229,8 @@ describe('InvoicesPage', () => {
 
     await waitFor(() => {
       expect(screen.getByRole('heading', { name: 'Invoices' })).toBeDefined();
-      expect(screen.getByText(/PRISM AI copilot/i)).toBeDefined();
-      expect(screen.getByText(/Persistent PRISM memory/i)).toBeDefined();
+      expect(screen.getByText(/Kienzle AI copilot/i)).toBeDefined();
+      expect(screen.getByText(/Persistent Kienzle memory/i)).toBeDefined();
       expect(screen.getByText(/Safety-critical CNC manufacturing control system\./i)).toBeDefined();
       expect(screen.getByText(/Mounted listInvoices route/i)).toBeDefined();
     });

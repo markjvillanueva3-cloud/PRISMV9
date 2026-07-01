@@ -42,6 +42,51 @@ export interface LathePattern {
   safety_notes?: string[];
 }
 
+/**
+ * VERIFIED Okuma Multus B250 sub-spindle (SP2) part-transfer M/G codes.
+ *
+ * Source of truth = JM Die's OWN running programs on the actual machine (Mark,
+ * OKUMA MULTUS B250IIW, OSP-P300). These are the codes that physically run on the
+ * shop floor -- NOT a manual transcription, NOT a CAM default:
+ *   - "JM DIE/CNC OKUMA MULTUS/MARK'S WORKING SPINDLE GRAB-PULL-CUTOFF (SP2-Z=1.17).min" L21-67
+ *   - "JM DIE/CNC OKUMA MULTUS/MARK'S GRAB AND PULL PROGRAM (SP2-Z=1.17).min" L16-47
+ *
+ * These SUPERSEDE, for the Multus B250 CHUCKER, the generic collet codes used by
+ * PAT-005 / PAT-008 (M68/M69/M51/M102/M111 -- a collet-fed sub-spindle dialect) and
+ * the (wrong) M38/M39 sub-spindle tip carried by OkumaB250LatheMasterPostEngine. The
+ * B250 is a chuck machine: sub/main CHUCK clamp via M248/M249 + M83/M84, not collet.
+ *
+ * IMPORT these into the post engine -- never inline a sub-spindle M/G code (echo soul
+ * refuse `inline-dialect-or-feed-speed-constants`). Dwell is Okuma OSP `G4 F<seconds>`
+ * (NOT the Fanuc `G04 P<ms>`).
+ */
+export const MULTUS_B250_SUBSPINDLE_CODES = {
+  sub_chuck_clamp: "M248",            // CLAMP SUB CHUCK
+  sub_chuck_unclamp: "M249",          // UNCLAMP SUB CHUCK
+  main_chuck_clamp: "M83",            // CLAMP MAIN CHUCK
+  main_chuck_unclamp: "M84",          // UNCLAMP MAIN CHUCK
+  sub_interlock_release_on: "M247",   // SUB CHUCK INTERLOCK RELEASE ON
+  sub_interlock_release_off: "M246",  // SUB CHUCK INTERLOCK RELEASE OFF
+  main_interlock_release_on: "M185",  // MAIN CHUCK INTERLOCK RELEASE ON
+  main_interlock_release_off: "M184", // MAIN CHUCK INTERLOCK RELEASE OFF
+  sync_rotation_on: "M151",           // SYNCHRONIZED ROTATION ON (sub phase-locks to main)
+  sync_rotation_off: "M150",          // SYNCHRONIZED ROTATION OFF
+  chip_blast_on: "M51",               // CLEAN OUT CHIPS (air blast)  -- NB: aux M-code, NOT coolant
+  chip_blast_off: "M50",
+  // M289 / M288 bracket the chip-blast + approach in BOTH verified programs (a paired
+  // sub-spindle mode). Their exact OSP meaning is NOT confirmed against the manual, so
+  // they are reproduced VERBATIM to preserve the choreography Mark's machine runs safely
+  // -- emitting a strict subset would produce a sequence the real machine has never run.
+  sub_mode_on: "M289",                // (verified-present; purpose per Okuma manual -- unconfirmed)
+  sub_mode_off: "M288",               // (verified-present; purpose per Okuma manual -- unconfirmed)
+  sub_program_coord: "G141",          // SUB SPINDLE PROGRAM (machining-on-sub coordinate mode)
+  sub_axis: "W",                      // sub-spindle longitudinal axis word
+  plane_zx: "G18",                    // ZX turning plane
+  dwell_prefix: "G4 F",               // Okuma OSP dwell = G4 F<seconds> (NOT Fanuc G04 P<ms>)
+} as const;
+
+export type MultusB250SubSpindleCodes = typeof MULTUS_B250_SUBSPINDLE_CODES;
+
 export const MARKS_MULTUS_PATTERNS: LathePattern[] = [
   // ============================================================================
   // Macro Structure Patterns
@@ -327,6 +372,70 @@ G0 W[RETRACT]       (S2 RETRACT)`,
       "Verify spindle sync before grab",
       "Check S2 collet pressure adequate",
       "Confirm part-off complete before S2 retract",
+      "DIALECT NOTE: M68/M69/M102/M111 here are COLLET-machine sub-spindle codes. For the JM Multus B250 CHUCKER use PAT-015 (verified M248/M249 + M83/M84 + M151/M150) -- see MULTUS_B250_SUBSPINDLE_CODES.",
+    ],
+  },
+
+  {
+    id: "PAT-015",
+    name: "Multus B250 Sub-Spindle Grab-Pull-Cutoff (VERIFIED)",
+    category: "cutoff_technique",
+    description:
+      "VERIFIED Okuma Multus B250 chucker sub-spindle (SP2) transfer choreography, transcribed verbatim from JM Die's own running programs. Synchronized-rotation grab: sub chuck approaches on W, clamps (M248), main releases (M84), bar/part pull, main re-clamps (M83). Every chuck state-change is G4-dwell-guarded; interlock releases (M247/M185) bracket the transfer; M151/M150 sync the spindles. This is the source-of-truth for the B250 CHUCKER (supersedes PAT-005/PAT-008 collet codes for this machine).",
+    use_case:
+      "Part transfer / bar-pull on the Okuma Multus B250IIW for back-working or one-setup completion. Codes verified against the live JM machine.",
+    machine_type: "mill_turn",
+    controller: "okuma_osp",
+    variables: [
+      { name: "W (grab)", purpose: "Sub-spindle approach/grab position", unit: "in" },
+      { name: "W (bar-pull)", purpose: "Pull distance after sub clamps + main opens", unit: "in" },
+      { name: "W (return)", purpose: "Sub-spindle retract clearance", unit: "in" },
+      { name: "S (transfer rpm)", purpose: "Low synchronized transfer RPM", unit: "rpm" },
+    ],
+    // Transcribed from MARK'S GRAB AND PULL PROGRAM (SP2-Z=1.17).min L16-47 (bar-pull mode).
+    // Codes are the canonical MULTUS_B250_SUBSPINDLE_CODES; emitted at runtime by
+    // OkumaB250LatheMasterPostEngine.generateSubSpindleTransfer (parameterized W / RPM / mode).
+    template: `(SUBSPINDLE GRAB)
+M41
+G50 S[MAX_RPM]
+G18
+M247 (SUB CHUCK INTERLOCK RELEASE ON)
+M185 (MAIN CHUCK INTERLOCK RELEASE ON)
+M249 (UNCLAMP SUB CHUCK)
+G4 F1.
+G97 S[RPM] M4
+M151 (SYNCHRONIZED ROTATION ON)
+M51 (CLEAN OUT CHIPS)
+M289
+G4 F3.
+M50
+M288
+G0 W0.
+G1 W[GRAB_W] F25. (SUB APPROACH/GRAB)
+G4 F1.
+M248 (CLAMP SUB CHUCK)
+G4 F1.
+M84 (UNCLAMP MAIN CHUCK)
+G4 F1.
+G1 W[BAR_PULL_W] F25. (BAR PULL)
+M83 (CLAMP MAIN CHUCK)
+G4 F1.
+M249 (UNCLAMP SUB CHUCK)
+G4 F1.
+G0 W[RETURN_W] (SUB SPINDLE RETURN)
+M184 (MAIN CHUCK INTERLOCK RELEASE OFF)
+M246 (SUB CHUCK INTERLOCK RELEASE OFF)
+M150 (SYNCHRONIZED ROTATION OFF)`,
+    source_file: "JM DIE/CNC OKUMA MULTUS/MARK'S GRAB AND PULL PROGRAM (SP2-Z=1.17).min + MARK'S WORKING SPINDLE GRAB-PULL-CUTOFF (SP2-Z=1.17).min",
+    line_range: "L16-47 (bar-pull) / L21-67 (cutoff-transfer)",
+    part_types: ["bar_work", "screw", "shaft", "casing", "pin"],
+    material_groups: ["P", "M", "K", "N", "S", "H"],
+    safety_notes: [
+      "NO-DROP INVARIANT: the sub chuck MUST clamp (M248) and dwell BEFORE the main chuck unclamps (M84) -- never release both chucks together.",
+      "Every chuck clamp/unclamp is followed by a G4 dwell so the chuck physically actuates before the next move.",
+      "Spindle synchronized rotation (M151) MUST be ON before the sub approaches a rotating part, and only OFF (M150) after the transfer completes.",
+      "Interlock releases (M247/M185 on, M246/M184 off) bracket the whole transfer.",
+      "Dwell is Okuma OSP G4 F<seconds> -- not Fanuc G04 P<ms>.",
     ],
   },
 

@@ -106,8 +106,11 @@ impact:
     - downstream commit gating (3-of-3 still required at Stop)
   bounded: true
   reversible: true   # advisory output only; never auto-mutates code
+composes_with:
+  - "/forge"
+  - "/milestone"
+  - "/scrutiny-replay"
 ---
-
 # /scrutiny-batch — Parallel Per-File Reviewer Dispatch
 
 > **Goal:** turn the per-file scrutiny gate's serial 2-reviewers-per-file pattern into a single parallel block across N files. Cuts scrutiny wall-time roughly by `N` for N tightly-coupled files in the same session.

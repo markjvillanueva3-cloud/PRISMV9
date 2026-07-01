@@ -1,0 +1,231 @@
+{
+  "id": "MXU-MS3",
+  "version": "1.0.0",
+  "title": "Persistent Memory Fabric",
+  "brief": "Map current memory stores. Define memory classes (session/durable/benchmark/failure/feature/product/course). Establish promotion criteria, retrieval ranking, and cold-start recovery benchmarks.",
+  "created_at": "2026-03-25T14:30:00Z",
+  "created_by": "claude-opus-4.6",
+  "track": "MXU",
+  "track_name": "Max Utilization",
+  "status": "not_started",
+  "phases": [
+    {
+      "id": "P0",
+      "title": "Memory Store Mapping & Classification",
+      "sessions": "1-2",
+      "units": [
+        {
+          "id": "P0-U01",
+          "title": "Map all current memory stores: MEMORY.md, state/, benchmarks/, telemetry/, codebase-memory graph",
+          "effort": 50,
+          "dependencies": [],
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit"
+          ],
+          "description": "Map all current memory stores: MEMORY.md, state/, benchmarks/, telemetry/, codebase-memory graph — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P0-U02",
+          "title": "Define 7 memory classes: session/durable/benchmark/failure/feature/product/course",
+          "effort": 60,
+          "dependencies": [
+            "P0-U01"
+          ],
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit"
+          ],
+          "description": "Define 7 memory classes: session/durable/benchmark/failure/feature/product/course — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P0-U03",
+          "title": "Establish promotion criteria: when session memory becomes durable, when failure becomes pattern",
+          "effort": 60,
+          "dependencies": [
+            "P0-U02"
+          ],
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit"
+          ],
+          "description": "Establish promotion criteria: when session memory becomes durable, when failure becomes pattern — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "P1",
+      "title": "Retrieval & Recovery",
+      "sessions": "1-2",
+      "units": [
+        {
+          "id": "P1-U01",
+          "title": "Implement retrieval ranking: priority order for memory classes per workflow type",
+          "effort": 70,
+          "dependencies": [
+            "P0-U03"
+          ],
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit"
+          ],
+          "description": "Implement retrieval ranking: priority order for memory classes per workflow type — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P1-U02",
+          "title": "Build cold-start recovery protocol: what to load first, progressive enrichment",
+          "effort": 60,
+          "dependencies": [
+            "P1-U01"
+          ],
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit"
+          ],
+          "description": "Build cold-start recovery protocol: what to load first, progressive enrichment — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P1-U03",
+          "title": "Benchmark cold-start recovery: target <=3 exchanges to reach productive state",
+          "effort": 50,
+          "dependencies": [
+            "P1-U02"
+          ],
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit"
+          ],
+          "description": "Benchmark cold-start recovery: target <=3 exchanges to reach productive state — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        }
+      ]
+    }
+  ],
+  "dependencies": [
+    "MXU-MS1"
+  ],
+  "exit_conditions": [
+    "All memory stores mapped and classified",
+    "Promotion criteria defined for each memory class transition",
+    "Retrieval ranking implemented per workflow type",
+    "Cold-start recovery benchmarked at <=3 exchanges"
+  ],
+  "spec_path": "docs/superpowers/specs/2026-03-25-mcp-max-utilization-roadmap-design.md",
+  "smart_config": {
+    "role": "implementer + reviewer",
+    "model": "sonnet",
+    "effort": "HIGH",
+    "context_budget": "65%"
+  },
+  "mcp_lifecycle": {
+    "session_start": [
+      "prism_session:context_boot",
+      "prism_session:dispatcher_map",
+      "prism_session:memory_recall",
+      "prism_session:system_snapshot",
+      "prism_session:action_search"
+    ],
+    "during_work": [
+      "prism_session:auto_checkpoint",
+      "prism_session:tool_route_best",
+      "prism_session:wip_capture"
+    ],
+    "session_end": [
+      "prism_session:memory_save",
+      "prism_session:system_snapshot",
+      "prism_session:checkpoint_enhanced"
+    ]
+  },
+  "forge_triple": {
+    "protective_hook": "mxu-ms3-gate",
+    "mcp_action": "prism_mxu:mxu_ms3_run",
+    "skill_command": "/mxu-ms3",
+    "ownership": "DECLARED — BUILT in terminal unit of this milestone"
+  },
+  "feature_cascade": {
+    "new_hooks": [
+      "mxu-ms3-gate"
+    ],
+    "new_actions": [
+      "mxu_ms3_run"
+    ],
+    "new_skills": [
+      "/mxu-ms3"
+    ],
+    "available_to": [
+      "downstream CAMX milestones",
+      "prism app consumers"
+    ]
+  },
+  "knowledge_sources": {
+    "engines": [
+      "ENGINE_DIGEST.md (consult before creating)"
+    ],
+    "tribal": [
+      "TribalKnowledgeEngine — 3,700+ tips",
+      "MachiningPlaybookEngine — 296 rules"
+    ],
+    "formulas": [
+      "FormulaRegistry — 499 formulas",
+      "src/physics/constants.ts — canonical"
+    ],
+    "reference": [
+      "EXTERNAL-REFERENCE-PROGRAMS-INDEX.md",
+      "MaterialRegistry",
+      "MachineRegistry",
+      "ToolCatalogEngine (95,608 tools)"
+    ]
+  },
+  "intent": "Map current memory stores. Define memory classes (session/durable/benchmark/failure/feature/product/course). Establish promotion criteria, retrieval ranking, and cold-start recovery benchmarks.",
+  "compact_checkpoint": "every 3 units — auto-triggered by hook",
+  "enforcement_hooks_active": [
+    "physics agent",
+    "wiring agent",
+    "constants checker",
+    "stub detector",
+    "test quality",
+    "forge-triple gate",
+    "session audit agent"
+  ]
+}

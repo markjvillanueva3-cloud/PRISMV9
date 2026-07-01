@@ -24,6 +24,7 @@
 
 import * as fs from "fs";
 import * as path from "path";
+import { stripLoneSurrogates } from "../../scripts/lib/safe-truncate.mjs";
 
 const REPO_ROOT = path.resolve(process.env.PRISM_ROOT ?? "H:/prism");
 const MCP_SRC = path.join(REPO_ROOT, "mcp-server", "src");
@@ -175,7 +176,7 @@ function main() {
   // SessionStart hooks emit { additionalContext: string } on stdout.
   // Also include the raw snapshot for downstream test consumption.
   console.log(JSON.stringify({
-    additionalContext: context,
+    additionalContext: stripLoneSurrogates(context),
     prismAwarenessSnapshot: snapshot,
     snapshotDurationMs: elapsed,
   }));

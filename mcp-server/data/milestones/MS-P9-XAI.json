@@ -1,0 +1,188 @@
+{
+  "id": "MS-P9-XAI",
+  "title": "WEDM Explainability Surface",
+  "track": "WEDM-CONSOLIDATED",
+  "phase": "P9",
+  "status": "not_started",
+  "created": "2026-04-16",
+  "rgs_version": "v10",
+  "schemaVersion": 1,
+  "philosophy": "Operator sees WHY a prediction was made and can correct it — the system learns from the correction.",
+  "total_units": 3,
+  "completed_units": 0,
+  "sessions": 1,
+  "dependencies": [
+    "MS-P4-DL-CORE",
+    "MS-P4-DL-PRED",
+    "MS-P5-GNN"
+  ],
+  "omega_target": 1,
+  "svi_delta_target": 0.005,
+  "knowledge_sources": {
+    "engines": [
+      "WEDMReasoningExplainEngine (from MS-P5-GNN)",
+      "WEDMLoRAAdapterEngine (from MS-P4-DL-CORE)",
+      "WEDMJobOutcomeEngine (from MS-P4-DL-CORE)"
+    ]
+  },
+  "smart_config": {
+    "role": "UIEngineer+AIEngineer",
+    "model": "opus",
+    "effort": "MAX",
+    "context_budget_pct": 70
+  },
+  "skills": [
+    "/forge-wiring",
+    "/wedm-explain",
+    "/wedm-feedback",
+    "/test"
+  ],
+  "plugins": [
+    "Vitest MCP",
+    "ESLint MCP"
+  ],
+  "units": [
+    {
+      "id": "U-P9-XAI-01",
+      "title": "WEDMExplainPanel React component",
+      "files_created": [
+        "mcp-server/web/src/components/wedm/WEDMExplainPanel.tsx"
+      ],
+      "exit_criteria": [
+        "component renders 'Node #X (evidence programs: A, B, C)' for a test prediction",
+        "calls P5 WEDMReasoningExplainEngine via prism_edm:wedm_explain_prediction",
+        "wedm-xai-required hook green",
+        "≥ 10 test cases"
+      ],
+      "description": "WEDMExplainPanel React component — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ]
+    },
+    {
+      "id": "U-P9-XAI-02",
+      "title": "WEDMJobFeedbackPanel",
+      "files_created": [
+        "mcp-server/web/src/components/wedm/WEDMJobFeedbackPanel.tsx"
+      ],
+      "exit_criteria": [
+        "post-job form collects actual cycle time, Ra, wire breaks",
+        "POSTs to prism_edm:wedm_learn_from_job",
+        "entry appears in WEDM_JOB_HISTORY within 1s",
+        "≥ 10 test cases"
+      ],
+      "description": "WEDMJobFeedbackPanel — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ]
+    },
+    {
+      "id": "U-P9-XAI-03",
+      "title": "WEDMConfidenceScorePanel",
+      "files_created": [
+        "mcp-server/web/src/components/wedm/WEDMConfidenceScorePanel.tsx"
+      ],
+      "exit_criteria": [
+        "surfaces rolling 30-job confidence + LoRA correction magnitude",
+        "flags 'model drift — review' if correction > 20%",
+        "drift events written to WEDM_DRIFT_LOG",
+        "≥ 10 test cases"
+      ],
+      "description": "WEDMConfidenceScorePanel — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ]
+    }
+  ],
+  "forge_triple": {
+    "hook": {
+      "name": "wedm-xai-required",
+      "description": "blocks any prediction UI that does not call Explain engine",
+      "built_in": "U-P9-XAI-01"
+    },
+    "actions": [
+      {
+        "name": "prism_edm:wedm_explain_prediction",
+        "built_in": "U-P9-XAI-01"
+      },
+      {
+        "name": "prism_edm:wedm_drift_report",
+        "built_in": "U-P9-XAI-03"
+      }
+    ],
+    "skills": [
+      {
+        "name": "/wedm-explain",
+        "built_in": "U-P9-XAI-01"
+      },
+      {
+        "name": "/wedm-feedback",
+        "built_in": "U-P9-XAI-02"
+      }
+    ]
+  },
+  "exit_gate": {
+    "criteria": [
+      "explain panel live on every predictor",
+      "feedback panel persists to WEDM_JOB_HISTORY",
+      "drift panel surfaces LoRA correction"
+    ],
+    "omega_target": 1,
+    "svi_delta": "+0.5%"
+  },
+  "feature_cascade": {
+    "new_hooks": [
+      "wedm-xai-required"
+    ],
+    "new_actions": [
+      "prism_edm:wedm_explain_prediction",
+      "prism_edm:wedm_drift_report"
+    ],
+    "new_skills": [
+      "/wedm-explain",
+      "/wedm-feedback"
+    ],
+    "available_to": [
+      "P10"
+    ]
+  },
+  "mcp_lifecycle": {
+    "session_start": [
+      "prism_session:context_boot",
+      "prism_session:dispatcher_map",
+      "prism_session:memory_recall",
+      "prism_session:system_snapshot",
+      "prism_session:action_search"
+    ],
+    "during_work": [
+      "prism_session:auto_checkpoint",
+      "prism_session:tool_route_best",
+      "prism_session:wip_capture"
+    ],
+    "session_end": [
+      "prism_session:memory_save",
+      "prism_session:system_snapshot",
+      "prism_session:checkpoint_enhanced"
+    ]
+  },
+  "intent": "Deliver WEDM Explainability Surface per roadmap spec.",
+  "compact_checkpoint": "every 3 units — auto-triggered by hook",
+  "enforcement_hooks_active": [
+    "physics agent",
+    "wiring agent",
+    "constants checker",
+    "stub detector",
+    "test quality",
+    "forge-triple gate",
+    "session audit agent"
+  ]
+}

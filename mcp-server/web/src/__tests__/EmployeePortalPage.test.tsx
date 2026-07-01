@@ -67,7 +67,7 @@ describe('EmployeePortalPage', () => {
 
   it('pushes hot jobs to the top of employee shift priorities', async () => {
     window.localStorage.setItem(
-      'prism.hot-jobs.v1',
+      'kienzle.hot-jobs.v1',
       JSON.stringify([
         {
           jobId: 'JOB-HOT-1',

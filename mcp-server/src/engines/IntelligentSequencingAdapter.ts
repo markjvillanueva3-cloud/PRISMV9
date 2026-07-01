@@ -47,7 +47,7 @@ import { pipelineDecisionOrchestratorEngine } from "./PipelineDecisionOrchestrat
 import {
   intelligentSequencingEngine,
   type SequenceOperation,
-  type SequenceResult,
+  type SequencingResult,
 } from "./IntelligentSequencingEngine.js";
 
 // ────────────────────────────────────────────────────────────────────────
@@ -98,7 +98,7 @@ export interface OrchestratedSequenceRequest {
 
 export interface OrchestratedSequenceDecision {
   strategy: SequencingStrategy;
-  result: SequenceResult;
+  result: SequencingResult;
   tool_change_savings_pct: number;
   thermal_gaps_inserted: number;
   decision: any;
@@ -215,7 +215,7 @@ function countToolChanges(ops: SequenceOperation[]): number {
 function executeStrategy(
   operations: SequenceOperation[],
   candidate: SequencingCandidate,
-): SequenceResult {
+): SequencingResult {
   const full = intelligentSequencingEngine.sequence(operations);
 
   if (candidate.strategy === "MINIMAL" || candidate.strategy === "TOOL_GROUPED") {
@@ -283,7 +283,7 @@ function executeStrategy(
 
 function score(
   candidate: SequencingCandidate,
-  result: SequenceResult,
+  result: SequencingResult,
   req: OrchestratedSequenceRequest,
 ): Record<string, number> {
   const originalChanges = countToolChanges(req.operations);
@@ -339,16 +339,16 @@ function score(
   };
 }
 
-function emptyResult(): SequenceResult {
+function emptyResult(): SequencingResult {
   return {
     operations: [],
     rules_applied: [],
     thermal_gaps_inserted: 0,
     probe_points_inserted: 0,
     tool_changes: 0,
-    tool_changes_saved: 0,
-    rationale: ["empty operation list"],
+    tool_change_savings_pct: 0,
     sequence_quality_score: 0,
+    warnings: ["empty operation list"],
   };
 }
 

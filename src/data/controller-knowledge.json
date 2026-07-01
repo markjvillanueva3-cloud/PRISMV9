@@ -1,0 +1,272 @@
+[
+  {
+    "id": "ctrl-001",
+    "category": "controller",
+    "subcategory": "heidenhain-tnc640",
+    "title": "TNC 640 TCPM vs M128 for 5-axis tool orientation",
+    "content": "The TNC 640 offers TCPM (Tool Center Point Management) as the improved replacement for M128. TCPM prevents contour gouging during 5-axis simultaneous machining by maintaining the tool tip position when rotary axes move. Key difference: M128 is the legacy function from iTNC 530; TCPM adds configurable approach behavior (FUNCTION TCPM with options for AXIS POS, AXIS SPAT). Always use TCPM on TNC 640 — M128 still works but TCPM gives finer control over interpolation between start and end orientations. Deactivate with M129.",
+    "applies_to": { "controllers": ["Heidenhain TNC 640"], "machines": ["Hermle C42U", "Hermle C52U", "Soraluce", "Kern Micro"] },
+    "tags": ["controller", "heidenhain", "5-axis", "TCPM", "M128", "tool-orientation"]
+  },
+  {
+    "id": "ctrl-002",
+    "category": "controller",
+    "subcategory": "heidenhain-tnc640",
+    "title": "TNC 640 Cycle 32 TOLERANCE for HSM optimization",
+    "content": "Cycle 32 TOLERANCE is critical for balancing accuracy vs speed on the TNC 640. Set T (tolerance) value based on operation: roughing 0.05-0.1mm for maximum feed, finishing 0.002-0.01mm for surface quality. The cycle adjusts internal contour filtering and jerk limiting. Also accepts HSC MODE parameter: 0=off, 1=contour finish (prioritizes accuracy), 2=surface finish (prioritizes smoothness). Always call Cycle 32 before the toolpath section it applies to, and reset it (CYCL DEF 32.0 TOLERANCE with T=0) when switching operations.",
+    "applies_to": { "controllers": ["Heidenhain TNC 640", "Heidenhain iTNC 530"], "machines": ["Hermle C42U", "Hermle C52U", "Kern Micro"] },
+    "tags": ["controller", "heidenhain", "HSM", "tolerance", "cycle-32", "surface-finish"]
+  },
+  {
+    "id": "ctrl-003",
+    "category": "controller",
+    "subcategory": "heidenhain-tnc640",
+    "title": "TNC 640 Dynamic Collision Monitoring (DCM)",
+    "content": "DCM monitors the full work envelope in ALL operating modes (auto, manual, handwheel) and stops motion before collision. Unlike CAM-based collision checking, DCM uses the actual machine kinematic model with real-time tool/holder geometry. Critical setup: tool and holder dimensions must be accurately defined in the tool table (columns DL, DR, R2 plus holder definition). DCM will NOT protect against workpiece collisions unless a workpiece blank is defined via Cycle 20/Q-parameters. Performance impact: DCM can reduce rapid traverse speeds by 5-15% due to look-ahead calculations.",
+    "applies_to": { "controllers": ["Heidenhain TNC 640"], "machines": ["Hermle C42U", "Hermle C52U"] },
+    "tags": ["controller", "heidenhain", "collision-avoidance", "DCM", "safety"]
+  },
+  {
+    "id": "ctrl-004",
+    "category": "controller",
+    "subcategory": "heidenhain-tnc640",
+    "title": "TNC 640 KinematicsOpt for rotary axis calibration",
+    "content": "KinematicsOpt (Cycle 451-453) automatically measures and compensates rotary/swivel axis center-of-rotation errors. Run KinematicsOpt after machine warm-up or after a crash/heavy cut that may have shifted kinematics. Cycle 451 measures all rotary axes, Cycle 452 measures a specific axis, Cycle 453 presets. Results are written directly to the machine's kinematic description. Typical use: run at shift start on 5-axis machines to ensure <5 micron TCP accuracy. Requires a calibrated touch probe (typically TS 460 or TS 760).",
+    "applies_to": { "controllers": ["Heidenhain TNC 640"], "machines": ["Hermle C42U", "Hermle C52U", "Kern Micro"] },
+    "tags": ["controller", "heidenhain", "5-axis", "calibration", "KinematicsOpt", "probing"]
+  },
+  {
+    "id": "ctrl-005",
+    "category": "controller",
+    "subcategory": "heidenhain-itnc530",
+    "title": "iTNC 530 limitations vs TNC 640 — migration awareness",
+    "content": "The iTNC 530 is end-of-life (no new development). Key limitations vs TNC 640: (1) Combined feed/rapid override on single knob — can accidentally override rapids when adjusting feed; (2) No integrated turning support; (3) 3D simulation is basic compared to TNC 640's full 3D workpiece simulation; (4) Some Cycle 32 options missing (no HSC MODE parameter on older firmware); (5) No Cycle 444 for 3D point probing; (6) Touch probe table supports only one probe vs TNC 640's multi-probe tables. Programs transfer forward to TNC 640 with minor changes (TCPM syntax, some cycle parameters). Always test migrated programs in simulation first.",
+    "applies_to": { "controllers": ["Heidenhain iTNC 530"], "machines": ["Hermle C30U", "Hermle C40U", "legacy Hermle"] },
+    "tags": ["controller", "heidenhain", "iTNC530", "migration", "legacy", "limitations"]
+  },
+  {
+    "id": "ctrl-006",
+    "category": "controller",
+    "subcategory": "heidenhain-tnc640",
+    "title": "Heidenhain Klartext vs ISO programming — when to use which",
+    "content": "TNC 640 supports both Klartext (conversational) and DIN/ISO G-code. Klartext is preferred for shop-floor programming: plain-text syntax (L X+50 Y+30 R0 F500 M3), built-in cycle calls, and FK free-contour programming for incomplete drawings. ISO mode is needed when importing CAM-posted code. CRITICAL: Do not mix Klartext and ISO blocks in the same program — use separate programs and call ISO programs as subprograms from Klartext via CALL PGM. Klartext programs use .H extension, ISO programs use .I extension. Post processors must output to the correct format.",
+    "applies_to": { "controllers": ["Heidenhain TNC 640", "Heidenhain iTNC 530"], "machines": ["Hermle", "Soraluce", "Kern"] },
+    "tags": ["controller", "heidenhain", "Klartext", "ISO", "programming-language"]
+  },
+  {
+    "id": "ctrl-007",
+    "category": "controller",
+    "subcategory": "heidenhain-tnc640",
+    "title": "TNC 640 3D-ToolComp for tool radius compensation in 5-axis",
+    "content": "3D-ToolComp compensates for actual vs nominal tool radius during 3D surface finishing. Unlike standard 2D tool radius compensation (RL/RR), 3D-ToolComp uses surface normal vectors from the CAM system (output as NX/NY/NZ in ISO or as 3D-ROT in Klartext). This enables automatic re-machining with a slightly different tool diameter without re-posting from CAM. Setup: define actual tool radius in tool table (DR column = deviation from nominal). The TNC applies the delta automatically along the surface normal. Essential for tight-tolerance mold finishing.",
+    "applies_to": { "controllers": ["Heidenhain TNC 640"], "machines": ["Hermle C42U", "Kern Micro", "Soraluce"] },
+    "tags": ["controller", "heidenhain", "5-axis", "tool-compensation", "3D-ToolComp", "mold"]
+  },
+  {
+    "id": "ctrl-008",
+    "category": "controller",
+    "subcategory": "haas-ngc",
+    "title": "Haas G187 accuracy/speed control for HSM",
+    "content": "G187 controls the trade-off between accuracy and speed on Haas NGC machines. P1=rough (fastest, least accurate), P2=medium, P3=finish (slowest, most accurate). E value sets custom tolerance in inches (e.g., E0.0005). For HSM: use G187 P1 E0.005 for roughing (max MRR), G187 P3 E0.0002 for finishing (best surface). G187 dramatically affects 3D surface quality — forgetting to switch from P1 to P3 before finishing is a common cause of poor surface finish on Haas machines. G187 is modal and persists until changed or reset.",
+    "applies_to": { "controllers": ["Haas NGC"], "machines": ["Haas VF-2", "Haas VF-4", "Haas UMC-750", "Haas UMC-1000"] },
+    "tags": ["controller", "haas", "HSM", "G187", "surface-finish", "accuracy"]
+  },
+  {
+    "id": "ctrl-009",
+    "category": "controller",
+    "subcategory": "haas-ngc",
+    "title": "Haas G150 general pocket milling — mini-CAM in G-code",
+    "content": "G150 is Haas's built-in pocket milling cycle — essentially a mini-CAM system in G-code. Define pocket boundary as a sub-program with line/arc moves, then G150 generates roughing toolpaths with stepover. CRITICAL: G150 requires a pre-drilled hole at full pocket depth for cutter entry — it will NOT ramp or helical-enter. Drill or helical-interpolate the entry hole before calling G150. Parameters: P (subprogram number), D (tool diameter offset), I (stepover), J (overlap), K (number of finishing passes). Useful for simple pockets when CAM is unavailable.",
+    "applies_to": { "controllers": ["Haas NGC"], "machines": ["Haas VF series", "Haas UMC series"] },
+    "tags": ["controller", "haas", "G150", "pocket-milling", "conversational"]
+  },
+  {
+    "id": "ctrl-010",
+    "category": "controller",
+    "subcategory": "haas-ngc",
+    "title": "Haas macro look-ahead gotcha — G103 P1 for variable reads",
+    "content": "Haas NGC look-ahead can cause macro variables to be read/evaluated before the intended motion block executes. This is critical when reading probe results or checking I/O states. The control processes macro lines ahead of actual motion. Fix: use G103 P1 to limit look-ahead to 1 block when reading macro variables that depend on completed motion (e.g., after G65 probe calls). Reset with G103 (no P) after the critical section. Also use G04 P0 (dwell zero) as a look-ahead stop before reading probe results stored in macro variables (#1-#33 or system variables).",
+    "applies_to": { "controllers": ["Haas NGC"], "machines": ["all Haas mills and lathes"] },
+    "tags": ["controller", "haas", "macro", "look-ahead", "G103", "probing", "gotcha"]
+  },
+  {
+    "id": "ctrl-011",
+    "category": "controller",
+    "subcategory": "haas-ngc",
+    "title": "Haas probing setup requirements and WIPS integration",
+    "content": "Haas probing requires multiple options enabled via unlock codes: spindle orientation, macros (Setting 9), coordinate rotation and scaling. The Renishaw 9000-series programs must be loaded. NGC introduced WIPS (Wireless Intuitive Probe System) which simplifies probe setup through guided dialogs. Key settings: Setting 59 (probe diameter), Setting 65 (probe overtravel). Probe results stored in macro variables #140-#199 (Renishaw) or system variables. Always verify probe stylus calibration ring diameter matches Setting 119. Tool setter requires separate calibration macro (O09995).",
+    "applies_to": { "controllers": ["Haas NGC"], "machines": ["all Haas mills"] },
+    "tags": ["controller", "haas", "probing", "WIPS", "Renishaw", "setup"]
+  },
+  {
+    "id": "ctrl-012",
+    "category": "controller",
+    "subcategory": "mazak-mazatrol",
+    "title": "MAZATROL conversational vs EIA/ISO — interoperability",
+    "content": "MAZATROL supports both conversational and EIA/ISO (G-code) programming. Key interoperability: a G-code program can call a MAZATROL conversational program as a subroutine, enabling mixed-mode workflows. Use conversational for simple prismatic features, probing, and tool measurement; use EIA/ISO for CAM-posted complex toolpaths. GOTCHA: M11 on Mazak means 'Spindle Tool Unclamp' — on most Fanuc machines it means 'Table Unclamp (4th axis)'. This is a critical safety difference when transferring programs. G53.5 (MAZATROL coordinate system) avoids work offset conflicts in conversational programs.",
+    "applies_to": { "controllers": ["Mazak MAZATROL SmoothAi", "Mazak MAZATROL SmoothX", "Mazak MAZATROL SmoothG", "Mazak MAZATROL SmoothEz"], "machines": ["Mazak INTEGREX", "Mazak VARIAXIS", "Mazak VTC", "Mazak QT"] },
+    "tags": ["controller", "mazak", "MAZATROL", "conversational", "EIA-ISO", "M11-gotcha"]
+  },
+  {
+    "id": "ctrl-013",
+    "category": "controller",
+    "subcategory": "mazak-mazatrol",
+    "title": "MAZATROL Intelligent Pocket Milling (IPM) for high-efficiency roughing",
+    "content": "IPM maintains constant tool engagement angle and chip load throughout pocket roughing, similar to CAM-based adaptive/trochoidal strategies. Benefits: up to 35% faster cycle time, full utilization of machine power, extended tool life on difficult materials. IPM is available in conversational mode — no CAM system needed. The tool follows a continuous spiral-like path avoiding sudden engagement changes. Best for: Inconel, titanium, hardened steel pockets where constant chip load prevents chatter and tool breakage. Pair with Mazak's AI chatter detection (SmoothAi) for automatic feed/speed adjustment.",
+    "applies_to": { "controllers": ["Mazak MAZATROL SmoothAi", "Mazak MAZATROL SmoothX", "Mazak MAZATROL SmoothG"], "machines": ["Mazak VARIAXIS", "Mazak VTC", "Mazak INTEGREX"] },
+    "tags": ["controller", "mazak", "IPM", "high-efficiency", "roughing", "adaptive"]
+  },
+  {
+    "id": "ctrl-014",
+    "category": "controller",
+    "subcategory": "mazak-mazatrol",
+    "title": "MAZATROL Smooth Machining Configuration (SMC) tuning",
+    "content": "SMC adjusts servo parameters based on the type of machining operation. It optimizes acceleration/deceleration curves, corner behavior, and feed-rate limiting per operation type. Available modes typically include: high-speed (roughing), high-accuracy (finishing), and balanced. On SmoothAi, SMC integrates with AI-based chatter suppression — a vibration sensor detects chatter and AI automatically adjusts spindle speed and feed. CRITICAL: SMC settings interact with CAM tolerance settings. If CAM outputs tight chord tolerance AND SMC is set to high-accuracy, feed rates may drop dramatically. Coordinate CAM and SMC settings together.",
+    "applies_to": { "controllers": ["Mazak MAZATROL SmoothAi", "Mazak MAZATROL SmoothX", "Mazak MAZATROL SmoothG"], "machines": ["Mazak VARIAXIS", "Mazak VTC", "Mazak INTEGREX"] },
+    "tags": ["controller", "mazak", "SMC", "smooth-machining", "AI", "chatter"]
+  },
+  {
+    "id": "ctrl-015",
+    "category": "controller",
+    "subcategory": "mazak-mazatrol",
+    "title": "MAZATROL M-code and G-code documentation is buried — search tips",
+    "content": "Mazak typically buries their G/M-code reference tables deep in the middle of programming manuals, NOT in the table of contents or index. You must search through the manual to find them. Key Mazak-specific M-codes: M20-M29 for robot integration, M11 for spindle tool unclamp (NOT table unclamp like Fanuc). MAZATROL G-codes are Fanuc-compatible for standard codes (G00-G04, G17-G19, G28, G40-G43, G54-G59, G80-G89) but machine-specific M-codes are heavily customized. Always request the specific machine's M-code list from the dealer at purchase time.",
+    "applies_to": { "controllers": ["Mazak MAZATROL SmoothAi", "Mazak MAZATROL SmoothX", "Mazak MAZATROL SmoothG", "Mazak MAZATROL SmoothEz"], "machines": ["all Mazak machines"] },
+    "tags": ["controller", "mazak", "M-codes", "documentation", "reference"]
+  },
+  {
+    "id": "ctrl-016",
+    "category": "controller",
+    "subcategory": "okuma-osp",
+    "title": "Okuma OSP Thermo-Friendly Concept — skip warm-up cycles",
+    "content": "Okuma's Thermo-Friendly Concept combines machine design (symmetric thermal growth paths) with TAS (Thermal Active Stabilizer) software: TAS-S for spindle and TAS-C for structure. The system compensates for thermal deformation in real-time, eliminating the need for traditional machine warm-up cycles. Dimensional stability is maintained even during 8+ hour unattended runs with varying ambient temperatures. This means: (1) No need for warm-up programs at shift start; (2) First part accuracy equals tenth-part accuracy; (3) Weekend restart doesn't require settling time. Verify TAS is enabled in OSP parameters — some shops accidentally disable it.",
+    "applies_to": { "controllers": ["Okuma OSP-P300", "Okuma OSP-P500"], "machines": ["Okuma GENOS", "Okuma MB series", "Okuma MULTUS"] },
+    "tags": ["controller", "okuma", "thermal", "TAS", "warm-up", "accuracy"]
+  },
+  {
+    "id": "ctrl-017",
+    "category": "controller",
+    "subcategory": "okuma-osp",
+    "title": "Okuma Collision Avoidance System (CAS) — real-time 3D protection",
+    "content": "Okuma CAS creates a real-time 3D virtual machine running milliseconds ahead of actual motion. It detects pending collisions and stops the machine before impact. CAS works in ALL modes: auto, MDI, manual jog, and handwheel. Setup requirements: accurate 3D models of tooling, holders, fixtures, and workpiece blank must be defined in the control. GOTCHA: CAS only protects against what it knows — if fixture or workpiece models are incomplete, collisions with undefined geometry will NOT be caught. Update the workpiece model as material is removed (or use a conservative bounding box). CAS adds minimal processing overhead (<2% cycle time increase).",
+    "applies_to": { "controllers": ["Okuma OSP-P300", "Okuma OSP-P500"], "machines": ["Okuma GENOS", "Okuma MB series", "Okuma MULTUS", "Okuma MU series"] },
+    "tags": ["controller", "okuma", "CAS", "collision-avoidance", "safety", "3D-model"]
+  },
+  {
+    "id": "ctrl-018",
+    "category": "controller",
+    "subcategory": "okuma-osp",
+    "title": "Okuma Super-NURBS for high-speed curved surface machining",
+    "content": "Super-NURBS on Okuma OSP controls processes curved surfaces using native NURBS interpolation rather than short-line-segment approximation. Benefits: smoother surface finish, faster cycle times (fewer blocks to process), reduced axis reversal marks. CAM must output NURBS format (G06.2 on Okuma) rather than G01 line segments. Not all CAM systems support NURBS output for Okuma — verify post processor capability. Best for: mold/die finishing, aerospace contours, medical implant surfaces. Super-NURBS pairs well with Machining Navi for chatter-free finishing at optimal speeds.",
+    "applies_to": { "controllers": ["Okuma OSP-P300", "Okuma OSP-P500"], "machines": ["Okuma MB series", "Okuma MU series", "Okuma MULTUS"] },
+    "tags": ["controller", "okuma", "Super-NURBS", "surface-finish", "HSM", "mold"]
+  },
+  {
+    "id": "ctrl-019",
+    "category": "controller",
+    "subcategory": "okuma-osp",
+    "title": "Okuma Machining Navi for automatic chatter suppression",
+    "content": "Machining Navi uses built-in sensors and the OSP control to detect chatter vibration in real-time and recommend or automatically select optimal spindle speeds to avoid resonance. Two modes: M-Navi L-g (lathe, auto-adjust) and M-Navi M-g (mill, guidance display showing stability lobes). On milling machines, it displays a stability lobe diagram and highlights current speed vs optimal speed. The operator can accept the recommendation with one button press. Critical for: deep pocket milling, slender tool extensions, thin-wall machining. Does NOT replace proper toolholding/setup but adds a safety net against harmonic chatter.",
+    "applies_to": { "controllers": ["Okuma OSP-P300", "Okuma OSP-P500"], "machines": ["Okuma GENOS", "Okuma MB series", "Okuma MULTUS"] },
+    "tags": ["controller", "okuma", "machining-navi", "chatter", "vibration", "spindle-speed"]
+  },
+  {
+    "id": "ctrl-020",
+    "category": "controller",
+    "subcategory": "hurco-winmax",
+    "title": "Hurco UltiMotion — 10,000-block look-ahead for HSM",
+    "content": "UltiMotion is Hurco's proprietary motion control system providing 10,000-block look-ahead (vs typical 200-500 blocks on other controls). Benefits: up to 30% cycle time reduction on complex 3D surfaces, smoother motion profiles, and better surface finish. UltiMotion automatically calculates optimal acceleration/deceleration for each axis at each point. CRITICAL: UltiMotion performance depends on program block density — short-segment toolpaths (0.01mm chord) benefit most. For roughing, the speed improvement is minimal since feed rates are already achievable. Best results on 3D finishing with tight-tolerance CAM output.",
+    "applies_to": { "controllers": ["Hurco WinMax"], "machines": ["Hurco VMX series", "Hurco DCX series", "Hurco BX series"] },
+    "tags": ["controller", "hurco", "UltiMotion", "HSM", "look-ahead", "surface-finish"]
+  },
+  {
+    "id": "ctrl-021",
+    "category": "controller",
+    "subcategory": "hurco-winmax",
+    "title": "Hurco WinMax NC/Conversational Merge — best of both worlds",
+    "content": "WinMax's NC/Conversational Merge lets you apply conversational features (pattern operations, scaling, probing, unlimited work offsets) to G-code programs. This is unique among controllers — you can wrap a CAM-posted G-code program with conversational setup blocks for probing, part rotation, and mirroring without editing the G-code. LIMITATION: NC programs cannot be converted to conversational format, and NC programs cannot be auto-converted between different NC formats. The conversational editor displays G-code syntax errors in real-time (red=error, green=comment). AdaptiPath adds high-efficiency pocketing (constant engagement) directly in conversational mode.",
+    "applies_to": { "controllers": ["Hurco WinMax"], "machines": ["Hurco VMX series", "Hurco DCX series", "Hurco BX series"] },
+    "tags": ["controller", "hurco", "WinMax", "conversational", "NC-merge", "AdaptiPath"]
+  },
+  {
+    "id": "ctrl-022",
+    "category": "controller",
+    "subcategory": "hurco-winmax",
+    "title": "Hurco Transform Plane for 3+2 and 5-axis positioning",
+    "content": "Hurco's Transform Plane feature enables 3+2 axis machining through conversational programming — no CAM-posted RTCP code needed. Set Transform Plane=Yes in a rotary data block to machine features on angled faces. The control handles all coordinate transformation internally. For full 5-axis simultaneous, WinMax supports standard G-code with RTCP (G234 on Hurco). GOTCHA: Transform Plane works differently from Heidenhain's tilted working plane (PLANE SPATIAL) or Fanuc's G68.2 — post processor must be Hurco-specific. Fanuc-posted 5-axis code will NOT run correctly on Hurco without post modification.",
+    "applies_to": { "controllers": ["Hurco WinMax"], "machines": ["Hurco VMX-42SRTi", "Hurco VMX-60SRTi", "Hurco BX40i"] },
+    "tags": ["controller", "hurco", "transform-plane", "5-axis", "3+2", "RTCP"]
+  },
+  {
+    "id": "ctrl-023",
+    "category": "controller",
+    "subcategory": "makino-pro6",
+    "title": "Makino SGI.5 — high-speed micro-block processing for mold finishing",
+    "content": "Makino's SGI.5 (Super Geometric Intelligence v5) is purpose-built for processing NC programs with micro-blocks (traverse <1mm per block), common in mold/die finishing. SGI.5 provides 20-60% faster cycle times than standard interpolation while maintaining accuracy and surface finish. It combines machine rigidity, advanced servo tuning, and proprietary smoothing algorithms. CRITICAL: SGI.5 benefits require the CAM system to output appropriate block density — too-coarse tolerance negates the advantage. Recommended CAM tolerance: 0.002-0.005mm for mold finishing. The Pro6 control's GI mode adds 2D corner control for sharp internal corners.",
+    "applies_to": { "controllers": ["Makino Professional 6"], "machines": ["Makino F5", "Makino F9", "Makino D500", "Makino a51nx", "Makino iQ300"] },
+    "tags": ["controller", "makino", "SGI", "HSM", "mold", "micro-block", "surface-finish"]
+  },
+  {
+    "id": "ctrl-024",
+    "category": "controller",
+    "subcategory": "makino-pro6",
+    "title": "Makino Pro6 is Fanuc-based — standard G-codes with Makino enhancements",
+    "content": "The Professional 6 control is built on Fanuc hardware with Windows CE GUI overlay. Standard Fanuc G-codes (G00-G04, G17-G19, G28, G40-G43, G54-G59, G80-G89) all work. Makino-specific enhancements: ATLM (Automatic Tool Length Measurement) via guided on-screen prompts, tilted working plane setup with graphical guidance, and SGI.5 integration for HSM. M-codes above M79 are typically machine-specific — always verify with machine documentation. Pro6 stores up to 3GB of programs (expandable to 20GB), supports MDI recall of last 20 inputs, and allows simultaneous program editing during machining.",
+    "applies_to": { "controllers": ["Makino Professional 6", "Makino Hyper-i"], "machines": ["Makino F5", "Makino D500", "Makino a51nx", "Makino a61nx"] },
+    "tags": ["controller", "makino", "Fanuc", "Pro6", "ATLM", "G-codes"]
+  },
+  {
+    "id": "ctrl-025",
+    "category": "controller",
+    "subcategory": "makino-pro6",
+    "title": "Makino Hyper-i for EDM — touchscreen-driven setup",
+    "content": "Hyper-i is Makino's EDM-focused control with an intuitive touchscreen interface. It uses image-based navigation (photos of machine components) rather than traditional menu trees. Key features: HyperCut technology for automatic multi-pass EDM with optimized power settings, HyperSpark for micro-finishing, and intelligent E-Packs (power setting libraries by material/electrode combination). Programming is graphical — tap on a feature, select cut type, and the control generates the EDM program. NOT interchangeable with milling Pro6 programs. When switching between Makino mills (Pro6) and EDMs (Hyper-i), operators need different training paths.",
+    "applies_to": { "controllers": ["Makino Hyper-i"], "machines": ["Makino EDAF2", "Makino EDAF3", "Makino U6 H.E.A.T."] },
+    "tags": ["controller", "makino", "Hyper-i", "EDM", "touchscreen", "HyperCut"]
+  },
+  {
+    "id": "ctrl-026",
+    "category": "controller",
+    "subcategory": "brother-c00",
+    "title": "Brother Speedio CNC-C00 high-accuracy modes M280-M282",
+    "content": "Brother Speedio C00 uses M-codes M280-M282 to control corner handling behavior. Default (no M28x active): the machine biases toward geometry adjustment (cutting corners) rather than slowing down at direction changes. M280 restores default mode, M281 enables moderate accuracy, M282 enables high accuracy (slower but tighter corners). CRITICAL for finishing: always enable M281 or M282 for finish passes — default mode will round sharp corners. These M-codes are configurable at the console for fine-tuning. For roughing, default mode (M280) maximizes speed by allowing geometric deviation at corners.",
+    "applies_to": { "controllers": ["Brother CNC-C00"], "machines": ["Brother Speedio S500X1", "Brother Speedio S700X1", "Brother Speedio S1000X1", "Brother Speedio M200X3"] },
+    "tags": ["controller", "brother", "speedio", "M280", "accuracy", "corner-handling"]
+  },
+  {
+    "id": "ctrl-027",
+    "category": "controller",
+    "subcategory": "brother-c00",
+    "title": "Brother Speedio tapping — G77 and M241-M250 acceleration profiles",
+    "content": "Brother Speedios are legendary for fast tapping. The primary tapping cycle is G77 (synchronous tapping). CRITICAL GOTCHA: if the feed rate (F) is set to 0, the control does NOT stop at the feed plane — it immediately taps at 100% speed. Always verify F value before running tapping cycles. M241-M249 reduce the acceleration/deceleration window for tapping to gain efficiency at speeds below the machine's maximum tapping RPM. M250 is the default (safe) acc/dec profile for any speed and any rigid tapping application. Use M241-M249 only after testing — aggressive profiles can break taps on blind holes.",
+    "applies_to": { "controllers": ["Brother CNC-C00"], "machines": ["Brother Speedio S500X1", "Brother Speedio S700X1", "Brother Speedio S1000X1"] },
+    "tags": ["controller", "brother", "speedio", "tapping", "G77", "M241", "high-speed"]
+  },
+  {
+    "id": "ctrl-028",
+    "category": "controller",
+    "subcategory": "brother-c00",
+    "title": "Brother Speedio C00 post processor gotchas and limitations",
+    "content": "Key C00 post processor issues: (1) Custom G/M code registration via MDI is broken — Brother is aware but no fix released as of current firmware; work around by adding macro variable checks in programs instead. (2) The control does NOT support multiple M-codes on a single line — each M-code needs its own block. (3) Rapids are non-linear with stepped acceleration (0%-5%-20%-50%-100%), so rapid positioning time is not simply distance/rapid-rate. (4) Factory default parameters may not be set to meaningful values — work with your dealer (e.g., Yamazen) to configure proper defaults. (5) Tool change overlap with XY positioning is automatic — post should allow simultaneous moves.",
+    "applies_to": { "controllers": ["Brother CNC-C00"], "machines": ["Brother Speedio S500X1", "Brother Speedio S700X1", "Brother Speedio S1000X1", "Brother Speedio M200X3"] },
+    "tags": ["controller", "brother", "speedio", "post-processor", "gotcha", "MDI", "M-code"]
+  },
+  {
+    "id": "ctrl-029",
+    "category": "controller",
+    "subcategory": "haas-ngc",
+    "title": "Haas G12/G13 circular pocket milling — CW/CCW without CAM",
+    "content": "G12 (clockwise) and G13 (counterclockwise) are Haas-specific G-codes for circular pocket milling directly in the control without CAM. Parameters: I (first radius/stepover), J (second radius for taper), K (depth per pass), L (number of passes), D (cutter comp register), Q (start position offset). These are perfect for O-ring grooves, circular bosses, and simple round pockets. GOTCHA: the tool must be positioned at the pocket center before calling G12/G13 — the cycle machines outward from center. Combine with G12/G13 for roughing then a final spring pass at full depth for finishing.",
+    "applies_to": { "controllers": ["Haas NGC"], "machines": ["all Haas mills"] },
+    "tags": ["controller", "haas", "G12", "G13", "circular-pocket", "conversational"]
+  },
+  {
+    "id": "ctrl-030",
+    "category": "controller",
+    "subcategory": "mazak-mazatrol",
+    "title": "MAZATROL SmoothAi AI chatter detection and 3D Assist solid model import",
+    "content": "SmoothAi adds two game-changing features: (1) AI-based chatter suppression — vibration sensors detect chatter onset and AI automatically adjusts spindle speed and feed rate without operator intervention, enabling less-skilled operators to machine difficult materials; (2) 3D ASSIST — import PARASOLID or STEP solid models directly into the control and apply cutting paths on 2D features. This bridges the gap between CAM programming and shop-floor conversational programming. QUICK MAZATROL displays real-time 3D part visualization during program creation. MAZATROL TWINS enables offline programming on a PC with full virtual machine simulation.",
+    "applies_to": { "controllers": ["Mazak MAZATROL SmoothAi"], "machines": ["Mazak VARIAXIS C-600", "Mazak INTEGREX i-series", "Mazak VTC-800"] },
+    "tags": ["controller", "mazak", "SmoothAi", "AI", "chatter", "3D-ASSIST", "solid-model"]
+  }
+]

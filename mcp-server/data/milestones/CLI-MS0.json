@@ -1,0 +1,631 @@
+{
+  "id": "CLI-MS0",
+  "version": "6.3.0",
+  "title": "CLI Layer — Direct Engine Access from Command Line",
+  "track": "CLI",
+  "created_at": "2026-03-15T16:00:00Z",
+  "status": "not_started",
+  "total_units": 24,
+  "completed_units": 0,
+  "description": "Build a thin CLI layer over PRISM's 985 engines, enabling direct command-line access without AI/MCP overhead. Direct dispatcher calling (Option B) for zero-latency single-process execution. Priority commands target shop-floor workflows: speed/feed, simulation, quoting, program generation, tool selection, playbook lookup. Includes JSON/table/CSV output modes, stdin piping, and shell completions. Forge-triple: CLI infrastructure engine, 6+ slash commands, 3+ hooks.",
+  "dependencies": [],
+  "phases": [
+    {
+      "id": "P0",
+      "title": "CLI Infrastructure + Core Framework",
+      "description": "Set up CLI entry point, argument parsing, output formatting, and the CLIDispatchEngine that routes commands to existing dispatchers.",
+      "units": [
+        {
+          "id": "P0-U01",
+          "title": "Package setup + CLI entry point",
+          "description": "Add commander dependency. Create src/cli/index.ts with shebang. Add 'bin' field to package.json pointing to dist/cli/index.js. Add 'prism' command name. Create build script for CLI bundle (esbuild, separate from MCP server).",
+          "acceptance": [
+            "package.json has 'bin' field",
+            "commander in dependencies",
+            "src/cli/index.ts exists with shebang",
+            "npm run build:cli produces dist/cli/index.js",
+            "prism --version outputs version"
+          ],
+          "status": "not_started",
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit"
+          ],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P0-U02",
+          "title": "CLIDispatchEngine + output formatters",
+          "description": "Create CLIDispatchEngine that accepts (command, action, params) and routes to the correct dispatcher. Create src/cli/formatters.ts with 4 output modes: json (default, machine-readable), table (human-readable cli-table3), csv (pipe-friendly), compact (minimal). All commands support --format flag.",
+          "acceptance": [
+            "CLIDispatchEngine routes to calcDispatcher/camDispatcher/etc.",
+            "4 output modes working",
+            "--format json|table|csv|compact flag parsed",
+            "Build: 0 errors"
+          ],
+          "status": "not_started",
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit"
+          ],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P0-U03",
+          "title": "Global flags + config + error handling",
+          "description": "Add global flags: --verbose, --quiet, --no-color, --timeout, --config. Create src/cli/config.ts that reads ~/.prism/config.json for defaults (default machine, material, controller, output format). Unified error handler that outputs structured errors in chosen format. Exit codes: 0=success, 1=error, 2=validation fail.",
+          "acceptance": [
+            "Global flags parsed and applied",
+            "Config file read from ~/.prism/config.json",
+            "Errors output in chosen format",
+            "Exit codes correct"
+          ],
+          "status": "not_started",
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit"
+          ],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P0-U04",
+          "title": "Stdin piping + streaming",
+          "description": "Support stdin JSON piping: echo '{...}' | prism sf. Detect TTY vs pipe mode. In pipe mode: JSON output, no colors, no progress. In TTY mode: table output, colors, spinners. Support --stdin flag to force stdin reading.",
+          "acceptance": [
+            "Piped JSON input parsed correctly",
+            "TTY detection works",
+            "Output adapts to pipe vs terminal"
+          ],
+          "status": "not_started",
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit"
+          ],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "P1",
+      "title": "Priority Commands — Shop Floor Essentials",
+      "description": "The 8 highest-value CLI commands, each calling existing production engines directly.",
+      "units": [
+        {
+          "id": "P1-U01",
+          "title": "prism sf (speed-feed)",
+          "description": "Speed/feed calculator. Calls SpeedFeedOrchestratorEngine.compute(). Args: --material, --tool-diameter, --flutes, --operation (roughing|finishing|drilling), --machine, --optimize (productivity|tool_life|surface_finish|balanced|cost). Output: RPM, feed, Vc, forces, power, tool life, CI95. Shorthand: prism sf aluminum 12mm 4fl roughing.",
+          "acceptance": [
+            "prism sf --material aluminum_6061 --tool-diameter 12 --flutes 4 --operation roughing outputs valid S/F",
+            "Shorthand syntax works",
+            "All 67 orchestrator outputs available",
+            "--format table shows human-readable output"
+          ],
+          "status": "completed",
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit"
+          ],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "closedAt": "2026-05-22T17:08:45.037Z",
+          "closedBy": "claude-a8894112/juliett",
+          "closedReason": "VERIFIED-COMPLETE: prism sf CLI command fully built at mcp-server/src/cli/index.ts:83 — .command(\"sf\").alias(\"speed-feed\"), calls speedFeedOrchestratorEngine.compute() (67-point physics), 10 options (material/tool-diameter/flutes/operation/machine/optimize/ap/ae/tool-material/coolant), stdin-pipe + 4 output formats. Envelope status was stale not_started."
+        },
+        {
+          "id": "P1-U02",
+          "title": "prism sim (simulate)",
+          "description": "G-code simulation. Calls CNCSimulationPipelineEngine. Args: --gcode <file>, --machine, --material, --report. Accepts G-code file path or stdin. Outputs safety analysis, force/thermal/wear per block, cycle time. --report generates full HTML/JSON report.",
+          "acceptance": [
+            "prism sim --gcode program.nc --machine 'Haas VF-2' runs simulation",
+            "stdin piping works: cat program.nc | prism sim",
+            "Force/thermal/wear data in output",
+            "--report generates report file"
+          ],
+          "status": "not_started",
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit"
+          ],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P1-U03",
+          "title": "prism quote (estimate)",
+          "description": "Manufacturing quote. Calls QuoteEstimatorEngine.estimate(). Args: --part <json-file>, --quantity, --material, --complexity, --rush, --format. Accepts part JSON or interactive prompts. Outputs cost breakdown, lead time, price breaks, DfM warnings.",
+          "acceptance": [
+            "prism quote --part bracket.json --quantity 100 outputs quote",
+            "Price breaks shown for multiple quantities",
+            "DfM warnings included",
+            "Cost breakdown by category"
+          ],
+          "status": "not_started",
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit"
+          ],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P1-U04",
+          "title": "prism program (generate CNC program)",
+          "description": "Full CNC program generation. Calls PrintToProgramPipelineEngine.runFullPipelineAsync(). Args: --part <json>, --material, --machine, --controller, --optimize, --output <file>. Generates complete G-code program with setup sheet.",
+          "acceptance": [
+            "prism program --part drawing.json --controller haas outputs G-code",
+            "--output file.nc writes to file",
+            "Setup sheet printed to stderr or separate file",
+            "Enhanced async pipeline used by default"
+          ],
+          "status": "not_started",
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit"
+          ],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P1-U05",
+          "title": "prism post (post-process)",
+          "description": "Post-processor pipeline. Calls PostProcessorPipelineEngine.process(). Args: --gcode <file>, --controller, --machine, --aggressiveness, --optimize. Pipe-friendly: cat rough.nc | prism post --controller siemens > optimized.nc.",
+          "acceptance": [
+            "prism post --gcode input.nc --controller fanuc outputs optimized G-code",
+            "Piping works: cat in.nc | prism post > out.nc",
+            "26 stages applied",
+            "Stage report on stderr"
+          ],
+          "status": "not_started",
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit"
+          ],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P1-U06",
+          "title": "prism tool (tool selection + catalog)",
+          "description": "Tool lookup and selection. Calls InventoryAwareToolSelectorEngine + ToolCatalogEngine. Subcommands: prism tool search (catalog search), prism tool select (feature-based selection), prism tool magazine (magazine optimizer). Args: --type, --diameter, --material, --manufacturer, --operation.",
+          "acceptance": [
+            "prism tool search --type endmill --diameter 12 lists matching tools",
+            "prism tool select --features pocket,hole outputs tool list",
+            "prism tool magazine --tools T1,T2,T3 optimizes layout",
+            "46K+ tool catalog searchable"
+          ],
+          "status": "not_started",
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit"
+          ],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P1-U07",
+          "title": "prism playbook (best practices)",
+          "description": "Machining playbook advisor. Calls MachiningPlaybookEngine.query(). Args: --operation, --material, --hardness, --issue. Quick rule lookup: prism playbook titanium roughing. Outputs applicable rules with evidence levels and formula references.",
+          "acceptance": [
+            "prism playbook --operation roughing --material titanium outputs rules",
+            "Shorthand works: prism playbook titanium roughing",
+            "296 rules searchable",
+            "Evidence levels and formula refs shown"
+          ],
+          "status": "not_started",
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit"
+          ],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P1-U08",
+          "title": "prism calc (quick calculation)",
+          "description": "Direct formula calculator. Routes to calcDispatcher. Args: prism calc <action> [params]. Examples: prism calc kienzle_force --kc1_1 1500 --mc 0.25 --ap 3 --fz 0.1. Lists available actions with prism calc --list. Covers all 2385+ calcDispatcher actions.",
+          "acceptance": [
+            "prism calc kienzle_force --kc1_1 1500 --mc 0.25 outputs force",
+            "prism calc --list shows all actions",
+            "prism calc taylor_life outputs tool life",
+            "All calcDispatcher actions accessible"
+          ],
+          "status": "not_started",
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit"
+          ],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "P2",
+      "title": "Batch Operations + Composability",
+      "description": "Enable batch processing, shell piping, and multi-program workflows.",
+      "units": [
+        {
+          "id": "P2-U01",
+          "title": "Batch mode for all commands",
+          "description": "Add --batch flag that reads newline-delimited JSON from stdin and processes each line as a separate invocation. Output: one JSON result per line (NDJSON). Example: cat parts.ndjson | prism quote --batch --quantity 100 > quotes.ndjson. Parallel execution with --parallel <n> flag.",
+          "acceptance": [
+            "--batch reads NDJSON from stdin",
+            "Each line processed independently",
+            "NDJSON output",
+            "--parallel 4 runs 4 concurrent workers"
+          ],
+          "status": "not_started",
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit"
+          ],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P2-U02",
+          "title": "Glob processing for file-based commands",
+          "description": "Commands that accept files (sim, post, program) support globs: prism sim *.nc --report. Process all matching files, output individual results + summary. --output-dir for writing results to a directory.",
+          "acceptance": [
+            "prism sim *.nc processes all .nc files",
+            "Summary statistics after batch",
+            "--output-dir writes individual results"
+          ],
+          "status": "not_started",
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit"
+          ],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P2-U03",
+          "title": "Pipeline composition helpers",
+          "description": "Add prism pipe subcommand for chaining: prism pipe 'sf aluminum 12mm roughing | program --controller haas | post --controller fanuc'. Internal piping without shell overhead. Also: prism tee for splitting output to file + stdout.",
+          "acceptance": [
+            "prism pipe chains multiple commands",
+            "Internal piping works without shell",
+            "prism tee writes to file and stdout"
+          ],
+          "status": "not_started",
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit"
+          ],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "P3",
+      "title": "Shell Integration + DX",
+      "description": "Shell completions, REPL mode, and developer experience improvements.",
+      "units": [
+        {
+          "id": "P3-U01",
+          "title": "Shell completions (bash/zsh/fish/powershell)",
+          "description": "Generate shell completion scripts: prism completion bash > ~/.prism/completions.bash. Complete commands, subcommands, flags, and enum values (materials, operations, controllers). Use commander's built-in completion or tabtab.",
+          "acceptance": [
+            "prism completion bash outputs valid bash completion",
+            "Commands and flags complete",
+            "Material/operation/controller enums complete",
+            "Works on bash, zsh, fish, powershell"
+          ],
+          "status": "not_started",
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit"
+          ],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P3-U02",
+          "title": "REPL mode",
+          "description": "Interactive mode: prism repl. Persistent session with history, auto-complete, and context (last result available as $prev). Commands execute immediately. Support .save/.load for session state. Uses readline or inquirer.",
+          "acceptance": [
+            "prism repl starts interactive session",
+            "Tab completion works",
+            "$prev references last result",
+            "History persists across sessions"
+          ],
+          "status": "not_started",
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit"
+          ],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P3-U03",
+          "title": "Man pages + help system",
+          "description": "Rich help for every command: prism help sf shows usage, examples, available flags, and sample output. Generate man pages for Unix systems. Include 2-3 real-world examples per command.",
+          "acceptance": [
+            "prism help <cmd> shows detailed help",
+            "Examples included for each command",
+            "Man page generation for Unix"
+          ],
+          "status": "not_started",
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit"
+          ],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "P4",
+      "title": "Forge Triple — Skills + Hooks + Engine",
+      "description": "Create slash commands for CLI management, hooks for CLI-aware workflows, and the CLIDispatchEngine.",
+      "units": [
+        {
+          "id": "P4-U01",
+          "title": "CLIDispatchEngine (token-saving engine)",
+          "description": "Engine that maps CLI command strings to dispatcher calls with minimal overhead. Maintains a command registry with shorthand aliases. Can generate CLI help text from dispatcher action schemas. Methods: dispatch(cmd, args), listCommands(), generateHelp(cmd), validateArgs(cmd, args).",
+          "acceptance": [
+            "CLIDispatchEngine routes commands to dispatchers",
+            "Shorthand aliases work (sf→speed-feed)",
+            "Help text generated from schemas",
+            "Build: 0 errors",
+            "10+ tests"
+          ],
+          "status": "not_started",
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit"
+          ],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P4-U02",
+          "title": "Skills: /cli-build, /cli-test, /cli-install",
+          "description": "Create 3 slash commands: /cli-build (build CLI bundle), /cli-test (run CLI-specific tests), /cli-install (npm link for local dev). These enable AI-assisted CLI development workflows.",
+          "acceptance": [
+            "/cli-build produces dist/cli/index.js",
+            "/cli-test runs CLI test suite",
+            "/cli-install links prism command globally"
+          ],
+          "status": "not_started",
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit"
+          ],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P4-U03",
+          "title": "Hooks: CLI output validation + auto-format",
+          "description": "Create hooks: (1) pretooluse hook that detects when user is asking for CLI-type output and suggests using prism CLI instead of MCP, (2) posttooluse hook that auto-formats dispatcher output for terminal display when running in CLI mode, (3) hookify rule that warns when MCP is being used for batch operations better suited to CLI.",
+          "acceptance": [
+            "Hook suggests CLI for batch operations",
+            "Auto-format hook works in CLI mode",
+            "Hookify rule fires on batch patterns"
+          ],
+          "status": "not_started",
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit"
+          ],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P4-U04",
+          "title": "Integration tests + build verification",
+          "description": "End-to-end tests: spawn CLI process, verify output format, test piping, test batch mode, test all 8 priority commands. Build verification: CLI bundle size check, startup time <500ms, command routing correctness.",
+          "acceptance": [
+            "20+ E2E tests passing",
+            "All 8 commands tested",
+            "Batch + piping tested",
+            "Startup time <500ms",
+            "Build: 0 errors"
+          ],
+          "status": "not_started",
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit"
+          ],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        }
+      ]
+    }
+  ],
+  "smart_config": {
+    "role": "implementer + reviewer",
+    "model": "sonnet",
+    "effort": "HIGH",
+    "context_budget": "65%"
+  },
+  "mcp_lifecycle": {
+    "session_start": [
+      "prism_session:context_boot",
+      "prism_session:dispatcher_map",
+      "prism_session:memory_recall",
+      "prism_session:system_snapshot",
+      "prism_session:action_search"
+    ],
+    "during_work": [
+      "prism_session:auto_checkpoint",
+      "prism_session:tool_route_best",
+      "prism_session:wip_capture"
+    ],
+    "session_end": [
+      "prism_session:memory_save",
+      "prism_session:system_snapshot",
+      "prism_session:checkpoint_enhanced"
+    ]
+  },
+  "forge_triple": {
+    "protective_hook": "cli-ms0-gate",
+    "mcp_action": "prism_cli:cli_ms0_run",
+    "skill_command": "/cli-ms0",
+    "ownership": "DECLARED — BUILT in terminal unit of this milestone"
+  },
+  "feature_cascade": {
+    "new_hooks": [
+      "cli-ms0-gate"
+    ],
+    "new_actions": [
+      "cli_ms0_run"
+    ],
+    "new_skills": [
+      "/cli-ms0"
+    ],
+    "available_to": [
+      "downstream CAMX milestones",
+      "prism app consumers"
+    ]
+  },
+  "knowledge_sources": {
+    "engines": [
+      "ENGINE_DIGEST.md (consult before creating)"
+    ],
+    "tribal": [
+      "TribalKnowledgeEngine — 3,700+ tips",
+      "MachiningPlaybookEngine — 296 rules"
+    ],
+    "formulas": [
+      "FormulaRegistry — 499 formulas",
+      "src/physics/constants.ts — canonical"
+    ],
+    "reference": [
+      "EXTERNAL-REFERENCE-PROGRAMS-INDEX.md",
+      "MaterialRegistry",
+      "MachineRegistry",
+      "ToolCatalogEngine (95,608 tools)"
+    ]
+  },
+  "intent": "Build a thin CLI layer over PRISM's 985 engines, enabling direct command-line access without AI/MCP overhead. Direct dispatcher calling (Option B) for zero-latency single-process execution. Priority commands target shop-floor workflows: speed/feed, simulation, quoting, program generation, tool selection, playbook lookup. Includes JSON/table/CSV output modes, stdin piping, and shell completions. Forge-triple: CLI infrastructure engine, 6+ slash commands, 3+ hooks.",
+  "compact_checkpoint": "every 3 units — auto-triggered by hook",
+  "enforcement_hooks_active": [
+    "physics agent",
+    "wiring agent",
+    "constants checker",
+    "stub detector",
+    "test quality",
+    "forge-triple gate",
+    "session audit agent"
+  ]
+}

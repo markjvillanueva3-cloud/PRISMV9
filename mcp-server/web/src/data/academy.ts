@@ -25,7 +25,19 @@ export type SpecializationTrackId =
   | 'five-axis-programmer'
   | 'mill-turn-swiss'
   | 'process-engineer';
-export type LessonSectionType = 'text' | 'calculator';
+// The LessonSectionCard component (components/learning/LessonView.tsx) already
+// renders all of these content kinds; the union previously declared only the
+// first two, so the diagram/video/3d_viewer/sandbox/animation render branches
+// were flagged TS2367 ("no overlap"). Widened to match the implemented UI
+// (no new fields needed -- LessonSection.body/engine/etc. are already optional).
+export type LessonSectionType =
+  | 'text'
+  | 'calculator'
+  | 'diagram'
+  | 'video'
+  | '3d_viewer'
+  | 'sandbox'
+  | 'animation';
 export type LessonVisualKey =
   | 'shop-math'
   | 'tool-anatomy'
@@ -484,7 +496,7 @@ const REFERENCE_PACKS: Record<LessonVisualKey, LessonReferenceAsset[]> = {
   ],
   inspection: [
     { title: 'Fundamentals of CNC Machining', source: 'Archive study pack' },
-    { title: 'Blueprint Reading and GD&T resources', source: 'PRISM curriculum corpus' },
+    { title: 'Blueprint Reading and GD&T resources', source: 'Kienzle curriculum corpus' },
     { title: 'MIT manufacturing and measurement notes', source: 'College course archive' },
   ],
   workholding: [
@@ -515,7 +527,7 @@ const REFERENCE_PACKS: Record<LessonVisualKey, LessonReferenceAsset[]> = {
   'material-behavior': [
     { title: 'GC 2023-2024 US Milling', source: 'Manufacturer catalog' },
     { title: 'GC 2023-2024 US Drilling', source: 'Manufacturer catalog' },
-    { title: 'PRISM material database + college materials courses', source: 'Internal + archive sources' },
+    { title: 'Kienzle material database + college materials courses', source: 'Internal + archive sources' },
   ],
   multiaxis: [
     { title: 'Introduction to Multiaxis Toolpaths', source: 'Archive study pack' },
@@ -525,17 +537,17 @@ const REFERENCE_PACKS: Record<LessonVisualKey, LessonReferenceAsset[]> = {
   'process-control': [
     { title: 'Dynamic Milling', source: 'Archive study pack' },
     { title: 'MIT probability, controls, and optimization courses', source: 'College course archive' },
-    { title: 'PRISM process and chatter engines', source: 'Internal manufacturing stack' },
+    { title: 'Kienzle process and chatter engines', source: 'Internal manufacturing stack' },
   ],
   'cam-systems': [
     { title: 'AI Enhanced Post Processors templates', source: 'Archive post resources' },
-    { title: 'CAM platform tribal knowledge corpus', source: 'PRISM knowledge base' },
+    { title: 'CAM platform tribal knowledge corpus', source: 'Kienzle knowledge base' },
     { title: 'Multiaxis and turning training guides', source: 'Archive study pack' },
   ],
   economics: [
-    { title: 'Shop economics and estimating course content', source: 'PRISM academy corpus' },
+    { title: 'Shop economics and estimating course content', source: 'Kienzle academy corpus' },
     { title: 'MIT operations and strategy courses', source: 'College course archive' },
-    { title: 'Quoting and ERP reference packs', source: 'PRISM manufacturing knowledge base' },
+    { title: 'Quoting and ERP reference packs', source: 'Kienzle manufacturing knowledge base' },
   ],
   safety: [
     { title: 'Fundamentals of CNC Machining', source: 'Archive study pack' },
@@ -598,7 +610,7 @@ function buildMediaCards(
     return [
       { title: 'AI Enhanced Post Processors templates', kind: 'Archive post resource', caption: 'Use this to connect CAM strategy to the reality of controller output.' },
       { title: 'bro-cam-strategies-en', kind: 'Archive strategy guide', caption: 'Compare how different CAM systems express the same manufacturing intent.' },
-      { title: `${module.title} vendor workflow study`, kind: 'PRISM CAM track', caption: 'Translate this specific platform into templates, posts, and cross-system vocabulary.' },
+      { title: `${module.title} vendor workflow study`, kind: 'Kienzle CAM track', caption: 'Translate this specific platform into templates, posts, and cross-system vocabulary.' },
     ];
   }
 
@@ -705,7 +717,7 @@ function buildGeneratedQuestions(
     ),
     buildQuestion(
       `${module.id}-generic-2`,
-      'Which behavior best matches PRISM’s training philosophy for this topic?',
+      'Which behavior best matches Kienzle’s training philosophy for this topic?',
       `Use the lesson content, calculators, and process checks to make deliberate decisions about ${topic.toLowerCase()}.`,
       [
         'Rely on tribal shortcuts without understanding why they work.',
@@ -1105,7 +1117,7 @@ function buildGeneratedQuestions(
     ? [
         buildQuestion(
           `${module.id}-engine-1`,
-          'What is the right way to use a PRISM engine inside this lesson?',
+          'What is the right way to use a Kienzle engine inside this lesson?',
           `Use it as an interactive reasoning aid for ${engines[0]}, then compare the result to setup reality and process goals.`,
           [
             'Use it once and assume all future jobs can reuse the same answer unchanged.',
@@ -1151,7 +1163,7 @@ function buildWorkflowBody(visualKey: LessonVisualKey, engines: string[], machin
   };
 
   const engineLine = engines.length > 0
-    ? `\n\nUse the PRISM engine stack here as a lab assistant: ${engines.join(', ')}.`
+    ? `\n\nUse the Kienzle engine stack here as a lab assistant: ${engines.join(', ')}.`
     : '';
   const machineLine = machineFocus.length > 0
     ? `\n\nMachine focus for this drill: ${machineFocus.join(', ')}.`
@@ -1321,7 +1333,7 @@ function moduleToLessons(module: SourceModule, blueprint: CourseBlueprint): Cour
       id: `${module.id}-workflow-2`,
       type: 'text',
       title: 'Lab Prompt',
-      body: `Use this lesson like a supervised practice lab.\n\n- Explain the setup in your own words.\n- Decide what the machine, tooling, and process need.\n- Write down what you would verify before cutting a first part.\n- Compare your reasoning against the lesson visual and the PRISM engine links.`,
+      body: `Use this lesson like a supervised practice lab.\n\n- Explain the setup in your own words.\n- Decide what the machine, tooling, and process need.\n- Write down what you would verify before cutting a first part.\n- Compare your reasoning against the lesson visual and the Kienzle engine links.`,
     },
   ];
 

@@ -1,0 +1,389 @@
+{
+  "schemaVersion": "1.0.0",
+  "milestoneId": "PRISM-LAUNCH-READINESS-MS0",
+  "title": "PRISM Launch-Readiness — full-stack revenue gating",
+  "createdAt": "2026-05-24",
+  "createdBy": "claude-333c36e8 (slot:india)",
+  "createdVia": "/forge-audit-v2 audit synthesis + manual envelope authoring (rgs6 deferred)",
+  "claimedStatus": "not_started",
+  "scope": "Make PRISM revenue-ready across mill/lathe/wedm/cam/post-proc. P0 unblocks frontend + lathe rescale + quote-to-ship wiring + drift cleanup + post-processor validation corpus. P1 fills domain-depth gap + WEDM classification fix + AI training pipeline. P2 generates 7800 scenarios across all domains. P3 runs full AI training pass. P4 prove-out validation. P5 launch gates per domain.",
+  "weeksEst": 12,
+  "totalUnits": 32,
+  "slotPartition": {
+    "alpha": "mill domain (depth + scenarios + training + prove-out)",
+    "bravo": "lathe domain (body-rescale-MS0 + scenarios + prove-out)",
+    "charlie": "wedm domain (classify-fix + scenarios + training + prove-out) + quote-pipeline wiring",
+    "delta": "cad (bridge to cam-strategy)",
+    "echo": "cam vendor unification (Mastercam/hyperMILL/Fusion/NX/PowerMill) + AI trainer-export-restore",
+    "foxtrot": "tribal-knowhow per-domain operator validation",
+    "golf": "fleet hygiene + envelope-drift sweep + integration",
+    "hotel": "ERP + customer (quote-to-ship downstream)",
+    "india": "post-processor cross-controller validation corpus + master-post prove-out",
+    "juliett": "speed-feed cross-cut validation across domains",
+    "kilo": "print-to-program glue (CAD-blueprint → G-code orchestration)",
+    "lima": "PRISM-academy operator-training corpus",
+    "romeo": "frontend merge resolution + operator UI bind"
+  },
+  "phases": [
+    {
+      "phaseId": "P0",
+      "name": "revenue-unblock",
+      "weeks": "1-3",
+      "blockerSeverity": "ALL_P0",
+      "units": [
+        {
+          "id": "P0-U01",
+          "title": "Frontend merge resolution — cqask/ui (Next.js 13)",
+          "slot": "romeo",
+          "status": "pending",
+          "blocker": "rank-1 revenue blocker (no operator UI = no revenue)",
+          "deliverable": "cqask-orion-cad merged into main; operator can interact with quote/CAM/post surfaces",
+          "verificationChannel": "node scripts/build-state-snapshot.mjs && grep 'cqask/ui' state/shared/BUILD_STATE.md (should drop from pending)"
+        },
+        {
+          "id": "P0-U02",
+          "title": "Frontend domain-bind — mcp-cadquery/frontend (Vite/React 19)",
+          "slot": "romeo",
+          "status": "pending",
+          "deliverable": "Vite/React 19 frontend bound to CAD-import → CAM-strategy bridge",
+          "verificationChannel": "mcp-cadquery-frontend renders + connects to prism_cad dispatcher actions"
+        },
+        {
+          "id": "P0-U03",
+          "title": "Lathe body-rescale upgrader — BODY-RESCALE-MS0",
+          "slot": "bravo",
+          "status": "pending",
+          "blocker": "96% FAIL on 200-variant audit sample (V1/V2 upgrader skips machine.envelope rescale)",
+          "deliverable": "Toolpath rescale per machine envelope before G-code emit; audit FAIL drops <10%",
+          "verificationChannel": "node scripts/audit-jm-die-lathe-corpus.mjs (FAIL count should drop from 192/200 to <20/200)"
+        },
+        {
+          "id": "P0-U04",
+          "title": "Quote-to-ship wiring — execute QUOTING-PIPELINE-MS0 8 P0 bridges",
+          "slot": "charlie",
+          "status": "pending",
+          "blocker": "wire-not-build, 7 bridges reuse 30+ engines but not connected end-to-end",
+          "deliverable": "8 P0 bridges wired per spec-quoting-pipeline-ms0-assessment.md",
+          "verificationChannel": "cat state/shared/specs/spec-quoting-pipeline-ms0-assessment.md && grep -c 'wired' state/shared/specs/spec-quoting-pipeline-ms0-assessment.md"
+        },
+        {
+          "id": "P0-U05",
+          "title": "Envelope drift sweep — 175 cases via /envelope-sync",
+          "slot": "golf",
+          "status": "pending",
+          "deliverable": "envelope_drift count drops <20 (auto-propose status patches against git reality)",
+          "verificationChannel": "node scripts/build-state-snapshot.mjs && grep envelope_drift state/shared/BUILD_STATE.json"
+        },
+        {
+          "id": "P0-U06",
+          "title": "Post-processor cross-controller validation corpus — 800 scenarios",
+          "slot": "india",
+          "status": "pending",
+          "blocker": "Fanuc/Okuma/Heidenhain/Mitsubishi/Haas dialect cross-mapping is structural-not-textual but explicit-map coverage incomplete",
+          "deliverable": "800 prove-out scenarios across 5 dialects, master-post validation pass rate >95%",
+          "verificationChannel": "node scripts/post-corpus-validate.mjs --controllers fanuc,okuma,heidenhain,mitsubishi,haas"
+        },
+        {
+          "id": "P0-U07",
+          "title": "Quote-to-ship downstream — ERP order + invoice + ship-confirm",
+          "slot": "hotel",
+          "status": "pending",
+          "deliverable": "QuoteToOrderBridge → ERP order → invoice → ship-confirm end-to-end on JM-Die test customer",
+          "verificationChannel": "/quote-to-ship test scenario completes end-to-end"
+        },
+        {
+          "id": "P0-U08",
+          "title": "Print-to-program glue — blueprint→CAM→post orchestration",
+          "slot": "kilo",
+          "status": "pending",
+          "deliverable": "single skill /print-to-program executes blueprint OCR → CAD feature recognition → CAM strategy → post → G-code emit on JM-Die test parts",
+          "verificationChannel": "/print-to-program on 10 JM-Die sample blueprints, ≥8 produce valid G-code"
+        }
+      ]
+    },
+    {
+      "phaseId": "P1",
+      "name": "domain-depth",
+      "weeks": "3-6",
+      "units": [
+        {
+          "id": "P1-U01",
+          "title": "MILL-DEPTH-MS0 — 120 new mill engines (5-axis, surface, strategy)",
+          "slot": "alpha",
+          "status": "pending",
+          "deliverable": "Mill engine count: 58 → ≥160 (parity with lathe within 30%)",
+          "verificationChannel": "node scripts/system-viz-query.mjs coverage-by-domain | findstr 'mill milling'"
+        },
+        {
+          "id": "P1-U02",
+          "title": "WEDM-DOMAIN-CLASSIFY-FIX — reconcile 20-vs-62 drift",
+          "slot": "charlie",
+          "status": "pending",
+          "deliverable": "graph-domain classifier matches WEDM_DIGEST.json (62 engines in 'wire' bucket)",
+          "verificationChannel": "node scripts/regen-viz.mjs && node scripts/system-viz-query.mjs coverage-by-domain | findstr wire"
+        },
+        {
+          "id": "P1-U03",
+          "title": "FIVE-AXIS-MS0 — fill 5-axis mill gap (target 30+ engines)",
+          "slot": "alpha",
+          "status": "pending",
+          "deliverable": "'five' domain count: 12 → ≥30; collision/multi-axis-kinematics deep",
+          "verificationChannel": "coverage-by-domain 'five' bucket"
+        },
+        {
+          "id": "P1-U04",
+          "title": "WEDM-PCD-MS0 — PCD electrode handling",
+          "slot": "charlie",
+          "status": "pending",
+          "deliverable": "PCD electrode engines + WEDM-PCD scenarios",
+          "verificationChannel": "grep -ri 'PCD' src/engines/Wedm* | wc -l ≥ 15"
+        },
+        {
+          "id": "P1-U05",
+          "title": "WEDM-4AX-MS0 — 4-axis WEDM operations",
+          "slot": "charlie",
+          "status": "pending",
+          "deliverable": "4-axis WEDM ops (taper + multi-pass + threading)",
+          "verificationChannel": "WEDM-4AX engines present + tests pass"
+        },
+        {
+          "id": "P1-U06",
+          "title": "CAM-FACADE-MS0 — unify Mastercam/hyperMILL/Fusion/NX/PowerMill behind single API",
+          "slot": "echo",
+          "status": "pending",
+          "deliverable": "Single dispatcher action prism_cam:emit_post resolves vendor; cross-vendor scenarios pass",
+          "verificationChannel": "prism_cam:emit_post resolves all 5 vendors in 10/10 test scenarios"
+        }
+      ]
+    },
+    {
+      "phaseId": "P2",
+      "name": "scenario-corpus",
+      "weeks": "5-8",
+      "totalScenarios": 7800,
+      "units": [
+        {
+          "id": "P2-U01",
+          "title": "Lathe scenarios — 1500 across geometry × material × controller × tolerance × machine × feature-mix × dialect",
+          "slot": "bravo",
+          "status": "pending",
+          "deliverable": "1500 lathe scenarios stored in state/shared/scenarios/lathe/; coverage matrix ≥80% across 7 axes; JM-Die 76K corpus sampled",
+          "verificationChannel": "node scripts/scenario-coverage.mjs --domain lathe --count ≥1500"
+        },
+        {
+          "id": "P2-U02",
+          "title": "Mill scenarios — 2500 across 8 axes (incl. strategy + 3/4/5-ax spindle)",
+          "slot": "alpha",
+          "status": "pending",
+          "deliverable": "2500 mill scenarios in state/shared/scenarios/mill/",
+          "verificationChannel": "scenario-coverage --domain mill --count ≥2500"
+        },
+        {
+          "id": "P2-U03",
+          "title": "WEDM scenarios — 1000 across wire-diameter × material × controller × taper × multi-pass × dielectric × thickness",
+          "slot": "charlie",
+          "status": "pending",
+          "deliverable": "1000 wedm scenarios",
+          "verificationChannel": "scenario-coverage --domain wedm --count ≥1000"
+        },
+        {
+          "id": "P2-U04",
+          "title": "CAM scenarios — 2000 across vendor posts (400/vendor × 5 vendors)",
+          "slot": "echo",
+          "status": "pending",
+          "deliverable": "2000 vendor-post scenarios",
+          "verificationChannel": "scenario-coverage --domain cam --by-vendor --each ≥400"
+        },
+        {
+          "id": "P2-U05",
+          "title": "Post-processor scenarios — already done in P0-U06",
+          "slot": "india",
+          "status": "see_P0_U06",
+          "deliverable": "see P0-U06 (800 scenarios)"
+        },
+        {
+          "id": "P2-U06",
+          "title": "Speed-feed cross-cut validation — across all 3 domain scenario sets",
+          "slot": "juliett",
+          "status": "pending",
+          "deliverable": "Auto-speed-feed engine validated across mill/lathe/wedm scenarios; failure rate <5%",
+          "verificationChannel": "/auto-speed-feed batch on combined corpus"
+        }
+      ]
+    },
+    {
+      "phaseId": "P3",
+      "name": "ai-training",
+      "weeks": "7-10",
+      "units": [
+        {
+          "id": "P3-U01",
+          "title": "U-NN-TRAINER-EXPORT-RESTORE — fix graphsage-train-pipeline.mjs import gap",
+          "slot": "echo",
+          "status": "pending",
+          "blocker": "P3 blocked until this lands",
+          "deliverable": "graphsage-trainer.mjs exports positiveTypeMarginal + sampleStratifiedNegativeEdges; pipeline runs",
+          "verificationChannel": "node scripts/nn-graph-retrain-lifecycle.mjs --dry-run completes without import error"
+        },
+        {
+          "id": "P3-U02",
+          "title": "GraphSAGE full retrain with embedding-source bridge",
+          "slot": "echo",
+          "status": "pending",
+          "blockedBy": ["P3-U01"],
+          "deliverable": "AUROC ≥0.78 (promotion gate), Brier ≤0.15",
+          "verificationChannel": "cat state/shared/nn-graph/NN-EVAL.json"
+        },
+        {
+          "id": "P3-U03",
+          "title": "PRISM-AI memo-coverage backfill — 4 blind-spot engines",
+          "slot": "lima",
+          "status": "pending",
+          "deliverable": "Coverage from 42.9% (3/7) → 100% (7/7); 4 new memo files for PRISMCreativeReasoningEngine + PRISMLoRAAdapterEngine + PRISMNeuralKnowledgeSynthesisEngine + one other",
+          "verificationChannel": "node scripts/prism-ai-memo-coverage.mjs (coverage = 100%)"
+        },
+        {
+          "id": "P3-U04",
+          "title": "Per-domain AI training — train mill/lathe/wedm models on P2 scenario corpus",
+          "slot": "alpha+bravo+charlie",
+          "status": "pending",
+          "blockedBy": ["P2-U01", "P2-U02", "P2-U03"],
+          "deliverable": "Per-domain LoRA adapters trained + calibrated; validated against holdout",
+          "verificationChannel": "per-domain holdout accuracy ≥85%"
+        }
+      ]
+    },
+    {
+      "phaseId": "P4",
+      "name": "validation-prove-out",
+      "weeks": "9-11",
+      "units": [
+        {
+          "id": "P4-U01",
+          "title": "Lathe prove-out — JM-Die corpus end-to-end (1500 scenarios)",
+          "slot": "bravo",
+          "status": "pending",
+          "deliverable": "≥95% scenarios produce valid G-code that passes shop-floor simulation",
+          "verificationChannel": "prove-out report ≥95% pass"
+        },
+        {
+          "id": "P4-U02",
+          "title": "Mill prove-out — 2500 scenarios end-to-end",
+          "slot": "alpha",
+          "status": "pending",
+          "deliverable": "≥90% pass (mill harder due to 5-ax)",
+          "verificationChannel": "prove-out report ≥90% pass"
+        },
+        {
+          "id": "P4-U03",
+          "title": "WEDM prove-out — 1000 scenarios",
+          "slot": "charlie",
+          "status": "pending",
+          "deliverable": "≥90% pass",
+          "verificationChannel": "prove-out report ≥90% pass"
+        },
+        {
+          "id": "P4-U04",
+          "title": "Post-processor prove-out — 800 scenarios across 5 dialects",
+          "slot": "india",
+          "status": "pending",
+          "deliverable": "≥98% pass (G-code emit is high-consequence)",
+          "verificationChannel": "prove-out report ≥98% pass"
+        },
+        {
+          "id": "P4-U05",
+          "title": "Operator-tribal validation — foxtrot reviews per-domain output for shop-floor feasibility",
+          "slot": "foxtrot",
+          "status": "pending",
+          "deliverable": "Tribal-knowledge gates passed: operator can read + execute output",
+          "verificationChannel": "/shop-floor-query test scenarios + tribal feedback captured to wiki"
+        }
+      ]
+    },
+    {
+      "phaseId": "P5",
+      "name": "launch-gates",
+      "weeks": "11-12",
+      "units": [
+        {
+          "id": "P5-U01",
+          "title": "Integration test — full PSN synergy (11 legs healthy + GNN AUROC ≥0.78 + tribal embedding ≥95%)",
+          "slot": "golf",
+          "status": "pending",
+          "deliverable": "All 11 PSN legs GREEN + composite launch-readiness ≥80%",
+          "verificationChannel": "node scripts/system-synergy-map.mjs && cat state/shared/specs/LAUNCH-READINESS-2026-XX-XX.json (composite ≥80)"
+        },
+        {
+          "id": "P5-U02",
+          "title": "Per-domain launch test — operator drives quote-to-ship end-to-end on real JM-Die job per domain",
+          "slot": "alpha+bravo+charlie+hotel",
+          "status": "pending",
+          "deliverable": "3 real jobs (mill/lathe/wedm) ship from quote to shop-floor in single session",
+          "verificationChannel": "ship-confirm log entries present for 3 real jobs"
+        },
+        {
+          "id": "P5-U03",
+          "title": "Launch-readiness audit re-run — composite ≥80%",
+          "slot": "india",
+          "status": "pending",
+          "blockedBy": ["P5-U01", "P5-U02"],
+          "deliverable": "/forge-audit-v2 re-run shows composite revenue-readiness ≥80%, lathe ≥85%, mill ≥75%, wedm ≥65%",
+          "verificationChannel": "diff state/shared/specs/LAUNCH-READINESS-2026-05-24.json state/shared/specs/LAUNCH-READINESS-2026-08-XX.json"
+        }
+      ]
+    }
+  ],
+  "successCriteria": {
+    "composite_readiness_pct": 80,
+    "per_domain_min": {
+      "lathe": 85,
+      "mill": 75,
+      "wedm": 65,
+      "cam_facade": 80,
+      "post_processor": 90
+    },
+    "p0_blockers_cleared": "all 8 P0 units complete",
+    "scenario_corpus_min": 7800,
+    "ai_training_auroc_min": 0.78,
+    "prove_out_min_pass_rate": 0.95,
+    "frontend_pending_merges": 0
+  },
+  "knownRisks": [
+    {
+      "risk": "Lathe body-rescale scope underestimated",
+      "mitigation": "Time-box P0-U03 at 1 week; if not done, fork BODY-RESCALE-MS0 as standalone milestone",
+      "owner": "bravo"
+    },
+    {
+      "risk": "AI training AUROC stuck below 0.78 even after embedding-source fix",
+      "mitigation": "P3-U02 has hard gate; if AUROC <0.78 after 2 retrain passes, AI deferred to MS1",
+      "owner": "echo"
+    },
+    {
+      "risk": "Cross-tree commit collisions (multi-chat in slot worktrees)",
+      "mitigation": "Slot-worktree discipline enforced; golf integrates",
+      "owner": "golf"
+    },
+    {
+      "risk": "Scope creep — 2876 pending units pull attention from launch-blockers",
+      "mitigation": "Priority-queue + slot-task-claim discipline; all non-LAUNCH-READINESS units deferred to post-launch unless dev-tooling P0",
+      "owner": "golf"
+    }
+  ],
+  "complementaryMilestones": [
+    "QUOTING-PIPELINE-MS0 (charlie /goal-13) — feeds P0-U04",
+    "JM-DIE-LATHE-UPGRADE-MS0 — feeds P0-U03 audit pipeline",
+    "PROGRAM-PROOF-MS0 (charlie /goal-12) — feeds P4 prove-out",
+    "OBSIDIAN-INTELLIGENCE-MS3 — feeds AI training data layer",
+    "DOMAIN-PIPELINE-MS0 — provides per-domain pipeline skeleton",
+    "PER-SLOT-CLAIM-MS0 — slot lane discipline backstop"
+  ],
+  "audit_provenance": {
+    "auditDoc": "state/shared/specs/LAUNCH-READINESS-2026-05-24.md",
+    "auditJson": "state/shared/specs/LAUNCH-READINESS-2026-05-24.json",
+    "auditHtml": "state/shared/specs/LAUNCH-READINESS-2026-05-24.html",
+    "wikiEntry": "knowledge/wiki/architecture/launch-readiness-2026-05-24.md",
+    "vizGenerator": "scripts/generate-launch-readiness-features.mjs",
+    "vizRoost": "ghost.launch_readiness"
+  }
+}

@@ -1544,8 +1544,8 @@ function assessLabelQuality(
   let mean_quality = 0;
   let variance = 0;
   if (quality_labels.length > 0) {
-    mean_quality = quality_labels.reduce((a, b) => a + b, 0) / quality_labels.length;
-    variance = quality_labels.reduce((sum, q) =>
+    mean_quality = quality_labels.reduce((a: number, b: number) => a + b, 0) / quality_labels.length;
+    variance = quality_labels.reduce((sum: number, q: number) =>
       sum + (q - mean_quality) ** 2, 0) / quality_labels.length;
   }
 
@@ -1564,8 +1564,9 @@ function assessLabelQuality(
   // Consistency with operator feedback
   let consistency = 1;
   if (all_feedback.length > 0 && point.quality_class !== undefined) {
-    const feedbackDiff = all_feedback.reduce((sum, f) =>
-      sum + Math.abs(f.actual_quality - point.quality_class), 0) / all_feedback.length;
+    const point_quality_class: number = point.quality_class;
+    const feedbackDiff = all_feedback.reduce((sum: number, f) =>
+      sum + Math.abs(f.actual_quality - point_quality_class), 0) / all_feedback.length;
     consistency = 1 - feedbackDiff / 3;
   }
 

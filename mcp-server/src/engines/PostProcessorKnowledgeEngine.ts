@@ -1730,7 +1730,7 @@ export const MISC_VALUES: MiscValue[] = [
 export interface CircularSetting {
   name: string;
   description: string;
-  defaultValue: number | string;
+  defaultValue: number | string | boolean;
   unit: string;
   bestPractices: string[];
 }

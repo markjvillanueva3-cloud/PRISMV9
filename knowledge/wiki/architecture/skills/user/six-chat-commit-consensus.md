@@ -23,11 +23,12 @@ related:
 |-------|-------|
 | Name | `six-chat-commit-consensus` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/six-chat-commit-consensus.md` |
+| Source | `C:/Users/wompu/.claude/commands/six-chat-commit-consensus.md` |
 | Model | default |
 | Tags | _(none)_ |
 
 ## Description (first paragraph)
+
 
 ---
 policy:

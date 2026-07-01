@@ -1,4 +1,4 @@
-export type ApiErrorKind = 'http' | 'timeout' | 'offline' | 'network' | 'parse' | 'unknown';
+export type ApiErrorKind = 'http' | 'timeout' | 'offline' | 'network' | 'parse' | 'unknown' | 'auth';
 
 export type ApiErrorPresentation = {
   title: string;
@@ -12,6 +12,8 @@ type ApiErrorOptions = {
   retryable?: boolean;
   hint?: string;
   cause?: unknown;
+  /** Machine-readable backend error code (e.g. TIER_LIMIT, ENTITLEMENT_REVOKED). */
+  code?: string;
 };
 
 type FetchJsonOptions = {
@@ -56,7 +58,7 @@ function statusHint(status: number) {
   }
 
   if (status === 408 || status === 429 || status >= 500) {
-    return 'PRISM is available but busy right now. Retry in a moment.';
+    return 'Kienzle is available but busy right now. Retry in a moment.';
   }
 
   return undefined;
@@ -64,23 +66,23 @@ function statusHint(status: number) {
 
 function defaultMessageForStatus(status: number, fallbackMessage: string) {
   if (status === 401 || status === 403) {
-    return 'PRISM rejected this request because the current session is not authorized.';
+    return 'Kienzle rejected this request because the current session is not authorized.';
   }
 
   if (status === 404) {
-    return 'PRISM could not find the requested route or record.';
+    return 'Kienzle could not find the requested route or record.';
   }
 
   if (status === 408) {
-    return 'PRISM took too long to respond to this request.';
+    return 'Kienzle took too long to respond to this request.';
   }
 
   if (status === 429) {
-    return 'PRISM is rate-limiting requests right now.';
+    return 'Kienzle is rate-limiting requests right now.';
   }
 
   if (status >= 500) {
-    return 'PRISM hit a server-side problem while handling this request.';
+    return 'Kienzle hit a server-side problem while handling this request.';
   }
 
   return fallbackMessage;
@@ -91,14 +93,23 @@ export class ApiError extends Error {
   readonly kind: ApiErrorKind;
   readonly retryable: boolean;
   readonly hint?: string;
+  /** Machine-readable backend error code (e.g. TIER_LIMIT, ENTITLEMENT_REVOKED). */
+  readonly code?: string;
 
   constructor(status: number, message: string, options: ApiErrorOptions = {}) {
-    super(message, options.cause ? { cause: options.cause } : undefined);
+    super(message);
+    // Manual cause assignment — target=ES2020 lib doesn't expose the Error
+    // options-bag constructor (ES2022). Set explicitly so consumers that read
+    // `.cause` still see the chained error.
+    if (options.cause !== undefined) {
+      (this as Error & { cause?: unknown }).cause = options.cause;
+    }
     this.name = 'ApiError';
     this.status = status;
     this.kind = options.kind ?? 'unknown';
     this.retryable = options.retryable ?? false;
     this.hint = options.hint;
+    this.code = options.code;
   }
 }
 
@@ -127,13 +138,39 @@ function extractErrorMessage(payload: unknown) {
   return null;
 }
 
+/**
+ * Extract the machine-readable error CODE (e.g. TIER_LIMIT / ENTITLEMENT_REVOKED)
+ * from a `{ error: { code, message } }` envelope, or a top-level `{ code }`. Without
+ * this, every caller routed through fetchJson (all non-SFC API clients) lost the
+ * code, so a 403 could not be told apart as an entitlement gate -> no UpgradePrompt.
+ */
+export function extractErrorCode(payload: unknown): string | undefined {
+  if (typeof payload === 'object' && payload !== null) {
+    const errorField = (payload as { error?: unknown }).error;
+    if (
+      typeof errorField === 'object'
+      && errorField !== null
+      && 'code' in errorField
+      && typeof (errorField as { code?: unknown }).code === 'string'
+      && (errorField as { code: string }).code.trim().length > 0
+    ) {
+      return (errorField as { code: string }).code;
+    }
+    const topCode = (payload as { code?: unknown }).code;
+    if (typeof topCode === 'string' && topCode.trim().length > 0) {
+      return topCode;
+    }
+  }
+  return undefined;
+}
+
 export function toApiError(error: unknown, fallbackMessage = 'Request failed') {
   if (error instanceof ApiError) {
     return error;
   }
 
   if (isAbortError(error)) {
-    return new ApiError(408, 'PRISM did not respond before the request timed out.', {
+    return new ApiError(408, 'Kienzle did not respond before the request timed out.', {
       kind: 'timeout',
       retryable: true,
       hint: 'Retry in a moment. If it keeps timing out, check the local server and network posture.',
@@ -142,7 +179,7 @@ export function toApiError(error: unknown, fallbackMessage = 'Request failed') {
   }
 
   if (isOffline()) {
-    return new ApiError(0, 'This device appears to be offline, so PRISM could not reach the service.', {
+    return new ApiError(0, 'This device appears to be offline, so Kienzle could not reach the service.', {
       kind: 'offline',
       retryable: true,
       hint: 'Reconnect to the network and retry.',
@@ -154,7 +191,7 @@ export function toApiError(error: unknown, fallbackMessage = 'Request failed') {
     return new ApiError(0, error.message || fallbackMessage, {
       kind: 'network',
       retryable: true,
-      hint: 'Check the local PRISM server and your connection, then retry.',
+      hint: 'Check the local Kienzle server and your connection, then retry.',
       cause: error,
     });
   }
@@ -260,7 +297,7 @@ export async function fetchJson<T>(url: string, options: FetchJsonOptions = {}):
 
     try {
       if (isOffline()) {
-        throw new ApiError(0, 'This device appears to be offline, so PRISM could not reach the service.', {
+        throw new ApiError(0, 'This device appears to be offline, so Kienzle could not reach the service.', {
           kind: 'offline',
           retryable: true,
           hint: 'Reconnect to the network and retry.',
@@ -286,11 +323,12 @@ export async function fetchJson<T>(url: string, options: FetchJsonOptions = {}):
           kind: 'http',
           retryable: response.status === 408 || response.status === 429 || response.status >= 500,
           hint: statusHint(response.status),
+          code: extractErrorCode(payload),
         });
       }
 
       const payload = await response.json().catch((parseError: unknown) => {
-        throw new ApiError(response.status, 'PRISM returned a response that could not be parsed as JSON.', {
+        throw new ApiError(response.status, 'Kienzle returned a response that could not be parsed as JSON.', {
           kind: 'parse',
           retryable: false,
           hint: 'Check the backend route contract or server logs for malformed output.',

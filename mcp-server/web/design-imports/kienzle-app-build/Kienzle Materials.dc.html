@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <script type="module" src="jm-data.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Archivo:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; background: #070809; height: 100%; overflow: hidden; }
+    input { font-family: 'Archivo', sans-serif; }
+    .kz-scroll::-webkit-scrollbar { width: 8px; } .kz-scroll::-webkit-scrollbar-thumb { background: #23262E; border-radius: 8px; }
+  </style>
+</helmet>
+<div style="position:fixed;inset:0;background:#070809;display:flex;align-items:center;justify-content:center;overflow:hidden;">
+<div style="width:1600px;height:980px;flex:none;transform:scale({{ scale }});transform-origin:center;display:flex;background:#0A0B0D;color:#F3F4F6;font-family:'Archivo',sans-serif;overflow:hidden;border-radius:16px;box-shadow:0 40px 120px rgba(0,0,0,0.6);">
+  <aside style="width:72px;flex:none;background:#0C0D10;border-right:1px solid rgba(255,255,255,0.06);display:flex;flex-direction:column;align-items:center;padding:18px 0;gap:6px;">
+    <svg viewBox="0 0 120 120" width="34" height="34" style="margin-bottom:14px;"><rect x="22" y="20" width="13" height="80" rx="1.5" fill="#F3F4F6"/><path d="M35 60 L86 22" stroke="#F3F4F6" stroke-width="13" stroke-linecap="round"/><path d="M35 60 L92 98 L92 74 L58 60 Z" fill="#FF5A2B"/></svg>
+    <div style="width:50px;height:48px;border-radius:12px;border:1px solid rgba(255,90,43,0.35);background:rgba(255,90,43,0.1);color:#FF7A4D;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-family:'JetBrains Mono',monospace;font-size:9px;"><span style="font-size:15px;">⬡</span>MATL</div>
+    <div style="flex:1;"></div>
+    <div style="width:38px;height:38px;border-radius:50%;background:#1B1E24;border:1px solid rgba(255,255,255,0.1);display:flex;align-items:center;justify-content:center;font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:13px;color:#AEB4BE;">JM</div>
+  </aside>
+  <main style="flex:1;display:flex;flex-direction:column;min-width:0;">
+    <header style="flex:none;height:64px;border-bottom:1px solid rgba(255,255,255,0.06);display:flex;align-items:center;justify-content:space-between;padding:0 24px;background:#0C0D10;">
+      <div><div style="font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:19px;">Materials Database</div><div style="font-family:'JetBrains Mono',monospace;font-size:10.5px;color:#6B7280;margin-top:1px;">JM DIE · k<tspan>c1.1</tspan> · TAYLOR · THERMAL · {{ count }} GRADES</div></div>
+      <div style="display:flex;align-items:center;gap:8px;background:#14161B;border:1px solid rgba(255,255,255,0.1);border-radius:9px;padding:0 13px;height:38px;width:260px;">
+        <span style="color:#6B7280;font-size:13px;">⌕</span>
+        <input value="{{ query }}" onInput="{{ setQuery }}" placeholder="Search grade, ISO, use…" style="flex:1;background:transparent;border:none;outline:none;color:#F3F4F6;font-size:13px;">
+      </div>
+    </header>
+    <div style="flex:1;display:grid;grid-template-columns:minmax(0,1fr) 416px;min-height:0;">
+
+      <section style="min-width:0;padding:16px 18px;display:flex;flex-direction:column;background:radial-gradient(900px 480px at 60% -12%, rgba(255,90,43,0.05), transparent 60%),#0B0C0F;">
+        <div style="display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap;"><sc-for list="{{ isoFilters }}" as="f" hint-placeholder-count="7"><button onClick="{{ f.on }}" style="{{ f.style }}">{{ f.label }}</button></sc-for></div>
+        <div class="kz-scroll" style="flex:1;min-height:0;overflow-y:auto;background:#0C0D11;border:1px solid rgba(255,255,255,0.08);border-radius:14px;">
+          <div style="position:sticky;top:0;display:grid;grid-template-columns:1.5fr 50px 70px 56px 64px 60px;gap:10px;padding:11px 18px;background:#101216;border-bottom:1px solid rgba(255,255,255,0.07);font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:0.05em;color:#6B7280;"><span>GRADE</span><span>ISO</span><span>k<tspan>c1.1</tspan></span><span>m<tspan>c</tspan></span><span>HARD</span><span style="text-align:right;">SFM</span></div>
+          <sc-for list="{{ rows }}" as="r" hint-placeholder-count="14">
+            <div onClick="{{ r.on }}" style="{{ r.style }}">
+              <div style="min-width:0;"><div style="font-size:12.5px;color:{{ r.nameColor }};white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ r.name }}</div><div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:#6B7280;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ r.use }}</div></div>
+              <span style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:12px;color:{{ r.isoColor }};">{{ r.iso }}</span>
+              <span style="font-family:'JetBrains Mono',monospace;font-size:11.5px;color:#C7CCD4;">{{ r.kc }}</span>
+              <span style="font-family:'JetBrains Mono',monospace;font-size:11.5px;color:#9398A2;">{{ r.mc }}</span>
+              <span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#9398A2;">{{ r.hard }}</span>
+              <span style="font-family:'JetBrains Mono',monospace;font-size:11.5px;color:#C7CCD4;text-align:right;">{{ r.sfm }}</span>
+            </div>
+          </sc-for>
+          <sc-if value="{{ empty }}" hint-placeholder-val="{{ false }}"><div style="padding:30px;text-align:center;font-size:13px;color:#6B7280;">No grades match "{{ query }}"</div></sc-if>
+        </div>
+      </section>
+
+      <section class="kz-scroll" style="border-left:1px solid rgba(255,255,255,0.06);overflow-y:auto;min-width:0;padding:18px 20px 44px;background:#0A0B0D;">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:14px;">
+          <div><div style="font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:19px;">{{ d.name }}</div><div style="font-family:'JetBrains Mono',monospace;font-size:10.5px;color:#6B7280;margin-top:2px;">{{ d.full }}</div></div>
+          <span style="flex:none;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:15px;color:{{ isoColor }};padding:6px 12px;border:1px solid {{ isoColor }};border-radius:9px;">ISO {{ d.iso }}</span>
+        </div>
+        <sc-if value="{{ d.cal }}" hint-placeholder-val="{{ false }}"><div style="display:flex;align-items:center;gap:7px;margin-bottom:13px;padding:7px 11px;border:1px solid rgba(54,211,153,0.25);background:rgba(54,211,153,0.06);border-radius:9px;font-family:'JetBrains Mono',monospace;font-size:11px;color:#36D399;">✓ JM-CALIBRATED · {{ d.runs }} production runs</div></sc-if>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.1em;color:#FF5A2B;margin-bottom:10px;">CUTTING MECHANICS</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:14px;">
+          <sc-for list="{{ mechCards }}" as="c" hint-placeholder-count="6"><div style="background:#0E0F12;border:1px solid rgba(255,255,255,0.08);border-radius:11px;padding:11px 13px;"><div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:#6B7280;">{{ c.k }}</div><div style="font-family:'JetBrains Mono',monospace;font-size:15px;color:{{ c.color }};margin-top:3px;">{{ c.v }}</div></div></sc-for>
+        </div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.1em;color:#FF5A2B;margin-bottom:10px;">RECOMMENDED SFM · BY TOOL</div>
+        <div style="background:#0E0F12;border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:13px 15px;margin-bottom:14px;">
+          <sc-for list="{{ sfmBars }}" as="b" hint-placeholder-count="3">
+            <div style="display:flex;align-items:center;gap:10px;padding:5px 0;"><span style="flex:none;width:88px;font-size:11px;color:#C7CCD4;">{{ b.tool }}</span><div style="flex:1;height:8px;border-radius:999px;background:#1B1E24;overflow:hidden;"><div style="height:100%;width:{{ b.bar }};background:{{ b.color }};border-radius:999px;"></div></div><span style="flex:none;font-family:'JetBrains Mono',monospace;font-size:10.5px;color:#9398A2;width:64px;text-align:right;">{{ b.range }}</span></div>
+          </sc-for>
+        </div>
+        <div style="background:linear-gradient(135deg,rgba(255,90,43,0.06),#0E0F12);border:1px solid rgba(255,90,43,0.2);border-radius:13px;padding:14px 16px;">
+          <div style="font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.1em;color:#FF7A4D;margin-bottom:9px;">◆ MACHINING NOTES</div>
+          <div style="font-size:12px;color:#C7CCD4;line-height:1.55;">{{ d.notes }}</div>
+        </div>
+      </section>
+    </div>
+  </main>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = { iso: 'all', query: '', sel: 'd2', scale: (typeof window !== 'undefined') ? Math.min(window.innerWidth / 1600, window.innerHeight / 980) : 0.6 };
+  componentDidMount() {
+    this._fit = () => this.setState({ scale: Math.min(window.innerWidth / 1600, window.innerHeight / 980) }); window.addEventListener('resize', this._fit); this._fit();
+    this._trySync = (n) => { try { const K = (typeof window !== 'undefined') && window.KIENZLE; if (K && K.MATERIALS) { Object.keys(this.MAT || {}).forEach(id => { const k = K.MATERIALS[id]; if (k) { this.MAT[id].kc = k.kc; this.MAT[id].mc = k.mc; } }); this.forceUpdate(); } else if ((n || 0) < 25) { setTimeout(() => this._trySync((n || 0) + 1), 100); } } catch (e) {} };
+    this._trySync(0);
+  }
+  componentWillUnmount() { if (this._fit) window.removeEventListener('resize', this._fit); }
+  // kc N/mm2, mc, taylorC/n, k thermal W/mK, rho g/cc, sfm carbide nominal, cal flag
+  MAT = [
+    { id: 'd2', name: 'D2 Tool Steel', full: 'AISI D2 · high-C high-Cr cold-work', iso: 'K/H', kc: 3100, mc: 0.18, tC: 110, tN: 0.16, k: 20, rho: 7.7, hard: '58-62', sfm: 200, cal: true, runs: 340, use: 'Punches, forming dies', notes: 'JM\u2019s bread-and-butter die steel. Abrasive at 60 HRC — TiAlN/AlCrN carbide only; treat HSS as non-viable. Keep DOC light on long stickout; chatter-prone in deep pockets.' },
+    { id: 'a2', name: 'A2 Tool Steel', full: 'AISI A2 · air-hardening cold-work', iso: 'K/H', kc: 2950, mc: 0.19, tC: 120, tN: 0.17, k: 24, rho: 7.86, hard: '57-60', sfm: 215, cal: false, runs: 0, use: 'Die inserts, gauges', notes: 'More forgiving than D2, better toughness. Generic ISO data — run a test cut to calibrate kc against your lot.' },
+    { id: 's7', name: 'S7 Shock Steel', full: 'AISI S7 · shock-resisting', iso: 'K/H', kc: 2750, mc: 0.20, tC: 140, tN: 0.18, k: 27, rho: 7.83, hard: '52-56', sfm: 250, cal: false, runs: 0, use: 'Shear blades, punches', notes: 'Tough, less abrasive than D2. Watch BUE at low speed — keep SFM up and coolant on.' },
+    { id: 'm2', name: 'M2 HSS', full: 'AISI M2 · Mo high-speed steel', iso: 'H', kc: 2600, mc: 0.27, tC: 95, tN: 0.15, k: 21, rho: 8.1, hard: '60-64', sfm: 180, cal: false, runs: 0, use: 'Cutting tools, pins', notes: 'Hard and gummy. Rigid setups, sharp coated carbide, generous coolant. Slowest of the tool steels.' },
+    { id: 'h13', name: 'H13', full: 'AISI H13 · Cr-Mo-V hot-work', iso: 'H', kc: 2400, mc: 0.22, tC: 165, tN: 0.19, k: 28, rho: 7.8, hard: '44-52', sfm: 300, cal: false, runs: 0, use: 'Mold bases, hot dies', notes: 'Pre-hard often 48 HRC. Machines reasonably; good thermal conductivity helps tool life vs D2.' },
+    { id: '4140', name: '4140 PH', full: 'AISI 4140 · Cr-Mo pre-hard', iso: 'P', kc: 1950, mc: 0.23, tC: 200, tN: 0.20, k: 42, rho: 7.85, hard: '28-32', sfm: 360, cal: true, runs: 210, use: 'Shafts, fixtures, plates', notes: 'JM-calibrated. The easy one — high SFM, deep cuts OK. Great for fixturing and proving setups.' },
+    { id: '174ph', name: '17-4 PH', full: '17-4 PH stainless · H900', iso: 'M', kc: 2350, mc: 0.26, tC: 175, tN: 0.20, k: 18, rho: 7.75, hard: '38-44', sfm: 330, cal: true, runs: 95, use: 'Corrosion-resist parts', notes: 'JM-calibrated. Work-hardens — never dwell, keep the tool cutting. Through-tool coolant strongly preferred.' },
+    { id: 'ti64', name: 'Ti-6Al-4V', full: 'Grade 5 titanium alloy', iso: 'S', kc: 1450, mc: 0.32, tC: 90, tN: 0.22, k: 6.7, rho: 4.43, hard: '32-38', sfm: 190, cal: true, runs: 40, use: 'Aero, medical', notes: 'JM-calibrated. Low conductivity = heat stays in the tool. High-pressure coolant mandatory, sharp edges, never rub. Fire risk on fine chips.' },
+    { id: '6061', name: '6061-T6', full: 'Aluminum 6061-T6', iso: 'N', kc: 700, mc: 0.21, tC: 900, tN: 0.33, k: 167, rho: 2.7, hard: '95 HB', sfm: 1200, cal: false, runs: 0, use: 'Brackets, fixtures', notes: 'Run it fast. Polished/uncoated or PCD flutes, high helix to clear chips. RPM usually machine-limited, not tool-limited.' },
+    { id: '316', name: '316 SS', full: 'Austenitic stainless 316', iso: 'M', kc: 2100, mc: 0.25, tC: 165, tN: 0.19, k: 16, rho: 8.0, hard: '85 HRB', sfm: 320, cal: false, runs: 0, use: 'Food/marine parts', notes: 'Gummy, work-hardens fast. Positive geometry, constant feed, flood coolant. Don\u2019t let it rub.' },
+    { id: 'graphite', name: 'Graphite EDM-3', full: 'POCO EDM-3 fine graphite', iso: 'N/A', kc: 300, mc: 0.22, tC: 1200, tN: 0.30, k: 85, rho: 1.8, hard: 'n/a', sfm: 1600, cal: false, runs: 0, use: 'EDM electrodes', notes: 'Abrasive dust, not chips — dedicated machine + vacuum. Diamond-coated tools, no coolant (dry/vac). The Roku-Roku\u2019s domain.' },
+    { id: 'inconel', name: 'Inconel 718', full: 'Ni-Cr superalloy 718', iso: 'S', kc: 2800, mc: 0.30, tC: 70, tN: 0.20, k: 11, rho: 8.19, hard: '36-44', sfm: 120, cal: false, runs: 0, use: 'High-temp aero', notes: 'The hard one. Ceramic or carbide, rigid, HP coolant, replace edges early. Notching at DOC line is the failure mode.' },
+  ];
+  ISOC = { 'P': '#7FB2FF', 'M': '#A855F7', 'K/H': '#FF7A4D', 'H': '#FF5A2B', 'S': '#FF5247', 'N': '#36D399', 'N/A': '#9398A2' };
+  renderVals() {
+    const s = this.state, q = s.query.trim().toLowerCase();
+    const iso = (m) => this.ISOC[m.iso] || '#9398A2';
+    let list = this.MAT.filter(m => (s.iso === 'all' || m.iso === s.iso) && (!q || (m.name + ' ' + m.full + ' ' + m.iso + ' ' + m.use).toLowerCase().includes(q)));
+    let sel = this.MAT.find(m => m.id === s.sel) || list[0] || this.MAT[0];
+    const rows = list.map(m => { const on = m.id === sel.id; return {
+      on: () => this.setState({ sel: m.id }), name: m.name, use: m.use, iso: m.iso, isoColor: iso(m), kc: m.kc, mc: m.mc.toFixed(2), hard: m.hard, sfm: m.sfm,
+      nameColor: on ? '#FF7A4D' : '#F3F4F6',
+      style: `display:grid;grid-template-columns:1.5fr 50px 70px 56px 64px 60px;gap:10px;align-items:center;padding:10px 18px;border-bottom:1px solid rgba(255,255,255,0.04);cursor:pointer;background:${on ? 'rgba(255,90,43,0.08)' : 'transparent'};`,
+    }; });
+    const groups = ['all', 'P', 'M', 'K/H', 'H', 'S', 'N'];
+    const isoFilters = groups.map(g => ({ label: g === 'all' ? 'All' : g, on: () => this.setState({ iso: g }), style: `border:1px solid ${s.iso === g ? 'rgba(255,90,43,0.5)' : 'rgba(255,255,255,0.12)'};background:${s.iso === g ? 'rgba(255,90,43,0.12)' : 'transparent'};color:${s.iso === g ? '#FF7A4D' : '#9398A2'};border-radius:7px;padding:6px 12px;font-size:11px;font-weight:600;cursor:pointer;font-family:'Archivo',sans-serif;` }));
+    const d = sel;
+    const mechCards = [
+      { k: 'k(c1.1) SPECIFIC FORCE', v: d.kc + ' N/mm²', color: '#FF7A4D' },
+      { k: 'mc KIENZLE EXP', v: d.mc.toFixed(2), color: '#C7CCD4' },
+      { k: 'TAYLOR C', v: d.tC + ' m/min', color: '#C7CCD4' },
+      { k: 'TAYLOR n', v: d.tN.toFixed(2), color: '#C7CCD4' },
+      { k: 'THERMAL k', v: d.k + ' W/m·K', color: d.k < 15 ? '#FF6B6B' : '#C7CCD4' },
+      { k: 'DENSITY', v: d.rho + ' g/cc', color: '#C7CCD4' },
+    ];
+    const smax = 1700;
+    const sfmBars = [
+      ['HSS', d.sfm * 0.4], ['Carbide TiAlN', d.sfm], ['Ceramic/CBN', d.sfm * (d.iso === 'S' || d.iso === 'H' ? 2.4 : 1.6)],
+    ].map(([tool, v]) => ({ tool, range: Math.round(v * 0.85) + '–' + Math.round(v * 1.15), bar: Math.min(100, v / smax * 100).toFixed(0) + '%', color: tool === 'Carbide TiAlN' ? '#FF5A2B' : '#7FB2FF' }));
+    return {
+      scale: s.scale, count: this.MAT.length, query: s.query, setQuery: (e) => this.setState({ query: e.target.value }),
+      isoFilters, rows, empty: list.length === 0,
+      d, isoColor: iso(d), mechCards, sfmBars,
+    };
+  }
+}
+</script>
+</body>
+</html>

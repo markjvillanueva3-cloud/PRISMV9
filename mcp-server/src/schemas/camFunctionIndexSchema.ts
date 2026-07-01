@@ -208,6 +208,35 @@ export const CAMDialogSchema = z.object({
 // MENU LEVEL — Operations/features (Face Milling, Pocket, etc.)
 // ============================================================================
 
+// Forward-declare the CAMMenu type so CAMMenuSchema can be annotated
+// as z.ZodType<CAMMenu> (required by TypeScript for recursive z.lazy() schemas).
+// The full type is re-exported below under the TYPE EXPORTS section.
+export type CAMMenu = {
+  id: string;
+  name: string;
+  operation_class?: z.infer<typeof OperationClassEnum> | undefined;
+  dialogs: z.infer<typeof CAMDialogSchema>[];
+  sub_menus?: CAMMenu[] | undefined;
+  geometry_requirements?: Array<
+    "face" | "pocket" | "contour" | "hole" | "surface" | "solid" | "mesh" |
+    "curve" | "point" | "plane" | "stock" | "fixture"
+  > | undefined;
+  machine_requirements?: Array<
+    "3axis" | "4axis" | "5axis" | "lathe" | "millturn" | "wire_edm" |
+    "sinker_edm" | "grinder" | "laser" | "waterjet"
+  > | undefined;
+  typical_sequence_position?: number | undefined;
+  prerequisite_operations?: string[] | undefined;
+  follow_up_operations?: string[] | undefined;
+  output_artifacts?: Array<
+    "toolpath" | "nc_code" | "setup_sheet" | "tool_list" | "simulation" |
+    "collision_report" | "cycle_time" | "stock_model"
+  > | undefined;
+  help_url?: string | undefined;
+  video_tutorials?: string[] | undefined;
+  pdf_references?: string[] | undefined;
+};
+
 /** Operation classification for AI routing */
 export const OperationClassEnum = z.enum([
   // Milling
@@ -239,7 +268,7 @@ export const OperationClassEnum = z.enum([
   "custom", "macro",
 ]).describe("Standard operation classification");
 
-export const CAMMenuSchema = z.object({
+export const CAMMenuSchema: z.ZodType<CAMMenu> = z.object({
   id: z.string().describe("Unique menu/operation identifier"),
   name: z.string().describe("Menu item or operation name"),
   operation_class: OperationClassEnum.optional()
@@ -433,7 +462,7 @@ export type AIAction = z.infer<typeof AIActionSchema>;
 export type CAMParameter = z.infer<typeof CAMParameterSchema>;
 export type CAMDialog = z.infer<typeof CAMDialogSchema>;
 export type OperationClass = z.infer<typeof OperationClassEnum>;
-export type CAMMenu = z.infer<typeof CAMMenuSchema>;
+// CAMMenu type is declared above (forward-declaration required for z.lazy() recursion).
 export type CAMModule = z.infer<typeof CAMModuleSchema>;
 export type CAMSystem = z.infer<typeof CAMSystemSchema>;
 export type CAMFunctionIndex = z.infer<typeof CAMFunctionIndexSchema>;

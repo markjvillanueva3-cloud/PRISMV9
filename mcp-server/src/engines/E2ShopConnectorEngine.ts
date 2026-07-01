@@ -239,7 +239,7 @@ function resolveE2Material(e2Material: string): { prism_key: string; iso_group: 
     if (pattern.test(lower)) {
       try {
         const resolved = resolveMaterial(key);
-        return { prism_key: key, iso_group: resolved.iso_group };
+        return { prism_key: key, iso_group: resolved?.iso_group ?? null };
       } catch {
         return { prism_key: key, iso_group: null };
       }

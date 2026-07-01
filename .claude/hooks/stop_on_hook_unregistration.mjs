@@ -33,6 +33,15 @@ const BUNDLES_DIR = "H:/prism/.claude/hooks/bundles";
 // why in the commit message.
 const INTENTIONALLY_DISABLED = new Set([
   "ollama-terminal-watcher.mjs", // no-op'd 2026-05-11: ran a synchronous curl on every tool call
+  // 2026-06-08: dangling settings.json refs whose .mjs files do not exist on disk —
+  // removed because they threw "Cannot find module" on every SessionStart/Stop/UserPromptSubmit.
+  // linear-roadmap-sync + supabase-state-sync were moved to .claude/hooks/_disabled/ (logic
+  // preserved, re-enableable); these two have no file anywhere. User-approved hook-error cleanup.
+  "stop-mcp-server-heal.mjs",
+  "zebra-advisory-inject.mjs",
+  "linear-roadmap-sync.mjs",
+  "supabase-state-sync.mjs",
+  "token-economy-hook.mjs",  // 2026-06-12: dangling posttool-edit-bundle ref; file never committed anywhere. Bundle entry removed.
 ]);
 
 /**
@@ -141,6 +150,24 @@ function cleanupBaselines() {
   } catch {}
 }
 
+/**
+ * Pure: shape the stop-regression-bundle's JSON verdict from the diff result.
+ * The bundle parses each sub-hook's STDOUT as JSON (NOT its exit code, see
+ * bundles/stop-regression-bundle.mjs:99-106) — so an allow MUST emit
+ * {continue:true} or the bundle reports the gate "NOT evaluated this turn"
+ * (the false-timeout bug this hook hit EVERY Stop: it exited 0 with empty
+ * stdout, so r.parsed was null = "unevaluated"). A block MUST emit
+ * {continue:false,...} or the bundle never sees the block (it keys on
+ * p.continue===false), so an unregistration would NOT actually be stopped.
+ */
+export function buildVerdict(removed = []) {
+  if (!removed.length) return { continue: true };
+  const reason = `STOP BLOCKED: ${removed.length} hook script(s) unregistered without approval (not bundle-absorbed): `
+    + `${removed.slice(0, 12).join(", ")}${removed.length > 12 ? ` (+${removed.length - 12} more)` : ""}. `
+    + `Restore to settings.json, add to a bundle's SUB_HOOKS, or add to INTENTIONALLY_DISABLED (with a reason).`;
+  return { continue: false, stopReason: reason, systemMessage: reason };
+}
+
 function main() {
   // Read current settings
   let currentSettings;
@@ -148,6 +175,7 @@ function main() {
     currentSettings = JSON.parse(readFileSync(SETTINGS_PATH, "utf-8"));
   } catch (err) {
     console.error(`Cannot read settings.json: ${err.message}`);
+    process.stdout.write(JSON.stringify(buildVerdict([]))); // allow + EVALUATED (bundle protocol)
     exit(0); // Don't block if can't read
   }
 
@@ -157,6 +185,7 @@ function main() {
     // No baseline — this is first run or baselines were cleaned
     // Create one now for next session
     cleanupBaselines();
+    process.stdout.write(JSON.stringify(buildVerdict([])));
     exit(0);
   }
 
@@ -171,6 +200,13 @@ function main() {
     ...INTENTIONALLY_DISABLED,
   ]);
   const removed = [...baselineCommands].filter(cmd => !registeredNow.has(cmd));
+
+  // Emit the bundle-protocol JSON FIRST (stdout) so the gate is always counted as
+  // EVALUATED — allow ({continue:true}) or block ({continue:false,...}). The
+  // human-readable box below goes to STDERR (separate stream; the bundle reads
+  // stdout). This is the fix for the every-turn "NOT evaluated" false-timeout AND
+  // for the block never actually blocking through the bundle.
+  process.stdout.write(JSON.stringify(buildVerdict(removed)));
 
   if (removed.length > 0) {
     const baselineCounts = countHooks(baseline);
@@ -197,4 +233,18 @@ function main() {
   exit(0);
 }
 
-try { main(); } catch { process.stdout.write(JSON.stringify({ continue: true })); }
+// Run main() ONLY when executed directly (the bundle spawns this as a subprocess).
+// An isMain guard keeps `import { buildVerdict }` (tests) from triggering main() +
+// its exit(0), which would terminate the importing process mid-suite.
+const isMain = (() => {
+  try {
+    return !!process.argv[1] && (
+      import.meta.url === `file://${process.argv[1].replace(/\\/g, "/")}` ||
+      import.meta.url.endsWith(process.argv[1].replace(/\\/g, "/"))
+    );
+  } catch { return false; }
+})();
+
+if (isMain) {
+  try { main(); } catch { process.stdout.write(JSON.stringify({ continue: true })); }
+}

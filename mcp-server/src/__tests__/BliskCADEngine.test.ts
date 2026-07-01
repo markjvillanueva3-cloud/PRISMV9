@@ -432,6 +432,103 @@ describe("BliskCADEngine", () => {
     });
   });
 
+  // -- Profile capability validation (U-BLISK-6SERIES-PARSE) ----------------
+
+  describe("validate() blade-profile capability", () => {
+    it("rejects a recommended-but-ungeneratable NACA 6-series profile", () => {
+      const spec = createMinimalSpec("six_series_validate_test");
+      spec.blade.profile = "NACA 65-010";
+      const result = engine.validate(spec);
+
+      expect(result.valid).toBe(false);
+      expect(result.errors.some(e => e.includes("blade.profile"))).toBe(true);
+      expect(result.errors.some(e => e.includes("6-series"))).toBe(true);
+    });
+
+    it("rejects an unsupported 5-digit mean-line profile", () => {
+      const spec = createMinimalSpec("bad_meanline_validate_test");
+      spec.blade.profile = "NACA 44112";
+      const result = engine.validate(spec);
+
+      expect(result.valid).toBe(false);
+      expect(result.errors.some(e => e.includes("blade.profile"))).toBe(true);
+    });
+
+    it("rejects an empty profile string", () => {
+      const spec = createMinimalSpec("empty_profile_test");
+      spec.blade.profile = "";
+      const result = engine.validate(spec);
+
+      expect(result.valid).toBe(false);
+      expect(result.errors.some(e => e.includes("blade.profile"))).toBe(true);
+    });
+
+    it("accepts the supported 4-digit profile of the minimal spec", () => {
+      const spec = createMinimalSpec("good_profile_test");
+      const result = engine.validate(spec); // default profile NACA 0010
+      expect(result.valid).toBe(true);
+      expect(result.errors.length).toBe(0);
+    });
+
+    it("rejects a missing blade spec without throwing a TypeError", () => {
+      const spec = createMinimalSpec("no_blade_test");
+      delete (spec as Record<string, unknown>).blade;
+      let result!: ReturnType<BliskCADEngine["validate"]>;
+      expect(() => { result = engine.validate(spec); }).not.toThrow();
+      expect(result.valid).toBe(false);
+      expect(result.errors.some(e => e.includes("blade"))).toBe(true);
+    });
+
+    it("generate() fails loud (BliskSpecError at validate) for a 6-series profile, not deep at getProfile", () => {
+      const spec = createMinimalSpec("six_series_generate_test");
+      spec.blade.profile = "NACA 65-010";
+      try {
+        engine.generate(spec);
+        expect.fail("should have thrown");
+      } catch (e) {
+        expect(e).toBeInstanceOf(BliskSpecError);
+        expect((e as Error).message).toContain("blade.profile");
+      }
+    });
+  });
+
+  // -- listProfiles honesty (U-BLISK-6SERIES-PARSE) -------------------------
+
+  describe("listProfiles() capability honesty", () => {
+    it("flags the 6-series entries as not generatable", () => {
+      const profiles = engine.listProfiles();
+      const s65010 = profiles.find(p => p.designation === "NACA 65-010");
+      const s65012 = profiles.find(p => p.designation === "NACA 65-012");
+      // `?.` so a missing entry surfaces as undefined !== false (clear fail).
+      expect(s65010?.generatable).toBe(false);
+      expect(s65012?.generatable).toBe(false);
+      expect(s65010?.thicknessPercent).toBe(10);
+      expect(s65012?.thicknessPercent).toBe(12);
+    });
+
+    it("does not flag generatable 4-/5-digit entries as ungeneratable", () => {
+      const profiles = engine.listProfiles();
+      for (const p of profiles) {
+        if (p.designation === "NACA 65-010" || p.designation === "NACA 65-012") continue;
+        expect(p.generatable, p.designation).not.toBe(false);
+      }
+    });
+
+    it("every profile NOT flagged ungeneratable actually validates through the engine", () => {
+      const profiles = engine.listProfiles();
+      let checked = 0;
+      for (const p of profiles) {
+        if (p.generatable === false) continue;
+        const spec = createMinimalSpec(`listprofile_${p.designation.replace(/\W+/g, "_")}`);
+        spec.blade.profile = p.designation;
+        const result = engine.validate(spec);
+        expect(result.valid, `${p.designation} should validate`).toBe(true);
+        checked++;
+      }
+      expect(checked).toBeGreaterThanOrEqual(6);
+    });
+  });
+
   // ── Strict validation (throws) ──────────────────────────────────────────
 
   describe("generate() strict validation", () => {

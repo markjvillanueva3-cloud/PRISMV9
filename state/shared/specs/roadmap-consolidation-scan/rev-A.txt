@@ -1,0 +1,1317 @@
+NOTE: Diff was truncated at 80000 bytes (full size 2268202). If completeness cannot be assessed from the partial view, return VERDICT: FAIL with BLOCKER: diff-truncated.
+
+You are reviewer A of three independent Claude PRISM agents — a strict, holistic code reviewer for the PRISM manufacturing-intelligence platform.
+Target: commit 1cedde159.
+
+Acceptance criteria:
+  1. No stubs, TODOs, or placeholder returns
+  2. Tests use concrete assertions (no toBeDefined()/toBeTruthy() blanket stubs)
+  3. ≥3 failure modes covered for any new engine
+  4. Physics constants imported from src/physics/constants.ts (never inlined)
+  5. New engines wired to every consuming dispatcher
+  6. No floating promises, no any-spread anti-patterns introduced
+
+First line of your response MUST be 'VERDICT: PASS' or 'VERDICT: FAIL'.
+Then list BLOCKER: lines for any violations, then optional notes (≤5 lines).
+If unsure between PASS and FAIL, choose FAIL.
+
+--- DIFF ---
+commit 1cedde159fd9124e132f025efaf3a41f7269ea15
+Author: markjvillanueva3-cloud <markjvillanueva3@gmail.com>
+Date:   Sat May 16 14:33:49 2026 -0500
+
+    [MAIN] [ROADMAP-CONSOLIDATION]/juliett: unify all roadmaps -> 5826-item consolidated inventory + galaxy bridge layer
+    
+    Unifies every scattered PRISM roadmap into one consolidated inventory plus a
+    bridge/synergy layer that wires the built galaxy into one organism.
+    
+    - scripts/consolidate-roadmaps.mjs (+test 12/12): deterministic merge of
+      MILESTONE_PROGRESS + roadmap-index + 694 envelopes + BUILD_STATE +
+      MISC-TASKS-INVENTORY + 6-agent prose-roadmap extraction (REVENUE v7.6,
+      BACKEND-DEVTOOLS-MEGA, UNIFIED-v2, prism-stabilization, GIT-TREE-REMEDIATION,
+      OBSIDIAN-INTELLIGENCE-MS3).
+    - scripts/generate-bridge-synergy-features.mjs (+test 8/8): system-viz
+      augmentation -> ghost.bridge_synergy roost + bridge-unit children.
+    - regen-viz.mjs FAST[] + merge-augmentations.mjs splice: wire the generator.
+    - state/shared/specs/ROADMAP-CONSOLIDATED.{json,md,html}: the inventory
+      (advisory, mustHumanVerify).
+    
+    First run: 849 milestones (555 pending) | 4497 pending units | 1133 prose
+    units extracted -> 969 un-consolidated (no envelope) | 318 misc orphans |
+    bridge layer = 26 wiring units (all 836 unwired engines) + 16 deep-integration
+    units. GRAND TOTAL remaining: 5826 work items.
+    
+    Note: the /system-viz node materialization is pending the next clean regen --
+    this session's regen crashed environmentally (16 generators + merge failed
+    with Windows memory codes under fleet load); the augmentation is built,
+    verified, and registered so the next regen splices it.
+    
+    Co-Authored-By: Claude Opus 4.7 (1M context) <noreply@anthropic.com>
+
+diff --git a/knowledge/wiki/architecture/roadmap-consolidation.md b/knowledge/wiki/architecture/roadmap-consolidation.md
+new file mode 100644
+index 000000000..7f7f488b2
+--- /dev/null
++++ b/knowledge/wiki/architecture/roadmap-consolidation.md
+@@ -0,0 +1,66 @@
++---
++name: roadmap-consolidation
++type: architecture
++layer: automation
++created: 2026-05-16
++boost_keywords: [roadmap consolidation, consolidated roadmap, remaining work, bridge units, synergy layer, ROADMAP-CONSOLIDATED, pending units, wire the galaxy, what is left to do]
++description: Unifies every PRISM roadmap (MILESTONE_PROGRESS + roadmap-index + 694 envelopes + BUILD_STATE + MISC-TASKS-INVENTORY + 6 prose roadmaps) into one consolidated inventory of remaining work, plus a bridge/synergy layer that wires and connects the built galaxy.
++links:
++  - script: scripts/consolidate-roadmaps.mjs
++  - script: scripts/generate-bridge-synergy-features.mjs
++  - test: scripts/consolidate-roadmaps.test.mjs
++  - test: scripts/generate-bridge-synergy-features.test.mjs
++  - reports: state/shared/specs/ROADMAP-CONSOLIDATED.json, state/shared/specs/ROADMAP-CONSOLIDATED.md, state/shared/specs/ROADMAP-CONSOLIDATED.html
++  - augmentation: state/shared/system-viz/bridge-synergy-augmentation.json
++  - wired: scripts/regen-viz.mjs (FAST[]), scripts/merge-augmentations.mjs (splice)
++  - memory: reference_roadmap_consolidation_2026_05_16
++  - companion: misc-tasks-extraction, close-out-audit
++---
++
++# PRISM Roadmap Consolidation + Galaxy Bridge Layer
++
++## Problem
++
++PRISM's planned work was scattered across uncoordinated sources — `roadmap-index.json`
++(750 milestones), `MILESTONE_PROGRESS.json` (680 ms / 5,128 units), 694 envelopes,
++and several un-consolidated prose roadmaps (REVENUE v7.6, BACKEND-DEVTOOLS-MEGA,
++UNIFIED-v2, prism-stabilization, GIT-TREE-REMEDIATION, OBSIDIAN-INTELLIGENCE-MS3).
++No single source answered "what is actually left to do." Separately, 836 built
++engines were unwired — capability not connected into the galaxy.
++
++## What it does
++
++`scripts/consolidate-roadmaps.mjs` (pure, unit-tested) merges all sources into one
++inventory `state/shared/specs/ROADMAP-CONSOLIDATED.{json,md,html}`:
++
++- **milestones[]** — every milestone unified, with shipped/pending + which roadmaps it appears in.
++- **pending_units[]** — every un-shipped unit (the master remaining-work set, from MILESTONE_PROGRESS `shipped` flags).
++- **unconsolidated_prose[]** — prose-roadmap units whose unit-id is in NO envelope (work that was planned in a doc but never formalized). Found by cross-referencing 6-agent prose extractions against the envelope/MILESTONE_PROGRESS id set.
++- **bridge_units** — the NEW synergy layer:
++  - *wiring* — domain-grouped units covering all 836 built-but-unwired engines (top-25 domains from BUILD_STATE + a long-tail catch-all).
++  - *deep_integration* — 16 curated cross-subsystem units (`DEEP_INTEGRATION_BRIDGES`) connecting SFC → the 6 CAM bridges, Master Post → CAM, CAD↔CAM AI handoff, the 3-tier AI hierarchy, closed-loop shop-floor learning, ERP ↔ scheduling/quoting, operator-in-the-loop gates.
++
++`scripts/generate-bridge-synergy-features.mjs` emits a system-viz augmentation:
++`ghost.bridge_synergy` roost + one `bridge-unit` child per wiring/deep-integration
++unit. Registered in `regen-viz.mjs` FAST[] + `merge-augmentations.mjs` splice.
++
++## First run (2026-05-16, slot juliett)
++
++849 milestones (555 with pending) · **4,497 pending units** · 1,133 prose units
++extracted → **969 un-consolidated** · 318 misc orphans · bridge layer = 26 wiring
++units (836 engines) + 16 deep-integration units. **Grand total remaining: 5,826
++work items.**
++
++## Why bridge units, not just wiring
++
++`/forge7` framing: the 4,497 pending units are already tracked (as
++`generate-stagnant-features` ghosts). The genuinely new value is the bridge layer
++— the units that make PRISM function as ONE organism rather than a pile of built
++engines: wire the 836 orphans, and connect the subsystems that should talk
++(SFC↔CAM↔post, the AI tiers, closed-loop learning).
++
++## Safety
++
++Advisory only — never mutates a roadmap or flips an envelope. Inventory is
++`mustHumanVerify`. Execution of the 5,826 items is downstream (separate /loop
++or milestone passes).
+diff --git a/scripts/consolidate-roadmaps.mjs b/scripts/consolidate-roadmaps.mjs
+new file mode 100644
+index 000000000..02fb8c2cc
+--- /dev/null
++++ b/scripts/consolidate-roadmaps.mjs
+@@ -0,0 +1,411 @@
++#!/usr/bin/env node
++/**
++ * consolidate-roadmaps.mjs — unify every PRISM roadmap into one inventory.
++ *
++ * Spec: ROADMAP-CONSOLIDATION (slot juliett, forge7, 2026-05-16).
++ *
++ * PRISM's planned work is scattered across uncoordinated sources. This script
++ * merges them into a single consolidated inventory + a bridge/synergy layer:
++ *
++ *   STRUCTURED sources (deterministic):
++ *     - state/shared/MILESTONE_PROGRESS.json   680 ms / 5128 units (shipped flag)
++ *     - mcp-server/data/roadmap-index.json     750 milestones (status)
++ *     - mcp-server/data/milestones/*.json      694 envelopes (per-unit ids)
++ *     - state/shared/BUILD_STATE.json          NEEDS_WIRING domain rollup
++ *     - state/shared/specs/MISC-TASKS-INVENTORY.json   318 orphaned tasks
++ *   PROSE sources (pre-extracted by 6 agents → roadmap-consolidation-scan/):
++ *     - REVENUE v7.6, BACKEND-DEVTOOLS-MEGA, UNIFIED-v2, prism-stabilization,
++ *       GIT-TREE-REMEDIATION-MS0, OBSIDIAN-INTELLIGENCE-MS3
++ *
++ * OUTPUT: state/shared/specs/ROADMAP-CONSOLIDATED.{json,md,html}
++ *   - milestones[]          every milestone, unified, with shipped/pending
++ *   - pending_units[]       every un-shipped unit (the master remaining-work set)
++ *   - unconsolidated_prose[] prose-roadmap units with NO milestone envelope
++ *   - bridge_units          wiring (domain-grouped) + deep-integration synergy
++ *
++ * Advisory only — never mutates a roadmap or envelope.
++ *
++ * Usage:  node scripts/consolidate-roadmaps.mjs [--json]
++ * Exit:   0 ok · 1 validation error · 2 runtime error
++ */
++
++import fs from "node:fs";
++import path from "node:path";
++import { fileURLToPath } from "node:url";
++
++const __dirname = path.dirname(fileURLToPath(import.meta.url));
++export const ROOT = path.resolve(__dirname, "..");
++export const SCHEMA_VERSION = "1.0.0";
++export const PROSE_AGENT_COUNT = 6;
++
++// ─── deep-integration bridge units (curated from PRISM's documented galaxy) ──
++// Each names two BUILT subsystems that should be connected for the platform to
++// function as one organism. Source: CLAUDE-BRIEF galaxy description.
++export const DEEP_INTEGRATION_BRIDGES = [
++  { id: "U-BRIDGE-SFC-FUSION", title: "SFC speeds/feeds → Fusion 360 toolpath bridge", from: "SpeedFeedOrchestrator", to: "cam_fusion bridge", intent: "Physics-backed speeds/feeds flow directly into Fusion 360 toolpath generation." },
++  { id: "U-BRIDGE-SFC-HYPERMILL", title: "SFC speeds/feeds → hyperMILL toolpath bridge", from: "SpeedFeedOrchestrator", to: "cam_hypermill bridge", intent: "SFC output drives hyperMILL cycle parameters." },
++  { id: "U-BRIDGE-SFC-MASTERCAM", title: "SFC speeds/feeds → Mastercam toolpath bridge", from: "SpeedFeedOrchestrator", to: "cam_mastercam bridge", intent: "SFC output drives Mastercam operation parameters." },
++  { id: "U-BRIDGE-SFC-ESPRIT", title: "SFC speeds/feeds → Esprit toolpath bridge", from: "SpeedFeedOrchestrator", to: "cam_esprit bridge", intent: "SFC output drives Esprit toolpath parameters." },
++  { id: "U-BRIDGE-SFC-INVENTORHSM", title: "SFC speeds/feeds → Inventor HSM toolpath bridge", from: "SpeedFeedOrchestrator", to: "cam_inventor_hsm bridge", intent: "SFC output drives Inventor HSM cycle parameters." },
++  { id: "U-BRIDGE-SFC-SOLIDWORKS", title: "SFC speeds/feeds → SolidWorks CAM toolpath bridge", from: "SpeedFeedOrchestrator", to: "cam_solidworks bridge", intent: "SFC output drives SolidWorks CAM parameters." },
++  { id: "U-BRIDGE-MASTERPOST-CAM", title: "Master Post → 6 CAM bridges post-output unification", from: "MasterPost", to: "all 6 CAM bridges", intent: "One post-processor surface emits controller-correct NC for every CAM bridge." },
++  { id: "U-BRIDGE-CAD-CAM-HANDOFF", title: "CAD AI → CAM AI autonomous handoff", from: "CAD generation AI", to: "CAM programming AI", intent: "Autonomously-generated CAD geometry flows into CAM programming without a manual step." },
++  { id: "U-BRIDGE-AI-TIER1-TIER2", title: "Tier-1 Claude → Tier-2 FullSystemAICoordinator command path", from: "Claude orchestrator", to: "FullSystemAICoordinator", intent: "Master orchestrator delegates cleanly to the Tier-2 coordinator." },
++  { id: "U-BRIDGE-AI-TIER2-TIER3", title: "Tier-2 coordinator → 7 Tier-3 domain-specialist AI fan-out", from: "FullSystemAICoordinator", to: "7 domain specialist AIs", intent: "Tier-2 routes domain work to each Tier-3 specialist and merges results." },
++  { id: "U-BRIDGE-SHOPFLOOR-LEARN", title: "Shop-floor telemetry → closed-loop learning ingestion", from: "shop-floor / MTConnect", to: "learning engines", intent: "Real machine telemetry feeds the closed-loop learning layer." },
++  { id: "U-BRIDGE-LEARN-SFC", title: "Closed-loop learning → SFC parameter refinement", from: "learning engines", to: "SpeedFeedOrchestrator", intent: "Learned outcomes refine SFC's physics parameters over time." },
++  { id: "U-BRIDGE-LEARN-CAM", title: "Closed-loop learning → CAM strategy refinement", from: "learning engines", to: "CAM strategy selectors", intent: "Learned outcomes refine CAM toolpath strategy selection." },
++  { id: "U-BRIDGE-ERP-SCHED", title: "ERP ↔ scheduling / capacity planning", from: "ERP integration", to: "scheduling + capacity engines", intent: "ERP work orders drive machine scheduling and capacity planning." },
++  { id: "U-BRIDGE-ERP-QUOTE", title: "ERP ↔ quoting / cost estimation", from: "ERP integration", to: "quoting + cost engines", intent: "Quoting and should-cost analysis read from and write to ERP." },
++  { id: "U-BRIDGE-OPERATOR-GATES", title: "Operator-in-the-loop approval gates across CAD/CAM/post", from: "operator approval layer", to: "CAD + CAM + post pipelines", intent: "Unconditional operator review gates wired at every autonomous-output boundary." },
++];
++
++// ─── io helpers ──────────────────────────────────────────────────────────
++
++function readJson(p) { return JSON.parse(fs.readFileSync(p, "utf8")); }
++function readJsonSafe(p) { try { return readJson(p); } catch { return null; } }
++
++export function loadEnvelopes(dir) {
++  const out = [];
++  let files = [];
++  try { files = fs.readdirSync(dir).filter((f) => f.endsWith(".json")); } catch { return out; }
++  for (const f of files) { const j = readJsonSafe(path.join(dir, f)); if (j) out.push(j); }
++  return out;
++}
++
++export function loadProseAgents(scanDir) {
++  const out = [];
++  for (let n = 1; n <= PROSE_AGENT_COUNT; n++) {
++    const p = path.join(scanDir, `agent-${n}.json`);
++    if (!fs.existsSync(p)) throw new Error(`missing prose agent output agent-${n}.json`);
++    const j = readJson(p);
++    if (!Array.isArray(j.units)) throw new Error(`agent-${n}.json has no units[]`);
++    out.push(j);
++  }
++  return out;
++}
++
++// ─── pure consolidation ──────────────────────────────────────────────────
++
++export function normId(s) { return typeof s === "string" ? s.trim().toUpperCase() : ""; }
++
++/** Unify milestones from MILESTONE_PROGRESS + roadmap-index + envelopes. */
++export function consolidateMilestones({ milestoneProgress, roadmapIndex, envelopes }) {
++  const byId = new Map();
++  const ensure = (id) => {
++    const k = normId(id);
++    if (!k) return null;
++    if (!byId.has(k)) byId.set(k, { id: k, title: "", source_roadmaps: [], total: 0, shipped: 0, pending: 0, claimedStatus: "", derivedStatus: "", drift: "" });
++    return byId.get(k);
++  };
++  const mp = milestoneProgress && milestoneProgress.milestones ? Object.values(milestoneProgress.milestones) : [];
++  for (const ms of mp) {
++    const m = ensure(ms.id);
++    if (!m) continue;
++    m.title = ms.title || m.title;
++    m.total = ms.total ?? m.total;
++    m.shipped = ms.shipped ?? m.shipped;
++    m.pending = ms.pending ?? m.pending;
++    m.claimedStatus = ms.claimedStatus || m.claimedStatus;
++    m.derivedStatus = ms.derivedStatus || m.derivedStatus;
++    m.drift = ms.drift || m.drift;
++    if (!m.source_roadmaps.includes("MILESTONE_PROGRESS")) m.source_roadmaps.push("MILESTONE_PROGRESS");
++  }
++  for (const ms of (roadmapIndex && Array.isArray(roadmapIndex.milestones) ? roadmapIndex.milestones : [])) {
++    const m = ensure(ms.id);
++    if (!m) continue;
++    if (!m.title) m.title = ms.title || "";
++    if (!m.claimedStatus) m.claimedStatus = ms.status || "";
++    if (!m.source_roadmaps.includes("roadmap-index")) m.source_roadmaps.push("roadmap-index");
++  }
++  for (const env of envelopes || []) {
++    const m = ensure(env && env.id);
++    if (!m) continue;
++    if (!m.title) m.title = env.title || "";
++    if (!m.source_roadmaps.includes("envelope")) m.source_roadmaps.push("envelope");
++  }
++  return [...byId.values()].sort((a, b) => a.id.localeCompare(b.id));
++}
++
++/** Every un-shipped unit from MILESTONE_PROGRESS — the master remaining-work set. */
++export function collectPendingUnits(milestoneProgress) {
++  const out = [];
++  const mp = milestoneProgress && milestoneProgress.milestones ? Object.values(milestoneProgress.milestones) : [];
++  for (const ms of mp) {
++    for (const u of (Array.isArray(ms.units) ? ms.units : [])) {
++      if (u && !u.shipped) {
++        out.push({
++          unit_id: u.id || null,
++          milestone: ms.id,
++          title: u.title || "",
++          status: (u.status || "pending"),
++          consolidated: true,
++          source: "MILESTONE_PROGRESS",
++        });
++      }
++    }
++  }
++  return out;
++}
++
++/** Build the set of every unit-id already in an envelope or MILESTONE_PROGRESS. */
++export function buildKnownUnitIds({ milestoneProgress, envelopes }) {
++  const ids = new Set();
++  const mp = milestoneProgress && milestoneProgress.milestones ? Object.values(milestoneProgress.milestones) : [];
++  for (const ms of mp) for (const u of (Array.isArray(ms.units) ? ms.units : [])) if (u && u.id) ids.add(normId(u.id));
++  for (const env of (Array.isArray(envelopes) ? envelopes : [])) for (const u of (Array.isArray(env.units) ? env.units : [])) if (u && u.id) ids.add(normId(u.id));
++  return ids;
++}
++
++/** Prose-roadmap units whose unit-id is in NO envelope / MILESTONE_PROGRESS. */
++export function crossRefProse(proseAgents, knownUnitIds) {
++  const unconsolidated = [];
++  const seen = new Set();
++  let totalProse = 0;
++  for (const agent of proseAgents) {
++    for (const u of (agent.units || [])) {
++      totalProse++;
++      const id = normId(u.unit_id);
++      // Units with no id, or an id not known to any envelope/MP → un-consolidated.
++      if (id && knownUnitIds.has(id)) continue;
++      const key = id || ("T:" + String(u.title || "").toLowerCase().replace(/[^a-z0-9]+/g, " ").trim());
++      if (seen.has(key)) continue;
++      seen.add(key);
++      unconsolidated.push({
++        unit_id: u.unit_id || null,
++        milestone: u.milestone || null,
++        title: u.title || "",
++        intent: u.intent || "",
++        source_roadmap: agent.source_roadmap || "unknown",
++        status: u.status || "unknown",
++      });
++    }
++  }
++  return { unconsolidated, totalProse };
++}
++
++/**
++ * Domain-grouped wiring bridge units from BUILD_STATE NEEDS_WIRING.top_domains,
++ * plus a long-tail catch-all so the wiring layer covers EVERY unwired engine —
++ * `top_domains` is only the top-25 by count; the total is in `summary`.
++ */
++export function buildWiringUnits(buildState) {
++  const nw = buildState && buildState.NEEDS_WIRING;
++  const domains = nw && Array.isArray(nw.top_domains) ? nw.top_domains : [];
++  const units = domains.map((d) => ({
++    id: "U-BRIDGE-WIRE-" + String(d.domain || "OTHER").toUpperCase().replace(/[^A-Z0-9]+/g, ""),
++    title: `Wire ${d.count} unwired ${d.domain} engine(s) to their dispatcher(s)`,
++    domain: d.domain || "Other",
++    engine_count: d.count || 0,
++    intent: `Connect the ${d.count} built-but-unwired ${d.domain}-domain engines into their natural MCP dispatcher(s) so the capability is reachable.`,
++  }));
++  // Long-tail: total unwired (from summary) minus the top-domains already covered.
++  const totalMatch = nw && typeof nw.summary === "string" ? nw.summary.match(/(\d+)\s+engines/) : null;
++  const total = totalMatch ? Number(totalMatch[1]) : 0;
++  const covered = units.reduce((s, u) => s + (u.engine_count || 0), 0);
++  if (total > covered) {
++    units.push({
++      id: "U-BRIDGE-WIRE-LONGTAIL",
++      title: `Wire ${total - covered} unwired engine(s) in long-tail domains to their dispatcher(s)`,
++      domain: "Long-tail (domains outside the top 25)",
++      engine_count: total - covered,
++      intent: `Connect the remaining ${total - covered} built-but-unwired engines (small/misc domains beyond the top 25) into their MCP dispatchers.`,
++    });
++  }
++  return units;
++}
++
++/** Full pipeline. Returns the consolidated inventory object. */
++export function consolidate(sources) {
++  const { milestoneProgress, roadmapIndex, envelopes, proseAgents, miscInventory, buildState } = sources;
++
++  const milestones = consolidateMilestones({ milestoneProgress, roadmapIndex, envelopes });
++  const pendingUnits = collectPendingUnits(milestoneProgress);
++  const knownUnitIds = buildKnownUnitIds({ milestoneProgress, envelopes });
++  const { unconsolidated, totalProse } = crossRefProse(proseAgents, knownUnitIds);
++  const wiringUnits = buildWiringUnits(buildState);
++  const miscCount = miscInventory && Array.isArray(miscInventory.items) ? miscInventory.items.length : 0;
++
++  const wiringEngineTotal = wiringUnits.reduce((s, u) => s + (u.engine_count || 0), 0);
++  const milestonesWithPending = milestones.filter((m) => (m.pending || 0) > 0).length;
++  const shippedUnits = pendingUnits.length
++    ? milestones.reduce((s, m) => s + (m.shipped || 0), 0)
++    : 0;
++
++  const stats = {
++    totalMilestones: milestones.length,
++    milestonesWithPending,
++    pendingUnits: pendingUnits.length,
++    shippedUnits,
++    proseUnitsExtracted: totalProse,
++    proseUnconsolidated: unconsolidated.length,
++    miscOrphans: miscCount,
++    bridgeWiringUnits: wiringUnits.length,
++    bridgeWiringEngines: wiringEngineTotal,
++    deepIntegrationUnits: DEEP_INTEGRATION_BRIDGES.length,
++    grandTotalRemaining:
++      pendingUnits.length + unconsolidated.length + miscCount +
++      wiringUnits.length + DEEP_INTEGRATION_BRIDGES.length,
++  };
++
++  return {
++    schemaVersion: SCHEMA_VERSION,
++    generatedAt: new Date().toISOString(),
++    provenance: {
++      method: "deterministic consolidation of MILESTONE_PROGRESS + roadmap-index + 694 envelopes + BUILD_STATE + MISC-TASKS-INVENTORY + 6-agent prose-roadmap extraction",
++      proseSources: proseAgents.map((a) => a.source_roadmap),
++      advisoryOnly: true,
++      mustHumanVerify: true,
++      nextPhase: "Execute the remaining units (separate /loop or milestone passes). Bridge units wire/synergize the built galaxy.",
++    },
++    stats,
++    milestones,
++    pending_units: pendingUnits,
++    unconsolidated_prose: unconsolidated,
++    bridge_units: { wiring: wiringUnits, deep_integration: DEEP_INTEGRATION_BRIDGES },
++  };
++}
++
++// ─── rendering ───────────────────────────────────────────────────────────
++
++export function renderMarkdown(inv) {
++  const s = inv.stats;
++  const L = [];
++  L.push("# PRISM ROADMAP — Consolidated Inventory");
++  L.push("");
++  L.push(`> Generated ${inv.generatedAt} · schemaVersion ${inv.schemaVersion} · **advisory, human-verify**`);
++  L.push("> Every roadmap unified: what is left to do + the bridge layer that synergizes the galaxy.");
++  L.push("");
++  L.push("## Headline");
++  L.push("");
++  L.push(`- Milestones: **${s.totalMilestones}** (${s.milestonesWithPending} with pending work)`);
++  L.push(`- **Pending units (master remaining-work set): ${s.pendingUnits}**`);
++  L.push(`- Prose-roadmap units extracted: ${s.proseUnitsExtracted} · **un-consolidated (no envelope): ${s.proseUnconsolidated}**`);
++  L.push(`- Misc orphaned tasks (MISC-TASKS-INVENTORY): ${s.miscOrphans}`);
++  L.push(`- Bridge layer: **${s.bridgeWiringUnits} wiring units** (${s.bridgeWiringEngines} engines) + **${s.deepIntegrationUnits} deep-integration units**`);
++  L.push(`- **Grand total remaining work items: ${s.grandTotalRemaining}**`);
++  L.push("");
++  L.push("## Bridge layer — wire + synergize the galaxy");
++  L.push("");
++  L.push("### Wiring units (domain-grouped — 836 built-but-unwired engines)");
++  L.push("");
++  L.push("| Unit | Domain | Engines | Intent |");
++  L.push("|------|--------|---------|--------|");
++  for (const u of inv.bridge_units.wiring) {
++    L.push(`| ${u.id} | ${u.domain} | ${u.engine_count} | ${u.intent.replace(/\|/g, "\\|")} |`);
++  }
++  L.push("");
++  L.push("### Deep-integration units (cross-subsystem synergy)");
++  L.push("");
++  L.push("| Unit | From → To | Intent |");
++  L.push("|------|-----------|--------|");
++  for (const u of inv.bridge_units.deep_integration) {
++    L.push(`| ${u.id} | ${u.from} → ${u.to} | ${u.intent.replace(/\|/g, "\\|")} |`);
++  }
++  L.push("");
++  L.push("## Un-consolidated prose-roadmap units (work in a roadmap doc with NO envelope)");
++  L.push("");
++  L.push("| Unit ID | Roadmap | Title |");
++  L.push("|---------|---------|-------|");
++  for (const u of inv.unconsolidated_prose) {
++    L.push(`| ${u.unit_id || "—"} | ${u.source_roadmap} | ${String(u.title).replace(/\|/g, "\\|").slice(0, 90)} |`);
++  }
++  L.push("");
++  L.push("## Milestone rollup (pending work per milestone)");
++  L.push("");
++  L.push("| Milestone | Shipped/Total | Pending | Status | Roadmaps |");
++  L.push("|-----------|---------------|---------|--------|----------|");
++  for (const m of inv.milestones) {
++    if ((m.pending || 0) === 0 && (m.total || 0) === 0) continue;
++    L.push(`| ${m.id} | ${m.shipped || 0}/${m.total || 0} | ${m.pending || 0} | ${m.derivedStatus || m.claimedStatus || "?"} | ${m.source_roadmaps.join(",")} |`);
++  }
++  L.push("");
++  L.push("_Per-unit detail (all " + s.pendingUnits + " pending units): ROADMAP-CONSOLIDATED.json `pending_units[]`._");
++  L.push("");
++  return L.join("\n");
++}
++
++export function renderHtml(inv) {
++  const s = inv.stats;
++  const esc = (x) => String(x == null ? "" : x).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
++  const wRows = inv.bridge_units.wiring.map((u) => `<tr><td>${esc(u.id)}</td><td>${esc(u.domain)}</td><td>${u.engine_count}</td><td>${esc(u.intent)}</td></tr>`).join("\n");
++  const dRows = inv.bridge_units.deep_integration.map((u) => `<tr><td>${esc(u.id)}</td><td>${esc(u.from)} → ${esc(u.to)}</td><td>${esc(u.intent)}</td></tr>`).join("\n");
++  const mRows = inv.milestones.filter((m) => (m.pending || 0) > 0 || (m.total || 0) > 0)
++    .map((m) => `<tr><td>${esc(m.id)}</td><td>${m.shipped || 0}/${m.total || 0}</td><td>${m.pending || 0}</td><td>${esc(m.derivedStatus || m.claimedStatus || "?")}</td></tr>`).join("\n");
++  return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>PRISM Roadmap — Consolidated</title>
++<style>
++body{font:14px/1.5 system-ui,sans-serif;margin:2rem;background:#0f172a;color:#e2e8f0}
++h1,h2{color:#38bdf8}.stat{display:inline-block;background:#1e293b;padding:.4rem .8rem;margin:.2rem;border-radius:6px}
++table{border-collapse:collapse;width:100%;margin:.6rem 0}th,td{border:1px solid #334155;padding:.35rem .6rem;text-align:left}
++th{background:#1e293b}tr:nth-child(even){background:#1e293b55}
++.skip-link{position:absolute;left:-999px}.skip-link:focus{left:1rem;top:1rem;background:#0ea5e9;color:#fff;padding:.4rem .8rem;border-radius:4px}
++</style></head><body>
++<a href="#content" class="skip-link">Skip to content</a>
++<main id="content" role="main">
++<h1 id="title">PRISM Roadmap — Consolidated Inventory</h1>
++<p>Generated ${esc(inv.generatedAt)} · schemaVersion ${esc(inv.schemaVersion)} · <b>advisory — human-verify</b></p>
++<div>
++<span class="stat">milestones ${s.totalMilestones}</span><span class="stat">pending units ${s.pendingUnits}</span>
++<span class="stat">prose un-consolidated ${s.proseUnconsolidated}</span><span class="stat">misc orphans ${s.miscOrphans}</span>
++<span class="stat">wiring units ${s.bridgeWiringUnits}</span><span class="stat">deep-integration ${s.deepIntegrationUnits}</span>
++<span class="stat" style="background:#0369a1">grand total ${s.grandTotalRemaining}</span>
++</div>
++<h2>Bridge layer — wiring units</h2>
++<table><thead><tr><th>Unit</th><th>Domain</th><th>Engines</th><th>Intent</th></tr></thead><tbody>${wRows}</tbody></table>
++<h2>Bridge layer — deep-integration units</h2>
++<table><thead><tr><th>Unit</th><th>From → To</th><th>Intent</th></tr></thead><tbody>${dRows}</tbody></table>
++<h2>Milestone rollup</h2>
++<table><thead><tr><th>Milestone</th><th>Shipped/Total</th><th>Pending</th><th>Status</th></tr></thead><tbody>${mRows}</tbody></table>
++</main></body></html>`;
++}
++
++// ─── entrypoint ──────────────────────────────────────────────────────────
++
++export function main(argv = process.argv.slice(2)) {
++  const useJson = argv.includes("--json");
++  const specsDir = path.join(ROOT, "state/shared/specs");
++  const scanDir = path.join(specsDir, "roadmap-consolidation-scan");
++
++  let sources;
++  try {
++    const milestoneProgress = readJson(path.join(ROOT, "state/shared/MILESTONE_PROGRESS.json"));
++    const roadmapIndex = readJson(path.join(ROOT, "mcp-server/data/roadmap-index.json"));
++    const envelopes = loadEnvelopes(path.join(ROOT, "mcp-server/data/milestones"));
++    const proseAgents = loadProseAgents(scanDir);
++    const miscInventory = readJsonSafe(path.join(specsDir, "MISC-TASKS-INVENTORY.json"));
++    const buildState = readJson(path.join(ROOT, "state/shared/BUILD_STATE.json"));
++    sources = { milestoneProgress, roadmapIndex, envelopes, proseAgents, miscInventory, buildState };
++  } catch (e) {
++    console.error(`FATAL: source load failed — ${e.message}`);
++    return e.message.includes("missing prose agent") ? 1 : 2;
++  }
++
++  let inventory;
++  try { inventory = consolidate(sources); }
++  catch (e) { console.error(`FATAL: consolidate failed — ${e.message}`); return 2; }
++
++  try {
++    fs.writeFileSync(path.join(specsDir, "ROADMAP-CONSOLIDATED.json"), JSON.stringify(inventory, null, 2));
++    fs.writeFileSync(path.join(specsDir, "ROADMAP-CONSOLIDATED.md"), renderMarkdown(inventory));
++    fs.writeFileSync(path.join(specsDir, "ROADMAP-CONSOLIDATED.html"), renderHtml(inventory));
++  } catch (e) { console.error(`FATAL: write failed — ${e.message}`); return 2; }
++
++  const s = inventory.stats;
++  if (useJson) {
++    console.log(JSON.stringify({ ok: true, ...s }, null, 2));
++  } else {
++    console.log("ROADMAP consolidation complete:");
++    console.log(`  milestones ${s.totalMilestones} (${s.milestonesWithPending} pending)`);
++    console.log(`  pending units ${s.pendingUnits} · prose un-consolidated ${s.proseUnconsolidated} · misc orphans ${s.miscOrphans}`);
++    console.log(`  bridge: ${s.bridgeWiringUnits} wiring (${s.bridgeWiringEngines} engines) + ${s.deepIntegrationUnits} deep-integration`);
++    console.log(`  GRAND TOTAL remaining: ${s.grandTotalRemaining}`);
++    console.log(`  wrote ROADMAP-CONSOLIDATED.{json,md,html}`);
++  }
++  return 0;
++}
++
++const isMain = (() => {
++  try { return process.argv[1] && path.normalize(fs.realpathSync(process.argv[1])) === path.normalize(fileURLToPath(import.meta.url)); }
++  catch { return false; }
++})();
++if (isMain) process.exit(main());
+diff --git a/scripts/consolidate-roadmaps.test.mjs b/scripts/consolidate-roadmaps.test.mjs
+new file mode 100644
+index 000000000..3a172586a
+--- /dev/null
++++ b/scripts/consolidate-roadmaps.test.mjs
+@@ -0,0 +1,171 @@
++#!/usr/bin/env node
++/**
++ * consolidate-roadmaps.test.mjs — node:test suite (real-value assertions, R9).
++ */
++
++import test from "node:test";
++import assert from "node:assert/strict";
++import {
++  normId, consolidateMilestones, collectPendingUnits, buildKnownUnitIds,
++  crossRefProse, buildWiringUnits, consolidate, renderMarkdown, renderHtml,
++  DEEP_INTEGRATION_BRIDGES,
++} from "./consolidate-roadmaps.mjs";
++
++test("normId — uppercase + trim, non-string → empty", () => {
++  assert.equal(normId("  u-foo "), "U-FOO");
++  assert.equal(normId(null), "");
++  assert.equal(normId(7), "");
++});
++
++test("consolidateMilestones — unifies + merges source_roadmaps", () => {
++  const ms = consolidateMilestones({
++    milestoneProgress: { milestones: { A: { id: "A-MS0", title: "Alpha", total: 5, shipped: 2, pending: 3, derivedStatus: "in_progress" } } },
++    roadmapIndex: { milestones: [{ id: "A-MS0", status: "in_progress" }, { id: "B-MS0", title: "Beta", status: "not_started" }] },
++    envelopes: [{ id: "A-MS0", title: "Alpha" }, { id: "C-MS0", title: "Gamma" }],
++  });
++  assert.equal(ms.length, 3); // A, B, C unified
++  const a = ms.find((m) => m.id === "A-MS0");
++  assert.equal(a.total, 5);
++  assert.equal(a.pending, 3);
++  assert.deepEqual(a.source_roadmaps.sort(), ["MILESTONE_PROGRESS", "envelope", "roadmap-index"].sort());
++  const b = ms.find((m) => m.id === "B-MS0");
++  assert.deepEqual(b.source_roadmaps, ["roadmap-index"]);
++});
++
++test("collectPendingUnits — only un-shipped units", () => {
++  const pending = collectPendingUnits({
++    milestones: {
++      A: { id: "A-MS0", units: [
++        { id: "U-A1", title: "one", shipped: true },
++        { id: "U-A2", title: "two", shipped: false },
++        { id: "U-A3", title: "three", shipped: false },
++      ] },
++    },
++  });
++  assert.equal(pending.length, 2);
++  assert.ok(pending.every((u) => !["U-A1"].includes(u.unit_id)));
++  assert.equal(pending[0].milestone, "A-MS0");
++  assert.equal(pending[0].consolidated, true);
++});
++
++test("buildKnownUnitIds — unions MP units + envelope units", () => {
++  const known = buildKnownUnitIds({
++    milestoneProgress: { milestones: { A: { units: [{ id: "U-A1" }, { id: "U-A2" }] } } },
++    envelopes: [{ units: [{ id: "U-E1" }] }],
++  });
++  assert.ok(known.has("U-A1"));
++  assert.ok(known.has("U-E1"));
++  assert.equal(known.has("U-NOPE"), false);
++  assert.equal(known.size, 3);
++});
++
++test("crossRefProse — keeps only units NOT in any envelope/MP", () => {
++  const known = new Set(["U-KNOWN1"]);
++  const proseAgents = [{
++    source_roadmap: "REVENUE",
++    units: [
++      { unit_id: "U-KNOWN1", title: "already roadmapped" },  // dropped
++      { unit_id: "U-ORPHAN1", title: "never enveloped" },    // kept
++      { unit_id: null, title: "idless prose unit" },          // kept
++    ],
++  }];
++  const { unconsolidated, totalProse } = crossRefProse(proseAgents, known);
++  assert.equal(totalProse, 3);
++  assert.equal(unconsolidated.length, 2);
++  assert.ok(unconsolidated.some((u) => u.unit_id === "U-ORPHAN1"));
++  assert.ok(!unconsolidated.some((u) => u.unit_id === "U-KNOWN1"));
++});
++
++test("crossRefProse — dedupes repeated prose units", () => {
++  const { unconsolidated } = crossRefProse([
++    { source_roadmap: "R1", units: [{ unit_id: "U-DUP", title: "x" }] },
++    { source_roadmap: "R2", units: [{ unit_id: "u-dup", title: "x phrased differently" }] },
++  ], new Set());
++  assert.equal(unconsolidated.length, 1); // U-DUP collapsed across roadmaps
++});
++
++test("buildWiringUnits — one domain-grouped unit per NEEDS_WIRING domain", () => {
++  const units = buildWiringUnits({
++    NEEDS_WIRING: { top_domains: [{ domain: "Lathe", count: 89 }, { domain: "Other", count: 144 }] },
++  });
++  assert.equal(units.length, 2);
++  assert.equal(units[0].id, "U-BRIDGE-WIRE-LATHE");
++  assert.equal(units[0].engine_count, 89);
++  assert.ok(units[0].title.includes("89"));
++});
++
++test("buildWiringUnits — long-tail catch-all covers engines beyond top domains", () => {
++  const units = buildWiringUnits({
++    NEEDS_WIRING: {
++      summary: "836 engines on disk with no dispatcher reference.",
++      top_domains: [{ domain: "Lathe", count: 89 }, { domain: "Other", count: 144 }],
++    },
++  });
++  assert.equal(units.length, 3); // 2 domains + long-tail
++  const tail = units.find((u) => u.id === "U-BRIDGE-WIRE-LONGTAIL");
++  assert.ok(tail, "long-tail unit emitted");
++  assert.equal(tail.engine_count, 836 - 89 - 144); // 603
++  // total coverage reconciles with the summary count
++  assert.equal(units.reduce((s, u) => s + u.engine_count, 0), 836);
++});
++
++test("buildWiringUnits — no catch-all when summary absent or fully covered", () => {
++  const units = buildWiringUnits({ NEEDS_WIRING: { top_domains: [{ domain: "X", count: 5 }] } });
++  assert.equal(units.length, 1); // no summary → no long-tail
++});
++
++test("DEEP_INTEGRATION_BRIDGES — 16 well-formed cross-subsystem units", () => {
++  assert.equal(DEEP_INTEGRATION_BRIDGES.length, 16);
++  for (const b of DEEP_INTEGRATION_BRIDGES) {
++    assert.ok(b.id.startsWith("U-BRIDGE-"), `${b.id} has bridge prefix`);
++    assert.ok(b.from && b.to && b.intent && b.title, `${b.id} fully populated`);
++  }
++  // ids unique
++  assert.equal(new Set(DEEP_INTEGRATION_BRIDGES.map((b) => b.id)).size, 16);
++});
++
++test("consolidate — full pipeline integration", () => {
++  const inv = consolidate({
++    milestoneProgress: { milestones: {
++      A: { id: "A-MS0", title: "Alpha", total: 3, shipped: 1, pending: 2, derivedStatus: "in_progress",
++           units: [{ id: "U-A1", shipped: true }, { id: "U-A2", shipped: false }, { id: "U-A3", shipped: false }] },
++    } },
++    roadmapIndex: { milestones: [{ id: "A-MS0", status: "in_progress" }] },
++    envelopes: [{ id: "A-MS0", units: [{ id: "U-A1" }, { id: "U-A2" }, { id: "U-A3" }] }],
++    proseAgents: [{ source_roadmap: "REVENUE", units: [
++      { unit_id: "U-A2", title: "known" },        // in envelope → not un-consolidated
++      { unit_id: "U-NEW9", title: "brand new" },  // un-consolidated
++    ] }],
++    miscInventory: { items: [{ misc_id: "MISC-001" }, { misc_id: "MISC-002" }] },
++    buildState: { NEEDS_WIRING: { top_domains: [{ domain: "Lathe", count: 89 }] } },
++  });
++  assert.equal(inv.stats.pendingUnits, 2);            // U-A2 + U-A3
++  assert.equal(inv.stats.proseUnconsolidated, 1);     // U-NEW9 only
++  assert.equal(inv.stats.miscOrphans, 2);
++  assert.equal(inv.stats.bridgeWiringUnits, 1);
++  assert.equal(inv.stats.bridgeWiringEngines, 89);
++  assert.equal(inv.stats.deepIntegrationUnits, 16);
++  assert.equal(inv.stats.grandTotalRemaining, 2 + 1 + 2 + 1 + 16);
++  assert.equal(inv.schemaVersion, "1.0.0");
++  assert.equal(inv.provenance.advisoryOnly, true);
++});
++
++test("renderMarkdown / renderHtml — non-empty, carry the headline numbers", () => {
++  const inv = consolidate({
++    milestoneProgress: { milestones: { A: { id: "A-MS0", total: 1, shipped: 0, pending: 1, units: [{ id: "U-A1", shipped: false }] } } },
++    roadmapIndex: { milestones: [] },
++    envelopes: [],
++    proseAgents: [{ source_roadmap: "R", units: [] }],
++    miscInventory: { items: [] },
++    buildState: { NEEDS_WIRING: { top_domains: [{ domain: "Other", count: 5 }] } },
++  });
++  const md = renderMarkdown(inv);
++  assert.ok(md.includes("Consolidated Inventory"));
++  assert.ok(md.includes("U-BRIDGE-WIRE-OTHER"));
++  assert.ok(md.includes("U-BRIDGE-SFC-FUSION"));
++  const html = renderHtml(inv);
++  assert.ok(html.startsWith("<!doctype html>"));
++  assert.ok(html.includes('lang="en"'));
++  assert.ok(html.includes('role="main"'));
++  assert.ok(html.includes("U-BRIDGE-SFC-FUSION"));
++});
+diff --git a/scripts/generate-bridge-synergy-features.mjs b/scripts/generate-bridge-synergy-features.mjs
+new file mode 100644
+index 000000000..1c2740f4b
+--- /dev/null
++++ b/scripts/generate-bridge-synergy-features.mjs
+@@ -0,0 +1,163 @@
++#!/usr/bin/env node
++/**
++ * generate-bridge-synergy-features.mjs — system-viz augmentation: bridge layer.
++ *
++ * Spec: ROADMAP-CONSOLIDATION (slot juliett, forge7, 2026-05-16).
++ *
++ * Reads `state/shared/specs/ROADMAP-CONSOLIDATED.json` (produced by
++ * consolidate-roadmaps.mjs) and emits a system-viz augmentation that adds:
++ *   - parent roost `ghost.bridge_synergy` (kind ghost-roost, under
++ *     `ghost.planned_features`).
++ *   - one `bridge-unit` child per wiring unit + per deep-integration unit.
++ *
++ * The 4,497 pending units are already in the graph as `generate-stagnant-
++ * features` ghosts; the NEW graph content is this bridge/synergy layer — the
++ * units that wire and connect the built galaxy into one organism.
++ *
++ * Modeled on generate-misc-tasks-features.mjs. Registered in
++ * scripts/regen-viz.mjs FAST[] and spliced by scripts/merge-augmentations.mjs.
++ *
++ * Usage:  node scripts/generate-bridge-synergy-features.mjs
++ * Exit:   0 ok · 1 inventory missing · 2 runtime error
++ */
++
++import fs from "node:fs";
++import path from "node:path";
++import { fileURLToPath } from "node:url";
++
++const __dirname = path.dirname(fileURLToPath(import.meta.url));
++export const ROOT = path.resolve(__dirname, "..");
++
++export const SCHEMA_VERSION = "1.0.0";
++export const BRIDGE_ROOST_ID = "ghost.bridge_synergy";
++export const PLANNED_PARENT = "ghost.planned_features";
++export const ROOST_LAYER = "L8";
++export const UNIT_LAYER = "L9";
++export const MAX_LABEL = 80;
++export const MAX_INFO = 180;
++
++const VIZ_DIR = path.join(ROOT, "state/shared/system-viz");
++const INVENTORY_PATH = path.join(ROOT, "state/shared/specs/ROADMAP-CONSOLIDATED.json");
++const OUT_PATH = path.join(VIZ_DIR, "bridge-synergy-augmentation.json");
++
++/** Filesystem-safe node id fragment (letters/digits/dash/underscore). */
++export function safeId(raw) {
++  const s = String(raw == null ? "" : raw)
++    .toLowerCase()
++    .replace(/[^a-z0-9_-]+/g, "-")
++    .replace(/-+/g, "-")
++    .replace(/^[-_]+|[-_]+$/g, "")
++    .slice(0, 80);
++  if (!s || s.includes("..")) return "x";
++  return s;
++}
++
++/**
++ * Pure: build {newNodes,newEdges,stats} from a consolidated-roadmap inventory.
++ * `existingNodeIds` — optional Set/array of graph ids to skip (dedupe is also
++ * enforced authoritatively by merge-augmentations.mjs).
++ */
++export function generate(inventory, existingNodeIds = []) {
++  const ids = existingNodeIds instanceof Set ? new Set(existingNodeIds) : new Set(existingNodeIds || []);
++  const bridge = inventory && inventory.bridge_units ? inventory.bridge_units : {};
++  const wiring = Array.isArray(bridge.wiring) ? bridge.wiring : [];
++  const deep = Array.isArray(bridge.deep_integration) ? bridge.deep_integration : [];
++  const newNodes = [];
++  let roostEmitted = 0;
++
++  if (!ids.has(BRIDGE_ROOST_ID)) {
++    newNodes.push({
++      id: BRIDGE_ROOST_ID,
++      label: "Bridge / Synergy Layer (wire + connect the galaxy)",
++      layer: ROOST_LAYER,
++      ghost: true,
++      status: "ghost",
++      kind: "ghost-roost",
++      parent: PLANNED_PARENT,
++      info: `${wiring.length} wiring + ${deep.length} deep-integration units that connect every built PRISM subsystem into one organism. Source: state/shared/specs/ROADMAP-CONSOLIDATED.md.`,
++    });
++    ids.add(BRIDGE_ROOST_ID);
++    roostEmitted = 1;
++  }
++
++  let wiringEmitted = 0, deepEmitted = 0, skipped = 0;
++
++  for (const u of wiring) {
++    const nid = "ghost.bridge." + safeId(u.id || u.domain);
++    if (!u.id || ids.has(nid)) { skipped++; continue; }
++    newNodes.push({
++      id: nid,
++      label: `${u.id} · ${String(u.title || "").trim()}`.slice(0, MAX_LABEL),
++      layer: UNIT_LAYER,
++      ghost: true,
++      status: "ghost",
++      kind: "bridge-unit",
++      parent: BRIDGE_ROOST_ID,
++      info: `[wiring · ${u.domain || "?"} · ${u.engine_count || 0} engines] ${String(u.intent || "").slice(0, MAX_INFO)}`,
++    });
++    ids.add(nid);
++    wiringEmitted++;
++  }
++
++  for (const u of deep) {
++    const nid = "ghost.bridge." + safeId(u.id);
++    if (!u.id || ids.has(nid)) { skipped++; continue; }
++    newNodes.push({
++      id: nid,
++      label: `${u.id} · ${String(u.title || "").trim()}`.slice(0, MAX_LABEL),
++      layer: UNIT_LAYER,
++      ghost: true,
++      status: "ghost",
++      kind: "bridge-unit",
++      parent: BRIDGE_ROOST_ID,
++      info: `[deep-integration · ${u.from || "?"} → ${u.to || "?"}] ${String(u.intent || "").slice(0, MAX_INFO)}`,
++    });
++    ids.add(nid);
++    deepEmitted++;
++  }
++
++  return {
++    newNodes,
++    newEdges: [],
++    stats: { roostEmitted, wiringUnits: wiring.length, deepIntegrationUnits: deep.length, wiringEmitted, deepEmitted, skipped },
++  };
++}
++
++export function main() {
++  if (!fs.existsSync(INVENTORY_PATH)) {
++    console.error(`FATAL: ${INVENTORY_PATH} missing — run scripts/consolidate-roadmaps.mjs first`);
++    return 1;
++  }
++  let inventory;
++  try { inventory = JSON.parse(fs.readFileSync(INVENTORY_PATH, "utf8")); }
++  catch (e) { console.error(`FATAL: inventory parse failed — ${e.message}`); return 2; }
++
++  let result;
++  try {
++    const { newNodes, newEdges, stats } = generate(inventory, []);
++    result = {
++      schemaVersion: SCHEMA_VERSION,
++      generatedAt: new Date().toISOString(),
++      source: "state/shared/specs/ROADMAP-CONSOLIDATED.json",
++      newNodes,
++      newEdges,
++      stats,
++    };
++  } catch (e) { console.error(`FATAL: generate failed — ${e.message}`); return 2; }
++
++  try { fs.writeFileSync(OUT_PATH, JSON.stringify(result, null, 2)); }
++  catch (e) { console.error(`FATAL: write failed — ${e.message}`); return 2; }
++
++  console.log(`wrote ${OUT_PATH}`);
++  console.log(`  roost emitted:        ${result.stats.roostEmitted}`);
++  console.log(`  wiring children:      ${result.stats.wiringEmitted}/${result.stats.wiringUnits}`);
++  console.log(`  deep-integration:     ${result.stats.deepEmitted}/${result.stats.deepIntegrationUnits}`);
++  console.log(`  total new nodes:      ${result.newNodes.length}`);
++  return 0;
++}
++
++const isMain = (() => {
++  try { return process.argv[1] && path.normalize(fs.realpathSync(process.argv[1])) === path.normalize(fileURLToPath(import.meta.url)); }
++  catch { return false; }
++})();
++if (isMain) process.exit(main());
+diff --git a/scripts/generate-bridge-synergy-features.test.mjs b/scripts/generate-bridge-synergy-features.test.mjs
+new file mode 100644
+index 000000000..54fecd3cd
+--- /dev/null
++++ b/scripts/generate-bridge-synergy-features.test.mjs
+@@ -0,0 +1,88 @@
++#!/usr/bin/env node
++/**
++ * generate-bridge-synergy-features.test.mjs — node:test suite (real-value, R9).
++ */
++
++import test from "node:test";
++import assert from "node:assert/strict";
++import {
++  generate, safeId, BRIDGE_ROOST_ID, PLANNED_PARENT, ROOST_LAYER, UNIT_LAYER, MAX_LABEL,
++} from "./generate-bridge-synergy-features.mjs";
++
++const fixture = () => ({
++  bridge_units: {
++    wiring: [
++      { id: "U-BRIDGE-WIRE-LATHE", title: "Wire 89 unwired Lathe engines", domain: "Lathe", engine_count: 89, intent: "connect lathe engines" },
++      { id: "U-BRIDGE-WIRE-OTHER", title: "Wire 144 unwired Other engines", domain: "Other", engine_count: 144, intent: "connect other engines" },
++    ],
++    deep_integration: [
++      { id: "U-BRIDGE-SFC-FUSION", title: "SFC → Fusion bridge", from: "SFC", to: "Fusion", intent: "speeds feeds into fusion" },
++    ],
++  },
++});
++
++test("safeId — collapse + traversal guard", () => {
++  assert.equal(safeId("U-BRIDGE-WIRE-LATHE"), "u-bridge-wire-lathe");
++  assert.equal(safeId("a/b"), "a-b");
++  assert.equal(safeId(".."), "x");
++  assert.equal(safeId(""), "x");
++});
++
++test("generate — empty inventory emits roost only", () => {
++  const { newNodes, stats } = generate({ bridge_units: { wiring: [], deep_integration: [] } }, []);
++  assert.equal(newNodes.length, 1);
++  assert.equal(newNodes[0].id, BRIDGE_ROOST_ID);
++  assert.equal(newNodes[0].kind, "ghost-roost");
++  assert.equal(newNodes[0].parent, PLANNED_PARENT);
++  assert.equal(newNodes[0].layer, ROOST_LAYER);
++  assert.equal(stats.roostEmitted, 1);
++});
++
++test("generate — one child per wiring + deep-integration unit", () => {
++  const { newNodes, stats } = generate(fixture(), []);
++  assert.equal(newNodes.length, 4); // roost + 2 wiring + 1 deep
++  assert.equal(stats.wiringEmitted, 2);
++  assert.equal(stats.deepEmitted, 1);
++  const children = newNodes.filter((n) => n.kind === "bridge-unit");
++  assert.equal(children.length, 3);
++  for (const c of children) {
++    assert.equal(c.parent, BRIDGE_ROOST_ID);
++    assert.equal(c.layer, UNIT_LAYER);
++    assert.equal(c.ghost, true);
++  }
++});
++
++test("generate — wiring vs deep-integration info tags differ", () => {
++  const { newNodes } = generate(fixture(), []);
++  const wire = newNodes.find((n) => n.id.includes("wire-lathe"));
++  const deep = newNodes.find((n) => n.id.includes("sfc-fusion"));
++  assert.ok(wire.info.startsWith("[wiring"));
++  assert.ok(wire.info.includes("89 engines"));
++  assert.ok(deep.info.startsWith("[deep-integration"));
++  assert.ok(deep.info.includes("SFC → Fusion"));
++});
++
++test("generate — long label capped at MAX_LABEL", () => {
++  const inv = { bridge_units: { wiring: [{ id: "U-X", title: "y".repeat(300), domain: "D", engine_count: 1, intent: "i" }], deep_integration: [] } };
++  const { newNodes } = generate(inv, []);
++  const child = newNodes.find((n) => n.kind === "bridge-unit");
++  assert.ok(child.label.length <= MAX_LABEL);
++});
++
++test("generate — skips children + roost already in graph", () => {
++  const { newNodes, stats } = generate(fixture(), new Set([BRIDGE_ROOST_ID, "ghost.bridge.u-bridge-wire-lathe"]));
++  assert.equal(stats.roostEmitted, 0);
++  assert.equal(stats.wiringEmitted, 1); // lathe skipped
++  assert.equal(stats.skipped, 1);
++  assert.ok(!newNodes.some((n) => n.id === BRIDGE_ROOST_ID));
++});
++
++test("generate — idempotent across two runs", () => {
++  assert.deepEqual(generate(fixture(), []), generate(fixture(), []));
++});
++
++test("generate — tolerates missing/garbage inventory", () => {
++  assert.equal(generate(null, []).newNodes.length, 1);
++  assert.equal(generate({}, []).newNodes.length, 1);
++  assert.equal(generate({ bridge_units: { wiring: "nope", deep_integration: null } }, []).stats.wiringUnits, 0);
++});
+diff --git a/scripts/merge-augmentations.mjs b/scripts/merge-augmentations.mjs
+index 9ea65b5cb..4bcb1ec65 100644
+--- a/scripts/merge-augmentations.mjs
++++ b/scripts/merge-augmentations.mjs
+@@ -86,6 +86,7 @@ const knowledgeGal   = loadOptional("knowledge-galaxy-augmentation.json");
+ const layerBridges   = loadOptional("layer-bridges-augmentation.json");
+ const stagnantFeats  = loadOptional("stagnant-features-augmentation.json");
+ const miscTasks      = loadOptional("misc-tasks-augmentation.json");
++const bridgeSynergy  = loadOptional("bridge-synergy-augmentation.json");
+ const engineGraph    = loadOptional("engine-graph-augmentation.json");
+ const hookBridges    = loadOptional("hook-bridges-augmentation.json");
+ const frontendPages  = loadOptional("frontend-pages-augmentation.json");
+@@ -149,6 +150,7 @@ if (knowledgeGal)    versions.knowledgeGal    = knowledgeGal.generatedAt    ?? "
+ if (layerBridges)    versions.layerBridges    = layerBridges.generatedAt    ?? "present";
+ if (stagnantFeats)   versions.stagnantFeats   = stagnantFeats.generatedAt   ?? "present";
+ if (miscTasks)       versions.miscTasks       = miscTasks.generatedAt       ?? "present";
++if (bridgeSynergy)   versions.bridgeSynergy   = bridgeSynergy.generatedAt   ?? "present";
+ if (engineGraph)     versions.engineGraph     = engineGraph.generatedAt     ?? "present";
+ if (hookBridges)     versions.hookBridges     = hookBridges.generatedAt     ?? "present";
+ if (frontendPages)   versions.frontendPages   = frontendPages.generatedAt   ?? "present";
+@@ -872,6 +874,36 @@ if (miscTasks?.newNodes) {
+   };
+ }
+ 
++// Bridge/synergy layer: the "ghost.bridge_synergy" roost + one bridge-unit
++// child per wiring unit (836 unwired engines, domain-grouped) and per
++// deep-integration unit (cross-subsystem synergy gaps). Source:
++// state/shared/specs/ROADMAP-CONSOLIDATED.json via
++// scripts/generate-bridge-synergy-features.mjs.
++let bridgeSynergyNodes = 0, bridgeSynergyEdges = 0;
++if (bridgeSynergy?.newNodes) {
++  const existingIds = new Set(G.nodes.map(n => n.id));
++  for (const node of bridgeSynergy.newNodes) {
++    if (existingIds.has(node.id)) continue;
++    G.nodes.push(node);
++    existingIds.add(node.id);
++    bridgeSynergyNodes++;
++  }
++  G.edges ??= [];
++  const edgeKey = e => `${e.from || e.source}|${e.to || e.target}|${e.type ?? ""}`;
++  const existingEdges = new Set(G.edges.map(edgeKey));
++  for (const edge of (bridgeSynergy.newEdges || [])) {
++    const k = edgeKey(edge);
++    if (existingEdges.has(k)) continue;
++    G.edges.push(edge);
++    existingEdges.add(k);
++    bridgeSynergyEdges++;
++  }
++  G.meta.bridgeSynergy = {
++    generatedAt: bridgeSynergy.generatedAt,
++    stats: bridgeSynergy.stats,
++  };
++}
++
+ // Engine internal graph: 1.2k atomic engine L5 nodes (for engines with
+ // cross-import activity), real engine→engine import edges (active), plus
+ // ghost suggested-peer edges (status:ghost) for plausible bridges that
+@@ -1368,7 +1400,7 @@ G.schemaVersion = "2.29.0";
+ fs.writeFileSync(graphPath, JSON.stringify(G));
+ console.log(`merged augmentations into ${graphPath}`);
+ console.log(`  obsidian: ${obsidian ? "yes" : "missing"}  awareness: ${awareness ? "yes" : "missing"}  novelty: ${novelty ? "yes" : "missing"}  business: ${business ? "yes" : "missing"}`);
+-console.log(`  nodes augmented: ${mergedNodes}  coreInventory: ${coreInventoryChildren}  fsInventory: ${fsInventoryChildren}  engineDomain: ${engineDomainChildren}  knowledgeInv: ${knowledgeInvChildren}  stalenessAnnotated: ${stalenessAnnotated}  fsDeep: ${fsDeepNodes} nodes, ${fsDeepEdges} edges  l11Leaves: ${l11Nodes} nodes, ${l11Edges} edges  wiring: ${wiringAnnotated} annotated, ${wiringPhantomEdges} phantom edges  galaxies: ${galaxyAnnotated} (+${galaxyMolsAttached} planets)  knowledge: ${knowledgeNodes} nodes, ${knowledgeEdges} edges, ${knowledgeAnnotated} annotated  layerBridges: ${bridgeEdges} new edges  stagnant: ${stagnantNodes} nodes / ${stagnantEdges} edges  miscTasks: ${miscTaskNodes} nodes / ${miscTaskEdges} edges  engineGraph: ${engineGraphNodes} nodes / ${engineGraphEdges} edges  hookBridges: ${hookBridgesEdges} edges  frontendPages: ${frontendPageNodes} nodes / ${frontendPageEdges} edges  combo: ${comboNodes} nodes / ${comboEdges} edges  engineSat: ${engSatNodes} nodes / ${engSatEdges} edges  wikiEntries: ${wikiNodes} nodes / ${wikiEdges} edges  formulasAtomic: ${formulaNodes} / ${formulaEdges}  personas: ${personaNodes} / ${personaEdges}  skills: ${skillNodes} / ${skillEdges}  schemas: ${schemaNodes} / ${schemaEdges}  algos: ${algoNodes} / ${algoEdges}  transport: ${transportNodes} / ${transportEdges}  aiTier: ${aiTierNodes} / ${aiTierEdges}  actions: ${actionNodes} / ${actionEdges}  hooks: ${hookNodes} / ${hookEdges}  tests: ${testNodes} / ${testEdges}  scriptsAtom: ${scriptNodesA} / ${scriptEdgesA}  memories: ${memoryNodes} / ${memoryEdges}  regEnt: ${regEntNodes} / ${regEntEdges}  actEng: 0 / ${actEngEdges}  ghosts: ${G.meta.ghostSummary.ghostNodes} nodes / ${G.meta.ghostSummary.ghostEdges} edges`);
++console.log(`  nodes augmented: ${mergedNodes}  coreInventory: ${coreInventoryChildren}  fsInventory: ${fsInventoryChildren}  engineDomain: ${engineDomainChildren}  knowledgeInv: ${knowledgeInvChildren}  stalenessAnnotated: ${stalenessAnnotated}  fsDeep: ${fsDeepNodes} nodes, ${fsDeepEdges} edges  l11Leaves: ${l11Nodes} nodes, ${l11Edges} edges  wiring: ${wiringAnnotated} annotated, ${wiringPhantomEdges} phantom edges  galaxies: ${galaxyAnnotated} (+${galaxyMolsAttached} planets)  knowledge: ${knowledgeNodes} nodes, ${knowledgeEdges} edges, ${knowledgeAnnotated} annotated  layerBridges: ${bridgeEdges} new edges  stagnant: ${stagnantNodes} nodes / ${stagnantEdges} edges  miscTasks: ${miscTaskNodes} nodes / ${miscTaskEdges} edges  bridgeSynergy: ${bridgeSynergyNodes} nodes / ${bridgeSynergyEdges} edges  engineGraph: ${engineGraphNodes} nodes / ${engineGraphEdges} edges  hookBridges: ${hookBridgesEdges} edges  frontendPages: ${frontendPageNodes} nodes / ${frontendPageEdges} edges  combo: ${comboNodes} nodes / ${comboEdges} edges  engineSat: ${engSatNodes} nodes / ${engSatEdges} edges  wikiEntries: ${wikiNodes} nodes / ${wikiEdges} edges  formulasAtomic: ${formulaNodes} / ${formulaEdges}  personas: ${personaNodes} / ${personaEdges}  skills: ${skillNodes} / ${skillEdges}  schemas: ${schemaNodes} / ${schemaEdges}  algos: ${algoNodes} / ${algoEdges}  transport: ${transportNodes} / ${transportEdges}  aiTier: ${aiTierNodes} / ${aiTierEdges}  actions: ${actionNodes} / ${actionEdges}  hooks: ${hookNodes} / ${hookEdges}  tests: ${testNodes} / ${testEdges}  scriptsAtom: ${scriptNodesA} / ${scriptEdgesA}  memories: ${memoryNodes} / ${memoryEdges}  regEnt: ${regEntNodes} / ${regEntEdges}  actEng: 0 / ${actEngEdges}  ghosts: ${G.meta.ghostSummary.ghostNodes} nodes / ${G.meta.ghostSummary.ghostEdges} edges`);
+ console.log(`  L7-saturation: camVendor=${camVCNodes}n/${camVCEdges}e  tsRegEnt=${tsRENodes}n/${tsREEdges}e  physics=${phyANodes}n/${phyAEdges}e`);
+ console.log(`  L5-edges:      engineImp=${engineImpEdgeCount} new edges  testCov=${testCovEdgeCount} new edges`);
+ console.log(`  Phase 2:       jmDie=${jmDieNodes}n/${jmDieEdges}e  frontendDeep=${frontDNodes}n/${frontDEdges}e  wikiX=${wikiXNodes}n/${wikiXEdges}e  schemaEng=${schemaEdgeCount}e  enginePhys=${physEdgeCount}e`);
+diff --git a/scripts/regen-viz.mjs b/scripts/regen-viz.mjs
+index f19230a69..6a49730ab 100644
+--- a/scripts/regen-viz.mjs
++++ b/scripts/regen-viz.mjs
+@@ -37,6 +37,7 @@ const FAST = [
+   "generate-layer-bridges.mjs",
+   "generate-stagnant-features.mjs",
+   "generate-misc-tasks-features.mjs",
++  "generate-bridge-synergy-features.mjs",
+   "generate-engine-graph.mjs",
+   "generate-hook-bridges.mjs",
+   "generate-frontend-pages.mjs",
+diff --git a/state/shared/specs/ROADMAP-CONSOLIDATED.html b/state/shared/specs/ROADMAP-CONSOLIDATED.html
+new file mode 100644
+index 000000000..547836b54
+--- /dev/null
++++ b/state/shared/specs/ROADMAP-CONSOLIDATED.html
+@@ -0,0 +1,679 @@
++<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>PRISM Roadmap — Consolidated</title>
++<style>
++body{font:14px/1.5 system-ui,sans-serif;margin:2rem;background:#0f172a;color:#e2e8f0}
++h1,h2{color:#38bdf8}.stat{display:inline-block;background:#1e293b;padding:.4rem .8rem;margin:.2rem;border-radius:6px}
++table{border-collapse:collapse;width:100%;margin:.6rem 0}th,td{border:1px solid #334155;padding:.35rem .6rem;text-align:left}
++th{background:#1e293b}tr:nth-child(even){background:#1e293b55}
++.skip-link{position:absolute;left:-999px}.skip-link:focus{left:1rem;top:1rem;background:#0ea5e9;color:#fff;padding:.4rem .8rem;border-radius:4px}
++</style></head><body>
++<a href="#content" class="skip-link">Skip to content</a>
++<main id="content" role="main">
++<h1 id="title">PRISM Roadmap — Consolidated Inventory</h1>
++<p>Generated 2026-05-16T19:22:38.596Z · schemaVersion 1.0.0 · <b>advisory — human-verify</b></p>
++<div>
++<span class="stat">milestones 849</span><span class="stat">pending units 4497</span>
++<span class="stat">prose un-consolidated 969</span><span class="stat">misc orphans 318</span>
++<span class="stat">wiring units 26</span><span class="stat">deep-integration 16</span>
++<span class="stat" style="background:#0369a1">grand total 5826</span>
++</div>
++<h2>Bridge layer — wiring units</h2>
++<table><thead><tr><th>Unit</th><th>Domain</th><th>Engines</th><th>Intent</th></tr></thead><tbody><tr><td>U-BRIDGE-WIRE-OTHER</td><td>Other</td><td>144</td><td>Connect the 144 built-but-unwired Other-domain engines into their natural MCP dispatcher(s) so the capability is reachable.</td></tr>
++<tr><td>U-BRIDGE-WIRE-LATHE</td><td>Lathe</td><td>89</td><td>Connect the 89 built-but-unwired Lathe-domain engines into their natural MCP dispatcher(s) so the capability is reachable.</td></tr>
++<tr><td>U-BRIDGE-WIRE-MACHINE</td><td>Machine</td><td>17</td><td>Connect the 17 built-but-unwired Machine-domain engines into their natural MCP dispatcher(s) so the capability is reachable.</td></tr>
++<tr><td>U-BRIDGE-WIRE-TURNING</td><td>Turning</td><td>11</td><td>Connect the 11 built-but-unwired Turning-domain engines into their natural MCP dispatcher(s) so the capability is reachable.</td></tr>
++<tr><td>U-BRIDGE-WIRE-MULTI</td><td>Multi</td><td>10</td><td>Connect the 10 built-but-unwired Multi-domain engines into their natural MCP dispatcher(s) so the capability is reachable.</td></tr>
++<tr><td>U-BRIDGE-WIRE-TOOL</td><td>Tool</td><td>9</td><td>Connect the 9 built-but-unwired Tool-domain engines into their natural MCP dispatcher(s) so the capability is reachable.</td></tr>
++<tr><td>U-BRIDGE-WIRE-FIVE</td><td>Five</td><td>9</td><td>Connect the 9 built-but-unwired Five-domain engines into their natural MCP dispatcher(s) so the capability is reachable.</td></tr>
++<tr><td>U-BRIDGE-WIRE-SHOP</td><td>Shop</td><td>9</td><td>Connect the 9 built-but-unwired Shop-domain engines into their natural MCP dispatcher(s) so the capability is reachable.</td></tr>
++<tr><td>U-BRIDGE-WIRE-OUTCOME</td><td>Outcome</td><td>8</td><td>Connect the 8 built-but-unwired Outcome-domain engines into their natural MCP dispatcher(s) so the capability is reachable.</td></tr>
++<tr><td>U-BRIDGE-WIRE-HYPER</td><td>Hyper</td><td>7</td><td>Connect the 7 built-but-unwired Hyper-domain engines into their natural MCP dispatcher(s) so the capability is reachable.</td></tr>
++<tr><td>U-BRIDGE-WIRE-MILLING</td><td>Milling</td><td>7</td><td>Connect the 7 built-but-unwired Milling-domain engines into their natural MCP dispatcher(s) so the capability is reachable.</td></tr>
++<tr><td>U-BRIDGE-WIRE-FUSION</td><td>Fusion</td><td>7</td><td>Connect the 7 built-but-unwired Fusion-domain engines into their natural MCP dispatcher(s) so the capability is reachable.</td></tr>
++<tr><td>U-BRIDGE-WIRE-WET</td><td>Wet</td><td>7</td><td>Connect the 7 built-but-unwired Wet-domain engines into their natural MCP dispatcher(s) so the capability is reachable.</td></tr>
++<tr><td>U-BRIDGE-WIRE-PROCESS</td><td>Process</td><td>6</td><td>Connect the 6 built-but-unwired Process-domain engines into their natural MCP dispatcher(s) so the capability is reachable.</td></tr>
++<tr><td>U-BRIDGE-WIRE-PRINT</td><td>Print</td><td>6</td><td>Connect the 6 built-but-unwired Print-domain engines into their natural MCP dispatcher(s) so the capability is reachable.</td></tr>
++<tr><td>U-BRIDGE-WIRE-SWISS</td><td>Swiss</td><td>6</td><td>Connect the 6 built-but-unwired Swiss-domain engines into their natural MCP dispatcher(s) so the capability is reachable.</td></tr>
++<tr><td>U-BRIDGE-WIRE-WIRE</td><td>Wire</td><td>6</td><td>Connect the 6 built-but-unwired Wire-domain engines into their natural MCP dispatcher(s) so the capability is reachable.</td></tr>
++<tr><td>U-BRIDGE-WIRE-CONSENSUS</td><td>Consensus</td><td>6</td><td>Connect the 6 built-but-unwired Consensus-domain engines into their natural MCP dispatcher(s) so the capability is reachable.</td></tr>
++<tr><td>U-BRIDGE-WIRE-MOBILE</td><td>Mobile</td><td>5</td><td>Connect the 5 built-but-unwired Mobile-domain engines into their natural MCP dispatcher(s) so the capability is reachable.</td></tr>
++<tr><td>U-BRIDGE-WIRE-MASTERCAM</td><td>Mastercam</td><td>5</td><td>Connect the 5 built-but-unwired Mastercam-domain engines into their natural MCP dispatcher(s) so the capability is reachable.</td></tr>
++<tr><td>U-BRIDGE-WIRE-MILL</td><td>Mill</td><td>4</td><td>Connect the 4 built-but-unwired Mill-domain engines into their natural MCP dispatcher(s) so the capability is reachable.</td></tr>
++<tr><td>U-BRIDGE-WIRE-TRIBAL</td><td>Tribal</td><td>4</td><td>Connect the 4 built-but-unwired Tribal-domain engines into their natural MCP dispatcher(s) so the capability is reachable.</td></tr>
++<tr><td>U-BRIDGE-WIRE-ELECTRODE</td><td>Electrode</td><td>4</td><td>Connect the 4 built-but-unwired Electrode-domain engines into their natural MCP dispatcher(s) so the capability is reachable.</td></tr>
++<tr><td>U-BRIDGE-WIRE-SPEED</td><td>Speed</td><td>4</td><td>Connect the 4 built-but-unwired Speed-domain engines into their natural MCP dispatcher(s) so the capability is reachable.</td></tr>
++<tr><td>U-BRIDGE-WIRE-OKUMA</td><td>Okuma</td><td>4</td><td>Connect the 4 built-but-unwired Okuma-domain engines into their natural MCP dispatcher(s) so the capability is reachable.</td></tr>
++<tr><td>U-BRIDGE-WIRE-LONGTAIL</td><td>Long-tail (domains outside the top 25)</td><td>442</td><td>Connect the remaining 442 built-but-unwired engines (small/misc domains beyond the top 25) into their MCP dispatchers.</td></tr></tbody></table>
++<h2>Bridge layer — deep-integration units</h2>
++<table><thead><tr><th>Unit</th><th>From → To</th><th>Intent</th></tr></thead><tbody><tr><td>U-BRIDGE-SFC-FUSION</td><td>SpeedFeedOrchestrator → cam_fusion bridge</td><td>Physics-backed speeds/feeds flow directly into Fusion 360 toolpath generation.</td></tr>
++<tr><td>U-BRIDGE-SFC-HYPERMILL</td><td>SpeedFeedOrchestrator → cam_hypermill bridge</td><td>SFC output drives hyperMILL cycle parameters.</td></tr>
++<tr><td>U-BRIDGE-SFC-MASTERCAM</td><td>SpeedFeedOrchestrator → cam_mastercam bridge</td><td>SFC output drives Mastercam operation parameters.</td></tr>
++<tr><td>U-BRIDGE-SFC-ESPRIT</td><td>SpeedFeedOrchestrator → cam_esprit bridge</td><td>SFC output drives Esprit toolpath parameters.</td></tr>
++<tr><td>U-BRIDGE-SFC-INVENTORHSM</td><td>SpeedFeedOrchestrator → cam_inventor_hsm bridge</td><td>SFC output drives Inventor HSM cycle parameters.</td></tr>
++<tr><td>U-BRIDGE-SFC-SOLIDWORKS</td><td>SpeedFeedOrchestrator → cam_solidworks bridge</td><td>SFC output drives SolidWorks CAM parameters.</td></tr>
++<tr><td>U-BRIDGE-MASTERPOST-CAM</td><td>MasterPost → all 6 CAM bridges</td><td>One post-processor surface emits controller-correct NC for every CAM bridge.</td></tr>
++<tr><td>U-BRIDGE-CAD-CAM-HANDOFF</td><td>CAD generation AI → CAM programming AI</td><td>Autonomously-generated CAD geometry flows into CAM programming without a manual step.</td></tr>
++<tr><td>U-BRIDGE-AI-TIER1-TIER2</td><td>Claude orchestrator → FullSystemAICoordinator</td><td>Master orchestrator delegates cleanly to the Tier-2 coordinator.</td></tr>
++<tr><td>U-BRIDGE-AI-TIER2-TIER3</td><td>FullSystemAICoordinator → 7 domain specialist AIs</td><td>Tier-2 routes domain work to each Tier-3 specialist and merges results.</td></tr>
++<tr><td>U-BRIDGE-SHOPFLOOR-LEARN</td><td>shop-floor / MTConnect → learning engines</td><td>Real machine telemetry feeds the closed-loop learning layer.</td></tr>
++<tr><td>U-BRIDGE-LEARN-SFC</td><td>learning engines → SpeedFeedOrchestrator</td><td>Learned outcomes refine SFC's physics parameters over time.</td></tr>
++<tr><td>U-BRIDGE-LEARN-CAM</td><td>learning engines → CAM strategy selectors</td><td>Learned outcomes refine CAM toolpath strategy selection.</td></tr>
++<tr><td>U-BRIDGE-ERP-SCHED</td><td>ERP integration → scheduling + capacity engines</td><td>ERP work orders drive machine scheduling and capacity planning.</td></tr>
++<tr><td>U-BRIDGE-ERP-QUOTE</td><td>ERP integration → quoting + cost engines</td><td>Quoting and should-cost analysis read from and write to ERP.</td></tr>
++<tr><td>U-BRIDGE-OPERATOR-GATES</td><td>operator approval layer → CAD + CAM + post pipelines</td><td>Unconditional operator review gates wired at every autonomous-output boundary.</td></tr></tbody></table>
++<h2>Milestone rollup</h2>
++<table><thead><tr><th>Milestone</th><th>Shipped/Total</th><th>Pending</th><th>Status</th></tr></thead><tbody><tr><td>5AXIS-AI</td><td>1/1</td><td>0</td><td>completed_real</td></tr>
++<tr><td>ACP-MS0</td><td>0/5</td><td>5</td><td>not_started_real</td></tr>
++<tr><td>ACP-MS0A</td><td>0/5</td><td>5</td><td>not_started_real</td></tr>
++<tr><td>ACP-MS1</td><td>0/5</td><td>5</td><td>not_started_real</td></tr>
++<tr><td>ACP-MS2</td><td>0/5</td><td>5</td><td>not_started_real</td></tr>
++<tr><td>ACP-MS2B</td><td>0/3</td><td>3</td><td>not_started_real</td></tr>
++<tr><td>ACP-MS3</td><td>0/5</td><td>5</td><td>not_started_real</td></tr>
++<tr><td>ACP-MS4</td><td>0/5</td><td>5</td><td>not_started_real</td></tr>
++<tr><td>ACP-MS5</td><td>0/6</td><td>6</td><td>not_started_real</td></tr>
++<tr><td>ACP-MS6</td><td>0/5</td><td>5</td><td>not_started_real</td></tr>
++<tr><td>ACP-MS7</td><td>0/4</td><td>4</td><td>not_started_real</td></tr>
++<tr><td>AGI-MASTER-PARITY-MS30</td><td>0/4</td><td>4</td><td>not_started_real</td></tr>
++<tr><td>AI-INTEG-MS4</td><td>4/4</td><td>0</td><td>completed_real</td></tr>
++<tr><td>AI-MAX-MS0</td><td>9/12</td><td>3</td><td>in_progress_real</td></tr>
++<tr><td>AI-WIRE-MS0</td><td>0/12</td><td>12</td><td>not_started_real</td></tr>
++<tr><td>APP-MS0</td><td>0/12</td><td>12</td><td>not_started_real</td></tr>
++<tr><td>APPW-MS8</td><td>0/11</td><td>11</td><td>not_started_real</td></tr>
++<tr><td>ARCH-MS2</td><td>0/1</td><td>1</td><td>not_started_real</td></tr>
++<tr><td>ARCH-MS3</td><td>0/1</td><td>1</td><td>not_started_real</td></tr>
++<tr><td>ARCH-MS4</td><td>0/1</td><td>1</td><td>not_started_real</td></tr>
++<tr><td>AUTO-LEARNING-LOOP-MS0</td><td>0/12</td><td>12</td><td>not_started_real</td></tr>
++<tr><td>AWARE-MS0</td><td>2/8</td><td>6</td><td>in_progress_real</td></tr>
++<tr><td>BENCH-MS0</td><td>0/8</td><td>8</td><td>not_started_real</td></tr>
++<tr><td>BENCH-MS1</td><td>0/1</td><td>1</td><td>not_started_real</td></tr>
++<tr><td>BENCH-MS2</td><td>0/1</td><td>1</td><td>not_started_real</td></tr>
++<tr><td>BENCH-MS3</td><td>0/1</td><td>1</td><td>not_started_real</td></tr>
++<tr><td>BENCH-MS4</td><td>0/1</td><td>1</td><td>not_started_real</td></tr>
++<tr><td>BIZ-MS0</td><td>0/6</td><td>6</td><td>not_started_real</td></tr>
++<tr><td>BIZ-MS1</td><td>0/5</td><td>5</td><td>not_started_real</td></tr>
++<tr><td>BIZ-MS2</td><td>0/7</td><td>7</td><td>not_started_real</td></tr>
++<tr><td>BIZ-MS3</td><td>0/9</td><td>9</td><td>not_started_real</td></tr>
++<tr><td>BIZ-MS4</td><td>0/8</td><td>8</td><td>not_started_real</td></tr>
++<tr><td>BIZ-MS5</td><td>0/10</td><td>10</td><td>not_started_real</td></tr>
++<tr><td>BIZ-MS6</td><td>0/12</td><td>12</td><td>not_started_real</td></tr>
++<tr><td>BLUEPRINT-OCR-TRAINING-MS1</td><td>8/8</td><td>0</td><td>completed_real</td></tr>
++<tr><td>BP-MS0</td><td>0/28</td><td>28</td><td>not_started_real</td></tr>
++<tr><td>CAD-AI-DEEP</td><td>6/6</td><td>0</td><td>completed_real</td></tr>
++<tr><td>CAD-AI-ULTRA</td><td>6/6</td><td>0</td><td>completed_real</td></tr>
++<tr><td>CAD-AUTOMATION-MS0</td><td>0/12</td><td>12</td><td>not_started_real</td></tr>
++<tr><td>CAD-CAM-MASTER</td><td>0/1</td><td>1</td><td>not_started_real</td></tr>
++<tr><td>CAD-COMPLETE-MS0</td><td>33/335</td><td>302</td><td>in_progress_real</td></tr>
++<tr><td>CAD-GROUND-TRUTH-MS0</td><td>0/10</td><td>10</td><td>not_started_real</td></tr>
++<tr><td>CAD-INFRA-MS0</td><td>4/16</td><td>12</td><td>in_progress_real</td></tr>
++<tr><td>CAD-TRAINING-EXTRACT-MS0</td><td>0/12</td><td>12</td><td>not_started_real</td></tr>
++<tr><td>CAD-UNIVERSAL-CONTROL-MS0</td><td>3/18</td><td>15</td><td>in_progress_real</td></tr>
++<tr><td>CADCAM-AGI-MS0</td><td>0/24</td><td>24</td><td>not_started_real</td></tr>
++<tr><td>CADCAM-DAGI-MS0</td><td>14/14</td><td>0</td><td>completed_real</td></tr>
++<tr><td>CADCAM-DAGI-MS1</td><td>0/16</td><td>16</td><td>not_started_real</td></tr>
++<tr><td>CADCAM-DAGI-MS2</td><td>0/14</td><td>14</td><td>not_started_real</td></tr>
++<tr><td>CADCAM-DAGI-MS3</td><td>0/10</td><td>10</td><td>not_started_real</td></tr>
++<tr><td>CADCAM-DAGI-MS4</td><td>0/16</td><td>16</td><td>not_started_real</td></tr>
++<tr><td>CADCAM-DAGI-MS5</td><td>0/10</td><td>10</td><td>not_started_real</td></tr>
++<tr><td>CADCAM-DAGI-MS6</td><td>0/8</td><td>8</td><td>not_started_real</td></tr>
++<tr><td>CADCAM-DAGI-MS7</td><td>0/8</td><td>8</td><td>not_started_real</td></tr>
++<tr><td>CADCAM-DEEPAGI-MASTER</td><td>0/1</td><td>1</td><td>not_started_real</td></tr>
++<tr><td>CALC-HARDEN-MS0</td><td>0/18</td><td>18</td><td>not_started_real</td></tr>
++<tr><td>CAM-AI-DEEP</td><td>7/7</td><td>0</td><td>completed_real</td></tr>
++<tr><td>CAM-EXHAUST-MS0</td><td>156/189</td><td>33</td><td>in_progress_real</td></tr>
++<tr><td>CAM-ML-CLOSEDLOOP-MS0</td><td>0/15</td><td>15</td><td>not_started_real</td></tr>
++<tr><td>CAM-PARITY-AGI-MS0</td><td>0/16</td><td>16</td><td>not_started_real</td></tr>
++<tr><td>CAMK-MS0</td><td>0/5</td><td>5</td><td>not_started_real</td></tr>
++<tr><td>CAMK-MS1</td><td>0/5</td><td>5</td><td>not_started_real</td></tr>
++<tr><td>CAMK-MS2</td><td>0/5</td><td>5</td><td>not_started_real</td></tr>
++<tr><td>CAMK-MS3</td><td>0/5</td><td>5</td><td>not_started_real</td></tr>
++<tr><td>CAMX-MS0</td><td>0/8</td><td>8</td><td>not_started_real</td></tr>
++<tr><td>CAMX-MS0.3</td><td>0/24</td><td>24</td><td>not_started_real</td></tr>
++<tr><td>CAMX-MS0.5</td><td>0/16</td><td>16</td><td>not_started_real</td></tr>
++<tr><td>CAMX-MS0.7</td><td>0/10</td><td>10</td><td>not_started_real</td></tr>
++<tr><td>CAMX-MS1</td><td>0/16</td><td>16</td><td>not_started_real</td></tr>
++<tr><td>CAMX-MS10</td><td>0/8</td><td>8</td><td>not_started_real</td></tr>
++<tr><td>CAMX-MS11</td><td>0/10</td><td>10</td><td>not_started_real</td></tr>
++<tr><td>CAMX-MS12</td><td>0/13</td><td>13</td><td>not_started_real</td></tr>
++<tr><td>CAMX-MS13</td><td>0/8</td><td>8</td><td>not_started_real</td></tr>
++<tr><td>CAMX-MS14</td><td>0/8</td><td>8</td><td>not_started_real</td></tr>
++<tr><td>CAMX-MS15</td><td>0/12</td><td>12</td><td>not_started_real</td></tr>
++<tr><td>CAMX-MS16</td><td>0/8</td><td>8</td><td>not_started_real</td></tr>
++<tr><td>CAMX-MS17</td><td>0/8</td><td>8</td><td>not_started_real</td></tr>
++<tr><td>CAMX-MS18</td><td>0/10</td><td>10</td><td>not_started_real</td></tr>
++<tr><td>CAMX-MS19</td><td>0/15</td><td>15</td><td>not_started_real</td></tr>
++<tr><td>CAMX-MS2</td><td>0/8</td><td>8</td><td>not_started_real</td></tr>
++<tr><td>CAMX-MS20</td><td>0/8</td><td>8</td><td>not_started_real</td></tr>
++<tr><td>CAMX-MS21</td><td>0/10</td><td>10</td><td>not_started_real</td></tr>
++<tr><td>CAMX-MS22</td><td>0/20</td><td>20</td><td>not_started_real</td></tr>
++<tr><td>CAMX-MS3</td><td>0/12</td><td>12</td><td>not_started_real</td></tr>
++<tr><td>CAMX-MS4</td><td>0/12</td><td>12</td><td>not_started_real</td></tr>
++<tr><td>CAMX-MS5</td><td>0/10</td><td>10</td><td>not_started_real</td></tr>
++<tr><td>CAMX-MS6</td><td>0/10</td><td>10</td><td>not_started_real</td></tr>
++<tr><td>CAMX-MS7</td><td>0/10</td><td>10</td><td>not_started_real</td></tr>
++<tr><td>CAMX-MS8</td><td>0/16</td><td>16</td><td>not_started_real</td></tr>
++<tr><td>CAMX-MS9</td><td>0/10</td><td>10</td><td>not_started_real</td></tr>
++<tr><td>CAMX-V17-P0A</td><td>0/6</td><td>6</td><td>not_started_real</td></tr>
++<tr><td>CAMX-V17-P0B</td><td>0/7</td><td>7</td><td>not_started_real</td></tr>
++<tr><td>CAMX-V17-P0C</td><td>0/6</td><td>6</td><td>not_started_real</td></tr>
++<tr><td>CAMX-V17-P1</td><td>0/18</td><td>18</td><td>not_started_real</td></tr>
++<tr><td>CAMX-V17-P10</td><td>0/5</td><td>5</td><td>not_started_real</td></tr>
++<tr><td>CAMX-V17-P11</td><td>0/15</td><td>15</td><td>not_started_real</td></tr>
++<tr><td>CAMX-V17-P12</td><td>0/6</td><td>6</td><td>not_started_real</td></tr>
++<tr><td>CAMX-V17-P2</td><td>0/5</td><td>5</td><td>not_started_real</td></tr>
++<tr><td>CAMX-V17-P3</td><td>0/12</td><td>12</td><td>not_started_real</td></tr>
++<tr><td>CAMX-V17-P4</td><td>0/5</td><td>5</td><td>not_started_real</td></tr>
++<tr><td>CAMX-V17-P5</td><td>0/5</td><td>5</td><td>not_started_real</td></tr>
++<tr><td>CAMX-V17-P6</td><td>0/5</td><td>5</td><td>not_started_real</td></tr>
++<tr><td>CAMX-V17-P7</td><td>0/5</td><td>5</td><td>not_started_real</td></tr>
++<tr><td>CAMX-V17-P8</td><td>0/5</td><td>5</td><td>not_started_real</td></tr>
++<tr><td>CAMX-V17-P9</td><td>0/5</td><td>5</td><td>not_started_real</td></tr>
++<tr><td>CC-EXT-MS0</td><td>0/8</td><td>8</td><td>not_started_real</td></tr>
++<tr><td>CC-EXT-MS1</td><td>0/8</td><td>8</td><td>not_started_real</td></tr>
++<tr><td>CC-EXT-MS2</td><td>0/8</td><td>8</td><td>not_started_real</td></tr>
++<tr><td>CC-EXT-MS3</td><td>0/6</td><td>6</td><td>not_started_real</td></tr>
++<tr><td>CC-EXT-MS4</td><td>0/5</td><td>5</td><td>not_started_real</td></tr>
++<tr><td>CC-EXT-MS5</td><td>0/5</td><td>5</td><td>not_started_real</td></tr>
++<tr><td>CC-EXT-MS6</td><td>0/6</td><td>6</td><td>not_started_real</td></tr>
++<tr><td>CC-MS0</td><td>0/9</td><td>9</td><td>not_started_real</td></tr>
++<tr><td>CC-MS1</td><td>0/1</td><td>1</td><td>not_started_real</td></tr>
++<tr><td>CC-MS10</td><td>0/1</td><td>1</td><td>not_started_real</td></tr>
++<tr><td>CC-MS11</td><td>0/1</td><td>1</td><td>not_started_real</td></tr>
++<tr><td>CC-MS2</td><td>0/1</td><td>1</td><td>not_started_real</td></tr>
++<tr><td>CC-MS3</td><td>0/1</td><td>1</td><td>not_started_real</td></tr>
++<tr><td>CC-MS4</td><td>0/1</td><td>1</td><td>not_started_real</td></tr>
++<tr><td>CC-MS5</td><td>0/1</td><td>1</td><td>not_started_real</td></tr>
++<tr><td>CC-MS6</td><td>0/1</td><td>1</td><td>not_started_real</td></tr>
++<tr><td>CC-MS7</td><td>0/1</td><td>1</td><td>not_started_real</td></tr>
++<tr><td>CC-MS8</td><td>0/1</td><td>1</td><td>not_started_real</td></tr>
++<tr><td>CC-MS9</td><td>0/1</td><td>1</td><td>not_started_real</td></tr>
++<tr><td>CCM-MS0</td><td>0/16</td><td>16</td><td>not_started_real</td></tr>
++<tr><td>CCM-MS1</td><td>0/10</td><td>10</td><td>not_started_real</td></tr>
++<tr><td>CCM-MS10</td><td>0/10</td><td>10</td><td>not_started_real</td></tr>
++<tr><td>CCM-MS11</td><td>0/10</td><td>10</td><td>not_started_real</td></tr>
++<tr><td>CCM-MS12</td><td>0/10</td><td>10</td><td>not_started_real</td></tr>
++<tr><td>CCM-MS13</td><td>0/14</td><td>14</td><td>not_started_real</td></tr>
++<tr><td>CCM-MS14</td><td>0/14</td><td>14</td><td>not_started_real</td></tr>
++<tr><td>CCM-MS15</td><td>0/12</td><td>12</td><td>not_started_real</td></tr>
++<tr><td>CCM-MS16</td><td>0/12</td><td>12</td><td>not_started_real</td></tr>
++<tr><td>CCM-MS17</td><td>0/12</td><td>12</td><td>not_started_real</td></tr>
++<tr><td>CCM-MS2</td><td>0/12</td><td>12</td><td>not_started_real</td></tr>
++<tr><td>CCM-MS3</td><td>0/10</td><td>10</td><td>not_started_real</td></tr>
++<tr><td>CCM-MS4</td><td>0/10</td><td>10</td><td>not_started_real</td></tr>
++<tr><td>CCM-MS5</td><td>0/14</td><td>14</td><td>not_started_real</td></tr>
++<tr><td>CCM-MS6</td><td>0/8</td><td>8</td><td>not_started_real</td></tr>
++<tr><td>CCM-MS7</td><td>0/10</td><td>10</td><td>not_started_real</td></tr>
++<tr><td>CCM-MS8</td><td>0/8</td><td>8</td><td>not_started_real</td></tr>
++<tr><td>CCM-MS9</td><td>0/12</td><td>12</td><td>not_started_real</td></tr>
++<tr><td>CK-MS0</td><td>5/5</td><td>0</td><td>completed_real</td></tr>
++<tr><td>CK-MS1</td><td>4/4</td><td>0</td><td>completed_real</td></tr>
++<tr><td>CK-MS10</td><td>0/4</td><td>4</td><td>not_started_real</td></tr>
++<tr><td>CK-MS11</td><td>0/4</td><td>4</td><td>not_started_real</td></tr>
++<tr><td>CK-MS12</td><td>0/4</td><td>4</td><td>not_started_real</td></tr>
++<tr><td>CK-MS13</td><td>0/3</td><td>3</td><td>not_started_real</td></tr>
++<tr><td>CK-MS9</td><td>0/4</td><td>4</td><td>not_started_real</td></tr>
++<tr><td>CLEANUP-MS0</td><td>0/73</td><td>73</td><td>not_started_real</td></tr>
++<tr><td>CLI-MS0</td><td>0/22</td><td>22</td><td>not_started_real</td></tr>
++<tr><td>COMMAND-KERNEL-MS0</td><td>0/29</td><td>29</td><td>not_started_real</td></tr>
++<tr><td>CONTROLLER-AI</td><td>1/1</td><td>0</td><td>completed_real</td></tr>
++<tr><td>COORD-MS0</td><td>9/12</td><td>3</td><td>in_progress_real</td></tr>
++<tr><td>COST-CASCADE-MS0</td><td>0/8</td><td>8</td><td>not_started_real</td></tr>
++<tr><td>CPL</td><td>0/1</td><td>1</td><td>not_started_real</td></tr>
++<tr><td>CPL-MS2</td><td>0/10</td><td>10</td><td>not_started_real</td></tr>
++<tr><td>CWEDM-MS0</td><td>12/12</td><td>0</td><td>completed_real</td></tr>
++<tr><td>DB-EXP-MS0</td><td>0/1</td><td>1</td><td>not_started_real</td></tr>
++<tr><td>DB-EXP-MS1</td><td>0/1</td><td>1</td><td>not_started_real</td></tr>
++<tr><td>DB-EXP-MS2</td><td>0/1</td><td>1</td><td>not_started_real</td></tr>
++<tr><td>DB-EXP-MS3</td><td>0/1</td><td>1</td><td>not_started_real</td></tr>
++<tr><td>DB-EXP-MS4</td><td>0/1</td><td>1</td><td>not_started_real</td></tr>
++<tr><td>EIGC-MS0</td><td>0/5</td><td>5</td><td>not_started_real</td></tr>
++<tr><td>EIGC-MS0A</td><td>0/2</td><td>2</td><td>not_started_real</td></tr>
++<tr><td>EIGC-MS1</td><td>0/3</td><td>3</td><td>not_started_real</td></tr>
++<tr><td>EIGC-MS10</td><td>0/6</td><td>6</td><td>not_started_real</td></tr>
++<tr><td>EIGC-MS2</td><td>0/6</td><td>6</td><td>not_started_real</td></tr>
++<tr><td>EIGC-MS3</td><td>0/3</td><td>3</td><td>not_started_real</td></tr>
++<tr><td>EIGC-MS4</td><td>0/3</td><td>3</td><td>not_started_real</td></tr>
++<tr><td>EIGC-MS5</td><td>0/3</td><td>3</td><td>not_started_real</td></tr>
++<tr><td>EIGC-MS6</td><td>0/4</td><td>4</td><td>not_started_real</td></tr>
++<tr><td>EIGC-MS7</td><td>0/3</td><td>3</td><td>not_started_real</td></tr>
++<tr><td>EIGC-MS8</td><td>0/3</td><td>3</td><td>not_started_real</td></tr>
++<tr><td>EIGC-MS9</td><td>0/3</td><td>3</td><td>not_started_real</td></tr>
++<tr><td>ELEC-PIPE-MS0</td><td>0/1</td><td>1</td><td>not_started_real</td></tr>
++<tr><td>ELEC-PIPE-MS1</td><td>0/1</td><td>1</td><td>not_started_real</td></tr>
++<tr><td>ELEC-PIPE-MS2</td><td>0/1</td><td>1</td><td>not_started_real</td></tr>
++<tr><td>EMP-MS0</td><td>0/28</td><td>28</td><td>not_started_real</td></tr>
++<tr><td>F360-AP-MS0</td><td>0/10</td><td>10</td><td>not_started_real</td></tr>
++<tr><td>F360-AP-MS2</td><td>0/1</td><td>1</td><td>not_started_real</td></tr>
++<tr><td>F360-AP-MS3</td><td>0/1</td><td>1</td><td>not_started_real</td></tr>
++<tr><td>F360-AP-MS6</td><td>0/1</td><td>1</td><td>not_started_real</td></tr>
++<tr><td>F360-AP-MS7</td><td>0/1</td><td>1</td><td>not_started_real</td></tr>
++<tr><td>F360-AP-MS8</td><td>0/1</td><td>1</td><td>not_started_real</td></tr>
++<tr><td>F360-FULL-MS1</td><td>0/1</td><td>1</td><td>not_started_real</td></tr>
++<tr><td>F360-FULL-MS2</td><td>0/1</td><td>1</td><td>not_started_real</td></tr>
++<tr><td>F360-FULL-MS3</td><td>0/1</td><td>1</td><td>not_started_rea
+
+... [truncated at 80000 bytes — full diff is 2268202 bytes]
+--- END DIFF ---

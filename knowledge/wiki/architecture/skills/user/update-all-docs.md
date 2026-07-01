@@ -23,13 +23,22 @@ related:
 |-------|-------|
 | Name | `update-all-docs` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/update-all-docs.md` |
+| Source | `C:/Users/wompu/.claude/commands/update-all-docs.md` |
 | Model | default |
 | Tags | _(none)_ |
 
 ## Description (first paragraph)
 
-_(no body content)_
+
+# Update All Documents
+
+You are performing a comprehensive documentation refresh across the entire PRISM system. This ensures all docs, counts, references, and state files reflect the current reality of the codebase.
+
+## Args: $ARGUMENTS
+- Empty: update everything
+- `counts`: update counts only (fast)
+- `claude`: update CLAUDE.md files only
+- `master`: update MASTER_INDEX_COMPACT.md only
 
 <!-- AUTO-END -->
 

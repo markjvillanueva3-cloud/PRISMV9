@@ -1,0 +1,1550 @@
+User Guide | InventorCAM 2024
+
+Sim 5X | Multiaxis Machining
+
+                                                iMachining 2D
+                                                iMachining 3D
+                                                2.5D Milling
+                                                Indexial Multi-Sided
+                                                HSS Machining
+                                                3D High Speed Milling
+                                                Simultaneous 5-Axis
+                                                Turning
+                                                Advanced Mill-Turn
+                                                Swiss-Type
+                                                Solid Probe
+ InventorCAM 2024
+Multiaxis Machining
+
+      User Guide
+
+                       ©1995-2024 SolidCAM
+                         All Rights Reserved.
+iv
+                                                                                                                                         Contents
+
+Contents
+
+1. Introduction
+     1.1 Adding a Multiaxis Machining Operation.............................................................2
+
+2. CoordSys
+
+3. Geometry
+     3.1 Strategy (Radial Roughing)...................................................................................... 10
+     3.2 Machining surfaces (Radial Roughing).................................................................. 11
+     3.3 Floor surfaces (Radial Roughing)........................................................................... 11
+     3.4 Ceiling surfaces ......................................................................................................... 12
+             3.4.1 Stock to leave on.............................................................................................. 12
+     3.5 Strategy (Wall Finishing).......................................................................................... 12
+     3.6 Wall surfaces.............................................................................................................. 13
+     3.7 Strategy (Floor Finishing)........................................................................................ 13
+     3.8 Stock............................................................................................................................ 14
+
+4. Tool
+     4.1 Dynamic Holder Checking..................................................................................... 18
+     4.2 Feed definition.......................................................................................................... 19
+     4.3 Spin definition.......................................................................................................... 19
+     4.4 Feed zone control.................................................................................................... 20
+             4.4.1 Feed rate optimization.................................................................................... 21
+             4.4.2 Rapid move parameters.................................................................................. 21
+             4.4.3 Adaptive feed rate............................................................................................ 22
+             4.4.4 Feed rate for direct/spline links.................................................................... 22
+
+5. Levels
+     5.1 Regular (Radial Roughing)....................................................................................... 24
+     5.2 Advanced (Radial Roughing)................................................................................... 25
+     5.3 Regular (Wall/Floor Finishing)............................................................................... 25
+             5.3.1 Clearance area.................................................................................................. 26
+             5.3.2 Distances........................................................................................................... 28
+
+6. Constraint boundaries
+     6.1 Boundary type.......................................................................................................... 31
+     6.2 Boundary name........................................................................................................ 32
+     6.3 Tool-boundary relation........................................................................................... 32
+
+7. Tool path parameters
+     7.1 Surface quality (Radial Roughing)........................................................................... 34
+     7.2 Surface quality (Wall/Floor Finishing).................................................................. 35
+     7.3 Sorting (Radial Roughing)........................................................................................ 35
+     7.4 Sorting (Wall/Floor Finishing)............................................................................... 37
+     7.5 Adaptive stepdown................................................................................................... 37
+     7.6 Smoothing.................................................................................................................. 38
+     7.7 Rest rough.................................................................................................................. 39
+
+                                                                                                                                                   v
+8. Tool axis control
+9. Link
+
+     9.1 Ramping..................................................................................................................... 44
+     9.2 Approach/Retract..................................................................................................... 45
+     9.3 Links............................................................................................................................ 46
+10. Gouge check
+     10.1 Degouging.................................................................................................................. 50
+11. Clearance data
+12. Machine control
+     12.1 Regular........................................................................................................................ 54
+
+             12.1.1 Angle pairs...................................................................................................... 54
+             12.1.2 Machine limits................................................................................................ 55
+     12.2 Advanced.................................................................................................................... 56
+             12.2.1 Pole handling.................................................................................................. 56
+             12.2.2 Move list writer.............................................................................................. 57
+             12.2.3 Tool repositioning......................................................................................... 57
+             12.2.4 Point interpolation........................................................................................ 58
+13. Misc. parameters
+     13.1 Message....................................................................................................................... 60
+     13.2 Extra parameters....................................................................................................... 60
+     13.3 Flyout Window.......................................................................................................... 60
+     13.4 Custom triangulation................................................................................................ 60
+     13.5 Max. angle step for rotation axis............................................................................ 61
+
+Document number: IVCMultiaxisMENG0024SP2
+vi
+Contents
+        vii
+Introduction  1
+InventorCAM provides you with the Multiaxis Machining operation. This operation creates a multiaxis tool path used
+to rough out pocket shaped geometries. You can specify the inputs for floor and ceiling surfaces which are used by
+I nventorCAM to create the tool path.
+
+1.1 Adding a Multiaxis Machining Operation
+
+To add a Multiaxis Machining operation to the CAM-Part, right-click the Operations header in InventorCAM Manager
+and choose the Multiaxis Machining command from the Add Milling Operation submenu.
+
+The Multiaxis Machining dialog box is displayed.
+
+2
+                                                                                                                                                  1. Introduction
+
+Parameter pages
+The parameters of the Multiaxis Machining operation are divided into a number of subgroups. The subgroups are
+displayed in a tree format on the left side of the Operation dialog box. When you click a subgroup name in the tree,
+the parameters of the selected subgroup appear on the right side of the dialog box.
+
+       · CoordSys
+
+         Define the CoordSys position for the Multiaxis machining.
+
+       · Geometry
+
+         Choose a geometry for machining and define the machining strategy and its parameters.
+
+       · Tool
+
+         Choose a tool for the operation and define the related parameters such as feed and spin.
+
+       · Levels
+
+         Define the Clearance area and the machining levels.
+
+       · Constraint boundaries
+
+         Limit the machining to specific model areas.
+
+       · Tool path parameters
+
+         Define the machining parameters.
+
+       · Link
+
+         The Link page enables you to define how the Multiaxis machining passes are linked to the complete tool path.
+
+       · Machine control
+
+         Define the parameters related to the kinematics and special characteristics of the CNC-machine.
+
+       · Misc. parameters
+
+         Define a number of miscellaneous parameters and options related to the Multiaxis machining tool path
+         calculation.
+
+                                                                                                                                                                    3
+4
+CoordSys  2
+I nventorCAM enables you to define the Coordinate System for the operation by choosing it from combo-box or by
+selecting it from the graphic screen by clicking the define. The CoordSys Manager dialog box is displayed. Together
+with this dialog box, InventorCAM displays the location and axis orientation of all Coordinate Systems defined in the
+CAM-Part.
+
+To get more information about the Coordinate System, right-click the CoordSys
+entry in CoordSys Manager and choose the Inquire option from the menu.
+
+The CoordSys Data dialog box is displayed.
+
+The CoordSys section allows you to define the following:
+
+                              MAC Number defines the number of the Coordinate
+                              System in the CNC-Machine. The default value is 1. If
+                              you use another number, the GCode file will contain the
+                              G-function that tells the machine to use the specified
+                              number stored in the controller of your machine.
+
+                              Position defines the sequential number of the
+                              Coordinate System.
+
+                              Create planar surface at Part Lower level option enables you to generate a transparent
+                              planar surface at the minimal Z-level of the part so that its lower level plane is visible. This
+                              option is available only when the Coordinate System has been defined by selecting a face.
+
+                              Edit CoordSys enables you to change the CoordSys location or orientation of the axes with
+                              the CoordSys dialog box.
+
+                              In the Milling module, facial and radial milling is performed using the same Coordinate
+                              System. But since the part levels used for facial milling are measured along the Z-axis,
+                              whereas those used for radial milling are measured around the Z-axis, the CoordSys data
+                              must be defined separately.
+
+                              The Planar and Rear sections contain sets of facial machining levels describing the planes
+                              parallel to the XY-plane and located along the Z-axis.
+
+                              Levels: Planar section displays levels for milling from the positive Z-direction.
+
+Levels: Radial section contains a set of machining levels describing the virtual cylinders situated around the Z-axis.
+
+These sections contain the following parameters:
+
+Tool start level defines the Z-level at which the tool starts.
+
+Clearance level is the Z-level to which the tool rapidly travels when moving from one operation to another (in case
+the tool does not change).
+
+Part Upper level defines the height of the upper surface of the part to be milled.
+
+Part Lower level defines the lower surface level of the part to be milled.
+
+Tool Z-level is the height that the tool moves to before the rotation of the 4/5 axes to avoid collision between the
+tool and the workpiece. This level is related to the CoordSys position and you have to check if it is not over the limit
+switch of the machine. It is highly recommended to send the tool to the reference point or to a point related to the
+reference point.
+
+In the section of Translation Data, Shift is the distance along each axis (X, Y, Z) from the Machine Coordinate System
+(Mac CoordSys) to the location of the Position in the coordinate system and the orientation of the Machine CoordSys.
+
+Rotation is the angle of rotation around the main axes X, Y and Z.
+
+                 For the first Position number related to a new Mac CoordSys number, the Shift and Rotation parameters
+                 are always 0. Shift and Rotation for other Position Numbers related to the same Mac CoordSys number
+                 are determined automatically.
+
+6
+                                                                                                                                                     2. CoordSys
+
+The section of Plane defines the default work plane for the operations using this CoordSys, as it is output to the GCode
+program. In the InventorCAM module, you must always work on the XY-plane. Some CNC-machines, however, have
+different axes definitions and require a GCode output with rotated XY-planes. Choose one of the following options:
+
+     · XY - the XY-plane is the work plane; the Z-axis is the depth
+     · YZ - the YZ-plane is the work plane; the X-axis is the depth
+     · ZX - the ZX-plane is the work plane; the Y-axis is the depth
+This option works correctly only when your post-processor has been customized to support this function.
+
+                                                                                                                                                                    7
+8
+Geometry  3
+The Geometry page enables you to define the values of several geometry parameters. When the Technology is selected
+as Radial Roughing, the Geometry page allows you to define the following parameters:
+
+3.1 Strategy (Radial Roughing)
+
+The Strategy section enables you to define two types of strategies.
+Offset
+This strategy allows you generate cuts that are parallel to the ceiling or floor geometry.
+Adaptive
+This strategy allows you to keep the cutting conditions constant. You can avoid full-width cuts by constantly measuring
+the engagement volume of the tool with material and gradually removing material off the remaining stock. This
+results in a stable load on the tool, which allows an increased material removal rate at higher feed rates, gradually
+reducing the overall machining time.
+For the Offset and Adaptive strategies, you can select the following three sub-roughing strategies from the list:
+
+       Offset from floor. In this strategy, the cuts generated are all offset cuts from
+       the floor. The cuts are generated parallel to the floor and upper cuts are
+       trimmed due to the shape of the part.
+
+10
+                                                                                3. Geometry
+
+Offset from ceiling. In this strategy, the cuts are created as offset from the
+selected ceiling surface.
+
+       Morph between floor and ceiling. In this strategy, the tool path gradually
+       morphs between the floor surface and the ceiling surface.
+
+3.2 Machining surfaces (Radial Roughing)
+
+The Machining surfaces are the entire model or any surface(s) of the design model.
+     enables you to define a new geometry for the operation with either selecting the icon that displays the Select
+
+Faces dialog box. Or, by selecting the icon that displays the 3D Geometry dialog box.
+     enables you to edit an existing geometry.
+      enables you to view the available geometries on the model and choose the relevant one from the list.
+
+The Show button displays the Show geometry dialog box and the machining surfaces are displayed and highlighted
+in the graphic window.
+
+3.3 Floor surfaces (Radial Roughing)
+
+The Floor surfaces must be defined using . The floor surface must be defined in a way
+that it covers all the area above the area to be machined.
+
+                                                                                11
+3.4 Ceiling surfaces
+
+The Ceiling surfaces must be defined using . The stock's top surface must be selected
+for machining and must cover all the underneath area to be machined. The surface should
+not have any gaps.
+
+                 The Ceiling surfaces can be defined only if the strategy of Offset from
+                 ceiling or Morph between floor and ceiling is selected.
+
+3.4.1 Stock to leave on
+
+This option sets a clearance offset between the specified parts of the tool and the surfaces
+to be machined.
+
+                 Negative value in Stock to leave on can be defined. This value cannot be bigger than the corner radius
+                 of the tool. This option is available only for the sections of Machining surfaces and Floor surfaces.
+When the Technology is selected as Wall Finishing, the Geometry page allows you to define the following parameters:
+
+3.5 Strategy (Wall Finishing)
+
+The Strategy section enables you to define two types of strategies.
+Morph between floor and ceiling
+In this option, the tool path is created gradually by morphing between the floor surface and the ceiling surface.
+Parallel
+In this option, the cuts generated are all offset cuts and are generated parallel to the wall.
+For this option, you can additionally select the required Guide curve as Floor curve, Ceiling curve or, User defined
+curve.
+When you select the option of Floor curve from the list, the floor curve is automatically defined and cuts are created
+using this curve.
+
+12
+                                                                                                                                                     3. Geometry
+
+When the option of Ceiling curve is selected, the ceiling curve is automatically defined and cuts are created using this
+curve.
+When the option of User defined curve is selected, the User defined curve section is enabled. Selecting the New icon
+displays the Geometry Edit dialog box which allows you to define one or more drive curves.
+The sections of Machining surfaces, Floor surfaces and Stock to leave on are similar as in the Radial Roughing
+technology.
+
+3.6 Wall surfaces
+
+The Wall surfaces must be defined using . The wall surface is the whole part
+that must be selected including the floor surface. It is important that you do not
+select the ceiling surface while defining the wall surface.
+When the Technology is selected as Floor Finishing, the Geometry page allows you
+to define the following parameters:
+
+3.7 Strategy (Floor Finishing)
+
+The Strategy section enables you to define two types of strategies.
+Offset from wall
+In this option, the cuts generated on the floor are all offset cuts from the wall.
+Parallel
+In this option, parallel machining cuts are generated on the floor of the part.
+For this option, you can additionally select the required Guide curve as Longest dimension or User defined curve.
+When you select the option of Longest dimension from the list, the longest dimension from the floor surface is
+selected as the guide curve.
+When you select the option of User defined curve from the list, the User defined curve section is enabled. Selecting
+the New icon displays the Geometry Edit dialog box which allows you to define one or more drive curves.
+
+                                                                                                                                                                  13
+The sections of Machining surfaces, Floor surfaces, Wall surfaces and Stock to leave on are similar as in the Wall
+Finishing technology.
+
+3.8 Stock
+
+When the Technology is selected as Radial Roughing, the Stock tab is available. This tab enables you to define the
+shape, size and orientation of the raw material to be machined around the machining surfaces.
+
+Select the Respect stock model check box to update the stock 3D model.
+Stock definition style
+
+     · The Auto updated stock option from the list, uses an STL model to define the raw material.
+     · The Surfaces option, enables you to locally define stock by selecting the surfaces. This option must be used
+
+         when you want to machine a pre-cast or pre-machined stock. In the Stock Surfaces section, selecting
+         allows you to select new surfaces to define the stock. Using you can edit the selected surfaces. enables
+         you to view the available geometries on the model and choose the relevant one from the list. The Show button
+         displays the surfaces selected for defining the stock.
+     · The Using 2D boundary option allows you to use a 2D curve form to define the stock. This option must be
+         used to machine a limited area or an insert.
+In the Drive curve section, selecting the New icon allows you to select new 2D curves to define the stock. Using the
+Edit icon, you can edit the selected curve. Using the Browse icon, you can view the available geometries on the model
+and choose the relevant one from the list. The Show icon displays the curve selected for defining the stock.
+
+14
+                                                                                                                                                     3. Geometry
+
+Tolerance
+This option allows you to set the tolerance value for the tool to deviate from the surface.
+Shrink/Expand
+The options of Shrink and Expand allow you to expand or shrink the stock model by the given value.
+Stock has undercuts
+This option enables the roughing strategy to identify any pre-machined areas or undercut areas in a stock. When this
+check box is not selected, the tool path is calculated for all of the stock resulting in a lot of air moves. When this check
+box is selected, stock slices take into consideration the undercut regions and the tool path is calculated accordingly
+resulting in time savings.
+
+                 This option is not available when the option of Using 2D boundary is selected from the Stock definition
+                 list.
+
+                                                                                                                                                                  15
+16
+Tool  4
+The Tool page of Multiaxis machining operation enables you to choose a tool for the operation from the TOOLKIT
+table.
+
+In Multiaxis machining, End Mill, Bull Nose Mill, Ball Nose Mill, Taper Mill, and Taper Ball Nose tools are available
+for selection.
+Click the Select button to display the TOOLKIT table and choose a tool for the operation.
+For more information on the tool definition, refer to the InventorCAM Milling Help.
+
+4.1 Dynamic Holder Checking
+
+Selecting the Check with machining surfaces check box enables you to consider the shape of the Shaft, Arbor and
+Holder during tool path calculation in order to avoid collisions between entire tool and machining surfaces. You can
+specify desired clearance distance to keep these parts away from the workpiece. It results in more optimal, safe tool
+paths with less modifications required in the machining program.
+Selecting the Check with in-process stock check box enables you to consider the shape of the Shaft, Arbor, and Holder
+during the tool path calculation to avoid collisions between the entire tool and in-process stock. When selected, this
+option constantly checks the holder for collision with the updated stock. You can specify desired clearance distance to
+keep these parts away from the in-process stock. This results in safer tool paths and less modifications to the cutting
+program This check box is available for selection only when the Respect stock model check box is selected on the
+Stock tab of Geometry page.
+
+18
+                                                                        4. Tool
+
+Click the Data tab to display and define the Spin and Feed parameters.
+
+4.2 Feed definition
+
+The Feed section enables you to define the tool feed for the Multiaxis machining operation. The feed value can be
+defined in two types of units: F and FZ. F is the default that signifies Units per minute. FZ signifies Units per tooth and
+is calculated according to the following formula:
+
+FZ = F/(Number of Flutes * S)
+
+The F/FZ buttons enable you to check the parameter values.
+
+4.3 Spin definition
+
+The Spin section enables you to define the spinning speed of the tool. The spin value can be defined in two types of
+units: S and V. S is the default that signifies Revolutions per Minute. V signifies material cutting speed in Meters per
+Minute in the Metric system or in Feet per Minute in the Inch system; it is calculated according to the following formula:
+
+V = (S * PI * Tool Diameter) / 1000
+
+Spin rate defines the normal spin rate used for rough milling. Spin finish defines the finish rate used for finish milling.
+The Gear list enables you to select a Gear producing the spinning speed. The first parameter in the parentheses is a
+spin range; the second parameters is the power. The gear is selected automatically according to the defined spin.
+Only gears having the current spin value within their range are shown in the list.
+The Spin direction section enables you to choose between the clockwise (CW) or counterclockwise (CCW) direction.
+Offsets
+
+Length offset number
+
+This parameter defines the number of the Length Offset Register of the current tool in the Offset table of the CNC-
+machine.
+
+                                                                                                                                                                  19
+Cutting conditions
+This button enables you to update the cutting conditions defined for use of the current tool on the chosen CNC-
+machine according to the parameters set in the TOOLKIT table.
+Click the Feed Control tab to define the feed control parameters.
+
+4.4 Feed zone control
+
+Sometimes more than required material is left on the surface that needs to be removed with lower than the actual
+cutting feed rate. This lower feed rate is required to minimize the chances of tool breakage or tool wear.
+The Feed zone control parameter allows you to define a volume to determine an area in which a higher or lower
+percentage of the cutting feed rate can be set. Select the check
+box. The Feed control zone dialog box is displayed.
+Feed Zone
+You can choose the appropriate geometry from the list or
+define a new one by clicking . The Select Faces dialog
+box is displayed. This dialog box enables you to define the
+geometry for feed zone.
+Offset
+This field enables you to put an additional offset value on the feed control geometry in order to let the tool slow down
+before it enters the actual feed control geometry.
+Feed rate percentage
+The inside and outside feed rate percentage fields define the feed rate inside and outside of the feed control geometry
+as a percentage of the actual cutting feed rate.
+
+20
+                                                                                                                                                              4. Tool
+
+4.4.1 Feed rate optimization
+
+You can optimize the feed rate of different segments of the tool path. You define the machining feed rate, and
+InventorCAM modifies it according to the surface curvature. The surface curvature is calculated at each tool path
+position where the surface contact point of the tool is known.
+
+                 This option is available only on single surfaces and cannot be used on the stitches between surfaces.
+
+Select the check box. The Feed Rate Control Optimization dialog
+box is displayed.
+This dialog box enables you to define the feed rate according to
+the surface radius. The feed rate is defined as the percentage of
+the defined Feed Rate of the cutting movements.
+
+                   This section enables you to define the feed rate
+                   for the flat tool path segments where the
+                   curvature radius is infinite.
+
+                   This section enables you to define the feed rate
+                   for the tool path segments of large radius (the
+                   radius value can be customized).
+
+                   This section enables you to define the feed rate for the tool path segments of small radius (the radius
+                   value can be customized).
+
+                   This section enables you to define the feed rate for the sharp corners of the tool path where the
+                   radius is equal to 0.
+
+4.4.2Rapid move parameters
+
+Some 5-axis CNC-machines do not support synchronization between axis motors when the rapid movement (G0)
+is performed. The absence of synchronization causes the deviation between the calculated path and the real tool
+movements. InventorCAM enables you to avoid the problems described above by replacing all rapid movements (G0)
+with non-rapid ones using a particular feed rate.
+This option enables you to control the use of rapid feed (G0). When the Rapid motion in Feed mode check box is not
+selected, the resulting GCode contains rapid movements (G0).
+
+           Example:
+          G0 X-2.942 Y75.567 Z24.402 A-88.436 B-26.482 M116
+
+When the Rapid motion in Feed mode check box is selected, the resulting GCode does not contain G0 commands. The
+rapid movements are performed using the feed rate defined in the Rapid parameter.
+
+          Example: G1 X-2.942 Y75.567 Z24.402 A-88.436 B-26.482 F9998 M116
+First cut feed percentage
+In some machining cases, the tool load is not uniform along the tool path; the maximum tool load is reached along the
+first cutting pass. The First cut feed, % option enables you to change the feed rate at the first cutting path in order to
+optimize the cutting process. The feed rate is changed as a percentage of the defined feed rate.
+
+                                                                                                                                                                  21
+4.4.3Adaptive feed rate
+
+When you select the Min feed rate % check box, it defines the minimum feed rate of the contour and prevents the tool
+from travelling slower than the specified value.
+
+4.4.4 Feed rate for direct/spline links
+
+This section enables you to define determined feed rates for direct links and spline links that correspond with the
+machining feed rate.
+When you select the Area links check box, you can set the value of connection moves between the offset cuts in a
+single group or, connection moves between different groups inside a single region on the same cutting layer.
+When you select the Links between slices check box, you can set the value of connection moves between the cutting
+layers on multiple heights.
+When you select the Links between regions check box, you can set the value of connection moves between the
+different machining regions.
+
+22
+Levels  5
+When the Technology is selected as Radial Roughing the Levels page enables you to define the distance values.
+
+5.1 Regular (Radial Roughing)
+
+The Regular tab enables you to define the distance values.
+Distances
+This option enables you to define the safety distance to approach and retract from the part.
+
+      · Retract distance: The tool performs a rapid descent movement to the level specified by the Retract distance
+           parameter.
+
+      · Safety distance: After the descent movement to the Retract distance level, the tool starts the approach movement
+           to the material. The approach movement consists of two segments. The first segment is performed with
+           rapid feed up to safety distance. From the safety distance level, the approach movement is performed with
+           the cutting feed. Upon retraction, the tool ascends to the Exit safety distance.
+
+      · Exit safety distance: After the last cutting pass, the tool returns to the defined Exit safety distance level.
+      · Rapid retract: This option enables you to perform the retract movement with rapid feed. When this check
+
+           box is not selected, the tool moves to the safety distance with the feed defined as the retract rate parameter.
+Air move safety distance
+This parameter enables you to define the minimal distance between the clearance area and the Drive surface.
+
+24
+                                                                   5. Levels
+
+5.2 Advanced (Radial Roughing)
+
+This tab is visible only when the Advanced check box is selected.
+
+This tab allows you to define the following parameters:
+Arc fit
+InventorCAM enables you to fit an arc to sharp angles. The arc can be fit at all the moves that go to the Retract
+distance, and Safety distance.
+The fitted arc radius is determined by the Arc radius field.
+When the Technology is selected as Wall or Floor Finishing, the Regular tab of the Levels page allows you to define
+the following parameters:
+
+5.3 Regular (Wall/Floor Finishing)
+
+The Regular tab enables you to define the parameters for clearance area and machining levels.
+
+                                                                                                                                                                  25
+5.3.1 Clearance area
+
+The Clearance area is the area where the tool movements can be performed safely without contacting the material.
+The tool movements in the Clearance area are performed with the rapid feed.
+Depending on the drive surface or your machining strategy, you can choose different clearance area types:
+
+       · Automatic
+       · Plane
+       · Cylinder
+       · Sphere
+
+Automatic
+This option is set as default. When this option is selected from the Type list, InventorCAM automatically determines
+the clearance area type, position and dimension to maintain the most suitable clearance level based on the part
+geometry and tool path type.
+Plane
+This option enables you to define the Clearance area by plane. The tool performs a retract movement to the Clearance
+area plane, and then a rapid movement in this plane.
+
+     · Direction: The Direction section determines the direction of the plane normal vector The plane orientation
+         is defined by a vector normal to the plane. With the X-Axis, Y-Axis and Z-Axis options, InventorCAM enables
+         you to define this vector as one of the Coordinate System axis (X, Y or Z). The Automatic direction is similar
+         to the machining direction and detects the plane height automatically.
+         The User-defined direction option provides you with an additional capability to define the plane by an
+         arbitrarily-oriented vector. The vector direction is defined by its coordinates (dX, dY and dZ parameters).
+         Using the icons you can pick the start and end points of the vector directly on the solid model, or select the
+         entire face.
+
+                                                                  User-defined vector
+
+     · Height: The Height section provides you the options to determine the height of tool retraction. When the
+         option of Automatic is selected, InventorCAM automatically determines the position and dimension of the
+         clearance plane. User-defined option enables you to specify the Plane height value for tool retraction.
+
+26
+                                                                                                                                                          5. Levels
+
+When User-defined is selected from the Height list, the Plane height parameter defines the distance between the
+appropriate Coordinate System plane and the Clearance area plane.
+
+                                                        Z
+
+                                                                     Plane height
+
+Cylinder
+
+This option enables to define the Clearance area as a cylindrical surface enclosing the Drive surface. The tool performs
+a retract movement to the Clearance cylinder, and then a rapid movement along the cylinder surface.
+
+     · Direction: The Direction section specifies the cylinder rotation axis direction and enables you to determine the
+         clearance area orientation. The X-Axis, Y-Axis and Z-Axis options enable you to define the cylinder axes only
+         parallel to one of the Coordinate System axes (X, Y or Z). With the Automatic option the rotation axis
+         direction is automatically determined by the system.
+
+         The User-defined direction option provides you with an additional
+         capability to define the cylinder axis by an arbitrarily-oriented vector.
+         It enables you to define the direction vector by its coordinates (dX, dY
+         and dZ parameters). Using the icons, you can pick the start and end
+         points of the vector directly on the solid model, or select the entire
+         face.
+
+                                                                            User-defined vector
+
+· The Radius parameter enables you to specify the cylinder radius.          Radius
+
+   When the option of Automatic is chosen from the list, InventorCAM
+   automatically determines the cylinder radius. When the option of
+   User-defined is selected, the Radius parameter enables you to specify
+   the cylinder radius.
+
+· Through point: You can specify the cylinder axis location. When the
+   option of Automatic is chosen from the list, by default, the cylinder
+   axis passes through the Coordinate System origin. When the option
+   of User-defined is selected, You can specify the cylinder axis location
+   either by clicking the three points button or by defining the X, Y and
+   Z coordinates of a point on the cylinder axis.
+
+                                                                                                 27
+Sphere
+When this option is chosen, the Clearance area has a spherical shape; it should enclose your Drive surface geometry
+completely. The tool performs a retract movement to the Clearance sphere and then a rapid movement along the
+sphere surface.
+The Radius parameter enables you to specify the sphere radius. When the option of Automatic is selected from the
+list, InventorCAM automatically determines the spherical radius When User-defined is selected from the list, the
+Radius parameter enables you to specify the sphere radius.
+
+                                                                                     Radius
+
+The Around parameter allows you to specify the sphere center location. When Automatic is selected from the list, by
+default, sphere center is located at the Coordinate System origin. When you select User-defined option, you can
+specify the sphere center location either by clicking the three points button or by defining the X, Y and Z coordinates
+of the sphere center point.
+
+5.3.2Distances
+
+The Distances parameters enable you to define the Retract and Safety distance to
+approach and retract from the part.
+The Rapid retract option enables you to perform the retract movement with rapid
+feed. When this check box is not selected, the tool moves to the safety distance.
+
+For the Advanced tab of Wall or Floor Finishing technologies, selecting the Fillet check box enables you to define a
+numeric value to fit an arc to sharp angles.
+
+28
+Constraint  6
+boundaries
+This page enables you to limit the machining to specific model areas.
+
+Machining always takes place within a boundary or a set of boundaries. The boundaries define the limits of the tool
+tip motion. The area actually machined can be extended beyond the boundary by as much as the tool shaft radius.
+In the image the tool center is located at the edge of the boundary, therefore the tool
+extends beyond the edge by tool radius.
+If there are several boundary contours then the operation will use all of them.
+
+If one boundary is completely inside another, then it will act as an island. The area
+enclosed by the outer boundary, minus the area defined the inner boundary, will be
+machined.
+You can extend this to define more complicated shapes by having islands within islands.
+
+30
+                                                          6. Constraint Boundaries
+
+6.1 Boundary type
+
+Select the Use constraint boundaries check box to enable the available options.
+
+The following boundary types are available:
+
+Created automatically
+
+This option enables you to automatically create the boundary using the stock or target models. The following types of
+automatically created boundaries are supported in InventorCAM:
+
+       · Auto-created box of target geometry
+
+       With this option InventorCAM automatically generates a
+       rectangular box surrounding the target model. The tool
+       path is limited to the area contained in this box.
+
+· Auto-created box of stock model                         Target Model
+                                                                                                             Stock Model
+ With this option InventorCAM automatically generates
+ a rectangular box surrounding the stock model. The tool
+ path is limited to the area contained in this box.
+
+                                                                                                                                                 Target Model
+
+· Auto-created silhouette
+
+ With this option, InventorCAM automatically generates a silhouette boundary of the target model. A silhouette
+ boundary is a projection of the outer and inner contours of the target model onto the XY-plane.
+
+                   Target Model
+                                                                                                                              31
+    · Auto-created outer silhouette
+
+     With this option, InventorCAM automatically generates an outer
+     silhouette boundary of the target model. In this case, an outer
+     silhouette boundary is a projection of the outer contours only
+     onto the XY-plane.
+
+                                                                      Target Model
+
+Created manually
+
+This option enables you to define the constraint boundary that limits the tool path by creating a 2D area above the
+model in the XY-plane of the current Coordinate system.
+
+       · User-defined boundary
+
+       InventorCAM enables you to define a user-defined boundary
+       based on a Working area geometry (closed loop of model edges
+       as well as sketch entities).
+
+       For more information on Working area geometry, refer to the
+
+         InventorCAM Milling Help.
+
+       InventorCAM automatically projects the selected geometry on
+       the XY-plane and defines the 2D boundary.
+
+6.2 Boundary name
+
+This section enables you to define a new boundary geometry or choose an already defined one from the list.
+
+    ·  displays the appropriate dialog box for the geometry definition.
+
+    ·  displays the Select Chain dialog box enabling you to choose the necessary chains for the boundary. The
+
+       chosen boundaries are displayed and highlighted in the graphic window.
+
+6.3 Tool-boundary relation
+
+When Boundary type is selected as Created automatically, the Tool boundary relation option controls how the tool is
+positioned relative to the boundaries.
+
+When External is selected from the list, the tool machines outside the boundary. With the option of Internal the tool
+machines inside the boundary. When you choose Center from the list, the tool center is positioned on the boundary.
+
+The Offset value enables you to specify the offset of the tool center. A positive offset value enlarges the boundary; a
+negative value reduces the boundary to be machined.
+
+32
+ Tool path  7
+parameters
+When the Technology is selected as Radial Roughing, the Tool path parameters page enables you to define the
+following parameters.
+
+7.1 Surface quality (Radial Roughing)
+The Surface quality tab enables you to define the parameters that affect the surface finish quality.
+The Surface quality tab enables you to define the parameters that affect the surface finish quality.
+
+     · Cut tolerance. This parameter defines the tool path accuracy.
+     · Step down. This parameter enables you to set the distance between two layers for roughing pattern. You can
+
+         specify the Step down by using the options of either By distance or By
+         number of slices.
+
+                                                                                                                             ?
+Step over
+
+      · Maximum step over
+
+         This parameter defines the maximum distance between two consecutive cuts.
+
+                                                                                                                                   ?
+
+      · Scallop
+
+         The Scallop parameter enables you to define the cusp height of the machined
+         surface when the Strategy is selected as Offset on the Geometry page.
+
+      · Desired step over
+
+         This parameter specifies the desired value which InventorCAM tries to stick to it as long as possible.
+
+34
+                                                                                                                                     7. Tool path parameters
+      · Climb step over (%)
+
+         This parameter specifies the value of the step over when climb milling is used. The value is specified as a
+         percent of the Desired step over.
+
+      · Conventional step over (%)
+
+         This parameter specifies the value of the step over when conventional milling is used. The value is specified
+         as a percent of the Desired step over.
+
+      · Adapive clearance
+
+         This parameter specifies the vertical retract distance clearance when working in adaptive mode.
+                   The parameters of Desired step over, Climb step over (%), Conventional step over (%) and, Adapive
+                   clearance are available when the Strategy is selected as Adaptive on the Geometry page.
+
+7.2 Surface quality (Wall/Floor Finishing)
+When the Technology is selected as Wall or Floor Finishing, the Surface quality tab of the Tool path parameters page
+allows you to define the cut tolerance and stepdown parameters.
+
+The Cut tolerance parameter defines the tool path accuracy. It defines the chordal deviation between the machining
+surface and the tool path; the tool path can deviate from the surface in the range defined by the Cut tolerance. You
+can type the value manually or adjust it using the slider.
+The option of Maximum stepdown allows you to set the value which defines the maximum portion by which the
+depth-step reduces.
+7.3 Sorting (Radial Roughing)
+When the Technology is selected as Radial Roughing, the Sorting tab enables you to define the order and direction of
+the cuts.
+
+                                                                                                                                                                   35
+Cutting method
+This option enables you to define how the cuts are connected. It has two choices: Zigzag and One Way.
+
+      · Zigzag
+
+         When the Zigzag option is chosen, the machining direction changes from cut to cut. The
+         tool performs the machining of a cut in the specified direction, then moves to the next
+         cut and machines it in the opposite direction.
+
+      · One way
+
+         When the One Way option is chosen, all cuts are machined in the same direction. The
+         tool performs the machining of a cut in the specified direction, then moves to the start
+         of the next cut and machines it in the same direction.
+Direction for one way machining
+This parameter enables you to choose Conventional or Climb milling.
+Machine by
+InventorCAM enables you to define the machining order for a Multiaxis machining operation. The Machine by list
+enables you to choose the order of machining of certain areas; it defines whether the surface will be machined by Levels
+or by Regions. The generated tool path usually has a topology of multiple contours (Levels) on the drive surfaces.
+When the tool path is generated in many zones, it might be preferable to machine all the regions independently.
+Undercuts machining
+On the Geometry page, when the Strategy is selected as Offset, this section allows you to process undercut and non
+undercut areas gaining more access from different machining directions in order to minimize amount of operations
+needed to process the part. This option is available only for the Technology of Radial Roughing.
+The Undercuts drop down has three options of:
+     · Do not machine: When this option is selected, it allows you to exclude undercut areas for most productive
+         material removal rate using non spherical tools.
+     · Machine: In this option, both undercut and non undercut areas are machined in one go. Currently, only Ball
+         nose mill, Lollipop mill, and Taper ball nose tool types are supported for this option.
+     · Machine only: With this option InventorCAM automatically detects undercuts for most efficient machining
+         of specific areas. Currently, only Ball nose mill, Lollipop mill, and Taper ball nose tool types are supported
+         for this option.
+The Extend undercuts parameter enables you to consider additional material in areas hidden from normal orientation
+of predefined floor surface. You can specify additional material value in the given field. This option is available only
+for Do not machine and Machine only options.
+
+36
+                                    7. Tool path parameters
+
+7.4 Sorting (Wall/Floor Finishing)
+
+When the Technology is selected as Wall or Floor Finishing, the Sorting tab of the Tool path parameters page allows
+you to define the Cutting method as either Zigzag, One way or Spiral.
+
+7.5 Adaptive stepdown
+When the Technology is selected as Radial Roughing, the Adaptive stepdown tab enables you to adjust the passes to
+get the best fit to the edges of a surface.
+
+Adaptive Step Down
+Three options are available in this section:
+
+      · First Stepdown
+
+         This parameter enables you to add an additional depth step at the first position which takes place at the
+         beginning of an operation.
+
+      · Final Stepdown
+
+         This parameter enables you to add an additional depth step at the last position which takes place at the end
+         of an operation.
+
+      · User-defined cut levels
+
+         This option enables you to add additional slices on defined step down values. To enter the value select the
+         check box and then right click in the Step down dialog box and click Add.
+Intermediate slices
+To reduce the scallop which is left while roughing, you can add intermediate slices to the roughing tool path.
+
+                                                                                                                                                                   37
+Intermediate slices distribution can be done by two options; Constant Stepdown or Number of slices.
+
+      · Constant Stepdown
+
+         This parameter enables you to add Intermediate slices with constant stepdown by specifying the value.
+
+      · Number of slices
+
+         This parameter enables you to specify the Number of slices, to determine the constant stepdown between
+         the intermediate slices. If the number of slices are high then it generates small stepdown between them. The
+         overall cutting order for intermediate slices is bottom to top which helps to reduce the machining time.
+
+      · Detect thicker than
+
+         This parameter enables you to specify the threshold value to filter out the generated intermediate slices
+         which do not satisfy the specified threshold value. The trimming is done from bottom to top direction. The
+         remaining material does not exceed the imposed value. In case the trimming is done when specified value
+         of Detect thicker than is zero, the filtering is done by imposed value (1.25*cutting tolerance). In case the
+         trimming is done when the specified value of Detect thicker than is greater than zero, the slices are filtered
+         inside threshold value.
+7.6 Smoothing
+
+When the Technology is selected as Radial Roughing, the Smoothing tab enables you to define the smoothing and
+filtering parameters.
+
+      · Smooth corners
+
+         This option enables you to create fillets in the sharp corners of the tool path. The fillet is not applied to the
+         outer corner.
+
+      · Smooth final contour
+
+         This option enables you to create fillets in the sharp corners of the outer contour. You must enter the radius
+         of the fillet as percentage of the step over distance.
+
+      · Smooth links
+
+         With this option you can smooth the links within a group. The last segments of the previous contour and the
+         first segments of the next contour are trimmed.
+
+      · Smooth distance /stepover %
+
+         This parameter specifies the value for the amount of smoothing measured from the original contour and the
+         rounded corner as percentage of the step over.
+
+38
+                                                                                                                                     7. Tool path parameters
+      · Minimal curvature radius
+
+         This parameter specifies the minimum curvature radius of the tool path for the adaptive roughing cycle.
+
+                   The options of Smooth corners, Smooth final contour, Smooth links, and Smooth distance /stepover
+                   % are available only when the Strategy is selected as Offset on the Geometry page.
+
+                   The option of Minimal curvature radius is available only when the Strategy is selected as Adaptive
+                   on the Geometry page.
+Filtering is used to remove small pockets and segments which are not necessary to machined.
+
+      · Type
+
+         You can choose the Type of filtering as an Inscribed circle or Diagonal length.
+              · Inscribed circle: In this option InventorCAM automatically creates an inscribed circle to prevent the
+                 tool from entering extremely tight area of the geometry.
+              · Diagonal length: In this option InventorCAM creates a bounding box with a specified diagonal length
+                 around the geometry to prevent the tool from entering extremely tight area of the geometry.
+
+      · Threshold value in % of tool diameter
+
+         This value defines the diameter of the inscribed circle or the diagonal length of the bounding box in terms
+         of percentage of the tool diameter.
+
+      · Remove corner pegs
+
+         With this option you can remove the material left over in the corners if a high step over is used. Selecting the
+         check box allows you to add an extra movement to the corners that removes the material left in the corners.
+7.7 Rest rough
+
+When the Technology is selected as Radial Roughing, The Rest rough tab enables you to calculate a tool path to
+remove all the non-machined areas that are left by the previous large roughing tool.
+
+The rest roughing tool path does not require the whole part to be machined again. It machines only those areas that
+are left out by the previous tool. On intricate parts, multiple rest rough tool paths are required to remove as much
+material as possible before running semi finishing or finishing tool paths. The roughing tool path is based on previous
+roughing tool diameter, radius and offset. Those values are considered to define the rest rough area. You can enter the
+Previous tool diameter and Previous tool corner radius on the Rest rough page or click the Pick button to select the
+tool that was used for previous roughing tool path.
+The Previous roughing offset always must be set manually on the Rest rough page.
+The Detect rest material thicker than field enables you to avoid machining the areas where amount of stock material
+is less than the specified thickness threshold value. You can define the thickness value in this field.
+
+                                                                                                                                                                   39
+40
+Tool axis control  8
+When the Technology is selected as Wall or Floor Finishing, the Tool axis control page allows you to calculate the
+preferred contact point height. This page is not available for Radial Roughing.
+
+Contact point height in % of flute length
+The following options are available:
+
+     · Preferred: preferred contact point is calculated in such a way that the tool is aligned tangentially at the specified
+         contact point on the surface.
+
+     · Minimal: This parameter defines the minimal height that the contact point can have when the tool is tilted to
+         avoid collisions.
+
+     · Maximal: This parameter defines the maximal height that the contact point can have when the tool is tilted to
+         avoid collisions.
+
+Lag angle
+The following options are available:
+
+     · Preferred: An additional lag angle can be set. The preferred lag angle is defined as the angle between the tool
+         axis and the plane with the feed vector as plane normal.
+
+     · Minimal: The minimal lag angle is maintained when the tool is tilted to avoid collisions.
+     · Maximal: The maximal lag angle is maintained when the tool is tilted to avoid collisions.
+
+42
+Link  9
+When the Technology is selected as Radial Roughing, the Link page enables you to define the ramping, approach/
+retract, and linking parameters.
+
+9.1 Ramping
+The following options are available:
+
+    · Ramp angle
+
+       The Ramp angle defines the angle with which the tool enters the next slice or pass.
+
+    · Ramp type
+
+       This option allows you to define the type of approach movement. The following options are available to define
+       the ramp type:
+
+              · Auto: This option automatically selects the ramp type from the available options of line, helical, zigzag
+                 or profile.
+
+              · Line: In this option, the lead-in move is defined along an angular line.
+              · Helical: In this option, InventorCAM allows helical entry into the stock material, wherein the tool
+
+                 engages the stock with helical interpolation.
+              · Zigzag: When the length of the ramp is limited, this option allows you to get Zig and zag angular
+
+                 moves. A horizontal movement is used to approach the chain. The movement values are defined in
+                 the Ramp angle and Ramp length fields.
+              · Profile: When this option is selected, the tool engages the stock following the tool path profile or
+                 contour of the part. The Ramp angle value must be specified to define the profile move and the angle
+                 at which it engages the stock.
+
+    · Ramp length (tool diameter %)
+
+       This option allows you to define the ramp length as percentage of the tool diameter.
+                   This option is available only when Ramp style is selected as Auto, Helical, or Zigzag.
+
+44
+                                                                                                                                                            9. Link
+    · Min. ramp diameter (tool diameter %)
+
+       When this check box is selected, it limits the minimum diameter of the ramping movement to the specified
+       value.
+
+                   This option is available only when Ramp style is selected as Helical or Zigzag.
+
+    · Stock clearance
+
+       This parameter defines the start point of the ramp with the specified value as a minimum distance away from
+       the stock.
+
+    · Allow tool outside stock
+
+       When this check box is selected, it enables the machining around the part, and on the outer side of the stock
+       in case the stock has the same dimension as the part itself.
+
+                   This option is available only when the Strategy is selected as Offset on the Geometry page.
+
+    · Ramping priority sequence
+
+       On the Geometry page when strategy is selected as Offset, this parameter enables you to follow the specified
+       ramp's Ramping priority sequence during the appropriate approach moves creation. Select the check box and
+       click on one of the following ramping types to enable the toggle buttons. You can shuffle the order of ramping
+       types as per your requirements.
+       Line
+       Helical
+       Zigzag
+       Profile
+9.2 Approach/Retract
+This tab enables you to define the parameters of tool approach and retract performed in the Multiaxis machining
+operation.
+
+                                                                                                                                                                  45
+    · First entry
+
+       This section enables you to define the first approach of the tool to the cutting area. In the Multiaxis Machining
+       operation, the First entry options of Use retract distance and Use safety distance specify the level from which
+       the approach movement is started.
+
+    · Use ramp/Don't use ramp
+
+       This list allows you to use ramp or not with the first entry movement.
+
+    · Start from home position
+
+       InventorCAM enables you to define the Home position for tool path linking that can be applied to the first entry
+       links. Home position is a point from which the first rapid movement of the tool starts during the approach.
+       When the Start from home position check box is selected, the machining is performed as follows:
+       The tool is positioned at the specified Home position, with the tool axis parallel to the Z-axis of the Coordinate
+       System. It then performs its initial rapid movement to the start point of the first cutting pass.
+
+    · Last exit
+
+       This section enables you to define the last retreat of the tool from the cutting area after the machining. Last
+       exit has two options of Use retract distance and Use safety distance that specify the level to which the retreat
+       movement is performed.
+
+    · Return to home position
+
+       I nventorCAM enables you to define the Home position for tool path linking that can be applied to the last exit
+       links. Home position is a point to which the tool eventually returns after the retreat.
+
+    · Home position
+
+       This section enables you to define the coordinates of the home position. This section is available when the Start
+       from home position and/or the Return to home position check box is selected.
+
+9.3 Links
+This tab enables you to define the parameters of tool path linking performed in the Multiaxis Machining operation.
+
+Area links
+This section allows you to define links between tool path in the same level. The links can be defined within the group
+and between two different groups.
+
+    · Within group
+
+       This list specifies the connection moves between the offset cuts in a single group.
+
+    · Between groups
+
+       This list specifies connection moves between the different groups inside a single region on the same cutting
+       layer.
+
+46
+                                                                                                                                                            9. Link
+
+The following options are available in these two lists:
+              · Direct: This option enables you to apply straight line connection between the passes on the shortest
+                 way without any retracting movements.
+              · Blend spline: This option enables you to apply tangential arcs connection between the passes.
+              · Retract to feed distance: This option enables you to apply straight line connection between the passes
+                 with retracting tool to the specified feed distance.
+              · Retract to rapid distance: This option enables you to apply straight line connection between the passes
+                 with retracting tool to the specified rapid distance.
+
+    · Use ramp/Don't use ramp
+
+       This list allows you to use ramp or not with the first entry movement. In the Within group list, this option is not
+       available if Blend spline is selected. In the Between groups list, this option is not available if Direct or Blend
+       spline options are selected.
+
+                   The Within group list is available only when the Strategy is selected as Offset on the Geometry page.
+
+Links between slices
+This section allows you to specify the connection moves between the cutting layers on multiple heights. The following
+options are available:
+
+              · Direct: This option enables you to apply straight line connection between the passes on the shortest
+                 way without any retracting movements.
+
+              · Blend spline: This option enables you to apply tangential arcs connection between the passes.
+              · Step: This option enables you to use the link type that contains retraction, connection and vertical
+
+                 approach segments.
+              · Retract to feed distance: This option enables you to apply straight line connection between the passes
+
+                 with retracting tool to the specified feed distance.
+              · Retract to rapid distance: This option enables you to apply straight line connection between the passes
+
+                 with retracting tool to the specified rapid distance.
+
+    · Use ramp/Don't use ramp
+
+       This list allows you to use ramp or not with the first entry movement. This option is available only if Retract to
+       feed distance and Retract to rapid distance are selected.
+Links between regions
+This section allows you to specify connection moves between the different machining regions. The following options
+are available:
+
+              · Direct: This option enables you to apply straight line connection between the passes on the shortest
+                 way without any retracting movements.
+
+              · Blend spline: This option enables you to apply tangential arcs connection between the passes.
+              · Retract to feed distance: This option enables you to apply straight line connection between the passes
+
+                 with retracting tool to the specified feed distance.
+              · Retract to rapid distance: This option enables you to apply straight line connection between the passes
+
+                 with retracting tool to the specified rapid distance.
+
+                                                                                                                                                                  47
+    · Use ramp/Don't use ramp
+
+       This list allows you to use ramp or not with the first entry movement. This option is not available if Direct or
+       Blend spline options are selected.
+When the Technology is selected as Wall or Floor Finishing, the Link page allows you define the following parameters:
+
+Link
+The tool path links can be defined using two types:
+
+              · Retract to clearance area: This option enables the use of straight line connection between the passes
+                 with retracting tool to the specified clearance area.
+
+              · Clearance blend spline: This option enables you to link two contours with a new blend spline. The
+                 benefit is when this option is chosen, the link is collision free
+
+              · In the Apply on gaps larger (in % of tool diameter) parameter the threshold value for gap size is defined
+                 as a percentage of the tool diameter. Once the gap length becomes greater than the threshold, the link
+                 type specified for large gaps is used.
+
+In the Lead in/out section, the input and output is created automatically and is not optional. InventorCAM always tries
+to adapt a tangential arc to the contour. You can define a desired Radius for the arc and a Minimum radius value. The
+Min. radius is used when the desired arc radius does not fit. For example, when the edge is in a narrow space within
+the part, or when the collision control system cuts the contour.
+
+48
+Gouge check  10
+When the Technology is selected as Wall or Floor Finishing, the Gouge check page enables you to automatically detect
+and avoid the possible collisions between the tool (with the tool holder) and the workpiece.
+
+10.1 Degouging
+
+Select the Check surfaces check box to enable  button. Clicking this button displays a list of options that can be
+additionally selected for collision checking.
+
+Selecting Surfaces from the list displays the Select faces dialog box.
+
+This dialog box enables you to select one or several check faces of the Autodesk model. For more information on this
+refer to InventorCAM Milling Help.
+
+Selecting Model from the list displays the 3D Geometry dialog box.
+
+Using this dialog box, you can define the 3D Model geometry. For more information on this refer to InventorCAM
+Milling Help.
+
+Selecting STL from the list, displays the Choose STL dialog box. You can choose check surfaces geometry from an
+STL file.
+
+The Browse button in the dialog box enables you to choose the necessary STL file. The full name (including the path)
+of the chosen STL file is displayed in the STL file edit box. The Show button enables you to display the chosen STL
+file in a separate window.
+
+The Check surfaces offset parameter allows you to set surface offset value for gouge check.
+
+50
+Clearance data  11
+The Clearance data page enables you to define the clearance offsets for Shaft, Arbor and Holder in order to get a
+guaranteed clearance gap between the arbor, tool holder, and workpiece.
+
+You can define the following tool clearance values on this page:
+         · The Shaft option expands the shaft to create a clearance from it. Only the diameter is expanded.
+         · The Arbor option expands the arbor to create a clearance from it. The clearance is applied to the diameter
+             as well as the height.
+         · The Holder option expands the holder to create a clearance from it. The clearance is applied to the diameter
+             as well as the height.
+
+52
+Machine control  12
+Using the parameters of the Machine control page, you can optimize the calculated tool path according to the
+kinematics and special characteristics of your CNC-Machine.
+
+The default values of these parameters can be defined in the VMID file of your CNC-Machine.
+12.1 Regular
+The Regular tab enables you define the angle pairs and machine limits parameters.
+12.1.1 Angle pairs
+For a 5-axis machine, the tool axis vector can always be mapped into two different angle pairs. During the tool path
+generation, InventorCAM calculates for each tool axis orientation both of these two angle pairs; only one of the two
+has to be chosen for the GCode generation. The following options enable you to choose the angle pair.
+Minimum angle change
+When this check box is selected, the necessary angle pair is determined automatically in such manner that the angle
+deviation from the previous tool axis orientation is minimal.
+The Start angle type option enables you to define the control over the solution that will be chosen for the first angle
+pair. The following options are available:
+
+      · Choose between two solutions
+
+         With this option you can specify the necessary solution that will be used for the first angle pair. It enables you
+         to choose either the first solution (the First angle pair option) or the second solution (the Second angle pair
+         option).
+
+      · Provide first rotation angle
+
+         In this case, InventorCAM chooses an angle pair where the first rotation angle (rotation around the first axis)
+         is closer to the value determined by the Rotation angle value parameter.
+
+54
+                                                                                                                                         12. Machine control
+
+      · Provide second rotation angle
+
+         In this case, InventorCAM chooses an angle pair where the second rotation angle (rotation around the second
+         axis) is closer to the value determined by the Rotation angle value parameter.
+First/Second angle pair
+Some machines can only use one of the angle pairs due to mechanical limitations. In this case, the Minimum angle
+change option must be deactivated and the angle pair will then be chosen as the First angle pair or Second angle pair.
+
+                   These options are not available when the Minimum angle change check box is selected.
+
+12.1.2 Machine limits
+With this option, InventorCAM enables you to use the machine limits defined within the machine definition to limit
+the tool path movements in translation and/or rotation axis.
+
+      · No limits
+
+         All the machine limits defined in the machine definition are ignored.
+
+      · Translation limits
+
+         InventorCAM uses the machine limits defined in the machine definition for translation movements.
+
+      · Rotation limits
+
+         InventorCAM uses the machine limits defined in the machine definition for rotation movements.
+
+      · Limits All
+
+         I nventorCAM uses the machine limits defined in the machine definition for both translation and rotation
+         movements.
+When machine limits are used, the calculated tool path is checked in order to avoid exceeding the machine limits. The
+check is performed using the angle tolerance defined by the Angle tolerance for using machine limits parameter.
+When the Minimum angle change option is used together with machine limits, InventorCAM uses the machine limits
+to choose the necessary angle pair. Consider that the B-axis movements are limited between 0 and 90°. For each tool
+axis orientation, InventorCAM offers two angle pairs in the calculated tool path. According to the machine limits, only
+pairs located in the defined range will be chosen.
+For example, InventorCAM offers you both B=-30° and B=+30° as possible solutions. Taking into account the
+machine limits, the solution B=-30° is not acceptable because it exceeds the defined range; the solution of B=+30° is
+in range and will be chosen by InventorCAM for further post-processing. If both of the offered angle pairs are in the
+range of the machine limits, the angle pair with the smallest variation of the angle (from the previous position) is used.
+If the machine limits are exceeded, InventorCAM displays an error message.
+The default values for the Machine limits option are defined in the VMID file of the CNC-Machine.
+
+                                                                                                                                                                  55
+12.2 Advanced
+
+The Advanced tab is visible only when the Advanced check box is selected. This tab enables you to define the
+following machine control parameters:
+12.2.1 Pole handling
+Generally, in a 5-axis machine, the tool axis vector can be mapped into two different angle pairs. There is only one
+exceptional case when the rotation is performed around a coordinate system axis (rotation axis), and the tool axis is
+parallel to the same rotation axis. In this case, any rotation angle value properly describes the tool position. Therefore,
+the rotation angle value can be arbitrary. Such tool axis orientation is referred to as «singularity» or «pole».
+I nventorCAM enables you to detect such pole areas and handle them with multiple methods:
+
+      · Freeze Angle around Pole
+
+         In the pole areas, the arbitrary rotation angle is «frozen» when the tool axis orientation is parallel to the
+         rotation axis.
+
+      · Use Rotation Angle around Pole to stay within linear axis limits
+
+         If some areas of the tool path cannot be reached by the linear axes, this option can adjust the linear axes and
+         use the rotation axes to substitute linear motions. For example, if you machine a cube on two opposite faces,
+         left (-X) and right (+X), on a head-table machine, and machine limits do not allow -X movements, you can use
+         this option to rotate the table axis to flip the cube.
+
+      · Linear interpolation of Rotation Angle around Pole
+
+         In 5-axis machining, the tool can be vertical and any value of the rotary axis (usually C) can be used if
+         the X- and Y-axis values are changed accordingly, i.e. the C-axis value can be chosen arbitrarily. The linear
+         interpolation is distributed according to the number of intermediate points and their relative distance from
+         each other.
+
+      · Smooth interpolation of Rotation Angle around Pole
+
+         The smooth interpolation is similar to the linear interpolation, with the difference that the change of C-axis
+         at first non-vertical position and second non-vertical position is performed smoothly.
+
+56
+                                                                                                                                         12. Machine control
+
+      · Force table rotation
+
+         This option is used on 4-axis table, 5-axis table-table and 5-axis head-table machines. In some particular cases
+         of 4-axis tool path, when the orientations become closer to a 3-axis tool path, the post processor makes only
+         translation/linear moves. This option is also suitable for mill-turn machines. Also, instead of moving the tool
+         in XYZ, the Motion control can rotate the part, while the tool is fixed.
+The Pole angle tolerance (degree) value defines the maximal angular deviation of the tool axis from the rotation axis
+to consider the tool axis parallel to the rotation axis.
+
+12.2.2 Move list writer
+
+Some CNC-Machine controllers have a limitation of acceptable angular coordinates. When an angular coordinate in
+the GCode exceeds such limitation, an error is returned by the controller. Almost all controllers have limitation from
+0 to 360° or from -180° to 180°.
+The Move list writer options enable you to define the angle limits for the output tool paths in order to generate a tool
+path compatible with the angular limits of the specific CNC-Machine controller.
+The First rotation axis angle limit/Second rotation axis angle limit options enable you to define the angle limit of the
+first and rotational axes respectively.
+
+      · No limits
+
+         In this case there are no angle limitations of the output tool path. The angles can be in the range of - to +.
+
+      · Limit between 0 and 360 deg
+
+         With this option, the angle coordinates in the output tool path are limited by the range from 0 to 360°.
+
+      · Limit between -180 and 180 deg
+
+         With this option, the angle coordinates in the output tool path are limited by the range from -180° to 180°.
+
+12.2.3 Tool repositioning
+
+These parameters enable you to control the angular tool movements in the calculated tool path.
+
+      · Angle change
+
+         This parameter enables you to define the maximal angle variation between two successive tool positions. If the
+         angle variation is greater than the specified value, a retract movement is added.
+
+      · Retract distance
+
+         This value determines the distance of the retract movement that is performed when the angle change between
+         two successive tool positions exceeds the Angle change value.
+         For example, when the Angle change parameter is set to 100°, and the C-axis orientation at the first position
+         is 10° and at the second position is 170°, InventorCAM considers such angle variation as inadmissible and
+         performs a retract motion.
+
+      · Retract tool to maximum
+
+         When the angle change between two successive tool positions exceeds the Angle change value, the retract
+         movement can be performed to the maximal distance defined by the machine limit.
+
+      · Retract&Rewind
+
+         This option is beneficial when the tool reaches one of the limits on rotational axis; it retracts to a safe area
+         and a rotational back is performed to initial limit. You can set the rewind method by providing a value in the
+         Angle field. A bigger value for angle step results in a rewind method in less moves.
+         When this option is disabled and the tool reaches the maximum limit, it executes a direct move back to the
+         initial limit.
+
+                                                                                                                                                                  57
+         When this option is enabled and the tool reaches the maximum limit, it retracts to a safe area and a reverse
+         rotation is executed to the initial limit.
+12.2.4 Point interpolation
+The point interpolation provides the ability to create intermediate points by setting a certain maximum angle step
+distance (for 5-axis motions) or by splitting long linear motions (3-axis and 5-axis tool paths) for feed rate moves and
+rapid rate moves.
+The interpolation between two end points of a segment can be performed either in the shortest possible way or
+gradually, considering the machine kinematics. In the first case, from the Interpolation type list, you can choose the
+Linear interpolation of machine angles option, so the motion between two vectors of the end point is no longer in a
+flat plane.
+In the second case, you can choose the Linear interpolation of vectors option, and the motion between these vectors
+of the end point is performed in a flat plane.
+The options of Pole handling, Move list writer, Tool repositioning, and Point interpolation are available only when the
+Advanced check box is selected.
+
+Interpolation for distance
+
+Using this option, InventorCAM enables you to perform interpolation for the linear tool movements. When this
+option is active, a new interpolated tool position is defined at each distance, defined by the Interpolation angle step
+parameter.
+For example, when the linear tool movement is performed from 0, 0, 0 to 0, 0, 100 and the Interpolation angle step
+option is used with the Distance value of 10, InventorCAM adds 9 tool positions between start and end positions (0,
+0, 10, then 0, 0, 20 etc.).
+
+Interpolation angle step
+
+Using this parameter, InventorCAM enables you to interpolate the angular movements. A new interpolated tool axis
+position is defined at each angle, defined by the Interpolation angle step parameter.
+These values can be set for both Feed rate move and Rapid rate move.
+
+58
+Misc. parameters  13
+The Misc. parameters page enables you to define a number of miscellaneous parameters and options related to the
+tool path calculation.
+
+13.1 Message
+In this field, you can type a message that will appear in the generated GCode file.
+13.2 Extra parameters
+The Extra parameters option displays the list of additional parameters defined in the post-processor and enables you
+to use special operation options implemented in the post-processor for the current CAM-Part. If you prefer working
+with a larger window, selecting the Flyout Window option displays the Operation Option window.
+13.3 Flyout Window
+If you prefer working with a larger window, the Flyout Window option displays the Operation Option window.
+13.4 Custom triangulation
+The Custom triangulation option enables you to achieve higher rate of accurate triangulation.
+When the Custom triangulation check box is not selected, InventorCAM uses the native CAD triangulation method.
+When the Custom triangulation check box is selected, 5-Axis triangulation method is used to define the Triangulation
+tolerance and Max. edge length.
+When the Max. edge length check box is not selected, the 5-Axis triangulation method is used, however, the results
+achieved are similar to the native CAD triangulation results. When the Max. edge length check box is selected, it allows
+you to control the maximum edge length.
+
+60
+                                                                                                                                        13. Misc. parameters
+
+13.5 Max. angle step for rotation axis
+Using this parameter, you can limit the rotation angle of the machine head to a specified value measured from the last
+tool path point. If the rotation angle is too large due to kinematic properties of the machine, the distance between
+two tool path points is refilled with additional points. The amount of points is calculated by the division of rotation
+angle and maximum angle step. This results in an angle change in the form of small steps.
+
+                                                                                                                                                                  61
+                                                                          The Complete CAM Solution, with
+                                                                          Revolutionary iMachining, best support
+                                                                          for Multi-Channel Mill-Turn and Swiss
+                                                                          CNCs, seamlessly Integrated in and
+                                                                          associative to SOLIDWORKS®, Inventor®
+                                                                          and Solid Edge®.
+                                                                          iMachining 2D
+                                                                          iMachining 3D
+                                                                          2.5D Milling
+                                                                          Indexial Multi-Sided
+                                                                          HSS Machining
+                                                                          3D High Speed Milling
+                                                                          Simultaneous 5-Axis
+                                                                          Turning
+                                                                          Advanced Mill-Turn
+                                                                          Swiss-Type
+                                                                          Solid Probe
+
+solidcam.com
+

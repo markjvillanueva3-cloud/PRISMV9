@@ -21,7 +21,7 @@
 import { z } from "zod";
 
 const OLLAMA_URL = process.env.OLLAMA_URL || "http://localhost:11434";
-const VALIDATION_MODEL = process.env.OLLAMA_VALIDATION_MODEL || "qwen2.5-coder:7b";
+const VALIDATION_MODEL = process.env.OLLAMA_VALIDATION_MODEL || "qwen2.5-coder:32b";
 const TIMEOUT_MS = 10_000;
 
 export type ValidationCheckType =

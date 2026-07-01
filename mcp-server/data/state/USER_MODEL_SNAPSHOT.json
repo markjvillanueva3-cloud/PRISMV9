@@ -1,0 +1,201 @@
+{
+  "schemaVersion": 1,
+  "userId": "primary",
+  "preferences": [
+    {
+      "key": "omega-target",
+      "value": "Omega = 1.0 for ALL future milestones (not 0.75)",
+      "confirmedAt": "2026-04-20T01:48:43.219Z",
+      "confidence": 1
+    },
+    {
+      "key": "always-build",
+      "value": "**Rule**: When analyzing roadmap gaps and identifying missing engines, always build every gap engine.",
+      "confirmedAt": "2026-04-20T01:48:43.219Z",
+      "confidence": 0.95
+    },
+    {
+      "key": "backend-before-frontend",
+      "value": "Backend must be perfected before building frontend.",
+      "confirmedAt": "2026-04-20T01:48:43.219Z",
+      "confidence": 0.95
+    },
+    {
+      "key": "box-programs-amateur",
+      "value": "Box drive programs were written by amateurs who don't know proper machining, speed/feed calculations, or advanced lathe nuances.",
+      "confirmedAt": "2026-04-20T01:48:43.219Z",
+      "confidence": 0.95
+    },
+    {
+      "key": "cross-session-duplication",
+      "value": "Cross-session asset retention was failing — chats were duplicating work from other sessions because the in-memory cache didn't survive across processes.",
+      "confirmedAt": "2026-04-20T01:48:43.219Z",
+      "confidence": 0.95
+    },
+    {
+      "key": "docker-wsl-recovery",
+      "value": "When Docker Desktop won't start on Windows and user suspects WSL, the first thing to check is **`sc query com.docker.service`**.",
+      "confirmedAt": "2026-04-20T01:48:43.219Z",
+      "confidence": 0.95
+    },
+    {
+      "key": "esbuild-externals",
+      "value": "The esbuild `build` and `build:fast` scripts in package.json need `--external:ws --external:node-opcua --external:occt-import-js` alongside the existing externals.",
+      "confirmedAt": "2026-04-20T01:48:43.219Z",
+      "confidence": 0.95
+    },
+    {
+      "key": "frontend-codex",
+      "value": "**Rule:** Do NOT build over Codex frontend builds/web pages.",
+      "confirmedAt": "2026-04-20T01:48:43.219Z",
+      "confidence": 0.95
+    },
+    {
+      "key": "hook-process-hygiene",
+      "value": "**Rule**: PRISM hooks must exit fast, declare an enforced timeout, and never leak a node process.",
+      "confirmedAt": "2026-04-20T01:48:43.219Z",
+      "confidence": 0.95
+    },
+    {
+      "key": "lightsaber-borders",
+      "value": "Feature sections on pages must have vibrant 2-tone LED lightsaber-style glowing borders with hues in between.",
+      "confirmedAt": "2026-04-20T01:48:43.219Z",
+      "confidence": 0.95
+    },
+    {
+      "key": "post-development",
+      "value": "When creating PRISM enhanced post processors (.cps files for Fusion 360):",
+      "confirmedAt": "2026-04-20T01:48:43.219Z",
+      "confidence": 0.95
+    },
+    {
+      "key": "roadmap-track",
+      "value": "When the user says \"continue\" in YOLO mode without naming a track, the default is the **Wire EDM roadmap** (WEDM-* milestones), not CAD-GROUND-TRUTH, LATHE-PROD-READY, or any other track.",
+      "confirmedAt": "2026-04-20T01:48:43.219Z",
+      "confidence": 0.95
+    },
+    {
+      "key": "safety-critical-tests",
+      "value": "Tests at ANY stage must be real tests that prove and validate what was built actually works.",
+      "confirmedAt": "2026-04-20T01:48:43.219Z",
+      "confidence": 0.95
+    },
+    {
+      "key": "verbose-ok",
+      "value": "Do not throttle response length or tool-call prose to hit short-response caps.",
+      "confirmedAt": "2026-04-20T01:48:43.219Z",
+      "confidence": 0.95
+    },
+    {
+      "key": "workmode-yolo-mode",
+      "value": "YOLO mode: autonomous execution, auto-commit after each unit",
+      "confirmedAt": "2026-04-20T01:48:43.220Z",
+      "confidence": 0.9
+    },
+    {
+      "key": "workmode-commit-format",
+      "value": "Commit format: LAYER-PHASE-UNIT: title — summary",
+      "confirmedAt": "2026-04-20T01:48:43.220Z",
+      "confidence": 0.9
+    },
+    {
+      "key": "workmode-security",
+      "value": "Security: use execFileNoThrow, never shell injection patterns",
+      "confirmedAt": "2026-04-20T01:48:43.220Z",
+      "confidence": 0.9
+    },
+    {
+      "key": "workmode-maximum-token-efficiency",
+      "value": "Maximum token efficiency: parallelize independent work, minimize back-and-forth",
+      "confirmedAt": "2026-04-20T01:48:43.220Z",
+      "confidence": 0.9
+    },
+    {
+      "key": "workmode-**always-build",
+      "value": "**ALWAYS BUILD, NEVER SKIP** — gap analyses must build every identified engine. See feedback_always_build.md. Enforced by Stop hook always-build-guard.mjs + registry state/shared/PENDING_GAP_ENGINES.json.",
+      "confirmedAt": "2026-04-20T01:48:43.220Z",
+      "confidence": 0.9
+    }
+  ],
+  "knownTopics": [
+    {
+      "topic": "dispatcher",
+      "observationCount": 4,
+      "firstObservedAt": "2026-04-15T22:48:43.353Z",
+      "lastObservedAt": "2026-04-20T01:48:43.353Z",
+      "confidence": 0.5
+    },
+    {
+      "topic": "lathe",
+      "observationCount": 25,
+      "firstObservedAt": "2026-04-15T22:48:43.353Z",
+      "lastObservedAt": "2026-04-20T01:48:43.353Z",
+      "confidence": 1
+    },
+    {
+      "topic": "engine",
+      "observationCount": 46,
+      "firstObservedAt": "2026-04-15T22:48:43.353Z",
+      "lastObservedAt": "2026-04-20T00:48:43.353Z",
+      "confidence": 1
+    },
+    {
+      "topic": "safety",
+      "observationCount": 2,
+      "firstObservedAt": "2026-04-15T22:48:43.353Z",
+      "lastObservedAt": "2026-04-20T00:48:43.353Z",
+      "confidence": 0.4
+    },
+    {
+      "topic": "s(x)",
+      "observationCount": 1,
+      "firstObservedAt": "2026-04-15T22:48:43.353Z",
+      "lastObservedAt": "2026-04-20T00:48:43.353Z",
+      "confidence": 0.35
+    },
+    {
+      "topic": "cam",
+      "observationCount": 12,
+      "firstObservedAt": "2026-04-15T22:48:43.353Z",
+      "lastObservedAt": "2026-04-20T00:48:43.353Z",
+      "confidence": 0.9
+    },
+    {
+      "topic": "orchestrator",
+      "observationCount": 6,
+      "firstObservedAt": "2026-04-15T22:48:43.353Z",
+      "lastObservedAt": "2026-04-19T23:48:43.353Z",
+      "confidence": 0.6
+    },
+    {
+      "topic": "phase",
+      "observationCount": 8,
+      "firstObservedAt": "2026-04-15T22:48:43.353Z",
+      "lastObservedAt": "2026-04-19T19:48:43.353Z",
+      "confidence": 0.7
+    },
+    {
+      "topic": "agi",
+      "observationCount": 3,
+      "firstObservedAt": "2026-04-15T22:48:43.353Z",
+      "lastObservedAt": "2026-04-19T15:48:43.353Z",
+      "confidence": 0.45
+    },
+    {
+      "topic": "cost",
+      "observationCount": 1,
+      "firstObservedAt": "2026-04-15T22:48:43.353Z",
+      "lastObservedAt": "2026-04-19T14:48:43.353Z",
+      "confidence": 0.35
+    }
+  ],
+  "openQuestions": [
+    {
+      "id": "q1",
+      "question": "U-AGI01..12: Wire 32 unused AI engines into dispatchers (CreativeReasoning, MultiAgentCoordinator, CrossDisciplinaryDeepLearning, etc.)",
+      "raisedAt": "2026-04-20T01:48:43.356Z",
+      "status": "open"
+    }
+  ],
+  "updatedAt": "2026-04-20T01:48:43.356Z"
+}

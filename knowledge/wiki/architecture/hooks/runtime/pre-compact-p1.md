@@ -21,9 +21,7 @@ related:
 
 ## Description (from file header)
 
-pre-compact-p1.mjs — Phase 1 Tier 0
-PreCompact hook that saves critical state before compaction.
-Ensures no work is lost during context compression.
+_(no header docblock — read source for behavior)_
 
 ## Events
 

@@ -241,3 +241,90 @@ class StabilityLobeDiagramImpl implements Algorithm<StabilityLobeInput, Stabilit
 }
 
 export const StabilityLobeDiagram = new StabilityLobeDiagramImpl();
+
+// ─── Loewen-Shaw/Altintas SDOF behaviour-preserving shim ────────────────
+// SF-PSN-WIRE-MS0/U-SFPSN-04 — sister of U-02A KienzleShim / U-05 GilbertMRR
+// / U-03 JaegerTempField patterns. Verbatim relocation of the engine's inline
+// estimateStability() so SpeedFeedOrchestrator + UltimateSpeedFeedEngine can
+// register composition without disturbing existing test fixtures. The richer
+// StabilityLobeDiagramImpl.calculate() AtomicValue/SafetyScore-aware surface
+// is unchanged — that remains the future-adoption path (re-baseline route).
+
+/** Stability-lobe result mirroring the engine's pre-shim StabilityResult shape. */
+export interface StabilityCompatResult {
+  critical_doc_mm: number;
+  is_stable: boolean;
+  margin_pct: number;
+  best_rpm?: number;
+  chatter_freq_hz?: number;
+}
+
+/**
+ * Behaviour-preserving estimateStability shim. Bit-equivalent to the engine
+ * inline `estimateStability()` at UltimateSpeedFeedEngine.ts (pre-shim). Used
+ * via delegation so the SF leverage ranker can credit StabilityLobeDiagram as
+ * a composed module without changing any output value.
+ *
+ * Altintas-Budak SDOF stability limit:
+ *   b_lim = -1 / (2 × (Kc/1000) × α_xx × z × Re[G(jω_c)] / k)
+ * with α_xx=0.5 (half-immersion average), z=teeth, k=modal stiffness [N/m].
+ *
+ * Sweet-RPM scan (lobes 1..10) finds first N ∈ [1000, 20000] satisfying the
+ * SDOF lobe equation N_sweet = 60·ω_c / (2π·(L + ε/(2π))·z).
+ *
+ * @param rpm Spindle speed [RPM] (used only for return-shape compatibility)
+ * @param z Number of flutes
+ * @param Kc Specific cutting force [N/mm²]
+ * @param k Modal stiffness [N/m]
+ * @param fn Natural frequency [Hz]
+ * @param zeta Damping ratio (dimensionless, 0..1)
+ * @param ap Axial DOC [mm] (optional — drives is_stable + margin_pct when provided)
+ */
+export function stabilityEstimateCompat(
+  rpm: number, z: number, Kc: number,
+  k: number, fn: number, zeta: number, ap?: number,
+): StabilityCompatResult {
+  const omega_n = 2 * Math.PI * fn;
+  const omega_c = omega_n * Math.sqrt(1 - zeta * zeta); // chatter frequency
+  const alpha_xx = 0.5;
+  const r = omega_c / omega_n;
+  const denom = (1 - r * r) * (1 - r * r) + (2 * zeta * r) * (2 * zeta * r);
+  const G_real = (1 - r * r) / denom;
+  // Altintas–Budak SDOF chatter limit: b_lim = 1 / (2 · Ks · |Re[G(jω_c)]|).
+  // G_real is the DIMENSIONLESS receptance shape (1−r²)/denom; the physical
+  // receptance real part is Re[G] = G_real / k. Express in mm/N by converting the
+  // modal stiffness N/m → N/mm (k/1000); then b_lim [mm] = 1/(2·Kc[N/mm²]·α·z·Re[G][mm/N]).
+  // REGRESSION FIX (2026-06-06, oscar): the prior form `(-1/(2·(Kc/1000)·α·z·G_real/k))·1000`
+  // carried a 1e9 unit error that pinned EVERY machine at the 50 mm clamp regardless of
+  // stiffness — masking the stiffness→depth relationship and reporting a dangerously high
+  // chatter-free depth for flexible setups. Corrected to physical mm. See StabilityShimEquivalence re-baseline.
+  const reG_mm_per_N = G_real / (k / 1000);
+  const b_lim_mm = Math.min(50, Math.max(0.1, Math.abs(1 / (2 * Kc * alpha_xx * z * reG_mm_per_N))));
+  let bestRPM: number | undefined;
+  for (let lobe = 1; lobe <= 10; lobe++) {
+    const epsilon = Math.atan2(2 * zeta * r, 1 - r * r);
+    const N_sweet = (60 * omega_c) / (2 * Math.PI * (lobe + epsilon / (2 * Math.PI)) * z);
+    if (N_sweet >= 1000 && N_sweet <= 20000) {
+      bestRPM = Math.round(N_sweet);
+      break;
+    }
+  }
+  const margin = ap ? ((b_lim_mm - ap) / b_lim_mm) * 100 : 100;
+  // Bit-equivalent copy of UltimateSpeedFeedEngine.roundSig() (line 3168 pre-shim).
+  // Inlined here so the shim does not couple back to the engine. Matches engine
+  // semantics exactly, including the only-zero early-return.
+  const roundSigCompat = (n: number, sig: number): number => {
+    if (n === 0) return 0;
+    const d = Math.ceil(Math.log10(Math.abs(n)));
+    const power = sig - d;
+    const mag = Math.pow(10, power);
+    return Math.round(n * mag) / mag;
+  };
+  return {
+    critical_doc_mm: roundSigCompat(b_lim_mm, 2),
+    is_stable: ap ? ap < b_lim_mm : true,
+    margin_pct: roundSigCompat(Math.max(-100, margin), 1),
+    best_rpm: bestRPM,
+    chatter_freq_hz: roundSigCompat(omega_c / (2 * Math.PI), 1),
+  };
+}

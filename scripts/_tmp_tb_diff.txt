@@ -1,0 +1,112 @@
+diff --git a/mcp-server/scripts/generate-jm-fusion-tool-libraries.ts b/mcp-server/scripts/generate-jm-fusion-tool-libraries.ts
+index 54fd4e2cd4..7f5141fcbb 100644
+--- a/mcp-server/scripts/generate-jm-fusion-tool-libraries.ts
++++ b/mcp-server/scripts/generate-jm-fusion-tool-libraries.ts
+@@ -45,6 +45,7 @@ import { readFileSync, writeFileSync, mkdirSync, readdirSync, existsSync } from
+ import { join, basename } from "node:path";
+ import { ultimateSpeedFeedEngine } from "../src/engines/UltimateSpeedFeedEngine.js";
+ import { coatingSelectionAdapter } from "../src/engines/CoatingSelectionAdapter.js";
++import { nestByMaterialTypeBrand, flattenTree, type PartitionInput } from "./lib/tool-library-partition.js";
+ 
+ // ── Paths ────────────────────────────────────────────────────────────────
+ const SRC_DIRS = [
+@@ -77,6 +78,7 @@ const COL = {
+   flutes: "Number of Flutes (tool_numberOfFlutes)",
+   material: "Material (tool_material)",
+   description: "Description (tool_description)",
++  vendor: "Vendor (tool_vendor)",
+   surfaceSpeed: "Surface Speed (tool_surfaceSpeed)",
+   spindleSpeed: "Spindle Speed (tool_spindleSpeed)",
+   feedPerTooth: "Feed per Tooth (tool_feedPerTooth)",
+@@ -244,6 +246,8 @@ function main(): void {
+   const stats: RowStat[] = [];
+   // Accumulate per-group rows across ALL source files for the by-group libraries.
+   const byGroupRows: Record<string, string[]> = {};
++  // Accumulate the same group rows tagged with type+brand for the material->type->brand tree.
++  const partitionInputs: PartitionInput[] = [];
+   let byGroupHeader = "";
+ 
+   for (const file of csvs) {
+@@ -276,6 +280,7 @@ function main(): void {
+       presetRows++;
+ 
+       const toolType = getField(fields, COL.type);
++      const vendor = getField(fields, COL.vendor);
+       const unit: "inches" | "mm" = getField(fields, COL.unit) === "mm" ? "mm" : "inches";
+       const diaRaw = num(getField(fields, COL.diameter)) ?? 0;
+       const dMm = unit === "mm" ? diaRaw : diaRaw * MM_PER_IN;
+@@ -318,6 +323,7 @@ function main(): void {
+         outLines.push(serialized);
+         presetRows++;
+         (byGroupRows[g.iso] ??= []).push(serialized);
++        partitionInputs.push({ iso: g.iso, toolType, vendor, row: serialized });
+       }
+     }
+ 
+@@ -333,6 +339,20 @@ function main(): void {
+     writeFileSync(join(BY_GROUP_DIR, `JM-CRIB-${g.iso}.csv`), content, "utf-8");
+   }
+ 
++  // Material -> tool TYPE -> BRAND tree (operator: "by material type, then type, then brand").
++  // Each leaf is a valid CSV_TOOLS_VERSION_1 library (same header) Fusion imports directly,
++  // carrying that material group's SFC-optimal preset rows for one tool-type + one brand.
++  // Fail-loud invariant: partitionInputs is pushed in lockstep with byGroupRows, so the tree
++  // must file EVERY group row exactly once -- never silently drop or duplicate.
++  const byGroupTotal = Object.values(byGroupRows).reduce((a, r) => a + r.length, 0);
++  if (partitionInputs.length !== byGroupTotal) {
++    throw new Error(`partition lockstep broken: ${partitionInputs.length} partition rows vs ${byGroupTotal} by-group rows`);
++  }
++  const tbCounts = writeTypeBrandTree(partitionInputs, byGroupHeader);
++  if (tbCounts.rows !== byGroupTotal) {
++    throw new Error(`material->type->brand tree dropped rows: ${tbCounts.rows} emitted vs ${byGroupTotal} expected`);
++  }
++
+   writeBatchSheet(stats);
+   writeCategorization();
+   writeReadme(stats, srcDir);
+@@ -341,9 +361,45 @@ function main(): void {
+   const totalRows = stats.reduce((a, s) => a + s.presetRows, 0);
+   console.log(`\nGENERATED ${csvs.length} augmented libraries from ${totalTools} JM tools -> ${totalRows} preset rows`);
+   for (const s of stats) console.log(`  ${s.source.padEnd(52)} ${s.tools} tools, ${s.presetRows} rows, ${s.incompatibleGroups} incompat-gated, ${s.skippedGroups} no-data`);
++  console.log(`Material->type->brand tree: ${tbCounts.leaves} leaf libraries, ${tbCounts.rows} preset rows`);
+   console.log(`Output: ${OUT_DIR}`);
+ }
+ 
++// ── Material -> tool TYPE -> BRAND tree emission ────────────────────────────
++function writeTypeBrandTree(inputs: PartitionInput[], header: string): { leaves: number; rows: number } {
++  const tree = nestByMaterialTypeBrand(inputs);
++  const leaves = flattenTree(tree);
++  const tbDir = join(OUT_DIR, "by-type-brand");
++  mkdirSync(tbDir, { recursive: true });
++
++  const index: string[] = [
++    "# JM Die -- Tooling Library: MATERIAL -> TYPE -> BRAND\n",
++    "> Per-material-group, per-tool-type, per-brand importable Fusion libraries.",
++    "> Each leaf CSV is a valid `CSV_TOOLS_VERSION_1` file (same header Fusion imports);",
++    "> its rows carry that material group's SFC-physics-optimal cutting preset (see ../README.md).",
++    "> Path layout: `by-type-brand/<ISO>/<tool-type>/<brand>.csv`. A blank tool vendor files",
++    "> under `unspecified` (never dropped); a blank type under `unknown-type`.\n",
++    "| Material | Tool type | Brand | Tools | File |",
++    "|----------|-----------|-------|------:|------|",
++  ];
++  let leafFiles = 0;
++  let leafRows = 0;
++  for (const leaf of leaves) {
++    const dir = join(tbDir, leaf.iso, leaf.typeSlug);
++    mkdirSync(dir, { recursive: true });
++    const file = `${leaf.brandSlug}.csv`;
++    writeFileSync(join(dir, file), [header, ...leaf.rows].join("\n") + "\n", "utf-8");
++    leafFiles++;
++    leafRows += leaf.rows.length;
++    const rawType = leaf.rawType.replace(/\|/g, "\\|");
++    const rawBrand = leaf.rawBrand.replace(/\|/g, "\\|");
++    index.push(`| ${leaf.iso} | ${rawType} | ${rawBrand} | ${leaf.rows.length} | by-type-brand/${leaf.iso}/${leaf.typeSlug}/${file} |`);
++  }
++  index.push("", `_Total: ${leafFiles} (material x type x brand) libraries, ${leafRows} preset rows. U-TOOLDB-MAT-TYPE-BRAND (slot:romeo)._`);
++  writeFileSync(join(tbDir, "INDEX.md"), index.join("\n") + "\n", "utf-8");
++  return { leaves: leafFiles, rows: leafRows };
++}
++
+ // ── T4: batch sheet (copy-paste) + categorization ──────────────────────────
+ function writeBatchSheet(stats: RowStat[]): void {
+   // A representative parameter batch matrix per ISO group x tool diameter, so

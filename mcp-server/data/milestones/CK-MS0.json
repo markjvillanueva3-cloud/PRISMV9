@@ -1,0 +1,250 @@
+{
+  "id": "CK-MS0",
+  "title": "CAM Kernel Unification — Feature-to-G-Code in One Call",
+  "track": "CK",
+  "track_name": "CAM Kernel",
+  "version": "1.0.0",
+  "created_at": "2026-03-14T00:00:00Z",
+  "status": "complete",
+  "total_units": 5,
+  "completed_units": 5,
+  "sessions_estimate": "2-3",
+  "description": "Wire ALL existing CAM engines (230+) into a single unified pipeline. Input: feature descriptions + material + machine name. Output: verified, physics-optimized G-code with setup sheet, tool list, physics report, and tribal knowledge tips. Leverages: 46,590 tools, 910 machines, 499 formulas, 296 playbook rules, 433 strategies, 3,700+ tribal tips, 24 novel toolpath algorithms, 11 post-processor controllers, voxel stock simulation, collision detection, 52 algorithms.",
+  "rationale": "PRISM has 230+ CAM-related engines that each work individually but are not wired into a single end-to-end flow. A user must manually call feature recognition, tool selection, toolpath generation, post-processing, and verification as separate steps. This milestone connects everything into one call that produces production-ready G-code.",
+  "dependencies": [],
+  "entry_conditions": [
+    "CAMK-MS0 through CAMK-MS3 complete",
+    "SCI-MS0 through SCI-MS3 complete",
+    "All existing CAM engines compile (0 errors)"
+  ],
+  "exit_conditions": [
+    "Single dispatcher action 'cam_unified_generate' takes features+material+machine and produces G-code",
+    "Tool selection automatically queries 46,590-tool catalog",
+    "Toolpath routing selects best algorithm from 24 novel + CAMKernel strategies",
+    "Post-processing outputs for all 11 supported controllers",
+    "Verification includes collision, voxel stock, safety analysis, and physics validation",
+    "Production package includes: G-code, setup sheet, tool list, physics report, tribal tips",
+    "All existing tests still pass (no regressions)",
+    "Minimum 30 new tests covering the unified pipeline"
+  ],
+  "units": [
+    {
+      "id": "CK-MS0/U01",
+      "title": "UnifiedCAMPipelineEngine — Master Orchestrator",
+      "status": "complete",
+      "description": "Single entry point that chains: FeatureRecognition → SmartToolSelection → AdaptiveToolpathRouting → PostProcessing → Verification → ProductionPackage. Takes {features[], material, machine_name, controller?, options?} and returns {gcode, setup_sheet, tool_list, physics_report, tribal_tips, warnings}. Lazy-loads all sub-engines to avoid circular deps. Dispatched as 'cam_unified_generate' action.",
+      "engines_to_wire": [
+        "FeatureRecognitionEngine → feature classification",
+        "FeatureToZoneEngine → machining zone decomposition",
+        "FeatureInteractionEngine → dependency graph",
+        "SmartToolSelectorEngine (U02) → tool from 46K catalog",
+        "AdaptiveToolpathRouter (U03) → best algorithm selection",
+        "CAMKernelEngine → actual XYZ toolpath generation",
+        "NovelToolpathEngine → 6 novel algorithms (TGAR/HRAF/MTHZD/CFSF/PTDC/VCER)",
+        "NovelToolpathAlgorithmsExt → 12 extended algorithms",
+        "ToolpathSmoothingEngine → B-spline/Bezier smoothing",
+        "SegmentInterpolatorEngine → interpolation with engagement",
+        "UltimateSpeedFeedEngine → physics-based S/F",
+        "AutoSpeedFeedEngine → line-by-line S/F optimization",
+        "PostProcessorPipelineEngine → 7-phase post-processing",
+        "IntegratedVerificationEngine (U04) → collision+voxel+safety",
+        "ProductionPackageEngine (U05) → complete output package"
+      ],
+      "input_schema": {
+        "features": "FeatureDescription[] — {type, dimensions, tolerances, surface_finish}",
+        "material": "string — ISO material name or common name (e.g., 'P20', 'Ti-6Al-4V', '6061-T6')",
+        "machine_name": "string — machine from 910-machine catalog (e.g., 'DMG DMU 50', 'Haas VF-2')",
+        "controller": "string? — override controller (default: auto-detect from machine profile)",
+        "stock_dims": "{length, width, height} — raw stock dimensions",
+        "options": "{aggressiveness?: 1-10, coolant?: string, fixture?: string, multi_setup?: boolean}"
+      },
+      "output_schema": {
+        "gcode": "string — complete, verified, machine-ready G-code program",
+        "setup_sheet": "SetupSheet — fixture diagram, tool list, WCS, sequence, notes",
+        "tool_list": "ToolAssembly[] — selected tools with holders, from actual catalog",
+        "physics_report": "PhysicsReport — forces, power, deflection, thermal, Cpk per operation",
+        "tribal_tips": "KnowledgeTip[] — relevant tips from 3,700+ tribal knowledge base",
+        "warnings": "Warning[] — playbook violations, near-miss collisions, marginal Cpk",
+        "cycle_time": "CycleTime — estimated with P50/P75/P95 confidence intervals",
+        "cost_estimate": "CostEstimate — tool cost, machine time, energy"
+      },
+      "lines_estimate": "800-1200",
+      "test_count_min": 8,
+      "dependencies": ["CK-MS0/U02", "CK-MS0/U03", "CK-MS0/U04", "CK-MS0/U05"]
+    },
+    {
+      "id": "CK-MS0/U02",
+      "title": "SmartToolSelectorEngine — Physics-Scored Tool Selection from 46K Catalog",
+      "status": "complete",
+      "description": "Given feature type, material, machine limits, and tolerances, automatically selects the optimal tool from the 46,590-tool catalog. Scoring: (1) geometric fit (diameter vs feature size, flute length vs depth), (2) material compatibility (grade/coating vs ISO material group), (3) physics performance (Kienzle force, Taylor life, deflection δ=FL³/3EI), (4) machine fit (spindle speed range, power budget), (5) playbook compliance (296 rules), (6) holder availability (1,164 holders). Returns ranked candidates with rationale.",
+      "engines_to_integrate": [
+        "ToolCatalogEngine — 46,590 tools, 19 manufacturers, search/recommend/lookup",
+        "ToolSelectionEngine — scoring with Taylor life, deflection",
+        "ToolAssemblyModelEngine — holder+tool+runout assembly",
+        "ToolAssemblyDeflectionEngine — beam theory deflection",
+        "InsertGradeSelectionEngine — coating/grade per material",
+        "MachineProfilesEngine — spindle RPM range, power, taper",
+        "MachiningPlaybookEngine — 296 rules for tool selection",
+        "FormulaRegistry — Kienzle kc1.1, Taylor VT^n=C, thermal limits",
+        "KienzleForceModelEngine — force prediction per tool candidate",
+        "StochasticToolWearEngine — Weibull life distribution"
+      ],
+      "scoring_formula": "score = w1*geometric_fit + w2*material_match + w3*physics_perf + w4*machine_fit + w5*playbook_score + w6*holder_avail + w7*cost_efficiency",
+      "lines_estimate": "600-900",
+      "test_count_min": 8,
+      "dependencies": []
+    },
+    {
+      "id": "CK-MS0/U03",
+      "title": "AdaptiveToolpathRouter — Best Algorithm Selection per Feature",
+      "status": "complete",
+      "description": "Routes each feature/zone to the optimal toolpath algorithm from 30+ available strategies. Decision tree: feature type × material × machine capability × tolerance → algorithm. Algorithms: CAMKernelEngine (pocket_2d, pocket_3d, contour, face, adaptive_clear, hsm), NovelToolpathEngine (TGAR for thermal-sensitive, HRAF for vibration-prone, MTHZD for multi-tool, CFSF for constant-force finishing, PTDC for deflection-compensated, VCER for chip evacuation), NovelToolpathAlgorithmsExt (12 more), CrossCamNovelAlgorithms (6 cross-CAM). Also routes to ToolpathSmoothingEngine for B-spline/corner rounding post-processing.",
+      "engines_to_integrate": [
+        "CAMKernelEngine — standard pocket/contour/face/adaptive/HSM (1,426L)",
+        "NovelToolpathEngine — TGAR/HRAF/MTHZD/CFSF/PTDC/VCER (1,288L)",
+        "NovelToolpathAlgorithmsExt — 12 extended algorithms (1,460L)",
+        "CrossCamNovelAlgorithms — 6 cross-CAM algorithms",
+        "ToolpathSmoothingEngine — B-spline/Bezier/corner rounding (470L)",
+        "ToolAxisOptimizationEngine — 5-axis tilt/lead optimization (486L)",
+        "MultiaxisToolpathEngine — 3/4/5-axis generation (180L)",
+        "StepoverOptimizationEngine — scallop-based step-over",
+        "CutterContactEngine — CC points on analytical surfaces (571L)",
+        "EngagementAdaptiveFeedEngine — chip thinning, constant force/MRR",
+        "MotionDynamicsProfileEngine — S-curve/trapezoidal velocity profiles",
+        "RestMachiningEngine — remaining stock toolpaths (752L)",
+        "OperationSequencerEngine — multi-operation ordering",
+        "CircularInterpolationEngine — arc generation (332L)",
+        "HelicalInterpolationEngine — helical ramp/drill (341L)",
+        "AlgorithmSelectorEngine — existing algorithm selection logic",
+        "CrossCamRecommenderEngine — cross-CAM strategy ranking",
+        "ToolpathStrategyRegistry — 762+ registered strategies"
+      ],
+      "routing_logic": {
+        "pocket_roughing_soft": "CAMKernelEngine.adaptive_clear OR TGAR (if thermal concern)",
+        "pocket_roughing_hard": "TGAR (>45 HRC) OR VCER (chip evacuation priority)",
+        "pocket_finishing_freeform": "CFSF (constant force) OR CAMKernelEngine.hsm",
+        "contour_profiling": "CAMKernelEngine.contour + ToolpathSmoothing",
+        "deep_cavity": "PTDC (deflection compensated) + RestMachining",
+        "thin_wall": "HRAF (harmonic avoidance) + reduced DOC",
+        "multi_tool_zone": "MTHZD (multi-tool hybrid zone decomposition)",
+        "vibration_sensitive": "HRAF + StabilityLobeDiagram RPM selection",
+        "5_axis_finishing": "MultiaxisToolpath + ToolAxisOptimization",
+        "drilling": "HelicalInterpolation (>20mm) OR canned cycle (<20mm)",
+        "facing": "CAMKernelEngine.face_mill",
+        "rest_machining": "RestMachiningEngine with multi-tool reference"
+      },
+      "lines_estimate": "700-1000",
+      "test_count_min": 8,
+      "dependencies": []
+    },
+    {
+      "id": "CK-MS0/U04",
+      "title": "IntegratedVerificationEngine — Collision + Voxel + Safety + Physics in One Pass",
+      "status": "complete",
+      "description": "Unified verification that runs all checks in a single pass over the toolpath. Returns go/no-go with categorized issues. Checks: (1) Collision detection via CollisionIntegrationEngine (AABB+swept envelope against tool assembly, stock, fixtures, machine envelope), (2) Voxel stock simulation via VoxelStockIntegrationEngine (engagement verification, air-cut detection, residual stock), (3) G-code safety via GCodeSafetyAnalyzerEngine (24 rules), (4) Physics validation via ForceSimulationEngine (force limits, power budget, deflection), (5) Machine envelope via GCodeValidationEngine (axis limits, RPM range, feed limits), (6) Surface finish prediction via SurfaceFinishPredictorEngine.",
+      "engines_to_integrate": [
+        "CollisionIntegrationEngine — AABB + swept envelope (464L)",
+        "CollisionDetectionEngine — generic collision",
+        "VoxelStockIntegrationEngine — IPW, engagement, residual (414L)",
+        "GCodeSafetyAnalyzerEngine — 24 safety rules (1,890L)",
+        "GCodeValidationEngine — modal state, machine envelope (678L)",
+        "GCodeVerificationEngine — syntax/logic checks (341L)",
+        "ForceSimulationEngine — cutting force limits",
+        "SurfaceFinishPredictorEngine — Ra prediction from toolpath",
+        "ProcessCapabilityPredictionEngine — Cpk from forces/deflection",
+        "MachineToolErrorBudgetEngine — 21-error dimensional prediction",
+        "CycleTimeEstimatorEngine — physics-based time prediction",
+        "StabilityLobeDiagram algorithm — chatter verification"
+      ],
+      "verification_levels": {
+        "PASS": "All checks clear, no warnings",
+        "WARN": "Minor issues (near-miss clearance, marginal Cpk, suboptimal parameters)",
+        "FAIL_FIXABLE": "Issues that can be auto-fixed (feed too high, wrong modal state)",
+        "FAIL_FATAL": "Cannot proceed (collision, machine limits exceeded, gouge detected)"
+      },
+      "lines_estimate": "500-800",
+      "test_count_min": 6,
+      "dependencies": []
+    },
+    {
+      "id": "CK-MS0/U05",
+      "title": "ProductionPackageEngine — Complete Job Package in One Output",
+      "status": "complete",
+      "description": "Assembles the complete production package from all pipeline outputs. Includes: (1) G-code program (verified, post-processed for target controller), (2) Setup sheet (fixture diagram, tool list, WCS, sequence, cycle time, critical notes), (3) Tool list with actual catalog items (manufacturer, part number, dimensions, holder), (4) Physics report (forces per operation, power consumption, deflection, thermal, Cpk), (5) Tribal knowledge tips (relevant tips from 3,700+ for material/operation/machine), (6) Cost estimate (tool cost, machine time at shop rate, energy cost), (7) Cycle time with Monte Carlo confidence intervals (P50/P75/P95).",
+      "engines_to_integrate": [
+        "SetupSheetFromGCodeEngine — structured setup sheet generation",
+        "CycleTimeEstimatorEngine — physics-based cycle time",
+        "TribalKnowledgeEngine — 3,700+ tips, query by material/operation/machine",
+        "MachiningPlaybookEngine — 296 rules, relevant advisories",
+        "GCodeEnergyOptimizerEngine — power/energy/CO2 calculation",
+        "ToolpathThermalEngine — thermal analysis per operation",
+        "ProcessCapabilityPredictionEngine — Cpk prediction",
+        "CostEstimationEngine — tool, machine, energy cost",
+        "MachineProfilesEngine — machine rate, capabilities"
+      ],
+      "output_sections": [
+        "program_header: program number, date, machine, material, programmer",
+        "gcode: complete verified program",
+        "setup_sheet: HTML/JSON with fixture diagram, tools, WCS, notes",
+        "tool_list: [{manufacturer, part_number, description, holder, projection, life_estimate}]",
+        "physics: [{operation, force_N, power_kW, deflection_mm, temp_C, cpk}]",
+        "tribal_tips: [{id, title, body, relevance_score}]",
+        "cycle_time: {p50_min, p75_min, p95_min, breakdown_by_operation}",
+        "cost: {tool_cost, machine_cost, energy_cost, total_per_part}",
+        "warnings: [{severity, message, operation, recommendation}]"
+      ],
+      "lines_estimate": "400-600",
+      "test_count_min": 5,
+      "dependencies": []
+    }
+  ],
+  "dispatcher_actions": [
+    {
+      "action": "cam_unified_generate",
+      "dispatcher": "camDispatcher",
+      "description": "Generate complete verified G-code program from feature descriptions, material, and machine",
+      "engine": "UnifiedCAMPipelineEngine"
+    },
+    {
+      "action": "cam_smart_tool_select",
+      "dispatcher": "camDispatcher",
+      "description": "Auto-select optimal tool from 46K catalog with physics scoring",
+      "engine": "SmartToolSelectorEngine"
+    },
+    {
+      "action": "cam_route_toolpath",
+      "dispatcher": "camDispatcher",
+      "description": "Route feature to best toolpath algorithm from 30+ available",
+      "engine": "AdaptiveToolpathRouter"
+    },
+    {
+      "action": "cam_verify_integrated",
+      "dispatcher": "camDispatcher",
+      "description": "Run all verification checks (collision, voxel, safety, physics) in one pass",
+      "engine": "IntegratedVerificationEngine"
+    },
+    {
+      "action": "cam_production_package",
+      "dispatcher": "camDispatcher",
+      "description": "Assemble complete production package (G-code, setup sheet, tools, physics, tips)",
+      "engine": "ProductionPackageEngine"
+    }
+  ],
+  "skill": {
+    "name": "cam-generate",
+    "trigger": "/cam-generate",
+    "description": "Generate complete CNC program from feature descriptions"
+  },
+  "metrics": {
+    "total_engines_wired": "230+",
+    "tool_catalog_size": 46590,
+    "machine_catalog_size": 910,
+    "formula_count": 499,
+    "playbook_rules": 296,
+    "strategies": 433,
+    "tribal_tips": 3700,
+    "novel_algorithms": 24,
+    "controllers_supported": 11,
+    "test_target": 35
+  }
+}

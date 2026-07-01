@@ -11,10 +11,11 @@
 
 import * as fs from "node:fs";
 import * as path from "node:path";
-import { execSync } from "node:child_process";
+import { spawnSync } from "node:child_process";
 import {
   isGitCommitCommand,
   decideTscRegressionGate,
+  classifyTscRun,
 } from "./lib/autonomous-foolproof-logic.mjs";
 
 const BASELINE_RELATIVE = "state/shared/TSC_BASELINE_ERRORS.json";
@@ -142,21 +143,41 @@ function countTscErrors(projectRoot) {
     const mcpServer = path.join(projectRoot, "mcp-server");
     if (!fs.existsSync(mcpServer)) return null;
 
-    let output;
-    try {
-      output = execSync("npx --no-install tsc --noEmit 2>&1", {
-        cwd: mcpServer,
-        timeout: TSC_TIMEOUT_MS,
-        stdio: ["ignore", "pipe", "pipe"],
-        maxBuffer: 16 * 1024 * 1024,
-      }).toString();
-    } catch (err) {
-      output = (err.stdout?.toString() ?? "") + (err.stderr?.toString() ?? "");
-      if (!output) return null;
-    }
+    // Run tsc with a generous V8 heap so it does not OOM under host memory
+    // pressure. A bare `npx tsc` defaults to ~4GB and gets SIGKILLed mid-walk
+    // on a loaded box, leaving a TRUNCATED error stream -- counting that stream
+    // returns a falsely-low number that poisons the cache + baseline. spawnSync
+    // (not execSync) exposes the kill .signal so classifyTscRun can detect it.
+    const heapMb = (() => {
+      const v = Number(process.env.PRISM_TSC_GUARD_HEAP_MB);
+      return Number.isFinite(v) && v >= 2048 ? Math.floor(v) : 8192;
+    })();
+    const spawnOpts = {
+      cwd: mcpServer,
+      timeout: TSC_TIMEOUT_MS,
+      encoding: "utf8",
+      maxBuffer: 32 * 1024 * 1024,
+    };
+    const tscBin = path.join(mcpServer, "node_modules", "typescript", "bin", "tsc");
+    const res = fs.existsSync(tscBin)
+      ? spawnSync(process.execPath, ["--max-old-space-size=" + heapMb, tscBin, "--noEmit"], spawnOpts)
+      : spawnSync("npx", ["--no-install", "tsc", "--noEmit"], { windowsHide: true, ...spawnOpts, shell: true, env: Object.assign({}, process.env, { NODE_OPTIONS: ((process.env.NODE_OPTIONS || "") + " --max-old-space-size=" + heapMb).trim() }) });
 
-    const lines = output.split("\n");
-    return lines.filter((l) => /\): error TS\d+/.test(l)).length;
+    const output = (res.stdout ?? "") + (res.stderr ?? "");
+    const verdict = classifyTscRun({
+      status: res.status,
+      signal: res.signal,
+      timedOut: res.error?.code === "ETIMEDOUT",
+      error: res.error,
+      stdout: output,
+    });
+    // INCOMPLETE run -> return the safe null sentinel. decideTscRegressionGate
+    // maps null to "tsc-unavailable": no cache write, no baseline init, no block.
+    // NEVER count a truncated stream -- that is the false-green poisoning bug.
+    if (!verdict.completed) return null;
+
+    // Complete run: classifier already counted (same per-line grep, trust-gated).
+    return verdict.errorCount;
   } catch {
     return null;
   }

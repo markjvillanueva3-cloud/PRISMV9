@@ -1,0 +1,721 @@
+{
+  "id": "BIZ-MS2",
+  "version": "1.0.0",
+  "title": "Employee Management, HR & Payroll",
+  "brief": "Enhance the five already-wired employee/HR pages with new fields from BIZ-MS0: clearance_level, OT policy, shift differential, learning academy integration, timecard approval workflow, full payroll cycle, employee lifecycle management, timecard audit trail, and a fully live DepartmentDashboardPage. All pages are already calling real APIs — this milestone layers depth, compliance, and new backend capabilities on top of the existing wiring.",
+  "created_at": "2026-04-08T23:00:00Z",
+  "created_by": "claude-opus-4-6",
+  "track": "BIZ",
+  "track_name": "Business Management Platform",
+  "status": "complete",
+  "total_units": 7,
+  "total_sessions": "4-6",
+  "plan_file": "H:/prism/plans/erp-employee/BUSINESS-MANAGEMENT-MASTER-PLAN.md",
+  "phases": [
+    {
+      "id": "BIZ-MS2-P1",
+      "title": "Employee Directory & Profile Enhancements",
+      "description": "Enhance EmployeeDirectoryPage with BIZ-MS0 new fields (clearance_level, OT policy, shift differential), cert expiry warnings, manager override capabilities, and quick links. Enhance EmployeeProfilePage with a Learning Academy tab wired to learningPathEngine and employeeCertifications.",
+      "sessions": "2",
+      "primary_role": "R2",
+      "primary_model": "sonnet-4-6",
+      "units": [
+        {
+          "id": "U-BIZ12",
+          "title": "Enhance EmployeeDirectoryPage with new fields, cert warnings, and manager override",
+          "phase": "BIZ-MS2-P1",
+          "sequence": 1,
+          "role": "R2",
+          "role_name": "Builder",
+          "model": "sonnet-4-6",
+          "effort": 90,
+          "dependencies": ["BIZ-MS0"],
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Read web/src/pages/EmployeeDirectoryPage.tsx in full (617 lines) to understand existing edit modal fields, state structure, and API calls"
+            },
+            {
+              "number": 2,
+              "instruction": "Extend the edit modal to include three new field sections: (a) Clearance: a <select> with options [shop_floor, lead, hr_manager, admin] mapped to the clearance_level field; (b) OT Policy: a <select> with options [daily_8hr_CA, weekly_40hr_FLSA, exempt, none] mapped to overtime_policy; (c) Shift Differential: a number input (step=0.01, min=0, placeholder='0.00') for shift_differential_rate plus a <select> for shift_differential_type [flat_dollar, percent_of_base, none]"
+            },
+            {
+              "number": 3,
+              "instruction": "On the employee card/row, display a cert expiry warning badge: iterate the employee's certifications array. If any cert has expiry_date within 30 days from today (Date.now()), render a red badge with text 'CERT EXP' and tooltip listing the cert names and exact expiry dates. Use CSS class 'badge-danger' or equivalent Tailwind classes bg-red-600 text-white"
+            },
+            {
+              "number": 4,
+              "instruction": "Add manager override panel (visible only to users with clearance_level >= 'lead'): a collapsible 'Manager Actions' section per employee row with two actions — (a) 'Close Forgotten Shift': calls POST /api/erp/shift-clock-out with { employeeId, forced: true, change_reason: string } and requires a change_reason textarea before submission; (b) 'Edit Time Entry': opens a modal listing today's job_time_entries for the employee, allows editing hours_worked field with a required change_reason field, then calls PATCH /api/erp/job-time/:id with { hours_worked, change_reason }"
+            },
+            {
+              "number": 5,
+              "instruction": "Add quick links to each employee card: (a) 'View Timecard' button — navigates to /timecards?employeeId=:id; (b) 'Clock In For' button — visible only to clearance_level >= 'hr_manager', calls POST /api/erp/shift-clock-in with { employeeId } on behalf of the employee and shows a success toast"
+            },
+            {
+              "number": 6,
+              "instruction": "Update the updateEmployee() call in web/src/api/client.ts to include clearance_level, overtime_policy, shift_differential_rate, shift_differential_type in the request body"
+            },
+            {
+              "number": 7,
+              "instruction": "Run npm run build:fast and fix any TypeScript errors"
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "web/src/pages/EmployeeDirectoryPage.tsx",
+              "type": "source",
+              "description": "Edit modal with clearance_level, OT policy, shift differential fields; cert expiry warnings; manager override close-shift and edit-time-entry; quick links View Timecard and Clock In For"
+            },
+            {
+              "path": "web/src/api/client.ts",
+              "type": "source",
+              "description": "updateEmployee() extended to send new HR fields; new clockInForEmployee() function added"
+            }
+          ],
+          "exit_conditions": [
+            "Edit modal renders clearance_level select, overtime_policy select, and shift_differential_rate/type inputs",
+            "Saving edit modal sends all three new fields to the backend and reflects updated values without page reload",
+            "Employee with cert expiring in <= 30 days shows red CERT EXP badge with tooltip listing cert name and date",
+            "Manager can close a forgotten shift only after entering a non-empty change_reason",
+            "Manager can edit a time entry with required change_reason; PATCH sent to /api/erp/job-time/:id",
+            "'View Timecard' quick link navigates to /timecards?employeeId=:id",
+            "'Clock In For' button visible only to hr_manager+ and calls clock-in on behalf of employee",
+            "npm run build:fast passes with 0 errors"
+          ],
+          "knowledge_sources": [
+            "web/src/pages/EmployeeDirectoryPage.tsx",
+            "web/src/api/client.ts",
+            "src/engines/EmployeeEngine.ts",
+            "src/engines/TimeClockEngine.ts",
+            "src/routes/erp.ts",
+            "src/db/migrations/011-employee-enhancements.sql"
+          ],
+          "abort_criteria": [
+            "BIZ-MS0 not complete: EmployeeEngine lacks clearance_level, overtime_policy, shift_differential fields",
+            "BIZ-MS0 not complete: PATCH /api/erp/job-time/:id route does not exist or does not accept change_reason",
+            "BIZ-MS0 not complete: forced clock-out endpoint does not accept change_reason parameter"
+          ],
+          "rollback": "Revert EmployeeDirectoryPage.tsx to last working commit; revert updateEmployee() signature in client.ts; remove clockInForEmployee from client.ts"
+        },
+        {
+          "id": "U-BIZ13",
+          "title": "Enhance EmployeeProfilePage with Learning Academy tab",
+          "phase": "BIZ-MS2-P1",
+          "sequence": 2,
+          "role": "R2",
+          "role_name": "Builder",
+          "model": "sonnet-4-6",
+          "effort": 85,
+          "dependencies": ["U-BIZ12"],
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Read web/src/pages/EmployeeProfilePage.tsx in full (343 lines) to understand existing tab structure, state, and API calls"
+            },
+            {
+              "number": 2,
+              "instruction": "Add a fifth 'Learning' tab to the existing tab navigation. The tab panel renders three sections: (a) Assigned Courses — a list of courses from the employee's learning plan, each showing course name, progress % as a progress bar, quiz score (if taken), and status badge [not_started, in_progress, completed, failed]; (b) Certifications — active certs with expiry date and a colored status indicator (green=valid, yellow=expiring_soon <30 days, red=expired); (c) Machine Access Gates — a table showing machine names and whether the operator is certified to run them (green checkmark or red lock icon with required course name)"
+            },
+            {
+              "number": 3,
+              "instruction": "Add getEmployeeLearningPath(employeeId: string) to web/src/api/client.ts — POST /api/learning/employee-learning-path with { employeeId, role } body. Returns { courses: Array<{ id, name, progress_pct, quiz_score, status }>, plan_generated_at: string }"
+            },
+            {
+              "number": 4,
+              "instruction": "Add getEmployeeCertifications(employeeId: string) to web/src/api/client.ts — GET /api/erp/employee-certifications/:employeeId. Returns Array<{ cert_name, issued_date, expiry_date, issuing_authority, status: 'valid' | 'expiring_soon' | 'expired' }>"
+            },
+            {
+              "number": 5,
+              "instruction": "Wire the Learning tab to call both getEmployeeLearningPath() and getEmployeeCertifications() on tab activation (lazy load — do not call on initial mount if tab is not active). Show a spinner while loading"
+            },
+            {
+              "number": 6,
+              "instruction": "For Machine Access Gates: derive the gate list by comparing the employee's completed certifications against a static MACHINE_CERT_REQUIREMENTS map (hardcode 5-10 common machine types: VMC, Lathe, EDM, Grinder, Laser with their required cert names). Display a two-column table: Machine | Access Status"
+            },
+            {
+              "number": 7,
+              "instruction": "Run npm run build:fast and fix any TypeScript errors"
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "web/src/pages/EmployeeProfilePage.tsx",
+              "type": "source",
+              "description": "Learning tab with assigned courses progress, certifications with expiry colors, machine access gate table"
+            },
+            {
+              "path": "web/src/api/client.ts",
+              "type": "source",
+              "description": "getEmployeeLearningPath() and getEmployeeCertifications() API methods added"
+            }
+          ],
+          "exit_conditions": [
+            "Learning tab renders without errors and lazy-loads data on first activation",
+            "Each course shows name, progress bar (0-100%), quiz score if available, and status badge",
+            "Certifications show expiry date with color coding: green/yellow/red based on days remaining",
+            "Machine Access Gates table shows locked machines with required cert name as tooltip/text",
+            "getEmployeeLearningPath() calls POST /api/learning/employee-learning-path",
+            "getEmployeeCertifications() calls GET /api/erp/employee-certifications/:employeeId",
+            "npm run build:fast passes with 0 errors"
+          ],
+          "knowledge_sources": [
+            "web/src/pages/EmployeeProfilePage.tsx",
+            "web/src/api/client.ts",
+            "src/engines/EmployeeEngine.ts",
+            "src/routes/erp.ts",
+            "src/routes/learning.ts"
+          ],
+          "abort_criteria": [
+            "POST /api/learning/employee-learning-path route does not exist and cannot be added without LearningPathEngine backend work",
+            "GET /api/erp/employee-certifications/:employeeId route does not exist and BIZ-MS0 did not create it"
+          ],
+          "rollback": "Revert EmployeeProfilePage.tsx to last working commit; remove getEmployeeLearningPath and getEmployeeCertifications from client.ts"
+        }
+      ],
+      "gate": {
+        "omega_floor": 1.0,
+        "safety_floor": 0.90,
+        "test_required": true,
+        "build_required": true,
+        "anti_regression": true,
+        "checkpoint": true,
+        "learning_save": true
+      },
+      "scrutiny_checkpoint": true,
+      "scrutiny_focus": [
+        "RBAC: 'Clock In For' and manager override must be hidden from shop_floor clearance level",
+        "Cert expiry: badge must use server-side expiry_date, not client-calculated estimate",
+        "Learning tab: lazy load must not cause stale data — invalidate on employee change",
+        "Machine cert gate: MACHINE_CERT_REQUIREMENTS map must be extracted to a shared config, not duplicated",
+        "Change reason: all manager override actions must require non-empty change_reason before submission"
+      ]
+    },
+    {
+      "id": "BIZ-MS2-P2",
+      "title": "Timecard & Payroll Enhancement",
+      "description": "Enhance TimecardPage with setup/production split, FLSA OT calculation, shift differential display, approval workflow (draft→submitted→approved→locked), and ADP/Paychex CSV export. Enhance PayrollPage with full cycle management: deductions, YTD display, shift differential application, and period finalization.",
+      "sessions": "2",
+      "primary_role": "R2",
+      "primary_model": "sonnet-4-6",
+      "units": [
+        {
+          "id": "U-BIZ14",
+          "title": "Enhance TimecardPage with setup/production split, OT workflow, and CSV export",
+          "phase": "BIZ-MS2-P2",
+          "sequence": 1,
+          "role": "R2",
+          "role_name": "Builder",
+          "model": "sonnet-4-6",
+          "effort": 95,
+          "dependencies": ["BIZ-MS0"],
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Read web/src/pages/TimecardPage.tsx in full (357 lines) to understand existing day-view structure, state shape, and current API calls"
+            },
+            {
+              "number": 2,
+              "instruction": "Enhance the per-day time row to show a three-way breakdown: setup_hours (from job_time_entries where process_type='setup'), production_hours (process_type='run'), idle_hours (shift_hours - setup_hours - production_hours). Display as a stacked bar or three labeled columns. Source data from the existing getTimecardEntries() response — ensure the API response includes process_type on each entry"
+            },
+            {
+              "number": 3,
+              "instruction": "Add OT highlighting. Read the employee's overtime_policy from the employee record (fetch via getEmployee(employeeId) if not already loaded). Apply FLSA daily OT rule: highlight any day where total_hours > 8 in yellow. Apply FLSA weekly OT rule: compute running weekly total; highlight the weekly OT row in orange when weekly_total > 40. For overtime_policy='daily_8hr_CA': also highlight double-time when daily_hours > 12. Show the OT hours as a separate '+X.X OT' suffix in the cell"
+            },
+            {
+              "number": 4,
+              "instruction": "Add shift differential column: for each day row, call getShiftDifferential(employeeId, date) — GET /api/erp/shift-differential/:employeeId/:date — and display the differential amount earned (formatted as '+$X.XX' or '+X%'). Show a tooltip explaining the calculation (rate × hours)"
+            },
+            {
+              "number": 5,
+              "instruction": "Add timecard approval workflow status indicator. Each timecard week has a status: draft | submitted | approved | locked. Display a status badge at the top of the week view. Add action buttons based on current status and user clearance: operator sees 'Submit for Approval' (draft→submitted); hr_manager sees 'Approve' (submitted→approved) and 'Reject' (submitted→draft); admin sees 'Lock' (approved→locked). Call PATCH /api/erp/timecard-status with { employeeId, week_start, status, change_reason? }"
+            },
+            {
+              "number": 6,
+              "instruction": "Add a 'Export CSV' button in the header. On click, build a CSV string with columns: employee_id, employee_name, date, day_of_week, setup_hours, production_hours, idle_hours, total_hours, ot_hours, shift_differential, weekly_ot_hours, status. Format dates as MM/DD/YYYY. Trigger browser download via URL.createObjectURL(new Blob([csv], { type: 'text/csv' })). Filename: timecard_[employeeName]_[weekStart].csv. Include ADP-compatible column headers as a comment row (prefix with #)"
+            },
+            {
+              "number": 7,
+              "instruction": "Run npm run build:fast and fix any TypeScript errors"
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "web/src/pages/TimecardPage.tsx",
+              "type": "source",
+              "description": "Per-day setup/production/idle breakdown, OT highlighting per FLSA daily+weekly rules, shift differential column, approval workflow status+actions, ADP/Paychex CSV export"
+            },
+            {
+              "path": "web/src/api/client.ts",
+              "type": "source",
+              "description": "getShiftDifferential() and updateTimecardStatus() API methods added"
+            }
+          ],
+          "exit_conditions": [
+            "Each day row shows setup_hours, production_hours, idle_hours as separate values",
+            "Days with >8 hours show yellow OT highlight with '+X.X OT' suffix",
+            "Weekly total >40 shows orange highlight on the weekly summary row",
+            "Shift differential column shows per-day earned differential with tooltip",
+            "Status badge shows current workflow state (draft/submitted/approved/locked)",
+            "Operator can submit; hr_manager can approve or reject; admin can lock",
+            "CSV export downloads with correct columns and ADP-compatible header comment",
+            "Locked timecards: all edit actions disabled (read-only state)",
+            "npm run build:fast passes with 0 errors"
+          ],
+          "knowledge_sources": [
+            "web/src/pages/TimecardPage.tsx",
+            "web/src/api/client.ts",
+            "src/engines/TimeClockEngine.ts",
+            "src/engines/EmployeeEngine.ts",
+            "src/routes/erp.ts"
+          ],
+          "abort_criteria": [
+            "BIZ-MS0 not complete: job_time_entries do not include process_type field",
+            "BIZ-MS0 not complete: employees do not have overtime_policy field",
+            "PATCH /api/erp/timecard-status route does not exist",
+            "GET /api/erp/shift-differential/:employeeId/:date route does not exist"
+          ],
+          "rollback": "Revert TimecardPage.tsx to last working commit; remove getShiftDifferential and updateTimecardStatus from client.ts"
+        },
+        {
+          "id": "U-BIZ15",
+          "title": "Enhance PayrollPage with full payroll cycle workflow",
+          "phase": "BIZ-MS2-P2",
+          "sequence": 2,
+          "role": "R2",
+          "role_name": "Builder",
+          "model": "sonnet-4-6",
+          "effort": 95,
+          "dependencies": ["U-BIZ14"],
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Read web/src/pages/PayrollPage.tsx in full (351 lines) to understand existing period list, state, and current API calls"
+            },
+            {
+              "number": 2,
+              "instruction": "Add period type selector to the 'Create Period' modal: a <select> with options [weekly, biweekly, semi_monthly] plus a start_date date picker and an end_date field (auto-calculated based on type). Call POST /api/erp/payroll-period with { type, start_date, end_date }"
+            },
+            {
+              "number": 3,
+              "instruction": "On the pay stub preview / period detail view, display a deductions breakdown table with rows: Gross Pay, Federal Income Tax (calculated at effective rate from W-4 brackets — use simplified single/married brackets), State Income Tax (show a configurable state_tax_rate field, default 0%), FICA Social Security (6.2% up to $168,600 annual wage base for 2026), FICA Medicare (1.45% + 0.9% additional for wages >$200k), 401k Employee Contribution (configurable percentage, default 0%), Health Insurance (configurable flat dollar, default $0), Net Pay. Display each row with gross amount, deduction amount, and running net"
+            },
+            {
+              "number": 4,
+              "instruction": "Add YTD earnings section to each employee's pay stub view: call getEmployeeYTD(employeeId, year) — GET /api/erp/employee-ytd/:employeeId/:year — and display: YTD Gross, YTD Federal Tax, YTD FICA, YTD Net, YTD OT Hours, YTD OT Pay. Show these as a summary card above the current period detail"
+            },
+            {
+              "number": 5,
+              "instruction": "Apply shift differential to gross pay calculation: read each employee's shift_differential from their record. If shift_differential_type='flat_dollar', add (shift_differential_rate * shift_hours_this_period) to gross. If 'percent_of_base', add (base_pay * shift_differential_rate / 100). Show as a separate line item 'Shift Differential: +$X.XX' in the deductions table above gross"
+            },
+            {
+              "number": 6,
+              "instruction": "Add payroll period lifecycle state machine in the UI. Period status: draft | calculating | review | finalized. Show a status stepper at the top of the period detail (four steps with checkmarks). Add action buttons: 'Run Payroll' (draft→calculating, calls POST /api/erp/payroll-run/:periodId), 'Review' tab auto-opens when status=calculating→review, 'Finalize' button (review→finalized, calls POST /api/erp/payroll-finalize/:periodId, requires hr_manager clearance). Finalized periods are read-only"
+            },
+            {
+              "number": 7,
+              "instruction": "Run npm run build:fast and fix any TypeScript errors"
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "web/src/pages/PayrollPage.tsx",
+              "type": "source",
+              "description": "Period type selector (weekly/biweekly/semi-monthly), deductions breakdown table (Federal/State/FICA/401k/Health/Net), YTD earnings card, shift differential line item, period lifecycle stepper with run/review/finalize actions"
+            },
+            {
+              "path": "web/src/api/client.ts",
+              "type": "source",
+              "description": "getEmployeeYTD(), runPayroll(), finalizePayroll() API methods added"
+            }
+          ],
+          "exit_conditions": [
+            "Create Period modal shows weekly/biweekly/semi-monthly options with auto-calculated end_date",
+            "Pay stub shows deductions table: Gross, Federal, State, FICA SS, FICA Medicare, 401k, Health, Net",
+            "FICA Social Security capped at $168,600 annual wage base",
+            "YTD card shows YTD Gross, Federal, FICA, Net, OT Hours, OT Pay",
+            "Shift differential shown as separate line item in deductions table",
+            "Period stepper shows four states: draft→calculating→review→finalized",
+            "Finalized period is read-only — all edit buttons hidden",
+            "npm run build:fast passes with 0 errors"
+          ],
+          "knowledge_sources": [
+            "web/src/pages/PayrollPage.tsx",
+            "web/src/api/client.ts",
+            "src/engines/PayrollEngine.ts",
+            "src/engines/EmployeeEngine.ts",
+            "src/routes/erp.ts"
+          ],
+          "abort_criteria": [
+            "BIZ-MS0 not complete: PayrollEngine lacks finalize() or run() methods",
+            "GET /api/erp/employee-ytd/:employeeId/:year route does not exist",
+            "POST /api/erp/payroll-run/:periodId or /api/erp/payroll-finalize/:periodId routes do not exist"
+          ],
+          "rollback": "Revert PayrollPage.tsx to last working commit; remove getEmployeeYTD, runPayroll, finalizePayroll from client.ts"
+        }
+      ],
+      "gate": {
+        "omega_floor": 1.0,
+        "safety_floor": 0.90,
+        "test_required": true,
+        "build_required": true,
+        "anti_regression": true,
+        "checkpoint": true,
+        "learning_save": true
+      },
+      "scrutiny_checkpoint": true,
+      "scrutiny_focus": [
+        "FLSA OT: daily OT threshold must be per overtime_policy (8hr daily CA vs 40hr weekly FLSA)",
+        "FICA SS wage base: must cap at $168,600 annual — not per-period — requires YTD accumulation check",
+        "Payroll finalization: must be irreversible in the UI (no 'Unfinalize' button — matches legal requirement)",
+        "Deductions: all tax rates must be clearly labeled as estimates (not official IRS guidance)",
+        "CSV export: locked timecards should not be re-submittable — status check before enabling submit button"
+      ]
+    },
+    {
+      "id": "BIZ-MS2-P3",
+      "title": "Employee Lifecycle & Audit Trail",
+      "description": "Add hire-to-termination lifecycle management (onboarding checklist, status transitions, offboarding) and a SOX/ISO-compliant timecard audit trail with immutable log records and an HR-facing audit viewer.",
+      "sessions": "1-2",
+      "primary_role": "R2",
+      "primary_model": "sonnet-4-6",
+      "units": [
+        {
+          "id": "U-BIZ16",
+          "title": "Add Employee Lifecycle Management (onboarding, status transitions, offboarding)",
+          "phase": "BIZ-MS2-P3",
+          "sequence": 1,
+          "role": "R2",
+          "role_name": "Builder",
+          "model": "sonnet-4-6",
+          "effort": 85,
+          "dependencies": ["U-BIZ12"],
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Add an 'Onboarding' modal to EmployeeDirectoryPage.tsx that opens when creating a new employee. The modal renders a sequential checklist with 7 steps: (1) Create User Account — shows a 'Create Auth Account' button that calls POST /api/auth/create-user; (2) Assign Role — shows the clearance_level dropdown; (3) Security Clearance — checkbox 'Background check received'; (4) Required Training — links to the Learning tab and shows required courses for the role; (5) Machine Access — shows the machine cert gates from the MACHINE_CERT_REQUIREMENTS map; (6) Badge/Equipment Issued — free-text notes field; (7) First Day Complete — date picker. Each step has a completion checkbox. The checklist status is stored via PATCH /api/erp/employee/:id/onboarding"
+            },
+            {
+              "number": 2,
+              "instruction": "Add employee status management to the employee card/row. Current status is one of: active | on_leave | inactive | terminated. Display as a colored badge. Add a 'Change Status' dropdown button visible to hr_manager+: (a) active → on_leave: requires a return_date field and change_reason; (b) active → inactive: requires change_reason (reversible); (c) on_leave → active: no extra fields needed; (d) inactive → active: requires change_reason; (e) any → terminated: shows a warning modal 'This is IRREVERSIBLE. Type the employee name to confirm.' Requires change_reason and confirmation. All transitions call PATCH /api/erp/employee-status with { employeeId, new_status, change_reason, return_date? }"
+            },
+            {
+              "number": 3,
+              "instruction": "Add an 'Offboarding' modal that opens automatically when status is set to terminated. The modal renders: (1) Revoke System Access — shows a 'Revoke Now' button calling DELETE /api/auth/user/:userId; (2) Return Equipment checklist — free-text notes; (3) Final Paycheck — shows a button 'Calculate Final Pay' that calls GET /api/erp/final-paycheck/:employeeId and displays gross, deductions, net for the current partial pay period; (4) Separation Paperwork — checkbox with upload placeholder; (5) Exit Interview — date picker field. Steps are completable checkboxes. Submit calls POST /api/erp/employee/:id/offboarding"
+            },
+            {
+              "number": 4,
+              "instruction": "Add the employee_update_status action to businessDispatcher: in src/tools/dispatchers/businessDispatcher.ts, add 'employee_update_status' to the z.enum action list. Add the case handler to call employeeEngine.updateStatus(employeeId, new_status, change_reason, actorId). The action schema in src/schemas/businessActionSchemas.ts should define: employeeId (string), new_status (z.enum(['active', 'on_leave', 'inactive', 'terminated'])), change_reason (string min 3 chars), return_date (optional ISO string), actorId (string)"
+            },
+            {
+              "number": 5,
+              "instruction": "Run npm run build:fast and fix any TypeScript errors"
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "web/src/pages/EmployeeDirectoryPage.tsx",
+              "type": "source",
+              "description": "Onboarding 7-step checklist modal, status badge with Change Status dropdown, offboarding modal triggered on termination"
+            },
+            {
+              "path": "src/tools/dispatchers/businessDispatcher.ts",
+              "type": "source",
+              "description": "employee_update_status action added to z.enum and case handler wired to employeeEngine.updateStatus()"
+            },
+            {
+              "path": "src/schemas/businessActionSchemas.ts",
+              "type": "source",
+              "description": "EmployeeUpdateStatusSchema with employeeId, new_status enum, change_reason min 3, optional return_date, actorId"
+            }
+          ],
+          "exit_conditions": [
+            "Onboarding modal opens on new employee creation and shows 7 sequential steps",
+            "Each onboarding step has a completion checkbox; progress persists via PATCH /api/erp/employee/:id/onboarding",
+            "Status badge shows active/on_leave/inactive/terminated with distinct colors",
+            "Termination requires typing employee name to confirm — no other status requires this",
+            "Offboarding modal appears automatically on termination with all 5 sections",
+            "Final paycheck calculation calls GET /api/erp/final-paycheck/:employeeId and displays net pay",
+            "employee_update_status in businessDispatcher z.enum, builds with 0 TypeScript errors",
+            "npm run build:fast passes with 0 errors"
+          ],
+          "knowledge_sources": [
+            "web/src/pages/EmployeeDirectoryPage.tsx",
+            "web/src/api/client.ts",
+            "src/tools/dispatchers/businessDispatcher.ts",
+            "src/schemas/businessActionSchemas.ts",
+            "src/engines/EmployeeEngine.ts",
+            "src/routes/erp.ts"
+          ],
+          "abort_criteria": [
+            "EmployeeEngine.updateStatus() method does not exist and would require significant backend work outside this milestone scope",
+            "PATCH /api/erp/employee-status route does not exist",
+            "DELETE /api/auth/user/:userId route does not exist (access revocation)"
+          ],
+          "rollback": "Revert EmployeeDirectoryPage.tsx; revert businessDispatcher.ts to remove employee_update_status; revert businessActionSchemas.ts"
+        },
+        {
+          "id": "U-BIZ17",
+          "title": "Add Timecard Audit Trail with SOX/ISO compliance and HR audit viewer",
+          "phase": "BIZ-MS2-P3",
+          "sequence": 2,
+          "role": "R2",
+          "role_name": "Builder",
+          "model": "sonnet-4-6",
+          "effort": 80,
+          "dependencies": ["U-BIZ14"],
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Create migration src/db/migrations/013-timecard-audit-log.sql: CREATE TABLE timecard_audit_log (id SERIAL PRIMARY KEY, entry_id INTEGER NOT NULL REFERENCES job_time_entries(id), actor_id VARCHAR(50) NOT NULL, actor_name VARCHAR(100) NOT NULL, action VARCHAR(50) NOT NULL CHECK (action IN ('create', 'edit', 'approve', 'reject', 'lock', 'close_forgotten')), field_changed VARCHAR(50), old_value TEXT, new_value TEXT, change_reason TEXT NOT NULL, created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()). Add index on entry_id and on actor_id. The created_at column must have a DEFAULT NOW() and must NOT allow UPDATE (enforce via trigger or application layer). Include the SQL for a trigger: CREATE OR REPLACE FUNCTION prevent_audit_update() RETURNS TRIGGER AS $$ BEGIN RAISE EXCEPTION 'Audit log records are immutable'; END; $$ LANGUAGE plpgsql; CREATE TRIGGER no_audit_update BEFORE UPDATE ON timecard_audit_log FOR EACH ROW EXECUTE FUNCTION prevent_audit_update();"
+            },
+            {
+              "number": 2,
+              "instruction": "Wire audit log writes in src/routes/erp.ts: wherever a job_time_entry is edited (PATCH /api/erp/job-time/:id), append a row to timecard_audit_log with actor_id from the JWT token, action='edit', field_changed, old_value (fetched before update), new_value, change_reason from request body. Where shift clock-out is forced (POST /api/erp/shift-clock-out with forced=true), log action='close_forgotten'. Where timecard status changes (PATCH /api/erp/timecard-status), log action equal to the new status (approve, reject, lock)"
+            },
+            {
+              "number": 3,
+              "instruction": "Add GET /api/erp/timecard-audit-log route to src/routes/erp.ts. Query params: employeeId (required), start_date (optional ISO), end_date (optional ISO). Returns paginated results (page, page_size=20 default, total_count). Requires clearance_level >= 'hr_manager' via requireRole middleware"
+            },
+            {
+              "number": 4,
+              "instruction": "Add getTimecardAuditLog(employeeId: string, startDate?: string, endDate?: string, page?: number) to web/src/api/client.ts — calls GET /api/erp/timecard-audit-log with query params"
+            },
+            {
+              "number": 5,
+              "instruction": "Add an 'Audit Log' tab to the TimecardPage.tsx week view. Tab is visible only to hr_manager+ users. The tab renders a table with columns: Date/Time | Actor | Action | Field Changed | Old Value | New Value | Change Reason. Support date range filter (default: current week). Show a 'No edits this period' empty state when no records exist. Records cannot be deleted from this view"
+            },
+            {
+              "number": 6,
+              "instruction": "Run npm run build:fast and fix any TypeScript errors"
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "src/db/migrations/013-timecard-audit-log.sql",
+              "type": "data",
+              "description": "Immutable audit log table with prevent_update trigger, indexes on entry_id and actor_id"
+            },
+            {
+              "path": "src/routes/erp.ts",
+              "type": "source",
+              "description": "Audit log writes on edit/close_forgotten/approve/reject/lock; GET audit log endpoint with hr_manager auth"
+            },
+            {
+              "path": "web/src/pages/TimecardPage.tsx",
+              "type": "source",
+              "description": "Audit Log tab showing edit history with date filter, visible to hr_manager+ only"
+            },
+            {
+              "path": "web/src/api/client.ts",
+              "type": "source",
+              "description": "getTimecardAuditLog() API method added"
+            }
+          ],
+          "exit_conditions": [
+            "Migration 013 applies cleanly: timecard_audit_log table created with prevent_update trigger",
+            "Editing a job_time_entry writes a row to audit log with old_value, new_value, change_reason, actor_id",
+            "Forced clock-out logs action='close_forgotten' with change_reason",
+            "Approve/reject/lock timecard status changes logged with correct action label",
+            "GET /api/erp/timecard-audit-log returns paginated results, requires hr_manager auth",
+            "Audit Log tab in TimecardPage visible only to hr_manager+ users",
+            "Audit records cannot be modified or deleted via any UI action",
+            "npm run build:fast passes with 0 errors"
+          ],
+          "knowledge_sources": [
+            "src/db/migrations/",
+            "src/routes/erp.ts",
+            "web/src/pages/TimecardPage.tsx",
+            "web/src/api/client.ts",
+            "src/middleware/auth.ts"
+          ],
+          "abort_criteria": [
+            "Database is not PostgreSQL (trigger syntax is PG-specific)",
+            "PATCH /api/erp/job-time/:id route does not exist to instrument",
+            "JWT token does not include actor identity fields (sub or user_id)"
+          ],
+          "rollback": "Drop migration 013 (DROP TABLE IF EXISTS timecard_audit_log CASCADE); revert erp.ts audit log writes and GET endpoint; revert TimecardPage.tsx to remove Audit Log tab; remove getTimecardAuditLog from client.ts"
+        }
+      ],
+      "gate": {
+        "omega_floor": 1.0,
+        "safety_floor": 0.90,
+        "test_required": true,
+        "build_required": true,
+        "anti_regression": true,
+        "checkpoint": true,
+        "learning_save": true
+      },
+      "scrutiny_checkpoint": true,
+      "scrutiny_focus": [
+        "Immutability: prevent_update trigger must fire on any attempt to UPDATE timecard_audit_log — verify with a direct SQL UPDATE attempt in test",
+        "Termination irreversibility: UI must have no path back from 'terminated' status — guard at both frontend and backend",
+        "Audit log authorization: GET endpoint must reject shop_floor tokens with 403",
+        "Onboarding idempotency: re-clicking a completed step must not duplicate checklist entries",
+        "Offboarding: revoke access must call DELETE /api/auth/user — a failed revoke must block the offboarding submission"
+      ]
+    },
+    {
+      "id": "BIZ-MS2-P4",
+      "title": "Department Dashboard Live Wiring",
+      "description": "Replace all seed/mock data in DepartmentDashboardPage with real API calls: live who's-clocked-in from whoClockedIn(), active jobs per machine from dispatch queue, utilization % from employeeUtilization(), downtime Pareto from pause_periods, cost per department from employeeDeptSummary(), and foreman controls for OT approval and operator reassignment.",
+      "sessions": "1",
+      "primary_role": "R2",
+      "primary_model": "sonnet-4-6",
+      "units": [
+        {
+          "id": "U-BIZ18",
+          "title": "Wire DepartmentDashboardPage to 100% real live data",
+          "phase": "BIZ-MS2-P4",
+          "sequence": 1,
+          "role": "R2",
+          "role_name": "Builder",
+          "model": "sonnet-4-6",
+          "effort": 90,
+          "dependencies": ["U-BIZ16", "U-BIZ17"],
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Read web/src/pages/DepartmentDashboardPage.tsx in full to identify every location where mock/seed data, hardcoded arrays, or fixture imports are used. List each one as a comment before proceeding"
+            },
+            {
+              "number": 2,
+              "instruction": "Wire the 'Who's Clocked In' panel: replace mock data with getWhoClockedIn(departmentId?: string) — GET /api/erp/who-clocked-in with optional dept query param. Returns Array<{ employeeId, employeeName, clock_in_time, active_job_number?, active_machine_id? }>. Display each entry as a card with name, clock-in duration (live timer), current job if available"
+            },
+            {
+              "number": 3,
+              "instruction": "Wire the 'Active Jobs per Machine' panel: replace mock data with getActiveMachineJobs(departmentId?: string) — GET /api/erp/active-machine-jobs with optional dept param. Returns Array<{ machine_id, machine_name, active_job_number?, operator_name?, status: 'running' | 'idle' | 'paused' | 'down' }>. Display as a machine grid with status color coding"
+            },
+            {
+              "number": 4,
+              "instruction": "Wire the 'Utilization %' panel: replace mock data with getEmployeeUtilization(departmentId: string, date: string) — GET /api/erp/employee-utilization?departmentId=X&date=Y. Returns Array<{ employeeId, name, productive_hours, total_clock_hours, utilization_pct }>. Display as a horizontal bar chart per employee using Recharts BarChart"
+            },
+            {
+              "number": 5,
+              "instruction": "Wire the 'Downtime Reasons' Pareto chart: replace mock data with getDowntimePareto(departmentId: string, start_date: string, end_date: string) — GET /api/erp/downtime-pareto with query params. The backend aggregates pause_periods by reason_category and returns Array<{ reason_category, total_minutes, count, pct_of_total }> sorted descending. Render as a Recharts ComposedChart with bars (minutes) and a cumulative % line"
+            },
+            {
+              "number": 6,
+              "instruction": "Wire the 'Cost per Department' summary: replace mock data with getEmployeeDeptSummary(departmentId: string, period_start: string, period_end: string) — GET /api/erp/dept-summary with query params. Returns { total_labor_cost, total_hours, ot_hours, ot_cost, avg_utilization_pct, headcount_active }. Display as a KPI card grid"
+            },
+            {
+              "number": 7,
+              "instruction": "Add foreman controls section (visible to clearance_level >= 'lead'): (a) Reassign Operator: a dropdown to pick an operator and a target machine, then call POST /api/erp/reassign-operator with { employeeId, from_machine_id, to_machine_id, reason }; (b) Approve OT: a table of employees whose current shift has exceeded 8 hours without approved OT — each row has an 'Approve OT' button calling POST /api/erp/approve-ot with { employeeId, date, approved_by }. Both actions require the user to have clearance_level >= 'lead'"
+            },
+            {
+              "number": 8,
+              "instruction": "Add all six API functions to web/src/api/client.ts: getWhoClockedIn(), getActiveMachineJobs(), getEmployeeUtilization(), getDowntimePareto(), getEmployeeDeptSummary(), reassignOperator(), approveOT()"
+            },
+            {
+              "number": 9,
+              "instruction": "Set up auto-refresh for the 'Who's Clocked In' and 'Active Jobs' panels using setInterval at 30-second intervals. Clear intervals on component unmount. Add a 'Last updated X seconds ago' indicator"
+            },
+            {
+              "number": 10,
+              "instruction": "Run npm run build:fast and fix any TypeScript errors"
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "web/src/pages/DepartmentDashboardPage.tsx",
+              "type": "source",
+              "description": "All six panels wired to real API: who-clocked-in (live refresh 30s), active machine jobs, utilization bar chart, downtime Pareto chart, dept cost KPIs, foreman reassign/OT-approve controls"
+            },
+            {
+              "path": "web/src/api/client.ts",
+              "type": "source",
+              "description": "getWhoClockedIn, getActiveMachineJobs, getEmployeeUtilization, getDowntimePareto, getEmployeeDeptSummary, reassignOperator, approveOT added"
+            }
+          ],
+          "exit_conditions": [
+            "No mock arrays, fixture imports, or hardcoded data remain in DepartmentDashboardPage.tsx",
+            "Who's Clocked In panel shows live employees with accurate clock-in duration and auto-refreshes every 30 seconds",
+            "Active Jobs panel shows machine grid with running/idle/paused/down status colors",
+            "Utilization chart renders as Recharts BarChart with real data from /api/erp/employee-utilization",
+            "Downtime Pareto shows bars + cumulative % line via Recharts ComposedChart from pause_periods aggregation",
+            "Cost KPI card shows total_labor_cost, ot_cost, avg_utilization_pct from /api/erp/dept-summary",
+            "Foreman reassign and OT approve controls visible only to clearance_level >= 'lead'",
+            "Intervals cleared on component unmount (no memory leak)",
+            "npm run build:fast passes with 0 errors"
+          ],
+          "knowledge_sources": [
+            "web/src/pages/DepartmentDashboardPage.tsx",
+            "web/src/api/client.ts",
+            "src/routes/erp.ts",
+            "src/engines/TimeClockEngine.ts",
+            "src/engines/EmployeeEngine.ts"
+          ],
+          "abort_criteria": [
+            "None of the required backend routes exist (/api/erp/who-clocked-in, /api/erp/active-machine-jobs, /api/erp/employee-utilization, /api/erp/downtime-pareto, /api/erp/dept-summary) — if all are missing, raise to lead before proceeding",
+            "DepartmentDashboardPage.tsx does not exist (would need to create it from scratch — scope creep)"
+          ],
+          "rollback": "Revert DepartmentDashboardPage.tsx to last working commit; remove all 7 new API functions from client.ts"
+        }
+      ],
+      "gate": {
+        "omega_floor": 1.0,
+        "safety_floor": 0.90,
+        "test_required": true,
+        "build_required": true,
+        "anti_regression": true,
+        "checkpoint": true,
+        "learning_save": true
+      },
+      "scrutiny_checkpoint": true,
+      "scrutiny_focus": [
+        "Zero mock data: run a grep for 'mock', 'seed', 'fixture', 'hardcoded' in DepartmentDashboardPage.tsx — must return 0 hits after this unit",
+        "Memory leak: all setInterval calls must have a corresponding clearInterval in useEffect cleanup",
+        "RBAC: foreman controls must check clearance_level on both frontend visibility and backend route",
+        "Pareto sort: downtime categories must be sorted descending by total_minutes, not by category name",
+        "Recharts: charts must be wrapped in ResponsiveContainer to handle window resize without crash"
+      ]
+    }
+  ],
+  "dependencies": ["BIZ-MS0"],
+  "forge_triple": {
+    "hook": {
+      "name": "biz-ms2-timecard-immutability-guard",
+      "trigger": "PreToolUse(Write|Edit)",
+      "file": "src/db/migrations/013-timecard-audit-log.sql",
+      "description": "Warn if the prevent_audit_update trigger definition is removed or the UPDATE restriction is weakened — audit log immutability is a SOX/ISO compliance requirement"
+    },
+    "mcp_action": {
+      "dispatcher": "businessDispatcher",
+      "action": "employee_update_status",
+      "description": "Transition employee lifecycle status (active/on_leave/inactive/terminated) with required change_reason and actor tracking — wires to EmployeeEngine.updateStatus() with audit trail"
+    },
+    "skill_enhancement": {
+      "skill": "hr_compliance_ux",
+      "enhancement": "HR workflow patterns: immutable audit logs with PostgreSQL triggers, FLSA daily+weekly OT calculation from overtime_policy field, payroll deduction breakdown (FICA wage base cap, shift differential line items), irreversible termination with typed-name confirmation gate, SOX-compliant timecard approval workflow (draft→submitted→approved→locked)"
+    }
+  },
+  "enforcement": {
+    "build_gate": "npm run build:fast must pass after each unit before proceeding to next unit",
+    "no_mock_data": "All API calls in completed units must target real backend routes — no fixture JSON, hardcoded arrays, or Math.random() data generation in any component touched by this milestone",
+    "change_reason_required": "Every HR override action (manager edit, forced clock-out, status change, timecard approve/reject/lock) must require a non-empty change_reason before the API call is made",
+    "audit_immutability": "The timecard_audit_log table must never have UPDATE or DELETE routes exposed — only INSERT via instrumented backend actions and SELECT via the hr_manager audit viewer",
+    "termination_irreversible": "Once an employee status is set to 'terminated', the UI must have no path back to any other status — this must be enforced at both the frontend dropdown (omit non-terminated options) and the backend (return 409 if new_status !== 'terminated' for a terminated employee)",
+    "no_passthrough": "No .passthrough() in any Zod schema added or modified in this milestone",
+    "fica_wage_base": "FICA Social Security deduction must check YTD gross against the $168,600 wage base before applying the 6.2% rate — never apply SS tax beyond this cap"
+  },
+  "exit_conditions": [
+    "EmployeeDirectoryPage edit modal saves clearance_level, overtime_policy, shift_differential to backend",
+    "Cert expiry warnings show for any cert expiring within 30 days",
+    "Manager can close forgotten shifts and edit time entries — both require non-empty change_reason",
+    "EmployeeProfilePage Learning tab shows course progress, cert status, and machine access gates",
+    "TimecardPage shows setup vs production vs idle hours per day",
+    "OT highlighting applies correct threshold per employee overtime_policy (daily CA or weekly FLSA)",
+    "Timecard approval workflow: draft → submitted → approved → locked; locked = read-only",
+    "CSV export downloads ADP/Paychex compatible file",
+    "PayrollPage deductions breakdown shows Federal, State, FICA SS (capped), FICA Medicare, 401k, Health, Net",
+    "YTD card shows earnings for the current calendar year",
+    "Payroll period finalization is irreversible in the UI",
+    "Onboarding 7-step checklist modal works on employee creation",
+    "Termination requires typed-name confirmation and triggers offboarding modal",
+    "employee_update_status action wired in businessDispatcher with correct schema",
+    "timecard_audit_log table created with immutable trigger; every edit/approve/lock/close writes a record",
+    "Audit Log tab in TimecardPage visible to hr_manager+, shows paginated history",
+    "DepartmentDashboardPage has zero mock/seed/fixture data — all 6 panels call real APIs",
+    "Department dashboard auto-refreshes who-clocked-in and active-jobs every 30 seconds without memory leak",
+    "npm run build:fast clean (0 errors), all affected tests pass"
+  ]
+}

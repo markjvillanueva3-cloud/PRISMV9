@@ -12,7 +12,7 @@ function readStdinSafe() {
   }
 }
 /**
- * anti-pattern-detector.mjs — PreToolUse hook for Edit/Write/MultiEdit
+ * anti-pattern-detector.mjs -- PreToolUse hook for Edit/Write/MultiEdit
  *
  * Detects common anti-patterns and bugs before they land in code:
  * - await inside loops without Promise.all (N+1 async)
@@ -33,7 +33,7 @@ const ANTI_PATTERNS = [
     id: 'await-in-loop',
     pattern: /for\s*\([^)]*\)\s*\{[^}]*await\s+/,
     altPattern: /for\s+await\s+/,
-    message: 'await inside loop without Promise.all — causes N+1 sequential async calls',
+    message: 'await inside loop without Promise.all -- causes N+1 sequential async calls',
     suggestion: 'Use Promise.all(items.map(async item => ...)) for parallel execution',
     severity: 'warn',
     skipIf: (code) => code.includes('Promise.all') || code.includes('for await'),
@@ -41,7 +41,7 @@ const ANTI_PATTERNS = [
   {
     id: 'event-listener-leak',
     pattern: /addEventListener\s*\(/,
-    message: 'Event listener added — ensure cleanup with removeEventListener',
+    message: 'Event listener added -- ensure cleanup with removeEventListener',
     suggestion: 'Store reference and call removeEventListener in cleanup/unmount',
     severity: 'warn',
     skipIf: (code) => code.includes('removeEventListener') || code.includes('AbortController'),
@@ -49,28 +49,28 @@ const ANTI_PATTERNS = [
   {
     id: 'regex-user-input',
     pattern: /new\s+RegExp\s*\(\s*(?:req\.|input|user|param|query|body|args)/,
-    message: 'RegExp with user input — potential ReDoS vulnerability',
+    message: 'RegExp with user input -- potential ReDoS vulnerability',
     suggestion: 'Sanitize input or use a safe regex library like re2',
     severity: 'block',
   },
   {
     id: 'sql-concat',
     pattern: /(?:SELECT|INSERT|UPDATE|DELETE|WHERE).*\+\s*(?:req\.|input|user|param|query|body|args|\$\{)/i,
-    message: 'SQL string concatenation with user input — SQL injection risk',
+    message: 'SQL string concatenation with user input -- SQL injection risk',
     suggestion: 'Use parameterized queries: db.query(sql, [param])',
     severity: 'block',
   },
   {
     id: 'shell-concat',
     pattern: /(?:exec|spawn|execSync|spawnSync)\s*\([^)]*\+\s*(?:req\.|input|user|param|\$\{)/,
-    message: 'Shell command with string concatenation — command injection risk',
+    message: 'Shell command with string concatenation -- command injection risk',
     suggestion: 'Use execFileSync with array args, never string concatenation',
     severity: 'block',
   },
   {
     id: 'eval-usage',
     pattern: /\beval\s*\(/,
-    message: 'eval() usage — code injection risk and performance hit',
+    message: 'eval() usage -- code injection risk and performance hit',
     suggestion: 'Use JSON.parse for data, Function constructor only if absolutely necessary',
     severity: 'block',
   },
@@ -92,7 +92,7 @@ const ANTI_PATTERNS = [
   {
     id: 'sync-fs-in-async',
     pattern: /(?:async\s+function|async\s*\()[^}]*(?:readFileSync|writeFileSync|existsSync|mkdirSync)/s,
-    message: 'Synchronous fs operation in async function — blocks event loop',
+    message: 'Synchronous fs operation in async function -- blocks event loop',
     suggestion: 'Use async variants: readFile, writeFile, access, mkdir',
     severity: 'warn',
   },
@@ -113,14 +113,14 @@ const ANTI_PATTERNS = [
   {
     id: 'innerHTML-xss',
     pattern: /innerHTML\s*=\s*(?:req\.|input|user|param|\$\{|`)/,
-    message: 'innerHTML with user input — XSS vulnerability',
+    message: 'innerHTML with user input -- XSS vulnerability',
     suggestion: 'Use textContent or sanitize with DOMPurify',
     severity: 'block',
   },
   {
     id: 'dangerouslySetInnerHTML',
     pattern: /dangerouslySetInnerHTML\s*=\s*\{\s*\{\s*__html:\s*(?!sanitize|DOMPurify|escape)/,
-    message: 'dangerouslySetInnerHTML without sanitization — XSS risk',
+    message: 'dangerouslySetInnerHTML without sanitization -- XSS risk',
     suggestion: 'Sanitize with DOMPurify.sanitize() before setting',
     severity: 'block',
   },
@@ -142,9 +142,41 @@ const ANTI_PATTERNS = [
   {
     id: 'magic-number',
     pattern: /(?:timeout|delay|interval|retry|limit|max|min)\s*[:=]\s*\d{4,}/,
-    message: 'Magic number in timing/limit — extract to named constant',
+    message: 'Magic number in timing/limit -- extract to named constant',
     suggestion: 'const TIMEOUT_MS = 30000; // 30 seconds',
     severity: 'info',
+  },
+  {
+    // CLASS 1 (charlie U-ERP-AUTOFEED-SCRUTINY 2026-06-29): a route that forwards
+    // a caller-supplied entitlement/role/auth flag straight into a callTool (the
+    // dispatcher whose engine reads that flag as a fail-closed gate) BYPASSES the
+    // gate -- any authed caller can self-assert `cadcam_paid:true` in the body.
+    // Source EVERY entitlement/role/identity from the VERIFIED token, never the body.
+    id: 'entitlement-from-body',
+    pattern: /callTool\s*\([^)]*\breq\.body\b/s,
+    message: 'A route forwards req.body into a callTool -- if the engine reads an entitlement/role/auth flag (cadcam_paid, actor_role, is_admin, paid, entitled) as a fail-closed gate, a caller can SELF-ASSERT it in the body and bypass the gate',
+    suggestion: 'Strip the flag from req.body and source it from the VERIFIED token (req.userPermissions / req.userRoles / req.userId), never the body. See reference_charlie_erp_autofeed_2026_06_29.',
+    severity: 'warn',
+    // Fire only when an entitlement/role flag name is present AND the route does
+    // NOT already source it from the verified token (the correct pattern).
+    skipIf: (code) =>
+      !/\b(cadcam_paid|actor_role|is_admin|entitled|\bpaid\b|\brole\b|requireRole)\b/.test(code) ||
+      /req\.user(Permissions|Roles|Id|s)\b/.test(code),
+  },
+  {
+    // CLASS 2 (the recurring U-QT04 / estimate-flow / quote-compat / RFQInbox /
+    // ERP-autofeed envelope dead-panel): prism_business returns slimResponse({type,text})
+    // with NO content[] wrapper, so callTool cannot peel it -> res.json hands the FE
+    // the BARE {type,text}. A FE client that reads .data/.result off it gets undefined
+    // = a permanently-empty (DEAD) panel. The route's response must be unwrapped
+    // (sendCompatResponse) or the FE client MUST unwrapQuotingBody the .text.
+    id: 'prism-business-envelope-unwrapped',
+    pattern: /res\.json\s*\(\s*await\s+callTool\s*\(\s*["']prism_business["']/s,
+    message: 'res.json(await callTool("prism_business", ...)) forwards the slimResponse {type,text} envelope verbatim -- the FE client reading .data/.result off it renders a DEAD (empty) panel',
+    suggestion: 'Use sendCompatResponse(res, ...) on the route, OR ensure the FE client runs the body through unwrapQuotingBody (parses the .text). See reference_charlie_erp_autofeed_2026_06_29.',
+    severity: 'warn',
+    skipIf: (code) =>
+      /sendCompatResponse|unwrapQuotingBody|redactThroughEnvelope/.test(code),
   },
 ];
 
@@ -235,7 +267,7 @@ async function main() {
     const reasons = blocks.map(b => `• [${b.id}] ${b.message}\n  → ${b.suggestion}`).join('\n');
     console.log(JSON.stringify({
       decision: "block",
-      reason: `ANTI-PATTERN DETECTOR — BLOCKED (security risk)\n\n${reasons}\n\nFix these issues before writing.`,
+      reason: `ANTI-PATTERN DETECTOR -- BLOCKED (security risk)\n\n${reasons}\n\nFix these issues before writing.`,
     }));
     return;
   }

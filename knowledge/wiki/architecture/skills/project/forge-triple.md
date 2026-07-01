@@ -29,7 +29,7 @@ related:
 
 ## Description (first paragraph)
 
-Run three forge pipelines back-to-back in a single session for maximum system growth.
+The canonical PRISM `/forge-triple` pipeline (engines → skills → hooks, exhaustive extraction, dedup-gated) lives in the repo and is the source of truth:
 
 <!-- AUTO-END -->
 

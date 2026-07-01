@@ -23,8 +23,9 @@
  */
 
 import { readFileSync, existsSync, mkdirSync, statSync, writeFileSync } from "node:fs";
-import { spawn, spawnSync } from "node:child_process";
+import { spawn } from "node:child_process";
 import { dirname } from "node:path";
+import { isOllamaUpSync, readWarmModelsSync } from "../../scripts/lib/ollama-ps-probe.mjs";
 
 const KILL_SWITCH = "PRISM_OLLAMA_PREWARM_DISABLE";
 const OLLAMA_URL = process.env.OLLAMA_URL || "http://127.0.0.1:11434";
@@ -36,20 +37,25 @@ const PROBE_TIMEOUT_SEC = 2;
 // (deepseek-r1:14b is intentionally NOT auto-warmed — 9GB cold-load,
 // reviewer-D is opt-in for the operator.)
 const PIPELINE_MODELS = {
-  "forge-audit": "qwen2.5-coder:7b",
-  "forge2": "qwen2.5-coder:7b",
-  "forge-triple": "qwen2.5-coder:14b",
-  "rgs": "qwen2.5-coder:7b",
-  "rgs2": "qwen2.5-coder:7b",
-  "rgs-sync": "qwen2.5-coder:7b",
-  "scrutinize": "qwen2.5-coder:7b",
-  "scrutiny-3way": "qwen2.5-coder:7b",
+  "forge-audit": "qwen2.5-coder:32b",
+  "forge2": "qwen2.5-coder:32b",
+  "forge-triple": "qwen2.5-coder:32b",
+  "rgs": "qwen2.5-coder:32b",
+  "rgs2": "qwen2.5-coder:32b",
+  "rgs-sync": "qwen2.5-coder:32b",
+  "scrutinize": "qwen2.5-coder:32b",
+  "scrutiny-3way": "qwen2.5-coder:32b",
   "dedup": "nomic-embed-text",
-  "precompact": "qwen2.5-coder:14b",
-  "deep-search": "qwen2.5-coder:7b",
-  "pdf-learn": "qwen2.5-coder:7b",
-  "video-learn": "qwen2.5-coder:7b",
-  "close-out-audit": "qwen2.5-coder:7b",
+  "precompact": "qwen2.5-coder:32b",
+  "deep-search": "qwen2.5-coder:32b",
+  "pdf-learn": "qwen2.5-coder:32b",
+  "video-learn": "qwen2.5-coder:32b",
+  "close-out-audit": "qwen2.5-coder:32b",
+  "forge-engines": "qwen2.5-coder:32b",
+  "forge-tests": "qwen2.5-coder:32b",
+  "forge-schema": "qwen2.5-coder:32b",
+  "forge-skills": "qwen2.5-coder:32b",
+  "forge-wiring": "qwen2.5-coder:32b",
 };
 
 const TRIGGER_RE = new RegExp(`/(${Object.keys(PIPELINE_MODELS).join("|")})\\b`, "i");
@@ -62,29 +68,6 @@ function matchTrigger(prompt) {
   const m = prompt.match(TRIGGER_RE);
   if (!m) return null;
   return m[1].toLowerCase();
-}
-
-function ollamaUp() {
-  const r = spawnSync(
-    "curl",
-    ["-fsS", "-m", String(PROBE_TIMEOUT_SEC), `${OLLAMA_URL}/api/tags`],
-    { encoding: "utf8", timeout: (PROBE_TIMEOUT_SEC + 1) * 1000 }
-  );
-  return r.status === 0;
-}
-
-function loadWarmModels() {
-  const r = spawnSync(
-    "curl",
-    ["-fsS", "-m", String(PROBE_TIMEOUT_SEC), `${OLLAMA_URL}/api/ps`],
-    { encoding: "utf8", timeout: (PROBE_TIMEOUT_SEC + 1) * 1000 }
-  );
-  if (r.status !== 0) return [];
-  try {
-    const j = JSON.parse(r.stdout);
-    if (Array.isArray(j.models)) return j.models.map(m => m.name || m.model).filter(Boolean);
-  } catch { /* */ }
-  return [];
 }
 
 function inCooldown(model) {
@@ -158,13 +141,13 @@ function warmModel(model) {
     return;
   }
 
-  if (!ollamaUp()) {
+  if (!isOllamaUpSync({ ollamaUrl: OLLAMA_URL, timeoutSec: PROBE_TIMEOUT_SEC })) {
     process.stdout.write(JSON.stringify({ continue: true, suppressOutput: true }));
     return;
   }
 
   // If model is already warm, just stamp + skip
-  const warm = loadWarmModels();
+  const warm = readWarmModelsSync({ ollamaUrl: OLLAMA_URL, timeoutSec: PROBE_TIMEOUT_SEC });
   if (warm.some(w => w === model || w.startsWith(model + ":"))) {
     stampCooldown(model);
     process.stdout.write(JSON.stringify({ continue: true, suppressOutput: true }));

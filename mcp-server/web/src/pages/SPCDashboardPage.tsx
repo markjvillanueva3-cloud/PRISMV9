@@ -69,39 +69,44 @@ interface CapabilityData {
 // Seed data
 // ---------------------------------------------------------------------------
 
+// Illustrative JM Die SPC study — a cold-heading header-die bore held to Ø0.3750 in ±0.0005 in
+// (JM is an inch shop; see jm-die-profile.ts). Values are an exact unit-faithful rescale of a
+// coherent control study (every sample/limit relationship + the two out-of-control points are
+// preserved, and the dimensionless Cpk/Cp/Ppk/Pp ratios are unchanged), shown until live SPC
+// measurements flow from the floor for the selected part/dimension.
 const SEED_XBAR_LIMITS: ControlLimits = {
-  ucl: 25.032,
-  lcl: 24.968,
-  centerLine: 25.000,
+  ucl: 0.37532,
+  lcl: 0.37468,
+  centerLine: 0.37500,
 };
 
 const SEED_R_LIMITS: ControlLimits = {
-  ucl: 0.058,
+  ucl: 0.00058,
   lcl: 0,
-  centerLine: 0.027,
+  centerLine: 0.00027,
 };
 
 const SEED_SAMPLES: SamplePoint[] = [
-  { sample: 1, xBar: 25.002, range: 0.018, outOfControl: false },
-  { sample: 2, xBar: 24.998, range: 0.022, outOfControl: false },
-  { sample: 3, xBar: 25.005, range: 0.015, outOfControl: false },
-  { sample: 4, xBar: 24.995, range: 0.030, outOfControl: false },
-  { sample: 5, xBar: 25.010, range: 0.025, outOfControl: false },
-  { sample: 6, xBar: 25.008, range: 0.020, outOfControl: false },
-  { sample: 7, xBar: 24.990, range: 0.028, outOfControl: false },
-  { sample: 8, xBar: 25.015, range: 0.032, outOfControl: false },
-  { sample: 9, xBar: 25.020, range: 0.019, outOfControl: false },
-  { sample: 10, xBar: 24.985, range: 0.024, outOfControl: false },
-  { sample: 11, xBar: 25.012, range: 0.021, outOfControl: false },
-  { sample: 12, xBar: 25.035, range: 0.042, outOfControl: true },
-  { sample: 13, xBar: 24.997, range: 0.017, outOfControl: false },
-  { sample: 14, xBar: 25.003, range: 0.023, outOfControl: false },
-  { sample: 15, xBar: 24.992, range: 0.026, outOfControl: false },
-  { sample: 16, xBar: 25.001, range: 0.019, outOfControl: false },
-  { sample: 17, xBar: 25.007, range: 0.014, outOfControl: false },
-  { sample: 18, xBar: 25.004, range: 0.021, outOfControl: false },
-  { sample: 19, xBar: 24.970, range: 0.038, outOfControl: true },
-  { sample: 20, xBar: 25.000, range: 0.020, outOfControl: false },
+  { sample: 1, xBar: 0.375020, range: 0.00018, outOfControl: false },
+  { sample: 2, xBar: 0.374980, range: 0.00022, outOfControl: false },
+  { sample: 3, xBar: 0.375050, range: 0.00015, outOfControl: false },
+  { sample: 4, xBar: 0.374950, range: 0.00030, outOfControl: false },
+  { sample: 5, xBar: 0.375100, range: 0.00025, outOfControl: false },
+  { sample: 6, xBar: 0.375080, range: 0.00020, outOfControl: false },
+  { sample: 7, xBar: 0.374900, range: 0.00028, outOfControl: false },
+  { sample: 8, xBar: 0.375150, range: 0.00032, outOfControl: false },
+  { sample: 9, xBar: 0.375200, range: 0.00019, outOfControl: false },
+  { sample: 10, xBar: 0.374850, range: 0.00024, outOfControl: false },
+  { sample: 11, xBar: 0.375120, range: 0.00021, outOfControl: false },
+  { sample: 12, xBar: 0.375350, range: 0.00042, outOfControl: true },
+  { sample: 13, xBar: 0.374970, range: 0.00017, outOfControl: false },
+  { sample: 14, xBar: 0.375030, range: 0.00023, outOfControl: false },
+  { sample: 15, xBar: 0.374920, range: 0.00026, outOfControl: false },
+  { sample: 16, xBar: 0.375010, range: 0.00019, outOfControl: false },
+  { sample: 17, xBar: 0.375070, range: 0.00014, outOfControl: false },
+  { sample: 18, xBar: 0.375040, range: 0.00021, outOfControl: false },
+  { sample: 19, xBar: 0.374700, range: 0.00038, outOfControl: true },
+  { sample: 20, xBar: 0.375000, range: 0.00020, outOfControl: false },
 ];
 
 const SEED_CAPABILITY: CapabilityData = {
@@ -109,16 +114,16 @@ const SEED_CAPABILITY: CapabilityData = {
   ppk: 1.35,
   cp: 1.56,
   pp: 1.48,
-  usl: 25.050,
-  lsl: 24.950,
-  processMean: 25.002,
-  processStdDev: 0.0107,
-  specSpread: 0.100,
-  processSpread: 0.064,
+  usl: 0.37550,
+  lsl: 0.37450,
+  processMean: 0.375020,
+  processStdDev: 0.000107,
+  specSpread: 0.00100,
+  processSpread: 0.00064,
 };
 
 const SEED_NELSON_RULES: NelsonRule[] = [
-  { id: 1, name: 'Rule 1 — Beyond 3-sigma', description: 'One point beyond 3 standard deviations from the center line.', status: 'violation', detail: 'Sample 12 (25.035) exceeds UCL 25.032. Sample 19 (24.970) exceeds LCL 24.968.' },
+  { id: 1, name: 'Rule 1 — Beyond 3-sigma', description: 'One point beyond 3 standard deviations from the center line.', status: 'violation', detail: 'Sample 12 (0.37535) exceeds UCL 0.37532. Sample 19 (0.37470) exceeds LCL 0.37468.' },
   { id: 2, name: 'Rule 2 — Zone A Run', description: 'Nine consecutive points on the same side of the center line.', status: 'clear', detail: 'No run of 9 or more detected.' },
   { id: 3, name: 'Rule 3 — Trend', description: 'Six consecutive points steadily increasing or decreasing.', status: 'clear', detail: 'No monotonic trend of 6+ points found.' },
   { id: 4, name: 'Rule 4 — Alternating', description: 'Fourteen consecutive points alternating up and down.', status: 'clear', detail: 'No alternating pattern of 14+ points detected.' },
@@ -133,25 +138,25 @@ const DMAIC_STAGES: DMAICStage[] = ['define', 'measure', 'analyze', 'improve', '
 const SEED_DMAIC_PROJECTS: DMAICProject[] = [
   {
     id: 'DMAIC-001',
-    title: 'Reduce Bore Diameter Variation',
+    title: 'Reduce Header Die Bore Variation',
     qualityProjectId: 'QP-2026-014',
     currentStage: 'analyze',
     owner: 'Sarah Chen',
-    metric: 'Cpk on 25mm bore',
+    metric: 'Cpk on Ø0.3750 in header-die bore',
     target: 'Cpk > 1.67',
   },
   {
     id: 'DMAIC-002',
-    title: 'Surface Finish Consistency on Inconel',
+    title: 'Surface Finish on Carbide Punch OD',
     qualityProjectId: 'QP-2026-018',
     currentStage: 'measure',
     owner: 'Mike Torres',
-    metric: 'Ra variation',
-    target: 'Ra 0.8 +/- 0.2 um',
+    metric: 'Ra variation (wire-EDM skim)',
+    target: 'Ra 8 +/- 2 uin',
   },
   {
     id: 'DMAIC-003',
-    title: 'First-Pass Yield on 5-Axis Features',
+    title: 'First-Pass Yield on M460V-5AX Die Cavities',
     qualityProjectId: 'QP-2026-022',
     currentStage: 'improve',
     owner: 'Ana Reyes',
@@ -160,21 +165,21 @@ const SEED_DMAIC_PROJECTS: DMAICProject[] = [
   },
   {
     id: 'DMAIC-004',
-    title: 'Reduce Thread Gauge Failures',
+    title: 'Reduce Trim-Die Gauge Failures',
     qualityProjectId: 'QP-2026-025',
     currentStage: 'define',
     owner: 'James Walker',
-    metric: 'Thread gauge fail rate',
+    metric: 'Trim-die gauge fail rate',
     target: '< 0.5%',
   },
   {
     id: 'DMAIC-005',
-    title: 'Flatness Control on Thin-Wall Parts',
+    title: 'Flatness Control on Die-Shoe Faces',
     qualityProjectId: 'QP-2026-029',
     currentStage: 'control',
     owner: 'Dave Kim',
     metric: 'Flatness deviation',
-    target: '< 0.01mm',
+    target: '< 0.0004 in',
   },
 ];
 
@@ -212,7 +217,7 @@ export function SPCDashboardPage() {
   const [dmaicProjects] = useState<DMAICProject[]>(SEED_DMAIC_PROJECTS);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [chartForm, setChartForm] = useState({ part_number: '25mm-BORE-001', dimension: 'ID Bore 25.000' });
+  const [chartForm, setChartForm] = useState({ part_number: 'JM-CHD-0375', dimension: 'Header Die Bore Ø0.3750 in' });
 
   // Derived metrics
   const violationCount = nelsonRules.filter((r) => r.status === 'violation').length;
@@ -305,7 +310,7 @@ export function SPCDashboardPage() {
                 <Input
                   value={chartForm.part_number}
                   onChange={(e) => setChartForm((prev) => ({ ...prev, part_number: e.target.value }))}
-                  placeholder="e.g. 25mm-BORE-001"
+                  placeholder="e.g. JM-CHD-0375"
                 />
               </Field>
               <Field label="Dimension">

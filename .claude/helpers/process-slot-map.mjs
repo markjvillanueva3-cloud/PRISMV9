@@ -36,7 +36,7 @@
 
 import { execFileSync } from "node:child_process";
 import { existsSync, readFileSync, writeFileSync, unlinkSync } from "node:fs";
-import { tmpdir } from "node:os";
+import { tmpdir, hostname } from "node:os";
 import { join, basename } from "node:path";
 import { randomBytes } from "node:crypto";
 
@@ -54,12 +54,12 @@ import { randomBytes } from "node:crypto";
 // chat-slots.mjs's readSlots it never writes a `.corrupt-*` backup — a reader
 // must not mutate a file a peer process owns.
 //
-// KEEP IN SYNC WITH chat-slots.mjs (verified 2026-05-16, expanded to 13):
-//   SLOT_NAMES         = [alpha..mike]  (12 work + 1 hygiene; golf = hygiene)
+// KEEP IN SYNC WITH chat-slots.mjs (verified 2026-05-19, expanded to 26):
+//   SLOT_NAMES         = [alpha..zulu]  (25 work + 1 hygiene; golf = hygiene)
 //   STALE_TTL_MS       = 2 * 60 * 1000     (alive  if heartbeat younger)
 //   CRASH_TTL_MS       = 10 * 60 * 1000    (stale below this, crashed above)
 //   classifySlot()     = idle | alive | stale | crashed (same branch logic)
-//   readSlots() parse + 13-slot-backfill contract (only the corrupt-backup WRITE
+//   readSlots() parse + 26-slot-backfill contract (only the corrupt-backup WRITE
 //     is intentionally dropped here — the parse/shape behaviour must still track)
 //   DEFAULT_SLOTS_PATH (chat-slots.mjs calls this DEFAULT_STATE_PATH)
 // The drift guard in fleet-reaper.test.mjs text-asserts these values against
@@ -74,13 +74,17 @@ import { randomBytes } from "node:crypto";
 // "alive-slot-protected", letting the reaper consider them reapable.
 // Detected + fixed 2026-05-16 (user report "fleet reaper was designed for 7
 // chats, we're up to 12"). chat-slots.mjs expanded 12→13 on 2026-05-16
-// (added mike) — this file updated in lock-step (same commit).
+// (added mike) — this file updated in lock-step (same commit). chat-slots.mjs
+// expanded 13→26 on 2026-05-19 via SLOT-RECLAIM (added november..zulu) —
+// this file updated in lock-step (same fleet-26 sweep commit) closing the
+// silent-drift class for the third time.
 
-/** NATO-phonetic slot names — alpha..foxtrot + hotel..mike work slots + golf hygiene.
- *  Expanded 2026-05-16 from 12→13 (added mike) per the operator directive
- *  "add a 13th chat slot, update everything that needs to update to intake
- *  a 13th chat". Total 13. */
-const SLOT_NAMES = ["alpha", "bravo", "charlie", "delta", "echo", "foxtrot", "golf", "hotel", "india", "juliett", "kilo", "lima", "mike"];
+/** NATO-phonetic slot names — full a→z (alpha..zulu) with golf as the
+ *  dedicated hygiene slot at position 7. Expanded 2026-05-19 from 13→26
+ *  via SLOT-RECLAIM (added november..zulu) per the operator directive
+ *  "update any and all mention of 13 in the fleet, we have a full 26 now".
+ *  Total 26 (25 work + 1 hygiene). */
+const SLOT_NAMES = ["alpha", "bravo", "charlie", "delta", "echo", "foxtrot", "golf", "hotel", "india", "juliett", "kilo", "lima", "mike", "november", "oscar", "papa", "quebec", "romeo", "sierra", "tango", "uniform", "victor", "whiskey", "xray", "yankee", "zulu"];
 
 /** A slot whose heartbeat is younger than this is "alive". */
 const STALE_TTL_MS = 2 * 60 * 1000;
@@ -176,6 +180,26 @@ export const TARGET_NAMES = new Set(["node", "git", "bash", "sh"]);
  *  live chat we couldn't pin to a slot" → protected. Best-effort secondary net;
  *  the primary attribution path is slotPidMap (chat-slots.json `pid` field). */
 export const HARNESS_NAMES = new Set(["claude"]);
+
+/**
+ * Names that are NEVER reapable — terminal shells (PowerShell pinning anchors)
+ * and the Windows Terminal host. The PRISM PS-window-pin system (U-SDF21)
+ * keys slot bindings on the PowerShell ancestor PID — that PID MUST survive
+ * the entire window's life. Reaping a `pwsh`/`powershell` would close the
+ * user's terminal AND destroy the window→slot binding.
+ *
+ * Today these are also absent from TARGET_NAMES, so `classifyProcess` already
+ * returns `not-target` for them. This explicit set is BELT-AND-SUSPENDERS:
+ * an early `protected: permanent-protection` verdict that survives any future
+ * (mistaken) addition of pwsh to TARGET_NAMES. The regression test in
+ * `process-slot-map.test.mjs` locks the invariant in for life.
+ */
+export const PERMANENT_PROTECTED_NAMES = new Set([
+  "pwsh",
+  "powershell",
+  "windowsterminal",
+  "conhost",
+]);
 
 /**
  * Process names eligible for the FLEET-REAPER-MS1 "leftover-bash-task" classifier.
@@ -278,9 +302,20 @@ export const PROTECTED_PATTERNS = [
   /typescript-language-server/i,
   /dashboard-serve\.mjs/i,      // PRISM dashboard daemon
   /mcp-http-bridge\.mjs/i,      // long-lived bridge service
+  /master-index-daemon\.mjs/i,  // FLEET-SEARCH-DAEMON-MS0: warm search index (:3101)
   /observability-drain/i,       // intentional long-lived drain
   /\b(vitest|jest|tsx|esbuild)\b/i, // test/build workers — node-orphan-cleaner owns these
   /@playwright[\\/].*mcp/i,     // playwright MCP — node-process-janitor owns these
+  // The fleet-hygiene watchdogs themselves. A reaper sweep must NEVER reap a
+  // SIBLING reaper/monitor process: the running sweep only excludes its own
+  // PID, so the scheduled-task sweep would otherwise classify the in-session
+  // `--monitor-loop` Monitor as owned-by-crashed (once the owning slot's
+  // heartbeat looks stale) and kill it every ~5-10 min. A leftover monitor
+  // from a genuinely-dead chat is a cheap 240s-poll loop — far better to leak
+  // one than to kill the live Monitor the operator is watching.
+  /fleet-reaper-sweep\.mjs/i,
+  /fleet-memory-monitor\.mjs/i,
+  /fleet-task-health-watch\.mjs/i,
 ];
 
 /** Most recent OS-enumeration failure message (null if the last pass was clean
@@ -302,6 +337,12 @@ export function isTargetName(n) {
 }
 export function isHarnessName(n) {
   return HARNESS_NAMES.has(normName(n));
+}
+/** U-SDF21: explicit reaper-immune names. Returns true for pwsh/powershell/
+ *  windowsterminal/conhost — the PowerShell-window anchors that the PS-window-pin
+ *  system depends on for stable cross-chat slot binding. */
+export function isPermanentlyProtected(n) {
+  return PERMANENT_PROTECTED_NAMES.has(normName(n));
 }
 export function isProtectedCmd(proc) {
   const hay = `${proc?.name || ""} ${proc?.cmd || ""}`;
@@ -399,7 +440,7 @@ function posixEnumerate() {
   const raw = execFileSync(
     "ps",
     ["-eo", "pid=,ppid=,etimes=,rss=,comm=,args="],
-    { timeout: PS_TIMEOUT_MS, encoding: "utf-8", maxBuffer: 64 * 1024 * 1024 },
+    { windowsHide: true, timeout: PS_TIMEOUT_MS, encoding: "utf-8", maxBuffer: 64 * 1024 * 1024 },
   );
   const now = Date.now();
   const procs = [];
@@ -541,10 +582,34 @@ export function loadPidRegistry(registryPath = DEFAULT_PID_REGISTRY) {
  *   whose PID we could not resolve — the sweep surfaces these so a data gap
  *   is visible rather than silently widening the "uncertain → don't kill" set.
  */
-export function mapPidsToSlots(slotsFile, pidRegistry, now = Date.now()) {
+/**
+ * FLEET-REAPER-MS2/U-FR-S3: optional 4th param adds CROSS-PC host filtering.
+ *
+ * On a shared H:/ drive, chat-slots.json is the same file from both PCs. Every
+ * sweep on PC-A used to iterate slots owned by PC-B (host-pinned, but the loop
+ * didn't check), wasting cycles classifying PIDs that PC-A could never have
+ * spawned. Worse: if PC-A and PC-B happen to share a PID number (the OS recycles
+ * pids per-machine), the wrong attribution could escape into the candidate set.
+ *
+ * The fix is purely additive: `opts.host` (defaults to os.hostname()) is the
+ * filter key. A slot whose `host` field doesn't match is skipped with a caveat.
+ * Slots missing a `host` field (legacy slots, single-machine setups) are KEPT
+ * — backward compatibility before correctness-on-edge-case.
+ *
+ * Compare is case-insensitive to match Windows' name semantics; the trim
+ * tolerates stray whitespace from chat-slots writers.
+ *
+ * @param {object} slotsFile
+ * @param {object} pidRegistry
+ * @param {number} [now]      Date.now() default
+ * @param {object} [opts]
+ * @param {string} [opts.host]  override current hostname (tests inject)
+ */
+export function mapPidsToSlots(slotsFile, pidRegistry, now = Date.now(), opts = {}) {
   const map = new Map();
   const caveats = [];
   const slots = (slotsFile && slotsFile.slots) || {};
+  const currentHost = String(opts.host || hostname() || "").trim().toLowerCase();
 
   // Index registry: sessionId -> [pid, ...], freshness-filtered.
   const sessionPids = new Map();
@@ -559,9 +624,17 @@ export function mapPidsToSlots(slotsFile, pidRegistry, now = Date.now()) {
     sessionPids.get(sid).push(pid);
   }
 
+  let skippedRemoteHost = 0;
   for (const name of SLOT_NAMES) {
     const slot = slots[name];
     if (!slot) continue;
+    // Cross-PC filter: skip slots pinned to a DIFFERENT host than us. A slot
+    // with no `host` field falls through (legacy + single-machine setups).
+    const slotHost = String(slot.host || "").trim().toLowerCase();
+    if (slotHost && currentHost && slotHost !== currentHost) {
+      skippedRemoteHost += 1;
+      continue;
+    }
     const status = classifySlot(slot, now);
     const owned = new Set();
     if (Number.isInteger(slot.pid) && slot.pid > 0) owned.add(slot.pid);
@@ -579,6 +652,9 @@ export function mapPidsToSlots(slotsFile, pidRegistry, now = Date.now()) {
         map.set(p, { slot: name, status, chatId: slot.chatId || null });
       }
     }
+  }
+  if (skippedRemoteHost > 0) {
+    caveats.push(`skipped ${skippedRemoteHost} slot(s) pinned to a different host (host=${currentHost || "(unknown)"})`);
   }
 
   return { map, caveats };
@@ -646,6 +722,16 @@ export function classifyProcess(proc, ctx) {
     isCandidate:
       cls === "owned-by-crashed" || cls === "unowned" || cls === "leftover-bash-task",
   });
+
+  // U-SDF21: PowerShell-anchor protection — explicit FIRST gate.
+  // pwsh/powershell host the chat slot binding via PS-window-pin; reaping one
+  // would close the user's terminal AND destroy the window→slot mapping.
+  // Also covers WindowsTerminal/conhost (terminal hosts). Already redundant
+  // with isTargetName (none are targets), but explicit-first crash-loud guard
+  // protects against future TARGET_NAMES drift.
+  if (isPermanentlyProtected(proc.name)) {
+    return verdict("protected", "permanent-protection: PS-anchor / terminal host");
+  }
 
   // Non-target processes are out of scope entirely.
   if (!isTargetName(proc.name)) return verdict("not-target", "non-target process name");

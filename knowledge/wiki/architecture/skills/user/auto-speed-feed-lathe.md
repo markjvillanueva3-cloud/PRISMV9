@@ -23,13 +23,14 @@ related:
 |-------|-------|
 | Name | `auto-speed-feed-lathe` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/auto-speed-feed-lathe.md` |
+| Source | `C:/Users/wompu/.claude/commands/auto-speed-feed-lathe.md` |
 | Model | default |
 | Tags | _(none)_ |
 
 ## Description (first paragraph)
 
-Calculate optimal cutting parameters for lathe turning operations using PRISM's full lathe speed/feed engine stack with DL advisor, what-if reasoning, and shop-aware tuning.
+
+# Auto Speed Feed Lathe — Physics-Optimized Lathe Turning Parameters
 
 <!-- AUTO-END -->
 

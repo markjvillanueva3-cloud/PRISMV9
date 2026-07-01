@@ -1,0 +1,337 @@
+{
+  "id": "HM-KC-MS6",
+  "version": "8.3.0",
+  "title": "Simulation + NC Parameter Catalog — VIRTUAL Machining, Post Configs ~500 Schemas",
+  "track": "HM-KC",
+  "status": "complete",
+  "description": "Generate parameter schemas for VIRTUAL Machining simulation (~250 params) and NC output/post-processor configuration (~250 params). Simulation covers machine selection/kinematic configuration, collision simulation settings, stock verification tolerances, travel limit definitions, cycle time estimation, NC verification replay, nightSHIFT batch settings, and report configuration. NC output covers calculation options, post-processor selection and configuration, output folder/naming conventions, batch processing, PPP enhancement settings, and delivery/DNC configuration.",
+  "dependencies": [
+    "HM-KC-MS0"
+  ],
+  "knowledge_sources": {
+    "engines": [
+      "HyperMillControllerCatalogEngine",
+      "PostProcessorPipelineEngine",
+      "HyperMillCodeGeneratorEngine"
+    ],
+    "registries": [
+      "MachineRegistry",
+      "ToolpathStrategyRegistry"
+    ],
+    "services": [],
+    "physics": [
+      "src/physics/constants.ts"
+    ],
+    "reference": [
+      "data/hypermill/HyperMillParameterCatalog.json (Simulation + NC domain subsets)",
+      "data/hypermill/omPP*.xml (post-processor configuration files)",
+      "hypermill-post-configs.json (17 NcGenerator post configs)",
+      "hyperMILL training manuals (VIRTUAL Machining, NC output sections)"
+    ]
+  },
+  "forge_triple": {
+    "hook": "simulationCollisionBlocker — BUILT — HARD BLOCK on collision detection in simulation",
+    "action": "generate_simulation_nc_catalog — BUILT — generates simulation + NC artifacts from schemas",
+    "skill": "/hypermill-simulation-params — BUILT — simulation and NC output parameter reference"
+  },
+  "enforcement": {
+    "pre_level": [
+      "knowledge-consult"
+    ],
+    "post_level": [
+      "stub-detector",
+      "constants-checker"
+    ],
+    "compact_level": [
+      "review-gate",
+      "forge-triple-gate"
+    ]
+  },
+  "mcp_lifecycle": {
+    "session_start": [
+      "prism_session:context_boot",
+      "prism_session:dispatcher_map",
+      "prism_session:memory_recall",
+      "prism_session:system_snapshot"
+    ],
+    "during_work": [
+      "prism_session:auto_checkpoint (every 5-10 tool calls)",
+      "prism_session:wip_capture"
+    ],
+    "session_end": [
+      "prism_session:memory_save",
+      "prism_session:system_snapshot",
+      "prism_session:checkpoint_enhanced"
+    ]
+  },
+  "sessions": [
+    {
+      "id": "HM-KC-MS6-S1",
+      "title": "VIRTUAL Machining Simulation Parameter Schemas (~250 params)",
+      "smart_config": {
+        "role": "simulation-domain-expert",
+        "model": "opus",
+        "effort": "MAX",
+        "context_budget": "40%"
+      },
+      "knowledge": [
+        "Machine selection and kinematic model configuration",
+        "Collision simulation: full sim, quick check, per-operation, per-block",
+        "Stock verification: material removal, rest material, gouge detection",
+        "Travel limits: axis travel, rotary limits, singularity zones",
+        "nightSHIFT batch settings: max_parallel, priority, notification"
+      ],
+      "intent": "Generate schemas for all VIRTUAL Machining simulation parameters. Collision simulation gets HARD BLOCK hooks — any collision detected must prevent NC output. Stock verification hooks flag gouge and excess material. Travel limit hooks validate axis positions against machine kinematic model.",
+      "skills": [
+        "/forge-schemas",
+        "/forge-hooks",
+        "/test",
+        "/checkpoint"
+      ],
+      "plugins": [
+        "Vitest MCP",
+        "ESLint MCP"
+      ],
+      "units": [
+        {
+          "id": "U-HKC32",
+          "title": "Machine Config + Collision + Stock Verification Schemas — ~160 parameters",
+          "description": "Generate schemas for machine selection (load kinematic model, configure axes, set limits — 3 command types), collision simulation (full sim, quick check, per-operation, per-block — 4 types with tolerance, collision_distance, check_scope settings), stock verification (material removal tolerance, rest material threshold, gouge detection sensitivity — 3 types), and travel limits (axis travel min/max, rotary limits, singularity zones — 3 types). HARD BLOCK collision hook prevents NC output when collision detected.",
+          "depends_on": [
+            "U-HKC06"
+          ],
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "exit_criteria": [
+            "Machine config schemas: >= 30 parameters with kinematic model validation",
+            "Collision simulation schemas: >= 40 parameters with HARD BLOCK on collision",
+            "Stock verification schemas: >= 30 parameters with gouge detection",
+            "Travel limit schemas: >= 30 parameters with axis limit validation from MachineRegistry",
+            "Collision HARD BLOCK hook prevents NC generation when collision detected",
+            "Unit tests for collision tolerance range and travel limit boundary checks"
+          ],
+          "rollback": {
+            "files_created": [
+              "src/schemas/hypermill/simulation/machineConfigSchemas.ts",
+              "src/schemas/hypermill/simulation/collisionSchemas.ts",
+              "src/schemas/hypermill/simulation/stockVerifySchemas.ts"
+            ],
+            "files_modified": [],
+            "abort_criteria": [
+              "tsc errors > 0"
+            ],
+            "rollback_procedure": "git checkout -- src/schemas/hypermill/simulation/"
+          }
+        },
+        {
+          "id": "U-HKC33",
+          "title": "Cycle Time + NC Verify + nightSHIFT + Report Schemas — ~90 parameters",
+          "description": "Generate schemas for cycle time estimation (estimate per operation, total, compare — 3 types), NC verification (code replay, block-by-block, spindle load — 4 types with feed/speed limit validation), nightSHIFT batch (batch calculate, batch simulate, batch post — 3 types with max_parallel, priority, notification), and report configuration (collision report, cycle time report, verification log — 2 types). NC verification hooks validate feed and speed against machine limits.",
+          "depends_on": [
+            "U-HKC06"
+          ],
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "exit_criteria": [
+            "Cycle time schemas: >= 20 parameters with estimation fields",
+            "NC verification schemas: >= 30 parameters with feed/speed limit hooks",
+            "nightSHIFT schemas: >= 20 parameters with pre-batch validation hook",
+            "Report schemas: >= 15 parameters",
+            "Feed/speed limit hook validates against MachineRegistry spindle/feed limits",
+            "Pre-batch validation hook ensures all operations calculated before batch submit"
+          ],
+          "rollback": {
+            "files_created": [
+              "src/schemas/hypermill/simulation/cycleTimeSchemas.ts",
+              "src/schemas/hypermill/simulation/ncVerifySchemas.ts",
+              "src/schemas/hypermill/simulation/nightShiftSchemas.ts"
+            ],
+            "files_modified": [],
+            "abort_criteria": [
+              "tsc errors > 0"
+            ],
+            "rollback_procedure": "git checkout -- src/schemas/hypermill/simulation/cycleTimeSchemas.ts src/schemas/hypermill/simulation/ncVerifySchemas.ts"
+          }
+        }
+      ],
+      "exit_gate": "✓ >= 240 simulation schemas | ✓ collision HARD BLOCK | ✓ travel limit + feed/speed hooks | omega_floor >= 0.90",
+      "feature_cascade": {
+        "new_hooks": [
+          "simulationCollisionBlocker",
+          "travelLimitValidator",
+          "feedSpeedMachineLimitHook",
+          "preBatchValidationHook"
+        ],
+        "new_actions": [
+          "generate_simulation_schemas"
+        ],
+        "new_skills": [],
+        "available_to": [
+          "HM-KC-MS8"
+        ]
+      },
+      "compact_checkpoint": true
+    },
+    {
+      "id": "HM-KC-MS6-S2",
+      "title": "NC Output + Post Config Schemas + Sim/NC Artifact Generation (~250 params + artifacts)",
+      "smart_config": {
+        "role": "nc-output-expert",
+        "model": "opus",
+        "effort": "MAX",
+        "context_budget": "40%"
+      },
+      "knowledge": [
+        "Calculate options: single, all, selected, with options",
+        "Post-processor: select post, configure, generate, verify",
+        "Output config: folder, naming, format, sub-programs",
+        "PPP enhance: per-block S/F, thermal comp, chatter avoidance",
+        "hypermill-post-configs.json (17 NcGenerator post configs)"
+      ],
+      "intent": "Generate schemas for NC output parameters and post-processor configuration. Then batch-generate all simulation + NC domain artifacts. PPP enhancement schemas link to PostProcessorPipelineEngine's 38-stage pipeline. Safe-start block hook ensures G-code begins with proper initialization.",
+      "skills": [
+        "/forge-schemas",
+        "/forge-skills",
+        "/forge-hooks",
+        "/test",
+        "/checkpoint"
+      ],
+      "plugins": [
+        "Vitest MCP",
+        "ESLint MCP"
+      ],
+      "units": [
+        {
+          "id": "U-HKC34",
+          "title": "NC Output + Post-Processor Config Schemas — ~250 parameters",
+          "description": "Generate schemas for calculation options (4 types), post-processor selection and configuration (select post, configure dialect/format, generate, verify — 4 types with 17 post config variants), output configuration (folder path, naming convention, format, sub-programs, line numbering — 4 types), batch processing (nightSHIFT submit, status, retrieve — 3 types), PPP enhancement (per-block S/F, thermal compensation, chatter avoidance — 3 types with physics pipeline references), and delivery/DNC (DNC transfer, USB, network, setup sheet PDF — 2 types). Safe-start hook validates G-code initialization block. PPP schemas link to PostProcessorPipelineEngine 38-stage pipeline.",
+          "depends_on": [
+            "U-HKC06"
+          ],
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "exit_criteria": [
+            "Post-processor schemas: >= 60 parameters across 17 post config variants",
+            "Output config schemas: >= 40 parameters with naming collision detection",
+            "PPP enhancement schemas: >= 30 parameters linked to PPP 38-stage pipeline",
+            "Delivery schemas: >= 20 parameters with DNC connectivity check",
+            "Safe-start hook validates G-code begins with proper initialization (units, comp, coolant)",
+            "Unit dialect hook validates G-code dialect matches selected post-processor"
+          ],
+          "rollback": {
+            "files_created": [
+              "src/schemas/hypermill/nc/postProcessorSchemas.ts",
+              "src/schemas/hypermill/nc/outputConfigSchemas.ts",
+              "src/schemas/hypermill/nc/pppEnhanceSchemas.ts"
+            ],
+            "files_modified": [],
+            "abort_criteria": [
+              "tsc errors > 0"
+            ],
+            "rollback_procedure": "git checkout -- src/schemas/hypermill/nc/"
+          }
+        },
+        {
+          "id": "U-HKC35",
+          "title": "Simulation + NC Artifact Batch Generation — ~500 skills + scripts + hooks",
+          "description": "Artifact generation for the simulation + NC output domain. Reads all ~500 parameter schemas and auto-generates skill templates, AC Python setter scripts, and hook validation rules. Registers collision blocker, travel limit, feed/speed limit, safe-start, dialect validation, and pre-batch validation hooks.",
+          "depends_on": [
+            "U-HKC32",
+            "U-HKC33",
+            "U-HKC34"
+          ],
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "exit_criteria": [
+            "Skill templates generated for all ~500 simulation + NC parameters",
+            "AC Python setter scripts generated for all ~500 parameters",
+            ">= 9 safety hooks registered for simulation + NC domain",
+            "tsc --noEmit passes with 0 errors on all generated artifacts"
+          ],
+          "rollback": {
+            "files_created": [
+              "src/engines/hypermill/HyperMillSimNCArtifactGeneratorEngine.ts"
+            ],
+            "files_modified": [
+              "src/hooks/hookRegistry.ts"
+            ],
+            "abort_criteria": [
+              "tsc errors > 0"
+            ],
+            "rollback_procedure": "git checkout -- src/engines/hypermill/HyperMillSimNCArtifactGeneratorEngine.ts src/hooks/hookRegistry.ts"
+          }
+        }
+      ],
+      "exit_gate": "✓ >= 490 total sim + NC schemas | ✓ ~500 skills + scripts | ✓ >= 9 hooks | ✓ PPP pipeline links | omega_floor >= 0.90",
+      "feature_cascade": {
+        "new_hooks": [
+          "safeStartBlockHook",
+          "dialectValidationHook"
+        ],
+        "new_actions": [
+          "generate_simulation_nc_catalog"
+        ],
+        "new_skills": [
+          "/hypermill-simulation-params"
+        ],
+        "available_to": [
+          "HM-KC-MS8",
+          "HM-KC-MS9"
+        ]
+      },
+      "compact_checkpoint": true
+    }
+  ],
+  "total_units": 4,
+  "completed_units": 4,
+  "smart_config": {
+    "role": "implementer + reviewer",
+    "model": "sonnet",
+    "effort": "HIGH",
+    "context_budget": "65%"
+  },
+  "feature_cascade": {
+    "new_hooks": [
+      "hm-kc-ms6-gate"
+    ],
+    "new_actions": [
+      "hm_kc_ms6_run"
+    ],
+    "new_skills": [
+      "/hm-kc-ms6"
+    ],
+    "available_to": [
+      "downstream CAMX milestones",
+      "prism app consumers"
+    ]
+  },
+  "intent": "Generate parameter schemas for VIRTUAL Machining simulation (~250 params) and NC output/post-processor configuration (~250 params). Simulation covers machine selection/kinematic configuration, collision simulation settings, stock verification tolerances, travel limit definitions, cycle time estimation, NC verification replay, nightSHIFT batch settings, and report configuration. NC output covers calculation options, post-processor selection and configuration, output folder/naming conventions, batch processing, PPP enhancement settings, and delivery/DNC configuration.",
+  "compact_checkpoint": "every 3 units — auto-triggered by hook",
+  "enforcement_hooks_active": [
+    "physics agent",
+    "wiring agent",
+    "constants checker",
+    "stub detector",
+    "test quality",
+    "forge-triple gate",
+    "session audit agent"
+  ],
+  "units": [
+    {
+      "id": "U-HKKC01",
+      "title": "HM-KC-MS6 — Coordinator",
+      "description": "Master coordinator envelope for HM-KC-MS6. Tracks sub-milestones, aggregates their exit gates, and opens closure after every child milestone flips to complete. Follow 4-LOOP at the aggregation layer.",
+      "exit_conditions": [
+        "All sub-milestones listed in dependencies reach status=complete",
+        "Aggregate scrutiny score ≥80 across children",
+        "Cross-track coherence verified: no orphan engines, no duplicate actions",
+        "Final /rgs pass through the 10-agent gate returns PASS"
+      ],
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ],
+      "status": "pending",
+      "role": "coordinator"
+    }
+  ],
+  "_role": "coordinator"
+}

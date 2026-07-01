@@ -1,0 +1,55 @@
+{
+  "id": "HITL-OPERATOR-UI-MS24",
+  "version": "1.0.0",
+  "title": "Operator review/override UI for AI consensus output (separate from customer portal)",
+  "brief": "CLAUDE.md mandate: 'Operator-in-the-loop is unconditional'. V1 buried this in MS15 (customer portal) but operator + customer are different surfaces. Operator UI surfaces AI consensus picks (machine, strategy, feed) with provenance, accept/reject/override, and writes rejections back to outcome ledger as labeled negatives for MS18 LoRA training.",
+  "created_at": "2026-05-05T13:00:00Z",
+  "created_by": "claude-opus-4-7-v2",
+  "track": "L3-RUNTIME",
+  "track_name": "Runtime / Operator Surface",
+  "status": "not_started",
+  "linked_roadmap": "state/shared/PRISM-COMPREHENSIVE-ROADMAP-2026-05-04-V2.md",
+  "phases": [
+    {
+      "id": "P0",
+      "title": "Operator review UI + override path + ledger integration",
+      "sessions": "3",
+      "units": [
+        {
+          "id": "P0-U01",
+          "title": "UI surface: render consensus output with provenance (web or desktop)",
+          "effort": 150,
+          "dependencies": [],
+          "exit_conditions": ["operator sees: question, options[], per-voice answer, agreement %, recommended pick, latency, cost", "click any pick to see voice-level provenance", "tests: 5 staged decisions render correctly"],
+          "description": "Reuse mcp-server/web/ thin client. Add consensus-review page reading from prism_ai:consensus_audit_query.",
+          "four_loop": ["BUILD", "SCRUTINIZE", "GAP FILL", "TIE UP"]
+        },
+        {
+          "id": "P0-U02",
+          "title": "Override path: accept/reject/replace with reason",
+          "effort": 90,
+          "dependencies": ["P0-U01"],
+          "exit_conditions": ["operator can accept (default), reject (with reason), replace (with own answer + reason)", "every action emits OperatorDecisionEvent", "tests: 3 paths (accept/reject/replace) round-trip clean"],
+          "description": "Override path is the operator-in-the-loop closure.",
+          "four_loop": ["BUILD", "SCRUTINIZE", "GAP FILL", "TIE UP"]
+        },
+        {
+          "id": "P0-U03",
+          "title": "Wire rejections to outcome ledger as labeled negatives for MS18",
+          "effort": 60,
+          "dependencies": ["P0-U02"],
+          "exit_conditions": ["each operator rejection writes 1 row to CrossProcessOutcomeStore with label=NEGATIVE + reason", "MS18 LoRA training pipeline picks these up automatically", "tests: 5 rejections in ledger -> next training run includes them"],
+          "description": "Closes the operator->learning loop. The system gets smarter from operator pushback.",
+          "four_loop": ["BUILD", "SCRUTINIZE", "GAP FILL", "TIE UP"]
+        }
+      ]
+    }
+  ],
+  "acceptance": "operator can review AI consensus output (machine/strategy/feed picks) with provenance, accept/reject/override; rejections auto-write to outcome ledger as labeled negatives for MS18 LoRA training; CLAUDE.md operator-in-the-loop mandate satisfied.",
+  "risks": [
+    {"id": "R1", "description": "Operators distrust AI and reject everything, polluting training data; mitigation = separate ACCEPT/REJECT/REPLACE labels with reason categories; weight by operator skill score"},
+    {"id": "R2", "description": "UI bug causes silent decision drops; mitigation = OperatorDecisionEvent must round-trip through outcome ledger before UI shows 'saved'"}
+  ],
+  "blocks": ["SHIP-RELEASE-MS19"],
+  "blocked_by": ["INFRA-CONSENSUS-WIRE-MS0", "MILL-P2P-CONSENSUS-MS3"]
+}

@@ -1,0 +1,45 @@
+
+SFC FULL-SWEEP COMPARISON — all app-page inputs × PRISM x baseline x vendors
+==============================================================================
+cells: 69120  ·  PRISM ran: 276480  ·  errors: 0  ·  sweep_mode: full
+ledger: ../state/outcomes/sfc-corrected-fullsweep.jsonl (276480 rows)  ·  vendor: offline (PRISM+baseline)
+------------------------------------------------------------------------------
+Per-ISO-group PRISM-vs-baseline (the calibration-learning signal):
+  ISO | cells | median Δ% (PRISM vs baseline) | conservative/aggressive | GW/HSM contributed
+  P   | 55296 | +10% (aggressive)            | 11484/15948 | 0/0
+  M   | 36864 | -11.1% (conservative=SAFE)   | 6480/2592 | 0/0
+  K   | 18432 | +17.6% (aggressive)          | 3504/5640 | 0/0
+  N   | 73728 | -4.7% (conservative=SAFE)    | 20960/15616 | 0/0
+  S   | 36864 | -13.8% (conservative=SAFE)   | 4620/4596 | 0/0
+  H   | 55296 | -4.7% (conservative=SAFE)    | 6912/6912 | 0/0
+------------------------------------------------------------------------------
+Per-TOOL-MATERIAL PRISM-vs-baseline (the "tooling + insert if viable" axis; 276480 comparisons across 4 materials):
+  tool_material | comparisons | PRISM ran | baseline pts | median delta% (PRISM vs baseline)
+  carbide       |       69120 |     69120 |        68544 | -22.7% (conservative=SAFE)
+  hss           |       69120 |     69120 |        36288 | +78.9%
+  ceramic       |       69120 |     69120 |          216 | -13.8% (conservative=SAFE)
+  cbn           |       69120 |     69120 |          216 | -7.8% (conservative=SAFE)
+  NOTE: PRISM computes a per-material recommendation for ALL tool materials (Vc varies
+  strongly: e.g. hss << carbide << ceramic/cbn), but the published 5-vendor BASELINE is
+  carbide-keyed -> non-carbide rows have PRISM numbers with no datum to compare against
+  (baseline pts = 0). Closing that needs non-carbide reference data (the catalog-OCR unit),
+  NOT a PRISM change. Same lesson as the G-Wizard crib (geometry-only) finding.
+------------------------------------------------------------------------------
+PRISM vs G-Wizard & HSMAdvisor -- SPECIFICALLY (each vendor's PUBLISHED S&F reference):
+  vendor (published table)   | datapoints | median Vc delta%    | median fz delta% | conserv/aggr
+  G-Wizard (CNCCookbook S&F) |      90720 | +7.5% (aggressive)  | +58.8%           | 39528/51192
+  HSMAdvisor (public table)  |      12636 | -24.4% (conservative=SAFE) | +27.5%           | 12636/0
+  NOTE: this is each vendor's PUBLISHED speeds/feeds reference (G-Wizard is CNCCookbook's
+  product -> the cnccookbook rows ARE G-Wizard's published table). It is NOT the live
+  closed-app calculator: those are the `gwizard`/`hsmadvisor` live adapters (above), which
+  read the installed apps and abstain -- G-Wizard's crib is geometry-only, HSMAdvisor
+  exposes only its one open cut. A number-for-number LIVE-calculator comparison requires
+  the operator to run + export from the closed apps (no API / no local cutting-data file --
+  verified 2026-06-09: HSMAdvisor cut data is binary, G-Wizard tooltables.csv is a 2-line index).
+==============================================================================
+Reading: negative median delta% = PRISM recommends BELOW the 5-vendor baseline (the
+  safe/conservative direction). GW/HSM 'contributed' = how many cells had a live
+  aligned vendor data point (G-Wizard crib is geometry-only → typically 0; HSMAdvisor
+  publishes only its one open cut). The per-cell JSONL ledger is the training input
+  for the downstream PRISM_SFC_CALIB_APPLY calibration layer (GPU/Blackwell).
+

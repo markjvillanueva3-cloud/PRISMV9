@@ -1,0 +1,115 @@
+{
+  "id": "WEDM-CAL-MS0",
+  "title": "Real Program Parser Validation",
+  "track": "WEDM-CAL",
+  "version": "1.0.0",
+  "created": "2026-04-10",
+  "depends_on": [],
+  "total_units": 4,
+  "completed_units": 4,
+  "status": "complete",
+  "sessions": "1-2",
+  "roadmap_path": "milestones/WEDM-CALIBRATE-ROADMAP.md",
+  "units": [
+    {
+      "id": "U-CAL01",
+      "title": "Parse ITW SHAKEPROOF — Parameter Extraction Test",
+      "status": "completed",
+      "session": 1,
+      "depends_on": [],
+      "description": "Parse real ITW SHAKEPROOF NC program with WireEDMProgramParserEngine and validate extracted offsets (H1-H4), feeds (F0.12-F0.20), E-codes (E1221-E1224), pass count (4), and M-codes match actual values",
+      "files_created": [
+        "src/__tests__/wedm-real-program-parse.test.ts"
+      ],
+      "files_modified": [
+        "src/engines/WireEDMProgramParserEngine.ts"
+      ],
+      "abort_criteria": [
+        "Parser extracts <50% of parameters correctly",
+        "Build breaks",
+        ">3 test failures"
+      ],
+      "exit_criteria": [
+        "ITW offsets extracted within 0.0001 inch",
+        "All 4 passes detected",
+        "E-codes match E1221-E1224",
+        "M-codes extracted correctly"
+      ]
+    },
+    {
+      "id": "U-CAL02",
+      "title": "Parse NOZE TEST — Taper & UV Extraction Test",
+      "status": "completed",
+      "session": 1,
+      "depends_on": [
+        "U-CAL01"
+      ],
+      "description": "Parse NOZE TEST taper program, validate UV axis extraction (±0.048\" U, ±0.003\" V), 5 passes with E2821-E2825, feed progression F0.16→F0.30",
+      "files_created": [],
+      "files_modified": [
+        "src/__tests__/wedm-real-program-parse.test.ts"
+      ],
+      "abort_criteria": [
+        "Taper detection fails",
+        "UV extraction wrong by >10%"
+      ],
+      "exit_criteria": [
+        "5 passes detected",
+        "UV range extracted correctly",
+        "E-codes match E2821-E2825"
+      ]
+    },
+    {
+      "id": "U-CAL03",
+      "title": "Expand NC Program Corpus",
+      "status": "completed",
+      "session": 1,
+      "depends_on": [],
+      "description": "Scan Box/WIRE EDM/ folder for diverse NC programs, copy 5-10 programs covering different materials/thicknesses/pass counts, create SHOP_NC_PROGRAM_CATALOG.json",
+      "files_created": [
+        "data/reference/SHOP_NC_PROGRAM_CATALOG.json"
+      ],
+      "files_modified": [],
+      "abort_criteria": [
+        "<3 usable NC programs found",
+        "All programs same material/thickness"
+      ],
+      "exit_criteria": [
+        "5+ diverse NC programs cataloged",
+        "Metadata captured for each"
+      ]
+    },
+    {
+      "id": "U-CAL04",
+      "title": "Parser Regression Suite",
+      "status": "completed",
+      "session": 1,
+      "depends_on": [
+        "U-CAL01",
+        "U-CAL02",
+        "U-CAL03"
+      ],
+      "description": "Parse ALL programs in data/programs/wire-edm/, create golden parameter snapshots, write regression tests that lock parser output",
+      "files_created": [
+        "data/state/PARSER_GOLDEN_SNAPSHOTS.json"
+      ],
+      "files_modified": [
+        "src/__tests__/wedm-real-program-parse.test.ts"
+      ],
+      "abort_criteria": [
+        ">2 programs fail to parse",
+        "Regression breaks existing tests"
+      ],
+      "exit_criteria": [
+        "All programs parse successfully",
+        "Golden snapshots saved",
+        "Regression tests pass"
+      ]
+    }
+  ],
+  "forge_triple": {
+    "hook": "wedm-parser-regression",
+    "action": "prism_edm:wedm_parse_real_program",
+    "skill": "/wedm-parse"
+  }
+}

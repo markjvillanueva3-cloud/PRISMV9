@@ -1,0 +1,121 @@
+/**
+ * Zod schemas for partsLibrary dispatcher actions.
+ * Phase 6 Session 6-2: File Upload + CAD Storage + Parts Library
+ */
+import { z } from "zod";
+
+export const PARTS_LIBRARY_ACTION_SCHEMAS: Record<string, z.ZodType> = {
+  file_upload: z.object({
+    content: z.string().describe("Base64-encoded file content"),
+    original_name: z.string().min(1).describe("Original filename with extension"),
+    mime_type: z.string().optional().describe("MIME type (auto-detected from extension if omitted)"),
+    uploaded_by: z.string().optional(),
+    existing_file_id: z.string().uuid().optional().describe("If set, creates a new version of this file"),
+    change_description: z.string().optional().describe("Version change notes"),
+  }),
+
+  file_download: z.object({
+    file_id: z.string().uuid(),
+    version: z.number().int().positive().optional().describe("Specific version (latest if omitted)"),
+  }),
+
+  file_get_versions: z.object({
+    file_id: z.string().uuid(),
+  }),
+
+  file_attach: z.object({
+    file_id: z.string().uuid(),
+    entity_type: z.enum([
+      "quote", "job", "part", "quality_record", "customer", "machine",
+      "tool", "material_cert", "inspection", "ncr", "capa", "fai",
+    ]),
+    entity_id: z.string().uuid(),
+    attachment_type: z.enum([
+      "general", "cad_model", "drawing", "material_cert", "inspection_report",
+      "setup_sheet", "photo", "video", "program", "documentation",
+    ]).optional(),
+    notes: z.string().optional(),
+    attached_by: z.string().optional(),
+  }),
+
+  file_get_attachments: z.object({
+    entity_type: z.string().min(1),
+    entity_id: z.string().uuid(),
+  }),
+
+  file_find_by_hash: z.object({
+    sha256: z.string().length(64),
+  }),
+
+  file_delete: z.object({
+    file_id: z.string().uuid(),
+  }),
+
+  file_list: z.object({
+    mime_type: z.string().optional(),
+    uploaded_by: z.string().optional(),
+    limit: z.number().int().positive().max(200).optional(),
+    offset: z.number().int().min(0).optional(),
+  }),
+
+  file_stats: z.object({}),
+
+  part_create: z.object({
+    part_number: z.string().min(1).describe("Unique part number (e.g., 'BRKT-001')"),
+    name: z.string().min(1).describe("Human-readable part name"),
+    description: z.string().optional(),
+    material_id: z.string().uuid().optional(),
+    material_name: z.string().optional().describe("Material name if no UUID"),
+    customer_id: z.string().uuid().optional(),
+    tags: z.array(z.string()).optional(),
+    status: z.enum(["active", "obsolete", "prototype", "archived"]).optional(),
+    created_by: z.string().optional(),
+    cad_file_id: z.string().uuid().optional(),
+    drawing_file_id: z.string().uuid().optional(),
+    initial_change_description: z.string().optional(),
+  }),
+
+  part_search: z.object({
+    query: z.string().optional().describe("Full-text search on name/number/description/tags"),
+    tags: z.array(z.string()).optional(),
+    material_id: z.string().uuid().optional(),
+    customer_id: z.string().uuid().optional(),
+    status: z.string().optional(),
+    limit: z.number().int().positive().max(200).optional(),
+    offset: z.number().int().min(0).optional(),
+  }),
+
+  part_get: z.object({
+    part_id: z.string().uuid().optional(),
+    part_number: z.string().optional(),
+  }),
+
+  part_add_revision: z.object({
+    part_id: z.string().uuid(),
+    revision: z.string().optional().describe("Manual revision (auto-incremented if omitted)"),
+    cad_file_id: z.string().uuid().optional(),
+    drawing_file_id: z.string().uuid().optional(),
+    change_description: z.string().min(1),
+    changed_by: z.string().optional(),
+  }),
+
+  part_list_revisions: z.object({
+    part_id: z.string().uuid(),
+  }),
+
+  part_find_similar: z.object({
+    part_id: z.string().uuid().optional().describe("Reference part ID"),
+    material: z.string().optional(),
+    iso_group: z.string().optional(),
+    dimensions: z.object({ x: z.number(), y: z.number(), z: z.number() }).optional(),
+    features: z.array(z.string()).optional(),
+    tolerances: z.array(z.object({ dimension: z.string(), value_mm: z.number() })).optional(),
+    surface_finish_ra: z.number().optional(),
+    operations: z.array(z.string()).optional(),
+    limit: z.number().int().positive().max(50).optional(),
+  }),
+
+  part_deduplicate: z.object({}),
+
+  part_stats: z.object({}),
+};

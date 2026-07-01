@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>`/scrutiny-gate` — Composed Scrutiny Front-End (U-CK19)</title>
+<style>
+  :root {
+    --bg: #0f1014;
+    --panel: #1a1c23;
+    --panel-2: #232631;
+    --fg: #e4e6eb;
+    --fg-dim: #9aa0a8;
+    --border: #2c303a;
+    --ok: #4ade80;
+    --warn: #fbbf24;
+    --fail: #f87171;
+    --info: #60a5fa;
+    --link: #93c5fd;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; padding: 1.5rem; background: var(--bg); color: var(--fg);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, sans-serif;
+    font-size: 14px; line-height: 1.5; }
+  h1 { font-size: 1.6rem; margin: 0 0 0.25rem 0; }
+  h2 { font-size: 1.15rem; margin: 1.5rem 0 0.5rem 0; padding-bottom: 0.25rem;
+    border-bottom: 1px solid var(--border); color: var(--fg); }
+  .meta { color: var(--fg-dim); font-size: 0.85rem; margin-bottom: 1rem; }
+  .panel { background: var(--panel); border: 1px solid var(--border); border-radius: 6px;
+    padding: 0.75rem 1rem; margin-bottom: 1rem; }
+  .headline-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 0.5rem; margin-bottom: 1rem; }
+  .card { background: var(--panel-2); border: 1px solid var(--border); border-radius: 6px;
+    padding: 0.65rem 0.85rem; }
+  .card .lbl { font-size: 0.8rem; color: var(--fg-dim); }
+  .card .val { font-size: 1.4rem; font-weight: 600; margin: 0.15rem 0; font-variant-numeric: tabular-nums; }
+  .card .hint { font-size: 0.75rem; color: var(--fg-dim); }
+  .card.ok    { border-left: 3px solid var(--ok); }
+  .card.warn  { border-left: 3px solid var(--warn); }
+  .card.fail  { border-left: 3px solid var(--fail); }
+  .card.info  { border-left: 3px solid var(--info); }
+  table { width: 100%; border-collapse: collapse; margin: 0.5rem 0 1rem; font-size: 0.9rem;
+    background: var(--panel); border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }
+  caption { text-align: left; padding: 0.4rem 0.65rem; color: var(--fg-dim);
+    background: var(--panel-2); font-weight: 500; }
+  th, td { padding: 0.4rem 0.65rem; text-align: left; border-bottom: 1px solid var(--border);
+    font-variant-numeric: tabular-nums; vertical-align: top; }
+  th { background: var(--panel-2); color: var(--fg-dim); font-weight: 500;
+    text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.04em; }
+  tr:last-child td { border-bottom: none; }
+  td.right { text-align: right; }
+  ul, ol { margin: 0.4rem 0 1rem 1.25rem; }
+  li { margin: 0.15rem 0; }
+  .badge { display: inline-block; padding: 0.1rem 0.5rem; border-radius: 999px;
+    font-size: 0.75rem; font-weight: 500; background: var(--panel-2); color: var(--fg-dim);
+    border: 1px solid var(--border); }
+  .badge.ok   { background: rgba(74, 222, 128, 0.12); color: var(--ok);   border-color: rgba(74,222,128,0.3); }
+  .badge.warn { background: rgba(251, 191, 36, 0.12); color: var(--warn); border-color: rgba(251,191,36,0.3); }
+  .badge.fail { background: rgba(248, 113, 113, 0.12); color: var(--fail); border-color: rgba(248,113,113,0.3); }
+  .badge.info { background: rgba(96, 165, 250, 0.12); color: var(--info); border-color: rgba(96,165,250,0.3); }
+  .badge-grid { display: flex; flex-wrap: wrap; gap: 0.3rem; margin: 0.3rem 0 1rem 0; }
+  .kv { display: grid; grid-template-columns: max-content 1fr; gap: 0.2rem 0.85rem;
+    margin: 0.4rem 0 1rem 0; }
+  .kv .k { color: var(--fg-dim); }
+  svg.bar-chart { display: block; max-width: 100%; height: auto; }
+  svg .bar { fill: var(--info); }
+  svg .bar.ok   { fill: var(--ok); }
+  svg .bar.warn { fill: var(--warn); }
+  svg .bar.fail { fill: var(--fail); }
+  svg text { fill: var(--fg); font-family: monospace; font-size: 11px; }
+  svg .axis text { fill: var(--fg-dim); }
+  code { background: var(--panel-2); padding: 0 0.3rem; border-radius: 3px;
+    font-family: "Fira Code", Consolas, Menlo, monospace; font-size: 0.85em; }
+  a { color: var(--link); }
+  footer { margin-top: 2rem; padding-top: 0.75rem; border-top: 1px solid var(--border);
+    font-size: 0.8rem; color: var(--fg-dim); }
+</style>
+</head>
+<body>
+<h1>`/scrutiny-gate` — Composed Scrutiny Front-End (U-CK19)</h1>
+<div class="meta">rendered from H:/prism/knowledge/wiki/os/pipelines/scrutiny-gate.md</div>
+<div class="meta">Generated 2026-05-17T22:27:06.356Z</div>
+<style>
+  .prism-md-body { max-width: 70rem; margin: 0 auto; }
+  .prism-h1 { font-size: 1.6rem; }
+  .prism-h2 { font-size: 1.25rem; border-bottom: 1px solid var(--border); padding-bottom: 0.25rem; }
+  .prism-h3 { font-size: 1.1rem; color: var(--info); }
+  .prism-h4, .prism-h5, .prism-h6 { font-size: 1rem; color: var(--fg-dim); }
+  .prism-md-body p { margin: 0.5rem 0; }
+  .prism-md-list { margin: 0.5rem 0 0.5rem 1.25rem; padding: 0; }
+  .prism-md-list li { margin: 0.15rem 0; }
+  .prism-md-table { border-collapse: collapse; margin: 0.75rem 0; width: 100%; }
+  .prism-md-table th, .prism-md-table td { border: 1px solid var(--border); padding: 0.35rem 0.6rem; text-align: left; }
+  .prism-md-table th { background: var(--panel-2); }
+  .prism-codeblock { background: var(--panel-2); border: 1px solid var(--border); border-radius: 4px; padding: 0.6rem 0.8rem; overflow-x: auto; font-family: "Cascadia Code", Consolas, monospace; font-size: 13px; }
+  .prism-inline-code { background: var(--panel-2); padding: 0 0.25rem; border-radius: 3px; font-family: "Cascadia Code", Consolas, monospace; font-size: 0.92em; }
+  .prism-quote { border-left: 3px solid var(--info); background: var(--panel-2); padding: 0.5rem 0.85rem; margin: 0.75rem 0; color: var(--fg-dim); }
+  .prism-hr { border: 0; border-top: 1px solid var(--border); margin: 1rem 0; }
+  .prism-link { color: var(--link); text-decoration: none; }
+  .prism-link:hover { text-decoration: underline; }
+  .prism-bad-link { color: var(--fail); text-decoration: line-through; }
+  .prism-unclosed::before { content: "⚠ unterminated code block"; display: block; color: var(--warn); font-size: 0.85em; margin-bottom: 0.25rem; }
+  </style><main class="prism-md-body"><nav class="prism-toc"><strong>Contents</strong><ul><li class="prism-toc-l1"><code class="prism-inline-code">/scrutiny-gate</code> — Composed Scrutiny Front-End (U-CK19)</li><li class="prism-toc-l2">Two operator-facing modes</li><li class="prism-toc-l3">Mode A — <code class="prism-inline-code">per-file</code></li><li class="prism-toc-l3">Mode B — <code class="prism-inline-code">end-of-task</code> (Stop-gate ceremony)</li><li class="prism-toc-l2">Why three arms, not two</li><li class="prism-toc-l2">Stages</li><li class="prism-toc-l2">Rollback</li><li class="prism-toc-l2">Knobs</li><li class="prism-toc-l2">Karpathy discipline pins</li><li class="prism-toc-l2">Composes-with</li><li class="prism-toc-l2">Related</li><li class="prism-toc-l2">See also</li></ul></nav><hr class="prism-hr">
+<p>title: PRISM pipeline — /scrutiny-gate (per-file 2-reviewer + end-of-task 3-of-3) slug: scrutiny-gate kind: pipeline status: shipped date: 2026-05-17 milestone: COMMAND-KERNEL-MS0 unit: U-CK19 author: claude-2d30710b (slot hotel, /loop command-kernel) trigger: command composed_of: [scrutiny-3way-emit, parallel-agent-dispatch, ledger-mark, stop-hook-backstop] stages: [emit-prompts, dispatch-agents, collect-verdicts, mark-ledger] consumes:</p>
+<ul class="prism-md-list"><li>.claude/scripts/scrutiny-3way.mjs</li><li>.claude/hooks/scrutinize-before-stop.mjs</li><li>mcp-server/data/state/SCRUTINY_LEDGER.json</li></ul>
+<p>produces:</p>
+<ul class="prism-md-list"><li>scrutiny-ledger-entry</li><li>per-file-pass-confirmation</li><li>operator-verdict-record</li></ul>
+<p>downgrade:   mode: hard-stop   fallback_to: stop-hook-3-block-auto-pass telemetry:   ledger: state/shared/pipeline-telemetry.jsonl   fields: [fire_ts, chain_id, step_id, latency_ms, outcome, session_id, slot]</p>
+<hr class="prism-hr">
+<h1 class="prism-h1"><code class="prism-inline-code">/scrutiny-gate</code> — Composed Scrutiny Front-End (U-CK19)</h1>
+<p>Operator-facing skin over the two canonical PRISM review gates: the per-file 2-reviewer doctrine and the end-of-task 3-of-3 Stop gate. Adds 0 new logic — every step maps to an existing surface (<code class="prism-inline-code">scrutinize-before-stop.mjs</code> Stop hook, <code class="prism-inline-code">scrutiny-3way.mjs</code> arm emitter, Task-tool parallel dispatch, SCRUTINY_LEDGER).</p>
+<h2 class="prism-h2">Two operator-facing modes</h2>
+<h3 class="prism-h3">Mode A — <code class="prism-inline-code">per-file</code></h3>
+<p>Fires inside any multi-file build BEFORE the next file is generated. 2 parallel Task-tool agents:</p>
+<table class="prism-md-table"><thead><tr><th>Agent</th><th>subagent_type</th><th>Weighted</th></tr></thead><tbody><tr><td>A — content-specialist</td><td>(auto by file type)</td><td>per-domain correctness</td></tr>
+<tr><td>B — independent reviewer</td><td><code class="prism-inline-code">reviewer</code></td><td>integration, conventions, stubs, security</td></tr></tbody></table>
+<p>File-type → agent-A mapping:</p>
+<table class="prism-md-table"><thead><tr><th>File type</th><th>Agent A</th></tr></thead><tbody><tr><td>dispatcher</td><td>wiring-review-agent</td></tr>
+<tr><td>test</td><td>test-review-agent</td></tr>
+<tr><td>physics engine</td><td>physics-review-agent</td></tr>
+<tr><td>generic engine / util</td><td>code-analyzer</td></tr>
+<tr><td>docs / spec</td><td>reviewer</td></tr>
+<tr><td>UI (.tsx)</td><td>reviewer</td></tr></tbody></table>
+<p>Both must return PASS before next file. Either FAIL → fix → re-dispatch.</p>
+<h3 class="prism-h3">Mode B — <code class="prism-inline-code">end-of-task</code> (Stop-gate ceremony)</h3>
+<p>The 3-of-3 ceremony the <code class="prism-inline-code">scrutinize-before-stop.mjs</code> Stop hook expects:</p>
+<ol class="prism-md-list"><li><code class="prism-inline-code">scrutiny-3way.mjs --session-id &lt;id&gt;</code> emits three reviewer prompts.</li><li>Three Task agents dispatched in parallel:</li></ol>
+<ul class="prism-md-list"><li>reviewer (arm A — holistic)</li><li>reviewer (arm B — independent second pass)</li><li>code-analyzer (arm C — silent-breakage focus)</li></ul>
+<ol class="prism-md-list"><li>Three <code class="prism-inline-code">--mark-{opus,claude,analyst} pass</code> recordings to the ledger.</li></ol>
+<p>The Stop hook keeps blocking until all three arms are PASS in the ledger; 3-block auto-pass is the escape hatch (with WARNING).</p>
+<h2 class="prism-h2">Why three arms, not two</h2>
+<table class="prism-md-table"><thead><tr><th>Arm</th><th>Catches</th></tr></thead><tbody><tr><td>A</td><td>correctness, contract conformance, immediate user impact</td></tr>
+<tr><td>B</td><td>test integrity, dispatcher wiring completeness, inlined-constant detection, stub assertions — what A is least likely to flag</td></tr>
+<tr><td>C</td><td>regression risk, I/O security, error budget completeness, silent-degrade — what A and B are least likely to flag</td></tr></tbody></table>
+<p>3-of-3 consensus (not 2-of-3) means a single arm&#39;s drift is not load-bearing. This was a 2026-05-05 doctrine adoption (CLAUDE.md §SCRUTINY GATE) after observing 2-arm drift.</p>
+<h2 class="prism-h2">Stages</h2>
+<table class="prism-md-table"><thead><tr><th>#</th><th>Stage</th><th>Purpose</th><th>Side-effect</th></tr></thead><tbody><tr><td>1</td><td>emit-prompts</td><td>run <code class="prism-inline-code">scrutiny-3way.mjs --session-id &lt;id&gt;</code>; capture JSON</td><td>none (read-only)</td></tr>
+<tr><td>2</td><td>dispatch-agents</td><td>single message, N parallel Task calls (N=2 for Mode A, N=3 for Mode B)</td><td>spawns N sub-agents</td></tr>
+<tr><td>3</td><td>collect-verdicts</td><td>wait for ALL agents to return; merge with operator self-check</td><td>none</td></tr>
+<tr><td>4</td><td>mark-ledger</td><td>for each PASS: <code class="prism-inline-code">scrutiny-3way.mjs --mark-X pass --notes &quot;...&quot;</code></td><td>appends to SCRUTINY_LEDGER.json</td></tr></tbody></table>
+<p>A FAIL at stage 3 means stage 4 ONLY marks the passing arms; the failing arm gets fix → re-dispatch → re-mark.</p>
+<h2 class="prism-h2">Rollback</h2>
+<p>This skill has no destructive side-effects. The SCRUTINY_LEDGER is append-only by design. A &quot;rollback&quot; is just NOT marking a failed arm — the Stop hook continues to block, which is the desired state.</p>
+<h2 class="prism-h2">Knobs</h2>
+<ul class="prism-md-list"><li><code class="prism-inline-code">PRISM_SCRUTINY_GIT_TIMEOUT_MS</code> — diff capture timeout (default 120s)</li><li><code class="prism-inline-code">PRISM_SCRUTINY_NO_DIFF_FILTER=1</code> — full unfiltered diff</li><li>The Stop hook is in MINIMAL_ALLOWLIST — cannot be disabled by <code class="prism-inline-code">PRISM_HOOK_PROFILE</code>. The skill respects this — does not attempt bypass.</li></ul>
+<h2 class="prism-h2">Karpathy discipline pins</h2>
+<ul class="prism-md-list"><li><strong>R8</strong>: skill adds 0 logic. Every step is an existing surface.</li><li><strong>R10</strong>: each stage&#39;s exit is an explicit verdict (PASS / FAIL per arm); next stage starts only after the prior stage&#39;s verdict is recorded.</li><li><strong>R11</strong>: arm weighting is fixed — A holistic, B test/wire/stub, C silent-breakage. Collapsing arms breaks the doctrine.</li><li><strong>R12</strong>: FAIL surfaces the finding; auto-pass escape hatch fires only after 3 block attempts AND emits a warning. No silent pass.</li></ul>
+<h2 class="prism-h2">Composes-with</h2>
+<p>Composed BY:</p>
+<ul class="prism-md-list"><li><code class="prism-inline-code">/session-cycle</code> (U-CK17) — Mode A internal to BUILD; Mode B at end before HANDOFF</li><li><code class="prism-inline-code">/forge-supervised</code> (U-CK24) — Mode B at the end of <code class="prism-inline-code">/forge-triple</code></li><li><code class="prism-inline-code">/loop</code> autonomous iter — Mode B fires implicitly via Stop hook at iter boundary</li><li>direct operator invocation mid-session</li></ul>
+<p>Composes:</p>
+<ul class="prism-md-list"><li><code class="prism-inline-code">.claude/scripts/scrutiny-3way.mjs</code></li><li><code class="prism-inline-code">.claude/hooks/scrutinize-before-stop.mjs</code></li><li><code class="prism-inline-code">mcp-server/data/state/SCRUTINY_LEDGER.json</code></li><li><code class="prism-inline-code">Task</code> tool (parallel agent dispatch)</li></ul>
+<h2 class="prism-h2">Related</h2>
+<ul class="prism-md-list"><li>[[session-cycle]] — the chain that fires both modes</li><li>[[loop]] — the autonomous-iter wrapper</li><li>[[goal-complete]] — sister Stop-hook gate (ceremonial-end)</li><li>[[research]] — preceding stage in session-cycle</li></ul>
+<h2 class="prism-h2">See also</h2>
+<ul class="prism-md-list"><li><code class="prism-inline-code">.claude/commands/scrutiny-gate.md</code> — operator skill spec (gitignored mirror)</li><li><code class="prism-inline-code">feedback_parallel_scrutiny_per_file.md</code> — per-file gate doctrine origin</li><li><code class="prism-inline-code">feedback_scrutiny_gate_finds_hostile_payload_class.md</code> — arm-B catching what arm-A missed</li><li><code class="prism-inline-code">mcp-server/data/milestones/COMMAND-KERNEL-MS0.json</code> U-CK19 — the unit envelope</li></ul></main><footer><div>generated by mdToHtml() at 2026-05-17T22:27:06.355Z</div>
+<div>html-report-render schemaVersion 1.0.0</div>
+</footer>
+</body>
+</html>

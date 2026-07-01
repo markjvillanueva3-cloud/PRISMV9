@@ -1,0 +1,187 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta name="prism-source-hash" content="00b05d392e4062218edb5cf8fe14a8fd88bbb44e14fd65c6c22376a19ba879d8">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>India → Echo Post-Processor Queue Migration (RECONCILIATION — 2026-05-26)</title>
+<style>
+  :root {
+    --bg: #0f1014;
+    --panel: #1a1c23;
+    --panel-2: #232631;
+    --fg: #e4e6eb;
+    --fg-dim: #9aa0a8;
+    --border: #2c303a;
+    --ok: #4ade80;
+    --warn: #fbbf24;
+    --fail: #f87171;
+    --info: #60a5fa;
+    --link: #93c5fd;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; padding: 1.5rem; background: var(--bg); color: var(--fg);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, sans-serif;
+    font-size: 14px; line-height: 1.5; }
+  h1 { font-size: 1.6rem; margin: 0 0 0.25rem 0; }
+  h2 { font-size: 1.15rem; margin: 1.5rem 0 0.5rem 0; padding-bottom: 0.25rem;
+    border-bottom: 1px solid var(--border); color: var(--fg); }
+  .meta { color: var(--fg-dim); font-size: 0.85rem; margin-bottom: 1rem; }
+  .panel { background: var(--panel); border: 1px solid var(--border); border-radius: 6px;
+    padding: 0.75rem 1rem; margin-bottom: 1rem; }
+  .headline-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 0.5rem; margin-bottom: 1rem; }
+  .card { background: var(--panel-2); border: 1px solid var(--border); border-radius: 6px;
+    padding: 0.65rem 0.85rem; }
+  .card .lbl { font-size: 0.8rem; color: var(--fg-dim); }
+  .card .val { font-size: 1.4rem; font-weight: 600; margin: 0.15rem 0; font-variant-numeric: tabular-nums; }
+  .card .hint { font-size: 0.75rem; color: var(--fg-dim); }
+  .card.ok    { border-left: 3px solid var(--ok); }
+  .card.warn  { border-left: 3px solid var(--warn); }
+  .card.fail  { border-left: 3px solid var(--fail); }
+  .card.info  { border-left: 3px solid var(--info); }
+  table { width: 100%; border-collapse: collapse; margin: 0.5rem 0 1rem; font-size: 0.9rem;
+    background: var(--panel); border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }
+  caption { text-align: left; padding: 0.4rem 0.65rem; color: var(--fg-dim);
+    background: var(--panel-2); font-weight: 500; }
+  th, td { padding: 0.4rem 0.65rem; text-align: left; border-bottom: 1px solid var(--border);
+    font-variant-numeric: tabular-nums; vertical-align: top; }
+  th { background: var(--panel-2); color: var(--fg-dim); font-weight: 500;
+    text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.04em; }
+  tr:last-child td { border-bottom: none; }
+  td.right { text-align: right; }
+  ul, ol { margin: 0.4rem 0 1rem 1.25rem; }
+  li { margin: 0.15rem 0; }
+  .badge { display: inline-block; padding: 0.1rem 0.5rem; border-radius: 999px;
+    font-size: 0.75rem; font-weight: 500; background: var(--panel-2); color: var(--fg-dim);
+    border: 1px solid var(--border); }
+  .badge.ok   { background: rgba(74, 222, 128, 0.12); color: var(--ok);   border-color: rgba(74,222,128,0.3); }
+  .badge.warn { background: rgba(251, 191, 36, 0.12); color: var(--warn); border-color: rgba(251,191,36,0.3); }
+  .badge.fail { background: rgba(248, 113, 113, 0.12); color: var(--fail); border-color: rgba(248,113,113,0.3); }
+  .badge.info { background: rgba(96, 165, 250, 0.12); color: var(--info); border-color: rgba(96,165,250,0.3); }
+  .badge-grid { display: flex; flex-wrap: wrap; gap: 0.3rem; margin: 0.3rem 0 1rem 0; }
+  .kv { display: grid; grid-template-columns: max-content 1fr; gap: 0.2rem 0.85rem;
+    margin: 0.4rem 0 1rem 0; }
+  .kv .k { color: var(--fg-dim); }
+  svg.bar-chart { display: block; max-width: 100%; height: auto; }
+  svg .bar { fill: var(--info); }
+  svg .bar.ok   { fill: var(--ok); }
+  svg .bar.warn { fill: var(--warn); }
+  svg .bar.fail { fill: var(--fail); }
+  svg text { fill: var(--fg); font-family: monospace; font-size: 11px; }
+  svg .axis text { fill: var(--fg-dim); }
+  code { background: var(--panel-2); padding: 0 0.3rem; border-radius: 3px;
+    font-family: "Fira Code", Consolas, Menlo, monospace; font-size: 0.85em; }
+  a { color: var(--link); }
+  footer { margin-top: 2rem; padding-top: 0.75rem; border-top: 1px solid var(--border);
+    font-size: 0.8rem; color: var(--fg-dim); }
+</style>
+</head>
+<body>
+<h1>India → Echo Post-Processor Queue Migration (RECONCILIATION — 2026-05-26)</h1>
+<div class="meta">rendered from state/shared/specs/INDIA-TO-ECHO-POST-QUEUE-MIGRATION-2026-05-26.md</div>
+<div class="meta">Generated 2026-05-26T15:17:20.602Z</div>
+<style>
+  .prism-md-body { max-width: 70rem; margin: 0 auto; }
+  .prism-h1 { font-size: 1.6rem; }
+  .prism-h2 { font-size: 1.25rem; border-bottom: 1px solid var(--border); padding-bottom: 0.25rem; }
+  .prism-h3 { font-size: 1.1rem; color: var(--info); }
+  .prism-h4, .prism-h5, .prism-h6 { font-size: 1rem; color: var(--fg-dim); }
+  .prism-md-body p { margin: 0.5rem 0; }
+  .prism-md-list { margin: 0.5rem 0 0.5rem 1.25rem; padding: 0; }
+  .prism-md-list li { margin: 0.15rem 0; }
+  .prism-md-table { border-collapse: collapse; margin: 0.75rem 0; width: 100%; }
+  .prism-md-table th, .prism-md-table td { border: 1px solid var(--border); padding: 0.35rem 0.6rem; text-align: left; }
+  .prism-md-table th { background: var(--panel-2); }
+  .prism-codeblock { background: var(--panel-2); border: 1px solid var(--border); border-radius: 4px; padding: 0.6rem 0.8rem; overflow-x: auto; font-family: "Cascadia Code", Consolas, monospace; font-size: 13px; }
+  .prism-inline-code { background: var(--panel-2); padding: 0 0.25rem; border-radius: 3px; font-family: "Cascadia Code", Consolas, monospace; font-size: 0.92em; }
+  .prism-quote { border-left: 3px solid var(--info); background: var(--panel-2); padding: 0.5rem 0.85rem; margin: 0.75rem 0; color: var(--fg-dim); }
+  .prism-hr { border: 0; border-top: 1px solid var(--border); margin: 1rem 0; }
+  .prism-link { color: var(--link); text-decoration: none; }
+  .prism-link:hover { text-decoration: underline; }
+  .prism-bad-link { color: var(--fail); text-decoration: line-through; }
+  .prism-unclosed::before { content: "⚠ unterminated code block"; display: block; color: var(--warn); font-size: 0.85em; margin-bottom: 0.25rem; }
+  </style><main class="prism-md-body"><nav class="prism-toc"><strong>Contents</strong><ul><li class="prism-toc-l1">India → Echo Post-Processor Queue Migration (RECONCILIATION — 2026-05-26)</li><li class="prism-toc-l2">1. Active slot-task-claims at migration time</li><li class="prism-toc-l2">2. Operator directive</li><li class="prism-toc-l2">3. India post-processor units already SHIPPED (no migration needed — for context only)</li><li class="prism-toc-l2">4. Open units transferring to echo</li><li class="prism-toc-l3">4A. ACP-MS5 controller chains — <strong>PHANTOM, DO NOT BUILD</strong></li><li class="prism-toc-l3">4B. CAM-PARITY-AGI-MS0 remaining units — <strong>NEEDS VERIFICATION</strong></li><li class="prism-toc-l3">4C. Heidenhain/Mitsubishi enhancement asymmetry (1 unit — P0)</li><li class="prism-toc-l3">4D. JMDIE-POST-GAPS rollout (3 units — P2, was scoped-out of india&#39;s loop)</li><li class="prism-toc-l3">4E. HurcoV11 prove-out roundtrip (1 unit — P2)</li><li class="prism-toc-l3">4F. RL post-processor re-modularization (1 unit — P2)</li><li class="prism-toc-l3">4G. Echo&#39;s already-known post follow-ups (already echo-owned — for completeness)</li><li class="prism-toc-l2">5. SKIP list (DO NOT pick up)</li><li class="prism-toc-l2">6. Net reconciliation summary (post-phantom-filter)</li><li class="prism-toc-l2">7. Reviewer-surfaced follow-up (added iter3, 2026-05-26)</li><li class="prism-toc-l2">8. Recommended next build (echo iter2 of this loop)</li><li class="prism-toc-l2">8. Provenance</li></ul></nav><h1 class="prism-h1">India → Echo Post-Processor Queue Migration (RECONCILIATION — 2026-05-26)</h1>
+<p><strong>Date:</strong> 2026-05-26 <strong>Origin slot:</strong> india (was the post-processor + master-post domain owner) <strong>Destination slot:</strong> echo (now owns CAM + post) <strong>Author:</strong> claude-ea1373b3 (slot:echo)</p>
+<blockquote class="prism-quote">## ⚠ R12 correction — the migration ALREADY HAPPENED</blockquote>
+<blockquote class="prism-quote"></blockquote>
+<blockquote class="prism-quote">Pre-existing memory makes the prior state explicit:</blockquote>
+<blockquote class="prism-quote">- <strong>[[reference_india_queue_complete_2026_05_22]]</strong> — <em>&quot;india /loop 2026-05-22 — verified the india post-processor + master-post queue is COMPLETE; the 8 remaining priority-queue items are phantoms/dups/non-actionable&quot;</em></blockquote>
+<blockquote class="prism-quote">- <strong>[[reference_hurco_winmax_proveout_ms0_2026_05_23]]</strong> — <em>&quot;slot echo absorbed india&#39;s post-processor queue per user directive 2026-05-23: &#39;pick up where india left off…&#39;. Commit <code class="prism-inline-code">26d270b9c2 [HURCO-WINMAX-PROVEOUT-MS0]/P0-U01 (slot:echo absorbing india)</code>.&quot;</em></blockquote>
+<blockquote class="prism-quote"></blockquote>
+<blockquote class="prism-quote">Today&#39;s operator directive (&quot;I moved it to echo&quot;) is a <strong>re-confirmation</strong> of the 5/23 migration, not a new transfer. This manifest is therefore a <strong>queue reconciliation</strong> — naming what was previously claimed as india&#39;s open queue, marking the phantoms, and listing only the genuinely-pending units echo is actually responsible for.</blockquote>
+<p><strong>Source handoffs scanned:</strong></p>
+<ul class="prism-md-list"><li><code class="prism-inline-code">HANDOFF-claude-3350c663-india-post-wire.md</code> (2026-05-22)</li><li><code class="prism-inline-code">HANDOFF-claude-5c520c2a-india-post-processor.md</code> (2026-05-21)</li><li><code class="prism-inline-code">HANDOFF-claude-bde6fa1d-india-hurco-post-ver.md</code> (2026-05-23)</li><li><code class="prism-inline-code">HANDOFF-claude-bde6fa1d-india-jmdie-posts.md</code> (2026-05-22)</li><li><code class="prism-inline-code">HANDOFF-claude-374fe00e-india-cam-parity-clo.md</code> (2026-05-17)</li><li><code class="prism-inline-code">HANDOFF-claude-9f3a8e4f-india-hurco-vm30i-fu.md</code> (2026-05-25)</li><li><code class="prism-inline-code">HANDOFF-claude-9029a5d7-echo-overnight-summary-2026-05-26.md</code> (echo&#39;s overnight close — context for what&#39;s already done)</li></ul>
+<hr class="prism-hr">
+<h2 class="prism-h2">1. Active slot-task-claims at migration time</h2>
+<p><code class="prism-inline-code">slot-task-claim list --slot india</code> → <strong>0 active claims</strong>. No mid-flight build to hand off; migration is pure backlog transfer.</p>
+<h2 class="prism-h2">2. Operator directive</h2>
+<blockquote class="prism-quote">&quot;india thought it was originally the post chat but I moved it to echo so check its task queue and move it to echo&quot;</blockquote>
+<p>Per <strong>CLAUDE.md §JULIETT-12CHAT-ALLOCATION-MS0</strong>, the domain partition table previously read <code class="prism-inline-code">india=post-processor+master-post</code>. As of 2026-05-26 the operator has reassigned post-processor work to <strong>echo</strong> (which already owns CAM per the same partition). India retains its other workstreams (speed-feed wiring per the original allocation row was actually <code class="prism-inline-code">juliett=speed-feed</code>; india&#39;s post role is what&#39;s moving).</p>
+<h2 class="prism-h2">3. India post-processor units already SHIPPED (no migration needed — for context only)</h2>
+<table class="prism-md-table"><thead><tr><th>Unit</th><th>Commit</th><th>Notes</th></tr></thead><tbody><tr><td>U-MASTERCAM-CTRL-CAT</td><td><code class="prism-inline-code">1e5a7860bc</code></td><td>9 <code class="prism-inline-code">cam_mastercam_controller_*</code> actions, 12 tests</td></tr>
+<tr><td>U-CTRL-CALIB-WIRE</td><td><code class="prism-inline-code">45307688ad</code></td><td>3 <code class="prism-inline-code">cam_controller_calibration_*</code> actions, 7 tests</td></tr>
+<tr><td>iter2 MasterPostFineTuningEngine wire → <code class="prism-inline-code">prism_cam</code></td><td>(pre-2026-05-22)</td><td>shipped</td></tr>
+<tr><td>iter3 LatheMasterPostSelfAwarenessEngine wire → <code class="prism-inline-code">prism_cam</code></td><td>(pre-2026-05-22)</td><td>shipped</td></tr>
+<tr><td>U-CAMP01 + U-CAMP13 + U-CAMP14 + U-CAMP15</td><td>various</td><td>4/16 CAM-PARITY-AGI-MS0 units; U-CAMP14 fixed <code class="prism-inline-code">safeWeight → NaN</code> bug in <code class="prism-inline-code">calculateTotalConfidence</code></td></tr>
+<tr><td>U-JMDIE-POST-GAPS</td><td><code class="prism-inline-code">119c432034</code></td><td><code class="prism-inline-code">gapReport()</code> + <code class="prism-inline-code">jmdie_post_gaps</code> action on <code class="prism-inline-code">prism_knowledge</code>, 51/51 tests</td></tr>
+<tr><td>HURCO-VM30I-FULL-PSN-MS0 (V11 engine)</td><td>echo overnight (5/25-5/26)</td><td>72/72 tests PASS (was 25/50 on 2026-05-22 per india&#39;s verify report — <strong>echo closed the remediation overnight</strong>)</td></tr></tbody></table>
+<h2 class="prism-h2">4. Open units transferring to echo</h2>
+<p>Each row below names the source handoff, the open work, what it depends on, and the priority. Echo owns these as of this manifest.</p>
+<h3 class="prism-h3">4A. ACP-MS5 controller chains — <strong>PHANTOM, DO NOT BUILD</strong></h3>
+<p><strong>Source:</strong> <code class="prism-inline-code">HANDOFF-claude-3350c663-india-post-wire.md</code> §RESUME named ACP-MS5 P0-U01/02/03 as &quot;next india&quot;.</p>
+<p><strong>Per [[reference_india_queue_complete_2026_05_22]]</strong> — the capability ACP-MS5 names is <strong>already shipped + wired across <code class="prism-inline-code">prism_cam</code></strong>:</p>
+<ul class="prism-md-list"><li>controller detection → <code class="prism-inline-code">machine_match</code>, <code class="prism-inline-code">machine_fingerprint</code>, <code class="prism-inline-code">cps_parse</code> / <code class="prism-inline-code">cps_map_dialect</code>, controller catalogs</li><li>template selection + post generation → PPG surface (<code class="prism-inline-code">ppg_templates</code>, <code class="prism-inline-code">ppg_generate</code>, <code class="prism-inline-code">ppg_feature_select</code>) + <code class="prism-inline-code">master_post_*</code></li><li>verification → <code class="prism-inline-code">pp_verify</code>, <code class="prism-inline-code">ppg_validate</code>, <code class="prism-inline-code">ppg_prove_out</code>, <code class="prism-inline-code">gcode_validate</code>, plus <code class="prism-inline-code">PostVerificationSafetyEngine.verify_full()</code> wired in camDispatcher</li></ul>
+<p>ACP-MS5 has <strong>no envelope file</strong> in <code class="prism-inline-code">mcp-server/data/roadmap/</code> and no entry in <code class="prism-inline-code">atomic-roadmap.json</code>. It is a prose-roadmap name for work already shipped under other IDs. <strong>Skip.</strong></p>
+<h3 class="prism-h3">4B. CAM-PARITY-AGI-MS0 remaining units — <strong>NEEDS VERIFICATION</strong></h3>
+<p><strong>Source:</strong> <code class="prism-inline-code">HANDOFF-claude-374fe00e-india-cam-parity-clo.md</code> §RESUME — <em>&quot;CAM-PARITY-AGI-MS0 = 4/16 units complete (U-CAMP01, U-CAMP13, U-CAMP14, U-CAMP15). Next iteration could … tackle remaining U-CAMP02..12+16&quot;</em></p>
+<p>Atomic-roadmap envelope state at audit time: <code class="prism-inline-code">claimed:&quot;active&quot;</code>, <code class="prism-inline-code">derived:&quot;no_units&quot;</code> — envelope-derivation drift (envelope says active but no units are ingested into the roadmap-index). This drift is consistent with the <strong>phantom queue</strong> pattern above: the prose lists 16 units but only 4 ingested + already-shipped exist. The remaining 12 may also be phantoms covered by existing wiring.</p>
+<p><strong>Action:</strong> before echo builds any U-CAMPxx unit, verify it&#39;s not phantom — <code class="prism-inline-code">node H:/prism/.claude/helpers/priority-queue.mjs --pick --slot echo</code> should not surface it, and the envelope must have a unit-level spec. If neither, treat as phantom and skip.</p>
+<h3 class="prism-h3">4C. Heidenhain/Mitsubishi enhancement asymmetry (1 unit — P0)</h3>
+<p><strong>Source:</strong> <code class="prism-inline-code">HANDOFF-9029a5d7-echo-overnight-summary-2026-05-26.md</code> §&quot;What&#39;s NOT done&quot; — <em>&quot;engine reports quality=75 on Heidenhain/Mitsubishi vs 85 on Fanuc/Okuma/Haas. Trace: which enhancement(s) in <code class="prism-inline-code">MasterPostProcessorUnifiedAGIEngine</code> don&#39;t apply to those dialect codegen paths?&quot;</em></p>
+<p>Located: <code class="prism-inline-code">mcp-server/src/engines/MasterPostProcessorUnifiedAGIEngine.ts</code> lines 1283-1298, 1399-1511. The scorers (<code class="prism-inline-code">runDeepLearningAnalysis</code>, <code class="prism-inline-code">quickQualityScore</code>, <code class="prism-inline-code">scoreSafety</code>, <code class="prism-inline-code">scoreBestPractices</code>, <code class="prism-inline-code">scoreAccuracy</code>) use <strong>Fanuc-rooted regex</strong> for safe-start (<code class="prism-inline-code">G28|G30|G53</code>), work-offset (<code class="prism-inline-code">G5[4-9]</code>), and HSM (<code class="prism-inline-code">G5\.1</code> literal — won&#39;t match Mitsubishi&#39;s <code class="prism-inline-code">G05.1</code>). Heidenhain uses <code class="prism-inline-code">M91/M92</code> + <code class="prism-inline-code">CYCL DEF 7 DATUM SHIFT</code> for those operations and is invisible to these regexes — only the dialect&#39;s <code class="prism-inline-code">M120</code> matches via the HSM regex, capping it at 60+15=75.</p>
+<p><strong>Fix sketch:</strong> add per-dialect <code class="prism-inline-code">signals</code> to <code class="prism-inline-code">ControllerProfile</code> (safe_start, work_offset, comment-format regex sets) and replace the literal regexes with <code class="prism-inline-code">signals[controller].safe_start.test(gcode)</code> etc. Same change touches 6 scorer functions.</p>
+<table class="prism-md-table"><thead><tr><th>Unit</th><th>Description</th><th>Priority</th></tr></thead><tbody><tr><td>U-MASTERPOST-DIALECT-SYMMETRY</td><td>Per-dialect scorer signals; Heidenhain/Mitsubishi reach 85+ parity</td><td><strong>P0</strong></td></tr></tbody></table>
+<h3 class="prism-h3">4D. JMDIE-POST-GAPS rollout (3 units — P2, was scoped-out of india&#39;s loop)</h3>
+<p><strong>Source:</strong> <code class="prism-inline-code">HANDOFF-claude-bde6fa1d-india-jmdie-posts.md</code> §RESUME — <em>&quot;Out-of-scope for this loop (need their own /loop with operator-approved migration plans, shop_floor S(x)&gt;=0.98 tier):&quot;</em></p>
+<table class="prism-md-table"><thead><tr><th>Unit</th><th>Description</th><th>Priority</th></tr></thead><tbody><tr><td>U-JMDIE-SIDECAR-ROLLOUT</td><td>sidecar_json_export rollout to 11 missing posts via .cps patch generator mining PRISM-Master-Hurco-VM30i.cps pattern</td><td>P2</td></tr>
+<tr><td>U-JMDIE-PHYSICS-OKUMA</td><td>prism_physics_integration rollout for okuma family (5/5 missing)</td><td>P2</td></tr>
+<tr><td>U-JMDIE-GAPS-VIZ-ROOST</td><td>/system-viz roost for the jmdie_post_gaps surface</td><td>P3</td></tr></tbody></table>
+<h3 class="prism-h3">4E. HurcoV11 prove-out roundtrip (1 unit — P2)</h3>
+<p><strong>Source:</strong> <code class="prism-inline-code">HANDOFF-claude-9f3a8e4f-india-hurco-vm30i-fu.md</code> §RESUME — <em>&quot;Next iter U-HURCO-ROUNDTRIP-TSX-SIDECAR will switch to sidecar .ts file + node --import=tsx invocation to bypass the quoting trap&quot;</em></p>
+<p>Known issue: Windows <code class="prism-inline-code">child_process</code> <code class="prism-inline-code">shell:true</code> invocation eats the inline <code class="prism-inline-code">tsx -e</code> payload, returns exit 255. Engine logic + parser already verified sound separately.</p>
+<table class="prism-md-table"><thead><tr><th>Unit</th><th>Description</th><th>Priority</th></tr></thead><tbody><tr><td>U-HURCO-ROUNDTRIP-TSX-SIDECAR</td><td>Sidecar .ts file + <code class="prism-inline-code">node --import=tsx</code> invocation to bypass Windows quoting trap</td><td>P2</td></tr></tbody></table>
+<h3 class="prism-h3">4F. RL post-processor re-modularization (1 unit — P2)</h3>
+<p><strong>Source:</strong> <code class="prism-inline-code">HANDOFF-claude-374fe00e-india-cam-parity-clo.md</code> §RESUME — <em>&quot;U-GAP-POST-RL-POSTPROCESSOR re-modularize PRISM_RL_POST_PROCESSOR from v8.89 monolith&quot;</em></p>
+<table class="prism-md-table"><thead><tr><th>Unit</th><th>Description</th><th>Priority</th></tr></thead><tbody><tr><td>U-GAP-POST-RL-POSTPROCESSOR</td><td>Re-modularize <code class="prism-inline-code">PRISM_RL_POST_PROCESSOR</code> from the v8.89 monolith</td><td>P2</td></tr></tbody></table>
+<h3 class="prism-h3">4G. Echo&#39;s already-known post follow-ups (already echo-owned — for completeness)</h3>
+<p>From <code class="prism-inline-code">HANDOFF-9029a5d7-echo-overnight-summary-2026-05-26.md</code>:</p>
+<table class="prism-md-table"><thead><tr><th>Unit</th><th>Description</th><th>Priority</th></tr></thead><tbody><tr><td>U7</td><td>Chatter SLD gate before emit (1 day)</td><td>P1</td></tr>
+<tr><td>U8</td><td>Deflection check emit (½ day)</td><td>P1</td></tr>
+<tr><td>D4</td><td>S(x) chain after emit for shop_floor tier (½ day)</td><td>P1</td></tr>
+<tr><td>D6</td><td>NC sim + kinematics replay (1 day)</td><td>P1</td></tr>
+<tr><td>D11</td><td>Master Post end-mission convergence (was gated on Hurco fleet all-green — Hurco is now green, unblocked)</td><td>P1</td></tr>
+<tr><td>U1</td><td>CAD → MillOperation[] auto-bind (1 day)</td><td>P2</td></tr>
+<tr><td>U9</td><td>Surface-finish prediction comments (½ day)</td><td>P2</td></tr>
+<tr><td>D7</td><td>WinMax driver orchestrated from post (½ day)</td><td>P2</td></tr>
+<tr><td>(regen)</td><td>Re-add <code class="prism-inline-code">WinMAX V11</code> controller-id comment in <code class="prism-inline-code">onOpen</code> header</td><td>P2</td></tr>
+<tr><td>(regen)</td><td>Document/verify <code class="prism-inline-code">prismOptimizationMode</code> semantic equivalence vs legacy <code class="prism-inline-code">prismAggressivenessLevel</code></td><td>P2</td></tr></tbody></table>
+<h2 class="prism-h2">5. SKIP list (DO NOT pick up)</h2>
+<ul class="prism-md-list"><li><strong>PostProcessorUnificationEngine</strong> — flagged in <code class="prism-inline-code">HANDOFF-3350c663</code> as a <code class="prism-inline-code">Math.random</code> stub. Owner of fix is whoever rewrites it from real signals; don&#39;t wire the stub.</li></ul>
+<h2 class="prism-h2">6. Net reconciliation summary (post-phantom-filter)</h2>
+<ul class="prism-md-list"><li>❌ ACP-MS5 (3 units) — <strong>PHANTOM</strong>, skip</li><li>❌ CAM-PARITY-AGI-MS0 remaining (12 units) — <strong>needs verification before build</strong> (likely phantom — envelope says active but <code class="prism-inline-code">derived:&quot;no_units&quot;</code>)</li><li>❌ U-GAP-POST-RL-POSTPROCESSOR — <strong>likely non-actionable</strong> per the AI-TRAINING-FIRST-MS0 finding (engines embed their KB; no <code class="prism-inline-code">train()</code> / <code class="prism-inline-code">learn()</code> method to wire)</li><li>✅ <strong>U-MASTERPOST-DIALECT-SYMMETRY</strong> (P0, §4C) — genuine, isolated, ready to build</li><li>✅ U-HURCO-ROUNDTRIP-TSX-SIDECAR (P2, §4E) — genuine, needs Windows <code class="prism-inline-code">child_process</code> workaround</li><li>✅ JMDIE rollout 3 units (§4D, P2/P3) — genuine but operator-gated (each needs its own /loop per the original handoff)</li><li>✅ Echo&#39;s overnight P1/P2 (§4G, 10 units) — already echo-owned</li></ul>
+<p><strong>Real echo backlog after reconciliation: ~14 units</strong> (1 P0 + 5 P1 + 8 P2). The 16 &quot;phantom&quot; units the original audit surfaced are explicitly NOT scheduled.</p>
+<h2 class="prism-h2">7. Reviewer-surfaced follow-up (added iter3, 2026-05-26)</h2>
+<p>After scrutiny on U-MASTERPOST-DIALECT-SYMMETRY (2-reviewer per-file gate, both PASS):</p>
+<table class="prism-md-table"><thead><tr><th>Unit</th><th>Description</th><th>Priority</th><th>Source</th></tr></thead><tbody><tr><td>U-MASTERPOST-DIALECT-HEIDENHAIN-COMMENT-FP</td><td>Heidenhain <code class="prism-inline-code">safe_start</code> regex matches <code class="prism-inline-code">END PGM</code> even inside a <code class="prism-inline-code">;</code> comment. A program with <code class="prism-inline-code">END PGM</code> in a header comment but no real safe-start logic could inflate quality by +20 (safe-start bonus + best-practices retract bonus). Fix: anchor with <code class="prism-inline-code">^\s*END\s+PGM</code> (line-start, multiline flag).</td><td>P2</td><td>Reviewer A finding on this commit</td></tr>
+<tr><td>U-MASTERPOST-DL-COMMENT-REGEX-CONSISTENCY</td><td><code class="prism-inline-code">runDeepLearningAnalysis</code> still uses `/\([^)]+\)</td><td>;.+/g<code class="prism-inline-code"> for comment counting while </code>quickQualityScore<code class="prism-inline-code"> was updated to </code>/\(</td><td>^;/gm`. Two parallel scoring surfaces have divergent comment-regex semantics. Unify.</td><td>P3</td><td>Reviewer B finding on this commit</td></tr></tbody></table>
+<h2 class="prism-h2">8. Recommended next build (echo iter2 of this loop)</h2>
+<p><strong>U-MASTERPOST-DIALECT-SYMMETRY</strong> (P0, §4C):</p>
+<ul class="prism-md-list"><li>Concrete, isolated to one engine file</li><li>Unblocks the 120/200 → 200/200 corpus PASS surface from echo&#39;s overnight close</li><li>Estimated 1 day, all dialect signals already exist in <code class="prism-inline-code">CONTROLLER_PROFILES</code> (lines 317-440)</li><li>Required changes:</li><li>Extend <code class="prism-inline-code">ControllerProfile</code> interface with <code class="prism-inline-code">signals?: { safe_start: RegExp, work_offset: RegExp, comment: RegExp }</code></li><li>Populate signals per dialect (Fanuc/Haas/Okuma/Siemens/Mazak default-Fanuc; Heidenhain → <code class="prism-inline-code">/M91|M92|END PGM/i</code> safe-start + <code class="prism-inline-code">/CYCL DEF 7|TRANS DATUM/i</code> work-offset + <code class="prism-inline-code">/^;/m</code> comment; Mitsubishi → keep Fanuc-like but use <code class="prism-inline-code">/G0?5\.1 Q1/i</code> HSM)</li><li>Replace literal regexes in <code class="prism-inline-code">runDeepLearningAnalysis</code>, <code class="prism-inline-code">quickQualityScore</code>, <code class="prism-inline-code">scoreSafety</code>, <code class="prism-inline-code">scoreBestPractices</code>, <code class="prism-inline-code">scoreAccuracy</code>, <code class="prism-inline-code">scoreControllerOptimization</code> with signal lookups</li><li>Test cases: 5 fixtures per dialect (synthetic best-effort gcode for each) → assert quality ≥ 85</li><li>Re-run <code class="prism-inline-code">scripts/post-processor-validate-corpus.mjs --batch 001 --tier corpus</code> → confirm Heidenhain + Mitsubishi go 0% → 100%</li></ul>
+<p>After U-MASTERPOST-DIALECT-SYMMETRY, the natural follow-up is ACP-MS5 P0-U01 (controller-detection chain) since the dialect signals just built are foundational to it.</p>
+<h2 class="prism-h2">8. Provenance</h2>
+<ul class="prism-md-list"><li>Original india handoffs remain on disk untouched.</li><li>This manifest is the canonical record of the migration; future audits showing india-tagged units in atomic-roadmap should resolve here.</li><li>Echo will tag commits with the original <code class="prism-inline-code">[&lt;SCOPE&gt;]/&lt;U-ID&gt;</code> prefix (e.g. <code class="prism-inline-code">[CAM-PARITY-AGI-MS0]/U-CAMP02</code>) and add <code class="prism-inline-code">(migrated from india)</code> in the body where helpful for git-archaeology.</li></ul></main><footer>
+<div>html-report-render schemaVersion 1.0.0</div>
+</footer>
+</body>
+</html>

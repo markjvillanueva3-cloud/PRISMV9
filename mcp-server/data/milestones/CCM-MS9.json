@@ -1,0 +1,971 @@
+{
+  "id": "CCM-MS9",
+  "version": "1.0.0",
+  "title": "Agent Teams & Orchestration",
+  "brief": "Multi-agent coordination for complex workflows using Claude's experimental agent teams feature. Design team topologies, implement forge/test/pipeline teams with 3 agents each, wire TeammateIdle hook for work reassignment, track team budgets, aggregate results, add cascade failure circuit breaker.",
+  "created_at": "2026-03-20T12:00:00Z",
+  "created_by": "claude-opus-4.6",
+  "track": "CCM",
+  "track_name": "Claude Code Modernization",
+  "status": "not_started",
+  "dependencies": [
+    "CCM-MS2",
+    "CCM-MS3"
+  ],
+  "wave": 3,
+  "phases": [
+    {
+      "id": "P0",
+      "title": "Agent Team Infrastructure",
+      "description": "Design team topologies, define forge/test/pipeline teams, wire TeammateIdle hook, implement budget management, result aggregation, team dispatch skill, monitoring dashboard, integration tests, cascade failure handling, and outcome variability tracking.",
+      "sessions": "4-6",
+      "primary_role": "R1",
+      "primary_model": "opus-4.6",
+      "units": [
+        {
+          "id": "P0-U01",
+          "title": "Team topology design",
+          "phase": "P0",
+          "sequence": 1,
+          "role": "R1",
+          "role_name": "Systems Architect",
+          "model": "opus-4.6",
+          "effort": 85,
+          "rationale": "Before implementing teams, the topology must be designed: which agents compose each team, their roles, model assignments, communication patterns, and escalation paths.",
+          "tools": [
+            "Bash"
+          ],
+          "skills": [],
+          "scripts": [],
+          "hooks": [],
+          "features": [
+            "Team topology documentation for forge, test, and pipeline teams"
+          ],
+          "dependencies": [],
+          "entry_conditions": [
+            "CCM-MS2 (subagent patterns) and CCM-MS3 (worktrees) complete"
+          ],
+          "exit_conditions": [
+            "Topology documented in state/CCM-MS9/team-topology.json",
+            "Three teams defined: forge-team, test-team, pipeline-team",
+            "Each team has 3 agents with roles, models, and communication patterns"
+          ],
+          "rollback": "git checkout -- state/CCM-MS9/",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Define forge-team: code-architect (Opus, planning), implementer (Sonnet, coding), physics-reviewer (Opus, validation)."
+            },
+            {
+              "number": 2,
+              "instruction": "Define test-team: test-runner (Haiku, execution), failure-analyzer (Sonnet, diagnosis), regression-reporter (Haiku, reporting)."
+            },
+            {
+              "number": 3,
+              "instruction": "Define pipeline-team: pipeline-planner (Sonnet, planning), executor (Sonnet, execution in worktree), verifier (Haiku, verification)."
+            },
+            {
+              "number": 4,
+              "instruction": "Document communication patterns: sequential handoff, parallel with merge, escalation to higher model."
+            },
+            {
+              "number": 5,
+              "instruction": "Write topology to state/CCM-MS9/team-topology.json."
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "state/CCM-MS9/team-topology.json",
+              "type": "config",
+              "description": "Team topology definitions for all 3 teams"
+            }
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": false,
+          "creates_hook": false,
+          "creates_command": false,
+          "description": "Team topology design — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P0-U02",
+          "title": "Forge team definition",
+          "phase": "P0",
+          "sequence": 2,
+          "role": "R1",
+          "role_name": "Systems Architect",
+          "model": "opus-4.6",
+          "effort": 85,
+          "rationale": "The forge team handles feature implementation: architect plans, implementer codes, reviewer validates physics correctness. This is the most critical team for PRISM development.",
+          "tools": [
+            "Bash"
+          ],
+          "skills": [],
+          "scripts": [],
+          "hooks": [],
+          "features": [
+            "Forge team: code-architect + implementer + physics-reviewer"
+          ],
+          "dependencies": [
+            "P0-U01"
+          ],
+          "entry_conditions": [
+            "Team topology designed from P0-U01"
+          ],
+          "exit_conditions": [
+            "Forge team defined with agent configs",
+            "Agent briefs specify role boundaries",
+            "Handoff protocol defined: architect→implementer→reviewer"
+          ],
+          "rollback": "git checkout -- state/CCM-MS9/",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Create forge-team agent config: code-architect (Opus, Plan mode, reads specs/designs, outputs implementation plan)."
+            },
+            {
+              "number": 2,
+              "instruction": "Create implementer config (Sonnet, Code mode, reads plan, outputs code in worktree)."
+            },
+            {
+              "number": 3,
+              "instruction": "Create physics-reviewer config (Opus, Review mode, validates physics formulas, dimensional analysis, test coverage)."
+            },
+            {
+              "number": 4,
+              "instruction": "Define handoff protocol: sequential architect→implementer→reviewer with retry on review failure."
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "state/CCM-MS9/forge-team.json",
+              "type": "config",
+              "description": "Forge team agent configurations"
+            }
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": false,
+          "creates_hook": false,
+          "creates_command": false,
+          "description": "Forge team definition — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P0-U03",
+          "title": "Test team definition",
+          "phase": "P0",
+          "sequence": 3,
+          "role": "R1",
+          "role_name": "Systems Architect",
+          "model": "opus-4.6",
+          "effort": 85,
+          "rationale": "The test team handles quality assurance: runner executes suites, analyzer diagnoses failures, reporter produces regression reports. Uses cheaper models for execution tasks.",
+          "tools": [
+            "Bash"
+          ],
+          "skills": [],
+          "scripts": [],
+          "hooks": [],
+          "features": [
+            "Test team: test-runner + failure-analyzer + regression-reporter"
+          ],
+          "dependencies": [
+            "P0-U01"
+          ],
+          "entry_conditions": [
+            "Team topology designed from P0-U01"
+          ],
+          "exit_conditions": [
+            "Test team defined with agent configs",
+            "Runner uses Haiku for cost efficiency",
+            "Analyzer uses Sonnet for diagnostic depth"
+          ],
+          "rollback": "git checkout -- state/CCM-MS9/",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Create test-runner config (Haiku, executes vitest, captures JSON output)."
+            },
+            {
+              "number": 2,
+              "instruction": "Create failure-analyzer config (Sonnet, reads failure output, diagnoses root cause, suggests fix)."
+            },
+            {
+              "number": 3,
+              "instruction": "Create regression-reporter config (Haiku, aggregates results, produces summary report)."
+            },
+            {
+              "number": 4,
+              "instruction": "Define handoff: runner→analyzer (on failures)→reporter (always)."
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "state/CCM-MS9/test-team.json",
+              "type": "config",
+              "description": "Test team agent configurations"
+            }
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": false,
+          "creates_hook": false,
+          "creates_command": false,
+          "description": "Test team definition — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P0-U04",
+          "title": "Pipeline team definition",
+          "phase": "P0",
+          "sequence": 4,
+          "role": "R1",
+          "role_name": "Systems Architect",
+          "model": "opus-4.6",
+          "effort": 85,
+          "rationale": "The pipeline team handles end-to-end workflow execution: planner sequences operations, executor runs them in isolated worktrees, verifier confirms output correctness.",
+          "tools": [
+            "Bash",
+            "EnterWorktree",
+            "ExitWorktree"
+          ],
+          "skills": [],
+          "scripts": [],
+          "hooks": [],
+          "features": [
+            "Pipeline team: planner + executor (worktree) + verifier"
+          ],
+          "dependencies": [
+            "P0-U01"
+          ],
+          "entry_conditions": [
+            "Team topology designed from P0-U01",
+            "Worktree support from CCM-MS3"
+          ],
+          "exit_conditions": [
+            "Pipeline team defined with agent configs",
+            "Executor configured for worktree isolation",
+            "Verifier checks output against expected schema"
+          ],
+          "rollback": "git checkout -- state/CCM-MS9/",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Create pipeline-planner config (Sonnet, reads milestone spec, produces execution plan with dependencies)."
+            },
+            {
+              "number": 2,
+              "instruction": "Create executor config (Sonnet, enters worktree, executes plan steps, exits worktree)."
+            },
+            {
+              "number": 3,
+              "instruction": "Create verifier config (Haiku, checks deliverables exist, validates exit conditions, runs relevant tests)."
+            },
+            {
+              "number": 4,
+              "instruction": "Define handoff: planner→executor→verifier with retry loop on verification failure."
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "state/CCM-MS9/pipeline-team.json",
+              "type": "config",
+              "description": "Pipeline team agent configurations"
+            }
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": false,
+          "creates_hook": false,
+          "creates_command": false,
+          "description": "Pipeline team definition — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P0-U05",
+          "title": "TeammateIdle hook",
+          "phase": "P0",
+          "sequence": 5,
+          "role": "R1",
+          "role_name": "Systems Architect",
+          "model": "opus-4.6",
+          "effort": 85,
+          "rationale": "When an agent finishes its task early, TeammateIdle hook reassigns work from the backlog or pulls forward the next sequential task, maximizing agent utilization.",
+          "tools": [
+            "Bash"
+          ],
+          "skills": [],
+          "scripts": [],
+          "hooks": [],
+          "features": [
+            "Work reassignment on agent idle"
+          ],
+          "dependencies": [
+            "P0-U02",
+            "P0-U03",
+            "P0-U04"
+          ],
+          "entry_conditions": [
+            "All three teams defined"
+          ],
+          "exit_conditions": [
+            "Idle agents get new tasks from team backlog",
+            "Reassignment logged for tracking",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
+          ],
+          "rollback": "git checkout -- state/CCM-MS9/",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Create TeammateIdle hook that fires when an agent completes its current task."
+            },
+            {
+              "number": 2,
+              "instruction": "Check team backlog for pending tasks matching the idle agent's role."
+            },
+            {
+              "number": 3,
+              "instruction": "Assign next eligible task or pull forward from sequence if dependencies met."
+            },
+            {
+              "number": 4,
+              "instruction": "Log reassignment to state/CCM-MS9/team-activity.json."
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "state/CCM-MS9/teammate-idle-hook.sh",
+              "type": "script",
+              "description": "TeammateIdle work reassignment hook"
+            }
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": true,
+          "creates_hook": true,
+          "creates_command": false,
+          "description": "TeammateIdle hook — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P0-U06",
+          "title": "Team budget management",
+          "phase": "P0",
+          "sequence": 6,
+          "role": "R1",
+          "role_name": "Systems Architect",
+          "model": "opus-4.6",
+          "effort": 85,
+          "rationale": "Each team should have a token budget to prevent runaway costs. SubagentStart hook tracks token spend per team and enforces caps.",
+          "tools": [
+            "Bash"
+          ],
+          "skills": [],
+          "scripts": [],
+          "hooks": [],
+          "features": [
+            "Per-team token budget tracking and enforcement"
+          ],
+          "dependencies": [
+            "P0-U02",
+            "P0-U03",
+            "P0-U04"
+          ],
+          "entry_conditions": [
+            "All three teams defined"
+          ],
+          "exit_conditions": [
+            "Budgets enforced per team",
+            "Spending tracked in state/CCM-MS9/team-budgets.json",
+            "Over-budget teams paused with warning"
+          ],
+          "rollback": "git checkout -- state/CCM-MS9/",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Define budget caps per team: forge-team 500K tokens, test-team 200K tokens, pipeline-team 300K tokens."
+            },
+            {
+              "number": 2,
+              "instruction": "Create SubagentStart hook that increments team spend counter."
+            },
+            {
+              "number": 3,
+              "instruction": "At 80% budget, warn; at 100%, pause team and require human approval to continue."
+            },
+            {
+              "number": 4,
+              "instruction": "Persist budgets to state/CCM-MS9/team-budgets.json."
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "state/CCM-MS9/team-budget-hook.sh",
+              "type": "script",
+              "description": "Team budget tracking and enforcement hook"
+            },
+            {
+              "path": "state/CCM-MS9/team-budgets.json",
+              "type": "data",
+              "description": "Team budget status"
+            }
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": true,
+          "creates_hook": true,
+          "creates_command": false,
+          "description": "Team budget management — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P0-U07",
+          "title": "Team result aggregation",
+          "phase": "P0",
+          "sequence": 7,
+          "role": "R1",
+          "role_name": "Systems Architect",
+          "model": "opus-4.6",
+          "effort": 85,
+          "rationale": "SubagentStop hook aggregates results from all team members into a unified report, making it easy to review what each agent accomplished and the overall team outcome.",
+          "tools": [
+            "Bash"
+          ],
+          "skills": [],
+          "scripts": [],
+          "hooks": [],
+          "features": [
+            "Unified team result aggregation"
+          ],
+          "dependencies": [
+            "P0-U05"
+          ],
+          "entry_conditions": [
+            "TeammateIdle hook working from P0-U05"
+          ],
+          "exit_conditions": [
+            "Unified reports produced per team run",
+            "Reports include per-agent output, timing, token spend, and success/failure",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
+          ],
+          "rollback": "git checkout -- state/CCM-MS9/",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Create SubagentStop hook that captures agent output, timing, and token spend."
+            },
+            {
+              "number": 2,
+              "instruction": "When all team members complete, merge results into unified report."
+            },
+            {
+              "number": 3,
+              "instruction": "Write report to state/CCM-MS9/team-results/{team-name}-{timestamp}.json."
+            },
+            {
+              "number": 4,
+              "instruction": "Include summary: pass/fail, total time, total tokens, per-agent breakdown."
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "state/CCM-MS9/team-result-hook.sh",
+              "type": "script",
+              "description": "Team result aggregation hook"
+            }
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": true,
+          "creates_hook": true,
+          "creates_command": false,
+          "description": "Team result aggregation — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P0-U08",
+          "title": "/team-dispatch skill",
+          "phase": "P0",
+          "sequence": 8,
+          "role": "R1",
+          "role_name": "Systems Architect",
+          "model": "opus-4.6",
+          "effort": 85,
+          "rationale": "A /team-dispatch skill provides a single-command interface to launch named teams with a brief, abstracting away the multi-agent coordination complexity.",
+          "tools": [
+            "Bash"
+          ],
+          "skills": [],
+          "scripts": [],
+          "hooks": [],
+          "features": [
+            "/team-dispatch skill to launch agent teams"
+          ],
+          "dependencies": [
+            "P0-U02",
+            "P0-U03",
+            "P0-U04",
+            "P0-U05",
+            "P0-U06",
+            "P0-U07"
+          ],
+          "entry_conditions": [
+            "All team definitions and hooks complete"
+          ],
+          "exit_conditions": [
+            "Skill works: /team-dispatch forge-team 'implement feature X'",
+            "Skill validates team name and brief before launch",
+            "Skill returns team result summary on completion"
+          ],
+          "rollback": "git checkout -- state/CCM-MS9/",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Create /team-dispatch skill that accepts team name and brief as arguments."
+            },
+            {
+              "number": 2,
+              "instruction": "Validate team name against known topologies, validate brief is non-empty."
+            },
+            {
+              "number": 3,
+              "instruction": "Launch team agents in sequence per handoff protocol."
+            },
+            {
+              "number": 4,
+              "instruction": "Return aggregated result summary to caller."
+            }
+          ],
+          "deliverables": [
+            {
+              "path": ".claude/skills/team-dispatch.md",
+              "type": "skill",
+              "description": "/team-dispatch skill for launching agent teams"
+            }
+          ],
+          "index_in_master": false,
+          "creates_skill": true,
+          "creates_script": false,
+          "creates_hook": false,
+          "creates_command": false,
+          "description": "/team-dispatch skill — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P0-U09",
+          "title": "Team monitoring dashboard",
+          "phase": "P0",
+          "sequence": 9,
+          "role": "R1",
+          "role_name": "Systems Architect",
+          "model": "opus-4.6",
+          "effort": 85,
+          "rationale": "Real-time team status via MCP resource enables monitoring active teams, agent states, progress, and budget without interrupting the workflow.",
+          "tools": [
+            "Bash"
+          ],
+          "skills": [],
+          "scripts": [],
+          "hooks": [],
+          "features": [
+            "Real-time team status via MCP resource"
+          ],
+          "dependencies": [
+            "P0-U06",
+            "P0-U07"
+          ],
+          "entry_conditions": [
+            "Budget tracking and result aggregation hooks working"
+          ],
+          "exit_conditions": [
+            "Status visible via MCP resource URI: prism://teams/status",
+            "Dashboard shows active teams, agent states, progress %, budget remaining",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
+          ],
+          "rollback": "git checkout -- state/CCM-MS9/",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Create MCP resource template prism://teams/status that reads team activity and budget files."
+            },
+            {
+              "number": 2,
+              "instruction": "Include per-team: active/idle/complete status, current agent, progress percentage, budget used/remaining."
+            },
+            {
+              "number": 3,
+              "instruction": "Add prism://teams/{name}/history for past run results."
+            },
+            {
+              "number": 4,
+              "instruction": "Test dashboard updates in real-time during a team run."
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "state/CCM-MS9/team-dashboard-resource.json",
+              "type": "config",
+              "description": "MCP resource definition for team monitoring"
+            }
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": false,
+          "creates_hook": false,
+          "creates_command": false,
+          "description": "Team monitoring dashboard — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P0-U10",
+          "title": "Team integration tests",
+          "phase": "P0",
+          "sequence": 10,
+          "role": "R1",
+          "role_name": "Systems Architect",
+          "model": "opus-4.6",
+          "effort": 85,
+          "rationale": "End-to-end integration test ensures forge-team can process a feature through all 3 agents (architect→implementer→reviewer) and produce a working result.",
+          "tools": [
+            "Bash"
+          ],
+          "skills": [
+            "/team-dispatch"
+          ],
+          "scripts": [],
+          "hooks": [],
+          "features": [
+            "End-to-end forge-team integration test"
+          ],
+          "dependencies": [
+            "P0-U08"
+          ],
+          "entry_conditions": [
+            "/team-dispatch skill working from P0-U08"
+          ],
+          "exit_conditions": [
+            "End-to-end works: forge-team processes a small feature through all 3 agents",
+            "Test produces code, passes review, and generates test file",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
+          ],
+          "rollback": "git checkout -- state/CCM-MS9/",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Define a small test feature: add a utility function with JSDoc and test."
+            },
+            {
+              "number": 2,
+              "instruction": "Launch forge-team via /team-dispatch with the feature brief."
+            },
+            {
+              "number": 3,
+              "instruction": "Verify architect produces plan, implementer writes code, reviewer approves."
+            },
+            {
+              "number": 4,
+              "instruction": "Confirm output files exist and tests pass."
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "state/CCM-MS9/integration-test-results.json",
+              "type": "data",
+              "description": "Forge-team integration test results"
+            }
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": false,
+          "creates_hook": false,
+          "creates_command": false,
+          "description": "Team integration tests — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P0-U11",
+          "title": "Cascade failure circuit breaker",
+          "phase": "P0",
+          "sequence": 11,
+          "role": "R1",
+          "role_name": "Systems Architect",
+          "model": "opus-4.6",
+          "effort": 85,
+          "rationale": "If an agent fails, blindly retrying wastes tokens. A circuit breaker evaluates P(recovery): abort if <0.3, retry with same model if 0.3-0.7, escalate to higher model if >0.7.",
+          "tools": [
+            "Bash"
+          ],
+          "skills": [],
+          "scripts": [],
+          "hooks": [],
+          "features": [
+            "Cascade failure circuit breaker with P(recovery) evaluation"
+          ],
+          "dependencies": [
+            "P0-U05"
+          ],
+          "entry_conditions": [
+            "TeammateIdle hook working, team activity logs available"
+          ],
+          "exit_conditions": [
+            "Cascade handled: failures evaluated with P(recovery)",
+            "P<0.3 aborts with error report",
+            "P 0.3-0.7 retries with same model",
+            "P>0.7 retries with higher model (Haiku→Sonnet→Opus)"
+          ],
+          "rollback": "git checkout -- state/CCM-MS9/",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Define P(recovery) heuristic: based on error type (syntax=0.9, logic=0.5, timeout=0.3, OOM=0.1), retry count (decreases with each retry), and agent capability."
+            },
+            {
+              "number": 2,
+              "instruction": "Implement circuit breaker in team orchestration: catch agent failure, compute P(recovery)."
+            },
+            {
+              "number": 3,
+              "instruction": "Route: P<0.3 abort and report, P 0.3-0.7 retry same model, P>0.7 escalate to higher model."
+            },
+            {
+              "number": 4,
+              "instruction": "Log all decisions to state/CCM-MS9/circuit-breaker-log.json."
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "state/CCM-MS9/circuit-breaker.sh",
+              "type": "script",
+              "description": "Cascade failure circuit breaker logic"
+            },
+            {
+              "path": "state/CCM-MS9/circuit-breaker-log.json",
+              "type": "data",
+              "description": "Circuit breaker decision log"
+            }
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": true,
+          "creates_hook": false,
+          "creates_command": false,
+          "description": "Cascade failure circuit breaker — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P0-U12",
+          "title": "Team outcome variability tracker",
+          "phase": "P0",
+          "sequence": 12,
+          "role": "R1",
+          "role_name": "Systems Architect",
+          "model": "opus-4.6",
+          "effort": 85,
+          "rationale": "Track quality score variance across team runs to identify unstable teams. High sigma indicates inconsistent results that need topology or prompt adjustments.",
+          "tools": [
+            "Bash"
+          ],
+          "skills": [],
+          "scripts": [],
+          "hooks": [],
+          "features": [
+            "Quality score variability tracking across team runs"
+          ],
+          "dependencies": [
+            "P0-U07",
+            "P0-U10"
+          ],
+          "entry_conditions": [
+            "Team result aggregation working",
+            "At least one integration test completed"
+          ],
+          "exit_conditions": [
+            "Variability tracked: quality score mean and sigma per team",
+            "Unstable teams (sigma > threshold) flagged for review",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
+          ],
+          "rollback": "git checkout -- state/CCM-MS9/",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Define quality score rubric: code correctness (0-40), test coverage (0-20), physics accuracy (0-20), style compliance (0-10), token efficiency (0-10)."
+            },
+            {
+              "number": 2,
+              "instruction": "After each team run, compute quality score and append to history."
+            },
+            {
+              "number": 3,
+              "instruction": "Calculate running mean and sigma per team."
+            },
+            {
+              "number": 4,
+              "instruction": "Flag teams with sigma > 15 (out of 100) as unstable."
+            },
+            {
+              "number": 5,
+              "instruction": "Write variability report to state/CCM-MS9/team-variability.json."
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "state/CCM-MS9/variability-tracker.sh",
+              "type": "script",
+              "description": "Team outcome variability tracking script"
+            },
+            {
+              "path": "state/CCM-MS9/team-variability.json",
+              "type": "data",
+              "description": "Team quality variability report"
+            }
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": true,
+          "creates_hook": false,
+          "creates_command": false,
+          "description": "Team outcome variability tracker — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        }
+      ]
+    }
+  ],
+  "smart_config": {
+    "role": "senior-architect + domain-specialist",
+    "model": "opus",
+    "effort": "MAX",
+    "context_budget": "65%"
+  },
+  "mcp_lifecycle": {
+    "session_start": [
+      "prism_session:context_boot",
+      "prism_session:dispatcher_map",
+      "prism_session:memory_recall",
+      "prism_session:system_snapshot",
+      "prism_session:action_search"
+    ],
+    "during_work": [
+      "prism_session:auto_checkpoint",
+      "prism_session:tool_route_best",
+      "prism_session:wip_capture"
+    ],
+    "session_end": [
+      "prism_session:memory_save",
+      "prism_session:system_snapshot",
+      "prism_session:checkpoint_enhanced"
+    ]
+  },
+  "forge_triple": {
+    "protective_hook": "ccm-ms9-gate",
+    "mcp_action": "prism_ccm:ccm_ms9_run",
+    "skill_command": "/ccm-ms9",
+    "ownership": "DECLARED — BUILT in terminal unit of this milestone"
+  },
+  "feature_cascade": {
+    "new_hooks": [
+      "ccm-ms9-gate"
+    ],
+    "new_actions": [
+      "ccm_ms9_run"
+    ],
+    "new_skills": [
+      "/ccm-ms9"
+    ],
+    "available_to": [
+      "downstream CAMX milestones",
+      "prism app consumers"
+    ]
+  },
+  "knowledge_sources": {
+    "engines": [
+      "ENGINE_DIGEST.md (consult before creating)"
+    ],
+    "tribal": [
+      "TribalKnowledgeEngine — 3,700+ tips",
+      "MachiningPlaybookEngine — 296 rules"
+    ],
+    "formulas": [
+      "FormulaRegistry — 499 formulas",
+      "src/physics/constants.ts — canonical"
+    ],
+    "reference": [
+      "EXTERNAL-REFERENCE-PROGRAMS-INDEX.md",
+      "MaterialRegistry",
+      "MachineRegistry",
+      "ToolCatalogEngine (95,608 tools)"
+    ]
+  },
+  "intent": "Multi-agent coordination for complex workflows using Claude's experimental agent teams feature. Design team topologies, implement forge/test/pipeline teams with 3 agents each, wire TeammateIdle hook for work reassignment, track team budgets, aggregate results, add cascade failure circuit breaker.",
+  "compact_checkpoint": "every 3 units — auto-triggered by hook",
+  "enforcement_hooks_active": [
+    "physics agent",
+    "wiring agent",
+    "constants checker",
+    "stub detector",
+    "test quality",
+    "forge-triple gate",
+    "session audit agent"
+  ]
+}

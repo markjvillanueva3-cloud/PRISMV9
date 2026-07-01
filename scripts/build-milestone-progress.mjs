@@ -92,7 +92,7 @@ function git(args) {
  *   "U-AIMAX07+08-FIX2"   → ["U-AIMAX07", "U-AIMAX08"]
  *   "P0-U02+03"           → ["P0-U02", "P0-U03"]
  */
-function expandCombinedIds(captured) {
+export function expandCombinedIds(captured) {
   if (!captured.includes("+")) return [captured];
   // Strip trailing -<suffix> if the suffix starts with a non-digit
   // (so we keep things like "-U02" but drop "-FIX2").
@@ -102,11 +102,19 @@ function expandCombinedIds(captured) {
   const trailingDigits = base.match(/(\d+)$/);
   if (!trailingDigits) return [trimmed];
   const prefix = base.slice(0, base.length - trailingDigits[1].length);
+  // The base's trailing letter-run (e.g. "U" of "P23-U", "AIMAX" of "U-AIMAX").
+  // A joint part that repeats it (`+U02`) must have it stripped before
+  // reconstruction — else `prefix + "U02"` yields "P23-UU02", a malformed id
+  // that matches no envelope unit (silent close-out drift). All-digit parts
+  // like `+03` never startsWith the letter-run, so they are untouched.
+  const prefixLetters = prefix.match(/([A-Za-z]+)$/)?.[1] ?? "";
   const result = [base];
   for (let i = 1; i < parts.length; i += 1) {
-    // Each subsequent part is just the trailing digits — reconstruct with the
-    // base's leading prefix.
-    result.push(prefix + parts[i]);
+    let part = parts[i];
+    if (prefixLetters && part.startsWith(prefixLetters)) {
+      part = part.slice(prefixLetters.length);
+    }
+    result.push(prefix + part);
   }
   return result;
 }
@@ -151,13 +159,17 @@ function loadShippedFromGit() {
   return shipped;
 }
 
-async function loadMilestones() {
-  const files = await readdir(MILESTONE_DIR);
+// Envelope `status` is string-by-convention; coerce defensively so a malformed
+// numeric/object value can never leak into the `=== "complete"` credit check.
+export const asStr = (v) => (typeof v === "string" ? v : null);
+
+export async function loadMilestones(dir = MILESTONE_DIR) {
+  const files = await readdir(dir);
   const milestones = [];
   for (const file of files) {
     if (!file.endsWith(".json")) continue;
     try {
-      const raw = await readFile(join(MILESTONE_DIR, file), "utf8");
+      const raw = await readFile(join(dir, file), "utf8");
       const ms = JSON.parse(raw);
       if (!ms?.id) continue;
       // Collect unit IDs from any phases[].units[].id structure.
@@ -178,8 +190,13 @@ async function loadMilestones() {
               title: u.title ?? "",
               phase: phase.id ?? "",
               dependencies: u.dependencies ?? [],
-              envelopeStatus: unitOverlay[u.id]?.status ?? null,
-              envelopeCommits: Array.isArray(unitOverlay[u.id]?.commits) ? unitOverlay[u.id].commits : [],
+              // Read the phase unit's OWN status/commits first — close-out flips
+              // write status+commits directly onto phases[].units[]. Fall back to
+              // the object-keyed ms.units{} overlay when both shapes coexist.
+              envelopeStatus: asStr(u.status) ?? asStr(unitOverlay[u.id]?.status),
+              envelopeCommits: Array.isArray(u.commits)
+                ? u.commits
+                : (Array.isArray(unitOverlay[u.id]?.commits) ? unitOverlay[u.id].commits : []),
             });
           }
         }
@@ -194,7 +211,7 @@ async function loadMilestones() {
             title: u.title ?? "",
             phase: u.session != null ? `session-${u.session}` : "",
             dependencies: u.dependencies ?? u.depends_on ?? [],
-            envelopeStatus: u.status ?? null,
+            envelopeStatus: asStr(u.status),
             envelopeCommits: Array.isArray(u.commits) ? u.commits : [],
           });
         }
@@ -210,7 +227,7 @@ async function loadMilestones() {
             title: u?.title ?? "",
             phase: u?.phase ?? "",
             dependencies: u?.dependencies ?? u?.depends_on ?? [],
-            envelopeStatus: u?.status ?? null,
+            envelopeStatus: asStr(u?.status),
             envelopeCommits: Array.isArray(u?.commits) ? u.commits : [],
           });
         }
@@ -221,7 +238,7 @@ async function loadMilestones() {
       // even though ms.units[id] has authoritative status/commits.
       for (const u of units) {
         if ((u.envelopeStatus === null || u.envelopeStatus === undefined) && unitOverlay[u.id]) {
-          u.envelopeStatus = unitOverlay[u.id]?.status ?? u.envelopeStatus;
+          u.envelopeStatus = asStr(unitOverlay[u.id]?.status) ?? u.envelopeStatus;
           if ((!u.envelopeCommits || u.envelopeCommits.length === 0) && Array.isArray(unitOverlay[u.id]?.commits)) {
             u.envelopeCommits = unitOverlay[u.id].commits;
           }
@@ -242,7 +259,31 @@ async function loadMilestones() {
   return milestones;
 }
 
-function computeProgress(milestones, shipped, shaSet) {
+// Terminal-DONE statuses: the envelope asserts the unit shipped. When no git
+// commit proves it, the unit is still credited as shipped via the envelope-status
+// fallback (and surfaced in envelopeAssertedCount as no-git-proof). "shipped" was
+// previously NOT recognized here -- only complete/completed -- so a status:"shipped"
+// unit with no reachable commit was mis-counted as pending (the sibling of the
+// superseded false-positive below; same incomplete-vocabulary root cause).
+export const ENVELOPE_DONE = new Set(["complete", "completed", "shipped"]);
+
+// Terminal-resolved unit statuses: deliberately NOT built (replaced / cancelled),
+// so they are RESOLVED, not pending. Counting them as pending cry-wolfs the
+// "claims_completed_but_units_pending" drift flag on every milestone whose
+// remainder is superseded. Only `superseded` appears in envelopes today; the
+// unambiguous synonyms are forward-compat (they behave identically). `deferred`
+// is intentionally EXCLUDED -- it can mean deferred-to-future-work (still pending).
+export const TERMINAL_RESOLVED = new Set([
+  "superseded",
+  "cancelled",
+  "canceled",
+  "wontfix",
+  "dropped",
+  "obsolete",
+  "removed",
+]);
+
+export function computeProgress(milestones, shipped, shaSet) {
   // For each milestone, look up each unit in the shipped index.
   // Match strategy: exact (milestone-tag, unit-id) pair first;
   // fallback to (any-milestone-tag, unit-id) — useful when the tag
@@ -250,8 +291,28 @@ function computeProgress(milestones, shipped, shaSet) {
   // envelope fallbacks recover units absorbed into peer commits + ops-only
   // units (tags/branch-deletes with no commit) that the envelope marks complete.
   const byUnitOnly = new Map();
-  for (const [key, val] of shipped.entries()) {
+  for (const val of shipped.values()) {
     if (!byUnitOnly.has(val.unitId)) byUnitOnly.set(val.unitId, val);
+  }
+  // U-DRIFT-BYUNIT-COLLISION-FIX (slot:golf 2026-06-18): the (any-tag, unit-id)
+  // fallback below is UNAMBIGUOUS only when a unit-id belongs to exactly ONE
+  // milestone. Generic ids (P0-U01, U01, P1-U02) recur across hundreds of
+  // milestones, so byUnitOnly.get("P0-U01") returns whichever milestone's commit
+  // was indexed first and mis-credits it to EVERY milestone declaring that id
+  // (verified: a single [POST-PROCESSOR-COVERAGE-MS0]/P0-U01 commit was credited
+  // to ~201 milestones, falsely flagging ~110 unstarted ones "completed_real").
+  // Restrict the fallback to globally-unique unit-ids: count how many milestones
+  // declare each uid; only uids unique across the whole envelope set may use the
+  // (any-tag, unit-id) recovery. git-exact + envelope-* sources are unaffected.
+  const uidMilestoneCount = new Map();
+  for (const ms of milestones) {
+    const seenInMs = new Set();
+    for (const u of ms.units || []) {
+      const uid = String(u.id || "").toUpperCase();
+      if (!uid || seenInMs.has(uid)) continue; // count each milestone at most once per uid
+      seenInMs.add(uid);
+      uidMilestoneCount.set(uid, (uidMilestoneCount.get(uid) || 0) + 1);
+    }
   }
   const haveShaSet = shaSet && typeof shaSet.has === "function" && shaSet.size > 0;
 
@@ -259,13 +320,19 @@ function computeProgress(milestones, shipped, shaSet) {
   for (const ms of milestones) {
     const msTag = ms.id.toUpperCase();
     let shippedCount = 0;
+    let resolvedCount = 0;
     let lastShippedDate = "";
     const unitProgress = ms.units.map((u) => {
       const uid = u.id.toUpperCase();
       const exactKey = `${msTag}::${uid}`;
       let hit = shipped.get(exactKey) ?? null;
       let source = hit ? "git-exact" : null;
-      if (!hit) {
+      // (any-tag, unit-id) recovery -- ONLY when this uid is globally unique across
+      // all milestones (uidMilestoneCount===1). A non-unique uid is ambiguous: the
+      // byUnitOnly hit could belong to any milestone sharing the id, so skip it
+      // rather than mis-credit (the 201-milestone cross-collision). git-exact above
+      // and the envelope-* fallbacks below are unaffected.
+      if (!hit && uidMilestoneCount.get(uid) === 1) {
         hit = byUnitOnly.get(uid) ?? null;
         if (hit) source = "git-unit-only";
       }
@@ -288,7 +355,7 @@ function computeProgress(milestones, shipped, shaSet) {
       // Envelope canonical fallback (2): unit marked complete with NO commit
       // expected (tag-only / branch-delete / pure-ops unit). The envelope is
       // the source of truth for these — no git subject will ever match.
-      if (!hit && (u.envelopeStatus === "complete" || u.envelopeStatus === "completed")
+      if (!hit && ENVELOPE_DONE.has((asStr(u.envelopeStatus) || "").toLowerCase())
           && (!u.envelopeCommits || u.envelopeCommits.length === 0)) {
         hit = { sha: null, date: "", subject: "(envelope-asserted, no commit)", milestoneTag: msTag, unitId: uid };
         source = "envelope-status";
@@ -298,19 +365,34 @@ function computeProgress(milestones, shipped, shaSet) {
         shippedCount++;
         if (hit.date && hit.date > lastShippedDate) lastShippedDate = hit.date;
       }
+      // A unit with a terminal-resolved status (superseded/cancelled/...) was
+      // deliberately NOT built -- it is RESOLVED, not pending. Shipped wins if
+      // both somehow hold. This is what keeps superseded remainders out of the
+      // pending count (and off the false-positive drift flag below).
+      const isResolved = !isShipped && TERMINAL_RESOLVED.has((asStr(u.envelopeStatus) || "").toLowerCase());
+      if (isResolved) resolvedCount++;
       return {
         id: u.id,
         title: u.title,
         phase: u.phase,
         shipped: isShipped,
+        resolved: isResolved,
         sha: hit?.sha ?? null,
         date: hit?.date ?? null,
         commitMilestoneTag: hit?.milestoneTag ?? null,
         source,
       };
     });
+    // Units credited with NO git proof (envelope JSON asserted status:"complete"
+    // with no reachable commit SHA). Surfaced so /pick-unit + audit chats can
+    // tell git-proven shipments from envelope-claimed ones.
+    const envelopeAssertedCount = unitProgress.filter((u) => u.source === "envelope-status").length;
     const total = ms.units.length;
-    const pending = total - shippedCount;
+    // "accounted" = shipped OR deliberately resolved (superseded/...). Pending is
+    // only the genuinely-buildable remainder, so a fully-resolved milestone reads 0
+    // and no longer trips the completed-but-pending drift flag.
+    const accounted = shippedCount + resolvedCount;
+    const pending = total - accounted;
     const ratio = total > 0 ? shippedCount / total : 0;
     result.push({
       id: ms.id,
@@ -319,23 +401,28 @@ function computeProgress(milestones, shipped, shaSet) {
       claimedStatus: ms.status,
       total,
       shipped: shippedCount,
+      resolved: resolvedCount,
       pending,
+      envelopeAssertedCount,
       ratio,
       lastShippedDate,
+      // Check completed FIRST so an all-resolved milestone (accounted===total,
+      // shipped possibly 0) reads completed_real; only then not_started (nothing
+      // shipped yet) vs in_progress.
       derivedStatus:
         total === 0
           ? "no_units"
-          : shippedCount === 0
-            ? "not_started_real"
-            : shippedCount === total
-              ? "completed_real"
+          : accounted === total
+            ? "completed_real"
+            : shippedCount === 0
+              ? "not_started_real"
               : "in_progress_real",
       drift:
         total === 0
           ? "n/a"
           : ms.status === "not_started" && shippedCount > 0
             ? "claims_not_started_but_has_shipped_units"
-            : ms.status === "completed" && shippedCount < total
+            : ms.status === "completed" && accounted < total
               ? "claims_completed_but_units_pending"
               : "consistent",
       units: unitProgress,
@@ -469,6 +556,7 @@ async function main() {
       milestones: progress.length,
       units: progress.reduce((a, p) => a + p.total, 0),
       shipped: progress.reduce((a, p) => a + p.shipped, 0),
+      envelopeAsserted: progress.reduce((a, p) => a + p.envelopeAssertedCount, 0),
       pending: progress.reduce((a, p) => a + p.pending, 0),
       drift: progress.filter((p) => p.drift !== "consistent" && p.drift !== "n/a").length,
     },
@@ -481,11 +569,18 @@ async function main() {
   process.stderr.write(`[milestone-progress] wrote ${OUT_JSON}\n`);
   process.stderr.write(`[milestone-progress] wrote ${OUT_MD}\n`);
   process.stderr.write(
-    `[milestone-progress] totals: ${json.totals.shipped}/${json.totals.units} shipped (${json.totals.drift} drift cases)\n`,
+    `[milestone-progress] totals: ${json.totals.shipped}/${json.totals.units} shipped (${json.totals.envelopeAsserted} envelope-asserted, ${json.totals.drift} drift cases)\n`,
   );
 }
 
-main().catch((err) => {
-  process.stderr.write(`[milestone-progress] FAILED: ${err.stack || err.message}\n`);
-  process.exit(1);
-});
+// Only auto-run when executed directly (`node build-milestone-progress.mjs`).
+// When imported (e.g. by build-milestone-progress.test.mjs) main() must NOT
+// fire — it would do a full real run and overwrite MILESTONE_PROGRESS.json.
+const isMainModule =
+  process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url);
+if (isMainModule) {
+  main().catch((err) => {
+    process.stderr.write(`[milestone-progress] FAILED: ${err.stack || err.message}\n`);
+    process.exit(1);
+  });
+}

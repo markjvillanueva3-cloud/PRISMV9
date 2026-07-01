@@ -1,0 +1,506 @@
+{
+  "id": "HM-KC-MS3",
+  "version": "8.3.0",
+  "title": "CAM Core Parameter Catalog — Drilling, 2D, 3D Cycle Params ~2,500 Schemas",
+  "track": "HM-KC",
+  "status": "complete",
+  "description": "Generate parameter schemas for the largest domain: core CAM cycle parameters. Covers drilling cycles (15+ types, ~450 params), 2D cycles (12+ types, ~600 params), 3D cycles (20+ types, ~950 params), and shared cutting data parameters (spindle speed, feed rate, feed per tooth across all cycle types ~500 params). Each parameter gets physics mapping to KienzleForceModel, SpeedFeedOrchestrator, or ChatterStabilityLobeEngine. This is the backbone of PRISM's hyperMILL optimization capability.",
+  "dependencies": [
+    "HM-KC-MS0"
+  ],
+  "knowledge_sources": {
+    "engines": [
+      "HyperMillCycleDefaultsEngine",
+      "HyperMillCycleCatalogEngine",
+      "KienzleForceModelEngine",
+      "SpeedFeedOrchestratorEngine",
+      "ChatterStabilityLobeEngine",
+      "ToolDeflectionEngine"
+    ],
+    "registries": [
+      "FormulaRegistry",
+      "ToolRegistry",
+      "MaterialRegistry",
+      "ToolpathStrategyRegistry"
+    ],
+    "services": [],
+    "physics": [
+      "src/physics/constants.ts"
+    ],
+    "reference": [
+      "data/hypermill/HyperMillParameterCatalog.json (CAM-Core domain subset)",
+      "data/hypermill/Metric.cfg (138 files — cycle defaults)",
+      "data/hypermill/omCycles.txt (cycle → parameter mapping)",
+      "hypermill-cutting-tech.json (106 materials with cutting speeds/feeds)",
+      "hypermill-cam-tips-ext.ts (83 tips)"
+    ]
+  },
+  "forge_triple": {
+    "hook": "camCoreParameterPhysicsValidator — BUILT — validates cutting data against Kienzle force limits",
+    "action": "generate_cam_core_catalog — BUILT — generates CAM core domain artifacts from schemas",
+    "skill": "/hypermill-cam-core-params — BUILT — core CAM parameter reference with physics-backed recommendations"
+  },
+  "enforcement": {
+    "pre_level": [
+      "knowledge-consult"
+    ],
+    "post_level": [
+      "stub-detector",
+      "constants-checker"
+    ],
+    "compact_level": [
+      "review-gate",
+      "forge-triple-gate"
+    ]
+  },
+  "mcp_lifecycle": {
+    "session_start": [
+      "prism_session:context_boot",
+      "prism_session:dispatcher_map",
+      "prism_session:memory_recall",
+      "prism_session:system_snapshot"
+    ],
+    "during_work": [
+      "prism_session:auto_checkpoint (every 5-10 tool calls)",
+      "prism_session:wip_capture"
+    ],
+    "session_end": [
+      "prism_session:memory_save",
+      "prism_session:system_snapshot",
+      "prism_session:checkpoint_enhanced"
+    ]
+  },
+  "sessions": [
+    {
+      "id": "HM-KC-MS3-S1",
+      "title": "Drilling Cycle Parameter Schemas (~450 params)",
+      "smart_config": {
+        "role": "cam-domain-expert",
+        "model": "opus",
+        "effort": "MAX",
+        "context_budget": "40%"
+      },
+      "knowledge": [
+        "15+ drilling cycle types: spot, peck, deep, gun, bore, ream, tap, thread mill, countersink, etc.",
+        "Metric.cfg drilling defaults per controller",
+        "L/D ratio safety rules, peck depth formulas, tap feed synchronization"
+      ],
+      "intent": "Generate complete parameter schemas for all drilling cycle types. Each cycle has cutting data (8-12 fields), geometry (5-10), heights (6-8), passes (8-15), tool compensation (3-5), coolant (2-4). Critical hooks for L/D ratio, peck depth, and tap feed sync.",
+      "skills": [
+        "/forge-schemas",
+        "/forge-hooks",
+        "/test",
+        "/checkpoint"
+      ],
+      "plugins": [
+        "Vitest MCP",
+        "ESLint MCP"
+      ],
+      "units": [
+        {
+          "id": "U-HKC16",
+          "title": "Drilling Cycle Schemas — 15+ cycle types, ~450 parameters",
+          "description": "Generate Zod schemas for all drilling cycle parameters across 15+ types (spot drill, peck drill, deep hole drill, gun drill, boring, reaming, tapping, thread milling, countersink, counterbore, back spot face, helical bore, circular pocket drill, chamfer drill, combined cycles). Each type gets full parameter set: cutting data, geometry/boundary, heights/clearance, passes/strategy, tool compensation, coolant. L/D ratio blocking hook, peck depth formula hook, tap feed synchronization hook.",
+          "depends_on": [
+            "U-HKC06"
+          ],
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "exit_criteria": [
+            ">= 15 drilling cycle types with complete parameter schemas",
+            ">= 400 total drilling parameters across all types",
+            "L/D ratio hook blocks when hole depth/diameter > 10 without pecking",
+            "Tap feed sync hook validates feed = 1/pitch for rigid tapping",
+            "Unit tests for peck drill, tapping, and gun drill parameter schemas"
+          ],
+          "rollback": {
+            "files_created": [
+              "src/schemas/hypermill/cam/drillingSchemas.ts"
+            ],
+            "files_modified": [],
+            "abort_criteria": [
+              "tsc errors > 0",
+              "cycle types < 12"
+            ],
+            "rollback_procedure": "git checkout -- src/schemas/hypermill/cam/drillingSchemas.ts"
+          }
+        }
+      ],
+      "exit_gate": "✓ >= 400 drilling params | ✓ L/D + peck + tap hooks | omega_floor >= 0.90",
+      "feature_cascade": {
+        "new_hooks": [
+          "drillingLDRatioBlocker",
+          "peckDepthFormulaHook",
+          "tapFeedSyncHook"
+        ],
+        "new_actions": [
+          "generate_drilling_schemas"
+        ],
+        "new_skills": [],
+        "available_to": [
+          "HM-KC-MS5",
+          "HM-KC-MS8"
+        ]
+      },
+      "compact_checkpoint": true
+    },
+    {
+      "id": "HM-KC-MS3-S2",
+      "title": "2D Cycle Parameter Schemas (~600 params)",
+      "smart_config": {
+        "role": "cam-domain-expert",
+        "model": "opus",
+        "effort": "MAX",
+        "context_budget": "40%"
+      },
+      "knowledge": [
+        "12+ 2D cycle types: pocket, contour, face, slot, chamfer, T-slot, plunge, rest, engrave, etc.",
+        "Metric.cfg 2D cycle defaults",
+        "Pocket depth engagement rules, contour approach strategies"
+      ],
+      "intent": "Generate schemas for all 2D cycle parameters. Includes pocket (stepdown, stepover, direction), contour (offset, lead-in/out), face milling, slot, chamfer, T-slot, plunge roughing, rest machining, engraving. Hooks for pocket depth engagement and 2D rest material tool change.",
+      "skills": [
+        "/forge-schemas",
+        "/forge-hooks",
+        "/test",
+        "/checkpoint"
+      ],
+      "plugins": [
+        "Vitest MCP",
+        "ESLint MCP"
+      ],
+      "units": [
+        {
+          "id": "U-HKC17",
+          "title": "2D Pocket + Contour + Face Schemas — ~350 parameters",
+          "description": "Generate schemas for the 3 most common 2D cycle families: pocket (stepdown, stepover, ramp angle, multiple depths, rest machining, island detection, direction, tolerance), contour (offset, approach type, lead-in arc/line, overcut, approach/retract), and face milling (width, overlap, direction, step pattern). Each with full cutting data, geometry, heights, passes, tool comp, coolant parameter sets.",
+          "depends_on": [
+            "U-HKC06"
+          ],
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "exit_criteria": [
+            "Pocket schema: >= 60 parameters including ramp angle and rest machining",
+            "Contour schema: >= 50 parameters including approach strategy",
+            "Face mill schema: >= 35 parameters including overlap and direction",
+            "Pocket depth engagement hook validates ap vs tool diameter ratio",
+            "Unit tests for pocket stepdown range and contour lead-in validation"
+          ],
+          "rollback": {
+            "files_created": [
+              "src/schemas/hypermill/cam/twoDSchemas.ts"
+            ],
+            "files_modified": [],
+            "abort_criteria": [
+              "tsc errors > 0"
+            ],
+            "rollback_procedure": "git checkout -- src/schemas/hypermill/cam/twoDSchemas.ts"
+          }
+        },
+        {
+          "id": "U-HKC18",
+          "title": "2D Slot + Chamfer + T-Slot + Plunge + Rest + Engrave Schemas — ~250 parameters",
+          "description": "Generate schemas for remaining 2D cycle types: slot milling (width, depth, single/multi-pass), chamfering (angle, width, depth), T-slot (neck width, head width, depth, approach), plunge roughing (plunge feed, retract, overlap), rest machining (previous tool reference, stock model update), engraving (depth, character spacing, font, angle). Rest machining tool change hook validates new tool < previous tool diameter.",
+          "depends_on": [
+            "U-HKC06"
+          ],
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "exit_criteria": [
+            ">= 6 additional 2D cycle types with complete schemas",
+            ">= 230 parameters across slot, chamfer, T-slot, plunge, rest, engrave",
+            "Rest machining tool change hook validates diameter step-down",
+            "Unit tests for T-slot approach validation and plunge feed limits"
+          ],
+          "rollback": {
+            "files_created": [
+              "src/schemas/hypermill/cam/twoDExtendedSchemas.ts"
+            ],
+            "files_modified": [],
+            "abort_criteria": [
+              "tsc errors > 0"
+            ],
+            "rollback_procedure": "git checkout -- src/schemas/hypermill/cam/twoDExtendedSchemas.ts"
+          }
+        }
+      ],
+      "exit_gate": "✓ >= 580 2D params across 12+ types | ✓ pocket depth + rest material hooks | omega_floor >= 0.90",
+      "feature_cascade": {
+        "new_hooks": [
+          "pocketDepthEngagementHook",
+          "restMaterialToolChangeHook"
+        ],
+        "new_actions": [
+          "generate_2d_schemas"
+        ],
+        "new_skills": [],
+        "available_to": [
+          "HM-KC-MS5",
+          "HM-KC-MS8"
+        ]
+      },
+      "compact_checkpoint": true
+    },
+    {
+      "id": "HM-KC-MS3-S3",
+      "title": "3D Cycle Parameter Schemas (~950 params)",
+      "smart_config": {
+        "role": "cam-domain-expert",
+        "model": "opus",
+        "effort": "MAX",
+        "context_budget": "40%"
+      },
+      "knowledge": [
+        "20+ 3D cycle types: Z-level, parallel, scallop, pencil, rest, MAXX offset, MAXX HPC, optimized, etc.",
+        "Metric.cfg 3D cycle defaults per controller",
+        "Scallop height formulas, thermal constraints, deflection limits"
+      ],
+      "intent": "Generate schemas for all 3D cycle parameters. Z-level (stepdown, scallop height, wall finish), parallel (stepover, angle, tolerance), scallop (cusp height, adaptive), pencil (corner radius detection), rest machining cascade, MAXX cycles (HPC engagement, offset strategy). Hooks for scallop height prediction, thermal deflection, and MAXX engagement angle.",
+      "skills": [
+        "/forge-schemas",
+        "/forge-hooks",
+        "/test",
+        "/checkpoint"
+      ],
+      "plugins": [
+        "Vitest MCP",
+        "ESLint MCP"
+      ],
+      "units": [
+        {
+          "id": "U-HKC19",
+          "title": "3D Z-Level + Parallel + Scallop + Pencil Schemas — ~500 parameters",
+          "description": "Generate schemas for primary 3D cycle types: Z-level roughing/finishing (stepdown, wall finish passes, steep/shallow threshold, area selection), parallel finishing (stepover, cutting angle, tolerance, bidirectional/unidirectional), scallop finishing (cusp height target, adaptive stepover, curvature-driven), pencil finishing (corner radius detection, blend radius, rest detection). Scallop height prediction hook computes ae from R and target Ra.",
+          "depends_on": [
+            "U-HKC06"
+          ],
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "exit_criteria": [
+            "Z-level schema: >= 65 parameters with steep/shallow threshold",
+            "Parallel schema: >= 55 parameters with angle optimization",
+            "Scallop schema: >= 45 parameters with adaptive stepover",
+            "Pencil schema: >= 35 parameters with corner detection",
+            "Scallop height hook: validates ae vs target Ra using R-sqrt(R²-(ae/2)²) formula",
+            "Unit tests for scallop height computation and Z-level stepdown limits"
+          ],
+          "rollback": {
+            "files_created": [
+              "src/schemas/hypermill/cam/threeDCoreSchemas.ts"
+            ],
+            "files_modified": [],
+            "abort_criteria": [
+              "tsc errors > 0"
+            ],
+            "rollback_procedure": "git checkout -- src/schemas/hypermill/cam/threeDCoreSchemas.ts"
+          }
+        },
+        {
+          "id": "U-HKC20",
+          "title": "3D Rest + MAXX + Optimized + Advanced Schemas — ~450 parameters",
+          "description": "Generate schemas for advanced 3D cycle types: rest roughing (previous tool ref, stock model cascade, tool diameter step-down), rest finishing (from previous finishing tool), MAXX offset roughing (engagement angle, HSC mode, optimal load), MAXX HPC roughing (high-performance cutting, radial engagement), optimized roughing (adaptive stepover, trochoidal), and additional 3D types (flowline, geodesic, morphed). MAXX engagement angle hook and thermal constraint hook.",
+          "depends_on": [
+            "U-HKC06"
+          ],
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "exit_criteria": [
+            "Rest machining schemas: >= 80 parameters with cascade validation",
+            "MAXX cycle schemas: >= 60 parameters with engagement angle limits",
+            "Optimized/advanced schemas: >= 100 parameters",
+            "MAXX engagement angle hook limits ae to manufacturer recommendations",
+            "Thermal constraint hook flags high-speed operations exceeding temperature threshold",
+            "Total 3D domain reaches >= 900 parameter schemas"
+          ],
+          "rollback": {
+            "files_created": [
+              "src/schemas/hypermill/cam/threeDAdvancedSchemas.ts"
+            ],
+            "files_modified": [],
+            "abort_criteria": [
+              "tsc errors > 0"
+            ],
+            "rollback_procedure": "git checkout -- src/schemas/hypermill/cam/threeDAdvancedSchemas.ts"
+          }
+        }
+      ],
+      "exit_gate": "✓ >= 900 3D params across 20+ types | ✓ scallop height + MAXX engagement + thermal hooks | omega_floor >= 0.90",
+      "feature_cascade": {
+        "new_hooks": [
+          "scallopHeightPredictionHook",
+          "maxxEngagementAngleHook",
+          "thermalConstraintHook"
+        ],
+        "new_actions": [
+          "generate_3d_schemas"
+        ],
+        "new_skills": [],
+        "available_to": [
+          "HM-KC-MS5",
+          "HM-KC-MS8"
+        ]
+      },
+      "compact_checkpoint": true
+    },
+    {
+      "id": "HM-KC-MS3-S4",
+      "title": "Shared Cutting Data Schemas + CAM Core Artifact Batch Generation",
+      "smart_config": {
+        "role": "cam-domain-expert",
+        "model": "opus",
+        "effort": "MAX",
+        "context_budget": "40%"
+      },
+      "knowledge": [
+        "Shared cutting data fields across all cycle types (spindle speed, feed rate, feed per tooth)",
+        "Tool compensation parameters (comp_type, comp_direction, comp_register)",
+        "Coolant parameters (mode, pressure, override)",
+        "All drilling + 2D + 3D schemas from S1-S3"
+      ],
+      "intent": "Generate schemas for shared cutting data parameters that apply across all cycle types, tool compensation, and coolant. Then batch-generate all CAM core artifacts (skills, scripts, hooks) from the complete ~2,500 parameter catalog.",
+      "skills": [
+        "/forge-schemas",
+        "/forge-skills",
+        "/forge-hooks",
+        "/test",
+        "/checkpoint"
+      ],
+      "plugins": [
+        "Vitest MCP",
+        "ESLint MCP"
+      ],
+      "units": [
+        {
+          "id": "U-HKC21",
+          "title": "Shared Cutting Data + Tool Comp + Coolant Schemas — ~500 parameters",
+          "description": "Generate schemas for cross-cycle cutting data parameters (spindle_speed, feed_rate, feed_per_tooth, plunge_feed, ramp_feed, retract_feed, approach_feed, lead_in_feed, finishing_feed — per cycle type), tool compensation parameters (comp_type none/computer/wear/reverse, comp_direction left/right, comp_register — per cycle type), and coolant parameters (coolant_mode flood/mist/through/air/off, coolant_pressure, coolant_override — per cycle type). Physics mapping links each to SpeedFeedOrchestrator.",
+          "depends_on": [
+            "U-HKC06"
+          ],
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "exit_criteria": [
+            "Cutting data schemas: >= 360 parameters (8-12 fields × 40+ cycle types)",
+            "Tool compensation schemas: >= 120 parameters across all cycle types",
+            "Coolant schemas: >= 80 parameters across all cycle types",
+            "Each cutting data parameter maps to SpeedFeedOrchestratorEngine resolver",
+            "Unit tests validate feed rate range for 3 material groups (P, M, K)"
+          ],
+          "rollback": {
+            "files_created": [
+              "src/schemas/hypermill/cam/cuttingDataSchemas.ts",
+              "src/schemas/hypermill/cam/toolCompSchemas.ts",
+              "src/schemas/hypermill/cam/coolantSchemas.ts"
+            ],
+            "files_modified": [],
+            "abort_criteria": [
+              "tsc errors > 0"
+            ],
+            "rollback_procedure": "git checkout -- src/schemas/hypermill/cam/cuttingDataSchemas.ts src/schemas/hypermill/cam/toolCompSchemas.ts src/schemas/hypermill/cam/coolantSchemas.ts"
+          }
+        },
+        {
+          "id": "U-HKC22",
+          "title": "CAM Core Artifact Batch Generation — ~2,500 skills + scripts + hooks",
+          "description": "Artifact generation engine for the entire CAM core domain. Reads all ~2,500 parameter schemas (drilling + 2D + 3D + shared cutting data + tool comp + coolant) and auto-generates skill templates with physics-backed recommendations, AC Python setter scripts, and hook validation rules. Registers all safety hooks. This is the single largest generation run in the HM-KC track.",
+          "depends_on": [
+            "U-HKC16",
+            "U-HKC17",
+            "U-HKC18",
+            "U-HKC19",
+            "U-HKC20",
+            "U-HKC21"
+          ],
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "exit_criteria": [
+            "Skill templates generated for all ~2,500 CAM core parameters",
+            "AC Python setter scripts generated for all ~2,500 CAM core parameters",
+            ">= 15 safety hooks registered for CAM core (L/D, peck, tap sync, pocket depth, scallop, MAXX, thermal, feed limits)",
+            "tsc --noEmit passes with 0 errors on all generated artifacts"
+          ],
+          "rollback": {
+            "files_created": [
+              "src/engines/hypermill/HyperMillCAMCoreArtifactGeneratorEngine.ts"
+            ],
+            "files_modified": [
+              "src/hooks/hookRegistry.ts"
+            ],
+            "abort_criteria": [
+              "tsc errors > 0",
+              "generated artifacts < 2000"
+            ],
+            "rollback_procedure": "git checkout -- src/engines/hypermill/HyperMillCAMCoreArtifactGeneratorEngine.ts src/hooks/hookRegistry.ts"
+          }
+        }
+      ],
+      "exit_gate": "✓ >= 2,400 total CAM core schemas | ✓ ~2,500 skills + scripts | ✓ >= 15 hooks | ✓ physics mapping coverage | omega_floor >= 0.90",
+      "feature_cascade": {
+        "new_hooks": [
+          "camCoreParameterPhysicsValidator"
+        ],
+        "new_actions": [
+          "generate_cam_core_catalog"
+        ],
+        "new_skills": [
+          "/hypermill-cam-core-params"
+        ],
+        "available_to": [
+          "HM-KC-MS5",
+          "HM-KC-MS8",
+          "HM-KC-MS9"
+        ]
+      },
+      "compact_checkpoint": true
+    }
+  ],
+  "total_units": 7,
+  "completed_units": 7,
+  "smart_config": {
+    "role": "implementer + reviewer",
+    "model": "sonnet",
+    "effort": "HIGH",
+    "context_budget": "65%"
+  },
+  "feature_cascade": {
+    "new_hooks": [
+      "hm-kc-ms3-gate"
+    ],
+    "new_actions": [
+      "hm_kc_ms3_run"
+    ],
+    "new_skills": [
+      "/hm-kc-ms3"
+    ],
+    "available_to": [
+      "downstream CAMX milestones",
+      "prism app consumers"
+    ]
+  },
+  "intent": "Generate parameter schemas for the largest domain: core CAM cycle parameters. Covers drilling cycles (15+ types, ~450 params), 2D cycles (12+ types, ~600 params), 3D cycles (20+ types, ~950 params), and shared cutting data parameters (spindle speed, feed rate, feed per tooth across all cycle types ~500 params). Each parameter gets physics mapping to KienzleForceModel, SpeedFeedOrchestrator, or ChatterStabilityLobeEngine. This is the backbone of PRISM's hyperMILL optimization capability.",
+  "compact_checkpoint": "every 3 units — auto-triggered by hook",
+  "enforcement_hooks_active": [
+    "physics agent",
+    "wiring agent",
+    "constants checker",
+    "stub detector",
+    "test quality",
+    "forge-triple gate",
+    "session audit agent"
+  ],
+  "units": [
+    {
+      "id": "U-HKKC01",
+      "title": "HM-KC-MS3 — Coordinator",
+      "description": "Master coordinator envelope for HM-KC-MS3. Tracks sub-milestones, aggregates their exit gates, and opens closure after every child milestone flips to complete. Follow 4-LOOP at the aggregation layer.",
+      "exit_conditions": [
+        "All sub-milestones listed in dependencies reach status=complete",
+        "Aggregate scrutiny score ≥80 across children",
+        "Cross-track coherence verified: no orphan engines, no duplicate actions",
+        "Final /rgs pass through the 10-agent gate returns PASS"
+      ],
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ],
+      "status": "pending",
+      "role": "coordinator"
+    }
+  ],
+  "_role": "coordinator"
+}

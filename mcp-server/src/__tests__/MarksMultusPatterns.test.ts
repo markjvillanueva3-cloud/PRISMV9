@@ -2,7 +2,8 @@
  * MarksMultusPatterns.test.ts — MS5 U-LAT40-U-LAT42 Test Suite (T045)
  *
  * Regression guard for Mark's MULTUS pattern library.
- * Validates 14 patterns extracted from JM Die's production macros.
+ * Validates 15 patterns extracted from JM Die's production macros
+ * (PAT-015 = the verified Multus B250 sub-spindle transfer, U-PP-SUBSPINDLE-EMIT).
  */
 
 import { describe, it, expect } from "vitest";
@@ -22,8 +23,17 @@ describe("MarksMultusPatterns — MS5 Regression Guard", () => {
   // ============================================================================
 
   describe("Catalog Loading", () => {
-    it("should load 14 Mark's MULTUS patterns", () => {
-      expect(MARKS_MULTUS_PATTERNS.length).toBe(14);
+    it("should load 15 Mark's MULTUS patterns", () => {
+      expect(MARKS_MULTUS_PATTERNS.length).toBe(15);
+    });
+
+    it("includes PAT-015, the verified Multus B250 sub-spindle transfer", () => {
+      const pat = findPatternById("PAT-015");
+      expect(pat?.name).toBe("Multus B250 Sub-Spindle Grab-Pull-Cutoff (VERIFIED)");
+      expect(pat?.machine_type).toBe("mill_turn");
+      expect(pat?.category).toBe("cutoff_technique");
+      // provenance must cite the real JM program (the 5-axis fabricated-cite lesson)
+      expect(pat?.source_file).toContain("MARK'S GRAB AND PULL PROGRAM");
     });
 
     it("should have all required fields for each pattern", () => {
@@ -235,7 +245,7 @@ describe("MarksMultusPatterns — MS5 Regression Guard", () => {
   describe("Statistics", () => {
     it("should return correct stats", () => {
       const stats = getPatternStats();
-      expect(stats.total).toBe(14);
+      expect(stats.total).toBe(15);
       expect(stats.by_category.macro_structure).toBeGreaterThan(0);
       expect(stats.by_category.safety).toBeGreaterThan(0);
       expect(stats.by_machine_type.lathe).toBeGreaterThan(0);

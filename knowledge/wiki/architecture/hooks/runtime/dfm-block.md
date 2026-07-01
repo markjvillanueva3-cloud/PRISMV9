@@ -21,7 +21,7 @@ related:
 
 ## Description (from file header)
 
-dfm-block.mjs — PostToolUse hookCADCAM-DAGI-MS0/U-DAGI11Blocks unmanufacturable CAD from proceeding:- Fails on critical DFM violations- Warns on marginal DFM issues- Reports machine capability violations
+_(no header docblock — read source for behavior)_
 
 ## Events
 

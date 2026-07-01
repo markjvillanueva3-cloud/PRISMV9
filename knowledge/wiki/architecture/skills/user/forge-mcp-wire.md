@@ -23,13 +23,18 @@ related:
 |-------|-------|
 | Name | `forge-mcp-wire` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/forge-mcp-wire.md` |
+| Source | `C:/Users/wompu/.claude/commands/forge-mcp-wire.md` |
 | Model | default |
 | Tags | _(none)_ |
 
 ## Description (first paragraph)
 
-_(no body content)_
+
+# Forge MCP Wire — Full MCP Server Integration Wiring Pipeline
+
+You are running an exhaustive integration wiring pipeline across the entire PRISM MCP server. This command audits, maps, and wires every dispatcher, engine, algorithm, hook, schema, and action — ensuring 100% of the system's capabilities are exposed through MCP tools with proper validation, hooks, and safety coverage.
+
+## Args: 
 
 <!-- AUTO-END -->
 

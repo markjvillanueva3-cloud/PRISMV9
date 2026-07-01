@@ -38,7 +38,6 @@ import type {
   KinematicPackage,
   MachineMeasuredPerformanceOverlay,
 } from "../contracts/userMachineProfile.js";
-import type { CanonicalMachinePackage } from "../types/MachinePackage.js";
 
 // ============================================================================
 // TYPES
@@ -105,11 +104,49 @@ export interface UpdateOverlayInput {
   user_id: string;
 }
 
+/**
+ * Enriched canonical-package preview emitted inline by `getMergedView`.
+ *
+ * This is the overlay/merge view shape -- keyed on `canonical_id` and consumed
+ * downstream via `mergedView.canonical_package?.canonical_id`
+ * (MachineConsumerBindingEngine). It is deliberately NOT the persisted
+ * `CanonicalMachinePackage` (which keys on `id` / `machine_type`); they are
+ * different layers. Kept structurally aligned with the literal built in
+ * `getMergedView` so the producer and this type never drift.
+ */
+export interface EnrichedCanonicalPackagePreview {
+  canonical_id: string;
+  manufacturer: string;
+  model: string;
+  type: string;
+  controller: { family: string; model: string | undefined };
+  spindle: { max_rpm?: number; power?: number; torque?: number };
+  coolant: { type?: string; pressure?: string };
+  envelope: Record<string, unknown>;
+  axes: { count: number };
+  tool_changer: { capacity: number };
+  provenance: Record<string, unknown>;
+  ambiguities: unknown[];
+  enrichment_history: unknown[];
+  confidence_breakdown: {
+    controller: number;
+    spindle: number;
+    coolant: number;
+    envelope: number;
+    axes: number;
+    tool_changer: number;
+    overall: number;
+  };
+  source_ids: string[];
+  created_at: string;
+  updated_at: string;
+}
+
 export interface MergedMachineView {
   /** Shop machine data */
   shop_machine: ShopMachine;
-  /** Canonical package (if resolved) */
-  canonical_package: CanonicalMachinePackage | null;
+  /** Enriched canonical-package preview (if resolved) */
+  canonical_package: EnrichedCanonicalPackagePreview | null;
   /** Active overlay (if any) */
   overlay: ShopMachineOverlay | null;
   /** Merged capability snapshot for downstream consumers */

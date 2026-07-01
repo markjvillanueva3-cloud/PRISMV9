@@ -1,0 +1,140 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "PRISM Material Registry",
+  "description": "Schema for material registry files in data/materials/. Each file contains an array of material entries for one ISO group.",
+  "version": "1.0.0",
+  "type": "object",
+  "required": ["materials"],
+  "properties": {
+    "materials": {
+      "type": "array",
+      "items": { "$ref": "#/definitions/material_entry" },
+      "minItems": 1
+    }
+  },
+  "definitions": {
+    "material_entry": {
+      "type": "object",
+      "required": ["material_id", "name", "iso_group", "material_type"],
+      "properties": {
+        "material_id": {
+          "type": "string",
+          "pattern": "^[A-Z]{1,2}[A-Z0-9]-",
+          "description": "Unique ID: ISO prefix + subcategory + condition"
+        },
+        "name": {
+          "type": "string",
+          "minLength": 3
+        },
+        "iso_group": {
+          "type": "string",
+          "enum": ["P", "M", "K", "N", "S", "H", "O"],
+          "description": "ISO 513 material group"
+        },
+        "material_type": {
+          "type": "string",
+          "description": "Material family (e.g., carbon_steel, stainless_steel, cast_iron)"
+        },
+        "subcategory": {
+          "type": "string",
+          "description": "Specific subcategory within the material type"
+        },
+        "condition": {
+          "type": "string",
+          "description": "Heat treatment or condition (e.g., annealed, quenched_tempered)"
+        },
+        "data_quality": {
+          "type": "string",
+          "enum": ["verified", "estimated", "interpolated", "placeholder"]
+        },
+        "data_sources": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "physical": {
+          "type": "object",
+          "properties": {
+            "density": { "type": "number", "minimum": 0, "description": "kg/m3" },
+            "melting_point": { "type": "number", "description": "degC" },
+            "specific_heat": { "type": "number", "minimum": 0, "description": "J/(kg*K)" },
+            "thermal_conductivity": { "type": "number", "minimum": 0, "description": "W/(m*K)" },
+            "thermal_expansion": { "type": "number", "minimum": 0, "description": "um/(m*K)" },
+            "elastic_modulus": { "type": "number", "minimum": 0, "description": "GPa" },
+            "poisson_ratio": { "type": "number", "minimum": 0, "maximum": 0.5 },
+            "shear_modulus": { "type": ["number", "null"], "description": "GPa" },
+            "bulk_modulus": { "type": ["number", "null"], "description": "GPa" }
+          }
+        },
+        "mechanical": {
+          "type": "object",
+          "properties": {
+            "hardness": {
+              "type": "object",
+              "properties": {
+                "brinell": { "type": ["number", "null"] },
+                "vickers": { "type": ["number", "null"] },
+                "rockwell_c": { "type": ["number", "null"] },
+                "rockwell_b": { "type": ["number", "null"] }
+              }
+            },
+            "tensile_strength": {
+              "type": "object",
+              "properties": {
+                "typical": { "type": "number", "minimum": 0, "description": "MPa" },
+                "min": { "type": "number", "minimum": 0 },
+                "max": { "type": "number", "minimum": 0 }
+              }
+            },
+            "yield_strength": {
+              "type": "object",
+              "properties": {
+                "typical": { "type": "number", "minimum": 0, "description": "MPa" },
+                "min": { "type": "number", "minimum": 0 },
+                "max": { "type": "number", "minimum": 0 }
+              }
+            },
+            "elongation": { "type": "number", "minimum": 0, "description": "percent" },
+            "reduction_of_area": { "type": "number", "minimum": 0 },
+            "impact_strength": { "type": ["number", "null"], "description": "J" },
+            "fatigue_strength": { "type": ["number", "null"], "description": "MPa" },
+            "fracture_toughness": { "type": ["number", "null"] },
+            "compressive_strength": { "type": ["number", "null"] }
+          }
+        },
+        "kienzle": {
+          "type": "object",
+          "properties": {
+            "kc1_1": { "type": "number", "minimum": 0, "description": "N/mm2" },
+            "mc": { "type": "number", "minimum": 0, "maximum": 1 },
+            "kc1_1_milling": { "type": "number" },
+            "mc_milling": { "type": "number" },
+            "kc1_1_drilling": { "type": "number" },
+            "mc_drilling": { "type": "number" }
+          }
+        },
+        "taylor": {
+          "type": "object",
+          "description": "Taylor tool life coefficients"
+        },
+        "machinability": {
+          "type": "object",
+          "description": "Machinability ratings and characteristics"
+        },
+        "speed_feed": {
+          "type": "object",
+          "description": "Recommended speed/feed ranges by operation"
+        },
+        "composition": {
+          "type": "object",
+          "description": "Chemical composition percentages",
+          "additionalProperties": { "type": ["number", "string", "null"] }
+        },
+        "standards": {
+          "type": "object",
+          "description": "Standard designations (UNS, DIN, JIS, etc.)",
+          "additionalProperties": { "type": ["string", "null"] }
+        }
+      }
+    }
+  }
+}

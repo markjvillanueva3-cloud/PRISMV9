@@ -1,0 +1,182 @@
+[
+  {
+    "id": "ctrl-001",
+    "category": "controller",
+    "subcategory": "siemens",
+    "title": "CYCLE800 Swivel Plane for 3+2 Axis Positioning",
+    "content": "CYCLE800 is Siemens' proprietary cycle for 3+2 axis (indexed 5-axis) machining. It transforms the working plane by rotating the coordinate system to match the tilted work surface. Key parameters: retraction mode (0=none, 1=Z retract, 2=Z then XY, 3=max tool direction, 4=incremental tool direction), swivel data record name (machine-specific kinematic configuration), and rotation mode (new or additive). The axis sequence parameter controls posting order: 57(ABC), 39(CAB), 27(CBA), 45(ACB), 30(BCA), 54(BAC). Critical rule: store angles in coordinate rotation and leave numerical B/C work offset at 0. CYCLE800 handles FRAME calculations, tool tip tracking (TCPM/RTCP), and safe retraction automatically. Available on 840D sl, 828D, and SINUMERIK ONE. CAM post processors must output the correct swivel data record name matching the machine's kinematic table configured during commissioning.",
+    "applies_to": { "controllers": ["SINUMERIK 840D sl", "SINUMERIK 828D", "SINUMERIK ONE"], "machines": ["DMG MORI", "Chiron", "GROB", "Spinner", "Heller"] },
+    "tags": ["controller", "siemens", "5-axis", "CYCLE800", "swivel", "3+2", "indexed"]
+  },
+  {
+    "id": "ctrl-002",
+    "category": "controller",
+    "subcategory": "siemens",
+    "title": "TRAORI 5-Axis Simultaneous Transformation",
+    "content": "TRAORI (TRAnsformation ORIentation) activates the 5-axis kinematic transformation for simultaneous 5-axis machining on SINUMERIK controllers. Unlike CYCLE800 (3+2 static), TRAORI enables continuous tool orientation changes during cutting. Syntax: TRAORI(n) where n selects the transformation number (configured in machine data). Related commands: TRAFOOF deactivates transformation; ORIAXES enables linear axis interpolation of orientation; ORIVECT enables great-circle (vector) interpolation for smoother orientation transitions. Orientation can be defined via: ORIEULER (Euler angles), ORIRPY (Roll-Pitch-Yaw), ORIVECT (direction vectors using A3/B3/C3), ORIPLANE (orientation in a plane), or ORIVIRT1/ORIVIRT2 (virtual orientation axes). LEAD and TILT parameters define tool inclination relative to the surface normal. TRAORI requires the 5-axis transformation option license and proper kinematic chain configuration in machine data ($MC_TRAFO_TYPE_n). 828D supports TRAORI with up to 4 interpolating axes; 840D sl and SINUMERIK ONE support full 5-axis simultaneous.",
+    "applies_to": { "controllers": ["SINUMERIK 840D sl", "SINUMERIK 828D", "SINUMERIK ONE"], "machines": ["DMG MORI", "GROB", "Chiron", "Heller", "Index"] },
+    "tags": ["controller", "siemens", "5-axis", "TRAORI", "simultaneous", "transformation", "orientation"]
+  },
+  {
+    "id": "ctrl-003",
+    "category": "controller",
+    "subcategory": "siemens",
+    "title": "CYCLE832 High-Speed Settings for Surface Machining",
+    "content": "CYCLE832 is Siemens' proprietary cycle that bundles all HSM-relevant NC settings into a single call for optimum free-form surface machining. It configures: (1) Tolerance band via _TOL parameter (contour tolerance in mm, e.g., 0.01); (2) Smoothing mode: G64 (continuous path), G641 (look-ahead with ADIS blending distance), G642 (automatic corner rounding); (3) NC block compressor: COMPCAD (Advanced Surface - polynomial compression), COMPCURV (spline compression), COMPSURF (TOP Surface - superior surface quality for line-by-line finishing), COMPOF (off); (4) Feedforward control: FFWON (enabled for reduced contour error at high speed) or FFWOF; (5) Jerk limitation: SOFT (smooth acceleration transitions) or BRISK (maximum dynamics); (6) 5-axis transformation activation: TRAORI or TRAFOF. The _TOLM parameter sets orientation tolerance for 5-axis. CUST_832.SPF is an OEM-customizable file that allows machine builders to add machine-specific settings when CYCLE832 is called. Best practice: use COMPCAD for roughing (larger tolerance), COMPSURF for finishing (tight tolerance, best surface quality).",
+    "applies_to": { "controllers": ["SINUMERIK 840D sl", "SINUMERIK 828D", "SINUMERIK ONE"], "machines": ["DMG MORI", "Chiron", "GROB", "Heller", "Spinner"] },
+    "tags": ["controller", "siemens", "HSM", "CYCLE832", "high-speed", "COMPCAD", "COMPSURF", "surface-quality"]
+  },
+  {
+    "id": "ctrl-004",
+    "category": "controller",
+    "subcategory": "siemens",
+    "title": "COMPCAD vs COMPSURF Compressor Selection",
+    "content": "SINUMERIK offers two advanced NC block compressors for free-form surface machining that replace short linear segments with smooth polynomials: COMPCAD (Advanced Surface) compresses G1 blocks into 5th-order polynomials within the specified tolerance, reducing block count and enabling higher feed rates while maintaining accuracy. Best for general 3-axis and 5-axis roughing/semi-finishing. COMPSURF (Top Surface, requires separate option license) goes further by analyzing the surface topology across multiple blocks, producing superior surface finish especially for: line-by-line finishing with narrow stepover, poor CAM data quality with irregular point distribution, and programs with acceleration/jerk limit issues. COMPSURF significantly reduces visible scallop marks and witness lines. COMPCURV is an older spline-based compressor, largely superseded by COMPCAD. COMPOF deactivates all compression. Selection guide: COMPCAD for general use and roughing (tolerance 0.02-0.05mm), COMPSURF for final finishing passes (tolerance 0.005-0.01mm). Both are activated via CYCLE832 or direct G-code programming.",
+    "applies_to": { "controllers": ["SINUMERIK 840D sl", "SINUMERIK ONE"], "machines": ["DMG MORI", "GROB", "Chiron", "Heller"] },
+    "tags": ["controller", "siemens", "COMPCAD", "COMPSURF", "compressor", "surface-quality", "HSM", "finishing"]
+  },
+  {
+    "id": "ctrl-005",
+    "category": "controller",
+    "subcategory": "siemens",
+    "title": "TOROT, TOFRAME, and TCARR Tool Orientation Commands",
+    "content": "SINUMERIK provides specialized commands for tool orientation management in 5-axis machining: TOROT activates tool orientation tracking, rotating the coordinate frame to align with the current tool direction. When TOROT is active, XY moves occur in the plane perpendicular to the tool, enabling 2D operations (drilling, tapping) at arbitrary tool angles. TOFRAME generates a complete coordinate frame (FRAME) based on the current tool orientation, useful for subsequent 2D machining cycles at the tilted position. TCARR (Tool CARRier) manages orientable toolholder data, storing the angular offsets of angled toolholders. The system variable $TC_CARR1[n] through $TC_CARR23[n] define the toolholder kinematics. TOFFR/TOFFL/TOFFLR provide tool orientation offsets: TOFFL for lead angle offset, TOFFR for tilt angle offset. These commands work in conjunction with TRAORI and are essential for post-processor development. DMG MORI machines commonly use TOROT after CYCLE800 for 3+2 operations, while GROB machines often require specific TCARR configurations for their horizontal spindle + swivel table kinematics.",
+    "applies_to": { "controllers": ["SINUMERIK 840D sl", "SINUMERIK ONE"], "machines": ["DMG MORI", "GROB", "Heller", "Index"] },
+    "tags": ["controller", "siemens", "5-axis", "TOROT", "TOFRAME", "TCARR", "tool-orientation", "post-processor"]
+  },
+  {
+    "id": "ctrl-006",
+    "category": "controller",
+    "subcategory": "siemens",
+    "title": "CUT2D/CUT3DC/CUT3DF 3D Tool Compensation Modes",
+    "content": "SINUMERIK uses proprietary tool compensation modes for multi-axis machining that differ from standard ISO G41/G42: CUT2D applies 2D tool radius compensation when tool axis is perpendicular to the working plane (standard Z-axis orientation at B0C0). CUT2DF extends 2D compensation to work in tilted/swiveled planes (when a FRAME rotation is active), maintaining compensation in the rotated coordinate system. CUT3DC (3D Circumference) provides continuous 3D cutter radius compensation for simultaneous 5-axis peripheral milling, accounting for changing tool orientation throughout the path. CUT3DF (3D Face) handles 3D compensation for face milling operations. CUT3DFS (3D Face Side) and CUT3DFF (3D Face Front) provide additional face milling variants. ISD (Insertion depth) parameter defines how deep the tool engages, critical for CUT3DC calculations. These modes are essential for CAM post-processor configuration: most 5-axis simultaneous programs from hyperMILL, NX, or Mastercam should output CUT3DC for side cutting or CUT3DF for face cutting operations. 828D supports CUT2D/CUT2DF/CUT3DC/CUT3DF; full 3D compensation with ISD requires 840D sl or SINUMERIK ONE.",
+    "applies_to": { "controllers": ["SINUMERIK 840D sl", "SINUMERIK 828D", "SINUMERIK ONE"], "machines": ["DMG MORI", "Chiron", "GROB", "Heller"] },
+    "tags": ["controller", "siemens", "tool-compensation", "CUT2D", "CUT3DC", "CUT3DF", "5-axis", "post-processor"]
+  },
+  {
+    "id": "ctrl-007",
+    "category": "controller",
+    "subcategory": "siemens",
+    "title": "ShopMill/ShopTurn Conversational Programming",
+    "content": "ShopMill (milling) and ShopTurn (turning) are Siemens' built-in conversational programming interfaces within SINUMERIK Operate, enabling shop-floor part programming without G-code knowledge. Programs are created by selecting operations from graphical menus and filling in parameter forms with animated tool tips and dynamic graphics. Key features: (1) Full cycle library including drilling, pocketing, contouring, thread milling, and pattern operations; (2) Inline simulation with 3D workpiece visualization before running; (3) Mix-and-match capability to combine conversational blocks with G-code blocks in the same program; (4) Contour calculator for direct geometry definition with automatic intersection calculation; (5) Technology database for automatic feed/speed recommendations; (6) Position patterns (linear, grid, circular) with ability to hide selected positions. ShopMill/ShopTurn programs are stored as standard .MPF files and are fully editable in G-code mode. Available on all SINUMERIK platforms (828D, 840D sl, ONE). Particularly valuable for one-off parts, prototype work, and simple production jobs where CAM programming overhead is not justified. Training tip: SinuTrain PC software provides identical ShopMill/ShopTurn interface for offline training.",
+    "applies_to": { "controllers": ["SINUMERIK 840D sl", "SINUMERIK 828D", "SINUMERIK ONE"], "machines": ["DMG MORI", "Spinner", "Chiron", "EMAG"] },
+    "tags": ["controller", "siemens", "ShopMill", "ShopTurn", "conversational", "programming", "shop-floor"]
+  },
+  {
+    "id": "ctrl-008",
+    "category": "controller",
+    "subcategory": "siemens",
+    "title": "SINUMERIK Tool Management System",
+    "content": "SINUMERIK 840D sl and ONE feature a comprehensive tool management system stored in the NCK TO (Tool Offset) area. Key commands: T<number> prepares tool (moves magazine to position); M6 executes tool change; D<number> selects cutting edge offset (D1 default, supports multiple edges per tool). Tool data system variables: $TC_DP1-$TC_DP25 (geometry: type, length, radius, wear); $TC_TP1-$TC_TP11 (tool properties: name, type, status, monitoring). Magazine commands: POSM (position magazine), POSMT (position multitool to specific location), MVTOOL (move tool between locations). Multitool support for gang-type and turret machines via $TC_MTP and $TC_MTPP data. Tool monitoring features: tool life ($TC_TP8 remaining time), piece count ($TC_TP9), wear limits with automatic sister tool switchover. SETMS(n) selects master spindle for multi-spindle machines. The 828D has simplified tool management without full magazine management functions. Critical for post-processors: DMG MORI machines typically use T=<number> (flat tool numbering) or T<magazine>.<location> syntax depending on configuration. Always verify the tool call convention with the specific machine's PLC program.",
+    "applies_to": { "controllers": ["SINUMERIK 840D sl", "SINUMERIK ONE", "SINUMERIK 828D"], "machines": ["DMG MORI", "Index", "EMAG", "Chiron"] },
+    "tags": ["controller", "siemens", "tool-management", "magazine", "multi-spindle", "tool-life", "sister-tool"]
+  },
+  {
+    "id": "ctrl-009",
+    "category": "controller",
+    "subcategory": "siemens",
+    "title": "Measuring Cycles: CYCLE977, CYCLE978, CYCLE961",
+    "content": "SINUMERIK includes a comprehensive library of measuring cycles for in-process workpiece probing with touch-trigger probes. CYCLE977 measures holes, shafts, grooves, webs, and rectangles using paraxial measurements in the active plane. Outputs: diameter/width, center position, and optionally corrects work offsets or tool offsets. CYCLE978 measures edge positions (single edge distance measurement) and can set work offsets based on the measured edge location. CYCLE961 measures right-angled corners (inside or outside) using three probe points to determine intersection and rotation angle, ideal for aligning workpiece zero to a corner. Additional measuring cycles: CYCLE971 (probe calibration - always run first), CYCLE974 (bore/pin measurement for 3D), CYCLE979 (plane measurement for Z-datum), CYCLE982 (rectangular pocket), CYCLE997/CYCLE998 (on-the-fly measurement). All measuring cycles support: automatic probe protection (collision monitoring), measurement result storage in system variables ($AA_MW[n]), multiple measurement strategies (correct WO, correct tool, measure only), and protocol output. Probing approach speed is set via machine data. Available on 840D sl, 828D, and ONE with the measuring cycles technology option.",
+    "applies_to": { "controllers": ["SINUMERIK 840D sl", "SINUMERIK 828D", "SINUMERIK ONE"], "machines": ["DMG MORI", "Chiron", "Spinner", "Heller"] },
+    "tags": ["controller", "siemens", "measuring", "probing", "CYCLE977", "CYCLE978", "CYCLE961", "work-offset"]
+  },
+  {
+    "id": "ctrl-010",
+    "category": "controller",
+    "subcategory": "siemens",
+    "title": "Synchronized Actions for Real-Time PLC-NC Coordination",
+    "content": "SINUMERIK synchronized actions enable real-time monitoring and response during machining, executed in the interpolation cycle (IPO cycle, typically 2-12ms). Syntax: ID=<n> <keyword> <condition> DO <action>. Keywords: WHENEVER (continuous monitoring, repeating action), WHEN (one-shot when condition becomes true), FROM (continuous after first true), EVERY (periodic). Conditions use system variables: $A_IN[n] (digital inputs), $A_INA[n] (analog inputs), $AA_IM[axis] (axis position), $AC_FIFO (FIFO variables). Actions include: axis movements ($AA_OVR override), output control ($A_OUT[n]), M/S/H auxiliary function output to PLC, variable assignment, and RDISABLE/STOPREOF for path control. IDs 1-64 can be locked/released from PLC for external coordination. Practical applications: adaptive feed control based on spindle load ($AC_POWER), tool breakage detection, part catcher activation at specific positions, constant surface speed zones, and synchronized multi-channel operations via WAIT markers. Critical: synchronized actions execute in NCK firmware, not PLC, so they have deterministic real-time behavior. Maximum active synchronized actions is limited by NCK resources (typically 64-128 depending on configuration).",
+    "applies_to": { "controllers": ["SINUMERIK 840D sl", "SINUMERIK ONE", "SINUMERIK 828D"], "machines": ["DMG MORI", "Index", "EMAG", "Chiron", "Heller"] },
+    "tags": ["controller", "siemens", "synchronized-actions", "PLC", "real-time", "WHENEVER", "adaptive-feed", "automation"]
+  },
+  {
+    "id": "ctrl-011",
+    "category": "controller",
+    "subcategory": "siemens",
+    "title": "Safety Integrated: SOS, SLS, SS1, SSM Functions",
+    "content": "SINUMERIK Safety Integrated provides certified (SIL 2 / PL d) safety functions through the SINAMICS drive system, communicated via PROFIsafe protocol. Key functions: SOS (Safe Operating Stop) - drive remains energized and in closed-loop control but monitors for zero velocity, preventing unintentional movement during loading/unloading without losing position reference. SS1 (Safe Stop 1) - controlled deceleration followed by STO (Safe Torque Off), time-monitored and acceleration-controlled. SLS (Safely-Limited Speed) - monitors that axis speed does not exceed configurable limits, essential for setup mode and door-open machining at reduced speed. SSM (Safe Speed Monitor) - provides a safety-rated binary signal when drive operates below a threshold, used for interlocking (e.g., door release only when spindle stopped). SLP (Safely-Limited Position) - monitors axis position within a configurable window. SDI (Safe Direction) - restricts axis to one direction of motion. All functions are configured in SINAMICS drive parameters and activated via safety PLC (F-PLC). SINUMERIK ONE uses integrated SIMATIC S7-1500F safety PLC. 840D sl uses external SIMATIC safety PLC. 828D has integrated safety with simpler configuration. These functions are mandatory for CE-marked machines and are tested during annual machine safety validation.",
+    "applies_to": { "controllers": ["SINUMERIK 840D sl", "SINUMERIK 828D", "SINUMERIK ONE"], "machines": ["DMG MORI", "Chiron", "GROB", "Heller", "Index", "Spinner", "EMAG"] },
+    "tags": ["controller", "siemens", "safety", "SOS", "SLS", "SS1", "SSM", "Safety-Integrated", "PROFIsafe"]
+  },
+  {
+    "id": "ctrl-012",
+    "category": "controller",
+    "subcategory": "siemens",
+    "title": "SINUMERIK ONE Digital Twin with Create MyVirtualMachine",
+    "content": "SINUMERIK ONE is Siemens' next-generation CNC, the first 'digital native' controller designed with integrated digital twin capability. Create MyVirtualMachine (CMVM) software enables: (1) Virtual commissioning - test PLC and NC programs on a digital replica before physical machine exists; (2) NC program verification - full simulation with real SINUMERIK kernel (not approximation), catching errors that CAM simulation misses; (3) Cycle time optimization - accurate to within 2-5% of real machine because it runs actual CNC firmware; (4) Operator training - identical SINUMERIK Operate interface without tying up the physical machine; (5) 3D collision checking with true machine kinematics. SINUMERIK ONE has up to 10x faster PLC cycle times via integrated SIMATIC S7-1500F, directly in TIA Portal engineering framework. It is fully backward-compatible with 840D sl G-code programs (same NC language). Hardware: uses SINAMICS S120 drives (same as 840D sl). The 3D digital twin now supports second channel simulation and new MCP (Machine Control Panel) integration. Key advantage over 840D sl: the digital twin runs the identical firmware as the physical control, not an emulation, ensuring 1:1 behavioral match. Available on DMG MORI machines branded as CELOS with SINUMERIK ONE.",
+    "applies_to": { "controllers": ["SINUMERIK ONE"], "machines": ["DMG MORI"] },
+    "tags": ["controller", "siemens", "SINUMERIK-ONE", "digital-twin", "virtual-commissioning", "simulation", "TIA-Portal"]
+  },
+  {
+    "id": "ctrl-013",
+    "category": "controller",
+    "subcategory": "siemens",
+    "title": "840D sl vs SINUMERIK ONE vs 828D Feature Comparison",
+    "content": "Key differences between the three SINUMERIK platforms: **828D** (mid-range): max 8 axes/spindles, 4 interpolating axes, single channel, integrated drive bus (PPU/drive in one unit), supports TRAORI for 5-axis but limited to basic transformations, no full tool management with magazine handling, no compile cycles, limited synchronized actions. Ideal for standard 3-axis mills, 5-axis 3+2 machines, and lathes. **840D sl** (high-end): up to 31 axes, 10+ interpolating axes, multi-channel (up to 10), modular NCU + SINAMICS S120 drives, full 5-axis with all transformation types, complete tool management with magazine handling, compile cycle support for OEM customization, 7-axis generic transformations, handling transformations (robots), clearance control, tangential control, gantry axis support, AST automatic spline interpolation. Used on complex multi-axis machines, mill-turns, and transfer lines. **SINUMERIK ONE** (next-gen): all 840D sl capabilities plus integrated SIMATIC S7-1500F PLC (10x faster), native digital twin support, TIA Portal integration, faster NCK processing, future-proof platform. 840D sl is being phased out in favor of SINUMERIK ONE for new machine designs. The NC programming language is identical across all three; differences are in axis/channel limits and available transformation/function options.",
+    "applies_to": { "controllers": ["SINUMERIK 840D sl", "SINUMERIK 828D", "SINUMERIK ONE"], "machines": ["DMG MORI", "Chiron", "GROB", "Heller", "Index", "Spinner", "EMAG"] },
+    "tags": ["controller", "siemens", "comparison", "828D", "840D", "SINUMERIK-ONE", "selection-guide"]
+  },
+  {
+    "id": "ctrl-014",
+    "category": "controller",
+    "subcategory": "siemens",
+    "title": "Compile Cycles and OEM Custom Cycle Development",
+    "content": "SINUMERIK 840D sl and ONE support three levels of cycle customization: (1) **Standard cycles** - Siemens-provided (CYCLE81-CYCLE99, CYCLE800, CYCLE832, etc.), stored in system cycle directory, not modifiable. (2) **User/Manufacturer cycles** - custom NC subprograms (.SPF files) that extend functionality. Manufacturer cycles go in /oem_cycles/, user cycles in /user_cycles/. Search order: user -> manufacturer -> standard. After adding a custom cycle, NCK reboot required. Custom screen forms can be created for parameter input in SINUMERIK Operate. (3) **Compile cycles** (840D sl/ONE only) - C/C++ code compiled into NCK firmware, running at interpolation cycle level for maximum performance. Used for: custom transformations, special interpolation modes, proprietary measurement routines, and machine-specific safety functions. Compile cycles require Siemens development toolkit and deep NCK knowledge. OEM examples: special hobbing cycles, grinding-specific dressing cycles, EDM generator control. CUST_832.SPF is a special OEM-customizable file called automatically when CYCLE832 executes, allowing machine builders to inject machine-specific HSM settings. The 828D does not support compile cycles, limiting OEM customization to SPF-level user cycles only.",
+    "applies_to": { "controllers": ["SINUMERIK 840D sl", "SINUMERIK ONE"], "machines": ["DMG MORI", "GROB", "Heller", "Index", "EMAG"] },
+    "tags": ["controller", "siemens", "compile-cycles", "OEM", "custom-cycles", "CUST_832", "programming"]
+  },
+  {
+    "id": "ctrl-015",
+    "category": "controller",
+    "subcategory": "siemens",
+    "title": "SINUMERIK Unique G-Codes Beyond ISO Standard",
+    "content": "SINUMERIK controllers use numerous proprietary codes not found in ISO 6983: **Path behavior**: G64 (continuous path with look-ahead), G641 (continuous path with programmable rounding via ADIS=<mm>), G642 (automatic corner rounding), G643 (path rounding with max axis acceleration), G644 (jerk-limited rounding). **Feedforward/dynamics**: FFWON/FFWOF (feedforward control on/off), SOFT/BRISK/DRIVE (jerk limitation modes). **Splines**: ASPLINE/BSPLINE/CSPLINE (Akima/B-spline/Cubic spline interpolation), BAUTO/BNAT/BTAN (spline boundary conditions). **Frames**: TRANS/ATRANS (translation), ROT/AROT (rotation), SCALE/ASCALE (scaling), MIRROR/AMIRROR (mirroring) - A-prefix means additive to current frame. **Coordinate transforms**: TRANSMIT (face-end machining on lathe), TRACYL (cylinder surface transformation), TRAANG (inclined axis machining). **Approach/retract**: G147/G148/G247/G248 (approach/retract strategies with various path types). **String variables**: R-parameters (R0-R99 user variables), $-variables (system variables for machine state). **Program control**: STOPRE (preprocessing stop), MCALL (modal subroutine call), MSG (operator messages). Understanding these non-ISO codes is critical for post-processor development and manual program editing on Siemens-controlled machines.",
+    "applies_to": { "controllers": ["SINUMERIK 840D sl", "SINUMERIK 828D", "SINUMERIK ONE"], "machines": ["DMG MORI", "Chiron", "GROB", "Heller", "Index", "Spinner", "EMAG", "Cincinnati"] },
+    "tags": ["controller", "siemens", "G-code", "non-ISO", "proprietary", "post-processor", "programming"]
+  },
+  {
+    "id": "ctrl-016",
+    "category": "controller",
+    "subcategory": "siemens",
+    "title": "Multi-Channel Programming and Channel Synchronization",
+    "content": "SINUMERIK 840D sl and ONE support multi-channel operation where independent NC channels control separate axis groups simultaneously. Essential for mill-turn machines (e.g., DMG MORI CTX/NTX series) and multi-spindle lathes (Index, EMAG). Synchronization commands: INIT(channel, program, mode) loads a program into another channel; START(channel) begins execution; WAITM(marker, channel1, channel2...) creates synchronization points where channels wait for each other before proceeding. WAITE(channel) waits for channel end. Channel-specific M-codes: M0-M99 are channel-local. Data exchange between channels uses: WAIT markers for timing, $AC_MARKER[n] for integer flags, GUD (Global User Data) variables for shared data. Typical use case: Channel 1 controls main spindle + X/Z/C axes for turning, Channel 2 controls sub-spindle + milling spindle + B/Y axes. The PLC coordinates tool changers and workpiece handoff between spindles. 828D is single-channel only, a major limitation for complex mill-turn applications. Post-processors for multi-channel machines must output proper channel switching ($P_CHANNO) and synchronization markers aligned with the machine's PLC handshake protocol.",
+    "applies_to": { "controllers": ["SINUMERIK 840D sl", "SINUMERIK ONE"], "machines": ["DMG MORI", "Index", "EMAG"] },
+    "tags": ["controller", "siemens", "multi-channel", "synchronization", "WAITM", "mill-turn", "multi-spindle"]
+  },
+  {
+    "id": "ctrl-017",
+    "category": "controller",
+    "subcategory": "siemens",
+    "title": "SINUMERIK Operate HMI and Program Management",
+    "content": "SINUMERIK Operate is the unified HMI across all current SINUMERIK platforms, combining the former HMI-Advanced (G-code editing), ShopMill, and ShopTurn under one interface. Key features for CNC programmers: (1) **Program editor** with syntax highlighting, block search, and NC variable display; (2) **Simulation** with 2D path preview and optional 3D workpiece removal simulation; (3) **Program management** with directory structure: /MPF.DIR (main programs), /SPF.DIR (subprograms), /WKS.DIR (workpiece folders grouping related programs); (4) **Job lists** for automated multi-program execution with tool tracking; (5) **Easy Message** system for operator instructions embedded in programs via MSG() command; (6) **DXF Reader** (optional) for importing 2D contours directly from CAD files into ShopMill/ShopTurn; (7) **Program-Guided Operation (programGUIDE)** for step-by-step cycle-based programming with graphical support. File transfer: USB, network share (SMB), or DNC via RS232. Network path configured in /user/sinumerik/hmi/cfg/. Programs use .MPF extension for main programs and .SPF for subprograms. Maximum program size depends on NCK memory (typically 2-16MB of part program memory).",
+    "applies_to": { "controllers": ["SINUMERIK 840D sl", "SINUMERIK 828D", "SINUMERIK ONE"], "machines": ["DMG MORI", "Chiron", "GROB", "Spinner", "Heller"] },
+    "tags": ["controller", "siemens", "SINUMERIK-Operate", "HMI", "program-management", "DXF", "simulation"]
+  },
+  {
+    "id": "ctrl-018",
+    "category": "controller",
+    "subcategory": "siemens",
+    "title": "SINUMERIK Post-Processor Configuration Essentials",
+    "content": "When configuring CAM post-processors for SINUMERIK controllers, these machine-specific settings are critical: (1) **Tool call format**: T<n> M6 (standard), T=<name> (symbolic), or OEM-specific (DMG MORI often uses T=<n> with flat numbering); (2) **CYCLE800 swivel data record**: must match the kinematic table name exactly as configured in machine data (e.g., 'TC_CARR1' or machine-specific name); (3) **CYCLE832 tolerance**: include at program start before cutting, deactivate with CYCLE832() empty call at end; (4) **5-axis output mode**: TRAORI activation, then orientation via A/B/C direct angles or A3/B3/C3 direction vectors depending on CAM system preference; (5) **Work offset format**: G54-G599 (SINUMERIK supports up to 99 standard + 500 extended), or CYCLE800-embedded offset; (6) **Coolant M-codes**: typically M7/M8/M9 but verify machine-specific PLC mapping; (7) **Safe retraction**: SUPA G0 Z=... for machine-coordinate retraction; (8) **Program structure**: header (CYCLE832, tool list), operations (tool call, approach, cutting, retract), footer (M30). Always validate with SINUMERIK simulation or Create MyVirtualMachine before first run. Common post-processor errors: wrong CYCLE800 data record name, missing TRAORI activation before 5-axis moves, incorrect G641 ADIS value for machine capability.",
+    "applies_to": { "controllers": ["SINUMERIK 840D sl", "SINUMERIK 828D", "SINUMERIK ONE"], "machines": ["DMG MORI", "Chiron", "GROB", "Heller", "Spinner"] },
+    "tags": ["controller", "siemens", "post-processor", "CAM", "configuration", "CYCLE800", "CYCLE832", "tool-call"]
+  },
+  {
+    "id": "ctrl-019",
+    "category": "controller",
+    "subcategory": "siemens",
+    "title": "TRANSMIT, TRACYL, and Special Coordinate Transformations",
+    "content": "SINUMERIK provides proprietary coordinate transformations beyond standard 5-axis: **TRANSMIT** enables face-end machining on turning centers by converting XY Cartesian programming into radial + C-axis rotary motion. Allows milling contours on the face of a turned part using standard G-code XY moves. The CNC automatically computes C-axis rotation and X-axis radial movement. Pole avoidance ($MA_TRANSMIT_POLE_LIMIT) prevents singularity at center. **TRACYL** (Transformation Cylinder) maps XY planar programming onto a cylinder surface, enabling milling of grooves, pockets, and contours on cylindrical surfaces using C-axis rotation + Z-axis linear motion. Groove depth is controlled by the radial axis. **TRAANG** (Transformation Angle) compensates for inclined linear axes (e.g., B-axis on Swiss-type lathes, or Y-axis realized through compound slide angles). These transformations allow programming in a simple Cartesian coordinate system while the CNC handles the complex non-linear axis coordination. All three are available on 840D sl, SINUMERIK ONE, and 828D (with limitations on 828D). Common machine applications: TRANSMIT on DMG MORI CTX/NTX for cross-drilling and milling; TRACYL on Index multi-spindle lathes for cam groove cutting.",
+    "applies_to": { "controllers": ["SINUMERIK 840D sl", "SINUMERIK 828D", "SINUMERIK ONE"], "machines": ["DMG MORI", "Index", "EMAG", "Spinner"] },
+    "tags": ["controller", "siemens", "TRANSMIT", "TRACYL", "TRAANG", "transformation", "turning", "mill-turn"]
+  },
+  {
+    "id": "ctrl-020",
+    "category": "controller",
+    "subcategory": "siemens",
+    "title": "SINUMERIK System Variables and Adaptive Machining",
+    "content": "SINUMERIK exposes extensive system variables ($-variables) enabling adaptive machining strategies via synchronized actions or user cycles. Key variable families: **Drive/axis**: $AA_IM[axis] (actual position), $AA_LOAD[axis] (axis load %), $VA_CURR[axis] (drive current). **Spindle**: $AC_POWER (current spindle power as % of rated), $AN_SACT[spindle] (actual spindle speed), $AC_TORQUE (spindle torque). **Feed**: $AC_OVR (feed override %), $AC_VACTW (actual path velocity), $AC_DTEW (distance to end of block). **Program**: $P_TOOLNO (active tool number), $P_F (programmed feed), $P_S (programmed speed), $AC_TIME (machining time). Adaptive feed control example: ID=1 WHENEVER $AC_POWER>80 DO $AC_OVR=50 (halve feed when spindle power exceeds 80%). Tool breakage detection: ID=2 WHEN $AC_POWER<5 DO SETAL(61000) (alarm if power drops during cutting). Thermal compensation via axis offsets: $AA_OFF[X]=<value> applied from PLC-computed temperature data. These variables, combined with synchronized actions, enable sophisticated in-process monitoring without external hardware. The variable set is identical across 840D sl, 828D, and SINUMERIK ONE, though some drive-level variables require specific SINAMICS firmware versions.",
+    "applies_to": { "controllers": ["SINUMERIK 840D sl", "SINUMERIK 828D", "SINUMERIK ONE"], "machines": ["DMG MORI", "Chiron", "GROB", "Heller", "Index", "Spinner"] },
+    "tags": ["controller", "siemens", "system-variables", "adaptive-machining", "monitoring", "synchronized-actions", "spindle-load"]
+  }
+]

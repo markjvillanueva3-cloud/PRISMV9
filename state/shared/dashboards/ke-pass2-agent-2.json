@@ -1,0 +1,1334 @@
+{
+ "CAD-COMPLETE-MS0::U-CADC36": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/domain-ai.md",
+   "knowledge/wiki/architecture/dispatcher-cadautomation.md"
+  ],
+  "addSeWiki": [
+   "schema-read-discipline",
+   "fail-loud-r12-patterns"
+  ],
+  "systemImpact": "CAD-COMPLETE-MS0 units feed the CAD generation kernel consumed by prism_cad and the vendor automation dispatchers (Fusion/Inventor/SolidWorks bridges); a regression here corrupts geometry handed downstream to CAM toolpath generation and the print-to-program pipeline. The DOMAIN-PIPELINE-MS0 cad slot (INPUT_HALF) depends on these engines producing valid B-rep before the MACHINE_SELECT and TOOLPATH_GEN stages can run.",
+  "csDepth": [
+   "B-rep boolean ops are numerically fragile near coincident/tangent geometry — degenerate-face and sliver-edge cases must be guarded explicitly or the topology graph becomes non-manifold (the Euler-Poincare V-E+F check then fails silently downstream).",
+   "Feature-tree regeneration is an O(V+E) topological sort, but cyclic parametric references (a dimension referencing its own dependent) must be detected and rejected — an unguarded cycle causes infinite regeneration or stack overflow."
+  ]
+ },
+ "CAD-COMPLETE-MS0::U-CADC37": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/domain-ai.md",
+   "knowledge/wiki/architecture/dispatcher-cadautomation.md"
+  ],
+  "addSeWiki": [
+   "schema-read-discipline",
+   "fail-loud-r12-patterns"
+  ],
+  "systemImpact": "CAD-COMPLETE-MS0 units feed the CAD generation kernel consumed by prism_cad and the vendor automation dispatchers (Fusion/Inventor/SolidWorks bridges); a regression here corrupts geometry handed downstream to CAM toolpath generation and the print-to-program pipeline. The DOMAIN-PIPELINE-MS0 cad slot (INPUT_HALF) depends on these engines producing valid B-rep before the MACHINE_SELECT and TOOLPATH_GEN stages can run.",
+  "csDepth": [
+   "B-rep boolean ops are numerically fragile near coincident/tangent geometry — degenerate-face and sliver-edge cases must be guarded explicitly or the topology graph becomes non-manifold (the Euler-Poincare V-E+F check then fails silently downstream).",
+   "Feature-tree regeneration is an O(V+E) topological sort, but cyclic parametric references (a dimension referencing its own dependent) must be detected and rejected — an unguarded cycle causes infinite regeneration or stack overflow."
+  ]
+ },
+ "CAD-COMPLETE-MS0::U-CADC38": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/domain-ai.md",
+   "knowledge/wiki/architecture/dispatcher-cadautomation.md"
+  ],
+  "addSeWiki": [
+   "schema-read-discipline",
+   "fail-loud-r12-patterns"
+  ],
+  "systemImpact": "CAD-COMPLETE-MS0 units feed the CAD generation kernel consumed by prism_cad and the vendor automation dispatchers (Fusion/Inventor/SolidWorks bridges); a regression here corrupts geometry handed downstream to CAM toolpath generation and the print-to-program pipeline. The DOMAIN-PIPELINE-MS0 cad slot (INPUT_HALF) depends on these engines producing valid B-rep before the MACHINE_SELECT and TOOLPATH_GEN stages can run.",
+  "csDepth": [
+   "B-rep boolean ops are numerically fragile near coincident/tangent geometry — degenerate-face and sliver-edge cases must be guarded explicitly or the topology graph becomes non-manifold (the Euler-Poincare V-E+F check then fails silently downstream).",
+   "Feature-tree regeneration is an O(V+E) topological sort, but cyclic parametric references (a dimension referencing its own dependent) must be detected and rejected — an unguarded cycle causes infinite regeneration or stack overflow."
+  ]
+ },
+ "CAD-COMPLETE-MS0::U-CADC39": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/domain-ai.md",
+   "knowledge/wiki/architecture/dispatcher-cadautomation.md"
+  ],
+  "addSeWiki": [
+   "schema-read-discipline",
+   "fail-loud-r12-patterns"
+  ],
+  "systemImpact": "CAD-COMPLETE-MS0 units feed the CAD generation kernel consumed by prism_cad and the vendor automation dispatchers (Fusion/Inventor/SolidWorks bridges); a regression here corrupts geometry handed downstream to CAM toolpath generation and the print-to-program pipeline. The DOMAIN-PIPELINE-MS0 cad slot (INPUT_HALF) depends on these engines producing valid B-rep before the MACHINE_SELECT and TOOLPATH_GEN stages can run.",
+  "csDepth": [
+   "B-rep boolean ops are numerically fragile near coincident/tangent geometry — degenerate-face and sliver-edge cases must be guarded explicitly or the topology graph becomes non-manifold (the Euler-Poincare V-E+F check then fails silently downstream).",
+   "Feature-tree regeneration is an O(V+E) topological sort, but cyclic parametric references (a dimension referencing its own dependent) must be detected and rejected — an unguarded cycle causes infinite regeneration or stack overflow."
+  ]
+ },
+ "CAD-COMPLETE-MS0::U-CADC40": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/domain-ai.md",
+   "knowledge/wiki/architecture/dispatcher-cadautomation.md"
+  ],
+  "addSeWiki": [
+   "schema-read-discipline",
+   "fail-loud-r12-patterns"
+  ],
+  "systemImpact": "CAD-COMPLETE-MS0 units feed the CAD generation kernel consumed by prism_cad and the vendor automation dispatchers (Fusion/Inventor/SolidWorks bridges); a regression here corrupts geometry handed downstream to CAM toolpath generation and the print-to-program pipeline. The DOMAIN-PIPELINE-MS0 cad slot (INPUT_HALF) depends on these engines producing valid B-rep before the MACHINE_SELECT and TOOLPATH_GEN stages can run.",
+  "csDepth": [
+   "B-rep boolean ops are numerically fragile near coincident/tangent geometry — degenerate-face and sliver-edge cases must be guarded explicitly or the topology graph becomes non-manifold (the Euler-Poincare V-E+F check then fails silently downstream).",
+   "Feature-tree regeneration is an O(V+E) topological sort, but cyclic parametric references (a dimension referencing its own dependent) must be detected and rejected — an unguarded cycle causes infinite regeneration or stack overflow."
+  ]
+ },
+ "CAD-COMPLETE-MS0::U-CADC43": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/domain-ai.md",
+   "knowledge/wiki/architecture/dispatcher-cadautomation.md"
+  ],
+  "addSeWiki": [
+   "schema-read-discipline",
+   "fail-loud-r12-patterns"
+  ],
+  "systemImpact": "CAD-COMPLETE-MS0 units feed the CAD generation kernel consumed by prism_cad and the vendor automation dispatchers (Fusion/Inventor/SolidWorks bridges); a regression here corrupts geometry handed downstream to CAM toolpath generation and the print-to-program pipeline. The DOMAIN-PIPELINE-MS0 cad slot (INPUT_HALF) depends on these engines producing valid B-rep before the MACHINE_SELECT and TOOLPATH_GEN stages can run.",
+  "csDepth": [
+   "B-rep boolean ops are numerically fragile near coincident/tangent geometry — degenerate-face and sliver-edge cases must be guarded explicitly or the topology graph becomes non-manifold (the Euler-Poincare V-E+F check then fails silently downstream).",
+   "Feature-tree regeneration is an O(V+E) topological sort, but cyclic parametric references (a dimension referencing its own dependent) must be detected and rejected — an unguarded cycle causes infinite regeneration or stack overflow."
+  ]
+ },
+ "CAD-COMPLETE-MS0::U-CADC44": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/domain-ai.md",
+   "knowledge/wiki/architecture/dispatcher-cadautomation.md"
+  ],
+  "addSeWiki": [
+   "schema-read-discipline",
+   "fail-loud-r12-patterns"
+  ],
+  "systemImpact": "CAD-COMPLETE-MS0 units feed the CAD generation kernel consumed by prism_cad and the vendor automation dispatchers (Fusion/Inventor/SolidWorks bridges); a regression here corrupts geometry handed downstream to CAM toolpath generation and the print-to-program pipeline. The DOMAIN-PIPELINE-MS0 cad slot (INPUT_HALF) depends on these engines producing valid B-rep before the MACHINE_SELECT and TOOLPATH_GEN stages can run.",
+  "csDepth": [
+   "B-rep boolean ops are numerically fragile near coincident/tangent geometry — degenerate-face and sliver-edge cases must be guarded explicitly or the topology graph becomes non-manifold (the Euler-Poincare V-E+F check then fails silently downstream).",
+   "Feature-tree regeneration is an O(V+E) topological sort, but cyclic parametric references (a dimension referencing its own dependent) must be detected and rejected — an unguarded cycle causes infinite regeneration or stack overflow."
+  ]
+ },
+ "CAD-COMPLETE-MS0::U-CADC45": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/domain-ai.md",
+   "knowledge/wiki/architecture/dispatcher-cadautomation.md"
+  ],
+  "addSeWiki": [
+   "schema-read-discipline",
+   "fail-loud-r12-patterns"
+  ],
+  "systemImpact": "CAD-COMPLETE-MS0 units feed the CAD generation kernel consumed by prism_cad and the vendor automation dispatchers (Fusion/Inventor/SolidWorks bridges); a regression here corrupts geometry handed downstream to CAM toolpath generation and the print-to-program pipeline. The DOMAIN-PIPELINE-MS0 cad slot (INPUT_HALF) depends on these engines producing valid B-rep before the MACHINE_SELECT and TOOLPATH_GEN stages can run.",
+  "csDepth": [
+   "B-rep boolean ops are numerically fragile near coincident/tangent geometry — degenerate-face and sliver-edge cases must be guarded explicitly or the topology graph becomes non-manifold (the Euler-Poincare V-E+F check then fails silently downstream).",
+   "Feature-tree regeneration is an O(V+E) topological sort, but cyclic parametric references (a dimension referencing its own dependent) must be detected and rejected — an unguarded cycle causes infinite regeneration or stack overflow."
+  ]
+ },
+ "CAD-COMPLETE-MS0::U-CADC51": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/domain-ai.md",
+   "knowledge/wiki/architecture/dispatcher-cadautomation.md"
+  ],
+  "addSeWiki": [
+   "schema-read-discipline",
+   "fail-loud-r12-patterns"
+  ],
+  "systemImpact": "CAD-COMPLETE-MS0 units feed the CAD generation kernel consumed by prism_cad and the vendor automation dispatchers (Fusion/Inventor/SolidWorks bridges); a regression here corrupts geometry handed downstream to CAM toolpath generation and the print-to-program pipeline. The DOMAIN-PIPELINE-MS0 cad slot (INPUT_HALF) depends on these engines producing valid B-rep before the MACHINE_SELECT and TOOLPATH_GEN stages can run.",
+  "csDepth": [
+   "B-rep boolean ops are numerically fragile near coincident/tangent geometry — degenerate-face and sliver-edge cases must be guarded explicitly or the topology graph becomes non-manifold (the Euler-Poincare V-E+F check then fails silently downstream).",
+   "Feature-tree regeneration is an O(V+E) topological sort, but cyclic parametric references (a dimension referencing its own dependent) must be detected and rejected — an unguarded cycle causes infinite regeneration or stack overflow."
+  ]
+ },
+ "CAD-COMPLETE-MS0::U-CADC52": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/domain-ai.md",
+   "knowledge/wiki/architecture/dispatcher-cadautomation.md"
+  ],
+  "addSeWiki": [
+   "schema-read-discipline",
+   "fail-loud-r12-patterns"
+  ],
+  "systemImpact": "CAD-COMPLETE-MS0 units feed the CAD generation kernel consumed by prism_cad and the vendor automation dispatchers (Fusion/Inventor/SolidWorks bridges); a regression here corrupts geometry handed downstream to CAM toolpath generation and the print-to-program pipeline. The DOMAIN-PIPELINE-MS0 cad slot (INPUT_HALF) depends on these engines producing valid B-rep before the MACHINE_SELECT and TOOLPATH_GEN stages can run.",
+  "csDepth": [
+   "B-rep boolean ops are numerically fragile near coincident/tangent geometry — degenerate-face and sliver-edge cases must be guarded explicitly or the topology graph becomes non-manifold (the Euler-Poincare V-E+F check then fails silently downstream).",
+   "Feature-tree regeneration is an O(V+E) topological sort, but cyclic parametric references (a dimension referencing its own dependent) must be detected and rejected — an unguarded cycle causes infinite regeneration or stack overflow."
+  ]
+ },
+ "CAD-COMPLETE-MS0::U-CADC46": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/domain-ai.md",
+   "knowledge/wiki/architecture/dispatcher-cadautomation.md"
+  ],
+  "addSeWiki": [
+   "schema-read-discipline",
+   "fail-loud-r12-patterns"
+  ],
+  "systemImpact": "CAD-COMPLETE-MS0 units feed the CAD generation kernel consumed by prism_cad and the vendor automation dispatchers (Fusion/Inventor/SolidWorks bridges); a regression here corrupts geometry handed downstream to CAM toolpath generation and the print-to-program pipeline. The DOMAIN-PIPELINE-MS0 cad slot (INPUT_HALF) depends on these engines producing valid B-rep before the MACHINE_SELECT and TOOLPATH_GEN stages can run.",
+  "csDepth": [
+   "B-rep boolean ops are numerically fragile near coincident/tangent geometry — degenerate-face and sliver-edge cases must be guarded explicitly or the topology graph becomes non-manifold (the Euler-Poincare V-E+F check then fails silently downstream).",
+   "Feature-tree regeneration is an O(V+E) topological sort, but cyclic parametric references (a dimension referencing its own dependent) must be detected and rejected — an unguarded cycle causes infinite regeneration or stack overflow."
+  ]
+ },
+ "CAD-COMPLETE-MS0::U-CADC47": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/domain-ai.md",
+   "knowledge/wiki/architecture/dispatcher-cadautomation.md"
+  ],
+  "addSeWiki": [
+   "schema-read-discipline",
+   "fail-loud-r12-patterns"
+  ],
+  "systemImpact": "CAD-COMPLETE-MS0 units feed the CAD generation kernel consumed by prism_cad and the vendor automation dispatchers (Fusion/Inventor/SolidWorks bridges); a regression here corrupts geometry handed downstream to CAM toolpath generation and the print-to-program pipeline. The DOMAIN-PIPELINE-MS0 cad slot (INPUT_HALF) depends on these engines producing valid B-rep before the MACHINE_SELECT and TOOLPATH_GEN stages can run.",
+  "csDepth": [
+   "B-rep boolean ops are numerically fragile near coincident/tangent geometry — degenerate-face and sliver-edge cases must be guarded explicitly or the topology graph becomes non-manifold (the Euler-Poincare V-E+F check then fails silently downstream).",
+   "Feature-tree regeneration is an O(V+E) topological sort, but cyclic parametric references (a dimension referencing its own dependent) must be detected and rejected — an unguarded cycle causes infinite regeneration or stack overflow."
+  ]
+ },
+ "CAD-COMPLETE-MS0::U-CADC48": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/domain-ai.md",
+   "knowledge/wiki/architecture/dispatcher-cadautomation.md"
+  ],
+  "addSeWiki": [
+   "schema-read-discipline",
+   "fail-loud-r12-patterns"
+  ],
+  "systemImpact": "CAD-COMPLETE-MS0 units feed the CAD generation kernel consumed by prism_cad and the vendor automation dispatchers (Fusion/Inventor/SolidWorks bridges); a regression here corrupts geometry handed downstream to CAM toolpath generation and the print-to-program pipeline. The DOMAIN-PIPELINE-MS0 cad slot (INPUT_HALF) depends on these engines producing valid B-rep before the MACHINE_SELECT and TOOLPATH_GEN stages can run.",
+  "csDepth": [
+   "B-rep boolean ops are numerically fragile near coincident/tangent geometry — degenerate-face and sliver-edge cases must be guarded explicitly or the topology graph becomes non-manifold (the Euler-Poincare V-E+F check then fails silently downstream).",
+   "Feature-tree regeneration is an O(V+E) topological sort, but cyclic parametric references (a dimension referencing its own dependent) must be detected and rejected — an unguarded cycle causes infinite regeneration or stack overflow."
+  ]
+ },
+ "CAD-COMPLETE-MS0::U-CADC49": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/domain-ai.md",
+   "knowledge/wiki/architecture/dispatcher-cadautomation.md"
+  ],
+  "addSeWiki": [
+   "schema-read-discipline",
+   "fail-loud-r12-patterns"
+  ],
+  "systemImpact": "CAD-COMPLETE-MS0 units feed the CAD generation kernel consumed by prism_cad and the vendor automation dispatchers (Fusion/Inventor/SolidWorks bridges); a regression here corrupts geometry handed downstream to CAM toolpath generation and the print-to-program pipeline. The DOMAIN-PIPELINE-MS0 cad slot (INPUT_HALF) depends on these engines producing valid B-rep before the MACHINE_SELECT and TOOLPATH_GEN stages can run.",
+  "csDepth": [
+   "B-rep boolean ops are numerically fragile near coincident/tangent geometry — degenerate-face and sliver-edge cases must be guarded explicitly or the topology graph becomes non-manifold (the Euler-Poincare V-E+F check then fails silently downstream).",
+   "Feature-tree regeneration is an O(V+E) topological sort, but cyclic parametric references (a dimension referencing its own dependent) must be detected and rejected — an unguarded cycle causes infinite regeneration or stack overflow."
+  ]
+ },
+ "CAD-COMPLETE-MS0::U-CADC50": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/domain-ai.md",
+   "knowledge/wiki/architecture/dispatcher-cadautomation.md"
+  ],
+  "addSeWiki": [
+   "schema-read-discipline",
+   "fail-loud-r12-patterns"
+  ],
+  "systemImpact": "CAD-COMPLETE-MS0 units feed the CAD generation kernel consumed by prism_cad and the vendor automation dispatchers (Fusion/Inventor/SolidWorks bridges); a regression here corrupts geometry handed downstream to CAM toolpath generation and the print-to-program pipeline. The DOMAIN-PIPELINE-MS0 cad slot (INPUT_HALF) depends on these engines producing valid B-rep before the MACHINE_SELECT and TOOLPATH_GEN stages can run.",
+  "csDepth": [
+   "B-rep boolean ops are numerically fragile near coincident/tangent geometry — degenerate-face and sliver-edge cases must be guarded explicitly or the topology graph becomes non-manifold (the Euler-Poincare V-E+F check then fails silently downstream).",
+   "Feature-tree regeneration is an O(V+E) topological sort, but cyclic parametric references (a dimension referencing its own dependent) must be detected and rejected — an unguarded cycle causes infinite regeneration or stack overflow."
+  ]
+ },
+ "CAD-COMPLETE-MS0::U-CADC53": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/domain-ai.md",
+   "knowledge/wiki/architecture/dispatcher-cadautomation.md"
+  ],
+  "addSeWiki": [
+   "schema-read-discipline",
+   "fail-loud-r12-patterns"
+  ],
+  "systemImpact": "CAD-COMPLETE-MS0 units feed the CAD generation kernel consumed by prism_cad and the vendor automation dispatchers (Fusion/Inventor/SolidWorks bridges); a regression here corrupts geometry handed downstream to CAM toolpath generation and the print-to-program pipeline. The DOMAIN-PIPELINE-MS0 cad slot (INPUT_HALF) depends on these engines producing valid B-rep before the MACHINE_SELECT and TOOLPATH_GEN stages can run.",
+  "csDepth": [
+   "B-rep boolean ops are numerically fragile near coincident/tangent geometry — degenerate-face and sliver-edge cases must be guarded explicitly or the topology graph becomes non-manifold (the Euler-Poincare V-E+F check then fails silently downstream).",
+   "Feature-tree regeneration is an O(V+E) topological sort, but cyclic parametric references (a dimension referencing its own dependent) must be detected and rejected — an unguarded cycle causes infinite regeneration or stack overflow."
+  ]
+ },
+ "CAD-COMPLETE-MS0::U-CADC54": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/domain-ai.md",
+   "knowledge/wiki/architecture/dispatcher-cadautomation.md"
+  ],
+  "addSeWiki": [
+   "schema-read-discipline",
+   "fail-loud-r12-patterns"
+  ],
+  "systemImpact": "CAD-COMPLETE-MS0 units feed the CAD generation kernel consumed by prism_cad and the vendor automation dispatchers (Fusion/Inventor/SolidWorks bridges); a regression here corrupts geometry handed downstream to CAM toolpath generation and the print-to-program pipeline. The DOMAIN-PIPELINE-MS0 cad slot (INPUT_HALF) depends on these engines producing valid B-rep before the MACHINE_SELECT and TOOLPATH_GEN stages can run.",
+  "csDepth": [
+   "B-rep boolean ops are numerically fragile near coincident/tangent geometry — degenerate-face and sliver-edge cases must be guarded explicitly or the topology graph becomes non-manifold (the Euler-Poincare V-E+F check then fails silently downstream).",
+   "Feature-tree regeneration is an O(V+E) topological sort, but cyclic parametric references (a dimension referencing its own dependent) must be detected and rejected — an unguarded cycle causes infinite regeneration or stack overflow."
+  ]
+ },
+ "CAD-COMPLETE-MS0::U-CADC55": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/domain-ai.md",
+   "knowledge/wiki/architecture/dispatcher-cadautomation.md"
+  ],
+  "addSeWiki": [
+   "schema-read-discipline",
+   "fail-loud-r12-patterns"
+  ],
+  "systemImpact": "CAD-COMPLETE-MS0 units feed the CAD generation kernel consumed by prism_cad and the vendor automation dispatchers (Fusion/Inventor/SolidWorks bridges); a regression here corrupts geometry handed downstream to CAM toolpath generation and the print-to-program pipeline. The DOMAIN-PIPELINE-MS0 cad slot (INPUT_HALF) depends on these engines producing valid B-rep before the MACHINE_SELECT and TOOLPATH_GEN stages can run.",
+  "csDepth": [
+   "B-rep boolean ops are numerically fragile near coincident/tangent geometry — degenerate-face and sliver-edge cases must be guarded explicitly or the topology graph becomes non-manifold (the Euler-Poincare V-E+F check then fails silently downstream).",
+   "Feature-tree regeneration is an O(V+E) topological sort, but cyclic parametric references (a dimension referencing its own dependent) must be detected and rejected — an unguarded cycle causes infinite regeneration or stack overflow."
+  ]
+ },
+ "CAD-COMPLETE-MS0::U-CADC56": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/domain-ai.md",
+   "knowledge/wiki/architecture/dispatcher-cadautomation.md"
+  ],
+  "addSeWiki": [
+   "schema-read-discipline",
+   "fail-loud-r12-patterns"
+  ],
+  "systemImpact": "CAD-COMPLETE-MS0 units feed the CAD generation kernel consumed by prism_cad and the vendor automation dispatchers (Fusion/Inventor/SolidWorks bridges); a regression here corrupts geometry handed downstream to CAM toolpath generation and the print-to-program pipeline. The DOMAIN-PIPELINE-MS0 cad slot (INPUT_HALF) depends on these engines producing valid B-rep before the MACHINE_SELECT and TOOLPATH_GEN stages can run.",
+  "csDepth": [
+   "B-rep boolean ops are numerically fragile near coincident/tangent geometry — degenerate-face and sliver-edge cases must be guarded explicitly or the topology graph becomes non-manifold (the Euler-Poincare V-E+F check then fails silently downstream).",
+   "Feature-tree regeneration is an O(V+E) topological sort, but cyclic parametric references (a dimension referencing its own dependent) must be detected and rejected — an unguarded cycle causes infinite regeneration or stack overflow."
+  ]
+ },
+ "CAD-COMPLETE-MS0::U-CADC57": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/domain-ai.md",
+   "knowledge/wiki/architecture/dispatcher-cadautomation.md"
+  ],
+  "addSeWiki": [
+   "schema-read-discipline",
+   "fail-loud-r12-patterns"
+  ],
+  "systemImpact": "CAD-COMPLETE-MS0 units feed the CAD generation kernel consumed by prism_cad and the vendor automation dispatchers (Fusion/Inventor/SolidWorks bridges); a regression here corrupts geometry handed downstream to CAM toolpath generation and the print-to-program pipeline. The DOMAIN-PIPELINE-MS0 cad slot (INPUT_HALF) depends on these engines producing valid B-rep before the MACHINE_SELECT and TOOLPATH_GEN stages can run.",
+  "csDepth": [
+   "B-rep boolean ops are numerically fragile near coincident/tangent geometry — degenerate-face and sliver-edge cases must be guarded explicitly or the topology graph becomes non-manifold (the Euler-Poincare V-E+F check then fails silently downstream).",
+   "Feature-tree regeneration is an O(V+E) topological sort, but cyclic parametric references (a dimension referencing its own dependent) must be detected and rejected — an unguarded cycle causes infinite regeneration or stack overflow."
+  ]
+ },
+ "CAD-COMPLETE-MS0::U-CADC58": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/domain-ai.md",
+   "knowledge/wiki/architecture/dispatcher-cadautomation.md"
+  ],
+  "addSeWiki": [
+   "schema-read-discipline",
+   "fail-loud-r12-patterns"
+  ],
+  "systemImpact": "CAD-COMPLETE-MS0 units feed the CAD generation kernel consumed by prism_cad and the vendor automation dispatchers (Fusion/Inventor/SolidWorks bridges); a regression here corrupts geometry handed downstream to CAM toolpath generation and the print-to-program pipeline. The DOMAIN-PIPELINE-MS0 cad slot (INPUT_HALF) depends on these engines producing valid B-rep before the MACHINE_SELECT and TOOLPATH_GEN stages can run.",
+  "csDepth": [
+   "B-rep boolean ops are numerically fragile near coincident/tangent geometry — degenerate-face and sliver-edge cases must be guarded explicitly or the topology graph becomes non-manifold (the Euler-Poincare V-E+F check then fails silently downstream).",
+   "Feature-tree regeneration is an O(V+E) topological sort, but cyclic parametric references (a dimension referencing its own dependent) must be detected and rejected — an unguarded cycle causes infinite regeneration or stack overflow."
+  ]
+ },
+ "CAD-COMPLETE-MS0::U-CADC59": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/domain-ai.md",
+   "knowledge/wiki/architecture/dispatcher-cadautomation.md"
+  ],
+  "addSeWiki": [
+   "schema-read-discipline",
+   "fail-loud-r12-patterns"
+  ],
+  "systemImpact": "CAD-COMPLETE-MS0 units feed the CAD generation kernel consumed by prism_cad and the vendor automation dispatchers (Fusion/Inventor/SolidWorks bridges); a regression here corrupts geometry handed downstream to CAM toolpath generation and the print-to-program pipeline. The DOMAIN-PIPELINE-MS0 cad slot (INPUT_HALF) depends on these engines producing valid B-rep before the MACHINE_SELECT and TOOLPATH_GEN stages can run.",
+  "csDepth": [
+   "B-rep boolean ops are numerically fragile near coincident/tangent geometry — degenerate-face and sliver-edge cases must be guarded explicitly or the topology graph becomes non-manifold (the Euler-Poincare V-E+F check then fails silently downstream).",
+   "Feature-tree regeneration is an O(V+E) topological sort, but cyclic parametric references (a dimension referencing its own dependent) must be detected and rejected — an unguarded cycle causes infinite regeneration or stack overflow."
+  ]
+ },
+ "CAD-COMPLETE-MS0::U-CADC60": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/domain-ai.md",
+   "knowledge/wiki/architecture/dispatcher-cadautomation.md"
+  ],
+  "addSeWiki": [
+   "schema-read-discipline",
+   "fail-loud-r12-patterns"
+  ],
+  "systemImpact": "CAD-COMPLETE-MS0 units feed the CAD generation kernel consumed by prism_cad and the vendor automation dispatchers (Fusion/Inventor/SolidWorks bridges); a regression here corrupts geometry handed downstream to CAM toolpath generation and the print-to-program pipeline. The DOMAIN-PIPELINE-MS0 cad slot (INPUT_HALF) depends on these engines producing valid B-rep before the MACHINE_SELECT and TOOLPATH_GEN stages can run.",
+  "csDepth": [
+   "B-rep boolean ops are numerically fragile near coincident/tangent geometry — degenerate-face and sliver-edge cases must be guarded explicitly or the topology graph becomes non-manifold (the Euler-Poincare V-E+F check then fails silently downstream).",
+   "Feature-tree regeneration is an O(V+E) topological sort, but cyclic parametric references (a dimension referencing its own dependent) must be detected and rejected — an unguarded cycle causes infinite regeneration or stack overflow."
+  ]
+ },
+ "CAD-COMPLETE-MS0::U-CADC61": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/domain-ai.md",
+   "knowledge/wiki/architecture/dispatcher-cadautomation.md"
+  ],
+  "addSeWiki": [
+   "schema-read-discipline",
+   "fail-loud-r12-patterns"
+  ],
+  "systemImpact": "CAD-COMPLETE-MS0 units feed the CAD generation kernel consumed by prism_cad and the vendor automation dispatchers (Fusion/Inventor/SolidWorks bridges); a regression here corrupts geometry handed downstream to CAM toolpath generation and the print-to-program pipeline. The DOMAIN-PIPELINE-MS0 cad slot (INPUT_HALF) depends on these engines producing valid B-rep before the MACHINE_SELECT and TOOLPATH_GEN stages can run.",
+  "csDepth": [
+   "B-rep boolean ops are numerically fragile near coincident/tangent geometry — degenerate-face and sliver-edge cases must be guarded explicitly or the topology graph becomes non-manifold (the Euler-Poincare V-E+F check then fails silently downstream).",
+   "Feature-tree regeneration is an O(V+E) topological sort, but cyclic parametric references (a dimension referencing its own dependent) must be detected and rejected — an unguarded cycle causes infinite regeneration or stack overflow."
+  ]
+ },
+ "CAD-COMPLETE-MS0::U-CADC62": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/domain-ai.md",
+   "knowledge/wiki/architecture/dispatcher-cadautomation.md"
+  ],
+  "addSeWiki": [
+   "schema-read-discipline",
+   "fail-loud-r12-patterns"
+  ],
+  "systemImpact": "CAD-COMPLETE-MS0 units feed the CAD generation kernel consumed by prism_cad and the vendor automation dispatchers (Fusion/Inventor/SolidWorks bridges); a regression here corrupts geometry handed downstream to CAM toolpath generation and the print-to-program pipeline. The DOMAIN-PIPELINE-MS0 cad slot (INPUT_HALF) depends on these engines producing valid B-rep before the MACHINE_SELECT and TOOLPATH_GEN stages can run.",
+  "csDepth": [
+   "B-rep boolean ops are numerically fragile near coincident/tangent geometry — degenerate-face and sliver-edge cases must be guarded explicitly or the topology graph becomes non-manifold (the Euler-Poincare V-E+F check then fails silently downstream).",
+   "Feature-tree regeneration is an O(V+E) topological sort, but cyclic parametric references (a dimension referencing its own dependent) must be detected and rejected — an unguarded cycle causes infinite regeneration or stack overflow."
+  ]
+ },
+ "CAD-COMPLETE-MS0::U-CADC63": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/domain-ai.md",
+   "knowledge/wiki/architecture/dispatcher-cadautomation.md"
+  ],
+  "addSeWiki": [
+   "schema-read-discipline",
+   "fail-loud-r12-patterns"
+  ],
+  "systemImpact": "CAD-COMPLETE-MS0 units feed the CAD generation kernel consumed by prism_cad and the vendor automation dispatchers (Fusion/Inventor/SolidWorks bridges); a regression here corrupts geometry handed downstream to CAM toolpath generation and the print-to-program pipeline. The DOMAIN-PIPELINE-MS0 cad slot (INPUT_HALF) depends on these engines producing valid B-rep before the MACHINE_SELECT and TOOLPATH_GEN stages can run.",
+  "csDepth": [
+   "B-rep boolean ops are numerically fragile near coincident/tangent geometry — degenerate-face and sliver-edge cases must be guarded explicitly or the topology graph becomes non-manifold (the Euler-Poincare V-E+F check then fails silently downstream).",
+   "Feature-tree regeneration is an O(V+E) topological sort, but cyclic parametric references (a dimension referencing its own dependent) must be detected and rejected — an unguarded cycle causes infinite regeneration or stack overflow."
+  ]
+ },
+ "CAD-COMPLETE-MS0::U-CADC64": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/domain-ai.md",
+   "knowledge/wiki/architecture/dispatcher-cadautomation.md"
+  ],
+  "addSeWiki": [
+   "schema-read-discipline",
+   "fail-loud-r12-patterns"
+  ],
+  "systemImpact": "CAD-COMPLETE-MS0 units feed the CAD generation kernel consumed by prism_cad and the vendor automation dispatchers (Fusion/Inventor/SolidWorks bridges); a regression here corrupts geometry handed downstream to CAM toolpath generation and the print-to-program pipeline. The DOMAIN-PIPELINE-MS0 cad slot (INPUT_HALF) depends on these engines producing valid B-rep before the MACHINE_SELECT and TOOLPATH_GEN stages can run.",
+  "csDepth": [
+   "B-rep boolean ops are numerically fragile near coincident/tangent geometry — degenerate-face and sliver-edge cases must be guarded explicitly or the topology graph becomes non-manifold (the Euler-Poincare V-E+F check then fails silently downstream).",
+   "Feature-tree regeneration is an O(V+E) topological sort, but cyclic parametric references (a dimension referencing its own dependent) must be detected and rejected — an unguarded cycle causes infinite regeneration or stack overflow."
+  ]
+ },
+ "CAD-COMPLETE-MS0::U-CADC65": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/domain-ai.md",
+   "knowledge/wiki/architecture/dispatcher-cadautomation.md"
+  ],
+  "addSeWiki": [
+   "schema-read-discipline",
+   "fail-loud-r12-patterns"
+  ],
+  "systemImpact": "CAD-COMPLETE-MS0 units feed the CAD generation kernel consumed by prism_cad and the vendor automation dispatchers (Fusion/Inventor/SolidWorks bridges); a regression here corrupts geometry handed downstream to CAM toolpath generation and the print-to-program pipeline. The DOMAIN-PIPELINE-MS0 cad slot (INPUT_HALF) depends on these engines producing valid B-rep before the MACHINE_SELECT and TOOLPATH_GEN stages can run.",
+  "csDepth": [
+   "B-rep boolean ops are numerically fragile near coincident/tangent geometry — degenerate-face and sliver-edge cases must be guarded explicitly or the topology graph becomes non-manifold (the Euler-Poincare V-E+F check then fails silently downstream).",
+   "Feature-tree regeneration is an O(V+E) topological sort, but cyclic parametric references (a dimension referencing its own dependent) must be detected and rejected — an unguarded cycle causes infinite regeneration or stack overflow."
+  ]
+ },
+ "CAD-COMPLETE-MS0::U-CADC66": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/domain-ai.md",
+   "knowledge/wiki/architecture/dispatcher-cadautomation.md"
+  ],
+  "addSeWiki": [
+   "schema-read-discipline",
+   "fail-loud-r12-patterns"
+  ],
+  "systemImpact": "CAD-COMPLETE-MS0 units feed the CAD generation kernel consumed by prism_cad and the vendor automation dispatchers (Fusion/Inventor/SolidWorks bridges); a regression here corrupts geometry handed downstream to CAM toolpath generation and the print-to-program pipeline. The DOMAIN-PIPELINE-MS0 cad slot (INPUT_HALF) depends on these engines producing valid B-rep before the MACHINE_SELECT and TOOLPATH_GEN stages can run.",
+  "csDepth": [
+   "B-rep boolean ops are numerically fragile near coincident/tangent geometry — degenerate-face and sliver-edge cases must be guarded explicitly or the topology graph becomes non-manifold (the Euler-Poincare V-E+F check then fails silently downstream).",
+   "Feature-tree regeneration is an O(V+E) topological sort, but cyclic parametric references (a dimension referencing its own dependent) must be detected and rejected — an unguarded cycle causes infinite regeneration or stack overflow."
+  ]
+ },
+ "CAD-COMPLETE-MS0::U-CADC67": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/domain-ai.md",
+   "knowledge/wiki/architecture/dispatcher-cadautomation.md"
+  ],
+  "addSeWiki": [
+   "schema-read-discipline",
+   "fail-loud-r12-patterns"
+  ],
+  "systemImpact": "CAD-COMPLETE-MS0 units feed the CAD generation kernel consumed by prism_cad and the vendor automation dispatchers (Fusion/Inventor/SolidWorks bridges); a regression here corrupts geometry handed downstream to CAM toolpath generation and the print-to-program pipeline. The DOMAIN-PIPELINE-MS0 cad slot (INPUT_HALF) depends on these engines producing valid B-rep before the MACHINE_SELECT and TOOLPATH_GEN stages can run.",
+  "csDepth": [
+   "B-rep boolean ops are numerically fragile near coincident/tangent geometry — degenerate-face and sliver-edge cases must be guarded explicitly or the topology graph becomes non-manifold (the Euler-Poincare V-E+F check then fails silently downstream).",
+   "Feature-tree regeneration is an O(V+E) topological sort, but cyclic parametric references (a dimension referencing its own dependent) must be detected and rejected — an unguarded cycle causes infinite regeneration or stack overflow."
+  ]
+ },
+ "CAD-COMPLETE-MS0::U-CADC68": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/domain-ai.md",
+   "knowledge/wiki/architecture/dispatcher-cadautomation.md"
+  ],
+  "addSeWiki": [
+   "schema-read-discipline",
+   "fail-loud-r12-patterns"
+  ],
+  "systemImpact": "CAD-COMPLETE-MS0 units feed the CAD generation kernel consumed by prism_cad and the vendor automation dispatchers (Fusion/Inventor/SolidWorks bridges); a regression here corrupts geometry handed downstream to CAM toolpath generation and the print-to-program pipeline. The DOMAIN-PIPELINE-MS0 cad slot (INPUT_HALF) depends on these engines producing valid B-rep before the MACHINE_SELECT and TOOLPATH_GEN stages can run.",
+  "csDepth": [
+   "B-rep boolean ops are numerically fragile near coincident/tangent geometry — degenerate-face and sliver-edge cases must be guarded explicitly or the topology graph becomes non-manifold (the Euler-Poincare V-E+F check then fails silently downstream).",
+   "Feature-tree regeneration is an O(V+E) topological sort, but cyclic parametric references (a dimension referencing its own dependent) must be detected and rejected — an unguarded cycle causes infinite regeneration or stack overflow."
+  ]
+ },
+ "CAD-COMPLETE-MS0::U-CADC69": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/domain-ai.md",
+   "knowledge/wiki/architecture/dispatcher-cadautomation.md"
+  ],
+  "addSeWiki": [
+   "schema-read-discipline",
+   "fail-loud-r12-patterns"
+  ],
+  "systemImpact": "CAD-COMPLETE-MS0 units feed the CAD generation kernel consumed by prism_cad and the vendor automation dispatchers (Fusion/Inventor/SolidWorks bridges); a regression here corrupts geometry handed downstream to CAM toolpath generation and the print-to-program pipeline. The DOMAIN-PIPELINE-MS0 cad slot (INPUT_HALF) depends on these engines producing valid B-rep before the MACHINE_SELECT and TOOLPATH_GEN stages can run.",
+  "csDepth": [
+   "B-rep boolean ops are numerically fragile near coincident/tangent geometry — degenerate-face and sliver-edge cases must be guarded explicitly or the topology graph becomes non-manifold (the Euler-Poincare V-E+F check then fails silently downstream).",
+   "Feature-tree regeneration is an O(V+E) topological sort, but cyclic parametric references (a dimension referencing its own dependent) must be detected and rejected — an unguarded cycle causes infinite regeneration or stack overflow."
+  ]
+ },
+ "CAD-COMPLETE-MS0::U-CADC70": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/domain-ai.md",
+   "knowledge/wiki/architecture/dispatcher-cadautomation.md"
+  ],
+  "addSeWiki": [
+   "schema-read-discipline",
+   "fail-loud-r12-patterns"
+  ],
+  "systemImpact": "CAD-COMPLETE-MS0 units feed the CAD generation kernel consumed by prism_cad and the vendor automation dispatchers (Fusion/Inventor/SolidWorks bridges); a regression here corrupts geometry handed downstream to CAM toolpath generation and the print-to-program pipeline. The DOMAIN-PIPELINE-MS0 cad slot (INPUT_HALF) depends on these engines producing valid B-rep before the MACHINE_SELECT and TOOLPATH_GEN stages can run.",
+  "csDepth": [
+   "B-rep boolean ops are numerically fragile near coincident/tangent geometry — degenerate-face and sliver-edge cases must be guarded explicitly or the topology graph becomes non-manifold (the Euler-Poincare V-E+F check then fails silently downstream).",
+   "Feature-tree regeneration is an O(V+E) topological sort, but cyclic parametric references (a dimension referencing its own dependent) must be detected and rejected — an unguarded cycle causes infinite regeneration or stack overflow."
+  ]
+ },
+ "CAD-COMPLETE-MS0::U-CADC71": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/domain-ai.md",
+   "knowledge/wiki/architecture/dispatcher-cadautomation.md"
+  ],
+  "addSeWiki": [
+   "schema-read-discipline",
+   "fail-loud-r12-patterns"
+  ],
+  "systemImpact": "CAD-COMPLETE-MS0 units feed the CAD generation kernel consumed by prism_cad and the vendor automation dispatchers (Fusion/Inventor/SolidWorks bridges); a regression here corrupts geometry handed downstream to CAM toolpath generation and the print-to-program pipeline. The DOMAIN-PIPELINE-MS0 cad slot (INPUT_HALF) depends on these engines producing valid B-rep before the MACHINE_SELECT and TOOLPATH_GEN stages can run.",
+  "csDepth": [
+   "B-rep boolean ops are numerically fragile near coincident/tangent geometry — degenerate-face and sliver-edge cases must be guarded explicitly or the topology graph becomes non-manifold (the Euler-Poincare V-E+F check then fails silently downstream).",
+   "Feature-tree regeneration is an O(V+E) topological sort, but cyclic parametric references (a dimension referencing its own dependent) must be detected and rejected — an unguarded cycle causes infinite regeneration or stack overflow."
+  ]
+ },
+ "CAD-COMPLETE-MS0::U-CADC72": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/domain-ai.md",
+   "knowledge/wiki/architecture/dispatcher-cadautomation.md"
+  ],
+  "addSeWiki": [
+   "schema-read-discipline",
+   "fail-loud-r12-patterns"
+  ],
+  "systemImpact": "CAD-COMPLETE-MS0 units feed the CAD generation kernel consumed by prism_cad and the vendor automation dispatchers (Fusion/Inventor/SolidWorks bridges); a regression here corrupts geometry handed downstream to CAM toolpath generation and the print-to-program pipeline. The DOMAIN-PIPELINE-MS0 cad slot (INPUT_HALF) depends on these engines producing valid B-rep before the MACHINE_SELECT and TOOLPATH_GEN stages can run.",
+  "csDepth": [
+   "B-rep boolean ops are numerically fragile near coincident/tangent geometry — degenerate-face and sliver-edge cases must be guarded explicitly or the topology graph becomes non-manifold (the Euler-Poincare V-E+F check then fails silently downstream).",
+   "Feature-tree regeneration is an O(V+E) topological sort, but cyclic parametric references (a dimension referencing its own dependent) must be detected and rejected — an unguarded cycle causes infinite regeneration or stack overflow."
+  ]
+ },
+ "CAD-COMPLETE-MS0::U-CADC73": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/domain-ai.md",
+   "knowledge/wiki/architecture/dispatcher-cadautomation.md"
+  ],
+  "addSeWiki": [
+   "schema-read-discipline",
+   "fail-loud-r12-patterns"
+  ],
+  "systemImpact": "CAD-COMPLETE-MS0 units feed the CAD generation kernel consumed by prism_cad and the vendor automation dispatchers (Fusion/Inventor/SolidWorks bridges); a regression here corrupts geometry handed downstream to CAM toolpath generation and the print-to-program pipeline. The DOMAIN-PIPELINE-MS0 cad slot (INPUT_HALF) depends on these engines producing valid B-rep before the MACHINE_SELECT and TOOLPATH_GEN stages can run.",
+  "csDepth": [
+   "B-rep boolean ops are numerically fragile near coincident/tangent geometry — degenerate-face and sliver-edge cases must be guarded explicitly or the topology graph becomes non-manifold (the Euler-Poincare V-E+F check then fails silently downstream).",
+   "Feature-tree regeneration is an O(V+E) topological sort, but cyclic parametric references (a dimension referencing its own dependent) must be detected and rejected — an unguarded cycle causes infinite regeneration or stack overflow."
+  ]
+ },
+ "CAD-COMPLETE-MS0::U-CADC74": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/domain-ai.md",
+   "knowledge/wiki/architecture/dispatcher-cadautomation.md"
+  ],
+  "addSeWiki": [
+   "schema-read-discipline",
+   "fail-loud-r12-patterns"
+  ],
+  "systemImpact": "CAD-COMPLETE-MS0 units feed the CAD generation kernel consumed by prism_cad and the vendor automation dispatchers (Fusion/Inventor/SolidWorks bridges); a regression here corrupts geometry handed downstream to CAM toolpath generation and the print-to-program pipeline. The DOMAIN-PIPELINE-MS0 cad slot (INPUT_HALF) depends on these engines producing valid B-rep before the MACHINE_SELECT and TOOLPATH_GEN stages can run.",
+  "csDepth": [
+   "B-rep boolean ops are numerically fragile near coincident/tangent geometry — degenerate-face and sliver-edge cases must be guarded explicitly or the topology graph becomes non-manifold (the Euler-Poincare V-E+F check then fails silently downstream).",
+   "Feature-tree regeneration is an O(V+E) topological sort, but cyclic parametric references (a dimension referencing its own dependent) must be detected and rejected — an unguarded cycle causes infinite regeneration or stack overflow."
+  ]
+ },
+ "CAD-COMPLETE-MS0::U-CADC75": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/domain-ai.md",
+   "knowledge/wiki/architecture/dispatcher-cadautomation.md"
+  ],
+  "addSeWiki": [
+   "schema-read-discipline",
+   "fail-loud-r12-patterns"
+  ],
+  "systemImpact": "CAD-COMPLETE-MS0 units feed the CAD generation kernel consumed by prism_cad and the vendor automation dispatchers (Fusion/Inventor/SolidWorks bridges); a regression here corrupts geometry handed downstream to CAM toolpath generation and the print-to-program pipeline. The DOMAIN-PIPELINE-MS0 cad slot (INPUT_HALF) depends on these engines producing valid B-rep before the MACHINE_SELECT and TOOLPATH_GEN stages can run.",
+  "csDepth": [
+   "B-rep boolean ops are numerically fragile near coincident/tangent geometry — degenerate-face and sliver-edge cases must be guarded explicitly or the topology graph becomes non-manifold (the Euler-Poincare V-E+F check then fails silently downstream).",
+   "Feature-tree regeneration is an O(V+E) topological sort, but cyclic parametric references (a dimension referencing its own dependent) must be detected and rejected — an unguarded cycle causes infinite regeneration or stack overflow."
+  ]
+ },
+ "CAD-COMPLETE-MS0::U-CADC76": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/domain-ai.md",
+   "knowledge/wiki/architecture/dispatcher-cadautomation.md"
+  ],
+  "addSeWiki": [
+   "schema-read-discipline",
+   "fail-loud-r12-patterns"
+  ],
+  "systemImpact": "CAD-COMPLETE-MS0 units feed the CAD generation kernel consumed by prism_cad and the vendor automation dispatchers (Fusion/Inventor/SolidWorks bridges); a regression here corrupts geometry handed downstream to CAM toolpath generation and the print-to-program pipeline. The DOMAIN-PIPELINE-MS0 cad slot (INPUT_HALF) depends on these engines producing valid B-rep before the MACHINE_SELECT and TOOLPATH_GEN stages can run.",
+  "csDepth": [
+   "B-rep boolean ops are numerically fragile near coincident/tangent geometry — degenerate-face and sliver-edge cases must be guarded explicitly or the topology graph becomes non-manifold (the Euler-Poincare V-E+F check then fails silently downstream).",
+   "Feature-tree regeneration is an O(V+E) topological sort, but cyclic parametric references (a dimension referencing its own dependent) must be detected and rejected — an unguarded cycle causes infinite regeneration or stack overflow."
+  ]
+ },
+ "CAD-COMPLETE-MS0::U-CADC77": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/domain-ai.md",
+   "knowledge/wiki/architecture/dispatcher-cadautomation.md"
+  ],
+  "addSeWiki": [
+   "schema-read-discipline",
+   "fail-loud-r12-patterns"
+  ],
+  "systemImpact": "CAD-COMPLETE-MS0 units feed the CAD generation kernel consumed by prism_cad and the vendor automation dispatchers (Fusion/Inventor/SolidWorks bridges); a regression here corrupts geometry handed downstream to CAM toolpath generation and the print-to-program pipeline. The DOMAIN-PIPELINE-MS0 cad slot (INPUT_HALF) depends on these engines producing valid B-rep before the MACHINE_SELECT and TOOLPATH_GEN stages can run.",
+  "csDepth": [
+   "B-rep boolean ops are numerically fragile near coincident/tangent geometry — degenerate-face and sliver-edge cases must be guarded explicitly or the topology graph becomes non-manifold (the Euler-Poincare V-E+F check then fails silently downstream).",
+   "Feature-tree regeneration is an O(V+E) topological sort, but cyclic parametric references (a dimension referencing its own dependent) must be detected and rejected — an unguarded cycle causes infinite regeneration or stack overflow."
+  ]
+ },
+ "CAD-COMPLETE-MS0::U-CADC78": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/domain-ai.md",
+   "knowledge/wiki/architecture/dispatcher-cadautomation.md"
+  ],
+  "addSeWiki": [
+   "schema-read-discipline",
+   "fail-loud-r12-patterns"
+  ],
+  "systemImpact": "CAD-COMPLETE-MS0 units feed the CAD generation kernel consumed by prism_cad and the vendor automation dispatchers (Fusion/Inventor/SolidWorks bridges); a regression here corrupts geometry handed downstream to CAM toolpath generation and the print-to-program pipeline. The DOMAIN-PIPELINE-MS0 cad slot (INPUT_HALF) depends on these engines producing valid B-rep before the MACHINE_SELECT and TOOLPATH_GEN stages can run.",
+  "csDepth": [
+   "B-rep boolean ops are numerically fragile near coincident/tangent geometry — degenerate-face and sliver-edge cases must be guarded explicitly or the topology graph becomes non-manifold (the Euler-Poincare V-E+F check then fails silently downstream).",
+   "Feature-tree regeneration is an O(V+E) topological sort, but cyclic parametric references (a dimension referencing its own dependent) must be detected and rejected — an unguarded cycle causes infinite regeneration or stack overflow."
+  ]
+ },
+ "CAD-COMPLETE-MS0::U-CADC79": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/domain-ai.md",
+   "knowledge/wiki/architecture/dispatcher-cadautomation.md"
+  ],
+  "addSeWiki": [
+   "schema-read-discipline",
+   "fail-loud-r12-patterns"
+  ],
+  "systemImpact": "CAD-COMPLETE-MS0 units feed the CAD generation kernel consumed by prism_cad and the vendor automation dispatchers (Fusion/Inventor/SolidWorks bridges); a regression here corrupts geometry handed downstream to CAM toolpath generation and the print-to-program pipeline. The DOMAIN-PIPELINE-MS0 cad slot (INPUT_HALF) depends on these engines producing valid B-rep before the MACHINE_SELECT and TOOLPATH_GEN stages can run.",
+  "csDepth": [
+   "B-rep boolean ops are numerically fragile near coincident/tangent geometry — degenerate-face and sliver-edge cases must be guarded explicitly or the topology graph becomes non-manifold (the Euler-Poincare V-E+F check then fails silently downstream).",
+   "Feature-tree regeneration is an O(V+E) topological sort, but cyclic parametric references (a dimension referencing its own dependent) must be detected and rejected — an unguarded cycle causes infinite regeneration or stack overflow."
+  ]
+ },
+ "CAD-COMPLETE-MS0::U-CADC80": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/domain-ai.md",
+   "knowledge/wiki/architecture/dispatcher-cadautomation.md"
+  ],
+  "addSeWiki": [
+   "schema-read-discipline",
+   "fail-loud-r12-patterns"
+  ],
+  "systemImpact": "CAD-COMPLETE-MS0 units feed the CAD generation kernel consumed by prism_cad and the vendor automation dispatchers (Fusion/Inventor/SolidWorks bridges); a regression here corrupts geometry handed downstream to CAM toolpath generation and the print-to-program pipeline. The DOMAIN-PIPELINE-MS0 cad slot (INPUT_HALF) depends on these engines producing valid B-rep before the MACHINE_SELECT and TOOLPATH_GEN stages can run.",
+  "csDepth": [
+   "B-rep boolean ops are numerically fragile near coincident/tangent geometry — degenerate-face and sliver-edge cases must be guarded explicitly or the topology graph becomes non-manifold (the Euler-Poincare V-E+F check then fails silently downstream).",
+   "Feature-tree regeneration is an O(V+E) topological sort, but cyclic parametric references (a dimension referencing its own dependent) must be detected and rejected — an unguarded cycle causes infinite regeneration or stack overflow."
+  ]
+ },
+ "CAD-COMPLETE-MS0::U-CADC81": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/domain-ai.md",
+   "knowledge/wiki/architecture/dispatcher-cadautomation.md"
+  ],
+  "addSeWiki": [
+   "schema-read-discipline",
+   "fail-loud-r12-patterns"
+  ],
+  "systemImpact": "CAD-COMPLETE-MS0 units feed the CAD generation kernel consumed by prism_cad and the vendor automation dispatchers (Fusion/Inventor/SolidWorks bridges); a regression here corrupts geometry handed downstream to CAM toolpath generation and the print-to-program pipeline. The DOMAIN-PIPELINE-MS0 cad slot (INPUT_HALF) depends on these engines producing valid B-rep before the MACHINE_SELECT and TOOLPATH_GEN stages can run.",
+  "csDepth": [
+   "B-rep boolean ops are numerically fragile near coincident/tangent geometry — degenerate-face and sliver-edge cases must be guarded explicitly or the topology graph becomes non-manifold (the Euler-Poincare V-E+F check then fails silently downstream).",
+   "Feature-tree regeneration is an O(V+E) topological sort, but cyclic parametric references (a dimension referencing its own dependent) must be detected and rejected — an unguarded cycle causes infinite regeneration or stack overflow."
+  ]
+ },
+ "CAD-COMPLETE-MS0::U-CADC82": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/domain-ai.md",
+   "knowledge/wiki/architecture/dispatcher-cadautomation.md"
+  ],
+  "addSeWiki": [
+   "schema-read-discipline",
+   "fail-loud-r12-patterns"
+  ],
+  "systemImpact": "CAD-COMPLETE-MS0 units feed the CAD generation kernel consumed by prism_cad and the vendor automation dispatchers (Fusion/Inventor/SolidWorks bridges); a regression here corrupts geometry handed downstream to CAM toolpath generation and the print-to-program pipeline. The DOMAIN-PIPELINE-MS0 cad slot (INPUT_HALF) depends on these engines producing valid B-rep before the MACHINE_SELECT and TOOLPATH_GEN stages can run.",
+  "csDepth": [
+   "B-rep boolean ops are numerically fragile near coincident/tangent geometry — degenerate-face and sliver-edge cases must be guarded explicitly or the topology graph becomes non-manifold (the Euler-Poincare V-E+F check then fails silently downstream).",
+   "Feature-tree regeneration is an O(V+E) topological sort, but cyclic parametric references (a dimension referencing its own dependent) must be detected and rejected — an unguarded cycle causes infinite regeneration or stack overflow."
+  ]
+ },
+ "CAD-COMPLETE-MS0::U-CADC83": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/domain-ai.md",
+   "knowledge/wiki/architecture/dispatcher-cadautomation.md"
+  ],
+  "addSeWiki": [
+   "schema-read-discipline",
+   "fail-loud-r12-patterns"
+  ],
+  "systemImpact": "CAD-COMPLETE-MS0 units feed the CAD generation kernel consumed by prism_cad and the vendor automation dispatchers (Fusion/Inventor/SolidWorks bridges); a regression here corrupts geometry handed downstream to CAM toolpath generation and the print-to-program pipeline. The DOMAIN-PIPELINE-MS0 cad slot (INPUT_HALF) depends on these engines producing valid B-rep before the MACHINE_SELECT and TOOLPATH_GEN stages can run.",
+  "csDepth": [
+   "B-rep boolean ops are numerically fragile near coincident/tangent geometry — degenerate-face and sliver-edge cases must be guarded explicitly or the topology graph becomes non-manifold (the Euler-Poincare V-E+F check then fails silently downstream).",
+   "Feature-tree regeneration is an O(V+E) topological sort, but cyclic parametric references (a dimension referencing its own dependent) must be detected and rejected — an unguarded cycle causes infinite regeneration or stack overflow."
+  ]
+ },
+ "CAD-COMPLETE-MS0::U-CADC84": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/domain-ai.md",
+   "knowledge/wiki/architecture/dispatcher-cadautomation.md"
+  ],
+  "addSeWiki": [
+   "schema-read-discipline",
+   "fail-loud-r12-patterns"
+  ],
+  "systemImpact": "CAD-COMPLETE-MS0 units feed the CAD generation kernel consumed by prism_cad and the vendor automation dispatchers (Fusion/Inventor/SolidWorks bridges); a regression here corrupts geometry handed downstream to CAM toolpath generation and the print-to-program pipeline. The DOMAIN-PIPELINE-MS0 cad slot (INPUT_HALF) depends on these engines producing valid B-rep before the MACHINE_SELECT and TOOLPATH_GEN stages can run.",
+  "csDepth": [
+   "B-rep boolean ops are numerically fragile near coincident/tangent geometry — degenerate-face and sliver-edge cases must be guarded explicitly or the topology graph becomes non-manifold (the Euler-Poincare V-E+F check then fails silently downstream).",
+   "Feature-tree regeneration is an O(V+E) topological sort, but cyclic parametric references (a dimension referencing its own dependent) must be detected and rejected — an unguarded cycle causes infinite regeneration or stack overflow."
+  ]
+ },
+ "CAD-COMPLETE-MS0::U-CADC85": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/domain-ai.md",
+   "knowledge/wiki/architecture/dispatcher-cadautomation.md"
+  ],
+  "addSeWiki": [
+   "schema-read-discipline",
+   "fail-loud-r12-patterns"
+  ],
+  "systemImpact": "CAD-COMPLETE-MS0 units feed the CAD generation kernel consumed by prism_cad and the vendor automation dispatchers (Fusion/Inventor/SolidWorks bridges); a regression here corrupts geometry handed downstream to CAM toolpath generation and the print-to-program pipeline. The DOMAIN-PIPELINE-MS0 cad slot (INPUT_HALF) depends on these engines producing valid B-rep before the MACHINE_SELECT and TOOLPATH_GEN stages can run.",
+  "csDepth": [
+   "B-rep boolean ops are numerically fragile near coincident/tangent geometry — degenerate-face and sliver-edge cases must be guarded explicitly or the topology graph becomes non-manifold (the Euler-Poincare V-E+F check then fails silently downstream).",
+   "Feature-tree regeneration is an O(V+E) topological sort, but cyclic parametric references (a dimension referencing its own dependent) must be detected and rejected — an unguarded cycle causes infinite regeneration or stack overflow."
+  ]
+ },
+ "CAD-COMPLETE-MS0::U-CADC86": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/domain-ai.md",
+   "knowledge/wiki/architecture/dispatcher-cadautomation.md"
+  ],
+  "addSeWiki": [
+   "schema-read-discipline",
+   "fail-loud-r12-patterns"
+  ],
+  "systemImpact": "CAD-COMPLETE-MS0 units feed the CAD generation kernel consumed by prism_cad and the vendor automation dispatchers (Fusion/Inventor/SolidWorks bridges); a regression here corrupts geometry handed downstream to CAM toolpath generation and the print-to-program pipeline. The DOMAIN-PIPELINE-MS0 cad slot (INPUT_HALF) depends on these engines producing valid B-rep before the MACHINE_SELECT and TOOLPATH_GEN stages can run.",
+  "csDepth": [
+   "B-rep boolean ops are numerically fragile near coincident/tangent geometry — degenerate-face and sliver-edge cases must be guarded explicitly or the topology graph becomes non-manifold (the Euler-Poincare V-E+F check then fails silently downstream).",
+   "Feature-tree regeneration is an O(V+E) topological sort, but cyclic parametric references (a dimension referencing its own dependent) must be detected and rejected — an unguarded cycle causes infinite regeneration or stack overflow."
+  ]
+ },
+ "CAD-COMPLETE-MS0::U-CADC87": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/domain-ai.md",
+   "knowledge/wiki/architecture/dispatcher-cadautomation.md"
+  ],
+  "addSeWiki": [
+   "schema-read-discipline",
+   "fail-loud-r12-patterns"
+  ],
+  "systemImpact": "CAD-COMPLETE-MS0 units feed the CAD generation kernel consumed by prism_cad and the vendor automation dispatchers (Fusion/Inventor/SolidWorks bridges); a regression here corrupts geometry handed downstream to CAM toolpath generation and the print-to-program pipeline. The DOMAIN-PIPELINE-MS0 cad slot (INPUT_HALF) depends on these engines producing valid B-rep before the MACHINE_SELECT and TOOLPATH_GEN stages can run.",
+  "csDepth": [
+   "B-rep boolean ops are numerically fragile near coincident/tangent geometry — degenerate-face and sliver-edge cases must be guarded explicitly or the topology graph becomes non-manifold (the Euler-Poincare V-E+F check then fails silently downstream).",
+   "Feature-tree regeneration is an O(V+E) topological sort, but cyclic parametric references (a dimension referencing its own dependent) must be detected and rejected — an unguarded cycle causes infinite regeneration or stack overflow."
+  ]
+ },
+ "CAD-COMPLETE-MS0::U-CADC88": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/domain-ai.md",
+   "knowledge/wiki/architecture/dispatcher-cadautomation.md"
+  ],
+  "addSeWiki": [
+   "schema-read-discipline",
+   "fail-loud-r12-patterns"
+  ],
+  "systemImpact": "CAD-COMPLETE-MS0 units feed the CAD generation kernel consumed by prism_cad and the vendor automation dispatchers (Fusion/Inventor/SolidWorks bridges); a regression here corrupts geometry handed downstream to CAM toolpath generation and the print-to-program pipeline. The DOMAIN-PIPELINE-MS0 cad slot (INPUT_HALF) depends on these engines producing valid B-rep before the MACHINE_SELECT and TOOLPATH_GEN stages can run.",
+  "csDepth": [
+   "B-rep boolean ops are numerically fragile near coincident/tangent geometry — degenerate-face and sliver-edge cases must be guarded explicitly or the topology graph becomes non-manifold (the Euler-Poincare V-E+F check then fails silently downstream).",
+   "Feature-tree regeneration is an O(V+E) topological sort, but cyclic parametric references (a dimension referencing its own dependent) must be detected and rejected — an unguarded cycle causes infinite regeneration or stack overflow."
+  ]
+ },
+ "CAD-COMPLETE-MS0::U-CADC89": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/domain-ai.md",
+   "knowledge/wiki/architecture/dispatcher-cadautomation.md"
+  ],
+  "addSeWiki": [
+   "schema-read-discipline",
+   "fail-loud-r12-patterns"
+  ],
+  "systemImpact": "CAD-COMPLETE-MS0 units feed the CAD generation kernel consumed by prism_cad and the vendor automation dispatchers (Fusion/Inventor/SolidWorks bridges); a regression here corrupts geometry handed downstream to CAM toolpath generation and the print-to-program pipeline. The DOMAIN-PIPELINE-MS0 cad slot (INPUT_HALF) depends on these engines producing valid B-rep before the MACHINE_SELECT and TOOLPATH_GEN stages can run.",
+  "csDepth": [
+   "B-rep boolean ops are numerically fragile near coincident/tangent geometry — degenerate-face and sliver-edge cases must be guarded explicitly or the topology graph becomes non-manifold (the Euler-Poincare V-E+F check then fails silently downstream).",
+   "Feature-tree regeneration is an O(V+E) topological sort, but cyclic parametric references (a dimension referencing its own dependent) must be detected and rejected — an unguarded cycle causes infinite regeneration or stack overflow."
+  ]
+ },
+ "CAD-COMPLETE-MS0::U-CADC90": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/domain-ai.md",
+   "knowledge/wiki/architecture/dispatcher-cadautomation.md"
+  ],
+  "addSeWiki": [
+   "schema-read-discipline",
+   "fail-loud-r12-patterns"
+  ],
+  "systemImpact": "CAD-COMPLETE-MS0 units feed the CAD generation kernel consumed by prism_cad and the vendor automation dispatchers (Fusion/Inventor/SolidWorks bridges); a regression here corrupts geometry handed downstream to CAM toolpath generation and the print-to-program pipeline. The DOMAIN-PIPELINE-MS0 cad slot (INPUT_HALF) depends on these engines producing valid B-rep before the MACHINE_SELECT and TOOLPATH_GEN stages can run.",
+  "csDepth": [
+   "B-rep boolean ops are numerically fragile near coincident/tangent geometry — degenerate-face and sliver-edge cases must be guarded explicitly or the topology graph becomes non-manifold (the Euler-Poincare V-E+F check then fails silently downstream).",
+   "Feature-tree regeneration is an O(V+E) topological sort, but cyclic parametric references (a dimension referencing its own dependent) must be detected and rejected — an unguarded cycle causes infinite regeneration or stack overflow."
+  ]
+ },
+ "CAD-COMPLETE-MS0::U-CADC91": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/domain-ai.md",
+   "knowledge/wiki/architecture/dispatcher-cadautomation.md"
+  ],
+  "addSeWiki": [
+   "schema-read-discipline",
+   "fail-loud-r12-patterns"
+  ],
+  "systemImpact": "CAD-COMPLETE-MS0 units feed the CAD generation kernel consumed by prism_cad and the vendor automation dispatchers (Fusion/Inventor/SolidWorks bridges); a regression here corrupts geometry handed downstream to CAM toolpath generation and the print-to-program pipeline. The DOMAIN-PIPELINE-MS0 cad slot (INPUT_HALF) depends on these engines producing valid B-rep before the MACHINE_SELECT and TOOLPATH_GEN stages can run.",
+  "csDepth": [
+   "B-rep boolean ops are numerically fragile near coincident/tangent geometry — degenerate-face and sliver-edge cases must be guarded explicitly or the topology graph becomes non-manifold (the Euler-Poincare V-E+F check then fails silently downstream).",
+   "Feature-tree regeneration is an O(V+E) topological sort, but cyclic parametric references (a dimension referencing its own dependent) must be detected and rejected — an unguarded cycle causes infinite regeneration or stack overflow."
+  ]
+ },
+ "CAD-COMPLETE-MS0::U-CADC92": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/domain-ai.md",
+   "knowledge/wiki/architecture/dispatcher-cadautomation.md"
+  ],
+  "addSeWiki": [
+   "schema-read-discipline",
+   "fail-loud-r12-patterns"
+  ],
+  "systemImpact": "CAD-COMPLETE-MS0 units feed the CAD generation kernel consumed by prism_cad and the vendor automation dispatchers (Fusion/Inventor/SolidWorks bridges); a regression here corrupts geometry handed downstream to CAM toolpath generation and the print-to-program pipeline. The DOMAIN-PIPELINE-MS0 cad slot (INPUT_HALF) depends on these engines producing valid B-rep before the MACHINE_SELECT and TOOLPATH_GEN stages can run.",
+  "csDepth": [
+   "B-rep boolean ops are numerically fragile near coincident/tangent geometry — degenerate-face and sliver-edge cases must be guarded explicitly or the topology graph becomes non-manifold (the Euler-Poincare V-E+F check then fails silently downstream).",
+   "Feature-tree regeneration is an O(V+E) topological sort, but cyclic parametric references (a dimension referencing its own dependent) must be detected and rejected — an unguarded cycle causes infinite regeneration or stack overflow."
+  ]
+ },
+ "CAD-COMPLETE-MS0::U-CADC93": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/domain-ai.md",
+   "knowledge/wiki/architecture/dispatcher-cadautomation.md"
+  ],
+  "addSeWiki": [
+   "schema-read-discipline",
+   "fail-loud-r12-patterns"
+  ],
+  "systemImpact": "CAD-COMPLETE-MS0 units feed the CAD generation kernel consumed by prism_cad and the vendor automation dispatchers (Fusion/Inventor/SolidWorks bridges); a regression here corrupts geometry handed downstream to CAM toolpath generation and the print-to-program pipeline. The DOMAIN-PIPELINE-MS0 cad slot (INPUT_HALF) depends on these engines producing valid B-rep before the MACHINE_SELECT and TOOLPATH_GEN stages can run.",
+  "csDepth": [
+   "B-rep boolean ops are numerically fragile near coincident/tangent geometry — degenerate-face and sliver-edge cases must be guarded explicitly or the topology graph becomes non-manifold (the Euler-Poincare V-E+F check then fails silently downstream).",
+   "Feature-tree regeneration is an O(V+E) topological sort, but cyclic parametric references (a dimension referencing its own dependent) must be detected and rejected — an unguarded cycle causes infinite regeneration or stack overflow."
+  ]
+ },
+ "CAD-COMPLETE-MS0::U-CADC94": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/domain-ai.md",
+   "knowledge/wiki/architecture/dispatcher-cadautomation.md"
+  ],
+  "addSeWiki": [
+   "schema-read-discipline",
+   "fail-loud-r12-patterns"
+  ],
+  "systemImpact": "CAD-COMPLETE-MS0 units feed the CAD generation kernel consumed by prism_cad and the vendor automation dispatchers (Fusion/Inventor/SolidWorks bridges); a regression here corrupts geometry handed downstream to CAM toolpath generation and the print-to-program pipeline. The DOMAIN-PIPELINE-MS0 cad slot (INPUT_HALF) depends on these engines producing valid B-rep before the MACHINE_SELECT and TOOLPATH_GEN stages can run.",
+  "csDepth": [
+   "B-rep boolean ops are numerically fragile near coincident/tangent geometry — degenerate-face and sliver-edge cases must be guarded explicitly or the topology graph becomes non-manifold (the Euler-Poincare V-E+F check then fails silently downstream).",
+   "Feature-tree regeneration is an O(V+E) topological sort, but cyclic parametric references (a dimension referencing its own dependent) must be detected and rejected — an unguarded cycle causes infinite regeneration or stack overflow."
+  ]
+ },
+ "CAD-COMPLETE-MS0::U-CADC95": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/domain-ai.md",
+   "knowledge/wiki/architecture/dispatcher-cadautomation.md"
+  ],
+  "addSeWiki": [
+   "schema-read-discipline",
+   "fail-loud-r12-patterns"
+  ],
+  "systemImpact": "CAD-COMPLETE-MS0 units feed the CAD generation kernel consumed by prism_cad and the vendor automation dispatchers (Fusion/Inventor/SolidWorks bridges); a regression here corrupts geometry handed downstream to CAM toolpath generation and the print-to-program pipeline. The DOMAIN-PIPELINE-MS0 cad slot (INPUT_HALF) depends on these engines producing valid B-rep before the MACHINE_SELECT and TOOLPATH_GEN stages can run.",
+  "csDepth": [
+   "B-rep boolean ops are numerically fragile near coincident/tangent geometry — degenerate-face and sliver-edge cases must be guarded explicitly or the topology graph becomes non-manifold (the Euler-Poincare V-E+F check then fails silently downstream).",
+   "Feature-tree regeneration is an O(V+E) topological sort, but cyclic parametric references (a dimension referencing its own dependent) must be detected and rejected — an unguarded cycle causes infinite regeneration or stack overflow."
+  ]
+ },
+ "CAD-COMPLETE-MS0::U-CADC96": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/domain-ai.md",
+   "knowledge/wiki/architecture/dispatcher-cadautomation.md"
+  ],
+  "addSeWiki": [
+   "schema-read-discipline",
+   "fail-loud-r12-patterns"
+  ],
+  "systemImpact": "CAD-COMPLETE-MS0 units feed the CAD generation kernel consumed by prism_cad and the vendor automation dispatchers (Fusion/Inventor/SolidWorks bridges); a regression here corrupts geometry handed downstream to CAM toolpath generation and the print-to-program pipeline. The DOMAIN-PIPELINE-MS0 cad slot (INPUT_HALF) depends on these engines producing valid B-rep before the MACHINE_SELECT and TOOLPATH_GEN stages can run.",
+  "csDepth": [
+   "B-rep boolean ops are numerically fragile near coincident/tangent geometry — degenerate-face and sliver-edge cases must be guarded explicitly or the topology graph becomes non-manifold (the Euler-Poincare V-E+F check then fails silently downstream).",
+   "Feature-tree regeneration is an O(V+E) topological sort, but cyclic parametric references (a dimension referencing its own dependent) must be detected and rejected — an unguarded cycle causes infinite regeneration or stack overflow."
+  ]
+ },
+ "CAD-COMPLETE-MS0::U-CADC97": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/domain-ai.md",
+   "knowledge/wiki/architecture/dispatcher-cadautomation.md"
+  ],
+  "addSeWiki": [
+   "schema-read-discipline",
+   "fail-loud-r12-patterns"
+  ],
+  "systemImpact": "CAD-COMPLETE-MS0 units feed the CAD generation kernel consumed by prism_cad and the vendor automation dispatchers (Fusion/Inventor/SolidWorks bridges); a regression here corrupts geometry handed downstream to CAM toolpath generation and the print-to-program pipeline. The DOMAIN-PIPELINE-MS0 cad slot (INPUT_HALF) depends on these engines producing valid B-rep before the MACHINE_SELECT and TOOLPATH_GEN stages can run.",
+  "csDepth": [
+   "B-rep boolean ops are numerically fragile near coincident/tangent geometry — degenerate-face and sliver-edge cases must be guarded explicitly or the topology graph becomes non-manifold (the Euler-Poincare V-E+F check then fails silently downstream).",
+   "Feature-tree regeneration is an O(V+E) topological sort, but cyclic parametric references (a dimension referencing its own dependent) must be detected and rejected — an unguarded cycle causes infinite regeneration or stack overflow."
+  ]
+ },
+ "CAD-COMPLETE-MS0::U-CADC98": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/domain-ai.md",
+   "knowledge/wiki/architecture/dispatcher-cadautomation.md"
+  ],
+  "addSeWiki": [
+   "schema-read-discipline",
+   "fail-loud-r12-patterns"
+  ],
+  "systemImpact": "CAD-COMPLETE-MS0 units feed the CAD generation kernel consumed by prism_cad and the vendor automation dispatchers (Fusion/Inventor/SolidWorks bridges); a regression here corrupts geometry handed downstream to CAM toolpath generation and the print-to-program pipeline. The DOMAIN-PIPELINE-MS0 cad slot (INPUT_HALF) depends on these engines producing valid B-rep before the MACHINE_SELECT and TOOLPATH_GEN stages can run.",
+  "csDepth": [
+   "B-rep boolean ops are numerically fragile near coincident/tangent geometry — degenerate-face and sliver-edge cases must be guarded explicitly or the topology graph becomes non-manifold (the Euler-Poincare V-E+F check then fails silently downstream).",
+   "Feature-tree regeneration is an O(V+E) topological sort, but cyclic parametric references (a dimension referencing its own dependent) must be detected and rejected — an unguarded cycle causes infinite regeneration or stack overflow."
+  ]
+ },
+ "CAD-COMPLETE-MS0::U-CADC99": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/domain-ai.md",
+   "knowledge/wiki/architecture/dispatcher-cadautomation.md"
+  ],
+  "addSeWiki": [
+   "schema-read-discipline",
+   "fail-loud-r12-patterns"
+  ],
+  "systemImpact": "CAD-COMPLETE-MS0 units feed the CAD generation kernel consumed by prism_cad and the vendor automation dispatchers (Fusion/Inventor/SolidWorks bridges); a regression here corrupts geometry handed downstream to CAM toolpath generation and the print-to-program pipeline. The DOMAIN-PIPELINE-MS0 cad slot (INPUT_HALF) depends on these engines producing valid B-rep before the MACHINE_SELECT and TOOLPATH_GEN stages can run.",
+  "csDepth": [
+   "B-rep boolean ops are numerically fragile near coincident/tangent geometry — degenerate-face and sliver-edge cases must be guarded explicitly or the topology graph becomes non-manifold (the Euler-Poincare V-E+F check then fails silently downstream).",
+   "Feature-tree regeneration is an O(V+E) topological sort, but cyclic parametric references (a dimension referencing its own dependent) must be detected and rejected — an unguarded cycle causes infinite regeneration or stack overflow."
+  ]
+ },
+ "CAD-COMPLETE-MS0::U-CADC100": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/domain-ai.md",
+   "knowledge/wiki/architecture/dispatcher-cadautomation.md"
+  ],
+  "addSeWiki": [
+   "schema-read-discipline",
+   "fail-loud-r12-patterns"
+  ],
+  "systemImpact": "CAD-COMPLETE-MS0 units feed the CAD generation kernel consumed by prism_cad and the vendor automation dispatchers (Fusion/Inventor/SolidWorks bridges); a regression here corrupts geometry handed downstream to CAM toolpath generation and the print-to-program pipeline. The DOMAIN-PIPELINE-MS0 cad slot (INPUT_HALF) depends on these engines producing valid B-rep before the MACHINE_SELECT and TOOLPATH_GEN stages can run.",
+  "csDepth": [
+   "B-rep boolean ops are numerically fragile near coincident/tangent geometry — degenerate-face and sliver-edge cases must be guarded explicitly or the topology graph becomes non-manifold (the Euler-Poincare V-E+F check then fails silently downstream).",
+   "Feature-tree regeneration is an O(V+E) topological sort, but cyclic parametric references (a dimension referencing its own dependent) must be detected and rejected — an unguarded cycle causes infinite regeneration or stack overflow."
+  ]
+ },
+ "CAD-COMPLETE-MS0::U-CADC101": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/domain-ai.md",
+   "knowledge/wiki/architecture/dispatcher-cadautomation.md"
+  ],
+  "addSeWiki": [
+   "schema-read-discipline",
+   "fail-loud-r12-patterns"
+  ],
+  "systemImpact": "CAD-COMPLETE-MS0 units feed the CAD generation kernel consumed by prism_cad and the vendor automation dispatchers (Fusion/Inventor/SolidWorks bridges); a regression here corrupts geometry handed downstream to CAM toolpath generation and the print-to-program pipeline. The DOMAIN-PIPELINE-MS0 cad slot (INPUT_HALF) depends on these engines producing valid B-rep before the MACHINE_SELECT and TOOLPATH_GEN stages can run.",
+  "csDepth": [
+   "B-rep boolean ops are numerically fragile near coincident/tangent geometry — degenerate-face and sliver-edge cases must be guarded explicitly or the topology graph becomes non-manifold (the Euler-Poincare V-E+F check then fails silently downstream).",
+   "Feature-tree regeneration is an O(V+E) topological sort, but cyclic parametric references (a dimension referencing its own dependent) must be detected and rejected — an unguarded cycle causes infinite regeneration or stack overflow."
+  ]
+ },
+ "CAD-COMPLETE-MS0::U-CADC102": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/domain-ai.md",
+   "knowledge/wiki/architecture/dispatcher-cadautomation.md"
+  ],
+  "addSeWiki": [
+   "schema-read-discipline",
+   "fail-loud-r12-patterns"
+  ],
+  "systemImpact": "CAD-COMPLETE-MS0 units feed the CAD generation kernel consumed by prism_cad and the vendor automation dispatchers (Fusion/Inventor/SolidWorks bridges); a regression here corrupts geometry handed downstream to CAM toolpath generation and the print-to-program pipeline. The DOMAIN-PIPELINE-MS0 cad slot (INPUT_HALF) depends on these engines producing valid B-rep before the MACHINE_SELECT and TOOLPATH_GEN stages can run.",
+  "csDepth": [
+   "B-rep boolean ops are numerically fragile near coincident/tangent geometry — degenerate-face and sliver-edge cases must be guarded explicitly or the topology graph becomes non-manifold (the Euler-Poincare V-E+F check then fails silently downstream).",
+   "Feature-tree regeneration is an O(V+E) topological sort, but cyclic parametric references (a dimension referencing its own dependent) must be detected and rejected — an unguarded cycle causes infinite regeneration or stack overflow."
+  ]
+ },
+ "CAD-COMPLETE-MS0::U-CADC103": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/domain-ai.md",
+   "knowledge/wiki/architecture/dispatcher-cadautomation.md"
+  ],
+  "addSeWiki": [
+   "schema-read-discipline",
+   "fail-loud-r12-patterns"
+  ],
+  "systemImpact": "CAD-COMPLETE-MS0 units feed the CAD generation kernel consumed by prism_cad and the vendor automation dispatchers (Fusion/Inventor/SolidWorks bridges); a regression here corrupts geometry handed downstream to CAM toolpath generation and the print-to-program pipeline. The DOMAIN-PIPELINE-MS0 cad slot (INPUT_HALF) depends on these engines producing valid B-rep before the MACHINE_SELECT and TOOLPATH_GEN stages can run.",
+  "csDepth": [
+   "B-rep boolean ops are numerically fragile near coincident/tangent geometry — degenerate-face and sliver-edge cases must be guarded explicitly or the topology graph becomes non-manifold (the Euler-Poincare V-E+F check then fails silently downstream).",
+   "Feature-tree regeneration is an O(V+E) topological sort, but cyclic parametric references (a dimension referencing its own dependent) must be detected and rejected — an unguarded cycle causes infinite regeneration or stack overflow."
+  ]
+ },
+ "CAD-COMPLETE-MS0::U-CADC104": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/domain-ai.md",
+   "knowledge/wiki/architecture/dispatcher-cadautomation.md"
+  ],
+  "addSeWiki": [
+   "schema-read-discipline",
+   "fail-loud-r12-patterns"
+  ],
+  "systemImpact": "CAD-COMPLETE-MS0 units feed the CAD generation kernel consumed by prism_cad and the vendor automation dispatchers (Fusion/Inventor/SolidWorks bridges); a regression here corrupts geometry handed downstream to CAM toolpath generation and the print-to-program pipeline. The DOMAIN-PIPELINE-MS0 cad slot (INPUT_HALF) depends on these engines producing valid B-rep before the MACHINE_SELECT and TOOLPATH_GEN stages can run.",
+  "csDepth": [
+   "B-rep boolean ops are numerically fragile near coincident/tangent geometry — degenerate-face and sliver-edge cases must be guarded explicitly or the topology graph becomes non-manifold (the Euler-Poincare V-E+F check then fails silently downstream).",
+   "Feature-tree regeneration is an O(V+E) topological sort, but cyclic parametric references (a dimension referencing its own dependent) must be detected and rejected — an unguarded cycle causes infinite regeneration or stack overflow."
+  ]
+ },
+ "CAD-COMPLETE-MS0::U-CADC105": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/domain-ai.md",
+   "knowledge/wiki/architecture/dispatcher-cadautomation.md"
+  ],
+  "addSeWiki": [
+   "schema-read-discipline",
+   "fail-loud-r12-patterns"
+  ],
+  "systemImpact": "CAD-COMPLETE-MS0 units feed the CAD generation kernel consumed by prism_cad and the vendor automation dispatchers (Fusion/Inventor/SolidWorks bridges); a regression here corrupts geometry handed downstream to CAM toolpath generation and the print-to-program pipeline. The DOMAIN-PIPELINE-MS0 cad slot (INPUT_HALF) depends on these engines producing valid B-rep before the MACHINE_SELECT and TOOLPATH_GEN stages can run.",
+  "csDepth": [
+   "B-rep boolean ops are numerically fragile near coincident/tangent geometry — degenerate-face and sliver-edge cases must be guarded explicitly or the topology graph becomes non-manifold (the Euler-Poincare V-E+F check then fails silently downstream).",
+   "Feature-tree regeneration is an O(V+E) topological sort, but cyclic parametric references (a dimension referencing its own dependent) must be detected and rejected — an unguarded cycle causes infinite regeneration or stack overflow."
+  ]
+ },
+ "CAD-COMPLETE-MS0::U-CADC106": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/domain-ai.md",
+   "knowledge/wiki/architecture/dispatcher-cadautomation.md"
+  ],
+  "addSeWiki": [
+   "schema-read-discipline",
+   "fail-loud-r12-patterns"
+  ],
+  "systemImpact": "CAD-COMPLETE-MS0 units feed the CAD generation kernel consumed by prism_cad and the vendor automation dispatchers (Fusion/Inventor/SolidWorks bridges); a regression here corrupts geometry handed downstream to CAM toolpath generation and the print-to-program pipeline. The DOMAIN-PIPELINE-MS0 cad slot (INPUT_HALF) depends on these engines producing valid B-rep before the MACHINE_SELECT and TOOLPATH_GEN stages can run.",
+  "csDepth": [
+   "B-rep boolean ops are numerically fragile near coincident/tangent geometry — degenerate-face and sliver-edge cases must be guarded explicitly or the topology graph becomes non-manifold (the Euler-Poincare V-E+F check then fails silently downstream).",
+   "Feature-tree regeneration is an O(V+E) topological sort, but cyclic parametric references (a dimension referencing its own dependent) must be detected and rejected — an unguarded cycle causes infinite regeneration or stack overflow."
+  ]
+ },
+ "CAD-COMPLETE-MS0::U-CADC107": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/domain-ai.md",
+   "knowledge/wiki/architecture/dispatcher-cadautomation.md"
+  ],
+  "addSeWiki": [
+   "schema-read-discipline",
+   "fail-loud-r12-patterns"
+  ],
+  "systemImpact": "CAD-COMPLETE-MS0 units feed the CAD generation kernel consumed by prism_cad and the vendor automation dispatchers (Fusion/Inventor/SolidWorks bridges); a regression here corrupts geometry handed downstream to CAM toolpath generation and the print-to-program pipeline. The DOMAIN-PIPELINE-MS0 cad slot (INPUT_HALF) depends on these engines producing valid B-rep before the MACHINE_SELECT and TOOLPATH_GEN stages can run.",
+  "csDepth": [
+   "B-rep boolean ops are numerically fragile near coincident/tangent geometry — degenerate-face and sliver-edge cases must be guarded explicitly or the topology graph becomes non-manifold (the Euler-Poincare V-E+F check then fails silently downstream).",
+   "Feature-tree regeneration is an O(V+E) topological sort, but cyclic parametric references (a dimension referencing its own dependent) must be detected and rejected — an unguarded cycle causes infinite regeneration or stack overflow."
+  ]
+ },
+ "CAD-COMPLETE-MS0::U-CADC108": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/domain-ai.md",
+   "knowledge/wiki/architecture/dispatcher-cadautomation.md"
+  ],
+  "addSeWiki": [
+   "schema-read-discipline",
+   "fail-loud-r12-patterns"
+  ],
+  "systemImpact": "CAD-COMPLETE-MS0 units feed the CAD generation kernel consumed by prism_cad and the vendor automation dispatchers (Fusion/Inventor/SolidWorks bridges); a regression here corrupts geometry handed downstream to CAM toolpath generation and the print-to-program pipeline. The DOMAIN-PIPELINE-MS0 cad slot (INPUT_HALF) depends on these engines producing valid B-rep before the MACHINE_SELECT and TOOLPATH_GEN stages can run.",
+  "csDepth": [
+   "B-rep boolean ops are numerically fragile near coincident/tangent geometry — degenerate-face and sliver-edge cases must be guarded explicitly or the topology graph becomes non-manifold (the Euler-Poincare V-E+F check then fails silently downstream).",
+   "Feature-tree regeneration is an O(V+E) topological sort, but cyclic parametric references (a dimension referencing its own dependent) must be detected and rejected — an unguarded cycle causes infinite regeneration or stack overflow."
+  ]
+ },
+ "CAD-COMPLETE-MS0::U-CCCO01": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/domain-ai.md",
+   "knowledge/wiki/architecture/dispatcher-cadautomation.md"
+  ],
+  "addSeWiki": [
+   "schema-read-discipline",
+   "fail-loud-r12-patterns"
+  ],
+  "systemImpact": "CAD-COMPLETE-MS0 units feed the CAD generation kernel consumed by prism_cad and the vendor automation dispatchers (Fusion/Inventor/SolidWorks bridges); a regression here corrupts geometry handed downstream to CAM toolpath generation and the print-to-program pipeline. The DOMAIN-PIPELINE-MS0 cad slot (INPUT_HALF) depends on these engines producing valid B-rep before the MACHINE_SELECT and TOOLPATH_GEN stages can run.",
+  "csDepth": [
+   "B-rep boolean ops are numerically fragile near coincident/tangent geometry — degenerate-face and sliver-edge cases must be guarded explicitly or the topology graph becomes non-manifold (the Euler-Poincare V-E+F check then fails silently downstream).",
+   "Feature-tree regeneration is an O(V+E) topological sort, but cyclic parametric references (a dimension referencing its own dependent) must be detected and rejected — an unguarded cycle causes infinite regeneration or stack overflow."
+  ]
+ },
+ "CAD-COMPLETE-MS0::U-CCCO02": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/domain-ai.md",
+   "knowledge/wiki/architecture/dispatcher-cadautomation.md"
+  ],
+  "addSeWiki": [
+   "schema-read-discipline",
+   "fail-loud-r12-patterns"
+  ],
+  "systemImpact": "CAD-COMPLETE-MS0 units feed the CAD generation kernel consumed by prism_cad and the vendor automation dispatchers (Fusion/Inventor/SolidWorks bridges); a regression here corrupts geometry handed downstream to CAM toolpath generation and the print-to-program pipeline. The DOMAIN-PIPELINE-MS0 cad slot (INPUT_HALF) depends on these engines producing valid B-rep before the MACHINE_SELECT and TOOLPATH_GEN stages can run.",
+  "csDepth": [
+   "B-rep boolean ops are numerically fragile near coincident/tangent geometry — degenerate-face and sliver-edge cases must be guarded explicitly or the topology graph becomes non-manifold (the Euler-Poincare V-E+F check then fails silently downstream).",
+   "Feature-tree regeneration is an O(V+E) topological sort, but cyclic parametric references (a dimension referencing its own dependent) must be detected and rejected — an unguarded cycle causes infinite regeneration or stack overflow."
+  ]
+ },
+ "CAD-COMPLETE-MS0::U-CCCO03": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/domain-ai.md",
+   "knowledge/wiki/architecture/dispatcher-cadautomation.md"
+  ],
+  "addSeWiki": [
+   "schema-read-discipline",
+   "fail-loud-r12-patterns"
+  ],
+  "systemImpact": "CAD-COMPLETE-MS0 units feed the CAD generation kernel consumed by prism_cad and the vendor automation dispatchers (Fusion/Inventor/SolidWorks bridges); a regression here corrupts geometry handed downstream to CAM toolpath generation and the print-to-program pipeline. The DOMAIN-PIPELINE-MS0 cad slot (INPUT_HALF) depends on these engines producing valid B-rep before the MACHINE_SELECT and TOOLPATH_GEN stages can run.",
+  "csDepth": [
+   "B-rep boolean ops are numerically fragile near coincident/tangent geometry — degenerate-face and sliver-edge cases must be guarded explicitly or the topology graph becomes non-manifold (the Euler-Poincare V-E+F check then fails silently downstream).",
+   "Feature-tree regeneration is an O(V+E) topological sort, but cyclic parametric references (a dimension referencing its own dependent) must be detected and rejected — an unguarded cycle causes infinite regeneration or stack overflow."
+  ]
+ },
+ "CAD-COMPLETE-MS0::U-CCCO04": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/domain-ai.md",
+   "knowledge/wiki/architecture/dispatcher-cadautomation.md"
+  ],
+  "addSeWiki": [
+   "schema-read-discipline",
+   "fail-loud-r12-patterns"
+  ],
+  "systemImpact": "CAD-COMPLETE-MS0 units feed the CAD generation kernel consumed by prism_cad and the vendor automation dispatchers (Fusion/Inventor/SolidWorks bridges); a regression here corrupts geometry handed downstream to CAM toolpath generation and the print-to-program pipeline. The DOMAIN-PIPELINE-MS0 cad slot (INPUT_HALF) depends on these engines producing valid B-rep before the MACHINE_SELECT and TOOLPATH_GEN stages can run.",
+  "csDepth": [
+   "B-rep boolean ops are numerically fragile near coincident/tangent geometry — degenerate-face and sliver-edge cases must be guarded explicitly or the topology graph becomes non-manifold (the Euler-Poincare V-E+F check then fails silently downstream).",
+   "Feature-tree regeneration is an O(V+E) topological sort, but cyclic parametric references (a dimension referencing its own dependent) must be detected and rejected — an unguarded cycle causes infinite regeneration or stack overflow."
+  ]
+ },
+ "CAD-COMPLETE-MS0::U-CCCO05": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/domain-ai.md",
+   "knowledge/wiki/architecture/dispatcher-cadautomation.md"
+  ],
+  "addSeWiki": [
+   "schema-read-discipline",
+   "fail-loud-r12-patterns"
+  ],
+  "systemImpact": "CAD-COMPLETE-MS0 units feed the CAD generation kernel consumed by prism_cad and the vendor automation dispatchers (Fusion/Inventor/SolidWorks bridges); a regression here corrupts geometry handed downstream to CAM toolpath generation and the print-to-program pipeline. The DOMAIN-PIPELINE-MS0 cad slot (INPUT_HALF) depends on these engines producing valid B-rep before the MACHINE_SELECT and TOOLPATH_GEN stages can run.",
+  "csDepth": [
+   "B-rep boolean ops are numerically fragile near coincident/tangent geometry — degenerate-face and sliver-edge cases must be guarded explicitly or the topology graph becomes non-manifold (the Euler-Poincare V-E+F check then fails silently downstream).",
+   "Feature-tree regeneration is an O(V+E) topological sort, but cyclic parametric references (a dimension referencing its own dependent) must be detected and rejected — an unguarded cycle causes infinite regeneration or stack overflow."
+  ]
+ },
+ "CAD-COMPLETE-MS0::U-CCCO06": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/domain-ai.md",
+   "knowledge/wiki/architecture/dispatcher-cadautomation.md"
+  ],
+  "addSeWiki": [
+   "schema-read-discipline",
+   "fail-loud-r12-patterns"
+  ],
+  "systemImpact": "CAD-COMPLETE-MS0 units feed the CAD generation kernel consumed by prism_cad and the vendor automation dispatchers (Fusion/Inventor/SolidWorks bridges); a regression here corrupts geometry handed downstream to CAM toolpath generation and the print-to-program pipeline. The DOMAIN-PIPELINE-MS0 cad slot (INPUT_HALF) depends on these engines producing valid B-rep before the MACHINE_SELECT and TOOLPATH_GEN stages can run.",
+  "csDepth": [
+   "B-rep boolean ops are numerically fragile near coincident/tangent geometry — degenerate-face and sliver-edge cases must be guarded explicitly or the topology graph becomes non-manifold (the Euler-Poincare V-E+F check then fails silently downstream).",
+   "Feature-tree regeneration is an O(V+E) topological sort, but cyclic parametric references (a dimension referencing its own dependent) must be detected and rejected — an unguarded cycle causes infinite regeneration or stack overflow."
+  ]
+ },
+ "CAD-COMPLETE-MS0::U-CADC-LP01": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/nn-graph-ms0.md",
+   "knowledge/wiki/architecture/domain-ml.md",
+   "knowledge/wiki/architecture/domain-orchestration.md"
+  ],
+  "addSeWiki": [
+   "atomic-write-idempotency-patterns",
+   "fail-loud-r12-patterns",
+   "mcp-tool-design"
+  ],
+  "systemImpact": "The outcome bus is the single ingest point for the entire CAD closed-loop learning system — U-CADC-LP02 (feedback collector), U-CADC-LP03 (replay buffer), and U-CADC-LP04 (backprop propagator) all subscribe to it. If the bus drops or mis-orders events, every per-CAD NN head (U-CADC-NN02..06) trains on a corrupted reward signal, silently degrading toolpath/feature predictions across all four vendor adapters.",
+  "csDepth": [
+   "A pub/sub bus needs an explicit back-pressure / delivery-guarantee policy: if a slow subscriber (the replay buffer doing disk I/O) blocks the bus, fast subscribers stall — choose bounded-queue + drop-oldest vs unbounded buffer deliberately, and document the at-least-once vs at-most-once semantics.",
+   "Event ordering is load-bearing for RL credit assignment: outcome events must carry a monotonic sequence number, since concurrent CAD executions across adapters make wall-clock timestamps insufficient for reconstructing transition order in the replay buffer."
+  ]
+ },
+ "CAD-COMPLETE-MS0::U-CADC-LP02": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/nn-graph-ms0.md",
+   "knowledge/wiki/architecture/dispatcher-ml.md"
+  ],
+  "addSeWiki": [
+   "fail-loud-r12-patterns",
+   "schema-read-discipline"
+  ],
+  "systemImpact": "Sits between the outcome bus (U-CADC-LP01) and the per-CAD NN heads (U-CADC-NN02..06) — it is the routing layer that decides which head's training signal each metric belongs to. A mis-routed feedback signal trains the wrong vendor policy (e.g. Mastercam outcomes updating the Inventor GNN), a silent correctness failure that only surfaces as degraded prediction quality after U-CADC-LP04 has already back-propagated the bad gradient.",
+  "csDepth": [
+   "Online streaming statistics (running mean/variance) must use a numerically stable algorithm (Welford's) — naive sum-of-squares accumulation loses precision or overflows over a long-running training session with millions of CAD execution events.",
+   "The adapter-id to NN-head routing table is a closed enum: an unknown adapter id must fail loud (R12), never default-route to a head — a silent default would poison whichever head is the fallback."
+  ]
+ },
+ "CAD-COMPLETE-MS0::U-CADC-LP03": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/u-nng-pipeline-stratified-wire.md",
+   "knowledge/wiki/architecture/dispatcher-ml.md"
+  ],
+  "addSeWiki": [
+   "fail-loud-r12-patterns",
+   "test-design-real-values"
+  ],
+  "systemImpact": "The replay buffer is the training-data store for the closed-loop NN heads — U-CADC-LP04's backprop propagator samples batches from it. If priority sampling is biased or the ring buffer evicts the wrong transitions, the NN heads overfit to a stale slice of CAD execution history and the master brain's policy diverges. Its sampling reproducibility also gates regression-testability of the whole LP01-LP04 loop.",
+  "csDepth": [
+   "Prioritized experience replay with a sum-tree is O(log n) per insert/sample, but a priority update on a full buffer must atomically evict-and-reinsert — an interleaved eviction during sampling can return a transition that no longer exists; guard with a version stamp or copy-on-sample.",
+   "Importance-sampling weight correction (beta annealing) is required to debias the non-uniform priority sampling — omitting it introduces a systematic gradient bias that the U-CADC-LP04 propagator cannot detect, since the bias looks like a legitimate loss signal."
+  ]
+ },
+ "CAD-COMPLETE-MS0::U-CADC-LP04": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/nn-graph-ms0.md",
+   "knowledge/wiki/architecture/u-nng-pipeline-stratified-wire.md",
+   "knowledge/wiki/architecture/dispatcher-ml.md"
+  ],
+  "addSeWiki": [
+   "test-design-real-values",
+   "schema-read-discipline"
+  ],
+  "systemImpact": "This is the terminal stage of the CAD closed-loop learning system — it converts CAD execution outcomes into weight updates for both the master policy and every per-CAD NN head (the U-CADC-NN01 foundation encoder plus NN02..06 heads). A regression here (wrong gradient routing, missing divergence guard) is the highest-blast-radius failure in the LP chain: it can NaN-poison all six NN engines at once, forcing a full retrain from a checkpoint.",
+  "csDepth": [
+   "Two-level gradient routing (master plus per-CAD head) is a hierarchical-RL credit-assignment problem — the same outcome must flow to the head that acted AND the master that selected it; double-counting or dropping one path produces a subtly wrong policy gradient that still passes shape and finiteness checks.",
+   "Gradient clipping and NaN/Inf divergence guards must run BEFORE the optimizer step, not after — an unguarded Inf gradient applied even once permanently corrupts the weight matrix; the guard must fail loud (R12) and skip the batch, never silently zero the gradient."
+  ]
+ },
+ "CAD-COMPLETE-MS0::U-CADC-AI03": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/domain-ai.md",
+   "knowledge/wiki/architecture/dispatcher-cad.md",
+   "knowledge/wiki/architecture/domain-bridge.md"
+  ],
+  "addSeWiki": [
+   "fail-loud-r12-patterns",
+   "mcp-tool-design",
+   "safety-tier-discipline"
+  ],
+  "systemImpact": "The capability negotiator is the gatekeeper between an abstract CAD intent and a concrete vendor adapter (Fusion/Inventor/SolidWorks/hyperCAD-S) — every CAD generation request routed through prism_cad / prism_cadautomation passes through it. If it silently degrades an unsupported intent instead of failing fast, downstream adapters receive an under-specified request and produce wrong geometry that propagates into CAM and the print-to-program pipeline undetected.",
+  "csDepth": [
+   "Capability-set intersection is a subset test, but the result must be a three-valued outcome (fully-supported / partially-supported-with-fallback / unsupported) — collapsing partial-support into a boolean loses the information needed to choose between fallback and fail-fast.",
+   "The fallback decision tree is a policy-driven branch; the policy itself must be data, not hardcoded conditionals — otherwise adding a fifth CAD adapter forces an engine edit and a code review instead of a config change."
+  ]
+ },
+ "CAD-COMPLETE-MS0::U-CADC-NN01": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/cad-fusion-training-ms0.md",
+   "knowledge/wiki/architecture/domain-geometry.md",
+   "knowledge/wiki/architecture/u-nng-pipeline-stratified-wire.md"
+  ],
+  "addSeWiki": [
+   "fail-loud-r12-patterns",
+   "test-design-real-values"
+  ],
+  "systemImpact": "The foundation encoder is the shared backbone for all five per-CAD NN heads (U-CADC-NN02..06) — its tokenizer output schema is a hard cross-engine contract. Any change to the B-rep/sketch token vocabulary invalidates every head's learned weights and forces a fleet-wide retrain; U-CADC-LP04's backprop propagator and U-CADC-LP03's replay buffer also assume a stable encoder dimensionality. It is the highest-coupling node in the CAD-NN subsystem.",
+  "csDepth": [
+   "Geometry tokenization must be canonical and order-invariant: the same B-rep solid produced by two different feature histories must tokenize identically, or the heads learn spurious history-dependent features — this requires a deterministic topology traversal sorted by geometric hash, not insertion order.",
+   "A frozen-backbone foundation encoder feeding multiple heads needs an explicit version field in its output; consumers must schema-read-check it at load time and refuse a mismatched checkpoint rather than silently producing garbage embeddings."
+  ]
+ },
+ "CAD-COMPLETE-MS0::U-CADC-NN02": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-cam.md",
+   "knowledge/wiki/architecture/domain-cam.md",
+   "knowledge/wiki/architecture/cad-fusion-training-ms0.md"
+  ],
+  "addSeWiki": [
+   "fail-loud-r12-patterns",
+   "test-design-real-values"
+  ],
+  "systemImpact": "The Mastercam policy head consumes the U-CADC-NN01 foundation encoder and produces op-sequencing plus toolpath-strategy predictions that feed Mastercam automation via the u-bridge-wire-mastercam path. A regression degrades automated Mastercam program generation; because it shares the foundation encoder with NN03..06, an encoder-contract assumption baked here wrong also signals a problem for the sibling heads.",
+  "csDepth": [
+   "Sequence-to-sequence op-order prediction needs a stopping criterion and a max-length cap — an unbounded autoregressive decode can loop emitting operations indefinitely on an out-of-distribution input; cap length and fail loud rather than truncate silently.",
+   "Softmax over toolpath-strategy classes yields a probability distribution, not a decision — the consumer needs a calibrated confidence threshold below which it defers to a deterministic strategy, otherwise a low-confidence guess is treated as authoritative."
+  ]
+ },
+ "CAD-COMPLETE-MS0::U-CADC-NN03": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/cad-fusion-training-ms0.md",
+   "knowledge/wiki/architecture/domain-cad.md",
+   "knowledge/wiki/architecture/dispatcher-cadautomation.md"
+  ],
+  "addSeWiki": [
+   "fail-loud-r12-patterns",
+   "test-design-real-values"
+  ],
+  "systemImpact": "The hyperCAD-S head turns Feature Technology recognition into macro-selection predictions driving hyperCAD-S Python-API automation. It shares the U-CADC-NN01 foundation encoder with the other four heads; a mis-modeled FT recognition signal here produces wrong macro selections that propagate into hyperCAD-S / hyperMILL CAM downstream.",
+  "csDepth": [
+   "Multi-label classification (a feature set, not a single class) requires per-label thresholds and a label-correlation-aware loss — treating it as multi-class softmax forces mutually-exclusive predictions and silently drops co-occurring features.",
+   "FT recognition over a B-rep adjacency graph is sensitive to graph isomorphism: two geometrically-identical features with different face-numbering must yield the same recognition — canonicalize the adjacency graph before encoding."
+  ]
+ },
+ "CAD-COMPLETE-MS0::U-CADC-NN04": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/domain-cad.md",
+   "knowledge/wiki/architecture/domain-ml.md",
+   "knowledge/wiki/architecture/dispatcher-cadautomation.md"
+  ],
+  "addSeWiki": [
+   "fail-loud-r12-patterns",
+   "test-design-real-values"
+  ],
+  "systemImpact": "The Fusion 360 diffusion head generates sketch+feature geometry targeting the adsk.fusion API — it is the generative front-end for Fusion automation. Generated output must validate against the Fusion object model before it reaches the adapter; an unvalidated diffusion sample produces an invalid sketch that crashes the Fusion COM bridge or silently produces wrong geometry downstream in CAM.",
+  "csDepth": [
+   "A DDPM/DDIM reverse-sampling loop is iterative and unbounded in cost — the step schedule (number of denoising steps) is a latency/quality tradeoff that must be a parameter, and the loop needs a convergence/early-exit check plus a hard step cap to avoid runaway sampling.",
+   "Diffusion output is continuous-valued; mapping it to the discrete adsk.fusion object model (sketch entities, feature parameters) requires a validated quantization/snapping step — an unconstrained sample produces non-snappable coordinates the Fusion API rejects."
+  ]
+ },
+ "CAD-COMPLETE-MS0::U-CADC-NN05": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/u-nng-pipeline-stratified-wire.md",
+   "knowledge/wiki/architecture/domain-cad.md",
+   "knowledge/wiki/architecture/dispatcher-cadautomation.md"
+  ],
+  "addSeWiki": [
+   "fail-loud-r12-patterns",
+   "test-design-real-values"
+  ],
+  "systemImpact": "The Inventor GNN head does message passing over the assembly/mate graph to produce policy predictions for Inventor COM/iLogic automation. It reuses the nn-graph-ms0 GraphSAGE neighborhood-aggregation patterns; a regression in message passing degrades automated Inventor assembly generation, and a mis-modeled mate-graph signal corrupts assembly constraint inference downstream.",
+  "csDepth": [
+   "GraphSAGE neighborhood aggregation over an assembly graph must handle highly-variable node degree — a base part mated to dozens of components vs a leaf fastener; unnormalized aggregation lets high-degree hub nodes dominate, so use mean/pooling aggregation or degree normalization.",
+   "The assembly/mate graph can contain cycles (closed kinematic loops) — message passing must be cycle-safe with a fixed hop count and the graph build must reject self-loops; the nn-graph-ms0 stratified-negative-sampling lesson applies (uniform negatives anti-correlate under heterophily)."
+  ]
+ },
+ "CAD-COMPLETE-MS0::U-CADC-NN06": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/domain-ml.md",
+   "knowledge/wiki/architecture/domain-cad.md",
+   "knowledge/wiki/architecture/dispatcher-cadautomation.md"
+  ],
+  "addSeWiki": [
+   "fail-loud-r12-patterns",
+   "test-design-real-values",
+   "per-file-scrutiny-gate"
+  ],
+  "systemImpact": "This unit ships TWO distinct heads — a transformer for SolidWorks ISldWorks op sequences and a PPO-style RL policy for FreeCAD Python — completing the five-vendor per-CAD NN head set (NN02 Mastercam, NN03 hyperCAD-S, NN04 Fusion, NN05 Inventor, NN06 SW+FreeCAD). Both consume the U-CADC-NN01 foundation encoder and feed U-CADC-LP04's backprop propagator; a regression in either degrades automated SolidWorks/FreeCAD program generation for those two adapters.",
+  "csDepth": [
+   "Bundling two heads in one unit is a coupling hazard — keep the SW transformer and the FreeCAD PPO policy as separate classes with separate test suites and separate dispatcher wiring, or a change to one silently breaks the other (per-file scrutiny should flag any shared mutable state).",
+   "PPO's clipped-surrogate objective requires the clip ratio epsilon and the GAE advantage-estimation lambda/gamma to be tuned and tested as real values — a wrong clip ratio either kills learning (too tight) or allows destructive policy jumps (too loose); the transformer head needs the same bounded-decode/max-length guard as NN02."
+  ]
+ }
+}

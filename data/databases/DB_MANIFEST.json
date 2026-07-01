@@ -1,0 +1,861 @@
+{
+  "version": "2.0.0",
+  "generated": "2026-02-26",
+  "milestone": "L0-P0-MS2",
+  "description": "PRISM Database Manifest \u2014 12 core + 12 specialty + 3 juliett directory stores + 3 DB-BRIDGE registry stores + 3 JM financial/transaction stores (33 total). Directory stores (JMDie/Vendor/Reference) are registry-backed metadata-only \u2014 discoverable via prism_data:database_list + globalSearch, queried via their own manifests + db-toolbelt/prism_memory (not loaded into DatabaseRegistry memory). JM financial stores (AP ledger / sold-orders / tool-purchases) are file-backed local data under gitignored state/shared/quoting/ \u2014 pathed BLACKWELL-DB-GEN-MS0 (slot:juliett 2026-06-04).",
+  "total_databases": 36,
+  "databases": [
+    {
+      "id": "MaterialDB",
+      "name": "Material Database",
+      "type": "registry-backed",
+      "registry_class": "MaterialRegistry",
+      "source_dir": "data/materials/",
+      "file_count": 305,
+      "entry_count": 6509,
+      "schema_version": "1.0.0",
+      "load_path": "Loaded by MaterialRegistry from PATHS.MATERIALS_DIR (ISO group subdirs)",
+      "standards": [
+        "ISO 513",
+        "AISI",
+        "DIN",
+        "JIS"
+      ],
+      "status": "verified",
+      "milestone_created": "L0-P0-MS1",
+      "consumers": [
+        "speed-feed",
+        "mill",
+        "lathe",
+        "wedm",
+        "cam",
+        "cad",
+        "quality",
+        "quoting",
+        "compliance-safety"
+      ]
+    },
+    {
+      "id": "ToolDB",
+      "name": "Cutting Tool Database",
+      "type": "registry-backed",
+      "registry_class": "ToolRegistry",
+      "source_dir": "data/tools/",
+      "file_count": 14,
+      "entry_count": 13967,
+      "schema_version": "1.0.0",
+      "load_path": "Loaded by ToolRegistry from PATHS.TOOLS_DB",
+      "standards": [
+        "ISO 13399"
+      ],
+      "status": "verified",
+      "milestone_created": "L0-P0-MS1",
+      "consumers": [
+        "speed-feed",
+        "mill",
+        "lathe",
+        "cam",
+        "quoting",
+        "shop-floor",
+        "post-processor"
+      ]
+    },
+    {
+      "id": "MachineDB",
+      "name": "Machine Database",
+      "type": "registry-backed",
+      "registry_class": "MachineRegistry",
+      "source_dir": "data/machines/",
+      "file_count": 144,
+      "entry_count": 1015,
+      "schema_version": "1.0.0",
+      "load_path": "Loaded by MachineRegistry from PATHS.MACHINES_DIR (CORE/ENHANCED/LEVEL5 layers)",
+      "standards": [],
+      "status": "verified",
+      "milestone_created": "L0-P0-MS1",
+      "consumers": [
+        "mill",
+        "lathe",
+        "wedm",
+        "cam",
+        "post-processor",
+        "shop-floor",
+        "speed-feed",
+        "quoting",
+        "business"
+      ]
+    },
+    {
+      "id": "AlarmDB",
+      "name": "Alarm & Controller Database",
+      "type": "registry-backed",
+      "registry_class": "AlarmRegistry",
+      "source_dir": "data/controllers/",
+      "file_count": 81,
+      "entry_count": 10090,
+      "schema_version": "1.0.0",
+      "load_path": "Loaded by AlarmRegistry from PATHS.CONTROLLERS",
+      "standards": [],
+      "status": "verified",
+      "milestone_created": "L0-P0-MS1",
+      "consumers": [
+        "post-processor",
+        "mill",
+        "lathe",
+        "wedm",
+        "shop-floor",
+        "compliance-safety"
+      ]
+    },
+    {
+      "id": "FormulaDB",
+      "name": "Formula Database",
+      "type": "registry-backed",
+      "registry_class": "FormulaRegistry",
+      "source_dir": "data/",
+      "file_count": 13,
+      "entry_count": 499,
+      "schema_version": "1.0.0",
+      "load_path": "Loaded by FormulaRegistry from data/FORMULA_REGISTRY.json (+ 10 built-in)",
+      "standards": [
+        "Kienzle",
+        "Taylor",
+        "Merchant"
+      ],
+      "status": "verified",
+      "milestone_created": "L0-P0-MS1",
+      "consumers": [
+        "speed-feed",
+        "mill",
+        "lathe",
+        "wedm",
+        "cam",
+        "quality",
+        "academy",
+        "ai-training"
+      ]
+    },
+    {
+      "id": "AlgorithmDB",
+      "name": "Algorithm Database",
+      "type": "registry-backed",
+      "registry_class": "AlgorithmRegistry",
+      "source_dir": "data/algorithms/",
+      "file_count": 52,
+      "entry_count": 52,
+      "schema_version": "1.0.0",
+      "load_path": "Loaded by AlgorithmRegistry from PATHS.DATA_DIR/algorithms/",
+      "standards": [],
+      "status": "verified",
+      "milestone_created": "L0-P0-MS1",
+      "consumers": [
+        "cam",
+        "cad",
+        "ai-training",
+        "discovery",
+        "academy",
+        "knowledge-conversion"
+      ]
+    },
+    {
+      "id": "KnowledgeDB",
+      "name": "Knowledge Base Database",
+      "type": "registry-backed",
+      "registry_class": "KnowledgeBaseRegistry",
+      "source_dir": "data/knowledge/",
+      "file_count": 58,
+      "entry_count": 58,
+      "schema_version": "1.0.0",
+      "load_path": "Loaded by KnowledgeBaseRegistry from PATHS.KNOWLEDGE_DIR",
+      "standards": [],
+      "status": "verified",
+      "milestone_created": "L0-P0-MS1",
+      "consumers": [
+        "academy",
+        "ai-training",
+        "tribal-knowledge",
+        "discovery",
+        "corpus-aggregation",
+        "knowledge-conversion"
+      ]
+    },
+    {
+      "id": "ThreadDB",
+      "name": "Thread Specifications Database",
+      "type": "file-backed",
+      "source_file": "data/databases/ThreadDB.json",
+      "entry_count": 339,
+      "schema_version": "1.0.0",
+      "standards": [
+        "ASME B1.1",
+        "ISO 261",
+        "ANSI/ASME B1.5",
+        "ISO 2904",
+        "ASME B1.20.1",
+        "BS 21"
+      ],
+      "status": "created",
+      "milestone_created": "L0-P0-MS1",
+      "consumers": [
+        "mill",
+        "lathe",
+        "cam",
+        "cad"
+      ]
+    },
+    {
+      "id": "WorkflowDB",
+      "name": "Workflow Chains Database",
+      "type": "file-backed",
+      "source_file": "data/databases/WorkflowDB.json",
+      "entry_count": 10,
+      "schema_version": "1.0.0",
+      "status": "created",
+      "milestone_created": "L0-P0-MS1",
+      "consumers": [
+        "agent-orchestration",
+        "ai-training",
+        "hermes-zulu"
+      ]
+    },
+    {
+      "id": "DecisionTreeDB",
+      "name": "Decision Tree Reference Data",
+      "type": "file-backed",
+      "source_file": "data/databases/DecisionTreeDB.json",
+      "entry_count": 7,
+      "schema_version": "1.0.0",
+      "standards": [
+        "ISO 513"
+      ],
+      "status": "created",
+      "milestone_created": "L0-P0-MS1",
+      "consumers": [
+        "ai-training",
+        "discovery",
+        "cam"
+      ]
+    },
+    {
+      "id": "InferenceDB",
+      "name": "Inference Chain Templates",
+      "type": "engine-inline",
+      "source_file": "mcp-server/src/engines/InferenceChainEngine.ts",
+      "entry_count": 3,
+      "status": "deferred",
+      "note": "Chain templates tightly coupled to API orchestration logic. Extraction deferred to L1.",
+      "milestone_created": "L0-P0-MS1",
+      "consumers": [
+        "ai-training",
+        "agent-orchestration"
+      ],
+      "consumed_via": "InferenceChainEngine -> aiReasoningDispatcher (prism_ai) + ReasoningWiringEngine; engine-inline templates, registry extraction still deferred"
+    },
+    {
+      "id": "CompoundActionDB",
+      "name": "Compound Action Definitions",
+      "type": "engine-inline",
+      "source_file": "mcp-server/src/types/CompoundActions.ts",
+      "entry_count": 6,
+      "status": "deferred",
+      "note": "TypeScript interface defs (FullParameterSet/TripleMatch/SafetyPipeline I/O) \u2014 DORMANT: exported but ZERO importers (verified grep 2026-06-01). Logical future consumer = agent-orchestration when the compound-action API is built. NOT a registry store; do not fabricate consumers.",
+      "milestone_created": "L0-P0-MS1",
+      "consumed_by_count": 0,
+      "dormant": true
+    },
+    {
+      "id": "ToolpathStrategyDB",
+      "name": "Toolpath Strategy Database",
+      "type": "file-backed",
+      "source_file": "data/databases/ToolpathStrategyDB.json",
+      "source_engine": "ToolpathStrategyRegistry.ts",
+      "entry_count": 586,
+      "schema_version": "1.0.0",
+      "categories": [
+        "milling_roughing",
+        "milling_finishing",
+        "hole_making",
+        "turning",
+        "multiaxis",
+        "prism_novel",
+        "3d_finishing",
+        "3d_roughing"
+      ],
+      "status": "created",
+      "milestone_created": "L0-P0-MS2",
+      "consumers": [
+        "cam",
+        "mill",
+        "lathe",
+        "wedm"
+      ]
+    },
+    {
+      "id": "ToleranceDB",
+      "name": "ISO 286 Tolerance Database",
+      "type": "file-backed",
+      "source_file": "data/databases/ToleranceDB.json",
+      "source_engine": "ToleranceEngine.ts",
+      "entry_count": 260,
+      "schema_version": "1.0.0",
+      "standards": [
+        "ISO 286-1:2010",
+        "ISO 2768-1:1989",
+        "ISO 2768-2:1989"
+      ],
+      "general_tolerances_note": "ISO 2768 general (un-toleranced dimension) tolerances \u2014 linear, external radius/chamfer, angular (Part 1) + straightness/flatness, perpendicularity, symmetry, circular run-out (Part 2) \u2014 added JULIETT-DB-COVERAGE-MS0 (2026-06-03). AUTHORITATIVE source = ToleranceEngine.ts: generalToleranceLinear / generalToleranceRadiusChamfer / generalToleranceAngular / generalToleranceGeometric (52 reference-value tests in __tests__/tolerance-iso2768.test.ts). Consolidated the former private ISO_2768_LINEAR copy in AmbiguityResolutionEngine (the linear values existed only there; angular/radius/geometric existed nowhere). Sequenced follow-ups: (1) AmbiguityResolutionEngine import-migration + its 2 pre-existing wrong cells corrected, (2) prism_calc:tolerance_general dispatcher action + round-trip, (3) single-source JSON discovery mirror generator (do NOT hand-copy \u2014 drift hazard).",
+      "status": "created",
+      "milestone_created": "L0-P0-MS2",
+      "consumers": [
+        "cad",
+        "quality",
+        "cam",
+        "mill",
+        "lathe",
+        "wedm",
+        "quoting",
+        "blueprint-vision"
+      ]
+    },
+    {
+      "id": "CoolantDB",
+      "name": "Coolant Reference Database",
+      "type": "file-backed",
+      "source_file": "data/databases/CoolantDB.json",
+      "source_engine": "CoolantValidationEngine.ts",
+      "entry_count": 5,
+      "schema_version": "1.0.0",
+      "status": "created",
+      "milestone_created": "L0-P0-MS2",
+      "tables": [
+        "flow_requirements",
+        "pressure_by_ld_ratio",
+        "material_factors",
+        "mql_consumption",
+        "recommended_coolant"
+      ],
+      "consumers": [
+        "speed-feed",
+        "mill",
+        "lathe",
+        "cam",
+        "compliance-safety"
+      ]
+    },
+    {
+      "id": "WorkholdingDB",
+      "name": "Workholding Reference Database",
+      "type": "file-backed",
+      "source_file": "data/databases/WorkholdingDB.json",
+      "source_engine": "WorkholdingEngine.ts",
+      "entry_count": 14,
+      "schema_version": "1.0.0",
+      "status": "created",
+      "milestone_created": "L0-P0-MS2",
+      "tables": [
+        "friction_coefficients",
+        "dynamic_factors",
+        "safety_factors",
+        "magnetic_chuck",
+        "vacuum_fixture"
+      ],
+      "consumers": [
+        "cam",
+        "mill",
+        "lathe",
+        "cad",
+        "wedm",
+        "shop-floor",
+        "quoting"
+      ]
+    },
+    {
+      "id": "SpindleDB",
+      "name": "Spindle Protection Database",
+      "type": "file-backed",
+      "source_file": "data/databases/SpindleDB.json",
+      "source_engine": "SpindleProtectionEngine.ts",
+      "entry_count": 5,
+      "schema_version": "1.0.0",
+      "safety_class": "CRITICAL",
+      "status": "created",
+      "milestone_created": "L0-P0-MS2",
+      "tables": [
+        "default_spindle_specs",
+        "safety_margins",
+        "thermal_time_constants",
+        "peak_duration_limits",
+        "source_file_catalog"
+      ],
+      "consumers": [
+        "mill",
+        "lathe",
+        "speed-feed",
+        "cam"
+      ]
+    },
+    {
+      "id": "CollisionDB",
+      "name": "Collision Detection Database",
+      "type": "file-backed",
+      "source_file": "data/databases/CollisionDB.json",
+      "source_engine": "CollisionEngine.ts",
+      "entry_count": 7,
+      "schema_version": "1.0.0",
+      "safety_class": "CRITICAL",
+      "status": "created",
+      "milestone_created": "L0-P0-MS2",
+      "tables": [
+        "near_miss_thresholds",
+        "collision_check_types",
+        "bounding_box_types",
+        "collision_algorithms",
+        "stock_positions",
+        "source_file_catalog"
+      ],
+      "consumers": [
+        "cam",
+        "post-processor",
+        "mill",
+        "lathe",
+        "wedm"
+      ]
+    },
+    {
+      "id": "GCodeTemplateDB",
+      "name": "G-Code Template Database",
+      "type": "file-backed",
+      "source_file": "data/databases/GCodeTemplateDB.json",
+      "source_engine": "GCodeTemplateEngine.ts",
+      "entry_count": 6,
+      "schema_version": "1.0.0",
+      "safety_class": "CRITICAL",
+      "status": "created",
+      "milestone_created": "L0-P0-MS2",
+      "controllers": [
+        "fanuc",
+        "haas",
+        "mazak",
+        "okuma",
+        "siemens",
+        "heidenhain"
+      ],
+      "operations": 13,
+      "consumers": [
+        "post-processor",
+        "cam",
+        "mill",
+        "lathe",
+        "wedm"
+      ]
+    },
+    {
+      "id": "ProcessDataDB",
+      "name": "Process Data Database",
+      "type": "file-backed",
+      "source_file": "data/databases/ProcessDataDB.json",
+      "source_engine": "ManufacturingGenomeEngine.ts + others",
+      "entry_count": 8,
+      "schema_version": "1.0.0",
+      "status": "created",
+      "milestone_created": "L0-P0-MS2",
+      "tables": [
+        "taylor_constants",
+        "kienzle_constants",
+        "cutting_speed_ranges",
+        "chip_thickness_ranges",
+        "johnson_cook_models",
+        "surface_integrity_factors"
+      ],
+      "consumers": [
+        "speed-feed",
+        "mill",
+        "lathe",
+        "quality",
+        "cam",
+        "wedm"
+      ]
+    },
+    {
+      "id": "GenomeDB",
+      "name": "Manufacturing Genome Database",
+      "type": "file-backed",
+      "source_file": "data/databases/GenomeDB.json",
+      "source_engine": "ManufacturingGenomeEngine.ts",
+      "entry_count": 8,
+      "schema_version": "1.0.0",
+      "status": "created",
+      "milestone_created": "L0-P0-MS2",
+      "materials": [
+        "AISI 4140",
+        "304 Stainless",
+        "7075-T6 Al",
+        "Ti-6Al-4V",
+        "Inconel 718",
+        "Gray Cast Iron FC250",
+        "17-4PH Stainless",
+        "6061-T6 Al"
+      ],
+      "consumers": [
+        "ai-training",
+        "discovery"
+      ]
+    },
+    {
+      "id": "CAMSystemDB",
+      "name": "CAM System Integration Database",
+      "type": "file-backed",
+      "source_file": "data/databases/CAMSystemDB.json",
+      "source_engine": "CAMIntegrationEngine.ts",
+      "entry_count": 61,
+      "schema_version": "1.0.0",
+      "status": "created",
+      "milestone_created": "L0-P0-MS2",
+      "cam_systems": [
+        "fusion360",
+        "mastercam",
+        "solidcam",
+        "nx",
+        "hypermill",
+        "generic"
+      ],
+      "domains": 19,
+      "consumers": [
+        "cam",
+        "post-processor"
+      ]
+    },
+    {
+      "id": "ReportTemplateDB",
+      "name": "Report Template Database",
+      "type": "file-backed",
+      "source_file": "data/databases/ReportTemplateDB.json",
+      "source_engine": "ReportRenderer.ts",
+      "entry_count": 7,
+      "schema_version": "1.0.0",
+      "status": "created",
+      "milestone_created": "L0-P0-MS2",
+      "report_types": [
+        "setup_sheet",
+        "process_plan",
+        "cost_estimate",
+        "tool_list",
+        "inspection_plan",
+        "alarm_report",
+        "speed_feed_card"
+      ],
+      "consumers": [
+        "business",
+        "quality",
+        "quoting",
+        "shop-floor"
+      ]
+    },
+    {
+      "id": "SourceCatalogDB",
+      "name": "Unified Source File Catalog",
+      "type": "file-backed",
+      "source_file": "data/databases/SourceCatalogDB.json",
+      "source_engine": "13 engines",
+      "entry_count": 85,
+      "schema_version": "1.0.0",
+      "status": "created",
+      "milestone_created": "L0-P0-MS2",
+      "catalogs": 13,
+      "total_source_lines": 52799,
+      "consumers": [
+        "discovery",
+        "database-expansion",
+        "ai-training"
+      ]
+    },
+    {
+      "id": "JMDieDocuStrataDB",
+      "name": "JM Die / DocuStrata Corpus Database",
+      "type": "registry-backed",
+      "source_dir": "mcp-server/data/jm-die-database/",
+      "manifest_file": "mcp-server/data/jm-die-database/manifest.json",
+      "file_count": 38251,
+      "entry_count": 111745,
+      "schema_version": "1.0.0",
+      "load_path": "Directory store (juliett-owned). 111745 indexed docs in tables/documents.jsonl (73506 v3-enriched) + 38251 JM Die files in tables/files.jsonl. Query via prism_memory:semantic_search or scripts/db-toolbelt.mjs --run jm-die-db. Built by scripts/build-jm-die-database.mjs from H:/PRISM/Docustrata (257992 files).",
+      "owner_slot": "juliett",
+      "consumers": [
+        "quoting",
+        "post-processor",
+        "business",
+        "blueprint-vision",
+        "ai-training",
+        "cad",
+        "mill",
+        "lathe",
+        "wedm"
+      ],
+      "status": "verified",
+      "milestone_created": "DB-EXPANSION-BRIDGE-MS0"
+    },
+    {
+      "id": "VendorCatalogDB",
+      "name": "Vendor / Manufacturer Catalog Database",
+      "type": "registry-backed",
+      "source_dir": "mcp-server/data/vendor-catalog-db/",
+      "manifest_file": "mcp-server/data/vendor-catalog-db/manifest.json",
+      "entry_count": 425,
+      "catalogs": 85,
+      "sfc_makers": 139,
+      "schema_version": "1.0.0",
+      "load_path": "Directory store (juliett-owned). 425 vendors + 85 catalogs + 139 SFC makers in tables/*.jsonl. Query via scripts/db-toolbelt.mjs --run vendor-catalog-db or prism_data:database_search. Built by scripts/build-vendor-catalog-db.mjs from Charlie's quoting vendor corpus.",
+      "owner_slot": "juliett",
+      "consumers": [
+        "quoting",
+        "speed-feed",
+        "cam",
+        "mill",
+        "lathe",
+        "business",
+        "wedm"
+      ],
+      "status": "verified",
+      "milestone_created": "DB-EXPANSION-BRIDGE-MS0"
+    },
+    {
+      "id": "PrismReferenceDB",
+      "name": "PRISM Unified Reference Database",
+      "type": "registry-backed",
+      "source_dir": "mcp-server/data/prism-reference-db/",
+      "manifest_file": "mcp-server/data/prism-reference-db/MANIFEST.json",
+      "file_count": 17,
+      "entry_count": 13920,
+      "schema_version": "1.0.0",
+      "load_path": "Directory store (juliett-owned). 13920 records across 17 category JSONs (materials/tools/physics/coatings/inserts/process/coolants/holders/...). Query via scripts/db-toolbelt.mjs or prism_data:database_search. Built by scripts/extract-monolith-databases.mjs.",
+      "owner_slot": "juliett",
+      "categories": 17,
+      "consumers": [
+        "speed-feed",
+        "mill",
+        "lathe",
+        "wedm",
+        "cam",
+        "cad",
+        "quality",
+        "quoting",
+        "blueprint-vision"
+      ],
+      "status": "verified",
+      "milestone_created": "DB-EXPANSION-BRIDGE-MS0"
+    },
+    {
+      "id": "CoatingDB",
+      "name": "Tool Coating Database",
+      "type": "registry-backed",
+      "registry_class": "CoatingRegistry",
+      "source_file": "mcp-server/src/registries/CoatingRegistry.ts",
+      "entry_count": 100,
+      "count_note": "100+ coatings (TiAlN/AlTiN/TiCN/diamond/...) per registry header; registry runtime-authoritative",
+      "schema_version": "1.0.0",
+      "load_path": "Loaded by CoatingRegistry \u2014 coating->cutting-speed multipliers for SFC; 9 live importers (CoatingSelectionEngine, CatalogUnifiedQueryEngine, PostProcessorPipelineEngine, ...)",
+      "standards": [
+        "SFC coating taxonomy"
+      ],
+      "status": "verified",
+      "milestone_created": "DB-BRIDGE-MS0",
+      "consumers": [
+        "speed-feed",
+        "mill",
+        "lathe",
+        "wedm",
+        "cam"
+      ]
+    },
+    {
+      "id": "PostProcessorDB",
+      "name": "Post Processor Catalog",
+      "type": "registry-backed",
+      "registry_class": "PostProcessorRegistry",
+      "source_file": "mcp-server/src/registries/PostProcessorRegistry.ts",
+      "entry_count": 34,
+      "count_note": "G-code post processors per CNC controller family; registry runtime-authoritative",
+      "schema_version": "1.0.0",
+      "load_path": "Loaded by PostProcessorRegistry \u2014 controller-family post translation; 5 live importers (GCodeTemplateEngine, PostProcessorPipelineEngine, PresetLibraryEngine, ...)",
+      "standards": [
+        "controller dialects (Fanuc/Siemens/Haas/Okuma/...)"
+      ],
+      "status": "verified",
+      "milestone_created": "DB-BRIDGE-MS0",
+      "consumers": [
+        "post-processor",
+        "cam",
+        "mill",
+        "lathe",
+        "wedm"
+      ]
+    },
+    {
+      "id": "PhysicsMappingDB",
+      "name": "Physics Parameter Mapping Index",
+      "type": "registry-backed",
+      "registry_class": "PhysicsMappingRegistry",
+      "source_file": "mcp-server/src/registries/PhysicsMappingRegistry.ts",
+      "entry_count": 1942,
+      "count_note": "~1942 aggregated mappings (Kienzle ~560 + SpeedFeed ~501 + DeflectionThermal ~580 + SurfaceQuality ~301) from 4 HyperMill mapping engines",
+      "schema_version": "1.0.0",
+      "load_path": "Aggregated by PhysicsMappingRegistry from 4 HyperMill mapping engines; 5 live importers",
+      "standards": [
+        "Kienzle",
+        "Altintas SLD"
+      ],
+      "status": "verified",
+      "milestone_created": "DB-BRIDGE-MS0",
+      "consumers": [
+        "speed-feed",
+        "cam",
+        "mill",
+        "lathe",
+        "wedm"
+      ]
+    },
+    {
+      "id": "JMVendorAPLedgerDB",
+      "name": "JM Die Vendor A/P Ledger",
+      "type": "file-backed",
+      "source_file": "state/shared/quoting/jm-vendor-ap-ledger.jsonl",
+      "gitignored_local": true,
+      "entry_count": 20736,
+      "approx_value_usd": 10080000,
+      "schema_version": "1.0.0",
+      "load_path": "Local data file (state/shared/quoting/ is gitignored \u2014 per-machine build output, NOT committed). 20,736 vendor accounts-payable line records (~$10.08M A/P). Consumed by OutboundPriceIndexEngine + quotingDispatcher for vendor-cost grounding. Regenerate via the JM quoting/DocuStrata extraction pipeline (scripts/quoting-docustrata-*.mjs).",
+      "owner_slot": "juliett",
+      "consumers": [
+        "quoting",
+        "business"
+      ],
+      "status": "verified",
+      "milestone_created": "BLACKWELL-DB-GEN-MS0"
+    },
+    {
+      "id": "JMSoldOrdersDB",
+      "name": "JM Die Sold Orders (Outbound Revenue)",
+      "type": "file-backed",
+      "source_file": "state/shared/quoting/jm-sold-orders.json",
+      "gitignored_local": true,
+      "entry_count": 500,
+      "advisory": true,
+      "schema_version": "1.0.0",
+      "load_path": "Local data file (gitignored). 500 outbound sold-order records (own header carries advisoryOnly + mustHumanVerify + byConfidence grading). Consumed by OutboundPriceIndexEngine for outbound-price/revenue grounding. NOTE: revenue OCR is incomplete (gap-list D3 \u2014 GPU re-OCR pending); treat revenue labels as advisory until D3 closes.",
+      "owner_slot": "juliett",
+      "consumers": [
+        "quoting",
+        "business"
+      ],
+      "status": "verified",
+      "milestone_created": "BLACKWELL-DB-GEN-MS0"
+    },
+    {
+      "id": "JMToolPurchasesDB",
+      "name": "JM Die Tool Purchases (Procurement Spend)",
+      "type": "file-backed",
+      "source_file": "state/shared/quoting/jm-tool-purchases.json",
+      "gitignored_local": true,
+      "entry_count": 49,
+      "entry_count_note": "Summary store \u2014 49 distinct tool vendors (jm_tool_vendors) + topToolsBySpend[50] + topVendorsBySpend[49]; not a flat record list.",
+      "approx_value_usd": 4910000,
+      "schema_version": "1.0.0",
+      "load_path": "Local data file (gitignored). Procurement summary: ~$4.91M tool spend across 49 distinct tool vendors. ALSO consolidated into VendorCatalogDB (mcp-server/data/vendor-catalog-db/tables/jm-tool-purchases.json) \u2014 see gap-list C1 vendor-overlap (single-source via VendorCatalogDB long-term). Consumed by quoting cost + business procurement.",
+      "owner_slot": "juliett",
+      "consumers": [
+        "quoting",
+        "business"
+      ],
+      "status": "verified",
+      "milestone_created": "BLACKWELL-DB-GEN-MS0"
+    },
+    {
+      "id": "JMDiePartLibrary",
+      "name": "JM Die Part Library (print-to-program join index)",
+      "type": "jsonl-store",
+      "registry_class": "JMDiePartLibraryEngine",
+      "source_dir": "state/shared/databases/",
+      "file_count": 1,
+      "entry_count": 30890,
+      "schema_version": "1.0.0",
+      "load_path": "Loaded by JMDiePartLibraryEngine.loadPartIndex from state/shared/databases/jm-part-library.jsonl; queried via prism_data:jm_die_part_lookup",
+      "standards": [
+        "phase18-build-part-library",
+        "blueprint-program-join-full-v6"
+      ],
+      "status": "verified",
+      "milestone_created": "DB-EXPANSION/DB-GAP-LIST-B2",
+      "consumers": [
+        "quoting",
+        "blueprint-vision",
+        "cam",
+        "cad",
+        "database-expansion"
+      ]
+    },
+    {
+      "id": "JMFileInventory",
+      "name": "JM Die file inventory (554,999-file corpus substrate)",
+      "type": "jsonl-inventory",
+      "registry_class": "(consumed by DocumentInboxEngine + build-jm-document-ledger)",
+      "source_dir": "state/shared/databases/",
+      "file_count": 1,
+      "entry_count": 554999,
+      "schema_version": "1.0.0",
+      "load_path": "Stream-read by scripts/build-jm-document-ledger.mjs (readline; NEVER readFileSync \u2014 108MB) + jm-die-full-corpus-ingest.mjs",
+      "standards": [
+        "jm-die-full-corpus"
+      ],
+      "status": "verified",
+      "milestone_created": "DB-EXPANSION/DB-GAP-LIST-A3",
+      "consumers": [
+        "database-expansion",
+        "quoting",
+        "blueprint-vision",
+        "business"
+      ]
+    },
+    {
+      "id": "JMScanLedger",
+      "name": "JM Die OCR/scan-status ledger",
+      "type": "jsonl-ledger",
+      "registry_class": "JMDieScanLedgerEngine",
+      "source_dir": "state/shared/scan-tracking/",
+      "file_count": 1,
+      "entry_count": 301948,
+      "schema_version": "1.0.0",
+      "load_path": "JMDieScanLedgerEngine + JMDieDocumentQueryEngine + CrossPartToolingSynergyEngine",
+      "standards": [
+        "jm-die-scan-v1"
+      ],
+      "status": "verified",
+      "milestone_created": "DB-EXPANSION/DB-GAP-LIST-A3",
+      "consumers": [
+        "database-expansion",
+        "blueprint-vision",
+        "quoting"
+      ]
+    }
+  ],
+  "summary": {
+    "total_entries_all_dbs": 180906,
+    "by_type": {
+      "registry-backed": 13,
+      "file-backed": 18,
+      "engine-inline": 2
+    },
+    "by_status": {
+      "verified": 16,
+      "created": 15,
+      "deferred": 2
+    },
+    "by_milestone": {
+      "L0-P0-MS1": 12,
+      "L0-P0-MS2": 12,
+      "DB-EXPANSION-BRIDGE-MS0": 3,
+      "DB-BRIDGE-MS0": 3,
+      "BLACKWELL-DB-GEN-MS0": 3
+    },
+    "summary_reconciled": "2026-06-04 (slot:juliett, BLACKWELL-DB-GEN-MS0) \u2014 fixed pre-existing drift: by_type/by_status undercounted the 3 DB-BRIDGE-MS0 registry stores (CoatingDB/PostProcessorDB/PhysicsMappingDB) added without updating the summary, and by_milestone was missing DB-BRIDGE-MS0; then added the 3 JM financial stores. All three sub-tallies now sum to total_databases=33."
+  }
+}

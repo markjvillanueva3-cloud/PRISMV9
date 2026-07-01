@@ -21,9 +21,7 @@ related:
 
 ## Description (from file header)
 
-schema-version-read.mjs — Phase 1 Tier 5D
-PostTool hook that warns when reading JSON with outdated schemaVersion.
-Helps catch stale data before it causes problems.
+_(no header docblock — read source for behavior)_
 
 ## Events
 

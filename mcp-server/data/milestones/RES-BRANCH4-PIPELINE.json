@@ -1,0 +1,337 @@
+{
+  "id": "RES-BRANCH4-PIPELINE",
+  "title": "RES Pipeline Branch — Automated Manufacturing Workflows",
+  "version": "1.0.0",
+  "created_at": "2026-04-11",
+  "track": "RES",
+  "branch": "Pipeline",
+  "description": "Pipeline automation milestones for the RES track. These milestones close the loop from print to program, validate the pipeline with matched test cases, and convert 15,504 hardcoded programs into parametric macros. Depends on foundational harvesting (RES-MS0), NC pattern mining (RES-MS11), and tool database (RES-MS14).",
+
+  "milestones": [
+    {
+      "id": "RES-MS16",
+      "title": "Automated Job Pipeline — Print→Program Closed Loop + Excel Macro Integration",
+      "track": "RES",
+      "dependencies": ["RES-MS11", "RES-MS14"],
+      "status": "not_started",
+      "total_units": 4,
+      "completed_units": 0,
+      "sessions": "2",
+
+      "smart_config": {
+        "role": "Manufacturing Automation Architect + VBA/Excel Integration Specialist",
+        "model": "opus",
+        "effort": "MAX",
+        "context_budget": "50%"
+      },
+
+      "knowledge_sources": {
+        "engines": ["PrintToProgramPipelineEngine", "AutoPrintToProgramBridgeEngine", "UnifiedProgramParserEngine", "OkumaOSPParserEngine", "HurcoParserEngine", "SpeedFeedOrchestrator", "ShopCalibrationEngine"],
+        "tribal": ["Automated Program_Corrected 5-25.xlsm (34-dimension parametric die cavity macro)", "DrawParameter_.csv column format → AutoDraw VBA → 2D drawing → CNC program", "Die geometry types: MailBox, Altracs, Taptite, Heading Die, Squares", "11 Excel worksheets mapping die cavity families to parametric dimensions"],
+        "formulas": ["Kienzle kc1.1 for generated toolpath feed/speed validation", "G85/G87 roughing-finishing pair cycle parameter calculation"],
+        "reference": ["H:/PRISM/JM DIE/QUEUE/ (incoming prints)", "H:/prism/resources/MACRO PROGRAMS/ (Q1.nc parametric model)", "RES-MS11 CuttingConditionDatabase (15,599 program calibration)", "RES-MS14 IM_Tool_DB.db (131MB, 282 tools, 5,893 cutting profiles)"]
+      },
+
+      "intent": "The machinist uploads a print (PDF/DXF) and PRISM closes the entire loop: extracts dimensions from the drawing, identifies the die cavity type (MailBox/Altracs/Taptite/Heading Die/Squares), generates the DrawParameter CSV with 34 parametric dimensions, triggers the AutoDraw VBA macro to produce a 2D drawing, selects tools from IM_Tool_DB.db, applies shop-calibrated cutting conditions from 15,599 mined programs, and posts a ready-to-run CNC program. What used to take 30-60 minutes of manual work becomes a single upload.",
+
+      "phases": [
+        {
+          "session": 1,
+          "title": "Excel Macro Bridge + DrawParameter CSV Generator",
+          "units": ["U-AJP01", "U-AJP02"],
+          "work": {
+            "U-AJP01": {
+              "title": "Build ExcelMacroBridgeEngine — parse 34-dimension parametric die cavity model from Automated Program_Corrected 5-25.xlsm",
+              "description": "Engine that reads the 11 Excel worksheets (MailBox, Altracs, Taptite, Heading Die, Squares, plus 6 utility sheets) and extracts the parametric model: which dimensions drive which cavity type, dimension naming conventions, valid ranges per parameter, inter-parameter constraints (e.g., bore diameter > pin diameter), and output column mapping to DrawParameter_.csv format. Uses RES-MS14's IM_Tool_DB.db for tool selection parameters embedded in the macro. Does NOT execute VBA — extracts the model as structured JSON for PRISM to drive.",
+              "depends_on": [],
+              "knowledge_consult": ["Automated Program_Corrected 5-25.xlsm (34 dimensions, 11 worksheets)", "IM_Tool_DB.db (tool selection logic)", "Die geometry types from audit"],
+              "exit_criteria": ["All 5 die cavity types modeled with dimension schemas", "34 parametric dimensions extracted with valid ranges", "Inter-parameter constraints captured", "DrawParameter CSV column mapping documented", "Tests validate dimension extraction against known die types"],
+              "rollback": {
+                "files_created": ["src/engines/ExcelMacroBridgeEngine.ts", "src/__tests__/ExcelMacroBridgeEngine.test.ts", "src/data/die-cavity-parametric-model.ts"],
+                "files_modified": [],
+                "abort_criteria": ["<4 die cavity types modeled", "Dimension extraction <80%", "CSV column mapping incomplete"],
+                "rollback_procedure": "git checkout -- src/engines/ExcelMacroBridgeEngine.ts src/__tests__/ExcelMacroBridgeEngine.test.ts src/data/die-cavity-parametric-model.ts"
+              },
+              "four_loop": "BUILD → SCRUTINIZE (/prism-review) → GAP FILL (/test + edge cases) → TIE UP (no TODOs)"
+            },
+            "U-AJP02": {
+              "title": "Build DrawParameterGeneratorEngine — print dimensions → DrawParameter CSV → AutoDraw trigger",
+              "description": "Engine that takes extracted print dimensions (from PrintToProgramPipelineEngine OCR output), classifies the die cavity type using the parametric model from U-AJP01, maps dimensions to the 34-column DrawParameter CSV format, validates all inter-parameter constraints, and writes the CSV file. Includes AutoDraw trigger interface: invokes the VBA macro via COM automation or file-drop protocol (write CSV to watched folder → AutoDraw picks up → produces DXF/DWG). Integrates with RES-MS11's CuttingConditionDatabase for speed/feed columns in the CSV.",
+              "depends_on": ["U-AJP01"],
+              "knowledge_consult": ["PrintToProgramPipelineEngine (dimension extraction)", "DrawParameter_.csv format spec", "CuttingConditionDatabase (shop-proven S/F)"],
+              "exit_criteria": ["Generates valid DrawParameter CSV for all 5 die types", "Dimension-to-column mapping 100% complete", "AutoDraw trigger mechanism implemented", "CSV validated against known-good examples", "Tests: MailBox dimensions → valid CSV → AutoDraw trigger"],
+              "rollback": {
+                "files_created": ["src/engines/DrawParameterGeneratorEngine.ts", "src/__tests__/DrawParameterGeneratorEngine.test.ts"],
+                "files_modified": [],
+                "abort_criteria": ["CSV column mismatch vs AutoDraw expectations", "Trigger mechanism fails", "Constraint validation misses invalid combos"],
+                "rollback_procedure": "git checkout -- src/engines/DrawParameterGeneratorEngine.ts src/__tests__/DrawParameterGeneratorEngine.test.ts"
+              },
+              "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP"
+            }
+          },
+          "compact_checkpoint": true
+        },
+        {
+          "session": 2,
+          "title": "Closed-Loop Pipeline Orchestration + Forge-Triple",
+          "units": ["U-AJP03", "U-AJP04"],
+          "work": {
+            "U-AJP03": {
+              "title": "Build ClosedLoopJobPipelineEngine — orchestrate Print→Dimensions→CSV→Drawing→Program end-to-end",
+              "description": "Orchestration engine that wires the full pipeline: (1) PrintToProgramPipelineEngine receives print PDF/DXF, (2) OCR/vision extracts dimensions and tolerances, (3) ExcelMacroBridgeEngine classifies die cavity type, (4) DrawParameterGeneratorEngine produces CSV, (5) AutoDraw trigger generates 2D drawing, (6) Tool selection from IM_Tool_DB.db (RES-MS14), (7) Speed/feed from CuttingConditionDatabase (RES-MS11) calibrated with shop-proven data, (8) OkumaOSPParserEngine or HurcoParserEngine generates final G-code for target machine. Pipeline has checkpoint/resume at each stage. Emits progress events for UI tracking.",
+              "depends_on": ["U-AJP02"],
+              "knowledge_consult": ["PrintToProgramPipelineEngine (existing pipeline stages)", "SpeedFeedOrchestrator (shop_proven layer)", "ShopConfigurationEngine (machine selection)", "PostProcessorPipeline (G-code output)"],
+              "exit_criteria": ["End-to-end pipeline: PDF → G-code in single invocation", "Checkpoint/resume at each of 8 stages", "Progress events emitted per stage", "Tool selection uses IM_Tool_DB.db 5,893 profiles", "Speed/feed calibrated against 15,599 program mining", "Tests: known MailBox print → valid Okuma G-code"],
+              "rollback": {
+                "files_created": ["src/engines/ClosedLoopJobPipelineEngine.ts", "src/__tests__/ClosedLoopJobPipelineEngine.test.ts"],
+                "files_modified": ["src/engines/PrintToProgramPipelineEngine.ts"],
+                "abort_criteria": ["Pipeline hangs at any stage", "G-code output invalid for target controller", "Tool selection fails to find matching tool"],
+                "rollback_procedure": "git checkout -- src/engines/ClosedLoopJobPipelineEngine.ts src/__tests__/ClosedLoopJobPipelineEngine.test.ts src/engines/PrintToProgramPipelineEngine.ts"
+              },
+              "four_loop": "BUILD → SCRUTINIZE (/program-validate + /physics-verify) → GAP FILL → TIE UP"
+            },
+            "U-AJP04": {
+              "title": "Forge-Triple: pipeline-dimension-sanity hook + job_pipeline MCP actions + /print-to-program skill update",
+              "description": "Complete Forge-Triple: (1) pipeline-dimension-sanity hook that validates extracted dimensions against die cavity parametric model constraints before CSV generation (catches OCR errors, impossible geometries, out-of-range values), (2) Wire job_pipeline dispatcher with actions: start_pipeline, pipeline_status, get_csv_preview, validate_dimensions, get_die_type, list_pipeline_runs, retry_stage, (3) Update /print-to-program skill to use the closed-loop pipeline with Excel macro integration and progress tracking.",
+              "depends_on": ["U-AJP03"],
+              "knowledge_consult": ["Existing print-to-program skill", "validationDispatcher pattern", "Hook enforcement patterns"],
+              "exit_criteria": ["Hook catches impossible dimension combos before CSV gen", "7 MCP actions callable via job_pipeline dispatcher", "/print-to-program skill triggers closed-loop pipeline", "Hook fires on: negative dimensions, bore < pin, out-of-range values"],
+              "rollback": {
+                "files_created": ["src/hooks/pipeline-dimension-sanity.ts", "src/tools/dispatchers/job_pipeline.ts", "src/schemas/job_pipeline.ts"],
+                "files_modified": ["src/tools/dispatchers/index.ts", "skills/print-to-program.md"],
+                "abort_criteria": ["Hook false positives on valid dimensions", "Actions not callable via MCP", "Skill not triggering pipeline"],
+                "rollback_procedure": "git checkout -- src/hooks/pipeline-dimension-sanity.ts src/tools/dispatchers/job_pipeline.ts src/schemas/job_pipeline.ts src/tools/dispatchers/index.ts skills/print-to-program.md"
+              },
+              "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP"
+            }
+          },
+          "compact_checkpoint": true
+        }
+      ],
+
+      "forge_triple": {
+        "protective_hook": "pipeline-dimension-sanity — validates extracted print dimensions against die cavity parametric constraints before CSV generation",
+        "mcp_action": "prism_job_pipeline:start_pipeline, pipeline_status, get_csv_preview, validate_dimensions, get_die_type, list_pipeline_runs, retry_stage",
+        "skill": "/print-to-program (updated with closed-loop Excel macro integration, AutoDraw trigger, and shop-calibrated S/F)"
+      },
+
+      "exit_gate": {
+        "criteria": ["5 die cavity types fully parametric (MailBox, Altracs, Taptite, Heading Die, Squares)", "34-dimension DrawParameter CSV generation validated", "End-to-end PDF→G-code pipeline operational", "Tool selection from 5,893 cutting profiles", "Speed/feed calibrated against 15,599 mined programs", "7 MCP actions callable", "/print-to-program closed-loop skill works"],
+        "omega_floor": 1.0,
+        "svi_delta": "+8%"
+      },
+
+      "feeds_into": ["RES-MS18 (QT Validation Suite uses pipeline output for test cases)", "RES-MS26 (Macro Conversion uses pipeline-generated programs as conversion targets)", "PIPE track (manufacturing pipeline automation)", "QuoteToShipOrchestrator (automated job flow)"]
+    },
+
+    {
+      "id": "RES-MS18",
+      "title": "QT Validation Suite — 10 Matched Print→Program Test Cases",
+      "track": "RES",
+      "dependencies": ["RES-MS0"],
+      "status": "in_progress",
+      "total_units": 3,
+      "completed_units": 1,
+      "sessions": "1",
+
+      "smart_config": {
+        "role": "QA Engineer + CNC Validation Specialist",
+        "model": "opus",
+        "effort": "HIGH",
+        "context_budget": "35%"
+      },
+
+      "knowledge_sources": {
+        "engines": ["QTValidationSuiteEngine (BUILT — src/engines/QTValidationSuiteEngine.ts)", "UnifiedProgramParserEngine", "OkumaOSPParserEngine", "PrintToProgramPipelineEngine"],
+        "tribal": ["QT3-QT12 matched sets in H:/PRISM/JM DIE/QUEUE/: each has .pdf + .ipt + .idw + .hnc", "Q1-Q3 parametric macro programs with #variable references", "JM Die's die cavity geometry types drive expected program structure"],
+        "formulas": [],
+        "reference": ["H:/PRISM/JM DIE/QUEUE/ (10 matched test cases: QT3-QT12)", "H:/PRISM/JM DIE/QUEUE/ (Q1-Q3 parametric macro references)", "src/engines/QTValidationSuiteEngine.ts (engine already built)", "src/__tests__/QTValidationSuiteEngine.test.ts (21 tests passing)", "src/tools/dispatchers/validationDispatcher.ts (4 actions wired: qt_list_cases, qt_parse_golden, qt_compare, qt_summary)"]
+      },
+
+      "intent": "PRISM has 10 real matched test cases where a known print (PDF) has a known-correct CNC program (golden .hnc). The validation suite loads all 10 from disk, parses both the print dimensions and the golden program, and can score any pipeline-generated program against the golden standard. This is the ground truth for pipeline accuracy — every improvement to Print→Program gets measured against these 10 real jobs. The machinist can say 'validate my pipeline' and get a 10-case accuracy report.",
+
+      "phases": [
+        {
+          "session": 1,
+          "title": "Golden Suite Build + Forge-Triple Completion",
+          "units": ["U-QTV01", "U-QTV02", "U-QTV03"],
+          "work": {
+            "U-QTV01": {
+              "title": "Build QTValidationSuiteEngine — core engine with MCP action wiring [COMPLETE]",
+              "description": "QTValidationSuiteEngine is ALREADY BUILT and operational. Engine at src/engines/QTValidationSuiteEngine.ts with 4 MCP actions wired to prism_validate dispatcher (qt_list_cases, qt_parse_golden, qt_compare, qt_summary). 21 tests passing at src/__tests__/QTValidationSuiteEngine.test.ts. This unit is marked complete as the foundation work is done.",
+              "depends_on": [],
+              "knowledge_consult": ["QTValidationSuiteEngine.ts (already built)"],
+              "exit_criteria": ["Engine exists and exports singleton", "4 MCP actions callable via prism_validate", "21 tests passing", "qt_list_cases returns case inventory"],
+              "rollback": {
+                "files_created": [],
+                "files_modified": [],
+                "abort_criteria": [],
+                "rollback_procedure": "N/A — unit already complete"
+              },
+              "four_loop": "COMPLETE — all 4 stages passed"
+            },
+            "U-QTV02": {
+              "title": "Load all 10 matched QT programs from disk and build full golden comparison suite",
+              "description": "Extend QTValidationSuiteEngine to load all 10 matched test cases (QT3-QT12) from H:/PRISM/JM DIE/QUEUE/. For each case: (1) parse the .pdf print to extract target dimensions, (2) parse the .hnc golden program via UnifiedProgramParserEngine to extract operations, tools, speeds, feeds, and geometry, (3) build a GoldenCaseRecord with {case_id, print_dimensions, golden_operations[], golden_tools[], golden_speeds[], golden_geometry, tolerance_bands}. Also parse Q1-Q3 parametric macros as reference cases showing #variable-based parametric patterns. Store as persistent golden suite JSON for fast reload. qt_parse_golden action returns full structured golden data.",
+              "depends_on": ["U-QTV01"],
+              "knowledge_consult": ["QTValidationSuiteEngine.ts (extend)", "UnifiedProgramParserEngine (parse .hnc)", "OkumaOSPParserEngine (Okuma dialect)", "QT3-QT12 file structure in QUEUE/"],
+              "exit_criteria": ["10 golden cases loaded from disk (QT3-QT12)", "Each case has parsed print dimensions + parsed golden program", "Q1-Q3 parametric references parsed", "Golden suite persisted as JSON for fast reload", "qt_compare scores pipeline output vs golden with per-operation deltas", "qt_summary returns 10-case accuracy report with pass/fail per case"],
+              "rollback": {
+                "files_created": ["src/data/qt-golden-suite.ts"],
+                "files_modified": ["src/engines/QTValidationSuiteEngine.ts", "src/__tests__/QTValidationSuiteEngine.test.ts"],
+                "abort_criteria": ["<8 cases successfully loaded", "Parse failures on golden programs", "Dimension extraction from prints fails"],
+                "rollback_procedure": "git checkout -- src/data/qt-golden-suite.ts src/engines/QTValidationSuiteEngine.ts src/__tests__/QTValidationSuiteEngine.test.ts"
+              },
+              "four_loop": "BUILD → SCRUTINIZE (/prism-review) → GAP FILL (/test with real file assertions) → TIE UP"
+            },
+            "U-QTV03": {
+              "title": "Forge-Triple: qt-regression-guard hook + /validate skill + pipeline accuracy dashboard",
+              "description": "Complete Forge-Triple: (1) qt-regression-guard hook that runs the 10-case golden suite comparison after any change to PrintToProgramPipelineEngine, DrawParameterGeneratorEngine, or SpeedFeedOrchestrator — blocks commit if accuracy drops below previous baseline, (2) /validate skill that runs the full QT suite on demand and reports per-case pass/fail with dimension deltas, operation mismatches, and speed/feed divergences, (3) Wire qt_regression_check action to validationDispatcher for programmatic regression testing.",
+              "depends_on": ["U-QTV02"],
+              "knowledge_consult": ["Hook enforcement patterns (stub-detector, test-quality)", "validationDispatcher (existing 4 actions)", "prism-review skill pattern"],
+              "exit_criteria": ["Hook fires on Pipeline/DrawParameter/SpeedFeed engine changes", "Hook blocks if accuracy < previous baseline", "/validate skill runs 10-case suite and reports results", "qt_regression_check action callable via MCP", "Accuracy baseline recorded in state/QT_ACCURACY_BASELINE.json"],
+              "rollback": {
+                "files_created": ["src/hooks/qt-regression-guard.ts", "data/state/QT_ACCURACY_BASELINE.json"],
+                "files_modified": ["src/hooks/index.ts", "src/tools/dispatchers/validationDispatcher.ts", "skills/validate.md"],
+                "abort_criteria": ["Hook false positives on unrelated engine changes", "Skill crashes on missing golden data", "Baseline recording fails"],
+                "rollback_procedure": "git checkout -- src/hooks/qt-regression-guard.ts data/state/QT_ACCURACY_BASELINE.json src/hooks/index.ts src/tools/dispatchers/validationDispatcher.ts skills/validate.md"
+              },
+              "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP"
+            }
+          },
+          "compact_checkpoint": true
+        }
+      ],
+
+      "forge_triple": {
+        "protective_hook": "qt-regression-guard — blocks commits that reduce pipeline accuracy below baseline across 10 golden test cases",
+        "mcp_action": "prism_validate:qt_list_cases, qt_parse_golden, qt_compare, qt_summary, qt_regression_check",
+        "skill": "/validate — run 10-case QT golden suite and report per-case accuracy with dimension/operation/speed deltas"
+      },
+
+      "exit_gate": {
+        "criteria": ["10 golden cases loaded and parsed (QT3-QT12)", "Each golden case has print dimensions + parsed program + tolerance bands", "Q1-Q3 parametric references parsed", "qt_compare scores pipeline output against golden with per-operation deltas", "qt-regression-guard hook active on pipeline engine changes", "/validate skill reports 10-case accuracy", "Accuracy baseline persisted"],
+        "omega_floor": 1.0,
+        "svi_delta": "+4%"
+      },
+
+      "feeds_into": ["RES-MS16 (pipeline accuracy validation)", "RES-MS26 (macro conversion validation — generated macros tested against golden programs)", "QA track (regression testing infrastructure)", "All pipeline milestones (golden-suite gating)"]
+    },
+
+    {
+      "id": "RES-MS26",
+      "title": "Macro Conversion Engine — 15,504 Hardcoded → 8-12 Parametric Macros",
+      "track": "RES",
+      "dependencies": ["RES-MS11"],
+      "status": "not_started",
+      "total_units": 4,
+      "completed_units": 0,
+      "sessions": "2",
+
+      "smart_config": {
+        "role": "CNC Macro Programmer + Pattern Recognition Specialist",
+        "model": "opus",
+        "effort": "MAX",
+        "context_budget": "50%"
+      },
+
+      "knowledge_sources": {
+        "engines": ["UnifiedProgramParserEngine", "OkumaOSPParserEngine", "MacroPatternMinerEngine", "ProgramMacroConverterEngine", "BatchMacroConversionEngine", "CuttingConditionExtractorEngine", "SpeedFeedOrchestrator"],
+        "tribal": ["97% of 15,504 lathe programs are hardcoded (absolute coordinates, no variables)", "G85/G87 roughing-finishing pairs dominate 97% — Okuma OSP native cycles, NOT G71/G70", "Die cavity types from Excel macro: MailBox, Altracs, Taptite, Heading Die, Squares", "Q1.nc is the MODEL parametric macro: uses #variables for dimensions, G2 arcs with R#11", "Electrode ratio: 70% lathe-turned (commodity), 30% milled (complex cavity)", "Structural fingerprinting reveals 8-12 macro families based on operation sequence patterns"],
+        "formulas": ["Kienzle kc1.1 for feed/speed parameterization", "G2/G3 arc radius calculation from parametric #variables"],
+        "reference": ["H:/PRISM/JM DIE/CNC LATHE/ (15,251 .MIN programs — 97% hardcoded)", "H:/prism/resources/MACRO PROGRAMS/Q1.nc (canonical parametric macro model)", "RES-MS11 CuttingConditionDatabase (operation/material/tool statistical profiles)", "H:/PRISM/JM DIE/CNC OKUMA MULTUS/ (5 multi-axis programs)", "src/engines/MacroPatternMinerEngine.ts (existing pattern mining)", "src/engines/ProgramMacroConverterEngine.ts (existing 1:1 converter)", "src/engines/BatchMacroConversionEngine.ts (existing batch infrastructure)"]
+      },
+
+      "intent": "15,504 hardcoded lathe programs collapse into 8-12 parametric macros. Instead of programming each new die from scratch (copy old program, manually change every coordinate), the machinist enters dimensions (#1=bore_diameter, #2=depth, #3=taper_angle, etc.) and the macro generates the full toolpath. Each macro family covers a die cavity type and operation pattern — Q1.nc style with #variables replacing hardcoded X/Z coordinates, G2/G3 arcs using R#N for radii, and G85/G87 cycles with parametric depth/feed. 15,504 files become 8-12 files plus a dimension lookup table.",
+
+      "phases": [
+        {
+          "session": 1,
+          "title": "Structural Fingerprinting + Macro Family Classification",
+          "units": ["U-MCR01", "U-MCR02"],
+          "work": {
+            "U-MCR01": {
+              "title": "Build MacroFamilyClassifierEngine — fingerprint 15,504 programs into 8-12 structural families",
+              "description": "Analyze all 15,504 parsed programs (from RES-MS11's MinProgramParserEngine output) to identify structural families based on operation sequence fingerprints. A fingerprint is the ordered sequence of: (tool_type, operation_type, cycle_code) — e.g., [T0100:facing:G96, T0300:rough_bore:G85, T0300:finish_bore:G87, T0500:drill:G81, T0700:thread:G76]. Programs with identical fingerprints (same tool sequence, same operation types, same cycle codes) belong to the same macro family. Use hierarchical clustering: exact match first, then fuzzy match allowing ±1 tool variation. Map families to die cavity types (MailBox, Altracs, Taptite, Heading Die, Squares) where possible. Output: MacroFamilyCatalog with family_id, fingerprint, member_count, representative_programs[], die_type_mapping, parameter_dimensions[].",
+              "depends_on": [],
+              "knowledge_consult": ["MacroPatternMinerEngine (existing pattern mining)", "CuttingConditionExtractorEngine (statistical profiles)", "Agent 6 findings: G85=10,717, G87=10,043, G81=9,821, G76=974"],
+              "exit_criteria": ["8-12 macro families identified via fingerprinting", "Each family has >100 member programs (statistical significance)", "Top 5 families cover >80% of 15,504 programs", "Die cavity type mapped where fingerprint matches Excel macro geometry types", "Representative programs selected per family for template extraction"],
+              "rollback": {
+                "files_created": ["src/engines/MacroFamilyClassifierEngine.ts", "src/__tests__/MacroFamilyClassifierEngine.test.ts", "src/data/macro-family-catalog.ts"],
+                "files_modified": [],
+                "abort_criteria": ["<6 or >20 families (indicates bad clustering)", "Top 5 families cover <60% of programs", "Fingerprint extraction fails >10%"],
+                "rollback_procedure": "git checkout -- src/engines/MacroFamilyClassifierEngine.ts src/__tests__/MacroFamilyClassifierEngine.test.ts src/data/macro-family-catalog.ts"
+              },
+              "four_loop": "BUILD → SCRUTINIZE (/prism-review) → GAP FILL (/test with real program fingerprints) → TIE UP (no TODOs)"
+            },
+            "U-MCR02": {
+              "title": "Build ParametricTemplateExtractorEngine — extract #variable templates from representative programs per family",
+              "description": "For each macro family, take the representative programs and identify which coordinates vary between members while the structure stays constant. These varying coordinates become #variables. Process: (1) Align programs within a family by operation sequence, (2) Identify constant vs variable coordinates (X, Z, R, F, S values), (3) Map variable coordinates to physical dimensions (bore_diameter→#1, depth→#2, taper_angle→#3, radius→#4, etc.), (4) Generate Q1.nc-style parametric template: replace hardcoded values with #N references, add G2/G3 arc parameterization (R#11 pattern from Q1.nc), parameterize G85/G87 cycle depths and feeds. Use Q1.nc as the gold standard template format. Output: ParametricTemplate per family with #variable list, dimension meaning, valid range per variable, and the template G-code.",
+              "depends_on": ["U-MCR01"],
+              "knowledge_consult": ["Q1.nc (canonical parametric macro model)", "OkumaOSPParserEngine (Okuma #variable syntax)", "ProgramMacroConverterEngine (existing 1:1 conversion logic)"],
+              "exit_criteria": ["8-12 parametric templates generated (one per family)", "Each template uses #variables for all varying dimensions", "Variable ranges derived from family member statistics (min/max/median)", "Template format matches Q1.nc style (#1-#N header, G2 R#N arcs, G85/G87 parametric cycles)", "Roundtrip validation: template + original dimensions = original program ±0.0001"],
+              "rollback": {
+                "files_created": ["src/engines/ParametricTemplateExtractorEngine.ts", "src/__tests__/ParametricTemplateExtractorEngine.test.ts", "src/data/parametric-templates/"],
+                "files_modified": [],
+                "abort_criteria": ["Roundtrip validation fails >5% of programs", "Template complexity >200 lines (indicates bad abstraction)", "#variable count >30 per template (over-parameterized)"],
+                "rollback_procedure": "git checkout -- src/engines/ParametricTemplateExtractorEngine.ts src/__tests__/ParametricTemplateExtractorEngine.test.ts; rm -rf src/data/parametric-templates/"
+              },
+              "four_loop": "BUILD → SCRUTINIZE (/physics-verify + /program-validate) → GAP FILL → TIE UP"
+            }
+          },
+          "compact_checkpoint": true
+        },
+        {
+          "session": 2,
+          "title": "Batch Conversion Validation + Forge-Triple",
+          "units": ["U-MCR03", "U-MCR04"],
+          "work": {
+            "U-MCR03": {
+              "title": "Build MacroConversionValidatorEngine — validate 15,504 programs reproduce from 8-12 macros + dimension tables",
+              "description": "Mass validation engine that proves the conversion is correct. For each of the 15,504 hardcoded programs: (1) Classify into macro family via fingerprint, (2) Extract dimensions from the hardcoded program, (3) Instantiate the family's parametric template with extracted dimensions, (4) Compare instantiated output vs original program line-by-line (allowing formatting differences), (5) Score: exact_match, coordinate_match (within ±0.0001), structural_match (same operations, different values). Report: conversion_coverage (% of programs successfully converted), accuracy (coordinate match %), outliers (programs that don't fit any family). Build a DimensionLookupTable per family: {program_name → [#1_value, #2_value, ..., #N_value]} so any historical program can be reproduced from macro + lookup.",
+              "depends_on": ["U-MCR02"],
+              "knowledge_consult": ["BatchMacroConversionEngine (existing batch infrastructure)", "UnifiedProgramParserEngine (line-by-line comparison)", "CuttingConditionDatabase (expected value ranges)"],
+              "exit_criteria": ["Conversion coverage >90% of 15,504 programs", "Coordinate accuracy >99% for converted programs", "Outlier analysis: every unconverted program has documented reason", "DimensionLookupTable generated for all converted programs", "Batch validation completes in <10 minutes for full corpus"],
+              "rollback": {
+                "files_created": ["src/engines/MacroConversionValidatorEngine.ts", "src/__tests__/MacroConversionValidatorEngine.test.ts", "src/data/dimension-lookup-tables/"],
+                "files_modified": [],
+                "abort_criteria": ["Coverage <80%", "Coordinate accuracy <95%", "Batch validation >30 minutes", "Dimension extraction systematic failures"],
+                "rollback_procedure": "git checkout -- src/engines/MacroConversionValidatorEngine.ts src/__tests__/MacroConversionValidatorEngine.test.ts; rm -rf src/data/dimension-lookup-tables/"
+              },
+              "four_loop": "BUILD → SCRUTINIZE (/program-validate on sample) → GAP FILL (edge case programs) → TIE UP"
+            },
+            "U-MCR04": {
+              "title": "Forge-Triple: macro-drift-detector hook + macro_conversion MCP actions + /okuma-macro skill update",
+              "description": "Complete Forge-Triple: (1) macro-drift-detector hook that fires when a new hardcoded program is uploaded and checks if it fits an existing macro family — if yes, suggests 'use macro family X with dimensions [#1=val, #2=val, ...]' instead of storing another hardcoded program; if no, flags as potential new family needing investigation, (2) Wire macro_conversion dispatcher with actions: classify_program, get_families, get_template, instantiate_macro, validate_conversion, batch_convert, get_dimension_table, conversion_coverage_report, (3) Update /okuma-macro skill to use the 8-12 validated parametric templates: machinist says 'MailBox die, 1.250 bore, 2.000 deep' and gets the parametric macro instantiated with those dimensions.",
+              "depends_on": ["U-MCR03"],
+              "knowledge_consult": ["Existing okuma-macro skill", "Hook enforcement patterns", "MacroPatternMinerEngine (drift detection baseline)"],
+              "exit_criteria": ["Hook detects new hardcoded programs and suggests macro alternative", "8 MCP actions callable via macro_conversion dispatcher", "/okuma-macro skill instantiates parametric templates by die type + dimensions", "Conversion coverage report shows >90% coverage", "Hook suggests correct family >95% of the time"],
+              "rollback": {
+                "files_created": ["src/hooks/macro-drift-detector.ts", "src/tools/dispatchers/macro_conversion.ts", "src/schemas/macro_conversion.ts"],
+                "files_modified": ["src/hooks/index.ts", "src/tools/dispatchers/index.ts", "skills/okuma-macro.md"],
+                "abort_criteria": ["Hook false positives on genuinely novel programs", "Actions not callable", "Skill crashes on dimension input"],
+                "rollback_procedure": "git checkout -- src/hooks/macro-drift-detector.ts src/tools/dispatchers/macro_conversion.ts src/schemas/macro_conversion.ts src/hooks/index.ts src/tools/dispatchers/index.ts skills/okuma-macro.md"
+              },
+              "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP"
+            }
+          },
+          "compact_checkpoint": true
+        }
+      ],
+
+      "forge_triple": {
+        "protective_hook": "macro-drift-detector — catches new hardcoded programs that should use an existing parametric macro family, suggests macro + dimensions instead",
+        "mcp_action": "prism_macro_conversion:classify_program, get_families, get_template, instantiate_macro, validate_conversion, batch_convert, get_dimension_table, conversion_coverage_report",
+        "skill": "/okuma-macro (updated with 8-12 validated parametric templates — machinist enters die type + dimensions, gets instantiated macro)"
+      },
+
+      "exit_gate": {
+        "criteria": ["8-12 macro families identified and validated", "Parametric templates generated in Q1.nc style", "Conversion coverage >90% of 15,504 programs", "Coordinate accuracy >99% for converted programs", "DimensionLookupTable for all converted programs", "macro-drift-detector hook active", "8 MCP actions callable", "/okuma-macro uses validated templates"],
+        "omega_floor": 1.0,
+        "svi_delta": "+10%"
+      },
+
+      "feeds_into": ["RES-MS16 (pipeline uses macros instead of generating hardcoded programs)", "All future lathe programming (parametric-first workflow)", "QuoteEstimator (macro-based cycle time estimation)", "Training curriculum (macro programming skills)", "Tribal knowledge (die type → macro family mapping)"]
+    }
+  ]
+}

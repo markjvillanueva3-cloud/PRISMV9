@@ -1,0 +1,126 @@
+{
+  "schemaVersion": "1.0.0",
+  "generated": "2026-06-26T00:00:00Z",
+  "artifact": "CAD-GEN-VALIDITY",
+  "scope": "generation-validity aggregate over synthesized cad-generated/*.step (NOT full T3 print-callout fidelity)",
+  "partsAnalyzed": 12,
+  "validSolidPassRate": 1,
+  "manifoldPassRate": 0.9167,
+  "inspectSucceededRate": 0.9167,
+  "totals": {
+    "validParts": 12,
+    "manifoldParts": 11,
+    "solids": 214,
+    "faces": 3855
+  },
+  "parts": [
+    {
+      "step": "_cli-smoke-test.step",
+      "valid": true,
+      "solids": 18,
+      "faces": 1332,
+      "manifold": true,
+      "unit": "inch",
+      "inspectError": null
+    },
+    {
+      "step": "_final-check.step",
+      "valid": true,
+      "solids": 18,
+      "faces": 1332,
+      "manifold": true,
+      "unit": "inch",
+      "inspectError": null
+    },
+    {
+      "step": "_smooth-cylinder-test.step",
+      "valid": true,
+      "solids": 1,
+      "faces": 3,
+      "manifold": true,
+      "unit": "inch",
+      "inspectError": null
+    },
+    {
+      "step": "blisk-catia.step",
+      "valid": true,
+      "solids": 25,
+      "faces": 154,
+      "manifold": true,
+      "unit": "mm",
+      "inspectError": null
+    },
+    {
+      "step": "blisk-fusion-360.step",
+      "valid": true,
+      "solids": 25,
+      "faces": 154,
+      "manifold": true,
+      "unit": "mm",
+      "inspectError": null
+    },
+    {
+      "step": "blisk-inventor.step",
+      "valid": true,
+      "solids": 25,
+      "faces": 154,
+      "manifold": true,
+      "unit": "mm",
+      "inspectError": null
+    },
+    {
+      "step": "blisk-onshape.step",
+      "valid": true,
+      "solids": 25,
+      "faces": 154,
+      "manifold": true,
+      "unit": "mm",
+      "inspectError": null
+    },
+    {
+      "step": "blisk-replica.step",
+      "valid": true,
+      "solids": 1,
+      "faces": 104,
+      "inspectError": "read failed: Maximum call stack size exceeded"
+    },
+    {
+      "step": "blisk-rhino.step",
+      "valid": true,
+      "solids": 25,
+      "faces": 154,
+      "manifold": true,
+      "unit": "mm",
+      "inspectError": null
+    },
+    {
+      "step": "blisk-siemens-nx.step",
+      "valid": true,
+      "solids": 25,
+      "faces": 154,
+      "manifold": true,
+      "unit": "mm",
+      "inspectError": null
+    },
+    {
+      "step": "blisk-solidworks.step",
+      "valid": true,
+      "solids": 25,
+      "faces": 154,
+      "manifold": true,
+      "unit": "mm",
+      "inspectError": null
+    },
+    {
+      "step": "bracket-catia.step",
+      "valid": true,
+      "solids": 1,
+      "faces": 6,
+      "manifold": true,
+      "unit": "mm",
+      "inspectError": null
+    }
+  ],
+  "knownBlocker": "cad-analyze-step inspect overflows (Maximum call stack size exceeded) on large NURBS reference parts (blisk.stp 223 faces / impeller) -> blocks dim-by-dim fidelity scaling to the real JM NURBS corpus; analyzer recursion->iteration fix is the next unit.",
+  "note": "Full U-CAD-PRINTGEN-E2E (print->OCR->CAD->regen, >=95% callouts dim-by-dim on >=10 JM prints) still PENDING -- needs an OCR->regen pipeline runner + the NURBS analyzer fix; this artifact records the generation-validity half."
+}

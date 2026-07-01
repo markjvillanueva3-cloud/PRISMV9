@@ -53,8 +53,11 @@ impact:
     - state/shared/SKILL-RECALL-TUNING-LOG.md (append-only history of recommendations)
   bounded: true
   reversible: true  # recommendation only; operator approves change
+composes_with:
+  - "/forge-audit"
+  - "/hook-profile"
+  - "/hook-stats"
 ---
-
 # /skill-recall-tune — MIN_SCORE Calibrator
 
 > **Goal:** the `archived-skill-suggest.mjs` hook (commit `e27f4e212`) ships with `MIN_SCORE=6.0` — a guess made before any telemetry existed. After a week of fleet activity, the JSONL telemetry holds dozens-to-hundreds of matched/missed events with their BM25 scores. This skill reads that telemetry, computes the empirical distribution, and recommends a data-driven MIN_SCORE.

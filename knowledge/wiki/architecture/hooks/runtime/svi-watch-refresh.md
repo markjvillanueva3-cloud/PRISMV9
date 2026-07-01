@@ -21,7 +21,7 @@ related:
 
 ## Description (from file header)
 
-svi-watch-refresh.mjs — Phase 0.14 SVI Watch RefreshPostToolWrite hook that refreshes SVI watch status after changes.Updates blockers and trend based on recent modifications.
+_(no header docblock — read source for behavior)_
 
 ## Events
 

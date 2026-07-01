@@ -1,0 +1,96 @@
+{
+  "id": "TK-MS11",
+  "title": "Customer-Specific Knowledge Profiles",
+  "track": "TK",
+  "status": "complete",
+  "started_at": "2026-04-14",
+  "completed_at": "2026-04-14T20:09:00Z",
+  "total_units": 4,
+  "completed_units": 4,
+  "priority": "P1",
+  "dependencies": ["TK-MS10", "TK-MS4"],
+  "description": "Enable AI to personalize tribal knowledge per shop/customer. Learn shop-specific preferences, material expertise, machine configurations, and job history patterns. JM Die is the canonical test case.",
+  "units": [
+    {
+      "id": "TK-MS11-U1",
+      "title": "CustomerKnowledgeProfile Engine",
+      "status": "complete",
+      "completed_at": "2026-04-14T20:09:00Z",
+      "tests": 11,
+      "description": "Core engine for managing customer-specific knowledge profiles with material expertise, machine preferences, and learned modifiers.",
+      "key_methods": [
+        "createProfile(shop_id, config): CustomerKnowledgeProfile",
+        "getProfile(shop_id): CustomerKnowledgeProfile | null",
+        "updateProfile(shop_id, updates): void"
+      ]
+    },
+    {
+      "id": "TK-MS11-U2",
+      "title": "Shop-Specific Modifier Learning",
+      "status": "complete",
+      "completed_at": "2026-04-14T20:09:00Z",
+      "tests": 9,
+      "description": "Learn and apply shop-specific modifiers to tribal knowledge based on observed patterns and preferences.",
+      "key_methods": [
+        "learnShopModifier(shop_id, context, outcome): ShopModifier",
+        "applyShopModifiers(tips, shop_id): ModifiedTip[]",
+        "getShopModifiers(shop_id, filter?): ShopModifier[]"
+      ]
+    },
+    {
+      "id": "TK-MS11-U3",
+      "title": "Job History Relevance Boosting",
+      "status": "complete",
+      "completed_at": "2026-04-14T20:09:00Z",
+      "tests": 12,
+      "description": "Boost tip relevance based on job history patterns. Tips that worked well for similar past jobs get higher scores.",
+      "key_methods": [
+        "recordJobOutcome(shop_id, job_id, tips_used, outcome): void",
+        "getJobHistory(shop_id, limit): JobHistoryEntry[]",
+        "analyzeJobHistory(shop_id, days): JobPattern[]",
+        "boostByHistory(tips, context, shop_id): BoostedTip[]"
+      ]
+    },
+    {
+      "id": "TK-MS11-U4",
+      "title": "Profile-Based Search & Filtering",
+      "status": "complete",
+      "completed_at": "2026-04-14T20:09:00Z",
+      "tests": 11,
+      "description": "Customize tribal knowledge search based on customer profile. Surface relevant tips first, hide irrelevant ones.",
+      "key_methods": [
+        "searchWithProfile(query, shop_id, options?): ProfiledSearchResult[]",
+        "filterByExpertise(tips, shop_id, options?): FilteredTip[]",
+        "rankByRelevance(tips, shop_id, context): RankedTip[]"
+      ]
+    }
+  ],
+  "exit_gate": {
+    "profile_engine": true,
+    "modifier_learning": true,
+    "history_boosting": true,
+    "profile_search": true,
+    "total_tests": 43
+  },
+  "test_shop": "JM Die Company",
+  "ai_integration": {
+    "prism_ai_actions": ["extract_tribal", "neural_semantic_search", "opus_execute"],
+    "agent_profiles": ["tribal-knowledge-specialist", "deep-reasoner"]
+  },
+  "summary": {
+    "engine_created": "CustomerKnowledgeEngine",
+    "new_types": [
+      "CustomerKnowledgeProfile",
+      "ShopModifier",
+      "ModifierType",
+      "JobPattern",
+      "BoostedTip",
+      "ProfiledSearchResult",
+      "FilteredTip",
+      "RankedTip",
+      "JobOutcome",
+      "JobHistoryEntry"
+    ],
+    "ai_integration": "Complete customer profile system enabling per-shop personalization, modifier learning from job outcomes, history-based relevance boosting, and profile-aware search/filtering. JM Die used as canonical test case."
+  }
+}

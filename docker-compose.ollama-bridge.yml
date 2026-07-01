@@ -1,0 +1,122 @@
+# OLLAMA-EXPAND-MS0 / U-OE-DOCKER-COMPOSE — Layer-2b bridge deployment topology.
+#
+# Additive compose override. Does NOT modify the shared docker-compose.yml
+# (same convention as docker-compose.ollama-preload.yml). Layer it on top of
+# the base — and optionally the GPU + preload overrides:
+#
+#   # bring up the two services the bridge needs:
+#   docker compose \
+#     -f docker-compose.yml \
+#     -f docker-compose.ollama-bridge.yml \
+#     up -d prism-server ollama
+#
+#   # then run a one-shot bridge query against the LIVE MCP + Ollama:
+#   docker compose \
+#     -f docker-compose.yml -f docker-compose.ollama-bridge.yml \
+#     --profile bridge run --rm ollama-bridge \
+#     node scripts/ollama-prism-bridge.mjs "what dispatcher computes cutting force?" --trace
+#
+# This is the answer to the operator question *"can we hook Ollama up to the
+# PRISM MCP server so it gets access like Claude Code? same with Docker?"* —
+# Layers 1/2/2b shipped the harness; THIS file is the reproducible Docker
+# topology that runs ollama + prism-mcp + the bridge harness together.
+#
+# PREREQUISITE (R12 — fail-loud, state it up front): the bridge's default
+# model `qwen2.5-coder:3b` (ollama-prism-bridge.mjs:75) must already exist in
+# the `ollama` volume, else /api/chat returns "model not found" and the bridge
+# produces no useful answer. The `up` line below does NOT pull a model. Either
+# layer docker-compose.ollama-preload.yml (PRELOAD_MODELS), or one-shot:
+#   docker compose -f docker-compose.yml -f docker-compose.ollama-bridge.yml \
+#     exec ollama ollama pull qwen2.5-coder:3b
+#
+# READ-EXPOSURE NOTE (accepted risk, local single-user): the repo is mounted
+# whole at /prism:ro because the harness's `read_excerpt` tool is repo-wide BY
+# DESIGN (a code-investigation tool — narrowing it to scripts/+wiki+graph
+# would cripple its purpose). The :ro flag blocks all WRITES (verified: the
+# harness has zero writeFileSync/mkdir under the repo root), but a read-only
+# tool fed to an LLM can still surface `.git`, `.env`, or data/state/* secrets
+# to the model. Acceptable here: single-user, local, one-shot, no
+# network-egress tool. Do NOT run this topology on a multi-tenant host.
+#
+# HEALTHCHECK COUPLING: the base prism-server healthcheck probes HTTP
+# `/health` — which only listens once TRANSPORT=http (this override). In the
+# bare base stack prism-server is stdio-only and can never become `healthy`,
+# so this override is also what unblocks any base service that
+# `depends_on: prism-server: service_healthy` (e.g. prometheus).
+#
+# WHY THIS OVERRIDE IS REQUIRED — two base-compose facts make the L2b bridge
+# unreachable on prism-net without it (verified in mcp-server/src/index.ts):
+#   1. The base `prism-server` sets no TRANSPORT, so the MCP server runs in
+#      STDIO mode (`index.ts:1053` — `process.env.TRANSPORT || "stdio"`) and
+#      `runHTTP()` never executes — the HTTP `/mcp` JSON-RPC route the L2b
+#      `mcp_call` tool speaks (`index.ts:945` `app.post("/mcp")`) is absent.
+#   2. Even in HTTP mode the server binds 127.0.0.1 unless PRISM_BIND_HOST is
+#      0.0.0.0 (`index.ts:1023-1024`), so a sibling container on prism-net
+#      cannot reach it.
+# This override flips BOTH on prism-server and adds the bridge service, which
+# is the only container that needs both `ollama` and `prism-server`.
+#
+# The bridge is a one-shot query tool, NOT a daemon — it mirrors
+# docker-compose.ollama-preload.yml's `restart: "no"` + opt-in ethos. It is
+# gated behind the `bridge` Compose profile so a plain `up` never starts it
+# (a relooping query would hammer Ollama + MCP on every daemon bounce).
+
+services:
+  # Flip the existing prism-server into network-reachable HTTP MCP mode.
+  # Merged with the base service definition — only the environment is added.
+  prism-server:
+    environment:
+      # Open the HTTP /mcp JSON-RPC route the L2b bridge calls. Without this
+      # the server is stdio-only and the bridge's mcp_call tool 404s.
+      - TRANSPORT=http
+      # Bind all interfaces so http://prism-server:3000/mcp resolves from a
+      # sibling container (base default 127.0.0.1 = container-local only).
+      - PRISM_BIND_HOST=0.0.0.0
+
+  # Layer-2 / 2b harness — Ollama agent loop with read-only knowledge tools
+  # (viz_search / wiki_lookup / read_excerpt / obsidian_lookup) PLUS the L2b
+  # live MCP dispatcher tool (mcp_call → prism_calc / prism_session, curated
+  # read-only allowlist). Read-only by construction; see ollama-prism-bridge.mjs.
+  ollama-bridge:
+    # Pinned (not :latest) for reproducibility — the harness is pure Node with
+    # zero npm deps (only node builtins + sibling scripts/ask-ollama.mjs), so a
+    # bare node image is sufficient; no Dockerfile build needed.
+    image: node:22-alpine
+    container_name: prism-ollama-bridge
+    # Opt-in: a plain `docker compose up` must NOT start a one-shot query tool.
+    profiles: ["bridge"]
+    depends_on:
+      ollama:
+        condition: service_healthy
+      prism-server:
+        condition: service_healthy
+    working_dir: /prism
+    environment:
+      # Sibling-service URLs over prism-net — NOT localhost (the bridge runs
+      # in its own container). PRISM_MCP_URL targets the base prism-server's
+      # internal port 3000 (index.ts default PORT) on the compose DNS name.
+      OLLAMA_URL: "http://ollama:11434"
+      PRISM_MCP_URL: "http://prism-server:3000/mcp"
+    volumes:
+      # The harness reads scripts/ + ask-ollama.mjs + the system-viz graph
+      # (state/shared/system-viz) + knowledge/wiki for its read-only tools.
+      # Mounted READ-ONLY — the bridge has no write/exec tool by construction
+      # and the :ro flag enforces that invariant at the container boundary.
+      - ./:/prism:ro
+    # Default command proves the topology end-to-end: a question the agent
+    # loop answers by chaining the read-only knowledge tools and (when it
+    # decides it needs an authoritative dispatcher answer) the live mcp_call
+    # tool against prism-server. Override at run time, e.g.:
+    #   docker compose ... run --rm ollama-bridge \
+    #     node scripts/ollama-prism-bridge.mjs "<your question>" --json
+    command:
+      - node
+      - scripts/ollama-prism-bridge.mjs
+      - "what dispatcher computes cutting force?"
+      - "--trace"
+    # One-shot: answer, exit. Never restart (a finished query relooping would
+    # hammer Ollama + MCP on every daemon bounce — same rationale as the
+    # ollama-model-preload init service).
+    restart: "no"
+    networks:
+      - prism-net

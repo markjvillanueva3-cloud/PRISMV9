@@ -23,13 +23,19 @@ related:
 |-------|-------|
 | Name | `action-search` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/action-search.md` |
+| Source | `C:/Users/wompu/.claude/commands/action-search.md` |
 | Model | default |
 | Tags | _(none)_ |
 
 ## Description (first paragraph)
 
-_(no body content)_
+
+# Action Search — Dispatcher Action Discovery
+
+You are searching across PRISM's 1260+ dispatcher actions to find the right action for a given task, discover what a dispatcher offers, or find unwired/orphaned actions. With 50 dispatchers, finding the right entry point is the first challenge of any PRISM operation.
+
+## Args: $ARGUMENTS
+- `[keyword]`: search all dispatcher actions by keyword (
 
 <!-- AUTO-END -->
 

@@ -1141,7 +1141,17 @@
             "GAP FILL",
             "TIE UP"
           ],
-          "rollback": "git revert the unit's commit (commit subject contains unit ID)"
+          "rollback": "git revert the unit's commit (commit subject contains unit ID)",
+          "status": "completed",
+          "completed_at": "2026-05-17T21:04:21.646Z",
+          "completed_by": "claude-checkin-hotel slot hotel — verify-before-build confirmed already wired",
+          "verification": {
+            "schema_path": "mcp-server/src/schemas/aiReasoningActionSchemas.ts",
+            "schema_action_line": 71,
+            "dispatcher_path": "mcp-server/src/tools/dispatchers/aiReasoningDispatcher.ts",
+            "dispatcher_case_line": 1308,
+            "engine_path": "mcp-server/src/engines/CausalReasoningEngine.ts"
+          }
         },
         {
           "id": "P5-U03",
@@ -1173,7 +1183,17 @@
             "GAP FILL",
             "TIE UP"
           ],
-          "rollback": "git revert the unit's commit (commit subject contains unit ID)"
+          "rollback": "git revert the unit's commit (commit subject contains unit ID)",
+          "status": "completed",
+          "completed_at": "2026-05-17T21:04:21.646Z",
+          "completed_by": "claude-checkin-hotel slot hotel — verify-before-build confirmed already wired",
+          "verification": {
+            "schema_path": "mcp-server/src/schemas/aiReasoningActionSchemas.ts",
+            "schema_action_line": 72,
+            "dispatcher_path": "mcp-server/src/tools/dispatchers/aiReasoningDispatcher.ts",
+            "dispatcher_case_line": 1328,
+            "engine_path": "mcp-server/src/engines/CounterfactualReasoningEngine.ts"
+          }
         },
         {
           "id": "P5-U04",
@@ -1201,7 +1221,17 @@
             "GAP FILL",
             "TIE UP"
           ],
-          "rollback": "git revert the unit's commit (commit subject contains unit ID)"
+          "rollback": "git revert the unit's commit (commit subject contains unit ID)",
+          "status": "completed",
+          "completed_at": "2026-05-17T21:04:21.646Z",
+          "completed_by": "claude-checkin-hotel slot hotel — verify-before-build confirmed already wired",
+          "verification": {
+            "schema_path": "mcp-server/src/schemas/aiReasoningActionSchemas.ts",
+            "schema_action_line": 73,
+            "dispatcher_path": "mcp-server/src/tools/dispatchers/aiReasoningDispatcher.ts",
+            "dispatcher_case_line": 1350,
+            "engine_path": "mcp-server/src/engines/ScientificReasoningEngine.ts"
+          }
         },
         {
           "id": "P5-U05",
@@ -1640,7 +1670,18 @@
             "GAP FILL",
             "TIE UP"
           ],
-          "rollback": "git revert the unit's commit (commit subject contains unit ID)"
+          "rollback": "git revert the unit's commit (commit subject contains unit ID)",
+          "status": "completed",
+          "completed_at": "2026-05-17T21:39:30.276Z",
+          "completed_by": "claude-2d30710b slot hotel — P8-U05",
+          "deliverables_shipped": [
+            "mcp-server/src/engines/SchemaCoverageAuditEngine.ts",
+            "mcp-server/src/__tests__/SchemaCoverageAuditEngine.test.ts",
+            "mcp-server/src/tools/dispatchers/devDispatcher.ts (3 case handlers + 3 enum entries)",
+            "state/shared/specs/SCHEMA-COVERAGE-AUDIT.json (first-run output)"
+          ],
+          "summary": "3 dispatcher actions wired: schema_coverage_audit, _read, _summary. Baseline: 277 schema files, 184 z.any() across 38 files, 8624 .describe() calls across 5521 z.object() schemas. Top offender: operatingSystemActionSchemas.ts (20 z.any). Feeds P8-U01..U04 sweep.",
+          "tests": "7/7 vitest passing"
         },
         {
           "id": "P8-U06",
@@ -2481,7 +2522,16 @@
             "SCRUTINIZE",
             "GAP FILL",
             "TIE UP"
-          ]
+          ],
+          "status": "completed",
+          "completed_at": "2026-05-17T21:08:26.348Z",
+          "completed_by": "claude-checkin-hotel slot hotel — P13-U01",
+          "deliverables_shipped": [
+            "scripts/audit-docker-files.mjs",
+            "state/shared/specs/DOCKER-COMPOSE-AUDIT.json",
+            "state/shared/specs/DOCKER-COMPOSE-AUDIT.md"
+          ],
+          "summary": "38 compose files + 21 dockerfiles inventoried; classified into 5 buckets (claude-harness=40, other=11, mcp-server=6, prism-infra=1, web=1)"
         },
         {
           "id": "P13-U02",
@@ -2757,7 +2807,16 @@
             "SCRUTINIZE",
             "GAP FILL",
             "TIE UP"
-          ]
+          ],
+          "status": "completed",
+          "completed_at": "2026-05-17T21:12:32.753Z",
+          "completed_by": "claude-checkin-hotel slot hotel — P15-U01",
+          "deliverables_shipped": [
+            "scripts/audit-memory-dbs.mjs",
+            "state/shared/specs/MEMORY-DB-AUDIT.json",
+            "state/shared/specs/MEMORY-DB-AUDIT.md"
+          ],
+          "summary": "7 SQLite/memory.db files inventoried (15.1MB total); 3 memory.db + 2 isofittingtols.sqlite + 1 state_5.sqlite + 1 node-context-index.sqlite; concentrated in prism-main; no per-slot-worktree memory.db drift detected. Feeds P15-U02 CrossSessionMemoryBridge design."
         },
         {
           "id": "P15-U02",
@@ -2990,7 +3049,19 @@
             "SCRUTINIZE",
             "GAP FILL",
             "TIE UP"
-          ]
+          ],
+          "status": "completed",
+          "completed_at": "2026-05-17T21:44:50.218Z",
+          "completed_by": "claude-2d30710b slot hotel — P17-U02 satisfied-by-main-compose",
+          "deliverables_shipped": [
+            "state/shared/specs/QDRANT-H-VOLUME-AUDIT.md"
+          ],
+          "summary": "Intent (Qdrant data on H:) satisfied by main docker-compose.yml line 96 bind-mount ./data/docker-volumes/qdrant resolving to H:/prism/data/docker-volumes/qdrant. P13-U02 separate intel.yml file remains pending but is independent.",
+          "verification": {
+            "docker_compose_yml_line": 96,
+            "bind_mount": "./data/docker-volumes/qdrant",
+            "doctrine_line": 148
+          }
         },
         {
           "id": "P17-U03",

@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "presets": {
+    "MarkV": {
+      "label": "work",
+      "description": "Smaller GPU (~8GB free) + tighter RAM — 3B resident, 85% mem floor, more aggressive offload",
+      "PRISM_FLEET_REAPER_OLLAMA_PREWARM_MODEL": "qwen2.5-coder:3b",
+      "PRISM_FLEET_REAPER_OLLAMA_KEEP_ALIVE": "10m",
+      "PRISM_FLEET_REAPER_GPU_FREE_MIN_MB": "1024",
+      "PRISM_FLEET_REAPER_MEM_PRESSURE_PCT": "85",
+      "PRISM_FLEET_REAPER_MEM_CRITICAL_PCT": "92",
+      "PRISM_FLEET_REAPER_SOFT_RELIEF_PRESSURE_PCT": "85",
+      "PRISM_FLEET_REAPER_HINT_THRESHOLD_DELTA": "0.20",
+      "PRISM_FLEET_REAPER_BALLAST_MB": "128",
+      "_updatedAt": "2026-05-19T13:03:45.049Z"
+    },
+    "DESKTOP-N7MI1VB": {
+      "label": "blackwell",
+      "description": "RTX PRO 6000 Blackwell Workstation Edition 96GB · Ryzen 7 7800X3D · 127GB RAM — 32B resident (Q4_K_M ~20GB VRAM) with huge headroom for NIM + parallel models; was RTX 4080 SUPER 16GB/14B (2026-06-03 BLACKWELL-GPU-SWAP slot:golf)",
+      "PRISM_FLEET_REAPER_OLLAMA_PREWARM_MODEL": "qwen2.5-coder:32b",
+      "PRISM_FLEET_REAPER_OLLAMA_KEEP_ALIVE": "60m",
+      "PRISM_FLEET_REAPER_GPU_FREE_MIN_MB": "24576",
+      "PRISM_FLEET_REAPER_MEM_PRESSURE_PCT": "90",
+      "PRISM_FLEET_REAPER_MEM_CRITICAL_PCT": "95",
+      "PRISM_FLEET_REAPER_SOFT_RELIEF_PRESSURE_PCT": "90",
+      "PRISM_FLEET_REAPER_HINT_THRESHOLD_DELTA": "0.25",
+      "PRISM_FLEET_REAPER_BALLAST_MB": "256",
+      "_updatedAt": "2026-06-03T13:05:00.000Z"
+    }
+  },
+  "lastUpdated": "2026-06-03T13:05:00.000Z"
+}

@@ -1,0 +1,44 @@
+H:\Tools\python\Lib\site-packages\transformers\utils\hub.py:110: FutureWarning: Using `TRANSFORMERS_CACHE` is deprecated and will be removed in v5 of Transformers. Use `HF_HOME` instead.
+  warnings.warn(
+Fetching 2 files:   0%|          | 0/2 [00:00<?, ?it/s]Fetching 2 files:  50%|#####     | 1/2 [03:25<03:25, 205.87s/it]Fetching 2 files: 100%|##########| 2/2 [03:25<00:00, 102.94s/it]
+Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]
+Traceback (most recent call last):
+  File "H:\PRISM\Docustrata\.index\phase9-unified-blueprint-pipeline.py", line 336, in <module>
+    main()
+    ~~~~^^
+  File "H:\PRISM\Docustrata\.index\phase9-unified-blueprint-pipeline.py", line 259, in main
+    load_vlm()
+    ~~~~~~~~^^
+  File "H:\PRISM\Docustrata\.index\phase9-unified-blueprint-pipeline.py", line 156, in load_vlm
+    _VLM["model"] = Qwen2_5_VLForConditionalGeneration.from_pretrained(
+                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        model_id,
+        ^^^^^^^^^
+    ...<2 lines>...
+        low_cpu_mem_usage=True,
+        ^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "H:\Tools\python\Lib\site-packages\transformers\modeling_utils.py", line 277, in _wrapper
+    return func(*args, **kwargs)
+  File "H:\Tools\python\Lib\site-packages\transformers\modeling_utils.py", line 5048, in from_pretrained
+    ) = cls._load_pretrained_model(
+        ~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        model,
+        ^^^^^^
+    ...<12 lines>...
+        weights_only=weights_only,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "H:\Tools\python\Lib\site-packages\transformers\modeling_utils.py", line 5468, in _load_pretrained_model
+    _error_msgs, disk_offload_index = load_shard_file(args)
+                                      ~~~~~~~~~~~~~~~^^^^^^
+  File "H:\Tools\python\Lib\site-packages\transformers\modeling_utils.py", line 831, in load_shard_file
+    state_dict = load_state_dict(
+        shard_file, is_quantized=is_quantized, map_location=map_location, weights_only=weights_only
+    )
+  File "H:\Tools\python\Lib\site-packages\transformers\modeling_utils.py", line 484, in load_state_dict
+    with safe_open(checkpoint_file, framework="pt") as f:
+         ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+OSError: The paging file is too small for this operation to complete. (os error 1455)

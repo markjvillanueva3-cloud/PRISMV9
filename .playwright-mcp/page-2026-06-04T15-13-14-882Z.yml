@@ -1,0 +1,527 @@
+- generic [active] [ref=e1]:
+  - main [ref=e2]:
+    - generic [ref=e7]:
+      - generic [ref=e9]:
+        - link "logo" [ref=e11] [cursor=pointer]:
+          - /url: /
+          - img "logo" [ref=e12]
+        - generic [ref=e14]:
+          - generic "Explore all hosting services and quickly find what fits your needs." [ref=e16]:
+            - generic [ref=e17]: Product
+            - generic [ref=e18]: 
+          - generic "We provide AI and enterprise solutions, including Kubernetes clusters, databases, load balancing, high-availability databases, and more." [ref=e20]:
+            - generic [ref=e21]: Solutions
+            - generic [ref=e22]: 
+          - generic "Find guides, tools, and materials to help you get the most out of our services." [ref=e24]:
+            - generic [ref=e25]: Resources
+            - generic [ref=e26]: 
+          - generic "Get help with any issue through our support channels." [ref=e28]:
+            - generic [ref=e29]: Support
+            - generic [ref=e30]: 
+          - generic "Learn more about who we are, our mission, and our values." [ref=e32]:
+            - generic [ref=e33]: Company
+            - generic [ref=e34]: 
+          - link "Special Offers hot logo" [ref=e36] [cursor=pointer]:
+            - /url: /updates
+            - generic [ref=e37]:
+              - text: Special Offers
+              - img "hot logo" [ref=e38]
+      - generic [ref=e39]:
+        - button "Open search" [ref=e41] [cursor=pointer]:
+          - img [ref=e42]
+        - button "Log In / Sign Up" [ref=e46] [cursor=pointer]
+    - generic [ref=e49]:
+      - img "a simple background" [ref=e50]
+      - generic [ref=e55]:
+        - heading "Ollama Benchmark of LLM Inference on NVIDIA Pro 6000" [level=1] [ref=e56]
+        - generic [ref=e57]:
+          - paragraph [ref=e58]: With the arrival of NVIDIA’s Blackwell architecture in professional GPUs, the RTX Pro 6000 has become a compelling option for on-premise and hosted AI inference. It combines large VRAM capacity, strong compute throughput, and server-grade stability, making it suitable for running modern large language models on a single GPU.
+          - paragraph [ref=e59]: This article presents a comparative inference benchmark of several widely used open-source large language models running on Ollama 0.13.5, tested on a single NVIDIA RTX Pro 6000 Blackwell server. The goal of this evaluation is not to compare model intelligence or reasoning depth, but rather to observe real-world inference efficiency, especially output speed, under consistent conditions.
+        - link "Rent Pro6000 Server" [ref=e62] [cursor=pointer]:
+          - /url: /gpu-server/vps
+          - button "Rent Pro6000 Server" [ref=e63]
+    - generic [ref=e66]:
+      - generic [ref=e67]:
+        - generic [ref=e73]:
+          - heading "Test Overview" [level=2] [ref=e74]
+          - paragraph [ref=e75]: The test environment was standardized across all models to ensure fairness and reproducibility.
+          - 'heading "GPU: NVIDIA RTX Pro 6000 (Blackwell architecture)" [level=3] [ref=e76]'
+          - list [ref=e77]:
+            - listitem [ref=e78]: "Microarchitecture: Blackwell"
+            - listitem [ref=e79]: "Compute capability: 12"
+            - listitem [ref=e80]: "CUDA Cores: 24,064"
+            - listitem [ref=e81]: "Tensor Cores: 852"
+            - listitem [ref=e82]: "GPU Memory: 96GB GDDR7"
+          - heading "Backend Environment" [level=3] [ref=e83]
+          - list [ref=e84]:
+            - listitem [ref=e85]: "Inference framework: Ollama 0.13.5"
+            - listitem [ref=e86]: "Quantization: 4-bit"
+            - listitem [ref=e87]: "Execution mode: Single-model, single-GPU"
+            - listitem [ref=e88]: "Prompt: Identical for all models"
+          - paragraph [ref=e89]: Although the prompt itself is simple, the length, structure, and detail of the generated answers vary significantly between models, which naturally affects token counts and generation time. This variation is considered part of the model’s real inference behavior rather than noise.
+          - heading "Input Settings" [level=3] [ref=e90]
+          - paragraph [ref=e91]: "All models were asked the same simple question:"
+          - paragraph [ref=e92]:
+            - code [ref=e93]: “What is GPU?”
+          - paragraph [ref=e94]: This intentionally lightweight prompt helps isolate inference characteristics while avoiding complex multi-step reasoning that could obscure raw performance differences.
+          - heading "Models Included in the Benchmark" [level=3] [ref=e95]
+          - paragraph [ref=e96]: "The following models were tested:"
+          - list [ref=e97]:
+            - listitem [ref=e98]: GPT-OSS (20B, 120B)
+            - listitem [ref=e99]: DeepSeek-R1 (32B, 70B)
+            - listitem [ref=e100]: Gemma 3 (27B)
+            - listitem [ref=e101]: LLaMA 3.3 (70B)
+            - listitem [ref=e102]: Qwen 3 (32B)
+            - listitem [ref=e103]: Qwen 2.5 (72B)
+          - paragraph [ref=e104]: All models were loaded via Ollama using their official 4-bit quantized variants.
+        - heading "Pro 6000 Ollama Benchmark Data Display" [level=2] [ref=e111]
+        - table [ref=e117]:
+          - rowgroup [ref=e118]:
+            - row "Models gpt-oss gpt-oss deepseek-r1 deepseek-r1 gemma3 llama3.3 qwen3 qwen2.5" [ref=e119]:
+              - columnheader "Models" [ref=e120]
+              - columnheader "gpt-oss" [ref=e121]
+              - columnheader "gpt-oss" [ref=e122]
+              - columnheader "deepseek-r1" [ref=e123]
+              - columnheader "deepseek-r1" [ref=e124]
+              - columnheader "gemma3" [ref=e125]
+              - columnheader "llama3.3" [ref=e126]
+              - columnheader "qwen3" [ref=e127]
+              - columnheader "qwen2.5" [ref=e128]
+          - rowgroup [ref=e129]:
+            - row "Parameters 20b 120b 32b 70b 27b 70b 32b 72b" [ref=e130]:
+              - cell "Parameters" [ref=e131]
+              - cell "20b" [ref=e132]
+              - cell "120b" [ref=e133]
+              - cell "32b" [ref=e134]
+              - cell "70b" [ref=e135]
+              - cell "27b" [ref=e136]
+              - cell "70b" [ref=e137]
+              - cell "32b" [ref=e138]
+              - cell "72b" [ref=e139]
+            - row "Size (GB) 14 65 20 43 17 43 20 47" [ref=e140]:
+              - cell "Size (GB)" [ref=e141]
+              - cell "14" [ref=e142]
+              - cell "65" [ref=e143]
+              - cell "20" [ref=e144]
+              - cell "43" [ref=e145]
+              - cell "17" [ref=e146]
+              - cell "43" [ref=e147]
+              - cell "20" [ref=e148]
+              - cell "47" [ref=e149]
+            - row "Quantization 4 4 4 4 4 4 4 4" [ref=e150]:
+              - cell "Quantization" [ref=e151]
+              - cell "4" [ref=e152]
+              - cell "4" [ref=e153]
+              - cell "4" [ref=e154]
+              - cell "4" [ref=e155]
+              - cell "4" [ref=e156]
+              - cell "4" [ref=e157]
+              - cell "4" [ref=e158]
+              - cell "4" [ref=e159]
+            - row "Running on Ollama0.13.5 Ollama0.13.5 Ollama0.13.5 Ollama0.13.5 Ollama0.13.5 Ollama0.13.5 Ollama0.13.5 Ollama0.13.5" [ref=e160]:
+              - cell "Running on" [ref=e161]
+              - cell "Ollama0.13.5" [ref=e162]
+              - cell "Ollama0.13.5" [ref=e163]
+              - cell "Ollama0.13.5" [ref=e164]
+              - cell "Ollama0.13.5" [ref=e165]
+              - cell "Ollama0.13.5" [ref=e166]
+              - cell "Ollama0.13.5" [ref=e167]
+              - cell "Ollama0.13.5" [ref=e168]
+              - cell "Ollama0.13.5" [ref=e169]
+            - row "Downloading Speed(mb/s) 120 120 120 120 120 120 120 120" [ref=e170]:
+              - cell "Downloading Speed(mb/s)" [ref=e171]
+              - cell "120" [ref=e172]
+              - cell "120" [ref=e173]
+              - cell "120" [ref=e174]
+              - cell "120" [ref=e175]
+              - cell "120" [ref=e176]
+              - cell "120" [ref=e177]
+              - cell "120" [ref=e178]
+              - cell "120" [ref=e179]
+            - row "CPU UTL 3% 6.5% 3% 3.2% 5.5% 3.3% 4.9% 3.3%" [ref=e180]:
+              - cell "CPU UTL" [ref=e181]
+              - cell "3%" [ref=e182]
+              - cell "6.5%" [ref=e183]
+              - cell "3%" [ref=e184]
+              - cell "3.2%" [ref=e185]
+              - cell "5.5%" [ref=e186]
+              - cell "3.3%" [ref=e187]
+              - cell "4.9%" [ref=e188]
+              - cell "3.3%" [ref=e189]
+            - row "RAM Rate 7% 9.5% 10% 3.4% 5.7% 3.2% 4.1% 3.6%" [ref=e190]:
+              - cell "RAM Rate" [ref=e191]
+              - cell "7%" [ref=e192]
+              - cell "9.5%" [ref=e193]
+              - cell "10%" [ref=e194]
+              - cell "3.4%" [ref=e195]
+              - cell "5.7%" [ref=e196]
+              - cell "3.2%" [ref=e197]
+              - cell "4.1%" [ref=e198]
+              - cell "3.6%" [ref=e199]
+            - row "GPU UTL 65% 60% 87% 94% 83% 94% 90% 93%" [ref=e200]:
+              - cell "GPU UTL" [ref=e201]
+              - cell "65%" [ref=e202]
+              - cell "60%" [ref=e203]
+              - cell "87%" [ref=e204]
+              - cell "94%" [ref=e205]
+              - cell "83%" [ref=e206]
+              - cell "94%" [ref=e207]
+              - cell "90%" [ref=e208]
+              - cell "93%" [ref=e209]
+            - row "GPU Memory 33% 77% 98% 41% 18% 41% 20% 45%" [ref=e210]:
+              - cell "GPU Memory" [ref=e211]
+              - cell "33%" [ref=e212]
+              - cell "77%" [ref=e213]
+              - cell "98%" [ref=e214]
+              - cell "41%" [ref=e215]
+              - cell "18%" [ref=e216]
+              - cell "41%" [ref=e217]
+              - cell "20%" [ref=e218]
+              - cell "45%" [ref=e219]
+            - row "Total Duration(s) 23.618 24.111 18.40 15.33 34.728 19.49 31.05 13.29" [ref=e220]:
+              - cell "Total Duration(s)" [ref=e221]
+              - cell "23.618" [ref=e222]
+              - cell "24.111" [ref=e223]
+              - cell "18.40" [ref=e224]
+              - cell "15.33" [ref=e225]
+              - cell "34.728" [ref=e226]
+              - cell "19.49" [ref=e227]
+              - cell "31.05" [ref=e228]
+              - cell "13.29" [ref=e229]
+            - row "Load Duration(ms) 373.35 377.14 194.26 254.36 434.61 251.80 219.52 218.40" [ref=e230]:
+              - cell "Load Duration(ms)" [ref=e231]
+              - cell "373.35" [ref=e232]
+              - cell "377.14" [ref=e233]
+              - cell "194.26" [ref=e234]
+              - cell "254.36" [ref=e235]
+              - cell "434.61" [ref=e236]
+              - cell "251.80" [ref=e237]
+              - cell "219.52" [ref=e238]
+              - cell "218.40" [ref=e239]
+            - row "Prompt Eval Count(tokens) 70 70 6 6 12 13 13 32" [ref=e240]:
+              - cell "Prompt Eval Count(tokens)" [ref=e241]
+              - cell "70" [ref=e242]
+              - cell "70" [ref=e243]
+              - cell "6" [ref=e244]
+              - cell "6" [ref=e245]
+              - cell "12" [ref=e246]
+              - cell "13" [ref=e247]
+              - cell "13" [ref=e248]
+              - cell "32" [ref=e249]
+            - row "Prompt Eval Duration(ms) 14.92 134.92 14.215 57.67 13.33 56.72 4.24 66.61" [ref=e250]:
+              - cell "Prompt Eval Duration(ms)" [ref=e251]
+              - cell "14.92" [ref=e252]
+              - cell "134.92" [ref=e253]
+              - cell "14.215" [ref=e254]
+              - cell "57.67" [ref=e255]
+              - cell "13.33" [ref=e256]
+              - cell "56.72" [ref=e257]
+              - cell "4.24" [ref=e258]
+              - cell "66.61" [ref=e259]
+            - row "Prompt Eval Rate(tokens/s) 4.69 518.83 0.42 104.04 0.9 229.17 3.06 480.40" [ref=e260]:
+              - cell "Prompt Eval Rate(tokens/s)" [ref=e261]
+              - cell "4.69" [ref=e262]
+              - cell "518.83" [ref=e263]
+              - cell "0.42" [ref=e264]
+              - cell "104.04" [ref=e265]
+              - cell "0.9" [ref=e266]
+              - cell "229.17" [ref=e267]
+              - cell "3.06" [ref=e268]
+              - cell "480.40" [ref=e269]
+            - row "Eval Count(tokens) 1246 2729 223 454 1188 579 1436 356" [ref=e270]:
+              - cell "Eval Count(tokens)" [ref=e271]
+              - cell "1246" [ref=e272]
+              - cell "2729" [ref=e273]
+              - cell "223" [ref=e274]
+              - cell "454" [ref=e275]
+              - cell "1188" [ref=e276]
+              - cell "579" [ref=e277]
+              - cell "1436" [ref=e278]
+              - cell "356" [ref=e279]
+            - row "Eval Duration(s) 6.73 20.323 3.46 14.168 19.32 18.11 25.66 12.21" [ref=e280]:
+              - cell "Eval Duration(s)" [ref=e281]
+              - cell "6.73" [ref=e282]
+              - cell "20.323" [ref=e283]
+              - cell "3.46" [ref=e284]
+              - cell "14.168" [ref=e285]
+              - cell "19.32" [ref=e286]
+              - cell "18.11" [ref=e287]
+              - cell "25.66" [ref=e288]
+              - cell "12.21" [ref=e289]
+            - row "Eval Rate (tokens/s) 185.09 134.28 64.31 32.04 61.49 31.96 55.96 29.15" [ref=e290]:
+              - cell "Eval Rate (tokens/s)" [ref=e291]:
+                - generic [ref=e292]: Eval Rate (tokens/s)
+              - cell "185.09" [ref=e293]:
+                - generic [ref=e294]: "185.09"
+              - cell "134.28" [ref=e295]:
+                - generic [ref=e296]: "134.28"
+              - cell "64.31" [ref=e297]:
+                - generic [ref=e298]: "64.31"
+              - cell "32.04" [ref=e299]:
+                - generic [ref=e300]: "32.04"
+              - cell "61.49" [ref=e301]:
+                - generic [ref=e302]: "61.49"
+              - cell "31.96" [ref=e303]:
+                - generic [ref=e304]: "31.96"
+              - cell "55.96" [ref=e305]:
+                - generic [ref=e306]: "55.96"
+              - cell "29.15" [ref=e307]:
+                - generic [ref=e308]: "29.15"
+        - generic [ref=e314]: "Record real-time Pro6000 gpu server resource consumption data:"
+        - generic [ref=e329]:
+          - heading "Why Eval Rate (tokens/s) Matters Most" [level=3] [ref=e330]
+          - paragraph [ref=e331]: "Ollama reports multiple performance metrics, including:"
+          - list [ref=e332]:
+            - listitem [ref=e333]: Prompt evaluation time and rate (prefill stage)
+            - listitem [ref=e334]: Model load time
+            - listitem [ref=e335]: Evaluation duration
+            - listitem [ref=e336]: Eval rate (tokens per second) during generation
+          - paragraph [ref=e337]: For practical AI applications such as chatbots, APIs, internal assistants, or agent-based systems, the generation phase dominates the user experience. Once the prompt is processed, the perceived responsiveness is almost entirely determined by how quickly tokens are produced.
+          - paragraph [ref=e338]: For this reason, eval rate (tokens/s) is the most meaningful indicator in this benchmark and serves as the primary comparison metric in the analysis below.
+          - heading "Eval Rate Overview (tokens/s)" [level=3] [ref=e339]
+          - list [ref=e340]:
+            - listitem [ref=e341]: "GPT-OSS 20B: ~185 tokens/s"
+            - listitem [ref=e342]: "GPT-OSS 120B: ~134 tokens/s"
+            - listitem [ref=e343]: "DeepSeek-R1 32B: ~64 tokens/s"
+            - listitem [ref=e344]: "Gemma 3 27B: ~61 tokens/s"
+            - listitem [ref=e345]: "Qwen 3 32B: ~56 tokens/s"
+            - listitem [ref=e346]: "Qwen 2.5 72B: ~29 tokens/s"
+            - listitem [ref=e347]: "LLaMA 3.3 70B: ~32 tokens/s"
+            - listitem [ref=e348]: "DeepSeek-R1 70B: ~32 tokens/s"
+          - paragraph [ref=e349]: These results clearly show that parameter count alone does not determine inference speed. Models with similar sizes can differ by several multiples in output throughput.
+        - generic [ref=e355]:
+          - heading "Observations and Analysis" [level=2] [ref=e356]
+          - heading "1. GPT-OSS Shows Exceptional Inference Efficiency" [level=3] [ref=e357]
+          - paragraph [ref=e358]: The GPT-OSS models stand out in this benchmark. Even the 120B variant maintains a high eval rate, significantly outperforming many smaller or similarly sized models.
+          - paragraph [ref=e359]: This behavior likely results from a combination of factors, including model architecture, quantization friendliness, and how well the model aligns with Ollama’s underlying inference backend. From an infrastructure perspective, GPT-OSS demonstrates that very large models can still deliver excellent throughput when properly optimized.
+          - paragraph [ref=e360]: This makes GPT-OSS particularly suitable for high-concurrency inference services, interactive chat applications, and cost-sensitive deployments where output speed is a priority.
+          - heading "2. DeepSeek-R1 Prioritizes Computation Over Throughput" [level=3] [ref=e361]
+          - paragraph [ref=e362]: DeepSeek-R1 exhibits very high GPU utilization, reaching close to full usage on the RTX Pro 6000. However, its eval rate remains relatively modest, especially in the 70B configuration.
+          - paragraph [ref=e363]: This suggests that each generated token requires more computation, which is consistent with DeepSeek-R1’s design focus on structured reasoning and deeper inference. In other words, the GPU is busy, but it is busy doing more work per token.
+          - paragraph [ref=e364]: As a result, DeepSeek-R1 is better suited for reasoning-heavy workloads, research-oriented tasks, or low-concurrency scenarios where output quality is valued m
+          - heading "3. LLaMA 3.3 and Qwen Large Models Deliver Stable but Moderate Performance" [level=3] [ref=e365]
+          - paragraph [ref=e366]: LLaMA 3.3 70B and Qwen 2.5 72B show consistent and predictable behavior. GPU utilization is high, memory usage is well managed, and inference proceeds steadily, but output speed remains in the lower range compared to GPT-OSS.
+          - paragraph [ref=e367]: These models benefit from mature ecosystems and strong tooling support, which makes them reliable choices for standardized deployments. However, on Blackwell GPUs, their inference performance does not yet fully capitalize on the available hardware capabilities.
+          - heading "4. GPU Memory Is Not the Primary Bottleneck" [level=3] [ref=e368]
+          - paragraph [ref=e369]: An important observation from this test is that GPU memory usage rarely reaches saturation, even for 70B and 120B models under 4-bit quantization.
+          - paragraph [ref=e370]: "This indicates that on the RTX Pro 6000 Blackwell, single-GPU inference capacity is no longer constrained by VRAM size for most mainstream open-source models. Instead, performance differences are driven primarily by:"
+          - list [ref=e371]:
+            - listitem [ref=e372]: Model architecture
+            - listitem [ref=e373]: Token-level compute complexity
+            - listitem [ref=e374]: Backend inference efficiency
+        - generic [ref=e380]:
+          - heading "Infrastructure-Level Implications" [level=2] [ref=e381]
+          - paragraph [ref=e382]: "From an infrastructure and deployment perspective, these results lead to several practical conclusions:"
+          - list [ref=e383]:
+            - listitem [ref=e384]: Choosing the right model can have a larger impact than upgrading hardware.
+            - listitem [ref=e385]: Blackwell-class GPUs already provide ample headroom for single-card inference.
+            - listitem [ref=e386]: Mid-sized models (20B–32B) often deliver the best balance between speed and capability.
+            - listitem [ref=e387]: Very large models are viable on a single GPU, but efficiency varies widely by implementation.
+          - paragraph [ref=e388]: For AI hosting providers and private deployments, this means that model selection is now a key performance optimization lever, not just GPU selection.
+        - generic [ref=e394]:
+          - 'heading "Conclusion: Pro6000 Is The Best GPU for Ollama Inference" [level=2] [ref=e395]'
+          - paragraph [ref=e396]: This benchmark demonstrates that on a single NVIDIA RTX Pro 6000 Blackwell GPU, modern open-source LLMs can achieve highly diverse inference performance under identical conditions.
+          - paragraph [ref=e397]: The most important takeaway is that eval rate (tokens per second) is the clearest indicator of real-world responsiveness. High parameter counts do not guarantee better throughput, and some models are significantly more inference-efficient than others.
+          - paragraph [ref=e398]: As GPU architectures continue to advance, the competitive advantage in AI inference will increasingly depend on how well models, inference frameworks, and hardware architectures align, rather than on raw compute alone.
+          - paragraph [ref=e399]: Future testing with multi-user concurrency, longer contexts, and alternative backends such as vLLM or TensorRT-LLM will further clarify how these models scale in production environments.
+          - paragraph [ref=e400]:
+            - strong [ref=e401]: Only $479/mo,
+            - link "Rent Pro6000 Blackwell Server >" [ref=e402] [cursor=pointer]:
+              - /url: /gpu-server/vps
+              - strong [ref=e403]: Rent Pro6000 Blackwell Server >
+        - generic [ref=e410]:
+          - generic [ref=e411]: "Tags:"
+          - paragraph [ref=e413]: Pro6000 benchmark, Blackwell GPU inference, Ollama benchmark, LLM inference performance, eval rate tokens per second, GPU inference server, open source LLM benchmark, AI inference hosting
+      - generic [ref=e415]:
+        - generic [ref=e418]:
+          - generic [ref=e419]: Outline
+          - list [ref=e420]:
+            - listitem [ref=e421] [cursor=pointer]: Test Overview
+            - listitem [ref=e422] [cursor=pointer]: Pro 6000 Ollama Benchmark Data Display
+            - listitem [ref=e423] [cursor=pointer]: Observations and Analysis
+            - listitem [ref=e424] [cursor=pointer]: Infrastructure-Level Implications
+            - listitem [ref=e425] [cursor=pointer]: "Conclusion: Pro6000 Is The Best GPU for Ollama Inference"
+        - generic [ref=e427]:
+          - generic [ref=e428]: Related Articles
+          - list [ref=e429]:
+            - listitem [ref=e430]:
+              - link "NVIDIA RTX Pro 5000 Blackwell Ollama Inference Benchmark" [ref=e431] [cursor=pointer]:
+                - /url: https://www.databasemart.com/blog/ollama-gpu-benchmark-pro5000
+            - listitem [ref=e432]:
+              - 'link "RTX Pro 2000 Blackwell Ollama Benchmark: INT4 LLM Inference" [ref=e433] [cursor=pointer]':
+                - /url: https://www.databasemart.com/blog/ollama-gpu-benchmark-pro2000
+            - listitem [ref=e434]:
+              - 'link "Nvidia RTX 4060 Ollama Benchmark: LLM Inference Performance & Analysis" [ref=e435] [cursor=pointer]':
+                - /url: https://www.databasemart.com/blog/ollama-gpu-benchmark-rtx4060
+        - list [ref=e438]:
+          - listitem [ref=e439]:
+            - link "GPU-VPS-new" [ref=e440] [cursor=pointer]:
+              - /url: https://www.gpu-mart.com/ai-hosting-promo
+              - img "GPU-VPS-new" [ref=e441]
+          - listitem [ref=e442]:
+            - link "flash sale" [ref=e443] [cursor=pointer]:
+              - /url: https://www.databasemart.com/vps-hosting
+              - img "flash sale" [ref=e444]
+    - generic [ref=e446]:
+      - generic [ref=e447]:
+        - generic [ref=e448]:
+          - link "DatabaseMart Home" [ref=e449] [cursor=pointer]:
+            - /url: /
+            - img "logo" [ref=e451]
+            - generic [ref=e452]: Database Mart
+          - paragraph [ref=e453]:
+            - text: Built on care and driven by technology.
+            - text: Database Mart has delivered trusted, accessible technology that empowers businesses and developers worldwide.
+          - paragraph [ref=e454]: Trusted for 21+ Years.
+          - generic [ref=e455]:
+            - link "Twitter" [ref=e456] [cursor=pointer]:
+              - /url: https://x.com/databasemartllc
+              - img [ref=e457]
+            - link "LinkedIn" [ref=e459] [cursor=pointer]:
+              - /url: https://www.linkedin.com/company/database-mart/posts/
+              - img [ref=e460]
+            - link "Facebook" [ref=e462] [cursor=pointer]:
+              - /url: https://www.facebook.com/databasemart
+              - img [ref=e463]
+            - link "YouTube" [ref=e465] [cursor=pointer]:
+              - /url: https://www.youtube.com/channel/UCfzGVF6oXi1ywy5g_PgBdFg
+              - img [ref=e466]
+        - navigation "Footer Navigation" [ref=e468]:
+          - generic [ref=e469]:
+            - generic [ref=e470]: Products
+            - list [ref=e471]:
+              - listitem [ref=e472]:
+                - link "Windows VPS" [ref=e473] [cursor=pointer]:
+                  - /url: https://www.databasemart.com/windows-server-vps
+              - listitem [ref=e474]:
+                - link "Linux VPS" [ref=e475] [cursor=pointer]:
+                  - /url: https://www.databasemart.com/vps-hosting/linux
+              - listitem [ref=e476]:
+                - link "Dedicated Server" [ref=e477] [cursor=pointer]:
+                  - /url: https://www.databasemart.com/dedicated-hosting
+              - listitem [ref=e478]:
+                - link "GPU Server" [ref=e479] [cursor=pointer]:
+                  - /url: https://www.databasemart.com/gpu-server
+              - listitem [ref=e480]:
+                - link "GPU VPS" [ref=e481] [cursor=pointer]:
+                  - /url: https://www.databasemart.com/gpu-server/vps
+              - listitem [ref=e482]:
+                - link "Domain Registration" [ref=e483] [cursor=pointer]:
+                  - /url: https://www.databasemart.com/products/domain
+              - listitem [ref=e484]:
+                - link "SSL Certificate" [ref=e485] [cursor=pointer]:
+                  - /url: https://www.databasemart.com/products/ssl_plan
+              - listitem [ref=e486]:
+                - link "Pre-Installed APPs" [ref=e487] [cursor=pointer]:
+                  - /url: https://www.databasemart.com/pre-installed-apps
+              - listitem [ref=e488]:
+                - link "Add Ons" [ref=e489] [cursor=pointer]:
+                  - /url: https://www.databasemart.com/add-ons
+          - generic [ref=e490]:
+            - generic [ref=e491]: Solutions
+            - list [ref=e492]:
+              - listitem [ref=e493]:
+                - link "AI Solutions" [ref=e494] [cursor=pointer]:
+                  - /url: https://www.gpu-mart.com/ai-server
+              - listitem [ref=e495]:
+                - link "Kubernetes Cluster" [ref=e496] [cursor=pointer]:
+                  - /url: https://www.databasemart.com/kubernetes-hosting
+              - listitem [ref=e497]:
+                - link "HA Database" [ref=e498] [cursor=pointer]:
+                  - /url: https://www.databasemart.com/high-availability-database
+              - listitem [ref=e499]:
+                - link "Load Balancing" [ref=e500] [cursor=pointer]:
+                  - /url: https://www.databasemart.com/network-load-balancing
+              - listitem [ref=e501]:
+                - link "RDP Hosting" [ref=e502] [cursor=pointer]:
+                  - /url: https://www.databasemart.com/rdp-server
+              - listitem [ref=e503]:
+                - link "VPN Solution" [ref=e504] [cursor=pointer]:
+                  - /url: https://www.databasemart.com/vpn-server
+              - listitem [ref=e505]:
+                - link "Database Hosting" [ref=e506] [cursor=pointer]:
+                  - /url: https://www.databasemart.com/database-hosting
+              - listitem [ref=e507]:
+                - link "Backup Solutions" [ref=e508] [cursor=pointer]:
+                  - /url: https://www.databasemart.com/backup-solutions
+          - generic [ref=e509]:
+            - generic [ref=e510]: Company
+            - list [ref=e511]:
+              - listitem [ref=e512]:
+                - link "About Us" [ref=e513] [cursor=pointer]:
+                  - /url: https://www.databasemart.com/about
+              - listitem [ref=e514]:
+                - link "News" [ref=e515] [cursor=pointer]:
+                  - /url: https://www.databasemart.com/news
+              - listitem [ref=e516]:
+                - link "Data Centers" [ref=e517] [cursor=pointer]:
+                  - /url: https://www.databasemart.com/data-center
+              - listitem [ref=e518]:
+                - link "Infrastructure" [ref=e519] [cursor=pointer]:
+                  - /url: https://www.databasemart.com/infrastructure
+              - listitem [ref=e520]:
+                - link "Security" [ref=e521] [cursor=pointer]:
+                  - /url: https://www.databasemart.com/security
+              - listitem [ref=e522]:
+                - link "Affiliate" [ref=e523] [cursor=pointer]:
+                  - /url: https://www.databasemart.com/affiliate
+              - listitem [ref=e524]:
+                - link "Reseller" [ref=e525] [cursor=pointer]:
+                  - /url: https://www.databasemart.com/reseller
+              - listitem [ref=e526]:
+                - link "Backlink Exchange" [ref=e527] [cursor=pointer]:
+                  - /url: https://www.databasemart.com/backlink-exchange
+          - generic [ref=e528]:
+            - generic [ref=e529]: Support
+            - list [ref=e530]:
+              - listitem [ref=e531]:
+                - link "Client Testimonials" [ref=e532] [cursor=pointer]:
+                  - /url: https://www.databasemart.com/testimonials
+              - listitem [ref=e533]:
+                - link "Support Review" [ref=e534] [cursor=pointer]:
+                  - /url: https://www.databasemart.com/support-reviews
+              - listitem [ref=e535]:
+                - link "Contact Us" [ref=e536] [cursor=pointer]:
+                  - /url: https://www.databasemart.com/contact-us
+              - listitem [ref=e537]:
+                - link "Blog" [ref=e538] [cursor=pointer]:
+                  - /url: https://www.databasemart.com/blog
+              - listitem [ref=e539]:
+                - link "Knowledge Base" [ref=e540] [cursor=pointer]:
+                  - /url: https://www.databasemart.com/kb
+              - listitem [ref=e541]:
+                - link "FAQs" [ref=e542] [cursor=pointer]:
+                  - /url: https://www.databasemart.com/faq
+              - listitem [ref=e543]:
+                - link "Sitemap" [ref=e544] [cursor=pointer]:
+                  - /url: https://www.databasemart.com/sitemap
+              - listitem [ref=e545]:
+                - link "Server Status" [ref=e546] [cursor=pointer]:
+                  - /url: https://www.databasemart.com/serverstatus
+      - separator [ref=e547]
+      - generic [ref=e548]:
+        - paragraph [ref=e549]: © 2005-2026 DatabaseMart.com · All rights reserved. · Proudly serving the internet since 2005.
+        - generic [ref=e550]:
+          - link "Privacy Policy" [ref=e551] [cursor=pointer]:
+            - /url: https://www.databasemart.com/privacy-policy
+          - generic [ref=e552]: ·
+          - link "Terms of Service" [ref=e553] [cursor=pointer]:
+            - /url: https://www.databasemart.com/tos
+          - generic [ref=e554]: ·
+          - link "Service Legal Agreement" [ref=e555] [cursor=pointer]:
+            - /url: https://www.databasemart.com/sla
+  - generic:
+    - generic:
+      - generic:
+        - iframe
+      - generic [ref=e556]:
+        - iframe [ref=e557]:
+          - button "Live Chat" [ref=f6e4] [cursor=pointer]:
+            - generic: Live Chat
+            - img [ref=f6e5]
+        - generic [ref=e558]:
+          - generic [ref=e559]: Our support team is always here for you. Don't hesitate to reach out with any questions!
+          - generic:
+            - img
+          - generic [ref=e560]:
+            - img

@@ -52,7 +52,7 @@ function detectTarget() {
 }
 
 function claudeDesktopRunning() {
-  const r = spawnSync("tasklist", ["/FI", "IMAGENAME eq claude.exe", "/NH"], { encoding: "utf8" });
+  const r = spawnSync("tasklist", ["/FI", "IMAGENAME eq claude.exe", "/NH"], { windowsHide: true, encoding: "utf8" });
   if (r.status !== 0) return false;
   return /claude\.exe/i.test(r.stdout);
 }
@@ -77,7 +77,7 @@ function runRobocopy(src, dst) {
   const r = spawnSync("robocopy", [
     src, dst, "/MIR", "/DCOPY:DAT", "/COPY:DAT",
     "/R:2", "/W:2", "/XJ", "/NP", "/NFL", "/NDL",
-  ], { encoding: "utf8" });
+  ], { windowsHide: true, encoding: "utf8" });
   // robocopy exit codes: 0–7 are success variants; 8+ are errors.
   if (r.status == null || r.status >= 8) {
     die(`robocopy failed (exit ${r.status}). stderr:\n${r.stderr || "(empty)"}\nstdout tail:\n${(r.stdout || "").slice(-500)}`);
@@ -97,7 +97,7 @@ function backupCSource(cSource) {
 function makeJunction(cSource, hTarget) {
   info(`  mklink /J  "${cSource}"  "${hTarget}"`);
   if (dryRun) return;
-  const r = spawnSync("cmd.exe", ["/c", "mklink", "/J", cSource, hTarget], { encoding: "utf8" });
+  const r = spawnSync("cmd.exe", ["/c", "mklink", "/J", cSource, hTarget], { windowsHide: true, encoding: "utf8" });
   if (r.status !== 0) {
     die(`mklink failed (exit ${r.status}). stderr: ${r.stderr}\nstdout: ${r.stdout}`);
   }

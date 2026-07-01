@@ -35,9 +35,8 @@ import { z } from "zod";
 import { captureSFC } from "../middleware/sfcOutcomeWire.js";
 import {
   CANONICAL_MATERIAL_DB,
-  CANONICAL_KIENZLE,
-  CANONICAL_TAYLOR,
   AISI_ALIAS,
+  buildMaterialPhysics,
   type ISOGroup,
   type MaterialPhysics,
 } from "../physics/constants.js";
@@ -227,28 +226,13 @@ export class LatheSpeedFeedCalculatorFacadeEngine {
       }
     }
 
-    // Fall back to ISO group if provided
+    // Fall back to ISO group if provided — buildMaterialPhysics fills every
+    // cutting-physics field from the canonical per-ISO tables (Kienzle,
+    // Taylor, turning speeds, machinability, modulus), so the generic
+    // material is complete and runtime-safe (no undefined/NaN).
     if (isoOverride) {
-      const kienzle = CANONICAL_KIENZLE[isoOverride];
-      const taylor = CANONICAL_TAYLOR[isoOverride];
       return {
-        props: {
-          name: `Generic ISO ${isoOverride}`,
-          iso_group: isoOverride,
-          kc1_1: kienzle.kc1_1,
-          mc: kienzle.mc,
-          taylor_C: taylor.C,
-          taylor_n: taylor.n,
-          k_thermal: 30,
-          sigma_y_MPa: 400,
-          density_kg_m3: 7850,
-          hardness_HB: 200,
-          vc_base_roughing: 150,
-          vc_base_finishing: 220,
-          machinability_factor: 1.0,
-          cp_J_kgK: 480,
-          E_GPa: 200,
-        },
+        props: buildMaterialPhysics({ name: `Generic ISO ${isoOverride}` }, isoOverride),
         key: `iso_${isoOverride}`,
         resolved_via: `iso_group_fallback:${isoOverride}`,
       };

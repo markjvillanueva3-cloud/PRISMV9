@@ -29,7 +29,8 @@ related:
 
 ## Description (first paragraph)
 
-Wraps `IterativeRetrievalEngine` (the `prism_ai:iterate_retrieve` action) for natural-language search across PRISM codebase.
+
+# /iterate-retrieve — Progressive Context Refinement
 
 <!-- AUTO-END -->
 

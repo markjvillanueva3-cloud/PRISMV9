@@ -21,9 +21,7 @@ related:
 
 ## Description (from file header)
 
-session-start-p1.mjs — Phase 1 Tier 0
-SessionStart hook that initializes session state and loads context.
-Foundation for all other session lifecycle management.
+_(no header docblock — read source for behavior)_
 
 ## Events
 

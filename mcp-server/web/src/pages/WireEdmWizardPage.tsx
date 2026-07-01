@@ -27,6 +27,7 @@ import {
 } from '../api/client';
 import { wedmErpApi } from '../api/wedmErp';
 import { WorkspaceRecoveryScaffold } from '../components/workspace/WorkspaceRecoveryScaffold';
+import { GatedError } from '../components/entitlement';
 import {
   ActionButton,
   Field,
@@ -177,6 +178,7 @@ export function WireEdmWizardPage() {
   // Solve state
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [gateError, setGateError] = useState<unknown>(null);
   const [solution, setSolution] = useState<Record<string, unknown> | null>(null);
 
   // Tribal tips state (U-P2PFS31)
@@ -405,13 +407,15 @@ export function WireEdmWizardPage() {
     async function checkApproval() {
       try {
         const result = await wedmApprovalStatus();
-        if (!cancelled && result.data) {
-          setApprovalStatus(result.data);
+        // PrismResponse uses `.result` not `.data` (see api/types.ts:7).
+        if (!cancelled && result.result) {
+          setApprovalStatus(result.result);
         }
       } catch {
-        // Default to requiring approval
+        // Default to requiring approval — shape matches WedmApprovalStatus + extras
+        // (approved/requires_approval are extra fields per the [key: string]: unknown signature).
         if (!cancelled) {
-          setApprovalStatus({ approved: false, requires_approval: true });
+          setApprovalStatus({ status: 'pending', approved: false, requires_approval: true });
         }
       }
     }
@@ -426,8 +430,9 @@ export function WireEdmWizardPage() {
       const result = await wedmRequestApproval({
         reason: `Wire EDM job for ${material}, ${thickness}mm thickness`,
       });
-      if (result.data) {
-        setApprovalStatus(result.data);
+      // PrismResponse uses `.result` not `.data` (see api/types.ts:7).
+      if (result.result) {
+        setApprovalStatus(result.result);
       }
     } catch {
       setErpError('Failed to request approval');
@@ -505,7 +510,10 @@ export function WireEdmWizardPage() {
         content: fileContent,
       });
 
-      const parsed = response as GeometryParseResult;
+      // Double-cast: wireEdmParseGeometry returns Record<string, unknown> at the type
+       // level (until U-WEDM-PARSE-GEOM-TYPING tightens the API contract); shape is
+       // verified by runtime guards in the geometry consumers.
+      const parsed = response as unknown as GeometryParseResult;
       setGeometry(parsed);
     } catch (err) {
       setParseError(errorMessage(err, 'Failed to parse geometry'));
@@ -528,6 +536,7 @@ export function WireEdmWizardPage() {
   async function handleSolve() {
     setLoading(true);
     setError(null);
+    setGateError(null);
     try {
       const response = await solveWireEdmWizard({
         material,
@@ -540,6 +549,7 @@ export function WireEdmWizardPage() {
       setSolution(asRecord(payloadOf(response)) ?? asRecord(response));
     } catch (issue) {
       setSolution(null);
+      setGateError(issue);
       setError(errorMessage(issue, 'Unable to solve the Wire EDM wizard request.'));
     } finally {
       setLoading(false);
@@ -599,7 +609,7 @@ export function WireEdmWizardPage() {
       description="Upload a DXF/DWG file for AI geometry analysis, configure material and thickness, then solve for optimal cutting parameters."
       surfaces={['jobDesk']}
       metrics={metrics}
-      aiSummary="PRISM AI can explain the wizard output, flag missing assumptions, and tell the programmer what to verify before cutting."
+      aiSummary="Kienzle AI can explain the wizard output, flag missing assumptions, and tell the programmer what to verify before cutting."
       aiContext={aiContext}
       suggestions={[
         {
@@ -754,9 +764,11 @@ export function WireEdmWizardPage() {
         </div>
 
         {error ? (
-          <div className="mt-4 rounded-2xl border border-rose-300/18 bg-rose-300/[0.08] px-4 py-3 text-sm text-rose-100">
-            {error}
-          </div>
+          <GatedError error={gateError} feature='wizard.wedm' fallback={
+            <div className="mt-4 rounded-2xl border border-rose-300/18 bg-rose-300/[0.08] px-4 py-3 text-sm text-rose-100">
+              {error}
+            </div>
+          } />
         ) : null}
       </PanelCard>
 

@@ -23,13 +23,14 @@ related:
 |-------|-------|
 | Name | `prism-review` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/prism-review.md` |
+| Source | `C:/Users/wompu/.claude/commands/prism-review.md` |
 | Model | default |
 | Tags | _(none)_ |
 
 ## Description (first paragraph)
 
-Run PRISM-specific code review on recent changes. Dispatches specialized review agents SEQUENTIALLY (one at a time), each with a domain-appropriate role. Uses **dual-perspective rubric evaluation** where independent reviewers evaluate against identical criteria from `H:/prism/.claude/helpers/review-rubric.json`. Findings are merged via `H:/prism/.claude/helpers/review-merge.mjs`.
+
+# PRISM Review — Dual-Perspective Multi-Role Code Review
 
 <!-- AUTO-END -->
 

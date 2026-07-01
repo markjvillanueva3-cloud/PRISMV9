@@ -23,13 +23,19 @@ related:
 |-------|-------|
 | Name | `tool-select` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/tool-select.md` |
+| Source | `C:/Users/wompu/.claude/commands/tool-select.md` |
 | Model | default |
 | Tags | _(none)_ |
 
 ## Description (first paragraph)
 
-_(no body content)_
+
+# Tool Select — Complete Tool Selection & Validation Pipeline
+
+End-to-end tool selection: material identification, catalog search across 46,590 tools, speed/feed optimization for candidates, wear prediction, machine compatibility check, and cost-per-part comparison. From "what tool should I use?" to "here's the best option with full justification."
+
+## Args:
+- Material + operation descripti
 
 <!-- AUTO-END -->
 

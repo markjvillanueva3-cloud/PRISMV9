@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta name="prism-source-hash" content="4ece9217e0423965c5cc51e783fa33ffbe0870d42715befcbe0c33f81805ecd6">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>tribal-to-wiki promotion</title>
+<style>
+  :root {
+    --bg: #0f1014;
+    --panel: #1a1c23;
+    --panel-2: #232631;
+    --fg: #e4e6eb;
+    --fg-dim: #9aa0a8;
+    --border: #2c303a;
+    --ok: #4ade80;
+    --warn: #fbbf24;
+    --fail: #f87171;
+    --info: #60a5fa;
+    --link: #93c5fd;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; padding: 1.5rem; background: var(--bg); color: var(--fg);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, sans-serif;
+    font-size: 14px; line-height: 1.5; }
+  h1 { font-size: 1.6rem; margin: 0 0 0.25rem 0; }
+  h2 { font-size: 1.15rem; margin: 1.5rem 0 0.5rem 0; padding-bottom: 0.25rem;
+    border-bottom: 1px solid var(--border); color: var(--fg); }
+  .meta { color: var(--fg-dim); font-size: 0.85rem; margin-bottom: 1rem; }
+  .panel { background: var(--panel); border: 1px solid var(--border); border-radius: 6px;
+    padding: 0.75rem 1rem; margin-bottom: 1rem; }
+  .headline-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 0.5rem; margin-bottom: 1rem; }
+  .card { background: var(--panel-2); border: 1px solid var(--border); border-radius: 6px;
+    padding: 0.65rem 0.85rem; }
+  .card .lbl { font-size: 0.8rem; color: var(--fg-dim); }
+  .card .val { font-size: 1.4rem; font-weight: 600; margin: 0.15rem 0; font-variant-numeric: tabular-nums; }
+  .card .hint { font-size: 0.75rem; color: var(--fg-dim); }
+  .card.ok    { border-left: 3px solid var(--ok); }
+  .card.warn  { border-left: 3px solid var(--warn); }
+  .card.fail  { border-left: 3px solid var(--fail); }
+  .card.info  { border-left: 3px solid var(--info); }
+  table { width: 100%; border-collapse: collapse; margin: 0.5rem 0 1rem; font-size: 0.9rem;
+    background: var(--panel); border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }
+  caption { text-align: left; padding: 0.4rem 0.65rem; color: var(--fg-dim);
+    background: var(--panel-2); font-weight: 500; }
+  th, td { padding: 0.4rem 0.65rem; text-align: left; border-bottom: 1px solid var(--border);
+    font-variant-numeric: tabular-nums; vertical-align: top; }
+  th { background: var(--panel-2); color: var(--fg-dim); font-weight: 500;
+    text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.04em; }
+  tr:last-child td { border-bottom: none; }
+  td.right { text-align: right; }
+  ul, ol { margin: 0.4rem 0 1rem 1.25rem; }
+  li { margin: 0.15rem 0; }
+  .badge { display: inline-block; padding: 0.1rem 0.5rem; border-radius: 999px;
+    font-size: 0.75rem; font-weight: 500; background: var(--panel-2); color: var(--fg-dim);
+    border: 1px solid var(--border); }
+  .badge.ok   { background: rgba(74, 222, 128, 0.12); color: var(--ok);   border-color: rgba(74,222,128,0.3); }
+  .badge.warn { background: rgba(251, 191, 36, 0.12); color: var(--warn); border-color: rgba(251,191,36,0.3); }
+  .badge.fail { background: rgba(248, 113, 113, 0.12); color: var(--fail); border-color: rgba(248,113,113,0.3); }
+  .badge.info { background: rgba(96, 165, 250, 0.12); color: var(--info); border-color: rgba(96,165,250,0.3); }
+  .badge-grid { display: flex; flex-wrap: wrap; gap: 0.3rem; margin: 0.3rem 0 1rem 0; }
+  .kv { display: grid; grid-template-columns: max-content 1fr; gap: 0.2rem 0.85rem;
+    margin: 0.4rem 0 1rem 0; }
+  .kv .k { color: var(--fg-dim); }
+  svg.bar-chart { display: block; max-width: 100%; height: auto; }
+  svg .bar { fill: var(--info); }
+  svg .bar.ok   { fill: var(--ok); }
+  svg .bar.warn { fill: var(--warn); }
+  svg .bar.fail { fill: var(--fail); }
+  svg text { fill: var(--fg); font-family: monospace; font-size: 11px; }
+  svg .axis text { fill: var(--fg-dim); }
+  code { background: var(--panel-2); padding: 0 0.3rem; border-radius: 3px;
+    font-family: "Fira Code", Consolas, Menlo, monospace; font-size: 0.85em; }
+  a { color: var(--link); }
+  footer { margin-top: 2rem; padding-top: 0.75rem; border-top: 1px solid var(--border);
+    font-size: 0.8rem; color: var(--fg-dim); }
+</style>
+</head>
+<body>
+<h1>tribal-to-wiki promotion</h1>
+<div class="meta">rendered from knowledge/wiki/architecture/tribal-to-wiki-promotion.md</div>
+<div class="meta">Generated 2026-05-20T19:30:39.062Z</div>
+<style>
+  .prism-md-body { max-width: 70rem; margin: 0 auto; }
+  .prism-h1 { font-size: 1.6rem; }
+  .prism-h2 { font-size: 1.25rem; border-bottom: 1px solid var(--border); padding-bottom: 0.25rem; }
+  .prism-h3 { font-size: 1.1rem; color: var(--info); }
+  .prism-h4, .prism-h5, .prism-h6 { font-size: 1rem; color: var(--fg-dim); }
+  .prism-md-body p { margin: 0.5rem 0; }
+  .prism-md-list { margin: 0.5rem 0 0.5rem 1.25rem; padding: 0; }
+  .prism-md-list li { margin: 0.15rem 0; }
+  .prism-md-table { border-collapse: collapse; margin: 0.75rem 0; width: 100%; }
+  .prism-md-table th, .prism-md-table td { border: 1px solid var(--border); padding: 0.35rem 0.6rem; text-align: left; }
+  .prism-md-table th { background: var(--panel-2); }
+  .prism-codeblock { background: var(--panel-2); border: 1px solid var(--border); border-radius: 4px; padding: 0.6rem 0.8rem; overflow-x: auto; font-family: "Cascadia Code", Consolas, monospace; font-size: 13px; }
+  .prism-inline-code { background: var(--panel-2); padding: 0 0.25rem; border-radius: 3px; font-family: "Cascadia Code", Consolas, monospace; font-size: 0.92em; }
+  .prism-quote { border-left: 3px solid var(--info); background: var(--panel-2); padding: 0.5rem 0.85rem; margin: 0.75rem 0; color: var(--fg-dim); }
+  .prism-hr { border: 0; border-top: 1px solid var(--border); margin: 1rem 0; }
+  .prism-link { color: var(--link); text-decoration: none; }
+  .prism-link:hover { text-decoration: underline; }
+  .prism-bad-link { color: var(--fail); text-decoration: line-through; }
+  .prism-unclosed::before { content: "⚠ unterminated code block"; display: block; color: var(--warn); font-size: 0.85em; margin-bottom: 0.25rem; }
+  </style><main class="prism-md-body"><hr class="prism-hr">
+<p>title: tribal-to-wiki-promotion type: architecture unit: U-TRIBAL-TO-WIKI-PROMOTE milestone: SYNERGY-AUDIT-CONTINUE created: 2026-05-20 owner: echo</p>
+<hr class="prism-hr">
+<h1 class="prism-h1">tribal-to-wiki promotion</h1>
+<p>H1 of [[audit-system-synergy-2026-05-09]]. Auto-promotes high-confidence tribal-knowledge tips from <code class="prism-inline-code">knowledge/tribal/*.md</code> (~3919 entries) → <code class="prism-inline-code">knowledge/wiki/code-tribal/tribal-&lt;id&gt;.md</code>. The compounding-gains exemplar of the audit: every tribal-ingest now feeds the wiki without manual curation.</p>
+<h2 class="prism-h2">Why this exists</h2>
+<p>Pre-2026-05-20 state:</p>
+<ul class="prism-md-list"><li><code class="prism-inline-code">knowledge/tribal/</code> — 3919 source-of-truth tribal tips (<code class="prism-inline-code">bobcad-cam-tips-*.md</code>,</li></ul>
+<p><code class="prism-inline-code">auto-ingested-tips-*.md</code>, etc.) generated by various ingest pipelines.</p>
+<ul class="prism-md-list"><li><code class="prism-inline-code">knowledge/wiki/code-tribal/</code> — 42 hand-authored backend-dev patterns</li></ul>
+<p>(<code class="prism-inline-code">bash-cwd-and-git-c-pattern.md</code>, <code class="prism-inline-code">concurrency-and-locking-patterns.md</code>, …).</p>
+<ul class="prism-md-list"><li><strong>No bridge</strong> between the two. Manufacturing tribal knowledge never reached</li></ul>
+<p>the wiki — the existing <code class="prism-inline-code">tribal-by-domain-inject</code> hook reads the tribal   corpus directly via vector embeddings, but the wiki was blind to it.</p>
+<p>H1 builds the bridge as a one-way promotion: above-threshold tribal tips become wiki entries (idempotent — never overwrites an existing entry).</p>
+<h2 class="prism-h2">Contract</h2>
+<p><code class="prism-inline-code">scripts/promote-tribal-to-wiki.mjs</code> — pure-core + injected-IO, single-file.</p>
+<pre class="prism-codeblock"><code>node scripts/promote-tribal-to-wiki.mjs [--dry-run | --apply]
+                                        [--threshold &lt;N&gt;]
+                                        [--limit &lt;N&gt;]
+                                        [--json]</code></pre>
+<table class="prism-md-table"><thead><tr><th>Flag</th><th>Default</th><th>Effect</th></tr></thead><tbody><tr><td><code class="prism-inline-code">--dry-run</code></td><td>default</td><td>Show candidates without writing</td></tr>
+<tr><td><code class="prism-inline-code">--apply</code></td><td>—</td><td>Write candidates atomically (<code class="prism-inline-code">.tmp.{pid}+rename</code>)</td></tr>
+<tr><td><code class="prism-inline-code">--threshold &lt;N&gt;</code></td><td><code class="prism-inline-code">90</code></td><td>Minimum <code class="prism-inline-code">confidence:</code> for promotion</td></tr>
+<tr><td><code class="prism-inline-code">--limit &lt;N&gt;</code></td><td>unset</td><td>Cap writes per run (use small batches for human review)</td></tr>
+<tr><td><code class="prism-inline-code">--json</code></td><td>—</td><td>Emit machine-readable JSON</td></tr></tbody></table>
+<p>Knobs: <code class="prism-inline-code">PRISM_TRIBAL_PROMOTE_THRESHOLD</code>, <code class="prism-inline-code">PRISM_TRIBAL_PROMOTE_LIMIT</code>.</p>
+<h2 class="prism-h2">What gets promoted</h2>
+<p>A tribal entry promotes iff:</p>
+<ol class="prism-md-list"><li>Lives at the top level of <code class="prism-inline-code">knowledge/tribal/</code> (subdirs like</li></ol>
+<p><code class="prism-inline-code">auto-ingested-quarantine/</code> are skipped — they&#39;re explicitly under review).</p>
+<ol class="prism-md-list"><li>Has parseable YAML frontmatter with a numeric <code class="prism-inline-code">confidence:</code> ≥ threshold.</li><li>Has no existing target file at <code class="prism-inline-code">knowledge/wiki/code-tribal/tribal-&lt;id&gt;.md</code>.</li></ol>
+<h2 class="prism-h2">Output frontmatter</h2>
+<pre class="prism-codeblock" data-lang="yaml"><code>---
+name: tribal-&lt;id&gt;
+category: code-tribal
+subdomain: &lt;original-category&gt;       # e.g. cam_strategy / speeds_feeds
+domain: tribal-knowledge             # distinguishes from hand-authored 42 dev entries
+tags: [...]
+confidence: &lt;0..100&gt;
+source: &quot;&lt;original-source-URL-or-vendor&gt;&quot;
+promoted_from: knowledge/tribal/&lt;source-file&gt;.md
+promoted_at: &lt;iso&gt;
+---</code></pre>
+<p><code class="prism-inline-code">domain: tribal-knowledge</code> deliberately differs from the pre-existing <code class="prism-inline-code">domain: backend-dev</code> so the two corpora coexist in the same directory without semantic collision. The wiki-recall pipeline can filter by domain to retrieve one or the other.</p>
+<h2 class="prism-h2">First-batch ship state (2026-05-20)</h2>
+<p>Live measurement on the work PC:</p>
+<ul class="prism-md-list"><li>Dry-run scanned all 3919 entries in ~805 s under heavy fleet load.</li><li>628 entries pass the default <code class="prism-inline-code">confidence ≥ 90</code> threshold.</li><li>First <code class="prism-inline-code">--apply --limit 5</code> promoted: <code class="prism-inline-code">tribal-bc-001..004</code> + <code class="prism-inline-code">tribal-bc-010</code></li></ul>
+<p>(5 BobCAD adaptive-roughing / chip-thinning tips).</p>
+<ul class="prism-md-list"><li>The remaining ~620 await operator review + batched apply.</li></ul>
+<h2 class="prism-h2">Safety</h2>
+<ul class="prism-md-list"><li><strong>Idempotent</strong> — <code class="prism-inline-code">existsSync</code> skip ensures re-running never overwrites.</li><li><strong>Atomic writes</strong> — <code class="prism-inline-code">.tmp.{pid}</code> + <code class="prism-inline-code">rename</code> pattern; readers never see partial files.</li><li><strong>Dry-run default</strong> — operator must pass <code class="prism-inline-code">--apply</code> to write.</li><li><strong>No deletion</strong> — promotion adds, never removes. The tribal source file stays.</li><li><strong>No domain coercion</strong> — wiki entries&#39; <code class="prism-inline-code">subdomain</code> field preserves the original</li></ul>
+<p>tribal <code class="prism-inline-code">category</code> (<code class="prism-inline-code">cam_strategy</code>, <code class="prism-inline-code">speeds_feeds</code>, …) so a reader can tell   manufacturing-tribal from backend-dev-tribal in the same dir.</p>
+<h2 class="prism-h2">Tests</h2>
+<p><code class="prism-inline-code">scripts/promote-tribal-to-wiki.test.mjs</code> — 25 <code class="prism-inline-code">node:test</code> cases (parser 6 + filter 4 + builder 7 + enumerator 2 + e2e-fake-fs 5 + real-disk roundtrip 1). 270 ms hermetic.</p>
+<h2 class="prism-h2">Knobs (env)</h2>
+<table class="prism-md-table"><thead><tr><th>Env var</th><th>Effect</th></tr></thead><tbody><tr><td><code class="prism-inline-code">PRISM_TRIBAL_PROMOTE_THRESHOLD</code></td><td>Override default confidence threshold (clamped 0..100)</td></tr>
+<tr><td><code class="prism-inline-code">PRISM_TRIBAL_PROMOTE_LIMIT</code></td><td>Override default cap on writes per run (clamped 1..100000)</td></tr></tbody></table>
+<h2 class="prism-h2">Related</h2>
+<ul class="prism-md-list"><li>[[audit-system-synergy-2026-05-09]] — parent audit, H1 of Track H</li><li>[[tribal-by-domain-inject]] — the live tribal-recall surface (vector-search-based; reads tribal corpus directly)</li><li>[[reference_u_memory_index_sidecar_2026_05_20]] — sister H-track ship (memory-index sidecar)</li><li><code class="prism-inline-code">knowledge/wiki/code-tribal/</code> — promotion target dir (42 dev-tribal + 5 manufacturing-tribal at ship time)</li></ul></main><footer>
+<div>html-report-render schemaVersion 1.0.0</div>
+</footer>
+</body>
+</html>

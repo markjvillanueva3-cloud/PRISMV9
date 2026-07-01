@@ -25,6 +25,30 @@ function uptimeSeconds(): number {
   return Math.round((Date.now() - startTime) / 1000);
 }
 
+// --- Extensible component health checks ------------------------------------
+// Any module (DB pool, Qdrant, Ollama bridge, ...) can register a CHEAP,
+// SYNCHRONOUS deep probe; healthHandler folds the results into /health
+// additively. With nothing registered the probe behaves exactly as before.
+// Keep callbacks fast and non-throwing -- a thrown check is caught and reported
+// as "fail", it never takes down the probe itself.
+export interface HealthCheckResult {
+  status: "pass" | "warn" | "fail";
+  value?: string | number;
+}
+export type HealthCheckFn = () => HealthCheckResult;
+
+const componentChecks = new Map<string, HealthCheckFn>();
+
+/** Register a named component health check (overwrites an existing same name). */
+export function registerHealthCheck(name: string, fn: HealthCheckFn): void {
+  componentChecks.set(name, fn);
+}
+
+/** Remove a previously registered component health check. */
+export function unregisterHealthCheck(name: string): void {
+  componentChecks.delete(name);
+}
+
 /**
  * /health — Detailed health check.
  * Returns 200 if healthy, 503 if degraded.
@@ -59,6 +83,19 @@ export function healthHandler(_req: Request, res: Response): void {
       status: serverReady ? "pass" : "fail",
     },
   };
+
+  // Fold in any registered component checks (DB pool, vector store, local LLM,
+  // ...). A throwing check degrades to "fail" instead of crashing the probe.
+  for (const [name, fn] of componentChecks) {
+    try {
+      checks[name] = fn();
+    } catch (err) {
+      checks[name] = {
+        status: "fail",
+        value: `check threw: ${(err as Error)?.message ?? String(err)}`,
+      };
+    }
+  }
 
   const overallStatus = Object.values(checks).some(
     c => c.status === "fail"

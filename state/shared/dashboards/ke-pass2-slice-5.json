@@ -1,0 +1,2074 @@
+[
+ {
+  "id": "CAMK-MS2::U04",
+  "title": "SurfaceFinishPredictorEngine — Scallop + roughness from novel paths",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/engines/surface/surfacemeasureengine.md",
+    "knowledge/wiki/architecture/engines/cad/surfacefinishcnnengine.md",
+    "knowledge/wiki/architecture/engines/toolpath/toolpathstepoverengine.md",
+    "knowledge/wiki/architecture/formulas/formula-adjusted-surface.md",
+    "knowledge/wiki/architecture/domain-surface.md"
+   ],
+   "seWiki": [
+    "physics-constants-discipline",
+    "test-design-real-values",
+    "mcp-tool-design",
+    "per-file-scrutiny-gate"
+   ],
+   "csKnowledge": [
+    "scallop-height geometry (cusp = R - sqrt(R^2 - (stepover/2)^2))",
+    "Ra/Rz arithmetic-mean surface roughness from feed-per-tooth and nose radius",
+    "polynomial regression surrogate for novel-toolpath finish prediction"
+   ],
+   "buildNote": "Derive scallop from real stepover/tool-radius geometry — do not hardcode a finish value; cusp formula must reduce to known closed-form for planar passes."
+  }
+ },
+ {
+  "id": "CAMK-MS3::U01",
+  "title": "RestMachiningEngine — IPW-aware re-machining with novel algorithms",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/engines/multiop/restmachiningengine.md",
+    "knowledge/wiki/architecture/engines/multiop/transitionpathengine.md",
+    "knowledge/wiki/architecture/engines/geometry/booleankernelengine.md",
+    "knowledge/wiki/architecture/dispatcher-multiop.md",
+    "knowledge/wiki/architecture/domain-multiop.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "per-file-scrutiny-gate",
+    "test-design-real-values",
+    "regression-prevention-doctrine"
+   ],
+   "csKnowledge": [
+    "in-process-workpiece (IPW) boolean subtraction of stock minus swept toolpath volume",
+    "uncut-region detection via 2D offset / Minkowski difference",
+    "BFS over feature regions to schedule rest-machining passes"
+   ],
+   "buildNote": "IPW must be the actual boolean of stock minus prior toolpath sweeps — a stub IPW silently re-cuts air or misses material; verify with a known multi-tool part."
+  }
+ },
+ {
+  "id": "CAMK-MS3::U02",
+  "title": "OperationSequencerEngine — Optimal operation ordering",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/engines/cam/strategysequencingengine.md",
+    "knowledge/wiki/architecture/engines/multiop/transitionpathengine.md",
+    "knowledge/wiki/architecture/engines/tool/toolcallbatchoptimizerengine.md",
+    "knowledge/wiki/architecture/engines/coolant/coolantcostoptimizationengine.md",
+    "knowledge/wiki/architecture/domain-cam.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "per-file-scrutiny-gate",
+    "test-design-real-values"
+   ],
+   "csKnowledge": [
+    "topological sort of operation-dependency DAG (roughing-before-finishing precedence)",
+    "TSP-style tool-change minimization (group ops by tool to cut magazine swaps)",
+    "cost-weighted greedy / branch-and-bound ordering"
+   ],
+   "buildNote": "Operation ordering must respect hard precedence (datum, roughing, finishing) before optimizing tool-change cost — never reorder past a dependency edge."
+  }
+ },
+ {
+  "id": "CAMK-MS3::U05",
+  "title": "MultiSetupPlannerEngine — Part orientation + fixturing optimization",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/engines/multi/multisetupplannerengine.md",
+    "knowledge/wiki/architecture/engines/multi/multisetupfeasibilitychainengine.md",
+    "knowledge/wiki/architecture/engines/fixture/fixtureawarestrategyengine.md",
+    "knowledge/wiki/architecture/engines/fixture/workholdingviabilityengine.md",
+    "knowledge/wiki/architecture/domain-fixture.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "per-file-scrutiny-gate",
+    "test-design-real-values",
+    "safety-tier-discipline"
+   ],
+   "csKnowledge": [
+    "set-cover / minimum-setup partitioning (group features reachable from one orientation)",
+    "tool-access visibility cone test per feature",
+    "graph coloring of feature->orientation conflict graph"
+   ],
+   "buildNote": "A feature is only assignable to a setup if BOTH tool-access and fixture clamping are simultaneously viable — never optimize setup count past a workholding-collision constraint."
+  }
+ },
+ {
+  "id": "CAMX-MS0.3::U-CAMX04",
+  "title": "Replace HARDCODED coating/material decisions",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/engines/coating/coatingselectionengine.md",
+    "knowledge/wiki/architecture/engines/coating/coatingthicknessengine.md",
+    "knowledge/wiki/architecture/engines/tool/toolcoatingselectionengine.md",
+    "knowledge/wiki/architecture/domain-coating.md"
+   ],
+   "seWiki": [
+    "physics-constants-discipline",
+    "schema-read-discipline",
+    "test-design-real-values",
+    "regression-prevention-doctrine"
+   ],
+   "csKnowledge": [
+    "lookup-table to engine-call refactor (replace literal map with parameterized decision)",
+    "material-coating compatibility matrix indexing",
+    "rule-based selection over material/operation/temperature features"
+   ],
+   "buildNote": "Replace every hardcoded coating/material literal with a CoatingSelectionEngine call routed through canonical constants — assert old hardcoded outputs are reproduced as a regression oracle."
+  }
+ },
+ {
+  "id": "CAMX-MS0.3::U-CAMX05",
+  "title": "Replace HARDCODED engagement decisions",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/engines/geometry/engagementgeometryengine.md",
+    "knowledge/wiki/architecture/engines/toolpath/toolpathstepoverengine.md",
+    "knowledge/wiki/architecture/dispatcher-cam.md",
+    "knowledge/wiki/architecture/domain-cam.md"
+   ],
+   "seWiki": [
+    "physics-constants-discipline",
+    "schema-read-discipline",
+    "test-design-real-values",
+    "regression-prevention-doctrine"
+   ],
+   "csKnowledge": [
+    "radial/axial engagement-angle geometry from stepover and tool diameter",
+    "adaptive engagement-constant chip-thinning compensation",
+    "corner-engagement spike detection on inside-corner toolpaths"
+   ],
+   "buildNote": "Engagement decisions must be computed from real radial/axial-depth geometry — a hardcoded engagement constant under-feeds straights and overloads corners."
+  }
+ },
+ {
+  "id": "CAMX-MS0.3::U-CAMX06",
+  "title": "Wire CoolantStrategyEngine into all pipelines",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/engines/coolant/coolantstrategyengine.md",
+    "knowledge/wiki/architecture/engines/coolant/coolantstrategyadapter.md",
+    "knowledge/wiki/architecture/engines/coolant/coolantcostoptimizationengine.md",
+    "knowledge/wiki/architecture/dispatcher-cam.md",
+    "knowledge/wiki/architecture/domain-coolant.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "per-file-scrutiny-gate",
+    "test-design-real-values",
+    "regression-prevention-doctrine"
+   ],
+   "csKnowledge": [
+    "dependency-injection / adapter wiring of an engine into multiple consumer pipelines",
+    "round-trip E2E assertion through each wired dispatcher",
+    "fan-out wiring (wire to every dispatcher that naturally consumes the engine)"
+   ],
+   "buildNote": "Wire CoolantStrategyEngine into ALL consuming pipelines in one commit and add a round-trip test per pipeline — a single-pipeline wire leaves silent orphan consumers."
+  }
+ },
+ {
+  "id": "CAMX-MS0.3::U-CAMX07",
+  "title": "Wire EntryExitStrategyEngine into all pipelines",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/engines/toolpath/toolpathlinkingengine.md",
+    "knowledge/wiki/architecture/engines/multiop/transitionpathengine.md",
+    "knowledge/wiki/architecture/dispatcher-cam.md",
+    "knowledge/wiki/architecture/domain-toolpath.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "per-file-scrutiny-gate",
+    "test-design-real-values",
+    "regression-prevention-doctrine"
+   ],
+   "csKnowledge": [
+    "engine-to-pipeline dependency injection",
+    "lead-in/lead-out arc-vs-tangent entry geometry",
+    "round-trip E2E assertion through every wired dispatcher"
+   ],
+   "buildNote": "Wire EntryExitStrategyEngine into every pipeline that emits toolpath links, and verify entry/exit moves are collision-free against stock at each call site."
+  }
+ },
+ {
+  "id": "CAMX-MS0.3::U-CAMX08",
+  "title": "Wire IntelligentSequencingEngine into all pipelines",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/engines/cam/strategysequencingengine.md",
+    "knowledge/wiki/architecture/engines/multiop/transitionpathengine.md",
+    "knowledge/wiki/architecture/dispatcher-cam.md",
+    "knowledge/wiki/architecture/domain-cam.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "per-file-scrutiny-gate",
+    "test-design-real-values",
+    "regression-prevention-doctrine"
+   ],
+   "csKnowledge": [
+    "engine-to-pipeline dependency injection across all consumers",
+    "topological-order operation sequencing",
+    "round-trip E2E assertion through each wired dispatcher"
+   ],
+   "buildNote": "Wire IntelligentSequencingEngine into all pipelines in one commit; the sequencer output must still honor hard machining-precedence edges at every call site."
+  }
+ },
+ {
+  "id": "CAMX-MS0.3::U-CAMX09",
+  "title": "Wire WorkholdingViabilityEngine",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/engines/fixture/workholdingviabilityengine.md",
+    "knowledge/wiki/architecture/engines/fixture/workholdingselectionengine.md",
+    "knowledge/wiki/architecture/engines/fixture/workholdingverificationengine.md",
+    "knowledge/wiki/architecture/domain-fixture.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "per-file-scrutiny-gate",
+    "test-design-real-values",
+    "safety-tier-discipline"
+   ],
+   "csKnowledge": [
+    "engine-to-pipeline dependency injection",
+    "clamping-force vs cutting-force viability check",
+    "round-trip E2E assertion through each wired dispatcher"
+   ],
+   "buildNote": "Wire WorkholdingViabilityEngine so every pipeline validates clamping can resist cutting forces — workholding failure is a safety-tier concern, never advisory."
+  }
+ },
+ {
+  "id": "CAMX-MS0.3::U-CAMX10",
+  "title": "Wire CrossCamRecommenderEngine for strategy",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/engines/cam/crosscamrecommenderengine.md",
+    "knowledge/wiki/architecture/engines/cam/camrecommendengine.md",
+    "knowledge/wiki/architecture/dispatcher-cam.md",
+    "knowledge/wiki/architecture/rgs-tool-autoinvoke-ms0.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "per-file-scrutiny-gate",
+    "test-design-real-values"
+   ],
+   "csKnowledge": [
+    "engine-to-pipeline dependency injection for strategy recommendation",
+    "cross-CAM strategy equivalence-map lookup",
+    "weighted-feature scoring / ranking of candidate strategies"
+   ],
+   "buildNote": "Wire CrossCamRecommenderEngine into strategy selection so recommendations are vendor-mapped — verify the equivalence map covers each target CAM system before relying on it."
+  }
+ },
+ {
+  "id": "CAMX-MS0.3::U-CAMX11",
+  "title": "Smart WCS selection",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/dispatcher-cam.md",
+    "knowledge/wiki/architecture/dispatcher-machinesetup.md",
+    "knowledge/wiki/architecture/domain-cam.md",
+    "knowledge/wiki/architecture/engines/geometry/constructiongeometryengine.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "per-file-scrutiny-gate",
+    "test-design-real-values",
+    "schema-read-discipline"
+   ],
+   "csKnowledge": [
+    "work-coordinate-system (G54-G59) selection from datum/feature geometry",
+    "datum-feature recognition and bounding-box origin derivation",
+    "rule-based default selection with explicit override"
+   ],
+   "buildNote": "Smart WCS choice must derive from real part datum geometry; default to G54 only when no datum is recognized and surface that fallback explicitly."
+  }
+ },
+ {
+  "id": "CAMX-MS0.3::U-CAMX12",
+  "title": "Smart safe-Z calculation",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/engines/cam/collisiondetectionengine.md",
+    "knowledge/wiki/architecture/dispatcher-cam.md",
+    "knowledge/wiki/architecture/domain-cam.md",
+    "knowledge/wiki/architecture/engines/safety/collisionpreventionengine.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "per-file-scrutiny-gate",
+    "test-design-real-values",
+    "safety-tier-discipline"
+   ],
+   "csKnowledge": [
+    "safe-Z = max(part-top, fixture-top, clamp-top) + clearance from bounding-volume scan",
+    "rapid-move clearance-plane geometry",
+    "clamp/fixture obstacle envelope max-height query"
+   ],
+   "buildNote": "Safe-Z must clear the TALLEST obstacle (part, fixture, clamps) plus clearance — never compute it from part height alone; this is a collision-safety value."
+  }
+ },
+ {
+  "id": "CAMX-MS0.3::U-CAMX13",
+  "title": "Decision audit trail",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/action-trace-engine.md",
+    "knowledge/wiki/architecture/dispatcher-cam.md",
+    "knowledge/wiki/architecture/domain-cam.md",
+    "knowledge/wiki/architecture/dispatcher-guard.md"
+   ],
+   "seWiki": [
+    "atomic-write-idempotency-patterns",
+    "schema-read-discipline",
+    "fail-loud-r12-patterns",
+    "test-design-real-values"
+   ],
+   "csKnowledge": [
+    "append-only JSONL audit log (one event per decision)",
+    "structured decision record with inputs/outputs/rationale",
+    "atomic file write (temp+rename) to avoid mid-write truncation"
+   ],
+   "buildNote": "Audit trail must be append-only JSONL written atomically with schemaVersion — every decision logs its inputs, chosen value, and the engine that produced it."
+  }
+ },
+ {
+  "id": "CAMX-MS0.3::U-CAMX14",
+  "title": "Tests for decision orchestrator",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/engines/cam/camkernelorchestratorengine.md",
+    "knowledge/wiki/architecture/engines/cam/camkernelvalidationengine.md",
+    "knowledge/wiki/architecture/dispatcher-cam.md",
+    "knowledge/wiki/architecture/domain-cam.md"
+   ],
+   "seWiki": [
+    "test-design-real-values",
+    "regression-prevention-doctrine",
+    "per-file-scrutiny-gate"
+   ],
+   "csKnowledge": [
+    "decision-table coverage (assert each branch yields a non-stub value)",
+    "fail-on-revert regression oracle",
+    "real-input fixture E2E through the orchestrator"
+   ],
+   "buildNote": "Tests must assert concrete decision outputs against real reference values — a toBeDefined() stub passes even when the orchestrator returns a hardcoded default."
+  }
+ },
+ {
+  "id": "CAMX-MS0.3::U-CAMX15",
+  "title": "Wire thermal engines into program generation",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/engines/coolant/coolantoptimizationphysicsengine.md",
+    "knowledge/wiki/architecture/dispatcher-cam.md",
+    "knowledge/wiki/architecture/dispatcher-fluidthermal.md",
+    "knowledge/wiki/architecture/domain-thermal.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "physics-constants-discipline",
+    "per-file-scrutiny-gate",
+    "test-design-real-values"
+   ],
+   "csKnowledge": [
+    "engine-to-pipeline dependency injection",
+    "thermal-expansion / heat-partition model output feeding program parameters",
+    "round-trip E2E assertion through program generation"
+   ],
+   "buildNote": "Wire thermal engines into program generation so cutting parameters reflect heat load; never inline thermal/material constants — import from canonical constants."
+  }
+ },
+ {
+  "id": "CAMX-MS0.3::U-CAMX16",
+  "title": "Wire vibration engines into strategy/parameter selection",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/engines/vibrationphysics/fourieranalysisengine.md",
+    "knowledge/wiki/architecture/engines/multi/multibodyvibrationengine.md",
+    "knowledge/wiki/architecture/dispatcher-vibrationphysics.md",
+    "knowledge/wiki/architecture/domain-chatter.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "physics-constants-discipline",
+    "per-file-scrutiny-gate",
+    "test-design-real-values"
+   ],
+   "csKnowledge": [
+    "chatter stability-lobe diagram lookup (spindle-speed vs depth-of-cut)",
+    "FFT frequency analysis of vibration signal",
+    "engine-to-pipeline dependency injection into parameter selection"
+   ],
+   "buildNote": "Wire vibration engines so strategy/parameter selection consults stability lobes — depth-of-cut must be picked inside a stable lobe, not from a fixed default."
+  }
+ },
+ {
+  "id": "CAMX-MS0.3::U-CAMX17",
+  "title": "Wire surface finish engines into validation",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/engines/cad/surfacefinishcnnengine.md",
+    "knowledge/wiki/architecture/engines/surface/surfacemeasureengine.md",
+    "knowledge/wiki/architecture/formulas/formula-adjusted-surface.md",
+    "knowledge/wiki/architecture/dispatcher-quality.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "per-file-scrutiny-gate",
+    "test-design-real-values",
+    "regression-prevention-doctrine"
+   ],
+   "csKnowledge": [
+    "engine-to-pipeline dependency injection into a validation stage",
+    "predicted-Ra vs spec-Ra tolerance comparison",
+    "round-trip E2E assertion through the validation path"
+   ],
+   "buildNote": "Wire surface-finish engines into validation so predicted Ra is checked against the print spec — a validation stage that never compares is a no-op."
+  }
+ },
+ {
+  "id": "CAMX-MS0.3::U-CAMX18",
+  "title": "Wire wear engines into tool life and batch planning",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/engines/adaptive/adaptivewearengine.md",
+    "knowledge/wiki/architecture/engines/force/wearforcecompensationengine.md",
+    "knowledge/wiki/architecture/formulas/formula-constants-canonical-taylor.md",
+    "knowledge/wiki/architecture/dispatcher-cam.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "physics-constants-discipline",
+    "test-design-real-values",
+    "regression-prevention-doctrine"
+   ],
+   "csKnowledge": [
+    "Taylor tool-life equation (V*T^n = C) for life estimation",
+    "Archard wear-volume model",
+    "engine-to-pipeline dependency injection into tool-life and batch planning"
+   ],
+   "buildNote": "Wire wear engines into tool-life/batch planning; tool-life must come from the Taylor model with canonical constants — never inline n or C."
+  }
+ },
+ {
+  "id": "CAMX-MS0.3::U-CAMX19",
+  "title": "Wire chip management engines",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/engines/coolant/coolantflowengine.md",
+    "knowledge/wiki/architecture/dispatcher-cam.md",
+    "knowledge/wiki/architecture/domain-coolant.md",
+    "knowledge/wiki/architecture/domain-cam.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "per-file-scrutiny-gate",
+    "test-design-real-values"
+   ],
+   "csKnowledge": [
+    "engine-to-pipeline dependency injection",
+    "chip-evacuation flow/pressure modeling",
+    "round-trip E2E assertion through each wired dispatcher"
+   ],
+   "buildNote": "Wire chip-management engines into the pipelines that emit pecking/coolant moves — verify chip evacuation strategy is consulted, not defaulted."
+  }
+ },
+ {
+  "id": "CAMX-MS0.3::U-CAMX20",
+  "title": "Wire thread/hole/drilling engines",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/dispatcher-thread.md",
+    "knowledge/wiki/architecture/dispatcher-holepattern.md",
+    "knowledge/wiki/architecture/engines/vibrationphysics/tapdrillengine.md",
+    "knowledge/wiki/architecture/domain-cam.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "per-file-scrutiny-gate",
+    "test-design-real-values",
+    "physics-constants-discipline"
+   ],
+   "csKnowledge": [
+    "deep-hole-drilling peck-cycle physics (chip evacuation, L/D ratio)",
+    "thread-method selection (tap vs thread-mill vs single-point)",
+    "engine-to-pipeline dependency injection"
+   ],
+   "buildNote": "Wire thread/hole/drilling engines so hole strategy uses real L/D and material physics — never default a deep hole to a single straight plunge."
+  }
+ },
+ {
+  "id": "CAMX-MS0.3::U-CAMX21",
+  "title": "ToolROIEngine",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/engines/tool/toolcostpredictorengine.md",
+    "knowledge/wiki/architecture/engines/tool/toolcostperpartengine.md",
+    "knowledge/wiki/architecture/formulas/formula-constants-canonical-taylor.md",
+    "knowledge/wiki/architecture/domain-tool.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "physics-constants-discipline",
+    "per-file-scrutiny-gate",
+    "test-design-real-values"
+   ],
+   "csKnowledge": [
+    "ROI = (savings - tool cost) / tool cost over expected tool life",
+    "Taylor tool-life-driven cost-per-part amortization",
+    "net-present-value / break-even part-count computation"
+   ],
+   "buildNote": "ToolROIEngine must amortize tool cost over Taylor-predicted life and compute break-even part count — assert ROI against a hand-worked numeric example."
+  }
+ },
+ {
+  "id": "CAMX-MS0.3::U-CAMX22",
+  "title": "Wire AutoSpeedFeedEngine into PrintToProgram",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/engines/auto/autospeedfeedcalculatorengine.md",
+    "knowledge/wiki/architecture/engines/bridge/camspeedfeedbridgeengine.md",
+    "knowledge/wiki/architecture/dispatcher-cam.md",
+    "knowledge/wiki/architecture/domain-cam.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "physics-constants-discipline",
+    "per-file-scrutiny-gate",
+    "test-design-real-values"
+   ],
+   "csKnowledge": [
+    "engine-to-pipeline dependency injection into PrintToProgram",
+    "Kienzle specific-cutting-force feed derivation",
+    "round-trip E2E assertion through program generation"
+   ],
+   "buildNote": "Wire AutoSpeedFeedEngine into PrintToProgram so feeds/speeds come from the physics model with canonical constants — verify against a known material/tool pair."
+  }
+ },
+ {
+  "id": "CAMX-MS0.3::U-CAMX24",
+  "title": "Wire SetupSheetFromGCodeEngine into PrintToProgram",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/engines/cam/setupsheetfromgcodeengine.md",
+    "knowledge/wiki/architecture/dispatcher-cam.md",
+    "knowledge/wiki/architecture/domain-cam.md",
+    "knowledge/wiki/architecture/domain-print.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "per-file-scrutiny-gate",
+    "test-design-real-values"
+   ],
+   "csKnowledge": [
+    "FSM modal G/M-code parsing to extract tools, WCS, feeds from emitted program",
+    "engine-to-pipeline dependency injection into PrintToProgram",
+    "structured setup-sheet generation from parsed program state"
+   ],
+   "buildNote": "Wire SetupSheetFromGCodeEngine into PrintToProgram so the setup sheet reflects the actual emitted program — parse modal state correctly so tool/WCS lists are accurate."
+  }
+ },
+ {
+  "id": "CAMX-MS0.5::U-CAMX01",
+  "title": "Establish lazy _getEngine() pattern",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/engines/cam/camkernelorchestratorengine.md",
+    "knowledge/wiki/architecture/dispatcher-cam.md",
+    "knowledge/wiki/architecture/domain-cam.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "karpathy-12-rule-discipline",
+    "per-file-scrutiny-gate",
+    "test-design-real-values"
+   ],
+   "csKnowledge": [
+    "lazy initialization / memoized getter (instantiate engine on first access)",
+    "module-level singleton with deferred construction",
+    "circular-import avoidance via lazy require"
+   ],
+   "buildNote": "_getEngine() must memoize the instance and break import cycles — instantiate once, cache, return; verify second call returns the same object."
+  }
+ },
+ {
+  "id": "CAMX-MS0.5::U-CAMX02",
+  "title": "Desilo PrintToProgramPipelineEngine",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/engines/mill/millprinttoprogramengine.md",
+    "knowledge/wiki/architecture/engines/geometry/partgeometrypipelineengine.md",
+    "knowledge/wiki/architecture/dispatcher-cam.md",
+    "knowledge/wiki/architecture/domain-pipeline-ms0.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "karpathy-12-rule-discipline",
+    "per-file-scrutiny-gate",
+    "regression-prevention-doctrine"
+   ],
+   "csKnowledge": [
+    "dependency inversion (extract collaborators behind interfaces)",
+    "lazy _getEngine() pattern to break monolith coupling",
+    "behavior-preserving refactor verified by a before/after regression oracle"
+   ],
+   "buildNote": "Desiloing must be behavior-preserving — extract dependencies via _getEngine() and prove identical outputs on a real fixture before/after."
+  }
+ },
+ {
+  "id": "CAMX-MS0.5::U-CAMX03",
+  "title": "Desilo PartGeometryPipelineEngine",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/engines/geometry/partgeometrypipelineengine.md",
+    "knowledge/wiki/architecture/engines/geometry/geometryengine.md",
+    "knowledge/wiki/architecture/dispatcher-cam.md",
+    "knowledge/wiki/architecture/domain-geometry.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "karpathy-12-rule-discipline",
+    "per-file-scrutiny-gate",
+    "regression-prevention-doctrine"
+   ],
+   "csKnowledge": [
+    "dependency inversion via lazy getters",
+    "behavior-preserving refactor with regression oracle",
+    "interface extraction to decouple geometry collaborators"
+   ],
+   "buildNote": "Desilo PartGeometryPipelineEngine by routing collaborators through _getEngine() — output on a real geometry fixture must be byte-identical before and after."
+  }
+ },
+ {
+  "id": "CAMX-MS0.5::U-CAMX04",
+  "title": "Desilo SpeedFeedOrchestratorEngine",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/engines/auto/autospeedfeedcalculatorengine.md",
+    "knowledge/wiki/architecture/engines/bridge/camspeedfeedbridgeengine.md",
+    "knowledge/wiki/architecture/dispatcher-cam.md",
+    "knowledge/wiki/architecture/domain-cam.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "karpathy-12-rule-discipline",
+    "physics-constants-discipline",
+    "per-file-scrutiny-gate"
+   ],
+   "csKnowledge": [
+    "dependency inversion via lazy getters",
+    "behavior-preserving refactor with regression oracle",
+    "interface extraction for speed/feed collaborators"
+   ],
+   "buildNote": "Desilo SpeedFeedOrchestratorEngine without altering physics outputs — keep canonical-constant imports and prove identical feeds on a known fixture."
+  }
+ },
+ {
+  "id": "CAMX-MS0.5::U-CAMX05",
+  "title": "Desilo CAMKernelOrchestratorEngine",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/engines/cam/camkernelorchestratorengine.md",
+    "knowledge/wiki/architecture/engines/cam/camkernelvalidationengine.md",
+    "knowledge/wiki/architecture/dispatcher-cam.md",
+    "knowledge/wiki/architecture/domain-cam.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "karpathy-12-rule-discipline",
+    "per-file-scrutiny-gate",
+    "regression-prevention-doctrine"
+   ],
+   "csKnowledge": [
+    "dependency inversion via lazy getters",
+    "behavior-preserving refactor with regression oracle",
+    "orchestrator decoupling from concrete engine imports"
+   ],
+   "buildNote": "Desilo CAMKernelOrchestratorEngine via _getEngine() so its sub-engines load lazily — verify orchestration result is unchanged on a real part."
+  }
+ },
+ {
+  "id": "CAMX-MS0.5::U-CAMX06",
+  "title": "Desilo TurningPrintToProgramEngine",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/engines/turning/threadingpipelineengine.md",
+    "knowledge/wiki/architecture/dispatcher-turning.md",
+    "knowledge/wiki/architecture/dispatcher-turningprogram.md",
+    "knowledge/wiki/architecture/domain-turning.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "karpathy-12-rule-discipline",
+    "per-file-scrutiny-gate",
+    "regression-prevention-doctrine"
+   ],
+   "csKnowledge": [
+    "dependency inversion via lazy getters",
+    "behavior-preserving refactor with regression oracle",
+    "turning-pipeline collaborator interface extraction"
+   ],
+   "buildNote": "Desilo TurningPrintToProgramEngine without changing emitted turning programs — prove a known lathe part round-trips identically."
+  }
+ },
+ {
+  "id": "CAMX-MS0.5::U-CAMX07",
+  "title": "Desilo UnifiedCAMPipelineEngine",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/engines/cpl/pipelinearchitectureengine.md",
+    "knowledge/wiki/architecture/dispatcher-cam.md",
+    "knowledge/wiki/architecture/domain-pipeline-ms0.md",
+    "knowledge/wiki/architecture/domain-cam.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "karpathy-12-rule-discipline",
+    "per-file-scrutiny-gate",
+    "regression-prevention-doctrine"
+   ],
+   "csKnowledge": [
+    "dependency inversion via lazy getters",
+    "behavior-preserving refactor with regression oracle",
+    "unified-pipeline stage decoupling"
+   ],
+   "buildNote": "Desilo UnifiedCAMPipelineEngine by isolating each stage behind _getEngine() — the unified pipeline output must not regress on real fixtures."
+  }
+ },
+ {
+  "id": "CAMX-MS0.5::U-CAMX08",
+  "title": "Desilo DesignToFloorPipelineEngine",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/engines/other/designtofloorpipelineengine.md",
+    "knowledge/wiki/architecture/domain-pipeline-ms0.md",
+    "knowledge/wiki/architecture/dispatcher-cam.md",
+    "knowledge/wiki/architecture/domain-cam.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "karpathy-12-rule-discipline",
+    "per-file-scrutiny-gate",
+    "regression-prevention-doctrine"
+   ],
+   "csKnowledge": [
+    "dependency inversion via lazy getters",
+    "behavior-preserving refactor with regression oracle",
+    "end-to-end pipeline stage decoupling"
+   ],
+   "buildNote": "Desilo DesignToFloorPipelineEngine via lazy collaborator loading — verify the full design-to-floor flow produces identical output before and after."
+  }
+ },
+ {
+  "id": "CAMX-MS0.5::U-CAMX09",
+  "title": "Shared MC/Weibull infrastructure",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/engines/cam/strategystochasticriskengine.md",
+    "knowledge/wiki/architecture/formulas/formula-constants-canonical-taylor.md",
+    "knowledge/wiki/architecture/domain-stochastic.md",
+    "knowledge/wiki/architecture/domain-tool.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "physics-constants-discipline",
+    "test-design-real-values",
+    "per-file-scrutiny-gate"
+   ],
+   "csKnowledge": [
+    "Monte Carlo sampling with seeded PRNG for reproducibility",
+    "Weibull distribution (shape/scale) for tool-life reliability",
+    "shared-utility extraction to dedupe MC/Weibull code across engines"
+   ],
+   "buildNote": "Shared MC/Weibull infra must use a seeded PRNG so runs are reproducible — verify the Weibull fit against a known shape/scale dataset."
+  }
+ },
+ {
+  "id": "CAMX-MS0.5::U-CAMX10",
+  "title": "Fix collision detection stub",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/engines/safety/continuouscollisiondetectionengine.md",
+    "knowledge/wiki/architecture/engines/cam/collisiondetectionengine.md",
+    "knowledge/wiki/architecture/engines/safety/collisionpreventionengine.md",
+    "knowledge/wiki/architecture/dispatcher-safety.md"
+   ],
+   "seWiki": [
+    "fail-loud-r12-patterns",
+    "safety-tier-discipline",
+    "per-file-scrutiny-gate",
+    "test-design-real-values"
+   ],
+   "csKnowledge": [
+    "swept-volume / continuous collision detection along toolpath segments",
+    "bounding-volume-hierarchy (BVH) broad-phase intersection test",
+    "OBB/AABB narrow-phase intersection"
+   ],
+   "buildNote": "Replace the collision stub with real swept-volume intersection — a stub that always returns 'no collision' is the worst possible safety failure; fail loud if geometry is missing."
+  }
+ },
+ {
+  "id": "CAMX-MS0.5::U-CAMX11",
+  "title": "Dispatcher integration",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/dispatcher-cam.md",
+    "knowledge/wiki/architecture/rgs-tool-autoinvoke-ms0.md",
+    "knowledge/wiki/architecture/domain-dispatcher.md",
+    "knowledge/wiki/architecture/domain-cam.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "per-file-scrutiny-gate",
+    "test-design-real-values",
+    "schema-read-discipline"
+   ],
+   "csKnowledge": [
+    "Zod action-enum validation for dispatcher routing",
+    "dispatcher action-handler registration pattern",
+    "round-trip E2E assertion through the dispatcher action"
+   ],
+   "buildNote": "Dispatcher integration must add the action to the z.enum(ACTIONS) gate AND the handler — a missing enum entry false-passes mock tests while production is 100% broken."
+  }
+ },
+ {
+  "id": "CAMX-MS0.5::U-CAMX12",
+  "title": "Desiloing verification tests",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/engines/cam/camkernelvalidationengine.md",
+    "knowledge/wiki/architecture/dispatcher-cam.md",
+    "knowledge/wiki/architecture/domain-cam.md",
+    "knowledge/wiki/architecture/domain-pipeline-ms0.md"
+   ],
+   "seWiki": [
+    "test-design-real-values",
+    "regression-prevention-doctrine",
+    "per-file-scrutiny-gate"
+   ],
+   "csKnowledge": [
+    "before/after equivalence test for a refactor (desiloing parity oracle)",
+    "real-fixture E2E through desiloed engines",
+    "fail-on-revert regression assertion"
+   ],
+   "buildNote": "Desiloing verification tests must prove byte-identical output before and after the refactor on real fixtures — a parity test is the only honest desilo gate."
+  }
+ },
+ {
+  "id": "CAMX-MS0.5::U-CAMX13",
+  "title": "Wire fixture/setup engines",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/engines/fixture/fixturedesignengine.md",
+    "knowledge/wiki/architecture/engines/fixture/workholdingselectionengine.md",
+    "knowledge/wiki/architecture/dispatcher-cam.md",
+    "knowledge/wiki/architecture/domain-fixture.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "per-file-scrutiny-gate",
+    "test-design-real-values",
+    "safety-tier-discipline"
+   ],
+   "csKnowledge": [
+    "engine-to-pipeline dependency injection",
+    "fixture/setup feasibility constraint propagation",
+    "round-trip E2E assertion through each wired dispatcher"
+   ],
+   "buildNote": "Wire fixture/setup engines into the pipelines that need workholding — verify clamping viability is enforced, not assumed."
+  }
+ },
+ {
+  "id": "CAMX-MS0.5::U-CAMX14",
+  "title": "Wire DFM/quality engines",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/dispatcher-quality.md",
+    "knowledge/wiki/architecture/dispatcher-cam.md",
+    "knowledge/wiki/architecture/domain-quality.md",
+    "knowledge/wiki/architecture/domain-cam.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "per-file-scrutiny-gate",
+    "test-design-real-values",
+    "regression-prevention-doctrine"
+   ],
+   "csKnowledge": [
+    "engine-to-pipeline dependency injection for DFM/quality checks",
+    "design-for-manufacturability rule evaluation",
+    "round-trip E2E assertion through validation"
+   ],
+   "buildNote": "Wire DFM/quality engines so manufacturability is checked in-pipeline — a quality stage that never flags is a false-green."
+  }
+ },
+ {
+  "id": "CAMX-MS0.5::U-CAMX15",
+  "title": "Wire energy engines",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/u-wire-energy.md",
+    "knowledge/wiki/architecture/formulas/formula-constants-canonical-kienzle.md",
+    "knowledge/wiki/architecture/dispatcher-cam.md",
+    "knowledge/wiki/architecture/domain-cam.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "physics-constants-discipline",
+    "per-file-scrutiny-gate",
+    "test-design-real-values"
+   ],
+   "csKnowledge": [
+    "machining-energy / specific-cutting-energy model",
+    "engine-to-pipeline dependency injection",
+    "Kienzle specific-cutting-force basis for energy estimate"
+   ],
+   "buildNote": "Wire energy engines using CANONICAL_KIENZLE constants — per [[u-wire-energy]] the engine had inline KC11 values 14-28% off canonical; never inline cutting-force constants."
+  }
+ },
+ {
+  "id": "CAMX-MS0.5::U-CAMX16",
+  "title": "Wire geometry/feature recognition engines",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/engines/cam/camgeometryexchangeengine.md",
+    "knowledge/wiki/architecture/engines/geometry/geometryalgorithmsengine.md",
+    "knowledge/wiki/architecture/dispatcher-cam.md",
+    "knowledge/wiki/architecture/domain-geometry.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "per-file-scrutiny-gate",
+    "test-design-real-values"
+   ],
+   "csKnowledge": [
+    "engine-to-pipeline dependency injection",
+    "B-rep / feature-recognition graph traversal",
+    "round-trip E2E assertion through each wired dispatcher"
+   ],
+   "buildNote": "Wire geometry/feature-recognition engines so pipelines consume recognized features — verify feature extraction on a real part before depending on it."
+  }
+ },
+ {
+  "id": "CAMX-MS0.7::U-CAMX01",
+  "title": "Wire UncertaintyPropagationPipelineEngine into SFO",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/engines/other/uncertaintypropagationpipelineengine.md",
+    "knowledge/wiki/architecture/u-nng-pipeline-stratified-wire.md",
+    "knowledge/wiki/architecture/dispatcher-cam.md",
+    "knowledge/wiki/architecture/domain-stochastic.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "per-file-scrutiny-gate",
+    "test-design-real-values",
+    "regression-prevention-doctrine"
+   ],
+   "csKnowledge": [
+    "uncertainty propagation (first-order Taylor / delta method)",
+    "engine-to-pipeline dependency injection into the SFO orchestrator",
+    "variance-combination of correlated inputs"
+   ],
+   "buildNote": "Wire UncertaintyPropagationPipelineEngine into SFO so outputs carry +/-sigma — verify the propagated variance against a Monte Carlo reference."
+  }
+ },
+ {
+  "id": "CAMX-MS0.7::U-CAMX02",
+  "title": "Connect Link 4: Surface Finish(±σ) → Strategy Selection(CI)",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/engines/cad/surfacefinishcnnengine.md",
+    "knowledge/wiki/architecture/engines/cam/strategytaxonomyengine.md",
+    "knowledge/wiki/architecture/engines/surface/surfacemeasureengine.md",
+    "knowledge/wiki/architecture/domain-strategy.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "per-file-scrutiny-gate",
+    "test-design-real-values"
+   ],
+   "csKnowledge": [
+    "confidence-interval propagation (Ra +/-sigma into strategy-selection CI)",
+    "probabilistic ranking with uncertainty bands",
+    "linking two pipeline stages by passing distributions not point estimates"
+   ],
+   "buildNote": "Link 4 must pass the full Ra distribution (mean +/-sigma) into strategy selection — not the point estimate; strategy CI must reflect input uncertainty."
+  }
+ },
+ {
+  "id": "CAMX-MS0.7::U-CAMX03",
+  "title": "Connect Link 5: Strategy → Tool Life(Weibull)",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/formulas/formula-constants-canonical-taylor.md",
+    "knowledge/wiki/architecture/engines/cam/strategytaxonomyengine.md",
+    "knowledge/wiki/architecture/domain-tool.md",
+    "knowledge/wiki/architecture/domain-strategy.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "physics-constants-discipline",
+    "per-file-scrutiny-gate",
+    "test-design-real-values"
+   ],
+   "csKnowledge": [
+    "Weibull distribution (shape/scale) for tool-life modeling",
+    "Taylor tool-life equation feeding the Weibull scale parameter",
+    "stage-linking by passing strategy parameters into a life model"
+   ],
+   "buildNote": "Link 5 must feed selected-strategy cutting parameters into a Weibull tool-life model with canonical Taylor constants — verify life distribution on a known cut."
+  }
+ },
+ {
+  "id": "CAMX-MS0.7::U-CAMX04",
+  "title": "Connect Link 6: Tool Life(Weibull) → Cost(±σ)",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/engines/tool/toolcostperpartengine.md",
+    "knowledge/wiki/architecture/formulas/formula-constants-canonical-taylor.md",
+    "knowledge/wiki/architecture/domain-cost.md",
+    "knowledge/wiki/architecture/domain-tool.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "physics-constants-discipline",
+    "per-file-scrutiny-gate",
+    "test-design-real-values"
+   ],
+   "csKnowledge": [
+    "uncertainty propagation from Weibull life into cost +/-sigma",
+    "cost-per-part amortization over a tool-life distribution",
+    "delta-method variance of a ratio (cost / life)"
+   ],
+   "buildNote": "Link 6 must propagate Weibull life uncertainty into cost +/-sigma — cost variance must shrink/grow with life variance; check against Monte Carlo."
+  }
+ },
+ {
+  "id": "CAMX-MS0.7::U-CAMX05",
+  "title": "Connect Link 7: Cost(±σ) → Pipeline Output(confidence)",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/engines/cpl/pipelinearchitectureengine.md",
+    "knowledge/wiki/architecture/domain-cost.md",
+    "knowledge/wiki/architecture/domain-pipeline-ms0.md",
+    "knowledge/wiki/architecture/domain-stochastic.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "per-file-scrutiny-gate",
+    "test-design-real-values",
+    "fail-loud-r12-patterns"
+   ],
+   "csKnowledge": [
+    "confidence-level aggregation across pipeline stages",
+    "uncertainty-to-confidence mapping (sigma -> percent confidence)",
+    "final-output confidence reporting"
+   ],
+   "buildNote": "Link 7 must surface a real confidence figure derived from cost +/-sigma — never emit a hardcoded confidence; fail loud if any upstream stage lacks uncertainty."
+  }
+ },
+ {
+  "id": "CAMX-MS0.7::U-CAMX06",
+  "title": "Sobol sensitivity at pipeline output",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/engines/other/uncertaintypropagationpipelineengine.md",
+    "knowledge/wiki/architecture/domain-stochastic.md",
+    "knowledge/wiki/architecture/domain-cost.md",
+    "knowledge/wiki/architecture/domain-pipeline-ms0.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "physics-constants-discipline",
+    "test-design-real-values",
+    "per-file-scrutiny-gate"
+   ],
+   "csKnowledge": [
+    "Sobol low-discrepancy sequence generation",
+    "Sobol global sensitivity indices (first-order S_i and total S_Ti)",
+    "variance decomposition for sensitivity attribution"
+   ],
+   "buildNote": "Sobol sensitivity must use a proper low-discrepancy sequence and report first-order + total indices — verify S_i sum to <=1 on a known analytic test function."
+  }
+ },
+ {
+  "id": "CAMX-MS0.7::U-CAMX07",
+  "title": "Taguchi robustness in strategy selection",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/engines/cam/strategytaxonomyengine.md",
+    "knowledge/wiki/architecture/domain-strategy.md",
+    "knowledge/wiki/architecture/domain-stochastic.md",
+    "knowledge/wiki/architecture/domain-cam.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "physics-constants-discipline",
+    "test-design-real-values",
+    "per-file-scrutiny-gate"
+   ],
+   "csKnowledge": [
+    "Taguchi orthogonal-array design of experiments",
+    "signal-to-noise ratio (larger/smaller/nominal-is-best) for robustness",
+    "robust-parameter selection minimizing variance to noise factors"
+   ],
+   "buildNote": "Taguchi robustness must use a correct orthogonal array and the right S/N ratio for the objective — verify the array's balance property and S/N formula."
+  }
+ },
+ {
+  "id": "CAMX-MS0.7::U-CAMX08",
+  "title": "Markov tool state integration",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/engines/adaptive/adaptivewearengine.md",
+    "knowledge/wiki/architecture/domain-stochastic.md",
+    "knowledge/wiki/architecture/domain-tool.md",
+    "knowledge/wiki/architecture/dispatcher-cam.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "test-design-real-values",
+    "per-file-scrutiny-gate",
+    "schema-read-discipline"
+   ],
+   "csKnowledge": [
+    "Markov chain steady-state distribution (solve pi = pi*P)",
+    "transition-matrix construction from tool-wear-state observations",
+    "absorbing-state analysis for tool failure"
+   ],
+   "buildNote": "Markov tool-state model needs a row-stochastic transition matrix; verify steady-state pi sums to 1 and matches a hand-solved small chain."
+  }
+ },
+ {
+  "id": "CAMX-MS0.7::U-CAMX09",
+  "title": "Digital twin calibration loop",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/engines/adaptive/digitaltwinsyncengine.md",
+    "knowledge/wiki/architecture/engines/calc/digitaltwinengine.md",
+    "knowledge/wiki/architecture/engines/intelligence/digitaltwinformulasengine.md",
+    "knowledge/wiki/architecture/domain-twin.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "atomic-write-idempotency-patterns",
+    "test-design-real-values",
+    "fail-loud-r12-patterns"
+   ],
+   "csKnowledge": [
+    "recursive parameter estimation / least-squares calibration loop",
+    "Kalman-filter style measurement-update of model state",
+    "divergence/drift detection between twin prediction and measurement"
+   ],
+   "buildNote": "Digital-twin calibration must update model params from real measurements each loop and detect divergence — fail loud when twin and reality drift past threshold."
+  }
+ },
+ {
+  "id": "CAMX-MS0.7::U-CAMX10",
+  "title": "Uncertainty chain tests",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/engines/other/uncertaintypropagationpipelineengine.md",
+    "knowledge/wiki/architecture/u-nng-pipeline-stratified-wire.md",
+    "knowledge/wiki/architecture/domain-stochastic.md",
+    "knowledge/wiki/architecture/domain-pipeline-ms0.md"
+   ],
+   "seWiki": [
+    "test-design-real-values",
+    "regression-prevention-doctrine",
+    "per-file-scrutiny-gate"
+   ],
+   "csKnowledge": [
+    "end-to-end uncertainty-chain test (input sigma -> output sigma traceable)",
+    "Monte Carlo reference oracle for propagated variance",
+    "fail-on-revert regression assertion on confidence values"
+   ],
+   "buildNote": "Uncertainty-chain tests must assert propagated sigma against a Monte Carlo reference at each link — a test that only checks the mean misses a broken variance path."
+  }
+ },
+ {
+  "id": "CAMX-MS0::U01",
+  "title": "StrategyTaxonomyEngine",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/engines/cam/strategytaxonomyengine.md",
+    "knowledge/wiki/architecture/engines/toolpath/toolpathstrategyengine.md",
+    "knowledge/wiki/architecture/dispatcher-cam.md",
+    "knowledge/wiki/architecture/domain-strategy.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "schema-read-discipline",
+    "per-file-scrutiny-gate",
+    "test-design-real-values"
+   ],
+   "csKnowledge": [
+    "hierarchical taxonomy / tree classification of CAM strategies",
+    "enum-backed strategy categorization",
+    "Zod discriminated-union validation of strategy records"
+   ],
+   "buildNote": "StrategyTaxonomyEngine must define a closed, schema-validated taxonomy — every strategy maps to exactly one category; verify no orphan/uncategorized strategies."
+  }
+ },
+ {
+  "id": "CAMX-MS0::U02",
+  "title": "Strategy equivalence map",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/engines/cam/crosscampostengine.md",
+    "knowledge/wiki/architecture/engines/cam/strategytaxonomyengine.md",
+    "knowledge/wiki/architecture/dispatcher-cam.md",
+    "knowledge/wiki/architecture/domain-strategy.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "schema-read-discipline",
+    "per-file-scrutiny-gate",
+    "test-design-real-values"
+   ],
+   "csKnowledge": [
+    "equivalence-class / union-find mapping of vendor strategy names",
+    "bidirectional cross-CAM name lookup table",
+    "graph of strategy synonyms across CAM systems"
+   ],
+   "buildNote": "Strategy equivalence map must be bidirectional and complete per vendor — an unmapped strategy must fail loud, not silently default to a wrong equivalent."
+  }
+ },
+ {
+  "id": "CAMX-MS0::U03",
+  "title": "Strategy capability matrix",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/engines/cam/strategytaxonomyengine.md",
+    "knowledge/wiki/architecture/engines/cam/postprocessorcapabilitymatrixengine.md",
+    "knowledge/wiki/architecture/dispatcher-cam.md",
+    "knowledge/wiki/architecture/domain-strategy.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "schema-read-discipline",
+    "per-file-scrutiny-gate",
+    "test-design-real-values"
+   ],
+   "csKnowledge": [
+    "capability matrix (strategy x machine/feature -> supported boolean)",
+    "feature-strategy compatibility lookup",
+    "sparse-matrix representation for capability flags"
+   ],
+   "buildNote": "Strategy capability matrix must encode real machine/feature constraints — verify each (strategy, feature) cell against a known machinable example."
+  }
+ },
+ {
+  "id": "CAMX-MS0::U04",
+  "title": "Backfill existing engines",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/engines/cam/strategytaxonomyengine.md",
+    "knowledge/wiki/architecture/dispatcher-cam.md",
+    "knowledge/wiki/architecture/domain-cam.md",
+    "knowledge/wiki/architecture/domain-strategy.md"
+   ],
+   "seWiki": [
+    "schema-read-discipline",
+    "regression-prevention-doctrine",
+    "test-design-real-values",
+    "per-file-scrutiny-gate"
+   ],
+   "csKnowledge": [
+    "backfill / data-migration of taxonomy fields onto existing engine records",
+    "idempotent migration (re-runnable without drift)",
+    "schema version bump with migration path"
+   ],
+   "buildNote": "Backfilling existing engines must be idempotent and schema-versioned — re-running the backfill must not double-apply or corrupt prior records."
+  }
+ },
+ {
+  "id": "CAMX-MS0::U05",
+  "title": "Strategy physics profile",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/engines/cam/strategytaxonomyengine.md",
+    "knowledge/wiki/architecture/formulas/formula-constants-canonical-kienzle.md",
+    "knowledge/wiki/architecture/domain-strategy.md",
+    "knowledge/wiki/architecture/domain-physics.md"
+   ],
+   "seWiki": [
+    "physics-constants-discipline",
+    "schema-read-discipline",
+    "test-design-real-values",
+    "per-file-scrutiny-gate"
+   ],
+   "csKnowledge": [
+    "per-strategy physics-parameter profile (engagement, force, MRR ranges)",
+    "Kienzle specific-cutting-force basis for strategy physics",
+    "structured profile record keyed by strategy"
+   ],
+   "buildNote": "Strategy physics profile must reference canonical Kienzle/Taylor constants — never inline force coefficients into a per-strategy profile."
+  }
+ },
+ {
+  "id": "CAMX-MS0::U06",
+  "title": "Strategy cost model",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/engines/cam/strategycostoptimalengine.md",
+    "knowledge/wiki/architecture/engines/tool/toolcostperpartengine.md",
+    "knowledge/wiki/architecture/domain-cost.md",
+    "knowledge/wiki/architecture/domain-strategy.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "physics-constants-discipline",
+    "test-design-real-values",
+    "per-file-scrutiny-gate"
+   ],
+   "csKnowledge": [
+    "cycle-time x machine-rate + tool-cost cost model",
+    "MRR-driven cycle-time estimation per strategy",
+    "break-even comparison across strategies"
+   ],
+   "buildNote": "Strategy cost model must combine cycle time, machine rate, and tool cost from physics — assert total cost against a hand-worked example per strategy."
+  }
+ },
+ {
+  "id": "CAMX-MS0::U07",
+  "title": "Dispatcher wiring",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/dispatcher-cam.md",
+    "knowledge/wiki/architecture/rgs-tool-autoinvoke-ms0.md",
+    "knowledge/wiki/architecture/domain-dispatcher.md",
+    "knowledge/wiki/architecture/domain-cam.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "per-file-scrutiny-gate",
+    "test-design-real-values",
+    "schema-read-discipline"
+   ],
+   "csKnowledge": [
+    "Zod action-enum validation gate for dispatcher routing",
+    "dispatcher action-handler registration",
+    "round-trip E2E assertion through every wired dispatcher"
+   ],
+   "buildNote": "Dispatcher wiring must add the action to z.enum(ACTIONS) AND register a real handler — wire to every dispatcher that naturally consumes the strategy engines."
+  }
+ },
+ {
+  "id": "CAMX-MS0::U08",
+  "title": "Tests",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/engines/cam/strategytaxonomyengine.md",
+    "knowledge/wiki/architecture/dispatcher-cam.md",
+    "knowledge/wiki/architecture/domain-strategy.md",
+    "knowledge/wiki/architecture/domain-cam.md"
+   ],
+   "seWiki": [
+    "test-design-real-values",
+    "regression-prevention-doctrine",
+    "per-file-scrutiny-gate"
+   ],
+   "csKnowledge": [
+    "real-reference-value test design (no toBeDefined stubs)",
+    "round-trip E2E through dispatcher actions",
+    "fail-on-revert regression oracle"
+   ],
+   "buildNote": "Tests must assert taxonomy/equivalence/cost outputs against concrete reference values — a stub assertion passes even when the engine returns a default."
+  }
+ },
+ {
+  "id": "CAMX-MS1::U-CAMX01",
+  "title": "OptimalStrategySelectionEngine",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/engines/cam/strategytaxonomyengine.md",
+    "knowledge/wiki/architecture/engines/multi/multiobjectiveparetoengine.md",
+    "knowledge/wiki/architecture/engines/cam/strategycostoptimalengine.md",
+    "knowledge/wiki/architecture/domain-strategy.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "per-file-scrutiny-gate",
+    "test-design-real-values",
+    "physics-constants-discipline"
+   ],
+   "csKnowledge": [
+    "multi-objective optimization (Pareto-front extraction)",
+    "weighted-sum / TOPSIS scoring of candidate strategies",
+    "constraint-feasibility filtering before scoring"
+   ],
+   "buildNote": "OptimalStrategySelectionEngine must filter to feasible strategies first, then rank — verify the selected strategy is genuinely Pareto-optimal on a known case."
+  }
+ },
+ {
+  "id": "CAMX-MS1::U-CAMX02",
+  "title": "Wire into PrintToProgramPipelineEngine",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/engines/mill/millprinttoprogramengine.md",
+    "knowledge/wiki/architecture/engines/cam/strategytaxonomyengine.md",
+    "knowledge/wiki/architecture/dispatcher-cam.md",
+    "knowledge/wiki/architecture/domain-pipeline-ms0.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "per-file-scrutiny-gate",
+    "test-design-real-values",
+    "regression-prevention-doctrine"
+   ],
+   "csKnowledge": [
+    "engine-to-pipeline dependency injection",
+    "strategy-selection insertion into the program-generation flow",
+    "round-trip E2E assertion through PrintToProgram"
+   ],
+   "buildNote": "Wire OptimalStrategySelectionEngine into PrintToProgramPipelineEngine and verify the chosen strategy actually changes the emitted program."
+  }
+ },
+ {
+  "id": "CAMX-MS1::U-CAMX03",
+  "title": "Wire into PartGeometryPipelineEngine",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/engines/geometry/partgeometrypipelineengine.md",
+    "knowledge/wiki/architecture/engines/cam/strategytaxonomyengine.md",
+    "knowledge/wiki/architecture/dispatcher-cam.md",
+    "knowledge/wiki/architecture/domain-geometry.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "per-file-scrutiny-gate",
+    "test-design-real-values",
+    "regression-prevention-doctrine"
+   ],
+   "csKnowledge": [
+    "engine-to-pipeline dependency injection",
+    "feature-to-strategy mapping from recognized geometry",
+    "round-trip E2E assertion through PartGeometryPipeline"
+   ],
+   "buildNote": "Wire OptimalStrategySelectionEngine into PartGeometryPipelineEngine so strategy follows recognized features — verify on a real multi-feature part."
+  }
+ },
+ {
+  "id": "CAMX-MS1::U-CAMX04",
+  "title": "Wire into CAMKernelOrchestratorEngine",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/engines/cam/camkernelorchestratorengine.md",
+    "knowledge/wiki/architecture/engines/cam/strategytaxonomyengine.md",
+    "knowledge/wiki/architecture/dispatcher-cam.md",
+    "knowledge/wiki/architecture/domain-cam.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "per-file-scrutiny-gate",
+    "test-design-real-values",
+    "regression-prevention-doctrine"
+   ],
+   "csKnowledge": [
+    "engine-to-pipeline dependency injection",
+    "orchestrator stage insertion for strategy selection",
+    "round-trip E2E assertion through the orchestrator"
+   ],
+   "buildNote": "Wire OptimalStrategySelectionEngine into CAMKernelOrchestratorEngine and verify the orchestrator's strategy stage consumes its output."
+  }
+ },
+ {
+  "id": "CAMX-MS1::U-CAMX05",
+  "title": "Wire into UnifiedCAMPipelineEngine",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/engines/cpl/pipelinearchitectureengine.md",
+    "knowledge/wiki/architecture/engines/cam/strategytaxonomyengine.md",
+    "knowledge/wiki/architecture/dispatcher-cam.md",
+    "knowledge/wiki/architecture/domain-pipeline-ms0.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "per-file-scrutiny-gate",
+    "test-design-real-values",
+    "regression-prevention-doctrine"
+   ],
+   "csKnowledge": [
+    "engine-to-pipeline dependency injection",
+    "unified-pipeline stage wiring for strategy selection",
+    "round-trip E2E assertion through UnifiedCAMPipeline"
+   ],
+   "buildNote": "Wire OptimalStrategySelectionEngine into UnifiedCAMPipelineEngine; verify all four pipeline wirings (U-CAMX02..05) ship with their own round-trip test."
+  }
+ },
+ {
+  "id": "CAMX-MS1::U-CAMX06",
+  "title": "Multi-strategy zone decomposition",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/engines/cam/strategysequencingengine.md",
+    "knowledge/wiki/architecture/engines/geometry/engagementgeometryengine.md",
+    "knowledge/wiki/architecture/engines/cam/strategytaxonomyengine.md",
+    "knowledge/wiki/architecture/domain-cam.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "per-file-scrutiny-gate",
+    "test-design-real-values"
+   ],
+   "csKnowledge": [
+    "geometric region decomposition (partition a part into zones)",
+    "per-zone strategy assignment",
+    "graph clustering / connected-component labeling of feature regions"
+   ],
+   "buildNote": "Multi-strategy zone decomposition must partition the part into non-overlapping zones with full coverage — verify no machined region is left unassigned."
+  }
+ },
+ {
+  "id": "CAMX-MS1::U-CAMX07",
+  "title": "User preference system",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/dispatcher-session.md",
+    "knowledge/wiki/architecture/dispatcher-memory.md",
+    "knowledge/wiki/architecture/domain-session.md",
+    "knowledge/wiki/architecture/domain-memory.md"
+   ],
+   "seWiki": [
+    "atomic-write-idempotency-patterns",
+    "schema-read-discipline",
+    "mcp-tool-design",
+    "test-design-real-values"
+   ],
+   "csKnowledge": [
+    "preference store with schema-versioned JSON state",
+    "atomic file write (temp+rename) for preference persistence",
+    "default-merge layering (system default <- user override)"
+   ],
+   "buildNote": "User-preference system must persist preferences via atomic write with schemaVersion and layer user overrides over defaults — read schema before assuming shape."
+  }
+ },
+ {
+  "id": "CAMX-MS1::U-CAMX08",
+  "title": "Decision explanation engine",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/dispatcher-aireasoning.md",
+    "knowledge/wiki/architecture/action-trace-engine.md",
+    "knowledge/wiki/architecture/domain-ai.md",
+    "knowledge/wiki/architecture/dispatcher-cam.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "fail-loud-r12-patterns",
+    "per-file-scrutiny-gate",
+    "test-design-real-values"
+   ],
+   "csKnowledge": [
+    "decision-tree traceback / explanation chain reconstruction",
+    "feature-attribution for a chosen decision",
+    "structured rationale record (inputs -> rule -> output)"
+   ],
+   "buildNote": "Decision explanation engine must reconstruct the actual decision path from logged inputs — never synthesize a plausible-but-fabricated rationale."
+  }
+ },
+ {
+  "id": "CAMX-MS1::U-CAMX09",
+  "title": "Dispatcher wiring",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/dispatcher-cam.md",
+    "knowledge/wiki/architecture/rgs-tool-autoinvoke-ms0.md",
+    "knowledge/wiki/architecture/domain-dispatcher.md",
+    "knowledge/wiki/architecture/domain-cam.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "per-file-scrutiny-gate",
+    "test-design-real-values",
+    "schema-read-discipline"
+   ],
+   "csKnowledge": [
+    "Zod action-enum validation gate",
+    "dispatcher action-handler registration",
+    "round-trip E2E assertion through every wired dispatcher"
+   ],
+   "buildNote": "Dispatcher wiring must add the action to z.enum(ACTIONS) AND the handler — a missing enum entry false-passes mock tests; verify the live SDK gate."
+  }
+ },
+ {
+  "id": "CAMX-MS1::U-CAMX10",
+  "title": "Tests",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/engines/cam/strategytaxonomyengine.md",
+    "knowledge/wiki/architecture/engines/multi/multiobjectiveparetoengine.md",
+    "knowledge/wiki/architecture/dispatcher-cam.md",
+    "knowledge/wiki/architecture/domain-strategy.md"
+   ],
+   "seWiki": [
+    "test-design-real-values",
+    "regression-prevention-doctrine",
+    "per-file-scrutiny-gate"
+   ],
+   "csKnowledge": [
+    "real-reference-value test design",
+    "Pareto-optimality verification on a known objective space",
+    "round-trip E2E through dispatcher actions"
+   ],
+   "buildNote": "Tests must assert the selected strategy is provably optimal/feasible against a hand-constructed case — not just that a strategy was returned."
+  }
+ },
+ {
+  "id": "CAMX-MS1::U-CAMX11",
+  "title": "CrossCamRecommender expansion 8→22 CAM systems",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/engines/cam/crosscamrecommenderengine.md",
+    "knowledge/wiki/architecture/engines/cam/postprocessorcapabilitymatrixengine.md",
+    "knowledge/wiki/architecture/engines/cam/crosscampostengine.md",
+    "knowledge/wiki/architecture/domain-cam.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "schema-read-discipline",
+    "per-file-scrutiny-gate",
+    "test-design-real-values"
+   ],
+   "csKnowledge": [
+    "data-driven registry expansion (8 -> 22 CAM-system records)",
+    "per-vendor capability/strategy mapping table",
+    "schema-validated registry entry definition"
+   ],
+   "buildNote": "Expanding CrossCamRecommender 8->22 systems must add real per-vendor capability data — an empty placeholder record silently degrades recommendations."
+  }
+ },
+ {
+  "id": "CAMX-MS1::U-CAMX12",
+  "title": "CrossCamRecommender turning support",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/engines/cam/crosscamrecommenderengine.md",
+    "knowledge/wiki/architecture/dispatcher-turning.md",
+    "knowledge/wiki/architecture/dispatcher-turningprogram.md",
+    "knowledge/wiki/architecture/domain-turning.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "per-file-scrutiny-gate",
+    "test-design-real-values"
+   ],
+   "csKnowledge": [
+    "turning-strategy taxonomy (OD/ID, facing, grooving, threading)",
+    "lathe-specific recommendation rules vs milling",
+    "polysemy guard (turning != milling strategy namespace)"
+   ],
+   "buildNote": "CrossCamRecommender turning support must use a turning-specific strategy taxonomy — do not reuse milling strategy names for lathe operations."
+  }
+ },
+ {
+  "id": "CAMX-MS1::U-CAMX13",
+  "title": "MachiningPlaybook integration",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/dispatcher-cam.md",
+    "knowledge/wiki/architecture/engines/cam/strategytaxonomyengine.md",
+    "knowledge/wiki/architecture/domain-knowledge.md",
+    "knowledge/wiki/architecture/domain-cam.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "per-file-scrutiny-gate",
+    "test-design-real-values",
+    "regression-prevention-doctrine"
+   ],
+   "csKnowledge": [
+    "rule-base lookup integration (MachiningPlaybook rules into strategy flow)",
+    "engine-to-pipeline dependency injection",
+    "rule-priority resolution when multiple rules match"
+   ],
+   "buildNote": "MachiningPlaybook integration must consult playbook rules in the recommendation path — verify a known playbook rule actually overrides the default."
+  }
+ },
+ {
+  "id": "CAMX-MS1::U-CAMX14",
+  "title": "ToolpathStrategyRegistry utilization",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/engines/toolpath/toolpathstrategyengine.md",
+    "knowledge/wiki/architecture/engines/toolpath/toolpathstrategyrouterengine.md",
+    "knowledge/wiki/architecture/engines/cam/strategytaxonomyengine.md",
+    "knowledge/wiki/architecture/domain-toolpath.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "per-file-scrutiny-gate",
+    "test-design-real-values"
+   ],
+   "csKnowledge": [
+    "registry utilization (route strategy selection through the registry, not ad-hoc)",
+    "registry lookup by strategy key",
+    "consumer-wiring of an existing registry into call sites"
+   ],
+   "buildNote": "ToolpathStrategyRegistry utilization means all strategy lookups route through the registry — verify no call site bypasses it with a hardcoded strategy."
+  }
+ },
+ {
+  "id": "CAMX-MS1::U-CAMX15",
+  "title": "MultiObjectivePareto in strategy selection",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/engines/multi/multiobjectiveparetoengine.md",
+    "knowledge/wiki/architecture/engines/cam/strategytaxonomyengine.md",
+    "knowledge/wiki/architecture/engines/cam/strategycostoptimalengine.md",
+    "knowledge/wiki/architecture/domain-strategy.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "per-file-scrutiny-gate",
+    "test-design-real-values"
+   ],
+   "csKnowledge": [
+    "Pareto-front computation (non-dominated sorting)",
+    "multi-objective dominance test",
+    "knee-point selection on the Pareto front"
+   ],
+   "buildNote": "MultiObjectivePareto in strategy selection must return the non-dominated set, not a single weighted winner — verify dominance on a hand-built objective space."
+  }
+ },
+ {
+  "id": "CAMX-MS1::U-CAMX16",
+  "title": "Sensitivity analysis at every decision",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/engines/other/uncertaintypropagationpipelineengine.md",
+    "knowledge/wiki/architecture/engines/cam/strategytaxonomyengine.md",
+    "knowledge/wiki/architecture/domain-stochastic.md",
+    "knowledge/wiki/architecture/domain-strategy.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "test-design-real-values",
+    "per-file-scrutiny-gate",
+    "physics-constants-discipline"
+   ],
+   "csKnowledge": [
+    "local sensitivity analysis (partial-derivative / one-at-a-time perturbation)",
+    "finite-difference gradient of an output w.r.t. each input",
+    "sensitivity reporting at every decision node"
+   ],
+   "buildNote": "Sensitivity analysis at every decision must perturb each input and report the gradient — verify finite-difference sensitivity against an analytic case."
+  }
+ },
+ {
+  "id": "CAMX-MS10::U-CAMX01",
+  "title": "MastercamToolExportEngine",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/engines/cam/camexportengine.md",
+    "knowledge/wiki/architecture/engines/cam/camtoollibraryengine.md",
+    "knowledge/wiki/architecture/dispatcher-export.md",
+    "knowledge/wiki/architecture/domain-mastercam.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "schema-read-discipline",
+    "per-file-scrutiny-gate",
+    "test-design-real-values"
+   ],
+   "csKnowledge": [
+    "Mastercam tool-library file-format serialization (.tooldb / XML)",
+    "tool-record schema mapping to vendor format",
+    "round-trip serialize/parse equivalence test"
+   ],
+   "buildNote": "MastercamToolExportEngine must emit the exact Mastercam tool-library schema — verify a round-trip export/import preserves every tool field."
+  }
+ },
+ {
+  "id": "CAMX-MS10::U-CAMX02",
+  "title": "SolidCAMToolExportEngine",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/engines/cam/camexportengine.md",
+    "knowledge/wiki/architecture/engines/cam/solidcamcodegeneratorengine.md",
+    "knowledge/wiki/architecture/dispatcher-export.md",
+    "knowledge/wiki/architecture/domain-cam.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "schema-read-discipline",
+    "per-file-scrutiny-gate",
+    "test-design-real-values"
+   ],
+   "csKnowledge": [
+    "SolidCAM tool-table file-format serialization",
+    "tool-record schema mapping to SolidCAM format",
+    "round-trip serialize/parse equivalence test"
+   ],
+   "buildNote": "SolidCAMToolExportEngine must match the SolidCAM tool-table format exactly — verify a round-trip preserves all geometry and cutting-data fields."
+  }
+ },
+ {
+  "id": "CAMX-MS10::U-CAMX03",
+  "title": "NXToolExportEngine",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/engines/cam/camexportengine.md",
+    "knowledge/wiki/architecture/engines/cam/camtoollibraryengine.md",
+    "knowledge/wiki/architecture/dispatcher-export.md",
+    "knowledge/wiki/architecture/domain-cam.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "schema-read-discipline",
+    "per-file-scrutiny-gate",
+    "test-design-real-values"
+   ],
+   "csKnowledge": [
+    "NX (.dat / library) tool-format serialization",
+    "tool-record schema mapping to NX format",
+    "round-trip serialize/parse equivalence test"
+   ],
+   "buildNote": "NXToolExportEngine must emit a valid NX tool-library file — verify against the documented NX format and a round-trip equivalence test."
+  }
+ },
+ {
+  "id": "CAMX-MS10::U-CAMX04",
+  "title": "UniversalToolExportEngine",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/engines/cam/camexportengine.md",
+    "knowledge/wiki/architecture/engines/cam/cuttingdataexportengine.md",
+    "knowledge/wiki/architecture/dispatcher-export.md",
+    "knowledge/wiki/architecture/domain-cam.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "schema-read-discipline",
+    "per-file-scrutiny-gate",
+    "test-design-real-values"
+   ],
+   "csKnowledge": [
+    "strategy/adapter pattern (one engine, per-vendor format adapters)",
+    "common tool-model -> vendor-format dispatch",
+    "format-registry keyed by target CAM system"
+   ],
+   "buildNote": "UniversalToolExportEngine must dispatch to per-vendor adapters from one canonical tool model — verify each adapter produces a valid vendor file."
+  }
+ },
+ {
+  "id": "CAMX-MS10::U-CAMX05",
+  "title": "ToolSyncOrchestratorEngine",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/engines/cam/camtoollibraryengine.md",
+    "knowledge/wiki/architecture/engines/cam/camexportengine.md",
+    "knowledge/wiki/architecture/dispatcher-cam.md",
+    "knowledge/wiki/architecture/domain-tool.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "atomic-write-idempotency-patterns",
+    "per-file-scrutiny-gate",
+    "test-design-real-values"
+   ],
+   "csKnowledge": [
+    "bidirectional sync with conflict detection (tool-library diff/merge)",
+    "idempotent sync (re-run produces no spurious changes)",
+    "orchestration over multiple per-vendor export engines"
+   ],
+   "buildNote": "ToolSyncOrchestratorEngine must be idempotent and detect conflicts before writing — a re-sync of unchanged data must produce zero diffs."
+  }
+ },
+ {
+  "id": "CAMX-MS10::U-CAMX06",
+  "title": "CuttingDataExportEngine",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/engines/cam/cuttingdataexportengine.md",
+    "knowledge/wiki/architecture/engines/cam/camexportengine.md",
+    "knowledge/wiki/architecture/formulas/formula-constants-canonical-kienzle.md",
+    "knowledge/wiki/architecture/dispatcher-export.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "physics-constants-discipline",
+    "schema-read-discipline",
+    "test-design-real-values"
+   ],
+   "csKnowledge": [
+    "cutting-data (speed/feed/DOC) table serialization to vendor format",
+    "physics-derived cutting-data record construction",
+    "round-trip serialize/parse equivalence test"
+   ],
+   "buildNote": "CuttingDataExportEngine must export physics-derived speeds/feeds (canonical constants) — never export hardcoded cutting data."
+  }
+ },
+ {
+  "id": "CAMX-MS10::U-CAMX07",
+  "title": "Dispatcher wiring",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/dispatcher-export.md",
+    "knowledge/wiki/architecture/dispatcher-cam.md",
+    "knowledge/wiki/architecture/rgs-tool-autoinvoke-ms0.md",
+    "knowledge/wiki/architecture/domain-dispatcher.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "per-file-scrutiny-gate",
+    "test-design-real-values",
+    "schema-read-discipline"
+   ],
+   "csKnowledge": [
+    "Zod action-enum validation gate",
+    "dispatcher action-handler registration",
+    "round-trip E2E assertion through every wired dispatcher"
+   ],
+   "buildNote": "Dispatcher wiring for the export engines must add each action to z.enum(ACTIONS) AND a handler — verify the live SDK gate, not just the mock."
+  }
+ },
+ {
+  "id": "CAMX-MS10::U-CAMX08",
+  "title": "Tests",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/engines/cam/camexportengine.md",
+    "knowledge/wiki/architecture/engines/cam/cuttingdataexportengine.md",
+    "knowledge/wiki/architecture/dispatcher-export.md",
+    "knowledge/wiki/architecture/domain-cam.md"
+   ],
+   "seWiki": [
+    "test-design-real-values",
+    "regression-prevention-doctrine",
+    "per-file-scrutiny-gate"
+   ],
+   "csKnowledge": [
+    "round-trip serialize/parse equivalence testing",
+    "real-vendor-format fixture comparison",
+    "fail-on-revert regression oracle"
+   ],
+   "buildNote": "Tests must verify exported files parse back into identical tool/cutting records and match a real vendor-format fixture — not just that a string was produced."
+  }
+ },
+ {
+  "id": "CAMX-MS11::U-CAMX01",
+  "title": "CAMAddInFrameworkEngine",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/engines/video/camaddinframeworkengine.md",
+    "knowledge/wiki/architecture/engines/cam/campluginsdkengine.md",
+    "knowledge/wiki/architecture/engines/cam/campluginregistryengine.md",
+    "knowledge/wiki/architecture/domain-cam.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "per-file-scrutiny-gate",
+    "test-design-real-values",
+    "schema-read-discipline"
+   ],
+   "csKnowledge": [
+    "plugin/add-in framework architecture (host-API abstraction layer)",
+    "plugin lifecycle (load/init/invoke/teardown)",
+    "interface contract for vendor-specific add-in hosts"
+   ],
+   "buildNote": "CAMAddInFrameworkEngine must abstract a common add-in host contract so vendor add-ins share lifecycle/registration — verify the contract with two stub hosts."
+  }
+ },
+ {
+  "id": "CAMX-MS11::U-CAMX02",
+  "title": "Mastercam NetHook Add-In",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/engines/video/camaddinframeworkengine.md",
+    "knowledge/wiki/architecture/engines/mastercam/mastercamfunctionindexengine.md",
+    "knowledge/wiki/architecture/engines/cam/camintegrationengine.md",
+    "knowledge/wiki/architecture/domain-mastercam.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "per-file-scrutiny-gate",
+    "test-design-real-values"
+   ],
+   "csKnowledge": [
+    "Mastercam NetHook API binding (.NET interop)",
+    "host-application event-callback registration",
+    "add-in manifest / entry-point definition"
+   ],
+   "buildNote": "Mastercam NetHook add-in must bind the documented NetHook API surface — verify against the real Mastercam function index, not a guessed API."
+  }
+ },
+ {
+  "id": "CAMX-MS11::U-CAMX03",
+  "title": "SolidCAM SolidWorks Add-In",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/engines/video/camaddinframeworkengine.md",
+    "knowledge/wiki/architecture/engines/cam/camintegrationengine.md",
+    "knowledge/wiki/architecture/dispatcher-cad.md",
+    "knowledge/wiki/architecture/domain-cam.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "per-file-scrutiny-gate",
+    "test-design-real-values"
+   ],
+   "csKnowledge": [
+    "SolidWorks add-in API binding (COM interop)",
+    "host-application command/UI registration",
+    "add-in manifest / entry-point definition"
+   ],
+   "buildNote": "SolidCAM SolidWorks add-in must bind the SolidWorks add-in API correctly — verify COM registration and command callbacks against documented contracts."
+  }
+ },
+ {
+  "id": "CAMX-MS11::U-CAMX04",
+  "title": "NX CAM Add-In",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/engines/video/camaddinframeworkengine.md",
+    "knowledge/wiki/architecture/engines/cam/camintegrationengine.md",
+    "knowledge/wiki/architecture/engines/cam/camtoollibraryengine.md",
+    "knowledge/wiki/architecture/domain-cam.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "per-file-scrutiny-gate",
+    "test-design-real-values"
+   ],
+   "csKnowledge": [
+    "NX Open API binding for CAM add-ins",
+    "host-application menu/callback registration",
+    "add-in manifest / entry-point definition"
+   ],
+   "buildNote": "NX CAM add-in must bind the NX Open API surface and register through the framework — verify entry-point and callbacks against documented NX contracts."
+  }
+ },
+ {
+  "id": "CAMX-MS11::U-CAMX05",
+  "title": "hyperMILL AC Add-In",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/engines/video/camaddinframeworkengine.md",
+    "knowledge/wiki/architecture/engines/cam/camintegrationengine.md",
+    "knowledge/wiki/architecture/engines/hyper/hypermillmultiaxisphysicspipeline.md",
+    "knowledge/wiki/architecture/domain-hyper.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "per-file-scrutiny-gate",
+    "test-design-real-values"
+   ],
+   "csKnowledge": [
+    "hyperMILL Automation Center (AC) API binding",
+    "host-application automation-script registration",
+    "add-in manifest / entry-point definition"
+   ],
+   "buildNote": "hyperMILL AC add-in must bind the Automation Center API and register through the shared framework — verify against documented hyperMILL AC contracts."
+  }
+ }
+]

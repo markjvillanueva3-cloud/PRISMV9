@@ -133,7 +133,7 @@ function listCandidateUnitIds(auditData) {
 function recentCommitsBody() {
   try {
     // Use execSync with strict cwd + timeout; failure → empty (don't block).
-    const raw = execSync(`git -C "${REPO}" log -n ${COMMIT_SCAN_WINDOW} --format=%B%x00`, {
+    const raw = execSync(`git -C "${REPO}" log -n ${COMMIT_SCAN_WINDOW} --format=%B%x00`, { windowsHide: true,
       timeout: 5000,
       encoding: "utf8",
     });

@@ -21,6 +21,7 @@
  */
 import fs from "node:fs";
 import path from "node:path";
+import { atomicWriteJson } from "./lib/atomic-json.mjs";
 
 const PRISM = "H:/prism";
 const ENV_DIR = path.join(PRISM, "mcp-server/data/milestones");
@@ -547,7 +548,10 @@ for (const entry of indexAdds) {
 index.total_milestones = Object.keys(ms).length;
 index.updated_at = NOW;
 index._last_revenue_register = { at: NOW, by: "claude-99eca613", added, updated, version: "7.6.0" };
-fs.writeFileSync(INDEX_PATH, JSON.stringify(index, null, 2));
+// U-ROADMAP-INDEX-WRITER-CONSOLIDATE: atomic write via the shared helper
+// (scripts/lib/atomic-json.mjs) — per-PID temp removes the concurrent-writer
+// tmp collision the inline fixed-".tmp" copy shared with peers.
+atomicWriteJson(INDEX_PATH, index);
 
 // ── acyclicity / dep-consistency check ─────────────────────────────────────
 const allIds = new Set(M.map(m => m.id));

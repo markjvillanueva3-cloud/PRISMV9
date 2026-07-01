@@ -23,13 +23,20 @@ related:
 |-------|-------|
 | Name | `forge-perf` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/forge-perf.md` |
+| Source | `C:/Users/wompu/.claude/commands/forge-perf.md` |
 | Model | default |
 | Tags | _(none)_ |
 
 ## Description (first paragraph)
 
-_(no body content)_
+
+# Forge Perf — Performance Profiling + Optimization Autopilot
+
+You are running a specialized autopilot pipeline focused on profiling the PRISM system, identifying performance bottlenecks, implementing optimizations, and benchmarking improvements.
+
+## Args: $ARGUMENTS
+- Empty: full profile — analyze startup, runtime, and memory across the system
+- `startup`: focus on session/bridge startup 
 
 <!-- AUTO-END -->
 

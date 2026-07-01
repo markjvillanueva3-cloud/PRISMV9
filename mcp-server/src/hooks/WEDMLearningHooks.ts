@@ -76,7 +76,7 @@ const wedmLearningTrigger: HookDefinition = {
   phase: "post-tool",
   category: "automation",
   mode: "warning",
-  priority: "medium",
+  priority: "normal",
   enabled: true,
   tags: ["wedm", "learning", "p3-ms1", "continuous"],
   handler: (ctx: HookContext): HookResult => {
@@ -172,7 +172,7 @@ const wedmDriftAlert: HookDefinition = {
   description:
     "Post-tool hook that scans WEDMDriftDetectionEngine verdicts for any model whose PSI / KS / Page–Hinkley detector fired, raising a warning with the list of drifted models.",
   phase: "post-tool",
-  category: "quality",
+  category: "validation",
   mode: "warning",
   priority: "high",
   enabled: true,

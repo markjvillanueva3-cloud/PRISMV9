@@ -65,6 +65,8 @@ import { workholdingVerificationEngine } from "./WorkholdingVerificationEngine.j
 import { chatterStabilityLobeEngine } from "./ChatterStabilityLobeEngine.js";
 import { machineEnvelopeGuardEngine } from "./MachineEnvelopeGuardEngine.js";
 import { tribalKnowledgeEngine, type KnowledgeTip } from "./TribalKnowledgeEngine.js";
+import { knowledgeCurriculumBridgeEngine } from "./KnowledgeCurriculumBridgeEngine.js";
+import type { CitedMillingTip } from "../data/tribal-tips/milling-pdf-cited-tips.js";
 import { machiningPlaybookEngine, type PlaybookRule } from "./MachiningPlaybookEngine.js";
 import {
   resolveMaterial,
@@ -2035,7 +2037,47 @@ export class MillingPrintToProgramEngine {
     allWarnings.push(...planWarnings);
 
     // ── S3.5: Chatter Stability ───────────────────────────────────
-    const { ops, checks: chatterChecks } = this.runChatterChecks(rawOps, iso);
+    const { ops: opsAfterChatter, checks: chatterChecks } = this.runChatterChecks(rawOps, iso);
+
+    // ── S3.7: OOP Doctrine — IntelligentSequencingEngine re-sequence ─────
+    // Wires the 33-rule sequencing engine that was previously imported but
+    // never invoked (TRIBAL-OUTCOME-LOOP-MS0 follow-on, slot:foxtrot).
+    // Phases: 0=facing → 1=roughing → 2=drilling → 3=semi → 4=rest →
+    //         5=finishing → 6=secondary/chamfer → 7=parting.
+    // Closes the foxtrot OOP-doctrine sub-clause: walls before floors,
+    // chamfer last, rough before drill (see knowledge/wiki/architecture/
+    // tribal-outcome-loop-ms0.md §"order_of_operations" + iter28 doctrine tips).
+    // Fail-soft: if sequencer throws, keep the chatter-stage order.
+    let ops = opsAfterChatter;
+    try {
+      const seqInput = opsAfterChatter.map((op) => ({
+        id: String(op.op_number),
+        type: op.operation_type,
+        operation: op.operation_type,
+        tool_diameter_mm: op.tool?.diameter_mm,
+        tool_id: op.tool?.tool_number !== undefined ? String(op.tool.tool_number) : undefined,
+        position: op.position,
+        estimated_time_s: op.cycle_time_sec,
+      }));
+      const seqResult = intelligentSequencingEngine.sequence(seqInput);
+      // Re-order ops to match the sequencer's output by id (op_number).
+      const byId = new Map(opsAfterChatter.map((op) => [String(op.op_number), op]));
+      const reordered = seqResult.operations
+        .map((s) => byId.get(s.id))
+        .filter((op): op is typeof opsAfterChatter[number] => op !== undefined);
+      if (reordered.length === opsAfterChatter.length) {
+        ops = reordered;
+        for (const w of seqResult.warnings) {
+          allWarnings.push({ stage: "sequencing", severity: "info", message: w });
+        }
+      }
+    } catch (err) {
+      allWarnings.push({
+        stage: "sequencing",
+        severity: "info",
+        message: `IntelligentSequencingEngine failed (fail-soft): ${err instanceof Error ? err.message : String(err)}`,
+      });
+    }
 
     // Total cycle time
     const totalCycleTime = ops.reduce((sum, op) => sum + op.cycle_time_sec, 0);
@@ -2067,6 +2109,31 @@ export class MillingPrintToProgramEngine {
         `milling ${input.material?.material_name ?? ""} ${iso}`, 3,
       ) ?? [];
     } catch { tribalTips = []; }
+
+    // TRIBAL-OUTCOME-LOOP-MS0/U-TTOB04 — auto-fire the closed-loop write
+    // side. Derives the primary operation from ops[0] and uses partNum as
+    // the programId. Fail-soft: never blocks pipeline completion if the
+    // bridge/embedder is down.
+    // runFullPipeline is synchronous; lessonsForOperationWithRecording is async + fail-soft.
+    // Fire-and-forget the closed-loop write side — citedTips stays empty on this synchronous
+    // pass; the downstream emit treats absence as "no tips" (already the fallback path).
+    // Bug-fix 2026-05-27 (slot:echo): prior `await` here was outside an async function and
+    // blocked the entire esbuild bundle, leaving dist/ stale through iter17's dialect fix.
+    const citedTips: CitedMillingTip[] = [];
+    try {
+      const primaryOp = ops[0]?.operation_type ?? "milling";
+      Promise.resolve(
+        knowledgeCurriculumBridgeEngine.lessonsForOperationWithRecording(
+          primaryOp,
+          partNum,
+          "MillingPrintToProgramEngine",
+        ),
+      ).catch(err => {
+        log.warn(`MillingPrintToProgramEngine: closed-loop tribal-tip recording failed (fail-soft): ${err instanceof Error ? err.message : String(err)}`);
+      });
+    } catch (err) {
+      log.warn(`MillingPrintToProgramEngine: closed-loop tribal-tip recording sync-throw (fail-soft): ${err instanceof Error ? err.message : String(err)}`);
+    }
 
     // Playbook rules (U-P2PFS08)
     let playbookRules: Array<{ id: string; title: string; severity: string; rule: string }> = [];

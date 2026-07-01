@@ -71,7 +71,8 @@ export type AutoFireComponentKey =
   | "drift_calibration_bridge"
   | "replay_buffer_bridge"
   | "episodic_memory_bridge"
-  | "rl_bridge";
+  | "rl_bridge"
+  | "conformal_monitor_bridge";
 
 export type AutoFireComponentAction = "enabled" | "already_active" | "error" | "disabled" | "not_owned" | "not_active";
 
@@ -181,6 +182,7 @@ const ALL_COMPONENTS: readonly AutoFireComponentKey[] = [
   "replay_buffer_bridge",
   "episodic_memory_bridge",
   "rl_bridge",
+  "conformal_monitor_bridge",
 ];
 
 // ============================================================================
@@ -382,6 +384,7 @@ export class XProcNeuralAutoFireEngine {
       replay_buffer_bridge: this.safeBool(() => OutcomeReplayBufferBridgeEngine.isSubscribedToOutcomes()),
       episodic_memory_bridge: this.safeBool(() => OutcomeEpisodicMemoryBridgeEngine.isSubscribedToOutcomes()),
       rl_bridge: this.safeBool(() => OutcomeRLBridgeEngine.isSubscribedToOutcomes()),
+      conformal_monitor_bridge: this.safeBool(() => ConformalCalibrationMonitorEngine.isSubscribedToOutcomes()),
     };
     return {
       activated: this.activatedAt !== null,

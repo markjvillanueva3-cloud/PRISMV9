@@ -1,0 +1,28 @@
+# QUOTING-SYNERGY-MS0/U-QP-DOCUSTRATA-SYNTH — [MAIN] [BOOTSTRAP-SLOT-ENFORCE] [QUOTING-SYNERGY-MS0]/U-QP-DOCUSTRATA-SYNTH (slot:charlie /goal-yolo iter20): deterministic synthetic revenue generator + full-chain integration test + 21-case suite. Pure-function generator derives Docustrata-validator-compliant payloads FROM baseline records using transparent cost+markup model: cost = cycleTime_hr * machineRate + materialSpend; revenue = cost * (1 + baseMarkup + jitter); jitter is deterministic FNV-1a hash on (customer|part_id) so same input always yields same revenue (reproducible testing). Defaults: baseMarkupPct=0.40 (40% margin), jitterPct=0.20 (per-customer ±20% spread), minRevenue=1 floor. Output is the EXACT shape iter19 validator accepts (records-shape with schema_version 1.0.0). Lets iter18 bridge run against realistic-shaped data BEFORE the real DocustrataHistoricalPricingTrainerEngine extractor lands. 21/21 tests PASS: 4 deterministicHashUnit (in-range, deterministic, no-collision, non-string/empty -> 0), happy-path validator-compliant output, exact revenue math (zero-jitter = 225 from 100*1+50 *1.5), determinism (same input = same output), variance (5-cohort >= 3 distinct revenues), distinct machine_class diverges (5-axis > 2x wedm), 5 adversarial (empty/non-array/non-object/null customer/NaN cycle-time), minRevenue floor, FULL CHAIN integration (synth -> validate -> bridge merges all 2 records), custom markup/jitter overrides, tsIso stamp, stable 4-key payload shape + stable 3-key record shape. Total iter9-20 quoting pipeline: 188 tests across 10 files.
+
+**Commit:** `d9f727aa06a8` · **By:** markjvillanueva3-cloud · **At:** 2026-05-26T03:20:26-05:00
+**Tags:** quoting-synergy-ms0, u-qp-docustrata-synth, auto-distilled
+
+## Subject
+[MAIN] [BOOTSTRAP-SLOT-ENFORCE] [QUOTING-SYNERGY-MS0]/U-QP-DOCUSTRATA-SYNTH (slot:charlie /goal-yolo iter20): deterministic synthetic revenue generator + full-chain integration test + 21-case suite. Pure-function generator derives Docustrata-validator-compliant payloads FROM baseline records using transparent cost+markup model: cost = cycleTime_hr * machineRate + materialSpend; revenue = cost * (1 + baseMarkup + jitter); jitter is deterministic FNV-1a hash on (customer|part_id) so same input always yields same revenue (reproducible testing). Defaults: baseMarkupPct=0.40 (40% margin), jitterPct=0.20 (per-customer ±20% spread), minRevenue=1 floor. Output is the EXACT shape iter19 validator accepts (records-shape with schema_version 1.0.0). Lets iter18 bridge run against realistic-shaped data BEFORE the real DocustrataHistoricalPricingTrainerEngine extractor lands. 21/21 tests PASS: 4 deterministicHashUnit (in-range, deterministic, no-collision, non-string/empty -> 0), happy-path validator-compliant output, exact revenue math (zero-jitter = 225 from 100*1+50 *1.5), determinism (same input = same output), variance (5-cohort >= 3 distinct revenues), distinct machine_class diverges (5-axis > 2x wedm), 5 adversarial (empty/non-array/non-object/null customer/NaN cycle-time), minRevenue floor, FULL CHAIN integration (synth -> validate -> bridge merges all 2 records), custom markup/jitter overrides, tsIso stamp, stable 4-key payload shape + stable 3-key record shape. Total iter9-20 quoting pipeline: 188 tests across 10 files.
+
+## Body
+```
+[MAIN] [BOOTSTRAP-SLOT-ENFORCE] [QUOTING-SYNERGY-MS0]/U-QP-DOCUSTRATA-SYNTH (slot:charlie /goal-yolo iter20): deterministic synthetic revenue generator + full-chain integration test + 21-case suite. Pure-function generator derives Docustrata-validator-compliant payloads FROM baseline records using transparent cost+markup model: cost = cycleTime_hr * machineRate + materialSpend; revenue = cost * (1 + baseMarkup + jitter); jitter is deterministic FNV-1a hash on (customer|part_id) so same input always yields same revenue (reproducible testing). Defaults: baseMarkupPct=0.40 (40% margin), jitterPct=0.20 (per-customer ±20% spread), minRevenue=1 floor. Output is the EXACT shape iter19 validator accepts (records-shape with schema_version 1.0.0). Lets iter18 bridge run against realistic-shaped data BEFORE the real DocustrataHistoricalPricingTrainerEngine extractor lands. 21/21 tests PASS: 4 deterministicHashUnit (in-range, deterministic, no-collision, non-string/empty -> 0), happy-path validator-compliant output, exact revenue math (zero-jitter = 225 from 100*1+50 *1.5), determinism (same input = same output), variance (5-cohort >= 3 distinct revenues), distinct machine_class diverges (5-axis > 2x wedm), 5 adversarial (empty/non-array/non-object/null customer/NaN cycle-time), minRevenue floor, FULL CHAIN integration (synth -> validate -> bridge merges all 2 records), custom markup/jitter overrides, tsIso stamp, stable 4-key payload shape + stable 3-key record shape. Total iter9-20 quoting pipeline: 188 tests across 10 files.
+```
+
+## Files touched (3)
+- scripts/quoting-docustrata-synth.mjs      | 117 +++++++++++++++
+- scripts/quoting-docustrata-synth.test.mjs | 240 ++++++++++++++++++++++++++++++
+- 2 files changed, 357 insertions(+)
+
+
+## Verification
+**Scrutiny ledger**: arms A✗ B✗ C✗ for session 
+
+## Cross-references
+- Full commit: `git -C H:/prism show d9f727aa06a8`
+- Milestone envelope: `mcp-server/data/milestones/QUOTING-SYNERGY-MS0.json`
+
+---
+_Auto-distilled by `scripts/distill-session-learnings.mjs` per [[feedback_auto_close_out]] / SYSTEM-VIZ-BRAIN-MS0/U-P1-POST-SHIP-DISTILL._

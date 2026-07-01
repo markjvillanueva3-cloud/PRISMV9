@@ -1,0 +1,30 @@
+{
+  "id": "PP-REV-MS3",
+  "title": "HSM Auto-Injection + Probing + Sister Tooling",
+  "track": "PP-REV",
+  "status": "complete",
+  "description": "Wire PostSelectionEngine, AdvancedPostProcessorEngine, and ProbeRoutineGeneratorEngine into PostProcessorPipelineEngine. Add HSM smoothing, controller-specific probing, sister tool logic, and feature toggle UI.",
+  "dependencies": ["PP-REV-MS2"],
+  "sessions": [
+    {
+      "id": "PP-REV-MS3-S1",
+      "title": "Controller-Specific HSM Auto-Injection",
+      "units": [
+        { "id": "U-REV17", "title": "Wire PostSelectionEngine into pipeline auto-config", "status": "complete" },
+        { "id": "U-REV18", "title": "Wire AdvancedPostProcessorEngine HSM/smoothing codes into output", "status": "complete" },
+        { "id": "U-REV19", "title": "Wire ProbeRoutineGeneratorEngine into pipeline", "status": "complete" }
+      ]
+    },
+    {
+      "id": "PP-REV-MS3-S2",
+      "title": "Sister Tooling + Tool Life + Tests",
+      "units": [
+        { "id": "U-REV20", "title": "Wire AdvancedPostProcessorEngine tool management into pipeline", "status": "complete" },
+        { "id": "U-REV21", "title": "Feature toggle UI — FeatureTogglePage + route + nav", "status": "complete" },
+        { "id": "U-REV22", "title": "Tests covering HSM + probing + sister tools + pipeline integration", "status": "complete" }
+      ]
+    }
+  ],
+  "total_units": 6,
+  "completed_units": 6
+}

@@ -1,0 +1,90 @@
+{
+  "schemaVersion": "1.0.0",
+  "id": "JM-DIE-FINANCIAL-BASELINE-MS0",
+  "title": "JM Die financial baseline — train quoting on docustrata + factor date + market prices",
+  "status": "in_progress",
+  "owner": "charlie",
+  "trigger": "/goal-14 (2026-05-24) — train the quoting portion with JM Die docustrata documents, factor dates + time-frame + market prices of that time → baseline financial analytics for JM. Utilize every piece of document.",
+  "leverage_summary": "Reuses 12 existing JM Die engines + QuoteOutcomeFeedEngine (just-built) for psi_delta feed + QuotingAccuracyEnhancementEngine for Platt-calibrated forecast confidence. Ingest scope: 301,228 files under H:/PRISM/JM DIE/.",
+  "phases": [
+    {
+      "id": "P0",
+      "title": "Ingest + price + analytics core",
+      "units": [
+        {
+          "id": "U-JM01",
+          "title": "JMDieDocustrataIngestEngine — walks _PART LIBRARY/<customer>/<part>/<docs>, extracts {customer, part_id, date} from path + filename pattern",
+          "status": "pending",
+          "files": ["mcp-server/src/engines/JMDieDocustrataIngestEngine.ts", "mcp-server/src/__tests__/JMDieDocustrataIngestEngine.test.ts"],
+          "acceptance": "≥12 tests; parses MM_DD_YYYY HH_MM AM/PM date pattern; handles ENOENT + non-date filenames + adversarial Unicode; returns IngestRecord[] with explicit per-file reason on parse failure"
+        },
+        {
+          "id": "U-JM02",
+          "title": "HistoricalMaterialPriceEngine — date → commodity price lookup (CSV-seeded LME steel/aluminum/copper/stainless monthly avg)",
+          "status": "pending",
+          "files": ["mcp-server/src/engines/HistoricalMaterialPriceEngine.ts", "mcp-server/src/__tests__/HistoricalMaterialPriceEngine.test.ts", "mcp-server/data/price-history/lme-monthly-avg.csv"],
+          "acceptance": "≥12 tests; date+material → {price_per_lb, source, month_year}; missing month → nearest-prior fallback with explicit fallback flag (R12); 4-material spanning (steel/Al/Cu/SS)"
+        },
+        {
+          "id": "U-JM03",
+          "title": "JMDieFinancialBaselineEngine — per-customer revenue + per-material spend + per-process margin aggregations",
+          "status": "pending",
+          "files": ["mcp-server/src/engines/JMDieFinancialBaselineEngine.ts", "mcp-server/src/__tests__/JMDieFinancialBaselineEngine.test.ts"],
+          "acceptance": "≥12 tests; aggregate(records) → {by_customer, by_material, by_process, total_revenue, time_span} with per-customer YoY trend"
+        }
+      ]
+    },
+    {
+      "id": "P1",
+      "title": "Training-pipeline orchestrator + dispatcher wiring",
+      "units": [
+        {
+          "id": "U-JM04",
+          "title": "JMDieQuoteTrainingPipelineEngine — orchestrates U-JM01 + U-JM02 + QuoteOutcomeFeedEngine. Per-record: ingest → price-at-date → outcome-feed → baseline aggregation",
+          "status": "pending",
+          "files": ["mcp-server/src/engines/JMDieQuoteTrainingPipelineEngine.ts", "mcp-server/src/__tests__/JMDieQuoteTrainingPipelineEngine.test.ts"],
+          "acceptance": "≥10 tests; trainBatch(rootDir, limit) returns {processed, baseline, training_summary}; respects --limit; R12 on missing root"
+        },
+        {
+          "id": "U-JM05",
+          "title": "prism_quoting dispatcher — 3 new actions (jm_die_docustrata_ingest, jm_die_historical_material_price, jm_die_financial_baseline) + 1 orchestrator (jm_die_quote_training_pipeline)",
+          "status": "pending",
+          "files": ["mcp-server/src/schemas/quotingActionSchemas.ts (edit)", "mcp-server/src/tools/dispatchers/quotingDispatcher.ts (edit)"],
+          "acceptance": "≥4 dispatcher round-trip tests; schemas zod-validated; lazy imports"
+        }
+      ]
+    },
+    {
+      "id": "P2",
+      "title": "Real-corpus E2E + financial report",
+      "units": [
+        {
+          "id": "U-JM06",
+          "title": "E2E pipeline run on a real JM Die customer subset (≥3 customers from _PART LIBRARY/) — produces a real financial baseline JSON the operator can inspect",
+          "status": "pending",
+          "files": ["mcp-server/src/__tests__/integration/JMDieFinancialBaselineMS0.e2e.test.ts", "state/shared/specs/JM-DIE-FINANCIAL-BASELINE-2026-05-24.json"],
+          "acceptance": "Runs against 3 real customers; output JSON has ≥1 record per customer; baseline includes total_revenue + time_span + per_material spend; R12 on permission-denied / file-corruption (no silent skip)"
+        }
+      ]
+    }
+  ],
+  "out_of_scope_ms0": [
+    "Real-time LME price API integration (MS0 uses CSV seed)",
+    "Per-line-item parsing from PDF body (MS0 parses filename + path metadata only — PDF body OCR is U-QP04-class work tracked separately)",
+    "Full 301K-file ingest in one run (MS0 ships pipeline + tests on ≥3 customer subset; operator runs full sweep with --limit=0)",
+    "Live financial dashboard UI (MS0 ships engine + JSON baseline; UI is MS1)"
+  ],
+  "synergy_psn_wiring": {
+    "obsidian_brain": "reference_jm_die_financial_baseline_*.md per-unit memory pointers",
+    "prism_os": "4 new prism_quoting actions",
+    "wiki": "knowledge/wiki/architecture/jm-die-financial-baseline-ms0.md",
+    "memories": "1 milestone close-out memory",
+    "tribal": "Customer + part references cross-join with CAMTribalRAG for context",
+    "system_viz": "ghost.quoting_pipeline roost extended with 4 jm-die nodes (regen pass)",
+    "engines": "4 new + reuses 12 JM Die engines (JMDieArchiveBackAnnotation / DocustrataCustomerIndex / etc.) + QuoteOutcomeFeed (just shipped) + QuotingAccuracyEnhancement (just shipped)",
+    "algorithms": "Time-series aggregation + Bayesian price-confidence propagation",
+    "formulas": "monthly_avg_price = Σ(daily_close)/N (LME convention); margin_pct = (revenue - cost)/revenue",
+    "nn_gnn": "QuoteOutcomeFeed → PSNAutonomyLoop psi_delta for every training record (live wiring)",
+    "prism_ai": "QuoteAnalyticsEngine + PRISMCreativeReasoningEngine for trend-detection / anomaly-spotting on aggregated baseline"
+  }
+}

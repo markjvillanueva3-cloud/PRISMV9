@@ -29,7 +29,13 @@ related:
 
 ## Description (first paragraph)
 
-Extract and learn from PDF documents using deep AI reasoning. Converts PDFs into categorized tribal knowledge, formulas, and algorithms.
+
+---
+name: pdf-learn
+description: Document → PRISM components pipeline (engines, skills, hooks, tribal tips). Auto-detects image density and routes image-heavy PDFs through the hybrid text+vision pipeline (llama3.2-vision:11b) so engineering diagrams, scanned drawings, and catalog images are captured alongside text.
+version: 2.0.0
+milestone: INTEL-OLLAMA-OBSIDIAN-MS0/P21-U03
+vision_pipeline:
 
 <!-- AUTO-END -->
 

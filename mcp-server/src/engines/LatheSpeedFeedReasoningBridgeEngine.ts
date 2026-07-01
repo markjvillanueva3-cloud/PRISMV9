@@ -279,7 +279,11 @@ export class LatheSpeedFeedReasoningBridgeEngine {
         break;
 
       case "change_operation":
-        input.operation.type = scenario.params?.type ?? "finishing";
+        if (scenario.params?.type) {
+          input.operation.type = scenario.params.type as LatheSpeedFeedInput["operation"]["type"];
+        } else {
+          input.operation.type = "finishing";
+        }
         description = `Changed operation to ${input.operation.type}`;
         break;
 
@@ -294,12 +298,20 @@ export class LatheSpeedFeedReasoningBridgeEngine {
         break;
 
       case "change_strategy":
-        input.strategy = scenario.params?.strategy ?? "aggressive";
+        if (scenario.params?.strategy) {
+          input.strategy = scenario.params.strategy as LatheSpeedFeedInput["strategy"];
+        } else {
+          input.strategy = "aggressive";
+        }
         description = `Changed strategy to ${input.strategy}`;
         break;
 
       case "change_coolant":
-        input.operation.coolant = scenario.params?.coolant ?? "high_pressure";
+        if (scenario.params?.coolant) {
+          input.operation.coolant = scenario.params.coolant as LatheSpeedFeedInput["operation"]["coolant"];
+        } else {
+          input.operation.coolant = "high_pressure";
+        }
         description = `Changed coolant to ${input.operation.coolant}`;
         break;
 
@@ -514,7 +526,7 @@ export class LatheSpeedFeedReasoningBridgeEngine {
           success: false,
           recommendation: { cutting_speed_m_min: 0, rpm: 0, feed_mm_rev: 0, depth_of_cut_mm: 0 },
           material_properties: {} as any,
-          band: { vc_min: 0, vc_max: 0, feed_min: 0, feed_max: 0 },
+          band: { vc_min: 0, vc_max: 0, feed_min: 0, feed_max: 0, doc_min: 0, doc_max: 0 },
           confidence: 0,
           sources: [],
           reasoning: [],

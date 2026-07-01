@@ -85,10 +85,10 @@ export function CalibrationPage() {
     <WorkspaceRecoveryScaffold
       eyebrow="Quality operations"
       title="Calibration"
-      description="This calibration surface is back online as an APPW recovery desk: it exposes mounted schedule and overdue signals, keeps route posture explicit, and embeds PRISM AI for lockout and workload reasoning."
+      description="This calibration surface is back online as an APPW recovery desk: it exposes mounted schedule and overdue signals, keeps route posture explicit, and embeds Kienzle AI for lockout and workload reasoning."
       surfaces={['inventoryOperations']}
       metrics={metrics}
-      aiSummary="PRISM AI can summarize overdue gage risk, prioritize lockout decisions, and translate schedule pressure into simple lead actions."
+      aiSummary="Kienzle AI can summarize overdue gage risk, prioritize lockout decisions, and translate schedule pressure into simple lead actions."
       aiContext={aiContext}
       suggestions={[
         {

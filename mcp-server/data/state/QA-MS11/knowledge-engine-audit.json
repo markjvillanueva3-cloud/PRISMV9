@@ -1,0 +1,157 @@
+{
+  "schemaVersion": "1.0.0",
+  "_lastBackfillTs": "2026-05-08T16:41:54.025Z",
+  "audit_id": "QA-MS11-P0-U00",
+  "title": "KnowledgeEngine Search/Retrieval Logic Audit",
+  "audited_at": "2026-04-14T17:25:00Z",
+  "auditor": "claude-opus-4.5",
+  "status": "PASS",
+  "location": "src/engines/KnowledgeQueryEngine.ts",
+  "lines_of_code": 1400,
+  "search_algorithm": {
+    "type": "Hybrid TF-IDF + Positional",
+    "components": {
+      "tfidf_cosine_similarity": {
+        "weight": 0.6,
+        "description": "Standard TF-IDF with cosine similarity for semantic matching",
+        "formula": "cos(q,d) = (q·d) / (|q| × |d|)",
+        "idf_formula": "log(N / df)",
+        "ttl_ms": 600000
+      },
+      "positional_bonus": {
+        "weight": 0.4,
+        "tiers": {
+          "exact_match": 0.4,
+          "prefix_match": 0.3,
+          "contains_in_name": 0.2,
+          "contains_in_description": 0.1
+        }
+      }
+    },
+    "max_score": 1,
+    "verified": true
+  },
+  "tokenization": {
+    "method": "Whitespace + punctuation split",
+    "min_token_length": 2,
+    "stop_words_count": 68,
+    "stop_words_sample": [
+      "the",
+      "is",
+      "are",
+      "for",
+      "with",
+      "from",
+      "by",
+      "as"
+    ],
+    "notes": "Stop words include common English + manufacturing filler terms"
+  },
+  "registries_supported": {
+    "count": 9,
+    "list": [
+      "materials",
+      "machines",
+      "tools",
+      "alarms",
+      "formulas",
+      "skills",
+      "scripts",
+      "agents",
+      "hooks"
+    ],
+    "auto_detection": "Uses REGISTRY_PATTERNS regex mapping to detect relevant registries from query"
+  },
+  "retrieval_ranking": {
+    "primary": "relevance_score (TF-IDF + positional)",
+    "secondary": "sort descending by score",
+    "filtering": "min_relevance_score default 0.2",
+    "limit": "max_results_per_registry default 20"
+  },
+  "cross_registry_relationships": {
+    "materials": [
+      "formulas",
+      "tools",
+      "machines",
+      "alarms"
+    ],
+    "machines": [
+      "materials",
+      "tools",
+      "alarms",
+      "formulas"
+    ],
+    "tools": [
+      "materials",
+      "machines",
+      "formulas"
+    ],
+    "alarms": [
+      "machines",
+      "materials"
+    ],
+    "formulas": [
+      "materials",
+      "machines",
+      "tools",
+      "skills"
+    ],
+    "skills": [
+      "formulas",
+      "scripts",
+      "agents"
+    ],
+    "scripts": [
+      "skills",
+      "agents"
+    ],
+    "agents": [
+      "skills",
+      "scripts",
+      "hooks"
+    ],
+    "hooks": [
+      "agents",
+      "skills"
+    ]
+  },
+  "caching": {
+    "enabled": true,
+    "ttl_ms": 300000,
+    "max_entries": 100,
+    "key_format": "unified:{query}:{options}"
+  },
+  "knowledge_base_integration": {
+    "source_catalog_entries": 12,
+    "sources": [
+      "PRISM_220_COURSES_MASTER (321 lines)",
+      "PRISM_ALGORITHMS_KB (2292 lines)",
+      "PRISM_UNIVERSITY_ALGORITHMS (4935 lines)",
+      "PRISM_KNOWLEDGE_BASE (620 lines)",
+      "PRISM_KNOWLEDGE_GRAPH (268 lines)",
+      "PRISM_KNOWLEDGE_FUSION (143 lines)",
+      "PRISM_KNOWLEDGE_INTEGRATION_ROUTES (138 lines)",
+      "PRISM_KNOWLEDGE_AI_CONNECTOR (101 lines)",
+      "PRISM_DATA_STRUCTURES_KB (47 lines)",
+      "PRISM_SYSTEMS_KB (26 lines)",
+      "PRISM_MFG_STRUCTURES_KB (21 lines)",
+      "PRISM_AI_STRUCTURES_KB (13 lines)"
+    ],
+    "total_kb_lines": 8925
+  },
+  "api_methods": {
+    "unifiedSearch": "Cross-registry search with options",
+    "searchRegistry": "Search specific registry",
+    "crossRegistryQuery": "Task-based cross-registry lookup",
+    "findFormula": "Formula lookup with parameter matching",
+    "getRelatedKnowledge": "Follow registry relationships",
+    "buildQueryPlan": "Query optimization planning",
+    "executeQueryPlan": "Execute planned query"
+  },
+  "findings": [],
+  "exit_conditions_met": {
+    "search_algorithm_verified": true,
+    "retrieval_ranking_verified": true,
+    "knowledge_base_integration_documented": true
+  }
+}

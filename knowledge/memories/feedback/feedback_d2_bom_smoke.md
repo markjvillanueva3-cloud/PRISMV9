@@ -1,0 +1,1 @@
+﻿# BOM smoke memo body

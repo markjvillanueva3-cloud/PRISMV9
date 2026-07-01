@@ -219,6 +219,28 @@ const finish_target_advise = z.object({
 }).passthrough();
 
 // ============================================================================
+// PSN SYNERGY INSPECTOR (1) — meta-quality across PSN cross-leg coverage
+// ============================================================================
+
+/** psn_synergy_inspect — Score cross-leg coverage of the 11 PSN legs. Pure: caller supplies inventories. */
+const psn_synergy_inspect = z.object({
+  inventories: z.array(z.object({
+    leg: z.enum([
+      "obsidian_brain", "prism_os", "wiki", "memories",
+      "tribal", "system_viz", "engines", "algorithms",
+      "formulas", "nn_gnn", "prism_ai",
+    ]).describe("PSN leg name (one of the 11 canonical legs)"),
+    node_count: z.number().int().min(0).describe("Total countable items in this leg"),
+    cross_refs: z.record(z.string(), z.number().int().min(0))
+      .describe("Sparse map of outgoing references per target leg; missing key = 0 refs"),
+  })).min(1).describe("Per-leg inventory snapshots (caller-provided so engine stays pure)"),
+  topK: z.number().int().positive().max(50).optional()
+    .describe("Top-K limit for under-wired pairs in the response (default 10)"),
+  densityFloor: z.number().min(0).max(1).optional()
+    .describe("Density threshold below which a pair is flagged under-wired (default 0.001)"),
+}).passthrough();
+
+// ============================================================================
 // EXPORT MAP
 // ============================================================================
 
@@ -247,4 +269,6 @@ export const QUALITY_ACTION_SCHEMAS: ActionSchemaMap = {
   fai_disposition,
   // Surface Finish Advisory (1)
   finish_target_advise,
+  // PSN Synergy Inspector (1) — meta-quality across PSN cross-leg coverage
+  psn_synergy_inspect,
 };

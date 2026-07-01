@@ -122,7 +122,8 @@ export interface TechLookupResult {
   machine: WEDMMachineModel;
   wire_diameter_mm: number;
   material: TechMaterial;
-  method: TechMethod;
+  // Cutting method -- only present on a found result; a not-found lookup has no method.
+  method?: TechMethod;
   thickness_mm: number;
   passes: TechPassData[];
   interpolated?: boolean;
@@ -838,7 +839,7 @@ export class WireEDMMachineTechDataEngine {
         case "INCONEL":
           return "inconel";
         default:
-          return m.toLowerCase();
+          return (m as string).toLowerCase();
       }
     };
 

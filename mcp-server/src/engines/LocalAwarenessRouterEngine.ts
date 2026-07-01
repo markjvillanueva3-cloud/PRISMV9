@@ -20,7 +20,7 @@ import { readFile } from "node:fs/promises";
 import { existsSync } from "node:fs";
 
 const OLLAMA_URL = process.env.OLLAMA_URL || "http://localhost:11434";
-const ROUTER_MODEL = process.env.OLLAMA_ROUTER_MODEL || "qwen2.5-coder:7b";
+const ROUTER_MODEL = process.env.OLLAMA_ROUTER_MODEL || "qwen2.5-coder:32b";
 const TIMEOUT_MS = 20_000;
 
 // Known inventory file paths

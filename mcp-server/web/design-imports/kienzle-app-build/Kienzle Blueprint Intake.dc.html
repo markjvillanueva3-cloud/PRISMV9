@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Archivo:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; background: #070809; height: 100%; overflow: hidden; }
+    .kz-scroll::-webkit-scrollbar { width: 8px; } .kz-scroll::-webkit-scrollbar-thumb { background: #23262E; border-radius: 8px; }
+    @keyframes kzscan { 0% { top: 4%; } 50% { top: 94%; } 100% { top: 4%; } }
+    @keyframes kzpulse { 0%,100% { opacity:.4 } 50% { opacity:1 } }
+  </style>
+</helmet>
+<div style="position:fixed;inset:0;background:#070809;display:flex;align-items:center;justify-content:center;overflow:hidden;">
+<div style="width:1600px;height:980px;flex:none;transform:scale({{ scale }});transform-origin:center;display:flex;background:#0A0B0D;color:#F3F4F6;font-family:'Archivo',sans-serif;overflow:hidden;border-radius:16px;box-shadow:0 40px 120px rgba(0,0,0,0.6);">
+  <aside style="width:72px;flex:none;background:#0C0D10;border-right:1px solid rgba(255,255,255,0.06);display:flex;flex-direction:column;align-items:center;padding:18px 0;gap:6px;">
+    <svg viewBox="0 0 120 120" width="34" height="34" style="margin-bottom:14px;"><rect x="22" y="20" width="13" height="80" rx="1.5" fill="#F3F4F6"/><path d="M35 60 L86 22" stroke="#F3F4F6" stroke-width="13" stroke-linecap="round"/><path d="M35 60 L92 98 L92 74 L58 60 Z" fill="#FF5A2B"/></svg>
+    <div style="width:50px;height:48px;border-radius:12px;border:1px solid rgba(255,90,43,0.35);background:rgba(255,90,43,0.1);color:#FF7A4D;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-family:'JetBrains Mono',monospace;font-size:9px;"><span style="font-size:15px;">⎙</span>INTAKE</div>
+    <div style="flex:1;"></div>
+    <div style="width:38px;height:38px;border-radius:50%;background:#1B1E24;border:1px solid rgba(255,255,255,0.1);display:flex;align-items:center;justify-content:center;font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:13px;color:#AEB4BE;">JM</div>
+  </aside>
+  <main style="flex:1;display:flex;flex-direction:column;min-width:0;">
+    <header style="flex:none;height:64px;border-bottom:1px solid rgba(255,255,255,0.06);display:flex;align-items:center;justify-content:space-between;padding:0 24px;background:#0C0D10;">
+      <div><div style="font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:19px;">Blueprint Intake</div><div style="font-family:'JetBrains Mono',monospace;font-size:10.5px;color:#6B7280;margin-top:1px;">JM DIE · PRINT → FEATURES → QUOTE</div></div>
+      <div style="display:flex;align-items:center;gap:10px;">
+        <div style="display:flex;align-items:center;gap:7px;padding:7px 12px;border:1px solid {{ stageBorder }};background:{{ stageBg }};border-radius:9px;font-family:'JetBrains Mono',monospace;font-size:11px;color:{{ stageColor }};"><span style="width:6px;height:6px;border-radius:50%;background:{{ stageColor }};animation:{{ stageAnim }};"></span>{{ stageLabel }}</div>
+        <button onClick="{{ toQuote }}" style="border:none;background:{{ qBg }};color:{{ qColor }};border-radius:9px;padding:9px 16px;font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:13px;cursor:pointer;">Create quote →</button>
+      </div>
+    </header>
+    <div style="flex:1;display:grid;grid-template-columns:minmax(0,1fr) 432px;min-height:0;">
+
+      <section style="min-width:0;padding:18px 20px;background:radial-gradient(900px 480px at 60% -12%, rgba(255,90,43,0.05), transparent 60%),#0B0C0F;display:flex;flex-direction:column;">
+        <div style="flex:1;min-height:0;background:#0C0D11;border:1px solid rgba(255,255,255,0.08);border-radius:15px;position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center;">
+          <!-- blueprint sheet -->
+          <div style="position:relative;width:88%;height:90%;background:#0E1116;border:1px solid rgba(127,178,255,0.25);border-radius:6px;overflow:hidden;">
+            <svg viewBox="0 0 600 420" preserveAspectRatio="xMidYMid meet" width="100%" height="100%" style="display:block;">
+              <rect x="8" y="8" width="584" height="404" fill="none" stroke="rgba(127,178,255,0.3)" stroke-width="1.5"></rect>
+              <rect x="16" y="16" width="568" height="388" fill="none" stroke="rgba(127,178,255,0.12)" stroke-width="1"></rect>
+              <!-- part orthographic -->
+              <rect x="120" y="90" width="220" height="150" fill="none" stroke="#7FB2FF" stroke-width="1.6"></rect>
+              <circle cx="170" cy="140" r="14" fill="none" stroke="#7FB2FF" stroke-width="1.4"></circle>
+              <circle cx="290" cy="140" r="14" fill="none" stroke="#7FB2FF" stroke-width="1.4"></circle>
+              <circle cx="170" cy="195" r="14" fill="none" stroke="#7FB2FF" stroke-width="1.4"></circle>
+              <circle cx="290" cy="195" r="14" fill="none" stroke="#7FB2FF" stroke-width="1.4"></circle>
+              <rect x="195" y="130" width="70" height="75" fill="none" stroke="#7FB2FF" stroke-width="1.3" stroke-dasharray="3 2"></rect>
+              <!-- dim lines -->
+              <line x1="120" y1="262" x2="340" y2="262" stroke="#5C6B8A" stroke-width="0.8"></line>
+              <text x="230" y="276" text-anchor="middle" font-family="JetBrains Mono" font-size="11" fill="#9FB3D9">4.250</text>
+              <line x1="362" y1="90" x2="362" y2="240" stroke="#5C6B8A" stroke-width="0.8"></line>
+              <text x="374" y="168" font-family="JetBrains Mono" font-size="11" fill="#9FB3D9">2.875</text>
+              <!-- side view -->
+              <rect x="400" y="120" width="150" height="60" fill="none" stroke="#7FB2FF" stroke-width="1.4"></rect>
+              <!-- title block -->
+              <rect x="360" y="300" width="224" height="96" fill="none" stroke="#7FB2FF" stroke-width="1.2"></rect>
+              <line x1="360" y1="324" x2="584" y2="324" stroke="#5C6B8A" stroke-width="0.8"></line>
+              <line x1="360" y1="348" x2="584" y2="348" stroke="#5C6B8A" stroke-width="0.8"></line>
+              <line x1="360" y1="372" x2="584" y2="372" stroke="#5C6B8A" stroke-width="0.8"></line>
+              <line x1="470" y1="300" x2="470" y2="396" stroke="#5C6B8A" stroke-width="0.8"></line>
+              <text x="366" y="316" font-family="JetBrains Mono" font-size="9" fill="#7E93BC">PART: BRACKET-4471</text>
+              <text x="366" y="340" font-family="JetBrains Mono" font-size="9" fill="#7E93BC">MATL: 6061-T6</text>
+              <text x="476" y="340" font-family="JetBrains Mono" font-size="9" fill="#7E93BC">QTY: 25</text>
+              <text x="366" y="364" font-family="JetBrains Mono" font-size="9" fill="#7E93BC">TOL: ±.005</text>
+              <text x="476" y="364" font-family="JetBrains Mono" font-size="9" fill="#7E93BC">REV: C</text>
+              <text x="366" y="388" font-family="JetBrains Mono" font-size="9" fill="#7E93BC">CUST: STALCOP</text>
+            </svg>
+            <!-- OCR detected-region boxes -->
+            <sc-for list="{{ ocrBoxes }}" as="b" hint-placeholder-count="5">
+              <div style="position:absolute;left:{{ b.left }};top:{{ b.top }};width:{{ b.w }};height:{{ b.h }};border:1.5px solid {{ b.color }};border-radius:3px;background:{{ b.fill }};"></div>
+            </sc-for>
+            <!-- scan line -->
+            <sc-if value="{{ scanning }}" hint-placeholder-val="{{ false }}">
+              <div style="position:absolute;left:2%;right:2%;height:2px;background:linear-gradient(90deg,transparent,#FF7A4D,transparent);animation:kzscan 2.2s ease-in-out infinite;"></div>
+            </sc-if>
+          </div>
+        </div>
+        <div style="flex:none;display:flex;gap:10px;margin-top:13px;">
+          <sc-for list="{{ steps }}" as="st" hint-placeholder-count="4">
+            <div style="flex:1;background:{{ st.bg }};border:1px solid {{ st.border }};border-radius:11px;padding:11px 13px;display:flex;align-items:center;gap:10px;">
+              <span style="flex:none;width:24px;height:24px;border-radius:50%;background:{{ st.numBg }};display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;color:{{ st.numColor }};">{{ st.icon }}</span>
+              <div style="min-width:0;"><div style="font-size:12px;color:{{ st.titleColor }};font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ st.title }}</div><div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:#6B7280;">{{ st.sub }}</div></div>
+            </div>
+          </sc-for>
+        </div>
+      </section>
+
+      <section class="kz-scroll" style="border-left:1px solid rgba(255,255,255,0.06);overflow-y:auto;min-width:0;padding:16px 18px 40px;background:#0A0B0D;">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:0.16em;color:#FF5A2B;margin-bottom:11px;">EXTRACTED · TITLE BLOCK</div>
+        <div style="background:#0E0F12;border:1px solid rgba(255,255,255,0.08);border-radius:13px;padding:13px 15px;margin-bottom:13px;">
+          <sc-for list="{{ titleBlock }}" as="t" hint-placeholder-count="6">
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.05);">
+              <span style="font-size:11.5px;color:#9398A2;">{{ t.k }}</span>
+              <span style="display:flex;align-items:center;gap:8px;"><span style="font-family:'JetBrains Mono',monospace;font-size:12px;color:#F3F4F6;">{{ t.v }}</span><span style="font-family:'JetBrains Mono',monospace;font-size:9px;color:{{ t.confColor }};">{{ t.conf }}</span></span>
+            </div>
+          </sc-for>
+        </div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:0.16em;color:#FF5A2B;margin-bottom:11px;">RECOGNIZED FEATURES</div>
+        <sc-for list="{{ features }}" as="f" hint-placeholder-count="5">
+          <div style="display:flex;align-items:center;gap:11px;padding:10px 13px;margin-bottom:7px;border-radius:11px;background:#0C0D11;border:1px solid rgba(255,255,255,0.07);">
+            <span style="flex:none;width:28px;height:28px;border-radius:8px;background:{{ f.iconBg }};display:flex;align-items:center;justify-content:center;font-size:12px;">{{ f.icon }}</span>
+            <div style="flex:1;min-width:0;"><div style="font-size:12px;color:#F3F4F6;">{{ f.name }}</div><div style="font-family:'JetBrains Mono',monospace;font-size:9.5px;color:#6B7280;">{{ f.detail }}</div></div>
+            <span style="flex:none;font-family:'JetBrains Mono',monospace;font-size:10px;color:#7FB2FF;">{{ f.op }}</span>
+          </div>
+        </sc-for>
+        <div style="margin-top:14px;background:linear-gradient(135deg,rgba(54,211,153,0.06),#0E0F12);border:1px solid rgba(54,211,153,0.2);border-radius:13px;padding:14px 16px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;"><span style="font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.1em;color:#36D399;">◆ AUTO-QUOTE DRAFT</span><span style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:17px;color:#36D399;">${{ quotePrice }}</span></div>
+          <div style="font-size:12px;color:#C7CCD4;line-height:1.5;">{{ quoteNote }}</div>
+        </div>
+        <div style="margin-top:11px;background:#0E0F12;border:1px solid rgba(244,183,64,0.22);border-radius:13px;padding:13px 15px;">
+          <div style="font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.1em;color:#F4B740;margin-bottom:7px;">⚠ NEEDS REVIEW</div>
+          <sc-for list="{{ reviewFlags }}" as="r" hint-placeholder-count="2">
+            <div style="display:flex;gap:9px;align-items:flex-start;padding:5px 0;"><span style="flex:none;margin-top:3px;width:7px;height:7px;border-radius:50%;background:#F4B740;"></span><span style="font-size:11.5px;color:#C7CCD4;line-height:1.4;">{{ r }}</span></div>
+          </sc-for>
+        </div>
+      </section>
+    </div>
+  </main>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = { stage: 2, scale: (typeof window !== 'undefined') ? Math.min(window.innerWidth / 1600, window.innerHeight / 980) : 0.6 };
+  componentDidMount() { this._fit = () => this.setState({ scale: Math.min(window.innerWidth / 1600, window.innerHeight / 980) }); window.addEventListener('resize', this._fit); this._fit(); }
+  componentWillUnmount() { if (this._fit) window.removeEventListener('resize', this._fit); }
+
+  renderVals() {
+    const s = this.state, done = s.stage >= 3;
+    const ocrBoxes = [
+      { left: '60%', top: '71%', w: '37%', h: '23%', color: '#36D399', fill: 'rgba(54,211,153,0.08)' },
+      { left: '19%', top: '19%', w: '38%', h: '38%', color: '#FF7A4D', fill: 'rgba(255,90,43,0.06)' },
+      { left: '25%', top: '27%', w: '13%', h: '20%', color: '#F4B740', fill: 'rgba(244,183,64,0.06)' },
+      { left: '19%', top: '60%', w: '38%', h: '6%', color: '#7FB2FF', fill: 'rgba(127,178,255,0.06)' },
+    ];
+    const steps = [
+      ['⎙', 'Upload / scan', 'PDF · TIFF · phone', 1],
+      ['⊕', 'OCR title block', 'tesseract + LLM', 2],
+      ['◳', 'Feature detect', 'geometry parse', 2],
+      ['$', 'Draft quote', 'feature cost model', done ? 2 : 0],
+    ].map(([icon, title, sub, st]) => ({
+      icon, title, sub,
+      bg: st === 2 ? 'rgba(54,211,153,0.05)' : st === 1 ? 'rgba(255,90,43,0.05)' : '#0C0D11',
+      border: st === 2 ? 'rgba(54,211,153,0.2)' : st === 1 ? 'rgba(255,90,43,0.2)' : 'rgba(255,255,255,0.07)',
+      numBg: st === 2 ? 'rgba(54,211,153,0.15)' : st === 1 ? 'rgba(255,90,43,0.15)' : 'rgba(255,255,255,0.06)',
+      numColor: st === 2 ? '#36D399' : st === 1 ? '#FF7A4D' : '#6B7280',
+      titleColor: st === 0 ? '#6B7280' : '#F3F4F6',
+    }));
+    const cf = (c) => c >= 0.95 ? '#36D399' : c >= 0.85 ? '#F4B740' : '#FF5247';
+    const titleBlock = [
+      ['Part number', 'BRACKET-4471', 0.98], ['Material', '6061-T6 Aluminum', 0.97], ['Quantity', '25 pcs', 0.99],
+      ['Tolerance', '±.005"', 0.93], ['Revision', 'C', 0.88], ['Customer', 'STALCOP', 0.96],
+    ].map(([k, v, c]) => ({ k, v, conf: Math.round(c * 100) + '%', confColor: cf(c) }));
+    const features = [
+      { icon: '⊙', name: '4× thru hole ⌀.281', detail: 'clearance · ±.005', op: 'drill', iconBg: 'rgba(127,178,255,0.14)' },
+      { icon: '▢', name: 'Center pocket 1.4×1.1×.4', detail: 'floor 63µin', op: 'adaptive', iconBg: 'rgba(255,90,43,0.14)' },
+      { icon: '◣', name: 'Edge chamfer .03×45°', detail: 'all outer edges', op: 'chamfer', iconBg: 'rgba(244,183,64,0.14)' },
+      { icon: '▭', name: 'Profile 4.25×2.875', detail: 'outside contour', op: 'profile', iconBg: 'rgba(127,178,255,0.14)' },
+    ];
+    return {
+      scale: s.scale, scanning: false,
+      stageLabel: 'PARSED · 96% confidence', stageColor: '#36D399', stageBorder: 'rgba(54,211,153,0.25)', stageBg: 'rgba(54,211,153,0.06)', stageAnim: 'kzpulse 2s infinite',
+      qBg: '#FF5A2B', qColor: '#0A0B0D', toQuote: () => {},
+      ocrBoxes, steps, titleBlock, features,
+      quotePrice: '1,840', quoteNote: 'Auto-priced from 4 features + 6061 stock at ±.005 / qty 25 — single VMC setup. One-click to open it in the Quote Builder for review.',
+      reviewFlags: [
+        'Revision read as "C" at 88% — confirm against the latest STALCOP release before quoting.',
+        'Hole ⌀.281 is between drill sizes (letter K) — verify clearance vs ¼" hardware.',
+      ],
+    };
+  }
+}
+</script>
+</body>
+</html>

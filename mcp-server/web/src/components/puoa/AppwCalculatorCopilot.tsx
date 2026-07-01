@@ -85,7 +85,7 @@ function buildSummary(props: AppwCalculatorCopilotProps) {
   if (props.toolCribImportError) posture.push('tool crib import degraded');
   if (props.toolCribScanError) posture.push('local scan degraded');
 
-  return `PRISM AI is reasoning over live calculator authority, catalog backbone posture, machine-aware solve confidence, workflow routing readiness, and My Shop/tool-crib intake continuity for Calculator Studio. Current posture: ${posture.join(' | ')}.`;
+  return `Kienzle AI is reasoning over live calculator authority, catalog backbone posture, machine-aware solve confidence, workflow routing readiness, and My Shop/tool-crib intake continuity for Calculator Studio. Current posture: ${posture.join(' | ')}.`;
 }
 
 function buildSuggestions(props: AppwCalculatorCopilotProps): WorkspaceCopilotSuggestion[] {

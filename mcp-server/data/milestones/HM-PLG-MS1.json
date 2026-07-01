@@ -1,0 +1,312 @@
+{
+  "id": "HM-PLG-MS1",
+  "version": "8.3.0",
+  "title": "AC Python Plugin Skeleton",
+  "track": "HM-PLUGIN",
+  "status": "not_started",
+  "description": "Bootstrap the proprietary PRISM plugin for hyperMILL via the Automation Center (AC) Python API. Registers the plugin in AC Plugin Manager with 5 toolbar buttons (Physics Advisor, Quality Gate, Post Enhancer, Tool Crib, Learning Dashboard). Establishes the HTTP client layer to PRISM MCP Server at localhost:18361 with TLS. Builds the panel hosting framework using AC's HTML/JS custom panel support inside hyperCAD-S.",
+  "dependencies": [
+    "HM-REV-MS1"
+  ],
+  "knowledge_sources": {
+    "engines": [
+      "HyperMillACAddInGenerator",
+      "HyperMillCodeGeneratorEngine"
+    ],
+    "registries": [
+      "ToolpathStrategyRegistry"
+    ],
+    "services": [
+      "prism-mcp-server"
+    ],
+    "physics": [],
+    "reference": [
+      "hypermill-ac-api-docs",
+      "hypermill-plugin-manager-spec"
+    ]
+  },
+  "forge_triple": {
+    "hook": "hm-plugin:ac-registration-validator — BUILT (validates plugin registration completeness)",
+    "action": "hypermill_plugin:register_plugin — BUILT (registers PRISM add-in in AC Plugin Manager)",
+    "skill": "/hypermill-plugin-status — DECLARED (check plugin registration and connection status)"
+  },
+  "enforcement": {
+    "pre_level": [
+      "knowledge-consult"
+    ],
+    "post_level": [
+      "stub-detector",
+      "constants-checker"
+    ],
+    "compact_level": [
+      "review-gate",
+      "forge-triple-gate"
+    ]
+  },
+  "mcp_lifecycle": {
+    "session_start": [
+      "prism_session:context_boot",
+      "prism_session:dispatcher_map",
+      "prism_session:memory_recall",
+      "prism_session:system_snapshot"
+    ],
+    "during_work": [
+      "prism_session:auto_checkpoint (every 5-10 tool calls)",
+      "prism_session:wip_capture"
+    ],
+    "session_end": [
+      "prism_session:memory_save",
+      "prism_session:system_snapshot",
+      "prism_session:checkpoint_enhanced"
+    ]
+  },
+  "sessions": [
+    {
+      "id": "HM-PLG-MS1-S1",
+      "title": "Plugin Registration + HTTP Client",
+      "smart_config": {
+        "role": "hyperMILL-AC-plugin-developer",
+        "model": "opus",
+        "effort": "MAX",
+        "context_budget": "40%"
+      },
+      "knowledge": [
+        "HyperMillACAddInGenerator source",
+        "AC Plugin Manager API",
+        "hyperMILL Automation Center Python reference"
+      ],
+      "intent": "Generate the AC Python plugin skeleton that registers in hyperMILL's Plugin Manager with 5 toolbar buttons, and establish the HTTP client to PRISM MCP server with TLS on localhost:18361.",
+      "skills": [
+        "/forge-engines",
+        "/test",
+        "/checkpoint"
+      ],
+      "plugins": [
+        "Vitest MCP",
+        "ESLint MCP"
+      ],
+      "units": [
+        {
+          "id": "U-PLG01",
+          "title": "AC Plugin Registration + Toolbar Buttons",
+          "description": "Generate the AC Python add-in entry point using HyperMillACAddInGenerator. Register 5 toolbar buttons (Physics Advisor, Quality Gate, Post Enhancer, Tool Crib, Learning Dashboard) in AC Plugin Manager. Configure plugin metadata (name, version, author, icon). Validate plugin appears in hyperMILL's add-in list.",
+          "depends_on": [],
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "exit_criteria": [
+            "Plugin entry point generated as compiled .pyc with AC-compliant structure",
+            "5 toolbar buttons registered with unique IDs, icons, and callback handlers",
+            "Plugin metadata (name='PRISM', version, author) correctly set in AC manifest"
+          ],
+          "rollback": {
+            "files_created": [
+              "src/engines/hypermill/plugin/HyperMillPluginSkeletonEngine.ts"
+            ],
+            "files_modified": [
+              "src/engines/hypermill/index.ts"
+            ],
+            "abort_criteria": [
+              "tsc errors > 0"
+            ],
+            "rollback_procedure": "git checkout -- src/engines/hypermill/plugin/"
+          }
+        },
+        {
+          "id": "U-PLG02",
+          "title": "HTTP Client to PRISM MCP Server",
+          "description": "Build the Python HTTP client layer that connects the plugin to PRISM MCP server at localhost:18361. Implement TLS certificate pinning for localhost communication. Add connection health check, retry logic with exponential backoff, and timeout handling. Build request/response serialization for PRISM dispatcher actions.",
+          "depends_on": [
+            "U-PLG01"
+          ],
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "exit_criteria": [
+            "HTTP client connects to localhost:18361 with TLS certificate validation",
+            "Retry logic with exponential backoff (3 retries, 1s/2s/4s) implemented",
+            "Request serialization matches PRISM dispatcher action schema (action, params, context)"
+          ],
+          "rollback": {
+            "files_created": [
+              "src/engines/hypermill/plugin/PluginHTTPClientEngine.ts"
+            ],
+            "files_modified": [],
+            "abort_criteria": [
+              "tsc errors > 0",
+              "HTTP connection test fails"
+            ],
+            "rollback_procedure": "git checkout -- src/engines/hypermill/plugin/PluginHTTPClientEngine.ts"
+          }
+        }
+      ],
+      "exit_gate": "Plugin registers in AC + HTTP client connects to PRISM | omega_floor >= 0.90",
+      "feature_cascade": {
+        "new_hooks": [
+          "hm-plugin:ac-registration-validator"
+        ],
+        "new_actions": [
+          "hypermill_plugin:register_plugin",
+          "hypermill_plugin:health_check"
+        ],
+        "new_skills": [],
+        "available_to": [
+          "HM-PLG-MS2",
+          "HM-PLG-MS3",
+          "HM-PLG-MS4",
+          "HM-PLG-MS5",
+          "HM-PLG-MS6"
+        ]
+      },
+      "compact_checkpoint": true
+    },
+    {
+      "id": "HM-PLG-MS1-S2",
+      "title": "Panel Hosting Framework + Plugin Distribution",
+      "smart_config": {
+        "role": "hyperMILL-AC-plugin-developer",
+        "model": "opus",
+        "effort": "MAX",
+        "context_budget": "40%"
+      },
+      "knowledge": [
+        "AC HTML/JS panel API",
+        "hyperCAD-S panel hosting",
+        "Python .pyc compilation"
+      ],
+      "intent": "Build the HTML/JS panel hosting framework inside hyperCAD-S and create the signed .zip distribution package with compiled Python.",
+      "skills": [
+        "/forge-engines",
+        "/test",
+        "/checkpoint"
+      ],
+      "plugins": [
+        "Vitest MCP",
+        "ESLint MCP"
+      ],
+      "units": [
+        {
+          "id": "U-PLG03",
+          "title": "HTML/JS Panel Hosting Framework",
+          "description": "Build the panel hosting infrastructure that loads HTML/JS panels inside hyperCAD-S. Implement panel lifecycle management (open, close, resize, dock). Create base panel template with PRISM branding, common CSS, and shared JavaScript utilities. Build message bridge between Python plugin backend and HTML/JS panel frontend via AC's postMessage API.",
+          "depends_on": [
+            "U-PLG01"
+          ],
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "exit_criteria": [
+            "Base HTML panel loads inside hyperCAD-S with PRISM branding and responsive layout",
+            "Python↔JS message bridge operational via AC postMessage API",
+            "Panel lifecycle (open/close/dock/resize) handled without memory leaks"
+          ],
+          "rollback": {
+            "files_created": [
+              "src/engines/hypermill/plugin/PanelHostFrameworkEngine.ts"
+            ],
+            "files_modified": [],
+            "abort_criteria": [
+              "tsc errors > 0"
+            ],
+            "rollback_procedure": "git checkout -- src/engines/hypermill/plugin/PanelHostFrameworkEngine.ts"
+          }
+        },
+        {
+          "id": "U-PLG04",
+          "title": "Plugin Distribution Package + Compilation",
+          "description": "Create the plugin distribution pipeline: compile Python to .pyc (or Cython .pyd for critical modules), bundle HTML/JS/CSS assets, create signed .zip package. Implement version checking and auto-update notification. Build installation script that registers the plugin in AC Plugin Manager.",
+          "depends_on": [
+            "U-PLG01",
+            "U-PLG02",
+            "U-PLG03"
+          ],
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "exit_criteria": [
+            "Python source compiled to .pyc with no readable source in distribution",
+            "Signed .zip package created with manifest, assets, and compiled code",
+            "Installation script registers plugin in AC Plugin Manager on first run"
+          ],
+          "rollback": {
+            "files_created": [
+              "src/engines/hypermill/plugin/PluginDistributionEngine.ts"
+            ],
+            "files_modified": [],
+            "abort_criteria": [
+              "tsc errors > 0"
+            ],
+            "rollback_procedure": "git checkout -- src/engines/hypermill/plugin/PluginDistributionEngine.ts"
+          }
+        }
+      ],
+      "exit_gate": "Panel framework loads in hyperCAD-S + distribution .zip builds cleanly | omega_floor >= 0.90",
+      "feature_cascade": {
+        "new_hooks": [],
+        "new_actions": [
+          "hypermill_plugin:build_distribution",
+          "hypermill_plugin:install_plugin"
+        ],
+        "new_skills": [
+          "/hypermill-plugin-status"
+        ],
+        "available_to": [
+          "HM-PLG-MS2",
+          "HM-PLG-MS3",
+          "HM-PLG-MS4",
+          "HM-PLG-MS5",
+          "HM-PLG-MS6"
+        ]
+      },
+      "compact_checkpoint": true
+    }
+  ],
+  "total_units": 4,
+  "completed_units": 0,
+  "smart_config": {
+    "role": "implementer + reviewer",
+    "model": "sonnet",
+    "effort": "HIGH",
+    "context_budget": "65%"
+  },
+  "feature_cascade": {
+    "new_hooks": [
+      "hm-plg-ms1-gate"
+    ],
+    "new_actions": [
+      "hm_plg_ms1_run"
+    ],
+    "new_skills": [
+      "/hm-plg-ms1"
+    ],
+    "available_to": [
+      "downstream CAMX milestones",
+      "prism app consumers"
+    ]
+  },
+  "intent": "Bootstrap the proprietary PRISM plugin for hyperMILL via the Automation Center (AC) Python API. Registers the plugin in AC Plugin Manager with 5 toolbar buttons (Physics Advisor, Quality Gate, Post Enhancer, Tool Crib, Learning Dashboard). Establishes the HTTP client layer to PRISM MCP Server at localhost:18361 with TLS. Builds the panel hosting framework using AC's HTML/JS custom panel support inside hyperCAD-S.",
+  "compact_checkpoint": "every 3 units — auto-triggered by hook",
+  "enforcement_hooks_active": [
+    "physics agent",
+    "wiring agent",
+    "constants checker",
+    "stub detector",
+    "test quality",
+    "forge-triple gate",
+    "session audit agent"
+  ],
+  "units": [
+    {
+      "id": "U-HPPL01",
+      "title": "HM-PLG-MS1 — Coordinator",
+      "description": "Master coordinator envelope for HM-PLG-MS1. Tracks sub-milestones, aggregates their exit gates, and opens closure after every child milestone flips to complete. Follow 4-LOOP at the aggregation layer.",
+      "exit_conditions": [
+        "All sub-milestones listed in dependencies reach status=complete",
+        "Aggregate scrutiny score ≥80 across children",
+        "Cross-track coherence verified: no orphan engines, no duplicate actions",
+        "Final /rgs pass through the 10-agent gate returns PASS"
+      ],
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ],
+      "status": "pending",
+      "role": "coordinator"
+    }
+  ],
+  "_role": "coordinator"
+}

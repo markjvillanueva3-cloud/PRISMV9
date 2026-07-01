@@ -54,6 +54,17 @@ function telemetryDisabled() {
 }
 export { telemetryDisabled };
 
+// Context-tightness WARN knob (operator directive 2026-06-11): self-compaction is
+// solved by precompact-auto-trigger + the session-handoff system, so the lone
+// RED+heavy advisory this gate emits is redundant noise. Gating ONLY the warn keeps
+// the load-bearing telemetry intact (the gate never blocks; the advisory is its sole
+// user-facing nag). Default ON for back-compat; set PRISM_TOKEN_BUDGET_WARN_DISABLE=1
+// in settings.json to silence. Read at call time so subprocess tests can flip it.
+function warnDisabled() {
+  return process.env.PRISM_TOKEN_BUDGET_WARN_DISABLE === "1";
+}
+export { warnDisabled };
+
 const HEAVY_SKILLS = [
   "/autopilot-full", "/autopilot", "/forge-triple", "/forge",
   "/learn-everything", "/pdf-learn", "/video-learn", "/ingest"
@@ -136,7 +147,7 @@ async function main() {
       );
     } catch { /* ignore */ }
     ctx = "";
-  } else if (budget.tier === "RED" && heavySkill) {
+  } else if (budget.tier === "RED" && heavySkill && !warnDisabled()) {
     ctx = `⚠️ Heavy operation "${heavySkill}" may exhaust remaining ${budget.percent.toFixed(0)}% — consider splitting the task.`;
   }
 

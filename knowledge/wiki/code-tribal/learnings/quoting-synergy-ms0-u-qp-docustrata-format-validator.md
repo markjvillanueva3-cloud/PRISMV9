@@ -1,0 +1,30 @@
+# QUOTING-SYNERGY-MS0/U-QP-DOCUSTRATA-FORMAT-VALIDATOR — [MAIN] [BOOTSTRAP-SLOT-ENFORCE] [QUOTING-SYNERGY-MS0]/U-QP-DOCUSTRATA-FORMAT-VALIDATOR (slot:charlie /goal-yolo iter19): pure schema-validator locks the contract iter20 Docustrata extractor must emit + 23-case test. iter18 bridge accepts any Map/object — too permissive. iter19 validates payloads BEFORE bridge consumption so malformed extractor output can't silently poison training. Exports: validateDocustrataPayload(raw) returns {valid, errors, warnings, normalized:Map, stats}; SUPPORTED_SCHEMA_VERSIONS (1.0.0 today, additive); REVENUE_BOUNDS (0.01-10M sanity range). Accepts BOTH payload shapes: records-array {schema_version, generated_iso, source, records:[{customer,part_id,revenue}]} AND flat-map {KEY:revenue}. Validator normalizes both to a single uppercase+pipe-delimited Map ready for mergeDocustrataRevenue. Errors=disqualifying (returns valid:false), warnings=non-fatal (records dropped, payload still usable). 23/23 tests PASS: 2 happy paths (records+flat), schema_version gate (unsupported rejects, missing OK), revenue bounds (below 0.01 and above 10M warn-skip), adversarial null/undefined/array/string/number/boolean rejects, non-object rows + missing customer/part_id + NaN/Infinity/string/null revenue rejects, duplicate-key warning (last-wins), invalid flat-map key shape warn-skip, empty flat-map rejected, empty records[] valid+warning, constants pinned (SUPPORTED + REVENUE_BOUNDS contract), 5-key shape stability, integration with iter18 bridge contract verified. CLI: --file/--json with exit 0=valid, 1=invalid. Total iter9-19 quoting pipeline: 167 tests across 9 files.
+
+**Commit:** `2d4e2cfa3e4e` · **By:** markjvillanueva3-cloud · **At:** 2026-05-26T03:14:50-05:00
+**Tags:** quoting-synergy-ms0, u-qp-docustrata-format-validator, auto-distilled
+
+## Subject
+[MAIN] [BOOTSTRAP-SLOT-ENFORCE] [QUOTING-SYNERGY-MS0]/U-QP-DOCUSTRATA-FORMAT-VALIDATOR (slot:charlie /goal-yolo iter19): pure schema-validator locks the contract iter20 Docustrata extractor must emit + 23-case test. iter18 bridge accepts any Map/object — too permissive. iter19 validates payloads BEFORE bridge consumption so malformed extractor output can't silently poison training. Exports: validateDocustrataPayload(raw) returns {valid, errors, warnings, normalized:Map, stats}; SUPPORTED_SCHEMA_VERSIONS (1.0.0 today, additive); REVENUE_BOUNDS (0.01-10M sanity range). Accepts BOTH payload shapes: records-array {schema_version, generated_iso, source, records:[{customer,part_id,revenue}]} AND flat-map {KEY:revenue}. Validator normalizes both to a single uppercase+pipe-delimited Map ready for mergeDocustrataRevenue. Errors=disqualifying (returns valid:false), warnings=non-fatal (records dropped, payload still usable). 23/23 tests PASS: 2 happy paths (records+flat), schema_version gate (unsupported rejects, missing OK), revenue bounds (below 0.01 and above 10M warn-skip), adversarial null/undefined/array/string/number/boolean rejects, non-object rows + missing customer/part_id + NaN/Infinity/string/null revenue rejects, duplicate-key warning (last-wins), invalid flat-map key shape warn-skip, empty flat-map rejected, empty records[] valid+warning, constants pinned (SUPPORTED + REVENUE_BOUNDS contract), 5-key shape stability, integration with iter18 bridge contract verified. CLI: --file/--json with exit 0=valid, 1=invalid. Total iter9-19 quoting pipeline: 167 tests across 9 files.
+
+## Body
+```
+[MAIN] [BOOTSTRAP-SLOT-ENFORCE] [QUOTING-SYNERGY-MS0]/U-QP-DOCUSTRATA-FORMAT-VALIDATOR (slot:charlie /goal-yolo iter19): pure schema-validator locks the contract iter20 Docustrata extractor must emit + 23-case test. iter18 bridge accepts any Map/object — too permissive. iter19 validates payloads BEFORE bridge consumption so malformed extractor output can't silently poison training. Exports: validateDocustrataPayload(raw) returns {valid, errors, warnings, normalized:Map, stats}; SUPPORTED_SCHEMA_VERSIONS (1.0.0 today, additive); REVENUE_BOUNDS (0.01-10M sanity range). Accepts BOTH payload shapes: records-array {schema_version, generated_iso, source, records:[{customer,part_id,revenue}]} AND flat-map {KEY:revenue}. Validator normalizes both to a single uppercase+pipe-delimited Map ready for mergeDocustrataRevenue. Errors=disqualifying (returns valid:false), warnings=non-fatal (records dropped, payload still usable). 23/23 tests PASS: 2 happy paths (records+flat), schema_version gate (unsupported rejects, missing OK), revenue bounds (below 0.01 and above 10M warn-skip), adversarial null/undefined/array/string/number/boolean rejects, non-object rows + missing customer/part_id + NaN/Infinity/string/null revenue rejects, duplicate-key warning (last-wins), invalid flat-map key shape warn-skip, empty flat-map rejected, empty records[] valid+warning, constants pinned (SUPPORTED + REVENUE_BOUNDS contract), 5-key shape stability, integration with iter18 bridge contract verified. CLI: --file/--json with exit 0=valid, 1=invalid. Total iter9-19 quoting pipeline: 167 tests across 9 files.
+```
+
+## Files touched (3)
+- scripts/quoting-docustrata-format.mjs      | 204 ++++++++++++++++++++++++
+- scripts/quoting-docustrata-format.test.mjs | 240 +++++++++++++++++++++++++++++
+- 2 files changed, 444 insertions(+)
+
+## Lessons surfaced in commit body
+- till usable). 23/23 tests PASS: 2 happy paths (records+flat), schema_version gate (unsupported rejects, missing OK), revenue bounds (below 0.01 and above 10M warn-skip), adversarial null/undefined/array/string/number/boolean rejects, non-object rows + missing customer/part_id + NaN/Infinity/string/null revenue rejects, duplicate-key warning (last-wins), invalid flat-map key shape warn-skip, empty fla
+
+## Verification
+**Scrutiny ledger**: arms A✗ B✗ C✗ for session 
+
+## Cross-references
+- Full commit: `git -C H:/prism show 2d4e2cfa3e4e`
+- Milestone envelope: `mcp-server/data/milestones/QUOTING-SYNERGY-MS0.json`
+
+---
+_Auto-distilled by `scripts/distill-session-learnings.mjs` per [[feedback_auto_close_out]] / SYSTEM-VIZ-BRAIN-MS0/U-P1-POST-SHIP-DISTILL._

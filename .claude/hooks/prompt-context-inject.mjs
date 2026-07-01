@@ -27,6 +27,8 @@
  */
 
 import { readFileSync, statSync, existsSync } from "node:fs";
+import { dedupedContext } from "../../scripts/lib/injection-dedup-emit.mjs";
+import { stripLoneSurrogates } from "../../scripts/lib/safe-truncate.mjs";
 
 const BUNDLE_PATH = "H:/prism/state/shared/context-bundle.json";
 const STALE_MS = 5 * 60 * 1000;       // 5 min — daemon ticks every 30s
@@ -104,6 +106,7 @@ function main() {
   let payload = {};
   try { if (raw) payload = JSON.parse(raw); } catch { /* ignore */ }
   const promptText = payload.prompt || payload.user_message || payload.message || "";
+  const sid = payload.session_id || payload.sessionId || "";
 
   const bundle = readBundle();
 
@@ -112,10 +115,17 @@ function main() {
   }
   if (bundle.stale) {
     const ageMin = Math.round((Date.now() - bundle.mtime) / 60000);
-    emit({
-      continue: true,
-      additionalContext: `## PRISM context-bundle is stale (${ageMin}m old; daemon may be down)\nFull context still available via legacy injectors. To restart daemon:\n  node H:/prism/scripts/daemon-supervisor.mjs restart context-bundle`,
-    });
+    // FLEET-INJECTION-BUDGET-AUDIT (slot:alpha 2026-06-11): this daemon-down notice was re-emitting
+    // ~246B EVERY turn in every slot with NO dedup (the context-bundle daemon has been down for weeks),
+    // a pure every-turn token sink that does nothing actionable per-turn. Throttle to 1/30min per
+    // session via the shared dedup helper -- a repeat fire within the window collapses to a 1-line marker.
+    const notice = `## PRISM context-bundle is stale (${ageMin}m old; daemon may be down)\nFull context still available via legacy injectors. To restart daemon:\n  node H:/prism/scripts/daemon-supervisor.mjs restart context-bundle`;
+    // dedupedContext returns the ORIGINAL notice on the first fire (within the 30min window) and a
+    // DIFFERENT marker string on a repeat. For a low-value daemon-down notice, SUPPRESS entirely on
+    // repeat (emit 0 bytes) rather than spend ~120B on a marker -- nobody acts on it per-turn.
+    const out = dedupedContext("prompt-context-stale", notice, sid, { ttlMs: 30 * 60 * 1000 });
+    if (out !== notice) return exitContinue(); // deduped within window -> emit nothing
+    emit({ continue: true, additionalContext: notice });
     return;
   }
 
@@ -127,7 +137,10 @@ function main() {
   const footer = `\n_Full bundle: \`state/shared/context-bundle.{json,html,md}\` · refresh: \`daemon-supervisor restart context-bundle\`_`;
   const block = `${header}\n\n${slice}${footer}`;
 
-  emit({ continue: true, additionalContext: block.slice(0, MAX_INJECT_BYTES + 200) });
+  // stripLoneSurrogates: block.slice() can cut mid-emoji -> a lone UTF-16 surrogate would 400 the
+  // whole API request body (FLEET-HYGIENE/U-SURROGATE-CHOKEPOINT-FLEET). This standalone injector
+  // bypasses the dedup chokepoint, so guard the slice here.
+  emit({ continue: true, additionalContext: stripLoneSurrogates(block.slice(0, MAX_INJECT_BYTES + 200)) });
 }
 
 try { main(); }

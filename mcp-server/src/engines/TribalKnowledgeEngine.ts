@@ -1278,25 +1278,52 @@ export class TribalKnowledgeEngine {
     return this._docLearnedTips;
   }
 
-  /** Captured tips — persisted to disk on every capture(). */
-  private capturedTips: KnowledgeTip[] = loadCapturedTips();
+  /** Captured tips -- loaded from disk on FIRST access, not at construction
+   *  (U-TK-LAZY: importing the module-level singleton at boot must not read disk). */
+  private _capturedTips: KnowledgeTip[] | null = null;
+  private get capturedTips(): KnowledgeTip[] {
+    if (!this._capturedTips) this._capturedTips = loadCapturedTips();
+    return this._capturedTips;
+  }
 
-  /** Combined view: static + document-learned + captured. Rebuilt on capture. */
-  private tips: KnowledgeTip[] = [...TribalKnowledgeEngine.STATIC_TIPS, ...TribalKnowledgeEngine.DOC_LEARNED_TIPS, ...this.capturedTips];
+  /** Combined view: static + document-learned + captured. Built lazily on first
+   *  access -- defers the STATIC_TIPS/DOC_LEARNED_TIPS categorize + capturedTips
+   *  disk read off the cold-start path; rebuilt on capture via the setter. */
+  private _tips: KnowledgeTip[] | null = null;
+  private get tips(): KnowledgeTip[] {
+    if (!this._tips) {
+      this._tips = [...TribalKnowledgeEngine.STATIC_TIPS, ...TribalKnowledgeEngine.DOC_LEARNED_TIPS, ...this.capturedTips];
+    }
+    return this._tips;
+  }
+  private set tips(v: KnowledgeTip[]) { this._tips = v; }
 
   /** U-TK01: Instance-level content hash set for deduplication. */
   private contentHashes = new Set<string>();
+  private _hashesBuilt = false;
 
-  constructor() {
-    // U-TK01: Initialize content hash set from all existing tips for dedup
+  /** Lazily build the dedup hash set from the full tip corpus on first dedup check
+   *  (U-TK-LAZY: moved out of the constructor so boot stays cheap). Idempotent. */
+  private ensureHashes(): void {
+    if (this._hashesBuilt) return;
     for (const tip of this.tips) {
       this.contentHashes.add(contentHash(tip));
     }
+    this._hashesBuilt = true;
     log.info(`[TribalKnowledge] Initialized content hash set with ${this.contentHashes.size} entries`);
+  }
+
+  constructor() {
+    // U-TK-LAZY: intentionally empty. The tip load + categorize + hash-set build
+    // are deferred to first actual use (the `tips` getter / ensureHashes) so that
+    // importing the module-level singleton (line ~2121) at mcp-server boot does NOT
+    // read disk or categorize ~3700 tips. Previously these ran in the field
+    // initializers + this constructor, firing on every cold start.
   }
 
   /** Check if content already exists (U-TK01). */
   private isDuplicateContent(tip: { title?: string; body?: string }): boolean {
+    this.ensureHashes(); // U-TK-LAZY: build the hash set on first dedup check, not at boot
     return this.contentHashes.has(contentHash(tip));
   }
 

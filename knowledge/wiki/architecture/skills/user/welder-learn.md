@@ -23,13 +23,14 @@ related:
 |-------|-------|
 | Name | `welder-learn` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/welder-learn.md` |
+| Source | `C:/Users/wompu/.claude/commands/welder-learn.md` |
 | Model | default |
 | Tags | _(none)_ |
 
 ## Description (first paragraph)
 
-Extract tribal knowledge and patterns from welding programs, procedure specs, and welder experience.
+
+# /welder-learn — Welding Knowledge Extraction
 
 <!-- AUTO-END -->
 

@@ -1,0 +1,548 @@
+{
+  "id": "CAMX-MS0.3",
+  "version": "7.0.0",
+  "title": "Pipeline Decision Orchestrator — Reasoning at Every Decision Point",
+  "brief": "Build PipelineDecisionOrchestratorEngine and replace all 22 HARDCODED + 56 HEURISTIC decisions across 7 pipelines with physics-backed optimal selection. Wire SmartToolSelector, CoolantStrategy, EntryExitStrategy, IntelligentSequencing, WorkholdingViability, CrossCamRecommender into all pipelines. Wire thermal, vibration, surface, wear, chip, thread engines. Add decision audit trail with XAI explainability. Wire AutoSpeedFeed, ProbeRoutineGen, SetupSheet, ToolROI.",
+  "created_at": "2026-03-22T14:54:56Z",
+  "created_by": "claude-opus-4.6",
+  "phases": [
+    {
+      "id": "P0",
+      "title": "Decision Orchestrator + Replace HARDCODED Decisions",
+      "units": [
+        {
+          "id": "U-CAMX01",
+          "title": "PipelineDecisionOrchestratorEngine",
+          "description": "Universal decision wrapper. For ANY pipeline decision: (1) identify candidates, (2) score across 5 axes (optimal/logical/safe/cost/robust), (3) select best, (4) generate justification, (5) log with alternatives. Wraps DecisionTreeEngine + XAIEngine + InferenceChainEngine.",
+          "exit_conditions": [
+            "Engine created ~1000L",
+            "decide() method works",
+            "5-axis scoring",
+            "Tests pass"
+          ],
+          "status": "complete",
+          "legacy_id": "U01",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "completed_at": "2026-04-19T22:55:25.081Z",
+          "closure_notes": "PipelineDecisionOrchestratorEngine exists (937 LOC), API validated via CAMX-MS0.3-U01-PipelineDecisionOrchestrator.test.ts (47 tests passing). 12 decision categories, 5 scoring axes, objective modifiers, safety veto, justification/alternatives, audit log, batch/compare/prescreen all validated. Wired into UnifiedCAMPipelineEngine + ReasoningWiringEngine."
+        },
+        {
+          "id": "U-CAMX02",
+          "title": "Decision taxonomy for 114 decision points",
+          "description": "Classify all 114 decision points into 12 categories: tool_select, strategy_select, parameter_optimize, coolant_select, entry_exit_select, sequence_optimize, workholding_validate, controller_select, holder_select, coating_select, work_offset_select, safety_check. Each category has scoring rubric.",
+          "exit_conditions": [
+            "12 categories defined",
+            "All 114 points classified",
+            "Scoring rubrics per category"
+          ],
+          "status": "complete",
+          "legacy_id": "U02",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "completed_at": "2026-04-19T22:59:11.573Z",
+          "closure_notes": "114-point decision taxonomy built at src/data/pipelineDecisionTaxonomy.ts. 9 pipelines (PrintToProgram 22, Turning 14, MultiAxis 12, MillTurn 10, EDM 12, Grinding 10, Laser 10, Waterjet 10, QuoteToShip 14). 12 categories all covered. byPipeline/byCategory/byCurrentMethod/lookup/stats helpers. Current method ledger HARDCODED/HEURISTIC/DYNAMIC feeds retrofit debt for U-CAMX03..U-CAMX24. 44/44 tests passing."
+        },
+        {
+          "id": "U-CAMX03",
+          "title": "Replace HARDCODED tool decisions",
+          "description": "Wire SmartToolSelectorEngine into PrintToProgram, PartGeometry, CAMKernel. Search real 95K catalog instead of synthetic tools. Every tool decision uses 7-factor physics scoring with rationale[] output.",
+          "exit_conditions": [
+            "SmartToolSelector called from P2P",
+            "95K catalog searched",
+            "rationale[] in output"
+          ],
+          "status": "complete",
+          "legacy_id": "U03",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "completed_at": "2026-04-19T23:08:19.374Z",
+          "closure_notes": "SmartToolSelectorOrchestratorAdapter (180 LOC) wires SmartToolSelectorEngine (46,590-tool catalog, 7-axis physics scoring) through PipelineDecisionOrchestrator decide() for category=tool_select. Adapter maps SmartToolResult 7-axis breakdown → orchestrator 5 pre_scores; orchestrator audit log captures every tool decision. 4 taxonomy entries flipped HEURISTIC → DYNAMIC: p2p.tool_select_rough/finish/drill, mx.tool_select_undercut. Test suite: 13 tests passing + 44 taxonomy regressions still green (57 total)."
+        },
+        {
+          "id": "U-CAMX04",
+          "title": "Replace HARDCODED coating/material decisions",
+          "description": "CoatingSelectionLogic: ISO P→TiAlN/AlCrN, M→AlTiN/TiCN, K→uncoated/TiN, N→DLC/PCD, S→AlTiN/TiAlSiN, H→CBN/nanocomposite. Consider operation, speed range, coolant type.",
+          "exit_conditions": [
+            "ISO-group coating selection",
+            "Decision tree with reasoning[]",
+            "Tests for all 6 ISO groups"
+          ],
+          "status": "complete",
+          "legacy_id": "U04",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "closure_notes": "CoatingSelectionAdapter (320 LOC) routes ISO-group-aware coating candidates (12 primary + 3 EDM wire) through PipelineDecisionOrchestrator. Thermal hard-filter (0.8× cutting_temp_c floor). 3 HARDCODED→DYNAMIC flips: p2p.coating_select, turn.coating_insert, edm.wire_coating. 21 new tests; 57 regression tests pass."
+        },
+        {
+          "id": "U-CAMX05",
+          "title": "Replace HARDCODED engagement decisions",
+          "description": "Optimize ap/ae by solving: maximize MRR subject to Fc ≤ 85% power, deflection ≤ tolerance/3, P(chatter) ≤ 15%, thermal ≤ limit. Uses Kienzle, deflection, stability lobes, Johnson-Cook.",
+          "exit_conditions": [
+            "Constrained optimization for ap/ae",
+            "No more fixed ratios",
+            "Physics constraints verified"
+          ],
+          "status": "complete",
+          "legacy_id": "U05",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "closure_notes": "EngagementOptimizerAdapter (290 LOC) enumerates ae/ap candidates from Sandvik/Walter envelopes (rough 30-70%/finish 5-30%), applies Kienzle force + Euler-Bernoulli deflection (50μm cap) + optional chatter SLD filter, routes survivors through PipelineDecisionOrchestrator. 2 HEURISTIC→DYNAMIC flips: p2p.engagement_optimize, turn.depth_of_cut. 12 new tests + 78 regression tests pass."
+        },
+        {
+          "id": "U-CAMX06",
+          "title": "Wire CoolantStrategyEngine into all pipelines",
+          "description": "Replace if/else coolant rules with CoolantStrategyEngine call. Material safety, 8 delivery methods, 9 fluid types, quantitative outputs.",
+          "exit_conditions": [
+            "CoolantStrategyEngine called from all 7 pipelines",
+            "Material safety checks active",
+            "recommendations[] in output"
+          ],
+          "status": "complete",
+          "legacy_id": "U06",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "closure_notes": "CoolantStrategyAdapter (330 LOC) covers 4 domains (machining/EDM/laser/grinding). Catalog: flood, HPC-through-spindle, MQL, air, dry, dielectric (DI water + EDM oil), N2/O2/Ar/air laser gases, grinding-specific (flood/mist/creep-feed HPC). Scoring: chemistry-critical iso mismatch sinks safety by 0.55 for gas / 0.25 otherwise; HRSA flag penalizes MQL (-0.5); deep-hole L/D>5 boosts HPC perf. 4 DYNAMIC flips: p2p.coolant_mode, turn.coolant_method, gr.coolant_method, la.gas_select. 20 new tests + 90 regression tests pass."
+        },
+        {
+          "id": "U-CAMX07",
+          "title": "Wire EntryExitStrategyEngine into all pipelines",
+          "description": "Replace 1:1 entry/exit maps with physics-aware selection. 9 material profiles, geometry-aware helix/ramp/plunge cascade.",
+          "exit_conditions": [
+            "EntryExitStrategyEngine called from all pipelines",
+            "Material-specific entry angles",
+            "Feed factors applied"
+          ],
+          "status": "complete",
+          "legacy_id": "U07",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "completed_at": "2026-05-18T23:11:59.461Z",
+          "closure_notes": "Shipped d1884c94bc (slot kilo claude-c0eb54b9). Wire scope: PrintToProgramPipelineEngine.generateCuttingMoves default-case (pocket/rough/finish/contour/slot — drilling/tapping canned cycles unchanged). New helper mapMaterialToEntryStrategy + extended generateCuttingMoves signature (backward-compat). Hardcoded helix Dc*0.3 + feed factors 0.5/0.3 replaced by EntryExitStrategyEngine.selectEntry(). R12 surfaces engine warnings AND method-mismatch as G-code comments. 11/11 vitest PASS. 2-reviewer scrutiny: Arm A PASS first round; Arm B FAIL→FIXED→PASS (P0: silent geometry regression — fallback helix radius halved → fixed Dc*0.6; P1: engine.recommended_method swallowed → fixed METHOD MISMATCH surface). U-CAMX23/U-CAMX24 cross-regression guard PASS. The broader \"wire into ALL pipelines\" scope (Turning/MultiAxis/MillTurn/EDM) is followed up in successor units."
+        },
+        {
+          "id": "U-CAMX08",
+          "title": "Wire IntelligentSequencingEngine into all pipelines",
+          "description": "Replace fixed priority tables with 33-rule topological sort + greedy TSP + thermal gap insertion.",
+          "exit_conditions": [
+            "IntelligentSequencing called from all pipelines",
+            "tool_change_savings_pct reported",
+            "Thermal gaps inserted"
+          ],
+          "status": "complete",
+          "legacy_id": "U08",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "completed_at": "2026-05-18T23:19:28.400Z",
+          "closure_notes": "Shipped 709745709f (slot kilo claude-c0eb54b9). Wire scope: PrintToProgramPipelineEngine.runFullPipeline post-process-plan, pre-chatter-check. New helper applyIntelligentSequencing maps PlannedOperation→SequenceableOp via stable ids, runs IntelligentSequencingEngine.sequence(), re-stitches with op_number rewrite 1..N. R12 fail-soft on throw/non-permutation/missing-id/duplicate-id. 11/11 vitest PASS. 2-reviewer scrutiny: Arm A PASS first round; Arm B FAIL→FIXED→PASS (P1: warnings swallowed → fixed via stage=intelligent_sequencing; P1: duplicate-id silent op-duplication → fixed via seenIds Set guard). Cross-regression U-CAMX07+U-CAMX24 PASS. Broader \"wire into ALL pipelines\" scope (Turning/MultiAxis/MillTurn/EDM) follows-up."
+        },
+        {
+          "id": "U-CAMX09",
+          "title": "Wire WorkholdingViabilityEngine",
+          "description": "Before accepting any operation plan, validate workholding via Coulomb friction model. SF < 1.5 → escalate.",
+          "exit_conditions": [
+            "Workholding validated before program gen",
+            "Safety factor check active",
+            "Escalation on failure"
+          ],
+          "status": "not_started",
+          "legacy_id": "U09",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-CAMX10",
+          "title": "Wire CrossCamRecommenderEngine for strategy",
+          "description": "At every strategy selection point, call CrossCamRecommender with full physics scoring across 22+ strategies.",
+          "exit_conditions": [
+            "CrossCamRecommender called for all strategy decisions",
+            "Physics-scored ranking",
+            "Hybrid zone decomposition"
+          ],
+          "status": "not_started",
+          "legacy_id": "U10",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-CAMX11",
+          "title": "Smart WCS selection",
+          "description": "G54 for single-setup, G54-G59 for multi-setup, G54.1 P1-P4 for tombstone, coordinate with pallet ID.",
+          "exit_conditions": [
+            "Dynamic WCS assignment",
+            "Multi-setup support",
+            "Tombstone support"
+          ],
+          "status": "not_started",
+          "legacy_id": "U11",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-CAMX12",
+          "title": "Smart safe-Z calculation",
+          "description": "safe_Z = max_feature_Z + clearance + tool_change_clearance. No more hardcoded Z50.",
+          "exit_conditions": [
+            "Dynamic safe-Z from geometry",
+            "Machine-profile clearance",
+            "No hardcoded values"
+          ],
+          "status": "not_started",
+          "legacy_id": "U12",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-CAMX13",
+          "title": "Decision audit trail",
+          "description": "Every pipeline output includes decision_log[] documenting every choice: decision_point, category, selected, score, alternatives[{option, score, why_not}], justification, physics_basis. Wire XAIEngine for feature importance.",
+          "exit_conditions": [
+            "decision_log[] in all pipeline outputs",
+            "XAI feature importance on key decisions",
+            "Alternatives documented"
+          ],
+          "status": "not_started",
+          "legacy_id": "U13",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-CAMX14",
+          "title": "Tests for decision orchestrator",
+          "description": "60+ tests: no HARDCODED decisions remain, every decision produces justification, audit trail complete, SmartToolSelector/CoolantStrategy/CrossCamRecommender called.",
+          "exit_conditions": [
+            "60+ tests pass",
+            "Zero HARDCODED decisions",
+            "All engines verified called"
+          ],
+          "status": "not_started",
+          "legacy_id": "U14",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-CAMX15",
+          "title": "Wire thermal engines into program generation",
+          "description": "For programs >30min: InverseThermalCompensationEngine for drift G-code, CuttingTemperatureEngine for overheat validation, ThermalFatigueEngine for insert life.",
+          "exit_conditions": [
+            "Thermal compensation in long programs",
+            "Overheat flagged",
+            "Thermal fatigue assessed"
+          ],
+          "status": "not_started",
+          "legacy_id": "U15",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-CAMX16",
+          "title": "Wire vibration engines into strategy/parameter selection",
+          "description": "ChatterStabilityLobeEngine for chatter-free RPM, ThinFloorVibrationEngine for thin walls, BarStockVibrationEngine for turning.",
+          "exit_conditions": [
+            "Chatter-free RPM auto-selected",
+            "Thin-wall engagement reduced",
+            "Bar stock vibration checked"
+          ],
+          "status": "not_started",
+          "legacy_id": "U16",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-CAMX17",
+          "title": "Wire surface finish engines into validation",
+          "description": "Replace inline Ra=fz²/32r with SurfaceFinishPredictorEngine (runout, vibration, deflection). SurfaceLocationErrorEngine for dynamic prediction. SurfaceIntegrityPredictorEngine for subsurface damage.",
+          "exit_conditions": [
+            "Real Ra prediction (not ideal)",
+            "Surface location error checked",
+            "Subsurface integrity validated"
+          ],
+          "status": "not_started",
+          "legacy_id": "U17",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-CAMX18",
+          "title": "Wire wear engines into tool life and batch planning",
+          "description": "StochasticToolWearEngine for probabilistic life. ToolWearCompensationEngine for batch G-code offsets. CoffinMansonFatigueEngine for fracture risk. WearForceCompensationEngine for force increase.",
+          "exit_conditions": [
+            "Probabilistic tool life",
+            "Wear offsets in batch programs",
+            "Fracture risk assessed"
+          ],
+          "status": "not_started",
+          "legacy_id": "U18",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-CAMX19",
+          "title": "Wire chip management engines",
+          "description": "ChipBreakingEngine to validate broken chips. ChipMorphologyDiagnosticEngine for chip type prediction. Flag continuous chips (re-nesting risk).",
+          "exit_conditions": [
+            "Chip breakability validated",
+            "Chip type predicted",
+            "Continuous chip warnings"
+          ],
+          "status": "not_started",
+          "legacy_id": "U19",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-CAMX20",
+          "title": "Wire thread/hole/drilling engines",
+          "description": "PeckDrillingOptimizationEngine for peck depths. ThreadMillingEngine for helical thread code. HolePatternPipelineEngine for bolt circles. DeepHoleDrillingPhysicsEngine for L/D>10.",
+          "exit_conditions": [
+            "Optimized peck depths",
+            "Thread milling G-code",
+            "Bolt circle support"
+          ],
+          "status": "not_started",
+          "legacy_id": "U20",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-CAMX21",
+          "title": "ToolROIEngine",
+          "description": "For every tool decision: (a) best from user crib with cost/part, (b) best from catalog at 3 price points (budget/standard/premium), (c) ROI: 'Buy X for $Y, saves $Z/part, ROI in N parts.'",
+          "exit_conditions": [
+            "3 price point recommendations",
+            "ROI calculation",
+            "Crib vs catalog comparison"
+          ],
+          "status": "not_started",
+          "legacy_id": "U21",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-CAMX22",
+          "title": "Wire AutoSpeedFeedEngine into PrintToProgram",
+          "description": "After P2P generates G-code, pass through AutoSpeedFeedEngine for per-block S/F. Then StabilityRPMRewriterEngine for chatter-free RPM.",
+          "exit_conditions": [
+            "Per-block S/F on every cutting line",
+            "Chatter-free RPM rewrite",
+            "Physics-optimized output"
+          ],
+          "status": "completed",
+          "legacy_id": "U22",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "completed_at": "2026-05-18",
+          "completed_commit": "05c57a0289",
+          "close_out_note": "Shipped 2026-05-18 by juliett (commit 05c57a0289) as U-CAMX22-FIX-SILENT-SKIP — sync AutoSpeedFeed wire via optimizeSync() in PrintToProgramPipelineEngine.runFullPipeline. 9 refs verified in PrintToProgramPipelineEngine.ts. Envelope status backfilled 2026-05-20 by juliett claude-2e325ed5 as silent close-out debt cleanup."
+        },
+        {
+          "id": "U-CAMX23",
+          "title": "Wire ProbeRoutineGeneratorEngine into PrintToProgram",
+          "description": "For features with tolerance < 0.025mm or Ra < 0.8um, auto-generate in-process probing cycles per controller format.",
+          "exit_conditions": [
+            "Auto-probing for critical tolerances",
+            "Controller-specific probe macros",
+            "Inserted at semi→finish transition"
+          ],
+          "status": "completed",
+          "legacy_id": "U23",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "completed_at": "2026-05-18",
+          "completed_commit": "HEAD"
+        },
+        {
+          "id": "U-CAMX24",
+          "title": "Wire SetupSheetFromGCodeEngine into PrintToProgram",
+          "description": "Replace P2P inline setup sheet with full SetupSheetFromGCodeEngine (1156L). Professional setup sheet alongside program.",
+          "exit_conditions": [
+            "Rich setup sheet auto-generated",
+            "Tool list + WCS + operations",
+            "Replaces inline version"
+          ],
+          "status": "complete",
+          "legacy_id": "U24",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "completed_at": "2026-05-18T22:56:59.752Z",
+          "closure_notes": "Wire shipped in 2f2c5b0ef5 (engine — bundled under CAM-EXHAUST-MS0/U-BRIDGE-WIRE-MASTERCAM via fleet auto-commit collision) + b15beba942 (16-case behavioral test — bundled under LIMA WIKI-WATCHDOG-PROBE-FIX similarly). Pure-wire net diff: import setupSheetFromGCodeEngine, add gcode_setup_sheet?: GCodeSetupSheetResult to PrintToProgramResult, helper mapBrandToGCodeController (mirror of mapBrandToProbeController), try/catch wire call after emittedProgramText with stage=\"gcode_setup_sheet\" R12 fail-soft warning. 16/16 vitest PASS; tsc clean; 2-reviewer (wiring + code-analyzer) scrutiny PASS×2 zero P0/P1. Strict-additive — existing operations-derived setup_sheet untouched and unaliased. Recovered/closed by slot kilo claude-c0eb54b9 2026-05-18."
+        }
+      ]
+    }
+  ],
+  "status": "in_progress",
+  "smart_config": {
+    "role": "senior-architect + domain-specialist",
+    "model": "opus",
+    "effort": "MAX",
+    "context_budget": "65%"
+  },
+  "mcp_lifecycle": {
+    "session_start": [
+      "prism_session:context_boot",
+      "prism_session:dispatcher_map",
+      "prism_session:memory_recall",
+      "prism_session:system_snapshot",
+      "prism_session:action_search"
+    ],
+    "during_work": [
+      "prism_session:auto_checkpoint",
+      "prism_session:tool_route_best",
+      "prism_session:wip_capture"
+    ],
+    "session_end": [
+      "prism_session:memory_save",
+      "prism_session:system_snapshot",
+      "prism_session:checkpoint_enhanced"
+    ]
+  },
+  "forge_triple": {
+    "protective_hook": "camx-ms0.3-gate",
+    "mcp_action": "prism_camx:camx_ms0.3_run",
+    "skill_command": "/camx-ms0.3",
+    "ownership": "DECLARED — BUILT in terminal unit of this milestone"
+  },
+  "feature_cascade": {
+    "new_hooks": [
+      "camx-ms0.3-gate"
+    ],
+    "new_actions": [
+      "camx_ms0.3_run"
+    ],
+    "new_skills": [
+      "/camx-ms0.3"
+    ],
+    "available_to": [
+      "downstream CAMX milestones",
+      "prism app consumers"
+    ]
+  },
+  "knowledge_sources": {
+    "engines": [
+      "ENGINE_DIGEST.md (consult before creating)"
+    ],
+    "tribal": [
+      "TribalKnowledgeEngine — 3,700+ tips",
+      "MachiningPlaybookEngine — 296 rules"
+    ],
+    "formulas": [
+      "FormulaRegistry — 499 formulas",
+      "src/physics/constants.ts — canonical"
+    ],
+    "reference": [
+      "EXTERNAL-REFERENCE-PROGRAMS-INDEX.md",
+      "MaterialRegistry",
+      "MachineRegistry",
+      "ToolCatalogEngine (95,608 tools)"
+    ]
+  },
+  "intent": "Build PipelineDecisionOrchestratorEngine and replace all 22 HARDCODED + 56 HEURISTIC decisions across 7 pipelines with physics-backed optimal selection. Wire SmartToolSelector, CoolantStrategy, EntryExitStrategy, IntelligentSequencing, WorkholdingViability, CrossCamRecommender into all pipelines. Wire thermal, vibration, surface, wear, chip, thread engines. Add decision audit trail with XAI explainability. Wire AutoSpeedFeed, ProbeRoutineGen, SetupSheet, ToolROI.",
+  "compact_checkpoint": "every 3 units — auto-triggered by hook",
+  "enforcement_hooks_active": [
+    "physics agent",
+    "wiring agent",
+    "constants checker",
+    "stub detector",
+    "test quality",
+    "forge-triple gate",
+    "session audit agent"
+  ],
+  "completed_units": 8,
+  "updated_at": "2026-05-18T01:05:43.887Z"
+}

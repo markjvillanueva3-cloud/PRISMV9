@@ -29,7 +29,15 @@ related:
 
 ## Description (first paragraph)
 
-_(no body content)_
+
+# /foresight — PSAU-FORESIGHT Pre-Build Report
+
+Surface the foresight stack's go/caution/no_go verdict for a proposed
+change before any code is written. Composes:
+- **RiskForecastEngine** — Laplace-smoothed gate failure predictions
+- **KnowledgeGapAwarenessEngine** — canonical-reference prior-art scan
+- **ContextBudgetForecastEngine** — 1M-context session survivability
+- **TeachingNoGoEng
 
 <!-- AUTO-END -->
 

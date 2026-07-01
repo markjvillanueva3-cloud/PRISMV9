@@ -469,8 +469,14 @@ export class TextToCADGenerationEngine extends BaseEngine {
 
   protected async executeImpl(input: unknown): Promise<unknown> {
     const obj = input as Record<string, unknown>;
+    const typedInput: TextToCADInput = {
+      text: obj.text as string,
+      context: obj.context as ConversationContext | undefined,
+      customer: obj.customer as string | undefined,
+      machineCategory: obj.machineCategory as string | undefined,
+    };
     return this.generate(
-      obj as TextToCADInput,
+      typedInput,
       obj.generationBackend as GenerationBackend,
       obj.embeddingBackend as EmbeddingBackend | undefined,
       obj.corpus as RAGCorpusEntry[] | undefined,

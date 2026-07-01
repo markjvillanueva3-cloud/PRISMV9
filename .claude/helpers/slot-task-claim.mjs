@@ -32,6 +32,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
+import { SLOT_NAMES } from "./chat-slots.mjs";
 
 const STORE_PATH = "H:/prism/state/shared/slot-task-claims.json";
 const LOCK_PATH = STORE_PATH + ".lock";
@@ -39,10 +40,16 @@ const SCHEMA_VERSION = 1;
 const DEFAULT_TTL_MS = 30 * 60 * 1000;
 const MIN_TTL_MS = 60 * 1000;
 const MAX_TTL_MS = 24 * 60 * 60 * 1000;
-const VALID_SLOTS = new Set([
-  "alpha","bravo","charlie","delta","echo","foxtrot",
-  "golf","hotel","india","juliett","kilo","lima",
-]);
+// Slot names are sourced from chat-slots.mjs SLOT_NAMES — never hard-code the
+// fleet size (feedback_fleet_design_10_chats). Frozen-12 drift fixed
+// 2026-05-20 (U-SLOT-TASK-CLAIM-DRIFT): the fleet expanded 12→26 on 2026-05-19
+// (SLOT-RECLAIM), so claims for november..zulu were silently rejected as
+// invalid args. Fail loud if the export is malformed rather than degrade to an
+// empty set (which would reject every claim).
+if (!Array.isArray(SLOT_NAMES) || SLOT_NAMES.length === 0) {
+  throw new Error("slot-task-claim: SLOT_NAMES import from chat-slots.mjs is missing or empty");
+}
+const VALID_SLOTS = new Set(SLOT_NAMES);
 // Forward-only phase progression. Re-claim with a backward phase keeps the
 // existing (more-advanced) phase but still refreshes heartbeat.
 const PHASE_ORDER = Object.freeze({ claimed: 0, building: 1, testing: 2, committing: 3 });

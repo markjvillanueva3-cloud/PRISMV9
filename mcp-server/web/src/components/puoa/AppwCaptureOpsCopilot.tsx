@@ -83,7 +83,7 @@ function buildSummary(props: AppwCaptureOpsCopilotProps) {
   posture.push(`preview posture ${formatRefresh(props.previewPostureRefreshedAt)}`);
   posture.push(`ledger ${formatRefresh(props.ledgerRefreshedAt)}`);
 
-  return `PRISM AI is reasoning over workflow continuity, device capability posture, live preview readiness, QR staging, evidence routing risk, and staged-ledger coverage for the Capture Ops desk. Current posture: ${posture.join(' | ')}.`;
+  return `Kienzle AI is reasoning over workflow continuity, device capability posture, live preview readiness, QR staging, evidence routing risk, and staged-ledger coverage for the Capture Ops desk. Current posture: ${posture.join(' | ')}.`;
 }
 
 function buildSuggestions(props: AppwCaptureOpsCopilotProps): WorkspaceCopilotSuggestion[] {

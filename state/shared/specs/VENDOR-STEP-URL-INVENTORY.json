@@ -1,0 +1,179 @@
+{
+  "schemaVersion": "1.0.0",
+  "generated_at": "2026-05-25T00:03:54.966Z",
+  "generated_by": "scripts/build-vendor-step-url-inventory.mjs",
+  "advisoryOnly": true,
+  "must_human_verify": true,
+  "tos_check_required": true,
+  "purpose": "Seed list for Phase D vendor portal scrapers (D2-D6) — vendor base URLs + portal endpoints + STEP-download capability flags",
+  "vendors": {
+    "sandvik": {
+      "base": "https://www.coromant.com",
+      "coroplus": "https://www.coromant.com/en-us/coroplus/toollibrary",
+      "note": "CoroPlus Tool Library provides documented data export (better than scraping)",
+      "auth_required": true,
+      "step_download_capable": true,
+      "tos_check_needed": true,
+      "rate_limit_recommendation": "1 req / 5s (conservative — undocumented limit)",
+      "discovered_alt": "https://sandvik.coromant.com"
+    },
+    "kennametal": {
+      "base": "https://www.kennametal.com",
+      "novo": "https://www.kennametal.com/us/en/novo.html",
+      "note": "NOVO web platform — STEP downloads behind login",
+      "auth_required": true,
+      "step_download_capable": true,
+      "tos_check_needed": true,
+      "rate_limit_recommendation": "1 req / 3s",
+      "discovered_alt": "https://kennametal.com"
+    },
+    "iscar": {
+      "base": "https://www.iscar.com",
+      "etool": "https://www.iscar.com/eCatalog",
+      "note": "eTool / eCatalog — login required for STEP",
+      "auth_required": true,
+      "step_download_capable": true,
+      "tos_check_needed": true,
+      "rate_limit_recommendation": "1 req / 3s",
+      "discovered_alt": "https://iscar.com"
+    },
+    "seco": {
+      "base": "https://www.secotools.com",
+      "suggest_app": "https://suggest.secotools.com",
+      "note": "SUGGEST web app — Seco's recommendation engine + STEP for some lines",
+      "auth_required": true,
+      "step_download_capable": true,
+      "tos_check_needed": true,
+      "rate_limit_recommendation": "1 req / 5s",
+      "discovered_alt": "https://secotools.com"
+    },
+    "mitsubishi": {
+      "base": "https://www.mmc-carbide.com",
+      "note": "Mitsubishi Materials catalog — STEP availability spotty per product line",
+      "auth_required": false,
+      "step_download_capable": true,
+      "tos_check_needed": true,
+      "rate_limit_recommendation": "1 req / 5s",
+      "discovered_alt": "https://mmc-carbide.com"
+    },
+    "walter": {
+      "base": "https://www.walter-tools.com",
+      "gps": "https://www.walter-tools.com/en-us/walter-gps",
+      "note": "Walter GPS — Global Productivity System with parametric product data",
+      "auth_required": true,
+      "step_download_capable": true,
+      "tos_check_needed": true,
+      "rate_limit_recommendation": "1 req / 5s",
+      "discovered_alt": "https://walter-tools.com"
+    },
+    "tungaloy": {
+      "base": "https://www.tungaloy.com",
+      "note": "Tungaloy has public datasheets but STEP requires direct contact for most lines",
+      "auth_required": false,
+      "step_download_capable": false,
+      "tos_check_needed": true,
+      "rate_limit_recommendation": "1 req / 5s",
+      "discovered_alt": "https://tungaloy.com"
+    },
+    "zeni": {
+      "base": "https://www.zenitools.com",
+      "note": "Zeni Tools — smaller vendor, public datasheets, STEP availability TBD",
+      "auth_required": false,
+      "step_download_capable": false,
+      "tos_check_needed": true,
+      "rate_limit_recommendation": "1 req / 5s"
+    },
+    "grabcad": {
+      "base": "https://grabcad.com",
+      "library": "https://grabcad.com/library",
+      "note": "GrabCAD community library — search API + scraping-tolerant; STEP backfill source",
+      "auth_required": true,
+      "step_download_capable": true,
+      "tos_check_needed": true,
+      "rate_limit_recommendation": "1 req / 2s",
+      "role": "step_backfill_d6"
+    },
+    "traceparts": {
+      "base": "https://www.traceparts.com",
+      "note": "TraceParts CAD library — extensive vendor coverage; commercial license check needed",
+      "auth_required": true,
+      "step_download_capable": true,
+      "tos_check_needed": true,
+      "rate_limit_recommendation": "1 req / 5s",
+      "role": "step_backfill_d6"
+    },
+    "misumi": {
+      "base": "https://us.misumi-ec.com",
+      "note": "Misumi meCAD configurator — STEP per-part via Generate STEP button (login required)",
+      "auth_required": true,
+      "step_download_capable": true,
+      "tos_check_needed": true,
+      "rate_limit_recommendation": "1 req / 3s (aggressive — bot-detection active)",
+      "role": "step_backfill_d3"
+    },
+    "pts_tools": {
+      "base": "https://www.pts-tools.com",
+      "url_pattern": "/all-categories/[category]/[subcategory]/[product].html",
+      "note": "PTS Tools e-commerce — spec sheets per product page; STEP availability TBD per line",
+      "auth_required": false,
+      "step_download_capable": false,
+      "tos_check_needed": true,
+      "rate_limit_recommendation": "1 req / 3s",
+      "role": "scraper_d2"
+    },
+    "manufacturer": {
+      "base": "https://zenitools.com",
+      "auth_required": false,
+      "step_download_capable": false,
+      "tos_check_needed": true,
+      "rate_limit_recommendation": "1 req / 5s",
+      "note": "Auto-discovered from monolith JS (no curated portal entry yet)"
+    },
+    "getManufacturer": {
+      "base": null,
+      "auth_required": false,
+      "step_download_capable": false,
+      "tos_check_needed": true,
+      "rate_limit_recommendation": "1 req / 5s",
+      "note": "Auto-discovered from monolith JS (no curated portal entry yet)"
+    },
+    "getProductLines": {
+      "base": null,
+      "auth_required": false,
+      "step_download_capable": false,
+      "tos_check_needed": true,
+      "rate_limit_recommendation": "1 req / 5s",
+      "note": "Auto-discovered from monolith JS (no curated portal entry yet)"
+    },
+    "getStats": {
+      "base": null,
+      "auth_required": false,
+      "step_download_capable": false,
+      "tos_check_needed": true,
+      "rate_limit_recommendation": "1 req / 5s",
+      "note": "Auto-discovered from monolith JS (no curated portal entry yet)"
+    },
+    "init": {
+      "base": null,
+      "auth_required": false,
+      "step_download_capable": false,
+      "tos_check_needed": true,
+      "rate_limit_recommendation": "1 req / 5s",
+      "note": "Auto-discovered from monolith JS (no curated portal entry yet)"
+    },
+    "searchProducts": {
+      "base": null,
+      "auth_required": false,
+      "step_download_capable": false,
+      "tos_check_needed": true,
+      "rate_limit_recommendation": "1 req / 5s",
+      "note": "Auto-discovered from monolith JS (no curated portal entry yet)"
+    }
+  },
+  "summary": {
+    "total_vendors": 18,
+    "with_known_portal": 12,
+    "with_step_capability": 9,
+    "with_auth_required": 8
+  }
+}

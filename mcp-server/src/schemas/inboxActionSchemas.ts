@@ -1,5 +1,5 @@
 /**
- * Zod action schemas for prism_inbox dispatcher (8 actions)
+ * Zod action schemas for prism_inbox dispatcher (13 actions)
  * DocuRead document intake, classification, and part matching
  *
  * - `.passthrough()` on all schemas: extra params flow through (hooks, metadata, debug)
@@ -78,6 +78,66 @@ const inbox_update_status = z.object({
   note: z.string().optional().describe("Optional note"),
 }).passthrough();
 
+// JM-DOC-POPULATION-MS0 / U-JMDOC07: bulk-index pre-classified JM-Die doc-archive documents.
+// `records` optional — when omitted, the dispatcher streams jm-file-inventory.jsonl live and
+// pre-filters to the non-financial doc-archive allowlist. Financial buckets are excluded by the
+// engine's JM_DOC_ARCHIVE_ALLOWLIST regardless (hotel financial-discipline soul).
+const inbox_seed_jm_corpus = z.object({
+  records: z.array(z.object({
+    path: z.string().describe("Absolute file path (canonical identity / dedup key)"),
+    source: z.string().describe("Corpus source (e.g. docustrata_organized, jm_die_category)"),
+    bucket: z.string().describe("Corpus bucket (e.g. prints, scans, notes, packing_slips)"),
+    customer: z.string().nullish().describe("Customer key (B2B company), or null"),
+    material: z.string().nullish().describe("Material seen, or null"),
+    machine_class: z.string().nullish().describe("Machine class, or null"),
+  })).optional().describe("Pre-classified inventory rows to archive-index; omit to stream the full inventory live"),
+}).passthrough();
+
+// JM-DOC-POPULATION-MS0 / U-JMDOC08: bulk-index raw part-library scans/prints as viewer-only archive.
+// Same record shape as inbox_seed_jm_corpus; viewer allowlist (scan/print tuples) gates ingestion.
+const inbox_seed_jm_viewer = z.object({
+  records: z.array(z.object({
+    path: z.string().describe("Absolute file path (canonical identity / dedup key)"),
+    source: z.string().describe("Corpus source (part_library, jm_die_category)"),
+    bucket: z.string().describe("Corpus bucket (scan, print)"),
+    customer: z.string().nullish().describe("Customer key (B2B company), or null"),
+    material: z.string().nullish().describe("Material seen, or null"),
+    machine_class: z.string().nullish().describe("Machine class, or null"),
+  })).optional().describe("Pre-classified inventory rows to viewer-archive; omit to stream the full inventory live"),
+}).passthrough();
+
+// JM-DOC-POPULATION-MS0 / U-JMDOC09: archive DocuStrata manifest docs as searchable inbox pointers.
+// Same record shape; manifest allowlist (docustrata_manifest/doc only) gates ingestion (financial/quote excluded).
+const inbox_seed_jm_manifest = z.object({
+  records: z.array(z.object({
+    path: z.string().describe("Manifest doc path (canonical identity / dedup key / manifest_ref)"),
+    source: z.string().describe("Corpus source (docustrata_manifest)"),
+    bucket: z.string().describe("Corpus bucket (doc)"),
+    customer: z.string().nullish().describe("Customer key (B2B company), or null"),
+    material: z.string().nullish().describe("Material seen, or null"),
+    machine_class: z.string().nullish().describe("Machine class, or null"),
+  })).optional().describe("Pre-classified manifest rows to pointer-archive; omit to stream the full inventory live"),
+}).passthrough();
+
+// JM-DOC-POPULATION-MS0 / U-JMDOC10: archive DocuStrata FINANCIAL docs as LINK-ONLY inbox pointers.
+// Same record shape; financial allowlist (sales_orders/closed_orders/invoices/tax_financial/accounting +
+// manifest invoice/customer_po/acknowledgment) gates ingestion. These are evidence pointers — NO AR/AP/GL
+// records are created (financial_guard set; hotel financial-discipline soul).
+const inbox_seed_jm_financial = z.object({
+  records: z.array(z.object({
+    path: z.string().describe("Financial doc path (canonical identity / dedup key)"),
+    source: z.string().describe("Corpus source (docustrata_organized, docustrata_manifest)"),
+    bucket: z.string().describe("Corpus bucket (sales_orders, closed_orders, invoices, tax_financial, accounting, invoice, customer_po, acknowledgment)"),
+    customer: z.string().nullish().describe("Customer key (B2B company), or null"),
+    material: z.string().nullish().describe("Material seen, or null"),
+    machine_class: z.string().nullish().describe("Machine class, or null"),
+  })).optional().describe("Pre-classified financial rows to pointer-archive (link-only, no ERP records); omit to stream the full inventory live"),
+}).passthrough();
+
+// JM-DOC-POPULATION-MS0 / U-JMDOC-SYNERGY-STATUS: closed-loop query surface — report JM-corpus
+// population coverage (reads the jm-population-status.json dashboard sidecar). Read-only, no params.
+const inbox_population_status = z.object({}).passthrough();
+
 export const ACTION_INBOX_SCHEMAS: ActionSchemaMap = {
   inbox_ingest,
   inbox_list,
@@ -87,4 +147,9 @@ export const ACTION_INBOX_SCHEMAS: ActionSchemaMap = {
   inbox_search,
   inbox_stats,
   inbox_update_status,
+  inbox_seed_jm_corpus,
+  inbox_seed_jm_viewer,
+  inbox_seed_jm_manifest,
+  inbox_seed_jm_financial,
+  inbox_population_status,
 };

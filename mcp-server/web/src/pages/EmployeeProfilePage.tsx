@@ -15,6 +15,7 @@ import {
   listEmployees,
 } from '../api/client';
 import type { Employee } from '../api/types';
+import { unwrapPrism } from '../api/unwrap';
 import { ErrorState, LoadingState } from '../components/LoadingState';
 import {
   PanelCard,
@@ -93,7 +94,8 @@ export function EmployeeProfilePage() {
     setError(null);
     try {
       const res = await listEmployees();
-      const employees = ((res.result as any)?.employees ?? res.result ?? []) as Employee[];
+      const payload = unwrapPrism(res);
+      const employees = ((payload as any)?.employees ?? payload ?? []) as Employee[];
       const found = employees.find((e) => e.id === employeeId);
       if (found) {
         setEmployee(found);
@@ -115,7 +117,10 @@ export function EmployeeProfilePage() {
 
     if (tab === 'skills') {
       void employeeCertifications(employeeId)
-        .then((r) => setCerts(((r.result as any)?.certifications ?? r.result ?? []) as any[]))
+        .then((r) => {
+          const c = unwrapPrism(r);
+          setCerts(((c as any)?.certifications ?? c ?? []) as any[]);
+        })
         .catch(() => setCerts(employee.certifications ?? []));
     }
 
@@ -126,22 +131,25 @@ export function EmployeeProfilePage() {
       start.setDate(start.getDate() - 14);
       const periodStart = start.toISOString().split('T')[0];
       void getTimecard({ employee_id: employeeId, period_start: periodStart, period_end: periodEnd })
-        .then((r) => setTimeHistory(r.result))
+        .then((r) => setTimeHistory(unwrapPrism(r)))
         .catch(() => setTimeHistory(null));
     }
 
     if (tab === 'cost') {
       void employeeUtilization({ employee_id: employeeId })
-        .then((r) => setUtilData(r.result))
+        .then((r) => setUtilData(unwrapPrism(r)))
         .catch(() => setUtilData(null));
     }
 
     if (tab === 'learning') {
       void employeeLearningPath({ employee_id: employeeId, role: employee.role })
-        .then((r) => setLearningPath(r.result))
+        .then((r) => setLearningPath(unwrapPrism(r)))
         .catch(() => setLearningPath(null));
       void hrTrainingHistory({ employee_id: employeeId })
-        .then((r) => setTrainingHistory(((r.result as any)?.records ?? r.result ?? []) as any[]))
+        .then((r) => {
+          const t = unwrapPrism(r);
+          setTrainingHistory(((t as any)?.records ?? t ?? []) as any[]);
+        })
         .catch(() => setTrainingHistory([]));
     }
   }, [tab, employeeId, employee]);

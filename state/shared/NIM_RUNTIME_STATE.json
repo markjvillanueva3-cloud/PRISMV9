@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 1,
+  "startedAt": "2026-05-18T01:07:37.337Z",
+  "model": "meta/llama-3.1-8b-instruct",
+  "nimUrl": "http://127.0.0.1:8000/v1",
+  "image": "nvcr.io/nim/meta/llama-3.1-8b-instruct:latest",
+  "steps": {
+    "precondition": {
+      "action": "blocked-docker",
+      "reason": "Docker daemon unreachable. NIM is a container — start Docker Desktop, then re-run. (operator-only: a hook must not trigger a 10-30GB image pull unattended)",
+      "nimUp": false,
+      "dockerUp": false,
+      "ngcKeyPresent": false
+    }
+  },
+  "status": "blocked",
+  "reason": "Docker daemon unreachable. NIM is a container — start Docker Desktop, then re-run. (operator-only: a hook must not trigger a 10-30GB image pull unattended)",
+  "operatorAction": "! \"C:/Program Files/Docker/Docker/Docker Desktop.exe\"   (then re-run this launcher)"
+}

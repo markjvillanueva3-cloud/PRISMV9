@@ -1,0 +1,66 @@
+{
+  "ts": "2026-06-01T20:00:30.055Z",
+  "port": 18365,
+  "part": "die",
+  "docPrefix": "PRISM-DELTA-DIERT-1780344030055-",
+  "partKind": "die-like-proxy",
+  "sourceFile": "cad-prototype-die-2026-05-19.json",
+  "revolve": "ok",
+  "built": {
+    "faces": 6,
+    "volumeMm3": 7631.97575312113,
+    "bboxMm": {
+      "x": 40,
+      "y": 20,
+      "z": 20
+    }
+  },
+  "form": "unknown",
+  "faceProbe": {
+    "count": 4
+  },
+  "faceGeometry": {
+    "internalCylinders": 1,
+    "externalCylinders": 2,
+    "internalCones": 0,
+    "externalCones": 1
+  },
+  "recognizedFeatures": [
+    {
+      "kind": "working_tip_taper",
+      "confidence": 0.8,
+      "caveat": "external cone read as working_tip_taper (die part-class); in other parts could be a countersink or chamfer-of-revolution"
+    },
+    {
+      "kind": "central_oil_hole",
+      "confidence": 0.7,
+      "caveat": null
+    },
+    {
+      "kind": "stepped_revolved_axis",
+      "confidence": 0.7,
+      "caveat": null
+    }
+  ],
+  "diff": {
+    "verdict": "partial",
+    "scorePct": 60,
+    "requiredCount": 5,
+    "matched": [
+      "central_oil_hole",
+      "stepped_revolved_axis",
+      "working_tip_taper"
+    ],
+    "missing": [
+      "bevel_face_chamfer",
+      "cross_drilled_relief_holes"
+    ]
+  },
+  "reap": {
+    "ok": true,
+    "closed": 0,
+    "reactivated": null,
+    "remaining": 5,
+    "activeName": "DIE CASE 2.940 X 3.75 .992 ID"
+  }
+}

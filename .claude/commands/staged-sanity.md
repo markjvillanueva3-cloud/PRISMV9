@@ -72,8 +72,14 @@ impact:
     - never modifies state, never runs the actual git commit
   bounded: true
   reversible: true  # read-only on every input
+composes_with:
+  - "/checkin"
+  - "/close-out"
+  - "/envelope-sync"
+  - "/forge"
+  - "/handoff"
+  - "/peer-file-isolation"
 ---
-
 # /staged-sanity — Pre-Commit Pre-Flight (lane + peer + drift + completeness)
 
 > **Goal:** the bash hook `commit-ownership-guard.mjs` already blocks commits that touch peer-owned files; `staged-pretest-guard.mjs` already blocks engines without tests. Both fire *during* `git commit`, which means the commit has been typed, the operator's intent is committed (mentally), and the block feels adversarial.

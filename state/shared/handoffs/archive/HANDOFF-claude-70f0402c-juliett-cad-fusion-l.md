@@ -1,0 +1,54 @@
+---
+session: claude-70f0402c
+topic: juliett-cad-fusion-live-ms0
+slot: juliett
+written_at: 2026-06-25T12:38:28.957Z
+machine: DESKTOP-N7MI1VB
+family: Claude
+session_key: claude-70f0402c
+status: active
+---
+
+# HANDOFF: claude-70f0402c
+Updated: 2026-06-25T12:38:28.958Z
+Family: Claude | Machine: DESKTOP-N7MI1VB | Session: claude-70f0402c
+
+## STATE
+(precompact auto-write — slot juliett)
+
+## RESUME
+Last fleet commit (NOT necessarily this chat): e4760f2dbe [MAIN-FORCE] [HOTEL]/U-HOTEL-WIRE-PM-ASSET (slot:hotel): wire Vertical 1 -- 16 dead PreventiveMaintenance + EquipmentAsset client calls to existing prism_business actions (pm_schedule/work_order/overdue + asset_list/register/transfer/calibration/depreciation) via rfqRoute envelope-unwrap. Fixes P0 maintenance-complete wo_id->work_order_id mapping (per-file scrutiny caught). Dead client calls 73->56.. Roadmap: 759 ms, 377 done. Next: L8-P0-MS2, L8-P1-MS2, L8-P2-MS2. Session: Units completed: 0. Re-enter autonomous work: /startup-juliett /loop [10m] /goal (continue to 100% -- eval-gate each iter, never abandon mid-build; re-reads handoff + roadmap + Obsidian brain/PSN). AI: Check DuplicationGuardEngine before creating. Use PRISMCreativeReasoningEngine.explore('optimal') for hybrid solutions
+
+## CONTEXT
+
+## MEMORY_SEED
+_Auto-attached by `scripts/handoff-memory-seed.mjs` — top distilled signals for the next chat._
+
+### Recent error signals (avoid repeating)
+- `git-lock-contention` (tool=Bash) — git index.lock contention — rm -f .git/index.lock OR fork to your own worktree. See [[feedback_conflict_fork_rule]]
+- `tsc` (tool=Bash) — error TS2554: Expected 5 arguments, but got 4.
+- `test-fail` (tool=Bash) — Test Files  1 failed
+
+### Just-shipped distillations (Obsidian)
+- [[reference_post_ship_hotel-u-hotel-wire-pm-asset]] — Auto-distilled learnings from shipping HOTEL/U-HOTEL-WIRE-PM-ASSET (commit e4760f2db). Full content in wiki.
+- [[reference_post_ship_ai-systems-gnn-u-gnn-struct-features]] — Auto-distilled learnings from shipping AI-SYSTEMS-GNN/U-GNN-STRUCT-FEATURES (commit d863d8fcf). Full content in wiki.
+
+### Recent wiki code-tribal learnings
+- `knowledge\wiki\code-tribal\learnings\hotel-u-hotel-wire-pm-asset.md` — HOTEL/U-HOTEL-WIRE-PM-ASSET — [MAIN-FORCE] [HOTEL]/U-HOTEL-WIRE-PM-ASSET (slot:hotel): wire Vertical 1 -- 16 dead PreventiveMaintenance + EquipmentAsset client calls to existing pr…
+
+
+
+<!-- pad: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx -->
+
+## RESUME_LOOP
+
+**ACTIVE /loop interrupted by Stop** (injected 3/3 times by stop-force-loop-continue.mjs).
+
+Task: (unspecified)
+Progress: iter 3 of 1000000000 (**999999997 remaining**)
+Last status: unknown
+Last note: (none)
+
+▶ NEXT ACTION: re-invoke `/loop 999999997 (unspecified)` to continue, OR run `node H:/prism/.claude/helpers/loop-state.mjs end --session <sid> --reason "manual-abort"` to abandon.
+
+(This block is injected by the force-loop-continue Stop hook; cap = 3 re-injections per session.)

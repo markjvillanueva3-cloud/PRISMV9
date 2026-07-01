@@ -23,13 +23,14 @@ related:
 |-------|-------|
 | Name | `wiki-ingest` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/wiki-ingest.md` |
+| Source | `C:/Users/wompu/.claude/commands/wiki-ingest.md` |
 | Model | default |
 | Tags | _(none)_ |
 
 ## Description (first paragraph)
 
-Run the Karpathy LLM-Wiki ingest pipeline against a raw source and file the synthesised page into `H:/prism/knowledge/wiki/`.
+
+# /wiki-ingest
 
 <!-- AUTO-END -->
 

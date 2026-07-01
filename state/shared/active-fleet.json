@@ -1,0 +1,31 @@
+{
+  "schemaVersion": 1,
+  "description": "The ACTIVE PRISM chat fleet — the primary domain slots currently operated (NOT all 26 NATO slots). Single source of truth for fleet-wake-sequencer.mjs, fleet-orchestrate.mjs, and the Hermes/ZULU orchestrator. Read this file; never hard-code the roster in code (it rots).",
+  "lastUpdated": "2026-06-03",
+  "setBy": "operator directive (slot:bravo session claude-5e210e4e)",
+  "activeSlots": [
+    "alpha",
+    "bravo",
+    "charlie",
+    "delta",
+    "echo",
+    "foxtrot",
+    "golf",
+    "hotel",
+    "india",
+    "juliett",
+    "kilo",
+    "lima",
+    "mike",
+    "oscar",
+    "whiskey",
+    "xray",
+    "romeo"
+  ],
+  "count": 17,
+  "notes": [
+    "golf is the fleet-reaper/hygiene slot — front-loaded on every wake sweep so the reaper is never the slot that gets skipped.",
+    "The remaining 9 NATO slots (november, papa, quebec, sierra, tango, uniform, victor, yankee, zulu) are NOT in the active rotation as of this file's date. zulu/zebra is the slot-less Hermes orchestrator, not a worker.",
+    "To change the active roster, edit activeSlots here — do NOT edit code. fleet-wake-sequencer.readActiveFleet() reads this at runtime and falls back to this same list only if the file is unreadable."
+  ]
+}

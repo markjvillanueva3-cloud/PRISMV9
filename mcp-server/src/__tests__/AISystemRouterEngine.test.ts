@@ -15,7 +15,7 @@
 
 import { describe, it, expect } from "vitest";
 import { existsSync, readFileSync } from "node:fs";
-import { aiSystemRouterEngine } from "../engines/AISystemRouterEngine.js";
+import { aiSystemRouterEngine, aiSystemRouterDispatch } from "../engines/AISystemRouterEngine.js";
 
 const LEDGER_PATH = "H:/prism/knowledge/summaries/routing-decisions.jsonl";
 
@@ -53,12 +53,18 @@ describe("AISystemRouterEngine — classify + route happy paths", () => {
     expect(r.estimatedCost).toBe("high");
   });
 
-  it("routes ML-inference tasks to ollama-codellama at zero cost", () => {
+  it("routes ML-inference tasks to local-mcp at zero cost (runtime router picks the local model)", () => {
+    // BLACKWELL-MODEL-INTEGRATION-MS0 P2: ml_inference no longer names never-installed
+    // Ollama tags; it delegates to the local MCP surface, and the REAL local-model pick
+    // (gpt-oss:120b > gpt-oss:20b > qwen2.5-coder:32b) happens at runtime via /api/tags.
     const r = aiSystemRouterEngine.route("classify these toolpath tokens");
     expect(r.taskClass).toBe("ml_inference");
-    expect(r.primary).toBe("ollama-codellama");
-    expect(r.fallback).toEqual(["ollama-deepseek", "claude-haiku"]);
+    expect(r.primary).toBe("local-mcp");
+    expect(r.fallback).toEqual(["claude-haiku"]);
     expect(r.estimatedCost).toBe("free");
+    // The reason documents the runtime routing chain so the advisory output is honest.
+    expect(r.reason).toContain("gpt-oss:120b");
+    expect(r.reason).toContain("qwen2.5-coder:32b");
   });
 
   it("routes batch-processing tasks to docker-batch-processor", () => {
@@ -100,6 +106,102 @@ describe("AISystemRouterEngine — classify + route happy paths", () => {
     expect(r.primary).toBe("claude-sonnet");
     expect(r.fallback).toEqual(["claude-opus"]);
     expect(r.estimatedCost).toBe("medium");
+  });
+
+  it("routes blueprint_extraction tasks to local-mcp (BLUEPRINT-OCR-TRAINING-MS1)", () => {
+    const r = aiSystemRouterEngine.route("extract the title block from this blueprint");
+    expect(r.taskClass).toBe("blueprint_extraction");
+    expect(r.primary).toBe("local-mcp");
+    expect(r.fallback).toEqual(["claude-sonnet"]);
+    expect(r.estimatedCost).toBe("low");
+    expect(r.reason).toContain("blueprint_rag_extract");
+  });
+
+  it("routes ocr extraction tasks to blueprint_extraction (PDFBlueprintPatternRescueEngine)", () => {
+    const r = aiSystemRouterEngine.route("ocr the GD&T callouts off this drawing");
+    expect(r.taskClass).toBe("blueprint_extraction");
+    expect(r.primary).toBe("local-mcp");
+  });
+
+  it("routes print-reading tasks to blueprint_extraction (PrintReadingEngine)", () => {
+    const r = aiSystemRouterEngine.route("print reading: extract dim from this part page");
+    expect(r.taskClass).toBe("blueprint_extraction");
+    expect(r.primary).toBe("local-mcp");
+  });
+
+  it("routes corpus_harvest tasks to local-mcp (BlueprintCorpusHarvestEngine)", () => {
+    const r = aiSystemRouterEngine.route("corpus harvest mit course 2.008 to knowledge base");
+    expect(r.taskClass).toBe("corpus_harvest");
+    expect(r.primary).toBe("local-mcp");
+    expect(r.fallback).toEqual(["claude-haiku"]);
+    expect(r.estimatedCost).toBe("free");
+    expect(r.reason).toContain("BlueprintCorpusHarvestEngine");
+  });
+
+  it("routes vendor pdf harvest tasks to corpus_harvest", () => {
+    const r = aiSystemRouterEngine.route("harvest vendor PDFs into the drafting corpus");
+    expect(r.taskClass).toBe("corpus_harvest");
+    expect(r.primary).toBe("local-mcp");
+  });
+
+  // SIERRA U-PSGB-SIERRA (2026-05-29): closes PSN leg 11 — router was domain-blind to system-viz.
+  it("routes system-viz regen tasks to local-mcp at zero cost (master_index_query surface)", () => {
+    const r = aiSystemRouterEngine.route("regenerate the system-viz graph");
+    expect(r.taskClass).toBe("system_viz");
+    expect(r.primary).toBe("local-mcp");
+    expect(r.fallback).toEqual(["claude-haiku"]);
+    expect(r.estimatedCost).toBe("free");
+    expect(r.reason).toContain("master_index_query");
+  });
+
+  it("routes master-index rebuild tasks to system_viz (not engine_building — no engine/dispatcher noun)", () => {
+    const r = aiSystemRouterEngine.route("rebuild the master-index");
+    expect(r.taskClass).toBe("system_viz");
+    expect(r.primary).toBe("local-mcp");
+  });
+
+  it("routes ghost-roost tasks to system_viz", () => {
+    const r = aiSystemRouterEngine.route("show the ghost-roost nodes in the graph");
+    expect(r.taskClass).toBe("system_viz");
+    expect(r.primary).toBe("local-mcp");
+  });
+
+  it("routes system-graph queries to system_viz BEFORE generic search (viz-specific wins)", () => {
+    const r = aiSystemRouterEngine.route("query the system graph for orphan nodes");
+    expect(r.taskClass).toBe("system_viz");
+    expect(r.primary).toBe("local-mcp");
+  });
+});
+
+describe("AISystemRouterEngine — ordering preservation", () => {
+  it("'build a new blueprint reader engine' still routes to engine_building (build+engine wins before blueprint)", () => {
+    const r = aiSystemRouterEngine.route("build a new blueprint reader engine");
+    expect(r.taskClass).toBe("engine_building");
+    expect(r.primary).toBe("claude-opus");
+  });
+
+  it("'review the ocr engine output' still routes to code_review (review wins before blueprint)", () => {
+    const r = aiSystemRouterEngine.route("review the ocr engine output for accuracy");
+    expect(r.taskClass).toBe("code_review");
+    expect(r.primary).toBe("claude-sonnet");
+  });
+
+  it("'find blueprints with GD&T callouts' still routes to search (find wins before blueprint)", () => {
+    const r = aiSystemRouterEngine.route("find blueprints with GD&T callouts in the index");
+    expect(r.taskClass).toBe("search");
+    expect(r.primary).toBe("local-mcp");
+  });
+
+  it("'review the system-viz generator' still routes to code_review (review wins before system_viz)", () => {
+    const r = aiSystemRouterEngine.route("review the system-viz generator for issues");
+    expect(r.taskClass).toBe("code_review");
+    expect(r.primary).toBe("claude-sonnet");
+  });
+
+  it("getStats() reports 13 task classes after adding cad_drawing (U-CADDRAW-ROUTE-CLASS)", () => {
+    const stats = aiSystemRouterEngine.getStats();
+    expect(stats.task_classes).toBe(13);
+    expect(stats.backends_known).toBe(8);
   });
 });
 
@@ -167,5 +269,44 @@ describe("AISystemRouterEngine — U-ROUTING-LEDGER (OBSIDIAN-COMPOUND-MS0)", ()
     const tsValues = lines.map((l) => Date.parse((JSON.parse(l) as LedgerEntry).ts));
     expect(tsValues[0]).toBeLessThanOrEqual(tsValues[1]);
     expect(tsValues[1]).toBeLessThanOrEqual(tsValues[2]);
+  });
+});
+
+describe("AISystemRouterEngine — cad_drawing (U-CADDRAW-ROUTE-CLASS: Ollama-first, Claude failsafe)", () => {
+  it("routes 'draw a bracket' to cad_drawing -> local-mcp (Ollama) primary, Claude failsafe, free", () => {
+    const r = aiSystemRouterEngine.route("draw a bracket");
+    expect(r.taskClass).toBe("cad_drawing");
+    expect(r.primary).toBe("local-mcp"); // Ollama via the local MCP surface = cheap/free
+    expect(r.fallback).toEqual(["claude-sonnet", "claude-opus"]); // Claude is the failsafe / last line of defense
+    expect(r.estimatedCost).toBe("free");
+    expect(r.reason).toContain("failsafe");
+  });
+
+  it("classifies the generative-CAD verbs as cad_drawing", () => {
+    for (const task of [
+      "sketch the profile of the flange",
+      "extrude the sketch to 12mm",
+      "revolve the contour into a shaft",
+      "loft between the two sketches",
+      "generate the CAD model from this print",
+      "print to cad for the bushing",
+      "text to cad: a 50mm cube with a 10mm bore",
+    ]) {
+      expect(aiSystemRouterEngine.classify(task)).toBe("cad_drawing");
+    }
+  });
+
+  it("does NOT hijack extraction/dev/review tasks (ordering preserved)", () => {
+    expect(aiSystemRouterEngine.classify("extract dimensions from the drawing")).not.toBe("cad_drawing");
+    expect(aiSystemRouterEngine.classify("build a new cad engine")).toBe("engine_building");
+    expect(aiSystemRouterEngine.classify("review the cad kernel engine")).toBe("code_review");
+  });
+
+  it("round-trips through aiSystemRouterDispatch ai_route_task + ai_classify_task", async () => {
+    const decision = await aiSystemRouterDispatch("ai_route_task", { task: "draw a stepped bore bushing" });
+    expect((decision as { taskClass: string }).taskClass).toBe("cad_drawing");
+    expect((decision as { primary: string }).primary).toBe("local-mcp");
+    const cls = await aiSystemRouterDispatch("ai_classify_task", { task: "extrude the bored boss" });
+    expect(cls).toBe("cad_drawing");
   });
 });

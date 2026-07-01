@@ -1,0 +1,406 @@
+{
+  "id": "CAMX-V17-P11",
+  "version": "8.0.0",
+  "title": "Exhaustive Testing — 92 Parts × Materials × Machines × Controllers",
+  "brief": "12 difficulty tiers from flat bolt plate to blisk. Cross-material (6 ISO groups per part). Cross-machine (4+ machine classes). Cross-controller (6+ dialects). Coordinate accuracy validation. Physics validation against published Sandvik/Kennametal data. 10,000+ checks.",
+  "created_at": "2026-03-23T11:07:22Z",
+  "created_by": "claude-opus-4.6",
+  "roadmap_version": "v17-final",
+  "phases": [
+    {
+      "id": "P0",
+      "title": "Testing Infrastructure + Physics Validation",
+      "units": [
+        {
+          "id": "U-CAMX01",
+          "title": "Physics validation against Sandvik published kc1.1",
+          "description": "For each of 6 ISO groups: verify PRISM kc1.1 ±5% of Sandvik. For 4140 at 28HRC: verify force ±10% of Sandvik charts.",
+          "smart_config": "OPUS/MAX",
+          "exit_conditions": [
+            "Physics validation against Sandvik published kc1.1 complete",
+            "Build passes",
+            "/prism-review passes",
+            "Tests pass"
+          ],
+          "status": "not_started",
+          "legacy_id": "U01",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-CAMX02",
+          "title": "S/F validation against Sandvik/Kennametal/ISCAR recommendations",
+          "description": "For CNMG 120408 in 4140: verify Vc/fz ±15% of each manufacturer.",
+          "smart_config": "OPUS/MAX",
+          "exit_conditions": [
+            "S/F validation against Sandvik/Kennametal/ISCAR recommendations complete",
+            "Build passes",
+            "/prism-review passes",
+            "Tests pass"
+          ],
+          "status": "not_started",
+          "legacy_id": "U02",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-CAMX03",
+          "title": "Cross-material test: same part in 12 materials (milling)",
+          "description": "Multi-pocket bracket in: 6061 Al, 7075 Al, 1045, 4140(28), 4140(42HRC), 303SS, 316L, gray CI, Ti-6Al-4V, Inconel 718, D2(62HRC), PEEK. Verify 12 DIFFERENT programs with correct physics per material.",
+          "smart_config": "OPUS/MAX",
+          "exit_conditions": [
+            "Cross-material test: same part in 12 materials (milling) complete",
+            "Build passes",
+            "/prism-review passes",
+            "Tests pass"
+          ],
+          "status": "not_started",
+          "legacy_id": "U03",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-CAMX04",
+          "title": "Cross-material test: same part in 10 materials (turning)",
+          "description": "Stepped shaft in: 1045, 4140(28), 4140(48HRC), 303SS, 6061, Ti-6Al-4V, Inconel, 52100(60HRC), gray CI, brass. Verify 10 different programs.",
+          "smart_config": "OPUS/MAX",
+          "exit_conditions": [
+            "Cross-material test: same part in 10 materials (turning) complete",
+            "Build passes",
+            "/prism-review passes",
+            "Tests pass"
+          ],
+          "status": "not_started",
+          "legacy_id": "U04",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-CAMX05",
+          "title": "Cross-machine test: same part on 4 machine classes",
+          "description": "Pocket plate on: Haas VF-2 (entry), DMG CMX (mid), Makino a51nx (high), Kern (ultra). Verify different toolpath complexity, different S/F profiles, different strategies.",
+          "smart_config": "OPUS/MAX",
+          "exit_conditions": [
+            "Cross-machine test: same part on 4 machine classes complete",
+            "Build passes",
+            "/prism-review passes",
+            "Tests pass"
+          ],
+          "status": "not_started",
+          "legacy_id": "U05",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "P1",
+      "title": "Complex Part Gauntlet — Tier 5-6",
+      "units": [
+        {
+          "id": "U-CAMX06",
+          "title": "Mold cavity — P20 injection mold",
+          "description": "Deep 3D cavity, thin ribs, 6 tool sizes, Z-level→rest→pencil→finish. S/F varies per Z-level.",
+          "smart_config": "OPUS/MAX",
+          "exit_conditions": [
+            "Mold cavity — P20 injection mold complete",
+            "Build passes",
+            "/prism-review passes",
+            "Tests pass"
+          ],
+          "status": "not_started",
+          "legacy_id": "U06",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-CAMX07",
+          "title": "Impeller — 7 blade 316L",
+          "description": "5-axis simultaneous, blade-to-blade collision cert, scallop ≤0.01mm, G93.",
+          "smart_config": "OPUS/MAX",
+          "exit_conditions": [
+            "Impeller — 7 blade 316L complete",
+            "Build passes",
+            "/prism-review passes",
+            "Tests pass"
+          ],
+          "status": "not_started",
+          "legacy_id": "U07",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-CAMX08",
+          "title": "Turbine blade — Inconel 718 with fir-tree root",
+          "description": "Airfoil finishing, ceramic roughing, extreme thermal.",
+          "smart_config": "OPUS/MAX",
+          "exit_conditions": [
+            "Turbine blade — Inconel 718 with fir-tree root complete",
+            "Build passes",
+            "/prism-review passes",
+            "Tests pass"
+          ],
+          "status": "not_started",
+          "legacy_id": "U08",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-CAMX09",
+          "title": "Progressive die set — D2 62HRC 8 stations wire EDM",
+          "description": "Multi-cavity, 4 skim, slug retention, tab placement.",
+          "smart_config": "OPUS/MAX",
+          "exit_conditions": [
+            "Progressive die set — D2 62HRC 8 stations wire EDM complete",
+            "Build passes",
+            "/prism-review passes",
+            "Tests pass"
+          ],
+          "status": "not_started",
+          "legacy_id": "U09",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-CAMX10",
+          "title": "Complete die mold set — multi-process routing",
+          "description": "Core(mill→EDM→grind), cavity(mill→harden→hard-mill→EDM→grind). Full QuoteToShip.",
+          "smart_config": "OPUS/MAX",
+          "exit_conditions": [
+            "Complete die mold set — multi-process routing complete",
+            "Build passes",
+            "/prism-review passes",
+            "Tests pass"
+          ],
+          "status": "not_started",
+          "legacy_id": "U10",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-CAMX11",
+          "title": "Aerospace engine component — full lifecycle",
+          "description": "Inconel forging. Turn→5-axis mill→grind→inspect. AS9102 FAI. ITAR. 50-part batch.",
+          "smart_config": "OPUS/MAX",
+          "exit_conditions": [
+            "Aerospace engine component — full lifecycle complete",
+            "Build passes",
+            "/prism-review passes",
+            "Tests pass"
+          ],
+          "status": "not_started",
+          "legacy_id": "U11",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-CAMX12",
+          "title": "Swiss bone screw — Ti 3.5mm medical",
+          "description": "Custom thread, guide bushing, cross-slot, 1000-part batch.",
+          "smart_config": "OPUS/MAX",
+          "exit_conditions": [
+            "Swiss bone screw — Ti 3.5mm medical complete",
+            "Build passes",
+            "/prism-review passes",
+            "Tests pass"
+          ],
+          "status": "not_started",
+          "legacy_id": "U12",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "P2",
+      "title": "Cost + Comparison + Regression",
+      "units": [
+        {
+          "id": "U-CAMX13",
+          "title": "PRISM vs tutorial programs — 9 machine types",
+          "description": "Compare S/F, cycle time, tool selection. Document improvements.",
+          "smart_config": "OPUS/MAX",
+          "exit_conditions": [
+            "PRISM vs tutorial programs — 9 machine types complete",
+            "Build passes",
+            "/prism-review passes",
+            "Tests pass"
+          ],
+          "status": "not_started",
+          "legacy_id": "U13",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-CAMX14",
+          "title": "S/F variation quantification",
+          "description": "Count distinct F values in output. Compare to constant-F version. Document savings.",
+          "smart_config": "OPUS/HIGH",
+          "exit_conditions": [
+            "S/F variation quantification complete",
+            "Build passes",
+            "/prism-review passes",
+            "Tests pass"
+          ],
+          "status": "not_started",
+          "legacy_id": "U14",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-CAMX15",
+          "title": "Convert all standalone tests to vitest + golden snapshots",
+          "description": "Regression prevention. No silent degradation.",
+          "smart_config": "OPUS/HIGH",
+          "exit_conditions": [
+            "Convert all standalone tests to vitest + golden snapshots complete",
+            "Build passes",
+            "/prism-review passes",
+            "Tests pass"
+          ],
+          "status": "not_started",
+          "legacy_id": "U15",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        }
+      ]
+    }
+  ],
+  "status": "not_started",
+  "smart_config": {
+    "role": "implementer + reviewer",
+    "model": "sonnet",
+    "effort": "HIGH",
+    "context_budget": "65%"
+  },
+  "mcp_lifecycle": {
+    "session_start": [
+      "prism_session:context_boot",
+      "prism_session:dispatcher_map",
+      "prism_session:memory_recall",
+      "prism_session:system_snapshot",
+      "prism_session:action_search"
+    ],
+    "during_work": [
+      "prism_session:auto_checkpoint",
+      "prism_session:tool_route_best",
+      "prism_session:wip_capture"
+    ],
+    "session_end": [
+      "prism_session:memory_save",
+      "prism_session:system_snapshot",
+      "prism_session:checkpoint_enhanced"
+    ]
+  },
+  "forge_triple": {
+    "protective_hook": "camx-v17-p11-gate",
+    "mcp_action": "prism_camx-v17:camx_v17_p11_run",
+    "skill_command": "/camx-v17-p11",
+    "ownership": "DECLARED — BUILT in terminal unit of this milestone"
+  },
+  "feature_cascade": {
+    "new_hooks": [
+      "camx-v17-p11-gate"
+    ],
+    "new_actions": [
+      "camx_v17_p11_run"
+    ],
+    "new_skills": [
+      "/camx-v17-p11"
+    ],
+    "available_to": [
+      "downstream CAMX milestones",
+      "prism app consumers"
+    ]
+  },
+  "knowledge_sources": {
+    "engines": [
+      "ENGINE_DIGEST.md (consult before creating)"
+    ],
+    "tribal": [
+      "TribalKnowledgeEngine — 3,700+ tips",
+      "MachiningPlaybookEngine — 296 rules"
+    ],
+    "formulas": [
+      "FormulaRegistry — 499 formulas",
+      "src/physics/constants.ts — canonical"
+    ],
+    "reference": [
+      "EXTERNAL-REFERENCE-PROGRAMS-INDEX.md",
+      "MaterialRegistry",
+      "MachineRegistry",
+      "ToolCatalogEngine (95,608 tools)"
+    ]
+  },
+  "intent": "12 difficulty tiers from flat bolt plate to blisk. Cross-material (6 ISO groups per part). Cross-machine (4+ machine classes). Cross-controller (6+ dialects). Coordinate accuracy validation. Physics validation against published Sandvik/Kennametal data. 10,000+ checks.",
+  "compact_checkpoint": "every 3 units — auto-triggered by hook",
+  "enforcement_hooks_active": [
+    "physics agent",
+    "wiring agent",
+    "constants checker",
+    "stub detector",
+    "test quality",
+    "forge-triple gate",
+    "session audit agent"
+  ]
+}

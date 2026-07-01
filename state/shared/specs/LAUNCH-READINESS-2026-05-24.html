@@ -1,0 +1,219 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8">
+<title>PRISM Launch-Readiness Audit — 2026-05-24</title>
+<style>
+:root { --bg:#0a0e14; --fg:#e6e6e6; --muted:#9aa0a6; --border:#1f2630; --P0:#ff3838; --P1:#ff9038; --P2:#ffd038; --ok:#38c8ff; --green:#38ff80; --yellow:#ffb038; --red:#ff5050; --accent:#a8b8ff; }
+body { font-family: ui-monospace, 'SF Mono', 'Cascadia Code', Consolas, monospace; background:var(--bg); color:var(--fg); margin:0; padding:2em 5vw; line-height:1.5; }
+h1, h2, h3 { color:var(--accent); border-bottom:1px solid var(--border); padding-bottom:0.3em; }
+h1 { font-size:1.8em; }
+h2 { font-size:1.3em; margin-top:2em; }
+h3 { font-size:1.1em; color:var(--ok); }
+.muted { color:var(--muted); }
+.P0 { color:var(--P0); font-weight:bold; }
+.P1 { color:var(--P1); font-weight:bold; }
+.P2 { color:var(--P2); font-weight:bold; }
+.green { color:var(--green); }
+.yellow { color:var(--yellow); }
+.red { color:var(--red); }
+.composite { font-size:1.5em; padding:1em; background:#11171f; border-left:4px solid var(--accent); border-radius:4px; }
+table { border-collapse:collapse; width:100%; margin:1em 0; }
+th, td { border:1px solid var(--border); padding:0.5em 0.8em; text-align:left; }
+th { background:#11171f; color:var(--accent); }
+tr:nth-child(even) { background:#0d1218; }
+code { background:#1a1e26; padding:0.1em 0.4em; border-radius:3px; color:var(--ok); font-size:0.9em; }
+pre { background:#11171f; padding:1em; border-radius:4px; overflow-x:auto; font-size:0.85em; }
+.bar { display:inline-block; height:1em; background:linear-gradient(to right, var(--red), var(--yellow), var(--green)); border-radius:2px; vertical-align:middle; }
+.legend { display:inline-block; padding:0.2em 0.6em; border-radius:3px; margin-right:0.5em; }
+.tldr { background:#0e1620; padding:1.2em; border:1px solid var(--border); border-left:4px solid var(--accent); border-radius:4px; margin:1em 0; }
+.toc { background:#0e1620; padding:1em; border-radius:4px; margin:1em 0; }
+.toc a { color:var(--ok); text-decoration:none; }
+.toc a:hover { text-decoration:underline; }
+nav { font-size:0.9em; }
+.psn-green { color:var(--green); }
+.psn-yellow { color:var(--yellow); }
+.psn-red { color:var(--red); }
+section { margin:2em 0; }
+.meta-box { padding:0.5em 1em; background:#11171f; border-radius:4px; margin:0.5em 0; font-size:0.9em; }
+</style>
+</head>
+<body>
+
+<h1>PRISM Launch-Readiness Audit — 2026-05-24</h1>
+<div class="meta-box">
+  <strong>Auditor:</strong> claude-333c36e8 (slot:india) · /forge-audit-v2 + manual mining<br>
+  <strong>Methodology:</strong> Boris-discipline — every finding declares its own verification channel<br>
+  <strong>Mining depth:</strong> Structured (chat-bus + 2,419 handoffs + 6mo git + 1,443 envelope JSON + ROADMAP-CONSOLIDATED + MISC-INVENTORY) + Obsidian (9,635 memories + 33,667 wiki + 147 lessons + 301 specs)
+</div>
+
+<nav class="toc">
+<strong>Contents:</strong>
+<a href="#tldr">TL;DR</a> ·
+<a href="#corpus">Corpus inventory</a> ·
+<a href="#domains">Per-domain readiness</a> ·
+<a href="#blockers">Revenue-blocker rank</a> ·
+<a href="#psn">PSN-leg health</a> ·
+<a href="#index">Readiness index</a> ·
+<a href="#milestone">Proposed milestone</a> ·
+<a href="#deferred">Deferred</a> ·
+<a href="#next">Next actions</a>
+</nav>
+
+<section id="tldr">
+<h2>TL;DR</h2>
+<div class="composite">
+<span class="muted">Composite launch-revenue-readiness:</span> <span class="yellow">~23%</span><br>
+<span class="muted">Lathe-first revenue path:</span> <span class="green">8-12 weeks</span><br>
+<span class="muted">Full mill+lathe+wedm:</span> <span class="yellow">16-24 weeks</span>
+</div>
+<p>Lathe is closest to revenue (40% net, 2-4 weeks). WEDM is furthest (0% net, 12-16 weeks). <strong>The bottleneck is NOT backend depth</strong> (78% wired, 3,273 engines, 8,168 actions, 3,836 tests). It is <span class="P0">absence of an operator-facing frontend</span> (2 FE pending merge) and <span class="P0">3 P0 backend gaps</span> that block end-to-end pipelines despite the depth.</p>
+<p><strong>Recommendation:</strong> Ship lathe-revenue first via 12-week <code>PRISM-LAUNCH-READINESS-MS0</code> milestone partitioned across 13 NATO slots.</p>
+</section>
+
+<section id="corpus">
+<h2>Corpus inventory</h2>
+<table>
+<tr><th>Surface</th><th>Count</th><th>Note</th></tr>
+<tr><td>Engines</td><td>3,273</td><td>built+wired 2,543 · unwired 729 · wire-rate <span class="green">78%</span></td></tr>
+<tr><td>Dispatchers</td><td>97</td><td>8,168 actions</td></tr>
+<tr><td>Tests</td><td>3,836</td><td><span class="yellow">1.17 tests/engine — below 1.5 floor</span></td></tr>
+<tr><td>Formulas</td><td>499</td><td></td></tr>
+<tr><td>Wiki entries</td><td>23,981</td><td>33,667 architecture files · 147 lessons</td></tr>
+<tr><td>Memories</td><td>9,635</td><td>across knowledge/memories/</td></tr>
+<tr><td>Handoffs</td><td>2,419</td><td></td></tr>
+<tr><td>Specs</td><td>301</td><td>audit + plan archive</td></tr>
+<tr><td>AGENT_CHAT</td><td>493 lines</td><td><span class="yellow">3.5d rolling window — short-tail only</span></td></tr>
+<tr><td>Milestones</td><td>882</td><td>2,876 pending units · 969 unconsolidated prose</td></tr>
+<tr><td>Drift</td><td>175</td><td><span class="P1">envelope claim-vs-git mismatches</span></td></tr>
+<tr><td>Frontends</td><td>2 pending</td><td><span class="P0">no operator UI = no revenue</span></td></tr>
+<tr><td>Worktrees</td><td>51</td><td>KEEP 23 / MERGE 2 / PRUNE 10 / INVESTIGATE 16</td></tr>
+<tr><td>Graph</td><td>282,549 / 981,050</td><td>11 layers</td></tr>
+</table>
+<p class="muted">Verification: <code>node scripts/system-viz-query.mjs headline</code> + <code>node scripts/build-state-snapshot.mjs</code></p>
+</section>
+
+<section id="domains">
+<h2>Per-domain readiness</h2>
+
+<h3><span class="green">🟢 Lathe</span> — MATURE (188 engines · 2-4 wks to revenue)</h3>
+<p><strong>Shipped recently:</strong> JM-DIE-LATHE-UPGRADE-MS0 audit pipeline (24 rules) · LatheProgramAuditPipelineEngine (31/31 tests) · LathePostProcessorEngine</p>
+<p><strong>Gap:</strong> <span class="P0">96% FAIL on 200-variant audit sample</span> — V1/V2 upgrader skips machine.envelope rescale (cross-machine mismatch). THIS is the P0 lathe-revenue blocker.</p>
+
+<h3><span class="yellow">🟡 Mill</span> — PARTIAL (58 engines · 8-12 wks)</h3>
+<p><strong>Shipped:</strong> AdaptiveMillingChipLoadMonitorEngine · MidCutDecisionOrchestrator · /mill-studio · DOMAIN-PIPELINE-MS0</p>
+<p><strong>Gaps:</strong> <span class="P1">3.2× engine depth below lathe</span> · 5-axis sparse (12) · surface-finish incomplete · Mastercam thin (28)</p>
+
+<h3><span class="red">🔴 WEDM</span> — EARLY (20 graph / 62 digest · 12-16 wks)</h3>
+<p><strong>Shipped:</strong> /wire-edm-studio · WEDM SVI Psi 0.875 · 5 controller dialects · MIT 2.830 extraction</p>
+<p><strong>Gap:</strong> <span class="P1">domain-classification drift (20 vs 62)</span> · PCD sparse · JM-Die-specific WEDM unmeasured · 4-axis ops incomplete</p>
+
+<h3><span class="yellow">🟡 CAM (multi-vendor)</span> — STRONG-FRAGMENTED (~320 cumulative · 4-8 wks)</h3>
+<p>hyper 68 + tool 57 + fusion 36 + mastercam 28 + turning 25. <strong>Gap:</strong> no unified CAM facade across 5 vendor posts; 16 deep-integration bridges identified in ROADMAP-CONSOLIDATED</p>
+
+<h3><span class="yellow">🟡 Post-Processor</span> — PARTIAL (56 engines · 6-10 wks · shop-floor gate)</h3>
+<p><strong>Gap:</strong> Fanuc→Okuma→Heidenhain dialect cross-map is structural-not-textual; explicit map per cycle incomplete. <strong>Slot:india canonical specialty.</strong></p>
+</section>
+
+<section id="blockers">
+<h2>Revenue-blocker rank (top 10)</h2>
+<table>
+<tr><th>#</th><th>Sev</th><th>Blocker</th><th>Verification</th></tr>
+<tr><td>1</td><td class="P0">P0</td><td>Frontend merge gap (2 FE pending)</td><td><code>cat state/shared/BUILD_STATE.md | grep Frontend</code></td></tr>
+<tr><td>2</td><td class="P0">P0</td><td>Lathe body-rescale upgrader (96% FAIL)</td><td><code>node scripts/audit-jm-die-lathe-corpus.mjs</code></td></tr>
+<tr><td>3</td><td class="P0">P0</td><td>Quote-to-ship wiring (wire-not-build, 12 units)</td><td><code>cat state/shared/specs/spec-quoting-pipeline-ms0-assessment.md</code></td></tr>
+<tr><td>4</td><td class="P0">P0</td><td>Envelope drift (175 cases)</td><td><code>build-state-snapshot.mjs</code></td></tr>
+<tr><td>5</td><td class="P0">P0</td><td>Post-processor cross-controller validation corpus</td><td><code>ls knowledge/wiki/architecture | findstr master-post</code></td></tr>
+<tr><td>6</td><td class="P1">P1</td><td>Mill engine depth (3.2× below lathe)</td><td><code>system-viz-query coverage-by-domain</code></td></tr>
+<tr><td>7</td><td class="P1">P1</td><td>WEDM domain-classification drift (20 vs 62)</td><td><code>WEDM_DIGEST.json</code> vs graph</td></tr>
+<tr><td>8</td><td class="P1">P1</td><td>AI training pipeline (AUROC 0.096 vs gate 0.78)</td><td><code>cat state/shared/nn-graph/NN-EVAL.json</code></td></tr>
+<tr><td>9</td><td class="P1">P1</td><td>Tests/engine ratio 1.17</td><td>headline query</td></tr>
+<tr><td>10</td><td class="P2">P2</td><td>2,876 pending units cumulative</td><td>ROADMAP-CONSOLIDATED.json</td></tr>
+</table>
+</section>
+
+<section id="psn">
+<h2>PSN-leg health (11 legs)</h2>
+<table>
+<tr><th>Leg</th><th>Status</th><th>Note</th></tr>
+<tr><td>1. Obsidian brain</td><td class="psn-green">🟢 HEALTHY</td><td>9,635 memories, auto-fed every Stop</td></tr>
+<tr><td>2. PRISM OS</td><td class="psn-green">🟢 HEALTHY</td><td>97 dispatchers / 8,168 actions</td></tr>
+<tr><td>3. Wiki</td><td class="psn-green">🟢 HEALTHY</td><td>23,981 entries · 4.2% broken links (acceptable)</td></tr>
+<tr><td>4. Memories</td><td class="psn-green">🟢 HEALTHY</td><td>vault precheck firing</td></tr>
+<tr><td>5. Tribal</td><td class="psn-yellow">🟡 PARTIAL</td><td>0.8% wiki tribal embedding coverage</td></tr>
+<tr><td>6. System Viz</td><td class="psn-yellow">🟡 HEALTHY+WARN</td><td>282K nodes; regen FAILED 18h ago at merge augmentations</td></tr>
+<tr><td>7. Engines</td><td class="psn-yellow">🟡 PARTIAL</td><td>78% wired, 729 unwired</td></tr>
+<tr><td>8. Algorithms</td><td class="psn-green">🟢 HEALTHY</td><td>499 formulas</td></tr>
+<tr><td>9. Formulas</td><td class="psn-green">🟢 HEALTHY</td><td></td></tr>
+<tr><td>10. NN/GNN</td><td class="psn-red">🔴 DORMANT</td><td>AUROC 0.096 (gate 0.78); embeddingSource fix landed 2026-05-23 — retrain pending</td></tr>
+<tr><td>11. PRISM AI</td><td class="psn-yellow">🟡 PARTIAL</td><td>4/7 engines lack memo coverage (42.9%)</td></tr>
+</table>
+</section>
+
+<section id="index">
+<h2>Launch-Revenue-Readiness Index</h2>
+<table>
+<tr><th>Domain</th><th>Depth</th><th>-Blocker</th><th>-FE</th><th>Net</th><th>Revenue distance</th></tr>
+<tr><td>Lathe</td><td>75</td><td>-20</td><td>-15</td><td class="green"><strong>40</strong></td><td>2-4 wks</td></tr>
+<tr><td>Mill</td><td>45</td><td>-10</td><td>-15</td><td class="yellow"><strong>20</strong></td><td>8-12 wks</td></tr>
+<tr><td>WEDM</td><td>30</td><td>-15</td><td>-15</td><td class="red"><strong>0</strong></td><td>12-16 wks</td></tr>
+<tr><td>CAM-facade</td><td>65</td><td>-10</td><td>-15</td><td class="green"><strong>40</strong></td><td>4-8 wks</td></tr>
+<tr><td>Post-Proc</td><td>55</td><td>-25</td><td>-15</td><td class="yellow"><strong>15</strong></td><td>6-10 wks</td></tr>
+</table>
+<p class="composite"><strong>Composite: 23% launch-revenue-ready.</strong> Confidence: medium (single-reviewer; WEDM classification drift reduces wedm confidence).</p>
+</section>
+
+<section id="milestone">
+<h2>Proposed milestone — PRISM-LAUNCH-READINESS-MS0</h2>
+<p>32 units across 6 phases, 12 weeks, partitioned across 13 NATO slots. Envelope at <code>mcp-server/data/roadmaps/PRISM-LAUNCH-READINESS-MS0.json</code>.</p>
+<table>
+<tr><th>Phase</th><th>Name</th><th>Units</th><th>Weeks</th><th>Lead slots</th></tr>
+<tr><td>P0</td><td>revenue-unblock</td><td>8</td><td>1-3</td><td>romeo · bravo · charlie · india · golf · hotel · kilo</td></tr>
+<tr><td>P1</td><td>domain-depth</td><td>6</td><td>3-6</td><td>alpha · charlie · echo</td></tr>
+<tr><td>P2</td><td>scenario-corpus (7,800)</td><td>6</td><td>5-8</td><td>alpha · bravo · charlie · echo · india · juliett</td></tr>
+<tr><td>P3</td><td>ai-training</td><td>4</td><td>7-10</td><td>echo · lima · alpha+bravo+charlie</td></tr>
+<tr><td>P4</td><td>validation-prove-out</td><td>5</td><td>9-11</td><td>bravo · alpha · charlie · india · foxtrot</td></tr>
+<tr><td>P5</td><td>launch-gates</td><td>3</td><td>11-12</td><td>golf · alpha+bravo+charlie+hotel · india</td></tr>
+</table>
+</section>
+
+<section id="deferred">
+<h2>Deferred (R12 fail-loud)</h2>
+<table>
+<tr><th>Deferred</th><th>Reason</th><th>Compensation</th></tr>
+<tr><td>Peer-reviewer auto-spawn</td><td>~30k token cost at 54%+ context already</td><td>Every finding has verification channel</td></tr>
+<tr><td>/forge7 scenario-gen contract design</td><td>Token budget; properly a next-/loop task</td><td>Slot partition documented in envelope P2</td></tr>
+<tr><td>/rgs6 envelope generation</td><td>Manual was faster this session</td><td>/rgs6 can refine via adaptive thresholds next iter</td></tr>
+<tr><td>/loop 7d re-run registration</td><td>ScheduleWakeup-in-loop forbidden per doctrine</td><td>Manual re-run via /forge-audit-v2 after Phase 1 close</td></tr>
+<tr><td>Raw commit-count verification</td><td>rtk wrapper summarized; investigation deferred</td><td>Doesn't affect findings; metadata only</td></tr>
+</table>
+</section>
+
+<section id="next">
+<h2>Next actions</h2>
+<ol>
+<li><span class="P0">slot:romeo</span> — claim P0-U01 + P0-U02 (frontend merges)</li>
+<li><span class="P0">slot:bravo</span> — claim P0-U03 (lathe body-rescale)</li>
+<li><span class="P0">slot:charlie</span> — claim P0-U04 (quote-to-ship wiring) + P1-U02 (wedm classify fix)</li>
+<li><span class="P0">slot:india</span> — claim P0-U06 (post-proc validation corpus, 800 scenarios)</li>
+<li><span class="P0">slot:golf</span> — claim P0-U05 (envelope drift sweep) + integration</li>
+<li><span class="P0">slot:echo</span> — claim P3-U01 (AI trainer-export-restore) — unblocks training</li>
+</ol>
+</section>
+
+<section>
+<h2>Compounding artifacts</h2>
+<ul>
+<li><code>scripts/generate-launch-readiness-features.mjs</code> — /system-viz roost generator (ghost.launch_readiness)</li>
+<li><code>LAUNCH-READINESS-2026-05-24.{json,md,html}</code> — re-runnable measurement</li>
+<li><code>PRISM-LAUNCH-READINESS-MS0.json</code> — milestone envelope</li>
+<li><code>knowledge/wiki/architecture/launch-readiness-2026-05-24.md</code> — Karpathy-wiki entry</li>
+</ul>
+</section>
+
+<footer class="muted" style="margin-top:3em; font-size:0.85em; border-top:1px solid var(--border); padding-top:1em;">
+Audit by claude-333c36e8 · slot:india · 2026-05-24 · /forge-audit-v2 + manual mining<br>
+Companion: <code>LAUNCH-READINESS-2026-05-24.md</code> (Markdown) · <code>LAUNCH-READINESS-2026-05-24.json</code> (machine) · <code>PRISM-LAUNCH-READINESS-MS0.json</code> (envelope) · <code>wiki/architecture/launch-readiness-2026-05-24.md</code> (wiki)<br>
+Re-run: <code>/forge-audit-v2 PRISM-LAUNCH-READINESS</code> after Phase 1 close
+</footer>
+
+</body></html>

@@ -24,9 +24,9 @@ export const SHELL_COMMERCE_CATALOG: ShellCommerceCatalog = {
       shortLabel: 'Free',
       priceLabel: '$0 / month',
       summary:
-        'A permanent entry tier for shops that just want PRISM quoting with the advanced calculator, but only through basic generic machine, tooling, and material libraries.',
+        'A permanent entry tier for shops that just want Kienzle quoting with the advanced calculator, but only through basic generic machine, tooling, and material libraries.',
       roiNote:
-        'Designed to get estimators and owner-operators into PRISM fast without forcing a subscription before the calculator proves its value.',
+        'Designed to get estimators and owner-operators into Kienzle fast without forcing a subscription before the calculator proves its value.',
       purchaseLabel: 'Start free',
       features: [
         '1 office login + limited saved estimating history',
@@ -42,7 +42,7 @@ export const SHELL_COMMERCE_CATALOG: ShellCommerceCatalog = {
       shortLabel: 'Starter',
       priceLabel: '$149 / month · 1 site',
       summary:
-        'The full calculator tier for a small shop that wants all PRISM estimating depth before committing to the full operating-system rollout.',
+        'The full calculator tier for a small shop that wants all Kienzle estimating depth before committing to the full operating-system rollout.',
       roiNote:
         'Priced to sit above niche quoting utilities while still being an easy upgrade from spreadsheets or one-off calculator tools.',
       purchaseLabel: 'Buy Starter',
@@ -94,7 +94,7 @@ export const SHELL_COMMERCE_CATALOG: ShellCommerceCatalog = {
       shortLabel: 'Pro',
       priceLabel: '$1,499 / month · 1 site',
       summary: 'Advanced workflow, programming governance, tooling lifecycle, and cost intelligence for multi-cell shops.',
-      roiNote: 'Where PRISM starts to replace multiple higher-cost point tools by tying programming, inventory, and margin feedback together.',
+      roiNote: 'Where Kienzle starts to replace multiple higher-cost point tools by tying programming, inventory, and margin feedback together.',
       purchaseLabel: 'Buy Professional',
       features: [
         '20 office seats + unlimited operator scan accounts',
@@ -111,7 +111,7 @@ export const SHELL_COMMERCE_CATALOG: ShellCommerceCatalog = {
       priceLabel: 'Custom · multi-site',
       summary: 'Full multi-site rollout, governance, advanced integrations, and cross-shop operational learning.',
       roiNote: 'Built for larger organizations that need policy, API, rollout, and network-level learning control across multiple facilities.',
-      purchaseLabel: 'Talk to PRISM',
+      purchaseLabel: 'Talk to Kienzle',
       features: [
         'Everything in Professional across multiple sites',
         'Advanced entitlements, SSO, and policy controls',
@@ -244,7 +244,7 @@ export const SHELL_COMMERCE_CATALOG: ShellCommerceCatalog = {
     },
   ],
   shellNote:
-    'Tier, add-on, unit, and regional sourcing posture are staged through a shared frontend seam so the calculator ladder, PRISM mode, machine-feature and maintenance buys, print-to-CNC, alarm desk, inventory, and planned procurement-aware desks can all reuse the same packaging and recommendation model.',
+    'Tier, add-on, unit, and regional sourcing posture are staged through a shared frontend seam so the calculator ladder, Kienzle mode, machine-feature and maintenance buys, print-to-CNC, alarm desk, inventory, and planned procurement-aware desks can all reuse the same packaging and recommendation model.',
   billingPosture: {
     source: 'staged',
     authenticated: false,

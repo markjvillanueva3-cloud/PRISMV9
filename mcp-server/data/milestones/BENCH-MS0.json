@@ -1,0 +1,141 @@
+{
+  "id": "BENCH-MS0",
+  "title": "Benchmark Suite Core — 15 Parts + Formula Proofs",
+  "track": "BENCH",
+  "status": "complete",
+  "total_units": 8,
+  "completed_units": 8,
+  "dependencies": [],
+  "created_at": "2026-04-13T03:40:00Z",
+  "description": "Build comprehensive benchmark suite: 8,640 S/F tests + 1,728 deflection tests + 1,200 Ra tests. Verify physics formulas against published literature and establish regression baselines.",
+  "phases": [
+    {
+      "id": "P0",
+      "title": "Benchmark Infrastructure & Formula Verification",
+      "units": [
+        {
+          "id": "P0-U00",
+          "title": "BenchmarkSuiteEngine: Core infrastructure audit",
+          "status": "complete",
+          "steps": [
+            "Audit existing BenchmarkSuiteEngine capabilities",
+            "Verify test harness for parametric sweeps",
+            "Document formula verification methodology",
+            "Check physics constant references"
+          ],
+          "exit_conditions": [
+            "Audit document created",
+            "Formula verification methodology documented"
+          ]
+        },
+        {
+          "id": "P0-U01",
+          "title": "Kienzle Formula Proof: kc = kc1.1 × h^(-mc)",
+          "status": "complete",
+          "steps": [
+            "Verify Kienzle coefficients against ISO 3685 and Kronenberg (1966)",
+            "Create test cases for all 6 ISO material groups (P, M, K, N, S, H)",
+            "Validate kc1.1 values: P=1800, M=2100, K=1100, N=700, S=2800, H=3200",
+            "Test mc exponent range (0.20-0.35)"
+          ],
+          "exit_conditions": [
+            "36+ test cases pass (6 groups × 6 h values)",
+            "Literature references cited"
+          ]
+        },
+        {
+          "id": "P0-U02",
+          "title": "Taylor Tool Life Proof: VT^n = C",
+          "status": "complete",
+          "steps": [
+            "Verify Taylor equation implementation",
+            "Test n exponent by tool material (HSS=0.1, carbide=0.25, ceramic=0.5)",
+            "Validate C constants against tool manufacturer data",
+            "Test extended Taylor with temperature factor"
+          ],
+          "exit_conditions": [
+            "24+ test cases pass",
+            "Tool life predictions within ±15% of published data"
+          ]
+        },
+        {
+          "id": "P0-U03",
+          "title": "Deflection Formula Proof: δ = FL³/3EI",
+          "status": "complete",
+          "steps": [
+            "Verify cantilever beam deflection formula",
+            "Test I calculation for cylindrical tools: I = πd⁴/64",
+            "Validate E values from physics/constants.ts",
+            "Test boring bar deflection with L/D > 4 warning"
+          ],
+          "exit_conditions": [
+            "48+ test cases pass (8 tool diameters × 6 overhangs)",
+            "Deflection warnings at L/D > 4"
+          ]
+        },
+        {
+          "id": "P0-U04",
+          "title": "Surface Finish Formula Proof: Ra = f²/(32R)",
+          "status": "complete",
+          "steps": [
+            "Verify theoretical Ra formula (Brammertz)",
+            "Test across feed rates 0.05-0.5 mm/rev",
+            "Test across nose radii 0.2-1.6 mm",
+            "Validate empirical correction factors"
+          ],
+          "exit_conditions": [
+            "40+ test cases pass",
+            "Ra predictions within ±20% of measured"
+          ]
+        },
+        {
+          "id": "P0-U05",
+          "title": "Chatter Stability Proof: a_lim = -1/(2Ks×Re[G(ω)])",
+          "status": "complete",
+          "steps": [
+            "Verify Altintas & Budak (1995) stability model",
+            "Test stability lobe diagram generation",
+            "Validate optimal RPM in stability pockets",
+            "Test stochastic stability bounds"
+          ],
+          "exit_conditions": [
+            "Stability lobes match published examples",
+            "Critical depth predictions validated"
+          ]
+        },
+        {
+          "id": "P0-U06",
+          "title": "15-Part Benchmark Suite: Representative geometries",
+          "status": "complete",
+          "steps": [
+            "Define 15 benchmark parts spanning all operations",
+            "Include: facing, OD turning, ID boring, threading, milling, drilling",
+            "Create expected results for each part",
+            "Build regression test suite"
+          ],
+          "exit_conditions": [
+            "15 part definitions created",
+            "Expected results documented",
+            "All tests pass"
+          ]
+        },
+        {
+          "id": "P0-U07",
+          "title": "Parametric Sweep Infrastructure: 8,640 S/F combinations",
+          "status": "complete",
+          "steps": [
+            "Build parametric sweep runner",
+            "Configure: 6 ISO groups × 8 ops × 12 tools × 5 machines × 3 DOC = 8,640",
+            "Add result storage and comparison",
+            "Create regression baseline"
+          ],
+          "exit_conditions": [
+            "Sweep runner functional",
+            "Baseline results stored",
+            "No physics violations detected"
+          ]
+        }
+      ]
+    }
+  ]
+}

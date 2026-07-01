@@ -21,11 +21,7 @@ related:
 
 ## Description (from file header)
 
-signature-drift-detector.mjs — Phase 0.8 Signature Drift Hook
-PostToolUse hook that fires after Write/Edit on engine files.
-Compares new content hash to previous signature and warns callers
-if significant changes detected.
-@phase Universal 0.8 — Rename/Delete/Impact Protocol
+_(no header docblock — read source for behavior)_
 
 ## Events
 

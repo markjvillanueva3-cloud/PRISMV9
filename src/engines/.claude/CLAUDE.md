@@ -1,0 +1,13 @@
+# Engine Development Rules
+- Every engine is a TypeScript class with static methods
+- Physics formulas reference src/physics/constants.ts (canonical Kienzle/Taylor/deflection)
+- Companion test file required in __tests__/
+- JSDoc on all public methods
+- Return typed objects, never raw primitives
+- Use Zod for input validation
+- Engine file naming: PascalCaseEngine.ts (e.g., SpeedFeedOrchestratorEngine.ts)
+- All numeric constants must cite their source (ISO standard, textbook, or paper)
+- Prefer composition over inheritance — engines call other engines via static methods
+- Never import from dispatchers — engines are lower-layer than dispatchers
+- Edge cases (zero, negative, NaN) must return structured error objects, not throw
+- Large lookup tables belong in src/data/ catalogs, not inline in engine files

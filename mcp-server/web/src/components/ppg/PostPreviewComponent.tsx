@@ -72,10 +72,17 @@ export function PostPreviewComponent({
   const annotatedCount = useMemo(() => Object.keys(annotations).length, [annotations]);
 
   const handleCopy = useCallback(() => {
-    void navigator.clipboard.writeText(gcode);
+    // When the parent supplies onCopy (e.g. a safety-fenced copy handler that stamps
+    // a PREVIEW-ONLY header on an unvalidated program), DELEGATE the clipboard write to
+    // it -- copying the raw `gcode` here too would leak an un-stamped program. Fall back
+    // to a raw copy only in standalone usage where no handler is wired.
+    if (onCopy) {
+      onCopy();
+    } else {
+      void navigator.clipboard.writeText(gcode);
+    }
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
-    onCopy?.();
   }, [gcode, onCopy]);
 
   return (

@@ -19,13 +19,13 @@ function toolpathById(programmingId: string, toolpathId: string) {
 describe('calculator toolpath taxonomy completeness', () => {
   it('keeps Swiss, live-tool, and nontraditional families in the intended taxonomy buckets', () => {
     const swissSync = toolpathById('esprit-lathe', 'esprit-swiss-sync').toolpath;
-    const liveTool = toolpathById('prism-lathe', 'prism-live-handshake').toolpath;
+    const liveTool = toolpathById('kienzle-lathe', 'kienzle-live-handshake').toolpath;
     const latheDrill = toolpathById('mastercam-lathe', 'mc-lathe-drill').toolpath;
     const swarf = toolpathById('fusion360-mill', 'f360-swarf').toolpath;
     const wireSkim = toolpathById('mastercam-wire', 'mc-wire-skim').toolpath;
     const laserMark = toolpathById('basic-laser', 'basic-laser-mark').toolpath;
     const waterjetTaper = toolpathById('basic-waterjet', 'basic-wj-taper').toolpath;
-    const prismWaterjetTaper = toolpathById('prism-waterjet', 'prism-wj-taperlock').toolpath;
+    const prismWaterjetTaper = toolpathById('kienzle-waterjet', 'kienzle-wj-taperlock').toolpath;
 
     expect(classifyToolpathType(swissSync).id).toBe('swiss_sync');
     expect(classifyToolpathType(liveTool).id).toBe('live_milling');
@@ -42,7 +42,7 @@ describe('calculator toolpath taxonomy completeness', () => {
   });
 
   it('seeds milling-style DOC and WOC defaults for live-tool mill-turn paths', () => {
-    const prismLiveTool = toolpathById('prism-lathe', 'prism-live-handshake').toolpath;
+    const prismLiveTool = toolpathById('kienzle-lathe', 'kienzle-live-handshake').toolpath;
     const espritLiveTool = toolpathById('esprit-lathe', 'esprit-live-tool').toolpath;
 
     const prismDefaults = getToolpathDefaults(prismLiveTool, 'lathe');
@@ -67,7 +67,7 @@ describe('calculator toolpath taxonomy completeness', () => {
 
   it('keeps Swiss sync and live-tool lathe paths visible under the correct license seats', () => {
     const espritLathe = PROGRAMMING_ENVIRONMENTS.find((item) => item.id === 'esprit-lathe');
-    const prismLathe = PROGRAMMING_ENVIRONMENTS.find((item) => item.id === 'prism-lathe');
+    const prismLathe = PROGRAMMING_ENVIRONMENTS.find((item) => item.id === 'kienzle-lathe');
     const swissMachine = MACHINE_CATALOG.find((item) => item.id === 'citizen-l20');
     const liveToolMachine = MACHINE_CATALOG.find((item) => item.id === 'haas-st20y');
 
@@ -88,7 +88,7 @@ describe('calculator toolpath taxonomy completeness', () => {
 
     expect(espritSwissSync.map((item) => item.id)).toContain('esprit-swiss-sync');
     expect(espritLiveTool.map((item) => item.id)).toContain('esprit-live-tool');
-    expect(prismLiveTool.map((item) => item.id)).toContain('prism-live-handshake');
+    expect(prismLiveTool.map((item) => item.id)).toContain('kienzle-live-handshake');
     expect(espritLiveTool.map((item) => item.id)).not.toContain('esprit-swiss-sync');
     expect(filterToolpathsForLicense(espritLathe!, espritLathe!.toolpaths, 'turning-core', swissMachine).map((item) => item.id)).not.toContain('esprit-swiss-sync');
     expect(liveToolCategories).toContain('drilling');

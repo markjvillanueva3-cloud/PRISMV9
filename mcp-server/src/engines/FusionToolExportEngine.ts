@@ -9,8 +9,15 @@
 
 import { toolCatalogEngine } from "./ToolCatalogEngine.js";
 import { machiningPlaybookEngine } from "./MachiningPlaybookEngine.js";
+import { ultimateSpeedFeedEngine, type Operation, type ToolMaterial } from "./UltimateSpeedFeedEngine.js";
+import { holderSelectionEngine } from "./HolderSelectionEngine.js";
+import type { ISOGroup } from "../physics/constants.js";
 
-// Kienzle-based default speeds per ISO group
+// Last-resort COARSE EMPIRICAL fallback Vc (m/min) / fz (mm/tooth) per ISO
+// group. NOT Kienzle-derived (Kienzle is a force model, not a speed model) —
+// these only apply when BOTH the vendor catalog cutting_data AND the
+// physics-optimal SFC lookup are unavailable for a tool (e.g. tapping rows,
+// whose table fz is 0). See the _generatePresets priority chain.
 const DEFAULT_VC: Record<string, number> = {
   P: 150, M: 100, K: 200, N: 400, S: 50, H: 120,
 };
@@ -238,10 +245,11 @@ export class FusionToolExportEngine {
     // Determine Fusion tool type
     const toolType = this._fusionToolType(tType, cr, d);
 
-    // Generate cutting parameter presets for all ISO groups
-    // Use catalog cutting_data when available, fall back to Kienzle defaults
+    // Generate cutting parameter presets for all ISO groups.
+    // Priority per group: vendor catalog cutting_data → physics-optimal SFC
+    // (UltimateSpeedFeedEngine) → Kienzle defaults.
     const presets = this._generatePresets(
-      d, flutes, loc, tool.cutting_data, tType,
+      d, flutes, loc, tool.cutting_data, tType, this._fusionBMC(coating),
     );
 
     const vendor = tool.manufacturer || "Generic";
@@ -285,6 +293,28 @@ export class FusionToolExportEngine {
     const holderLength = hpGauge;
     const holderGaugeLen = holderLength + oal - loc;
 
+    // Real-holder lookup (CATALOG-APP-WIRING-MS0/U-HOLDER-WIRE-FUSION, slot:romeo):
+    // prefer an ACTUAL cataloged holder (HAIMER / GUHRING / BIG DAISHOWA, 643 records)
+    // matched to the spindle taper + shank, replacing the synthetic vendor="Generic"
+    // geometry above. Spindle taper defaults to CAT40 (JM's common interface) unless the
+    // tool names a real spindle taper; collet-size hi values (ER*) are NOT spindle tapers.
+    // Falls back to the synthetic holder when no catalog holder fits (fail-soft).
+    const spindleTaper =
+      (tool as any).spindle_taper ||
+      (hi && /^(CAT|BT|SK|HSK|DIN)/i.test(String(hi)) ? hi : "CAT40");
+    const realHolder = holderSelectionEngine.select({
+      taper: spindleTaper,
+      shankDiameterMm: shankD,
+      typePreference: shankD <= 12 ? "shrink_fit" : "hydraulic",
+    });
+    const holderDescription = realHolder
+      ? `${realHolder.brand} ${realHolder.designation}`.trim()
+      : (HP[taperType] ?? HP["ER32"])[2];
+    const holderVendor = realHolder ? realHolder.brand : "Generic";
+    const holderConnection = realHolder ? realHolder.taper : taperType;
+    const holderDC = realHolder?.bodyDiaMm ?? holderBodyDiam;
+    const holderLH = realHolder?.gaugeMm ?? holderGaugeLen;
+
     const holderSegments = [
       { "upper-diameter": holderBodyDiam, "lower-diameter": holderBodyDiam, height: holderLength * 0.7 },
       { "upper-diameter": holderBodyDiam, "lower-diameter": holderBodyDiam * 1.3, height: holderLength * 0.15 },
@@ -307,13 +337,13 @@ export class FusionToolExportEngine {
       },
       shaft: { segments: shaftSegments },
       holder: {
-        description: (HP[taperType] ?? HP["ER32"])[2],
-        vendor: "Generic",
+        description: holderDescription,
+        vendor: holderVendor,
         geometry: {
-          DC: holderBodyDiam,
+          DC: holderDC,
           LB: holderLength,
-          LH: holderGaugeLen,
-          connection: taperType,
+          LH: holderLH,
+          connection: holderConnection,
         },
         segments: holderSegments,
       },
@@ -321,13 +351,27 @@ export class FusionToolExportEngine {
       description: `PRISM: ${vendor} ${designation} ${coating}`,
       vendor,
       "product-id": productId,
-      comment: `Physics-backed S/F from PRISM (Kienzle/Taylor). Holder: ${taperType}${this._enrichComment(tType, d)}`,
+      comment: `Physics-backed S/F from PRISM (Kienzle/Taylor). Holder: ${holderDescription} [${holderConnection}]${this._enrichComment(tType, d)}`,
     };
   }
 
   /**
    * Generate cutting parameter presets for all 6 ISO material groups.
-   * Uses catalog cutting_data when available, falls back to Kienzle defaults.
+   *
+   * Per-group cutting data is resolved by a 3-tier priority chain so every
+   * preset carries the most physically-correct numbers available:
+   *   1. vendor catalog `cutting_data[iso]` (manufacturer-published, diameter-specific)
+   *   2. PRISM physics-optimal — `UltimateSpeedFeedEngine.calculate()` per ISO group
+   *      (Kienzle/Taylor/Merchant-backed, geometry- and tool-material-aware)
+   *   3. coarse Kienzle DEFAULT_VC/DEFAULT_FZ (last-resort fail-soft)
+   *
+   * @param d cutting diameter (mm)
+   * @param flutes flute count
+   * @param loc length of cut / flute length (mm)
+   * @param cuttingData optional vendor catalog cutting data keyed by ISO group
+   * @param toolType PRISM/Fusion tool-type string (drives op + coolant + ramp)
+   * @param toolMaterial Fusion BMC class ("carbide"|"hss"|"cbn"|"pcd"|"ceramic")
+   * @returns one preset object per ISO group (P,M,K,N,S,H)
    */
   private _generatePresets(
     d: number, flutes: number, loc: number,
@@ -337,6 +381,7 @@ export class FusionToolExportEngine {
       ap_max?: number; ae_max?: number;
     }>,
     toolType?: string,
+    toolMaterial: string = "carbide",
   ) {
     const groups: Array<{ iso: string; name: string }> = [
       { iso: "P", name: "Steel (P)" },
@@ -347,34 +392,52 @@ export class FusionToolExportEngine {
       { iso: "H", name: "Hardened (H)" },
     ];
 
-    // Roughing-oriented ap/ae from actual tool geometry
+    // Roughing-oriented ap/ae from actual tool geometry (last-resort default)
     const roughAp = Math.round(loc * 0.5 * 100) / 100;
     const roughAe = Math.round(d * 0.5 * 100) / 100;
 
     return groups.map(g => {
       const cd = cuttingData?.[g.iso];
-      // Use catalog averages when available, else Kienzle defaults
+      // Only consult the (heavier) physics engine when no vendor data exists.
+      const sfc = cd
+        ? null
+        : this._sfcOptimal(g.iso, toolType || "end_mill", d, flutes, loc, toolMaterial);
+
+      // Vc (m/min): catalog avg → SFC optimal → Kienzle default
       const vc = cd
         ? (cd.vc_min + cd.vc_max) / 2
-        : (DEFAULT_VC[g.iso] || 150);
+        : sfc
+          ? sfc.vc
+          : (DEFAULT_VC[g.iso] || 150);
+      // fz (mm/tooth): catalog avg → SFC optimal → Kienzle default
       const fz = cd
         ? (cd.fz_min + cd.fz_max) / 2
-        : (DEFAULT_FZ[g.iso] || 0.1);
+        : sfc
+          ? sfc.fz
+          : (DEFAULT_FZ[g.iso] || 0.1);
 
-      // Scale fz with tool diameter (larger tool = higher fz)
-      const scaledFz = cd
-        ? Math.round(fz * 1000) / 1000          // catalog already diameter-specific
+      // fz precision by source: vendor-catalog fz and SFC fz are ALREADY
+      // diameter-specific (SFC applies its 12mm-anchored diameterFzFactor table
+      // internally). DEFAULT_FZ is a single 10mm-reference constant, so it alone
+      // gets the sqrt(d/10) up-scale. Two distinct scaling laws by design — do
+      // NOT add a second scale to the catalog/SFC branch.
+      const scaledFz = (cd || sfc)
+        ? Math.round(fz * 1000) / 1000
         : Math.round(fz * Math.sqrt(d / 10) * 1000) / 1000;
       const rpm = Math.round((vc * 1000) / (Math.PI * d));
       const feedMmMin = Math.round(scaledFz * flutes * rpm);
 
-      // Stepdown/stepover: prefer catalog ap_max/ae_max, else geometry-based roughing
+      // Stepdown/stepover: catalog ap_max/ae_max → SFC ap/ae → geometry roughing
       const stepdown = cd?.ap_max
         ? Math.round(Math.min(cd.ap_max, loc) * 100) / 100
-        : roughAp;
+        : sfc
+          ? Math.round(Math.min(sfc.ap, loc) * 100) / 100
+          : roughAp;
       const stepover = cd?.ae_max
         ? Math.round(Math.min(cd.ae_max, d) * 100) / 100
-        : roughAe;
+        : sfc
+          ? Math.round(Math.min(sfc.ae, d) * 100) / 100
+          : roughAe;
 
       // Coolant strategy based on tool type
       const coolant = this._coolantForPreset(g.iso, toolType || "end_mill", d);
@@ -393,6 +456,72 @@ export class FusionToolExportEngine {
         tool_coolant: coolant,
       };
     });
+  }
+
+  /** Memoization for the physics-optimal SFC lookup (keyed by tool signature). */
+  private _sfcCache: Map<string, { vc: number; fz: number; ap: number; ae: number } | null> = new Map();
+
+  /**
+   * Map a Fusion/PRISM tool-type string to the SFC engine's operation enum.
+   */
+  private _sfcOperation(toolType: string): Operation {
+    if (/drill/i.test(toolType)) return "drilling";
+    if (/tap/i.test(toolType)) return "tapping";
+    if (/ream/i.test(toolType)) return "reaming";
+    if (/bor/i.test(toolType)) return "boring";
+    if (/thread.*mill/i.test(toolType)) return "thread_milling";
+    return "milling";
+  }
+
+  /**
+   * Physics-optimal cutting parameters for one ISO group via the SFC engine's
+   * lightweight `lookupCuttingData` table path (NOT the full `calculate()`
+   * physics suite — that is far too slow to call 6×/tool across a large
+   * library). Returns Vc (m/min), fz (mm/tooth — for milling; feed-per-rev
+   * divided by flutes for single-point ops so the downstream `fz*flutes*rpm`
+   * recovers the correct feedrate), ap (mm) and ae (mm). Returns null on any
+   * failure so the caller fails soft to the coarse Kienzle defaults. Results
+   * are memoized by tool signature.
+   *
+   * @returns optimal {vc, fz, ap, ae} or null if no cutting-data row resolves
+   */
+  private _sfcOptimal(
+    iso: string, toolType: string, d: number, flutes: number,
+    loc: number, toolMaterial: string,
+  ): { vc: number; fz: number; ap: number; ae: number } | null {
+    const op = this._sfcOperation(toolType);
+    const validMat: ToolMaterial = ["carbide", "hss", "cermet", "ceramic", "cbn", "pcd"].includes(toolMaterial)
+      ? (toolMaterial as ToolMaterial) : "carbide";
+    const key = `${iso}|${op}|${d.toFixed(2)}|${flutes}|${validMat}|${loc.toFixed(1)}`;
+    if (this._sfcCache.has(key)) return this._sfcCache.get(key)!;
+
+    let result: { vc: number; fz: number; ap: number; ae: number } | null = null;
+    try {
+      if (ultimateSpeedFeedEngine?.lookupCuttingData) {
+        const lk = ultimateSpeedFeedEngine.lookupCuttingData({
+          iso_group: iso as ISOGroup,
+          operation: op,
+          cut_type: "roughing",
+          tool_diameter_mm: d,
+          tool_material: validMat,
+        });
+        if (lk && Number.isFinite(lk.vc) && lk.vc > 0 && Number.isFinite(lk.fz) && lk.fz > 0) {
+          // milling/thread-milling fz is per-tooth; single-point ops report
+          // per-rev — divide by flutes so fz*flutes*rpm = correct feedrate.
+          const isMillingOp = op === "milling" || op === "thread_milling";
+          const fz = isMillingOp ? lk.fz : (flutes > 0 ? lk.fz / flutes : lk.fz);
+          result = {
+            vc: lk.vc,
+            fz,
+            ap: lk.ap > 0 ? lk.ap : loc * 0.5,
+            ae: lk.ae > 0 ? lk.ae : d * 0.5,
+          };
+        }
+      }
+    } catch { /* SFC engine unavailable — caller falls back to Kienzle defaults */ }
+
+    this._sfcCache.set(key, result);
+    return result;
   }
 
   /**

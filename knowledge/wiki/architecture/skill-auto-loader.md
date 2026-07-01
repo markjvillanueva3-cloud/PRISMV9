@@ -4,7 +4,7 @@ domain: skills
 status: wired
 wired_to: prism_skill_script
 actions: [skill_auto_load, skill_auto_load_clear_cache]
-related: [[skill-tier-registry-engine]], [[skill-executor]], [[skill-bundle-engine]]
+related: [[skill-tier-registry-engine]], [[skill-executor]], [[skillbundleengine]]
 rescued_from_orphan: 2026-05-13
 ---
 

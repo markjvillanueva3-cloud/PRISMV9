@@ -1,0 +1,1865 @@
+{
+  "id": "WEDM-100PCT-MS0",
+  "title": "Wire EDM 100% Confidence — Physics-Optimized Program Generation",
+  "track": "WEDM-100PCT",
+  "status": "complete",
+  "created": "2026-04-04",
+  "hardened": "2026-04-05",
+  "completed": "2026-04-13",
+  "completion_commit": "2c319c45c",
+  "rgs_version": "v24",
+  "philosophy": "Programs must be 100% accurate from PHYSICS FIRST PRINCIPLES + MANUFACTURER PUBLISHED DATA. Existing shop programs were written by amateurs — they are sanity checks, not targets. PRISM output should be BETTER than those programs: optimized speeds, minimal passes for target Ra, correct offsets from discharge physics. Every synthetic parameter must be replaced with a published or derived value. This is SAFETY-CRITICAL — wrong parameters can crash machines and injure operators.",
+  "total_units": 38,
+  "completed_units": 38,
+  "sessions": 13,
+  "dependencies": [],
+
+  "knowledge_sources": {
+    "engines": {
+      "core_physics": [
+        "EDMCuttingParamFlushEngine (1624 LOC) — DiBitonto crater, Kunieda energy, wire break model",
+        "EDMMultiPassStrategyEngine (1109 LOC) — Klocke Ra, Toenshoff cascade, recast",
+        "EDMProgramAssemblerEngine (2705 LOC) — Sato speed, Puertas&Luis Ra, Monte Carlo",
+        "StochasticEDMEngine (340 LOC) — Monte Carlo uncertainty quantification"
+      ],
+      "generation": [
+        "EDMPostProcessGCodeEngine (2512 LOC) — G-code for 5 controller dialects",
+        "WEDMPrintToProgramEngine (683 LOC) — orchestration pipeline",
+        "WireEDMSettingsEngine (202 LOC) — wire parameters (100% SYNTHETIC — replacement target)"
+      ],
+      "selection": [
+        "EDMMaterialMachineWireEngine (1753 LOC) — material/machine/wire selection (has ORPHAN machine DB)",
+        "EDMFeasibilityEngine (838 LOC) — feasibility assessment"
+      ],
+      "quality": [
+        "EDMMonitorSurfaceIntegrityEngine (1310 LOC) — Carslaw&Jaeger recast, AMS 2628",
+        "EDMQualityOrchestratorEngine (2612 LOC) — Cpk, Bayesian calibration"
+      ],
+      "geometry": [
+        "EDMToolpathStrategyEngine (1224 LOC) — taper UV, corner detection, tabs",
+        "EDMWireSlugCornerTaperEngine (961 LOC) — wire lag beam model, slug weight"
+      ],
+      "legacy_replace": [
+        "EDMEngine (294 LOC) — 100% synthetic, superseded",
+        "EDMParameterEngine (196 LOC) — 100% synthetic, superseded",
+        "EDMWireEngine (132 LOC) — mostly synthetic"
+      ]
+    },
+    "published_formulas": {
+      "klocke_ra": "Ra = k_ra × I_p^0.40 × t_on^0.28 — Klocke (2013) Manufacturing Processes 4, CANONICAL",
+      "dibitonto_crater": "d_c = K1 × E^(1/3) — DiBitonto et al. (1989) crater diameter model",
+      "kunieda_energy": "E = V_gap × I_peak × t_on — Kunieda et al. CIRP Annals 2005",
+      "toenshoff_cascade": "E_n = E_rough × 0.25^(n-1) — Toenshoff 60-80% energy reduction per skim",
+      "carslaw_jaeger_recast": "d = 2√(α × t_on) — Carslaw & Jaeger heat conduction (thermal penetration)",
+      "sato_speed": "V_cut = K×I_p×t_on/(h×D_wire) — Sato (1985) cutting speed model",
+      "puertas_luis_ra": "Ra = C_ra × I_p^α × t_on^β — Puertas & Luis (2004) material-specific",
+      "wire_deflection": "δ = F×L²/(8T) — beam analogy for wire under discharge force"
+    },
+    "published_data": {
+      "machine_specs": "src/data/wedm-published-machines.ts — 9 machines, 4 manufacturers, all URL-cited",
+      "cutting_conditions": "PUBLISHED_CUTTING_CONDITIONS — 10 material×thickness data points from Lemhunter, MMS, Makino",
+      "spark_gap": "PUBLISHED_SPARK_GAP — gap ranges (25-50μm typical), kerf width data",
+      "ra_vs_passes": "PUBLISHED_RA_VS_PASSES — 6 data points (1-6 passes → 3.2-0.05μm Ra)",
+      "real_programs": [
+        "ITW SHAKEPROOF — D2 tool steel, 4-pass, E1221-E1224, H1=0.0085in→H4=0.0053in, arc reversal on Pass 3",
+        "NOZE TEST — taper profile, UV on G1 lines, H-offsets 0.0000 for taper mode"
+      ]
+    },
+    "handbooks": [
+      "data/machine-handbooks/wire-edm/sodick-wire-edm-operation-manual-MIT.pdf",
+      "data/machine-handbooks/wire-edm/mitsubishi-fa-advance-series-catalog.pdf",
+      "data/machine-handbooks/wire-edm/mitsubishi-mp-series-catalog.pdf",
+      "data/machine-handbooks/wire-edm/reliable-edm-complete-handbook-ch5.pdf"
+    ],
+    "registries": [
+      "MaterialRegistry — 2,957 materials with α, Tm, k, ρ, cp for EDM physics",
+      "MachineRegistry — 910 machines (filter for EDM type)",
+      "FormulaRegistry — 499 formulas (ZERO EDM — gap to fill)"
+    ],
+    "tribal_knowledge": [
+      "TribalKnowledgeEngine — query for WEDM tips",
+      "MachiningPlaybookEngine — 296 rules, anti-patterns for EDM"
+    ],
+    "critical_inconsistencies": [
+      "5 different Ra formulas across engines — MUST converge to Klocke canonical",
+      "2 different recast formulas (Carslaw&Jaeger vs DiBitonto) — MUST standardize",
+      "wedm-published-machines.ts imported by ZERO engines — MUST wire",
+      "Zero EDM constants in physics/constants.ts — MUST add canonical values",
+      "EDMMultiPassStrategyEngine U05 uses OLD Ra formula (E^0.33 × t_on^0.18) while U02/U03 use Klocke (I_p^0.40 × t_on^0.28)"
+    ]
+  },
+
+  "forge_triple": {
+    "protective_hook": {
+      "name": "wedm-physics-constants-gate",
+      "file": ".claude/hooks/lib/wedm-physics-constants-gate.mjs",
+      "registered_in": ".claude/settings.json (PreToolUse → Write/Edit/MultiEdit)",
+      "description": "Warns on inline EDM constants (K1, k_ra, eta, alpha) in engine files. Forces import from physics/constants.ts EDM section.",
+      "status": "BUILT and REGISTERED"
+    },
+    "mcp_action": {
+      "primary": "prism_edm:wedm_generate_complete_program",
+      "alias": "prism_edm:wedm_generate_optimized_program",
+      "engine": "src/engines/WEDMCompleteOrchestrationEngine.ts",
+      "dispatcher": "src/tools/dispatchers/edmDispatcher.ts",
+      "stages": 30,
+      "description": "Full 30-stage physics-optimized program generation with confidence scoring, 5 dialects, 8 material groups",
+      "status": "BUILT and WIRED"
+    },
+    "skill": {
+      "name": "/wedm-program",
+      "file": ".claude/commands/wedm-program.md",
+      "description": "Generate physics-optimized Wire EDM program from geometry + material + machine",
+      "status": "BUILT and LIVE"
+    },
+    "batch_skill": {
+      "name": "/wedm-batch",
+      "file": ".claude/commands/wedm-batch.md",
+      "script": ".claude/hooks/lib/wedm-batch-validate.mjs",
+      "modes": ["physics (60 cases)", "dialects (5 controllers)", "materials (22 variants)", "production (30 cases)", "all"],
+      "description": "Batch validation across material×thickness×wire×dialect matrix",
+      "status": "BUILT and LIVE"
+    }
+  },
+
+  "mcp_session_protocol": {
+    "session_start": [
+      "prism_session:context_boot — full context hydration from prior session",
+      "prism_session:dispatcher_map — discover all dispatchers and actions",
+      "prism_session:memory_recall — load cross-session knowledge",
+      "prism_session:system_snapshot — capture baseline system state",
+      "prism_session:action_search '<session_goal>' — find optimal MCP actions for this session"
+    ],
+    "during_work_every_5_10_calls": [
+      "prism_session:auto_checkpoint — save incremental state",
+      "prism_session:action_search '<current_need>' — route intent to optimal dispatcher",
+      "prism_session:wip_capture — snapshot work-in-progress"
+    ],
+    "session_end": [
+      "prism_session:memory_save — persist cross-session knowledge",
+      "prism_session:system_snapshot — capture post-work state (diff against baseline)",
+      "prism_session:checkpoint_enhanced — detailed checkpoint with artifact list"
+    ],
+    "plugin_utilization": [
+      "mcp__vitest__run_tests — run targeted test suites after engine modifications",
+      "mcp__vitest__analyze_coverage — verify test coverage meets safety-critical requirements",
+      "mcp__eslint__lint-files — TypeScript quality gate on all modified files",
+      "codebase-memory-mcp:search_graph — trace engine dependencies before modification",
+      "codebase-memory-mcp:trace_call_path — verify dispatcher wiring completeness"
+    ]
+  },
+
+  "enforcement_hooks_active": [
+    "PRE-LEVEL: knowledge-consult (verify domain sources read before code), context-retention",
+    "POST-LEVEL: stub-detector (blocks placeholder returns), test-quality (blocks ||true, bare .includes(), ±250% ranges)",
+    "POST-LEVEL: constants-checker (blocks inline physics values — must import from constants.ts)",
+    "POST-LEVEL: physics-agent (reviews every engine edit for formula correctness vs published data)",
+    "POST-LEVEL: wiring-agent (reviews every engine for MCP dispatcher readiness)",
+    "COMPACT-LEVEL: review-gate (blocks compaction without /prism-review), forge-triple-gate",
+    "COMPACT-LEVEL: session-audit-agent (reviews work quality before compaction)",
+    "POST-COMPACT: Feature Cascade (SESSION_ARTIFACTS.json auto-written for next session)"
+  ],
+
+  "safety_critical_test_law": {
+    "mandate": "ALL tests must validate against PUBLISHED data with specific expected values. This is safety-critical — CNC programs can kill operators.",
+    "banned_patterns": [
+      "expect(value).toBeGreaterThan(0) as only assertion",
+      "expect(value).toBeDefined() as only assertion",
+      "Tolerances wider than ±15% of published values",
+      "Tests that pass with ANY positive number"
+    ],
+    "required_patterns": [
+      "expect(ra).toBeCloseTo(published_ra, 1) — validate against Klocke/manufacturer data",
+      "expect(offset).toBeCloseTo(published_offset, 3) — validate against real program data",
+      "expect(feed).toBeCloseTo(published_feed, 1) — validate against Lemhunter/manufacturer data",
+      "Wire current density < breakage threshold assertions",
+      "Machine axis limit assertions",
+      "Minimum corner radius assertions",
+      "NaN/zero/impossible input failure cases"
+    ],
+    "minimum_per_unit": {
+      "physics_engine": "5 material×thickness combos validated against published data",
+      "gcode_generator": "parse output, verify coordinates match input geometry",
+      "validation_unit": "30 test cases minimum with published reference values"
+    }
+  },
+
+  "phases": [
+    {
+      "id": "P1",
+      "title": "Replace Synthetic Pulse Baselines with Published Manufacturer Data",
+      "sessions": "S1-S2",
+      "units": ["U-W100-01", "U-W100-02", "U-W100-03", "U-W100-04"],
+      "rationale": "PASS_BASELINES (t_on=4.0, t_off=16.0, I_p=20.0) are 100% synthetic. Every downstream calculation inherits this error. Must fix FIRST."
+    },
+    {
+      "id": "P2",
+      "title": "Physics-Derived Offset Model (Zero Synthetic Constants)",
+      "sessions": "S2-S3",
+      "units": ["U-W100-05", "U-W100-06", "U-W100-07"],
+      "rationale": "H-offsets are 59% too large vs real programs. Offset = f(crater physics, energy cascade) — not synthetic sparkGap constants."
+    },
+    {
+      "id": "P3",
+      "title": "Optimal Feed Rate from MRR Physics (Not Empirical Base Constant)",
+      "sessions": "S3-S4",
+      "units": ["U-W100-08", "U-W100-09", "U-W100-10"],
+      "rationale": "Feed rate uses arbitrary 5.0 mm/min base. Must derive from Kunieda MRR thermodynamics."
+    },
+    {
+      "id": "P4",
+      "title": "E-Pack Code Generator from Material Science + Machine Specs",
+      "sessions": "S4-S5",
+      "units": ["U-W100-11", "U-W100-12", "U-W100-13"],
+      "rationale": "E-pack codes are synthetic format. Must match Mitsubishi E{group}{thick}{cond}{pass} encoding."
+    },
+    {
+      "id": "P5",
+      "title": "Complete Arc Reversal + UV Taper (Correct G-Code Structure)",
+      "sessions": "S5-S6",
+      "units": ["U-W100-14", "U-W100-15", "U-W100-16"],
+      "rationale": "Pass 3 arcs not reversed (confirmed missing by audit). UV taper not emitted. Both are CORRECTNESS requirements."
+    },
+    {
+      "id": "P6",
+      "title": "Multi-Pass Optimization: Minimum Passes for Target Ra",
+      "sessions": "S6-S7",
+      "units": ["U-W100-17", "U-W100-18", "U-W100-19"],
+      "rationale": "Amateur programs use wrong pass count. Physics: solve Ra_n ≤ Ra_target for minimum n."
+    },
+    {
+      "id": "P7",
+      "title": "Wire Path Backplot + Program Verification",
+      "sessions": "S7-S8",
+      "units": ["U-W100-20", "U-W100-21", "U-W100-22"],
+      "rationale": "#1 adoption blocker — operators need to SEE the path before trusting generated programs."
+    },
+    {
+      "id": "P8",
+      "title": "Full Material Matrix Validation",
+      "sessions": "S8-S9",
+      "units": ["U-W100-23", "U-W100-24", "U-W100-25"],
+      "rationale": "Must prove physics works for ALL materials, not just D2. Each material has unique thermal/electrical properties."
+    },
+    {
+      "id": "P9",
+      "title": "Production Confidence Gate + Self-Improving Loop",
+      "sessions": "S9-S10",
+      "units": ["U-W100-26", "U-W100-27", "U-W100-28", "U-W100-29", "U-W100-30"],
+      "rationale": "Final production gate: confidence scoring, feedback calibration, knowledge enrichment, setup sheets, 30-case end-to-end proof."
+    }
+  ],
+
+  "sessions": {
+    "S1": {
+      "title": "Published Pulse Data + Engine Integration",
+      "units": ["U-W100-01", "U-W100-02", "U-W100-03"],
+      "smart_config": {
+        "role": "EDM Process Engineer + Physics Researcher",
+        "model": "opus",
+        "effort": "MAX",
+        "context_budget": "85%"
+      },
+      "knowledge_sources": [
+        "Klocke (2013) Tables 8.1-8.4 (published pulse conditions by material/thickness)",
+        "wedm-published-machines.ts (10 cutting condition data points)",
+        "PUBLISHED_RA_VS_PASSES (Ra progression data)",
+        "Downloaded PDFs: Mitsubishi FA catalog, Sodick manual, Reliable EDM Ch5",
+        "EDMCuttingParamFlushEngine lines 440-461 (PASS_BASELINES to DELETE)",
+        "EDMMultiPassStrategyEngine lines 145-259 (material constants to replace)",
+        "physics/constants.ts (canonical source — needs EDM section added)"
+      ],
+      "intent": "Machinist gets pulse parameters (t_on, t_off, I_p, V) that match their machine manual — not synthetic guesses. When they look up their machine's tech table, PRISM's values should be recognizable.",
+      "skills": ["/prism-review", "/scrutinize", "/test", "/physics-verify", "/calibrate", "/wedm-batch materials"],
+      "batch_operations": ["/wedm-batch materials — verify thermal property coverage before physics work"],
+      "exit_gate": {
+        "measurable_criteria": [
+          "wedm-published-conditions.ts contains ≥20 published data points with source citations (lowered from 40 per data librarian review)",
+          "PASS_BASELINES constant DELETED from EDMCuttingParamFlushEngine",
+          "All material correction factors derived from physics (α, Tm, k) not arbitrary multipliers",
+          "physics/constants.ts has new EDM section with k_ra, K1_dibitonto, eta_kunieda",
+          "5+ material×thickness combos validated against Klocke/Lemhunter published values (±10%)"
+        ],
+        "omega_floor": 0.85,
+        "svi_delta": "+2%"
+      },
+      "feature_cascade": {
+        "new_hooks": [],
+        "new_actions": ["prism_edm:wedm_get_published_conditions — lookup published pulse params"],
+        "new_skills": [],
+        "available_to": ["S2", "S3", "S4"]
+      },
+      "compact_after": true
+    },
+
+    "S2": {
+      "title": "Pulse Validation + Offset Physics Foundation",
+      "units": ["U-W100-04", "U-W100-05", "U-W100-06"],
+      "smart_config": {
+        "role": "EDM Physics Engineer + Dimensional Metrology Specialist",
+        "model": "opus",
+        "effort": "MAX",
+        "context_budget": "85%"
+      },
+      "knowledge_sources": [
+        "S1 Feature Cascade: wedm-published-conditions.ts (from U-W100-01)",
+        "DiBitonto (1989) crater model: d_c = K1 × E^(1/3)",
+        "Toenshoff energy cascade: E_n = E_rough × 0.25^(n-1)",
+        "ITW SHAKEPROOF real offsets: H1=0.0085in, H2=0.0064in, H3=0.0058in, H4=0.0053in",
+        "PUBLISHED_SPARK_GAP: typical 25-50μm, kerf 0.335mm for 0.25mm brass",
+        "Klocke Ra model for forward-validation of generated pulse params",
+        "EDMMultiPassStrategyEngine lines 254-259 (SPARK_GAP_TABLE to DELETE)",
+        "EDMMultiPassStrategyEngine lines 435 (TRIM_STOCK_REMOVAL_MM to DELETE)"
+      ],
+      "intent": "Machinist gets offsets that produce correct part dimensions on first try. H-offsets decrease monotonically (physics-correct) and match what experienced EDM operators expect for their material/thickness.",
+      "skills": ["/prism-review", "/scrutinize", "/test", "/physics-verify", "/trace", "/wedm-batch physics"],
+      "batch_operations": ["/wedm-batch physics — validate 60 material×thickness×Ra combos against published Klocke/Lemhunter data"],
+      "exit_gate": {
+        "measurable_criteria": [
+          "All pulse params produce Ra within ±15% of Klocke prediction (widened from ±5% per published literature scatter)",
+          "Wire current density < breakage threshold for all combos",
+          "Duty cycle within safe limits (rough<0.30, skim<0.20)",
+          "H-offsets computed from DiBitonto crater physics, not synthetic constants",
+          "SPARK_GAP_TABLE and TRIM_STOCK_REMOVAL_MM constants DELETED",
+          "Stock removal per pass derived from energy cascade (not lookup table)",
+          "Test: 5+ material×thickness offset chains validated against physics"
+        ],
+        "omega_floor": 0.85,
+        "svi_delta": "+2%"
+      },
+      "feature_cascade": {
+        "new_hooks": [],
+        "new_actions": ["prism_edm:wedm_compute_physics_offset — DiBitonto-derived offset per pass"],
+        "new_skills": [],
+        "available_to": ["S3", "S4", "S8"]
+      },
+      "compact_after": true
+    },
+
+    "S3": {
+      "title": "Dimensional Validation + Feed Rate Physics",
+      "units": ["U-W100-07", "U-W100-08", "U-W100-09"],
+      "smart_config": {
+        "role": "EDM Process Optimization Engineer + Thermodynamics Specialist",
+        "model": "opus",
+        "effort": "MAX",
+        "context_budget": "85%"
+      },
+      "knowledge_sources": [
+        "S2 Feature Cascade: physics offset model (from U-W100-05/06)",
+        "Kunieda (2005) MRR: η × E_pulse × f_rep / ρ / (cp×ΔT + Lm)",
+        "PUBLISHED_CUTTING_CONDITIONS: 10 feed rate data points for validation",
+        "Lemhunter feed rates: tool_steel 50mm=3.0 mm/min, mild_steel 25mm=4.0 mm/min",
+        "Mitsubishi MV-S: 410 mm²/min max rough (8.2 mm/min at 50mm)",
+        "WireEDMSettingsEngine line 79-82 (5.0 base constant to DELETE)",
+        "Wire break model from EDMCuttingParamFlushEngine lines 826-901",
+        "MaterialRegistry — α, Tm, k, ρ, cp, Lm for all materials"
+      ],
+      "intent": "Machinist gets feed rates that are FASTER than their current amateur programs while maintaining target Ra. Feed is provably optimal under all constraints (wire safety, flush, servo). Dimensional accuracy ±0.002mm.",
+      "skills": ["/prism-review", "/scrutinize", "/test", "/physics-verify", "/calibrate"],
+      "exit_gate": {
+        "measurable_criteria": [
+          "Final part dimension within ±0.002mm for all test materials",
+          "Physics offset model produces correct stock removal chain (sum = total offset)",
+          "5.0 base constant DELETED from WireEDMSettingsEngine",
+          "Feed rate computed from Kunieda MRR thermodynamics",
+          "Feed rate ≥ Lemhunter published values for same material/thickness (±15%)",
+          "Feed constrained by min(wire_break, flush, servo) — documented constraint chain",
+          "Test: 5+ material×thickness feed rates validated against published data"
+        ],
+        "omega_floor": 0.85,
+        "svi_delta": "+2%"
+      },
+      "feature_cascade": {
+        "new_hooks": [],
+        "new_actions": ["prism_edm:wedm_compute_optimal_feed — physics-derived feed with constraint chain"],
+        "new_skills": [],
+        "available_to": ["S4", "S7", "S8"]
+      },
+      "compact_after": true
+    },
+
+    "S4": {
+      "title": "Skim Feed Optimization + E-Pack Code Generator",
+      "units": ["U-W100-10", "U-W100-11", "U-W100-12"],
+      "smart_config": {
+        "role": "EDM Applications Engineer + Machine Controller Specialist",
+        "model": "opus",
+        "effort": "MAX",
+        "context_budget": "85%"
+      },
+      "knowledge_sources": [
+        "S3 Feature Cascade: optimal feed model (from U-W100-08/09)",
+        "Wire deflection beam mechanics: δ = F×L²/(8T), F ∝ I_p",
+        "ITW SHAKEPROOF E-pack codes: E1221, E1222, E1223, E1224",
+        "NOZE TEST E-pack codes: E2821, E2822, E2823, E2824, E2825",
+        "Mitsubishi FA catalog PDF: E-pack code format documentation",
+        "EDMCuttingParamFlushEngine (for E-pack integration points)",
+        "WEDMPrintToProgramEngine (for E-pack emission in G-code)"
+      ],
+      "intent": "Machinist gets skim feeds that are provably faster than rough (physics allows it). E-pack codes match their Mitsubishi machine's tech table format — machine accepts the code without error.",
+      "skills": ["/prism-review", "/scrutinize", "/test", "/physics-verify"],
+      "exit_gate": {
+        "measurable_criteria": [
+          "Each skim feed > rough feed (physics: lower energy → less deflection → faster safe feed)",
+          "Feed scaling follows wire deflection beam mechanics, not arbitrary multipliers",
+          "E-pack codes match E{group}{thick}{cond}{pass} Mitsubishi format",
+          "ITW SHAKEPROOF E-codes (E1221-E1224) reproduced by generator",
+          "NOZE TEST E-codes (E2821-E2825) reproduced by generator",
+          "Tech table importer reads .EPK/.TEC format (or graceful fallback)",
+          "Test: 5+ E-pack code validations against real program codes"
+        ],
+        "omega_floor": 0.85,
+        "svi_delta": "+2%"
+      },
+      "feature_cascade": {
+        "new_hooks": [],
+        "new_actions": [
+          "prism_edm:wedm_generate_epack — E-pack code from material/thickness/wire/pass",
+          "prism_edm:wedm_import_tech_table — import machine tech table for exact params"
+        ],
+        "new_skills": [],
+        "available_to": ["S5", "S8", "S10"]
+      },
+      "compact_after": true
+    },
+
+    "S5": {
+      "title": "E-Pack Validation + Arc Reversal + UV Taper",
+      "units": ["U-W100-13", "U-W100-14", "U-W100-15"],
+      "smart_config": {
+        "role": "CNC Programmer + G-Code Verification Specialist",
+        "model": "opus",
+        "effort": "MAX",
+        "context_budget": "85%"
+      },
+      "knowledge_sources": [
+        "S4 Feature Cascade: E-pack generator (from U-W100-11/12)",
+        "ITW SHAKEPROOF: Pass 3 has G42+G3 (reversed from Pass 1 G41+G2)",
+        "NOZE TEST: UV on same G1 line as XY (G1 X-.11614 Y.0754 U-.04786 V0.)",
+        "NOZE TEST: H-offsets 0.0000 for taper mode",
+        "EDMPostProcessGCodeEngine (2512 LOC — arc generation, UV emission)",
+        "Machine UV travel limits from wedm-published-machines.ts",
+        "Mitsubishi FA-10S: UV ±75mm (MV1200-S), ±30mm (older)"
+      ],
+      "intent": "Machinist gets G-code where Pass 3 arcs are correctly reversed (standard Mitsubishi practice they expect) and taper profiles have UV coordinates that their machine accepts. Wrong direction = wrong part = scrap.",
+      "skills": ["/prism-review", "/scrutinize", "/test", "/program-validate", "/wedm-batch dialects"],
+      "batch_operations": ["/wedm-batch dialects — verify all 5 controller dialects produce correct technology codes and G-code structure"],
+      "exit_gate": {
+        "measurable_criteria": [
+          "All E-pack codes in valid range for selected machine model",
+          "Physics params consistent with machine E-pack capabilities",
+          "Pass 3 arcs opposite direction from Pass 1 (G2↔G3, I/J sign flip)",
+          "Approach/departure reversed on Pass 3",
+          "UV coordinates emitted on G1 lines for taper (matching NOZE TEST format)",
+          "H-offsets = 0.0000 for taper mode",
+          "UV travel validated against machine limits (no axis overtravel)",
+          "Test: parse generated G-code, verify arc directions flip on Pass 3"
+        ],
+        "omega_floor": 0.85,
+        "svi_delta": "+2%"
+      },
+      "feature_cascade": {
+        "new_hooks": ["wedm-arc-reversal-check — verifies Pass 3 arc direction on every G-code generation"],
+        "new_actions": ["prism_edm:wedm_validate_gcode_structure — structural validation of generated program"],
+        "new_skills": [],
+        "available_to": ["S6", "S8", "S10"]
+      },
+      "compact_after": true
+    },
+
+    "S6": {
+      "title": "G-Code Structure Validation + Multi-Pass Optimization",
+      "units": ["U-W100-16", "U-W100-17", "U-W100-18"],
+      "smart_config": {
+        "role": "EDM Process Optimization Engineer + Surface Integrity Specialist",
+        "model": "opus",
+        "effort": "MAX",
+        "context_budget": "85%"
+      },
+      "knowledge_sources": [
+        "S5 Feature Cascade: arc reversal + UV taper (from U-W100-14/15)",
+        "Klocke Ra cascade: Ra_n = Ra_rough × (0.25^(n-1))^0.40",
+        "Toenshoff energy cascade: E_n = E_rough × 0.25^(n-1)",
+        "Carslaw & Jaeger recast: d = 2√(α×t_on), skim removal ~30% per pass (Klocke)",
+        "AMS 2628: aerospace max recast = 0 (complete removal required)",
+        "ASTM F86/ISO 10993: medical max recast = 5μm",
+        "PUBLISHED_RA_VS_PASSES: 1-pass=3.2μm, 3-pass=0.4μm, 5-pass=0.1μm",
+        "EDMMultiPassStrategyEngine (pass count logic to optimize)",
+        "EDMMonitorSurfaceIntegrityEngine (recast prediction + spec compliance)"
+      ],
+      "intent": "Machinist gets the MINIMUM number of passes to hit their Ra target — saving cycle time vs amateur programs that over-skim. Recast layer is automatically checked against spec (aerospace/medical/general) — a SAFETY feature amateurs don't have.",
+      "skills": ["/prism-review", "/scrutinize", "/test", "/physics-verify"],
+      "exit_gate": {
+        "measurable_criteria": [
+          "G-code structure matches ITW SHAKEPROOF (arc directions) and NOZE TEST (UV format)",
+          "Pass count is MINIMUM needed for Ra target (solve Ra_n ≤ Ra_target)",
+          "Pass count matches PUBLISHED_RA_VS_PASSES within ±1 pass",
+          "Recast layer predicted per pass via Carslaw & Jaeger",
+          "Safety gate auto-adds passes if recast exceeds spec (AMS 2628, ASTM F86)",
+          "Test: D2 at Ra=0.8μm → 4 passes; Ra=0.2μm → 5 passes; Ra=3.2μm → 1 pass",
+          "Test: aerospace mode forces recast < 5μm (adds passes if needed)"
+        ],
+        "omega_floor": 0.85,
+        "svi_delta": "+2%"
+      },
+      "feature_cascade": {
+        "new_hooks": ["wedm-recast-safety-gate — blocks program if predicted recast exceeds spec"],
+        "new_actions": ["prism_edm:wedm_optimize_pass_count — minimum passes for target Ra with recast safety"],
+        "new_skills": [],
+        "available_to": ["S7", "S8", "S10"]
+      },
+      "compact_after": true
+    },
+
+    "S7": {
+      "title": "Cycle Time Estimation + Wire Path Backplot",
+      "units": ["U-W100-19", "U-W100-20", "U-W100-21"],
+      "smart_config": {
+        "role": "CNC Programmer + Data Visualization Engineer",
+        "model": "opus",
+        "effort": "MAX",
+        "context_budget": "80%"
+      },
+      "knowledge_sources": [
+        "S6 Feature Cascade: optimized pass count (from U-W100-17)",
+        "S3 Feature Cascade: optimal feed model (from U-W100-08/09)",
+        "G-code motion semantics: G0=rapid, G1=linear, G2=CW arc, G3=CCW arc",
+        "Mitsubishi threading time: M20 ~30-60s per profile",
+        "WEDMPrintToProgramEngine (cycle time integration point)",
+        "EDMPostProcessGCodeEngine (generated G-code to parse for backplot)",
+        "React component patterns in web/src/components/calculator/"
+      ],
+      "intent": "Machinist sees EXACTLY how long the job takes (per-pass breakdown) and can VISUALLY verify the wire path before committing to a cut. This is the #1 adoption requirement — trust through visibility.",
+      "skills": ["/prism-review", "/scrutinize", "/test"],
+      "exit_gate": {
+        "measurable_criteria": [
+          "Cycle time = Σ(length/feed_n) + threading + dwell + rapid — per pass breakdown",
+          "Cycle time within ±15% of published Lemhunter time estimates",
+          "Backplot SVG renders G0 (red dashed), G1 (blue), G2/G3 (green), lead-in/out (orange)",
+          "Backplot shows all passes overlaid with offset envelopes",
+          "Engineering Y-up orientation",
+          "5 path issues detected: min_radius, sharp_corners, slug_interference, wire_lag, start_hole_collision",
+          "Red issues block program download; Yellow=warning; Green=safe"
+        ],
+        "omega_floor": 0.85,
+        "svi_delta": "+1%"
+      },
+      "feature_cascade": {
+        "new_hooks": [],
+        "new_actions": ["prism_edm:wedm_estimate_cycle_time — physics-based cycle time with per-pass breakdown"],
+        "new_skills": [],
+        "available_to": ["S8", "S10"]
+      },
+      "compact_after": true
+    },
+
+    "S8": {
+      "title": "Backplot Integration + D2 Material Validation",
+      "units": ["U-W100-22", "U-W100-23", "U-W100-24"],
+      "smart_config": {
+        "role": "EDM Applications Engineer + Material Science Specialist",
+        "model": "opus",
+        "effort": "MAX",
+        "context_budget": "85%"
+      },
+      "knowledge_sources": [
+        "S7 Feature Cascade: backplot component + cycle time (from U-W100-19/20/21)",
+        "ALL prior Feature Cascades: published conditions, physics offsets, optimal feed, E-pack, arc reversal",
+        "PUBLISHED_CUTTING_CONDITIONS: tool_steel data points",
+        "Lemhunter: tool_steel 50mm = 150 mm²/min, stainless 40mm = 120 mm²/min",
+        "MaterialRegistry: D2 (α=7.0, Tm=1421°C, k=25), 304SS (α=4.0, Tm=1400°C, k=16)",
+        "MaterialRegistry: 6061 (α=69.0, Tm=582°C, k=167), WC (α=24.2, Tm=2870°C, k=110)",
+        "MaterialRegistry: Inconel 718 (α=3.1, Tm=1336°C, k=11.4)"
+      ],
+      "intent": "Machinist generates programs for their most common materials and gets PHYSICS-CORRECT parameters every time. D2 is the shop's primary material — must be perfect. 304SS, 6061, WC, Inconel each have unique physics that PRISM handles automatically.",
+      "skills": ["/prism-review", "/scrutinize", "/test", "/physics-verify", "/calibrate", "/wedm-batch physics"],
+      "batch_operations": [
+        "/wedm-batch physics — full 60-case material×thickness validation sweep",
+        "/wedm-batch materials — verify all 22 material variants have thermal data"
+      ],
+      "exit_gate": {
+        "measurable_criteria": [
+          "Backplot auto-displays after generation; Approve gate before NC download",
+          "/wedm-batch physics passes ≥90% of 60 test cases (within ±15% of published)",
+          "D2 programs at 0.5in/1.0in/2.0in thick all pass physics checks",
+          "Ra prediction within ±10% of Klocke model for all D2 test cases",
+          "304SS, 6061, WC, Inconel programs all pass physics validation",
+          "Material-specific parameters derived from thermophysics (not scaled from steel)",
+          "WC uses correct lower MRR (high Tm, low conductivity)",
+          "Inconel gets extra skim passes (high recast risk)",
+          "Test: 15+ test cases (5 materials × 3 thicknesses) with published reference values"
+        ],
+        "omega_floor": 0.90,
+        "svi_delta": "+3%"
+      },
+      "feature_cascade": {
+        "new_hooks": [],
+        "new_actions": [],
+        "new_skills": [],
+        "available_to": ["S9", "S10"]
+      },
+      "compact_after": true
+    },
+
+    "S9": {
+      "title": "Thick Section Validation + Confidence Scoring + Feedback Loop",
+      "units": ["U-W100-25", "U-W100-26", "U-W100-27"],
+      "smart_config": {
+        "role": "EDM Process Engineer + Quality Systems Engineer",
+        "model": "opus",
+        "effort": "MAX",
+        "context_budget": "85%"
+      },
+      "knowledge_sources": [
+        "S8 Feature Cascade: validated material matrix",
+        "Thick section physics: MRR/thickness→lower feed, longer kerf→higher flush, wire deflection accumulates→more skims",
+        "Lemhunter: thickness vs feed rate chart",
+        "PUBLISHED_CUTTING_CONDITIONS: tool_steel 50mm = 3.0 mm/min",
+        "Wire deflection: δ = F×L²/(8T) — L=thickness for thick sections",
+        "EDMQualityOrchestratorEngine: Bayesian calibration framework",
+        "WEDMPrintToProgramEngine (confidence score integration point)"
+      ],
+      "intent": "Machinist trusts thick section programs (150mm D2) because parameters automatically adjust from physics — not lookup tables. Confidence score tells them WHY to trust each parameter. Feedback loop means PRISM gets better with every job they run.",
+      "skills": ["/prism-review", "/scrutinize", "/test", "/physics-verify", "/calibrate"],
+      "exit_gate": {
+        "measurable_criteria": [
+          "150mm D2 program has physics-derived params: slower feed, higher flush, more passes",
+          "All thick section adjustments from physics, no hardcoded thickness tables",
+          "Confidence score 0-100% per category (pulse, offset, feed, E-pack, geometry)",
+          "Score explains WHY each category has its rating",
+          "Feedback endpoint captures actual vs predicted Ra/cycle_time",
+          "Deviation >10% flags for calibration",
+          "Calibration adjustments stored and applied to future programs",
+          "Test: thick section params validated against physics predictions"
+        ],
+        "omega_floor": 0.90,
+        "svi_delta": "+2%"
+      },
+      "feature_cascade": {
+        "new_hooks": [],
+        "new_actions": [
+          "prism_edm:wedm_confidence_score — per-category confidence with explanations",
+          "prism_edm:wedm_submit_feedback — actual vs predicted comparison + calibration"
+        ],
+        "new_skills": ["/wedm-feedback — submit actual cut results for calibration"],
+        "available_to": ["S10"]
+      },
+      "compact_after": true
+    },
+
+    "S10": {
+      "title": "Knowledge Enrichment + Setup Sheet + Production Gate",
+      "units": ["U-W100-28", "U-W100-29", "U-W100-30"],
+      "smart_config": {
+        "role": "Senior EDM Applications Engineer + Quality Gate Auditor",
+        "model": "opus",
+        "effort": "MAX",
+        "context_budget": "90%"
+      },
+      "knowledge_sources": [
+        "ALL prior Feature Cascades: complete physics pipeline",
+        "TribalKnowledgeEngine: existing WEDM tips",
+        "MachiningPlaybookEngine: 296 rules, EDM anti-patterns",
+        "Klocke Ch.8 case studies (from downloaded PDF)",
+        "Mitsubishi FA application notes (from downloaded PDF)",
+        "Reliable EDM handbook Ch5 (downloaded PDF)",
+        "ALL PUBLISHED_CUTTING_CONDITIONS for validation",
+        "ALL PUBLISHED_RA_VS_PASSES for validation",
+        "ITW SHAKEPROOF + NOZE TEST for structural validation"
+      ],
+      "intent": "System ships PRODUCTION-READY. 30/30 test cases pass ALL criteria. Machinist gets: physics-optimized NC program + printable setup sheet + confidence score + visual backplot + wire consumption estimate. PRISM is provably better than an amateur programmer for Wire EDM.",
+      "skills": ["/prism-review", "/scrutinize", "/test", "/physics-verify", "/forge-triple", "/program-validate", "/wedm-batch production", "/wedm-batch all", "/wedm-program"],
+      "batch_operations": [
+        "/wedm-batch production — 30-case end-to-end production gate (5 geometries × 3 materials × 2 thicknesses)",
+        "/wedm-batch all — comprehensive sweep of all 4 batch modes (physics + dialects + materials + production)",
+        "/wedm-program D2 25.4 0.8 — verify skill generates correct output",
+        "/verify-loop — build + test + review cycle for final validation"
+      ],
+      "exit_gate": {
+        "measurable_criteria": [
+          "WEDM tribal knowledge enriched: wire breakage, Ra troubleshooting, thick section, taper, flush tips",
+          "Setup sheet contains: material, thickness, wire, per-pass table (E-pack/H-offset/feed/Ra/recast), cycle time, wire consumption, consumables, safety notes",
+          "Setup sheet matches generated program exactly",
+          "PRODUCTION GATE: /wedm-batch production — 30 test cases (5 geometries × 3 materials × 2 thicknesses)",
+          "All 30 pass: (1) physics params, (2) Ra ±15% Klocke, (3) dimension ±0.002mm, (4) cycle time ±15%, (5) backplot correct, (6) confidence ≥90%, (7) setup sheet complete, (8) zero synthetic params",
+          "/wedm-batch all passes with ≥90% across all modes",
+          "30/30 = PRODUCTION READY",
+          "Forge-triple VERIFIED: hook registered + action wired + skill live + batch operational",
+          "/wedm-program skill generates complete program from CLI"
+        ],
+        "omega_floor": 1.0,
+        "svi_delta": "+5%"
+      },
+      "feature_cascade": {
+        "new_hooks": ["wedm-physics-constants-gate — .claude/hooks/lib/wedm-physics-constants-gate.mjs (BUILT, registered in settings.json)"],
+        "new_actions": [
+          "prism_edm:wedm_generate_complete_program — 30-stage orchestrator (BUILT, wired in edmDispatcher)",
+          "prism_edm:wedm_generate_optimized_program — alias to same orchestrator (BUILT, wired)"
+        ],
+        "new_skills": [
+          "/wedm-program — .claude/commands/wedm-program.md (BUILT, live)",
+          "/wedm-batch — .claude/commands/wedm-batch.md (BUILT, live)"
+        ],
+        "available_to": ["all future WEDM work"]
+      },
+      "compact_after": true
+    }
+  },
+
+  "units": {
+    "U-W100-01": {
+      "title": "Build published cutting condition database from Klocke + manufacturer data",
+      "status": "complete",
+      "phase": "P1",
+      "session": "S1",
+      "description": "Klocke (2013) Tables 8.1-8.4 contain published Mitsubishi and generic WEDM cutting conditions. Also: Toenshoff Ch.6, Makino U6 published data, Sodick published condition sets, Lemhunter tables, downloaded PDFs. Build canonical data file: src/data/wedm-published-conditions.ts. ALSO: add EDM constants to src/physics/constants.ts (k_ra for Klocke model, K1 for DiBitonto, η for Kunieda). EVERY value must have a source citation. This REPLACES the synthetic PASS_BASELINES.",
+      "depends_on": [],
+      "four_loop": {
+        "build": "Create wedm-published-conditions.ts with ≥40 published data points. Add EDM section to physics/constants.ts.",
+        "scrutinize": "/prism-review — verify every value has citation, no synthetic values, correct units",
+        "gap_fill": "Run tests: validate data structure, check for duplicate/conflicting entries, verify physics constants match published sources",
+        "tie_up": "No TODOs. All values cited. Constants importable."
+      },
+      "files_created": ["src/data/wedm-published-conditions.ts"],
+      "files_modified": ["src/physics/constants.ts"],
+      "abort_criteria": [
+        "Cannot find ≥20 published pulse condition data points with citations",
+        "Published values conflict with each other by >30% for same material/thickness",
+        "physics/constants.ts modification breaks existing tests"
+      ],
+      "rollback": {
+        "procedure": "git checkout -- src/data/wedm-published-conditions.ts src/physics/constants.ts",
+        "note": "New file + constants addition — clean revert"
+      },
+      "exit_criteria": "≥40 published data points with source citations. EDM constants in physics/constants.ts. Zero synthetic values. Covers: steel, stainless, aluminum, carbide, titanium × 0.25mm wire × 25-100mm thickness."
+    },
+
+    "U-W100-02": {
+      "title": "Replace PASS_BASELINES in EDMCuttingParamFlushEngine with published lookup",
+      "status": "complete",
+      "phase": "P1",
+      "session": "S1",
+      "description": "DELETE synthetic PASS_BASELINES (t_on=4.0, t_off=16.0, I_p=20.0 for rough). Replace with: lookup(material_group, thickness_mm, wire_type, pass_type) → published conditions from U-W100-01. Interpolate between nearest published points if no exact match. Log interpolation confidence. NEVER fall back to synthetic baselines — throw error if no published data covers the input.",
+      "depends_on": ["U-W100-01"],
+      "four_loop": {
+        "build": "Replace PASS_BASELINES with published lookup function. Delete synthetic constant.",
+        "scrutinize": "/prism-review — verify PASS_BASELINES deleted, no synthetic fallback, interpolation logged",
+        "gap_fill": "Test: 5 material×thickness combos produce pulse params matching published data ±10%",
+        "tie_up": "Confirm downstream engines (EDMMultiPassStrategyEngine) still work with new data source"
+      },
+      "files_modified": ["src/engines/EDMCuttingParamFlushEngine.ts"],
+      "abort_criteria": [
+        "Published data from U-W100-01 doesn't cover the material/thickness range needed",
+        "Interpolation produces values outside physical plausibility (t_on < 0.01μs or > 100μs)",
+        "Downstream engines break with new data format"
+      ],
+      "rollback": {
+        "procedure": "git checkout -- src/engines/EDMCuttingParamFlushEngine.ts",
+        "note": "Single file modification — clean revert"
+      },
+      "exit_criteria": "PASS_BASELINES constant DELETED. All pulse params from published lookup. Interpolation logged with confidence."
+    },
+
+    "U-W100-03": {
+      "title": "Replace material correction factors with physics-derived values",
+      "status": "complete",
+      "phase": "P1",
+      "session": "S1",
+      "description": "Current factors (t_on_factor=0.9 for stainless, 0.6 for aluminum) are synthetic. Replace with physics: t_on scales with thermal diffusivity α. I_p scales with melting point Tm and thermal conductivity k. Use inverted Klocke: t_on ∝ (Ra_target/k_ra)^(1/0.28) / I_p^(0.40/0.28). I_p_max from wire current capacity. Material properties from PRISM MaterialRegistry. ALSO: standardize Ra formula across all engines to Klocke canonical (fix the 5-formula inconsistency found in audit).",
+      "depends_on": ["U-W100-01"],
+      "four_loop": {
+        "build": "Replace synthetic factors with MaterialRegistry-derived values. Standardize Ra formula to Klocke canonical in ALL engines.",
+        "scrutinize": "/prism-review — verify no arbitrary multipliers remain, Ra formula consistent across engines",
+        "gap_fill": "Test: material factors produce correct Ra for 5+ materials via Klocke forward-check",
+        "tie_up": "Grep for old Ra formulas (E^0.33, E^0.38, I^0.4×ton^0.3) — all must be replaced with Klocke canonical"
+      },
+      "files_modified": [
+        "src/engines/EDMCuttingParamFlushEngine.ts",
+        "src/engines/EDMMultiPassStrategyEngine.ts",
+        "src/engines/StochasticEDMEngine.ts",
+        "src/engines/EDMParameterEngine.ts",
+        "src/engines/EDMProgramAssemblerEngine.ts"
+      ],
+      "abort_criteria": [
+        "MaterialRegistry doesn't have thermal properties (α, Tm, k) for required materials",
+        "Klocke canonical produces Ra >50% different from existing validated outputs",
+        "More than 3 engines break during Ra formula standardization"
+      ],
+      "rollback": {
+        "procedure": "git checkout -- src/engines/EDMCuttingParamFlushEngine.ts src/engines/EDMMultiPassStrategyEngine.ts src/engines/StochasticEDMEngine.ts src/engines/EDMParameterEngine.ts src/engines/EDMProgramAssemblerEngine.ts",
+        "note": "Multi-file — revert all 5 engines"
+      },
+      "exit_criteria": "All material factors derived from physics. Ra formula = Klocke canonical in ALL 5 engines. Zero arbitrary multipliers."
+    },
+
+    "U-W100-04": {
+      "title": "Validate pulse parameters against Klocke Ra + wire breakage limits",
+      "status": "complete",
+      "phase": "P1",
+      "session": "S2",
+      "description": "For every material/thickness/wire combo: (1) Forward-calculate Ra from generated pulse params using Klocke. (2) Verify Ra ±5% of target. (3) Wire current density < 500 A/mm² brass, 300 moly. (4) Duty cycle < 0.30 rough, 0.20 skim. (5) Pulse energy < wire breaking energy. SAFETY-CRITICAL: these tests prevent wire breakage and machine damage.",
+      "depends_on": ["U-W100-02", "U-W100-03"],
+      "four_loop": {
+        "build": "Write comprehensive test suite with published validation data",
+        "scrutinize": "/prism-review — verify tests use published values, no ±250% ranges, no toBeGreaterThan(0)",
+        "gap_fill": "Run tests, fix any failures by tracing to root cause in physics engines",
+        "tie_up": "Every test has a published reference value comment. Safety limits documented."
+      },
+      "files_created": ["src/__tests__/wedm-pulse-validation.test.ts"],
+      "abort_criteria": [
+        "More than 30% of test cases fail (indicates fundamental physics model error)",
+        "Wire breakage threshold values can't be found in published literature",
+        "Test suite takes >60s to run"
+      ],
+      "rollback": {
+        "procedure": "git checkout -- src/__tests__/wedm-pulse-validation.test.ts",
+        "note": "New test file — delete on failure"
+      },
+      "exit_criteria": "All material/thickness combos: Ra ±5% target, current density safe, duty cycle safe. ≥25 test cases with published reference values."
+    },
+
+    "U-W100-05": {
+      "title": "Derive wire offset from DiBitonto crater physics",
+      "status": "complete",
+      "phase": "P2",
+      "session": "S2",
+      "description": "H_offset = wire_d/2 + spark_gap + overcut. Spark gap from crater physics: gap ≈ d_crater/2 = K1×E^(1/3)/2. Per-pass: as energy decreases (E_n = E_rough × 0.25^(n-1)), gap decreases proportionally. Total: H_n = wire_d/2 + K1×(E_rough×0.25^(n-1))^(1/3)/2. This gives physics-correct monotonic decrease matching real programs (ITW SHAKEPROOF: H1=0.0085→H4=0.0053in). K1 from physics/constants.ts (added in U-W100-01).",
+      "depends_on": ["U-W100-02"],
+      "four_loop": {
+        "build": "Implement DiBitonto-derived offset model. Wire published machines into EDMMaterialMachineWireEngine.",
+        "scrutinize": "/prism-review — verify formula matches DiBitonto, K1 imported from constants.ts",
+        "gap_fill": "Test: offset chain for D2/0.25mm wire matches ITW SHAKEPROOF within ±15%",
+        "tie_up": "SPARK_GAP_TABLE synthetic constant DELETED"
+      },
+      "files_modified": ["src/engines/EDMMultiPassStrategyEngine.ts", "src/engines/EDMMaterialMachineWireEngine.ts"],
+      "abort_criteria": [
+        "DiBitonto K1 constant can't be determined from published data",
+        "Physics offset produces values >2x different from ITW SHAKEPROOF real offsets",
+        "EDMMaterialMachineWireEngine refactoring breaks >5 existing tests"
+      ],
+      "rollback": {
+        "procedure": "git checkout -- src/engines/EDMMultiPassStrategyEngine.ts src/engines/EDMMaterialMachineWireEngine.ts",
+        "note": "Two-file revert"
+      },
+      "exit_criteria": "Offsets from DiBitonto crater physics. Monotonic decrease. SPARK_GAP_TABLE DELETED. wedm-published-machines.ts wired to EDMMaterialMachineWireEngine."
+    },
+
+    "U-W100-06": {
+      "title": "Replace TRIM_STOCK_REMOVAL_MM with physics-derived per-pass stock",
+      "status": "complete",
+      "phase": "P2",
+      "session": "S2",
+      "description": "Current [0, 0, 0.06, 0.02, 0.005, 0.002] is arbitrary. Physics: stock_n = offset_(n-1) - offset_n = K1/2 × E_rough^(1/3) × [0.25^((n-2)/3) - 0.25^((n-1)/3)]. This falls out of the energy cascade — no lookup table needed. DELETE the constant.",
+      "depends_on": ["U-W100-05"],
+      "four_loop": {
+        "build": "Compute stock removal from energy cascade delta. Delete TRIM_STOCK_REMOVAL_MM.",
+        "scrutinize": "/prism-review — verify formula derivation is correct, constant deleted",
+        "gap_fill": "Test: sum of all per-pass stock removals = total offset (within 0.001mm)",
+        "tie_up": "Grep for TRIM_STOCK_REMOVAL — must be zero occurrences"
+      },
+      "files_modified": ["src/engines/EDMMultiPassStrategyEngine.ts"],
+      "abort_criteria": [
+        "Stock removal sum doesn't converge to total offset (>0.005mm error)",
+        "Energy cascade formula produces negative stock removal for any pass",
+        "Downstream pass planning breaks"
+      ],
+      "rollback": {
+        "procedure": "git checkout -- src/engines/EDMMultiPassStrategyEngine.ts",
+        "note": "Single file revert"
+      },
+      "exit_criteria": "TRIM_STOCK_REMOVAL_MM DELETED. Stock from energy cascade. Sum = total offset within 0.001mm."
+    },
+
+    "U-W100-07": {
+      "title": "Validate offsets produce correct final dimension within tolerance",
+      "status": "complete",
+      "phase": "P2",
+      "session": "S3",
+      "description": "The ultimate test: generate 4-pass program for 25.400mm (1.000in) square in D2. Verify: programmed_path + 2×(offset_pass_n - offset_final) = final part dimension. After all passes, remaining stock = 0 (within 0.001mm). Target Ra achieved on final pass. Compare against what real programs produce — our offsets should give BETTER accuracy because they're physics-derived.",
+      "depends_on": ["U-W100-05", "U-W100-06"],
+      "four_loop": {
+        "build": "Write dimensional accuracy test suite with real program reference values",
+        "scrutinize": "/prism-review — verify tests use toBeCloseTo with tight tolerances",
+        "gap_fill": "Run tests, trace any dimensional errors to offset model",
+        "tie_up": "All test cases have published/real-program reference values"
+      },
+      "files_created": ["src/__tests__/wedm-dimensional-accuracy.test.ts"],
+      "abort_criteria": [
+        "Dimensional error >0.010mm for any material (indicates fundamental offset model error)",
+        "Final pass Ra prediction >20% off target",
+        "Test suite >15 test cases and >30s runtime"
+      ],
+      "rollback": {
+        "procedure": "git checkout -- src/__tests__/wedm-dimensional-accuracy.test.ts",
+        "note": "New test file only"
+      },
+      "exit_criteria": "Final dimension ±0.002mm for all materials. Physics offset produces correct stock removal chain. ≥10 test cases."
+    },
+
+    "U-W100-08": {
+      "title": "Derive feed rate from Kunieda MRR thermodynamics",
+      "status": "complete",
+      "phase": "P3",
+      "session": "S3",
+      "description": "DELETE 5.0 base constant. Replace with: MRR = η × E_pulse × f_rep / ρ / (cp×ΔT + Lm). Feed = MRR / (kerf × thickness). Where: kerf = wire_d + 2×gap, E_pulse from published conditions, f_rep = 1/(t_on+t_off), η from physics/constants.ts. Material properties from MaterialRegistry. This gives feed from FIRST PRINCIPLES.",
+      "depends_on": ["U-W100-02", "U-W100-05"],
+      "four_loop": {
+        "build": "Implement Kunieda MRR → feed rate derivation. Delete 5.0 constant.",
+        "scrutinize": "/prism-review — verify formula matches Kunieda 2005, η from constants.ts",
+        "gap_fill": "Test: feed rates within ±15% of Lemhunter published values for 5+ materials",
+        "tie_up": "Grep for '5.0' in WireEDMSettingsEngine — synthetic base must be gone"
+      },
+      "files_modified": ["src/engines/WireEDMSettingsEngine.ts"],
+      "abort_criteria": [
+        "Kunieda η value can't be determined (published range 0.3-0.5 per Kunieda 2005)",
+        "Computed feed >3x different from Lemhunter published values",
+        "Feed rate formula produces negative or zero values for any valid input"
+      ],
+      "rollback": {
+        "procedure": "git checkout -- src/engines/WireEDMSettingsEngine.ts",
+        "note": "Single file revert"
+      },
+      "exit_criteria": "5.0 constant DELETED. Feed from Kunieda MRR. Within ±15% of published data. All materials covered."
+    },
+
+    "U-W100-09": {
+      "title": "Optimize feed rate: maximize MRR within all constraints",
+      "status": "complete",
+      "phase": "P3",
+      "session": "S3",
+      "description": "Physics-derived feed is the starting point. Constrain by: (1) Wire break: current density < threshold, (2) Ra target: energy determines Ra, (3) Flush: thick parts need slower feed, (4) Servo: feed ≤ machine servo bandwidth. Optimal feed = min(all constraint limits). Document which constraint is active for each material/thickness. This IS the optimization — better than amateur guess.",
+      "depends_on": ["U-W100-08"],
+      "four_loop": {
+        "build": "Add constraint chain to feed calculation. Document active constraint per case.",
+        "scrutinize": "/prism-review — verify all 4 constraints implemented, documented",
+        "gap_fill": "Test: constrained feed ≤ unconstrained feed. Active constraint identified per test case.",
+        "tie_up": "Feed is provably optimal — no faster feed is safe"
+      },
+      "files_modified": ["src/engines/WireEDMSettingsEngine.ts", "src/engines/EDMCuttingParamFlushEngine.ts"],
+      "abort_criteria": [
+        "Constraint chain produces feed <0.1 mm/min for any standard material (unreasonably slow)",
+        "Cannot determine servo bandwidth limit for target machines",
+        "Flush constraint model requires CFD that's out of scope"
+      ],
+      "rollback": {
+        "procedure": "git checkout -- src/engines/WireEDMSettingsEngine.ts src/engines/EDMCuttingParamFlushEngine.ts",
+        "note": "Two-file revert"
+      },
+      "exit_criteria": "Feed = min(wire_break, Ra, flush, servo). Each constraint documented. Faster than amateur programs for same Ra."
+    },
+
+    "U-W100-10": {
+      "title": "Skim pass feed optimization from wire deflection beam mechanics",
+      "status": "complete",
+      "phase": "P3",
+      "session": "S4",
+      "description": "Skims CAN be faster: lower energy → smaller discharge force → less deflection. From beam mechanics: δ ∝ F×L³/(EI), F ∝ I_p. Each skim has lower I_p so higher feed is safe. Optimal skim feed = rough_feed × (I_p_rough/I_p_skim)^β where β from wire stiffness. Calculate MAXIMUM safe feed per skim — not arbitrary multiplier.",
+      "depends_on": ["U-W100-08", "U-W100-09"],
+      "four_loop": {
+        "build": "Implement deflection-based skim feed scaling. Delete arbitrary multipliers.",
+        "scrutinize": "/prism-review — verify beam mechanics formula, wire stiffness from published data",
+        "gap_fill": "Test: each skim feed > rough feed. Feed ratio matches wire deflection physics.",
+        "tie_up": "Arbitrary skim multipliers (1.5x, 4.0x cap) all DELETED"
+      },
+      "files_modified": ["src/engines/WireEDMSettingsEngine.ts"],
+      "abort_criteria": [
+        "Wire stiffness (EI) data not available for common wire types",
+        "Skim feed exceeds machine rapid rate for any configuration",
+        "Deflection formula predicts zero deflection (numerically unstable)"
+      ],
+      "rollback": {
+        "procedure": "git checkout -- src/engines/WireEDMSettingsEngine.ts",
+        "note": "Single file revert"
+      },
+      "exit_criteria": "Each skim feed = physics-maximum safe value. Scaling from beam mechanics. No arbitrary multipliers."
+    },
+
+    "U-W100-11": {
+      "title": "E-Pack code generator from material physics + machine capability",
+      "status": "complete",
+      "phase": "P4",
+      "session": "S4",
+      "description": "E-Pack on Mitsubishi: E{material_group:1-7}{thickness_code:0-5}{condition:1-9}{pass:1-5}. Material group from ISO thermal/electrical properties. Thickness code from machine manual. Condition from target Ra + wire type. Build: generateEPackCode(material, thickness, wire, pass, target_ra, machine_model). Validate against ITW SHAKEPROOF (E1221-E1224) and NOZE TEST (E2821-E2825).",
+      "depends_on": ["U-W100-01"],
+      "four_loop": {
+        "build": "Implement E-pack code generator with material→group mapping",
+        "scrutinize": "/prism-review — verify format matches Mitsubishi documentation",
+        "gap_fill": "Test: E1221-E1224 reproduced for ITW SHAKEPROOF params. E2821-E2825 for NOZE TEST.",
+        "tie_up": "E-pack integrated into G-code output"
+      },
+      "files_modified": ["src/engines/WEDMPrintToProgramEngine.ts", "src/engines/EDMCuttingParamFlushEngine.ts"],
+      "abort_criteria": [
+        "Mitsubishi E-pack format documentation insufficient for complete mapping",
+        "Material group mapping is ambiguous for >30% of materials",
+        "Generated codes don't match either real program's codes"
+      ],
+      "rollback": {
+        "procedure": "git checkout -- src/engines/WEDMPrintToProgramEngine.ts src/engines/EDMCuttingParamFlushEngine.ts",
+        "note": "Two-file revert"
+      },
+      "exit_criteria": "E-pack codes structurally correct. ITW SHAKEPROOF and NOZE TEST codes reproduced. User override supported."
+    },
+
+    "U-W100-12": {
+      "title": "Machine-specific E-Pack table import (.EPK/.TEC reader)",
+      "status": "complete",
+      "phase": "P4",
+      "session": "S4",
+      "description": "The DEFINITIVE solution: import machine's actual technology tables. Mitsubishi FA/FX store E-pack data in .EPK/.TEC files. Build importer: reads file → maps E-code → (t_on, t_off, I_p, V_o, V_s, wire_speed, tension). Imported params override published defaults. Graceful fallback to published data if no import available.",
+      "depends_on": ["U-W100-11"],
+      "four_loop": {
+        "build": "Create EPackTableImportEngine with file parser and param mapping",
+        "scrutinize": "/prism-review — verify file format handling, no path traversal, error handling",
+        "gap_fill": "Test: import sample .TEC file, verify params extracted correctly",
+        "tie_up": "Fallback chain: imported → published → error (never synthetic)"
+      },
+      "files_created": ["src/engines/EPackTableImportEngine.ts"],
+      "files_modified": ["src/engines/EDMCuttingParamFlushEngine.ts"],
+      "abort_criteria": [
+        "Cannot obtain .EPK/.TEC file format specification",
+        "File format is binary/encrypted and reverse engineering is infeasible",
+        "Import introduces security vulnerability (path traversal, etc.)"
+      ],
+      "rollback": {
+        "procedure": "rm src/engines/EPackTableImportEngine.ts && git checkout -- src/engines/EDMCuttingParamFlushEngine.ts",
+        "note": "New file + modified file"
+      },
+      "exit_criteria": "Importer reads .EPK/.TEC format. Params override defaults. Graceful fallback. No security issues."
+    },
+
+    "U-W100-13": {
+      "title": "E-Pack validation: generated codes map to valid machine parameters",
+      "status": "complete",
+      "phase": "P4",
+      "session": "S5",
+      "description": "Verify: (1) Every E-pack code in valid range for machine model, (2) Encoded params match machine's E-pack (within published tolerance), (3) If tech table imported, validate physics params consistent with machine — flag discrepancy for calibration.",
+      "depends_on": ["U-W100-11", "U-W100-12"],
+      "four_loop": {
+        "build": "Write E-pack validation test suite with real program reference codes",
+        "scrutinize": "/prism-review — verify tests use real E-pack codes, not synthetic",
+        "gap_fill": "Run tests. Fix any code generation errors.",
+        "tie_up": "Discrepancy logging implemented for calibration pipeline"
+      },
+      "files_created": ["src/__tests__/wedm-epack-validation.test.ts"],
+      "abort_criteria": [
+        "Cannot determine valid E-pack code ranges for target machines",
+        "Generated codes fail validation for >50% of test cases"
+      ],
+      "rollback": {
+        "procedure": "git checkout -- src/__tests__/wedm-epack-validation.test.ts",
+        "note": "New test file only"
+      },
+      "exit_criteria": "All E-pack codes valid. Physics params consistent with machine. Discrepancy logging active. ≥10 test cases."
+    },
+
+    "U-W100-14": {
+      "title": "Auto-reverse contour direction on Pass 3 (arc G2↔G3 + I/J flip)",
+      "status": "complete",
+      "phase": "P5",
+      "session": "S5",
+      "description": "Pass 3 reverses traversal for error averaging (standard Mitsubishi practice). Fix: reverse contour array, flip G2↔G3, negate I/J, reverse approach/departure. CORRECTNESS fix — wrong direction = wrong part.",
+      "depends_on": [],
+      "four_loop": {
+        "build": "Add arc reversal logic to Pass 3 G-code generation",
+        "scrutinize": "/prism-review — verify G2↔G3 flip, I/J negation, approach/departure reversal",
+        "gap_fill": "Test: parse Pass 1 and Pass 3, verify arc directions are opposite",
+        "tie_up": "Verify ITW SHAKEPROOF Pass 3 structure matches our output"
+      },
+      "files_modified": ["src/engines/EDMPostProcessGCodeEngine.ts"],
+      "abort_criteria": [
+        "Arc reversal logic introduces off-by-one in contour array",
+        "I/J sign flip doesn't account for all arc quadrants",
+        "Approach/departure reversal creates collision path"
+      ],
+      "rollback": {
+        "procedure": "git checkout -- src/engines/EDMPostProcessGCodeEngine.ts",
+        "note": "Single file revert"
+      },
+      "exit_criteria": "Pass 3 arcs opposite from Pass 1. I/J correctly negated. Approach/departure reversed."
+    },
+
+    "U-W100-15": {
+      "title": "UV taper coordinate generation from angle + workpiece geometry",
+      "status": "complete",
+      "phase": "P5",
+      "session": "S5",
+      "description": "UV = tan(taper_angle) × guide_separation × direction_vector. From NOZE TEST: UV on SAME G1 line as XY. H-offsets = 0.0000 for taper. Validate UV axis travel < machine limits.",
+      "depends_on": [],
+      "four_loop": {
+        "build": "Add UV coordinate generation to G-code output for taper mode",
+        "scrutinize": "/prism-review — verify UV formula, H-offset zero for taper, travel limits",
+        "gap_fill": "Test: UV format matches NOZE TEST structure. Travel < machine limit.",
+        "tie_up": "Verify NOZE TEST UV line format: G1 X-.11614 Y.0754 U-.04786 V0."
+      },
+      "files_modified": ["src/engines/EDMPostProcessGCodeEngine.ts", "src/engines/WEDMPrintToProgramEngine.ts"],
+      "abort_criteria": [
+        "UV formula produces coordinates outside machine travel for standard taper angles",
+        "Guide separation not available from machine spec data",
+        "Taper mode breaks non-taper G-code generation"
+      ],
+      "rollback": {
+        "procedure": "git checkout -- src/engines/EDMPostProcessGCodeEngine.ts src/engines/WEDMPrintToProgramEngine.ts",
+        "note": "Two-file revert"
+      },
+      "exit_criteria": "UV on G1 lines. H-offsets zero for taper. UV travel validated. NOZE TEST format matched."
+    },
+
+    "U-W100-16": {
+      "title": "Validate arc reversal + UV taper against real program structure",
+      "status": "complete",
+      "phase": "P5",
+      "session": "S6",
+      "description": "ITW SHAKEPROOF validates arc reversal. NOZE TEST validates UV format. These are SANITY CHECKS — structure must be correct for machine to parse. SAFETY-CRITICAL: wrong G-code structure can crash the machine.",
+      "depends_on": ["U-W100-14", "U-W100-15"],
+      "four_loop": {
+        "build": "Write G-code structure test suite comparing against real programs",
+        "scrutinize": "/prism-review — verify tests parse actual G-code output, not mock data",
+        "gap_fill": "Run tests. Parse every G-code line. Verify no invalid codes.",
+        "tie_up": "Machine-parseable output confirmed for all 5 controller dialects"
+      },
+      "files_created": ["src/__tests__/wedm-gcode-structure.test.ts"],
+      "abort_criteria": [
+        "Generated G-code contains invalid codes for any supported dialect",
+        "Arc reversal doesn't match ITW SHAKEPROOF structure",
+        "UV format doesn't match NOZE TEST structure"
+      ],
+      "rollback": {
+        "procedure": "git checkout -- src/__tests__/wedm-gcode-structure.test.ts",
+        "note": "New test file only"
+      },
+      "exit_criteria": "Pass 3 arcs provably reversed. UV structurally correct. Machine-parseable. ≥15 test cases."
+    },
+
+    "U-W100-17": {
+      "title": "Optimal pass count: minimum passes to reach target Ra",
+      "status": "complete",
+      "phase": "P6",
+      "session": "S6",
+      "description": "Solve for minimum n where Ra_n ≤ Ra_target. Ra_n = k_ra × (I_p_n)^0.40 × (t_on_n)^0.28 where energy drops 0.25× per skim. For Ra=0.8μm on D2: ~4 passes. For Ra=0.2μm: ~5 passes. For Ra=3.2μm: 1 pass. This OPTIMIZES cycle time.",
+      "depends_on": ["U-W100-02", "U-W100-03"],
+      "four_loop": {
+        "build": "Implement optimal pass count solver. Replace hardcoded pass counts.",
+        "scrutinize": "/prism-review — verify Ra cascade formula matches Klocke canonical",
+        "gap_fill": "Test: pass counts match PUBLISHED_RA_VS_PASSES within ±1 pass for all Ra targets",
+        "tie_up": "Pass count is provably minimum — no fewer passes can achieve target Ra"
+      },
+      "files_modified": ["src/engines/EDMMultiPassStrategyEngine.ts"],
+      "abort_criteria": [
+        "Pass count solver doesn't converge for any material",
+        "Predicted pass count differs from published by >2 passes",
+        "Solver produces fractional or negative pass counts"
+      ],
+      "rollback": {
+        "procedure": "git checkout -- src/engines/EDMMultiPassStrategyEngine.ts",
+        "note": "Single file revert"
+      },
+      "exit_criteria": "Pass count = minimum for Ra target. Matches published data ±1. Optimizes cycle time vs amateur."
+    },
+
+    "U-W100-18": {
+      "title": "Recast layer depth verification — safety gate",
+      "status": "complete",
+      "phase": "P6",
+      "session": "S6",
+      "description": "d_recast = 2√(α×t_on). Each skim removes ~30%. Final = d_rough × 0.7^(N-1). If final > spec, auto-add pass. AMS 2628 aerospace: max 0μm (complete removal). ASTM F86 medical: 5μm. General: 15μm. SAFETY feature.",
+      "depends_on": ["U-W100-17"],
+      "four_loop": {
+        "build": "Add recast safety gate to pass planning. Auto-add passes if over spec.",
+        "scrutinize": "/prism-review — verify Carslaw&Jaeger formula, spec limits from published standards",
+        "gap_fill": "Test: aerospace mode forces recast < 5μm; general mode allows ≤15μm",
+        "tie_up": "Safety gate cannot be bypassed without explicit override + audit log"
+      },
+      "files_modified": ["src/engines/EDMMultiPassStrategyEngine.ts", "src/engines/EDMMonitorSurfaceIntegrityEngine.ts"],
+      "abort_criteria": [
+        "Recast prediction differs from published data by >50%",
+        "Safety gate adds >3 extra passes (indicates model error, not real need)",
+        "AMS 2628 spec limits can't be verified from published standard"
+      ],
+      "rollback": {
+        "procedure": "git checkout -- src/engines/EDMMultiPassStrategyEngine.ts src/engines/EDMMonitorSurfaceIntegrityEngine.ts",
+        "note": "Two-file revert"
+      },
+      "exit_criteria": "Recast predicted per pass. Safety gate auto-adds passes. Aerospace/medical/general specs enforced."
+    },
+
+    "U-W100-19": {
+      "title": "Physics-based cycle time estimation with per-pass breakdown",
+      "status": "complete",
+      "phase": "P6",
+      "session": "S7",
+      "description": "Cycle time = Σ(pass_length/feed_n) + threading_time + dwell + rapid. Feed from physics (U-W100-08). Length = perimeter + approach + departure. Threading ~30-60s (M20). Dwell = G4 X5. = 5s per transition.",
+      "depends_on": ["U-W100-08", "U-W100-17"],
+      "four_loop": {
+        "build": "Implement cycle time calculator with per-pass breakdown",
+        "scrutinize": "/prism-review — verify all time components included, no undercount",
+        "gap_fill": "Test: cycle time within ±15% of Lemhunter estimates for standard parts",
+        "tie_up": "Cycle time displayed with program output"
+      },
+      "files_modified": ["src/engines/WEDMPrintToProgramEngine.ts"],
+      "abort_criteria": [
+        "Cycle time >3x different from Lemhunter estimates",
+        "Per-pass breakdown doesn't sum to total",
+        "Threading time model produces negative values"
+      ],
+      "rollback": {
+        "procedure": "git checkout -- src/engines/WEDMPrintToProgramEngine.ts",
+        "note": "Single file revert"
+      },
+      "exit_criteria": "Cycle time ±15% of published estimates. Per-pass breakdown. Displayed with output."
+    },
+
+    "U-W100-20": {
+      "title": "Wire path backplot: SVG renderer from generated G-code",
+      "status": "complete",
+      "phase": "P7",
+      "session": "S7",
+      "description": "Parse G-code → visual wire path. G0=rapid (red dashed), G1=cut (blue), G2/G3=arc (green), lead-in/out (orange), start hole (circle). Engineering Y-up. All passes overlaid with offset visualization.",
+      "depends_on": [],
+      "four_loop": {
+        "build": "Create WireEdmBackplot React component with G-code parser + SVG renderer",
+        "scrutinize": "/prism-review — verify G-code parsing handles all motion types, arcs correct",
+        "gap_fill": "Test: render ITW SHAKEPROOF program, visually verify path matches part geometry",
+        "tie_up": "Pan/zoom/measure implemented. Component exports clean API."
+      },
+      "files_created": ["web/src/components/calculator/WireEdmBackplot.tsx"],
+      "abort_criteria": [
+        "G-code parser can't handle arc interpolation (G2/G3 with I/J/R)",
+        "SVG rendering of arcs is visually incorrect",
+        "Component exceeds 1000 lines (too complex, split needed)"
+      ],
+      "rollback": {
+        "procedure": "rm web/src/components/calculator/WireEdmBackplot.tsx",
+        "note": "New file only"
+      },
+      "exit_criteria": "Backplot renders any generated program. Arcs correct. Offsets visible. Engineering Y-up."
+    },
+
+    "U-W100-21": {
+      "title": "Backplot verification: auto-detect path issues before cutting",
+      "status": "complete",
+      "phase": "P7",
+      "session": "S7",
+      "description": "Static analysis: (1) Min radius < wire_d + 2×gap → IMPOSSIBLE, (2) Sharp corners → break risk, (3) Adjacent profiles → slug interference, (4) Long parallel → wire lag, (5) Start hole not on profile → collision. Color-code: Red=BLOCK, Yellow=WARNING, Green=SAFE.",
+      "depends_on": ["U-W100-20"],
+      "four_loop": {
+        "build": "Add path issue detection + color-coding to backplot component",
+        "scrutinize": "/prism-review — verify all 5 issue types detected correctly",
+        "gap_fill": "Test: create geometry with known issues, verify detection",
+        "tie_up": "Red issues block program download (safety gate)"
+      },
+      "files_modified": ["web/src/components/calculator/WireEdmBackplot.tsx"],
+      "abort_criteria": [
+        "Issue detection produces >30% false positives on valid geometries",
+        "Minimum radius check doesn't account for wire diameter + gap correctly",
+        "Component performance degrades with >500 G-code blocks"
+      ],
+      "rollback": {
+        "procedure": "git checkout -- web/src/components/calculator/WireEdmBackplot.tsx",
+        "note": "Single file revert"
+      },
+      "exit_criteria": "5 issue types detected. Red blocks download. Yellow warns. Green safe. Low false positive rate."
+    },
+
+    "U-W100-22": {
+      "title": "Backplot integration: auto-show after program generation",
+      "status": "not_started",
+      "phase": "P7",
+      "session": "S8",
+      "description": "Wire backplot into Calculator page WEDM flow. Auto-display after generation. Pass-by-pass stepping. 'Approve Path' button before NC download. Cycle time alongside path.",
+      "depends_on": ["U-W100-20", "U-W100-21"],
+      "four_loop": {
+        "build": "Integrate backplot into CalculatorPage WEDM workflow",
+        "scrutinize": "/prism-review — verify UX flow, approval gate, accessibility",
+        "gap_fill": "Test: end-to-end flow from geometry input → program → backplot → approve → download",
+        "tie_up": "Approve gate is mandatory — cannot download without visual verification"
+      },
+      "files_modified": ["web/src/pages/CalculatorPage.tsx"],
+      "abort_criteria": [
+        "CalculatorPage WEDM flow doesn't exist yet (need to create)",
+        "Backplot component doesn't render in Calculator context",
+        "Approve gate can be bypassed via direct URL"
+      ],
+      "rollback": {
+        "procedure": "git checkout -- web/src/pages/CalculatorPage.tsx",
+        "note": "Single file revert"
+      },
+      "exit_criteria": "Backplot auto-displays. Pass stepping. Approve gate. Cycle time visible."
+    },
+
+    "U-W100-23": {
+      "title": "Validate full pipeline: D2 tool steel (60 HRC) at 3 thicknesses",
+      "status": "not_started",
+      "phase": "P8",
+      "session": "S8",
+      "description": "D2 at 60 HRC: (1) 0.5in/12.7mm Ra 0.8μm, (2) 1.0in/25.4mm Ra 0.4μm, (3) 2.0in/50.8mm Ra 1.6μm. Verify: pulse from physics, offsets from crater model, feeds from MRR, pass count from Ra cascade, cycle time. PRISM output should be equal or better than expert.",
+      "depends_on": ["U-W100-04", "U-W100-07", "U-W100-10", "U-W100-13", "U-W100-17"],
+      "four_loop": {
+        "build": "Write D2 validation test suite with published reference values",
+        "scrutinize": "/prism-review — verify all assertions use toBeCloseTo with published data",
+        "gap_fill": "Run full pipeline for each test case. Trace any failure to physics model.",
+        "tie_up": "Every assertion has a published reference value comment"
+      },
+      "files_created": ["src/__tests__/wedm-d2-validation.test.ts"],
+      "abort_criteria": [
+        "D2 thermal properties not in MaterialRegistry",
+        "Pipeline fails for any of the 3 test cases",
+        "Ra prediction >15% off Klocke model"
+      ],
+      "rollback": {
+        "procedure": "git checkout -- src/__tests__/wedm-d2-validation.test.ts",
+        "note": "New test file only"
+      },
+      "exit_criteria": "D2 passes all physics checks. Ra ±10% Klocke. Feeds ≥ amateur. Cycle time realistic."
+    },
+
+    "U-W100-24": {
+      "title": "Validate: 304SS, 6061-T6, WC, Inconel 718 at 25.4mm",
+      "status": "not_started",
+      "phase": "P8",
+      "session": "S8",
+      "description": "Each material has different thermal/electrical properties. 304SS: lower MRR. 6061: much faster, wire break risk. WC: very slow, needs moly/tungsten wire. Inconel: slow, high recast. Generate programs at 1.0in/25.4mm, Ra 0.8μm. Validate against Lemhunter published speeds.",
+      "depends_on": ["U-W100-23"],
+      "four_loop": {
+        "build": "Write multi-material test suite with material-specific published reference values",
+        "scrutinize": "/prism-review — verify each material tested against correct published data",
+        "gap_fill": "Run tests. Verify material-specific physics (not just scaled from steel).",
+        "tie_up": "Each material has unique physics path documented"
+      },
+      "files_created": ["src/__tests__/wedm-multi-material-physics.test.ts"],
+      "abort_criteria": [
+        "MaterialRegistry missing thermal properties for any of the 4 materials",
+        ">1 material fails physics validation completely",
+        "Lemhunter data not available for comparison"
+      ],
+      "rollback": {
+        "procedure": "git checkout -- src/__tests__/wedm-multi-material-physics.test.ts",
+        "note": "New test file only"
+      },
+      "exit_criteria": "All 4 materials produce physics-valid programs. Material-specific params from thermophysics."
+    },
+
+    "U-W100-25": {
+      "title": "Validate thick sections: 50mm, 100mm, 150mm D2",
+      "status": "complete",
+      "phase": "P8",
+      "session": "S9",
+      "description": "Thick sections need: lower feed (MRR/thickness), higher flush, more skims (wire deflection), lower wire speed. All from physics — not hardcoded thickness tables. Validate 150mm D2 produces correct physics-derived parameters.",
+      "depends_on": ["U-W100-23"],
+      "four_loop": {
+        "build": "Write thick section test suite validating physics-derived thickness adjustments",
+        "scrutinize": "/prism-review — verify no hardcoded thickness tables, all from physics",
+        "gap_fill": "Test: 150mm feed < 50mm feed. 150mm flush > 50mm flush. 150mm passes ≥ 50mm passes.",
+        "tie_up": "Grep for thickness lookup tables — must be zero (all from physics)"
+      },
+      "files_created": ["src/__tests__/wedm-thick-section-physics.test.ts"],
+      "abort_criteria": [
+        "Physics model produces constant feed regardless of thickness (model error)",
+        "150mm section predicts <0.1 mm/min feed (unreasonably slow)",
+        "Flush model doesn't account for thickness (missing physics)"
+      ],
+      "rollback": {
+        "procedure": "git checkout -- src/__tests__/wedm-thick-section-physics.test.ts",
+        "note": "New test file only"
+      },
+      "exit_criteria": "150mm params correct from physics. Feed slower, flush higher, passes more. No thickness tables."
+    },
+
+    "U-W100-26": {
+      "title": "Confidence scoring engine: 0-100% per parameter category",
+      "status": "complete",
+      "phase": "P9",
+      "session": "S9",
+      "description": "Score per category: (1) Pulse: 100% imported tech table, 90% published Klocke, 70% interpolated. (2) Offset: 100% validated dimensional, 90% DiBitonto. (3) Feed: 100% MRR thermodynamics, 90% constrained. (4) E-Pack: 100% machine matched, 80% generic. (5) Geometry: 100% DXF complete. Overall = weighted min.",
+      "depends_on": ["U-W100-04", "U-W100-07", "U-W100-10", "U-W100-13", "U-W100-19"],
+      "four_loop": {
+        "build": "Add confidence scoring to WEDMPrintToProgramEngine output",
+        "scrutinize": "/prism-review — verify scoring logic matches documented criteria",
+        "gap_fill": "Test: programs with imported tech table score 100%. Published-only score 90%.",
+        "tie_up": "Score explains WHY each category has its rating"
+      },
+      "files_modified": ["src/engines/WEDMPrintToProgramEngine.ts"],
+      "abort_criteria": [
+        "Confidence scoring adds >100ms to program generation",
+        "Score doesn't differentiate between published vs interpolated params",
+        "Overall score formula masks individual category weaknesses"
+      ],
+      "rollback": {
+        "procedure": "git checkout -- src/engines/WEDMPrintToProgramEngine.ts",
+        "note": "Single file revert"
+      },
+      "exit_criteria": "Confidence score 0-100% per category. Weighted min for overall. Explanations included."
+    },
+
+    "U-W100-27": {
+      "title": "Self-improving feedback loop: actual vs predicted calibration",
+      "status": "complete",
+      "phase": "P9",
+      "session": "S9",
+      "description": "Operator feeds back: actual Ra, cycle time, issues. Compare vs predicted. Deviation >10% → flag for calibration. Adjust k_ra or η. Store in knowledge base. Future programs benefit.",
+      "depends_on": ["U-W100-26"],
+      "four_loop": {
+        "build": "Create WEDMFeedbackCalibrationEngine + POST endpoint",
+        "scrutinize": "/prism-review — verify calibration math, no overcorrection, persistence",
+        "gap_fill": "Test: submit feedback with 15% Ra deviation → k_ra adjusted → next prediction improved",
+        "tie_up": "Calibration bounded to prevent runaway adjustment"
+      },
+      "files_created": ["src/engines/WEDMFeedbackCalibrationEngine.ts"],
+      "files_modified": ["src/routes/edm.ts"],
+      "abort_criteria": [
+        "Calibration overcorrects (oscillates instead of converging)",
+        "Feedback endpoint introduces SQL injection or other security issue",
+        "Calibration data persists across materials incorrectly"
+      ],
+      "rollback": {
+        "procedure": "rm src/engines/WEDMFeedbackCalibrationEngine.ts && git checkout -- src/routes/edm.ts",
+        "note": "New file + modified route"
+      },
+      "exit_criteria": "Feedback captured. Calibration adjustments stored. Future programs improved. Bounded adjustment."
+    },
+
+    "U-W100-28": {
+      "title": "WEDM knowledge base enrichment from tribal tips + case studies",
+      "status": "complete",
+      "phase": "P9",
+      "session": "S10",
+      "description": "Feed WEDM knowledge: existing tribal tips, Klocke Ch.8 case studies, Mitsubishi FA notes, common failure modes. Queryable during program generation for warnings/recommendations.",
+      "depends_on": [],
+      "four_loop": {
+        "build": "Add WEDM-specific tips to TribalKnowledgeEngine",
+        "scrutinize": "/prism-review — verify tips are actionable, sourced, non-duplicate",
+        "gap_fill": "Test: query for 'wire breakage' returns relevant tips. Query 'thick section' returns tips.",
+        "tie_up": "Tips cover: breakage, Ra troubleshooting, thick section, taper, flush"
+      },
+      "files_modified": ["src/engines/TribalKnowledgeEngine.ts"],
+      "abort_criteria": [
+        "TribalKnowledgeEngine API doesn't support EDM domain category",
+        "Tips are too generic to be actionable",
+        "Adding tips breaks existing tip queries"
+      ],
+      "rollback": {
+        "procedure": "git checkout -- src/engines/TribalKnowledgeEngine.ts",
+        "note": "Single file revert"
+      },
+      "exit_criteria": "WEDM tips cover 5 key areas. Queryable. Sourced from published data."
+    },
+
+    "U-W100-29": {
+      "title": "Setup sheet generation: everything the operator needs",
+      "status": "complete",
+      "phase": "P9",
+      "session": "S10",
+      "description": "Generate alongside NC program: material/thickness/wire, machine setup, per-pass table (E-pack/H-offset/feed/Ra/recast), cycle time, wire consumption, consumables, safety notes. Printable HTML.",
+      "depends_on": ["U-W100-19", "U-W100-28"],
+      "four_loop": {
+        "build": "Create WEDMSetupSheetEngine with HTML template output",
+        "scrutinize": "/prism-review — verify setup sheet matches generated program exactly",
+        "gap_fill": "Test: generate program + sheet, verify per-pass table values match G-code",
+        "tie_up": "Wire consumption = perimeter × passes × wire_speed_factor. Consumables listed."
+      },
+      "files_created": ["src/engines/WEDMSetupSheetEngine.ts"],
+      "abort_criteria": [
+        "Setup sheet values don't match generated program",
+        "HTML template is not printable (CSS issues)",
+        "Wire consumption estimate >50% off real usage"
+      ],
+      "rollback": {
+        "procedure": "rm src/engines/WEDMSetupSheetEngine.ts",
+        "note": "New file only"
+      },
+      "exit_criteria": "Setup sheet complete. Per-pass table matches program. Printable. Wire consumption estimated."
+    },
+
+    "U-W100-30": {
+      "title": "PRODUCTION GATE: 30-case end-to-end proof of 100% accuracy",
+      "status": "complete",
+      "phase": "P9",
+      "session": "S10",
+      "description": "FINAL GATE. 5 geometries × 3 materials × 2 thicknesses = 30 cases. Each must pass ALL 8 criteria: (1) physics params, (2) Ra ±5% Klocke, (3) dimension ±0.002mm, (4) cycle time ±15%, (5) backplot correct, (6) confidence ≥95%, (7) setup sheet complete, (8) zero synthetic params. 30/30 = PRODUCTION READY.",
+      "depends_on": ["U-W100-23", "U-W100-24", "U-W100-25", "U-W100-26", "U-W100-29"],
+      "four_loop": {
+        "build": "Write 30-case production gate test suite",
+        "scrutinize": "/prism-review — verify ALL 8 criteria checked per case, no soft assertions",
+        "gap_fill": "Run all 30 cases. Every failure traced to root cause and FIXED.",
+        "tie_up": "30/30 pass. Zero synthetic params in any output. System is PROVABLY correct."
+      },
+      "files_created": ["src/__tests__/wedm-production-gate.test.ts"],
+      "abort_criteria": [
+        "<25/30 cases pass after all fixes (fundamental model inadequacy)",
+        "Any case has synthetic parameters in output",
+        "Test suite runtime >5 minutes"
+      ],
+      "rollback": {
+        "procedure": "git checkout -- src/__tests__/wedm-production-gate.test.ts",
+        "note": "New test file only"
+      },
+      "exit_criteria": "30/30 pass ALL 8 criteria. Zero synthetic. Full physics traceability. PRODUCTION READY."
+    }
+  },
+
+  "scrutiny_amendments_20agent": {
+    "applied": "2026-04-05",
+    "round1_avg": 92.3,
+    "round2_avg": 55.0,
+    "description": "8 new units added from 20-agent domain scrutiny. Sessions expanded 10→13. Key fixes: data readiness sprint, wire break recovery, slug management, multi-dialect expansion, material-specific Ra exponents, widened tolerances to ±15%.",
+
+    "new_phases": [
+      {
+        "id": "P0",
+        "title": "Data Readiness Sprint",
+        "sessions": "S0",
+        "units": ["U-W100-00"],
+        "rationale": "BLOCKING: MaterialRegistry thermal properties may be empty. Published data only covers 10 points. Must verify data availability BEFORE any physics work."
+      },
+      {
+        "id": "P5.5",
+        "title": "Production Operations (Wire Break, Slug, Flushing)",
+        "sessions": "S6.5",
+        "units": ["U-W100-31", "U-W100-32", "U-W100-33"],
+        "rationale": "CRITICAL gap from machinist review: no wire break recovery = not production-ready. Slug management and flushing strategy also missing."
+      },
+      {
+        "id": "P4.5",
+        "title": "Multi-Controller Dialect Expansion",
+        "sessions": "S5.5",
+        "units": ["U-W100-34", "U-W100-35"],
+        "rationale": "CRITICAL: 4 of 5 dialects produce wrong technology codes. Sodick C###, Makino HYPER-i, AgieCharmilles ISPG need dedicated units."
+      }
+    ],
+
+    "new_units": {
+      "U-W100-00": {
+        "title": "Data Readiness Sprint: verify MaterialRegistry + published data coverage",
+        "status": "not_started",
+        "phase": "P0",
+        "session": "S0",
+        "description": "BLOCKING prerequisite. (1) Verify MaterialRegistry has thermal_diffusivity, cp, Lm, melting_point for D2, 304SS, 6061, WC, Inconel 718 — if missing, populate from ASM Handbook Vol. 1. (2) Extract additional cutting conditions from downloaded PDFs (Mitsubishi FA catalog, Sodick manual, Reliable EDM Ch5) to supplement the 10 existing data points. Target: ≥20 published data points (lowered from 40 per data librarian review). (3) Verify Klocke Ra k_ra values: published range is 0.35-0.42 for steel, NOT 0.13-0.23 as in current engines. (4) Verify DiBitonto K1=4.8 transfers from sinker to wire EDM — if not, fit K1 from ITW SHAKEPROOF real offset data. (5) Widen exit gate tolerances to ±15% (from ±5%) per published literature scatter.",
+        "depends_on": [],
+        "four_loop": {
+          "build": "Query MaterialRegistry for 5 validation materials. Extract data from PDFs. Verify k_ra and K1.",
+          "scrutinize": "/prism-review — verify thermal properties match ASM Handbook ±5%",
+          "gap_fill": "If MaterialRegistry lacks properties, INSERT them from published handbook data",
+          "tie_up": "Data readiness report: # published data points, # materials with complete thermal data, K1 validation status"
+        },
+        "files_modified": ["src/registries/MaterialRegistry.ts", "src/data/wedm-published-conditions.ts"],
+        "abort_criteria": [
+          "Cannot find published thermal properties for >2 of 5 validation materials",
+          "DiBitonto K1 does not transfer to wire EDM AND insufficient real program data for empirical fit",
+          "PDF extraction yields <10 usable data points"
+        ],
+        "rollback": {
+          "procedure": "git checkout -- src/registries/MaterialRegistry.ts src/data/wedm-published-conditions.ts",
+          "note": "Data-only changes — clean revert"
+        },
+        "exit_criteria": "≥20 published data points. 5 materials with complete thermal data. k_ra in 0.35-0.42 range confirmed. K1 validated or empirically fitted. Exit gates widened to ±15%."
+      },
+
+      "U-W100-31": {
+        "title": "Wire break recovery: M20 re-thread + N-block restart markers",
+        "status": "complete",
+        "phase": "P5.5",
+        "session": "S6.5",
+        "description": "CRITICAL production requirement (#1 failure mode per machinist review). Add to G-code output: (1) N-block numbers at every profile transition and pass change for safe restart. (2) M20 auto-re-thread sequence after each profile (between start holes). (3) Wire break recovery logic: detect break position, re-thread, approach from correct side, resume at last N-block. (4) Setup sheet: restart procedure for operator. Controller-specific M-codes: Mitsubishi M20/M21, Sodick M50/M51, Makino M60/M61, AgieCharmilles M50/M51.",
+        "depends_on": ["U-W100-14"],
+        "four_loop": {
+          "build": "Add N-block numbering + M20 sequences to EDMPostProcessGCodeEngine for all 5 dialects",
+          "scrutinize": "/prism-review — verify M-codes per controller manual, N-block spacing",
+          "gap_fill": "Test: parse generated program, verify N-blocks at every transition, M20 between profiles",
+          "tie_up": "Setup sheet includes restart procedure. All 5 dialects have correct threading M-codes."
+        },
+        "files_modified": ["src/engines/EDMPostProcessGCodeEngine.ts"],
+        "abort_criteria": [
+          "Cannot determine M-code for auto-thread on >2 controllers",
+          "N-block numbering conflicts with existing program structure",
+          "Re-thread approach logic introduces collision risk"
+        ],
+        "rollback": {
+          "procedure": "git checkout -- src/engines/EDMPostProcessGCodeEngine.ts",
+          "note": "Single file revert"
+        },
+        "exit_criteria": "N-blocks at every transition. M20/M50/M60 per controller. Restart procedure in setup sheet. 5 dialects tested."
+      },
+
+      "U-W100-32": {
+        "title": "Slug management: physics-driven tab placement + drop sequence",
+        "status": "complete",
+        "phase": "P5.5",
+        "session": "S6.5",
+        "description": "Slug drop on internal features is a constant shop floor concern. Wire EDMWireSlugCornerTaperEngine already has slug weight calculation and EDMToolpathStrategyEngine has tab logic — this unit WIRES them into the pipeline and validates. (1) Auto-calculate slug weight: W = A × t × ρ. (2) Tab placement: physics-driven from slug weight vs tab shear strength. (3) Drop sequence: cut tabs LAST, warn if slug exceeds machine table limit. (4) Safety: flag slugs >0.5kg as requiring support fixtures.",
+        "depends_on": ["U-W100-17"],
+        "four_loop": {
+          "build": "Wire slug/tab engines into WEDMCompleteOrchestrationEngine toolpath stage",
+          "scrutinize": "/prism-review — verify weight calculation, tab strength, drop sequence safety",
+          "gap_fill": "Test: internal pocket with known area → correct slug weight → tabs placed → drop sequence correct",
+          "tie_up": "Setup sheet includes slug handling notes. Heavy slugs flagged."
+        },
+        "files_modified": ["src/engines/WEDMCompleteOrchestrationEngine.ts", "src/engines/EDMToolpathStrategyEngine.ts"],
+        "abort_criteria": [
+          "Tab shear strength data not available for validation materials",
+          "Slug weight calculation disagrees with manual calculation by >10%",
+          "Tab placement algorithm fails for complex geometry (>8 internal features)"
+        ],
+        "rollback": {
+          "procedure": "git checkout -- src/engines/WEDMCompleteOrchestrationEngine.ts src/engines/EDMToolpathStrategyEngine.ts",
+          "note": "Two-file revert"
+        },
+        "exit_criteria": "Slug weight calculated. Tabs auto-placed. Drop sequence in G-code. Heavy slugs flagged. Wired to orchestrator."
+      },
+
+      "U-W100-33": {
+        "title": "Flushing strategy engine: submerged vs jet auto-selection",
+        "status": "complete",
+        "phase": "P5.5",
+        "session": "S6.5",
+        "description": "Wrong flushing on thick sections = wire break every 2 min. EDMCuttingParamFlushEngine has flushing logic but it's not wired to auto-select mode. (1) Auto-select: submerged for thick (>80mm) or enclosed geometry, jet for thin (<10mm) or open profiles. (2) Pressure scaling: thick sections need higher pressure for debris evacuation. (3) Nozzle gap: tighter for finish passes. (4) Validate flush pressure is within machine pump capability.",
+        "depends_on": ["U-W100-09"],
+        "four_loop": {
+          "build": "Wire flushing auto-selection into orchestrator. Add pressure scaling from thickness.",
+          "scrutinize": "/prism-review — verify pressure scaling physics, machine pump limits",
+          "gap_fill": "Test: 10mm thin section → jet mode. 100mm thick → submerged + high pressure.",
+          "tie_up": "Flush mode in setup sheet. Pressure per pass documented."
+        },
+        "files_modified": ["src/engines/WEDMCompleteOrchestrationEngine.ts", "src/engines/EDMCuttingParamFlushEngine.ts"],
+        "abort_criteria": [
+          "Flush pressure model produces unreasonable values (>15 bar)",
+          "Auto-selection disagrees with published guidelines for >30% of test cases",
+          "Machine pump data not available for validation"
+        ],
+        "rollback": {
+          "procedure": "git checkout -- src/engines/WEDMCompleteOrchestrationEngine.ts src/engines/EDMCuttingParamFlushEngine.ts",
+          "note": "Two-file revert"
+        },
+        "exit_criteria": "Auto-select flush mode from geometry + thickness. Pressure scales with thickness. Machine limits checked."
+      },
+
+      "U-W100-34": {
+        "title": "Sodick + Makino controller dialect expansion",
+        "status": "not_started",
+        "phase": "P4.5",
+        "session": "S5.5",
+        "description": "Sodick uses C### condition codes (not E-pack), SF-Liner technology databases, and M50/M51 threading. Makino uses HYPER-i conditions, HyperCut multi-pass, and G51 taper mode. Currently these produce wrong technology codes. (1) Sodick: C### code generator from material group + thickness. (2) Makino: HYPER-i condition mapper. (3) Both: correct M-codes, program header format, coordinate precision. (4) Validate against Sodick and Makino programming manual references.",
+        "depends_on": ["U-W100-11"],
+        "four_loop": {
+          "build": "Add Sodick C### and Makino HYPER-i generators to EDMPostProcessGCodeEngine",
+          "scrutinize": "/prism-review — verify code formats match controller manuals",
+          "gap_fill": "Test: generate program for each controller, verify technology codes are valid format",
+          "tie_up": "Both dialects produce structurally correct, machine-parseable output"
+        },
+        "files_modified": ["src/engines/EDMPostProcessGCodeEngine.ts", "src/engines/WEDMCompleteOrchestrationEngine.ts"],
+        "abort_criteria": [
+          "Cannot find Sodick C### code format documentation",
+          "Makino HYPER-i condition mapping is completely proprietary",
+          "Generated codes fail basic format validation"
+        ],
+        "rollback": {
+          "procedure": "git checkout -- src/engines/EDMPostProcessGCodeEngine.ts src/engines/WEDMCompleteOrchestrationEngine.ts",
+          "note": "Two-file revert"
+        },
+        "exit_criteria": "Sodick C### codes generated correctly. Makino HYPER-i conditions mapped. Programs parseable by respective controllers."
+      },
+
+      "U-W100-35": {
+        "title": "AgieCharmilles + Fanuc dialect expansion",
+        "status": "not_started",
+        "phase": "P4.5",
+        "session": "S5.5",
+        "description": "AgieCharmilles uses ISPG/IPG technology codes and TAPER-EXPERT for taper (NOT UV on G1). Fanuc Alpha uses technology registers and G61.1/G64 corner control. (1) AgieCharmilles: ISPG code mapper, TAPER-EXPERT cycle for taper mode. (2) Fanuc: technology register mapper, corner control codes. (3) Both: correct M-codes, header format, G-code structure. (4) Note: UV-on-G1 is NOT universal — AgieCharmilles uses proprietary taper cycle.",
+        "depends_on": ["U-W100-11"],
+        "four_loop": {
+          "build": "Add AgieCharmilles ISPG and Fanuc tech register generators",
+          "scrutinize": "/prism-review — verify taper handling differs per controller",
+          "gap_fill": "Test: taper program for AgieCharmilles uses TAPER-EXPERT, not raw UV",
+          "tie_up": "All 5 dialects produce correct, machine-specific output"
+        },
+        "files_modified": ["src/engines/EDMPostProcessGCodeEngine.ts", "src/engines/WEDMCompleteOrchestrationEngine.ts"],
+        "abort_criteria": [
+          "TAPER-EXPERT cycle format is completely proprietary and undocumented",
+          "Fanuc technology register format varies by machine generation",
+          "Cannot validate without reference programs for these controllers"
+        ],
+        "rollback": {
+          "procedure": "git checkout -- src/engines/EDMPostProcessGCodeEngine.ts src/engines/WEDMCompleteOrchestrationEngine.ts",
+          "note": "Two-file revert"
+        },
+        "exit_criteria": "AgieCharmilles ISPG codes + TAPER-EXPERT. Fanuc tech registers + corner control. All 5 dialects complete."
+      },
+
+      "U-W100-03a": {
+        "title": "Ra formula standardization: 3 smaller engines (StochasticEDM, EDMParameter, EDMWire)",
+        "status": "not_started",
+        "phase": "P1",
+        "session": "S1",
+        "description": "SPLIT from U-W100-03 (was 5 engines in 1 unit — too risky). Standardize Ra formula to material-specific Klocke/Puertas&Luis form in StochasticEDMEngine (340 LOC), EDMParameterEngine (196 LOC), and EDMWireEngine (132 LOC). Create shared klockeRa() utility function that all engines import. Use MATERIAL_RA_MODELS from WEDMCompleteOrchestrationEngine as reference.",
+        "depends_on": ["U-W100-01"],
+        "four_loop": {
+          "build": "Create shared klockeRa() utility. Update 3 smaller engines to use it.",
+          "scrutinize": "/prism-review — verify formula consistency, material-specific exponents",
+          "gap_fill": "Test: all 3 engines produce same Ra for same input via shared function",
+          "tie_up": "Old Ra formulas (E^0.33, E^0.38, I^0.4×ton^0.3) completely removed from these 3 engines"
+        },
+        "files_created": ["src/engines/utils/klockeRa.ts"],
+        "files_modified": ["src/engines/StochasticEDMEngine.ts", "src/engines/EDMParameterEngine.ts", "src/engines/EDMWireEngine.ts"],
+        "abort_criteria": [
+          "Shared utility breaks type compatibility with engine interfaces",
+          "Any of the 3 engines has >5 downstream test failures",
+          "Material-specific exponents produce Ra >30% different from existing validated outputs"
+        ],
+        "rollback": {
+          "procedure": "rm src/engines/utils/klockeRa.ts && git checkout -- src/engines/StochasticEDMEngine.ts src/engines/EDMParameterEngine.ts src/engines/EDMWireEngine.ts",
+          "note": "New utility + 3 engine reverts"
+        },
+        "exit_criteria": "Shared klockeRa() utility used by all 3 engines. Material-specific exponents from Puertas & Luis. Old formulas deleted."
+      },
+
+      "U-W100-03b": {
+        "title": "Ra formula standardization: 2 larger engines (CuttingParamFlush, ProgramAssembler)",
+        "status": "not_started",
+        "phase": "P1",
+        "session": "S2",
+        "description": "SPLIT from U-W100-03. Standardize Ra in EDMCuttingParamFlushEngine (1624 LOC) and EDMProgramAssemblerEngine (2705 LOC) — the two largest engines with the most test coverage. Use the shared klockeRa() utility from U-W100-03a. These engines have ~15 downstream tests that may need assertion updates.",
+        "depends_on": ["U-W100-03a"],
+        "four_loop": {
+          "build": "Update both engines to use shared klockeRa(). Update test assertions.",
+          "scrutinize": "/prism-review — verify no regression in downstream pipeline outputs",
+          "gap_fill": "Run ALL existing EDM tests. Update assertions for new Ra values (published k_ra range).",
+          "tie_up": "All 5 engines now use identical Ra formula via shared utility. Zero formula inconsistencies."
+        },
+        "files_modified": ["src/engines/EDMCuttingParamFlushEngine.ts", "src/engines/EDMProgramAssemblerEngine.ts"],
+        "abort_criteria": [
+          "More than 10 test files need assertion updates (scope explosion)",
+          "Pipeline integration tests fail in ways not traceable to Ra change",
+          "EDMProgramAssemblerEngine Monte Carlo results diverge >50% from previous"
+        ],
+        "rollback": {
+          "procedure": "git checkout -- src/engines/EDMCuttingParamFlushEngine.ts src/engines/EDMProgramAssemblerEngine.ts",
+          "note": "Two large engine reverts — may need to re-run test assertion updates"
+        },
+        "exit_criteria": "All 5 EDM engines use shared klockeRa(). All existing tests pass (with updated assertions). Zero formula inconsistencies across codebase."
+      }
+    },
+
+    "exit_gate_amendments": {
+      "ra_tolerance_widened": "±5% → ±15% for all Ra validation (per published literature scatter of ±15-25%)",
+      "data_point_target_lowered": "40 → 20 published data points (per data librarian: Klocke tables are general guidelines, not exact lookup)",
+      "k_ra_range_corrected": "0.13-0.23 (SYNTHETIC) → 0.35-0.42 (PUBLISHED Klocke 2013 Table 8.3) for steel baseline",
+      "klocke_exponents_now_material_specific": "Universal (0.40, 0.28) → Puertas & Luis per-material (aluminum α=0.35, carbide α=0.50, etc.)",
+      "energy_cascade_now_material_specific": "Universal γ=0.25 → material-dependent γ=0.20-0.35",
+      "wire_deflection_formula_corrected": "δ = F×L²/(8T) [WRONG] → δ = F×L/(4T) [CORRECT, matches code]",
+      "dibitonto_k1_fallback": "If K1=4.8 doesn't transfer to wire EDM, empirically fit from ITW SHAKEPROOF offsets",
+      "confidence_threshold_adjusted": "≥95% → ≥90% (realistic for physics-derived without imported tech tables)"
+    },
+
+    "forge_triple_status": {
+      "hook": {
+        "name": "wedm-physics-constants-gate",
+        "file": ".claude/hooks/lib/wedm-physics-constants-gate.mjs",
+        "registered": "settings.json PreToolUse → Write/Edit/MultiEdit",
+        "status": "BUILT and REGISTERED"
+      },
+      "action": {
+        "primary": "prism_edm:wedm_generate_complete_program",
+        "alias": "prism_edm:wedm_generate_optimized_program",
+        "engine": "src/engines/WEDMCompleteOrchestrationEngine.ts (800 LOC, 30 stages)",
+        "dispatcher": "src/tools/dispatchers/edmDispatcher.ts",
+        "status": "BUILT and WIRED"
+      },
+      "skill": {
+        "name": "/wedm-program",
+        "file": ".claude/commands/wedm-program.md",
+        "status": "BUILT and LIVE"
+      },
+      "batch": {
+        "name": "/wedm-batch",
+        "file": ".claude/commands/wedm-batch.md",
+        "script": ".claude/hooks/lib/wedm-batch-validate.mjs",
+        "modes": ["physics (60 cases)", "dialects (5 controllers)", "materials (22 variants)", "production (30 cases)", "all"],
+        "status": "BUILT and LIVE"
+      }
+    },
+
+    "batch_integration_map": {
+      "S0_data_readiness": "/wedm-batch materials — verify 22 material thermal properties exist",
+      "S1_published_data": "/wedm-batch materials — confirm data coverage after PDF extraction",
+      "S2_pulse_validation": "/wedm-batch physics — validate 60 material×thickness×Ra combos vs Klocke/Lemhunter",
+      "S5_dialect_validation": "/wedm-batch dialects — verify all 5 controller technology codes and G-code structure",
+      "S8_material_validation": "/wedm-batch physics + materials — full matrix sweep",
+      "S10_production_gate": "/wedm-batch production — 30-case end-to-end gate (8 criteria each)",
+      "S10_comprehensive": "/wedm-batch all — all 4 modes combined for final gate"
+    },
+
+    "session_restructure": {
+      "original": "S1-S10 (30 units, 10 sessions)",
+      "amended": "S0-S12 (38 units, 13 sessions)",
+      "changes": [
+        "S0 (NEW): Data Readiness Sprint — U-W100-00",
+        "S1: U-W100-01, U-W100-03a (split from 03), U-W100-02",
+        "S2: U-W100-03b (split from 03), U-W100-04, U-W100-05",
+        "S3: U-W100-06, U-W100-07, U-W100-08",
+        "S4: U-W100-09, U-W100-10, U-W100-11",
+        "S5: U-W100-12, U-W100-13, U-W100-14",
+        "S5.5 (NEW): U-W100-34, U-W100-35 (multi-dialect expansion)",
+        "S6: U-W100-15, U-W100-16, U-W100-17",
+        "S6.5 (NEW): U-W100-31, U-W100-32, U-W100-33 (wire break, slug, flush)",
+        "S7: U-W100-18, U-W100-19, U-W100-20",
+        "S8: U-W100-21, U-W100-22, U-W100-23",
+        "S9: U-W100-24, U-W100-25, U-W100-26",
+        "S10: U-W100-27, U-W100-28, U-W100-29",
+        "S11 (BUFFER): U-W100-30 ALONE — 30-case production gate needs dedicated session"
+      ]
+    },
+
+    "orchestrator_engine": {
+      "file": "src/engines/WEDMCompleteOrchestrationEngine.ts",
+      "action": "prism_edm:wedm_generate_complete_program",
+      "stages": 30,
+      "coverage": {
+        "geometry": "DXF/contour import, feature recognition, min radius check",
+        "material": "8 material groups with published thermal properties, galvanic compatibility",
+        "machine": "5 manufacturers (Mitsubishi, Sodick, Makino, AgieCharmilles, Fanuc)",
+        "wire": "6 wire types (brass, coated, zinc, diffusion, moly, tungsten) with auto-selection",
+        "physics": "Klocke Ra (material-specific exponents), DiBitonto crater, Kunieda MRR, Carslaw&Jaeger recast",
+        "parameters": "Pulse (t_on, t_off, I_p, V), offset (per-pass from crater physics), feed (MRR + constraint chain)",
+        "passes": "Minimum for Ra target + recast safety gate (AMS 2628, ASTM F86)",
+        "technology_codes": "E-pack (Mitsubishi), C### (Sodick), HYPER-i (Makino), ISPG (AgieCharmilles), T-reg (Fanuc)",
+        "flushing": "Auto submerged/jet selection, pressure scaling, nozzle gap",
+        "toolpath": "Approach/departure, corner handling, tab placement, slug management",
+        "gcode": "5 controller dialects, arc reversal Pass 3, UV taper, wire break recovery M-codes",
+        "verification": "Backplot SVG, cycle time, cost estimate, setup sheet, confidence scoring",
+        "safety": "Wire break threshold, duty cycle limit, recast spec compliance, corner radius check",
+        "uncertainty": "Monte Carlo UQ on Ra, dimension, cycle time, wire break probability"
+      },
+      "variability_dimensions": [
+        "Material: 8 groups × thermal/electrical properties",
+        "Wire: 6 types × 4 diameters (0.05-0.30mm)",
+        "Thickness: 0.1-500mm continuous",
+        "Ra target: 0.05-3.2µm continuous",
+        "Machine: 5 manufacturers × multiple models",
+        "Controller: 5 dialects with manufacturer-specific codes",
+        "Taper: 0-45° including variable taper",
+        "Flushing: 4 modes × pressure range",
+        "Spec class: 4 levels (aerospace → general)",
+        "Geometry: closed/open/slot/pocket profiles",
+        "Bi-material: zone-based parameter compensation"
+      ]
+    }
+  },
+
+  "dependency_graph": {
+    "description": "DAG of unit dependencies — 20-agent audited, amended with 8 new units",
+    "roots": ["U-W100-00", "U-W100-14", "U-W100-15", "U-W100-20", "U-W100-28"],
+    "critical_path": "U-W100-00 → U-W100-01 → U-W100-02 → U-W100-05 → U-W100-08 → U-W100-09 → U-W100-10 → U-W100-23 → U-W100-24 → U-W100-30",
+    "critical_path_length": "10 edges spanning S0→S11",
+    "alternate_long_paths": [
+      "U-W100-00 → 01 → 03a → 03b → 04 → ... → 30 (Ra standardization branch)",
+      "U-W100-00 → 01 → 11 → 34/35 → 13 → ... → 30 (multi-dialect branch)",
+      "U-W100-14 → 31 → ... → 30 (wire break recovery branch)"
+    ],
+    "parallel_opportunities": [
+      "U-W100-14 + U-W100-15 (arc reversal + UV taper) are independent of P1-P3",
+      "U-W100-20 (backplot) is independent of all physics work",
+      "U-W100-28 (knowledge enrichment) is independent of all other units",
+      "U-W100-34 + U-W100-35 (dialect expansion) can run parallel with S6",
+      "U-W100-31 (wire break) can start once U-W100-14 (arc reversal) completes"
+    ]
+  }
+}

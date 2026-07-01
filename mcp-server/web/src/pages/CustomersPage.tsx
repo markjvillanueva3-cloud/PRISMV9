@@ -96,7 +96,7 @@ function normalizeCommunication(value: Record<string, unknown>, index: number): 
     type: readString(value.type) || 'note',
     subject: readString(value.subject) || 'Communication',
     details: readString(value.details) || readString(value.notes) || 'No communication details recorded.',
-    loggedBy: readString(value.logged_by) || readString(value.user) || 'PRISM',
+    loggedBy: readString(value.logged_by) || readString(value.user) || 'Kienzle',
   };
 }
 

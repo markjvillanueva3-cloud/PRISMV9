@@ -1,0 +1,111 @@
+{
+  "id": "CAMX-MS2",
+  "version": "7.0.1",
+  "title": "Controller & Machine Strategy Validation",
+  "brief": "Pre-validate strategy compatibility with controller and machine. Fallback chains. Cost-optimal and safety-first decision engines.",
+  "created_at": "2026-03-22T14:54:56Z",
+  "created_by": "claude-opus-4.6",
+  "completed_at": "2026-04-16T22:30:00Z",
+  "phases": [
+    {
+      "id": "P0",
+      "title": "Controller & Machine Validation",
+      "units": [
+        {
+          "id": "U01",
+          "title": "ControllerStrategyValidatorEngine",
+          "description": "Validate strategy executable on target controller: NURBS, look-ahead, HSM modes, axes, work offsets.",
+          "exit_conditions": [
+            "Validation engine created ~400L",
+            "Checks NURBS/look-ahead/HSM",
+            "Tests pass"
+          ],
+          "status": "complete"
+        },
+        {
+          "id": "U02",
+          "title": "MachineStrategyConstraintEngine",
+          "description": "Validate against machine: RPM, power, acceleration, jerk, rapid traverse, magazine capacity.",
+          "exit_conditions": [
+            "Constraint engine created ~400L",
+            "Uses 910 machine profiles",
+            "Tests pass"
+          ],
+          "status": "complete",
+          "note": "694-line engine on disk + passing tests (pre-existing at gap check time 2026-04-16)"
+        },
+        {
+          "id": "U03",
+          "title": "Strategy fallback chain",
+          "description": "Auto-fallback when incompatible: NURBS spiral → linear spiral → zigzag. Logged with explanation.",
+          "exit_conditions": [
+            "Fallback chain works",
+            "Explanation logged",
+            "Tests pass"
+          ],
+          "status": "complete",
+          "note": "StrategyFallbackChainEngine created commit 84c74900 — 14 tests passing"
+        },
+        {
+          "id": "U04",
+          "title": "Wire into PostProcessorPipelineEngine",
+          "description": "Phase 0.5 pre-check: validate strategy compatibility before post-processing.",
+          "exit_conditions": [
+            "Pre-check in PostProcessor",
+            "Incompatible flagged",
+            "Tests pass"
+          ],
+          "status": "complete",
+          "note": "Stage 0.55 already present; extended at 84c74900 to invoke StrategyFallbackChainEngine on controller incompatibility and surface fallback_chosen + explanation in pipeline findings"
+        },
+        {
+          "id": "U05",
+          "title": "Cost-optimal decision engine",
+          "description": "At every decision: cycle_time_cost + tool_cost + energy_cost + scrap_risk. Select minimum total cost.",
+          "exit_conditions": [
+            "Cost computed per option",
+            "Minimum cost selected",
+            "Tests pass"
+          ],
+          "status": "complete",
+          "note": "StrategyCostOptimalEngine on disk + passing tests (pre-existing)"
+        },
+        {
+          "id": "U06",
+          "title": "Safety decision engine",
+          "description": "At every decision: collision/overload/chatter/thermal risk. Safety overrides cost.",
+          "exit_conditions": [
+            "Safety checks at every decision",
+            "Safety > cost priority",
+            "Tests pass"
+          ],
+          "status": "complete",
+          "note": "StrategySafetyDecisionEngine on disk + passing tests (pre-existing)"
+        },
+        {
+          "id": "U07",
+          "title": "Dispatcher wiring",
+          "description": "controller_validate, machine_validate, strategy_fallback, cost_optimal, safety_check.",
+          "exit_conditions": [
+            "5 actions wired",
+            "Build passes"
+          ],
+          "status": "complete",
+          "note": "camDispatcher: 11 actions wired — strategy_controller_validate, strategy_machine_validate, strategy_find_compatible_controllers, strategy_find_best_machine, strategy_compatibility_matrix, strategy_cost_compute/decide/sensitivity, strategy_safety_assess/decide/filter, plus U03 strategy_fallback_chain + strategy_fallback_default_chain added at 84c74900"
+        },
+        {
+          "id": "U08",
+          "title": "Tests",
+          "description": "30+ tests.",
+          "exit_conditions": [
+            "30+ tests pass",
+            "Build passes"
+          ],
+          "status": "complete",
+          "note": "110 tests pass across 5 CAMX-MS2 engines (Controller, Machine, CostOptimal, SafetyDecision, FallbackChain)"
+        }
+      ]
+    }
+  ],
+  "status": "complete"
+}

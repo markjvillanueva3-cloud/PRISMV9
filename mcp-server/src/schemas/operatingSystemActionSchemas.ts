@@ -274,6 +274,13 @@ const learning_media_add = z.object({
 }).passthrough();
 const learning_media_list = z.object({ course_id: z.string(), module_idx: z.number().int().min(0).optional() }).passthrough();
 
+// RAG_CROSSWIRE (RAG-UPGRADE-MS0/U-RAG-PSN-OS-WIRE, slot:india 2026-06-22):
+// ReRankerEngine validates input internally via its ReRankInputSchema (strict
+// per-candidate check), so this outer dispatcher schema is intentionally permissive
+// -- callers see a single uniform error shape from the engine validator instead of a
+// split between zod + engine. Mirrors RAG_CROSSWIRE_SCHEMAS in aiReasoningDispatcher.ts.
+const rag_rerank = z.record(z.string(), z.unknown());
+
 export const ACTION_OPERATING_SYSTEM_SCHEMAS: ActionSchemaMap = {
   shell_bootstrap,
   shell_employee_profiles,

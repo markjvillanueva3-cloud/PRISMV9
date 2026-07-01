@@ -29,8 +29,11 @@ related:
 
 ## Description (first paragraph)
 
-
-# /wedm-batch — Wire EDM Batch Operations
+Optimize and schedule multiple Wire EDM jobs:
+- Batch analysis and grouping
+- Wire change optimization
+- Schedule generation
+- Dependency tracking
 
 <!-- AUTO-END -->
 

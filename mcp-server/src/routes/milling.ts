@@ -336,7 +336,7 @@ export function createMillingRouter(callTool: CallToolFn): Router {
   // ── POST /speed-feed — Milling speed/feed calculation ──────────────────────
   router.post("/speed-feed", async (req, res, next) => {
     try {
-      const result = await callTool("prism_calc", "speed_feed_calc", {
+      const result = await callTool("prism_calc", "speed_feed", {
         ...req.body,
         operation: "milling",
       });

@@ -1,0 +1,3781 @@
+{
+  "source": "hyperMILL Documentation",
+  "created_at": "2026-04-12T23:20:32.684Z",
+  "node_count": 143,
+  "edge_count": 142,
+  "nodes": [
+    {
+      "id": "cam-hypermill",
+      "type": "cam_system",
+      "label": "hyperMILL",
+      "properties": {
+        "vendor": "OPEN MIND Technologies",
+        "version": "2024+",
+        "specialties": [
+          "5-axis",
+          "HSC",
+          "mill-turn",
+          "electrode"
+        ]
+      }
+    },
+    {
+      "id": "hm-cat-2d-milling",
+      "type": "cycle_category",
+      "label": "2D Milling",
+      "properties": {
+        "cam_system": "hypermill"
+      }
+    },
+    {
+      "id": "hm-cat-3d-milling",
+      "type": "cycle_category",
+      "label": "3D Milling",
+      "properties": {
+        "cam_system": "hypermill"
+      }
+    },
+    {
+      "id": "hm-cat-3d-finishing",
+      "type": "cycle_category",
+      "label": "3D Finishing",
+      "properties": {
+        "cam_system": "hypermill"
+      }
+    },
+    {
+      "id": "hm-cat-thread-milling",
+      "type": "cycle_category",
+      "label": "Thread Milling",
+      "properties": {
+        "cam_system": "hypermill"
+      }
+    },
+    {
+      "id": "hm-cat-drilling",
+      "type": "cycle_category",
+      "label": "Drilling",
+      "properties": {
+        "cam_system": "hypermill"
+      }
+    },
+    {
+      "id": "hm-cat-roughing",
+      "type": "cycle_category",
+      "label": "Roughing",
+      "properties": {
+        "cam_system": "hypermill"
+      }
+    },
+    {
+      "id": "hm-cycle-contour-milling",
+      "type": "machining_cycle",
+      "label": "Contour Milling",
+      "properties": {
+        "category": "2D Milling",
+        "description": "Milling open and closed contours with optional path compensation (cutter radius compensation), automatic",
+        "parameters": [
+          "overlap",
+          "approach",
+          "overlap",
+          "overlap",
+          "depth",
+          "stepover"
+        ]
+      }
+    },
+    {
+      "id": "hm-cycle-contour-milling",
+      "type": "machining_cycle",
+      "label": "Contour Milling",
+      "properties": {
+        "category": "2D Milling",
+        "description": "Milling open and closed contours with optional",
+        "parameters": [
+          "approach",
+          "retract",
+          "approach",
+          "retract",
+          "overlap",
+          "overlap"
+        ]
+      }
+    },
+    {
+      "id": "hm-cycle-horizontal",
+      "type": "machining_cycle",
+      "label": "Horizontal",
+      "properties": {
+        "category": "3D Milling",
+        "description": "Fixed step: The value defined under Lateral infeed area for the lateral infeed is retained. The value of the",
+        "parameters": [
+          "retract",
+          "retract",
+          "retract",
+          "approach",
+          "retract",
+          "approach",
+          "retract",
+          "approach",
+          "retract",
+          "approach",
+          "retract",
+          "approach",
+          "retract",
+          "approach",
+          "retract",
+          "approach",
+          "overlap",
+          "approach",
+          "retract",
+          "retract",
+          "retract",
+          "retract",
+          "retract",
+          "retract",
+          "retract",
+          "approach",
+          "retract",
+          "retract",
+          "retract",
+          "overlap",
+          "approach",
+          "retract",
+          "retract",
+          "approach",
+          "retract",
+          "retract",
+          "approach",
+          "approach",
+          "retract",
+          "approach",
+          "retract",
+          "approach",
+          "retract",
+          "approach",
+          "retract",
+          "approach",
+          "retract",
+          "retract",
+          "approach",
+          "retract",
+          "approach",
+          "overlap",
+          "approach",
+          "retract",
+          "retract",
+          "approach",
+          "approach",
+          "retract",
+          "approach",
+          "retract",
+          "approach",
+          "retract",
+          "retract",
+          "approach",
+          "tolerance"
+        ]
+      }
+    },
+    {
+      "id": "hm-cycle-horizontal",
+      "type": "machining_cycle",
+      "label": "Horizontal",
+      "properties": {
+        "category": "3D Milling",
+        "description": "Horizontal stepover: Infeed in the XY plane.",
+        "parameters": [
+          "approach",
+          "retract",
+          "retract",
+          "approach",
+          "retract",
+          "retract",
+          "retract",
+          "approach",
+          "approach",
+          "retract",
+          "approach",
+          "retract",
+          "retract",
+          "retract",
+          "retract",
+          "approach",
+          "approach",
+          "retract",
+          "approach",
+          "retract",
+          "approach",
+          "retract",
+          "approach",
+          "retract",
+          "retract",
+          "approach",
+          "retract",
+          "approach",
+          "overlap",
+          "retract",
+          "retract",
+          "depth",
+          "depth",
+          "stepover",
+          "retract",
+          "retract",
+          "retract",
+          "retract",
+          "retract",
+          "retract",
+          "retract",
+          "retract",
+          "retract",
+          "retract",
+          "retract",
+          "approach",
+          "retract",
+          "retract",
+          "approach",
+          "retract",
+          "approach",
+          "tolerance"
+        ]
+      }
+    },
+    {
+      "id": "hm-cycle-pencil",
+      "type": "machining_cycle",
+      "label": "Pencil",
+      "properties": {
+        "category": "3D Finishing",
+        "description": "Pencil Milling (page 997): Automatic detection and machining of grooves.",
+        "parameters": []
+      }
+    },
+    {
+      "id": "hm-cycle-thread-milling",
+      "type": "machining_cycle",
+      "label": "Thread Milling",
+      "properties": {
+        "category": "Thread Milling",
+        "description": "Thread Milling (page 567): Using a helical stepdown, this cycle produces single and multiple inside and",
+        "parameters": []
+      }
+    },
+    {
+      "id": "hm-cycle-lace",
+      "type": "machining_cycle",
+      "label": "Lace",
+      "properties": {
+        "category": "3D Milling",
+        "description": "table in the machine model used in the simulation.",
+        "parameters": []
+      }
+    },
+    {
+      "id": "hm-cycle-contour-milling",
+      "type": "machining_cycle",
+      "label": "Contour Milling",
+      "properties": {
+        "category": "2D Milling",
+        "description": "Contour Milling on 3D Model- Transformations",
+        "parameters": [
+          "approach",
+          "approach",
+          "retract",
+          "approach",
+          "approach",
+          "approach",
+          "retract",
+          "retract",
+          "retract",
+          "approach",
+          "overlap",
+          "tolerance",
+          "approach",
+          "retract",
+          "retract",
+          "retract",
+          "retract",
+          "retract",
+          "retract",
+          "retract",
+          "retract",
+          "retract",
+          "retract",
+          "retract",
+          "tolerance",
+          "approach",
+          "retract"
+        ]
+      }
+    },
+    {
+      "id": "hm-cycle-equidistant",
+      "type": "machining_cycle",
+      "label": "Equidistant",
+      "properties": {
+        "category": "3D Milling",
+        "description": "Equidistant Finishing, 5X Rest Machining, 5X Rework Machining, 5X Z level Roughing.",
+        "parameters": [
+          "retract",
+          "approach",
+          "approach",
+          "approach",
+          "approach",
+          "approach",
+          "approach",
+          "approach",
+          "tolerance",
+          "approach",
+          "approach",
+          "tolerance",
+          "tolerance",
+          "tolerance",
+          "tolerance"
+        ]
+      }
+    },
+    {
+      "id": "hm-cycle-lace",
+      "type": "machining_cycle",
+      "label": "Lace",
+      "properties": {
+        "category": "3D Milling",
+        "description": "You need to manually rename the feature after replacing it.",
+        "parameters": [
+          "depth",
+          "approach"
+        ]
+      }
+    },
+    {
+      "id": "hm-cycle-profile-finishing",
+      "type": "machining_cycle",
+      "label": "Profile Finishing",
+      "properties": {
+        "category": "3D Finishing",
+        "description": "Assigning the geometry (CPF) to job parameters",
+        "parameters": []
+      }
+    },
+    {
+      "id": "hm-cycle-contour-milling",
+      "type": "machining_cycle",
+      "label": "Contour Milling",
+      "properties": {
+        "category": "2D Milling",
+        "description": "Complete model: If you select this option,",
+        "parameters": []
+      }
+    },
+    {
+      "id": "hm-cycle-pencil",
+      "type": "machining_cycle",
+      "label": "Pencil",
+      "properties": {
+        "category": "3D Finishing",
+        "description": "Pencil Milling (page 997): Automatic detection and machining of grooves.",
+        "parameters": [
+          "retract",
+          "tolerance",
+          "tolerance"
+        ]
+      }
+    },
+    {
+      "id": "hm-cycle-z-level",
+      "type": "machining_cycle",
+      "label": "Z-Level",
+      "properties": {
+        "category": "3D Finishing",
+        "description": "Z-Level machining for steep areas. Optionally, the z-level cuts can be replaced by cuts parallel to any",
+        "parameters": [
+          "retract",
+          "overlap",
+          "retract",
+          "retract",
+          "approach",
+          "retract",
+          "approach",
+          "retract",
+          "approach",
+          "retract",
+          "approach",
+          "retract",
+          "approach",
+          "retract",
+          "retract",
+          "approach",
+          "retract",
+          "retract",
+          "approach",
+          "retract",
+          "approach",
+          "retract",
+          "approach",
+          "retract",
+          "tolerance",
+          "tolerance",
+          "retract",
+          "retract",
+          "retract",
+          "retract",
+          "retract",
+          "retract",
+          "retract",
+          "approach",
+          "retract",
+          "retract",
+          "approach",
+          "approach",
+          "retract",
+          "approach",
+          "approach",
+          "retract",
+          "approach",
+          "retract",
+          "approach",
+          "approach",
+          "retract",
+          "retract",
+          "approach",
+          "retract",
+          "approach",
+          "retract",
+          "approach",
+          "retract",
+          "tolerance",
+          "approach",
+          "retract",
+          "approach",
+          "retract",
+          "retract",
+          "retract",
+          "retract",
+          "retract",
+          "retract",
+          "approach",
+          "retract",
+          "approach",
+          "retract",
+          "approach",
+          "approach",
+          "approach",
+          "retract",
+          "approach",
+          "retract",
+          "tolerance",
+          "retract",
+          "tolerance"
+        ]
+      }
+    },
+    {
+      "id": "hm-cycle-pencil",
+      "type": "machining_cycle",
+      "label": "Pencil",
+      "properties": {
+        "category": "3D Finishing",
+        "description": "Minimum material width (1): Areas with a smaller stock allowance are not machined.",
+        "parameters": []
+      }
+    },
+    {
+      "id": "hm-cycle-pencil",
+      "type": "machining_cycle",
+      "label": "Pencil",
+      "properties": {
+        "category": "3D Finishing",
+        "description": "Pencil Milling .................................................................................................................................................................. 9-106",
+        "parameters": [
+          "retract",
+          "approach",
+          "tolerance",
+          "depth",
+          "stepover"
+        ]
+      }
+    },
+    {
+      "id": "hm-cycle-lace",
+      "type": "machining_cycle",
+      "label": "Lace",
+      "properties": {
+        "category": "3D Milling",
+        "description": "middle of the table in the machine model used in the simulation.",
+        "parameters": []
+      }
+    },
+    {
+      "id": "hm-cycle-contour-milling",
+      "type": "machining_cycle",
+      "label": "Contour Milling",
+      "properties": {
+        "category": "2D Milling",
+        "description": "Contour Milling on 3D Model- Transformations",
+        "parameters": [
+          "approach",
+          "approach",
+          "approach",
+          "retract",
+          "approach",
+          "retract",
+          "retract",
+          "retract",
+          "retract",
+          "retract",
+          "retract",
+          "tolerance",
+          "approach",
+          "retract",
+          "retract",
+          "retract",
+          "retract",
+          "tolerance",
+          "tolerance"
+        ]
+      }
+    },
+    {
+      "id": "hm-cycle-lace",
+      "type": "machining_cycle",
+      "label": "Lace",
+      "properties": {
+        "category": "3D Milling",
+        "description": "Geometric data from the Sink Hole feature can be used for 2D, 3D and drilling cycles in the",
+        "parameters": [
+          "depth",
+          "approach"
+        ]
+      }
+    },
+    {
+      "id": "hm-cycle-profile-finishing",
+      "type": "machining_cycle",
+      "label": "Profile Finishing",
+      "properties": {
+        "category": "3D Finishing",
+        "description": "Geometry element (CPF) \tJob parameters",
+        "parameters": []
+      }
+    },
+    {
+      "id": "hm-cycle-contour-milling",
+      "type": "machining_cycle",
+      "label": "Contour Milling",
+      "properties": {
+        "category": "2D Milling",
+        "description": "If you want through pockets to be recognised, you can use the following options to more",
+        "parameters": [
+          "approach",
+          "tolerance",
+          "depth",
+          "retract",
+          "retract",
+          "retract",
+          "depth",
+          "retract",
+          "depth",
+          "retract",
+          "retract",
+          "approach",
+          "retract",
+          "approach",
+          "retract",
+          "retract",
+          "retract",
+          "approach",
+          "retract",
+          "approach",
+          "retract",
+          "retract",
+          "approach",
+          "retract",
+          "approach",
+          "retract",
+          "retract",
+          "retract",
+          "approach",
+          "retract",
+          "approach",
+          "retract",
+          "retract",
+          "approach",
+          "retract",
+          "approach",
+          "approach",
+          "retract",
+          "approach",
+          "retract",
+          "retract",
+          "retract",
+          "approach",
+          "retract",
+          "approach",
+          "approach",
+          "retract",
+          "retract",
+          "approach",
+          "retract",
+          "approach",
+          "retract",
+          "retract",
+          "retract",
+          "approach",
+          "retract",
+          "approach",
+          "retract",
+          "approach",
+          "approach",
+          "retract",
+          "retract",
+          "retract",
+          "approach",
+          "retract",
+          "approach",
+          "retract",
+          "retract",
+          "retract",
+          "retract",
+          "approach",
+          "retract",
+          "approach",
+          "approach",
+          "retract",
+          "approach",
+          "retract",
+          "retract",
+          "retract",
+          "approach",
+          "retract",
+          "approach",
+          "approach",
+          "retract",
+          "retract",
+          "retract",
+          "retract",
+          "retract",
+          "retract",
+          "retract",
+          "retract",
+          "approach",
+          "retract",
+          "approach",
+          "retract",
+          "retract",
+          "retract",
+          "retract",
+          "retract",
+          "retract",
+          "retract",
+          "approach",
+          "retract",
+          "approach",
+          "approach",
+          "retract",
+          "retract",
+          "retract",
+          "retract",
+          "retract",
+          "retract",
+          "retract",
+          "approach",
+          "retract",
+          "approach",
+          "approach",
+          "retract",
+          "retract",
+          "retract",
+          "retract",
+          "retract",
+          "retract",
+          "retract",
+          "retract",
+          "retract",
+          "retract",
+          "retract",
+          "retract",
+          "retract",
+          "retract",
+          "retract",
+          "approach",
+          "depth",
+          "depth",
+          "retract"
+        ]
+      }
+    },
+    {
+      "id": "hm-cycle-helical-drilling",
+      "type": "machining_cycle",
+      "label": "Helical Drilling",
+      "properties": {
+        "category": "Drilling",
+        "description": "Helical Drilling: Machining of circular pockets with helical stepdown and horizontal grooving",
+        "parameters": [
+          "depth"
+        ]
+      }
+    },
+    {
+      "id": "hm-cycle-face-milling",
+      "type": "machining_cycle",
+      "label": "Face Milling",
+      "properties": {
+        "category": "2D Milling",
+        "description": "Face Milling: Roughing of larger surfaces with parallel cuts within one or more contours,",
+        "parameters": [
+          "approach"
+        ]
+      }
+    },
+    {
+      "id": "hm-cycle-pencil",
+      "type": "machining_cycle",
+      "label": "Pencil",
+      "properties": {
+        "category": "3D Finishing",
+        "description": "Pencil Milling: Automatic detection and machining of grooves.",
+        "parameters": [
+          "retract",
+          "tolerance",
+          "tolerance"
+        ]
+      }
+    },
+    {
+      "id": "hm-cycle-horizontal",
+      "type": "machining_cycle",
+      "label": "Horizontal",
+      "properties": {
+        "category": "3D Milling",
+        "description": "Horizontal stepover factor (2): Horizontal stepover as a factor of the milling tool diameter.",
+        "parameters": [
+          "retract",
+          "tolerance"
+        ]
+      }
+    },
+    {
+      "id": "hm-cycle-iso-machining",
+      "type": "machining_cycle",
+      "label": "ISO Machining",
+      "properties": {
+        "category": "3D Milling",
+        "description": "The following graphic illustrates the effect of the changes in direction on the position and",
+        "parameters": []
+      }
+    },
+    {
+      "id": "hm-cycle-horizontal",
+      "type": "machining_cycle",
+      "label": "Horizontal",
+      "properties": {
+        "category": "3D Milling",
+        "description": "",
+        "parameters": []
+      }
+    },
+    {
+      "id": "hm-cycle-thread-milling",
+      "type": "machining_cycle",
+      "label": "Thread Milling",
+      "properties": {
+        "category": "Thread Milling",
+        "description": "Thread Milling ...................................................................................................................... 567",
+        "parameters": []
+      }
+    },
+    {
+      "id": "hm-cycle-face-milling",
+      "type": "machining_cycle",
+      "label": "Face Milling",
+      "properties": {
+        "category": "2D Milling",
+        "description": "Face Milling ......................................................................................................................... 736",
+        "parameters": []
+      }
+    },
+    {
+      "id": "hm-cycle-pencil",
+      "type": "machining_cycle",
+      "label": "Pencil",
+      "properties": {
+        "category": "3D Finishing",
+        "description": "Pencil Milling ....................................................................................................................... 997",
+        "parameters": [
+          "approach",
+          "approach",
+          "approach",
+          "tolerance",
+          "depth",
+          "stepover"
+        ]
+      }
+    },
+    {
+      "id": "hm-cycle-lace",
+      "type": "machining_cycle",
+      "label": "Lace",
+      "properties": {
+        "category": "3D Milling",
+        "description": "table in the machine model used in the simulation.",
+        "parameters": []
+      }
+    },
+    {
+      "id": "hm-cycle-contour-milling",
+      "type": "machining_cycle",
+      "label": "Contour Milling",
+      "properties": {
+        "category": "2D Milling",
+        "description": "Contour Milling on 3D Model- Transformations",
+        "parameters": [
+          "approach",
+          "approach",
+          "retract",
+          "approach",
+          "approach",
+          "approach",
+          "retract",
+          "retract",
+          "retract",
+          "approach",
+          "overlap",
+          "tolerance",
+          "approach",
+          "retract",
+          "retract",
+          "retract",
+          "retract",
+          "retract",
+          "retract",
+          "retract",
+          "retract",
+          "retract",
+          "retract",
+          "retract",
+          "tolerance",
+          "approach",
+          "retract"
+        ]
+      }
+    },
+    {
+      "id": "hm-cycle-equidistant",
+      "type": "machining_cycle",
+      "label": "Equidistant",
+      "properties": {
+        "category": "3D Milling",
+        "description": "Equidistant Finishing, 5X Rest Machining, 5X Rework Machining, 5X Z level Roughing.",
+        "parameters": [
+          "retract",
+          "approach",
+          "approach",
+          "approach",
+          "approach",
+          "approach",
+          "approach",
+          "approach",
+          "tolerance",
+          "approach",
+          "approach",
+          "tolerance",
+          "tolerance",
+          "tolerance",
+          "tolerance"
+        ]
+      }
+    },
+    {
+      "id": "hm-cycle-lace",
+      "type": "machining_cycle",
+      "label": "Lace",
+      "properties": {
+        "category": "3D Milling",
+        "description": "You need to manually rename the feature after replacing it.",
+        "parameters": [
+          "depth",
+          "approach"
+        ]
+      }
+    },
+    {
+      "id": "hm-cycle-profile-finishing",
+      "type": "machining_cycle",
+      "label": "Profile Finishing",
+      "properties": {
+        "category": "3D Finishing",
+        "description": "Assigning the geometry (CPF) to job parameters",
+        "parameters": []
+      }
+    },
+    {
+      "id": "hm-cycle-contour-milling",
+      "type": "machining_cycle",
+      "label": "Contour Milling",
+      "properties": {
+        "category": "2D Milling",
+        "description": "Complete model: If you select this option,",
+        "parameters": [
+          "approach",
+          "depth",
+          "retract",
+          "retract",
+          "retract",
+          "tolerance",
+          "retract",
+          "retract",
+          "retract",
+          "approach",
+          "retract",
+          "tolerance",
+          "retract",
+          "retract",
+          "retract",
+          "tolerance",
+          "depth",
+          "retract",
+          "tolerance",
+          "depth",
+          "retract",
+          "tolerance",
+          "depth",
+          "retract",
+          "tolerance",
+          "retract",
+          "tolerance",
+          "retract",
+          "retract",
+          "approach",
+          "retract",
+          "approach",
+          "retract",
+          "approach",
+          "approach",
+          "approach",
+          "retract",
+          "retract",
+          "approach",
+          "retract",
+          "retract",
+          "retract",
+          "approach",
+          "retract",
+          "approach",
+          "retract",
+          "approach",
+          "retract",
+          "approach",
+          "retract",
+          "approach",
+          "retract",
+          "approach",
+          "retract",
+          "retract",
+          "retract",
+          "retract",
+          "retract",
+          "approach",
+          "retract",
+          "retract",
+          "approach",
+          "retract",
+          "approach",
+          "retract",
+          "retract",
+          "retract",
+          "retract",
+          "retract",
+          "approach",
+          "approach",
+          "approach",
+          "approach",
+          "retract",
+          "retract",
+          "approach",
+          "retract",
+          "retract",
+          "retract",
+          "approach",
+          "retract",
+          "approach",
+          "retract",
+          "approach",
+          "retract",
+          "approach",
+          "retract",
+          "approach",
+          "retract",
+          "approach",
+          "retract",
+          "retract",
+          "retract",
+          "retract",
+          "approach",
+          "retract",
+          "retract",
+          "approach",
+          "retract",
+          "approach",
+          "retract",
+          "retract",
+          "approach",
+          "approach",
+          "approach",
+          "approach",
+          "retract",
+          "retract",
+          "approach",
+          "retract",
+          "retract",
+          "retract",
+          "approach",
+          "retract",
+          "approach",
+          "retract",
+          "approach",
+          "retract",
+          "approach",
+          "retract",
+          "approach",
+          "retract",
+          "approach",
+          "retract",
+          "retract",
+          "retract",
+          "retract",
+          "approach",
+          "retract",
+          "retract",
+          "retract",
+          "approach",
+          "retract",
+          "approach",
+          "retract",
+          "approach",
+          "retract",
+          "retract",
+          "approach",
+          "retract",
+          "approach",
+          "retract",
+          "retract",
+          "retract",
+          "retract",
+          "approach",
+          "approach",
+          "approach",
+          "approach",
+          "retract",
+          "retract",
+          "approach",
+          "retract",
+          "retract",
+          "retract",
+          "approach",
+          "retract",
+          "approach",
+          "retract",
+          "approach",
+          "retract",
+          "approach",
+          "retract",
+          "approach",
+          "retract",
+          "approach",
+          "retract",
+          "retract",
+          "retract",
+          "retract",
+          "retract",
+          "approach",
+          "retract",
+          "retract",
+          "approach",
+          "retract",
+          "approach",
+          "retract",
+          "retract",
+          "approach",
+          "approach",
+          "approach",
+          "approach",
+          "retract",
+          "retract",
+          "approach",
+          "retract",
+          "retract",
+          "retract",
+          "approach",
+          "retract",
+          "approach",
+          "retract",
+          "approach",
+          "retract",
+          "approach",
+          "retract",
+          "approach",
+          "retract",
+          "approach",
+          "retract",
+          "retract",
+          "retract",
+          "retract",
+          "approach",
+          "retract",
+          "retract",
+          "retract",
+          "retract",
+          "approach",
+          "retract",
+          "approach",
+          "retract",
+          "retract",
+          "retract",
+          "retract",
+          "retract",
+          "approach",
+          "retract",
+          "approach",
+          "retract",
+          "approach",
+          "retract",
+          "retract",
+          "retract",
+          "retract",
+          "approach",
+          "retract",
+          "approach",
+          "retract",
+          "approach",
+          "retract",
+          "retract",
+          "retract",
+          "retract",
+          "retract",
+          "retract",
+          "retract",
+          "retract",
+          "retract",
+          "retract",
+          "retract",
+          "retract",
+          "retract",
+          "retract",
+          "retract",
+          "retract",
+          "approach",
+          "retract",
+          "approach",
+          "retract",
+          "approach",
+          "retract",
+          "retract",
+          "retract",
+          "retract",
+          "retract",
+          "approach",
+          "retract",
+          "approach",
+          "retract",
+          "retract",
+          "retract",
+          "retract",
+          "retract",
+          "retract",
+          "retract",
+          "retract",
+          "approach",
+          "retract",
+          "approach",
+          "retract",
+          "approach",
+          "retract",
+          "retract",
+          "retract",
+          "retract",
+          "retract",
+          "retract",
+          "approach",
+          "retract",
+          "approach",
+          "retract",
+          "approach",
+          "retract",
+          "retract",
+          "retract",
+          "approach",
+          "depth",
+          "depth",
+          "retract"
+        ]
+      }
+    },
+    {
+      "id": "hm-cycle-thread-milling",
+      "type": "machining_cycle",
+      "label": "Thread Milling",
+      "properties": {
+        "category": "Thread Milling",
+        "description": "Thread Milling (page 567): Using a helical stepdown, this cycle produces single and multiple inside and",
+        "parameters": [
+          "depth",
+          "approach",
+          "retract",
+          "retract",
+          "approach",
+          "retract",
+          "approach",
+          "retract",
+          "retract",
+          "retract",
+          "depth",
+          "retract",
+          "retract",
+          "retract",
+          "depth",
+          "retract",
+          "retract",
+          "retract",
+          "depth",
+          "retract",
+          "retract",
+          "retract",
+          "retract",
+          "retract",
+          "depth",
+          "approach",
+          "approach",
+          "retract",
+          "retract",
+          "approach",
+          "retract",
+          "approach",
+          "retract",
+          "retract",
+          "retract",
+          "retract",
+          "retract",
+          "retract",
+          "retract",
+          "retract",
+          "retract",
+          "depth",
+          "retract",
+          "retract",
+          "retract",
+          "retract",
+          "retract",
+          "retract",
+          "retract",
+          "approach",
+          "retract",
+          "approach",
+          "retract",
+          "retract",
+          "retract",
+          "retract",
+          "retract",
+          "retract",
+          "depth",
+          "retract",
+          "retract",
+          "retract",
+          "retract",
+          "depth",
+          "retract",
+          "retract",
+          "retract",
+          "retract",
+          "depth",
+          "approach",
+          "retract",
+          "retract",
+          "approach",
+          "retract",
+          "approach",
+          "retract",
+          "retract",
+          "retract",
+          "retract",
+          "retract",
+          "retract"
+        ]
+      }
+    },
+    {
+      "id": "hm-cycle-helical-drilling",
+      "type": "machining_cycle",
+      "label": "Helical Drilling",
+      "properties": {
+        "category": "Drilling",
+        "description": "This cycle uses helical stepdown to produce circular pockets with horizontal grooves in the pocket bottom.",
+        "parameters": [
+          "retract",
+          "depth",
+          "approach",
+          "approach",
+          "retract",
+          "depth"
+        ]
+      }
+    },
+    {
+      "id": "hm-cycle-horizontal",
+      "type": "machining_cycle",
+      "label": "Horizontal",
+      "properties": {
+        "category": "3D Milling",
+        "description": "Horizontal stepover factor: Infeed in the XY plane is defined as a factor of the tool diameter (< 1).",
+        "parameters": [
+          "depth",
+          "retract",
+          "retract",
+          "retract",
+          "retract",
+          "depth",
+          "approach",
+          "retract",
+          "retract",
+          "retract",
+          "retract",
+          "retract",
+          "retract",
+          "depth",
+          "retract",
+          "retract",
+          "approach",
+          "retract",
+          "retract",
+          "retract",
+          "retract",
+          "approach",
+          "retract",
+          "approach",
+          "retract",
+          "retract",
+          "approach",
+          "retract",
+          "approach"
+        ]
+      }
+    },
+    {
+      "id": "hm-cycle-contour-milling",
+      "type": "machining_cycle",
+      "label": "Contour Milling",
+      "properties": {
+        "category": "2D Milling",
+        "description": "Milling open and closed contours with optional path compensation (cutter radius compensation), automatic",
+        "parameters": [
+          "overlap",
+          "approach",
+          "overlap",
+          "overlap",
+          "depth",
+          "stepover"
+        ]
+      }
+    },
+    {
+      "id": "hm-cycle-contour-milling",
+      "type": "machining_cycle",
+      "label": "Contour Milling",
+      "properties": {
+        "category": "2D Milling",
+        "description": "Milling open and closed contours with optional",
+        "parameters": [
+          "approach",
+          "retract",
+          "approach",
+          "retract",
+          "overlap",
+          "overlap"
+        ]
+      }
+    },
+    {
+      "id": "hm-cycle-horizontal",
+      "type": "machining_cycle",
+      "label": "Horizontal",
+      "properties": {
+        "category": "3D Milling",
+        "description": "Fixed step: The value defined under Lateral infeed area for the lateral infeed is retained. The value of the",
+        "parameters": [
+          "retract",
+          "retract",
+          "retract",
+          "approach",
+          "retract",
+          "approach",
+          "retract",
+          "approach",
+          "retract",
+          "approach",
+          "retract",
+          "approach",
+          "retract",
+          "approach",
+          "retract",
+          "approach",
+          "overlap",
+          "approach",
+          "retract",
+          "retract",
+          "retract",
+          "retract",
+          "retract",
+          "retract",
+          "retract",
+          "approach",
+          "retract",
+          "retract",
+          "retract",
+          "overlap",
+          "approach",
+          "retract",
+          "retract",
+          "approach",
+          "retract",
+          "retract",
+          "approach",
+          "approach",
+          "retract",
+          "approach",
+          "retract",
+          "approach",
+          "retract",
+          "approach",
+          "retract",
+          "approach",
+          "retract",
+          "retract",
+          "approach",
+          "retract",
+          "approach",
+          "overlap",
+          "approach",
+          "retract",
+          "retract",
+          "approach",
+          "approach",
+          "retract",
+          "approach",
+          "retract",
+          "approach",
+          "retract",
+          "retract",
+          "approach",
+          "tolerance"
+        ]
+      }
+    },
+    {
+      "id": "hm-cycle-horizontal",
+      "type": "machining_cycle",
+      "label": "Horizontal",
+      "properties": {
+        "category": "3D Milling",
+        "description": "Horizontal stepover: Infeed in the XY plane.",
+        "parameters": [
+          "approach",
+          "retract",
+          "retract",
+          "approach",
+          "retract",
+          "retract",
+          "retract",
+          "approach",
+          "approach",
+          "retract",
+          "approach",
+          "retract",
+          "retract",
+          "retract",
+          "retract",
+          "approach",
+          "approach",
+          "retract",
+          "approach",
+          "retract",
+          "approach",
+          "retract",
+          "approach",
+          "retract",
+          "retract",
+          "approach",
+          "retract",
+          "approach",
+          "overlap",
+          "retract",
+          "retract",
+          "depth",
+          "depth",
+          "stepover",
+          "retract",
+          "retract",
+          "retract",
+          "retract",
+          "retract",
+          "retract",
+          "retract",
+          "retract",
+          "retract",
+          "retract",
+          "retract",
+          "approach",
+          "retract",
+          "retract",
+          "approach",
+          "retract",
+          "approach",
+          "tolerance"
+        ]
+      }
+    },
+    {
+      "id": "hm-cycle-pencil",
+      "type": "machining_cycle",
+      "label": "Pencil",
+      "properties": {
+        "category": "3D Finishing",
+        "description": "Pencil Milling (page 997): Automatic detection and machining of grooves.",
+        "parameters": [
+          "retract",
+          "tolerance",
+          "tolerance"
+        ]
+      }
+    },
+    {
+      "id": "hm-cycle-z-level",
+      "type": "machining_cycle",
+      "label": "Z-Level",
+      "properties": {
+        "category": "3D Finishing",
+        "description": "Z-Level machining for steep areas. Optionally, the z-level cuts can be replaced by cuts parallel to any",
+        "parameters": [
+          "retract",
+          "overlap",
+          "retract",
+          "retract",
+          "approach",
+          "retract",
+          "approach",
+          "retract",
+          "approach",
+          "retract",
+          "approach",
+          "retract",
+          "approach",
+          "retract",
+          "retract",
+          "approach",
+          "retract",
+          "retract",
+          "approach",
+          "retract",
+          "approach",
+          "retract",
+          "approach",
+          "retract",
+          "tolerance",
+          "tolerance",
+          "retract",
+          "retract",
+          "retract",
+          "retract",
+          "retract",
+          "retract",
+          "retract",
+          "approach",
+          "retract",
+          "retract",
+          "approach",
+          "approach",
+          "retract",
+          "approach",
+          "approach",
+          "retract",
+          "approach",
+          "retract",
+          "approach",
+          "approach",
+          "retract",
+          "retract",
+          "approach",
+          "retract",
+          "approach",
+          "retract",
+          "approach",
+          "retract",
+          "tolerance",
+          "approach",
+          "retract",
+          "approach",
+          "retract",
+          "retract",
+          "retract",
+          "retract",
+          "retract",
+          "retract",
+          "approach",
+          "retract",
+          "approach",
+          "retract",
+          "approach",
+          "approach",
+          "approach",
+          "retract",
+          "approach",
+          "retract",
+          "tolerance",
+          "retract",
+          "tolerance"
+        ]
+      }
+    },
+    {
+      "id": "hm-cycle-pencil",
+      "type": "machining_cycle",
+      "label": "Pencil",
+      "properties": {
+        "category": "3D Finishing",
+        "description": "Minimum material width (1): Areas with a smaller stock allowance are not machined.",
+        "parameters": [
+          "retract",
+          "approach",
+          "retract",
+          "retract",
+          "tolerance",
+          "tolerance"
+        ]
+      }
+    },
+    {
+      "id": "hm-cycle-equidistant",
+      "type": "machining_cycle",
+      "label": "Equidistant",
+      "properties": {
+        "category": "3D Milling",
+        "description": "Machining, 6 = Free Path Milling, 7 = Rework Machining, 8 = Cutting Edge Machining",
+        "parameters": [
+          "tolerance",
+          "tolerance"
+        ]
+      }
+    },
+    {
+      "id": "hm-cycle-shape-offset",
+      "type": "machining_cycle",
+      "label": "Shape Offset",
+      "properties": {
+        "category": "3D Milling",
+        "description": "Roughing of slightly curved surfaces with a uniform allowance, where the milling path follows the selected",
+        "parameters": [
+          "tolerance",
+          "tolerance"
+        ]
+      }
+    },
+    {
+      "id": "hm-cycle-shape-offset",
+      "type": "machining_cycle",
+      "label": "Shape Offset",
+      "properties": {
+        "category": "3D Milling",
+        "description": "Finishing of slightly curved surfaces with a uniform allowance, whereby the path follows the selected drive",
+        "parameters": [
+          "approach",
+          "approach",
+          "retract",
+          "approach",
+          "retract",
+          "approach",
+          "retract",
+          "approach",
+          "retract",
+          "approach",
+          "retract",
+          "retract",
+          "approach",
+          "retract",
+          "retract",
+          "retract",
+          "retract",
+          "retract",
+          "tolerance",
+          "retract",
+          "retract",
+          "retract",
+          "retract",
+          "retract",
+          "retract",
+          "retract",
+          "retract",
+          "retract",
+          "retract",
+          "retract",
+          "retract",
+          "overlap",
+          "overlap",
+          "retract",
+          "retract",
+          "retract",
+          "tolerance",
+          "retract",
+          "retract",
+          "approach",
+          "retract",
+          "retract",
+          "retract",
+          "retract",
+          "retract",
+          "retract",
+          "retract",
+          "retract",
+          "retract",
+          "approach",
+          "approach",
+          "approach",
+          "retract",
+          "approach",
+          "retract",
+          "retract",
+          "retract",
+          "retract",
+          "tolerance",
+          "retract",
+          "retract",
+          "depth",
+          "stepover",
+          "retract",
+          "retract",
+          "retract",
+          "retract",
+          "retract",
+          "retract",
+          "retract",
+          "retract",
+          "approach",
+          "retract",
+          "retract",
+          "retract",
+          "tolerance",
+          "retract",
+          "retract"
+        ]
+      }
+    },
+    {
+      "id": "hm-cycle-horizontal",
+      "type": "machining_cycle",
+      "label": "Horizontal",
+      "properties": {
+        "category": "3D Milling",
+        "description": "Horizontal Stepover (3): Define the horizontal stepover of the fill paths.",
+        "parameters": [
+          "retract",
+          "retract",
+          "retract",
+          "retract",
+          "retract",
+          "retract",
+          "retract",
+          "retract",
+          "retract",
+          "retract",
+          "retract",
+          "retract",
+          "retract",
+          "approach",
+          "retract",
+          "approach",
+          "retract",
+          "approach",
+          "retract",
+          "approach",
+          "approach",
+          "retract",
+          "retract",
+          "retract",
+          "retract",
+          "depth",
+          "approach",
+          "retract",
+          "approach",
+          "retract",
+          "approach",
+          "retract",
+          "approach",
+          "approach",
+          "retract",
+          "approach",
+          "retract",
+          "retract",
+          "retract",
+          "retract",
+          "tolerance",
+          "retract",
+          "retract"
+        ]
+      }
+    },
+    {
+      "id": "hm-cycle-3d-roughing",
+      "type": "machining_cycle",
+      "label": "3D Roughing",
+      "properties": {
+        "category": "Roughing",
+        "description": "X+/X-: Infeed may be carried out in a positive or negative direction.",
+        "parameters": [
+          "tolerance",
+          "retract",
+          "retract",
+          "approach"
+        ]
+      }
+    },
+    {
+      "id": "hm-cycle-horizontal",
+      "type": "machining_cycle",
+      "label": "Horizontal",
+      "properties": {
+        "category": "3D Milling",
+        "description": "Material width (1): Machining area over all milling paths in the lateral (+X or –X) direction. If the total infeed",
+        "parameters": [
+          "approach",
+          "retract",
+          "retract",
+          "approach",
+          "tolerance",
+          "retract",
+          "retract",
+          "approach",
+          "approach",
+          "retract",
+          "approach",
+          "approach",
+          "approach",
+          "retract",
+          "approach",
+          "retract",
+          "approach",
+          "approach",
+          "retract",
+          "retract",
+          "approach",
+          "retract",
+          "retract",
+          "tolerance",
+          "retract",
+          "retract",
+          "approach",
+          "approach",
+          "approach",
+          "approach",
+          "retract",
+          "tolerance",
+          "retract",
+          "retract",
+          "approach",
+          "approach",
+          "approach",
+          "approach",
+          "approach",
+          "approach",
+          "approach",
+          "approach",
+          "approach",
+          "approach",
+          "approach",
+          "approach",
+          "approach",
+          "approach",
+          "approach",
+          "approach",
+          "approach",
+          "approach",
+          "tolerance",
+          "approach",
+          "approach",
+          "approach",
+          "retract",
+          "approach",
+          "retract",
+          "approach",
+          "retract",
+          "approach",
+          "retract",
+          "retract",
+          "approach",
+          "approach",
+          "tolerance",
+          "approach",
+          "approach",
+          "approach",
+          "approach",
+          "approach",
+          "approach",
+          "approach",
+          "approach",
+          "tolerance",
+          "approach",
+          "approach",
+          "approach",
+          "retract",
+          "approach",
+          "retract",
+          "approach",
+          "retract",
+          "approach",
+          "retract",
+          "retract",
+          "approach",
+          "approach",
+          "tolerance",
+          "approach",
+          "approach",
+          "approach",
+          "approach",
+          "approach",
+          "approach",
+          "approach",
+          "retract",
+          "approach",
+          "retract",
+          "tolerance",
+          "approach",
+          "retract",
+          "approach",
+          "overlap",
+          "approach",
+          "approach",
+          "tolerance",
+          "approach",
+          "approach",
+          "retract",
+          "approach",
+          "retract",
+          "tolerance",
+          "approach",
+          "tolerance",
+          "approach",
+          "tolerance",
+          "approach",
+          "approach",
+          "depth",
+          "retract",
+          "approach",
+          "retract",
+          "retract",
+          "retract",
+          "retract",
+          "retract",
+          "approach",
+          "retract",
+          "approach",
+          "approach"
+        ]
+      }
+    },
+    {
+      "id": "hm-cycle-pencil",
+      "type": "machining_cycle",
+      "label": "Pencil",
+      "properties": {
+        "category": "3D Finishing",
+        "description": "Pencil Milling .................................................................................................................................................................. 9-106",
+        "parameters": [
+          "retract",
+          "approach",
+          "tolerance",
+          "depth",
+          "stepover"
+        ]
+      }
+    },
+    {
+      "id": "hm-cycle-lace",
+      "type": "machining_cycle",
+      "label": "Lace",
+      "properties": {
+        "category": "3D Milling",
+        "description": "middle of the table in the machine model used in the simulation.",
+        "parameters": []
+      }
+    },
+    {
+      "id": "hm-cycle-contour-milling",
+      "type": "machining_cycle",
+      "label": "Contour Milling",
+      "properties": {
+        "category": "2D Milling",
+        "description": "Contour Milling on 3D Model- Transformations",
+        "parameters": [
+          "approach",
+          "approach",
+          "approach",
+          "retract",
+          "approach",
+          "retract",
+          "retract",
+          "retract",
+          "retract",
+          "retract",
+          "retract",
+          "tolerance",
+          "approach",
+          "retract",
+          "retract",
+          "retract",
+          "retract",
+          "tolerance",
+          "tolerance"
+        ]
+      }
+    },
+    {
+      "id": "hm-cycle-lace",
+      "type": "machining_cycle",
+      "label": "Lace",
+      "properties": {
+        "category": "3D Milling",
+        "description": "Geometric data from the Sink Hole feature can be used for 2D, 3D and drilling cycles in the",
+        "parameters": [
+          "depth",
+          "approach"
+        ]
+      }
+    },
+    {
+      "id": "hm-cycle-profile-finishing",
+      "type": "machining_cycle",
+      "label": "Profile Finishing",
+      "properties": {
+        "category": "3D Finishing",
+        "description": "Geometry element (CPF) \tJob parameters",
+        "parameters": []
+      }
+    },
+    {
+      "id": "hm-cycle-contour-milling",
+      "type": "machining_cycle",
+      "label": "Contour Milling",
+      "properties": {
+        "category": "2D Milling",
+        "description": "If you want through pockets to be recognised, you can use the following options to more",
+        "parameters": [
+          "approach",
+          "tolerance",
+          "depth",
+          "retract",
+          "retract",
+          "retract",
+          "depth",
+          "retract",
+          "depth",
+          "retract",
+          "retract",
+          "approach",
+          "retract",
+          "approach",
+          "retract",
+          "retract",
+          "retract",
+          "approach",
+          "retract",
+          "approach",
+          "retract",
+          "retract",
+          "approach",
+          "retract",
+          "approach",
+          "retract",
+          "retract",
+          "retract",
+          "approach",
+          "retract",
+          "approach",
+          "retract",
+          "retract",
+          "approach",
+          "retract",
+          "approach",
+          "approach",
+          "retract",
+          "approach",
+          "retract",
+          "retract",
+          "retract",
+          "approach",
+          "retract",
+          "approach",
+          "approach",
+          "retract",
+          "retract",
+          "approach",
+          "retract",
+          "approach",
+          "retract",
+          "retract",
+          "retract",
+          "approach",
+          "retract",
+          "approach",
+          "retract",
+          "approach",
+          "approach",
+          "retract",
+          "retract",
+          "retract",
+          "approach",
+          "retract",
+          "approach",
+          "retract",
+          "retract",
+          "retract",
+          "retract",
+          "approach",
+          "retract",
+          "approach",
+          "approach",
+          "retract",
+          "approach",
+          "retract",
+          "retract",
+          "retract",
+          "approach",
+          "retract",
+          "approach",
+          "approach",
+          "retract",
+          "retract",
+          "retract",
+          "retract",
+          "retract",
+          "retract",
+          "retract",
+          "retract",
+          "approach",
+          "retract",
+          "approach",
+          "retract",
+          "retract",
+          "retract",
+          "retract",
+          "retract",
+          "retract",
+          "retract",
+          "approach",
+          "retract",
+          "approach",
+          "approach",
+          "retract",
+          "retract",
+          "retract",
+          "retract",
+          "retract",
+          "retract",
+          "retract",
+          "approach",
+          "retract",
+          "approach",
+          "approach",
+          "retract",
+          "retract",
+          "retract",
+          "retract",
+          "retract",
+          "retract",
+          "retract",
+          "retract",
+          "retract",
+          "retract",
+          "retract",
+          "retract",
+          "retract",
+          "retract",
+          "retract",
+          "approach",
+          "depth",
+          "depth",
+          "retract"
+        ]
+      }
+    },
+    {
+      "id": "hm-cycle-helical-drilling",
+      "type": "machining_cycle",
+      "label": "Helical Drilling",
+      "properties": {
+        "category": "Drilling",
+        "description": "Helical Drilling: Machining of circular pockets with helical stepdown and horizontal grooving",
+        "parameters": [
+          "depth"
+        ]
+      }
+    },
+    {
+      "id": "hm-cycle-face-milling",
+      "type": "machining_cycle",
+      "label": "Face Milling",
+      "properties": {
+        "category": "2D Milling",
+        "description": "Face Milling: Roughing of larger surfaces with parallel cuts within one or more contours,",
+        "parameters": [
+          "approach"
+        ]
+      }
+    },
+    {
+      "id": "hm-cycle-pencil",
+      "type": "machining_cycle",
+      "label": "Pencil",
+      "properties": {
+        "category": "3D Finishing",
+        "description": "Pencil Milling: Automatic detection and machining of grooves.",
+        "parameters": [
+          "retract",
+          "tolerance",
+          "tolerance"
+        ]
+      }
+    },
+    {
+      "id": "hm-cycle-horizontal",
+      "type": "machining_cycle",
+      "label": "Horizontal",
+      "properties": {
+        "category": "3D Milling",
+        "description": "Horizontal stepover factor (2): Horizontal stepover as a factor of the milling tool diameter.",
+        "parameters": [
+          "retract",
+          "tolerance"
+        ]
+      }
+    },
+    {
+      "id": "hm-cycle-iso-machining",
+      "type": "machining_cycle",
+      "label": "ISO Machining",
+      "properties": {
+        "category": "3D Milling",
+        "description": "The following graphic illustrates the effect of the changes in direction on the position and",
+        "parameters": []
+      }
+    },
+    {
+      "id": "hm-cycle-horizontal",
+      "type": "machining_cycle",
+      "label": "Horizontal",
+      "properties": {
+        "category": "3D Milling",
+        "description": "",
+        "parameters": []
+      }
+    },
+    {
+      "id": "hm-proc-cibzk7",
+      "type": "procedure",
+      "label": "the maximum lateral distance of the tool from the model",
+      "properties": {
+        "category": "Tool Setup",
+        "step_count": 6
+      }
+    },
+    {
+      "id": "hm-proc-cibzk7",
+      "type": "procedure",
+      "label": "the maximum lateral distance of the tool from the model",
+      "properties": {
+        "category": "Tool Setup",
+        "step_count": 6
+      }
+    },
+    {
+      "id": "hm-proc-izm2co",
+      "type": "procedure",
+      "label": "a milling stock model.",
+      "properties": {
+        "category": "Stock Setup",
+        "step_count": 6
+      }
+    },
+    {
+      "id": "hm-proc-izm2co",
+      "type": "procedure",
+      "label": "a milling stock model.",
+      "properties": {
+        "category": "Stock Setup",
+        "step_count": 6
+      }
+    },
+    {
+      "id": "hm-proc-1hqkr6",
+      "type": "procedure",
+      "label": "include:",
+      "properties": {
+        "category": "Post Processing",
+        "step_count": 6
+      }
+    },
+    {
+      "id": "hm-proc-86dsaw",
+      "type": "procedure",
+      "label": "a turning tool:",
+      "properties": {
+        "category": "Tool Setup",
+        "step_count": 8
+      }
+    },
+    {
+      "id": "hm-proc-syzmvm",
+      "type": "procedure",
+      "label": "a stockmodel for a turning job. You can select the",
+      "properties": {
+        "category": "Stock Setup",
+        "step_count": 5
+      }
+    },
+    {
+      "id": "hm-proc-ijgit6",
+      "type": "procedure",
+      "label": "a compound stock:",
+      "properties": {
+        "category": "Stock Setup",
+        "step_count": 4
+      }
+    },
+    {
+      "id": "hm-proc-7b8i9k",
+      "type": "procedure",
+      "label": "an NC event:",
+      "properties": {
+        "category": "Post Processing",
+        "step_count": 2
+      }
+    },
+    {
+      "id": "hm-proc-dku0vv",
+      "type": "procedure",
+      "label": "the coordinate system and the frame for each",
+      "properties": {
+        "category": "Coordinate Setup",
+        "step_count": 3
+      }
+    },
+    {
+      "id": "hm-proc-pfcmmh",
+      "type": "procedure",
+      "label": "a mirror of the original (job, compound job or job list). In the",
+      "properties": {
+        "category": "Coordinate Setup",
+        "step_count": 4
+      }
+    },
+    {
+      "id": "hm-proc-gc3z4t",
+      "type": "procedure",
+      "label": "toolpath is to enable a quick check of the",
+      "properties": {
+        "category": "Tool Setup",
+        "step_count": 10
+      }
+    },
+    {
+      "id": "hm-proc-by27hv",
+      "type": "procedure",
+      "label": "the coordinate values of the",
+      "properties": {
+        "category": "Coordinate Setup",
+        "step_count": 9
+      }
+    },
+    {
+      "id": "hm-proc-8qjatb",
+      "type": "procedure",
+      "label": "the sort criterion. Use Ascending or Descending to determine the sort sequence Holes",
+      "properties": {
+        "category": "Post Processing",
+        "step_count": 16
+      }
+    },
+    {
+      "id": "hm-proc-8e08bx",
+      "type": "procedure",
+      "label": "toolpath file(s), select the tool in the browser and choose the Usage function on",
+      "properties": {
+        "category": "Tool Setup",
+        "step_count": 2
+      }
+    },
+    {
+      "id": "hm-proc-lxdw9d",
+      "type": "procedure",
+      "label": "a stockmodel for a turning job. You",
+      "properties": {
+        "category": "Stock Setup",
+        "step_count": 5
+      }
+    },
+    {
+      "id": "hm-proc-ym1bv5",
+      "type": "procedure",
+      "label": "a compound stock model:",
+      "properties": {
+        "category": "Stock Setup",
+        "step_count": 4
+      }
+    },
+    {
+      "id": "hm-proc-eqvwrn",
+      "type": "procedure",
+      "label": "a new job, use the New function on the browser's shortcut menu.",
+      "properties": {
+        "category": "Post Processing",
+        "step_count": 3
+      }
+    },
+    {
+      "id": "hm-proc-dj4zbu",
+      "type": "procedure",
+      "label": "a collision-checked stockmodel and ensure that",
+      "properties": {
+        "category": "Stock Setup",
+        "step_count": 2
+      }
+    },
+    {
+      "id": "hm-proc-dkvygz",
+      "type": "procedure",
+      "label": "the coordinate system and the frame",
+      "properties": {
+        "category": "Coordinate Setup",
+        "step_count": 3
+      }
+    },
+    {
+      "id": "hm-proc-czpckd",
+      "type": "procedure",
+      "label": "toolpath is to enable a quick",
+      "properties": {
+        "category": "Tool Setup",
+        "step_count": 7
+      }
+    },
+    {
+      "id": "hm-proc-mlurgj",
+      "type": "procedure",
+      "label": "the toolpath file (tool from toolpath",
+      "properties": {
+        "category": "Tool Setup",
+        "step_count": 9
+      }
+    },
+    {
+      "id": "hm-proc-144yno",
+      "type": "procedure",
+      "label": "the changed/new tool.",
+      "properties": {
+        "category": "Tool Setup",
+        "step_count": 2
+      }
+    },
+    {
+      "id": "hm-proc-l2tnsi",
+      "type": "procedure",
+      "label": "adjust the hole features to the stock model geometry. A neg-",
+      "properties": {
+        "category": "Stock Setup",
+        "step_count": 17
+      }
+    },
+    {
+      "id": "hm-proc-xnl6af",
+      "type": "procedure",
+      "label": "a new tool.",
+      "properties": {
+        "category": "Tool Setup",
+        "step_count": 2
+      }
+    },
+    {
+      "id": "hm-proc-1hqkr6",
+      "type": "procedure",
+      "label": "include:",
+      "properties": {
+        "category": "Post Processing",
+        "step_count": 6
+      }
+    },
+    {
+      "id": "hm-proc-86dsaw",
+      "type": "procedure",
+      "label": "a turning tool:",
+      "properties": {
+        "category": "Tool Setup",
+        "step_count": 8
+      }
+    },
+    {
+      "id": "hm-proc-syzmvm",
+      "type": "procedure",
+      "label": "a stockmodel for a turning job. You can select the",
+      "properties": {
+        "category": "Stock Setup",
+        "step_count": 5
+      }
+    },
+    {
+      "id": "hm-proc-ijgit6",
+      "type": "procedure",
+      "label": "a compound stock:",
+      "properties": {
+        "category": "Stock Setup",
+        "step_count": 4
+      }
+    },
+    {
+      "id": "hm-proc-7b8i9k",
+      "type": "procedure",
+      "label": "an NC event:",
+      "properties": {
+        "category": "Post Processing",
+        "step_count": 2
+      }
+    },
+    {
+      "id": "hm-proc-dku0vv",
+      "type": "procedure",
+      "label": "the coordinate system and the frame for each",
+      "properties": {
+        "category": "Coordinate Setup",
+        "step_count": 3
+      }
+    },
+    {
+      "id": "hm-proc-pfcmmh",
+      "type": "procedure",
+      "label": "a mirror of the original (job, compound job or job list). In the",
+      "properties": {
+        "category": "Coordinate Setup",
+        "step_count": 4
+      }
+    },
+    {
+      "id": "hm-proc-gc3z4t",
+      "type": "procedure",
+      "label": "toolpath is to enable a quick check of the",
+      "properties": {
+        "category": "Tool Setup",
+        "step_count": 10
+      }
+    },
+    {
+      "id": "hm-proc-by27hv",
+      "type": "procedure",
+      "label": "the coordinate values of the",
+      "properties": {
+        "category": "Coordinate Setup",
+        "step_count": 9
+      }
+    },
+    {
+      "id": "hm-proc-8qjatb",
+      "type": "procedure",
+      "label": "the sort criterion. Use Ascending or Descending to determine the sort sequence Holes",
+      "properties": {
+        "category": "Post Processing",
+        "step_count": 16
+      }
+    },
+    {
+      "id": "hm-proc-jzzq3q",
+      "type": "procedure",
+      "label": "the sort criterion. Use Ascending or Descending to determine the sort sequence Holes that",
+      "properties": {
+        "category": "Post Processing",
+        "step_count": 2
+      }
+    },
+    {
+      "id": "hm-proc-izm2co",
+      "type": "procedure",
+      "label": "a milling stock model.",
+      "properties": {
+        "category": "Stock Setup",
+        "step_count": 6
+      }
+    },
+    {
+      "id": "hm-proc-izm2co",
+      "type": "procedure",
+      "label": "a milling stock model.",
+      "properties": {
+        "category": "Stock Setup",
+        "step_count": 6
+      }
+    },
+    {
+      "id": "hm-proc-izm2co",
+      "type": "procedure",
+      "label": "a milling stock model.",
+      "properties": {
+        "category": "Stock Setup",
+        "step_count": 2
+      }
+    },
+    {
+      "id": "hm-proc-qwb89o",
+      "type": "procedure",
+      "label": "a stock model within the Optimised",
+      "properties": {
+        "category": "Stock Setup",
+        "step_count": 2
+      }
+    },
+    {
+      "id": "hm-proc-qwb89o",
+      "type": "procedure",
+      "label": "a stock model within the Optimised",
+      "properties": {
+        "category": "Stock Setup",
+        "step_count": 2
+      }
+    },
+    {
+      "id": "hm-proc-qwb89o",
+      "type": "procedure",
+      "label": "a stock model within the Optimised",
+      "properties": {
+        "category": "Stock Setup",
+        "step_count": 2
+      }
+    },
+    {
+      "id": "hm-proc-qwb89o",
+      "type": "procedure",
+      "label": "a stock model within the Optimised",
+      "properties": {
+        "category": "Stock Setup",
+        "step_count": 6
+      }
+    },
+    {
+      "id": "hm-proc-qwb89o",
+      "type": "procedure",
+      "label": "a stock model within the Optimised",
+      "properties": {
+        "category": "Stock Setup",
+        "step_count": 2
+      }
+    },
+    {
+      "id": "hm-proc-qwb89o",
+      "type": "procedure",
+      "label": "a stock model within the Optimised",
+      "properties": {
+        "category": "Stock Setup",
+        "step_count": 2
+      }
+    },
+    {
+      "id": "hm-proc-qwb89o",
+      "type": "procedure",
+      "label": "a stock model within the Optimised",
+      "properties": {
+        "category": "Stock Setup",
+        "step_count": 2
+      }
+    },
+    {
+      "id": "hm-proc-qwb89o",
+      "type": "procedure",
+      "label": "a stock model within the Optimised",
+      "properties": {
+        "category": "Stock Setup",
+        "step_count": 2
+      }
+    },
+    {
+      "id": "hm-proc-qwb89o",
+      "type": "procedure",
+      "label": "a stock model within the Optimised",
+      "properties": {
+        "category": "Stock Setup",
+        "step_count": 2
+      }
+    },
+    {
+      "id": "hm-proc-cibzk7",
+      "type": "procedure",
+      "label": "the maximum lateral distance of the tool from the model",
+      "properties": {
+        "category": "Tool Setup",
+        "step_count": 6
+      }
+    },
+    {
+      "id": "hm-proc-cibzk7",
+      "type": "procedure",
+      "label": "the maximum lateral distance of the tool from the model",
+      "properties": {
+        "category": "Tool Setup",
+        "step_count": 6
+      }
+    },
+    {
+      "id": "hm-proc-8e08bx",
+      "type": "procedure",
+      "label": "toolpath file(s), select the tool in the browser and choose the Usage function on",
+      "properties": {
+        "category": "Tool Setup",
+        "step_count": 5
+      }
+    },
+    {
+      "id": "hm-proc-b9w72y",
+      "type": "procedure",
+      "label": "the manual inclination curve",
+      "properties": {
+        "category": "Post Processing",
+        "step_count": 2
+      }
+    },
+    {
+      "id": "hm-proc-8e08bx",
+      "type": "procedure",
+      "label": "toolpath file(s), select the tool in the browser and choose the Usage function on",
+      "properties": {
+        "category": "Tool Setup",
+        "step_count": 2
+      }
+    },
+    {
+      "id": "hm-proc-8e08bx",
+      "type": "procedure",
+      "label": "toolpath file(s), select the tool in the browser and choose the Usage function on",
+      "properties": {
+        "category": "Tool Setup",
+        "step_count": 9
+      }
+    },
+    {
+      "id": "hm-proc-z1pn9m",
+      "type": "procedure",
+      "label": "a tapered tool, enable the Conical tip option and define the Cone angle.",
+      "properties": {
+        "category": "Tool Setup",
+        "step_count": 4
+      }
+    },
+    {
+      "id": "hm-proc-xfgrgt",
+      "type": "procedure",
+      "label": "the two Core diameter (1) and Core height (2) parameters for tools with inserts.",
+      "properties": {
+        "category": "Tool Setup",
+        "step_count": 2
+      }
+    },
+    {
+      "id": "hm-proc-86dsaw",
+      "type": "procedure",
+      "label": "a turning tool:",
+      "properties": {
+        "category": "Tool Setup",
+        "step_count": 2
+      }
+    },
+    {
+      "id": "hm-proc-3u6y4z",
+      "type": "procedure",
+      "label": "the tool holder geometry:",
+      "properties": {
+        "category": "Tool Setup",
+        "step_count": 2
+      }
+    },
+    {
+      "id": "hm-proc-qe7v6t",
+      "type": "procedure",
+      "label": "tools for special areas of use. If a tool is to be",
+      "properties": {
+        "category": "Tool Setup",
+        "step_count": 8
+      }
+    },
+    {
+      "id": "hm-proc-oqqpkm",
+      "type": "procedure",
+      "label": "an NC tool:",
+      "properties": {
+        "category": "Tool Setup",
+        "step_count": 3
+      }
+    },
+    {
+      "id": "hm-proc-vp0gfw",
+      "type": "procedure",
+      "label": "several NC tools at the same time. To",
+      "properties": {
+        "category": "Tool Setup",
+        "step_count": 9
+      }
+    },
+    {
+      "id": "hm-proc-c2el0p",
+      "type": "procedure",
+      "label": "a new NC job:",
+      "properties": {
+        "category": "Post Processing",
+        "step_count": 2
+      }
+    },
+    {
+      "id": "hm-proc-lxdw9d",
+      "type": "procedure",
+      "label": "a stockmodel for a turning job. You",
+      "properties": {
+        "category": "Stock Setup",
+        "step_count": 5
+      }
+    },
+    {
+      "id": "hm-proc-ym1bv5",
+      "type": "procedure",
+      "label": "a compound stock model:",
+      "properties": {
+        "category": "Stock Setup",
+        "step_count": 4
+      }
+    },
+    {
+      "id": "hm-proc-eqvwrn",
+      "type": "procedure",
+      "label": "a new job, use the New function on the browser's shortcut menu.",
+      "properties": {
+        "category": "Post Processing",
+        "step_count": 3
+      }
+    },
+    {
+      "id": "hm-proc-dj4zbu",
+      "type": "procedure",
+      "label": "a collision-checked stockmodel and ensure that",
+      "properties": {
+        "category": "Stock Setup",
+        "step_count": 2
+      }
+    },
+    {
+      "id": "hm-proc-dkvygz",
+      "type": "procedure",
+      "label": "the coordinate system and the frame",
+      "properties": {
+        "category": "Coordinate Setup",
+        "step_count": 3
+      }
+    },
+    {
+      "id": "hm-proc-czpckd",
+      "type": "procedure",
+      "label": "toolpath is to enable a quick",
+      "properties": {
+        "category": "Tool Setup",
+        "step_count": 7
+      }
+    },
+    {
+      "id": "hm-proc-mlurgj",
+      "type": "procedure",
+      "label": "the toolpath file (tool from toolpath",
+      "properties": {
+        "category": "Tool Setup",
+        "step_count": 9
+      }
+    },
+    {
+      "id": "hm-proc-144yno",
+      "type": "procedure",
+      "label": "the changed/new tool.",
+      "properties": {
+        "category": "Tool Setup",
+        "step_count": 2
+      }
+    },
+    {
+      "id": "hm-proc-l2tnsi",
+      "type": "procedure",
+      "label": "adjust the hole features to the stock model geometry. A neg-",
+      "properties": {
+        "category": "Stock Setup",
+        "step_count": 17
+      }
+    },
+    {
+      "id": "hm-proc-xnl6af",
+      "type": "procedure",
+      "label": "a new tool.",
+      "properties": {
+        "category": "Tool Setup",
+        "step_count": 2
+      }
+    }
+  ],
+  "edges": [
+    {
+      "source": "cam-hypermill",
+      "target": "hm-cat-2d-milling",
+      "relationship": "has_category",
+      "weight": 1
+    },
+    {
+      "source": "cam-hypermill",
+      "target": "hm-cat-3d-milling",
+      "relationship": "has_category",
+      "weight": 1
+    },
+    {
+      "source": "cam-hypermill",
+      "target": "hm-cat-3d-finishing",
+      "relationship": "has_category",
+      "weight": 1
+    },
+    {
+      "source": "cam-hypermill",
+      "target": "hm-cat-thread-milling",
+      "relationship": "has_category",
+      "weight": 1
+    },
+    {
+      "source": "cam-hypermill",
+      "target": "hm-cat-drilling",
+      "relationship": "has_category",
+      "weight": 1
+    },
+    {
+      "source": "cam-hypermill",
+      "target": "hm-cat-roughing",
+      "relationship": "has_category",
+      "weight": 1
+    },
+    {
+      "source": "hm-cat-2d-milling",
+      "target": "hm-cycle-contour-milling",
+      "relationship": "contains_cycle",
+      "weight": 0.9
+    },
+    {
+      "source": "hm-cat-2d-milling",
+      "target": "hm-cycle-contour-milling",
+      "relationship": "contains_cycle",
+      "weight": 0.9
+    },
+    {
+      "source": "hm-cat-3d-milling",
+      "target": "hm-cycle-horizontal",
+      "relationship": "contains_cycle",
+      "weight": 0.9
+    },
+    {
+      "source": "hm-cat-3d-milling",
+      "target": "hm-cycle-horizontal",
+      "relationship": "contains_cycle",
+      "weight": 0.9
+    },
+    {
+      "source": "hm-cat-3d-finishing",
+      "target": "hm-cycle-pencil",
+      "relationship": "contains_cycle",
+      "weight": 0.9
+    },
+    {
+      "source": "hm-cat-thread-milling",
+      "target": "hm-cycle-thread-milling",
+      "relationship": "contains_cycle",
+      "weight": 0.9
+    },
+    {
+      "source": "hm-cat-3d-milling",
+      "target": "hm-cycle-lace",
+      "relationship": "contains_cycle",
+      "weight": 0.9
+    },
+    {
+      "source": "hm-cat-2d-milling",
+      "target": "hm-cycle-contour-milling",
+      "relationship": "contains_cycle",
+      "weight": 0.9
+    },
+    {
+      "source": "hm-cat-3d-milling",
+      "target": "hm-cycle-equidistant",
+      "relationship": "contains_cycle",
+      "weight": 0.9
+    },
+    {
+      "source": "hm-cat-3d-milling",
+      "target": "hm-cycle-lace",
+      "relationship": "contains_cycle",
+      "weight": 0.9
+    },
+    {
+      "source": "hm-cat-3d-finishing",
+      "target": "hm-cycle-profile-finishing",
+      "relationship": "contains_cycle",
+      "weight": 0.9
+    },
+    {
+      "source": "hm-cat-2d-milling",
+      "target": "hm-cycle-contour-milling",
+      "relationship": "contains_cycle",
+      "weight": 0.9
+    },
+    {
+      "source": "hm-cat-3d-finishing",
+      "target": "hm-cycle-pencil",
+      "relationship": "contains_cycle",
+      "weight": 0.9
+    },
+    {
+      "source": "hm-cat-3d-finishing",
+      "target": "hm-cycle-z-level",
+      "relationship": "contains_cycle",
+      "weight": 0.9
+    },
+    {
+      "source": "hm-cat-3d-finishing",
+      "target": "hm-cycle-pencil",
+      "relationship": "contains_cycle",
+      "weight": 0.9
+    },
+    {
+      "source": "hm-cat-3d-finishing",
+      "target": "hm-cycle-pencil",
+      "relationship": "contains_cycle",
+      "weight": 0.9
+    },
+    {
+      "source": "hm-cat-3d-milling",
+      "target": "hm-cycle-lace",
+      "relationship": "contains_cycle",
+      "weight": 0.9
+    },
+    {
+      "source": "hm-cat-2d-milling",
+      "target": "hm-cycle-contour-milling",
+      "relationship": "contains_cycle",
+      "weight": 0.9
+    },
+    {
+      "source": "hm-cat-3d-milling",
+      "target": "hm-cycle-lace",
+      "relationship": "contains_cycle",
+      "weight": 0.9
+    },
+    {
+      "source": "hm-cat-3d-finishing",
+      "target": "hm-cycle-profile-finishing",
+      "relationship": "contains_cycle",
+      "weight": 0.9
+    },
+    {
+      "source": "hm-cat-2d-milling",
+      "target": "hm-cycle-contour-milling",
+      "relationship": "contains_cycle",
+      "weight": 0.9
+    },
+    {
+      "source": "hm-cat-drilling",
+      "target": "hm-cycle-helical-drilling",
+      "relationship": "contains_cycle",
+      "weight": 0.9
+    },
+    {
+      "source": "hm-cat-2d-milling",
+      "target": "hm-cycle-face-milling",
+      "relationship": "contains_cycle",
+      "weight": 0.9
+    },
+    {
+      "source": "hm-cat-3d-finishing",
+      "target": "hm-cycle-pencil",
+      "relationship": "contains_cycle",
+      "weight": 0.9
+    },
+    {
+      "source": "hm-cat-3d-milling",
+      "target": "hm-cycle-horizontal",
+      "relationship": "contains_cycle",
+      "weight": 0.9
+    },
+    {
+      "source": "hm-cat-3d-milling",
+      "target": "hm-cycle-iso-machining",
+      "relationship": "contains_cycle",
+      "weight": 0.9
+    },
+    {
+      "source": "hm-cat-3d-milling",
+      "target": "hm-cycle-horizontal",
+      "relationship": "contains_cycle",
+      "weight": 0.9
+    },
+    {
+      "source": "hm-cat-thread-milling",
+      "target": "hm-cycle-thread-milling",
+      "relationship": "contains_cycle",
+      "weight": 0.9
+    },
+    {
+      "source": "hm-cat-2d-milling",
+      "target": "hm-cycle-face-milling",
+      "relationship": "contains_cycle",
+      "weight": 0.9
+    },
+    {
+      "source": "hm-cat-3d-finishing",
+      "target": "hm-cycle-pencil",
+      "relationship": "contains_cycle",
+      "weight": 0.9
+    },
+    {
+      "source": "hm-cat-3d-milling",
+      "target": "hm-cycle-lace",
+      "relationship": "contains_cycle",
+      "weight": 0.9
+    },
+    {
+      "source": "hm-cat-2d-milling",
+      "target": "hm-cycle-contour-milling",
+      "relationship": "contains_cycle",
+      "weight": 0.9
+    },
+    {
+      "source": "hm-cat-3d-milling",
+      "target": "hm-cycle-equidistant",
+      "relationship": "contains_cycle",
+      "weight": 0.9
+    },
+    {
+      "source": "hm-cat-3d-milling",
+      "target": "hm-cycle-lace",
+      "relationship": "contains_cycle",
+      "weight": 0.9
+    },
+    {
+      "source": "hm-cat-3d-finishing",
+      "target": "hm-cycle-profile-finishing",
+      "relationship": "contains_cycle",
+      "weight": 0.9
+    },
+    {
+      "source": "hm-cat-2d-milling",
+      "target": "hm-cycle-contour-milling",
+      "relationship": "contains_cycle",
+      "weight": 0.9
+    },
+    {
+      "source": "hm-cat-thread-milling",
+      "target": "hm-cycle-thread-milling",
+      "relationship": "contains_cycle",
+      "weight": 0.9
+    },
+    {
+      "source": "hm-cat-drilling",
+      "target": "hm-cycle-helical-drilling",
+      "relationship": "contains_cycle",
+      "weight": 0.9
+    },
+    {
+      "source": "hm-cat-3d-milling",
+      "target": "hm-cycle-horizontal",
+      "relationship": "contains_cycle",
+      "weight": 0.9
+    },
+    {
+      "source": "hm-cat-2d-milling",
+      "target": "hm-cycle-contour-milling",
+      "relationship": "contains_cycle",
+      "weight": 0.9
+    },
+    {
+      "source": "hm-cat-2d-milling",
+      "target": "hm-cycle-contour-milling",
+      "relationship": "contains_cycle",
+      "weight": 0.9
+    },
+    {
+      "source": "hm-cat-3d-milling",
+      "target": "hm-cycle-horizontal",
+      "relationship": "contains_cycle",
+      "weight": 0.9
+    },
+    {
+      "source": "hm-cat-3d-milling",
+      "target": "hm-cycle-horizontal",
+      "relationship": "contains_cycle",
+      "weight": 0.9
+    },
+    {
+      "source": "hm-cat-3d-finishing",
+      "target": "hm-cycle-pencil",
+      "relationship": "contains_cycle",
+      "weight": 0.9
+    },
+    {
+      "source": "hm-cat-3d-finishing",
+      "target": "hm-cycle-z-level",
+      "relationship": "contains_cycle",
+      "weight": 0.9
+    },
+    {
+      "source": "hm-cat-3d-finishing",
+      "target": "hm-cycle-pencil",
+      "relationship": "contains_cycle",
+      "weight": 0.9
+    },
+    {
+      "source": "hm-cat-3d-milling",
+      "target": "hm-cycle-equidistant",
+      "relationship": "contains_cycle",
+      "weight": 0.9
+    },
+    {
+      "source": "hm-cat-3d-milling",
+      "target": "hm-cycle-shape-offset",
+      "relationship": "contains_cycle",
+      "weight": 0.9
+    },
+    {
+      "source": "hm-cat-3d-milling",
+      "target": "hm-cycle-shape-offset",
+      "relationship": "contains_cycle",
+      "weight": 0.9
+    },
+    {
+      "source": "hm-cat-3d-milling",
+      "target": "hm-cycle-horizontal",
+      "relationship": "contains_cycle",
+      "weight": 0.9
+    },
+    {
+      "source": "hm-cat-roughing",
+      "target": "hm-cycle-3d-roughing",
+      "relationship": "contains_cycle",
+      "weight": 0.9
+    },
+    {
+      "source": "hm-cat-3d-milling",
+      "target": "hm-cycle-horizontal",
+      "relationship": "contains_cycle",
+      "weight": 0.9
+    },
+    {
+      "source": "hm-cat-3d-finishing",
+      "target": "hm-cycle-pencil",
+      "relationship": "contains_cycle",
+      "weight": 0.9
+    },
+    {
+      "source": "hm-cat-3d-milling",
+      "target": "hm-cycle-lace",
+      "relationship": "contains_cycle",
+      "weight": 0.9
+    },
+    {
+      "source": "hm-cat-2d-milling",
+      "target": "hm-cycle-contour-milling",
+      "relationship": "contains_cycle",
+      "weight": 0.9
+    },
+    {
+      "source": "hm-cat-3d-milling",
+      "target": "hm-cycle-lace",
+      "relationship": "contains_cycle",
+      "weight": 0.9
+    },
+    {
+      "source": "hm-cat-3d-finishing",
+      "target": "hm-cycle-profile-finishing",
+      "relationship": "contains_cycle",
+      "weight": 0.9
+    },
+    {
+      "source": "hm-cat-2d-milling",
+      "target": "hm-cycle-contour-milling",
+      "relationship": "contains_cycle",
+      "weight": 0.9
+    },
+    {
+      "source": "hm-cat-drilling",
+      "target": "hm-cycle-helical-drilling",
+      "relationship": "contains_cycle",
+      "weight": 0.9
+    },
+    {
+      "source": "hm-cat-2d-milling",
+      "target": "hm-cycle-face-milling",
+      "relationship": "contains_cycle",
+      "weight": 0.9
+    },
+    {
+      "source": "hm-cat-3d-finishing",
+      "target": "hm-cycle-pencil",
+      "relationship": "contains_cycle",
+      "weight": 0.9
+    },
+    {
+      "source": "hm-cat-3d-milling",
+      "target": "hm-cycle-horizontal",
+      "relationship": "contains_cycle",
+      "weight": 0.9
+    },
+    {
+      "source": "hm-cat-3d-milling",
+      "target": "hm-cycle-iso-machining",
+      "relationship": "contains_cycle",
+      "weight": 0.9
+    },
+    {
+      "source": "hm-cat-3d-milling",
+      "target": "hm-cycle-horizontal",
+      "relationship": "contains_cycle",
+      "weight": 0.9
+    },
+    {
+      "source": "cam-hypermill",
+      "target": "hm-proc-cibzk7",
+      "relationship": "has_procedure",
+      "weight": 0.8
+    },
+    {
+      "source": "cam-hypermill",
+      "target": "hm-proc-cibzk7",
+      "relationship": "has_procedure",
+      "weight": 0.8
+    },
+    {
+      "source": "cam-hypermill",
+      "target": "hm-proc-izm2co",
+      "relationship": "has_procedure",
+      "weight": 0.8
+    },
+    {
+      "source": "cam-hypermill",
+      "target": "hm-proc-izm2co",
+      "relationship": "has_procedure",
+      "weight": 0.8
+    },
+    {
+      "source": "cam-hypermill",
+      "target": "hm-proc-1hqkr6",
+      "relationship": "has_procedure",
+      "weight": 0.8
+    },
+    {
+      "source": "cam-hypermill",
+      "target": "hm-proc-86dsaw",
+      "relationship": "has_procedure",
+      "weight": 0.8
+    },
+    {
+      "source": "cam-hypermill",
+      "target": "hm-proc-syzmvm",
+      "relationship": "has_procedure",
+      "weight": 0.8
+    },
+    {
+      "source": "cam-hypermill",
+      "target": "hm-proc-ijgit6",
+      "relationship": "has_procedure",
+      "weight": 0.8
+    },
+    {
+      "source": "cam-hypermill",
+      "target": "hm-proc-7b8i9k",
+      "relationship": "has_procedure",
+      "weight": 0.8
+    },
+    {
+      "source": "cam-hypermill",
+      "target": "hm-proc-dku0vv",
+      "relationship": "has_procedure",
+      "weight": 0.8
+    },
+    {
+      "source": "cam-hypermill",
+      "target": "hm-proc-pfcmmh",
+      "relationship": "has_procedure",
+      "weight": 0.8
+    },
+    {
+      "source": "cam-hypermill",
+      "target": "hm-proc-gc3z4t",
+      "relationship": "has_procedure",
+      "weight": 0.8
+    },
+    {
+      "source": "cam-hypermill",
+      "target": "hm-proc-by27hv",
+      "relationship": "has_procedure",
+      "weight": 0.8
+    },
+    {
+      "source": "cam-hypermill",
+      "target": "hm-proc-8qjatb",
+      "relationship": "has_procedure",
+      "weight": 0.8
+    },
+    {
+      "source": "cam-hypermill",
+      "target": "hm-proc-8e08bx",
+      "relationship": "has_procedure",
+      "weight": 0.8
+    },
+    {
+      "source": "cam-hypermill",
+      "target": "hm-proc-lxdw9d",
+      "relationship": "has_procedure",
+      "weight": 0.8
+    },
+    {
+      "source": "cam-hypermill",
+      "target": "hm-proc-ym1bv5",
+      "relationship": "has_procedure",
+      "weight": 0.8
+    },
+    {
+      "source": "cam-hypermill",
+      "target": "hm-proc-eqvwrn",
+      "relationship": "has_procedure",
+      "weight": 0.8
+    },
+    {
+      "source": "cam-hypermill",
+      "target": "hm-proc-dj4zbu",
+      "relationship": "has_procedure",
+      "weight": 0.8
+    },
+    {
+      "source": "cam-hypermill",
+      "target": "hm-proc-dkvygz",
+      "relationship": "has_procedure",
+      "weight": 0.8
+    },
+    {
+      "source": "cam-hypermill",
+      "target": "hm-proc-czpckd",
+      "relationship": "has_procedure",
+      "weight": 0.8
+    },
+    {
+      "source": "cam-hypermill",
+      "target": "hm-proc-mlurgj",
+      "relationship": "has_procedure",
+      "weight": 0.8
+    },
+    {
+      "source": "cam-hypermill",
+      "target": "hm-proc-144yno",
+      "relationship": "has_procedure",
+      "weight": 0.8
+    },
+    {
+      "source": "cam-hypermill",
+      "target": "hm-proc-l2tnsi",
+      "relationship": "has_procedure",
+      "weight": 0.8
+    },
+    {
+      "source": "cam-hypermill",
+      "target": "hm-proc-xnl6af",
+      "relationship": "has_procedure",
+      "weight": 0.8
+    },
+    {
+      "source": "cam-hypermill",
+      "target": "hm-proc-1hqkr6",
+      "relationship": "has_procedure",
+      "weight": 0.8
+    },
+    {
+      "source": "cam-hypermill",
+      "target": "hm-proc-86dsaw",
+      "relationship": "has_procedure",
+      "weight": 0.8
+    },
+    {
+      "source": "cam-hypermill",
+      "target": "hm-proc-syzmvm",
+      "relationship": "has_procedure",
+      "weight": 0.8
+    },
+    {
+      "source": "cam-hypermill",
+      "target": "hm-proc-ijgit6",
+      "relationship": "has_procedure",
+      "weight": 0.8
+    },
+    {
+      "source": "cam-hypermill",
+      "target": "hm-proc-7b8i9k",
+      "relationship": "has_procedure",
+      "weight": 0.8
+    },
+    {
+      "source": "cam-hypermill",
+      "target": "hm-proc-dku0vv",
+      "relationship": "has_procedure",
+      "weight": 0.8
+    },
+    {
+      "source": "cam-hypermill",
+      "target": "hm-proc-pfcmmh",
+      "relationship": "has_procedure",
+      "weight": 0.8
+    },
+    {
+      "source": "cam-hypermill",
+      "target": "hm-proc-gc3z4t",
+      "relationship": "has_procedure",
+      "weight": 0.8
+    },
+    {
+      "source": "cam-hypermill",
+      "target": "hm-proc-by27hv",
+      "relationship": "has_procedure",
+      "weight": 0.8
+    },
+    {
+      "source": "cam-hypermill",
+      "target": "hm-proc-8qjatb",
+      "relationship": "has_procedure",
+      "weight": 0.8
+    },
+    {
+      "source": "cam-hypermill",
+      "target": "hm-proc-jzzq3q",
+      "relationship": "has_procedure",
+      "weight": 0.8
+    },
+    {
+      "source": "cam-hypermill",
+      "target": "hm-proc-izm2co",
+      "relationship": "has_procedure",
+      "weight": 0.8
+    },
+    {
+      "source": "cam-hypermill",
+      "target": "hm-proc-izm2co",
+      "relationship": "has_procedure",
+      "weight": 0.8
+    },
+    {
+      "source": "cam-hypermill",
+      "target": "hm-proc-izm2co",
+      "relationship": "has_procedure",
+      "weight": 0.8
+    },
+    {
+      "source": "cam-hypermill",
+      "target": "hm-proc-qwb89o",
+      "relationship": "has_procedure",
+      "weight": 0.8
+    },
+    {
+      "source": "cam-hypermill",
+      "target": "hm-proc-qwb89o",
+      "relationship": "has_procedure",
+      "weight": 0.8
+    },
+    {
+      "source": "cam-hypermill",
+      "target": "hm-proc-qwb89o",
+      "relationship": "has_procedure",
+      "weight": 0.8
+    },
+    {
+      "source": "cam-hypermill",
+      "target": "hm-proc-qwb89o",
+      "relationship": "has_procedure",
+      "weight": 0.8
+    },
+    {
+      "source": "cam-hypermill",
+      "target": "hm-proc-qwb89o",
+      "relationship": "has_procedure",
+      "weight": 0.8
+    },
+    {
+      "source": "cam-hypermill",
+      "target": "hm-proc-qwb89o",
+      "relationship": "has_procedure",
+      "weight": 0.8
+    },
+    {
+      "source": "cam-hypermill",
+      "target": "hm-proc-qwb89o",
+      "relationship": "has_procedure",
+      "weight": 0.8
+    },
+    {
+      "source": "cam-hypermill",
+      "target": "hm-proc-qwb89o",
+      "relationship": "has_procedure",
+      "weight": 0.8
+    },
+    {
+      "source": "cam-hypermill",
+      "target": "hm-proc-qwb89o",
+      "relationship": "has_procedure",
+      "weight": 0.8
+    },
+    {
+      "source": "cam-hypermill",
+      "target": "hm-proc-cibzk7",
+      "relationship": "has_procedure",
+      "weight": 0.8
+    },
+    {
+      "source": "cam-hypermill",
+      "target": "hm-proc-cibzk7",
+      "relationship": "has_procedure",
+      "weight": 0.8
+    },
+    {
+      "source": "cam-hypermill",
+      "target": "hm-proc-8e08bx",
+      "relationship": "has_procedure",
+      "weight": 0.8
+    },
+    {
+      "source": "cam-hypermill",
+      "target": "hm-proc-b9w72y",
+      "relationship": "has_procedure",
+      "weight": 0.8
+    },
+    {
+      "source": "cam-hypermill",
+      "target": "hm-proc-8e08bx",
+      "relationship": "has_procedure",
+      "weight": 0.8
+    },
+    {
+      "source": "cam-hypermill",
+      "target": "hm-proc-8e08bx",
+      "relationship": "has_procedure",
+      "weight": 0.8
+    },
+    {
+      "source": "cam-hypermill",
+      "target": "hm-proc-z1pn9m",
+      "relationship": "has_procedure",
+      "weight": 0.8
+    },
+    {
+      "source": "cam-hypermill",
+      "target": "hm-proc-xfgrgt",
+      "relationship": "has_procedure",
+      "weight": 0.8
+    },
+    {
+      "source": "cam-hypermill",
+      "target": "hm-proc-86dsaw",
+      "relationship": "has_procedure",
+      "weight": 0.8
+    },
+    {
+      "source": "cam-hypermill",
+      "target": "hm-proc-3u6y4z",
+      "relationship": "has_procedure",
+      "weight": 0.8
+    },
+    {
+      "source": "cam-hypermill",
+      "target": "hm-proc-qe7v6t",
+      "relationship": "has_procedure",
+      "weight": 0.8
+    },
+    {
+      "source": "cam-hypermill",
+      "target": "hm-proc-oqqpkm",
+      "relationship": "has_procedure",
+      "weight": 0.8
+    },
+    {
+      "source": "cam-hypermill",
+      "target": "hm-proc-vp0gfw",
+      "relationship": "has_procedure",
+      "weight": 0.8
+    },
+    {
+      "source": "cam-hypermill",
+      "target": "hm-proc-c2el0p",
+      "relationship": "has_procedure",
+      "weight": 0.8
+    },
+    {
+      "source": "cam-hypermill",
+      "target": "hm-proc-lxdw9d",
+      "relationship": "has_procedure",
+      "weight": 0.8
+    },
+    {
+      "source": "cam-hypermill",
+      "target": "hm-proc-ym1bv5",
+      "relationship": "has_procedure",
+      "weight": 0.8
+    },
+    {
+      "source": "cam-hypermill",
+      "target": "hm-proc-eqvwrn",
+      "relationship": "has_procedure",
+      "weight": 0.8
+    },
+    {
+      "source": "cam-hypermill",
+      "target": "hm-proc-dj4zbu",
+      "relationship": "has_procedure",
+      "weight": 0.8
+    },
+    {
+      "source": "cam-hypermill",
+      "target": "hm-proc-dkvygz",
+      "relationship": "has_procedure",
+      "weight": 0.8
+    },
+    {
+      "source": "cam-hypermill",
+      "target": "hm-proc-czpckd",
+      "relationship": "has_procedure",
+      "weight": 0.8
+    },
+    {
+      "source": "cam-hypermill",
+      "target": "hm-proc-mlurgj",
+      "relationship": "has_procedure",
+      "weight": 0.8
+    },
+    {
+      "source": "cam-hypermill",
+      "target": "hm-proc-144yno",
+      "relationship": "has_procedure",
+      "weight": 0.8
+    },
+    {
+      "source": "cam-hypermill",
+      "target": "hm-proc-l2tnsi",
+      "relationship": "has_procedure",
+      "weight": 0.8
+    },
+    {
+      "source": "cam-hypermill",
+      "target": "hm-proc-xnl6af",
+      "relationship": "has_procedure",
+      "weight": 0.8
+    }
+  ]
+}

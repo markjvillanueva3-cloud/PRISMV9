@@ -2,18 +2,18 @@
 source: global
 section: FAST RESOURCE LOOKUP (zero-IO file discovery)
 slug: fast-resource-lookup-zero-io-file-discovery
-indexed_at: 2026-04-28T00:49:50.583Z
+indexed_at: 2026-06-23T02:05:18.100Z
 ---
 
 ## FAST RESOURCE LOOKUP (zero-IO file discovery)
 
-### Digest Files (pre-computed indexes)
+### Digest Files (pre-computed indexes — counts auto-refresh; do NOT trust the numbers cached in this table, read the file head)
 | Digest | Contents | Path |
 |--------|----------|------|
-| ENGINE_DIGEST.md | 2392 engines, 1-line each | `mcp-server/data/docs/` |
-| DISPATCHER_DIGEST.md | 91 dispatchers + action counts | `mcp-server/data/docs/` |
-| DIRECTORY_DIGEST.md | 215 directories with purposes | `mcp-server/data/docs/` |
-| CODE_SYSTEM_INDEX.json | 1865 shortcode→path mappings | `mcp-server/data/docs/` |
+| ENGINE_DIGEST.md | engines, 1-line each | `mcp-server/data/docs/` |
+| DISPATCHER_DIGEST.md | dispatchers + action counts | `mcp-server/data/docs/` |
+| DIRECTORY_DIGEST.md | directories with purposes | `mcp-server/data/docs/` |
+| CODE_SYSTEM_INDEX.json | shortcode→path mappings | `mcp-server/data/docs/` |
 | PRISM-INVENTORY-LATEST.md | Live counts (auto-refreshed) | `H:/prism/` |
 
 ### DSL Shortcodes (use in output to save tokens)
@@ -36,6 +36,6 @@ Resolve: `/code-index lookup <shortcode>` or `codeSystemIndexEngine.resolve()`
 | Skills (project) | `.claude/commands/*.md` |
 | State (shared) | `state/shared/*.md` |
 | Handoffs | `state/shared/handoffs/HANDOFF-*.md` |
-| JM Die programs | `JM DIE/` (24,545 files) |
+| JM Die programs | `JM DIE/` |
 
 ---

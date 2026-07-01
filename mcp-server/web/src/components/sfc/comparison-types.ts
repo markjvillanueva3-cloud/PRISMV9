@@ -11,6 +11,9 @@ export interface CalcSnapshot {
   operationId: string;
   toolName?: string;
   params: SfcParams;
+  /** The optimization goal this calc used (cost/balanced/productivity). Optional for back-compat:
+   *  snapshots saved before the goal selector shipped lack it (treated as the default "balanced"). */
+  optimizeFor?: "cost" | "balanced" | "productivity";
   result: SfcCalculateResult;
   ts: number;
 }

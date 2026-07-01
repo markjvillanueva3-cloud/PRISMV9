@@ -1,0 +1,400 @@
+{
+  "agent_id": "AGT-OPUS-012",
+  "name": "learning_extractor_v2",
+  "tier": "OPUS",
+  "version": "2.0.0",
+  "created": "2026-01-28",
+  "role": "Continuous Learning Extractor - Auto-Discovers and Propagates Improvements",
+  
+  "domain_expertise": [
+    "Pattern extraction",
+    "Knowledge graph construction",
+    "Experience replay",
+    "Transfer learning",
+    "Improvement propagation",
+    "Feedback loop analysis",
+    "Anomaly detection for learning",
+    "Meta-learning",
+    "Calibration from experience",
+    "Best practice identification"
+  ],
+
+  "capabilities": [
+    {
+      "id": "CAP-LEARN-001",
+      "name": "Automatic Learning Extraction",
+      "description": "Automatically extracts learnings from every task completion - patterns, improvements, failures, insights",
+      "category": "ANALYSIS",
+      "inputs": {
+        "required": ["task_execution_log"],
+        "optional": ["extraction_depth", "focus_areas"]
+      },
+      "outputs": {
+        "primary": "extracted_learnings",
+        "secondary": ["patterns", "improvements", "failures", "insights", "confidence"]
+      },
+      "skills_used": ["prism-deep-learning", "prism-knowledge-master"],
+      "hooks_triggered": ["learning:extract", "SYS-LEARNING-EXTRACT"],
+      "synergizes_with": ["meta_analyst_v2", "synergy_analyst"],
+      "success_criteria": "Valuable learnings extracted automatically"
+    },
+    {
+      "id": "CAP-LEARN-002",
+      "name": "Pattern Recognition",
+      "description": "Recognizes patterns in execution data - successful strategies, failure modes, optimization opportunities",
+      "category": "ANALYSIS",
+      "inputs": {
+        "required": ["execution_history"],
+        "optional": ["pattern_types", "min_occurrences"]
+      },
+      "outputs": {
+        "primary": "recognized_patterns",
+        "secondary": ["pattern_frequency", "confidence", "examples", "recommendations"]
+      },
+      "skills_used": ["prism-deep-learning", "prism-knowledge-master"],
+      "hooks_triggered": ["learning:match", "PATTERN-RECOGNIZE"],
+      "synergizes_with": ["synergy_analyst", "meta_analyst_v2"],
+      "success_criteria": "Actionable patterns identified"
+    },
+    {
+      "id": "CAP-LEARN-003",
+      "name": "Improvement Propagation",
+      "description": "Propagates discovered improvements across ALL relevant PRISM resources (skills, agents, formulas, databases)",
+      "category": "INTEGRATION",
+      "inputs": {
+        "required": ["improvement", "scope"],
+        "optional": ["propagation_rules", "validation_level"]
+      },
+      "outputs": {
+        "primary": "propagation_report",
+        "secondary": ["affected_resources", "updates_made", "validation_results"]
+      },
+      "skills_used": ["prism-deep-learning", "prism-skill-orchestrator"],
+      "hooks_triggered": ["learning:propagate", "IMPROVE-PROPAGATE"],
+      "synergizes_with": ["resource_auditor", "architect"],
+      "success_criteria": "Improvements reach all relevant resources"
+    },
+    {
+      "id": "CAP-LEARN-004",
+      "name": "Knowledge Graph Building",
+      "description": "Builds and maintains knowledge graph connecting concepts, resources, patterns, and learnings",
+      "category": "INTEGRATION",
+      "inputs": {
+        "required": ["new_knowledge"],
+        "optional": ["existing_graph", "connection_rules"]
+      },
+      "outputs": {
+        "primary": "updated_graph",
+        "secondary": ["new_nodes", "new_edges", "graph_statistics"]
+      },
+      "skills_used": ["prism-knowledge-master", "prism-deep-learning"],
+      "hooks_triggered": ["GRAPH-UPDATE"],
+      "synergizes_with": ["knowledge_graph_builder", "researcher"],
+      "success_criteria": "Graph captures relationships"
+    },
+    {
+      "id": "CAP-LEARN-005",
+      "name": "Experience Replay Analysis",
+      "description": "Analyzes past experiences to identify learnings that may have been missed",
+      "category": "ANALYSIS",
+      "inputs": {
+        "required": ["experience_buffer"],
+        "optional": ["replay_strategy", "sample_size"]
+      },
+      "outputs": {
+        "primary": "replay_learnings",
+        "secondary": ["missed_patterns", "new_insights", "confidence"]
+      },
+      "skills_used": ["prism-deep-learning"],
+      "hooks_triggered": ["EXPERIENCE-REPLAY"],
+      "synergizes_with": ["meta_analyst_v2"],
+      "success_criteria": "Hidden learnings discovered"
+    },
+    {
+      "id": "CAP-LEARN-006",
+      "name": "Failure Mode Learning",
+      "description": "Learns from failures to prevent recurrence - extracts root causes and prevention strategies",
+      "category": "ANALYSIS",
+      "inputs": {
+        "required": ["failure_data"],
+        "optional": ["failure_categorization"]
+      },
+      "outputs": {
+        "primary": "failure_learnings",
+        "secondary": ["root_causes", "prevention_strategies", "early_warning_indicators"]
+      },
+      "skills_used": ["prism-deep-learning", "prism-sp-debugging"],
+      "hooks_triggered": ["learning:extract", "FAILURE-LEARN"],
+      "synergizes_with": ["debugger", "root_cause_analyst"],
+      "success_criteria": "Failures prevent future occurrences"
+    },
+    {
+      "id": "CAP-LEARN-007",
+      "name": "Success Factor Extraction",
+      "description": "Extracts success factors from high-performing executions for replication",
+      "category": "ANALYSIS",
+      "inputs": {
+        "required": ["successful_executions"],
+        "optional": ["success_criteria", "comparison_baseline"]
+      },
+      "outputs": {
+        "primary": "success_factors",
+        "secondary": ["factor_importance", "replication_guidance", "confidence"]
+      },
+      "skills_used": ["prism-deep-learning", "prism-knowledge-master"],
+      "hooks_triggered": ["SUCCESS-EXTRACT"],
+      "synergizes_with": ["meta_analyst_v2", "synergy_analyst"],
+      "success_criteria": "Success factors identified for replication"
+    },
+    {
+      "id": "CAP-LEARN-008",
+      "name": "Coefficient Calibration Learning",
+      "description": "Learns coefficient corrections from prediction vs actual comparisons for formula improvement",
+      "category": "INTEGRATION",
+      "inputs": {
+        "required": ["predictions", "actuals", "formula_id"],
+        "optional": ["calibration_method"]
+      },
+      "outputs": {
+        "primary": "calibration_update",
+        "secondary": ["coefficient_adjustments", "accuracy_improvement", "confidence"]
+      },
+      "skills_used": ["prism-formula-evolution", "prism-deep-learning"],
+      "hooks_triggered": ["formula:coefficientUpdate", "SYS-CALIBRATION-MONITOR"],
+      "synergizes_with": ["calibration_engineer", "proof_generator"],
+      "success_criteria": "Calibration improves accuracy"
+    },
+    {
+      "id": "CAP-LEARN-009",
+      "name": "Cross-Domain Transfer Learning",
+      "description": "Transfers learnings across domains - e.g., patterns from materials to machines",
+      "category": "ANALYSIS",
+      "inputs": {
+        "required": ["source_domain_learning", "target_domain"],
+        "optional": ["transfer_constraints"]
+      },
+      "outputs": {
+        "primary": "transferred_learning",
+        "secondary": ["applicability_score", "adaptation_needed", "confidence"]
+      },
+      "skills_used": ["prism-deep-learning", "prism-knowledge-master"],
+      "hooks_triggered": ["TRANSFER-LEARN"],
+      "synergizes_with": ["domain_expert", "architect"],
+      "success_criteria": "Learning successfully transfers"
+    },
+    {
+      "id": "CAP-LEARN-010",
+      "name": "Agent Performance Learning",
+      "description": "Learns from agent performance to improve agent selection and orchestration",
+      "category": "ANALYSIS",
+      "inputs": {
+        "required": ["agent_performance_data"],
+        "optional": ["performance_metrics"]
+      },
+      "outputs": {
+        "primary": "agent_learnings",
+        "secondary": ["performance_patterns", "capability_updates", "synergy_discoveries"]
+      },
+      "skills_used": ["prism-deep-learning", "prism-agent-selector"],
+      "hooks_triggered": ["agent:postExecute", "AGENT-LEARN"],
+      "synergizes_with": ["synergy_analyst", "coordinator_v2"],
+      "success_criteria": "Agent selection improves"
+    },
+    {
+      "id": "CAP-LEARN-011",
+      "name": "Skill Usage Learning",
+      "description": "Learns from skill usage patterns to improve skill selection and loading",
+      "category": "ANALYSIS",
+      "inputs": {
+        "required": ["skill_usage_data"],
+        "optional": ["task_types"]
+      },
+      "outputs": {
+        "primary": "skill_learnings",
+        "secondary": ["usage_patterns", "loading_recommendations", "synergy_discoveries"]
+      },
+      "skills_used": ["prism-deep-learning", "prism-skill-orchestrator"],
+      "hooks_triggered": ["skill:execute", "SKILL-LEARN"],
+      "synergizes_with": ["resource_optimizer", "synergy_analyst"],
+      "success_criteria": "Skill selection improves"
+    },
+    {
+      "id": "CAP-LEARN-012",
+      "name": "Best Practice Codification",
+      "description": "Codifies discovered best practices into reusable guidelines and patterns",
+      "category": "GENERATION",
+      "inputs": {
+        "required": ["practice_evidence"],
+        "optional": ["codification_format"]
+      },
+      "outputs": {
+        "primary": "codified_practice",
+        "secondary": ["practice_documentation", "applicability_conditions", "examples"]
+      },
+      "skills_used": ["prism-knowledge-master", "prism-deep-learning"],
+      "hooks_triggered": ["PRACTICE-CODIFY"],
+      "synergizes_with": ["documentation_writer", "architect"],
+      "success_criteria": "Practice reusable by others"
+    },
+    {
+      "id": "CAP-LEARN-013",
+      "name": "Anomaly-Based Learning",
+      "description": "Learns from anomalies - both positive (unexpectedly good) and negative (unexpectedly bad)",
+      "category": "ANALYSIS",
+      "inputs": {
+        "required": ["execution_data", "expected_outcomes"],
+        "optional": ["anomaly_threshold"]
+      },
+      "outputs": {
+        "primary": "anomaly_learnings",
+        "secondary": ["positive_anomalies", "negative_anomalies", "causal_analysis"]
+      },
+      "skills_used": ["prism-deep-learning", "prism-sp-debugging"],
+      "hooks_triggered": ["ANOMALY-LEARN"],
+      "synergizes_with": ["meta_analyst_v2", "debugger"],
+      "success_criteria": "Anomalies explained and learned from"
+    },
+    {
+      "id": "CAP-LEARN-014",
+      "name": "Continuous Improvement Tracking",
+      "description": "Tracks improvement trajectory over time ensuring system continuously gets better",
+      "category": "ANALYSIS",
+      "inputs": {
+        "required": ["performance_history"],
+        "optional": ["improvement_metrics", "baseline"]
+      },
+      "outputs": {
+        "primary": "improvement_trajectory",
+        "secondary": ["trend_analysis", "plateau_detection", "acceleration_opportunities"]
+      },
+      "skills_used": ["prism-deep-learning", "prism-formula-evolution"],
+      "hooks_triggered": ["IMPROVEMENT-TRACK"],
+      "synergizes_with": ["meta_analyst_v2", "calibration_engineer"],
+      "success_criteria": "Continuous improvement demonstrated"
+    },
+    {
+      "id": "CAP-LEARN-015",
+      "name": "Learning Validation",
+      "description": "Validates extracted learnings before propagation to prevent false patterns",
+      "category": "VALIDATION",
+      "inputs": {
+        "required": ["proposed_learning"],
+        "optional": ["validation_criteria", "test_cases"]
+      },
+      "outputs": {
+        "primary": "validation_result",
+        "secondary": ["confidence_score", "validation_evidence", "limitations"]
+      },
+      "skills_used": ["prism-quality-master", "prism-sp-verification"],
+      "hooks_triggered": ["learning:validate", "LEARN-VALIDATE"],
+      "synergizes_with": ["data_quality_enforcer", "proof_generator"],
+      "success_criteria": "Only valid learnings propagate"
+    },
+    {
+      "id": "CAP-LEARN-016",
+      "name": "Synergy Discovery",
+      "description": "Discovers new synergies between resources from execution patterns",
+      "category": "ANALYSIS",
+      "inputs": {
+        "required": ["multi_resource_executions"],
+        "optional": ["existing_synergies"]
+      },
+      "outputs": {
+        "primary": "discovered_synergies",
+        "secondary": ["synergy_evidence", "confidence", "recommendations"]
+      },
+      "skills_used": ["prism-deep-learning", "prism-synergy-calculator"],
+      "hooks_triggered": ["SYNERGY-DISCOVER"],
+      "synergizes_with": ["synergy_analyst", "coordinator_v2"],
+      "success_criteria": "New synergies identified and validated"
+    },
+    {
+      "id": "CAP-LEARN-017",
+      "name": "Context Learning",
+      "description": "Learns how context affects outcomes to improve context-aware decision making",
+      "category": "ANALYSIS",
+      "inputs": {
+        "required": ["context_outcome_pairs"],
+        "optional": ["context_features"]
+      },
+      "outputs": {
+        "primary": "context_model",
+        "secondary": ["important_context_factors", "context_recommendations"]
+      },
+      "skills_used": ["prism-deep-learning", "prism-knowledge-master"],
+      "hooks_triggered": ["CONTEXT-LEARN"],
+      "synergizes_with": ["context_builder", "coordinator_v2"],
+      "success_criteria": "Context-aware decisions improve"
+    },
+    {
+      "id": "CAP-LEARN-018",
+      "name": "Learning Report Generation",
+      "description": "Generates comprehensive reports on system learning progress and discoveries",
+      "category": "GENERATION",
+      "inputs": {
+        "required": ["learning_period"],
+        "optional": ["report_scope", "audience"]
+      },
+      "outputs": {
+        "primary": "learning_report",
+        "secondary": ["key_discoveries", "improvement_metrics", "recommendations"]
+      },
+      "skills_used": ["prism-knowledge-master", "prism-deep-learning"],
+      "hooks_triggered": ["REPORT-LEARN"],
+      "synergizes_with": ["documentation_writer", "meta_analyst_v2"],
+      "success_criteria": "Actionable learning report"
+    }
+  ],
+
+  "skills_mastered": [
+    "prism-deep-learning",
+    "prism-knowledge-master",
+    "prism-skill-orchestrator",
+    "prism-formula-evolution",
+    "prism-agent-selector",
+    "prism-synergy-calculator",
+    "prism-quality-master",
+    "prism-sp-verification",
+    "prism-sp-debugging"
+  ],
+
+  "hooks_subscribed": [
+    "learning:extract",
+    "learning:match",
+    "learning:apply",
+    "learning:propagate",
+    "learning:deepAnalysis",
+    "SYS-LEARNING-EXTRACT",
+    "task:complete",
+    "agent:postExecute",
+    "skill:execute",
+    "formula:coefficientUpdate",
+    "SYS-CALIBRATION-MONITOR"
+  ],
+
+  "can_delegate_to": [
+    "knowledge_graph_builder",
+    "calibration_engineer"
+  ],
+
+  "receives_from": [
+    "coordinator_v2",
+    "synergy_analyst",
+    "meta_analyst_v2",
+    "test_orchestrator"
+  ],
+
+  "quality_gates": [
+    "Learnings validated before propagation",
+    "No false patterns propagated",
+    "Continuous improvement demonstrated",
+    "All resources updated consistently"
+  ],
+
+  "performance_metrics": {
+    "learning_extraction_rate": 0.95,
+    "pattern_accuracy": 0.90,
+    "propagation_coverage": 0.95,
+    "improvement_rate": 0.05
+  }
+}

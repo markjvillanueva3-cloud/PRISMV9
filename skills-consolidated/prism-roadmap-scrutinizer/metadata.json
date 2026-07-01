@@ -1,0 +1,43 @@
+{
+  "skill_id": "prism-roadmap-scrutinizer",
+  "name": "Roadmap Scrutinizer",
+  "category": "quality",
+  "description": "12-category gap analysis with adaptive improvement loops for validating RGS-format roadmaps. Scores, auto-fixes, and escalates structural issues.",
+  "version": "1.0.0",
+  "priority": 9,
+  "triggers": [
+    "scrutinize roadmap",
+    "check roadmap",
+    "validate roadmap",
+    "roadmap gaps",
+    "roadmap quality",
+    "roadmap review"
+  ],
+  "use_cases": [
+    "Validating roadmaps before execution",
+    "Finding and fixing gaps in roadmap definitions",
+    "Scoring roadmap quality (0-1.0 scale)",
+    "Running adaptive improvement loops on roadmaps"
+  ],
+  "dependencies": [
+    "prism-roadmap-schema"
+  ],
+  "related_skills": [
+    "prism-roadmap-schema",
+    "prism-roadmap-generator",
+    "prism-roadmap-atomizer"
+  ],
+  "tags": [
+    "roadmap",
+    "scrutiny",
+    "quality",
+    "validation",
+    "gaps",
+    "rgs"
+  ],
+  "files": {
+    "skill": "skills-consolidated/prism-roadmap-scrutinizer/SKILL.md",
+    "script": "mcp-server/src/scripts/scrutinize-roadmap.ts",
+    "schema": "mcp-server/src/schemas/roadmapSchema.ts"
+  }
+}

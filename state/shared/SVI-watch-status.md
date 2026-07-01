@@ -1,13 +1,13 @@
 # PRISM SVI Auto-Watch
 **Status**: active
-**Owner**: pid:6360
-**Started**: 2026-05-12T20:52:30.058Z
-**Last Check**: 2026-05-12T21:11:49.232Z
-**Last Refresh**: 2026-05-12T21:07:55.595Z
+**Owner**: pid:66016
+**Started**: 2026-06-27T19:15:53.463Z
+**Last Check**: 2026-06-27T20:37:28.350Z
+**Last Refresh**: 2026-06-27T20:37:28.441Z
 **Last Trigger**: fs-watch
 **Watch Targets**: 12
-**Changed Areas**: none
-**Coverage Alerts**: none
+**Changed Areas**: Engines source
+**Coverage Alerts**: Engines source changed — review whether new engine or dispatcher surfaces need SVI subsystem coverage and reachability updates.
 **Last Error**: none
 
-*Claude and Codex should treat coverage alerts here as immediate reachability follow-up until Psi reaches 100%.**
+*Claude and Codex should treat coverage alerts here as immediate reachability follow-up until Psi reaches 100%.*

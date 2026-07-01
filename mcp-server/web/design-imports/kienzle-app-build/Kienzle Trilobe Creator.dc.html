@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Archivo:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; background: #070809; height: 100%; overflow: hidden; }
+    select, input { font-family: 'Archivo', sans-serif; }
+    select { -webkit-appearance: none; appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%236B7280' stroke-width='2.5' stroke-linecap='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 10px center; }
+    input[type=range] { -webkit-appearance: none; appearance: none; background: transparent; cursor: pointer; }
+    input[type=range]::-webkit-slider-runnable-track { height: 6px; border-radius: 999px; background: linear-gradient(90deg,#2A6FDB,#FF5A2B); }
+    input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 20px; height: 20px; border-radius: 50%; background: #F3F4F6; border: 3px solid #FF5A2B; margin-top: -7px; box-shadow: 0 2px 8px rgba(0,0,0,0.5); }
+    .kz-scroll::-webkit-scrollbar { width: 8px; height: 8px; }
+    .kz-scroll::-webkit-scrollbar-thumb { background: #23262E; border-radius: 8px; }
+    @keyframes kzspin { to { transform: rotate(360deg); } }
+  </style>
+</helmet>
+<div style="position:fixed;inset:0;background:#070809;display:flex;align-items:center;justify-content:center;overflow:hidden;">
+<div style="width:1600px;height:980px;flex:none;transform:scale({{ scale }});transform-origin:center center;display:flex;background:#0A0B0D;color:#F3F4F6;font-family:'Archivo',sans-serif;overflow:hidden;border-radius:16px;box-shadow:0 40px 120px rgba(0,0,0,0.6);">
+
+  <aside style="width:72px;flex:none;background:#0C0D10;border-right:1px solid rgba(255,255,255,0.06);display:flex;flex-direction:column;align-items:center;padding:18px 0;gap:6px;">
+    <svg viewBox="0 0 120 120" width="34" height="34" style="margin-bottom:14px;"><rect x="22" y="20" width="13" height="80" rx="1.5" fill="#F3F4F6"/><path d="M35 60 L86 22" stroke="#F3F4F6" stroke-width="13" stroke-linecap="round"/><path d="M35 60 L92 98 L92 74 L58 60 Z" fill="#FF5A2B"/></svg>
+    <button style="width:50px;height:48px;border-radius:12px;border:1px solid rgba(255,90,43,0.35);background:rgba(255,90,43,0.1);color:#FF7A4D;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:9px;"><span style="font-size:15px;">⌀</span>MAKE</button>
+    <button style="width:50px;height:48px;border-radius:12px;border:1px solid transparent;background:transparent;color:#6B7280;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:9px;"><span style="font-size:15px;">$</span>QUOTE</button>
+    <button style="width:50px;height:48px;border-radius:12px;border:1px solid transparent;background:transparent;color:#6B7280;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:9px;"><span style="font-size:15px;">▤</span>RUN</button>
+    <button style="width:50px;height:48px;border-radius:12px;border:1px solid transparent;background:transparent;color:#6B7280;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:9px;"><span style="font-size:15px;">⌂</span>SHOP</button>
+    <div style="flex:1;"></div>
+    <div style="width:38px;height:38px;border-radius:50%;background:#1B1E24;border:1px solid rgba(255,255,255,0.1);display:flex;align-items:center;justify-content:center;font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:13px;color:#AEB4BE;">JM</div>
+  </aside>
+
+  <main style="flex:1;display:flex;flex-direction:column;min-width:0;">
+    <header style="flex:none;height:64px;border-bottom:1px solid rgba(255,255,255,0.06);display:flex;align-items:center;justify-content:space-between;padding:0 24px;background:#0C0D10;">
+      <div>
+        <div style="font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:19px;letter-spacing:-0.01em;">Trilobe Creator</div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:10.5px;color:#6B7280;letter-spacing:0.04em;margin-top:1px;">JM DIE · {{ familyLabel }} · {{ sizeLabel }} · PUNCH + DIE ELECTRODE</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;">
+        <button onClick="{{ importFromMacro }}" style="display:flex;align-items:center;gap:7px;padding:7px 12px;border:1px solid rgba(54,211,153,0.25);background:rgba(54,211,153,0.06);border-radius:9px;font-family:'JetBrains Mono',monospace;font-size:11px;color:#36D399;cursor:pointer;">⊞ CAM macro linked</button>
+        <button style="border:none;background:#FF5A2B;color:#0A0B0D;border-radius:9px;padding:9px 16px;font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:13px;cursor:pointer;">{{ exportLabel }} →</button>
+      </div>
+    </header>
+
+    <div style="flex:1;display:grid;grid-template-columns:336px minmax(0,1fr) 404px;min-height:0;">
+
+      <!-- ───────── GEOMETRY INPUTS ───────── -->
+      <section class="kz-scroll" style="border-right:1px solid rgba(255,255,255,0.06);overflow-y:auto;min-width:0;padding:18px 20px 44px;background:#0A0B0D;">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:0.18em;color:#FF5A2B;margin-bottom:11px;">00 · FROM CAM MACRO</div>
+        <div style="display:flex;align-items:center;gap:10px;background:#0E0F12;border:1px solid rgba(54,211,153,0.2);border-radius:11px;padding:11px 13px;margin-bottom:16px;">
+          <span style="flex:none;width:32px;height:32px;border-radius:7px;background:rgba(54,211,153,0.12);display:flex;align-items:center;justify-content:center;color:#36D399;font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;">XLS</span>
+          <div style="flex:1;min-width:0;"><div style="font-size:12px;color:#F3F4F6;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Automated Program.xlsm</div><div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:#6B7280;">CAM-Fields · prog {{ programNo }}</div></div>
+          <button onClick="{{ importFromMacro }}" style="flex:none;border:1px solid rgba(255,90,43,0.3);background:rgba(255,90,43,0.08);color:#FF7A4D;border-radius:7px;padding:6px 10px;font-family:'JetBrains Mono',monospace;font-size:10px;cursor:pointer;">↳ import</button>
+        </div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:0.18em;color:#FF5A2B;margin-bottom:11px;">01 · FASTENER FORM</div>
+        <label style="display:block;font-size:11.5px;color:#9398A2;margin-bottom:5px;">Family</label>
+        <select value="{{ family }}" onChange="{{ setFamily }}" style="width:100%;height:40px;background:#14161B;border:1px solid rgba(255,255,255,0.1);border-radius:9px;color:#F3F4F6;font-size:12.5px;padding:0 30px 0 11px;margin-bottom:10px;">
+          <option value="taptite">TAPTITE 2000® trilobe</option>
+          <option value="altracs">ALTRACS® Plus trilobe</option>
+          <option value="duotaptite">DUO-TAPTITE® trilobe</option>
+          <option value="pentalobe">Pentalobe (5-lobe)</option>
+        </select>
+        <label style="display:block;font-size:11.5px;color:#9398A2;margin-bottom:5px;">Nominal thread size</label>
+        <select value="{{ sizeId }}" onChange="{{ setSize }}" style="width:100%;height:40px;background:#14161B;border:1px solid rgba(255,255,255,0.1);border-radius:9px;color:#F3F4F6;font-size:12.5px;padding:0 30px 0 11px;margin-bottom:14px;">
+          <option value="m3">M3 × 0.5</option>
+          <option value="m4">M4 × 0.7</option>
+          <option value="m5">M5 × 0.8</option>
+          <option value="m6">M6 × 1.0</option>
+          <option value="m8">M8 × 1.25</option>
+          <option value="quarter">¼-20 UNC</option>
+        </select>
+        <label style="display:flex;justify-content:space-between;font-size:11.5px;color:#9398A2;margin-bottom:6px;">Lobe count <span style="font-family:'JetBrains Mono',monospace;color:#F3F4F6;">{{ lobes }}</span></label>
+        <input type="range" min="3" max="6" step="1" value="{{ lobes }}" onChange="{{ setLobes }}" oninput="{{ setLobes }}" style="width:100%;margin-bottom:13px;">
+        <label style="display:flex;justify-content:space-between;font-size:11.5px;color:#9398A2;margin-bottom:6px;">Lobe height (radial) <span style="font-family:'JetBrains Mono',monospace;color:#FF7A4D;">{{ eccThou }} thou</span></label>
+        <input type="range" min="0.0008" max="0.006" step="0.0002" value="{{ ecc }}" onChange="{{ setEcc }}" oninput="{{ setEcc }}" style="width:100%;margin-bottom:14px;">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:9px 10px;">
+          <div><label style="display:block;font-size:11px;color:#9398A2;margin-bottom:4px;">Major Ø (in)</label><input type="number" step="0.001" value="{{ majorDia }}" onChange="{{ setMajorDia }}" style="width:100%;height:40px;background:#14161B;border:1px solid rgba(255,255,255,0.1);border-radius:9px;color:#F3F4F6;font-size:12.5px;padding:0 11px;"></div>
+          <div><label style="display:block;font-size:11px;color:#9398A2;margin-bottom:4px;">Form length (in)</label><input type="number" step="0.01" value="{{ formLen }}" onChange="{{ setFormLen }}" style="width:100%;height:40px;background:#14161B;border:1px solid rgba(255,255,255,0.1);border-radius:9px;color:#F3F4F6;font-size:12.5px;padding:0 11px;"></div>
+        </div>
+
+        <div style="font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:0.18em;color:#FF5A2B;margin:18px 0 11px;">02 · WIRE EDM · CARBIDE PUNCH</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:9px 10px;">
+          <div><label style="display:block;font-size:11px;color:#9398A2;margin-bottom:4px;">Carbide grade</label><select value="{{ carbide }}" onChange="{{ setCarbide }}" style="width:100%;height:40px;background:#14161B;border:1px solid rgba(255,255,255,0.1);border-radius:9px;color:#F3F4F6;font-size:12px;padding:0 26px 0 10px;"><option value="c2">C2 (micrograin)</option><option value="c3">C3</option><option value="c10">C10 submicron</option></select></div>
+          <div><label style="display:block;font-size:11px;color:#9398A2;margin-bottom:4px;">Wire Ø (in)</label><select value="{{ wireDia }}" onChange="{{ setWireDia }}" style="width:100%;height:40px;background:#14161B;border:1px solid rgba(255,255,255,0.1);border-radius:9px;color:#F3F4F6;font-size:12px;padding:0 26px 0 10px;"><option value="0.004">.004 brass</option><option value="0.008">.008 brass</option><option value="0.010">.010 brass</option></select></div>
+        </div>
+        <label style="display:flex;justify-content:space-between;font-size:11.5px;color:#9398A2;margin:11px 0 6px;">Skim passes <span style="font-family:'JetBrains Mono',monospace;color:#F3F4F6;">{{ skims }}</span></label>
+        <input type="range" min="0" max="4" step="1" value="{{ skims }}" onChange="{{ setSkims }}" oninput="{{ setSkims }}" style="width:100%;margin-bottom:13px;">
+        <label style="display:flex;justify-content:space-between;font-size:11.5px;color:#9398A2;margin-bottom:6px;">Spark gap <span style="font-family:'JetBrains Mono',monospace;color:#FF7A4D;">{{ gapThou }} thou</span></label>
+        <input type="range" min="0.0001" max="0.0008" step="0.00005" value="{{ sparkGap }}" onChange="{{ setGap }}" oninput="{{ setGap }}" style="width:100%;margin-bottom:14px;">
+
+        <div style="font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:0.18em;color:#FF5A2B;margin-bottom:11px;">03 · ROKU-ROKU · COPPER ELECTRODE</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:9px 10px;">
+          <div><label style="display:block;font-size:11px;color:#9398A2;margin-bottom:4px;">Electrode mat'l</label><select value="{{ electrode }}" onChange="{{ setElectrode }}" style="width:100%;height:40px;background:#14161B;border:1px solid rgba(255,255,255,0.1);border-radius:9px;color:#F3F4F6;font-size:12px;padding:0 26px 0 10px;"><option value="cu">Copper C110</option><option value="cuw">Copper-tungsten</option><option value="graphite">Graphite POCO</option></select></div>
+          <div><label style="display:block;font-size:11px;color:#9398A2;margin-bottom:4px;">Ballnose Ø (in)</label><select value="{{ rokuTool }}" onChange="{{ setRokuTool }}" style="width:100%;height:40px;background:#14161B;border:1px solid rgba(255,255,255,0.1);border-radius:9px;color:#F3F4F6;font-size:12px;padding:0 26px 0 10px;"><option value="0.0625">1/16" ball</option><option value="0.03125">1/32" ball</option><option value="0.0156">.0156 ball</option></select></div>
+        </div>
+        <label style="display:flex;justify-content:space-between;font-size:11.5px;color:#9398A2;margin:11px 0 6px;">Orbit (radial undersize) <span style="font-family:'JetBrains Mono',monospace;color:#7FB2FF;">{{ orbitThou }} thou</span></label>
+        <input type="range" min="0.0002" max="0.0015" step="0.0001" value="{{ orbit }}" onChange="{{ setOrbit }}" oninput="{{ setOrbit }}" style="width:100%;">
+      </section>
+
+      <!-- ───────── PROFILE + PROGRAMS ───────── -->
+      <section style="overflow:hidden;min-width:0;padding:16px 18px;background:radial-gradient(900px 480px at 75% -12%, rgba(255,90,43,0.05), transparent 60%),#0B0C0F;display:flex;flex-direction:column;gap:13px;">
+        <div style="flex:1.05;min-height:0;background:#0C0D11;border:1px solid rgba(255,255,255,0.08);border-radius:15px;display:flex;flex-direction:column;overflow:hidden;">
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 16px 4px;">
+            <div style="display:flex;align-items:center;gap:9px;"><span style="font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:14px;">Trilobe profile · cross-section</span><span style="font-family:'JetBrains Mono',monospace;font-size:10px;color:#6B7280;">{{ lobes }}-lobe · r(θ)=R+e·cos({{ lobes }}θ)</span></div>
+            <div style="display:flex;gap:14px;font-family:'JetBrains Mono',monospace;font-size:10px;color:#9398A2;">
+              <span style="display:flex;align-items:center;gap:5px;"><span style="width:12px;height:0;border-top:2px solid #FF7A4D;"></span>wire path</span>
+              <span style="display:flex;align-items:center;gap:5px;"><span style="width:12px;height:0;border-top:2px solid #F3F4F6;"></span>punch form</span>
+              <span style="display:flex;align-items:center;gap:5px;"><span style="width:12px;height:0;border-top:2px dashed #7FB2FF;"></span>electrode</span>
+            </div>
+          </div>
+          <div style="flex:1;min-height:0;">
+            <svg viewBox="0 0 720 300" preserveAspectRatio="xMidYMid meet" width="100%" height="100%" style="display:block;">
+              <line x1="360" y1="40" x2="360" y2="260" stroke="rgba(255,255,255,0.08)" stroke-width="1" stroke-dasharray="3 3"></line>
+              <line x1="230" y1="150" x2="490" y2="150" stroke="rgba(255,255,255,0.08)" stroke-width="1" stroke-dasharray="3 3"></line>
+              <circle cx="360" cy="150" r="{{ pcdR }}" fill="none" stroke="rgba(255,255,255,0.14)" stroke-width="1" stroke-dasharray="4 3"></circle>
+              <polygon points="{{ wirePts }}" fill="none" stroke="#FF7A4D" stroke-width="1.6" stroke-dasharray="3 2"></polygon>
+              <polygon points="{{ punchPts }}" fill="rgba(243,244,246,0.05)" stroke="#F3F4F6" stroke-width="2"></polygon>
+              <polygon points="{{ elecPts }}" fill="rgba(127,178,255,0.06)" stroke="#7FB2FF" stroke-width="1.6" stroke-dasharray="5 3"></polygon>
+              <circle cx="360" cy="150" r="3" fill="#FF5A2B"></circle>
+              <sc-for list="{{ profDims }}" as="d" hint-placeholder-count="3">
+                <text x="{{ d.x }}" y="{{ d.y }}" text-anchor="{{ d.anchor }}" font-family="JetBrains Mono" font-size="10" fill="{{ d.fill }}">{{ d.t }}</text>
+              </sc-for>
+            </svg>
+          </div>
+        </div>
+
+        <div style="flex:1.1;min-height:0;background:#0C0D11;border:1px solid rgba(255,255,255,0.08);border-radius:15px;display:flex;flex-direction:column;overflow:hidden;">
+          <div style="display:flex;align-items:center;gap:6px;padding:11px 14px 8px;border-bottom:1px solid rgba(255,255,255,0.05);">
+            <button onClick="{{ setTabWire }}" style="{{ tabWireStyle }}">Wire EDM · carbide punch</button>
+            <button onClick="{{ setTabElec }}" style="{{ tabElecStyle }}">Roku-Roku · Cu electrode</button>
+            <div style="flex:1;"></div>
+            <span style="font-family:'JetBrains Mono',monospace;font-size:10px;color:#6B7280;">{{ progMachine }} · {{ progLines }} lines</span>
+          </div>
+          <div class="kz-scroll" style="flex:1;min-height:0;overflow-y:auto;padding:11px 0;background:#0B0C0F;">
+            <sc-for list="{{ program }}" as="g" hint-placeholder-count="22">
+              <div style="display:flex;gap:12px;padding:1px 16px;font-family:'JetBrains Mono',monospace;font-size:12px;line-height:1.5;">
+                <span style="flex:none;width:26px;text-align:right;color:#3A3D44;user-select:none;">{{ g.ln }}</span>
+                <span style="color:{{ g.c }};white-space:pre;">{{ g.t }}</span>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </section>
+
+      <!-- ───────── DERIVED + PARAMS ───────── -->
+      <section class="kz-scroll" style="border-left:1px solid rgba(255,255,255,0.06);overflow-y:auto;min-width:0;padding:16px 18px 44px;background:#0A0B0D;">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:0.16em;color:#6B7280;margin-bottom:10px;">SOLVED GEOMETRY</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:16px;">
+          <div style="background:#0E0F12;border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:12px 14px;"><div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:#9398A2;">MAX Ø (lobe)</div><div style="font-family:'JetBrains Mono',monospace;font-weight:700;font-size:20px;color:#F3F4F6;margin-top:5px;">{{ maxDia }}</div></div>
+          <div style="background:#0E0F12;border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:12px 14px;"><div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:#9398A2;">MIN Ø (flat)</div><div style="font-family:'JetBrains Mono',monospace;font-weight:700;font-size:20px;color:#F3F4F6;margin-top:5px;">{{ minDia }}</div></div>
+          <div style="background:#0E0F12;border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:12px 14px;"><div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:#9398A2;">TRILOBULARITY</div><div style="font-family:'JetBrains Mono',monospace;font-weight:700;font-size:20px;color:#FF7A4D;margin-top:5px;">{{ trilob }}</div></div>
+          <div style="background:#0E0F12;border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:12px 14px;"><div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:#9398A2;">FORM PTS</div><div style="font-family:'JetBrains Mono',monospace;font-weight:700;font-size:20px;color:#F3F4F6;margin-top:5px;">{{ ptCount }}</div></div>
+        </div>
+
+        <div style="background:linear-gradient(135deg,rgba(255,90,43,0.07),#0E0F12);border:1px solid rgba(255,90,43,0.22);border-radius:14px;padding:14px 16px;margin-bottom:12px;">
+          <div style="font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.1em;color:#FF7A4D;margin-bottom:10px;">WIRE EDM · PUNCH (C2)</div>
+          <div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid rgba(255,255,255,0.05);"><span style="font-size:11.5px;color:#9398A2;">Wire offset (rough)</span><span style="font-family:'JetBrains Mono',monospace;font-size:12px;color:#F3F4F6;">{{ wireOffset }}</span></div>
+          <div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid rgba(255,255,255,0.05);"><span style="font-size:11.5px;color:#9398A2;">Passes</span><span style="font-family:'JetBrains Mono',monospace;font-size:12px;color:#F3F4F6;">1 rough + {{ skims }} skim</span></div>
+          <div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid rgba(255,255,255,0.05);"><span style="font-size:11.5px;color:#9398A2;">Cut rate (carbide)</span><span style="font-family:'JetBrains Mono',monospace;font-size:12px;color:#F3F4F6;">{{ wireRate }}</span></div>
+          <div style="display:flex;justify-content:space-between;padding:5px 0;"><span style="font-size:11.5px;color:#9398A2;">Est. burn time</span><span style="font-family:'JetBrains Mono',monospace;font-size:12px;color:#FF7A4D;">{{ wireTime }}</span></div>
+        </div>
+
+        <div style="background:linear-gradient(135deg,rgba(42,111,219,0.07),#0E0F12);border:1px solid rgba(42,111,219,0.22);border-radius:14px;padding:14px 16px;margin-bottom:12px;">
+          <div style="font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.1em;color:#7FB2FF;margin-bottom:10px;">ROKU-ROKU · ELECTRODE ({{ electrodeShort }})</div>
+          <div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid rgba(255,255,255,0.05);"><span style="font-size:11.5px;color:#9398A2;">Spark-gap undersize</span><span style="font-family:'JetBrains Mono',monospace;font-size:12px;color:#F3F4F6;">{{ orbitThou }} thou/side</span></div>
+          <div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid rgba(255,255,255,0.05);"><span style="font-size:11.5px;color:#9398A2;">Finish stepover</span><span style="font-family:'JetBrains Mono',monospace;font-size:12px;color:#F3F4F6;">{{ stepover }}</span></div>
+          <div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid rgba(255,255,255,0.05);"><span style="font-size:11.5px;color:#9398A2;">Z levels</span><span style="font-family:'JetBrains Mono',monospace;font-size:12px;color:#F3F4F6;">{{ zLevels }}</span></div>
+          <div style="display:flex;justify-content:space-between;padding:5px 0;"><span style="font-size:11.5px;color:#9398A2;">Est. mill time</span><span style="font-family:'JetBrains Mono',monospace;font-size:12px;color:#7FB2FF;">{{ rokuTime }}</span></div>
+        </div>
+
+        <div style="background:linear-gradient(135deg,rgba(255,90,43,0.06),#0E0F12);border:1px solid rgba(255,90,43,0.2);border-radius:14px;padding:14px 16px;margin-bottom:12px;">
+          <div style="font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.1em;color:#FF7A4D;margin-bottom:10px;">EXPORT / HANDOFF</div>
+          <div style="display:flex;gap:6px;margin-bottom:11px;">
+            <button onClick="{{ setFmtStep }}" style="{{ fmtStepStyle }}">STEP AP242</button>
+            <button onClick="{{ setFmtFusion }}" style="{{ fmtFusionStyle }}">Fusion F3D</button>
+            <button onClick="{{ setFmtDxf }}" style="{{ fmtDxfStyle }}">DXF</button>
+          </div>
+          <div style="font-size:11.5px;color:#C7CCD4;line-height:1.45;margin-bottom:12px;">{{ exportDetail }}</div>
+          <div style="border-top:1px solid rgba(255,255,255,0.06);padding-top:10px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;"><span style="font-family:'JetBrains Mono',monospace;font-size:10px;color:#9398A2;">CAM-FIELDS ROW</span><button style="border:1px solid rgba(54,211,153,0.3);background:rgba(54,211,153,0.08);color:#36D399;border-radius:6px;padding:3px 9px;font-family:'JetBrains Mono',monospace;font-size:9.5px;cursor:pointer;">↳ write row</button></div>
+            <sc-for list="{{ camFields }}" as="c" hint-placeholder-count="5">
+              <div style="display:flex;justify-content:space-between;padding:3px 0;"><span style="font-size:11px;color:#9398A2;">{{ c.k }}</span><span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#C7CCD4;">{{ c.v }}</span></div>
+            </sc-for>
+          </div>
+        </div>
+        <div style="background:#0E0F12;border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:14px 16px;">
+          <div style="font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.1em;color:#36D399;margin-bottom:9px;">◆ MATING CHECK</div>
+          <div style="font-size:11.5px;color:#C7CCD4;line-height:1.5;">{{ mateNote }}</div>
+        </div>
+      </section>
+    </div>
+  </main>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = {
+    family: 'taptite', sizeId: 'm6', lobes: 3, ecc: 0.0028, majorDia: 0.2362, formLen: 0.45,
+    carbide: 'c2', wireDia: '0.008', skims: 3, sparkGap: 0.0003,
+    electrode: 'cu', rokuTool: '0.03125', orbit: 0.0006, tab: 'wire', exportFmt: 'step', macroLinked: true, programNo: 'JM-24187',
+    scale: (typeof window !== 'undefined') ? Math.min(window.innerWidth / 1600, window.innerHeight / 980) : 0.6,
+  };
+  componentDidMount() { this._fit = () => this.setState({ scale: Math.min(window.innerWidth / 1600, window.innerHeight / 980) }); window.addEventListener('resize', this._fit); this._fit(); }
+  componentWillUnmount() { if (this._fit) window.removeEventListener('resize', this._fit); }
+
+  SIZES = { m3: { d: 0.1181, p: 0.5, e: 0.0016 }, m4: { d: 0.1575, p: 0.7, e: 0.0020 }, m5: { d: 0.1968, p: 0.8, e: 0.0024 }, m6: { d: 0.2362, p: 1.0, e: 0.0028 }, m8: { d: 0.3150, p: 1.25, e: 0.0034 }, quarter: { d: 0.2500, p: 1.27, e: 0.0030 } };
+  FAM = { taptite: 'TAPTITE 2000®', altracs: 'ALTRACS® Plus', duotaptite: 'DUO-TAPTITE®', pentalobe: 'Pentalobe' };
+  ELEC = { cu: 'Copper C110', cuw: 'Cu-W', graphite: 'Graphite' };
+  num(v, d) { const n = parseFloat(v); return Number.isFinite(n) ? n : d; }
+
+  // trilobe radius (inch) at angle
+  rAt(theta, R, e, lobes) { return R + e * Math.cos(lobes * theta); }
+  ptsString(R, e, lobes, cx, cy, sc, count) {
+    const out = [];
+    for (let i = 0; i < count; i++) { const t = (i / count) * Math.PI * 2; const r = this.rAt(t, R, e, lobes); out.push((cx + r * sc * Math.cos(t)).toFixed(1) + ',' + (cy + r * sc * Math.sin(t)).toFixed(1)); }
+    return out.join(' ');
+  }
+
+  renderVals() {
+    const s = this.state, imp = true;
+    const R = Math.max(0.02, s.majorDia / 2), e = s.ecc, lobes = Math.round(s.lobes);
+    const wireR = this.num(s.wireDia, 0.008) / 2, gap = s.sparkGap, orbit = s.orbit;
+    const maxR = R + e, minR = R - e;
+    const wireOff = wireR + gap;                 // wire-center path outside the form
+    const elecR = R + 0.0003 - orbit;            // electrode: form + die clearance − spark-gap orbit
+    const sc = 95 / maxR;                        // display scale (px per inch)
+    const cx = 360, cy = 150;
+
+    const punchPts = this.ptsString(R, e, lobes, cx, cy, sc, 120);
+    const wirePts = this.ptsString(R + wireOff, e, lobes, cx, cy, sc, 120);
+    const elecPts = this.ptsString(elecR, e, lobes, cx, cy, sc, 120);
+    const pcdR = (R * sc).toFixed(1);
+    const fmt4 = (v) => v.toFixed(4);
+    const thou = (v) => (v * 1000).toFixed(1);
+
+    const profDims = [
+      { x: cx, y: cy - maxR * sc - 8, anchor: 'middle', fill: '#F3F4F6', t: 'lobe ⌀ ' + fmt4(2 * maxR) + '"' },
+      { x: cx + maxR * sc + 10, y: cy + 4, anchor: 'start', fill: '#7FB2FF', t: 'elec ⌀ ' + fmt4(2 * elecR) + '"' },
+      { x: cx, y: cy + maxR * sc + 18, anchor: 'middle', fill: '#FF7A4D', t: 'wire path +' + thou(wireOff) + ' th' },
+    ];
+
+    // ── point set for programs (sampled) ──
+    const N = 24;
+    const path = (rr, off) => { const a = []; for (let i = 0; i <= N; i++) { const t = (i / N) * Math.PI * 2; const r = this.rAt(t, rr + (off || 0), e, lobes); a.push([r * Math.cos(t), r * Math.sin(t)]); } return a; };
+    const C = { cmt: '#6B7280', head: '#7FB2FF', mot: '#C7CCD4', m: '#FF7A4D', safe: '#F4B740' };
+    const L = (t, c) => ({ t, c });
+    const sizeLabel = s.sizeId.toUpperCase().replace('QUARTER', '¼-20');
+
+    let program, progMachine, progLines;
+    if (s.tab === 'wire') {
+      progMachine = 'Mitsubishi MV1200';
+      const pts = path(R, wireOff);
+      const prog = [
+        L('%', C.cmt), L('O0620 (' + this.FAM[s.family].replace(/[®]/g, '') + ' ' + sizeLabel + ' PUNCH)', C.cmt),
+        L('(C2 CARBIDE · WIRE ' + s.wireDia + ' BRASS · SUBMERGED)', C.cmt),
+        L('(TRILOBE ' + lobes + '-LOBE · LOBE H ' + thou(e) + ' TH)', C.cmt),
+        L('G21 G90', C.head), L('H001=+' + fmt4(wireOff) + ' (ROUGH OFS)', C.head),
+      ];
+      for (let i = 1; i <= s.skims; i++) prog.push(L('H00' + (i + 1) + '=+' + fmt4(wireOff - i * (wireOff - gap) / (s.skims + 1)) + ' (SKIM ' + i + ')', C.head));
+      prog.push(L('G92 X' + fmt4(pts[0][0]) + ' Y' + fmt4(pts[0][1]), C.head));
+      prog.push(L('(ROUGH PASS) G41 H001 E07', C.safe));
+      for (let i = 0; i <= 8; i++) { const p = pts[Math.round(i / 8 * N)]; prog.push(L('G01 X' + fmt4(p[0]) + ' Y' + fmt4(p[1]), C.mot)); }
+      for (let k = 1; k <= s.skims; k++) prog.push(L('(SKIM ' + k + ') G41 H00' + (k + 1) + ' E0' + (4 - k > 0 ? 4 - k : 1), C.safe));
+      prog.push(L('(TAB 0.020 AT START - HAND BREAK)', C.cmt));
+      prog.push(L('M02', C.m), L('%', C.cmt));
+      program = prog;
+    } else {
+      progMachine = 'Roku-Roku HC658';
+      const rpm = s.electrode === 'graphite' ? 30000 : 18000;
+      const toolR = this.num(s.rokuTool, 0.03125) / 2;
+      const depth = (s.formLen).toFixed(3);
+      const zsteps = Math.max(3, Math.ceil(s.formLen / 0.06));
+      const pts = path(elecR, -toolR); // ballnose center inside the electrode profile by tool radius
+      const prog = [
+        L('%', C.cmt), L('O0621 (TRILOBE ELECTRODE - ' + this.ELEC[s.electrode].toUpperCase() + ')', C.cmt),
+        L('(ROKU-ROKU HSM · ' + (toolR * 2).toFixed(4) + ' BALL · ' + rpm + ' RPM)', C.cmt),
+        L('(UNDERSIZE ' + thou(orbit) + ' TH/SIDE FOR SPARK GAP)', C.cmt),
+        L('G21 G90 G54', C.head), L('G00 Z0.1 M08', C.m), L('S' + rpm + ' M03', C.m),
+        L('(SCALLOP ' + (toolR * 0.08 * 1e6 / 25.4).toFixed(0) + ' µIN · ' + zsteps + ' Z LEVELS)', C.cmt),
+      ];
+      for (let z = 1; z <= Math.min(zsteps, 4); z++) {
+        const zd = (s.formLen * z / Math.min(zsteps, 4)).toFixed(4);
+        prog.push(L('G01 Z-' + zd + ' F8.', C.mot));
+        prog.push(L('G41 D1 X' + fmt4(pts[0][0]) + ' Y' + fmt4(pts[0][1]) + ' F24.', C.mot));
+        for (let i = 1; i <= 6; i++) { const p = pts[Math.round(i / 6 * N)]; prog.push(L('  X' + fmt4(p[0]) + ' Y' + fmt4(p[1]), C.mot)); }
+        prog.push(L('G40', C.mot));
+      }
+      prog.push(L('G00 Z2.5 M09', C.m), L('M30', C.m), L('%', C.cmt));
+      program = prog;
+    }
+    program = program.map((g, i) => ({ ln: i + 1, t: g.t, c: g.c }));
+
+    // ── derived / params ──
+    const perimIn = 2 * Math.PI * R * (1 + (e / R) * 0.3);
+    const wireRate = s.carbide === 'c10' ? 0.34 : 0.42; // in^2/hr-ish proxy
+    const wireArea = perimIn * s.formLen;
+    const wireMin = (wireArea / wireRate) * 60 * (1 + s.skims * 0.35);
+    const stepover = (this.num(s.rokuTool, 0.03) * 0.08).toFixed(4) + '"';
+    const zLevels = Math.max(3, Math.ceil(s.formLen / 0.06));
+    const rokuMin = (perimIn * zLevels / 22) * 60 * (s.electrode === 'graphite' ? 0.7 : 1.0);
+    const tabBtn = (on) => `border:none;background:${on ? 'rgba(255,90,43,0.14)' : 'transparent'};color:${on ? '#FF7A4D' : '#9398A2'};border-radius:7px;padding:6px 13px;font-size:12px;font-weight:600;cursor:pointer;font-family:'Archivo',sans-serif;`;
+    const setNum = (k) => (e2) => this.setState({ [k]: this.num(e2.target.value, this.state[k]) });
+    const setVal = (k) => (e2) => this.setState({ [k]: e2.target.value });
+    const fmtBtn = (on) => `flex:1;border:1px solid ${on ? 'rgba(255,90,43,0.5)' : 'rgba(255,255,255,0.12)'};background:${on ? 'rgba(255,90,43,0.12)' : 'transparent'};color:${on ? '#FF7A4D' : '#9398A2'};border-radius:8px;padding:8px 0;font-size:11.5px;font-weight:600;cursor:pointer;font-family:'Archivo',sans-serif;`;
+    const FN = { step: 'STEP', fusion: 'Fusion', dxf: 'DXF' };
+
+    return {
+      scale: s.scale, family: s.family, familyLabel: this.FAM[s.family], sizeId: s.sizeId, sizeLabel,
+      lobes, ecc: s.ecc, eccThou: thou(e), majorDia: s.majorDia, formLen: s.formLen,
+      carbide: s.carbide, wireDia: s.wireDia, skims: s.skims, sparkGap: s.sparkGap, gapThou: thou(gap),
+      electrode: s.electrode, electrodeShort: this.ELEC[s.electrode], rokuTool: s.rokuTool, orbit: s.orbit, orbitThou: thou(orbit),
+      punchPts, wirePts, elecPts, pcdR, profDims,
+      tab: s.tab, tabWireStyle: tabBtn(s.tab === 'wire'), tabElecStyle: tabBtn(s.tab === 'electrode'),
+      setTabWire: () => this.setState({ tab: 'wire' }), setTabElec: () => this.setState({ tab: 'electrode' }),
+      program, progMachine, progLines: program.length,
+      maxDia: fmt4(2 * maxR), minDia: fmt4(2 * minR), trilob: thou(2 * e) + ' th', ptCount: N,
+      wireOffset: fmt4(wireOff) + '"', wireRate: wireRate.toFixed(2) + ' in²/hr', wireTime: wireMin < 60 ? wireMin.toFixed(0) + ' min' : (wireMin / 60).toFixed(1) + ' hr',
+      stepover, zLevels, rokuTime: rokuMin < 60 ? rokuMin.toFixed(0) + ' min' : (rokuMin / 60).toFixed(1) + ' hr',
+      mateNote: 'Punch cuts at form size (wire offset +' + thou(wireOff) + ' th). Electrode is ' + thou(orbit) + ' th/side under the die cavity so the spark gap finishes it on-size — punch + die share one solved trilobe so they mate first try.',
+      setFamily: setVal('family'),
+      setSize: (e2) => { const id = e2.target.value, z = this.SIZES[id]; this.setState({ sizeId: id, majorDia: z.d, ecc: z.e }); },
+      setLobes: setNum('lobes'), setEcc: setNum('ecc'), setMajorDia: setNum('majorDia'), setFormLen: setNum('formLen'),
+      setCarbide: setVal('carbide'), setWireDia: setVal('wireDia'), setSkims: setNum('skims'), setGap: setNum('sparkGap'),
+      setElectrode: setVal('electrode'), setRokuTool: setVal('rokuTool'), setOrbit: setNum('orbit'),
+      exportFmt: s.exportFmt, exportLabel: 'Export ' + (FN[s.exportFmt] || 'STEP'), programNo: s.programNo,
+      fmtStepStyle: fmtBtn(s.exportFmt === 'step'), fmtFusionStyle: fmtBtn(s.exportFmt === 'fusion'), fmtDxfStyle: fmtBtn(s.exportFmt === 'dxf'),
+      setFmtStep: () => this.setState({ exportFmt: 'step' }), setFmtFusion: () => this.setState({ exportFmt: 'fusion' }), setFmtDxf: () => this.setState({ exportFmt: 'dxf' }),
+      exportDetail: ({ step: 'Punch + electrode as STEP AP242 B-rep solids — drop into Fusion, Mastercam, or hyperMILL. Replaces the old SolidWorks output.', fusion: 'Native Fusion 360 .f3d — trilobe sketch stays parametric, punch + electrode as separate bodies.', dxf: '2D trilobe profiles (punch form + electrode) as DXF for direct wire-EDM import.' }[s.exportFmt]),
+      camFields: [{ k: 'Program #', v: s.programNo }, { k: 'Part', v: this.FAM[s.family].replace(/[\u00ae]/g, '') + ' ' + sizeLabel }, { k: 'Material', v: 'C2 carbide / ' + this.ELEC[s.electrode] }, { k: 'Wire prog', v: 'O0620' }, { k: 'Electrode prog', v: 'O0621' }, { k: 'Lobe height', v: thou(e) + ' th' }, { k: 'Major Ø', v: fmt4(2 * maxR) + '"' }],
+      importFromMacro: () => this.setState({ family: 'taptite', sizeId: 'm6', majorDia: 0.2362, ecc: 0.0028, macroLinked: true }),
+    };
+  }
+}
+</script>
+</body>
+</html>

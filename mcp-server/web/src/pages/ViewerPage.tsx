@@ -22,7 +22,7 @@ const DEMO_SCENE_SUMMARY: ViewerSceneSummary = {
 };
 
 const DEFAULT_SCENE_NOTE =
-  'Live viewer scene routes are not available yet, so PRISM is using the local demo scene as a fallback.';
+  'Live viewer scene routes are not available yet, so Kienzle is using the local demo scene as a fallback.';
 
 let viewerCanvasWorkspacePromise: Promise<typeof import('../components/viewer/ViewerCanvasWorkspace')> | null = null;
 

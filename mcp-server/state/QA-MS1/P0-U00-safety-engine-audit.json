@@ -1,0 +1,220 @@
+{
+  "audit_id": "QA-MS1-P0-U00",
+  "title": "SafetyEngine S(x) Scoring Formula Verification",
+  "auditor": "claude-opus-4.6",
+  "timestamp": "2026-02-27T22:00:00Z",
+  "status": "COMPLETE",
+  "verdict": "2 CRITICAL (FIXED), 3 MEDIUM, 2 LOW findings",
+
+  "safety_chain_map": {
+    "description": "S(x) safety scoring is distributed across 5 files, not a single SafetyEngine",
+    "components": [
+      {
+        "file": "src/utils/validators.ts",
+        "function": "computeSafetyScore()",
+        "line": 536,
+        "role": "Core S(x) formula — 6 weighted components, returns score + status + issues",
+        "threshold_source": "SAFETY_THRESHOLD = 0.70 (line 137)"
+      },
+      {
+        "file": "src/engines/AlgorithmGatewayEngine.ts",
+        "function": "algorithmSelect()",
+        "line": 1408,
+        "role": "Secondary safety scorer — starts at 0.90, deducts for extrapolation/cycle/error",
+        "threshold_source": "Inline 0.70 comparison"
+      },
+      {
+        "file": "src/orchestration/HookEngine.ts",
+        "function": "executeBuiltInHandler()",
+        "line": 241,
+        "role": "CALC-SAFETY-VIOLATION-001 hard block — reads safety_score from context.data",
+        "threshold_source": "Inline < 0.70 comparison"
+      },
+      {
+        "file": "src/hooks/EnforcementHooks.ts",
+        "function": "preOutputSafetyHardGate",
+        "line": 638,
+        "role": "Final output gate — blocks S(x) < 0.70 before any output",
+        "threshold_source": "Imported SAFETY_THRESHOLD from validators.ts"
+      },
+      {
+        "file": "src/hooks/SafetyQualityHooks.ts",
+        "functions": ["preCalculateSafety", "postCalculateSafety", "preGcodeSafety", "postToolpathSafety", "machineLimitGuard"],
+        "role": "5 blocking hooks for parameter/result/toolpath/machine limit validation",
+        "threshold_source": "Absolute limits (not S(x)-based)"
+      }
+    ]
+  },
+
+  "s_x_formula_verification": {
+    "weights": {
+      "physical_limits": 0.20,
+      "force_safety": 0.20,
+      "thermal_safety": 0.15,
+      "tool_life": 0.15,
+      "machine_capability": 0.15,
+      "edge_cases": 0.15
+    },
+    "weight_sum": 1.00,
+    "weight_sum_valid": true,
+    "formula": "S(x) = Σ(component_score × weight) for all 6 components",
+    "score_range": "[0.0, 1.0]",
+    "rounding": "Math.round(totalScore * 1000) / 1000 — 3 decimal places",
+    "status_logic": "criticalDataMissing → BLOCKED | score >= 0.70 → APPROVED | else → BLOCKED",
+    "warning_zone_removed": true,
+    "warning_zone_note": "QA-MS1 FIX comments indicate WARNING zone was previously removed"
+  },
+
+  "findings": [
+    {
+      "id": "F01",
+      "severity": "CRITICAL",
+      "title": "HookEngine defaults missing safety score to 1.0 (PASS)",
+      "file": "src/orchestration/HookEngine.ts",
+      "line": 242,
+      "code": "const safetyScore = context.data.safety_score ?? context.data.S ?? 1.0;",
+      "issue": "If neither safety_score nor S exists in context.data, the score defaults to 1.0 — a perfect safety score. Any caller that forgets to pass a safety score gets an automatic PASS through the CALC-SAFETY-VIOLATION-001 hard block.",
+      "impact": "A calculation with NO safety evaluation silently passes the safety gate. This bypasses the entire S(x) scoring system.",
+      "fix": "Default to 0.0 (FAIL-SAFE) instead of 1.0 (PASS), or return a BLOCK when safety_score is undefined.",
+      "recommended_code": "const safetyScore = context.data.safety_score ?? context.data.S; if (safetyScore === undefined || safetyScore === null) { return { status: 'blocked', hookId: hook.id, message: 'HARD BLOCK: No safety score provided — cannot verify safety', blockReason: 'missing_safety_score' }; }",
+      "status": "FIXED",
+      "fix_applied": "QA-MS1: Changed HookEngine.ts:241-246 to fail-closed on missing safety_score. Verified by T08-T12 in hookengine-safety.test.ts (7/7 pass)."
+    },
+    {
+      "id": "F02",
+      "severity": "CRITICAL",
+      "title": "EnforcementHooks preOutputSafetyHardGate passes on missing safety score",
+      "file": "src/hooks/EnforcementHooks.ts",
+      "line": 643,
+      "code": "if (safety === undefined) { return hookWarning(hook, 'No safety score available - proceeding with caution'); }",
+      "issue": "When context.quality.safety is undefined, this returns a WARNING (non-blocking), allowing output to proceed without any safety verification. Combined with F01, there are TWO independent safety gates that fail-open on missing data.",
+      "impact": "An output with no safety evaluation passes through the 'hard gate' with just a warning. The gate name 'preOutputSafetyHardGate' is misleading — it's not hard when data is missing.",
+      "fix": "Return hookBlock() when safety score is undefined. A hard gate must fail-closed.",
+      "recommended_code": "if (safety === undefined) { return hookBlock(hook, 'HARD BLOCK: No safety score available — cannot verify safe output', { score: 0, threshold: SAFETY_THRESHOLD, issues: ['Safety score missing from context'] }); }",
+      "status": "FIXED",
+      "fix_applied": "QA-MS1: Changed EnforcementHooks.ts:643-648 to hookBlock on undefined safety. Verified by T13-T15 in enforcement-hooks-safety.test.ts (7/7 pass)."
+    },
+    {
+      "id": "F03",
+      "severity": "MEDIUM",
+      "title": "SAFETY_THRESHOLD defined in two files — divergence risk",
+      "files": ["src/utils/validators.ts:137", "src/types/prism-schema.ts:355"],
+      "issue": "SAFETY_THRESHOLD = 0.70 is defined as a hardcoded constant in two separate files. Both currently agree at 0.70, but if one is changed without the other, different parts of the system would enforce different thresholds.",
+      "impact": "Maintenance hazard. A future change could create threshold inconsistency between validators and enforcement hooks.",
+      "fix": "Define SAFETY_THRESHOLD in exactly one canonical location (prism-schema.ts) and import everywhere else."
+    },
+    {
+      "id": "F04",
+      "severity": "MEDIUM",
+      "title": "Config.ts PRISM_SAFETY_THRESHOLD env var is disconnected",
+      "file": "src/utils/Config.ts",
+      "line": 87,
+      "code": "this.config.safetyThreshold = parseFloat(process.env.PRISM_SAFETY_THRESHOLD);",
+      "issue": "Config.ts reads PRISM_SAFETY_THRESHOLD from environment and stores it in config.safetyThreshold. However, NO code reads config.safetyThreshold — all safety gates import the hardcoded SAFETY_THRESHOLD constant from validators.ts or prism-schema.ts. The env var has zero effect.",
+      "impact": "Misleading API — an operator who sets PRISM_SAFETY_THRESHOLD=0.50 expecting to lower the threshold gets no effect. Conversely, this also means the threshold CANNOT be lowered via env var, which is safety-positive but confusing.",
+      "fix": "Either (a) remove the env var support entirely with a comment explaining the threshold is non-configurable for safety, or (b) wire it up but add a floor (e.g., min 0.70) so it can only be raised, not lowered."
+    },
+    {
+      "id": "F05",
+      "severity": "MEDIUM",
+      "title": "machine_capability and edge_cases scoring is binary (0 or 1)",
+      "file": "src/utils/validators.ts",
+      "lines": "614-639",
+      "issue": "Components 5 (machine_capability) and 6 (edge_cases) use binary scoring: if data exists → 1.0, if missing → 0.0. No graduated assessment. A material with any V30 value gets full machine_capability credit regardless of whether V30 is reasonable.",
+      "impact": "S(x) is less discriminating than it could be. Combined weight of these two components is 0.30 (30% of total score). A material with garbage V30=-100 would score 1.0 on machine_capability.",
+      "fix": "Add basic range validation: V30 should be positive and within plausible bounds (1-1000 m/min). Hardness range should have max-min > 0 and values within 1-70 HRC or equivalent."
+    },
+    {
+      "id": "F06",
+      "severity": "LOW",
+      "title": "Dead WARNING branch in EnforcementHooks postMaterialAddSafety",
+      "file": "src/hooks/EnforcementHooks.ts",
+      "line": 354,
+      "issue": "Checks safety.status === 'WARNING', but computeSafetyScore() no longer returns WARNING status (removed per QA-MS1 FIX at validators.ts:658). This branch is dead code.",
+      "impact": "No safety risk (unreachable code). Minor maintenance burden.",
+      "fix": "Remove the WARNING branch from EnforcementHooks.ts to match the updated computeSafetyScore() contract."
+    },
+    {
+      "id": "F07",
+      "severity": "LOW",
+      "title": "AutoPilotV2 hardcodes safetyScore: 0.85 in execution plans",
+      "file": "src/orchestration/AutoPilotV2.ts",
+      "line": 204,
+      "issue": "ExecutionPlan is created with safetyScore: 0.85 as a fixed value, not computed from actual safety analysis.",
+      "impact": "Cosmetic — the hardcoded value is used for plan metadata, not for safety gating. But it's misleading if anyone reads the plan and assumes it's a real safety score.",
+      "fix": "Either compute it from actual context or remove the field from ExecutionPlan if it's not meaningful."
+    }
+  ],
+
+  "safety_hooks_audit": {
+    "total_safety_hooks": 5,
+    "all_blocking": true,
+    "hooks_verified": [
+      {
+        "id": "pre-calculate-safety",
+        "limits_checked": ["spindleRpm <= 60000", "feedRate <= 50000", "feedPerTooth <= 1.0", "depthOfCut <= 50mm", "toolDiameter > 0"],
+        "physically_sensible": true
+      },
+      {
+        "id": "post-calculate-safety",
+        "limits_checked": ["cuttingForce_N <= 100000", "spindlePower_kW <= 150", "torque_Nm <= 5000", "deflection_mm <= 0.5"],
+        "physically_sensible": true
+      },
+      {
+        "id": "pre-gcode-safety",
+        "limits_checked": ["rapidTraverse <= 100000 mm/min", "spindleRpm <= 60000", "feedRate <= 50000", "plungeRate <= 10000", "coolantCode in [M7,M8,M9,M7M8]"],
+        "physically_sensible": true
+      },
+      {
+        "id": "post-toolpath-safety",
+        "limits_checked": ["collisionDetected", "envelopeExceeded", "rapidThroughMaterial", "gougeDetected", "minClearance >= 1.0mm"],
+        "physically_sensible": true
+      },
+      {
+        "id": "machine-limit-guard",
+        "limits_checked": ["spindleRpm vs maxRpm", "power vs maxPower", "torque vs maxTorque", "6-axis travel X/Y/Z/A/B/C"],
+        "physically_sensible": true
+      }
+    ]
+  },
+
+  "hookengine_built_in_hooks_audit": {
+    "total_blocking_hooks": 8,
+    "hooks": [
+      "CALC-SAFETY-VIOLATION-001 — S(x) < 0.70 hard block (BUT defaults to 1.0 — see F01)",
+      "STATE-ANTI-REGRESSION-001 — newCount < oldCount hard block",
+      "FILE-GCODE-VALIDATE-001 — dangerous G-codes M00/M01/M30/M99 without approval",
+      "CALC-RANGE-CHECK-001 — value outside min/max bounds",
+      "CALC-PHYSICS-VALIDATE-001 — negative RPM/feed/depth, division by zero",
+      "FILE-BEFORE-WRITE-001 — >60% content loss hard block, >30% warning",
+      "FORMULA-UNIT-CHECK-001 — unit mismatch (expected vs actual)",
+      "DISPATCH-ACTION-VALIDATE-001 — invalid dispatcher action"
+    ]
+  },
+
+  "test_coverage": {
+    "existing_test": "src/__tests__/system-comprehensive.test.ts:467 — verifies SAFETY_THRESHOLD === 0.70",
+    "missing_tests": [
+      "Boundary test: S(x) = 0.699 must BLOCK, S(x) = 0.700 must APPROVE",
+      "Missing data test: computeSafetyScore with no kc1_1/mc must return BLOCKED",
+      "Missing data test: HookEngine with no safety_score in context must BLOCK (currently PASSES — F01)",
+      "Missing data test: preOutputSafetyHardGate with undefined safety must BLOCK (currently WARNS — F02)",
+      "Integration test: full chain from computeSafetyScore → EnforcementHooks → HookEngine"
+    ]
+  },
+
+  "summary": {
+    "critical_findings": 2,
+    "medium_findings": 3,
+    "low_findings": 2,
+    "safety_positive": [
+      "Weight sum is exactly 1.00 — no rounding drift",
+      "WARNING zone correctly removed — only APPROVED or BLOCKED",
+      "criticalDataMissing check catches absent force/tool-life data at formula level",
+      "All 5 SafetyQualityHooks are properly BLOCKING mode",
+      "Physical limits in hooks are sensible for real-world machining",
+      "SAFETY_THRESHOLD env var override is disconnected (cannot lower threshold)"
+    ],
+    "critical_risk": "Both HookEngine (F01) and EnforcementHooks (F02) fail-OPEN when safety data is missing. If a code path reaches either gate without computing S(x) first, the output is released without safety verification. This is the #1 priority fix."
+  }
+}

@@ -1,4 +1,5 @@
 import type { IntegrationInput, CamIntegration, DncTransfer, ErpSync, MobileInterface, MeasurementResult } from "../types/integrations";
+import { getRequestHeaders } from "./client";
 
 const BASE_URL = "/api/v1/integrations";
 const TIMEOUT_MS = 15_000;
@@ -9,7 +10,9 @@ async function post<T>(endpoint: string, body: unknown): Promise<T> {
   try {
     const res = await fetch(`${BASE_URL}${endpoint}`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      // getRequestHeaders() already sets Content-Type + attaches the Bearer once setApiKey ran at login,
+      // so the gated /erp + /measurement routes (and the verifyToken-gated cam/dnc/mobile) authenticate.
+      headers: getRequestHeaders(),
       body: JSON.stringify(body),
       signal: controller.signal,
     });

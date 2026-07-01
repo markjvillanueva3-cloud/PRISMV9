@@ -1,3 +1,4 @@
+// WIRE-EXEMPT: mobile-field engine awaiting Tier-3 mobile dispatcher (L2-P4-MS1/P0-U01 Batch 2). Pure schema+API definition module — voice command consumers (mobile UI bridge) not yet built; engine is intentionally unwired until its consumer ships.
 /**
  * MobileVoiceEngine — Voice Command Processing
  * =============================================
@@ -35,7 +36,7 @@ export const CommandIntentSchema = z.object({
     "unknown",
   ]),
   confidence: z.number(),
-  entities: z.record(z.string()),
+  entities: z.record(z.string(), z.string()),
   rawTranscript: z.string(),
 });
 
@@ -45,7 +46,7 @@ export const VoiceResponseSchema = z.object({
   response: z.string(),
   actions: z.array(z.object({
     type: z.string(),
-    payload: z.record(z.unknown()),
+    payload: z.record(z.string(), z.unknown()),
   })),
   followUp: z.string().optional(),
 });

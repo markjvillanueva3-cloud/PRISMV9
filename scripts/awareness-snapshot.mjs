@@ -33,8 +33,13 @@ import path from "node:path";
 
 const ROOT = "H:/prism";
 const GRAPH_PATH = path.join(ROOT, "state/shared/system-viz/system-graph.json");
+// U-GCF-AWARENESS-FAILSOFT (alpha 2026-06-01): smaller fallback when the merged graph exceeds V8's string limit.
+const ARCH_GRAPH_PATH = path.join(ROOT, "state/shared/system-viz/architecture-graph.json");
 const BUILD_STATE_PATH = path.join(ROOT, "state/shared/BUILD_STATE.json");
 const MILESTONE_PROGRESS_PATH = path.join(ROOT, "state/shared/MILESTONE_PROGRESS.json");
+// U-GCF-AWARENESS-WIRE: galaxy-context federation feed-up artifacts (fail-soft inputs)
+const GALAXY_DIGEST_PATH = path.join(ROOT, "state/shared/galaxy-cards/MASTER-DIGEST.json");
+const GALAXY_KNOWS_PATH = path.join(ROOT, "state/shared/galaxy-cards/KNOWS-MAP.json");
 const OUTPUT_PATH = path.join(ROOT, "state/shared/AWARENESS-SNAPSHOT.md");
 
 const HIGH_DEGREE_PCTILE = 0.85;
@@ -69,6 +74,35 @@ function entryName(e) {
   return "";
 }
 
+// Orphan vs ghost — AUTO-INVOCATION-MS0/U-AIM03 fix (2026-05-16).
+//
+// Previous rule: hasDocs (= node had any wiki/memory edge) → orphan, else ghost.
+// Problem: the wiki-edge augmenter attaches inconsistently; nearly every built
+// engine had zero wiki edges → classified as ghost. AWARENESS-SNAPSHOT.md
+// reported 281,683 ghost / 0 orphan across a 372K-node graph (F4 in
+// state/shared/specs/STALE-NODES-AUDIT-2026-05-16.md). Every chat read "0
+// orphans" via awareness-snapshot-inject and concluded nothing needed
+// documenting — when reality was 1,348 wired engines without wiki entries.
+//
+// New rule: a node is an ORPHAN when it's BUILT (status === "built" OR
+// has-source-file evidence) AND has low in/out degree — i.e., real artifact
+// on disk that nothing references. That's the actual punch list. Ghost is
+// the residual: low-degree AND not built (e.g., filesystem leaves, prose-
+// roadmap units that never landed). Doc presence is a secondary signal —
+// kept in the returned shape for callers that want it but no longer
+// load-bearing for the binary orphan/ghost split.
+function isBuiltArtifact(node) {
+  if (node?.status === "built") return true;
+  // Fallback heuristics for graphs missing the status field:
+  const id = String(node?.id || "");
+  // built engine/hook/skill/dispatcher/script identifiers have a path-style or
+  // dotted-namespace shape pointing into the repo.
+  if (/\b(engines?|hooks?|scripts?|dispatchers?|skills?|helpers?)\b/i.test(id)) return true;
+  // Filesystem layer L12 is fs leaves (millions of files); these are ghosts by definition.
+  if (node?.layer === "L12") return false;
+  return false;
+}
+
 function classify(node, inDeg, outDeg, hasDocs, inHigh, outHigh) {
   const isHighIn = inDeg >= inHigh && inDeg > LOW_DEGREE;
   const isHighOut = outDeg >= outHigh && outDeg > LOW_DEGREE;
@@ -77,21 +111,82 @@ function classify(node, inDeg, outDeg, hasDocs, inHigh, outHigh) {
   if (isHighIn && isHighOut) return "hub";
   if (isHighIn && isLowOut) return "sink";
   if (isHighOut && isLowIn) return "source";
-  if (isLowIn && isLowOut && hasDocs) return "orphan";
-  if (isLowIn && isLowOut && !hasDocs) return "ghost";
+  if (isLowIn && isLowOut) {
+    return isBuiltArtifact(node) ? "orphan" : "ghost";
+  }
   return "normal";
+}
+
+/**
+ * AWARENESS-READINESS (2026-05-19) — pure: derive "ready to use" figures from
+ * BUILD_STATE.COVERAGE_BY_DOMAIN.
+ *
+ * "Built" alone is NOT "usable" — an engine with no dispatcher reference
+ * (NEEDS_WIRING) is on disk but cannot be invoked. Ready-to-use = built ∩
+ * wired. That is the figure an operator actually needs: what capability is
+ * live RIGHT NOW, vs. what is built-but-dark.
+ *
+ * @param {object|null} buildState — parsed BUILD_STATE.json
+ * @returns {{readyToUse:number, builtButUnwired:number, totalBuilt:number,
+ *   coveragePct:number, topUnwiredDomains:Array}|null} — null when
+ *   COVERAGE_BY_DOMAIN is absent/empty (caller surfaces a degraded warning).
+ */
+export function computeReadiness(buildState) {
+  const cov = buildState?.COVERAGE_BY_DOMAIN;
+  if (!cov || !Array.isArray(cov.rows) || cov.rows.length === 0) return null;
+  let wired = 0, unwired = 0, total = 0;
+  for (const r of cov.rows) {
+    wired += Number(r?.wired) || 0;
+    unwired += Number(r?.unwired) || 0;
+    total += Number(r?.total) || 0;
+  }
+  // Domains with the biggest unwired backlog — the "wire these next" punch
+  // list, ranked by how much dark capability each unlocks.
+  const topUnwiredDomains = [...cov.rows]
+    .filter((r) => (Number(r?.unwired) || 0) > 0)
+    .sort((a, b) => (Number(b?.unwired) || 0) - (Number(a?.unwired) || 0))
+    .slice(0, 8)
+    .map((r) => ({
+      domain: String(r?.domain ?? "?"),
+      wired: Number(r?.wired) || 0,
+      unwired: Number(r?.unwired) || 0,
+      total: Number(r?.total) || 0,
+      coveragePct: Number(r?.coverage_pct) || 0,
+    }));
+  return {
+    readyToUse: wired,
+    builtButUnwired: unwired,
+    totalBuilt: total,
+    coveragePct: total > 0 ? Math.round((wired / total) * 100) : 0,
+    topUnwiredDomains,
+  };
 }
 
 // ---------- core ----------
 
 function buildSnapshot() {
   const warnings = [];
-  const graph = safeJson(GRAPH_PATH);
+  let graph = safeJson(GRAPH_PATH);
+  let graphSource = "system-graph.json";
+  let graphDegraded = false;
+  // U-GCF-AWARENESS-FAILSOFT (alpha 2026-06-01): the merged system-graph.json (~663MB) exceeds V8's
+  // readFileSync string limit (0x1fffffe8) -> safeJson returns null -> awareness was frozen 8 days. Fall back
+  // to the smaller architecture-graph.json (generate-system-viz base, ~50K nodes) so awareness stays FRESH
+  // (utilization DEGRADED to the architecture subset, loudly flagged). sierra's streaming graph-read supersedes this.
+  if (!graph || !Array.isArray(graph.nodes) || !Array.isArray(graph.edges)) {
+    const fallback = safeJson(ARCH_GRAPH_PATH);
+    if (fallback && Array.isArray(fallback.nodes) && Array.isArray(fallback.edges)) {
+      graph = fallback;
+      graphSource = "architecture-graph.json";
+      graphDegraded = true;
+      warnings.push("system-graph.json unreadable (663MB > V8 string limit) — utilization computed from architecture-graph.json (DEGRADED: ~50K-node architecture subset, NOT the full merged graph; counts undercount orphans/ghosts). Fix: streaming graph-read (sierra).");
+    }
+  }
   const buildState = safeJson(BUILD_STATE_PATH);
   const progress = safeJson(MILESTONE_PROGRESS_PATH);
 
   if (!graph || !Array.isArray(graph.nodes) || !Array.isArray(graph.edges)) {
-    return { error: "system-graph.json missing or malformed", path: GRAPH_PATH };
+    return { error: "no readable graph (system-graph.json + architecture-graph.json both unavailable)", path: GRAPH_PATH };
   }
 
   // --- Edge degrees ---
@@ -182,8 +277,34 @@ function buildSnapshot() {
     drift: headline.drift_milestones ?? "?",
   };
 
+  // --- Readiness: "ready to use" = built ∩ wired (BUILD_STATE COVERAGE_BY_DOMAIN) ---
+  const readiness = computeReadiness(buildState);
+  if (!readiness) {
+    warnings.push("BUILD_STATE.COVERAGE_BY_DOMAIN unavailable — readiness section degraded");
+  }
+
+  // Galaxy federation feed-up (U-GCF-AWARENESS-WIRE): surface the hub-and-spoke roll-up so a fresh
+  // chat learns the salience-ranked digest + who-knows-what map exist. Fail-soft: missing files → null.
+  const galaxyDigest = safeJson(GALAXY_DIGEST_PATH);
+  const galaxyKnows = safeJson(GALAXY_KNOWS_PATH);
+  if (!galaxyDigest && !galaxyKnows) {
+    warnings.push("galaxy federation (MASTER-DIGEST/KNOWS-MAP) unavailable — federation section degraded");
+  }
+  const federation = (!galaxyDigest && !galaxyKnows) ? null : (() => {
+    const ranked = Array.isArray(galaxyDigest?.ranked) ? galaxyDigest.ranked : [];
+    return {
+      galaxyCount: Number(galaxyDigest?.galaxyCount) || ranked.length || (Number(galaxyKnows?.totalGalaxies) || 0),
+      generatedAt: galaxyDigest?.generatedAt || galaxyKnows?.generatedAt || null,
+      knowsTokens: Number(galaxyKnows?.tokenCount) || 0,
+      knowsTopics: Number(galaxyKnows?.topTopics) || 0,
+      topGalaxies: ranked.slice(0, 5).map((r) => ({ galaxy: String(r?.galaxy ?? "?"), salience: Number(r?.salience) || 0, role: String(r?.role ?? "") })),
+    };
+  })();
+
   return {
     generatedAt: new Date().toISOString(),
+    graphSource,
+    graphDegraded,
     graphMtime: existsSync(GRAPH_PATH) ? new Date(statSync(GRAPH_PATH).mtimeMs).toISOString() : null,
     inputs: {
       graph: existsSync(GRAPH_PATH),
@@ -204,11 +325,13 @@ function buildSnapshot() {
     ghostsByLayer: topGhostsByLayer,
     drift: { count: driftCount, top: topDrift },
     buildSummary,
+    readiness,
+    federation,
     warnings,
   };
 }
 
-function renderMarkdown(s) {
+export function renderMarkdown(s) {
   const lines = [];
   lines.push(`# PRISM Awareness Snapshot`);
   lines.push("");
@@ -223,6 +346,23 @@ function renderMarkdown(s) {
   lines.push(`- **${b.needsBuilding}** roadmap units pending across active milestones`);
   lines.push(`- **${b.pendingFE}** frontend merge(s) pending · **${b.drift}** envelope drift case(s)`);
   lines.push("");
+  lines.push(`## Ready to use (built AND wired — invokable now)`);
+  if (s.readiness) {
+    const r = s.readiness;
+    lines.push(`- **${r.readyToUse}** engines wired & ready to use — invokable via a dispatcher right now.`);
+    lines.push(`- **${r.builtButUnwired}** engines built but UNWIRED — on disk, NOT invokable until wired.`);
+    lines.push(`- **${r.coveragePct}%** dispatcher coverage (${r.readyToUse} of ${r.totalBuilt} domain-tracked engines wired).`);
+    lines.push(`  > _"domain-tracked" buckets every engine file by domain; the Headline's "engines built" uses a narrower scan — different denominators, each correct in its own frame._`);
+    if (r.topUnwiredDomains.length > 0) {
+      lines.push(`- Largest unwired backlog — wire these to unlock the most capability:`);
+      for (const d of r.topUnwiredDomains) {
+        lines.push(`  - **${d.domain}**: ${d.wired}/${d.total} wired (${d.coveragePct}%) · ${d.unwired} unwired`);
+      }
+    }
+  } else {
+    lines.push(`_BUILD_STATE.COVERAGE_BY_DOMAIN unavailable — regenerate: \`node scripts/build-state-snapshot.mjs\`._`);
+  }
+  lines.push("");
   lines.push(`## Graph utilization (filtered to semantic layers L0..L8 + L10)`);
   lines.push(`Scanned **${s.graph.filteredNodes.toLocaleString()}** of **${s.graph.nodes.toLocaleString()}** nodes (excluded L9 fs-root + L11 fs-leaves).`);
   lines.push(`HIGH-degree threshold: in≥${s.graph.inHighThreshold} · out≥${s.graph.outHighThreshold} (≥${Math.round(HIGH_DEGREE_PCTILE * 100)}th percentile).`);
@@ -233,8 +373,8 @@ function renderMarkdown(s) {
   lines.push(`| **hub** | ${t.hub} | high in + high out — central infrastructure |`);
   lines.push(`| **sink** | ${t.sink} | high in + low out — well-used utility |`);
   lines.push(`| **source** | ${t.source} | low in + high out — driver / orchestrator |`);
-  lines.push(`| **orphan** | ${t.orphan} | low in + low out + has docs — built but unwired (punch list) |`);
-  lines.push(`| **ghost** | ${t.ghost} | low in + low out + no docs — dead-code candidate |`);
+  lines.push(`| **orphan** | ${t.orphan} | low in + low out, BUILT artifact — built but under-utilized (punch list) |`);
+  lines.push(`| **ghost** | ${t.ghost} | low in + low out, not-built — dead-code / fs-leaf / unrealized roadmap candidate |`);
   lines.push(`| **normal** | ${t.normal} | functioning, ordinary usage |`);
   lines.push("");
   lines.push(`## Top hubs (most-connected — central nervous system)`);
@@ -265,6 +405,20 @@ function renderMarkdown(s) {
     }
   }
   lines.push("");
+  lines.push(`## Galaxy Federation (hub-and-spoke context roll-up)`);
+  if (s.federation) {
+    const f = s.federation;
+    lines.push(`- **${f.galaxyCount}** galaxy brains rolled up · KNOWS-MAP indexes **${f.knowsTokens}** capability tokens / **${f.knowsTopics}** top topics.`);
+    lines.push(`- Feed-up digest \`state/shared/galaxy-cards/MASTER-DIGEST.md\` — inject ONE ranked digest instead of re-reading 34 galaxy brains.`);
+    lines.push(`- Who-knows-what: \`node scripts/galaxy-knows-map.mjs who <topic>\` (1 lookup → which galaxy holds context on X).`);
+    if (f.topGalaxies.length > 0) {
+      lines.push(`- Top galaxies by salience:`);
+      for (const g of f.topGalaxies) lines.push(`  - **${g.galaxy}** (salience ${g.salience.toFixed(2)}) — ${g.role}`);
+    }
+  } else {
+    lines.push(`_Galaxy federation artifacts unavailable — regenerate: \`node scripts/galaxy-rollup.mjs build\` + \`node scripts/galaxy-knows-map.mjs build\`._`);
+  }
+  lines.push("");
   lines.push(`## Milestone drift (envelope vs git reality)`);
   lines.push(`**${s.drift.count}** milestone(s) drifted. Top by shipped count:`);
   if (s.drift.top.length === 0) {
@@ -281,31 +435,49 @@ function renderMarkdown(s) {
     lines.push("");
   }
   lines.push(`---`);
-  lines.push(`_Sources: \`state/shared/system-viz/system-graph.json\`, \`state/shared/BUILD_STATE.json\`, \`state/shared/MILESTONE_PROGRESS.json\`._`);
+  lines.push(`_Sources: \`state/shared/system-viz/system-graph.json\`, \`state/shared/BUILD_STATE.json\`, \`state/shared/MILESTONE_PROGRESS.json\`, \`state/shared/galaxy-cards/MASTER-DIGEST.json\`, \`KNOWS-MAP.json\`._`);
   lines.push(`_Drill-down: \`/master-index <query>\` (search) · \`/utilization-dashboard\` (full per-node classification) · \`/system-viz\` (3D viewer)._`);
   return lines.join("\n");
 }
 
 // ---------- main ----------
 
-const snap = buildSnapshot();
-if (snap.error) {
-  process.stderr.write(`[awareness-snapshot] ${snap.error}: ${snap.path ?? ""}\n`);
-  process.exit(1);
-}
+function runMain() {
+  const snap = buildSnapshot();
+  if (snap.error) {
+    process.stderr.write(`[awareness-snapshot] ${snap.error}: ${snap.path ?? ""}\n`);
+    process.exit(1);
+  }
 
-if (wantJson) {
-  process.stdout.write(JSON.stringify(snap, null, 2));
+  if (wantJson) {
+    process.stdout.write(JSON.stringify(snap, null, 2));
+    process.exit(0);
+  }
+
+  const md = renderMarkdown(snap);
+  writeFileSync(OUTPUT_PATH, md);
+  process.stdout.write(
+    `wrote ${OUTPUT_PATH}\n` +
+    `  ready-to-use:${snap.readiness?.readyToUse ?? "?"}  unwired:${snap.readiness?.builtButUnwired ?? "?"}  ` +
+    `coverage:${snap.readiness?.coveragePct ?? "?"}%\n` +
+    `  hubs:${snap.utilizationTotals.hub}  sinks:${snap.utilizationTotals.sink}  ` +
+    `sources:${snap.utilizationTotals.source}  orphans:${snap.utilizationTotals.orphan}  ` +
+    `ghosts:${snap.utilizationTotals.ghost}  normal:${snap.utilizationTotals.normal}\n` +
+    `  drift:${snap.drift.count}  scanned:${snap.graph.filteredNodes}/${snap.graph.nodes}\n`,
+  );
   process.exit(0);
 }
 
-const md = renderMarkdown(snap);
-writeFileSync(OUTPUT_PATH, md);
-process.stdout.write(
-  `wrote ${OUTPUT_PATH}\n` +
-  `  hubs:${snap.utilizationTotals.hub}  sinks:${snap.utilizationTotals.sink}  ` +
-  `sources:${snap.utilizationTotals.source}  orphans:${snap.utilizationTotals.orphan}  ` +
-  `ghosts:${snap.utilizationTotals.ghost}  normal:${snap.utilizationTotals.normal}\n` +
-  `  drift:${snap.drift.count}  scanned:${snap.graph.filteredNodes}/${snap.graph.nodes}\n`,
-);
-process.exit(0);
+// Run only when invoked as a script — not when a test imports computeReadiness
+// / renderMarkdown. buildSnapshot() reads the ~370 MB system graph and writes
+// the snapshot file; running it on a mere import would be slow + destructive.
+// FAIL-OPEN: if the argv/import.meta probe throws, default to running.
+const __isMain = (() => {
+  try {
+    const argv1 = (process.argv[1] || "").replace(/\\/g, "/");
+    const argv1Base = argv1.split("/").pop() || "";
+    return argv1Base.length > 0
+      && import.meta.url.replace(/\\/g, "/").endsWith(argv1Base);
+  } catch { return true; }
+})();
+if (__isMain) runMain();

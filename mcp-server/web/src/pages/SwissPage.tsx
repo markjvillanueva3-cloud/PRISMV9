@@ -19,7 +19,7 @@ interface GuideBushingState {
   concentricity_um: number;
 }
 
-export default function SwissPage(): JSX.Element {
+export default function SwissPage() {
   const [guideBushing, setGuideBushing] = useState<GuideBushingState>({
     diameter_mm: 12.0, wear_pct: 12, concentricity_um: 3,
   });
@@ -44,6 +44,10 @@ export default function SwissPage(): JSX.Element {
   return (
     <div className="swiss-page" style={{ padding: 24, fontFamily: "system-ui" }}>
       <h1>Swiss-Type Lathe Control</h1>
+
+      <div data-testid="sample-data-notice" style={{ background: "#fef3c7", border: "1px solid #f59e0b", color: "#92400e", padding: "8px 12px", borderRadius: 4, marginBottom: 16, fontSize: 13 }}>
+        Sample data -- this view is a UI preview and is not yet connected to live machine telemetry.
+      </div>
 
       <section style={{ marginBottom: 24 }}>
         <h2>Guide Bushing</h2>

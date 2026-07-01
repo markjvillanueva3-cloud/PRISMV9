@@ -1035,6 +1035,235 @@ if __name__ == '__main__':
   }
 
   /**
+   * College/PDF corpus pointers — shipped iter15..iter20 (slot:india 2026-05-24).
+   *
+   * Returns paths to the auto-emitted AUTOGEN-SPEC corpus + structural counts.
+   * Consumers (AI training pipelines) read the spec dirs at extract time to
+   * pull training material from MIT-OCW + JM DIE + H:/PRISM/resources PDFs.
+   *
+   * Pure: returns string paths + numeric constants — no I/O at engine layer.
+   *
+   * @returns Inventory pointers + counts per kind for the college-course and
+   *          resource-PDF AUTOGEN corpora.
+   */
+  getCollegeCorpus(): {
+    collegeSpecsDir: string;
+    collegeMasterIndex: string;
+    collegeCount: number;
+    resourcePdfSpecsDir: string;
+    resourcePdfMasterIndex: string;
+    pdfCount: number;
+    bridgeEdgeCount: number;
+    sourceCommits: { college: string; widen: string; pdf: string; bridge: string };
+  } {
+    return {
+      collegeSpecsDir: "state/shared/college-course-specs/",
+      collegeMasterIndex: "state/shared/COLLEGE-COURSE-AUTOGEN-INDEX-2026-05-24.md",
+      collegeCount: 1401,
+      resourcePdfSpecsDir: "state/shared/resource-pdf-specs/",
+      resourcePdfMasterIndex: "state/shared/RESOURCE-PDF-AUTOGEN-INDEX-2026-05-24.md",
+      pdfCount: 893,
+      bridgeEdgeCount: 2541,
+      sourceCommits: {
+        college: "6422115748",
+        widen: "865fa9fccc",
+        pdf: "4d0158c78d",
+        bridge: "b382b4328c",
+      },
+    };
+  }
+
+  /**
+   * CAD+CAM consolidated training-corpus pointers (india iter23/24/25/26).
+   *
+   * Surfaces the 3-layer cad+cam handoff chain as a single queryable structure
+   * for Claude orchestration / DL+NN/GNN pipelines. Pointers, not payloads —
+   * consumers fetch on demand to keep the call cheap.
+   *
+   * Layer 1 (iter23, commit 1bdcbff625): routing — cadcam-consolidated-corpus.json + MD index
+   * Layer 2 (iter24, commit 2256216327): tribal+wiki — per-resource jsonl + operator indexes
+   * Layer 3 (iter25, commits 13362c6e7f + 54bd1e47b7): /system-viz roost — 622 graph nodes
+   *
+   * Audience routing: cad[] → delta slot · cam[] → kilo slot.
+   */
+  getCadCamCorpus(): {
+    consolidatedJson: string;
+    consolidatedMdIndex: string;
+    cadCount: number;
+    camCount: number;
+    dualClassified: number;
+    cadTribalJsonl: string;
+    camTribalJsonl: string;
+    cadWikiIndex: string;
+    camWikiIndex: string;
+    vizRoostId: string;
+    vizCadPivotId: string;
+    vizCamPivotId: string;
+    vizAugmentationFile: string;
+    audienceMap: { cad: "delta"; cam: "kilo" };
+    youtubeChannelCount: { cad: number; cam: number };
+    bookCount: number;
+    regenScripts: { consolidate: string; tribalWiki: string; vizRoost: string };
+    sourceCommits: { consolidate: string; tribalWiki: string; vizRoost: string; vizRoostScript: string };
+  } {
+    return {
+      consolidatedJson: "state/shared/cadcam-consolidated-corpus.json",
+      consolidatedMdIndex: "state/shared/CADCAM-CONSOLIDATED-INDEX-2026-05-24.md",
+      cadCount: 21,
+      camCount: 598,
+      dualClassified: 5,
+      cadTribalJsonl: "state/shared/cad-tribal-corpus.jsonl",
+      camTribalJsonl: "state/shared/cam-tribal-corpus.jsonl",
+      cadWikiIndex: "knowledge/wiki/training/cad-corpus-index.md",
+      camWikiIndex: "knowledge/wiki/training/cam-corpus-index.md",
+      vizRoostId: "ghost.cadcam_training_corpus",
+      vizCadPivotId: "ghost.cadcam_training_corpus.cad",
+      vizCamPivotId: "ghost.cadcam_training_corpus.cam",
+      vizAugmentationFile: "state/shared/system-viz/cadcam-training-corpus-augmentation.json",
+      audienceMap: { cad: "delta", cam: "kilo" },
+      youtubeChannelCount: { cad: 8, cam: 7 },
+      bookCount: 11,
+      regenScripts: {
+        consolidate: "scripts/consolidate-cadcam-corpus.mjs",
+        tribalWiki: "scripts/extract-cadcam-tribal-wiki.mjs",
+        vizRoost: "scripts/generate-cadcam-training-corpus-features.mjs",
+      },
+      sourceCommits: {
+        consolidate: "1bdcbff625",
+        tribalWiki: "2256216327",
+        vizRoost: "13362c6e7f",
+        vizRoostScript: "54bd1e47b7",
+      },
+    };
+  }
+
+  /**
+   * getDomainCorpus -- pointers + LIVE line-counts for the per-domain tribal corpora
+   * that build-domain-knowledge-feeders.mjs emits from the 1210 resource-pdf specs.
+   *
+   * Closes the R15 orphan: zulu's feeder (U-ZULU-ALL-DOMAIN-FEEDERS +
+   * U-ZULU-FEEDER-CANONICAL-WIRE, 2026-06-24) writes
+   * state/shared/<domain>-tribal-corpus.jsonl for 10 manufacturing domains, but NO
+   * consumer read them -- only getCadCamCorpus() wired cad+cam. This is the missing
+   * india AI-injection surface those corpora feed (DL/NN/GNN/LoRA/RAG/CAG). The
+   * handoff/docs that referenced "getDomainCorpus" before this commit pointed at a
+   * method that did not exist; this makes the promise real.
+   *
+   * cad+cam are EXCLUDED here -- they have a richer dedicated generator and their own
+   * surface getCadCamCorpus(). "Pointers, not payloads": returns the jsonl path + a
+   * live line-count + audience slot per domain so Claude orchestration / DL+NN/GNN
+   * pipelines fetch on demand. Live counts (read on call) keep the surface honest vs
+   * the corpora on disk (R12) -- a missing/absent corpus reports count 0, never throws.
+   *
+   * @returns per-domain corpus pointers, live counts, audience routing, and totals.
+   */
+  getDomainCorpus(): {
+    sharedDir: string;
+    feederScript: string;
+    reclassifyScript: string;
+    cadCamVia: string;
+    domains: Array<{ domain: string; corpusJsonl: string; count: number; audience: string }>;
+    totalEntries: number;
+    domainCount: number;
+  } {
+    // Audience routing per build-domain-knowledge-feeders.mjs DOMAIN_AUDIENCE. cad->delta
+    // and cam->kilo live in getCadCamCorpus (dedicated generator), so they are absent here.
+    // Keys define the canonical 10-domain set + deterministic iteration order.
+    const AUDIENCE: Record<string, string> = {
+      mill: "foxtrot", lathe: "whiskey", wedm: "mike", "speed-feed": "oscar",
+      "post-processor": "echo", quality: "quality", tooling: "kilo",
+      grinding: "foxtrot", business: "hotel", safety: "compliance-safety",
+    };
+    // Project ROOT is mcp-server/../, so step up 3 dirs from src/engines/ (same idiom
+    // as getTribalGuidanceForEngine).
+    const sharedDir = path.resolve(__dirname, "../../../state/shared");
+    const countLines = (absPath: string): number => {
+      try {
+        if (!fs.existsSync(absPath)) return 0;
+        const txt = fs.readFileSync(absPath, "utf8");
+        let n = 0;
+        for (const raw of txt.split(/\r?\n/)) if (raw.trim()) n++;
+        return n;
+      } catch { return 0; }
+    };
+    const domains = Object.keys(AUDIENCE).map((domain) => ({
+      domain,
+      corpusJsonl: `state/shared/${domain}-tribal-corpus.jsonl`,
+      count: countLines(path.join(sharedDir, `${domain}-tribal-corpus.jsonl`)),
+      audience: AUDIENCE[domain],
+    }));
+    const totalEntries = domains.reduce((sum, d) => sum + d.count, 0);
+    return {
+      sharedDir: "state/shared",
+      feederScript: "scripts/build-domain-knowledge-feeders.mjs",
+      reclassifyScript: "scripts/reclassify-domain-feeders-ollama.mjs",
+      cadCamVia: "getCadCamCorpus",
+      domains,
+      totalEntries,
+      domainCount: domains.length,
+    };
+  }
+
+  /**
+   * Get extracted-PDF tribal guidance relevant to a named engine.
+   *
+   * Closes the iter27-31 synergy gap: the india extraction passes wrote
+   * tribal tips with `bridge_engines[]` pointers, but no engine actually
+   * consumed them. This method gives any engine a one-call way to pull
+   * its own tips out of `state/shared/extracted-pdfs/*.jsonl`.
+   *
+   * Example usage from another engine:
+   *   const tips = aiResourceLearningEngine.getTribalGuidanceForEngine("ChatterStabilityLobeEngine");
+   *   // tips → array of {id, tip, source, audience, ...} with page-cited rules
+   *
+   * Read-only + idempotent. No subprocess spawn (synchronous file read).
+   * Accepts the engine name with or without the "engine." prefix.
+   *
+   * @param engineName  bare class name or "engine.<Name>"
+   * @returns array of tip objects whose bridge_engines[] contains the match
+   */
+  getTribalGuidanceForEngine(engineName: string): Array<{
+    id: string;
+    tip: string;
+    domain?: string;
+    topic?: string;
+    source?: { book?: string; chapter?: number | string; section?: string; pages?: string };
+    bridge_engines?: string[];
+    audience?: string[];
+  }> {
+    if (!engineName || typeof engineName !== "string") return [];
+    const wanted = new Set([engineName, `engine.${engineName.replace(/^engine\./, "")}`]);
+    // Project ROOT is mcp-server/../, so step up 3 dirs from src/engines/.
+    const tipsDir = path.resolve(__dirname, "../../../state/shared/extracted-pdfs");
+    if (!fs.existsSync(tipsDir)) return [];
+    type Tip = {
+      id: string; tip: string; domain?: string; topic?: string;
+      source?: { book?: string; chapter?: number | string; section?: string; pages?: string };
+      bridge_engines?: string[]; audience?: string[];
+    };
+    const out: Tip[] = [];
+    for (const f of fs.readdirSync(tipsDir).sort()) {
+      if (!f.endsWith(".jsonl")) continue;
+      let text: string;
+      try { text = fs.readFileSync(path.join(tipsDir, f), "utf8"); }
+      catch { continue; }
+      for (const rawLine of text.split(/\r?\n/)) {
+        const line = rawLine.trim();
+        if (!line) continue;
+        let obj: unknown;
+        try { obj = JSON.parse(line); }
+        catch { continue; }
+        if (!obj || typeof obj !== "object") continue;
+        const t = obj as Tip;
+        if (typeof t.id !== "string" || typeof t.tip !== "string") continue;
+        if (!Array.isArray(t.bridge_engines)) continue;
+        if (t.bridge_engines.some((e: string) => wanted.has(e))) out.push(t);
+      }
+    }
+    return out;
+  }
+
+  /**
    * Get knowledge coverage metrics for AI capability measurement.
    */
   getKnowledgeCoverage(): {

@@ -29,7 +29,7 @@ related:
 
 ## Description (first paragraph)
 
-Analyze token usage patterns and optimize for efficiency.
+Displays comprehensive token utilization metrics for the current session.
 
 <!-- AUTO-END -->
 

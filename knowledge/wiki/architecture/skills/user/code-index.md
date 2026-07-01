@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `code-index` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/code-index.md` |
+| Source | `C:/Users/wompu/.claude/commands/code-index.md` |
 | Model | default |
 | Tags | _(none)_ |
 

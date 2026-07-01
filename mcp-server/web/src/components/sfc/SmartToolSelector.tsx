@@ -1,6 +1,6 @@
 import { useMemo, useState, useEffect, useRef } from "react";
 import { getCompatibleTools, COATINGS, type CuttingToolEntry } from "../../data/tools";
-import { dataApi } from "../../api/data";
+import { dataApi, unwrapSearchRows } from "../../api/data";
 import { Card, Badge } from "../ui";
 
 interface Props {
@@ -59,7 +59,7 @@ export default function SmartToolSelector({ materialGroup, operationId, value, o
     setBackendLoading(true);
     dataApi.searchTools({ query: `${materialGroup} ${operationId}`, limit: 30 })
       .then((res: unknown) => {
-        const items = ((res as Record<string, unknown>).results ?? (Array.isArray(res) ? res : [])) as Record<string, unknown>[];
+        const items = unwrapSearchRows(res, "tools");
         const mapped = items.map(mapBackendTool);
         // Deduplicate against local
         const localIds = new Set(compatible.map(t => t.id));
@@ -87,7 +87,7 @@ export default function SmartToolSelector({ materialGroup, operationId, value, o
       )}
       {backendTools.length > 0 && (
         <div className="mb-2">
-          <p className="text-xs text-slate-400 mb-1">From PRISM catalog ({backendTools.length} matches)</p>
+          <p className="text-xs text-slate-400 mb-1">From Kienzle catalog ({backendTools.length} matches)</p>
           <div className="space-y-1 max-h-40 overflow-y-auto">
             {backendTools.map((tool) => (
               <button

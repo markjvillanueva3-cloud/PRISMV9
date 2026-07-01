@@ -234,9 +234,9 @@ export function SetupSheetPage() {
         include_offsets: true,
         include_safety: true,
       });
-      const data = (response as { result?: SetupSheetResult; data?: SetupSheetResult }).result
-        ?? (response as { data?: SetupSheetResult }).data
-        ?? (response as SetupSheetResult);
+      const data = (response as unknown as { result?: SetupSheetResult; data?: SetupSheetResult }).result
+        ?? (response as unknown as { data?: SetupSheetResult }).data
+        ?? (response as unknown as SetupSheetResult);
       setResult(data);
       setPhase('result');
     } catch (cause) {
@@ -258,7 +258,7 @@ export function SetupSheetPage() {
       <WorkspaceHero
         eyebrow="Post Processor"
         title="Setup Sheet Generator"
-        description="Upload a G-code program and PRISM extracts a complete setup sheet: tool list, work offsets, coolant needs, operation sequence, and safety notes ready for the shop floor."
+        description="Upload a G-code program and Kienzle extracts a complete setup sheet: tool list, work offsets, coolant needs, operation sequence, and safety notes ready for the shop floor."
         metrics={
           <>
             <SummaryTile label="Auto-Extract" value="Tools" hint="Numbers, offsets, descriptions" />

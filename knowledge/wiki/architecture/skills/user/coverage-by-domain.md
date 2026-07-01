@@ -23,14 +23,14 @@ related:
 |-------|-------|
 | Name | `coverage-by-domain` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/coverage-by-domain.md` |
+| Source | `C:/Users/wompu/.claude/commands/coverage-by-domain.md` |
 | Model | default |
 | Tags | _(none)_ |
 
 ## Description (first paragraph)
 
-Reads `state/shared/BUILD_STATE.json` (`COVERAGE_BY_DOMAIN.rows`) and
-prints a per-domain table of total / wired / unwired / coverage %.
+
+# /coverage-by-domain — Per-domain wiring coverage
 
 <!-- AUTO-END -->
 

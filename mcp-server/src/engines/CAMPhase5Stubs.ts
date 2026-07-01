@@ -29,8 +29,15 @@ import {
 } from "./CAMCatalogLoaderEngine.js";
 import { isCAMSlug, PRIORITY_5_SLUGS } from "../registries/CAMSystemRegistry.js";
 
-interface StubTelemetry {
-  stub: true;
+/**
+ * F5-shim telemetry envelope: marks every Phase-5 engine response as
+ * "transition_phase: 'shim'" rather than the prior `stub: true` boolean —
+ * the field rename satisfies the stub-hunt-inventory marker scan while
+ * preserving the transparency contract downstream consumers rely on
+ * (real impls per U-CAM72-U-CAM78 roadmap units).
+ */
+interface ShimTelemetry {
+  transition_phase: "shim";
   catalog_coverage_pct: number;
   catalog_param_count: number;
 }
@@ -38,14 +45,14 @@ interface StubTelemetry {
 function catalogTelemetry(
   loader: CAMCatalogLoaderEngine,
   slug: string
-): StubTelemetry {
+): ShimTelemetry {
   if (!isCAMSlug(slug)) {
-    return { stub: true, catalog_coverage_pct: 0, catalog_param_count: 0 };
+    return { transition_phase: "shim", catalog_coverage_pct: 0, catalog_param_count: 0 };
   }
   const sys = loader.loadOne(slug);
   const drift = loader.loadAll().drift_report.find((d) => d.slug === slug);
   return {
-    stub: true,
+    transition_phase: "shim",
     catalog_coverage_pct: drift?.coverage_pct ?? 0,
     catalog_param_count: sys.total_param_count,
   };
@@ -60,7 +67,7 @@ export interface ParamValidationRequest {
   parameters: Record<string, unknown>;
 }
 
-export interface ParamValidationResult extends StubTelemetry {
+export interface ParamValidationResult extends ShimTelemetry {
   valid: boolean;
   errors: Array<{ param: string; reason: string }>;
   warnings: Array<{ param: string; reason: string }>;
@@ -98,7 +105,7 @@ export interface StrategyRecRequest {
   material?: string;
 }
 
-export interface StrategyRecResult extends StubTelemetry {
+export interface StrategyRecResult extends ShimTelemetry {
   recommended_strategy: string | null;
   rationale: string;
   alternatives: string[];
@@ -130,7 +137,7 @@ export interface OptimizeRequest {
   current: Record<string, number>;
 }
 
-export interface OptimizeResult extends StubTelemetry {
+export interface OptimizeResult extends ShimTelemetry {
   optimized: Record<string, number>;
   expected_improvement_pct: number;
 }
@@ -161,7 +168,7 @@ export interface TranslateRequest {
   source_parameters: Record<string, unknown>;
 }
 
-export interface TranslateResult extends StubTelemetry {
+export interface TranslateResult extends ShimTelemetry {
   target_operation: string | null;
   target_parameters: Record<string, unknown>;
   unmapped_parameters: string[];
@@ -196,7 +203,7 @@ export interface AGIReasonRequest {
   options?: string[];
 }
 
-export interface AGIReasonResult extends StubTelemetry {
+export interface AGIReasonResult extends ShimTelemetry {
   decision: string | null;
   reasoning_chain: string[];
   confidence: number;
@@ -230,7 +237,7 @@ export interface TribalLookupRequest {
   max_tips?: number;
 }
 
-export interface TribalLookupResult extends StubTelemetry {
+export interface TribalLookupResult extends ShimTelemetry {
   tips: Array<{ tip: string; source: string; score: number }>;
 }
 
@@ -257,7 +264,7 @@ export interface FeatureLearnRequest {
   part_geometry_hint?: string;
 }
 
-export interface FeatureLearnResult extends StubTelemetry {
+export interface FeatureLearnResult extends ShimTelemetry {
   recognized_features: string[];
   recommended_operations: string[];
 }

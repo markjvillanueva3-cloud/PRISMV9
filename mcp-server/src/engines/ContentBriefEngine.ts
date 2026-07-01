@@ -373,7 +373,7 @@ export class ContentBriefEngine {
     try {
       return { ok: true, markdown: readFileSync(filePath, "utf8") };
     } catch (err) {
-      return { ok: false, reason: String(err?.message ?? err) };
+      return { ok: false, reason: err instanceof Error ? err.message : String(err) };
     }
   }
 }

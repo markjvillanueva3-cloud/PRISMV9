@@ -54,7 +54,7 @@ function main() {
   // Check it runs
   let r;
   try {
-    r = execFileSync(NODE_EXE, ["--version"], { encoding: "utf8", timeout: 5000 });
+    r = execFileSync(NODE_EXE, ["--version"], { windowsHide: true, encoding: "utf8", timeout: 5000 });
   } catch (e) {
     fail("node_run_failed", `node --version failed: ${e.message}`);
   }

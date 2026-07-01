@@ -15,7 +15,7 @@ import { spawn } from "node:child_process";
 import { existsSync, writeFileSync, readFileSync, unlinkSync, mkdirSync } from "node:fs";
 import { dirname } from "node:path";
 
-const OLLAMA_URL = (process.env.OLLAMA_URL || "http://localhost:11434").replace(/\/$/, "");
+const OLLAMA_URL = (process.env.OLLAMA_URL || "http://127.0.0.1:11434").replace(/\/$/, "");
 const PROBE_TIMEOUT_MS = 1500;
 const STARTUP_WAIT_MS = 2000;
 const LOCK_FILE = "H:/prism/.claude/cache/ollama-autostart.lock";

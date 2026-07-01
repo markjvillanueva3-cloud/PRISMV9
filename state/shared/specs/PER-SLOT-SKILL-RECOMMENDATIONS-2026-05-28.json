@@ -1,0 +1,81 @@
+{
+  "$schema": "PER-SLOT-SKILL-RECOMMENDATIONS-v1",
+  "_meta": {
+    "generated": "2026-05-28",
+    "source": "4 parallel general-purpose agents dispatched from slot:alpha session a198ff5f",
+    "operator_directive": "do batchs of 4 parallel agents + you = 5 chats reviewing your work per chat slot; figure out a way for each chat slot to utilize the full system to its fullest capabilities",
+    "downstream": "Each slot's galaxy-buildout brief at state/shared/per-slot-galaxy-buildout/<slot>.md should be amended to instruct the slot to ship its fastest_first_ship recommendation as Step 12 of the buildout protocol."
+  },
+  "slots": {
+    "foxtrot": {
+      "domain": "mill",
+      "recommendations": [
+        {"kind": "hook", "name": "mill-kienzle-inline-guard", "leverage_score": 9, "estimated_loc": 95, "purpose": "PreToolUse:Edit/Write hook blocks inline Kienzle/Taylor numeric literals in engines/mill/ — fails-loud at write-time before multi-file build hits stop_on_inlined_constants Stop hook"},
+        {"kind": "hook", "name": "mill-trochoidal-singularity-prewarn", "leverage_score": 9, "estimated_loc": 70, "purpose": "UserPromptSubmit injector surfaces the 6 mill gotchas (chip-thinning, deflection, entry angle, singularity, coolant, spindle headroom) on keyword match"},
+        {"kind": "script", "name": "mill-program-similarity-find", "leverage_score": 8, "estimated_loc": 180, "purpose": "Header-tool-signature hash O(1) lookup across CNC MILL HAAS + HURCO subtrees vs Glob+Read 8 files"},
+        {"kind": "hook", "name": "mill-vmc-machine-binding-inject", "leverage_score": 7, "estimated_loc": 60, "purpose": "UserPromptSubmit auto-injects 5-row machine fleet table on VMC-01..05 / Hurco / Okuma keyword match"},
+        {"kind": "skill", "name": "mill-validate-foxtrot", "leverage_score": 6, "estimated_loc": 110, "purpose": "Composite: mill_validate_setup + mill_validate_safety + mill_collision_check + mill_power_verify → 4-line PASS/FAIL matrix"}
+      ],
+      "biggest_gap": "No automated mill-program similarity lookup — foxtrot manually Globs 51 customer folders + Reads 5-8 .NC files for new-job precedent (highest-frequency mill-galaxy task)",
+      "fastest_first_ship": "mill-kienzle-inline-guard — 95 LOC, mirrors stop_on_inlined_constants pattern, <1hr including test"
+    },
+    "mike": {
+      "domain": "wedm",
+      "recommendations": [
+        {"kind": "hook", "name": "mike-wedm-physics-constants-guard", "leverage_score": 9, "estimated_loc": 140, "purpose": "PreToolUse hardblock on mill-physics constants applied to WEDM + inlined discharge-energy/wire-tension literals"},
+        {"kind": "hook", "name": "mike-jm-die-archive-router", "leverage_score": 9, "estimated_loc": 110, "purpose": "Intercepts Glob over JM DIE/WIRE EDM/** (4058 files) and rewrites to customer-scoped subtree via prismSelfAwarenessEngine.getJMDieCustomerPath"},
+        {"kind": "hook", "name": "mike-wedm-post-dialect-resolver", "leverage_score": 8, "estimated_loc": 160, "purpose": "On .cps/.pst/.MIN/.NC edit, auto-injects canonical Mitsubishi/Sodick/Makino/Agie/Fanuc syntax delta for resolved controller"},
+        {"kind": "script", "name": "wedm-ledger-replay-mike", "leverage_score": 8, "estimated_loc": 180, "purpose": "Streams WEDM_OUTCOME_LEDGER + WEDM_REASONING_TRACE_LEDGER through wire-break/recast/Ra-drift filter, emits 50-line top-failures digest"},
+        {"kind": "hook", "name": "mike-tribal-tip-source-guard", "leverage_score": 7, "estimated_loc": 80, "purpose": "PreToolUse hardblock on edits to auto-regenerated knowledge/tribal/wedm-knowledge-tips-*.md — reroutes to wedm-knowledge-tips.ts canonical source"}
+      ],
+      "biggest_gap": "No automated enforcement that wire-EDM is electrical-discharge physics — fresh session risks applying mill Kienzle/Taylor constants because canonical edm-constants.ts may not even exist yet",
+      "fastest_first_ship": "mike-tribal-tip-source-guard — 80 LOC, zero ambiguity, reuses PreToolUse pattern, <30min"
+    },
+    "charlie": {
+      "domain": "quoting",
+      "recommendations": [
+        {"kind": "hook", "name": "charlie-customer-name-noise-collision-block", "leverage_score": 10, "estimated_loc": 180, "purpose": "PreToolUse guard on NON_CUSTOMER regex edits — auto-runs anti-regression corpus (HOLOTEST, OLDFIELD, TURNTECH, CADWORKS, ALCOA POST OFFICE, DOC HOLLIDAY) and BLOCKS if any get stripped"},
+        {"kind": "hook", "name": "charlie-quote-margin-floor-guard", "leverage_score": 9, "estimated_loc": 140, "purpose": "PreToolUse hardblock on hardcoded margin/markup/rate literals (<1.15x or >5x) in quoting engines — redirect to canonical machine-rate registries"},
+        {"kind": "hook", "name": "charlie-quote-staleness-rounding-lint", "leverage_score": 8, "estimated_loc": 90, "purpose": "Codifies iter28 Math.round boundary-bug — flags Math.round(X) (>|<|>=|<=) THRESHOLD patterns and suggests raw-fractional comparison"},
+        {"kind": "skill", "name": "quote-calibrate-charlie", "leverage_score": 8, "estimated_loc": 160, "purpose": "One-shot reconciliation: closed jobs × instant-quote → per-customer/per-process estimate-vs-actual ratio → JMDieQuoteTrainingPipeline delta"},
+        {"kind": "script", "name": "scripts/charlie-quote-blast-radius.mjs", "leverage_score": 7, "estimated_loc": 130, "purpose": "Walk cost-rollup dependency chain (JobCosting→CycleTimeEstimator→InstantQuote→BlueprintToQuoteBridge), print downstream quote engines whose outputs would shift >2%"}
+      ],
+      "biggest_gap": "Zero automated margin-protection — hardcoded rate/markup literals slip past per-file scrutiny and land in customer-facing quotes; iter9-41 NON_CUSTOMER filter chain proved R12 leaks recur every 3-5 iters without write-time guard",
+      "fastest_first_ship": "charlie-customer-name-noise-collision-block — anti-regression corpus already exists in commit archaeology, wires in <2hr as 180-LOC PreToolUse hook"
+    },
+    "india": {
+      "domain": "ai-training",
+      "recommendations": [
+        {"kind": "hook", "name": "outcome-bus-auto-tap.mjs", "leverage_score": 10, "estimated_loc": 180, "purpose": "PostToolUse taps every Edit/Write/Bash outcome across fleet into OutcomeFeedbackBus as labeled RL training rows; fleet generates ~5000 outcomes/day currently silently discarded"},
+        {"kind": "script", "name": "stratified-corpus-sampler.mjs", "leverage_score": 10, "estimated_loc": 160, "purpose": "Auto-rebalances training corpus per node-type marginal to fix 0.096 AUROC heterophily collapse blocking NN-GRAPH deploy-gate"},
+        {"kind": "hook", "name": "cross-slot-pattern-distill.mjs", "leverage_score": 9, "estimated_loc": 195, "purpose": "Stop hook distills repeated fix-patterns per slot, promotes them as candidate tribal tips with slot=originator — closes the cross-slot learning write-path"},
+        {"kind": "script", "name": "lora-drift-canary-eval.mjs", "leverage_score": 9, "estimated_loc": 175, "purpose": "Continuous eval — every lathe/mill LoRA checkpoint scored against frozen 50-prompt canary; PSI/KS drift triggers retrain candidacy"},
+        {"kind": "hook", "name": "retrain-trigger-on-corpus-delta.mjs", "leverage_score": 9, "estimated_loc": 165, "purpose": "PostToolUse detects ≥N new outcome rows / RAG corpus deltas / tribal-tip writes, debounce-fires retrain candidacy for affected model layer"}
+      ],
+      "biggest_gap": "Outcome capture is manual — fleet generates thousands of labeled tool-call outcomes daily that never reach OutcomeFeedbackBus, so every model trains on starved sample (visible in 0.096 AUROC heterophily collapse)",
+      "fastest_first_ship": "outcome-bus-auto-tap.mjs — pure PostToolUse plumbing, no model changes, immediately feeds GNN+LoRA+MetaLearning+calibration. ~2hr including tests",
+      "fleet_compound_value": "Every other slot's commits/scrutiny verdicts become training signal for india's models, which then route smarter via aiSystemRouterEngine for every slot — closes the only currently-open feedback loop in PSN's NN/GNN leg"
+    }
+  },
+  "next_pass_candidates": [
+    "whiskey (lathe) — adaptive turning + lathe LoRA",
+    "xray (blueprint-vision) — OCR confidence calibration + multi-print classifier",
+    "hotel (business/ERP) — cost-variance learning + payroll prediction",
+    "oscar (sfc) — per-material × tool online learning",
+    "echo (post-processor) — dialect-quirk pattern memory",
+    "delta (cad) — per-format parser confidence",
+    "kilo (cam) — toolpath strategy outcome learning",
+    "papa (backend-helper) — TSC-fix campaign auto-patterning",
+    "quebec (frontend-app) — UI regression visual-diff",
+    "sierra (system-viz) — graph-update outcome scoring",
+    "tango (discovery) — duplicate-prevention false-positive learning",
+    "uniform (bug-hunting) — bug-class taxonomy auto-expansion"
+  ],
+  "ship_order": [
+    "1. india: outcome-bus-auto-tap.mjs (unlocks ALL closed-loop slots)",
+    "2. mike: mike-tribal-tip-source-guard (30 min — easiest win)",
+    "3. foxtrot: mill-kienzle-inline-guard (<1hr — safety-critical)",
+    "4. charlie: charlie-customer-name-noise-collision-block (<2hr — revenue-critical)",
+    "5. india: lora-drift-canary-eval.mjs (observability for every domain LoRA)"
+  ]
+}

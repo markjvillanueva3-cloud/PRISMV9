@@ -209,6 +209,31 @@ function validateParams(operation: string, p: GCodeParams, warnings: string[]): 
   // Skip validation for structural operations
   if (["program_header", "program_footer", "subprogram_call"].includes(operation)) return;
 
+  // U-PP-NONFINITE-EMIT-SWEEP: a non-finite numeric param formats into a literal
+  // `XNaN`/`FInfinity`/`ZNaN` token the control rejects -- and the `<= 0` checks below
+  // PASS NaN (NaN<=0 is false). Reject it up-front, matching this engine's
+  // throw-on-invalid-param convention (central guard for every emit path).
+  const NUMERIC_EMIT_FIELDS: Array<keyof GCodeParams> = [
+    "rpm", "feed_rate", "z_safe", "z_depth", "peck_depth", "pitch",
+    "thread_diameter", "thread_pitch", "thread_depth",
+    "pocket_diameter", "pocket_depth", "tool_diameter",
+    "x_start", "y_start", "x_end", "y_end",
+  ];
+  for (const k of NUMERIC_EMIT_FIELDS) {
+    const v = p[k];
+    if (typeof v === "number" && !Number.isFinite(v)) {
+      throw new Error(`[GCodeTemplateEngine] Non-finite ${String(k)} (${v}): would emit a literal NaN/Infinity token the control rejects`);
+    }
+  }
+  if (p.profile_points) {
+    for (let i = 0; i < p.profile_points.length; i++) {
+      const pt = p.profile_points[i];
+      if (!Number.isFinite(pt.x) || !Number.isFinite(pt.y)) {
+        throw new Error(`[GCodeTemplateEngine] Non-finite profile_points[${i}] (${pt.x},${pt.y}): would emit a literal XNaN/YNaN token`);
+      }
+    }
+  }
+
   // RPM validation (except tool_change which may have 0)
   if (operation !== "tool_change") {
     if (p.rpm <= 0) throw new Error(`[GCodeTemplateEngine] Invalid RPM (${p.rpm}): must be > 0`);

@@ -292,6 +292,32 @@ describe("LatheOpusReasoningEngine - Deep Reasoning Chains", () => {
       expect(result.confidence).toBeGreaterThan(0);
     });
 
+    // ENGINE-AUDIT 2026-06-19 (slot:bravo): buildOperationSequence hardcoded estimatedVolume=1000
+    // (a Placeholder mm3 that fabricated estimated_time_sec + estimated_cost). The fix derives the
+    // real stock-removal volume from part geometry, so a physically-larger stock must yield a longer
+    // total estimated time -- pre-fix (constant 1000) the two would be IDENTICAL. (Found by the new
+    // scripts/audit-fabricated-output.mjs detector.)
+    it("estimated time scales with real stock-removal volume (not a hardcoded 1000 placeholder)", () => {
+      const sameFeatures = [
+        { type: "od_turn" as const, location_z_mm: 0, diameter_mm: 45, tolerance_mm: 0.05 },
+        { type: "chamfer" as const, location_z_mm: 0, depth_mm: 1.5 },
+      ];
+      const small: PartAnalysisInput = {
+        part_name: "small stock", material: STEEL_MATERIAL, batch_size: 1, priority: "balanced",
+        geometry: { bar_od_mm: 50, finished_od_mm: 45, length_mm: 100, features: sameFeatures },
+      };
+      const large: PartAnalysisInput = {
+        part_name: "large stock", material: STEEL_MATERIAL, batch_size: 1, priority: "balanced",
+        geometry: { bar_od_mm: 90, finished_od_mm: 45, length_mm: 250, features: sameFeatures },
+      };
+      const tSmall = LatheOpusReasoningEngine.analyzePartWithReasoning(small)
+        .recommended_sequence.operations.reduce((s, o) => s + o.estimated_time_sec, 0);
+      const tLarge = LatheOpusReasoningEngine.analyzePartWithReasoning(large)
+        .recommended_sequence.operations.reduce((s, o) => s + o.estimated_time_sec, 0);
+      expect(tSmall).toBeGreaterThan(0);
+      expect(tLarge).toBeGreaterThan(tSmall); // larger real stock volume -> longer time (fix proven)
+    });
+
     it("should include all reasoning step types", () => {
       const result = LatheOpusReasoningEngine.analyzePartWithReasoning(COMPLEX_PART_INPUT);
 
@@ -445,6 +471,37 @@ describe("LatheOpusReasoningEngine - Cost-Efficiency Optimization", () => {
 
       // Very conservative parameters should suggest improvement
       expect(result.recommendation.length).toBeGreaterThan(0);
+    });
+
+    // ENGINE-AUDIT 2026-06-19 (slot:bravo): cost_per_part was fabricated from a hardcoded 5-min
+    // cycle time. It now uses the real params.cycle_time_min when supplied, else a flagged estimate.
+    it("flags cost as an ESTIMATE when cycle_time_min is omitted", () => {
+      const r = LatheOpusReasoningEngine.calculateCostEfficiency(
+        STEEL_MATERIAL,
+        { vc_mpm: 200, fn_mmrev: 0.15, ap_mm: 2.0 },
+        100
+      );
+      expect(r.cost_is_estimate).toBe(true);
+      expect(r.recommendation).toMatch(/ESTIMATE/);
+    });
+
+    it("reports a real (non-estimate) cost when cycle_time_min is supplied", () => {
+      const r = LatheOpusReasoningEngine.calculateCostEfficiency(
+        STEEL_MATERIAL,
+        { vc_mpm: 200, fn_mmrev: 0.15, ap_mm: 2.0, cycle_time_min: 8 },
+        100
+      );
+      expect(r.cost_is_estimate).toBe(false);
+      expect(r.recommendation).not.toMatch(/ESTIMATE/);
+    });
+
+    it("uses the real cycle time: a longer cycle yields a higher cost_per_part (the fix)", () => {
+      const base = { vc_mpm: 200, fn_mmrev: 0.15, ap_mm: 2.0 };
+      const five = LatheOpusReasoningEngine.calculateCostEfficiency(STEEL_MATERIAL, { ...base, cycle_time_min: 5 }, 100);
+      const ten = LatheOpusReasoningEngine.calculateCostEfficiency(STEEL_MATERIAL, { ...base, cycle_time_min: 10 }, 100);
+      const omitted = LatheOpusReasoningEngine.calculateCostEfficiency(STEEL_MATERIAL, base, 100);
+      expect(ten.cost_per_part).toBeGreaterThan(five.cost_per_part); // longer cycle -> more cost
+      expect(omitted.cost_per_part).toBeCloseTo(five.cost_per_part, 2); // default fallback == explicit 5min
     });
   });
 

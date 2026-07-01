@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>JM Die Company — Capabilities &amp; Equipment Brief</title>
+<style>
+  @page { size: letter; margin: 0.75in 0.75in 0.75in 0.75in; }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; padding: 0;
+    font-family: "Georgia", "Palatino", "Book Antiqua", serif;
+    color: #1a2434;
+    background: #ffffff;
+    line-height: 1.5;
+    font-size: 10.5pt;
+  }
+  .page { max-width: 7in; margin: 0 auto; padding: 0.5in 0.25in; }
+
+  /* Header */
+  .letterhead {
+    border-bottom: 3px solid #1a2434;
+    padding-bottom: 0.3in;
+    margin-bottom: 0.35in;
+  }
+  .letterhead h1 {
+    font-family: "Helvetica Neue", Arial, sans-serif;
+    font-weight: 300;
+    letter-spacing: 0.08em;
+    font-size: 28pt;
+    margin: 0 0 4pt 0;
+    color: #1a2434;
+  }
+  .letterhead .tagline {
+    font-family: "Helvetica Neue", Arial, sans-serif;
+    font-size: 10pt;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: #6b7684;
+    margin: 0;
+  }
+  .letterhead .doctitle {
+    font-family: "Helvetica Neue", Arial, sans-serif;
+    font-size: 10pt;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: #8b95a3;
+    margin-top: 12pt;
+    text-align: right;
+  }
+
+  /* Section headings */
+  h2 {
+    font-family: "Helvetica Neue", Arial, sans-serif;
+    font-weight: 600;
+    font-size: 13pt;
+    letter-spacing: 0.04em;
+    color: #1a2434;
+    border-bottom: 1px solid #c0c8d2;
+    padding-bottom: 4pt;
+    margin: 22pt 0 10pt 0;
+    text-transform: uppercase;
+  }
+  h3 {
+    font-family: "Helvetica Neue", Arial, sans-serif;
+    font-weight: 600;
+    font-size: 10.5pt;
+    color: #2d3b52;
+    margin: 14pt 0 6pt 0;
+    letter-spacing: 0.02em;
+  }
+
+  /* Lead paragraph after section heading */
+  .lead {
+    font-size: 11pt;
+    line-height: 1.55;
+    color: #2d3b52;
+    margin: 0 0 10pt 0;
+  }
+
+  /* Lists */
+  ul { margin: 6pt 0 10pt 0; padding-left: 18pt; }
+  li { margin-bottom: 3pt; }
+
+  /* Tables */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 8pt 0 14pt 0;
+    font-family: "Helvetica Neue", Arial, sans-serif;
+    font-size: 9.5pt;
+  }
+  th {
+    background: #1a2434;
+    color: #ffffff;
+    font-weight: 600;
+    text-align: left;
+    padding: 6pt 8pt;
+    letter-spacing: 0.03em;
+    font-size: 9pt;
+    text-transform: uppercase;
+  }
+  th.num, td.num { text-align: right; }
+  td {
+    padding: 5pt 8pt;
+    border-bottom: 1px solid #e2e6ec;
+    color: #2d3b52;
+    vertical-align: top;
+  }
+  tr:nth-child(even) td { background: #f6f8fa; }
+  td.highlight { font-weight: 600; color: #1a2434; }
+
+  /* Callout box */
+  .callout {
+    background: #f2f5f9;
+    border-left: 3px solid #1a2434;
+    padding: 10pt 14pt;
+    margin: 10pt 0 14pt 0;
+    font-size: 10pt;
+    color: #2d3b52;
+  }
+  .callout strong { color: #1a2434; }
+
+  /* Capability matrix */
+  .matrix td { font-size: 9.5pt; }
+  .matrix td:first-child { font-weight: 600; color: #1a2434; width: 30%; }
+  .matrix td:nth-child(2) { width: 40%; }
+  .matrix td:nth-child(3) { color: #5a6575; font-style: italic; }
+
+  /* Inline tag list */
+  .tags {
+    font-family: "Helvetica Neue", Arial, sans-serif;
+    font-size: 9.5pt;
+    color: #2d3b52;
+  }
+  .tags strong { color: #1a2434; }
+
+  /* Secondary unit (smaller, muted) */
+  .metric {
+    display: block;
+    font-size: 8.5pt;
+    color: #6b7684;
+    font-weight: 400;
+    margin-top: 1pt;
+  }
+
+  /* Footer */
+  .footer {
+    margin-top: 40pt;
+    padding-top: 14pt;
+    border-top: 1px solid #c0c8d2;
+    font-family: "Helvetica Neue", Arial, sans-serif;
+    font-size: 8.5pt;
+    color: #8b95a3;
+    text-align: center;
+    letter-spacing: 0.05em;
+  }
+
+  /* Next steps call-to-action */
+  .cta {
+    background: #1a2434;
+    color: #ffffff;
+    padding: 16pt 20pt;
+    margin: 22pt 0 14pt 0;
+    border-radius: 2pt;
+  }
+  .cta h2 {
+    color: #ffffff;
+    border-color: #3a4a60;
+    margin-top: 0;
+  }
+  .cta p { margin: 6pt 0; color: #e2e6ec; font-size: 10.5pt; }
+  .cta strong { color: #ffffff; }
+
+  /* Print rules */
+  @media print {
+    .no-print { display: none; }
+    body { print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+    h2 { page-break-after: avoid; }
+    table { page-break-inside: avoid; }
+    tr { page-break-inside: avoid; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- Letterhead -->
+  <header class="letterhead">
+    <h1>JM DIE COMPANY</h1>
+    <p class="tagline">Precision Tooling for the Fastener Industry</p>
+    <p class="doctitle">Capabilities &amp; Equipment Brief</p>
+  </header>
+
+  <!-- Industries -->
+  <h2>Industries Served</h2>
+  <p class="lead">
+    Fastener manufacturing &mdash; cold heading, thread rolling, and rivet production.
+    Tier-1 fastener OEMs, specialty forgers, and precision tooling customers across North America.
+  </p>
+
+  <!-- Core Specialties -->
+  <h2>Core Specialties</h2>
+  <ul>
+    <li><strong>Cold-heading dies</strong> &mdash; punches, inserts, and matched-set tooling</li>
+    <li><strong>Electrode manufacturing</strong> &mdash; graphite and copper, including trilobe and custom geometries</li>
+    <li><strong>Wire EDM tooling</strong> &mdash; progressive dies, stripper plates, punch-and-die sets, form tools</li>
+    <li><strong>Sinker EDM</strong> &mdash; die cavities, complex cores, fine-finish surfaces</li>
+    <li><strong>Hard turning and hard milling</strong> &mdash; finishing operations on hardened tool steels (50&ndash;62 HRC) in a single setup, replacing many traditional grinding operations</li>
+    <li><strong>Precision deep-hole work</strong> &mdash; gun drilling for die inserts, ejector bores, coolant passages</li>
+    <li><strong>Centerless grinding</strong> &mdash; high-volume cylindrical tolerance work on punches, pins, shafts</li>
+    <li><strong>Complete CNC manufacturing</strong> &mdash; from solid stock through inspection under one roof</li>
+  </ul>
+
+  <!-- Equipment -->
+  <h2>Equipment</h2>
+
+  <h3>CNC Turning &mdash; 7 Okuma Lathes</h3>
+  <table>
+    <thead>
+      <tr>
+        <th>Machine</th>
+        <th>Type</th>
+        <th class="num">Max Swing &times; Z</th>
+        <th class="num">Bar &empty;</th>
+        <th class="num">Power</th>
+        <th>Notable</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td class="highlight">Okuma GENOS L300-M</td><td>C-axis live tool</td><td class="num">&empty;10.24" &times; 21.65"<span class="metric">&empty;260 &times; 550 mm</span></td><td class="num">2.56"<span class="metric">65 mm</span></td><td class="num">20 HP / 258 lb-ft<span class="metric">15 kW / 350 Nm</span></td><td>12-station turret, live tooling</td></tr>
+      <tr><td class="highlight">Okuma GENOS L200E-M</td><td>C-axis live tool</td><td class="num">&empty;7.87" &times; 13.78"<span class="metric">&empty;200 &times; 350 mm</span></td><td class="num">2.01"<span class="metric">51 mm</span></td><td class="num">15 HP / 207 lb-ft<span class="metric">11 kW / 280 Nm</span></td><td>12-station turret, live tooling</td></tr>
+      <tr><td class="highlight">Okuma LNC8</td><td>Standard</td><td class="num">&empty;7.87" &times; 19.69"<span class="metric">&empty;200 &times; 500 mm</span></td><td class="num">2.01"<span class="metric">51 mm</span></td><td class="num">15 HP / 221 lb-ft<span class="metric">11 kW / 300 Nm</span></td><td>12-station turret</td></tr>
+      <tr><td class="highlight">Okuma Crown L1060</td><td>Standard</td><td class="num">&empty;7.87" &times; 19.69"<span class="metric">&empty;200 &times; 500 mm</span></td><td class="num">2.01"<span class="metric">51 mm</span></td><td class="num">15 HP / 207 lb-ft<span class="metric">11 kW / 280 Nm</span></td><td>8-station turret</td></tr>
+      <tr><td class="highlight">Okuma GENOS L400II-E</td><td>Heavy-duty</td><td class="num">&empty;13.39" &times; 23.62"<span class="metric">&empty;340 &times; 600 mm</span></td><td class="num">3.15"<span class="metric">80 mm</span></td><td class="num">30 HP / 413 lb-ft<span class="metric">22 kW / 560 Nm</span></td><td>Heavy turning capacity</td></tr>
+      <tr><td class="highlight">Okuma LB 3000EX Big Bore</td><td>Big-bore</td><td class="num">&empty;12.60" &times; 23.62"<span class="metric">&empty;320 &times; 600 mm</span></td><td class="num"><strong>4.02"</strong><span class="metric">102 mm</span></td><td class="num">30 HP / 516 lb-ft<span class="metric">22 kW / 700 Nm</span></td><td>High-pressure coolant</td></tr>
+      <tr><td class="highlight">Okuma Multus B250II</td><td><strong>Mill-turn</strong></td><td class="num">&empty;12.60" &times; 35.43"<span class="metric">&empty;320 &times; 900 mm</span></td><td class="num">3.15"<span class="metric">80 mm</span></td><td class="num">30 HP / 443 lb-ft<span class="metric">22 kW / 600 Nm</span></td><td>Y + B + C axis, sub-spindle, 20-station live turret</td></tr>
+    </tbody>
+  </table>
+
+  <h3>CNC Milling &mdash; 5 Machines</h3>
+  <table>
+    <thead>
+      <tr>
+        <th>Machine</th>
+        <th>Type</th>
+        <th class="num">X &times; Y &times; Z Envelope</th>
+        <th>Spindle</th>
+        <th>Highlight</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td class="highlight">Okuma M460V-5AX</td><td><strong>Full 5-axis</strong></td><td class="num">30.00" &times; 18.11" &times; 18.11"<span class="metric">762 &times; 460 &times; 460 mm</span></td><td>15,000 RPM / 30 HP / BT40<span class="metric">22 kW</span></td><td>Integrated trunnion (A+C), 220 lb capacity <span class="metric">100 kg</span></td></tr>
+      <tr><td class="highlight">Hurco VM30i</td><td>3-axis</td><td class="num">40.00" &times; 20.00" &times; 24.02"<span class="metric">1,016 &times; 508 &times; 610 mm</span></td><td>12,000 RPM / 25 HP / BT40<span class="metric">18.5 kW</span></td><td>Large-envelope production milling</td></tr>
+      <tr><td class="highlight">Haas VF-2</td><td>3-axis</td><td class="num">30.00" &times; 16.00" &times; 20.00"<span class="metric">762 &times; 406 &times; 508 mm</span></td><td>8,100 RPM / 30 HP / CAT40<span class="metric">22 kW</span></td><td>General-purpose production milling</td></tr>
+      <tr><td class="highlight">Roku-Roku HC 658-II</td><td><strong>High-speed die-sink</strong></td><td class="num">23.62" &times; 19.69" &times; 11.81"<span class="metric">600 &times; 500 &times; 300 mm</span></td><td><strong>30,000 RPM</strong> / 10 HP / HSK-E40<span class="metric">7.5 kW</span></td><td>Graphite &amp; electrode specialist; <strong>hard milling</strong> of hardened tool steels</td></tr>
+      <tr><td class="highlight">Haas OM-2</td><td>High-speed small-part</td><td class="num">12.01" &times; 10.00" &times; 12.01"<span class="metric">305 &times; 254 &times; 305 mm</span></td><td><strong>30,000 RPM</strong> / 10 HP / BT30<span class="metric">7.5 kW</span></td><td>Micro-features, engraving</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Electrical Discharge Machining &mdash; 7 Wire + 2 Sinker</h3>
+  <ul>
+    <li><strong>7 wire EDM systems</strong> &mdash; profile cutting, punch &amp; die, taper cutting, skim passes, progressive-die work. <strong>Capable of wiring carbide (round extrusion), AR400 / AR500 abrasion-resistant plate, and hardened tool steels</strong> &mdash; tough-material capability many shops outsource. Parallel-job capacity across the wire department keeps lead times tight on multi-part and multi-operation jobs.</li>
+    <li><strong>2 sinker EDM systems</strong> &mdash; die-sinking, electrode-burn operations, fine-finish surfaces. One system is dual-head for simultaneous electrode burns.</li>
+  </ul>
+
+  <div class="callout">
+    <strong>Flagship wire EDM specs (Mitsubishi FA10S):</strong> Submerged cutting, auto-threading,
+    up to <strong>30&deg; taper</strong>, <strong>8.46" (215 mm) maximum workpiece height</strong>,
+    3.15" (80 mm) U-V travel. Wires stocked: &empty;0.010" (0.25 mm, MD+ Pro II) and
+    &empty;0.008" (0.20 mm, MV1200S).
+  </div>
+
+  <h3>Precision Grinding</h3>
+  <ul>
+    <li><strong>Centerless grinding</strong> &mdash; high-volume cylindrical tolerance work on punches, pins, and shaft-type components</li>
+    <li><strong>Surface grinding</strong> &mdash; flat grinding and surface finishing</li>
+  </ul>
+
+  <h3>Deep-Hole Drilling</h3>
+  <ul>
+    <li><strong>Gun drilling</strong> &mdash; dedicated deep-hole capability for die inserts, ejector pin bores, coolant passages, and long aspect-ratio holes where conventional drilling cannot hold tolerance</li>
+  </ul>
+
+  <h3>Inspection</h3>
+  <ul>
+    <li><strong>Fleet of optical comparators</strong> &mdash; profile inspection, visual verification, and dimensional verification at multiple stations across the shop floor</li>
+  </ul>
+
+  <h3>Partner Network</h3>
+  <ul>
+    <li><strong>Welding</strong> &mdash; full welding services (TIG, MIG, tool-and-die repair, build-up, and fabrication) provided through our trusted partner shop located next door. Single point of contact, single quote, single delivery. Your job moves between facilities without you moving paperwork.</li>
+  </ul>
+
+  <!-- CAD / CAM -->
+  <h2>CAD / CAM Compatibility</h2>
+  <p class="lead">Native files accepted from every major CAD/CAM system. Your engineers don't translate &mdash; we do.</p>
+
+  <h3>CAD</h3>
+  <p class="tags">
+    <strong>Autodesk Inventor</strong> (primary) &middot; <strong>SolidWorks</strong> &middot; <strong>Fusion 360</strong>
+    <br>
+    Native formats: .ipt &middot; .iam &middot; .idw &middot; .SLDPRT &middot; .f3d &middot; .stp / .step &middot; .stl &middot; .dxf &middot; .dwg
+  </p>
+
+  <h3>CAM &mdash; 6 Systems</h3>
+  <p class="tags">
+    <strong>Mastercam X8+</strong> (Mill, Lathe, Wire &mdash; 6 seats) &middot;
+    <strong>Fusion 360 Machining Extension</strong> &middot;
+    <strong>Esprit</strong> (wire EDM) &middot;
+    <strong>hyperMILL</strong> (advanced 5-axis) &middot;
+    <strong>Inventor HSM</strong> &middot;
+    <strong>SolidCAM</strong> (iMachining)
+  </p>
+
+  <h3>Controllers Supported</h3>
+  <p class="tags">
+    Okuma OSP &middot; Hurco WinMAX &middot; Haas &middot; Fanuc &middot; Mitsubishi (FP80S, C30EA-2, W31MV-2).
+    Machine-specific post processors validated and in use on every production machine.
+  </p>
+
+  <!-- Capability Summary -->
+  <h2>Capability Summary</h2>
+  <table class="matrix">
+    <thead>
+      <tr><th>Need</th><th>Capability</th><th>Machine(s)</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Cold-heading die sets &amp; punches</td><td>End-to-end manufacturing</td><td>Lathes + Mills + EDM</td></tr>
+      <tr><td>Complex electrode geometries</td><td>High-speed 30,000 RPM graphite milling</td><td>Roku-Roku HC 658-II, M460V-5AX</td></tr>
+      <tr><td>Progressive die plates</td><td>Wire EDM with 30&deg; taper to 8.46" (215 mm) Z</td><td>7 wire EDM systems</td></tr>
+      <tr><td>Tough materials (carbide, AR plate, hardened steel)</td><td>Wire EDM in-house &mdash; no outsourcing</td><td>7 wire EDM systems</td></tr>
+      <tr><td>Die cavities &amp; fine surface finish</td><td>Dual-head sinker EDM</td><td>2 sinker EDM systems</td></tr>
+      <tr><td>Hardened-steel finishing</td><td>Hard turning &amp; hard milling (50&ndash;62 HRC)</td><td>Multus B250II, L400II-E, M460V-5AX, Roku-Roku</td></tr>
+      <tr><td>Complete-in-one turned parts</td><td>Live-tool lathes + mill-turn</td><td>GENOS L300-M, L200E-M, Multus B250II</td></tr>
+      <tr><td>Full 5-axis contours</td><td>Trunnion-table machining</td><td>Okuma M460V-5AX</td></tr>
+      <tr><td>Deep-hole features</td><td>Gun drilling</td><td>Dedicated gun drill</td></tr>
+      <tr><td>Cylindrical tolerance work</td><td>Centerless grinding</td><td>Dedicated centerless</td></tr>
+      <tr><td>Heavy / big-bore turning</td><td>4.02" (102 mm) bar, 30 HP spindle</td><td>LB 3000EX Big Bore, L400II-E</td></tr>
+      <tr><td>Micro features &amp; engraving</td><td>30,000 RPM BT30 spindle</td><td>Haas OM-2</td></tr>
+      <tr><td>Welding &amp; repair</td><td>TIG, MIG, tool-and-die repair</td><td>Partner shop (adjacent facility)</td></tr>
+      <tr><td>First-article inspection</td><td>Optical comparators</td><td>Inspection department</td></tr>
+    </tbody>
+  </table>
+
+  <!-- Materials -->
+  <h2>Materials</h2>
+  <p class="lead">
+    Tool and die steels &mdash; <strong>M2, D2, S7, A2, H13</strong>, including hardened condition (50&ndash;62 HRC).
+    Tungsten and cobalt <strong>carbides</strong> (round extrusion, wire-EDM-compatible).
+    <strong>AR400 / AR500 abrasion-resistant plate</strong>. <strong>Graphite</strong> (EDM electrodes).
+    <strong>4140 pre-hard</strong> and alloy steels. <strong>17-4 PH stainless</strong>.
+    <strong>304 stainless steel</strong>. <strong>A36 structural steel</strong>.
+    <strong>1018 / 1020 low-carbon steels</strong>. <strong>6061 aluminum</strong>.
+    Custom and specialty materials on request.
+  </p>
+
+  <!-- CTA -->
+  <div class="cta">
+    <h2>Next Steps</h2>
+    <p><strong>Send us a print.</strong> We reply within one business day with feasibility and pricing.</p>
+    <p><strong>Quality documentation, material certs, or capability letters</strong> &mdash; available on request.</p>
+  </div>
+
+  <!-- Footer -->
+  <div class="footer">
+    JM DIE COMPANY &middot; CAPABILITIES &amp; EQUIPMENT BRIEF &middot; REVISION 2026-04-21<br>
+    Specifications reflect current shop floor configuration. Detailed envelope drawings and machine-specific datasheets available on request.
+  </div>
+
+</div>
+</body>
+</html>

@@ -62,11 +62,17 @@ const HYPERCADS_SUPPORTED_OPS: ReadonlyArray<CADOperationKind> = [
 // ── Main engine class ────────────────────────────────────────────────────────
 
 export class HyperCADSCodeGeneratorEngine extends UnifiedCADCodeGeneratorBase<HyperCADSGenerationContext> {
-  readonly cadSystem: CADSystemId = "hypercads";
+  readonly cadSystem: CADSystemId = "hypercad_s";
 
   readonly capabilities: CADCapabilityMatrix = {
-    cadSystem: "hypercads",
+    cadSystem: "hypercad_s",
     supportedOps: new Set(HYPERCADS_SUPPORTED_OPS),
+    // emit code converts all coords to mm (UNIT_FACTOR = in?25.4:1.0, "Conversion to mm");
+    // angles emitted raw in degrees (mod.rotate/revolve/chamfer). Python hcad API → subprocess.
+    nativeLengthUnit: "mm",
+    nativeAngleUnit: "deg",
+    requiresSubprocess: true,
+    typicalLatencyMs: 1500,
     version: "2024",
     notes: "hyperCAD-S Python Automation API targeting hyperMILL 2024+",
     maxComplexity: 5000,
@@ -200,7 +206,7 @@ export class HyperCADSCodeGeneratorEngine extends UnifiedCADCodeGeneratorBase<Hy
   }
 
   private emitSketchSpline(op: CADOperation, emitter: CADEmitter): void {
-    const pts = op.args.points as number[][] ?? [[0,0,0],[10,5,0],[20,0,0]];
+    const pts = (op.args.points as unknown as ReadonlyArray<ReadonlyArray<number>>) ?? [[0,0,0],[10,5,0],[20,0,0]];
     const v = `spline_${this.entityCounter++}`;
     const ptStr = pts.map(p => `geo.Point(${p[0]??0}*UNIT_FACTOR, ${p[1]??0}*UNIT_FACTOR, ${p[2]??0}*UNIT_FACTOR)`).join(", ");
     emitter.line(`${v} = geo.Spline([${ptStr}])`);

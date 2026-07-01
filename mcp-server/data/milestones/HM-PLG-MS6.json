@@ -1,0 +1,312 @@
+{
+  "id": "HM-PLG-MS6",
+  "version": "8.3.0",
+  "title": "Learning Dashboard Panel",
+  "track": "HM-PLUGIN",
+  "status": "not_started",
+  "description": "Build the PRISM Learning Dashboard panel for hyperMILL. Captures operator overrides (when programmer changes PRISM's recommended S/F), prompts for reasoning, and feeds into the Bayesian learning engine. Surfaces context-relevant tribal knowledge tips per material/operation. Shows historical performance data for the current material/machine/tool combination and Bayesian prior confidence for current recommendations.",
+  "dependencies": [
+    "HM-PLG-MS1"
+  ],
+  "knowledge_sources": {
+    "engines": [
+      "SelfLearningCAMEngine",
+      "TribalKnowledgeEngine",
+      "BayesianOptimizationEngine",
+      "SessionEventLogEngine",
+      "OperatorFeedbackEngine"
+    ],
+    "registries": [
+      "MaterialRegistry",
+      "ToolRegistry",
+      "MachineRegistry"
+    ],
+    "services": [
+      "prism-mcp-server"
+    ],
+    "physics": [
+      "Bayesian posterior update",
+      "Thompson sampling for exploration/exploitation"
+    ],
+    "reference": [
+      "hypermill-cam-tips-ext (83 tips)",
+      "tribal-knowledge (3,700+ tips)"
+    ]
+  },
+  "forge_triple": {
+    "hook": "hm-plugin:override-capture-trigger — BUILT (fires when operator changes PRISM recommendation)",
+    "action": "hypermill_plugin:capture_override — BUILT (records S/F override with operator reasoning)",
+    "skill": "/hypermill-learning-dashboard — BUILT (view learning history and confidence for current context)"
+  },
+  "enforcement": {
+    "pre_level": [
+      "knowledge-consult"
+    ],
+    "post_level": [
+      "stub-detector",
+      "constants-checker"
+    ],
+    "compact_level": [
+      "review-gate",
+      "forge-triple-gate"
+    ]
+  },
+  "mcp_lifecycle": {
+    "session_start": [
+      "prism_session:context_boot",
+      "prism_session:dispatcher_map",
+      "prism_session:memory_recall",
+      "prism_session:system_snapshot"
+    ],
+    "during_work": [
+      "prism_session:auto_checkpoint (every 5-10 tool calls)",
+      "prism_session:wip_capture"
+    ],
+    "session_end": [
+      "prism_session:memory_save",
+      "prism_session:system_snapshot",
+      "prism_session:checkpoint_enhanced"
+    ]
+  },
+  "sessions": [
+    {
+      "id": "HM-PLG-MS6-S1",
+      "title": "Override Capture + Bayesian Learning",
+      "smart_config": {
+        "role": "machine-learning-engineer",
+        "model": "opus",
+        "effort": "MAX",
+        "context_budget": "45%"
+      },
+      "knowledge": [
+        "SelfLearningCAMEngine",
+        "BayesianOptimizationEngine",
+        "OperatorFeedbackEngine",
+        "TribalKnowledgeEngine (3,700+ tips)"
+      ],
+      "intent": "Build the override capture system that detects when an operator changes PRISM's recommended parameters, prompts for reasoning, and feeds the delta into the Bayesian learning engine for posterior updates.",
+      "skills": [
+        "/forge-engines",
+        "/forge-wiring",
+        "/test",
+        "/checkpoint"
+      ],
+      "plugins": [
+        "Vitest MCP",
+        "ESLint MCP"
+      ],
+      "units": [
+        {
+          "id": "U-PLG22",
+          "title": "Override Detection + Reasoning Capture",
+          "description": "Build override detection that compares applied parameters to PRISM's last recommendation. When delta exceeds threshold (>5% for speed, >10% for feed), trigger capture dialog asking 'What makes this better?' with pre-built reason categories (chatter, finish, tool life, experience, material batch variation) plus free-text. Store override record: {original, applied, delta_pct, reason, context(material, tool, machine, operation)}.",
+          "depends_on": [],
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "exit_criteria": [
+            "Override detection triggers when S/F delta exceeds 5%/10% threshold respectively",
+            "Capture dialog presents 6 pre-built reason categories plus free-text option",
+            "Override record stored with full context (material, tool, machine, operation, timestamp)"
+          ],
+          "rollback": {
+            "files_created": [
+              "src/engines/hypermill/plugin/LearningDashboardEngine.ts"
+            ],
+            "files_modified": [
+              "src/tools/dispatchers/hypermillPluginDispatcher.ts"
+            ],
+            "abort_criteria": [
+              "tsc errors > 0"
+            ],
+            "rollback_procedure": "git checkout -- src/engines/hypermill/plugin/LearningDashboardEngine.ts"
+          }
+        },
+        {
+          "id": "U-PLG23",
+          "title": "Bayesian Posterior Update Pipeline",
+          "description": "Wire SelfLearningCAMEngine and BayesianOptimizationEngine to update priors from operator overrides. When an override is captured, update the Bayesian posterior for that material/tool/operation combination. Track confidence (0-1) per recommendation. After N overrides in the same context, PRISM's next recommendation incorporates learned adjustments. Implement Thompson sampling for exploration/exploitation balance.",
+          "depends_on": [
+            "U-PLG22"
+          ],
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "exit_criteria": [
+            "Bayesian posterior updates after each override with measurable confidence increase",
+            "After 5+ overrides in same context, next recommendation shifts toward operator preference",
+            "Thompson sampling balances exploration (try physics-optimal) vs exploitation (use learned)"
+          ],
+          "rollback": {
+            "files_created": [],
+            "files_modified": [
+              "src/engines/hypermill/plugin/LearningDashboardEngine.ts"
+            ],
+            "abort_criteria": [
+              "tsc errors > 0"
+            ],
+            "rollback_procedure": "git checkout -- src/engines/hypermill/plugin/LearningDashboardEngine.ts"
+          }
+        }
+      ],
+      "exit_gate": "Override capture stores records + Bayesian posterior updates with confidence tracking | omega_floor >= 0.90",
+      "feature_cascade": {
+        "new_hooks": [
+          "hm-plugin:override-capture-trigger"
+        ],
+        "new_actions": [
+          "hypermill_plugin:capture_override",
+          "hypermill_plugin:get_learning_stats"
+        ],
+        "new_skills": [],
+        "available_to": [
+          "HM-PLG-MS7"
+        ]
+      },
+      "compact_checkpoint": true
+    },
+    {
+      "id": "HM-PLG-MS6-S2",
+      "title": "Dashboard Panel UI + Tribal Knowledge",
+      "smart_config": {
+        "role": "machine-learning-engineer",
+        "model": "opus",
+        "effort": "MAX",
+        "context_budget": "40%"
+      },
+      "knowledge": [
+        "TribalKnowledgeEngine (3,700+ tips)",
+        "AC HTML panel API",
+        "Bayesian visualization"
+      ],
+      "intent": "Build the Learning Dashboard HTML/JS panel with override history, tribal knowledge tips, historical performance charts, and Bayesian confidence indicators.",
+      "skills": [
+        "/forge-engines",
+        "/test",
+        "/checkpoint"
+      ],
+      "plugins": [
+        "Vitest MCP",
+        "ESLint MCP"
+      ],
+      "units": [
+        {
+          "id": "U-PLG24",
+          "title": "Learning Dashboard Panel HTML/JS UI",
+          "description": "Build the Learning Dashboard panel with: override history timeline (last 20 overrides with reason badges), Bayesian confidence gauge (0-100% for current context), tribal knowledge tips section (filtered by current material + operation type from 3,700+ tip database), and historical performance chart (S/F over time for this material/tool combo with trend line).",
+          "depends_on": [
+            "U-PLG22",
+            "U-PLG23"
+          ],
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "exit_criteria": [
+            "Override timeline shows last 20 entries with color-coded reason badges",
+            "Confidence gauge displays 0-100% with tooltip explaining data points contributing",
+            "Tribal knowledge section shows top-5 relevant tips for current material/operation context"
+          ],
+          "rollback": {
+            "files_created": [
+              "src/engines/hypermill/plugin/panels/learning-dashboard-panel.html"
+            ],
+            "files_modified": [],
+            "abort_criteria": [
+              "tsc errors > 0"
+            ],
+            "rollback_procedure": "git checkout -- src/engines/hypermill/plugin/panels/"
+          }
+        },
+        {
+          "id": "U-PLG25",
+          "title": "Historical Performance + Tip Ranking",
+          "description": "Wire historical performance data from SessionEventLogEngine to show S/F trends per material/tool/machine combination over time. Build tip ranking algorithm that scores tribal knowledge tips by relevance to current context (material match, operation type match, machine family match). Add 'This tip helped' / 'Not relevant' feedback buttons to improve tip ranking over time.",
+          "depends_on": [
+            "U-PLG24"
+          ],
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "exit_criteria": [
+            "Historical chart shows S/F trend with at least 10 data points for active combinations",
+            "Tip ranking prioritizes material-specific tips over generic ones (measurable via A/B test)",
+            "Tip feedback buttons update ranking scores and persist across sessions"
+          ],
+          "rollback": {
+            "files_created": [],
+            "files_modified": [
+              "src/engines/hypermill/plugin/LearningDashboardEngine.ts"
+            ],
+            "abort_criteria": [
+              "tsc errors > 0"
+            ],
+            "rollback_procedure": "git checkout -- src/engines/hypermill/plugin/LearningDashboardEngine.ts"
+          }
+        }
+      ],
+      "exit_gate": "Dashboard shows override history + confidence gauge + ranked tips + performance chart | omega_floor >= 0.90",
+      "feature_cascade": {
+        "new_hooks": [],
+        "new_actions": [
+          "hypermill_plugin:get_tribal_tips",
+          "hypermill_plugin:rate_tip"
+        ],
+        "new_skills": [
+          "/hypermill-learning-dashboard"
+        ],
+        "available_to": [
+          "HM-PLG-MS7"
+        ]
+      },
+      "compact_checkpoint": true
+    }
+  ],
+  "total_units": 4,
+  "completed_units": 0,
+  "smart_config": {
+    "role": "implementer + reviewer",
+    "model": "sonnet",
+    "effort": "HIGH",
+    "context_budget": "65%"
+  },
+  "feature_cascade": {
+    "new_hooks": [
+      "hm-plg-ms6-gate"
+    ],
+    "new_actions": [
+      "hm_plg_ms6_run"
+    ],
+    "new_skills": [
+      "/hm-plg-ms6"
+    ],
+    "available_to": [
+      "downstream CAMX milestones",
+      "prism app consumers"
+    ]
+  },
+  "intent": "Build the PRISM Learning Dashboard panel for hyperMILL. Captures operator overrides (when programmer changes PRISM's recommended S/F), prompts for reasoning, and feeds into the Bayesian learning engine. Surfaces context-relevant tribal knowledge tips per material/operation. Shows historical performance data for the current material/machine/tool combination and Bayesian prior confidence for current recommendations.",
+  "compact_checkpoint": "every 3 units — auto-triggered by hook",
+  "enforcement_hooks_active": [
+    "physics agent",
+    "wiring agent",
+    "constants checker",
+    "stub detector",
+    "test quality",
+    "forge-triple gate",
+    "session audit agent"
+  ],
+  "units": [
+    {
+      "id": "U-HPPL01",
+      "title": "HM-PLG-MS6 — Coordinator",
+      "description": "Master coordinator envelope for HM-PLG-MS6. Tracks sub-milestones, aggregates their exit gates, and opens closure after every child milestone flips to complete. Follow 4-LOOP at the aggregation layer.",
+      "exit_conditions": [
+        "All sub-milestones listed in dependencies reach status=complete",
+        "Aggregate scrutiny score ≥80 across children",
+        "Cross-track coherence verified: no orphan engines, no duplicate actions",
+        "Final /rgs pass through the 10-agent gate returns PASS"
+      ],
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ],
+      "status": "pending",
+      "role": "coordinator"
+    }
+  ],
+  "_role": "coordinator"
+}

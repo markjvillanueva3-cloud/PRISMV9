@@ -52,7 +52,9 @@ function lsSafe(dir, filter = () => true) {
 function measureHookOrphans() {
   const hookDir = path.join(ROOT, ".claude/hooks");
   const bundleDir = path.join(hookDir, "bundles");
-  const settings = readJsonSafe("H:/.claude/settings.json", {});
+  // H:/.claude is the repo's sibling .claude (parent-of-repo); derive it from ROOT
+  // so this works from any worktree/clone, not hardcoded to H:/ (tango meta-tool fix).
+  const settings = readJsonSafe(path.resolve(ROOT, "..", ".claude", "settings.json"), {});
   const wired = new Set();
 
   // Pass 1: scrape settings.json command fields for direct hook references

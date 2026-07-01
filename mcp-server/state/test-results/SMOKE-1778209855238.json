@@ -1,0 +1,488 @@
+{
+  "run_id": "SMOKE-1778209855238",
+  "timestamp": "2026-05-08T03:10:55.414Z",
+  "duration_ms": 176,
+  "total": 46,
+  "passed": 40,
+  "failed": 5,
+  "errors": 1,
+  "skipped": 0,
+  "pass_rate": 87,
+  "results": [
+    {
+      "id": "SMK-001",
+      "dispatcher": "prism_data",
+      "action": "material_search",
+      "status": "PASS",
+      "duration_ms": 1,
+      "timestamp": "2026-05-08T03:10:55.239Z",
+      "response_preview": "{\"total\":0,\"hasMore\":false}"
+    },
+    {
+      "id": "SMK-002",
+      "dispatcher": "prism_calc",
+      "action": "mrr",
+      "status": "FAIL",
+      "duration_ms": 0,
+      "timestamp": "2026-05-08T03:10:55.239Z",
+      "response_preview": "{\"success\":false,\"error\":\"Invalid params for 'mrr': volume_to_remove: Invalid input: expected number, received undefined\",\"action\":\"mrr\",\"dispatcher\":\"prism_calc\"}",
+      "error": "Response contains error"
+    },
+    {
+      "id": "SMK-003",
+      "dispatcher": "prism_safety",
+      "action": "check_spindle_torque",
+      "status": "FAIL",
+      "duration_ms": 1,
+      "timestamp": "2026-05-08T03:10:55.240Z",
+      "response_preview": "{\"success\":false,\"error\":\"Invalid params for 'check_spindle_torque': requiredTorque: Invalid input: expected number, received undefined; targetSpeed: Invalid input: expected number, received undefined",
+      "error": "Response contains error"
+    },
+    {
+      "id": "SMK-004",
+      "dispatcher": "prism_thread",
+      "action": "calculate_tap_drill",
+      "status": "PASS",
+      "duration_ms": 0,
+      "timestamp": "2026-05-08T03:10:55.240Z",
+      "response_preview": "{\"blocked\":true,\"blocker\":\"pre-machine-completeness-gate\",\"reason\":\"INCOMPLETE MACHINE DATA: Critical machine fields missing: spindle.max_rpm, spindle.power\",\"action\":\"calculate_tap_drill\"}"
+    },
+    {
+      "id": "SMK-005",
+      "dispatcher": "prism_toolpath",
+      "action": "stats",
+      "status": "PASS",
+      "duration_ms": 0,
+      "timestamp": "2026-05-08T03:10:55.240Z",
+      "response_preview": "{\"total_strategies\":368,\"by_category\":{\"milling_roughing\":72,\"milling_finishing\":79,\"hole_making\":51,\"turning\":52,\"multiaxis\":56,\"prism_novel\":58,\"total\":368},\"prism_novel_count\":58,\"categories\":[\"mil"
+    },
+    {
+      "id": "SMK-006",
+      "dispatcher": "prism_validate",
+      "action": "safety",
+      "status": "PASS",
+      "duration_ms": 0,
+      "timestamp": "2026-05-08T03:10:55.240Z",
+      "response_preview": "{\"score\":0,\"status\":\"BLOCKED\",\"components\":{\"physical_limits\":{\"score\":0,\"weight\":0.2,\"pass\":false,\"notes\":\"\"},\"force_safety\":{\"score\":0,\"weight\":0.2,\"pass\":false,\"notes\":\"\"},\"thermal_safety\":{\"score\""
+    },
+    {
+      "id": "SMK-007",
+      "dispatcher": "prism_omega",
+      "action": "history",
+      "status": "PASS",
+      "duration_ms": 0,
+      "timestamp": "2026-05-08T03:10:55.240Z",
+      "response_preview": "{\"history\":[{\"timestamp\":\"2026-05-08T02:43:38.737Z\",\"score\":0.82,\"components\":{\"R\":0.8,\"C\":0.8,\"P\":0.8,\"S\":0.9,\"L\":0.7},\"status\":\"RELEASE_READY\"},{\"timestamp\":\"2026-05-08T02:43:55.046Z\",\"score\":0.82,\""
+    },
+    {
+      "id": "SMK-007b",
+      "dispatcher": "prism_omega",
+      "action": "auto_score",
+      "status": "PASS",
+      "duration_ms": 0,
+      "timestamp": "2026-05-08T03:10:55.240Z",
+      "response_preview": "{\"omega\":0.82,\"components\":{\"R\":0.8,\"C\":0.8,\"P\":0.8,\"S\":0.9,\"L\":0.7},\"weights\":{\"R\":0.25,\"C\":0.2,\"P\":0.15,\"S\":0.3,\"L\":0.1},\"status\":\"RELEASE_READY\",\"hard_constraint_passed\":true,\"breakdown\":{\"R_contri"
+    },
+    {
+      "id": "SMK-008",
+      "dispatcher": "prism_ralph",
+      "action": "scrutinize",
+      "status": "PASS",
+      "duration_ms": 164,
+      "timestamp": "2026-05-08T03:10:55.404Z",
+      "response_preview": "{\"success\":false,\"error\":\"Claude API 400 Bad Request (model=claude-sonnet-4-5-20250929): {\\\"type\\\":\\\"error\\\",\\\"error\\\":{\\\"type\\\":\\\"invalid_request_error\\\",\\\"message\\\":\\\"Your credit balance is too low ",
+      "error": "Response contains error"
+    },
+    {
+      "id": "SMK-009",
+      "dispatcher": "prism_session",
+      "action": "context_size",
+      "status": "PASS",
+      "duration_ms": 1,
+      "timestamp": "2026-05-08T03:10:55.405Z",
+      "response_preview": "{\"estimates\":{\"system_prompt\":5000,\"memories\":3000,\"state_file\":0,\"roadmap_file\":0,\"conversation\":50000,\"tools_loaded\":10000},\"total\":68000,\"percentage\":0.34}"
+    },
+    {
+      "id": "SMK-010",
+      "dispatcher": "prism_context",
+      "action": "todo_read",
+      "status": "PASS",
+      "duration_ms": 0,
+      "timestamp": "2026-05-08T03:10:55.405Z",
+      "response_preview": "{\"status\":\"TODO READ - ATTENTION REFRESHED\",\"law\":\"Manus Law 4: Attention Manipulation via Recitation\",\"state\":{\"taskName\":\"Initialization\",\"sessionId\":\"SESSION-1778204804703\",\"currentFocus\":\"Session "
+    },
+    {
+      "id": "SMK-011",
+      "dispatcher": "prism_gsd",
+      "action": "quick",
+      "status": "PASS",
+      "duration_ms": 0,
+      "timestamp": "2026-05-08T03:10:55.405Z",
+      "response_preview": "{\"content\":\"# PRISM Quick Reference v22.0\\n## 45 dispatchers | 1060 verified actions | 169 engines\\n## GSD files not found — edit data/docs/gsd/GSD_QUICK.md\\n## START: prism_dev session_boot → prism_c"
+    },
+    {
+      "id": "SMK-012",
+      "dispatcher": "prism_dev",
+      "action": "server_info",
+      "status": "PASS",
+      "duration_ms": 0,
+      "timestamp": "2026-05-08T03:10:55.405Z",
+      "response_preview": "{\"mcp_root\":\"H:\\\\prism\\\\mcp-server\\\\dist\"}"
+    },
+    {
+      "id": "SMK-013",
+      "dispatcher": "prism_doc",
+      "action": "list",
+      "status": "PASS",
+      "duration_ms": 3,
+      "timestamp": "2026-05-08T03:10:55.408Z",
+      "response_preview": "{\"documents\":[{\"name\":\"ACTION_TRACKER.md\",\"size\":40081,\"modified\":\"2026-02-22T18:27:20.000Z\"},{\"name\":\"APP_PIPELINE_SCHEMA.md\",\"size\":14096,\"modified\":\"2026-03-14T20:04:14.000Z\"},{\"name\":\"BENCHMARK_SU"
+    },
+    {
+      "id": "SMK-014",
+      "dispatcher": "prism_sp",
+      "action": "evidence_level",
+      "status": "PASS",
+      "duration_ms": 0,
+      "timestamp": "2026-05-08T03:10:55.408Z",
+      "response_preview": "{\"claim\":\"test\",\"numeric\":1,\"sufficient\":false,\"evidence\":\"none\",\"rule\":\"Minimum L3 for COMPLETE claims\"}"
+    },
+    {
+      "id": "SMK-015",
+      "dispatcher": "prism_guard",
+      "action": "lkg_status",
+      "status": "FAIL",
+      "duration_ms": 0,
+      "timestamp": "2026-05-08T03:10:55.408Z",
+      "response_preview": "{\"error\":\"Script not found: H:\\\\prism\\\\mcp-server\\\\scripts\\\\lkg_tracker.py\"}",
+      "error": "Response contains error"
+    },
+    {
+      "id": "SMK-016",
+      "dispatcher": "prism_orchestrate",
+      "action": "queue_stats",
+      "status": "PASS",
+      "duration_ms": 0,
+      "timestamp": "2026-05-08T03:10:55.408Z",
+      "response_preview": "{\"pending\":0,\"running\":0,\"completed\":0,\"failed\":0,\"totalTasks\":0,\"avgDuration_ms\":0,\"throughput_per_min\":0}"
+    },
+    {
+      "id": "SMK-017",
+      "dispatcher": "prism_autopilot_d",
+      "action": "registry_status",
+      "status": "ERROR",
+      "duration_ms": 1,
+      "timestamp": "2026-05-08T03:10:55.409Z",
+      "response_preview": "",
+      "error": "Unexpected token '#', \"## 📊 Regi\"... is not valid JSON"
+    },
+    {
+      "id": "SMK-018",
+      "dispatcher": "prism_manus",
+      "action": "list_tasks",
+      "status": "PASS",
+      "duration_ms": 0,
+      "timestamp": "2026-05-08T03:10:55.409Z",
+      "response_preview": "{\"total\":0,\"showing\":0}"
+    },
+    {
+      "id": "SMK-019",
+      "dispatcher": "prism_atcs",
+      "action": "task_status",
+      "status": "FAIL",
+      "duration_ms": 0,
+      "timestamp": "2026-05-08T03:10:55.409Z",
+      "response_preview": "{\"error\":\"No tasks found.\",\"available\":[]}",
+      "error": "Response contains error"
+    },
+    {
+      "id": "SMK-020",
+      "dispatcher": "prism_skill_script",
+      "action": "skill_stats",
+      "status": "PASS",
+      "duration_ms": 1,
+      "timestamp": "2026-05-08T03:10:55.410Z",
+      "response_preview": "{\"total\":0,\"byCategory\":{},\"totalLines\":0,\"totalSizeKB\":0,\"activeEnabled\":0}"
+    },
+    {
+      "id": "SMK-021",
+      "dispatcher": "prism_knowledge",
+      "action": "stats",
+      "status": "PASS",
+      "duration_ms": 0,
+      "timestamp": "2026-05-08T03:10:55.410Z",
+      "response_preview": "{\"registries\":{\"materials\":0,\"machines\":0,\"tools\":0,\"alarms\":0,\"formulas\":47,\"skills\":0,\"scripts\":331,\"agents\":9,\"hooks\":26},\"total_entries\":413,\"cache_size\":0,\"cache_hit_rate\":0}"
+    },
+    {
+      "id": "SMK-022",
+      "dispatcher": "prism_hook",
+      "action": "status",
+      "status": "PASS",
+      "duration_ms": 0,
+      "timestamp": "2026-05-08T03:10:55.410Z",
+      "response_preview": "{\"total\":69,\"enabled\":69,\"disabled\":0,\"hooks\":[{\"id\":\"CALC-BEFORE-EXEC-001\",\"name\":\"Pre-Calculation Validation\",\"category\":\"CALC\",\"trigger\":\"before_calculation\",\"priority\":100,\"enabled\":true,\"isBlocki"
+    },
+    {
+      "id": "SMK-023",
+      "dispatcher": "prism_generator",
+      "action": "stats",
+      "status": "PASS",
+      "duration_ms": 0,
+      "timestamp": "2026-05-08T03:10:55.410Z",
+      "response_preview": "{\"status\":\"success\",\"stats\":{\"total_domains\":42,\"total_patterns\":95,\"estimated_hooks\":772,\"domains\":[\"SAFETY\",\"PHYSICS\",\"VALIDATION\",\"LIFECYCLE\",\"AUTOMATION\",\"COGNITIVE\",\"INTEGRATION\",\"MANUFACTURING\","
+    },
+    {
+      "id": "SMK-024",
+      "dispatcher": "prism_autonomous",
+      "action": "auto_status",
+      "status": "FAIL",
+      "duration_ms": 0,
+      "timestamp": "2026-05-08T03:10:55.410Z",
+      "response_preview": "{\"error\":\"No ATCS task found.\",\"available\":[]}",
+      "error": "Response contains error"
+    },
+    {
+      "id": "SMK-025",
+      "dispatcher": "prism_intelligence",
+      "action": "workflow_list",
+      "status": "PASS",
+      "duration_ms": 1,
+      "timestamp": "2026-05-08T03:10:55.411Z",
+      "response_preview": "{\"blocked\":true,\"blocker\":\"pre-machine-completeness-gate\",\"reason\":\"INCOMPLETE MACHINE DATA: Critical machine fields missing: spindle.max_rpm, spindle.power\",\"action\":\"workflow_list\"}"
+    },
+    {
+      "id": "SMK-026",
+      "dispatcher": "prism_l2",
+      "action": "aiml_models",
+      "status": "PASS",
+      "duration_ms": 0,
+      "timestamp": "2026-05-08T03:10:55.411Z",
+      "response_preview": "{\"models\":[{\"id\":\"speed_feed_regressor\",\"name\":\"Speed & Feed Predictor\",\"type\":\"regression\",\"domain\":\"speed_feed\",\"version\":\"2.1.0\",\"status\":\"ready\",\"accuracy\":0.92,\"training_samples\":15000,\"features\""
+    },
+    {
+      "id": "SMK-027",
+      "dispatcher": "prism_cad",
+      "action": "geometry_analyze",
+      "status": "PASS",
+      "duration_ms": 1,
+      "timestamp": "2026-05-08T03:10:55.412Z",
+      "response_preview": "{\"success\":false,\"error\":\"primitives is not iterable\",\"action\":\"geometry_analyze\",\"dispatcher\":\"prism_cad\",\"details\":{\"stack\":\"TypeError: primitives is not iterable\\n    at GeometryEngine.boundingBox ",
+      "error": "Response contains error"
+    },
+    {
+      "id": "SMK-028",
+      "dispatcher": "prism_cam",
+      "action": "toolpath_simulate",
+      "status": "PASS",
+      "duration_ms": 0,
+      "timestamp": "2026-05-08T03:10:55.412Z",
+      "response_preview": "{\"total_time_sec\":0,\"cutting_time_sec\":0,\"rapid_time_sec\":0,\"dwell_time_sec\":0,\"total_distance_mm\":0,\"cutting_distance_mm\":0,\"rapid_distance_mm\":0,\"feed_rate\":{\"min\":0,\"max\":0,\"avg\":0},\"axis_stats\":{\""
+    },
+    {
+      "id": "SMK-029",
+      "dispatcher": "prism_quality",
+      "action": "spc_calculate",
+      "status": "PASS",
+      "duration_ms": 0,
+      "timestamp": "2026-05-08T03:10:55.412Z",
+      "response_preview": "{\"mean\":0,\"std_dev\":0,\"n\":0,\"warnings\":[\"Insufficient data: Cp/Cpk require at least 2 measurements\"]}"
+    },
+    {
+      "id": "SMK-030",
+      "dispatcher": "prism_scheduling",
+      "action": "capacity_plan",
+      "status": "PASS",
+      "duration_ms": 0,
+      "timestamp": "2026-05-08T03:10:55.412Z",
+      "response_preview": "{\"available_hours\":16,\"demand_hours\":20,\"utilization_pct\":125,\"over_capacity\":true,\"overtime_needed_hours\":4,\"recommendation\":\"add_shift_or_outsource\"}"
+    },
+    {
+      "id": "SMK-031",
+      "dispatcher": "prism_export",
+      "action": "render_pdf",
+      "status": "PASS",
+      "duration_ms": 0,
+      "timestamp": "2026-05-08T03:10:55.412Z",
+      "response_preview": "{\"format\":\"pdf\",\"template\":\"default\",\"status\":\"completed\",\"job_id\":\"EXP-000027\"}"
+    },
+    {
+      "id": "SMK-032",
+      "dispatcher": "prism_turning",
+      "action": "chuck_force",
+      "status": "PASS",
+      "duration_ms": 0,
+      "timestamp": "2026-05-08T03:10:55.412Z",
+      "response_preview": "{\"success\":false,\"error\":\"Invalid params for 'chuck_force': workpiece_mass_kg: Invalid input: expected number, received undefined; workpiece_od_mm: Invalid input: expected number, received undefined; ",
+      "error": "Response contains error"
+    },
+    {
+      "id": "SMK-033",
+      "dispatcher": "prism_5axis",
+      "action": "work_envelope",
+      "status": "PASS",
+      "duration_ms": 0,
+      "timestamp": "2026-05-08T03:10:55.412Z",
+      "response_preview": "{\"success\":false,\"error\":\"Invalid params for 'work_envelope': axis_limits: Invalid input: expected object, received undefined; toolpath_points: Invalid input: expected array, received undefined; tool_",
+      "error": "Response contains error"
+    },
+    {
+      "id": "SMK-034",
+      "dispatcher": "prism_edm",
+      "action": "electrode_design",
+      "status": "PASS",
+      "duration_ms": 0,
+      "timestamp": "2026-05-08T03:10:55.413Z",
+      "response_preview": "{\"blocked\":true,\"blocker\":\"pre-machine-completeness-gate\",\"reason\":\"INCOMPLETE MACHINE DATA: Critical machine fields missing: spindle.max_rpm, spindle.power\",\"action\":\"electrode_design\"}"
+    },
+    {
+      "id": "SMK-035",
+      "dispatcher": "prism_grinding",
+      "action": "wheel_select",
+      "status": "PASS",
+      "duration_ms": 0,
+      "timestamp": "2026-05-08T03:10:55.413Z",
+      "response_preview": "{\"blocked\":true,\"blocker\":\"pre-machine-completeness-gate\",\"reason\":\"INCOMPLETE MACHINE DATA: Critical machine fields missing: spindle.max_rpm, spindle.power\",\"action\":\"wheel_select\"}"
+    },
+    {
+      "id": "SMK-036",
+      "dispatcher": "prism_industry",
+      "action": "aerospace_check",
+      "status": "PASS",
+      "duration_ms": 0,
+      "timestamp": "2026-05-08T03:10:55.413Z",
+      "response_preview": "{\"standard\":\"AS9100D / NADCAP\",\"checks\":[{\"item\":\"Material certification\",\"status\":\"fail\",\"note\":\"Requires dual mill cert per AMS 2750\"},{\"item\":\"First article inspection\",\"status\":\"pending\",\"note\":\"A"
+    },
+    {
+      "id": "SMK-037",
+      "dispatcher": "prism_automation",
+      "action": "oee_calc",
+      "status": "PASS",
+      "duration_ms": 0,
+      "timestamp": "2026-05-08T03:10:55.413Z",
+      "response_preview": "{\"oee_pct\":0,\"availability_pct\":0,\"performance_pct\":0,\"quality_pct\":0,\"world_class\":false,\"six_big_losses\":{\"breakdowns_min\":null,\"setup_adjustment_min\":null,\"minor_stops_min\":0,\"reduced_speed_min\":0,"
+    },
+    {
+      "id": "SMK-038",
+      "dispatcher": "prism_auth",
+      "action": "permission_check",
+      "status": "PASS",
+      "duration_ms": 0,
+      "timestamp": "2026-05-08T03:10:55.413Z",
+      "response_preview": "{\"success\":false,\"error\":\"Invalid params for 'permission_check': user_id: Invalid input: expected string, received undefined\",\"action\":\"permission_check\",\"dispatcher\":\"prism_auth\"}",
+      "error": "Response contains error"
+    },
+    {
+      "id": "SMK-039",
+      "dispatcher": "prism_bridge",
+      "action": "health",
+      "status": "PASS",
+      "duration_ms": 0,
+      "timestamp": "2026-05-08T03:10:55.413Z",
+      "response_preview": "{\"status\":\"healthy\",\"uptime_ms\":1778209855413,\"endpoints\":0,\"keys\":2,\"require_tls\":true}"
+    },
+    {
+      "id": "SMK-040",
+      "dispatcher": "prism_tenant",
+      "action": "stats",
+      "status": "PASS",
+      "duration_ms": 0,
+      "timestamp": "2026-05-08T03:10:55.413Z",
+      "response_preview": "{\"total_tenants\":1,\"active\":1,\"suspended\":0,\"deleted\":0,\"slb\":{\"total_patterns\":2,\"quarantined\":0,\"avg_confidence\":0.875,\"by_type\":{\"optimization\":2}},\"metrics\":{\"tenants_created\":0,\"tenants_deleted\":"
+    },
+    {
+      "id": "SMK-041",
+      "dispatcher": "prism_compliance",
+      "action": "list_templates",
+      "status": "PASS",
+      "duration_ms": 0,
+      "timestamp": "2026-05-08T03:10:55.413Z",
+      "response_preview": "{\"available\":{\"available\":[{\"id\":\"iso_13485_v2016\",\"framework\":\"ISO_13485\",\"title\":\"ISO 13485:2016 Medical Devices QMS\",\"strictness\":2,\"legal_review\":true},{\"id\":\"as9100_rev_d\",\"framework\":\"AS9100\",\"t"
+    },
+    {
+      "id": "SMK-042",
+      "dispatcher": "prism_nl_hook",
+      "action": "list",
+      "status": "PASS",
+      "duration_ms": 0,
+      "timestamp": "2026-05-08T03:10:55.413Z",
+      "response_preview": "{\"count\":0}"
+    },
+    {
+      "id": "SMK-043",
+      "dispatcher": "prism_pfp",
+      "action": "get_dashboard",
+      "status": "PASS",
+      "duration_ms": 1,
+      "timestamp": "2026-05-08T03:10:55.414Z",
+      "response_preview": "{\"success\":false,\"error\":\"this.patterns.slice is not a function\",\"action\":\"get_dashboard\",\"dispatcher\":\"prism_pfp\",\"details\":{\"stack\":\"TypeError: this.patterns.slice is not a function\\n    at PFPEngin",
+      "error": "Response contains error"
+    },
+    {
+      "id": "SMK-044",
+      "dispatcher": "prism_telemetry",
+      "action": "get_dashboard",
+      "status": "PASS",
+      "duration_ms": 0,
+      "timestamp": "2026-05-08T03:10:55.414Z",
+      "response_preview": "{\"timestamp\":1778209855414,\"dispatcher_count\":0,\"anomaly_summary\":{\"total\":0,\"unacknowledgedCritical\":0,\"bySeverity\":{\"INFO\":0,\"WARN\":0,\"CRITICAL\":0}},\"system_health\":{\"wrapper_overhead_p99_ms\":\"0.00\""
+    },
+    {
+      "id": "SMK-045",
+      "dispatcher": "prism_memory",
+      "action": "get_health",
+      "status": "PASS",
+      "duration_ms": 0,
+      "timestamp": "2026-05-08T03:10:55.414Z",
+      "response_preview": "{\"nodeCount\":58,\"edgeCount\":55,\"nodesByType\":{\"DECISION\":6,\"OUTCOME\":6,\"CONTEXT\":2,\"ERROR\":0,\"PATTERN\":0},\"indexAge_ms\":1127697414,\"walPending\":0,\"integrityViolations\":0,\"memoryUsageBytes\":29224,\"simi"
+    }
+  ],
+  "broken_dispatchers": [
+    "prism_calc",
+    "prism_safety",
+    "prism_guard",
+    "prism_autopilot_d",
+    "prism_atcs",
+    "prism_autonomous"
+  ],
+  "healthy_dispatchers": [
+    "prism_data",
+    "prism_thread",
+    "prism_toolpath",
+    "prism_validate",
+    "prism_omega",
+    "prism_ralph",
+    "prism_session",
+    "prism_context",
+    "prism_gsd",
+    "prism_dev",
+    "prism_doc",
+    "prism_sp",
+    "prism_orchestrate",
+    "prism_manus",
+    "prism_skill_script",
+    "prism_knowledge",
+    "prism_hook",
+    "prism_generator",
+    "prism_intelligence",
+    "prism_l2",
+    "prism_cad",
+    "prism_cam",
+    "prism_quality",
+    "prism_scheduling",
+    "prism_export",
+    "prism_turning",
+    "prism_5axis",
+    "prism_edm",
+    "prism_grinding",
+    "prism_industry",
+    "prism_automation",
+    "prism_auth",
+    "prism_bridge",
+    "prism_tenant",
+    "prism_compliance",
+    "prism_nl_hook",
+    "prism_pfp",
+    "prism_telemetry",
+    "prism_memory"
+  ]
+}

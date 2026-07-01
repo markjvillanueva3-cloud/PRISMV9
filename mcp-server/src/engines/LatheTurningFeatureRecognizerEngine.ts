@@ -266,7 +266,7 @@ const CLASSIFICATION_RULES: ClassificationRule[] = [
     match: (dim) =>
       dim.type === "diameter" &&
       dim.nominal_mm < 50 &&
-      (dim.tolerance_class?.startsWith("H") || dim.tolerance_class?.startsWith("G")),
+      !!(dim.tolerance_class?.startsWith("H") || dim.tolerance_class?.startsWith("G")),
     extract: (dim) => ({
       diameter_mm: dim.nominal_mm,
       tolerance_plus_mm: dim.tolerance_plus_mm,
@@ -320,7 +320,7 @@ const CLASSIFICATION_RULES: ClassificationRule[] = [
       dim.type === "diameter" &&
       dim.nominal_mm <= 25 &&
       dim.tolerance_class?.match(/^H[67]$/) !== null &&
-      dim.feature_ref?.toLowerCase().includes("ream"),
+      (dim.feature_ref?.toLowerCase().includes("ream") ?? false),
     extract: (dim) => ({
       diameter_mm: dim.nominal_mm,
       tolerance_class: dim.tolerance_class,

@@ -1,3 +1,5 @@
+import { emitFromMachineAlerts } from "../utils/shopFloorOutcomeBridge.js";
+
 /**
  * MachineConnectivityEngine.ts — R9-MS0 MTConnect/OPC-UA Data Ingestion
  * ======================================================================
@@ -39,6 +41,14 @@ export interface MachineConfig {
   protocol: ProtocolType;
   endpoint?: string;
   poll_interval_ms: number;
+  /**
+   * BRIDGE-DEEP / U-BRIDGE-SHOPFLOOR-LEARN — optional OutcomeDomain hint.
+   * Routes machine alerts to the correct universal outcome-bus shard when the
+   * machine has a known domain (mill/lathe/wedm/etc.); falls through to
+   * "shop_floor" otherwise. Additive optional field, backward-compatible with
+   * pre-bridge MachineConfig consumers.
+   */
+  domain?: string;
 }
 
 /** Machine Position configuration/data structure.
@@ -256,6 +266,36 @@ export function ingestLiveData(machineId: string, data: Partial<MachineLiveData>
   // Keep last 50 alerts per machine
   if (machineAlerts.length > 50) machineAlerts.splice(0, machineAlerts.length - 50);
   alerts.set(machineId, machineAlerts);
+
+  // BRIDGE-DEEP / U-BRIDGE-SHOPFLOOR-LEARN — mirror new alerts to the universal
+  // outcome bus so cross-domain learning consumers (CrossProcessNeuralLearning,
+  // LearningAdaptationEngine, etc.) see machine telemetry. Fire-and-forget;
+  // the bridge contract is non-throwing but we wrap defensively per the
+  // engine's own fs-error pattern. domain hint comes from MachineConfig.domain
+  // when set (falls through to "shop_floor"). Knob: PRISM_MACHINE_BRIDGE_DISABLE=1.
+  //
+  // KNOWN LIMITATION (Reviewer B P1-A, scope-deferred from this unit): the
+  // analyzeData() above emits overload_trending and feed_override_low on
+  // EVERY tick the threshold is met, not on state transition like alarm_active
+  // does. The bridge faithfully mirrors that stream; a sustained 60s overload
+  // at 100ms poll = ~600 redundant bus rows. Follow-up unit
+  // U-MACHINE-CONNECTIVITY-TICK-DEDUP should state-transition-gate those two
+  // alert types in analyzeData(); fixing alert-generation upstream cleans up
+  // both the engine's alert history AND the bus stream in one place. The
+  // bridge intentionally does NOT dedup — it's a faithful mirror per the
+  // unit's contract (R3 surgical).
+  // While the limitation stands: PRISM_MACHINE_BRIDGE_DISABLE=1 is the
+  // operator escape hatch if the bus volume becomes a problem.
+  if (newAlerts.length > 0 && process.env.PRISM_MACHINE_BRIDGE_DISABLE !== "1") {
+    try {
+      emitFromMachineAlerts(machineId, machine.domain ?? "shop_floor", newAlerts, current.timestamp);
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : String(err);
+      // Best-effort stderr — this engine has no Logger import; matches the
+      // engine's existing no-throw convention.
+      process.stderr.write(`[MachineConnectivityEngine] bridge emit failed: ${msg}\n`);
+    }
+  }
 
   return newAlerts;
 }
@@ -620,6 +660,12 @@ export function machineConnectivity(action: string, params: Record<string, any>)
         protocol: params.protocol ?? "mock",
         endpoint: params.endpoint,
         poll_interval_ms: params.poll_interval_ms ?? 1000,
+        // BRIDGE-DEEP / U-BRIDGE-SHOPFLOOR-LEARN — forward optional domain
+        // hint so machine alerts route to the correct outcome-bus shard
+        // (mill/lathe/wedm/...). Reviewer B P1-B fix: without this line the
+        // dispatcher silently dropped `domain` and every alert defaulted to
+        // "shop_floor" regardless of intent.
+        domain: params.domain,
       });
     }
 

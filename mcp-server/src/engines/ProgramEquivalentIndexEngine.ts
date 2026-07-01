@@ -43,7 +43,6 @@ import { atomicWrite } from "../utils/atomicWrite.js";
 import type { JMDieDiskIndexEntry } from "./JMDieArchiveBackAnnotationEngine.js";
 import type {
   ProgramPrintLinkIndex,
-  ProgramToPrintLink,
 } from "./ProgramPrintLinkIndexEngine.js";
 import {
   lookupPrintForProgram,
@@ -278,10 +277,10 @@ function buildLookupFromIndex(
     // carry a `print_id`-equivalent reference: v6 links have an array of
     // `prints[]` (parent's join shape) or `print_doc_ids` depending on
     // source; seed_links carry one `print_doc_id`.
-    const v6Links: readonly ProgramToPrintLink[] = (result.links ??
-      []) as unknown as readonly ProgramToPrintLink[];
+    const v6Links: readonly Record<string, unknown>[] = (result.links ??
+      []) as unknown as readonly Record<string, unknown>[];
     for (const lk of v6Links) {
-      const rec = lk as unknown as Record<string, unknown>;
+      const rec = lk;
       const directId = typeof rec.print_id === "string" ? rec.print_id : "";
       const docIds = Array.isArray(rec.print_doc_ids)
         ? (rec.print_doc_ids as unknown[])

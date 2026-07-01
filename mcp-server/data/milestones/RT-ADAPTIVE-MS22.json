@@ -1,0 +1,55 @@
+{
+  "id": "RT-ADAPTIVE-MS22",
+  "version": "1.0.0",
+  "title": "Real-time MTConnect/OPC-UA adaptive feed/spindle/thermal feedback loop",
+  "brief": "L3 is offline planning today. MTConnect/OPC-UA dispatchers exist but no in-cycle feedback loop closes them (chatter, spindle-load override, thermal comp). Architect risk #1. Required for any 'intelligent' marketing claim post-pilot.",
+  "created_at": "2026-05-05T13:00:00Z",
+  "created_by": "claude-opus-4-7-v2",
+  "track": "L3-RUNTIME",
+  "track_name": "Real-time Adaptive Control",
+  "status": "not_started",
+  "linked_roadmap": "state/shared/PRISM-COMPREHENSIVE-ROADMAP-2026-05-04-V2.md",
+  "phases": [
+    {
+      "id": "P0",
+      "title": "MTConnect ingest + adaptive override engine + thermal comp",
+      "sessions": "4",
+      "units": [
+        {
+          "id": "P0-U01",
+          "title": "MTConnect/OPC-UA streaming ingest with backpressure",
+          "effort": 120,
+          "dependencies": [],
+          "exit_conditions": ["streaming ingest from 1 mill + 1 lathe + 1 WEDM at 10Hz", "backpressure: drop oldest if consumer lags >500ms", "tests: 3 minute stream produces 1800 events ±5"],
+          "description": "Reuse existing MTConnect/OPC-UA dispatchers. Add streaming endpoint + buffer.",
+          "four_loop": ["BUILD", "SCRUTINIZE", "GAP FILL", "TIE UP"]
+        },
+        {
+          "id": "P0-U02",
+          "title": "AdaptiveControlEngine: chatter detection + feed override <200ms",
+          "effort": 180,
+          "dependencies": ["P0-U01"],
+          "exit_conditions": ["chatter onset (FFT spike at known stability lobe) triggers spindle-speed shift within 200ms", "1 staged chatter scenario suppressed within 3 RPM steps", "tests: synthetic chatter signal + non-chatter noise (false-positive rate <5%)"],
+          "description": "Reuse SpindleHarmonicsQualityEngine + chatter probability. Add fast-path override.",
+          "four_loop": ["BUILD", "SCRUTINIZE", "GAP FILL", "TIE UP"]
+        },
+        {
+          "id": "P0-U03",
+          "title": "Thermal compensation: spindle dT > 15C engages comp",
+          "effort": 120,
+          "dependencies": ["P0-U01"],
+          "exit_conditions": ["spindle thermistor + ballscrew temp ingested", "dT >15C engages comp from machine thermal-map registry", "tests: simulated thermal ramp -> comp engages at correct threshold"],
+          "description": "Standard thermal-comp tables per machine. Reuse MachineRegistry thermal-map fields if present, else add.",
+          "four_loop": ["BUILD", "SCRUTINIZE", "GAP FILL", "TIE UP"]
+        }
+      ]
+    }
+  ],
+  "acceptance": "in-cycle MTConnect feed-rate override demonstrated on 1 mill + 1 lathe + 1 WEDM; chatter onset triggers spindle-speed shift within 200ms; thermal-comp engages when spindle dT>15C; no false-positives suppress legitimate cuts.",
+  "risks": [
+    {"id": "R1", "description": "Real-time loop on Windows with NTFS/network jitter blows 200ms budget; mitigation = pin process priority + use IPC over socket not file"},
+    {"id": "R2", "description": "OPC-UA security; covered by MS20 OT-IT-SECURITY"}
+  ],
+  "blocks": ["SHIP-RELEASE-MS19"],
+  "blocked_by": ["MILL-P2P-CONSENSUS-MS3", "SAFETY-OMEGA-GATE-MS9"]
+}

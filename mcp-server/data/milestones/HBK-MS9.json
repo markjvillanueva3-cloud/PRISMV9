@@ -1,0 +1,53 @@
+{
+  "id": "HBK-MS9",
+  "version": "1.0.0",
+  "title": "Safety + Quality Pipeline Integration",
+  "brief": "Wire handbook data into SafetyQualityHooks and quality pipeline engines. Use handbook-documented machine limits for program validation, alarm severity for safety escalation, positioning accuracy specs for metrology planning, and safety interlock documentation for lockout/tagout compliance.",
+  "created_at": "2026-03-28T19:00:00Z",
+  "created_by": "claude-opus-4.6",
+  "track": "HBK",
+  "track_name": "Machine Handbook Intelligence",
+  "status": "complete",
+  "completed_at": "2026-03-29T04:10:00Z",
+  "completed_by": "claude-opus-4.6",
+  "phases": [
+    {
+      "id": "P0",
+      "title": "Safety + Quality Integration",
+      "sessions": "2-3",
+      "units": [
+        {
+          "id": "P0-U01",
+          "title": "Wire handbook machine limits into machineLimitGuard hook: validate G-code spindle speeds, feed rates, and axis positions against handbook-documented maximums instead of conservative generic limits",
+          "effort": 80,
+          "dependencies": []
+        },
+        {
+          "id": "P0-U02",
+          "title": "Wire handbook alarm severity into safety escalation: use OEM-classified alarm severity levels to determine operator notification urgency, automatic stop conditions, and required response actions",
+          "effort": 75,
+          "dependencies": []
+        },
+        {
+          "id": "P0-U03",
+          "title": "Wire handbook positioning accuracy and repeatability specs into MetrologyUncertaintyEngine: use machine-specific accuracy data for inspection planning and measurement uncertainty budgets",
+          "effort": 70,
+          "dependencies": ["P0-U01"]
+        },
+        {
+          "id": "P0-U04",
+          "title": "Build safety validation test suite: verify that programs exceeding handbook limits are caught, alarm escalation follows OEM severity, and metrology planning uses correct machine accuracy specs",
+          "effort": 65,
+          "dependencies": ["P0-U01", "P0-U02", "P0-U03"]
+        }
+      ]
+    }
+  ],
+  "dependencies": ["HBK-MS4", "HBK-MS3"],
+  "exit_conditions": [
+    "machineLimitGuard validates against handbook-documented limits when available, with correct fallback to generic limits",
+    "Alarm severity escalation uses OEM classifications from handbook data",
+    "MetrologyUncertaintyEngine uses handbook positioning accuracy specs for machines with ingested handbooks",
+    "Safety validation tests confirm all three integration points work correctly with handbook data present and absent"
+  ]
+}

@@ -41,18 +41,59 @@ const QUEUE_PATH = process.env.PRISM_CONSENSUS_QUEUE ?? "H:/prism/state/shared/c
 const TTL_MS = 7 * 24 * 60 * 60 * 1000;
 const MIN_FILE_LEN = 1;
 
-// Critical-file classifiers — match against tool_input.file_path.
+// Minimum distinct model voices for a recorded run to count as a REAL consensus.
+// A single voice "agrees with itself" (agreement=1) -- presenting that as an
+// authoritative "consensus: accept" on a SAFETY-CRITICAL edit (physics constants,
+// dispatcher schemas, S(x) validators) is false confidence (R12). The octopus drain
+// gracefully degrades to 1 voice under GPU contention (documented in
+// consensus-queue-drain.mjs), so single-voter runs DO land in the cache; below this
+// floor we re-queue a proper fan-out instead of trusting the degraded result.
+// Mirrors octopus-first-live-record.mjs's requireMinVoices:2 (clone-don't-fork, R15).
+const MIN_CONSENSUS_VOICES = Number(process.env.PRISM_CONSENSUS_MIN_VOICES) || 2;
+
+/**
+ * Count distinct model voices in a frontmatter `model_voters` value
+ * (e.g. '["qwen2.5-coder:32b","gpt-oss:20b"]' -> 2). Fail-soft to 0 on any
+ * unparseable input -- an unreadable voter list must NOT count as a quorum.
+ * @param {unknown} votersRaw
+ * @returns {number}
+ */
+export function voterCount(votersRaw) {
+  if (Array.isArray(votersRaw)) return votersRaw.length;
+  if (typeof votersRaw !== "string") return 0;
+  const s = votersRaw.trim();
+  if (!s || s === "[]") return 0;
+  try {
+    const parsed = JSON.parse(s);
+    return Array.isArray(parsed) ? parsed.length : 0;
+  } catch {
+    // fallback ONLY for a bracketed-but-unparseable list (e.g. "[claude, ollama]" with
+    // unquoted tokens). A non-bracketed string is not a voter list -> 0 (never a quorum).
+    if (!s.startsWith("[") || !s.endsWith("]")) return 0;
+    const inner = s.slice(1, -1).trim();
+    if (!inner) return 0;
+    return inner.split(",").map((t) => t.trim()).filter(Boolean).length;
+  }
+}
+
+// Critical-file classifiers -- match against tool_input.file_path.
+// Keyword-anywhere patterns use `.*` on BOTH sides (NOT `.+`): the dominant engine
+// naming is `<Keyword>Engine.ts` (e.g. SafetyEngine.ts, ThermalEngine.ts) where the
+// keyword is at the START -- `.+Keyword` would require a leading char and MISS those,
+// a safety false-negative (the most obvious safety files would skip consensus scrutiny).
+// A keyword-substring false-positive (e.g. "Enforce" matching "force") is harmless here
+// -- it only adds extra scrutiny -- so the patterns favor recall over precision.
 const CRITICAL_FILE_PATTERNS = [
   /\/physics\/constants\.ts$/i,
   /\/tools\/dispatchers\/.+\.ts$/i,
-  /\/engines\/.+Safety.+\.ts$/i,
-  /\/engines\/.+Validator.+\.ts$/i,
-  /\/engines\/Tolerance.+\.ts$/i,
-  /\/engines\/Kienzle.+\.ts$/i,
-  /\/engines\/Taylor.+\.ts$/i,
-  /\/engines\/.+Force.+\.ts$/i,
-  /\/engines\/.+Thermal.+\.ts$/i,
-  /\/engines\/.+Deflection.+\.ts$/i,
+  /\/engines\/.*Safety.*\.ts$/i,
+  /\/engines\/.*Validator.*\.ts$/i,
+  /\/engines\/Tolerance.*\.ts$/i,
+  /\/engines\/Kienzle.*\.ts$/i,
+  /\/engines\/Taylor.*\.ts$/i,
+  /\/engines\/.*Force.*\.ts$/i,
+  /\/engines\/.*Thermal.*\.ts$/i,
+  /\/engines\/.*Deflection.*\.ts$/i,
   /\/state\/shared\/omega-thresholds\.json$/i,
 ];
 
@@ -189,20 +230,41 @@ async function main() {
   const cached = tryRecall(prompt);
 
   if (cached !== null) {
+    // ESCALATE forces extra human scrutiny -- safe-direction regardless of voice count
+    // (a lone voice flagging "escalate" erring toward MORE review never hurts).
     if (cached.recommendation === "escalate") {
       const reason = `🛑 Critical-file edit on \`${filePath}\` was previously consensus-flagged ESCALATE (sha8 ${cached.sha8}, agreement ${cached.agreement}, voters ${cached.voters}). Request user confirmation before applying.`;
       return writeAsk(reason);
     }
-    const reason = `✅ Critical-file edit consensus cache hit: rec=${cached.recommendation}, agreement=${cached.agreement}, factuality=${cached.factuality} (sha8 ${cached.sha8})`;
-    return writeAllow(reason);
+    // Only an accept/review backed by a real multi-voice quorum may be surfaced as an
+    // authoritative consensus. A single-voice run is NOT a consensus -- fall through to
+    // the cache-miss path so a proper fan-out is re-queued (R12: never overclaim).
+    const nVoices = voterCount(cached.voters);
+    if (nVoices >= MIN_CONSENSUS_VOICES) {
+      const reason = `✅ Critical-file edit consensus cache hit: rec=${cached.recommendation}, agreement=${cached.agreement}, factuality=${cached.factuality}, voters=${nVoices} (sha8 ${cached.sha8})`;
+      return writeAllow(reason);
+    }
   }
 
-  // Cache miss — allow with a queue notice (don't block; live consensus would be 30-60s)
+  // Cache miss OR a degraded single-voice hit -- allow with a queue notice (never block;
+  // live consensus is 30-60s). The degraded path re-queues for a proper multi-voice run.
+  const degraded = cached !== null;
   const queued = enqueueBackground(prompt, filePath, toolName);
-  const reason = queued
-    ? `🧠 Critical-file edit on \`${filePath}\` — no consensus cache. Queued for async fan-out (drain via Stop hook).`
-    : "";
+  let reason = "";
+  if (queued && degraded) {
+    reason = `⚠ Critical-file edit on \`${filePath}\`: cached run had only ${voterCount(cached.voters)} voice (sha8 ${cached.sha8}), BELOW the ${MIN_CONSENSUS_VOICES}-voice quorum, so it is NOT a real consensus. Re-queued for a proper multi-model fan-out; treat as UNREVIEWED until then.`;
+  } else if (queued) {
+    reason = `🧠 Critical-file edit on \`${filePath}\`: no consensus cache. Queued for async fan-out (drain via Stop hook).`;
+  }
   return writeAllow(reason);
 }
 
-main().catch(() => writeAllow(""));
+export { isCriticalFile, composePrompt, hashPrompt, tryRecall, enqueueBackground, main };
+
+// Run only as a direct hook invocation, never on import (keeps the test harness clean
+// and stops a test import from blocking on fd 0 / running a live main). Mirrors the
+// isDirect guard in consensus-queue-drain.mjs.
+const isDirect = (process.argv[1] || "").replace(/\\/g, "/").endsWith("auto-consensus-critical-edit.mjs");
+if (isDirect) {
+  main().catch(() => writeAllow(""));
+}

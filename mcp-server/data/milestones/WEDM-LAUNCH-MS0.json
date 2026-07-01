@@ -1,0 +1,548 @@
+{
+  "id": "WEDM-LAUNCH-MS0",
+  "title": "Wire EDM Launch Sprint — Chargeable by Friday April 11",
+  "track": "WEDM-LAUNCH",
+  "status": "complete",
+  "created": "2026-04-08",
+  "deadline": "2026-04-11",
+  "completed": "2026-04-13",
+  "rgs_version": "v24",
+
+  "context": {
+    "current_score": 42,
+    "narrow_case_score": 62,
+    "narrow_case_definition": "Standard straight die cut, D2 or SS, Mitsubishi FA/MV, simple closed profile, no taper",
+    "honest_gap_analysis": {
+      "what_works_now": [
+        "E-pack codes calibrated to real ITW SHAKEPROOF programs (E1221-E1224 exact match)",
+        "Feed rate within 5% of published Lemhunter/Klocke data (was 3.26x wrong, now fixed)",
+        "H-offsets within 2.4% of real ITW programs (0.0087 vs 0.0085 inch)",
+        "L001 identifier correct (was wrong, now fixed)",
+        "Skim cascade decreasing pattern calibrated from ITW real data",
+        "5 controller dialects (Fanuc, Sodick, Makino, Mitsubishi, AgieCharmilles)",
+        "DXF parser wired in (untested on real shop files)",
+        "216/216 Wire EDM tests pass",
+        "Setup sheet, slug management, flushing strategy, cycle time, confidence scoring — all built"
+      ],
+      "what_blocks_launch": [
+        "U-W100-23: No multi-thickness validation proof for D2 (25.4mm, 50mm, 100mm)",
+        "U-W100-24: No multi-material validation proof (SS, Al, carbide, Inconel)",
+        "DXF round-trip: no test against real Box Drive shop files",
+        "Taper (UV axis): skim cascade direction wrong for taper programs vs straight",
+        "Machine model assumption: E1221 on FA10 vs MV1200 may differ — not yet machine-specific",
+        "Thread forms / re-entrant geometry: feed penalty not modeled (CHOCTAW cannelure F.06 vs our 3.0)",
+        "No customer-facing demo or intake workflow"
+      ],
+      "not_blocking_for_narrow_scope": [
+        "Taper programs — exclude from V1 scope",
+        "Thread forms — exclude from V1 scope",
+        "Sodick C### / Makino HYPER-i condition codes — exclude or caveat",
+        "Machine-specific E-pack tables — Mitsubishi FA/MV machines use internal lookup anyway"
+      ]
+    },
+    "confidence_score_justification": {
+      "overall_75_floor": "75 = weighted avg of 5 sub-scores (pulse, offset, feed, epack, geometry). At 75+, the worst sub-score is no lower than 60, meaning no single physics dimension is speculative. Based on: ≥3 published sources corroborate each parameter, and ≥1 real-world program validates it.",
+      "multi_material_65_floor": "65 allows one sub-score at 50 (no published data for that dimension on this material). SS/Al have fewer published EDM cutting condition tables than D2. The 10-point relaxation acknowledges data sparsity, not lower physics confidence.",
+      "operator_trust_threshold": "Below 60, at least 2 sub-scores are speculative — too risky for a chargeable product. Above 80, all sub-scores are corroborated — aspirational for V2."
+    },
+    "target_score_friday": 72,
+    "charging_scope_v1": {
+      "title": "PRISM Wire EDM — Mitsubishi Straight Die Cut Program Generator (V1)",
+      "supported": ["D2 tool steel", "H13", "A2", "S7", "304 SS", "316 SS", "6061-T6", "7075", "Copper/Brass", "WC carbide"],
+      "thickness_range_mm": "5-150mm",
+      "controllers": ["Mitsubishi FA series", "Mitsubishi MV series"],
+      "geometry": "Closed DXF profiles, no taper, no thread forms, no re-entrant pockets",
+      "passes": "1-5 passes optimized for Ra target",
+      "output": "NC file + printable setup sheet",
+      "caveat": "Operator review required before first run — program is a validated starting point, not a guaranteed first-part-right",
+      "not_supported_v1": ["UV taper programs", "Thread forms", "Open profiles", "Sodick/Makino/AgieCharmilles/Fanuc condition codes", "PDF print input (requires DXF)"]
+    }
+  },
+
+  "philosophy": "Scope narrowly, prove deeply, launch honestly. It is better to charge for a narrow scope that is demonstrably correct than to claim broad capability that fails when a machinist runs it. V1 is Mitsubishi straight die cuts only. V2 adds taper. V3 adds other controllers.",
+
+  "total_units": 9,
+  "completed_units": 9,
+  "sessions": 3,
+  "dependencies": ["WEDM-HARDEN-MS0"],
+
+  "forge_triple": {
+    "protective_hook": {
+      "name": "wedm-launch-scope-gate",
+      "file": ".claude/hooks/lib/wedm-launch-scope-gate.mjs",
+      "description": "Blocks any V1 code that adds taper, thread form, or non-Mitsubishi condition code logic without a new milestone. Preserves launch scope integrity.",
+      "blocks": ["taper_angle_deg > 5", "controller !== 'mitsubishi'", "thread_form geometry", "condition codes > 9"],
+      "integration": "PreToolUse hook on Write|Edit targeting WEDMPrintToProgramEngine, EDMMultiPassStrategyEngine, edmDispatcher",
+      "status": "to build in U-WLAUNCH09"
+    },
+    "mcp_action": {
+      "primary": "prism_edm:wedm_launch_generate",
+      "description": "V1-scoped wire EDM program generation — validates scope before running, returns NC + setup sheet + confidence score",
+      "input_schema": {
+        "material": "string (ISO material name, e.g. 'D2_tool_steel')",
+        "thickness_mm": "number (5-150mm range enforced)",
+        "target_ra_um": "number (0.1-3.2µm for V1)",
+        "contour": "DXF file path or pre-parsed GeoJSON segments",
+        "controller": "string (must be 'mitsubishi_fa' or 'mitsubishi_mv' for V1; others return warning)",
+        "wire_type": "string (default: 'brass_0.25')"
+      },
+      "output_schema": {
+        "nc_program": "string (full G-code text)",
+        "setup_sheet_html": "string (renderable HTML with per-pass table)",
+        "confidence_score": "{ overall: number, pulse: number, offset: number, feed: number, epack: number, geometry: number }",
+        "backplot_svg": "string (SVG toolpath visualization)",
+        "warnings": "string[] (scope caveats, non-Mitsubishi notices)"
+      },
+      "routes_to": "WEDMPrintToProgramEngine via edmDispatcher lazy-load",
+      "status": "to wire in U-WLAUNCH09"
+    },
+    "skill": {
+      "name": "/wedm-launch",
+      "description": "Generate V1 Wire EDM NC program — validates scope (Mitsubishi straight die only), shows confidence score, outputs NC + setup sheet",
+      "parameters": "/wedm-launch <material> <thickness_mm> <target_ra_um> [--dxf <path>] [--controller mitsubishi_fa|mitsubishi_mv] [--wire brass_0.25|zinc_coated_0.25]",
+      "routes_to": "prism_edm:wedm_launch_generate via callTool()",
+      "status": "to build in U-WLAUNCH09"
+    }
+  },
+
+  "mcp_session_protocol": {
+    "session_start": [
+      "prism_session:context_boot",
+      "prism_session:dispatcher_map",
+      "prism_session:memory_recall",
+      "prism_session:system_snapshot",
+      "prism_session:action_search 'wire EDM program generation validation'"
+    ],
+    "during_work_every_5_10_calls": [
+      "prism_session:auto_checkpoint",
+      "prism_session:wip_capture"
+    ],
+    "session_end": [
+      "prism_session:memory_save",
+      "prism_session:system_snapshot",
+      "prism_session:checkpoint_enhanced"
+    ]
+  },
+
+  "session_artifacts": {
+    "S1": ["cwedm-validation-d2-multithick.test.ts (D2 at 3 thicknesses)", "cwedm-validation-multimaterial.test.ts (SS/Al/WC/Inconel)", "validated feed/offset/Ra tables for 6 material-thickness cases", "confidence scores proving >= 75 overall"],
+    "S2": ["5-inch square NC analysis catalog (real program data point)", "E-pack conditions 1-9 (extended from 1-5)", "taper vs straight skim cascade split (increasing vs decreasing)", "wedm-published-conditions.ts updated with Box Drive data"],
+    "S3": ["wedm-launch-scope-gate.mjs (protective hook)", "prism_edm:wedm_launch_generate (MCP action)", "/wedm-launch skill", "WEDM-V1-SCOPE.md + WEDM-V1-PRICING.md + WEDM-V1-DEMO.md", "LAUNCH-GATE-PASS.md with 5/5 smoke test results"]
+  },
+
+  "enforcement_hooks_active": [
+    "PRE-LEVEL: wedm-physics-constants-gate (already built — warns on inline EDM constants)",
+    "POST-LEVEL: stub-detector (blocks placeholder returns in new engines)",
+    "POST-LEVEL: test-quality (blocks toBeTruthy-only assertions — SAFETY CRITICAL)",
+    "POST-LEVEL: physics-agent (reviews every engine edit for formula correctness)",
+    "POST-LEVEL: wiring-agent (reviews MCP dispatcher readiness)",
+    "COMPACT-LEVEL: review-gate (blocks compaction without prism-review)",
+    "POST-COMPACT: Feature Cascade (SESSION_ARTIFACTS.json auto-written)"
+  ],
+
+  "sessions": {
+    "S1": {
+      "title": "Validation Proof — D2 Multi-Thickness + Multi-Material",
+      "day": "Wednesday April 8 (TODAY)",
+      "units": ["U-WLAUNCH01", "U-WLAUNCH02"],
+      "smart_config": {
+        "role": "Wire EDM Process Validation Engineer + Metrologist",
+        "model": "sonnet",
+        "effort": "MAX",
+        "context_budget": "80%"
+      },
+      "knowledge_sources": [
+        "H-offsets from ITW SHAKEPROOF: H1=0.0085\", H2=0.0064\", H3=0.0058\", H4=0.0053\"",
+        "Feed rates from ITW: F.12/.24/.21/.20 in/min (3.048/6.096/5.334/5.08 mm/min)",
+        "Lemhunter published data: D2 at 25mm=4.5mm/min, 50mm=3.0mm/min, 100mm=2.0mm/min",
+        "Klocke 2013: Ra = k_ra × Ip^0.40 × ton^0.28 (canonical formula)",
+        "Box Drive 5-inch square.NC file (third real program found this session — unopened)",
+        "wedm-published-conditions.ts (our published conditions database)",
+        "EDMMultiPassStrategyEngine (calibrated piecewise feed model from this session)",
+        "WEDMPrintToProgramEngine (E-pack calibrated from ITW SHAKEPROOF real data)"
+      ],
+      "intent": "After this session, you can say: 'Our physics is correct for D2 at 25/50/100mm and 4 other material families — here are the test results proving it.' That is the evidence base for charging.",
+      "skills": ["/test", "/physics-verify", "/prism-review"],
+      "exit_gate": {
+        "measurable_criteria": [
+          "D2 at 25.4mm: feed within 10% of 3.048 mm/min (ITW real), E-pack = E1221-E1224",
+          "D2 at 50mm: feed within 15% of published Lemhunter 3.0 mm/min",
+          "D2 at 100mm: feed within 15% of published Lemhunter 2.0 mm/min",
+          "304SS at 25.4mm: feed ≈ D2 feed × 0.85-0.95 (mrr_factor 0.85 vs D2 0.9 — SS has lower thermal conductivity but similar MRR), group 2 E-pack",
+          "6061 aluminum: feed > steel feed × 1.5 (higher MRR), group 3 E-pack",
+          "WC carbide: feed < steel feed (more resistant to spark erosion), group 5 E-pack",
+          "All 6 validation cases: Ra predicted ± 20% of Klocke model (calibrated to real programs)",
+          "All 6 cases: confidence_score.overall >= 75",
+          "Zero test failures in cwedm-e2e-validation.test.ts"
+        ],
+        "omega_floor": 0.85,
+        "svi_delta": "+3%"
+      },
+      "compact_after": true
+    },
+
+    "S2": {
+      "title": "Real DXF Round-Trip + Box Drive 5-Inch Square Proof",
+      "day": "Thursday April 9",
+      "units": ["U-WLAUNCH03", "U-WLAUNCH04", "U-WLAUNCH05"],
+      "smart_config": {
+        "role": "Wire EDM Programmer + CAM Verification Specialist",
+        "model": "sonnet",
+        "effort": "MAX",
+        "context_budget": "80%"
+      },
+      "knowledge_sources": [
+        "Feature cascade from S1: D2 validated at 25.4/50/100mm (feed ±10-15% of Lemhunter), SS/Al/WC/Inconel validated at 25.4mm — physics proven for 6 material-thickness cases",
+        "Box Drive: C:/Users/wompu/Box/WIRE EDM/Wire Program - 5 inch square.NC (unread — read this session)",
+        "Box Drive: ITW SHAKEPROOF NC file (already validated against our E-pack output)",
+        "DXFGeometryParserEngine — wired but untested on real shop DXF files",
+        "Mastercam DXF export format: LWPOLYLINE entities, arc bulge factors",
+        "Esprit DXF format: may use SPLINE entities (need testing)",
+        "CHOCTAW DEFENSE: E1281 condition code 8 — need to understand range extension"
+      ],
+      "intent": "After this session, you can hand a machinist a DXF from Mastercam and the system generates a program that looks like one they would have written. The 5-inch square validates a real-world shape that previously ran on the machine.",
+      "skills": ["/test", "/prism-review", "/program-validate"],
+      "exit_gate": {
+        "assumes": "S1 exit gate passed (D2 multi-thickness + multi-material validation proven with ≥75 confidence)",
+        "measurable_criteria": [
+          "5-inch square NC program generated from DXF contour (or from pre-parsed contour if DXF not available)",
+          "Generated program structure matches real Box Drive 5-inch square.NC format",
+          "DXFGeometryParserEngine round-trip: parse ITW SHAKEPROOF geometry from DXF → regenerate NC → compare to original",
+          "CHOCTAW condition code 8: extend condition code range to 1-9 and add test",
+          "At least one real Box Drive DXF file (from CNC MILL HAAS or WIRE EDM folder) parsed successfully",
+          "Program line count within 20% of reference for same geometry"
+        ],
+        "omega_floor": 0.85,
+        "svi_delta": "+2%"
+      },
+      "compact_after": true
+    },
+
+    "S3": {
+      "title": "Launch Gate — Scope Enforcement + Demo Prep + Pricing",
+      "day": "Friday April 10-11",
+      "units": ["U-WLAUNCH06", "U-WLAUNCH07", "U-WLAUNCH08", "U-WLAUNCH09"],
+      "smart_config": {
+        "role": "Product Launch Engineer + CNC Shop Operator (dual role)",
+        "model": "sonnet",
+        "effort": "MAX",
+        "context_budget": "75%"
+      },
+      "knowledge_sources": [
+        "Feature cascade from S1: D2/SS/Al/carbide validation results",
+        "Feature cascade from S2: real DXF round-trip proof",
+        "Setup sheet HTML output (built in U-W100-29 — verify it's printable)",
+        "Confidence score output (built in U-W100-26 — use this in demo)",
+        "Backplot SVG output (built in U-W100-20 — integrate into workflow)"
+      ],
+      "intent": "Friday EOD: you have a demo-ready system. You can show a potential customer: (1) paste in their material + thickness + DXF → (2) see backplot + confidence score → (3) download NC file + printable setup sheet → (4) verify against their current method. The system explicitly states what it is and isn't for.",
+      "skills": ["/test", "/prism-review", "/health", "/forge-triple"],
+      "exit_gate": {
+        "assumes": "S1 exit gate passed (6 material-thickness cases validated) AND S2 exit gate passed (real DXF round-trip proven, E-pack 1-9 extended)",
+        "measurable_criteria": [
+          "End-to-end test: DXF input → NC output → backplot → setup sheet in < 5 seconds",
+          "Scope guard: taper input rejected with clear message, not silently computed wrong",
+          "Scope guard: non-Mitsubishi controller warns user of condition code limitation",
+          "Setup sheet is printable HTML (not just JSON blob)",
+          "Confidence score displayed prominently in output",
+          "V1 scope document written (1 page, honest about limitations)",
+          "/wedm-launch skill works end-to-end",
+          "prism_edm:wedm_launch_generate MCP action wired and callable",
+          "Launch scope gate hook registered in settings.json",
+          "Demo script written: 3-minute walkthrough for a potential customer"
+        ],
+        "omega_floor": 0.90,
+        "svi_delta": "+2%"
+      },
+      "compact_after": false
+    }
+  },
+
+  "units": {
+    "U-WLAUNCH01": {
+      "title": "Multi-thickness D2 validation: 25.4mm / 50mm / 100mm — tests + proof",
+      "status": "complete",
+      "phase": "S1",
+      "session": "S1",
+      "description": "Write and run cwedm-validation-d2-multithick.test.ts. For D2 at 25.4mm, 50mm, 100mm: (1) generate a complete program, (2) assert feed rate within 10-15% of published Lemhunter values, (3) assert H-offsets decrease monotonically, (4) assert E-pack = E12X1-E12X4 (group 1, thickness code matches), (5) assert Ra_predicted within 20% of Klocke, (6) assert confidence_score.feed >= 70, (7) verify that 100mm program has more passes than 50mm program (physics must drive this). This DIRECTLY proves the calibration fixes from the current session are correct.",
+      "depends_on": [],
+      "four_loop": {
+        "build": "Write test file using WEDMPrintToProgramEngine with pre-parsed contours (skip DXF for speed). Run 3 thickness cases.",
+        "scrutinize": "/prism-review — verify test assertions are physics-grounded, not just plausibility checks",
+        "gap_fill": "If any case fails, diagnose: is it the piecewise feed model, E-pack code, or offset chain? Fix at root cause.",
+        "tie_up": "Test output includes actual vs expected table for all 3 thicknesses. Reference cited for each expected value."
+      },
+      "files_created": ["src/__tests__/cwedm-validation-d2-multithick.test.ts"],
+      "abort_criteria": [
+        "Feed rate at 25mm < 1.0 mm/min (unreasonably slow) or > 8.0 mm/min (too fast for D2)",
+        "E-pack codes not in E1221-E1244 range for D2",
+        "H-offsets are NOT monotonically decreasing across passes",
+        "Confidence score below 60 for all 3 cases (suggests systematic physics error)"
+      ],
+      "rollback": {
+        "files_created": ["src/__tests__/cwedm-validation-d2-multithick.test.ts"],
+        "files_modified": [],
+        "abort_criteria": "Same as above",
+        "procedure": "rm src/__tests__/cwedm-validation-d2-multithick.test.ts — test file only, no engine changes"
+      },
+      "exit_criteria": "3/3 D2 thickness cases pass all 7 assertions. Feed rates cited against published Lemhunter values."
+    },
+
+    "U-WLAUNCH02": {
+      "title": "Multi-material validation: 304SS / 6061 / WC / Inconel at 25.4mm",
+      "status": "complete",
+      "phase": "S1",
+      "session": "S1",
+      "description": "Write and run cwedm-validation-multimaterial.test.ts. For 304SS, 6061-T6, WC carbide, Inconel 718 at 25.4mm: (1) assert correct material group in E-pack (2=SS, 3=Al, 5=carbide, 7=superalloy), (2) assert feed rates follow material hierarchy: Al > C_steel > SS > Inconel (physics-correct ordering), (3) assert WC gets ≥ 5 passes for Ra 0.8µm (carbide needs more passes due to brittleness), (4) assert Inconel feed < D2 feed × 0.6 (mrr_factor 0.5 vs D2 0.9 — Inconel has extreme erosion resistance), (5) assert confidence >= 65 for all (SS, Al have less published data). This proves generality beyond D2.",
+      "depends_on": ["U-WLAUNCH01"],
+      "four_loop": {
+        "build": "Write test file. Use pre-parsed square contour (100mm perimeter) for all 4 materials.",
+        "scrutinize": "/prism-review — verify material hierarchy is physics-correct, not arbitrary",
+        "gap_fill": "If carbide pass count is wrong, check EDMMultiPassStrategyEngine material hardness factor for WC. If Inconel feed is wrong, check mrr_factor in material definition.",
+        "tie_up": "Test includes source citation for each material's expected behavior."
+      },
+      "files_created": ["src/__tests__/cwedm-validation-multimaterial.test.ts"],
+      "abort_criteria": [
+        "Any material produces group 1 (steel) E-pack code when it should be 2/3/5/7",
+        "Al feed ≤ D2 feed (physics reversal — aluminum is much easier to EDM)",
+        "WC gets same pass count as D2 for same Ra target",
+        "Test cannot run because material isn't in MaterialRegistry"
+      ],
+      "rollback": {
+        "files_created": ["src/__tests__/cwedm-validation-multimaterial.test.ts"],
+        "files_modified": [],
+        "abort_criteria": "Same as above",
+        "procedure": "rm src/__tests__/cwedm-validation-multimaterial.test.ts"
+      },
+      "exit_criteria": "4/4 material cases pass all 5 assertions. Material hierarchy physics-correct."
+    },
+
+    "U-WLAUNCH03": {
+      "title": "Read and analyze Box Drive 5-inch square NC program",
+      "status": "complete",
+      "phase": "S2",
+      "session": "S2",
+      "description": "The Box Drive search found 'Wire Program - 5 inch square.NC'. READ this file. Catalog: (1) material + thickness, (2) E-pack codes used, (3) feed rates per pass, (4) H-offsets per pass, (5) number of passes, (6) geometry (is it actually a 5-inch square? what's the start hole?). Then generate an equivalent program with our engine using same material/thickness/Ra and compare output. This is our 3rd real-world validation data point alongside ITW SHAKEPROOF and NOZE TEST.",
+      "depends_on": [],
+      "four_loop": {
+        "build": "cmd.exe /c type 'C:\\Users\\wompu\\Box\\WIRE EDM\\Wire Program - 5 inch square.NC'. Parse manually. Generate equivalent with WEDMPrintToProgramEngine.",
+        "scrutinize": "Compare our output vs the real program. Note every difference. Classify as: physics gap / format difference / machine-specific feature.",
+        "gap_fill": "If significant feed/offset differences: trace to root cause in engine. Fix if root cause is wrong physics, document if machine-specific.",
+        "tie_up": "Update wedm-published-conditions.ts with data extracted from this program."
+      },
+      "files_modified": ["src/data/wedm-published-conditions.ts"],
+      "abort_criteria": [
+        "File contains only positioning/setup moves, no actual cutting conditions",
+        "Program is for a sinker EDM (wire program label is wrong)",
+        "Cannot access file from Box Drive sync"
+      ],
+      "rollback": {
+        "files_created": [],
+        "files_modified": ["src/data/wedm-published-conditions.ts"],
+        "abort_criteria": "Same as above",
+        "procedure": "git checkout -- src/data/wedm-published-conditions.ts"
+      },
+      "exit_criteria": "5-inch square program cataloged. Our generated equivalent compared. Differences classified. Data point added to published conditions."
+    },
+
+    "U-WLAUNCH04": {
+      "title": "Extend E-pack condition code to range 1-9 (CHOCTAW pattern)",
+      "status": "complete",
+      "phase": "S2",
+      "session": "S2",
+      "description": "The CHOCTAW DEFENSE cannelure program uses E1281 — condition code 8. Our current model caps at 5. Mitsubishi FA/MV machines support conditions 1-9. Extend resolveEPackConditionCode() to cover the full range: 6=precision fine, 7=mirror, 8=ultra precision, 9=optical quality. These are very narrow Ra bands (<0.1µm). Update tests in wedm-epack-generator.test.ts. This also explains the CHOCTAW program's unusual feed (F.06) — they were using an ultra-precision condition on a thread form.",
+      "depends_on": [],
+      "four_loop": {
+        "build": "Update resolveEPackConditionCode() in WEDMPrintToProgramEngine.ts. Add conditions 6-9 with Ra boundaries from Mitsubishi FA catalog.",
+        "scrutinize": "/prism-review — verify new boundaries don't break E1221 calibration (condition 2 range must still produce E1221 for Ra 0.8µm)",
+        "gap_fill": "Update wedm-epack-generator.test.ts tests for new conditions. Run full suite — must stay at 216+ pass.",
+        "tie_up": "Add note: conditions 6-9 are optical quality — rarely used in production die work."
+      },
+      "files_modified": [
+        "src/engines/WEDMPrintToProgramEngine.ts",
+        "src/__tests__/wedm-epack-generator.test.ts"
+      ],
+      "abort_criteria": [
+        "Extending to 1-9 breaks the E1221 calibration (Ra 0.8µm still maps to condition 2)",
+        "Test count drops below 216 passing",
+        "Cannot find Ra boundaries for conditions 6-9 in any published Mitsubishi source"
+      ],
+      "rollback": {
+        "files_created": [],
+        "files_modified": ["src/engines/WEDMPrintToProgramEngine.ts", "src/__tests__/wedm-epack-generator.test.ts"],
+        "abort_criteria": "Same as above",
+        "procedure": "git checkout -- src/engines/WEDMPrintToProgramEngine.ts src/__tests__/wedm-epack-generator.test.ts"
+      },
+      "exit_criteria": "Conditions 1-9 supported. CHOCTAW E1281 now generatable. E1221 for Ra 0.8µm still correct. All tests pass."
+    },
+
+    "U-WLAUNCH05": {
+      "title": "Taper skim cascade split: increasing vs decreasing speed pattern",
+      "status": "complete",
+      "phase": "S2",
+      "session": "S2",
+      "description": "NOZE TEST (taper program) shows increasing skim speeds: F.16 → .23 → .26 → .30 in/min. ITW SHAKEPROOF (straight program) shows decreasing: F.12 → .24 → .21 → .20. Our current calibration (max(2.0 - 0.15*(p-2), 1.2)) uses the ITW decreasing pattern for ALL programs. PHYSICS CAVEAT: the increasing taper cascade is EMPIRICALLY OBSERVED from real programs, not yet derived from first principles. Hypothesized mechanism: taper reduces effective spark contact area per pass, requiring higher feed to maintain MRR. This is a V1 empirical fit, not a proven model — document this limitation. Implement: if taper_angle_deg > 0, use increasing cascade. If 0, use decreasing. Add a test validating both patterns.",
+      "depends_on": [],
+      "four_loop": {
+        "build": "Add taper_angle_deg check to EDMMultiPassStrategyEngine.ts skim speed computation (2 locations). When taper > 0: speedFactor = 1.5 + 0.15*(p-2). When 0: existing max(2.0 - 0.15*(p-2), 1.2).",
+        "scrutinize": "/prism-review — verify taper speedFactor produces NOZE-like pattern (increasing). Verify straight produces ITW-like pattern (decreasing).",
+        "gap_fill": "Add tests: taper case → skim2 > skim1 speed. Straight case → skim speeds decrease after skim1.",
+        "tie_up": "Both patterns documented with source citations (ITW SHAKEPROOF and NOZE TEST real programs)."
+      },
+      "files_modified": [
+        "src/engines/EDMMultiPassStrategyEngine.ts",
+        "src/__tests__/cwedm-e2e-validation.test.ts"
+      ],
+      "abort_criteria": [
+        "Taper cascade change breaks non-taper test cases",
+        "Cannot find taper_angle_deg flowing through to skim speed calculation",
+        "Physics rationale for increasing taper cascade cannot be documented"
+      ],
+      "rollback": {
+        "files_created": [],
+        "files_modified": ["src/engines/EDMMultiPassStrategyEngine.ts", "src/__tests__/cwedm-e2e-validation.test.ts"],
+        "abort_criteria": "Same as above",
+        "procedure": "git checkout -- src/engines/EDMMultiPassStrategyEngine.ts src/__tests__/cwedm-e2e-validation.test.ts"
+      },
+      "exit_criteria": "Taper programs: skim speeds increase pass-over-pass. Straight programs: skim speeds decrease. Both patterns tested. NOZE TEST pattern reproduced."
+    },
+
+    "U-WLAUNCH06": {
+      "title": "Setup sheet HTML render — verify printable output (not just JSON)",
+      "status": "complete",
+      "phase": "S3",
+      "session": "S3",
+      "description": "U-W100-29 built WEDMSetupSheetEngine but we need to verify the output is actually a printable HTML document, not just a JSON blob. (1) Call WEDMPrintToProgramEngine for D2 at 25.4mm, (2) capture setup_sheet output, (3) verify it contains per-pass table (E-pack code, H-offset, feed, Ra, recast per pass), (4) verify it's renderable HTML or has a toHTML() method, (5) if only JSON, add a formatAsHTML() function that produces a clean printable table. The operator MUST be able to print this and take it to the machine.",
+      "depends_on": ["U-WLAUNCH01"],
+      "four_loop": {
+        "build": "Check setup_sheet object from WEDMPrintToProgramEngine output. If not HTML, add formatSetupSheetHTML() to WEDMPrintToProgramEngine.ts.",
+        "scrutinize": "/prism-review — verify per-pass table matches G-code (offsets in sheet must match H-values in NC file)",
+        "gap_fill": "Render the HTML in browser (or check string contains valid <table> structure). Verify all fields present.",
+        "tie_up": "Sample HTML output saved to data/samples/wedm-setup-sheet-sample.html"
+      },
+      "files_modified": ["src/engines/WEDMPrintToProgramEngine.ts"],
+      "files_created": ["mcp-server/data/samples/wedm-setup-sheet-sample.html"],
+      "abort_criteria": [
+        "Setup sheet per-pass values don't match NC file H-values",
+        "HTML is malformed (browser can't render it)",
+        "Missing any of: E-pack code, H-offset, feed rate, Ra target, cycle time per pass"
+      ],
+      "rollback": {
+        "files_created": ["mcp-server/data/samples/wedm-setup-sheet-sample.html"],
+        "files_modified": ["src/engines/WEDMPrintToProgramEngine.ts"],
+        "abort_criteria": "Same as above",
+        "procedure": "git checkout -- src/engines/WEDMPrintToProgramEngine.ts && rm mcp-server/data/samples/wedm-setup-sheet-sample.html"
+      },
+      "exit_criteria": "setup_sheet produces renderable HTML with per-pass table. Values match NC file. Sample saved."
+    },
+
+    "U-WLAUNCH07": {
+      "title": "Scope guard: V1 scope enforcement + clear limitation messages",
+      "status": "complete",
+      "phase": "S3",
+      "session": "S3",
+      "description": "Add scope enforcement to WEDMPrintToProgramEngine.ts. If (1) taper_angle_deg > 5°: return error 'V1 does not support taper programs — use U/V axis programs require V2 (planned Q2 2026)'. If (2) controller is not mitsubishi: return warning 'Condition codes for Sodick/Makino/Fanuc/AgieCharmilles are in development — output will be structurally correct but technology codes require operator verification'. If (3) geometry has > 1 re-entrant pocket (estimated from segment angles): return warning 'Thread form / re-entrant geometry detected — feed rates may be 40-60% lower than predicted; reduce to F.06 in/min if wire breaks occur'. These messages protect operator trust by being honest.",
+      "depends_on": ["U-WLAUNCH01"],
+      "four_loop": {
+        "build": "Add scope checks at top of WEDMPrintToProgramEngine.ts generate() method. Return structured errors/warnings, not silently compute wrong output.",
+        "scrutinize": "/prism-review — verify error messages are actionable, cite V2 timeline",
+        "gap_fill": "Test: taper input → correct error. Non-Mitsubishi → correct warning. Complex geometry → warning.",
+        "tie_up": "Warnings added to result.warnings[] array AND to setup sheet."
+      },
+      "files_modified": ["src/engines/WEDMPrintToProgramEngine.ts"],
+      "abort_criteria": [
+        "Scope guard rejects inputs that are actually valid for V1",
+        "Error messages don't include actionable next steps"
+      ],
+      "rollback": {
+        "files_created": [],
+        "files_modified": ["src/engines/WEDMPrintToProgramEngine.ts"],
+        "abort_criteria": "Same as above",
+        "procedure": "git checkout -- src/engines/WEDMPrintToProgramEngine.ts"
+      },
+      "exit_criteria": "Taper rejected with helpful message. Non-Mitsubishi warns. Re-entrant geometry warned. All V1 valid inputs still work."
+    },
+
+    "U-WLAUNCH08": {
+      "title": "V1 scope document + pricing rationale + demo script",
+      "status": "complete",
+      "phase": "S3",
+      "session": "S3",
+      "description": "Write three documents: (1) WEDM-V1-SCOPE.md — what V1 does and doesn't do, honest capability statement, who should use it, what to expect. (2) WEDM-V1-PRICING.md — suggested pricing for program generation service: per-program, per-month, or per-seat. Comparable to what a programmer charges for 2-4 hours of EDM programming ($150-400/program). (3) WEDM-V1-DEMO.md — 3-minute customer walkthrough script. Input: D2 die, 25.4mm thick, Ra 0.8µm target, simple closed contour. Output: show NC file, setup sheet, confidence score, backplot. Explain what each section does. This is the sales tool.",
+      "depends_on": ["U-WLAUNCH06", "U-WLAUNCH07"],
+      "four_loop": {
+        "build": "Write all three documents. Be brutally honest in scope doc. Make pricing defensible.",
+        "scrutinize": "Read scope doc as a machinist: would you trust this? Read pricing as a shop owner: is this worth paying for?",
+        "gap_fill": "If scope doc reveals something not covered in V1 that should be: either add it or explicitly put it in V2.",
+        "tie_up": "Demo script tested end-to-end: actually run the demo path and verify no errors."
+      },
+      "files_created": [
+        "mcp-server/data/docs/WEDM-V1-SCOPE.md",
+        "mcp-server/data/docs/WEDM-V1-PRICING.md",
+        "mcp-server/data/docs/WEDM-V1-DEMO.md"
+      ],
+      "abort_criteria": [
+        "Scope document is marketing language, not technical truth",
+        "Demo script fails to run end-to-end without errors",
+        "Pricing has no justification relative to market alternatives"
+      ],
+      "rollback": {
+        "files_created": ["mcp-server/data/docs/WEDM-V1-SCOPE.md", "mcp-server/data/docs/WEDM-V1-PRICING.md", "mcp-server/data/docs/WEDM-V1-DEMO.md"],
+        "files_modified": [],
+        "abort_criteria": "Same as above",
+        "procedure": "rm these files — document-only revert"
+      },
+      "exit_criteria": "All 3 docs written. Demo script runs end-to-end. Scope doc reviewed as a machinist would read it."
+    },
+
+    "U-WLAUNCH09": {
+      "title": "LAUNCH GATE: end-to-end smoke test + /wedm-launch skill + MCP action wire",
+      "status": "complete",
+      "phase": "S3",
+      "session": "S3",
+      "description": "Final launch gate: (1) Wire prism_edm:wedm_launch_generate MCP action — validates V1 scope, calls WEDMPrintToProgramEngine, returns NC + setup_sheet_html + confidence_score + backplot_svg. (2) Create /wedm-launch skill that calls the MCP action. (3) Build wedm-launch-scope-gate.mjs protective hook. (4) Run the full launch smoke test: 5 cases (D2 25.4mm, D2 50mm, 304SS 25.4mm, 6061 25.4mm, D2 25.4mm taper-rejected). All must produce correct output or correct error. (5) Confirm forge-triple complete: hook + MCP action + skill all registered. LAUNCH.",
+      "depends_on": ["U-WLAUNCH04", "U-WLAUNCH05", "U-WLAUNCH07", "U-WLAUNCH08"],
+      "four_loop": {
+        "build": "Wire MCP action. Create skill file. Run 5-case smoke test.",
+        "scrutinize": "/prism-review — verify MCP action schema is complete, skill invokes correctly",
+        "gap_fill": "If any of 5 smoke test cases fail: diagnose and fix. Do NOT mark complete with failing cases.",
+        "tie_up": "Tag the code. Write LAUNCH-GATE-PASS.md with date, test results, and scope statement."
+      },
+      "files_created": [
+        ".claude/commands/wedm-launch.md",
+        ".claude/hooks/lib/wedm-launch-scope-gate.mjs",
+        "mcp-server/data/docs/LAUNCH-GATE-PASS.md"
+      ],
+      "files_modified": ["src/tools/dispatchers/edmDispatcher.ts"],
+      "abort_criteria": [
+        "Any of the 5 smoke test cases produce wrong output without an error",
+        "MCP action cannot be invoked from dispatcher",
+        "Scope guard fails to catch taper input"
+      ],
+      "rollback": {
+        "files_created": [".claude/commands/wedm-launch.md", ".claude/hooks/lib/wedm-launch-scope-gate.mjs", "mcp-server/data/docs/LAUNCH-GATE-PASS.md"],
+        "files_modified": ["src/tools/dispatchers/edmDispatcher.ts"],
+        "abort_criteria": "Same as above",
+        "procedure": "git checkout -- src/tools/dispatchers/edmDispatcher.ts && rm skill + hook files"
+      },
+      "exit_criteria": "5/5 smoke test cases pass or correctly error. MCP action wired. /wedm-launch skill live. Forge-triple complete. LAUNCH-GATE-PASS.md written."
+    }
+  },
+
+  "what_friday_does_not_achieve": {
+    "note": "Be honest with customers about this list. V2 roadmap addresses each item.",
+    "items": [
+      "Taper programs (UV axis) — V2 target: end of April",
+      "Thread form / re-entrant geometry feed penalty — V2 target: end of April",
+      "Sodick C### / Makino HYPER-i condition codes — V2 target: May",
+      "AgieCharmilles ISPG / Fanuc tech registers — V2 target: May",
+      "PDF/image print input (requires DXF) — V3 target: Q3 2026",
+      "First-part-right guarantee — program is a validated starting point, not guaranteed. Operator review required for first run."
+    ]
+  },
+
+  "critical_path": "U-WLAUNCH01 → U-WLAUNCH02 (proof) → U-WLAUNCH06 (setup sheet) → U-WLAUNCH07 (scope guard) → U-WLAUNCH09 (launch gate)",
+  "parallel_work": {
+    "S2_can_parallelize": "U-WLAUNCH03, U-WLAUNCH04, U-WLAUNCH05 are independent — can run in any order"
+  }
+}

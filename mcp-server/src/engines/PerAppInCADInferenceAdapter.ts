@@ -168,6 +168,26 @@ interface CacheEntry {
 type InferenceSubscriber = (result: InferenceResult) => void;
 type SLOViolationSubscriber = (stats: LatencyStats) => void;
 
+/** Default p99 latency SLO target (ms). Single source for the field default + describeCapabilities. */
+const DEFAULT_SLO_TARGET_MS = 100;
+
+/**
+ * Pure capability contract for the in-CAD inference adapter -- returned by
+ * {@link PerAppInCADInferenceAdapter.describeCapabilities}. Surfaces what
+ * in-process inference is supported and the backend-injection contract a host
+ * must satisfy to actually run it (a JSON dispatcher call cannot).
+ */
+export interface InCADInferenceCapabilities {
+  engine: string;
+  cadApps: CADAppType[];
+  inferenceTypes: InferenceType[];
+  modelFormats: ModelFormat[];
+  quantizations: Quantization[];
+  defaultSloTargetMs: number;
+  /** Backends the constructor REQUIRES; supplied by the in-CAD plugin host, not the dispatcher. */
+  backendRequired: { runtime: string; extractor: string };
+}
+
 // ── Engine Implementation ───────────────────────────────────────────────────
 
 export class PerAppInCADInferenceAdapter {
@@ -185,7 +205,7 @@ export class PerAppInCADInferenceAdapter {
 
   private maxCacheSize = 1000;
   private cacheTTLMs = 60000;
-  private sloTargetMs = 100;
+  private sloTargetMs = DEFAULT_SLO_TARGET_MS;
   private maxSamples = 1000;
 
   constructor(opts: {
@@ -202,6 +222,32 @@ export class PerAppInCADInferenceAdapter {
     if (opts.maxCacheSize !== undefined) this.maxCacheSize = opts.maxCacheSize;
     if (opts.cacheTTLMs !== undefined) this.cacheTTLMs = opts.cacheTTLMs;
     if (opts.sloTargetMs !== undefined) this.sloTargetMs = opts.sloTargetMs;
+  }
+
+  // ── Capability Introspection (pure; no backend required) ──────────────────
+
+  /**
+   * Describe what in-CAD inference this adapter supports, WITHOUT constructing an
+   * instance (the constructor requires an injected InferenceRuntime +
+   * FeatureExtractor that only a CAD-plugin host can supply). Pure + deterministic
+   * -- lets a dispatcher/caller discover the supported CAD apps, inference types,
+   * model formats, and the backend-injection contract needed to actually run.
+   *
+   * @returns Static capability + backend-requirement contract.
+   */
+  static describeCapabilities(): InCADInferenceCapabilities {
+    return {
+      engine: "PerAppInCADInferenceAdapter",
+      cadApps: [...CADAppTypeSchema.options],
+      inferenceTypes: [...InferenceTypeSchema.options],
+      modelFormats: [...ModelFormatSchema.options],
+      quantizations: [...QuantizationSchema.options],
+      defaultSloTargetMs: DEFAULT_SLO_TARGET_MS,
+      backendRequired: {
+        runtime: "InferenceRuntime (ONNX/TensorRT/OpenVINO/CoreML/WASM/TFLite)",
+        extractor: "FeatureExtractor (CAD geometry -> feature vector)",
+      },
+    };
   }
 
   // ── Model Management ──────────────────────────────────────────────────────

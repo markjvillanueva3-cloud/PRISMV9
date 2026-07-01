@@ -1,5 +1,7 @@
 {
   "cleanupPeriodDays": 60,
+  "includeCoAuthoredBy": false,
+  "spinnerTipsEnabled": false,
   "env": {
     "PATH": "H:/Tools/nodejs/node_modules/.bin;H:/.claude/bin;C:/Program Files/Docker/Docker/resources/bin;C:/Windows/System32;C:/Windows;C:/Windows/System32/Wbem;C:/Windows/System32/WindowsPowerShell/v1.0;C:/Windows/System32/OpenSSH",
     "OLLAMA_MODELS": "H:/Tools/ollama/models",
@@ -16,19 +18,21 @@
     "CLAUDE_CODE_SUBPROCESS_ENV_SCRUB": "0",
     "CLAUDE_CODE_USE_POWERSHELL_TOOL": "1",
     "CLAUDE_CODE_MAX_OUTPUT_TOKENS": "85000",
-    "CLAUDE_AUTOCOMPACT_PCT_OVERRIDE": "95",
     "ENABLE_PROMPT_CACHING_1H": "1",
     "DISABLE_AUTOUPDATER": "1",
     "LINEAR_PROJECT": "PRISM",
-    "SUPABASE_PROJECT_URL": "",
-    "SUPABASE_ANON_KEY": "",
-    "FIGMA_FILE_KEY": ""
+    "BASH_DEFAULT_TIMEOUT_MS": "300000",
+    "BASH_MAX_TIMEOUT_MS": "1800000",
+    "MCP_TOOL_TIMEOUT": "600000",
+    "DISABLE_TELEMETRY": "1",
+    "DISABLE_ERROR_REPORTING": "1",
+    "CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC": "1"
   },
   "permissions": {
     "defaultMode": "bypassPermissions"
   },
   "enabledMcpjsonServers": [
-    "prism-mcp-server",
+    "prism",
     "claude-flow"
   ],
   "skillOverrides": {
@@ -156,16 +160,6 @@
             "type": "command",
             "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/gsd-inject.mjs",
             "timeout": 2000
-          },
-          {
-            "type": "command",
-            "command": "HOOK_EVENT=SessionStart \"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/linear-roadmap-sync.mjs",
-            "timeout": 5000
-          },
-          {
-            "type": "command",
-            "command": "HOOK_EVENT=SessionStart \"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/supabase-state-sync.mjs",
-            "timeout": 5000
           },
           {
             "type": "command",
@@ -333,16 +327,6 @@
           },
           {
             "type": "command",
-            "command": "HOOK_EVENT=Stop \"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/linear-roadmap-sync.mjs",
-            "timeout": 5000
-          },
-          {
-            "type": "command",
-            "command": "HOOK_EVENT=Stop \"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/supabase-state-sync.mjs",
-            "timeout": 5000
-          },
-          {
-            "type": "command",
             "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/stop_on_unwired_assets.mjs",
             "timeout": 8000
           },
@@ -360,6 +344,12 @@
             "type": "command",
             "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/stop_on_failing_tests.mjs",
             "timeout": 10000
+          },
+          {
+            "_comment": "UNWIRED-HOOK-AUDIT-2026-05-27 (slot:golf): CLAUDE.md §ENFORCEMENT lists stop_on_uncommitted_critical as a 'Key Stop hook every chat must know' but the audit (state/shared/UNWIRED-HOOKS-AUDIT-2026-05-27.md) found 0 settings.json / 0 bundle references for it. Hook is tier-T0 + fail-soft + emits advisory `result:warn` on dirty CRITICAL_PATTERNS (src/physics/constants.ts, Kienzle*, Taylor*, *Safety*, *Force*, *Deflection*) — wiring here re-establishes CLAUDE.md-documented behavior. Note: hook output schema is advisory-only (result:warn, not continue:false) so it warns without blocking — that's a separate refactor candidate.",
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/stop_on_uncommitted_critical.mjs",
+            "timeout": 5000
           },
           {
             "type": "command",
@@ -430,6 +420,11 @@
             "type": "command",
             "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/scrutinize-before-stop.mjs",
             "timeout": 10000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/stop-goal-clear-advance.mjs",
+            "timeout": 35000
           },
           {
             "type": "command",
@@ -530,6 +525,11 @@
           {
             "type": "command",
             "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/test-coverage-enforcer.mjs",
+            "timeout": 3000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/test-legitimacy.mjs",
             "timeout": 3000
           },
           {
@@ -1277,7 +1277,6 @@
   },
   "alwaysThinkingEnabled": true,
   "effortLevel": "xhigh",
-  "autoCompactWindow": 800000,
   "showThinkingSummaries": true,
   "skipDangerousModePermissionPrompt": true,
   "theme": "dark",

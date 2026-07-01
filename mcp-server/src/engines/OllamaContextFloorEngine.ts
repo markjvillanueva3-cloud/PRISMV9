@@ -63,7 +63,7 @@ export type AwarenessMode = z.infer<typeof AwarenessModeSchema>;
 
 const WrapInputSchema = z.object({
   prompt: z.string().min(1, "prompt must be non-empty"),
-  model: z.string().min(1).default("qwen2.5-coder:7b"),
+  model: z.string().min(1).default("qwen2.5-coder:32b"), // was 7b (deleted from Blackwell — U-BW-TS-ENGINES-RETIRE-2)
   taskTag: z.string().optional(),
   briefOverride: z.string().nullable().optional(),
   /**

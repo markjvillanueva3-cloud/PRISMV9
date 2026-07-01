@@ -1,0 +1,28 @@
+# QUOTING-SYNERGY-MS0/U-QP-DOCUSTRATA-BRIDGE-SHIM — [MAIN] [BOOTSTRAP-SLOT-ENFORCE] [QUOTING-SYNERGY-MS0]/U-QP-DOCUSTRATA-BRIDGE-SHIM (slot:charlie /goal-yolo iter18): pure bridge shim — overlay real invoice revenues onto baseline records. The READ-SIDE HOOK that future iter19+ will fill from DocustrataHistoricalPricingTrainerEngine extractions. Today: shim only — production source (Docustrata extractor) not yet wired. Exports: buildRevenueKey(customer, partId)->string|null (case-insensitive uppercase canonical key, trims, rejects empty/non-string), mergeDocustrataRevenue(records, revenueMap, opts?)->{records, report} (non-mutating, accepts Map OR plain object as revenueMap, accepts {records:[{customer,part_id,revenue}]} array shape via CLI path, minRevenue floor (default 1) rejects zero/negative candidates, NaN/Infinity ignored, every record gets revenue_source flag 'docustrata'|'stub' so downstream consumers know which numbers are real). Report shape: 9 keys (total, matched, unmatched, stub_preserved_count, rejected_below_min, override_min, override_max, match_rate_pct, min_revenue_threshold). CLI: --baseline/--docustrata/--out/--min-revenue/--json. Missing docustrata file is non-fatal (preserves all stubs). 20/20 tests PASS: 5 key-canonicalization cases + happy-path + partial-match + plain-object-revenueMap coercion + case-insensitive + minRevenue floor (zero/negative reject) + NaN/Infinity ignored + non-array/null-map defenses + non-mutation + 5-record realistic variability (match/stub/rejected coexist at 40% rate) + 9-key shape stability + non-revenue field preservation. Total iter9-18 quoting pipeline: 144 tests across 8 files.
+
+**Commit:** `3820f1ed4f96` · **By:** markjvillanueva3-cloud · **At:** 2026-05-26T03:09:48-05:00
+**Tags:** quoting-synergy-ms0, u-qp-docustrata-bridge-shim, auto-distilled
+
+## Subject
+[MAIN] [BOOTSTRAP-SLOT-ENFORCE] [QUOTING-SYNERGY-MS0]/U-QP-DOCUSTRATA-BRIDGE-SHIM (slot:charlie /goal-yolo iter18): pure bridge shim — overlay real invoice revenues onto baseline records. The READ-SIDE HOOK that future iter19+ will fill from DocustrataHistoricalPricingTrainerEngine extractions. Today: shim only — production source (Docustrata extractor) not yet wired. Exports: buildRevenueKey(customer, partId)->string|null (case-insensitive uppercase canonical key, trims, rejects empty/non-string), mergeDocustrataRevenue(records, revenueMap, opts?)->{records, report} (non-mutating, accepts Map OR plain object as revenueMap, accepts {records:[{customer,part_id,revenue}]} array shape via CLI path, minRevenue floor (default 1) rejects zero/negative candidates, NaN/Infinity ignored, every record gets revenue_source flag 'docustrata'|'stub' so downstream consumers know which numbers are real). Report shape: 9 keys (total, matched, unmatched, stub_preserved_count, rejected_below_min, override_min, override_max, match_rate_pct, min_revenue_threshold). CLI: --baseline/--docustrata/--out/--min-revenue/--json. Missing docustrata file is non-fatal (preserves all stubs). 20/20 tests PASS: 5 key-canonicalization cases + happy-path + partial-match + plain-object-revenueMap coercion + case-insensitive + minRevenue floor (zero/negative reject) + NaN/Infinity ignored + non-array/null-map defenses + non-mutation + 5-record realistic variability (match/stub/rejected coexist at 40% rate) + 9-key shape stability + non-revenue field preservation. Total iter9-18 quoting pipeline: 144 tests across 8 files.
+
+## Body
+```
+[MAIN] [BOOTSTRAP-SLOT-ENFORCE] [QUOTING-SYNERGY-MS0]/U-QP-DOCUSTRATA-BRIDGE-SHIM (slot:charlie /goal-yolo iter18): pure bridge shim — overlay real invoice revenues onto baseline records. The READ-SIDE HOOK that future iter19+ will fill from DocustrataHistoricalPricingTrainerEngine extractions. Today: shim only — production source (Docustrata extractor) not yet wired. Exports: buildRevenueKey(customer, partId)->string|null (case-insensitive uppercase canonical key, trims, rejects empty/non-string), mergeDocustrataRevenue(records, revenueMap, opts?)->{records, report} (non-mutating, accepts Map OR plain object as revenueMap, accepts {records:[{customer,part_id,revenue}]} array shape via CLI path, minRevenue floor (default 1) rejects zero/negative candidates, NaN/Infinity ignored, every record gets revenue_source flag 'docustrata'|'stub' so downstream consumers know which numbers are real). Report shape: 9 keys (total, matched, unmatched, stub_preserved_count, rejected_below_min, override_min, override_max, match_rate_pct, min_revenue_threshold). CLI: --baseline/--docustrata/--out/--min-revenue/--json. Missing docustrata file is non-fatal (preserves all stubs). 20/20 tests PASS: 5 key-canonicalization cases + happy-path + partial-match + plain-object-revenueMap coercion + case-insensitive + minRevenue floor (zero/negative reject) + NaN/Infinity ignored + non-array/null-map defenses + non-mutation + 5-record realistic variability (match/stub/rejected coexist at 40% rate) + 9-key shape stability + non-revenue field preservation. Total iter9-18 quoting pipeline: 144 tests across 8 files.
+```
+
+## Files touched (3)
+- scripts/quoting-docustrata-bridge.mjs      | 182 +++++++++++++++++++++
+- scripts/quoting-docustrata-bridge.test.mjs | 245 +++++++++++++++++++++++++++++
+- 2 files changed, 427 insertions(+)
+
+
+## Verification
+**Scrutiny ledger**: arms A✗ B✗ C✗ for session 
+
+## Cross-references
+- Full commit: `git -C H:/prism show 3820f1ed4f96`
+- Milestone envelope: `mcp-server/data/milestones/QUOTING-SYNERGY-MS0.json`
+
+---
+_Auto-distilled by `scripts/distill-session-learnings.mjs` per [[feedback_auto_close_out]] / SYSTEM-VIZ-BRAIN-MS0/U-P1-POST-SHIP-DISTILL._

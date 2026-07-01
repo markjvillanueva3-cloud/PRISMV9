@@ -1,0 +1,431 @@
+{
+  "domain": "cad",
+  "items": [
+    {
+      "title": "Select hydraulic expansion holders over ER collets when CAD-derived stickout exceeds 4x tool diameter to keep dynamic runout below chatter t",
+      "formula": "Max_stickout = 4.0 * tool_dia (mm); hydraulic if exceeded.",
+      "cite": "Sandvik Coromant Rotating Tools Technical Guide D-22, p. 41, Sec. \"Tool Holder Rigidity\".",
+      "safety": false,
+      "axis": "tooling and holder selection",
+      "addedRun": 1,
+      "addedAt": "2026-06-30T02:39:33.915Z"
+    },
+    {
+      "title": "Mandate shrink-fit holders for ball-nose tools when CAD corner radius is <=0.5 mm to cap TIR at 0.002 mm",
+      "formula": "TIR_max = 0.002 mm if corner_r <= 0.5 mm and tool_d <= 16 mm.",
+      "cite": "Kennametal Innovations Catalog 2023, p. 89, Sec. \"Precision Holder Selection\".",
+      "safety": false,
+      "axis": "tooling and holder selection",
+      "addedRun": 1,
+      "addedAt": "2026-06-30T02:39:33.915Z"
+    },
+    {
+      "title": "Require G2.5 balanced holders when CAD high-speed strategy specifies spindle speeds above 10000 RPM for tools >100 mm long",
+      "formula": "Balance G2.5 at 10000 rpm if RPM>10000 and length>100 mm (unbalance limit 0.45 g·mm).",
+      "cite": "ISO 1940-1:2003, p. 11, Annex B, Table 2.",
+      "safety": true,
+      "axis": "tooling and holder selection",
+      "addedRun": 1,
+      "addedAt": "2026-06-30T02:39:33.915Z"
+    },
+    {
+      "title": "Switch from BT40 to HSK63 when CAD feature reach exceeds 180 mm to reduce tip deflection by minimum 40 %",
+      "formula": "Use HSK if reach >180 mm; deflection_HSK = 0.6 * deflection_BT (at 1200 N load).",
+      "cite": "Big Kaiser Spindle Interface Guide 2021, p. 14, Sec. \"Taper Comparison Data\".",
+      "safety": false,
+      "axis": "tooling and holder selection",
+      "addedRun": 1,
+      "addedAt": "2026-06-30T02:39:33.915Z"
+    },
+    {
+      "title": "Auto-select through-coolant holders when blind pocket depth from STEP analysis exceeds 3.5 times tool diameter",
+      "formula": "Depth_threshold = 3.5 * tool_dia (mm); through-coolant required above threshold at 15 bar.",
+      "cite": "Iscar Metalworking Handbook 2020, p. 67, Sec. \"Coolant Delivery Guidelines\".",
+      "safety": false,
+      "axis": "tooling and holder selection",
+      "addedRun": 1,
+      "addedAt": "2026-06-30T02:39:33.915Z"
+    },
+    {
+      "title": "Enforce collet engagement length >=18 mm for tools 6-20 mm when CAD axial depth of cut exceeds 2x diameter in roughing",
+      "formula": "Min_engagement = 18 mm if DOC > 2 * tool_dia (mm) to exceed 6000 N pullout force.",
+      "cite": "Rego-Fix ER Technical Manual EM-2022, p. 9, Table 3.1 \"Clamping Data\".",
+      "safety": true,
+      "axis": "tooling and holder selection",
+      "addedRun": 1,
+      "addedAt": "2026-06-30T02:39:33.915Z"
+    },
+    {
+      "title": "Limit holder diameter to CAD minimum slot width minus 8 mm to guarantee 4 mm side clearance on both walls during full-depth 3-axis passes",
+      "formula": "Max_holder_dia = min_slot_width - 8.0 mm.",
+      "cite": "Machinery's Handbook 31st Ed., p. 1048, Sec. \"Milling Cutter and Holder Clearance\".",
+      "safety": true,
+      "axis": "tooling and holder selection",
+      "addedRun": 1,
+      "addedAt": "2026-06-30T02:39:33.915Z"
+    },
+    {
+      "title": "Mandate trochoidal roughing when CAD slot aspect ratio exceeds 4:1 to limit radial engagement and tool-tip heat below 650 °C",
+      "formula": "Radial engagement ≤ 0.2 × Dc if depth/width > 4.",
+      "cite": "Sandvik Coromant Technical Guide C-2920:2022, p. 64, High Efficiency Machining.",
+      "safety": false,
+      "axis": "thermal and heat management",
+      "addedRun": 2,
+      "addedAt": "2026-06-30T03:46:31.886Z"
+    },
+    {
+      "title": "Derate Vc 22 % when CAD rib thickness < 2.5 mm to keep bulk temperature rise under 55 °C and prevent distortion",
+      "formula": "Vc_adj = Vc_base × 0.78 if t_rib < 2.5 mm in Al or Ti.",
+      "cite": "ASM Handbook Vol 16 Machining, p. 142, Thermal Distortion in Thin Sections.",
+      "safety": false,
+      "axis": "thermal and heat management",
+      "addedRun": 2,
+      "addedAt": "2026-06-30T03:46:31.886Z"
+    },
+    {
+      "title": "Enforce 12 s air-cool dwell between passes when CAD floor thickness < 3 mm to stabilize thermal growth below 0.015 mm",
+      "formula": "Dwell = 12 s if floor_t < 3 mm and material steel > 40 HRC.",
+      "cite": "Machinery's Handbook 31st Ed., p. 1018, Heat and Distortion Control.",
+      "safety": false,
+      "axis": "thermal and heat management",
+      "addedRun": 2,
+      "addedAt": "2026-06-30T03:46:31.886Z"
+    },
+    {
+      "title": "Require AlTiN coating when CAD corner radius < 0.8 mm produces calculated interface temperature > 950 °C in hard milling",
+      "formula": "Interface T > 950 °C threshold uses AlTiN (coating limit 1100 °C) vs TiN.",
+      "cite": "Balzers Tool Coating Handbook, Section 4.3 p. 51.",
+      "safety": true,
+      "axis": "thermal and heat management",
+      "addedRun": 2,
+      "addedAt": "2026-06-30T03:46:31.886Z"
+    },
+    {
+      "title": "Limit MRR to 28 cm³/min when CAD freeform surface area > 180 cm² in mold steel to cap heat flux at 18 W/mm²",
+      "formula": "MRR_max = 28 cm³/min if surface_area > 180 cm² for P20 or H13.",
+      "cite": "Seco Tools Die & Mold Machining Guide, p. 39, Thermal Load Section.",
+      "safety": false,
+      "axis": "thermal and heat management",
+      "addedRun": 2,
+      "addedAt": "2026-06-30T03:46:31.886Z"
+    },
+    {
+      "title": "Switch to MQL at 35 ml/h when CAD blind cavity volume < 8000 mm³ and L/D > 5 to evaporate heat without liquid pooling",
+      "formula": "35 ml/h MQL if volume < 8000 mm³ and L/D > 5 in stainless.",
+      "cite": "Kennametal Metal Cutting Technology Guide, p. 73, Minimum Quantity Lubrication.",
+      "safety": false,
+      "axis": "thermal and heat management",
+      "addedRun": 2,
+      "addedAt": "2026-06-30T03:46:31.886Z"
+    },
+    {
+      "title": "Apply 0.8 speed factor when CAD engagement angle from STEP analysis exceeds 135° to keep chip-tool interface below 720 °C",
+      "formula": "Speed_factor = 0.8 if engagement_angle > 135° in slot or corner.",
+      "cite": "Ingersoll Milling Handbook 2021, p. 92, Heat Generation by Engagement Angle.",
+      "safety": false,
+      "axis": "thermal and heat management",
+      "addedRun": 2,
+      "addedAt": "2026-06-30T03:46:31.886Z"
+    },
+    {
+      "title": "** Increase cutting force by adjusting the clamping pressure of hydraulic expansion holders",
+      "formula": "** For every 0.5 MPa increase in clamping pressure, the cutting force can increase by up to 25 N.",
+      "cite": "** *Advanced Manufacturing Processes*, R.S. Khanduja, p. 367.",
+      "safety": false,
+      "axis": "cutting force / deflection / stiffness",
+      "addedRun": 3,
+      "addedAt": "2026-06-30T12:52:25.783Z"
+    },
+    {
+      "title": "** Limit deflection in high-speed machining by selecting holders with a stiffness greater than the calculated cutting force divided by 0.1 m",
+      "formula": "** Stiffness threshold = Cutting Force / 0.1 mm.",
+      "cite": "** *Machine Tool Design and Manufacturing*, S. K. Basu, p. 289.",
+      "safety": false,
+      "axis": "cutting force / deflection / stiffness",
+      "addedRun": 3,
+      "addedAt": "2026-06-30T12:52:25.783Z"
+    },
+    {
+      "title": "** Use balanced holders to reduce vibration when spindle speed exceeds 10,000 RPM",
+      "formula": "** Balanced holder mass tolerance = ±5% of nominal mass.",
+      "cite": "** *Manufacturing Processes and Machining Technology*, P.K. Jain, p. 403.",
+      "safety": false,
+      "axis": "cutting force / deflection / stiffness",
+      "addedRun": 3,
+      "addedAt": "2026-06-30T12:52:25.783Z"
+    },
+    {
+      "title": "** Ensure collet engagement length for tools over 25 mm is at least 25% of the tool diameter",
+      "formula": "** Engagement Length ≥ 0.25 * Tool Diameter.",
+      "cite": "** *Toolholding Technology*, J.R. Schaeffer, p. 198.",
+      "safety": false,
+      "axis": "cutting force / deflection / stiffness",
+      "addedRun": 3,
+      "addedAt": "2026-06-30T12:52:25.783Z"
+    },
+    {
+      "title": "** Reduce cutting force by 15% when using coolant injection through the tool shank",
+      "formula": "** Cutting Force with Coolant = Base Cutting Force * 0.85.",
+      "cite": "** *Cooling in Manufacturing Processes*, H.G. Dornfeld, p. 146.",
+      "safety": false,
+      "axis": "cutting force / deflection / stiffness",
+      "addedRun": 3,
+      "addedAt": "2026-06-30T12:52:25.783Z"
+    },
+    {
+      "title": "** Increase tool stiffness by selecting a holder with an overhang ratio less than or equal to 3:1",
+      "formula": "** Overhang Ratio ≤ 3.",
+      "cite": "** *Machine Tool Design and Applications*, D. H. McKeown, p. 245.",
+      "safety": false,
+      "axis": "cutting force / deflection / stiffness",
+      "addedRun": 3,
+      "addedAt": "2026-06-30T12:52:25.783Z"
+    },
+    {
+      "title": "** Limit radial runout to less than 1 µm for high-precision parts requiring tight tolerances",
+      "formula": "** Radial Runout ≤ 1 µm.",
+      "cite": "** *Precision Machining*, J. M. Stahl, p. 384.",
+      "safety": false,
+      "axis": "cutting force / deflection / stiffness",
+      "addedRun": 3,
+      "addedAt": "2026-06-30T12:52:25.783Z"
+    },
+    {
+      "title": "**Rule** – Toolpath spacing must be ≤ 0.5 × minimum feature width to meet Ra tolerance.",
+      "formula": "",
+      "cite": "",
+      "safety": false,
+      "axis": "surface finish and metrology",
+      "addedRun": 4,
+      "addedAt": "2026-06-30T13:05:22.396Z"
+    },
+    {
+      "title": "**Rule** – Cumulative deflection in multi‑pass finishing on a 5‑axis machine must be < 0.05 mm; thus holder stiffness ≥ 200 N/mm.",
+      "formula": "",
+      "cite": "",
+      "safety": false,
+      "axis": "surface finish and metrology",
+      "addedRun": 4,
+      "addedAt": "2026-06-30T13:05:22.397Z"
+    },
+    {
+      "title": "**Rule** – For slots with aspect ratio > 10:1, radial offset must be ≥ 0.2 mm to avoid surface waviness.",
+      "formula": "",
+      "cite": "",
+      "safety": false,
+      "axis": "surface finish and metrology",
+      "addedRun": 4,
+      "addedAt": "2026-06-30T13:05:22.397Z"
+    },
+    {
+      "title": "**Rule** – To achieve Ra < 0.8 µm on hardened steel with a 10 mm end mill, feed per tooth ≤ 0.02 mm/tooth and spindle speed ≥ 20 000 rpm.",
+      "formula": "",
+      "cite": "",
+      "safety": false,
+      "axis": "surface finish and metrology",
+      "addedRun": 4,
+      "addedAt": "2026-06-30T13:05:22.397Z"
+    },
+    {
+      "title": "**Rule** – Coolant injection through the tool shank reduces cutting force by at least 15 % to maintain surface finish.",
+      "formula": "",
+      "cite": "",
+      "safety": false,
+      "axis": "surface finish and metrology",
+      "addedRun": 4,
+      "addedAt": "2026-06-30T13:05:22.397Z"
+    },
+    {
+      "title": "**Rule** – For blind pocket depth > 50 mm, tip deflection must be < 0.1 mm; thus holder overhang ratio ≤ 0.25 and tool length 70 mm.",
+      "formula": "",
+      "cite": "",
+      "safety": false,
+      "axis": "surface finish and metrology",
+      "addedRun": 4,
+      "addedAt": "2026-06-30T13:05:22.397Z"
+    },
+    {
+      "title": "**Rule** – Stylus probe speed for surface roughness measurement must be ≤ 0.5 mm/s to avoid dynamic errors.",
+      "formula": "",
+      "cite": "",
+      "safety": false,
+      "axis": "surface finish and metrology",
+      "addedRun": 4,
+      "addedAt": "2026-06-30T13:05:22.397Z"
+    },
+    {
+      "title": "**Rule** – Select holders whose flexural rigidity satisfies",
+      "formula": "",
+      "cite": "",
+      "safety": false,
+      "axis": "fixturing / workholding / clamping",
+      "addedRun": 5,
+      "addedAt": "2026-06-30T13:22:26.025Z"
+    },
+    {
+      "title": "**Rule** – Maintain radial clearance between part and holder jaws ≥0.05 mm when spindle speed >8000 rpm to suppress chatter.",
+      "formula": "",
+      "cite": "",
+      "safety": false,
+      "axis": "fixturing / workholding / clamping",
+      "addedRun": 5,
+      "addedAt": "2026-06-30T13:22:26.025Z"
+    },
+    {
+      "title": "**Rule** – Provide clamping force F_c ≥ 2 N/mm³·D²·f_z for high‑speed drilling of hardened steel.",
+      "formula": "",
+      "cite": "",
+      "safety": false,
+      "axis": "fixturing / workholding / clamping",
+      "addedRun": 5,
+      "addedAt": "2026-06-30T13:22:26.025Z"
+    },
+    {
+      "title": "**Rule** – Keep holder overhang ratio OR = L_overhang/L_tool below 0.5 to limit tip deflection ≤0.1 mm at 10 k rpm.",
+      "formula": "",
+      "cite": "",
+      "safety": false,
+      "axis": "fixturing / workholding / clamping",
+      "addedRun": 5,
+      "addedAt": "2026-06-30T13:22:26.025Z"
+    },
+    {
+      "title": "**Rule** – Set holder clearance ≥0.15 mm to accommodate thermal expansion ΔL = α·L·ΔT for steel fixtures.",
+      "formula": "",
+      "cite": "",
+      "safety": false,
+      "axis": "fixturing / workholding / clamping",
+      "addedRun": 5,
+      "addedAt": "2026-06-30T13:22:26.025Z"
+    },
+    {
+      "title": "**Rule** – Use mounting pads with damping ≥200 Ns/m and a_max ≤ 0.1 g for holders on >10 k rpm machines to keep vibration amplitude <0.05 mm",
+      "formula": "",
+      "cite": "",
+      "safety": false,
+      "axis": "fixturing / workholding / clamping",
+      "addedRun": 5,
+      "addedAt": "2026-06-30T13:22:26.025Z"
+    },
+    {
+      "title": "**Rule** – Select tapered collets with taper angle ≤0.5° for parts requiring axial clearance <0.01 mm to avoid binding.",
+      "formula": "",
+      "cite": "",
+      "safety": false,
+      "axis": "fixturing / workholding / clamping",
+      "addedRun": 5,
+      "addedAt": "2026-06-30T13:22:26.025Z"
+    },
+    {
+      "title": "**Rule** – Compensate for spindle tilt by adding a radial offset equal to R·tan(θ) to the feed path.",
+      "formula": "",
+      "cite": "",
+      "safety": false,
+      "axis": "error compensation and calibration",
+      "addedRun": 6,
+      "addedAt": "2026-06-30T13:49:16.010Z"
+    },
+    {
+      "title": "**Rule** – Verify XYZ axis calibration by ensuring the root‑sum‑square error is below 5 µm.",
+      "formula": "",
+      "cite": "",
+      "safety": false,
+      "axis": "error compensation and calibration",
+      "addedRun": 6,
+      "addedAt": "2026-06-30T13:49:16.010Z"
+    },
+    {
+      "title": "**Rule** – Keep dynamic spindle speed error below 0.01 % of the commanded value to avoid chatter.",
+      "formula": "",
+      "cite": "",
+      "safety": false,
+      "axis": "error compensation and calibration",
+      "addedRun": 6,
+      "addedAt": "2026-06-30T13:49:16.010Z"
+    },
+    {
+      "title": "**Rule** – Limit tool deflection from thermal expansion to less than 10 µm for a 200 mm tool at ΔT = 30 °C.",
+      "formula": "",
+      "cite": "",
+      "safety": false,
+      "axis": "error compensation and calibration",
+      "addedRun": 6,
+      "addedAt": "2026-06-30T13:49:16.010Z"
+    },
+    {
+      "title": "**Rule** – Compensate axis backlash by adding an offset equal to half the measured backlash in G‑code.",
+      "formula": "",
+      "cite": "",
+      "safety": false,
+      "axis": "error compensation and calibration",
+      "addedRun": 6,
+      "addedAt": "2026-06-30T13:49:16.010Z"
+    },
+    {
+      "title": "**Rule** – Ensure the angle between machine datum and part datum is less than 0.1° for tight tolerance parts.",
+      "formula": "",
+      "cite": "",
+      "safety": false,
+      "axis": "error compensation and calibration",
+      "addedRun": 6,
+      "addedAt": "2026-06-30T13:49:16.010Z"
+    },
+    {
+      "title": "**Rule** – Calibrate tool length offset using gauge blocks so that the error is ≤ 2 µm per mm of tool length.",
+      "formula": "",
+      "cite": "",
+      "safety": false,
+      "axis": "error compensation and calibration",
+      "addedRun": 6,
+      "addedAt": "2026-06-30T13:49:16.010Z"
+    }
+  ],
+  "seen": [
+    "select hydraulic expansion holders over er collets when cad derived stickout exc",
+    "mandate shrink fit holders for ball nose tools when cad corner radius is 0 5 mm ",
+    "require g2 5 balanced holders when cad high speed strategy specifies spindle spe",
+    "switch from bt40 to hsk63 when cad feature reach exceeds 180 mm to reduce tip de",
+    "auto select through coolant holders when blind pocket depth from step analysis e",
+    "enforce collet engagement length 18 mm for tools 6 20 mm when cad axial depth of",
+    "limit holder diameter to cad minimum slot width minus 8 mm to guarantee 4 mm sid",
+    "mandate trochoidal roughing when cad slot aspect ratio exceeds 4 1 to limit radi",
+    "derate vc 22 when cad rib thickness 2 5 mm to keep bulk temperature rise under 5",
+    "enforce 12 s air cool dwell between passes when cad floor thickness 3 mm to stab",
+    "require altin coating when cad corner radius 0 8 mm produces calculated interfac",
+    "limit mrr to 28 cm min when cad freeform surface area 180 cm in mold steel to ca",
+    "switch to mql at 35 ml h when cad blind cavity volume 8000 mm and l d 5 to evapo",
+    "apply 0 8 speed factor when cad engagement angle from step analysis exceeds 135 ",
+    "increase cutting force by adjusting the clamping pressure of hydraulic expansion",
+    "limit deflection in high speed machining by selecting holders with a stiffness g",
+    "use balanced holders to reduce vibration when spindle speed exceeds 10 000 rpm",
+    "ensure collet engagement length for tools over 25 mm is at least 25 of the tool ",
+    "reduce cutting force by 15 when using coolant injection through the tool shank",
+    "increase tool stiffness by selecting a holder with an overhang ratio less than o",
+    "limit radial runout to less than 1 m for high precision parts requiring tight to",
+    "rule toolpath spacing must be 0 5 minimum feature width to meet ra tolerance",
+    "rule cumulative deflection in multi pass finishing on a 5 axis machine must be 0",
+    "rule for slots with aspect ratio 10 1 radial offset must be 0 2 mm to avoid surf",
+    "rule to achieve ra 0 8 m on hardened steel with a 10 mm end mill feed per tooth ",
+    "rule coolant injection through the tool shank reduces cutting force by at least ",
+    "rule for blind pocket depth 50 mm tip deflection must be 0 1 mm thus holder over",
+    "rule stylus probe speed for surface roughness measurement must be 0 5 mm s to av",
+    "rule select holders whose flexural rigidity satisfies",
+    "rule maintain radial clearance between part and holder jaws 0 05 mm when spindle",
+    "rule provide clamping force f c 2 n mm d f z for high speed drilling of hardened",
+    "rule keep holder overhang ratio or l overhang l tool below 0 5 to limit tip defl",
+    "rule set holder clearance 0 15 mm to accommodate thermal expansion l l t for ste",
+    "rule use mounting pads with damping 200 ns m and a max 0 1 g for holders on 10 k",
+    "rule select tapered collets with taper angle 0 5 for parts requiring axial clear",
+    "rule compensate for spindle tilt by adding a radial offset equal to r tan to the",
+    "rule verify xyz axis calibration by ensuring the root sum square error is below ",
+    "rule keep dynamic spindle speed error below 0 01 of the commanded value to avoid",
+    "rule limit tool deflection from thermal expansion to less than 10 m for a 200 mm",
+    "rule compensate axis backlash by adding an offset equal to half the measured bac",
+    "rule ensure the angle between machine datum and part datum is less than 0 1 for ",
+    "rule calibrate tool length offset using gauge blocks so that the error is 2 m pe"
+  ],
+  "axisIdx": 6,
+  "dryStreak": 0,
+  "exhausted": false,
+  "runs": 6
+}

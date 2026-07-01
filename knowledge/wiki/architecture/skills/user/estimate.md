@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `estimate` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/estimate.md` |
+| Source | `C:/Users/wompu/.claude/commands/estimate.md` |
 | Model | default |
 | Tags | _(none)_ |
 

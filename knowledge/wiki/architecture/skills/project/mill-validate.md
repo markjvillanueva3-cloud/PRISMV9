@@ -29,8 +29,12 @@ related:
 
 ## Description (first paragraph)
 
-
-# /mill-validate — Mill Program Validation
+Comprehensive validation for CNC mill programs:
+- Syntax and semantics checking
+- Machine limit verification
+- Collision detection
+- Safety score calculation
+- Best practice enforcement
 
 <!-- AUTO-END -->
 

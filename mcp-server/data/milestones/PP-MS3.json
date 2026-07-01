@@ -1,0 +1,147 @@
+{
+  "id": "PP-MS3",
+  "version": "6.2.0",
+  "title": "Motion Optimization + Controller Dialect Engine",
+  "created_at": "2026-03-13T20:00:00Z",
+  "description": "Wire Phase 3 (motion optimization) and build the critical ControllerDialectEngine. Motion stages ensure commanded feeds are actually achievable given machine dynamics (acceleration, jerk, corner velocity, servo settling). The ControllerDialectEngine provides deep G-code dialect knowledge for 15+ controller families — canned cycles, work offsets, sub-programs, rotary axis conventions, tool change sequences, and controller-specific optimization codes (AICC, Cycle32, G187, etc.).",
+  "phases": [
+    {
+      "id": "P0",
+      "title": "Motion Optimization Stages (Phase 3 of Pipeline)",
+      "units": [
+        {
+          "id": "U01",
+          "title": "Stage 3.1-3.2 — Toolpath smoothing + Motion dynamics (achievable feed calculation)",
+          "status": "complete",
+          "steps": [
+            "Wire ToolpathSmoothingEngine: apply B-spline/Bézier/corner-round smoothing to linear segments",
+            "Calculate curvature κ at every point using Frenet-Serret formulas",
+            "Curvature-limited feed: v_max = √(a_centripetal / κ) — feed can't exceed what the machine can track",
+            "Wire MotionDynamicsProfileEngine: calculate achievable feed per block",
+            "Trapezoidal velocity profile: accel phase, cruise phase, decel phase — actual time ≠ distance/feed",
+            "S-curve profiles: jerk-limited acceleration for smooth motion (Siemens/Heidenhain prefer this)",
+            "Corner velocity: decelerate before corners based on angle change and machine accel capability",
+            "If commanded feed > achievable feed, clamp to achievable and log the limiting factor",
+            "Short segment detection: segments < 0.5mm may not reach commanded feed — warn about block starvation"
+          ],
+          "exit_conditions": [
+            "Curvature-limited feeds are lower at tight corners",
+            "Achievable feed < commanded feed for short segments (proves physics is active)",
+            "Corner velocity matches MotionDynamicsProfileEngine output",
+            "Block starvation warnings generated for very short segments"
+          ]
+        },
+        {
+          "id": "U02",
+          "title": "Stage 3.3-3.4 — Look-ahead simulation + Multi-axis kinematics",
+          "status": "complete",
+          "steps": [
+            "Wire MotionDynamicsProfileEngine.lookAhead(): simulate controller look-ahead buffer",
+            "N-block look-ahead: controller sees N blocks ahead and plans velocity profile accordingly",
+            "Adjust feed commands to match what the controller will actually achieve (reduce over-commanding)",
+            "Wire MultiAxisKinematicEngine for 5-axis programs",
+            "Singularity detection: flag blocks near gimbal lock (B≈0° for head-head, A≈90° for table-tilt)",
+            "Rotary axis velocity check: if rotary axis speed exceeds machine limit, reduce feed",
+            "RTCP pivot point compensation: adjust feed for tool center point control",
+            "Inverse time feed (G93) calculation for 5-axis blocks where linear feed is ambiguous"
+          ],
+          "exit_conditions": [
+            "Look-ahead simulation produces realistic feed profiles",
+            "5-axis singularity zones identified and feed reduced",
+            "Rotary axis speed limits enforced",
+            "G93 inverse time feed calculated correctly for 5-axis moves"
+          ]
+        },
+        {
+          "id": "U03",
+          "title": "Stage 3.5 — Controller feature injection (AICC, nano-smooth, look-ahead depth, Cycle32)",
+          "status": "complete",
+          "steps": [
+            "Build controller feature injection logic — insert controller-specific optimization codes",
+            "Fanuc: G05.1 Q1 (AI Contour Control on), G05 P10000 (high-speed cycle), G08 P1 (smooth mode)",
+            "Siemens: CYCLE832(tolerance, mode) for HSC, COMPCAD for surface quality, COMPCURV for curvature comp",
+            "Heidenhain: FUNCTION TCPM (tool center point management), CYCLE 32 (tolerance definition), M128 (5-axis)",
+            "Haas: G187 P1/P2/P3 (smoothing modes — P1=rough fast, P2=medium, P3=finish smooth)",
+            "Mazak: G05.1 (MAZATROL Smooth), G61.1 (path blend)",
+            "Okuma: Super-NURBS activation, Machining Navi settings",
+            "Select features based on operation type: roughing→speed priority, finishing→surface priority",
+            "Insert feature codes at program start or per-operation as appropriate",
+            "Only inject features supported by the specific controller version (not all Fanucs have AICC)"
+          ],
+          "exit_conditions": [
+            "Fanuc 31i program gets G05.1 Q1 for finishing operations",
+            "Siemens 840D program gets CYCLE832 with appropriate tolerance",
+            "Haas program gets G187 P1 for roughing, P3 for finishing",
+            "Feature injection respects controller version capabilities",
+            "Features are NOT injected when controller doesn't support them"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "P1",
+      "title": "Controller Dialect Engine",
+      "units": [
+        {
+          "id": "U04",
+          "title": "ControllerDialectEngine — Deep G-code dialect rules for 15+ controller families",
+          "status": "complete",
+          "steps": [
+            "Create ControllerDialectEngine.ts (~2000 lines) with dialect rule system",
+            "Define ControllerDialect interface: { id, family, version, canned_cycles, work_offsets, sub_programs, tool_change, arc_format, comment_syntax, decimal_format, line_numbers, safe_start, program_end, rotary_axis_map, special_codes }",
+            "Implement dialect rules for 15 controller families:",
+            "  Fanuc 0i-TF, Fanuc 30i-B, Fanuc 31i-B5 (differences in AICC, macro support)",
+            "  Siemens 840D sl, Siemens ONE (ShopMill vs programGUIDE)",
+            "  Heidenhain TNC 640, TNC 7 (plain text vs Klartext)",
+            "  Haas NGC (Classic vs Next Gen differences)",
+            "  Mazak SmoothAi, SmoothG, Matrix (conversational vs EIA/ISO)",
+            "  Okuma OSP-P300, OSP-P500",
+            "  Brother Speedio CNC-C00",
+            "  Doosan Fanuc-variant",
+            "  Hurco WinMax (conversational + NC)",
+            "  Mitsubishi M80/M800",
+            "  Fagor 8065",
+            "Canned cycle translation table: G81→CYCLE81(Siemens)→BORE1(Mazak)→MCALL/CYCLE(Heidenhain)",
+            "Work offset syntax: G54→$P_UIFR[1](Siemens)→DATUM(Heidenhain)→G15 H1(Mazak)",
+            "Sub-program conventions: M98 P/M99(Fanuc)→CALL/RET(Heidenhain)→EXTERN/L-call(Siemens)",
+            "Tool change sequences per machine type (vertical, horizontal, ATC magazine, turret)",
+            "Arc format rules: IJK incremental(Fanuc) vs absolute(some Siemens) vs R-word preference",
+            "Comment syntax: (parentheses)(Fanuc/Haas) vs ;semicolon(Siemens) vs ;comment(Heidenhain)",
+            "Decimal/format: leading zeros, trailing zeros, mandatory decimal point, block max length",
+            "Safe start blocks per controller (G90 G17 G21 G40 G80 order varies)",
+            "Program end: M30 vs M2 vs M30 with rewind vs END PGM (Heidenhain)"
+          ],
+          "exit_conditions": [
+            "15 controller dialects defined with complete rule sets",
+            "Same toolpath produces syntactically correct G-code for Fanuc, Siemens, and Heidenhain",
+            "Canned cycle translation works for drilling, tapping, boring, reaming",
+            "Safe start blocks are controller-specific",
+            "40+ tests covering dialect differences"
+          ]
+        },
+        {
+          "id": "U05",
+          "title": "Stage 3.6 — Machine geometric error compensation",
+          "status": "complete",
+          "steps": [
+            "Wire MachineGeometricAccuracyEngine: 21-error model per axis (positioning, straightness, angular)",
+            "Abbe principle: angular errors amplified by distance from measurement point",
+            "Volumetric error: HTM (Homogeneous Transformation Matrix) for total position error at any point",
+            "Thermal growth: δ = α·ΔT·L — compensate for temperature-induced positioning errors",
+            "If machine has ball-bar data in catalog, use actual measured errors",
+            "If no error data, use class-based estimates (ISO 230-2 accuracy classes)",
+            "For tolerance-critical operations: add error budget to tolerance check (predicted Cpk adjusts)"
+          ],
+          "exit_conditions": [
+            "Volumetric error calculated at work volume corners",
+            "Thermal compensation adjusts for shop temperature vs 20°C reference",
+            "Error budget feeds into Cpk prediction for realistic capability forecast",
+            "Graceful fallback for machines without measured error data",
+            "15+ tests"
+          ]
+        }
+      ]
+    }
+  ],
+  "status": "complete"
+}

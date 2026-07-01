@@ -1,0 +1,373 @@
+{
+  "schemaVersion": 1,
+  "platform": "hypercad-s",
+  "writtenAt": "2026-05-25T19:37:45.560Z",
+  "atomicOpCount": 38,
+  "actions": [
+    {
+      "op": "sketch.create-plane",
+      "fn": "Plane.New",
+      "args": [
+        "origin",
+        "normalVec"
+      ],
+      "notes": "Macro call via CADCommand wrapper"
+    },
+    {
+      "op": "sketch.line-2pt",
+      "fn": "Line2D.New",
+      "args": [
+        "x1,y1",
+        "x2,y2"
+      ],
+      "notes": ""
+    },
+    {
+      "op": "sketch.line-polyline",
+      "fn": "Polyline2D.New",
+      "args": [
+        "points[]"
+      ],
+      "notes": ""
+    },
+    {
+      "op": "sketch.arc-3pt",
+      "fn": "Arc2D.NewByThreePoints",
+      "args": [
+        "p1",
+        "p2",
+        "p3"
+      ],
+      "notes": ""
+    },
+    {
+      "op": "sketch.arc-cse",
+      "fn": "Arc2D.NewByCenter",
+      "args": [
+        "center",
+        "start",
+        "end"
+      ],
+      "notes": ""
+    },
+    {
+      "op": "sketch.circle-cr",
+      "fn": "Circle2D.NewByCenterRadius",
+      "args": [
+        "center",
+        "radius"
+      ],
+      "notes": ""
+    },
+    {
+      "op": "sketch.ellipse-axes",
+      "fn": "Ellipse2D.New",
+      "args": [
+        "center",
+        "a",
+        "b"
+      ],
+      "notes": ""
+    },
+    {
+      "op": "sketch.spline-poly",
+      "fn": "Spline2D.New",
+      "args": [
+        "points[]"
+      ],
+      "notes": ""
+    },
+    {
+      "op": "sketch.rect-2pt",
+      "fn": "Rectangle2D.New",
+      "args": [
+        "p1",
+        "p2"
+      ],
+      "notes": ""
+    },
+    {
+      "op": "sketch.rect-center",
+      "fn": "Rectangle2D.NewByCenter",
+      "args": [
+        "center",
+        "w",
+        "h"
+      ],
+      "notes": ""
+    },
+    {
+      "op": "sketch.polygon-n",
+      "fn": "Polygon2D.New",
+      "args": [
+        "center",
+        "N",
+        "radius"
+      ],
+      "notes": ""
+    },
+    {
+      "op": "sketch.slot-straight",
+      "fn": "Slot2D.New",
+      "args": [
+        "p1",
+        "p2",
+        "width"
+      ],
+      "notes": ""
+    },
+    {
+      "op": "sketch.slot-arc",
+      "fn": "Slot2D.NewArc",
+      "args": [
+        "arcCenter",
+        "p1",
+        "p2",
+        "width"
+      ],
+      "notes": ""
+    },
+    {
+      "op": "sketch.offset",
+      "fn": "Curve2D.Offset",
+      "args": [
+        "curve",
+        "distance"
+      ],
+      "notes": ""
+    },
+    {
+      "op": "sketch.trim",
+      "fn": "Curve2D.Trim",
+      "args": [
+        "curve",
+        "boundary"
+      ],
+      "notes": ""
+    },
+    {
+      "op": "sketch.fillet-2d",
+      "fn": "Curve2D.Fillet",
+      "args": [
+        "c1",
+        "c2",
+        "radius"
+      ],
+      "notes": ""
+    },
+    {
+      "op": "op.extrude",
+      "fn": "Extrude.New",
+      "args": [
+        "profile",
+        "distance"
+      ],
+      "notes": ""
+    },
+    {
+      "op": "op.extrude-cut",
+      "fn": "Pocket.New",
+      "args": [
+        "profile",
+        "distance"
+      ],
+      "notes": ""
+    },
+    {
+      "op": "op.revolve",
+      "fn": "Revolve.New",
+      "args": [
+        "profile",
+        "axis",
+        "angle"
+      ],
+      "notes": ""
+    },
+    {
+      "op": "op.loft",
+      "fn": "Loft.New",
+      "args": [
+        "sections[]",
+        "guides[]"
+      ],
+      "notes": ""
+    },
+    {
+      "op": "op.sweep",
+      "fn": "Sweep.New",
+      "args": [
+        "profile",
+        "path"
+      ],
+      "notes": ""
+    },
+    {
+      "op": "op.shell",
+      "fn": "Shell.New",
+      "args": [
+        "body",
+        "facesToRemove[]",
+        "thickness"
+      ],
+      "notes": ""
+    },
+    {
+      "op": "op.fillet",
+      "fn": "Fillet.New",
+      "args": [
+        "edges[]",
+        "radius"
+      ],
+      "notes": ""
+    },
+    {
+      "op": "op.chamfer",
+      "fn": "Chamfer.New",
+      "args": [
+        "edges[]",
+        "distance"
+      ],
+      "notes": ""
+    },
+    {
+      "op": "op.draft",
+      "fn": "Draft.New",
+      "args": [
+        "faces[]",
+        "plane",
+        "angle"
+      ],
+      "notes": ""
+    },
+    {
+      "op": "op.mirror",
+      "fn": "Mirror.New",
+      "args": [
+        "entities[]",
+        "plane"
+      ],
+      "notes": ""
+    },
+    {
+      "op": "op.pattern-rect",
+      "fn": "PatternRect.New",
+      "args": [
+        "entities[]",
+        "dir1",
+        "qty1",
+        "spacing1",
+        "dir2",
+        "qty2",
+        "spacing2"
+      ],
+      "notes": ""
+    },
+    {
+      "op": "op.pattern-circ",
+      "fn": "PatternCirc.New",
+      "args": [
+        "entities[]",
+        "axis",
+        "qty",
+        "totalAngle"
+      ],
+      "notes": ""
+    },
+    {
+      "op": "op.hole-simple",
+      "fn": "Hole.New",
+      "args": [
+        "face",
+        "position",
+        "diameter",
+        "depth"
+      ],
+      "notes": ""
+    },
+    {
+      "op": "op.hole-threaded",
+      "fn": "ThreadedHole.New",
+      "args": [
+        "face",
+        "position",
+        "size",
+        "depth"
+      ],
+      "notes": ""
+    },
+    {
+      "op": "op.thread-external",
+      "fn": "Thread.New",
+      "args": [
+        "cylFace",
+        "pitch",
+        "length"
+      ],
+      "notes": ""
+    },
+    {
+      "op": "op.boolean-add",
+      "fn": "Boolean.Add",
+      "args": [
+        "target",
+        "tools[]"
+      ],
+      "notes": ""
+    },
+    {
+      "op": "op.boolean-cut",
+      "fn": "Boolean.Cut",
+      "args": [
+        "target",
+        "tools[]"
+      ],
+      "notes": ""
+    },
+    {
+      "op": "op.boolean-intersect",
+      "fn": "Boolean.Intersect",
+      "args": [
+        "target",
+        "tools[]"
+      ],
+      "notes": ""
+    },
+    {
+      "op": "asm.insert-component",
+      "fn": "Assembly.InsertComponent",
+      "args": [
+        "file",
+        "transform"
+      ],
+      "notes": ""
+    },
+    {
+      "op": "asm.mate-coincident",
+      "fn": "Constraint.Coincident",
+      "args": [
+        "geo1",
+        "geo2"
+      ],
+      "notes": ""
+    },
+    {
+      "op": "asm.mate-concentric",
+      "fn": "Constraint.Concentric",
+      "args": [
+        "axis1",
+        "axis2"
+      ],
+      "notes": ""
+    },
+    {
+      "op": "asm.mate-distance",
+      "fn": "Constraint.Distance",
+      "args": [
+        "geo1",
+        "geo2",
+        "distance"
+      ],
+      "notes": ""
+    }
+  ]
+}

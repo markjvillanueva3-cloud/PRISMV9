@@ -13,7 +13,7 @@
  */
 
 import { log } from "../utils/Logger.js";
-import type { BaseEngine, EngineInfo, EngineCapability } from "./BaseEngine.js";
+import { BaseEngine, type EngineCapability } from "./BaseEngine.js";
 import type { FeatureSpec } from "./NeuralCADGenerationEngine.js";
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -90,13 +90,21 @@ const STRICT_PASS_THRESHOLD = 0.95;
 // ENGINE
 // ═══════════════════════════════════════════════════════════════════════════
 
-class CADAccuracyValidatorEngine implements BaseEngine {
-  readonly info: EngineInfo = {
-    name: "CADAccuracyValidatorEngine",
-    version: "1.0.0",
-    domain: "cad_validation",
-    description: "Multi-layer 100% accuracy validation gate for CAD generation",
-  };
+class CADAccuracyValidatorEngine extends BaseEngine {
+  constructor() {
+    super({
+      name: "CADAccuracyValidatorEngine",
+      version: "1.0.0",
+      domain: "cad_validation",
+      description: "Multi-layer 100% accuracy validation gate for CAD generation",
+    });
+  }
+
+  protected async executeImpl(input: unknown): Promise<unknown> {
+    const err = this.validate(input);
+    if (err) throw new Error(err);
+    return this.validateAccuracy(input as ValidationInput);
+  }
 
   getCapabilities(): EngineCapability[] {
     return [
@@ -554,7 +562,7 @@ class CADAccuracyValidatorEngine implements BaseEngine {
         // Check parameter alignment
         for (const [key, value] of Object.entries(expected.params)) {
           const actualValue = found.params[key];
-          if (actualValue !== undefined && typeof value === "number") {
+          if (actualValue !== undefined && typeof value === "number" && typeof actualValue === "number") {
             const diff = Math.abs(actualValue - value);
             if (diff > value * 0.1) {
               warnings.push(`${expected.type}.${key}: expected ${value}, got ${actualValue} (${((diff / value) * 100).toFixed(1)}% diff)`);
@@ -666,7 +674,7 @@ class CADAccuracyValidatorEngine implements BaseEngine {
     for (const m of holeMatches) {
       features.push({
         type: "hole",
-        params: { diameter: parseFloat(m[1]), depth: m[2] ? parseFloat(m[2]) : undefined },
+        params: { diameter: parseFloat(m[1]), ...(m[2] ? { depth: parseFloat(m[2]) } : {}) },
       });
     }
 

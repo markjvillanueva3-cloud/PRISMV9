@@ -1,9 +1,12 @@
 ---
 name: feedback_roadmap_close_out
 description: Standing rule (2026-05-12, user) — every completed milestone/unit MUST be closed out in ALL roadmap surfaces, not just the envelope; enforced by hook + orchestrator + skill
-metadata:
-  type: feedback
+aliases: feedback_roadmap_close_out
+type: feedback
+source: prism-memory
+synced: 2026-06-27T20:30:46.441Z
 ---
+
 
 **The rule (user, 2026-05-12):** "if we complete a task we need to close it out in the road map so it gets updated, make this a memory and whatever other enforcement system we have to make sure this always happens"
 

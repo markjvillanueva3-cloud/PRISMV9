@@ -25,10 +25,10 @@ const DESTRUCTIVE_PATTERNS = [
 
 function checkGitState() {
   try {
-    const status = execSync('git status --porcelain 2>/dev/null', { encoding: 'utf8', cwd: 'H:/prism' });
+    const status = execSync('git status --porcelain 2>/dev/null', { windowsHide: true, encoding: 'utf8', cwd: 'H:/prism' });
     const uncommitted = status.trim().split('\n').filter(l => l.trim()).length;
 
-    const ahead = execSync('git log origin/main..HEAD --oneline 2>/dev/null', { encoding: 'utf8', cwd: 'H:/prism' });
+    const ahead = execSync('git log origin/main..HEAD --oneline 2>/dev/null', { windowsHide: true, encoding: 'utf8', cwd: 'H:/prism' });
     const unpushed = ahead.trim().split('\n').filter(l => l.trim()).length;
 
     return { uncommitted, unpushed };

@@ -1,0 +1,769 @@
+Postability Post Processor
+       Documentation
+
+                                                                             Rev. Date September 1, 2020
+                                                                                                              Page 2
+
+Contents
+
+Application of this Document ....................................................................................................................... 3
+  General Terminology................................................................................................................................. 3
+      5-Axis Mill/Router Machines................................................................................................................. 3
+      Mill-Turn Machines ............................................................................................................................... 3
+
+Unified Post Kernel (UPK) General Settings.................................................................................................. 4
+  Rotary Switches......................................................................................................................................... 4
+  Machine Orientation and Offset ............................................................................................................... 6
+  Advanced Control Options ........................................................................................................................ 8
+  Home Motion ............................................................................................................................................ 9
+  Misc Control Options .............................................................................................................................. 10
+  5-axis switches/variables ........................................................................................................................ 11
+  Switches/variables for Mill-turn posts .................................................................................................... 12
+
+Miscellaneous Values.................................................................................................................................. 13
+  General Notes ......................................................................................................................................... 13
+  Milling ..................................................................................................................................................... 13
+      Miscellaneous Integers ....................................................................................................................... 13
+      Miscellaneous Reals ............................................................................................................................ 14
+  Lathe (Mill-Turn) ..................................................................................................................................... 16
+      Miscellaneous Integers ....................................................................................................................... 16
+      Miscellaneous Reals ............................................................................................................................ 16
+  Work Offset, Work Coordinate System (WCS), Tool/Construction Planes ............................................. 17
+
+Rotary Axis .................................................................................................................................................. 18
+  3+2 Machining......................................................................................................................................... 18
+  Rotary Axis Control (Milling Operations) ................................................................................................ 18
+  Rotary Axis Control (Mill-Turn Operations) ............................................................................................ 19
+  Multi-Axis ................................................................................................................................................ 20
+  Transitions between cuts ........................................................................................................................ 21
+
+Machine Setup Information ........................................................................................................................ 22
+  Machine and Control Definition.............................................................................................................. 22
+  Rotary Axis .............................................................................................................................................. 23
+  General Machine Parameters ................................................................................................................. 24
+  Axis Combinations................................................................................................................................... 25
+  Arcs.......................................................................................................................................................... 26
+                                                                                                              Page 3
+
+Application of this Document
+
+     This document contains generic information about our Unified Post Kernel (UPK), which applies to
+     mill and mill-turn applications. Additional documentation for specific machine/control
+     combinations is available and can be sent to you. For information regarding our general post setup
+     please see our installation documents which can be found here under the Installation heading, as
+     well if you have any questions or comments do not hesitate to contact us through our email listed
+     on our website.
+     The first two sections, UPK General Settings, and Miscellaneous Values, contain post setup
+     information applicable to many post functions. These sections will reference other, more detailed,
+     sections for further application.
+     All remaining sections are grouped under common post functions, which will reference back to the
+     post switches and miscellaneous values shown in the first two sections.
+     The post will come with default settings for each section however these should be changed as
+     necessary to best suit your application
+
+General Terminology
+
+     5-Axis Mill/Router Machines
+
+     5-Axis machines are made up of three linear axis and two rotary axes. In the UPK two rotary axis
+     are designated as either rot (rotary) or tilt. The rot axis refers to the primary rotary axis which
+     typically has the most travel. The tilt axis refers to the secondary rotary axis which generally has
+     less travel than the primary rotary axis. An example configuration would be a vertical milling
+     machine with a rotary axis about the Z-axis, labelled C, and another rotary axis about the X-axis,
+     labelled A. In this case the C-axis is considered the rot axis and the A-axis is considered the tilt axis.
+
+     Mill-Turn Machines
+
+     Mill-Turn machines come in many configurations. For machines with milling capabilities the main
+     and sub spindle are considered the rot (rotary) axis depending on which axis combination is being
+     used for a given operation. If the machine has a rotary axis in the head, typically a B-axis, this axis is
+     considered the tilt axis.
+                                                                                     Page 4
+
+Unified Post Kernel (UPK) General Settings
+
+Rotary Switches
+
+userotlock    0 = Do not output locking M codes
+              1 = Output locking M codes
+userotbrake   2 = Rot&Tilt
+usetiltlock
+usetiltbrake  0 = Do not output braking M codes
+              1 = Output braking M codes
+
+              0 = Do not output locking M codes
+              1 = Output locking M codes
+
+              0 = Do not output braking M codes
+              1 = Output braking M codes
+
+lockcomm      0 = Do not output comments
+              1 = Output comments
+
+These variables are used to control the output of M-codes to lock, brake and unlock the rotary axes
+if the machine is equipped with this functionality. The post will automatically determine when each
+of the lock states should be used based on the operation being programmed. Override variables
+are available to allow the user to force the state of the lock codes. For further details see Misc Int 7
+and Misc Int 8
+
+one_revr      Limit 3+2 rotary positioning? (0 = No, 1 = 0 to 360, 2 = -180 to 180)
+one_revt      Limit 3+2 tilt positioning? (0 = No, 1 = 0 to 360, 2 = -180 to 180)
+
+The post supports indexing to within certain ranges to keep indexing distances to a minimum and
+to help make the code output easy to read. Note the selected ranges above will only apply for 3+2
+operations or the start of other operation types where the rotary motion is deemed to make sense
+and can be made safely.
+
+frdegstp      Step limit for rotary feed in deg/min
+
+Post calculated rotary feed rates will only output if there is a change in calculated feed rate by an
+increment greater than this number.
+                                                                                 Page 5
+
+rot_feed       Use calculated rotary feed values, (0 = no, 1 = yes)
+
+Setting the value to 1 will have the post calculate and output rotary feed rates as either inverse
+time or deg/min based on the control definition settings. If set to 0, the post will ignore any control
+definition settings and avoid calculated rotary feed rates. Instead of outputting the calculated
+values, the post will simply output the feed rate as programmed in the operation. As a note, most
+modern machines that have TCPM functionality do not require the post to calculate the rotary feed
+rates.
+
+maxincrot      Maximum incremental rotary motion before unwind or solution flip
+maxinctilt     Maximum incremental tilt motion before unwind or solution flip
+
+These values represent the largest rotary move that can occur in one line of code. Motion that
+exceeds these limits will result in an unwind or solution flip depending on the specific scenario.
+Large rotary moves can result in poor cut result and potentially collisions depending on the
+conditions of the cut. Generally, these values should not exceed 170 degrees.
+
+For further details see Multi-Axis
+
+use_rotmcode   Output M-Code for Axis direction (sindx_mcr)
+               0 = Do not output M code,
+               1 = Output M code (Only valid when rot_type = 1 instead of sign indicating
+               direction),
+
+use_tiltmcode  Output M-Code for Axis direction (sindx_mct)
+               0 = Do not output M code,
+               1 = Output M code (Only valid when rot_type = 1 instead of sign indicating
+               direction),
+
+Some machines require an M-code to indicate the direction of rotation (CW or CCW). Note that the
+corresponding rotary axis must be set to Shortest Distance in the control definition in order for this
+variable to take effect.
+                                                                          Page 6
+
+Machine Orientation and Offset
+
+workofs_out    -1 = Use output from Mastercam
+               0 or any number = Always use this work offset number (e.g. 0 gives G54, 6 gives
+
+                                      G54.1 P1)
+               -2 = Use 1st offset for main spindle and 2nd offset for sub spindle (mill-turn),
+
+Setting to 0 or any number greater than 0 will result in that work offset being used for all
+operations regardless of the operation setting. How this value is mapped (eg 0=G54,1=G55,etc) is
+dependent on how the post has been configured. Setting the value to -1 will use Mastercam values
+as programmed. Setting to -2 applies only for Mill-Turn machines and will apply the first offset (0)
+to the main spindle and the second offset (1) to the sub spindle.
+
+wcstype        0 = G92 at start
+               1 = G92 at toolchanges
+               2 = G54
+               3 = Off
+
+Controls the style of wcs output. Setting to 0 will output a G92 style shift at the beginning of the
+program only, 1 will output a G92 shift with each tool change, 2 will output the traditional G54 style
+offsets and 3 will remove the output of offsets altogether.
+
+force_wcs      Force WCS output at every toolchange, (0 = no, 1 = yes)
+
+Forces the output of work offsets during every tool change. Note work offsets are automatically
+output at the start of file, after a retract to the home position or a change in work offsets has been
+detected.
+
+shiftlocation  0 = Apply tool plane-based shifts in world coordinates before rotation of plane
+               1 = Apply with rotation of plane
+               2 = Apply tool plane-based shifts in plane coordinates after rotation of plane
+
+Setting this variable controls the location of the plane coordinate shift based on the difference in
+the work offset origin and the tool plane origin for a given operation. The value should only be set
+to 1 if the control has a tilted plane function that has been enabled in the post (see tiltplane).
+
+ignoreorg      Ignore toolplane origin, use WCS origin (0 = Off, 1 = On)
+
+Setting this value to 1 omits the difference between the tool plane and work offset plane origin and
+outputs all code relative to the work offset origin. If enabled, the value of shiftlocation is
+irrelevant.
+
+See Work Offset, Work Coordinate System (WCS), T/C Planes
+                                                                             Page 7
+
+orgshift  Shift origin from Mastercam's programmed origin (0 = Off, 1 = On)
+
+Used to apply a manual shift to coordinates. Users are typically prompted to enter X, Y and Z shifts
+when enabled. Coordinates are then shifted in the post by the specified amount prior to output.
+
+See Machine Setup Information
+                                                                                 Page 8
+
+Advanced Control Options
+
+tcp        Enable tool center point management (0 = Off, 1 = On, 2=Table fixed coordinate
+
+           system)
+
+Enable if the machine is equipped with TCPM functionality. If in use, no additional transformation
+is needed for the coordinates output. If not used, the post will need to compensate for the
+machine's kinematics and rotary motion.
+
+tiltplane  Enable tilted work planes
+           0 = Off
+           1 = On
+           2 = On, not used for Z/X tool axes
+           3 = On, not used for Z tool axis
+
+Determines whether the post will output the tilted plane functionality and map the coordinates
+accordingly. If set to 2, the tilt plane will only output if the original tool vector is not along the X or
+Z axis. Setting to 3 will not output if the original tool vector is along the Z-axis.
+
+tiltcomb   Tilted work plane combination, only applicable when tiltplane active
+           (0 = AC, 1 = BC)
+
+Tilt plane functions are often controlled using spatial angles rather than physical angles. This switch
+selects which spatial angles are used in tilted planes.
+
+vector     0 = Physical rotary/tilt axis output
+           1 = Vector output (5-axis only)
+
+Controls whether 5-axis motion is output as vectors or physical angles.
+                                                                                          Page 9
+
+Home Motion
+
+use_home     0 = Use home positions defined by "x_home"
+             1 = Use home positions from Mastercam
+
+If enabled the home positions will be pulled from the Mastercam operation. If disabled the home
+positions are set in the post using the values from x_home_in, y_home_in, z_home_in,
+x_home_mm, y_home_mm, and z_home_mm.
+
+home_style   0 = G90 G53
+             1 = G91 G28
+             2 = G91 G30
+             3 = G90
+
+Set to control the style of the home position call. Note that the values available will vary based on
+the controller.
+
+use_g_inc    0 = Use new addresses for absolute/incremental output
+             1 = Use g codes for absolute/incremental output (G90/G91 default)
+
+Controls whether the post will output a G-code to represent absolute/incremental coordinate
+output or using a new axis prefix.
+
+strrotinc    String for incremental output if use_g_inc = 0
+strtiltinc   String for incremental output if use_g_inc = 0
+strxinc      String for incremental output if use_g_inc = 0
+stryinc      String for incremental output if use_g_inc = 0
+strzinc      String for incremental output if use_g_inc = 0
+
+These strings are used on machines to control the incremental motion of the specified axis where
+supported.
+
+x_home_mm : 0. #X home position ­ metric (mm)
+y_home_mm : 0. #Y home position ­ metric (mm)
+z_home_mm : 0. #Z home position ­ metric (mm)
+x_home_in : 0. #X home position ­ inch
+y_home_in : 0. #Y home position ­ inch
+z_home_in : 0. #Z home position ­ inch
+
+X, Y, and Z-axis home position for use when use_home has been set to 0. Note that metric
+Mastercam files will use the mm values and inch Mastercam files will use the in values.
+                                                                                             Page 10
+
+Misc Control Options
+
+hel_lead      Special helical move treatment with lead, (0 = no, 1 = yes)
+
+Set to 1 to output helical motion using the lead/pitch.
+
+force_dpts    Force XY output on all drilling lines including cycle call? (0 = no, 1 = yes)
+
+Force the output of drill coordinates for each point in a drilling operation.
+
+tool_table    Tool table, (0 = no, 1 = yes)
+
+Enables the output of the tool table in the header of the program.
+
+use_pitch     0 = Use feed for tapping
+              1 = Use pitch for tapping
+
+Controls the output of the feed in tapping canned cycles. When set to 0 the programmed feed will
+output, when set 1 the pitch of the tap will be used.
+
+rigid_tap     0 = Floating tap output
+              1 = Rigid tap output (suppress spindle output and output M29)
+
+Enables the use of rigid tapping if enabled. Depending on the control requirements, the spindle
+speed and spindle rotation commands may be suppressed.
+
+use_gear      Output gear selection code, (0 = no, 1 = yes)
+
+Enable to output M-codes for gears dependent on the spindle RPM.
+
+ixtol         Tolerance in deg. for index error
+
+This value is the tolerance checked against for rotary axis that are only able to index. Any
+calculated value for a rotary axis limited to indexing that deviates by more than this value will cause
+an error to be generated. Note the rotary axis in the machine definition needs to be set to position
+at fixed increments only, and the index increment also needs to be set.
+
+tseqno        Output sequence number at toolchanges
+              0 = off
+              1 = seq numbers match toolchange number
+              2 = seq numbers match tool number
+
+When left off, the sequence numbers will output as set in the control definition (either on each line
+or entirely off). If set to 1, a single sequence number will be output on tool changes, with the
+number matching the tool change count, if set to 2 the sequence number will instead match the
+tool number.
+
+force_output  0 = Modal G code output at toolchanges
+              1 = Force output of all G codes
+
+Controls whether select modal G-codes are forced out on each tool change. Typical codes forced
+out are for motion, interpolation plane, absolute/incremental, feed rates and feed rate type.
+                                                                                Page 11
+
+5-axis switches/variables
+
+pivotdis   Distance from center of tilting axis to gauge line/collet line ­ mm
+
+This is the distance from the collet/gauge line to the center of the tilting axis and is only relevant for
+machines where the tilt axis is located in the Head and the post needs to compensate for the rotary
+axis (postcomp = 1).
+
+cleardis   Retract clearance along tool vector in 5-axis unwinds ­ mm
+
+When reaching a limit or large rotary motion and an unwind is required, some operations do not
+provide a clearance distance for the post to use to retract away from the part. This value is used in
+the cases a clearance value is not available.
+
+offsetdis  Distance from spindle center to center of tilting axis ­ mm
+
+The perpendicular distance from the centerline of the spindle to the center of the tilting axis. This
+value only applies on machines with one rotary axis in the table and the other in the head and is
+only necessary if the post needs to compensate for rotary motion (postcomp = 1).
+
+postcomp   Compensate for tool length in post (0 = no, 1 = yes)
+
+When enabled, the post will shift coordinates to compensate for the rotary axis position. This is
+applicable for machines with the tilting rotary axis in the head.
+
+vrtltip    Control point is the virtual tool tip (0 = no, 1 = yes)
+
+Applicable only when post compensation is required (postcomp = 1). When enabled, the post will
+shift coordinates to the virtual tool tip, or the position the tool would be in if the tilting axis was at
+the zero position.
+
+Below is a diagram to further illustrate the application of the post based compensation switches:
+                                                                                         Page 12
+
+Switches/variables for Mill-turn posts
+
+Vtl            0 = Standard mill-turn programming with Top WCS
+
+               1 = VTL mode with Lathe
+
+               Z = World Z WCS
+
+yturn          0 = No Y output for turning
+               1 = Y output for turning
+
+Enabling this variable will output a Y0 value at the start of each turning operation.
+
+xmult0         X axis multiplier for cuttype 0 #Toolplane Positioning
+xmult1         X axis multiplier for cuttype 1 #Axis Substitution
+xmult2         X axis multiplier for cuttype 2 #Polar Conversion
+xmult3         X axis multiplier for cuttype 3 #Simultaneous 4/5 axis
+xmult4         X axis multiplier for cuttype 4 #Turning
+xmult5         X axis multiplier for cuttype 5 #Face Milling Interpolation on Control
+xmult6         X axis multiplier for cuttype 6 #OD Rotary Interpolation on Control
+
+These values are the X-axis multipliers for the different cut types and control whether the X-axis
+values are output as diameter or radius values.
+
+old_new_sw Switch old (6T), new (0T+) lathe canned cycle formats, (0 = old, 1 = new)
+
+The post has been setup to support multiple standards of lathe canned cycles, typically seen in
+Fanuc based controllers. This setting controls which format of canned cycle is output.
+
+thdaddress     0 = Use F address for threading
+               1 = use E address for threading
+
+Controls the prefix for the feed output for threading operations.
+
+css_start_rpm  0 = Start with CSS directly
+               1 = Start with RPM then change to CSS
+
+When enabled the post will output an RPM speed based on the programmed CSS and the current X-
+axis position prior to switching to CSS output. In some posts this switch will also control the
+conversion back to RPM at the end of operations using CSS.
+
+linneglim      Negative axis stroke limit ­ mm
+
+Set to the negative stroke limit for the X or Y based on the configuration of the machine as
+indicated through the linstroke setting. The post will prompt the user with an error if the selected
+crosses this limit.
+
+linstroke      Solution selection (mi4) based on stroke limit
+               0 = Do not watch for linear axis stroke overtravel
+               1 = Watch X axis stroke and change solutions accordingly
+               2 = Watch Y axis stroke and change solutions accordingly (Only for tilt about X)
+
+Select which axis to monitor for stroke overtravel based on the limit set in linneglim.
+                                                                                                            Page 13
+
+Miscellaneous Values
+
+General Notes
+
+     Below are the default miscellaneous values found in the UPK. These values and their use will vary
+     depending on the implementation of your post. Some options are added to further customize your
+     post, while other values may be removed if the functionality is not necessary/available for your
+     specific machine/controller combination. Please contact our support team at
+     team@postability.com if you have questions about the miscellaneous values setup in your post.
+
+Milling
+
+Miscellaneous Integers
+
+Misc Int 2  This controls absolute or incremental output in the main program, also see the
+
+            use_g_inc switch
+
+Misc Int 3  Output surface normal vectors for 3D tool wear compensation. For use with 5-
+            axis toolpaths only. Ball nose tools are recommended.
+
+Misc Int 4  If your machine's configuration allows, you can index the tilt and rotary axes to
+            either of 2 solutions to achieve the current programmed angle of attack on the
+            part. The post will use the selected solution as a starting point but will change
+            to the other solution to avoid large rotary moves and overtravel.
+                                                                                      Page 14
+
+Misc Int 5   (Mill-turn Only) In some situations the user may wish to run multi-axis tool
+             paths on the machine without the use of the TCP function. Details such as
+             feed rate mode, programming point, tool length compensation method,
+             coordinate output may all change with this selection. Be sure to consult
+             with us and your machine tool dealer before attempting this.
+
+Misc Int 6   Change from units per minute to units per rev feed rate output. Leave your
+             programmed feed rate as the standard units/min, the post will convert for you
+             based on the programmed spindle speed.
+
+Misc Int 7   Selection of rotary axis lock/brake code output.
+             0 = the post will make an automatic selection based on the cutting type
+             1 = force lock the rotary axis
+             2 = turn the rotary axis brake on
+             3 = turn off rotary locking
+
+See the post switches, userotlock and userotbrake.
+
+Misc Int 8   Selection of tilt axis lock/brake code output.
+             0 = automatic selection by post based on the cutting type
+             1 = force lock the tilt axis
+             2 = turn the tilt axis brake on
+             3 = turn off rotary locking
+
+See the post switches, usetiltlock and usetiltbrake.
+
+Misc Int 9   (Mill-turn Only) Selection of face or diameter rotary interpolation functions.
+             Examples of these functions include G12.1 and G07.1.
+
+Misc Int 10  This selection is to force an output of a program stop (M00) after the current
+             tool path. If left as 0, the post will output an optional stop (M01) by default.
+
+Miscellaneous Reals
+
+Misc Real 1  High speed machining method selection. If available, please check for methods
+
+             particular to your machine/control in the add-on manual.
+
+             1 = G08 P1 - Advanced look ahead
+
+             2 = G05.1 Q1 R - Artificial intelligence contour control
+
+             3 = G05 P10000 R - High precision contour control
+
+Misc Real 2  Control of the R coefficient listed in Misc Real 1.
+              Page 15
+
+Misc Real 7   Mastercam goes through what is known as a null tool change in between two
+Misc Real 8   operations using the same tool and also between steps of a transform tool path.
+Misc Real 9   Use this selection to manipulate the retract motion before the current
+Misc Real 10  operation.
+
+              0 = Along the current tool axis if supported by your control, if not the post will
+              change this selection to a 1.
+
+              1 = Retract along a single axis. For most machine configurations this will be Z,
+              for some it will be X.
+
+              2 = Retract along a single axis (same as selection 1), but then move to home in
+              the other two axes.
+
+              3 = Do not retract. This selection will keep the tool at the clearance height.
+
+              Mastercam goes through what is known as a null tool change in between
+              multiple chains, depth cuts, multi passes, etc. during the middle of a single
+              operation. Use this selection to manipulate the retract motion during the
+              current operation.
+
+              0 = Along the current tool axis if supported by your control, if not the post will
+              change this selection to a 1.
+
+              1 = Retract along a single axis. For most machine configurations this will be Z,
+              for some it will be X.
+
+              2 = Retract along a single axis (same as selection 1), but then move to home in
+              the other two axes.
+
+              3 = Do not retract. This selection will keep the tool at the clearance height.
+
+              Use this selection to manipulate the rotary (rot) axis position at the start of the
+              selected operation. See also Rotary Axis.
+
+              1 = Value - Enter the value of the rotary axis. This is a starting value for multi-
+              axis paths and permanent value during a 3+2 tool path. Note the value will be
+              used at the start of every null tool change (new chain, depth cuts, etc).
+
+              2 = Last - Look at the rotary axis value of the previous operation and index the
+              rotary axis as close as possible to that location.
+
+              3 = Rev - Enter the number of revolutions for the rotary axis to start at.
+
+              4 = Prompt - Have the post prompt the user upon posting for a rotary axis value.
+              Note the post will prompt at the start of every null tool change (new chain,
+              depth cuts, etc).
+
+              Works with Misc real 9. Enter the physical value (1) or the rev number (2) for
+              the rotary output.
+                                          Page 16
+
+Lathe (Mill-Turn)
+
+Miscellaneous Integers
+
+Misc Int 1   This value is used to enable the synchronization of the main and sub spindle on
+
+             machines with two spindles.
+
+Misc Int 2   See Misc Int 2 for milling
+
+Mist Int 10  See Misc Int 10 for milling
+
+Miscellaneous Reals
+
+Misc Real 7  See Misc Real 7 for milling
+
+Misc Real 8  See Misc Real 8 for milling
+                                                                                                            Page 17
+
+Work Offset, Work Coordinate System (WCS), Tool/Construction
+Planes
+
+     If the tool plane origin differs from the working coordinate system (WCS) origin, the post will
+     output a shift command, either before, with, or after a tilt plane/tcp call based on the value of
+     shiftlocation. If you wish to have the post ignore any difference between the tool plane and WCS
+     origin ignoreorg can be set to 1.
+     If you want to change work offsets on the machine, adjust your WCS origin in the Planes manager.
+     The easiest way to do this is to take a copy of the plane you want to use, then shift the origin to the
+     position you wish to use on the machine, then select this as your WCS for the applicable operations.
+
+     If you just want a new local origin (shift) inside the same work offset, adjust your Tool/Construction
+     plane origin for that tool path. This is often used in situations where you want to make the code
+     easier to be modified or read by the operator.
+
+If using work offset values from Mastercam, be sure to set the work offset for each operation. If you
+leave it as -1, Mastercam will automatically increment the number with each new plane and you will get
+several work offset values output. If you do not wish to use Mastercam's work offset values, see the
+workofs_out switch for options.
+                                                                                                            Page 18
+
+Rotary Axis
+
+     The rotary axis behaviour of the post output can be driven by the programmer in many ways.
+     Current tool plane rotation, Misc real 9, Misc real 10, as well as the Rotary Axis button on the tool
+     path parameters tab control the rotary output. See 3+2 Machining, Cross Machining, Face
+     Machining, and Multi-Axis.
+
+3+2 Machining
+
+     Rotary axis indexing is driven by the orientation of the tool plane relative to the work coordinate
+     system. If you are programming a transform operation and rotating existing operation, ensure the
+     Tool plane method is selected in order to have the post output the rotation.
+
+Rotary Axis Control (Milling Operations)
+
+No rotation              Uses the programmed tool plane to calculate the rotary axis position
+Rotary axis positioning
+3-Axis                   Uses the programmed tool plane to calculate the rotary axis position
+
+Axis Substitution        Otherwise referred to as polar interpolation. In this mode the post will
+                         calculate the rotary axis position to lock one of the linear axes at zero
+                         based on the setup of the rotary axis in the machine definition. Note
+                         that operation must be programmed with a tool plane where the tool
+                         vector is parallel to the axis of rotation for the primary rotary (rot) axis.
+
+                         When machining with a tool that is perpendicular to the primary axis of
+                         rotation (rot), allows the user to replace motion in one of the linear axes
+                         with rotary motion. Misc Real 9 and Misc Real 10 are very useful for axis
+                         substitution to control the rotary start locations.
+                                                                                   Page 19
+
+Rotary Axis Control (Mill-Turn Operations)
+
+No rotation  Uses the programmed tool plane to calculate the rotary axis position
+
+Y-Axis       Select Y axis if you would like to drive Y-axis output from the post processor. If
+             your machine definition does not have a Y axis, the post will change this
+             selection to C axis.
+
+C-Axis       Select C axis if you wish to drive rotary axis motion through the post processor.
+
+Axis Substitution Used to output 4-axis simultaneous motion. Select the diameter that you wish
+                       to wrap the geometry about and select unroll if your geometry is already `rolled
+                       up'. Misc Real 9 and Misc Real 10 are very useful for axis substitution to control
+                       the rotary start locations.
+                                                                                                            Page 20
+
+Multi-Axis
+
+     Depending on the limits of your machine, for a cut requiring rotary motion, two rotary axis
+     solutions may exist that will result in the correct positioning of the tool to the part. For example on
+     a machine with a C-axis rotating about world Z mounted on an A-axis rotating about world X, A90
+     C0 and A-90 C180 will result in the same tool to part orientation. Note that the linear axis
+     coordinates required to perform the cut at these position may vary depending on the machine
+     kinematics and controller options. The initial rotary axis solution for an operation can be selected
+     through the use of Misc Int 4. The post processor may change to the other solution to avoid
+     machine limits or large rotary/tilt axis motions throughout the operation.
+
+     If the post processor encounters a large rotary/tilt axis motion and cannot change solutions to
+     avoid it, the post will prompt the user for a course of action, typically a retract and reposition. A
+     large rotary move is defined based on the values of maxincrot and maxinctilt for the rotary (rot)
+     and tilt axis respectively. These limits are set based on the machine kinematics and controller
+     options available to avoid causing part gouges and potentially even crashes. If you are a running a
+     TCP type function, you may be able to set these values higher depending on the application. We do
+     not recommend increasing these values, do so at your own risk.
+
+     When prompted, selecting `yes' will have the machine retract, index the rotary and tilt axis to the
+     next cutting location, approach, then continue cutting. If the retract is caused by the operation
+     reaching one of the rotary axis limits and there are two possible solutions for the given position, the
+     post will reengage the part at the previous point and continue cutting. If the retract is caused for
+     any other reason, the post will skip the cutting motion from the point before the retract to the next
+     point. If possible, try to adjust your tool path to avoid either case to achieve the best cut quality.
+     The retract motion carried out here is governed by the Misc Real 8 selection. If you select `no'
+     when prompted, for large rotary moves the post will skip the retract and simply continue the cut.
+
+     Singularities in multi-axis machining occur when you have a tool vector pointing along the axis of
+     rotation of your rotary (rot) axis. For a vertical milling machine, this is most often directly along the
+     Z axis of the machine. In this scenario the rotary axis can be positioned in any orientation to
+     achieve the correct tool to part orientation. If a singularity occurs at the first point in a tool path,
+     Misc real 9 and Misc real 10 control the initial index of the rotary axis. If a singularity occurs during
+     a multi-axis tool path, the post processor will keep the previously output rotary axis value. When
+     you leave the singularity (tool vector no longer along axis of rotation) you will often find that a large
+     rotary or tilt axis move will occur.
+
+     If you are experiencing difficulties with large rotary/tilt motions and singularities, there are many
+     adjustments that can be made. Try to break the tool path up at these locations (often these are
+     singularity points). Try to change the tool constraint method to tilt the tool away from the
+     singularity (this is difficult during swarf machining). Add data points to your tool path using
+     tolerance, point generators, and angle generators. Adjust the part setup on the machine (often
+     even a slight tilting of the part will help).
+
+     Depending on the kinematic configuration of the machine, during multi-axis operations, rapid
+     indexing of a rotary or tilt axis may result in the output of a tool length/tcp cancellation (if
+                                                                                                            Page 21
+
+     applicable), followed by an index, then recall of the tool length/tcp. This is for safety as large
+     indexes while in a tcp type mode can produce dangerous machine motion.
+
+     There are some advanced multi-axis features that have been added to help with indexing of the
+     rotary axes during an operation. The safety zone feature is used to avoid unnecessary retracts
+     when indexing, instead keeping the tool at a safe location, and making small rotations to reposition
+     for the next cut position. Similar to the safety zone, multi-axis linking can be used to achieve similar
+     motion in between operations and reducing program run time.
+
+Transitions between cuts
+
+     Misc Real 7 and Misc Real 8 control motion between cuts at null tool changes.
+
+     pretdec_strt (transitions at start of operations with same tool and transforms) and pretdec_mid
+     (transition in the middle of an operations) are the two postblocks that make decisions about
+     whether or not a retract and recall of modal values is required. There are many criteria shown
+     here. This is an area that is very easily edited by the end user.
+
+     There are some instances during multi-axis tool paths where the post is not sent through a null tool
+     change. It will handle the transition in the same manner with 1 exception.
+
+     Advanced multi-axis can control the tool transitions on the linking page in such a manner that
+     machine axis retracts are not required. Instead the post will output rapid moves converted to high
+     feed and leave tool length, tcp, and high-speed functions active. Be sure your machine definition
+     general machine parameters maximum feed rates are set correctly.
+                                                                                                            Page 22
+
+Machine Setup Information
+
+     The UPK provides several tools to help with machine setup, and programming to work with that
+     setup. The words datum and origin are used interchangeably in this section.
+
+     First, the posts will support dynamic datum tracking functions. This is when you setup a datum
+     location on a part that moves along with the part in space. Dynamic datum tracking type functions
+     are applicable to all machine where the workpiece is mounted to at least one rotary axis. The
+     benefit of this type of function is that you can setup a part on the machine, have the datum located
+     anywhere on the part (and anywhere in machine space) and the control will compensate for the
+     parts location. It takes the pressure off needing to setup each individual part in the exact same
+     location every time.
+
+     Use the orgshift switch to have the post prompt for a shift of all coordinates from Mastercam's
+     WCS origin. This allows for programming a part in Mastercam with a WCS origin located anywhere.
+     After the part is setup on the machine, locate the position for your machining origin and find the
+     difference between the programmed WCS origin location and that machining origin. Then go back
+     to Mastercam and enter this difference when you post out.
+
+Machine and Control Definition
+
+     Every post processor is setup with a working machine and control definition. It is important to note
+     that the posts reads both the machine and control definition during the posting process. Please
+     make any changes with extreme caution. The following sections outline the areas of the machine
+     and control definition that are read by the post processor, please ensure they are accurate.
+
+     Figures below use arbitrary values DO NOT COPY
+                                                                                                            Page 23
+
+Rotary Axis
+
+         The post reads the parameters from each of the rotary axis pages to define the kinematics for
+         the given machine.
+                                                                                                            Page 24
+
+General Machine Parameters
+
+         The maximum and minimum feed rates are used by the post in situations where rapid motion is
+         converted to high feed linear motion.
+                                                                                                            Page 25
+
+Axis Combinations
+
+         The axis combination specifies which axes defined in the machine definition are to be used for a
+         given operation. Multiple axis combinations may exist for a given machine, but the post will
+         only drive the axes that are used in the axis combination selected for a given operation.
+                                                                                                            Page 26
+
+Arcs
+
+     Arc output can be setup in the control definition. We recommend the arc error checks shown in
+     the screen shot below.
+

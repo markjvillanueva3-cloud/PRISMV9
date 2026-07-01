@@ -21,7 +21,7 @@ related:
 
 ## Description (from file header)
 
-cad-accuracy-gate.mjs — PostToolUse hookCADCAM-DAGI-MS0/U-DAGI13HARD BLOCKS if CAD accuracy validation fails:- Blocks on critical validation issues- Blocks on overall score below threshold- Reports layer-by-layer status
+_(no header docblock — read source for behavior)_
 
 ## Events
 

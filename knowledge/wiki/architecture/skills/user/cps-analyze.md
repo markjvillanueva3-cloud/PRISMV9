@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `cps-analyze` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/cps-analyze.md` |
+| Source | `C:/Users/wompu/.claude/commands/cps-analyze.md` |
 | Model | default |
 | Tags | _(none)_ |
 

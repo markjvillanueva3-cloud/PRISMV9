@@ -43,18 +43,18 @@ beforeAll(() => {
 
 // ── CausalReasoningEngine — 3 actions ───────────────────────────────────────
 
-describe("aiReasoningDispatcher — ai_causal_* (CausalReasoningEngine)", () => {
+describe("aiReasoningDispatcher — ai_causal_* (CausalReasoningEngine)", () => { // actions: causal_add_edge / causal_trace_impact / causal_root_causes
   beforeEach(() => {
     causalReasoningEngine.clear();
   });
 
   it("adds an edge and reports it from traceImpact (positive polarity)", async () => {
-    const add = await invoke("ai_causal_add_edge", {
+    const add = await invoke("causal_add_edge", {
       from: "U07_chip_load_high",
       to: "U07_tool_wear_high",
       confidence: 0.9,
       polarity: "positive",
-      reason: "Higher chip load → more abrasion",
+      reason: "Higher chip load -> more abrasion",
     });
     expect(add.success).toBe(true);
     const edge = add.data as Record<string, unknown>;
@@ -62,7 +62,7 @@ describe("aiReasoningDispatcher — ai_causal_* (CausalReasoningEngine)", () => 
     expect(edge.to).toBe("U07_tool_wear_high");
     expect(edge.confidence).toBe(0.9);
 
-    const trace = await invoke("ai_causal_trace_impact", {
+    const trace = await invoke("causal_trace_impact", {
       source: "U07_chip_load_high",
       maxHops: 2,
     });
@@ -74,16 +74,16 @@ describe("aiReasoningDispatcher — ai_causal_* (CausalReasoningEngine)", () => 
     expect(report.paths[0].polarity).toBe("positive");
   });
 
-  it("flips polarity through a chain of mixed-sign edges (positive × negative = negative)", async () => {
-    await invoke("ai_causal_add_edge", {
+  it("flips polarity through a chain of mixed-sign edges (positive x negative = negative)", async () => {
+    await invoke("causal_add_edge", {
       from: "U07_speed_high", to: "U07_temp_high",
       confidence: 0.8, polarity: "positive",
     });
-    await invoke("ai_causal_add_edge", {
+    await invoke("causal_add_edge", {
       from: "U07_temp_high", to: "U07_finish_quality",
       confidence: 0.6, polarity: "negative",
     });
-    const trace = await invoke("ai_causal_trace_impact", {
+    const trace = await invoke("causal_trace_impact", {
       source: "U07_speed_high",
       maxHops: 3,
     });
@@ -95,15 +95,15 @@ describe("aiReasoningDispatcher — ai_causal_* (CausalReasoningEngine)", () => 
   });
 
   it("rootCauses walks edges backward to nodes with no parents", async () => {
-    await invoke("ai_causal_add_edge", {
+    await invoke("causal_add_edge", {
       from: "U07_root_a", to: "U07_mid_a",
       confidence: 0.95, polarity: "positive",
     });
-    await invoke("ai_causal_add_edge", {
+    await invoke("causal_add_edge", {
       from: "U07_mid_a", to: "U07_leaf_a",
       confidence: 0.9, polarity: "positive",
     });
-    const out = await invoke("ai_causal_root_causes", {
+    const out = await invoke("causal_root_causes", {
       target: "U07_leaf_a",
       maxHops: 5,
     });
@@ -113,7 +113,7 @@ describe("aiReasoningDispatcher — ai_causal_* (CausalReasoningEngine)", () => 
   });
 
   it("Zod rejects empty `from` (boundary)", async () => {
-    const out = await invoke("ai_causal_add_edge", {
+    const out = await invoke("causal_add_edge", {
       from: "",
       to: "U07_x",
       confidence: 0.5,
@@ -124,7 +124,7 @@ describe("aiReasoningDispatcher — ai_causal_* (CausalReasoningEngine)", () => 
   });
 
   it("Zod rejects confidence > 1 (out-of-range)", async () => {
-    const out = await invoke("ai_causal_add_edge", {
+    const out = await invoke("causal_add_edge", {
       from: "U07_a",
       to: "U07_b",
       confidence: 1.5,
@@ -135,7 +135,7 @@ describe("aiReasoningDispatcher — ai_causal_* (CausalReasoningEngine)", () => 
   });
 
   it("Zod rejects unknown polarity enum (adversarial)", async () => {
-    const out = await invoke("ai_causal_add_edge", {
+    const out = await invoke("causal_add_edge", {
       from: "U07_a",
       to: "U07_b",
       confidence: 0.5,
@@ -146,7 +146,7 @@ describe("aiReasoningDispatcher — ai_causal_* (CausalReasoningEngine)", () => 
   });
 
   it("Zod rejects negative maxHops on traceImpact (boundary)", async () => {
-    const out = await invoke("ai_causal_trace_impact", {
+    const out = await invoke("causal_trace_impact", {
       source: "U07_a",
       maxHops: -1,
     });
@@ -155,7 +155,7 @@ describe("aiReasoningDispatcher — ai_causal_* (CausalReasoningEngine)", () => 
   });
 
   it("engine error surfaces on self-loop (`from` == `to`, adversarial)", async () => {
-    const out = await invoke("ai_causal_add_edge", {
+    const out = await invoke("causal_add_edge", {
       from: "U07_self",
       to: "U07_self",
       confidence: 0.5,
@@ -170,7 +170,7 @@ describe("aiReasoningDispatcher — ai_causal_* (CausalReasoningEngine)", () => 
 
 describe("aiReasoningDispatcher — ai_exception_* (ExceptionLearningEngine)", () => {
   it("captures a parameter_outlier as info — does not request fail", async () => {
-    const out = await invoke("ai_exception_handle", {
+    const out = await invoke("exception_handle", {
       type: "parameter_outlier",
       description: "U07-test: feed 0.45 mm/tooth on 6mm endmill in 4140",
       context: { material: "4140", tool: "endmill_6mm" },
@@ -184,7 +184,7 @@ describe("aiReasoningDispatcher — ai_exception_* (ExceptionLearningEngine)", (
   });
 
   it("flags critical without prior similar success (variability: outcome_anomaly)", async () => {
-    const out = await invoke("ai_exception_handle", {
+    const out = await invoke("exception_handle", {
       type: "outcome_anomaly",
       description: "U07-test: surface finish 6.3 vs predicted 1.6",
       context: { operation: "finish_pass" },
@@ -197,7 +197,7 @@ describe("aiReasoningDispatcher — ai_exception_* (ExceptionLearningEngine)", (
   });
 
   it("variability: handles measurement_spike + process_deviation types", async () => {
-    const spike = await invoke("ai_exception_handle", {
+    const spike = await invoke("exception_handle", {
       type: "measurement_spike",
       description: "U07-test: spindle vibration spike to 8g for 200ms",
       context: {},
@@ -207,7 +207,7 @@ describe("aiReasoningDispatcher — ai_exception_* (ExceptionLearningEngine)", (
     expect(spike.success).toBe(true);
     expect((spike.data as { shouldFail: boolean }).shouldFail).toBe(false);
 
-    const dev = await invoke("ai_exception_handle", {
+    const dev = await invoke("exception_handle", {
       type: "process_deviation",
       description: "U07-test: operator dropped feed override to 60%",
       context: { override_pct: 60 },
@@ -219,7 +219,7 @@ describe("aiReasoningDispatcher — ai_exception_* (ExceptionLearningEngine)", (
   });
 
   it("recordOutcome on a real eventId returns a learned exception with tribal tip on success", async () => {
-    const handle = await invoke("ai_exception_handle", {
+    const handle = await invoke("exception_handle", {
       type: "parameter_outlier",
       description: "U07-test: Vc 250 m/min in P-group steel",
       context: { material: "P", op: "rough" },
@@ -229,11 +229,13 @@ describe("aiReasoningDispatcher — ai_exception_* (ExceptionLearningEngine)", (
     const eventId = (handle.data as { analysis: { event: { id: string } } }).analysis.event.id;
     expect(eventId).toMatch(/^EX-\d+$/);
 
-    const learn = await invoke("ai_exception_record_outcome", {
+    const learn = await invoke("exception_record_outcome", {
       eventId,
       outcome: "success",
     });
     expect(learn.success).toBe(true);
+    // Dispatcher spreads LearnedException fields to top level: outcome/tribalTip/envelopeProposal
+    // are directly on data (via { learned, recorded, ...learned }).
     const learned = learn.data as {
       outcome: string;
       tribalTip: { title: string; category: string; confidence: number } | undefined;
@@ -243,13 +245,13 @@ describe("aiReasoningDispatcher — ai_exception_* (ExceptionLearningEngine)", (
     // Concrete shape assertions on the generated tribal tip
     expect(learned.tribalTip?.category).toBe("parameters");
     expect(learned.tribalTip?.confidence).toBe(0.7);
-    // Envelope proposal: newBound = value * 1.1 → 250 * 1.1 = 275
+    // Envelope proposal: newBound = value * 1.1 -> 250 * 1.1 = 275
     expect(learned.envelopeProposal?.parameter).toBe("vc");
     expect(learned.envelopeProposal?.newBound).toBeCloseTo(275, 5);
   });
 
   it("recordOutcome on unknown eventId reports error in body (no throw)", async () => {
-    const out = await invoke("ai_exception_record_outcome", {
+    const out = await invoke("exception_record_outcome", {
       eventId: "EX-doesnotexist-99999",
       outcome: "success",
     });
@@ -259,7 +261,7 @@ describe("aiReasoningDispatcher — ai_exception_* (ExceptionLearningEngine)", (
   });
 
   it("Zod rejects unknown type (adversarial)", async () => {
-    const out = await invoke("ai_exception_handle", {
+    const out = await invoke("exception_handle", {
       type: "cosmic_ray",
       description: "U07-test",
       context: {},
@@ -271,7 +273,7 @@ describe("aiReasoningDispatcher — ai_exception_* (ExceptionLearningEngine)", (
   });
 
   it("Zod rejects empty description (boundary)", async () => {
-    const out = await invoke("ai_exception_handle", {
+    const out = await invoke("exception_handle", {
       type: "parameter_outlier",
       description: "",
       context: {},
@@ -283,7 +285,7 @@ describe("aiReasoningDispatcher — ai_exception_* (ExceptionLearningEngine)", (
   });
 
   it("stats action returns numeric totals reflecting events accumulated above", async () => {
-    const out = await invoke("ai_exception_stats", {});
+    const out = await invoke("exception_stats", {});
     expect(out.success).toBe(true);
     const stats = out.data as {
       totalEvents: number; learnedCount: number; successRate: number;
@@ -306,9 +308,9 @@ describe("aiReasoningDispatcher — ai_metalearn_* (MetaLearningOptimizerEngine)
   });
 
   it("recommends the strategy with the highest Wilson lower bound (3 strategies × 1 scenario)", async () => {
-    // Strategy A: 5/5 successes → highest Wilson LB despite 1/1 looking perfect
+    // Strategy A: 5/5 successes -> highest Wilson LB despite 1/1 looking perfect
     const aRecords = Array.from({ length: 5 }).map(() =>
-      invoke("ai_metalearn_record", {
+      invoke("meta_learning_record", {
         scenario: "U07_pdf_extract", strategy: "transformer",
         success: true, durationMs: 800,
       }),
@@ -317,27 +319,30 @@ describe("aiReasoningDispatcher — ai_metalearn_* (MetaLearningOptimizerEngine)
 
     // Strategy B: 3/5 successes
     const bSuccess = Array.from({ length: 3 }).map(() =>
-      invoke("ai_metalearn_record", {
+      invoke("meta_learning_record", {
         scenario: "U07_pdf_extract", strategy: "ocr_fallback",
         success: true, durationMs: 1200,
       }),
     );
     const bFail = Array.from({ length: 2 }).map(() =>
-      invoke("ai_metalearn_record", {
+      invoke("meta_learning_record", {
         scenario: "U07_pdf_extract", strategy: "ocr_fallback",
         success: false, durationMs: 1500,
       }),
     );
     await Promise.all([...bSuccess, ...bFail]);
 
-    // Strategy C: 1/1 — looks perfect by raw rate; Wilson penalises low-N
-    await invoke("ai_metalearn_record", {
+    // Strategy C: 1/1 -- looks perfect by raw rate; Wilson penalises low-N
+    await invoke("meta_learning_record", {
       scenario: "U07_pdf_extract", strategy: "regex_only",
       success: true, durationMs: 50,
     });
 
-    const rec = await invoke("ai_metalearn_recommend", { scenario: "U07_pdf_extract" });
+    const rec = await invoke("meta_learning_recommend", { scenario: "U07_pdf_extract" });
     expect(rec.success).toBe(true);
+    // Dispatcher spreads StrategyRecommendation fields to top level alongside
+    // { scenario, recommendation } so strategy/wilsonLowerBound/rationale are
+    // directly on data.
     const result = rec.data as {
       strategy: string; wilsonLowerBound: number; rationale: string;
       successRate: number; attempts: number;
@@ -353,41 +358,41 @@ describe("aiReasoningDispatcher — ai_metalearn_* (MetaLearningOptimizerEngine)
 
   it("variability: tracks separate stats per scenario without cross-talk", async () => {
     await Promise.all([
-      invoke("ai_metalearn_record", {
+      invoke("meta_learning_record", {
         scenario: "U07_cam_pick", strategy: "tribal", success: true,
       }),
-      invoke("ai_metalearn_record", {
+      invoke("meta_learning_record", {
         scenario: "U07_cam_pick", strategy: "tribal", success: true,
       }),
-      invoke("ai_metalearn_record", {
+      invoke("meta_learning_record", {
         scenario: "U07_quote", strategy: "param", success: false,
       }),
     ]);
 
-    const cam = await invoke("ai_metalearn_recommend", { scenario: "U07_cam_pick" });
+    const cam = await invoke("meta_learning_recommend", { scenario: "U07_cam_pick" });
     expect((cam.data as { strategy: string }).strategy).toBe("tribal");
     expect((cam.data as { successRate: number }).successRate).toBe(1);
 
-    const quote = await invoke("ai_metalearn_recommend", { scenario: "U07_quote" });
+    const quote = await invoke("meta_learning_recommend", { scenario: "U07_quote" });
     expect((quote.data as { strategy: string }).strategy).toBe("param");
     expect((quote.data as { successRate: number }).successRate).toBe(0);
   });
 
   it("recommend returns null payload when no records match scenario (resource exhaustion)", async () => {
-    const out = await invoke("ai_metalearn_recommend", { scenario: "U07_unseen_scenario_xyz" });
+    const out = await invoke("meta_learning_recommend", { scenario: "U07_unseen_scenario_xyz" });
     expect(out.success).toBe(true);
     const data = out.data as { scenario: string; recommendation: unknown };
-    // slimResponse strips literal nulls; the dispatcher returns
-    // { scenario, recommendation: null } when the engine has no candidates.
+    // Dispatcher returns { scenario, recommendation: null } when engine has no
+    // candidates; slimResponse strips literal nulls so recommendation is absent.
     expect(data.scenario).toBe("U07_unseen_scenario_xyz");
     expect(data.recommendation ?? null).toBeNull();
   });
 
   it("recommend respects minAttempts gate (variability)", async () => {
-    await invoke("ai_metalearn_record", {
+    await invoke("meta_learning_record", {
       scenario: "U07_gated", strategy: "low_n", success: true,
     });
-    const out = await invoke("ai_metalearn_recommend", {
+    const out = await invoke("meta_learning_recommend", {
       scenario: "U07_gated",
       minAttempts: 5,
     });
@@ -397,7 +402,7 @@ describe("aiReasoningDispatcher — ai_metalearn_* (MetaLearningOptimizerEngine)
   });
 
   it("Zod rejects empty scenario string (boundary)", async () => {
-    const out = await invoke("ai_metalearn_record", {
+    const out = await invoke("meta_learning_record", {
       scenario: "",
       strategy: "any",
       success: true,
@@ -407,7 +412,7 @@ describe("aiReasoningDispatcher — ai_metalearn_* (MetaLearningOptimizerEngine)
   });
 
   it("Zod rejects negative durationMs (adversarial)", async () => {
-    const out = await invoke("ai_metalearn_record", {
+    const out = await invoke("meta_learning_record", {
       scenario: "U07_neg",
       strategy: "any",
       success: true,
@@ -418,7 +423,7 @@ describe("aiReasoningDispatcher — ai_metalearn_* (MetaLearningOptimizerEngine)
   });
 
   it("Zod rejects Infinity durationMs (adversarial)", async () => {
-    const out = await invoke("ai_metalearn_record", {
+    const out = await invoke("meta_learning_record", {
       scenario: "U07_inf",
       strategy: "any",
       success: true,

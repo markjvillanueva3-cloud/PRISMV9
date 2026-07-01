@@ -312,48 +312,62 @@ export function getSourceFileCatalog(filter?: string): Record<string, ToolpathSo
 export function calculateEngagementAngle(
   tool_diameter: number,
   radial_depth: number,
-  feed_per_tooth: number,
+  feed_per_tooth?: number,
   is_climb: boolean = true,
   cutting_speed?: number
 ): EngagementResult {
   const warnings: string[] = [];
   const radius = tool_diameter / 2;
+  // feed_per_tooth is OPTIONAL: the core engagement geometry (arc/entry/exit/radial%) is purely
+  // geometric (D + ae + climb). fz only drives the SECONDARY chip-thickness outputs; when it is
+  // absent (a geometry-only request, e.g. the SFC web /engagement endpoint) report 0 chip thickness
+  // rather than NaN (fz * sin(..) = NaN). Guards the spurious thin-chip warning too.
+  const fz = feed_per_tooth ?? 0;
   
   // Radial engagement percentage
   const radial_engagement_percent = (radial_depth / tool_diameter) * 100;
   
   // Calculate engagement angle using geometry
   // cos(θ) = (R - ae) / R = 1 - ae/R = 1 - 2×ae/D
+  // phi = acos(1 - 2ae/D) is ALREADY the full swept engagement arc (NOT a half-angle).
+  // The prior code misnamed it half_angle_rad and DOUBLED it, so arc_of_engagement came
+  // out 2x too big (25% immersion -> 120 deg instead of 60; the slot case was right only
+  // because the *2 hit the 180 cap). Fixed 2026-06-23 (slot:oscar, physics-reviewer
+  // adjudicated; ref Altintas "Manufacturing Automation" 2e Sec 2.4). half_angle_rad now
+  // holds phi (kept the name to avoid churn at the consumers below; it is the full arc).
   const cos_half_angle = 1 - (radial_depth / radius);
   const half_angle_rad = Math.acos(Math.max(-1, Math.min(1, cos_half_angle)));
-  const arc_of_engagement = Math.min((half_angle_rad * 180 / Math.PI) * 2, 180);
-  
-  // Entry and exit angles depend on climb vs conventional
+  const arc_of_engagement = Math.min(half_angle_rad * 180 / Math.PI, 180);
+
+  // Entry/exit angles (deg, CCW from +x, band centred on the 90 deg radial centre-line so
+  // |exit - entry| == phi). No code reads these numerically (verified), so the physically
+  // faithful climb/conventional labels are used (the prior branch produced identical
+  // entry/exit for both directions, and spanned 2*phi).
   let entry_angle: number;
   let exit_angle: number;
-  
+
   if (is_climb) {
-    // Climb milling: tool enters at max chip, exits at zero
+    // Climb (down): tooth ENTERS at max chip (deep side), exits at the wall (zero chip).
+    entry_angle = 90 + (arc_of_engagement / 2);
+    exit_angle = 90 - (arc_of_engagement / 2);
+  } else {
+    // Conventional (up): tooth enters at the wall (zero chip), exits at max chip.
     entry_angle = 90 - (arc_of_engagement / 2);
     exit_angle = 90 + (arc_of_engagement / 2);
-  } else {
-    // Conventional: tool enters at zero chip, exits at max
-    // Entry < exit (measured in cutter rotation direction) for consistent force calcs
-    entry_angle = 180 - (90 + (arc_of_engagement / 2));
-    exit_angle = 180 - (90 - (arc_of_engagement / 2));
   }
   
-  // Chip thickness calculations
-  // h_max = fz × sin(arc_of_engagement/2) — use clamped arc angle, not raw half_angle_rad
-  const engagement_half_rad = (arc_of_engagement / 2) * Math.PI / 180;
-  const max_chip_thickness = feed_per_tooth * Math.sin(engagement_half_rad);
-  
-  // Average chip thickness: h_avg = fz × ae / (R × φ_rad)
-  // Ref: Altintas "Manufacturing Automation" Eq 2.22 — integral-based mean
-  const engagement_rad = half_angle_rad * 2;
-  const average_chip_thickness = engagement_rad > 0.001
-    ? feed_per_tooth * radial_depth / (radius * engagement_rad)
-    : feed_per_tooth * 0.01;
+  // Max uncut chip thickness: h_max = fz*sin(min(phi, 90deg)). For immersion >= 50% the
+  // tooth sweeps THROUGH the 90 deg centre-line (sin=1) so h_max = fz; below 50% the peak
+  // is at the deepest angle phi. DECOUPLED from arc/2: the old fz*sin(arc/2) was correct
+  // only because the buggy arc/2 == phi, so after the arc fix it must use phi explicitly.
+  const max_chip_thickness = fz * Math.sin(Math.min(half_angle_rad, Math.PI / 2));
+
+  // Mean uncut chip thickness (Altintas "Manufacturing Automation" 2e Eq 2.21):
+  // h_avg = fz * (ae/R) / phi. Use phi (half_angle_rad), NOT 2*phi (the prior bug, which
+  // divided by 2*phi and so halved the mean).
+  const average_chip_thickness = half_angle_rad > 0.001
+    ? fz * radial_depth / (radius * half_angle_rad)
+    : fz * 0.01;
   
   // Effective cutting speed adjustment
   let effective_cutting_speed = cutting_speed || 0;
@@ -371,7 +385,7 @@ export function calculateEngagementAngle(
   if (arc_of_engagement > 120) {
     warnings.push("High arc of engagement may cause excessive tool load variation");
   }
-  if (average_chip_thickness < 0.01) {
+  if (feed_per_tooth !== undefined && feed_per_tooth > 0 && average_chip_thickness < 0.01) {
     warnings.push("Chip thickness very thin - risk of rubbing instead of cutting");
   }
   
@@ -740,18 +754,26 @@ export function calculateOptimalStepover(
 export function estimateCycleTime(
   cutting_distance: number,
   cutting_feedrate: number,
-  rapid_distance: number,
+  rapid_distance?: number,
   number_of_tools: number = 1,
   tool_change_time: number = 0.5,
   rapid_rate: number = CAM_CONSTANTS.RAPID_RATE_XY
 ): CycleTimeResult {
   const warnings: string[] = [];
-  
+
+  // rapid_distance is optional in the calc schema (optPosNum). When the caller omits it (no
+  // approach/overtravel supplied), treat it as zero non-cutting traverse rather than letting
+  // `undefined / rapid_rate` poison the arithmetic with NaN -> JSON null total_time. A cut with no
+  // specified rapids legitimately has zero rapid time, so total_time collapses to cutting_time.
+  // (U-BRAVO-SFC-CYCLETIME-RAPID-GUARD) Verified live on :3100: omitting approach/overtravel
+  // previously returned total_time:null.
+  const safe_rapid_distance = Number.isFinite(rapid_distance as number) ? (rapid_distance as number) : 0;
+
   // Cutting time
   const cutting_time = cutting_feedrate > 0 ? cutting_distance / cutting_feedrate : 0;
 
   // Rapid time
-  const rapid_time = rapid_rate > 0 ? rapid_distance / rapid_rate : 0;
+  const rapid_time = rapid_rate > 0 ? safe_rapid_distance / rapid_rate : 0;
   
   // Tool change time
   const total_tool_change_time = (number_of_tools - 1) * tool_change_time;
@@ -778,7 +800,7 @@ export function estimateCycleTime(
     tool_change_time: Math.round(total_tool_change_time * 10) / 10,
     total_time: Math.round(total_time * 10) / 10,
     cutting_distance: Math.round(cutting_distance),
-    rapid_distance: Math.round(rapid_distance),
+    rapid_distance: Math.round(safe_rapid_distance),
     utilization_percent: Math.round(utilization_percent * 10) / 10,
     warnings
   };

@@ -1,0 +1,18 @@
+# Patch to wire builderDispatcher into existing MCP server
+# Apply with: git apply or manual merge
+
+diff --git a/mcp-server/src/tools/dispatchers/index.ts b/mcp-server/src/tools/dispatchers/index.ts
+index 0000000..1111111 100644
+--- a/mcp-server/src/tools/dispatchers/index.ts
++++ b/mcp-server/src/tools/dispatchers/index.ts
+@@ -12,6 +12,7 @@ import { outcomeDispatcher } from './outcomeDispatcher';
+ import { aiDispatcher } from './aiDispatcher';
+ import { orchestrateDispatcher } from './orchestrateDispatcher';
++import { builderDispatcher } from './builderDispatcher';
+
+ export const allDispatchers = [
+   ...sessionDispatcher.actions,
+@@ -25,6 +26,7 @@ export const allDispatchers = [
+   ...orchestrateDispatcher.actions,
++  ...builderDispatcher.actions,
+ ];

@@ -1,0 +1,361 @@
+{
+  "timestamp": "2026-02-21T21:01:25.199Z",
+  "total": 20,
+  "pass": 20,
+  "fail": 0,
+  "pass_rate": "100.0%",
+  "categories": {
+    "exotic_materials": {
+      "pass": 4,
+      "total": 4
+    },
+    "extreme_parameters": {
+      "pass": 4,
+      "total": 4
+    },
+    "boundary_conditions": {
+      "pass": 4,
+      "total": 4
+    },
+    "material_machine_mismatches": {
+      "pass": 4,
+      "total": 4
+    },
+    "multi_physics_coupling": {
+      "pass": 4,
+      "total": 4
+    }
+  },
+  "results": [
+    {
+      "id": "EC001",
+      "name": "Titanium Ti-6Al-4V turning — high force ISO S",
+      "category": "exotic_materials",
+      "pass": true,
+      "checks": [
+        {
+          "check": "Fc in range",
+          "pass": true,
+          "detail": "Fc=750.0N, range=[400, 900]"
+        }
+      ]
+    },
+    {
+      "id": "EC002",
+      "name": "Pure copper turning — very low forces, high conductivity",
+      "category": "exotic_materials",
+      "pass": true,
+      "checks": [
+        {
+          "check": "Fc in range",
+          "pass": true,
+          "detail": "Fc=298.9N, range=[100, 500]"
+        }
+      ]
+    },
+    {
+      "id": "EC003",
+      "name": "Hardened tool steel 60HRC milling — extreme kc1.1",
+      "category": "exotic_materials",
+      "pass": true,
+      "checks": [
+        {
+          "check": "Fc in range",
+          "pass": true,
+          "detail": "Fc=58.0N, range=[50, 500]"
+        }
+      ]
+    },
+    {
+      "id": "EC004",
+      "name": "Magnesium AZ31 milling — very low forces, fire risk material",
+      "category": "exotic_materials",
+      "pass": true,
+      "checks": [
+        {
+          "check": "Fc in range",
+          "pass": true,
+          "detail": "Fc=127.2N, range=[50, 400]"
+        },
+        {
+          "check": "power in range",
+          "pass": true,
+          "detail": "P=1.06kW, range=[0.1, 5]"
+        }
+      ]
+    },
+    {
+      "id": "EC005",
+      "name": "Near-minimum feed rate (0.001 mm/tooth) — boundary feed",
+      "category": "extreme_parameters",
+      "pass": true,
+      "checks": [
+        {
+          "check": "Fc in range",
+          "pass": true,
+          "detail": "Fc=19.0N, range=[0.1, 50]"
+        },
+        {
+          "check": "warnings contain \"KC_INFLATED\"",
+          "pass": true,
+          "detail": "Found \"KC_INFLATED\" in warnings"
+        }
+      ]
+    },
+    {
+      "id": "EC006",
+      "name": "Maximum cutting speed (2000 m/min) — HSM aluminum boundary",
+      "category": "extreme_parameters",
+      "pass": true,
+      "checks": [
+        {
+          "check": "Fc in range",
+          "pass": true,
+          "detail": "Fc=78.3N, range=[10, 300]"
+        }
+      ]
+    },
+    {
+      "id": "EC007",
+      "name": "Maximum depth of cut (ap=100mm) — heavy roughing boundary",
+      "category": "extreme_parameters",
+      "pass": true,
+      "checks": [
+        {
+          "check": "Fc in range",
+          "pass": true,
+          "detail": "Fc=55128.2N, range=[20000, 100000]"
+        },
+        {
+          "check": "power in range",
+          "pass": true,
+          "detail": "P=91.88kW, range=[10, 500]"
+        }
+      ]
+    },
+    {
+      "id": "EC008",
+      "name": "Micro-machining (0.1mm tool, 0.01mm depth) — scaling test",
+      "category": "extreme_parameters",
+      "pass": true,
+      "checks": [
+        {
+          "check": "Fc in range",
+          "pass": true,
+          "detail": "Fc=0.0N, range=[0.001, 1]"
+        }
+      ]
+    },
+    {
+      "id": "EC009",
+      "name": "Zero cutting speed — must reject with SAFETY BLOCK",
+      "category": "boundary_conditions",
+      "pass": true,
+      "checks": [
+        {
+          "check": "rejected with correct error",
+          "pass": true,
+          "detail": "Error: \"SAFETY BLOCK: cutting_speed (0) must be a positive finite number\" (matches)"
+        }
+      ]
+    },
+    {
+      "id": "EC010",
+      "name": "Negative feed per tooth — must reject with SAFETY BLOCK",
+      "category": "boundary_conditions",
+      "pass": true,
+      "checks": [
+        {
+          "check": "rejected with correct error",
+          "pass": true,
+          "detail": "Error: \"SAFETY BLOCK: feed_per_tooth (-0.1) must be a positive finite number\" (matches)"
+        }
+      ]
+    },
+    {
+      "id": "EC011",
+      "name": "NaN tool diameter — must reject with SAFETY BLOCK",
+      "category": "boundary_conditions",
+      "pass": true,
+      "checks": [
+        {
+          "check": "rejected with correct error",
+          "pass": true,
+          "detail": "Error: \"SAFETY BLOCK: tool_diameter (NaN) must be a positive finite number\" (matches)"
+        }
+      ]
+    },
+    {
+      "id": "EC012",
+      "name": "Radial depth exceeds tool diameter — should warn but not crash",
+      "category": "boundary_conditions",
+      "pass": true,
+      "checks": [
+        {
+          "check": "Fc in range",
+          "pass": true,
+          "detail": "Fc=857.8N, range=[100, 3000]"
+        },
+        {
+          "check": "warnings contain \"Radial depth\"",
+          "pass": true,
+          "detail": "Found \"Radial depth\" in warnings"
+        }
+      ]
+    },
+    {
+      "id": "EC013",
+      "name": "Aluminum at 10 m/min — abnormally slow for nonferrous",
+      "category": "material_machine_mismatches",
+      "pass": true,
+      "checks": [
+        {
+          "check": "tool life in range",
+          "pass": true,
+          "detail": "T=10000.0min, range=[100, 10000]"
+        }
+      ]
+    },
+    {
+      "id": "EC014",
+      "name": "Hardened steel with 3mm micro-mill — high load on small tool",
+      "category": "material_machine_mismatches",
+      "pass": true,
+      "checks": [
+        {
+          "check": "deflection in range",
+          "pass": true,
+          "detail": "δ=0.7545mm, range=[0.01, 1]"
+        },
+        {
+          "check": "warnings contain \"L/D ratio\"",
+          "pass": true,
+          "detail": "Found \"L/D ratio\" in warnings"
+        }
+      ]
+    },
+    {
+      "id": "EC015",
+      "name": "Superalloy Inconel 718 at 300 m/min — dangerously fast",
+      "category": "material_machine_mismatches",
+      "pass": true,
+      "checks": [
+        {
+          "check": "tool life in range",
+          "pass": true,
+          "detail": "T=0.1min, range=[0.1, 1]"
+        },
+        {
+          "check": "warnings contain \"TAYLOR_CLIFF\"",
+          "pass": true,
+          "detail": "Found \"TAYLOR_CLIFF\" in warnings"
+        }
+      ]
+    },
+    {
+      "id": "EC016",
+      "name": "Cast iron full-slot milling with extreme feed 1.5 mm/tooth",
+      "category": "material_machine_mismatches",
+      "pass": true,
+      "checks": [
+        {
+          "check": "Fc in range",
+          "pass": true,
+          "detail": "Fc=14623.0N, range=[5000, 80000]"
+        },
+        {
+          "check": "warnings contain \"FULL_SLOT\"",
+          "pass": true,
+          "detail": "Found \"FULL_SLOT\" in warnings"
+        }
+      ]
+    },
+    {
+      "id": "EC017",
+      "name": "Force → Deflection coupling — high Fc must cause high deflection",
+      "category": "multi_physics_coupling",
+      "pass": true,
+      "checks": [
+        {
+          "check": "Fc in range",
+          "pass": true,
+          "detail": "Fc=2418.6N, range=[300, 3000]"
+        },
+        {
+          "check": "deflection in range",
+          "pass": true,
+          "detail": "δ=1.3518mm, range=[0.01, 2]"
+        },
+        {
+          "check": "force-deflection coupling",
+          "pass": true,
+          "detail": "Fc=2419N → δ=1.3518mm (positive correlation)"
+        },
+        {
+          "check": "warnings contain \"L/D ratio\"",
+          "pass": true,
+          "detail": "Found \"L/D ratio\" in warnings"
+        }
+      ]
+    },
+    {
+      "id": "EC018",
+      "name": "High speed → Thermal → Tool life coupling — all must correlate",
+      "category": "multi_physics_coupling",
+      "pass": true,
+      "checks": [
+        {
+          "check": "tool temperature in range",
+          "pass": true,
+          "detail": "T_tool=716°C, range=[400, 1200]"
+        },
+        {
+          "check": "tool life in range",
+          "pass": true,
+          "detail": "T=0.1min, range=[0.1, 30]"
+        },
+        {
+          "check": "thermal-life coupling",
+          "pass": true,
+          "detail": "T_tool=716°C, T_life=0.1min (high temp → short life)"
+        }
+      ]
+    },
+    {
+      "id": "EC019",
+      "name": "Stability at depth exceeding critical — must report unstable",
+      "category": "multi_physics_coupling",
+      "pass": true,
+      "checks": [
+        {
+          "check": "stability verdict",
+          "pass": true,
+          "detail": "is_stable=false, expected=false"
+        },
+        {
+          "check": "critical depth in range",
+          "pass": true,
+          "detail": "b_lim=0.37mm, range=[0.1, 5]"
+        }
+      ]
+    },
+    {
+      "id": "EC020",
+      "name": "Force → Power exceeds 100kW — extreme power consumption check",
+      "category": "multi_physics_coupling",
+      "pass": true,
+      "checks": [
+        {
+          "check": "Fc in range",
+          "pass": true,
+          "detail": "Fc=37634.5N, range=[10000, 100000]"
+        },
+        {
+          "check": "power in range",
+          "pass": true,
+          "detail": "P=50.18kW, range=[10, 500]"
+        }
+      ]
+    }
+  ]
+}

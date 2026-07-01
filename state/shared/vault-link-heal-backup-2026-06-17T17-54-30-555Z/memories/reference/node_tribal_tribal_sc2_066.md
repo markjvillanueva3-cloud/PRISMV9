@@ -1,0 +1,28 @@
+---
+name: node-tribal-tribal_sc2_066
+description: Node-indexed pointer — tribal tribal-sc2-066 → wiki knowledge/wiki/code-tribal/tribal-sc2-066.md
+metadata:
+  type: reference
+  node_kind: tribal
+  node_id: tribal.tribal_sc2_066
+  wiki_path: knowledge/wiki/code-tribal/tribal-sc2-066.md
+  generated_at: 2026-06-10
+  generator: scripts/lib/emit-node-memory-pointer.mjs
+---
+
+# Node pointer — tribal/tribal_sc2_066
+
+<!-- AUTO-NODE-MEMORY-POINTER-START -->
+
+> Indexed pointer for graph node `tribal.tribal_sc2_066`. The authoritative documentation is in the wiki entry below — this file exists so that semantic memory searches resolve the node directly.
+
+- **Kind:** tribal
+- **Wiki:** [[tribal_sc2_066]] · `knowledge/wiki/code-tribal/tribal-sc2-066.md`
+- **Graph node id:** `tribal.tribal_sc2_066`
+- **Last regenerated:** 2026-06-10
+
+<!-- AUTO-NODE-MEMORY-POINTER-END -->
+
+## Human notes
+
+(Append free-text below — re-emit preserves anything outside the AUTO-NODE-MEMORY-POINTER markers.)

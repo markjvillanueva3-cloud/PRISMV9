@@ -1,0 +1,1645 @@
+{
+  "id": "MCAT-MS0",
+  "version": "2.1.0",
+  "title": "Machine Catalog Convergence for Calculator + Shop Profiles",
+  "brief": "Unify the 920-machine enriched corpus into a configuration-aware machine-package model that powers the calculator machine-selection module, preserves only legal controller/spindle/coolant/capability combinations, persists user-owned shop machine profiles for downstream reuse, and extends the calculator with PRISM mode recommendations.",
+  "generated_by": "RGS 10-stage pipeline + 10-agent scrutiny + Loop 2 fixes",
+  "created_at": "2026-04-01T02:30:00Z",
+  "updated_at": "2026-04-09T19:30:00Z",
+  "track": "MCAT",
+  "track_name": "Machine Catalog Convergence",
+  "status": "in_progress",
+  "complexity": "XL",
+  "total_sessions": 10,
+  "total_units": 22,
+  "total_effort": 1560,
+  "estimated_sprints": "5-6",
+  "estimated_mcp_utilization_percentage": 55,
+  "scrutiny": {
+    "loop_1_average": 66.6,
+    "loop_1_result": "FAIL",
+    "loop_2_targets": [
+      "exit_gate_rigor",
+      "feature_cascade",
+      "physics_rigor"
+    ],
+    "agents": 10,
+    "critical_findings": 2,
+    "high_findings": 6,
+    "medium_findings": 2
+  },
+  "mcp_utilization": {
+    "session_start": [
+      "prism_session:context_boot",
+      "prism_session:dispatcher_map",
+      "prism_session:memory_recall",
+      "prism_session:system_snapshot",
+      "prism_session:action_search"
+    ],
+    "during_work": [
+      "prism_session:auto_checkpoint",
+      "prism_session:action_search",
+      "prism_session:tool_route_best",
+      "prism_session:wip_capture"
+    ],
+    "session_end": [
+      "prism_session:memory_save",
+      "prism_session:system_snapshot",
+      "prism_session:checkpoint_enhanced"
+    ],
+    "plugins": [
+      "vitest:run_tests",
+      "eslint:lint-files",
+      "codebase-memory:search_graph",
+      "taskmaster:get_tasks"
+    ]
+  },
+  "enforcement": {
+    "pre_level": [
+      "knowledge-consult",
+      "context-retention"
+    ],
+    "post_level": [
+      "stub-detector",
+      "test-quality",
+      "constants-checker",
+      "physics-agent",
+      "wiring-agent"
+    ],
+    "compact_level": [
+      "review-gate",
+      "wiring-gate",
+      "forge-triple-gate",
+      "session-audit-agent"
+    ],
+    "post_compact": [
+      "feature-cascade-write",
+      "SESSION_ARTIFACTS.json"
+    ]
+  },
+  "forge_triple": {
+    "protective_hooks": [
+      "pre-machine-spindle-limits",
+      "pre-machine-envelope-check",
+      "pre-machine-power-budget",
+      "pre-machine-controller-compatibility",
+      "pre-machine-completeness-gate",
+      "pre-machine-package-physics-check",
+      "pre-machine-merge-no-data-loss",
+      "pre-taxonomy-coverage-gate",
+      "pre-spindle-value-range-check",
+      "pre-machine-rate-sanity-check",
+      "pre-shop-profile-machine-exists",
+      "pre-calculator-machine-resolution",
+      "pre-speed-feed-machine-validation",
+      "post-calculator-regression-check"
+    ],
+    "mcp_actions": [
+      "prism_data:machine_package_get",
+      "prism_data:machine_package_generate",
+      "prism_data:machine_package_validate",
+      "prism_business:shop_config_machines",
+      "prism_intelligence:machine_intelligence_recommend",
+      "prism_calc:speed_feed"
+    ],
+    "skills": [
+      "/machine-enrich",
+      "/controller-enrich",
+      "/forge-engines",
+      "/forge-hooks",
+      "/forge-tests"
+    ]
+  },
+  "knowledge_sources": {
+    "engines": [
+      "MachineOptionRegistryEngine (2323 LOC)",
+      "MachineProfileEngine (519 LOC)",
+      "MachineSelectionEngine (277 LOC)",
+      "MachineDataHardeningEngine (738 LOC)",
+      "MachineEnvelopeGuardEngine (241 LOC)",
+      "SmartToolSelectorEngine (548 LOC)",
+      "ToolROIEngine (593 LOC)",
+      "ROIAdvisorEngine (175 LOC)",
+      "PurchasingDirectoryEngine (186 LOC)",
+      "FeatureToStrategyBridgeEngine (328 LOC)",
+      "CuttingPowerBudgetEngine — power=torque*rpm/9549",
+      "SpeedFeedOrchestratorEngine — Kienzle+Taylor models",
+      "RealTimeMachineIntelligenceEngine (28730 LOC)"
+    ],
+    "physics_constants": "src/physics/constants.ts — CANONICAL_KIENZLE (kc1.1, mc), CANONICAL_TAYLOR (C, n), CANONICAL_MATERIAL_DB",
+    "tribal_knowledge": "TribalKnowledgeEngine — 379 tips (85 machine-specific)",
+    "formulas": "FormulaRegistry — Kienzle Fc=kc1.1*ap*fz^(1-mc), Taylor VT^n=C, P=T*rpm/9549"
+  },
+  "physics_safety": {
+    "boundaries": [
+      {
+        "name": "spindle_rpm_clamp",
+        "formula": "rpm = min(calculated_rpm, machine.spindle.max_rpm)",
+        "hook": "pre-machine-spindle-limits",
+        "unit": "U-MCAT08"
+      },
+      {
+        "name": "feed_rate_clamp",
+        "formula": "feed = min(calculated_feed, machine.max_feed_mmmin)",
+        "hook": "pre-speed-feed-machine-validation",
+        "unit": "U-MCAT12"
+      },
+      {
+        "name": "power_budget",
+        "formula": "P_required <= machine.spindle.power_continuous_kw",
+        "hook": "pre-machine-power-budget",
+        "unit": "U-MCAT08"
+      },
+      {
+        "name": "torque_limit",
+        "formula": "T_required = P*9549/rpm <= machine.spindle.max_torque_nm",
+        "hook": "pre-machine-power-budget",
+        "unit": "U-MCAT08"
+      },
+      {
+        "name": "envelope_check",
+        "formula": "part_dims <= machine.envelope.xyz_travel",
+        "hook": "pre-machine-envelope-check",
+        "unit": "U-MCAT08"
+      },
+      {
+        "name": "data_completeness",
+        "formula": "machine.completeness >= 0.50",
+        "hook": "pre-machine-completeness-gate",
+        "unit": "U-MCAT08"
+      },
+      {
+        "name": "physics_coherence",
+        "formula": "P_rated = T_rated * base_rpm / 9549 (within 5%)",
+        "hook": "pre-machine-package-physics-check",
+        "unit": "U-MCAT09"
+      },
+      {
+        "name": "null_guard",
+        "formula": "spindle.max_rpm > 0 AND spindle.power_kw > 0",
+        "hook": "pre-machine-completeness-gate",
+        "unit": "U-MCAT08"
+      }
+    ],
+    "canonical_constants_required": true,
+    "inline_physics_blocked": true,
+    "constants_source": "src/physics/constants.ts"
+  },
+  "sessions": [
+    {
+      "id": "S1",
+      "title": "Data Audit and Truth Schema",
+      "phase": "P-1 + P0",
+      "units": [
+        "U-MCAT01",
+        "U-MCAT02"
+      ],
+      "smart_config": {
+        "role": "Data Architect + Schema Specialist",
+        "model": "opus",
+        "effort": "high",
+        "context_budget": "80K"
+      },
+      "intent": "System has definitive audit of all 920 machines' field completeness and owns a single CanonicalMachinePackage type unifying the 3 colliding models.",
+      "skills": [
+        "/forge-schema",
+        "/forge-types",
+        "/machine-enrich"
+      ],
+      "mcp_actions": [
+        "prism_data:machine_search",
+        "prism_validate:completeness"
+      ],
+      "exit_gate": {
+        "measurable_criteria": [
+          "Audit covers 100% of machine JSON files (0 unparsed)",
+          "CanonicalMachinePackage type compiles with zero TS errors",
+          "Field completeness report generated with exact percentages per layer"
+        ],
+        "omega_floor": 0.85,
+        "omega_components": {
+          "R": 0.9,
+          "C": 0.8,
+          "P": 0.85,
+          "S": 0.95,
+          "L": 0.7
+        },
+        "svi_delta": 0,
+        "svi_note": "Baseline establishment session"
+      },
+      "abort_criteria": [
+        "Audit script cannot parse >10% of JSON files",
+        "CanonicalMachinePackage type has >5 unresolvable conflicts with existing Machine interfaces",
+        "Session exceeds 90K context without completing U-MCAT02"
+      ],
+      "rollback": {
+        "U-MCAT01": "Delete devtools/analysis/machine-audit.ts and machine-audit-results.json",
+        "U-MCAT02": "Delete src/types/MachinePackage.ts, revert types.ts import"
+      },
+      "session_outputs": {
+        "new_hooks": [
+          "pre-machine-audit-validate"
+        ],
+        "new_actions": [],
+        "new_skills": [],
+        "available_to": [
+          "S2",
+          "S3",
+          "S4",
+          "S5",
+          "S6",
+          "S7",
+          "S8",
+          "S9",
+          "S10"
+        ]
+      },
+      "checkpoint": "MCAT-CP01"
+    },
+    {
+      "id": "S2",
+      "title": "Truth Hierarchy + Taxonomy",
+      "phase": "P0",
+      "units": [
+        "U-MCAT03",
+        "U-MCAT04"
+      ],
+      "parallel": true,
+      "smart_config": {
+        "role": "Registry Architect + Data Engineer",
+        "model": "opus",
+        "effort": "high",
+        "context_budget": "70K"
+      },
+      "intent": "Machines load with deterministic layer priority and all type strings are normalized to a closed taxonomy enum.",
+      "skills": [
+        "/forge-engines",
+        "/forge-schema",
+        "/forge-tests"
+      ],
+      "mcp_actions": [
+        "prism_data:machine_search",
+        "prism_validate:anti_regression"
+      ],
+      "exit_gate": {
+        "measurable_criteria": [
+          "MachineLayerMerger passes all unit tests with zero data loss",
+          "Taxonomy normalizer classifies >95% of machines to non-OTHER types",
+          "Both engines have >90% line coverage in tests"
+        ],
+        "omega_floor": 0.85,
+        "omega_components": {
+          "R": 0.88,
+          "C": 0.85,
+          "P": 0.82,
+          "S": 0.95,
+          "L": 0.8
+        },
+        "svi_delta": 0.05
+      },
+      "abort_criteria": [
+        "Merge produces data loss on any existing machine record",
+        ">5% of machines classified as OTHER",
+        "Layer merge creates duplicate canonical IDs"
+      ],
+      "rollback": {
+        "U-MCAT03": "Delete MachineLayerMerger.ts and test file",
+        "U-MCAT04": "Delete MachineTaxonomyNormalizer.ts and test file"
+      },
+      "session_outputs": {
+        "new_hooks": [
+          "pre-machine-merge-no-data-loss",
+          "pre-taxonomy-coverage-gate"
+        ],
+        "new_actions": [],
+        "new_skills": [],
+        "available_to": [
+          "S4",
+          "S5"
+        ]
+      },
+      "checkpoint": "MCAT-CP02"
+    },
+    {
+      "id": "S3",
+      "title": "Data Remediation Sprint",
+      "phase": "P-1",
+      "units": [
+        "U-MCAT05",
+        "U-MCAT06"
+      ],
+      "parallel": true,
+      "smart_config": {
+        "role": "Data Engineer + Machine Spec Researcher",
+        "model": "opus",
+        "effort": "high",
+        "context_budget": "90K"
+      },
+      "intent": "Controller completeness rises from ~0.5% to >60%, spindle+coolant completeness to >50%. Unblocks safety hooks.",
+      "skills": [
+        "/machine-enrich",
+        "/controller-enrich",
+        "/forge-engines"
+      ],
+      "mcp_actions": [
+        "prism_data:machine_search",
+        "prism_validate:safety"
+      ],
+      "exit_gate": {
+        "measurable_criteria": [
+          "Controller completeness >= 60% (from ~0.5%)",
+          "Spindle completeness >= 50%",
+          "Coolant completeness >= 40%",
+          "Zero JSON parse errors in any modified file"
+        ],
+        "omega_floor": 0.85,
+        "omega_components": {
+          "R": 0.85,
+          "C": 0.8,
+          "P": 0.8,
+          "S": 0.95,
+          "L": 0.85
+        },
+        "svi_delta": 0.1
+      },
+      "abort_criteria": [
+        "Backfill script corrupts any JSON file (validate before+after)",
+        "Any spindle value outside physical limits (max_rpm > 100000, power > 200kW)",
+        "Controller brand cannot be resolved for >40% of machines"
+      ],
+      "rollback": {
+        "U-MCAT05": "Restore ENHANCED JSON from pre-backfill backup",
+        "U-MCAT06": "Restore ENHANCED JSON from pre-backfill backup"
+      },
+      "session_outputs": {
+        "new_hooks": [
+          "pre-spindle-value-range-check"
+        ],
+        "new_actions": [],
+        "new_skills": [],
+        "available_to": [
+          "S4"
+        ]
+      },
+      "checkpoint": "MCAT-CP03"
+    },
+    {
+      "id": "S4",
+      "title": "Registry Convergence + Safety Hooks",
+      "phase": "P1",
+      "units": [
+        "U-MCAT07",
+        "U-MCAT08"
+      ],
+      "smart_config": {
+        "role": "Registry Architect + Safety Engineer",
+        "model": "opus",
+        "effort": "max",
+        "context_budget": "90K"
+      },
+      "intent": "Exactly ONE MachineRegistry returns CanonicalMachinePackage. 5 safety hooks block bad machine data from propagating to calculators.",
+      "skills": [
+        "/forge-engines",
+        "/forge-hooks",
+        "/forge-safety",
+        "/forge-tests"
+      ],
+      "mcp_actions": [
+        "prism_data:machine_get",
+        "prism_validate:anti_regression",
+        "prism_hook:execute",
+        "prism_safety:check_spindle_torque"
+      ],
+      "exit_gate": {
+        "measurable_criteria": [
+          "MachineRegistry v2 returns CanonicalMachinePackage from getPackage()",
+          "All 5 safety hooks registered and passing tests",
+          "Backward compatibility: dataDispatcher machine_get/search returns equivalent results",
+          "Zero new TypeScript compilation errors",
+          "Hooks block zero-RPM and null-power machines"
+        ],
+        "omega_floor": 0.85,
+        "omega_components": {
+          "R": 0.88,
+          "C": 0.85,
+          "P": 0.8,
+          "S": 0.92,
+          "L": 0.8
+        },
+        "svi_delta": 0.08
+      },
+      "abort_criteria": [
+        "Any existing dataDispatcher machine_get/machine_search call returns different results",
+        "Hooks block >20% of existing valid calculator calls",
+        "Registry load time exceeds 2 seconds for 920 machines"
+      ],
+      "rollback": {
+        "U-MCAT07": "git checkout MachineRegistry.ts and dataDispatcher.ts; delete compat shim",
+        "U-MCAT08": "Remove hook registration entries; delete MachineValidationHooks.ts"
+      },
+      "session_outputs": {
+        "new_hooks": [
+          "pre-machine-spindle-limits",
+          "pre-machine-envelope-check",
+          "pre-machine-power-budget",
+          "pre-machine-controller-compatibility",
+          "pre-machine-completeness-gate"
+        ],
+        "new_actions": [],
+        "new_skills": [],
+        "available_to": [
+          "S5",
+          "S6",
+          "S7",
+          "S8",
+          "S9",
+          "S10"
+        ]
+      },
+      "checkpoint": "MCAT-CP04"
+    },
+    {
+      "id": "S5",
+      "title": "MachinePackageGeneratorEngine",
+      "phase": "P1",
+      "units": [
+        "U-MCAT09",
+        "U-MCAT10"
+      ],
+      "smart_config": {
+        "role": "Engine Developer + Integration Specialist",
+        "model": "opus",
+        "effort": "max",
+        "context_budget": "90K"
+      },
+      "intent": "A single engine generates complete, validated CanonicalMachinePackage from any combination of registry data + user overrides + shop profile.",
+      "skills": [
+        "/forge-engines",
+        "/forge-tests",
+        "/plan-build"
+      ],
+      "mcp_actions": [
+        "prism_validate:safety",
+        "prism_validate:completeness"
+      ],
+      "exit_gate": {
+        "measurable_criteria": [
+          "Engine generates valid packages for all 10 test machines",
+          "Completeness scoring: known-complete machines >90%, sparse <50%",
+          "All 30+ tests pass with >85% line coverage",
+          "Physics validation: power/torque/rpm relationships consistent within 5%"
+        ],
+        "omega_floor": 0.85,
+        "omega_components": {
+          "R": 0.9,
+          "C": 0.85,
+          "P": 0.82,
+          "S": 0.88,
+          "L": 0.8
+        },
+        "svi_delta": 0.06
+      },
+      "abort_criteria": [
+        "Engine generates physically impossible values (RPM*torque/9549 differs from power by >10%)",
+        "<80% line coverage on the engine",
+        "Package generation exceeds 200ms per machine"
+      ],
+      "rollback": {
+        "U-MCAT09": "Delete MachinePackageGeneratorEngine.ts, revert index.ts",
+        "U-MCAT10": "Delete test file"
+      },
+      "session_outputs": {
+        "new_hooks": [
+          "pre-machine-package-physics-check"
+        ],
+        "new_actions": [],
+        "new_skills": [],
+        "available_to": [
+          "S6",
+          "S7",
+          "S8",
+          "S9",
+          "S10"
+        ]
+      },
+      "checkpoint": "MCAT-CP05"
+    },
+    {
+      "id": "S6",
+      "title": "Calculator Dual-Path Migration",
+      "phase": "P2",
+      "units": [
+        "U-MCAT11",
+        "U-MCAT12"
+      ],
+      "parallel": true,
+      "smart_config": {
+        "role": "Calculator Integration Engineer + Physics Specialist",
+        "model": "opus",
+        "effort": "max",
+        "context_budget": "90K"
+      },
+      "intent": "All calculator operations resolve machine packages first (heuristic fallback). Speed/feed uses real spindle limits, not hardcoded defaults.",
+      "skills": [
+        "/forge-wiring",
+        "/forge-engines",
+        "/auto-speed-feed",
+        "/sfc-quick-start"
+      ],
+      "mcp_actions": [
+        "prism_calc:speed_feed",
+        "prism_calc:cutting_force",
+        "prism_calc:tool_life"
+      ],
+      "exit_gate": {
+        "measurable_criteria": [
+          "All 15 existing calculator tests pass (zero regressions)",
+          "Package path produces machine-constrained results for 6 calculator actions",
+          "Heuristic fallback works when no machine identifier provided",
+          "Machine-aware speed/feed caps at spindle limits (tested with Haas VF-2: 8100 RPM)",
+          "RPM clamp: min(calculated, machine.max_rpm) verified",
+          "Feed clamp: min(calculated, machine.max_feed) verified"
+        ],
+        "omega_floor": 0.85,
+        "omega_components": {
+          "R": 0.92,
+          "C": 0.85,
+          "P": 0.88,
+          "S": 0.9,
+          "L": 0.78
+        },
+        "svi_delta": 0.12
+      },
+      "abort_criteria": [
+        "Any of the 15 existing calculator tests fail",
+        "Machine-constrained speed/feed produces values outside safe cutting parameter ranges",
+        "Dual-path overhead exceeds 50ms per calculator call"
+      ],
+      "rollback": {
+        "U-MCAT11": "git checkout calcDispatcher.ts and AdvancedCalculations.ts; delete test file",
+        "U-MCAT12": "Delete MachineAwareSpeedFeed.ts and test; revert index.ts"
+      },
+      "session_outputs": {
+        "new_hooks": [
+          "pre-calculator-machine-resolution",
+          "pre-speed-feed-machine-validation",
+          "post-calculator-regression-check"
+        ],
+        "new_actions": [],
+        "new_skills": [],
+        "available_to": [
+          "S7",
+          "S8",
+          "S9",
+          "S10"
+        ]
+      },
+      "checkpoint": "MCAT-CP06"
+    },
+    {
+      "id": "S7",
+      "title": "Calculator Completion + Dispatcher Actions",
+      "phase": "P2",
+      "units": [
+        "U-MCAT13",
+        "U-MCAT14"
+      ],
+      "smart_config": {
+        "role": "Business Logic Engineer + API Designer",
+        "model": "opus",
+        "effort": "high",
+        "context_budget": "70K"
+      },
+      "intent": "Cost calculations derive machine rates from packages. 3 new dispatcher actions (machine_package_get/generate/validate) are live.",
+      "skills": [
+        "/forge-wiring",
+        "/forge-engines",
+        "/action-help"
+      ],
+      "mcp_actions": [
+        "prism_data:machine_package_get",
+        "prism_data:machine_package_generate",
+        "prism_data:machine_package_validate",
+        "prism_calc:cost_optimize"
+      ],
+      "exit_gate": {
+        "measurable_criteria": [
+          "Cost calculator uses derived machine rates when package available",
+          "3 new dispatcher actions return correct responses",
+          "Machine rate derivation: $0.50-$15.00/min range validated",
+          "All new + existing tests pass"
+        ],
+        "omega_floor": 0.85,
+        "omega_components": {
+          "R": 0.88,
+          "C": 0.85,
+          "P": 0.85,
+          "S": 0.9,
+          "L": 0.82
+        },
+        "svi_delta": 0.05
+      },
+      "abort_criteria": [
+        "Derived rates outside $0.50-$15.00/min range",
+        "New actions break existing dataDispatcher routing",
+        "Cost calculations regress vs baseline"
+      ],
+      "rollback": {
+        "U-MCAT13": "Revert MachinePackageGeneratorEngine.ts, AdvancedCalculations.ts, calcDispatcher.ts",
+        "U-MCAT14": "Revert dataDispatcher.ts, schemas.ts, index.ts"
+      },
+      "session_outputs": {
+        "new_hooks": [
+          "pre-machine-rate-sanity-check"
+        ],
+        "new_actions": [
+          "prism_data:machine_package_get",
+          "prism_data:machine_package_generate",
+          "prism_data:machine_package_validate"
+        ],
+        "new_skills": [],
+        "available_to": [
+          "S8",
+          "S9",
+          "S10"
+        ]
+      },
+      "checkpoint": "MCAT-CP07"
+    },
+    {
+      "id": "S8",
+      "title": "Downstream Reuse — Chain A (CAM + Post)",
+      "phase": "P3",
+      "units": [
+        "U-MCAT15",
+        "U-MCAT16"
+      ],
+      "parallel": true,
+      "smart_config": {
+        "role": "Integration Architect + CAM/Post Specialist",
+        "model": "opus",
+        "effort": "high",
+        "context_budget": "80K"
+      },
+      "intent": "CAM strategy recommendations and post-processor generation both consume CanonicalMachinePackage for machine-specific results.",
+      "skills": [
+        "/forge-wiring",
+        "/cam-toolpath-guide",
+        "/ppg-quick-start"
+      ],
+      "mcp_actions": [
+        "prism_cam:cam_strategy_recommend",
+        "prism_product:ppg_generate"
+      ],
+      "exit_gate": {
+        "measurable_criteria": [
+          "CAM strategy returns machine-appropriate strategies (3-axis machine gets 3+2 only, not sim-5)",
+          "Post-processor generation uses actual controller specs from package",
+          "Both integrations pass new + existing tests"
+        ],
+        "omega_floor": 0.85,
+        "omega_components": {
+          "R": 0.85,
+          "C": 0.85,
+          "P": 0.82,
+          "S": 0.9,
+          "L": 0.8
+        },
+        "svi_delta": 0.07
+      },
+      "abort_criteria": [
+        "Existing CAM strategy tests fail",
+        "Post-processor output produces invalid G-code for known controllers",
+        "Machine package resolution adds >100ms to CAM/Post calls"
+      ],
+      "rollback": {
+        "U-MCAT15": "Revert CAM dispatcher modifications",
+        "U-MCAT16": "Revert post-processor modifications"
+      },
+      "session_outputs": {
+        "new_hooks": [],
+        "new_actions": [],
+        "new_skills": [],
+        "available_to": [
+          "S10"
+        ]
+      },
+      "checkpoint": "MCAT-CP08"
+    },
+    {
+      "id": "S9",
+      "title": "Downstream Reuse — Chain B + PRISM Mode",
+      "phase": "P3",
+      "units": [
+        "U-MCAT17",
+        "U-MCAT18",
+        "U-MCAT19"
+      ],
+      "parallel": true,
+      "smart_config": {
+        "role": "Full-Stack Integration Architect",
+        "model": "opus",
+        "effort": "high",
+        "context_budget": "90K"
+      },
+      "intent": "Shop profiles bind to machine packages. PRISM mode surfaces machine intelligence proactively. Frontend audit identifies all 31 touchpoints.",
+      "skills": [
+        "/forge-wiring",
+        "/forge-engines",
+        "/forge-hooks",
+        "/operating-system"
+      ],
+      "mcp_actions": [
+        "prism_business:shop_config_machines",
+        "prism_intelligence:machine_intelligence_recommend",
+        "prism_dev:code_search"
+      ],
+      "exit_gate": {
+        "measurable_criteria": [
+          "Shop profiles bind to machine packages with CRUD operations",
+          "PRISM mode recommends ranked machines for job planning",
+          "Frontend audit identifies all 31 machine touchpoints with migration paths",
+          "Shop profile validation: rejects binding to non-existent machine IDs"
+        ],
+        "omega_floor": 0.85,
+        "omega_components": {
+          "R": 0.85,
+          "C": 0.82,
+          "P": 0.8,
+          "S": 0.9,
+          "L": 0.85
+        },
+        "svi_delta": 0.05
+      },
+      "abort_criteria": [
+        "Shop profile storage corrupts existing state files",
+        "Intelligence recommendations produce obviously wrong machine selections",
+        "Frontend audit finds >40 touchpoints (scope creep risk)"
+      ],
+      "rollback": {
+        "U-MCAT17": "Delete ShopMachineProfile.ts, revert business dispatcher",
+        "U-MCAT18": "Revert intelligence dispatcher",
+        "U-MCAT19": "Delete frontend audit JSON"
+      },
+      "session_outputs": {
+        "new_hooks": [
+          "pre-shop-profile-machine-exists"
+        ],
+        "new_actions": [
+          "prism_business:shop_config_machines",
+          "prism_intelligence:machine_intelligence_recommend"
+        ],
+        "new_skills": [],
+        "available_to": [
+          "S10"
+        ]
+      },
+      "checkpoint": "MCAT-CP09"
+    },
+    {
+      "id": "S10",
+      "title": "Validation and Hardening",
+      "phase": "P4",
+      "units": [
+        "U-MCAT20",
+        "U-MCAT21",
+        "U-MCAT22"
+      ],
+      "smart_config": {
+        "role": "QA Lead + Technical Writer",
+        "model": "opus",
+        "effort": "high",
+        "context_budget": "80K"
+      },
+      "intent": "E2E tests, performance benchmarks, regression guard, complete documentation. Milestone closeable.",
+      "skills": [
+        "/forge-tests",
+        "/quality-gate",
+        "/release-ready",
+        "/forge-docs"
+      ],
+      "mcp_actions": [
+        "prism_omega:compute",
+        "prism_dev:test_smoke",
+        "prism_validate:completeness"
+      ],
+      "exit_gate": {
+        "measurable_criteria": [
+          "All E2E tests pass (happy path + fallbacks + safety blocks)",
+          "Performance: package gen <50ms, search <20ms, hooks <5ms each",
+          "Test coverage across all MCAT files >85%",
+          "Documentation complete: ADR, API guide, completion report",
+          "Zero open defects"
+        ],
+        "omega_floor": 0.85,
+        "omega_components": {
+          "R": 0.9,
+          "C": 0.88,
+          "P": 0.85,
+          "S": 0.92,
+          "L": 0.85
+        },
+        "omega_formula": "0.25*R + 0.20*C + 0.15*P + 0.30*S + 0.10*L (S >= 0.70 hard constraint)",
+        "svi_delta": 0.3,
+        "svi_note": "Total SVI delta from S1 baseline must be >= 0.30"
+      },
+      "abort_criteria": [
+        "Any E2E test exposes data flow break not caught by unit tests",
+        "Package generation >200ms (O(n^2) in merger)",
+        "Final omega score < 0.85"
+      ],
+      "rollback": {
+        "U-MCAT20": "Delete E2E test file",
+        "U-MCAT21": "Delete perf test + baseline",
+        "U-MCAT22": "Delete doc files"
+      },
+      "session_outputs": {
+        "new_hooks": [],
+        "new_actions": [],
+        "new_skills": [],
+        "available_to": [
+          "MCAT-MS1 (future)"
+        ]
+      },
+      "checkpoint": "MCAT-CP10"
+    }
+  ],
+  "units": [
+    {
+      "id": "U-MCAT01",
+      "title": "Data Quality Audit Script",
+      "phase": "P-1",
+      "effort": 50,
+      "dependencies": [],
+      "session": "S1",
+      "forge_triple": {
+        "hooks": [
+          "pre-machine-audit-validate"
+        ],
+        "actions": [
+          "prism_data:machine_search"
+        ],
+        "skills": [
+          "/machine-enrich"
+        ]
+      },
+      "files_created": [
+        "devtools/analysis/machine-audit.ts",
+        "devtools/analysis/machine-audit-results.json"
+      ],
+      "files_modified": [],
+      "four_loop": {
+        "build": "Audit script loads ALL_MACHINES_ENRICHED.json, tallies field presence per layer",
+        "scrutinize": "Verify 100% of 920 machines parsed, cross-check with known brand counts",
+        "gap_fill": "Add missing field patterns discovered during audit",
+        "tie_up": "Output completeness report, no TODOs"
+      }
+    },
+    {
+      "id": "U-MCAT02",
+      "title": "CanonicalMachinePackage Type Definition",
+      "phase": "P0",
+      "effort": 65,
+      "dependencies": [
+        "U-MCAT01"
+      ],
+      "session": "S1",
+      "forge_triple": {
+        "hooks": [
+          "pre-type-write-antiregression"
+        ],
+        "actions": [
+          "prism_validate:completeness"
+        ],
+        "skills": [
+          "/forge-types"
+        ]
+      },
+      "files_created": [
+        "src/types/MachinePackage.ts"
+      ],
+      "files_modified": [
+        "src/types.ts"
+      ],
+      "four_loop": {
+        "build": "Design CanonicalMachinePackage extending both existing Machine interfaces",
+        "scrutinize": "Structural assignability test against both interfaces",
+        "gap_fill": "Add provenance, confidence, ambiguity queue, allowed-option matrix",
+        "tie_up": "Re-export from types/index.ts, zero TS errors"
+      }
+    },
+    {
+      "id": "U-MCAT03",
+      "title": "Layer Priority Resolution Engine (MachineLayerMerger)",
+      "phase": "P0",
+      "effort": 70,
+      "dependencies": [
+        "U-MCAT02"
+      ],
+      "session": "S2",
+      "forge_triple": {
+        "hooks": [
+          "pre-machine-merge-no-data-loss"
+        ],
+        "actions": [
+          "prism_validate:anti_regression"
+        ],
+        "skills": [
+          "/forge-engines"
+        ]
+      },
+      "files_created": [
+        "src/engines/MachineLayerMerger.ts",
+        "src/__tests__/MachineLayerMerger.test.ts"
+      ],
+      "files_modified": [],
+      "four_loop": {
+        "build": "Field-level merge with provenance tracking per field",
+        "scrutinize": "Test with mock machines from 2 layers, verify zero data loss",
+        "gap_fill": "Handle array fields (append-not-overwrite), zero vs undefined edge cases",
+        "tie_up": ">90% line coverage, no TODOs"
+      }
+    },
+    {
+      "id": "U-MCAT04",
+      "title": "Machine Taxonomy Normalizer",
+      "phase": "P0",
+      "effort": 60,
+      "dependencies": [
+        "U-MCAT02"
+      ],
+      "session": "S2",
+      "forge_triple": {
+        "hooks": [
+          "pre-taxonomy-coverage-gate"
+        ],
+        "actions": [
+          "prism_data:machine_search"
+        ],
+        "skills": [
+          "/forge-engines"
+        ]
+      },
+      "files_created": [
+        "src/engines/MachineTaxonomyNormalizer.ts",
+        "src/__tests__/MachineTaxonomyNormalizer.test.ts"
+      ],
+      "files_modified": [],
+      "four_loop": {
+        "build": "Closed 15-type enum, normalizer mapping ~50 observed variations",
+        "scrutinize": "Run across all 920 machines, confirm <5% OTHER",
+        "gap_fill": "Add manufacturer name variant normalization",
+        "tie_up": ">90% line coverage, no TODOs"
+      }
+    },
+    {
+      "id": "U-MCAT05",
+      "title": "Controller Data Backfill (top 15 manufacturers)",
+      "phase": "P-1",
+      "effort": 80,
+      "dependencies": [
+        "U-MCAT01"
+      ],
+      "session": "S3",
+      "forge_triple": {
+        "hooks": [
+          "pre-file-write-antiregression"
+        ],
+        "actions": [
+          "prism_data:machine_search"
+        ],
+        "skills": [
+          "/controller-enrich"
+        ]
+      },
+      "files_created": [
+        "devtools/analysis/controller-backfill.ts",
+        "devtools/analysis/controller-backfill-changelog.json"
+      ],
+      "files_modified": [
+        "data/machines/ENHANCED/*.json"
+      ],
+      "four_loop": {
+        "build": "Research standard controllers per manufacturer, build backfill script",
+        "scrutinize": "Re-run audit, confirm controller completeness >60%",
+        "gap_fill": "Fix schema mismatches (Mazak controller.brand → controller.manufacturer)",
+        "tie_up": "Spot-check 10 random machines for accuracy"
+      }
+    },
+    {
+      "id": "U-MCAT06",
+      "title": "Spindle + Coolant Data Backfill",
+      "phase": "P-1",
+      "effort": 75,
+      "dependencies": [
+        "U-MCAT01"
+      ],
+      "session": "S3",
+      "forge_triple": {
+        "hooks": [
+          "pre-spindle-value-range-check"
+        ],
+        "actions": [
+          "prism_validate:safety"
+        ],
+        "skills": [
+          "/machine-enrich"
+        ]
+      },
+      "files_created": [
+        "devtools/analysis/spindle-coolant-backfill.ts",
+        "devtools/analysis/spindle-coolant-changelog.json"
+      ],
+      "files_modified": [
+        "data/machines/ENHANCED/*.json"
+      ],
+      "four_loop": {
+        "build": "Research typical spindle specs per model series, enrich JSON",
+        "scrutinize": "Confirm spindle >50%, coolant >40%",
+        "gap_fill": "Cross-reference with Machinery's Handbook for sanity",
+        "tie_up": "Zero parse errors, all values within physical limits"
+      }
+    },
+    {
+      "id": "U-MCAT07",
+      "title": "Unified MachineRegistry v2 (CanonicalMachinePackage output)",
+      "phase": "P1",
+      "effort": 80,
+      "dependencies": [
+        "U-MCAT03",
+        "U-MCAT04",
+        "U-MCAT05",
+        "U-MCAT06"
+      ],
+      "session": "S4",
+      "forge_triple": {
+        "hooks": [
+          "pre-registry-rewrite-backward-compat"
+        ],
+        "actions": [
+          "prism_data:machine_get"
+        ],
+        "skills": [
+          "/forge-engines"
+        ]
+      },
+      "files_created": [
+        "src/registries/machine-registry-compat.ts",
+        "src/__tests__/MachineRegistry.v2.test.ts"
+      ],
+      "files_modified": [
+        "src/registries/MachineRegistry.ts",
+        "src/tools/dispatchers/dataDispatcher.ts"
+      ],
+      "four_loop": {
+        "build": "Rewrite MachineRegistry to use MachineLayerMerger + Normalizer",
+        "scrutinize": "All existing machine_get/search calls return equivalent results",
+        "gap_fill": "Add compat shim for old Machine type consumers",
+        "tie_up": "Zero TS errors, backward compat verified"
+      }
+    },
+    {
+      "id": "U-MCAT08",
+      "title": "Machine Safety Hooks (5 blocking hooks)",
+      "phase": "P1",
+      "effort": 75,
+      "dependencies": [
+        "U-MCAT07"
+      ],
+      "session": "S4",
+      "forge_triple": {
+        "hooks": [
+          "pre-machine-spindle-limits",
+          "pre-machine-envelope-check",
+          "pre-machine-power-budget",
+          "pre-machine-controller-compatibility",
+          "pre-machine-completeness-gate"
+        ],
+        "actions": [
+          "prism_hook:execute"
+        ],
+        "skills": [
+          "/forge-hooks"
+        ]
+      },
+      "files_created": [
+        "src/hooks/MachineValidationHooks.ts",
+        "src/__tests__/MachineValidationHooks.test.ts"
+      ],
+      "files_modified": [
+        "src/hooks/index.ts",
+        "src/hooks/hookRegistration.ts"
+      ],
+      "four_loop": {
+        "build": "5 blocking hooks with null/zero/range validation",
+        "scrutinize": "Unit tests with edge cases (at limit, over limit, missing data)",
+        "gap_fill": "Tune thresholds based on real machine data from S3 backfill",
+        "tie_up": "All hooks registered, all tests pass"
+      }
+    },
+    {
+      "id": "U-MCAT09",
+      "title": "MachinePackageGeneratorEngine (~2500 LOC)",
+      "phase": "P1",
+      "effort": 85,
+      "dependencies": [
+        "U-MCAT07"
+      ],
+      "session": "S5",
+      "forge_triple": {
+        "hooks": [
+          "pre-machine-package-physics-check"
+        ],
+        "actions": [
+          "prism_validate:safety"
+        ],
+        "skills": [
+          "/forge-engines"
+        ]
+      },
+      "files_created": [
+        "src/engines/MachinePackageGeneratorEngine.ts"
+      ],
+      "files_modified": [
+        "src/engines/index.ts"
+      ],
+      "four_loop": {
+        "build": "generate(), generateFromProfile(), validate(), score(), inferMissing()",
+        "scrutinize": "Generate packages for 10 representative machines, validate completeness",
+        "gap_fill": "Tune inference heuristics for missing fields",
+        "tie_up": "Physics validation: P=T*rpm/9549 within 5%"
+      }
+    },
+    {
+      "id": "U-MCAT10",
+      "title": "Package Generation Integration Tests (30+)",
+      "phase": "P1",
+      "effort": 60,
+      "dependencies": [
+        "U-MCAT09"
+      ],
+      "session": "S5",
+      "forge_triple": {
+        "hooks": [
+          "pre-test-coverage-gate"
+        ],
+        "actions": [
+          "prism_validate:completeness"
+        ],
+        "skills": [
+          "/forge-tests"
+        ]
+      },
+      "files_created": [
+        "src/__tests__/MachinePackageGeneratorEngine.test.ts"
+      ],
+      "files_modified": [],
+      "four_loop": {
+        "build": "30+ tests: generation from ID, overrides, profiles, inference, validation",
+        "scrutinize": "Coverage >85% on generator engine",
+        "gap_fill": "Add tests for untested branches",
+        "tie_up": "All tests pass, zero flaky tests"
+      }
+    },
+    {
+      "id": "U-MCAT11",
+      "title": "Dual-Path Calculator Migration (package-first, heuristic-fallback)",
+      "phase": "P2",
+      "effort": 75,
+      "dependencies": [
+        "U-MCAT09",
+        "U-MCAT08"
+      ],
+      "session": "S6",
+      "forge_triple": {
+        "hooks": [
+          "pre-calculator-machine-resolution",
+          "post-calculator-regression-check"
+        ],
+        "actions": [
+          "prism_calc:speed_feed"
+        ],
+        "skills": [
+          "/forge-wiring"
+        ]
+      },
+      "files_created": [
+        "src/__tests__/calcDispatcher.machine.test.ts"
+      ],
+      "files_modified": [
+        "src/tools/dispatchers/calcDispatcher.ts",
+        "src/engines/AdvancedCalculations.ts"
+      ],
+      "four_loop": {
+        "build": "resolveMachineContext() dual-path in calcDispatcher for 6 actions",
+        "scrutinize": "All 15 existing calculator tests still pass",
+        "gap_fill": "Handle machine_rate flat number → derived rate transition",
+        "tie_up": "machine_package_used flag in all calculator responses"
+      }
+    },
+    {
+      "id": "U-MCAT12",
+      "title": "Machine-Aware Speed/Feed Pipeline (real spindle limits)",
+      "phase": "P2",
+      "effort": 75,
+      "dependencies": [
+        "U-MCAT09",
+        "U-MCAT08"
+      ],
+      "session": "S6",
+      "forge_triple": {
+        "hooks": [
+          "pre-speed-feed-machine-validation",
+          "pre-machine-spindle-limits"
+        ],
+        "actions": [
+          "prism_calc:speed_feed"
+        ],
+        "skills": [
+          "/auto-speed-feed"
+        ]
+      },
+      "files_created": [
+        "src/engines/MachineAwareSpeedFeed.ts",
+        "src/__tests__/MachineAwareSpeedFeed.test.ts"
+      ],
+      "files_modified": [
+        "src/engines/index.ts"
+      ],
+      "four_loop": {
+        "build": "Wrap speed/feed with CanonicalMachinePackage constraints",
+        "scrutinize": "Haas VF-2 test: caps at 8100 RPM not theoretical optimum",
+        "gap_fill": "Add torque-limited feed rate calculation",
+        "tie_up": "Both unconstrained and machine-constrained results returned"
+      },
+      "status": "completed",
+      "closedAt": "2026-05-22T16:51:47.172Z",
+      "closedBy": "claude-a8894112/juliett",
+      "closedReason": "VERIFIED-COMPLETE: machine_aware_constrain action fully wired in calcDispatcher (4 refs: import+case+schema+enum), MachineAwareSpeedFeedEngine built (17.4K), dispatcher round-trip test machine-aware-constrain-wire.test.ts exists. Machine-constrained speed/feed with real spindle limits shipped under the machine_aware_constrain action."
+    },
+    {
+      "id": "U-MCAT13",
+      "title": "Cost Calculator Machine Package Integration (derived rates)",
+      "phase": "P2",
+      "effort": 80,
+      "dependencies": [
+        "U-MCAT11"
+      ],
+      "session": "S7",
+      "forge_triple": {
+        "hooks": [
+          "pre-machine-rate-sanity-check"
+        ],
+        "actions": [
+          "prism_calc:cost_optimize"
+        ],
+        "skills": [
+          "/forge-wiring"
+        ]
+      },
+      "files_created": [
+        "src/__tests__/MachineCostIntegration.test.ts"
+      ],
+      "files_modified": [
+        "src/engines/MachinePackageGeneratorEngine.ts",
+        "src/engines/AdvancedCalculations.ts",
+        "src/tools/dispatchers/calcDispatcher.ts"
+      ],
+      "four_loop": {
+        "build": "deriveMachineRate() from machine type, power, axis count, tier",
+        "scrutinize": "Haas VF-2 ~$1.50-2.50/min, DMG DMU 50 ~$3-5/min",
+        "gap_fill": "Calibrate tiers against industry benchmarks",
+        "tie_up": "User-provided rate overrides derived value"
+      }
+    },
+    {
+      "id": "U-MCAT14",
+      "title": "Machine Package Dispatcher Actions (get/generate/validate)",
+      "phase": "P2",
+      "effort": 70,
+      "dependencies": [
+        "U-MCAT09"
+      ],
+      "session": "S7",
+      "forge_triple": {
+        "hooks": [
+          "pre-dispatcher-action-schema-validate"
+        ],
+        "actions": [
+          "prism_data:machine_package_get",
+          "prism_data:machine_package_generate",
+          "prism_data:machine_package_validate"
+        ],
+        "skills": [
+          "/action-help"
+        ]
+      },
+      "files_created": [
+        "src/__tests__/machinePackageActions.test.ts"
+      ],
+      "files_modified": [
+        "src/tools/dispatchers/dataDispatcher.ts",
+        "src/schemas.ts",
+        "src/index.ts"
+      ],
+      "four_loop": {
+        "build": "3 new actions with JSON schemas, registered in tool listing",
+        "scrutinize": "Call each action via MCP, verify response format",
+        "gap_fill": "Error handling for unknown IDs, invalid overrides",
+        "tie_up": "All actions documented with param hints"
+      }
+    },
+    {
+      "id": "U-MCAT15",
+      "title": "CAM Strategy Machine-Aware Integration",
+      "phase": "P3",
+      "effort": 75,
+      "dependencies": [
+        "U-MCAT14"
+      ],
+      "session": "S8",
+      "forge_triple": {
+        "hooks": [
+          "pre-machine-envelope-check"
+        ],
+        "actions": [
+          "prism_cam:cam_strategy_recommend"
+        ],
+        "skills": [
+          "/cam-toolpath-guide"
+        ]
+      },
+      "files_created": [
+        "src/__tests__/camMachineIntegration.test.ts"
+      ],
+      "files_modified": [
+        "CAM dispatcher"
+      ],
+      "four_loop": {
+        "build": "Wire machine package to cam_strategy_recommend, check axis/power/envelope",
+        "scrutinize": "5-axis part on 3-axis machine returns only 3+2 strategies",
+        "gap_fill": "Add machine-specific strategy preferences",
+        "tie_up": "All existing CAM tests pass"
+      }
+    },
+    {
+      "id": "U-MCAT16",
+      "title": "Post-Processor Machine Package Wiring",
+      "phase": "P3",
+      "effort": 65,
+      "dependencies": [
+        "U-MCAT14"
+      ],
+      "session": "S8",
+      "forge_triple": {
+        "hooks": [
+          "pre-machine-controller-compatibility"
+        ],
+        "actions": [
+          "prism_product:ppg_generate"
+        ],
+        "skills": [
+          "/ppg-quick-start"
+        ]
+      },
+      "files_created": [
+        "src/__tests__/ppgMachineIntegration.test.ts"
+      ],
+      "files_modified": [
+        "Post-processor engine"
+      ],
+      "four_loop": {
+        "build": "Pull controller specs from package, auto-select post template",
+        "scrutinize": "machine_id=HAAS-VF-2 produces NGC-compatible G-code, not generic FANUC",
+        "gap_fill": "Handle machines with multiple compatible posts",
+        "tie_up": "All existing PPG tests pass"
+      }
+    },
+    {
+      "id": "U-MCAT17",
+      "title": "Shop Profile Machine Binding (CRUD)",
+      "phase": "P3",
+      "effort": 70,
+      "dependencies": [
+        "U-MCAT14"
+      ],
+      "session": "S9",
+      "forge_triple": {
+        "hooks": [
+          "pre-shop-profile-machine-exists"
+        ],
+        "actions": [
+          "prism_business:shop_config_machines"
+        ],
+        "skills": [
+          "/operating-system"
+        ]
+      },
+      "files_created": [
+        "src/types/ShopMachineProfile.ts",
+        "src/__tests__/ShopMachineProfile.test.ts"
+      ],
+      "files_modified": [
+        "Business dispatcher",
+        "src/types.ts"
+      ],
+      "four_loop": {
+        "build": "CRUD shop profiles with machine_id → package auto-resolution",
+        "scrutinize": "Create profile with 3 machines, verify packages generate with overrides",
+        "gap_fill": "Validation: reject binding to non-existent machine IDs",
+        "tie_up": "State persistence verified across sessions"
+      }
+    },
+    {
+      "id": "U-MCAT18",
+      "title": "PRISM Mode Machine Intelligence (ranked recommendations)",
+      "phase": "P3",
+      "effort": 85,
+      "dependencies": [
+        "U-MCAT17",
+        "U-MCAT11",
+        "U-MCAT12"
+      ],
+      "session": "S9",
+      "forge_triple": {
+        "hooks": [
+          "pre-machine-envelope-check",
+          "pre-machine-power-budget"
+        ],
+        "actions": [
+          "prism_intelligence:machine_intelligence_recommend"
+        ],
+        "skills": [
+          "/forge-engines"
+        ]
+      },
+      "files_created": [
+        "src/__tests__/machineIntelligence.test.ts"
+      ],
+      "files_modified": [
+        "Intelligence dispatcher"
+      ],
+      "four_loop": {
+        "build": "Ranked machines from shop profile based on part requirements",
+        "scrutinize": "5-axis part recommends appropriate machines from shop",
+        "gap_fill": "Tune ranking: envelope fit, spindle match, cost efficiency, speed/feed capability",
+        "tie_up": "Integrates U-MCAT12 spindle intelligence for achievability scoring"
+      }
+    },
+    {
+      "id": "U-MCAT19",
+      "title": "Frontend Machine Reference Audit (31 pages)",
+      "phase": "P3",
+      "effort": 50,
+      "dependencies": [
+        "U-MCAT14"
+      ],
+      "session": "S9",
+      "forge_triple": {
+        "hooks": [],
+        "actions": [
+          "prism_dev:code_search"
+        ],
+        "skills": [
+          "/forge-wiring"
+        ]
+      },
+      "files_created": [
+        "devtools/analysis/frontend-machine-audit.json"
+      ],
+      "files_modified": [],
+      "four_loop": {
+        "build": "Audit all 31 frontend pages for machine touchpoints",
+        "scrutinize": "Cross-reference with dispatcher action list",
+        "gap_fill": "Identify shared components (MachinePickerPanel, MachineWizard, useMachineSelect)",
+        "tie_up": "Migration checklist with top 5 priorities"
+      }
+    },
+    {
+      "id": "U-MCAT20",
+      "title": "End-to-End Integration Tests (full pipeline)",
+      "phase": "P4",
+      "effort": 80,
+      "dependencies": [
+        "U-MCAT15",
+        "U-MCAT16",
+        "U-MCAT18"
+      ],
+      "session": "S10",
+      "forge_triple": {
+        "hooks": [
+          "all 14 safety hooks"
+        ],
+        "actions": [
+          "prism_data:machine_package_get",
+          "prism_calc:speed_feed"
+        ],
+        "skills": [
+          "/forge-tests"
+        ]
+      },
+      "files_created": [
+        "src/__tests__/mcat-e2e.test.ts"
+      ],
+      "files_modified": [],
+      "four_loop": {
+        "build": "Full pipeline: machine name → registry → package → calculator → safety hooks → result",
+        "scrutinize": "Happy path + unknown machine fallback + incomplete data fallback + safety block",
+        "gap_fill": "Add chaos tests (registry failure, corrupt JSON, timeout)",
+        "tie_up": "Zero flaky tests"
+      }
+    },
+    {
+      "id": "U-MCAT21",
+      "title": "Performance + Regression Suite (benchmarks)",
+      "phase": "P4",
+      "effort": 55,
+      "dependencies": [
+        "U-MCAT20"
+      ],
+      "session": "S10",
+      "forge_triple": {
+        "hooks": [
+          "pre-test-coverage-gate"
+        ],
+        "actions": [
+          "prism_dev:test_smoke"
+        ],
+        "skills": [
+          "/quality-gate"
+        ]
+      },
+      "files_created": [
+        "src/__tests__/mcat-perf.test.ts",
+        "devtools/analysis/mcat-perf-baseline.json"
+      ],
+      "files_modified": [],
+      "four_loop": {
+        "build": "Benchmark: package gen <50ms, search <20ms, hooks <5ms",
+        "scrutinize": "All targets met, baseline saved",
+        "gap_fill": "Optimize hot paths exceeding targets",
+        "tie_up": "Regression guard fails if future runs exceed 2x baseline"
+      }
+    },
+    {
+      "id": "U-MCAT22",
+      "title": "Documentation + Milestone Closure",
+      "phase": "P4",
+      "effort": 55,
+      "dependencies": [
+        "U-MCAT20",
+        "U-MCAT21"
+      ],
+      "session": "S10",
+      "forge_triple": {
+        "hooks": [],
+        "actions": [
+          "prism_omega:compute"
+        ],
+        "skills": [
+          "/forge-docs"
+        ]
+      },
+      "files_created": [
+        "data/docs/MCAT-MS0-ADR.md",
+        "data/docs/MCAT-MS0-API-GUIDE.md",
+        "data/docs/MCAT-MS0-COMPLETION-REPORT.md"
+      ],
+      "files_modified": [],
+      "four_loop": {
+        "build": "ADR for dual-path migration, API guide, completion report",
+        "scrutinize": "All files render, no broken links, covers all 22 units",
+        "gap_fill": "Final omega score computation",
+        "tie_up": "Milestone marked complete in roadmap index"
+      }
+    }
+  ],
+  "exit_conditions": [
+    "The calculator machine-selection module resolves every supported machine through a canonical machine-package model",
+    "Controller, spindle, coolant, and capability options are filtered by published availability — impossible combinations do not render",
+    "User-owned shop machine profiles can be saved as overlays on canonical machine packages",
+    "Print to CNC and Program Release can consume the same machine package used by the calculator",
+    "The calculator can derive machine-legal, inventory-aware setup recommendations from the saved machine profile",
+    "Budget, standard, and premium purchase recommendations ranked by compatibility, cutting-data confidence, ROI, and payback",
+    "Remaining brand or package ambiguities are explicit, ranked, and repairable through audit and remediation flows",
+    "14 blocking safety hooks prevent bad machine data from producing dangerous cutting parameters",
+    "All 22 units pass 4-loop quality gate (BUILD → SCRUTINIZE → GAP FILL → TIE UP)",
+    "Final omega score >= 0.85 (formula: 0.25R + 0.20C + 0.15P + 0.30S + 0.10L, S >= 0.70 hard constraint)"
+  ],
+  "cross_roadmap": {
+    "downstream_consumers": [
+      "CAMX-MS2 (should gate on MCAT P2 completion)",
+      "CAMX-MS12 (needs machine intelligence from U-MCAT18)"
+    ],
+    "parallel_risk": "CAMX milestones in progress without declared MCAT dependency — risk of stale machine data",
+    "recommended_gates": [
+      "CAMX-MS2 should depend on MCAT-MS0 P1 completion",
+      "CAMX-MS12 should depend on MCAT-MS0 P3 completion"
+    ]
+  },
+  "dependency_dag_validated": true,
+  "circular_dependencies": false,
+  "critical_path": "U-MCAT01 → U-MCAT02 → U-MCAT03 → U-MCAT07 → U-MCAT09 → U-MCAT14 → U-MCAT17 → U-MCAT18 → U-MCAT20 → U-MCAT21 → U-MCAT22",
+  "critical_path_effort": 765,
+  "critical_path_note": "11 nodes, 765 effort — 31% longer than original 8-node estimate"
+}

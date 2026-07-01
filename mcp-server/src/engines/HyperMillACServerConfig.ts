@@ -7,7 +7,7 @@
  * Key design decisions:
  *   - Binds ONLY to 127.0.0.1 (loopback) — never 0.0.0.0 — preventing
  *     unintended network exposure on shop-floor machines.
- *   - Port 18365 — matches HyperMillACBridgeEngine (E1144) and AC default.
+ *   - Port 18365 — matches HyperMillACServerEngine (E1144) and AC default.
  *   - Routes: /status, /execute, /job-status, /extract, /optimize
  *   - CORS restricted to hyperCAD-S HTML panel origins.
  *   - Auth: loopback-only (no token needed for 127.0.0.1 clients).
@@ -23,7 +23,7 @@
 // ─── Port & Binding Constants ──────────────────────────────────────────────────
 
 /** Default port for the AC companion HTTP server.
- *  Matches HyperMillACBridgeEngine (E1144) default port.
+ *  Matches HyperMillACServerEngine (E1144) default port.
  *  Source: hyperMILL Automation Center HTTP API specification v33.0 */
 export const AC_SERVER_DEFAULT_PORT = 18365;
 

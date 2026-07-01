@@ -1,0 +1,19 @@
+---
+name: reference_coldstart_forkstorm_2026_06_14
+description: U-TK-LAZY (mcp-server cold-start tip-load deferral) + FORK-STORM-CONSOLIDATION grep-glob-bundle + read-bundle-absorb (PreToolUse spawn reduction). slot tango 2026-06-14.
+type: reference
+source: prism-memory
+synced: 2026-06-27T20:30:46.520Z
+aliases: reference_coldstart_forkstorm_2026_06_14
+---
+
+
+**Two efficiency tasks completed (slot tango, 2026-06-14)** under operator "use hermes/obsidian/crons/harness-loops to complete all tasks."
+
+**#9 — U-TK-LAZY (mcp-server cold-start lazy tip-load)** commit `61e0a47b05`. `TribalKnowledgeEngine.ts` module-level singleton (`export const tribalKnowledgeEngine = new ...`, line ~2121) ran the FULL tip load at construction: field initializers read `capturedTips` from disk (`loadCapturedTips`) + spread `STATIC_TIPS`+`DOC_LEARNED_TIPS`+captured (categorize ~12k tips), then the constructor built a 12k-entry dedup hash set — all on every cold start. Fix: `capturedTips`+`tips` became lazy getters (built on first access), `ensureHashes()` builds the hash set on first dedup check, constructor emptied. Rebuild-on-capture sites kept working via a `tips` SETTER; `capturedTips` mutation (push/index) works because the getter returns the loaded array reference. PROVEN behaviorally (`TribalKnowledgeEngine.lazy.test.ts`, 5/5): the "constructs without throwing" test logs ZERO tip-load; load fires only on first `stats()`/`search()` ("Categorizing static tips (lazy init)... Loaded 4234... 7516 doc-learned"), `ensureHashes` only on first `capture()` ("Initialized content hash set with 12341 entries"), dedup correctly rejects a dup. Type-clean in its file. **NOTE:** the full mcp-server tsc build has a PRE-EXISTING ~18-error backlog (other domains' dispatchers + 2 engine callers using wrong method names: LatheLoRA `.query`, ReasoningChainSharing `.captureKnowledge` — the engine has `search`/`queryTribalNaturalLanguage` / `capture`/`captureFromLLMReasoning`) — NOT mine; runtime serves from esbuild (build:fast).
+
+**#10 — FORK-STORM-CONSOLIDATION (PreToolUse spawn reduction)** commits `9b20d92efc` (grep-glob) + `db6fc46a32` (read-absorb). The fleet fork-storm (460-695 live bash.exe vs 400 ceiling — the recurring "api server error" condition that blocked this session ~6×) is fed by per-tool hooks each spawning a separate portable-node bash.exe. **Verify-on-disk first (tango law):** slot india was ALREADY consolidating bash-bundle today (CHANGE-3 — duplicate pre-bash-graph-inject — already done; their live claim is on bash-bundle). I took the UNCLAIMED Grep/Glob + Read legs (announced on the chat bus):
+- `grep-glob-bundle.mjs` (NEW) — Grep/Glob had NO bundle at all; folds 3 advisory matcher blocks into 1 (tool_name-dispatched). Grep/Glob specific spawns **5→1** each.
+- `read-bundle.mjs` absorb — folded the 5 standalone Read advisories (wiki-read-offload, large-read-digest, big-data-read-enforce, recall-first, grep-index-taken-correlator) in. Read-specific spawns **~7→1**. `big-data-read-enforce` CAN deny; `runBundle` aggregates `continue:false`/`decision:deny` across the pool (hook-runner.mjs:183-231, same path as the bundled file-read-cache hard-deny) so its gate is preserved.
+
+Net: ~5/Read + 4/Grep + 4/Glob + 6/Bash(india) fewer spawns per tool call fleet-wide. Both legs: idempotent content-matched settings.json patchers (`--dry/--revert`, backups, both C:/+H:), JSON-validated, verified live (real Grep routed through the bundle returned correctly). **Bundling lesson:** runBundle is a CONCURRENT pool + deny-aggregator — bundling a *gate* hook is safe (its deny propagates), order doesn't matter for blocking. Wiki: [[fork-storm-grep-glob-read-consolidation]]. Sister: [[reference_fleet_search_daemon_ms0_2026_06_14]], [[reference_tango_completion_harness_2026_06_14]].

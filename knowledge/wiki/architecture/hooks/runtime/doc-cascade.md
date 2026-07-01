@@ -21,7 +21,7 @@ related:
 
 ## Description (from file header)
 
-doc-cascade.mjs — Phase 0.15 Documentation CascadePostToolWrite hook that triggers documentation updates whensource files change. Maintains AUTO-REFRESHED blocks in sync.
+_(no header docblock — read source for behavior)_
 
 ## Events
 

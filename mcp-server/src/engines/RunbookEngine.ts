@@ -208,7 +208,8 @@ export class RunbookEngine {
     }
 
     if (options?.tag) {
-      results = results.filter(r => r.metadata.tags.includes(options.tag));
+      const tag = options.tag;
+      results = results.filter(r => r.metadata.tags.includes(tag));
     }
 
     return results;

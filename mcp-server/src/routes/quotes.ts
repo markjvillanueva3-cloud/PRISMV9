@@ -6,6 +6,7 @@
  */
 import { Router } from "express";
 import type { CallToolFn } from "./index.js";
+import { redactThroughEnvelope } from "./quote.js";
 
 function parseOptionalInt(value: unknown): number | undefined {
   if (typeof value !== "string" || value.trim().length === 0) {
@@ -23,7 +24,16 @@ export function createQuotesRouter(callTool: CallToolFn): Router {
   router.post("/instant", async (req, res) => {
     try {
       const result = await callTool("prism_business", "instant_quote", req.body);
-      res.json({ ok: true, data: result });
+      // U-QUOTES-INSTANT-REDACT (R16 sibling of U-QUOTE-COMPAT-REDACT): the full instant_quote returns
+      // InstantQuoteResult.cost_breakdown -- the shop's internal stack (machining.machine_rate_hr = $/hr
+      // rate, overhead.rate_pct = margin %, total_cost_per_part, every sub-block `.total`). This route is
+      // mounted under /api optionalToken (anon-reachable, never rejects), so an UNAUTHENTICATED caller
+      // (no req.userId) must NOT receive the cost basis. redactThroughEnvelope empties `cost_breakdown`
+      // to `{}` (graceful-shape) while PRESERVING the customer-facing fields (unit_price, total_price,
+      // top-level ci95 PRICE bounds, quantity_breaks, lead_time_options, dfm, confidence). An authed
+      // caller (req.userId set by the /api optionalToken middleware) gets the full breakdown unchanged.
+      const safe = !req.userId ? redactThroughEnvelope(result) : result;
+      res.json({ ok: true, data: safe });
     } catch (e: unknown) {
       const msg = e instanceof Error ? e.message : String(e);
       res.status(500).json({ ok: false, error: msg });

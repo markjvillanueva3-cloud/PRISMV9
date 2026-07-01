@@ -321,6 +321,22 @@ export class AutoPilot {
   }
 
   // --------------------------------------------------------------------------
+  // PUBLIC: BRAINSTORM (7-lens) -- standalone entry for prism_autopilot_d:brainstorm_lenses
+  // --------------------------------------------------------------------------
+  /**
+   * Apply the 7 brainstorming lenses to a problem and return the full BrainstormResult.
+   * Public entry that classifies the task then delegates to the private brainstormReal,
+   * which now routes through the FREE Ollama-first parallelAPICalls substrate (no
+   * ANTHROPIC_API_KEY required). Wired for the prism_autopilot_d "brainstorm_lenses" action,
+   * which previously called a non-existent ap.brainstorm() and threw on every invocation.
+   * Offline (no provider answers) degrades to empty lens arrays -- never fabricated insight (R12).
+   */
+  async brainstorm(problem: string, context: Record<string, unknown> = {}): Promise<BrainstormResult> {
+    const taskContext = classifyTask(problem);
+    return this.brainstormReal(problem, taskContext, context);
+  }
+
+  // --------------------------------------------------------------------------
   // PHASE 1: GSD
   // --------------------------------------------------------------------------
   private async loadGSD(): Promise<GSDResult> {
@@ -389,7 +405,11 @@ export class AutoPilot {
       apiCalls: 0, totalTokens: { input: 0, output: 0 }
     };
 
-    if (!this.config.enableParallelBrainstorm || !hasValidApiKey()) {
+    // FREE-AI: gate only on enableParallelBrainstorm. The old `!hasValidApiKey()` clause forced the
+    // basic-stub fallback whenever no ANTHROPIC_API_KEY was set; parallelAPICalls is now Ollama-first
+    // and free, so a keyless run does the REAL 7-lens brainstorm. Offline degrades per-lens to empty
+    // (handled at the resp.error branch below), never fabricated -- so dropping the key clause is safe.
+    if (!this.config.enableParallelBrainstorm) {
       // Fallback to basic analysis
       result.assumptions = [`Assumption: Current approach to "${task}" is correct`];
       result.alternatives = ["Use existing tools", "Create new orchestration", "Modify existing"];

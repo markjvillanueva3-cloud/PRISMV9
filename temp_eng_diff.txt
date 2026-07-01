@@ -1,0 +1,168 @@
+mcp-server/src/engines/MachiningPlaybookEngine.ts | 173 ++++++++++++++++++++++
+ 1 file changed, 173 insertions(+)
+
+--- Changes ---
+
+mcp-server/src/engines/MachiningPlaybookEngine.ts
+  @@ -148,6 +148,60 @@ export interface PlaybookQuery {
+  +// ============================================================================
+  +// PLAYBOOK CAPABILITY EXTENSIONS (U-PB-EXPAND-CAPABILITIES, 2026-05-22)
+  +// ============================================================================
+  +// Pure data-driven capabilities built on top of the existing 296-rule store.
+  +// Surface explicit rule explanation (with related-chain), coverage analysis,
+  +// and quantitative-formula filtering — none of which the existing query
+  +// surface (advise / byCategory / sequenceAdvice / antiPatterns / stats) exposes.
+  +
+  +/** Deep single-rule explanation with related-rule chain resolved. */
+  +export interface RuleExplanation {
+  +  rule: PlaybookRule;
+  +  /** related_rules IDs successfully resolved to real PlaybookRule entries (cycle-guarded). */
+  +  relatedResolved: PlaybookRule[];
+  +  /** related_rules IDs that did NOT resolve to a known rule. */
+  +  unresolvedRelated: string[];
+  +  hasQuantitative: boolean;
+  +  hasExceptions: boolean;
+  +  hasStandardRef: boolean;
+  +  evidenceLevel: EvidenceLevel | "unspecified";
+  +}
+  +
+  +/** Per-job coverage analysis: which categories fire, which are silent (blind-spots). */
+  +export interface PlaybookCoverageReport {
+  +  applicableCount: number;
+  +  totalRulesEvaluated: number;
+  +  byCategory: Record<string, number>;
+  +  bySeverity: Record<Severity, number>;
+  +  criticalApplicable: number;
+  +  /** Engine-known categories with ZERO applicable rules for this query. Sorted. */
+  +  blindSpotCategories: string[];
+  +  /** Applicable rule IDs, severity-ordered (advise() ordering). */
+  +  ruleIds: string[];
+  +}
+  +
+  +/** One row of quantitative guidance — an applicable rule that carries a formula. */
+  +export interface QuantitativeGuidanceEntry {
+  +  ruleId: string;
+  +  title: string;
+  +  severity: Severity;
+  +  category: RuleCategory;
+  +  quantitative: string;
+  +  reasoning: string;
+  +  standardRef?: string;
+  +}
+  +
+  +/** Bundle of applicable rules whose `quantitative?` formula is set. */
+  +export interface QuantitativeGuidanceReport {
+  +  count: number;
+  +  entries: QuantitativeGuidanceEntry[];
+  +  totalApplicable: number;
+  +  /** (count / totalApplicable) × 100, rounded to one decimal place. 0 when nothing applies. */
+  +  withQuantitativePct: number;
+  +}
+  +
+   // ============================================================================
+   // PLAYBOOK RULES DATABASE
+   // ============================================================================
+  @@ -4366,6 +4420,125 @@ export class MachiningPlaybookEngine {
+  +  // ── Playbook capability extensions (U-PB-EXPAND-CAPABILITIES) ──────────
+  +
+  +  /**
+  +   * Deep single-rule explanation: the rule itself plus every `related_rules`
+  +   * cross-reference resolved to its actual rule (cycle-guarded by id) and a
+  +   * parallel list of IDs that failed to resolve. Surfaces presence flags for
+  +   * the rich optional fields the rest of the playbook surface does not expose.
+  +   */
+  +  explainRule(ruleId: string): RuleExplanation | null {
+  +    const rule = this.rules.find((r) => r.id === ruleId);
+  +    if (!rule) return null;
+  +
+  +    const relatedIds = Array.isArray(rule.related_rules) ? rule.related_rules : [];
+  +    const relatedResolved: PlaybookRule[] = [];
+  +    const unresolvedRelated: string[] = [];
+  +    // Seed with the rule's own id so a self-reference is silently dropped
+  +    // rather than re-included, and a duplicate id in related_rules is folded.
+  +    const seen = new Set<string>([ruleId]);
+  +    for (const rid of relatedIds) {
+  +      if (typeof rid !== "string" || rid.length === 0 || seen.has(rid)) continue;
+  +      seen.add(rid);
+  +      const r = this.rules.find((x) => x.id === rid);
+  +      if (r) relatedResolved.push(r);
+  +      else unresolvedRelated.push(rid);
+  +    }
+  +
+  +    return {
+  +      rule,
+  +      relatedResolved,
+  +      unresolvedRelated,
+  +      hasQuantitative: typeof rule.quantitative === "string" && rule.quantitative.length > 0,
+  +      hasExceptions: Array.isArray(rule.exceptions) && rule.exceptions.length > 0,
+  +      hasStandardRef: typeof rule.standard_ref === "string" && rule.standard_ref.length > 0,
+  +      evidenceLevel: rule.evidence_level ?? "unspecified",
+  +    };
+  +  }
+  +
+  +  /**
+  +   * Playbook coverage analysis for a job context. Aggregates `advise()` output
+  +   * into per-category / per-severity counts, identifies categories with ZERO
+  +   * applicable rules (playbook blind-spots), and returns the applicable rule
+  +   * IDs in severity order. Pure read-only aggregation over `advise()`.
+  +   */
+  +  coverageReport(query: PlaybookQuery): PlaybookCoverageReport {
+  +    const { rules: applicable } = this.advise(query);
+  +
+  +    // Data-driven: enumerate the categories the rule store actually carries so
+  +    // the blind-spot list reflects engine reality, not a hardcoded enum list.
+  +    const knownCategories = new Set<string>();
+  +    for (const r of this.rules) knownCategories.add(r.category);
+  +
+  +    const byCategory: Record<string, number> = {};
+  +    const bySeverity: Record<Severity, number> = {
+  +      critical: 0,
+  +      important: 0,
+  +      recommended: 0,
+  +      tip: 0,
+  +    };
+  +    for (const r of applicable) {
+  +      byCategory[r.category] = (byCategory[r.category] ?? 0) + 1;
+  +      bySeverity[r.severity] = (bySeverity[r.severity] ?? 0) + 1;
+  +    }
+  +
+  +    const blindSpotCategories: string[] = [];
+  +    for (const cat of knownCategories) {
+  +      if (!(cat in byCategory)) blindSpotCategories.push(cat);
+  +    }
+  +    blindSpotCategories.sort();
+  +
+  +    return {
+  +      applicableCount: applicable.length,
+  +      totalRulesEvaluated: this.rules.length,
+  +      byCategory,
+  +      bySeverity,
+  +      criticalApplicable: bySeverity.critical,
+  +      blindSpotCategories,
+  +      ruleIds: applicable.map((r) => r.id),
+  +    };
+  +  }
+  +
+  +  /**
+  +   * Surface applicable playbook rules that carry a `quantitative?` threshold
+  +   * formula. Where `advise()` returns a flat list of every applicable rule,
+  +   * this filters to ONLY those whose numeric guidance is encoded — giving
+  +   * callers a focused view of the quantitative knowledge applicable to a
+  +   * machining context (otherwise inert documentation).
+  +   */
+  +  quantitativeGuidance(query: PlaybookQuery): QuantitativeGuidanceReport {
+  +    const { rules: applicable } = this.advise(query);
+  +    const entries: QuantitativeGuidanceEntry[] = [];
+  +
+  +    for (const r of applicable) {
+  +      if (typeof r.quantitative === "string" && r.quantitative.length > 0) {
+  +        const entry: QuantitativeGuidanceEntry = {
+  +          ruleId: r.id,
+  +          title: r.title,
+  +          severity: r.severity,
+  +          category: r.category,
+  +          quantitative: r.quantitative,
+  +          reasoning: r.reasoning,
+  ... (19 lines truncated)
+  +173 -0
+[full diff: rtk git diff --no-compact]

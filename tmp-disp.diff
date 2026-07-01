@@ -1,0 +1,303 @@
+commit 1ff8892f7c2ed7206fcc1d5254118416a11ddf5c
+Author: markjvillanueva3-cloud <markjvillanueva3@gmail.com>
+Date:   Tue May 5 08:42:38 2026 -0500
+
+    [CAM-EXHAUST-MS0]/U-CAM-FUSION-SPC-FAI+INV-SPC-FAI+SC-SPC-FAI: SPC + FAI bridges across 3 priority CAMs
+    
+    Closes audit gaps surfaced in 6-CAM completeness scorecard:
+    - Fusion 360: was 14/15 (missing SPC/FAI). Now 16/16.
+    - Inventor HSM: was 2/15 (CRITICAL). +SPC +FAI = 4/15.
+    - SolidCAM: was 6/15 (MAJOR). +SPC +FAI = 8/15.
+    
+    Engines (6 new):
+      Fusion360SPCBridge / Fusion360FAIBridge — Fusion-specific Setup→Operation→Toolpath provenance
+      InventorHSMSPCBridge / InventorHSMFAIBridge — .ipt/.iam doc-path provenance, HSM browser nodes
+      SolidCAMSPCBridge / SolidCAMFAIBridge — .prz CAM-Part path + sldprt source provenance
+    
+    Math (industry standard, identical across all 3):
+      - X-bar/R chart with ASTM E2587 / AIAG SPC factor tables (n=2..10)
+      - Cp/Cpk/Pp/Ppk via R-bar method short-term sigma + sample stdev long-term
+      - Nelson rules 2-5 (rule 1 covered by UCL/LCL OOC detection)
+      - Abramowitz-Stegun 26.2.17 normal CDF (~7.5e-8 max error) for ppm defective
+      - AS9102 Rev C Form 1/2/3 with sequential balloon numbering, equipment selection
+        by tolerance band, methods by feature type
+    
+    Tests (6 files, 117 assertions, all hand-computed expected values):
+      - Subgroup 5 chart: x-bar=25.00 R=0.05 from known 10-point set
+      - Capability with controlled Box-Muller (Mulberry32 PRNG, fixed seeds)
+      - Nelson Rule 2 fires on 9-subgroup biased run; Rule 3 on 6-monotonic series
+      - Capability thresholds 1.33/1.0 verified via known sigma vs tolerance ratios
+      - AS9102 PASS/FAIL boundaries, draft/rejected/complete state transitions
+      - Equipment selection: CMM ≤0.0001in, Mic 0.0001\"-0.0005\", Caliper >0.005\"
+    
+    Dispatcher wiring (camDispatcher.ts):
+      +25 actions in z.enum + 25 case blocks (4 SPC + 5 FAI per CAM × 3 CAMs)
+      Pattern: lazy import per case, normalize params, return result via shared switch
+    
+    Pre-staged for U-CAM79 (test deferred awaiting concrete-value rewrite):
+      src/schemas/camFunctionActionSchemas.ts (8 actions, Zod v4)
+      src/tools/dispatchers/camFunctionDispatcher.ts (consolidates 8 CAM-function engines)
+    
+    Multi-model consensus on action surface (deepseek-r1:14b APPROVE; Gemini 503'd
+    transient, Codex CLI off PATH this session). Harness: scripts/consensus-cam79-
+    action-surface.mjs.
+    
+    Verification:
+      npm run build:fast in H:/prism = green (4.8s, 3 pre-existing warnings unrelated)
+      npx vitest run [8 SPC+FAI test files] = 142/142 pass
+      npx vitest run [6 new files in this worktree] = 117/117 pass
+      Diff vs HEAD: +4386 / -29 (29 deletions = CAM-EXHAUST-MS0.json key reorder)
+      Pattern proven: Mastercam SPC/FAI suite (pre-existing) = 25/25 pass, no regression
+    
+    Audit baseline (CAM-EXHAUST-MS0): was 137/281, now 141/281 complete.
+    
+    🤖 Generated with [Claude Code](https://claude.com/claude-code)
+    
+    Co-Authored-By: Claude Opus 4.7 (1M context) <noreply@anthropic.com>
+
+diff --git a/mcp-server/src/tools/dispatchers/camDispatcher.ts b/mcp-server/src/tools/dispatchers/camDispatcher.ts
+index 908acd111..6d837ca4c 100644
+--- a/mcp-server/src/tools/dispatchers/camDispatcher.ts
++++ b/mcp-server/src/tools/dispatchers/camDispatcher.ts
+@@ -1805,6 +1805,18 @@ export const ACTIONS = [
+   "cam_fusion360_millturn_list", "cam_fusion360_millturn_lookup", "cam_fusion360_millturn_validate_handoff", "cam_fusion360_millturn_thread_passes", "cam_fusion360_millturn_audit",
+   // CAM-EXHAUST-MS0 U-CAM-FUSION-AI-01 — Fusion 360 AI orchestration routing
+   "cam_fusion360_ai_route", "cam_fusion360_ai_routes", "cam_fusion360_ai_tasks_routed_to", "cam_fusion360_ai_audit",
++  // CAM-EXHAUST-MS0 U-CAM-FUSION-SPC-01 — Fusion 360 SPC bridge (X-bar/R + Cp/Cpk + Nelson rules)
++  "cam_fusion360_spc_create_chart", "cam_fusion360_spc_calculate_capability", "cam_fusion360_spc_analyze_job", "cam_fusion360_spc_stats",
++  // CAM-EXHAUST-MS0 U-CAM-FUSION-FAI-01 — Fusion 360 FAI bridge (AS9102 Form 1/2/3)
++  "cam_fusion360_fai_extract_characteristics", "cam_fusion360_fai_create_form1", "cam_fusion360_fai_apply_measurements", "cam_fusion360_fai_generate_report", "cam_fusion360_fai_stats",
++  // CAM-EXHAUST-MS0 U-CAM-INV-SPC-01 — Inventor HSM SPC bridge
++  "cam_inventor_hsm_spc_create_chart", "cam_inventor_hsm_spc_calculate_capability", "cam_inventor_hsm_spc_analyze_job", "cam_inventor_hsm_spc_stats",
++  // CAM-EXHAUST-MS0 U-CAM-INV-FAI-01 — Inventor HSM FAI bridge (AS9102 Form 1/2/3)
++  "cam_inventor_hsm_fai_extract_characteristics", "cam_inventor_hsm_fai_create_form1", "cam_inventor_hsm_fai_apply_measurements", "cam_inventor_hsm_fai_generate_report", "cam_inventor_hsm_fai_stats",
++  // CAM-EXHAUST-MS0 U-CAM-SC-SPC-01 — SolidCAM SPC bridge
++  "cam_solidcam_spc_create_chart", "cam_solidcam_spc_calculate_capability", "cam_solidcam_spc_analyze_job", "cam_solidcam_spc_stats",
++  // CAM-EXHAUST-MS0 U-CAM-SC-FAI-01 — SolidCAM FAI bridge (AS9102 Form 1/2/3)
++  "cam_solidcam_fai_extract_characteristics", "cam_solidcam_fai_create_form1", "cam_solidcam_fai_apply_measurements", "cam_solidcam_fai_generate_report", "cam_solidcam_fai_stats",
+   // CAM-EXHAUST-MS0 U-CAM-MC-EDM-01 — Mastercam EDM bridge (Wire 2/4-axis + Sinker + Micro)
+   "cam_mastercam_edm_route", "cam_mastercam_edm_pick_route_type", "cam_mastercam_edm_skim_passes", "cam_mastercam_edm_stats", "cam_mastercam_edm_audit",
+   // CAM-EXHAUST-MS0 U-CAM-MC-GRIND-01 — Mastercam grinding bridge (8 kinds, wheel RPM + grit + spark-out)
+@@ -14899,6 +14911,222 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
+             break;
+           }
+ 
++          // ── CAM-EXHAUST-MS0 U-CAM-FUSION-SPC-01: Fusion 360 SPC bridge ──
++          case "cam_fusion360_spc_create_chart": {
++            const { fusion360SPCBridge } = await import("../../engines/Fusion360SPCBridge.js");
++            const feature = params.feature as Parameters<typeof fusion360SPCBridge.createXBarRChart>[0];
++            const measurements = params.measurements as Parameters<typeof fusion360SPCBridge.createXBarRChart>[1];
++            const subgroupSize = (params.subgroup_size as number | undefined) ?? 5;
++            result = fusion360SPCBridge.createXBarRChart(feature, measurements, subgroupSize);
++            break;
++          }
++          case "cam_fusion360_spc_calculate_capability": {
++            const { fusion360SPCBridge } = await import("../../engines/Fusion360SPCBridge.js");
++            const feature = params.feature as Parameters<typeof fusion360SPCBridge.calculateCapability>[0];
++            const measurements = params.measurements as Parameters<typeof fusion360SPCBridge.calculateCapability>[1];
++            const subgroupSize = (params.subgroup_size as number | undefined) ?? 5;
++            result = fusion360SPCBridge.calculateCapability(feature, measurements, subgroupSize);
++            break;
++          }
++          case "cam_fusion360_spc_analyze_job": {
++            const { fusion360SPCBridge } = await import("../../engines/Fusion360SPCBridge.js");
++            const jobId = String(params.job_id ?? "");
++            const features = params.features as Parameters<typeof fusion360SPCBridge.analyzeJob>[1];
++            const measurements = params.measurements as Parameters<typeof fusion360SPCBridge.analyzeJob>[2];
++            const subgroupSize = (params.subgroup_size as number | undefined) ?? 5;
++            result = fusion360SPCBridge.analyzeJob(jobId, features, measurements, subgroupSize);
++            break;
++          }
++          case "cam_fusion360_spc_stats": {
++            const { fusion360SPCBridge } = await import("../../engines/Fusion360SPCBridge.js");
++            result = fusion360SPCBridge.getStats();
++            break;
++          }
++
++          // ── CAM-EXHAUST-MS0 U-CAM-FUSION-FAI-01: Fusion 360 FAI bridge (AS9102) ──
++          case "cam_fusion360_fai_extract_characteristics": {
++            const { fusion360FAIBridge } = await import("../../engines/Fusion360FAIBridge.js");
++            const features = params.features as Parameters<typeof fusion360FAIBridge.extractCharacteristics>[0];
++            result = { characteristics: fusion360FAIBridge.extractCharacteristics(features) };
++            break;
++          }
++          case "cam_fusion360_fai_create_form1": {
++            const { fusion360FAIBridge } = await import("../../engines/Fusion360FAIBridge.js");
++            result = fusion360FAIBridge.createForm1(
++              String(params.part_number ?? ""),
++              String(params.part_name ?? ""),
++              String(params.revision ?? ""),
++              String(params.drawing_number ?? ""),
++              String(params.organization ?? ""),
++              params.reason as Parameters<typeof fusion360FAIBridge.createForm1>[5],
++            );
++            break;
++          }
++          case "cam_fusion360_fai_apply_measurements": {
++            const { fusion360FAIBridge } = await import("../../engines/Fusion360FAIBridge.js");
++            const characteristics = params.characteristics as Parameters<typeof fusion360FAIBridge.applyMeasurements>[0];
++            const measurements = params.measurements as Parameters<typeof fusion360FAIBridge.applyMeasurements>[1];
++            result = { characteristics: fusion360FAIBridge.applyMeasurements(characteristics, measurements) };
++            break;
++          }
++          case "cam_fusion360_fai_generate_report": {
++            const { fusion360FAIBridge } = await import("../../engines/Fusion360FAIBridge.js");
++            const form1 = params.form1 as Parameters<typeof fusion360FAIBridge.generateReport>[0];
++            const form2 = params.form2 as Parameters<typeof fusion360FAIBridge.generateReport>[1];
++            const characteristics = params.characteristics as Parameters<typeof fusion360FAIBridge.generateReport>[2];
++            result = fusion360FAIBridge.generateReport(form1, form2, characteristics);
++            break;
++          }
++          case "cam_fusion360_fai_stats": {
++            const { fusion360FAIBridge } = await import("../../engines/Fusion360FAIBridge.js");
++            result = fusion360FAIBridge.getStats();
++            break;
++          }
++
++          // ── CAM-EXHAUST-MS0 U-CAM-INV-SPC-01: Inventor HSM SPC bridge ──
++          case "cam_inventor_hsm_spc_create_chart": {
++            const { inventorHSMSPCBridge } = await import("../../engines/InventorHSMSPCBridge.js");
++            const feature = params.feature as Parameters<typeof inventorHSMSPCBridge.createXBarRChart>[0];
++            const measurements = params.measurements as Parameters<typeof inventorHSMSPCBridge.createXBarRChart>[1];
++            const subgroupSize = (params.subgroup_size as number | undefined) ?? 5;
++            result = inventorHSMSPCBridge.createXBarRChart(feature, measurements, subgroupSize);
++            break;
++          }
++          case "cam_inventor_hsm_spc_calculate_capability": {
++            const { inventorHSMSPCBridge } = await import("../../engines/InventorHSMSPCBridge.js");
++            const feature = params.feature as Parameters<typeof inventorHSMSPCBridge.calculateCapability>[0];
++            const measurements = params.measurements as Parameters<typeof inventorHSMSPCBridge.calculateCapability>[1];
++            const subgroupSize = (params.subgroup_size as number | undefined) ?? 5;
++            result = inventorHSMSPCBridge.calculateCapability(feature, measurements, subgroupSize);
++            break;
++          }
++          case "cam_inventor_hsm_spc_analyze_job": {
++            const { inventorHSMSPCBridge } = await import("../../engines/InventorHSMSPCBridge.js");
++            const jobId = String(params.job_id ?? "");
++            const features = params.features as Parameters<typeof inventorHSMSPCBridge.analyzeJob>[1];
++            const measurements = params.measurements as Parameters<typeof inventorHSMSPCBridge.analyzeJob>[2];
++            const subgroupSize = (params.subgroup_size as number | undefined) ?? 5;
++            result = inventorHSMSPCBridge.analyzeJob(jobId, features, measurements, subgroupSize);
++            break;
++          }
++          case "cam_inventor_hsm_spc_stats": {
++            const { inventorHSMSPCBridge } = await import("../../engines/InventorHSMSPCBridge.js");
++            result = inventorHSMSPCBridge.getStats();
++            break;
++          }
++
++          // ── CAM-EXHAUST-MS0 U-CAM-INV-FAI-01: Inventor HSM FAI bridge (AS9102) ──
++          case "cam_inventor_hsm_fai_extract_characteristics": {
++            const { inventorHSMFAIBridge } = await import("../../engines/InventorHSMFAIBridge.js");
++            const features = params.features as Parameters<typeof inventorHSMFAIBridge.extractCharacteristics>[0];
++            result = { characteristics: inventorHSMFAIBridge.extractCharacteristics(features) };
++            break;
++          }
++          case "cam_inventor_hsm_fai_create_form1": {
++            const { inventorHSMFAIBridge } = await import("../../engines/InventorHSMFAIBridge.js");
++            result = inventorHSMFAIBridge.createForm1(
++              String(params.part_number ?? ""),
++              String(params.part_name ?? ""),
++              String(params.revision ?? ""),
++              String(params.drawing_number ?? ""),
++              String(params.organization ?? ""),
++              params.reason as Parameters<typeof inventorHSMFAIBridge.createForm1>[5],
++            );
++            break;
++          }
++          case "cam_inventor_hsm_fai_apply_measurements": {
++            const { inventorHSMFAIBridge } = await import("../../engines/InventorHSMFAIBridge.js");
++            const characteristics = params.characteristics as Parameters<typeof inventorHSMFAIBridge.applyMeasurements>[0];
++            const measurements = params.measurements as Parameters<typeof inventorHSMFAIBridge.applyMeasurements>[1];
++            result = { characteristics: inventorHSMFAIBridge.applyMeasurements(characteristics, measurements) };
++            break;
++          }
++          case "cam_inventor_hsm_fai_generate_report": {
++            const { inventorHSMFAIBridge } = await import("../../engines/InventorHSMFAIBridge.js");
++            const form1 = params.form1 as Parameters<typeof inventorHSMFAIBridge.generateReport>[0];
++            const form2 = params.form2 as Parameters<typeof inventorHSMFAIBridge.generateReport>[1];
++            const characteristics = params.characteristics as Parameters<typeof inventorHSMFAIBridge.generateReport>[2];
++            result = inventorHSMFAIBridge.generateReport(form1, form2, characteristics);
++            break;
++          }
++          case "cam_inventor_hsm_fai_stats": {
++            const { inventorHSMFAIBridge } = await import("../../engines/InventorHSMFAIBridge.js");
++            result = inventorHSMFAIBridge.getStats();
++            break;
++          }
++
++          // ── CAM-EXHAUST-MS0 U-CAM-SC-SPC-01: SolidCAM SPC bridge ──
++          case "cam_solidcam_spc_create_chart": {
++            const { solidCAMSPCBridge } = await import("../../engines/SolidCAMSPCBridge.js");
++            const feature = params.feature as Parameters<typeof solidCAMSPCBridge.createXBarRChart>[0];
++            const measurements = params.measurements as Parameters<typeof solidCAMSPCBridge.createXBarRChart>[1];
++            const subgroupSize = (params.subgroup_size as number | undefined) ?? 5;
++            result = solidCAMSPCBridge.createXBarRChart(feature, measurements, subgroupSize);
++            break;
++          }
++          case "cam_solidcam_spc_calculate_capability": {
++            const { solidCAMSPCBridge } = await import("../../engines/SolidCAMSPCBridge.js");
++            const feature = params.feature as Parameters<typeof solidCAMSPCBridge.calculateCapability>[0];
++            const measurements = params.measurements as Parameters<typeof solidCAMSPCBridge.calculateCapability>[1];
++            const subgroupSize = (params.subgroup_size as number | undefined) ?? 5;
++            result = solidCAMSPCBridge.calculateCapability(feature, measurements, subgroupSize);
++            break;
++          }
++          case "cam_solidcam_spc_analyze_job": {
++            const { solidCAMSPCBridge } = await import("../../engines/SolidCAMSPCBridge.js");
++            const jobId = String(params.job_id ?? "");
++            const features = params.features as Parameters<typeof solidCAMSPCBridge.analyzeJob>[1];
++            const measurements = params.measurements as Parameters<typeof solidCAMSPCBridge.analyzeJob>[2];
++            const subgroupSize = (params.subgroup_size as number | undefined) ?? 5;
++            result = solidCAMSPCBridge.analyzeJob(jobId, features, measurements, subgroupSize);
++            break;
++          }
++          case "cam_solidcam_spc_stats": {
++            const { solidCAMSPCBridge } = await import("../../engines/SolidCAMSPCBridge.js");
++            result = solidCAMSPCBridge.getStats();
++            break;
++          }
++
++          // ── CAM-EXHAUST-MS0 U-CAM-SC-FAI-01: SolidCAM FAI bridge (AS9102) ──
++          case "cam_solidcam_fai_extract_characteristics": {
++            const { solidCAMFAIBridge } = await import("../../engines/SolidCAMFAIBridge.js");
++            const features = params.features as Parameters<typeof solidCAMFAIBridge.extractCharacteristics>[0];
++            result = { characteristics: solidCAMFAIBridge.extractCharacteristics(features) };
++            break;
++          }
++          case "cam_solidcam_fai_create_form1": {
++            const { solidCAMFAIBridge } = await import("../../engines/SolidCAMFAIBridge.js");
++            result = solidCAMFAIBridge.createForm1(
++              String(params.part_number ?? ""),
++              String(params.part_name ?? ""),
++              String(params.revision ?? ""),
++              String(params.drawing_number ?? ""),
++              String(params.organization ?? ""),
++              params.reason as Parameters<typeof solidCAMFAIBridge.createForm1>[5],
++            );
++            break;
++          }
++          case "cam_solidcam_fai_apply_measurements": {
++            const { solidCAMFAIBridge } = await import("../../engines/SolidCAMFAIBridge.js");
++            const characteristics = params.characteristics as Parameters<typeof solidCAMFAIBridge.applyMeasurements>[0];
++            const measurements = params.measurements as Parameters<typeof solidCAMFAIBridge.applyMeasurements>[1];
++            result = { characteristics: solidCAMFAIBridge.applyMeasurements(characteristics, measurements) };
++            break;
++          }
++          case "cam_solidcam_fai_generate_report": {
++            const { solidCAMFAIBridge } = await import("../../engines/SolidCAMFAIBridge.js");
++            const form1 = params.form1 as Parameters<typeof solidCAMFAIBridge.generateReport>[0];
++            const form2 = params.form2 as Parameters<typeof solidCAMFAIBridge.generateReport>[1];
++            const characteristics = params.characteristics as Parameters<typeof solidCAMFAIBridge.generateReport>[2];
++            result = solidCAMFAIBridge.generateReport(form1, form2, characteristics);
++            break;
++          }
++          case "cam_solidcam_fai_stats": {
++            const { solidCAMFAIBridge } = await import("../../engines/SolidCAMFAIBridge.js");
++            result = solidCAMFAIBridge.getStats();
++            break;
++          }
++
+           // ── CAM-EXHAUST-MS0 U-CAM-MC-EDM-01: Mastercam EDM bridge ──
+           case "cam_mastercam_edm_route": {
+             const { MastercamEDMBridge } = await import("../../engines/MastercamEDMBridge.js");

@@ -1,0 +1,119 @@
+{
+  "schemaVersion": "1.0.0",
+  "model": "qwen2.5-coder:32b",
+  "endpoint": "http://127.0.0.1:11434",
+  "generated_from": "state/outcomes/sfc-hk-aggressive-ledger.jsonl",
+  "total_rows": 8,
+  "judged_rows": 8,
+  "fallback_rows": 0,
+  "gpu_resident": true,
+  "matched_model": "qwen2.5-coder:32b",
+  "vram_used_mib": 35724,
+  "verdicts": [
+    {
+      "cell_id": "Gray Cast Iron::D6::F2::milling::roughing::conventional::flood::cat40::aggressive_rush",
+      "iso": "K",
+      "material": "Gray Cast Iron",
+      "mode": "aggressive_rush",
+      "prism_vc_mpm": 226,
+      "baseline_vc_mpm": 170,
+      "delta_pct": 32.9,
+      "soundness": "too_aggressive",
+      "rationale": "PRISM's speed is 32.9% higher, risking tool/spindle wear without clear justification.",
+      "source": "gpu_model"
+    },
+    {
+      "cell_id": "Gray Cast Iron::D6::F2::milling::finishing::conventional::flood::cat40::prism_optimized",
+      "iso": "K",
+      "material": "Gray Cast Iron",
+      "mode": "prism_optimized",
+      "prism_vc_mpm": 200,
+      "baseline_vc_mpm": 170,
+      "delta_pct": 17.6,
+      "soundness": "sound_match",
+      "rationale": "PRISM aligns closely, balancing speed and tool life.",
+      "source": "gpu_model"
+    },
+    {
+      "cell_id": "AISI D2 Tool Steel::D3::F2::milling::roughing::conventional::flood::cat40::aggressive_rush",
+      "iso": "H",
+      "material": "AISI D2 Tool Steel",
+      "mode": "aggressive_rush",
+      "prism_vc_mpm": 113,
+      "baseline_vc_mpm": 85,
+      "delta_pct": 32.9,
+      "soundness": "too_aggressive",
+      "rationale": "PRISM's speed is 32.9% higher, risking tool/spindle wear without clear justification.",
+      "source": "gpu_model"
+    },
+    {
+      "cell_id": "AISI D2 Tool Steel::D3::F2::milling::finishing::conventional::flood::cat40::prism_optimized",
+      "iso": "H",
+      "material": "AISI D2 Tool Steel",
+      "mode": "prism_optimized",
+      "prism_vc_mpm": 107,
+      "baseline_vc_mpm": 85,
+      "delta_pct": 25.9,
+      "soundness": "sound_match",
+      "rationale": "PRISM aligns well, balancing speed and tool life.",
+      "source": "gpu_model"
+    },
+    {
+      "cell_id": "AISI A2 Tool Steel::D3::F2::milling::roughing::conventional::flood::cat40::aggressive_rush",
+      "iso": "H",
+      "material": "AISI A2 Tool Steel",
+      "mode": "aggressive_rush",
+      "prism_vc_mpm": 113,
+      "baseline_vc_mpm": 85,
+      "delta_pct": 32.9,
+      "soundness": "too_aggressive",
+      "rationale": "PRISM's speed is 32.9% higher, risking tool/spindle wear without clear justification.",
+      "source": "gpu_model"
+    },
+    {
+      "cell_id": "AISI A2 Tool Steel::D3::F2::milling::finishing::conventional::flood::cat40::prism_optimized",
+      "iso": "H",
+      "material": "AISI A2 Tool Steel",
+      "mode": "prism_optimized",
+      "prism_vc_mpm": 107,
+      "baseline_vc_mpm": 85,
+      "delta_pct": 25.9,
+      "soundness": "sound_match",
+      "rationale": "PRISM aligns closely, balancing speed and tool life.",
+      "source": "gpu_model"
+    },
+    {
+      "cell_id": "Tungsten Carbide (WC-Co)::D3::F2::milling::roughing::conventional::flood::cat40::aggressive_rush",
+      "iso": "H",
+      "material": "Tungsten Carbide (WC-Co)",
+      "mode": "aggressive_rush",
+      "prism_vc_mpm": 113,
+      "baseline_vc_mpm": 85,
+      "delta_pct": 32.9,
+      "soundness": "too_aggressive",
+      "rationale": "PRISM's speed is 32.9% higher, risking tool/spindle wear without clear justification.",
+      "source": "gpu_model"
+    },
+    {
+      "cell_id": "Tungsten Carbide (WC-Co)::D3::F2::milling::finishing::conventional::flood::cat40::prism_optimized",
+      "iso": "H",
+      "material": "Tungsten Carbide (WC-Co)",
+      "mode": "prism_optimized",
+      "prism_vc_mpm": 107,
+      "baseline_vc_mpm": 85,
+      "delta_pct": 25.9,
+      "soundness": "sound_match",
+      "rationale": "PRISM aligns closely, balancing speed and tool life.",
+      "source": "gpu_model"
+    }
+  ],
+  "soundness_histogram": {
+    "too_aggressive": 4,
+    "sound_match": 4
+  },
+  "apply_policy": "advisory-only",
+  "notes": [
+    "Verdicts are ADVISORY — the GPU model NEVER changes a recommendation, raises Vc, or overrides physics.",
+    "8 of 8 regimes judged by the GPU model; 0 fell back (logged, not fabricated)."
+  ]
+}

@@ -1,0 +1,112 @@
+# database-expansion galaxy CROSS-SESSION SYNTHESIS (6 of 26 mineable, model gpt-oss:120b, 2026-06-09)
+
+## What this galaxy is building
+- Unified, zero‑drop **PRISM database expansion** across all tool/holder/machine/inserts domains, exposed to Fusion, HyperMill, Mastercam, G‑Wizard, HSMAdvisor, SFC wizards and CAD/CAM galaxies.  
+- **Engine ecosystem**: reward normalizer (GRPO), holder selection, CNC offset persistence, tool‑life GNN, deep‑learning validation, OCR concurrency, health‑check, dependency analysis, SBOM review, semantic asset indexing, fact‑checker agent, etc.  
+- **Ultracode orchestration layer** that plans, fans‑out, adversarially verifies and synthesizes build plans; delegates grunt work to local Ollama LLMs (gpt‑oss:120b, qwen2.5‑coder:32b).  
+- **Monolith unified‑query** for cross‑engine search & catalog stitching (global CNC holder catalog, tool libraries > 100 k entries).  
+
+## Shipped capabilities
+- `jm-part-library.jsonl` (39 MB) + `JMDiePartLibraryEngine` wired to `prism_data:jm_die_part_lookup`.  
+- Pathing updates for three largest inventories; `DB_MANIFEST` refreshed.  
+- Archived two dead Feb‑17 indexes (policy: never delete, only disable).  
+- Walk‑skip counter added to ingestion script (zero‑drop invariant enforced).  
+- **GRPO Engine** (`GroupRelativeRewardNormalizerEngine`) + `group_advantage` field in ledger schema; 20/20 engine tests, 5 dispatcher E2E passes.  
+- Fleet‑Reaper hygiene cluster restored (12 tasks re‑enabled, health‑watch 34/47 WARN).  
+- Honesty rules block added to `CLAUDE.md`; intake quarantine guard and workflow docs committed.  
+- `GWizardToolCribExportEngine` wired to `prism_calc:gwizard_export_toolcrib` (13/13 round‑trip tests).  
+- **FusionMachineLibraryExportEngine** (1 082 machines) XML ↔ Autodesk goldens verified.  
+- HyperMill & Mastercam exporters lifted from 5 000‑tool limit → ~74 K catalog (`max_tools`).  
+- `HolderSelectionEngine` loads 643 branded holders; Fusion/Mastercam exporters now use real holder data.  
+- CAD‑Ollama archetype label dead‑tag fix (A1).  
+- Ultralite workflow `wf_28042811-3c4` persisted; transcript‑digest extractor built and cached.  
+- Global CNC holder catalog revived: 1 134 live holders → `global-cnc-tools.json` (3 680 records).  
+- `CatalogCorpusLoaderEngine` integrated, 48/48 engine + 8/8 generator tests passed.  
+- **CNCToolOffsetPersistenceEngine.sync**, **ToolLifeGnnEngine.predict**, **ToolDatabaseDeepLearningEngine.validateToolSetup** wired; all round‑trip tests passed (8/8, 5/5, 6/6).  
+- JSONL loader fixed to parse line‑by‑line; silent failures of `jm-vendor-ap-ledger.jsonl` eliminated.  
+- Async worker pool for vision‑OCR (`U‑CGP‑CONCURRENCY`) – throughput 2× at `OLLAMA_NUM_PARALLEL=2`, target 3× at 4 workers.  
+- Concurrency/throughput measurement engine (`U‑CGP‑MEASURE`).  
+- Reachability classifier audit: 110 candidates → 49 genuine orphans identified.  
+- Engines wired with round‑trip tests: `CircularDependencyEngine`, `OperatorPreferencesEngine`, `PSNHealthCheckEngine`, `MeasurementSystemAnalysisEngine`, `SimulationStallDetectorEngine`, `SBOMReviewEngine`.  
+
+## Key decisions + rationale
+- **Fail‑loud / zero‑drop ingestion** (`build-jm-document-ledger.mjs`) to guarantee no data loss.  
+- **Lazy imports & action‑enum extension** for new engines → minimal start‑up cost, easy dispatcher wiring.  
+- **Archive‑instead‑delete** dead indexes (policy: never delete, only disable) to preserve audit trail.  
+- **Single‑command `git add && git commit --only <paths>`** to avoid shared‑tree race conditions.  
+- **Ultracode workflow** adopted for high‑level planning; local Ollama LLMs handle grunt coding/search tasks.  
+- **Do not build cross‑slot India/Sierra engines directly** – deliver ready specs, reduce coupling.  
+- **Dev‑side catalog stubs lightweight**, production reads from `dist/data/`; avoid 1.1 M line repo bloat.  
+- **Reject bulk sync**; use ROMEO loader for dev/prod divergence.  
+- **Async worker pool** for OCR, bound by `min(workers, OLLAMA_NUM_PARALLEL)` → GPU‑aware concurrency.  
+- **Ollama keep_alive=30 m, max_loaded=4** on 96 GB Blackwell box to prevent memory pressure.  
+- **Disable legacy write‑allowlist hook** (`PRISM_GOLF_WRITE_ALLOWLIST_BYPASS=1`).  
+- **Host‑aware `OLLAMA_NUM_PARALLEL` config** (set to 4) for full 3× OCR speedup.  
+
+## Standing operator directives
+- Loop every 5–10 min, goal: finish all DB consolidation/merging/expansion and wiring of every engine to its dispatcher.  
+- Keep **fleet‑reaper** running; monitor health‑watch (target ≤ WARN).  
+- Ensure **ultracode planning** runs before any grunt LLM calls.  
+- Run live proofs for CAD features (Fusion bridge `:18365`, revolute‑assembly) after merges.  
+- Upgrade hardware/LLM stack per new PC specs; validate Ollama throughput.  
+- Populate all tool/holder catalogs in Fusion, HyperMill, Mastercam, G‑Wizard, HSMAdvisor, SFC wizards.  
+- Use highest‑end local LLMs (gpt‑oss:120b, qwen2.5‑coder:32b) for efficiency.  
+- Commit with `[BOOTSTRAP‑SLOT‑ENFORCE]` prefix when wiring orphan engines.  
+
+## What is still to build (open threads)
+- Archive & verify Docustrata `.index/` version chains (C5/C6).  
+- Complete GPU classify / xray cross‑slot classification work.  
+- Decide full wiring vs archiving for **B4 phase16** migration.  
+- Build cross‑slot India/Sierra units (GRPO consumer, fact‑checker agent).  
+- Enable operator‑scope tasks: Blueprint OCR Batch, Brain Refresh, NN‑Graph Retrain.  
+- Resolve 2 733 unpushed commits; coordinate push strategy.  
+- Automate MCP server restart & priority guardian integration.  
+- Implement **CAD‑FEATURE‑RECOGNITION‑MS0** engine and run live proof.  
+- Merge `slot/delta` arc (408 commits) into `cad-fusion-live-ms0`.  
+- Run revolute‑assembly live proof on Fusion bridge `:18365`.  
+- Finish DB‑COVERAGE‑GAPFILL tiers: U‑MTOOL02, U‑HOLD01, U‑COLL02, U‑MACH01, U‑FIX01.  
+- Seed ERP stores (work‑orders, tool‑transactions, materials‑stock) and integrate quoting corpus.  
+- Wire remaining genuine orphan engines: `SemanticAssetIndexEngine`, `SlotSessionHistoryEngine`, `SBOMReviewEngine` (if not yet).  
+- Apply host‑aware `OLLAMA_NUM_PARALLEL=4` config on Blackwell GPU.  
+- Fix ROMEO JSONL loader bug that silently dropped files.  
+- Recover orphaned `_node‑embeddings.jsonl.partial` (273 MB) or re‑generate.  
+- Verify health‑watch metrics post‑re‑enable; ensure no lingering stale tasks.  
+- Complete HyperMill holder wiring (inject shank/taper, call `holderSelectionEngine.select()`).  
+- Populate Unit 3 tooling libraries with SFM presets via `UltimateSpeedFeedEngine`.  
+- Adjust network/proxy for large model pulls (DeepSeek, LLaMA70B).  
+
+## How to build it (patterns/sequence)
+1. **Ultracode planning** → generate detailed task graph per goal.  
+2. **Fan‑out**: dispatch each engine wiring or catalog generation as a separate slot job (`/checkin-golf`, `/checkin-romeo`).  
+3. **Zero‑drop ingestion** for any new JSONL sidecars using `build-jm-document-ledger.mjs`.  
+4. **Lazy import + dispatcher enum extension**: add engine, update `dataActionSchemas.ts` and corresponding Zod schema, write case handler, run round‑trip test.  
+5. **Atomic git commit** (`git add && git commit --only <paths>`) for each shipped piece to avoid shared‑tree races.  
+6. **Async OCR worker pool**: launch `U‑CGP‑CONCURRENCY` with workers = `min(GPU_concurrency, OLLAMA_NUM_PARALLEL)`.  
+7. **Classification audit** (`classify-engine-reachability.mjs`) → filter genuine orphans before wiring.  
+8. **Monolith unified‑query**: after each catalog load, run `CatalogUnifiedQueryEngine.query().search()` to verify cross‑engine visibility.  
+9. **Live proof runs** for CAD features and Fusion bridges; gate merge on pass.  
+10. **Finalize**: run full health‑watch suite, ensure all dispatchers report ≥ 95% round‑trip success, commit with `[BOOTSTRAP‑SLOT‑ENFORCE]`.  
+
+## Tools to use (dispatchers/skills/scripts/hooks/system-viz/AI-systems/qdrant/obsidian/ollama)
+- **Dispatchers**: `prism_data`, `prism_ai`, `prism_calc`, `prism_cam`, `prism_dev`, `prism_session`, `prism_turning`, `juliett/india`.  
+- **Skills / commands**: `/loop`, `/checkin-golf`, `/checkin-romeo`, `/startup-delta`, ultracode workflow scripts (`wf_28042811-3c4`), `/forge7` synergy analysis.  
+- **Scripts**: ingestion (`build-jm-document-ledger.mjs`), `chat-slots.mjs`, `slot-bind-enforce.mjs`, `classify-engine-reachability.mjs`, `transcript-digest.mjs`, OCR worker pool (`U‑CGP‑CONCURRENCY`), `cad-fusion-live-ms0` wiring scripts, `build-catalog-json.mjs`.  
+- **Git hooks**: `git-add-lane-guard`, lock‑aware retry loop for `.git/index.lock`.  
+- **System‑viz / classifiers**: reachability classifier, ghost.unwired detector.  
+- **AI systems**: Ollama (local LLMs gpt‑oss:120b, qwen2.5‑coder:32b), OpenAI models for high‑level reasoning, Qdrant vector store used by reachability engine (implicit).  
+- **Obsidan / docs**: `state/shared/*.md` (specs, answers, gapfill docs).  
+- **Infrastructure**: WSL memory guard, MCP Priority Guardian, Blackwell RTX 6000 GPU, Docker/WSL shutdown scripts.  
+
+## Recurring findings + bugs
+- **Shared‑tree commit race** → mitigated with atomic add+commit; still monitor for peer sweeps.  
+- **Gap‑list diagnostics stale** (A1‑C1) – need periodic refresh.  
+- **JSONL loader bug**: silent drop of `.jsonl` files (`jm-vendor-ap-ledger.jsonl`, ROMEO engine); fixed line‑by‑line parser, verify on each load.  
+- **Orphaned embeddings file** (`_node‑embeddings.jsonl.partial`) lost after crash – re‑generate or add checkpoint.  
+- **Ollama keep_alive -1** caused memory pressure; set to 30 m, max_loaded=4.  
+- **WSL memory bloat** (24 GB vmmem) resolved via `wsl --shutdown`.  
+- **Health‑watch CRITICAL→WARN** after re‑enable – acceptable but track for regression.  
+- **Classification false positives** (e.g., `ExpandingMandrelEngine`) – improved reachability detection.  
+- **Index lock contention** (`.git/index.lock`) – solved with retry hook.  
+- **GPU concurrency misconfig** (`OLLAMA_NUM_PARALLEL` read as 2) → host‑aware script needed.  
+- **Live proof gaps**: CAD‑FEATURE‑RECOGNITION‑MS0 missing, revolute‑assembly bridge not running.  
+- **Large merge debt** (408 commits in `slot/delta`) causing drift; requires dedicated merge sprint.

@@ -1,0 +1,23 @@
+---
+session: claude-db273e77
+topic: alpha-verified-offload
+slot: alpha
+written_at: 2026-06-10T20:20:57.713Z
+machine: DESKTOP-N7MI1VB
+family: Claude
+session_key: claude-db273e77
+status: active
+---
+
+# HANDOFF: claude-db273e77
+Updated: 2026-06-10T20:20:57.713Z
+Family: Claude | Machine: DESKTOP-N7MI1VB | Session: claude-db273e77
+
+## STATE
+3 units shipped: U-TASK-BOUNDARY-COMPACT 9fcda446a1 (3-of-3 PASS) + U-SEARCH-RERANK 61a6288d0e (A+C PASS, B rate-limited) + U-HS01-STABLE-ID-ANCHOR 7dec157db0 (root-fix of the live handoff-miskey). Self-compaction PROVEN; auto-session-start root cause (HS-01) FIXED. Ultracode assessment + completion audit DONE.
+
+## RESUME
+HS-01 HELPER FIXED (7dec157db0, 6/6 tests, anchor-0 proven). FOLLOW-UP #1: adopt --session-id in the 24 BARE callers (/precompact line 49, /handoff lines 55/111/149/194, per-slot wrappers) -- each must pass the session_id from the Chat Isolation line. FOLLOW-UP #2: rerank 3-of-3 arm B re-run (A+C PASS, B rate-limited) on 61a6288d0e. FOLLOW-UP #3: consolidate ollama-search-rerank.mjs <-> ollama-nav-rerank.mjs (127234e940) onto one shared lib (R7/R8 dedup debt). THEN verified-offload queue: advisory-hook->verified-execution retrofit; scrutiny pre-screen offload.
+
+## CONTEXT
+THIS handoff was written via the FIXED flow (--session-id -> claude-db273e77, NOT a peer) -- live proof the repair works. Checkpoint at YELLOW 63%+, tool-batch way over ceiling, API rate-limited. Clean batch boundary.

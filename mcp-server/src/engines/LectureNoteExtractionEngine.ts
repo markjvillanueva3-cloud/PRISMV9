@@ -5,7 +5,7 @@
  * Extracts structured knowledge from MIT OCW lecture notes and assignments.
  */
 
-import { BaseEngine } from "./BaseEngine.js";
+import { BaseEngine, type EngineCapability } from "./BaseEngine.js";
 import { logger } from "../utils/Logger.js";
 import * as fs from "fs";
 import * as path from "path";
@@ -147,8 +147,60 @@ export class LectureNoteExtractionEngine extends BaseEngine {
   private resourcesPath: string;
 
   constructor(resourcesPath?: string) {
-    super();
+    super({
+      name: "LectureNoteExtractionEngine",
+      version: "1.0.0",
+      domain: "academy",
+      description:
+        "Extracts formulas + problem/solution pairs from MIT OCW lecture notes " +
+        "for PRISM Academy curriculum + engine grounding.",
+    });
     this.resourcesPath = resourcesPath || "H:/prism/resources/MIT COURSES";
+  }
+
+  // ── BaseEngine contract ────────────────────────────────────────────────────
+
+  getCapabilities(): EngineCapability[] {
+    return [
+      {
+        name: "scan_course",
+        description: "Scan an MIT OCW course directory for formulas + problem/solution pairs",
+        actions: ["scanCourse"],
+        input: "{ courseId: string }",
+        output: "ExtractionSummary",
+      },
+      {
+        name: "extract_formulas",
+        description: "Extract formulas from raw lecture-note text",
+        actions: ["extractFormulasFromText"],
+      },
+      {
+        name: "query_formulas",
+        description: "Query extracted formulas by category or target engine",
+        actions: ["getFormulas", "getFormulasByCategory", "getFormulasForEngine"],
+      },
+      {
+        name: "query_problems",
+        description: "Query extracted problem/solution pairs",
+        actions: ["getProblems", "getProblemsByCourse", "getHighRelevanceProblems"],
+      },
+    ];
+  }
+
+  validate(input: unknown): string | null {
+    if (input == null || typeof input !== "object") return "input must be an object";
+    const obj = input as Record<string, unknown>;
+    if (typeof obj.courseId !== "string" || obj.courseId.trim().length === 0) {
+      return "courseId (non-empty string) is required";
+    }
+    return null;
+  }
+
+  protected async executeImpl(input: unknown): Promise<unknown> {
+    const err = this.validate(input);
+    if (err) throw new Error(`LectureNoteExtractionEngine: ${err}`);
+    const obj = input as { courseId: string };
+    return this.scanCourse(obj.courseId);
   }
 
   /**

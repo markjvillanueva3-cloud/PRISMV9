@@ -1,0 +1,481 @@
+{
+  "schemaVersion": "1.0.0",
+  "generatedFrom": {
+    "jmProfile": "mcp-server/src/data/jm-die-profile.ts",
+    "cimcoIndex": "state/shared/cimco/machine-index.json"
+  },
+  "jmMachineCount": 15,
+  "byStatus": {
+    "generic-template": 10,
+    "native-cimco-match": 2,
+    "not-applicable": 3
+  },
+  "safety": "Every resolved mapping is a CANDIDATE (mustVerifyKinematics). A CIMCO-sim CLEAN result is conformance-clean, NOT controller-verified, and is only valid if the .mcfg kinematics match the real machine. JM convention = INCH.",
+  "machines": [
+    {
+      "machine_id": "LTH-01",
+      "machine_name": "Okuma GENOS L300-M",
+      "controller_family": "okuma",
+      "controller_model": "OSP-P300L-R",
+      "type": "lathe",
+      "cimcoMatch": {
+        "file": "Cimco Lathe 4 Axis CY + Sub.mcfg",
+        "displayName": "Cimco Lathe 4 Axis CY + Sub",
+        "score": 0.45,
+        "basis": "generic:Lathe/4ax",
+        "unit": "mm",
+        "unitsResolved": true
+      },
+      "alternates": [
+        {
+          "file": "Cimco Lathe 4 Axis CY.mcfg",
+          "displayName": "Cimco Lathe 4 Axis CY",
+          "score": 0.45
+        },
+        {
+          "file": "CIMCO Lathe Default.mcfg",
+          "displayName": "CIMCO Lathe Default",
+          "score": 0.3
+        },
+        {
+          "file": "Cimco Lathe Mill-Turn BC + Sub.mcfg",
+          "displayName": "Cimco Lathe Mill-Turn BC + Sub",
+          "score": 0.3
+        }
+      ],
+      "status": "generic-template",
+      "note": "No vendor .mcfg; a Cimco generic kinematic template fits. Author an exact vendor .mcfg from PRISM's machine model for full fidelity.",
+      "unitsNote": "UNITS WARNING: candidate .mcfg is mm; JM convention is INCH — resolve before sim (25.4x scale-error guard).",
+      "mustVerifyKinematics": true
+    },
+    {
+      "machine_id": "LTH-02",
+      "machine_name": "Okuma GENOS L200E-M",
+      "controller_family": "okuma",
+      "controller_model": "OSP-P200LA-R",
+      "type": "lathe",
+      "cimcoMatch": {
+        "file": "Cimco Lathe 4 Axis CY + Sub.mcfg",
+        "displayName": "Cimco Lathe 4 Axis CY + Sub",
+        "score": 0.45,
+        "basis": "generic:Lathe/4ax",
+        "unit": "mm",
+        "unitsResolved": true
+      },
+      "alternates": [
+        {
+          "file": "Cimco Lathe 4 Axis CY.mcfg",
+          "displayName": "Cimco Lathe 4 Axis CY",
+          "score": 0.45
+        },
+        {
+          "file": "CIMCO Lathe Default.mcfg",
+          "displayName": "CIMCO Lathe Default",
+          "score": 0.3
+        },
+        {
+          "file": "Cimco Lathe Mill-Turn BC + Sub.mcfg",
+          "displayName": "Cimco Lathe Mill-Turn BC + Sub",
+          "score": 0.3
+        }
+      ],
+      "status": "generic-template",
+      "note": "No vendor .mcfg; a Cimco generic kinematic template fits. Author an exact vendor .mcfg from PRISM's machine model for full fidelity.",
+      "unitsNote": "UNITS WARNING: candidate .mcfg is mm; JM convention is INCH — resolve before sim (25.4x scale-error guard).",
+      "mustVerifyKinematics": true
+    },
+    {
+      "machine_id": "LTH-03",
+      "machine_name": "Okuma LNC8",
+      "controller_family": "okuma",
+      "controller_model": "OSP-U10L",
+      "type": "lathe",
+      "cimcoMatch": {
+        "file": "Cimco Lathe 3 Axis C.mcfg",
+        "displayName": "Cimco Lathe 3 Axis C",
+        "score": 0.45,
+        "basis": "generic:Lathe/3ax",
+        "unit": "mm",
+        "unitsResolved": true
+      },
+      "alternates": [
+        {
+          "file": "CIMCO Lathe Default.mcfg",
+          "displayName": "CIMCO Lathe Default",
+          "score": 0.3
+        },
+        {
+          "file": "Cimco Lathe Mill-Turn BC + Sub.mcfg",
+          "displayName": "Cimco Lathe Mill-Turn BC + Sub",
+          "score": 0.3
+        },
+        {
+          "file": "Cimco Lathe 4 Axis CY + Sub.mcfg",
+          "displayName": "Cimco Lathe 4 Axis CY + Sub",
+          "score": 0.2
+        }
+      ],
+      "status": "generic-template",
+      "note": "No vendor .mcfg; a Cimco generic kinematic template fits. Author an exact vendor .mcfg from PRISM's machine model for full fidelity.",
+      "unitsNote": "UNITS WARNING: candidate .mcfg is mm; JM convention is INCH — resolve before sim (25.4x scale-error guard).",
+      "mustVerifyKinematics": true
+    },
+    {
+      "machine_id": "LTH-04",
+      "machine_name": "Okuma Crown L1060",
+      "controller_family": "okuma",
+      "controller_model": "OSP-U10L",
+      "type": "lathe",
+      "cimcoMatch": {
+        "file": "Cimco Lathe 3 Axis C.mcfg",
+        "displayName": "Cimco Lathe 3 Axis C",
+        "score": 0.45,
+        "basis": "generic:Lathe/3ax",
+        "unit": "mm",
+        "unitsResolved": true
+      },
+      "alternates": [
+        {
+          "file": "CIMCO Lathe Default.mcfg",
+          "displayName": "CIMCO Lathe Default",
+          "score": 0.3
+        },
+        {
+          "file": "Cimco Lathe Mill-Turn BC + Sub.mcfg",
+          "displayName": "Cimco Lathe Mill-Turn BC + Sub",
+          "score": 0.3
+        },
+        {
+          "file": "Cimco Lathe 4 Axis CY + Sub.mcfg",
+          "displayName": "Cimco Lathe 4 Axis CY + Sub",
+          "score": 0.2
+        }
+      ],
+      "status": "generic-template",
+      "note": "No vendor .mcfg; a Cimco generic kinematic template fits. Author an exact vendor .mcfg from PRISM's machine model for full fidelity.",
+      "unitsNote": "UNITS WARNING: candidate .mcfg is mm; JM convention is INCH — resolve before sim (25.4x scale-error guard).",
+      "mustVerifyKinematics": true
+    },
+    {
+      "machine_id": "LTH-05",
+      "machine_name": "Okuma GENOS L400II-E",
+      "controller_family": "okuma",
+      "controller_model": "OSP-P300LA-E",
+      "type": "lathe",
+      "cimcoMatch": {
+        "file": "Cimco Lathe 3 Axis C.mcfg",
+        "displayName": "Cimco Lathe 3 Axis C",
+        "score": 0.45,
+        "basis": "generic:Lathe/3ax",
+        "unit": "mm",
+        "unitsResolved": true
+      },
+      "alternates": [
+        {
+          "file": "CIMCO Lathe Default.mcfg",
+          "displayName": "CIMCO Lathe Default",
+          "score": 0.3
+        },
+        {
+          "file": "Cimco Lathe Mill-Turn BC + Sub.mcfg",
+          "displayName": "Cimco Lathe Mill-Turn BC + Sub",
+          "score": 0.3
+        },
+        {
+          "file": "Cimco Lathe 4 Axis CY + Sub.mcfg",
+          "displayName": "Cimco Lathe 4 Axis CY + Sub",
+          "score": 0.2
+        }
+      ],
+      "status": "generic-template",
+      "note": "No vendor .mcfg; a Cimco generic kinematic template fits. Author an exact vendor .mcfg from PRISM's machine model for full fidelity.",
+      "unitsNote": "UNITS WARNING: candidate .mcfg is mm; JM convention is INCH — resolve before sim (25.4x scale-error guard).",
+      "mustVerifyKinematics": true
+    },
+    {
+      "machine_id": "LTH-06",
+      "machine_name": "Okuma LB 3000EX Big Bore",
+      "controller_family": "okuma",
+      "controller_model": "OSP-P500",
+      "type": "lathe",
+      "cimcoMatch": {
+        "file": "Cimco Lathe 3 Axis C.mcfg",
+        "displayName": "Cimco Lathe 3 Axis C",
+        "score": 0.45,
+        "basis": "generic:Lathe/3ax",
+        "unit": "mm",
+        "unitsResolved": true
+      },
+      "alternates": [
+        {
+          "file": "CIMCO Lathe Default.mcfg",
+          "displayName": "CIMCO Lathe Default",
+          "score": 0.3
+        },
+        {
+          "file": "Cimco Lathe Mill-Turn BC + Sub.mcfg",
+          "displayName": "Cimco Lathe Mill-Turn BC + Sub",
+          "score": 0.3
+        },
+        {
+          "file": "Cimco Lathe 4 Axis CY + Sub.mcfg",
+          "displayName": "Cimco Lathe 4 Axis CY + Sub",
+          "score": 0.2
+        }
+      ],
+      "status": "generic-template",
+      "note": "No vendor .mcfg; a Cimco generic kinematic template fits. Author an exact vendor .mcfg from PRISM's machine model for full fidelity.",
+      "unitsNote": "UNITS WARNING: candidate .mcfg is mm; JM convention is INCH — resolve before sim (25.4x scale-error guard).",
+      "mustVerifyKinematics": true
+    },
+    {
+      "machine_id": "LTH-07",
+      "machine_name": "Okuma Multus B250II",
+      "controller_family": "okuma",
+      "controller_model": "OSP-P300SA",
+      "type": "lathe",
+      "cimcoMatch": {
+        "file": "Cimco Lathe Mill-Turn BC + Sub.mcfg",
+        "displayName": "Cimco Lathe Mill-Turn BC + Sub",
+        "score": 0.5,
+        "basis": "generic:Lathe",
+        "unit": "mm",
+        "unitsResolved": true
+      },
+      "alternates": [
+        {
+          "file": "Cimco Lathe 4 Axis CY + Sub.mcfg",
+          "displayName": "Cimco Lathe 4 Axis CY + Sub",
+          "score": 0.45
+        },
+        {
+          "file": "Cimco Lathe 4 Axis CY.mcfg",
+          "displayName": "Cimco Lathe 4 Axis CY",
+          "score": 0.45
+        },
+        {
+          "file": "CIMCO Lathe Default.mcfg",
+          "displayName": "CIMCO Lathe Default",
+          "score": 0.3
+        }
+      ],
+      "status": "generic-template",
+      "note": "No vendor .mcfg; a Cimco generic kinematic template fits. Author an exact vendor .mcfg from PRISM's machine model for full fidelity.",
+      "unitsNote": "UNITS WARNING: candidate .mcfg is mm; JM convention is INCH — resolve before sim (25.4x scale-error guard).",
+      "mustVerifyKinematics": true
+    },
+    {
+      "machine_id": "VMC-01",
+      "machine_name": "Hurco VM30i",
+      "controller_family": "hurco",
+      "controller_model": "WinMAX v10",
+      "type": "mill",
+      "cimcoMatch": {
+        "file": "Cimco Mill 3 Axis Type A.mcfg",
+        "displayName": "Cimco Mill 3 Axis Type A",
+        "score": 0.45,
+        "basis": "generic:Vertical/3ax",
+        "unit": "mm",
+        "unitsResolved": true
+      },
+      "alternates": [
+        {
+          "file": "Cimco Mill 3 Axis Type B.mcfg",
+          "displayName": "Cimco Mill 3 Axis Type B",
+          "score": 0.45
+        },
+        {
+          "file": "Cimco Mill 3 Axis Type C Angle Head.mcfg",
+          "displayName": "Cimco Mill 3 Axis Type C Angle Head",
+          "score": 0.45
+        },
+        {
+          "file": "Cimco Mill 3 Axis Type C.mcfg",
+          "displayName": "Cimco Mill 3 Axis Type C",
+          "score": 0.45
+        }
+      ],
+      "status": "generic-template",
+      "note": "No vendor .mcfg; a Cimco generic kinematic template fits. Author an exact vendor .mcfg from PRISM's machine model for full fidelity.",
+      "unitsNote": "UNITS WARNING: candidate .mcfg is mm; JM convention is INCH — resolve before sim (25.4x scale-error guard).",
+      "mustVerifyKinematics": true
+    },
+    {
+      "machine_id": "VMC-02",
+      "machine_name": "Okuma M460V-5AX",
+      "controller_family": "okuma",
+      "controller_model": "OSP-P300MA-H",
+      "type": "mill",
+      "cimcoMatch": {
+        "file": "Cimco Mill 5 Axis Head Head 45 AB Type A.mcfg",
+        "displayName": "Cimco Mill 5 Axis Head Head 45° AB Type A",
+        "score": 0.45,
+        "basis": "generic:Vertical/5ax",
+        "unit": "mm",
+        "unitsResolved": true
+      },
+      "alternates": [
+        {
+          "file": "Cimco Mill 5 Axis Head Head 45 AB Type B.mcfg",
+          "displayName": "Cimco Mill 5 Axis Head Head 45° AB Type B",
+          "score": 0.45
+        },
+        {
+          "file": "Cimco Mill 5 Axis Head Head 45 AB Type C.mcfg",
+          "displayName": "Cimco Mill 5 Axis Head Head 45° AB Type C",
+          "score": 0.45
+        },
+        {
+          "file": "Cimco Mill 5 Axis Table Head 45 BC Type A.mcfg",
+          "displayName": "Cimco Mill 5 Axis Table Head 45° BC Type A",
+          "score": 0.45
+        }
+      ],
+      "status": "generic-template",
+      "note": "No vendor .mcfg; a Cimco generic kinematic template fits. Author an exact vendor .mcfg from PRISM's machine model for full fidelity.",
+      "unitsNote": "UNITS WARNING: candidate .mcfg is mm; JM convention is INCH — resolve before sim (25.4x scale-error guard).",
+      "mustVerifyKinematics": true
+    },
+    {
+      "machine_id": "VMC-03",
+      "machine_name": "Haas VF-2",
+      "controller_family": "haas",
+      "controller_model": "PRE-NGC",
+      "type": "mill",
+      "cimcoMatch": {
+        "file": "Haas VF-6_40.mcfg",
+        "displayName": "Haas VF-6/40",
+        "score": 0.83,
+        "basis": "vendor:haas+model:1tok",
+        "unit": "mm",
+        "unitsResolved": false
+      },
+      "alternates": [
+        {
+          "file": "Haas CM-1.mcfg",
+          "displayName": "Haas CM-1",
+          "score": 0.65
+        },
+        {
+          "file": "Haas DM-1.mcfg",
+          "displayName": "Haas DM-1",
+          "score": 0.65
+        },
+        {
+          "file": "Haas DT-2.mcfg",
+          "displayName": "Haas DT-2",
+          "score": 0.65
+        }
+      ],
+      "status": "native-cimco-match",
+      "note": "CIMCO ships a same-vendor .mcfg of this class — usable as the sim machine (verify travels/axis vs the real machine).",
+      "unitsNote": "UNITS WARNING: candidate .mcfg is mm; JM convention is INCH — resolve before sim (25.4x scale-error guard).",
+      "mustVerifyKinematics": true
+    },
+    {
+      "machine_id": "VMC-04",
+      "machine_name": "Haas OM-2",
+      "controller_family": "haas",
+      "controller_model": "PRE-NGC",
+      "type": "mill",
+      "cimcoMatch": {
+        "file": "Haas CM-1.mcfg",
+        "displayName": "Haas CM-1",
+        "score": 0.65,
+        "basis": "vendor:haas",
+        "unit": "mm",
+        "unitsResolved": false
+      },
+      "alternates": [
+        {
+          "file": "Haas DM-1.mcfg",
+          "displayName": "Haas DM-1",
+          "score": 0.65
+        },
+        {
+          "file": "Haas DT-2.mcfg",
+          "displayName": "Haas DT-2",
+          "score": 0.65
+        },
+        {
+          "file": "Haas EC-1600ZT.mcfg",
+          "displayName": "Haas EC-1600ZT",
+          "score": 0.65
+        }
+      ],
+      "status": "native-cimco-match",
+      "note": "CIMCO ships a same-vendor .mcfg of this class — usable as the sim machine (verify travels/axis vs the real machine).",
+      "unitsNote": "UNITS WARNING: candidate .mcfg is mm; JM convention is INCH — resolve before sim (25.4x scale-error guard).",
+      "mustVerifyKinematics": true
+    },
+    {
+      "machine_id": "VMC-05",
+      "machine_name": "Roku-Roku HC 658-II",
+      "controller_family": "fanuc",
+      "controller_model": "Fanuc 31i-B5",
+      "type": "mill",
+      "cimcoMatch": {
+        "file": "Cimco Mill 3 Axis Type A.mcfg",
+        "displayName": "Cimco Mill 3 Axis Type A",
+        "score": 0.45,
+        "basis": "generic:Vertical/3ax",
+        "unit": "mm",
+        "unitsResolved": true
+      },
+      "alternates": [
+        {
+          "file": "Cimco Mill 3 Axis Type B.mcfg",
+          "displayName": "Cimco Mill 3 Axis Type B",
+          "score": 0.45
+        },
+        {
+          "file": "Cimco Mill 3 Axis Type C Angle Head.mcfg",
+          "displayName": "Cimco Mill 3 Axis Type C Angle Head",
+          "score": 0.45
+        },
+        {
+          "file": "Cimco Mill 3 Axis Type C.mcfg",
+          "displayName": "Cimco Mill 3 Axis Type C",
+          "score": 0.45
+        }
+      ],
+      "status": "generic-template",
+      "note": "No vendor .mcfg; a Cimco generic kinematic template fits. Author an exact vendor .mcfg from PRISM's machine model for full fidelity.",
+      "unitsNote": "UNITS WARNING: candidate .mcfg is mm; JM convention is INCH — resolve before sim (25.4x scale-error guard).",
+      "mustVerifyKinematics": true
+    },
+    {
+      "machine_id": "EDM-01",
+      "machine_name": "Mitsubishi EA12S",
+      "controller_family": "mitsubishi",
+      "controller_model": "FP80S",
+      "type": "sinker_edm",
+      "cimcoMatch": null,
+      "status": "not-applicable",
+      "note": "CIMCO Machine-Simulation models mill/lathe kinematics only — EDM stays on PRISM discharge-physics sim (tribal tip #10).",
+      "mustVerifyKinematics": false
+    },
+    {
+      "machine_id": "EDM-02",
+      "machine_name": "Mitsubishi EA12D",
+      "controller_family": "mitsubishi",
+      "controller_model": "C30EA-2",
+      "type": "sinker_edm",
+      "cimcoMatch": null,
+      "status": "not-applicable",
+      "note": "CIMCO Machine-Simulation models mill/lathe kinematics only — EDM stays on PRISM discharge-physics sim (tribal tip #10).",
+      "mustVerifyKinematics": false
+    },
+    {
+      "machine_id": "WEDM-01",
+      "machine_name": "Mitsubishi FA10S",
+      "controller_family": "mitsubishi",
+      "controller_model": "W31MV-2",
+      "type": "wire_edm",
+      "cimcoMatch": null,
+      "status": "not-applicable",
+      "note": "CIMCO Machine-Simulation models mill/lathe kinematics only — EDM stays on PRISM discharge-physics sim (tribal tip #10).",
+      "mustVerifyKinematics": false
+    }
+  ]
+}

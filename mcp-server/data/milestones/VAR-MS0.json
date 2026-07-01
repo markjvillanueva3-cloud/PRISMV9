@@ -1,0 +1,101 @@
+{
+  "id": "VAR-MS0",
+  "version": "8.0.0",
+  "title": "Stochastic Physics Extensions — Core Engine Variability",
+  "brief": "Add Monte Carlo uncertainty propagation, material property scatter, and stochastic extensions to the 6 highest-impact deterministic physics engines. Each engine gets: (1) input parameter distributions, (2) N-trial MC sampling, (3) output confidence intervals, (4) sensitivity indices (Sobol Si/STi).",
+  "created_at": "2026-03-13T08:00:00Z",
+  "created_by": "claude-opus-4.6",
+  "phases": [
+    {
+      "id": "P0",
+      "title": "Stochastic Physics Core",
+      "units": [
+        {
+          "id": "U01",
+          "title": "StochasticCuttingForceEngine — Kienzle/Oxley with material scatter",
+          "description": "Extend cutting force prediction with stochastic inputs. Material property scatter: kc1.1 CV=8-12%, mc CV=5-8%, yield stress CV=10-15%, friction angle CV=15-20%. Tool geometry scatter: rake angle ±0.5°, edge radius ±5μm, runout ±3μm. Monte Carlo with Latin Hypercube Sampling (N=1000-10000). Outputs: force distribution (mean, σ, CI_95, CI_99), P(force > limit), Sobol sensitivity indices for each input. Analytical FOSM (First-Order Second Moment) for fast approximation. Compare MC vs FOSM accuracy.",
+          "exit_conditions": [
+            "MC with LHS for force distributions",
+            "FOSM analytical approximation",
+            "Sobol Si/STi sensitivity indices",
+            "Material scatter from literature (≥5 materials)",
+            "P(force > limit) probability",
+            "Tests with known analytical solutions"
+          ],
+          "status": "complete"
+        },
+        {
+          "id": "U02",
+          "title": "StochasticToolLifeEngine — Taylor/extended with Weibull scatter",
+          "description": "Extend tool life prediction with stochastic wear. Taylor constants scatter: C CV=15-25%, n CV=10-15% (from published data). Weibull life distribution: shape β=2-4 (infant mortality to wear-out). Stochastic wear progression: Wiener process dW = μdt + σdB (connect to existing StochasticProcessEngine). N-trial MC: tool life distribution, P(survive T minutes), optimal replacement time under uncertainty. Bayesian updating: incorporate observed wear data to narrow posterior. Compare deterministic Taylor vs stochastic predictions.",
+          "exit_conditions": [
+            "Weibull tool life distribution",
+            "Wiener process wear progression",
+            "Bayesian updating from observed wear",
+            "Optimal replacement under uncertainty",
+            "P(survive T) reliability function",
+            "MC + analytical Weibull CDF comparison"
+          ],
+          "status": "complete"
+        },
+        {
+          "id": "U03",
+          "title": "StochasticThermalEngine — Convection uncertainty + thermal property scatter",
+          "description": "Extend thermal prediction with stochastic heat transfer. Convection coefficient h uncertainty: flood h=500-2000 W/m²K (log-normal), MQL h=50-200, dry h=10-50. Thermal conductivity scatter: ±5-10% per alloy batch. Chip-tool heat partition: 0.3-0.7 (Beta distribution). Jaeger/Loewen-Shaw models with MC propagation. Outputs: temperature distribution at tool-chip interface, P(temp > coating limit), thermal damage risk score. Include sensitivity: which uncertainty dominates (h vs k vs partition)?",
+          "exit_conditions": [
+            "MC propagation through Jaeger model",
+            "Log-normal h distribution by coolant type",
+            "Beta distribution heat partition",
+            "P(temp > limit) per coating type",
+            "Dominant uncertainty identification via Sobol",
+            "Tests against analytical 1D solutions with known variance"
+          ],
+          "status": "complete"
+        },
+        {
+          "id": "U04",
+          "title": "StochasticSurfaceFinishEngine — Vibration + BUE + wear uncertainty",
+          "description": "Extend surface finish prediction with real-world scatter sources. Theoretical Ra = f²/(32r) is deterministic. Real scatter sources: (1) vibration-induced roughness addition ΔRa ~ N(0, σ_vib) from runout + chatter proximity, (2) BUE formation probability P(BUE) function of speed/material, adds 0.2-1.0 μm, (3) tool wear effect: Ra increases ~15% per 0.1mm VB growth, VB itself stochastic. Combined model: Ra_actual = Ra_theoretical + ΔRa_vibration + ΔRa_BUE + ΔRa_wear. MC with correlated inputs (vibration correlates with force). Outputs: Ra distribution, P(Ra > tolerance), Cpk for surface finish.",
+          "exit_conditions": [
+            "Combined Ra model (theory + vib + BUE + wear)",
+            "Correlated MC inputs (Nataf transform or Cholesky)",
+            "P(Ra > tolerance) for given Rz spec",
+            "Cpk/Ppk for surface finish process capability",
+            "BUE probability model from literature",
+            "Tests: deterministic limit (zero scatter = theoretical Ra)"
+          ],
+          "status": "complete"
+        },
+        {
+          "id": "U05",
+          "title": "StochasticChatterEngine — Probabilistic stability lobes",
+          "description": "Replace deterministic stability lobe boundaries with probability contours. Uncertain inputs: damping ratio ζ CV=30-50%, natural frequency fn CV=2-5%, cutting force coefficient Kc CV=8-12%, process damping CV=20-40%. MC over stability lobe computation: for each (speed, depth) point, compute P(stable) from N trials. Output: probability contour map P(chatter)=0.01/0.05/0.10/0.50. Identify 'safe' operating zone where P(chatter)<1%. Include tool-holder assembly variation (different clamping = different FRF). Bayesian updating: tap test data narrows uncertainty.",
+          "exit_conditions": [
+            "P(chatter) contour map over speed×depth",
+            "Safe zone identification at P<1%/5%/10%",
+            "MC over damping/frequency/Kc/process damping",
+            "Bayesian updating from tap test FRF data",
+            "Tool-holder assembly variation model",
+            "Tests: deterministic limit matches existing chatter engine"
+          ],
+          "status": "complete"
+        },
+        {
+          "id": "U06",
+          "title": "UncertaintyPropagationPipeline — Cross-engine chaining",
+          "description": "Build the architectural glue that chains uncertainty through multiple engines. Pipeline: Material(μ,σ) → StochasticForce(dist) → StochasticDeflection(dist) → StochasticFinish(dist) → ToleranceStackup(dist). Uses existing UncertaintyQuantificationEngine as propagation kernel. Each engine-to-engine interface passes distributions (not point values). Supports: (1) MC propagation (accurate, slow), (2) FOSM/linearization (fast, approximate), (3) Polynomial Chaos Expansion (medium, spectral). Single action: `uncertainty_pipeline` in calcDispatcher. Inputs: pipeline stages + uncertain parameters. Output: final distribution + per-stage contribution breakdown.",
+          "exit_conditions": [
+            "Chain ≥4 engines with distribution passing",
+            "MC + FOSM + PCE propagation modes",
+            "Per-stage uncertainty contribution breakdown",
+            "Dispatcher action uncertainty_pipeline",
+            "Tests: pipeline output matches manual stage-by-stage MC",
+            "Performance: PCE 10x faster than MC for smooth models"
+          ],
+          "status": "complete"
+        }
+      ]
+    }
+  ],
+  "status": "complete"
+}

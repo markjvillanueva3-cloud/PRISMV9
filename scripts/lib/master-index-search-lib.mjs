@@ -27,8 +27,35 @@
  */
 
 import { readFileSync, statSync, existsSync } from "node:fs";
+import http from "node:http";
+import { execFileSync } from "node:child_process";
+import { readGraphStreaming } from "./graph-io.mjs";
+import * as v8 from "node:v8";
+import { recordQuery } from "./master-index-query-log.mjs";
+
+// FLEET-SEARCH-DAEMON-MS0 (2026-06-14): a long-lived master-index-daemon.mjs
+// parses the full ~262MB sidecar ONCE (big heap) and serves fast full-coverage
+// search over HTTP. searchViaDaemon() lets per-spawn consumers prefer the warm
+// daemon (full coverage, ~80ms) and transparently fall back to the in-process
+// path (fast, 59MB graph) when the daemon is down -- zero behavior change then.
+const DAEMON_DEFAULT_PORT = 3101;
+const DAEMON_DEFAULT_HOST = "127.0.0.1";
+// SUBSTRATE-UTIL (2026-06-29, slot:sierra, audit w0yjhqcp9 master-index-x-ollama): default raised
+// 250 -> 400ms to MATCH what every live hook caller already passes explicitly (pre-bash/read/write/
+// grep + master-index-precheck-inject). The old 250 default silently caused warm-daemon MISSES
+// (-> slower in-process fallback) for any caller that omits the override -- notably the opt-in
+// spawned-agent presearch (spawned-agent-context-lib.mjs searchViaDaemonSync, no daemonTimeoutMs).
+// Fallback still protects on a genuine miss, so this only widens the window to HIT the warm daemon.
+const DAEMON_DEFAULT_TIMEOUT_MS = 400;
 
 const DEFAULT_GRAPH_PATH = "H:/prism/state/shared/system-viz/system-graph.json";
+// Architecture-only graph (~27 MB; ~20K L0-L10 nodes from generate-system-viz.mjs;
+// excludes the L11/L12 filesystem-coverage layers that regen-viz --full merges in).
+// Used as the LATENT-overflow fallback when the merged system-graph exceeds
+// PRISM_GRAPH_MAX_BYTES — keeps master-index recall working (architecture-only,
+// degraded but not blind) instead of returning null. Knob:
+// PRISM_GRAPH_FALLBACK_DISABLE=1 forces the original null-on-overflow behavior.
+const DEFAULT_FALLBACK_GRAPH_PATH = "H:/prism/state/shared/system-viz/architecture-graph.json";
 const DEFAULT_TRIBAL_PATH = "H:/prism/state/shared/tribal-embed-index.json";
 const DEFAULT_TOP_K = 5;
 const DEFAULT_MAX_PROMPT_LEN = 4000;
@@ -57,6 +84,22 @@ const W_VAULT = 1.0;
 // L11 = filesystem leaves; L9 = fs root. Both flood any keyword that appears
 // in a filename — exclude to keep the digest semantically dense.
 export const DEFAULT_EXCLUDED_LAYERS = new Set(["L9", "L11"]);
+
+// GAP-B graph-inject relevance gate: a trailing hit whose score is below this
+// FRACTION of THIS query's top-hit score is comparative noise -- drop it so
+// every graph-inject surface (master-index-precheck + the pre-read/grep/write/
+// bash hooks all route through searchGraphHits) carries only hits the model can
+// trust. A block padded with weak hits trains the model to ignore it, defeating
+// effective auto-use. RELATIVE (not a fixed floor) so it adapts to each query's
+// score scale (live topScore ranges ~1.5..30, p50 ~13.5) and -- by construction
+// -- can NEVER drop the top hit (its ratio is 1.0) nor empty a non-empty result.
+// Env-overridable; <=0 disables (restores prior behavior). Calibrated against
+// the live master-index-query-log score distribution (2026-06-19).
+export const DEFAULT_MIN_SCORE_RATIO = (() => {
+  const v = Number(process.env.PRISM_MASTER_INDEX_MIN_SCORE_RATIO);
+  if (Number.isFinite(v) && v <= 0) return 0;          // <=0 disables (parity with applyRelevanceGate)
+  return Number.isFinite(v) && v <= 1 ? v : 0.15;      // (0,1] honored; out-of-range/non-finite -> 0.15
+})();
 
 // -- process-lifetime cache (shared across callers in same process) -------
 
@@ -112,6 +155,127 @@ function entryName(entry) {
 
 // -- system-graph load + search -------------------------------------------
 
+// Sidecar schema version THIS loader understands. A sidecar carrying any
+// other version is rejected and loadGraph silently falls through to the
+// legacy path. Must equal build-graph-index.mjs SIDECAR_SCHEMA_VERSION — a
+// mismatch is a SAFE degradation (legacy parse / architecture fallback still
+// run), never a crash. See U-MASTER-INDEX-SIDECAR.
+const SIDECAR_SCHEMA_VERSION = "1.0.0";
+
+/**
+ * Sidecar fast-path for loadGraph.
+ *
+ * The merged system-graph.json is ~372 MB; parsing + tokenizing it inline was
+ * MEASURED at ~138 s — fatal in a per-prompt hook. `build-graph-index.mjs`
+ * pre-builds a compact inverted-index sidecar offline (`system-graph-index.json`,
+ * sibling of the graph). When that sidecar exists, matches this loader's
+ * schema version, and was built from the current-or-newer graph, this rebuilds
+ * the `{ nodes, inverted }` wrapper from it in seconds with FULL node coverage.
+ *
+ * The sidecar's `nodes[]` are stored in searchGraphHits' own consumed shape
+ * (`knowledge.{wikiEntries,memoryEntries}`) so they are used verbatim — only
+ * `inverted` is rebuilt (integer-index postings → `Map<token, Set<id>>`).
+ *
+ * Returns the wrapper on a fresh-sidecar hit, else null — the caller then
+ * continues to the legacy parse / architecture fallback. Null is returned for:
+ * knob-disabled (`PRISM_GRAPH_SIDECAR_DISABLE=1`), no sidecar file, a
+ * non-system-graph path (architecture fallback, test fixtures), parse failure,
+ * schema mismatch, malformed shape, or a STALE sidecar (built from a graph
+ * older than the one on disk now). Never throws.
+ *
+ * @param {string} graphPath
+ * @param {import("node:fs").Stats} graphStat  — stat of graphPath (mtime gate)
+ * @returns {{ nodes: Array, inverted: Map<string, Set<string>> } | null}
+ */
+function tryLoadSidecar(graphPath, graphStat) {
+  if (process.env.PRISM_GRAPH_SIDECAR_DISABLE === "1") return null;
+  // The sidecar is a sibling of the merged system-graph only. For any other
+  // graph path (the architecture-graph fallback, or unit-test fixtures with a
+  // different basename) the replace is a no-op → no sidecar.
+  const sidecarPath = graphPath.replace(/system-graph\.json$/, "system-graph-index.json");
+  if (sidecarPath === graphPath) return null;
+  if (!existsSync(sidecarPath)) return null;
+
+  // From here the sidecar FILE exists — any rejection means the fleet runs on
+  // the slow legacy path (138 s parse / architecture fallback) DESPITE a
+  // sidecar being present. R12: warn to stderr (once per loadGraph cache-miss
+  // — in practice once per short-lived hook process, mirroring the size-cap
+  // fallback's stderr line) so the degradation is visible — an operator should
+  // rerun build-graph-index.mjs. The common no-sidecar-file case above is
+  // silent (not a degradation worth a per-prompt line).
+  const rejected = (reason) => {
+    try {
+      process.stderr.write(
+        `[master-index-search-lib] sidecar present but ${reason} — using legacy path; `
+        + "rerun build-graph-index.mjs\n",
+      );
+    } catch { /* stderr unavailable — non-fatal */ }
+    return null;
+  };
+
+  // Heap guard (MASTER-INDEX-OOM-FIX, 2026-06-09): the sidecar is ~200 MB and
+  // JSON.parse of it needs ~3-4x its size in transient heap. The fleet runs
+  // every hook at a 384 MB heap cap (portable-node MCP-FLEET-CAPACITY-MS0 commit
+  // reservation guard) -- parsing a 200 MB sidecar in 384 MB OOM-kills the hook
+  // on EVERY prompt the moment PRISM_MASTER_INDEX_INJECT=1. If the sidecar
+  // exceeds a safe fraction of this process's actual old-space limit, reject it
+  // so the caller falls through to the 59 MB architecture-graph (which fits).
+  // Tunable: PRISM_SIDECAR_MAX_BYTES (default = 35% of the live heap_size_limit).
+  // NOTE v8.getHeapStatistics().heap_size_limit is LARGER than the
+  // --max-old-space-size flag (it includes young-gen + overhead): a 384 MB
+  // --max-old-space-size reports ~432 MB here, so the default ceiling is
+  // ~151 MB -- the ~200 MB sidecar is skipped, but a hook that opts into a
+  // larger NODE_OPTIONS heap still gets full sidecar coverage.
+  // The override is validated finite-and-positive: a non-numeric / 0 / negative
+  // value falls back to the default rather than (a) silently applying the
+  // default for "0" the operator meant as "no ceiling" or (b) being truthy at
+  // -1 and rejecting EVERY sidecar (Number("-1")||x === -1, then size > -1 is
+  // always true). To truly disable the guard, set PRISM_GRAPH_SIDECAR_DISABLE=1
+  // (handled above) or a very large PRISM_SIDECAR_MAX_BYTES.
+  try {
+    const heapLimitBytes = v8.getHeapStatistics().heap_size_limit;
+    const rawMax = Number(process.env.PRISM_SIDECAR_MAX_BYTES);
+    const sidecarMaxBytes = (Number.isFinite(rawMax) && rawMax > 0)
+      ? rawMax
+      : Math.floor(heapLimitBytes * 0.35);
+    const scStat = statSync(sidecarPath);
+    if (scStat.size > sidecarMaxBytes) {
+      return rejected(
+        `${(scStat.size / 1024 / 1024).toFixed(0)}MB exceeds the safe parse ceiling `
+        + `${(sidecarMaxBytes / 1024 / 1024).toFixed(0)}MB for this ${(heapLimitBytes / 1024 / 1024).toFixed(0)}MB heap`,
+      );
+    }
+  } catch { /* v8/stat unavailable -- fall through to the parse (legacy behavior) */ }
+
+  let sc;
+  try { sc = JSON.parse(readFileSync(sidecarPath, "utf8")); }
+  catch { return rejected("unparseable"); }
+  if (!sc || sc.schemaVersion !== SIDECAR_SCHEMA_VERSION) return rejected("schema mismatch");
+  if (!Array.isArray(sc.nodes) || !sc.inverted || typeof sc.inverted !== "object") {
+    return rejected("malformed");
+  }
+  // Staleness gate: the sidecar must have been built from a graph at least as
+  // new as the one on disk. Older (or a missing/NaN mtime) → ignore it.
+  if (!(Number(sc.sourceMtimeMs) >= graphStat.mtimeMs)) return rejected("stale (older than the graph)");
+
+  // Rebuild Map<token, Set<nodeId>> from the integer-index postings. Object
+  // keys are read with Object.entries — a token literally named "__proto__"
+  // round-trips as a normal own key (build-graph-index uses a null-proto map).
+  const nodes = sc.nodes;
+  const inverted = new Map();
+  for (const [tok, idxs] of Object.entries(sc.inverted)) {
+    if (!Array.isArray(idxs)) continue;
+    const bucket = new Set();
+    for (const i of idxs) {
+      const node = nodes[i];
+      if (node && typeof node.id === "string") bucket.add(node.id);
+    }
+    // Match loadGraph's legacy index: only non-empty buckets are recorded.
+    if (bucket.size > 0) inverted.set(tok, bucket);
+  }
+  return { nodes, inverted };
+}
+
 /**
  * Load system-graph.json with mtime-based caching. Returns null on any error
  * (missing file, parse failure, malformed shape, file too large). Safe to
@@ -122,15 +286,17 @@ function entryName(entry) {
  * does NOT crash the entire load — bad nodes are skipped silently.
  *
  * Size budget: refuses to load files larger than `MAX_GRAPH_BYTES` (default
- * 200 MB). The system-graph.json sits at ~88 MB as of 2026-05-15 and grows
- * as system-viz expands L11/L12 leaves — the budget protects subagent-spawn
- * latency from runaway. Tunable via `PRISM_GRAPH_MAX_BYTES`.
+ * 200 MB). The merged system-graph.json is ~372 MB / 243,687 nodes as of
+ * 2026-05-18 — past the cap, so without a sidecar loadGraph degrades to the
+ * architecture-graph fallback (below). Tunable via `PRISM_GRAPH_MAX_BYTES`.
  *
  * Note on perf: each subagent spawn is a fresh node subprocess, so the
  * mtime cache only helps WITHIN ONE invocation (e.g., when the spawned-
  * agent lib calls runMasterIndexSearch + runTribalSearch back-to-back).
- * Subsequent SubagentStart events re-pay the cold parse. Pre-built
- * inverted-index sidecars are the deeper fix (tracked for follow-up).
+ * Subsequent SubagentStart events re-pay the cold parse — UNLESS a fresh
+ * pre-built sidecar exists: `tryLoadSidecar` (above) reconstructs the index
+ * from `system-graph-index.json` in seconds with full node coverage, the
+ * deeper fix for the ~138 s full-graph parse (U-MASTER-INDEX-SIDECAR).
  *
  * @param {string} [graphPath]
  * @returns {{ nodes: Array, inverted: Map<string, Set<string>> } | null}
@@ -139,8 +305,14 @@ export function loadGraph(graphPath = DEFAULT_GRAPH_PATH) {
   if (!existsSync(graphPath)) return null;
   let stat;
   try { stat = statSync(graphPath); } catch { return null; }
-  const maxBytes = Number(process.env.PRISM_GRAPH_MAX_BYTES) || (200 * 1024 * 1024);
-  if (stat.size > maxBytes) return null;
+
+  // Process-lifetime cache — keyed on graphPath + the GRAPH's mtime, so it
+  // covers all resolution paths (sidecar / legacy parse / fallback) uniformly:
+  // the same graph mtime always yields the same wrapper. The key does NOT
+  // observe the sidecar's own mtime — a sidecar regenerated standalone against
+  // an UNCHANGED graph is not re-read until the process exits. Acceptable:
+  // hook processes are short-lived and regen-viz rewrites graph + sidecar
+  // together (a graph change bumps this key and invalidates the entry).
   if (
     _graphCache.path === graphPath
     && _graphCache.mtimeMs === stat.mtimeMs
@@ -148,8 +320,51 @@ export function loadGraph(graphPath = DEFAULT_GRAPH_PATH) {
   ) {
     return _graphCache.wrapper;
   }
+
+  // Sidecar fast-path — pre-built inverted index, skips the ~138 s full-graph
+  // parse with FULL node coverage. Returns null (→ legacy path below) when the
+  // sidecar is absent / stale / schema-mismatched / knob-disabled.
+  const sidecar = tryLoadSidecar(graphPath, stat);
+  if (sidecar) {
+    _graphCache = { path: graphPath, mtimeMs: stat.mtimeMs, wrapper: sidecar };
+    return sidecar;
+  }
+
+  const maxBytes = Number(process.env.PRISM_GRAPH_MAX_BYTES) || (200 * 1024 * 1024);
+  if (stat.size > maxBytes) {
+    // JULIETT F1 latent-bug fix (2026-05-18): when the merged graph exceeds
+    // the byte cap, fall back to the architecture-only graph (degraded but
+    // not blind) instead of returning null. R12 fail-loud — write the
+    // degradation to stderr so it's not silent. Knob:
+    // PRISM_GRAPH_FALLBACK_DISABLE=1 restores the original null-on-overflow.
+    // Fallback fires when (a) NOT disabled, (b) the primary is the system-graph
+    // (by basename — production AND tmpdir-test friendly), and (c) a sibling
+    // architecture-graph.json exists and fits the cap. PRISM_GRAPH_FALLBACK_PATH
+    // overrides the sibling lookup for unit tests.
+    const baseName = graphPath.replace(/\\/g, "/").split("/").pop() || "";
+    const fallbackEligible = process.env.PRISM_GRAPH_FALLBACK_DISABLE !== "1"
+      && baseName === "system-graph.json";
+    if (fallbackEligible) {
+      try {
+        const fallbackPath = process.env.PRISM_GRAPH_FALLBACK_PATH
+          || graphPath.replace(/system-graph\.json$/, "architecture-graph.json");
+        if (fallbackPath !== graphPath && existsSync(fallbackPath)) {
+          const fbStat = statSync(fallbackPath);
+          if (fbStat.size <= maxBytes) {
+            try {
+              process.stderr.write(
+                `[master-index-search-lib] system-graph ${(stat.size / 1024 / 1024).toFixed(1)}MB > cap ${(maxBytes / 1024 / 1024).toFixed(0)}MB — falling back to architecture-graph (${(fbStat.size / 1024 / 1024).toFixed(1)}MB)\n`,
+              );
+            } catch { /* stderr unavailable — non-fatal */ }
+            return loadGraph(fallbackPath); // recurse once; fallback file has different basename → won't loop
+          }
+        }
+      } catch { /* fall-through to null */ }
+    }
+    return null;
+  }
   let raw;
-  try { raw = JSON.parse(readFileSync(graphPath, "utf8")); }
+  try { raw = readGraphStreaming(graphPath); }  // off-heap: JSON.parse(readFileSync utf8) throws at >512MiB -> search would silently fall back to base graph (U-VIZ-READER-CAPSAFE 2026-06-10)
   catch { return null; }
   if (!raw || !Array.isArray(raw.nodes)) return null;
 
@@ -194,13 +409,69 @@ export function loadGraph(graphPath = DEFAULT_GRAPH_PATH) {
  * @param {object} [opts]
  * @param {number} [opts.topK=5]
  * @param {Set<string>} [opts.excludedLayers=DEFAULT_EXCLUDED_LAYERS]
- * @returns {Array<{id, score, layer, label, status, wiki, memory}>}
+ * @returns {Array<{id, score, layer, label, status, noteCount, wiki, memory}>}
+ *   noteCount = full wiki+memory edge total (always present; structural
+ *   brain-coverage count, distinct from the truncated wiki/memory arrays).
  */
+// HMEMV02 explainable retrieval (master-index surface): WHY a graph node surfaced --
+// which query tokens matched and which scored fields they hit (label/id/info/vault,
+// the same fields W_LABEL/W_ID/W_INFO/W_VAULT score). Pure; fail-soft (bad node /
+// empty tokens -> empty). Mirrors the memory-recall surface's matchedTokens.
+export function explainNodeMatch(node, queryTokens) {
+  const out = { matchedTokens: [], fields: [] };
+  if (!node || !Array.isArray(queryTokens) || queryTokens.length === 0) return out;
+  const idL = (node.id ?? "").toLowerCase();
+  const labelL = (node.label ?? "").toLowerCase();
+  const infoL = (node.info ?? "").toLowerCase();
+  const wikiL = (Array.isArray(node.knowledge?.wikiEntries) ? node.knowledge.wikiEntries : [])
+    .map(entryName).join(" ").toLowerCase();
+  const memL = (Array.isArray(node.knowledge?.memoryEntries) ? node.knowledge.memoryEntries : [])
+    .map(entryName).join(" ").toLowerCase();
+  const fieldHit = { label: false, id: false, info: false, vault: false };
+  const matched = new Set();
+  for (const tok of queryTokens) {
+    if (labelL.includes(tok)) { matched.add(tok); fieldHit.label = true; }
+    if (idL.includes(tok)) { matched.add(tok); fieldHit.id = true; }
+    if (infoL.includes(tok)) { matched.add(tok); fieldHit.info = true; }
+    if (wikiL.includes(tok) || memL.includes(tok)) { matched.add(tok); fieldHit.vault = true; }
+  }
+  out.matchedTokens = [...matched];
+  out.fields = Object.keys(fieldHit).filter((k) => fieldHit[k]);
+  return out;
+}
+
+/**
+ * Pure: drop trailing hits below `minRatio` of the top hit's score. `ranked`
+ * MUST be sorted descending by score (ranked[0] is the top). Safe-by-
+ * construction: the top hit always passes (ratio 1.0), so a non-empty input
+ * never empties. minRatio <= 0 / non-finite disables (returns the input). The
+ * relevance gate behind DEFAULT_MIN_SCORE_RATIO -- exported for hermetic tests.
+ * @param {Array<{score:number}>} ranked  desc-sorted hits
+ * @param {number} minRatio
+ * @returns {Array}
+ */
+export function applyRelevanceGate(ranked, minRatio) {
+  if (!Array.isArray(ranked) || ranked.length === 0) return Array.isArray(ranked) ? ranked : [];
+  const r = Number(minRatio);
+  if (!Number.isFinite(r) || r <= 0) return ranked;
+  const topScore = ranked[0]?.score ?? 0;
+  if (!(topScore > 0)) return ranked;
+  return ranked.filter((h) => h && h.score >= topScore * r);
+}
+
 export function searchGraphHits(graph, queryTokens, opts = {}) {
   if (!graph || queryTokens.length === 0) return [];
   const topK = opts.topK ?? DEFAULT_TOP_K;
   const excludedLayers = opts.excludedLayers ?? DEFAULT_EXCLUDED_LAYERS;
-  const nodeById = new Map(graph.nodes.map((n) => [n.id, n]));
+  // Defensive: graph.nodes can carry null / id-less / non-object elements —
+  // loadGraph's legacy path keeps them in wrapper.nodes, and a partial-written
+  // sidecar could too. Filter before building the id map so a malformed node
+  // can never throw here (the lib's contract: search returns [], never throws).
+  const nodeById = new Map(
+    graph.nodes
+      .filter((n) => n && typeof n.id === "string")
+      .map((n) => [n.id, n]),
+  );
   const candidates = new Map();
 
   for (const tok of queryTokens) {
@@ -242,17 +513,33 @@ export function searchGraphHits(graph, queryTokens, opts = {}) {
         layer: node.layer || "?",
         label: (node.label || id).split("\n")[0].slice(0, 80),
         status: node.status || "?",
+        // noteCount = TRUE brain-coverage: the FULL wiki+memory edge totals (NOT the
+        // truncated wiki/memory name arrays below, which cap at 3+2). A structural
+        // count for context-retention routing — surfaced by find-path consumers as
+        // ` (N docs)`. Same ARITHMETIC as the find-cache projectForFind noteCount, but
+        // this substrate ALWAYS emits the field (including 0), where the sparse
+        // find-cache OMITS it when 0 (sidecar-bloat avoidance). Additive: consumers ignore it.
+        noteCount: (Array.isArray(node.knowledge?.wikiEntries) ? node.knowledge.wikiEntries.length : 0)
+                 + (Array.isArray(node.knowledge?.memoryEntries) ? node.knowledge.memoryEntries.length : 0),
         wiki: (node.knowledge?.wikiEntries ?? []).map(entryName).filter(Boolean).slice(0, 3),
         memory: (node.knowledge?.memoryEntries ?? []).map(entryName).filter(Boolean).slice(0, 2),
+        // HMEMV02 explainable retrieval: WHY this node surfaced (matched tokens +
+        // which scored fields they hit + corpus/layer). Additive, like noteCount above.
+        explanation: { ...explainNodeMatch(node, queryTokens), corpus: node.layer || "?", score },
       };
     })
     .filter((h) => !excludedLayers.has(h.layer))
     .sort((a, b) => b.score - a.score);
 
+  // GAP-B relevance gate (see DEFAULT_MIN_SCORE_RATIO): trim trailing low-
+  // confidence hits before topK so the inject block carries only trustworthy
+  // hits. opts.minScoreRatio overrides the env default; <=0 disables.
+  const gated = applyRelevanceGate(ranked, opts.minScoreRatio ?? DEFAULT_MIN_SCORE_RATIO);
+
   // Dedup by label — filesystem leaves often share filenames across dirs.
   const seenLabels = new Set();
   const deduped = [];
-  for (const h of ranked) {
+  for (const h of gated) {
     const key = h.label.toLowerCase();
     if (seenLabels.has(key)) continue;
     seenLabels.add(key);
@@ -276,7 +563,121 @@ export function runMasterIndexSearch(query, opts = {}) {
   const graph = loadGraph(opts.graphPath);
   if (!graph) return { tokens, hits: [] };
   const hits = searchGraphHits(graph, tokens, opts);
+  // SYSTEM-VIZ-HIGH-ROI G2: best-effort telemetry — fail-soft.
+  recordQuery({
+    terms: tokens,
+    k: opts.topK ?? DEFAULT_TOP_K,
+    hitsReturned: hits.length,
+    topScore: hits[0]?.score ?? null,
+    source: "graph",
+  });
   return { tokens, hits };
+}
+
+/**
+ * Query the master-index DAEMON (warm full-coverage index) over HTTP. Resolves
+ * to { tokens, hits } on a fresh daemon hit, or null on ANY miss (daemon down /
+ * disabled / self / timeout / non-200 / oversize / parse error) so the caller
+ * falls back to the in-process search. Never rejects/throws. Async (HTTP).
+ *
+ * Anti-recursion: returns null inside the daemon's own process
+ * (PRISM_INDEX_DAEMON_SELF=1) so the daemon's in-process searches never loop.
+ */
+export function searchViaDaemon(query, opts = {}) {
+  return new Promise((resolve) => {
+    if (process.env.PRISM_INDEX_DAEMON_SELF === "1") return resolve(null);
+    if (process.env.PRISM_INDEX_DAEMON_DISABLE === "1") return resolve(null);
+    const q = (query == null ? "" : String(query)).trim();
+    if (!q) return resolve(null);
+    const port = parseInt(process.env.PRISM_INDEX_DAEMON_PORT || String(DAEMON_DEFAULT_PORT), 10) || DAEMON_DEFAULT_PORT;
+    const host = process.env.PRISM_INDEX_DAEMON_HOST || DAEMON_DEFAULT_HOST;
+    const k = opts.topK ?? DEFAULT_TOP_K;
+    const timeoutMs = Number(opts.daemonTimeoutMs) > 0 ? Number(opts.daemonTimeoutMs) : DAEMON_DEFAULT_TIMEOUT_MS;
+    const path = `/${opts.kind === "tribal" ? "tribal" : "search"}?q=${encodeURIComponent(q)}&k=${encodeURIComponent(k)}`;
+    let done = false;
+    let req;
+    const finish = (v) => { if (!done) { done = true; resolve(v); } };
+    try {
+      req = http.request({ host, port, path, method: "GET", timeout: timeoutMs }, (res) => {
+        if (res.statusCode !== 200) { res.resume(); return finish(null); }
+        let buf = "";
+        res.on("data", (c) => {
+          buf += c;
+          if (buf.length > 8 * 1024 * 1024) { try { req.destroy(); } catch { /* socket */ } finish(null); }
+        });
+        res.on("end", () => {
+          try {
+            const j = JSON.parse(buf);
+            finish(j && j.ok && Array.isArray(j.hits) ? { tokens: j.tokens || [], hits: j.hits } : null);
+          } catch { finish(null); }
+        });
+      });
+      req.on("timeout", () => { try { req.destroy(); } catch { /* socket */ } finish(null); });
+      req.on("error", () => finish(null)); // ECONNREFUSED when daemon down -> fall back
+      req.end();
+    } catch { finish(null); }
+  });
+}
+
+/**
+ * Daemon-preferring master-index search. Tries the warm daemon (full coverage,
+ * ~80ms); on ANY miss falls back to the in-process runMasterIndexSearch (fast,
+ * 59MB graph). Async. The `source` field ("daemon" | "in-process") tells the
+ * caller which path served it. Sync callers that cannot await keep using
+ * runMasterIndexSearch directly (unchanged, daemon-unaware).
+ */
+export async function masterIndexSearch(query, opts = {}) {
+  const viaDaemon = await searchViaDaemon(query, opts);
+  if (viaDaemon) return { tokens: viaDaemon.tokens, hits: viaDaemon.hits, source: "daemon" };
+  const inproc = runMasterIndexSearch(query, opts);
+  return { tokens: inproc.tokens, hits: inproc.hits, source: "in-process" };
+}
+
+/**
+ * SYNCHRONOUS daemon query (for sync consumers that cannot await). Uses a short
+ * `curl` to the daemon -- ONE cheap spawn, only worth it for INFREQUENT consumers
+ * (subagent spawn / on-demand scripts), NEVER a per-turn/per-tool hot path. Returns
+ * { tokens, hits } on a fresh daemon hit, or null on ANY miss (down/disabled/self/
+ * timeout/non-ok/parse error/curl missing) so the caller falls back. Never throws.
+ *
+ * The win: a sync consumer that currently CANNOT load the giant graph (OOM at its
+ * heap cap) gets full-coverage search from the warm daemon without loading anything.
+ */
+export function searchViaDaemonSync(query, opts = {}) {
+  if (process.env.PRISM_INDEX_DAEMON_SELF === "1") return null;
+  if (process.env.PRISM_INDEX_DAEMON_DISABLE === "1") return null;
+  const q = (query == null ? "" : String(query)).trim();
+  if (!q) return null;
+  const port = parseInt(process.env.PRISM_INDEX_DAEMON_PORT || String(DAEMON_DEFAULT_PORT), 10) || DAEMON_DEFAULT_PORT;
+  const host = process.env.PRISM_INDEX_DAEMON_HOST || DAEMON_DEFAULT_HOST;
+  const k = opts.topK ?? DEFAULT_TOP_K;
+  const timeoutMs = Number(opts.daemonTimeoutMs) > 0 ? Number(opts.daemonTimeoutMs) : DAEMON_DEFAULT_TIMEOUT_MS;
+  const kind = opts.kind === "tribal" ? "tribal" : "search";
+  const url = `http://${host}:${port}/${kind}?q=${encodeURIComponent(q)}&k=${encodeURIComponent(k)}`;
+  try {
+    const out = execFileSync(
+      "curl",
+      ["-s", "--max-time", String(Math.max(0.1, timeoutMs / 1000)), url],
+      { timeout: timeoutMs + 1500, encoding: "utf8", stdio: ["ignore", "pipe", "ignore"], maxBuffer: 16 * 1024 * 1024 },
+    );
+    if (!out) return null;
+    const j = JSON.parse(out);
+    return j && j.ok && Array.isArray(j.hits) ? { tokens: j.tokens || [], hits: j.hits } : null;
+  } catch {
+    return null; // curl missing / non-zero / timeout / unparseable -> fall back
+  }
+}
+
+/**
+ * Sync daemon-preferring search. Tries the warm daemon (full coverage, no local
+ * graph load) via searchViaDaemonSync; on ANY miss falls back to the in-process
+ * runMasterIndexSearch. The `source` field tells the caller which path served it.
+ */
+export function masterIndexSearchSync(query, opts = {}) {
+  const viaDaemon = searchViaDaemonSync(query, opts);
+  if (viaDaemon) return { tokens: viaDaemon.tokens, hits: viaDaemon.hits, source: "daemon" };
+  const inproc = runMasterIndexSearch(query, opts);
+  return { tokens: inproc.tokens, hits: inproc.hits, source: "in-process" };
 }
 
 // -- tribal-embed-index load + search (keyword-only path) -----------------
@@ -419,6 +820,13 @@ export function runTribalSearch(query, opts = {}) {
   const index = loadTribalIndex(opts.indexPath);
   if (!index) return { tokens, hits: [] };
   const hits = searchTribalHits(index, tokens, opts);
+  recordQuery({
+    terms: tokens,
+    k: opts.topK ?? DEFAULT_TOP_K,
+    hitsReturned: hits.length,
+    topScore: hits[0]?.score ?? null,
+    source: "tribal",
+  });
   return { tokens, hits };
 }
 

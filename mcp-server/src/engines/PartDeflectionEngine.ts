@@ -40,6 +40,13 @@ export interface PartDeflectionInput {
   tolerance_mm?: number;
   floor_mode?: boolean;
   floor_span_mm?: number;
+  // Cross-section of the deflecting body. "rectangular" (default) = a milling thin WALL
+  // (I = L*t^3/12). "round" = a TURNING workpiece / round bar between chuck+tailstock
+  // (I = pi*D^4/64) -- without this the rectangular I under-models a solid round bar.
+  // Existing (milling) callers omit this and are byte-identical.
+  cross_section?: "rectangular" | "round";
+  /** Round-bar diameter (mm); required when cross_section === "round". */
+  diameter_mm?: number;
 }
 
 export interface PartDeflectionResult {
@@ -89,6 +96,11 @@ export class PartDeflectionEngine {
     const tol = input.tolerance_mm ?? 0.05;
     const floorMode = input.floor_mode ?? false;
     const floorSpan = input.floor_span_mm ?? L;
+    // Round-bar (turning workpiece) geometry: a solid round section has I = pi*D^4/64,
+    // section modulus I/c = pi*D^3/32 (c = D/2), area = pi*D^2/4 -- distinct from the
+    // rectangular wall (I = L*t^3/12). Only the non-floor beam path uses cross-section.
+    const isRound = input.cross_section === "round" && typeof input.diameter_mm === "number" && input.diameter_mm > 0;
+    const D = isRound ? (input.diameter_mm as number) : 0;
 
     const E = E_gpa * 1000; // GPa → MPa
 
@@ -96,7 +108,7 @@ export class PartDeflectionEngine {
     let I: number;
     let stiffness: number;
 
-    if (floorMode) {
+    if (floorMode && !isRound) {  // a round turning bar has no pocket "floor" -> use the round beam path
       // Clamped plate: δ ≈ 0.0138 × F × a⁴ / (E × t³ × a²)
       // Simplified: δ = 0.014 × F × a² / (E × t³)
       // where a = span
@@ -105,8 +117,8 @@ export class PartDeflectionEngine {
       I = L * t * t * t / 12;
       stiffness = E * t * t * t / (0.014 * a * a);
     } else {
-      // Wall section: I = L × t³ / 12
-      I = L * t * t * t / 12;
+      // Round bar: I = pi*D^4/64 (solid circular); else rectangular wall: I = L*t^3/12.
+      I = isRound ? (Math.PI * Math.pow(D, 4)) / 64 : (L * t * t * t / 12);
 
       if (support === "cantilever") {
         // δ = F·H³/(3·E·I)
@@ -148,7 +160,7 @@ export class PartDeflectionEngine {
       : mat === "titanium" ? 4500
       : mat === "plastic" ? 1200
       : 7800;
-    const A_m2 = (t / 1000) * (L / 1000);
+    const A_m2 = isRound ? (Math.PI * Math.pow(D / 1000, 2) / 4) : ((t / 1000) * (L / 1000));
     const I_m4 = I * 1e-12;
     const H_m = H / 1000;
     const natFreq = H_m > 0
@@ -156,8 +168,8 @@ export class PartDeflectionEngine {
         Math.sqrt((E * 1e6 * I_m4) / (rhoKg * A_m2 * Math.pow(H_m, 4)))
       : 0;
 
-    // Stress at base (cantilever: σ = F·H / (I/c) where c = t/2)
-    const c = t / 2;
+    // Stress at base (cantilever: σ = F·H / (I/c)); c = D/2 for a round bar, else t/2.
+    const c = isRound ? D / 2 : t / 2;
     const sectionMod = I / c;
     const stress = sectionMod > 0 ? (F * H) / sectionMod : 0;
     const yieldStr = YIELD[mat] ?? 350;
@@ -187,7 +199,7 @@ export class PartDeflectionEngine {
         "consider vacuum or wax fixturing"
       );
     }
-    if (H / t > 15) {
+    if (!isRound && H / t > 15) {  // rectangular thin-wall heuristic; round bars use the pipeline L/D check, not H/t
       warnings.push(
         `Height/thickness ratio ${r1(H / t)} is extreme — ` +
         "high chatter risk"

@@ -45,7 +45,7 @@ function getRecentNodeProcesses() {
     // Get node processes started in the last 30 seconds
     const output = execSync(
       'wmic process where "name=\'node.exe\'" get processid,commandline,creationdate /format:csv',
-      { encoding: "utf8", timeout: 5000 }
+      { windowsHide: true, encoding: "utf8", timeout: 5000 }
     );
 
     const processes = [];

@@ -1,0 +1,129 @@
+{
+  "id": "PP-MS6",
+  "version": "6.2.0",
+  "title": "Fusion 360 .cps Post Processor + HTTP API Bridge",
+  "created_at": "2026-03-13T20:00:00Z",
+  "description": "Build the Fusion 360 .cps post processor that serves as PRISM's primary CAM integration point. The .cps file collects all context from Fusion's post processor API (operations, tools, stock, machine, WCS) and communicates with the PRISM server via HTTP for real-time optimization (Phase A), or exports enriched G-code with sidecar JSON for offline processing (Phase B fallback). Build the HTTP API endpoint on the PRISM server side. Create the Fusion properties panel with full PRISM configuration options.",
+  "phases": [
+    {
+      "id": "P0",
+      "title": "PRISM HTTP API for Post Processing",
+      "units": [
+        {
+          "id": "U01",
+          "title": "HTTP API endpoint: POST /api/post-process — accepts job context, returns optimized G-code",
+          "status": "complete",
+          "steps": [
+            "Create HTTP server endpoint in PRISM MCP server (Express/Fastify route)",
+            "POST /api/post-process — main optimization endpoint",
+            "Request body: { machine, controller, tools[], operations[], stock, material, coolant, aggressiveness, enabled_stages[], output_format }",
+            "Each operation includes: type, tool_number, toolpath_blocks[], depths, tolerances, surface_finish_target",
+            "Response: { gcode: string, analytics: AnalyticsReport, setup_sheet: SetupSheet, warnings: Warning[], cycle_time: CycleTimeEstimate }",
+            "GET /api/post-process/machines — list available machines from catalog",
+            "GET /api/post-process/materials — list available materials from DB",
+            "GET /api/post-process/tools — search tool catalog",
+            "GET /api/post-process/controllers — list supported controller dialects",
+            "GET /api/post-process/health — health check + version",
+            "POST /api/post-process/resolve — resolve machine/tool/material without running pipeline (for UI preview)",
+            "Response includes timing data and stage-by-stage trace for debugging",
+            "CORS headers for local development (localhost origins)",
+            "Error handling: validation errors (400), engine errors (500), timeout (504)"
+          ],
+          "exit_conditions": [
+            "POST /api/post-process accepts job and returns optimized G-code",
+            "Response time < 5 seconds for typical 3-operation program",
+            "Catalog query endpoints return searchable results",
+            "Error responses include actionable error messages",
+            "15+ integration tests for API endpoints"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "P1",
+      "title": "Fusion 360 .cps Post Processor",
+      "units": [
+        {
+          "id": "U02",
+          "title": "Fusion 360 PRISM.cps — Context extraction + PRISM server communication",
+          "status": "complete",
+          "steps": [
+            "Create PRISM.cps post processor file (JavaScript for Fusion 360 HSM post engine)",
+            "Post processor description and legal headers",
+            "Implement onOpen(): initialize state, check PRISM server connectivity",
+            "Implement onSection(): capture per-operation context:",
+            "  Tool data: type, diameter, flute_count, corner_radius, length, holder_description",
+            "  Operation: type (2D pocket, 3D contour, drilling, etc.), strategy, tolerance, stock_to_leave",
+            "  Cutting parameters: user-set speed/feed (as baseline), depths (ap, ae as configured in CAM)",
+            "  WCS: work offset number, origin, orientation",
+            "  Stock: remaining stock model (bounding box at minimum)",
+            "Implement onLinear()/onCircular()/onRapid(): build toolpath block list with coordinates",
+            "Implement onSectionEnd(): package section data",
+            "Implement onClose(): send complete job to PRISM server, receive optimized G-code, write output",
+            "Phase A (server mode): HTTP POST to localhost:PORT/api/post-process",
+            "  Send: all operations, tools, machine, material as JSON",
+            "  Receive: optimized G-code → write to output file",
+            "Phase B (offline mode): if server unreachable, fall back to standard post processing",
+            "  Generate standard G-code using Fusion's built-in post engine",
+            "  Export sidecar JSON with all captured context for later PRISM optimization",
+            "  Sidecar path: output_file.json alongside output_file.nc"
+          ],
+          "exit_conditions": [
+            "PRISM.cps installs in Fusion 360 post processor library",
+            "Post generates dialog with PRISM-specific properties",
+            "Phase A: server running → optimized G-code output",
+            "Phase B: server down → standard G-code + sidecar JSON",
+            "Context extraction captures all tool, operation, and stock data from Fusion API"
+          ]
+        },
+        {
+          "id": "U03",
+          "title": "Fusion 360 Properties Panel — Full PRISM configuration in post processor dialog",
+          "status": "complete",
+          "steps": [
+            "Define Fusion post processor properties (shown in post processor dialog):",
+            "Group: Machine Setup",
+            "  Machine model (dropdown populated from /api/post-process/machines or manual entry)",
+            "  Controller type (auto-detected from machine selection or manual override)",
+            "  Controller version (for feature capability matching)",
+            "Group: Optimization",
+            "  Aggressiveness slider (0.0-1.0, default 0.5)",
+            "  Optimization target (dropdown: balanced / max_speed / max_tool_life / min_cost)",
+            "  Enable/disable toggles for each optimization phase:",
+            "    ☑ Chip thinning compensation",
+            "    ☑ Corner feed reduction",
+            "    ☑ Stability lobe RPM selection",
+            "    ☑ Wear progression tracking",
+            "    ☑ Thermal accumulation tracking",
+            "    ☑ Tool deflection compensation",
+            "    ☑ Controller feature injection",
+            "    ☑ Machine error compensation",
+            "    ☑ Stochastic verification",
+            "Group: Material Override",
+            "  Material (dropdown or text — overrides Fusion's material if set)",
+            "  Hardness (HRC/HB — overrides catalog default)",
+            "Group: Output Options",
+            "  Include setup sheet (boolean, default true)",
+            "  Include analytics report (boolean, default true)",
+            "  Include probe routines (boolean + type selection)",
+            "  Output format (G-code only / G-code + report / full package)",
+            "Group: Advanced",
+            "  PRISM server URL (default: http://localhost:PORT)",
+            "  Linearization tolerance (mm, default 0.01)",
+            "  Confidence level for stochastic analysis (%, default 95)",
+            "  Debug mode (include stage timings in comments)",
+            "Properties are persistent across Fusion sessions (stored in user preferences)"
+          ],
+          "exit_conditions": [
+            "All property groups visible in Fusion post processor dialog",
+            "Property values pass through to PRISM server API call",
+            "Machine selection auto-detects controller type",
+            "Toggle states correctly enable/disable pipeline stages",
+            "Properties persist across Fusion sessions"
+          ]
+        }
+      ]
+    }
+  ],
+  "status": "complete"
+}

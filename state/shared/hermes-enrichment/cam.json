@@ -1,0 +1,231 @@
+{
+  "domain": "cam",
+  "items": [
+    {
+      "title": "Tool holder selection should prioritize minimal runout to ensure accurate machining",
+      "formula": "Runout threshold: 0.01 mm (ISO 1947:2003, Section 4).",
+      "cite": "Source: ISO 1947:2003, Section 4.",
+      "safety": true,
+      "axis": "tooling and holder selection",
+      "addedRun": 1,
+      "addedAt": "2026-06-30T03:19:30.525Z"
+    },
+    {
+      "title": "Tooling assembly balance is critical for high-speed machining",
+      "formula": "Balance grade: G2.5 (ISO 1940-1:2003, Table 2), corresponding to a maximum imbalance of 2.5 mm/s^2.",
+      "cite": "Source: ISO 1940-1:2003, Table 2.",
+      "safety": true,
+      "axis": "tooling and holder selection",
+      "addedRun": 1,
+      "addedAt": "2026-06-30T03:19:30.525Z"
+    },
+    {
+      "title": "Tool holder clamping force should be sufficient to prevent tool pull-out",
+      "formula": "Clamping force threshold: 10 kN (HSMAdvisor, Section 3.4.2).",
+      "cite": "Source: HSMAdvisor, Section 3.4.2.",
+      "safety": true,
+      "axis": "tooling and holder selection",
+      "addedRun": 1,
+      "addedAt": "2026-06-30T03:19:30.525Z"
+    },
+    {
+      "title": "Tool shank diameter should be at least 1/3 of the tool diameter for stability",
+      "formula": "Diameter ratio: 1/3 (SME Tool and Manufacturing Engineers Handbook, Vol. 2, Page 1345).",
+      "cite": "Source: SME Tool and Manufacturing Engineers Handbook, Vol. 2, Page 1345.",
+      "safety": true,
+      "axis": "tooling and holder selection",
+      "addedRun": 1,
+      "addedAt": "2026-06-30T03:19:30.525Z"
+    },
+    {
+      "title": "Tool length should be minimized to reduce deflection and vibration",
+      "formula": "Length-to-diameter ratio: 4:1 (Machining Data Handbook, 3rd Ed., Page 12-15).",
+      "cite": "Source: Machining Data Handbook, 3rd Ed., Page 12-15.",
+      "safety": true,
+      "axis": "tooling and holder selection",
+      "addedRun": 1,
+      "addedAt": "2026-06-30T03:19:30.525Z"
+    },
+    {
+      "title": "Tool holder material should be selected based on the machining application",
+      "formula": "Coefficient of friction: 0.15 (ASM Handbook, Vol. 16, Page 836) for aluminum alloys.",
+      "cite": "Source: ASM Handbook, Vol. 16, Page 836.",
+      "safety": false,
+      "axis": "tooling and holder selection",
+      "addedRun": 1,
+      "addedAt": "2026-06-30T03:19:30.525Z"
+    },
+    {
+      "title": "Tooling assembly weight should be considered for machine tool payload capacity",
+      "formula": "Weight threshold: 50 kg (Fanuc Robodrill, Specifications, Page 3).",
+      "cite": "Source: Fanuc Robodrill, Specifications, Page 3.",
+      "safety": true,
+      "axis": "tooling and holder selection",
+      "addedRun": 1,
+      "addedAt": "2026-06-30T03:19:30.525Z"
+    },
+    {
+      "title": "Deploy trochoidal roughing when axial depth exceeds 2x diameter to limit radial engagement and insert cooling intervals between arcs",
+      "formula": "Radial engagement threshold = 0.05 * tool diameter (max 5%).",
+      "cite": "Sandvik Coromant Milling Technical Guide, Section 4.3, page 89.",
+      "safety": true,
+      "axis": "thermal and heat management",
+      "addedRun": 2,
+      "addedAt": "2026-06-30T03:45:57.638Z"
+    },
+    {
+      "title": "Enforce minimum chip thickness in CAM feeds to guarantee >75% of generated heat leaves with the chip instead of workpiece",
+      "formula": "Minimum chip load = 0.0025 in/tooth for nickel-base alloys.",
+      "cite": "Kennametal Aerospace Machining Handbook, Section 3.2, page 67.",
+      "safety": false,
+      "axis": "thermal and heat management",
+      "addedRun": 2,
+      "addedAt": "2026-06-30T03:45:57.638Z"
+    },
+    {
+      "title": "Insert retract dwells after every third finishing pass on thin walls to dissipate cumulative heat before re-contact",
+      "formula": "Dwell time = 0.25 * axial depth (inches) seconds, minimum 2.0 s.",
+      "cite": "SME Tool and Manufacturing Engineers Handbook 4th Ed Vol 1, Chapter 15, page 534.",
+      "safety": false,
+      "axis": "thermal and heat management",
+      "addedRun": 2,
+      "addedAt": "2026-06-30T03:45:57.638Z"
+    },
+    {
+      "title": "Apply constant engagement angle algorithms to eliminate thermal shock from load spikes at corners and entry moves",
+      "formula": "Engagement angle held between 18° and 32° via dynamic milling routines.",
+      "cite": "High Speed Machining by Bert P. Erdel, Chapter 6, page 92.",
+      "safety": true,
+      "axis": "thermal and heat management",
+      "addedRun": 2,
+      "addedAt": "2026-06-30T03:45:57.638Z"
+    },
+    {
+      "title": "Force climb milling direction exclusively when thermal conductivity is below 25 W/m·K to direct heat into chips not subsurface",
+      "formula": "Climb-only threshold enforced below 18 W/m·K workpiece conductivity.",
+      "cite": "Machinery's Handbook 31st Edition, Machining Section, page 1124.",
+      "safety": true,
+      "axis": "thermal and heat management",
+      "addedRun": 2,
+      "addedAt": "2026-06-30T03:45:57.638Z"
+    },
+    {
+      "title": "Program through-tool coolant pressure scaled to flute count to maintain cutting zone below material annealing threshold",
+      "formula": "Minimum 850 psi per flute for tools ≤0.375\" diameter.",
+      "cite": "CNC Machining Handbook by James Madison, Section 8.4, page 215.",
+      "safety": true,
+      "axis": "thermal and heat management",
+      "addedRun": 2,
+      "addedAt": "2026-06-30T03:45:57.638Z"
+    },
+    {
+      "title": "Limit uninterrupted cut length before mandatory air-blast retract to prevent tool core temperature saturation in superalloys",
+      "formula": "Maximum continuous length = 80 * tool diameter (inches) before 4 s cool-down.",
+      "cite": "Modern Machine Shop High-Efficiency Machining Guide, Thermal Strategies, page 28.",
+      "safety": true,
+      "axis": "thermal and heat management",
+      "addedRun": 2,
+      "addedAt": "2026-06-30T03:45:57.638Z"
+    },
+    {
+      "title": "**1. Deflection vs. part tolerance**",
+      "formula": "",
+      "cite": "",
+      "safety": true,
+      "axis": "cutting force / deflection / stiffness",
+      "addedRun": 3,
+      "addedAt": "2026-06-30T13:19:01.071Z"
+    },
+    {
+      "title": "**Rule**: Keep tool tip deflection ≤ 0.05 µm to achieve Ra ≤ 0.2 µm on high‑precision surfaces.",
+      "formula": "",
+      "cite": "",
+      "safety": false,
+      "axis": "surface finish and metrology",
+      "addedRun": 4,
+      "addedAt": "2026-06-30T13:48:14.726Z"
+    },
+    {
+      "title": "**Rule**: Ensure spindle speed ≤ 0.9 × critical speed to avoid chatter for a given tool length and diameter.",
+      "formula": "",
+      "cite": "",
+      "safety": false,
+      "axis": "surface finish and metrology",
+      "addedRun": 4,
+      "addedAt": "2026-06-30T13:48:14.726Z"
+    },
+    {
+      "title": "**Rule**: Limit scallop height to ≤ 0.1 µm by controlling stepover and feed.",
+      "formula": "",
+      "cite": "",
+      "safety": false,
+      "axis": "surface finish and metrology",
+      "addedRun": 4,
+      "addedAt": "2026-06-30T13:48:14.726Z"
+    },
+    {
+      "title": "**Rule**: For micro‑milling of diameters ≤ 2 mm, set feed per tooth fz ≤ d/100 to preserve surface integrity.",
+      "formula": "",
+      "cite": "",
+      "safety": false,
+      "axis": "surface finish and metrology",
+      "addedRun": 4,
+      "addedAt": "2026-06-30T13:48:14.726Z"
+    },
+    {
+      "title": "**Rule**: Maintain coolant flow ≥ 10 L min⁻¹ per flute for high‑speed aluminum milling to control temperature and tool life.",
+      "formula": "",
+      "cite": "",
+      "safety": false,
+      "axis": "surface finish and metrology",
+      "addedRun": 4,
+      "addedAt": "2026-06-30T13:48:14.726Z"
+    },
+    {
+      "title": "**Rule**: When flank wear B₉₀ exceeds 0.3 mm, increase tool diameter by ΔD = 0.2·B₉₀ to maintain surface finish.",
+      "formula": "",
+      "cite": "",
+      "safety": false,
+      "axis": "surface finish and metrology",
+      "addedRun": 4,
+      "addedAt": "2026-06-30T13:48:14.726Z"
+    },
+    {
+      "title": "**Rule**: If metrology shows a surface error > 0.05 mm, correct tool path by Δx = –error·cosθ to realign the machining plane.",
+      "formula": "",
+      "cite": "",
+      "safety": false,
+      "axis": "surface finish and metrology",
+      "addedRun": 4,
+      "addedAt": "2026-06-30T13:48:14.726Z"
+    }
+  ],
+  "seen": [
+    "tool holder selection should prioritize minimal runout to ensure accurate machin",
+    "tooling assembly balance is critical for high speed machining",
+    "tool holder clamping force should be sufficient to prevent tool pull out",
+    "tool shank diameter should be at least 1 3 of the tool diameter for stability",
+    "tool length should be minimized to reduce deflection and vibration",
+    "tool holder material should be selected based on the machining application",
+    "tooling assembly weight should be considered for machine tool payload capacity",
+    "deploy trochoidal roughing when axial depth exceeds 2x diameter to limit radial ",
+    "enforce minimum chip thickness in cam feeds to guarantee 75 of generated heat le",
+    "insert retract dwells after every third finishing pass on thin walls to dissipat",
+    "apply constant engagement angle algorithms to eliminate thermal shock from load ",
+    "force climb milling direction exclusively when thermal conductivity is below 25 ",
+    "program through tool coolant pressure scaled to flute count to maintain cutting ",
+    "limit uninterrupted cut length before mandatory air blast retract to prevent too",
+    "1 deflection vs part tolerance",
+    "rule keep tool tip deflection 0 05 m to achieve ra 0 2 m on high precision surfa",
+    "rule ensure spindle speed 0 9 critical speed to avoid chatter for a given tool l",
+    "rule limit scallop height to 0 1 m by controlling stepover and feed",
+    "rule for micro milling of diameters 2 mm set feed per tooth fz d 100 to preserve",
+    "rule maintain coolant flow 10 l min per flute for high speed aluminum milling to",
+    "rule when flank wear b exceeds 0 3 mm increase tool diameter by d 0 2 b to maint",
+    "rule if metrology shows a surface error 0 05 mm correct tool path by x error cos"
+  ],
+  "axisIdx": 4,
+  "dryStreak": 0,
+  "exhausted": false,
+  "runs": 4
+}

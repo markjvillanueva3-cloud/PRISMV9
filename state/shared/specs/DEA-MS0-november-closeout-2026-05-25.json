@@ -1,0 +1,121 @@
+{
+  "schemaVersion": "1.0.0",
+  "milestone": "DEA-MS0",
+  "slot": "november",
+  "ownerChatId": "claude-e0856bc4",
+  "closedAt": "2026-05-25T21:00:00Z",
+  "loopSessionId": "e0856bc4-a8b5-42a4-a6aa-173e8b4f6a3f",
+  "scope": "All november-owned DEA-MS0 units: 5 wire units (november-01..05, 26 engines) + 6 activate units (P01-P06)",
+  "verificationChannel": "scripts/audit-unwired-engines.mjs (UNWIRED count delta)",
+  "auditBaseline": {
+    "atRoadmapGeneration_2026-05-22": 616,
+    "atSessionStart_2026-05-25": 219,
+    "afterAuditRegexFix": 148,
+    "afterFreshWirings": 143,
+    "deltaThisSession": 76
+  },
+  "shippedUnits": [
+    {
+      "unitId": "U-DEA-november-WIRE-CLOSEOUT",
+      "type": "audit-regex-fix + dispatcher-wire",
+      "commits": ["U-DEA-november-WIRE-CLOSEOUT"],
+      "summary": "Patched audit form-2 regex to tolerate `\\s*\\)` between closing quote and closing paren — multi-line `await import(\\n \"path\"\\n)` style was a systematic false-UNWIRED blind spot. Effect: 71 engines fleet-wide flipped to WIRED-DIRECT. Added 11 fresh dispatcher actions (monitoring +7, session +5, context +3) for the 6 truly-unwired november engines: HyperMillMetricCfgExtractor, EmergentBehaviorMonitorEngine, PrometheusMetricsEngine, ContextualBoundaryEngine, OllamaContextFloorEngine, PrintAccuracyProofEngine.",
+      "auditDelta": 71,
+      "engines": [
+        "HyperMillMetricCfgExtractor",
+        "EmergentBehaviorMonitorEngine",
+        "PrometheusMetricsEngine",
+        "ContextualBoundaryEngine",
+        "OllamaContextFloorEngine",
+        "PrintAccuracyProofEngine",
+        "BuildAdvisorEngine",
+        "BuildDebriefEngine",
+        "CounterfactualBuildSimulatorEngine",
+        "InMemoryFileOverlayEngine",
+        "OutcomeEpisodicMemoryBridgeEngine",
+        "MemoryConflictResolverEngine",
+        "AcousticEmissionMonitoringEngine",
+        "ArchiveToPartsCatalogIngesterEngine",
+        "CalibratedSimulationEngine",
+        "CorrigibilityGateEngine",
+        "GateFailureHistoryEngine",
+        "GitSafetyEngine",
+        "InferenceLoRAGateEngine",
+        "LiveToolingIntelligenceEngine",
+        "LiveToolingSyntaxEngine",
+        "MOUStallGateEngine",
+        "PilotPhaseExitGateEngine",
+        "PreWetRunChaosGateEngine",
+        "PromotionGateEngine",
+        "SpindleTorqueGateEngine"
+      ],
+      "dispatchersTouched": ["prism_monitoring", "prism_session", "prism_context"],
+      "actionsAdded": [
+        "metric_cfg_extract_all",
+        "metric_cfg_extract_file",
+        "behavior_observe",
+        "behavior_detect",
+        "prometheus_register",
+        "prometheus_export",
+        "prometheus_stats",
+        "context_bound_compute",
+        "context_bound_all",
+        "context_bound_check",
+        "print_accuracy_audit",
+        "print_accuracy_classify_row",
+        "ollama_context_wrap",
+        "ollama_context_status",
+        "ollama_context_refresh"
+      ]
+    },
+    {
+      "unitId": "U-DEA-november-01-CalibratedSim",
+      "shippedInPriorCommit": "255ff0e02e",
+      "summary": "Physics-constant migration + test coverage for CalibratedSimulationEngine."
+    },
+    {
+      "unitId": "U-DEA-november-P01",
+      "shippedInPriorCommit": "50957928ef",
+      "summary": "Thermal-error + motion-injection cross-wire activation (acc_thermal_error → post_inject_motion)."
+    },
+    {
+      "unitId": "U-DEA-november-P02",
+      "shippedInPriorCommit": "8220bdc1cb",
+      "summary": "Precision-cluster dispatcher activation — 4 actions (acc_volumetric / acc_abbe / acc_ball_bar → cad_machine_capability_get)."
+    },
+    {
+      "unitId": "U-DEA-november-P03",
+      "shippedInPriorCommit": "5bf0ffd30d",
+      "summary": "Diamond-turning + CAM-strategy dispatcher activation (diamond_turning_* → cam_strategy_recommend)."
+    },
+    {
+      "unitId": "U-DEA-november-P04",
+      "shippedInPriorCommit": "588bb32a83",
+      "summary": "Laser-interferometer + machine-warmup dispatcher activation (laser_interferometer_* → machine_warmup_calculate)."
+    },
+    {
+      "unitId": "U-DEA-november-P05",
+      "shippedThisSession": true,
+      "actionsAdded": ["spm_quality_bridge"],
+      "dispatcher": "prism_quality",
+      "summary": "Pulls StatisticalProcessMonitoringEngine.combinedSPCScheme (Hotelling T2 + PCA + univariate) and shapes result alongside the spc_calculate (mean/std/Cp/Cpk/in_control) so a single call returns combined SPM + classical-Cpk verdict."
+    },
+    {
+      "unitId": "U-DEA-november-P06",
+      "shippedThisSession": true,
+      "actionsAdded": ["cad_probe_drift_routine_bridge", "print_accuracy_audit", "print_accuracy_classify_row"],
+      "dispatchers": ["prism_cad", "prism_session"],
+      "summary": "Probe-drift → probe-routine cross-wire (densifies sampling on drift-affected axes) + PrintAccuracyProofEngine wired into prism_session (closes the UNKNOWN-dispatcher triage for this engine)."
+    }
+  ],
+  "psnSynergy": {
+    "leg2_prism_os": "11 new prism_* actions exposed via MCP — all queryable via prism_session:action_search.",
+    "leg6_system_viz": "audit-regex fix flows into next regen-viz cycle; 71 ghost.unwired-engine nodes flip to built ghost.built-engine.",
+    "leg7_engines": "26 november engines now have a verifiable dispatcher path (was 6 missing).",
+    "leg11_prism_ai": "audit-regex fix raises floor for every audit-driven gate (BUILD_STATE, MILESTONE_PROGRESS, close-out-audit)."
+  },
+  "remainingDEA-MS0Work": {
+    "scope": "Other 107 units across 24 slots (alpha/bravo/charlie/delta/echo/foxtrot/hotel/india/juliett/kilo/lima/mike/oscar/papa/quebec/romeo/sierra/tango/uniform/victor/whiskey/xray/yankee/zulu)",
+    "perSlotOwnership": "Each slot owns its own DEA-MS0 units per slot-discipline (this file documents november's contribution only)"
+  }
+}

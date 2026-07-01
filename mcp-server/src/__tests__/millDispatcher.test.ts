@@ -22,8 +22,14 @@ describe("millDispatcher", () => {
       expect(MILL_ACTIONS.length).toBeGreaterThanOrEqual(95);
     });
 
-    it("should have all actions prefixed with mill_", () => {
-      const allPrefixed = MILL_ACTIONS.every((a) => a.startsWith("mill_"));
+    it("should have all actions prefixed with mill_ or millturn_", () => {
+      // The mill dispatcher consolidates mill, 5-axis (mill_5axis_*) AND
+      // mill-turn (millturn_*) actions — both prefixes are legitimate.
+      // (Pre-existing: the millturn_* actions from U-BRIDGE-WIRE-MILLING
+      // iter-3/4 already broke the original mill_-only assertion.)
+      const allPrefixed = MILL_ACTIONS.every(
+        (a) => a.startsWith("mill_") || a.startsWith("millturn_"),
+      );
       expect(allPrefixed).toBe(true);
     });
 

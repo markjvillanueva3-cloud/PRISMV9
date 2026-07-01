@@ -1,0 +1,82 @@
+{
+  "ts": "2026-06-01T16:02:59.697Z",
+  "port": 18365,
+  "health": {
+    "ok": true,
+    "reportedPort": 18365,
+    "status": "ok",
+    "httpStatus": 200
+  },
+  "targets": [
+    "box-40x30x10"
+  ],
+  "cycles": [
+    {
+      "cycle": 1,
+      "id": "box-40x30x10",
+      "ts": "2026-06-01T16:03:06.697Z",
+      "converged": true,
+      "reason": "match",
+      "iterations": 4,
+      "convergence": 1,
+      "finalVerdict": "match",
+      "refDims": {
+        "x": 40,
+        "y": 30,
+        "z": 10
+      },
+      "liveRefBody": {
+        "faces": 6,
+        "edges": 12,
+        "vertices": 8,
+        "volumeMm3": 12000,
+        "areaMm2": 3800,
+        "valid": true,
+        "bboxMm": {
+          "x": 40,
+          "y": 30,
+          "z": 10
+        }
+      },
+      "dualGate": {
+        "verdict": "PASS",
+        "converged": true,
+        "cad": {
+          "present": true,
+          "match": true,
+          "verdict": "match",
+          "convergence": 1,
+          "coverage": 1
+        },
+        "print": {
+          "present": true,
+          "pass": true,
+          "verdict": "PASS",
+          "scorePct": 100,
+          "matched": 5,
+          "total": 5
+        }
+      }
+    }
+  ],
+  "summary": {
+    "total": 1,
+    "converged": 1,
+    "failed": 0,
+    "convergenceRate": 1,
+    "meanIterations": 4,
+    "allConverged": true
+  },
+  "dualGateSummary": {
+    "cadAndPrintConverged": 1,
+    "fixesLogged": 0
+  },
+  "reap": {
+    "ok": true,
+    "closed": 0,
+    "reactivated": null,
+    "remaining": 1,
+    "activeName": "DIE CASE 2.940 X 3.75 .992 ID"
+  },
+  "docPrefix": "PRISM-DELTA-LOOP-1780329779692-"
+}

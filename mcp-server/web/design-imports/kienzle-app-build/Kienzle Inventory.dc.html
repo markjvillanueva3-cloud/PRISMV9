@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Archivo:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; background: #070809; height: 100%; overflow: hidden; }
+    .kz-scroll::-webkit-scrollbar { width: 8px; } .kz-scroll::-webkit-scrollbar-thumb { background: #23262E; border-radius: 8px; }
+    @keyframes kzpulse { 0%,100% { opacity:.4 } 50% { opacity:1 } }
+  </style>
+</helmet>
+<div style="position:fixed;inset:0;background:#070809;display:flex;align-items:center;justify-content:center;overflow:hidden;">
+<div style="width:1600px;height:980px;flex:none;transform:scale({{ scale }});transform-origin:center;display:flex;background:#0A0B0D;color:#F3F4F6;font-family:'Archivo',sans-serif;overflow:hidden;border-radius:16px;box-shadow:0 40px 120px rgba(0,0,0,0.6);">
+  <aside style="width:72px;flex:none;background:#0C0D10;border-right:1px solid rgba(255,255,255,0.06);display:flex;flex-direction:column;align-items:center;padding:18px 0;gap:6px;">
+    <svg viewBox="0 0 120 120" width="34" height="34" style="margin-bottom:14px;"><rect x="22" y="20" width="13" height="80" rx="1.5" fill="#F3F4F6"/><path d="M35 60 L86 22" stroke="#F3F4F6" stroke-width="13" stroke-linecap="round"/><path d="M35 60 L92 98 L92 74 L58 60 Z" fill="#FF5A2B"/></svg>
+    <div style="width:50px;height:48px;border-radius:12px;border:1px solid rgba(255,90,43,0.35);background:rgba(255,90,43,0.1);color:#FF7A4D;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-family:'JetBrains Mono',monospace;font-size:9px;"><span style="font-size:15px;">▥</span>STOCK</div>
+    <div style="flex:1;"></div>
+    <div style="width:38px;height:38px;border-radius:50%;background:#1B1E24;border:1px solid rgba(255,255,255,0.1);display:flex;align-items:center;justify-content:center;font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:13px;color:#AEB4BE;">JM</div>
+  </aside>
+  <main style="flex:1;display:flex;flex-direction:column;min-width:0;">
+    <header style="flex:none;height:64px;border-bottom:1px solid rgba(255,255,255,0.06);display:flex;align-items:center;justify-content:space-between;padding:0 24px;background:#0C0D10;">
+      <div><div style="font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:19px;">Inventory &amp; Purchasing</div><div style="font-family:'JetBrains Mono',monospace;font-size:10.5px;color:#6B7280;margin-top:1px;">JM DIE · STOCK · PO · RECEIVING</div></div>
+      <div style="display:flex;align-items:center;gap:10px;">
+        <div style="display:flex;align-items:center;gap:7px;padding:7px 12px;border:1px solid {{ alertBorder }};background:{{ alertBg }};border-radius:9px;font-family:'JetBrains Mono',monospace;font-size:11px;color:{{ alertColor }};"><span style="width:6px;height:6px;border-radius:50%;background:{{ alertColor }};animation:kzpulse 2s infinite;"></span>{{ reorderCount }} BELOW REORDER</div>
+        <button onClick="{{ raiseAll }}" style="border:none;background:#FF5A2B;color:#0A0B0D;border-radius:9px;padding:9px 16px;font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:13px;cursor:pointer;">{{ raiseLabel }}</button>
+      </div>
+    </header>
+    <div style="flex:1;display:grid;grid-template-columns:minmax(0,1fr) 420px;min-height:0;">
+
+      <section style="min-width:0;padding:18px 20px;background:radial-gradient(900px 480px at 60% -12%, rgba(255,90,43,0.05), transparent 60%),#0B0C0F;display:flex;flex-direction:column;">
+        <div style="display:flex;gap:6px;margin-bottom:12px;"><sc-for list="{{ tabs }}" as="t" hint-placeholder-count="3"><button onClick="{{ t.on }}" style="{{ t.style }}">{{ t.label }}</button></sc-for></div>
+
+        <sc-if value="{{ showStock }}" hint-placeholder-val="{{ true }}">
+          <div class="kz-scroll" style="flex:1;min-height:0;overflow-y:auto;background:#0C0D11;border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:6px 0;">
+            <div style="display:grid;grid-template-columns:1.5fr 64px 1fr 64px 70px;gap:10px;padding:11px 18px 9px;font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:0.05em;color:#6B7280;border-bottom:1px solid rgba(255,255,255,0.06);"><span>ITEM</span><span>ABC</span><span>ON HAND</span><span>EOQ</span><span style="text-align:right;">STATUS</span></div>
+            <sc-for list="{{ stockRows }}" as="r" hint-placeholder-count="9">
+              <div onClick="{{ r.on }}" style="{{ r.style }}">
+                <div style="min-width:0;"><div style="font-size:12.5px;color:#F3F4F6;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ r.item }}</div><div style="font-family:'JetBrains Mono',monospace;font-size:9.5px;color:#6B7280;">{{ r.sku }} · {{ r.vendor }}</div></div>
+                <span style="font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;color:{{ r.abcColor }};">{{ r.abc }}</span>
+                <div style="min-width:0;"><div style="display:flex;align-items:center;gap:6px;"><div style="flex:1;height:6px;border-radius:999px;background:#1B1E24;overflow:hidden;"><div style="height:100%;width:{{ r.bar }};background:{{ r.barColor }};border-radius:999px;"></div></div></div><div style="font-family:'JetBrains Mono',monospace;font-size:9.5px;color:#9398A2;margin-top:2px;">{{ r.onHand }} / min {{ r.min }}</div></div>
+                <span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#C7CCD4;">{{ r.eoq }}</span>
+                <span style="font-family:'JetBrains Mono',monospace;font-size:9.5px;font-weight:700;color:{{ r.statusColor }};text-align:right;">{{ r.status }}</span>
+              </div>
+            </sc-for>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ showPO }}" hint-placeholder-val="{{ false }}">
+          <div class="kz-scroll" style="flex:1;min-height:0;overflow-y:auto;background:#0C0D11;border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:6px 0;">
+            <div style="display:grid;grid-template-columns:90px 1.4fr 1fr 70px 80px;gap:10px;padding:11px 18px 9px;font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:0.05em;color:#6B7280;border-bottom:1px solid rgba(255,255,255,0.06);"><span>PO #</span><span>VENDOR · ITEM</span><span>STAGE</span><span style="text-align:right;">VALUE</span><span style="text-align:right;">DUE</span></div>
+            <sc-for list="{{ poRows }}" as="p" hint-placeholder-count="6">
+              <div style="display:grid;grid-template-columns:90px 1.4fr 1fr 70px 80px;gap:10px;align-items:center;padding:11px 18px;border-bottom:1px solid rgba(255,255,255,0.04);">
+                <span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#FF7A4D;">{{ p.no }}</span>
+                <div style="min-width:0;"><div style="font-size:12px;color:#F3F4F6;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ p.vendor }}</div><div style="font-family:'JetBrains Mono',monospace;font-size:9.5px;color:#6B7280;">{{ p.item }}</div></div>
+                <div style="display:flex;align-items:center;gap:6px;"><span style="width:8px;height:8px;border-radius:50%;background:{{ p.stageColor }};"></span><span style="font-size:11px;color:#C7CCD4;">{{ p.stage }}</span></div>
+                <span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#C7CCD4;text-align:right;">${{ p.value }}</span>
+                <span style="font-family:'JetBrains Mono',monospace;font-size:10px;color:{{ p.dueColor }};text-align:right;">{{ p.due }}</span>
+              </div>
+            </sc-for>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ showRecv }}" hint-placeholder-val="{{ false }}">
+          <div class="kz-scroll" style="flex:1;min-height:0;overflow-y:auto;background:#0C0D11;border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:6px 0;">
+            <div style="display:grid;grid-template-columns:90px 1.5fr 1fr 90px;gap:10px;padding:11px 18px 9px;font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:0.05em;color:#6B7280;border-bottom:1px solid rgba(255,255,255,0.06);"><span>RECV #</span><span>VENDOR · ITEM</span><span>INSPECT</span><span style="text-align:right;">ACTION</span></div>
+            <sc-for list="{{ recvRows }}" as="r" hint-placeholder-count="5">
+              <div style="display:grid;grid-template-columns:90px 1.5fr 1fr 90px;gap:10px;align-items:center;padding:11px 18px;border-bottom:1px solid rgba(255,255,255,0.04);">
+                <span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#7FB2FF;">{{ r.no }}</span>
+                <div style="min-width:0;"><div style="font-size:12px;color:#F3F4F6;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ r.vendor }}</div><div style="font-family:'JetBrains Mono',monospace;font-size:9.5px;color:#6B7280;">{{ r.item }}</div></div>
+                <div style="display:flex;align-items:center;gap:6px;"><span style="width:8px;height:8px;border-radius:50%;background:{{ r.inspColor }};"></span><span style="font-size:11px;color:#C7CCD4;">{{ r.insp }}</span></div>
+                <span style="font-family:'JetBrains Mono',monospace;font-size:10px;color:{{ r.actColor }};text-align:right;">{{ r.action }}</span>
+              </div>
+            </sc-for>
+          </div>
+        </sc-if>
+
+        <div style="flex:none;display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:13px;">
+          <div style="background:#0E0F12;border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:12px 14px;"><div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:#6B7280;">INVENTORY VALUE</div><div style="font-family:'JetBrains Mono',monospace;font-weight:700;font-size:18px;color:#F3F4F6;margin-top:4px;">${{ invValue }}</div></div>
+          <div style="background:#0E0F12;border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:12px 14px;"><div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:#6B7280;">OPEN PO VALUE</div><div style="font-family:'JetBrains Mono',monospace;font-weight:700;font-size:18px;color:#F3F4F6;margin-top:4px;">${{ poValue }}</div></div>
+          <div style="background:#0E0F12;border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:12px 14px;"><div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:#6B7280;">TURNS / YR</div><div style="font-family:'JetBrains Mono',monospace;font-weight:700;font-size:18px;color:{{ turnsColor }};margin-top:4px;">{{ turns }}</div></div>
+          <div style="background:#0E0F12;border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:12px 14px;"><div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:#6B7280;">AP DUE 7d</div><div style="font-family:'JetBrains Mono',monospace;font-weight:700;font-size:18px;color:#F4B740;margin-top:4px;">${{ apDue }}</div></div>
+        </div>
+      </section>
+
+      <section class="kz-scroll" style="border-left:1px solid rgba(255,255,255,0.06);overflow-y:auto;min-width:0;padding:16px 18px 40px;background:#0A0B0D;">
+        <div style="display:flex;align-items:center;gap:11px;margin-bottom:13px;">
+          <span style="flex:none;width:38px;height:38px;border-radius:10px;background:rgba(255,90,43,0.12);display:flex;align-items:center;justify-content:center;font-size:16px;">▦</span>
+          <div style="flex:1;min-width:0;"><div style="font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:15px;">{{ selItem }}</div><div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:#6B7280;">{{ selSku }} · {{ selVendor }}</div></div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:13px;">
+          <div style="background:#0E0F12;border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:12px 14px;"><div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:#6B7280;">ON HAND</div><div style="font-family:'JetBrains Mono',monospace;font-weight:700;font-size:18px;color:{{ selOnHandColor }};margin-top:4px;">{{ selOnHand }}</div></div>
+          <div style="background:#0E0F12;border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:12px 14px;"><div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:#6B7280;">ALLOCATED</div><div style="font-family:'JetBrains Mono',monospace;font-weight:700;font-size:18px;color:#C7CCD4;margin-top:4px;">{{ selAlloc }}</div></div>
+        </div>
+        <div style="background:#0E0F12;border:1px solid rgba(255,255,255,0.08);border-radius:13px;padding:14px 16px;margin-bottom:13px;">
+          <div style="font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.1em;color:#9398A2;margin-bottom:12px;">EOQ MODEL</div>
+          <sc-for list="{{ eoqRows }}" as="e" hint-placeholder-count="5"><div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.05);"><span style="font-size:11.5px;color:#9398A2;">{{ e.k }}</span><span style="font-family:'JetBrains Mono',monospace;font-size:12px;color:{{ e.c }};">{{ e.v }}</span></div></sc-for>
+        </div>
+        <div style="background:#0E0F12;border:1px solid rgba(255,255,255,0.08);border-radius:13px;padding:14px 16px;margin-bottom:13px;">
+          <div style="font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.1em;color:#9398A2;margin-bottom:10px;">CONSUMPTION · 6 MO</div>
+          <svg viewBox="0 0 360 80" width="100%" height="76" style="display:block;">
+            <polyline points="{{ consumeLine }}" fill="none" stroke="#7FB2FF" stroke-width="1.8"></polyline>
+            <line x1="0" y1="{{ reorderY }}" x2="360" y2="{{ reorderY }}" stroke="#FF5247" stroke-width="1" stroke-dasharray="4 3"></line>
+            <text x="358" y="{{ reorderLabelY }}" text-anchor="end" font-family="JetBrains Mono" font-size="8" fill="#FF6B6B">reorder pt</text>
+          </svg>
+        </div>
+        <div style="background:linear-gradient(135deg,rgba(255,90,43,0.06),#0E0F12);border:1px solid rgba(255,90,43,0.2);border-radius:13px;padding:14px 16px;">
+          <div style="font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.1em;color:#FF7A4D;margin-bottom:9px;">◆ KIENZLE SUGGESTS</div>
+          <div style="font-size:12px;color:#C7CCD4;line-height:1.5;">{{ insight }}</div>
+        </div>
+      </section>
+    </div>
+  </main>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = { tab: 'stock', sel: 'd2', scale: (typeof window !== 'undefined') ? Math.min(window.innerWidth / 1600, window.innerHeight / 980) : 0.6 };
+  componentDidMount() { this._fit = () => this.setState({ scale: Math.min(window.innerWidth / 1600, window.innerHeight / 980) }); window.addEventListener('resize', this._fit); this._fit(); }
+  componentWillUnmount() { if (this._fit) window.removeEventListener('resize', this._fit); }
+  ITEMS = [
+    { id: 'carbide', item: 'C2 carbide blank ⌀.75×3', sku: 'CB-0750', vendor: 'Hertel', abc: 'A', onHand: 8, min: 12, eoq: 40, use: 6, unit: 9.5 },
+    { id: 'd2', item: 'D2 tool steel 2×2×12', sku: 'D2-2212', vendor: 'Crucible', abc: 'A', onHand: 22, min: 15, eoq: 30, use: 4, unit: 42 },
+    { id: 'wire', item: 'Brass wire .010 (44lb)', sku: 'BW-010', vendor: 'Global EDM', abc: 'A', onHand: 1, min: 3, eoq: 8, use: 2, unit: 185 },
+    { id: '6061', item: '6061-T6 plate 6×4×2', sku: 'AL-642', vendor: 'Ryerson', abc: 'B', onHand: 14, min: 8, eoq: 20, use: 3, unit: 28 },
+    { id: 'a2', item: 'A2 tool steel 1.5×1.5×12', sku: 'A2-1512', vendor: 'Crucible', abc: 'B', onHand: 9, min: 6, eoq: 16, use: 2, unit: 36 },
+    { id: 'tialn', item: '½" 4FL carbide EM TiAlN', sku: 'EM-5004', vendor: 'Lakeshore', abc: 'A', onHand: 18, min: 10, eoq: 25, use: 5, unit: 58 },
+    { id: 'graphite', item: 'Graphite POCO EDM-3 block', sku: 'GR-EDM3', vendor: 'POCO', abc: 'B', onHand: 5, min: 4, eoq: 10, use: 1.5, unit: 95 },
+    { id: 's7', item: 'S7 shock steel 2×2×12', sku: 'S7-2212', vendor: 'Crucible', abc: 'C', onHand: 6, min: 3, eoq: 8, use: 0.8, unit: 55 },
+    { id: 'insert', item: 'CNMG 432 insert (10pk)', sku: 'IN-CNMG', vendor: 'Sandvik', abc: 'B', onHand: 24, min: 12, eoq: 30, use: 6, unit: 92 },
+  ];
+  POS = [
+    { no: 'PO-2241', vendor: 'Global EDM', item: 'Brass wire .010 ×8', value: 1480, stage: 'Issued', sc: '#F4B740', due: 'Jun 27', dueLvl: 1 },
+    { no: 'PO-2240', vendor: 'Hertel', item: 'C2 carbide blank ×40', value: 380, stage: 'Acknowledged', sc: '#7FB2FF', due: 'Jun 30', dueLvl: 0 },
+    { no: 'PO-2238', vendor: 'Crucible', item: 'D2 stock ×30', value: 1260, stage: 'Shipped', sc: '#36D399', due: 'Jun 26', dueLvl: 0 },
+    { no: 'PO-2235', vendor: 'Sandvik', item: 'CNMG inserts ×30', value: 2760, stage: 'Received', sc: '#36D399', due: 'done', dueLvl: 0 },
+    { no: 'PO-2233', vendor: 'Ryerson', item: '6061 plate ×20', value: 560, stage: 'Issued', sc: '#F4B740', due: 'Jul 2', dueLvl: 0 },
+  ];
+  RECV = [
+    { no: 'RC-881', vendor: 'Crucible', item: 'D2 stock ×30', insp: 'Pass · cert OK', ic: '#36D399', action: 'Put away', ac: '#36D399' },
+    { no: 'RC-880', vendor: 'Sandvik', item: 'CNMG inserts ×30', insp: 'Pass', ic: '#36D399', action: 'Stocked', ac: '#9398A2' },
+    { no: 'RC-879', vendor: 'POCO', item: 'Graphite ×10', insp: 'Hold · MTR missing', ic: '#F4B740', action: 'Chase cert', ac: '#F4B740' },
+    { no: 'RC-878', vendor: 'Hertel', item: 'Carbide ⌀.75 ×40', insp: 'Pass · 1 short', ic: '#F4B740', action: 'PO discrepancy', ac: '#F4B740' },
+  ];
+  renderVals() {
+    const s = this.state;
+    const abcColor = (a) => a === 'A' ? '#FF7A4D' : a === 'B' ? '#7FB2FF' : '#9398A2';
+    const reorder = this.ITEMS.filter(i => i.onHand < i.min);
+    const stockRows = this.ITEMS.map(i => { const on = i.id === s.sel; const low = i.onHand < i.min; const bar = Math.min(100, i.onHand / (i.min * 1.8) * 100); return {
+      on: () => this.setState({ sel: i.id }), item: i.item, sku: i.sku, vendor: i.vendor, abc: i.abc, abcColor: abcColor(i.abc),
+      onHand: i.onHand, min: i.min, eoq: i.eoq, bar: bar.toFixed(0) + '%', barColor: low ? '#FF5247' : i.onHand < i.min * 1.3 ? '#F4B740' : '#36D399',
+      status: low ? 'REORDER' : i.onHand < i.min * 1.3 ? 'LOW' : 'OK', statusColor: low ? '#FF5247' : i.onHand < i.min * 1.3 ? '#F4B740' : '#36D399',
+      style: `display:grid;grid-template-columns:1.5fr 64px 1fr 64px 70px;gap:10px;align-items:center;padding:11px 18px;border-bottom:1px solid rgba(255,255,255,0.04);cursor:pointer;background:${on ? 'rgba(255,90,43,0.08)' : (low ? 'rgba(255,82,71,0.04)' : 'transparent')};`,
+    }; });
+    const poRows = this.POS.map(p => ({ no: p.no, vendor: p.vendor, item: p.item, stage: p.stage, stageColor: p.sc, value: p.value.toLocaleString(), due: p.due, dueColor: p.dueLvl ? '#F4B740' : '#9398A2' }));
+    const recvRows = this.RECV.map(r => ({ no: r.no, vendor: r.vendor, item: r.item, insp: r.insp, inspColor: r.ic, action: r.action, actColor: r.ac }));
+    const it = this.ITEMS.find(i => i.id === s.sel) || this.ITEMS[1];
+    // EOQ = sqrt(2 D S / H); D annual demand (use/wk*52), S order cost, H holding = 25% unit
+    const D = it.use * 52, S = 45, H = it.unit * 0.25;
+    const eoq = Math.round(Math.sqrt(2 * D * S / Math.max(1, H)));
+    const rop = Math.round(it.use * 2 + it.min * 0.5); // 2-wk lead + safety
+    const invValue = this.ITEMS.reduce((a, i) => a + i.onHand * i.unit, 0);
+    const poValue = this.POS.filter(p => p.stage !== 'Received').reduce((a, p) => a + p.value, 0);
+    // consumption sparkline
+    const hist = [it.use * 4.2, it.use * 3.6, it.use * 4.8, it.use * 4.0, it.use * 5.2, it.use * 4.4];
+    const hmax = Math.max(...hist, it.min) * 1.1;
+    const consumeLine = hist.map((v, i) => (i / 5 * 356 + 2).toFixed(0) + ',' + (74 - v / hmax * 68).toFixed(0)).join(' ');
+    const reorderY = (74 - rop / hmax * 68);
+    const lowSel = it.onHand < it.min;
+    return {
+      scale: s.scale,
+      reorderCount: reorder.length, alertColor: reorder.length ? '#FF5247' : '#36D399', alertBorder: reorder.length ? 'rgba(255,82,71,0.3)' : 'rgba(54,211,153,0.25)', alertBg: reorder.length ? 'rgba(255,82,71,0.06)' : 'rgba(54,211,153,0.06)',
+      raiseLabel: 'Raise ' + reorder.length + ' POs', raiseAll: () => {},
+      tabs: [['stock', 'Stock'], ['po', 'Purchase orders'], ['recv', 'Receiving']].map(([id, label]) => ({ label, on: () => this.setState({ tab: id }), style: `border:none;background:${s.tab === id ? '#FF5A2B' : 'transparent'};color:${s.tab === id ? '#0A0B0D' : '#9398A2'};border-radius:7px;padding:7px 13px;font-size:11.5px;font-weight:600;cursor:pointer;font-family:'Archivo',sans-serif;` })),
+      showStock: s.tab === 'stock', showPO: s.tab === 'po', showRecv: s.tab === 'recv',
+      stockRows, poRows, recvRows,
+      invValue: (invValue / 1000).toFixed(1) + 'k', poValue: (poValue / 1000).toFixed(1) + 'k', turns: '6.2', turnsColor: '#36D399', apDue: '4.7k',
+      selItem: it.item, selSku: it.sku, selVendor: it.vendor, selOnHand: it.onHand + ' ea', selOnHandColor: lowSel ? '#FF5247' : '#36D399', selAlloc: Math.round(it.use) + ' ea',
+      eoqRows: [
+        { k: 'Annual demand (D)', v: Math.round(D) + ' ea', c: '#C7CCD4' },
+        { k: 'Order cost (S)', v: '$' + S, c: '#C7CCD4' },
+        { k: 'Holding (H, 25%)', v: '$' + H.toFixed(0) + '/yr', c: '#C7CCD4' },
+        { k: 'EOQ', v: eoq + ' ea', c: '#FF7A4D' },
+        { k: 'Reorder point', v: rop + ' ea', c: lowSel ? '#FF5247' : '#36D399' },
+      ],
+      consumeLine, reorderY: reorderY.toFixed(0), reorderLabelY: (reorderY - 3).toFixed(0),
+      insight: lowSel
+        ? `${it.item} is below reorder (${it.onHand} < ${it.min}). At ${it.use}/wk it runs out in ~${(it.onHand / it.use).toFixed(1)} wks — under the 2-wk lead from ${it.vendor}. Raise a ${eoq}-ea PO today to avoid starving the schedule.`
+        : `${it.item} is healthy at ${it.onHand} ea. EOQ says order ${eoq} at a time to minimize combined order+holding cost — current min/${it.min} is about right.`,
+    };
+  }
+}
+</script>
+</body>
+</html>

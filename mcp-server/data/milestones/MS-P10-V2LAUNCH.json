@@ -1,0 +1,283 @@
+{
+  "id": "MS-P10-V2LAUNCH",
+  "title": "WEDM V2 Launch Gate (consolidated)",
+  "track": "WEDM-CONSOLIDATED",
+  "phase": "P10",
+  "status": "not_started",
+  "created": "2026-04-16",
+  "rgs_version": "v10",
+  "schemaVersion": 1,
+  "philosophy": "Ship a system that a machinist, sales engineer, and safety officer can all sign off on. V2 = narrow-but-deep → broader-and-still-deep. Learning + reasoning + explanation as defensible near-AGI primitives.",
+  "total_units": 6,
+  "completed_units": 0,
+  "sessions": 2,
+  "dependencies": [
+    "MS-P0-V",
+    "MS-P1-100PCT",
+    "MS-P2-GAPFILL",
+    "MS-P3-TIER6A",
+    "MS-P3-TIER6B",
+    "MS-P4-DL-CORE",
+    "MS-P4-DL-PRED",
+    "MS-P5-GNN",
+    "MS-P6-VAL30",
+    "MS-P7-UI-M1",
+    "MS-P7-UI-M2",
+    "MS-P7-UI-M3",
+    "MS-P7-UI-M4",
+    "MS-P7-UI-M5",
+    "MS-P7-UI-M7",
+    "MS-P8-FEBE",
+    "MS-P9-WIRE",
+    "MS-P9-XAI",
+    "MS-P9-INT"
+  ],
+  "omega_target": 1,
+  "svi_delta_target": 0.02,
+  "knowledge_sources": {
+    "engines": [
+      "WEDMLaunchGateEngine (this milestone)",
+      "all prior exit gates"
+    ],
+    "formulas": [
+      "S(x) rolling 30-job aggregation"
+    ],
+    "tribal": [
+      "V1 launch precedent",
+      "JM Die launch checklist"
+    ],
+    "reference": [
+      "mcp-server/data/milestones/WEDM-LAUNCH-MS0.json (9/9 done)",
+      "all prior phase exit gates",
+      "mcp-server/audits/R0-P0/U04-skills-scripts-hooks-audit.md (format)"
+    ]
+  },
+  "smart_config": {
+    "role": "LaunchEngineer+SafetyOfficer",
+    "model": "opus",
+    "effort": "MAX",
+    "context_budget_pct": 80
+  },
+  "skills": [
+    "/health",
+    "/prism-review",
+    "/forge-triple",
+    "/test",
+    "/wedm-audit",
+    "/wedm-cite",
+    "/wedm-tier6",
+    "/wedm-pcd",
+    "/wedm-learn",
+    "/wedm-predict",
+    "/wedm-reason",
+    "/wedm-febe-audit",
+    "/wedm-wire",
+    "/wedm-explain",
+    "/wedm-feedback",
+    "/wedm-e2e",
+    "/physics-verify",
+    "/scope",
+    "/checkpoint"
+  ],
+  "plugins": [
+    "Vitest MCP",
+    "ESLint MCP"
+  ],
+  "session_split": {
+    "session_1": [
+      "U-P10-V2-01",
+      "U-P10-V2-02",
+      "U-P10-V2-03"
+    ],
+    "session_2": [
+      "U-P10-V2-04",
+      "U-P10-V2-05",
+      "U-P10-V2-06"
+    ],
+    "compact_checkpoints": [
+      "after U-P10-V2-03"
+    ]
+  },
+  "units": [
+    {
+      "id": "U-P10-V2-01",
+      "title": "WEDM-V2-SCOPE.md",
+      "exit_criteria": [
+        "honest capability statement covers 5 controllers",
+        "Tier 1-6 parts enumerated",
+        "learning loop + explanation described"
+      ],
+      "description": "WEDM-V2-SCOPE.md — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ]
+    },
+    {
+      "id": "U-P10-V2-02",
+      "title": "WEDM-V2-PRICING.md",
+      "exit_criteria": [
+        "pricing tier update reflects learning loop, Tier 6, multi-controller"
+      ],
+      "exit_conditions": [
+        "pricing tier update reflects learning loop, Tier 6, multi-controller",
+        "Tests pass: npx vitest run (min 10 cases for engine units)",
+        "Typecheck clean: npx tsc --noEmit on touched files"
+      ],
+      "description": "WEDM-V2-PRICING.md — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ]
+    },
+    {
+      "id": "U-P10-V2-03",
+      "title": "WEDM-V2-DEMO.md",
+      "exit_criteria": [
+        "5-minute walkthrough",
+        "end-to-end 'correct the prediction' feedback loop demonstrated"
+      ],
+      "exit_conditions": [
+        "5-minute walkthrough",
+        "end-to-end 'correct the prediction' feedback loop demonstrated",
+        "Tests pass: npx vitest run (min 10 cases for engine units)"
+      ],
+      "description": "WEDM-V2-DEMO.md — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ]
+    },
+    {
+      "id": "U-P10-V2-04",
+      "title": "20-case launch smoke test + 10-agent scrutiny re-run",
+      "exit_criteria": [
+        "5 V1 + 5 Tier 6 + 5 multi-controller + 5 learning-loop cases all pass or correct-error",
+        "10-agent scrutiny re-run scores ≥ 80 average; any regression < 80 blocks launch"
+      ],
+      "exit_conditions": [
+        "5 V1 + 5 Tier 6 + 5 multi-controller + 5 learning-loop cases all pass or correct-error",
+        "10-agent scrutiny re-run scores ≥ 80 average; any regression < 80 blocks launch",
+        "Tests pass: npx vitest run (min 10 cases for engine units)"
+      ],
+      "description": "20-case launch smoke test + 10-agent scrutiny re-run — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ]
+    },
+    {
+      "id": "U-P10-V2-05",
+      "title": "WEDMLaunchGateEngine",
+      "files_created": [
+        "mcp-server/src/engines/WEDMLaunchGateEngine.ts"
+      ],
+      "exit_criteria": [
+        "returns {launch_ready: true} only when every phase exit gate reports green",
+        "BASELINE_INVENTORY final re-verification",
+        "/physics-verify pass on every Tier 6B PCD path"
+      ],
+      "description": "WEDMLaunchGateEngine — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ]
+    },
+    {
+      "id": "U-P10-V2-06",
+      "title": "Sign-off commit + LAUNCH-V2-GATE-PASS.md + CLAUDE.md V2 toggle",
+      "exit_criteria": [
+        "LAUNCH-V2-GATE-PASS.md committed",
+        "CLAUDE.md WEDM block switched to V2",
+        "state/shared/WEDM_V2_LAUNCH_REPORT.md published"
+      ],
+      "description": "Sign-off commit + LAUNCH-V2-GATE-PASS.md + CLAUDE.md V2 toggle — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ]
+    }
+  ],
+  "forge_triple": {
+    "hook": {
+      "name": "wedm-v2-scope-gate",
+      "description": "replaces V1 scope gate",
+      "built_in": "U-P10-V2-05"
+    },
+    "action": {
+      "name": "prism_edm:wedm_v2_generate",
+      "built_in": "U-P10-V2-05"
+    },
+    "skill": {
+      "name": "/wedm-v2",
+      "built_in": "U-P10-V2-06"
+    }
+  },
+  "exit_gate": {
+    "criteria": [
+      "20/20 smoke test",
+      "WEDMLaunchGateEngine green",
+      "scope/pricing/demo docs committed",
+      "CLAUDE.md V2 block",
+      "BASELINE_INVENTORY final re-verification",
+      "/physics-verify pass on every Tier 6B PCD path",
+      "10-agent scrutiny re-run ≥ 80 average"
+    ],
+    "omega_target": 1,
+    "svi_delta": "+2%"
+  },
+  "feature_cascade": {
+    "new_hooks": [
+      "wedm-v2-scope-gate"
+    ],
+    "new_actions": [
+      "prism_edm:wedm_v2_generate"
+    ],
+    "new_skills": [
+      "/wedm-v2"
+    ],
+    "available_to": []
+  },
+  "mcp_lifecycle": {
+    "session_start": [
+      "prism_session:context_boot",
+      "prism_session:dispatcher_map",
+      "prism_session:memory_recall",
+      "prism_session:system_snapshot",
+      "prism_session:action_search"
+    ],
+    "during_work": [
+      "prism_session:auto_checkpoint",
+      "prism_session:tool_route_best",
+      "prism_session:wip_capture"
+    ],
+    "session_end": [
+      "prism_session:memory_save",
+      "prism_session:system_snapshot",
+      "prism_session:checkpoint_enhanced"
+    ]
+  },
+  "intent": "Deliver WEDM V2 Launch Gate (consolidated) per roadmap spec.",
+  "compact_checkpoint": "every 3 units — auto-triggered by hook",
+  "enforcement_hooks_active": [
+    "physics agent",
+    "wiring agent",
+    "constants checker",
+    "stub detector",
+    "test quality",
+    "forge-triple gate",
+    "session audit agent"
+  ]
+}

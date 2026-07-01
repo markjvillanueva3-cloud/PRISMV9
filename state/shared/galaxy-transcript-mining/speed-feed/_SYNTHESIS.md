@@ -1,0 +1,160 @@
+# speed-feed galaxy CROSS-SESSION SYNTHESIS (44 of 45 mineable, model gpt-oss:120b, 2026-06-27)
+
+## What this galaxy is building
+- End‑to‑end **9‑axis Speed/Feed Calculator (SFC)** with Kienzle/Taylor physics, chip‑load & material‑aware feeds/speeds; ISO‑group Vc derating, safety‑physics oracle, vendor comparison, and shop‑recommended goals.  
+- Closed‑loop AI pipeline: ingest real outcomes → calibrate engines → retrain LoRA/GNN models → feed back into SFC.  
+- Canonical **machine catalog** (≈1 015 machines) + **tool/holder catalog** (≈62 k tools, 643 holders) with normalized spindle limits, power, kinematics, and holder balance data.  
+- Full‑stack UI: SPA web app, Electron desktop, Capacitor iOS/Android shells; convergence preview UI, uncertainty CI95 banner, dark‑mode parity.  
+- Infrastructure: Hermes (xAI Grok) physics consensus, Octopus consensus drainer, Ollama LLM backend (max 4 models, 65 536 context), Qdrant embeddings, Obsidian vault knowledge base, system‑viz dashboards, token‑budget monitors, self‑compact loop.  
+- Supporting engines: `UltimateSpeedFeedEngine`, `HeatTreatmentAwareSpeedFeedEngine`, `SpeedFeedOrchestratorEngine`, `SpeedFeedNineAxisOrchestratorEngine`, `SFCInferenceGateWireEngine`, GPU tag cache, logical sweep engine, CAD validation suite (Hausdorff/volume metrics), ERP bridges, PDF/STEP extractors, CIMCO simulation driver.  
+
+---
+
+## Shipped capabilities
+- **Core physics & engines**: thermal cap on aggressive Vc, material‑aware dispatch, deflection canonicalization, heat‑treatment regime aware Vc/kc, Timoshenko deflection upgrade stub, safety‑gated convergence (`PRISM_SFC_CONVERGE`).  
+- **Machine & tool databases**: 1015‑machine audit (>95 % attribute coverage), normalized schema + alias normalizer, tool/holder balance integration.  
+- **Proven data pipeline**: JSONL store loaded at init, resumable harness, `vault-to-lora-dataset.mjs` (245 Alpaca triples) & `vault-to-gnn-refpool.mjs`, LoRA/GNN training hooks.  
+- **Parallel logical sweep**: 850 k combos on 24 threads (heap‑bumped workers), streaming I/O to avoid OOM; ready for full 9‑axis >7.8 M cells.  
+- **Convergence & UI**: safety‑gated convergence delegation, read‑only preview UI, CI95 uncertainty banner wired into front‑end.  
+- **Frontend builds**: Electron zip (171 MB), Capacitor config (`webDir: ../dist/web`), dark‑mode fixes, machine selection guard before calculate.  
+- **Infrastructure & token hygiene**: `pruneTag` replaces generic prune, rewriter loop safe, Ollama model caps, token‑budget dashboard, `/compact` manual trigger, self‑compact race mitigation.  
+- **Vendor adapters & goals**: shop‑recommended goal engine (80 % blend → aggressive Vc+fz), vendor comparison runner (`U_OSC_VENDOR_COMPARE`).  
+- **GPU tag cache**: deterministic 77 tags covering turning/carburized cells.  
+- **CAD & PDF pipelines**: STEP geometry extractor, PDF text/regex harvest (full JM Die corpus pending), OCR vision engine stub (`qwen2.5vl:7b`).  
+- **System graph**: side‑car inverted index replacing full in‑memory graph; lock + write guard.  
+
+---
+
+## Key decisions + rationale
+- **Hermes (xAI Grok)** as physics consensus → reproducible, vendor‑independent calculations.  
+- **Separate engines** (`UltimateSpeedFeedEngine` core, `SpeedFeedOrchestratorEngine` delegator) to isolate safety‑critical path.  
+- **Thermal caps** only for hot ISO groups; prevents 2.5× HSS overspeed while exempting N group.  
+- **Material‑aware dispatch** replaces blind constants → fixes 3.4× tool‑material overspeed.  
+- **Canonical constants & NaN guards** (deflection, heat‑treatment) eliminate magic numbers and silent failures.  
+- **Convergence flag (`PRISM_SFC_CONVERGE`) default OFF**, operator‑only enable after full safety validation.  
+- **Two‑engine convergence design**: production engine vs matrix engine for exhaustive trade‑off analysis.  
+- **Ollama over NIM** due to OOM/latency; model caps and keep‑alive limit reduce memory pressure.  
+- **Streaming graph I/O** solves `ERR_STRING_TOO_LONG` on large graphs.  
+- **Parallel sweep heap bump & per‑worker limits** avoid OOM, achieve 850 k combos in ~5 min.  
+- **Dedup‑first policy for physics constants** saves >90 % token usage on prompts.  
+- **Verified offload pattern**: code verifier → auto‑execute only on success; caps loaded models to 4.  
+- **Slot worktrees & 3‑of‑3 stop gate** enforce isolation and safety review before merge.  
+- **R12 fail‑loud** aborts loop on any P0/P1 or safety band violation.  
+
+---
+
+## Standing operator directives
+- Keep autonomous slot loops running; never idle while token budget is GREEN/YELLOW.  
+- Prioritize: finish all backend SFC dev → run closed‑loop tests on every JM die/lathe program → prove 100 % UI correctness before native builds.  
+- After any engine/API change, restart `singleton-service-guard.mjs` (port 3100).  
+- Bind appropriate slot before `/checkin`; use `slot-bind-enforce.mjs`.  
+- Run `/loop [5m] /goal [...]` with auto‑advance; enforce 100 % completion per unit.  
+- Trigger manual `/compact` when heap ≥90 %; avoid automatic race‑condition compaction.  
+- Monitor health: CPU > 90 %, RAM > 88 %, GPU > 93 GB, node processes > 250 → throttle or pause.  
+- Keep fleet reaper running; watch `fleet-task-health-watch` banner for unexpected tasks.  
+- Use `/yolo-mode` to orchestrate pending units (closed‑loop training, CAD convergence).  
+- Verify vendor comparison after each sweep; address >10 % delta.  
+
+---
+
+## What is still to build (open threads)
+1. Enable `PRISM_SFC_CONVERGE` after safety sign‑off and full matrix validation.  
+2. Complete convergence matrix UI (ISO groups P/M/K/N/S/H) and preview integration.  
+3. Full 9‑axis sweep (>7.8 M cells) with `SpeedFeedNineAxisOrchestratorEngine`.  
+4. Verify frontend uncertainty surfacing via Playwright visual tests.  
+5. Final Electron / iOS / Android packaging, code signing.  
+6. Wire heat‑treatment Vc/kc regime correctly (gap #2).  
+7. Add few‑shot support for new materials (ductile iron, cryogenic Inconel).  
+8. Implement Timoshenko deflection upgrade (gap #5b).  
+9. Fix cryo/HPC thermal model bug (engine reports too high temp).  
+10. Wire `SFCInferenceGateWireEngine` post‑physics review.  
+11. Fill remaining <1 % missing machine attributes.  
+12. Schedule & verify cron jobs: OCR training loop, slot migration status, system awareness refresh.  
+13. Re‑light dark ledger unit (`read-auto-limit.mjs`).  
+14. Implement `ask‑ollama` loaded‑first wiring (await Zulu merge).  
+15. Ensure self‑compact reliability race‑free after slot re‑claim.  
+16. Low‑take‑rate token suppression for high‑fire nudge hooks.  
+17. Wizard trio feedback loop: lathe actual ingestion, mill publish adapter, WEDM corpus training.  
+18. Replace `tryBusCapture()` stub with real SFC data persistence; backfill missing outcomes.  
+19. Implement radial_pct & coolant clamp ceiling physics fix (>1.08).  
+20. Run full sweep vs G‑Wizard/HSMAdvisor (≈102 k combos) and log deltas.  
+21. CAD NURBS emitter / true solid volume metric (`U_CAD_VOLUME_METRIC`).  
+22. Resume stalled Ollama model pulls (`gpt‑oss:120b`, `gemma4:31b`).  
+23. Ingest MIT textbook corpus (12 texts) into academy knowledge base.  
+24. Merge duplicate nav/search rerank logic; auto‑fire after `/system‑viz`.  
+25. Complete holder catalog expansion (REGOFIX/TUNGALOY) and export to HyperMill/Mastercam.  
+26. Finalize embedding pipeline (`embedTextBatch`) for 1496 memos in Qdrant.  
+27. OCR vision engine integration (`U_TDP06` with `qwen2.5vl:7b`).  
+28. Scale PDF harvest to full JM Die corpus (~76 k PDFs) and train LoRA models.  
+29. Finish SIM‑3 commit (reset contamination, restage files).  
+30. Verify `PRISM_MAINTREE_WRITE_BLOCK_DISABLE=1` effectiveness.  
+
+---
+
+## How to build it (patterns/sequence)
+**Phase 1 – Core physics & safety**
+- Finalize heat‑treatment engine, Timoshenko deflection, new material constants; run unit + reviewer gates.  
+- Apply thermal caps and NaN guards; lock down `PRISM_SFC_CONVERGE` flag.
+
+**Phase 2 – Proven store & parallel sweep**
+- Activate load‑at‑init proven store, run full logical sweep with heap‑bumped workers, stream results to JSONL, feed into LoRA/GNN pipelines.  
+
+**Phase 3 – Convergence validation**
+- Enable `PRISM_SFC_CONVERGE` in sandbox slot, execute safety suite across all ISO groups, compare against vendor bands, merge preview UI.  
+
+**Phase 4 – Front‑end polish**
+- Wire uncertainty banner, enforce machine selection guard, pass Playwright visual tests, resolve Zod schema mismatches.  
+
+**Phase 5 – Native builds**
+- After Phase 4 passes 100 %, run Electron builder, Capacitor iOS/Android pipelines, perform code signing (deferred for dev).  
+
+**Phase 6 – Infra rollout**
+- Switch all slots to Ollama backend, deploy `pruneTag`, enable Hermes cron suite, schedule fleet tasks, monitor token health.  
+
+**Ongoing patterns**
+- Claim slot (`/startup‑<slot>`), enforce `slot-bind-enforce.mjs`.  
+- Commit via `git add -- <paths> && git commit -m "[MAIN] …"`; use `git-lock-sweeper.mjs` to clear stale locks.  
+- Run `/loop` with auto‑advance & `/compact` at YELLOW.  
+- Use verified offload (`ollama-verified-offload.mjs`) for heavy LLM calls.  
+- Schedule cron jobs for OCR ingestion, outcome persistence, token‑budget checks.  
+
+---
+
+## Tools to use
+- **Dispatchers**: `prism_calc`, `camDispatcher.ts`, `aiReasoningDispatcher.ts`, `businessDispatcher.ts`, `hermes_bridge`, `octopus_consensus_queue`.  
+- **Skills / Slash commands**: `/checkin-*`, `/loop`, `/goal`, `/yolo-mode`, `/compact`, `/startup‑<slot>`, `/system‑viz`, `/dedup`.  
+- **Scripts & hooks**: `slot-bind-enforce.mjs`, `chat-slots.mjs`, `regen-viz.mjs`, `stop-consensus-drain.mjs`, `auto-compaction.mjs`, `memory-pressure.guard.mjs`, `ollama-verified-offload.mjs`, `graph-stream-degree.mjs`, `U_LOOP_AUTO_ADVANCE`, `precompact-pending-guard.mjs`, `git-lock-sweeper.mjs`.  
+- **System‑viz**: `system-viz-query.mjs`, `fleet-reaper-sweep.mjs`, `regen-wiz.mjs`, `system-viz-add-node.mjs`.  
+- **AI systems**: Hermes (xAI Grok) for physics consensus, Octopus drainer, Ollama (`gpt‑oss:20b/120b`, `qwen2.5-coder`, `qwen2.5vl:7b`), Sonnet for code review, GPU tag cache, safety‑physics oracle.  
+- **Vector store**: Qdrant embeddings (768‑dim) via `embedTextBatch`, `dedupedContext()`.  
+- **Knowledge base**: Obsidian vault (`knowledge/.obsidian`), wiki markdowns, tribal lookup modules.  
+
+---
+
+## Recurring findings + bugs
+- **Overspeed**: missing thermal caps on aggressive Vc (HSS 2.5×) and material‑blind dispatch (3.4×); fixed by caps & material‑aware engine.  
+- **UI blank panel**: `{blocked:true}` on 200 OK; guard `assertNotBlocked` added to all endpoints.  
+- **Derate flag misuse**: `optimize_for` never raised Vc; now operator‑gated derate‑only mode.  
+- **Force/Power overstatement**: ~3× high due to missing duty factor; routed through shared `calculateKienzleCuttingForce`.  
+- **RPM clamp missing**: added `max_rpm` guard, spindle efficiency 0.85 for power check.  
+- **Deflection magic numbers**: replaced with canonical `toolDeflection()` and modulus lookup.  
+- **Parallel sweep OOM**: solved by per‑worker heap bump (`--max-old-space-size=4096`) and streaming I/O.  
+- **NIM container OOM & latency**: dropped NIM, switched to Ollama with model caps.  
+- **Token leaks**: generic `pruneExpired` replaced by `pruneTag`; eliminated cross‑TTL evictions.  
+- **Self‑compact race**: manual `/compact` required after slot re‑claim; now guarded.  
+- **Duplicate prompt hash rate**: dedup on enqueue reduced to <10 %.  
+- **EPERM outcome bus lock**: fixed by running sweeps from scratch‑cwd.  
+- **Schema version mismatch (1.0.0 vs 1.1.0)**: guard added; prevents silent event drops.  
+- **Physics mis‑values**: P‑steel Vc range, HSS false alarm, radial_pct NaN, coolant clamp >1.08; corrected.  
+- **GPU judge bugs**: `probeGpuResidency` false positives, missing limit guard; patched.  
+- **ENOBUF lie in DiffTokenEstimator**: bounded maxBuffer, added `--numstat`.  
+- **Shell‑injection in ContextPreloaderEngine**: replaced template literals with safe `execFileSync`.  
+- **Duplicate rerank logic**: merged into single verified library.  
+- **Memory pressure spikes**: model caps & keep‑alive limit reduced RAM usage from ~97 % to <40 %.  
+- **Stale sync stamps / graph OOM**: replaced full graph with sidecar index; streaming degree pass used.  
+- **Commit contamination**: lane guards and `PRISM_MAINTREE_WRITE_BLOCK_DISABLE` prevent peer file races.  
+- **Rate‑limit errors on Ollama API**: added back‑off/retry logic.  
+- **Vendor data issues**: misaligned constants in HSMAdvisor/G‑Wizard; added alignment flags.  
+- **Radial depth guard**: rejects NaN/≤0 radial, explicit guard added.  
+
+---

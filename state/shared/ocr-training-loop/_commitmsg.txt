@@ -1,0 +1,24 @@
+[MAIN] [BOOTSTRAP-SLOT-ENFORCE] [BLACKWELL-OCR-ENSEMBLE-MS0]/U-XRAY-OCR-LOOP-RESUMABLE (slot:xray): reaper-survivable corpus OCR loop + PDF raster
+
+The closed-loop OCR runner held every print in memory + writeFileSync ONCE at the end — a
+fleet-reaper kill at print N/M (the host reaps long node/python under load) lost ALL N and
+restarted at print 1 = non-terminating GPU burn that LOOKS like progress (the synthesis RISK 1).
+
+FIX (per-print stream-append + resume cursor):
+- 4 pure lib fns (printCursorKey/parseCursorDoneSet/formatCursorLine/partitionByResumeCursor) +
+  8 tests (19/19; mutation-verified non-tautological by reviewer-B: re-OCR-skip, cross-path
+  dedup, torn-line fail-soft each go RED when broken). Cursor key = basename-lowercased (same
+  dedup convention as build-blueprint-ocr-worklist.mjs).
+- Runner PHASE 2 now appends trainset/queue/cursor jsonl per-print (durable rows BEFORE cursor =
+  a kill re-processes idempotently, never loses a label). --worklist (PDF list) + --fresh flags.
+- rasterizeIfPdf: wires scripts/lib/pdf-to-png.py (page0 grayscale) so the runner accepts the
+  corpus PDF worklist, not just pre-rasterized PNGs (was the missing link to corpus scale).
+- Trainset rows carry key for last-wins dedup (reviewer-A P1); report keys split this_run_* vs
+  corpus_* (reviewer-A/B P2). schemaVersion 1.1.0 (additive).
+
+LIVE-VALIDATED on 2 real JM electrode PDFs: RUN1 rasterized+OCR'd both (8+10 dims, cursored);
+RUN2 resume = 0 todo / 2 done, re-OCR count = 0, 1s vs 42s. Per-file 2-reviewer PASS (0 P0).
+
+Companion to e354869c93 (parse keystone) + U-XRAY-VL-TRAIN-RUNNER. Also unblocked T4.1 env this
+session: pip+trl+qwen-vl-utils+pillow+pymupdf+torchvision in python-gpu (full trainer import chain
+GREEN on Blackwell torch2.11+cu128).

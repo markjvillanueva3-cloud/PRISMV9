@@ -21,7 +21,7 @@ related:
 
 ## Description (from file header)
 
-tolerance-stack-guard.mjs — PostToolUse hookCADCAM-DAGI-MS0/U-DAGI12Monitors tolerance stack analysis and warns on violations:- Fails on stack-up violations that exceed requirements- Warns on tight tolerances that may be difficult to achieve- Reports GD&T accuracy below threshold
+_(no header docblock — read source for behavior)_
 
 ## Events
 

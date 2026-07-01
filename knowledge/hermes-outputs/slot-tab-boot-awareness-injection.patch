@@ -1,0 +1,15 @@
+# Patch: Add ZULU master context injection to slot-tab-boot.ps1
+# Insert after setting $env:PRISM_BOOT_SLOT
+
+diff --git a/H:/Tools/prism-fleet/slot-tab-boot.ps1 b/H:/Tools/prism-fleet/slot-tab-boot.ps1
+index abc1234..def5678 100644
+--- a/H:/Tools/prism-fleet/slot-tab-boot.ps1
++++ b/H:/Tools/prism-fleet/slot-tab-boot.ps1
+@@ -55,6 +55,10 @@ if (-not $env:PRISM_RESUME_MAX_MB) { $env:PRISM_RESUME_MAX_MB = '200' }
+ 
+ $env:PRISM_BOOT_SLOT = $Slot
+ 
++# === ZULU Master Context Injection ===
++& "$PSScriptRoot\zulu-master-context-inject.ps1" -Slot $Slot
++
+ # Continue with existing tier resolution and claude launch...

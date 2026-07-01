@@ -110,6 +110,7 @@ let _generalLedgerEngine: any = null;
 let _invoicingEngine: any = null;
 let _roiAdvisorEngine: any = null;
 let _costSavingsTrackerEngine: any = null;
+let _toolMagazineOptimizationEngine: any = null;
 
 function _getEngine(name: string): any {
   switch (name) {
@@ -490,6 +491,13 @@ function _getEngine(name: string): any {
         _costSavingsTrackerEngine = m.costSavingsTrackerEngine ?? m.default ?? m;
       }
       return _costSavingsTrackerEngine;
+    }
+    case "ToolMagazineOptimizationEngine": {
+      if (!_toolMagazineOptimizationEngine) {
+        const m = require("./ToolMagazineOptimizationEngine.js");
+        _toolMagazineOptimizationEngine = m.toolMagazineOptimizationEngine ?? m.default ?? m;
+      }
+      return _toolMagazineOptimizationEngine;
     }
     default:
       throw new Error(`Unknown engine: ${name}`);
@@ -1509,12 +1517,16 @@ async function executeDfmCheck(ctx: PipelineContext): Promise<StageResult> {
     let result: any = null;
 
     if (analyzeFn) {
-      result = await Promise.resolve(analyzeFn.call(engine, {
-        features: ctx.features,
-        material: ctx.input.material_spec,
-        quantity: ctx.input.quantity,
-        tolerances: ctx.input.tolerances,
-      }));
+      // DFMFeedbackEngine.analyze(features, material_iso_group?, machine_axes?) is
+      // POSITIONAL and iterates `features` directly. Passing a single options object
+      // made it iterate the OBJECT -> "features is not iterable" (the bug that stalled
+      // the whole print->ship pipeline at DFM_CHECK). Call positionally with a
+      // guaranteed array; the engine defaults material_iso_group to "P".
+      const dfmFeatures = Array.isArray(ctx.features) ? ctx.features : [];
+      const isoGroup =
+        (ctx.material as { iso_group?: string } | undefined)?.iso_group ??
+        (ctx.input.metadata as { material_iso_group?: string } | undefined)?.material_iso_group;
+      result = await Promise.resolve(analyzeFn.call(engine, dfmFeatures, isoGroup));
     } else {
       warnings.push("DFMFeedbackEngine: using stub");
       result = { status: "pass", issues: [], score: 1.0 };
@@ -1572,6 +1584,480 @@ async function executeDfmCheck(ctx: PipelineContext): Promise<StageResult> {
   }
 }
 
+/**
+ * Map a recognized feature's `type` to a FeasibilityJob operation `type`.
+ * Pure -- no I/O.
+ */
+function _featureTypeToOperationType(featureType: unknown): string {
+  const t = String(featureType ?? "").toLowerCase();
+  if (t.includes("hole") || t.includes("drill") || t.includes("bore")) return "drill";
+  if (t.includes("thread") || t.includes("tap")) return "tap";
+  if (t.includes("pocket")) return "pocket";
+  if (t.includes("slot")) return "slot";
+  if (t.includes("chamfer") || t.includes("countersink")) return "chamfer";
+  if (t.includes("fillet") || t.includes("radius")) return "fillet";
+  if (t.includes("face")) return "face";
+  return "mill";
+}
+
+/**
+ * Resolve the workpiece stock bounding box (mm). UNITS-FIRST: a `_mm`-suffixed
+ * geometry value is taken as-is; an inch-declared value is converted 25.4x. Falls
+ * back to a feature-extent envelope, then a conservative default block -- never
+ * undefined (fullAnalysis derefs job.stock.height_mm directly). Pure -- no I/O.
+ */
+function _resolveStockMm(
+  ctx: PipelineContext,
+  features: Array<Record<string, unknown>>,
+): { length_mm: number; width_mm: number; height_mm: number } {
+  const geometry = (ctx.geometry ?? {}) as Record<string, unknown>;
+  const meta = (ctx.input.metadata ?? {}) as Record<string, unknown>;
+  const analysis = geometry.analysis as Record<string, unknown> | undefined;
+  const declaredUnits = String(
+    meta.units ?? geometry.units ?? analysis?.units ?? "mm",
+  ).toLowerCase();
+  const isInch = declaredUnits === "inch" || declaredUnits === "in" || declaredUnits === '"';
+  const MM_PER_INCH = 25.4;
+  const toMm = (v: number) => (isInch ? v * MM_PER_INCH : v);
+
+  const pickTriple = (src: unknown): { l: number; w: number; h: number } | null => {
+    if (!src || typeof src !== "object") return null;
+    const s = src as Record<string, unknown>;
+    const l = _toFiniteNumber(s.length_mm ?? s.length ?? s.x ?? s.dx ?? s.l);
+    const w = _toFiniteNumber(s.width_mm ?? s.width ?? s.y ?? s.dy ?? s.w);
+    const h = _toFiniteNumber(s.height_mm ?? s.height ?? s.thickness_mm ?? s.thickness ?? s.z ?? s.dz ?? s.h);
+    if (l != null && w != null && h != null && l > 0 && w > 0 && h > 0) {
+      const lMm = s.length_mm != null ? l : toMm(l);
+      const wMm = s.width_mm != null ? w : toMm(w);
+      const hMm = (s.height_mm != null || s.thickness_mm != null) ? h : toMm(h);
+      return { l: lMm, w: wMm, h: hMm };
+    }
+    return null;
+  };
+
+  const sources: unknown[] = [
+    meta.stock, geometry.stock, geometry.bounding_box, geometry.bbox, geometry.envelope,
+    analysis?.bounding_box, analysis?.envelope,
+  ];
+  for (const src of sources) {
+    const triple = pickTriple(src);
+    if (triple) return { length_mm: triple.l, width_mm: triple.w, height_mm: triple.h };
+  }
+
+  const MARGIN_MM = 20;
+  const DEPTH_MARGIN_MM = 10;
+  const DEFAULT_PLAN_MM = 100;
+  const DEFAULT_THICKNESS_MM = 25;
+  let maxX = 0;
+  let maxY = 0;
+  let maxDepth = 0;
+  for (const feat of features) {
+    const pos = ((feat as Record<string, unknown>).position ?? {}) as Record<string, unknown>;
+    const dim = ((feat as Record<string, unknown>).dimensions ?? {}) as Record<string, unknown>;
+    const px = Math.abs(_toFiniteNumber(pos.x) ?? 0);
+    const py = Math.abs(_toFiniteNumber(pos.y) ?? 0);
+    const extX = _toFiniteNumber(dim.length_mm) ?? _toFiniteNumber(dim.diameter_mm) ?? 0;
+    const extY = _toFiniteNumber(dim.width_mm) ?? _toFiniteNumber(dim.diameter_mm) ?? 0;
+    maxX = Math.max(maxX, px + extX);
+    maxY = Math.max(maxY, py + extY);
+    maxDepth = Math.max(maxDepth, _toFiniteNumber(dim.depth_mm) ?? 0);
+  }
+  return {
+    length_mm: maxX > 0 ? maxX + MARGIN_MM : DEFAULT_PLAN_MM,
+    width_mm: maxY > 0 ? maxY + MARGIN_MM : DEFAULT_PLAN_MM,
+    height_mm: maxDepth > 0 ? maxDepth + DEPTH_MARGIN_MM : DEFAULT_THICKNESS_MM,
+  };
+}
+
+/**
+ * Build a real FeasibilityJob from ctx. Operations derive from ctx.features
+ * (ctx.process_plan is null at FEASIBILITY). A round feature passes its diameter
+ * through as width/length so the engine's accessibility opening check sees the
+ * true opening, not the 20mm default. Pure -- no I/O.
+ */
+function _buildFeasibilityJob(ctx: PipelineContext): {
+  stock: { length_mm: number; width_mm: number; height_mm: number };
+  operations: Array<Record<string, unknown>>;
+  material?: { name?: string };
+} {
+  const DEFAULT_TOOL_DIAMETER_MM = 10;
+  const MAX_ENDMILL_FROM_WIDTH_MM = 16;
+  const DEFAULT_DEPTH_CAP_MM = 10;
+  const features = (Array.isArray(ctx.features) ? ctx.features : []) as Array<Record<string, unknown>>;
+  const stock = _resolveStockMm(ctx, features);
+
+  const operations = features.map((feat, index) => {
+    const dim = (feat.dimensions ?? {}) as Record<string, unknown>;
+    const pos = (feat.position ?? {}) as Record<string, unknown>;
+    const diameter = _toFiniteNumber(dim.diameter_mm);
+    const width = _toFiniteNumber(dim.width_mm) ?? diameter;
+    const length = _toFiniteNumber(dim.length_mm) ?? diameter;
+    const depth = _toFiniteNumber(dim.depth_mm);
+    const toolDiameter = diameter
+      ?? (width != null ? Math.min(width, MAX_ENDMILL_FROM_WIDTH_MM) : DEFAULT_TOOL_DIAMETER_MM);
+    return {
+      id: String(feat.source_id ?? `OP-${index + 1}`),
+      name: String(feat.type ?? `feature-${index + 1}`),
+      type: _featureTypeToOperationType(feat.type),
+      tool_diameter_mm: toolDiameter > 0 ? toolDiameter : DEFAULT_TOOL_DIAMETER_MM,
+      diameter_mm: diameter ?? undefined,
+      depth_mm: depth != null && depth > 0 ? depth : Math.min(stock.height_mm, DEFAULT_DEPTH_CAP_MM),
+      width_mm: width ?? undefined,
+      length_mm: length ?? undefined,
+      position: {
+        x: _toFiniteNumber(pos.x) ?? 0,
+        y: _toFiniteNumber(pos.y) ?? 0,
+        z: _toFiniteNumber(pos.z) ?? 0,
+      },
+    };
+  });
+
+  return {
+    stock,
+    operations,
+    material: ctx.input.material_spec ? { name: ctx.input.material_spec } : undefined,
+  };
+}
+
+/**
+ * Resolve the ISO machining group (P/M/K/N/S/H), mirroring DFM_CHECK then a
+ * coarse material-name heuristic, defaulting to "P" (steel). Pure -- no I/O.
+ */
+function _resolveIsoGroup(ctx: PipelineContext): string {
+  const fromMaterial = (ctx.material as { iso_group?: string } | undefined)?.iso_group;
+  const fromMeta = (ctx.input.metadata as { material_iso_group?: string } | undefined)?.material_iso_group;
+  if (fromMaterial) return fromMaterial;
+  if (fromMeta) return fromMeta;
+  const name = String(ctx.input.material_spec ?? "").toLowerCase();
+  if (/alum|6061|7075|2024|5052/.test(name)) return "N";
+  if (/ti-?6al|titanium|ti64/.test(name)) return "S";
+  if (/inconel|hastelloy|waspaloy|rene|nimonic/.test(name)) return "S";
+  if (/cast.?iron|gray.?iron|ductile/.test(name)) return "K";
+  if (/stainless|17-4|15-5|303|304|316|410|420/.test(name)) return "M";
+  if (/d2|a2|o1|s7|h13|m2|hardened|hrc|prehard/.test(name)) return "H";
+  return "P";
+}
+
+/**
+ * Normalize a recognized feature `type` to the ProcessPlanEngine FeatureCategory
+ * vocabulary. Pure -- no I/O.
+ */
+function _featureTypeToCategory(featureType: unknown): string {
+  const t = String(featureType ?? "").toLowerCase();
+  if (t.includes("thread") || t.includes("tap")) return "thread";
+  if (t.includes("bore")) return "bore";
+  if (t.includes("hole") || t.includes("drill")) return "hole";
+  if (t.includes("pocket")) return "pocket";
+  if (t.includes("slot")) return "slot";
+  if (t.includes("chamfer") || t.includes("countersink")) return "chamfer";
+  if (t.includes("groove")) return "groove";
+  if (t.includes("face")) return "face";
+  if (t.includes("profile") || t.includes("contour")) return "profile";
+  if (t.includes("fillet") || t.includes("freeform") || t.includes("surface")) return "freeform";
+  return "pocket";
+}
+
+/**
+ * Build a ProcessPlanInput for ProcessPlanEngine.generate(). Reuses _resolveStockMm
+ * so the plan and feasibility see the same stock. Pure -- no I/O.
+ */
+function _buildProcessPlanInput(ctx: PipelineContext): Record<string, unknown> {
+  const features = (Array.isArray(ctx.features) ? ctx.features : []) as Array<Record<string, unknown>>;
+  const stock = _resolveStockMm(ctx, features);
+  const planFeatures = features.map((feat, index) => {
+    const dim = (feat.dimensions ?? {}) as Record<string, unknown>;
+    return {
+      id: String(feat.source_id ?? `F-${index + 1}`),
+      type: _featureTypeToCategory(feat.type),
+      dimensions: {
+        diameter_mm: _toFiniteNumber(dim.diameter_mm) ?? undefined,
+        width_mm: _toFiniteNumber(dim.width_mm) ?? undefined,
+        length_mm: _toFiniteNumber(dim.length_mm) ?? undefined,
+        depth_mm: _toFiniteNumber(dim.depth_mm) ?? undefined,
+        pitch_mm: _toFiniteNumber(dim.pitch_mm) ?? undefined,
+      },
+      tolerance_mm: _toFiniteNumber(feat.tolerance_mm) ?? undefined,
+      surface_finish_Ra: _toFiniteNumber(ctx.input.surface_finish_ra_um) ?? undefined,
+      count: _toFiniteNumber(feat.count) ?? undefined,
+    };
+  });
+  return {
+    part_name: String((ctx.input as { part_name?: string }).part_name
+      ?? (ctx as { pipeline_id?: string }).pipeline_id ?? "part"),
+    material_iso_group: _resolveIsoGroup(ctx),
+    material_name: ctx.input.material_spec,
+    features: planFeatures,
+    stock: { x_mm: stock.length_mm, y_mm: stock.width_mm, z_mm: stock.height_mm },
+    batch_size: ctx.input.quantity ?? 1,
+  };
+}
+
+/**
+ * Map a recognized feature to the PrintToProgramPipelineEngine DrawingFeatureType
+ * + the OperationType[] that feature requires. Pure -- no I/O.
+ */
+function _featureToDrawingType(featureType: unknown): { type: string; ops: string[] } {
+  const t = String(featureType ?? "").toLowerCase();
+  if (t.includes("thread")) return { type: "thread_internal", ops: ["drill", "tap"] };
+  if (t.includes("counterbore")) return { type: "hole_counterbore", ops: ["drill", "bore"] };
+  if (t.includes("countersink")) return { type: "hole_countersink", ops: ["drill", "chamfer"] };
+  if (t.includes("bore")) return { type: "hole_through", ops: ["drill", "bore"] };
+  if (t.includes("blind") && t.includes("hole")) return { type: "hole_blind", ops: ["drill"] };
+  if (t.includes("hole") || t.includes("drill")) return { type: "hole_through", ops: ["drill"] };
+  if (t.includes("pocket")) return { type: "pocket_closed", ops: ["pocket_rough", "pocket_finish"] };
+  if (t.includes("slot")) return { type: "slot", ops: ["slot"] };
+  if (t.includes("chamfer")) return { type: "chamfer", ops: ["chamfer"] };
+  if (t.includes("fillet")) return { type: "fillet", ops: ["finish"] };
+  if (t.includes("face")) return { type: "face", ops: ["face"] };
+  if (t.includes("step")) return { type: "step", ops: ["rough", "finish"] };
+  if (t.includes("contour") || t.includes("profile")) return { type: "contour_outside", ops: ["contour"] };
+  return { type: "pocket_closed", ops: ["pocket_rough", "pocket_finish"] };
+}
+
+/**
+ * Build a DrawingInput for PrintToProgramPipelineEngine.runFullPipeline(input).
+ * Each MachinableFeature requires depth_mm + a DrawingFeatureType + non-empty
+ * required_operations[]. Pure -- no I/O.
+ */
+function _buildDrawingInput(ctx: PipelineContext): Record<string, unknown> {
+  const DEFAULT_DEPTH_MM = 5;
+  const features = (Array.isArray(ctx.features) ? ctx.features : []) as Array<Record<string, unknown>>;
+  const stock = _resolveStockMm(ctx, features);
+  const isoGroup = _resolveIsoGroup(ctx);
+  const machinableFeatures = features.map((feat, index) => {
+    const dim = (feat.dimensions ?? {}) as Record<string, unknown>;
+    const pos = (feat.position ?? {}) as Record<string, unknown>;
+    const mapped = _featureToDrawingType(feat.type);
+    const depth = _toFiniteNumber(dim.depth_mm);
+    return {
+      id: String(feat.source_id ?? `F-${index + 1}`),
+      type: mapped.type,
+      width_mm: _toFiniteNumber(dim.width_mm) ?? undefined,
+      length_mm: _toFiniteNumber(dim.length_mm) ?? undefined,
+      depth_mm: depth != null && depth > 0 ? depth : DEFAULT_DEPTH_MM,
+      diameter_mm: _toFiniteNumber(dim.diameter_mm) ?? undefined,
+      corner_radius_mm: _toFiniteNumber(dim.radius_mm) ?? undefined,
+      tolerance_mm: _toFiniteNumber(feat.tolerance_mm) ?? undefined,
+      surface_finish_Ra_um: _toFiniteNumber(ctx.input.surface_finish_ra_um) ?? undefined,
+      position: {
+        x: _toFiniteNumber(pos.x) ?? 0,
+        y: _toFiniteNumber(pos.y) ?? 0,
+        z: _toFiniteNumber(pos.z) ?? 0,
+      },
+      required_operations: mapped.ops,
+      priority: index + 1,
+    };
+  });
+  return {
+    part_number: String((ctx.input as { part_name?: string }).part_name
+      ?? (ctx as { pipeline_id?: string }).pipeline_id ?? "part"),
+    material: { material_name: ctx.input.material_spec ?? "steel", iso_group: isoGroup },
+    stock_size: { x: stock.length_mm, y: stock.width_mm, z: stock.height_mm },
+    dimensions: [],
+    features: machinableFeatures,
+    machine_brand: ctx.input.machine_ids?.[0],
+    optimization_target: "balanced" as const,
+  };
+}
+
+/**
+ * Map a raw material spec to the StockSizeOptimizerEngine family_alloy registry
+ * key (steel_4140, aluminum_6061, ...). The optimizer gates on the RAW key in
+ * _FALLBACK_COST_KG, so a bare alloy number throws "Unknown material". Pure -- no I/O.
+ */
+function _resolveStockMaterialKey(spec: string | undefined): string {
+  const lower = String(spec ?? "").toLowerCase().trim();
+  if (!lower) return "steel_1018";
+  if (/^(steel|aluminum|stainless|titanium|brass|bronze|copper|inconel|hastelloy|tool_steel|cast_iron)_/.test(lower)) {
+    return lower.replace(/[-\s]+/g, "_");
+  }
+  const norm = lower.replace(/[-\s]+/g, "");
+  const al = norm.match(/(6061|7075|2024)/);
+  if (al || /alum/.test(norm)) return `aluminum_${al ? al[1] : "6061"}`;
+  if (/(17.?4|15.?5)/.test(norm)) return "stainless_17_4ph";
+  const ss = norm.match(/(303|304|316)/);
+  if (ss) return `stainless_${ss[1]}`;
+  if (/stainless|cres/.test(lower)) return "stainless_304";
+  if (/ti.?6al|ti64|grade.?5|gr5/.test(norm)) return "titanium_gr5";
+  if (/titanium|grade.?2|gr2/.test(norm)) return "titanium_gr2";
+  if (/inconel|718/.test(norm)) return "inconel_718";
+  if (/hastelloy|c276/.test(norm)) return "hastelloy_c276";
+  const ts = norm.match(/\b(d2|a2|s7)\b/);
+  if (ts) return `tool_steel_${ts[1]}`;
+  if (/cast.?iron|gray.?iron|ductile/.test(norm)) return "cast_iron";
+  if (/brass|360/.test(norm)) return "brass_360";
+  if (/bronze|932/.test(norm)) return "bronze_932";
+  if (/copper|110/.test(norm)) return "copper_110";
+  if (/delrin|acetal/.test(norm)) return "delrin";
+  if (/nylon/.test(norm)) return "nylon";
+  if (/peek/.test(norm)) return "peek";
+  if (/ultem/.test(norm)) return "ultem";
+  const steel = norm.match(/(4340|4140|1045|1018)/);
+  if (steel) return `steel_${steel[1]}`;
+  return lower.replace(/[-\s]+/g, "_");
+}
+
+/**
+ * Extract the post-processed CNC program TEXT from ctx. SETUP_SHEET's engine takes
+ * a gcode string, but ctx.post_processed / ctx.programs hold engine result OBJECTS
+ * (PrintToProgramResult has program_text; the post-processor wraps it). Walk both,
+ * pulling the first non-empty program/gcode string; fall back to a minimal valid
+ * stub program so the setup-sheet parser has something to parse. Pure -- no I/O.
+ */
+function _extractGcodeText(ctx: PipelineContext): string {
+  const FALLBACK = "%\nO0001 (PRISM)\nG90 G54\nM30\n%";
+  const pickText = (node: unknown): string | null => {
+    if (typeof node === "string" && node.trim().length > 0) return node;
+    if (!node || typeof node !== "object") return null;
+    const o = node as Record<string, unknown>;
+    for (const key of ["program_text", "gcode", "g_code", "code", "nc_text", "text", "program"]) {
+      const v = o[key];
+      if (typeof v === "string" && v.trim().length > 0) return v;
+    }
+    return null;
+  };
+  const walk = (src: unknown): string | null => {
+    if (!src) return null;
+    if (Array.isArray(src)) {
+      for (const item of src) {
+        const t = pickText(item) ?? walk(item);
+        if (t) return t;
+      }
+      return null;
+    }
+    return pickText(src);
+  };
+  return walk(ctx.post_processed) ?? walk(ctx.programs) ?? FALLBACK;
+}
+
+/**
+ * Build a ProductionPackageInput for ProductionPackageEngine.assemble(). The engine
+ * needs a fully-typed single-package descriptor (gcode + toolpath_segments[] + tool{}
+ * + physics{} + recommended_params{} + verification{} + material_*). Derive every
+ * field from accumulated ctx (physics accumulator, tools, speed_feeds, post_safety).
+ * toolpath_segments needs >=1 element (the engine reads segs.length for cycle time).
+ * Pure -- no I/O.
+ */
+function _buildProductionPackageInput(ctx: PipelineContext): Record<string, unknown> {
+  const acc = ctx.physics_accumulator;
+  const firstTool = (ctx.tools?.[0] as { tool?: Record<string, any> } | undefined)?.tool ?? {};
+  const firstSf = (ctx.speed_feeds?.[0] as { speed_feed?: Record<string, any> } | undefined)?.speed_feed ?? {};
+  const firstOp = (acc.operations?.[0] ?? {}) as Record<string, any>;
+  const features = (Array.isArray(ctx.features) ? ctx.features : []) as Array<Record<string, unknown>>;
+  const stock = _resolveStockMm(ctx, features);
+  const DEFAULT_DIAMETER_MM = 10;
+
+  // A minimal but valid toolpath: one rapid-in + one cut segment so segs.length >= 1
+  // and the Monte-Carlo cycle-time estimator has something to integrate.
+  const toolpathSegments = [
+    { x: 0, y: 0, z: 5, feed_mmmin: 0, rpm: firstSf.spindle_rpm ?? firstSf.rpm ?? 3000, type: "rapid" },
+    {
+      x: stock.length_mm, y: 0, z: -(firstSf.ap_mm ?? 1),
+      feed_mmmin: firstSf.feed_mmmin ?? firstSf.feed_mm_min ?? 300,
+      rpm: firstSf.spindle_rpm ?? firstSf.rpm ?? 3000, type: "cut",
+      ae_mm: firstSf.ae_mm ?? (DEFAULT_DIAMETER_MM / 2), ap_mm: firstSf.ap_mm ?? 1,
+    },
+  ];
+
+  return {
+    gcode: _extractGcodeText(ctx),
+    toolpath_segments: toolpathSegments,
+    tool: {
+      tool_id: firstTool.id ?? firstTool.tool_id,
+      manufacturer: firstTool.manufacturer,
+      designation: firstTool.designation ?? firstTool.id,
+      diameter_mm: firstTool.diameter_mm ?? DEFAULT_DIAMETER_MM,
+      flute_length_mm: firstTool.flute_length_mm ?? (firstTool.diameter_mm ?? DEFAULT_DIAMETER_MM) * 1.5,
+      overall_length_mm: firstTool.overall_length_mm ?? firstTool.length_mm ?? (firstTool.diameter_mm ?? DEFAULT_DIAMETER_MM) * 4,
+      flute_count: firstTool.flute_count ?? firstTool.flutes ?? 4,
+      coating: firstTool.coating,
+      type: firstTool.type ?? "end_mill",
+      holder: firstTool.holder,
+      price_usd: firstTool.price_usd,
+    },
+    physics: {
+      max_force_N: acc.max_force_N ?? 0,
+      max_power_kW: acc.total_power_kw ?? 0,
+      max_torque_Nm: firstOp.torque_Nm ?? 0,
+      max_deflection_mm: firstOp.deflection_mm ?? 0,
+      predicted_Ra_um: firstOp.surface_finish_ra_um ?? 0,
+      max_temperature_C: acc.peak_temperature_C ?? 0,
+      estimated_tool_life_min: acc.min_tool_life_min ?? firstOp.tool_life_min ?? 0,
+      cpk_estimate: firstOp.cpk_estimate ?? 1.33,
+    },
+    recommended_params: {
+      speed_mpm: firstSf.cutting_speed_mpm ?? firstSf.vc_m_min ?? 100,
+      rpm: firstSf.spindle_rpm ?? firstSf.rpm ?? 3000,
+      feed_mmpt: firstSf.feed_per_tooth_mm ?? firstSf.fz ?? 0.05,
+      feed_mmmin: firstSf.feed_mmmin ?? firstSf.feed_mm_min ?? 300,
+      ap_mm: firstSf.ap_mm ?? 1,
+      ae_mm: firstSf.ae_mm ?? (DEFAULT_DIAMETER_MM / 2),
+    },
+    verification: {
+      verdict: (ctx.post_safety as { passed?: boolean } | undefined)?.passed === false ? "fail" : "pass",
+      warnings: ((ctx.post_safety as { warnings?: string[] } | undefined)?.warnings ?? []),
+      issues_count: ((ctx.post_safety as { issues?: unknown[] } | undefined)?.issues?.length ?? 0),
+    },
+    material_name: ctx.input.material_spec ?? "steel",
+    material_iso_group: _resolveIsoGroup(ctx),
+    machine_name: ctx.input.machine_ids?.[0] ?? "VMC-01",
+    controller: ctx.input.controller ?? "fanuc",
+    operation_type: "milling",
+    program_number: 1000,
+    programmer_name: "PRISM CAM Kernel",
+  };
+}
+
+/**
+ * Build a PackingSlipInput for PackingSlipEngine.generate(). The engine derefs
+ * input.line_items.some(...), so a packing slip needs >=1 typed line item plus
+ * ship_to/ship_from addresses and a footer. The pipeline doesn't carry full
+ * shipping addresses, so customer/shop fields default to TBD placeholders the
+ * operator completes -- the slip is a real document skeleton, not a stub.
+ * Pure -- no I/O.
+ */
+function _buildPackingSlipInput(ctx: PipelineContext): Record<string, unknown> {
+  const customer = String(ctx.input.customer_id ?? "TBD");
+  const qty = ctx.input.quantity ?? 1;
+  const partNumber = String((ctx.input as { part_name?: string }).part_name
+    ?? (ctx.job as { job_id?: string } | undefined)?.job_id
+    ?? (ctx as { pipeline_id?: string }).pipeline_id ?? "TBD");
+  const certRef = (ctx.material as { cert_ref?: string; heat_number?: string } | undefined)?.cert_ref
+    ?? (ctx.material as { heat_number?: string } | undefined)?.heat_number
+    ?? "TBD";
+  return {
+    customer_po: String((ctx.input as { customer_po?: string }).customer_po ?? "TBD"),
+    ship_to: {
+      customer_name: customer,
+      address_line1: "TBD",
+      city: "TBD",
+      state: "TBD",
+      zip: "TBD",
+    },
+    ship_from: {
+      shop_name: "JM Die Company",
+      address_line1: "TBD",
+      city: "TBD",
+      state: "TBD",
+      zip: "TBD",
+    },
+    line_items: [{
+      part_number: partNumber,
+      revision: String((ctx.input as { revision?: string }).revision ?? "-"),
+      description: String((ctx.input as { part_name?: string }).part_name ?? `${ctx.input.material_spec ?? "part"}`),
+      quantity_ordered: qty,
+      quantity_shipped: qty,
+      material: String(ctx.input.material_spec ?? "TBD"),
+      material_cert_ref: certRef,
+      itar_controlled: false,
+    }],
+    footer: {
+      packed_by: "TBD",
+      checked_by: "TBD",
+    },
+  };
+}
+
 /** Execute FEASIBILITY stage. */
 async function executeFeasibility(ctx: PipelineContext): Promise<StageResult> {
   const start = Date.now();
@@ -1584,12 +2070,16 @@ async function executeFeasibility(ctx: PipelineContext): Promise<StageResult> {
     let result: any = null;
 
     if (analyzeFn) {
-      result = await Promise.resolve(analyzeFn.call(engine, {
-        features: ctx.features,
-        material: ctx.input.material_spec,
-        machine_ids: ctx.input.machine_ids,
-        geometry: ctx.geometry,
-      }));
+      // FeasibilityOrchestratorEngine.fullAnalysis(job: FeasibilityJob) reads
+      // job.stock.{length_mm,width_mm,height_mm} and iterates job.operations.map(...).
+      // The prior code passed a plain {features,material,...} options object, so the
+      // engine derefed job.stock.height_mm (undefined) and job.operations.map (undefined)
+      // -> "Cannot read properties of undefined (reading 'map')" -> caught -> the whole
+      // print->ship pipeline stalled at FEASIBILITY. Build a real FeasibilityJob from ctx.
+      // ctx.process_plan is still NULL at this stage, so operations are derived from
+      // ctx.features (recognized in the prior stage), not from a non-existent process plan.
+      const job = _buildFeasibilityJob(ctx);
+      result = await Promise.resolve(analyzeFn.call(engine, job));
     } else {
       warnings.push("FeasibilityOrchestratorEngine: using stub");
       result = { overall_feasible: true, dead_ends: [] };
@@ -1798,26 +2288,38 @@ async function executeScheduling(ctx: PipelineContext): Promise<StageResult> {
     let result: any = null;
 
     if (scheduleFn) {
-      result = await Promise.resolve(scheduleFn.call(engine, {
-        jobs: [{
-          id: (ctx as any).pipeline_id ?? "job-1",
-          part_name: (ctx.input as any).part_name ?? "Unknown",
-          quantity: (ctx.input as any).quantity ?? 1,
-          cycle_time_min: (ctx.quote as any)?.estimated_cycle_time_min ?? 30,
-          setup_time_min: (ctx.quote as any)?.estimated_setup_time_min ?? 60,
-          due_date: (ctx.input as any).due_date ?? new Date(Date.now() + 14 * 86400000).toISOString(),
-          priority: (ctx.input as any).priority ?? "normal",
-          required_machine_type: ctx.input.machine_ids?.[0],
-        }],
-        machines: ctx.input.machine_ids?.map((id: string) => ({
-          machine_id: id,
-          machine_name: id,
-          type: "VMC",
-          available_hours_per_day: 16,
-          current_load_hours: 0,
-          efficiency: 0.85,
-        })),
+      // SchedulingEngine.schedule(jobs: Job[], machines: MachineSlot[], strategy?)
+      // is POSITIONAL and iterates `jobs`. A single {jobs,machines} options object
+      // made it read `jobs` = the wrapper object -> "jobs is not iterable". Build
+      // typed arrays and call positionally; default to one VMC slot when no
+      // machine_ids were supplied (a part needs >=1 candidate machine).
+      const DEFAULT_DUE_DAYS = 14;
+      const DEFAULT_CYCLE_MIN = 30;
+      const DEFAULT_SETUP_MIN = 60;
+      const DEFAULT_AVAIL_HRS = 16;
+      const DEFAULT_EFFICIENCY = 0.85;
+      const MS_PER_DAY = 86400000;
+      const jobs = [{
+        id: (ctx as any).pipeline_id ?? "job-1",
+        part_name: (ctx.input as any).part_name ?? "Unknown",
+        quantity: (ctx.input as any).quantity ?? 1,
+        cycle_time_min: (ctx.quote as any)?.estimated_cycle_time_min ?? DEFAULT_CYCLE_MIN,
+        setup_time_min: (ctx.quote as any)?.estimated_setup_time_min ?? DEFAULT_SETUP_MIN,
+        due_date: (ctx.input as any).due_date
+          ?? new Date(Date.now() + DEFAULT_DUE_DAYS * MS_PER_DAY).toISOString(),
+        priority: (ctx.input as any).priority ?? "normal",
+        required_machine_type: ctx.input.machine_ids?.[0],
+      }];
+      const machineIds = ctx.input.machine_ids?.length ? ctx.input.machine_ids : ["VMC-01"];
+      const machines = machineIds.map((id: string) => ({
+        machine_id: id,
+        machine_name: id,
+        type: "VMC",
+        available_hours_per_day: DEFAULT_AVAIL_HRS,
+        current_load_hours: 0,
+        efficiency: DEFAULT_EFFICIENCY,
       }));
+      result = await Promise.resolve(scheduleFn.call(engine, jobs, machines));
     }
 
     ctx.scheduling = result;
@@ -1952,17 +2454,15 @@ async function executeProcessPlan(ctx: PipelineContext): Promise<StageResult> {
 
   try {
     const engine = _getEngine("ProcessPlanEngine");
-    const planFn = engine.plan ?? engine.generatePlan ?? engine.run;
+    // ProcessPlanEngine's real entry is generate(input: ProcessPlanInput). The prior
+    // chain (plan/generatePlan/run) resolved to NONE -> the executor fell to the stub,
+    // which the stage runner rejects as incomplete (R12). Resolve `generate` and pass
+    // the typed ProcessPlanInput shape.
+    const planFn = engine.generate ?? engine.plan ?? engine.generatePlan ?? engine.run;
     let result: any = null;
 
     if (planFn) {
-      result = await Promise.resolve(planFn.call(engine, {
-        features: ctx.features,
-        material: ctx.input.material_spec,
-        machine_ids: ctx.input.machine_ids,
-        geometry: ctx.geometry,
-        quantity: ctx.input.quantity,
-      }));
+      result = await Promise.resolve(planFn.call(engine, _buildProcessPlanInput(ctx)));
     } else {
       warnings.push("ProcessPlanEngine: using stub");
       result = { operations: [], sequence: [] };
@@ -2130,10 +2630,15 @@ async function executeMaterialProcurement(ctx: PipelineContext): Promise<StageRe
     let stockResult: any = null;
 
     if (optimizeFn) {
+      // StockSizeOptimizerEngine.optimize reads input.part_dims_mm.{length,width,height}
+      // + material + quantity. The prior {material,geometry,quantity} had NO part_dims_mm
+      // -> `dims.length` threw "Cannot read properties of undefined". The optimizer also
+      // gates on a `family_alloy` registry key (steel_4140), not a raw alloy number.
+      const env = _resolveStockMm(ctx, (Array.isArray(ctx.features) ? ctx.features : []) as Array<Record<string, unknown>>);
       stockResult = await Promise.resolve(optimizeFn.call(stockEngine, {
-        material: ctx.input.material_spec,
-        geometry: ctx.geometry,
-        quantity: ctx.input.quantity,
+        part_dims_mm: { length: env.length_mm, width: env.width_mm, height: env.height_mm },
+        material: _resolveStockMaterialKey(ctx.input.material_spec),
+        quantity: ctx.input.quantity ?? 1,
       }));
     } else {
       warnings.push("StockSizeOptimizerEngine: using stub");
@@ -2591,9 +3096,23 @@ async function executeSpeedFeed(ctx: PipelineContext): Promise<StageResult> {
             resolved.rpm_shifted_for_stability = true;
             resolved.original_rpm = rpm;
           }
-          chatterCheck = { stable: false, shifted_rpm: shiftedRpm, original_rpm: rpm, max_stable_ap_mm: chatterData.max_stable_ap_mm };
+          // After the shift the operation IS stable (it now runs at optimal_rpm inside
+          // the stable lobe), so the resolved stability flag must reflect the POST-shift
+          // state -- stable:true with the shift as provenance. The prior code left
+          // stable:false here, so EVERY successfully-mitigated op propagated to the
+          // physics accumulator as still-unstable and PRE_SAFETY vetoed the whole job
+          // ("op ... still chatter-unstable") even though the cut was made safe. A
+          // genuinely uncuttable op (no optimal_rpm) still falls to the else branch and
+          // is correctly flagged unstable for the veto.
+          chatterCheck = {
+            stable: true,
+            rpm_shifted_for_stability: true,
+            shifted_rpm: shiftedRpm,
+            original_rpm: rpm,
+            max_stable_ap_mm: chatterData.max_stable_ap_mm,
+          };
         } else {
-          chatterCheck = { stable: true, max_stable_ap_mm: chatterData?.max_stable_ap_mm ?? null };
+          chatterCheck = { stable: isStable, max_stable_ap_mm: chatterData?.max_stable_ap_mm ?? null };
         }
       } catch (e: any) {
         warnings.push(`Chatter check unavailable for op ${op.id ?? i}: ${e?.message ?? String(e)}`);
@@ -3080,11 +3599,16 @@ function _inferProcessType(ctx: PipelineContext): string {
     (f.type ?? f.feature_type ?? "").toLowerCase()
   );
 
+  // Genuinely-rotational (turning) discriminators ONLY. A `bore` or `thread` is
+  // NOT a lathe discriminator on its own -- a bore in a prismatic plate is milled
+  // (interpolated) and a thread can be tapped/thread-milled. Treating `bore` as a
+  // lathe feature mis-routed a flat milled plate-with-bore to the mill_turn engine
+  // (which has no program-gen method -> stub -> the run was rejected).
   const hasLatheFeat = featureTypes.some((t: string) =>
-    /turning|bore|od_profile|id_profile|thread|groove|parting|knurl|taper/.test(t)
+    /turning|od_profile|id_profile|od_turn|id_turn|groove|parting|part_off|knurl|taper/.test(t)
   );
   const hasMillFeat = featureTypes.some((t: string) =>
-    /pocket|slot|contour|face|hole|drill|tap|ream/.test(t)
+    /pocket|slot|contour|face|hole|drill|tap|ream|bore/.test(t)
   );
   const hasMultiAxis = featureTypes.some((t: string) =>
     /impeller|blisk|turbine|undercut_complex|5.?axis|multi.?axis|swarf/.test(t)
@@ -3146,20 +3670,30 @@ async function executeProgramGeneration(ctx: PipelineContext): Promise<StageResu
     }
 
     const engine = _getEngine(engineName);
-    const generateFn = engine.generate ?? engine.run ?? engine.assemble;
+    // The milling pipeline (PrintToProgramPipelineEngine) entry is
+    // runFullPipeline(input: DrawingInput); the assembler engines expose
+    // generate/run/assemble. The prior chain omitted runFullPipeline, so the milling
+    // path resolved NO method -> stub -> rejected as incomplete. Add runFullPipeline
+    // and pass a typed DrawingInput for the milling engine.
+    const generateFn = engine.runFullPipeline ?? engine.generate ?? engine.run ?? engine.assemble;
     let result: any = null;
 
     if (generateFn) {
-      result = await Promise.resolve(generateFn.call(engine, {
-        features: ctx.features,
-        process_plan: ctx.process_plan,
-        tools: ctx.tools,
-        strategies: ctx.strategies,
-        speed_feeds: ctx.speed_feeds,
-        material: ctx.input.material_spec,
-        machine_ids: ctx.input.machine_ids,
-        process_type: processType,
-      }));
+      const usesDrawingInput = engineName === "PrintToProgramPipelineEngine"
+        && typeof engine.runFullPipeline === "function";
+      const payload = usesDrawingInput
+        ? _buildDrawingInput(ctx)
+        : {
+            features: ctx.features,
+            process_plan: ctx.process_plan,
+            tools: ctx.tools,
+            strategies: ctx.strategies,
+            speed_feeds: ctx.speed_feeds,
+            material: ctx.input.material_spec,
+            machine_ids: ctx.input.machine_ids,
+            process_type: processType,
+          };
+      result = await Promise.resolve(generateFn.call(engine, payload));
     } else {
       warnings.push(`${engineName}: using stub`);
       result = { programs: [], gcode: "" };
@@ -3411,21 +3945,19 @@ async function executeMagazineLayout(ctx: PipelineContext): Promise<StageResult>
 
   try {
     const engine = _getEngine("ToolMagazineOptimizationEngine");
-    const optimizeFn = engine?.optimize ?? engine?.layout ?? engine?.run;
+    // ToolMagazineOptimizationEngine's entry is calculate(input: ToolMagazineInput),
+    // which reads tools_required + total_slots (NOT a {tools,machine_id,...} object).
+    // _getEngine also lacked a case for this engine -> it threw "Unknown engine".
+    const MAGAZINE_DEFAULT_SLOTS = 20;
+    const optimizeFn = engine?.calculate ?? engine?.optimize ?? engine?.layout ?? engine?.run;
     let result: any = null;
 
     if (optimizeFn) {
-      const tools = (ctx.tools ?? []).map((t: any, i: number) => ({
-        tool_id: t?.tool?.id ?? `T${i + 1}`,
-        diameter_mm: t?.tool?.diameter_mm,
-        length_mm: t?.tool?.length_mm ?? t?.tool?.overall_length_mm,
-        type: t?.tool?.type ?? "endmill",
-        operation_index: i,
-      }));
+      const toolCount = (ctx.tools ?? []).length;
       result = await Promise.resolve(optimizeFn.call(engine, {
-        tools,
-        machine_id: ctx.input.machine_ids?.[0],
-        magazine_capacity: 20, // sensible default; overridden by machine registry
+        tools_required: toolCount > 0 ? toolCount : undefined,
+        total_slots: MAGAZINE_DEFAULT_SLOTS, // sensible default; overridden by machine registry
+        program_tool_sequence: (ctx.tools ?? []).map((_: any, i: number) => i + 1),
       }));
     } else {
       // Fallback: sequential assignment T1, T2, ...
@@ -3477,16 +4009,34 @@ async function executeSetupSheet(ctx: PipelineContext): Promise<StageResult> {
 
   try {
     const engine = _getEngine("SetupSheetFromGCodeEngine");
-    const generateFn = engine.generate ?? engine.create ?? engine.run;
+    // SetupSheetFromGCodeEngine.generateSetupSheet(gcode: string, config: SetupSheetConfig)
+    // takes the POST-PROCESSED G-code TEXT + a config -- NOT the {programs,tools,...}
+    // options object the old code passed (which resolved no method -> stub -> the stage
+    // runner rejected it as incomplete). Extract the program text from ctx.post_processed
+    // (then ctx.programs) and build the typed config.
+    const generateFn = engine.generateSetupSheet ?? engine.generate ?? engine.create ?? engine.run;
     let result: any = null;
 
     if (generateFn) {
-      result = await Promise.resolve(generateFn.call(engine, {
-        programs: ctx.post_processed,
-        tools: ctx.tools,
-        material: ctx.input.material_spec,
-        machine_ids: ctx.input.machine_ids,
-      }));
+      const gcode = _extractGcodeText(ctx);
+      const config = {
+        controller: ctx.input.controller ?? "fanuc",
+        part_number: String((ctx.input as { part_name?: string }).part_name
+          ?? (ctx as { pipeline_id?: string }).pipeline_id ?? "N/A"),
+        operation_name: "OP1",
+        machine_name: ctx.input.machine_ids?.[0],
+        include_tool_list: true,
+        include_offsets: true,
+        include_safety: true,
+      };
+      // generateSetupSheet is positional (gcode, config); generate/create/run fallbacks
+      // take a single object. Call the positional form when the real method resolved.
+      result = engine.generateSetupSheet
+        ? await Promise.resolve(generateFn.call(engine, gcode, config))
+        : await Promise.resolve(generateFn.call(engine, {
+            programs: ctx.post_processed, tools: ctx.tools,
+            material: ctx.input.material_spec, machine_ids: ctx.input.machine_ids,
+          }));
     } else {
       warnings.push("SetupSheetFromGCodeEngine: using stub");
       result = { setup_sheet: {} };
@@ -3825,17 +4375,13 @@ async function executeProductionPackage(ctx: PipelineContext): Promise<StageResu
     let result: any = null;
 
     if (assembleFn) {
-      result = await Promise.resolve(assembleFn.call(engine, {
-        programs: ctx.post_processed,
-        setup_sheet: ctx.setup_sheet,
-        probe_routines: ctx.probe_routines,
-        simulation: ctx.simulation,
-        process_plan: ctx.process_plan,
-        tools: ctx.tools,
-        material: ctx.input.material_spec,
-        quantity: ctx.input.quantity,
-        customer_id: ctx.input.customer_id,
-      }));
+      // ProductionPackageEngine.assemble(input: ProductionPackageInput) needs the full
+      // typed package descriptor (gcode, toolpath_segments[], tool{}, physics{},
+      // recommended_params{}, verification{}, material_*). The prior code passed a loose
+      // {programs,setup_sheet,...} object, so `input.toolpath_segments` was undefined and
+      // _estimateCycleTime did `segs.length` -> "Cannot read properties of undefined".
+      // Build the typed input from accumulated ctx (physics accumulator, tools, speed_feeds).
+      result = await Promise.resolve(assembleFn.call(engine, _buildProductionPackageInput(ctx)));
     } else {
       warnings.push("ProductionPackageEngine: using stub");
       result = {
@@ -4593,12 +5139,11 @@ async function executeShipping(ctx: PipelineContext): Promise<StageResult> {
     let packingResult: any = null;
 
     if (packFn) {
-      packingResult = await Promise.resolve(packFn.call(packingEngine, {
-        job: ctx.job,
-        customer_id: ctx.input.customer_id,
-        quantity: ctx.input.quantity,
-        material: ctx.input.material_spec,
-      }));
+      // PackingSlipEngine.generate(input: PackingSlipInput) reads input.line_items.some(...).
+      // The prior {job,customer_id,...} object had no line_items -> "Cannot read properties
+      // of undefined (reading 'some')". Build the typed PackingSlipInput (ship_to/ship_from/
+      // line_items[]/footer) from ctx.
+      packingResult = await Promise.resolve(packFn.call(packingEngine, _buildPackingSlipInput(ctx)));
     } else {
       warnings.push("PackingSlipEngine: using stub");
       packingResult = { packing_slip_id: generatePipelineId() };
@@ -5334,9 +5879,16 @@ class QuoteToShipOrchestratorEngine {
           ctx.shop_config = (result.output as any).shop_config;
         }
         break;
-      case "FEATURE_RECOGNITION":
-        ctx.features = (result.output as any)?.features ?? result.output;
+      case "FEATURE_RECOGNITION": {
+        // Normalize to an ARRAY -- DFM_CHECK + downstream stages iterate ctx.features.
+        // The stage output is the FeatureRecognitionResult ({features:[...]}); fall
+        // back to the output-as-array, else []. NEVER assign a non-iterable object
+        // here (the un-guarded `?? result.output` previously yielded a non-array ->
+        // DFM_CHECK threw "features is not iterable" and stalled the whole pipeline).
+        const fo = (result.output as { features?: unknown }).features ?? result.output;
+        ctx.features = Array.isArray(fo) ? fo : [];
         break;
+      }
       case "DFM_CHECK":
         ctx.dfm = result.output;
         break;

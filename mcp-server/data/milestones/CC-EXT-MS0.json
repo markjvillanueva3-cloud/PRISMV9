@@ -1,0 +1,703 @@
+{
+  "id": "CC-EXT-MS0",
+  "version": "3.1.0",
+  "title": "Document Learning Pipeline (PDFs, Notes, Articles, Academic Studies)",
+  "brief": "Extend knowledge extraction to text documents: PDF/markdown/text ingestion, document classification, adapted prompts, schema extension, MCP integration with upload + query routes.",
+  "created_at": "2026-03-01T19:00:00Z",
+  "created_by": "claude-opus-4.6",
+  "phases": [
+    {
+      "id": "P0",
+      "title": "Document Learning Pipeline",
+      "description": "Build end-to-end document ingestion and knowledge extraction pipeline. Extend knowledge schema for document provenance, create document-specific prompts, add MCP tools for document upload and querying.",
+      "sessions": "2-3",
+      "primary_role": "R3",
+      "primary_model": "opus-4.6",
+      "implementation_model": "sonnet-4.6",
+      "execution_split": "CC 60% / MCP 40%",
+      "units": [
+        {
+          "id": "P0-U01",
+          "title": "Document Text Extraction Module",
+          "phase": "P0",
+          "sequence": 0,
+          "role": "R3",
+          "role_name": "Knowledge Engineer",
+          "model": "opus-4.6",
+          "effort": 80,
+          "tools": [
+            {
+              "tool": "prism_dev"
+            }
+          ],
+          "skills": [],
+          "scripts": [],
+          "hooks": [],
+          "features": [],
+          "dependencies": [],
+          "entry_conditions": [
+            "CC-MS2 complete",
+            "Python 3.12 available"
+          ],
+          "exit_conditions": [
+            "document_ingest.py extracts text from PDF, markdown, plain text, and HTML",
+            "PDF extraction handles multi-page documents with page-level provenance",
+            "Metadata extraction (title, author, date, DOI) works for academic PDFs",
+            "Tests pass for all 4 document formats"
+          ],
+          "rollback": "git checkout -- cad-engine/src/document_ingest.py cad-engine/tests/test_document_ingest.py",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Install PDF extraction dependencies (pypdf or pdfplumber). Add to requirements.txt."
+            },
+            {
+              "number": 2,
+              "instruction": "Create cad-engine/src/document_ingest.py with DocumentIngestResult dataclass and ingest_document() function supporting PDF, markdown, plain text, HTML formats."
+            },
+            {
+              "number": 3,
+              "instruction": "Implement PDF text extraction with page-level chunking and metadata extraction (title from PDF metadata, author, creation date, DOI detection via regex)."
+            },
+            {
+              "number": 4,
+              "instruction": "Implement markdown/plaintext/HTML text extraction (markdown-it for HTML stripping, frontmatter parsing for metadata)."
+            },
+            {
+              "number": 5,
+              "instruction": "Create tests/test_document_ingest.py with test fixtures and tests for all 4 formats."
+            },
+            {
+              "number": 6,
+              "instruction": "Run pytest, verify all tests pass."
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "cad-engine/src/document_ingest.py",
+              "type": "source",
+              "description": "Document text extraction module"
+            },
+            {
+              "path": "cad-engine/tests/test_document_ingest.py",
+              "type": "test",
+              "description": "Document ingestion tests"
+            },
+            {
+              "path": "cad-engine/tests/fixtures/sample.pdf",
+              "type": "data",
+              "description": "Test PDF fixture"
+            }
+          ],
+          "description": "Document Text Extraction Module — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P0-U02",
+          "title": "Document Type Classifier",
+          "phase": "P0",
+          "sequence": 1,
+          "role": "R3",
+          "role_name": "Knowledge Engineer",
+          "model": "opus-4.6",
+          "effort": 60,
+          "tools": [
+            {
+              "tool": "prism_dev"
+            }
+          ],
+          "skills": [],
+          "scripts": [],
+          "hooks": [],
+          "features": [],
+          "dependencies": [
+            "P0-U01"
+          ],
+          "entry_conditions": [
+            "document_ingest.py exists"
+          ],
+          "exit_conditions": [
+            "document_classify.py classifies documents into: academic_paper, technical_manual, handbook, blog_article, notes, specification, other",
+            "Classification uses structural cues (abstract, references, DOI) + content keywords",
+            "Returns document type + confidence + evidence",
+            "Tests pass"
+          ],
+          "rollback": "git checkout -- cad-engine/src/document_classify.py",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Create cad-engine/src/document_classify.py with DocumentType enum and classify_document() function."
+            },
+            {
+              "number": 2,
+              "instruction": "Implement keyword-based + structural classification: academic papers (abstract, references, DOI, methodology), manuals (table of contents, chapters), handbooks (procedures, tables), blogs (informal tone, short), notes (bullet points, fragments), specs (shall/must language, requirement numbering)."
+            },
+            {
+              "number": 3,
+              "instruction": "Add tests for each document type classification."
+            },
+            {
+              "number": 4,
+              "instruction": "Run pytest, verify all tests pass."
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "cad-engine/src/document_classify.py",
+              "type": "source",
+              "description": "Document type classifier"
+            },
+            {
+              "path": "cad-engine/tests/test_document_classify.py",
+              "type": "test",
+              "description": "Document classifier tests"
+            }
+          ],
+          "description": "Document Type Classifier — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P0-U03",
+          "title": "Document-Specific Extraction Prompts",
+          "phase": "P0",
+          "sequence": 2,
+          "role": "R3",
+          "role_name": "Knowledge Engineer",
+          "model": "opus-4.6",
+          "effort": 80,
+          "tools": [
+            {
+              "tool": "prism_dev"
+            }
+          ],
+          "skills": [],
+          "scripts": [],
+          "hooks": [],
+          "features": [],
+          "dependencies": [
+            "P0-U02"
+          ],
+          "entry_conditions": [
+            "document_classify.py exists"
+          ],
+          "exit_conditions": [
+            "document_prompts.py has system prompts adapted for text documents (not videos)",
+            "Document type-specific context prompts exist (academic, manual, handbook, etc.)",
+            "Prompts instruct extraction of page-level provenance instead of timestamps",
+            "build_document_user_message() constructs evidence from extracted text + metadata",
+            "Tests pass"
+          ],
+          "rollback": "git checkout -- cad-engine/src/prompts/document_prompts.py",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Create cad-engine/src/prompts/document_prompts.py with DOCUMENT_CAD_SYSTEM_PROMPT, DOCUMENT_CAM_SYSTEM_PROMPT, DOCUMENT_SHOP_SYSTEM_PROMPT adapted for reading documents instead of watching videos."
+            },
+            {
+              "number": 2,
+              "instruction": "Add document type-specific context prompts: academic paper (cite methodology, results), manual (extract procedures, specs), handbook (extract best practices), blog (extract tips, experiences)."
+            },
+            {
+              "number": 3,
+              "instruction": "Implement get_document_prompt(domain, doc_type) and build_document_user_message(text, metadata, doc_type) with page-level chunking for large documents."
+            },
+            {
+              "number": 4,
+              "instruction": "Add tests for prompt selection and message building."
+            },
+            {
+              "number": 5,
+              "instruction": "Run pytest, verify all tests pass."
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "cad-engine/src/prompts/document_prompts.py",
+              "type": "source",
+              "description": "Document-specific extraction prompts"
+            }
+          ],
+          "description": "Document-Specific Extraction Prompts — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P0-U04",
+          "title": "Schema Extension for Document Provenance",
+          "phase": "P0",
+          "sequence": 3,
+          "role": "R3",
+          "role_name": "Knowledge Engineer",
+          "model": "opus-4.6",
+          "effort": 40,
+          "tools": [
+            {
+              "tool": "prism_dev"
+            }
+          ],
+          "skills": [],
+          "scripts": [],
+          "hooks": [],
+          "features": [],
+          "dependencies": [],
+          "entry_conditions": [
+            "knowledge_schema_v2.json exists"
+          ],
+          "exit_conditions": [
+            "Schema extended with document_metadata (author, publication, DOI, page_count, format)",
+            "Provenance extended with page_number and section_title fields",
+            "source_type enum includes 'document' alongside transcript/vision/ocr/inferred",
+            "Backward compatible — existing video knowledge docs still validate",
+            "Tests pass"
+          ],
+          "rollback": "git checkout -- cad-engine/schemas/knowledge_schema_v2.json",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Extend knowledge_schema_v2.json: add document_metadata definition (author, publication_title, publication_date, doi, page_count, format, url)."
+            },
+            {
+              "number": 2,
+              "instruction": "Extend provenance definition: add optional page_number (integer) and section_title (string) fields. Add 'document' to source_type enum."
+            },
+            {
+              "number": 3,
+              "instruction": "Add metadata.source_type field to distinguish video vs document origins."
+            },
+            {
+              "number": 4,
+              "instruction": "Verify existing tests still pass (backward compatibility)."
+            },
+            {
+              "number": 5,
+              "instruction": "Add schema validation tests for new document fields."
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "cad-engine/schemas/knowledge_schema_v2.json",
+              "type": "schema",
+              "description": "Extended knowledge schema with document provenance"
+            }
+          ],
+          "description": "Schema Extension for Document Provenance — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P0-U05",
+          "title": "Document Extraction Orchestrator",
+          "phase": "P0",
+          "sequence": 4,
+          "role": "R3",
+          "role_name": "Knowledge Engineer",
+          "model": "opus-4.6",
+          "effort": 100,
+          "tools": [
+            {
+              "tool": "prism_dev"
+            }
+          ],
+          "skills": [],
+          "scripts": [],
+          "hooks": [],
+          "features": [],
+          "dependencies": [
+            "P0-U01",
+            "P0-U02",
+            "P0-U03",
+            "P0-U04"
+          ],
+          "entry_conditions": [
+            "document_ingest.py, document_classify.py, document_prompts.py, schema v2 extended"
+          ],
+          "exit_conditions": [
+            "document_extract.py orchestrates: ingest → classify → domain-detect → extract → validate → link → store",
+            "Handles multi-domain documents (extracts CAD + CAM + SHOP from single document)",
+            "Large document chunking (splits PDFs > 20 pages into overlapping chunks)",
+            "Deduplicates extracted items across chunks",
+            "Tests pass with mocked API"
+          ],
+          "rollback": "git checkout -- cad-engine/src/document_extract.py cad-engine/tests/test_document_extraction.py",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Create cad-engine/src/document_extract.py with extract_from_document() orchestrator. Reuse existing _extract_cad/cam/shop from knowledge_extract.py but with document prompts."
+            },
+            {
+              "number": 2,
+              "instruction": "Implement chunking strategy for large documents: split by page boundaries, overlap 1 page, max 15 pages per chunk."
+            },
+            {
+              "number": 3,
+              "instruction": "Implement deduplication: merge items with same ID or >80% title similarity across chunks."
+            },
+            {
+              "number": 4,
+              "instruction": "Wire domain classification from document_classify.py into extraction flow."
+            },
+            {
+              "number": 5,
+              "instruction": "Create comprehensive tests with mocked API responses for PDF, markdown, and multi-domain documents."
+            },
+            {
+              "number": 6,
+              "instruction": "Run full test suite, verify no regressions."
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "cad-engine/src/document_extract.py",
+              "type": "source",
+              "description": "Document extraction orchestrator"
+            },
+            {
+              "path": "cad-engine/tests/test_document_extraction.py",
+              "type": "test",
+              "description": "Document extraction tests"
+            }
+          ],
+          "description": "Document Extraction Orchestrator — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P0-U06",
+          "title": "MCP Document Upload Tool",
+          "phase": "P0",
+          "sequence": 5,
+          "role": "R1",
+          "role_name": "TypeScript Engineer",
+          "model": "opus-4.6",
+          "effort": 80,
+          "tools": [
+            {
+              "tool": "prism_dev"
+            },
+            {
+              "tool": "prism_knowledge"
+            }
+          ],
+          "skills": [],
+          "scripts": [],
+          "hooks": [],
+          "features": [],
+          "dependencies": [
+            "P0-U05"
+          ],
+          "entry_conditions": [
+            "document_extract.py works end-to-end"
+          ],
+          "exit_conditions": [
+            "New MCP tool prism_learn_document with actions: upload, extract, list, get, delete",
+            "Upload accepts file path or URL, triggers extraction pipeline",
+            "Extract returns structured knowledge with validation results",
+            "List/get/delete manage stored document knowledge",
+            "Build passes, tests pass"
+          ],
+          "rollback": "git checkout -- mcp-server/src/tools/dispatchers/documentLearningDispatcher.ts",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Create mcp-server/src/tools/dispatchers/documentLearningDispatcher.ts with 5 actions: upload, extract, list, get, delete."
+            },
+            {
+              "number": 2,
+              "instruction": "Implement upload action: accept file_path, detect format, call Python cad-engine document_extract.py via child_process."
+            },
+            {
+              "number": 3,
+              "instruction": "Implement extract action: run extraction on uploaded document, return results."
+            },
+            {
+              "number": 4,
+              "instruction": "Implement list/get/delete actions for managing stored document knowledge."
+            },
+            {
+              "number": 5,
+              "instruction": "Register dispatcher in dispatcher index. Add to MASTER_INDEX."
+            },
+            {
+              "number": 6,
+              "instruction": "Add tests, run build + test suite."
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "mcp-server/src/tools/dispatchers/documentLearningDispatcher.ts",
+              "type": "source",
+              "description": "Document learning MCP dispatcher"
+            },
+            {
+              "path": "mcp-server/src/__tests__/document-learning.test.ts",
+              "type": "test",
+              "description": "Document learning dispatcher tests"
+            }
+          ],
+          "description": "MCP Document Upload Tool — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P0-U07",
+          "title": "MCP Learning Routes + Web API",
+          "phase": "P0",
+          "sequence": 6,
+          "role": "R1",
+          "role_name": "TypeScript Engineer",
+          "model": "opus-4.6",
+          "effort": 60,
+          "tools": [
+            {
+              "tool": "prism_dev"
+            }
+          ],
+          "skills": [],
+          "scripts": [],
+          "hooks": [],
+          "features": [],
+          "dependencies": [
+            "P0-U06"
+          ],
+          "entry_conditions": [
+            "documentLearningDispatcher.ts registered"
+          ],
+          "exit_conditions": [
+            "Express routes: POST /learning/document/upload, POST /learning/document/extract, GET /learning/documents, GET /learning/document/:id, DELETE /learning/document/:id",
+            "Routes wire to documentLearningDispatcher actions",
+            "Build passes, tests pass"
+          ],
+          "rollback": "git checkout -- mcp-server/src/routes/documentLearning.ts",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Create mcp-server/src/routes/documentLearning.ts with 5 Express routes mapping to dispatcher actions."
+            },
+            {
+              "number": 2,
+              "instruction": "Add file upload handling (multipart/form-data with multer or base64 body)."
+            },
+            {
+              "number": 3,
+              "instruction": "Register routes in the main Express app."
+            },
+            {
+              "number": 4,
+              "instruction": "Add route tests, run build + test suite."
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "mcp-server/src/routes/documentLearning.ts",
+              "type": "source",
+              "description": "Document learning Express routes"
+            }
+          ],
+          "description": "MCP Learning Routes + Web API — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "status": "complete",
+          "completed_at": "2026-05-22T19:15:27.181Z",
+          "close_out_note": "5 Express document routes (POST /learning/document/upload, /document/extract, GET /documents, GET /document/:id, DELETE /document/:id) added to routes/learning.ts wiring to prism_doc_learn (documentLearningDispatcher) doc_upload/extract/list/get/delete. 10/10 learning-routes.test.ts pass (5 new). P0-U07 files type-clean. NOTE: global tsc has 529 pre-existing peer errors in other dispatchers — NOT a P0-U07 regression. Closed slot:lima 2026-05-22."
+        },
+        {
+          "id": "P0-U08",
+          "title": "Integration Tests + Documentation",
+          "phase": "P0",
+          "sequence": 7,
+          "role": "R3",
+          "role_name": "Knowledge Engineer",
+          "model": "opus-4.6",
+          "effort": 60,
+          "tools": [
+            {
+              "tool": "prism_dev"
+            },
+            {
+              "tool": "prism_validate"
+            }
+          ],
+          "skills": [
+            "/test",
+            "/scrutinize"
+          ],
+          "scripts": [],
+          "hooks": [],
+          "features": [],
+          "dependencies": [
+            "P0-U07"
+          ],
+          "entry_conditions": [
+            "All prior units complete"
+          ],
+          "exit_conditions": [
+            "End-to-end test: PDF upload → extraction → knowledge query works",
+            "End-to-end test: Markdown notes → extraction → cross-domain links works",
+            "All 205+ cad-engine tests pass",
+            "MCP build passes",
+            "Scrutiny score >= 0.90"
+          ],
+          "rollback": "git checkout -- cad-engine/tests/test_document_e2e.py",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Create end-to-end integration tests that run the full pipeline with real sample documents (mocked API)."
+            },
+            {
+              "number": 2,
+              "instruction": "Run full test suites (cad-engine + mcp-server). Fix any regressions."
+            },
+            {
+              "number": 3,
+              "instruction": "Run /scrutinize on all new files. Fix findings."
+            },
+            {
+              "number": 4,
+              "instruction": "Update roadmap-index.json, MEMORY.md with completion."
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "cad-engine/tests/test_document_e2e.py",
+              "type": "test",
+              "description": "End-to-end document learning tests"
+            }
+          ],
+          "description": "Integration Tests + Documentation — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        }
+      ],
+      "gate": {
+        "omega_floor": 0.75,
+        "safety_floor": 0.7,
+        "ralph_required": false,
+        "ralph_grade_floor": "B",
+        "anti_regression": true,
+        "test_required": true,
+        "build_required": true,
+        "checkpoint": true,
+        "learning_save": true,
+        "custom_checks": []
+      }
+    }
+  ],
+  "leverage": [],
+  "scrutiny": {
+    "score": 0,
+    "pass": false,
+    "passes": []
+  },
+  "status": "not_started",
+  "smart_config": {
+    "role": "senior-architect + domain-specialist",
+    "model": "opus",
+    "effort": "MAX",
+    "context_budget": "65%"
+  },
+  "mcp_lifecycle": {
+    "session_start": [
+      "prism_session:context_boot",
+      "prism_session:dispatcher_map",
+      "prism_session:memory_recall",
+      "prism_session:system_snapshot",
+      "prism_session:action_search"
+    ],
+    "during_work": [
+      "prism_session:auto_checkpoint",
+      "prism_session:tool_route_best",
+      "prism_session:wip_capture"
+    ],
+    "session_end": [
+      "prism_session:memory_save",
+      "prism_session:system_snapshot",
+      "prism_session:checkpoint_enhanced"
+    ]
+  },
+  "forge_triple": {
+    "protective_hook": "cc-ext-ms0-gate",
+    "mcp_action": "prism_cc-ext:cc_ext_ms0_run",
+    "skill_command": "/cc-ext-ms0",
+    "ownership": "DECLARED — BUILT in terminal unit of this milestone"
+  },
+  "feature_cascade": {
+    "new_hooks": [
+      "cc-ext-ms0-gate"
+    ],
+    "new_actions": [
+      "cc_ext_ms0_run"
+    ],
+    "new_skills": [
+      "/cc-ext-ms0"
+    ],
+    "available_to": [
+      "downstream CAMX milestones",
+      "prism app consumers"
+    ]
+  },
+  "knowledge_sources": {
+    "engines": [
+      "ENGINE_DIGEST.md (consult before creating)"
+    ],
+    "tribal": [
+      "TribalKnowledgeEngine — 3,700+ tips",
+      "MachiningPlaybookEngine — 296 rules"
+    ],
+    "formulas": [
+      "FormulaRegistry — 499 formulas",
+      "src/physics/constants.ts — canonical"
+    ],
+    "reference": [
+      "EXTERNAL-REFERENCE-PROGRAMS-INDEX.md",
+      "MaterialRegistry",
+      "MachineRegistry",
+      "ToolCatalogEngine (95,608 tools)"
+    ]
+  },
+  "intent": "Extend knowledge extraction to text documents: PDF/markdown/text ingestion, document classification, adapted prompts, schema extension, MCP integration with upload + query routes.",
+  "compact_checkpoint": "every 3 units — auto-triggered by hook",
+  "enforcement_hooks_active": [
+    "physics agent",
+    "wiring agent",
+    "constants checker",
+    "stub detector",
+    "test quality",
+    "forge-triple gate",
+    "session audit agent"
+  ],
+  "completed_units": 1
+}

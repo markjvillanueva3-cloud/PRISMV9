@@ -23,13 +23,18 @@ related:
 |-------|-------|
 | Name | `video-learn` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/video-learn.md` |
+| Source | `C:/Users/wompu/.claude/commands/video-learn.md` |
 | Model | default |
 | Tags | _(none)_ |
 
 ## Description (first paragraph)
 
-_(no body content)_
+
+# Video Learn — Video Tutorial to PRISM Components Pipeline
+
+You are running a specialized pipeline that processes video tutorials (YouTube URLs or local video files) through AI-powered extraction, and forges new PRISM components (engines, algorithms, hooks, schemas, scripts, skills, tribal tips, formulas) to improve the app's capabilities.
+
+This command chains video processing, AI-powered k
 
 <!-- AUTO-END -->
 

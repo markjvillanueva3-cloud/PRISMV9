@@ -1,0 +1,47 @@
+# HMEMV08-OBSIDIAN-BASES — Memory corpus pivoted by `type` frontmatter field.
+#
+# Vault root = H:/prism/knowledge/. All file.* paths below are RELATIVE to that
+# root (NOT absolute H:/... and NOT prefixed with "knowledge/"). The targeted
+# corpus is knowledge/memories/** -> filter is file.inFolder("memories").
+#
+# `type` is a real, well-distributed frontmatter field in the memory corpus
+# (verified live 2026-06-10): reference (3743), feedback (304),
+# tribal-consolidation (176), project (51), galaxy-index (34), user (6).
+# 4314 of the memory files carry it; un-tagged legacy memories fall into an
+# empty group (correct Obsidian behavior, not a bug).
+filters:
+  and:
+    - file.inFolder("memories")
+    - 'file.ext == "md"'
+
+properties:
+  type:
+    displayName: "Memory Type"
+  file.name:
+    displayName: "Memory"
+  file.mtime:
+    displayName: "Modified"
+  file.folder:
+    displayName: "Folder"
+
+views:
+  - type: table
+    name: "By Type"
+    groupBy:
+      property: type
+      direction: ASC
+    order:
+      - file.name
+      - type
+      - file.folder
+      - file.mtime
+    summaries:
+      type: Unique
+
+  - type: list
+    name: "Recently Modified"
+    limit: 50
+    order:
+      - file.name
+      - type
+      - file.mtime

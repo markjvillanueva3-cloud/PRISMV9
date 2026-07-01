@@ -1,0 +1,256 @@
+{
+  "schemaVersion": "1.0.0",
+  "slot": "romeo",
+  "units": "inch (JM convention); vc SFM; feed IPM; cutting data CLAMPED to each machine spindle max_rpm",
+  "note": "JM's ACTUAL crib tools assigned to JM's ACTUAL 12-machine CNC fleet with VERIFIED OEM spindle specs (mill specs web-researched 2026-06-15; corrected Okuma M460V-5AX 6000->15000 rpm and Roku-Roku HC658-II 40000->32000 vs JmDieMachineConfigEngine's mismatched roster). Material-first (one analysis CSV per ISO group + a Fusion-IMPORTABLE 173-col FUSION-IMPORT.csv per machine). Machine class from source-crib filename (no insert/twist-drill ambiguity). Pairs with the Fusion .machine kinematic defs (generate-jm-fusion-machine-library.ts).",
+  "spindle_spec_sources": {
+    "VMC-01 Hurco VM30i": "hurco.com spec page -- 12000 rpm / CAT40 / 15 kW (high)",
+    "VMC-02 Okuma GENOS M460V-5AX": "okuma.eu press release + product page -- 15000 rpm / CAT40 Big-Plus / 22 kW (high); CORRECTS engine's 6000 mb-56va",
+    "VMC-03 Haas VF-2": "haas.co.uk -- 8100 rpm / CAT40 / 22.4 kW (high)",
+    "VMC-04 Haas OM-2": "techspex + Haas OM datasheet -- 30000 rpm / ISO20 / 3.73 kW (high)",
+    "VMC-05 Roku-Roku HC 658-II": "millenniummachinery + MC Machinery -- 32000 rpm / HSK-E40 / 6.26 kW (medium); CORRECTS engine's 40000 rmx-5",
+    "LTH-01..07": "JmDieMachineConfigEngine OEM specs (matched ShopConfig); turning CSS so rpm is a ceiling, not applied"
+  },
+  "source_tools": 218,
+  "mill_tools": 58,
+  "lathe_tools": 160,
+  "cutting_machines": 12,
+  "fleet_presets": 31392,
+  "fleet_rpm_clamped": 269,
+  "machines": [
+    {
+      "machine_id": "VMC-01",
+      "machine_name": "Hurco VM30i",
+      "class": "mill",
+      "taper": "CAT40",
+      "max_rpm": 12000,
+      "max_power_kw": 15,
+      "spec_confidence": "high",
+      "tools_assigned": 58,
+      "presets": 1550,
+      "rpm_clamped": 7,
+      "groups_with_data": [
+        "P",
+        "M",
+        "K",
+        "N",
+        "S",
+        "H"
+      ]
+    },
+    {
+      "machine_id": "VMC-02",
+      "machine_name": "Okuma GENOS M460V-5AX",
+      "class": "mill",
+      "taper": "CAT40 Big-Plus",
+      "max_rpm": 15000,
+      "max_power_kw": 22,
+      "spec_confidence": "high",
+      "tools_assigned": 58,
+      "presets": 1550,
+      "rpm_clamped": 0,
+      "groups_with_data": [
+        "P",
+        "M",
+        "K",
+        "N",
+        "S",
+        "H"
+      ]
+    },
+    {
+      "machine_id": "VMC-03",
+      "machine_name": "Haas VF-2",
+      "class": "mill",
+      "taper": "CAT40",
+      "max_rpm": 8100,
+      "max_power_kw": 22.4,
+      "spec_confidence": "high",
+      "tools_assigned": 58,
+      "presets": 1550,
+      "rpm_clamped": 54,
+      "groups_with_data": [
+        "P",
+        "M",
+        "K",
+        "N",
+        "S",
+        "H"
+      ]
+    },
+    {
+      "machine_id": "VMC-04",
+      "machine_name": "Haas OM-2",
+      "class": "mill",
+      "taper": "ISO20",
+      "max_rpm": 30000,
+      "max_power_kw": 3.73,
+      "spec_confidence": "high",
+      "tools_assigned": 58,
+      "presets": 1550,
+      "rpm_clamped": 0,
+      "groups_with_data": [
+        "P",
+        "M",
+        "K",
+        "N",
+        "S",
+        "H"
+      ]
+    },
+    {
+      "machine_id": "VMC-05",
+      "machine_name": "Roku-Roku HC 658-II",
+      "class": "mill",
+      "taper": "HSK-E40",
+      "max_rpm": 32000,
+      "max_power_kw": 6.26,
+      "spec_confidence": "medium",
+      "tools_assigned": 58,
+      "presets": 1550,
+      "rpm_clamped": 0,
+      "groups_with_data": [
+        "P",
+        "M",
+        "K",
+        "N",
+        "S",
+        "H"
+      ]
+    },
+    {
+      "machine_id": "LTH-01",
+      "machine_name": "Okuma GENOS L300-M",
+      "class": "lathe",
+      "taper": null,
+      "max_rpm": 4500,
+      "max_power_kw": 15,
+      "spec_confidence": "high",
+      "tools_assigned": 160,
+      "presets": 3156,
+      "rpm_clamped": 0,
+      "groups_with_data": [
+        "P",
+        "M",
+        "K",
+        "S",
+        "H"
+      ]
+    },
+    {
+      "machine_id": "LTH-02",
+      "machine_name": "Okuma GENOS L200E-M",
+      "class": "lathe",
+      "taper": null,
+      "max_rpm": 5000,
+      "max_power_kw": 11,
+      "spec_confidence": "high",
+      "tools_assigned": 160,
+      "presets": 3156,
+      "rpm_clamped": 0,
+      "groups_with_data": [
+        "P",
+        "M",
+        "K",
+        "S",
+        "H"
+      ]
+    },
+    {
+      "machine_id": "LTH-03",
+      "machine_name": "Okuma LNC8",
+      "class": "lathe",
+      "taper": null,
+      "max_rpm": 4000,
+      "max_power_kw": 11,
+      "spec_confidence": "high",
+      "tools_assigned": 160,
+      "presets": 3156,
+      "rpm_clamped": 0,
+      "groups_with_data": [
+        "P",
+        "M",
+        "K",
+        "S",
+        "H"
+      ]
+    },
+    {
+      "machine_id": "LTH-04",
+      "machine_name": "Okuma Crown L1060",
+      "class": "lathe",
+      "taper": null,
+      "max_rpm": 3800,
+      "max_power_kw": 11,
+      "spec_confidence": "high",
+      "tools_assigned": 160,
+      "presets": 3156,
+      "rpm_clamped": 0,
+      "groups_with_data": [
+        "P",
+        "M",
+        "K",
+        "S",
+        "H"
+      ]
+    },
+    {
+      "machine_id": "LTH-05",
+      "machine_name": "Okuma GENOS L400II-E",
+      "class": "lathe",
+      "taper": null,
+      "max_rpm": 3800,
+      "max_power_kw": 18.5,
+      "spec_confidence": "high",
+      "tools_assigned": 160,
+      "presets": 3156,
+      "rpm_clamped": 0,
+      "groups_with_data": [
+        "P",
+        "M",
+        "K",
+        "S",
+        "H"
+      ]
+    },
+    {
+      "machine_id": "LTH-06",
+      "machine_name": "Okuma LB 3000EX",
+      "class": "lathe",
+      "taper": null,
+      "max_rpm": 4200,
+      "max_power_kw": 22,
+      "spec_confidence": "high",
+      "tools_assigned": 160,
+      "presets": 3156,
+      "rpm_clamped": 0,
+      "groups_with_data": [
+        "P",
+        "M",
+        "K",
+        "S",
+        "H"
+      ]
+    },
+    {
+      "machine_id": "LTH-07",
+      "machine_name": "Okuma Multus B250II",
+      "class": "both",
+      "taper": null,
+      "max_rpm": 5000,
+      "max_power_kw": 22,
+      "spec_confidence": "high",
+      "tools_assigned": 218,
+      "presets": 4706,
+      "rpm_clamped": 208,
+      "groups_with_data": [
+        "P",
+        "M",
+        "K",
+        "N",
+        "S",
+        "H"
+      ]
+    }
+  ]
+}

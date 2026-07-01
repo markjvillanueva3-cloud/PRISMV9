@@ -42,7 +42,7 @@ describe('quote follow-up api contracts', () => {
       method: 'GET',
       headers: { 'Content-Type': 'application/json' },
       body: undefined,
-      fallbackMessage: 'PRISM data request failed',
+      fallbackMessage: 'Kienzle data request failed',
     });
   });
 
@@ -77,7 +77,7 @@ describe('quote follow-up api contracts', () => {
           competitor_name: 'Rival Tool',
         },
       }),
-      fallbackMessage: 'PRISM request failed',
+      fallbackMessage: 'Kienzle request failed',
     });
   });
 });

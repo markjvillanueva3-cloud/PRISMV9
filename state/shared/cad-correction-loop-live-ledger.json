@@ -1,0 +1,146 @@
+{
+  "ts": "2026-06-03T20:52:47.016Z",
+  "port": 18365,
+  "part": "die",
+  "docPrefix": "PRISM-DELTA-CLIVE-1780519967016-",
+  "partKind": "die-like-proxy",
+  "sourceFile": "cad-prototype-die-2026-05-19.json",
+  "cycle": {
+    "ok": true,
+    "before": {
+      "verdict": "partial",
+      "scorePct": 60,
+      "requiredCount": 5,
+      "matched": [
+        "central_oil_hole",
+        "stepped_revolved_axis",
+        "working_tip_taper"
+      ],
+      "missing": [
+        "bevel_face_chamfer",
+        "cross_drilled_relief_holes"
+      ]
+    },
+    "after": {
+      "verdict": "match",
+      "scorePct": 100,
+      "requiredCount": 5,
+      "matched": [
+        "central_oil_hole",
+        "bevel_face_chamfer",
+        "stepped_revolved_axis",
+        "working_tip_taper",
+        "cross_drilled_relief_holes"
+      ],
+      "missing": []
+    },
+    "corrections": [
+      {
+        "kind": "bevel_face_chamfer",
+        "buildable": true,
+        "op": {
+          "kind": "chamfer-edge",
+          "distanceMm": 1,
+          "edgeCount": 1
+        },
+        "expectGeometry": {
+          "chamferFeatureDelta": 1
+        },
+        "reason": null
+      },
+      {
+        "kind": "cross_drilled_relief_holes",
+        "buildable": true,
+        "op": {
+          "kind": "radial-hole",
+          "radiusMm": 1.5,
+          "axis": "perpendicular"
+        },
+        "expectGeometry": {
+          "internalRadialCyl": 1
+        },
+        "reason": null
+      }
+    ],
+    "applied": [
+      {
+        "kind": "bevel_face_chamfer",
+        "verified": true,
+        "reason": null
+      },
+      {
+        "kind": "cross_drilled_relief_holes",
+        "verified": true,
+        "reason": null
+      }
+    ],
+    "trainingData": [
+      {
+        "kind": "feature-correction",
+        "partClass": "die",
+        "missingFeature": "bevel_face_chamfer",
+        "buildOp": {
+          "kind": "chamfer-edge",
+          "distanceMm": 1,
+          "edgeCount": 1
+        },
+        "buildable": true,
+        "verified": true,
+        "note": "correction applied + re-probe confirmed"
+      },
+      {
+        "kind": "feature-correction",
+        "partClass": "die",
+        "missingFeature": "cross_drilled_relief_holes",
+        "buildOp": {
+          "kind": "radial-hole",
+          "radiusMm": 1.5,
+          "axis": "perpendicular"
+        },
+        "buildable": true,
+        "verified": true,
+        "note": "correction applied + re-probe confirmed"
+      }
+    ],
+    "scoreDelta": 40,
+    "reap": {
+      "ok": true,
+      "before": 5,
+      "activeName": "SAW PART",
+      "reactivated": "SAW PART",
+      "closed": [
+        "PRISM-DELTA-CLIVE-1780519967016-1"
+      ],
+      "refused": [
+        {
+          "name": "PRISM-DELTA-CLIVE-1780519967016-1",
+          "closed": false,
+          "reason": "not-found",
+          "remaining": 3
+        }
+      ],
+      "protected": [
+        {
+          "name": "SAW PART",
+          "reason": "active"
+        },
+        {
+          "name": "T-P3-PN-113408",
+          "reason": "protected-name"
+        },
+        {
+          "name": "PPN-30098B-3P",
+          "reason": "protected-name"
+        }
+      ],
+      "closedCount": 1,
+      "summary": "reaped 1 doc(s); protected 3 (active='SAW PART', reactivated='SAW PART')"
+    },
+    "error": null,
+    "verifiedCount": 2,
+    "unverifiedGain": false,
+    "trustworthyScorePct": 100
+  },
+  "trainingFixesAppended": 2,
+  "trainingFixesQuarantined": 0
+}

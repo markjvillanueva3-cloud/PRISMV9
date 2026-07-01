@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `memory-seed` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/system/memory-seed.md` |
+| Source | `C:/Users/wompu/.claude/commands/system/memory-seed.md` |
 | Model | default |
 | Tags | _(none)_ |
 

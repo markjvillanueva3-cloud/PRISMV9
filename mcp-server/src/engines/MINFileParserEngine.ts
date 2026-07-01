@@ -167,8 +167,17 @@ function applyBlock(b: Block, st: ModalState): { toolChanged: boolean } {
       switch (g) {
         case 20: st.units = "inch"; break;
         case 21: st.units = "mm"; break;
-        case 70: st.units = "inch"; break;
-        case 71: st.units = "mm"; break;   // Okuma has both
+        // U-MINPARSE-UNITS-CYCLE-FIX (2026-06-22, slot:alpha): G70/G71 are NOT units here.
+        // On Okuma OSP lathe MIN files, inch/mm is set by G20/G21 (above); G70/G71/G72 are
+        // LAP turning cycles (G70 finish, G71 longitudinal-rough, G72 facing-rough). Mapping
+        // G70->inch / G71->mm (the obsolete pre-G20/G21 Fanuc convention) silently flipped
+        // st.units to "mm" on EVERY roughing-cycle block -> header.units corrupted to "mm"
+        // for an inch program (a 25.4x scale hazard; UNITS-FIRST rail). VALIDATED on the live
+        // JM corpus: ~1500 MIN files had 0x G20/G21 and 72x G71, every G71 a roughing cycle
+        // (`G71 X.. Z.. B60 D.003 U.001 H.. F..`), never a standalone units command. G70/G71/
+        // G72 are now classified ONLY as canned cycles (the case below + the cannedForOp scan
+        // in the op loop). Undeclared units honestly stay "unknown" (defer to the JM inch
+        // default downstream; never fabricate "mm"). [[reference_minparse_units_cycle_collision_2026_06_22]]
         case 94: st.feed_mode = "per_min"; break;
         case 95: st.feed_mode = "per_rev"; break;
         case 96: st.css_active = true; break;

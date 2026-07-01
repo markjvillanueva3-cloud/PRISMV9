@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `tool-histogram` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/tool-histogram.md` |
+| Source | `C:/Users/wompu/.claude/commands/tool-histogram.md` |
 | Model | default |
 | Tags | _(none)_ |
 

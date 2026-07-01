@@ -21,7 +21,7 @@ related:
 
 ## Description (from file header)
 
-hook_condition_number — USSH Phase 0.25========================================Monitors condition numbers of matrix operations in physics engines.Warns when κ(A) > 10⁶ indicating ill-conditioned systems.Fires: PostToolUse (on physics-related tool calls)Theory: Numerical analysis, condition number κ(A) = ||A|| · ||A⁻¹||
+_(no header docblock — read source for behavior)_
 
 ## Events
 

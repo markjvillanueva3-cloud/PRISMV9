@@ -342,15 +342,48 @@ describe("ToolCatalogEngine", () => {
     expect(guhDrills.length).toBeGreaterThan(0);
   });
 
+  // ── Global CNC live-tooling holders (DB-COVERAGE-GAPFILL-MS0/U-GCNC01) ──
+  // The Global CNC source (GLOBAL_CNC_TOOLS, 3,680 records) mixes 2,416 guide BUSHINGS
+  // with 1,264 live-tooling HOLDERS. _loadGlobalCNCTools() now filters bushings + bad
+  // geometry at the loader (source-agnostic — same result for the dev src/data json and
+  // the prod dist json), so the catalog holds ~1,134 real holders with valid dimensions.
+  it("loads Global CNC holders into the catalog, excluding bushings + bad geometry", () => {
+    const gcnc = engine.search({ manufacturer: "Global CNC", max_results: 4000 });
+    // ~1,134 holders land (1,264 holders − implausible-bore − zero-OAL drops).
+    expect(gcnc.length).toBeGreaterThan(1000);
+    expect(gcnc.length).toBeLessThan(1300); // bushings (2,416) must NOT leak in
+    for (const t of gcnc) {
+      // No guide bushings in the tool catalog.
+      expect(t.type).not.toBe("bushing");
+      // Every loaded holder carries real, usable geometry (the loader drops zero/oversize).
+      expect(t.physical.overall_length_mm).toBeGreaterThan(0);
+      expect(t.source).toBe("Global_CNC_2023_Catalog");
+    }
+  });
+
+  it("classifies Global CNC holder families per the extended gt.type mapping", () => {
+    // driven_drill_mill → end_mill (live rotating tools)
+    const mills = engine.search({ manufacturer: "Global CNC", type: "end_mill", max_results: 500 });
+    expect(mills.length).toBeGreaterThan(0);
+    // boring_bar_holder + id_holder → boring_bar (internal/ID work)
+    const bores = engine.search({ manufacturer: "Global CNC", type: "boring_bar", max_results: 500 });
+    expect(bores.length).toBeGreaterThan(0);
+    // od_turning_holder etc. → turning_tool (OD turning + turret interfaces)
+    const turns = engine.search({ manufacturer: "Global CNC", type: "turning_tool", max_results: 500 });
+    expect(turns.length).toBeGreaterThan(0);
+  });
+
   it("catalog stats reflect all manufacturers", () => {
     const stats = engine.stats();
     expect(stats.total_tools).toBeGreaterThan(1000);
-    expect(stats.by_manufacturer).toBeDefined();
+    // by_manufacturer must be a populated map — Global CNC present with >1000 holders after U-GCNC01.
+    expect(Object.keys(stats.by_manufacturer).length).toBeGreaterThan(0);
+    expect(stats.by_manufacturer["Global CNC"]).toBeGreaterThan(1000);
   });
 
   // ── Dispatcher Wiring ──
   it("dispatcher module loads with tool_catalog actions", async () => {
     const mod = await import("../tools/dispatchers/calcDispatcher.js");
-    expect(mod.registerCalcDispatcher).toBeDefined();
+    expect(typeof mod.registerCalcDispatcher).toBe("function");
   });
 });

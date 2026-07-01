@@ -29,6 +29,7 @@
  */
 
 import { log } from "../utils/Logger.js";
+import { CANONICAL_KIENZLE, CANONICAL_TAYLOR } from "../physics/constants.js";
 
 // ============================================================================
 // TYPES
@@ -179,15 +180,13 @@ export interface ResolvedMaterialContext {
 // CONSTANTS — Material & Machine Databases
 // ============================================================================
 
-/** Kienzle specific cutting force constants by ISO group */
-const KC_ISO: Record<string, { kc1_1: number; mc: number }> = {
-  P: { kc1_1: 1800, mc: 0.25 },
-  M: { kc1_1: 2100, mc: 0.25 },
-  K: { kc1_1: 1100, mc: 0.25 },
-  N: { kc1_1: 700, mc: 0.25 },
-  S: { kc1_1: 2800, mc: 0.22 },
-  H: { kc1_1: 3200, mc: 0.20 },
-};
+/**
+ * Kienzle specific cutting force constants -- CANONICAL source.
+ * Sourced from src/physics/constants.ts (CANONICAL_KIENZLE) per the no-inline-
+ * physics-constants safety rail. Previously inlined with mc exponents that
+ * diverged from canonical for K/N/S/H (U-PP-PHYSFOUNDATION-CANONICALIZE).
+ */
+const KC_ISO = CANONICAL_KIENZLE;
 
 /** Material thermal and physical properties by ISO group */
 const MATERIAL_PROPS: Record<
@@ -208,8 +207,8 @@ const MATERIAL_PROPS: Record<
     specific_heat_Jkg_K: 486,
     melting_range_C: [1425, 1540],
     hardness_hrc_default: 25,
-    taylor_n: 0.25,
-    taylor_C_mpm: 350,
+    taylor_n: CANONICAL_TAYLOR.P.n,
+    taylor_C_mpm: CANONICAL_TAYLOR.P.C,
   },
   M: {
     density_kg_m3: 8000,
@@ -217,8 +216,8 @@ const MATERIAL_PROPS: Record<
     specific_heat_Jkg_K: 500,
     melting_range_C: [1375, 1450],
     hardness_hrc_default: 28,
-    taylor_n: 0.22,
-    taylor_C_mpm: 200,
+    taylor_n: CANONICAL_TAYLOR.M.n,
+    taylor_C_mpm: CANONICAL_TAYLOR.M.C,
   },
   K: {
     density_kg_m3: 7200,
@@ -226,8 +225,8 @@ const MATERIAL_PROPS: Record<
     specific_heat_Jkg_K: 460,
     melting_range_C: [1130, 1250],
     hardness_hrc_default: 22,
-    taylor_n: 0.28,
-    taylor_C_mpm: 400,
+    taylor_n: CANONICAL_TAYLOR.K.n,
+    taylor_C_mpm: CANONICAL_TAYLOR.K.C,
   },
   N: {
     density_kg_m3: 2700,
@@ -235,8 +234,8 @@ const MATERIAL_PROPS: Record<
     specific_heat_Jkg_K: 900,
     melting_range_C: [580, 660],
     hardness_hrc_default: 8,
-    taylor_n: 0.40,
-    taylor_C_mpm: 800,
+    taylor_n: CANONICAL_TAYLOR.N.n,
+    taylor_C_mpm: CANONICAL_TAYLOR.N.C,
   },
   S: {
     density_kg_m3: 4510,
@@ -244,8 +243,8 @@ const MATERIAL_PROPS: Record<
     specific_heat_Jkg_K: 520,
     melting_range_C: [1600, 1670],
     hardness_hrc_default: 36,
-    taylor_n: 0.20,
-    taylor_C_mpm: 120,
+    taylor_n: CANONICAL_TAYLOR.S.n,
+    taylor_C_mpm: CANONICAL_TAYLOR.S.C,
   },
   H: {
     density_kg_m3: 7800,
@@ -253,8 +252,8 @@ const MATERIAL_PROPS: Record<
     specific_heat_Jkg_K: 480,
     melting_range_C: [1420, 1530],
     hardness_hrc_default: 55,
-    taylor_n: 0.18,
-    taylor_C_mpm: 100,
+    taylor_n: CANONICAL_TAYLOR.H.n,
+    taylor_C_mpm: CANONICAL_TAYLOR.H.C,
   },
 };
 

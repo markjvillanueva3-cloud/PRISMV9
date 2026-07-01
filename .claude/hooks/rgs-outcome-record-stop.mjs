@@ -150,7 +150,7 @@ async function main() {
       const result = spawnSync(
         "git",
         ["-C", PRISM_ROOT, "log", `-${COMMIT_LOOKBACK}`, "--format=%B"],
-        { encoding: "utf-8", timeout: GIT_SPAWN_TIMEOUT_MS }
+        { windowsHide: true, encoding: "utf-8", timeout: GIT_SPAWN_TIMEOUT_MS }
       );
       if (result.status === 0 && result.stdout) {
         // git log --format=%B separates commits with blank lines; split on double-newline
@@ -174,7 +174,7 @@ async function main() {
       const result = spawnSync(
         "git",
         ["-C", PRISM_ROOT, "log", "--since=24 hours ago", "--format=%s"],
-        { encoding: "utf-8", timeout: GIT_SPAWN_TIMEOUT_MS }
+        { windowsHide: true, encoding: "utf-8", timeout: GIT_SPAWN_TIMEOUT_MS }
       );
       if (result.status === 0 && result.stdout) {
         revertSubjects = result.stdout.split("\n").filter(Boolean);

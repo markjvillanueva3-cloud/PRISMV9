@@ -29,8 +29,7 @@ related:
 
 ## Description (first paragraph)
 
-
-# /shop-safety-check — Shop Floor Safety Validation
+Comprehensive safety validation for operations, programs, and setups.
 
 <!-- AUTO-END -->
 

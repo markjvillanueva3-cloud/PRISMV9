@@ -289,9 +289,12 @@ describe("prism_ai:neural_route_decision — dispatcher round-trip (U-OCN03 wiri
     });
     expect(out.success).toBe(true);
     const data = out.data as { recommendedQuorum: string; source: string; recommendedTentacles: string[] };
-    // No ledger file present in this worktree → cold-start fires.
-    expect(data.source).toBe("cold_start");
-    expect(["3-of-3", "5-of-5"]).toContain(data.recommendedQuorum);
+    // This is the dispatcher WIRING round-trip: it reads the LIVE octopus consensus ledger
+    // (populated by PSN-OCTOPUS-FLEET-SYNERGY-MS0), so `source` depends on ambient ledger state
+    // and cannot be pinned here. Assert the wiring contract that holds regardless of ledger state;
+    // deterministic cold-start is covered hermetically above (injected empty ledgerPath).
+    expect(["cold_start", "ledger_knn", "conservative_fallback"]).toContain(data.source);
+    expect(["1-of-1", "2-of-3", "3-of-3", "5-of-5"]).toContain(data.recommendedQuorum);
     expect(data.recommendedTentacles.length).toBeGreaterThan(0);
   });
 });

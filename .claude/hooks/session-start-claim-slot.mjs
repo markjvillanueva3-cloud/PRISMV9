@@ -44,7 +44,7 @@ function emitMessage(msg) {
 function getStableId() {
   if (existsSync(STABLE_ID_HELPER)) {
     try {
-      const r = spawnSync(process.execPath, [STABLE_ID_HELPER], {
+      const r = spawnSync(process.execPath, [STABLE_ID_HELPER], { windowsHide: true,
         encoding: "utf-8",
         timeout: 2000,
       });
@@ -64,7 +64,7 @@ function getStableId() {
 // Resolve current branch via git (best-effort, non-fatal).
 function getCurrentBranch() {
   try {
-    const r = spawnSync("git", ["rev-parse", "--abbrev-ref", "HEAD"], {
+    const r = spawnSync("git", ["rev-parse", "--abbrev-ref", "HEAD"], { windowsHide: true,
       encoding: "utf-8",
       timeout: 1500,
     });

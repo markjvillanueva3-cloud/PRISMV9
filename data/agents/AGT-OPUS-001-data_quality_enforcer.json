@@ -1,0 +1,624 @@
+{
+  "agent_id": "AGT-OPUS-001",
+  "name": "data_quality_enforcer",
+  "tier": "OPUS",
+  "version": "2.0.0",
+  "created": "2026-01-28",
+  "role": "Final Gate Data Quality Enforcer - REJECTS ALL GARBAGE DATA",
+  
+  "domain_expertise": [
+    "Data validation and quality assurance",
+    "Placeholder and fake data detection",
+    "Manufacturing data integrity",
+    "Schema compliance verification",
+    "Cross-reference validation",
+    "Physical range enforcement",
+    "Statistical anomaly detection"
+  ],
+
+  "capabilities": [
+    {
+      "id": "CAP-DQE-001",
+      "name": "Placeholder Pattern Detection",
+      "description": "Detects 50+ placeholder patterns including TBD, TODO, N/A, unknown, empty strings, fake numbers (-1, 999, 9999), test data, lorem ipsum, and auto-generated sequential values",
+      "category": "VALIDATION",
+      "inputs": {
+        "required": ["data_object", "field_list"],
+        "optional": ["strictness_level", "custom_patterns"]
+      },
+      "outputs": {
+        "primary": "placeholder_report",
+        "secondary": ["field_scores", "pattern_matches", "remediation_suggestions"]
+      },
+      "skills_used": ["prism-validator", "prism-quality-master"],
+      "hooks_triggered": ["VAL-PLACEHOLDER-DETECT", "QUALITY-GATE-CHECK"],
+      "synergizes_with": ["placeholder_hunter", "completeness_auditor"],
+      "validation_rules": [
+        "Check all string fields against 50+ placeholder patterns",
+        "Check numeric fields for sentinel values (-1, 0, 999, 9999)",
+        "Check for suspiciously short values (<3 chars)",
+        "Check for repetitive/copy-paste content"
+      ],
+      "success_criteria": "Zero placeholders in validated data"
+    },
+    {
+      "id": "CAP-DQE-002",
+      "name": "Physical Range Validation",
+      "description": "Validates all numerical values against physically possible ranges for manufacturing parameters (density 0.5-25 g/cm³, hardness 0-72 HRC, tensile 10-3500 MPa, etc.)",
+      "category": "VALIDATION",
+      "inputs": {
+        "required": ["data_object", "data_type"],
+        "optional": ["custom_ranges", "tolerance_percent"]
+      },
+      "outputs": {
+        "primary": "range_validation_report",
+        "secondary": ["out_of_range_fields", "suggested_corrections"]
+      },
+      "skills_used": ["prism-material-physics", "prism-manufacturing-tables"],
+      "hooks_triggered": ["VAL-PHYSICS-RANGE", "SAFETY-CHECK"],
+      "synergizes_with": ["physics_validator", "materials_scientist"],
+      "validation_rules": [
+        "density: 0.5-25.0 g/cm³",
+        "hardness_hrc: 0-72",
+        "tensile_strength: 10-3500 MPa",
+        "kc1_1: 100-10000 N/mm²",
+        "mc: 0.1-0.5",
+        "thermal_conductivity: 0.1-500 W/m·K",
+        "spindle_speed: 100-100000 RPM",
+        "feed_rate: 0.001-10 mm/rev"
+      ],
+      "success_criteria": "All values within physical possibility"
+    },
+    {
+      "id": "CAP-DQE-003",
+      "name": "Schema Compliance Verification",
+      "description": "Verifies data objects match their defined schemas with correct types, required fields present, optional fields valid, and nested structures complete",
+      "category": "VALIDATION",
+      "inputs": {
+        "required": ["data_object", "schema_definition"],
+        "optional": ["strict_mode", "allow_extra_fields"]
+      },
+      "outputs": {
+        "primary": "compliance_report",
+        "secondary": ["missing_fields", "type_mismatches", "extra_fields"]
+      },
+      "skills_used": ["prism-material-schema", "prism-api-contracts"],
+      "hooks_triggered": ["VAL-SCHEMA-CHECK", "CONTRACT-VERIFY"],
+      "synergizes_with": ["validator", "completeness_auditor"],
+      "validation_rules": [
+        "All required fields must be present",
+        "All field types must match schema",
+        "Nested objects must be fully validated",
+        "Arrays must have minimum required items"
+      ],
+      "success_criteria": "100% schema compliance"
+    },
+    {
+      "id": "CAP-DQE-004",
+      "name": "Cross-Reference Validation",
+      "description": "Validates that all references between data entities are valid (material IDs exist, machine references resolve, tool specifications link correctly)",
+      "category": "VALIDATION",
+      "inputs": {
+        "required": ["data_object", "reference_databases"],
+        "optional": ["reference_type", "cascade_check"]
+      },
+      "outputs": {
+        "primary": "cross_reference_report",
+        "secondary": ["broken_references", "orphaned_records", "circular_refs"]
+      },
+      "skills_used": ["prism-material-lookup", "prism-dev-utilities"],
+      "hooks_triggered": ["VAL-XREF-CHECK", "DB-INTEGRITY"],
+      "synergizes_with": ["extractor", "database_auditor"],
+      "validation_rules": [
+        "All material_id references must exist in materials database",
+        "All machine_id references must exist in machines database",
+        "All controller references must be valid",
+        "No orphaned records allowed"
+      ],
+      "success_criteria": "All references resolve to valid entities"
+    },
+    {
+      "id": "CAP-DQE-005",
+      "name": "Completeness Scoring",
+      "description": "Calculates completeness score for data entries based on populated fields, data quality, and utility for downstream calculations",
+      "category": "ANALYSIS",
+      "inputs": {
+        "required": ["data_object", "completeness_criteria"],
+        "optional": ["weight_matrix", "minimum_threshold"]
+      },
+      "outputs": {
+        "primary": "completeness_score",
+        "secondary": ["field_scores", "missing_critical", "enhancement_suggestions"]
+      },
+      "skills_used": ["prism-quality-master", "prism-material-validator"],
+      "hooks_triggered": ["COMPLETENESS-SCORE", "QUALITY-METRIC"],
+      "synergizes_with": ["completeness_auditor", "material_enhancer"],
+      "validation_rules": [
+        "Critical fields weighted 3x",
+        "Optional fields weighted 1x",
+        "Placeholder values count as 0%",
+        "Minimum 80% for acceptance"
+      ],
+      "success_criteria": "Completeness score >= 80%"
+    },
+    {
+      "id": "CAP-DQE-006",
+      "name": "Duplicate Detection",
+      "description": "Identifies duplicate or near-duplicate entries using exact matching, fuzzy matching, and semantic similarity analysis",
+      "category": "VALIDATION",
+      "inputs": {
+        "required": ["data_collection"],
+        "optional": ["similarity_threshold", "match_fields", "ignore_fields"]
+      },
+      "outputs": {
+        "primary": "duplicate_report",
+        "secondary": ["duplicate_pairs", "similarity_scores", "merge_suggestions"]
+      },
+      "skills_used": ["prism-validator", "prism-quality-master"],
+      "hooks_triggered": ["VAL-DUPLICATE-CHECK", "DB-DEDUP"],
+      "synergizes_with": ["placeholder_hunter", "extractor"],
+      "validation_rules": [
+        "Exact match on primary keys = DUPLICATE",
+        "90%+ similarity on content = LIKELY DUPLICATE",
+        "Same name + category = REVIEW",
+        "Copy-paste descriptions = REJECT"
+      ],
+      "success_criteria": "Zero unintentional duplicates"
+    },
+    {
+      "id": "CAP-DQE-007",
+      "name": "Consistency Validation",
+      "description": "Validates internal consistency of data (e.g., yield strength < tensile strength, tool diameter < machine travel, speed/feed relationships)",
+      "category": "VALIDATION",
+      "inputs": {
+        "required": ["data_object"],
+        "optional": ["consistency_rules", "tolerance"]
+      },
+      "outputs": {
+        "primary": "consistency_report",
+        "secondary": ["inconsistencies", "rule_violations", "corrections"]
+      },
+      "skills_used": ["prism-material-physics", "prism-manufacturing-tables"],
+      "hooks_triggered": ["VAL-CONSISTENCY", "PHYSICS-CHECK"],
+      "synergizes_with": ["physics_validator", "force_calculator"],
+      "validation_rules": [
+        "yield_strength <= tensile_strength",
+        "hardness correlates with strength",
+        "thermal properties internally consistent",
+        "machining parameters compatible"
+      ],
+      "success_criteria": "All internal relationships valid"
+    },
+    {
+      "id": "CAP-DQE-008",
+      "name": "Alarm Data Validation",
+      "description": "Specialized validation for CNC controller alarm entries including code format, category validity, severity appropriateness, and actionable quick_fix content",
+      "category": "VALIDATION",
+      "inputs": {
+        "required": ["alarm_entry"],
+        "optional": ["controller_family", "strict_mode"]
+      },
+      "outputs": {
+        "primary": "alarm_validation_report",
+        "secondary": ["field_issues", "severity_assessment", "fix_quality_score"]
+      },
+      "skills_used": ["prism-error-catalog", "prism-fanuc-programming", "prism-siemens-programming"],
+      "hooks_triggered": ["VAL-ALARM-CHECK", "CONTROLLER-VALIDATE"],
+      "synergizes_with": ["alarm_validator", "machinist", "gcode_expert"],
+      "validation_rules": [
+        "alarm_id format: ALM-FAMILY-CODE",
+        "category from valid list (SERVO, SPINDLE, ATC, etc.)",
+        "severity: CRITICAL/HIGH/MEDIUM/LOW/INFO",
+        "description: min 25 chars, specific technical content",
+        "causes: min 1 entry, each 15+ chars",
+        "quick_fix: actionable steps, not 'check manual'"
+      ],
+      "success_criteria": "Alarm usable by operator in emergency"
+    },
+    {
+      "id": "CAP-DQE-009",
+      "name": "Material Data Validation",
+      "description": "Specialized validation for material database entries including physics properties, cutting parameters, and manufacturing usability",
+      "category": "VALIDATION",
+      "inputs": {
+        "required": ["material_entry"],
+        "optional": ["category_rules", "physics_strict"]
+      },
+      "outputs": {
+        "primary": "material_validation_report",
+        "secondary": ["physics_issues", "missing_critical", "calculation_readiness"]
+      },
+      "skills_used": ["prism-material-schema", "prism-material-physics", "prism-material-validator"],
+      "hooks_triggered": ["VAL-MATERIAL-CHECK", "PHYSICS-VALIDATE"],
+      "synergizes_with": ["material_validator", "materials_scientist", "force_calculator"],
+      "validation_rules": [
+        "All 127 schema fields checked",
+        "Physics ranges enforced",
+        "Cutting parameters present (kc1_1, mc)",
+        "Thermal properties consistent",
+        "Usable for speed/feed calculations"
+      ],
+      "success_criteria": "Material usable for cutting calculations"
+    },
+    {
+      "id": "CAP-DQE-010",
+      "name": "Machine Data Validation",
+      "description": "Specialized validation for CNC machine database entries including travel limits, spindle specs, controller compatibility, and simulation readiness",
+      "category": "VALIDATION",
+      "inputs": {
+        "required": ["machine_entry"],
+        "optional": ["level_target", "simulation_check"]
+      },
+      "outputs": {
+        "primary": "machine_validation_report",
+        "secondary": ["spec_issues", "level_assessment", "simulation_gaps"]
+      },
+      "skills_used": ["prism-manufacturing-tables", "prism-api-contracts"],
+      "hooks_triggered": ["VAL-MACHINE-CHECK", "CAPABILITY-VALIDATE"],
+      "synergizes_with": ["machine_validator", "collision_checker", "simulation_engine"],
+      "validation_rules": [
+        "Travel ranges physically reasonable",
+        "Spindle specs within machine class",
+        "Controller compatibility specified",
+        "Tooling system complete",
+        "Simulation data at target level"
+      ],
+      "success_criteria": "Machine usable for simulation and post-processing"
+    },
+    {
+      "id": "CAP-DQE-011",
+      "name": "Batch Validation Processing",
+      "description": "Validates large batches of data entries efficiently, providing summary statistics, individual reports, and aggregate quality metrics",
+      "category": "VALIDATION",
+      "inputs": {
+        "required": ["data_batch", "data_type"],
+        "optional": ["parallel_workers", "stop_on_failure", "sample_rate"]
+      },
+      "outputs": {
+        "primary": "batch_validation_report",
+        "secondary": ["individual_reports", "statistics", "quality_distribution"]
+      },
+      "skills_used": ["prism-validator", "prism-quality-master"],
+      "hooks_triggered": ["BATCH-VAL-START", "BATCH-VAL-COMPLETE"],
+      "synergizes_with": ["validator", "completeness_auditor", "extractor"],
+      "validation_rules": [
+        "Process all entries in batch",
+        "Track pass/fail counts",
+        "Identify common issues",
+        "Generate remediation priorities"
+      ],
+      "success_criteria": "Batch quality >= 95% pass rate"
+    },
+    {
+      "id": "CAP-DQE-012",
+      "name": "Swarm Output Validation",
+      "description": "Validates outputs from multi-agent swarm operations before they enter PRISM databases, catching garbage from any agent in the chain",
+      "category": "VALIDATION",
+      "inputs": {
+        "required": ["swarm_outputs", "expected_schema"],
+        "optional": ["source_agents", "confidence_threshold"]
+      },
+      "outputs": {
+        "primary": "swarm_validation_report",
+        "secondary": ["per_agent_quality", "integration_issues", "rejected_items"]
+      },
+      "skills_used": ["prism-quality-master", "prism-swarm-coordinator"],
+      "hooks_triggered": ["SWARM-OUTPUT-VAL", "QUALITY-GATE-FINAL"],
+      "synergizes_with": ["combination_optimizer", "coordinator_v2", "output_validator"],
+      "validation_rules": [
+        "Each agent output individually validated",
+        "Combined output consistency checked",
+        "No placeholders from any agent",
+        "Final integration verified"
+      ],
+      "success_criteria": "Swarm output clean and integrated"
+    },
+    {
+      "id": "CAP-DQE-013",
+      "name": "Statistical Anomaly Detection",
+      "description": "Uses statistical methods to identify outliers and anomalies in data that may indicate errors, placeholders, or data corruption",
+      "category": "ANALYSIS",
+      "inputs": {
+        "required": ["data_collection", "numeric_fields"],
+        "optional": ["outlier_method", "sigma_threshold"]
+      },
+      "outputs": {
+        "primary": "anomaly_report",
+        "secondary": ["outliers", "z_scores", "investigation_list"]
+      },
+      "skills_used": ["prism-quality-master", "prism-uncertainty-propagation"],
+      "hooks_triggered": ["STAT-ANOMALY-CHECK", "OUTLIER-DETECT"],
+      "synergizes_with": ["physics_validator", "calibration_engineer"],
+      "validation_rules": [
+        "Z-score > 3 = OUTLIER",
+        "IQR method for skewed data",
+        "Cluster analysis for groups",
+        "Time-series anomaly detection"
+      ],
+      "success_criteria": "All anomalies flagged for review"
+    },
+    {
+      "id": "CAP-DQE-014",
+      "name": "Description Quality Analysis",
+      "description": "Analyzes text descriptions for quality, specificity, and usefulness - detecting generic, vague, or copy-pasted content",
+      "category": "ANALYSIS",
+      "inputs": {
+        "required": ["text_field", "field_purpose"],
+        "optional": ["min_length", "required_keywords"]
+      },
+      "outputs": {
+        "primary": "description_quality_score",
+        "secondary": ["specificity_score", "issues", "improvement_suggestions"]
+      },
+      "skills_used": ["prism-quality-master", "prism-validator"],
+      "hooks_triggered": ["TEXT-QUALITY-CHECK", "DESCRIPTION-VALIDATE"],
+      "synergizes_with": ["documentation_writer", "placeholder_hunter"],
+      "validation_rules": [
+        "Minimum length enforced",
+        "Generic phrases penalized",
+        "Technical specificity required",
+        "Actionable content for procedures"
+      ],
+      "success_criteria": "Description useful for its intended purpose"
+    },
+    {
+      "id": "CAP-DQE-015",
+      "name": "Unit and Dimension Validation",
+      "description": "Validates that all numerical values have correct units and that unit conversions are consistent throughout the data",
+      "category": "VALIDATION",
+      "inputs": {
+        "required": ["data_object", "unit_specifications"],
+        "optional": ["auto_convert", "tolerance"]
+      },
+      "outputs": {
+        "primary": "unit_validation_report",
+        "secondary": ["unit_mismatches", "conversion_suggestions", "dimensional_analysis"]
+      },
+      "skills_used": ["prism-code-master", "prism-manufacturing-tables"],
+      "hooks_triggered": ["UNIT-CHECK", "DIMENSIONAL-VALIDATE"],
+      "synergizes_with": ["physics_validator", "force_calculator", "thermal_calculator"],
+      "validation_rules": [
+        "SI units preferred",
+        "Consistent units within dataset",
+        "Conversion factors validated",
+        "Dimensional analysis passes"
+      ],
+      "success_criteria": "All units correct and consistent"
+    },
+    {
+      "id": "CAP-DQE-016",
+      "name": "Data Lineage Tracking",
+      "description": "Tracks the origin and transformation history of data to ensure traceability and support debugging of quality issues",
+      "category": "INTEGRATION",
+      "inputs": {
+        "required": ["data_object"],
+        "optional": ["include_transforms", "depth"]
+      },
+      "outputs": {
+        "primary": "lineage_report",
+        "secondary": ["source_chain", "transformations", "quality_at_each_step"]
+      },
+      "skills_used": ["prism-dev-utilities", "prism-session-master"],
+      "hooks_triggered": ["LINEAGE-TRACE", "PROVENANCE-CHECK"],
+      "synergizes_with": ["extractor", "coordinator_v2", "resource_auditor"],
+      "validation_rules": [
+        "Source must be traceable",
+        "All transformations logged",
+        "Quality metrics at each step",
+        "No unexplained data appearance"
+      ],
+      "success_criteria": "Complete data lineage documented"
+    },
+    {
+      "id": "CAP-DQE-017",
+      "name": "Real-time Validation Stream",
+      "description": "Provides real-time validation of data as it enters the system, rejecting garbage before it reaches storage",
+      "category": "INTEGRATION",
+      "inputs": {
+        "required": ["data_stream", "schema"],
+        "optional": ["buffer_size", "rejection_callback"]
+      },
+      "outputs": {
+        "primary": "validation_stream",
+        "secondary": ["accepted_items", "rejected_items", "metrics"]
+      },
+      "skills_used": ["prism-quality-master", "prism-hook-system"],
+      "hooks_triggered": ["STREAM-VAL-ITEM", "STREAM-REJECT"],
+      "synergizes_with": ["validator", "placeholder_hunter", "output_validator"],
+      "validation_rules": [
+        "Validate before storage",
+        "Reject immediately on failure",
+        "Log all rejections",
+        "Alert on high rejection rate"
+      ],
+      "success_criteria": "No garbage reaches storage"
+    },
+    {
+      "id": "CAP-DQE-018",
+      "name": "Quality Trend Analysis",
+      "description": "Analyzes data quality trends over time to identify degradation, improvement, or systematic issues",
+      "category": "ANALYSIS",
+      "inputs": {
+        "required": ["quality_history"],
+        "optional": ["time_window", "trend_threshold"]
+      },
+      "outputs": {
+        "primary": "trend_report",
+        "secondary": ["trend_direction", "anomalies", "predictions"]
+      },
+      "skills_used": ["prism-quality-master", "prism-deep-learning"],
+      "hooks_triggered": ["QUALITY-TREND-UPDATE", "ALERT-DEGRADATION"],
+      "synergizes_with": ["calibration_engineer", "meta_analyst_v2", "learning_extractor_v2"],
+      "validation_rules": [
+        "Track quality over time",
+        "Detect degradation early",
+        "Identify root causes",
+        "Predict future quality"
+      ],
+      "success_criteria": "Quality maintained or improving"
+    },
+    {
+      "id": "CAP-DQE-019",
+      "name": "Validation Rule Management",
+      "description": "Manages and updates validation rules based on learned patterns, new requirements, and domain evolution",
+      "category": "INTEGRATION",
+      "inputs": {
+        "required": ["rule_set"],
+        "optional": ["new_rules", "deprecated_rules", "effectiveness_data"]
+      },
+      "outputs": {
+        "primary": "updated_rule_set",
+        "secondary": ["rule_effectiveness", "coverage_analysis", "gap_identification"]
+      },
+      "skills_used": ["prism-deep-learning", "prism-formula-evolution"],
+      "hooks_triggered": ["RULE-UPDATE", "VALIDATION-EVOLVE"],
+      "synergizes_with": ["learning_extractor_v2", "synergy_analyst", "calibration_engineer"],
+      "validation_rules": [
+        "Rules must be testable",
+        "Effectiveness tracked",
+        "Obsolete rules retired",
+        "New patterns incorporated"
+      ],
+      "success_criteria": "Validation rules effective and current"
+    },
+    {
+      "id": "CAP-DQE-020",
+      "name": "Certification Report Generation",
+      "description": "Generates formal certification reports for data quality suitable for audit, compliance, and documentation purposes",
+      "category": "GENERATION",
+      "inputs": {
+        "required": ["validated_data", "validation_results"],
+        "optional": ["report_format", "include_details", "certification_level"]
+      },
+      "outputs": {
+        "primary": "certification_report",
+        "secondary": ["summary_statistics", "detailed_findings", "recommendations"]
+      },
+      "skills_used": ["prism-quality-master", "prism-sp-verification"],
+      "hooks_triggered": ["CERT-REPORT-GEN", "AUDIT-RECORD"],
+      "synergizes_with": ["documentation_writer", "completeness_auditor", "proof_generator"],
+      "validation_rules": [
+        "Include all validation results",
+        "Document methodology",
+        "Provide evidence",
+        "Sign with timestamp"
+      ],
+      "success_criteria": "Report suitable for formal audit"
+    },
+    {
+      "id": "CAP-DQE-021",
+      "name": "Quarantine Management",
+      "description": "Manages quarantine of rejected data, tracking issues, remediation attempts, and eventual acceptance or permanent rejection",
+      "category": "INTEGRATION",
+      "inputs": {
+        "required": ["rejected_items", "rejection_reasons"],
+        "optional": ["remediation_workflow", "retention_policy"]
+      },
+      "outputs": {
+        "primary": "quarantine_status",
+        "secondary": ["pending_items", "remediation_progress", "expired_items"]
+      },
+      "skills_used": ["prism-quality-master", "prism-session-master"],
+      "hooks_triggered": ["QUARANTINE-ADD", "QUARANTINE-RELEASE", "QUARANTINE-EXPIRE"],
+      "synergizes_with": ["validator", "placeholder_hunter", "material_enhancer"],
+      "validation_rules": [
+        "All rejections quarantined",
+        "Remediation tracked",
+        "Expiration enforced",
+        "Re-validation required for release"
+      ],
+      "success_criteria": "Quarantine properly managed"
+    },
+    {
+      "id": "CAP-DQE-022",
+      "name": "Multi-Level Validation Orchestration",
+      "description": "Orchestrates validation across all 5 levels (L1-L5) ensuring proper sequence, dependency handling, and comprehensive coverage",
+      "category": "INTEGRATION",
+      "inputs": {
+        "required": ["data_object", "target_level"],
+        "optional": ["skip_levels", "fail_fast"]
+      },
+      "outputs": {
+        "primary": "multi_level_report",
+        "secondary": ["level_results", "highest_passed", "blocking_issues"]
+      },
+      "skills_used": ["prism-quality-master", "prism-skill-orchestrator"],
+      "hooks_triggered": ["VAL-LEVEL-START", "VAL-LEVEL-COMPLETE", "VAL-FINAL"],
+      "synergizes_with": ["validator", "physics_validator", "materials_scientist"],
+      "validation_rules": [
+        "L1 must pass before L2",
+        "All levels documented",
+        "Critical failures block progression",
+        "Final level for production readiness"
+      ],
+      "success_criteria": "Target validation level achieved"
+    }
+  ],
+
+  "skills_mastered": [
+    "prism-validator",
+    "prism-quality-master", 
+    "prism-material-validator",
+    "prism-material-schema",
+    "prism-material-physics",
+    "prism-manufacturing-tables",
+    "prism-error-catalog",
+    "prism-api-contracts",
+    "prism-hook-system",
+    "prism-sp-verification",
+    "prism-uncertainty-propagation",
+    "prism-deep-learning"
+  ],
+
+  "hooks_subscribed": [
+    "VAL-PLACEHOLDER-DETECT",
+    "VAL-PHYSICS-RANGE",
+    "VAL-SCHEMA-CHECK",
+    "VAL-XREF-CHECK",
+    "VAL-ALARM-CHECK",
+    "VAL-MATERIAL-CHECK",
+    "VAL-MACHINE-CHECK",
+    "QUALITY-GATE-CHECK",
+    "QUALITY-GATE-FINAL",
+    "SWARM-OUTPUT-VAL",
+    "BATCH-VAL-START",
+    "BATCH-VAL-COMPLETE",
+    "STREAM-VAL-ITEM",
+    "QUARANTINE-ADD"
+  ],
+
+  "can_delegate_to": [
+    "placeholder_hunter",
+    "alarm_validator",
+    "material_validator",
+    "machine_validator",
+    "physics_validator",
+    "completeness_auditor",
+    "validator"
+  ],
+
+  "receives_from": [
+    "extractor",
+    "combination_optimizer",
+    "coordinator_v2",
+    "swarm patterns"
+  ],
+
+  "quality_gates": [
+    "No placeholders in any field",
+    "All values within physical ranges",
+    "Schema compliance 100%",
+    "Cross-references valid",
+    "Completeness score >= 80%",
+    "Description quality score >= 70%"
+  ],
+
+  "performance_metrics": {
+    "accuracy_target": 0.99,
+    "false_positive_rate": 0.01,
+    "false_negative_rate": 0.001,
+    "latency_target_ms": 2000,
+    "throughput_items_per_second": 100,
+    "cost_budget_per_call": 0.15
+  }
+}

@@ -324,7 +324,15 @@ describe("UltimateSpeedFeedEngine", () => {
     const m = ultimateSpeedFeedEngine.getMaterialProfile("inconel");
     expect(m).not.toBeNull();
     expect(m!.iso_group).toBe("S");
-    expect(m!.kc1_1).toBe(3000);
+    // Grade-specific canonical Inconel 718 kc1.1 = 3200 N/mm^2
+    // (AISI_CUTTING_COEFFICIENTS["Inconel 718"], constants.ts). getMaterialProfile's
+    // canonical-sync loop (UltimateSpeedFeedEngine.ts:633-657) maps inconel ->
+    // inconel_718 and overrides the S-group GENERIC 2800 (which is Ti-6Al-4V-
+    // anchored) with the grade value. 3200 is in the published HRSA-Ni band
+    // (2650-3300) AND the safe/conservative force direction -- 2800 would
+    // under-predict Inconel cutting force by ~12.5% (physics-reviewer verdict
+    // 2026-06-22; a prior edit over-shot to the group generic, the wrong layer).
+    expect(m!.kc1_1).toBe(3200);
     expect(m!.work_hardening_tendency).toBe("severe");
   });
 

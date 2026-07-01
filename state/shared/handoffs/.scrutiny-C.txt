@@ -1,0 +1,594 @@
+You are reviewer C of three independent Claude PRISM agents — an ANALYST-weighted third pass for the PRISM manufacturing-intelligence platform. Reviewers A and B cover holistic acceptance + test/wiring/scope axes; your job is what THEY are likely to under-emphasize. Do not assume they caught everything.
+Target: commit HEAD.
+
+Weight your attention toward analyst axes — hidden anti-patterns, silent regression risk, and integration breakage. FAIL on any violation you find:
+  1. Silent breakage — type drift across module boundaries, peer engines whose contract this diff secretly invalidates, swallowed errors that bury real failures
+  2. Hidden anti-patterns — sync fs in async paths that should yield, race conditions across concurrent chats, fields that look load-bearing but are dead code, dual-source constants that will drift
+  3. Error budget completeness — are ALL error variants reachable? Are ALL fs.write paths defended against EACCES / ENOENT / EEXIST without burying the failure? Does graceful-degrade log enough to debug post-incident?
+  4. Integration coupling — engines wired to EVERY dispatcher that would naturally consume them; type-level coupling between sibling engines surfaces compile-time errors on rename (not silent runtime degradation)
+  5. Security at I/O boundaries — every interpolated string sanitized for the medium it lands in (filenames, comment bodies, shell args, SQL, etc); path-traversal guards re-checked after construction (defense in depth)
+  6. Regression risk for downstream pipelines — does this diff change a type that downstream engines depend on without updating them? Does it change the shape of a dispatcher result without updating slimResponse exclusions?
+
+First line of your response MUST be 'VERDICT: PASS' or 'VERDICT: FAIL'.
+Then list BLOCKER: lines for any violations, then optional notes (≤5 lines).
+If unsure between PASS and FAIL, choose FAIL.
+
+--- DIFF ---
+commit 673132a79cc97dd8a69c711b8671fb136f469924
+Author: markjvillanueva3-cloud <markjvillanueva3@gmail.com>
+Date:   Wed May 20 20:17:52 2026 -0500
+
+    [MAIN] [SYSTEM-VIZ-HIGH-ROI-MS0]/U-VIZ-MS-ENVELOPE-NODES (slot:sierra): 707 milestone envelopes get atomic graph nodes
+    
+    scripts/generate-milestone-envelope-atomic.mjs — sister generator to
+    generate-scripts-lib-atomic. Emits L6 nodes for every milestone envelope
+    under mcp-server/data/milestones/*.json beneath a self-created
+    core.milestones rollup. Injectable generate({graphPath, milestonesDir})
+    so tests don't need the 405 MB live graph.
+    
+    Two real-data failure modes surfaced + fixed during build:
+      1. envelopeStatus regex matched "not_started" via bare /started/
+         substring — silently classified every not_started milestone as
+         building. Fixed: removed bare "started" token (canonical PRISM
+         envelope enum is not_started / in_progress / complete).
+      2. Two envelope files can legitimately slug-collide (live: CPL.json +
+         an envelope whose id field is "cpl"). Both are real milestones —
+         disambiguate with a numeric suffix (-2, -3, ...) rather than
+         dropping one or throwing. seenId tracks every claimed id this run;
+         readEnvelopes uses sorted readdir for deterministic assignment;
+         stats.slugCollisions surfaces the count (R12: visible, not silent).
+    
+    Wiring (no auto-discover in this repo — augmentations need BOTH):
+      - scripts/merge-augmentations.mjs: loadOptional + version-stamp +
+        mergeIndexedAugmentation splice (3 sites, mirrors scriptsLibAtm).
+      - scripts/regen-viz.mjs: FAST[] entry after scripts-lib-atomic.
+    
+    Test suite: 26/26 pass. Covers slugify / envelopeStatus / readEnvelopes
+    helpers + generate() against fixture graph + fixture milestones dir.
+    ≥3 failure modes (graph-missing, graph-parse-failed, malformed
+    envelope), ≥2 adversarial (slug collision, non-object JSON / null id),
+    ≥3 spanning status configurations (built / building / pending /
+    completed_at-overrides-status / claimedStatus-fallback).
+    
+    Live run against state/shared/system-viz/system-graph.json: 708
+    envelopes scanned, 706 nodes emitted, 2 parse errors, 1 collision
+    disambiguated. Status spread: 229 built / 43 building / 434 pending —
+    matches BUILD_STATE.md "754 ms, 368 done" within parse-error margin.
+    
+    Closes SYSTEM-VIZ-HIGH-ROI-MS0 handoff PENDING #2 (sister-gap to
+    U-VIZ-SCRIPTLIB-COVERAGE). /system-viz blast-radius queries +
+    master-index pre-search can now resolve any milestone by id.
+
+diff --git a/scripts/generate-milestone-envelope-atomic.mjs b/scripts/generate-milestone-envelope-atomic.mjs
+new file mode 100644
+index 0000000000..c4e1293789
+--- /dev/null
++++ b/scripts/generate-milestone-envelope-atomic.mjs
+@@ -0,0 +1,207 @@
++#!/usr/bin/env node
++/**
++ * generate-milestone-envelope-atomic.mjs — emit a graph node for every
++ * milestone envelope JSON under mcp-server/data/milestones/*.json.
++ *
++ * SYSTEM-VIZ-HIGH-ROI-MS0 — handoff PENDING #2 (sister gap to scripts-lib
++ * coverage). ~707 milestone envelopes had no atomic graph node, so
++ * /system-viz blast-radius queries and the master-index pre-search could not
++ * resolve a milestone by id. This generator gives each envelope file a node.
++ *
++ * Emits:
++ *   core.milestones        — L6 rollup, sibling of core.scripts; created
++ *                            ONLY if absent (merge dedups on re-run).
++ *   ms-envelope.<slug>     — one per envelope file.
++ * Edge model:
++ *   core.milestones -> ms-envelope.<slug>   (contains, intensity 0.15)
++ *
++ * Output: state/shared/system-viz/milestone-envelope-atomic-augmentation.json
++ * consumed by merge-augmentations.mjs mergeIndexedAugmentation().
++ *
++ * generate() takes injected paths so the join is fixture-testable without
++ * loading the 405 MB live graph.
++ */
++import fs from "node:fs";
++import path from "node:path";
++import { fileURLToPath } from "node:url";
++
++const __dirname = path.dirname(fileURLToPath(import.meta.url));
++const ROOT = path.resolve(__dirname, "..");
++const VIZ_DIR = path.join(ROOT, "state", "shared", "system-viz");
++
++export function slugify(s) {
++  return String(s == null ? "" : s)
++    .toLowerCase()
++    .replace(/[^a-z0-9._-]/g, "_")
++    .replace(/_+/g, "_")
++    .replace(/^_|_$/g, "");
++}
++
++/**
++ * Collapse an envelope's status (which uses many different strings across the
++ * 707 files) to one of the 3 canonical viz statuses. A `completed_at`
++ * timestamp is authoritative — it means the milestone closed regardless of
++ * what the `status` string says.
++ */
++export function envelopeStatus(env) {
++  if (env && env.completed_at) return "built";
++  const raw = String(env && (env.status != null ? env.status : env.claimedStatus) || "").toLowerCase();
++  if (/(complete|completed|done|shipped|closed)/.test(raw)) return "built";
++  // NB: no bare "started" token — it is a substring of "not_started", which
++  // must resolve to pending. The real PRISM envelope enum is
++  // not_started / in_progress[_real] / complete.
++  if (/(in[_-]?progress|active|building|partial)/.test(raw)) return "building";
++  return "pending";
++}
++
++/**
++ * Read every *.json under milestonesDir. A file that fails to parse is NOT
++ * dropped silently — it returns a { file, parseError:true } record so the
++ * caller can count it (R12: degrade visibly).
++ */
++export function readEnvelopes(milestonesDir) {
++  const out = [];
++  if (!milestonesDir || !fs.existsSync(milestonesDir)) return out;
++  let names;
++  // Sorted so slug-collision disambiguation (numeric suffix) is deterministic
++  // and stable across regens — the same envelope always wins the base id.
++  try { names = fs.readdirSync(milestonesDir).sort(); } catch { return out; }
++  for (const name of names) {
++    if (!name.toLowerCase().endsWith(".json")) continue;
++    const abs = path.join(milestonesDir, name);
++    let stat;
++    try { stat = fs.statSync(abs); } catch { continue; }
++    if (!stat.isFile()) continue;
++    let env;
++    try { env = JSON.parse(fs.readFileSync(abs, "utf8")); }
++    catch { out.push({ file: name, parseError: true }); continue; }
++    if (!env || typeof env !== "object" || Array.isArray(env)) {
++      out.push({ file: name, parseError: true });
++      continue;
++    }
++    out.push({ file: name, env });
++  }
++  return out;
++}
++
++/**
++ * Build the augmentation. graphPath supplies the existing-node set (so we
++ * never re-emit an id the graph already has) AND the L6 layer/parent to copy
++ * onto core.milestones — the layer is never hard-coded.
++ */
++export function generate({ graphPath, milestonesDir } = {}) {
++  const stats = {
++    envelopesScanned: 0, nodesEmitted: 0, parseErrors: 0,
++    parentCreated: false, slugCollisions: 0, byStatus: {},
++  };
++  if (!graphPath || !fs.existsSync(graphPath)) {
++    return { error: "graph-missing", newNodes: [], newEdges: [], stats };
++  }
++  let graph;
++  try { graph = JSON.parse(fs.readFileSync(graphPath, "utf8")); }
++  catch (e) { return { error: `graph-parse-failed: ${e.message}`, newNodes: [], newEdges: [], stats }; }
++  const graphNodes = Array.isArray(graph && graph.nodes) ? graph.nodes : [];
++  const existingIds = new Set(graphNodes.map((n) => n && n.id));
++
++  // core.milestones slots into the L6 backbone next to core.scripts /
++  // core.tests / core.skills — copy the layer + parent from a real core node
++  // rather than guessing.
++  const refCore = graphNodes.find((n) => n && n.id === "core.scripts")
++    || graphNodes.find((n) => n && typeof n.id === "string" && n.id.startsWith("core."));
++  const coreLayer = refCore && refCore.layer ? refCore.layer : "L6";
++  const coreParent = refCore && refCore.parent ? refCore.parent : null;
++
++  const newNodes = [];
++  const newEdges = [];
++  const seenId = new Set();
++  const PARENT_ID = "core.milestones";
++
++  if (!existingIds.has(PARENT_ID)) {
++    const pnode = {
++      id: PARENT_ID, layer: coreLayer, subgroup: "core",
++      label: "milestones", status: "built", color: "#a78bfa",
++      size: 0.4, tier: 0,
++    };
++    if (coreParent) pnode.parent = coreParent;
++    newNodes.push(pnode);
++    seenId.add(PARENT_ID);
++    stats.parentCreated = true;
++  }
++
++  for (const rec of readEnvelopes(milestonesDir)) {
++    stats.envelopesScanned++;
++    if (rec.parseError) { stats.parseErrors++; continue; }
++    const env = rec.env;
++    const rawId = env.id || env.milestone || env.milestoneId || rec.file.replace(/\.json$/i, "");
++    const slug = slugify(rawId);
++    if (!slug) continue;
++    // Two envelope files can legitimately slug to the same id (e.g. CPL.json
++    // and a milestone whose `id` field is "cpl") — both are real milestones,
++    // so disambiguate with a numeric suffix rather than dropping one or
++    // throwing. seenId tracks every id claimed this run; the count is
++    // surfaced in stats (R12 — visible, not silent). Existing-graph collision
++    // = already merged in a prior regen, skip (idempotent).
++    let id = `ms-envelope.${slug}`;
++    if (seenId.has(id)) {
++      let n = 2;
++      while (seenId.has(`ms-envelope.${slug}-${n}`)) n++;
++      id = `ms-envelope.${slug}-${n}`;
++      stats.slugCollisions++;
++    }
++    seenId.add(id);
++    if (existingIds.has(id)) continue;
++
++    const status = envelopeStatus(env);
++    stats.byStatus[status] = (stats.byStatus[status] || 0) + 1;
++    const totalUnits = Number.isFinite(env.total_units) ? env.total_units
++      : (Array.isArray(env.units) ? env.units.length : 0);
++
++    newNodes.push({
++      id, layer: coreLayer, subgroup: "milestone-envelope", parent: PARENT_ID,
++      label: typeof env.title === "string" && env.title ? env.title : String(rawId),
++      status,
++      color: status === "built" ? "#22c55e" : status === "building" ? "#fbbf24" : "#64748b",
++      size: 0.26 + Math.min(0.2, Math.log10(1 + Math.max(0, totalUnits)) * 0.1),
++      tier: 0,
++      milestoneId: String(rawId),
++      track: typeof env.track === "string" ? env.track : null,
++      totalUnits,
++      file: `mcp-server/data/milestones/${rec.file}`,
++    });
++    stats.nodesEmitted++;
++    newEdges.push({ from: PARENT_ID, to: id, type: "contains", status: "active", intensity: 0.15 });
++  }
++
++  return {
++    schemaVersion: "1.0.0",
++    generatedAt: new Date().toISOString(),
++    milestonesDir: "mcp-server/data/milestones",
++    newNodes,
++    newEdges,
++    stats,
++  };
++}
++
++// ── CLI ─────────────────────────────────────────────────────────────────
++// Gated so a test can `import` the exports without triggering a 405 MB read.
++const isCli = process.argv[1]
++  && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url);
++
++if (isCli) {
++  const result = generate({
++    graphPath: path.join(VIZ_DIR, "system-graph.json"),
++    milestonesDir: path.join(ROOT, "mcp-server", "data", "milestones"),
++  });
++  const outPath = path.join(VIZ_DIR, "milestone-envelope-atomic-augmentation.json");
++  fs.writeFileSync(outPath, JSON.stringify(result));
++  console.log(`wrote ${outPath} (${(fs.statSync(outPath).size / 1e6).toFixed(2)}MB)`);
++  if (result.error) {
++    console.log(`  error: ${result.error}`);
++  } else {
++    console.log(`  envelopes scanned: ${result.stats.envelopesScanned}`);
++    console.log(`  nodes emitted:     ${result.stats.nodesEmitted}`);
++    console.log(`  parse errors:      ${result.stats.parseErrors}`);
++    console.log(`  parent created:    ${result.stats.parentCreated}`);
++    console.log(`  by status:         ${JSON.stringify(result.stats.byStatus)}`);
++  }
++}
+diff --git a/scripts/generate-milestone-envelope-atomic.test.mjs b/scripts/generate-milestone-envelope-atomic.test.mjs
+new file mode 100644
+index 0000000000..fe71be011a
+--- /dev/null
++++ b/scripts/generate-milestone-envelope-atomic.test.mjs
+@@ -0,0 +1,272 @@
++// generate-milestone-envelope-atomic.test.mjs
++// Run: node --test H:/prism/scripts/generate-milestone-envelope-atomic.test.mjs
++//
++// Real-value assertions only. Covers slugify / envelopeStatus / readEnvelopes
++// pure helpers + the generate() join against fixture graph + fixture
++// milestones dirs (no 405 MB live graph needed). Happy path + ≥3 failure
++// modes (graph missing, graph parse fail, malformed envelope) + ≥2
++// adversarial inputs (slug collision, non-object JSON, null id) + ≥3
++// spanning status configurations.
++
++import { test } from "node:test";
++import assert from "node:assert/strict";
++import { mkdtempSync, writeFileSync, rmSync } from "node:fs";
++import { tmpdir } from "node:os";
++import { join } from "node:path";
++import {
++  slugify, envelopeStatus, readEnvelopes, generate,
++} from "./generate-milestone-envelope-atomic.mjs";
++
++// ── fixtures ──────────────────────────────────────────────────────────────
++function tmp() {
++  return mkdtempSync(join(tmpdir(), "ms-env-test-"));
++}
++function writeJson(dir, name, obj) {
++  writeFileSync(join(dir, name), JSON.stringify(obj));
++}
++function writeGraph(dir, nodes) {
++  const p = join(dir, "graph.json");
++  writeFileSync(p, JSON.stringify({ nodes }));
++  return p;
++}
++const CORE_SCRIPTS = { id: "core.scripts", layer: "L6", subgroup: "core", parent: "root.L6" };
++
++// ── slugify ───────────────────────────────────────────────────────────────
++test("slugify: lowercases and keeps id-safe chars", () => {
++  assert.equal(slugify("CAMX-MS0.5"), "camx-ms0.5");
++  assert.equal(slugify("SYSTEM-VIZ-HIGH-ROI-MS0"), "system-viz-high-roi-ms0");
++});
++test("slugify: collapses runs of unsafe chars to single underscore", () => {
++  assert.equal(slugify("A  B//C"), "a_b_c");
++});
++test("slugify: trims leading/trailing underscores", () => {
++  assert.equal(slugify("  weird name  "), "weird_name");
++  assert.equal(slugify("///x///"), "x");
++});
++test("slugify: null/undefined/number do not throw", () => {
++  assert.equal(slugify(null), "");
++  assert.equal(slugify(undefined), "");
++  assert.equal(slugify(42), "42");
++});
++
++// ── envelopeStatus ────────────────────────────────────────────────────────
++test("envelopeStatus: completed_at is authoritative -> built", () => {
++  assert.equal(envelopeStatus({ completed_at: "2026-05-01", status: "not_started" }), "built");
++});
++test("envelopeStatus: complete/done/shipped -> built", () => {
++  assert.equal(envelopeStatus({ status: "complete" }), "built");
++  assert.equal(envelopeStatus({ status: "DONE" }), "built");
++  assert.equal(envelopeStatus({ status: "shipped" }), "built");
++});
++test("envelopeStatus: in_progress/active/building -> building", () => {
++  assert.equal(envelopeStatus({ status: "in_progress" }), "building");
++  assert.equal(envelopeStatus({ status: "in-progress" }), "building");
++  assert.equal(envelopeStatus({ status: "active" }), "building");
++});
++test("envelopeStatus: unknown / missing / not_started -> pending", () => {
++  assert.equal(envelopeStatus({ status: "not_started" }), "pending");
++  assert.equal(envelopeStatus({}), "pending");
++  assert.equal(envelopeStatus(null), "pending");
++});
++test("envelopeStatus: falls back to claimedStatus field", () => {
++  assert.equal(envelopeStatus({ claimedStatus: "complete" }), "built");
++});
++
++// ── readEnvelopes ─────────────────────────────────────────────────────────
++test("readEnvelopes: reads .json, skips non-json", () => {
++  const d = tmp();
++  try {
++    writeJson(d, "A.json", { id: "A" });
++    writeJson(d, "B.json", { id: "B" });
++    writeFileSync(join(d, "notes.md"), "ignore me");
++    const recs = readEnvelopes(d);
++    assert.equal(recs.length, 2);
++    assert.deepEqual(recs.map(r => r.file).sort(), ["A.json", "B.json"]);
++  } finally { rmSync(d, { recursive: true, force: true }); }
++});
++test("readEnvelopes: malformed JSON yields a parseError record (not dropped)", () => {
++  const d = tmp();
++  try {
++    writeFileSync(join(d, "bad.json"), "{not valid json");
++    writeJson(d, "good.json", { id: "G" });
++    const recs = readEnvelopes(d);
++    assert.equal(recs.length, 2);
++    assert.equal(recs.find(r => r.file === "bad.json").parseError, true);
++    assert.ok(recs.find(r => r.file === "good.json").env);
++  } finally { rmSync(d, { recursive: true, force: true }); }
++});
++test("readEnvelopes: non-object JSON (array, scalar) -> parseError", () => {
++  const d = tmp();
++  try {
++    writeFileSync(join(d, "arr.json"), "[1,2,3]");
++    writeFileSync(join(d, "num.json"), "7");
++    const recs = readEnvelopes(d);
++    assert.equal(recs.every(r => r.parseError === true), true);
++  } finally { rmSync(d, { recursive: true, force: true }); }
++});
++test("readEnvelopes: missing dir -> []", () => {
++  assert.deepEqual(readEnvelopes(join(tmpdir(), "definitely-not-here-xyz")), []);
++  assert.deepEqual(readEnvelopes(undefined), []);
++});
++
++// ── generate: happy path ──────────────────────────────────────────────────
++test("generate: emits core.milestones parent + one node + one edge per envelope", () => {
++  const gd = tmp(), md = tmp();
++  try {
++    const graphPath = writeGraph(gd, [CORE_SCRIPTS]);
++    writeJson(md, "ALPHA.json", { id: "ALPHA-MS0", title: "Alpha", status: "complete", total_units: 5 });
++    writeJson(md, "BETA.json", { id: "BETA-MS1", title: "Beta", status: "in_progress", total_units: 3 });
++    const r = generate({ graphPath, milestonesDir: md });
++    assert.equal(r.error, undefined);
++    const parent = r.newNodes.find(n => n.id === "core.milestones");
++    assert.ok(parent, "core.milestones parent emitted");
++    assert.equal(parent.layer, "L6", "layer copied from core.scripts");
++    assert.equal(parent.parent, "root.L6", "parent copied from core.scripts");
++    assert.equal(r.stats.parentCreated, true);
++    assert.equal(r.stats.nodesEmitted, 2);
++    const alpha = r.newNodes.find(n => n.id === "ms-envelope.alpha-ms0");
++    assert.ok(alpha);
++    assert.equal(alpha.status, "built");
++    assert.equal(alpha.parent, "core.milestones");
++    assert.equal(alpha.totalUnits, 5);
++    assert.equal(alpha.file, "mcp-server/data/milestones/ALPHA.json");
++    const beta = r.newNodes.find(n => n.id === "ms-envelope.beta-ms1");
++    assert.equal(beta.status, "building");
++    // one contains edge per envelope
++    const edges = r.newEdges.filter(e => e.from === "core.milestones" && e.type === "contains");
++    assert.equal(edges.length, 2);
++    assert.equal(r.stats.byStatus.built, 1);
++    assert.equal(r.stats.byStatus.building, 1);
++  } finally { rmSync(gd, { recursive: true, force: true }); rmSync(md, { recursive: true, force: true }); }
++});
++
++test("generate: does NOT re-create parent when core.milestones already in graph", () => {
++  const gd = tmp(), md = tmp();
++  try {
++    const graphPath = writeGraph(gd, [CORE_SCRIPTS, { id: "core.milestones", layer: "L6" }]);
++    writeJson(md, "A.json", { id: "A-MS0", status: "complete" });
++    const r = generate({ graphPath, milestonesDir: md });
++    assert.equal(r.stats.parentCreated, false);
++    assert.equal(r.newNodes.find(n => n.id === "core.milestones"), undefined);
++    assert.equal(r.stats.nodesEmitted, 1);
++  } finally { rmSync(gd, { recursive: true, force: true }); rmSync(md, { recursive: true, force: true }); }
++});
++
++test("generate: skips ms-envelope ids already present in the graph (idempotent re-run)", () => {
++  const gd = tmp(), md = tmp();
++  try {
++    const graphPath = writeGraph(gd, [CORE_SCRIPTS, { id: "ms-envelope.a-ms0", layer: "L6" }]);
++    writeJson(md, "A.json", { id: "A-MS0", status: "complete" });
++    writeJson(md, "B.json", { id: "B-MS0", status: "complete" });
++    const r = generate({ graphPath, milestonesDir: md });
++    assert.equal(r.stats.nodesEmitted, 1, "only B is new; A already in graph");
++    assert.equal(r.newNodes.find(n => n.id === "ms-envelope.b-ms0").milestoneId, "B-MS0");
++  } finally { rmSync(gd, { recursive: true, force: true }); rmSync(md, { recursive: true, force: true }); }
++});
++
++test("generate: layer falls back to L6 when graph has no core.* node", () => {
++  const gd = tmp(), md = tmp();
++  try {
++    const graphPath = writeGraph(gd, [{ id: "something.else", layer: "L3" }]);
++    writeJson(md, "A.json", { id: "A-MS0", status: "complete" });
++    const r = generate({ graphPath, milestonesDir: md });
++    assert.equal(r.newNodes.find(n => n.id === "core.milestones").layer, "L6");
++    assert.equal(r.newNodes.find(n => n.id === "ms-envelope.a-ms0").layer, "L6");
++  } finally { rmSync(gd, { recursive: true, force: true }); rmSync(md, { recursive: true, force: true }); }
++});
++
++// ── generate: failure modes ───────────────────────────────────────────────
++test("generate: missing graph -> error, no nodes", () => {
++  const r = generate({ graphPath: join(tmpdir(), "no-such-graph.json"), milestonesDir: tmpdir() });
++  assert.equal(r.error, "graph-missing");
++  assert.deepEqual(r.newNodes, []);
++});
++test("generate: no graphPath arg -> graph-missing", () => {
++  const r = generate({});
++  assert.equal(r.error, "graph-missing");
++});
++test("generate: unparseable graph -> graph-parse-failed error", () => {
++  const gd = tmp();
++  try {
++    const graphPath = join(gd, "graph.json");
++    writeFileSync(graphPath, "{ broken");
++    const r = generate({ graphPath, milestonesDir: tmpdir() });
++    assert.match(r.error, /^graph-parse-failed/);
++  } finally { rmSync(gd, { recursive: true, force: true }); }
++});
++test("generate: malformed envelope is counted, not crashed on", () => {
++  const gd = tmp(), md = tmp();
++  try {
++    const graphPath = writeGraph(gd, [CORE_SCRIPTS]);
++    writeFileSync(join(md, "bad.json"), "{not json");
++    writeJson(md, "ok.json", { id: "OK-MS0", status: "complete" });
++    const r = generate({ graphPath, milestonesDir: md });
++    assert.equal(r.stats.parseErrors, 1);
++    assert.equal(r.stats.nodesEmitted, 1);
++    assert.equal(r.stats.envelopesScanned, 2);
++  } finally { rmSync(gd, { recursive: true, force: true }); rmSync(md, { recursive: true, force: true }); }
++});
++
++// ── generate: adversarial ─────────────────────────────────────────────────
++test("generate: intra-batch slug collision disambiguates with numeric suffix", () => {
++  // Real-data condition: two envelope files can legitimately slug to the same
++  // id (observed in live data: CPL.json + a milestone whose `id` field is
++  // "cpl"). Both are real milestones — disambiguate with a numeric suffix
++  // rather than dropping one or throwing. Sorted readdir → stable assignment.
++  const gd = tmp(), md = tmp();
++  try {
++    const graphPath = writeGraph(gd, [CORE_SCRIPTS]);
++    // "DUP MS0" → slug "dup_ms0"; "DUP/MS0" → slug "dup_ms0" (collision).
++    writeJson(md, "one.json", { id: "DUP MS0", status: "complete" });
++    writeJson(md, "two.json", { id: "DUP/MS0", status: "complete" });
++    const r = generate({ graphPath, milestonesDir: md });
++    assert.equal(r.error, undefined);
++    assert.equal(r.stats.nodesEmitted, 2, "both colliding envelopes get a node");
++    assert.equal(r.stats.slugCollisions, 1, "one collision was disambiguated");
++    assert.ok(r.newNodes.find(n => n.id === "ms-envelope.dup_ms0"), "first claims base id");
++    assert.ok(r.newNodes.find(n => n.id === "ms-envelope.dup_ms0-2"), "second gets -2 suffix");
++    // Both edges from core.milestones still emitted (no envelope dropped).
++    const edges = r.newEdges.filter(e => e.from === "core.milestones" && e.type === "contains");
++    assert.equal(edges.length, 2);
++  } finally { rmSync(gd, { recursive: true, force: true }); rmSync(md, { recursive: true, force: true }); }
++});
++test("generate: envelope with no id falls back to filename", () => {
++  const gd = tmp(), md = tmp();
++  try {
++    const graphPath = writeGraph(gd, [CORE_SCRIPTS]);
++    writeJson(md, "FALLBACK-MS9.json", { title: "no id here", status: "complete" });
++    const r = generate({ graphPath, milestonesDir: md });
++    assert.ok(r.newNodes.find(n => n.id === "ms-envelope.fallback-ms9"));
++  } finally { rmSync(gd, { recursive: true, force: true }); rmSync(md, { recursive: true, force: true }); }
++});
++test("generate: empty milestones dir -> only parent node, no children", () => {
++  const gd = tmp(), md = tmp();
++  try {
++    const graphPath = writeGraph(gd, [CORE_SCRIPTS]);
++    const r = generate({ graphPath, milestonesDir: md });
++    assert.equal(r.stats.nodesEmitted, 0);
++    assert.equal(r.stats.parentCreated, true);
++    assert.equal(r.newNodes.length, 1);
++  } finally { rmSync(gd, { recursive: true, force: true }); rmSync(md, { recursive: true, force: true }); }
++});
++test("generate: total_units derived from units array length when total_units absent", () => {
++  const gd = tmp(), md = tmp();
++  try {
++    const graphPath = writeGraph(gd, [CORE_SCRIPTS]);
++    writeJson(md, "U.json", { id: "U-MS0", status: "complete", units: [1, 2, 3, 4] });
++    const r = generate({ graphPath, milestonesDir: md });
++    assert.equal(r.newNodes.find(n => n.id === "ms-envelope.u-ms0").totalUnits, 4);
++  } finally { rmSync(gd, { recursive: true, force: true }); rmSync(md, { recursive: true, force: true }); }
++});
++test("generate: augmentation envelope has the merge-augmentations contract shape", () => {
++  const gd = tmp(), md = tmp();
++  try {
++    const graphPath = writeGraph(gd, [CORE_SCRIPTS]);
++    writeJson(md, "A.json", { id: "A-MS0", status: "complete" });
++    const r = generate({ graphPath, milestonesDir: md });
++    assert.equal(r.schemaVersion, "1.0.0");
++    assert.ok(typeof r.generatedAt === "string");
++    assert.ok(Array.isArray(r.newNodes) && Array.isArray(r.newEdges));
++    assert.ok(r.stats && typeof r.stats === "object");
++  } finally { rmSync(gd, { recursive: true, force: true }); rmSync(md, { recursive: true, force: true }); }
++});
+diff --git a/scripts/merge-augmentations.mjs b/scripts/merge-augmentations.mjs
+index af868e4e24..27ec2a7d83 100644
+--- a/scripts/merge-augmentations.mjs
++++ b/scripts/merge-augmentations.mjs
+@@ -112,6 +112,7 @@ const hooksAtomic    = loadOptional("hooks-atomic-augmentation.json");
+ const testsAtomic    = loadOptional("tests-atomic-augmentation.json");
+ const scriptsAtomic  = loadOptional("scripts-atomic-augmentation.json");
+ const scriptsLibAtm  = loadOptional("scripts-lib-atomic-augmentation.json");
++const milestoneEnvAtm = loadOptional("milestone-envelope-atomic-augmentation.json");
+ const memoriesAtomic = loadOptional("memories-atomic-augmentation.json");
+ const registryEnts   = loadOptional("registry-entries-augmentation.json");
+ const actionEngEdges = loadOptional("action-engine-edges-augmentation.json");
+@@ -180,6 +181,7 @@ if (hooksAtomic)     versions.hooksAtomic     = hooksAtomic.generatedAt     ?? "
+ if (testsAtomic)     versions.testsAtomic     = testsAtomic.generatedAt     ?? "present";
+ if (scriptsAtomic)   versions.scriptsAtomic   = scriptsAtomic.generatedAt   ?? "present";
+ if (scriptsLibAtm)   versions.scriptsLibAtomic = scriptsLibAtm.generatedAt   ?? "present";
++if (milestoneEnvAtm) versions.milestoneEnvelopeAtomic = milestoneEnvAtm.generatedAt ?? "present";
+ if (memoriesAtomic)  versions.memoriesAtomic  = memoriesAtomic.generatedAt  ?? "present";
+ if (registryEnts)    versions.registryEnts    = registryEnts.generatedAt    ?? "present";
+ if (actionEngEdges)  versions.actionEngEdges  = actionEngEdges.generatedAt  ?? "present";
+@@ -1523,6 +1525,7 @@ const [hookNodes,    hookEdges]    = mergeIndexedAugmentation(hooksAtomic,    "h
+ const [testNodes,    testEdges]    = mergeIndexedAugmentation(testsAtomic,    "testsAtomic");
+ const [scriptNodesA, scriptEdgesA] = mergeIndexedAugmentation(scriptsAtomic,  "scriptsAtomic");
+ const [scriptLibN,   scriptLibE]   = mergeIndexedAugmentation(scriptsLibAtm,  "scriptsLibAtomic");
++const [msEnvN,       msEnvE]       = mergeIndexedAugmentation(milestoneEnvAtm, "milestoneEnvelopeAtomic");
+ const [memoryNodes,  memoryEdges]  = mergeIndexedAugmentation(memoriesAtomic, "memoriesAtomic");
+ const [regEntNodes,  regEntEdges]  = mergeIndexedAugmentation(registryEnts,   "registryEntries");
+ const [camVCNodes,   camVCEdges]   = mergeIndexedAugmentation(camVendorCat,   "camVendorCatalog");
+diff --git a/scripts/regen-viz.mjs b/scripts/regen-viz.mjs
+index 9b383680ad..37693f9b93 100644
+--- a/scripts/regen-viz.mjs
++++ b/scripts/regen-viz.mjs
+@@ -123,6 +123,7 @@ const FAST = [
+   "generate-tests-atomic.mjs",
+   "generate-scripts-atomic.mjs",
+   "generate-scripts-lib-atomic.mjs",
++  "generate-milestone-envelope-atomic.mjs",
+   "generate-memories-atomic.mjs",
+   "generate-registry-entries.mjs",
+   "generate-action-engine-edges.mjs",
+
+--- END DIFF ---

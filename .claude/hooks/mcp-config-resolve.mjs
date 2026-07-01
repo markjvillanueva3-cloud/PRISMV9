@@ -29,7 +29,7 @@ const PORTABLE_NODE_FALLBACK = "H:\\Tools\\node\\node.exe";
 
 function resolveNode() {
   if (existsSync(PORTABLE_NODE_FALLBACK)) return PORTABLE_NODE_FALLBACK;
-  const r = spawnSync("where", ["node"], { encoding: "utf8" });
+  const r = spawnSync("where", ["node"], { windowsHide: true, encoding: "utf8" });
   if (r.status !== 0) return null;
   const lines = (r.stdout || "").split(/\r?\n/).filter(Boolean);
   const exe = lines.find(l => /node\.exe$/i.test(l));

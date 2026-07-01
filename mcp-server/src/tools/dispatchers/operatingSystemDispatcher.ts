@@ -130,6 +130,11 @@ const ACTIONS = [
   "enrollment_summary",
   "learning_media_add",
   "learning_media_list",
+  // ── RAG cross-wire (RAG-UPGRADE-MS0/U-RAG-PSN-OS-WIRE, slot:india 2026-06-22) ──
+  // Cross-wires ReRankerEngine (canonical prism_ml:rag_rerank; sister prism_ai:rag_rerank)
+  // so RAG rerank is reachable from the operating-system shell surface. Same shared static
+  // ReRankerEngine -- no cross-dispatcher delegation chain.
+  "rag_rerank",
 ] as const;
 
 export function registerOperatingSystemDispatcher(server: any): void {
@@ -391,6 +396,34 @@ Params vary by action — pass relevant fields in params object.`,
           case "learning_media_list": {
             const engine = await getLearningProgression();
             return slimResponse(engine.listMedia(params.course_id, params.module_idx));
+          }
+
+          // ── RAG-UPGRADE-MS0/U-RAG-PSN-OS-WIRE (slot:india 2026-06-22) ──
+          // Cross-wire of ReRankerEngine (canonical prism_ml:rag_rerank, sister
+          // prism_ai:rag_rerank). Same shared static engine -- no delegation chain.
+          // rerank/diverseRerank validate input internally via ReRankInputSchema and
+          // return the degraded {results:[],candidates_evaluated:0} shape on bad input
+          // (never throw), so the dispatcher-layer schema stays permissive.
+          case "rag_rerank": {
+            const { reRankerEngine } = await import("../../engines/ReRankerEngine.js");
+            const diversityWeight = params.diversity_weight as number | undefined;
+            const rerankInput = {
+              query: params.query as string,
+              candidates: params.candidates as Array<{
+                id: string;
+                score: number;
+                source_type: string;
+                title: string | null;
+                excerpt: string | null;
+                metadata?: Record<string, unknown>;
+              }>,
+              top_k: (params.top_k as number) ?? 3,
+            };
+            return slimResponse(
+              diversityWeight !== undefined
+                ? reRankerEngine.diverseRerank(rerankInput, diversityWeight)
+                : reRankerEngine.rerank(rerankInput),
+            );
           }
 
           default:

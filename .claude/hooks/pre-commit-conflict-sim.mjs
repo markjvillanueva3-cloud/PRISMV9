@@ -74,7 +74,7 @@ function runPredictor() {
     return { skip: true, reason: "predictor missing" };
   }
   try {
-    const out = execSync(`node "${PREDICTOR}" check --json`, {
+    const out = execSync(`node "${PREDICTOR}" check --json`, { windowsHide: true,
       cwd: PRISM_ROOT,
       encoding: "utf8",
       stdio: ["ignore", "pipe", "pipe"],

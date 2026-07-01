@@ -1,0 +1,358 @@
+{
+  "schemaVersion": 1,
+  "platform": "nx",
+  "writtenAt": "2026-05-25T19:37:45.560Z",
+  "atomicOpCount": 38,
+  "actions": [
+    {
+      "op": "sketch.create-plane",
+      "fn": "Part.Sketches.Create",
+      "args": [
+        "planarReference"
+      ],
+      "notes": "NX Open API"
+    },
+    {
+      "op": "sketch.line-2pt",
+      "fn": "Sketch.SmartLine",
+      "args": [
+        "p1",
+        "p2"
+      ],
+      "notes": ""
+    },
+    {
+      "op": "sketch.line-polyline",
+      "fn": "Sketch.Polyline",
+      "args": [
+        "points[]"
+      ],
+      "notes": ""
+    },
+    {
+      "op": "sketch.arc-3pt",
+      "fn": "Sketch.ArcByThreePoints",
+      "args": [
+        "p1",
+        "p2",
+        "p3"
+      ],
+      "notes": ""
+    },
+    {
+      "op": "sketch.arc-cse",
+      "fn": "Sketch.ArcByCenterEndpoints",
+      "args": [
+        "center",
+        "start",
+        "end"
+      ],
+      "notes": ""
+    },
+    {
+      "op": "sketch.circle-cr",
+      "fn": "Sketch.CircleByCenterRadius",
+      "args": [
+        "center",
+        "radius"
+      ],
+      "notes": ""
+    },
+    {
+      "op": "sketch.ellipse-axes",
+      "fn": "Sketch.Ellipse",
+      "args": [
+        "center",
+        "a",
+        "b"
+      ],
+      "notes": ""
+    },
+    {
+      "op": "sketch.spline-poly",
+      "fn": "Sketch.StudioSpline",
+      "args": [
+        "points[]",
+        "degree"
+      ],
+      "notes": ""
+    },
+    {
+      "op": "sketch.rect-2pt",
+      "fn": "Sketch.Rectangle",
+      "args": [
+        "p1",
+        "p2"
+      ],
+      "notes": ""
+    },
+    {
+      "op": "sketch.rect-center",
+      "fn": "Sketch.RectangleCenter",
+      "args": [
+        "center",
+        "corner"
+      ],
+      "notes": ""
+    },
+    {
+      "op": "sketch.polygon-n",
+      "fn": "Sketch.Polygon",
+      "args": [
+        "center",
+        "N",
+        "radius"
+      ],
+      "notes": ""
+    },
+    {
+      "op": "sketch.slot-straight",
+      "fn": "Sketch.SlotStraight",
+      "args": [
+        "p1",
+        "p2",
+        "width"
+      ],
+      "notes": ""
+    },
+    {
+      "op": "sketch.slot-arc",
+      "fn": "Sketch.SlotArc",
+      "args": [
+        "arcCenter",
+        "p1",
+        "p2",
+        "width"
+      ],
+      "notes": ""
+    },
+    {
+      "op": "sketch.offset",
+      "fn": "Sketch.Offset",
+      "args": [
+        "entities",
+        "distance"
+      ],
+      "notes": ""
+    },
+    {
+      "op": "sketch.trim",
+      "fn": "Sketch.Trim",
+      "args": [
+        "entity",
+        "trimPoint"
+      ],
+      "notes": ""
+    },
+    {
+      "op": "sketch.fillet-2d",
+      "fn": "Sketch.Fillet",
+      "args": [
+        "c1",
+        "c2",
+        "radius"
+      ],
+      "notes": ""
+    },
+    {
+      "op": "op.extrude",
+      "fn": "Features.CreateExtrude",
+      "args": [
+        "profile",
+        "distance"
+      ],
+      "notes": ""
+    },
+    {
+      "op": "op.extrude-cut",
+      "fn": "Features.CreateExtrudeCut",
+      "args": [
+        "profile",
+        "distance"
+      ],
+      "notes": ""
+    },
+    {
+      "op": "op.revolve",
+      "fn": "Features.CreateRevolve",
+      "args": [
+        "profile",
+        "axis",
+        "angle"
+      ],
+      "notes": ""
+    },
+    {
+      "op": "op.loft",
+      "fn": "Features.CreateLoft",
+      "args": [
+        "sections[]"
+      ],
+      "notes": ""
+    },
+    {
+      "op": "op.sweep",
+      "fn": "Features.CreateSweepAlongGuide",
+      "args": [
+        "profile",
+        "path"
+      ],
+      "notes": ""
+    },
+    {
+      "op": "op.shell",
+      "fn": "Features.CreateShell",
+      "args": [
+        "body",
+        "facesToRemove[]",
+        "thickness"
+      ],
+      "notes": ""
+    },
+    {
+      "op": "op.fillet",
+      "fn": "Features.CreateEdgeBlend",
+      "args": [
+        "edges[]",
+        "radius"
+      ],
+      "notes": ""
+    },
+    {
+      "op": "op.chamfer",
+      "fn": "Features.CreateChamfer",
+      "args": [
+        "edges[]",
+        "distance"
+      ],
+      "notes": ""
+    },
+    {
+      "op": "op.draft",
+      "fn": "Features.CreateDraft",
+      "args": [
+        "faces[]",
+        "plane",
+        "angle"
+      ],
+      "notes": ""
+    },
+    {
+      "op": "op.mirror",
+      "fn": "Features.CreateMirrorFeature",
+      "args": [
+        "features[]",
+        "plane"
+      ],
+      "notes": ""
+    },
+    {
+      "op": "op.pattern-rect",
+      "fn": "Features.CreatePatternFeature(Rectangular)",
+      "args": [
+        "..."
+      ],
+      "notes": ""
+    },
+    {
+      "op": "op.pattern-circ",
+      "fn": "Features.CreatePatternFeature(Circular)",
+      "args": [
+        "..."
+      ],
+      "notes": ""
+    },
+    {
+      "op": "op.hole-simple",
+      "fn": "Features.CreateHoleFeature(Simple)",
+      "args": [
+        "face",
+        "position",
+        "diameter",
+        "depth"
+      ],
+      "notes": ""
+    },
+    {
+      "op": "op.hole-threaded",
+      "fn": "Features.CreateHoleFeature(Threaded)",
+      "args": [
+        "..."
+      ],
+      "notes": ""
+    },
+    {
+      "op": "op.thread-external",
+      "fn": "Features.CreateThread(External)",
+      "args": [
+        "face",
+        "threadInfo"
+      ],
+      "notes": ""
+    },
+    {
+      "op": "op.boolean-add",
+      "fn": "Features.CreateBoolean(Unite)",
+      "args": [
+        "target",
+        "tools[]"
+      ],
+      "notes": ""
+    },
+    {
+      "op": "op.boolean-cut",
+      "fn": "Features.CreateBoolean(Subtract)",
+      "args": [
+        "target",
+        "tools[]"
+      ],
+      "notes": ""
+    },
+    {
+      "op": "op.boolean-intersect",
+      "fn": "Features.CreateBoolean(Intersect)",
+      "args": [
+        "target",
+        "tools[]"
+      ],
+      "notes": ""
+    },
+    {
+      "op": "asm.insert-component",
+      "fn": "Assembly.AddComponent",
+      "args": [
+        "file",
+        "transform"
+      ],
+      "notes": ""
+    },
+    {
+      "op": "asm.mate-coincident",
+      "fn": "Assembly.AddConstraint(TouchAlign)",
+      "args": [
+        "geo1",
+        "geo2"
+      ],
+      "notes": ""
+    },
+    {
+      "op": "asm.mate-concentric",
+      "fn": "Assembly.AddConstraint(Concentric)",
+      "args": [
+        "axis1",
+        "axis2"
+      ],
+      "notes": ""
+    },
+    {
+      "op": "asm.mate-distance",
+      "fn": "Assembly.AddConstraint(Distance)",
+      "args": [
+        "geo1",
+        "geo2",
+        "distance"
+      ],
+      "notes": ""
+    }
+  ]
+}

@@ -23,17 +23,14 @@ related:
 |-------|-------|
 | Name | `sync-terminals` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/sync-terminals.md` |
+| Source | `C:/Users/wompu/.claude/commands/sync-terminals.md` |
 | Model | default |
 | Tags | _(none)_ |
 
 ## Description (first paragraph)
 
-Force synchronization across Claude terminals:
-- Refresh awareness cache
-- Broadcast state changes
-- Resolve conflicts
-- Check coordination health
+
+# /sync-terminals — Cross-Terminal Synchronization
 
 <!-- AUTO-END -->
 

@@ -1,0 +1,210 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta name="prism-source-hash" content="87393e0161cb35415cc0dc4c5a3379d793aaef4130879fea620b1f95d6d72e44">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PSN Incorporation Research R3 — Learning + Reasoning (deep dive)</title>
+<style>
+  :root {
+    --bg: #0f1014;
+    --panel: #1a1c23;
+    --panel-2: #232631;
+    --fg: #e4e6eb;
+    --fg-dim: #9aa0a8;
+    --border: #2c303a;
+    --ok: #4ade80;
+    --warn: #fbbf24;
+    --fail: #f87171;
+    --info: #60a5fa;
+    --link: #93c5fd;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; padding: 1.5rem; background: var(--bg); color: var(--fg);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, sans-serif;
+    font-size: 14px; line-height: 1.5; }
+  h1 { font-size: 1.6rem; margin: 0 0 0.25rem 0; }
+  h2 { font-size: 1.15rem; margin: 1.5rem 0 0.5rem 0; padding-bottom: 0.25rem;
+    border-bottom: 1px solid var(--border); color: var(--fg); }
+  .meta { color: var(--fg-dim); font-size: 0.85rem; margin-bottom: 1rem; }
+  .panel { background: var(--panel); border: 1px solid var(--border); border-radius: 6px;
+    padding: 0.75rem 1rem; margin-bottom: 1rem; }
+  .headline-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 0.5rem; margin-bottom: 1rem; }
+  .card { background: var(--panel-2); border: 1px solid var(--border); border-radius: 6px;
+    padding: 0.65rem 0.85rem; }
+  .card .lbl { font-size: 0.8rem; color: var(--fg-dim); }
+  .card .val { font-size: 1.4rem; font-weight: 600; margin: 0.15rem 0; font-variant-numeric: tabular-nums; }
+  .card .hint { font-size: 0.75rem; color: var(--fg-dim); }
+  .card.ok    { border-left: 3px solid var(--ok); }
+  .card.warn  { border-left: 3px solid var(--warn); }
+  .card.fail  { border-left: 3px solid var(--fail); }
+  .card.info  { border-left: 3px solid var(--info); }
+  table { width: 100%; border-collapse: collapse; margin: 0.5rem 0 1rem; font-size: 0.9rem;
+    background: var(--panel); border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }
+  caption { text-align: left; padding: 0.4rem 0.65rem; color: var(--fg-dim);
+    background: var(--panel-2); font-weight: 500; }
+  th, td { padding: 0.4rem 0.65rem; text-align: left; border-bottom: 1px solid var(--border);
+    font-variant-numeric: tabular-nums; vertical-align: top; }
+  th { background: var(--panel-2); color: var(--fg-dim); font-weight: 500;
+    text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.04em; }
+  tr:last-child td { border-bottom: none; }
+  td.right { text-align: right; }
+  ul, ol { margin: 0.4rem 0 1rem 1.25rem; }
+  li { margin: 0.15rem 0; }
+  .badge { display: inline-block; padding: 0.1rem 0.5rem; border-radius: 999px;
+    font-size: 0.75rem; font-weight: 500; background: var(--panel-2); color: var(--fg-dim);
+    border: 1px solid var(--border); }
+  .badge.ok   { background: rgba(74, 222, 128, 0.12); color: var(--ok);   border-color: rgba(74,222,128,0.3); }
+  .badge.warn { background: rgba(251, 191, 36, 0.12); color: var(--warn); border-color: rgba(251,191,36,0.3); }
+  .badge.fail { background: rgba(248, 113, 113, 0.12); color: var(--fail); border-color: rgba(248,113,113,0.3); }
+  .badge.info { background: rgba(96, 165, 250, 0.12); color: var(--info); border-color: rgba(96,165,250,0.3); }
+  .badge-grid { display: flex; flex-wrap: wrap; gap: 0.3rem; margin: 0.3rem 0 1rem 0; }
+  .kv { display: grid; grid-template-columns: max-content 1fr; gap: 0.2rem 0.85rem;
+    margin: 0.4rem 0 1rem 0; }
+  .kv .k { color: var(--fg-dim); }
+  svg.bar-chart { display: block; max-width: 100%; height: auto; }
+  svg .bar { fill: var(--info); }
+  svg .bar.ok   { fill: var(--ok); }
+  svg .bar.warn { fill: var(--warn); }
+  svg .bar.fail { fill: var(--fail); }
+  svg text { fill: var(--fg); font-family: monospace; font-size: 11px; }
+  svg .axis text { fill: var(--fg-dim); }
+  code { background: var(--panel-2); padding: 0 0.3rem; border-radius: 3px;
+    font-family: "Fira Code", Consolas, Menlo, monospace; font-size: 0.85em; }
+  a { color: var(--link); }
+  footer { margin-top: 2rem; padding-top: 0.75rem; border-top: 1px solid var(--border);
+    font-size: 0.8rem; color: var(--fg-dim); }
+</style>
+</head>
+<body>
+<h1>PSN Incorporation Research R3 — Learning + Reasoning (deep dive)</h1>
+<div class="meta">rendered from state/shared/specs/PSN-INCORPORATION-RESEARCH-R3-LEARNING-REASONING-2026-05-23.md</div>
+<div class="meta">Generated 2026-05-24T01:33:20.493Z</div>
+<style>
+  .prism-md-body { max-width: 70rem; margin: 0 auto; }
+  .prism-h1 { font-size: 1.6rem; }
+  .prism-h2 { font-size: 1.25rem; border-bottom: 1px solid var(--border); padding-bottom: 0.25rem; }
+  .prism-h3 { font-size: 1.1rem; color: var(--info); }
+  .prism-h4, .prism-h5, .prism-h6 { font-size: 1rem; color: var(--fg-dim); }
+  .prism-md-body p { margin: 0.5rem 0; }
+  .prism-md-list { margin: 0.5rem 0 0.5rem 1.25rem; padding: 0; }
+  .prism-md-list li { margin: 0.15rem 0; }
+  .prism-md-table { border-collapse: collapse; margin: 0.75rem 0; width: 100%; }
+  .prism-md-table th, .prism-md-table td { border: 1px solid var(--border); padding: 0.35rem 0.6rem; text-align: left; }
+  .prism-md-table th { background: var(--panel-2); }
+  .prism-codeblock { background: var(--panel-2); border: 1px solid var(--border); border-radius: 4px; padding: 0.6rem 0.8rem; overflow-x: auto; font-family: "Cascadia Code", Consolas, monospace; font-size: 13px; }
+  .prism-inline-code { background: var(--panel-2); padding: 0 0.25rem; border-radius: 3px; font-family: "Cascadia Code", Consolas, monospace; font-size: 0.92em; }
+  .prism-quote { border-left: 3px solid var(--info); background: var(--panel-2); padding: 0.5rem 0.85rem; margin: 0.75rem 0; color: var(--fg-dim); }
+  .prism-hr { border: 0; border-top: 1px solid var(--border); margin: 1rem 0; }
+  .prism-link { color: var(--link); text-decoration: none; }
+  .prism-link:hover { text-decoration: underline; }
+  .prism-bad-link { color: var(--fail); text-decoration: line-through; }
+  .prism-unclosed::before { content: "⚠ unterminated code block"; display: block; color: var(--warn); font-size: 0.85em; margin-bottom: 0.25rem; }
+  </style><main class="prism-md-body"><h1 class="prism-h1">PSN Incorporation Research R3 — Learning + Reasoning (deep dive)</h1>
+<blockquote class="prism-quote">Compiled by claude-451f7328 slot:charlie /goal-5, 2026-05-23.</blockquote>
+<blockquote class="prism-quote">Sibling to <a href="./PSN-HIGH-ROI-SURFACE-AUDIT-2026-05-23.md" class="prism-link">R1</a> (25 systems, general PSN) + <a href="./PSN-INCORPORATION-RESEARCH-R2-2026-05-23.md" class="prism-link">R2</a> (50+ systems, 13 categories).</blockquote>
+<blockquote class="prism-quote">R3 zooms in on the two highest-leverage capability axes: <strong>how PRISM learns</strong> and <strong>how PRISM reasons</strong>. Both feed legs 10 (NN/GNN) and 11 (PRISM AI) and compound across every other leg.</blockquote>
+<p>Format: each system gets (a) one-line description, (b) which PSN leg(s), (c) integration cost S/M/L, (d) ROI mechanism with a concrete number, (e) the PRISM-specific gap.</p>
+<hr class="prism-hr">
+<h2 class="prism-h2">§1 — LEARNING (online / offline / meta / curriculum)</h2>
+<h3 class="prism-h3">1A — Preference-optimization family (replace/augment RLHF)</h3>
+<table class="prism-md-table"><thead><tr><th>System</th><th>Leg</th><th>Cost</th><th>ROI</th><th>PRISM gap</th></tr></thead><tbody><tr><td><strong>DPO</strong> (Direct Preference Optimization)</td><td>10, 11</td><td>M</td><td>Matches PPO without reward model; 2-5× simpler training pipeline</td><td>When PRISM ships per-domain LoRA, DPO on (good/bad) pairs from JM-DIE outcomes beats RLHF complexity</td></tr>
+<tr><td><strong>KTO</strong> (Kahneman-Tversky Optimization)</td><td>10, 11</td><td>M</td><td>Only needs binary labels (good/bad); 100× cheaper to label than pairwise</td><td>Operator can label single G-code emit as &quot;shipped to floor / aborted&quot; — KTO eats that directly</td></tr>
+<tr><td><strong>IPO</strong> (Identity Preference Optimization)</td><td>10, 11</td><td>M</td><td>Fixes DPO&#39;s mode-collapse on noisy preferences</td><td>If JM-DIE labels are noisy (and they are), IPO is the safety net</td></tr>
+<tr><td><strong>SimPO</strong> (2024)</td><td>10, 11</td><td>M</td><td>No reference model needed at inference; +5-10% on AlpacaEval</td><td>Cuts GPU memory by ~30% during training</td></tr>
+<tr><td><strong>GRPO</strong> (DeepSeek R1 Group Relative Policy Optimization)</td><td>10, 11</td><td>M</td><td>Removes critic network; trained R1 model with $5M compute</td><td>The breakthrough enabling cheap reasoning RL; directly applicable to PRISM&#39;s per-domain reasoning</td></tr></tbody></table>
+<h3 class="prism-h3">1B — Self-training / bootstrap (no human labels needed)</h3>
+<table class="prism-md-table"><thead><tr><th>System</th><th>Leg</th><th>Cost</th><th>ROI</th><th>PRISM gap</th></tr></thead><tbody><tr><td><strong>STaR</strong> (Self-Taught Reasoner)</td><td>10, 11</td><td>M</td><td>Bootstrap reasoning traces from base model; train on the correct-answer traces</td><td>Per-domain (mill/lathe/wedm) reasoning bootstrap</td></tr>
+<tr><td><strong>Quiet-STaR</strong></td><td>10, 11</td><td>M</td><td>Extends STaR with implicit thinking tokens; +10% on GSM8K with no labeled data</td><td>Drop-in upgrade if STaR is shipped</td></tr>
+<tr><td><strong>rStar-Math</strong> (Microsoft, 2024)</td><td>10, 11</td><td>M</td><td>MCTS-guided SFT pushed small models past o1-preview on competition math</td><td>Applies to physics-formula reasoning paths</td></tr>
+<tr><td><strong>SPIN</strong> (Self-Play Fine-tuning)</td><td>10, 11</td><td>M</td><td>Bootstrap from base model only; closes 90% of gap to RLHF</td><td>If preference data is scarce, SPIN is the cold-start</td></tr>
+<tr><td><strong>REST-EM</strong> (Reinforced Self-Training, EM variant)</td><td>10, 11</td><td>M</td><td>Iterative bootstrapping with self-generated data; matches RLHF on some benchmarks</td><td>PRISM&#39;s autonomous /loop is structurally REST-EM at the task level — formalize at the model level</td></tr>
+<tr><td><strong>Self-Reward</strong> (Meta, 2024)</td><td>10, 11</td><td>M</td><td>Model rewards its own outputs; eliminates external annotator dependency</td><td>Octopus 3-of-3 consensus is the cousin pattern; Self-Reward at the training stage</td></tr>
+<tr><td><strong>Self-Instruct / Evol-Instruct</strong></td><td>4, 10</td><td>S</td><td>Generate diverse instructions from seed examples; scales tribal-tip → formal training signal</td><td>The 3919 tribal tips become 30K+ training pairs</td></tr></tbody></table>
+<h3 class="prism-h3">1C — Parameter-efficient fine-tuning (PEFT)</h3>
+<table class="prism-md-table"><thead><tr><th>System</th><th>Leg</th><th>Cost</th><th>ROI</th><th>PRISM gap</th></tr></thead><tbody><tr><td><strong>LoRA / QLoRA</strong></td><td>10</td><td>S</td><td>100× fewer trainable params; 4-bit quant for QLoRA</td><td>PRISM already has <code class="prism-inline-code">PRISMLoRAAdapterEngine</code> (memo blind-spot); needs real adapters</td></tr>
+<tr><td><strong>DoRA</strong> (Weight-Decomposed LoRA)</td><td>10</td><td>S</td><td>+1-3% over LoRA at same param count</td><td>Drop-in replacement for LoRA</td></tr>
+<tr><td><strong>LongLoRA</strong></td><td>10</td><td>M</td><td>Extends context window in fine-tuning; cheap long-context adaptation</td><td>If PRISM needs to fit JM-DIE corpus (76K files) into a single context</td></tr>
+<tr><td><strong>Spectrum</strong> (selective LoRA targeting)</td><td>10</td><td>S</td><td>Train only top-N most important layers via SNR analysis; +30-50% efficiency</td><td>Closes the &quot;should I train every layer?&quot; tuning question</td></tr>
+<tr><td><strong>MoLE / Mixture of LoRA Experts</strong></td><td>10, 11</td><td>M</td><td>Per-domain LoRA experts gated by router; PRISM&#39;s domain split is the perfect MoE shape</td><td>Each NATO slot&#39;s domain (mill/lathe/wedm/cad/cam) gets an expert</td></tr>
+<tr><td><strong>S-LoRA serving</strong> (from R1)</td><td>10, 11</td><td>L</td><td>Serve 1000s of LoRA adapters in one GPU</td><td>Production-grade for §1B-§1C ramp</td></tr></tbody></table>
+<h3 class="prism-h3">1D — Active / curriculum learning</h3>
+<table class="prism-md-table"><thead><tr><th>System</th><th>Leg</th><th>Cost</th><th>ROI</th><th>PRISM gap</th></tr></thead><tbody><tr><td><strong>BALD / Query-by-Committee</strong></td><td>7, 10</td><td>M</td><td>Picks most-uncertain samples for labeling; cuts labeling cost 5-10×</td><td>Curiosity-queue would prioritize examples that NN/GNN tier-5 is most uncertain about</td></tr>
+<tr><td><strong>Curriculum learning</strong> (easy→hard)</td><td>10</td><td>S</td><td>Faster + better convergence; -30% training time on physics problems</td><td>Order JM-DIE training: simple-pocket → complex-5-axis → wedm-multipass</td></tr>
+<tr><td><strong>Confidence-aware sampling</strong></td><td>10</td><td>S</td><td>Skip samples model is already confident on; -50% training compute</td><td>Pairs with PRISM&#39;s <code class="prism-inline-code">AtomicValue&lt;T&gt;</code> confidence already present in engine outputs</td></tr></tbody></table>
+<h3 class="prism-h3">1E — Continual learning (avoid catastrophic forgetting)</h3>
+<table class="prism-md-table"><thead><tr><th>System</th><th>Leg</th><th>Cost</th><th>ROI</th><th>PRISM gap</th></tr></thead><tbody><tr><td><strong>EWC</strong> (Elastic Weight Consolidation)</td><td>10</td><td>M</td><td>Protects important weights when learning new task</td><td><code class="prism-inline-code">WEDMOnlineLearningEngine</code> already half-implements; EWC formalizes</td></tr>
+<tr><td><strong>Replay buffer / Experience Replay</strong></td><td>4, 10</td><td>S</td><td>Old examples replayed during new training; trivial implementation</td><td>PRISM has the data (slot logs + JM-DIE) — needs the loop</td></tr>
+<tr><td><strong>Generative Replay</strong></td><td>10</td><td>M</td><td>Replay synthetic examples from a generator; no need to store old data</td><td>Privacy/storage-friendly variant</td></tr>
+<tr><td><strong>Progressive Networks</strong></td><td>10, 11</td><td>M</td><td>New columns added per task; old columns frozen</td><td>Per-domain neural columns mirror PRISM&#39;s domain split</td></tr></tbody></table>
+<h3 class="prism-h3">1F — Synthetic-data / distillation pipelines</h3>
+<table class="prism-md-table"><thead><tr><th>System</th><th>Leg</th><th>Cost</th><th>ROI</th><th>PRISM gap</th></tr></thead><tbody><tr><td><strong>Distilabel</strong> (Argilla)</td><td>4, 5, 10</td><td>M</td><td>OSS pipeline for synthetic preference data</td><td>Already mentioned in R2 §5; key for KTO/DPO data prep</td></tr>
+<tr><td><strong>OpenInstruct / Tülu 3 recipes</strong> (Allen AI)</td><td>10</td><td>M</td><td>Reference SFT+DPO+PPO recipe with reproducible weights</td><td>The &quot;how do I actually do this&quot; recipe book</td></tr>
+<tr><td><strong>Axolotl / unsloth</strong></td><td>10</td><td>S</td><td>High-throughput LoRA training frameworks</td><td>When PRISM moves to actual training</td></tr>
+<tr><td><strong>Self-Distill</strong> (large→small)</td><td>10</td><td>M</td><td>Generate teacher labels from large model; train smaller model on them</td><td>Ollama tier (qwen2.5-coder:7b) becomes capable via Opus-as-teacher</td></tr></tbody></table>
+<h3 class="prism-h3">1G — Prompt-as-program optimizers</h3>
+<table class="prism-md-table"><thead><tr><th>System</th><th>Leg</th><th>Cost</th><th>ROI</th><th>PRISM gap</th></tr></thead><tbody><tr><td><strong>DSPy</strong> (R1 carryover)</td><td>11</td><td>M</td><td>Declarative LM programs with auto-optimizers (BootstrapFewShot, MIPRO)</td><td>Octopus consensus prompts as DSPy modules</td></tr>
+<tr><td><strong>TextGrad</strong></td><td>11</td><td>S</td><td>Gradient-like updates on prompt text via critic feedback</td><td>Closes &quot;how do I improve a prompt without RL?&quot;</td></tr>
+<tr><td><strong>Trace</strong> (Microsoft)</td><td>11</td><td>S</td><td>Same family as TextGrad; works on workflow graphs</td><td>For multi-step agent flows</td></tr>
+<tr><td><strong>GEPA</strong> (Guided Exploration for Prompt Adaptation, Stanford 2025)</td><td>11</td><td>M</td><td>SOTA prompt optimizer; beats DSPy MIPRO on benchmarks</td><td>Higher cost but higher ceiling</td></tr></tbody></table>
+<hr class="prism-hr">
+<h2 class="prism-h2">§2 — REASONING (search / verification / hybrid)</h2>
+<h3 class="prism-h3">2A — Search-based reasoning (LLM as policy + MCTS as control)</h3>
+<table class="prism-md-table"><thead><tr><th>System</th><th>Leg</th><th>Cost</th><th>ROI</th><th>PRISM gap</th></tr></thead><tbody><tr><td><strong>MCTS + LLM</strong> (AlphaZero-pattern for reasoning)</td><td>11</td><td>L</td><td>o1-style reasoning improvement; SOTA on AIME 2024</td><td>The architecture behind o1/R1; reproducible with rStar-Math + open weights</td></tr>
+<tr><td><strong>PRM (Process Reward Models)</strong></td><td>11</td><td>M</td><td>Score each reasoning step (not just answer); better gradient for RL</td><td>Pairs with MCTS for tree pruning</td></tr>
+<tr><td><strong>ORM (Outcome Reward Models)</strong></td><td>11</td><td>M</td><td>Cheaper than PRM; final-answer-only scoring</td><td>Best-of-N rerank uses ORM</td></tr>
+<tr><td><strong>Best-of-N sampling + ORM rerank</strong></td><td>11</td><td>S</td><td>Inference-time scaling; +5-15% accuracy at 5-10× compute</td><td>Apply to PRISM physics-output verification before shop-floor emit</td></tr>
+<tr><td><strong>AlphaProof / AlphaGeometry</strong></td><td>11</td><td>L</td><td>DeepMind formal-proof systems; closes math olympiad gap</td><td>Far-afield; reference architecture for formal verification of safety claims</td></tr></tbody></table>
+<h3 class="prism-h3">2B — Reasoning-trajectory patterns (no extra compute)</h3>
+<table class="prism-md-table"><thead><tr><th>System</th><th>Leg</th><th>Cost</th><th>ROI</th><th>PRISM gap</th></tr></thead><tbody><tr><td><strong>Tree-of-Thought (ToT)</strong> (R2 carryover)</td><td>11</td><td>S</td><td>Beam search over reasoning branches; +20-40% on multi-step</td><td>Formalizes <code class="prism-inline-code">prismCreativeReasoningEngine.explore()</code> modes</td></tr>
+<tr><td><strong>Graph-of-Thought</strong></td><td>11</td><td>M</td><td>Generalization of ToT — allows merge/cycle, not just tree</td><td>More expressive but harder to control</td></tr>
+<tr><td><strong>Plan-and-Solve</strong></td><td>11</td><td>S</td><td>Two-step prompt: plan first, solve second; +10-15%</td><td>Lightweight; drop-in to engine reasoning chains</td></tr>
+<tr><td><strong>Least-to-Most</strong></td><td>11</td><td>S</td><td>Decompose problem into subproblems; +20% on compositional tasks</td><td>Pairs with PRISM&#39;s existing pipeline-decomposition pattern</td></tr>
+<tr><td><strong>Skeleton-of-Thought</strong></td><td>11</td><td>S</td><td>Parallel branch generation; cuts latency 2× on long outputs</td><td>Good fit for octopus parallel voice generation</td></tr>
+<tr><td><strong>Self-Consistency</strong> (R2 carryover)</td><td>11</td><td>S</td><td>Sample N paths, majority-vote; +5-15% on math</td><td>Drop-in for <code class="prism-inline-code">wedm_safety_gate_evaluate</code> validation</td></tr></tbody></table>
+<h3 class="prism-h3">2C — Program-of-Thought / code-augmented reasoning</h3>
+<table class="prism-md-table"><thead><tr><th>System</th><th>Leg</th><th>Cost</th><th>ROI</th><th>PRISM gap</th></tr></thead><tbody><tr><td><strong>PoT (Program-of-Thought)</strong></td><td>7, 11</td><td>S</td><td>Emit Python instead of text reasoning; eliminates arithmetic errors</td><td>Charlie&#39;s slot soul refuses inline constants — PoT is the typed-eval analog</td></tr>
+<tr><td><strong>PAL (Program-Aided Language)</strong></td><td>7, 11</td><td>S</td><td>Sibling to PoT; offload to a code interpreter</td><td>PRISM has <code class="prism-inline-code">prism_calc</code> — wire it as the PAL backend</td></tr>
+<tr><td><strong>Lean / Coq / Isabelle integration</strong></td><td>9, 11</td><td>L</td><td>Formal proof for safety claims (Ω, S(x))</td><td>Proves recast≤8µm bound formally vs sampling</td></tr>
+<tr><td><strong>Z3 / cvc5 SMT solvers</strong></td><td>11</td><td>M</td><td>Decide satisfiability of physics constraint systems</td><td>Pairs with WEDM&#39;s multi-constraint optimization</td></tr></tbody></table>
+<h3 class="prism-h3">2D — Multi-agent reasoning</h3>
+<table class="prism-md-table"><thead><tr><th>System</th><th>Leg</th><th>Cost</th><th>ROI</th><th>PRISM gap</th></tr></thead><tbody><tr><td><strong>MAD (Multi-Agent Debate)</strong></td><td>11</td><td>M</td><td>2+ agents debate; reduces hallucination ~30%</td><td>Octopus 5-voice IS this pattern; formalize</td></tr>
+<tr><td><strong>Generative Agents (Smallville)</strong></td><td>4, 11</td><td>L</td><td>Long-term memory + reflection cycles for agents</td><td>PRISM&#39;s slot system + handoffs is the same shape</td></tr>
+<tr><td><strong>OctoPack / Magentic-One</strong> (R1 carryover)</td><td>11</td><td>M</td><td>Orchestrator + specialist agents</td><td>Charlie&#39;s &quot;Hermes specialist-wire-edm&quot; role IS this</td></tr></tbody></table>
+<h3 class="prism-h3">2E — Verification &amp; calibration</h3>
+<table class="prism-md-table"><thead><tr><th>System</th><th>Leg</th><th>Cost</th><th>ROI</th><th>PRISM gap</th></tr></thead><tbody><tr><td><strong>Chain-of-Verification (CoV)</strong> (R2 carryover)</td><td>11</td><td>S</td><td>Generate answer → verification questions → answer them → revise</td><td>Closes hallucination in safety paths</td></tr>
+<tr><td><strong>Verifier-guided search</strong></td><td>11</td><td>M</td><td>Train a verifier; use it to prune MCTS branches</td><td>Pairs with §2A picks</td></tr>
+<tr><td><strong>Calibration via temperature scaling</strong></td><td>10, 11</td><td>S</td><td>Post-hoc fix for confidence overconfidence</td><td>Apply to engine <code class="prism-inline-code">AtomicValue&lt;T&gt;.confidence</code></td></tr>
+<tr><td><strong>Conformal prediction</strong></td><td>7, 10, 11</td><td>M</td><td>Distribution-free uncertainty bounds with finite-sample guarantees</td><td>The safety bound certificate operators trust</td></tr>
+<tr><td><strong>Bayesian deep learning</strong></td><td>10</td><td>M</td><td>Uncertainty quantification via dropout / variational inference</td><td>When engines need confidence intervals, not point estimates</td></tr></tbody></table>
+<h3 class="prism-h3">2F — Domain-specific reasoning models (deserve their own bullet)</h3>
+<table class="prism-md-table"><thead><tr><th>System</th><th>Leg</th><th>Cost</th><th>ROI</th><th>PRISM gap</th></tr></thead><tbody><tr><td><strong>OpenAI o1 / Claude extended thinking</strong></td><td>11</td><td>S</td><td>Built-in long reasoning via thinking tokens</td><td>PRISM is already on Claude — enable thinking flag for the safety-critical engine paths</td></tr>
+<tr><td><strong>DeepSeek R1</strong> (open-weight reasoning)</td><td>11</td><td>M</td><td>Matches o1 at fraction of cost; MIT-licensed</td><td>Run R1-distill-32B on PRISM hardware for reasoning-heavy paths</td></tr>
+<tr><td><strong>Marco-o1 / LLaMA-Berry / OpenR</strong></td><td>11</td><td>M</td><td>Open-source o1-pattern implementations</td><td>Reference codebases for rolling your own</td></tr></tbody></table>
+<hr class="prism-hr">
+<h2 class="prism-h2">§3 — TOP-10 LEARNING + REASONING PICKS (R3 final ranking)</h2>
+<p>Ranked by <strong>cost-adjusted ROI × cross-leg impact × current pain felt × time-to-first-value</strong>:</p>
+<ol class="prism-md-list"><li><strong>DSPy + Promptfoo for octopus consensus</strong> (R2 carryover, M-cost) — turn prompt-eng into measurable optimization</li><li><strong>STaR-style bootstrap on WEDM reasoning traces</strong> (M-cost) — generate WEDM-domain reasoning data without operator labeling; train when scale justifies</li><li><strong>PoT + PAL backed by <code class="prism-inline-code">prism_calc</code></strong> (S-cost) — eliminate arithmetic errors in reasoning chains; PRISM has the calc backend already</li><li><strong>Best-of-N + ORM rerank for shop-floor outputs</strong> (S-cost) — sample 5-10 G-code emissions, rerank by ORM, ship the highest-scoring; +5-15% accuracy at acceptable compute</li><li><strong>CoV inside <code class="prism-inline-code">wedm_safety_gate_evaluate</code></strong> (R2 carryover, S-cost) — cuts hallucination ~50% on edge cases</li><li><strong>Reflexion → memory write loop</strong> (R2 carryover, S-cost) — formalize <code class="prism-inline-code">feedback_always_capture_lessons</code></li><li><strong>Replay buffer over slot session logs</strong> (S-cost) — already have the data; just need the loop</li><li><strong>DPO/KTO ready-to-train pipeline on JM-DIE outcomes</strong> (M-cost) — labeled by &quot;shipped to floor / aborted&quot;; KTO eats binary labels</li><li><strong>Plan-and-Solve + Self-Consistency on <code class="prism-inline-code">prismCreativeReasoningEngine.explore(&quot;optimal&quot;)</code></strong> (S-cost) — formalizes existing &quot;optimal&quot; mode with measurable gains</li><li><strong>Claude extended-thinking flag enabled for safety-critical engine paths</strong> (S-cost, free win) — already on Claude; the thinking flag is documented but likely not enabled per-engine</li></ol>
+<p><strong>Out-of-scope per R12</strong> (named, deferred):</p>
+<ul class="prism-md-list"><li>MCTS + LLM (L-cost) — full o1-pattern reasoning; gated on having a reward model</li><li>AlphaProof / Lean (L-cost) — formal verification of safety claims; relevant when Ω/S(x) become contractual</li><li>Full MoLE serving with S-LoRA (L-cost) — gated on per-domain adapters existing first</li><li>Generative Agents Smallville (L-cost) — slot system already covers this conceptually</li></ul>
+<hr class="prism-hr">
+<h2 class="prism-h2">§4 — How R3 composes with R1 + R2</h2>
+<table class="prism-md-table"><thead><tr><th>Layer</th><th>R1 contribution</th><th>R2 contribution</th><th>R3 contribution</th></tr></thead><tbody><tr><td>Retrieval</td><td>GraphRAG, HyDE, RAGAS, ColBERT</td><td>Qdrant binary quant, BGE-M3, GPTCache</td><td>(none — covered)</td></tr>
+<tr><td>Memory</td><td>Letta, LangGraph, Mem0, EpiMem</td><td>(none — covered)</td><td>Replay buffer, Experience Replay, EWC, Reflexion-→-memory</td></tr>
+<tr><td>Reasoning</td><td>DSPy, Magentic-One</td><td>ToT, Reflexion, CoV, Self-Consistency, Outlines</td><td>PoT, PAL, Best-of-N+ORM, MCTS+LLM, Plan-and-Solve, Skeleton-of-Thought, Z3, Claude-thinking-flag</td></tr>
+<tr><td>Training</td><td>S-LoRA, LoRA-Hub</td><td>Distilabel, Sakana evolutionary</td><td>DPO, KTO, IPO, SimPO, GRPO, STaR, Quiet-STaR, rStar-Math, SPIN, REST-EM, Self-Reward, Self-Instruct, DoRA, LongLoRA, Spectrum, MoLE, Active learning (BALD), Curriculum, Generative Replay, Progressive Networks</td></tr>
+<tr><td>Optimizers</td><td>(mostly observability)</td><td>(mostly tools)</td><td>DSPy, TextGrad, Trace, GEPA</td></tr>
+<tr><td>Verification</td><td>Inspect AI, RAGAS</td><td>Promptfoo, Guardrails AI</td><td>Conformal prediction, Bayesian DL, Calibration, Verifier-guided search, PRM, ORM</td></tr></tbody></table>
+<p>R1+R2+R3 combined inventory: <strong>100+ specific systems</strong> across <strong>6 functional layers</strong>, each mapped to PSN legs + integration cost + ROI mechanism. Should be the canonical &quot;what could we add&quot; reference for the next 12 months of RGS planning.</p>
+<hr class="prism-hr">
+<h2 class="prism-h2">§5 — How this maps to RGS</h2>
+<p>R3&#39;s top-10 fold into <code class="prism-inline-code">PSN-LEARN-REASON-MS0</code> envelope (10 phases). Suggested phase ordering by time-to-first-value:</p>
+<ol class="prism-md-list"><li>Enable Claude extended-thinking on safety-critical engine paths (1 hour)</li><li>Plan-and-Solve wrapper on <code class="prism-inline-code">prismCreativeReasoningEngine.explore(&quot;optimal&quot;)</code> (1 day)</li><li>PoT + PAL via <code class="prism-inline-code">prism_calc</code> (1 day)</li><li>CoV inside <code class="prism-inline-code">wedm_safety_gate_evaluate</code> (carryover, 1 day)</li><li>Reflexion → memory loop (carryover, 2 days)</li><li>Best-of-N + ORM rerank for shop-floor outputs (3 days)</li><li>Replay buffer over slot session logs (3 days)</li><li>DSPy + Promptfoo for octopus consensus (carryover, 1 week)</li><li>DPO/KTO ready-to-train pipeline on JM-DIE outcomes (2 weeks)</li><li>STaR-style bootstrap on WEDM reasoning traces (1 month)</li></ol>
+<p>Total: ~5-6 weeks of focused implementation for full R3 top-10.</p>
+<p><strong>Cross-references:</strong></p>
+<ul class="prism-md-list"><li><a href="./PSN-HIGH-ROI-SURFACE-AUDIT-2026-05-23.md" class="prism-link">PSN-HIGH-ROI-SURFACE-AUDIT-2026-05-23.md</a> (R1)</li><li><a href="./PSN-INCORPORATION-RESEARCH-R2-2026-05-23.md" class="prism-link">PSN-INCORPORATION-RESEARCH-R2-2026-05-23.md</a> (R2)</li><li>[[feedback_psn_definition]] — 11-leg PSN map</li><li>[[feedback_always_capture_lessons]] — Reflexion anchor</li><li>[[reference_octopus_consensus_ms1_2026_05_18]] — DSPy + MAD anchor</li><li>[[reference_psn_high_roi_audit_2026_05_23]] — R1 memory pointer</li></ul></main><footer>
+<div>html-report-render schemaVersion 1.0.0</div>
+</footer>
+</body>
+</html>

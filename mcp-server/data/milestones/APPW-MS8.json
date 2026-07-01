@@ -1,0 +1,1278 @@
+{
+  "id": "APPW-MS8",
+  "version": "1.0.0",
+  "title": "App-Wide Calculator Theme Convergence + Machine Workspace Activation + Release Truth Verification",
+  "brief": "Bring the canonical PRISM web app onto one calculator-grade design and truth contract, materialize the missing browser/page-sweep execution surfaces, normalize machine intake into shared routed CAD workspaces, activate selector/programming/toolpath authority across machine flows, converge commerce/customer/document/auth/viewer/reporting surfaces onto fail-closed live contracts, and close with benchmark-backed browser truth verification instead of ad hoc manual browsing.",
+  "created_at": "2026-04-10T22:20:00Z",
+  "updated_at": "2026-04-13T20:41:18-05:00",
+  "created_by": "codex-gpt-5",
+  "track": "APPW",
+  "track_name": "App Full-Stack Wiring",
+  "status": "in_progress",
+  "notes": "Recovered on 2026-04-10 from the H: drive snapshot by reconciling APPW-MS8 against the live calculator/programming surfaces because the referenced shared sweep markdown artifacts were not present locally. U-APPW41 and U-APPW41B already have active implementation overlap in CalculatorPage, CalculatorProgramWorkbench, CalculatorPage.autoProgramming.test.ts, and src/routes/cam.ts; U-APPW41A now has an extracted shared selector-authority web contract in web/src/features/machine-workspace/selectorAuthorityContract.ts plus active ProgramReleasePage, ToolpathAdvisorPage, ShopProfilePage, downstream routed utility consumers, and a calculator-side JM Die route-authority seam, but broader browser-backed verification and the remaining routed surfaces still need to converge before the unit can close. As of 2026-04-10, JM Die is the canonical PRISM development and test shop, so APPW convergence must treat the JM Die company profile and shop assets on H: as the baseline seed for machine, employee, selector, and print/program flows until explicit multi-company tenancy exists. As of 2026-04-11, Scheduling now uses canonical Haas JM Die sample machine labels so planner handoffs resolve real machine authority into Print to CNC, and Messages now preserves upstream release packet machine and selector truth when inbox follow-up returns to Print to CNC. As of 2026-04-13, APPW synchronization is constrained to direct mounted route contracts until KAR-MS7 app-integration artifacts land on disk; document-learning remains contract-mismatched against current doc routes and viewer closeout remains blocked on a live scene contract. As of 2026-04-13, the shared /page-sweep execution surface is materialized on disk through .claude/commands/page-sweep.md and .claude/helpers/page-sweep.mjs, the browser manifests, machine-CAD sweep, customerDocument.spec.ts, employeeContinuity.spec.ts, and machineWorkspace.spec.ts are all wired through the same shared helper, and the full canonical Playwright page-sweep suite is green at 54/54 across route smoke, machine CAD surfaces, routed machine workspace continuity, purchase handoffs, responsive coverage, role access, customer/document continuity, and employee continuity while benchmark-truth closeout remains the last outstanding browser-verification slice.",
+  "canonical_company_profile": {
+    "name": "JM Die",
+    "role": "Primary PRISM development and test shop until explicit multi-company tenancy is introduced",
+    "shop_root": "H:/PRISM/JM DIE",
+    "company_root": "H:/PRISM/JM DIE/JM DIE COMPANY",
+    "seed_domains": [
+      "employees",
+      "machines",
+      "controllers",
+      "tool_holders",
+      "tooling",
+      "materials",
+      "prints",
+      "program_references"
+    ]
+  },
+  "total_units": 11,
+  "total_sessions": "7-8",
+  "dependencies": [
+    "APPW-MS7",
+    "FMERGE-MS0"
+  ],
+  "omega_floor": 0.9,
+  "upstream_contracts": [
+    "MCAT-MS0 machine package/profile payloads or equivalent published machine pricing/profile contract",
+    "FMERGE-MS0 canonical frontend target audit and merge-decision publication",
+    "FMERGE-MS1 donor capability harvest ledger and survivor/remap/waive proof before APPW final closeout",
+    "KAR-MS7 unified app/orchestrator surfaces remain planned-only until /api/orchestrate/*, prism_orchestrate:unified_execute, and useUnifiedOrchestrator() exist on disk; APPW must keep using direct mounted route contracts until then",
+    "JM Die company profile plus seeded employee, machine, controller, holder, tooling, material, and print/program master-data contract before app-wide selector and route-truth claims are treated as stable",
+    "Execution-surface materialization for /page-sweep, browser manifests, and route/page audit truth before APPW verification claims",
+    "Queue-derived roadmap state must remain aligned across milestone envelopes, roadmap-index, TASK_QUEUE, CURRENT_POSITION, and ROADMAP_COLLABORATION_STATE"
+  ],
+  "downstream_consumers": [
+    "QA-MS0",
+    "PROD-GATE-MS0"
+  ],
+  "legacy_naming_exemptions": [
+    "APPW legacy U-APPW05 / U-APPW05A / U-APPW05B ambiguity predates MS8; MS8 continues from U-APPW38 with no new collision."
+  ],
+  "enforcement_hooks": [
+    "stub-detector",
+    "test-quality",
+    "wiring-agent",
+    "appw-page-sweep-coverage",
+    "appw-theme-convergence",
+    "appw-commerce-modal-coverage"
+  ],
+  "enforcement_integration": {
+    "pre_level": [
+      "knowledge-consult",
+      "context-retention"
+    ],
+    "post_level": [
+      "stub-detector",
+      "test-quality",
+      "wiring-agent",
+      "appw-page-sweep-coverage",
+      "appw-theme-convergence",
+      "appw-commerce-modal-coverage"
+    ],
+    "compact_level": [
+      "review-gate",
+      "wiring-gate",
+      "forge-triple-gate",
+      "session-audit-agent"
+    ],
+    "post_compact": [
+      "feature-cascade-write",
+      "SESSION_ARTIFACTS.json",
+      "checkpoint-ref-verification"
+    ]
+  },
+  "forge_triple": {
+    "hook": "appw-page-sweep-coverage + appw-theme-convergence + appw-commerce-modal-coverage — validates every routed page has a declared theme posture, role expectation, responsive expectation, and purchase-intelligence coverage where sourcing decisions exist.",
+    "action": "purchase_context_compare — unified cost-efficiency, payback, and source-stamped ROI payload for parts, tooling, coolant, machines, machine parts, and fixturing.",
+    "skill": "/page-sweep — live-census route inventory, theme parity, modal coverage, browser-backed verification, and whole-app release truth introduced as a preflight foundation in U-APPW39 and expanded through U-APPW44."
+  },
+  "forge_triple_ownership": {
+    "appw-page-sweep-coverage": {
+      "status": "PLANNED",
+      "built_in": "U-APPW39",
+      "artifact_paths": [
+        ".claude/hooks/lib/appw-page-sweep-coverage.mjs",
+        "mcp-server/web/src/testing/pageSurfaceManifest.ts",
+        "mcp-server/web/src/testing/pageInteractionManifest.ts"
+      ]
+    },
+    "appw-theme-convergence": {
+      "status": "PLANNED",
+      "built_in": "U-APPW40",
+      "artifact_paths": [
+        ".claude/hooks/lib/appw-theme-convergence.mjs",
+        "mcp-server/web/src/components/workspace/PrismSurfaceFrame.tsx",
+        "mcp-server/web/src/components/workspace/PrismDialogFrame.tsx",
+        "mcp-server/web/src/components/workspace/PrismInfoHint.tsx"
+      ]
+    },
+    "appw-commerce-modal-coverage": {
+      "status": "PLANNED",
+      "built_in": "U-APPW41",
+      "artifact_paths": [
+        ".claude/hooks/lib/appw-commerce-modal-coverage.mjs",
+        "mcp-server/web/src/components/commerce/PurchaseIntelligenceModal.tsx",
+        "mcp-server/web/src/utils/purchaseIntelligenceAdapters.ts"
+      ]
+    },
+    "purchase_context_compare": {
+      "status": "PLANNED",
+      "built_in": "U-APPW42",
+      "artifact_paths": [
+        "mcp-server/src/engines/PurchaseContextCompareEngine.ts",
+        "mcp-server/src/tools/dispatchers/businessDispatcher.ts",
+        "mcp-server/src/routes/erp.ts",
+        "mcp-server/web/src/api/purchaseIntelligence.ts",
+        "mcp-server/web/src/api/client.ts"
+      ]
+    },
+    "/page-sweep": {
+      "status": "PLANNED",
+      "built_in": "U-APPW39",
+      "artifact_paths": [
+        "mcp-server/web/playwright.config.ts",
+        ".claude/commands/page-sweep.md",
+        ".claude/helpers/page-sweep.mjs",
+        "mcp-server/web/tests/page-sweep/appRouteSweep.spec.ts",
+        "mcp-server/web/tests/page-sweep/roleAccessMatrix.spec.ts",
+        "mcp-server/web/tests/page-sweep/purchaseIntelligence.spec.ts",
+        "mcp-server/web/tests/page-sweep/responsiveSurface.spec.ts",
+        "mcp-server/web/tests/page-sweep/machineCadSurface.spec.ts",
+        "mcp-server/web/tests/page-sweep/machineWorkspace.spec.ts",
+        "mcp-server/web/tests/page-sweep/customerDocument.spec.ts",
+        "mcp-server/web/tests/page-sweep/employeeContinuity.spec.ts"
+      ]
+    }
+  },
+  "feature_cascade": {
+    "new_hooks": [
+      "appw-page-sweep-coverage",
+      "appw-theme-convergence",
+      "appw-commerce-modal-coverage"
+    ],
+    "new_actions": [
+      "purchase_context_compare"
+    ],
+    "new_skills": [
+      "/page-sweep"
+    ],
+    "available_to": [
+      "APPW follow-on milestones",
+      "frontend-current convergence work",
+      "backend/frontend contract convergence",
+      "QA-MS0",
+      "PROD-GATE-MS0"
+    ],
+    "artifact_paths": {
+      "hooks": [
+        ".claude/hooks/lib/appw-page-sweep-coverage.mjs",
+        ".claude/hooks/lib/appw-theme-convergence.mjs",
+        ".claude/hooks/lib/appw-commerce-modal-coverage.mjs"
+      ],
+      "action": [
+        "mcp-server/src/engines/PurchaseContextCompareEngine.ts",
+        "mcp-server/src/tools/dispatchers/businessDispatcher.ts",
+        "mcp-server/src/routes/erp.ts"
+      ],
+      "skill": [
+        ".claude/commands/page-sweep.md",
+        ".claude/helpers/page-sweep.mjs",
+        "mcp-server/web/tests/page-sweep/appRouteSweep.spec.ts",
+        "mcp-server/web/tests/page-sweep/roleAccessMatrix.spec.ts",
+        "mcp-server/web/tests/page-sweep/purchaseIntelligence.spec.ts",
+        "mcp-server/web/tests/page-sweep/responsiveSurface.spec.ts",
+        "mcp-server/web/tests/page-sweep/machineCadSurface.spec.ts",
+        "mcp-server/web/tests/page-sweep/machineWorkspace.spec.ts",
+        "mcp-server/web/tests/page-sweep/customerDocument.spec.ts",
+        "mcp-server/web/tests/page-sweep/employeeContinuity.spec.ts"
+      ]
+    }
+  },
+  "session_protocol": {
+    "start": [
+      "prism_session:context_boot",
+      "prism_session:dispatcher_map",
+      "prism_session:memory_recall",
+      "prism_session:system_snapshot",
+      "prism_session:action_search"
+    ],
+    "checkpoint_every": 3,
+    "end": [
+      "prism_session:memory_save",
+      "prism_session:system_snapshot",
+      "prism_session:checkpoint_enhanced"
+    ]
+  },
+  "purchase_data_policy": {
+    "directory_data_ttl": "15m",
+    "engine_compare_ttl": "60s",
+    "stale_label_required_after": "15m or when upstream source timestamp is unavailable",
+    "supplier_pricing_truth_rule": "Do not label supplier pricing or supplier lead time as real-time unless a live quote/price ingestion source exists. Directory-backed supplier economics must be labeled directory-backed or unavailable.",
+    "failure_posture": "If baseline cost, observed improvement, volume, or source timestamp is missing, affected payback/annual ROI metrics must be suppressed and returned with unavailable reason codes."
+  },
+  "lane_coordination": {
+    "mode": "finish-current-delivery-first",
+    "codex_scope": "frontend-first manifest, theme, modal, and route sweep ownership",
+    "claude_scope_needed_for_u_appw42": "backend compare-action contract, pricing truth posture, and route wiring review",
+    "rgs_sync_lane": "frontend-current",
+    "handoff_rule": "U-APPW42 cannot close without a published compare-payload contract note and /rgs-sync update confirming backend/frontend convergence posture.",
+    "frontend_merge_rule": "If FMERGE-MS0 confirms two active frontend builds or a pending merged target, U-APPW39 manifest baselines and U-APPW44 authoritative route-sweep evidence must be regenerated against that canonical merged target before closeout. If FMERGE-MS1 is actively changing the canonical target, U-APPW44 cannot close until FMERGE-MS1 completes or publishes an unchanged-target waiver.",
+    "multi_seat_rule": "Execution state must live in TASK_QUEUE, AGENT_WORKBOARD, and /rgs-sync notes rather than terminal-local chat memory so additional Claude or Codex seats can resume any exposed task."
+  },
+  "task_system_integration": {
+    "required": true,
+    "queue": "H:/PRISM/state/shared/TASK_QUEUE.json",
+    "queue_markdown": "H:/PRISM/state/shared/TASK_QUEUE.md",
+    "rule": "Every APPW-MS8 execution unit and the FMERGE merge-decision blocker must exist in the shared task queue before implementation starts so any terminal can discover or resume work through canonical task state.",
+    "multi_seat_posture": "Use queue tasks as the canonical pickup surface across Codex, Claude, and added seats. Keep preferred executor notes, but do not rely on chat-local continuity."
+  },
+  "product_sweep_2026_04_10": {
+    "source_artifact": "H:/PRISM/state/shared/APPW-MS8-FRONTEND-PRODUCT-SWEEP-2026-04-10.md",
+    "critical_findings": [
+      "Browser-backed release tooling is still planned-but-missing; /page-sweep, Playwright config, and manifest files must be built before APPW closeout claims are trustworthy.",
+      "Shared machine CAD and print-to-program capability is still calculator-owned rather than routed; the calculator/workbench donor surface now exists, but lathe, wire, and print-to-CNC pages still need the extracted workspace contract.",
+      "Commercial, sourcing, inventory, and ROI routes still under-disclose source freshness, provenance, and unavailable-state posture compared with calculator-grade surfaces.",
+      "Critical employee/mobile flows still allow live-fallback posture and kiosk-first interaction where phone-first operator loops should fail closed.",
+      "Viewer, backplot, and simulation surfaces still retain demo or placeholder escape hatches that are not acceptable as release truth."
+    ],
+    "recovered_progress": [
+      "CalculatorPage and CalculatorProgramWorkbench now expose a calculator-owned donor workspace for lathe, wire EDM, and sinker EDM electrode flows, so the machine-workspace donor surface for U-APPW41 is no longer hypothetical.",
+      "src/routes/cam.ts mounts POST /api/v1/cam/auto-print-to-program and CalculatorPage.autoProgramming.test.ts exercises lathe, wire EDM, and sinker EDM electrode packet flows, moving the machine-workspace and electrode-bridge slice into active implementation.",
+      "CalculatorPage, ProgramReleasePage, and ShopProfilePage already carry machine, holder, or programming-adjacent state, and ProgramReleasePage, Toolpath Advisor, and Shop Profile now share the extracted selectorAuthorityContract for machine/material/holder/tooling/stock posture while routed machine surfaces and calculator compatibility layers continue converging on the same contract.",
+      "MachineWorkspaceState.ts, MachineIntakeNormalizer.ts, and MachineWorkspaceShell.tsx now exist, and the routed lathe and wire upload pages mount the shared donor workspace while the permanent routed contract is extracted.",
+      "JM Die is now the canonical APPW seed shop, so Shop Profile, Program Release, routed machine workspaces, employee continuity, and print/program surfaces must converge on JM Die-backed master data rather than generic demo org assumptions.",
+      "JM Die selector seeds now project through src/utils/jmDieSelectorCatalog.ts into both Program Release and Calculator holder authority, with calculatorToolHolderCatalog.ts and calculatorHolderLibrary.ts sharing the same th-jmd-* holder IDs for VDI baseline, CAPTO live-tool, and System 3R ER-32 electrode flows.",
+      "web/src/features/machine-workspace/selectorAuthorityContract.ts now centralizes Program Release route parsing, canonical selector normalization, and Toolpath Advisor machine/material authority derived from the shared Program Release catalog, and both pages surface the shared JM Die-backed release spine instead of maintaining separate local selector heuristics.",
+      "web/src/utils/jmDieCalculatorRouteAuthority.ts now gives CalculatorPage the same canonical JM Die release/toolpath selector packet shape used elsewhere, so calculator handoffs into Print to CNC and supported Toolpath Advisor flows stop using calculator-only machine and part-class heuristics while wire EDM stays fail-closed for unsupported routed toolpath posture."
+    ],
+    "twenty_agent_scrutiny_artifact": "H:/PRISM/state/shared/FMERGE-APP-20-ROLE-SCRUTINY-2026-04-10.md"
+  },
+  "minimum_release_gate": {
+    "browser_harness_required": [
+      "mcp-server/web/playwright.config.ts",
+      ".claude/commands/page-sweep.md",
+      ".claude/helpers/page-sweep.mjs",
+      "mcp-server/web/tests/page-sweep",
+      "mcp-server/web/src/testing/pageSurfaceManifest.ts",
+      "mcp-server/web/src/testing/pageInteractionManifest.ts",
+      "mcp-server/web/src/testing/machineCadSurfaceManifest.ts"
+    ],
+    "execution_surface_gate": "The app may not claim route-complete or browser-complete verification until /page-sweep, the browser manifests, and the surviving route/page census are materialized on disk and wired into the shared command bridge.",
+    "route_role_responsive_e2e": "All routed pages in the live-generated canonical route/page census must be exercised in a browser-backed suite for shop_floor, lead, hr_manager, and admin on desktop and 768px mobile.",
+    "machine_workspace_e2e": "Calculator, mill, 5-axis, mill-turn, lathe, wire EDM, and print-to-CNC flows must cover print/CAD upload, 2D/3D review, feature edit, avoid/fill, offsets, draw-from-scratch, and selector-backed programming decisions.",
+    "selector_authority_gate": "Machine, material, tooling, holder, workholding, CAM/toolpath, and post/programming choices must resolve through one canonical authority contract anywhere the backend already publishes canonical data.",
+    "api_contract_gate": "Auth, ERP, customer/document, CAD, CAM, turning, EDM, viewer, purchasing, analytics, and machine-live routes must be covered for success, denial, schema drift, timeout/retry, and stale/unavailable behavior.",
+    "engine_regression_gate": "At least 200 canonical manufacturing scenarios must be engine-backed across mill, 5-axis, lathe, mill-turn/live-tool, swiss, and wire EDM with safety and output-validity assertions.",
+    "continuity_gate": "At least 20 browser-backed ERP/employee/customer flows must cover login, clock, punch, pause/resume, release, purchasing, document access, portal access, inventory, and message continuity.",
+    "benchmark_truth_gate": "Prism Auto and benchmark outputs must be validated against internal reference fixtures and competitor/baseline comparisons before APPW closeout can claim optimized real-world readiness."
+  },
+  "roadmap_dependency_posture": {
+    "hard_blockers": [
+      "APPW-MS7",
+      "FMERGE-MS0"
+    ],
+    "closeout_blockers": [
+      "FMERGE-MS1 if merge execution is still mutating the canonical frontend target before U-APPW44 close",
+      "Mounted doc-route parity or explicit unavailable posture before U-APPW42A closeout",
+      "Live viewer/backplot contract publication before U-APPW43A closeout",
+      "/page-sweep command, browser manifests, and page-sweep specs on disk before U-APPW44 closeout",
+      "FMERGE-MS2 only for old-frontend deprecation claims; not required to start APPW-MS8 implementation"
+    ],
+    "contract_blockers": [
+      "MCAT machine package/profile payload publication",
+      "FMERGE canonical merged frontend target selection"
+    ],
+    "downstream_validation_consumers": [
+      "QA-MS0",
+      "PROD-GATE-MS0"
+    ],
+    "contract_enforcement": "U-APPW42 and U-APPW43 may not close machine-side compare or machine-economics entry points unless MCAT publication is verified or affected machine metrics remain explicitly unavailable by contract.",
+    "task_queue_enforcement": "APPW-MS8 implementation is not considered active unless the corresponding queue tasks exist and the merge-decision blocker is represented in TASK_QUEUE."
+  },
+  "console_policy": {
+    "denylist": [
+      "console.error",
+      "Unhandled promise rejection",
+      "Route render exception",
+      "Unexpected network exception"
+    ],
+    "allowlist_rule": "Only pre-documented third-party warnings in the route manifest may remain during closeout."
+  },
+  "milestone_abort_triggers": [
+    "Queue, roadmap-index, milestone envelope, CURRENT_POSITION, or ROADMAP_COLLABORATION_STATE drift from one another without an immediate synchronization pass.",
+    "Route/page census drifts from the live-generated App.tsx manifest without immediate manifest and browser-harness regeneration.",
+    "A second active frontend build or merged-target decision is identified without rebasing the route manifest and authoritative final sweep onto that canonical target.",
+    "Any routed machine workflow still depends on calculator-only CAD ownership near closeout.",
+    "Browser-backed route/test harness artifacts are still missing when APPW-MS8 approaches closeout.",
+    "Any critical auth, employee/mobile, viewer, customer, or document route still defaults to live-fallback, demo, or in-memory-only posture near closeout.",
+    "Any machine/toolpath/programming selector remains free-text or locally curated where canonical registry-backed data already exists.",
+    "Any sinker EDM electrode flow implies live trilobe macro execution or legacy Roku-Roku archive mining before the dedicated bridge indexes and validates the JM Die archive at H:\\PRISM\\JM DIE\\ROKU-ROKU.",
+    "Analytics/reporting or calculation truth still relies on placeholder/demo payloads or advisory-only benchmark language after U-APPW43B.",
+    "Named restore refs are not created and verified before any unit that requires rollback anchors begins."
+  ],
+  "final_exit_gate": {
+    "measurable_criteria": [
+      "The route manifest and browser harness derive their route/page census from live App.tsx and stay synchronized with the canonical frontend target.",
+      "The canonical frontend target and donor survivor/remap/waive ledger are explicitly published through FMERGE before APPW closeout.",
+      "Playwright-backed route, role, responsive, transactional, and machine-workspace manifests exist and are the authoritative route sweep evidence at closeout.",
+      "Queue truth, roadmap truth, and recovery truth agree for APPW and FMERGE across milestone envelopes, roadmap-index, TASK_QUEUE, CURRENT_POSITION, HANDOFF, and ROADMAP_COLLABORATION_STATE.",
+      "No routed machine page that requires CAD/feature editing remains calculator-only or wizard-shell-only.",
+      "Machine intake, selector authority, programming/toolpath authority, and post/programming flows are registry-backed or explicitly unavailable by contract.",
+      "Sinker EDM electrode flows expose draft-NC, macro-ready packet, and pending reference/archive states honestly, with live trilobe/reference bridges only when the adapters and the JM Die Roku-Roku archive at H:\\PRISM\\JM DIE\\ROKU-ROKU are actually indexed and available.",
+      "Commerce, vendor, PO, customer, document, employee/mobile, viewer/backplot, analytics, and reporting surfaces all render through live or honestly unavailable contracts with no silent demo fallback.",
+      "APPW closeout does not claim unified orchestrator app integration until /api/orchestrate/*, prism_orchestrate:unified_execute, and useUnifiedOrchestrator() exist on disk and are consumed by live pages.",
+      "All declared transactional flows in the interaction manifest pass at closeout.",
+      "Benchmark/competitor/default evidence exists for Prism Auto and declared optimized outputs before production-readiness claims are made."
+    ],
+    "omega_floor": 0.9,
+    "svi_delta": "+4.8%"
+  },
+  "phases": [
+    {
+      "id": "APPW-MS8-P0",
+      "title": "Execution Surfaces, Theme Contract, and Shared Machine Workspace",
+      "description": "Materialize the missing execution surfaces, extract the calculator visual contract into shared primitives, and normalize machine intake plus routed CAD workspace activation so APPW can execute against one canonical browser-truth surface.",
+      "sessions": "4",
+      "primary_role": "R2",
+      "primary_model": "opus-4.6",
+      "smart_config": {
+        "role": "Frontend Systems Architect + Commerce UX Engineer",
+        "model": "opus",
+        "effort": "MAX",
+        "context_budget": "45%"
+      },
+      "skills": [
+        "/checkpoint",
+        "/scope",
+        "/prism-review",
+        "/navigate"
+      ],
+      "plugins": [
+        "Vitest MCP",
+        "ESLint MCP",
+        "codebase-memory-mcp"
+      ],
+      "phase_closeout_actions": [
+        "prism_dev:build",
+        "prism_dev:test_smoke",
+        "auto_wiring_analyze",
+        "prism_dev:svi_compute",
+        "prism_dev:svi_read"
+      ],
+      "mcp_lifecycle": {
+        "start": [
+          "prism_session:context_boot",
+          "prism_session:dispatcher_map",
+          "prism_session:memory_recall",
+          "prism_session:system_snapshot",
+          "prism_session:action_search"
+        ],
+        "during": [
+          "prism_session:auto_checkpoint",
+          "prism_session:action_search",
+          "prism_session:tool_route_best",
+          "prism_session:wip_capture"
+        ],
+        "end": [
+          "prism_session:memory_save",
+          "prism_session:system_snapshot",
+          "prism_session:checkpoint_enhanced"
+        ]
+      },
+      "knowledge_sources": {
+        "engines": [
+          "ActualCostEngine (443 LOC)",
+          "ToolROIEngine (593 LOC)",
+          "ROIAdvisorEngine (175 LOC)",
+          "PurchasingDirectoryEngine (186 LOC)",
+          "JobProfitabilityWaterfallEngine (474 LOC)",
+          "MachineProfileEngine (519 LOC)"
+        ],
+        "reference": [
+          "web/src/App.tsx (live route/page census source for the canonical frontend)",
+          "web/src/components/shell/shellCatalog.ts (419 LOC)",
+          "web/src/pages/CalculatorPage.tsx (13339 LOC)",
+          "web/src/components/workspace/WorkspacePrimitives.tsx (192 LOC)",
+          "web/src/components/shell/PurchaseRecommendationModal.tsx (288 LOC)",
+          "web/src/components/calculator/CalculatorSectionPurchaseModal.tsx (164 LOC)",
+          "web/src/utils/calculatorPurchaseRecommendations.ts (776 LOC)",
+          "web/src/index.css (3863 LOC)"
+        ],
+        "patterns": [
+          "WorkspaceHero + PanelCard + SummaryTile workspace shell",
+          "calculator guide rails and attention/complete LED state transitions",
+          "question-mark info hint replacement for dense explanatory copy",
+          "shell + calculator commerce modal convergence",
+          "calculator feature editor, lathe sketch, and wire contour picker/3D viewer become shared machine-page CAD donors",
+          "routed machine CAD workspace with print/CAD upload, 2D/3D toggle, feature selection/editing, avoid/fill, offsets, and draw-from-scratch",
+          "selector/programming/toolpath authority must be canonical across calculator, lathe, wire, print-to-CNC, and future mill-class pages",
+          "queue-derived milestone truth and live browser/page-sweep truth are release gates, not commentary"
+        ],
+        "tribal_knowledge": [
+          "TribalKnowledgeEngine — preserve operator-facing clarity when replacing prose with info hints.",
+          "MachiningPlaybookEngine — do not move ROI arithmetic into UI copy when engines already exist."
+        ],
+        "registries": [
+          "MachineRegistry / machine profile payloads",
+          "Tool catalog and holder/workholding catalog surfaces already wired in calculator data routes"
+        ],
+        "formulas": [
+          "theme_coverage_ratio = migrated_routed_pages / total_routed_pages",
+          "interaction_coverage_ratio = verified_required_controls / declared_required_controls"
+        ],
+        "baseline": [
+          "Route/page census is derived from live App.tsx and regenerated as part of /page-sweep; do not hardcode counts in the milestone contract.",
+          "The canonical frontend target is H:/PRISM/mcp-server/web; H:/PRISM/web is donor-only for selective FMERGE review.",
+          "FMERGE donor harvest decisions and TASK_QUEUE truth must stay synchronized with APPW envelope states.",
+          "Machine-page CAD functionality already exists in calculator-owned donors and must be promoted into routed machine workspaces."
+        ]
+      },
+      "intent": "A user can move from calculator into any major workspace and feel the same PRISM visual language, the same guided borders, the same dialog treatment, the same buying-intelligence posture, and the same shared CAD workspace expectations on machine-facing pages instead of bouncing between disconnected page styles.",
+      "units": [
+        {
+          "role": "R2",
+          "role_name": "Builder",
+          "model": "opus-4.6",
+          "omega_floor": 0.9,
+          "id": "U-APPW39",
+          "title": "Execution Surface Materialization + /page-sweep Preflight + Coordination Sync",
+          "phase": "APPW-MS8-P0",
+          "sequence": 1,
+          "status": "in_progress",
+          "description": "Materialize the /page-sweep command surface, browser manifests, and route/page audit truth, then synchronize APPW/FMERGE status across the milestone envelopes, roadmap-index, TASK_QUEUE, CURRENT_POSITION, HANDOFF, and roadmap collaboration state.",
+          "files_created": [
+            ".claude/hooks/lib/appw-page-sweep-coverage.mjs",
+            ".claude/commands/page-sweep.md",
+            "web/playwright.config.ts",
+            "web/src/testing/pageSurfaceManifest.ts",
+            "web/src/testing/pageInteractionManifest.ts",
+            "web/src/testing/machineCadSurfaceManifest.ts",
+            "web/src/__tests__/pageSurfaceManifest.test.ts",
+            "web/tests/page-sweep/appRouteSweep.spec.ts",
+            "web/tests/page-sweep/roleAccessMatrix.spec.ts",
+            "web/tests/page-sweep/responsiveSurface.spec.ts"
+          ],
+          "files_modified": [
+            "web/src/App.tsx",
+            "web/src/components/ProtectedRoute.tsx",
+            "web/src/components/shell/shellCatalog.ts",
+            "state/CURRENT_POSITION.md",
+            "state/HANDOFF.md",
+            "state/shared/TASK_QUEUE.json"
+          ],
+          "exit_criteria": [
+            "The /page-sweep command, Playwright config, and browser manifests exist on disk and are referenced by the command bridge.",
+            "The route/page census is live-generated from App.tsx and linked to per-route interaction and machine-workspace expectations.",
+            "Queue, roadmap-index, CURRENT_POSITION, HANDOFF, and collaboration state are synchronized for APPW/FMERGE before the unit closes.",
+            "Manifest tests fail when a new route lacks route-surface, role, or machine-workspace coverage metadata."
+          ],
+          "abort_criteria": [
+            "Any route census or queue status is still manually implied instead of generated or synchronized.",
+            "APPW continues to reference missing execution surfaces as if they already exist."
+          ],
+          "rollback": "git restore --source MS8-UAPPW39-base --worktree --staged web/src/App.tsx web/src/components/ProtectedRoute.tsx web/src/components/shell/shellCatalog.ts state/CURRENT_POSITION.md state/HANDOFF.md state/shared/TASK_QUEUE.json",
+          "rollback_prerequisite": "Create and verify restore ref MS8-UAPPW39-base before first edit.",
+          "four_loop": "BUILD (materialize /page-sweep, manifests, and sync surfaces) -> SCRUTINIZE (diff route census and queue truth) -> GAP FILL (cover missing route, role, or machine-workspace metadata) -> TIE UP (manifest tests + build + sync)",
+          "svi_delta": "+0.6%",
+          "depends_on": [],
+          "tests": [
+            "Live route/page census derives from App.tsx and stays synchronized with the manifests.",
+            "Machine-workspace annex exists for calculator, print-to-CNC, lathe, wire EDM, and future mill-class routed pages.",
+            "Recovery docs and queue truth agree on APPW/FMERGE status after the patch."
+          ],
+          "mcp_actions": [
+            "capability_census",
+            "capability_census_report",
+            "effectiveness_validate",
+            "prism_dev:build",
+            "prism_dev:test_smoke",
+            "auto_wiring_analyze"
+          ]
+        },
+        {
+          "role": "R2",
+          "role_name": "Builder",
+          "model": "opus-4.6",
+          "omega_floor": 0.9,
+          "id": "U-APPW40",
+          "title": "Calculator Design Contract + Shell Surface Extraction",
+          "phase": "APPW-MS8-P0",
+          "sequence": 2,
+          "status": "not_started",
+          "description": "Extract the calculator design contract into shared shell and workspace primitives so the app can share one LED-border, guided-hint, and dialog frame system instead of page-local forks.",
+          "files_created": [
+            ".claude/hooks/lib/appw-theme-convergence.mjs",
+            "web/src/components/workspace/PrismSurfaceFrame.tsx",
+            "web/src/components/workspace/PrismDialogFrame.tsx",
+            "web/src/components/workspace/PrismInfoHint.tsx"
+          ],
+          "files_modified": [
+            "web/src/components/workspace/WorkspacePrimitives.tsx",
+            "web/src/index.css",
+            "web/src/components/shell"
+          ],
+          "exit_criteria": [
+            "Shared primitives render calculator-style borders, LED sweeps, guided attention/complete states, and hover/focus info hints.",
+            "Shell surfaces, title cards, and dialog frames can render exclusively through the extracted primitives.",
+            "Calculator-only CSS forks are on a documented retirement path and new page-local clones are blocked."
+          ],
+          "abort_criteria": [
+            "Theme extraction requires copying large CalculatorPage-only blocks into shell pages.",
+            "New page-local primitive forks are introduced where shared primitives exist."
+          ],
+          "rollback": "git restore --source MS8-UAPPW40-base --worktree --staged web/src/components/workspace/WorkspacePrimitives.tsx web/src/index.css",
+          "rollback_prerequisite": "Create and verify restore ref MS8-UAPPW40-base before first edit.",
+          "four_loop": "BUILD (extract shared primitives) -> SCRUTINIZE (prove shell and calculator share the same contract) -> GAP FILL (mobile/reduced-motion states) -> TIE UP (component tests + build)",
+          "svi_delta": "+0.8%",
+          "depends_on": [
+            "U-APPW39"
+          ],
+          "tests": [
+            "PrismSurfaceFrame renders attention and completion states outside CalculatorPage.",
+            "Info-hint bubbles open on hover and keyboard focus with no layout overflow.",
+            "Shell surfaces and calculator sections share the same primitive contract."
+          ],
+          "mcp_actions": [
+            "prism_dev:build",
+            "prism_dev:test_smoke"
+          ]
+        },
+        {
+          "role": "R2",
+          "role_name": "Builder",
+          "model": "opus-4.6",
+          "omega_floor": 0.9,
+          "id": "U-APPW41",
+          "title": "Machine Intake Contract Normalization + Shared Routed Machine Workspace",
+          "phase": "APPW-MS8-P0",
+          "sequence": 3,
+          "status": "in_progress",
+          "description": "Normalize lathe, wire, sinker EDM electrode, print-to-CNC, and future mill-class intake payloads into one machine intake contract and promote the calculator-owned CAD/feature-edit stack into routed machine workspaces with upload, 2D/3D, feature edit, avoid/fill, offsets, draw-from-scratch, and electrode packet handoff.",
+          "notes": "Recovered progress from the 2026-04-10 H: drive snapshot: CalculatorPage and CalculatorProgramWorkbench already run calculator-owned lathe, wire EDM, and sinker EDM electrode intake/programming flows, including donor 2D/3D review behavior and sinker-specific packet staging. As of the first APPW41 implementation slice, MachineWorkspaceState.ts, MachineIntakeNormalizer.ts, and MachineWorkspaceShell.tsx exist and the routed lathe and wire upload pages now mount the shared donor surface. Remaining work is to extract the full routed contract into release and downstream machine pages instead of leaving the deepest experience calculator-local. JM Die machine, controller, holder, tooling, material, and print assets are the baseline seed for this routed contract.",
+          "files_created": [
+            "web/src/features/machine-workspace/MachineWorkspaceState.ts",
+            "web/src/features/machine-workspace/MachineIntakeNormalizer.ts",
+            "web/src/features/machine-workspace/MachineWorkspaceShell.tsx",
+            "web/src/features/machine-workspace/__tests__/machineIntakeNormalizer.test.ts"
+          ],
+          "files_modified": [
+            "web/src/pages/CalculatorPage.tsx",
+            "web/src/pages/LatheUploadPage.tsx",
+            "web/src/pages/LatheWizardPage.tsx",
+            "web/src/pages/WireEdmUploadPage.tsx",
+            "web/src/pages/WireEdmWizardPage.tsx",
+            "web/src/pages/ProgramReleasePage.tsx",
+            "web/src/components/calculator",
+            "src/routes/cam.ts"
+          ],
+          "exit_criteria": [
+            "Lathe, wire EDM, sinker EDM electrode, print-to-CNC, and routed mill-class pages share one intake contract for OCR, geometry, dimensions, material, and feature state.",
+            "Shared machine workspace can render upload/review, 2D/3D, feature selection/editing, avoid/fill, offsets, and draw-from-scratch across routed pages.",
+            "Sinker EDM electrode intake supports scan/print/CAD upload, holder-stack and burn-package feature toggles, spark-gap and wear inputs, and a parseable-source lane that can draft Roku-Roku electrode NC while preserving macro-ready fallback output.",
+            "Roku-Roku HC 658II, System 3R ER-32, H:\\Automated Program_Corrected 5-25.xlsm, and H:\\PRISM\\JM DIE\\ROKU-ROKU reference-path metadata survive the shared workspace handoff instead of staying calculator-local.",
+            "Trilobe macro and legacy-program handling are explicit: the workspace either invokes a live macro/reference bridge or surfaces handoff-only/pending truth until the JM Die Roku-Roku archive at H:\\PRISM\\JM DIE\\ROKU-ROKU is indexed.",
+            "Calculator-owned CAD donors are promoted into reusable machine-workspace surfaces instead of remaining page-local."
+          ],
+          "abort_criteria": [
+            "Machine pages still carry incompatible payload shapes after the unit closes.",
+            "Routed machine pages still depend on calculator-only state to render CAD/feature editing.",
+            "Sinker EDM electrode flow implies live trilobe/reference automation before the JM Die Roku-Roku archive at H:\\PRISM\\JM DIE\\ROKU-ROKU is indexed."
+          ],
+          "rollback": "git restore --source MS8-UAPPW41-base --worktree --staged web/src/pages/CalculatorPage.tsx web/src/pages/LatheUploadPage.tsx web/src/pages/LatheWizardPage.tsx web/src/pages/WireEdmUploadPage.tsx web/src/pages/WireEdmWizardPage.tsx web/src/pages/ProgramReleasePage.tsx",
+          "rollback_prerequisite": "Create and verify restore ref MS8-UAPPW41-base before first edit.",
+          "four_loop": "BUILD (normalize intake and promote shared workspace) -> SCRUTINIZE (trace every routed machine path through the shared contract) -> GAP FILL (add missing feature/edit/offset/2D-3D states) -> TIE UP (workspace tests + build)",
+          "svi_delta": "+0.9%",
+          "depends_on": [
+            "U-APPW40"
+          ],
+          "tests": [
+            "Lathe, wire, sinker EDM electrode, and print-to-CNC all normalize onto the same machine intake shape.",
+            "Shared machine workspace supports 2D/3D, feature editing, avoid/fill, offsets, and draw-from-scratch on routed pages.",
+            "Sinker EDM electrode flow accepts DXF/IGES/text plus reference prints, emits draft NC or macro-ready packets, and keeps trilobe macro plus Roku-Roku legacy reference notes attached.",
+            "Until H:\\PRISM\\JM DIE\\ROKU-ROKU is indexed, sinker EDM electrode flows surface an explicit handoff-only or pending reference state instead of silently implying legacy mining is active.",
+            "Routed machine pages no longer depend on calculator-only state for CAD surfaces."
+          ],
+          "mcp_actions": [
+            "auto_wiring_analyze",
+            "prism_dev:build",
+            "prism_dev:test_smoke"
+          ],
+          "mobile": {
+            "breakpoint": "768px",
+            "layout": "single-column machine workspace with sticky review controls and no horizontal scroll"
+          }
+        },
+        {
+          "role": "R2",
+          "role_name": "Builder",
+          "model": "opus-4.6",
+          "omega_floor": 0.9,
+          "id": "U-APPW41A",
+          "title": "Canonical Selector Authority + Programming/Toolpath Registry Activation",
+          "phase": "APPW-MS8-P0",
+          "sequence": 4,
+          "status": "in_progress",
+          "description": "Converge machine, material, tooling, holder, workholding, CAM/toolpath, programming, and electrode-package selections onto one canonical authority contract across calculator, routed machine pages, Toolpath Advisor, Program Release, and Shop Profile.",
+          "notes": "Partial overlap exists out of order: CalculatorPage already fetches programming and holder catalog state, ProgramReleasePage carries routed machine/toolholder selection state, and ShopProfilePage owns machine inventory and preference data. The current JM Die convergence slice now projects shared th-jmd-* holder seeds from src/utils/jmDieSelectorCatalog.ts into both Program Release and Calculator through src/utils/calculatorToolHolderCatalog.ts plus the mirrored fallback IDs in web/src/data/calculatorHolderLibrary.ts, and CalculatorPage now defaults VDI single-turret, wire EDM process-package, and sinker electrode flows onto that same calculator-side authority posture. The first shared selectorAuthorityContract is now extracted in web/src/features/machine-workspace/selectorAuthorityContract.ts and actively consumed by ProgramReleasePage plus ToolpathAdvisorPage so route parsing, selector normalization, and machine/material release-spine recommendations stop diverging between those surfaces. Routed lathe and wire upload pages now also derive their shared machine-workspace posture from the same JM Die-backed authority layer, and ShopProfilePage now surfaces the canonical machine/controller registry plus selector seed summaries through a shared web API helper instead of keeping that backend truth hidden. Calculator holder-source messaging now distinguishes when JM Die canonical holder seeds are the active fallback or hybrid posture, reducing one more calculator-specific selector divergence while the broader programming/toolpath contract is still converging. Programming catalog authority is now explicit state instead of note-string sniffing: web/src/utils/jmDieCalculatorProgrammingAuthority.ts stamps badge, summary, posture, and note metadata onto calculatorData programming catalog loads, and CalculatorPage now renders curated or fallback programming posture from that contract so JM Die seeded modes keep their company-specific spine visible even when the backend returns advisory curated packages. The deeper calculator-side toolpath normalization seam is now also extracted into web/src/features/machine-workspace/programmingAuthorityContract.ts, with CalculatorPage public helper exports delegating to that shared contract so routed workspaces and calculator-side tests stop depending on page-local toolpath/license normalization. The parked legacy CalculatorPage normalization block has now been removed, and the heavy calculator coverage suites (matrix, scenario, surface-finish, toolpath-universe, and catalog coverage) now import those programming/toolpath helpers directly from the shared contract instead of from CalculatorPage. A focused web/src/__tests__/programmingAuthorityContract.test.ts suite now protects the direct contract while the broader calculatorData, CalculatorPage, and matrix-style suites validate the calculator-facing compatibility layer. During this same slice, the calculator verification path was reopened by repairing the exFAT-corrupted web/src/data/calculatorProgrammingCatalogSupplements.ts and web/src/utils/calculatorPurchaseRecommendations.ts files and re-exporting the missing shared programming supplement symbols from src/shared/calculatorProgrammingCatalogExtensions.ts, which allowed calculatorData plus CalculatorPage.machineSelection suites to execute again. The latest JM Die route/release convergence step adds web/src/features/machine-workspace/routeProgrammingAuthority.ts so routed machine workspaces and ProgramReleasePage can infer machine-mode programming posture, canonical JM Die seed packages, and default license/toolpath context from the same programming catalog authority seam instead of silently falling back to local page assumptions. MachineWorkspaceState, MachineIntakeNormalizer, MachineWorkspaceShell, LatheUploadPage, WireEdmUploadPage, and ProgramReleasePage now carry or surface that structured programming posture, the focused routeProgrammingAuthority and routeMachineWorkspaceAuthority suites are green, and the full ProgramReleasePage suite is green again after stabilizing fetch isolation for the new programming-authority network path. ToolpathAdvisorPage now also resolves and renders that same shared programming posture from its selected machine axis and release spine instead of staying selector-only, and ShopProfilePage now summarizes JM Die programming authority across mill, lathe, wire EDM, and sinker EDM slices so the canonical company profile exposes programming readiness alongside machine/controller and selector resource truth. Focused ToolpathAdvisorPage and ShopProfilePage suites are now green for this profile/programming convergence step. LatheUploadPage and WireEdmUploadPage now carry the resolved MachineWorkspaceContext forward into LatheWizardPage and WireEdmWizardPage, and the shared web/src/features/machine-workspace/MachineWorkspaceAuthorityCard.tsx keeps the same JM Die machine, controller, selector, and programming posture visible across those wizard surfaces instead of dropping back to a disconnected flow. Focused LatheWizardPage and WireEdmWizardPage suites are green, and the touched upload and wizard pages bundle cleanly for this routed-wizard convergence step. That same routed authority now survives the results handoff too: LatheWizardPage and WireEdmWizardPage submit MachineWorkspaceContext into LatheResultsPage and WireEdmResultsPage, both results surfaces render the shared authority card, and the edit-and-rerun path now preserves the JM Die machine/controller/programming spine back into the wizard route instead of dropping it during results navigation. Focused LatheResultsPage and WireEdmResultsPage suites are green, and the touched results pages bundle cleanly for this routed-results convergence step. SetupSheetPage now joins that same routed authority spine: it hydrates G-code, machine, controller, and part defaults from routed machine workspace context, surfaces the shared JM Die authority card plus controller-mapping note, and lathe and wire results now carry a live handoff into /setup-sheet so downstream setup generation stops resetting to generic page-local assumptions. Focused SetupSheetPage, LatheResultsPage, and WireEdmResultsPage suites are green for that setup-sheet convergence slice, and the touched setup/results pages bundle cleanly. ProveOutWorkflowPage now joins the same downstream spine too: it hydrates routed G-code, controller, part, and machine defaults from MachineWorkspaceContext, renders the shared JM Die authority card plus prove-out controller-mapping note, carries routed machine context into prove-out and air-cut API calls, and lathe plus wire results now offer live handoff into /prove-out so first-article prove-out stops drifting back to a standalone utility posture. Focused ProveOutWorkflowPage, LatheResultsPage, and WireEdmResultsPage suites are green for that prove-out convergence slice, and the touched prove-out/results pages bundle cleanly. ToolOptimizationPage now joins that same routed authority spine with honest scope boundaries: it hydrates routed JM Die authority, accepts lathe-seeded operation and tool rows from the results surface for sequence optimization, and keeps wire EDM fail-closed with an explicit unsupported posture instead of pretending carousel or tool-change optimization applies there. Focused ToolOptimizationPage, LatheResultsPage, and WireEdmResultsPage suites are green for that routed tool-optimization slice, and the touched tool-optimization/results pages bundle cleanly. PostProcessorGeneratorPage now joins that routed authority spine too: it hydrates routed JM Die machine/controller/programming posture directly from MachineWorkspaceContext, seeds the lathe path into the post-generation desk with turning defaults and packet continuity, and keeps wire EDM fail-closed with an explicit unsupported posture instead of pretending EDM routes already share the mill/turn post contract. Focused PostProcessorGeneratorPage, LatheResultsPage, and WireEdmResultsPage suites are green for that routed post-generation slice, and the touched PPG/results pages bundle cleanly. OptimizationReportPage, CycleTimePage, and FeatureTogglePage now join that same routed authority spine: each utility hydrates routed JM Die machine/controller/material posture directly from MachineWorkspaceContext, renders the shared authority card, normalizes routed controller or ISO values into the live engine catalogs, and keeps the richer machine/material payload intact for downstream optimization, cycle-time, and feature-selection calls instead of resetting to generic page-local defaults. Focused OptimizationReportPage, CycleTimePage, and FeatureTogglePage suites are green for that routed utility convergence slice, and the touched utility pages bundle cleanly. LatheResultsPage and WireEdmResultsPage now also hand users directly into /optimize, /cycle-time, and /features with the routed JM Die state packet intact, so those downstream utilities are reachable as part of the same authority spine instead of relying on manual navigation or re-entry. Focused LatheResultsPage, WireEdmResultsPage, OptimizationReportPage, CycleTimePage, and FeatureTogglePage suites are green for that routed utility-handoff slice, and the touched results pages bundle cleanly. LatheResultsPage and WireEdmResultsPage now also hand users directly into /print-to-cnc with routed JM Die release packets, explicit source labels, focus packet ids, and canonical selector hints, while ProgramReleasePage plus its fixture catalog now recognize lathe-results and wire-edm-results continuity sources and the Sodick ALN600G wire EDM release posture. Focused LatheResultsPage, WireEdmResultsPage, and ProgramReleasePage suites are green for that routed release-handoff slice, and the touched results/release pages bundle cleanly. Toolpath Advisor now consumes the same routed release packet directly for supported postures instead of re-deriving a generic machine/material pair: web/src/features/machine-workspace/selectorAuthorityContract.ts now resolves exact toolpath route authority from Program Release selectors, ProgramReleasePage now offers an Open Toolpath Advisor handoff only when the current release spine is supported, and ToolpathAdvisorPage now hydrates exact axis/material/release context from that routed packet while keeping EDM routes explicitly fail-closed with a clear unsupported notice. Focused selectorAuthorityContract, ToolpathAdvisorPage, and ProgramReleasePage suites are green for that routed toolpath convergence slice, and the touched toolpath/release pages bundle cleanly. ShopProfilePage now turns each JM Die programming authority card into a real continuity launch surface too: mill and lathe cards deep-link into Print to CNC plus Toolpath Advisor with canonical routed selectors, wire EDM offers Print to CNC while keeping Toolpath Advisor fail-closed, and sinker EDM stays explicit about its pending routed-release contract until a canonical sinker machine row lands in the shared release catalog. The focused ShopProfilePage suite is green for this company-profile launch slice, and the touched profile page bundles cleanly. CalculatorPage now also consumes web/src/utils/jmDieCalculatorRouteAuthority.ts so its release and supported toolpath handoffs emit the same canonical JM Die route packet shape used elsewhere instead of calculator-only machine and part-class heuristics. Print to CNC continuity now carries canonical machine family, manufacturer, toolholder, tooling, fixture, stock, and CAD-source hints from Calculator, supported Toolpath Advisor launch posture is surfaced directly in the side-panel workflow actions, and unsupported routed EDM toolpath posture stays fail-closed with an explicit note instead of a dead-end launch. Focused web/src/__tests__/jmDieCalculatorRouteAuthority.test.ts plus web/src/__tests__/CalculatorPage.routeContinuity.test.tsx are green for that calculator release/toolpath convergence step. CalculatorPage now also stages Post Processor Generator through web/src/utils/jmDieCalculatorPostWorkflowState.ts so lathe and EDM post workflow continuity carry the same routed JM Die machine/controller/programming authority packet into /ppg instead of generic calculator-only extras. Lathe calculator post routing now seeds the post desk with the active JM Die authority context, while routed wire and sinker EDM post handoffs remain explicitly fail-closed through a shared unsupportedReason contract rather than pretending EDM post generation is already covered. Focused web/src/__tests__/jmDieCalculatorPostWorkflowState.test.ts plus the expanded web/src/__tests__/CalculatorPage.routeContinuity.test.tsx suite are green for that calculator-to-PPG convergence slice. QuoteBuilderPage now also forwards the richer matched release workspace into /print-to-cnc instead of stopping at the minimal ProgramReleaseInput packet: once quote matching resolves, the release deep link carries canonical machine family and manufacturer truth from the selected Program Release machine profile along with the matched toolholder, tooling package, fixture, stock, and CAD source ids. Focused web/src/__tests__/quote-pages.test.tsx is green for that quote-to-release packet-hardening slice, and QuoteBuilderPage bundles cleanly. JobsPage now also resolves mounted traveler and dispatch machine hints through web/src/utils/programReleaseRouteMachineResolver.ts and forwards canonical machineId, machineFamilyId, and machineManufacturer into /print-to-cnc when dispatch launches release follow-up from a routed JM Die job context. Focused web/src/__tests__/programReleaseRouteMachineResolver.test.ts plus web/src/__tests__/JobsPage.test.tsx are green for that jobs-to-release packet-hardening slice. PartsLibraryPage now also seeds release follow-up through web/src/utils/partsLibraryReleaseSeed.ts so selected part naming, revision text, and attached file types can forward truthful partClassId and cadSourceId hints into /print-to-cnc instead of staying lineage-only. Focused web/src/__tests__/partsLibraryReleaseSeed.test.ts plus web/src/__tests__/PartsLibraryPage.test.tsx are green for that parts-library-to-release packet-hardening slice. SchedulingPage now uses canonical Haas machine labels inside its seeded JM Die planner board so selected-study Print to CNC handoffs can resolve real machineId, machineFamilyId, and machineManufacturer values through the shared programReleaseRouteMachineResolver seam instead of falling back to a generic packet when the study is still seeded. Focused web/src/__tests__/programReleaseRouteMachineResolver.test.ts plus web/src/__tests__/SchedulingPage.test.tsx are green for that scheduling-to-release packet-hardening slice. MessagesPage now preserves upstream release packet machine and selector truth when a release-aware launcher opens the inbox and the user routes back into /print-to-cnc, so machineId, machineFamilyId, machineManufacturer, partClassId, cadSourceId, and any staged selector ids survive both the workflow follow-up card and staged action workspace instead of being dropped at the inbox boundary. Focused web/src/__tests__/MessagesPage.test.tsx is green for that messages-to-release continuity slice. Remaining work is to continue the remaining calculator and routed machine convergence on the same contract and then widen browser-backed verification once the broader repo corruption issues are cleared. That authority contract should now be seeded from the JM Die company profile and shop master data so selector truth stays stable during the first real shop rollout.",
+          "files_created": [
+            "web/src/features/machine-workspace/selectorAuthorityContract.ts",
+            "web/src/features/machine-workspace/programmingAuthorityContract.ts",
+            "web/src/features/machine-workspace/routeProgrammingAuthority.ts",
+            "web/src/features/machine-workspace/MachineWorkspaceAuthorityCard.tsx",
+            "web/src/api/shopProfile.ts",
+            "web/src/__tests__/ShopProfilePage.test.tsx",
+            "web/src/__tests__/LatheWizardPage.test.tsx",
+            "web/src/__tests__/LatheResultsPage.test.tsx",
+            "web/src/__tests__/WireEdmWizardPage.test.tsx",
+            "web/src/__tests__/WireEdmResultsPage.test.tsx",
+            "web/src/__tests__/SetupSheetPage.test.tsx",
+            "web/src/__tests__/ProveOutWorkflowPage.test.tsx",
+            "web/src/__tests__/ToolOptimizationPage.test.tsx",
+            "web/src/__tests__/selectorAuthorityContract.test.ts",
+            "web/src/__tests__/routeMachineWorkspaceAuthority.test.ts",
+            "web/src/__tests__/programmingAuthorityContract.test.ts",
+            "web/src/__tests__/routeProgrammingAuthority.test.ts",
+            "web/src/utils/jmDieCalculatorAuthority.ts",
+            "web/src/utils/jmDieCalculatorProgrammingAuthority.ts"
+          ],
+          "files_modified": [
+            "src/shared/calculatorProgrammingCatalogExtensions.ts",
+            "src/utils/jmDieSelectorCatalog.ts",
+            "src/utils/calculatorToolHolderCatalog.ts",
+            "web/src/api/calculatorData.ts",
+            "web/src/data/calculatorHolderLibrary.ts",
+            "web/src/data/calculatorProgrammingCatalogSupplements.ts",
+            "web/src/__tests__/calculatorData.test.ts",
+            "web/src/__tests__/CalculatorPage.test.tsx",
+            "web/src/__tests__/CalculatorPage.machineSelection.test.tsx",
+            "web/src/__tests__/CalculatorPage.matrix.test.tsx",
+            "web/src/__tests__/ProgramReleasePage.test.tsx",
+            "web/src/__tests__/ToolpathAdvisorPage.test.tsx",
+            "web/src/__tests__/calculatorCatalogCoverage.test.ts",
+            "web/src/features/machine-workspace/MachineWorkspaceState.ts",
+            "web/src/features/machine-workspace/MachineIntakeNormalizer.ts",
+            "web/src/features/machine-workspace/MachineWorkspaceShell.tsx",
+            "web/src/components/LatheInputWizard.tsx",
+            "web/src/__tests__/calculatorScenarioMatrix.test.ts",
+            "web/src/__tests__/calculatorSurfaceFinish.test.ts",
+            "web/src/__tests__/calculatorToolpathUniverseCoverage.test.ts",
+            "web/src/pages/LatheUploadPage.tsx",
+            "web/src/pages/LatheWizardPage.tsx",
+            "web/src/pages/LatheResultsPage.tsx",
+            "web/src/pages/WireEdmUploadPage.tsx",
+            "web/src/pages/WireEdmWizardPage.tsx",
+            "web/src/pages/WireEdmResultsPage.tsx",
+            "web/src/pages/SetupSheetPage.tsx",
+            "web/src/pages/ProveOutWorkflowPage.tsx",
+            "web/src/pages/OptimizationReportPage.tsx",
+            "web/src/pages/CycleTimePage.tsx",
+            "web/src/pages/FeatureTogglePage.tsx",
+            "web/src/pages/PostProcessorGeneratorPage.tsx",
+            "web/src/pages/ToolOptimizationPage.tsx",
+            "web/src/pages/ToolpathAdvisorPage.tsx",
+            "web/src/pages/ShopProfilePage.tsx",
+            "web/src/pages/ProgramReleasePage.tsx",
+            "web/src/pages/CalculatorPage.tsx",
+            "web/src/__tests__/PostProcessorGeneratorPage.test.tsx",
+            "web/src/__tests__/OptimizationReportPage.test.tsx",
+            "web/src/__tests__/CycleTimePage.test.tsx",
+            "web/src/__tests__/FeatureTogglePage.test.tsx",
+            "web/src/data/calculatorHolderLibrary.ts",
+            "web/src/data/calculatorWorkholding.ts",
+            "web/src/utils/calculatorPurchaseRecommendations.ts",
+            "src/data/calculatorWorkholdingCatalog.ts"
+          ],
+          "exit_criteria": [
+            "Machine/material/tooling/workholding and CAM/toolpath/programming selections resolve through one canonical contract where data exists.",
+            "Roku-Roku HC 658II sinker electrode defaults, System 3R ER-32 holder packages, copper-tungsten electrode material posture, and trilobe macro/reference-path handoff resolve through the same selector contract instead of local one-off wiring.",
+            "Hardcoded or locally curated selector tables are removed or explicitly waived.",
+            "Toolpath/programming coverage includes routed machine pages and downstream release/post surfaces, not just calculator."
+          ],
+          "abort_criteria": [
+            "Free-text selectors remain on critical machine/programming flows where canonical data exists.",
+            "Toolpath/programming coverage still diverges across calculator, advisor, and release surfaces."
+          ],
+          "rollback": "git restore --source MS8-UAPPW41A-base --worktree --staged web/src/api/calculatorData.ts web/src/pages/ToolpathAdvisorPage.tsx web/src/pages/ShopProfilePage.tsx web/src/pages/ProgramReleasePage.tsx web/src/pages/CalculatorPage.tsx",
+          "rollback_prerequisite": "Create and verify restore ref MS8-UAPPW41A-base before first edit.",
+          "four_loop": "BUILD (selector authority contract) -> SCRUTINIZE (diff calculator/advisor/release/shop selections) -> GAP FILL (cover missing programming/toolpath domains) -> TIE UP (selector tests + build)",
+          "svi_delta": "+0.7%",
+          "depends_on": [
+            "U-APPW41"
+          ],
+          "tests": [
+            "Calculator, Toolpath Advisor, Shop Profile, and Program Release resolve selectors through the same authority contract.",
+            "Lathe and wire routed machine workspaces derive their machine/controller posture from the shared JM Die authority layer instead of static page-local seeds.",
+            "Sinker EDM electrode package selections stay synchronized across calculator, routed machine workspaces, and downstream release surfaces.",
+            "Programming and toolpath choices stay synchronized across routed machine flows."
+          ],
+          "mcp_actions": [
+            "auto_wiring_analyze",
+            "prism_dev:build",
+            "prism_dev:test_smoke"
+          ]
+        },
+        {
+          "role": "R2",
+          "role_name": "Builder",
+          "model": "opus-4.6",
+          "omega_floor": 0.9,
+          "id": "U-APPW41B",
+          "title": "Sinker EDM Electrode Macro/Reference Bridge + Legacy Archive Activation",
+          "phase": "APPW-MS8-P0",
+          "sequence": 5,
+          "status": "in_progress",
+          "description": "Bridge the sinker EDM electrode lane to a dedicated trilobe macro and Roku-Roku legacy-reference contract so parseable sources, macro-ready packets, and archive-assisted comparisons from H:\\PRISM\\JM DIE\\ROKU-ROKU share one honest release surface across calculator and routed machine workspaces.",
+          "notes": "Recovered progress from the 2026-04-10 H: drive snapshot: CalculatorProgramWorkbench now pins Roku-Roku HC 658II, System 3R ER-32, H:\\Automated Program_Corrected 5-25.xlsm, and H:\\PRISM\\JM DIE\\ROKU-ROKU as typed release metadata, and src/routes/cam.ts now exposes POST /api/v1/cam/auto-print-to-program. CalculatorPage.autoProgramming.test.ts covers the sinker EDM electrode packet flow, but the dedicated bridge/index engines and routed Program Release surface are still outstanding, so legacy mining must remain pending or handoff-only.",
+          "files_created": [
+            "src/engines/EdmElectrodePacketBridgeEngine.ts",
+            "src/engines/RokuRokuLegacyArchiveIndexEngine.ts",
+            "web/src/features/machine-workspace/edmElectrodeReleaseContract.ts",
+            "web/src/features/machine-workspace/__tests__/edmElectrodeReleaseContract.test.ts"
+          ],
+          "files_modified": [
+            "src/routes/cam.ts",
+            "web/src/components/calculator/CalculatorProgramWorkbench.tsx",
+            "web/src/pages/CalculatorPage.tsx",
+            "web/src/pages/ProgramReleasePage.tsx",
+            "web/src/api/calculatorData.ts"
+          ],
+          "exit_criteria": [
+            "Sinker EDM electrode flows explicitly differentiate draft NC, macro-ready packet, and pending reference/archive states in both API payloads and UI release surfaces.",
+            "The trilobe macro path at H:\\Automated Program_Corrected 5-25.xlsm travels through a dedicated bridge contract instead of staying as an untyped note.",
+            "The legacy archive under H:\\PRISM\\JM DIE\\ROKU-ROKU is indexed or queried for reference-assisted comparison; until that index exists, the UI and API remain handoff-only/pending with no overclaim of live mining.",
+            "Roku-Roku legacy comparison evidence can be attached to the electrode packet/release surface without requiring calculator-local assumptions."
+          ],
+          "abort_criteria": [
+            "The sinker EDM lane still carries macro/archive truth only as copy or warnings with no dedicated bridge contract.",
+            "Any surface implies live legacy mining while H:\\PRISM\\JM DIE\\ROKU-ROKU remains unindexed."
+          ],
+          "rollback": "git restore --source MS8-UAPPW41B-base --worktree --staged src/routes/cam.ts web/src/components/calculator/CalculatorProgramWorkbench.tsx web/src/pages/CalculatorPage.tsx web/src/pages/ProgramReleasePage.tsx web/src/api/calculatorData.ts",
+          "rollback_prerequisite": "Create and verify restore ref MS8-UAPPW41B-base before first edit.",
+          "four_loop": "BUILD (bridge packet contract and archive-aware reference path) -> SCRUTINIZE (verify live vs pending truth across UI and route payloads) -> GAP FILL (cover absent-archive, parseable-source, and packet-release edges) -> TIE UP (bridge tests + build)",
+          "svi_delta": "+0.5%",
+          "depends_on": [
+            "U-APPW41A"
+          ],
+          "tests": [
+            "Sinker EDM electrode payloads include typed macro/reference bridge metadata instead of loose notes.",
+            "Until H:\\PRISM\\JM DIE\\ROKU-ROKU is indexed, calculator and release surfaces show pending/handoff-only reference truth instead of implied live mining.",
+            "Once H:\\PRISM\\JM DIE\\ROKU-ROKU is indexed, the bridge can attach legacy comparison candidates or reference evidence to the electrode release flow."
+          ],
+          "mcp_actions": [
+            "auto_wiring_analyze",
+            "prism_dev:build",
+            "prism_dev:test_smoke"
+          ]
+        }
+      ],
+      "session_boundaries": [
+        {
+          "after_unit": "U-APPW40",
+          "compact": true,
+          "checkpoint": "MS8-session1-theme-foundation-complete"
+        },
+        {
+          "after_unit": "U-APPW41B",
+          "compact": true,
+          "checkpoint": "MS8-session2-machine-authority-and-electrode-bridge-complete"
+        }
+      ]
+    },
+    {
+      "id": "APPW-MS8-P1",
+      "title": "Commerce, Customer/Auth/Viewer, Analytics, and Final Verification",
+      "description": "Converge commerce and customer truth contracts, harden auth/employee/viewer paths, activate analytics and calculation truth, and close with benchmark-backed authoritative browser verification.",
+      "sessions": "3-4",
+      "primary_role": "R2",
+      "primary_model": "opus-4.6",
+      "smart_config": {
+        "role": "Full-Stack Wiring Engineer + E2E Verification Lead",
+        "model": "opus",
+        "effort": "MAX",
+        "context_budget": "45%"
+      },
+      "skills": [
+        "/checkpoint",
+        "/prism-review",
+        "/trace",
+        "/action-search"
+      ],
+      "plugins": [
+        "Vitest MCP",
+        "ESLint MCP",
+        "codebase-memory-mcp"
+      ],
+      "phase_closeout_actions": [
+        "prism_dev:build",
+        "prism_dev:test_smoke",
+        "auto_wiring_analyze",
+        "prism_dev:svi_compute",
+        "prism_dev:svi_read"
+      ],
+      "mcp_lifecycle": {
+        "start": [
+          "prism_session:context_boot",
+          "prism_session:dispatcher_map",
+          "prism_session:memory_recall",
+          "prism_session:system_snapshot",
+          "prism_session:action_search"
+        ],
+        "during": [
+          "prism_session:auto_checkpoint",
+          "prism_session:action_search",
+          "prism_session:tool_route_best",
+          "prism_session:wip_capture"
+        ],
+        "end": [
+          "prism_session:memory_save",
+          "prism_session:system_snapshot",
+          "prism_session:checkpoint_enhanced"
+        ]
+      },
+      "knowledge_sources": {
+        "engines": [
+          "ActualCostEngine (443 LOC)",
+          "ToolROIEngine (593 LOC)",
+          "ROIAdvisorEngine (175 LOC)",
+          "PurchasingDirectoryEngine (186 LOC)",
+          "JobProfitabilityWaterfallEngine (474 LOC)",
+          "MachineProfileEngine (519 LOC)"
+        ],
+        "reference": [
+          "src/tools/dispatchers/businessDispatcher.ts",
+          "src/routes/erp.ts",
+          "web/src/api/client.ts",
+          "web/src/pages/PurchasingPage.tsx",
+          "web/src/pages/PurchaseOrdersPage.tsx",
+          "web/src/pages/PartsLibraryPage.tsx",
+          "web/src/pages/ToolingCostPage.tsx",
+          "web/src/pages/MaterialPricingPage.tsx",
+          "web/src/pages/MachineRatesPage.tsx",
+          "web/src/pages/InventoryPage.tsx"
+        ],
+        "patterns": [
+          "source-stamped typed API wrappers with honest fallback messaging",
+          "role-aware route verification across admin, lead, hr_manager, and shop_floor",
+          "Playwright route sweep plus component-level modal verification",
+          "real engine-backed cost validation instead of placeholder arithmetic",
+          "customer/document/commercial flows must share one canonical workflow and fail closed when contracts are absent",
+          "viewer/backplot/simulation must never silently fall open to demo scenes on production routes",
+          "benchmark truth must compare Prism Auto outputs to internal and competitor/baseline fixtures before production-readiness claims"
+        ],
+        "tribal_knowledge": [
+          "TribalKnowledgeEngine — preserve operator/buyer trust by labeling modeled/default-derived economics honestly.",
+          "MachiningPlaybookEngine — do not overclaim live supplier truth when only directory-backed signals exist."
+        ],
+        "registries": [
+          "MachineRegistry / machine package payloads",
+          "Material and tooling catalog routes already used by calculator and commerce surfaces"
+        ],
+        "formulas": [
+          "Actual cost roll-up from ActualCostEngine",
+          "tool ROI delta from ToolROIEngine",
+          "upgrade payback from ROIAdvisorEngine",
+          "profitability delta from JobProfitabilityWaterfallEngine",
+          "roi = net_gain / investment",
+          "payback_days = investment / daily_savings"
+        ]
+      },
+      "intent": "A buyer, estimator, lead, or owner can open any relevant PRISM page, hit a buy/intelligence entry point, and see a calculator-grade modal with real economics behind it. Meanwhile the app can be swept route-by-route and role-by-role with a single test manifest instead of trusting ad hoc manual browsing.",
+      "units": [
+        {
+          "role": "R2",
+          "role_name": "Builder",
+          "model": "opus-4.6",
+          "omega_floor": 0.9,
+          "id": "U-APPW42",
+          "title": "Commerce Contract Activation + Vendor/PO Authority",
+          "phase": "APPW-MS8-P1",
+          "sequence": 6,
+          "status": "not_started",
+          "description": "Converge purchasing, vendor, machine-rate, material-pricing, tooling, coolant, fixturing, and PO flows onto one shared commercial truth contract so all visible metrics are source-stamped, freshness-aware, and either engine-backed or explicitly unavailable. If the shared compare payload is still unpublished, this unit closes only on provenance, freshness, and unavailable-state hardening for mounted ERP/commercial routes.",
+          "notes": "Scope stays on mounted ERP/commercial seams and must not overclaim future KAR orchestration. Machine-economics closeout remains contract-gated by MCAT publication and the shared compare payload/action.",
+          "files_created": [
+            "src/engines/PurchaseContextCompareEngine.ts",
+            "web/src/api/purchaseIntelligence.ts",
+            "src/__tests__/purchase-context-compare-engine.test.ts"
+          ],
+          "files_modified": [
+            "src/tools/dispatchers/businessDispatcher.ts",
+            "src/routes/erp.ts",
+            "web/src/api/client.ts",
+            "web/src/pages/PurchasingPage.tsx",
+            "web/src/pages/VendorScorecardPage.tsx",
+            "web/src/pages/MaterialPricingPage.tsx",
+            "web/src/pages/MachineRatesPage.tsx"
+          ],
+          "exit_criteria": [
+            "One typed API action returns source, confidence, freshness, unavailable reason, and provenance class for visible commercial metrics.",
+            "Vendor, PO, pricing, rate, and inventory purchase surfaces all consume the shared compare contract.",
+            "Modeled/default-derived economics are labeled per-metric and never presented as observed or live when they are not."
+          ],
+          "abort_criteria": [
+            "Any returned metric cannot be traced back to an engine or explicit fallback reason.",
+            "Commercial routes continue to mix page-local arithmetic with contract-backed outputs."
+          ],
+          "rollback": "git restore --source MS8-UAPPW42-base --worktree --staged src/tools/dispatchers/businessDispatcher.ts src/routes/erp.ts web/src/api/client.ts web/src/pages/PurchasingPage.tsx web/src/pages/VendorScorecardPage.tsx web/src/pages/MaterialPricingPage.tsx web/src/pages/MachineRatesPage.tsx",
+          "rollback_prerequisite": "Create and verify restore ref MS8-UAPPW42-base before first edit.",
+          "four_loop": "BUILD (activate commerce contract) -> SCRUTINIZE (trace every visible metric to source/provenance) -> GAP FILL (cover unavailable/stale/vendor states) -> TIE UP (engine tests + route tests + build)",
+          "svi_delta": "+1.0%",
+          "depends_on": [
+            "U-APPW41B"
+          ],
+          "tests": [
+            "Commercial payloads expose source, freshness, unavailable reason, and provenance for every visible metric.",
+            "Vendor and PO flows use the shared contract instead of page-local arithmetic."
+          ],
+          "mcp_actions": [
+            "purchase_context_compare",
+            "actual_cost_calculate",
+            "roi_advisor_analyze",
+            "tool_roi_analyze",
+            "auto_wiring_analyze",
+            "prism_dev:build",
+            "prism_dev:test_smoke"
+          ],
+          "convergence_handoff": {
+            "needs_from_claude": "Published backend compare payload and vendor/rate contract review before close.",
+            "codex_delivers": "Typed client contract, modal consumption contract, and routed page coverage plan.",
+            "rgs_sync_required": true
+          }
+        },
+        {
+          "role": "R2",
+          "role_name": "Builder",
+          "model": "opus-4.6",
+          "omega_floor": 0.9,
+          "id": "U-APPW42A",
+          "title": "Customer Portal + Document + Commercial Workflow Convergence",
+          "phase": "APPW-MS8-P1",
+          "sequence": 7,
+          "status": "not_started",
+          "description": "Converge quote, order, portal, and commercial follow-up flows onto one canonical customer/commercial workflow with durable state, protected routing, and explicit unavailable behavior, while treating document-learning as a contract-hardening slice that must use mounted doc routes or fail closed.",
+          "notes": "Portal and commercial workflow hardening can proceed against mounted routes now. Document-learning may only close when frontend calls match mounted doc routes; until then it must surface explicit unavailable posture instead of assuming upload/extract/get/delete contracts exist.",
+          "files_created": [
+            "web/src/testing/customerWorkflowManifest.ts"
+          ],
+          "files_modified": [
+            "web/src/pages/CustomerPortalPage.tsx",
+            "web/src/pages/DocumentLearningPage.tsx",
+            "web/src/pages/QuoteFollowUpPage.tsx",
+            "src/routes/doc.ts",
+            "src/routes/portal.ts",
+            "src/routes/quote.ts",
+            "src/routes/quotes.ts"
+          ],
+          "exit_criteria": [
+            "Customer/document/commercial flows share one durable workflow instead of in-memory or route-local state.",
+            "Quote follow-up and customer portal surfaces are mounted, protected, and explicitly honest about live vs unavailable features.",
+            "Document-learning calls only reference mounted backend contracts or explicitly unavailable states."
+          ],
+          "abort_criteria": [
+            "Customer or document flows still depend on in-memory-only state near closeout.",
+            "Mounted commercial/customer routes continue to bypass route protection or canonical workflow state."
+          ],
+          "rollback": "git restore --source MS8-UAPPW42A-base --worktree --staged web/src/pages/CustomerPortalPage.tsx web/src/pages/DocumentLearningPage.tsx web/src/pages/QuoteFollowUpPage.tsx src/routes/doc.ts src/routes/portal.ts src/routes/quote.ts src/routes/quotes.ts",
+          "rollback_prerequisite": "Create and verify restore ref MS8-UAPPW42A-base before first edit.",
+          "four_loop": "BUILD (converge customer/document workflow) -> SCRUTINIZE (trace route protection and durability) -> GAP FILL (cover unavailable/live edge states) -> TIE UP (workflow tests + build)",
+          "svi_delta": "+0.7%",
+          "depends_on": [
+            "U-APPW42"
+          ],
+          "tests": [
+            "Customer/document/commercial routes share one canonical workflow state.",
+            "Document-learning and customer portal surfaces do not call missing contracts."
+          ],
+          "mcp_actions": [
+            "auto_wiring_analyze",
+            "prism_dev:build",
+            "prism_dev:test_smoke"
+          ]
+        },
+        {
+          "role": "R2",
+          "role_name": "Builder",
+          "model": "opus-4.6",
+          "omega_floor": 0.9,
+          "id": "U-APPW43",
+          "title": "Auth + Session + Route Role Convergence + Employee/Mobile System of Record",
+          "phase": "APPW-MS8-P1",
+          "sequence": 8,
+          "status": "not_started",
+          "description": "Harden auth, session bootstrap, route-role protection, and employee/mobile workflow state so critical shop-floor, kiosk, and phone flows fail closed and use one system-of-record where mounted employee/event contracts exist.",
+          "notes": "APPW employee/mobile convergence must be executed against the real JM Die company profile, seeded employee roster, departments, clearance rules, machine certifications, and shift policies instead of generic placeholder shop data. APPW should only claim cross-device system-of-record behavior where the mounted employee/mobile contract actually exists.",
+          "files_created": [
+            "web/src/testing/employeeFlowManifest.ts"
+          ],
+          "files_modified": [
+            "web/src/App.tsx",
+            "web/src/components/ProtectedRoute.tsx",
+            "web/src/contexts/AuthContext.tsx",
+            "web/src/pages/ShellGatewayPage.tsx",
+            "web/src/pages/ShopFloorClockPage.tsx"
+          ],
+          "exit_criteria": [
+            "Protected routes are enforced through canonical route-role rules instead of nav hiding or frontend-only session assumptions.",
+            "Employee/mobile active-job flows use one system-of-record for punch/pause/resume state.",
+            "Critical auth and employee/mobile routes fail closed on missing live contracts instead of rendering healthy-looking fallbacks."
+          ],
+          "abort_criteria": [
+            "Any critical employee/mobile/auth route still trusts stale local storage or frontend-only identity binding.",
+            "Protected routes continue to be accessible without canonical route-role enforcement."
+          ],
+          "rollback": "git restore --source MS8-UAPPW43-base --worktree --staged web/src/App.tsx web/src/components/ProtectedRoute.tsx web/src/contexts/AuthContext.tsx web/src/pages/ShellGatewayPage.tsx web/src/pages/ShopFloorClockPage.tsx",
+          "rollback_prerequisite": "Create and verify restore ref MS8-UAPPW43-base before first edit.",
+          "four_loop": "BUILD (auth/session/employee convergence) -> SCRUTINIZE (prove fail-closed role behavior) -> GAP FILL (cover kiosk/mobile edge cases) -> TIE UP (route tests + build)",
+          "svi_delta": "+0.8%",
+          "depends_on": [
+            "U-APPW42A"
+          ],
+          "tests": [
+            "Protected routes enforce canonical role rules.",
+            "Employee/mobile punch, pause, and resume flows share one system-of-record.",
+            "Missing live contracts produce fail-closed behavior instead of demo fallback."
+          ],
+          "mcp_actions": [
+            "auto_wiring_analyze",
+            "prism_dev:build",
+            "prism_dev:test_smoke"
+          ]
+        },
+        {
+          "role": "R2",
+          "role_name": "Builder",
+          "model": "opus-4.6",
+          "omega_floor": 0.9,
+          "id": "U-APPW43A",
+          "title": "Viewer Contract Verification + Backplot Result Hardening",
+          "phase": "APPW-MS8-P1",
+          "sequence": 9,
+          "status": "not_started",
+          "description": "Verify that viewer, backplot, and manufacturing result routes render the current viewer-scene contract truthfully as live or explicitly unavailable, with no silent demo fallback.",
+          "notes": "Closeout remains blocked until a live viewer/backplot contract replaces the current demo-only backend posture. Frontend work in scope is fallback-honesty hardening only until that backend contract lands.",
+          "files_created": [
+            "web/src/testing/viewerTruthFixtures.ts"
+          ],
+          "files_modified": [
+            "web/src/api/viewer.ts",
+            "web/src/pages/ViewerPage.tsx",
+            "web/src/pages/LatheResultsPage.tsx",
+            "web/src/pages/WireEdmResultsPage.tsx"
+          ],
+          "exit_criteria": [
+            "Viewer, backplot, and result surfaces render live or explicitly unavailable scenes with no silent demo fallback.",
+            "Release-critical manufacturing result pages do not show placeholder data when contracts are missing."
+          ],
+          "abort_criteria": [
+            "Demo or placeholder scenes still appear on release-critical viewer/result routes without explicit unavailable labeling."
+          ],
+          "rollback": "git restore --source MS8-UAPPW43A-base --worktree --staged web/src/api/viewer.ts web/src/pages/ViewerPage.tsx web/src/pages/LatheResultsPage.tsx web/src/pages/WireEdmResultsPage.tsx",
+          "rollback_prerequisite": "Create and verify restore ref MS8-UAPPW43A-base before first edit.",
+          "four_loop": "BUILD (viewer/result hardening) -> SCRUTINIZE (trace every fallback path) -> GAP FILL (mark unavailable rather than demo) -> TIE UP (viewer/result tests + build)",
+          "svi_delta": "+0.5%",
+          "depends_on": [
+            "U-APPW43"
+          ],
+          "tests": [
+            "Viewer/backplot/result routes no longer silently fall back to demo scenes.",
+            "Missing contracts produce explicit unavailable states."
+          ],
+          "mcp_actions": [
+            "auto_wiring_analyze",
+            "prism_dev:build",
+            "prism_dev:test_smoke"
+          ],
+          "exit_conditions": [
+            "Viewer, backplot, and result surfaces render live or explicitly unavailable scenes with no silent demo fallback.",
+            "Release-critical manufacturing result pages do not show placeholder data when contracts are missing.",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
+          ]
+        },
+        {
+          "role": "R2",
+          "role_name": "Builder",
+          "model": "opus-4.6",
+          "omega_floor": 0.9,
+          "id": "U-APPW43B",
+          "title": "Analytics/Reporting Contract Convergence + Calculation Truth Gate",
+          "phase": "APPW-MS8-P1",
+          "sequence": 10,
+          "status": "not_started",
+          "description": "Converge analytics, dashboard, reporting, and calculation truth surfaces onto live or explicitly unavailable contracts, then wire a benchmark/default evidence gate for Prism Auto and optimized output claims only where declared fixtures and comparison contracts exist.",
+          "notes": "Analytics/reporting contract honesty can proceed against mounted routes now. Competitor and benchmark closeout claims remain blocked until declared fixtures and evidence contracts exist on disk.",
+          "files_created": [
+            "web/src/testing/calculationTruthManifest.ts"
+          ],
+          "files_modified": [
+            "web/src/pages/OEEDashboardPage.tsx",
+            "web/src/pages/ExecutiveDashboardPage.tsx",
+            "web/src/pages/JobProfitabilityPage.tsx",
+            "web/src/pages/ReportsPage.tsx",
+            "web/src/utils/calculatorPrismMode.ts"
+          ],
+          "exit_criteria": [
+            "Analytics/reporting routes no longer rely on demo/staged payloads without explicit labeling.",
+            "Prism Auto and optimized result claims are tied to benchmark/competitor/default evidence instead of advisory-only language.",
+            "Calculation truth gate defines required evidence for benchmark fixtures and competitor/baseline comparison outputs."
+          ],
+          "abort_criteria": [
+            "Analytics/reporting still present placeholder/demo data as live truth.",
+            "Prism Auto optimization claims remain benchmark-free near closeout."
+          ],
+          "rollback": "git restore --source MS8-UAPPW43B-base --worktree --staged web/src/pages/OEEDashboardPage.tsx web/src/pages/ExecutiveDashboardPage.tsx web/src/pages/JobProfitabilityPage.tsx web/src/pages/ReportsPage.tsx web/src/utils/calculatorPrismMode.ts",
+          "rollback_prerequisite": "Create and verify restore ref MS8-UAPPW43B-base before first edit.",
+          "four_loop": "BUILD (analytics/reporting and calculation truth gate) -> SCRUTINIZE (trace each truth claim to contract or evidence) -> GAP FILL (cover unavailable and benchmark gaps) -> TIE UP (tests + build)",
+          "svi_delta": "+0.7%",
+          "depends_on": [
+            "U-APPW43A"
+          ],
+          "tests": [
+            "Analytics/reporting routes expose live or explicitly unavailable contracts.",
+            "Prism Auto truth gate links optimized outputs to benchmark or competitor/default evidence."
+          ],
+          "mcp_actions": [
+            "prism_dev:build",
+            "prism_dev:test_smoke",
+            "prism_dev:svi_compute",
+            "prism_dev:svi_read"
+          ]
+        },
+        {
+          "role": "R2",
+          "role_name": "Builder",
+          "model": "opus-4.6",
+          "omega_floor": 0.9,
+          "id": "U-APPW44",
+          "title": "Authoritative /page-sweep Browser Verification + Benchmark Truth Closeout",
+          "phase": "APPW-MS8-P1",
+          "sequence": 11,
+          "status": "not_started",
+          "description": "Run the authoritative manifest-driven browser sweep only across live canonical route/page surfaces whose upstream contracts are present on disk, covering machine workspaces, purchase flows, and any customer/document/employee/viewer/analytics routes that have mounted contracts and explicit truth posture.",
+          "notes": "Closeout is blocked until /page-sweep, browser manifests, and page-sweep specs exist on disk. Customer/document, employee continuity, and routed machine-workspace specs are now materialized and green inside the shared helper-backed sweep at 54/54, but APPW44 must not claim app-wide unified orchestrator wiring until KAR-MS7 artifacts exist on disk and benchmark-truth assertions are wired against live evidence fixtures.",
+          "files_created": [
+            "web/tests/page-sweep/customerDocument.spec.ts",
+            "web/tests/page-sweep/employeeContinuity.spec.ts",
+            "web/tests/page-sweep/machineWorkspace.spec.ts",
+            "web/tests/page-sweep/benchmarkTruth.spec.ts"
+          ],
+          "files_modified": [
+            "web/playwright.config.ts",
+            "web/src/testing/pageSurfaceManifest.ts",
+            "web/src/testing/pageInteractionManifest.ts",
+            "web/src/testing/machineCadSurfaceManifest.ts",
+            "web/tests/page-sweep/support/surfaceHarness.ts",
+            ".claude/helpers/page-sweep.mjs",
+            ".claude/commands/page-sweep.md"
+          ],
+          "exit_criteria": [
+            "The full route/page census passes without unexpected crashes or console errors.",
+            "Machine workspaces, customer/document flows, employee continuity, viewer/backplot, analytics/reporting, and purchase flows are all exercised in the browser suite.",
+            "Benchmark truth assertions prove optimized output claims are tied to declared evidence fixtures."
+          ],
+          "abort_criteria": [
+            "Any routed page with create/edit/save/delete/submit behavior is left with load-only smoke coverage.",
+            "Any optimized output assertion still compares against placeholder or undocumented fixtures."
+          ],
+          "rollback": "git restore --source MS8-UAPPW44-base --worktree --staged web/playwright.config.ts web/src/testing/pageSurfaceManifest.ts web/src/testing/pageInteractionManifest.ts web/src/testing/machineCadSurfaceManifest.ts",
+          "rollback_prerequisite": "Create and verify restore ref MS8-UAPPW44-base before first edit.",
+          "four_loop": "BUILD (final manifest-driven E2E suite) -> SCRUTINIZE (role, responsive, workflow, benchmark truth) -> GAP FILL (fix mismatches) -> TIE UP (final browser suite + build + sync)",
+          "svi_delta": "+1.3%",
+          "depends_on": [
+            "U-APPW43B"
+          ],
+          "tests": [
+            "Full route sweep passes with no route crash.",
+            "Machine workspace flows prove upload/import, 2D/3D, feature edit, avoid/fill, offsets, and draw-from-scratch across routed machine pages.",
+            "Customer/document, employee, viewer, analytics, and purchase flows all pass under manifest coverage.",
+            "Benchmark truth assertions compare against declared fixtures for optimized outputs."
+          ],
+          "mcp_actions": [
+            "effectiveness_validate",
+            "purchase_context_compare",
+            "prism_dev:build",
+            "prism_dev:test_smoke",
+            "prism_dev:svi_compute",
+            "prism_dev:svi_read"
+          ],
+          "mobile": {
+            "breakpoint": "768px",
+            "layout": "entire routed surface audited for overflow, button reach, modal usability, and workspace interaction continuity"
+          }
+        }
+      ],
+      "session_boundaries": [
+        {
+          "after_unit": "U-APPW42A",
+          "compact": true,
+          "checkpoint": "MS8-session3-commerce-customer-complete"
+        },
+        {
+          "after_unit": "U-APPW43B",
+          "compact": true,
+          "checkpoint": "MS8-session4-truth-gates-complete"
+        },
+        {
+          "after_unit": "U-APPW44",
+          "compact": true,
+          "checkpoint": "MS8-final-complete"
+        }
+      ]
+    }
+  ],
+  "smart_config": {
+    "role": "implementer + reviewer",
+    "model": "sonnet",
+    "effort": "HIGH",
+    "context_budget": "65%"
+  },
+  "mcp_lifecycle": {
+    "session_start": [
+      "prism_session:context_boot",
+      "prism_session:dispatcher_map",
+      "prism_session:memory_recall",
+      "prism_session:system_snapshot",
+      "prism_session:action_search"
+    ],
+    "during_work": [
+      "prism_session:auto_checkpoint",
+      "prism_session:tool_route_best",
+      "prism_session:wip_capture"
+    ],
+    "session_end": [
+      "prism_session:memory_save",
+      "prism_session:system_snapshot",
+      "prism_session:checkpoint_enhanced"
+    ]
+  },
+  "knowledge_sources": {
+    "engines": [
+      "ENGINE_DIGEST.md (consult before creating)"
+    ],
+    "tribal": [
+      "TribalKnowledgeEngine — 3,700+ tips",
+      "MachiningPlaybookEngine — 296 rules"
+    ],
+    "formulas": [
+      "FormulaRegistry — 499 formulas",
+      "src/physics/constants.ts — canonical"
+    ],
+    "reference": [
+      "EXTERNAL-REFERENCE-PROGRAMS-INDEX.md",
+      "MaterialRegistry",
+      "MachineRegistry",
+      "ToolCatalogEngine (95,608 tools)"
+    ]
+  },
+  "intent": "Bring the canonical PRISM web app onto one calculator-grade design and truth contract, materialize the missing browser/page-sweep execution surfaces, normalize machine intake into shared routed CAD workspaces, activate selector/programming/toolpath authority across machine flows, converge commerce/customer/document/auth/viewer/reporting surfaces onto fail-closed live contracts, and close with benchmark-backed browser truth verification instead of ad hoc manual browsing.",
+  "compact_checkpoint": "every 3 units — auto-triggered by hook",
+  "enforcement_hooks_active": [
+    "physics agent",
+    "wiring agent",
+    "constants checker",
+    "stub detector",
+    "test quality",
+    "forge-triple gate",
+    "session audit agent"
+  ]
+}

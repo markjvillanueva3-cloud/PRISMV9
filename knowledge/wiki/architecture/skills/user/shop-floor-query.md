@@ -23,13 +23,14 @@ related:
 |-------|-------|
 | Name | `shop-floor-query` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/shop-floor-query.md` |
+| Source | `C:/Users/wompu/.claude/commands/shop-floor-query.md` |
 | Model | default |
 | Tags | _(none)_ |
 
 ## Description (first paragraph)
 
-Query real-time shop floor status including machines, jobs, and resources.
+
+# /shop-floor-query — Real-Time Shop Floor Intelligence
 
 <!-- AUTO-END -->
 

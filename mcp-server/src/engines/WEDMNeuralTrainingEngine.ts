@@ -567,7 +567,7 @@ export class WEDMNeuralTrainingEngine {
 
   /** Apply dropout during training: randomly zero out elements */
   private applyDropout(x: number[], layerIdx: number): number[] {
-    if (!this.isTraining || DEEP_NEURAL_ARCHITECTURE.dropout_rate === 0) {
+    if (!this.isTraining || (DEEP_NEURAL_ARCHITECTURE.dropout_rate as number) === 0) {
       return x;  // No dropout during inference
     }
 
@@ -1443,56 +1443,69 @@ export class WEDMNeuralTrainingEngine {
       learningRate: options?.learningRate ?? TRANSFER_LEARNING_CONFIG.transfer_learning_rate,
     };
 
-    // Phase 1: Load tech file data and pretrain
-    log.info("[WEDMNeuralTraining] Phase 1: Pretraining on tech file data");
-    const techDataBefore = this.state.training_data.length;
-    this.loadMitsubishiTechData();
-    this.loadMakinoTechData();
-    const techDataAfter = this.state.training_data.length;
-
-    // Pretrain on tech data
+    // Fail-safe snapshot: the tech->JM handoff below WIPES this.state.training_data
+    // (`= []`) before reloading. If a loader or train() throws between the wipe and the
+    // restore, the caller's corpus would be lost and isTraining would stay stuck `true`.
+    // Snapshot at entry + roll back in finally so a failed transferLearn does not lose the
+    // caller's corpus and never leaves isTraining stuck. (Pretrain weight updates that ran
+    // before a throw are NOT rolled back -- same as before this fix; re-run for a clean pass.)
+    const snapshotTrainingData = [...this.state.training_data];
+    let completed = false;
     this.isTraining = true;
-    const pretrainResult = this.train(opts.pretrainEpochs, opts.learningRate * 2, 0.9);
-    const sourceValLoss = pretrainResult.final_loss;
+    try {
+      // Phase 1: Load tech file data and pretrain
+      log.info("[WEDMNeuralTraining] Phase 1: Pretraining on tech file data");
+      this.loadMitsubishiTechData();
+      this.loadMakinoTechData();
 
-    // Phase 2: Load JM Die data and fine-tune
-    log.info("[WEDMNeuralTraining] Phase 2: Fine-tuning on JM Die data");
-    const jmDataBefore = this.state.training_data.length;
+      // Pretrain on tech data
+      const pretrainResult = this.train(opts.pretrainEpochs, opts.learningRate * 2, 0.9);
+      const sourceValLoss = pretrainResult.final_loss;
 
-    // Filter to tech data only for source domain
-    const techData = this.state.training_data.filter(p => p.source === "tech_table");
-    this.state.training_data = [];  // Reset
+      // Phase 2: Load JM Die data and fine-tune
+      log.info("[WEDMNeuralTraining] Phase 2: Fine-tuning on JM Die data");
 
-    // Load JM Die data
-    this.loadJMDieData();
+      // Filter to tech data only for source domain
+      const techData = this.state.training_data.filter(p => p.source === "tech_table");
+      this.state.training_data = [];  // Reset
 
-    // Fine-tune with lower learning rate
-    const finetuneResult = this.train(opts.finetuneEpochs, opts.learningRate, 0.95);
-    const targetValLoss = finetuneResult.final_loss;
-    this.isTraining = false;
+      // Load JM Die data
+      this.loadJMDieData();
 
-    // Restore all data
-    this.state.training_data = [...techData, ...this.state.training_data];
+      // Fine-tune with lower learning rate
+      const finetuneResult = this.train(opts.finetuneEpochs, opts.learningRate, 0.95);
+      const targetValLoss = finetuneResult.final_loss;
 
-    // Calculate transfer efficiency
-    const baselineLoss = 1.0;  // Assume random init loss ≈ 1.0
-    const transferEfficiency = (baselineLoss - targetValLoss) / baselineLoss;
+      // Restore all data
+      this.state.training_data = [...techData, ...this.state.training_data];
 
-    const transferState: TransferLearningState = {
-      source_domain: "combined",
-      target_domain: "jm_die",
-      pretrain_epochs: opts.pretrainEpochs,
-      finetune_epochs: opts.finetuneEpochs,
-      source_val_loss: sourceValLoss,
-      target_val_loss: targetValLoss,
-      transfer_efficiency: transferEfficiency,
-    };
+      // Calculate transfer efficiency
+      const baselineLoss = 1.0;  // Assume random init loss ~= 1.0
+      const transferEfficiency = (baselineLoss - targetValLoss) / baselineLoss;
 
-    this.state.transfer_state = transferState;
+      const transferState: TransferLearningState = {
+        source_domain: "combined",
+        target_domain: "jm_die",
+        pretrain_epochs: opts.pretrainEpochs,
+        finetune_epochs: opts.finetuneEpochs,
+        source_val_loss: sourceValLoss,
+        target_val_loss: targetValLoss,
+        transfer_efficiency: transferEfficiency,
+      };
 
-    log.info(`[WEDMNeuralTraining] Transfer learning complete: efficiency=${(transferEfficiency * 100).toFixed(1)}%`);
+      this.state.transfer_state = transferState;
+      completed = true;
 
-    return transferState;
+      log.info(`[WEDMNeuralTraining] Transfer learning complete: efficiency=${(transferEfficiency * 100).toFixed(1)}%`);
+
+      return transferState;
+    } finally {
+      // Always clear the training flag; roll the corpus back if we did not finish cleanly.
+      this.isTraining = false;
+      if (!completed) {
+        this.state.training_data = snapshotTrainingData;
+      }
+    }
   }
 
   /** Load JM Die data (subset of loadTrainingData) */
@@ -1931,7 +1944,7 @@ export class WEDMNeuralTrainingEngine {
     );
     for (const tip of tips.slice(0, 20)) {  // Take first 20 relevant tips
       // Extract implicit training signal from tips
-      if (tip.body.includes("Ra") || tip.body.includes("surface")) {
+      if ("body" in tip && (tip.body.includes("Ra") || tip.body.includes("surface"))) {
         const features: NeuralFeatures = {
           thickness_mm: 50,
           material_hardness_idx: 0.8,

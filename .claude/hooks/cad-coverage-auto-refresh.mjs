@@ -105,7 +105,7 @@ function kickScanner(reason) {
     const tsxCli = resolve("H:/prism/mcp-server/node_modules/tsx/dist/cli.mjs");
     const child = spawn(process.execPath, [tsxCli, SCANNER, SCAN_ROOT], {
       stdio: ["ignore", fd, fd],
-      detached: true,
+      detached: true, windowsHide: true,
       shell: false,
       cwd: resolve("H:/prism/mcp-server"),
     });

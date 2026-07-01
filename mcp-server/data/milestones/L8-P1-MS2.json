@@ -1,0 +1,1191 @@
+{
+  "id": "L8-P1-MS2",
+  "version": "3.1.0",
+  "title": "CAD/CAM Learning Web UI",
+  "brief": "Learning platform UI: skill assessment, personalized learning paths, progress tracking, knowledge search, material/tool/machine selection wizards — wired to 10 learning API endpoints.",
+  "created_at": "2026-02-26T20:14:19Z",
+  "created_by": "claude-opus-4.6",
+  "phases": [
+    {
+      "id": "P0",
+      "title": "CAD/CAM Learning Web UI",
+      "description": "Build the learning platform web interface with assessment, learning paths, progress tracking, knowledge search, and selection wizards.",
+      "sessions": "3-4",
+      "primary_role": "R2",
+      "primary_model": "sonnet-4.6",
+      "units": [
+        {
+          "id": "P0-U01",
+          "title": "Learning API Client & Types",
+          "phase": "P0",
+          "sequence": 0,
+          "role": "R2",
+          "role_name": "Frontend Engineer",
+          "model": "sonnet-4.6",
+          "effort": 60,
+          "tools": [
+            {
+              "tool": "prism_dev"
+            }
+          ],
+          "skills": [],
+          "scripts": [],
+          "hooks": [],
+          "features": [],
+          "dependencies": [
+            "S3-MS1:P0-U01"
+          ],
+          "entry_conditions": [
+            "L8-P1-MS1 complete",
+            "Frontend scaffold exists"
+          ],
+          "exit_conditions": [
+            "Typed API client for all 10 learning endpoints",
+            "React hooks for each endpoint",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
+          ],
+          "rollback": "git checkout -- web/src/api/learning.ts",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Create web/src/api/learning.ts with typed functions for all 10 endpoints"
+            },
+            {
+              "number": 2,
+              "instruction": "Create web/src/types/learning.ts with TypeScript interfaces"
+            },
+            {
+              "number": 3,
+              "instruction": "Create web/src/hooks/useLearning.ts with React hooks"
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "web/src/api/learning.ts",
+              "type": "source",
+              "description": "Learning API client"
+            },
+            {
+              "path": "web/src/types/learning.ts",
+              "type": "source",
+              "description": "Learning types"
+            }
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": false,
+          "creates_hook": false,
+          "creates_command": false,
+          "description": "Learning API Client & Types — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P0-U02",
+          "title": "Learning Dashboard",
+          "phase": "P0",
+          "sequence": 1,
+          "role": "R2",
+          "role_name": "Frontend Engineer",
+          "model": "sonnet-4.6",
+          "effort": 80,
+          "tools": [
+            {
+              "tool": "prism_dev"
+            }
+          ],
+          "skills": [],
+          "scripts": [],
+          "hooks": [],
+          "features": [
+            "Claude Preview"
+          ],
+          "dependencies": [
+            "P0-U01"
+          ],
+          "entry_conditions": [
+            "Learning API client available"
+          ],
+          "exit_conditions": [
+            "Dashboard at /learning with skill radar chart",
+            "Progress bar, level indicator",
+            "Quick-action cards"
+          ],
+          "rollback": "git checkout -- web/src/pages/LearningDashboard.tsx",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Create LearningDashboard.tsx with skill radar chart"
+            },
+            {
+              "number": 2,
+              "instruction": "Add progress summary and quick-action cards"
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "web/src/pages/LearningDashboard.tsx",
+              "type": "source",
+              "description": "Learning dashboard"
+            }
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": false,
+          "creates_hook": false,
+          "creates_command": false,
+          "description": "Learning Dashboard — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P0-U03",
+          "title": "Skill Assessment Wizard",
+          "phase": "P0",
+          "sequence": 2,
+          "role": "R2",
+          "role_name": "Frontend Engineer",
+          "model": "sonnet-4.6",
+          "effort": 80,
+          "tools": [
+            {
+              "tool": "prism_dev"
+            }
+          ],
+          "skills": [],
+          "scripts": [],
+          "hooks": [],
+          "features": [
+            "Claude Preview"
+          ],
+          "dependencies": [
+            "P0-U01"
+          ],
+          "entry_conditions": [
+            "Learning API assess() available"
+          ],
+          "exit_conditions": [
+            "Multi-step wizard: domain selection, questions, results",
+            "4 domains: CAD, CAM, Shop Practice, Machine Operation",
+            "Per-domain scores with strength/weakness breakdown"
+          ],
+          "rollback": "git checkout -- web/src/components/learning/Assessment.tsx",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Create Assessment.tsx with step wizard flow"
+            },
+            {
+              "number": 2,
+              "instruction": "Wire to POST /api/v1/learning/assess"
+            },
+            {
+              "number": 3,
+              "instruction": "Display results with radar chart and text summary"
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "web/src/components/learning/Assessment.tsx",
+              "type": "source",
+              "description": "Assessment wizard"
+            }
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": false,
+          "creates_hook": false,
+          "creates_command": false,
+          "description": "Skill Assessment Wizard — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P0-U04",
+          "title": "Learning Path View",
+          "phase": "P0",
+          "sequence": 3,
+          "role": "R2",
+          "role_name": "Frontend Engineer",
+          "model": "sonnet-4.6",
+          "effort": 80,
+          "tools": [
+            {
+              "tool": "prism_dev"
+            }
+          ],
+          "skills": [],
+          "scripts": [],
+          "hooks": [],
+          "features": [
+            "Claude Preview"
+          ],
+          "dependencies": [
+            "P0-U03"
+          ],
+          "entry_conditions": [
+            "Assessment provides skill levels"
+          ],
+          "exit_conditions": [
+            "Personalized learning path as vertical timeline",
+            "Module cards: title, domain, time, difficulty, prerequisites",
+            "Current and next recommended modules highlighted"
+          ],
+          "rollback": "git checkout -- web/src/components/learning/LearningPath.tsx",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Create LearningPath.tsx from POST /api/v1/learning/plan"
+            },
+            {
+              "number": 2,
+              "instruction": "Highlight current + next from POST /api/v1/learning/recommend"
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "web/src/components/learning/LearningPath.tsx",
+              "type": "source",
+              "description": "Learning path"
+            }
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": false,
+          "creates_hook": false,
+          "creates_command": false,
+          "description": "Learning Path View — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P0-U05",
+          "title": "Progress Tracker",
+          "phase": "P0",
+          "sequence": 4,
+          "role": "R2",
+          "role_name": "Frontend Engineer",
+          "model": "sonnet-4.6",
+          "effort": 60,
+          "tools": [
+            {
+              "tool": "prism_dev"
+            }
+          ],
+          "skills": [],
+          "scripts": [],
+          "hooks": [],
+          "features": [],
+          "dependencies": [
+            "P0-U04"
+          ],
+          "entry_conditions": [
+            "Learning path view available"
+          ],
+          "exit_conditions": [
+            "Per-domain completion bars",
+            "Time chart daily/weekly",
+            "Achievement badges, streak counter"
+          ],
+          "rollback": "git checkout -- web/src/components/learning/ProgressTracker.tsx",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Create ProgressTracker.tsx from POST /api/v1/learning/progress"
+            },
+            {
+              "number": 2,
+              "instruction": "Add time chart and badges gallery"
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "web/src/components/learning/ProgressTracker.tsx",
+              "type": "source",
+              "description": "Progress tracker"
+            }
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": false,
+          "creates_hook": false,
+          "creates_command": false,
+          "description": "Progress Tracker — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P0-U06",
+          "title": "Knowledge Search",
+          "phase": "P0",
+          "sequence": 5,
+          "role": "R2",
+          "role_name": "Frontend Engineer",
+          "model": "sonnet-4.6",
+          "effort": 80,
+          "tools": [
+            {
+              "tool": "prism_dev"
+            }
+          ],
+          "skills": [],
+          "scripts": [],
+          "hooks": [],
+          "features": [
+            "Claude Preview"
+          ],
+          "dependencies": [
+            "P0-U01"
+          ],
+          "entry_conditions": [
+            "Learning API search/tribal available"
+          ],
+          "exit_conditions": [
+            "Search page with text input, domain filter, source filter",
+            "Results: title, excerpt, domain badge, relevance score",
+            "Detail view for full content"
+          ],
+          "rollback": "git checkout -- web/src/components/learning/KnowledgeSearch.tsx",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Create KnowledgeSearch.tsx with search bar and filters"
+            },
+            {
+              "number": 2,
+              "instruction": "Wire to POST /api/v1/learning/knowledge/search and /tribal"
+            },
+            {
+              "number": 3,
+              "instruction": "Result cards with match highlighting, detail modal"
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "web/src/components/learning/KnowledgeSearch.tsx",
+              "type": "source",
+              "description": "Knowledge search"
+            }
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": false,
+          "creates_hook": false,
+          "creates_command": false,
+          "description": "Knowledge Search — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P0-U07",
+          "title": "Material Selection Wizard",
+          "phase": "P0",
+          "sequence": 6,
+          "role": "R2",
+          "role_name": "Frontend Engineer",
+          "model": "sonnet-4.6",
+          "effort": 80,
+          "tools": [
+            {
+              "tool": "prism_dev"
+            }
+          ],
+          "skills": [],
+          "scripts": [],
+          "hooks": [],
+          "features": [
+            "Claude Preview"
+          ],
+          "dependencies": [
+            "P0-U01"
+          ],
+          "entry_conditions": [
+            "Learning API selectMaterial available"
+          ],
+          "exit_conditions": [
+            "Wizard: requirements → recommendations → comparison → selection",
+            "Match scores and property comparison table",
+            "'Calculate with this' links to SFC"
+          ],
+          "rollback": "git checkout -- web/src/components/learning/MaterialWizard.tsx",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Create MaterialWizard.tsx with step flow"
+            },
+            {
+              "number": 2,
+              "instruction": "Wire to POST /api/v1/learning/select/material"
+            },
+            {
+              "number": 3,
+              "instruction": "Add comparison table and SFC link"
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "web/src/components/learning/MaterialWizard.tsx",
+              "type": "source",
+              "description": "Material wizard"
+            }
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": false,
+          "creates_hook": false,
+          "creates_command": false,
+          "description": "Material Selection Wizard — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P0-U08",
+          "title": "Tool Selection Wizard",
+          "phase": "P0",
+          "sequence": 7,
+          "role": "R2",
+          "role_name": "Frontend Engineer",
+          "model": "sonnet-4.6",
+          "effort": 80,
+          "tools": [
+            {
+              "tool": "prism_dev"
+            }
+          ],
+          "skills": [],
+          "scripts": [],
+          "hooks": [],
+          "features": [
+            "Claude Preview"
+          ],
+          "dependencies": [
+            "P0-U01"
+          ],
+          "entry_conditions": [
+            "Learning API selectTool available"
+          ],
+          "exit_conditions": [
+            "Wizard: operation+material → tool recommendations → specs → selection",
+            "Tool specs: flute count, helix angle, recommended params",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
+          ],
+          "rollback": "git checkout -- web/src/components/learning/ToolWizard.tsx",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Create ToolWizard.tsx with operation+material input"
+            },
+            {
+              "number": 2,
+              "instruction": "Wire to POST /api/v1/learning/select/tool"
+            },
+            {
+              "number": 3,
+              "instruction": "Tool spec cards with geometry info"
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "web/src/components/learning/ToolWizard.tsx",
+              "type": "source",
+              "description": "Tool wizard"
+            }
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": false,
+          "creates_hook": false,
+          "creates_command": false,
+          "description": "Tool Selection Wizard — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P0-U09",
+          "title": "Machine Selection Wizard",
+          "phase": "P0",
+          "sequence": 8,
+          "role": "R2",
+          "role_name": "Frontend Engineer",
+          "model": "sonnet-4.6",
+          "effort": 80,
+          "tools": [
+            {
+              "tool": "prism_dev"
+            }
+          ],
+          "skills": [],
+          "scripts": [],
+          "hooks": [],
+          "features": [
+            "Claude Preview"
+          ],
+          "dependencies": [
+            "P0-U01"
+          ],
+          "entry_conditions": [
+            "Learning API selectMachine available"
+          ],
+          "exit_conditions": [
+            "Wizard: part requirements → machine recommendations → comparison",
+            "Machine specs: axes, table, spindle, power, accuracy",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
+          ],
+          "rollback": "git checkout -- web/src/components/learning/MachineWizard.tsx",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Create MachineWizard.tsx with requirement inputs"
+            },
+            {
+              "number": 2,
+              "instruction": "Wire to POST /api/v1/learning/select/machine"
+            },
+            {
+              "number": 3,
+              "instruction": "Comparison view with capability match scores"
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "web/src/components/learning/MachineWizard.tsx",
+              "type": "source",
+              "description": "Machine wizard"
+            }
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": false,
+          "creates_hook": false,
+          "creates_command": false,
+          "description": "Machine Selection Wizard — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P0-U10",
+          "title": "Digital Twin Panel",
+          "phase": "P0",
+          "sequence": 9,
+          "role": "R2",
+          "role_name": "Frontend Engineer",
+          "model": "sonnet-4.6",
+          "effort": 80,
+          "tools": [
+            {
+              "tool": "prism_dev"
+            }
+          ],
+          "skills": [],
+          "scripts": [],
+          "hooks": [],
+          "features": [],
+          "dependencies": [
+            "P0-U01"
+          ],
+          "entry_conditions": [
+            "Learning API twin() available"
+          ],
+          "exit_conditions": [
+            "Live status gauges: spindle RPM, feed, position XYZ",
+            "Alert indicators for out-of-spec",
+            "History sparkline chart"
+          ],
+          "rollback": "git checkout -- web/src/components/learning/DigitalTwin.tsx",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Create DigitalTwin.tsx with status gauges"
+            },
+            {
+              "number": 2,
+              "instruction": "Wire to POST /api/v1/learning/twin"
+            },
+            {
+              "number": 3,
+              "instruction": "Add alerts and history chart"
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "web/src/components/learning/DigitalTwin.tsx",
+              "type": "source",
+              "description": "Digital twin panel"
+            }
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": false,
+          "creates_hook": false,
+          "creates_command": false,
+          "description": "Digital Twin Panel — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P0-U11",
+          "title": "Learning Layout & Sub-Navigation",
+          "phase": "P0",
+          "sequence": 10,
+          "role": "R2",
+          "role_name": "Frontend Engineer",
+          "model": "sonnet-4.6",
+          "effort": 60,
+          "tools": [
+            {
+              "tool": "prism_dev"
+            }
+          ],
+          "skills": [],
+          "scripts": [],
+          "hooks": [],
+          "features": [],
+          "dependencies": [
+            "P0-U02",
+            "P0-U06",
+            "P0-U10"
+          ],
+          "entry_conditions": [
+            "All learning components complete"
+          ],
+          "exit_conditions": [
+            "Section nav: Dashboard, Assessment, Path, Knowledge, Wizards, Twin",
+            "Sub-routes under /learning/*",
+            "Breadcrumb nav, responsive layout"
+          ],
+          "rollback": "git checkout -- web/src/layouts/LearningLayout.tsx",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Create LearningLayout.tsx with sidebar nav and nested Outlet"
+            },
+            {
+              "number": 2,
+              "instruction": "Configure sub-routes and breadcrumbs"
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "web/src/layouts/LearningLayout.tsx",
+              "type": "source",
+              "description": "Learning layout"
+            }
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": false,
+          "creates_hook": false,
+          "creates_command": false,
+          "description": "Learning Layout & Sub-Navigation — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P0-U12",
+          "title": "Shared Chart Components",
+          "phase": "P0",
+          "sequence": 11,
+          "role": "R2",
+          "role_name": "Frontend Engineer",
+          "model": "sonnet-4.6",
+          "effort": 60,
+          "tools": [
+            {
+              "tool": "prism_dev"
+            }
+          ],
+          "skills": [],
+          "scripts": [],
+          "hooks": [],
+          "features": [],
+          "dependencies": [
+            "P0-U05"
+          ],
+          "entry_conditions": [
+            "Progress data available"
+          ],
+          "exit_conditions": [
+            "RadarChart, BarChart, ProgressRing, Sparkline components",
+            "PRISM color palette, accessible contrast",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
+          ],
+          "rollback": "git checkout -- web/src/components/charts/",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Install Recharts, create shared chart wrapper components"
+            },
+            {
+              "number": 2,
+              "instruction": "Build RadarChart, BarChart, ProgressRing, Sparkline"
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "web/src/components/charts/",
+              "type": "source",
+              "description": "Chart components"
+            }
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": false,
+          "creates_hook": false,
+          "creates_command": false,
+          "description": "Shared Chart Components — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P0-U13",
+          "title": "Cross-Links to SFC & PPG",
+          "phase": "P0",
+          "sequence": 12,
+          "role": "R2",
+          "role_name": "Frontend Engineer",
+          "model": "sonnet-4.6",
+          "effort": 40,
+          "tools": [
+            {
+              "tool": "prism_dev"
+            }
+          ],
+          "skills": [],
+          "scripts": [],
+          "hooks": [],
+          "features": [],
+          "dependencies": [
+            "P0-U11"
+          ],
+          "entry_conditions": [
+            "Learning context and SFC/PPG pages exist"
+          ],
+          "exit_conditions": [
+            "Material wizard 'Calculate' navigates to /sfc pre-filled",
+            "Knowledge entries link to PPG templates",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
+          ],
+          "rollback": "git checkout -- web/src/utils/crossLinks.ts",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Create crossLinks.ts: buildSfcUrl(material), buildPpgUrl(operation)"
+            },
+            {
+              "number": 2,
+              "instruction": "Wire wizard buttons to navigate with query params"
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "web/src/utils/crossLinks.ts",
+              "type": "source",
+              "description": "Cross-page nav utils"
+            }
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": false,
+          "creates_hook": false,
+          "creates_command": false,
+          "description": "Cross-Links to SFC & PPG — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P0-U14",
+          "title": "Learning State Context",
+          "phase": "P0",
+          "sequence": 13,
+          "role": "R2",
+          "role_name": "Frontend Engineer",
+          "model": "sonnet-4.6",
+          "effort": 60,
+          "tools": [
+            {
+              "tool": "prism_dev"
+            }
+          ],
+          "skills": [],
+          "scripts": [],
+          "hooks": [],
+          "features": [],
+          "dependencies": [
+            "P0-U13"
+          ],
+          "entry_conditions": [
+            "All learning components integrated"
+          ],
+          "exit_conditions": [
+            "LearningContext: currentSkills, activePath, searchHistory",
+            "LocalStorage persistence for cross-session",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
+          ],
+          "rollback": "git checkout -- web/src/contexts/LearningContext.tsx",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Create LearningContext.tsx with shared state"
+            },
+            {
+              "number": 2,
+              "instruction": "Add localStorage persistence"
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "web/src/contexts/LearningContext.tsx",
+              "type": "source",
+              "description": "Learning state"
+            }
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": false,
+          "creates_hook": false,
+          "creates_command": false,
+          "description": "Learning State Context — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P0-U15",
+          "title": "Learning Testing & Polish",
+          "phase": "P0",
+          "sequence": 14,
+          "role": "R2",
+          "role_name": "Frontend Engineer",
+          "model": "sonnet-4.6",
+          "effort": 60,
+          "tools": [
+            {
+              "tool": "prism_dev"
+            },
+            {
+              "tool": "prism_validate"
+            }
+          ],
+          "skills": [],
+          "scripts": [],
+          "hooks": [],
+          "features": [],
+          "dependencies": [
+            "P0-U14"
+          ],
+          "entry_conditions": [
+            "All learning components integrated"
+          ],
+          "exit_conditions": [
+            "Component tests for all learning components",
+            "Integration test: assess → path → search → select material → SFC link",
+            "npm run build/test passes"
+          ],
+          "rollback": "git checkout -- web/src/__tests__/learning/",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Write component tests with mocked API"
+            },
+            {
+              "number": 2,
+              "instruction": "Write integration test for full flow"
+            },
+            {
+              "number": 3,
+              "instruction": "Polish: loading skeletons, empty states, error boundaries"
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "web/src/__tests__/learning/",
+              "type": "test",
+              "description": "Learning tests"
+            }
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": false,
+          "creates_hook": false,
+          "creates_command": false,
+          "description": "Learning Testing & Polish — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        }
+      ],
+      "gate": {
+        "omega_floor": 0.75,
+        "safety_floor": 0.7,
+        "ralph_required": false,
+        "ralph_grade_floor": "B",
+        "anti_regression": true,
+        "test_required": true,
+        "build_required": true,
+        "checkpoint": true,
+        "learning_save": true,
+        "custom_checks": [
+          "Assessment produces valid scores for 4 domains",
+          "Learning path personalizes based on assessment",
+          "Cross-links to SFC work"
+        ]
+      },
+      "scrutiny_checkpoint": false,
+      "scrutiny_focus": []
+    }
+  ],
+  "total_units": 15,
+  "total_sessions": "3-4",
+  "role_matrix": [
+    {
+      "code": "R2",
+      "name": "Frontend Engineer",
+      "model": "sonnet-4.6",
+      "effort": 80
+    }
+  ],
+  "tool_map": [
+    {
+      "tool": "prism_dev",
+      "phases": [
+        "P0"
+      ]
+    },
+    {
+      "tool": "prism_validate",
+      "phases": [
+        "P0"
+      ]
+    },
+    {
+      "tool": "Claude Preview",
+      "phases": [
+        "P0"
+      ],
+      "purpose": "external"
+    },
+    {
+      "tool": "Context7",
+      "phases": [
+        "P0"
+      ],
+      "purpose": "external"
+    }
+  ],
+  "deliverables_index": [
+    {
+      "path": "web/src/api/learning.ts",
+      "type": "source",
+      "description": "Learning API client"
+    },
+    {
+      "path": "web/src/pages/LearningDashboard.tsx",
+      "type": "source",
+      "description": "Dashboard"
+    },
+    {
+      "path": "web/src/components/learning/Assessment.tsx",
+      "type": "source",
+      "description": "Assessment"
+    },
+    {
+      "path": "web/src/components/learning/LearningPath.tsx",
+      "type": "source",
+      "description": "Learning path"
+    },
+    {
+      "path": "web/src/components/learning/KnowledgeSearch.tsx",
+      "type": "source",
+      "description": "Knowledge search"
+    },
+    {
+      "path": "web/src/components/learning/MaterialWizard.tsx",
+      "type": "source",
+      "description": "Material wizard"
+    },
+    {
+      "path": "web/src/components/learning/ToolWizard.tsx",
+      "type": "source",
+      "description": "Tool wizard"
+    },
+    {
+      "path": "web/src/components/learning/MachineWizard.tsx",
+      "type": "source",
+      "description": "Machine wizard"
+    },
+    {
+      "path": "web/src/components/learning/DigitalTwin.tsx",
+      "type": "source",
+      "description": "Digital twin"
+    }
+  ],
+  "existing_leverage": [
+    {
+      "asset": "routes/learning.ts",
+      "type": "api_route",
+      "description": "10 learning REST endpoints"
+    },
+    {
+      "asset": "engines/LearningEngine.ts",
+      "type": "engine",
+      "description": "Assessment and path generation"
+    },
+    {
+      "asset": "engines/KnowledgeEngine.ts",
+      "type": "engine",
+      "description": "Knowledge search"
+    }
+  ],
+  "scrutiny_config": {
+    "pass_mode": "adaptive",
+    "min_passes": 3,
+    "max_passes": 7,
+    "convergence_rule": "delta < 2",
+    "escalation_rule": "if pass 4+ finds CRITICAL, flag for human review",
+    "scrutinizer_model": "opus-4.6",
+    "scrutinizer_effort": 90,
+    "gap_categories": [
+      "missing_tools",
+      "missing_deps",
+      "missing_exit_conditions",
+      "missing_rollback",
+      "sequence_errors"
+    ],
+    "improvement_threshold": 0.92
+  },
+  "status": "not_started",
+  "smart_config": {
+    "role": "implementer + reviewer",
+    "model": "sonnet",
+    "effort": "HIGH",
+    "context_budget": "65%"
+  },
+  "mcp_lifecycle": {
+    "session_start": [
+      "prism_session:context_boot",
+      "prism_session:dispatcher_map",
+      "prism_session:memory_recall",
+      "prism_session:system_snapshot",
+      "prism_session:action_search"
+    ],
+    "during_work": [
+      "prism_session:auto_checkpoint",
+      "prism_session:tool_route_best",
+      "prism_session:wip_capture"
+    ],
+    "session_end": [
+      "prism_session:memory_save",
+      "prism_session:system_snapshot",
+      "prism_session:checkpoint_enhanced"
+    ]
+  },
+  "forge_triple": {
+    "protective_hook": "l8-p1-ms2-gate",
+    "mcp_action": "prism_l8:l8_p1_ms2_run",
+    "skill_command": "/l8-p1-ms2",
+    "ownership": "DECLARED — BUILT in terminal unit of this milestone"
+  },
+  "feature_cascade": {
+    "new_hooks": [
+      "l8-p1-ms2-gate"
+    ],
+    "new_actions": [
+      "l8_p1_ms2_run"
+    ],
+    "new_skills": [
+      "/l8-p1-ms2"
+    ],
+    "available_to": [
+      "downstream CAMX milestones",
+      "prism app consumers"
+    ]
+  },
+  "knowledge_sources": {
+    "engines": [
+      "ENGINE_DIGEST.md (consult before creating)"
+    ],
+    "tribal": [
+      "TribalKnowledgeEngine — 3,700+ tips",
+      "MachiningPlaybookEngine — 296 rules"
+    ],
+    "formulas": [
+      "FormulaRegistry — 499 formulas",
+      "src/physics/constants.ts — canonical"
+    ],
+    "reference": [
+      "EXTERNAL-REFERENCE-PROGRAMS-INDEX.md",
+      "MaterialRegistry",
+      "MachineRegistry",
+      "ToolCatalogEngine (95,608 tools)"
+    ]
+  },
+  "intent": "Learning platform UI: skill assessment, personalized learning paths, progress tracking, knowledge search, material/tool/machine selection wizards — wired to 10 learning API endpoints.",
+  "compact_checkpoint": "every 3 units — auto-triggered by hook",
+  "enforcement_hooks_active": [
+    "physics agent",
+    "wiring agent",
+    "constants checker",
+    "stub detector",
+    "test quality",
+    "forge-triple gate",
+    "session audit agent"
+  ]
+}

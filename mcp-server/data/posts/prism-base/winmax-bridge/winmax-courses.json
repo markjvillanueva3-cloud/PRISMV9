@@ -1,0 +1,74 @@
+{
+  "schemaVersion": "1.0.0",
+  "controller": "WinMax Mill 10.4.0.32407 DC (DS Desktop simulator, VMX42SRTi)",
+  "description": "WinMax 'courses' = named, ordered, VISION-FREE step-sequences that drive the WinMax GUI through each production phase (load program, define tools, set offsets, verify). A course composes the primitives the runner (scripts/winmax-course-run.mjs) knows how to execute against PrismWinMaxUI.exe (UIA driver) + winmax-ui-map.json (FSM navigation). Steps are deterministic: no screenshot/vision is used at runtime — navigation is FSM-key emission, field read/write is UIA by AutomationId. This is the 'plot out your courses to successful step' deliverable; proven courses become the replayable spine of the closed-loop self-test harness. slot:echo.",
+  "updated": "2026-05-31",
+  "facts": {
+    "unitsAreInch": "The PRISM base job + RICH NC declare G20 (inch). A 25.4x mislabel is the #1 catastrophic error — every diameter/length below is INCH.",
+    "undefinedToolsNonBlocking": "WinMax Mill User Guide p99: a tool used in the NC program but not defined in Tool Setup renders in Tool Review as an unknown tool (diameter 0, unknown location) — it does NOT block Draw/verify. So a graphics-verify course does NOT require T1-T4 to be defined first.",
+    "verifyTrigger": "User Guide p459-460: 'View the part using the Draw console key to verify that the part is programmed correctly.' Draw is a console key; its DS-Desktop keyboard/toolbar binding is the one unresolved leaf (see course verify-program step 'draw-trigger').",
+    "fieldInputRecipe": "Numeric fields accept digits ONLY in edit mode, entered by a CLICK. Proven recipe per field: click <id> -> type-raw '<digits>' -> type-raw '{ENTER}'. {ENTER} commits + advances. In the add-tool GEOMETRY form commit with {TAB} not {ENTER} (ENTER = save+exit, fires before value commits).",
+    "softkeyCollision": "Softkey Buttons (ids 301-308) collide with data-field Edit ids on the same screen. The driver's Locate is Edit-preferred for data ops; softkeys are actuated by sendkeys '{Fn}', never by id-invoke."
+  },
+  "primitives": {
+    "nav": "Navigate FSM map from current screen to args.to via winmax-ui-map.mjs shortestPath; runner emits each transition key with sendkeys. Re-fingerprints (whereami) after to confirm arrival.",
+    "key": "sendkeys args.keys verbatim (e.g. '{F8}').",
+    "field": "Proven field recipe: click args.id -> type-raw args.value -> type-raw (args.commit||'{ENTER}'). args.commit='{TAB}' on geometry forms.",
+    "assert": "get-text args.id; PASS iff value === args.equals (or matches args.matches regex). Records actual.",
+    "read": "get-text args.id; logs value (no pass/fail).",
+    "fingerprint": "probe -> winmax-ui-map.mjs whereami; logs matched screen (or null + signature for map-gap discovery).",
+    "note": "documentation-only no-op; carries 'text'."
+  },
+  "courses": {
+    "verify-program": {
+      "status": "draft",
+      "goal": "Run a graphics verify (Draw) of the currently-loaded ISNC program and read the result. Does NOT require tools defined (undefinedToolsNonBlocking).",
+      "preconditions": ["An NC program is loaded in the ISNC editor (see course load-program)."],
+      "steps": [
+        { "op": "note", "text": "Undefined tools render as unknown (dia 0) and do NOT block Draw. We verify program correctness, not tool geometry, here." },
+        { "op": "nav", "to": "ISNC_EDITOR", "note": "Ensure we are at the editor where the program buffer lives." },
+        { "op": "fingerprint", "expectScreen": "ISNC_EDITOR" },
+        { "op": "draw-trigger", "status": "UNRESOLVED", "candidates": ["one-time coordinate calibration of the DS toolbar Draw button (CONFIRMED path: toolbar buttons are NOT in the UIA accessibility tree — no Name, no HelpText tooltip; only a single coord-readout button exposes text. So this is a genuine vision touch-point, identified ONCE then click-xy forever on the fixed-layout maximized window)", "a DS keyboard accelerator for Draw (search CHM/manual)", "a Part Programming / DRAW softkey on a not-yet-mapped conversational screen"], "note": "The single unresolved leaf, and a GENUINE vision boundary (not a mapping gap): WinMax DS draws the console-key toolbar graphically with no UIA tooltip (verified 2026-05-31 after adding HelpText extraction — find 'draw' returns []). Resolve by one-time visual id of the Draw button coordinate, then click-xy; OR a keyboard accelerator if the manual documents one." },
+        { "op": "read", "id": "StatusBar.Pane0", "note": "Status line is GRAPHICAL (UIA value empty) — graphics verdict likely needs the rendered graphics window, not this pane. Honest gap: verify PASS/FAIL read may require the one genuine vision touch-point." }
+      ]
+    },
+    "define-tool": {
+      "status": "proven-primitives",
+      "goal": "Define one per-program tool (TOOL SETUP form) with diameter + calibrated length, then save. Proven recipe; TYPE dropdown is optional for verify.",
+      "params": { "toolNumber": 1, "diameter": "2.0", "calLength": "2.0" },
+      "steps": [
+        { "op": "nav", "to": "TOOL_SETUP_FORM", "note": "INPUT_MENU -> F1 PART SETUP -> F2 TOOL SETUP per FSM map." },
+        { "op": "fingerprint", "expectScreen": "TOOL_SETUP_FORM", "note": "May report null if the database-list variant is overlaid (signature has 329/332 + hasList) — known map gap." },
+        { "op": "field", "id": "301", "value": "${toolNumber}", "note": "TOOL NUMBER" },
+        { "op": "field", "id": "303", "value": "${diameter}", "note": "DIAMETER (inch)" },
+        { "op": "field", "id": "310", "value": "${calLength}", "note": "TOOL CAL LENGTH (inch)" },
+        { "op": "assert", "id": "303", "equals": "${diameter}", "note": "Confirm diameter committed. Numeric compare: WinMax pads to 4 decimals (2.0 -> '2.0000'), valuesMatch parses both sides as numbers." }
+      ]
+    },
+    "load-program": {
+      "status": "draft-gap",
+      "goal": "Open a .nc file into the ISNC editor.",
+      "gaps": ["PROGRAM_MANAGER screen (INPUT_MENU F8) not yet mapped — file-open dialog flow unknown."],
+      "steps": [
+        { "op": "nav", "to": "INPUT_MENU" },
+        { "op": "key", "keys": "{F8}", "note": "PROGRAM MANAGER — then file-open flow (UNMAPPED)." },
+        { "op": "note", "text": "Resolve PROGRAM_MANAGER file-open flow live, then encode concrete steps." }
+      ]
+    },
+    "set-work-offset": {
+      "status": "draft-gap",
+      "goal": "Set the G54 part-zero work offset.",
+      "gaps": ["WORK_OFFSETS form (PART_SETUP F1) not yet mapped — field ids unknown."],
+      "steps": [
+        { "op": "nav", "to": "PART_SETUP" },
+        { "op": "key", "keys": "{F1}", "note": "WORK OFFSETS (UNMAPPED form)." },
+        { "op": "fingerprint", "note": "Discover the work-offset form's Edit ids, then encode field steps." }
+      ]
+    }
+  },
+  "gaps": [
+    "draw-trigger: the Draw console key's DS-Desktop binding (toolbar button vs keyboard vs softkey).",
+    "graphics-verify result read: the verdict is rendered graphically; reading PASS/FAIL may be the one genuine vision touch-point.",
+    "PROGRAM_MANAGER + WORK_OFFSETS forms unmapped (blocks load-program + set-work-offset courses)."
+  ]
+}

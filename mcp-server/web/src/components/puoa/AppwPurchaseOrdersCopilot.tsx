@@ -79,7 +79,7 @@ function buildSummary(props: AppwPurchaseOrdersCopilotProps) {
   if (props.upstreamSourceLabel) posture.push(`upstream ${props.upstreamSourceLabel}`);
   if (props.upstreamRecordLabel) posture.push(`record ${props.upstreamRecordLabel}`);
 
-  return `PRISM AI is reasoning over live purchase-order flow, approval and receiving pressure, AP aging, three-way match posture, spend concentration, route freshness, degraded-lane signals, and workflow continuity for the Purchase Orders desk. Current posture: ${posture.join(' | ')}.`;
+  return `Kienzle AI is reasoning over live purchase-order flow, approval and receiving pressure, AP aging, three-way match posture, spend concentration, route freshness, degraded-lane signals, and workflow continuity for the Purchase Orders desk. Current posture: ${posture.join(' | ')}.`;
 }
 
 function buildSuggestions(props: AppwPurchaseOrdersCopilotProps): WorkspaceCopilotSuggestion[] {

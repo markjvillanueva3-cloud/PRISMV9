@@ -23,17 +23,14 @@ related:
 |-------|-------|
 | Name | `wedm-explain` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/wedm-explain.md` |
+| Source | `C:/Users/wompu/.claude/commands/wedm-explain.md` |
 | Model | default |
 | Tags | _(none)_ |
 
 ## Description (first paragraph)
 
-Answer the operator-facing "why did the model say that?" question for every
-WEDM prediction. Uses the lattice graph (P5-GNN) to anchor every output at a
-concrete (material × controller × wire × thickness) node, surfaces the prior
-programs that have already been cut at that node, and breaks the predicted
-value into its physics / LoRA / lattice-prior contributions.
+
+# /wedm-explain — WEDM Prediction Explanation
 
 <!-- AUTO-END -->
 

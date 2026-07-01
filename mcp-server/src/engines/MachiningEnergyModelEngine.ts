@@ -4,7 +4,24 @@
  * Models total energy: spindle power + axis drives + coolant + ATC + idle.
  * Uses Gutowski energy model + Kienzle cutting force.
  * SEC (Specific Energy Consumption) = E_total / V_removed.
+ *
+ * Kienzle constants are imported from `src/physics/constants.ts` per the
+ * CLAUDE.md hard safety rail "NEVER inline Kienzle/Taylor/material constants".
+ * The previous inline `KC11` table (P:2100, M:2500, K:1500, N:800, S:3200,
+ * H:4000) drifted from canonical values (P:1800, M:2100, K:1100, N:700,
+ * S:2800, H:3200) by 14-28% per ISO group; canonical is the single source of
+ * truth. Fixed 2026-05-17 kilo, U-WIRE-ENERGY scrutiny round 2 (Reviewer B P0).
+ *
+ * Reference: Kienzle (1957). Fc = kc1_1 * ap * fz^(1-mc).
+ * Gutowski energy model: E_total = Σ(P_i * t_i) over spindle + axes + coolant
+ * + idle + ATC stages.
  */
+
+import { CANONICAL_KIENZLE } from "../physics/constants.js";
+import {
+  DEFAULT_ELECTRICITY_COST_USD_PER_KWH,
+  GRID_CO2_KG_PER_KWH,
+} from "../physics/sustainability-constants.js";
 
 interface AtomicValue<T> { value: T; unit: string; formula?: string; confidence?: number; }
 
@@ -45,15 +62,20 @@ export interface MachiningEnergyResult {
   recommendations: string[];
 }
 
-const KC11: Record<string, number> = { P: 2100, M: 2500, K: 1500, N: 800, S: 3200, H: 4000 };
-
 export class MachiningEnergyModelEngine {
   compute(input: MachiningEnergyInput): AtomicValue<MachiningEnergyResult> {
     const { cutting, tool, material, machine, coolant_type } = input;
-    const kc11 = KC11[material.iso_group] || 2100;
+    // Kienzle constants from canonical table — kc1_1 (specific cutting force,
+    // N/mm²) and mc (material exponent) both vary per ISO 513 group. Previously
+    // hardcoded kc11 (drifted 14-28% from canonical) and mc=0.25 (correct only
+    // for P/M); both now read from CANONICAL_KIENZLE per CLAUDE.md safety rail.
+    const { kc1_1, mc } = CANONICAL_KIENZLE[material.iso_group];
     const fz = cutting.feed_rate_mmmin / (cutting.spindle_rpm * tool.flute_count);
     const hm = fz * Math.sqrt(cutting.radial_depth_mm / tool.diameter_mm);
-    const Fc = kc11 * cutting.axial_depth_mm * hm * Math.pow(Math.max(0.001, hm), -0.25);
+    // Kienzle force: Fc = kc1_1 * ap * hm^(1-mc). The expansion
+    //   hm * hm^(-mc) === hm^(1-mc)
+    // preserves the original arithmetic shape while threading mc per-ISO.
+    const Fc = kc1_1 * cutting.axial_depth_mm * hm * Math.pow(Math.max(0.001, hm), -mc);
     const spindlePower = (Fc * cutting.cutting_speed_m_min) / 60000;
     const mrr = (cutting.axial_depth_mm * cutting.radial_depth_mm * cutting.feed_rate_mmmin) / 1000;
     const cycleTime = material.volume_to_remove_cm3 / Math.max(mrr, 0.001) * 1.15;
@@ -80,8 +102,8 @@ export class MachiningEnergyModelEngine {
         idle_kwh: r(iE), atc_kwh: r(atcE), total_kwh: r(total),
         sec_j_mm3: Math.round(sec * 100) / 100,
         cycle_time_min: Math.round(cycleTime * 100) / 100,
-        co2_kg: Math.round(total * 0.42 * 1000) / 1000,
-        cost_energy: Math.round(total * (input.electricity_cost_per_kwh || 0.12) * 1000) / 1000,
+        co2_kg: Math.round(total * GRID_CO2_KG_PER_KWH * 1000) / 1000,
+        cost_energy: Math.round(total * (input.electricity_cost_per_kwh || DEFAULT_ELECTRICITY_COST_USD_PER_KWH) * 1000) / 1000,
         efficiency_pct: Math.round(efficiency * 10) / 10,
         recommendations: recs,
       },

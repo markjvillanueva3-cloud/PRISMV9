@@ -1,0 +1,71 @@
+{
+  "id": "HURCO-WINMAX-PROVEOUT-MS0",
+  "version": "1.0.0",
+  "title": "Hurco V11 Master Post — WinMax Prove-Out Loop",
+  "brief": "Operator-loadable .hnc generation + structural anti-regression test for HurcoV11MillMasterPostEngine. Closes the user directive 'pick up where india left off with proving out the upgraded hurco post processor to the winmax app on my desktop' (2026-05-23, slot echo absorbing india's post-processor queue).",
+  "created_at": "2026-05-23T22:30:00Z",
+  "created_by": "claude-64f03cee (slot echo, absorbing india)",
+  "track": "POST",
+  "track_name": "Post-Processor Proving-Out",
+  "status": "complete",
+  "completed_at": "2026-05-23T22:40:00Z",
+  "completed_by": "claude-64f03cee (slot echo)",
+  "close_out_log": [
+    {
+      "unit": "P0-U01",
+      "status": "shipped",
+      "note": "mcp-server/src/__tests__/HurcoV11WinMaxProveOut.test.ts (14/14 PASS) — generates a real operator-loadable .hnc file from a representative JM Die op (face-mill 50x50mm Al-6061 block, T14 12mm 4FL, S5000, F800). Engine runs with prove_out:{enabled:true, feed_factor:0.5} (the canonical PROVE_OUT_DEFAULT_FEED_FACTOR) so the emitted F-words are 400 (= 800 × 0.5) instead of production 800. Output lands at state/shared/hurco-winmax-proveout/proveout-latest.hnc + a timestamped sibling. 14 structural assertions pin the WinMax-compatible shape: %-wrap (single `%` lead + single `%` tail; double-wrap-prevention check), O-program-number header (O5023), G21 metric, G54 work offset, T14 M06 tool change, S5000 M03 spindle, M08 flood coolant, G00 rapid + G01 linear codes (Hurco emits Fanuc-style two-digit), M30 program end, tools_used[] contains T14, prove_out_mode flag true, prove-out feed audit emitted at multiplier 0.5, zero physics-block warnings on sane defaults (aluminum + medium feed + small DOC + 15HP). Same invariants pin engine output so a future engine change cannot silently break WinMax compatibility."
+    }
+  ],
+  "linked_roadmap": "state/shared/specs/ROADMAP-CONSOLIDATED.md",
+  "phases": [
+    {
+      "id": "P0",
+      "title": "Operator-loadable prove-out + anti-regression pin",
+      "sessions": "1",
+      "units": [
+        {
+          "id": "P0-U01",
+          "title": "HurcoV11WinMaxProveOut test — emits .hnc + pins 14 structural invariants",
+          "effort": 25,
+          "dependencies": [],
+          "exit_conditions": [
+            "Engine call to HurcoV11MillMasterPostEngine.generateProgram() with prove_out:{enabled:true,feed_factor:0.5}",
+            "Output .hnc lands at state/shared/hurco-winmax-proveout/proveout-latest.hnc",
+            ".hnc has single leading % and single trailing % (DNC-framing, no double-wrap)",
+            "Header carries O-number + JM Die machine identifier + WinMax V11 controller tag + PROVE-OUT mode marker",
+            "Body contains G21/G54/T14 M06/S5000 M03/M08/G00/G01/M30 in canonical Hurco order",
+            "feed_optimizations[] contains a PROVE-OUT entry with multiplier 0.5 and optimized_feed_mm_min ≈ 400",
+            "physics_checks[] passes (no Kienzle/material blocks on sane defaults)",
+            "14/14 vitest assertions PASS via npx vitest run src/__tests__/HurcoV11WinMaxProveOut.test.ts"
+          ],
+          "description": "Operator drags state/shared/hurco-winmax-proveout/proveout-latest.hnc into the WinMax desktop app to validate the upgraded master post emits a syntactically correct + safety-gated first-piece program. Vitest assertions double as anti-regression — same invariants block future engine changes from breaking WinMax compatibility.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        }
+      ]
+    }
+  ],
+  "acceptance": "npx vitest run src/__tests__/HurcoV11WinMaxProveOut.test.ts → 14/14 PASS. proveout-latest.hnc has %-wrap + JM Die header + PROVE-OUT marker + canonical Hurco code sequence + M30 program end. Operator loads file into WinMax on desktop; controller accepts the program; first piece runs at 50% feed for visual audit.",
+  "risks": [
+    {
+      "id": "R1",
+      "description": "The test verifies the .hnc is WinMax-syntactically compatible (structural pattern matches the JM Die SQUARE CAM.hnc reference), NOT that WinMax actually loads + runs it. Final compatibility gate requires operator dragging the file into WinMax on the desktop. Mitigation: if WinMax rejects, the operator reports the rejection and we add the offending construct to the test as an inverted assertion (no-emit gate). Anti-regression chain is closed either way."
+    },
+    {
+      "id": "R2",
+      "description": "Single op coverage (face mill) — does not exercise drilling, tapping, contouring, pocketing, 3-axis surfacing, or 5-axis. Each op type has its own emission code path in the engine; a follow-up MS1 would expand to a 5-op JM Die canonical test suite covering all operation_type variants the engine supports."
+    },
+    {
+      "id": "R3",
+      "description": "PROVE_OUT_DEFAULT_FEED_FACTOR is hard-coded at 0.5 in the engine. If the operator wants a different prove-out speed (0.3 for first-piece on a brand-new tool, 0.7 for second-piece audit), they must pass feed_factor explicitly via cfg.prove_out.feed_factor. The test pins 0.5; a follow-up would add parametrized assertions over feed_factor ∈ {0.3, 0.5, 0.7}."
+    }
+  ],
+  "blocks": [],
+  "blocked_by": [],
+  "updated_at": "2026-05-24T03:55:00Z"
+}

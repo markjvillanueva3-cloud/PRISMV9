@@ -29,8 +29,12 @@ related:
 
 ## Description (first paragraph)
 
-
-# /mill-optimize — Mill Program Optimization
+Intelligent optimization for CNC mill programs:
+- Feed rate optimization based on material removal
+- Toolpath simplification and smoothing
+- Air cut elimination
+- Cycle time reduction
+- Tool life maximization
 
 <!-- AUTO-END -->
 

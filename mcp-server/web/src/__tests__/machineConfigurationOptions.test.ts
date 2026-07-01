@@ -198,7 +198,7 @@ describe('machine configuration compatibility', () => {
     expect(uniqueBrandModels.size).toBeGreaterThanOrEqual(1082);
     expect(brands.size).toBeGreaterThanOrEqual(49);
     ['VMC', 'HMC', '5axis', 'lathe', 'mill_turn', 'swiss', 'bridge', 'edm_wire', 'edm_sinker', 'router'].forEach((type) => {
-      expect(types.has(type)).toBe(true);
+      expect(types.has(type as never)).toBe(true);
     });
   });
 
@@ -251,7 +251,7 @@ describe('machine configuration compatibility', () => {
     expect(uniqueBrands.size).toBeGreaterThanOrEqual(49);
     expect(uniqueBrandModels.size).toBeGreaterThanOrEqual(1082);
     ['VMC', 'HMC', '5axis', 'lathe', 'mill_turn', 'swiss', 'bridge', 'router', 'edm_wire', 'edm_sinker'].forEach((type) => {
-      expect(machineTypes.has(type)).toBe(true);
+      expect(machineTypes.has(type as never)).toBe(true);
     });
   });
 
@@ -275,7 +275,7 @@ describe('machine configuration compatibility', () => {
     expect(sourceProfiles.length).toBeGreaterThanOrEqual(120);
     const types = new Set(sourceProfiles.map((entry) => entry.type));
     ['VMC', 'HMC', '5axis', 'lathe', 'router', 'bridge'].forEach((type) => {
-      expect(types.has(type)).toBe(true);
+      expect(types.has(type as never)).toBe(true);
     });
 
     families.forEach(({ label, pattern, minModels, representative }) => {
@@ -361,7 +361,7 @@ describe('machine configuration compatibility', () => {
 
     expect(new Set(brotherProfiles.map((entry) => entry.model)).size).toBeGreaterThanOrEqual(20);
     ['VMC', 'HMC', '5axis'].forEach((type) => {
-      expect(new Set(brotherProfiles.map((entry) => entry.type)).has(type)).toBe(true);
+      expect(new Set(brotherProfiles.map((entry) => entry.type)).has(type as never)).toBe(true);
     });
     [/SPEEDIO S300X1/i, /Brother SPEEDIO H550Xd1/i, /Brother SPEEDIO W1000Xd1/i].forEach((pattern) => {
       expect(brotherProfiles.some((entry) => pattern.test(entry.model))).toBe(true);
@@ -369,7 +369,7 @@ describe('machine configuration compatibility', () => {
 
     expect(new Set(grobProfiles.map((entry) => entry.model)).size).toBeGreaterThanOrEqual(6);
     ['5axis', 'mill_turn'].forEach((type) => {
-      expect(new Set(grobProfiles.map((entry) => entry.type)).has(type)).toBe(true);
+      expect(new Set(grobProfiles.map((entry) => entry.type)).has(type as never)).toBe(true);
     });
     [/^G350$/i, /^G550$/i, /GROB G350T/i].forEach((pattern) => {
       expect(grobProfiles.some((entry) => pattern.test(entry.model))).toBe(true);
@@ -377,7 +377,7 @@ describe('machine configuration compatibility', () => {
 
     expect(new Set(hellerProfiles.map((entry) => entry.model)).size).toBeGreaterThanOrEqual(8);
     ['HMC', 'VMC', '5axis'].forEach((type) => {
-      expect(new Set(hellerProfiles.map((entry) => entry.type)).has(type)).toBe(true);
+      expect(new Set(hellerProfiles.map((entry) => entry.type)).has(type as never)).toBe(true);
     });
     [/Heller H 4000/i, /Heller FP 6000/i, /Heller HF 5500/i].forEach((pattern) => {
       expect(hellerProfiles.some((entry) => pattern.test(entry.model))).toBe(true);
@@ -385,7 +385,7 @@ describe('machine configuration compatibility', () => {
 
     expect(new Set(kernProfiles.map((entry) => entry.model)).size).toBeGreaterThanOrEqual(4);
     ['VMC', '5axis'].forEach((type) => {
-      expect(new Set(kernProfiles.map((entry) => entry.type)).has(type)).toBe(true);
+      expect(new Set(kernProfiles.map((entry) => entry.type)).has(type as never)).toBe(true);
     });
     [/Kern Evo/i, /Kern Evo 5AX/i, /Kern Pyramid Nano/i].forEach((pattern) => {
       expect(kernProfiles.some((entry) => pattern.test(entry.model))).toBe(true);
@@ -463,7 +463,7 @@ describe('machine configuration compatibility', () => {
 
       expect(uniqueModels.size).toBeGreaterThanOrEqual(minModels);
       requiredTypes.forEach((type) => {
-        expect(types.has(type)).toBe(true);
+        expect(types.has(type as never)).toBe(true);
       });
     });
   });

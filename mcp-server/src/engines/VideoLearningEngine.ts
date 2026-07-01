@@ -77,6 +77,18 @@ export interface VideoProcessOptions {
   dry_run?: boolean;               // extract but don't generate components
 }
 
+/** A candidate operator/playbook rule extracted from video-derived text. */
+export interface PlaybookRule {
+  /** The rule statement (an imperative / conditional / prohibition / best-practice line). */
+  rule: string;
+  /** Classification by the cue phrase that matched. */
+  kind: "imperative" | "conditional" | "prohibition" | "best_practice";
+  /** Heuristic confidence (0-1) reflecting cue strength. */
+  confidence: number;
+  /** The source sentence the rule was lifted from. */
+  source_excerpt: string;
+}
+
 // ── Engine ─────────────────────────────────────────────────────────
 
 class VideoLearningEngineImpl {
@@ -428,19 +440,16 @@ class VideoLearningEngineImpl {
   }
 
   /**
-   * Analyze keyframes using Claude Vision API.
-   * Requires ANTHROPIC_API_KEY in environment.
+   * Analyze keyframes through the FREE Ollama-first llmEngine.queryVision substrate
+   * (Ollama vision model -> Claude vision backup -> offline). No API key required; on
+   * offline (no provider) the batch is skipped with a warning (never fabricated).
    */
   async analyzeKeyframes(
     frames: KeyframeInfo[],
     context: { title?: string; transcript_excerpt?: string; domain?: string },
     batchSize = 4
   ): Promise<FrameAnalysis[]> {
-    const apiKey = process.env.ANTHROPIC_API_KEY;
-    if (!apiKey) {
-      log.warn("[VideoLearning] No ANTHROPIC_API_KEY — skipping vision analysis");
-      return [];
-    }
+    const { llmEngine } = await import("./LLMEngine.js");
 
     const results: FrameAnalysis[] = [];
     const batches: KeyframeInfo[][] = [];
@@ -451,18 +460,11 @@ class VideoLearningEngineImpl {
 
     for (const batch of batches) {
       try {
-        const imageContents = batch.map(frame => {
-          const imageData = fs.readFileSync(frame.path);
-          const base64 = imageData.toString("base64");
-          return {
-            type: "image" as const,
-            source: {
-              type: "base64" as const,
-              media_type: "image/png" as const,
-              data: base64,
-            },
-          };
-        });
+        // Multi-image batch -> VisionImage[] for the free Ollama-first vision substrate.
+        const images = batch.map(frame => ({
+          data: fs.readFileSync(frame.path).toString("base64"),
+          media_type: "image/png" as const,
+        }));
 
         const prompt = `You are analyzing keyframes from a manufacturing/CAM software tutorial video${context.title ? ` titled "${context.title}"` : ""}.${context.domain ? ` Domain: ${context.domain}.` : ""}
 
@@ -476,34 +478,14 @@ ${context.transcript_excerpt ? `\nTranscript context around these frames: "${con
 Respond as JSON array:
 [{"timestamp": <seconds>, "description": "...", "extracted_values": {"param": "value"}, "ui_elements": ["..."], "category": "..."}]`;
 
-        const response = await fetch("https://api.anthropic.com/v1/messages", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "x-api-key": apiKey,
-            "anthropic-version": "2023-06-01",
-          },
-          body: JSON.stringify({
-            model: "claude-haiku-4-5-20251001",
-            max_tokens: 2000,
-            messages: [{
-              role: "user",
-              content: [
-                ...imageContents,
-                { type: "text", text: prompt },
-              ],
-            }],
-          }),
-        });
-
-        if (!response.ok) {
-          log.warn(`[VideoLearning] Vision API error: ${response.status}`);
+        const res = await llmEngine.queryVision({ prompt, images, complexity: "high", max_tokens: 2000 });
+        if (res.model === "offline") {
+          // R12: no provider answered (Ollama vision down + no Claude backup key). Skip the
+          // batch with a warning -- never fabricate frame analyses from an empty read.
+          log.warn("[VideoLearning] No vision provider available (Ollama vision down + no Claude backup key) -- skipping batch");
           continue;
         }
-
-        const data = await response.json() as Record<string, unknown>;
-        const content = data.content as Array<Record<string, unknown>> | undefined;
-        const text = (content?.[0]?.text as string) ?? "";
+        const text = res.answer ?? "";
 
         // Parse JSON from response
         const jsonMatch = text.match(/\[[\s\S]*\]/);
@@ -526,6 +508,76 @@ Respond as JSON array:
   /**
    * Fuse transcript + vision analysis into structured knowledge items.
    */
+  /**
+   * Extract candidate playbook rules -- experiential imperative / conditional /
+   * prohibition / best-practice statements -- from video-derived text. Heuristic
+   * cue-phrase parser: splits the source into sentences and keeps those that read
+   * like an operator rule, classified + confidence-scored by the cue that matched.
+   * Source may be a raw transcript string, a TranscriptResult, or the
+   * VideoKnowledgeItem[] from processVideo(). Best-effort: blank source -> [].
+   * Output rules are CANDIDATES for the playbook store (not authoritative); they
+   * pair with prismSelfAwarenessEngine.searchPlaybookRules (the string rule corpus).
+   */
+  extractPlaybookRules(
+    source: string | TranscriptResult | VideoKnowledgeItem[]
+  ): PlaybookRule[] {
+    const text = this.coalesceRuleSource(source);
+    if (!text.trim()) return [];
+    const rules: PlaybookRule[] = [];
+    const seen = new Set<string>();
+    const sentences = text
+      .split(/(?<=[.!?])\s+|\n+/)
+      .map(s => s.trim())
+      .filter(Boolean);
+    for (const sentence of sentences) {
+      const classified = this.classifyRuleSentence(sentence);
+      if (!classified) continue;
+      const norm = sentence.toLowerCase().replace(/\s+/g, " ");
+      if (seen.has(norm)) continue; // dedup repeated phrasings
+      seen.add(norm);
+      rules.push({
+        rule: sentence,
+        kind: classified.kind,
+        confidence: classified.confidence,
+        source_excerpt: sentence,
+      });
+    }
+    return rules;
+  }
+
+  /** Flatten any accepted extractPlaybookRules source into a single text blob. */
+  private coalesceRuleSource(
+    source: string | TranscriptResult | VideoKnowledgeItem[]
+  ): string {
+    if (typeof source === "string") return source;
+    if (Array.isArray(source)) {
+      return source.map(k => `${k.title}. ${k.body}`).join("\n");
+    }
+    return source.full_text ?? "";
+  }
+
+  /**
+   * Classify a sentence as a playbook rule by cue phrase, or null if it does not
+   * read like a rule. Prohibition/imperative cues score highest; best-practice and
+   * conditional (if/when -> action) slightly lower. Questions and very short
+   * fragments are rejected.
+   */
+  private classifyRuleSentence(
+    sentence: string
+  ): { kind: PlaybookRule["kind"]; confidence: number } | null {
+    if (sentence.length < 12 || sentence.trimEnd().endsWith("?")) return null;
+    const s = sentence.toLowerCase();
+    const PROHIBITION = /\b(never|don'?t|do not|avoid|must not|shouldn'?t|should not)\b/;
+    const IMPERATIVE = /\b(always|make sure|ensure|be sure to|remember to|you must|you should|you need to|be careful to)\b/;
+    const BEST_PRACTICE = /\b(the key is|best practice|rule of thumb|pro ?tip|the trick is|i recommend|it'?s best to)\b/;
+    const CONDITIONAL = /\b(if|when|whenever)\b.*\b(then|do|use|set|run|check|reduce|increase|stop|switch)\b/;
+    if (PROHIBITION.test(s)) return { kind: "prohibition", confidence: 0.85 };
+    if (IMPERATIVE.test(s)) return { kind: "imperative", confidence: 0.8 };
+    if (BEST_PRACTICE.test(s)) return { kind: "best_practice", confidence: 0.75 };
+    if (CONDITIONAL.test(s)) return { kind: "conditional", confidence: 0.7 };
+    return null;
+  }
+
   fuseKnowledge(
     transcript: TranscriptResult,
     frameAnalysis: FrameAnalysis[],
@@ -729,7 +781,10 @@ Respond as JSON array:
 
     // Cost estimate
     const whisperCost = (videoInfo.duration / 60) * 0.006;
-    const visionCost = Math.ceil(keyframes.length / vision_batch_size) * 0.04; // ~$0.04 per Haiku call with images
+    // FREE-AI-MIGRATION: keyframe vision now routes through the free Ollama-first
+    // llmEngine.queryVision substrate (was paid Claude Haiku ~$0.04/call), so the vision leg
+    // is $0 at launch. A non-zero figure here would over-report cost to consumers (R12).
+    const visionCost = 0;
     const totalCost = whisperCost + visionCost;
 
     const result: VideoProcessResult = {

@@ -54,8 +54,8 @@ function getUserInfo() {
   let modelName = '🤖 Claude Code';
 
   try {
-    name = execSync('git config user.name 2>/dev/null || echo "user"', { encoding: 'utf-8' }).trim();
-    gitBranch = execSync('git branch --show-current 2>/dev/null || echo ""', { encoding: 'utf-8' }).trim();
+    name = execSync('git config user.name 2>/dev/null || echo "user"', { windowsHide: true, encoding: 'utf-8' }).trim();
+    gitBranch = execSync('git branch --show-current 2>/dev/null || echo ""', { windowsHide: true, encoding: 'utf-8' }).trim();
   } catch (e) {
     // Ignore errors
   }
@@ -333,19 +333,19 @@ function getSwarmStatus() {
   try {
     if (isWindows) {
       // Windows: use tasklist
-      const ps = execSync('tasklist /FI "IMAGENAME eq node.exe" /NH 2>nul || echo ""', { encoding: 'utf-8' });
+      const ps = execSync('tasklist /FI "IMAGENAME eq node.exe" /NH 2>nul || echo ""', { windowsHide: true, encoding: 'utf-8' });
       const nodeProcesses = (ps.match(/node\.exe/gi) || []).length;
       activeAgents = Math.max(0, Math.floor(nodeProcesses / 3)); // Heuristic
       coordinationActive = nodeProcesses > 0;
     } else {
       // Unix: use ps - check for various agent process patterns
       try {
-        const ps = execSync('ps aux 2>/dev/null | grep -E "(agentic-flow|claude-flow|mcp.*server)" | grep -v grep | wc -l', { encoding: 'utf-8' });
+        const ps = execSync('ps aux 2>/dev/null | grep -E "(agentic-flow|claude-flow|mcp.*server)" | grep -v grep | wc -l', { windowsHide: true, encoding: 'utf-8' });
         activeAgents = Math.max(0, parseInt(ps.trim()));
         coordinationActive = activeAgents > 0;
       } catch (e) {
         // Fallback to simple agentic-flow check
-        const ps = execSync('ps aux 2>/dev/null | grep -c agentic-flow || echo "0"', { encoding: 'utf-8' });
+        const ps = execSync('ps aux 2>/dev/null | grep -c agentic-flow || echo "0"', { windowsHide: true, encoding: 'utf-8' });
         activeAgents = Math.max(0, parseInt(ps.trim()) - 1);
         coordinationActive = activeAgents > 0;
       }
@@ -393,7 +393,7 @@ function getSystemMetrics() {
     } else {
       // Unix: try ps command, fallback to process.memoryUsage()
       try {
-        const mem = execSync('ps aux | grep -E "(node|agentic|claude)" | grep -v grep | awk \'{sum += \$6} END {print int(sum/1024)}\'', { encoding: 'utf-8' });
+        const mem = execSync('ps aux | grep -E "(node|agentic|claude)" | grep -v grep | awk \'{sum += \$6} END {print int(sum/1024)}\'', { windowsHide: true, encoding: 'utf-8' });
         memoryMB = parseInt(mem.trim()) || 0;
       } catch (e) {
         memoryMB = Math.floor(process.memoryUsage().heapUsed / 1024 / 1024);
@@ -431,7 +431,7 @@ function getSystemMetrics() {
 
     // Check git commit count (proxy for project development)
     try {
-      const commitCount = parseInt(execSync('git rev-list --count HEAD 2>/dev/null || echo "0"', { encoding: 'utf-8' }).trim());
+      const commitCount = parseInt(execSync('git rev-list --count HEAD 2>/dev/null || echo "0"', { windowsHide: true, encoding: 'utf-8' }).trim());
       maturityScore += Math.min(30, Math.floor(commitCount / 10)); // Max 30% from commits
     } catch (e) { /* ignore */ }
 
@@ -510,7 +510,7 @@ function getSystemMetrics() {
   // Fallback to process detection on Unix only
   if (subAgents === 0 && !isWindows) {
     try {
-      const agents = execSync('ps aux 2>/dev/null | grep -c "claude-flow.*agent" || echo "0"', { encoding: 'utf-8' });
+      const agents = execSync('ps aux 2>/dev/null | grep -c "claude-flow.*agent" || echo "0"', { windowsHide: true, encoding: 'utf-8' });
       subAgents = Math.max(0, parseInt(agents.trim()) - 1);
     } catch (e) {
       // Ignore
@@ -881,7 +881,7 @@ function getGitStatus() {
 
   try {
     // Get modified and staged counts - works on all platforms
-    const status = execSync('git status --porcelain', {
+    const status = execSync('git status --porcelain', { windowsHide: true,
       encoding: 'utf-8',
       stdio: ['pipe', 'pipe', 'pipe'], // Suppress stderr
       timeout: 5000,
@@ -899,7 +899,7 @@ function getGitStatus() {
 
     // Get ahead/behind - may fail if no upstream
     try {
-      const abStatus = execSync('git rev-list --left-right --count HEAD...@{upstream}', {
+      const abStatus = execSync('git rev-list --left-right --count HEAD...@{upstream}', { windowsHide: true,
         encoding: 'utf-8',
         stdio: ['pipe', 'pipe', 'pipe'],
         timeout: 5000,

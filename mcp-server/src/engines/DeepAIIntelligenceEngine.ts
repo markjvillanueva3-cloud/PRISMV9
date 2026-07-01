@@ -21,6 +21,7 @@
  */
 
 import { prismSelfAwarenessEngine } from "./PRISMSelfAwarenessEngine.js";
+import { performance } from "node:perf_hooks";
 
 // ============================================================================
 // TYPES
@@ -205,7 +206,9 @@ export class DeepAIIntelligenceEngine {
     context: IntelligenceContext,
     mode: ReasoningMode = "chain_of_thought"
   ): Promise<DeepReasoningResult> {
-    const startTime = Date.now();
+    // performance.now() (sub-ms) not Date.now() (ms): the reasoning chain is
+    // synchronous and completes in <1ms, so ms-resolution rounds elapsed to 0.
+    const startTime = performance.now();
     const steps: ReasoningStep[] = [];
     const maxDepth = context.maxReasoningDepth ?? 10;
 
@@ -269,7 +272,7 @@ export class DeepAIIntelligenceEngine {
       alternatives: domainReasoning.alternatives ?? [],
       uncertainties: synthesis.uncertainties,
       suggestions,
-      processingTimeMs: Date.now() - startTime
+      processingTimeMs: performance.now() - startTime
     };
   }
 
@@ -394,6 +397,20 @@ export class DeepAIIntelligenceEngine {
     // Add proactive questions
     for (const question of awareness.proactiveQuestions.slice(0, 2)) {
       suggestions.push(`Consider: ${question}`);
+    }
+
+    // Fallback when the self-awareness index is cold (no capability/tribal/rule
+    // match): surface the engine's OWN domain reasoning as actionable suggestions
+    // so a valid reasoning chain never returns zero. The domain step's action +
+    // alternatives are real, domain-specific content (applyDomainReasoning), not filler.
+    if (suggestions.length === 0) {
+      const domainStep = steps.find(s => (s.alternatives?.length ?? 0) > 0);
+      if (domainStep) {
+        if (domainStep.action) suggestions.push(`Primary approach: ${domainStep.action}`);
+        for (const alt of (domainStep.alternatives ?? []).slice(0, 2)) {
+          suggestions.push(`Alternative: ${alt}`);
+        }
+      }
     }
 
     return suggestions;

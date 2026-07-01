@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `wear-analysis` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/wear-analysis.md` |
+| Source | `C:/Users/wompu/.claude/commands/wear-analysis.md` |
 | Model | default |
 | Tags | _(none)_ |
 

@@ -280,7 +280,7 @@ export class ChatterNeuralClassifierEngine {
   }
 
   private getDefaultKc11(group: string): number {
-    return CANONICAL_KIENZLE[group as keyof typeof CANONICAL_KIENZLE]?.kc11 ?? 1800;
+    return CANONICAL_KIENZLE[group as keyof typeof CANONICAL_KIENZLE]?.kc1_1 ?? 1800;
   }
 
   private findDominantFrequency(frf: FRFSpectrum): number {

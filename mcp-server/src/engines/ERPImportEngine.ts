@@ -183,7 +183,9 @@ export class ERPImportEngine {
   static listImportedWorkOrders(erpSystem?: ERPSystem): WorkOrderImport[] {
     const all = Array.from(importedWorkOrders.entries());
     if (erpSystem) {
-      return all.filter(([key]) => key.startsWith(erpSystem)).map(([, wo]) => wo);
+      // key is `${erpSystem}-${workOrderNumber}`; match on the "-" boundary so a
+      // future ERP name that prefixes another (e.g. "job" vs "jobboss") can't cross-leak.
+      return all.filter(([key]) => key.startsWith(`${erpSystem}-`)).map(([, wo]) => wo);
     }
     return all.map(([, wo]) => wo);
   }

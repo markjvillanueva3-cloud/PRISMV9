@@ -49,7 +49,7 @@ export const SwissToolPostConfigSchema = z.object({
   turret_tools: z.number().default(0),
   back_tools: z.number().default(0),
   live_tools: z.number().default(8),
-  y_axis_stroke: z.number().optional(),
+  y_axis_stroke: z.number().finite().optional(),
   b_axis_range: z.tuple([z.number(), z.number()]).optional(),
 });
 
@@ -58,7 +58,7 @@ export const SwissMachineSpecSchema = z.object({
   guide_bushing: z.boolean().default(true),
   max_bar_diameter: z.number(),
   z1_stroke: z.number(),
-  z2_stroke: z.number().optional(),
+  z2_stroke: z.number().finite().optional(),
   spindles: SwissSpindleConfigSchema,
   tool_posts: SwissToolPostConfigSchema,
   high_pressure_coolant: z.boolean().default(true),
@@ -75,35 +75,35 @@ export type SwissMachineSpec = z.infer<typeof SwissMachineSpecSchema>;
 export const SwissCycleParametersSchema = z.object({
   // Guide bushing
   guide_bushing_mode: GuideBushingModeSchema.optional(),
-  bushing_clearance: z.number().optional(),
+  bushing_clearance: z.number().finite().optional(),
 
   // B-axis angular operations
-  b_angle: z.number().optional(),
-  b_axis_feed: z.number().optional(),
+  b_angle: z.number().finite().optional(),
+  b_axis_feed: z.number().finite().optional(),
 
   // Spindle sync
   sync_mode: z.enum(["speed", "phase", "thread"]).optional(),
-  speed_ratio: z.number().optional(),
-  phase_offset: z.number().optional(),
+  speed_ratio: z.number().finite().optional(),
+  phase_offset: z.number().finite().optional(),
 
   // Part transfer
-  transfer_position: z.number().optional(),
+  transfer_position: z.number().finite().optional(),
   grip_pressure: z.enum(["low", "medium", "high"]).optional(),
-  push_length: z.number().optional(),
+  push_length: z.number().finite().optional(),
 
   // Cross drilling/milling
-  hole_depth: z.number().optional(),
-  peck_depth: z.number().optional(),
-  dwell_time: z.number().optional(),
+  hole_depth: z.number().finite().optional(),
+  peck_depth: z.number().finite().optional(),
+  dwell_time: z.number().finite().optional(),
 
   // Threading
-  thread_pitch: z.number().optional(),
-  thread_depth: z.number().optional(),
-  thread_start_angle: z.number().optional(),
+  thread_pitch: z.number().finite().optional(),
+  thread_depth: z.number().finite().optional(),
+  thread_start_angle: z.number().finite().optional(),
 
   // General
-  feed_rate: z.number().optional(),
-  spindle_speed: z.number().optional(),
+  feed_rate: z.number().finite().optional(),
+  spindle_speed: z.number().finite().optional(),
   coolant_mode: z.enum(["flood", "mist", "high_pressure", "through_tool", "off"]).optional(),
 });
 

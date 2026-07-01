@@ -113,17 +113,17 @@ describe("HookDAGValidatorEngine", () => {
     });
 
     it("validateInput returns the error message naming the missing field", () => {
-      expect(eng.validateInput({})).toBe("either `manifest` or a non-empty `manifestPath` must be provided");
-      expect(eng.validateInput(null)).toBe("options object is required (pass at least `manifest` or `manifestPath`)");
-      expect(eng.validateInput({ events: [] })).toBe("either `manifest` or a non-empty `manifestPath` must be provided");
+      expect(eng.validate({})).toBe("either `manifest` or a non-empty `manifestPath` must be provided");
+      expect(eng.validate(null)).toBe("options object is required (pass at least `manifest` or `manifestPath`)");
+      expect(eng.validate({ events: [] })).toBe("either `manifest` or a non-empty `manifestPath` must be provided");
     });
 
     it("validateInput returns null when a manifest object is supplied", () => {
-      expect(eng.validateInput({ manifest: makeManifest({ wirings: [] }) })).toBeNull();
+      expect(eng.validate({ manifest: makeManifest({ wirings: [] }) })).toBeNull();
     });
 
     it("validate output passes its own Zod schema and pins schemaVersion to 1", () => {
-      const out = eng.validate({ manifest: makeManifest({ wirings: [{ file: ".claude/hooks/a.mjs", event: "PreToolUse", source: "/repo/.claude/settings.json", order: 0 }] }) });
+      const out = eng.validateManifest({ manifest: makeManifest({ wirings: [{ file: ".claude/hooks/a.mjs", event: "PreToolUse", source: "/repo/.claude/settings.json", order: 0 }] }) });
       expect(() => HookDAGValidationSchema.parse(out)).not.toThrow();
       expect(out.schemaVersion).toBe(HOOK_DAG_SCHEMA_VERSION);
       expect(out.schemaVersion).toBe(1);
@@ -139,7 +139,7 @@ describe("HookDAGValidatorEngine", () => {
           { file: ".claude/hooks/b.mjs", event: "PreToolUse", source: "/repo/.claude/settings.json", order: 1 },
         ],
       });
-      const v = eng.validate({ manifest: m });
+      const v = eng.validateManifest({ manifest: m });
       expect(v.ok).toBe(true);
       const ev = v.events.find((e) => e.event === "PreToolUse")!;
       expect(ev.order).toEqual([".claude/hooks/a.mjs", ".claude/hooks/b.mjs", ".claude/hooks/c.mjs"]);
@@ -157,7 +157,7 @@ describe("HookDAGValidatorEngine", () => {
           { file: ".claude/hooks/q.mjs", event: "PreToolUse", source: "/repo/.claude/settings.json", order: 1 },
         ],
       });
-      const v = eng.validate({ manifest: m });
+      const v = eng.validateManifest({ manifest: m });
       const ev = v.events.find((e) => e.event === "PreToolUse")!;
       // /home sorts before /repo (lex). lastFile(/home) === y, firstFile(/repo) === p.
       const cross = ev.edges.find((e) => e.reason === "cross-source");
@@ -175,7 +175,7 @@ describe("HookDAGValidatorEngine", () => {
           { file: ".claude/hooks/c.mjs", event: "SessionStart", source: "/repo/.claude/settings.json", order: 0 },
         ],
       });
-      const v = eng.validate({ manifest: m });
+      const v = eng.validateManifest({ manifest: m });
       expect(v.events.map((e) => e.event)).toEqual(["SessionStart", "Stop", "PreToolUse"]);
       // Each is single-node, no edges, order === [self], no cycles.
       for (const ev of v.events) {
@@ -196,7 +196,7 @@ describe("HookDAGValidatorEngine", () => {
           { file: ".claude/hooks/x.mjs", event: "PreToolUse", source: "/b/settings.json", order: 1 },
         ],
       });
-      const v = eng.validate({ manifest: m });
+      const v = eng.validateManifest({ manifest: m });
       const ev = v.events.find((e) => e.event === "PreToolUse")!;
       expect(ev.order).toBeNull();
       expect(ev.cycles.length).toBeGreaterThanOrEqual(1);
@@ -221,7 +221,7 @@ describe("HookDAGValidatorEngine", () => {
           { file: "a", event: "Stop", source: "/s3.json", order: 1 },
         ],
       });
-      const v = eng.validate({ manifest: m });
+      const v = eng.validateManifest({ manifest: m });
       const ev = v.events.find((e) => e.event === "Stop")!;
       expect(ev.order).toBeNull();
       expect(ev.cycles).toHaveLength(1);
@@ -242,7 +242,7 @@ describe("HookDAGValidatorEngine", () => {
           { file: "a", event: "Stop", source: "/b.json", order: 1 },
         ],
       });
-      const v = eng.validate({ manifest: m });
+      const v = eng.validateManifest({ manifest: m });
       expect(v.ok).toBe(false);
       expect(v.summary.cleanEvents).toBe(1);
       expect(v.summary.dirtyEvents).toBe(1);
@@ -259,7 +259,7 @@ describe("HookDAGValidatorEngine", () => {
           { file: "h.mjs", event: "PreToolUse", source: "/b.json", order: 0, hardBlock: false },
         ],
       });
-      const v = eng.validate({ manifest: m });
+      const v = eng.validateManifest({ manifest: m });
       const ev = v.events.find((e) => e.event === "PreToolUse")!;
       const conflict = ev.conflicts.find((c) => c.kind === "mixed-block-mode");
       expect(conflict?.file).toBe("h.mjs");
@@ -277,7 +277,7 @@ describe("HookDAGValidatorEngine", () => {
           { file: "h.mjs", event: "PreToolUse", source: "/a.json", order: 1, timeoutMs: 5000 },
         ],
       });
-      const v = eng.validate({ manifest: m });
+      const v = eng.validateManifest({ manifest: m });
       const ev = v.events.find((e) => e.event === "PreToolUse")!;
       const conflict = ev.conflicts.find((c) => c.kind === "duplicate-wiring");
       expect(conflict?.file).toBe("h.mjs");
@@ -295,8 +295,8 @@ describe("HookDAGValidatorEngine", () => {
           { file: "c", event: "PreToolUse", source: "/r.json", order: 2 },
         ],
       });
-      const v1 = eng.validate({ manifest: m });
-      const v2 = eng.validate({ manifest: m });
+      const v1 = eng.validateManifest({ manifest: m });
+      const v2 = eng.validateManifest({ manifest: m });
       const norm = (v: unknown): unknown => JSON.parse(JSON.stringify(v, (k, val) => (k === "generatedAt" ? "X" : val)));
       expect(norm(v1)).toEqual(norm(v2));
     });
@@ -308,7 +308,7 @@ describe("HookDAGValidatorEngine", () => {
           { file: "b", event: "Stop", source: "/r.json", order: 0 },
         ],
       });
-      const v = eng.validate({ manifest: m, events: ["Stop"] });
+      const v = eng.validateManifest({ manifest: m, events: ["Stop"] });
       expect(v.events.map((e) => e.event)).toEqual(["Stop"]);
       expect(v.summary.totalEvents).toBe(1);
     });
@@ -316,7 +316,7 @@ describe("HookDAGValidatorEngine", () => {
 
   describe("edge-case inputs", () => {
     it("empty manifest → ok, zero counts everywhere", () => {
-      const v = eng.validate({ manifest: makeManifest({ wirings: [] }) });
+      const v = eng.validateManifest({ manifest: makeManifest({ wirings: [] }) });
       expect(v.ok).toBe(true);
       expect(v.summary).toEqual({ totalEvents: 0, totalNodes: 0, totalEdges: 0, cycleCount: 0, conflictCount: 0, cleanEvents: 0, dirtyEvents: 0 });
     });
@@ -326,7 +326,7 @@ describe("HookDAGValidatorEngine", () => {
         wirings: [{ file: "wired.mjs", event: "PreToolUse", source: "/r.json", order: 0 }],
         orphanFiles: ["orphan.mjs"],
       });
-      const v = eng.validate({ manifest: m });
+      const v = eng.validateManifest({ manifest: m });
       const ev = v.events.find((e) => e.event === "PreToolUse")!;
       expect(ev.nodes).toEqual(["wired.mjs"]);
       expect(ev.nodes.includes("orphan.mjs")).toBe(false);
@@ -334,7 +334,7 @@ describe("HookDAGValidatorEngine", () => {
 
     it("single-node event → topological order is [self], no edges, no cycles", () => {
       const m = makeManifest({ wirings: [{ file: "only.mjs", event: "Notification", source: "/r.json", order: 0 }] });
-      const v = eng.validate({ manifest: m });
+      const v = eng.validateManifest({ manifest: m });
       const ev = v.events.find((e) => e.event === "Notification")!;
       expect(ev.nodes).toEqual(["only.mjs"]);
       expect(ev.edges).toEqual([]);
@@ -345,7 +345,7 @@ describe("HookDAGValidatorEngine", () => {
     it("rejects a malformed manifest at the Zod boundary", () => {
       // `manifest.schemaVersion` is z.literal(1); passing 2 must throw.
       const bad: unknown = { ...makeManifest({ wirings: [] }), schemaVersion: 2 };
-      expect(() => eng.validate({ manifest: bad as HookManifest })).toThrow();
+      expect(() => eng.validateManifest({ manifest: bad as HookManifest })).toThrow();
     });
   });
 
@@ -353,7 +353,7 @@ describe("HookDAGValidatorEngine", () => {
     it("HookManifestEngine → HookDAGValidatorEngine succeeds end-to-end on the live repo", () => {
       const me = new HookManifestEngine();
       const manifest = me.generate();
-      const v = eng.validate({ manifest });
+      const v = eng.validateManifest({ manifest });
       // We can't assert ok=true (the real repo may have drift); we assert shape + linkage.
       expect(() => HookDAGValidationSchema.parse(v)).not.toThrow();
       expect(v.manifestGeneratedAt).toBe(manifest.generatedAt);

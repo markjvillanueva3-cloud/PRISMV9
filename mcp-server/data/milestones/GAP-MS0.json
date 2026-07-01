@@ -1,0 +1,103 @@
+{
+  "id": "GAP-MS0",
+  "title": "Minor Gap Engines — Diamond Turning, Laser Interferometer, STEP Parser",
+  "track": "GAP",
+  "status": "complete",
+  "total_units": 5,
+  "completed_units": 5,
+  "dependencies": [],
+  "created_at": "2026-04-13T03:20:00Z",
+  "phases": [
+    {
+      "id": "P0",
+      "title": "Gap Engine Implementation",
+      "units": [
+        {
+          "id": "P0-U00",
+          "title": "DiamondTurningEngine: Ultra-precision turning physics",
+          "status": "complete",
+          "steps": [
+            "Create DiamondTurningEngine with single-point diamond tool physics",
+            "Implement surface finish prediction (Ra < 10nm achievable)",
+            "Add thermal expansion compensation",
+            "Wire to calcDispatcher",
+            "Write 5+ tests"
+          ],
+          "exit_conditions": [
+            "Engine compiles with no TypeScript errors",
+            "5+ tests pass",
+            "Wired to dispatcher"
+          ]
+        },
+        {
+          "id": "P0-U01",
+          "title": "LaserInterferometerEngine: Precision measurement physics",
+          "status": "complete",
+          "steps": [
+            "Create LaserInterferometerEngine with interferometry physics",
+            "Implement wavelength-based distance measurement",
+            "Add temperature compensation for refractive index",
+            "Wire to prism_quality dispatcher",
+            "Write 5+ tests"
+          ],
+          "exit_conditions": [
+            "Engine compiles with no TypeScript errors",
+            "5+ tests pass",
+            "Wired to dispatcher"
+          ]
+        },
+        {
+          "id": "P0-U02",
+          "title": "STEPParserEngine: STEP file geometry extraction",
+          "status": "complete",
+          "steps": [
+            "Create STEPParserEngine for ISO 10303 file parsing",
+            "Extract geometry entities (faces, edges, vertices)",
+            "Parse product structure and assembly relationships",
+            "Wire to prism_cad dispatcher",
+            "Write 5+ tests"
+          ],
+          "exit_conditions": [
+            "Engine compiles with no TypeScript errors",
+            "5+ tests pass",
+            "Wired to dispatcher"
+          ]
+        },
+        {
+          "id": "P0-U03",
+          "title": "MicroMachiningEngine: Micro-scale cutting physics",
+          "status": "complete",
+          "steps": [
+            "Create MicroMachiningEngine for sub-mm features",
+            "Implement size effect on specific cutting force",
+            "Add minimum chip thickness model",
+            "Wire to calcDispatcher",
+            "Write 5+ tests"
+          ],
+          "exit_conditions": [
+            "Engine compiles with no TypeScript errors",
+            "5+ tests pass",
+            "Wired to dispatcher"
+          ]
+        },
+        {
+          "id": "P0-U04",
+          "title": "ElectrochemicalMachiningEngine: ECM process physics",
+          "status": "complete",
+          "steps": [
+            "Create ElectrochemicalMachiningEngine with Faraday's law MRR",
+            "Implement electrolyte flow and gap control",
+            "Add surface finish prediction",
+            "Wire to calcDispatcher",
+            "Write 5+ tests"
+          ],
+          "exit_conditions": [
+            "Engine compiles with no TypeScript errors",
+            "5+ tests pass",
+            "Wired to dispatcher"
+          ]
+        }
+      ]
+    }
+  ]
+}

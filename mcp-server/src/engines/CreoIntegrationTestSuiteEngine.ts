@@ -1,3 +1,4 @@
+// WIRE-EXEMPT: integration-test harness (runs scenario suites -> TestReport), not an MCP dispatcher action.
 /**
  * CreoIntegrationTestSuiteEngine — U-CAD-APP-03 (PHASE-48)
  *

@@ -1,0 +1,80 @@
+TAP version 13
+# Subtest: extractMcpActionRefs: single match
+ok 1 - extractMcpActionRefs: single match
+  ---
+  duration_ms: 1.5963
+  ...
+# Subtest: extractMcpActionRefs: multiple unique matches dedup'd
+ok 2 - extractMcpActionRefs: multiple unique matches dedup'd
+  ---
+  duration_ms: 0.1638
+  ...
+# Subtest: extractMcpActionRefs: no matches → empty array
+ok 3 - extractMcpActionRefs: no matches → empty array
+  ---
+  duration_ms: 0.1162
+  ...
+# Subtest: extractMcpActionRefs: ignores word boundaries (no fragment matches)
+ok 4 - extractMcpActionRefs: ignores word boundaries (no fragment matches)
+  ---
+  duration_ms: 0.0973
+  ...
+# Subtest: extractMcpActionRefs: non-string input returns []
+ok 5 - extractMcpActionRefs: non-string input returns []
+  ---
+  duration_ms: 0.1641
+  ...
+# Subtest: extractMcpActionRefs: empty string returns []
+ok 6 - extractMcpActionRefs: empty string returns []
+  ---
+  duration_ms: 0.0832
+  ...
+# Subtest: findUnknownActions: returns only unknowns
+ok 7 - findUnknownActions: returns only unknowns
+  ---
+  duration_ms: 0.18
+  ...
+# Subtest: findUnknownActions: empty input returns []
+ok 8 - findUnknownActions: empty input returns []
+  ---
+  duration_ms: 0.084
+  ...
+# Subtest: findUnknownActions: non-array returns []
+ok 9 - findUnknownActions: non-array returns []
+  ---
+  duration_ms: 0.2821
+  ...
+# Subtest: findUnknownActions: custom knownSet overrides default
+ok 10 - findUnknownActions: custom knownSet overrides default
+  ---
+  duration_ms: 0.336
+  ...
+# Subtest: KNOWN_REAL_MCP_ACTIONS: non-empty + every entry well-shaped
+ok 11 - KNOWN_REAL_MCP_ACTIONS: non-empty + every entry well-shaped
+  ---
+  duration_ms: 0.2211
+  ...
+# Subtest: KNOWN_REAL_MCP_ACTIONS: does NOT contain the iter5 fakes (regression guard)
+ok 12 - KNOWN_REAL_MCP_ACTIONS: does NOT contain the iter5 fakes (regression guard)
+  ---
+  duration_ms: 0.1068
+  ...
+# Subtest: MCP_ACTION_RE: matches lowercase prism_*:* tokens only
+ok 13 - MCP_ACTION_RE: matches lowercase prism_*:* tokens only
+  ---
+  duration_ms: 0.1501
+  ...
+# Subtest: MCP_ACTION_RE: does not match prism prefix without colon
+ok 14 - MCP_ACTION_RE: does not match prism prefix without colon
+  ---
+  duration_ms: 0.0682
+  ...
+1..14
+# tests 14
+# suites 0
+# pass 14
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 90.0618

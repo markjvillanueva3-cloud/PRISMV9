@@ -1,0 +1,904 @@
+{
+  "id": "CCM-MS11",
+  "version": "1.0.0",
+  "title": "Cowork & Dispatch Integration",
+  "brief": "Leverage Claude Cowork's desktop agent mode and Dispatch (phone-to-desktop messaging, shipped March 18, 2026) for PRISM workflows. Create folder-specific instructions, pre-built multi-step task templates, Dispatch-compatible skills with concise output, PRISM MCP plugin for Cowork, background task patterns for describe-outcome-step-away workflows, connector catalog for external integrations, phone-friendly output formats, scheduled Cowork tasks, session persistence, integration tests.",
+  "created_at": "2026-03-20T12:00:00Z",
+  "created_by": "claude-opus-4.6",
+  "track": "CCM",
+  "track_name": "Claude Code Modernization",
+  "status": "not_started",
+  "dependencies": [
+    "CCM-MS3",
+    "CCM-MS5"
+  ],
+  "wave": 3,
+  "phases": [
+    {
+      "id": "P0",
+      "title": "Cowork & Dispatch Integration",
+      "description": "Configure PRISM for Claude Cowork desktop agent mode and Dispatch phone-to-desktop messaging. Folder instructions, task templates, Dispatch-compatible skills, MCP plugin, background patterns, connectors, phone-friendly output, scheduling, persistence, and integration tests.",
+      "sessions": "3-5",
+      "primary_role": "R1",
+      "primary_model": "opus-4.6",
+      "units": [
+        {
+          "id": "P0-U01",
+          "title": "Cowork folder instructions",
+          "phase": "P0",
+          "sequence": 1,
+          "role": "R1",
+          "role_name": "Systems Architect",
+          "model": "opus-4.6",
+          "effort": 75,
+          "rationale": "Create folder-specific .claude/instructions files so Cowork automatically loads relevant context when working in different parts of the PRISM codebase (engines, tools, data, tests).",
+          "tools": [
+            "Write",
+            "Read",
+            "Glob"
+          ],
+          "skills": [],
+          "scripts": [],
+          "hooks": [],
+          "features": [
+            "Folder-specific Cowork instructions"
+          ],
+          "dependencies": [],
+          "entry_conditions": [
+            "Understanding of PRISM directory structure from DIRECTORY_DIGEST"
+          ],
+          "exit_conditions": [
+            "Folder instructions active for src/engines/, src/tools/, data/, tests/",
+            "Tests pass: npx vitest run (min 10 cases for engine units)",
+            "Typecheck clean: npx tsc --noEmit on touched files"
+          ],
+          "rollback": "git checkout -- src/engines/.claude/ src/tools/.claude/ data/.claude/ tests/.claude/",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Create src/engines/.claude/instructions.md with engine development conventions, required exports, test patterns"
+            },
+            {
+              "number": 2,
+              "instruction": "Create src/tools/.claude/instructions.md with dispatcher wiring rules, action schema requirements"
+            },
+            {
+              "number": 3,
+              "instruction": "Create data/.claude/instructions.md with catalog data conventions, validation rules, enrichment patterns"
+            },
+            {
+              "number": 4,
+              "instruction": "Create tests/.claude/instructions.md with test naming, assertion minimums, physics test patterns"
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "src/engines/.claude/instructions.md",
+              "type": "config",
+              "description": "Engine development instructions for Cowork"
+            },
+            {
+              "path": "src/tools/.claude/instructions.md",
+              "type": "config",
+              "description": "Dispatcher/tool instructions for Cowork"
+            },
+            {
+              "path": "data/.claude/instructions.md",
+              "type": "config",
+              "description": "Data catalog instructions for Cowork"
+            },
+            {
+              "path": "tests/.claude/instructions.md",
+              "type": "config",
+              "description": "Test development instructions for Cowork"
+            }
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": false,
+          "creates_hook": false,
+          "creates_command": false,
+          "description": "Cowork folder instructions — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P0-U02",
+          "title": "Cowork task templates",
+          "phase": "P0",
+          "sequence": 2,
+          "role": "R1",
+          "role_name": "Systems Architect",
+          "model": "opus-4.6",
+          "effort": 80,
+          "rationale": "Create pre-built multi-step task templates for common PRISM workflows so users can launch complex operations with a single Cowork command.",
+          "tools": [
+            "Write",
+            "Read"
+          ],
+          "skills": [],
+          "scripts": [
+            "scripts/cowork-templates/"
+          ],
+          "hooks": [],
+          "features": [
+            "Pre-built Cowork task templates for PRISM workflows"
+          ],
+          "dependencies": [
+            "P0-U01"
+          ],
+          "entry_conditions": [
+            "Folder instructions in place"
+          ],
+          "exit_conditions": [
+            "Templates work for: enrich catalog, wire engine, run test sweep, generate docs",
+            "Tests pass: npx vitest run (min 10 cases for engine units)",
+            "Typecheck clean: npx tsc --noEmit on touched files"
+          ],
+          "rollback": "git checkout -- scripts/cowork-templates/",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Create enrich-catalog template: accepts manufacturer name, extracts PDF data, validates, adds to catalog"
+            },
+            {
+              "number": 2,
+              "instruction": "Create wire-engine template: accepts engine file, auto-exports, wires dispatcher, creates schema, creates test stub"
+            },
+            {
+              "number": 3,
+              "instruction": "Create test-sweep template: runs vitest on specified directory, reports failures, suggests fixes"
+            },
+            {
+              "number": 4,
+              "instruction": "Create generate-docs template: extracts JSDoc from engine, generates API reference markdown"
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "scripts/cowork-templates/enrich-catalog.md",
+              "type": "config",
+              "description": "Catalog enrichment task template"
+            },
+            {
+              "path": "scripts/cowork-templates/wire-engine.md",
+              "type": "config",
+              "description": "Engine wiring task template"
+            },
+            {
+              "path": "scripts/cowork-templates/test-sweep.md",
+              "type": "config",
+              "description": "Test sweep task template"
+            },
+            {
+              "path": "scripts/cowork-templates/generate-docs.md",
+              "type": "config",
+              "description": "Documentation generation task template"
+            }
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": true,
+          "creates_hook": false,
+          "creates_command": false,
+          "description": "Cowork task templates — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P0-U03",
+          "title": "Dispatch-compatible skills",
+          "phase": "P0",
+          "sequence": 3,
+          "role": "R1",
+          "role_name": "Systems Architect",
+          "model": "opus-4.6",
+          "effort": 85,
+          "rationale": "Adapt top 20 PRISM skills for Dispatch mode (phone-to-desktop): concise output, no interactive prompts, status-first responses, expandable detail sections.",
+          "tools": [
+            "Write",
+            "Read",
+            "Grep"
+          ],
+          "skills": [],
+          "scripts": [],
+          "hooks": [],
+          "features": [
+            "Dispatch-compatible skill adaptations"
+          ],
+          "dependencies": [
+            "P0-U01"
+          ],
+          "entry_conditions": [
+            "Existing skills functional"
+          ],
+          "exit_conditions": [
+            "Top 20 skills produce concise Dispatch-friendly output",
+            "No skills require interactive prompts",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
+          ],
+          "rollback": "git checkout -- src/skills/",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Audit top 20 skills for interactive prompts, verbose output, formatting issues"
+            },
+            {
+              "number": 2,
+              "instruction": "Add dispatch mode detection (env var or flag) to skill runner"
+            },
+            {
+              "number": 3,
+              "instruction": "In dispatch mode: 1-line status, 3-line summary, expandable detail section"
+            },
+            {
+              "number": 4,
+              "instruction": "Remove all interactive prompts in dispatch mode, use sensible defaults"
+            },
+            {
+              "number": 5,
+              "instruction": "Test each skill in simulated dispatch context"
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "src/skills/dispatch-adapter.ts",
+              "type": "script",
+              "description": "Dispatch mode adapter for PRISM skills"
+            }
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": true,
+          "creates_hook": false,
+          "creates_command": false,
+          "description": "Dispatch-compatible skills — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P0-U04",
+          "title": "Cowork plugin configuration",
+          "phase": "P0",
+          "sequence": 4,
+          "role": "R1",
+          "role_name": "Systems Architect",
+          "model": "opus-4.6",
+          "effort": 85,
+          "rationale": "Register PRISM MCP server as a Cowork plugin, exposing all 67 dispatchers as available tools within the Cowork desktop agent environment.",
+          "tools": [
+            "Write",
+            "Read",
+            "Bash"
+          ],
+          "skills": [],
+          "scripts": [],
+          "hooks": [],
+          "features": [
+            "PRISM as Cowork MCP plugin"
+          ],
+          "dependencies": [
+            "P0-U01"
+          ],
+          "entry_conditions": [
+            "PRISM MCP server functional",
+            "Cowork plugin API available"
+          ],
+          "exit_conditions": [
+            "PRISM plugin registered in Cowork",
+            "67 dispatchers accessible as Cowork tools",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
+          ],
+          "rollback": "git checkout -- .claude/cowork-plugin.json",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Create Cowork plugin manifest with PRISM server endpoint and capabilities"
+            },
+            {
+              "number": 2,
+              "instruction": "Map 67 dispatchers to Cowork tool definitions with descriptions"
+            },
+            {
+              "number": 3,
+              "instruction": "Configure authentication between Cowork and PRISM MCP server"
+            },
+            {
+              "number": 4,
+              "instruction": "Test plugin registration and tool discovery in Cowork"
+            }
+          ],
+          "deliverables": [
+            {
+              "path": ".claude/cowork-plugin.json",
+              "type": "config",
+              "description": "Cowork plugin manifest for PRISM MCP server"
+            }
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": false,
+          "creates_hook": false,
+          "creates_command": false,
+          "description": "Cowork plugin configuration — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P0-U05",
+          "title": "Background task patterns",
+          "phase": "P0",
+          "sequence": 5,
+          "role": "R1",
+          "role_name": "Systems Architect",
+          "model": "opus-4.6",
+          "effort": 80,
+          "rationale": "Create describe-outcome-step-away patterns for long-running PRISM operations (build, test sweep, catalog enrichment) so users can dispatch work and check back later.",
+          "tools": [
+            "Write",
+            "Read",
+            "Bash"
+          ],
+          "skills": [],
+          "scripts": [
+            "scripts/cowork-templates/background-patterns.ts"
+          ],
+          "hooks": [],
+          "features": [
+            "Background task execution patterns for Cowork"
+          ],
+          "dependencies": [
+            "P0-U02"
+          ],
+          "entry_conditions": [
+            "Task templates created"
+          ],
+          "exit_conditions": [
+            "Background patterns work for build/test/enrich pipelines",
+            "Status polling available",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
+          ],
+          "rollback": "git checkout -- scripts/cowork-templates/background-patterns.ts",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Create background task runner that accepts outcome description and executes pipeline"
+            },
+            {
+              "number": 2,
+              "instruction": "Implement status file pattern: ~/.prism/tasks/{id}.json with progress, status, result"
+            },
+            {
+              "number": 3,
+              "instruction": "Add notification on completion (Dispatch push if available, file marker otherwise)"
+            },
+            {
+              "number": 4,
+              "instruction": "Create status query command: prism task-status <id>"
+            },
+            {
+              "number": 5,
+              "instruction": "Test with long-running test sweep and catalog enrichment"
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "scripts/cowork-templates/background-patterns.ts",
+              "type": "script",
+              "description": "Background task execution patterns"
+            }
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": true,
+          "creates_hook": false,
+          "creates_command": true,
+          "description": "Background task patterns — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P0-U06",
+          "title": "Cowork connector catalog",
+          "phase": "P0",
+          "sequence": 6,
+          "role": "R1",
+          "role_name": "Systems Architect",
+          "model": "opus-4.6",
+          "effort": 75,
+          "rationale": "Map PRISM's external integrations (Fusion 360 live bridge, hyperMILL, OPC-UA, MQTT, MTConnect) to Cowork connector patterns for seamless tool access.",
+          "tools": [
+            "Write",
+            "Read",
+            "Grep"
+          ],
+          "skills": [],
+          "scripts": [],
+          "hooks": [],
+          "features": [
+            "External integration connector catalog for Cowork"
+          ],
+          "dependencies": [
+            "P0-U04"
+          ],
+          "entry_conditions": [
+            "Cowork plugin registered"
+          ],
+          "exit_conditions": [
+            "Connectors mapped for Fusion 360, OPC-UA, MQTT, MTConnect",
+            "Tests pass: npx vitest run (min 10 cases for engine units)",
+            "Typecheck clean: npx tsc --noEmit on touched files"
+          ],
+          "rollback": "git checkout -- .claude/connectors/",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Create connector manifest for Fusion 360 live bridge (port 18360)"
+            },
+            {
+              "number": 2,
+              "instruction": "Create connector manifest for OPC-UA (OpcUaConnectorEngine)"
+            },
+            {
+              "number": 3,
+              "instruction": "Create connector manifest for MQTT (MqttBridgeEngine)"
+            },
+            {
+              "number": 4,
+              "instruction": "Create connector manifest for MTConnect (MTConnectAdapterEngine)"
+            },
+            {
+              "number": 5,
+              "instruction": "Document connector usage patterns in Cowork context"
+            }
+          ],
+          "deliverables": [
+            {
+              "path": ".claude/connectors/fusion360.json",
+              "type": "config",
+              "description": "Fusion 360 connector manifest"
+            },
+            {
+              "path": ".claude/connectors/opcua.json",
+              "type": "config",
+              "description": "OPC-UA connector manifest"
+            },
+            {
+              "path": ".claude/connectors/mqtt.json",
+              "type": "config",
+              "description": "MQTT connector manifest"
+            },
+            {
+              "path": ".claude/connectors/mtconnect.json",
+              "type": "config",
+              "description": "MTConnect connector manifest"
+            }
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": false,
+          "creates_hook": false,
+          "creates_command": false,
+          "description": "Cowork connector catalog — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P0-U07",
+          "title": "Phone-friendly output formats",
+          "phase": "P0",
+          "sequence": 7,
+          "role": "R1",
+          "role_name": "Systems Architect",
+          "model": "opus-4.6",
+          "effort": 75,
+          "rationale": "Create compact formatters for Dispatch phone display: status indicators, 1-line summaries, expandable details, table-to-list conversion for narrow screens.",
+          "tools": [
+            "Write",
+            "Read"
+          ],
+          "skills": [],
+          "scripts": [
+            "src/cli/dispatch-formatters.ts"
+          ],
+          "hooks": [],
+          "features": [
+            "Phone-friendly compact output formatters"
+          ],
+          "dependencies": [
+            "P0-U03"
+          ],
+          "entry_conditions": [
+            "Dispatch adapter created"
+          ],
+          "exit_conditions": [
+            "Output fits phone screen width",
+            "Status indicators present",
+            "Expandable details work"
+          ],
+          "rollback": "git checkout -- src/cli/dispatch-formatters.ts",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Create dispatch-formatters.ts with phone-width constraints (40-char lines)"
+            },
+            {
+              "number": 2,
+              "instruction": "Implement status line: icon + 1-line result (pass/fail/warning + key metric)"
+            },
+            {
+              "number": 3,
+              "instruction": "Implement summary block: 3 lines max with most important values"
+            },
+            {
+              "number": 4,
+              "instruction": "Convert tables to vertical key:value lists for narrow display"
+            },
+            {
+              "number": 5,
+              "instruction": "Add expandable detail markers for full output on demand"
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "src/cli/dispatch-formatters.ts",
+              "type": "script",
+              "description": "Phone-friendly Dispatch output formatters"
+            }
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": true,
+          "creates_hook": false,
+          "creates_command": false,
+          "description": "Phone-friendly output formats — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P0-U08",
+          "title": "Scheduled Cowork tasks",
+          "phase": "P0",
+          "sequence": 8,
+          "role": "R1",
+          "role_name": "Systems Architect",
+          "model": "opus-4.6",
+          "effort": 80,
+          "rationale": "Set up CronCreate-based scheduling for recurring PRISM maintenance tasks: daily catalog freshness checks, weekly regression sweeps, monthly coverage audits.",
+          "tools": [
+            "Write",
+            "Read",
+            "Bash"
+          ],
+          "skills": [],
+          "scripts": [
+            "scripts/cowork-templates/scheduled-tasks.ts"
+          ],
+          "hooks": [],
+          "features": [
+            "Scheduled recurring Cowork tasks via CronCreate"
+          ],
+          "dependencies": [
+            "P0-U05"
+          ],
+          "entry_conditions": [
+            "Background task patterns functional"
+          ],
+          "exit_conditions": [
+            "Daily catalog freshness cron fires",
+            "Weekly regression sweep cron fires",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
+          ],
+          "rollback": "git checkout -- scripts/cowork-templates/scheduled-tasks.ts",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Create scheduled-tasks.ts defining cron schedules for PRISM maintenance"
+            },
+            {
+              "number": 2,
+              "instruction": "Daily: catalog freshness check (compare tool counts, detect stale data)"
+            },
+            {
+              "number": 3,
+              "instruction": "Weekly: run full test suite, report regressions vs last week"
+            },
+            {
+              "number": 4,
+              "instruction": "Monthly: coverage audit (engines without tests, unwired dispatchers)"
+            },
+            {
+              "number": 5,
+              "instruction": "Wire to CronCreate API with proper schedule expressions"
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "scripts/cowork-templates/scheduled-tasks.ts",
+              "type": "script",
+              "description": "Scheduled Cowork task definitions"
+            }
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": true,
+          "creates_hook": false,
+          "creates_command": false,
+          "description": "Scheduled Cowork tasks — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P0-U09",
+          "title": "Cowork session persistence",
+          "phase": "P0",
+          "sequence": 9,
+          "role": "R1",
+          "role_name": "Systems Architect",
+          "model": "opus-4.6",
+          "effort": 85,
+          "rationale": "Persist PRISM context (active machine, material, tool selections, recent operations) across Cowork sessions so users don't re-specify their setup each time.",
+          "tools": [
+            "Write",
+            "Read",
+            "Bash"
+          ],
+          "skills": [],
+          "scripts": [
+            "src/engines/CoworkSessionEngine.ts"
+          ],
+          "hooks": [],
+          "features": [
+            "Session context persistence across Cowork restarts"
+          ],
+          "dependencies": [
+            "P0-U04"
+          ],
+          "entry_conditions": [
+            "Cowork plugin registered"
+          ],
+          "exit_conditions": [
+            "Machine/material/tool context survives session restart",
+            "Context auto-loaded on session start",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
+          ],
+          "rollback": "git checkout -- src/engines/CoworkSessionEngine.ts",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Create CoworkSessionEngine.ts with save/load/merge context methods"
+            },
+            {
+              "number": 2,
+              "instruction": "Persist to ~/.prism/cowork-session.json: machine, material, tool, operation, last 10 actions"
+            },
+            {
+              "number": 3,
+              "instruction": "Auto-save on context changes (machine switch, material select, etc.)"
+            },
+            {
+              "number": 4,
+              "instruction": "Auto-load on session start with staleness check (>7 days = suggest refresh)"
+            },
+            {
+              "number": 5,
+              "instruction": "Add merge logic for conflicting contexts across concurrent sessions"
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "src/engines/CoworkSessionEngine.ts",
+              "type": "script",
+              "description": "Cowork session context persistence engine"
+            }
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": true,
+          "creates_hook": false,
+          "creates_command": false,
+          "description": "Cowork session persistence — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P0-U10",
+          "title": "Integration tests",
+          "phase": "P0",
+          "sequence": 10,
+          "role": "R1",
+          "role_name": "Systems Architect",
+          "model": "opus-4.6",
+          "effort": 85,
+          "rationale": "End-to-end integration tests for the full Dispatch round-trip: phone message to desktop execution to results back to phone, verifying the complete Cowork+Dispatch pipeline.",
+          "tools": [
+            "Write",
+            "Read",
+            "Bash"
+          ],
+          "skills": [],
+          "scripts": [],
+          "hooks": [],
+          "features": [
+            "Full round-trip Dispatch integration tests"
+          ],
+          "dependencies": [
+            "P0-U01",
+            "P0-U02",
+            "P0-U03",
+            "P0-U04",
+            "P0-U05",
+            "P0-U07",
+            "P0-U09"
+          ],
+          "entry_conditions": [
+            "All Cowork/Dispatch components functional"
+          ],
+          "exit_conditions": [
+            "Full round-trip works: phone Dispatch to desktop execution to results back to phone",
+            "Tests pass: npx vitest run (min 10 cases for engine units)",
+            "Typecheck clean: npx tsc --noEmit on touched files"
+          ],
+          "rollback": "git checkout -- tests/integration/cowork-dispatch.test.ts",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Create cowork-dispatch.test.ts with simulated Dispatch message input"
+            },
+            {
+              "number": 2,
+              "instruction": "Test skill routing: Dispatch message to correct PRISM skill"
+            },
+            {
+              "number": 3,
+              "instruction": "Test background execution: long task dispatched, status queryable, result returned"
+            },
+            {
+              "number": 4,
+              "instruction": "Test session persistence: context set via Dispatch, survives restart, usable in next message"
+            },
+            {
+              "number": 5,
+              "instruction": "Test phone formatting: output fits width constraints, has status indicators"
+            },
+            {
+              "number": 6,
+              "instruction": "Test error handling: invalid input, timeout, MCP server down"
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "tests/integration/cowork-dispatch.test.ts",
+              "type": "test",
+              "description": "Cowork+Dispatch integration tests"
+            }
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": false,
+          "creates_hook": false,
+          "creates_command": false,
+          "description": "Integration tests — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        }
+      ]
+    }
+  ],
+  "smart_config": {
+    "role": "implementer + reviewer",
+    "model": "sonnet",
+    "effort": "HIGH",
+    "context_budget": "65%"
+  },
+  "mcp_lifecycle": {
+    "session_start": [
+      "prism_session:context_boot",
+      "prism_session:dispatcher_map",
+      "prism_session:memory_recall",
+      "prism_session:system_snapshot",
+      "prism_session:action_search"
+    ],
+    "during_work": [
+      "prism_session:auto_checkpoint",
+      "prism_session:tool_route_best",
+      "prism_session:wip_capture"
+    ],
+    "session_end": [
+      "prism_session:memory_save",
+      "prism_session:system_snapshot",
+      "prism_session:checkpoint_enhanced"
+    ]
+  },
+  "forge_triple": {
+    "protective_hook": "ccm-ms11-gate",
+    "mcp_action": "prism_ccm:ccm_ms11_run",
+    "skill_command": "/ccm-ms11",
+    "ownership": "DECLARED — BUILT in terminal unit of this milestone"
+  },
+  "feature_cascade": {
+    "new_hooks": [
+      "ccm-ms11-gate"
+    ],
+    "new_actions": [
+      "ccm_ms11_run"
+    ],
+    "new_skills": [
+      "/ccm-ms11"
+    ],
+    "available_to": [
+      "downstream CAMX milestones",
+      "prism app consumers"
+    ]
+  },
+  "knowledge_sources": {
+    "engines": [
+      "ENGINE_DIGEST.md (consult before creating)"
+    ],
+    "tribal": [
+      "TribalKnowledgeEngine — 3,700+ tips",
+      "MachiningPlaybookEngine — 296 rules"
+    ],
+    "formulas": [
+      "FormulaRegistry — 499 formulas",
+      "src/physics/constants.ts — canonical"
+    ],
+    "reference": [
+      "EXTERNAL-REFERENCE-PROGRAMS-INDEX.md",
+      "MaterialRegistry",
+      "MachineRegistry",
+      "ToolCatalogEngine (95,608 tools)"
+    ]
+  },
+  "intent": "Leverage Claude Cowork's desktop agent mode and Dispatch (phone-to-desktop messaging, shipped March 18, 2026) for PRISM workflows. Create folder-specific instructions, pre-built multi-step task templates, Dispatch-compatible skills with concise output, PRISM MCP plugin for Cowork, background task patterns for describe-outcome-step-away workflows, connector catalog for external integrations, phone-friendly output formats, scheduled Cowork tasks, session persistence, integration tests.",
+  "compact_checkpoint": "every 3 units — auto-triggered by hook",
+  "enforcement_hooks_active": [
+    "physics agent",
+    "wiring agent",
+    "constants checker",
+    "stub detector",
+    "test quality",
+    "forge-triple gate",
+    "session audit agent"
+  ]
+}

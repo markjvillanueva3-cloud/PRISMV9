@@ -23,13 +23,14 @@ related:
 |-------|-------|
 | Name | `sinker-harden` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/sinker-harden.md` |
+| Source | `C:/Users/wompu/.claude/commands/sinker-harden.md` |
 | Model | default |
 | Tags | _(none)_ |
 
 ## Description (first paragraph)
 
-Harden AI models for specific sinker EDM machines, electrode materials, or workpiece types.
+
+# /sinker-harden — Sinker EDM AI Hardening
 
 <!-- AUTO-END -->
 

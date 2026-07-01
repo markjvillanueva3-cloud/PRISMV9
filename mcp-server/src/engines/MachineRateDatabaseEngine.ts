@@ -413,6 +413,23 @@ class MachineRateDatabaseEngine {
   }
 
   /**
+   * U-BURDEN-RATE-REAL (2026-05-25, hotel): expose full MachineCategory record
+   * so downstream cost engines (BurdenRateEngine, future TaxAllocationEngine)
+   * can compute components beyond the four exposed by `getRate()`.
+   * Returns a defensive copy — callers cannot mutate the catalog.
+   */
+  getMachine(machineIdOrAlias: string): MachineCategory | null {
+    const id = ALIAS_MAP[machineIdOrAlias] ?? machineIdOrAlias;
+    const m = MACHINES.find(x => x.id === id);
+    if (!m) return null;
+    return {
+      ...m,
+      purchasePrice: { ...m.purchasePrice },
+      hourlyRate: { ...m.hourlyRate },
+    };
+  }
+
+  /**
    * U-BIZREG2: Enrich a rate lookup with MachineRegistry specs (spindle, envelope, axes).
    * Returns null if machine not found in registry.
    */

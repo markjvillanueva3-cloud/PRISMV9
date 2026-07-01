@@ -22,7 +22,7 @@ export function checkForSyntheticPlaceholder(stagedFiles = []) {
 
   for (const file of wedmFiles) {
     try {
-      const diff = execSync(`git diff --cached "${file}"`, { encoding: 'utf-8' });
+      const diff = execSync(`git diff --cached "${file}"`, { windowsHide: true, encoding: 'utf-8' });
       if (diff.includes('synthetic_placeholder')) {
         violations.push(file);
       }

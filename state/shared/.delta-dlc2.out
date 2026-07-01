@@ -1,0 +1,170 @@
+TAP version 13
+# Subtest: exports version + list code references app.documents
+ok 1 - exports version + list code references app.documents
+  ---
+  duration_ms: 1.2897
+  ...
+# Subtest: SAFETY: the active+modified operator doc is NEVER closable
+ok 2 - SAFETY: the active+modified operator doc is NEVER closable
+  ---
+  duration_ms: 0.2525
+  ...
+# Subtest: SAFETY: a modified-but-inactive doc is protected by default (unsaved work)
+ok 3 - SAFETY: a modified-but-inactive doc is protected by default (unsaved work)
+  ---
+  duration_ms: 0.1264
+  ...
+# Subtest: DISPOSABLE: allowModified lets a loop-OWNED modified candidate be closable (own throwaway)
+ok 4 - DISPOSABLE: allowModified lets a loop-OWNED modified candidate be closable (own throwaway)
+  ---
+  duration_ms: 1.1839
+  ...
+# Subtest: DISPOSABLE: even with allowModified, ACTIVE + protected-name + not-in-only still protect (operator safe)
+ok 5 - DISPOSABLE: even with allowModified, ACTIVE + protected-name + not-in-only still protect (operator safe)
+  ---
+  duration_ms: 0.5597
+  ...
+# Subtest: closeDocByNameCode disposable=true omits the modified guard but keeps the active guard
+ok 6 - closeDocByNameCode disposable=true omits the modified guard but keeps the active guard
+  ---
+  duration_ms: 0.8167
+  ...
+# Subtest: activateNonOwnedCode: activates a doc NOT in the owned set; json-safe
+ok 7 - activateNonOwnedCode: activates a doc NOT in the owned set; json-safe
+  ---
+  duration_ms: 0.3804
+  ...
+# Subtest: DISPOSABLE reap: owned candidate is ACTIVE → reactivate non-owned, then close owned (operator safe)
+ok 8 - DISPOSABLE reap: owned candidate is ACTIVE → reactivate non-owned, then close owned (operator safe)
+  ---
+  duration_ms: 1.033
+  ...
+# Subtest: onlyNames: only loop-created docs are closable; operator's other docs untouched
+ok 9 - onlyNames: only loop-created docs are closable; operator's other docs untouched
+  ---
+  duration_ms: 0.4782
+  ...
+# Subtest: protectedNames blocks a named doc even if otherwise closable
+ok 10 - protectedNames blocks a named doc even if otherwise closable
+  ---
+  duration_ms: 1.9437
+  ...
+# Subtest: clean leftover docs (inactive, unmodified, not protected) ARE closable
+ok 11 - clean leftover docs (inactive, unmodified, not protected) ARE closable
+  ---
+  duration_ms: 0.2208
+  ...
+# Subtest: closeDocByNameCode: json-quotes the name (no injection) + guards active/modified in Fusion
+ok 12 - closeDocByNameCode: json-quotes the name (no injection) + guards active/modified in Fusion
+  ---
+  duration_ms: 0.1504
+  ...
+# Subtest: listDocuments: parses a successful /execute response
+ok 13 - listDocuments: parses a successful /execute response
+  ---
+  duration_ms: 0.1694
+  ...
+# Subtest: listDocuments: a failed /execute → ok:false, no throw, error surfaced
+ok 14 - listDocuments: a failed /execute → ok:false, no throw, error surfaced
+  ---
+  duration_ms: 0.1606
+  ...
+# Subtest: listDocuments: requires postExecute (fail loud)
+ok 15 - listDocuments: requires postExecute (fail loud)
+  ---
+  duration_ms: 0.8259
+  ...
+# Subtest: closeDocuments: reports per-doc closed/refused; a refusal is surfaced not hidden (R12)
+ok 16 - closeDocuments: reports per-doc closed/refused; a refusal is surfaced not hidden (R12)
+  ---
+  duration_ms: 0.2768
+  ...
+# Subtest: reapLeakedDocuments: protects active doc by name, closes only clean leftovers — END TO END
+ok 17 - reapLeakedDocuments: protects active doc by name, closes only clean leftovers — END TO END
+  ---
+  duration_ms: 0.7303
+  ...
+# Subtest: reapLeakedDocuments: onlyNames mode reaps just the loop's own docs
+ok 18 - reapLeakedDocuments: onlyNames mode reaps just the loop's own docs
+  ---
+  duration_ms: 0.3752
+  ...
+# Subtest: reapLeakedDocuments: bridge list failure → ok:false, nothing closed
+ok 19 - reapLeakedDocuments: bridge list failure → ok:false, nothing closed
+  ---
+  duration_ms: 0.4008
+  ...
+# Subtest: reapByPrefixCode: closes high→low, guards active, json-safe prefix
+ok 20 - reapByPrefixCode: closes high→low, guards active, json-safe prefix
+  ---
+  duration_ms: 0.1983
+  ...
+# Subtest: reapByPrefix: parses the in-Fusion result
+ok 21 - reapByPrefix: parses the in-Fusion result
+  ---
+  duration_ms: 0.2794
+  ...
+# Subtest: reapByPrefix: REFUSES empty prefix (would reap everything — fail loud)
+ok 22 - reapByPrefix: REFUSES empty prefix (would reap everything — fail loud)
+  ---
+  duration_ms: 0.3097
+  ...
+# Subtest: reapByPrefix: failed execute → ok:false, closed 0; requires postExecute
+ok 23 - reapByPrefix: failed execute → ok:false, closed 0; requires postExecute
+  ---
+  duration_ms: 0.2471
+  ...
+# Subtest: computeCreatedDocs: current MINUS before = the docs this run created (order preserved)
+ok 24 - computeCreatedDocs: current MINUS before = the docs this run created (order preserved)
+  ---
+  duration_ms: 0.1861
+  ...
+# Subtest: computeCreatedDocs: catches the /new-doubling non-prefixed Untitled (not just prefixed names)
+ok 25 - computeCreatedDocs: catches the /new-doubling non-prefixed Untitled (not just prefixed names)
+  ---
+  duration_ms: 0.214
+  ...
+# Subtest: computeCreatedDocs: null / garbage → [] (no throw)
+ok 26 - computeCreatedDocs: null / garbage → [] (no throw)
+  ---
+  duration_ms: 0.1913
+  ...
+# Subtest: reapCreatedDocs: nothing created (current ⊆ before) → closed:[] (no spurious close)
+ok 27 - reapCreatedDocs: nothing created (current ⊆ before) → closed:[] (no spurious close)
+  ---
+  duration_ms: 0.2197
+  ...
+# Subtest: reapCreatedDocs: reaps ONLY the created doc, protects the pre-existing operator doc
+ok 28 - reapCreatedDocs: reaps ONLY the created doc, protects the pre-existing operator doc
+  ---
+  duration_ms: 0.4659
+  ...
+# Subtest: reapCreatedDocs: requires postExecute
+ok 29 - reapCreatedDocs: requires postExecute
+  ---
+  duration_ms: 0.1439
+  ...
+# Subtest: CREATE_FRESH_DOC_CODE: adds a Fusion design doc, activates it, reports name+bodyCount; NO import
+ok 30 - CREATE_FRESH_DOC_CODE: adds a Fusion design doc, activates it, reports name+bodyCount; NO import
+  ---
+  duration_ms: 0.1846
+  ...
+# Subtest: createFreshDoc: returns the fresh doc name + empty body count on success
+ok 31 - createFreshDoc: returns the fresh doc name + empty body count on success
+  ---
+  duration_ms: 0.236
+  ...
+# Subtest: createFreshDoc: bridge failure → {ok:false}, never throws; requires postExecute
+ok 32 - createFreshDoc: bridge failure → {ok:false}, never throws; requires postExecute
+  ---
+  duration_ms: 0.7455
+  ...
+1..32
+# tests 32
+# suites 0
+# pass 32
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 396.3868

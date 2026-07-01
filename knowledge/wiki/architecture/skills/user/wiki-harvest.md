@@ -23,13 +23,14 @@ related:
 |-------|-------|
 | Name | `wiki-harvest` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/wiki-harvest.md` |
+| Source | `C:/Users/wompu/.claude/commands/wiki-harvest.md` |
 | Model | default |
 | Tags | _(none)_ |
 
 ## Description (first paragraph)
 
-Refresh the auto-curated wiki sections from upstream PRISM data sources.
+
+# /wiki-harvest
 
 <!-- AUTO-END -->
 

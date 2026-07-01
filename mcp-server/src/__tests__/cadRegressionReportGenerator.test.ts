@@ -33,6 +33,13 @@ import {
   renderTrend,
   renderHotspots,
   renderSummary,
+  renderSnapshotHtml,
+  renderDiffHtml,
+  renderTrendHtml,
+  renderHotspotsHtml,
+  renderSummaryHtml,
+  mdToInlineHtml,
+  wrapPrintableHtml,
 } from "../engines/CADRegressionReportGeneratorEngine.js";
 import type {
   DashboardSnapshot,
@@ -322,35 +329,252 @@ describe("renderSummary()", () => {
 // ── execute() ────────────────────────────────────────────────────────────────
 
 describe("execute() routing", () => {
+  // BaseEngine.execute() returns the raw executeImpl result; validation
+  // failures THROW (no {success,error} envelope wrapping).
   it("routes op=renderSnapshot", async () => {
-    const result = await cadRegressionReportGeneratorEngine.execute({
+    const data = (await cadRegressionReportGeneratorEngine.execute({
       op: "renderSnapshot",
       snapshot: snap(),
-    });
-    expect(result.success).toBe(true);
-    const data = result.data as { markdown: string };
+    })) as { markdown: string };
     expect(data.markdown).toContain("# CAD Regression — Batch");
   });
 
   it("routes op=renderDiff", async () => {
-    const result = await cadRegressionReportGeneratorEngine.execute({
+    const data = (await cadRegressionReportGeneratorEngine.execute({
       op: "renderDiff",
       diff: makeDiff(),
+    })) as { markdown: string };
+    expect(typeof data.markdown).toBe("string");
+    expect(data.markdown.length).toBeGreaterThan(0);
+  });
+
+  it("rejects unknown op (validation throw)", async () => {
+    const e = new CADRegressionReportGeneratorEngine();
+    await expect(e.execute({ op: "bogus" } as unknown)).rejects.toThrow(/op must be/);
+  });
+
+  it("rejects missing snapshot payload (engine throw)", async () => {
+    const e = new CADRegressionReportGeneratorEngine();
+    await expect(
+      e.execute({ op: "renderSnapshot" } as unknown),
+    ).rejects.toThrow(/requires/);
+  });
+});
+
+// ── HTML / PDF renderers — U-CINF11 spec deliverables ───────────────────────
+
+describe("mdToInlineHtml()", () => {
+  it("renders an h1 heading", () => {
+    expect(mdToInlineHtml("# Hello")).toBe("<h1>Hello</h1>");
+  });
+
+  it("renders an h2 heading", () => {
+    expect(mdToInlineHtml("## Sub")).toBe("<h2>Sub</h2>");
+  });
+
+  it("renders a GFM table with thead/tbody and escaped cells", () => {
+    const md = "| A | B |\n| --- | --- |\n| 1 | <evil> |";
+    const html = mdToInlineHtml(md);
+    expect(html).toContain("<table>");
+    expect(html).toContain("<thead><tr>");
+    expect(html).toContain("<th>A</th>");
+    expect(html).toContain("<th>B</th>");
+    expect(html).toContain("<tbody>");
+    expect(html).toContain("<td>1</td>");
+    // HTML-escapes attacker-controlled content (XSS guard)
+    expect(html).toContain("<td>&lt;evil&gt;</td>");
+    expect(html).not.toContain("<evil>");
+  });
+
+  it("renders bullet lists as <ul>", () => {
+    const html = mdToInlineHtml("- one\n- two\n- three");
+    expect(html).toContain("<ul>");
+    expect(html).toContain("<li>one</li>");
+    expect(html).toContain("<li>two</li>");
+    expect(html).toContain("<li>three</li>");
+    expect(html).toContain("</ul>");
+  });
+
+  it("renders --- as <hr>", () => {
+    expect(mdToInlineHtml("---")).toContain("<hr>");
+  });
+
+  it("converts **strong** and `inline-code`", () => {
+    const html = mdToInlineHtml("Has **bold** and `code` text.");
+    expect(html).toContain("<strong>bold</strong>");
+    expect(html).toContain("<code>code</code>");
+  });
+
+  it("returns empty string for empty / non-string input", () => {
+    expect(mdToInlineHtml("")).toBe("");
+    expect(mdToInlineHtml(undefined as unknown as string)).toBe("");
+  });
+});
+
+describe("wrapPrintableHtml()", () => {
+  it("emits a complete HTML5 document with embedded CSS", () => {
+    const html = wrapPrintableHtml("<p>body</p>");
+    expect(html).toContain("<!DOCTYPE html>");
+    expect(html).toContain('<html lang="en">');
+    expect(html).toContain('<meta charset="UTF-8">');
+    expect(html).toContain("<style>");
+    expect(html).toContain("@media print");
+    expect(html).toContain("<p>body</p>");
+    expect(html).toContain("</html>");
+  });
+
+  it("escapes user-supplied title (XSS guard)", () => {
+    const html = wrapPrintableHtml("<p>x</p>", "<script>alert(1)</script>");
+    expect(html).toContain("&lt;script&gt;");
+    expect(html).not.toMatch(/<title>[^<]*<script>/);
+  });
+
+  it("uses default title when none provided", () => {
+    expect(wrapPrintableHtml("<p>x</p>")).toContain("<title>CAD Regression Report</title>");
+  });
+});
+
+describe("renderSnapshotHtml()", () => {
+  it("returns an HTML fragment (no <html>) when printable=false", () => {
+    const html = renderSnapshotHtml(snap());
+    expect(html).toContain("<h1>");
+    expect(html).toContain("<table>");
+    expect(html).not.toContain("<!DOCTYPE html>");
+  });
+
+  it("returns a standalone HTML5 doc when printable=true", () => {
+    const html = renderSnapshotHtml(snap(), true);
+    expect(html).toContain("<!DOCTYPE html>");
+    expect(html).toContain("@media print");
+    expect(html).toContain("Snapshot — Batch 11111111");
+  });
+
+  it("preserves snapshot data inside the rendered HTML", () => {
+    const html = renderSnapshotHtml(snap());
+    // total=10 appears as a cell value
+    expect(html).toMatch(/<td>total<\/td>\s*<td>10<\/td>/);
+    // batch shortId in heading
+    expect(html).toMatch(/<code>11111111<\/code>/);
+  });
+});
+
+describe("renderDiffHtml()", () => {
+  it("renders the summary table", () => {
+    const html = renderDiffHtml(makeDiff());
+    expect(html).toContain("<table>");
+    expect(html).toContain("<th>Class</th>");
+    expect(html).toContain("<th>Count</th>");
+  });
+
+  it("honors rowLimit (truncation marker survives md→html)", () => {
+    const regs = Array.from({ length: 5 }, (_, i) => ({
+      fileId: `f${i}`,
+      baseStatus: "pass" as const,
+      candidateStatus: "fail" as const,
+      classification: "regression" as const,
+    }));
+    const html = renderDiffHtml(
+      makeDiff({ regressions: regs, totals: { ...makeDiff().totals, regression: 5 } }),
+      3,
+    );
+    expect(html).toContain("…and 2 more");
+  });
+
+  it("escapes fileId contents", () => {
+    const html = renderDiffHtml(
+      makeDiff({
+        regressions: [
+          {
+            fileId: "<malicious>.step",
+            baseStatus: "pass",
+            candidateStatus: "fail",
+            classification: "regression",
+          },
+        ],
+        totals: { ...makeDiff().totals, regression: 1 },
+      }),
+    );
+    expect(html).toContain("&lt;malicious&gt;.step");
+    expect(html).not.toContain("<malicious>.step");
+  });
+});
+
+describe("renderTrendHtml() and renderHotspotsHtml()", () => {
+  it("trend html: no-data path produces a valid empty fragment", () => {
+    const html = renderTrendHtml({ series: [], deltaPassRate: null });
+    expect(html).toContain("<h1>");
+    expect(html).toContain("CAD Regression — Trend");
+  });
+
+  it("hotspots html: rows render with rate cell", () => {
+    const html = renderHotspotsHtml({
+      threshold: 0.5,
+      minAppearances: 3,
+      analyzedBatches: 4,
+      hotspots: [
+        {
+          fileId: "noisy.step",
+          appearances: 4,
+          failures: 3,
+          failureRate: 0.75,
+          lastFailedAt: "2026-04-19T17:02:30.000Z",
+        },
+      ],
     });
-    expect(result.success).toBe(true);
+    expect(html).toContain("<code>noisy.step</code>");
+    expect(html).toContain("<td>75.0%</td>");
+  });
+});
+
+describe("renderSummaryHtml()", () => {
+  it("returns standalone HTML5 doc when printable=true (stakeholder PDF target)", () => {
+    const html = renderSummaryHtml({
+      snapshot: snap(),
+      trend: { series: [], deltaPassRate: null },
+      printable: true,
+    });
+    expect(html).toContain("<!DOCTYPE html>");
+    expect(html).toContain("CAD Regression — Executive Summary");
+    expect(html).toContain("@media print");
+    // both sections present
+    expect(html).toContain("CAD Regression — Batch");
+    expect(html).toContain("CAD Regression — Trend");
+    // <hr> from `---` separator survives
+    expect(html).toContain("<hr>");
   });
 
-  it("rejects unknown op", async () => {
-    const e = new CADRegressionReportGeneratorEngine();
-    const result = await e.execute({ op: "bogus" } as unknown);
-    expect(result.success).toBe(false);
-    expect(result.error).toMatch(/renderSnapshot.*renderSummary|op must be/);
+  it("returns plain fragment when printable omitted", () => {
+    const html = renderSummaryHtml({ snapshot: snap() });
+    expect(html).not.toContain("<!DOCTYPE html>");
+    expect(html).toContain("<h1>");
   });
 
-  it("rejects missing snapshot payload", async () => {
+  it("returns empty string when no parts supplied", () => {
+    expect(renderSummaryHtml({})).toBe("");
+  });
+});
+
+describe("execute() routing — HTML ops", () => {
+  it("routes op=renderSnapshotHtml", async () => {
+    const data = (await cadRegressionReportGeneratorEngine.execute({
+      op: "renderSnapshotHtml",
+      snapshot: snap(),
+    })) as { html: string };
+    expect(data.html).toContain("<h1>");
+  });
+
+  it("routes op=renderSummaryHtml with printable=true", async () => {
+    const data = (await cadRegressionReportGeneratorEngine.execute({
+      op: "renderSummaryHtml",
+      snapshot: snap(),
+      printable: true,
+    })) as { html: string };
+    expect(data.html).toContain("<!DOCTYPE html>");
+    expect(data.html).toContain("@media print");
+  });
+
+  it("rejects renderDiffHtml without diff payload (engine throw)", async () => {
     const e = new CADRegressionReportGeneratorEngine();
-    const result = await e.execute({ op: "renderSnapshot" } as unknown);
-    expect(result.success).toBe(false);
-    expect(result.error).toMatch(/requires/);
+    await expect(e.execute({ op: "renderDiffHtml" } as unknown)).rejects.toThrow(/requires/);
   });
 });

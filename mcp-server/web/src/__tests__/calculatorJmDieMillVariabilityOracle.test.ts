@@ -189,8 +189,8 @@ const variabilityLanes: VariabilityLane[] = [
     materialId: 'edm-graphite',
     toolId: 'micro-endmill',
     holderId: 'rokuroku-hsk-c40-micro-collet',
-    programmingId: 'prism-mill',
-    toolpathId: 'prism-surfaceweave-finish',
+    programmingId: 'kienzle-mill',
+    toolpathId: 'kienzle-surfaceweave-finish',
     toolDiameterMm: 0.5,
     docMm: 0.03,
     wocMm: 0.04,
@@ -251,7 +251,7 @@ const catalogBaselines: CatalogBaseline[] = [
   },
   {
     machineId: 'hurco-vm30i',
-    source: 'Hurco VM30i catalog and local PRISM/HSMAdvisor post defaults',
+    source: 'Hurco VM30i catalog and local Kienzle/HSMAdvisor post defaults',
     rpm: 12000,
     spindleConnectionTypeId: 'cat40-big-plus',
     stations: 24,
@@ -291,7 +291,7 @@ const catalogBaselines: CatalogBaseline[] = [
 const expectedCamSystemByProgrammingId: Record<string, string> = {
   'mastercam-mill': 'Mastercam',
   'conversational-mill': 'Manual Programming',
-  'prism-mill': 'PRISM',
+  'kienzle-mill': 'Kienzle',
   'hypermill-mill': 'hyperMILL',
 };
 

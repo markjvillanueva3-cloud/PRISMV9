@@ -14,7 +14,7 @@
  */
 
 import { log } from "../utils/Logger.js";
-import { nxCAMStrategyEngine } from "./NXCAMStrategyEngine.js";
+import { nxCAMStrategyEngine, NXFeatureType, NXMaterialGroup, NXMachineType } from "./NXCAMStrategyEngine.js";
 
 // ============================================================================
 // TYPES
@@ -220,18 +220,29 @@ export class NXCAMAIOrchestrationEngine {
       const isoGroup = request.material_iso || "P";
 
       try {
-        const strategyResult = nxCAMStrategyEngine.selectStrategy({
-          feature_type: request.feature_type,
-          material_iso: isoGroup,
-          machine_type: request.machine_type || "3axis",
-          operation: request.operation || "roughing"
+        const recommendations = nxCAMStrategyEngine.recommend({
+          feature_type: request.feature_type as NXFeatureType,
+          material_group: isoGroup as NXMaterialGroup,
+          machine_type: (request.machine_type === "3axis" ? "3_axis"
+            : request.machine_type === "4axis" ? "4_axis"
+            : request.machine_type === "5axis" ? "5_axis"
+            : request.machine_type ?? "3_axis") as NXMachineType,
         });
+        const top = recommendations[0];
+        if (!top) throw new Error("No strategy recommendations returned");
 
         strategy = {
-          name: strategyResult.name,
-          nx_operation: strategyResult.operation_name,
-          parameters: strategyResult.parameters,
-          rationale: strategyResult.rationale
+          name: top.strategy_name,
+          nx_operation: top.nx_operation_type,
+          parameters: {
+            ipw_required: top.ipw_required,
+            // omit optional factors when absent -- the consumer Record forbids null (no fabricated default)
+            ...(top.ae_factor != null ? { ae_factor: top.ae_factor } : {}),
+            ...(top.ap_factor != null ? { ap_factor: top.ap_factor } : {}),
+            cutting_mode: top.cutting_mode,
+            axis_requirement: top.axis_requirement,
+          } as Record<string, number | string | boolean>,
+          rationale: `${top.description} (confidence: ${(top.confidence * 100).toFixed(0)}%)`,
         };
         enginesInvoked.push("NXCAMStrategyEngine");
       } catch {

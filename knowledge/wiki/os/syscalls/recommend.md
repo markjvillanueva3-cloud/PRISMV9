@@ -77,7 +77,7 @@ weights (success rate, token economy, time-to-ship).
 ## Related
 
 - [[record]] — sister; record writes telemetry, recommend reads it
-- [[command-schema]] — the schema recommendations rank against
+- [[_command-schema]] — the schema recommendations rank against
 - [[priority-queue]] — adjacent (units to ship vs skills to invoke)
 
 ## See also

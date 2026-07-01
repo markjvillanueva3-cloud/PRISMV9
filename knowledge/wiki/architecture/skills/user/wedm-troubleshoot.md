@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `wedm-troubleshoot` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/wedm-troubleshoot.md` |
+| Source | `C:/Users/wompu/.claude/commands/wedm-troubleshoot.md` |
 | Model | default |
 | Tags | _(none)_ |
 

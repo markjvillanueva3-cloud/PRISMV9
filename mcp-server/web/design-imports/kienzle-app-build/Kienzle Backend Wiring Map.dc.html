@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Archivo:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; background: #070809; }
+    @media print { body { background: #fff; } .kz-page { box-shadow: none !important; } }
+  </style>
+</helmet>
+<div style="min-height:100vh;background:#070809;display:flex;justify-content:center;padding:40px 20px;">
+<div class="kz-page" style="width:940px;max-width:100%;background:#0A0B0D;color:#E6E8EC;font-family:'Archivo',sans-serif;border-radius:16px;box-shadow:0 40px 120px rgba(0,0,0,0.6);overflow:hidden;">
+
+  <div style="padding:44px 52px 30px;border-bottom:1px solid rgba(255,255,255,0.08);background:radial-gradient(700px 320px at 100% -20%, rgba(255,90,43,0.12), transparent 60%);">
+    <div style="display:flex;align-items:center;gap:14px;margin-bottom:20px;">
+      <svg viewBox="0 0 120 120" width="40" height="40"><rect x="22" y="20" width="13" height="80" rx="1.5" fill="#F3F4F6"/><path d="M35 60 L86 22" stroke="#F3F4F6" stroke-width="13" stroke-linecap="round"/><path d="M35 60 L92 98 L92 74 L58 60 Z" fill="#FF5A2B"/></svg>
+      <div><div style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:15px;letter-spacing:0.04em;">KIENZLE</div><div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:#6B7280;letter-spacing:0.12em;">FLEET HANDOFF</div></div>
+    </div>
+    <h1 style="margin:0;font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:33px;letter-spacing:-0.01em;">Backend Coverage &amp; Front-End Map</h1>
+    <p style="margin:14px 0 0;font-size:15px;line-height:1.55;color:#AEB4BE;max-width:720px;">What the backend already exposes (<span style="font-family:'JetBrains Mono',monospace;color:#C7CCD4;">mcp-server/web/src/api/client.ts</span>, base <span style="font-family:'JetBrains Mono',monospace;color:#C7CCD4;">/api/v1</span>) versus what has a Kienzle front-end. Use it two ways: <span style="color:#F3F4F6;">wire the built screens</span> to their endpoints, and <span style="color:#F3F4F6;">build the gap screens</span> against endpoints that already exist.</p>
+  </div>
+
+  <div style="padding:28px 52px 8px;display:grid;grid-template-columns:repeat(4,1fr);gap:12px;">
+    <div style="background:#0E0F12;border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:14px 16px;"><div style="font-family:'JetBrains Mono',monospace;font-weight:700;font-size:26px;color:#F3F4F6;">~150</div><div style="font-size:11.5px;color:#9398A2;margin-top:3px;">backend endpoints live</div></div>
+    <div style="background:#0E0F12;border:1px solid rgba(54,211,153,0.25);border-radius:12px;padding:14px 16px;"><div style="font-family:'JetBrains Mono',monospace;font-weight:700;font-size:26px;color:#36D399;">12</div><div style="font-size:11.5px;color:#9398A2;margin-top:3px;">Kienzle screens built</div></div>
+    <div style="background:#0E0F12;border:1px solid rgba(244,183,64,0.25);border-radius:12px;padding:14px 16px;"><div style="font-family:'JetBrains Mono',monospace;font-weight:700;font-size:26px;color:#F4B740;">10</div><div style="font-size:11.5px;color:#9398A2;margin-top:3px;">domains still to build</div></div>
+    <div style="background:#0E0F12;border:1px solid rgba(255,82,71,0.25);border-radius:12px;padding:14px 16px;"><div style="font-family:'JetBrains Mono',monospace;font-weight:700;font-size:26px;color:#FF6B6B;">~0</div><div style="font-size:11.5px;color:#9398A2;margin-top:3px;">net-new endpoints needed</div></div>
+  </div>
+  <div style="padding:6px 52px 18px;"><div style="font-size:12.5px;color:#6B7280;line-height:1.5;">The backend is effectively complete — almost every gap is a <span style="color:#F4B740;">missing UI over an endpoint that already exists</span>. Front-end is the critical path.</div></div>
+
+  <div style="padding:8px 52px 18px;">
+    <div style="display:flex;gap:18px;margin-bottom:16px;font-family:'JetBrains Mono',monospace;font-size:11px;">
+      <span style="display:flex;align-items:center;gap:7px;color:#C7CCD4;"><span style="width:10px;height:10px;border-radius:3px;background:#36D399;"></span>Built — wire to live data</span>
+      <span style="display:flex;align-items:center;gap:7px;color:#C7CCD4;"><span style="width:10px;height:10px;border-radius:3px;background:#F4B740;"></span>Backend ready — build UI</span>
+      <span style="display:flex;align-items:center;gap:7px;color:#C7CCD4;"><span style="width:10px;height:10px;border-radius:3px;background:#FF5247;"></span>Endpoint gap too</span>
+    </div>
+
+    <sc-for list="{{ domains }}" as="d" hint-placeholder-count="20">
+      <div style="display:grid;grid-template-columns:200px 1fr 132px;gap:14px;align-items:start;padding:13px 14px;margin-bottom:7px;border-radius:12px;background:{{ d.bg }};border:1px solid {{ d.border }};">
+        <div style="min-width:0;">
+          <div style="display:flex;align-items:center;gap:8px;"><span style="flex:none;width:9px;height:9px;border-radius:3px;background:{{ d.dot }};"></span><span style="font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:14px;color:#F3F4F6;">{{ d.name }}</span></div>
+          <div style="font-family:'JetBrains Mono',monospace;font-size:9.5px;color:#6B7280;letter-spacing:0.06em;margin-top:4px;">{{ d.galaxy }}</div>
+        </div>
+        <div style="min-width:0;">
+          <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#7FB2FF;line-height:1.5;word-break:break-word;">{{ d.fns }}</div>
+          <div style="font-size:11.5px;color:#9398A2;line-height:1.4;margin-top:5px;">{{ d.note }}</div>
+        </div>
+        <div style="text-align:right;">
+          <div style="display:inline-block;font-family:'JetBrains Mono',monospace;font-size:9.5px;font-weight:700;letter-spacing:0.04em;color:{{ d.statusColor }};border:1px solid {{ d.statusColor }};border-radius:6px;padding:4px 8px;">{{ d.status }}</div>
+          <div style="font-size:10.5px;color:#6B7280;margin-top:6px;line-height:1.3;">{{ d.target }}</div>
+        </div>
+      </div>
+    </sc-for>
+  </div>
+
+  <div style="padding:8px 52px 46px;">
+    <div style="border:1px solid rgba(255,90,43,0.22);border-radius:14px;background:linear-gradient(135deg,rgba(255,90,43,0.06),#0C0D11);padding:20px 22px;">
+      <div style="font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.1em;color:#FF7A4D;margin-bottom:12px;">FRONT-END BUILD ORDER — REMAINING GAPS</div>
+      <sc-for list="{{ steps }}" as="st" hint-placeholder-count="6">
+        <div style="display:flex;gap:13px;align-items:flex-start;padding:8px 0;border-top:1px solid rgba(255,255,255,0.05);">
+          <span style="flex:none;width:22px;height:22px;border-radius:50%;background:rgba(255,90,43,0.14);color:#FF7A4D;font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;">{{ st.n }}</span>
+          <div style="flex:1;"><span style="font-size:13.5px;color:#F3F4F6;font-weight:600;">{{ st.title }}</span><span style="font-size:13px;color:#AEB4BE;"> — {{ st.detail }}</span></div>
+        </div>
+      </sc-for>
+    </div>
+    <div style="margin-top:18px;font-family:'JetBrains Mono',monospace;font-size:10.5px;color:#6B7280;line-height:1.7;">
+      WIRING PATTERN — per built screen: swap the demo arrays in <span style="color:#9398A2;">renderVals()</span> for a fetch in <span style="color:#9398A2;">componentDidMount()</span> → store in state → keep the same prop names. Each DC already shapes data the way the UI needs; map <span style="color:#9398A2;">PrismResponse.data</span> onto those props.
+    </div>
+  </div>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  renderVals() {
+    const G = '#36D399', Y = '#F4B740', R = '#FF5247';
+    const mk = (status) => status === 'BUILT'
+      ? { dot: G, statusColor: G, bg: 'rgba(54,211,153,0.04)', border: 'rgba(54,211,153,0.18)' }
+      : status === 'UI GAP'
+        ? { dot: Y, statusColor: Y, bg: 'rgba(244,183,64,0.04)', border: 'rgba(244,183,64,0.18)' }
+        : { dot: R, statusColor: R, bg: 'rgba(255,82,71,0.04)', border: 'rgba(255,82,71,0.18)' };
+    const row = (name, galaxy, fns, note, status, target) => ({ name, galaxy, fns, note, status, target, ...mk(status) });
+
+    const domains = [
+      // ── BUILT ──
+      row('Speed & Feed', 'OSCAR', 'calculateSpeedFeed · capacityMachines · getMaterial · getTool', 'Kienzle solve, machine/torque limits, JM-calibrated kc, outcome modes.', 'BUILT', 'Kienzle Speed-Feed'),
+      row('Lathe / Mill / WEDM wizards', 'WHISKEY · FOXTROT', 'submitLatheWizard · submitMillingWizard · solveWireEdmWizard · getLatheResult · getMillingResult', 'Upload → wizard → result job IDs already routed.', 'BUILT', 'Kienzle Wizards'),
+      row('Post Processor', 'ECHO', 'MasterPost pipeline · decodeAlarm (alarm decoder)', '38-stage post; wire the dialect generators to the live pipeline + P5 gate.', 'BUILT', 'Kienzle Post'),
+      row('Tool Crib & Offsets', 'OSCAR · HOTEL', 'getTool · toolInventoryAdd · toolRegrind · machineRateLookup · toolReorderAlerts', 'Crib + offsets + kinematics built; persist crib/offset writes server-side.', 'BUILT', 'Kienzle Tool Crib'),
+      row('Quoting', 'CHARLIE', 'rfqCreate · getJobProfitability · machineRateEffective', 'Feature-based builder built. RFQ inbox/triage is the matching gap (see below).', 'BUILT', 'Kienzle Quote'),
+      row('Job Cost & Profitability', 'HOTEL', 'actualCostCalculate · actualCostVariance · actualCostProfitability · actualCostMarginAlerts · glIncomeStatement', 'Waterfall, variance, P&L, A/R all map 1:1.', 'BUILT', 'Kienzle Job Cost'),
+      row('Payroll & Labor', 'HOTEL', 'runPayroll · getTimecard · employeeUtilization · employeeDeptSummary · createPayrollPeriod', 'Efficiency, labor distribution, dept rollup, payroll run.', 'BUILT', 'Kienzle Payroll Labor'),
+      row('Employee Portal', 'HOTEL', 'shiftClockIn/Out · jobTimeStart/Pause/Resume/Stop · getActiveJobs · /timeclock/summary · hrPTOBalance', 'Op-level clock + pause map directly to jobTime* (pause = jobTimePause).', 'BUILT', 'Kienzle Employee Portal'),
+      row('Academy & Coach', 'LIMA', 'employeeLearningPath · employeeLearningComplete · employeeCertifications · kaizenSuggestions', 'Course tree, Lima coach, Kaizen/Lean tips; wire courses + cert state.', 'BUILT', 'Kienzle Academy'),
+      row('Quality & SPC', 'QC', 'qualitySPCChart · qualityFAICreate · qualityFAIList · qualityCalibrationDashboard · qualityNCRList', 'X̄&R, Cpk, FAI/AS9102, gauge R&R.', 'BUILT', 'Kienzle Quality'),
+      row('Shop Command (ERP)', 'HOTEL', 'jobDashboard · getShopFloorSnapshot · operationsKPIs · whoClockedIn', 'Cash-at-risk, OEE, machine floor, alerts.', 'BUILT', 'Kienzle ERP'),
+      row('Trilobe Creator', 'OSCAR · ECHO', 'CAM macro (CAM-Fields.xlsm) → wire EDM + Roku-Roku gen · STEP/F3D export', 'Parametric punch + electrode; bridge the Excel macro + STEP exporter.', 'BUILT', 'Kienzle Trilobe Creator'),
+      // ── UI GAPS (backend ready) ──
+      row('Shop-Floor Live', 'HOTEL', 'getShopFloorSnapshot · getActiveMachineJobs · getDowntimePareto · analyticsOEETrend · analyticsOEELosses · getShiftCountdown', 'Real-time machine monitoring, OEE drilldown, downtime Pareto — endpoints live, no UI.', 'UI GAP', 'BUILD next'),
+      row('Scheduling & Capacity', 'HOTEL', 'schedulingJobShop · capacityAllLoads · capacityBottlenecks · capacitySummary · batchGroup · batchSequence', 'Finite-capacity scheduler + bottleneck view; all solvers exposed.', 'UI GAP', 'BUILD'),
+      row('Inventory · Purchasing · Receiving', 'HOTEL', 'inventoryEOQ · inventoryABC · purchasingRecommend · poCreate · poList · poAPAging · receivingLog · shippingCreateBOL', 'EOQ/ABC, PO lifecycle, receiving inspect, BOL/shipping.', 'UI GAP', 'BUILD'),
+      row('Blueprint / OCR Intake', 'XRAY', 'wireEdmOcr · wireEdmParseGeometry · (blueprint quote)', 'Print → features → quote. OCR + geometry parse exist; needs drop-zone UI.', 'UI GAP', 'BUILD'),
+      row('CAD / Feature Recognition', 'DELTA', 'wireEdmParseGeometry · (3D viewer · STEP)', 'STEP viewer + feature list — reuse the Machine3D scene; parse endpoint exists.', 'UI GAP', 'BUILD'),
+      row('CAM Strategy', 'KILO', 'camDispatcher (2476 routes) · submit*Wizard', 'Cross-vendor toolpath strategy picker over the CAM dispatcher.', 'UI GAP', 'BUILD'),
+      row('Sales: RFQ · Pipeline · Credit', 'CHARLIE', 'rfqList · rfqAssign · pipelineForecast · commissionReport · creditReview · vendorScorecard · customerPipeline', 'Whole sales surface exposed; only the quote builder has UI.', 'UI GAP', 'BUILD'),
+      row('Accounting / GL', 'HOTEL', 'glChartOfAccounts · glJournalEntry · glTrialBalance · glIncomeStatement · glBalanceSheet · financialNPV/IRR', 'Full ledger + statements; finance UI not built.', 'UI GAP', 'BUILD'),
+      row('Maintenance / PM', 'HOTEL', 'pmSchedules · maintenanceWorkOrders · equipmentAssets · maintenanceWorkOrderComplete · pmGenerateWorkOrder', 'PM scheduling + work orders + assets — ties to Shop-Floor downtime.', 'UI GAP', 'BUILD'),
+      row('Lean Toolkit', 'HOTEL', 'getKanbanBoard · getValueStreamData · submitRootCauseAnalysis · createA3Report · analyticsOEELosses', 'Kanban, VSM, 5-why/A3 — coaching layer beyond the Academy tips.', 'UI GAP', 'BUILD'),
+    ];
+
+    const steps = [
+      { n: 1, title: 'Shop-Floor Live', detail: 'highest daily value; reuses the ERP machine-grid + Machine3D, all endpoints live.' },
+      { n: 2, title: 'Scheduling & Capacity', detail: 'feeds the ERP cash/OEE and quoting lead-times; bottleneck solver ready.' },
+      { n: 3, title: 'Inventory / Purchasing / Receiving', detail: 'closes quote→buy→make→ship; PO + AP-aging endpoints exist.' },
+      { n: 4, title: 'Blueprint/OCR + CAD feature recognition', detail: 'front of the funnel — print → features → auto-quote; parse + OCR live.' },
+      { n: 5, title: 'CAM Strategy + Lean toolkit', detail: 'rounds out making + continuous improvement over existing dispatchers.' },
+      { n: 6, title: 'Accounting/GL + Sales/RFQ', detail: 'office completeness; statements + pipeline endpoints already shipped.' },
+    ];
+
+    return { domains, steps };
+  }
+}
+</script>
+</body>
+</html>

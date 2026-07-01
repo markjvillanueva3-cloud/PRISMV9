@@ -251,7 +251,7 @@ const cadRegressionRetryWarning: HookDefinition = {
   description:
     "Warns when a CAD regression file has been retried more than 3 times. Indicates a persistent generator/compare failure that likely needs manual triage rather than another rerun.",
   phase: "on-tool-call",
-  category: "quality",
+  category: "validation",
   mode: "warning",
   priority: "high",
   enabled: true,
@@ -283,7 +283,7 @@ const cadRegressionHotspotWarning: HookDefinition = {
   description:
     "Warns when a file id appears on the analyzer hotspot list — recurring regression risk. Non-blocking signal to prioritise manual review before fresh runs.",
   phase: "on-tool-call",
-  category: "quality",
+  category: "validation",
   mode: "warning",
   priority: "normal",
   enabled: true,

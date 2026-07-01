@@ -1,3 +1,7 @@
+// WIRE-EXEMPT: shared TYPE definitions module consumed by every WEDMPost*
+// engine (Mitsubishi, Sodick, Makino, AgieCharmilles, Fanuc). Each dialect
+// engine IS wired through camDispatcher. Types have no runtime surface.
+// Tagged 2026-05-26 (slot:victor) per CLAUDE.md §ENGINE WIRING.
 /**
  * WEDMPostTypes — Shared types for the Wire-EDM post-processor family.
  *

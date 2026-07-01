@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `test-speed-feed` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/test-speed-feed.md` |
+| Source | `C:/Users/wompu/.claude/commands/test-speed-feed.md` |
 | Model | default |
 | Tags | _(none)_ |
 

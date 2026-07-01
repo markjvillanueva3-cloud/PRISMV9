@@ -23,13 +23,20 @@ related:
 |-------|-------|
 | Name | `forge-schema` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/forge-schema.md` |
+| Source | `C:/Users/wompu/.claude/commands/forge-schema.md` |
 | Model | default |
 | Tags | _(none)_ |
 
 ## Description (first paragraph)
 
-_(no body content)_
+
+# Forge Schema — JSON Schema Validator & Generator
+
+You are running a specialized autopilot pipeline that validates JSON files against their schemas, detects schema violations, and optionally generates missing schemas for PRISM's configuration and registry files. Designed to run in the **background**.
+
+## Args: $ARGUMENTS
+- Empty: full scan — validate all JSON files, find unschema'd files
+
 
 <!-- AUTO-END -->
 

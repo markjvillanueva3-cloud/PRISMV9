@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `solidcam-setup` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/solidcam-setup.md` |
+| Source | `C:/Users/wompu/.claude/commands/solidcam-setup.md` |
 | Model | default |
 | Tags | _(none)_ |
 

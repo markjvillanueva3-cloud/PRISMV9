@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `okuma-macro` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/okuma-macro.md` |
+| Source | `C:/Users/wompu/.claude/commands/okuma-macro.md` |
 | Model | default |
 | Tags | _(none)_ |
 

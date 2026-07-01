@@ -18,6 +18,7 @@
 import { log } from "../utils/Logger.js";
 import {
   resolveMaterial,
+  buildMaterialPhysics,
   kienzleForce,
   taylorLife,
   toolDeflection,
@@ -133,7 +134,11 @@ export class UnifiedPhysicsVerifierEngine {
   verify(input: VerificationInput): VerificationResult {
     log.info("[UnifiedPhysicsVerifier] Starting cross-pipeline verification");
 
-    const mat = resolveMaterial(input.material);
+    // resolveMaterial returns MaterialEntry | undefined; buildMaterialPhysics
+    // backstops with a complete, runtime-safe generic material so every
+    // verification path receives a non-undefined MaterialPhysics.
+    const mat: MaterialPhysics =
+      resolveMaterial(input.material) ?? buildMaterialPhysics({ name: input.material });
     const D = input.tool_diameter_mm;
     const z = input.flutes;
     const ap = input.ap_mm ?? (input.cut_type === "finishing" ? 0.5 : D * 0.5);

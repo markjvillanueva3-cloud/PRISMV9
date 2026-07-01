@@ -21,6 +21,8 @@ import { spawn, execSync } from "child_process";
 import fs from "fs";
 import path from "path";
 import http from "http";
+import { writePortLock } from "../../scripts/lib/mcp-reconnect-action.mjs";
+import { ensureHeapFloor } from "../../scripts/lib/ensure-heap-floor.mjs";
 
 const MCP_SERVER_DIR = "H:/prism/mcp-server";
 const PID_FILE = "H:/prism/.claude/cache/mcp-daemon.pid";
@@ -129,7 +131,7 @@ async function start() {
   if (!fs.existsSync(distPath)) {
     log("Building MCP server first...");
     try {
-      execSync("npm run build:fast", {
+      execSync("npm run build:fast", { windowsHide: true,
         cwd: MCP_SERVER_DIR,
         stdio: "inherit",
         timeout: 60000
@@ -154,14 +156,34 @@ async function start() {
       HTTP_PORT: String(HTTP_PORT),
       PRISM_BIND_HOST: HTTP_HOST,
       HTTP_HOST: HTTP_HOST,
-      NODE_ENV: "production"
+      NODE_ENV: "production",
+      // CRITICAL (2026-06-09): floor the server's heap. A spawn from a portable-node-
+      // capped context (e.g. `singleton-service-guard --fix` via the node shim) inherits
+      // NODE_OPTIONS=--max-old-space-size=384, and the server OOMs on boot (loads 4000+
+      // tribal tips + registries) -- AND OOMs again under heavy multi-agent :3100 load.
+      // FLEET-OLLAMA-ROUTING/U-FLOR-MCP-HEAP (2026-06-10): the daemon path had drifted
+      // back to the ensureHeapFloor DEFAULT (4096MB / 4GB) while the supervisor moved to
+      // 24576MB -- so a daemon-launched :3100 OOM'd under agent load where a supervisor-
+      // launched one did not. Read the SAME PRISM_MCP_HEAP_FLOOR_MB env (default 24576 /
+      // 24GB; ~136GB host has ample headroom) so both spawn paths floor identically.
+      NODE_OPTIONS: ensureHeapFloor(
+        process.env.NODE_OPTIONS,
+        parseInt(process.env.PRISM_MCP_HEAP_FLOOR_MB || "24576", 10),
+      )
     },
-    detached: true,
+    detached: true, windowsHide: true,
     stdio: ["ignore", logStream, logStream]
   });
 
   child.unref();
   writePid(child.pid);
+  // MCP-ALWAYS-CONNECTED / U-BOOTGRACE-PRODUCER-WIRE (golf 2026-06-04): stamp the unified
+  // boot-grace lock so decideRestart/BOOTGUARD treat this cold-boot as BOOTING (defer, don't
+  // kill). Secondary spawn path (the reconnect-hook's); the supervisor is the primary. Fail-soft.
+  try {
+    const _stampNow = Date.now();
+    writePortLock({ pid: child.pid, startedAt: _stampNow, bootStartedAt: _stampNow, reason: "daemon-helper-spawn", role: "supervisor" });
+  } catch {}
   log(`Daemon started with PID ${child.pid}`);
 
   // Wait for health check

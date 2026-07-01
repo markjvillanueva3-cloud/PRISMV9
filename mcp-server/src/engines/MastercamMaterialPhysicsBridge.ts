@@ -169,7 +169,7 @@ export class MastercamMaterialPhysicsBridge {
     const noseRadius = input.tool_diameter_mm / 2; // Approximation
     const Ra_theoretical = (fz * fz * 1000) / (32 * noseRadius);
     // Add roughening factors for material and conditions
-    const materialFactor = profile.iso_group === "N" ? 0.8 : profile.iso_group === "H" ? 1.3 : 1.0;
+    const materialFactor = profile.material.iso_group === "N" ? 0.8 : profile.material.iso_group === "H" ? 1.3 : 1.0;
     const Ra_predicted = Ra_theoretical * materialFactor * (input.coolant === "dry" ? 1.2 : 1.0);
 
     // ─── Risk Assessment ───────────────────────────────────────────────────
@@ -199,7 +199,7 @@ export class MastercamMaterialPhysicsBridge {
       recommendations.push(`Consider ${profile.recommended_coolant} coolant for ${profile.material.name}`);
     }
 
-    if (profile.iso_group === "S" && Vc > 60) {
+    if (profile.material.iso_group === "S" && Vc > 60) {
       warnings.push("Superalloy cutting speed exceeds safe limit");
       recommendations.push("Reduce to 30-50 m/min for titanium/Inconel");
     }

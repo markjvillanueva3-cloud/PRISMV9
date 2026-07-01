@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta name="prism-source-hash" content="76201097ffb8b8f76d5b2662eaba02a2071e5efb21fd0c8a2923085d7092a03b">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PRISM Brain / Obsidian-OS Acceleration Opportunities — 2026-06-09 (slot:papa)</title>
+<style>
+  :root {
+    --bg: #0f1014;
+    --panel: #1a1c23;
+    --panel-2: #232631;
+    --fg: #e4e6eb;
+    --fg-dim: #9aa0a8;
+    --border: #2c303a;
+    --ok: #4ade80;
+    --warn: #fbbf24;
+    --fail: #f87171;
+    --info: #60a5fa;
+    --link: #93c5fd;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; padding: 1.5rem; background: var(--bg); color: var(--fg);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, sans-serif;
+    font-size: 14px; line-height: 1.5; }
+  h1 { font-size: 1.6rem; margin: 0 0 0.25rem 0; }
+  h2 { font-size: 1.15rem; margin: 1.5rem 0 0.5rem 0; padding-bottom: 0.25rem;
+    border-bottom: 1px solid var(--border); color: var(--fg); }
+  .meta { color: var(--fg-dim); font-size: 0.85rem; margin-bottom: 1rem; }
+  .panel { background: var(--panel); border: 1px solid var(--border); border-radius: 6px;
+    padding: 0.75rem 1rem; margin-bottom: 1rem; }
+  .headline-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 0.5rem; margin-bottom: 1rem; }
+  .card { background: var(--panel-2); border: 1px solid var(--border); border-radius: 6px;
+    padding: 0.65rem 0.85rem; }
+  .card .lbl { font-size: 0.8rem; color: var(--fg-dim); }
+  .card .val { font-size: 1.4rem; font-weight: 600; margin: 0.15rem 0; font-variant-numeric: tabular-nums; }
+  .card .hint { font-size: 0.75rem; color: var(--fg-dim); }
+  .card.ok    { border-left: 3px solid var(--ok); }
+  .card.warn  { border-left: 3px solid var(--warn); }
+  .card.fail  { border-left: 3px solid var(--fail); }
+  .card.info  { border-left: 3px solid var(--info); }
+  table { width: 100%; border-collapse: collapse; margin: 0.5rem 0 1rem; font-size: 0.9rem;
+    background: var(--panel); border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }
+  caption { text-align: left; padding: 0.4rem 0.65rem; color: var(--fg-dim);
+    background: var(--panel-2); font-weight: 500; }
+  th, td { padding: 0.4rem 0.65rem; text-align: left; border-bottom: 1px solid var(--border);
+    font-variant-numeric: tabular-nums; vertical-align: top; }
+  th { background: var(--panel-2); color: var(--fg-dim); font-weight: 500;
+    text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.04em; }
+  tr:last-child td { border-bottom: none; }
+  td.right { text-align: right; }
+  ul, ol { margin: 0.4rem 0 1rem 1.25rem; }
+  li { margin: 0.15rem 0; }
+  .badge { display: inline-block; padding: 0.1rem 0.5rem; border-radius: 999px;
+    font-size: 0.75rem; font-weight: 500; background: var(--panel-2); color: var(--fg-dim);
+    border: 1px solid var(--border); }
+  .badge.ok   { background: rgba(74, 222, 128, 0.12); color: var(--ok);   border-color: rgba(74,222,128,0.3); }
+  .badge.warn { background: rgba(251, 191, 36, 0.12); color: var(--warn); border-color: rgba(251,191,36,0.3); }
+  .badge.fail { background: rgba(248, 113, 113, 0.12); color: var(--fail); border-color: rgba(248,113,113,0.3); }
+  .badge.info { background: rgba(96, 165, 250, 0.12); color: var(--info); border-color: rgba(96,165,250,0.3); }
+  .badge-grid { display: flex; flex-wrap: wrap; gap: 0.3rem; margin: 0.3rem 0 1rem 0; }
+  .kv { display: grid; grid-template-columns: max-content 1fr; gap: 0.2rem 0.85rem;
+    margin: 0.4rem 0 1rem 0; }
+  .kv .k { color: var(--fg-dim); }
+  svg.bar-chart { display: block; max-width: 100%; height: auto; }
+  svg .bar { fill: var(--info); }
+  svg .bar.ok   { fill: var(--ok); }
+  svg .bar.warn { fill: var(--warn); }
+  svg .bar.fail { fill: var(--fail); }
+  svg text { fill: var(--fg); font-family: monospace; font-size: 11px; }
+  svg .axis text { fill: var(--fg-dim); }
+  code { background: var(--panel-2); padding: 0 0.3rem; border-radius: 3px;
+    font-family: "Fira Code", Consolas, Menlo, monospace; font-size: 0.85em; }
+  a { color: var(--link); }
+  footer { margin-top: 2rem; padding-top: 0.75rem; border-top: 1px solid var(--border);
+    font-size: 0.8rem; color: var(--fg-dim); }
+</style>
+</head>
+<body>
+<h1>PRISM Brain / Obsidian-OS Acceleration Opportunities — 2026-06-09 (slot:papa)</h1>
+<div class="meta">rendered from state/shared/specs/BRAIN-ACCELERATION-OPPORTUNITIES-2026-06-09.md</div>
+<div class="meta">Generated 2026-06-09T19:22:19.318Z</div>
+<style>
+  .prism-md-body { max-width: 70rem; margin: 0 auto; }
+  .prism-h1 { font-size: 1.6rem; }
+  .prism-h2 { font-size: 1.25rem; border-bottom: 1px solid var(--border); padding-bottom: 0.25rem; }
+  .prism-h3 { font-size: 1.1rem; color: var(--info); }
+  .prism-h4, .prism-h5, .prism-h6 { font-size: 1rem; color: var(--fg-dim); }
+  .prism-md-body p { margin: 0.5rem 0; }
+  .prism-md-list { margin: 0.5rem 0 0.5rem 1.25rem; padding: 0; }
+  .prism-md-list li { margin: 0.15rem 0; }
+  .prism-md-table { border-collapse: collapse; margin: 0.75rem 0; width: 100%; }
+  .prism-md-table th, .prism-md-table td { border: 1px solid var(--border); padding: 0.35rem 0.6rem; text-align: left; }
+  .prism-md-table th { background: var(--panel-2); }
+  .prism-codeblock { background: var(--panel-2); border: 1px solid var(--border); border-radius: 4px; padding: 0.6rem 0.8rem; overflow-x: auto; font-family: "Cascadia Code", Consolas, monospace; font-size: 13px; }
+  .prism-inline-code { background: var(--panel-2); padding: 0 0.25rem; border-radius: 3px; font-family: "Cascadia Code", Consolas, monospace; font-size: 0.92em; }
+  .prism-quote { border-left: 3px solid var(--info); background: var(--panel-2); padding: 0.5rem 0.85rem; margin: 0.75rem 0; color: var(--fg-dim); }
+  .prism-hr { border: 0; border-top: 1px solid var(--border); margin: 1rem 0; }
+  .prism-link { color: var(--link); text-decoration: none; }
+  .prism-link:hover { text-decoration: underline; }
+  .prism-bad-link { color: var(--fail); text-decoration: line-through; }
+  .prism-unclosed::before { content: "⚠ unterminated code block"; display: block; color: var(--warn); font-size: 0.85em; margin-bottom: 0.25rem; }
+  </style><main class="prism-md-body"><h1 class="prism-h1">PRISM Brain / Obsidian-OS Acceleration Opportunities — 2026-06-09 (slot:papa)</h1>
+<blockquote class="prism-quote"><strong>Scope:</strong> operator /goal — &quot;find ways to accelerate obsidian os / prism brain intelligence level, context levels, overall value and token-saving features | wired, tested, validated, synergized across all galaxies.&quot;</blockquote>
+<blockquote class="prism-quote"><strong>Method:</strong> evidence-grounded from THIS session&#39;s authoritative SessionStart/UserPromptSubmit hook metrics + live file verification (R12). NOT from a subagent fan-out — a 5-agent workflow (<code class="prism-inline-code">wf_07062fe6-3e9</code>) was attempted and <strong>failed on the session API limit</strong> (resets 4:20pm America/Chicago), burning ~799K subagent tokens for zero output. Lesson reapplied: [[feedback_workflow_concurrency_and_local_routing_2026_06_08]] — bound fan-outs to ≤3-4 AND route mechanical/audit to local Ollama, not Claude subagents.</blockquote>
+<blockquote class="prism-quote"><strong>Advisory.</strong> <code class="prism-inline-code">mustHumanVerify:true</code>. Each item carries live evidence; lane = owning slot.</blockquote>
+<hr class="prism-hr">
+<h2 class="prism-h2">⭐ ROOT FIX (gates 3+ of the top items — do this FIRST)</h2>
+<p><strong>R0 — Register the <code class="prism-inline-code">PRISM Brain Refresh</code> scheduled task.</strong> Lane <strong>golf/operator (ELEVATED shell)</strong> · Impact <strong>H</strong> · Effort <strong>S (one command)</strong>.</p>
+<ul class="prism-md-list"><li>The galaxy-synth refresh + sidecar rebuilds ARE wired as <code class="prism-inline-code">scripts/brain-refresh.mjs</code> stage 6, and <code class="prism-inline-code">.claude/helpers/install-brain-refresh-task.ps1</code> exists — but the task is <strong>NOT registered on this host</strong> (<code class="prism-inline-code">fleet-task-health-watch.mjs --json</code> → NOT FOUND). So embeddings-sidecar, master-index-sidecar, and galaxy syntheses all rot between manual runs.</li><li>Fix: <code class="prism-inline-code">powershell -NoProfile -ExecutionPolicy Bypass -File H:/prism/.claude/helpers/install-brain-refresh-task.ps1 -RunNow</code> (batch with <code class="prism-inline-code">PRISM Blueprint OCR Batch</code>=stale + <code class="prism-inline-code">PRISM Zombie Reaper v2</code>=disabled — same elevation class). Then verify <code class="prism-inline-code">galaxy-synth=ok</code> (not deferred). See [[reference_brain_refresh_task_unregistered_2026_06_09]].</li><li><strong>Papa cannot do this</strong> (no elevated shell). It is the single highest-ROI item and it unblocks I1+I2+V1 below.</li></ul>
+<hr class="prism-hr">
+<h2 class="prism-h2">A. Ranked acceleration opportunities</h2>
+<table class="prism-md-table"><thead><tr><th>#</th><th>Opportunity</th><th>Axis</th><th>Impact</th><th>Effort</th><th>Lane</th><th>Safe-now</th><th>Evidence (live this session)</th></tr></thead><tbody><tr><td>T1</td><td>Convert route-suggest from <strong>advisory → actual auto-route</strong> for deterministic/summarize ops</td><td>token</td><td>H</td><td>M</td><td>alpha <em>(CONTENDED — peer 928a8226 on ollama roster)</em></td><td>N (coordinate)</td><td>route-suggest fired <strong>9966×</strong>, take-rate <strong>38/9966 = 0.4%</strong> vs 30% target; top classifier <code class="prism-inline-code">doctrineSurface</code> 4323, <code class="prism-inline-code">isLargeRead</code> 25 — suggestions are ignored</td></tr>
+<tr><td>T2</td><td>Lift <strong>Ollama offload 8% → 30%</strong> (enforce, don&#39;t suggest; verify reachability)</td><td>token</td><td>H</td><td>M</td><td>alpha</td><td>N</td><td>offload rate <strong>8%</strong> (target 30%); AUTO-OFFLOAD hook fired (summary, ~547 tok/88% saved) yet unutilized</td></tr>
+<tr><td>I1</td><td><strong>Embeddings sidecar freshness</strong> — dense recall misses recent memories</td><td>intelligence/context</td><td>H</td><td>S</td><td>alpha/papa</td><td>Y <em>(maint run)</em></td><td>&quot;embeddings sidecar older than the BM25 index&quot; warning fired <strong>~20×</strong> this session; remedy <code class="prism-inline-code">build-memory-embeddings-sidecar.mjs --resume</code>; root auto-fix = R0</td></tr>
+<tr><td>I3</td><td><strong>Wiki↔tribal embedding backlog</strong> — brain can&#39;t recall 83% of its own wiki</td><td>intelligence/value</td><td>H</td><td>L (GPU)</td><td>alpha</td><td>Y <em>(heavy)</em></td><td>coverage <strong>17.1%</strong> — 32,630 of 39,345 wiki files lack tribal embedding; per-domain worst: file-digest 0%, dev-infra 2.9%</td></tr>
+<tr><td>T3</td><td><strong>Context-injection budget trim/dedup</strong> — every prompt pays for ~15+ inject blocks</td><td>token/context</td><td>M-H</td><td>M</td><td>alpha/papa</td><td>Y</td><td>this prompt injected chat-slot-domains <strong>twice</strong>, PSN-leg-state twice; CAG-consume already skips master-index+tribal when COLD (good) — extend that gating to the duplicated blocks</td></tr>
+<tr><td>I2</td><td><strong>Master-index sidecar freshness</strong> — search degrades to architecture-graph fallback</td><td>intelligence</td><td>M-H</td><td>S (heavy 548MB)</td><td>sierra/papa</td><td>Y <em>(maint run)</em></td><td>&quot;master-index sidecar stale (0.8h behind graph)&quot;; remedy <code class="prism-inline-code">build-graph-index.mjs</code>; root = R0</td></tr>
+<tr><td>I4</td><td><strong>NN/GNN tier-5 coverage growth</strong> (ref-pool)</td><td>intelligence</td><td>M</td><td>L</td><td>india</td><td>N</td><td>AUROC 0.808 ✓ but SELECTIVE-DEPLOY @ τ=0.7, 32% coverage, 2/6 classes; full-coverage pending ref-pool growth</td></tr>
+<tr><td>V2</td><td><strong>Octopus multi-model consensus</strong> utilization</td><td>value</td><td>M</td><td>M</td><td>india/bravo</td><td>Y</td><td>3/5 voices ready (Claude+Ollama+Gemini); consensus queue drains via Stop hook but underused for synthesis</td></tr>
+<tr><td>F1</td><td>Tribal-index <strong>write-side sharding</strong> (future-proof)</td><td>intelligence</td><td>M <em>(future)</em></td><td>M-L</td><td><strong>papa</strong></td><td>Y <em>(additive)</em></td><td><strong>CORRECTED: index = 159.9 MB, 352 MB headroom under the 512 MB V8 cap → NOT frozen.</strong> Reader (<code class="prism-inline-code">load-tribal-index.mjs</code>) already cap-safe; only the writer lacks shard support. Build BEFORE I3 re-embedding pushes it back to 33K+ entries / over cap — but not urgent today.</td></tr>
+<tr><td>V1</td><td>Galaxy-synthesis auto-cadence</td><td>value</td><td>M</td><td>—</td><td>papa</td><td>—</td><td>34/34 syntheses content-fresh NOW (papa verified <code class="prism-inline-code">--dry-run</code>=0 stale); re-stales as content lands → depends on R0 auto-cadence</td></tr></tbody></table>
+<hr class="prism-hr">
+<h2 class="prism-h2">B. papa-lane build-now shortlist (backend/build/IO/data-structure)</h2>
+<p>Honest assessment under this session&#39;s constraints (API limit hit, YELLOW context, brain corpus is high-stakes):</p>
+<ol class="prism-md-list"><li><strong>The single highest-ROI item (R0) is OTHER-lane</strong> (golf/operator elevation). Papa must NOT build a band-aid around it — registering the task fixes the whole sidecar-rot class (I1+I2+V1) in one command.</li><li><strong>F1 (tribal shard writer)</strong> is the only clean papa-lane BUILD — but verification shows it is <strong>not urgent</strong> (352 MB headroom). It becomes urgent only once I3 (wiki re-embedding) regrows the index toward the cap. <strong>Logical order (R13): build F1 as the proven foundation BEFORE launching I3 at scale</strong>, so the re-embed never hits the write-cap wall. Queue it as the papa unit; don&#39;t rush a half-build under limit pressure.</li><li><strong>I1/I2 are maintenance runs</strong>, not builds — safe for any slot, but their durable fix is R0, not a manual papa run.</li></ol>
+<p><strong>Recommendation:</strong> R0 first (golf/operator) → then F1 (papa, ahead of I3) → then I3 (alpha) on the now-shard-safe index. T1/T2 token-routing is the biggest token lever but is alpha-contended — coordinate, don&#39;t fork.</p>
+<hr class="prism-hr">
+<h2 class="prism-h2">Synergy / fleet routing (the &quot;across all galaxies&quot; axis)</h2>
+<p>These are cross-cutting <strong>infrastructure</strong> — accelerating recall/context/token-economy serves EVERY galaxy&#39;s build quality at once (better recall → better-grounded builds fleet-wide). Routing: R0→golf/operator · T1/T2/T3/I1/I3→alpha · I2→sierra · I4→india · V2→india/bravo · F1→papa.</p>
+<hr class="prism-hr">
+<h2 class="prism-h2">Appendix: build-ready specs (bounded ultracode pass <code class="prism-inline-code">wf_108e7c01-acd</code>, 4 sonnet agents, file-grounded)</h2>
+<blockquote class="prism-quote">Each item turned into a directly-buildable spec by the owning lane. <strong>&quot;ALREADY EXISTS&quot; = the cheapest wins</strong> (wire/flip, don&#39;t rebuild — R8). Papa built <strong>F1</strong> this session (commits <code class="prism-inline-code">caf3bcbc30</code> + <code class="prism-inline-code">U-TRIBAL-SHARD-WRITER-FIX</code>); the items below are for their owning lanes.</blockquote>
+<p><strong>Dependency-ordered build sequence:</strong> <code class="prism-inline-code">F1 (papa, DONE)</code> → <code class="prism-inline-code">I3 (alpha, gated on F1)</code> ; <code class="prism-inline-code">T1 (alpha)</code> ∥ <code class="prism-inline-code">T3 (alpha)</code> ∥ <code class="prism-inline-code">I2 (sierra)</code> ∥ <code class="prism-inline-code">R0 (golf/operator)</code> are independent.</p>
+<h3 class="prism-h3">T1 — token auto-route (lane alpha) · Effort <strong>S</strong> · safe</h3>
+<ul class="prism-md-list"><li><strong>ALREADY EXISTS:</strong> the auto-exec path is fully built — <code class="prism-inline-code">SAFE_AUTOEXEC</code> map + <code class="prism-inline-code">buildOffloadDirective()</code> AUTO-OFFLOAD emit + <code class="prism-inline-code">isOllamaAvailable()</code> reachability gate in <code class="prism-inline-code">.claude/hooks/ollama-task-offloader.mjs</code>. Route-suggest is correctly advisory-gated (not the lever). <strong>The gap is one boolean.</strong></li><li><strong>Change:</strong> <code class="prism-inline-code">ollama-task-offloader.mjs:~413</code> — add <code class="prism-inline-code">AUTO_EXEC_CATEGORIES = new Set([&quot;summary&quot;,&quot;git_summary&quot;])</code>; <code class="prism-inline-code">if (mode &amp;&amp; hasFileTarget)</code> → <code class="prism-inline-code">if (mode &amp;&amp; (hasFileTarget || AUTO_EXEC_CATEGORIES.has(category)))</code>; extend telemetry. Do NOT touch <code class="prism-inline-code">routeModelForTask</code>/roster (peer 928a8226). Test: 7 cases through the UPS wire path (auto vs stay-advisory vs safety-block).</li></ul>
+<h3 class="prism-h3">I3 — wiki↔tribal re-embed backlog (lane alpha) · code <strong>S-M</strong> / runtime <strong>L (~45 GPU-h)</strong></h3>
+<ul class="prism-md-list"><li><strong>P0 HARD DEP: F1 must ship first</strong> (re-embedding 32,630 files pushes the index past the 512MiB write cap → <code class="prism-inline-code">JSON.stringify</code> throws). <strong>F1 shipped this session, so I3 is now unblocked.</strong></li><li><strong>Change:</strong> NEW <code class="prism-inline-code">scripts/wiki-tribal-batch-reembed.mjs</code> — read <code class="prism-inline-code">.wiki-tribal-cross-ref-audit.json</code> <code class="prism-inline-code">missingFromTribal</code> minus a checkpoint cursor; <strong>size-gate abort if index ≥400MB</strong> (defense); semaphore embed loop (concurrency 3); <code class="prism-inline-code">writeIndex</code> every 100; flags <code class="prism-inline-code">--dry-run/--reset-cursor/--domain/--limit</code>. Wire a <code class="prism-inline-code">PRISM_BRAIN_REFRESH_WIKI_TRIBAL_ENABLE=1</code> (default OFF) stage in <code class="prism-inline-code">brain-refresh.mjs</code>. Test: resumable cursor + clobber-guard-fires (the 2026-06-08 regression) + rerank round-trip.</li></ul>
+<h3 class="prism-h3">T3 — context-injection trim (lane alpha/papa) · Effort <strong>M</strong></h3>
+<ul class="prism-md-list"><li><strong>ALREADY EXISTS:</strong> CAG cold-tier skip live for 4 keys (<code class="prism-inline-code">cag-router-inject.mjs</code> + <code class="prism-inline-code">cag-consume.mjs SKIP_KEYS</code>, fail-OPEN + 30s-stale). <strong>SILENT NO-OP BUG found:</strong> <code class="prism-inline-code">build-state-inject.mjs</code> calls <code class="prism-inline-code">shouldSkip</code> with a key ABSENT from <code class="prism-inline-code">SKIP_KEYS</code> → never skips (fold the fix in).</li><li><strong>Change:</strong> add 9 high-volume injector keys to both files (gate <code class="prism-inline-code">tier===&quot;COLD&quot; &amp;&amp; conf≥0.4</code>) + early-return <code class="prism-inline-code">shouldSkip</code> in the 9 consumer hooks; fix build-state&#39;s wrong key → <code class="prism-inline-code">buildStateInject</code>; NEW advisory <code class="prism-inline-code">injection-budget-cap.mjs</code> (separate UPS entry, lane-isolated). ~1,800 tok/COLD-prompt recoverable (~54k/session). Test: extend <code class="prism-inline-code">cag-injectors-consume.test.mjs</code> (COLD-skip/HOT-fire/fail-OPEN/build-state-regression).</li></ul>
+<h3 class="prism-h3">I2 — opportunistic sidecar freshness at Stop (lane sierra/papa) · Effort <strong>M</strong></h3>
+<ul class="prism-md-list"><li><strong>Do NOT create a new hook</strong> — extend <code class="prism-inline-code">session-consolidate-graph.mjs</code>. <strong>Do NOT call <code class="prism-inline-code">brain-refresh.orchestrate()</code></strong> (synchronous <code class="prism-inline-code">execFileSync</code> → killed by the 5s Stop budget). <code class="prism-inline-code">acquireLockAt</code>/<code class="prism-inline-code">releaseLockAt</code> already exported; <code class="prism-inline-code">build-graph-index.mjs</code> (self-heap-reexecs) + <code class="prism-inline-code">build-memory-embeddings-sidecar.mjs --resume</code> ready.</li><li><strong>Change:</strong> <code class="prism-inline-code">session-consolidate-graph.mjs:~211</code> — append a freshness phase with a HOOK-private lock/stamp (20min cooldown), mtime-compare source vs sidecar, <code class="prism-inline-code">spawn(detached+unref)</code> the rebuild(s) (embed only if a 1.5s Ollama probe passes). Heavy work detached → 5s budget safe. This is the <strong>no-elevation</strong> complement to R0 (the scheduled task). Test: new <code class="prism-inline-code">__tests__/sidecar-freshness.test.mjs</code> (stale-spawn/cooldown-suppress/lock-race/Ollama-down-suppress) + live smoke.</li></ul></main><footer>
+<div>html-report-render schemaVersion 1.0.0</div>
+</footer>
+</body>
+</html>

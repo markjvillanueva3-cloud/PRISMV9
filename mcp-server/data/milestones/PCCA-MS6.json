@@ -1,0 +1,213 @@
+{
+  "id": "PCCA-MS6",
+  "version": "1.0.0",
+  "title": "ERP, Quote, and Operations Intelligence Activation",
+  "brief": "Turn static operations and business knowledge into executable planning, risk, and scheduling intelligence. Integrate extracted costing and scheduling modules.",
+  "created_at": "2026-03-30T18:00:00Z",
+  "created_by": "claude-haiku-4-5",
+  "track": "PCCA",
+  "track_name": "PRISM Capability Conversion and Activation",
+  "status": "complete",
+  "phases": [
+    {
+      "id": "P0",
+      "title": "ERP Intelligence Activation",
+      "sessions": "3",
+      "units": [
+        {
+          "id": "P0-U01",
+          "title": "Build QuoteRiskBandEngine with multi-factor risk assessment",
+          "effort": 70,
+          "dependencies": [],
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit"
+          ],
+          "description": "Build QuoteRiskBandEngine with multi-factor risk assessment — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P0-U02",
+          "title": "Build CapacityMonteCarloEngine and InventoryServiceLevelEngine",
+          "effort": 60,
+          "dependencies": [],
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit"
+          ],
+          "description": "Build CapacityMonteCarloEngine and InventoryServiceLevelEngine — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P0-U03",
+          "title": "Build route-truth validation for ERP and analytics surfaces",
+          "effort": 50,
+          "dependencies": [
+            "P0-U01",
+            "P0-U02"
+          ],
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit"
+          ],
+          "description": "Build route-truth validation for ERP and analytics surfaces — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P0-U04",
+          "title": "Wire quote/process digital-twin hooks connecting cost, risk, load, and schedule signals",
+          "effort": 60,
+          "dependencies": [
+            "P0-U03"
+          ],
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit"
+          ],
+          "description": "Wire quote/process digital-twin hooks connecting cost, risk, load, and schedule signals — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P0-U05",
+          "title": "Promote extracted costing and scheduling modules into ERP where they outperform current static logic",
+          "effort": 50,
+          "dependencies": [
+            "P0-U04"
+          ],
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit"
+          ],
+          "description": "Promote extracted costing and scheduling modules into ERP where they outperform current static logic — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        }
+      ]
+    }
+  ],
+  "dependencies": [
+    "PCCA-MS0"
+  ],
+  "exit_conditions": [
+    "ERP and quoting gain executable risk and OR depth",
+    "Quote/business routes governed by same truth rules as CAM and speed/feed",
+    "Business intelligence moves from static knowledge to runtime decision support"
+  ],
+  "spec_path": "docs/superpowers/specs/2026-03-25-prism-capability-conversion-roadmap-design.md",
+  "primary_sources": [
+    "mcp-server/src/data/academy/course-6-to-12-advanced.ts",
+    "mcp-server/src/engines/QuoteEngine.ts",
+    "mcp-server/src/engines/QuoteEstimatorEngine.ts",
+    "mcp-server/src/engines/ERPIntegrationEngine.ts",
+    ".claude/worktrees/funny-clarke/extracted_modules/complete_extraction/PRISM_ACTIVITY_BASED_COSTING.js",
+    ".claude/worktrees/funny-clarke/extracted_modules/complete_extraction/PRISM_JOB_SHOP_SCHEDULING_ENGINE.js"
+  ],
+  "notes": "Injection target: Phase 6 (Backend Business Platform — E2/QB/Xometry/Fictiv Feature Parity). Must complete before business routing contracts finalize.",
+  "completed_at": "2026-04-04T16:15:00Z",
+  "completion_note": "Verified: engines exist and are substantive. Build PASS.",
+  "smart_config": {
+    "role": "implementer + reviewer",
+    "model": "sonnet",
+    "effort": "HIGH",
+    "context_budget": "65%"
+  },
+  "mcp_lifecycle": {
+    "session_start": [
+      "prism_session:context_boot",
+      "prism_session:dispatcher_map",
+      "prism_session:memory_recall",
+      "prism_session:system_snapshot",
+      "prism_session:action_search"
+    ],
+    "during_work": [
+      "prism_session:auto_checkpoint",
+      "prism_session:tool_route_best",
+      "prism_session:wip_capture"
+    ],
+    "session_end": [
+      "prism_session:memory_save",
+      "prism_session:system_snapshot",
+      "prism_session:checkpoint_enhanced"
+    ]
+  },
+  "forge_triple": {
+    "protective_hook": "pcca-ms6-gate",
+    "mcp_action": "prism_pcca:pcca_ms6_run",
+    "skill_command": "/pcca-ms6",
+    "ownership": "DECLARED — BUILT in terminal unit of this milestone"
+  },
+  "feature_cascade": {
+    "new_hooks": [
+      "pcca-ms6-gate"
+    ],
+    "new_actions": [
+      "pcca_ms6_run"
+    ],
+    "new_skills": [
+      "/pcca-ms6"
+    ],
+    "available_to": [
+      "downstream CAMX milestones",
+      "prism app consumers"
+    ]
+  },
+  "knowledge_sources": {
+    "engines": [
+      "ENGINE_DIGEST.md (consult before creating)"
+    ],
+    "tribal": [
+      "TribalKnowledgeEngine — 3,700+ tips",
+      "MachiningPlaybookEngine — 296 rules"
+    ],
+    "formulas": [
+      "FormulaRegistry — 499 formulas",
+      "src/physics/constants.ts — canonical"
+    ],
+    "reference": [
+      "EXTERNAL-REFERENCE-PROGRAMS-INDEX.md",
+      "MaterialRegistry",
+      "MachineRegistry",
+      "ToolCatalogEngine (95,608 tools)"
+    ]
+  },
+  "intent": "Turn static operations and business knowledge into executable planning, risk, and scheduling intelligence. Integrate extracted costing and scheduling modules.",
+  "compact_checkpoint": "every 3 units — auto-triggered by hook",
+  "enforcement_hooks_active": [
+    "physics agent",
+    "wiring agent",
+    "constants checker",
+    "stub detector",
+    "test quality",
+    "forge-triple gate",
+    "session audit agent"
+  ]
+}

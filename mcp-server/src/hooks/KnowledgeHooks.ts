@@ -231,7 +231,7 @@ export const onExtractionCompleteWire: HookDefinition = {
   description: "Routes extracted knowledge atoms to target engines per WiringManifest. Logs audit trail, handles conflicts.",
 
   phase: "post-batch-import",
-  category: "knowledge",
+  category: "automation",
   mode: "logging",
   priority: "high",
   enabled: true,
@@ -330,7 +330,7 @@ export const onExtractionValidateQuality: HookDefinition = {
   description: "Validates extraction quality before wiring. Blocks low-confidence data, validates formulas, checks required fields.",
 
   phase: "pre-batch-import",
-  category: "knowledge",
+  category: "validation",
   mode: "blocking",
   priority: "critical",
   enabled: true,

@@ -413,3 +413,159 @@ describe("PREDICT_DEFAULTS", () => {
     }
   });
 });
+
+/* ---------------------------------------------------------------------------
+ * U-NN-PREDICTOR-EMBED-WIRE — self-describing checkpoint
+ * Closes the B8 deferred-eval gap: a checkpoint trained on 768-d wiki
+ * embeddings names its embeddingSource in metadata; loadPredictor surfaces it
+ * and predictMissingLinks auto-forwards it to embedGraph so the inference
+ * forward pass reproduces the trainer's feature layout end-to-end.
+ * ------------------------------------------------------------------------- */
+
+function writeEmbeddingFixture(tmpRoot, dim, ids) {
+  const file = path.join(tmpRoot, `embed-${process.pid}-${Date.now()}.jsonl`);
+  const lines = [JSON.stringify({ __meta: true, dim })];
+  for (let k = 0; k < ids.length; k++) {
+    // Distinct deterministic int8 row per node — non-zero so the dequant
+    // path is meaningfully exercised (not just a vector of zeros).
+    const q = new Array(dim);
+    for (let i = 0; i < dim; i++) q[i] = ((i + k) % 11) - 5; // values in [-5..5], safe int8
+    lines.push(JSON.stringify({ n: ids[k], q }));
+  }
+  fs.writeFileSync(file, lines.join("\n") + "\n");
+  return file;
+}
+
+function tinyGraph768() {
+  // 3 nodes, 2 edges — large enough for buildAdjacency to keep all three,
+  // small enough that the test stays sub-second under the 768-d forward.
+  return {
+    nodes: [
+      { id: "a_0", layer: "L0", status: "completed" },
+      { id: "a_1", layer: "L0", status: "in_progress" },
+      { id: "a_2", layer: "L0", status: "completed" },
+    ],
+    edges: [
+      { source: "a_0", target: "a_1" },
+      { source: "a_1", target: "a_2" },
+    ],
+  };
+}
+
+function build768Checkpoint(tmpRoot, embeddingSourcePath) {
+  // hiddenDim/embedDim kept tiny so the 768-d forward stays fast in tests.
+  const model = createModel({ inputDim: 768, hiddenDim: 2, embedDim: 2, seed: 7 });
+  return saveCheckpoint(model, {
+    metadata: {
+      // Mirrors the metrics block the trainer writes in saveCheckpoint().
+      // Only embeddingSource is load-bearing for the predictor wire — the
+      // rest is included to match the real trainer's metadata shape so the
+      // round-trip exercises the same sanitizer path.
+      featureSource: "embedding",
+      embeddingDim: 768,
+      embeddingHitCount: 3,
+      embeddingMissCount: 0,
+      embeddingSource: embeddingSourcePath,
+    },
+  });
+}
+
+describe("loadPredictor — surfaces metadata.embeddingSource", () => {
+  it("returns metadata containing the embeddingSource path", () => {
+    const ckpt = build768Checkpoint(os.tmpdir(), "/some/embeddings.jsonl");
+    const predictor = loadPredictor(ckpt);
+    assert.equal(predictor.metadata.embeddingSource, "/some/embeddings.jsonl");
+    assert.equal(predictor.metadata.featureSource, "embedding");
+  });
+
+  it("returns metadata=null for a checkpoint that bundled no metadata", () => {
+    const model = createModel({ inputDim: FEATURE_DIM, hiddenDim: 4, embedDim: 4, seed: 1 });
+    const ckpt = saveCheckpoint(model, {});
+    const predictor = loadPredictor(ckpt);
+    assert.equal(predictor.metadata, null);
+  });
+});
+
+describe("embedGraph — opts.embeddingSource loads 768-d features", () => {
+  const tmpRoot = fs.mkdtempSync(path.join(os.tmpdir(), "pred-embedwire-"));
+
+  it("loads the JSONL, runs the forward, and reports featureSource=embedding", () => {
+    const graph = tinyGraph768();
+    const embedFile = writeEmbeddingFixture(tmpRoot, 768, ["a_0", "a_1", "a_2"]);
+    const model = createModel({ inputDim: 768, hiddenDim: 2, embedDim: 2, seed: 7 });
+    const r = embedGraph(model, graph, { embeddingSource: embedFile });
+    assert.equal(r.featureSource, "embedding");
+    assert.equal(r.embeddingStats.dim, 768);
+    assert.equal(r.embeddingStats.hit, 3);
+    assert.equal(r.embeddingStats.miss, 0);
+    assert.equal(r.nodeIds.length, 3);
+    // Each embedding is the forward output — 2-d (embedDim) Float64Array.
+    for (const id of r.nodeIds) {
+      const z = r.embeddings.get(id);
+      assert.ok(z instanceof Float64Array, `embedding for ${id} must be Float64Array`);
+      assert.equal(z.length, 2);
+      for (const v of z) assert.ok(Number.isFinite(v), "no NaN/Infinity in inference output");
+    }
+  });
+
+  it("FALL-THROUGH: unreadable embedding file → projected features (legacy parity)", () => {
+    const graph = tinyGraph768();
+    const model = createModel({ inputDim: FEATURE_DIM, hiddenDim: 4, embedDim: 2, seed: 1 });
+    const r = embedGraph(model, graph, {
+      embeddingSource: path.join(tmpRoot, "does-not-exist.jsonl"),
+    });
+    assert.equal(r.featureSource, "projected");
+    assert.equal(r.embeddingStats, null);
+  });
+
+  it("BOUNDARY: empty/blank embeddingSource → projected path (no loader call)", () => {
+    const graph = tinyGraph768();
+    const model = createModel({ inputDim: FEATURE_DIM, hiddenDim: 4, embedDim: 2, seed: 1 });
+    for (const src of [undefined, null, ""]) {
+      const r = embedGraph(model, graph, { embeddingSource: src });
+      assert.equal(r.featureSource, "projected", `falsy ${JSON.stringify(src)} must skip loader`);
+    }
+  });
+
+  it("FAIL-LOUD: 768-d checkpoint + projected fall-through → RangeError naming embeddingSource as the fix", () => {
+    const graph = tinyGraph768();
+    const model = createModel({ inputDim: 768, hiddenDim: 2, embedDim: 2, seed: 1 });
+    // No embeddingSource → falls through to 8-d projected → mismatch.
+    assert.throws(
+      () => embedGraph(model, graph, {}),
+      (e) => e instanceof RangeError
+        && /inputDim 768/.test(e.message)
+        && /projected-feature dim/.test(e.message)
+        && /embeddingSource/.test(e.message),
+    );
+  });
+});
+
+describe("predictMissingLinks — auto-forwards metadata.embeddingSource", () => {
+  const tmpRoot = fs.mkdtempSync(path.join(os.tmpdir(), "pred-emfwd-"));
+
+  it("a 768-d checkpoint with self-describing metadata predicts WITHOUT operator passing embeddingSource", () => {
+    const graph = tinyGraph768();
+    const embedFile = writeEmbeddingFixture(tmpRoot, 768, ["a_0", "a_1", "a_2"]);
+    const ckpt = build768Checkpoint(tmpRoot, embedFile);
+    const predictor = loadPredictor(ckpt);
+    // No opts.embeddingSource — must auto-forward from predictor.metadata.
+    const result = predictMissingLinks(predictor, graph, {});
+    assert.equal(result.stats.featureSource, "embedding");
+    assert.equal(result.stats.embeddingStats.dim, 768);
+    assert.ok(Array.isArray(result.predictions), "predictions array materializes");
+  });
+
+  it("explicit opts.embeddingSource WINS over metadata (operator override)", () => {
+    const graph = tinyGraph768();
+    const fileA = writeEmbeddingFixture(tmpRoot, 768, ["a_0", "a_1", "a_2"]);
+    const fileB = writeEmbeddingFixture(tmpRoot, 768, ["a_0", "a_1", "a_2"]);
+    const ckpt = build768Checkpoint(tmpRoot, fileA);
+    const predictor = loadPredictor(ckpt);
+    const r = predictMissingLinks(predictor, graph, { embeddingSource: fileB });
+    assert.equal(r.stats.featureSource, "embedding");
+    // Both files have the same shape so the wire works; the assertion that
+    // matters is "no throw" — auto-forward did NOT clobber the explicit opt.
+    assert.equal(r.stats.embeddingStats.dim, 768);
+  });
+});

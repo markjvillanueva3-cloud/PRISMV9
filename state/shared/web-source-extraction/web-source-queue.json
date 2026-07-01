@@ -1,0 +1,270 @@
+{
+  "schemaVersion": "1.0.0",
+  "note": "Curated reputable NON-VIDEO web sources for the /learn tribal pipeline (U-WEB-SOURCE-CURATE, slot:india 2026-06-25). Consumed by scripts/drain-web-sources-tribal.mjs -- STAGING-ONLY (download -> strip HTML -> Ollama tip-gen -> stage as web-<hash>.json under state/shared/youtube-extraction/); promoted ATTENDED by the armed PRISM Tribal Promotion Cron (promote-youtube-staged --apply, U-TK01 dedup = only-new). Per-source fail-soft + 7d cooldown. Every URL here was LIVE-validated through the real drain fetch+strip pipeline (>=1500 chars of static technical content, >=4 machining-term hits) -- Wikipedia + established static references serve content-rich server-rendered HTML (unlike JS-SPA pages that a plain fetch cannot render). Rules: ids unique; urls https:// only.",
+  "sources": [
+    {
+      "id": "machiningdoctor-cutting-speed",
+      "domain": "speed-feed",
+      "source": "Machining Doctor",
+      "title": "Cutting speed (Vc) reference",
+      "url": "https://www.machiningdoctor.com/glossary/cutting-speed/",
+      "enabled": true
+    },
+    {
+      "id": "wiki-speeds-and-feeds",
+      "domain": "speed-feed",
+      "source": "Wikipedia",
+      "title": "Speeds and feeds",
+      "url": "https://en.wikipedia.org/wiki/Speeds_and_feeds",
+      "enabled": true
+    },
+    {
+      "id": "wiki-machining",
+      "domain": "mill",
+      "source": "Wikipedia",
+      "title": "Machining",
+      "url": "https://en.wikipedia.org/wiki/Machining",
+      "enabled": true
+    },
+    {
+      "id": "wiki-milling-machining",
+      "domain": "mill",
+      "source": "Wikipedia",
+      "title": "Milling (machining)",
+      "url": "https://en.wikipedia.org/wiki/Milling_(machining)",
+      "enabled": true
+    },
+    {
+      "id": "wiki-turning",
+      "domain": "lathe",
+      "source": "Wikipedia",
+      "title": "Turning",
+      "url": "https://en.wikipedia.org/wiki/Turning",
+      "enabled": true
+    },
+    {
+      "id": "wiki-lathe",
+      "domain": "lathe",
+      "source": "Wikipedia",
+      "title": "Lathe",
+      "url": "https://en.wikipedia.org/wiki/Lathe",
+      "enabled": true
+    },
+    {
+      "id": "wiki-drilling",
+      "domain": "mill",
+      "source": "Wikipedia",
+      "title": "Drilling",
+      "url": "https://en.wikipedia.org/wiki/Drilling",
+      "enabled": true
+    },
+    {
+      "id": "wiki-grinding",
+      "domain": "wedm",
+      "source": "Wikipedia",
+      "title": "Grinding (abrasive cutting)",
+      "url": "https://en.wikipedia.org/wiki/Grinding_(abrasive_cutting)",
+      "enabled": true
+    },
+    {
+      "id": "wiki-edm",
+      "domain": "wedm",
+      "source": "Wikipedia",
+      "title": "Electrical discharge machining",
+      "url": "https://en.wikipedia.org/wiki/Electrical_discharge_machining",
+      "enabled": true
+    },
+    {
+      "id": "wiki-threading",
+      "domain": "lathe",
+      "source": "Wikipedia",
+      "title": "Threading (manufacturing)",
+      "url": "https://en.wikipedia.org/wiki/Threading_(manufacturing)",
+      "enabled": true
+    },
+    {
+      "id": "wiki-tap-and-die",
+      "domain": "mill",
+      "source": "Wikipedia",
+      "title": "Tap and die",
+      "url": "https://en.wikipedia.org/wiki/Tap_and_die",
+      "enabled": true
+    },
+    {
+      "id": "wiki-gdt",
+      "domain": "blueprint-vision",
+      "source": "Wikipedia",
+      "title": "Geometric dimensioning and tolerancing",
+      "url": "https://en.wikipedia.org/wiki/Geometric_dimensioning_and_tolerancing",
+      "enabled": true
+    },
+    {
+      "id": "wiki-engineering-tolerance",
+      "domain": "blueprint-vision",
+      "source": "Wikipedia",
+      "title": "Engineering tolerance",
+      "url": "https://en.wikipedia.org/wiki/Engineering_tolerance",
+      "enabled": true
+    },
+    {
+      "id": "wiki-surface-roughness",
+      "domain": "blueprint-vision",
+      "source": "Wikipedia",
+      "title": "Surface roughness",
+      "url": "https://en.wikipedia.org/wiki/Surface_roughness",
+      "enabled": true
+    },
+    {
+      "id": "wiki-cutting-tool",
+      "domain": "mill",
+      "source": "Wikipedia",
+      "title": "Cutting tool (machining)",
+      "url": "https://en.wikipedia.org/wiki/Cutting_tool_(machining)",
+      "enabled": true
+    },
+    {
+      "id": "wiki-tool-wear",
+      "domain": "mill",
+      "source": "Wikipedia",
+      "title": "Tool wear",
+      "url": "https://en.wikipedia.org/wiki/Tool_wear",
+      "enabled": true
+    },
+    {
+      "id": "wiki-cutting-fluid",
+      "domain": "mill",
+      "source": "Wikipedia",
+      "title": "Cutting fluid",
+      "url": "https://en.wikipedia.org/wiki/Cutting_fluid",
+      "enabled": true
+    },
+    {
+      "id": "wiki-cad",
+      "domain": "cad",
+      "source": "Wikipedia",
+      "title": "Computer-aided design",
+      "url": "https://en.wikipedia.org/wiki/Computer-aided_design",
+      "enabled": true
+    },
+    {
+      "id": "wiki-cam",
+      "domain": "cam",
+      "source": "Wikipedia",
+      "title": "Computer-aided manufacturing",
+      "url": "https://en.wikipedia.org/wiki/Computer-aided_manufacturing",
+      "enabled": true
+    },
+    {
+      "id": "wiki-numerical-control",
+      "domain": "cam",
+      "source": "Wikipedia",
+      "title": "Numerical control",
+      "url": "https://en.wikipedia.org/wiki/Numerical_control",
+      "enabled": true
+    },
+    {
+      "id": "wiki-gcode",
+      "domain": "post-processor",
+      "source": "Wikipedia",
+      "title": "G-code",
+      "url": "https://en.wikipedia.org/wiki/G-code",
+      "enabled": true
+    },
+    {
+      "id": "wiki-boring",
+      "domain": "lathe",
+      "source": "Wikipedia",
+      "title": "Boring (manufacturing)",
+      "url": "https://en.wikipedia.org/wiki/Boring_(manufacturing)",
+      "enabled": true
+    },
+    {
+      "id": "wiki-reamer",
+      "domain": "mill",
+      "source": "Wikipedia",
+      "title": "Reamer",
+      "url": "https://en.wikipedia.org/wiki/Reamer",
+      "enabled": true
+    },
+    {
+      "id": "wiki-milling-cutter",
+      "domain": "mill",
+      "source": "Wikipedia",
+      "title": "Milling cutter",
+      "url": "https://en.wikipedia.org/wiki/Milling_cutter",
+      "enabled": true
+    },
+    {
+      "id": "wiki-cemented-carbide",
+      "domain": "mill",
+      "source": "Wikipedia",
+      "title": "Cemented carbide",
+      "url": "https://en.wikipedia.org/wiki/Cemented_carbide",
+      "enabled": true
+    },
+    {
+      "id": "wiki-hss",
+      "domain": "mill",
+      "source": "Wikipedia",
+      "title": "High-speed steel",
+      "url": "https://en.wikipedia.org/wiki/High-speed_steel",
+      "enabled": true
+    },
+    {
+      "id": "wiki-machinability",
+      "domain": "mill",
+      "source": "Wikipedia",
+      "title": "Machinability",
+      "url": "https://en.wikipedia.org/wiki/Machinability",
+      "enabled": true
+    },
+    {
+      "id": "wiki-feed-rate",
+      "domain": "speed-feed",
+      "source": "Wikipedia",
+      "title": "Feed rate",
+      "url": "https://en.wikipedia.org/wiki/Feed_rate",
+      "enabled": true
+    },
+    {
+      "id": "wiki-machine-taper",
+      "domain": "mill",
+      "source": "Wikipedia",
+      "title": "Machine taper",
+      "url": "https://en.wikipedia.org/wiki/Machine_taper",
+      "enabled": true
+    },
+    {
+      "id": "wiki-swarf",
+      "domain": "mill",
+      "source": "Wikipedia",
+      "title": "Swarf",
+      "url": "https://en.wikipedia.org/wiki/Swarf",
+      "enabled": true
+    },
+    {
+      "id": "wiki-datum-reference",
+      "domain": "blueprint-vision",
+      "source": "Wikipedia",
+      "title": "Datum reference",
+      "url": "https://en.wikipedia.org/wiki/Datum_reference",
+      "enabled": true
+    },
+    {
+      "id": "wiki-step-iso10303",
+      "domain": "cad",
+      "source": "Wikipedia",
+      "title": "ISO 10303 STEP",
+      "url": "https://en.wikipedia.org/wiki/ISO_10303",
+      "enabled": true
+    },
+    {
+      "id": "wiki-multiaxis-machining",
+      "domain": "cam",
+      "source": "Wikipedia",
+      "title": "Multiaxis machining",
+      "url": "https://en.wikipedia.org/wiki/Multiaxis_machining",
+      "enabled": true
+    }
+  ]
+}

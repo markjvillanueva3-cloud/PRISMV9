@@ -17,6 +17,7 @@
  * @module engines/CNCControllerDeepLearningEngine
  */
 
+import { readFileSync } from "node:fs";
 import { log } from "../utils/Logger.js";
 
 // ============================================================================
@@ -95,6 +96,75 @@ export interface RecoveryProcedure {
   precautions: string[];
   verification: string[];
 }
+
+// ----------------------------------------------------------------------------
+// Learned-pattern corpus (AI-TRAINING-FIRST-MS0 / U-AITRAIN-POST-CNC-CONTROLLER-DL).
+// Mined from the JM-Die macro corpus by scripts/train-cnc-controller-from-corpus.mjs
+// and consumed here via ingestLearnedPatterns(). All rows carry their controller so
+// the flat stores can be filtered per-family at query time.
+// ----------------------------------------------------------------------------
+
+/** A learned tool-slot convention (which tool number a shop uses for an op). */
+interface LearnedToolSlot {
+  controller: ControllerFamily;
+  tool_number: string;
+  digits: number;
+  operation: string;
+  source_files: string[];
+  frequency: number;
+}
+
+/** A learned V-variable idiom (a named parameter + its observed expression). */
+interface LearnedVVar {
+  controller: ControllerFamily;
+  name: string;
+  expression: string;
+  description: string;
+  source_files: string[];
+  frequency: number;
+}
+
+/** A learned macro label idiom (a label + the token that conventionally follows). */
+interface LearnedMacroLabel {
+  controller: ControllerFamily;
+  label: string;
+  following_token: string;
+  source_files: string[];
+  frequency: number;
+}
+
+/** Per-array counts shared by the ingest result and the stats snapshot. */
+export interface LearnedPatternCounts {
+  toolSlotConventions: number;
+  vVariableIdioms: number;
+  macroLabels: number;
+}
+
+/** Result of ingestLearnedPatterns() -- counts loaded + rows skipped (drift signal). */
+export interface LearnedIngestResult {
+  loaded: boolean;
+  schemaVersion: string;
+  fileCount: number;
+  counts: LearnedPatternCounts;
+  skipped: { unknownController: number; malformedRow: number };
+}
+
+/** Snapshot of the currently-ingested learned corpus. */
+export interface LearnedPatternStats {
+  loaded: boolean;
+  fileCount: number;
+  counts: LearnedPatternCounts;
+}
+
+/**
+ * schemaVersions this consumer accepts. The DRAFT marker was written by the
+ * Step 1-2 extractor before any consumer existed; the canonical ledger is bumped
+ * to "1.0.0" by this unit. Both are honoured for back-compat.
+ */
+const SUPPORTED_LEARNED_SCHEMA_VERSIONS = new Set<string>([
+  "1.0.0",
+  "1.0.0-DRAFT-no-consumer",
+]);
 
 // ============================================================================
 // CONTROLLER KNOWLEDGE BASE
@@ -370,6 +440,17 @@ export class CNCControllerDeepLearningEngine {
   private macroPatterns = MACRO_PATTERNS;
   private recoveryProcedures = RECOVERY_PROCEDURES;
 
+  // Learned-corpus state (populated by ingestLearnedPatterns; empty until then).
+  private learnedLoaded = false;
+  private learnedSchemaVersion = "";
+  private learnedFileCount = 0;
+  private learnedToolSlots: LearnedToolSlot[] = [];
+  private learnedVVars: LearnedVVar[] = [];
+  private learnedMacroLabels: LearnedMacroLabel[] = [];
+  // Own-key Set so a `__proto__`/`constructor` controller can never match a real
+  // family (Object key membership would resolve those off the prototype chain).
+  private readonly knownFamilies = new Set<string>(Object.keys(CONTROLLER_PROFILES));
+
   // ==========================================================================
   // CONTROLLER SELECTION
   // ==========================================================================
@@ -544,13 +625,233 @@ export class CNCControllerDeepLearningEngine {
   // ==========================================================================
 
   /**
-   * Recommend macro patterns for common operations.
+   * Ingest a learned-patterns ledger (mined from the JM-Die macro corpus by
+   * scripts/train-cnc-controller-from-corpus.mjs) and REPLACE any prior corpus.
+   *
+   * Fail-loud (R12): throws on a bad path / unreadable file / invalid JSON /
+   * non-object root / missing `ledger` object / missing required arrays /
+   * missing-or-unsupported schemaVersion. Per-row drift (unknown controller,
+   * missing required field, non-object row) is tolerated and counted in
+   * `skipped` so a partially-drifted ledger still loads its good rows.
+   *
+   * Parsing happens into LOCAL arrays; engine state is only mutated once parsing
+   * fully succeeds, so a throw leaves any prior good corpus intact.
+   *
+   * @param ledgerPath absolute/relative path to the JSON ledger.
+   * @returns counts loaded + rows skipped.
+   */
+  ingestLearnedPatterns(ledgerPath: string): LearnedIngestResult {
+    if (typeof ledgerPath !== "string" || ledgerPath.trim() === "") {
+      throw new Error("ingestLearnedPatterns: ledgerPath must be a non-empty string");
+    }
+    let raw: string;
+    try {
+      raw = readFileSync(ledgerPath, "utf8");
+    } catch {
+      throw new Error(`ingestLearnedPatterns: cannot read learned-patterns file "${ledgerPath}"`);
+    }
+    let parsed: unknown;
+    try {
+      parsed = JSON.parse(raw);
+    } catch {
+      throw new Error(`ingestLearnedPatterns: "${ledgerPath}" is not valid JSON`);
+    }
+    if (parsed === null || typeof parsed !== "object" || Array.isArray(parsed)) {
+      throw new Error(`ingestLearnedPatterns: "${ledgerPath}" did not parse to a JSON object`);
+    }
+    const doc = parsed as Record<string, unknown>;
+
+    const schemaVersion = doc.schemaVersion;
+    if (typeof schemaVersion !== "string") {
+      throw new Error(`ingestLearnedPatterns: ledger has no string "schemaVersion"`);
+    }
+    if (!SUPPORTED_LEARNED_SCHEMA_VERSIONS.has(schemaVersion)) {
+      throw new Error(
+        `ingestLearnedPatterns: schemaVersion "${schemaVersion}" is not supported ` +
+          `(expected one of ${[...SUPPORTED_LEARNED_SCHEMA_VERSIONS].join(", ")})`,
+      );
+    }
+
+    const ledger = doc.ledger;
+    if (ledger === null || typeof ledger !== "object" || Array.isArray(ledger)) {
+      throw new Error(`ingestLearnedPatterns: ledger has no "ledger" object`);
+    }
+    const L = ledger as Record<string, unknown>;
+    if (
+      !Array.isArray(L.tool_slot_conventions) ||
+      !Array.isArray(L.v_variable_idioms) ||
+      !Array.isArray(L.macro_labels)
+    ) {
+      throw new Error(
+        `ingestLearnedPatterns: ledger is missing one of the required arrays ` +
+          `(tool_slot_conventions, v_variable_idioms, macro_labels)`,
+      );
+    }
+
+    // --- parse into LOCAL arrays (state untouched until the commit below) ---
+    const skipped = { unknownController: 0, malformedRow: 0 };
+    const toolSlots: LearnedToolSlot[] = [];
+    const vVars: LearnedVVar[] = [];
+    const macroLabels: LearnedMacroLabel[] = [];
+
+    const isObj = (r: unknown): r is Record<string, unknown> =>
+      r !== null && typeof r === "object" && !Array.isArray(r);
+    const familyOf = (r: Record<string, unknown>): ControllerFamily | null => {
+      const c = r.controller;
+      return typeof c === "string" && this.knownFamilies.has(c) ? (c as ControllerFamily) : null;
+    };
+    // Required-string fields accept a finite number too (coerced) but never an
+    // empty/whitespace string -> that is field drift.
+    const reqStr = (v: unknown): string | null =>
+      typeof v === "string" && v.trim() !== ""
+        ? v
+        : typeof v === "number" && Number.isFinite(v)
+          ? String(v)
+          : null;
+    const numOf = (v: unknown): number => {
+      const n = Number(v);
+      return Number.isFinite(n) ? n : 0;
+    };
+    const filesOf = (v: unknown): string[] =>
+      Array.isArray(v) ? v.filter((x): x is string => typeof x === "string") : [];
+
+    for (const row of L.tool_slot_conventions) {
+      if (!isObj(row)) { skipped.malformedRow++; continue; }
+      const fam = familyOf(row);
+      if (!fam) { skipped.unknownController++; continue; }
+      const toolNumber = reqStr(row.tool_number);
+      const operation = reqStr(row.operation);
+      if (toolNumber === null || operation === null) { skipped.malformedRow++; continue; }
+      toolSlots.push({
+        controller: fam,
+        tool_number: toolNumber,
+        digits: numOf(row.digits),
+        operation,
+        source_files: filesOf(row.source_files),
+        frequency: numOf(row.frequency),
+      });
+    }
+    for (const row of L.v_variable_idioms) {
+      if (!isObj(row)) { skipped.malformedRow++; continue; }
+      const fam = familyOf(row);
+      if (!fam) { skipped.unknownController++; continue; }
+      const name = reqStr(row.name);
+      const expression = reqStr(row.expression);
+      if (name === null || expression === null) { skipped.malformedRow++; continue; }
+      vVars.push({
+        controller: fam,
+        name,
+        expression,
+        description: typeof row.description === "string" ? row.description : "",
+        source_files: filesOf(row.source_files),
+        frequency: numOf(row.frequency),
+      });
+    }
+    for (const row of L.macro_labels) {
+      if (!isObj(row)) { skipped.malformedRow++; continue; }
+      const fam = familyOf(row);
+      if (!fam) { skipped.unknownController++; continue; }
+      const label = reqStr(row.label);
+      const following = reqStr(row.following_token);
+      if (label === null || following === null) { skipped.malformedRow++; continue; }
+      macroLabels.push({
+        controller: fam,
+        label,
+        following_token: following,
+        source_files: filesOf(row.source_files),
+        frequency: numOf(row.frequency),
+      });
+    }
+
+    // --- commit (atomic replace; prior corpus discarded) ---
+    this.learnedLoaded = true;
+    this.learnedSchemaVersion = schemaVersion;
+    this.learnedFileCount = numOf(doc.fileCount);
+    this.learnedToolSlots = toolSlots;
+    this.learnedVVars = vVars;
+    this.learnedMacroLabels = macroLabels;
+
+    return {
+      loaded: true,
+      schemaVersion,
+      fileCount: this.learnedFileCount,
+      counts: {
+        toolSlotConventions: toolSlots.length,
+        vVariableIdioms: vVars.length,
+        macroLabels: macroLabels.length,
+      },
+      skipped,
+    };
+  }
+
+  /** Snapshot of the currently-ingested learned corpus (loaded:false before ingest). */
+  getLearnedPatternStats(): LearnedPatternStats {
+    return {
+      loaded: this.learnedLoaded,
+      fileCount: this.learnedFileCount,
+      counts: {
+        toolSlotConventions: this.learnedToolSlots.length,
+        vVariableIdioms: this.learnedVVars.length,
+        macroLabels: this.learnedMacroLabels.length,
+      },
+    };
+  }
+
+  /**
+   * Synthesize a non-stub macro template from a matched learned tool-slot plus
+   * the controller's learned V-variables and macro labels. Deterministic: the
+   * output is a pure function of the (ordered) corpus rows.
+   */
+  private synthesizeLearnedTemplate(
+    slot: LearnedToolSlot,
+    vvars: LearnedVVar[],
+    labels: LearnedMacroLabel[],
+  ): string {
+    const lines: string[] = [
+      `( LEARNED MACRO: ${slot.operation} )`,
+      `( Synthesized from JM-Die corpus -- ${slot.controller}, ${slot.source_files.length} file(s) )`,
+      `T${slot.tool_number}   ( ${slot.operation} )`,
+    ];
+    for (const v of vvars) lines.push(`${v.name} = ${v.expression}   ( ${v.description} )`);
+    for (const m of labels) lines.push(`${m.label} ${m.following_token}`);
+    lines.push("M99");
+    return lines.join("\n");
+  }
+
+  /**
+   * Recommend a macro for an operation. Built-in MACRO_PATTERNS take precedence;
+   * if none match and a learned corpus is loaded, synthesize a non-stub macro
+   * from the corpus tool-slot whose operation contains the request. Returns null
+   * when nothing matches (an empty/whitespace operation always returns null).
    */
   recommendMacro(operation: string, controller: ControllerFamily): MacroPattern | null {
-    const patterns = this.macroPatterns.filter(
-      p => p.controller === controller && p.applications.some(a => operation.toLowerCase().includes(a))
+    const op = typeof operation === "string" ? operation.trim() : "";
+
+    // 1. Built-in patterns win.
+    const builtin = this.macroPatterns.filter(
+      p => p.controller === controller && p.applications.some(a => op.toLowerCase().includes(a)),
     );
-    return patterns[0] || null;
+    if (builtin[0]) return builtin[0];
+
+    // 2. Learned-corpus synthesis (only with a loaded corpus + a real operation).
+    if (!this.learnedLoaded || op === "") return null;
+    const opLower = op.toLowerCase();
+    const slot = this.learnedToolSlots.find(
+      s => s.controller === controller && s.operation.toLowerCase().includes(opLower),
+    );
+    if (!slot) return null;
+
+    const vvars = this.learnedVVars.filter(v => v.controller === controller);
+    const labels = this.learnedMacroLabels.filter(m => m.controller === controller);
+    const slug = slot.operation.toLowerCase().replace(/[^a-z0-9]+/g, "_").replace(/^_+|_+$/g, "");
+    return {
+      name: `learned_${slug}_${controller}`,
+      controller,
+      description: `Learned macro for "${slot.operation}" synthesized from ${slot.source_files.length} JM-Die corpus file(s)`,
+      code_template: this.synthesizeLearnedTemplate(slot, vvars, labels),
+      variables: vvars.map(v => ({ name: v.name, description: v.description, type: "number" })),
+      applications: [opLower],
+    };
   }
 
   /**
@@ -566,6 +867,29 @@ export class CNCControllerDeepLearningEngine {
 
     // Generate based on controller type
     if (controller === "okuma_osp") {
+      // Seed from learned V-variables when the ingested corpus has them for this
+      // controller; otherwise fall back to the generic VC1/VC2 stub (back-compat).
+      const learnedVVars = this.learnedLoaded
+        ? this.learnedVVars.filter(v => v.controller === "okuma_osp")
+        : [];
+      if (learnedVVars.length > 0) {
+        const varLines = learnedVVars
+          .map(v => `${v.name} = ${v.expression}   ( ${v.description} )`)
+          .join("\n");
+        return {
+          code: `
+( ${taskDescription.toUpperCase()} )
+( Generated for Okuma OSP-P300 -- V-variables learned from JM-Die corpus )
+${varLines}
+( Add your logic here )
+VGOTO 100
+N100
+M99
+`,
+          explanation: `V-macro format for Okuma OSP, seeded with ${learnedVVars.length} V-variable(s) learned from the JM-Die corpus.`,
+          variables: learnedVVars.map(v => ({ name: v.name, purpose: v.description })),
+        };
+      }
       return {
         code: `
 ( ${taskDescription.toUpperCase()} )

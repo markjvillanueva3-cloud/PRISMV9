@@ -1,0 +1,1398 @@
+/**
+ * PRISM MCP Server - Tool Registry
+ * Complete access to 500+ cutting tools × 85 parameters
+ */
+
+import * as fs from "fs/promises";
+import * as path from "path";
+import { BaseRegistry } from "./base.js";
+import { PATHS, TOOL_TYPES, TOOL_COATINGS, ISO_MATERIAL_GROUPS } from "../constants.js";
+import { log } from "../utils/Logger.js";
+import { readJsonFile, fileExists, listDirectory } from "../utils/files.js";
+
+// ============================================================================
+// TOOL TYPES
+// ============================================================================
+
+/** Tool Geometry configuration/data structure.
+ */
+export interface ToolGeometry {
+  // Basic dimensions
+  diameter: number;             // mm
+  overall_length: number;       // mm
+  flute_length: number;         // mm
+  shank_diameter: number;       // mm
+  
+  // Cutting geometry
+  flutes: number;
+  helix_angle: number;          // degrees
+  rake_angle: number;           // degrees
+  relief_angle: number;         // degrees
+  
+  // Advanced geometry
+  corner_radius?: number;       // mm
+  chamfer_angle?: number;       // degrees
+  taper_angle?: number;         // degrees/side
+  point_angle?: number;         // degrees (for drills)
+  
+  // Edge preparation
+  edge_preparation?: "sharp" | "honed" | "chamfered" | "radiused";
+  edge_radius?: number;         // µm
+  
+  // Chip breaking
+  chip_breaker?: string;
+  chip_breaker_width?: number;
+  chip_breaker_depth?: number;
+}
+
+/** Tool Coating configuration/data structure.
+ */
+export interface ToolCoating {
+  type: string;                 // TiN, TiAlN, AlTiN, DLC, etc.
+  thickness: number;            // µm
+  hardness: number;             // HV
+  max_temperature: number;      // °C
+  friction_coefficient: number;
+  color: string;
+  multi_layer?: boolean;
+  layer_count?: number;
+}
+
+/** Tool Performance configuration/data structure.
+ */
+export interface ToolPerformance {
+  // Recommended parameters by ISO material group
+  recommendations: Record<string, {
+    speed_sfm: { min: number; max: number };
+    feed_ipt: { min: number; max: number };
+    doc_max: number;            // mm
+    woc_max: number;            // mm
+    coolant: "flood" | "mist" | "air" | "none" | "through_tool";
+  }>;
+  
+  // Tool life
+  expected_life_minutes: number;
+  wear_pattern: string;
+  
+  // Limits
+  max_speed_sfm: number;
+  max_feed_ipt: number;
+  max_radial_engagement: number;  // %
+  max_axial_engagement: number;   // %
+  
+  // Quality
+  achievable_surface_finish: number;  // Ra in µm
+  achievable_tolerance: string;       // e.g., "IT8"
+}
+
+/** Tool Holder configuration/data structure.
+ */
+export interface ToolHolder {
+  interface: string;            // BT40, CAT50, HSK-A63, etc.
+  gauge_length: number;         // mm from spindle face
+  overhang: number;             // mm beyond holder
+  balance_grade: string;        // e.g., "G2.5 @ 25000 RPM"
+  max_rpm: number;
+  pullout_force: number;        // N
+}
+
+/** Cutting Tool configuration/data structure.
+ */
+export interface CuttingTool {
+  id: string;
+  name: string;
+  type: string;                 // endmill, drill, face_mill, insert, etc.
+  manufacturer: string;
+  catalog_number: string;
+  
+  // Material & coating
+  substrate: string;            // carbide, HSS, ceramic, PCD, CBN
+  grade: string;                // manufacturer's grade
+  coating?: ToolCoating | string;
+  
+  // Geometry
+  geometry: ToolGeometry;
+  
+  // Performance
+  performance: ToolPerformance;
+  
+  // Compatibility
+  material_groups: string[];    // ISO groups this tool works with
+  application: string[];        // roughing, finishing, profiling, etc.
+  
+  // Holder (if integrated)
+  holder?: ToolHolder;
+  
+  // Extended fields from JSON data (optional — present in enriched tool records)
+  vendor?: string;              // alias for manufacturer in some data sources
+  category?: string;            // broad tool category
+  subcategory?: string;         // sub-classification
+  coating_type?: string;        // flat coating name (alternative to coating.type)
+  coolant_through?: boolean;    // through-spindle coolant support
+  cutting_diameter_mm?: number; // diameter shorthand (alternative to geometry.diameter)
+  flute_count?: number;         // flute shorthand (alternative to geometry.flutes)
+  substrate_grade?: string;     // combined substrate+grade string
+  confidence?: number;          // data source confidence score (0-1)
+  description?: string;         // free-text tool description
+  cutting_params?: Record<string, any>; // material-specific cutting parameters
+
+  // Metadata
+  layer?: string;
+  price?: number;               // USD
+  availability?: string;
+  last_updated?: string;
+}
+
+// ============================================================================
+// TOOL REGISTRY CLASS
+// ============================================================================
+
+// ============================================================================
+// EXTRACTED SOURCE FILE CATALOG — MEDIUM-priority tool modules
+// Wired 2026-02-23 from MASTER_EXTRACTION_INDEX_V2 (27-file batch)
+// ============================================================================
+
+/** T O O L_ S O U R C E_ F I L E_ C A T A L O G constant.
+ */
+export const TOOL_SOURCE_FILE_CATALOG: Record<string, {
+  filename: string;
+  source_dir: string;
+  category: string;
+  lines: number;
+  safety_class: "MEDIUM" | "LOW";
+  description: string;
+}> = {
+  PRISM_TOOL_LIFE_ENGINE: {
+    filename: "PRISM_TOOL_LIFE_ENGINE.js",
+    source_dir: "extracted/engines",
+    category: "engines",
+    lines: 192,
+    safety_class: "MEDIUM",
+    description: "Tool life prediction engine — wear-rate models, Taylor equation implementation, and remaining-life estimation for carbide/HSS/ceramic tooling.",
+  },
+  PRISM_ENHANCED_LATHE_LIVE_TOOLING_ENGINE: {
+    filename: "PRISM_ENHANCED_LATHE_LIVE_TOOLING_ENGINE.js",
+    source_dir: "extracted/engines/tools",
+    category: "engines",
+    lines: 635,
+    safety_class: "MEDIUM",
+    description: "Enhanced lathe live-tooling engine — driven-tool parameter computation for milling/drilling on CNC lathes including C-axis and Y-axis offsets.",
+  },
+  PRISM_LATHE_PARAM_ENGINE: {
+    filename: "PRISM_LATHE_PARAM_ENGINE.js",
+    source_dir: "extracted/engines/tools",
+    category: "engines",
+    lines: 649,
+    safety_class: "MEDIUM",
+    description: "Lathe parameter engine — turning-specific speed/feed calculation, insert selection, and nose-radius compensation tables.",
+  },
+  PRISM_PHASE1_TOOL_LIFE_MANAGER: {
+    filename: "PRISM_PHASE1_TOOL_LIFE_MANAGER.js",
+    source_dir: "extracted/engines/tools",
+    category: "engines",
+    lines: 86,
+    safety_class: "MEDIUM",
+    description: "Phase 1 tool life manager — simple wear tracking and replacement-interval logic for initial tool-life monitoring.",
+  },
+  PRISM_TOOL_3D_GENERATOR: {
+    filename: "PRISM_TOOL_3D_GENERATOR.js",
+    source_dir: "extracted/engines/tools",
+    category: "engines",
+    lines: 440,
+    safety_class: "MEDIUM",
+    description: "3D tool geometry generator — parametric mesh creation for endmills, drills, and inserts for visualization and collision-checking.",
+  },
+  PRISM_TOOL_GENERATOR: {
+    filename: "PRISM_TOOL_GENERATOR.js",
+    source_dir: "extracted/engines/tools",
+    category: "engines",
+    lines: 197,
+    safety_class: "MEDIUM",
+    description: "Tool generator — template-based tool definition creation from diameter, flute count, and coating specs.",
+  },
+  PRISM_TOOL_HOLDER_3D_GENERATOR: {
+    filename: "PRISM_TOOL_HOLDER_3D_GENERATOR.js",
+    source_dir: "extracted/engines/tools",
+    category: "engines",
+    lines: 558,
+    safety_class: "MEDIUM",
+    description: "Tool holder 3D generator — parametric CAT/BT/HSK holder geometry for assembly visualization and gauge-length verification.",
+  },
+  PRISM_TOOL_LIBRARY_MANAGER: {
+    filename: "PRISM_TOOL_LIBRARY_MANAGER.js",
+    source_dir: "extracted/engines/tools",
+    category: "engines",
+    lines: 169,
+    safety_class: "MEDIUM",
+    description: "Tool library manager — CRUD operations, search/filter, and catalog management for the master cutting-tool library.",
+  },
+  PRISM_TOOL_NOSE_RADIUS_COMPENSATION_ENGINE: {
+    filename: "PRISM_TOOL_NOSE_RADIUS_COMPENSATION_ENGINE.js",
+    source_dir: "extracted/engines/tools",
+    category: "engines",
+    lines: 81,
+    safety_class: "MEDIUM",
+    description: "Lathe tool nose radius compensation engine — G41/G42 offset calculation and contour-error correction for turning operations.",
+  },
+  PRISM_TOOL_PERFORMANCE_ENGINE: {
+    filename: "PRISM_TOOL_PERFORMANCE_ENGINE.js",
+    source_dir: "extracted/engines/tools",
+    category: "engines",
+    lines: 1236,
+    safety_class: "MEDIUM",
+    description: "Tool performance engine — comprehensive cutting performance analytics, chip-load analysis, and cost-per-part optimization across tool families.",
+  },
+  PRISM_CUTTING_TOOL_DATABASE_V2: {
+    filename: "PRISM_CUTTING_TOOL_DATABASE_V2.js",
+    source_dir: "extracted/tools",
+    category: "tools",
+    lines: 1040,
+    safety_class: "MEDIUM",
+    description: "Cutting tool database V2 — structured catalog of endmills, drills, taps, inserts with geometry, coating, and recommended parameters per ISO material group.",
+  },
+  PRISM_TOOL_TYPES_COMPLETE: {
+    filename: "PRISM_TOOL_TYPES_COMPLETE.js",
+    source_dir: "extracted/tools",
+    category: "tools",
+    lines: 357,
+    safety_class: "MEDIUM",
+    description: "Complete tool type taxonomy — type definitions, classification hierarchy, and attribute schemas for all supported cutting tool families.",
+  },
+
+  // --- LOW priority: Manufacturer catalog data files (P-MS5 Wave 3) ---
+  PRISM_CATALOG_FINAL: {
+    filename: "PRISM_CATALOG_FINAL.js",
+    source_dir: "extracted/catalogs",
+    category: "catalogs",
+    lines: 911,
+    safety_class: "LOW",
+    description: "Final consolidated tool catalog — unified product listing across manufacturers with normalized attributes.",
+  },
+  PRISM_FINAL_CATALOG_GATEWAY: {
+    filename: "PRISM_FINAL_CATALOG_GATEWAY.js",
+    source_dir: "extracted/catalogs",
+    category: "catalogs",
+    lines: 424,
+    safety_class: "LOW",
+    description: "Catalog gateway — routing and adapter layer for multi-vendor tool catalog queries.",
+  },
+  PRISM_MAJOR_MANUFACTURERS_CATALOG: {
+    filename: "PRISM_MAJOR_MANUFACTURERS_CATALOG.js",
+    source_dir: "extracted/catalogs",
+    category: "catalogs",
+    lines: 1940,
+    safety_class: "LOW",
+    description: "Major manufacturers catalog — Sandvik, Kennametal, Walter, Iscar, Seco product data with geometry and cutting parameters.",
+  },
+  PRISM_MANUFACTURER_CATALOG_CONSOLIDATED: {
+    filename: "PRISM_MANUFACTURER_CATALOG_CONSOLIDATED.js",
+    source_dir: "extracted/catalogs",
+    category: "catalogs",
+    lines: 1009,
+    safety_class: "LOW",
+    description: "Consolidated manufacturer catalog — deduplicated and merged product lines across vendor sources.",
+  },
+  PRISM_MANUFACTURER_CATALOG_DB: {
+    filename: "PRISM_MANUFACTURER_CATALOG_DB.js",
+    source_dir: "extracted/catalogs",
+    category: "catalogs",
+    lines: 178,
+    safety_class: "LOW",
+    description: "Manufacturer catalog database — structured vendor metadata, product families, and cross-reference tables.",
+  },
+  PRISM_ZENI_COMPLETE_CATALOG: {
+    filename: "PRISM_ZENI_COMPLETE_CATALOG.js",
+    source_dir: "extracted/catalogs",
+    category: "catalogs",
+    lines: 1001,
+    safety_class: "LOW",
+    description: "Zeni complete catalog — full Zeni tool product line with geometry, coatings, and recommended parameters.",
+  },
+};
+
+/** Tool Registry engine/manager.
+ */
+export class ToolRegistry extends BaseRegistry<CuttingTool> {
+  private indexByType: Map<string, Set<string>> = new Map();
+  private indexByManufacturer: Map<string, Set<string>> = new Map();
+  private indexByMaterialGroup: Map<string, Set<string>> = new Map();
+  private indexByDiameter: Map<number, Set<string>> = new Map();
+  private indexByCoating: Map<string, Set<string>> = new Map();
+  private indexByCategory: Map<string, Set<string>> = new Map();
+  
+  constructor() {
+    super(
+      "ToolRegistry",
+      path.join(PATHS.STATE_DIR, "tool_registry_cache.json"),
+      "1.0.0"
+    );
+  }
+
+  /**
+   * Load tools from database
+   */
+  async load(): Promise<void> {
+    if (this.loaded) return;
+    
+    log.info("Loading ToolRegistry...");
+    
+    // R1: Load from both extracted/ and data/ paths in parallel (dual-path fix)
+    await Promise.all([
+      this.loadFromPath(PATHS.TOOLS_DB),
+      this.loadFromPath(path.join(PATHS.DATA_DIR, "tools")),
+    ]);
+    this.buildIndexes();
+    
+    /** If.
+     * @param this.entries.size - this.entries.size
+     * @returns void
+     */
+    if (this.entries.size > 0) {
+      this.loaded = true;
+      log.info(`ToolRegistry loaded: ${this.entries.size} tools`);
+    } else {
+      log.warn(`ToolRegistry: 0 tools loaded — will retry on next call`);
+    }
+  }
+
+  /**
+   * Load tools from a path
+   */
+  private async loadFromPath(basePath: string): Promise<void> {
+    try {
+      if (!await fileExists(basePath)) {
+        log.debug(`Tools path does not exist: ${basePath}`);
+        return;
+      }
+      
+      const files = await listDirectory(basePath);
+      const jsonFiles = files.filter(f => f.name.endsWith(".json"));
+
+      // Read all JSON files in parallel, then merge sequentially
+      const results = await Promise.all(jsonFiles.map(async (file) => {
+        try {
+          const data = await readJsonFile<any>(file.path);
+          return { file, data };
+        } catch (err) {
+          log.warn(`Failed to load tool file ${file}: ${err}`);
+          return { file, data: null };
+        }
+      }));
+
+      /** For.
+       * @param const - const
+       * @param data - input data
+       * @returns void
+       */
+      for (const { file, data } of results) {
+        if (!data) continue;
+        // R1: Handle both direct arrays and wrapper format {category, count, tools: [...]}
+        let tools: any[];
+        if (Array.isArray(data)) {
+          tools = data;
+        } else if (data.tools && Array.isArray(data.tools)) {
+          tools = data.tools;
+        } else {
+          tools = [data];
+        }
+
+        /** For.
+         * @param const - const
+         * @returns void
+         */
+        for (const tool of tools) {
+          /** If.
+           * @param tool.id - tool.id
+           * @returns void
+           */
+          if (tool.id) {
+            if (this.entries.has(tool.id)) {
+              log.warn(`ToolRegistry: duplicate tool ID '${tool.id}' in ${file.name} — skipping (first-wins)`);
+            } else {
+              this.set(tool.id, tool as CuttingTool);
+            }
+          }
+        }
+      }
+    } catch (err) {
+      log.warn(`Failed to load tools: ${err}`);
+    }
+  }
+
+  /**
+   * Build search indexes
+   */
+  private buildIndexes(): void {
+    this.indexByType.clear();
+    this.indexByManufacturer.clear();
+    this.indexByMaterialGroup.clear();
+    this.indexByDiameter.clear();
+    this.indexByCoating.clear();
+    this.indexByCategory.clear();
+    
+    /** For.
+     * @param const - const
+     * @param entry] - entry]
+     * @returns void
+     */
+    for (const [id, entry] of this.entries) {
+      const tool = entry.data;
+      
+      // Index by type
+      /** If.
+       * @param tool.type - tool.type
+       * @returns void
+       */
+      if (tool.type) {
+        const type = tool.type.toLowerCase();
+        if (!this.indexByType.has(type)) {
+          this.indexByType.set(type, new Set());
+        }
+        this.indexByType.get(type)?.add(id);
+      }
+      
+      // Index by manufacturer/vendor — R1-MS5: data uses 'vendor', interface uses 'manufacturer'
+      const mfrName = tool.manufacturer || tool.vendor;
+      /** If.
+       * @param mfrName - mfr name
+       * @returns void
+       */
+      if (mfrName) {
+        const mfr = String(mfrName).toLowerCase();
+        if (!this.indexByManufacturer.has(mfr)) {
+          this.indexByManufacturer.set(mfr, new Set());
+        }
+        this.indexByManufacturer.get(mfr)?.add(id);
+      }
+      
+      // Index by category (R1-MS5: new index for faceted search)
+      const catName = tool.category;
+      /** If.
+       * @param catName - cat name
+       * @returns void
+       */
+      if (catName) {
+        const cat = String(catName).toLowerCase();
+        if (!this.indexByCategory.has(cat)) {
+          this.indexByCategory.set(cat, new Set());
+        }
+        this.indexByCategory.get(cat)?.add(id);
+      }
+      
+      // Index by coating (R1-MS5: new index for faceted search)
+      const coatingName = (tool.coating as any) || tool.coating_type;
+      /** If.
+       * @param coatingName - coating name
+       * @returns void
+       */
+      if (coatingName) {
+        const coat = String(coatingName).toLowerCase();
+        if (!this.indexByCoating.has(coat)) {
+          this.indexByCoating.set(coat, new Set());
+        }
+        this.indexByCoating.get(coat)?.add(id);
+      }
+      
+      // Index by material group
+      // Source 1: explicit material_groups array
+      /** If.
+       * @param tool.material_groups - tool.material_groups
+       * @returns void
+       */
+      if (tool.material_groups) {
+        /** For.
+         * @param const - const
+         * @returns void
+         */
+        for (const group of tool.material_groups) {
+          if (!this.indexByMaterialGroup.has(group)) {
+            this.indexByMaterialGroup.set(group, new Set());
+          }
+          this.indexByMaterialGroup.get(group)?.add(id);
+        }
+      }
+      // Source 2: derive from cutting_params.materials keys (P_STEELS → P, M_STAINLESS → M, etc.)
+      const cpMaterials = tool.cutting_params?.materials;
+      /** If.
+       * @param cpMaterials - cp materials
+       * @returns void
+       */
+      if (cpMaterials && typeof cpMaterials === 'object') {
+        for (const matKey of Object.keys(cpMaterials)) {
+          // Extract ISO group letter: P_STEELS → P, M_STAINLESS → M, K_CAST_IRON → K, etc.
+          const isoGroup = matKey.split('_')[0].toUpperCase();
+          if (isoGroup.length === 1 && /[PMKNSH]/.test(isoGroup)) {
+            if (!this.indexByMaterialGroup.has(isoGroup)) {
+              this.indexByMaterialGroup.set(isoGroup, new Set());
+            }
+            this.indexByMaterialGroup.get(isoGroup)?.add(id);
+          }
+        }
+      }
+      
+      // Index by diameter (rounded to nearest 0.5mm)
+      const toolDiameter = tool.cutting_diameter_mm || tool.geometry?.diameter;
+      /** If.
+       * @param toolDiameter - tool diameter
+       * @returns void
+       */
+      if (toolDiameter) {
+        const d = Math.round(toolDiameter * 2) / 2;
+        if (!this.indexByDiameter.has(d)) {
+          this.indexByDiameter.set(d, new Set());
+        }
+        this.indexByDiameter.get(d)?.add(id);
+      }
+    }
+  }
+
+  /**
+   * Get tool by ID
+   */
+  getTool(id: string): CuttingTool | undefined {
+    return this.get(id);
+  }
+
+  /**
+   * Get tool by ID or catalog number
+   */
+  async getByIdOrCatalog(identifier: string): Promise<CuttingTool | undefined> {
+    await this.load();
+    
+    // Try direct ID lookup
+    let tool = this.get(identifier);
+    if (tool) return tool;
+    
+    // Try catalog number lookup
+    const lower = identifier.toLowerCase();
+    for (const entry of this.entries.values()) {
+      const t = entry.data;
+      if (t.catalog_number?.toLowerCase() === lower) {
+        return t;
+      }
+    }
+    
+    // Try partial match
+    for (const entry of this.entries.values()) {
+      const t = entry.data;
+      if (t.catalog_number?.toLowerCase().includes(lower) ||
+          t.name?.toLowerCase().includes(lower)) {
+        return t;
+      }
+    }
+    
+    return undefined;
+  }
+
+  /**
+   * Get tool by catalog number
+   */
+  getByCatalogNumber(catalogNumber: string): CuttingTool | undefined {
+    for (const tool of this.all()) {
+      if (tool.catalog_number && tool.catalog_number.toLowerCase() === catalogNumber.toLowerCase()) {
+        return tool;
+      }
+    }
+    return undefined;
+  }
+
+  /**
+   * Search tools with filters
+   */
+  search(options: {
+    query?: string;
+    type?: string;
+    manufacturer?: string;
+    material_group?: string;
+    diameter_min?: number;
+    diameter_max?: number;
+    diameter_exact?: number;
+    flutes?: number;
+    coating?: string;
+    substrate?: string;
+    application?: string;
+    limit?: number;
+    offset?: number;
+  }): { tools: CuttingTool[]; total: number; hasMore?: boolean } {
+    let results: CuttingTool[] = [];
+    
+    // Start with most selective filter
+    /** If.
+     * @param options.diameter_exact - options.diameter_exact
+     * @returns void
+     */
+    if (options.diameter_exact !== undefined) {
+      const d = Math.round(options.diameter_exact * 2) / 2;
+      const ids = this.indexByDiameter.get(d);
+      /** If.
+       * @param ids - ids
+       * @returns void
+       */
+      if (ids) {
+        results = Array.from(ids).map(id => this.get(id)!).filter(Boolean);
+      }
+    } else if (options.type) {
+      const ids = this.indexByType.get(options.type.toLowerCase());
+      /** If.
+       * @param ids - ids
+       * @returns void
+       */
+      if (ids) {
+        results = Array.from(ids).map(id => this.get(id)!).filter(Boolean);
+      }
+    } else if (options.material_group) {
+      const ids = this.indexByMaterialGroup.get(options.material_group);
+      /** If.
+       * @param ids - ids
+       * @returns void
+       */
+      if (ids) {
+        results = Array.from(ids).map(id => this.get(id)!).filter(Boolean);
+      }
+    } else if (options.manufacturer) {
+      const ids = this.indexByManufacturer.get(options.manufacturer.toLowerCase());
+      /** If.
+       * @param ids - ids
+       * @returns void
+       */
+      if (ids) {
+        results = Array.from(ids).map(id => this.get(id)!).filter(Boolean);
+      }
+    } else {
+      results = this.all();
+    }
+    
+    // Apply additional filters — R1-MS5: multi-term AND search across all fields
+    // "sandvik milling" → both "sandvik" AND "milling" must match (in any field combination)
+    /** If.
+     * @param options.query - options.query
+     * @returns void
+     */
+    if (options.query && options.query !== "*") {
+      const normalize = (s: string) => s.toLowerCase().replace(/[_-]/g, '');
+      const terms = options.query.toLowerCase().split(/\s+/).filter(t => t.length > 0);
+      results = results.filter(t => {
+        try {
+          // Build searchable text from all fields once per tool
+          const fields = [
+            String(t.name || ""),
+            String((t as any).catalog_number || ""),
+            String((t as any).manufacturer || (t as any).vendor || ""),
+            String((t as any).type || ""),
+            String((t as any).category || ""),
+            String((t as any).subcategory || ""),
+            String((t as any).description || ""),
+            String((t as any).spindle_interface || ""),
+            String((t as any).holder_type || ""),
+            String((t as any).coating?.type || (t as any).coating || (t as any).coating_type || ""),
+            String((t as any).substrate || ""),
+          ].map(normalize);
+          // Every term must match in at least one field
+          return terms.every(term =>
+            fields.some(field => field.includes(normalize(term)))
+          );
+        } catch { return false; }
+      });
+    }
+    
+    /** If.
+     * @param options.diameter_min - options.diameter_min
+     * @returns void
+     */
+    if (options.diameter_min !== undefined) {
+      results = results.filter(t => {
+        const d = (t as any).cutting_diameter_mm || t.geometry?.diameter || 0;
+        return d >= options.diameter_min!;
+      });
+    }
+    
+    /** If.
+     * @param options.diameter_max - options.diameter_max
+     * @returns void
+     */
+    if (options.diameter_max !== undefined) {
+      results = results.filter(t => {
+        const d = (t as any).cutting_diameter_mm || t.geometry?.diameter || 0;
+        return d > 0 && d <= options.diameter_max!;
+      });
+    }
+    
+    /** If.
+     * @param options.flutes - options.flutes
+     * @returns void
+     */
+    if (options.flutes !== undefined) {
+      results = results.filter(t => {
+        const f = (t as any).flute_count || t.geometry?.flutes;
+        return f === options.flutes;
+      });
+    }
+    
+    /** If.
+     * @param options.coating - options.coating
+     * @returns void
+     */
+    if (options.coating) {
+      const coatQuery = options.coating.toLowerCase();
+      results = results.filter(t => {
+        const c = ((t as any).coating?.type || (t as any).coating || (t as any).coating_type || '').toString().toLowerCase();
+        return c.includes(coatQuery);
+      });
+    }
+    
+    /** If.
+     * @param options.substrate - options.substrate
+     * @returns void
+     */
+    if (options.substrate) {
+      results = results.filter(t => 
+        ((t as any).substrate || "").toLowerCase().includes(options.substrate!.toLowerCase())
+      );
+    }
+    
+    /** If.
+     * @param options.application - options.application
+     * @returns void
+     */
+    if (options.application) {
+      results = results.filter(t => 
+        t.application?.some(a => a.toLowerCase().includes(options.application!.toLowerCase()))
+      );
+    }
+    
+    const total = results.length;
+    
+    // Pagination
+    const offset = options.offset || 0;
+    const limit = options.limit || 20;
+    const paged = results.slice(offset, offset + limit);
+    
+    return { tools: paged, total, hasMore: offset + paged.length < total };
+  }
+
+  /**
+   * Recommend tools for a material and operation
+   */
+  recommendTools(options: {
+    material_iso_group: string;
+    operation: string;          // roughing, finishing, profiling, drilling, etc.
+    diameter_target?: number;
+    max_results?: number;
+  }): CuttingTool[] {
+    const maxResults = options.max_results || 10;
+    
+    // Get tools compatible with material — with ISO group fallback mapping
+    // S (superalloys) → try S, then M (stainless)
+    // H (hardened) → try H, then P (steels)
+    const groupFallbacks: Record<string, string[]> = {
+      'S': ['S', 'M'],  // Superalloy tools overlap with stainless
+      'H': ['H', 'P'],  // Hardened steel tools overlap with steel
+      'X': ['X', 'P', 'M', 'K', 'N'], // Specialty: try all
+    };
+    
+    const groupsToTry = groupFallbacks[options.material_iso_group] || [options.material_iso_group];
+    const compatibleIdSet = new Set<string>();
+    /** For.
+     * @param const - const
+     * @returns void
+     */
+    for (const group of groupsToTry) {
+      const ids = this.indexByMaterialGroup.get(group);
+      /** If.
+       * @param ids - ids
+       * @returns void
+       */
+      if (ids) {
+        for (const id of ids) compatibleIdSet.add(id);
+      }
+    }
+    if (compatibleIdSet.size === 0) return [];
+    
+    let candidates = Array.from(compatibleIdSet)
+      .map(id => this.get(id)!)
+      .filter(Boolean);
+    
+    // Filter by operation compatibility using PRISM taxonomy
+    const op = options.operation.toLowerCase();
+    candidates = candidates.filter(t => {
+      /** If.
+       * @param t.application?.length - t.application?.length
+       * @returns void
+       */
+      if (t.application?.length > 0) {
+        return t.application.some(a => a.toLowerCase().includes(op));
+      }
+      
+      const type = ((t as any).type || '').toLowerCase();
+      const subcat = ((t as any).subcategory || '').toLowerCase();
+      const cat = ((t as any).category || '').toLowerCase();
+      
+      // ALWAYS exclude toolholders — they're not cutting tools
+      if (cat === 'toolholders' || cat === 'toolholding') return false;
+      
+      // Strict category-based filtering using PRISM taxonomy
+      /** If.
+       * @param op - op
+       * @returns void
+       */
+      if (op === 'milling' || op === 'roughing' || op === 'finishing') {
+        return cat === 'milling' || cat === 'indexable_milling' || cat === 'milling_inserts' ||
+               subcat.includes('end_mill') || subcat.includes('face_mill') ||
+               type.includes('end_mill') || type.includes('ball_nose') || type.includes('corner_radius') ||
+               type.includes('high_feed') || type.includes('roughing') || type.includes('finishing') ||
+               type.includes('shoulder_mill') || type.includes('face_mill') || type.includes('exchangeable');
+      }
+      /** If.
+       * @param op - op
+       * @returns void
+       */
+      if (op === 'turning') {
+        return cat === 'turning' || cat === 'turning_inserts' ||
+               subcat.includes('insert') && !cat.includes('mill') || // inserts but NOT milling inserts
+               subcat === 'external_holders' || subcat === 'grooving_inserts' ||
+               type.includes('cnmg') || type.includes('tnmg') || type.includes('dnmg') ||
+               type.includes('wnmg') || type.includes('snmg') || type.includes('vnmg') ||
+               type.includes('ccmt') || type.includes('dcmt') || type.includes('tcmt');
+      }
+      /** If.
+       * @param op - op
+       * @returns void
+       */
+      if (op === 'drilling') {
+        return cat === 'drilling' || subcat.includes('drill') || subcat.includes('twist') ||
+               subcat.includes('spot') || subcat.includes('indexable') && type.includes('drill') ||
+               type.includes('drill') || type.includes('step_drill');
+      }
+      /** If.
+       * @param op - op
+       * @returns void
+       */
+      if (op === 'boring') {
+        return cat === 'boring' || subcat.includes('boring') ||
+               type.includes('boring') || type.includes('fine_boring');
+      }
+      /** If.
+       * @param op - op
+       * @returns void
+       */
+      if (op === 'threading') {
+        return cat === 'threading' || subcat.includes('tap') || subcat.includes('thread') ||
+               type.includes('tap') || type.includes('thread');
+      }
+      /** If.
+       * @param op - op
+       * @returns void
+       */
+      if (op === 'reaming') {
+        return cat === 'hole_finishing' || subcat.includes('ream') || type.includes('ream');
+      }
+      
+      return false; // Don't return random tools for unknown operations
+    });
+    
+    // Score and sort
+    const scored = candidates.map(tool => ({
+      tool,
+      score: this.scoreToolForOperation(tool, options)
+    })).sort((a, b) => b.score - a.score);
+    
+    return scored.slice(0, maxResults).map(s => s.tool);
+  }
+
+  /**
+   * Score tool suitability for an operation
+   */
+  private scoreToolForOperation(tool: CuttingTool, options: {
+    material_iso_group: string;
+    operation: string;
+    diameter_target?: number;
+  }): number {
+    let score = 50;
+    const op = options.operation.toLowerCase();
+    const cat = (tool.category || '').toLowerCase();
+    const type = (tool.type || '').toLowerCase();
+    const subcat = (tool.subcategory || '').toLowerCase();
+    
+    // Prefer actual cutting tools over inserts for milling/drilling
+    /** If.
+     * @param op - op
+     * @returns void
+     */
+    if (op === 'milling' || op === 'roughing' || op === 'finishing' || op === 'drilling') {
+      if (cat === 'milling' || cat === 'drilling') score += 15; // Solid tools preferred
+      if (cat.includes('insert')) score -= 5; // Inserts are less useful without a body
+    }
+    // For turning, prefer inserts
+    /** If.
+     * @param op - op
+     * @returns void
+     */
+    if (op === 'turning') {
+      if (cat === 'turning_inserts' || type.includes('insert')) score += 15;
+      if (cat === 'turning' && subcat === 'external_holders') score += 10;
+    }
+    
+    // Vendor quality tier
+    const vendor = (tool.vendor || '').toLowerCase();
+    if (['sandvik coromant', 'kennametal', 'walter', 'iscar', 'seco'].some(v => vendor.includes(v))) score += 10;
+    if (['mitsubishi', 'kyocera', 'tungaloy', 'sumitomo'].some(v => vendor.includes(v))) score += 8;
+    
+    // Confidence score
+    const conf = tool.confidence || 0;
+    if (conf >= 0.95) score += 10;
+    else if (conf >= 0.90) score += 5;
+    
+    // Coolant through — big advantage for deep cuts and difficult materials
+    if (tool.coolant_through) score += 8;
+    
+    // Diameter match
+    /** If.
+     * @param options.diameter_target - options.diameter_target
+     * @returns void
+     */
+    if (options.diameter_target) {
+      const toolDiam = tool.cutting_diameter_mm || tool.geometry?.diameter || 0;
+      /** If.
+       * @param toolDiam - tool diam
+       * @returns void
+       */
+      if (toolDiam > 0) {
+        const diamDiff = Math.abs(toolDiam - options.diameter_target);
+        if (diamDiff === 0) score += 30;
+        else if (diamDiff < 1) score += 20;
+        else if (diamDiff < 2) score += 10;
+        else if (diamDiff < 5) score += 5;
+      }
+    }
+    
+    // Coating quality for material ISO group
+    const coating = ((tool.coating as any)?.type || (tool.coating as any) || tool.coating_type || '').toString().toUpperCase();
+    /** If.
+     * @param coating - coating
+     * @returns void
+     */
+    if (coating) {
+      /** If.
+       * @param options.material_iso_group - options.material_iso_group
+       * @returns void
+       */
+      if (options.material_iso_group === "P") {
+        if (coating.includes("ALTI") || coating.includes("TIAL")) score += 15;
+        else if (coating.includes("TICN") || coating.includes("TICRN")) score += 10;
+        else if (coating.includes("CVD")) score += 8;
+      }
+      /** If.
+       * @param options.material_iso_group - options.material_iso_group
+       * @returns void
+       */
+      if (options.material_iso_group === "M") {
+        if (coating.includes("ALTI") || coating.includes("TIAL")) score += 12;
+        else if (coating.includes("TICN")) score += 8;
+      }
+      /** If.
+       * @param options.material_iso_group - options.material_iso_group
+       * @returns void
+       */
+      if (options.material_iso_group === "N") {
+        if (coating.includes("DLC") || coating.includes("DIAMOND") || coating.includes("UNCOATED")) score += 15;
+        else if (coating.includes("ZRN")) score += 10;
+      }
+      /** If.
+       * @param options.material_iso_group - options.material_iso_group
+       * @returns void
+       */
+      if (options.material_iso_group === "K") {
+        if (coating.includes("CVD") || coating.includes("AL2O3")) score += 12;
+        else if (coating.includes("TICN")) score += 8;
+      }
+      /** If.
+       * @param options.material_iso_group - options.material_iso_group
+       * @returns void
+       */
+      if (options.material_iso_group === "S") {
+        if (coating.includes("ALTI") || coating.includes("TIAL")) score += 10;
+        if (tool.coolant_through) score += 5; // Extra bonus for S group
+      }
+      /** If.
+       * @param options.material_iso_group - options.material_iso_group
+       * @returns void
+       */
+      if (options.material_iso_group === "H") {
+        if (coating.includes("ALCRN") || coating.includes("TISIN")) score += 15;
+        else if (coating.includes("ALTI")) score += 10;
+      }
+      if (coating.includes("TIN") && !coating.includes("TICN")) score += 3;
+    }
+    
+    // Flute count optimization (milling only)
+    const flutes = tool.flute_count || tool.geometry?.flutes || 0;
+    /** If.
+     * @param flutes - flutes
+     * @returns void
+     */
+    if (flutes > 0) {
+      /** If.
+       * @param op - op
+       * @returns void
+       */
+      if (op === 'roughing') {
+        if (flutes <= 3) score += 10;
+        if (options.material_iso_group === "N" && flutes <= 2) score += 5; // Fewer flutes for aluminum
+      } else if (op === 'finishing') {
+        if (flutes >= 4) score += 10;
+      } else if (op === 'milling') {
+        if (flutes === 4) score += 5; // 4-flute is most versatile
+      }
+    }
+    
+    // Substrate quality
+    const substrate = (tool.substrate || tool.substrate_grade || '').toString().toLowerCase();
+    if (substrate.includes("carbide")) score += 10;
+    if (substrate.includes("pcd")) score += 20; // For aluminum
+    if (substrate.includes("cbn")) score += 15; // For hardened
+    
+    return score;
+  }
+
+  /**
+   * Get tools by type
+   */
+  getByType(type: string): CuttingTool[] {
+    const ids = this.indexByType.get(type.toLowerCase());
+    if (!ids) return [];
+    return Array.from(ids).map(id => this.get(id)!).filter(Boolean);
+  }
+
+  /**
+   * Get tools by manufacturer
+   */
+  getByManufacturer(manufacturer: string): CuttingTool[] {
+    const ids = this.indexByManufacturer.get(manufacturer.toLowerCase());
+    if (!ids) return [];
+    return Array.from(ids).map(id => this.get(id)!).filter(Boolean);
+  }
+
+  /**
+   * Get tools compatible with material group
+   */
+  getForMaterialGroup(isoGroup: string): CuttingTool[] {
+    const ids = this.indexByMaterialGroup.get(isoGroup);
+    if (!ids) return [];
+    return Array.from(ids).map(id => this.get(id)!).filter(Boolean);
+  }
+
+  /**
+   * R1-MS5: Faceted search — returns counts per facet for building filter dropdowns.
+   * Optionally applies filters to show counts within a filtered result set.
+   */
+  getFacets(filters?: {
+    category?: string;
+    vendor?: string;
+    type?: string;
+    coating?: string;
+    material_group?: string;
+    diameter_min?: number;
+    diameter_max?: number;
+  }): {
+    categories: { name: string; count: number }[];
+    vendors: { name: string; count: number }[];
+    types: { name: string; count: number }[];
+    coatings: { name: string; count: number }[];
+    material_groups: { name: string; count: number }[];
+    diameter_range: { min: number; max: number };
+    total_tools: number;
+    filtered_tools: number;
+  } {
+    // Start with all tools or filtered set
+    let toolIds: Set<string>;
+    
+    if (filters && Object.keys(filters).some(k => (filters as any)[k] !== undefined)) {
+      // Apply filters to get intersection
+      const sets: Set<string>[] = [];
+      
+      /** If.
+       * @param filters.category - filters.category
+       * @returns void
+       */
+      if (filters.category) {
+        const ids = this.indexByCategory.get(filters.category.toLowerCase());
+        if (ids) sets.push(ids); else sets.push(new Set());
+      }
+      /** If.
+       * @param filters.vendor - filters.vendor
+       * @returns void
+       */
+      if (filters.vendor) {
+        const ids = this.indexByManufacturer.get(filters.vendor.toLowerCase());
+        if (ids) sets.push(ids); else sets.push(new Set());
+      }
+      /** If.
+       * @param filters.type - filters.type
+       * @returns void
+       */
+      if (filters.type) {
+        const ids = this.indexByType.get(filters.type.toLowerCase());
+        if (ids) sets.push(ids); else sets.push(new Set());
+      }
+      /** If.
+       * @param filters.coating - filters.coating
+       * @returns void
+       */
+      if (filters.coating) {
+        const ids = this.indexByCoating.get(filters.coating.toLowerCase());
+        if (ids) sets.push(ids); else sets.push(new Set());
+      }
+      /** If.
+       * @param filters.material_group - filters.material_group
+       * @returns void
+       */
+      if (filters.material_group) {
+        const ids = this.indexByMaterialGroup.get(filters.material_group);
+        if (ids) sets.push(ids); else sets.push(new Set());
+      }
+      
+      /** If.
+       * @param sets.length - sets.length
+       * @returns void
+       */
+      if (sets.length > 0) {
+        // Intersection of all filter sets
+        toolIds = new Set(sets[0]);
+        /** For.
+         * @param let - let
+         * @returns void
+         */
+        for (let i = 1; i < sets.length; i++) {
+          /** For.
+           * @param const - const
+           * @returns void
+           */
+          for (const id of toolIds) {
+            if (!sets[i].has(id)) toolIds.delete(id);
+          }
+        }
+      } else {
+        toolIds = new Set(Array.from(this.entries.keys()));
+      }
+      
+      // Apply diameter filter (requires checking actual values)
+      /** If.
+       * @param filters.diameter_min - filters.diameter_min
+       * @returns void
+       */
+      if (filters.diameter_min !== undefined || filters.diameter_max !== undefined) {
+        const filtered = new Set<string>();
+        /** For.
+         * @param const - const
+         * @returns void
+         */
+        for (const id of toolIds) {
+          const tool = this.get(id);
+          if (!tool) continue;
+          const d = tool.cutting_diameter_mm || tool.geometry?.diameter || 0;
+          if (d <= 0) continue;
+          if (filters.diameter_min !== undefined && d < filters.diameter_min) continue;
+          if (filters.diameter_max !== undefined && d > filters.diameter_max) continue;
+          filtered.add(id);
+        }
+        toolIds = filtered;
+      }
+    } else {
+      toolIds = new Set(Array.from(this.entries.keys()));
+    }
+    
+    // Count facets within filtered set
+    const catCounts = new Map<string, number>();
+    const vendorCounts = new Map<string, number>();
+    const typeCounts = new Map<string, number>();
+    const coatingCounts = new Map<string, number>();
+    const matGroupCounts = new Map<string, number>();
+    let dMin = Infinity, dMax = -Infinity;
+    
+    /** For.
+     * @param const - const
+     * @returns void
+     */
+    for (const id of toolIds) {
+      const tool = this.get(id);
+      if (!tool) continue;
+      
+      const cat = (tool.category || 'unknown').toLowerCase();
+      catCounts.set(cat, (catCounts.get(cat) || 0) + 1);
+      
+      const vendor = (tool.vendor || tool.manufacturer || 'unknown').toLowerCase();
+      vendorCounts.set(vendor, (vendorCounts.get(vendor) || 0) + 1);
+      
+      const type = (tool.type || 'unknown').toLowerCase();
+      typeCounts.set(type, (typeCounts.get(type) || 0) + 1);
+      
+      const coating = ((tool.coating as any)?.type || (tool.coating as any) || tool.coating_type || 'unknown').toString().toLowerCase();
+      coatingCounts.set(coating, (coatingCounts.get(coating) || 0) + 1);
+      
+      // Material groups from cutting_params
+      const cpMaterials = tool.cutting_params?.materials;
+      /** If.
+       * @param cpMaterials - cp materials
+       * @returns void
+       */
+      if (cpMaterials && typeof cpMaterials === 'object') {
+        for (const matKey of Object.keys(cpMaterials)) {
+          const isoGroup = matKey.split('_')[0].toUpperCase();
+          if (isoGroup.length === 1 && /[PMKNSH]/.test(isoGroup)) {
+            matGroupCounts.set(isoGroup, (matGroupCounts.get(isoGroup) || 0) + 1);
+          }
+        }
+      }
+      
+      const d = tool.cutting_diameter_mm || tool.geometry?.diameter || 0;
+      /** If.
+       * @param d - d
+       * @returns void
+       */
+      if (d > 0) {
+        if (d < dMin) dMin = d;
+        if (d > dMax) dMax = d;
+      }
+    }
+    
+    const toSorted = (m: Map<string, number>) => 
+      Array.from(m.entries())
+        .map(([name, count]) => ({ name, count }))
+        .sort((a, b) => b.count - a.count);
+    
+    return {
+      categories: toSorted(catCounts),
+      vendors: toSorted(vendorCounts).slice(0, 50),
+      types: toSorted(typeCounts).slice(0, 50),
+      coatings: toSorted(coatingCounts),
+      material_groups: toSorted(matGroupCounts),
+      diameter_range: { 
+        min: dMin === Infinity ? 0 : dMin, 
+        max: dMax === -Infinity ? 0 : dMax 
+      },
+      total_tools: this.entries.size,
+      filtered_tools: toolIds.size
+    };
+  }
+
+  /**
+   * R1-MS5: Get index health stats — verify indexes are populated
+   */
+  getIndexStats(): {
+    byType: number;
+    byManufacturer: number;
+    byCategory: number;
+    byCoating: number;
+    byMaterialGroup: number;
+    byDiameter: number;
+    total: number;
+  } {
+    return {
+      byType: this.indexByType.size,
+      byManufacturer: this.indexByManufacturer.size,
+      byCategory: this.indexByCategory.size,
+      byCoating: this.indexByCoating.size,
+      byMaterialGroup: this.indexByMaterialGroup.size,
+      byDiameter: this.indexByDiameter.size,
+      total: this.entries.size
+    };
+  }
+
+  /**
+   * Get statistics
+   */
+  getStats(): {
+    total: number;
+    byType: Record<string, number>;
+    byManufacturer: Record<string, number>;
+    bySubstrate: Record<string, number>;
+    withCoating: number;
+  } {
+    const stats = {
+      total: this.entries.size,
+      byType: {} as Record<string, number>,
+      byManufacturer: {} as Record<string, number>,
+      bySubstrate: {} as Record<string, number>,
+      withCoating: 0
+    };
+    
+    /** For.
+     * @param const - const
+     * @param ids] - ids]
+     * @returns void
+     */
+    for (const [type, ids] of this.indexByType) {
+      stats.byType[type] = ids.size;
+    }
+    
+    /** For.
+     * @param const - const
+     * @param ids] - ids]
+     * @returns void
+     */
+    for (const [mfr, ids] of this.indexByManufacturer) {
+      stats.byManufacturer[mfr] = ids.size;
+    }
+    
+    const substrateCounts: Record<string, number> = {};
+    for (const tool of this.all()) {
+      const sub = (tool.substrate || 'unknown').toString().toLowerCase();
+      substrateCounts[sub] = (substrateCounts[sub] || 0) + 1;
+      if ((tool.coating as any)) stats.withCoating++;
+    }
+    stats.bySubstrate = substrateCounts;
+    
+    return stats;
+  }
+
+  // ==========================================================================
+  // SOURCE FILE CATALOG ACCESSORS
+  // ==========================================================================
+
+  /**
+   * Return the full extracted-source-file catalog for this registry.
+   */
+  static getSourceFileCatalog(): typeof TOOL_SOURCE_FILE_CATALOG {
+    return TOOL_SOURCE_FILE_CATALOG;
+  }
+
+  /**
+   * Enumerate catalog entries with aggregate stats, grouped by category.
+   */
+  catalogSourceFiles(): {
+    totalFiles: number;
+    totalLines: number;
+    byCategory: Record<string, string[]>;
+    entries: typeof TOOL_SOURCE_FILE_CATALOG;
+  } {
+    const entries = TOOL_SOURCE_FILE_CATALOG;
+    const keys = Object.keys(entries);
+
+    const byCategory: Record<string, string[]> = {};
+    let totalLines = 0;
+
+    /** For.
+     * @param const - const
+     * @returns void
+     */
+    for (const key of keys) {
+      const entry = entries[key as keyof typeof entries];
+      totalLines += entry.lines;
+      /** If.
+       * @param !byCategory[entry.category] - !by category[entry.category]
+       * @returns void
+       */
+      if (!byCategory[entry.category]) {
+        byCategory[entry.category] = [];
+      }
+      byCategory[entry.category].push(entry.filename);
+    }
+
+    return { totalFiles: keys.length, totalLines, byCategory, entries };
+  }
+}
+
+// Singleton instance
+/** Tool Registry constant.
+ */
+export const toolRegistry = new ToolRegistry();

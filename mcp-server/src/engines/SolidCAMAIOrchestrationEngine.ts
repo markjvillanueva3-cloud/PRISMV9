@@ -20,8 +20,7 @@
  */
 
 import { log } from "../utils/Logger.js";
-import { prismPathConstantEngagementEngine } from "./PrismPathConstantEngagementEngine.js";
-import { solidCAMStrategyEngine } from "./SolidCAMStrategyEngine.js";
+import { solidCAMStrategyEngine, type SolidCAMFeature, type SolidCAMMachine } from "./SolidCAMStrategyEngine.js";
 
 // ============================================================================
 // TYPES
@@ -257,18 +256,37 @@ export class SolidCAMAIOrchestrationEngine {
       const isoGroup = request.material_iso || "P";
 
       try {
-        const strategyResult = solidCAMStrategyEngine.selectStrategy({
-          feature_type: request.feature_type,
-          material_iso: isoGroup,
-          machine_type: request.machine_type || "3axis",
-          operation: request.operation || "roughing"
-        });
+        const machineType: SolidCAMMachine["type"] =
+          request.machine_type === "5axis" ? "5axis"
+          : request.machine_type === "4axis" ? "4axis"
+          : request.machine_type === "mill_turn" ? "mill_turn"
+          : request.machine_type === "lathe" ? "lathe"
+          : "3axis_vertical";
+        // SolidCAMStrategyEngine exposes recommend(feature, material, machine, tool, priority)
+        // returning a ranked SolidCAMStrategyRecommendation[]; take the top match.
+        const recs = solidCAMStrategyEngine.recommend(
+          {
+            type: request.feature_type as SolidCAMFeature["type"],
+            axis_count: machineType === "5axis" ? 5 : machineType === "4axis" ? 4 : 3,
+          },
+          { iso_group: isoGroup },
+          { type: machineType },
+          { diameter_mm: request.tool_diameter_mm || 12, flute_count: request.tool_flutes || 4, type: "endmill" },
+          request.priority || "balanced",
+        );
+        const top = recs[0];
+        if (!top) throw new Error("no matching SolidCAM strategy for feature/material/machine/tool");
 
         strategy = {
-          name: strategyResult.name,
-          solidcam_operation: strategyResult.operation_name,
-          parameters: strategyResult.parameters,
-          rationale: strategyResult.rationale
+          name: top.strategy.display_name,
+          solidcam_operation: top.strategy.category,
+          parameters: {
+            ae_pct: top.strategy.ae_pct,
+            ap_factor: top.strategy.ap_factor,
+            vc_multiplier: top.strategy.vc_multiplier,
+            engagement_control: top.strategy.engagement_control,
+          },
+          rationale: top.reasoning,
         };
         enginesInvoked.push("SolidCAMStrategyEngine");
       } catch {
@@ -292,30 +310,16 @@ export class SolidCAMAIOrchestrationEngine {
 
       const isoGroup = request.material_iso || "P";
 
-      try {
-        const wizardResult = prismPathConstantEngagementEngine.calculateOptimalLevel({
-          material_iso: isoGroup,
-          tool_diameter_mm: request.tool_diameter_mm || 12,
-          machine_power_kW: request.machine_power_kW || 15,
-          tool_material: request.tool_material || "carbide",
-          requested_level: request.imachining_level
-        });
-
-        imachiningOpt = {
-          level: wizardResult.level,
-          cutting_feed_pct: wizardResult.cutting_feed_pct,
-          step_down_mm: wizardResult.step_down_mm,
-          step_over_pct: wizardResult.step_over_pct,
-          morphing_enabled: true,
-          mrr_increase_pct: wizardResult.mrr_increase_pct,
-          tool_life_increase_pct: wizardResult.tool_life_increase_pct,
-          wizard_recommendation: wizardResult.wizard_recommendation,
-          rationale: wizardResult.rationale
-        };
-        enginesInvoked.push("PrismPathConstantEngagementEngine");
-      } catch {
-        imachiningOpt = this.fallbackiMachining(isoGroup, request.machine_power_kW || 15, request.imachining_level);
-      }
+      // iMachining level parameters come from the SolidCAM IMACHINING_LEVELS table
+      // (real per-level mrr/tool-life multipliers + feed/step-down/step-over), NOT the
+      // constant-engagement mill wizard -- that engine emits ae/ap/Vc cutting params and
+      // has no iMachining-level metrics, which is what this consumer's contract requires.
+      imachiningOpt = this.computeIMachiningLevel(
+        isoGroup,
+        request.machine_power_kW || 15,
+        request.imachining_level,
+      );
+      enginesInvoked.push("SolidCAMIMachiningLevels");
 
       chain.push({
         step: chain.length + 1,
@@ -413,7 +417,7 @@ export class SolidCAMAIOrchestrationEngine {
     return { name, solidcam_operation: op, parameters: { level: 4 }, rationale: `${name} for ${featureType} on ISO ${isoGroup}` };
   }
 
-  private fallbackiMachining(isoGroup: string, machinePower: number, requestedLevel?: number): {
+  private computeIMachiningLevel(isoGroup: string, machinePower: number, requestedLevel?: number): {
     level: number; cutting_feed_pct: number; step_down_mm: number; step_over_pct: number;
     morphing_enabled: boolean; mrr_increase_pct: number; tool_life_increase_pct: number;
     wizard_recommendation: string; rationale: string;

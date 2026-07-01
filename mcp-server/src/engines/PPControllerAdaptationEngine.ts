@@ -22,7 +22,7 @@ import { controllerDialectEngine } from "./ControllerDialectEngine.js";
 
 export interface AdaptationInput {
   controller_id: string;
-  operation: "roughing" | "finishing" | "semi_finishing" | "drilling" | "5axis";
+  operation: "roughing" | "finishing" | "semi_finishing" | "drilling" | "tapping" | "5axis";
   spindle_speed?: number;
   feed_rate?: number;
   depth_of_cut?: number;

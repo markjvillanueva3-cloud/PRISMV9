@@ -686,22 +686,27 @@ export class ManufacturingReasoningEngine {
 
     // Add cost implications based on domain
     if (problem.domain === "machining" || problem.domain === "tooling") {
+      // R12 (ENGINE-AUDIT 2026-06-19, slot:bravo): these are NON-COMPUTED placeholders --
+      // ManufacturingProblem carries no tool price / cycle time / machine rate, so a real cost
+      // cannot be derived here. Surface them as LOW-confidence placeholders rather than present a
+      // fabricated 0.50 at 0.7 confidence. Real values require wiring to ToolROIEngine / the cost
+      // optimizer (tracked: state/shared/specs/ENGINE-ALGORITHM-FORMULA-AUDIT-2026-06-19.md sec 3d).
       chain.cost_implications.push({
         category: "tooling",
-        description: "Tooling cost per part (estimated)",
-        estimated_cost: 0.50, // Placeholder
+        description: "Tooling cost per part (PLACEHOLDER -- not computed; integrate ToolROIEngine for a real figure)",
+        estimated_cost: 0, // placeholder: no tool price available in ManufacturingProblem
         currency: "USD",
-        confidence: 0.7,
-        notes: "Based on typical tool life and replacement cost"
+        confidence: 0.1,
+        notes: "PLACEHOLDER, not a computed cost -- needs tool price + tool-life from the cost engine"
       });
 
       chain.cost_implications.push({
         category: "labor",
-        description: "Machine time cost",
-        estimated_cost: 0, // Would be calculated from cycle time
+        description: "Machine time cost (PLACEHOLDER -- not computed; needs cycle time + machine rate)",
+        estimated_cost: 0, // placeholder: no cycle time / machine rate available here
         currency: "USD",
-        confidence: 0.6,
-        notes: "Depends on final cycle time determination"
+        confidence: 0.1,
+        notes: "PLACEHOLDER, not a computed cost -- depends on final cycle time + machine $/hr"
       });
     }
 

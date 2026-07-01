@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="generator" content="SpecHTMLCompanionEngine">
+<meta name="prism-source-hash" content="68779c46acf081da22358879c279f58bb9dcf14f85a20a59915419df78225c9e">
+<title>CLAUDE.md Duplication Candidates — Advisory</title>
+<style>
+:root, [data-theme="light"] {
+  --bg:#ffffff; --bg-soft:#f6f8fa; --bg-code:#f6f8fa; --fg:#1f2328; --fg-muted:#636c76;
+  --border:#d0d7de; --accent:#0969da; --accent-soft:#ddf4ff; --thead:#f6f8fa; --quote:#656d76;
+  --table-stripe:#f6f8fa;
+}
+[data-theme="dark"] {
+  --bg:#0d1117; --bg-soft:#161b22; --bg-code:#161b22; --fg:#e6edf3; --fg-muted:#8b949e;
+  --border:#30363d; --accent:#2f81f7; --accent-soft:#163356; --thead:#161b22; --quote:#8b949e;
+  --table-stripe:#11151c;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg:#0d1117; --bg-soft:#161b22; --bg-code:#161b22; --fg:#e6edf3; --fg-muted:#8b949e;
+    --border:#30363d; --accent:#2f81f7; --accent-soft:#163356; --thead:#161b22; --quote:#8b949e;
+    --table-stripe:#11151c;
+  }
+}
+* { box-sizing:border-box; }
+html { scroll-behavior:smooth; }
+body { margin:0; background:var(--bg); color:var(--fg); font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif; line-height:1.6; font-size:16px; }
+.skip-link { position:absolute; left:-9999px; top:0; background:var(--accent); color:#fff; padding:8px 14px; z-index:100; border-radius:0 0 6px 0; }
+.skip-link:focus { left:0; }
+.layout { display:grid; grid-template-columns:minmax(0,1fr); max-width:1180px; margin:0 auto; padding:0 20px; }
+@media (min-width:1000px) { .layout { grid-template-columns:260px minmax(0,1fr); gap:40px; } }
+header.doc-head { grid-column:1 / -1; padding:28px 0 16px; border-bottom:1px solid var(--border); }
+header.doc-head h1.page-title { margin:0 0 6px; font-size:1.9rem; line-height:1.25; }
+header.doc-head .provenance { color:var(--fg-muted); font-size:.85rem; margin:0; }
+header.doc-head .theme-toggle { float:right; background:var(--bg-soft); color:var(--fg); border:1px solid var(--border); border-radius:6px; padding:5px 10px; font-size:.8rem; cursor:pointer; }
+nav.toc { align-self:start; position:sticky; top:16px; max-height:calc(100vh - 32px); overflow:auto; font-size:.85rem; padding:14px 0; }
+@media (max-width:999px) { nav.toc { position:static; max-height:none; border-bottom:1px solid var(--border); margin-bottom:12px; } }
+nav.toc .toc-title { font-weight:600; color:var(--fg-muted); text-transform:uppercase; letter-spacing:.04em; font-size:.7rem; margin-bottom:8px; }
+nav.toc ul { list-style:none; margin:0; padding:0; }
+nav.toc li a { color:var(--fg-muted); text-decoration:none; display:block; padding:3px 6px; border-left:2px solid transparent; border-radius:0 4px 4px 0; }
+nav.toc li a:hover { color:var(--accent); background:var(--accent-soft); border-left-color:var(--accent); }
+nav.toc li a.active { color:var(--accent); background:var(--accent-soft); border-left-color:var(--accent); font-weight:600; }
+nav.toc .toc-l2 a { padding-left:14px; } nav.toc .toc-l3 a { padding-left:26px; font-size:.95em; } nav.toc .toc-l4 a { padding-left:38px; font-size:.9em; }
+nav.toc input.toc-search { width:100%; box-sizing:border-box; margin:0 0 8px; padding:5px 8px; font-size:.82rem; border:1px solid var(--border); border-radius:5px; background:var(--bg); color:var(--fg); }
+nav.toc input.toc-search:focus { outline:2px solid var(--accent); outline-offset:-1px; }
+nav.toc .toc-search-status { font-size:.7rem; color:var(--fg-muted); min-height:1em; margin:-4px 0 6px; }
+nav.toc li.toc-hidden { display:none; }
+main.doc-body mark.search-hit { background:#fff3a3; color:#1f2328; border-radius:2px; padding:0 1px; }
+main.doc-body mark.search-hit.current { outline:2px solid var(--accent); outline-offset:1px; }
+main.doc-body { min-width:0; padding:24px 0 64px; }
+main.doc-body h1,main.doc-body h2,main.doc-body h3,main.doc-body h4,main.doc-body h5,main.doc-body h6 { line-height:1.3; margin-top:1.8em; margin-bottom:.6em; scroll-margin-top:16px; position:relative; }
+main.doc-body h1 { font-size:1.7rem; border-bottom:1px solid var(--border); padding-bottom:.3em; }
+main.doc-body h2 { font-size:1.4rem; border-bottom:1px solid var(--border); padding-bottom:.3em; }
+main.doc-body h3 { font-size:1.18rem; } main.doc-body h4 { font-size:1.02rem; }
+main.doc-body a.anchor { position:absolute; left:-1.1em; opacity:0; text-decoration:none; color:var(--fg-muted); font-weight:400; padding-right:.3em; }
+main.doc-body h1:hover a.anchor,main.doc-body h2:hover a.anchor,main.doc-body h3:hover a.anchor,main.doc-body h4:hover a.anchor { opacity:1; }
+main.doc-body a { color:var(--accent); text-decoration:none; } main.doc-body a:hover { text-decoration:underline; }
+main.doc-body p { margin:.8em 0; }
+main.doc-body code { background:var(--bg-code); border-radius:4px; padding:.15em .35em; font-size:.88em; font-family:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace; }
+main.doc-body pre { background:var(--bg-code); border:1px solid var(--border); border-radius:8px; padding:14px 16px; overflow:auto; line-height:1.45; }
+main.doc-body pre code { background:none; padding:0; font-size:.86rem; }
+main.doc-body blockquote { margin:1em 0; padding:.4em 1em; border-left:4px solid var(--border); color:var(--quote); }
+main.doc-body ul,main.doc-body ol { margin:.6em 0; padding-left:1.6em; }
+main.doc-body li { margin:.2em 0; }
+main.doc-body hr { border:0; border-top:1px solid var(--border); margin:2em 0; }
+main.doc-body .table-wrap { overflow-x:auto; margin:1em 0; }
+main.doc-body table { border-collapse:collapse; width:100%; font-size:.9rem; }
+main.doc-body th,main.doc-body td { border:1px solid var(--border); padding:6px 11px; text-align:left; vertical-align:top; }
+main.doc-body thead th { background:var(--thead); }
+main.doc-body tbody tr:nth-child(2n) { background:var(--table-stripe); }
+main.doc-body details.frontmatter { background:var(--bg-soft); border:1px solid var(--border); border-radius:8px; padding:6px 14px; margin:0 0 22px; }
+main.doc-body details.frontmatter summary { cursor:pointer; font-weight:600; color:var(--fg-muted); }
+main.doc-body details.frontmatter table { font-size:.82rem; }
+main.doc-body details.frontmatter th { width:1%; white-space:nowrap; background:transparent; color:var(--fg-muted); }
+main.doc-body .mermaid { background:var(--bg-soft); border:1px solid var(--border); border-radius:8px; padding:14px; margin:1em 0; text-align:center; overflow:auto; white-space:pre-wrap; }
+main.doc-body .truncation-notice { background:var(--accent-soft); border:1px solid var(--accent); border-radius:6px; padding:10px 14px; font-size:.9rem; }
+footer.doc-foot { grid-column:1 / -1; border-top:1px solid var(--border); margin-top:48px; padding:18px 0 40px; color:var(--fg-muted); font-size:.82rem; }
+footer.doc-foot code { background:var(--bg-code); border-radius:4px; padding:.12em .3em; }
+</style>
+</head>
+<body>
+<a class="skip-link" href="#content">Skip to content</a>
+<div class="layout">
+<header class="doc-head">
+<button id="themeToggle" class="theme-toggle" type="button" aria-label="Toggle color theme">◐ theme</button>
+<h1 class="page-title" id="top">CLAUDE.md Duplication Candidates — Advisory</h1>
+<p class="provenance">Generated 2026-05-18T17:34:20.339Z by <code>scripts/emit-all-spec-html.ts</code> · the Markdown alongside is canonical</p>
+</header>
+<nav class="toc" aria-label="Table of contents"><div class="toc-title">On this page</div><input type="search" class="toc-search" placeholder="Search this page…" aria-label="Search this page" autocomplete="off"><div class="toc-search-status" aria-live="polite"></div><ul>
+<li class="toc-l1"><a href="#claudemd-duplication-candidates-advisory">CLAUDE.md Duplication Candidates — Advisory</a></li>
+<li class="toc-l2"><a href="#2-shared-l2-headings-detected">2 shared L2 headings detected</a></li>
+<li class="toc-l2"><a href="#why-not-collapse-now">Why not collapse now</a></li>
+<li class="toc-l2"><a href="#7-day-grace-window">7-day grace window</a></li>
+<li class="toc-l2"><a href="#cross-ref-inserts-phase-a-this-session">Cross-ref inserts (Phase A this session)</a></li>
+<li class="toc-l2"><a href="#verify">Verify</a></li>
+<li class="toc-l2"><a href="#out-of-scope-shared-content-deeper-duplication">Out-of-scope shared content (deeper duplication)</a></li>
+</ul></nav>
+<main id="content" class="doc-body" role="main">
+<h1 id="claudemd-duplication-candidates-advisory"><a class="anchor" href="#claudemd-duplication-candidates-advisory" aria-label="Permalink to CLAUDE.md Duplication Candidates — Advisory">#</a>CLAUDE.md Duplication Candidates — Advisory</h1>
+<p><strong>Date:</strong> 2026-05-17 · slot mike · OBSOLESCENCE-CLEANUP-MS0/U-OBS-C2 <strong>Generator:</strong> <code>comm -12</code> of L2 headings between project + global CLAUDE.md</p>
+<h2 id="2-shared-l2-headings-detected"><a class="anchor" href="#2-shared-l2-headings-detected" aria-label="Permalink to 2 shared L2 headings detected">#</a>2 shared L2 headings detected</h2>
+<div class="table-wrap"><table>
+<thead><tr><th>Heading</th><th>Project line</th><th>Global line</th><th>Proposed canonical</th></tr></thead>
+<tbody>
+<tr><td><code>## EXPERT ROLE (ALWAYS ACTIVE)</code></td><td>3</td><td>7</td><td><strong>Global</strong> (cross-project doctrine)</td></tr>
+<tr><td><code>## GOLF SLOT (7th hygiene chat — CLEANUP-MS0)</code></td><td>137</td><td>136</td><td><strong>Project</strong> (PRISM-specific slot semantics)</td></tr>
+</tbody>
+</table></div>
+<h2 id="why-not-collapse-now"><a class="anchor" href="#why-not-collapse-now" aria-label="Permalink to Why not collapse now">#</a>Why not collapse now</h2>
+<p>Per the plan&#39;s risk register (entry C3 / now C2 after Phase F insertion):</p>
+<blockquote>
+<p>&quot;C2 (collapse sections) breaks chats reading the moved section. Mitigation: Phase C2 LAST; emit deprecation pointer in both files for 7 days before removal.&quot;</p>
+</blockquote>
+<p>We&#39;re mid-session with <strong>2 peer chats active</strong> in the same shared tree. A destructive content collapse risks confusing concurrent chats whose context includes the pre-collapse text.</p>
+<h2 id="7-day-grace-window"><a class="anchor" href="#7-day-grace-window" aria-label="Permalink to 7-day grace window">#</a>7-day grace window</h2>
+<p><strong>Phase A (this session, NOW):</strong> Emit cross-ref pointers in each duplicated section pointing to the other file. Both bodies remain.</p>
+<p><strong>Phase B (after 7 days, ≥2026-05-24):</strong> Operator confirms no live chats have stale context referring to the duplicate; then:</p>
+<ul>
+<li>For <strong>EXPERT ROLE</strong>: keep global body verbatim, replace project body with <code>## EXPERT ROLE → see C:/Users/wompu/.claude/CLAUDE.md §EXPERT ROLE</code> pointer (single line).</li>
+<li>For <strong>GOLF SLOT</strong>: keep project body verbatim, replace global body with same shape.</li>
+</ul>
+<p><strong>Phase C (no fixed date):</strong> Reverse-merge: integrate any project-specific elaboration into the global doctrine if applicable.</p>
+<h2 id="cross-ref-inserts-phase-a-this-session"><a class="anchor" href="#cross-ref-inserts-phase-a-this-session" aria-label="Permalink to Cross-ref inserts (Phase A this session)">#</a>Cross-ref inserts (Phase A this session)</h2>
+<p>Both files annotated with <code>&lt;!-- DUPLICATE-CANDIDATE: see &lt;other-file&gt;... --&gt;</code> HTML comments at the top of the section. Comments are invisible to rendered markdown but searchable for the Phase B collapse.</p>
+<h2 id="verify"><a class="anchor" href="#verify" aria-label="Permalink to Verify">#</a>Verify</h2>
+<pre><code class="language-bash">comm -12 &lt;(grep &#39;^## &#39; H:/prism/CLAUDE.md | sort -u) &lt;(grep &#39;^## &#39; C:/Users/wompu/.claude/CLAUDE.md | sort -u)
+</code></pre>
+<p>Expected at Phase A close: still returns 2 lines (cross-refs added, bodies preserved). Expected at Phase B close: returns 0 lines (one body collapsed to pointer in each).</p>
+<h2 id="out-of-scope-shared-content-deeper-duplication"><a class="anchor" href="#out-of-scope-shared-content-deeper-duplication" aria-label="Permalink to Out-of-scope shared content (deeper duplication)">#</a>Out-of-scope shared content (deeper duplication)</h2>
+<p>L2 heading match is a coarse signal. Deeper prose duplication exists between:</p>
+<ul>
+<li>Project §KARPATHY DISCIPLINE vs Global §KARPATHY DISCIPLINE (mental checklist) — different L2 headings (&quot;KARPATHY DISCIPLINE&quot; vs &quot;KARPATHY DISCIPLINE (mental checklist every 5 tasks)&quot;) so they don&#39;t match <code>comm</code></li>
+<li>Project §TOKEN ECONOMY vs Global §TOKEN ECONOMY</li>
+<li>Project §RTK section vs Global §RTK (Rust Token Killer) section</li>
+</ul>
+<p>These three are full-paragraph duplications that the heading-only diff doesn&#39;t catch. Follow-up: run a paragraph-level fingerprint diff in a future audit.</p>
+</main>
+<footer class="doc-foot">
+<p>HTML companion — the canonical document is the Markdown file alongside it. <a href="CLAUDE-MD-DUPLICATION-CANDIDATES-2026-05-17.md">CLAUDE-MD-DUPLICATION-CANDIDATES-2026-05-17.md</a> Regenerate: <code>node scripts/emit-spec-html.mjs &lt;path.md&gt;</code></p>
+
+</footer>
+</div>
+<script>(function(){
+  try {
+    var k = "prism-spec-theme";
+    var saved = localStorage.getItem(k);
+    if (saved === "dark" || saved === "light") document.documentElement.setAttribute("data-theme", saved);
+  } catch (e) { /* localStorage blocked — keep default theme */ }
+  var b = document.getElementById("themeToggle");
+  if (!b) return;
+  b.addEventListener("click", function () {
+    var cur = document.documentElement.getAttribute("data-theme");
+    var sysDark = !!(window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches);
+    var next = cur === "dark" ? "light" : cur === "light" ? "dark" : (sysDark ? "light" : "dark");
+    document.documentElement.setAttribute("data-theme", next);
+    b.textContent = next === "dark" ? "\u263E dark" : "\u2600 light";
+    try { localStorage.setItem(k, next); } catch (e) { /* persistence unavailable — non-fatal */ }
+  });
+})();</script>
+<script>(function(){
+  var body = document.querySelector("main.doc-body");
+  var toc = document.querySelector("nav.toc");
+  if (!body) return;
+  // TOC active-section highlight.
+  if (toc) {
+    var links = {};
+    toc.querySelectorAll("a[href^='#']").forEach(function(a){ links[a.getAttribute("href").slice(1)] = a; });
+    var heads = body.querySelectorAll("h1[id],h2[id],h3[id],h4[id]");
+    var active = null;
+    function setActive(id){
+      if (active === id) return;
+      if (active && links[active]) links[active].classList.remove("active");
+      active = id;
+      if (active && links[active]) links[active].classList.add("active");
+    }
+    var io = new IntersectionObserver(function(entries){
+      var top = null, topY = Infinity;
+      entries.forEach(function(e){ if (e.isIntersecting) { var y = e.boundingClientRect.top; if (y < topY) { topY = y; top = e.target.id; } } });
+      if (!top) {
+        var best = null;
+        heads.forEach(function(h){ if (h.getBoundingClientRect().top < 80) best = h.id; });
+        top = best || (heads[0] && heads[0].id);
+      }
+      if (top) setActive(top);
+    }, { rootMargin: "0px 0px -70% 0px", threshold: [0, 1] });
+    heads.forEach(function(h){ io.observe(h); });
+  }
+  // In-page search: wrap matches in <mark>, jump to first, filter the TOC.
+  var input = toc && toc.querySelector("input.toc-search");
+  var status = toc && toc.querySelector(".toc-search-status");
+  if (!input) return;
+  var SKIP = { SCRIPT:1, STYLE:1, MARK:1, NOSCRIPT:1 };
+  function clearMarks(){
+    body.querySelectorAll("mark.search-hit").forEach(function(m){ var p = m.parentNode; if (p) { p.replaceChild(document.createTextNode(m.textContent), m); p.normalize(); } });
+    if (toc) toc.querySelectorAll("li.toc-hidden").forEach(function(li){ li.classList.remove("toc-hidden"); });
+  }
+  function doSearch(q){
+    clearMarks();
+    if (status) status.textContent = "";
+    if (!q || q.length < 2) return;
+    var needle = q.toLowerCase(), hits = 0, first = null;
+    var walker = document.createTreeWalker(body, NodeFilter.SHOW_TEXT, { acceptNode: function(n){
+      if (!n.nodeValue || !n.nodeValue.trim()) return NodeFilter.FILTER_REJECT;
+      var p = n.parentNode; while (p && p !== body) { if (SKIP[p.nodeName]) return NodeFilter.FILTER_REJECT; p = p.parentNode; }
+      return n.nodeValue.toLowerCase().indexOf(needle) >= 0 ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT;
+    }});
+    var targets = [];
+    while (walker.nextNode()) targets.push(walker.currentNode);
+    targets.forEach(function(node){
+      if (hits > 2000) return;
+      var text = node.nodeValue, lower = text.toLowerCase(), frag = document.createDocumentFragment(), i = 0, idx;
+      while ((idx = lower.indexOf(needle, i)) >= 0 && hits <= 2000) {
+        if (idx > i) frag.appendChild(document.createTextNode(text.slice(i, idx)));
+        var m = document.createElement("mark"); m.className = "search-hit"; m.textContent = text.slice(idx, idx + needle.length);
+        if (hits === 0) { m.classList.add("current"); first = m; }
+        frag.appendChild(m); hits++; i = idx + needle.length;
+      }
+      if (i < text.length) frag.appendChild(document.createTextNode(text.slice(i)));
+      if (node.parentNode) node.parentNode.replaceChild(frag, node);
+    });
+    if (status) status.textContent = hits ? (hits + " match" + (hits === 1 ? "" : "es")) : "no matches";
+    if (toc) toc.querySelectorAll("li").forEach(function(li){ var a = li.querySelector("a"); if (a && a.textContent.toLowerCase().indexOf(needle) < 0) li.classList.add("toc-hidden"); });
+    if (first) first.scrollIntoView({ block: "center", behavior: "smooth" });
+  }
+  var t;
+  input.addEventListener("input", function(){ clearTimeout(t); t = setTimeout(function(){ doSearch(input.value.trim()); }, 180); });
+  input.addEventListener("keydown", function(e){ if (e.key === "Escape") { input.value = ""; doSearch(""); input.blur(); } });
+})();</script>
+</body>
+</html>

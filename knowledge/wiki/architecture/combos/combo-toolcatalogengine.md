@@ -24,7 +24,7 @@ related:
 | Field | Value |
 |-------|-------|
 | Node ID | `combo.eng.tool.toolcatalogengine` |
-| Target engine | [[toolcatalogengine]] (`eng.tool.toolcatalogengine`) |
+| Target engine | [[tool-catalog-engine]] (`eng.tool.toolcatalogengine`) |
 | Input engines | 10 |
 | Status | ghost |
 | Parent layer | [[layer-l8]] |
@@ -64,4 +64,4 @@ inverse-variance ensemble, or a documented priority order).
 ## See also
 
 - L8 layer: [[layer-l8]]
-- Target engine: [[toolcatalogengine]]
+- Target engine: [[tool-catalog-engine]]

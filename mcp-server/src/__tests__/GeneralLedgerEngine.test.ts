@@ -436,6 +436,135 @@ describe("GeneralLedgerEngine — income statement", () => {
 });
 
 // ============================================================================
+// MARGIN TRENDS
+// ============================================================================
+
+describe("GeneralLedgerEngine — marginTrends", () => {
+  const JUN = [{ label: "2026-06", start: "2026-06-01", end: "2026-06-30" }];
+
+  it("empty ledger -> data_available:false, no fabricated margin", () => {
+    const { engine } = makeEngine();
+    const t = engine.marginTrends({ periods: JUN });
+    expect(t.data_available).toBe(false);
+    expect(t.periods[0].net_margin_pct).toBeNull();
+    expect(t.avg_net_margin_pct).toBeNull();
+  });
+
+  it("revenue 1000 - expenses 400 -> net_margin 60% for the period", () => {
+    const { engine } = makeEngine();
+    engine.recordInvoice({ invoice_id: "INV-1", amount: 1000, tax: 0, date: "2026-06-15" });
+    engine.recordPurchase({ po_id: "PO-1", amount: 400, tax: 0, category: "services", date: "2026-06-15" });
+    const t = engine.marginTrends({ periods: JUN });
+    expect(t.data_available).toBe(true);
+    expect(t.periods[0].total_revenue).toBe(1000);
+    expect(t.periods[0].total_expenses).toBe(400);
+    expect(t.periods[0].net_income).toBe(600);
+    expect(t.periods[0].net_margin_pct).toBe(60);
+    expect(t.avg_net_margin_pct).toBe(60);
+  });
+
+  it("builds N trailing calendar months ending at asOf", () => {
+    const { engine } = makeEngine();
+    const t = engine.marginTrends({ months: 3, asOf: "2026-06-15" });
+    expect(t.periods.map((p) => p.label)).toEqual(["2026-04", "2026-05", "2026-06"]);
+    expect(t.periods[2].period_end).toBe("2026-06-30");
+  });
+
+  it("data_available:true when ANY period has revenue; empty periods get null margin", () => {
+    const { engine } = makeEngine();
+    engine.recordInvoice({ invoice_id: "INV-1", amount: 800, tax: 0, date: "2026-06-10" });
+    const t = engine.marginTrends({ months: 2, asOf: "2026-06-15" }); // May (empty) + Jun (revenue)
+    expect(t.data_available).toBe(true);
+    const may = t.periods.find((p) => p.label === "2026-05");
+    const jun = t.periods.find((p) => p.label === "2026-06");
+    expect(may?.net_margin_pct).toBeNull();
+    expect(jun?.total_revenue).toBe(800);
+    expect(jun?.net_margin_pct).toBe(100); // no expenses -> 100% net margin
+  });
+});
+
+// ============================================================================
+// CASH FLOW SUMMARY
+// ============================================================================
+
+describe("GeneralLedgerEngine — cashFlowSummary", () => {
+  const JUN = [{ label: "2026-06", start: "2026-06-01", end: "2026-06-30" }];
+
+  it("empty ledger -> data_available:false, zero net cash flow", () => {
+    const { engine } = makeEngine();
+    const c = engine.cashFlowSummary({ periods: JUN });
+    expect(c.data_available).toBe(false);
+    expect(c.periods[0].net_cash_flow).toBe(0);
+    expect(c.total_net_cash_flow).toBe(0);
+  });
+
+  it("payment in (500) minus payroll cash out (240) -> net cash flow 260", () => {
+    const { engine } = makeEngine();
+    engine.recordPayment({ invoice_id: "INV-1", amount: 500, date: "2026-06-10" }); // DR 1000 Cash 500
+    engine.recordPayroll({ period: "2026-06", gross: 300, taxes: 60, net: 240, date: "2026-06-12" }); // CR 1000 Cash 240
+    const c = engine.cashFlowSummary({ periods: JUN });
+    expect(c.data_available).toBe(true);
+    expect(c.periods[0].cash_inflow).toBe(500);
+    expect(c.periods[0].cash_outflow).toBe(240);
+    expect(c.periods[0].net_cash_flow).toBe(260);
+    expect(c.total_net_cash_flow).toBe(260);
+    expect(c.cash_accounts).toContain("1000");
+  });
+
+  it("an invoice (AR only, no cash) does NOT register as cash movement", () => {
+    const { engine } = makeEngine();
+    engine.recordInvoice({ invoice_id: "INV-1", amount: 900, tax: 0, date: "2026-06-05" }); // DR 1200 AR, CR 4000 -- no cash
+    const c = engine.cashFlowSummary({ periods: JUN });
+    expect(c.data_available).toBe(false);
+    expect(c.periods[0].cash_inflow).toBe(0);
+  });
+
+  it("builds N trailing calendar months ending at asOf", () => {
+    const { engine } = makeEngine();
+    const c = engine.cashFlowSummary({ months: 2, asOf: "2026-06-15" });
+    expect(c.periods.map((p) => p.label)).toEqual(["2026-05", "2026-06"]);
+  });
+});
+
+// ============================================================================
+// REVENUE FORECAST
+// ============================================================================
+
+describe("GeneralLedgerEngine — revenueForecast", () => {
+  it("empty lookback -> data_available:false, no forecast", () => {
+    const { engine } = makeEngine();
+    const f = engine.revenueForecast({ lookbackMonths: 3, horizonMonths: 1, asOf: "2026-06-15" });
+    expect(f.data_available).toBe(false);
+    expect(f.forecast).toHaveLength(0);
+  });
+
+  it("linear-trend run-rate: rev 100/200/300 over 3 months -> slope 100, avg 200, next month 400", () => {
+    const { engine } = makeEngine();
+    engine.recordInvoice({ invoice_id: "A", amount: 100, tax: 0, date: "2026-04-15" });
+    engine.recordInvoice({ invoice_id: "B", amount: 200, tax: 0, date: "2026-05-15" });
+    engine.recordInvoice({ invoice_id: "C", amount: 300, tax: 0, date: "2026-06-15" });
+    const f = engine.revenueForecast({ lookbackMonths: 3, horizonMonths: 1, asOf: "2026-06-15" });
+    expect(f.data_available).toBe(true);
+    expect(f.history.map((h) => h.revenue)).toEqual([100, 200, 300]);
+    expect(f.avg_monthly_revenue).toBe(200);
+    expect(f.trend_slope_per_month).toBe(100);
+    expect(f.forecast).toHaveLength(1);
+    expect(f.forecast[0].label).toBe("2026-07");
+    expect(f.forecast[0].projected_revenue).toBe(400);
+  });
+
+  it("clamps a declining trend's projection at 0 (revenue is never negative)", () => {
+    const { engine } = makeEngine();
+    engine.recordInvoice({ invoice_id: "A", amount: 300, tax: 0, date: "2026-04-15" });
+    engine.recordInvoice({ invoice_id: "B", amount: 100, tax: 0, date: "2026-05-15" });
+    // 2026-06 has no revenue -> strongly negative slope -> far-out projection clamps to 0.
+    const f = engine.revenueForecast({ lookbackMonths: 3, horizonMonths: 6, asOf: "2026-06-15" });
+    expect(f.trend_slope_per_month).toBeLessThan(0);
+    expect(f.forecast.every((m) => m.projected_revenue >= 0)).toBe(true);
+  });
+});
+
+// ============================================================================
 // BALANCE SHEET
 // ============================================================================
 

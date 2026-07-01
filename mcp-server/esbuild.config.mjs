@@ -12,16 +12,21 @@
  */
 
 import esbuild from "esbuild";
+import { fileUrlExternalPlugin } from "./scripts/lib/esbuild-file-url-external.plugin.mjs";
 
 // ── Banner ─────────────────────────────────────────────────────────────────
 // ESM compat shims: provides require(), __filename, __dirname in every chunk.
+// MUST be `var` not `const`: esbuild auto-emits its own `var __filename` into any
+// chunk that bundles a transitive CJS dep — `var`+`var` merges to one binding,
+// but `const`+`var` throws "Identifier '__filename' has already been declared"
+// at module load (U-PTR02 / prism_dev:auto_wiring_scan runtime crash).
 const banner = [
   `import { createRequire as __esmCreateRequire } from 'module';`,
   `import { fileURLToPath as __esmFileURLToPath } from 'url';`,
   `import { dirname as __esmDirname } from 'path';`,
-  `const require = __esmCreateRequire(import.meta.url);`,
-  `const __filename = __esmFileURLToPath(import.meta.url);`,
-  `const __dirname = __esmDirname(__filename);`,
+  `var require = __esmCreateRequire(import.meta.url);`,
+  `var __filename = __esmFileURLToPath(import.meta.url);`,
+  `var __dirname = __esmDirname(__filename);`,
 ].join(" ");
 
 // ── Externals ──────────────────────────────────────────────────────────────
@@ -93,6 +98,7 @@ const buildOpts = {
   format: "esm",
   banner: { js: banner },
   external,
+  plugins: [fileUrlExternalPlugin],
   metafile: analyzeFlag,
   logLevel: "info",
 };

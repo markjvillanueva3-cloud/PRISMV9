@@ -1,0 +1,65 @@
+{
+  "schemaVersion": 2,
+  "platform": "hurco-winmax",
+  "writtenAt": "2026-05-30",
+  "writtenBy": "slot:echo",
+  "mirrors": "delta cad-action-templates/<platform>.actions.json (op -> automation-fn mapping)",
+  "correction": "schemaVersion 1 listed GUESSED ops (LoadProgram/GetProgramBlocks/RunVerify/GetStatus) that DO NOT EXIST. This v2 reflects the REAL IDataService contract captured live via dotnet-svcutil on 2026-05-30 (see wcf-client/CONTRACT.md + WinMaxDataService.cs).",
+  "contract": "WcfDataServices.IDataService",
+  "transports": {
+    "local": "no WinMax — our own ncToDatablocks interpretation (always available, tested)",
+    "wcf": "WinMax WcfDataService net.tcp://localhost:4502/DataServicetcp — SecurityMode.Message + UserName (VendorId), server cert cer.pfx (DNS machine-connect.hurco.com). Driven by wcf-client/PrismWinMaxShim.exe (net48). Needs a valid Hurco Vendor ID + the RT stack running.",
+    "datablock-xml": "WinMaxDataBlockXMLTools.dll via a .NET host — program <-> XML extraction (not yet wired)",
+    "ui-automation": "UIA/pywinauto over the WinMaxMill.exe Qt GUI (fallback; operator-supervised)"
+  },
+  "wcfShim": {
+    "exe": "wcf-client/PrismWinMaxShim.exe",
+    "build": "dotnet build wcf-client/PrismWinMaxShim.csproj -c Release -o wcf-client/bin",
+    "serve": "PrismWinMaxShim.exe --serve --user <VENDOR_ID> --pass <VENDOR_SECRET>  (JSON {op,args} lines on stdin -> {ok,op,value} lines on stdout)",
+    "readOnlyByDefault": true,
+    "motionGate": "--allow-motion required for any Set*/RemoteRapidMove/WirelessJog/ProcessCommandRequest op"
+  },
+  "opCount": 23,
+  "ops": {
+    "liveness": [
+      { "op": "GetVersion", "sig": "() -> string", "access": "read", "status": "shim-ready" },
+      { "op": "GetServerVersion", "sig": "() -> double", "access": "read", "status": "shim-ready" },
+      { "op": "GetClock", "sig": "() -> int", "access": "read", "status": "shim-ready" }
+    ],
+    "sid": [
+      { "op": "GetSID", "sig": "(name) -> {SID,Since,Value}", "access": "read", "status": "shim-ready", "notes": "read a named System-ID data point" },
+      { "op": "GetIntSID", "sig": "(name) -> int", "access": "read", "status": "shim-ready" },
+      { "op": "GetDoubleSID", "sig": "(name) -> double", "access": "read", "status": "shim-ready" },
+      { "op": "StringToGID", "sig": "(name) -> uint", "access": "read", "status": "shim-ready" },
+      { "op": "SetSID", "sig": "(SIDValue)", "access": "write", "status": "gated", "notes": "requires --allow-motion" },
+      { "op": "SetIntSID", "sig": "(name,int)", "access": "write", "status": "gated" },
+      { "op": "SetDoubleSID", "sig": "(name,double)", "access": "write", "status": "gated" }
+    ],
+    "bulk": [
+      { "op": "GetBulk", "sig": "(GetBulkParams{SID}) -> BulkWrapper", "access": "read", "status": "shim-partial", "notes": "structured blob: tool data, machine pos, part setup, loaded programs, NC variables, topology" },
+      { "op": "GetBulkByXML", "sig": "(name) -> XmlElement", "access": "read", "status": "shim-ready" },
+      { "op": "GetChangedBulkByXML", "sig": "(SIDValue) -> XmlElement", "access": "read", "status": "shim-partial" },
+      { "op": "SetBulk", "sig": "(SetBulkParams)", "access": "write", "status": "gated" }
+    ],
+    "telemetry": [
+      { "op": "Subscribe", "sig": "(name)", "access": "read", "status": "shim-partial", "notes": "change-notification stream" },
+      { "op": "Unsubscribe", "sig": "(name)", "access": "read", "status": "shim-partial" },
+      { "op": "GetChangedSIDs", "sig": "(csv) -> string", "access": "read", "status": "shim-ready", "notes": "candidate path to enumerate the SID name dictionary" },
+      { "op": "GetChangedSIDValues", "sig": "(SIDValue[]) -> SIDValue[]", "access": "read", "status": "shim-partial" }
+    ],
+    "program": [
+      { "op": "GetCurrentGraphicsProgram", "sig": "() -> Stream", "access": "read", "status": "shim-ready", "notes": "the loaded program's graphics — our source->interpret->compare target vs ncToDatablocks" },
+      { "op": "DownloadFile", "sig": "(name) -> Stream", "access": "read", "status": "shim-ready" }
+    ],
+    "motion": [
+      { "op": "RemoteRapidMove", "sig": "(RemoteRapidMoveData) -> bool", "access": "MOTION", "status": "gated", "notes": "PHYSICALLY MOVES THE MACHINE — operator-supervised only" },
+      { "op": "WirelessJog", "sig": "(WirelessJogData) -> bool", "access": "MOTION", "status": "gated", "notes": "PHYSICALLY MOVES THE MACHINE — operator-supervised only" },
+      { "op": "ProcessCommandRequest", "sig": "(double)", "access": "write", "status": "gated" }
+    ]
+  },
+  "goLive": {
+    "blocker": "valid Hurco Vendor ID + secret (the VendorIdValidatorReadWrite custom validator rejected dummy creds — proven 2026-05-30)",
+    "owner": "operator / Hurco vendor-integration licensing",
+    "thenNext": "enumerate SID name dictionary -> map GetSID/GetBulk reads to PRISM datablock compare; wire wcf transport in winmax-bridge.mjs to spawn PrismWinMaxShim.exe --serve"
+  }
+}

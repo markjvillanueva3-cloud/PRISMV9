@@ -14,34 +14,23 @@ export function createOrchestrationRouter(callTool: CallToolFn): Router {
 
   // --- Unified PRISM AI ---
 
+  // The "unified PUOA" abstraction (unified_execute/classify/route) was never built on prism_orchestrate;
+  // it exposes agent_*/plan_*/swarm_*/roadmap_* instead. Fail loud (501) rather than the silent 200+{error}
+  // a non-existent action produces -- wire to agent_execute / a real classify+route action when built.
+
   // POST /orchestration/unified/execute — Execute through PUOA
-  router.post("/unified/execute", async (req, res) => {
-    try {
-      const result = await callTool("prism_orchestrate", "unified_execute", req.body);
-      res.json({ ok: true, data: result });
-    } catch (e: any) {
-      res.status(500).json({ ok: false, error: e.message });
-    }
+  router.post("/unified/execute", async (_req, res) => {
+    res.status(501).json({ ok: false, error: "not_implemented", message: "unified execute not yet wired -- prism_orchestrate has no unified_execute action (use agent_execute/swarm_execute/plan_execute, or build the unified PUOA entry)." });
   });
 
   // POST /orchestration/unified/classify — Preview intent classification
-  router.post("/unified/classify", async (req, res) => {
-    try {
-      const result = await callTool("prism_orchestrate", "unified_classify", req.body);
-      res.json({ ok: true, data: result });
-    } catch (e: any) {
-      res.status(500).json({ ok: false, error: e.message });
-    }
+  router.post("/unified/classify", async (_req, res) => {
+    res.status(501).json({ ok: false, error: "not_implemented", message: "unified classify not yet wired -- prism_orchestrate has no unified_classify action. Build the unified PUOA classifier then wire this route." });
   });
 
   // POST /orchestration/unified/route — Preview tier routing
-  router.post("/unified/route", async (req, res) => {
-    try {
-      const result = await callTool("prism_orchestrate", "unified_route", req.body);
-      res.json({ ok: true, data: result });
-    } catch (e: any) {
-      res.status(500).json({ ok: false, error: e.message });
-    }
+  router.post("/unified/route", async (_req, res) => {
+    res.status(501).json({ ok: false, error: "not_implemented", message: "unified route not yet wired -- prism_orchestrate has no unified_route action (local_model_route exists for model routing). Build the unified PUOA router then wire this route." });
   });
 
   // --- Agent Execution ---

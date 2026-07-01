@@ -1,0 +1,129 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-04-16T15:45:00.000Z",
+  "source": "WEDM-AGI-P3-MS1/U-P3-04 — drift baselines for WEDMDriftDetectionEngine",
+  "description": "Per-model drift baselines used by WEDMDriftDetectionEngine. Each entry pins the reference metric window (PSI/KS/Page–Hinkley) to the training-time residual distribution. `threshold` is the PSI cut that triggers the retrain hook (hook_wedm_drift_alert). `minRetention` is enforced by WEDMModelUpdateEngine when a candidate update is proposed.",
+  "retainPolicy": {
+    "driftScoreThreshold": 0.20,
+    "minSamples": 50,
+    "maxAgeDays": 30,
+    "minRetention": 0.95
+  },
+  "detectorDefaults": {
+    "psi": { "buckets": 10, "severe": 0.50, "drift": 0.25, "moderate": 0.10 },
+    "ks": { "criticalAlpha": 0.95, "criticalCoefficient": 1.36 },
+    "pageHinkley": { "deltaSigmas": 1.0, "lambdaSqrtN": 5.0 }
+  },
+  "models": {
+    "neural_ra": {
+      "modelId": "wedm-ra-v1.8",
+      "family": "klocke_regression",
+      "target": "surface_roughness_Ra_um",
+      "baseline": { "mae": 0.08, "rmse": 0.12, "r2": 0.91, "samples": 1180 },
+      "current":  { "mae": 0.09, "rmse": 0.13, "r2": 0.90, "samples": 72 },
+      "drift": { "score": 0.05, "trend": "stable", "lastCheck": "2026-04-15T20:00:00.000Z" },
+      "threshold": 0.20,
+      "minRetention": 0.95,
+      "windowSize": 200
+    },
+    "neural_mrr": {
+      "modelId": "wedm-mrr-v2.1",
+      "family": "kunieda_regression",
+      "target": "material_removal_rate_mm3_per_min",
+      "baseline": { "mae": 2.8, "rmse": 4.2, "r2": 0.94, "samples": 1250 },
+      "current":  { "mae": 3.1, "rmse": 4.5, "r2": 0.93, "samples": 85 },
+      "drift": { "score": 0.08, "trend": "stable", "lastCheck": "2026-04-15T20:00:00.000Z" },
+      "threshold": 0.20,
+      "minRetention": 0.95,
+      "windowSize": 200
+    },
+    "wire_break_predictor": {
+      "modelId": "wedm-wirebreak-v1.2",
+      "family": "weibull_survival",
+      "target": "wire_break_event",
+      "baseline": { "precision": 0.85, "recall": 0.78, "f1": 0.81, "samples": 450 },
+      "current":  { "precision": 0.82, "recall": 0.75, "f1": 0.78, "samples": 28 },
+      "drift": { "score": 0.12, "trend": "slight_decrease", "lastCheck": "2026-04-15T20:00:00.000Z" },
+      "threshold": 0.25,
+      "minRetention": 0.95,
+      "windowSize": 150
+    },
+    "wire_life_model": {
+      "modelId": "wedm-wirelife-v1.0",
+      "family": "taylor_regression",
+      "target": "wire_life_minutes",
+      "baseline": { "mae": 6.4, "rmse": 9.1, "r2": 0.88, "samples": 620 },
+      "current":  { "mae": 7.0, "rmse": 9.8, "r2": 0.86, "samples": 41 },
+      "drift": { "score": 0.07, "trend": "stable", "lastCheck": "2026-04-15T20:00:00.000Z" },
+      "threshold": 0.20,
+      "minRetention": 0.95,
+      "windowSize": 150
+    },
+    "cycle_time_predictor": {
+      "modelId": "wedm-cycle-v1.4",
+      "family": "ensemble_regression",
+      "target": "cycle_time_minutes",
+      "baseline": { "mae": 3.1, "rmse": 4.6, "r2": 0.92, "samples": 980 },
+      "current":  { "mae": 3.3, "rmse": 4.9, "r2": 0.91, "samples": 64 },
+      "drift": { "score": 0.06, "trend": "stable", "lastCheck": "2026-04-15T20:00:00.000Z" },
+      "threshold": 0.20,
+      "minRetention": 0.95,
+      "windowSize": 200
+    },
+    "scrap_risk_predictor": {
+      "modelId": "wedm-scrap-v1.1",
+      "family": "logistic_classifier",
+      "target": "scrap_event_probability",
+      "baseline": { "precision": 0.80, "recall": 0.72, "f1": 0.76, "samples": 380 },
+      "current":  { "precision": 0.78, "recall": 0.70, "f1": 0.74, "samples": 23 },
+      "drift": { "score": 0.10, "trend": "stable", "lastCheck": "2026-04-15T20:00:00.000Z" },
+      "threshold": 0.25,
+      "minRetention": 0.95,
+      "windowSize": 150
+    },
+    "optimal_passes_planner": {
+      "modelId": "wedm-passes-v1.2",
+      "family": "policy_regression",
+      "target": "pass_count_and_params",
+      "baseline": { "mae": 0.4, "rmse": 0.6, "r2": 0.87, "samples": 540 },
+      "current":  { "mae": 0.5, "rmse": 0.7, "r2": 0.85, "samples": 37 },
+      "drift": { "score": 0.09, "trend": "stable", "lastCheck": "2026-04-15T20:00:00.000Z" },
+      "threshold": 0.20,
+      "minRetention": 0.95,
+      "windowSize": 150
+    },
+    "spark_stability_classifier": {
+      "modelId": "wedm-sparkstab-v1.0",
+      "family": "cnn_classifier",
+      "target": "spark_stability_class",
+      "baseline": { "precision": 0.88, "recall": 0.82, "f1": 0.85, "samples": 710 },
+      "current":  { "precision": 0.86, "recall": 0.80, "f1": 0.83, "samples": 49 },
+      "drift": { "score": 0.08, "trend": "stable", "lastCheck": "2026-04-15T20:00:00.000Z" },
+      "threshold": 0.25,
+      "minRetention": 0.95,
+      "windowSize": 200
+    },
+    "taper_error_predictor": {
+      "modelId": "wedm-taper-v1.0",
+      "family": "geometry_regression",
+      "target": "taper_error_mm",
+      "baseline": { "mae": 0.012, "rmse": 0.018, "r2": 0.85, "samples": 320 },
+      "current":  { "mae": 0.013, "rmse": 0.019, "r2": 0.84, "samples": 28 },
+      "drift": { "score": 0.06, "trend": "stable", "lastCheck": "2026-04-15T20:00:00.000Z" },
+      "threshold": 0.20,
+      "minRetention": 0.95,
+      "windowSize": 120
+    },
+    "corner_error_predictor": {
+      "modelId": "wedm-corner-v1.0",
+      "family": "geometry_regression",
+      "target": "corner_rounding_error_mm",
+      "baseline": { "mae": 0.008, "rmse": 0.012, "r2": 0.83, "samples": 310 },
+      "current":  { "mae": 0.009, "rmse": 0.013, "r2": 0.82, "samples": 24 },
+      "drift": { "score": 0.07, "trend": "stable", "lastCheck": "2026-04-15T20:00:00.000Z" },
+      "threshold": 0.20,
+      "minRetention": 0.95,
+      "windowSize": 120
+    }
+  }
+}

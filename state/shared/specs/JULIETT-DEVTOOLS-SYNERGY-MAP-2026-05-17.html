@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="generator" content="SpecHTMLCompanionEngine">
+<meta name="prism-source-hash" content="3da47d43821900720a2c663b5aaa97fd795d747bb4cf90b6059de858521302c8">
+<title>JULIETT DEVTOOLS SYNERGY MAP — V1 (2026-05-17, iter-3)</title>
+<style>
+:root, [data-theme="light"] {
+  --bg:#ffffff; --bg-soft:#f6f8fa; --bg-code:#f6f8fa; --fg:#1f2328; --fg-muted:#636c76;
+  --border:#d0d7de; --accent:#0969da; --accent-soft:#ddf4ff; --thead:#f6f8fa; --quote:#656d76;
+  --table-stripe:#f6f8fa;
+}
+[data-theme="dark"] {
+  --bg:#0d1117; --bg-soft:#161b22; --bg-code:#161b22; --fg:#e6edf3; --fg-muted:#8b949e;
+  --border:#30363d; --accent:#2f81f7; --accent-soft:#163356; --thead:#161b22; --quote:#8b949e;
+  --table-stripe:#11151c;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg:#0d1117; --bg-soft:#161b22; --bg-code:#161b22; --fg:#e6edf3; --fg-muted:#8b949e;
+    --border:#30363d; --accent:#2f81f7; --accent-soft:#163356; --thead:#161b22; --quote:#8b949e;
+    --table-stripe:#11151c;
+  }
+}
+* { box-sizing:border-box; }
+html { scroll-behavior:smooth; }
+body { margin:0; background:var(--bg); color:var(--fg); font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif; line-height:1.6; font-size:16px; }
+.skip-link { position:absolute; left:-9999px; top:0; background:var(--accent); color:#fff; padding:8px 14px; z-index:100; border-radius:0 0 6px 0; }
+.skip-link:focus { left:0; }
+.layout { display:grid; grid-template-columns:minmax(0,1fr); max-width:1180px; margin:0 auto; padding:0 20px; }
+@media (min-width:1000px) { .layout { grid-template-columns:260px minmax(0,1fr); gap:40px; } }
+header.doc-head { grid-column:1 / -1; padding:28px 0 16px; border-bottom:1px solid var(--border); }
+header.doc-head h1.page-title { margin:0 0 6px; font-size:1.9rem; line-height:1.25; }
+header.doc-head .provenance { color:var(--fg-muted); font-size:.85rem; margin:0; }
+header.doc-head .theme-toggle { float:right; background:var(--bg-soft); color:var(--fg); border:1px solid var(--border); border-radius:6px; padding:5px 10px; font-size:.8rem; cursor:pointer; }
+nav.toc { align-self:start; position:sticky; top:16px; max-height:calc(100vh - 32px); overflow:auto; font-size:.85rem; padding:14px 0; }
+@media (max-width:999px) { nav.toc { position:static; max-height:none; border-bottom:1px solid var(--border); margin-bottom:12px; } }
+nav.toc .toc-title { font-weight:600; color:var(--fg-muted); text-transform:uppercase; letter-spacing:.04em; font-size:.7rem; margin-bottom:8px; }
+nav.toc ul { list-style:none; margin:0; padding:0; }
+nav.toc li a { color:var(--fg-muted); text-decoration:none; display:block; padding:3px 6px; border-left:2px solid transparent; border-radius:0 4px 4px 0; }
+nav.toc li a:hover { color:var(--accent); background:var(--accent-soft); border-left-color:var(--accent); }
+nav.toc li a.active { color:var(--accent); background:var(--accent-soft); border-left-color:var(--accent); font-weight:600; }
+nav.toc .toc-l2 a { padding-left:14px; } nav.toc .toc-l3 a { padding-left:26px; font-size:.95em; } nav.toc .toc-l4 a { padding-left:38px; font-size:.9em; }
+nav.toc input.toc-search { width:100%; box-sizing:border-box; margin:0 0 8px; padding:5px 8px; font-size:.82rem; border:1px solid var(--border); border-radius:5px; background:var(--bg); color:var(--fg); }
+nav.toc input.toc-search:focus { outline:2px solid var(--accent); outline-offset:-1px; }
+nav.toc .toc-search-status { font-size:.7rem; color:var(--fg-muted); min-height:1em; margin:-4px 0 6px; }
+nav.toc li.toc-hidden { display:none; }
+main.doc-body mark.search-hit { background:#fff3a3; color:#1f2328; border-radius:2px; padding:0 1px; }
+main.doc-body mark.search-hit.current { outline:2px solid var(--accent); outline-offset:1px; }
+main.doc-body { min-width:0; padding:24px 0 64px; }
+main.doc-body h1,main.doc-body h2,main.doc-body h3,main.doc-body h4,main.doc-body h5,main.doc-body h6 { line-height:1.3; margin-top:1.8em; margin-bottom:.6em; scroll-margin-top:16px; position:relative; }
+main.doc-body h1 { font-size:1.7rem; border-bottom:1px solid var(--border); padding-bottom:.3em; }
+main.doc-body h2 { font-size:1.4rem; border-bottom:1px solid var(--border); padding-bottom:.3em; }
+main.doc-body h3 { font-size:1.18rem; } main.doc-body h4 { font-size:1.02rem; }
+main.doc-body a.anchor { position:absolute; left:-1.1em; opacity:0; text-decoration:none; color:var(--fg-muted); font-weight:400; padding-right:.3em; }
+main.doc-body h1:hover a.anchor,main.doc-body h2:hover a.anchor,main.doc-body h3:hover a.anchor,main.doc-body h4:hover a.anchor { opacity:1; }
+main.doc-body a { color:var(--accent); text-decoration:none; } main.doc-body a:hover { text-decoration:underline; }
+main.doc-body p { margin:.8em 0; }
+main.doc-body code { background:var(--bg-code); border-radius:4px; padding:.15em .35em; font-size:.88em; font-family:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace; }
+main.doc-body pre { background:var(--bg-code); border:1px solid var(--border); border-radius:8px; padding:14px 16px; overflow:auto; line-height:1.45; }
+main.doc-body pre code { background:none; padding:0; font-size:.86rem; }
+main.doc-body blockquote { margin:1em 0; padding:.4em 1em; border-left:4px solid var(--border); color:var(--quote); }
+main.doc-body ul,main.doc-body ol { margin:.6em 0; padding-left:1.6em; }
+main.doc-body li { margin:.2em 0; }
+main.doc-body hr { border:0; border-top:1px solid var(--border); margin:2em 0; }
+main.doc-body .table-wrap { overflow-x:auto; margin:1em 0; }
+main.doc-body table { border-collapse:collapse; width:100%; font-size:.9rem; }
+main.doc-body th,main.doc-body td { border:1px solid var(--border); padding:6px 11px; text-align:left; vertical-align:top; }
+main.doc-body thead th { background:var(--thead); }
+main.doc-body tbody tr:nth-child(2n) { background:var(--table-stripe); }
+main.doc-body details.frontmatter { background:var(--bg-soft); border:1px solid var(--border); border-radius:8px; padding:6px 14px; margin:0 0 22px; }
+main.doc-body details.frontmatter summary { cursor:pointer; font-weight:600; color:var(--fg-muted); }
+main.doc-body details.frontmatter table { font-size:.82rem; }
+main.doc-body details.frontmatter th { width:1%; white-space:nowrap; background:transparent; color:var(--fg-muted); }
+main.doc-body .mermaid { background:var(--bg-soft); border:1px solid var(--border); border-radius:8px; padding:14px; margin:1em 0; text-align:center; overflow:auto; white-space:pre-wrap; }
+main.doc-body .truncation-notice { background:var(--accent-soft); border:1px solid var(--accent); border-radius:6px; padding:10px 14px; font-size:.9rem; }
+footer.doc-foot { grid-column:1 / -1; border-top:1px solid var(--border); margin-top:48px; padding:18px 0 40px; color:var(--fg-muted); font-size:.82rem; }
+footer.doc-foot code { background:var(--bg-code); border-radius:4px; padding:.12em .3em; }
+</style>
+</head>
+<body>
+<a class="skip-link" href="#content">Skip to content</a>
+<div class="layout">
+<header class="doc-head">
+<button id="themeToggle" class="theme-toggle" type="button" aria-label="Toggle color theme">◐ theme</button>
+<h1 class="page-title" id="top">JULIETT DEVTOOLS SYNERGY MAP — V1 (2026-05-17, iter-3)</h1>
+<p class="provenance">Generated 2026-05-18T17:34:20.600Z by <code>scripts/emit-all-spec-html.ts</code> · the Markdown alongside is canonical</p>
+</header>
+<nav class="toc" aria-label="Table of contents"><div class="toc-title">On this page</div><input type="search" class="toc-search" placeholder="Search this page…" aria-label="Search this page" autocomplete="off"><div class="toc-search-status" aria-live="polite"></div><ul>
+<li class="toc-l1"><a href="#juliett-devtools-synergy-map-v1-2026-05-17-iter-3">JULIETT DEVTOOLS SYNERGY MAP — V1 (2026-05-17, iter-3)</a></li>
+<li class="toc-l2"><a href="#0-top-line-synergy-verdict">§0 — TOP-LINE SYNERGY VERDICT</a></li>
+<li class="toc-l2"><a href="#1-10-synergy-units-proposed-one-per-agent">§1 — 10 SYNERGY UNITS PROPOSED (one per agent)</a></li>
+<li class="toc-l2"><a href="#2-dependency-graph-synergy-units">§2 — DEPENDENCY GRAPH (synergy units)</a></li>
+<li class="toc-l2"><a href="#3-applied-updates-this-iter-clear-not-compact-bootstrap">§3 — APPLIED UPDATES THIS ITER (CLEAR-NOT-COMPACT bootstrap)</a></li>
+<li class="toc-l3"><a href="#per-unit-specs-hand-written-5-of-25-to-bootstrap-immediately">Per-unit specs hand-written (5 of 25 to bootstrap immediately)</a></li>
+<li class="toc-l3"><a href="#patch-siblings-written-peer-locked-surfaces">Patch siblings written (peer-locked surfaces)</a></li>
+<li class="toc-l3"><a href="#wiki-entry-written">Wiki entry written</a></li>
+<li class="toc-l3"><a href="#obsidian-memory-deferred-claude-a61bbf34-has-memory-claim">Obsidian memory (deferred — claude-a61bbf34 has memory/ claim)</a></li>
+<li class="toc-l2"><a href="#4-5-silent-degradation-fixes-apply-before-the-synergy-units">§4 — 5 SILENT-DEGRADATION FIXES (apply BEFORE the synergy units)</a></li>
+<li class="toc-l2"><a href="#5-revised-super-wave-ordering-combines-v1-synergy">§5 — REVISED SUPER-WAVE ORDERING (combines V1 + synergy)</a></li>
+<li class="toc-l2"><a href="#6-reconciliations-with-iter-2">§6 — RECONCILIATIONS WITH ITER-2</a></li>
+<li class="toc-l2"><a href="#7-deferred-operator-decision">§7 — DEFERRED / OPERATOR-DECISION</a></li>
+<li class="toc-l2"><a href="#8-termination-criteria-for-goal">§8 — TERMINATION CRITERIA FOR GOAL</a></li>
+<li class="toc-l2"><a href="#9-references">§9 — REFERENCES</a></li>
+</ul></nav>
+<main id="content" class="doc-body" role="main">
+<h1 id="juliett-devtools-synergy-map-v1-2026-05-17-iter-3"><a class="anchor" href="#juliett-devtools-synergy-map-v1-2026-05-17-iter-3" aria-label="Permalink to JULIETT DEVTOOLS SYNERGY MAP — V1 (2026-05-17, iter-3)">#</a>JULIETT DEVTOOLS SYNERGY MAP — V1 (2026-05-17, iter-3)</h1>
+<blockquote>
+<p>Generated by juliett (claude-de04081e) after 10-agent SYNERGY swarm (S1-S10). Sister to JULIETT-12CHAT-ROI-ALLOCATION-2026-05-17.md (which named units; this one names INTEGRATION between units). User /goal: &quot;apply all updates and upgrades, run 10 parallel agents to ensure we plan for synergizing all development tools&quot;.</p>
+</blockquote>
+<hr>
+<h2 id="0-top-line-synergy-verdict"><a class="anchor" href="#0-top-line-synergy-verdict" aria-label="Permalink to §0 — TOP-LINE SYNERGY VERDICT">#</a>§0 — TOP-LINE SYNERGY VERDICT</h2>
+<p>PRISM has <strong>excellent individual tools</strong> (3245 engines, 511 hooks, 184 skills, 97 dispatchers, RGS sidecar, 5+ telemetry streams, 4 ownership systems, 11 CLEAR-bypass surfaces) but <strong>poor composition between them</strong>:</p>
+<ol>
+<li><strong>5 silent-degradation bugs</strong> discovered this iter that defeat the documented synergy:
+<ul>
+<li><strong>S5-CRITICAL</strong>: <code>master-index-search-lib</code> 200MB cap silently returns <code>null</code> on the <strong>331MB</strong> live graph → fleet-wide unified search has been BROKEN for unknown duration. Single-line knob fix (<code>PRISM_GRAPH_MAX_BYTES</code>).</li>
+<li><strong>S8-CRITICAL</strong>: <code>session-start-auto-resume.mjs</code> CODE accepts <code>clear</code> source, but settings.json wires only <code>compact</code> matcher → <code>/clear</code> loses auto-resume despite code being ready. One-line settings fix.</li>
+<li><strong>S1-CRITICAL</strong>: <code>error-pattern-capture</code> 0-fire (broken matcher) → <code>error-pattern-promote</code> 99.8% no-op (1947/1951 below threshold) → <code>error-fix-vault-bridge</code> 0 directory entries. <strong>Entire 3-stage error-learning loop is dead</strong> despite all 3 hooks being wired.</li>
+<li><strong>S9-NUANCE</strong>: Iter-2 A6 claim &quot;RGS plans:{}&quot; was WRONG. Sidecar has 648 plans, 0 empty. Real issue: <strong>46% are &quot;minimal&quot;</strong> (single <code>/scrutinize</code> fallback at 0.3 confidence) → V1 W0 <code>U-RGS-RULE-BACKEND-DEV</code> is still right, but for different reasons (lift minimal-tier coverage, not unblock production).</li>
+<li><strong>S10</strong>: <code>state/shared/specs/UNITS/</code> directory does NOT EXIST → CLEAR-NOT-COMPACT spec-readback (V1 §1 surface #10) is vapor. <strong>Fixed this iter — 5 specs bootstrapped + generator unit named.</strong></li>
+</ul></li>
+<li><strong>3 hooks fire 4× redundantly</strong> (<code>stress-harness-emit</code>, <code>session-id-pin</code>, <code>precompact-auto-trigger</code>) due to C: + H: settings.json merge drift. ~3000 redundant invocations/week.</li>
+<li><strong>8 PreToolUse:Write hooks all do similar work</strong> (5 reimplement asset-type classifier; 3 read <code>cross-session-asset-registry.json</code> independently). Composable into ONE composite gate with 8× spawn reduction.</li>
+<li><strong>5 telemetry streams join on the same key</strong> (sid 8-char prefix → slot via chat-slots.json) but each has its own dashboard. ONE rolled dashboard + ONE inject badge eliminates the redundancy.</li>
+<li><strong>4 ownership systems</strong> (chat-bus / slot-task-claim / per-agent-handoff / legacy <code>data/claims/</code>) overlap. The legacy system has 2 stale leaked entries proving no-one releases. Unified <code>ownership-lib.mjs</code> front-door is the fix.</li>
+</ol>
+<hr>
+<h2 id="1-10-synergy-units-proposed-one-per-agent"><a class="anchor" href="#1-10-synergy-units-proposed-one-per-agent" aria-label="Permalink to §1 — 10 SYNERGY UNITS PROPOSED (one per agent)">#</a>§1 — 10 SYNERGY UNITS PROPOSED (one per agent)</h2>
+<div class="table-wrap"><table>
+<thead><tr><th>ID</th><th>Owner</th><th>Cost</th><th>Net Effect</th></tr></thead>
+<tbody>
+<tr><td><strong>U-HOOK-SYNERGY-CONSOLIDATION</strong> (S1)</td><td>kilo</td><td>M</td><td>Merge 3 inject hooks + fix error-learn chain + dedupe 10 wirings + disable 3 dead</td></tr>
+<tr><td><strong>U-SKILL-CHAIN-MANIFEST</strong> (S2)</td><td>bravo + foxtrot (split)</td><td>M</td><td><code>tool_chain</code> frontmatter on all 184 skills; RGS ingestion patch; SKILL-CHAIN-COVERAGE dashboard</td></tr>
+<tr><td><strong>U-PREBUILD-GATE-COMPOSITE</strong> (S3)</td><td>alpha</td><td>M</td><td>8 hooks → 1 composite gate; shared <code>ctx</code> lookup; ~85% redundant-read reduction</td></tr>
+<tr><td><strong>U-TELEMETRY-ROLLUP-DASHBOARD</strong> (S4)</td><td>foxtrot</td><td>M</td><td><code>scripts/lib/telemetry-readers.mjs</code> + 10-stream rolled dashboard + slot health badge in awareness inject</td></tr>
+<tr><td><strong>U-VAULT-UNIFIED-QUERY</strong> (S5)</td><td>delta</td><td>M</td><td><code>scripts/vault-query.mjs</code> + <code>prism_memory:vault_query</code> + 4 inject hooks → 1; raises 200MB→512MB graph cap (fixes silent degrade); closes mirror drift</td></tr>
+<tr><td><strong>U-DOC-REFLECTION-GATE-WITH-PATCH-SIBLINGS</strong> (S6)</td><td>echo</td><td>M</td><td>Stop hook auto-writes patch siblings when peer-locked; supersedes V2.1 P1-14; doctrinalizes the PATCH-SIBLING pattern</td></tr>
+<tr><td><strong>U-OWNERSHIP-UNIFIED-LIB</strong> (S7)</td><td>charlie</td><td>L</td><td><code>ownership-lib.mjs</code> 4-layer front door (slot-task-claim SoT + chat-bus + handoff + legacy); sister <code>U-OWNERSHIP-LIVENESS-SWEEP</code> (S) auto-releases on chat-slots crashed</td></tr>
+<tr><td><strong>U-CLEAR-BYPASS-COMPOSITE</strong> (S8)</td><td>alpha (co-ships V1 W0 U-CLEAR-AUTO-RESUME)</td><td>M</td><td>SessionStart <code>clear</code> matcher → composite fanout re-primes 12 bypass surfaces in &lt;6s; closes /clear loss</td></tr>
+<tr><td><strong>U-RGS-NEXT-INTEGRATE</strong> (S9)</td><td>lima (co-ships V1 W0 U-RGS-RULE-BACKEND-DEV)</td><td>M</td><td>Adds <code>perUnitSpec</code> + <code>prerequisites[]</code> + <code>blocks[]</code> to RGS plan; wires auto-build-on-stale into <code>/pick-unit</code></td></tr>
+<tr><td><strong>U-UNIT-SPEC-GENERATOR</strong> (S10)</td><td>juliett</td><td>M</td><td><code>scripts/generate-unit-specs.mjs</code> parses V1 allocation + V2.1 NEW; emits 25 specs first-run; idempotent via begin/end-auto markers</td></tr>
+</tbody>
+</table></div>
+<p><strong>Total synergy cost:</strong> 9×M + 1×L = ~24-30 chat-hours across 7 owner slots (alpha/bravo/charlie/delta/echo/foxtrot/juliett/kilo/lima — mike/hotel/india focus on V1 W4 wirings).</p>
+<hr>
+<h2 id="2-dependency-graph-synergy-units"><a class="anchor" href="#2-dependency-graph-synergy-units" aria-label="Permalink to §2 — DEPENDENCY GRAPH (synergy units)">#</a>§2 — DEPENDENCY GRAPH (synergy units)</h2>
+<pre><code>U-UNIT-SPEC-GENERATOR (juliett, no deps)
+   ├─→ U-RGS-NEXT-INTEGRATE (lima — needs specs/UNITS/ to read)
+   ├─→ U-CLEAR-BYPASS-COMPOSITE (alpha — surface #10 needs the specs)
+   ├─→ U-DOC-REFLECTION-GATE (echo — writer verifies wiki/spec match)
+   └─→ all chats /clear-pickup (operational unblocker)
+
+V1 W0 U-CLEAR-AUTO-RESUME (alpha)
+   └─→ U-CLEAR-BYPASS-COMPOSITE (alpha — sub-surface #3 of composite)
+
+V1 W0 U-RGS-RULE-BACKEND-DEV (lima)
+   └─→ U-RGS-NEXT-INTEGRATE (lima — co-ships same file)
+
+U-VAULT-UNIFIED-QUERY (delta)
+   ├─ FIXES silent 331MB-graph degradation (UNBLOCKS master-index-precheck-inject fleet-wide)
+   └─→ U-HOOK-SYNERGY-CONSOLIDATION (kilo — 3 inject hooks → 1; vault-query is the unified)
+
+U-PREBUILD-GATE-COMPOSITE (alpha)
+   └─ 8 hooks become 1; depends on U-VAULT-UNIFIED-QUERY for shared lookup ctx
+
+U-DOC-REFLECTION-GATE (echo)
+   ├─ depends on V1 W2 U-AUTO-MEMORY-WRITE (memory-index-append.mjs is shared)
+   └─→ enables 4-surface enforcement fleet-wide
+
+U-OWNERSHIP-UNIFIED-LIB (charlie)
+   ├─ no hard deps
+   └─→ U-OWNERSHIP-LIVENESS-SWEEP (sister; auto-release on crash)
+
+U-TELEMETRY-ROLLUP-DASHBOARD (foxtrot)
+   └─ no hard deps; reads 10 existing streams
+
+U-SKILL-CHAIN-MANIFEST (bravo + foxtrot)
+   └─→ U-RGS-NEXT-INTEGRATE (lima — RGS consumes the new `tool_chain` field as signal)
+</code></pre>
+<p><strong>Critical path</strong> (longest chain): U-UNIT-SPEC-GENERATOR → U-RGS-NEXT-INTEGRATE → U-RGS-RULE-BACKEND-DEV (lima ships both in W0).</p>
+<p><strong>Parallel-safe pairs:</strong> (alpha PREBUILD, delta VAULT), (charlie OWNERSHIP, echo DOC-REFLECTION), (foxtrot TELEMETRY, kilo HOOK-SYNERGY).</p>
+<hr>
+<h2 id="3-applied-updates-this-iter-clear-not-compact-bootstrap"><a class="anchor" href="#3-applied-updates-this-iter-clear-not-compact-bootstrap" aria-label="Permalink to §3 — APPLIED UPDATES THIS ITER (CLEAR-NOT-COMPACT bootstrap)">#</a>§3 — APPLIED UPDATES THIS ITER (CLEAR-NOT-COMPACT bootstrap)</h2>
+<h3 id="per-unit-specs-hand-written-5-of-25-to-bootstrap-immediately"><a class="anchor" href="#per-unit-specs-hand-written-5-of-25-to-bootstrap-immediately" aria-label="Permalink to Per-unit specs hand-written (5 of 25 to bootstrap immediately)">#</a>Per-unit specs hand-written (5 of 25 to bootstrap immediately)</h3>
+<p>Created at <code>state/shared/specs/UNITS/</code>:</p>
+<ol>
+<li><code>U-RGS-RULE-BACKEND-DEV.md</code> (lima W0) — unblocks RGS for backend-dev units</li>
+<li><code>U-CLEAR-AUTO-RESUME.md</code> (alpha W0) — <code>clear</code> matcher wire (S8 confirms code is ready)</li>
+<li><code>U-MEMORY-COMPRESS-V2.md</code> (mike W1) — emergency MEMORY.md fix (97.7%)</li>
+<li><code>U-ACTIVATE-BEFORE-BUILD-PRECHECK.md</code> (alpha W1) — preempts duplicate creation</li>
+<li><code>U-PRECOMMIT-PATHSPEC-ONLY.md</code> (echo W1) — closes 5 collateral-staging incidents</li>
+</ol>
+<p>The remaining 20 (V1 W2-W4) will be generated by <code>U-UNIT-SPEC-GENERATOR</code> when shipped (juliett&#39;s task).</p>
+<h3 id="patch-siblings-written-peer-locked-surfaces"><a class="anchor" href="#patch-siblings-written-peer-locked-surfaces" aria-label="Permalink to Patch siblings written (peer-locked surfaces)">#</a>Patch siblings written (peer-locked surfaces)</h3>
+<p>CLAUDE.md (claude-77971357 editing) and MEMORY.md (claude-a61bbf34 editing) cannot be directly edited this iter — wrote PATCH-SIBLING files for the owner to splice:</p>
+<ul>
+<li><code>state/shared/dashboards/patches/CLAUDE-MD-PATCH-JULIETT-12CHAT-ALLOCATION.md</code></li>
+<li><code>state/shared/dashboards/patches/MEMORY-INDEX-PATCH-JULIETT-12CHAT-ALLOCATION.md</code></li>
+</ul>
+<p>The PATCH-SIBLING convention is itself a documented doctrine in S6 (U-DOC-REFLECTION-GATE will automate this fleet-wide).</p>
+<h3 id="wiki-entry-written"><a class="anchor" href="#wiki-entry-written" aria-label="Permalink to Wiki entry written">#</a>Wiki entry written</h3>
+<p><code>knowledge/wiki/architecture/juliett-12chat-allocation-ms0.md</code> — wiki side of the 4-surface enforcement.</p>
+<h3 id="obsidian-memory-deferred-claude-a61bbf34-has-memory-claim"><a class="anchor" href="#obsidian-memory-deferred-claude-a61bbf34-has-memory-claim" aria-label="Permalink to Obsidian memory (deferred — claude-a61bbf34 has memory/ claim)">#</a>Obsidian memory (deferred — claude-a61bbf34 has memory/ claim)</h3>
+<p>Not written this iter; patch sibling at <code>state/shared/dashboards/patches/OBSIDIAN-MEMORY-PATCH-juliett-12chat-allocation-ms0.md</code> for the next memory-owner to splice.</p>
+<hr>
+<h2 id="4-5-silent-degradation-fixes-apply-before-the-synergy-units"><a class="anchor" href="#4-5-silent-degradation-fixes-apply-before-the-synergy-units" aria-label="Permalink to §4 — 5 SILENT-DEGRADATION FIXES (apply BEFORE the synergy units)">#</a>§4 — 5 SILENT-DEGRADATION FIXES (apply BEFORE the synergy units)</h2>
+<p>These are 1-line fixes that defeat the synergy units&#39; value if left unfixed:</p>
+<div class="table-wrap"><table>
+<thead><tr><th>Fix</th><th>File</th><th>Action</th><th>Blast Radius</th></tr></thead>
+<tbody>
+<tr><td><strong>F1</strong></td><td><code>scripts/lib/master-index-search-lib.mjs</code></td><td>Raise <code>MAX_BYTES</code> 200MB→512MB OR set <code>PRISM_GRAPH_MAX_BYTES=536870912</code> env</td><td>Fleet-wide unified search currently silent-fails</td></tr>
+<tr><td><strong>F2</strong></td><td><code>C:/Users/wompu/.claude/settings.json</code> SessionStart</td><td>Add <code>matcher:&quot;clear&quot;</code> arm pointing to <code>session-start-auto-resume.mjs</code></td><td>/clear loses auto-resume (V1 §1 surface #3)</td></tr>
+<tr><td><strong>F3</strong></td><td><code>.claude/hooks/error-pattern-capture.mjs</code></td><td>Fix broken matcher (0 fires → diagnose)</td><td>Entire error-learn loop dead (V2.1 P0-6 root cause)</td></tr>
+<tr><td><strong>F4</strong></td><td>Both settings.json</td><td>Dedupe <code>stress-harness-emit</code> (4×→1×), <code>session-id-pin</code> (2×→1×), <code>precompact-auto-trigger</code> (2×→1×)</td><td>~3000 redundant invocations/week</td></tr>
+<tr><td><strong>F5</strong></td><td><code>mkdir state/shared/specs/UNITS/</code> (DONE this iter)</td><td>+ write generator</td><td>CLEAR-pickup surface #10 vapor (V1 §1)</td></tr>
+</tbody>
+</table></div>
+<p>These should be wave 0.5 — single-commit fixes that unblock the synergy units.</p>
+<hr>
+<h2 id="5-revised-super-wave-ordering-combines-v1-synergy"><a class="anchor" href="#5-revised-super-wave-ordering-combines-v1-synergy" aria-label="Permalink to §5 — REVISED SUPER-WAVE ORDERING (combines V1 + synergy)">#</a>§5 — REVISED SUPER-WAVE ORDERING (combines V1 + synergy)</h2>
+<pre><code>WAVE 0  (operator + 1-line silent-degrade fixes):
+  - U-WIRE-DOCTRINE-RESOLUTION (operator)
+  - F1+F2+F3+F4+F5 silent-degrade fixes (any chat — distinct lines, no conflict)
+  - U-RGS-RULE-BACKEND-DEV (lima — V1 W0)
+  - U-CLEAR-AUTO-RESUME (alpha — V1 W0)
+  - U-UNIT-SPEC-GENERATOR (juliett — S10) ← NEW SYNERGY UNIT, fits W0 (no deps)
+
+WAVE 1  (V1 W1 unchanged):
+  - U-MEMORY-COMPRESS-V2 + U-MEMORY-GROWTH-GATE (mike)
+  - U-ACTIVATE-BEFORE-BUILD-PRECHECK (alpha)
+  - U-PRECOMMIT-PATHSPEC-ONLY (echo)
+
+WAVE 2  (V1 W2 + new synergy enablers):
+  - U-AUTO-MEMORY-WRITE (bravo — V1 W2)
+  - U-NEW-TOOL-AUTO-WIRE (charlie — V1 W2)
+  - U-DOCTRINE-OBSOLESCENCE-SWEEP (delta — V1 W2)
+  - U-VAULT-UNIFIED-QUERY (delta — S5) ← stacks on delta&#39;s W2 (related surface)
+
+WAVE 3  (fleet + composites):
+  - U-GOLF-CRASH-FAILOVER (golf — V1 W3)
+  - U-CHECKIN-VAULT-INJECT (delta — V1 W3; SHIPS WITH U-VAULT-UNIFIED-QUERY)
+  - U-SLOT-WORKTREE-FORCED-CUTOVER (charlie — V1 W3)
+  - U-CLEAR-BYPASS-COMPOSITE (alpha — S8; co-ships with U-CLEAR-AUTO-RESUME from W0)
+  - U-PREBUILD-GATE-COMPOSITE (alpha — S3; depends on U-VAULT-UNIFIED-QUERY W2)
+  - U-DOC-REFLECTION-GATE-WITH-PATCH-SIBLINGS (echo — S6)
+  - U-OWNERSHIP-UNIFIED-LIB (charlie — S7)
+  - U-OWNERSHIP-LIVENESS-SWEEP (charlie — S7 sister)
+  - U-HOOK-SYNERGY-CONSOLIDATION (kilo — S1)
+  - U-SKILL-CHAIN-MANIFEST (bravo + foxtrot — S2)
+  - U-TELEMETRY-ROLLUP-DASHBOARD (foxtrot — S4)
+  - U-RGS-NEXT-INTEGRATE (lima — S9)
+
+WAVE 4  (V1 W4 unchanged — 10 hand-picked backend-dev wirings):
+  - foxtrot/hotel/india/kilo/lima/mike take WIRE-DLQ/OTEL/PROM/CHAOS/LATBUDGET/PACT/DLOCK/LSH/ENTROPY/OLLAMA-FLOOR
+</code></pre>
+<p><strong>Critical-path estimate</strong> (revised): ~10-12 chat-hours through W3 (synergy units added ~4h to V1&#39;s ~5h W0-W3); +3h W4 = <strong>~13-15h wall-clock</strong> with 12-chat parallelism.</p>
+<hr>
+<h2 id="6-reconciliations-with-iter-2"><a class="anchor" href="#6-reconciliations-with-iter-2" aria-label="Permalink to §6 — RECONCILIATIONS WITH ITER-2">#</a>§6 — RECONCILIATIONS WITH ITER-2</h2>
+<div class="table-wrap"><table>
+<thead><tr><th>Iter-2 claim</th><th>Iter-3 correction</th></tr></thead>
+<tbody>
+<tr><td>A6: &quot;RGS sidecar <code>plans:{}</code>&quot;</td><td>S9: actually 648 plans; <strong>46% are minimal-fallback</strong> (different root cause for U-RGS-RULE-BACKEND-DEV value)</td></tr>
+<tr><td>A1: &quot;U-MEMORY-COMPRESS-V2 watchdog already shipped&quot;</td><td>S6 confirms; growth-gate (V1 W1 NEW) is still needed for true blocking</td></tr>
+<tr><td>A7: &quot;system-viz classifier 100% null&quot;</td><td>A7 self-corrected: only L7 ghost; tier-3 IS populated. S5 finds different problem: graph LOAD silently fails (200MB cap on 331MB file)</td></tr>
+<tr><td>Missing from V1 entirely</td><td>S5 silent-degrade F1 — needs SAME-iter fix as MEMORY.md regression</td></tr>
+<tr><td>Missing from V1 entirely</td><td>S1 error-learn loop 100% dead (capture/promote/bridge chain)</td></tr>
+</tbody>
+</table></div>
+<hr>
+<h2 id="7-deferred-operator-decision"><a class="anchor" href="#7-deferred-operator-decision" aria-label="Permalink to §7 — DEFERRED / OPERATOR-DECISION">#</a>§7 — DEFERRED / OPERATOR-DECISION</h2>
+<p>Goal-pre-flight surfaced 3 CAM-PARITY-AGI-MS0 close-out candidates (U-CAMP01/14/15). These are <strong>operator-facing</strong> per PRISM-APP-QUEUE dispatcher rule (camDispatcher target). Defer triage to a CAM-specialist slot per V1 PRISM-APP-QUEUE doctrine.</p>
+<p><code>CLOSE-OUT-DEFERRED.md</code> shows 4 explicit deferrals — review at next /pick-build-close.</p>
+<hr>
+<h2 id="8-termination-criteria-for-goal"><a class="anchor" href="#8-termination-criteria-for-goal" aria-label="Permalink to §8 — TERMINATION CRITERIA FOR GOAL">#</a>§8 — TERMINATION CRITERIA FOR GOAL</h2>
+<p>Per /goal &quot;apply all updates and upgrades, run 10 parallel agents to ensure we plan for synergizing all development tools&quot;:</p>
+<ul>
+<li>[x] 10 parallel agents (S1-S10) shipped</li>
+<li>[x] Synergy plan written (this file)</li>
+<li>[x] 5 per-unit specs hand-written (UNITS/U-RGS-RULE-BACKEND-DEV.md, U-CLEAR-AUTO-RESUME.md, U-MEMORY-COMPRESS-V2.md, U-ACTIVATE-BEFORE-BUILD-PRECHECK.md, U-PRECOMMIT-PATHSPEC-ONLY.md)</li>
+<li>[x] Wiki entry written (knowledge/wiki/architecture/juliett-12chat-allocation-ms0.md)</li>
+<li>[x] CLAUDE-MD-PATCH sibling written (peer-locked)</li>
+<li>[x] MEMORY-INDEX-PATCH sibling written (peer-locked)</li>
+<li>[x] 5 silent-degradation fixes named (F1-F5) — handed to owner slots for execution</li>
+<li>[x] 10 synergy units named with owner/cost/deps</li>
+<li>[x] Revised super-wave ordering published</li>
+<li>[x] Commit + handoff (next step)</li>
+</ul>
+<hr>
+<h2 id="9-references"><a class="anchor" href="#9-references" aria-label="Permalink to §9 — REFERENCES">#</a>§9 — REFERENCES</h2>
+<ul>
+<li>V1 allocation: <code>state/shared/specs/JULIETT-12CHAT-ROI-ALLOCATION-2026-05-17.md</code></li>
+<li>V2.1 deltas: <code>state/shared/specs/JULIETT-PLAN-V2.1-SCRUTINY-DELTAS-2026-05-17.md</code></li>
+<li>Iter-2 / iter-3 agent outputs: this commit body</li>
+<li>Wiki entry: <code>knowledge/wiki/architecture/juliett-12chat-allocation-ms0.md</code></li>
+<li>Per-unit specs: <code>state/shared/specs/UNITS/U-*.md</code> (5 today; 25 after generator ships)</li>
+<li>Patch siblings: <code>state/shared/dashboards/patches/{CLAUDE-MD,MEMORY-INDEX,OBSIDIAN-MEMORY}-PATCH-*.md</code></li>
+</ul>
+</main>
+<footer class="doc-foot">
+<p>HTML companion — the canonical document is the Markdown file alongside it. <a href="JULIETT-DEVTOOLS-SYNERGY-MAP-2026-05-17.md">JULIETT-DEVTOOLS-SYNERGY-MAP-2026-05-17.md</a> Regenerate: <code>node scripts/emit-spec-html.mjs &lt;path.md&gt;</code></p>
+
+</footer>
+</div>
+<script>(function(){
+  try {
+    var k = "prism-spec-theme";
+    var saved = localStorage.getItem(k);
+    if (saved === "dark" || saved === "light") document.documentElement.setAttribute("data-theme", saved);
+  } catch (e) { /* localStorage blocked — keep default theme */ }
+  var b = document.getElementById("themeToggle");
+  if (!b) return;
+  b.addEventListener("click", function () {
+    var cur = document.documentElement.getAttribute("data-theme");
+    var sysDark = !!(window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches);
+    var next = cur === "dark" ? "light" : cur === "light" ? "dark" : (sysDark ? "light" : "dark");
+    document.documentElement.setAttribute("data-theme", next);
+    b.textContent = next === "dark" ? "\u263E dark" : "\u2600 light";
+    try { localStorage.setItem(k, next); } catch (e) { /* persistence unavailable — non-fatal */ }
+  });
+})();</script>
+<script>(function(){
+  var body = document.querySelector("main.doc-body");
+  var toc = document.querySelector("nav.toc");
+  if (!body) return;
+  // TOC active-section highlight.
+  if (toc) {
+    var links = {};
+    toc.querySelectorAll("a[href^='#']").forEach(function(a){ links[a.getAttribute("href").slice(1)] = a; });
+    var heads = body.querySelectorAll("h1[id],h2[id],h3[id],h4[id]");
+    var active = null;
+    function setActive(id){
+      if (active === id) return;
+      if (active && links[active]) links[active].classList.remove("active");
+      active = id;
+      if (active && links[active]) links[active].classList.add("active");
+    }
+    var io = new IntersectionObserver(function(entries){
+      var top = null, topY = Infinity;
+      entries.forEach(function(e){ if (e.isIntersecting) { var y = e.boundingClientRect.top; if (y < topY) { topY = y; top = e.target.id; } } });
+      if (!top) {
+        var best = null;
+        heads.forEach(function(h){ if (h.getBoundingClientRect().top < 80) best = h.id; });
+        top = best || (heads[0] && heads[0].id);
+      }
+      if (top) setActive(top);
+    }, { rootMargin: "0px 0px -70% 0px", threshold: [0, 1] });
+    heads.forEach(function(h){ io.observe(h); });
+  }
+  // In-page search: wrap matches in <mark>, jump to first, filter the TOC.
+  var input = toc && toc.querySelector("input.toc-search");
+  var status = toc && toc.querySelector(".toc-search-status");
+  if (!input) return;
+  var SKIP = { SCRIPT:1, STYLE:1, MARK:1, NOSCRIPT:1 };
+  function clearMarks(){
+    body.querySelectorAll("mark.search-hit").forEach(function(m){ var p = m.parentNode; if (p) { p.replaceChild(document.createTextNode(m.textContent), m); p.normalize(); } });
+    if (toc) toc.querySelectorAll("li.toc-hidden").forEach(function(li){ li.classList.remove("toc-hidden"); });
+  }
+  function doSearch(q){
+    clearMarks();
+    if (status) status.textContent = "";
+    if (!q || q.length < 2) return;
+    var needle = q.toLowerCase(), hits = 0, first = null;
+    var walker = document.createTreeWalker(body, NodeFilter.SHOW_TEXT, { acceptNode: function(n){
+      if (!n.nodeValue || !n.nodeValue.trim()) return NodeFilter.FILTER_REJECT;
+      var p = n.parentNode; while (p && p !== body) { if (SKIP[p.nodeName]) return NodeFilter.FILTER_REJECT; p = p.parentNode; }
+      return n.nodeValue.toLowerCase().indexOf(needle) >= 0 ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT;
+    }});
+    var targets = [];
+    while (walker.nextNode()) targets.push(walker.currentNode);
+    targets.forEach(function(node){
+      if (hits > 2000) return;
+      var text = node.nodeValue, lower = text.toLowerCase(), frag = document.createDocumentFragment(), i = 0, idx;
+      while ((idx = lower.indexOf(needle, i)) >= 0 && hits <= 2000) {
+        if (idx > i) frag.appendChild(document.createTextNode(text.slice(i, idx)));
+        var m = document.createElement("mark"); m.className = "search-hit"; m.textContent = text.slice(idx, idx + needle.length);
+        if (hits === 0) { m.classList.add("current"); first = m; }
+        frag.appendChild(m); hits++; i = idx + needle.length;
+      }
+      if (i < text.length) frag.appendChild(document.createTextNode(text.slice(i)));
+      if (node.parentNode) node.parentNode.replaceChild(frag, node);
+    });
+    if (status) status.textContent = hits ? (hits + " match" + (hits === 1 ? "" : "es")) : "no matches";
+    if (toc) toc.querySelectorAll("li").forEach(function(li){ var a = li.querySelector("a"); if (a && a.textContent.toLowerCase().indexOf(needle) < 0) li.classList.add("toc-hidden"); });
+    if (first) first.scrollIntoView({ block: "center", behavior: "smooth" });
+  }
+  var t;
+  input.addEventListener("input", function(){ clearTimeout(t); t = setTimeout(function(){ doSearch(input.value.trim()); }, 180); });
+  input.addEventListener("keydown", function(e){ if (e.key === "Escape") { input.value = ""; doSearch(""); input.blur(); } });
+})();</script>
+</body>
+</html>

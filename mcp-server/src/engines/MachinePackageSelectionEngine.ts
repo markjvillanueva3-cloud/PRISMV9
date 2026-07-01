@@ -21,6 +21,7 @@ import { CONTROLLER_FAMILIES, type ControllerFamily } from "../constants.js";
 import { machineConfidenceCalculatorEngine, type ConfidenceResult } from "./MachineConfidenceCalculatorEngine.js";
 import { machineVocabularyNormalizerEngine } from "./MachineVocabularyNormalizerEngine.js";
 import { machineService } from "../services/MachineService.js";
+import { resolveSpindlePowerKw } from "../registries/machine-normalizer.js";
 
 // ============================================================================
 // TYPES
@@ -215,7 +216,10 @@ class MachinePackageSelectionEngine {
       },
       spindle: {
         max_rpm: machine.spindle?.max_rpm ?? machine.envelope?.max_rpm ?? 10000,
-        power: machine.spindle?.power_continuous ?? machine.spindle?.power ?? 15,
+        // U-MACHDB-06: resolve power across all 8 registry key variants (power_kW / continuousHp / ...)
+        // via the single-source resolver; fall back to the original keys + 15 kW default so behavior is a
+        // strict superset (a variant-keyed machine that previously dropped to 15 now reports its real power).
+        power: resolveSpindlePowerKw(machine.spindle).value ?? machine.spindle?.power_continuous ?? machine.spindle?.power ?? 15,
         torque: machine.spindle?.torque,
       },
       envelope: {

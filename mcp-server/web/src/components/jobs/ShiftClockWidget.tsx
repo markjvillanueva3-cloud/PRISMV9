@@ -40,7 +40,10 @@ export function ShiftClockWidget({ employeeId, employeeName, onStatusChange }: S
   useEffect(() => {
     if (!clockedIn) {
       getShiftHandoff(employeeId).then(res => {
-        const d = res?.data;
+        const d = res?.result as {
+          previous_handoff_notes?: string;
+          previous_shift?: { employee_id?: string; clock_out?: string };
+        } | undefined;
         if (d?.previous_handoff_notes) {
           setPrevHandoff({
             notes: d.previous_handoff_notes,

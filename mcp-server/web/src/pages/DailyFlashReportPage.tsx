@@ -88,7 +88,7 @@ export function DailyFlashReportPage() {
       description="The daily flash route is back as an AI-native APPW desk. It mounts the live flash payload, keeps route posture explicit, and gives leaders a safe operational summary even while the deeper reporting surface is still converging."
       surfaces={['deskCounts', 'jobDesk']}
       metrics={metrics}
-      aiSummary="PRISM AI can compress the flash payload into a standup brief, flag escalation paths, and translate raw alerts into lead actions."
+      aiSummary="Kienzle AI can compress the flash payload into a standup brief, flag escalation paths, and translate raw alerts into lead actions."
       aiContext={aiContext}
       suggestions={[
         {

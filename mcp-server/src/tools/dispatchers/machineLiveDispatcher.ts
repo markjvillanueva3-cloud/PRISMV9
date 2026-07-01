@@ -74,6 +74,7 @@ const MTCONNECT_ACTIONS = [
   "mtconnect_sample", "mtconnect_assets",
   "mtconnect_spindle_load", "mtconnect_feed_override",
   "mtconnect_machine_status", "mtconnect_alarms",
+  "mtconnect_parse_status",
 ] as const;
 
 const RTMI_ACTIONS = [
@@ -302,22 +303,30 @@ export function registerMachineLiveDispatcher(server: any): void {
         if (L3_INDUSTRY_ACTIONS.includes(action as ActionString as typeof L3_INDUSTRY_ACTIONS[number])) {
           result = l3IndustryAction(action, params);
         } else if ((MTCONNECT_ACTIONS as readonly string[]).includes(action)) {
-          const { MTConnectAdapterEngine } = await import("../../engines/MTConnectAdapterEngine.js");
-          const mtc = new MTConnectAdapterEngine({
-            agentUrl: params.agent_url || params.url || "http://localhost:5000",
-            deviceName: params.device,
-            pollIntervalMs: params.poll_interval_ms,
-          });
-          switch (action) {
-            case "mtconnect_probe": result = await mtc.probe(); break;
-            case "mtconnect_current": result = await mtc.current(); break;
-            case "mtconnect_sample": result = await mtc.sample(params.from, params.count); break;
-            case "mtconnect_assets": result = await mtc.assets(); break;
-            case "mtconnect_spindle_load": result = await mtc.getSpindleLoad(params.kienzle_pct); break;
-            case "mtconnect_feed_override": result = await mtc.getFeedOverride(); break;
-            case "mtconnect_machine_status": result = await mtc.getMachineStatus(); break;
-            case "mtconnect_alarms": { const snap = await mtc.current(); result = mtc.parseAlarms(snap); break; }
-            default: result = { error: `Unknown MTConnect action: ${action}` };
+          if (action === "mtconnect_parse_status") {
+            // Pure parser path — no network call, no adapter construction.
+            const { mtConnectLiveStatusEngine } = await import("../../engines/MTConnectLiveStatusEngine.js");
+            const items = Array.isArray(params.items) ? params.items : [];
+            const total_blocks = typeof params.total_blocks === "number" && params.total_blocks > 0 ? params.total_blocks : undefined;
+            result = mtConnectLiveStatusEngine.parse({ items, total_blocks });
+          } else {
+            const { MTConnectAdapterEngine } = await import("../../engines/MTConnectAdapterEngine.js");
+            const mtc = new MTConnectAdapterEngine({
+              agentUrl: params.agent_url || params.url || "http://localhost:5000",
+              deviceName: params.device,
+              pollIntervalMs: params.poll_interval_ms,
+            });
+            switch (action) {
+              case "mtconnect_probe": result = await mtc.probe(); break;
+              case "mtconnect_current": result = await mtc.current(); break;
+              case "mtconnect_sample": result = await mtc.sample(params.from, params.count); break;
+              case "mtconnect_assets": result = await mtc.assets(); break;
+              case "mtconnect_spindle_load": result = await mtc.getSpindleLoad(params.kienzle_pct); break;
+              case "mtconnect_feed_override": result = await mtc.getFeedOverride(); break;
+              case "mtconnect_machine_status": result = await mtc.getMachineStatus(); break;
+              case "mtconnect_alarms": { const snap = await mtc.current(); result = mtc.parseAlarms(snap); break; }
+              default: result = { error: `Unknown MTConnect action: ${action}` };
+            }
           }
         } else if ((MQTT_ACTIONS as readonly string[]).includes(action)) {
           const { MqttBridgeEngine } = await import("../../engines/MqttBridgeEngine.js");

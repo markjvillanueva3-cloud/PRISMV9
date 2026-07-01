@@ -23,11 +23,12 @@ related:
 |-------|-------|
 | Name | `pick-task` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/pick-task.md` |
+| Source | `C:/Users/wompu/.claude/commands/pick-task.md` |
 | Model | default |
 | Tags | _(none)_ |
 
 ## Description (first paragraph)
+
 
 You are about to pick and claim a task from the PRISM Roadmap Generation System (RGS) via the TaskClaimService. This connects you to the multi-Claude coordination system so multiple terminals can work on different tasks without conflicts.
 
@@ -37,7 +38,7 @@ Arguments: $ARGUMENTS
 ## Step 1: Parse Arguments
 
 Check the arguments:
-- If empty or missing: show all available tasks across all incomplete m
+- If empty or missing: show all available tasks across all incomplete
 
 <!-- AUTO-END -->
 

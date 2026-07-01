@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Archivo:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; background: #070809; height: 100%; overflow: hidden; }
+    .kz-scroll::-webkit-scrollbar { width: 8px; height: 8px; }
+    .kz-scroll::-webkit-scrollbar-thumb { background: #23262E; border-radius: 8px; }
+    @keyframes kzpulse { 0%,100% { opacity:.45 } 50% { opacity:1 } }
+  </style>
+</helmet>
+<div style="position:fixed;inset:0;background:#070809;display:flex;align-items:center;justify-content:center;overflow:hidden;">
+<div style="width:1600px;height:980px;flex:none;transform:scale({{ scale }});transform-origin:center center;display:flex;background:#0A0B0D;color:#F3F4F6;font-family:'Archivo',sans-serif;overflow:hidden;border-radius:16px;box-shadow:0 40px 120px rgba(0,0,0,0.6);">
+
+  <aside style="width:72px;flex:none;background:#0C0D10;border-right:1px solid rgba(255,255,255,0.06);display:flex;flex-direction:column;align-items:center;padding:18px 0;gap:6px;">
+    <svg viewBox="0 0 120 120" width="34" height="34" style="margin-bottom:14px;"><rect x="22" y="20" width="13" height="80" rx="1.5" fill="#F3F4F6"/><path d="M35 60 L86 22" stroke="#F3F4F6" stroke-width="13" stroke-linecap="round"/><path d="M35 60 L92 98 L92 74 L58 60 Z" fill="#FF5A2B"/></svg>
+    <button style="width:50px;height:48px;border-radius:12px;border:1px solid transparent;background:transparent;color:#6B7280;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:9px;"><span style="font-size:15px;">▤</span>WORK</button>
+    <button style="width:50px;height:48px;border-radius:12px;border:1px solid transparent;background:transparent;color:#6B7280;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:9px;"><span style="font-size:15px;">⌀</span>MAKE</button>
+    <button style="width:50px;height:48px;border-radius:12px;border:1px solid rgba(255,90,43,0.35);background:rgba(255,90,43,0.1);color:#FF7A4D;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:9px;"><span style="font-size:15px;">◎</span>LEARN</button>
+    <div style="flex:1;"></div>
+    <div style="width:38px;height:38px;border-radius:50%;background:#FF5A2B;display:flex;align-items:center;justify-content:center;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:14px;color:#0A0B0D;">{{ avatarInitials }}</div>
+  </aside>
+
+  <main style="flex:1;display:flex;flex-direction:column;min-width:0;">
+    <header style="flex:none;height:64px;border-bottom:1px solid rgba(255,255,255,0.06);display:flex;align-items:center;justify-content:space-between;padding:0 26px;background:#0C0D10;">
+      <div>
+        <div style="font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:19px;letter-spacing:-0.01em;">Kienzle Academy &amp; Coach</div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:10.5px;color:#6B7280;letter-spacing:0.04em;margin-top:1px;">JM DIE · {{ roleSub }}</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;">
+        <div style="display:inline-flex;background:#16181D;border-radius:8px;padding:3px;border:1px solid rgba(255,255,255,0.07);">
+          <button onClick="{{ setWorker }}" style="{{ workerTabStyle }}">Worker</button>
+          <button onClick="{{ setManager }}" style="{{ managerTabStyle }}">Manager</button>
+        </div>
+        <div style="display:flex;align-items:center;gap:7px;padding:7px 12px;border:1px solid rgba(255,90,43,0.25);background:rgba(255,90,43,0.06);border-radius:9px;font-family:'JetBrains Mono',monospace;font-size:11px;color:#FF7A4D;">{{ headerBadge }}</div>
+      </div>
+    </header>
+
+    <div style="flex:1;display:grid;grid-template-columns:360px minmax(0,1fr) 392px;min-height:0;">
+
+      <!-- ───────── LEFT: catalog / roster ───────── -->
+      <section class="kz-scroll" style="border-right:1px solid rgba(255,255,255,0.06);overflow-y:auto;min-width:0;padding:16px 16px 44px;background:#0A0B0D;">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:0.16em;color:#FF5A2B;margin-bottom:12px;">{{ leftHeading }}</div>
+        <sc-for list="{{ leftItems }}" as="it" hint-placeholder-count="6">
+          <div onClick="{{ it.on }}" style="{{ it.cardStyle }}">
+            <div style="display:flex;align-items:center;gap:11px;">
+              <span style="flex:none;width:34px;height:34px;border-radius:9px;background:{{ it.iconBg }};display:flex;align-items:center;justify-content:center;font-size:15px;">{{ it.icon }}</span>
+              <div style="flex:1;min-width:0;"><div style="font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:13.5px;color:{{ it.titleColor }};white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ it.title }}</div><div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:#6B7280;margin-top:1px;">{{ it.sub }}</div></div>
+              <span style="flex:none;font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;color:{{ it.metaColor }};">{{ it.meta }}</span>
+            </div>
+            <div style="height:5px;border-radius:999px;background:#1B1E24;overflow:hidden;margin-top:10px;"><div style="height:100%;width:{{ it.bar }};background:{{ it.barColor }};border-radius:999px;"></div></div>
+          </div>
+        </sc-for>
+      </section>
+
+      <!-- ───────── CENTER: lesson detail / improvement board ───────── -->
+      <section class="kz-scroll" style="overflow-y:auto;min-width:0;padding:18px 22px 44px;background:radial-gradient(900px 480px at 75% -12%, rgba(255,90,43,0.05), transparent 60%),#0B0C0F;">
+
+        <sc-if value="{{ showWorker }}" hint-placeholder-val="{{ true }}">
+          <div>
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px;">
+              <div><div style="font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.1em;color:#FF7A4D;">{{ courseCode }} · LESSON {{ lessonNum }}/{{ lessonTotal }}</div><div style="font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:21px;margin-top:3px;">{{ lessonTitle }}</div></div>
+              <span style="flex:none;font-family:'JetBrains Mono',monospace;font-size:11px;color:{{ lessonStatusColor }};padding:6px 11px;border:1px solid {{ lessonStatusColor }};border-radius:8px;">{{ lessonStatus }}</span>
+            </div>
+            <div style="display:flex;gap:14px;font-family:'JetBrains Mono',monospace;font-size:10.5px;color:#9398A2;margin-bottom:16px;"><span>⏱ {{ lessonMins }} min</span><span>◎ {{ lessonKind }}</span><span>{{ lessonCert }}</span></div>
+
+            <div style="background:#0C0D11;border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:18px 20px;margin-bottom:14px;">
+              <div style="font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.1em;color:#9398A2;margin-bottom:10px;">YOU'LL LEARN</div>
+              <sc-for list="{{ objectives }}" as="o" hint-placeholder-count="4">
+                <div style="display:flex;gap:10px;align-items:flex-start;padding:6px 0;"><span style="flex:none;margin-top:3px;color:#36D399;font-size:12px;">✓</span><span style="font-size:13px;color:#C7CCD4;line-height:1.4;">{{ o }}</span></div>
+              </sc-for>
+            </div>
+
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;">
+              <div style="background:#0C0D11;border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:16px 18px;">
+                <div style="font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.1em;color:#9398A2;margin-bottom:10px;">LESSON FLOW</div>
+                <sc-for list="{{ lessonSteps }}" as="st" hint-placeholder-count="4">
+                  <div style="display:flex;gap:10px;align-items:center;padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.05);"><span style="flex:none;width:20px;height:20px;border-radius:50%;background:{{ st.bg }};display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;font-size:10px;color:{{ st.numColor }};">{{ st.n }}</span><span style="flex:1;font-size:12.5px;color:#C7CCD4;">{{ st.label }}</span><span style="font-family:'JetBrains Mono',monospace;font-size:10px;color:#6B7280;">{{ st.mins }}m</span></div>
+                </sc-for>
+              </div>
+              <div style="background:linear-gradient(135deg,rgba(255,90,43,0.07),#0C0D11);border:1px solid rgba(255,90,43,0.22);border-radius:14px;padding:16px 18px;">
+                <div style="font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.1em;color:#FF7A4D;margin-bottom:8px;">◆ TIED TO YOUR WORK</div>
+                <div style="font-size:13px;color:#F3F4F6;line-height:1.45;margin-bottom:10px;">{{ contextTip }}</div>
+                <div style="font-family:'JetBrains Mono',monospace;font-size:10.5px;color:#9398A2;">{{ contextLink }}</div>
+              </div>
+            </div>
+
+            <div style="display:flex;gap:10px;">
+              <button style="flex:1;border:none;background:#FF5A2B;color:#0A0B0D;border-radius:11px;padding:14px;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:15px;cursor:pointer;">{{ lessonCta }}</button>
+              <button style="flex:none;border:1px solid rgba(255,255,255,0.14);background:transparent;color:#9398A2;border-radius:11px;padding:14px 20px;font-family:'Archivo',sans-serif;font-weight:600;font-size:13px;cursor:pointer;">Ask Lima ↗</button>
+            </div>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ showManager }}" hint-placeholder-val="{{ false }}">
+          <div>
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+              <div style="font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:18px;">Continuous-improvement board</div>
+              <div style="display:flex;gap:6px;"><sc-for list="{{ ciFilters }}" as="c" hint-placeholder-count="3"><button onClick="{{ c.on }}" style="{{ c.style }}">{{ c.label }}</button></sc-for></div>
+            </div>
+            <sc-for list="{{ improvements }}" as="im" hint-placeholder-count="4">
+              <div style="background:#0C0D11;border:1px solid {{ im.border }};border-radius:14px;padding:16px 18px;margin-bottom:12px;">
+                <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;">
+                  <div style="min-width:0;"><div style="display:flex;align-items:center;gap:9px;"><span style="font-family:'JetBrains Mono',monospace;font-size:9.5px;font-weight:700;letter-spacing:0.08em;color:{{ im.methodColor }};padding:3px 8px;border:1px solid {{ im.methodColor }};border-radius:6px;">{{ im.method }}</span><span style="font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:15px;">{{ im.title }}</span></div><div style="font-family:'JetBrains Mono',monospace;font-size:10.5px;color:#6B7280;margin-top:5px;">{{ im.job }}</div></div>
+                  <span style="flex:none;text-align:right;"><div style="font-family:'JetBrains Mono',monospace;font-size:9.5px;color:#6B7280;">{{ im.impactLabel }}</div><div style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:18px;color:{{ im.impactColor }};">{{ im.impact }}</div></span>
+                </div>
+                <div style="font-size:13px;color:#C7CCD4;line-height:1.45;margin-bottom:11px;">{{ im.insight }}</div>
+                <div style="display:flex;gap:8px;align-items:stretch;">
+                  <sc-for list="{{ im.dmaic }}" as="d" hint-placeholder-count="5">
+                    <div style="flex:1;min-width:0;background:#0A0B0D;border:1px solid rgba(255,255,255,0.06);border-radius:9px;padding:8px 9px;"><div style="font-family:'JetBrains Mono',monospace;font-size:8.5px;letter-spacing:0.06em;color:{{ d.color }};">{{ d.phase }}</div><div style="font-size:10.5px;color:#9398A2;line-height:1.3;margin-top:3px;">{{ d.text }}</div></div>
+                  </sc-for>
+                </div>
+              </div>
+            </sc-for>
+          </div>
+        </sc-if>
+      </section>
+
+      <!-- ───────── RIGHT: Lima coach / team coaching ───────── -->
+      <section style="border-left:1px solid rgba(255,255,255,0.06);display:flex;flex-direction:column;min-width:0;background:#0A0B0D;">
+        <div style="flex:none;display:flex;align-items:center;gap:10px;padding:16px 18px;border-bottom:1px solid rgba(255,255,255,0.06);">
+          <span style="flex:none;width:34px;height:34px;border-radius:9px;background:linear-gradient(135deg,#FF5A2B,#A8430F);display:flex;align-items:center;justify-content:center;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:14px;color:#0A0B0D;">L</span>
+          <div style="flex:1;"><div style="font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:14px;">Lima · {{ limaRole }}</div><div style="font-family:'JetBrains Mono',monospace;font-size:9.5px;color:#36D399;display:flex;align-items:center;gap:5px;"><span style="width:6px;height:6px;border-radius:50%;background:#36D399;animation:kzpulse 2s infinite;"></span>{{ limaStatus }}</div></div>
+        </div>
+        <div class="kz-scroll" style="flex:1;overflow-y:auto;padding:16px 18px;display:flex;flex-direction:column;gap:12px;">
+          <sc-for list="{{ chat }}" as="m" hint-placeholder-count="4">
+            <div style="{{ m.wrap }}">
+              <div style="{{ m.bubble }}">{{ m.text }}</div>
+            </div>
+          </sc-for>
+        </div>
+        <div style="flex:none;padding:12px 18px 16px;border-top:1px solid rgba(255,255,255,0.06);">
+          <div style="font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:0.1em;color:#6B7280;margin-bottom:8px;">{{ promptHeading }}</div>
+          <div style="display:flex;flex-direction:column;gap:7px;margin-bottom:11px;">
+            <sc-for list="{{ prompts }}" as="p" hint-placeholder-count="3">
+              <button onClick="{{ p.on }}" style="text-align:left;border:1px solid rgba(255,255,255,0.1);background:#0E0F12;color:#C7CCD4;border-radius:9px;padding:9px 12px;font-size:12px;cursor:pointer;font-family:'Archivo',sans-serif;line-height:1.3;">{{ p.text }}</button>
+            </sc-for>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;background:#14161B;border:1px solid rgba(255,255,255,0.1);border-radius:10px;padding:10px 13px;">
+            <span style="flex:1;font-size:12px;color:#6B7280;">Ask Lima anything…</span>
+            <span style="flex:none;width:28px;height:28px;border-radius:7px;background:#FF5A2B;display:flex;align-items:center;justify-content:center;color:#0A0B0D;font-size:13px;">↑</span>
+          </div>
+        </div>
+      </section>
+    </div>
+  </main>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = {
+    role: 'worker', selCourse: 'cnc', selLesson: 2, ciFilter: 'all', selJob: 'sig',
+    chatExtra: [],
+    scale: (typeof window !== 'undefined') ? Math.min(window.innerWidth / 1600, window.innerHeight / 980) : 0.6,
+  };
+  componentDidMount() { this._fit = () => this.setState({ scale: Math.min(window.innerWidth / 1600, window.innerHeight / 980) }); window.addEventListener('resize', this._fit); this._fit(); }
+  componentWillUnmount() { if (this._fit) window.removeEventListener('resize', this._fit); }
+
+  // Academy paths in logical learn order; each course: prereq gates progression
+  COURSES = [
+    { id: 'found', icon: '▦', title: 'Shop Foundations', sub: 'Safety · print reading · GD&T', done: 6, total: 6 },
+    { id: 'metro', icon: '⌖', title: 'Metrology & Inspection', sub: 'Calipers · mics · CMM · GR&R', done: 4, total: 5 },
+    { id: 'machining', icon: '⌀', title: 'Machining Fundamentals', sub: 'Speeds/feeds · Kienzle · tooling', done: 5, total: 7 },
+    { id: 'cnc', icon: '⎇', title: 'CNC Programming', sub: 'G/M code · offsets · canned cycles', done: 2, total: 6, active: true },
+    { id: 'edm', icon: '⊞', title: 'Wire & Sinker EDM', sub: 'Offsets · skim · electrodes', done: 0, total: 5, locked: true },
+    { id: 'quality', icon: '◈', title: 'Quality & SPC', sub: 'Cpk · charts · FAI / AS9102', done: 0, total: 5, locked: true },
+    { id: 'lean', icon: '♺', title: 'Lean & Six Sigma', sub: '5S · VSM · Kaizen · DMAIC', done: 0, total: 6, locked: true },
+  ];
+  LESSONS = {
+    cnc: [
+      { code: 'OP10', title: 'Coordinate systems & the WCS', mins: 22, kind: 'video + quiz', steps: [['Machine vs part zero', 6], ['G53 / G54–G59 explained', 7], ['Set a work offset', 6], ['Check: 4 questions', 3]], objectives: ['Tell machine home (G53) from part zero (G54)', 'Read an offset table', 'Set G54 from an edge find', 'Avoid the #1 crash: wrong work offset'], cert: 'counts toward CNC cert', tip: 'Your Tool Crib screen writes G54 straight from the probe — this lesson is why that number means what it does.', link: '→ Tool Crib · Work offsets' },
+      { code: 'OP20', title: 'G & M code anatomy', mins: 28, kind: 'video + sim', steps: [['Block structure N/G/X/Y/Z/F', 8], ['Modal vs non-modal', 7], ['Common M-codes', 7], ['Read a real JM program', 6]], objectives: ['Parse any block of G-code', 'Know why modal state matters', 'Read your shop\u2019s Okuma + Fanuc dialects', 'Spot a missing safe-start line'], cert: 'counts toward CNC cert', tip: 'The Post Processor outputs full modal state per line on the old Fanuc/Haas controls — you\u2019ll see exactly why in this lesson.', link: '→ Post Processor · dialects' },
+      { code: 'OP30', title: 'Canned cycles — drilling & boring', mins: 24, kind: 'video + quiz', steps: [['G81/82/83 peck drill', 8], ['G84 tapping', 6], ['G85/86 boring', 6], ['Check: 5 questions', 4]], objectives: ['Pick the right canned cycle', 'Set peck depth & dwell', 'Tap safely with rigid tapping', 'Cancel with G80 every time'], cert: 'counts toward CNC cert', tip: 'Lesson uses the SEMBLEX punch drill ops as the worked example — same part you ran this morning.', link: '→ Speed & Feed · drilling' },
+      { code: 'OP40', title: 'Cutter compensation G41/G42', mins: 26, kind: 'video + sim', steps: [['Climb vs conventional', 7], ['G41 left / G42 right', 8], ['Lead-in / lead-out', 7], ['Check: 4 questions', 4]], objectives: ['Apply cutter comp correctly', 'Use the D offset', 'Avoid gouging on lead-in', 'Adjust size with wear offset'], cert: 'counts toward CNC cert', tip: 'This is the offset the Tool Crib calls the Ø/D value — comp lives or dies on it.', link: '→ Tool Crib · Tool offsets' },
+      { code: 'OP50', title: 'Threading on the lathe', mins: 30, kind: 'video + sim', steps: [['G76 thread cycle', 9], ['Infeed methods', 8], ['Multi-start threads', 7], ['Check: 5 questions', 6]], objectives: ['Program a G76 cycle', 'Set pitch & depth', 'Choose infeed angle', 'Cut a clean 60° thread'], cert: 'counts toward CNC cert', tip: 'Ties to the threading inserts in your turret crib build.', link: '→ Tool Crib · turret' },
+      { code: 'OP60', title: 'Subprograms & macros', mins: 25, kind: 'video', steps: [['M98/M99 calls', 8], ['Variables #100+', 8], ['A simple probing macro', 9]], objectives: ['Call a subprogram', 'Use a variable', 'Read a probing macro', 'Reuse code across parts'], cert: 'completes CNC cert', tip: 'The CAM macro that drives your Trilobe Creator is exactly this — subprograms + variables.', link: '→ Trilobe Creator · CAM macro' },
+    ],
+  };
+
+  JOBS = [
+    { id: 'sig', cust: 'SIG SAUER', part: 'Carbide core cavity', no: 'JOB-4459', pace: 0.74, overPct: 88, cost: 4600 },
+    { id: 'optimas', cust: 'OPTIMAS', part: 'Hex die insert', no: 'JOB-4468', pace: 0.91, overPct: 6, cost: 550 },
+    { id: 'semblex', cust: 'SEMBLEX', part: 'Trilobe punch', no: 'JOB-4475', pace: 1.18, overPct: -12, cost: -740 },
+  ];
+
+  renderVals() {
+    const s = this.state, worker = s.role === 'worker';
+
+    // ── LEFT ──
+    let leftItems;
+    if (worker) {
+      leftItems = this.COURSES.map(c => { const on = c.id === s.selCourse; const pct = Math.round(c.done / c.total * 100); return {
+        on: () => { if (!c.locked) this.setState({ selCourse: c.id, selLesson: Math.min(c.done, (this.LESSONS[c.id] || []).length - 1) }); },
+        icon: c.locked ? '🔒' : c.icon, title: c.title, sub: c.locked ? 'locked · finish prior path' : c.sub,
+        meta: c.locked ? '—' : c.done + '/' + c.total, metaColor: c.done === c.total ? '#36D399' : c.active ? '#FF7A4D' : '#9398A2',
+        bar: pct + '%', barColor: c.done === c.total ? '#36D399' : '#FF5A2B',
+        iconBg: on ? 'rgba(255,90,43,0.15)' : (c.locked ? 'rgba(255,255,255,0.03)' : 'rgba(255,255,255,0.05)'),
+        titleColor: c.locked ? '#6B7280' : '#F3F4F6',
+        cardStyle: `padding:13px 14px;margin-bottom:8px;border-radius:13px;cursor:${c.locked ? 'not-allowed' : 'pointer'};background:${on ? 'rgba(255,90,43,0.08)' : '#0C0D11'};border:1px solid ${on ? 'rgba(255,90,43,0.4)' : 'rgba(255,255,255,0.07)'};opacity:${c.locked ? 0.55 : 1};`,
+      }; });
+    } else {
+      const team = [
+        { name: 'R. Moreno', gap: 'Lean champion · mentor', eff: 1.07, color: '#36D399' },
+        { name: 'J. Chen', gap: 'SIG cavity — program review', eff: 0.74, color: '#FF5247' },
+        { name: 'L. Garza', gap: 'Cutter comp + feeds refresh', eff: 0.86, color: '#F4B740' },
+        { name: 'M. Silva', gap: 'Roku-Roku cert due', eff: 0.82, color: '#F4B740' },
+        { name: 'D. Patel', gap: 'Setup reduction (SMED)', eff: 0.92, color: '#F4B740' },
+        { name: 'A. Farah', gap: 'On track · wire EDM', eff: 1.03, color: '#36D399' },
+      ];
+      leftItems = team.map(t => ({
+        on: () => {}, icon: t.name.split(' ')[0][0] + (t.name.split(' ')[1] || '')[0], title: t.name, sub: t.gap,
+        meta: Math.round(t.eff * 100) + '%', metaColor: t.color, bar: Math.min(100, t.eff * 70).toFixed(0) + '%', barColor: t.color,
+        iconBg: 'rgba(255,255,255,0.05)', titleColor: '#F3F4F6',
+        cardStyle: 'padding:13px 14px;margin-bottom:8px;border-radius:13px;cursor:pointer;background:#0C0D11;border:1px solid rgba(255,255,255,0.07);',
+      }));
+    }
+
+    // ── CENTER (worker lesson) ──
+    const lessons = this.LESSONS[s.selCourse] || this.LESSONS.cnc;
+    const li = Math.max(0, Math.min(lessons.length - 1, s.selLesson));
+    const L = lessons[li];
+    const course = this.COURSES.find(c => c.id === s.selCourse) || this.COURSES[3];
+    const lessonSteps = L.steps.map((st, i) => ({ n: i + 1, label: st[0], mins: st[1], bg: i < 1 ? 'rgba(54,211,153,0.15)' : 'rgba(255,255,255,0.06)', numColor: i < 1 ? '#36D399' : '#9398A2' }));
+    const done = li < course.done;
+
+    // ── CENTER (manager improvement board) ──
+    const ciJobs = this.JOBS.filter(j => s.ciFilter === 'all' ? true : s.ciFilter === 'loss' ? j.overPct > 10 : j.overPct <= 0);
+    const improvements = ciJobs.map(j => {
+      const loss = j.overPct > 40;
+      const method = loss ? 'SIX SIGMA' : j.overPct > 0 ? 'KAIZEN' : 'STANDARD WORK';
+      const methodColor = loss ? '#FF6B6B' : j.overPct > 0 ? '#F4B740' : '#36D399';
+      const insight = loss
+        ? `${j.part} runs at ${(j.pace * 100).toFixed(0)}% of standard and bled $${j.cost.toLocaleString()} in labor — the program feeds are guessed, not force-matched. This is the shop\u2019s single biggest margin leak.`
+        : j.overPct > 0
+          ? `${j.part} is ${j.overPct}% over standard cost — small, recoverable. A short Kaizen on setup and feeds closes it.`
+          : `${j.part} beats standard by ${Math.abs(j.overPct)}% (+$${Math.abs(j.cost).toLocaleString()}). Capture R. Moreno\u2019s method as the documented standard so every operator runs it.`;
+      const dmaic = loss
+        ? [['DEFINE', 'Cavity cycle 2.6× std'], ['MEASURE', 'Pace 74% · $4.6k over'], ['ANALYZE', 'Feeds set by habit, not kc'], ['IMPROVE', 'Re-post via calculator'], ['CONTROL', 'SPC the cycle time']]
+        : j.overPct > 0
+          ? [['PLAN', 'Watch one full setup'], ['DO', 'Pre-stage tools offline'], ['CHECK', 'Time the next lot'], ['ACT', 'Update the router std']]
+          : [['STANDARDIZE', 'Document the feeds'], ['SHARE', 'Train the cell'], ['SUSTAIN', 'Audit monthly']];
+      return {
+        method, methodColor, title: j.cust + ' · ' + j.part.split(' ').slice(-1) + ' improvement', job: j.no + ' · ' + j.part,
+        impactLabel: j.overPct > 0 ? 'RECOVERABLE' : 'GAIN BANKED', impact: (j.cost > 0 ? '$' + (j.cost).toLocaleString() : '+$' + Math.abs(j.cost).toLocaleString()),
+        impactColor: loss ? '#FF6B6B' : j.overPct > 0 ? '#F4B740' : '#36D399',
+        insight, border: loss ? 'rgba(255,82,71,0.25)' : 'rgba(255,255,255,0.08)',
+        dmaic: dmaic.map((d, i) => ({ phase: d[0], text: d[1], color: ['#7FB2FF', '#FF7A4D', '#F4B740', '#36D399', '#A855F7'][i % 5] })),
+      };
+    });
+
+    // ── RIGHT: Lima chat ──
+    const baseChat = worker
+      ? [
+          { who: 'lima', text: `Morning, Rafael. You\u2019re 2 lessons into CNC Programming. Cutter comp (lesson 4) lines up with the wear offsets you set on the trilobe punch today — want to jump there?` },
+          { who: 'me', text: 'Why was my pace only 74% on the SIG cavity last week?' },
+          { who: 'lima', text: `That job\u2019s program uses a fixed 0.001\u2033 feed regardless of the carbide. Run it through the Speed & Feed calculator — the Kienzle solve nearly doubles the safe feed. I queued the "Force-matched feeds" micro-lesson for you.` },
+        ]
+      : [
+          { who: 'lima', text: `Team efficiency is 96% this period. One outlier is dragging it: the SIG cavity at 74%. It\u2019s a program problem, not an operator problem.` },
+          { who: 'me', text: 'What\u2019s the highest-ROI coaching move this week?' },
+          { who: 'lima', text: `Pair J. Chen with R. Moreno for a 30-min program review on the SIG cavity, then re-post through the calculator. Recovers ~$4.6k and becomes a documented standard. I drafted the Kaizen card on the board.` },
+        ];
+    const chat = [...baseChat, ...s.chatExtra].map(m => ({
+      wrap: 'display:flex;justify-content:' + (m.who === 'me' ? 'flex-end' : 'flex-start') + ';',
+      bubble: m.who === 'me'
+        ? "max-width:84%;background:#FF5A2B;color:#0A0B0D;border-radius:13px 13px 4px 13px;padding:10px 13px;font-size:12.5px;line-height:1.45;"
+        : "max-width:84%;background:#14161B;border:1px solid rgba(255,255,255,0.08);color:#E6E8EC;border-radius:13px 13px 13px 4px;padding:10px 13px;font-size:12.5px;line-height:1.45;",
+      text: m.text,
+    }));
+
+    const promptSet = worker
+      ? [['Best feed for D2 trilobe on the Hurco?', 'For ½\u2033 4FL carbide TiAlN in D2 (kc 3100): start ~3,100 RPM / 0.0016\u2033 per tooth on Balanced. The calculator\u2019s Tool-Saving mode backs it off if your stickout is over 4×D.'], ['What does G41 actually do?', 'G41 is cutter comp left — the control offsets the tool by its radius (your D value) so you program the part edge, not the tool center. Lesson 4 walks it with a sim.'], ['Which lesson should I do next?', 'Cutter comp (CNC lesson 4). It\u2019s the offset you used on today\u2019s punch and it completes 50% of your CNC cert.']]
+      : [['Who needs coaching most?', 'J. Chen on the SIG cavity (74% pace) — but it\u2019s a program issue. One review session with Moreno fixes the whole job.'], ['Draft a Kaizen for setup time', 'Done — SMED card for D. Patel\u2019s turning cell: pre-stage tools + soft-jaw offline. Target −18 min/setup. It\u2019s on the board.'], ['Where are we losing the most margin?', 'The SIG cavity, by far: $4.6k over standard from guessed feeds. Re-posting via the calculator is the single highest-ROI move this month.']];
+    const prompts = promptSet.map(([q, a]) => ({ text: q, on: () => this.setState({ chatExtra: [...this.state.chatExtra, { who: 'me', text: q }, { who: 'lima', text: a }] }) }));
+
+    const courseDoneCount = this.COURSES.reduce((a, c) => a + c.done, 0);
+    const courseTotal = this.COURSES.reduce((a, c) => a + c.total, 0);
+
+    return {
+      scale: s.scale, role: s.role, avatarInitials: worker ? 'RM' : 'MGR',
+      roleSub: worker ? 'WORKER · RAFAEL MORENO · WIRE EDM LEAD' : 'MANAGER VIEW · CONTINUOUS IMPROVEMENT',
+      workerTabStyle: this.tab(worker), managerTabStyle: this.tab(!worker),
+      setWorker: () => this.setState({ role: 'worker', chatExtra: [] }), setManager: () => this.setState({ role: 'manager', chatExtra: [] }),
+      headerBadge: worker ? '◎ ' + courseDoneCount + '/' + courseTotal + ' lessons · 12-day streak' : '6 in cell · 96% avg eff',
+      leftHeading: worker ? 'LEARNING PATHS · IN ORDER' : 'TEAM · SKILL GAPS', leftItems,
+      showWorker: worker, showManager: !worker,
+      courseCode: course.title, lessonNum: li + 1, lessonTotal: lessons.length, lessonTitle: L.title,
+      lessonStatus: done ? 'COMPLETED' : li === course.done ? 'UP NEXT' : 'LOCKED', lessonStatusColor: done ? '#36D399' : li === course.done ? '#FF7A4D' : '#6B7280',
+      lessonMins: L.mins, lessonKind: L.kind, lessonCert: L.cert, objectives: L.objectives, lessonSteps,
+      contextTip: L.tip, contextLink: L.link, lessonCta: done ? 'Review lesson' : 'Start lesson',
+      ciFilters: [['all', 'All jobs'], ['loss', 'Losing'], ['win', 'Wins']].map(([id, label]) => ({ label, on: () => this.setState({ ciFilter: id }), style: `border:1px solid ${s.ciFilter === id ? 'rgba(255,90,43,0.5)' : 'rgba(255,255,255,0.12)'};background:${s.ciFilter === id ? 'rgba(255,90,43,0.12)' : 'transparent'};color:${s.ciFilter === id ? '#FF7A4D' : '#9398A2'};border-radius:7px;padding:5px 11px;font-size:11px;font-weight:600;cursor:pointer;font-family:'Archivo',sans-serif;` })),
+      improvements,
+      limaRole: worker ? 'your shop coach' : 'CI advisor', limaStatus: worker ? 'reads your live job data' : 'reads team + job-cost data',
+      chat, prompts, promptHeading: worker ? 'SUGGESTED — TIED TO YOUR DATA' : 'SUGGESTED — TIED TO TEAM DATA',
+    };
+  }
+  tab(on) { return `border:none;background:${on ? '#FF5A2B' : 'transparent'};color:${on ? '#0A0B0D' : '#9398A2'};border-radius:6px;padding:6px 14px;font-size:12.5px;font-weight:600;cursor:pointer;font-family:'Archivo',sans-serif;`; }
+}
+</script>
+</body>
+</html>

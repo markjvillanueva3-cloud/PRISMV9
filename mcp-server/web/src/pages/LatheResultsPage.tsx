@@ -314,7 +314,7 @@ function mapLatheResultPayload(
   }
 
   const toolsUsed: ToolUsed[] = Array.isArray(rawResult.tool_list ?? rawResult.operations)
-    ? (rawResult.tool_list ?? rawResult.operations as unknown[]).map((entry, index) => {
+    ? ((rawResult.tool_list ?? rawResult.operations) as unknown[]).map((entry: unknown, index: number) => {
       const rawTool = asRecord(entry) ?? {};
       return {
         station: typeof rawTool.tool_number === 'number' ? rawTool.tool_number : index + 1,

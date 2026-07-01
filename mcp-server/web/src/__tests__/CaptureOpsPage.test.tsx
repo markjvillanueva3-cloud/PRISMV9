@@ -22,7 +22,7 @@ async function renderPage(initialEntry = '/capture') {
   );
 
   await waitFor(() => {
-    expect(screen.getByText(/PRISM AI copilot/i)).toBeDefined();
+    expect(screen.getByText(/Kienzle AI copilot/i)).toBeDefined();
   });
 
   return view;
@@ -67,7 +67,7 @@ beforeEach(() => {
             memory: {
               identity: {
                 purpose: {
-                  value: 'PRISM is building a safety-critical manufacturing operating system with AI-native desk continuity.',
+                  value: 'Kienzle is building a safety-critical manufacturing operating system with AI-native desk continuity.',
                 },
               },
               roadmap: {
@@ -171,12 +171,12 @@ afterAll(() => {
 });
 
 describe('CaptureOpsPage', () => {
-  it('keeps the PRISM AI copilot built into the capture desk with persistent memory context', async () => {
+  it('keeps the Kienzle AI copilot built into the capture desk with persistent memory context', async () => {
     await renderPage();
 
     await waitFor(() => {
-      expect(screen.getByText(/PRISM AI copilot/i)).toBeDefined();
-      expect(screen.getByText(/Persistent PRISM memory/i)).toBeDefined();
+      expect(screen.getByText(/Kienzle AI copilot/i)).toBeDefined();
+      expect(screen.getByText(/Persistent Kienzle memory/i)).toBeDefined();
       expect(screen.getByText(/Mounted workflow continuity/i)).toBeDefined();
       expect(screen.getByText(/safety-critical manufacturing operating system with AI-native desk continuity/i)).toBeDefined();
     });

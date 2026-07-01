@@ -23,13 +23,18 @@ related:
 |-------|-------|
 | Name | `forge-postflight` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/forge-postflight.md` |
+| Source | `C:/Users/wompu/.claude/commands/forge-postflight.md` |
 | Model | default |
 | Tags | _(none)_ |
 
 ## Description (first paragraph)
 
-_(no body content)_
+
+# Forge Postflight — Shared Integration Protocol
+
+You are running the post-creation integration protocol that ensures any artifacts produced by a forge command are properly wired, indexed, DSL-compliant, and synced across the system. This protocol is called by all forge-family commands after their creation phase.
+
+**This command is designed to be called by other forge commands, not typically
 
 <!-- AUTO-END -->
 

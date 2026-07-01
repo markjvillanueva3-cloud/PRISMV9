@@ -1,0 +1,158 @@
+import { jsPDF } from "jspdf";
+import type { SfcCalculateResult } from "../types/sfc";
+import type { SfcParams } from "../components/sfc/ParameterPanel";
+import type { CalcSnapshot } from "../components/sfc/comparison-types";
+
+interface ReportData {
+  materialName: string;
+  materialGroup: string;
+  operationLabel: string;
+  toolName?: string;
+  params: SfcParams;
+  result: SfcCalculateResult;
+  machineName?: string;
+  comparison?: CalcSnapshot[];
+  imperial: boolean;
+}
+
+const mmToIn = (mm: number) => mm / 25.4;
+const mToFt = (m: number) => m * 3.28084;
+
+export function generateSfcReport(data: ReportData): void {
+  const doc = new jsPDF();
+  const pageWidth = doc.internal.pageSize.getWidth();
+  let y = 20;
+
+  // Header
+  doc.setFontSize(18);
+  doc.setFont("helvetica", "bold");
+  doc.text("PRISM SFC Calculation Report", pageWidth / 2, y, { align: "center" });
+  y += 10;
+
+  doc.setFontSize(8);
+  doc.setFont("helvetica", "normal");
+  doc.text(`Generated: ${new Date().toLocaleString()}`, pageWidth / 2, y, { align: "center" });
+  y += 4;
+  doc.setDrawColor(200);
+  doc.line(15, y, pageWidth - 15, y);
+  y += 10;
+
+  // Configuration section
+  doc.setFontSize(12);
+  doc.setFont("helvetica", "bold");
+  doc.text("Configuration", 15, y);
+  y += 8;
+
+  doc.setFontSize(9);
+  doc.setFont("helvetica", "normal");
+  const config = [
+    ["Material", `${data.materialName} (ISO ${data.materialGroup})`],
+    ["Operation", data.operationLabel],
+    ["Tool Diameter", `${data.params.tool_diameter} mm`],
+    ["Flutes", `${data.params.number_of_teeth}`],
+    ["Depth of Cut", `${data.params.depth} mm`],
+    ["Width of Cut", `${data.params.width} mm`],
+    ["Tool Material", data.params.tool_material],
+    ["Coolant", data.params.coolant],
+  ];
+  if (data.toolName) config.splice(2, 0, ["Tool", data.toolName]);
+  if (data.machineName) config.push(["Machine", data.machineName]);
+
+  for (const [label, value] of config) {
+    if (y > 260) { doc.addPage(); y = 20; }
+    doc.setFont("helvetica", "bold");
+    doc.text(`${label}:`, 20, y);
+    doc.setFont("helvetica", "normal");
+    doc.text(value, 70, y);
+    y += 5;
+  }
+  y += 5;
+
+  // Results section
+  doc.setFontSize(12);
+  doc.setFont("helvetica", "bold");
+  doc.text("Results", 15, y);
+  y += 8;
+
+  doc.setFontSize(9);
+  doc.setFont("helvetica", "normal");
+  const r = data.result;
+  const imp = data.imperial;
+
+  const results = [
+    ["Spindle Speed", `${r.spindle_speed.toFixed(0)} RPM`],
+    ["Feed Rate", imp ? `${mmToIn(r.feed_rate).toFixed(3)} in/min` : `${r.feed_rate.toFixed(1)} mm/min`],
+    ["Cutting Speed", imp ? `${mToFt(r.cutting_speed).toFixed(0)} SFM` : `${r.cutting_speed.toFixed(0)} m/min`],
+    ["Feed per Tooth", imp ? `${mmToIn(r.feed_per_tooth).toFixed(4)} in/tooth` : `${r.feed_per_tooth.toFixed(3)} mm/tooth`],
+  ];
+
+  for (const [label, value] of results) {
+    doc.setFont("helvetica", "bold");
+    doc.text(`${label}:`, 20, y);
+    doc.setFont("helvetica", "normal");
+    doc.text(value, 70, y);
+    y += 5;
+  }
+  y += 3;
+
+  // Safety score
+  if (r.safety) {
+    doc.setFontSize(10);
+    doc.setFont("helvetica", "bold");
+    const safetyColor = r.safety.score >= 0.9 ? [34, 197, 94] :
+                        r.safety.score >= 0.7 ? [245, 158, 11] : [239, 68, 68];
+    doc.setTextColor(safetyColor[0], safetyColor[1], safetyColor[2]);
+    doc.text(`Safety Score: S(x) = ${r.safety.score.toFixed(3)} — ${r.safety.status}`, 20, y);
+    doc.setTextColor(0, 0, 0);
+    y += 7;
+
+    if (r.safety.factors) {
+      doc.setFontSize(8);
+      doc.setFont("helvetica", "normal");
+      for (const [key, val] of Object.entries(r.safety.factors)) {
+        doc.text(`  ${key.replace(/_/g, " ")}: ${Number(val).toFixed(3)}`, 25, y);
+        y += 4;
+      }
+      y += 3;
+    }
+  }
+
+  // Comparison section
+  if (data.comparison && data.comparison.length > 0) {
+    if (y > 220) { doc.addPage(); y = 20; }
+    doc.setFontSize(12);
+    doc.setFont("helvetica", "bold");
+    doc.text("Comparison", 15, y);
+    y += 8;
+
+    doc.setFontSize(8);
+    // Header row
+    const colX = [20, 65, 105, 140, 170];
+    doc.setFont("helvetica", "bold");
+    doc.text("Material", colX[0], y);
+    doc.text("Operation", colX[1], y);
+    doc.text("RPM", colX[2], y);
+    doc.text("Feed", colX[3], y);
+    doc.text("S(x)", colX[4], y);
+    y += 5;
+
+    doc.setFont("helvetica", "normal");
+    for (const entry of data.comparison) {
+      if (y > 270) { doc.addPage(); y = 20; }
+      doc.text(entry.materialName.substring(0, 20), colX[0], y);
+      doc.text(entry.operationLabel.substring(0, 15), colX[1], y);
+      doc.text((entry.result?.spindle_speed ?? 0).toFixed(0), colX[2], y);
+      doc.text((entry.result?.feed_rate ?? 0).toFixed(1), colX[3], y);
+      doc.text(entry.result?.safety?.score?.toFixed(3) ?? "\u2014", colX[4], y);
+      y += 4;
+    }
+  }
+
+  // Footer
+  y = doc.internal.pageSize.getHeight() - 15;
+  doc.setFontSize(7);
+  doc.setTextColor(150);
+  doc.text("Generated by PRISM v9 SFC Calculator", pageWidth / 2, y, { align: "center" });
+
+  doc.save(`PRISM-SFC-Report-${new Date().toISOString().slice(0, 10)}.pdf`);
+}

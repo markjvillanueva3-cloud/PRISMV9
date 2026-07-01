@@ -1,8 +1,11 @@
 ---
 description: Force-claim slot KILO + run the full /checkin pipeline. NATO-phonetic shortcut for `/checkin --preferSlot kilo --force`. Slot added 2026-05-16.
 allowed-tools: Bash, Read, Edit, Write, Glob, Grep, TodoWrite, Task, AskUserQuestion
+composes_with:
+  - "/checkin"
+  - "/handoff"
+  - "/pick-unit"
 ---
-
 # /checkin-kilo — slot-locked /checkin
 
 Force-takes the **kilo** slot (evicting any prior owner with `--force true --confirmRecent true`), binds the handoff to `kilo-work`, then runs the standard `/checkin` pipeline. Slot added 2026-05-16 to support `/checkin-<slot>` for the full NATO alphabet through Lima.

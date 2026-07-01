@@ -1,0 +1,386 @@
+{
+  "roadmapId": "PRISM-MAX-v1",
+  "version": "1.0.0",
+  "created": "2026-03-20",
+  "title": "PRISM MAX — Master Enhancement Roadmap",
+  "tracks": 5,
+  "milestones": 15,
+  "units": [
+    {
+      "id": "U-PRIS01",
+      "title": "PRISM-MAX-roadmap — Coordinator",
+      "description": "Master coordinator envelope for PRISM-MAX-roadmap. Tracks sub-milestones, aggregates their exit gates, and opens closure after every child milestone flips to complete. Follow 4-LOOP at the aggregation layer.",
+      "exit_conditions": [
+        "All sub-milestones listed in dependencies reach status=complete",
+        "Aggregate scrutiny score ≥80 across children",
+        "Cross-track coherence verified: no orphan engines, no duplicate actions",
+        "Final /rgs pass through the 10-agent gate returns PASS"
+      ],
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ],
+      "status": "pending",
+      "role": "coordinator"
+    }
+  ],
+  "spec": "docs/superpowers/specs/2026-03-20-prism-max-roadmap-design.md",
+  "milestones_list": [
+    {
+      "id": "PROD-MS0",
+      "track": "A",
+      "title": "Build Quality Hardening",
+      "units": 7,
+      "quarter": "Q1-2026",
+      "status": "complete",
+      "completed_at": "2026-03-20",
+      "dependencies": [],
+      "unit_ids": [
+        "P0-U01",
+        "P0-U02",
+        "P0-U03",
+        "P0-U04",
+        "P0-U05",
+        "P0-U06",
+        "P0-U07"
+      ]
+    },
+    {
+      "id": "PROD-MS1",
+      "track": "A",
+      "title": "Web App Consolidation + Auth",
+      "units": 5,
+      "quarter": "Q2-2026",
+      "status": "complete",
+      "completed_at": "2026-03-21",
+      "dependencies": [
+        "PROD-MS0"
+      ],
+      "unit_ids": [
+        "P1-U01",
+        "P1-U02",
+        "P1-U03",
+        "P1-U04",
+        "P1-U05"
+      ]
+    },
+    {
+      "id": "PROD-MS2",
+      "track": "A",
+      "title": "Deployment Pipeline",
+      "units": 5,
+      "quarter": "Q2-2026",
+      "status": "pending",
+      "dependencies": [
+        "PROD-MS1"
+      ],
+      "unit_ids": [
+        "P2-U01",
+        "P2-U02",
+        "P2-U03",
+        "P2-U04",
+        "P2-U05"
+      ]
+    },
+    {
+      "id": "REV-MS0",
+      "track": "B",
+      "title": "SaaS API Layer",
+      "units": 5,
+      "quarter": "Q3-2026",
+      "status": "pending",
+      "dependencies": [
+        "PROD-MS1",
+        "TECH-MS0"
+      ],
+      "unit_ids": [
+        "R0-U01",
+        "R0-U02",
+        "R0-U03",
+        "R0-U04",
+        "R0-U05"
+      ]
+    },
+    {
+      "id": "REV-MS1",
+      "track": "B",
+      "title": "Desktop App (Tauri)",
+      "units": 5,
+      "quarter": "Q3-2026",
+      "status": "pending",
+      "dependencies": [
+        "PROD-MS1"
+      ],
+      "unit_ids": [
+        "R1-U01",
+        "R1-U02",
+        "R1-U03",
+        "R1-U04",
+        "R1-U05"
+      ]
+    },
+    {
+      "id": "REV-MS2",
+      "track": "B",
+      "title": "Shop Floor Kiosk Mode",
+      "units": 5,
+      "quarter": "Q4-2026",
+      "status": "pending",
+      "dependencies": [
+        "PROD-MS1"
+      ],
+      "unit_ids": [
+        "R2-U01",
+        "R2-U02",
+        "R2-U03",
+        "R2-U04",
+        "R2-U05"
+      ]
+    },
+    {
+      "id": "REV-MS3",
+      "track": "B",
+      "title": "Training Marketplace",
+      "units": 5,
+      "quarter": "Q4-2026",
+      "status": "pending",
+      "dependencies": [
+        "ACAD-MS2"
+      ],
+      "unit_ids": [
+        "R3-U01",
+        "R3-U02",
+        "R3-U03",
+        "R3-U04",
+        "R3-U05"
+      ]
+    },
+    {
+      "id": "TECH-MS0",
+      "track": "C",
+      "title": "Output Schema + Completion Coverage",
+      "units": 5,
+      "quarter": "Q1-2026",
+      "status": "complete",
+      "completed_at": "2026-03-20",
+      "dependencies": [],
+      "unit_ids": [
+        "T0-U01",
+        "T0-U02",
+        "T0-U03",
+        "T0-U04",
+        "T0-U05"
+      ]
+    },
+    {
+      "id": "TECH-MS1",
+      "track": "C",
+      "title": "Sampling Workflows",
+      "units": 5,
+      "quarter": "Q2-2026",
+      "status": "complete",
+      "completed_at": "2026-03-21",
+      "dependencies": [
+        "TECH-MS0"
+      ],
+      "unit_ids": [
+        "T1-U01",
+        "T1-U02",
+        "T1-U03",
+        "T1-U04",
+        "T1-U05"
+      ]
+    },
+    {
+      "id": "TECH-MS2",
+      "track": "C",
+      "title": "Real-Time Machine Intelligence",
+      "units": 5,
+      "quarter": "Q3-2026",
+      "status": "complete",
+      "completed_at": "2026-03-21",
+      "dependencies": [],
+      "unit_ids": [
+        "T2-U01",
+        "T2-U02",
+        "T2-U03",
+        "T2-U04",
+        "T2-U05"
+      ]
+    },
+    {
+      "id": "KNOW-MS0",
+      "track": "D",
+      "title": "Manufacturing Knowledge Graph",
+      "units": 5,
+      "quarter": "Q4-2026",
+      "status": "complete",
+      "completed_at": "2026-03-21",
+      "dependencies": [],
+      "unit_ids": [
+        "K0-U01",
+        "K0-U02",
+        "K0-U03",
+        "K0-U04",
+        "K0-U05"
+      ]
+    },
+    {
+      "id": "KNOW-MS1",
+      "track": "D",
+      "title": "AI-Powered Troubleshooting",
+      "units": 5,
+      "quarter": "Q4-2026",
+      "status": "complete",
+      "completed_at": "2026-03-21",
+      "dependencies": [
+        "TECH-MS2"
+      ],
+      "unit_ids": [
+        "K1-U01",
+        "K1-U02",
+        "K1-U03",
+        "K1-U04",
+        "K1-U05"
+      ]
+    },
+    {
+      "id": "ACAD-MS0",
+      "track": "E",
+      "title": "Curriculum Engine + 3 Foundation Courses",
+      "units": 6,
+      "quarter": "Q1-2026",
+      "status": "complete",
+      "completed_at": "2026-03-20",
+      "dependencies": [
+        "PROD-MS1"
+      ],
+      "unit_ids": [
+        "A0-U01",
+        "A0-U02",
+        "A0-U03",
+        "A0-U04",
+        "A0-U05",
+        "A0-U06"
+      ]
+    },
+    {
+      "id": "ACAD-MS1",
+      "track": "E",
+      "title": "Advanced Courses + Visual Lab",
+      "units": 5,
+      "quarter": "Q2-2026",
+      "status": "complete",
+      "completed_at": "2026-03-21",
+      "dependencies": [
+        "ACAD-MS0"
+      ],
+      "unit_ids": [
+        "A1-U01",
+        "A1-U02",
+        "A1-U03",
+        "A1-U04",
+        "A1-U05"
+      ]
+    },
+    {
+      "id": "ACAD-MS2",
+      "track": "E",
+      "title": "Master Level + Certification",
+      "units": 5,
+      "quarter": "Q3-2026",
+      "status": "complete",
+      "completed_at": "2026-03-21",
+      "dependencies": [
+        "ACAD-MS1"
+      ],
+      "unit_ids": [
+        "A2-U01",
+        "A2-U02",
+        "A2-U03",
+        "A2-U04",
+        "A2-U05"
+      ]
+    }
+  ],
+  "status": "not_started",
+  "smart_config": {
+    "role": "implementer + reviewer",
+    "model": "sonnet",
+    "effort": "HIGH",
+    "context_budget": "65%"
+  },
+  "mcp_lifecycle": {
+    "session_start": [
+      "prism_session:context_boot",
+      "prism_session:dispatcher_map",
+      "prism_session:memory_recall",
+      "prism_session:system_snapshot",
+      "prism_session:action_search"
+    ],
+    "during_work": [
+      "prism_session:auto_checkpoint",
+      "prism_session:tool_route_best",
+      "prism_session:wip_capture"
+    ],
+    "session_end": [
+      "prism_session:memory_save",
+      "prism_session:system_snapshot",
+      "prism_session:checkpoint_enhanced"
+    ]
+  },
+  "forge_triple": {
+    "protective_hook": "prism-max-roadmap-gate",
+    "mcp_action": "prism_prism-max:prism_max_roadmap_run",
+    "skill_command": "/prism-max-roadmap",
+    "ownership": "DECLARED — BUILT in terminal unit of this milestone"
+  },
+  "feature_cascade": {
+    "new_hooks": [
+      "prism-max-roadmap-gate"
+    ],
+    "new_actions": [
+      "prism_max_roadmap_run"
+    ],
+    "new_skills": [
+      "/prism-max-roadmap"
+    ],
+    "available_to": [
+      "downstream CAMX milestones",
+      "prism app consumers"
+    ]
+  },
+  "knowledge_sources": {
+    "engines": [
+      "ENGINE_DIGEST.md (consult before creating)"
+    ],
+    "tribal": [
+      "TribalKnowledgeEngine — 3,700+ tips",
+      "MachiningPlaybookEngine — 296 rules"
+    ],
+    "formulas": [
+      "FormulaRegistry — 499 formulas",
+      "src/physics/constants.ts — canonical"
+    ],
+    "reference": [
+      "EXTERNAL-REFERENCE-PROGRAMS-INDEX.md",
+      "MaterialRegistry",
+      "MachineRegistry",
+      "ToolCatalogEngine (95,608 tools)"
+    ]
+  },
+  "intent": "Deliver PRISM MAX — Master Enhancement Roadmap per roadmap spec.",
+  "compact_checkpoint": "every 3 units — auto-triggered by hook",
+  "enforcement_hooks_active": [
+    "physics agent",
+    "wiring agent",
+    "constants checker",
+    "stub detector",
+    "test quality",
+    "forge-triple gate",
+    "session audit agent"
+  ],
+  "_role": "coordinator"
+}

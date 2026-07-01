@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `magazine-optimize` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/magazine-optimize.md` |
+| Source | `C:/Users/wompu/.claude/commands/magazine-optimize.md` |
 | Model | default |
 | Tags | _(none)_ |
 

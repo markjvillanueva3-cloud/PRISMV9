@@ -1,0 +1,81 @@
+{
+  "id": "SYS-MS2",
+  "title": "Test Coverage Phase 2",
+  "track": "SYS",
+  "status": "complete",
+  "description": "Expand test coverage to 163 untested engines and 63 untested cadence functions. QA-MS13 identified 95% engine test gap and 94% cadence test gap. Safety-critical engines first.",
+  "units": [
+    {
+      "id": "SYS-MS2-U00",
+      "title": "Engine Test Framework",
+      "status": "complete",
+      "steps": [
+        {"number": 1, "instruction": "Create test harness for engine unit tests (mock registry data, standard fixtures)"},
+        {"number": 2, "instruction": "Create helper for AtomicValue assertions (value within uncertainty, correct units)"},
+        {"number": 3, "instruction": "Create material/tool/machine test fixtures from real registry data"}
+      ],
+      "exit_conditions": ["Test harness importable by all engine test files", "Fixtures cover steel, aluminum, titanium"]
+    },
+    {
+      "id": "SYS-MS2-U01",
+      "title": "Core Manufacturing Engine Tests",
+      "status": "complete",
+      "steps": [
+        {"number": 1, "instruction": "Write tests for CuttingForceEngine (Kienzle model, edge cases)"},
+        {"number": 2, "instruction": "Write tests for ToolLifeEngine (Taylor equation, cliff warnings)"},
+        {"number": 3, "instruction": "Write tests for SpeedFeedEngine (material coverage, tool normalization)"},
+        {"number": 4, "instruction": "Write tests for ThermalEngine, DeflectionEngine, SurfaceFinishEngine"}
+      ],
+      "exit_conditions": ["6 core manufacturing engines have unit tests", "Known-good reference values verified"]
+    },
+    {
+      "id": "SYS-MS2-U02",
+      "title": "Safety Engine Tests",
+      "status": "complete",
+      "steps": [
+        {"number": 1, "instruction": "Write tests for SafetyEngine S(x) scoring (hard block, edge cases)"},
+        {"number": 2, "instruction": "Write tests for CoolantValidationEngine (all brackets, MQL, dry titanium)"},
+        {"number": 3, "instruction": "Write tests for 5-axis engines (WorkEnvelope, RTCP, Singularity)"}
+      ],
+      "exit_conditions": ["All safety-critical engines have comprehensive tests", "Hard block paths verified"]
+    },
+    {
+      "id": "SYS-MS2-U03",
+      "title": "Specialty Engine Tests",
+      "status": "complete",
+      "steps": [
+        {"number": 1, "instruction": "Write tests for ThreadEngine (339 specs, stripping calculation)"},
+        {"number": 2, "instruction": "Write tests for EDM engines (WireEDM, SinkEDM, WhiteLayer)"},
+        {"number": 3, "instruction": "Write tests for PostProcessorEngine (6 controller dialects, canned cycles)"},
+        {"number": 4, "instruction": "Write tests for StabilityEngine (SLD, chatter detection with FFT)"}
+      ],
+      "exit_conditions": ["Specialty engines have unit tests", "Controller dialect outputs verified"]
+    },
+    {
+      "id": "SYS-MS2-U04",
+      "title": "Intelligence Engine Tests",
+      "status": "complete",
+      "steps": [
+        {"number": 1, "instruction": "Write tests for KnowledgeQueryEngine (TF-IDF scoring, stop words)"},
+        {"number": 2, "instruction": "Write tests for ComplianceEngine (6 regulatory frameworks)"},
+        {"number": 3, "instruction": "Write tests for HookEngine and HookExecutor (event routing, phase chains)"},
+        {"number": 4, "instruction": "Write tests for AgentExecutor and SwarmExecutor (orchestration modes)"}
+      ],
+      "exit_conditions": ["Intelligence engines have unit tests", "Hook dual-system tested"]
+    },
+    {
+      "id": "SYS-MS2-U05",
+      "title": "Remaining Cadence Function Tests",
+      "status": "complete",
+      "steps": [
+        {"number": 1, "instruction": "Identify 63 untested cadence functions (REM-MS5 covered 40 of 103)"},
+        {"number": 2, "instruction": "Write tests for manufacturing cadences (pressure zone, auto-recalc)"},
+        {"number": 3, "instruction": "Write tests for intelligence cadences (telemetry, adaptive)"},
+        {"number": 4, "instruction": "Write tests for orchestration cadences (heartbeat, swarm health)"}
+      ],
+      "exit_conditions": ["All 103 cadence functions have at least basic coverage", "Test count > 1500"]
+    }
+  ],
+  "dependencies": ["SYS-MS1"],
+  "deliverables": ["Test harness", "Engine test suite", "Cadence test suite", "Target: 1500+ tests"]
+}

@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `verify-loop` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/verify-loop.md` |
+| Source | `C:/Users/wompu/.claude/commands/verify-loop.md` |
 | Model | default |
 | Tags | _(none)_ |
 

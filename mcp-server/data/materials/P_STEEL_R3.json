@@ -1,0 +1,332 @@
+{
+  "_provenance": {
+    "iso_group": "P",
+    "milestone": "DB-COVERAGE-GAPFILL-MS0 / U-MAT01",
+    "created": "2026-06-03",
+    "by": "slot:romeo",
+    "schema": "mirrors M_STAINLESS_R3.json / S_SUPERALLOYS_R3.json",
+    "kienzle_taylor_policy": "kc1_1/mc/taylor_C/taylor_n trace to mcp-server/src/physics/constants.ts ONLY. Per-grade values from AISI_CUTTING_COEFFICIENTS where present; otherwise the per-ISO CANONICAL_KIENZLE['P']=1800/0.25 and CANONICAL_TAYLOR['P']=350/0.25 default, marked data_quality:iso_group_default. milling/drilling kc are operation-adjustment heuristics (x0.9 / x1.1) per Sandvik General Turning, NOT independent constants.",
+    "thermophysical_sources": ["ASM Metals Handbook Vol.1 (Properties & Selection: Irons, Steels)", "Machinery's Handbook 32nd ed.", "Sandvik Coromant General Turning 2024"],
+    "parity_test": "src/__tests__/material-r3-parity.test.ts"
+  },
+  "materials": [
+    {
+      "material_id": "MD-1018-CD",
+      "name": "AISI 1018 Mild Steel (Cold Drawn)",
+      "iso_group": "P",
+      "material_type": "carbon_steel",
+      "subcategory": "low_carbon",
+      "condition": "cold_drawn",
+      "data_quality": "verified",
+      "data_sources": ["ASM_Metals_Handbook_Vol1", "Machinerys_Handbook_32", "constants.ts:AISI_CUTTING_COEFFICIENTS"],
+      "physical": {
+        "density": 7870, "melting_point": 1510, "specific_heat": 486,
+        "thermal_conductivity": 51.9, "thermal_expansion": 11.7,
+        "elastic_modulus": 205, "poisson_ratio": 0.29, "shear_modulus": 80, "bulk_modulus": 140
+      },
+      "mechanical": {
+        "hardness": { "brinell": 126, "vickers": 131, "rockwell_c": null, "rockwell_b": 71 },
+        "tensile_strength": { "typical": 440, "min": 400, "max": 470 },
+        "yield_strength": { "typical": 370, "min": 340, "max": 400 },
+        "elongation": 15, "reduction_of_area": 40,
+        "impact_strength": 85, "fatigue_strength": 220, "fracture_toughness": null,
+        "work_hardening_exponent": 0.20
+      },
+      "kienzle": {
+        "kc1_1": 1700, "mc": 0.25,
+        "kc1_1_milling": 1530, "mc_milling": 0.24,
+        "kc1_1_drilling": 1870, "mc_drilling": 0.26,
+        "source": "constants.ts:AISI_CUTTING_COEFFICIENTS['1018']"
+      },
+      "johnson_cook": {
+        "A": 370, "B": 540, "n": 0.28, "C": 0.022, "m": 1,
+        "T_melt": 1515, "T_ref": 25, "epsilon_dot_ref": 0.001
+      },
+      "taylor": {
+        "C": 360, "n": 0.26,
+        "C_carbide": 360, "n_carbide": 0.26,
+        "C_ceramic": null, "n_ceramic": null,
+        "C_cbn": null, "n_cbn": null,
+        "source": "constants.ts:AISI_CUTTING_COEFFICIENTS['1018']"
+      },
+      "chip_formation": {
+        "chip_type": "continuous", "chip_breaking": "fair",
+        "built_up_edge_tendency": "moderate",
+        "work_hardening_severity": "low", "adhesion_tendency": "moderate"
+      },
+      "cutting_recommendations": {
+        "turning": { "speed_roughing": 120, "speed_finishing": 180, "feed_roughing": 0.30, "feed_finishing": 0.10, "doc_roughing": 3.0, "doc_finishing": 0.5 },
+        "milling": { "speed_roughing": 110, "speed_finishing": 160, "feed_per_tooth_roughing": 0.12, "feed_per_tooth_finishing": 0.06, "doc_roughing": 2.5, "doc_finishing": 0.4 },
+        "tool_material": { "recommended_grade": "Carbide P25", "coating_recommendation": "TiN or TiCN", "geometry_recommendation": "Positive rake, general-purpose edge" },
+        "coolant": { "type": "flood", "recommendation": "Flood or dry both acceptable; flood improves finish" }
+      },
+      "machinability": { "aisi_rating": 70, "relative_to_1212": 0.70 },
+      "_verified": { "session": "DB-COVERAGE-GAPFILL-MS0", "date": "2026-06-03", "method": "handbook_reference", "params": 0 }
+    },
+    {
+      "material_id": "MD-1045-CD",
+      "name": "AISI 1045 Medium-Carbon Steel (Cold Drawn)",
+      "iso_group": "P",
+      "material_type": "carbon_steel",
+      "subcategory": "medium_carbon",
+      "condition": "cold_drawn",
+      "data_quality": "verified",
+      "data_sources": ["ASM_Metals_Handbook_Vol1", "Machinerys_Handbook_32", "constants.ts:AISI_CUTTING_COEFFICIENTS"],
+      "physical": {
+        "density": 7850, "melting_point": 1495, "specific_heat": 486,
+        "thermal_conductivity": 49.8, "thermal_expansion": 11.5,
+        "elastic_modulus": 206, "poisson_ratio": 0.29, "shear_modulus": 80, "bulk_modulus": 140
+      },
+      "mechanical": {
+        "hardness": { "brinell": 170, "vickers": 178, "rockwell_c": null, "rockwell_b": 88 },
+        "tensile_strength": { "typical": 585, "min": 570, "max": 700 },
+        "yield_strength": { "typical": 450, "min": 310, "max": 530 },
+        "elongation": 12, "reduction_of_area": 35,
+        "impact_strength": 50, "fatigue_strength": 290, "fracture_toughness": null,
+        "work_hardening_exponent": 0.18
+      },
+      "kienzle": {
+        "kc1_1": 1800, "mc": 0.25,
+        "kc1_1_milling": 1620, "mc_milling": 0.24,
+        "kc1_1_drilling": 1980, "mc_drilling": 0.26,
+        "source": "constants.ts:AISI_CUTTING_COEFFICIENTS['1045']"
+      },
+      "johnson_cook": {
+        "A": 450, "B": 600, "n": 0.20, "C": 0.014, "m": 1,
+        "T_melt": 1495, "T_ref": 25, "epsilon_dot_ref": 0.001
+      },
+      "taylor": {
+        "C": 350, "n": 0.25,
+        "C_carbide": 350, "n_carbide": 0.25,
+        "C_ceramic": null, "n_ceramic": null,
+        "C_cbn": null, "n_cbn": null,
+        "source": "constants.ts:AISI_CUTTING_COEFFICIENTS['1045']"
+      },
+      "chip_formation": {
+        "chip_type": "continuous", "chip_breaking": "fair",
+        "built_up_edge_tendency": "moderate",
+        "work_hardening_severity": "low", "adhesion_tendency": "moderate"
+      },
+      "cutting_recommendations": {
+        "turning": { "speed_roughing": 110, "speed_finishing": 170, "feed_roughing": 0.30, "feed_finishing": 0.10, "doc_roughing": 3.0, "doc_finishing": 0.5 },
+        "milling": { "speed_roughing": 100, "speed_finishing": 150, "feed_per_tooth_roughing": 0.12, "feed_per_tooth_finishing": 0.05, "doc_roughing": 2.5, "doc_finishing": 0.4 },
+        "tool_material": { "recommended_grade": "Carbide P25", "coating_recommendation": "TiAlN", "geometry_recommendation": "Positive rake; chip breaker for ductile chips" },
+        "coolant": { "type": "flood", "recommendation": "Flood recommended at higher speeds" }
+      },
+      "machinability": { "aisi_rating": 57, "relative_to_1212": 0.57 },
+      "_verified": { "session": "DB-COVERAGE-GAPFILL-MS0", "date": "2026-06-03", "method": "handbook_reference", "params": 0 }
+    },
+    {
+      "material_id": "MD-1144-SP",
+      "name": "AISI 1144 Stressproof Free-Machining Steel",
+      "iso_group": "P",
+      "material_type": "carbon_steel",
+      "subcategory": "free_machining_medium_carbon",
+      "condition": "cold_drawn_stress_relieved",
+      "data_quality": "verified",
+      "data_sources": ["ASM_Metals_Handbook_Vol1", "Machinerys_Handbook_32", "constants.ts:AISI_CUTTING_COEFFICIENTS"],
+      "physical": {
+        "density": 7860, "melting_point": 1495, "specific_heat": 486,
+        "thermal_conductivity": 48.0, "thermal_expansion": 11.5,
+        "elastic_modulus": 206, "poisson_ratio": 0.29, "shear_modulus": 80, "bulk_modulus": 140
+      },
+      "mechanical": {
+        "hardness": { "brinell": 197, "vickers": 207, "rockwell_c": null, "rockwell_b": 93 },
+        "tensile_strength": { "typical": 690, "min": 620, "max": 720 },
+        "yield_strength": { "typical": 415, "min": 415, "max": 585 },
+        "elongation": 10, "reduction_of_area": 30,
+        "impact_strength": 40, "fatigue_strength": 340, "fracture_toughness": null,
+        "work_hardening_exponent": 0.15
+      },
+      "kienzle": {
+        "kc1_1": 1850, "mc": 0.25,
+        "kc1_1_milling": 1665, "mc_milling": 0.24,
+        "kc1_1_drilling": 2035, "mc_drilling": 0.26,
+        "source": "constants.ts:AISI_CUTTING_COEFFICIENTS['1144']"
+      },
+      "johnson_cook": {
+        "A": 415, "B": 600, "n": 0.18, "C": 0.012, "m": 1,
+        "T_melt": 1495, "T_ref": 25, "epsilon_dot_ref": 0.001
+      },
+      "taylor": {
+        "C": 345, "n": 0.25,
+        "C_carbide": 345, "n_carbide": 0.25,
+        "C_ceramic": null, "n_ceramic": null,
+        "C_cbn": null, "n_cbn": null,
+        "source": "constants.ts:AISI_CUTTING_COEFFICIENTS['1144']"
+      },
+      "chip_formation": {
+        "chip_type": "discontinuous", "chip_breaking": "good",
+        "built_up_edge_tendency": "low",
+        "work_hardening_severity": "low", "adhesion_tendency": "low"
+      },
+      "cutting_recommendations": {
+        "turning": { "speed_roughing": 130, "speed_finishing": 190, "feed_roughing": 0.30, "feed_finishing": 0.10, "doc_roughing": 3.0, "doc_finishing": 0.5 },
+        "milling": { "speed_roughing": 110, "speed_finishing": 160, "feed_per_tooth_roughing": 0.12, "feed_per_tooth_finishing": 0.06, "doc_roughing": 2.5, "doc_finishing": 0.4 },
+        "tool_material": { "recommended_grade": "Carbide P25", "coating_recommendation": "TiN/TiCN", "geometry_recommendation": "Sulfur inclusions break chips; standard positive geometry" },
+        "coolant": { "type": "flood", "recommendation": "Flood optional; free-machining grade tolerates dry" }
+      },
+      "machinability": { "aisi_rating": 76, "relative_to_1212": 0.76 },
+      "_verified": { "session": "DB-COVERAGE-GAPFILL-MS0", "date": "2026-06-03", "method": "handbook_reference", "params": 0 }
+    },
+    {
+      "material_id": "MD-4140-ANNEALED",
+      "name": "AISI 4140 Chromoly Alloy Steel (Annealed)",
+      "iso_group": "P",
+      "material_type": "alloy_steel",
+      "subcategory": "chromoly",
+      "condition": "annealed",
+      "data_quality": "verified",
+      "data_sources": ["ASM_Metals_Handbook_Vol1", "Machinerys_Handbook_32", "constants.ts:AISI_CUTTING_COEFFICIENTS"],
+      "physical": {
+        "density": 7850, "melting_point": 1425, "specific_heat": 473,
+        "thermal_conductivity": 42.7, "thermal_expansion": 12.3,
+        "elastic_modulus": 205, "poisson_ratio": 0.29, "shear_modulus": 80, "bulk_modulus": 140
+      },
+      "mechanical": {
+        "hardness": { "brinell": 197, "vickers": 207, "rockwell_c": null, "rockwell_b": 93 },
+        "tensile_strength": { "typical": 655, "min": 655, "max": 1020 },
+        "yield_strength": { "typical": 415, "min": 415, "max": 655 },
+        "elongation": 25, "reduction_of_area": 57,
+        "impact_strength": 55, "fatigue_strength": 330, "fracture_toughness": 80,
+        "work_hardening_exponent": 0.18
+      },
+      "kienzle": {
+        "kc1_1": 1950, "mc": 0.26,
+        "kc1_1_milling": 1755, "mc_milling": 0.25,
+        "kc1_1_drilling": 2145, "mc_drilling": 0.27,
+        "source": "constants.ts:AISI_CUTTING_COEFFICIENTS['4140']"
+      },
+      "johnson_cook": {
+        "A": 598, "B": 768, "n": 0.21, "C": 0.0137, "m": 1.03,
+        "T_melt": 1425, "T_ref": 25, "epsilon_dot_ref": 0.001
+      },
+      "taylor": {
+        "C": 320, "n": 0.24,
+        "C_carbide": 320, "n_carbide": 0.24,
+        "C_ceramic": null, "n_ceramic": null,
+        "C_cbn": null, "n_cbn": null,
+        "source": "constants.ts:AISI_CUTTING_COEFFICIENTS['4140']"
+      },
+      "chip_formation": {
+        "chip_type": "continuous", "chip_breaking": "fair",
+        "built_up_edge_tendency": "moderate",
+        "work_hardening_severity": "moderate", "adhesion_tendency": "moderate"
+      },
+      "cutting_recommendations": {
+        "turning": { "speed_roughing": 100, "speed_finishing": 150, "feed_roughing": 0.25, "feed_finishing": 0.08, "doc_roughing": 3.0, "doc_finishing": 0.5 },
+        "milling": { "speed_roughing": 90, "speed_finishing": 140, "feed_per_tooth_roughing": 0.10, "feed_per_tooth_finishing": 0.05, "doc_roughing": 2.5, "doc_finishing": 0.4 },
+        "tool_material": { "recommended_grade": "Carbide P25/P35", "coating_recommendation": "TiAlN", "geometry_recommendation": "Rigid setup; positive rake for annealed condition" },
+        "coolant": { "type": "flood", "recommendation": "Flood; through-tool for deep holes" }
+      },
+      "machinability": { "aisi_rating": 55, "relative_to_1212": 0.55 },
+      "_verified": { "session": "DB-COVERAGE-GAPFILL-MS0", "date": "2026-06-03", "method": "handbook_reference", "params": 0 }
+    },
+    {
+      "material_id": "MD-4340-ANNEALED",
+      "name": "AISI 4340 Nickel-Chromoly Aircraft Steel (Annealed)",
+      "iso_group": "P",
+      "material_type": "alloy_steel",
+      "subcategory": "nickel_chromoly",
+      "condition": "annealed",
+      "data_quality": "verified",
+      "data_sources": ["ASM_Metals_Handbook_Vol1", "Machinerys_Handbook_32", "constants.ts:AISI_CUTTING_COEFFICIENTS"],
+      "physical": {
+        "density": 7850, "melting_point": 1427, "specific_heat": 475,
+        "thermal_conductivity": 44.5, "thermal_expansion": 12.3,
+        "elastic_modulus": 205, "poisson_ratio": 0.29, "shear_modulus": 80, "bulk_modulus": 140
+      },
+      "mechanical": {
+        "hardness": { "brinell": 217, "vickers": 228, "rockwell_c": null, "rockwell_b": 95 },
+        "tensile_strength": { "typical": 745, "min": 745, "max": 1280 },
+        "yield_strength": { "typical": 470, "min": 470, "max": 860 },
+        "elongation": 22, "reduction_of_area": 50,
+        "impact_strength": 50, "fatigue_strength": 470, "fracture_toughness": 75,
+        "work_hardening_exponent": 0.17
+      },
+      "kienzle": {
+        "kc1_1": 2000, "mc": 0.26,
+        "kc1_1_milling": 1800, "mc_milling": 0.25,
+        "kc1_1_drilling": 2200, "mc_drilling": 0.27,
+        "source": "constants.ts:AISI_CUTTING_COEFFICIENTS['4340']"
+      },
+      "johnson_cook": {
+        "A": 792, "B": 510, "n": 0.26, "C": 0.014, "m": 1.03,
+        "T_melt": 1427, "T_ref": 25, "epsilon_dot_ref": 0.001
+      },
+      "taylor": {
+        "C": 310, "n": 0.23,
+        "C_carbide": 310, "n_carbide": 0.23,
+        "C_ceramic": null, "n_ceramic": null,
+        "C_cbn": null, "n_cbn": null,
+        "source": "constants.ts:AISI_CUTTING_COEFFICIENTS['4340']"
+      },
+      "chip_formation": {
+        "chip_type": "continuous", "chip_breaking": "fair",
+        "built_up_edge_tendency": "moderate",
+        "work_hardening_severity": "moderate", "adhesion_tendency": "moderate"
+      },
+      "cutting_recommendations": {
+        "turning": { "speed_roughing": 90, "speed_finishing": 140, "feed_roughing": 0.25, "feed_finishing": 0.08, "doc_roughing": 3.0, "doc_finishing": 0.5 },
+        "milling": { "speed_roughing": 80, "speed_finishing": 130, "feed_per_tooth_roughing": 0.10, "feed_per_tooth_finishing": 0.05, "doc_roughing": 2.0, "doc_finishing": 0.3 },
+        "tool_material": { "recommended_grade": "Carbide P30/P35", "coating_recommendation": "TiAlN multilayer", "geometry_recommendation": "Rigid setup, sharp edge; more difficult than 4140" },
+        "coolant": { "type": "flood", "recommendation": "High-pressure flood; through-tool for deep features" }
+      },
+      "machinability": { "aisi_rating": 50, "relative_to_1212": 0.50 },
+      "_verified": { "session": "DB-COVERAGE-GAPFILL-MS0", "date": "2026-06-03", "method": "handbook_reference", "params": 0 }
+    },
+    {
+      "material_id": "MD-8620-ANNEALED",
+      "name": "AISI 8620 Carburizing Alloy Steel (Annealed, pre-case-harden)",
+      "iso_group": "P",
+      "material_type": "alloy_steel",
+      "subcategory": "carburizing",
+      "condition": "annealed",
+      "data_quality": "verified_thermophysical_iso_default_kc",
+      "data_sources": ["ASM_Metals_Handbook_Vol1", "Machinerys_Handbook_32", "constants.ts:CANONICAL_KIENZLE"],
+      "physical": {
+        "density": 7850, "melting_point": 1450, "specific_heat": 480,
+        "thermal_conductivity": 46.6, "thermal_expansion": 11.9,
+        "elastic_modulus": 205, "poisson_ratio": 0.29, "shear_modulus": 80, "bulk_modulus": 140
+      },
+      "mechanical": {
+        "hardness": { "brinell": 149, "vickers": 156, "rockwell_c": null, "rockwell_b": 80 },
+        "tensile_strength": { "typical": 530, "min": 530, "max": 690 },
+        "yield_strength": { "typical": 385, "min": 385, "max": 480 },
+        "elongation": 26, "reduction_of_area": 60,
+        "impact_strength": 70, "fatigue_strength": 310, "fracture_toughness": 90,
+        "work_hardening_exponent": 0.20
+      },
+      "kienzle": {
+        "kc1_1": 1800, "mc": 0.25,
+        "kc1_1_milling": 1620, "mc_milling": 0.24,
+        "kc1_1_drilling": 1980, "mc_drilling": 0.26,
+        "source": "constants.ts:CANONICAL_KIENZLE['P'] (iso-group default — grade-specific kc pending physics review; see DB-COVERAGE-GAPFILL-MS0 U-MAT02)"
+      },
+      "johnson_cook": {
+        "A": 385, "B": 560, "n": 0.22, "C": 0.015, "m": 1,
+        "T_melt": 1450, "T_ref": 25, "epsilon_dot_ref": 0.001
+      },
+      "taylor": {
+        "C": 350, "n": 0.25,
+        "C_carbide": 350, "n_carbide": 0.25,
+        "C_ceramic": null, "n_ceramic": null,
+        "C_cbn": null, "n_cbn": null,
+        "source": "constants.ts:CANONICAL_TAYLOR['P'] (iso-group default)"
+      },
+      "chip_formation": {
+        "chip_type": "continuous", "chip_breaking": "fair",
+        "built_up_edge_tendency": "moderate",
+        "work_hardening_severity": "moderate", "adhesion_tendency": "moderate"
+      },
+      "cutting_recommendations": {
+        "turning": { "speed_roughing": 110, "speed_finishing": 160, "feed_roughing": 0.28, "feed_finishing": 0.10, "doc_roughing": 3.0, "doc_finishing": 0.5 },
+        "milling": { "speed_roughing": 100, "speed_finishing": 150, "feed_per_tooth_roughing": 0.11, "feed_per_tooth_finishing": 0.05, "doc_roughing": 2.5, "doc_finishing": 0.4 },
+        "tool_material": { "recommended_grade": "Carbide P25", "coating_recommendation": "TiAlN", "geometry_recommendation": "Machine BEFORE carburizing; soft core machines like mild alloy steel" },
+        "coolant": { "type": "flood", "recommendation": "Flood standard" }
+      },
+      "machinability": { "aisi_rating": 65, "relative_to_1212": 0.65 },
+      "_verified": { "session": "DB-COVERAGE-GAPFILL-MS0", "date": "2026-06-03", "method": "handbook_reference", "params": 0 }
+    }
+  ]
+}

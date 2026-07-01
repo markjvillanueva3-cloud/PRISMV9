@@ -3,8 +3,8 @@ import { Link } from 'react-router-dom';
 import { SurfaceCrossLink } from '../components/SurfaceCrossLink';
 
 /* ═══════════════════════════════════════════════════════════════
-   PRISM Post Processor — Standalone Product Landing Page
-   Commercial product page showcasing PRISM's 38-stage post
+   Kienzle Post Processor — Standalone Product Landing Page
+   Commercial product page showcasing Kienzle's 38-stage post
    processing pipeline across 20 controller dialects.
    ═══════════════════════════════════════════════════════════════ */
 
@@ -136,7 +136,7 @@ const DIFFERENTIATORS = [
     icon: '01',
     title: 'Per-block variable speed and feed',
     description: 'Every single G01/G02/G03 block gets its own physics-calculated spindle speed and feed rate based on actual chip load, engagement angle, and tool deflection at that exact point in the cut.',
-    detail: 'Traditional posts use one S/F per operation. PRISM calculates per-block, giving you the performance of a hand-optimized program with the reliability of physics.',
+    detail: 'Traditional posts use one S/F per operation. Kienzle calculates per-block, giving you the performance of a hand-optimized program with the reliability of physics.',
   },
   {
     icon: '02',
@@ -287,7 +287,7 @@ G01 X30. F1050.
 ; Same S5800 F1050 for every block
 ; No force/wear/thermal awareness`;
 
-const GCODE_AFTER = `O1001 (POCKET ROUGH - PRISM OPTIMIZED)
+const GCODE_AFTER = `O1001 (POCKET ROUGH - Kienzle OPTIMIZED)
 T01 M06 (12mm 3-flute carbide)
 G90 G54 G17
 S6000 M03 (SLD-optimized RPM)
@@ -311,7 +311,7 @@ G01 X30. F1050.  (wear -11.4%)
 ; Per-block S/F from physics
 ; Fc: 280-420N, Ra: 1.0-1.6µm, CI: 92%`;
 
-// Physics annotation data for the PRISM-optimized G-code
+// Physics annotation data for the Kienzle-optimized G-code
 const GCODE_PHYSICS_ANNOTATIONS: Array<{ line: number; force_N: number; ra_um: number; confidence: number }> = [
   { line: 7, force_N: 380, ra_um: 1.4, confidence: 0.94 },
   { line: 8, force_N: 420, ra_um: 1.6, confidence: 0.91 },
@@ -334,7 +334,7 @@ interface CAMSystem {
 }
 
 const CAM_SYSTEMS: CAMSystem[] = [
-  { name: 'Fusion 360', integration: 'native', formats: ['PRISM .cps post', 'NC file'] },
+  { name: 'Fusion 360', integration: 'native', formats: ['Kienzle .cps post', 'NC file'] },
   { name: 'Mastercam', integration: 'file-based', formats: ['NC file', 'NCI'] },
   { name: 'hyperMILL', integration: 'file-based', formats: ['NC file', 'Phase B re-opt'] },
   { name: 'SolidCAM', integration: 'file-based', formats: ['NC file', 'GCode'] },
@@ -375,7 +375,7 @@ const WORKFLOW_NODES: WorkflowNode[] = [
     id: 'cam',
     label: 'Your CAM System',
     sublabel: 'Toolpath geometry',
-    description: 'Generate toolpaths in any CAM system. PRISM accepts standard G-code from all 18 supported platforms.',
+    description: 'Generate toolpaths in any CAM system. Kienzle accepts standard G-code from all 18 supported platforms.',
     details: [
       'Fusion 360, Mastercam, hyperMILL, NX CAM, SolidCAM, and 13 more',
       'NC file, CL data, or native CPS post output',
@@ -385,7 +385,7 @@ const WORKFLOW_NODES: WorkflowNode[] = [
   },
   {
     id: 'prism',
-    label: 'PRISM Pipeline',
+    label: 'Kienzle Pipeline',
     sublabel: '38-stage physics engine',
     description: 'Every block passes through Kienzle force modeling, Taylor tool life, Monte Carlo uncertainty, and 6-stage safety validation.',
     details: [
@@ -756,7 +756,7 @@ function ComparisonTable() {
           <tr className="border-b border-slate-700/40 bg-[#0d1a2d]">
             <th scope="col" className="px-5 py-3 text-left font-semibold text-slate-300">Feature</th>
             <th scope="col" className="px-5 py-3 text-left font-semibold text-slate-400">Your current post</th>
-            <th scope="col" className="px-5 py-3 text-left font-semibold text-cyan-400">PRISM post</th>
+            <th scope="col" className="px-5 py-3 text-left font-semibold text-cyan-400">Kienzle post</th>
           </tr>
         </thead>
         <tbody>
@@ -775,20 +775,20 @@ function ComparisonTable() {
 
 const FAQ_ITEMS = [
   {
-    question: 'How does PRISM differ from a standard CAM post processor?',
-    answer: 'Standard posts translate CAM toolpath data into G-code with a single S/F per operation. PRISM adds a 45-stage physics pipeline that recalculates spindle speed and feed rate for every single block based on actual cutting forces, engagement angle, chip thinning, and tool deflection. The result is a program that performs like it was hand-optimized by your best programmer.',
+    question: 'How does Kienzle differ from a standard CAM post processor?',
+    answer: 'Standard posts translate CAM toolpath data into G-code with a single S/F per operation. Kienzle adds a 45-stage physics pipeline that recalculates spindle speed and feed rate for every single block based on actual cutting forces, engagement angle, chip thinning, and tool deflection. The result is a program that performs like it was hand-optimized by your best programmer.',
   },
   {
     question: 'Do I still need my CAM system?',
-    answer: 'Yes. PRISM sits downstream of your CAM system. You generate toolpaths in Mastercam, Fusion 360, hyperMILL, or any CAM system, then PRISM post-processes the output with physics optimization and controller-native formatting. Think of it as a physics-aware layer between CAM and the machine.',
+    answer: 'Yes. Kienzle sits downstream of your CAM system. You generate toolpaths in Mastercam, Fusion 360, hyperMILL, or any CAM system, then Kienzle post-processes the output with physics optimization and controller-native formatting. Think of it as a physics-aware layer between CAM and the machine.',
   },
   {
     question: 'How does the safety chain work?',
     answer: 'The 7-stage safety chain validates every program against machine limits (spindle RPM, axis travel, rapid height), coolant/tool change sequencing, and controller-specific constraints. Programs that violate any safety rule are blocked from output with clear error messages explaining what needs to change.',
   },
   {
-    question: 'Can I use PRISM with my existing machines?',
-    answer: 'PRISM supports 25 controller dialects covering Fanuc (5 variants), Siemens (3), Heidenhain (2), Haas, Mazak (2), Okuma (2), Brother, DMG MORI (2), Hurco, Mitsubishi, Fagor, Citizen, Star, plus 2 generic ISO fallbacks. If your machine accepts standard G-code, PRISM can generate optimized programs for it.',
+    question: 'Can I use Kienzle with my existing machines?',
+    answer: 'Kienzle supports 25 controller dialects covering Fanuc (5 variants), Siemens (3), Heidenhain (2), Haas, Mazak (2), Okuma (2), Brother, DMG MORI (2), Hurco, Mitsubishi, Fagor, Citizen, Star, plus 2 generic ISO fallbacks. If your machine accepts standard G-code, Kienzle can generate optimized programs for it.',
   },
   {
     question: 'What if my controller is not listed?',
@@ -796,23 +796,23 @@ const FAQ_ITEMS = [
   },
   {
     question: 'How much cycle time improvement should I expect?',
-    answer: 'Shops typically see 10-25% cycle time reduction on 3-axis work and 15-35% on 5-axis programs. Results scale with part complexity — the more contour changes and engagement variation in your toolpath, the more time PRISM recovers by optimizing each block individually instead of using one conservative feed rate for the entire operation.',
+    answer: 'Shops typically see 10-25% cycle time reduction on 3-axis work and 15-35% on 5-axis programs. Results scale with part complexity — the more contour changes and engagement variation in your toolpath, the more time Kienzle recovers by optimizing each block individually instead of using one conservative feed rate for the entire operation.',
   },
   {
     question: 'How long does it take to see results?',
-    answer: 'Most shops run their first optimized program within 24 hours of setup. Select your machine controller, upload a CAM-generated NC file, and PRISM returns physics-optimized G-code in under a minute. First-article prove-out is the same as any new program — start at 80% feed override and work up.',
+    answer: 'Most shops run their first optimized program within 24 hours of setup. Select your machine controller, upload a CAM-generated NC file, and Kienzle returns physics-optimized G-code in under a minute. First-article prove-out is the same as any new program — start at 80% feed override and work up.',
   },
   {
     question: 'Does it work with custom machine modifications?',
-    answer: 'Yes. If your machine has a non-standard spindle, custom rotary table, or aftermarket controller upgrade, you can specify the actual specs (max RPM, torque curve, axis travel, rapid rates) in PRISM\'s machine profile. The physics pipeline uses YOUR machine\'s real capabilities, not catalog defaults.',
+    answer: 'Yes. If your machine has a non-standard spindle, custom rotary table, or aftermarket controller upgrade, you can specify the actual specs (max RPM, torque curve, axis travel, rapid rates) in Kienzle\'s machine profile. The physics pipeline uses YOUR machine\'s real capabilities, not catalog defaults.',
   },
   {
     question: 'Can I use it with older CAM files?',
-    answer: 'Any standard G-code file works — there is no minimum CAM version requirement. PRISM parses ISO 6983 G-code regardless of which CAM system or version generated it. Older files with no arc interpolation or canned cycles are handled just like modern output.',
+    answer: 'Any standard G-code file works — there is no minimum CAM version requirement. Kienzle parses ISO 6983 G-code regardless of which CAM system or version generated it. Older files with no arc interpolation or canned cycles are handled just like modern output.',
   },
   {
-    question: 'My Haas NGC uses M98/M99 subprograms — does PRISM handle those?',
-    answer: 'Yes. PRISM generates controller-native subprogram calls. For Haas NGC, that means M98 P/M99 patterns with proper program numbering. For Siemens it generates CALL/RET, for Heidenhain it uses CALL PGM, and for Fanuc it handles both external (M98) and local (M97/Haas) subprograms.',
+    question: 'My Haas NGC uses M98/M99 subprograms — does Kienzle handle those?',
+    answer: 'Yes. Kienzle generates controller-native subprogram calls. For Haas NGC, that means M98 P/M99 patterns with proper program numbering. For Siemens it generates CALL/RET, for Heidenhain it uses CALL PGM, and for Fanuc it handles both external (M98) and local (M97/Haas) subprograms.',
   },
   {
     question: 'How does prove-out mode work?',
@@ -820,7 +820,7 @@ const FAQ_ITEMS = [
   },
   {
     question: 'What does the confidence score mean?',
-    answer: 'Each block in a PRISM-optimized program carries a confidence score from 0-100% based on Monte Carlo simulation of the cutting parameters. Scores above 90% mean the physics model has high certainty in the predicted forces and finish. Scores below 75% are flagged for operator attention during prove-out. The score accounts for material property uncertainty, tool wear state, and machine dynamics.',
+    answer: 'Each block in a Kienzle-optimized program carries a confidence score from 0-100% based on Monte Carlo simulation of the cutting parameters. Scores above 90% mean the physics model has high certainty in the predicted forces and finish. Scores below 75% are flagged for operator attention during prove-out. The score accounts for material property uncertainty, tool wear state, and machine dynamics.',
   },
 ];
 
@@ -831,8 +831,8 @@ export function PostProcessorPage() {
   const [activeFaq, setActiveFaq] = useState<number | null>(null);
 
   useEffect(() => {
-    document.title = 'Physics-Optimized CNC Post Processor — PRISM';
-    return () => { document.title = 'PRISM'; };
+    document.title = 'Physics-Optimized CNC Post Processor — Kienzle';
+    return () => { document.title = 'Kienzle'; };
   }, []);
 
   const filteredControllers = controllerFilter === 'all'
@@ -854,7 +854,7 @@ export function PostProcessorPage() {
               Your CAM post leaves<br />cycle time on the table
             </h1>
             <p className="mx-auto mt-5 max-w-2xl text-lg text-slate-400">
-              PRISM is the only post processor that calculates cutting forces, predicts tool life, and optimizes speed and feed for every single block. Shops see 10-35% faster cycle times from the same toolpaths.
+              Kienzle is the only post processor that calculates cutting forces, predicts tool life, and optimizes speed and feed for every single block. Shops see 10-35% faster cycle times from the same toolpaths.
             </p>
             <div className="mt-8 flex flex-wrap justify-center gap-3">
               <Link
@@ -891,9 +891,9 @@ export function PostProcessorPage() {
       <div className="border-b border-slate-800/50 bg-[#0d1a2d]/40">
         <Section id="workflow">
           <SectionHeading
-            eyebrow="Where PRISM fits"
-            title="CAM system → PRISM → Your machine"
-            subtitle="PRISM sits between your CAM system and the machine. No workflow changes — just better G-code."
+            eyebrow="Where Kienzle fits"
+            title="CAM system → Kienzle → Your machine"
+            subtitle="Kienzle sits between your CAM system and the machine. No workflow changes — just better G-code."
           />
           <WorkflowDiagram />
         </Section>
@@ -917,7 +917,7 @@ export function PostProcessorPage() {
       <div className="border-y border-slate-800/50 bg-[#0d1a2d]/40">
         <Section id="features">
           <SectionHeading
-            eyebrow="Why PRISM"
+            eyebrow="Why Kienzle"
             title="The physics that traditional posts skip"
             subtitle="Six physics capabilities that no traditional post processor offers."
           />
@@ -938,9 +938,9 @@ export function PostProcessorPage() {
         />
         <div className="mx-auto grid max-w-4xl gap-6 sm:grid-cols-2 lg:grid-cols-4">
           {[
-            { step: '1', title: 'Upload', desc: 'Export G-code from any CAM system and upload to PRISM.' },
+            { step: '1', title: 'Upload', desc: 'Export G-code from any CAM system and upload to Kienzle.' },
             { step: '2', title: 'Configure', desc: 'Select your controller, machine, material, and tooling.' },
-            { step: '3', title: 'Optimize', desc: 'PRISM runs 38 physics stages on every block in your program.' },
+            { step: '3', title: 'Optimize', desc: 'Kienzle runs 38 physics stages on every block in your program.' },
             { step: '4', title: 'Download', desc: 'Get controller-native G-code with per-block optimized S/F.' },
           ].map((s) => (
             <div key={s.step} className="text-center">
@@ -958,7 +958,7 @@ export function PostProcessorPage() {
           <SectionHeading
             eyebrow="See the difference"
             title="Same toolpath, physics-optimized output"
-            subtitle="Traditional posts use one S/F for every block. PRISM calculates unique parameters per block from cutting physics."
+            subtitle="Traditional posts use one S/F for every block. Kienzle calculates unique parameters per block from cutting physics."
           />
           <div className="grid gap-6 lg:grid-cols-2">
             <div>
@@ -969,7 +969,7 @@ export function PostProcessorPage() {
               </div>
             </div>
             <div>
-              <div className="mb-2 text-xs font-bold uppercase tracking-[0.18em] text-cyan-400">PRISM post</div>
+              <div className="mb-2 text-xs font-bold uppercase tracking-[0.18em] text-cyan-400">Kienzle post</div>
               <pre className="overflow-x-auto rounded-xl border border-cyan-500/20 bg-[#0a1628] p-4 text-xs leading-relaxed text-cyan-300/80 font-mono">{GCODE_AFTER}</pre>
               <div className="mt-3 rounded-lg border border-cyan-500/20 bg-[#0a1628] px-4 py-3">
                 <div className="mb-2 text-[10px] font-bold uppercase tracking-[0.18em] text-cyan-400">Physics annotations per block</div>
@@ -1004,7 +1004,7 @@ export function PostProcessorPage() {
       <Section id="comparison">
         <SectionHeading
           eyebrow="Head to head"
-          title="Traditional post vs. PRISM post"
+          title="Traditional post vs. Kienzle post"
           subtitle="See exactly what changes when physics optimization is added to every block."
         />
         <ComparisonTable />
@@ -1015,7 +1015,7 @@ export function PostProcessorPage() {
         <SectionHeading
           eyebrow="Works with your CAM"
           title="One pipeline for every CAM system"
-          subtitle="PRISM accepts G-code from any source. Native integration for Fusion 360, file-based for everything else."
+          subtitle="Kienzle accepts G-code from any source. Native integration for Fusion 360, file-based for everything else."
         />
         <div className="mb-4 text-center text-sm text-slate-400">
           {CAM_SYSTEMS.length} CAM platforms supported &middot; <Link to="/calculator" className="text-cyan-400 hover:text-cyan-300">Open toolpath calculator</Link>
@@ -1042,7 +1042,7 @@ export function PostProcessorPage() {
           <SectionHeading
             eyebrow="Controller dialects"
             title="25 dialects, one pipeline"
-            subtitle="Stop maintaining separate post processors for every machine. PRISM speaks all their languages."
+            subtitle="Stop maintaining separate post processors for every machine. Kienzle speaks all their languages."
           />
           <div className="mb-6 flex flex-wrap justify-center gap-2">
             <button
@@ -1099,7 +1099,7 @@ export function PostProcessorPage() {
       <Section id="roi">
         <SectionHeading
           eyebrow="Calculate your savings"
-          title="How much is PRISM worth to your shop?"
+          title="How much is Kienzle worth to your shop?"
           subtitle="Adjust the sliders to match your shop. See real-time savings from cycle time optimization and crash prevention."
         />
         <ROICalculator />
@@ -1126,7 +1126,7 @@ export function PostProcessorPage() {
         <SectionHeading
           eyebrow="Questions"
           title="Frequently asked questions"
-          subtitle="Everything you need to know about PRISM post processing."
+          subtitle="Everything you need to know about Kienzle post processing."
         />
         <div className="mx-auto max-w-3xl space-y-2">
           {FAQ_ITEMS.map((item, index) => (

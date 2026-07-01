@@ -140,7 +140,32 @@ class SheetMetalQuoteEngine {
   /**
    * Generate a complete sheet metal fabrication quote.
    */
-  quote(input: SheetMetalInput): SheetMetalQuoteResult {
+  quote(rawInput: SheetMetalInput): SheetMetalQuoteResult {
+    // ── Input normalization (U-SHEETMETAL-DIM-ALIAS, slot:charlie 2026-06-29) ──
+    // The SheetMetalQuotePage form sends the simpler {length_mm,width_mm} shape and
+    // omits perimeter_mm; the engine reads flat_length_mm/flat_width_mm/perimeter_mm
+    // directly, so an un-normalized page payload produced NaN -> null pricing (a live
+    // dead pricing panel, found by live simulation). Accept the simpler aliases and
+    // derive a rectangular perimeter when none is supplied. Explicit flat_*/perimeter_mm
+    // always win (backward-compatible); this only fills genuinely-absent fields.
+    const r = rawInput as SheetMetalInput & {
+      length_mm?: number; width_mm?: number;
+    };
+    const flatLength: number | undefined = r.flat_length_mm ?? r.length_mm;
+    const flatWidth: number | undefined = r.flat_width_mm ?? r.width_mm;
+    // Derive a rectangular-blank perimeter only when caller gave none AND we have L+W.
+    const derivedPerimeter: number | undefined =
+      rawInput.perimeter_mm ??
+      (Number.isFinite(flatLength) && Number.isFinite(flatWidth)
+        ? 2 * ((flatLength as number) + (flatWidth as number))
+        : undefined);
+    const input: SheetMetalInput = {
+      ...rawInput,
+      ...(flatLength !== undefined ? { flat_length_mm: flatLength } : {}),
+      ...(flatWidth !== undefined ? { flat_width_mm: flatWidth } : {}),
+      ...(derivedPerimeter !== undefined ? { perimeter_mm: derivedPerimeter } : {}),
+    };
+
     const warnings: string[] = [];
     const mat = SHEET_MATERIALS[input.material];
     if (!mat) {

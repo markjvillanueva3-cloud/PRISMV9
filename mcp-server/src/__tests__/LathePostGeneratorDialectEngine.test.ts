@@ -621,4 +621,52 @@ describe("LathePostGeneratorDialectEngine", () => {
       expect(result.metadata.total_lines).toBe(result.gcode.length);
     });
   });
+
+  // ==========================================================================
+  // NON-FINITE EMIT GUARD (U-PP-NONFINITE-EMIT-SWEEP) -- a NaN/Infinity cycle
+  // param must never leak a literal XNaN/ZInfinity/FNaN the lathe control rejects.
+  // One central guard in generate() covers all dialects + cycles.
+  // ==========================================================================
+  describe("non-finite emit guard (U-PP-NONFINITE-EMIT-SWEEP, schema .finite())", () => {
+    const gen = (cycle_code: string, parameters: Record<string, unknown>) =>
+      LathePostGeneratorDialectEngine.generate({
+        controller_id: "fanuc-31i-t", cycle_code, parameters,
+        include_comments: false, use_line_numbers: false,
+      } as never);
+    const noBadToken = (g: string[]) => {
+      const j = g.join("\n");
+      expect(j).not.toMatch(/[XYZQRFKDP]NaN/);
+      expect(j).not.toMatch(/[XYZQRFKDP]Infinity/);
+    };
+
+    it("[regression] a finite G76 still generates a real cycle", () => {
+      const r = gen("G76", { thread_end_x: 20, thread_end_z: -30, thread_pitch: 1.5, thread_depth: 0.65 });
+      expect(r.success).toBe(true);
+      expect(r.gcode.some((l: string) => l.includes("G76"))).toBe(true);
+    });
+
+    it("NaN thread_end_x is REJECTED by the schema -- no program, no literal XNaN", () => {
+      const r = gen("G76", { thread_end_x: NaN, thread_end_z: -30, thread_pitch: 1.5 });
+      expect(r.success).toBe(false);
+      noBadToken(r.gcode);
+    });
+
+    it("Infinity hole_depth (G83) is REJECTED by .finite() -- no program, no literal ZInfinity", () => {
+      const r = gen("G83", { hole_depth: Infinity, peck_depth: 3, feed_rate: 0.15 });
+      expect(r.success).toBe(false);
+      noBadToken(r.gcode);
+    });
+
+    it("NaN feed_rate (G83) is REJECTED -- no literal FNaN", () => {
+      const r = gen("G83", { hole_depth: -25, peck_depth: 3, feed_rate: NaN });
+      expect(r.success).toBe(false);
+      noBadToken(r.gcode);
+    });
+
+    it("-Infinity peck_depth is REJECTED by .finite()", () => {
+      const r = gen("G83", { hole_depth: -25, peck_depth: -Infinity, feed_rate: 0.15 });
+      expect(r.success).toBe(false);
+      noBadToken(r.gcode);
+    });
+  });
 });

@@ -308,25 +308,6 @@ function writeChainLog(chainId: string, data: unknown): void {
 }
 
 /**
- * Build a no-API-key graceful degradation result when hasValidApiKey() is false.
- */
-function buildNoKeyResult(config: InferenceChainConfig): InferenceChainResult {
-  const chainId = config.chain_id ?? generateChainId();
-  return {
-    chain_id: chainId,
-    name: config.name,
-    steps_completed: 0,
-    total_steps: config.steps.length,
-    total_tokens: { input: 0, output: 0 },
-    total_duration_ms: 0,
-    final_output:
-      "ANTHROPIC_API_KEY not configured. Add your key to the .env file to enable inference chains.",
-    step_results: [],
-    status: "failed",
-  };
-}
-
-/**
  * Apply response_level filtering to an InferenceChainResult.
  *   pointer  — returns only chain_id + status
  *   summary  — returns chain_id, name, final_output, total_tokens, status
@@ -454,7 +435,9 @@ function buildExecutionWaves(steps: ChainStep[]): ChainStep[][] {
  *   status "partial" when the deadline is exceeded.
  *
  * Graceful degradation:
- *   - If hasValidApiKey() is false, returns a structured error without throwing.
+ *   - Reasons through the free Ollama-first parallelAPICalls substrate (no ANTHROPIC_API_KEY
+ *     required); an offline/no-provider chain degrades to status:"partial" (per-step errors,
+ *     empty final_output, steps_completed 0; not a throw).
  *   - If an individual step fails, it records the error and continues with an
  *     empty string output, setting status to "partial".
  *
@@ -469,12 +452,16 @@ export async function runInferenceChain(
   const logToDisk = config.log_to_disk !== false;
   const timeoutMs = config.timeout_ms ?? 30000;
 
-  // Guard: no API key
-  if (!hasValidApiKey()) {
-    const noKeyResult = buildNoKeyResult({ ...config, chain_id: chainId });
-    if (logToDisk) writeChainLog(chainId, { config, result: noKeyResult });
-    return noKeyResult;
-  }
+  // FREE-AI-MIGRATION/U-INFERENCECHAIN-LLM-WIRE (slot:india): no ANTHROPIC_API_KEY pre-gate.
+  // runInferenceChain reasons through the now-free Ollama-first parallelAPICalls substrate; an
+  // offline/no-provider result degrades through the per-step error handling below into a
+  // status:"partial" chain (a real attempt -- per-step errors + empty final_output + steps_completed 0),
+  // unlike the old no-key short-circuit which returned status:"failed" + an "ANTHROPIC_API_KEY not
+  // configured" blanket message. R12: each step's error is surfaced in its StepResult.
+  // ACTIVATION NOTE (FREE-AI-MIGRATION/U-REASONING-FIX-AND-FILL, slot:india): runInferenceChain is
+  // now LIVE -- the prism_ai dispatcher action "inference_chain_run" (aiReasoningDispatcher.ts) calls
+  // it with a real {steps,input} payload (no steps -> a discovery list of chain types). (calcDispatcher
+  // inference_chain stays a formatter only; analyzeAndRecommend/deepDiagnose remain hasValidApiKey-gated.)
 
   const steps = config.steps;
   const completedSteps: StepResult[] = [];

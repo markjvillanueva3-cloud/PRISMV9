@@ -1,0 +1,486 @@
+#!/usr/bin/env node
+// PSN-ENHANCE-MS0/U-PSN-HYBRID-RETRIEVAL-WIRE — tests for hybrid-retrieval.mjs
+// Coverage: 4 export fns × happy + null + injection-failure + RRF math + ordering
+// + per-source skip independence.
+
+import { test } from "node:test";
+import { strict as assert } from "node:assert";
+import {
+  hitDocId,
+  rrfMerge,
+  episodeKeywordSearch,
+  defaultEmbed,
+  defaultQdrantSearch,
+  hybridSearch,
+  __test_constants,
+} from "./hybrid-retrieval.mjs";
+
+// --- hitDocId --------------------------------------------------------------
+
+test("hitDocId: prefers explicit id", () => {
+  assert.equal(hitDocId({ id: "alpha", name: "beta" }), "alpha");
+});
+
+test("hitDocId: falls back to name", () => {
+  assert.equal(hitDocId({ name: "beta" }), "beta");
+});
+
+test("hitDocId: pulls payload.node_id (Qdrant shape)", () => {
+  assert.equal(hitDocId({ payload: { node_id: "engine-x" }, score: 0.9 }), "engine-x");
+});
+
+test("hitDocId: pulls episode.id (episode shape)", () => {
+  assert.equal(hitDocId({ episode: { id: "ep-abc" }, score: 3 }), "ep-abc");
+});
+
+test("hitDocId: falls back to file", () => {
+  assert.equal(hitDocId({ file: "x.md" }), "x.md");
+});
+
+test("hitDocId: returns null for unidentifiable hits", () => {
+  assert.equal(hitDocId({ score: 0.5 }), null);
+  assert.equal(hitDocId(null), null);
+  assert.equal(hitDocId(undefined), null);
+  assert.equal(hitDocId("string"), null);
+});
+
+test("hitDocId: rejects empty strings", () => {
+  assert.equal(hitDocId({ id: "", name: "" }), null);
+});
+
+// --- rrfMerge --------------------------------------------------------------
+
+test("rrfMerge: single list returns docs in same order", () => {
+  const out = rrfMerge([
+    { source: "memory", hits: [{ id: "a" }, { id: "b" }, { id: "c" }] },
+  ]);
+  assert.deepEqual(out.map((e) => e.id), ["a", "b", "c"]);
+});
+
+test("rrfMerge: docs in multiple lists fuse with higher score", () => {
+  const out = rrfMerge([
+    { source: "memory", hits: [{ id: "a" }, { id: "b" }] },
+    { source: "vector", hits: [{ id: "b" }, { id: "c" }] },
+  ]);
+  // 'b' is in both lists: 1/(60+2) + 1/(60+1) = ~0.0327
+  // 'a' is only memory rank 1: 1/61 = ~0.0164
+  // 'c' is only vector rank 2: 1/62 = ~0.0161
+  assert.equal(out[0].id, "b");
+  assert.equal(out[0].surfaces.memory, 2);
+  assert.equal(out[0].surfaces.vector, 1);
+  assert.ok(out[0].score > out[1].score);
+});
+
+test("rrfMerge: weights bias fused score", () => {
+  const out = rrfMerge(
+    [
+      { source: "memory", hits: [{ id: "x" }] },
+      { source: "vector", hits: [{ id: "y" }] },
+    ],
+    { weights: { memory: 10.0, vector: 0.1 } }
+  );
+  assert.equal(out[0].id, "x");
+});
+
+test("rrfMerge: custom k changes fusion strength", () => {
+  const lo = rrfMerge([{ source: "memory", hits: [{ id: "a" }] }], { k: 1 });
+  const hi = rrfMerge([{ source: "memory", hits: [{ id: "a" }] }], { k: 1000 });
+  assert.ok(lo[0].score > hi[0].score);
+});
+
+test("rrfMerge: skips hits without identifiable doc id", () => {
+  const out = rrfMerge([
+    { source: "memory", hits: [{ id: "a" }, { score: 0.5 }, { id: "b" }] },
+  ]);
+  assert.deepEqual(out.map((e) => e.id), ["a", "b"]);
+});
+
+test("rrfMerge: empty / non-array input returns []", () => {
+  assert.deepEqual(rrfMerge([]), []);
+  assert.deepEqual(rrfMerge(null), []);
+  assert.deepEqual(rrfMerge(undefined), []);
+});
+
+test("rrfMerge: surfaces map records rank per source", () => {
+  const out = rrfMerge([
+    { source: "master", hits: [{ id: "x" }, { id: "y" }] },
+    { source: "episode", hits: [{ id: "y" }, { id: "x" }] },
+  ]);
+  const entryX = out.find((e) => e.id === "x");
+  assert.equal(entryX.surfaces.master, 1);
+  assert.equal(entryX.surfaces.episode, 2);
+});
+
+test("rrfMerge: ignores malformed list entries", () => {
+  const out = rrfMerge([
+    null,
+    "garbage",
+    { source: "memory", hits: [{ id: "ok" }] },
+    { hits: "not-an-array" },
+  ]);
+  assert.deepEqual(out.map((e) => e.id), ["ok"]);
+});
+
+// --- episodeKeywordSearch --------------------------------------------------
+
+const sampleStore = () => ({
+  episodes: [
+    { id: "ep-1", source: "git-commit", source_id: "abc123", body: "fix qdrant populate batch", entities: [{ name: "QdrantEngine" }] },
+    { id: "ep-2", source: "scrutiny-ledger", source_id: null, body: "hybrid retrieval design", entities: [] },
+    { id: "ep-3", source: "memory-write", source_id: null, body: "old episode that's been superseded", entities: [], valid_until: "2026-05-01T00:00:00Z" },
+    { id: "ep-4", source: "git-commit", source_id: "xyz789", body: "wire hybrid retrieval to MCP", entities: [{ name: "HybridRetrieval" }] },
+  ],
+});
+
+test("episodeKeywordSearch: returns highest-token-overlap first", () => {
+  const out = episodeKeywordSearch(sampleStore(), ["hybrid", "retrieval"]);
+  // Both ep-2 and ep-4 contain both tokens → score 2; tiebreak by id asc → ep-2 first
+  assert.equal(out[0].id, "ep-2");
+  assert.equal(out[0].score, 2);
+  assert.equal(out[1].id, "ep-4");
+  assert.equal(out[1].score, 2);
+});
+
+test("episodeKeywordSearch: skips superseded episodes", () => {
+  const out = episodeKeywordSearch(sampleStore(), ["old"]);
+  assert.deepEqual(out, []);
+});
+
+test("episodeKeywordSearch: matches entity names", () => {
+  const out = episodeKeywordSearch(sampleStore(), ["qdrantengine"]);
+  assert.equal(out.length, 1);
+  assert.equal(out[0].id, "ep-1");
+});
+
+test("episodeKeywordSearch: limit caps results", () => {
+  const big = { episodes: Array.from({ length: 100 }, (_, i) => ({ id: `e-${i}`, body: "hybrid", source: "x" })) };
+  const out = episodeKeywordSearch(big, ["hybrid"], { limit: 5 });
+  assert.equal(out.length, 5);
+});
+
+test("episodeKeywordSearch: empty inputs return []", () => {
+  assert.deepEqual(episodeKeywordSearch(null, ["x"]), []);
+  assert.deepEqual(episodeKeywordSearch(sampleStore(), []), []);
+  assert.deepEqual(episodeKeywordSearch(sampleStore(), null), []);
+});
+
+test("episodeKeywordSearch: deterministic tiebreak by id", () => {
+  const store = { episodes: [
+    { id: "ep-z", source: "git", body: "x" },
+    { id: "ep-a", source: "git", body: "x" },
+  ]};
+  const out = episodeKeywordSearch(store, ["x"]);
+  assert.equal(out[0].id, "ep-a");  // alphabetical tie-break
+});
+
+// --- defaultEmbed ----------------------------------------------------------
+
+test("defaultEmbed: returns embedding on success", () => {
+  const sendImpl = () => ({ status: 0, stdout: JSON.stringify({ embedding: [0.1, 0.2, 0.3] }) });
+  const out = defaultEmbed("test query", { sendImpl });
+  assert.deepEqual(out, [0.1, 0.2, 0.3]);
+});
+
+test("defaultEmbed: null on missing sendImpl", () => {
+  assert.equal(defaultEmbed("query"), null);
+});
+
+test("defaultEmbed: null on subprocess failure", () => {
+  const sendImpl = () => ({ status: 1, stderr: "connection refused" });
+  assert.equal(defaultEmbed("q", { sendImpl }), null);
+});
+
+test("defaultEmbed: null on malformed JSON", () => {
+  const sendImpl = () => ({ status: 0, stdout: "not json" });
+  assert.equal(defaultEmbed("q", { sendImpl }), null);
+});
+
+test("defaultEmbed: null on missing embedding field", () => {
+  const sendImpl = () => ({ status: 0, stdout: JSON.stringify({ other: "field" }) });
+  assert.equal(defaultEmbed("q", { sendImpl }), null);
+});
+
+test("defaultEmbed: null on empty embedding", () => {
+  const sendImpl = () => ({ status: 0, stdout: JSON.stringify({ embedding: [] }) });
+  assert.equal(defaultEmbed("q", { sendImpl }), null);
+});
+
+test("defaultEmbed: null on empty query", () => {
+  const sendImpl = () => ({ status: 0, stdout: JSON.stringify({ embedding: [0.1] }) });
+  assert.equal(defaultEmbed("", { sendImpl }), null);
+});
+
+// --- defaultQdrantSearch ---------------------------------------------------
+
+test("defaultQdrantSearch: normalizes hits with node_id payload", () => {
+  const sendImpl = () => ({
+    status: 0,
+    stdout: JSON.stringify({ result: [
+      { id: 1, score: 0.95, payload: { node_id: "engine-a" } },
+      { id: 2, score: 0.88, payload: { node_id: "engine-b" } },
+    ]}),
+  });
+  const out = defaultQdrantSearch({ vector: [0.1, 0.2], sendImpl });
+  assert.equal(out.length, 2);
+  assert.equal(out[0].id, "engine-a");
+  assert.equal(out[0].score, 0.95);
+});
+
+test("defaultQdrantSearch: empty on no vector", () => {
+  assert.deepEqual(defaultQdrantSearch({ vector: [], sendImpl: () => ({}) }), []);
+});
+
+test("defaultQdrantSearch: empty on subprocess failure", () => {
+  const sendImpl = () => ({ status: 1 });
+  assert.deepEqual(defaultQdrantSearch({ vector: [0.1], sendImpl }), []);
+});
+
+test("defaultQdrantSearch: empty on malformed JSON", () => {
+  const sendImpl = () => ({ status: 0, stdout: "garbage" });
+  assert.deepEqual(defaultQdrantSearch({ vector: [0.1], sendImpl }), []);
+});
+
+test("defaultQdrantSearch: fallback to point id when node_id missing", () => {
+  const sendImpl = () => ({ status: 0, stdout: JSON.stringify({ result: [{ id: 42, score: 0.5 }] }) });
+  const out = defaultQdrantSearch({ vector: [0.1], sendImpl });
+  assert.equal(out[0].id, "42");
+});
+
+// --- hybridSearch (the fan-out) --------------------------------------------
+
+test("hybridSearch: empty query → empty result with skip trace", () => {
+  const out = hybridSearch("");
+  assert.deepEqual(out.results, []);
+  assert.equal(out.trace.skipped[0].reason, "empty-query");
+});
+
+test("hybridSearch: no impls → all default-on substrates skipped", () => {
+  // 5 default-on arms: memory/master/episode/vector/localvector.
+  // qdrantdense gate is OFF by default -> no skip entry for it.
+  const out = hybridSearch("hello world");
+  assert.equal(out.surfacesQueried, 0);
+  assert.equal(out.trace.skipped.length, 5);
+  const srcs = out.trace.skipped.map((s) => s.source);
+  assert.ok(srcs.includes("memory") && srcs.includes("master") && srcs.includes("episode") &&
+    srcs.includes("vector") && srcs.includes("localvector"), "all 5 default arms must be in skipped");
+  assert.ok(!srcs.includes("qdrantdense"), "qdrantdense gate-off must not appear in skipped");
+});
+
+test("hybridSearch: fans out to all 4 substrates when injected", () => {
+  const runMemoryIndexSearch = () => ({ hits: [{ id: "mem-1" }, { id: "shared" }], tokens: ["x"] });
+  const runMasterIndexSearch = () => ({ hits: [{ id: "master-1" }, { id: "shared" }], tokens: ["x"] });
+  const loadStore = () => ({ episodes: [{ id: "ep-shared", body: "x query", source: "git", source_id: "shared" }] });
+  const embedImpl = () => [0.1, 0.2];
+  const qdrantSearch = () => [{ id: "vec-1" }, { id: "shared" }];
+  const out = hybridSearch("x query", { runMemoryIndexSearch, runMasterIndexSearch, loadStore, embedImpl, qdrantSearch });
+  assert.equal(out.surfacesQueried, 4);
+  assert.equal(out.results[0].id, "shared");  // appears in 3 substrates → highest fused
+  assert.equal(Object.keys(out.results[0].surfaces).length, 3);
+});
+
+test("hybridSearch: failing substrate is recorded + others still run", () => {
+  const runMemoryIndexSearch = () => { throw new Error("disk read fail"); };
+  const runMasterIndexSearch = () => ({ hits: [{ id: "ok" }], tokens: [] });
+  const out = hybridSearch("test", { runMemoryIndexSearch, runMasterIndexSearch, includeEpisode: false, includeVector: false });
+  assert.equal(out.surfacesQueried, 1);
+  assert.equal(out.trace.skipped.find((s) => s.source === "memory").error, "disk read fail");
+  assert.equal(out.results[0].id, "ok");
+});
+
+test("hybridSearch: embed failure skips vector leg cleanly", () => {
+  const embedImpl = () => null;
+  const out = hybridSearch("test", { embedImpl, includeMemory: false, includeMaster: false, includeEpisode: false });
+  assert.equal(out.surfacesQueried, 0);
+  assert.equal(out.trace.skipped.find((s) => s.source === "vector").reason, "embed-failed");
+});
+
+test("hybridSearch: vector with no qdrantSearch is skipped", () => {
+  const embedImpl = () => [0.1, 0.2];
+  const out = hybridSearch("test", { embedImpl, includeMemory: false, includeMaster: false, includeEpisode: false });
+  assert.equal(out.trace.skipped.find((s) => s.source === "vector").reason, "no-qdrant-impl");
+});
+
+test("hybridSearch: includeMemory=false drops the leg entirely", () => {
+  const runMemoryIndexSearch = () => ({ hits: [{ id: "x" }], tokens: [] });
+  // includeLocalVector defaults true but no localVectorSearch fn -> 1 no-impl skip.
+  // includeMemory=false means memory arm is completely absent (no skip entry for it).
+  const out = hybridSearch("test", { runMemoryIndexSearch, includeMemory: false, includeMaster: false, includeEpisode: false, includeVector: false });
+  assert.equal(out.surfacesQueried, 0);
+  assert.equal(out.trace.skipped.length, 1);
+  assert.equal(out.trace.skipped[0].source, "localvector");
+  assert.equal(out.trace.skipped[0].reason, "no-impl");
+  assert.ok(!out.trace.skipped.find((s) => s.source === "memory"), "memory must not appear when includeMemory=false");
+});
+
+test("hybridSearch: topK limits final result count", () => {
+  const runMemoryIndexSearch = () => ({ hits: Array.from({ length: 50 }, (_, i) => ({ id: `m-${i}` })), tokens: [] });
+  const out = hybridSearch("test", { runMemoryIndexSearch, topK: 5, includeMaster: false, includeEpisode: false, includeVector: false });
+  assert.equal(out.results.length, 5);
+});
+
+test("hybridSearch: trace.sources records vectorDim for vector leg", () => {
+  const embedImpl = () => [0.1, 0.2, 0.3, 0.4];
+  const qdrantSearch = () => [{ id: "v" }];
+  const out = hybridSearch("test", { embedImpl, qdrantSearch, includeMemory: false, includeMaster: false, includeEpisode: false });
+  assert.equal(out.trace.sources.find((s) => s.source === "vector").vectorDim, 4);
+});
+
+test("hybridSearch: result entries carry per-source raw hits for provenance", () => {
+  const runMemoryIndexSearch = () => ({ hits: [{ id: "shared", file: "memo.md", score: 12 }], tokens: [] });
+  const qdrantSearch = () => [{ id: "shared", score: 0.95, payload: { node_id: "shared" } }];
+  const out = hybridSearch("test", {
+    runMemoryIndexSearch,
+    embedImpl: () => [0.1],
+    qdrantSearch,
+    includeMaster: false,
+    includeEpisode: false,
+  });
+  assert.equal(out.results[0].hits.memory.file, "memo.md");
+  assert.equal(out.results[0].hits.vector.score, 0.95);
+});
+
+test("__test_constants: exports tunables", () => {
+  assert.equal(__test_constants.DEFAULT_RRF_K, 60);
+  assert.equal(__test_constants.DEFAULT_TOP_K, 10);
+  assert.equal(__test_constants.DEFAULT_QDRANT_COLLECTION, "prism_engines");
+  assert.equal(__test_constants.QDRANT_DENSE_ENV_VAR, "PRISM_RAG_DENSE_QDRANT");
+});
+
+// --- qdrantdense arm (U-INDIA-HYBRID-QDRANT-ARM) ----------------------------
+// The arm is async when enabled. Tests await hybridSearch() so they work
+// whether the arm is off (plain sync object) or on (Promise<result>).
+
+// Minimal async mock for qdrantDenseSearch: resolves with { ok, hits, error? }.
+function makeQdrantDenseMock(hits, { ok = true, error } = {}) {
+  return async (_opts) => ({ ok, hits: ok ? hits : [], ...(error ? { error } : {}) });
+}
+
+test("hybridSearch qdrantdense: gate OFF -- arm absent from skipped", async () => {
+  // No includeQdrantDense opt and env var unset -> arm does not appear anywhere.
+  const qdrantDenseSearch = makeQdrantDenseMock([{ id: "qd-1", score: 0.9, payload: null }]);
+  const out = await hybridSearch("mill roughing", {
+    qdrantDenseSearch,
+    includeMemory: false, includeMaster: false, includeEpisode: false,
+    includeVector: false, includeLocalVector: false,
+  });
+  assert.equal(out.surfacesQueried, 0, "gate-off: no surfaces queried");
+  assert.equal(out.trace.skipped.find((s) => s.source === "qdrantdense"), undefined,
+    "gate-off: qdrantdense must not appear in skipped");
+});
+
+test("hybridSearch qdrantdense: single-substrate return -- hits fuse into results", async () => {
+  const hits = [
+    { id: "eng-spindle", score: 0.95, payload: { node_id: "eng-spindle" } },
+    { id: "eng-feed",    score: 0.88, payload: { node_id: "eng-feed" } },
+  ];
+  const out = await hybridSearch("spindle speed optimization", {
+    qdrantDenseSearch: makeQdrantDenseMock(hits),
+    includeQdrantDense: true,
+    embedImpl: () => [0.1, 0.2, 0.3],
+    includeMemory: false, includeMaster: false, includeEpisode: false,
+    includeVector: false, includeLocalVector: false,
+  });
+  assert.equal(out.surfacesQueried, 1, "only qdrantdense surface queried");
+  assert.equal(out.results[0].id, "eng-spindle", "highest-score hit must rank first after RRF");
+  assert.ok(typeof out.results[0].score === "number" && out.results[0].score > 0,
+    "RRF score must be a positive number");
+});
+
+test("hybridSearch qdrantdense: RRF composition -- shared doc fuses higher than single-surface", async () => {
+  const out = await hybridSearch("cutting force", {
+    qdrantDenseSearch: makeQdrantDenseMock([
+      { id: "shared", score: 0.92, payload: null },
+      { id: "qd-only", score: 0.80, payload: null },
+    ]),
+    includeQdrantDense: true,
+    embedImpl: () => [0.5, 0.5],
+    runMemoryIndexSearch: () => ({ hits: [{ id: "shared" }, { id: "mem-only" }], tokens: ["shared"] }),
+    includeMaster: false, includeEpisode: false, includeVector: false, includeLocalVector: false,
+  });
+  assert.equal(out.surfacesQueried, 2, "memory + qdrantdense must both be counted");
+  assert.equal(out.results[0].id, "shared",
+    "doc in both memory and qdrantdense must rank first via RRF");
+  assert.ok(out.results[0].score > out.results.find((r) => r.id === "qd-only").score,
+    "multi-surface doc must score higher than single-surface doc");
+  assert.ok(out.results[0].surfaces["memory"] >= 1, "surfaces must record memory rank");
+  assert.ok(out.results[0].surfaces["qdrantdense"] >= 1, "surfaces must record qdrantdense rank");
+});
+
+test("hybridSearch qdrantdense: RRF k=60 algebraic invariant", async () => {
+  // Single doc at rank 1, weight=1.0, k=60 -> score = 1/(60+1) = 1/61
+  const out = await hybridSearch("test", {
+    qdrantDenseSearch: makeQdrantDenseMock([{ id: "only", score: 0.99, payload: null }]),
+    includeQdrantDense: true,
+    embedImpl: () => [1.0],
+    includeMemory: false, includeMaster: false, includeEpisode: false,
+    includeVector: false, includeLocalVector: false,
+  });
+  assert.equal(out.results.length, 1);
+  const expected = 1.0 / (60 + 1);
+  assert.ok(Math.abs(out.results[0].score - expected) < 1e-10,
+    `RRF score must equal 1/61=${expected.toFixed(8)}, got ${out.results[0].score}`);
+});
+
+test("hybridSearch qdrantdense: API timeout / network error degrades gracefully", async () => {
+  // Mock returns ok=false with a timeout error: arm skips, other arms still fuse.
+  const out = await hybridSearch("chatter", {
+    qdrantDenseSearch: makeQdrantDenseMock([], { ok: false, error: "timeout" }),
+    includeQdrantDense: true,
+    embedImpl: () => [0.1],
+    runMemoryIndexSearch: () => ({ hits: [{ id: "mem-ok" }], tokens: [] }),
+    includeMaster: false, includeEpisode: false, includeVector: false, includeLocalVector: false,
+  });
+  assert.equal(out.results[0].id, "mem-ok", "memory hit must survive qdrantdense timeout");
+  const skip = out.trace.skipped.find((s) => s.source === "qdrantdense");
+  assert.ok(skip, "timeout arm must appear in trace.skipped");
+  assert.equal(skip.reason, "timeout", "skipped reason must be 'timeout'");
+});
+
+test("hybridSearch qdrantdense: embed failure skips arm cleanly", async () => {
+  // embedImpl returns null -> no vector -> arm skips with embed-failed.
+  const out = await hybridSearch("thread milling", {
+    qdrantDenseSearch: makeQdrantDenseMock([{ id: "ghost", score: 0.9, payload: null }]),
+    includeQdrantDense: true,
+    embedImpl: () => null,
+    includeMemory: false, includeMaster: false, includeEpisode: false,
+    includeVector: false, includeLocalVector: false,
+  });
+  assert.equal(out.surfacesQueried, 0, "no surfaces when embed fails");
+  const skip = out.trace.skipped.find((s) => s.source === "qdrantdense");
+  assert.ok(skip, "embed-failed must land in trace.skipped");
+  assert.equal(skip.reason, "embed-failed");
+});
+
+test("hybridSearch qdrantdense: no qdrantDenseSearch impl -- skipped with no-impl", async () => {
+  // Gate on but no fn injected.
+  const out = await hybridSearch("tool wear", {
+    includeQdrantDense: true,
+    embedImpl: () => [0.3],
+    includeMemory: false, includeMaster: false, includeEpisode: false,
+    includeVector: false, includeLocalVector: false,
+  });
+  assert.equal(out.surfacesQueried, 0);
+  const skip = out.trace.skipped.find((s) => s.source === "qdrantdense");
+  assert.ok(skip, "missing impl must land in trace.skipped");
+  assert.equal(skip.reason, "no-impl");
+});
+
+test("hybridSearch qdrantdense: trace.sources records vectorDim and count", async () => {
+  const hits = [
+    { id: "e1", score: 0.91, payload: { node_id: "e1" } },
+    { id: "e2", score: 0.85, payload: { node_id: "e2" } },
+    { id: "e3", score: 0.77, payload: { node_id: "e3" } },
+  ];
+  const vector = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6]; // 6-dim
+  const out = await hybridSearch("deflection", {
+    qdrantDenseSearch: makeQdrantDenseMock(hits),
+    includeQdrantDense: true,
+    embedImpl: () => vector,
+    includeMemory: false, includeMaster: false, includeEpisode: false,
+    includeVector: false, includeLocalVector: false,
+  });
+  const src = out.trace.sources.find((s) => s.source === "qdrantdense");
+  assert.ok(src, "qdrantdense must appear in trace.sources on success");
+  assert.equal(src.count, 3, "count must match hits.length");
+  assert.equal(src.vectorDim, 6, "vectorDim must match embedding dimension");
+});

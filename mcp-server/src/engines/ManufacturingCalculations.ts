@@ -18,6 +18,7 @@
  */
 
 import { log } from "../utils/Logger.js";
+import { CANONICAL_MILLING_SPEEDS, CANONICAL_MILLING_FEEDS, type ISOGroup } from "../physics/constants.js";
 
 // ============================================================================
 // SOURCE FILE CROSS-REFERENCE (P-MS2: Links to FormulaRegistry source catalog)
@@ -763,6 +764,13 @@ export interface SpeedFeedInput {
   operation: "roughing" | "finishing" | "semi-finishing";
   tool_diameter: number;
   number_of_teeth: number;
+  /**
+   * ISO 513 workpiece group (P/M/K/N/S/H). When supplied, Vc + chip load are
+   * anchored on the canonical per-group milling tables (material-aware). When
+   * omitted, the legacy tool-material flat-speed + diameter-linear chip-load
+   * fallback is used (backward compatible).
+   */
+  iso_group?: ISOGroup;
   kienzle?: KienzleCoefficients;
   taylor?: TaylorCoefficients;
 }
@@ -789,8 +797,8 @@ export function calculateSpeedFeed(input: SpeedFeedInput): SpeedFeedResult {
   const warnings: string[] = [];
   const recommendations: string[] = [];
   
-  const { material_hardness = 200, tool_material, operation, tool_diameter, number_of_teeth } = input;
-  
+  const { material_hardness = 200, tool_material, operation, tool_diameter, number_of_teeth, iso_group } = input;
+
   const base_speeds: Record<string, number> = {
     "HSS": 30, "Carbide": 150, "Ceramic": 300, "CBN": 200, "Diamond": 500
   };
@@ -799,19 +807,56 @@ export function calculateSpeedFeed(input: SpeedFeedInput): SpeedFeedResult {
   const lowerSpeeds: Record<string, number> = {};
   for (const [k, v] of Object.entries(base_speeds)) lowerSpeeds[k.toLowerCase()] = v;
   const normalizedTool = tool_material?.trim()?.toLowerCase() || "carbide";
-  let cutting_speed = lowerSpeeds[normalizedTool] || 100;
-  cutting_speed *= Math.pow(200 / material_hardness, 0.3);
-  
-  const operation_factors: Record<string, number> = { "roughing": 0.8, "semi-finishing": 1.0, "finishing": 1.2 };
-  cutting_speed *= operation_factors[operation] || 1.0;
-  
+  const toolBaseSpeed = lowerSpeeds[normalizedTool] || 100;
+  // Sanitize hardness so a non-positive (negative/zero) Brinell input cannot make
+  // Math.pow(200/hardness, ...) NaN/Infinity and poison Vc. Valid positive HB
+  // values are unchanged; default 200 (medium-carbon steel) for bad input.
+  const safeHardness = material_hardness > 0 ? material_hardness : 200;
+
+  let cutting_speed: number;
+  let feed_per_tooth: number;
+
+  if (iso_group) {
+    // MATERIAL-AWARE path (ISO 513 group known). Anchor Vc + chip load on the
+    // canonical per-group MILLING tables instead of a material-blind flat speed
+    // and a constant chip load. This corrects two SFC accuracy defects:
+    //   (a) the stainless-faster-than-steel Vc inversion -- the old Brinell-only
+    //       Math.pow(200/hardness, 0.3) let 316 (HB180) out-run 1045 (HB200);
+    //       the canonical group base orders P>M correctly.
+    //   (b) the material-blind chip load (fz = D*0.02 for every group, ~3x too
+    //       high for steel/stainless -> excess force/power + built-up-edge risk).
+    const speed = CANONICAL_MILLING_SPEEDS[iso_group];
+    const feed = CANONICAL_MILLING_FEEDS[iso_group];
+    const baseVc = operation === "finishing" ? speed.finish
+      : operation === "semi-finishing" ? (speed.rough + speed.finish) / 2 : speed.rough;
+    const baseFz = operation === "finishing" ? feed.finish
+      : operation === "semi-finishing" ? (feed.rough + feed.finish) / 2 : feed.rough;
+    // Scale the carbide base by the tool-material ratio vs carbide (carbide=1.0,
+    // HSS~0.2, ceramic~2.0) so non-carbide tooling stays physical.
+    const toolFactor = toolBaseSpeed / base_speeds["Carbide"];
+    // Bounded within-group hardness fine-tune; clamped [0.8,1.2] so the ISO-group
+    // base ALWAYS dominates and the cross-group ordering can never invert.
+    const hardnessAdj = Math.min(1.2, Math.max(0.8, Math.pow(200 / safeHardness, 0.2)));
+    cutting_speed = baseVc * toolFactor * hardnessAdj;
+    // Chip load scales sub-linearly with tool diameter; the canonical table is the
+    // anchor at REF_D, bounded so tiny/huge tools stay physical.
+    const REF_D = 12;
+    feed_per_tooth = baseFz * Math.min(1.6, Math.max(0.4, Math.sqrt(tool_diameter / REF_D)));
+    feed_per_tooth = Math.max(0.02, Math.min(0.5, feed_per_tooth));
+  } else {
+    // LEGACY fallback (no ISO group available): tool-material flat base x Brinell
+    // scaling + diameter-linear chip load. Preserved byte-for-byte for back-compat.
+    cutting_speed = toolBaseSpeed;
+    cutting_speed *= Math.pow(200 / safeHardness, 0.3);
+    const operation_factors: Record<string, number> = { "roughing": 0.8, "semi-finishing": 1.0, "finishing": 1.2 };
+    cutting_speed *= operation_factors[operation] || 1.0;
+    feed_per_tooth = tool_diameter * 0.02;
+    feed_per_tooth = Math.max(0.02, Math.min(0.5, feed_per_tooth));
+    if (operation === "finishing") feed_per_tooth *= 0.5;
+    else if (operation === "roughing") feed_per_tooth *= 1.2;
+  }
+
   const spindle_speed = (1000 * cutting_speed) / (Math.PI * tool_diameter);
-  
-  let feed_per_tooth = tool_diameter * 0.02;
-  feed_per_tooth = Math.max(0.02, Math.min(0.5, feed_per_tooth));
-  if (operation === "finishing") feed_per_tooth *= 0.5;
-  else if (operation === "roughing") feed_per_tooth *= 1.2;
-  
   const feed_rate = feed_per_tooth * number_of_teeth * spindle_speed;
   
   let axial_depth: number, radial_depth: number;

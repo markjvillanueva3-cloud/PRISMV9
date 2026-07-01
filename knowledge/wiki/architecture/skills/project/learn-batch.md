@@ -29,7 +29,8 @@ related:
 
 ## Description (first paragraph)
 
-Replaces 4 PostToolUse hooks that previously fired on every tool call. They now fire on-demand via this skill.
+
+# /learn-batch — Batch learning hook processor
 
 <!-- AUTO-END -->
 

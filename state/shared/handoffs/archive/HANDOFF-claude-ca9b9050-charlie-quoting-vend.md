@@ -1,0 +1,41 @@
+---
+session: claude-ca9b9050
+topic: charlie-quoting-vendor-loc-ms0
+slot: charlie
+written_at: 2026-06-23T18:23:06.196Z
+machine: DESKTOP-N7MI1VB
+family: Claude
+session_key: claude-ca9b9050
+status: active
+---
+
+# HANDOFF: claude-ca9b9050
+Updated: 2026-06-23T18:23:06.197Z
+Family: Claude | Machine: DESKTOP-N7MI1VB | Session: claude-ca9b9050
+
+## STATE
+(precompact auto-write — slot charlie)
+
+## RESUME
+Last work (slot charlie): 864f8f6e43 [MAIN-FORCE] [QUOTING-VENDOR-LOC-MS0]/U-LVP01 (slot:charlie): location/logistics/vendor-aware pricing + alternative-vendor suggestions. Roadmap: 759 ms, 377 done. Next: L8-P0-MS2, L8-P1-MS2, L8-P2-MS2. Session: Units completed: 0. Re-enter autonomous work: /startup-charlie /loop [10m] /goal (continue to 100% -- eval-gate each iter, never abandon mid-build; re-reads handoff + roadmap + Obsidian brain/PSN). AI: Check DuplicationGuardEngine before creating. Use PRISMCreativeReasoningEngine.explore('optimal') for hybrid solutions
+
+## CONTEXT
+
+## MEMORY_SEED
+_Auto-attached by `scripts/handoff-memory-seed.mjs` — top distilled signals for the next chat._
+
+### Recent error signals (avoid repeating)
+- `test-fail` (tool=Bash) — Test Files  1 failed
+- `git-lock-contention` (tool=Bash) — git index.lock contention — rm -f .git/index.lock OR fork to your own worktree. See [[feedback_conflict_fork_rule]]
+- `tsc` (tool=Bash) — error TS2881: This expression is never nullish.
+
+### Just-shipped distillations (Obsidian)
+- [[reference_post_ship_quoting-vendor-loc-ms0-u-lvp01]] — Auto-distilled learnings from shipping QUOTING-VENDOR-LOC-MS0/U-LVP01 (commit 864f8f6e4). Full content in wiki.
+- [[reference_post_ship_launch-fe-u-q-gated-error-wire-4]] — Auto-distilled learnings from shipping LAUNCH-FE/U-Q-GATED-ERROR-WIRE-4 (commit 96b0e97d1). Full content in wiki.
+
+### Recent wiki code-tribal learnings
+- `knowledge\wiki\code-tribal\learnings\quoting-vendor-loc-ms0-u-lvp01.md` — QUOTING-VENDOR-LOC-MS0/U-LVP01 — [MAIN-FORCE] [QUOTING-VENDOR-LOC-MS0]/U-LVP01 (slot:charlie): location/logistics/vendor-aware pricing + alternative-vendor suggestions
+
+
+
+<!-- pad: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx -->

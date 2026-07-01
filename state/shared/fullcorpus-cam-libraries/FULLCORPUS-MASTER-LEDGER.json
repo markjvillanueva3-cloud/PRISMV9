@@ -1,0 +1,45 @@
+{
+  "schemaVersion": "1.0.0",
+  "milestone": "FULLCORPUS-CAM",
+  "slot": "romeo",
+  "directive": "operator 2026-06-15 (cross-galaxy permission, ALL MEANS ALL): every tool body + holder + insert + tooling in the full unified corpus must be PRESENT in each CAD/CAM database, with material x parameter combinations.",
+  "corpus": {
+    "tools": 118409,
+    "holders": 1164,
+    "inserts_within_tools": 13118,
+    "total_items": 119573,
+    "tool_by_type": {
+      "end_mill": 49517, "drill": 36202, "insert": 13118, "tap": 6183,
+      "turning_tool": 5959, "ball_mill": 2217, "face_mill": 1986, "grooving_tool": 938,
+      "threading_tool": 936, "boring_bar": 752, "reamer": 216, "thread_mill": 151,
+      "ball_nose_end_mill": 42, "chamfer_mill": 42, "slotting_mill": 42, "high_speed_router": 34,
+      "button_cutter": 30, "profile_mill": 29, "countersink": 10, "back_draft_end_mill": 5
+    }
+  },
+  "exports": {
+    "fusion": {
+      "tools_exported": 118409, "all_means_all_ok": true, "commit": "77e280af92",
+      "format": "Fusion 360 .tools JSON v2", "material_presets_per_tool": 6,
+      "geometry_coverage": { "gradeA": 75329, "gradeB": 8713, "gradeC": 16647, "gradeD": 17720, "pctBplus": 71 }
+    },
+    "hypermill": {
+      "tools_exported": 118409, "all_means_all_ok": true, "commit": "61631e6a19",
+      "format": "hyperMILL .hmt SQLite", "materials": "6 ISO-group Vc/fz correction factors",
+      "holders": "embedded per-tool via NCTools", "insert_statements": 355237
+    },
+    "mastercam": {
+      "tools_exported": 118409, "all_means_all_ok": true, "commit": "7c8f055397",
+      "format": "Mastercam .mcam-tools JSON", "materials": "6 ISO-group cutting",
+      "holders": "inferred per-tool (scalar); 3D TlAssembly = task #23"
+    },
+    "holders": {
+      "holders_total": 1164, "all_means_all_ok": true,
+      "format": "universal holder catalog CSV + JSON", "vendors": 5, "tapers": 28, "types": 33,
+      "note": "complements the per-tool embedded holders in the 3 tool-DB exports"
+    }
+  },
+  "all_means_all": "every per-platform generator asserts output_count === corpus_count (118,409 tools / 1,164 holders) and exits 1 on any shortfall. Closed the prior exporter silent max_tools<=100,000 cap that would have dropped 18,409 tools.",
+  "material_parameter_combinations": "each tool carries material cutting data at the format-native level: Fusion = 6 material presets per tool; hyperMILL = 6 ISO-group correction factors (toolpath-specific cutting applied at the CAM-operation level); Mastercam = per-ISO cutting. Full per-grade x per-toolpath preset atomicity is Fusion-native and tracked as tasks #22/#23 for hyperMILL/Mastercam.",
+  "regenerate": "cd mcp-server && NODE_OPTIONS=--max-old-space-size=12288 npx tsx scripts/generate-fullcorpus-{fusion,hypermill,mastercam,holders}.ts",
+  "big_outputs_gitignored": "FULLCORPUS.* (92MB-195MB per platform) are deterministically regenerable; ledgers + samples + the holder CSV/JSON are committed."
+}

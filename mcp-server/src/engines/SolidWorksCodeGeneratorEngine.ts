@@ -28,6 +28,7 @@ import type {
   CADOperation,
   CADOperationKind,
   CADExecutionResult,
+  CADScript,
   CADSystemId,
 } from "../interfaces/ICADCodeGenerator.js";
 import { log } from "../utils/Logger.js";
@@ -221,6 +222,7 @@ End Sub
 export class SolidWorksCodeGeneratorEngine extends UnifiedCADCodeGeneratorBase<SolidWorksGenerationContext> {
   readonly cadSystem: CADSystemId = "solidworks";
   readonly capabilities: CADCapabilityMatrix = {
+    cadSystem: "solidworks",
     ...SOLIDWORKS_CAPABILITY_DETAILS,
     supportedOps: new Set<CADOperationKind>(SOLIDWORKS_SUPPORTED_OPS),
     nativeLengthUnit: "m",
@@ -536,7 +538,7 @@ export class SolidWorksCodeGeneratorEngine extends UnifiedCADCodeGeneratorBase<S
     const p = op.params as any;
     const cx = (p.centerX ?? p.x ?? 0) / 1000;
     const cy = (p.centerY ?? p.y ?? 0) / 1000;
-    const r = (p.radius ?? p.diameter / 2 ?? 5) / 1000;
+    const r = (p.radius ?? (p.diameter != null ? p.diameter / 2 : 5)) / 1000;
     em.line(`Set swSketchSeg = swSketchMgr.CreateCircle(${cx}, ${cy}, 0, ${cx + r}, ${cy}, 0)`);
     em.parameter("circle_radius", r * 1000, "mm", "Circle radius");
   }
@@ -1124,37 +1126,30 @@ export class SolidWorksCodeGeneratorEngine extends UnifiedCADCodeGeneratorBase<S
 
   // ── Execution (mock or real) ────────────────────────────────────────────────
 
-  protected async runScriptBody(script: string, context?: SolidWorksGenerationContext): Promise<CADExecutionResult> {
+  protected async runScriptBody(script: CADScript<string>): Promise<CADExecutionResult> {
     const isMock = process.env.PRISM_CAD_MOCK === "1" || process.env.NODE_ENV === "test";
 
     if (isMock) {
       log.debug("[SolidWorksCodeGeneratorEngine] Mock execution mode");
       return {
-        success: true,
-        outputPath: context?.outputDir ?? "C:\\Temp\\mock_output.SLDPRT",
-        executionTime: 0.5,
-        logs: ["Mock execution completed successfully"],
+        ok: true,
+        durationMs: 500,
+        outputs: [{ path: "C:\\Temp\\mock_output.SLDPRT", kind: "SLDPRT" }],
+        log: "Mock execution completed successfully",
       };
     }
 
-    try {
-      const { solidWorksAutomationBridge } = await import("./SolidWorksAutomationBridge.js");
-      const result = await solidWorksAutomationBridge.executeVBA(script);
-      return {
-        success: result.ok,
-        outputPath: result.result?.outputPath,
-        executionTime: result.result?.executionTime ?? 1.0,
-        logs: result.result?.logs ?? [],
-        errors: result.error ? [result.error] : undefined,
-      };
-    } catch (err: any) {
-      log.error("[SolidWorksCodeGeneratorEngine] Execution failed:", err);
-      return {
-        success: false,
-        errors: [err.message ?? String(err)],
-        executionTime: 0,
-      };
-    }
+    // Real execution: SolidWorksAutomationBridge exposes file ops (open/export/
+    // bbox/close) but NO VBA/macro executor, so the generated VBA script cannot
+    // be run end-to-end yet. Fail loud (R12) rather than crash on a missing method
+    // -- mirrors the EspritCodeGeneratorEngine "COM execution not yet wired" pattern.
+    void script;
+    return {
+      ok: false,
+      error:
+        "SolidWorks VBA execution not yet wired -- SolidWorksAutomationBridge has no macro executor (only open/export/bbox/close)",
+      durationMs: 0,
+    };
   }
 }
 

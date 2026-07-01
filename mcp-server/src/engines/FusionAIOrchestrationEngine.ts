@@ -14,9 +14,13 @@
  */
 
 import { log } from "../utils/Logger.js";
-import { fusionDeepLearningEngine } from "./FusionDeepLearningEngine.js";
+import { fusionDeepLearningEngine, type FusionFeatureType, type FusionMachineType } from "./FusionDeepLearningEngine.js";
 import { fusionMaterialBridgeEngine } from "./FusionMaterialBridgeEngine.js";
-import { fusionMaterialPhysicsBridge } from "./FusionMaterialPhysicsBridge.js";
+// Milling-physics is computed via the shared MastercamMaterialPhysicsBridge —
+// it is the canonical Kienzle/Taylor milling-physics bridge and produces the
+// MillingPhysicsOutput shape consumed below. FusionMaterialPhysicsBridge
+// exposes only force/flow-stress primitives, not a full milling-physics pass.
+import { mastercamMaterialPhysicsBridge } from "./MastercamMaterialPhysicsBridge.js";
 import { fusionStrategyKnowledgeEngine } from "./FusionStrategyKnowledgeEngine.js";
 
 // ============================================================================
@@ -251,7 +255,7 @@ export class FusionAIOrchestrationEngine {
       });
 
       if (request.material_id) {
-        materialProfile = fusionMaterialBridgeEngine.getPhysicsProfile(request.material_id);
+        materialProfile = fusionMaterialBridgeEngine.getCuttingRecommendation(request.material_id);
         enginesInvoked.push("FusionMaterialBridgeEngine");
       }
     }
@@ -335,7 +339,7 @@ export class FusionAIOrchestrationEngine {
         source: "FusionMaterialPhysicsBridge"
       });
 
-      const physicsResult = fusionMaterialPhysicsBridge.calculateMillingPhysics({
+      const physicsResult = mastercamMaterialPhysicsBridge.calculateMillingPhysics({
         material_id: request.material_id,
         tool_diameter_mm: request.tool_diameter_mm,
         tool_flutes: request.tool_flutes || 4,
@@ -542,36 +546,44 @@ export class FusionAIOrchestrationEngine {
   /**
    * Map feature type to Fusion format
    */
-  private mapFeatureType(feature: string): "closed_pocket" | "open_pocket" | "slot" | "freeform_surface" | "steep_wall" | "flat_area" | "deep_cavity" {
-    const mapping: Record<string, "closed_pocket" | "open_pocket" | "slot" | "freeform_surface" | "steep_wall" | "flat_area" | "deep_cavity"> = {
+  private mapFeatureType(feature: string): FusionFeatureType {
+    // Maps caller-supplied shorthand strings to valid FusionFeatureType members
+    // (FusionDeepLearningEngine.ts:83-104). "slot" -> "slot_through" (most common
+    // unqualified slot); "steep_wall" -> "freeform_surface" (nearest valid member);
+    // "flat_area" -> "flat_face" (direct semantic equivalent).
+    const mapping: Record<string, FusionFeatureType> = {
       "pocket": "closed_pocket",
       "pocket_2d": "closed_pocket",
       "contour": "open_pocket",
-      "slot": "slot",
+      "slot": "slot_through",
       "freeform": "freeform_surface",
       "3d_surface": "freeform_surface",
-      "steep": "steep_wall",
-      "flat": "flat_area",
+      "steep": "freeform_surface",
+      "flat": "flat_face",
       "cavity": "deep_cavity",
       "mold": "deep_cavity",
       "die": "deep_cavity"
     };
-    return mapping[feature.toLowerCase()] || "closed_pocket";
+    return mapping[feature.toLowerCase()] ?? "closed_pocket";
   }
 
   /**
    * Map machine type to Fusion format
    */
-  private mapMachineType(machine: string): "3axis_mill" | "4axis_mill" | "5axis_mill" | "5axis_table_head" | "mill_turn" {
-    const mapping: Record<string, "3axis_mill" | "4axis_mill" | "5axis_mill" | "5axis_table_head" | "mill_turn"> = {
+  private mapMachineType(machine: string): FusionMachineType {
+    // Maps caller shorthand to valid FusionMachineType members
+    // (FusionDeepLearningEngine.ts:116-125).
+    // "4axis_mill" is not valid -- nearest is "4axis_rotary".
+    // "5axis_mill" is not valid -- "5axis_table_table" used as generic 5-axis default.
+    const mapping: Record<string, FusionMachineType> = {
       "3axis": "3axis_mill",
-      "4axis": "4axis_mill",
-      "5axis": "5axis_mill",
+      "4axis": "4axis_rotary",
+      "5axis": "5axis_table_table",
       "5axis_table": "5axis_table_head",
       "mill_turn": "mill_turn",
       "lathe": "mill_turn"
     };
-    return mapping[machine.toLowerCase()] || "3axis_mill";
+    return mapping[machine.toLowerCase()] ?? "3axis_mill";
   }
 
   /**

@@ -55,7 +55,7 @@ describe('buildCoolantStrategyRecommendation', () => {
       tool: TOOL_CATALOG.find((item) => item.id === 'adaptive-endmill'),
       toolpath: {
         label: 'FeatureFlow Adaptive Roughing',
-        path: 'PRISM > Mill > FeatureFlow Adaptive Roughing',
+        path: 'Kienzle > Mill > FeatureFlow Adaptive Roughing',
         operationId: 'roughing',
       },
       finishTarget: 'high-removal',

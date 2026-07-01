@@ -40,8 +40,10 @@
 // Exit codes: 0 ok, 2 input failure (node not found / graph unreadable).
 
 import { readFileSync, existsSync } from "node:fs";
+import { readGraphStreaming } from "./lib/graph-io.mjs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import { respawnWithHeap } from "./lib/viz-query-heap-reexec.mjs";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -301,9 +303,8 @@ export function loadGraph(graphPath) {
     e.code = "GRAPH_NOT_FOUND";
     throw e;
   }
-  const raw = readFileSync(graphPath, "utf8");
   let parsed;
-  try { parsed = JSON.parse(raw); }
+  try { parsed = readGraphStreaming(graphPath); }  // off-heap: JSON.parse(readFileSync utf8) throws at >512MiB (U-VIZ-READER-CAPSAFE 2026-06-10)
   catch (err) {
     const e = new Error(`system-graph not parseable: ${err.message}`);
     e.code = "GRAPH_PARSE";
@@ -375,6 +376,21 @@ const isCli = (() => {
   catch { return false; }
 })();
 if (isCli) {
+  // Heap self-respawn BEFORE main()->loadGraph: readGraphStreaming is string-cap
+  // safe but still materializes the full ~300K-node array, which thrashes the
+  // box's low default heap (~432MB observed -> GC Mark-Compact churn, ~2.9s). Re-
+  // exec once with a generous heap so the read is clean. CLI-only (kept out of the
+  // exported pure main() so its tests never spawn). Shared decision: planHeapRespawn
+  // (scripts/lib/viz-query-heap-reexec.mjs). Knob: PRISM_VIZ_NODE_DISPATCH_HEAP_MB.
+  const r = respawnWithHeap({
+    scriptUrl: import.meta.url, argv: process.argv.slice(2),
+    breakerVar: "PRISM_VIZ_NODE_DISPATCH_REEXEC", heapVar: "PRISM_VIZ_NODE_DISPATCH_HEAP_MB", defaultMb: 4096,
+  });
+  if (r.respawned) {
+    // R12: never report success on a dead child (stdio:"inherit" -> child silent).
+    if (r.error) { process.stderr.write(`system-viz-node-dispatch heap-respawn failed: ${r.error.message}\n`); process.exit(1); }
+    process.exit(r.status);
+  }
   try { process.exit(main()); }
   catch (e) {
     process.stderr.write(`system-viz-node-dispatch: fatal: ${e?.message || e}\n`);

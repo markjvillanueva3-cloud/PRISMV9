@@ -256,6 +256,19 @@ export function registerProductDispatcher(server: any): void {
           Object.assign(params, normalizeParams(rawParams));
         } catch { /* normalizer not available */ }
 
+        // SFC machine-data shape bridge: the SFC web page (web/src/components/sfc/buildSfcRequest.ts)
+        // posts FLAT machine_max_rpm/machine_power_kw to POST /api/v1/sfc/calculate -> prism_product:
+        // sfc_calculate, but the pre-calculation machine-validation hooks read the NESTED
+        // machine.spindle.* shape -> pre-machine-completeness-gate FALSE-BLOCKS every web SFC calc
+        // (verified live: flat -> blocked, nested -> full result). calcDispatcher already bridges its
+        // sf_* SFC actions; this wires the SAME shared bridge into the product path. Additive +
+        // non-destructive: SFC compute actions only, never overwrites an explicit machine, and a
+        // genuinely-incomplete spec STILL blocks (no safety weakening). See utils/sfcMachineBridge.ts.
+        try {
+          const { applySfcMachineBridge } = await import("../../utils/sfcMachineBridge.js");
+          applySfcMachineBridge(action, params);
+        } catch { /* bridge not available -- gate behaves as before (blocks a flat-only SFC payload) */ }
+
         // Pre-hooks
         const hookCtx = {
           operation: action,

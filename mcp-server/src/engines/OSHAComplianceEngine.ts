@@ -3,6 +3,8 @@
  * OSHA incident recording, 300/300A log generation, PPE assignment tracking.
  */
 import { persistenceBridge } from "../db/PersistenceBridge.js";
+import { JM_DIE_OSHA_INCIDENT_SEEDS, JM_DIE_PPE_SEEDS } from "../data/jm-die-osha-seeds.js";
+import { oshaStandardForPPE, type OSHAStandard } from "../data/osha-ppe-standards.js";
 
 export interface OSHAIncident {
   id: string;
@@ -33,6 +35,12 @@ export interface PPEAssignment {
   issued_date: string;
   issued_by: string;
   condition: "good" | "worn" | "replace";
+  /**
+   * The 29 CFR standard that governs this PPE item (from oshaStandardForPPE).
+   * Optional for back-compat with persisted/older records; assignPPE auto-populates
+   * it from ppe_type when not supplied.
+   */
+  governing_standard?: OSHAStandard;
 }
 
 export interface OSHA300Row {
@@ -65,6 +73,27 @@ class OSHAComplianceEngine {
   constructor() {
     persistenceBridge.registerMap({ entity: "osha_incidents", getMap: () => this.incidents as unknown as Map<string, any>, keyField: "id" });
     persistenceBridge.registerMap({ entity: "ppe_assignments", getMap: () => this.ppeAssignments as unknown as Map<string, any>, keyField: "id" });
+    this.seedCanonicalRecords();
+  }
+
+  /**
+   * Seed the canonical JM Die OSHA incident + PPE records (mirrors
+   * EmployeeEngine.seedCanonicalRoster). In-memory stores start empty, so
+   * without this the OSHACompliancePage renders blank; the in-code seeds
+   * hydrate on every launch. Idempotent (guarded on stable id) so a later
+   * persistenceBridge.loadAll() merge never double-inserts.
+   */
+  private seedCanonicalRecords(): void {
+    for (const incident of JM_DIE_OSHA_INCIDENT_SEEDS) {
+      if (!this.incidents.has(incident.id)) {
+        this.incidents.set(incident.id, { ...incident });
+      }
+    }
+    for (const ppe of JM_DIE_PPE_SEEDS) {
+      if (!this.ppeAssignments.has(ppe.id)) {
+        this.ppeAssignments.set(ppe.id, { ...ppe });
+      }
+    }
   }
 
   createIncident(params: Omit<OSHAIncident, "id" | "created_at" | "recordable">): OSHAIncident {
@@ -129,6 +158,8 @@ class OSHAComplianceEngine {
     const ppe: PPEAssignment = {
       ...params,
       id: `PPE-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+      // Auto-cite the governing 29 CFR standard from the PPE type unless caller supplied one.
+      governing_standard: params.governing_standard ?? oshaStandardForPPE(params.ppe_type),
     };
     this.ppeAssignments.set(ppe.id, ppe);
     persistenceBridge.persist("ppe_assignments", ppe.id, ppe as any);
@@ -139,6 +170,18 @@ class OSHAComplianceEngine {
     return Array.from(this.ppeAssignments.values())
       .filter(p => p.employee_id === employeeId)
       .map(p => ({ ...p, needs_replacement: p.condition === "replace" }));
+  }
+
+  /**
+   * List EVERY PPE assignment (the unfiltered sibling of listPPEByEmployee), each decorated with
+   * `needs_replacement`. Backs the OSHACompliancePage PPE panel, which lists all assignments across
+   * employees rather than one employee's. Newest assignment first (the id embeds Date.now()).
+   * @returns all PPE assignments with the needs_replacement flag, sorted newest-first.
+   */
+  listAllPPE(): (PPEAssignment & { needs_replacement: boolean })[] {
+    return Array.from(this.ppeAssignments.values())
+      .map(p => ({ ...p, needs_replacement: p.condition === "replace" }))
+      .sort((a, b) => b.id.localeCompare(a.id));
   }
 
   listIncidents(filters?: { year?: number; recordable_only?: boolean }): OSHAIncident[] {

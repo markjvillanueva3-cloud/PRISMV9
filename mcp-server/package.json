@@ -22,6 +22,7 @@
         "prebuild": "node scripts/prebuild-gate.cjs",
         "postbuild": "node scripts/postbuild-fix-createRequire.cjs && node scripts/build-catalog-json.mjs && node scripts/postbuild-verify.cjs",
         "build:incremental": "node --max-old-space-size=16384 node_modules/typescript/bin/tsc --incremental && node esbuild.config.mjs",
+        "build:tsc-cold": "node --max-old-space-size=16384 node_modules/typescript/bin/tsc --noEmit --incremental false",
         "build:verify": "node scripts/postbuild-verify.cjs",
         "build:fast": "node esbuild.config.mjs",
         "release-gate": "npx tsx scripts/release-gate.ts",

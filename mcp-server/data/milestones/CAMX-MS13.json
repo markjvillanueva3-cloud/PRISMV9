@@ -1,0 +1,241 @@
+{
+  "id": "CAMX-MS13",
+  "version": "7.0.0",
+  "title": "Cost-Optimal Pipeline Decision Engine",
+  "brief": "Total cost model at every pipeline stage. Tool change, coolant, energy, setup cost optimization. TCO dashboard.",
+  "created_at": "2026-03-22T14:54:56Z",
+  "created_by": "claude-opus-4.6",
+  "phases": [
+    {
+      "id": "P0",
+      "title": "Cost Optimization",
+      "units": [
+        {
+          "id": "U-CAMX01",
+          "title": "PipelineCostModelEngine",
+          "description": "Material + machining + tool wear + energy + overhead + scrap risk. Cost per part breakdown.",
+          "exit_conditions": [
+            "Cost model created ~600L",
+            "All cost streams",
+            "Replaces vague criteria with measurable"
+          ],
+          "status": "complete",
+          "legacy_id": "U01",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-CAMX02",
+          "title": "ToolChangeOptimizationEngine",
+          "description": "Minimize tool changes. Magazine layout. Tool sharing.",
+          "exit_conditions": [
+            "Tool changes minimized",
+            "Magazine optimized",
+            "Replaces vague criteria with measurable"
+          ],
+          "status": "complete",
+          "legacy_id": "U02",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-CAMX03",
+          "title": "CoolantCostOptimizationEngine",
+          "description": "MQL vs flood vs cryo vs dry. Acquisition + disposal + filtration costs.",
+          "exit_conditions": [
+            "Coolant cost compared",
+            "Lifecycle costs",
+            "Replaces vague criteria with measurable"
+          ],
+          "status": "complete",
+          "legacy_id": "U03",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-CAMX04",
+          "title": "EnergyOptimizationEngine",
+          "description": "Minimize energy per part. Spindle power vs idle.",
+          "exit_conditions": [
+            "Energy minimized",
+            "Replaces vague criteria with measurable",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
+          ],
+          "status": "complete",
+          "legacy_id": "U04",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-CAMX05",
+          "title": "SetupCostOptimizationEngine",
+          "description": "Minimize total setup cost. Fixture amortization. Datum chain.",
+          "exit_conditions": [
+            "Setup cost minimized",
+            "Replaces vague criteria with measurable",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
+          ],
+          "status": "complete",
+          "legacy_id": "U05",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-CAMX06",
+          "title": "TCODashboardEngine",
+          "description": "Aggregate all cost streams. Current vs optimized. Savings opportunity.",
+          "exit_conditions": [
+            "Dashboard data generated",
+            "Replaces vague criteria with measurable",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
+          ],
+          "status": "complete",
+          "legacy_id": "U06",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-CAMX07",
+          "title": "Dispatcher wiring",
+          "description": "6 actions. — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "exit_conditions": [
+            "6 actions wired",
+            "Build passes",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
+          ],
+          "status": "complete",
+          "legacy_id": "U07",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-CAMX08",
+          "title": "Tests",
+          "description": "30+ tests. — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "exit_conditions": [
+            "30+ tests pass",
+            "Tests pass: npx vitest run (min 10 cases for engine units)",
+            "Typecheck clean: npx tsc --noEmit on touched files"
+          ],
+          "status": "complete",
+          "legacy_id": "U08",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        }
+      ]
+    }
+  ],
+  "status": "complete",
+  "completed_at": "2026-04-19T13:21:00Z",
+  "completed_units": 8,
+  "total_units": 8,
+  "closure_notes": "All 6 engines (PipelineCostModel, ToolChangeOptimization, CoolantCostOptimization, EnergyOptimization, SetupCostOptimization, TCODashboard) built, wired into camDispatcher, and covered by CAMX-MS13-CostOptimal.test.ts (35 tests pass).",
+  "smart_config": {
+    "role": "senior-architect + domain-specialist",
+    "model": "opus",
+    "effort": "MAX",
+    "context_budget": "65%"
+  },
+  "mcp_lifecycle": {
+    "session_start": [
+      "prism_session:context_boot",
+      "prism_session:dispatcher_map",
+      "prism_session:memory_recall",
+      "prism_session:system_snapshot",
+      "prism_session:action_search"
+    ],
+    "during_work": [
+      "prism_session:auto_checkpoint",
+      "prism_session:tool_route_best",
+      "prism_session:wip_capture"
+    ],
+    "session_end": [
+      "prism_session:memory_save",
+      "prism_session:system_snapshot",
+      "prism_session:checkpoint_enhanced"
+    ]
+  },
+  "forge_triple": {
+    "protective_hook": "camx-ms13-gate",
+    "mcp_action": "prism_camx:camx_ms13_run",
+    "skill_command": "/camx-ms13",
+    "ownership": "DECLARED — BUILT in terminal unit of this milestone"
+  },
+  "feature_cascade": {
+    "new_hooks": [
+      "camx-ms13-gate"
+    ],
+    "new_actions": [
+      "camx_ms13_run"
+    ],
+    "new_skills": [
+      "/camx-ms13"
+    ],
+    "available_to": [
+      "downstream CAMX milestones",
+      "prism app consumers"
+    ]
+  },
+  "knowledge_sources": {
+    "engines": [
+      "ENGINE_DIGEST.md (consult before creating)"
+    ],
+    "tribal": [
+      "TribalKnowledgeEngine — 3,700+ tips",
+      "MachiningPlaybookEngine — 296 rules"
+    ],
+    "formulas": [
+      "FormulaRegistry — 499 formulas",
+      "src/physics/constants.ts — canonical"
+    ],
+    "reference": [
+      "EXTERNAL-REFERENCE-PROGRAMS-INDEX.md",
+      "MaterialRegistry",
+      "MachineRegistry",
+      "ToolCatalogEngine (95,608 tools)"
+    ]
+  },
+  "intent": "Total cost model at every pipeline stage. Tool change, coolant, energy, setup cost optimization. TCO dashboard.",
+  "compact_checkpoint": "every 3 units — auto-triggered by hook",
+  "enforcement_hooks_active": [
+    "physics agent",
+    "wiring agent",
+    "constants checker",
+    "stub detector",
+    "test quality",
+    "forge-triple gate",
+    "session audit agent"
+  ]
+}

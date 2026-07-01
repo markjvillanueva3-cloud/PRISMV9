@@ -21,7 +21,7 @@ related:
 
 ## Description (from file header)
 
-session-continuity-chain.mjs — U-CTX05 Multi-Session Handoff ChainManages the 5-session handoff chain for cross-session context continuity.- SessionStart: Loads last 5 sessions, injects compressed summaries- SessionEnd: Appends current session to chain, prunes oldCompression strategy:- Sessions 1-2 (most recent): raw data preserved- Sessions 3-5 (older): summarized to ~500 tokens each@hook SessionStart, SessionEnd
+_(no header docblock — read source for behavior)_
 
 ## Events
 

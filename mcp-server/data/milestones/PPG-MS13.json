@@ -1,0 +1,154 @@
+{
+  "schemaVersion": "1.0.0",
+  "id": "PPG-MS13",
+  "version": "1.0.0",
+  "title": "PPG-MS13 — Reference Post Corpus & Operator Surface (resources/ ingest + setup sheet + subprogram + coolant + air-cut + probe emit)",
+  "track": "PPG",
+  "parent_roadmap": "PRISM-UNIFIED-ROADMAP-v2",
+  "pillar": "P3-PPG-SFC-LEARNING-LOOP",
+  "status": "not_started",
+  "created_at": "2026-04-29T02:35:00.000Z",
+  "last_updated": "2026-04-29T15:12:31.240Z",
+  "total_units": 8,
+  "completed_units": 0,
+  "description": "Closes the value-coverage gaps surfaced by the second scrutiny pass. Ingests every generic post in H:/prism/resources/ as byte-diff reference for emission validation; wires SetupSheetPipelineEngine, SubprogramExtractionEngine, CoolantStrategyAdapter, air-cut detection, and probe emit into the post pipeline. These are existing engines/actions that today have no path to operator output.",
+  "rationale": "The first scrutiny pass scored value coverage 47/100. Twelve high-value capabilities exist as engines/actions but no PPG-MS owned wiring them through to operator output. MS13 owns the gap: (a) reference-post ingest (user explicitly mentioned generic posts in resources/, plus Mastercam/Esprit reference); (b) operator-facing surfaces (setup sheet auto-gen, subprogram extraction, coolant strategy emission, air-cut rapid optimization, probe macros).",
+  "leverage_existing": [
+    "SetupSheetPipelineEngine (E0423) — operator setup sheet pipeline (currently unwired to post emission)",
+    "SubprogramExtractionEngine (E0440) — repeated-pattern compression (currently unwired)",
+    "CoolantStrategyAdapter (E0115) — TSC/MQL/flood/mist/pulse strategy (currently unwired to emit)",
+    "Existing dispatcher actions (camDispatcher): air_cut_detect, post_air_cut_detect, post_rapid_optimize, post_full_rapid_optimize, post_auto_probe, post_setup_sheet, post_setup_sheet_auto, post_setup_sheet_generate, ppg_setup_sheet, ppg_subprogram_analyze, ppg_subprogram_detect, ppg_coolant_config",
+    "Probe emit actions: probe_wcs_setup_gen, probe_first_article_gen, probe_in_process_gen, probe_tool_measure_gen, probe_auto_comp_gen",
+    "DocumentKnowledgeExtractionEngine (PPG-MS10 backbone) — for resources/ classification"
+  ],
+  "the_worked_example_that_proves_it": {
+    "scenario": "Programmer at JM Die runs the wizard for a Holo-Krome shoulder-bolt mill job: 6 features, 3 tools, requires probing for stock variation, 4 repeating bolt-circle patterns, TSC + MQL hybrid coolant.",
+    "today_pre_ppg_ms13": "Wizard emits the program but no setup sheet; programmer hand-writes one. Subprograms not extracted, so each bolt-circle is repeated inline (program 4× longer than necessary). Coolant emission defaults to flood. Probe macros copy-pasted from a previous job. Generic Mastercam reference post in resources/ is unread.",
+    "should_be_post_ppg_ms13": "Wizard auto-generates setup sheet (operator + tool list + coolant + workholding). SubprogramExtractionEngine collapses bolt-circle into M98 P-call (4× compression). CoolantStrategyAdapter emits TSC@200 PSI rough → MQL finish per the per-feature toggle. Probe macros emit: WCS setup, in-process touch on the critical bore, FAI on the keyway. Generated post byte-diffs cleanly against the corresponding Mastercam reference for sanity.",
+    "gap_now_closed": "12 dormant engines/actions reach operator output."
+  },
+  "units": [
+    {
+      "id": "U-PPGM77",
+      "title": "Reference-post corpus ingest (resources/ walk + classify + persist)",
+      "scope": "Walk H:/prism/resources/ exhaustively. Classify .cps (Fusion), .pst (Mastercam), .mp/.mpmaster (Mastercam MP), .mcam (Mastercam X), .esp (Esprit), .post (generic). Persist into ReferencePostKnowledgeStore with vendor + controller + machine class metadata.",
+      "files_to_modify": [
+        "src/engines/ReferencePostKnowledgeStoreEngine.ts"
+      ],
+      "tests_to_add": [
+        "src/__tests__/ReferencePostKnowledgeStore.integration.test.ts"
+      ]
+    },
+    {
+      "id": "U-PPGM78",
+      "title": "Byte-diff seed for MS12 from reference posts (Mastercam + Esprit)",
+      "scope": "From U-PPGM77 ingest, select 1 reference per major dialect (Mastercam X9 sample, Esprit sample, hyperMILL sample). Emit equivalent program through PRISM master post; lock the diff baseline as a tolerated-changes manifest into MS12 corpus.",
+      "files_to_modify": [
+        "mcp-server/data/state/PPG_REFERENCE_BASELINES.json"
+      ],
+      "tests_to_add": [
+        "src/__tests__/ReferencePostByteDiffSeed.test.ts"
+      ]
+    },
+    {
+      "id": "U-PPGM79",
+      "title": "Setup sheet auto-generation from sidecar + post output",
+      "scope": "Wire SetupSheetPipelineEngine (E0423) as PostProcessorPipelineEngine stage 35; consumes sidecar + emit output; renders operator + tool list + coolant + workholding + WCS table; available via post_setup_sheet_auto action.",
+      "files_to_modify": [
+        "src/engines/PostProcessorPipelineEngine.ts",
+        "src/engines/SetupSheetPipelineEngine.ts"
+      ],
+      "tests_to_add": [
+        "src/__tests__/SetupSheetAutoGen.integration.test.ts"
+      ]
+    },
+    {
+      "id": "U-PPGM80",
+      "title": "Subprogram extraction wiring (M98/M99 emit for repeated patterns)",
+      "scope": "Wire SubprogramExtractionEngine (E0440) as PostProcessorPipelineEngine stage 22; detect bolt-circle / linear-pattern / repeated-feature emissions; collapse to M98 P-call or controller-equivalent (subprogram for Fanuc, conversational repeat for Hurco).",
+      "files_to_modify": [
+        "src/engines/PostProcessorPipelineEngine.ts",
+        "src/engines/SubprogramExtractionEngine.ts"
+      ],
+      "tests_to_add": [
+        "src/__tests__/SubprogramExtraction.integration.test.ts"
+      ]
+    },
+    {
+      "id": "U-PPGM81",
+      "title": "Coolant strategy emission (TSC/MQL/flood/mist/pulse + per-feature toggle)",
+      "scope": "Wire CoolantStrategyAdapter (E0115) into post pipeline; consume FeatureToggleMatrix from PPG-MS6; emit per-op coolant strategy (M-codes vary by controller dialect from PPG-MS5).",
+      "files_to_modify": [
+        "src/engines/PostProcessorPipelineEngine.ts",
+        "src/engines/CoolantStrategyAdapter.ts"
+      ],
+      "tests_to_add": [
+        "src/__tests__/CoolantStrategyEmission.integration.test.ts"
+      ]
+    },
+    {
+      "id": "U-PPGM82",
+      "title": "Air-cut detection + rapid optimization",
+      "scope": "Wire post_air_cut_detect + post_rapid_optimize as a PostProcessorPipeline stage; replace G1 air-cuts with G0; respect machine-specific rapid override (some controllers cap at 50%); cycle-time delta logged.",
+      "files_to_modify": [
+        "src/engines/PostProcessorPipelineEngine.ts"
+      ],
+      "tests_to_add": [
+        "src/__tests__/AirCutOptimization.integration.test.ts"
+      ]
+    },
+    {
+      "id": "U-PPGM83",
+      "title": "Probe emit wiring (WCS / in-process / FAI / tool measure)",
+      "scope": "Wire probe_wcs_setup_gen + probe_first_article_gen + probe_in_process_gen + probe_tool_measure_gen + probe_auto_comp_gen into post pipeline based on wizard probe-toggle; controller-specific probe macro selection from MS5 dialect emitter.",
+      "files_to_modify": [
+        "src/engines/PostProcessorPipelineEngine.ts"
+      ],
+      "tests_to_add": [
+        "src/__tests__/ProbeEmitIntegration.integration.test.ts"
+      ]
+    },
+    {
+      "id": "U-PPGM84",
+      "title": "Operator surface dashboard + integration test",
+      "scope": "End-to-end: wizard → post emit → setup sheet + subprogram + coolant + air-cut + probe → operator package (G-code + sidecar + setup sheet + probe macros + coolant ticket) zipped for download. Asserts 12 dormant engines/actions are now exercised end-to-end.",
+      "files_to_modify": [
+        "web/src/pages/PostProcessorGeneratorPage.tsx",
+        "mcp-server/src/routes/ppg.ts"
+      ],
+      "tests_to_add": [
+        "src/__tests__/OperatorSurfaceE2E.integration.test.ts"
+      ]
+    }
+  ],
+  "completion_criteria": [
+    "resources/ tree fully ingested; ReferencePostKnowledgeStore enumerates every .cps/.pst/.mp/.mcam/.esp file with vendor + controller metadata",
+    "Byte-diff seed exists for 3 reference dialects (Mastercam, Esprit, hyperMILL)",
+    "Operator surface end-to-end test passes — generated package contains setup sheet, subprogram-compressed program, dialect-correct coolant emission, air-cut-optimized rapids, controller-specific probe macros",
+    "Subprogram compression measurable on the bolt-circle benchmark: ≥3× line-count reduction without functional change",
+    "Air-cut optimization measurable on the 50-program corpus (PPG-MS1): ≥2% cycle-time win vs no-optimization baseline",
+    "Setup sheet readable by an unfamiliar operator in <60s (UX test, N≥5 operators)"
+  ],
+  "depends_on": [
+    "PPG-MS0",
+    "PPG-MS5",
+    "PPG-MS6",
+    "PPG-MS10"
+  ],
+  "blocks": [
+    "PPG-MS12",
+    "PPG-MS15",
+    "PPG-MS16",
+    "PPG-MS20",
+    "PPG-MS28",
+    "PPG-MS30",
+    "PPG-MS32",
+    "PPG-MS34",
+    "PPG-MS38"
+  ],
+  "supersedes": [
+    "LATHE-MASTER/U-LTH15 (Controller Spec Ingestion — corpus ingest scope)",
+    "F360-FULL-MS5#setup-intelligence (Setup intelligence — PPG-MS13/U-PPGM79 setup-sheet auto-gen covers it)"
+  ],
+  "_reverse_reciprocity_patch": "ppg-round3-novel-2026-04-29"
+}

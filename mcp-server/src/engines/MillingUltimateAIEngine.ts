@@ -1168,12 +1168,14 @@ export class MillingUltimateAIEngine {
   private selectFromPareto(frontier: ParetoSolution[], context: UltimateMillingContext): ParetoSolution {
     // Select based on context priorities
     if (context.max_cycle_time_min) {
-      const fast = frontier.filter(s => s.objectives.cycle_time_min <= context.max_cycle_time_min);
+      const maxCycleTime = context.max_cycle_time_min;
+      const fast = frontier.filter(s => s.objectives.cycle_time_min <= maxCycleTime);
       if (fast.length > 0) return fast[0];
     }
 
     if (context.surface_finish_ra && context.surface_finish_ra < 1.0) {
-      const quality = frontier.filter(s => s.objectives.surface_finish_ra <= context.surface_finish_ra);
+      const targetRa = context.surface_finish_ra;
+      const quality = frontier.filter(s => s.objectives.surface_finish_ra <= targetRa);
       if (quality.length > 0) return quality[0];
     }
 

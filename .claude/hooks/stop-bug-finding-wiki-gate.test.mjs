@@ -15,6 +15,8 @@ import {
   slugify,
   hasCompanionWikiEntry,
   renderAdvisory,
+  renderWikiStub,
+  createWikiStub,
   runGate,
   detectBugFindings,
   BUG_KEYWORDS,
@@ -206,4 +208,177 @@ test("MEMORY_BUG_PATTERNS recognises feedback_/reference_ filenames", () => {
   // Negative cases
   assert.ok(!MEMORY_BUG_PATTERNS.some(p => p.test("project_continue_cad_trigger.md")));
   assert.ok(!MEMORY_BUG_PATTERNS.some(p => p.test("reference_something_else.md")));
+});
+
+// ────────────────────────────────────────────────────────────────
+// renderWikiStub — U-BUG-FINDING-WIKI-FOLLOWUPS
+// ────────────────────────────────────────────────────────────────
+
+test("renderWikiStub: contains all five required sections + frontmatter", () => {
+  const md = renderWikiStub({ type: "commit-subject-bug-kw", slug: "x-bug", ref: "X bug ref" });
+  for (const s of ["## Symptom", "## Root cause", "## Detection", "## Prevention", "## Cross-refs"]) {
+    assert.ok(md.includes(s), `stub has ${s}`);
+  }
+  assert.ok(md.startsWith("---\n"), "stub opens with frontmatter");
+  assert.ok(md.includes("status: stub"), "frontmatter tags status: stub");
+  assert.ok(md.includes("auto_generated: true"), "frontmatter tags auto_generated");
+  assert.ok(md.includes("X bug ref"), "stub carries the finding ref");
+});
+test("renderWikiStub: missing fields → safe defaults, no throw", () => {
+  const md = renderWikiStub({});
+  assert.ok(md.includes("unknown bug finding"));
+  assert.ok(md.includes("## Symptom"));
+});
+
+// ────────────────────────────────────────────────────────────────
+// createWikiStub — U-BUG-FINDING-WIKI-FOLLOWUPS
+// ────────────────────────────────────────────────────────────────
+
+test("createWikiStub: writes a 5-section skeleton in lessons/", () => {
+  const w = makeFixtureWiki([]);
+  try {
+    const rel = createWikiStub({ type: "x", slug: "new-bug", ref: "New bug" }, { wikiRoot: w });
+    assert.strictEqual(rel, "lessons/new-bug.md");
+    const body = fs.readFileSync(path.join(w, "lessons", "new-bug.md"), "utf8");
+    assert.ok(body.includes("## Symptom"));
+    assert.ok(body.includes("## Cross-refs"));
+    assert.ok(body.includes("status: stub"));
+  } finally {
+    fs.rmSync(w, { recursive: true, force: true });
+  }
+});
+test("createWikiStub: idempotent — never overwrites an existing entry", () => {
+  const w = makeFixtureWiki([["lessons", "dup.md"]]);
+  try {
+    const rel = createWikiStub({ slug: "dup", ref: "r", type: "x" }, { wikiRoot: w });
+    assert.strictEqual(rel, null, "existing file → null, not overwritten");
+    assert.strictEqual(fs.readFileSync(path.join(w, "lessons", "dup.md"), "utf8"), "# stub");
+  } finally {
+    fs.rmSync(w, { recursive: true, force: true });
+  }
+});
+test("createWikiStub: empty slug → null (never writes lessons/.md)", () => {
+  const w = makeFixtureWiki([]);
+  try {
+    assert.strictEqual(createWikiStub({ slug: "", ref: "r", type: "x" }, { wikiRoot: w }), null);
+    assert.strictEqual(createWikiStub({}, { wikiRoot: w }), null);
+  } finally {
+    fs.rmSync(w, { recursive: true, force: true });
+  }
+});
+test("createWikiStub: re-slugifies a non-kebab slug defensively", () => {
+  const w = makeFixtureWiki([]);
+  try {
+    const rel = createWikiStub({ slug: "Foo Bar!!", ref: "r", type: "x" }, { wikiRoot: w });
+    assert.strictEqual(rel, "lessons/foo-bar.md");
+    assert.ok(fs.existsSync(path.join(w, "lessons", "foo-bar.md")));
+  } finally {
+    fs.rmSync(w, { recursive: true, force: true });
+  }
+});
+
+// ────────────────────────────────────────────────────────────────
+// renderAdvisory — stubbed section (U-BUG-FINDING-WIKI-FOLLOWUPS)
+// ────────────────────────────────────────────────────────────────
+
+test("renderAdvisory: stubbed-only → 'fill the skeleton' section", () => {
+  const out = renderAdvisory([], [{ type: "x", slug: "y-bug", stubPath: "lessons/y-bug.md" }]);
+  assert.ok(out.includes("lessons/y-bug.md"));
+  assert.ok(out.includes("y-bug"));
+  assert.ok(/stub/i.test(out));
+});
+test("renderAdvisory: missing + stubbed both render", () => {
+  const out = renderAdvisory(
+    [{ type: "x", slug: "miss-bug", ref: "r1" }],
+    [{ type: "x", slug: "stub-bug", stubPath: "lessons/stub-bug.md" }],
+  );
+  assert.ok(out.includes("miss-bug"));
+  assert.ok(out.includes("stub-bug"));
+});
+
+// ────────────────────────────────────────────────────────────────
+// runGate — autostub / hard-block modes (U-BUG-FINDING-WIKI-FOLLOWUPS)
+// ────────────────────────────────────────────────────────────────
+
+test("runGate: injected findings:[] → silent continue (bypasses live git)", () => {
+  const w = makeFixtureWiki([]);
+  try {
+    const r = runGate({ wikiRoot: w, findings: [] });
+    assert.strictEqual(r.continue, true);
+    assert.ok(!r.systemMessage);
+  } finally {
+    fs.rmSync(w, { recursive: true, force: true });
+  }
+});
+test("runGate: finding WITH a companion entry → silent continue", () => {
+  const w = makeFixtureWiki([["lessons", "already-known.md"]]);
+  try {
+    const r = runGate({
+      wikiRoot: w, autostub: true, hard: true,
+      findings: [{ type: "x", slug: "already-known", ref: "r" }],
+    });
+    assert.strictEqual(r.continue, true);
+    assert.ok(!r.systemMessage, "no advisory when entry exists");
+    assert.ok(!r.decision, "no block when entry exists");
+  } finally {
+    fs.rmSync(w, { recursive: true, force: true });
+  }
+});
+test("runGate: default (advisory) — missing entry → continue + systemMessage", () => {
+  const w = makeFixtureWiki([]);
+  try {
+    const r = runGate({
+      wikiRoot: w,
+      findings: [{ type: "memory-bug-file", slug: "advisory-bug", ref: "feedback_x.md" }],
+    });
+    assert.strictEqual(r.continue, true);
+    assert.ok(!r.decision, "default mode never blocks");
+    assert.ok(r.systemMessage.includes("advisory-bug"));
+  } finally {
+    fs.rmSync(w, { recursive: true, force: true });
+  }
+});
+test("runGate: autostub creates a skeleton + continues (no block)", () => {
+  const w = makeFixtureWiki([]);
+  try {
+    const r = runGate({
+      wikiRoot: w, autostub: true, hard: false,
+      findings: [{ type: "commit-subject-bug-kw", slug: "demo-race-bug", ref: "abc123" }],
+    });
+    assert.strictEqual(r.continue, true);
+    assert.ok(!r.decision, "autostub alone should not block");
+    assert.ok(fs.existsSync(path.join(w, "lessons", "demo-race-bug.md")), "stub file created");
+    assert.ok(r.systemMessage.includes("demo-race-bug"), "advisory names the stub");
+    assert.ok(/stub/i.test(r.systemMessage));
+  } finally {
+    fs.rmSync(w, { recursive: true, force: true });
+  }
+});
+test("runGate: hard mode blocks on a genuine wiki gap", () => {
+  const w = makeFixtureWiki([]);
+  try {
+    const r = runGate({
+      wikiRoot: w, autostub: false, hard: true,
+      findings: [{ type: "memory-bug-file", slug: "unwritten-lesson", ref: "feedback_x.md" }],
+    });
+    assert.strictEqual(r.decision, "block");
+    assert.strictEqual(r.continue, false);
+    assert.ok(r.reason.includes("unwritten-lesson"));
+  } finally {
+    fs.rmSync(w, { recursive: true, force: true });
+  }
+});
+test("runGate: hard + autostub → stub fills the gap, no block", () => {
+  const w = makeFixtureWiki([]);
+  try {
+    const r = runGate({
+      wikiRoot: w, autostub: true, hard: true,
+      findings: [{ type: "claude-md-regression", slug: "both-modes-bug", ref: "Both modes" }],
+    });
+    assert.ok(!r.decision, "stub satisfies the gap → no block");
+    assert.strictEqual(r.continue, true);
+    assert.ok(fs.existsSync(path.join(w, "lessons", "both-modes-bug.md")));
+  } finally {
+    fs.rmSync(w, { recursive: true, force: true });
+  }
 });

@@ -20,15 +20,18 @@
  *   - knowledge/wiki/code-tribal/
  *   - knowledge/wiki/architecture/   (only if the entry references the bug)
  *
- * If missing → emit a `systemMessage` reminder (NOT block). Stop chains
- * already carry the per-file scrutiny gate + 3-of-3 strict consensus that
- * block on real correctness issues; this gate is the durable
- * teaching-surface enforcer, advisory by design.
+ * If missing → emit a `systemMessage` reminder. Advisory by default — Stop
+ * chains already carry the per-file scrutiny gate + 3-of-3 strict consensus
+ * that block on real correctness issues. Two opt-in modes harden it:
+ *   - AUTOSTUB writes a skeleton wiki entry for each gap (gap → empty entry)
+ *   - HARD blocks the Stop while a genuine gap remains (no entry, no stub)
  *
  * Knobs:
  *   PRISM_BUG_FINDING_WIKI_GATE_DISABLE=1   — disable entirely
  *   PRISM_BUG_FINDING_WIKI_GATE_HORIZON=N   — look-back commit count (default 3)
  *   PRISM_BUG_FINDING_WIKI_GATE_MAX_LIST=N  — advisory line cap (default 8)
+ *   PRISM_BUG_FINDING_WIKI_GATE_AUTOSTUB=1  — auto-create a skeleton wiki stub
+ *   PRISM_BUG_FINDING_WIKI_GATE_HARD=1      — block the Stop on a genuine gap
  *   PRISM_MEMORY_DIR=<path>                 — override memory dir (test-only)
  */
 
@@ -46,6 +49,8 @@ const REF_MAX_LEN = 120;
 const HORIZON = Number(process.env.PRISM_BUG_FINDING_WIKI_GATE_HORIZON || DEFAULT_HORIZON);
 const MAX_LIST = Number(process.env.PRISM_BUG_FINDING_WIKI_GATE_MAX_LIST || DEFAULT_MAX_LIST);
 const DISABLE = process.env.PRISM_BUG_FINDING_WIKI_GATE_DISABLE === "1";
+const AUTOSTUB = process.env.PRISM_BUG_FINDING_WIKI_GATE_AUTOSTUB === "1";
+const HARD = process.env.PRISM_BUG_FINDING_WIKI_GATE_HARD === "1";
 
 /** Bug-class keywords in a commit subject. Case-insensitive substring match. */
 export const BUG_KEYWORDS = Object.freeze([
@@ -211,48 +216,178 @@ export function hasCompanionWikiEntry(slug, opts = {}) {
 
 /**
  * Render the operator-facing advisory message. Returns "" when nothing is
- * missing (caller decides whether to attach a systemMessage at all).
+ * missing AND nothing was stubbed (caller decides whether to attach a
+ * systemMessage at all).
  *
- * @param {Array<{type: string, slug: string, ref: string}>} missing
+ * @param {Array<{type: string, slug: string, ref: string}>} missing  genuine gaps
+ * @param {Array<{type: string, slug: string, stubPath: string}>} [stubbed]  auto-stubs created this run
  * @returns {string}
  */
-export function renderAdvisory(missing) {
-  if (!missing || missing.length === 0) return "";
+export function renderAdvisory(missing, stubbed = []) {
+  const miss = Array.isArray(missing) ? missing : [];
+  const stub = Array.isArray(stubbed) ? stubbed : [];
+  if (miss.length === 0 && stub.length === 0) return "";
   const lines = [];
-  lines.push("⚠ Wiki gap detected — bug finding(s) shipped without companion wiki entries.");
-  lines.push("Rule: feedback_always_update_wiki_on_bug_finding (2026-05-17, lima 77971357).");
-  lines.push("");
-  for (const m of missing.slice(0, MAX_LIST)) {
-    lines.push(`  · [${m.type}] ${m.slug}`);
-    lines.push(`      → ${m.ref}`);
+  if (miss.length > 0) {
+    lines.push("⚠ Wiki gap detected — bug finding(s) shipped without companion wiki entries.");
+    lines.push("Rule: feedback_always_update_wiki_on_bug_finding (2026-05-17, lima 77971357).");
+    lines.push("");
+    for (const m of miss.slice(0, MAX_LIST)) {
+      lines.push(`  · [${m.type}] ${m.slug}`);
+      lines.push(`      → ${m.ref}`);
+    }
+    if (miss.length > MAX_LIST) {
+      lines.push(`  · …and ${miss.length - MAX_LIST} more`);
+    }
+    lines.push("");
+    lines.push("Write knowledge/wiki/lessons/<bug-class-slug>.md (or code-tribal/) with sections:");
+    lines.push("  § Symptom · § Root cause · § Detection · § Prevention · § Cross-refs");
   }
-  if (missing.length > MAX_LIST) {
-    lines.push(`  · …and ${missing.length - MAX_LIST} more`);
+  if (stub.length > 0) {
+    if (lines.length > 0) lines.push("");
+    lines.push("✎ Auto-stub created — fill in the skeleton(s) before they rot:");
+    for (const s of stub.slice(0, MAX_LIST)) {
+      lines.push(`  · ${s.stubPath}   (${s.slug})`);
+    }
+    if (stub.length > MAX_LIST) {
+      lines.push(`  · …and ${stub.length - MAX_LIST} more`);
+    }
   }
-  lines.push("");
-  lines.push("Write knowledge/wiki/lessons/<bug-class-slug>.md (or code-tribal/) with sections:");
-  lines.push("  § Symptom · § Root cause · § Detection · § Prevention · § Cross-refs");
   lines.push("Knob: PRISM_BUG_FINDING_WIKI_GATE_DISABLE=1 (one-shot override).");
   return lines.join("\n");
 }
 
-/** Hook entry point — invoked by the Stop hook chain. */
-export function runGate({ horizon = HORIZON, wikiRoot } = {}) {
+/**
+ * Render an auto-generated wiki stub for a bug-finding with no companion
+ * entry. The skeleton carries the five required sections + frontmatter
+ * tagged `status: stub` / `auto_generated: true` so a later wiki-lint pass
+ * (or a plain grep) can find unfilled stubs. The advisory still names every
+ * stub created so the operator fills it in the same session.
+ *
+ * @param {{type?: string, slug?: string, ref?: string}} finding
+ * @returns {string}  markdown content
+ */
+export function renderWikiStub(finding) {
+  const slug = slugify(finding?.slug || "");
+  const ref = String(finding?.ref || slug || "unknown bug finding").slice(0, REF_MAX_LEN);
+  const type = String(finding?.type || "unknown");
+  const today = new Date().toISOString().slice(0, 10);
+  return [
+    "---",
+    `title: ${ref}`,
+    "tags: [lesson, bug-finding, stub, auto-generated]",
+    `created: ${today}`,
+    "status: stub",
+    "auto_generated: true",
+    "source: stop-bug-finding-wiki-gate auto-stub",
+    "sibling-memory: feedback_always_update_wiki_on_bug_finding",
+    "---",
+    "",
+    `# ${ref}`,
+    "",
+    "> AUTO-GENERATED STUB — fill in the five sections below, then drop",
+    "> `status: stub` + `auto_generated: true` from the frontmatter. Created",
+    "> by `stop-bug-finding-wiki-gate` per feedback_always_update_wiki_on_bug_finding.",
+    "",
+    "## Symptom",
+    "",
+    "_TODO — what was observed? The visible failure._",
+    "",
+    "## Root cause",
+    "",
+    "_TODO — why did it happen? The underlying defect._",
+    "",
+    "## Detection",
+    "",
+    "_TODO — how was it caught, and how to catch this class earlier?_",
+    "",
+    "## Prevention",
+    "",
+    "_TODO — what stops it recurring? A gate, a test, a convention._",
+    "",
+    "## Cross-refs",
+    "",
+    `- Finding type: \`${type}\``,
+    `- Ref: \`${ref}\``,
+    "",
+  ].join("\n");
+}
+
+/**
+ * Create an auto-generated wiki stub for a missing bug-finding under
+ * `<wikiRoot>/lessons/<slug>.md`. Idempotent (never overwrites an existing
+ * file) and fail-soft (returns null on any I/O error — a Stop hook must
+ * never throw). Returns the wiki-relative POSIX path on success, else null.
+ *
+ * @param {{type?: string, slug?: string, ref?: string}} finding
+ * @param {{wikiRoot?: string}} [opts]
+ * @returns {string|null}
+ */
+export function createWikiStub(finding, opts = {}) {
+  const wikiRoot = opts.wikiRoot || path.join(REPO_ROOT, "knowledge", "wiki");
+  const slug = slugify(finding?.slug || "");
+  if (!slug) return null;
+  const lessonsDir = path.join(wikiRoot, "lessons");
+  const target = path.join(lessonsDir, `${slug}.md`);
+  try {
+    if (fs.existsSync(target)) return null;        // idempotent — never clobber
+    fs.mkdirSync(lessonsDir, { recursive: true });
+    fs.writeFileSync(target, renderWikiStub(finding), "utf8");
+    return `lessons/${slug}.md`;
+  } catch {
+    return null;                                   // fail-soft
+  }
+}
+
+/**
+ * Hook entry point — invoked by the Stop hook chain.
+ *
+ * @param {object} [opts]
+ * @param {number}  [opts.horizon]   look-back commit count
+ * @param {string}  [opts.wikiRoot]  wiki root override (test fixtures)
+ * @param {boolean} [opts.autostub]  write a skeleton entry for each gap
+ * @param {boolean} [opts.hard]      block the Stop while a genuine gap remains
+ * @param {Array}   [opts.findings]  inject findings, bypassing the live git scan (test seam)
+ * @returns {{continue:boolean, systemMessage?:string, decision?:string, reason?:string}}
+ */
+export function runGate({ horizon = HORIZON, wikiRoot, autostub = AUTOSTUB, hard = HARD, findings } = {}) {
   if (DISABLE) {
     return { continue: true };
   }
-  const findings = detectBugFindings(horizon);
-  if (findings.length === 0) {
+  const found = Array.isArray(findings) ? findings : detectBugFindings(horizon);
+  if (found.length === 0) {
     return { continue: true };
   }
-  const missing = findings.filter(f => !hasCompanionWikiEntry(f.slug, { wikiRoot }));
+  const missing = found.filter(f => !hasCompanionWikiEntry(f.slug, { wikiRoot }));
   if (missing.length === 0) {
     return { continue: true };
   }
-  return {
-    continue: true,
-    systemMessage: renderAdvisory(missing),
-  };
+
+  // AUTOSTUB — convert each gap from "no entry" to "empty entry to fill". A
+  // successfully stubbed finding is no longer missing: the companion file
+  // now exists, so it drops out of `stillMissing` (and out of HARD's reach).
+  const stubbed = [];
+  if (autostub) {
+    for (const f of missing) {
+      const stubPath = createWikiStub(f, { wikiRoot });
+      if (stubPath) stubbed.push({ ...f, stubPath });
+    }
+  }
+  const stubbedSlugs = new Set(stubbed.map(s => s.slug));
+  const stillMissing = missing.filter(f => !stubbedSlugs.has(f.slug));
+  const advisory = renderAdvisory(stillMissing, stubbed);
+
+  // HARD — refuse the Stop while a genuine gap remains (no entry AND no
+  // stub). Opt-in only: doctrine default is advisory so the per-file
+  // scrutiny + 3-of-3 gates stay in front. With AUTOSTUB also on, stubs
+  // normally satisfy every gap so HARD never bites — by design.
+  if (hard && stillMissing.length > 0) {
+    return { continue: false, decision: "block", reason: advisory };
+  }
+  if (!advisory) {
+    return { continue: true };
+  }
+  return { continue: true, systemMessage: advisory };
 }
 
 // CLI / hook entry — only run when invoked directly, NOT on import.

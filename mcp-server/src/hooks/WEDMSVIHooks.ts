@@ -58,9 +58,9 @@ const wedmSviInject: HookDefinition = {
   description:
     "Injects WEDM Ψ (Psi) contribution into session briefs so Claude is aware of WEDM completeness.",
   phase: "session-start",
-  category: "awareness",
+  category: "observability",
   mode: "logging",
-  priority: "medium",
+  priority: "normal",
   enabled: true,
   tags: ["wedm", "svi", "injection", "logging"],
   handler: (ctx: HookContext): HookResult => {

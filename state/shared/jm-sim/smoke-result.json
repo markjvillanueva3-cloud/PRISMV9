@@ -1,0 +1,1141 @@
+{
+  "pipeline_id": "QTS-mpyjq21x-m2wreb",
+  "status": "failed",
+  "stages": [
+    {
+      "id": "INTAKE",
+      "label": "Blueprint/STEP Intake + Shop Configuration",
+      "status": "pass",
+      "duration_ms": 9,
+      "result_summary": "Blueprint analyzed: JM DIE/Prism JM Die/SMOKE/part-12345.pdf, shop: JM Die Company",
+      "output": {
+        "source_type": "drawing",
+        "file_path": "JM DIE/Prism JM Die/SMOKE/part-12345.pdf",
+        "extracted_text": "JM TOOL & DIE  PART NO 12345  MATERIAL: 4140 PREHARD STEEL  QTY: 10\nOVERALL 2.000 X 1.000 X 0.500 IN\nFEATURES: 4X .250 THRU HOLE; 1X .500 BORE +/-.001; 2X 1/4-20 TAPPED HOLE\nTOLERANCE: ±0.005 UNLESS NOTED  SURFACE FINISH 63 RA  MATERIAL CERT REQUIRED",
+        "blueprint_analysis": {
+          "dimensions": [],
+          "gdt_frames": [],
+          "title_block": {
+            "part_number": "12345",
+            "material": "4140 PREHARD STEEL  QTY: 10",
+            "finish": "63 RA  MATERIAL CERT REQUIRED",
+            "approved_by": "ED HOLE\nTOLERANCE",
+            "units": "in",
+            "confidence": 0.4
+          },
+          "notes": [
+            {
+              "id": "NOTE-1",
+              "category": "general",
+              "text": "000 X 1.000 X 0.500 IN",
+              "is_critical": false,
+              "confidence": 0.8
+            },
+            {
+              "id": "NOTE-2",
+              "category": "process",
+              "text": ".001; 2X 1/4-20 TAPPED HOLE",
+              "is_critical": false,
+              "confidence": 0.8
+            },
+            {
+              "id": "NOTE-3",
+              "category": "material",
+              "text": "005 UNLESS NOTED  SURFACE FINISH 63 RA  MATERIAL CERT REQUIRED",
+              "is_critical": false,
+              "confidence": 0.8
+            }
+          ],
+          "summary": {
+            "total_dimensions": 0,
+            "total_gdt": 0,
+            "total_notes": 3,
+            "tightest_tolerance_mm": 0,
+            "critical_features": [],
+            "material": "4140 PREHARD STEEL  QTY: 10",
+            "has_gdt": false
+          }
+        },
+        "shop_config": {
+          "profile_id": "jm-die",
+          "name": "JM Die Company",
+          "rates": {
+            "labor_per_hr": 55,
+            "overhead_per_hr": 30,
+            "admin_per_hr": 15,
+            "setup_per_hr": 65,
+            "programming_per_hr": 85,
+            "inspection_per_hr": 55
+          },
+          "overhead_pct": 18,
+          "material_markup_pct": 15,
+          "machines": [
+            {
+              "id": "LTH-01",
+              "name": "Okuma GENOS L300-M",
+              "type": "Lathe",
+              "hourly_rate": 85,
+              "efficiency_factor": 0.85,
+              "capabilities": [
+                "turning",
+                "facing",
+                "threading",
+                "boring",
+                "grooving",
+                "parting",
+                "tapping",
+                "live_tooling",
+                "c_axis"
+              ],
+              "hours_per_shift": 10,
+              "shifts_per_day": 1,
+              "days_per_week": 5,
+              "controller": "okuma",
+              "max_rpm": 5000,
+              "max_power_kw": 15,
+              "max_torque_nm": 350,
+              "work_envelope": {
+                "x_mm": 260,
+                "z_mm": 550
+              },
+              "bar_capacity_mm": 65,
+              "has_bar_feeder": false,
+              "has_sub_spindle": false,
+              "has_live_tooling": true,
+              "turret_stations": 12,
+              "coolant_types": [
+                "flood",
+                "mist"
+              ]
+            },
+            {
+              "id": "LTH-02",
+              "name": "Okuma GENOS L200E-M",
+              "type": "Lathe",
+              "hourly_rate": 80,
+              "efficiency_factor": 0.85,
+              "capabilities": [
+                "turning",
+                "facing",
+                "threading",
+                "boring",
+                "grooving",
+                "parting",
+                "live_tooling"
+              ],
+              "hours_per_shift": 10,
+              "shifts_per_day": 1,
+              "days_per_week": 5,
+              "controller": "okuma",
+              "max_rpm": 5000,
+              "max_power_kw": 11,
+              "max_torque_nm": 280,
+              "work_envelope": {
+                "x_mm": 200,
+                "z_mm": 350
+              },
+              "bar_capacity_mm": 51,
+              "has_bar_feeder": false,
+              "has_sub_spindle": false,
+              "has_live_tooling": true,
+              "turret_stations": 12,
+              "coolant_types": [
+                "flood"
+              ]
+            },
+            {
+              "id": "LTH-03",
+              "name": "Okuma LNC8",
+              "type": "Lathe",
+              "hourly_rate": 65,
+              "efficiency_factor": 0.8,
+              "capabilities": [
+                "turning",
+                "facing",
+                "threading",
+                "boring",
+                "grooving",
+                "parting"
+              ],
+              "hours_per_shift": 10,
+              "shifts_per_day": 1,
+              "days_per_week": 5,
+              "controller": "okuma",
+              "max_rpm": 4000,
+              "max_power_kw": 11,
+              "max_torque_nm": 300,
+              "work_envelope": {
+                "x_mm": 200,
+                "z_mm": 500
+              },
+              "bar_capacity_mm": 51,
+              "has_bar_feeder": false,
+              "has_sub_spindle": false,
+              "has_live_tooling": false,
+              "turret_stations": 12,
+              "coolant_types": [
+                "flood"
+              ]
+            },
+            {
+              "id": "LTH-04",
+              "name": "Okuma Crown L1060",
+              "type": "Lathe",
+              "hourly_rate": 65,
+              "efficiency_factor": 0.8,
+              "capabilities": [
+                "turning",
+                "facing",
+                "threading",
+                "boring",
+                "grooving",
+                "parting"
+              ],
+              "hours_per_shift": 10,
+              "shifts_per_day": 1,
+              "days_per_week": 5,
+              "controller": "okuma",
+              "max_rpm": 3800,
+              "max_power_kw": 11,
+              "max_torque_nm": 280,
+              "work_envelope": {
+                "x_mm": 200,
+                "z_mm": 500
+              },
+              "bar_capacity_mm": 51,
+              "has_bar_feeder": false,
+              "has_sub_spindle": false,
+              "has_live_tooling": false,
+              "turret_stations": 8,
+              "coolant_types": [
+                "flood"
+              ]
+            },
+            {
+              "id": "LTH-05",
+              "name": "Okuma GENOS L400II-E",
+              "type": "Lathe",
+              "hourly_rate": 90,
+              "efficiency_factor": 0.85,
+              "capabilities": [
+                "turning",
+                "facing",
+                "threading",
+                "boring",
+                "grooving",
+                "parting",
+                "heavy_turning"
+              ],
+              "hours_per_shift": 10,
+              "shifts_per_day": 1,
+              "days_per_week": 5,
+              "controller": "okuma",
+              "max_rpm": 3800,
+              "max_power_kw": 22,
+              "max_torque_nm": 560,
+              "work_envelope": {
+                "x_mm": 340,
+                "z_mm": 600
+              },
+              "bar_capacity_mm": 80,
+              "has_bar_feeder": false,
+              "has_sub_spindle": false,
+              "has_live_tooling": false,
+              "turret_stations": 12,
+              "coolant_types": [
+                "flood",
+                "mist"
+              ]
+            },
+            {
+              "id": "LTH-06",
+              "name": "Okuma LB 3000EX Big Bore",
+              "type": "Lathe",
+              "hourly_rate": 95,
+              "efficiency_factor": 0.85,
+              "capabilities": [
+                "turning",
+                "facing",
+                "threading",
+                "boring",
+                "grooving",
+                "parting",
+                "big_bore",
+                "heavy_turning"
+              ],
+              "hours_per_shift": 10,
+              "shifts_per_day": 1,
+              "days_per_week": 5,
+              "controller": "okuma",
+              "max_rpm": 3800,
+              "max_power_kw": 22,
+              "max_torque_nm": 700,
+              "work_envelope": {
+                "x_mm": 320,
+                "z_mm": 600
+              },
+              "bar_capacity_mm": 102,
+              "has_bar_feeder": false,
+              "has_sub_spindle": false,
+              "has_live_tooling": false,
+              "turret_stations": 12,
+              "coolant_types": [
+                "flood",
+                "high_pressure"
+              ]
+            },
+            {
+              "id": "LTH-07",
+              "name": "Okuma Multus B250II",
+              "type": "Lathe",
+              "hourly_rate": 125,
+              "efficiency_factor": 0.82,
+              "capabilities": [
+                "turning",
+                "milling",
+                "drilling",
+                "threading",
+                "boring",
+                "c_axis",
+                "y_axis",
+                "b_axis",
+                "live_tooling",
+                "multi_tasking"
+              ],
+              "hours_per_shift": 10,
+              "shifts_per_day": 1,
+              "days_per_week": 5,
+              "controller": "okuma",
+              "max_rpm": 5000,
+              "max_power_kw": 22,
+              "max_torque_nm": 600,
+              "work_envelope": {
+                "x_mm": 320,
+                "z_mm": 900
+              },
+              "bar_capacity_mm": 80,
+              "has_bar_feeder": false,
+              "has_sub_spindle": true,
+              "has_live_tooling": true,
+              "turret_stations": 20,
+              "coolant_types": [
+                "flood",
+                "mist",
+                "high_pressure"
+              ]
+            },
+            {
+              "id": "VMC-01",
+              "name": "Hurco VM30i",
+              "type": "VMC",
+              "hourly_rate": 80,
+              "efficiency_factor": 0.82,
+              "capabilities": [
+                "milling",
+                "drilling",
+                "tapping",
+                "boring",
+                "contouring"
+              ],
+              "hours_per_shift": 10,
+              "shifts_per_day": 1,
+              "days_per_week": 5
+            },
+            {
+              "id": "VMC-02",
+              "name": "Okuma M460V-5AX",
+              "type": "5-axis",
+              "hourly_rate": 135,
+              "efficiency_factor": 0.78,
+              "capabilities": [
+                "milling",
+                "drilling",
+                "5axis_contouring",
+                "high_speed_milling",
+                "die_sinking"
+              ],
+              "hours_per_shift": 10,
+              "shifts_per_day": 1,
+              "days_per_week": 5,
+              "controller": "okuma"
+            },
+            {
+              "id": "VMC-03",
+              "name": "Haas VF-2",
+              "type": "VMC",
+              "hourly_rate": 65,
+              "efficiency_factor": 0.85,
+              "capabilities": [
+                "milling",
+                "drilling",
+                "tapping",
+                "boring"
+              ],
+              "hours_per_shift": 10,
+              "shifts_per_day": 1,
+              "days_per_week": 5,
+              "controller": "haas"
+            },
+            {
+              "id": "VMC-04",
+              "name": "Haas OM-2",
+              "type": "VMC",
+              "hourly_rate": 55,
+              "efficiency_factor": 0.85,
+              "capabilities": [
+                "milling",
+                "drilling",
+                "engraving",
+                "small_parts"
+              ],
+              "hours_per_shift": 10,
+              "shifts_per_day": 1,
+              "days_per_week": 5,
+              "controller": "haas"
+            },
+            {
+              "id": "VMC-05",
+              "name": "Roku-Roku HC 658-II",
+              "type": "VMC",
+              "hourly_rate": 110,
+              "efficiency_factor": 0.8,
+              "capabilities": [
+                "milling",
+                "drilling",
+                "engraving",
+                "high_speed_milling",
+                "die_sinking",
+                "electrode_milling",
+                "graphite_milling"
+              ],
+              "hours_per_shift": 10,
+              "shifts_per_day": 1,
+              "days_per_week": 5,
+              "controller": "fanuc"
+            },
+            {
+              "id": "EDM-01",
+              "name": "Mitsubishi EA12S",
+              "type": "EDM",
+              "hourly_rate": 75,
+              "efficiency_factor": 0.7,
+              "capabilities": [
+                "sinker_edm",
+                "die_sinking",
+                "electrode_burn",
+                "fine_finish"
+              ],
+              "hours_per_shift": 10,
+              "shifts_per_day": 1,
+              "days_per_week": 5
+            },
+            {
+              "id": "EDM-02",
+              "name": "Mitsubishi EA12D",
+              "type": "EDM",
+              "hourly_rate": 85,
+              "efficiency_factor": 0.7,
+              "capabilities": [
+                "sinker_edm",
+                "die_sinking",
+                "electrode_burn",
+                "fine_finish",
+                "dual_head"
+              ],
+              "hours_per_shift": 10,
+              "shifts_per_day": 1,
+              "days_per_week": 5
+            },
+            {
+              "id": "WEDM-01",
+              "name": "Mitsubishi FA10S",
+              "type": "Wire EDM",
+              "hourly_rate": 85,
+              "efficiency_factor": 0.7,
+              "capabilities": [
+                "wire_edm",
+                "taper_cutting",
+                "skim_cutting",
+                "profile_cutting",
+                "punch_cutting",
+                "die_cutting"
+              ],
+              "hours_per_shift": 10,
+              "shifts_per_day": 1,
+              "days_per_week": 5,
+              "wedm_brand": "mitsubishi",
+              "wedm_auto_threading": true,
+              "wedm_submerged_cutting": true,
+              "wedm_max_taper_deg": 30,
+              "wedm_max_workpiece_height_mm": 215,
+              "wedm_uv_travel_mm": 80,
+              "wedm_wire_inventory": [
+                {
+                  "wire_type": "MD+ Pro II",
+                  "diameter_mm": 0.25,
+                  "spool_weight_kg": 10,
+                  "remaining_pct": 100
+                },
+                {
+                  "wire_type": "MV1200S",
+                  "diameter_mm": 0.2,
+                  "spool_weight_kg": 5,
+                  "remaining_pct": 100
+                }
+              ]
+            },
+            {
+              "id": "GRND-01",
+              "name": "Surface Grinder",
+              "type": "Grinder",
+              "hourly_rate": 55,
+              "efficiency_factor": 0.75,
+              "capabilities": [
+                "surface_grinding",
+                "flat_grinding"
+              ],
+              "hours_per_shift": 10,
+              "shifts_per_day": 1,
+              "days_per_week": 5
+            },
+            {
+              "id": "SAW-01",
+              "name": "Band Saw",
+              "type": "Saw",
+              "hourly_rate": 25,
+              "efficiency_factor": 0.9,
+              "capabilities": [
+                "cutoff",
+                "raw_stock"
+              ],
+              "hours_per_shift": 10,
+              "shifts_per_day": 1,
+              "days_per_week": 5
+            },
+            {
+              "id": "MAN-01",
+              "name": "Manual Lathe",
+              "type": "Lathe",
+              "hourly_rate": 45,
+              "efficiency_factor": 0.7,
+              "capabilities": [
+                "turning",
+                "facing",
+                "boring",
+                "manual"
+              ],
+              "hours_per_shift": 10,
+              "shifts_per_day": 1,
+              "days_per_week": 5
+            },
+            {
+              "id": "MAN-02",
+              "name": "Manual Mill",
+              "type": "VMC",
+              "hourly_rate": 45,
+              "efficiency_factor": 0.7,
+              "capabilities": [
+                "milling",
+                "drilling",
+                "manual"
+              ],
+              "hours_per_shift": 10,
+              "shifts_per_day": 1,
+              "days_per_week": 5
+            },
+            {
+              "id": "INS-01",
+              "name": "CMM",
+              "type": "CMM",
+              "hourly_rate": 95,
+              "efficiency_factor": 0.8,
+              "capabilities": [
+                "inspection",
+                "measurement",
+                "first_article"
+              ],
+              "hours_per_shift": 10,
+              "shifts_per_day": 1,
+              "days_per_week": 5
+            },
+            {
+              "id": "INS-02",
+              "name": "Optical Comparator",
+              "type": "CMM",
+              "hourly_rate": 45,
+              "efficiency_factor": 0.85,
+              "capabilities": [
+                "inspection",
+                "profile_inspection",
+                "visual_inspection"
+              ],
+              "hours_per_shift": 10,
+              "shifts_per_day": 1,
+              "days_per_week": 5
+            }
+          ]
+        }
+      },
+      "warnings": [],
+      "errors": [],
+      "completed_at": "2026-06-03T20:55:46.926Z"
+    },
+    {
+      "id": "FEATURE_RECOGNITION",
+      "label": "Feature Recognition",
+      "status": "pass",
+      "duration_ms": 2,
+      "result_summary": "Recognized 4 features",
+      "output": {
+        "total_features": 4,
+        "features": [
+          {
+            "id": "F001",
+            "type": "through_hole",
+            "confidence": 0.95,
+            "dimensions": {
+              "diameter_mm": 6.35,
+              "depth_mm": 12.7
+            },
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            },
+            "orientation": {
+              "axis": "z"
+            },
+            "notes": []
+          },
+          {
+            "id": "F002",
+            "type": "through_hole",
+            "confidence": 0.95,
+            "dimensions": {
+              "diameter_mm": 6.35,
+              "depth_mm": 12.7
+            },
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            },
+            "orientation": {
+              "axis": "z"
+            },
+            "notes": []
+          },
+          {
+            "id": "F003",
+            "type": "bore",
+            "confidence": 0.5,
+            "dimensions": {
+              "diameter_mm": 12.7,
+              "depth_mm": 12.7
+            },
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            },
+            "orientation": {
+              "axis": "z"
+            },
+            "notes": []
+          },
+          {
+            "id": "F004",
+            "type": "tapped_hole",
+            "confidence": 0.95,
+            "dimensions": {
+              "diameter_mm": 6.35,
+              "depth_mm": 10
+            },
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            },
+            "orientation": {
+              "axis": "z"
+            },
+            "notes": []
+          }
+        ],
+        "groups": [],
+        "complexity_score": 1.7,
+        "estimated_operations": 5,
+        "warnings": []
+      },
+      "warnings": [],
+      "errors": [],
+      "completed_at": "2026-06-03T20:55:46.928Z"
+    },
+    {
+      "id": "DFM_CHECK",
+      "label": "Design for Manufacturability Check",
+      "status": "fail",
+      "duration_ms": 1,
+      "result_summary": "DFM check failed",
+      "output": null,
+      "warnings": [],
+      "errors": [
+        "DFM check failed: features is not iterable"
+      ],
+      "completed_at": "2026-06-03T20:55:46.930Z"
+    },
+    {
+      "id": "FEASIBILITY",
+      "label": "Machining Feasibility Analysis",
+      "status": "pending",
+      "duration_ms": 0,
+      "result_summary": "",
+      "output": null,
+      "warnings": [],
+      "errors": [],
+      "completed_at": ""
+    },
+    {
+      "id": "QUOTE",
+      "label": "Cost & Lead Time Estimation (+ Cost Model + Analytics)",
+      "status": "pending",
+      "duration_ms": 0,
+      "result_summary": "",
+      "output": null,
+      "warnings": [],
+      "errors": [],
+      "completed_at": ""
+    },
+    {
+      "id": "SCHEDULING",
+      "label": "Production Scheduling & Capacity",
+      "status": "pending",
+      "duration_ms": 0,
+      "result_summary": "",
+      "output": null,
+      "warnings": [],
+      "errors": [],
+      "completed_at": ""
+    },
+    {
+      "id": "APPROVAL_GATE",
+      "label": "Customer Approval Gate (+ Quote Revision)",
+      "status": "pending",
+      "duration_ms": 0,
+      "result_summary": "",
+      "output": null,
+      "warnings": [],
+      "errors": [],
+      "completed_at": ""
+    },
+    {
+      "id": "PROCESS_PLAN",
+      "label": "Process Planning & Sequencing",
+      "status": "pending",
+      "duration_ms": 0,
+      "result_summary": "",
+      "output": null,
+      "warnings": [],
+      "errors": [],
+      "completed_at": ""
+    },
+    {
+      "id": "SECONDARY_OPS",
+      "label": "Secondary Operations (Heat Treat, Plating, NDT)",
+      "status": "pending",
+      "duration_ms": 0,
+      "result_summary": "",
+      "output": null,
+      "warnings": [],
+      "errors": [],
+      "completed_at": ""
+    },
+    {
+      "id": "MAKE_VS_BUY",
+      "label": "Make vs Buy Decision",
+      "status": "pending",
+      "duration_ms": 0,
+      "result_summary": "",
+      "output": null,
+      "warnings": [],
+      "errors": [],
+      "completed_at": ""
+    },
+    {
+      "id": "MATERIAL_PROCUREMENT",
+      "label": "Material Procurement & Market Pricing",
+      "status": "pending",
+      "duration_ms": 0,
+      "result_summary": "",
+      "output": null,
+      "warnings": [],
+      "errors": [],
+      "completed_at": ""
+    },
+    {
+      "id": "TOOL_SELECTION",
+      "label": "Tool Selection, ROI & Wear TCO (+ Upgrade Advisor)",
+      "status": "pending",
+      "duration_ms": 0,
+      "result_summary": "",
+      "output": null,
+      "warnings": [],
+      "errors": [],
+      "completed_at": ""
+    },
+    {
+      "id": "STRATEGY_SELECTION",
+      "label": "CAM Strategy Selection",
+      "status": "pending",
+      "duration_ms": 0,
+      "result_summary": "",
+      "output": null,
+      "warnings": [],
+      "errors": [],
+      "completed_at": ""
+    },
+    {
+      "id": "SPEED_FEED",
+      "label": "Speed & Feed Optimization (+ Physics Accumulator)",
+      "status": "pending",
+      "duration_ms": 0,
+      "result_summary": "",
+      "output": null,
+      "warnings": [],
+      "errors": [],
+      "completed_at": ""
+    },
+    {
+      "id": "PRE_SAFETY",
+      "label": "Pre-Generation Physics Safety Veto",
+      "status": "pending",
+      "duration_ms": 0,
+      "result_summary": "",
+      "output": null,
+      "warnings": [],
+      "errors": [],
+      "completed_at": ""
+    },
+    {
+      "id": "PROGRAM_GENERATION",
+      "label": "CNC Program Generation",
+      "status": "pending",
+      "duration_ms": 0,
+      "result_summary": "",
+      "output": null,
+      "warnings": [],
+      "errors": [],
+      "completed_at": ""
+    },
+    {
+      "id": "POST_PROCESSING",
+      "label": "Controller-Specific Post Processing",
+      "status": "pending",
+      "duration_ms": 0,
+      "result_summary": "",
+      "output": null,
+      "warnings": [],
+      "errors": [],
+      "completed_at": ""
+    },
+    {
+      "id": "POST_SAFETY",
+      "label": "Post-Processing G-Code Safety Check",
+      "status": "pending",
+      "duration_ms": 0,
+      "result_summary": "",
+      "output": null,
+      "warnings": [],
+      "errors": [],
+      "completed_at": ""
+    },
+    {
+      "id": "MAGAZINE_LAYOUT",
+      "label": "Tool Magazine Pocket Assignment",
+      "status": "pending",
+      "duration_ms": 0,
+      "result_summary": "",
+      "output": null,
+      "warnings": [],
+      "errors": [],
+      "completed_at": ""
+    },
+    {
+      "id": "SETUP_SHEET",
+      "label": "Setup Sheet Generation",
+      "status": "pending",
+      "duration_ms": 0,
+      "result_summary": "",
+      "output": null,
+      "warnings": [],
+      "errors": [],
+      "completed_at": ""
+    },
+    {
+      "id": "PROBING",
+      "label": "Probe Routine Generation",
+      "status": "pending",
+      "duration_ms": 0,
+      "result_summary": "",
+      "output": null,
+      "warnings": [],
+      "errors": [],
+      "completed_at": ""
+    },
+    {
+      "id": "SIMULATION",
+      "label": "CNC Simulation & Verification",
+      "status": "pending",
+      "duration_ms": 0,
+      "result_summary": "",
+      "output": null,
+      "warnings": [],
+      "errors": [],
+      "completed_at": ""
+    },
+    {
+      "id": "PRODUCTION_PACKAGE",
+      "label": "Production Package Assembly",
+      "status": "pending",
+      "duration_ms": 0,
+      "result_summary": "",
+      "output": null,
+      "warnings": [],
+      "errors": [],
+      "completed_at": ""
+    },
+    {
+      "id": "JOB_LIFECYCLE",
+      "label": "Job Lifecycle & Actual Cost Tracking (+ Profitability + GL + Savings)",
+      "status": "pending",
+      "duration_ms": 0,
+      "result_summary": "",
+      "output": null,
+      "warnings": [],
+      "errors": [],
+      "completed_at": ""
+    },
+    {
+      "id": "QUALITY",
+      "label": "Quality Management (FAI + SPC + Metrology)",
+      "status": "pending",
+      "duration_ms": 0,
+      "result_summary": "",
+      "output": null,
+      "warnings": [],
+      "errors": [],
+      "completed_at": ""
+    },
+    {
+      "id": "OMEGA_GATE",
+      "label": "OMEGA Quality Release Gate",
+      "status": "pending",
+      "duration_ms": 0,
+      "result_summary": "",
+      "output": null,
+      "warnings": [],
+      "errors": [],
+      "completed_at": ""
+    },
+    {
+      "id": "SHIPPING",
+      "label": "Shipping, Packing Slip & Invoicing",
+      "status": "pending",
+      "duration_ms": 0,
+      "result_summary": "",
+      "output": null,
+      "warnings": [],
+      "errors": [],
+      "completed_at": ""
+    }
+  ],
+  "total_cost_usd": null,
+  "lead_time_days": null,
+  "program_paths": [],
+  "setup_sheet": null,
+  "production_package": null,
+  "total_duration_ms": 16,
+  "warnings": [],
+  "started_at": "2026-06-03T20:55:46.917Z",
+  "completed_at": "2026-06-03T20:55:46.933Z",
+  "tribal_tips": [
+    {
+      "id": "TK-RX-001",
+      "title": "Optimal radial engagement (ae) by material group for adaptive/trochoidal milling",
+      "body": "Recommended radial width of cut as % of cutter diameter for adaptive clearing / trochoidal milling: Aluminum 6061: 25-40% (aggressive, good chip evacuation). Carbon Steel 1045: 15-25%. Alloy Steel 4140: 12-20%. Stainless 316: 10-18%. Titanium 6Al-4V: 8-15%. Inconel 718: 5-10%. Hardened Steel >50 HRC: 3-8%. Cast Iron: 20-30%. Copper/Brass: 25-40%. Start at the lower end for long tools (L/D > 4) or poor rigidity setups. These ranges maintain manageable cutting forces and heat generation while maximizing MRR.",
+      "category": "speeds_feeds",
+      "tags": [
+        "radial-engagement",
+        "adaptive",
+        "trochoidal",
+        "WOC",
+        "material-specific",
+        "material:P",
+        "material:1045 Steel",
+        "material:Steel",
+        "material:M",
+        "material:316 Stainless",
+        "material:Stainless Steel",
+        "material:K",
+        "material:Cast Iron",
+        "material:N",
+        "material:6061 Aluminum",
+        "material:Aluminum",
+        "material:Copper",
+        "material:S",
+        "material:Inconel 718",
+        "material:Titanium",
+        "material:H",
+        "material:Hardened Steel",
+        "material:Hardened (50 HRC)",
+        "operation:milling",
+        "operation:adaptive_milling"
+      ],
+      "material_groups": [
+        "aluminum",
+        "steel",
+        "stainless",
+        "titanium",
+        "nickel",
+        "hardened",
+        "cast-iron"
+      ],
+      "operation_types": [
+        "milling",
+        "adaptive-clearing",
+        "trochoidal"
+      ],
+      "confidence": 90,
+      "source": "document:Fusion360-Skill-Roadmap+hyperMILL-Skill-Roadmap",
+      "created_at": "2026-03-06",
+      "usage_count": 0,
+      "auto_categorized": true,
+      "auto_tags": [
+        "material:P",
+        "material:1045 Steel",
+        "material:Steel",
+        "material:M",
+        "material:316 Stainless",
+        "material:Stainless Steel",
+        "material:K",
+        "material:Cast Iron",
+        "material:N",
+        "material:6061 Aluminum",
+        "material:Aluminum",
+        "material:Copper",
+        "material:S",
+        "material:Inconel 718",
+        "material:Titanium",
+        "material:H",
+        "material:Hardened Steel",
+        "material:Hardened (50 HRC)",
+        "operation:milling",
+        "operation:adaptive_milling"
+      ],
+      "domain": "document_learned",
+      "subcategory": "cutting_parameters",
+      "knowledge_type": "tip"
+    },
+    {
+      "title": "4140 steel at S3000 F500 with 10mm endmill on Haas VF-2",
+      "body": "4140 steel at S3000 F500 with 10mm endmill on Haas VF-2",
+      "category": "speeds_feeds",
+      "tags": [
+        "material:P",
+        "material:4140 Steel",
+        "material:Steel",
+        "machine:Haas",
+        "tool:endmill"
+      ],
+      "material_groups": [
+        "P",
+        "P"
+      ],
+      "operation_types": [],
+      "confidence": 80,
+      "source": "ingestion:tag_test",
+      "id": "tk-cap-mnjcsdae-147",
+      "created_at": "2026-04-03",
+      "usage_count": 0,
+      "domain": "general",
+      "auto_categorized": true,
+      "auto_tags": []
+    },
+    {
+      "title": "4140 steel at S3000 F500 with 10mm endmill on Haas VF-2",
+      "body": "4140 steel at S3000 F500 with 10mm endmill on Haas VF-2",
+      "category": "speeds_feeds",
+      "tags": [
+        "material:P",
+        "material:4140 Steel",
+        "material:Steel",
+        "machine:Haas",
+        "tool:endmill"
+      ],
+      "material_groups": [
+        "P",
+        "P"
+      ],
+      "operation_types": [],
+      "confidence": 80,
+      "source": "ingestion:tag_test",
+      "id": "tk-cap-mnjcsyyj-160",
+      "created_at": "2026-04-03",
+      "usage_count": 0,
+      "domain": "general",
+      "auto_categorized": true,
+      "auto_tags": []
+    },
+    {
+      "title": "4140 steel at S3000 F500 with 10mm endmill on Haas VF-2",
+      "body": "4140 steel at S3000 F500 with 10mm endmill on Haas VF-2",
+      "category": "speeds_feeds",
+      "tags": [
+        "material:P",
+        "material:4140 Steel",
+        "material:Steel",
+        "machine:Haas",
+        "tool:endmill"
+      ],
+      "material_groups": [
+        "P",
+        "P"
+      ],
+      "operation_types": [],
+      "confidence": 80,
+      "source": "ingestion:tag_test",
+      "id": "tk-cap-mnjd9oo2-171",
+      "created_at": "2026-04-03",
+      "usage_count": 0,
+      "domain": "general",
+      "auto_categorized": true,
+      "auto_tags": []
+    },
+    {
+      "title": "4140 steel at S3000 F500 with 10mm endmill on Haas VF-2",
+      "body": "4140 steel at S3000 F500 with 10mm endmill on Haas VF-2",
+      "category": "speeds_feeds",
+      "tags": [
+        "material:P",
+        "material:4140 Steel",
+        "material:Steel",
+        "machine:Haas",
+        "tool:endmill"
+      ],
+      "material_groups": [
+        "P",
+        "P"
+      ],
+      "operation_types": [],
+      "confidence": 80,
+      "source": "ingestion:tag_test",
+      "id": "tk-cap-mnjgelqf-193",
+      "created_at": "2026-04-03",
+      "usage_count": 0,
+      "domain": "general",
+      "auto_categorized": true,
+      "auto_tags": []
+    }
+  ],
+  "pipeline_version": "2.10.0"
+}

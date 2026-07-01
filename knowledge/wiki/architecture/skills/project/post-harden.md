@@ -29,8 +29,7 @@ related:
 
 ## Description (first paragraph)
 
-
-# /post-harden — Harden Post-Processor for Machine
+Customize and harden post-processor for specific machine characteristics.
 
 <!-- AUTO-END -->
 

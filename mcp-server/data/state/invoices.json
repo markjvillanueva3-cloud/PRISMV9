@@ -1,0 +1,357 @@
+{
+  "schemaVersion": 1,
+  "store": "invoices",
+  "description": "ERP invoice store. Field shape matches the frontend Invoice interface in web/src/api/types.ts (id, job_id, customer_name, date, due_date, line_items[], subtotal, tax, total, status, payments[], balance_due) consumed by InvoicesPage.tsx via /erp/invoices. status enum: draft|sent|paid|overdue. Synthetic seed data (DB-COVERAGE-GAPFILL-MS0/U-ERP01) — NOT real JM Die financials. balance_due = total - sum(payments.amount); paid => balance_due 0; overdue => due_date in the past with balance remaining.",
+  "generated_by": "DB-COVERAGE-GAPFILL-MS0/U-ERP01",
+  "generated_at": "2026-06-03",
+  "tax_rate": 0.0635,
+  "invoices": [
+    {
+      "id": "INV-2026-0001",
+      "job_id": "JOB-2026-0101",
+      "customer_name": "ITW",
+      "date": "2026-04-02",
+      "due_date": "2026-05-02",
+      "line_items": [
+        { "description": "Progressive die plate set — wire EDM + grind", "quantity": 2, "unit_price": 1850.0, "total": 3700.0 },
+        { "description": "Hardened D2 punch inserts", "quantity": 8, "unit_price": 145.0, "total": 1160.0 }
+      ],
+      "subtotal": 4860.0,
+      "tax": 308.61,
+      "total": 5168.61,
+      "status": "paid",
+      "payments": [
+        { "date": "2026-04-28", "amount": 5168.61, "method": "ACH" }
+      ],
+      "balance_due": 0.0
+    },
+    {
+      "id": "INV-2026-0002",
+      "job_id": "JOB-2026-0104",
+      "customer_name": "Alcoa",
+      "date": "2026-04-05",
+      "due_date": "2026-05-05",
+      "line_items": [
+        { "description": "Aluminum 7075 fixture body — 4-axis mill", "quantity": 1, "unit_price": 2240.0, "total": 2240.0 },
+        { "description": "Anodize + inspection", "quantity": 1, "unit_price": 380.0, "total": 380.0 }
+      ],
+      "subtotal": 2620.0,
+      "tax": 166.37,
+      "total": 2786.37,
+      "status": "paid",
+      "payments": [
+        { "date": "2026-05-01", "amount": 2786.37, "method": "Check" }
+      ],
+      "balance_due": 0.0
+    },
+    {
+      "id": "INV-2026-0003",
+      "job_id": "JOB-2026-0108",
+      "customer_name": "Optimas",
+      "date": "2026-04-10",
+      "due_date": "2026-05-10",
+      "line_items": [
+        { "description": "Cold-form tooling rework — sinker EDM electrode", "quantity": 6, "unit_price": 410.0, "total": 2460.0 }
+      ],
+      "subtotal": 2460.0,
+      "tax": 156.21,
+      "total": 2616.21,
+      "status": "paid",
+      "payments": [
+        { "date": "2026-05-06", "amount": 2616.21, "method": "ACH" }
+      ],
+      "balance_due": 0.0
+    },
+    {
+      "id": "INV-2026-0004",
+      "job_id": "JOB-2026-0111",
+      "customer_name": "SFS",
+      "date": "2026-04-14",
+      "due_date": "2026-05-14",
+      "line_items": [
+        { "description": "Lathe-turned 4340 shafts — CSS finish", "quantity": 25, "unit_price": 92.0, "total": 2300.0 },
+        { "description": "Material — 4340 bar stock", "quantity": 1, "unit_price": 640.0, "total": 640.0 }
+      ],
+      "subtotal": 2940.0,
+      "tax": 186.69,
+      "total": 3126.69,
+      "status": "paid",
+      "payments": [
+        { "date": "2026-05-12", "amount": 3126.69, "method": "ACH" }
+      ],
+      "balance_due": 0.0
+    },
+    {
+      "id": "INV-2026-0005",
+      "job_id": "JOB-2026-0115",
+      "customer_name": "Holo-Krome",
+      "date": "2026-04-18",
+      "due_date": "2026-05-18",
+      "line_items": [
+        { "description": "Socket-head die nest — wire EDM trilobe", "quantity": 4, "unit_price": 720.0, "total": 2880.0 }
+      ],
+      "subtotal": 2880.0,
+      "tax": 182.88,
+      "total": 3062.88,
+      "status": "paid",
+      "payments": [
+        { "date": "2026-05-15", "amount": 3062.88, "method": "Check" }
+      ],
+      "balance_due": 0.0
+    },
+    {
+      "id": "INV-2026-0006",
+      "job_id": "JOB-2026-0120",
+      "customer_name": "ITW",
+      "date": "2026-04-22",
+      "due_date": "2026-05-22",
+      "line_items": [
+        { "description": "Form-die maintenance — regrind + recoat", "quantity": 1, "unit_price": 1480.0, "total": 1480.0 }
+      ],
+      "subtotal": 1480.0,
+      "tax": 93.98,
+      "total": 1573.98,
+      "status": "paid",
+      "payments": [
+        { "date": "2026-05-20", "amount": 1573.98, "method": "ACH" }
+      ],
+      "balance_due": 0.0
+    },
+    {
+      "id": "INV-2026-0007",
+      "job_id": "JOB-2026-0123",
+      "customer_name": "Fastenal",
+      "date": "2026-05-01",
+      "due_date": "2026-05-31",
+      "line_items": [
+        { "description": "Carbide-tipped trim punch set", "quantity": 12, "unit_price": 168.0, "total": 2016.0 },
+        { "description": "CMM first-article inspection", "quantity": 1, "unit_price": 295.0, "total": 295.0 }
+      ],
+      "subtotal": 2311.0,
+      "tax": 146.75,
+      "total": 2457.75,
+      "status": "paid",
+      "payments": [
+        { "date": "2026-05-29", "amount": 2457.75, "method": "ACH" }
+      ],
+      "balance_due": 0.0
+    },
+    {
+      "id": "INV-2026-0008",
+      "job_id": "JOB-2026-0127",
+      "customer_name": "Alcoa",
+      "date": "2026-05-04",
+      "due_date": "2026-06-03",
+      "line_items": [
+        { "description": "5-axis mill — titanium bracket prototype", "quantity": 3, "unit_price": 1120.0, "total": 3360.0 }
+      ],
+      "subtotal": 3360.0,
+      "tax": 213.36,
+      "total": 3573.36,
+      "status": "sent",
+      "payments": [],
+      "balance_due": 3573.36
+    },
+    {
+      "id": "INV-2026-0009",
+      "job_id": "JOB-2026-0130",
+      "customer_name": "Optimas",
+      "date": "2026-05-08",
+      "due_date": "2026-06-07",
+      "line_items": [
+        { "description": "Header die — sinker EDM + polish", "quantity": 2, "unit_price": 1640.0, "total": 3280.0 },
+        { "description": "Heat treat (vendor pass-through)", "quantity": 1, "unit_price": 420.0, "total": 420.0 }
+      ],
+      "subtotal": 3700.0,
+      "tax": 234.95,
+      "total": 3934.95,
+      "status": "sent",
+      "payments": [
+        { "date": "2026-05-30", "amount": 1500.0, "method": "ACH" }
+      ],
+      "balance_due": 2434.95
+    },
+    {
+      "id": "INV-2026-0010",
+      "job_id": "JOB-2026-0134",
+      "customer_name": "SFS",
+      "date": "2026-05-11",
+      "due_date": "2026-06-10",
+      "line_items": [
+        { "description": "Lathe production run — 17-4PH valve bodies", "quantity": 60, "unit_price": 48.5, "total": 2910.0 }
+      ],
+      "subtotal": 2910.0,
+      "tax": 184.79,
+      "total": 3094.79,
+      "status": "sent",
+      "payments": [],
+      "balance_due": 3094.79
+    },
+    {
+      "id": "INV-2026-0011",
+      "job_id": "JOB-2026-0137",
+      "customer_name": "Holo-Krome",
+      "date": "2026-05-13",
+      "due_date": "2026-06-12",
+      "line_items": [
+        { "description": "Trim-and-pierce die rebuild", "quantity": 1, "unit_price": 4250.0, "total": 4250.0 }
+      ],
+      "subtotal": 4250.0,
+      "tax": 269.88,
+      "total": 4519.88,
+      "status": "sent",
+      "payments": [],
+      "balance_due": 4519.88
+    },
+    {
+      "id": "INV-2026-0012",
+      "job_id": "JOB-2026-0140",
+      "customer_name": "Fastenal",
+      "date": "2026-05-15",
+      "due_date": "2026-06-14",
+      "line_items": [
+        { "description": "Wire EDM — fine-wire detail nest", "quantity": 5, "unit_price": 588.0, "total": 2940.0 }
+      ],
+      "subtotal": 2940.0,
+      "tax": 186.69,
+      "total": 3126.69,
+      "status": "sent",
+      "payments": [],
+      "balance_due": 3126.69
+    },
+    {
+      "id": "INV-2026-0013",
+      "job_id": "JOB-2026-0142",
+      "customer_name": "ITW",
+      "date": "2026-05-18",
+      "due_date": "2026-06-17",
+      "line_items": [
+        { "description": "Progressive die — station retrofit", "quantity": 1, "unit_price": 5600.0, "total": 5600.0 },
+        { "description": "Engineering / CAM programming", "quantity": 8, "unit_price": 110.0, "total": 880.0 }
+      ],
+      "subtotal": 6480.0,
+      "tax": 411.48,
+      "total": 6891.48,
+      "status": "draft",
+      "payments": [],
+      "balance_due": 6891.48
+    },
+    {
+      "id": "INV-2026-0014",
+      "job_id": "JOB-2026-0145",
+      "customer_name": "Alcoa",
+      "date": "2026-05-20",
+      "due_date": "2026-06-19",
+      "line_items": [
+        { "description": "Fixture plate — Blanchard grind + mill", "quantity": 2, "unit_price": 990.0, "total": 1980.0 }
+      ],
+      "subtotal": 1980.0,
+      "tax": 125.73,
+      "total": 2105.73,
+      "status": "draft",
+      "payments": [],
+      "balance_due": 2105.73
+    },
+    {
+      "id": "INV-2026-0015",
+      "job_id": "JOB-2026-0090",
+      "customer_name": "Optimas",
+      "date": "2026-03-02",
+      "due_date": "2026-04-01",
+      "line_items": [
+        { "description": "Cold-header die maintenance", "quantity": 1, "unit_price": 1320.0, "total": 1320.0 }
+      ],
+      "subtotal": 1320.0,
+      "tax": 83.82,
+      "total": 1403.82,
+      "status": "overdue",
+      "payments": [],
+      "balance_due": 1403.82
+    },
+    {
+      "id": "INV-2026-0016",
+      "job_id": "JOB-2026-0093",
+      "customer_name": "SFS",
+      "date": "2026-03-08",
+      "due_date": "2026-04-07",
+      "line_items": [
+        { "description": "Lathe-turned standoffs — 303 SS", "quantity": 120, "unit_price": 11.25, "total": 1350.0 }
+      ],
+      "subtotal": 1350.0,
+      "tax": 85.73,
+      "total": 1435.73,
+      "status": "overdue",
+      "payments": [
+        { "date": "2026-04-05", "amount": 500.0, "method": "Check" }
+      ],
+      "balance_due": 935.73
+    },
+    {
+      "id": "INV-2026-0017",
+      "job_id": "JOB-2026-0096",
+      "customer_name": "Holo-Krome",
+      "date": "2026-03-14",
+      "due_date": "2026-04-13",
+      "line_items": [
+        { "description": "Socket cap die — wire EDM rework", "quantity": 3, "unit_price": 640.0, "total": 1920.0 }
+      ],
+      "subtotal": 1920.0,
+      "tax": 121.92,
+      "total": 2041.92,
+      "status": "overdue",
+      "payments": [],
+      "balance_due": 2041.92
+    },
+    {
+      "id": "INV-2026-0018",
+      "job_id": "JOB-2026-0099",
+      "customer_name": "Fastenal",
+      "date": "2026-03-20",
+      "due_date": "2026-04-19",
+      "line_items": [
+        { "description": "Form-tool grind + PVD coat", "quantity": 10, "unit_price": 96.0, "total": 960.0 }
+      ],
+      "subtotal": 960.0,
+      "tax": 60.96,
+      "total": 1020.96,
+      "status": "paid",
+      "payments": [
+        { "date": "2026-04-15", "amount": 1020.96, "method": "ACH" }
+      ],
+      "balance_due": 0.0
+    },
+    {
+      "id": "INV-2026-0019",
+      "job_id": "JOB-2026-0148",
+      "customer_name": "ITW",
+      "date": "2026-05-22",
+      "due_date": "2026-06-21",
+      "line_items": [
+        { "description": "Carbide die button set", "quantity": 16, "unit_price": 210.0, "total": 3360.0 }
+      ],
+      "subtotal": 3360.0,
+      "tax": 213.36,
+      "total": 3573.36,
+      "status": "draft",
+      "payments": [],
+      "balance_due": 3573.36
+    },
+    {
+      "id": "INV-2026-0020",
+      "job_id": "JOB-2026-0150",
+      "customer_name": "Alcoa",
+      "date": "2026-05-25",
+      "due_date": "2026-06-24",
+      "line_items": [
+        { "description": "Mill-turn — bushing family (mixed)", "quantity": 40, "unit_price": 62.0, "total": 2480.0 },
+        { "description": "Deburr + passivate", "quantity": 1, "unit_price": 310.0, "total": 310.0 }
+      ],
+      "subtotal": 2790.0,
+      "tax": 177.17,
+      "total": 2967.17,
+      "status": "sent",
+      "payments": [],
+      "balance_due": 2967.17
+    }
+  ]
+}

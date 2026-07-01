@@ -64,8 +64,10 @@ export interface SinkerP2PInput {
   workpiece_hardness_HRC?: number;
   /** Electrode material — default graphite_fine (JM Die standard). */
   electrode_material?: ElectrodeMaterial;
-  /** Mitsubishi machine model. */
-  machine_model?: "EA12V" | "EA12S" | "EA28V";
+  /** Mitsubishi machine model. EA12D added 2026-06-25 (U-PP-EA-SINKER-ROUTE) to propagate the
+   *  PPSinkerEDMPostEngine EA12D identity (commit 669c03dacf) end-to-end through the print-to-program
+   *  pipeline -- JM's EDM-02 is an EA12D and was previously unexpressable here (fell back to EA12V). */
+  machine_model?: "EA12V" | "EA12S" | "EA12D" | "EA28V";
   /** Operator override for number of cavities per feature. Default 1. */
   num_cavities?: number;
   /** Optional program number (for G-code header). */

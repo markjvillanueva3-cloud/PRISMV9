@@ -29,7 +29,9 @@ related:
 
 ## Description (first paragraph)
 
-Scans WEDM engines for uncited parameters and helps replace them with manufacturer catalog citations.
+Check that all WEDM engine numeric outputs trace to published citations.
+This supports the Deep Logic pillar requiring every constant and formula
+to reference ISO standards, research papers, or manufacturer specs.
 
 <!-- AUTO-END -->
 

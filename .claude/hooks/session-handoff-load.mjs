@@ -56,7 +56,7 @@ function deriveTopic() {
   // feat/<topic>; topic enforcement (enforce-handoff-topic.mjs) writes the SAME suffix
   // on Stop, so this gives us a stable read key.
   try {
-    const r = spawnSync("git", ["rev-parse", "--abbrev-ref", "HEAD"], {
+    const r = spawnSync("git", ["rev-parse", "--abbrev-ref", "HEAD"], { windowsHide: true,
       cwd: "H:/prism",
       encoding: "utf-8",
       timeout: 3000,
@@ -84,7 +84,7 @@ function resolveInstance(payload) {
     return "claude-" + raw.slice(0, 8);
   }
   try {
-    const r = spawnSync(NODE_BIN, [STABLE_HELPER], {
+    const r = spawnSync(NODE_BIN, [STABLE_HELPER], { windowsHide: true,
       encoding: "utf-8",
       timeout: 3000,
     });
@@ -101,7 +101,7 @@ function readHandoff(instance, topic) {
     args.push("--topic", topic);
   }
   try {
-    const r = spawnSync(NODE_BIN, [HELPER, ...args], {
+    const r = spawnSync(NODE_BIN, [HELPER, ...args], { windowsHide: true,
       encoding: "utf-8",
       timeout: 5000,
     });

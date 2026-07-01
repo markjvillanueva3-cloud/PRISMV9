@@ -9,7 +9,7 @@
  * traverse Windows process descendants reliably.
  *
  * Why this exists: the legacy git-sync-stop.mjs (pre-U-A1) used
- *   spawn(..., { detached: true }).unref()
+ *   spawn(..., { windowsHide: true, detached: true }).unref()
  * which leaves zombie git.exe processes that scan the 7142-file working
  * tree forever. With 8 concurrent chats × Stop events × hung pushes,
  * RAM pressure climbs into 2GB+ of orphaned git scans.
@@ -60,7 +60,7 @@ function listProcesses() {
   const r = spawnSync(WMIC,
     ["process", "where", "(Name='git.exe' OR Name='node.exe')",
      "get", "ParentProcessId,ProcessId,Name,CommandLine", "/format:csv"],
-    { encoding: "utf-8", timeout: 4000 });
+    { windowsHide: true, encoding: "utf-8", timeout: 4000 });
   if (r.status !== 0 || !r.stdout) return [];
   // CSV header line + records. Format: Node,CommandLine,Name,ParentProcessId,ProcessId
   const lines = r.stdout.split(/\r?\n/).filter(Boolean);
@@ -111,7 +111,7 @@ function isOurProcess(p) {
 
 function killProcess(pid) {
   if (existsSync(TASKKILL)) {
-    const r = spawnSync(TASKKILL, ["/PID", String(pid), "/F"], { encoding: "utf-8", timeout: 2000 });
+    const r = spawnSync(TASKKILL, ["/PID", String(pid), "/F"], { windowsHide: true, encoding: "utf-8", timeout: 2000 });
     return r.status === 0;
   }
   // POSIX fallback (CI / WSL)

@@ -23,13 +23,19 @@ related:
 |-------|-------|
 | Name | `forge-drift` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/forge-drift.md` |
+| Source | `C:/Users/wompu/.claude/commands/forge-drift.md` |
 | Model | default |
 | Tags | _(none)_ |
 
 ## Description (first paragraph)
 
-_(no body content)_
+
+# Forge Drift — Registry & Documentation Drift Detector
+
+You are running a specialized autopilot pipeline that detects drift between PRISM's registries, MASTER_INDEX, actual source code, and documentation. This is designed to run in the **background** — it cross-references multiple truth sources and reports mismatches.
+
+## Args: $ARGUMENTS
+- Empty: full drift scan — all registries, indexes,
 
 <!-- AUTO-END -->
 

@@ -21,7 +21,18 @@ related:
 
 ## Description (from file header)
 
-PRISM MCP Server - Hooks Index (COMPLETE)D1.2 Enhancement: Agent + Orchestration Hooks AddedCentral export point for ALL hook modules.HOOK INVENTORY:- EnforcementHooks: 17 hooks (anti-regression, safety, quality gates, skill quality)- LifecycleHooks: 14 hooks (session, checkpoint, context pressure)- ManufacturingHooks: 9 hooks (force, thermal, deflection, MRR)- CognitiveHooks: 10 hooks (Bayesian, patterns, learning)- ObservabilityHooks: 11 hooks (performance, usage, audit)- Automation
+PRISM MCP Server - Hooks Index (COMPLETE)
+D1.2 Enhancement: Agent + Orchestration Hooks Added
+
+Central export point for ALL hook modules.
+
+HOOK INVENTORY:
+- EnforcementHooks: 17 hooks (anti-regression, safety, quality gates, skill quality)
+- LifecycleHooks: 14 hooks (session, checkpoint, context pressure)
+- ManufacturingHooks: 9 hooks (force, thermal, deflection, MRR)
+- CognitiveHooks: 10 hooks (Bayesian, patterns, learning)
+- ObservabilityHooks: 11 hooks (performance, usage, audit)
+- Automation
 
 ## Events
 

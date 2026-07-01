@@ -1,0 +1,187 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta name="prism-source-hash" content="222576eeb6d19b34275365eb98b7f98dfeda7ca7c81331193d41ed44bc6fa97b">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Galaxy Enrichment Program (2026-06-09)</title>
+<style>
+  :root {
+    --bg: #0f1014;
+    --panel: #1a1c23;
+    --panel-2: #232631;
+    --fg: #e4e6eb;
+    --fg-dim: #9aa0a8;
+    --border: #2c303a;
+    --ok: #4ade80;
+    --warn: #fbbf24;
+    --fail: #f87171;
+    --info: #60a5fa;
+    --link: #93c5fd;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; padding: 1.5rem; background: var(--bg); color: var(--fg);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, sans-serif;
+    font-size: 14px; line-height: 1.5; }
+  h1 { font-size: 1.6rem; margin: 0 0 0.25rem 0; }
+  h2 { font-size: 1.15rem; margin: 1.5rem 0 0.5rem 0; padding-bottom: 0.25rem;
+    border-bottom: 1px solid var(--border); color: var(--fg); }
+  .meta { color: var(--fg-dim); font-size: 0.85rem; margin-bottom: 1rem; }
+  .panel { background: var(--panel); border: 1px solid var(--border); border-radius: 6px;
+    padding: 0.75rem 1rem; margin-bottom: 1rem; }
+  .headline-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 0.5rem; margin-bottom: 1rem; }
+  .card { background: var(--panel-2); border: 1px solid var(--border); border-radius: 6px;
+    padding: 0.65rem 0.85rem; }
+  .card .lbl { font-size: 0.8rem; color: var(--fg-dim); }
+  .card .val { font-size: 1.4rem; font-weight: 600; margin: 0.15rem 0; font-variant-numeric: tabular-nums; }
+  .card .hint { font-size: 0.75rem; color: var(--fg-dim); }
+  .card.ok    { border-left: 3px solid var(--ok); }
+  .card.warn  { border-left: 3px solid var(--warn); }
+  .card.fail  { border-left: 3px solid var(--fail); }
+  .card.info  { border-left: 3px solid var(--info); }
+  table { width: 100%; border-collapse: collapse; margin: 0.5rem 0 1rem; font-size: 0.9rem;
+    background: var(--panel); border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }
+  caption { text-align: left; padding: 0.4rem 0.65rem; color: var(--fg-dim);
+    background: var(--panel-2); font-weight: 500; }
+  th, td { padding: 0.4rem 0.65rem; text-align: left; border-bottom: 1px solid var(--border);
+    font-variant-numeric: tabular-nums; vertical-align: top; }
+  th { background: var(--panel-2); color: var(--fg-dim); font-weight: 500;
+    text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.04em; }
+  tr:last-child td { border-bottom: none; }
+  td.right { text-align: right; }
+  ul, ol { margin: 0.4rem 0 1rem 1.25rem; }
+  li { margin: 0.15rem 0; }
+  .badge { display: inline-block; padding: 0.1rem 0.5rem; border-radius: 999px;
+    font-size: 0.75rem; font-weight: 500; background: var(--panel-2); color: var(--fg-dim);
+    border: 1px solid var(--border); }
+  .badge.ok   { background: rgba(74, 222, 128, 0.12); color: var(--ok);   border-color: rgba(74,222,128,0.3); }
+  .badge.warn { background: rgba(251, 191, 36, 0.12); color: var(--warn); border-color: rgba(251,191,36,0.3); }
+  .badge.fail { background: rgba(248, 113, 113, 0.12); color: var(--fail); border-color: rgba(248,113,113,0.3); }
+  .badge.info { background: rgba(96, 165, 250, 0.12); color: var(--info); border-color: rgba(96,165,250,0.3); }
+  .badge-grid { display: flex; flex-wrap: wrap; gap: 0.3rem; margin: 0.3rem 0 1rem 0; }
+  .kv { display: grid; grid-template-columns: max-content 1fr; gap: 0.2rem 0.85rem;
+    margin: 0.4rem 0 1rem 0; }
+  .kv .k { color: var(--fg-dim); }
+  svg.bar-chart { display: block; max-width: 100%; height: auto; }
+  svg .bar { fill: var(--info); }
+  svg .bar.ok   { fill: var(--ok); }
+  svg .bar.warn { fill: var(--warn); }
+  svg .bar.fail { fill: var(--fail); }
+  svg text { fill: var(--fg); font-family: monospace; font-size: 11px; }
+  svg .axis text { fill: var(--fg-dim); }
+  code { background: var(--panel-2); padding: 0 0.3rem; border-radius: 3px;
+    font-family: "Fira Code", Consolas, Menlo, monospace; font-size: 0.85em; }
+  a { color: var(--link); }
+  footer { margin-top: 2rem; padding-top: 0.75rem; border-top: 1px solid var(--border);
+    font-size: 0.8rem; color: var(--fg-dim); }
+</style>
+</head>
+<body>
+<h1 id="galaxy-enrichment-program-2026-06-09">Galaxy Enrichment Program (2026-06-09)</h1>
+<div class="meta">rendered from state/shared/specs/GALAXY-ENRICHMENT-PROGRAM-2026-06-09.md</div>
+<div class="meta">Generated 2026-06-10T04:17:16.828Z</div>
+<style>
+  .prism-md-body { max-width: 70rem; margin: 0 auto; }
+  .prism-h1 { font-size: 1.6rem; }
+  .prism-h2 { font-size: 1.25rem; border-bottom: 1px solid var(--border); padding-bottom: 0.25rem; }
+  .prism-h3 { font-size: 1.1rem; color: var(--info); }
+  .prism-h4, .prism-h5, .prism-h6 { font-size: 1rem; color: var(--fg-dim); }
+  .prism-md-body p { margin: 0.5rem 0; }
+  .prism-md-list { margin: 0.5rem 0 0.5rem 1.25rem; padding: 0; }
+  .prism-md-list li { margin: 0.15rem 0; }
+  .prism-md-table { border-collapse: collapse; margin: 0.75rem 0; width: 100%; }
+  .prism-md-table th, .prism-md-table td { border: 1px solid var(--border); padding: 0.35rem 0.6rem; text-align: left; }
+  .prism-md-table th { background: var(--panel-2); }
+  .prism-codeblock { background: var(--panel-2); border: 1px solid var(--border); border-radius: 4px; padding: 0.6rem 0.8rem; overflow-x: auto; font-family: "Cascadia Code", Consolas, monospace; font-size: 13px; }
+  .prism-inline-code { background: var(--panel-2); padding: 0 0.25rem; border-radius: 3px; font-family: "Cascadia Code", Consolas, monospace; font-size: 0.92em; }
+  .prism-quote { border-left: 3px solid var(--info); background: var(--panel-2); padding: 0.5rem 0.85rem; margin: 0.75rem 0; color: var(--fg-dim); }
+  .prism-hr { border: 0; border-top: 1px solid var(--border); margin: 1rem 0; }
+  .prism-link { color: var(--link); text-decoration: none; }
+  .prism-link:hover { text-decoration: underline; }
+  .prism-bad-link { color: var(--fail); text-decoration: line-through; }
+  .prism-unclosed::before { content: "⚠ unterminated code block"; display: block; color: var(--warn); font-size: 0.85em; margin-bottom: 0.25rem; }
+  </style><a href="#content" class="skip-link">Skip to content</a><main class="prism-md-body" role="main" id="content"><h1 class="prism-h1" id="galaxy-enrichment-program-2026-06-09-1">Galaxy Enrichment Program (2026-06-09)</h1>
+<blockquote class="prism-quote">Operator goal: enrich EACH of the 34 PRISM galaxies one-by-one (one per <code class="prism-inline-code">/loop</code> iteration) so each becomes a &quot;world leader in its domain.&quot; Owner: papa (cross-cutting methodology) + per-galaxy owner-slot (deep domain). Recurring <code class="prism-inline-code">/loop</code> executes against this spec; <strong>resume anchor at the bottom</strong> tells the next fire which galaxy is next.</blockquote>
+<blockquote class="prism-quote"></blockquote>
+<blockquote class="prism-quote"><strong>TWO LANES (do not blur):</strong></blockquote>
+<blockquote class="prism-quote">- <strong>CROSS-CUTTING (papa-propagatable, UNIFORM):</strong> PC-specs, Ollama roster, how-to-run-loops, Obsidian-vault usage, harness/LoRA/CAG/RAG patterns. Same text every galaxy (templated + idempotent merge). Papa may draft + commit these directly — they carry no unverified domain claim.</blockquote>
+<blockquote class="prism-quote">- <strong>DEEP-DOMAIN (owner-slot expertise, PER-GALAXY):</strong> milling physics (mill), SFC physics (speed-feed), discharge physics (wedm), etc. Papa drafts a <em>scaffold + free-source pointers only</em>; <strong>the owner slot verifies every numeric/physics claim</strong> before it ships. Unverified domain content is marked <code class="prism-inline-code">&lt;!-- UNVERIFIED: owner-slot to confirm --&gt;</code>, never asserted.</blockquote>
+<hr class="prism-hr">
+<h2 class="prism-h2" id="methodology-to-propagate-uniform-across-galaxies-distilled-a">Methodology to propagate (uniform across galaxies) — distilled article directives</h2>
+<p>Each galaxy CLAUDE.md gets ONE block per heading below (1-2 concrete directives each, source-cited). Identical text fleet-wide.</p>
+<p><strong>(1) HOW TO RUN LOOPS</strong> (src: <code class="prism-inline-code">llm-agent-loop-design.md</code>)</p>
+<ul class="prism-md-list"><li>Start <code class="prism-inline-code">/loop &lt;interval&gt; &lt;skill&gt;</code>; every iteration MUST <code class="prism-inline-code">loop-state tick --status ok|blocked|done</code> or <code class="prism-inline-code">/compact</code> strands the count. State persists in <code class="prism-inline-code">state/shared/loop-logs/&lt;galaxy&gt;.jsonl</code>.</li><li>Dispatch multi-reviewer agents in ONE message (parallel = max-duration, not sum). Subagent prompts are self-contained: goal · absolute file paths · invariants · run-this-test cmd · output format · doctrine refs.</li><li>Call budgets are hard: interactive ~30 soft/60 hard, subagent ~12/25, Ollama harness 5/10. Hitting the ceiling without delivery = wrong starting paths in the prompt, not &quot;needs more turns.&quot;</li></ul>
+<p><strong>(2) HOW TO USE THE OBSIDIAN VAULT</strong> (src: <code class="prism-inline-code">reference_cyrilxbt_obsidian_article_delta_<em></code>, <code class="prism-inline-code">reference_humza_khalid_obsidian_article_</em></code>)</p>
+<ul class="prism-md-list"><li>Vault is retrieval, not storage — friction kills capture. Write memory to <code class="prism-inline-code">C:/Users/wompu/.claude/projects/H--prism/memory/*.md</code>; the <code class="prism-inline-code">stop-obsidian-memory-feed.mjs</code> Stop hook auto-feeds → <code class="prism-inline-code">H:/prism/knowledge/memories/&lt;type&gt;/</code>. Zero manual tagging.</li><li>Query BEFORE re-deriving: <code class="prism-inline-code">prism_memory:semantic_search query=&quot;&lt;galaxy&gt;&quot; topK=20</code> (semantic) or <code class="prism-inline-code">/find</code> (master-index). Index-over-embeddings: atomic notes + <code class="prism-inline-code">[[wikilinks]]</code> keep recall ≤200 tokens.</li><li>Push-beats-pull: weekly synthesis ritual (<code class="prism-inline-code">/weekly-synthesis</code>) emits emerging-thesis + contradictions + gaps + 1 action; contradiction-detector flags new-vs-saved conflicts to <code class="prism-inline-code">wiki/log.md</code>.</li></ul>
+<p><strong>(3) HARNESS PATTERNS</strong> (src: <code class="prism-inline-code">reference_agentic_harness_articles_<em></code>, <code class="prism-inline-code">reference_rody_cyril_claude_setup_articles_</em></code>)</p>
+<ul class="prism-md-list"><li>Orchestration lives in CODE, not the model — routing/retries/status-codes are deterministic JS (R5). Agents reason only.</li><li>Multi-timescale compounding loops (ms→weeks) are the OS: fleet-task-health · fleet-memory-monitor · <code class="prism-inline-code">/loop</code> cadence · weekly synthesis · per-Stop probes · cron watchdogs. Crash-critical tasks AUTO-re-enable + test, don&#39;t just warn.</li><li>4-layer self-check before commit: CLAUDE.md protocol (≤250 lines, skimmed past that) + PostToolUse lint/type + Stop test-suite hook + subagent reviewer. Never <code class="prism-inline-code">--skip-hooks</code>.</li></ul>
+<p><strong>(4) LoRA</strong> (src: <code class="prism-inline-code">reference_xray_blueprint_lora_stage_<em></code>, <code class="prism-inline-code">reference_whiskey_lathe_lora_tier_complete_</em></code>)</p>
+<ul class="prism-md-list"><li>Domain owns its LoRA tier, CLONED (not forked) from india&#39;s <code class="prism-inline-code">CrossProcessNeuralLearningEngine</code> substrate. Stage via <code class="prism-inline-code">trainset.jsonl → LoRABridgeEngine</code> (trainable-only fields, <code class="prism-inline-code">String(value_mm)</code>, fold type+signals into context).</li><li>Deploy gate = AUROC≥0.78 / macroF1≥0.55 / Brier≤0.15 <strong>on OPERATOR_VERIFIED data, never pseudo-labels</strong> + measured-lift-over-incumbent. Verdict promote|hold|reject; shadow→canary→active.</li><li>Do NOT route through <code class="prism-inline-code">ContinualLoRAEngine</code> / <code class="prism-inline-code">prism_ml continual_lora_*</code> (stub <code class="prism-inline-code">Math.random</code>). Blackwell sm_120 needs torch≥2.7/cu128 + peft/datasets/trl; vision LoRA needs pixels, not path strings.</li></ul>
+<p><strong>(5) CAG (cache immutable doctrine)</strong> (src: <code class="prism-inline-code">reference_articles_memory_cag_*</code>, <code class="prism-inline-code">PromptCachingEngine.ts</code>)</p>
+<ul class="prism-md-list"><li>Every static-info vector-DB hit is wasted cost — cache static doctrine in model KV; retrieve only dynamic. Migrate high-fire static blocks (CLAUDE.md slice, RTK, dispatcher map) from per-turn → SessionStart cached blocks via <code class="prism-inline-code">PromptCachingEngine.buildCachedSystem()</code>.</li><li>Reads = 0.1× input, writes = 1.25×; break-even after ~1 repeat on a &gt;1024-token block. 4 breakpoints/request, 5min TTL. Target Claude-Code&#39;s ~92% hit-rate; instrument with <code class="prism-inline-code">recordUsage()</code>.</li></ul>
+<p><strong>(6) RAG (retrieve mutable state)</strong> (src: <code class="prism-inline-code">reference_articles_memory_cag_*</code>, <code class="prism-inline-code">llm-agent-loop-design.md</code>)</p>
+<ul class="prism-md-list"><li>RAG for recent memories / active work / per-turn context (contrast CAG = immutable). Embedding model <code class="prism-inline-code">nomic-embed-text</code> local on GPU.</li><li>Layer-3 write-time filter: &quot;would this change how the agent acts next time?&quot; — discard static parroting, keep signal. Tribal RAG = read-only Ollama harness (viz_search + wiki_lookup + read_excerpt, frozen allowlist, 5/10 cap, ~0 Claude tokens).</li></ul>
+<p><strong>(7) PC-SPECS + OLLAMA ROSTER</strong> (uniform operational block, identical fleet-wide)</p>
+<ul class="prism-md-list"><li>Box: <strong>RTX PRO 6000 Blackwell 96GB · Ryzen 9 9950X3D 32T · 127GB RAM · NVMe</strong> (<code class="prism-inline-code">feedback_build_for_blackwell_hardware</code>). Gap is utilization, not capacity — size builds to this box.</li><li>Roster (probe via <code class="prism-inline-code">OllamaCapabilityProbeEngine</code>, fallback to cloud on null): <code class="prism-inline-code">gpt-oss:120b</code> (deep reasoning/physics/hypothesis), <code class="prism-inline-code">gpt-oss:20b</code> (quick lookup/filter/synthesis), <code class="prism-inline-code">qwen2.5-coder:32b</code> (engine/test/hook codegen), <code class="prism-inline-code">qwen2.5-coder:1.5b</code> (fast lint/rename), 5 VLMs (domain vision), <code class="prism-inline-code">nomic-embed-text</code> (semantic search).</li></ul>
+<hr class="prism-hr">
+<h2 class="prism-h2" id="per-galaxy-enrichment-template-checklist-each-iteration-appl">Per-galaxy enrichment template (checklist each iteration applies)</h2>
+<p>Target files: <code class="prism-inline-code">mcp-server/src/engines/&lt;galaxy&gt;/{CLAUDE.md,MEMORY.md,PATHS.md,TOOLBELT.md}</code>. Idempotent merge — re-running a galaxy updates, never duplicates.</p>
+<p><strong>CLAUDE.md</strong> (cap ≤250 lines; pointers + local gotchas only, no root-doctrine duplication):</p>
+<ul class="prism-md-list"><li>[ ] §PC-Specs &amp; Ollama Utilization — paste uniform block (7) + ONE domain-specific VLM/offload example (e.g. mill: tool-wear-from-spindle-load; cad: feature-recog-from-screenshot). <code class="prism-inline-code">&lt;!-- UNVERIFIED --&gt;</code> the example until owner confirms it&#39;s a real task.</li><li>[ ] §HOW TO RUN LOOPS — uniform block (1) + 1-2 <em>recommended</em> loops for this galaxy (interval + skill + purpose).</li><li>[ ] §HOW TO USE THE OBSIDIAN VAULT — uniform block (2) + this galaxy&#39;s vault paths (<code class="prism-inline-code">knowledge/{memories,wiki,tribal}/&lt;galaxy&gt;/</code>).</li><li>[ ] §Harness / LoRA / CAG / RAG — uniform blocks (3)-(6) + this galaxy&#39;s dispatcher names + whether it ships a LoRA tier.</li><li>[ ] §Domain gotchas — owner-slot adds 3+ cited lessons; papa leaves <code class="prism-inline-code">&lt;!-- owner-slot: fill 3 gotchas --&gt;</code> placeholder if no owner.</li></ul>
+<p><strong>MEMORY.md</strong> (cap ≤200 lines):</p>
+<ul class="prism-md-list"><li>[ ] Master-brain link (UP <code class="prism-inline-code">semantic_search</code>, DOWN auto-feed, back-pointer row present in master MEMORY.md).</li><li>[ ] High-ROI memories: ≥5 live learnings (auto-gen by <code class="prism-inline-code">scripts/fill-galaxy-memory-sections.mjs</code> where it exists; else papa lists from <code class="prism-inline-code">semantic_search</code>).</li><li>[ ] Free-source pointers added (§ below) so future research is one lookup away.</li></ul>
+<p><strong>PATHS.md / TOOLBELT.md</strong>: append Ollama integration points, vault feed source/sink, LoRA artifact paths, Ollama-routed action table, loop-trigger table.</p>
+<p><strong>Verification before the galaxy counts shipped:</strong></p>
+<ul class="prism-md-list"><li>Cross-cutting blocks: papa self-reviews (no domain claim → no owner gate needed).</li><li>Domain blocks: <strong>owner-slot R12 gate</strong> (below) — REQUIRED if any numeric/physics/safety claim was added.</li></ul>
+<hr class="prism-hr">
+<h2 class="prism-h2" id="free-source-research-framework-domain-type-reputable-free-so">Free-source research framework (domain-type → reputable free sources + ingest tool)</h2>
+<table class="prism-md-table"><thead><tr><th>Domain type</th><th>Galaxies</th><th>Top free sources</th><th>Ingest tool</th><th>Owner verify</th></tr></thead><tbody><tr><td><strong>Cutting physics</strong></td><td>mill, lathe, wedm, speed-feed</td><td>MIT OCW 2.008/2.810, NIST cutting-force/ISO 3685, Machinery Handbook, Sandvik/ISCAR/OSG free catalogs, Agie-Charmilles/Mitsubishi WEDM manuals, Titans-of-CNC YouTube</td><td><code class="prism-inline-code">/pdf-learn</code> (use lima pypdf, <code class="prism-inline-code">feedback_use_lima_pypdf_page_extractor</code>) + <code class="prism-inline-code">/video-learn</code></td><td>owner spot-checks 3-5 formulas/cycle</td></tr>
+<tr><td><strong>CAD/CAM/post</strong></td><td>cad, cam, post-processor, blueprint-vision</td><td>Fusion360/FreeCAD docs, ISO 286/14649/6983, Fanuc/Okuma/Haas programming manuals, ASME Y14.5 + ISO 1101 GD&amp;T (extract-friendly), vendor CAM YouTube</td><td><code class="prism-inline-code">/pdf-learn</code> + <code class="prism-inline-code">/video-learn</code></td><td>owner verifies syntax/strategy/feature gates</td></tr>
+<tr><td><strong>AI/corpus</strong></td><td>ai-training, pdf-corpus(-mill), corpus-aggregation, mit-curriculum, knowledge-conversion, academy, tribal-knowledge</td><td>arXiv, fast.ai, HuggingFace docs, Karpathy &quot;Zero to Hero&quot;, MIT OCW (2000+ courses), Project Gutenberg, OpenStax</td><td><code class="prism-inline-code">/learn-corpus</code>, <code class="prism-inline-code">/pdf-learn</code>, <code class="prism-inline-code">/shop-knowledge</code> (proprietary JM Die)</td><td>india/lima verify accuracy vs baseline</td></tr>
+<tr><td><strong>Business/quoting</strong></td><td>business, quoting, frontend-app</td><td>SBA.gov, IRS pubs, NIST cost-estimation/OEE, BLS labor rates, Xometry/Protolabs public pricing, Goldratt summaries</td><td><code class="prism-inline-code">/pdf-learn</code> + <code class="prism-inline-code">/web-fetch</code></td><td>hotel/charlie verify P&amp;L/quote accuracy</td></tr>
+<tr><td><strong>Quality/safety</strong></td><td>quality, compliance-safety, shop-floor</td><td>NIST QUAM, ISO 14253-1/12100 (summaries), OSHA/ANSI B11.19, Six-Sigma/SPC Nelson rules (NIST)</td><td><code class="prism-inline-code">/pdf-learn</code> + <code class="prism-inline-code">/video-learn</code></td><td>owner verifies Cpk + S(x) thresholds</td></tr>
+<tr><td><strong>System/infra</strong></td><td>system-viz, fleet-hygiene, discovery, wiring, bug-hunting, backend-helper, dormant-data, agent-orchestration, hermes-zulu, token-optimization, database-expansion, cad-fusion-live</td><td>Anthropic Claude docs, agentic-harness articles (operator-provided), prompt-caching guides, graph-algo papers (arXiv), Obsidian PKM articles</td><td>operator-provided memos + <code class="prism-inline-code">/web-fetch</code></td><td>papa (cross-cutting, no domain gate)</td></tr></tbody></table>
+<p>Source reliability ranking (prefer top): MIT OCW / arXiv / NIST / ISO (⭐⭐⭐⭐⭐) &gt; Machinery Handbook / vendor manuals (⭐⭐⭐⭐) &gt; YouTube technical / Reddit (⭐⭐⭐, curate). <strong>Use only legal free sources</strong> — the ⭐⭐⭐⭐⭐/⭐⭐⭐⭐ legal tier (MIT OCW, arXiv, NIST, ISO summaries, OpenStax, Project Gutenberg, vendor docs) is more than sufficient; never pirated or paywalled material. <strong>R12: every ingested fact is <code class="prism-inline-code">&lt;!-- UNVERIFIED --&gt;</code> until the owner spot-check passes.</strong></p>
+<p>Ingest pipeline: discover (operator URL or <code class="prism-inline-code">/learn-corpus &lt;kw&gt;</code>) → ingest (<code class="prism-inline-code">/pdf-learn</code>|<code class="prism-inline-code">/video-learn</code>|<code class="prism-inline-code">/web-fetch</code>) → normalize (gpt-oss:20b → wiki-article schema) → stage (<code class="prism-inline-code">knowledge/wiki/&lt;galaxy&gt;/_staging/</code>) → owner-approve → feed + embed (<code class="prism-inline-code">nomic-embed-text</code>).</p>
+<hr class="prism-hr">
+<h2 class="prism-h2" id="ollama-offload-plan-what-gpt-oss-120b-vs-claude-vs-owner-ver">Ollama-offload plan (what → gpt-oss:120b vs Claude vs owner-verify)</h2>
+<table class="prism-md-table"><thead><tr><th>Enrichment step</th><th>Primary</th><th>Polish</th><th>Verify gate</th></tr></thead><tbody><tr><td>Source discovery</td><td>operator / <code class="prism-inline-code">/web-fetch</code></td><td>—</td><td>operator final-call</td></tr>
+<tr><td>PDF/video ingest + chunk</td><td><code class="prism-inline-code">/pdf-learn</code> + gpt-oss:20b</td><td>—</td><td>owner spot-check 1-2 articles</td></tr>
+<tr><td>Physics/domain wiki draft</td><td><strong>gpt-oss:120b</strong> (reads theory, cites)</td><td>Claude (links/format)</td><td><strong>owner R12 spot-check</strong></td></tr>
+<tr><td>Code/engine/test draft</td><td><strong>qwen2.5-coder:32b</strong></td><td>Claude (review)</td><td>tests pass</td></tr>
+<tr><td>Tribal pattern mining</td><td><strong>gpt-oss:120b</strong> (100+ tips → patterns)</td><td>Claude (context)</td><td>owner verifies 3 tips</td></tr>
+<tr><td>Cross-cutting CLAUDE.md blocks</td><td><strong>papa</strong> (uniform text)</td><td>—</td><td>papa self-review (no domain claim)</td></tr>
+<tr><td>MEMORY.md high-ROI synthesis</td><td>gpt-oss:20b + auto-feed</td><td>Claude</td><td>owner quarterly checklist</td></tr>
+<tr><td>Semantic embed/index</td><td><code class="prism-inline-code">nomic-embed-text</code> (local GPU)</td><td>—</td><td>recall ≥85% on 10 queries</td></tr></tbody></table>
+<p><strong>Rule:</strong> gpt-oss:120b owns domain reasoning DRAFTS (cheap, cited); Claude owns synthesis + cross-ref + contradiction resolution; the OWNER SLOT owns truth. Failure path: owner finds an off-value (e.g. Kienzle kc1.1=1200 vs canonical 1800 for P) → re-prompt gpt-oss:120b with atomic query + ISO ref → re-approve. No stub article ships.</p>
+<hr class="prism-hr">
+<h2 class="prism-h2" id="enrichment-order-sparsest-highest-leverage-first">Enrichment order (sparsest + highest-leverage first)</h2>
+<p>Cross-cutting blocks land on ALL 34 regardless of order (papa batch-templatable). This order governs the DEEP-domain pass (owner verification, free-source ingest):</p>
+<p><strong>Wave 0 — high-leverage infra (cascades to all slots):</strong></p>
+<ol class="prism-md-list"><li>ai-training (india) — LoRA cadence drives all cutting-domain fine-tunes</li><li>system-viz (sierra) — degradation cascades to master-index every slot queries</li><li>speed-feed (oscar) — all cutting ops depend on SFC</li></ol>
+<p><strong>Wave 1 — hot revenue domains (frequent queries):</strong></p>
+<ol class="prism-md-list"><li>mill (foxtrot) · 5. lathe (whiskey) · 6. wedm (mike) · 7. quoting (charlie) · 8. business (hotel)</li></ol>
+<p><strong>Wave 2 — domain completeness:</strong></p>
+<ol class="prism-md-list"><li>cad (delta) · 10. cam (kilo) · 11. post-processor (echo) · 12. blueprint-vision (xray) · 13. academy (lima) · 14. quality · 15. shop-floor</li></ol>
+<p><strong>Wave 3 — sparse/stub fill (sparsest CLAUDE.md first):</strong></p>
+<ol class="prism-md-list"><li>agent-orchestration (33ln) · 17. knowledge-conversion (52ln) · 18. compliance-safety (55ln) · 19. corpus-aggregation · 20. pdf-corpus-mill · 21. tribal-knowledge · 22. frontend-app · 23. fleet-hygiene · 24. cad-fusion-live · 25. mit-curriculum · 26. pdf-corpus · 27. database-expansion · 28. hermes-zulu · 29. token-optimization · 30. discovery · 31. bug-hunting · 32. backend-helper · 33. dormant-data · 34. wiring</li></ol>
+<p><strong>Unassigned-owner note:</strong> lathe/wedm/cam/quality/compliance/system-viz domain experts may be unclaimed at fire time. If no owner, papa ships ONLY the cross-cutting blocks + a <code class="prism-inline-code">&lt;!-- owner-slot: verify domain gotchas --&gt;</code> placeholder, ticks <code class="prism-inline-code">blocked-domain</code>, and moves on. Cross-cutting still counts as progress.</p>
+<hr class="prism-hr">
+<h2 class="prism-h2" id="per-iteration-loop-protocol-one-loop-fire">Per-iteration loop protocol (one <code class="prism-inline-code">/loop</code> fire)</h2>
+<ol class="prism-md-list"><li><strong>PICK</strong> — read Resume anchor below → next galaxy in order whose status ≠ <code class="prism-inline-code">done</code>. Claim via <code class="prism-inline-code">loop-state</code>.</li><li><strong>RESEARCH</strong> — <code class="prism-inline-code">/learn-corpus</code> / <code class="prism-inline-code">/pdf-learn</code> / <code class="prism-inline-code">/video-learn</code> against the free-source row for this domain type → gpt-oss:120b drafts domain blocks, qwen2.5-coder:32b drafts any code. Cross-cutting blocks come from the template (no research).</li><li><strong>DRAFT</strong> — merge into the 4 galaxy files per the template. Mark every domain numeric/physics/safety claim <code class="prism-inline-code">&lt;!-- UNVERIFIED: owner-slot to confirm --&gt;</code>.</li><li><strong>VERIFY</strong> — <strong>owner-verification gate:</strong> if any domain claim was added AND an owner slot exists, dispatch the owner (or owner-domain reviewer agent) to spot-check 3-5 claims against the cited source. <strong>R12: no unverified domain claim ships unmarked</strong> — either the owner confirms (strip the UNVERIFIED tag) or it stays tagged/removed. Cross-cutting blocks need only papa self-review. Then run the per-file 2-reviewer scrutiny (CLAUDE.md §PER-FILE SCRUTINY GATE) on each edited file.</li><li><strong>COMMIT</strong> — <code class="prism-inline-code">[GALAXY-ENRICH]/U-GE-&lt;galaxy&gt;: enrich &lt;galaxy&gt; (cross-cutting + &lt;N&gt; verified domain blocks)</code>. 3-of-3 Stop gate per §SCRUTINY GATE.</li><li><strong>TICK</strong> — <code class="prism-inline-code">loop-state tick --status done</code> (or <code class="prism-inline-code">blocked-domain</code> if owner-gated content deferred). Update the Resume anchor line below in the same commit.</li></ol>
+<p><strong>Done-definition (per galaxy):</strong> 4 cross-cutting CLAUDE.md sections present + MEMORY.md high-ROI ≥5 + free-source pointers added + (owner-verified domain gotchas OR explicit <code class="prism-inline-code">blocked-domain</code> marker). Auto-invoke proven by editing a file under <code class="prism-inline-code">mcp-server/src/engines/&lt;galaxy&gt;/</code> and confirming Bibryam cascade loads the CLAUDE.md.</p>
+<hr class="prism-hr">
+<h2 class="prism-h2" id="resume-anchor">Resume anchor</h2>
+<blockquote class="prism-quote">The next <code class="prism-inline-code">/loop</code> fire reads THIS line, picks the first galaxy in Enrichment-order whose box is unchecked, and updates it on commit. Single source of truth for &quot;which galaxy is next&quot; — do not rely on loop-state alone (survives <code class="prism-inline-code">/compact</code>).</blockquote>
+<p><strong>CROSS-CUTTING LANE: 34/34 DONE</strong> (batch via <code class="prism-inline-code">scripts/galaxy-xcut-propagate.mjs</code>, papa 2026-06-09 — uniform methodology section on EVERY galaxy CLAUDE.md; idempotent + drift-resistant pointer-to-canonical, not 34× duplication; ai-training hand-tuned, other 33 templated with <code class="prism-inline-code">&lt;!-- owner-slot --&gt;</code> placeholders for galaxy-specific loops/offload examples). Re-run the script only when the doctrine changes.</p>
+<p><strong>DEEP-DOMAIN PASS STATUS (papa 2026-06-09):</strong> 14 of the 15 domain galaxies now have a STAGED, cited, UNVERIFIED research packet (batches 1-3, commits <code class="prism-inline-code">94242f4d1b</code>+<code class="prism-inline-code">5fe207c514</code>+<code class="prism-inline-code">baae77c6bd</code>); tracker <code class="prism-inline-code">GALAXY-DEEPDOMAIN-STAGED-2026-06-09.md</code>. The 315 verifiable source pointers across all packets are extracted + tiered + deduped into <strong><code class="prism-inline-code">GALAXY-FREE-SOURCE-CORPUS-2026-06-09.md</code></strong> (generator <code class="prism-inline-code">scripts/build-galaxy-free-source-corpus.mjs</code>, idempotent) — the R12-safe, non-stagnant, auto-discoverable corpus index (verifiable pointers only; physics claims stay owner-gated in <code class="prism-inline-code">_staging/</code>). <code class="prism-inline-code">system-viz</code> (infra) is served by cross-cutting, not external-source.</p>
+<p><strong>VERIFY-PROMOTE DONE (papa 2026-06-09): 14/14 domain galaxies promoted to LIVE VERIFIED wiki (13 in first pass + ai-training; all then deepened -- see DEEPEN DONE below).</strong> academy (<code class="prism-inline-code">b7e7e221e0</code>, hand-verified) + 12 via ultracode wave-chunked Workflow <code class="prism-inline-code">w2bf85dcm</code> (<code class="prism-inline-code">18277c7973</code>, 2.17M tok offloaded, 3/wave to dodge the rate-limit burst that killed the first 12-at-once run): business/shop-floor/blueprint-vision/quoting/quality/cad/post-processor/speed-feed/mill/lathe/wedm/cam. Each now has <code class="prism-inline-code">knowledge/wiki/&lt;g&gt;/&lt;g&gt;-foundations.md</code> (status VERIFIED-PARTIAL): every promoted claim was confirmed by a live WebFetch of its primary source; physics galaxies promoted ONLY formula structure/method (main-loop grep-backstop confirmed ZERO numeric cutting constants leaked — kc1.1/Taylor/chip-loads stay <code class="prism-inline-code">constants.ts</code>-gated in <code class="prism-inline-code">_staging</code>); subagents honestly gated unfetchable sources (403/TLS/image-only) rather than fabricate. ~57 claims promoted, ~110 gated.</p>
+<p><strong>DEEPEN DONE (papa 2026-06-09): all 14/14 domain galaxies now verify-promoted AND deepened to encyclopedic breadth.</strong> <code class="prism-inline-code">ai-training</code> foundations CREATED (<code class="prism-inline-code">c8513847fa</code>, completing 14/14) + the 13 existing foundations DEEPENED via ultracode wave-chunked Workflow <code class="prism-inline-code">wqxh16fl0</code> (2.27M tok offloaded): ~180 additional WebFetch-confirmed claims drawing on the operator&#39;s previously-UNTAPPED source categories — <strong>free college courses</strong> (MIT OCW 2.810/2.830J/2.854/2.158J/6.801/6.003, Stanford CS224W), <strong>free textbooks</strong> (OpenStax CC-BY, d2l.ai, Szeliski, LibreTexts), <strong>gov reports</strong> (NIST e-Handbook/GUM/MBE/AI-RMF, NASA-HDBK-5026, DOE/Sandia, OSHA). R12/safety held + main-loop grep-verified: physics galaxies added ONLY formula structure/theory/standards (Taylor V*T^n=C form, Merchant model, Ra-integral structure) — ZERO numeric cutting constants leaked; subagents disclosed every 403/TLS/404 as attempted-only. Append-only (existing content preserved). foundations now run 95-215 lines each.</p>
+<p><strong>NEXT (owner-gated, NOT papa):</strong> each owner slot reviews its <code class="prism-inline-code">&lt;g&gt;-foundations.md</code>, confirms the <code class="prism-inline-code">[Owner-gate]</code> numeric/safety specifics against <code class="prism-inline-code">constants.ts</code>/source, and folds survivors into live engines/doctrine (flip VERIFIED-PARTIAL → VERIFIED). papa&#39;s enrichment lanes (cross-cutting 34/34 + corpus + MEMORY anchors + verify-promote 13/14) are COMPLETE bar the ai-training promotion.</p>
+<p><strong>Progress (tick on commit; [~] = cross-cutting✓ + deep-domain STAGED/owner-gate):</strong></p>
+<ul class="prism-md-list"><li>[~] 1 ai-training · [ ] 2 system-viz (infra, xcut-only) · [~] 3 speed-feed</li><li>[~] 4 mill · [~] 5 lathe · [~] 6 wedm · [~] 7 quoting · [~] 8 business</li><li>[~] 9 cad · [~] 10 cam · [~] 11 post-processor · [~] 12 blueprint-vision · [~] 13 academy · [~] 14 quality · [~] 15 shop-floor</li><li>[ ] 16 agent-orchestration · [ ] 17 knowledge-conversion · [ ] 18 compliance-safety · [ ] 19 corpus-aggregation · [ ] 20 pdf-corpus-mill · [ ] 21 tribal-knowledge · [ ] 22 frontend-app · [ ] 23 fleet-hygiene · [ ] 24 cad-fusion-live · [ ] 25 mit-curriculum · [ ] 26 pdf-corpus · [ ] 27 database-expansion · [ ] 28 hermes-zulu · [ ] 29 token-optimization · [ ] 30 discovery · [ ] 31 bug-hunting · [ ] 32 backend-helper · [ ] 33 dormant-data · [ ] 34 wiring</li></ul></main><footer>
+<div>html-report-render schemaVersion 1.0.0</div>
+</footer>
+</body>
+</html>

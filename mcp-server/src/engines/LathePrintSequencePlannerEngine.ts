@@ -14,9 +14,19 @@
  * @version 1.0.0
  */
 
+import { randomUUID } from "node:crypto";
 import { z } from "zod";
 import type { StrategyPlan, StrategyRecommendation, FeatureInput } from "./LathePrintFeatureStrategySelectorEngine.js";
 import { TURNING_STRATEGY_CATALOG } from "./TurningStrategyCatalog.js";
+import {
+  makeDefaultConsensusVote,
+  publishOutcomeToFeedbackBus,
+  ORCHESTRATE_OUTCOME_TOPIC,
+  ORCHESTRATE_STAGE,
+  type ConsensusVoteQuery,
+  type ConsensusVoteVerdict,
+} from "./domainAGIAdapterKit.js";
+import type { OutcomeEvent } from "../schemas/outcomeEventSchema.js";
 
 // ============================================================================
 // SCHEMAS
@@ -115,6 +125,55 @@ const CATEGORY_ORDER: Record<string, number> = {
 /** Tool change time estimates (seconds) */
 const TOOL_CHANGE_TIME_SEC = 3.5; // typical turret index
 const SETUP_CHANGE_TIME_SEC = 45.0; // re-chuck / sub-spindle pickup
+
+// ============================================================================
+// CONSENSUS-GATED SEQUENCE — LATHE-P2P-CONSENSUS-MS4/P0-U02
+// ============================================================================
+
+/**
+ * Three-candidate sequence plan presented to consensus voters.
+ *
+ * Candidate A = manufacturing-precedence-first (default `planSequence` output).
+ * Candidate B = tool-change-minimized (group same tool within precedence band).
+ * Candidate C = setup-change-minimized (group same setup within precedence band).
+ *
+ * @see LATHE-P2P-CONSENSUS-MS4/P0-U02 envelope exit_conditions
+ */
+export const SequenceCandidateLabelSchema = z.enum(["A_precedence", "B_tool_minimized", "C_setup_minimized"]);
+export type SequenceCandidateLabel = z.infer<typeof SequenceCandidateLabelSchema>;
+
+export const ConsensusSequencePlanSchema = z.object({
+  schemaVersion: z.literal("1.0.0"),
+  selected_label: SequenceCandidateLabelSchema,
+  selected_plan: SequencePlanSchema,
+  candidate_plans: z.record(SequenceCandidateLabelSchema, SequencePlanSchema),
+  consensus: z.object({
+    answer: SequenceCandidateLabelSchema,
+    confidence: z.number().min(0).max(1),
+    voters: z.array(z.string()),
+    auditId: z.string().optional(),
+    agreement_met: z.boolean(),
+    threshold: z.number().min(0).max(1),
+  }),
+  escalated_to_human: z.boolean(),
+  lineage_id: z.string(),
+  job_id: z.string(),
+  timestamp: z.string(),
+});
+export type ConsensusSequencePlan = z.infer<typeof ConsensusSequencePlanSchema>;
+
+export type SequenceConsensusFn = (q: ConsensusVoteQuery) => Promise<ConsensusVoteVerdict>;
+
+export interface PlanSequenceWithConsensusOpts {
+  /** Agreement floor (default 0.75 per envelope exit_conditions). */
+  agreementThreshold?: number;
+  /** Injected consensus seam — defaults to MultiModelConsensusEngine fanout. Required in tests (VITEST guard fail-loud). */
+  consensusDecide?: SequenceConsensusFn;
+  /** Optional outcome-bus seam (default = feedbackBusEngine.publish). */
+  publish?: (event: OutcomeEvent) => void;
+  /** Caller-supplied job id linking events across stages. */
+  jobId?: string;
+}
 
 // ============================================================================
 // ENGINE
@@ -473,6 +532,333 @@ class LathePrintSequencePlannerEngine {
     });
 
     return violations;
+  }
+
+  /**
+   * Tool-change-minimized variant of `sortByPrecedence`.
+   *
+   * Same precedence band as the canonical sort (feature priority + category
+   * order), but within a band groups recommendations sharing the same
+   * `strategy_id` so the same tool services consecutive ops. Reduces turret
+   * indexing — primary cost driver on small Hurco/Okuma lots.
+   */
+  private sortToolMinimized(
+    recs: StrategyRecommendation[],
+    features: FeatureInput[],
+  ): StrategyRecommendation[] {
+    const ordered = this.sortByPrecedence(recs, features);
+    // Within each (feature-priority, category-order) band, group by strategy_id.
+    const getFeature = (id: string) => features.find(f => f.id === id);
+    return [...ordered].sort((a, b) => {
+      const fa = getFeature(a.featureId);
+      const fb = getFeature(b.featureId);
+      if (!fa || !fb) return 0;
+      const priA = this.getFeaturePriority(fa.type);
+      const priB = this.getFeaturePriority(fb.type);
+      if (priA !== priB) return priA - priB;
+      const catA = this.getCategoryOrder(a.strategy_id);
+      const catB = this.getCategoryOrder(b.strategy_id);
+      if (catA !== catB) return catA - catB;
+      // Within band: same-strategy adjacency (alphabetic on strategy_id is deterministic)
+      return a.strategy_id.localeCompare(b.strategy_id);
+    });
+  }
+
+  /**
+   * Setup-change-minimized variant of `sortByPrecedence`.
+   *
+   * Same precedence band, but within a band groups by `access_end` so all
+   * front-access ops complete before any back-access ops. Reduces re-chuck
+   * cycles — primary cost driver on multi-setup parts.
+   */
+  private sortSetupMinimized(
+    recs: StrategyRecommendation[],
+    features: FeatureInput[],
+  ): StrategyRecommendation[] {
+    const ordered = this.sortByPrecedence(recs, features);
+    const getFeature = (id: string) => features.find(f => f.id === id);
+    const endRank = (end: string | undefined): number => {
+      if (end === "front" || end === undefined) return 0;
+      if (end === "back") return 1;
+      return 2;
+    };
+    return [...ordered].sort((a, b) => {
+      const fa = getFeature(a.featureId);
+      const fb = getFeature(b.featureId);
+      if (!fa || !fb) return 0;
+      // PRIMARY KEY: access_end (front first, then back) — overrides feature priority
+      // because changing setup is the highest cost in this variant.
+      const endA = endRank(fa.access_end);
+      const endB = endRank(fb.access_end);
+      if (endA !== endB) return endA - endB;
+      // SECONDARY: keep manufacturing precedence within an access-end group.
+      const priA = this.getFeaturePriority(fa.type);
+      const priB = this.getFeaturePriority(fb.type);
+      if (priA !== priB) return priA - priB;
+      const catA = this.getCategoryOrder(a.strategy_id);
+      const catB = this.getCategoryOrder(b.strategy_id);
+      return catA - catB;
+    });
+  }
+
+  /**
+   * Build a SequencePlan from a specific candidate ordering.
+   * Replays the `planSequence` walk (stock evolution, tool assignment,
+   * setup tracking, precedence validation) on a caller-chosen sort.
+   */
+  private buildPlanFromSortedRecs(
+    sortedRecs: StrategyRecommendation[],
+    strategyPlan: StrategyPlan,
+    initialStock: StockInput,
+    features: FeatureInput[],
+  ): SequencePlan {
+    const stock = StockInputSchema.parse(initialStock);
+    const initVolume = this.calcVolumeCm3(stock.od_mm, stock.id_mm ?? 0, stock.length_mm);
+    const initialStockState: StockState = {
+      od_mm: stock.od_mm,
+      id_mm: stock.id_mm ?? 0,
+      length_mm: stock.length_mm,
+      remaining_volume_cm3: initVolume,
+      setup_id: "OP10",
+    };
+
+    const operations: PlannedOperation[] = [];
+    let currentStock = { ...initialStockState };
+    let currentSetup = "OP10";
+    let toolStation = 1;
+    const toolMap = new Map<string, number>();
+    let toolChangeCount = 0;
+    let setupChangeCount = 0;
+
+    for (let i = 0; i < sortedRecs.length; i++) {
+      const rec = sortedRecs[i];
+      const feature = features.find(f => f.id === rec.featureId);
+      const prevFeature = i > 0
+        ? features.find(f => f.id === sortedRecs[i - 1].featureId)
+        : undefined;
+
+      const needsSetupChange = this.requiresSetupChange(rec, feature, i, prevFeature);
+      if (needsSetupChange && i > 0) {
+        setupChangeCount++;
+        currentSetup = `OP${(setupChangeCount + 1) * 10}`;
+      }
+
+      const toolKey = `${rec.strategy_id}-${feature?.type ?? "unknown"}`;
+      if (!toolMap.has(toolKey)) {
+        toolMap.set(toolKey, toolStation);
+        toolStation = Math.min(toolStation + 1, 12);
+        if (i > 0) toolChangeCount++;
+      }
+      const assignedStation = toolMap.get(toolKey)!;
+
+      const stockBefore = { ...currentStock, setup_id: currentSetup };
+      const stockAfter = this.evolveStock(stockBefore, rec, feature);
+      currentStock = stockAfter;
+
+      const precedenceReqs: string[] = [];
+      const featType = feature?.type ?? "";
+      Object.entries(PRECEDENCE_RULES).forEach(([pre, afters]) => {
+        if (afters.includes(featType)) {
+          precedenceReqs.push(`Must follow ${pre}`);
+        }
+      });
+
+      operations.push({
+        op_number: i + 1,
+        featureId: rec.featureId,
+        featureType: rec.featureType,
+        strategy_id: rec.strategy_id,
+        strategy_name: rec.strategy_name,
+        setup_id: currentSetup,
+        tool_station: assignedStation,
+        tool_id: `T${String(assignedStation).padStart(2, "0")}`,
+        estimated_time_sec: rec.estimated_cycle_time_sec ?? this.estimateDefaultCycle(rec, feature),
+        stock_before: stockBefore,
+        stock_after: stockAfter,
+        precedence_requirements: precedenceReqs,
+        parallel_candidate: this.isParallelCandidate(rec, feature),
+      });
+    }
+
+    const violations = this.validatePrecedence(operations, features);
+    const totalCycleTime = operations.reduce((s, op) => s + op.estimated_time_sec, 0);
+    const totalToolChangeTime =
+      toolChangeCount * TOOL_CHANGE_TIME_SEC + setupChangeCount * SETUP_CHANGE_TIME_SEC;
+
+    return {
+      plan_id: `seq_${randomUUID()}`,
+      source_strategy_plan_id: strategyPlan.plan_id,
+      operations,
+      setup_count: setupChangeCount + 1,
+      tool_change_count: toolChangeCount,
+      total_cycle_time_sec: totalCycleTime + totalToolChangeTime,
+      total_tool_change_time_sec: totalToolChangeTime,
+      initial_stock: initialStockState,
+      final_stock: currentStock,
+      violations,
+      valid: violations.filter(v => v.severity === "error").length === 0,
+      timestamp: new Date().toISOString(),
+    };
+  }
+
+  /**
+   * Generate the 3 candidate plans for consensus voting.
+   *
+   * Public for test access — lets reviewers verify candidates before consensus.
+   */
+  generateCandidatePlans(
+    strategyPlan: StrategyPlan,
+    initialStock: StockInput,
+    features: FeatureInput[],
+  ): Record<SequenceCandidateLabel, SequencePlan> {
+    if (!strategyPlan || !Array.isArray(strategyPlan.recommendations)) {
+      throw new Error("Invalid strategy plan: missing recommendations");
+    }
+    const recs = strategyPlan.recommendations;
+    return {
+      A_precedence: this.buildPlanFromSortedRecs(
+        this.sortByPrecedence(recs, features),
+        strategyPlan,
+        initialStock,
+        features,
+      ),
+      B_tool_minimized: this.buildPlanFromSortedRecs(
+        this.sortToolMinimized(recs, features),
+        strategyPlan,
+        initialStock,
+        features,
+      ),
+      C_setup_minimized: this.buildPlanFromSortedRecs(
+        this.sortSetupMinimized(recs, features),
+        strategyPlan,
+        initialStock,
+        features,
+      ),
+    };
+  }
+
+  /**
+   * Consensus-gated sequence planning (LATHE-P2P-CONSENSUS-MS4/P0-U02).
+   *
+   * Generates 3 candidate sequences (precedence / tool-min / setup-min),
+   * presents them to the consensus seam, picks the winning candidate,
+   * publishes an outcome event, and returns the full set with provenance.
+   *
+   * Fail-open: if consensus returns null/throws, falls back to the
+   * precedence candidate (matches `planSequence` deterministic behavior).
+   * Escalation: when winner confidence < `agreementThreshold` (default 0.75
+   * per envelope), the `escalated_to_human` flag is set true but the plan
+   * is still returned (operator-decision-required vs hard fail).
+   *
+   * In test runtimes (`VITEST` or `NODE_ENV=test`), the default consensus
+   * seam THROWS via `vitestConsensusGuard` to prevent silent network calls.
+   * Tests MUST inject `opts.consensusDecide`.
+   *
+   * @param strategyPlan upstream feature-strategy plan
+   * @param initialStock raw stock dims
+   * @param features original feature inputs for geometry context
+   * @param opts seam injection + threshold + jobId
+   * @returns consensus-gated plan with all 3 candidates + provenance
+   */
+  async planSequenceWithConsensus(
+    strategyPlan: StrategyPlan,
+    initialStock: StockInput,
+    features: FeatureInput[],
+    opts: PlanSequenceWithConsensusOpts = {},
+  ): Promise<ConsensusSequencePlan> {
+    const threshold = opts.agreementThreshold ?? 0.75;
+    const candidates = this.generateCandidatePlans(strategyPlan, initialStock, features);
+    const labels: SequenceCandidateLabel[] = ["A_precedence", "B_tool_minimized", "C_setup_minimized"];
+    const lineageId = randomUUID();
+    const jobId = opts.jobId ?? randomUUID();
+
+    const consensusFn = opts.consensusDecide ?? makeDefaultConsensusVote({
+      engineName: "LathePrintSequencePlannerEngine",
+      callerEngine: "LathePrintSequencePlannerEngine.planSequenceWithConsensus",
+    });
+
+    let verdict: ConsensusVoteVerdict;
+    try {
+      verdict = await consensusFn({
+        question: "Which lathe operation sequence minimizes total cost while preserving precedence?",
+        options: labels,
+        decisionKind: "sequence",
+      });
+    } catch {
+      // Fail-open: degrade to deterministic precedence pick (matches `planSequence`).
+      verdict = {
+        answer: "A_precedence",
+        confidence: 0,
+        voters: [],
+      };
+    }
+
+    const rawAnswer = labels.includes(verdict.answer as SequenceCandidateLabel)
+      ? (verdict.answer as SequenceCandidateLabel)
+      : "A_precedence";
+    const agreementMet = verdict.confidence >= threshold;
+    const selectedLabel: SequenceCandidateLabel = rawAnswer;
+    const selectedPlan = candidates[selectedLabel];
+
+    const result: ConsensusSequencePlan = {
+      schemaVersion: "1.0.0",
+      selected_label: selectedLabel,
+      selected_plan: selectedPlan,
+      candidate_plans: candidates,
+      consensus: {
+        answer: selectedLabel,
+        confidence: verdict.confidence,
+        voters: verdict.voters,
+        auditId: verdict.auditId,
+        agreement_met: agreementMet,
+        threshold,
+      },
+      escalated_to_human: !agreementMet,
+      lineage_id: lineageId,
+      job_id: jobId,
+      timestamp: new Date().toISOString(),
+    };
+
+    // Publish outcome event for the learning spine (schema v1.1.0).
+    const event: OutcomeEvent = {
+      schemaVersion: "1.1.0",
+      event_id: randomUUID(),
+      lineage_id: lineageId,
+      domain: "lathe",
+      kind: "cross_process_decision",
+      severity: "info",
+      source: "system",
+      timestamp: result.timestamp,
+      context: {
+        job_id: jobId,
+        pipeline_stage: ORCHESTRATE_STAGE,
+        consensus_audit_id: verdict.auditId,
+      },
+      recommended: {
+        decision_kind: "sequence",
+        candidates: labels,
+        cycle_time_per_candidate_sec: {
+          A_precedence: candidates.A_precedence.total_cycle_time_sec,
+          B_tool_minimized: candidates.B_tool_minimized.total_cycle_time_sec,
+          C_setup_minimized: candidates.C_setup_minimized.total_cycle_time_sec,
+        },
+      },
+      actual: {
+        selected: selectedLabel,
+        agreement_met: agreementMet,
+        threshold,
+        escalated_to_human: !agreementMet,
+      },
+      confidence: verdict.confidence,
+    };
+    try {
+      (opts.publish ?? publishOutcomeToFeedbackBus)(event);
+    } catch {
+      // Fail-soft: outcome bus is observability-only; never block the pipeline.
+    }
+    void ORCHESTRATE_OUTCOME_TOPIC; // import-survival marker (constant used via publishOutcomeToFeedbackBus internally)
+
+    return result;
   }
 
   /**

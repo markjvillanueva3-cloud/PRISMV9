@@ -357,6 +357,13 @@ export interface LatheCAMAnalysis {
   prediction_id: string;
 }
 
+/** Decision criterion for multi-criteria selection (workholding, strategy, etc.) */
+interface DecisionCriterion {
+  name: string;
+  weight: number;
+  goal: "maximize" | "minimize";
+}
+
 // ============================================================================
 // CONSTANTS
 // ============================================================================
@@ -399,6 +406,7 @@ const MATERIAL_PARAMS: Record<string, { vc_range: [number, number]; feed_factor:
 
 /** Interrupted cut severity thresholds */
 const INTERRUPTED_CUT_THRESHOLDS = {
+  none: 0,       // no interruption
   minor: 0.2,    // <20% of cut is interrupted
   moderate: 0.4, // 20-40% interrupted
   severe: 0.6,   // >40% interrupted
@@ -1341,7 +1349,7 @@ export class LatheCAMIntelligenceEngine {
   }
 
   private getFinishToolpath(featureType: LatheCADFeature): LatheToolpathType {
-    if (featureType.includes("id") || featureType === "bore") return "g70_id_finish";
+    if (featureType.includes("id") || featureType === "cylinder_id") return "g70_id_finish";
     return "g70_od_finish";
   }
 

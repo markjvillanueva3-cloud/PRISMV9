@@ -23,13 +23,14 @@ related:
 |-------|-------|
 | Name | `ai-reason` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/ai-reason.md` |
+| Source | `C:/Users/wompu/.claude/commands/ai-reason.md` |
 | Model | default |
 | Tags | _(none)_ |
 
 ## Description (first paragraph)
 
-Apply PRISM's full AI reasoning stack to a multi-step manufacturing problem: Tree-of-Thought exploration, counterfactual what-ifs, creative cross-domain synthesis, all physics- and tribal-grounded.
+
+# /ai-reason — Advanced Reasoning for Manufacturing Problems
 
 <!-- AUTO-END -->
 

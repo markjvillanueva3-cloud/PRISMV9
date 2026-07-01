@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `post-register` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/post-register.md` |
+| Source | `C:/Users/wompu/.claude/commands/post-register.md` |
 | Model | default |
 | Tags | _(none)_ |
 

@@ -1,8 +1,11 @@
 ---
 description: Force-claim slot DELTA + run the full /checkin pipeline. NATO-phonetic shortcut for `/checkin --preferSlot delta --force`.
 allowed-tools: Bash, Read, Edit, Write, Glob, Grep, TodoWrite, Task, AskUserQuestion
+composes_with:
+  - "/checkin"
+  - "/handoff"
+  - "/pick-unit"
 ---
-
 # /checkin-delta — slot-locked /checkin
 
 Force-takes the **delta** slot (evicting any prior owner with `--force true --confirmRecent true`), binds the handoff to `delta-work`, then runs the standard `/checkin` pipeline. Use when you want this specific slot regardless of who currently holds it.

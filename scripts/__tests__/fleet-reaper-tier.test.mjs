@@ -4,9 +4,21 @@
  * Verifies the pure `tierFromPressure()` graduated memory-pressure gate that
  * replaced the prior binary `underPressure ? min(killAfter,1) : killAfter`.
  *
+ * Threshold note (2026-05-18): OPT-2 lowered DEFAULT_MEM_CRITICAL_PCT 95 → 88,
+ * which is now BELOW DEFAULT_MEM_PRESSURE_PCT (90). `tierFromPressure` clamps a
+ * critical threshold below the warn threshold UP to warn ("collapse, never
+ * invert"), so at the PRODUCTION defaults the warn band has zero width — it is
+ * `normal` below 90 and `critical` (immediate reap) at/above 90. Generic-logic
+ * assertions therefore pass an EXPLICIT non-degenerate banding (90/95) so the
+ * warn band actually exists; production-default assertions use the real
+ * imported constants. (Before 2026-05-18 this file hard-coded crit=95 and went
+ * stale silently when OPT-2 landed — fixed alongside the --hunt / SYSTEM-reaper
+ * work.)
+ *
  * Coverage floor:
- *   - all three bands (normal / warn / critical) at production defaults
+ *   - all three bands (normal / warn / critical) — warn band via explicit 90/95
  *   - exact band boundaries (just-below / at / just-above warn and critical)
+ *   - the production-default banding (90/88) where the warn band is empty
  *   - >= 3 failure modes (non-finite usedPct, negative usedPct, non-finite killAfter)
  *   - >= 2 adversarial inputs (criticalPct < warnPct misconfig, float killAfter)
  *   - the load-bearing monotonicity invariant: effectiveKillAfter is
@@ -24,12 +36,23 @@ import {
   DEFAULT_MEM_CRITICAL_PCT,
 } from "../fleet-reaper-sweep.mjs";
 
-const WARN = DEFAULT_MEM_PRESSURE_PCT; // 90
-const CRIT = DEFAULT_MEM_CRITICAL_PCT; // 95
+const WARN = DEFAULT_MEM_PRESSURE_PCT;  // 90
+const CRIT = DEFAULT_MEM_CRITICAL_PCT;  // 88 (OPT-2 lowered 95→88)
 
-test("defaults are the documented 90 / 95", () => {
+test("production defaults are warn 90 / critical 88 (OPT-2 lowered 95→88)", () => {
   assert.equal(WARN, 90);
-  assert.equal(CRIT, 95);
+  assert.equal(CRIT, 88);
+});
+
+test("production defaults 90/88: crit < warn collapses the warn band — >= 90 is immediate critical", () => {
+  // OPT-2 set crit (88) below warn (90); tierFromPressure clamps crit up to
+  // warn, so at the production defaults there is NO warn band: normal below
+  // 90, critical (effectiveKillAfter 0 — reap this tick) at/above 90.
+  assert.equal(tierFromPressure(89.9, WARN, CRIT, 2).tier, "normal");
+  assert.equal(tierFromPressure(89.9, WARN, CRIT, 2).effectiveKillAfter, 2);
+  assert.equal(tierFromPressure(90, WARN, CRIT, 2).tier, "critical");
+  assert.equal(tierFromPressure(90, WARN, CRIT, 2).effectiveKillAfter, 0);
+  assert.equal(tierFromPressure(99, WARN, CRIT, 2).tier, "critical");
 });
 
 test("normal band: usedPct below warn → full killAfter", () => {
@@ -40,9 +63,9 @@ test("normal band: usedPct below warn → full killAfter", () => {
   }
 });
 
-test("warn band: [warn, critical) → killAfter capped to 1", () => {
+test("warn band: [warn, critical) → killAfter capped to 1 (explicit 90/95 banding)", () => {
   for (const used of [90, 90.0001, 92, 94, 94.999]) {
-    const r = tierFromPressure(used, WARN, CRIT, 2);
+    const r = tierFromPressure(used, 90, 95, 2);
     assert.equal(r.tier, "warn", `used=${used}`);
     assert.equal(r.effectiveKillAfter, 1, `used=${used}`);
   }
@@ -56,17 +79,17 @@ test("critical band: usedPct >= critical → reap this tick (0)", () => {
   }
 });
 
-test("exact warn boundary is inclusive (>= warn enters warn band)", () => {
-  assert.deepEqual(tierFromPressure(89.999, WARN, CRIT, 3),
+test("exact warn boundary is inclusive (>= warn enters warn band) — explicit 90/95", () => {
+  assert.deepEqual(tierFromPressure(89.999, 90, 95, 3),
     { tier: "normal", effectiveKillAfter: 3 });
-  assert.deepEqual(tierFromPressure(90, WARN, CRIT, 3),
+  assert.deepEqual(tierFromPressure(90, 90, 95, 3),
     { tier: "warn", effectiveKillAfter: 1 });
 });
 
-test("exact critical boundary is inclusive (>= critical enters critical band)", () => {
-  assert.deepEqual(tierFromPressure(94.999, WARN, CRIT, 5),
+test("exact critical boundary is inclusive (>= critical enters critical band) — explicit 90/95", () => {
+  assert.deepEqual(tierFromPressure(94.999, 90, 95, 5),
     { tier: "warn", effectiveKillAfter: 1 });
-  assert.deepEqual(tierFromPressure(95, WARN, CRIT, 5),
+  assert.deepEqual(tierFromPressure(95, 90, 95, 5),
     { tier: "critical", effectiveKillAfter: 0 });
 });
 
@@ -104,9 +127,10 @@ test("FAILURE MODE: non-finite killAfter floors to 0", () => {
 test("killAfter is floored at 0 and truncated toward zero", () => {
   assert.equal(tierFromPressure(10, WARN, CRIT, -5).effectiveKillAfter, 0);
   assert.equal(tierFromPressure(10, WARN, CRIT, 3.9).effectiveKillAfter, 3);
-  // warn band with killAfter already <= 1 stays at killAfter (min(ka,1))
-  assert.equal(tierFromPressure(92, WARN, CRIT, 1).effectiveKillAfter, 1);
-  assert.equal(tierFromPressure(92, WARN, CRIT, 0).effectiveKillAfter, 0);
+  // warn band with killAfter already <= 1 stays at killAfter (min(ka,1)) —
+  // exercised with explicit 90/95 so a real warn band exists.
+  assert.equal(tierFromPressure(92, 90, 95, 1).effectiveKillAfter, 1);
+  assert.equal(tierFromPressure(92, 90, 95, 0).effectiveKillAfter, 0);
 });
 
 test("ADVERSARIAL: criticalPct < warnPct → critical floored up to warn (collapse, never invert)", () => {
@@ -132,9 +156,10 @@ test("EDGE: criticalPct === warnPct (degenerate equal bands) → empty warn band
 });
 
 test("ADVERSARIAL: non-finite warn/critical fall back to documented defaults", () => {
-  // warn=NaN → 90, crit=NaN → 95
+  // warn=NaN → 90, crit=NaN → 88 (the production defaults). crit (88) < warn
+  // (90), so the warn band collapses — >= 90 is critical, below 90 is normal.
   assert.equal(tierFromPressure(89, NaN, NaN, 2).tier, "normal");
-  assert.equal(tierFromPressure(90, NaN, NaN, 2).tier, "warn");
+  assert.equal(tierFromPressure(90, NaN, NaN, 2).tier, "critical");
   assert.equal(tierFromPressure(95, NaN, NaN, 2).tier, "critical");
 });
 
@@ -152,15 +177,17 @@ test("INVARIANT: effectiveKillAfter is non-increasing as usedPct rises", () => {
   assert.equal(prev, 0, "highest pressure must end at the critical floor (0)");
 });
 
-test("BACKWARD COMPAT: below criticalPct the gate is byte-identical to the pre-MS1 binary", () => {
+test("BACKWARD COMPAT: below criticalPct the gate is byte-identical to the pre-MS1 binary (explicit 90/95)", () => {
   // Pre-MS1: effectiveKillAfter = (usedPct >= memPressurePct) ? min(killAfter,1) : killAfter
+  // Exercised with an explicit 90/95 banding so a real warn band exists below
+  // criticalPct (at the production 90/88 defaults the warn band is empty).
   const legacy = (used, warn, ka) =>
     Number.isFinite(used) && used >= warn ? Math.min(ka, 1) : ka;
   for (const used of [0, 50, 89.9, 90, 92, 94.99]) {
-    const ms1 = tierFromPressure(used, WARN, CRIT, 2).effectiveKillAfter;
-    assert.equal(ms1, legacy(used, WARN, 2), `parity break at used=${used}`);
+    const ms1 = tierFromPressure(used, 90, 95, 2).effectiveKillAfter;
+    assert.equal(ms1, legacy(used, 90, 2), `parity break at used=${used}`);
   }
   // Only the new >= critical band diverges (legacy would give 1, MS1 gives 0).
-  assert.equal(tierFromPressure(96, WARN, CRIT, 2).effectiveKillAfter, 0);
-  assert.equal(legacy(96, WARN, 2), 1);
+  assert.equal(tierFromPressure(96, 90, 95, 2).effectiveKillAfter, 0);
+  assert.equal(legacy(96, 90, 2), 1);
 });

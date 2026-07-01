@@ -64,6 +64,15 @@ export function createSpeedFeedRouter(callTool: CallToolFn): Router {
     } catch (e) { next(e); }
   });
 
+  // POST /api/v1/speed-feed/tri-compare -- PRISM x baseline x HSMAdvisor x G-Wizard vendor parity
+  // (SpeedFeedTriComparatorEngine via speed_feed_tri_compare; the sfc.vendor_parity feature).
+  router.post("/tri-compare", async (req, res, next) => {
+    try {
+      const result = await callTool("prism_calc", "speed_feed_tri_compare", req.body);
+      res.json({ result });
+    } catch (e) { next(e); }
+  });
+
   // POST /api/v1/speed-feed/optimize — MOPSO Pareto optimization
   router.post("/optimize", async (req, res, next) => {
     try {

@@ -1,0 +1,55 @@
+{
+  "id": "TENANT-ONBOARD-MS29",
+  "version": "1.0.0",
+  "title": "Second-customer tenant template via prism_tenant",
+  "brief": "Pilot is JM Die only per MS19. Second-customer onboarding is open decision #4 from V1, never owned. Risk auditor flagged JM Die concentration risk: customer churn = whole pilot dies. This MS templatizes onboarding so a second tenant can stand up in <1 day.",
+  "created_at": "2026-05-05T13:00:00Z",
+  "created_by": "claude-opus-4-7-v2",
+  "track": "L5-BUSINESS",
+  "track_name": "Business / Multi-tenant",
+  "status": "not_started",
+  "linked_roadmap": "state/shared/PRISM-COMPREHENSIVE-ROADMAP-2026-05-04-V2.md",
+  "phases": [
+    {
+      "id": "P0",
+      "title": "Tenant template + isolated registries + onboarding wizard",
+      "sessions": "3",
+      "units": [
+        {
+          "id": "P0-U01",
+          "title": "TenantTemplateEngine: clone JM Die config to new tenant scaffold",
+          "effort": 90,
+          "dependencies": [],
+          "exit_conditions": ["new tenant scaffold created at state/tenants/<tenantId>/ with isolated machines, materials, customers", "no JM Die data leaks across tenants", "tests: new tenant has zero records pre-import"],
+          "description": "Reuse existing prism_tenant dispatcher. Add cloning logic.",
+          "four_loop": ["BUILD", "SCRUTINIZE", "GAP FILL", "TIE UP"]
+        },
+        {
+          "id": "P0-U02",
+          "title": "Tenant-scoped registries + tenant_id propagation",
+          "effort": 120,
+          "dependencies": ["P0-U01"],
+          "exit_conditions": ["all 14 registries support tenant_id partition", "queries default to current tenant", "cross-tenant query requires explicit override + audit", "tests: 2-tenant scenario + cross-pollution check"],
+          "description": "Schema bump on registries -> migration via MS27 runner.",
+          "four_loop": ["BUILD", "SCRUTINIZE", "GAP FILL", "TIE UP"]
+        },
+        {
+          "id": "P0-U03",
+          "title": "Onboarding wizard: machines, customers, programs in <1 day",
+          "effort": 120,
+          "dependencies": ["P0-U02"],
+          "exit_conditions": ["wizard ingests 1 machine list + 1 customer list + N programs", "first quote-to-ship cycle runnable within 8 hours of onboarding start", "tests: 1 staged second-tenant onboarded end-to-end"],
+          "description": "Real onboarding rehearsal validates the template.",
+          "four_loop": ["BUILD", "SCRUTINIZE", "GAP FILL", "TIE UP"]
+        }
+      ]
+    }
+  ],
+  "acceptance": "new tenant onboarded in <1 day with isolated data + tenant-scoped registries; first quote-to-ship cycle runs within 8h of onboarding; resolves V1 decision #4 (pilot scope).",
+  "risks": [
+    {"id": "R1", "description": "Tenant_id missing from existing engine SQL/JSON queries; mitigation = audit pass per MS27 migration"},
+    {"id": "R2", "description": "JM Die concentration risk (per Pass-2 risk auditor) means MS29 should arguably be PRE-MS19 not POST; flagged for V3 decision"}
+  ],
+  "blocks": [],
+  "blocked_by": ["SHIP-RELEASE-MS19"]
+}

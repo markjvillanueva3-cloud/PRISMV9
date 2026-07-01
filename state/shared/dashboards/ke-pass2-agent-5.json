@@ -1,0 +1,1046 @@
+{
+ "CAMK-MS2::U04": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/engines/cam/camkernelvalidationengine.md",
+   "knowledge/wiki/architecture/formulas/formula-constants-predictedra.md"
+  ],
+  "addSeWiki": ["regression-prevention-doctrine"],
+  "systemImpact": "SurfaceFinishPredictorEngine output feeds CAMX-MS0.3::U-CAMX17 (wire surface-finish into validation) and the CAMX-MS0.7 Link-4 uncertainty chain (Ra ±sigma into strategy CI). A regression to a hardcoded finish value silently passes the validation stage in U-CAMX17 — predicted-Ra would no longer reflect the toolpath, so DFM gates and quote estimates downstream inherit a wrong finish class.",
+  "csDepth": [
+   "Cusp formula R - sqrt(R^2 - (s/2)^2) loses catastrophic floating-point precision when stepover s << tool radius R — use the algebraically-stable rearrangement (s^2/8R-style series) rather than the subtractive form to avoid sqrt of a near-equal difference.",
+   "A polynomial-regression surrogate for novel paths can extrapolate nonsensically outside its training envelope; clamp inputs to the fitted domain and fail loud (return NaN/explicit out-of-range) rather than emitting a confident wrong Ra."
+  ]
+ },
+ "CAMK-MS3::U01": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/engines/geometry/booleankernelengine-3-3-drilled.md",
+   "knowledge/wiki/architecture/engines/geometry/topologyengine.md"
+  ],
+  "addSeWiki": ["fail-loud-r12-patterns"],
+  "systemImpact": "RestMachiningEngine's IPW (in-process-workpiece) is consumed by OperationSequencerEngine (CAMK-MS3::U02) and the multi-op transition planner — an incorrect IPW silently re-cuts air (wasted cycle time) or leaves uncut material the finisher then crashes into. It also gates MultiSetupPlannerEngine's feature-completeness check.",
+   "csDepth": [
+   "Boolean subtraction of stock minus swept toolpath volume is numerically fragile at coincident faces — degenerate/sliver geometry from near-tangent sweeps causes the boolean kernel to produce non-manifold solids; need epsilon-snapping and a manifold-validity assertion after each subtraction.",
+   "BFS over feature regions to schedule rest passes can revisit regions if the visited-set is keyed on geometry rather than a stable region id — use canonical region ids and a closed/open set to guarantee O(V+E) termination without re-cutting."
+  ]
+ },
+ "CAMK-MS3::U02": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/engines/cam/strategysequencingengine.md",
+   "knowledge/wiki/architecture/engines/multi/multisetupplannerengine.md"
+  ],
+  "addSeWiki": ["regression-prevention-doctrine"],
+  "systemImpact": "OperationSequencerEngine ordering is consumed by every program-generation pipeline (PrintToProgram, CAMKernelOrchestrator, UnifiedCAMPipeline) — a regression that reorders past a precedence edge produces a program that finishes before roughing or cuts a datum away, which is a scrap-part safety failure, not just an inefficiency. MultiSetupPlannerEngine depends on its per-setup operation order.",
+  "csDepth": [
+   "Topological sort of the operation-dependency DAG must detect cycles (a contradictory precedence pair) and fail loud — Kahn's algorithm naturally surfaces a cycle as a non-empty residual; never emit a partial order.",
+   "TSP-style tool-change minimization is NP-hard; a greedy group-by-tool heuristic must still be applied AFTER the topological constraint, so optimization searches only within precedence-legal permutations — branch-and-bound bounds must prune any branch that violates a DAG edge."
+  ]
+ },
+ "CAMK-MS3::U05": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/engines/fixture/clampingsimengine.md",
+   "knowledge/wiki/architecture/engines/fixture/modularfixturelayoutengine.md"
+  ],
+  "addSeWiki": ["regression-prevention-doctrine"],
+  "systemImpact": "MultiSetupPlannerEngine's orientation/setup partition is the input to fixture-design engines and to OperationSequencerEngine's per-setup ordering — under-counting setups (a feature wrongly judged reachable) produces a program that attempts an unmachinable feature, and over-constraining wastes setups and cost. Quote/cost estimates downstream scale with setup count.",
+  "csDepth": [
+   "Minimum-setup partitioning is set-cover, which is NP-hard and inapproximable below ln(n) — a greedy set-cover heuristic is acceptable but must be checked against the workholding-collision constraint at every cover step, not only at the end.",
+   "The tool-access visibility cone test is a per-feature geometric query that can be O(features × obstacles); a bounding-volume hierarchy over fixture/clamp obstacles makes the conflict-graph construction tractable for parts with many features."
+  ]
+ },
+ "CAMX-MS0.3::U-CAMX04": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/formulas/formula-constants-toolmaterial.md",
+   "knowledge/wiki/architecture/domain-tool.md"
+  ],
+  "addSeWiki": ["physics-constants-discipline"],
+  "systemImpact": "CoatingSelectionEngine outputs feed AutoSpeedFeedEngine and the Taylor tool-life model (coating multiplier on cutting speed) — a regression here shifts feeds/speeds and tool-life predictions across every CAM pipeline. The hardcoded-output regression oracle is the only guard that the refactor is behavior-preserving.",
+  "csDepth": [
+   "Replacing a literal lookup map with a parameterized engine call changes a constant-time array index into a rule evaluation — ensure the engine call is memoized per (material, operation) so a hot pipeline loop doesn't re-evaluate the decision tree per toolpath segment.",
+   "The material-coating compatibility matrix is sparse; storing it as a nested map keyed by ISO group avoids a dense 2D allocation and makes an unmapped pair an explicit undefined (fail-loud opportunity) rather than a silent default cell."
+  ]
+ },
+ "CAMX-MS0.3::U-CAMX05": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/formulas/formula-constants-canonical-kienzle.md",
+   "knowledge/wiki/architecture/domain-force.md"
+  ],
+  "addSeWiki": ["physics-constants-discipline"],
+  "systemImpact": "EngagementGeometryEngine's radial/axial engagement output feeds chip-thinning compensation in AutoSpeedFeedEngine and the cutting-force model — a hardcoded engagement constant under-feeds straights and overloads inside corners, so a regression here surfaces as tool breakage on real cuts, not a test failure. Adaptive toolpath strategies depend on accurate engagement angles.",
+  "csDepth": [
+   "Engagement angle on an inside corner spikes nonlinearly as path curvature approaches tool radius — the corner-engagement detector must compute the instantaneous engaged arc, not assume the nominal stepover, or it misses the overload spike entirely.",
+   "Chip-thinning compensation is a feedback relationship (engagement -> effective chip load -> feed adjustment -> engagement); compute it as a closed-form correction factor, not an iterative loop, to avoid non-convergence on tight geometry."
+  ]
+ },
+ "CAMX-MS0.3::U-CAMX06": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/engines/coolant/coolantflowengine.md",
+   "knowledge/wiki/architecture/domain-cam.md"
+  ],
+  "addSeWiki": ["regression-prevention-doctrine"],
+  "systemImpact": "Wiring CoolantStrategyEngine into all pipelines means PrintToProgram, CAMKernelOrchestrator and UnifiedCAMPipeline all begin emitting coolant moves — a single-pipeline wire leaves silent orphan consumers that default coolant (dry cut where flood is needed). The Stop-hook stop_on_unwired_assets gate flags an under-wired engine.",
+  "csDepth": [
+   "Fan-out wiring into N pipelines creates N call sites that must each pass consistent context — extract a shared adapter so the engine contract is defined once; divergent per-call-site argument shapes are a maintenance hazard.",
+   "A round-trip E2E per pipeline must assert the coolant decision actually appears in the emitted program; a wiring test that only checks the engine was constructed false-passes when the result is discarded downstream."
+  ]
+ },
+ "CAMX-MS0.3::U-CAMX07": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/engines/multiop/transitionpathengine.md",
+   "knowledge/wiki/architecture/engines/cam/collisiondetectionengine.md"
+  ],
+  "addSeWiki": ["regression-prevention-doctrine", "safety-tier-discipline"],
+  "systemImpact": "EntryExitStrategyEngine wired into every toolpath-linking pipeline controls lead-in/lead-out geometry — a regression that emits a non-collision-free entry is a safety-tier failure (tool plunges into stock or fixture). CAMKernelOrchestrator's link stage and PrintToProgram both consume it.",
+  "csDepth": [
+   "Lead-in arc-vs-tangent selection depends on remaining material at the entry point; the engine must query the IPW/stock at each call site rather than assume full stock, or arc entries can still gouge a partially-machined region.",
+   "Collision-checking each entry/exit move against stock is a per-link geometric test; cache the stock bounding volume so the check is O(1) broad-phase before the expensive swept-volume narrow-phase."
+  ]
+ },
+ "CAMX-MS0.3::U-CAMX08": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/engines/cam/strategysequencingengine.md",
+   "knowledge/wiki/architecture/domain-multiop.md"
+  ],
+  "addSeWiki": ["regression-prevention-doctrine"],
+  "systemImpact": "IntelligentSequencingEngine wired across all pipelines determines operation order in every program generated — if a wiring regression bypasses the sequencer at one call site, that pipeline emits unordered ops (finish-before-rough), a scrap-part outcome. It shares the precedence-DAG contract with OperationSequencerEngine (CAMK-MS3::U02).",
+  "csDepth": [
+   "Topological-order sequencing must honor hard precedence at every call site, so the wiring must pass the full dependency graph, not a flattened op list — a call site that wires only the op list silently drops the precedence edges.",
+   "If two pipelines wire the sequencer with different tie-breaking (tool-change cost vs proximity), the emitted programs diverge for identical input; the tie-break policy must be a single shared constant, not per-call-site."
+  ]
+ },
+ "CAMX-MS0.3::U-CAMX09": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/engines/fixture/clampingsimengine.md",
+   "knowledge/wiki/architecture/domain-safety.md"
+  ],
+  "addSeWiki": ["regression-prevention-doctrine", "fail-loud-r12-patterns"],
+  "systemImpact": "WorkholdingViabilityEngine wired into pipelines makes clamping-force-vs-cutting-force a hard gate before program emission — a regression that downgrades it to advisory means a program ships that the workpiece cannot resist, ejecting the part under load. MultiSetupPlannerEngine depends on its viability verdict for setup assignment.",
+  "csDepth": [
+   "Clamping-vs-cutting-force viability is a worst-case comparison: the cutting force varies along the toolpath, so the engine must check the maximum engagement segment, not an average, or it passes a program that fails at the heaviest cut.",
+   "Workholding failure must fail loud with an explicit unsafe verdict (R12) — a try/catch that swallows a missing-clamp-data error and returns 'viable' is the silent-corruption class that defeats the entire safety gate."
+  ]
+ },
+ "CAMX-MS0.3::U-CAMX10": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/engines/cam/postprocessorcapabilitymatrixengine.md",
+   "knowledge/wiki/architecture/engines/cam/crosscampostengine.md"
+  ],
+  "addSeWiki": ["schema-read-discipline"],
+  "systemImpact": "CrossCamRecommenderEngine wired into strategy selection produces vendor-mapped recommendations consumed by post-processor selection and OptimalStrategySelectionEngine (CAMX-MS1) — an incomplete equivalence map silently recommends a strategy the target CAM system can't run, breaking the print-to-program flow for that vendor.",
+  "csDepth": [
+   "The cross-CAM equivalence map is a graph of synonyms; a recommendation lookup must distinguish 'no equivalent exists' from 'equivalent not yet mapped' — collapsing both to a default is the silent-degradation failure.",
+   "Weighted-feature scoring of candidate strategies needs stable, normalized feature weights; if weights aren't normalized the ranking is sensitive to adding a new feature dimension, producing non-reproducible recommendations across versions."
+  ]
+ },
+ "CAMX-MS0.3::U-CAMX11": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-machinesetup.md",
+   "knowledge/wiki/architecture/engines/geometry/partgeometrypipelineengine.md"
+  ],
+  "addSeWiki": ["fail-loud-r12-patterns"],
+  "systemImpact": "Smart WCS selection feeds the emitted program's coordinate setup (G54-G59) — a wrong WCS means the program runs in the wrong location, a guaranteed crash or scrap. PrintToProgram and SetupSheetFromGCodeEngine both consume the chosen WCS, and the setup sheet must report it to the operator.",
+  "csDepth": [
+   "Datum-feature recognition is geometry-classification; when no datum is recognized the engine must surface the G54 fallback explicitly (an audit-trail entry), not silently emit G54 — a silent default hides a recognition failure the operator needs to know about.",
+   "Bounding-box origin derivation depends on a consistent axis convention; if the part is reoriented by MultiSetupPlanner the WCS origin must be recomputed per setup, not cached from the first orientation."
+  ]
+ },
+ "CAMX-MS0.3::U-CAMX12": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/engines/safety/continuouscollisiondetectionengine.md",
+   "knowledge/wiki/architecture/domain-safety.md"
+  ],
+  "addSeWiki": ["fail-loud-r12-patterns"],
+  "systemImpact": "Smart safe-Z is the rapid-clearance plane every rapid move in every emitted program uses — computing it from part height alone (ignoring fixture/clamp height) sends a rapid through a clamp, a high-energy crash. EntryExitStrategyEngine and the program emitter both depend on a correct safe-Z.",
+  "csDepth": [
+   "safe-Z = max over all obstacle envelopes (part, fixture, clamps) + clearance — the max-reduction must include every obstacle in the work envelope; a missing clamp in the obstacle set silently lowers safe-Z below a real obstacle.",
+   "If obstacle geometry is missing the engine must fail loud rather than fall back to part-top-only — a missing-fixture safe-Z that 'works' on the bench is the worst silent safety regression."
+  ]
+ },
+ "CAMX-MS0.3::U-CAMX13": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/action-trace-engine.md",
+   "knowledge/wiki/architecture/ledger-store.md"
+  ],
+  "addSeWiki": ["regression-prevention-doctrine"],
+  "systemImpact": "The decision audit trail is consumed by CAMX-MS1::U-CAMX08 (decision explanation engine) and by post-hoc debugging of why a pipeline chose a value — a non-atomic or schema-less write produces a truncated/unparseable ledger that the explanation engine cannot reconstruct from. It is the provenance backbone for every CAMX decision engine.",
+  "csDepth": [
+   "Append-only JSONL must be written with O_APPEND or temp+rename atomicity; concurrent writes from parallel pipeline stages interleave and corrupt a line unless each append is a single atomic write of a complete record.",
+   "Every record needs a schemaVersion so the explanation engine can evolve the record shape without a migration that rewrites the whole (potentially large, append-only) ledger."
+  ]
+ },
+ "CAMX-MS0.3::U-CAMX14": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/engines/cam/camkernelorchestratorengine.md",
+   "knowledge/wiki/architecture/engines/cam/camkernelvalidationengine.md"
+  ],
+  "addSeWiki": ["test-design-real-values"],
+  "systemImpact": "Tests for the decision orchestrator are the regression gate for the entire CAMX-MS0.3 decision-replacement milestone — if they use stub assertions, every hardcoded-replacement unit (U-CAMX04..05, U-CAMX11..12) can silently revert to a default and the suite still passes. They protect the orchestrator that drives all CAMX decisions.",
+  "csDepth": [
+   "Decision-table coverage must assert each branch yields a distinct non-stub value — a single fixture that exercises only one branch lets the other branches return a hardcoded default undetected.",
+   "A fail-on-revert oracle must be constructed so that re-introducing the old hardcoded literal causes a concrete assertion to fail; pin the expected value to a hand-worked physics result, not to the engine's current output (which would tautologically pass)."
+  ]
+ },
+ "CAMX-MS0.3::U-CAMX15": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-fluidthermal.md",
+   "knowledge/wiki/architecture/formulas/formula-adjusted-thermal.md"
+  ],
+  "addSeWiki": ["regression-prevention-doctrine"],
+  "systemImpact": "Wiring thermal engines into program generation makes cutting parameters reflect heat load — the thermal output feeds AutoSpeedFeedEngine and tool-life prediction. A regression that ignores thermal partition over-feeds in heat-sensitive materials, accelerating wear and degrading surface finish downstream.",
+  "csDepth": [
+   "Thermal-expansion correction is dimension-dependent; if the engine applies a heat-partition model it must import canonical thermal/material constants, never inline them — an inlined coefficient is the physics-constants-discipline violation.",
+   "Heat-partition between chip, tool and workpiece is a coupled model; computing it per toolpath segment is expensive — precompute per (material, operation) and cache, since it varies slowly within a feature."
+  ]
+ },
+ "CAMX-MS0.3::U-CAMX16": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/engines/vibrationphysics/fourieranalysisengine.md",
+   "knowledge/wiki/architecture/domain-chatter.md"
+  ],
+  "addSeWiki": ["regression-prevention-doctrine"],
+  "systemImpact": "Wiring vibration engines into strategy/parameter selection makes depth-of-cut picked inside a stable lobe — a regression to a fixed default DOC produces chatter on real cuts (poor finish, tool breakage). The stability-lobe verdict feeds AutoSpeedFeedEngine's spindle-speed choice.",
+  "csDepth": [
+   "Stability-lobe diagram lookup is a 2D query (spindle speed × DOC); the engine must interpolate between computed lobes rather than snap to the nearest precomputed point, or it picks a parameter just outside a lobe boundary.",
+   "FFT frequency analysis of a vibration signal requires the sample window to span enough spindle revolutions for frequency resolution; too short a window aliases the chatter frequency and the lobe selection is wrong."
+  ]
+ },
+ "CAMX-MS0.3::U-CAMX17": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/engines/cam/camkernelvalidationengine.md",
+   "knowledge/wiki/architecture/formulas/formula-constants-predictedra.md"
+  ],
+  "addSeWiki": ["fail-loud-r12-patterns"],
+  "systemImpact": "Wiring surface-finish engines into validation makes predicted-Ra checked against the print spec — this is the quality gate consuming SurfaceFinishPredictorEngine (CAMK-MS2::U04). A validation stage that never compares is a no-op false-green: out-of-spec finishes ship undetected to the shop floor.",
+  "csDepth": [
+   "Predicted-Ra vs spec-Ra is an inequality with a tolerance band; the comparison must account for the prediction's own uncertainty (±sigma) — comparing point estimates can pass a part whose distribution overlaps the spec limit.",
+   "If the print spec lacks an Ra value the validation must fail loud (cannot validate), not silently skip — a missing-spec skip is the no-op the buildNote warns against."
+  ]
+ },
+ "CAMX-MS0.3::U-CAMX18": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/formulas/formula-constants-taylorlife.md",
+   "knowledge/wiki/architecture/domain-tool.md"
+  ],
+  "addSeWiki": ["regression-prevention-doctrine"],
+  "systemImpact": "Wiring wear engines into tool-life and batch planning makes tool-life come from the Taylor model — ToolROIEngine (CAMX-MS0.3::U-CAMX21) and batch-size planning both consume the life estimate. An inlined Taylor n or C produces a wrong life, cascading to wrong cost-per-part and wrong batch tooling counts.",
+  "csDepth": [
+   "Taylor V*T^n = C is solved for T given V — inlining n/C instead of importing canonical constants is the physics-discipline violation that also makes the regression invisible (the test passes against the inlined value).",
+   "The Archard wear-volume model and Taylor life are two different abstractions of the same wear; the engine must not double-count — use one as the life predictor and the other as a cross-check, with an explicit reconciliation."
+  ]
+ },
+ "CAMX-MS0.3::U-CAMX19": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/engines/coolant/coolantstrategyengine.md",
+   "knowledge/wiki/architecture/domain-cam.md"
+  ],
+  "addSeWiki": ["regression-prevention-doctrine"],
+  "systemImpact": "Wiring chip-management engines into pecking/coolant-move pipelines ensures chip evacuation is consulted, not defaulted — a regression silently emits a deep-hole peck cycle with inadequate evacuation, packing chips and breaking the drill. It shares the coolant-move emission path with CoolantStrategyEngine (U-CAMX06).",
+  "csDepth": [
+   "Chip-evacuation flow/pressure modeling depends on the hole L/D ratio and feed; the engine must receive the actual hole geometry per call site, not a nominal default, or evacuation is computed for the wrong hole.",
+   "A round-trip E2E must assert the chip strategy appears in the emitted moves; wiring tests that only assert the engine was invoked false-pass when the result is dropped."
+  ]
+ },
+ "CAMX-MS0.3::U-CAMX20": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-holepattern.md",
+   "knowledge/wiki/architecture/engines/vibrationphysics/tapdrillengine.md"
+  ],
+  "addSeWiki": ["regression-prevention-doctrine"],
+  "systemImpact": "Wiring thread/hole/drilling engines makes hole strategy use real L/D and material physics — a regression that defaults a deep hole to a single straight plunge breaks the drill or work-hardens the bore. The emitted hole cycles feed SetupSheetFromGCodeEngine and program validation.",
+  "csDepth": [
+   "Peck-cycle depth-per-peck is a function of L/D and material chip-evacuation behavior; the engine must compute it, not table-lookup a fixed peck for all depths, or deep holes pack chips.",
+   "Thread-method selection (tap vs thread-mill vs single-point) is a discrete decision with hard machine-capability constraints — the selector must filter to feasible methods before optimizing, never recommend an infeasible one."
+  ]
+ },
+ "CAMX-MS0.3::U-CAMX21": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/engines/tool/toolcostperpartengine.md",
+   "knowledge/wiki/architecture/domain-cost.md"
+  ],
+  "addSeWiki": ["regression-prevention-doctrine"],
+  "systemImpact": "ToolROIEngine amortizes tool cost over Taylor-predicted life to produce break-even part counts — its output feeds quote/cost estimation and batch-planning decisions. A regression to a wrong amortization mis-prices jobs, a direct revenue impact. It depends on CAMX-MS0.3::U-CAMX18's wear/life wiring.",
+  "csDepth": [
+   "ROI = (savings - tool cost) / tool cost over expected life involves a ratio whose denominator can approach zero (free/sample tooling) — guard the division and define ROI explicitly for zero-cost tools rather than emitting Infinity.",
+   "Break-even part-count is the ceiling of a cost-crossover; integer rounding direction matters (a fractional part is not machinable) — round up for break-even and document the convention so the test asserts the right integer."
+  ]
+ },
+ "CAMX-MS0.3::U-CAMX22": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/engines/bridge/camspeedfeedbridgeengine.md",
+   "knowledge/wiki/architecture/formulas/formula-constants-canonical-kienzle.md"
+  ],
+  "addSeWiki": ["regression-prevention-doctrine"],
+  "systemImpact": "Wiring AutoSpeedFeedEngine into PrintToProgram makes feeds/speeds come from the Kienzle physics model — this is the parameter source for every emitted milling program. A regression that emits hardcoded feeds overloads or under-utilizes the tool across all jobs. The bridge engine is the wiring seam.",
+  "csDepth": [
+   "Kienzle specific-cutting-force feed derivation requires canonical kc1.1 and mc constants per ISO group — inlining them is the discipline violation; the bridge must route through the constants module so a constant correction propagates.",
+   "Feed/speed derivation interacts with engagement (CAMX-MS0.3::U-CAMX05) and chip-thinning — the wire must pass real engagement, or AutoSpeedFeed computes for full-slot engagement and over-feeds on light radial cuts."
+  ]
+ },
+ "CAMX-MS0.3::U-CAMX24": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/engines/cam/gcodevalidationengine.md",
+   "knowledge/wiki/architecture/domain-print.md"
+  ],
+  "addSeWiki": ["schema-read-discipline"],
+  "systemImpact": "Wiring SetupSheetFromGCodeEngine into PrintToProgram makes the operator setup sheet reflect the actual emitted program — a regression in the modal-state parse produces a setup sheet with a wrong tool or WCS list, and the operator sets the machine up wrong. It is the operator-facing artifact of the whole print-to-program flow.",
+  "csDepth": [
+   "FSM modal G/M-code parsing must track modal state correctly: a modal G-code persists until overridden, so a parser that resets state per line emits wrong feeds/WCS for unannotated lines.",
+   "Tool/WCS extraction must dedupe — the same tool called twice should appear once in the setup sheet; a naive append produces a sheet listing duplicate tools that confuses the operator."
+  ]
+ },
+ "CAMX-MS0.5::U-CAMX01": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/engines/cam/camkernelorchestratorengine.md",
+   "knowledge/wiki/architecture/domain-pipeline-ms0.md"
+  ],
+  "addSeWiki": ["regression-prevention-doctrine"],
+  "systemImpact": "The lazy _getEngine() pattern established here is the desiloing primitive every CAMX-MS0.5::U-CAMX02..08 desilo unit depends on — if the pattern is wrong (no memoization, or doesn't break cycles), every subsequent desilo inherits the defect. It is foundational infrastructure for the milestone.",
+  "csDepth": [
+   "A memoized getter must be thread/re-entrancy safe in the sense that a recursive call during construction doesn't re-enter and build twice — guard with a 'constructing' sentinel or accept the documented single-threaded assumption explicitly.",
+   "Lazy require breaks import cycles only if the require is inside the getter body, not at module top — a top-level import re-introduces the cycle; the test must assert the second call returns the identical object reference (===), not just an equal one."
+  ]
+ },
+ "CAMX-MS0.5::U-CAMX02": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/engines/geometry/partgeometrypipelineengine.md",
+   "knowledge/wiki/architecture/domain-pipeline-ms0.md"
+  ],
+  "addSeWiki": ["regression-prevention-doctrine"],
+  "systemImpact": "Desiloing PrintToProgramPipelineEngine decouples the central print-to-program orchestrator from concrete engine imports — if the refactor is not behavior-preserving, every part processed through PrintToProgram regresses. CAMX-MS1::U-CAMX02 wires strategy selection into this same engine, so a clean desilo is its prerequisite.",
+  "csDepth": [
+   "A behavior-preserving refactor must be proven with a before/after parity oracle on a real fixture — capture the full emitted program before the refactor and assert byte-identical output after; an output-shape-only check misses value drift.",
+   "Extracting collaborators behind interfaces risks changing call order (lazy getters defer construction) — if a collaborator had a construction side-effect, deferring it changes behavior; audit for construction-time side-effects before desiloing."
+  ]
+ },
+ "CAMX-MS0.5::U-CAMX03": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/engines/geometry/geometryengine.md",
+   "knowledge/wiki/architecture/domain-geometry.md"
+  ],
+  "addSeWiki": ["regression-prevention-doctrine"],
+  "systemImpact": "PartGeometryPipelineEngine is the feature-recognition front-end consumed by PrintToProgram and CAMX-MS1::U-CAMX03 (strategy follows recognized features) — a non-parity desilo silently changes which features are recognized, cascading wrong strategy and toolpath downstream.",
+  "csDepth": [
+   "Geometry collaborators often share floating-point tolerance state; routing them through lazy getters must preserve a single shared epsilon — separate getters that each construct a tolerance config can diverge and produce different feature-recognition results.",
+   "A byte-identical parity check on geometry output requires deterministic serialization (stable key order, fixed float precision); non-deterministic map iteration order produces a false parity failure."
+  ]
+ },
+ "CAMX-MS0.5::U-CAMX04": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/engines/bridge/camspeedfeedbridgeengine.md",
+   "knowledge/wiki/architecture/formulas/formula-constants-canonical-kienzle.md"
+  ],
+  "addSeWiki": ["physics-constants-discipline"],
+  "systemImpact": "SpeedFeedOrchestratorEngine produces the feeds/speeds consumed by every emitted program — a desilo that accidentally alters the physics output regresses cutting parameters fleet-wide. The parity oracle on a known material/tool fixture is the only honest gate that physics is unchanged.",
+  "csDepth": [
+   "The desilo must keep canonical-constant imports intact through the refactor — moving a constants import behind a lazy getter is fine, but inadvertently capturing a stale constants snapshot at construction time freezes a value that should track the canonical module.",
+   "Speed/feed collaborators include the Kienzle force model and the material DB; interface extraction must not reorder their evaluation, since a downstream stage may depend on an upstream stage's mutation of shared context."
+  ]
+ },
+ "CAMX-MS0.5::U-CAMX05": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/engines/cam/camkernelvalidationengine.md",
+   "knowledge/wiki/architecture/domain-cam.md"
+  ],
+  "addSeWiki": ["regression-prevention-doctrine"],
+  "systemImpact": "CAMKernelOrchestratorEngine is the central CAM orchestrator that CAMX-MS1::U-CAMX04 wires strategy selection into and that many sub-engines route through — a non-parity desilo regresses every orchestrated part. Its validation engine pairs with it as the in-pipeline check.",
+  "csDepth": [
+   "Desiloing an orchestrator via _getEngine() defers sub-engine construction to first use — if the orchestrator previously eagerly constructed sub-engines to pre-validate config, deferring it moves a fail-fast error to mid-run; preserve the eager validation explicitly.",
+   "The orchestration result depends on sub-engine call order; the parity oracle must run a multi-feature real part so any reordering side-effect surfaces, not a single-feature trivial case."
+  ]
+ },
+ "CAMX-MS0.5::U-CAMX06": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/engines/turning/threadingpipelineengine.md",
+   "knowledge/wiki/architecture/domain-turning.md"
+  ],
+  "addSeWiki": ["regression-prevention-doctrine"],
+  "systemImpact": "TurningPrintToProgramEngine emits lathe programs — a non-parity desilo regresses every turned part. It is the turning counterpart of PrintToProgramPipelineEngine and feeds the turning-program dispatchers.",
+  "csDepth": [
+   "Turning-pipeline collaborators (threading, grooving, facing) have a turning-specific coordinate convention (radius vs diameter, Z toward chuck) — interface extraction must not leak a milling convention into a turning collaborator.",
+   "The parity oracle must round-trip a known lathe part with threading; threading G-code (G76 cycle parameters) is the most fragile to a refactor and most likely to silently drift."
+  ]
+ },
+ "CAMX-MS0.5::U-CAMX07": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/engines/cpl/pipelinearchitectureengine.md",
+   "knowledge/wiki/architecture/domain-pipeline-ms0.md"
+  ],
+  "addSeWiki": ["regression-prevention-doctrine"],
+  "systemImpact": "UnifiedCAMPipelineEngine is the unified entry point CAMX-MS1::U-CAMX05 wires strategy selection into — a non-parity desilo regresses every part run through the unified pipeline. It composes the desiloed sub-pipelines from U-CAMX02..06.",
+  "csDepth": [
+   "Stage decoupling in a unified pipeline must preserve inter-stage data contracts; a stage that read a field its predecessor mutated breaks if lazy construction reorders stage initialization.",
+   "Because the unified pipeline composes other engines being desiloed in parallel, its parity oracle must run AFTER its sub-engine desilos land, or it tests against a moving baseline — sequence the units."
+  ]
+ },
+ "CAMX-MS0.5::U-CAMX08": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/engines/other/designtofloorpipelineengine.md",
+   "knowledge/wiki/architecture/domain-pipeline-ms0.md"
+  ],
+  "addSeWiki": ["regression-prevention-doctrine"],
+  "systemImpact": "DesignToFloorPipelineEngine is the end-to-end design-to-shop-floor flow — a non-parity desilo regresses the longest pipeline in the system, affecting every job from CAD intake to operator program. It is the integration capstone of the desiloing milestone.",
+  "csDepth": [
+   "An end-to-end pipeline has the deepest collaborator graph, so lazy _getEngine() construction order is hardest to reason about — map the construction dependency graph and assert it is acyclic before relying on lazy require.",
+   "The parity oracle for the full design-to-floor flow is expensive (large fixture); use one representative real part and assert byte-identical final output rather than many shallow cases."
+  ]
+ },
+ "CAMX-MS0.5::U-CAMX09": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/engines/cam/strategystochasticriskengine.md",
+   "knowledge/wiki/architecture/domain-stochastic.md"
+  ],
+  "addSeWiki": ["regression-prevention-doctrine"],
+  "systemImpact": "Shared MC/Weibull infrastructure is consumed by StrategyStochasticRiskEngine, the CAMX-MS0.7 uncertainty-chain links, and tool-life reliability — deduping the code into one shared utility means a fix or seed-policy change propagates to all consumers. A regression in the shared PRNG breaks reproducibility everywhere.",
+  "csDepth": [
+   "A seeded PRNG must be a deterministic, well-distributed generator (e.g. a counter-based or Mersenne-style) — Math.random is not seedable; the shared infra must own its own PRNG and expose the seed so runs are reproducible.",
+   "Weibull shape/scale fitting via MLE can fail to converge for small samples; the fit routine must report a goodness-of-fit and fail loud on non-convergence rather than returning an unfitted default."
+  ]
+ },
+ "CAMX-MS0.5::U-CAMX10": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/engines/cam/collisiondetectionengine.md",
+   "knowledge/wiki/architecture/domain-safety.md"
+  ],
+  "addSeWiki": ["regression-prevention-doctrine"],
+  "systemImpact": "Fixing the collision-detection stub upgrades a safety gate consumed by EntryExitStrategyEngine, safe-Z calculation, and every program-validation stage — a stub that always returns 'no collision' is the worst possible silent safety failure; the fix makes those downstream gates real.",
+  "csDepth": [
+   "Continuous (swept-volume) collision detection along a toolpath segment must catch a collision that occurs mid-move, not only at segment endpoints — discrete endpoint sampling misses a tunneling collision through a thin obstacle.",
+   "A BVH broad-phase plus OBB/AABB narrow-phase keeps the test tractable, but the BVH must be rebuilt when stock changes (rest machining) — a stale BVH reports a collision against already-removed material."
+  ]
+ },
+ "CAMX-MS0.5::U-CAMX11": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-cam.md",
+   "knowledge/wiki/architecture/domain-dispatcher.md"
+  ],
+  "addSeWiki": ["mcp-tool-design"],
+  "systemImpact": "Dispatcher integration exposes the desiloed CAMX engines as MCP actions — if the action is added to the handler but not the z.enum(ACTIONS) gate, mock tests false-pass while production routing is 100% broken (the documented RGS-MS1 recurring bug). It is the surface every external caller and skill uses.",
+  "csDepth": [
+   "The z.enum(ACTIONS) gate and the handler map are two registries that must stay in sync — a missing enum entry is rejected by the live SDK before the handler is reached, but a MockMCPServer bypasses the enum, so the test must exercise the real Zod gate.",
+   "Action-handler registration should be a single source of truth (one map driving both enum and dispatch) to make desync structurally impossible rather than test-caught."
+  ]
+ },
+ "CAMX-MS0.5::U-CAMX12": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/engines/cam/camkernelvalidationengine.md",
+   "knowledge/wiki/architecture/domain-pipeline-ms0.md"
+  ],
+  "addSeWiki": ["test-design-real-values"],
+  "systemImpact": "Desiloing verification tests are the parity gate for the entire CAMX-MS0.5 milestone — without a byte-identical before/after oracle, any of the U-CAMX02..08 desilos could silently change pipeline output and pass. They are the only honest evidence the refactor preserved behavior.",
+  "csDepth": [
+   "A desilo parity test must capture the pre-refactor output as a frozen golden fixture (committed), not recompute it — recomputing against the post-refactor engine is tautological and proves nothing.",
+   "Fail-on-revert: the test must fail if the lazy-getter pattern is reverted to eager imports in a way that changes construction order; assert on a behavior, not just on the presence of _getEngine()."
+  ]
+ },
+ "CAMX-MS0.5::U-CAMX13": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/engines/fixture/workholdingviabilityengine.md",
+   "knowledge/wiki/architecture/domain-fixture.md"
+  ],
+  "addSeWiki": ["regression-prevention-doctrine", "fail-loud-r12-patterns"],
+  "systemImpact": "Wiring fixture/setup engines enforces clamping viability in the pipelines that need workholding — a regression that assumes rather than enforces viability ships a program the workpiece cannot hold, a safety failure. It connects FixtureDesignEngine and WorkholdingSelectionEngine into the CAM flow.",
+  "csDepth": [
+   "Fixture/setup feasibility is a constraint that must propagate forward: a setup choice constrains achievable orientations, which constrains reachable features — wiring must pass the constraint set, not re-derive it per stage.",
+   "Clamping viability must be checked against the worst-case cutting force along the path; a wiring that checks only nominal force is the silent-pass class."
+  ]
+ },
+ "CAMX-MS0.5::U-CAMX14": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-quality.md",
+   "knowledge/wiki/architecture/domain-quality.md"
+  ],
+  "addSeWiki": ["fail-loud-r12-patterns"],
+  "systemImpact": "Wiring DFM/quality engines makes manufacturability checked in-pipeline — a quality stage that never flags is a false-green that lets an unmanufacturable feature reach the shop floor. The DFM verdict feeds operator gates and quote feasibility.",
+  "csDepth": [
+   "DFM rule evaluation is a rule-base; rule-priority resolution matters when multiple rules match (a thin-wall rule and a deep-pocket rule) — the engine must define a deterministic priority, not last-match-wins.",
+   "A quality stage must fail loud when it lacks the input to evaluate a rule (missing tolerance, missing material) rather than silently passing the part — a skipped rule is indistinguishable from a passed rule unless explicitly reported."
+  ]
+ },
+ "CAMX-MS0.5::U-CAMX15": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/u-wire-energy.md",
+   "knowledge/wiki/architecture/formulas/formula-constants-canonical-kienzle.md"
+  ],
+  "addSeWiki": ["regression-prevention-doctrine"],
+  "systemImpact": "Wiring energy engines makes machining-energy estimates use CANONICAL_KIENZLE constants — per the [[u-wire-energy]] regression, the engine had inline KC11 values 14-28% off canonical. The energy estimate feeds sustainability/cost reporting; an inlined constant mis-states energy across every job.",
+  "csDepth": [
+   "Specific-cutting-energy is derived from the Kienzle specific-cutting-force; inlining force constants is the exact discipline violation the wiki documents — the wire must route through the constants module so a single correction propagates.",
+   "Machining energy integrates power over cycle time; the integration must use the actual per-segment MRR, not an average, or light-engagement segments are over-counted."
+  ]
+ },
+ "CAMX-MS0.5::U-CAMX16": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/engines/geometry/geometryalgorithmsengine.md",
+   "knowledge/wiki/architecture/domain-geometry.md"
+  ],
+  "addSeWiki": ["regression-prevention-doctrine"],
+  "systemImpact": "Wiring geometry/feature-recognition engines makes pipelines consume recognized features rather than re-deriving geometry ad hoc — the recognized feature set drives strategy selection (CAMX-MS1) and operation sequencing. A wiring regression that bypasses recognition produces wrong toolpaths.",
+  "csDepth": [
+   "B-rep / feature-recognition graph traversal is O(faces+edges) per part; if multiple pipelines each re-run recognition the cost multiplies — the wire should cache the recognized feature graph per part and share it across consuming stages.",
+   "Feature recognition must be verified on a real multi-feature part before pipelines depend on it — a recognizer that misses a feature silently produces a program that never machines it."
+  ]
+ },
+ "CAMX-MS0.7::U-CAMX01": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/engines/cam/strategystochasticriskengine.md",
+   "knowledge/wiki/architecture/domain-stochastic.md"
+  ],
+  "addSeWiki": ["regression-prevention-doctrine"],
+  "systemImpact": "Wiring UncertaintyPropagationPipelineEngine into the SFO (strategy/feed orchestrator) makes every SFO output carry ±sigma — this is the head of the CAMX-MS0.7 uncertainty chain (Links 4-7 all consume propagated variance). A regression that drops uncertainty makes the entire chain emit point estimates with no confidence.",
+  "csDepth": [
+   "First-order Taylor (delta-method) propagation assumes small uncertainties and linearity — for a strongly nonlinear stage it under/over-estimates variance; verify against a Monte Carlo reference and fall back to MC when nonlinearity is detected.",
+   "Variance combination must account for correlation between inputs; treating correlated inputs as independent (summing variances without the covariance term) under-states output uncertainty."
+  ]
+ },
+ "CAMX-MS0.7::U-CAMX02": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/engines/cam/strategytaxonomyengine.md",
+   "knowledge/wiki/architecture/engines/other/uncertaintypropagationpipelineengine.md"
+  ],
+  "addSeWiki": ["regression-prevention-doctrine"],
+  "systemImpact": "Link 4 passes the full Ra distribution (mean ±sigma) from surface-finish prediction into strategy selection — it makes strategy CI reflect input uncertainty. If it regresses to passing a point estimate, the strategy-selection confidence interval is fabricated, and Link 5-7 inherit a false-precision input.",
+  "csDepth": [
+   "Linking two stages by passing distributions rather than point estimates means the downstream stage must accept a distribution type — a contract change; both stages must agree on the distribution representation (moments vs samples).",
+   "Probabilistic ranking with uncertainty bands can produce overlapping candidate intervals where no strategy strictly dominates — the engine must surface the ambiguity, not break ties arbitrarily."
+  ]
+ },
+ "CAMX-MS0.7::U-CAMX03": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/formulas/formula-constants-taylorlife.md",
+   "knowledge/wiki/architecture/domain-tool.md"
+  ],
+  "addSeWiki": ["regression-prevention-doctrine"],
+  "systemImpact": "Link 5 feeds selected-strategy cutting parameters into a Weibull tool-life model — it connects strategy selection to tool-life reliability. Link 6 (cost) consumes its Weibull life distribution; a regression here makes cost uncertainty downstream unfounded.",
+  "csDepth": [
+   "The Taylor equation gives a deterministic mean life; the Weibull scale parameter is derived from that mean, but the shape parameter encodes process variability — the shape must come from real wear-scatter data, not a hardcoded default, or the life distribution is wrongly shaped.",
+   "Feeding strategy parameters into a life model is a stage-link contract; the strategy must expose its cutting parameters (Vc, fz, ap) in a form the Taylor/Weibull model expects, with canonical constants."
+  ]
+ },
+ "CAMX-MS0.7::U-CAMX04": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/engines/tool/toolcostperpartengine.md",
+   "knowledge/wiki/architecture/domain-cost.md"
+  ],
+  "addSeWiki": ["regression-prevention-doctrine"],
+  "systemImpact": "Link 6 propagates Weibull tool-life uncertainty into cost ±sigma — cost variance must scale with life variance. Link 7 (pipeline output confidence) consumes this; a regression that emits constant cost variance makes the final pipeline confidence figure meaningless.",
+  "csDepth": [
+   "Cost-per-part is tool cost divided by life — the delta-method variance of a ratio includes a term in the denominator's variance squared, so for high life-variance the linear approximation degrades; cross-check with Monte Carlo.",
+   "Amortizing cost over a tool-life distribution (not a point life) requires integrating cost over the life PDF — using only the mean life systematically under-states expected cost when the distribution is right-skewed (Weibull typically is)."
+  ]
+ },
+ "CAMX-MS0.7::U-CAMX05": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/engines/cpl/pipelinearchitectureengine.md",
+   "knowledge/wiki/architecture/domain-pipeline-ms0.md"
+  ],
+  "addSeWiki": ["regression-prevention-doctrine"],
+  "systemImpact": "Link 7 surfaces a real confidence figure derived from cost ±sigma at the pipeline output — it is the terminal stage of the CAMX-MS0.7 uncertainty chain that quote/decision consumers read. A regression that emits a hardcoded confidence makes every downstream decision overconfident.",
+  "csDepth": [
+   "Sigma-to-confidence mapping must assume (or test) a distribution shape — a normal-assumption percentile is wrong if the cost distribution is skewed; report the confidence with its distributional assumption.",
+   "If any upstream stage lacks an uncertainty value, Link 7 must fail loud rather than substitute zero variance — a missing-uncertainty stage silently inflates the final confidence to 100%."
+  ]
+ },
+ "CAMX-MS0.7::U-CAMX06": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/engines/other/uncertaintypropagationpipelineengine.md",
+   "knowledge/wiki/architecture/domain-stochastic.md"
+  ],
+  "addSeWiki": ["test-design-real-values"],
+  "systemImpact": "Sobol sensitivity at the pipeline output attributes output variance to each input — it tells operators which input most drives cost/finish uncertainty, feeding the decision-explanation engine and process-improvement priorities. A wrong sensitivity index misdirects where to tighten the process.",
+  "csDepth": [
+   "Sobol indices need a low-discrepancy (quasi-random) sequence, not pseudo-random samples — using Math.random destroys the variance-reduction property and the indices converge slowly and noisily.",
+   "First-order S_i sum to <=1 and total S_Ti >= S_i; the implementation must assert both invariants on a known analytic test function (e.g. Ishigami) or a silent indexing bug produces indices that violate the variance decomposition."
+  ]
+ },
+ "CAMX-MS0.7::U-CAMX07": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/engines/cam/strategytaxonomyengine.md",
+   "knowledge/wiki/architecture/domain-strategy.md"
+  ],
+  "addSeWiki": ["test-design-real-values"],
+  "systemImpact": "Taguchi robustness in strategy selection picks parameters that minimize variance to noise factors — it makes the selected strategy robust, not just optimal at nominal. OptimalStrategySelectionEngine and the SFO consume its robust-parameter recommendation.",
+  "csDepth": [
+   "A Taguchi orthogonal array must satisfy the balance property (every level of every factor appears equally) — using a non-orthogonal array biases the main-effect estimates; verify the array's balance before relying on it.",
+   "The S/N ratio formula differs by objective (larger-is-better, smaller-is-better, nominal-is-best) — applying the wrong formula inverts the robustness ranking; the objective must be an explicit input, not assumed."
+  ]
+ },
+ "CAMX-MS0.7::U-CAMX08": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/engines/adaptive/adaptivewearengine.md",
+   "knowledge/wiki/architecture/domain-tool.md"
+  ],
+  "addSeWiki": ["test-design-real-values"],
+  "systemImpact": "Markov tool-state integration models tool-wear-state transitions and absorbing failure — it feeds tool-life reliability and replacement scheduling. A wrong transition matrix mis-predicts time-to-failure, cascading to wrong batch tooling counts and cost.",
+  "csDepth": [
+   "The transition matrix must be row-stochastic (each row sums to 1); a construction bug that leaves a row summing to <1 silently leaks probability mass and the steady-state solve produces a wrong distribution.",
+   "Steady-state pi solves pi = pi*P, i.e. the left eigenvector for eigenvalue 1 — for a chain with an absorbing failure state there is no interior steady state; absorbing-state analysis (expected hitting time) is the correct tool, and conflating the two is an edge-case error."
+  ]
+ },
+ "CAMX-MS0.7::U-CAMX09": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/engines/calc/digitaltwinengine.md",
+   "knowledge/wiki/architecture/domain-twin.md"
+  ],
+  "addSeWiki": ["fail-loud-r12-patterns"],
+  "systemImpact": "The digital-twin calibration loop updates model parameters from real machine measurements and detects divergence — a calibrated twin feeds prediction confidence and adaptive control. A regression that stops detecting drift lets the twin diverge silently, so every prediction it feeds becomes wrong without warning.",
+  "csDepth": [
+   "Recursive least-squares / Kalman measurement-update can diverge if the process-noise covariance is mis-set — the loop must monitor innovation (prediction-vs-measurement residual) and fail loud when residuals exceed a threshold rather than continuing to fit.",
+   "Calibration writes updated model state; the write must be atomic (temp+rename) so a crash mid-update doesn't leave a half-written model the next loop reads as corrupt."
+  ]
+ },
+ "CAMX-MS0.7::U-CAMX10": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/engines/other/uncertaintypropagationpipelineengine.md",
+   "knowledge/wiki/architecture/domain-stochastic.md"
+  ],
+  "addSeWiki": ["regression-prevention-doctrine"],
+  "systemImpact": "Uncertainty-chain tests are the regression gate for the entire CAMX-MS0.7 milestone (Links 4-7 plus Sobol/Taguchi/Markov) — without an end-to-end sigma-traceability test, any link can drop or mis-propagate variance and pass. They protect the credibility of every confidence figure the pipeline reports.",
+  "csDepth": [
+   "A test that only checks the mean at each link misses a broken variance path entirely — the test must assert propagated sigma against a Monte Carlo reference at every link, since variance is the property uniquely at risk.",
+   "Monte Carlo reference oracles are themselves stochastic; the test must use a fixed seed and a sample count large enough that the MC sigma estimate is tighter than the assertion tolerance, or the test flakes."
+  ]
+ },
+ "CAMX-MS0::U01": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/engines/toolpath/toolpathstrategyengine.md",
+   "knowledge/wiki/architecture/domain-strategy.md"
+  ],
+  "addSeWiki": ["mcp-tool-design"],
+  "systemImpact": "StrategyTaxonomyEngine defines the closed, schema-validated taxonomy that every CAMX strategy engine references — the equivalence map (U02), capability matrix (U03), physics profile (U05), cost model (U06) and OptimalStrategySelectionEngine all key off its categories. An orphan/uncategorized strategy breaks every consumer that assumes total coverage.",
+  "csDepth": [
+   "A closed taxonomy must be exhaustive: every strategy maps to exactly one category — use a discriminated union (Zod) so an uncategorized strategy is a type/parse error, not a runtime surprise.",
+   "Hierarchical tree classification needs a single canonical path per strategy; if a strategy is reachable via two tree branches, downstream keyed lookups become ambiguous — enforce a unique path invariant."
+  ]
+ },
+ "CAMX-MS0::U02": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/engines/cam/postprocessorcapabilitymatrixengine.md",
+   "knowledge/wiki/architecture/engines/cam/crosscamrecommenderengine.md"
+  ],
+  "addSeWiki": ["fail-loud-r12-patterns"],
+  "systemImpact": "The strategy equivalence map is the cross-CAM name-translation layer consumed by CrossCamRecommenderEngine and post-processor selection — an unmapped strategy that silently defaults to a wrong equivalent emits a vendor program using the wrong cycle. Bidirectional completeness is the correctness property.",
+  "csDepth": [
+   "A bidirectional map must be consistent: if A->B then B->A; storing two independent maps risks asymmetry — use union-find equivalence classes or assert symmetry at load time.",
+   "An unmapped strategy must fail loud with an explicit 'no equivalent' result — a default-to-nearest is the silent-corruption class; the map lookup must distinguish 'unmapped' from 'mapped-to-none'."
+  ]
+ },
+ "CAMX-MS0::U03": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/engines/cam/featurestrategyknowledgebaseengine.md",
+   "knowledge/wiki/architecture/domain-cam.md"
+  ],
+  "addSeWiki": ["schema-read-discipline"],
+  "systemImpact": "The strategy capability matrix encodes which (strategy, machine/feature) pairs are supported — OptimalStrategySelectionEngine filters to feasible strategies using it before ranking. A wrong cell either recommends an infeasible strategy or excludes a viable one.",
+  "csDepth": [
+   "The capability matrix is sparse (most strategies apply to a subset of features) — a sparse representation (map of supported pairs) avoids a dense allocation and makes an unspecified pair an explicit unknown rather than a silent false.",
+   "Each (strategy, feature) cell must be verified against a known machinable example; an unverified cell is a guess that silently mis-filters strategy selection."
+  ]
+ },
+ "CAMX-MS0::U04": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/engines/cam/strategytaxonomyengine.md",
+   "knowledge/wiki/architecture/domain-cam.md"
+  ],
+  "addSeWiki": ["atomic-write-idempotency-patterns"],
+  "systemImpact": "Backfilling taxonomy fields onto existing engine records is a data migration — every CAMX consumer that keys off taxonomy categories depends on the backfill being complete and correct. A double-applied or partial backfill corrupts the taxonomy lookup for already-shipped engines.",
+  "csDepth": [
+   "An idempotent migration must be safe to re-run: check whether the field is already present and skip rather than re-apply — a backfill that unconditionally appends double-applies on re-run.",
+   "Schema-version bump plus migration path means the migration must record the version it migrated to, so a re-run knows it already ran; a versionless migration cannot tell migrated from un-migrated records."
+  ]
+ },
+ "CAMX-MS0::U05": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/formulas/formula-constants-canonical-kienzle.md",
+   "knowledge/wiki/architecture/domain-physics.md"
+  ],
+  "addSeWiki": ["regression-prevention-doctrine"],
+  "systemImpact": "The strategy physics profile gives per-strategy engagement/force/MRR ranges consumed by AutoSpeedFeedEngine and OptimalStrategySelectionEngine's feasibility filter — an inlined force coefficient in a profile is a physics-discipline violation that mis-feeds every job using that strategy.",
+  "csDepth": [
+   "A per-strategy physics profile must reference canonical Kienzle/Taylor constants by import, not by value — inlining them creates N copies of a constant that drift independently when the canonical value is corrected.",
+   "Profile records keyed by strategy must use the same strategy keys as StrategyTaxonomyEngine — a key mismatch produces a silent missing-profile lookup that falls back to a default."
+  ]
+ },
+ "CAMX-MS0::U06": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/engines/cam/strategycostoptimalengine.md",
+   "knowledge/wiki/architecture/domain-cost.md"
+  ],
+  "addSeWiki": ["regression-prevention-doctrine"],
+  "systemImpact": "The strategy cost model combines cycle time, machine rate and tool cost per strategy — OptimalStrategySelectionEngine and quote estimation consume it for break-even comparison. A wrong cost model mis-ranks strategies and mis-prices jobs.",
+  "csDepth": [
+   "Cycle time from MRR depends on the strategy's effective MRR, which varies with engagement — using a nominal MRR over-states throughput for light-engagement strategies and under-prices them.",
+   "Break-even comparison across strategies is a crossover computation; cost curves can cross more than once (a strategy cheaper at low volume, dearer at high) — the model must report the volume range, not a single winner."
+  ]
+ },
+ "CAMX-MS0::U07": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-cam.md",
+   "knowledge/wiki/architecture/domain-dispatcher.md"
+  ],
+  "addSeWiki": ["mcp-tool-design"],
+  "systemImpact": "Dispatcher wiring exposes the CAMX-MS0 strategy engines (taxonomy, equivalence, capability, cost) as MCP actions consumed by skills and external callers — a missing z.enum(ACTIONS) entry false-passes mock tests while production routing is broken. It is the access surface for the whole strategy-engine cluster.",
+  "csDepth": [
+   "Wire to every dispatcher that naturally consumes the strategy engines (per the fan-out wiring doctrine) — a single-dispatcher wire leaves silent orphan consumers that stop_on_unwired_assets flags.",
+   "The action enum and handler map must be driven from one source so they cannot desync; the round-trip E2E must go through the live Zod gate, not a mock that bypasses it."
+  ]
+ },
+ "CAMX-MS0::U08": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/engines/cam/strategytaxonomyengine.md",
+   "knowledge/wiki/architecture/domain-strategy.md"
+  ],
+  "addSeWiki": ["per-file-scrutiny-gate"],
+  "systemImpact": "Tests for the CAMX-MS0 strategy cluster are its regression gate — without real-reference-value assertions, the taxonomy/equivalence/cost engines can return defaults and pass. They protect every downstream strategy consumer (OptimalStrategySelectionEngine, CrossCamRecommender) from a silent revert.",
+  "csDepth": [
+   "A real-reference-value test pins the expected output to a hand-derived figure (a hand-categorized strategy, a hand-worked cost) — a toBeDefined() stub passes even when the engine returns a hardcoded default.",
+   "Round-trip E2E through the dispatcher action verifies the wiring (U07) as well as the engine; testing the engine in isolation misses the enum/handler desync class."
+  ]
+ },
+ "CAMX-MS1::U-CAMX01": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/engines/cam/strategycostoptimalengine.md",
+   "knowledge/wiki/architecture/engines/cam/strategysafetydecisionengine.md"
+  ],
+  "addSeWiki": ["regression-prevention-doctrine"],
+  "systemImpact": "OptimalStrategySelectionEngine is the central strategy chooser wired into all four major pipelines (CAMX-MS1::U-CAMX02..05) — its choice changes the emitted program for every part. A regression that picks a non-feasible or non-Pareto strategy degrades every job; it is the keystone of the MS1 milestone.",
+  "csDepth": [
+   "Filter-then-rank: feasibility filtering must precede scoring — ranking infeasible candidates and then discarding them can let an infeasible strategy win if the filter is applied loosely. Filter is a hard gate.",
+   "Pareto-front extraction is O(n^2) for non-dominated sorting; for many candidates use the divide-and-conquer or fast-non-dominated-sort variant, and TOPSIS/weighted-sum scoring should operate only on the non-dominated set."
+  ]
+ },
+ "CAMX-MS1::U-CAMX02": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/engines/mill/millprinttoprogramengine.md",
+   "knowledge/wiki/architecture/domain-pipeline-ms0.md"
+  ],
+  "addSeWiki": ["regression-prevention-doctrine"],
+  "systemImpact": "Wiring OptimalStrategySelectionEngine into PrintToProgramPipelineEngine makes the chosen strategy actually drive the emitted program — if the wire is present but the result is discarded, the strategy selection is a dead branch. It depends on the U-CAMX02 desilo (CAMX-MS0.5) being clean.",
+  "csDepth": [
+   "A wiring test must assert the chosen strategy CHANGES the emitted program (run two strategies, diff the output) — a test that only checks the engine was called false-passes when the program is unchanged.",
+   "Inserting strategy selection into the program-generation flow changes the stage order; ensure the selection runs after feature recognition (it needs features) and before toolpath generation (it parameterizes it)."
+  ]
+ },
+ "CAMX-MS1::U-CAMX03": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/engines/geometry/partgeometrypipelineengine.md",
+   "knowledge/wiki/architecture/engines/cam/featurestrategyknowledgebaseengine.md"
+  ],
+  "addSeWiki": ["regression-prevention-doctrine"],
+  "systemImpact": "Wiring OptimalStrategySelectionEngine into PartGeometryPipelineEngine makes strategy follow recognized features — a regression that bypasses recognition selects strategy against wrong geometry. It is one of the four MS1 pipeline wirings that must each ship a round-trip test.",
+  "csDepth": [
+   "Feature-to-strategy mapping needs the recognized feature graph as input; if the wire passes raw geometry instead of recognized features the strategy engine re-derives features inconsistently.",
+   "A multi-feature part is the required test fixture — a single-feature test cannot reveal a mapping that wrongly assigns one feature's strategy to all features."
+  ]
+ },
+ "CAMX-MS1::U-CAMX04": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/engines/cam/camkernelorchestratorengine.md",
+   "knowledge/wiki/architecture/engines/cam/camkernelvalidationengine.md"
+  ],
+  "addSeWiki": ["regression-prevention-doctrine"],
+  "systemImpact": "Wiring OptimalStrategySelectionEngine into CAMKernelOrchestratorEngine makes the orchestrator's strategy stage consume real selection — the orchestrator is the central CAM coordinator, so this wire affects every orchestrated part. It depends on the U-CAMX05 desilo (CAMX-MS0.5).",
+  "csDepth": [
+   "The orchestrator's strategy stage must be inserted at the correct point in the orchestration sequence; inserting it after toolpath generation makes the selection a no-op.",
+   "A round-trip E2E through the orchestrator verifies the strategy stage actually consumes the engine output and propagates it to the next stage, not just that the engine ran."
+  ]
+ },
+ "CAMX-MS1::U-CAMX05": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/engines/cpl/pipelinearchitectureengine.md",
+   "knowledge/wiki/architecture/domain-pipeline-ms0.md"
+  ],
+  "addSeWiki": ["regression-prevention-doctrine"],
+  "systemImpact": "Wiring OptimalStrategySelectionEngine into UnifiedCAMPipelineEngine completes the four MS1 pipeline wirings — the unified pipeline is the catch-all entry point, so an unwired path here leaves a whole class of parts using default strategy. All four wirings (U-CAMX02..05) must ship with their own round-trip test.",
+  "csDepth": [
+   "The unified pipeline composes the other pipelines; the strategy-selection wire must be at the unified level, not duplicated per sub-pipeline, or sub-pipelines double-select with divergent results.",
+   "A round-trip E2E through the unified pipeline is the integration test for all four wirings — it must exercise a part path that touches the unified composition, not a sub-pipeline shortcut."
+  ]
+ },
+ "CAMX-MS1::U-CAMX06": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/engines/cam/strategysequencingengine.md",
+   "knowledge/wiki/architecture/engines/geometry/geometryalgorithmsengine.md"
+  ],
+  "addSeWiki": ["test-design-real-values"],
+  "systemImpact": "Multi-strategy zone decomposition partitions a part into zones with per-zone strategy — it lets OptimalStrategySelectionEngine choose different strategies for different regions of one part. A regression that leaves a region unassigned produces a program that never machines that region.",
+  "csDepth": [
+   "Region decomposition must be a partition: non-overlapping AND total coverage — connected-component labeling guarantees disjointness, but a coverage check is separate; assert every machined region maps to exactly one zone.",
+   "Graph clustering of feature regions can produce a degenerate single-zone or all-singleton result on edge geometry; the decomposition must be tested on a part with genuinely distinct regions."
+  ]
+ },
+ "CAMX-MS1::U-CAMX07": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-session.md",
+   "knowledge/wiki/architecture/domain-session.md"
+  ],
+  "addSeWiki": ["fail-loud-r12-patterns"],
+  "systemImpact": "The user-preference system persists per-user strategy/parameter preferences layered over system defaults — OptimalStrategySelectionEngine and the SFO read it to honor operator overrides. A corrupt or schema-drifted preference store silently reverts to defaults, discarding the operator's intent.",
+  "csDepth": [
+   "Atomic write (temp+rename) is mandatory for the preference store — a crash mid-write of a JSON file leaves a truncated unparseable file, and the next read either crashes or silently treats it as empty.",
+   "Default-merge layering (system default <- user override) must deep-merge, not shallow-replace — a shallow merge of a nested preference object drops sibling defaults the user didn't override."
+  ]
+ },
+ "CAMX-MS1::U-CAMX08": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/action-trace-engine.md",
+   "knowledge/wiki/architecture/dispatcher-aireasoning.md"
+  ],
+  "addSeWiki": ["regression-prevention-doctrine"],
+  "systemImpact": "The decision explanation engine reconstructs the actual decision path from the CAMX-MS0.3::U-CAMX13 audit trail — it is the operator-facing 'why was this chosen' surface. If it synthesizes a plausible-but-fabricated rationale instead of reading the logged path, it misleads the operator about what the system actually did.",
+  "csDepth": [
+   "Reconstructing the decision path requires the audit trail to be complete and ordered — the explanation engine must fail loud when the trail is missing a step rather than interpolating a fabricated one.",
+   "Feature-attribution for a chosen decision must attribute to the inputs that were actually logged; attributing to inputs the engine assumes but didn't log produces a confident wrong explanation."
+  ]
+ },
+ "CAMX-MS1::U-CAMX09": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-cam.md",
+   "knowledge/wiki/architecture/domain-dispatcher.md"
+  ],
+  "addSeWiki": ["mcp-tool-design"],
+  "systemImpact": "Dispatcher wiring exposes the CAMX-MS1 strategy-selection engines as MCP actions — a missing z.enum(ACTIONS) entry false-passes mock tests while production routing is 100% broken. It is the access surface for OptimalStrategySelectionEngine and the explanation engine.",
+  "csDepth": [
+   "The live SDK Zod gate rejects an unenumerated action before the handler runs; a MockMCPServer bypasses the enum, so the test must drive the real gate or it false-greens the desync.",
+   "Action enum and handler registration should share one source of truth so a new action cannot be added to one without the other."
+  ]
+ },
+ "CAMX-MS1::U-CAMX10": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/engines/cam/strategycostoptimalengine.md",
+   "knowledge/wiki/architecture/domain-strategy.md"
+  ],
+  "addSeWiki": ["per-file-scrutiny-gate"],
+  "systemImpact": "Tests for CAMX-MS1 are the regression gate proving OptimalStrategySelectionEngine returns provably optimal/feasible strategies — without a hand-constructed optimality case, the engine can return any strategy and pass. They guard the keystone strategy chooser and its four pipeline wirings.",
+  "csDepth": [
+   "Proving Pareto-optimality requires a hand-built objective space where the optimal point is known by construction — testing against the engine's own output is tautological.",
+   "The test must assert feasibility separately from optimality: a Pareto-optimal-but-infeasible result is still a bug; the suite needs a case with an infeasible-but-cheap candidate to confirm the filter runs first."
+  ]
+ },
+ "CAMX-MS1::U-CAMX11": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/engines/cam/postprocessorcapabilitymatrixengine.md",
+   "knowledge/wiki/architecture/engines/cam/crosscampostengine.md"
+  ],
+  "addSeWiki": ["regression-prevention-doctrine"],
+  "systemImpact": "Expanding CrossCamRecommender from 8 to 22 CAM systems broadens vendor coverage — every vendor record feeds strategy recommendation and post-processor selection. An empty placeholder record for a new system silently degrades recommendations for that vendor.",
+  "csDepth": [
+   "A registry expansion is a data task: each of the 14 new CAM-system records must carry real per-vendor capability data — a schema-valid but empty record passes parsing yet produces useless recommendations.",
+   "The registry entry schema must be enforced (Zod) so a new record missing a required capability field fails loud at load, not at recommendation time."
+  ]
+ },
+ "CAMX-MS1::U-CAMX12": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/engines/cam/crosscamrecommenderengine.md",
+   "knowledge/wiki/architecture/domain-turning.md"
+  ],
+  "addSeWiki": ["regression-prevention-doctrine"],
+  "systemImpact": "CrossCamRecommender turning support adds a turning-specific strategy taxonomy so lathe recommendations are correct — reusing milling strategy names for turning ops (the polysemy hazard documented in U-DOMAIN-RULES) produces nonsensical lathe recommendations. It feeds the turning-program pipelines.",
+  "csDepth": [
+   "Turning and milling occupy separate strategy namespaces (OD/ID/facing/grooving/threading vs pocket/contour/adaptive) — a polysemy guard must keep them disjoint, or a /turning request matches a milling strategy.",
+   "Lathe recommendation rules differ structurally from milling (single-point vs multi-flute, radius vs diameter programming) — the turning path must not share milling's rule base."
+  ]
+ },
+ "CAMX-MS1::U-CAMX13": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-knowledge.md",
+   "knowledge/wiki/architecture/domain-knowledge.md"
+  ],
+  "addSeWiki": ["regression-prevention-doctrine"],
+  "systemImpact": "MachiningPlaybook integration consults playbook rules in the strategy-recommendation path — playbook rules encode shop tribal knowledge that should override generic defaults. A regression that ignores the playbook strips the system of its accumulated shop-specific knowledge.",
+  "csDepth": [
+   "Rule-priority resolution matters when multiple playbook rules match — the integration must define a deterministic precedence (most-specific-wins or explicit priority), not last-match-wins.",
+   "A test must verify a known playbook rule actually overrides the default — wiring the playbook lookup without confirming the override fires leaves a silently-ignored rule base."
+  ]
+ },
+ "CAMX-MS1::U-CAMX14": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/engines/toolpath/toolpathstrategyengine.md",
+   "knowledge/wiki/architecture/domain-toolpath.md"
+  ],
+  "addSeWiki": ["regression-prevention-doctrine"],
+  "systemImpact": "ToolpathStrategyRegistry utilization routes all strategy lookups through the registry — a call site that bypasses it with a hardcoded strategy is an unwired consumer that the registry can never improve. It centralizes strategy resolution for every toolpath-generating pipeline.",
+  "csDepth": [
+   "Verifying no call site bypasses the registry is a coverage problem — a grep/AST audit of hardcoded strategy literals is needed; a runtime test only catches the paths it exercises.",
+   "Registry lookup by strategy key must fail loud on an unknown key rather than returning a default — a default-on-miss hides a stale call site using a removed strategy."
+  ]
+ },
+ "CAMX-MS1::U-CAMX15": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/engines/cam/strategycostoptimalengine.md",
+   "knowledge/wiki/architecture/domain-stochastic.md"
+  ],
+  "addSeWiki": ["test-design-real-values"],
+  "systemImpact": "MultiObjectivePareto in strategy selection returns the non-dominated set (not a single weighted winner) — it lets OptimalStrategySelectionEngine present trade-off options rather than collapse to one score. A regression that returns a single winner hides feasible alternatives from the decision layer.",
+  "csDepth": [
+   "Non-dominated sorting must use a strict dominance test (better-or-equal on all objectives, strictly better on one) — a loose test can wrongly exclude a Pareto-optimal point or include a dominated one.",
+   "Knee-point selection on the front is a separate step from front computation; conflating them (returning only the knee) discards the rest of the front the decision layer needs."
+  ]
+ },
+ "CAMX-MS1::U-CAMX16": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/engines/other/uncertaintypropagationpipelineengine.md",
+   "knowledge/wiki/architecture/domain-stochastic.md"
+  ],
+  "addSeWiki": ["test-design-real-values"],
+  "systemImpact": "Sensitivity analysis at every decision reports how each input drives the decision output — it feeds the decision-explanation engine (U-CAMX08) and tells operators which input to control. A wrong sensitivity misdirects process-improvement effort.",
+  "csDepth": [
+   "Finite-difference (one-at-a-time) sensitivity must pick a perturbation step that balances truncation error (too large) against floating-point cancellation (too small) — a fixed step can be wrong for inputs of very different magnitudes; scale the step to the input.",
+   "Local OAT sensitivity ignores interaction effects; for a decision with interacting inputs the per-input gradient understates total influence — note this limitation and prefer Sobol (U-CAMX06) where interactions matter."
+  ]
+ },
+ "CAMX-MS10::U-CAMX01": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/engines/cam/camtoollibraryengine.md",
+   "knowledge/wiki/architecture/domain-mastercam.md"
+  ],
+  "addSeWiki": ["regression-prevention-doctrine"],
+  "systemImpact": "MastercamToolExportEngine serializes the canonical tool model into Mastercam's tool-library format — it is one of the per-vendor adapters UniversalToolExportEngine (U-CAMX04) and ToolSyncOrchestratorEngine (U-CAMX05) dispatch to. A schema mismatch produces a file Mastercam rejects or imports with dropped fields.",
+  "csDepth": [
+   "Mastercam tool-library serialization (.tooldb/XML) has a fixed schema with required attributes and units — a round-trip serialize/parse equivalence test is the only proof every field survived; a string-produced check proves nothing.",
+   "Tool-record schema mapping must handle unit conversion (mm vs inch) explicitly — a field exported in the wrong unit parses fine but represents a 25.4x-wrong tool."
+  ]
+ },
+ "CAMX-MS10::U-CAMX02": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/engines/cam/camexportengine.md",
+   "knowledge/wiki/architecture/domain-cam.md"
+  ],
+  "addSeWiki": ["regression-prevention-doctrine"],
+  "systemImpact": "SolidCAMToolExportEngine is the SolidCAM per-vendor adapter dispatched by UniversalToolExportEngine and ToolSyncOrchestratorEngine — a format mismatch silently corrupts the SolidCAM tool table, breaking tool sync for SolidCAM shops.",
+  "csDepth": [
+   "SolidCAM tool-table serialization must match the documented format exactly, including geometry and cutting-data field order/encoding — a round-trip test against a real SolidCAM fixture is the honest gate.",
+   "Tool-record mapping must preserve cutting-data fields (speeds/feeds) without rounding; a serialization that truncates a feed value to fewer decimals silently degrades the cutting data."
+  ]
+ },
+ "CAMX-MS10::U-CAMX03": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/engines/cam/camtoollibraryengine.md",
+   "knowledge/wiki/architecture/domain-cam.md"
+  ],
+  "addSeWiki": ["regression-prevention-doctrine"],
+  "systemImpact": "NXToolExportEngine is the NX per-vendor adapter dispatched by UniversalToolExportEngine and ToolSyncOrchestratorEngine — an invalid NX tool-library file breaks tool sync for NX shops.",
+  "csDepth": [
+   "NX tool-format (.dat/library) serialization must conform to the documented NX schema — verify against the format spec and a round-trip equivalence test, not a guessed structure.",
+   "Tool-record mapping to NX must handle NX's specific tool-type taxonomy; a tool type with no NX equivalent must be flagged, not silently mapped to a wrong type."
+  ]
+ },
+ "CAMX-MS10::U-CAMX04": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/engines/cam/camtoollibraryengine.md",
+   "knowledge/wiki/architecture/dispatcher-export.md"
+  ],
+  "addSeWiki": ["regression-prevention-doctrine"],
+  "systemImpact": "UniversalToolExportEngine dispatches one canonical tool model to per-vendor adapters (Mastercam/SolidCAM/NX from U-CAMX01..03) — it is the single entry point for tool export and the engine ToolSyncOrchestratorEngine orchestrates. A broken dispatch produces an invalid file for that vendor.",
+  "csDepth": [
+   "The strategy/adapter pattern needs a format-registry keyed by target CAM system — an unregistered target must fail loud, not fall back to a default adapter that produces a wrong-format file.",
+   "Each adapter must be verified to produce a valid vendor file independently; the universal engine's test cannot just assert dispatch occurred — it must assert each adapter's output round-trips."
+  ]
+ },
+ "CAMX-MS10::U-CAMX05": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/engines/cam/camexportengine.md",
+   "knowledge/wiki/architecture/domain-tool.md"
+  ],
+  "addSeWiki": ["regression-prevention-doctrine"],
+  "systemImpact": "ToolSyncOrchestratorEngine performs bidirectional tool-library sync across the per-vendor export engines — it keeps PRISM's tool model and external CAM tool libraries consistent. A non-idempotent sync produces spurious diffs on every re-run, and a missed conflict silently overwrites a vendor-side edit.",
+  "csDepth": [
+   "Idempotent sync requires a stable diff: re-syncing unchanged data must produce zero diffs — this needs canonical serialization (stable field order, fixed precision) so identical data hashes identically.",
+   "Bidirectional sync must detect conflicts (both sides changed since last sync) before writing — a last-writer-wins merge silently discards one side's edit; conflict detection needs a per-record last-synced baseline."
+  ]
+ },
+ "CAMX-MS10::U-CAMX06": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/engines/cam/cuttingdataexportengine.md",
+   "knowledge/wiki/architecture/formulas/formula-constants-canonical-kienzle.md"
+  ],
+  "addSeWiki": ["regression-prevention-doctrine"],
+  "systemImpact": "CuttingDataExportEngine exports physics-derived speeds/feeds/DOC tables to vendor format — the exported cutting data is what the external CAM system uses to machine. Exporting hardcoded data instead of canonical-constant-derived values propagates wrong feeds into every job run from that export.",
+  "csDepth": [
+   "Cutting-data records must be constructed from physics (Kienzle-derived) using canonical constants — exporting a hardcoded table is the physics-discipline violation that ships wrong feeds.",
+   "Serialization of a speed/feed table to vendor format must preserve numeric precision and units; a round-trip parse must reproduce identical cutting records."
+  ]
+ },
+ "CAMX-MS10::U-CAMX07": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-export.md",
+   "knowledge/wiki/architecture/domain-dispatcher.md"
+  ],
+  "addSeWiki": ["mcp-tool-design"],
+  "systemImpact": "Dispatcher wiring exposes the CAMX-MS10 export engines as MCP actions — a missing z.enum(ACTIONS) entry false-passes mock tests while production export routing is broken. It is the access surface for every tool/cutting-data export.",
+  "csDepth": [
+   "Each export action must be added to both the z.enum(ACTIONS) gate and the handler — the live SDK rejects an unenumerated action, but a mock bypasses it, so the test must drive the real gate.",
+   "Wire to every dispatcher that naturally consumes the export engines (export AND cam dispatchers per fan-out doctrine); a single-dispatcher wire orphans consumers."
+  ]
+ },
+ "CAMX-MS10::U-CAMX08": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/engines/cam/cuttingdataexportengine.md",
+   "knowledge/wiki/architecture/domain-cam.md"
+  ],
+  "addSeWiki": ["per-file-scrutiny-gate"],
+  "systemImpact": "Tests for the CAMX-MS10 export cluster are its regression gate — without round-trip and real-vendor-fixture comparison, an export engine can emit a malformed file and pass. They protect tool sync and cutting-data export for every supported CAM vendor.",
+  "csDepth": [
+   "A round-trip serialize/parse equivalence test must compare the parsed-back records field-by-field against the originals — a test that only checks a non-empty string was produced misses every field-level corruption.",
+   "Real-vendor-format fixture comparison catches schema drift the round-trip alone cannot (a self-consistent but vendor-invalid format); a fail-on-revert oracle pins the expected file structure."
+  ]
+ },
+ "CAMX-MS11::U-CAMX01": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/engines/cam/camintegrationengine.md",
+   "knowledge/wiki/architecture/domain-cam.md"
+  ],
+  "addSeWiki": ["mcp-tool-design"],
+  "systemImpact": "CAMAddInFrameworkEngine abstracts a common add-in host contract — it is the foundation every vendor add-in (Mastercam NetHook, SolidCAM SW, NX, hyperMILL AC in U-CAMX02..05) builds on. A wrong contract forces each add-in to diverge, defeating the shared framework.",
+  "csDepth": [
+   "A plugin/add-in framework must define a stable lifecycle (load/init/invoke/teardown) the host calls in a fixed order — verifying with two stub hosts proves the contract is host-agnostic before real bindings depend on it.",
+   "The host-API abstraction layer must not leak vendor-specific types into the common contract — a leaked NetHook type forces every other add-in to depend on Mastercam's SDK."
+  ]
+ },
+ "CAMX-MS11::U-CAMX02": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/engines/mastercam/mastercamfunctionindexengine.md",
+   "knowledge/wiki/architecture/domain-mastercam.md"
+  ],
+  "addSeWiki": ["schema-read-discipline"],
+  "systemImpact": "The Mastercam NetHook add-in binds PRISM into Mastercam via the NetHook .NET API — it registers through CAMAddInFrameworkEngine (U-CAMX01). A binding against a guessed API surface (not the real NetHook contract) fails at host load on a real Mastercam install.",
+  "csDepth": [
+   "NetHook API binding must target the documented function surface — verify against the real Mastercam function index, not an assumed API; a guessed signature compiles but fails .NET interop at runtime.",
+   "Host-application event-callback registration must be unregistered at teardown; a leaked callback after add-in unload causes Mastercam to call into a torn-down PRISM object."
+  ]
+ },
+ "CAMX-MS11::U-CAMX03": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/engines/cam/camintegrationengine.md",
+   "knowledge/wiki/architecture/dispatcher-cad.md"
+  ],
+  "addSeWiki": ["schema-read-discipline"],
+  "systemImpact": "The SolidCAM SolidWorks add-in binds PRISM into SolidWorks via the COM add-in API — it registers through CAMAddInFrameworkEngine (U-CAMX01). Incorrect COM registration means SolidWorks never loads the add-in.",
+  "csDepth": [
+   "SolidWorks COM add-in registration is registry-based and version-sensitive — verify COM registration and command callbacks against the documented contract; a wrong ProgID or registry key silently prevents load.",
+   "COM interop requires explicit release of host objects (no GC-managed lifetime) — a leaked SolidWorks COM reference keeps the host process alive after exit."
+  ]
+ },
+ "CAMX-MS11::U-CAMX04": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/engines/cam/camintegrationengine.md",
+   "knowledge/wiki/architecture/engines/cam/camtoollibraryengine.md"
+  ],
+  "addSeWiki": ["schema-read-discipline"],
+  "systemImpact": "The NX CAM add-in binds PRISM into NX via the NX Open API — it registers through CAMAddInFrameworkEngine (U-CAMX01). An incorrect entry-point or menu registration means NX never exposes the PRISM add-in.",
+  "csDepth": [
+   "NX Open API binding must use the documented entry-point and menu/callback registration contract — verify against NX Open docs, not a guessed surface; a wrong entry-point signature fails at host init.",
+   "NX add-ins have an explicit init/terminate lifecycle the framework must drive; a callback registered at init but not removed at terminate dangles after unload."
+  ]
+ },
+ "CAMX-MS11::U-CAMX05": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/engines/hyper/hypermillmultiaxisphysicspipeline.md",
+   "knowledge/wiki/architecture/domain-hyper.md"
+  ],
+  "addSeWiki": ["schema-read-discipline"],
+  "systemImpact": "The hyperMILL AC add-in binds PRISM into hyperMILL via the Automation Center API — it registers through CAMAddInFrameworkEngine (U-CAMX01), completing the four-vendor add-in set. An incorrect AC binding means hyperMILL automation scripts can't invoke PRISM.",
+  "csDepth": [
+   "hyperMILL Automation Center API binding must register an automation script entry-point per the documented AC contract — verify against hyperMILL AC docs, not an assumed API.",
+   "AC automation scripts run in the host's automation context; the add-in must define entry-point and teardown so a script invocation doesn't leak PRISM state into the next host automation run."
+  ]
+ }
+}

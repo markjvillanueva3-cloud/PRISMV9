@@ -302,7 +302,12 @@ function parseGCode(gcode: string): ParsedProgram {
     // Above +2mm clearance — exit cut zone
     if (cz > 2) in_cut_zone = false;
 
-    const norm = modal_motion.replace(/^G0*/, "G");
+    // Normalize the motion word by numeric value: "G0"/"G00" -> "G0", "G01" -> "G1", "G2" -> "G2".
+    // (The prior `replace(/^G0*/, "G")` collapsed "G0" -> "G", so is_rapid was ALWAYS false and
+    //  is_cutting ALWAYS true -> gouge + rapid-into-material detection were structurally dead.
+    //  Fix: U-PP-BACKPLOT-G0NORM, slot:echo 2026-06-24.)
+    const motionNum = parseInt(modal_motion.slice(1), 10);
+    const norm = Number.isNaN(motionNum) ? modal_motion : `G${motionNum}`;
     const is_rapid = norm === "G0";
     const is_arc = norm === "G2" || norm === "G3";
     const is_cutting = !is_rapid;

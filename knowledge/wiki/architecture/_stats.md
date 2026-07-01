@@ -2,8 +2,8 @@
 title: Wiki Stats — architecture tree
 type: architecture
 generated_by: scripts/build-wiki-leaf-index.mjs
-last_verified: 2026-05-15
-total_entries: 23981
+last_verified: 2026-06-27
+total_entries: 71738
 tags: [architecture, wiki, stats, self-awareness]
 ---
 
@@ -14,31 +14,84 @@ tags: [architecture, wiki, stats, self-awareness]
 > `index.md` lines — it does **not** see this tree. This file is the real
 > number. (If you maintain `generate-system-viz.mjs`, count `architecture/**/*.md`.)
 
-**Total recall-index entries:** 23981  (`architecture/` tree: 19375 · tribal tips: 4245 · code-tribal: 185 · memories: 176)
-**Leaf index:** `_leaf-index.jsonl` (6.64 MB) — consumed by `wiki-precheck-inject.mjs` (BM25 + cosine) and `wiki-recall-on-read.mjs` for keyword/path recall
+**Total recall-index entries:** 71738  (`architecture/` tree: 36790 · tribal tips: 4247 · hand-wiki (code-tribal+software-engineering+lessons+…): 9578 · memories: 21123)
+**Leaf index:** `_leaf-index.jsonl` (24.33 MB) — consumed by `wiki-precheck-inject.mjs` (BM25 + cosine) and `wiki-recall-on-read.mjs` for keyword/path recall
 **Semantic index:** `_embeddings.jsonl` (int8 nomic-embed-text vectors over concept entries; built by `build-wiki-embeddings.mjs` — present iff Ollama was reachable at last regen)
-**Orphan rate:** 182 orphans / 19560 files (0.9%)  (rescue hub: `_orphans-rescue.md` — every orphan gets an inbound link there, so effective orphan rate ≈ 0)
-**Last regen:** 2026-05-15T03:30:49.613Z
+**Orphan rate:** 8714 orphans / 46617 files (18.7%)  (rescue hub: `_orphans-rescue.md` — every orphan gets an inbound link there, so effective orphan rate ≈ 0)
+**Last regen:** 2026-06-27T17:43:18.608Z
 
 ## Breakdown by entry type
 
 | Type | Count |
 |------|-------|
-| action | 9242 |
-| architecture | 7426 |
-| tribal-tip | 4245 |
-| engine | 1702 |
-| hook | 456 |
-| skill | 276 |
-| code-tribal | 185 |
-| test | 140 |
-| formula | 80 |
-| memory-reference | 68 |
-| memory-feedback | 61 |
-| algorithm | 53 |
-| memory-project | 34 |
-| memory-uncategorized | 7 |
+| memory-reference | 20322 |
+| action | 10481 |
+| architecture | 9576 |
+| code-tribal | 8468 |
+| formula | 7316 |
+| engine | 4750 |
+| tribal-tip | 4247 |
+| test | 1719 |
+| skill | 1556 |
+| hook | 903 |
+| consensus | 391 |
+| memory-feedback | 336 |
+| os | 327 |
+| lessons | 238 |
+| memory-tribal-consolidation | 176 |
+| memory-scrutiny | 169 |
+| triplet-stub | 94 |
+| lesson | 74 |
+| dropdown | 68 |
+| checkbox | 66 |
+| algorithm | 61 |
+| numeric | 49 |
+| memory-project | 46 |
+| selection | 42 |
+| string | 38 |
+| memory-patterns | 37 |
+| software-engineering | 36 |
+| reference | 34 |
+| memory-dreams | 21 |
+| course | 20 |
+| integer | 8 |
+| vector3 | 6 |
+| selection_list | 6 |
+| feature | 6 |
 | memory-user | 6 |
+| memory-uncategorized | 5 |
+| script | 4 |
+| audit | 2 |
+| selection_pairs | 2 |
+| concepts | 2 |
+| memory-weekly-synthesis | 2 |
+| memory-_legacy-root | 2 |
+| playbook | 1 |
+| boolean | 1 |
+| substrate-engine | 1 |
+| architecture-assessment | 1 |
+| moc | 1 |
+| assessment | 1 |
+| assessment-correction | 1 |
+| capability-verdict | 1 |
+| scope-enumeration | 1 |
+| synergy-audit | 1 |
+| milestone | 1 |
+| architecture-note | 1 |
+| spec | 1 |
+| tribal-category | 1 |
+| unit-spec | 1 |
+| learning | 1 |
+| code-tribal/learning | 1 |
+| code-tribal/learnings | 1 |
+| concept | 1 |
+| decision | 1 |
+| decisions | 1 |
+| coordination | 1 |
+| entity | 1 |
+| entities | 1 |
+| ux-design | 1 |
+| memory-galaxies | 1 |
 
 ## How the tree stays fresh
 

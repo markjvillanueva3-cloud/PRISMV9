@@ -23,14 +23,14 @@ related:
 |-------|-------|
 | Name | `forge-from-scout` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/forge-from-scout.md` |
+| Source | `C:/Users/wompu/.claude/commands/forge-from-scout.md` |
 | Model | default |
 | Tags | _(none)_ |
 
 ## Description (first paragraph)
 
-Takes findings from `/scout` build queue, generates a roadmap via `/rgs`, then executes
-with `/forge-triple` (engine + MCP action + skill + protective hook per item).
+
+# Forge From Scout — Build Scouted Capabilities Into PRISM
 
 <!-- AUTO-END -->
 

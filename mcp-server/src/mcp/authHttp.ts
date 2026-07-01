@@ -15,9 +15,14 @@ export function buildMcpDiscoveryDocument(): Record<string, unknown> {
     version: "1.0.0",
     description: "PRISM Manufacturing Intelligence MCP Server",
     oauth: {
-      authorization_endpoint: config.authorizationUrl,
-      token_endpoint: config.tokenUrl,
-      scopes: config.scopes,
+      // Mirror the canonical discovery contract in auth.ts (issuer + standard
+      // OAuth 2.1 paths registered under PUBLIC_PREFIXES "/oauth/"). OAuthConfig
+      // has no authorizationUrl/tokenUrl/scopes fields -- derive them here.
+      authorization_endpoint: `${config.issuer}/oauth/authorize`,
+      token_endpoint: `${config.issuer}/oauth/token`,
+      // Union of every registered client's allowed scopes (real config, not a
+      // hardcoded list that would drift from authConfig DEFAULT_CLIENTS).
+      scopes: [...new Set(config.clients.flatMap((c) => c.allowedScopes))],
     },
   };
 }

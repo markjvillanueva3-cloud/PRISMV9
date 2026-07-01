@@ -1,0 +1,46 @@
+{
+  "enabled": true,
+  "audit_cadence_calls": 25,
+  "audit_log_path": "state/compliance/audit.jsonl",
+  "max_templates": 3,
+  "require_disclaimer_ack": true,
+  "auto_provision_hooks": true,
+  "auto_configure_certs": true,
+  "conflict_rules": [
+    {
+      "field": "retain_days",
+      "strategy": "MAX",
+      "description": "Longest retention wins"
+    },
+    {
+      "field": "require_signature",
+      "strategy": "TRUE",
+      "description": "If any template requires signing, sign"
+    },
+    {
+      "field": "min_safety_score",
+      "strategy": "MAX",
+      "description": "Highest safety threshold wins"
+    },
+    {
+      "field": "required_roles",
+      "strategy": "INTERSECT",
+      "description": "Only roles allowed by ALL templates"
+    },
+    {
+      "field": "deny_roles",
+      "strategy": "UNION",
+      "description": "Deny if ANY template denies"
+    },
+    {
+      "field": "mode_block_vs_warn",
+      "strategy": "STRICTEST",
+      "description": "Block > warning > log"
+    },
+    {
+      "field": "conflict_priority",
+      "strategy": "MIN",
+      "description": "Lower number = higher priority wins"
+    }
+  ]
+}

@@ -1,0 +1,190 @@
+{
+  "id": "OSCAR-SFC-9AXIS-MS0",
+  "title": "Oscar Speed-Feed 9-Axis Orchestrator + Live-Vendor Comparison + Fleet PDF-Corpus Bridge",
+  "track": "OSCAR-SFC",
+  "status": "in_progress",
+  "created_at": "2026-05-25",
+  "dependencies": [],
+  "priority": "HIGH",
+  "description": "Comprehensive Speed-Feed Calculator (SFC) milestone. Builds the 9-axis orchestrator (machine + spindle + controller + material + workholding + tool_holder + tooling + coolant + toolpath) with 3 optimization modes (cost_batch / aggressive_rush / prism_optimized), MRR-ranked tooling library, ROI investment popup, chatter-stability adapter (Altintas SLD + RCSA-derived FRF), exhaustive combination sweep. Adds operator's REAL Fusion 360 shop library → MRR-ranked SFC, live-state readers for HSMAdvisor + G-Wizard (with full 5-axis comparator + 3-tier enum translation), and fleet PDF-corpus bridge subscribing to kilo's cad-cam-pdf-tribal-seeds + extracted-pdfs JSONL + mike's WEDM training-pairs. Closes operator coordination directive 2026-05-26 (whiskey/lima/mike/foxtrot/echo PDF-extraction → SFC tribal-prior bridge).",
+  "phases": [
+    {
+      "id": "P1-CORE-ORCHESTRATOR",
+      "title": "9-axis SFC orchestrator + propagation + downstream subscriber + PSN prior + chatter + exhaustive sweep",
+      "units": ["U-OSC9-01", "U-OSC9-02", "U-OSC9-03", "U-OSC9-04", "U-OSC9-05", "U-OSC9-06", "U-OSC9-07"]
+    },
+    {
+      "id": "P2-VENDOR-BASELINE-LIVE",
+      "title": "Live-state readers + 5-axis comparator for HSMAdvisor + G-Wizard (replace static baseline tables)",
+      "units": ["U-OSC9-09", "U-OSC9-11", "U-OSC9-12"]
+    },
+    {
+      "id": "P3-FLEET-CORPUS-BRIDGE",
+      "title": "Bridge fleet PDF extraction (kilo + foxtrot + mike + echo + whiskey + lima) → SFC tribal prior",
+      "units": ["U-OSC9-08", "U-OSC9-10", "U-OSC9-13"]
+    }
+  ],
+  "unit_list": [
+    {
+      "id": "U-OSC9-01",
+      "title": "SpeedFeedNineAxisOrchestratorEngine — 9-axis SFC + 3 output modes + MRR ranking + ROI popup + spindle tuning + workholding feasibility",
+      "status": "complete",
+      "phase": "P1-CORE-ORCHESTRATOR",
+      "shipped_in": "eaf08a5acb",
+      "shipped_at": "2026-05-25",
+      "tests": 59
+    },
+    {
+      "id": "U-OSC9-02",
+      "title": "SpeedFeedBaselineComparatorEngine — Sandvik/Kennametal/CNCCookbook/Titans/HSMAdvisor static reference tables",
+      "status": "complete",
+      "phase": "P1-CORE-ORCHESTRATOR",
+      "shipped_in": "eaf08a5acb",
+      "shipped_at": "2026-05-25"
+    },
+    {
+      "id": "U-OSC9-03",
+      "title": "SpeedFeedPropagationBridgeEngine — auto-fan-out to post_processor + mill/lathe/wedm wizards + print_to_program (5 domain bridges)",
+      "status": "complete",
+      "phase": "P1-CORE-ORCHESTRATOR",
+      "shipped_in": "dc901c6b2d",
+      "shipped_at": "2026-05-25",
+      "tests": 37
+    },
+    {
+      "id": "U-OSC9-04",
+      "title": "SpeedFeedDownstreamSubscriberEngine — 5-cache subscriber chain for orchestrator auto-emit",
+      "status": "complete",
+      "phase": "P1-CORE-ORCHESTRATOR",
+      "shipped_in": "17653081cc",
+      "shipped_at": "2026-05-25",
+      "tests": 17
+    },
+    {
+      "id": "U-OSC9-05",
+      "title": "SpeedFeedPSNDecisionPriorEngine — fuses outcome_ledger + tribal_knowledge + wiki into SFC decision prior",
+      "status": "complete",
+      "phase": "P1-CORE-ORCHESTRATOR",
+      "shipped_in": "2ec588cb2f",
+      "shipped_at": "2026-05-25"
+    },
+    {
+      "id": "U-OSC9-06",
+      "title": "SpeedFeedChatterStabilityAdapterEngine — Altintas SLD + RCSA-derived FRF (per-holder fn/k, BigPlus, stickout cantilever scaling)",
+      "status": "complete",
+      "phase": "P1-CORE-ORCHESTRATOR",
+      "shipped_in": "903b1e6b31",
+      "shipped_at": "2026-05-25"
+    },
+    {
+      "id": "U-OSC9-07",
+      "title": "SpeedFeedExhaustiveCombinationEngine — cartesian sweep across (iso × material × diameter × flutes × …) — demo + prod sample modes",
+      "status": "complete",
+      "phase": "P1-CORE-ORCHESTRATOR",
+      "shipped_in": "26603b8fae",
+      "shipped_at": "2026-05-25",
+      "tests": 10
+    },
+    {
+      "id": "U-OSC9-08",
+      "title": "SpeedFeedShopLibraryBridgeEngine — operator's REAL Fusion 360 shop library → MRR-ranked SFC (4 P1s fixed inline)",
+      "status": "complete",
+      "phase": "P3-FLEET-CORPUS-BRIDGE",
+      "shipped_in": "7c9643f7f0",
+      "shipped_at": "2026-05-26",
+      "tests": 35,
+      "dispatcher_action": "prism_calc:sfc_shop_library_rank"
+    },
+    {
+      "id": "U-OSC9-09",
+      "title": "HSMAdvisorAdapterEngine — live-state reader for settings_v2.xml (BOM-sniff encoding detector — caught utf-16-declared/utf-8-stored drift via gated real-file test)",
+      "status": "complete",
+      "phase": "P2-VENDOR-BASELINE-LIVE",
+      "shipped_in": "32a707ec22",
+      "shipped_at": "2026-05-26",
+      "tests": 31,
+      "dispatcher_action": "prism_calc:hsmadvisor_read_current_state"
+    },
+    {
+      "id": "U-OSC9-10",
+      "title": "SpeedFeedPDFCorpusBridgeEngine — kilo cad-cam-pdf-tribal-seeds + fleet extracted-pdfs JSONL → SFC tribal prior (schema-drift fix added cad+blueprint domains)",
+      "status": "complete",
+      "phase": "P3-FLEET-CORPUS-BRIDGE",
+      "shipped_in": "aefecf1676",
+      "shipped_at": "2026-05-26",
+      "tests": 33,
+      "dispatcher_action": "prism_calc:sfc_pdf_corpus_bridge"
+    },
+    {
+      "id": "U-OSC9-11",
+      "title": "HSMAdvisorComparatorBridgeEngine — 5-axis PRISM ↔ HSMAdvisor diff (3-tier enum translation: builtin → caller-override → fallback+warning) + geometric-mean agreement_score",
+      "status": "complete",
+      "phase": "P2-VENDOR-BASELINE-LIVE",
+      "shipped_in": "e6c390fc2b",
+      "shipped_at": "2026-05-26",
+      "tests": 28,
+      "dispatcher_action": "prism_calc:hsmadvisor_compare",
+      "notes": "Engine + test on slot/oscar (e6c390fc2b); dispatcher case on main (be173cf2b5 wire-fix)."
+    },
+    {
+      "id": "U-OSC9-12",
+      "title": "GWizardAdapterEngine — G-Wizard Calculator toolcrib.csv read-only adapter (auto-resolves AIR sandbox, NaN/space coercion, units inference) — SQLite GWizard.db deferred",
+      "status": "complete",
+      "phase": "P2-VENDOR-BASELINE-LIVE",
+      "shipped_in": "37c15f36b5",
+      "shipped_at": "2026-05-26",
+      "tests": 24,
+      "dispatcher_action": "prism_calc:gwizard_read_toolcrib"
+    },
+    {
+      "id": "U-OSC9-13",
+      "title": "WedmTrainingPairBridgeEngine — index + lookup over mike's 98-pair WEDM training-corpus (stem/customer/parse_ok_only filters; auto customer-extraction from JM-Die paths)",
+      "status": "complete",
+      "phase": "P3-FLEET-CORPUS-BRIDGE",
+      "shipped_in": "88ff0daef9",
+      "shipped_at": "2026-05-26",
+      "tests": 26,
+      "dispatcher_action": "prism_calc:wedm_training_pair_lookup"
+    },
+    {
+      "id": "U-OSC9-WIRE-FIX",
+      "title": "Close silent wire-break: commit GWizardAdapterEngine + WedmTrainingPairBridgeEngine + tests to main (engines were slot/oscar-only but dispatcher actions wired on main)",
+      "status": "complete",
+      "phase": "P2-VENDOR-BASELINE-LIVE",
+      "shipped_in": "be173cf2b5",
+      "shipped_at": "2026-05-26",
+      "tests": 50,
+      "notes": "Critical fleet-correctness fix. Caller of prism_calc:gwizard_read_toolcrib or wedm_training_pair_lookup would have hit module-not-found from main."
+    }
+  ],
+  "future_work": [
+    {
+      "id": "U-OSC9-14",
+      "title": "AI training axis — DL/LoRA/GNN/NN/adaptive on full SFC outcome corpus",
+      "status": "pending",
+      "notes": "Deferred — requires Ollama (currently broken per banner across session) + corpus normalization. SpeedFeedDeepLearningEngine (SF-AI-L1) + SpeedFeedAdvancedAIEngine (SF-AI-L2) + SpeedFeedUltimateAIEngine (SF-AI-L3) already exist as untrained shells."
+    },
+    {
+      "id": "U-OSC9-15",
+      "title": "G-Wizard SQLite GWizard.db saved-jobs extraction",
+      "status": "pending",
+      "notes": "Operator's GWizard.db currently 11KB; once populated with saved calculations, build a SQLite adapter alongside the CSV one (U-OSC9-12)."
+    },
+    {
+      "id": "U-OSC9-16",
+      "title": "HSMAdvisor material_id → ISO lookup table — mine from user_tool_lib.tooldb2.xml (1.1MB) + DLL reverse-engineering",
+      "status": "pending",
+      "notes": "U-OSC9-11 ships with a minimal hardcoded map (material_id 227 → P) + caller override. Coverage grows when the full id→name table is derived."
+    }
+  ],
+  "session_metrics": {
+    "iterations_2026_05_25": 7,
+    "iterations_2026_05_26": 10,
+    "engines_shipped": 13,
+    "test_cases_shipped": 363,
+    "dispatcher_actions_added": 17,
+    "real_bugs_caught_by_test_stack": 4,
+    "lines_of_code": "~8800",
+    "coordination_directives_honored": 2
+  }
+}

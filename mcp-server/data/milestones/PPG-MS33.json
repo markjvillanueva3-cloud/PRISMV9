@@ -1,0 +1,145 @@
+{
+  "id": "PPG-MS33",
+  "version": "1.0.0",
+  "title": "PPG-MS33 — Causal-Counterfactual Post Authoring (CCP): What-If trade-off graphs + Monte Carlo P99 stall risk + time-reversed root-cause audit + tolerance warpath",
+  "track": "PPG",
+  "parent_roadmap": "PRISM-UNIFIED-ROADMAP-v2",
+  "pillar": "P3-PPG-SFC-LEARNING-LOOP",
+  "status": "not_started",
+  "phase": "P2",
+  "priority": "STRATEGIC",
+  "novel_capability_class": "category-defining",
+  "description": "Adds causal reasoning to post emission. Programmer asks 'what if I run this 12% slower?' — wizard runs counterfactual simulation, returns trade-off graph (cycle vs surface vs wear vs $/part). Pre-emit Monte Carlo simulates 1000× against material variability, tool wear distribution, machine drift; flags P99 spindle stall risk. When scrap happens, time-reversed audit traces backward: measurement → program → tool → S/F → constants → calibration → operator in seconds. Tolerance warpath projects: 'at current drift rate, 30% of these parts will fail GD&T at characteristic 17 in 6 months.' No CAM vendor offers any of these.",
+  "rationale": "The 4 most-asked operator questions today are: (1) 'what would happen if I changed X?', (2) 'how risky is this?', (3) 'why did this scrap?', (4) 'what's coming?'. CAM vendors answer none of these. PRISM has the engines (forensic_*, monte_carlo_*, StochasticForcePipeline, amsaa_reliability_growth) — they're just not surfaced into post authoring. This milestone is the difference between a tool and an oracle.",
+  "leverage_existing": [
+    "MonteCarloProcessEngine + monte_carlo_simulate + monte_carlo_tool_life + monte_carlo_tolerance — 1000× simulation substrate (already in prism_calc)",
+    "stochastic_chain action (prism_calc) wrapping StochasticChainEngine + StochasticCompositeEngine + stochastic_chain + stochastic_composite_mc + stochastic_sensitivity — uncertainty propagation",
+    "forensic_tool_autopsy action (prism_diagnosis) + forensic_chip_analysis action (prism_diagnosis) + forensic_surface_defect action (prism_diagnosis) + forensic_crash action (prism_diagnosis) — root cause analysis (E0XXX in prism_diagnosis)",
+    "InverseSolverEngine + inverse_troubleshoot + inverse_chatter + inverse_dimensional — backward causality",
+    "ToleranceStackEngine + tolerance_stack + amsaa_reliability_growth — drift projection",
+    "PRISMCreativeReasoningEngine.explore() with mode=optimal — counterfactual exploration",
+    "BayesianToolLifeEngine + Weibull life — probability-of-failure surface",
+    "ChanceConstrainedOptimizationEngine + uncertainty_quantify — robust outputs"
+  ],
+  "the_worked_example_that_proves_it": {
+    "scenario": "JM Die programmer about to run a Hurco V11 D2 die plate. Wizard shows green light on every gate. Programmer asks 'what if I run feed 12% slower?'",
+    "today_pre_ppg_ms33": "No way to answer. Programmer either gambles or hand-calculates by walking back through the constants. Takes 20 minutes. Often skipped.",
+    "should_be_post_ppg_ms33": "Counterfactual emit runs in 800ms. Trade-off graph: 12% feed cut → +14% cycle, -38% predicted tool wear, +3 µm Ra worse, $0.42/part more, P99 stall risk 0.04%→0.01%. Programmer sees the curve. Picks. When part scraps tomorrow on characteristic 17, time-reversed audit traces in 4s: measurement→Z-axis backlash→last spindle warmup at 4°C cold-start→drift_canary fired but operator overrode→2-person rule violated. Root cause attributable.",
+    "gap_now_closed": "Programmer reasoning + safety + accountability all surface in the post."
+  },
+  "units": [
+    {
+      "id": "U-PPGM200",
+      "title": "CounterfactualPostEngine — what-if simulation surface",
+      "scope": "src/engines/CounterfactualPostEngine.ts — accepts (current_program, parameter_perturbation), runs sub-second simulation through StochasticForcePipeline + MonteCarloProcess + BayesianToolLife; returns trade-off vector {cycle_delta, wear_delta, surface_delta, cost_delta, P99_stall_delta, P99_chatter_delta}. Variability: ≥3 perturbation classes (feed-only, RPM-only, strategy-swap). Adversarial: NaN perturbation, perturbation that drives outside material envelope.",
+      "files_to_modify": [
+        "src/engines/CounterfactualPostEngine.ts",
+        "src/tools/dispatchers/camDispatcher.ts"
+      ],
+      "tests_to_add": [
+        "src/__tests__/CounterfactualPost.integration.test.ts"
+      ]
+    },
+    {
+      "id": "U-PPGM201",
+      "title": "Monte Carlo P99 catastrophic-failure prevention gate",
+      "scope": "src/engines/MonteCarloP99GateEngine.ts — simulates emitted program 1000× against (material distribution, tool wear distribution, machine drift, fixture micro-shift); reports P99 spindle stall, P99 chatter unstable, P99 force ceiling exceedance, P99 thermal limit. Tier-aware: shop_floor HARD BLOCK on P99 stall > 0.1%, P99 ceiling > 1%; sim WARN only. Variability: ≥3 material variance models (uniform, lognormal, bimodal). Adversarial: 0-sample distribution, infinite-tail distribution → must default to canonical fallback with explicit confidence drop.",
+      "files_to_modify": [
+        "src/engines/MonteCarloP99GateEngine.ts",
+        "src/engines/PreEmitSafetyPredicateEngine.ts"
+      ],
+      "tests_to_add": [
+        "src/__tests__/MonteCarloP99Gate.integration.test.ts"
+      ]
+    },
+    {
+      "id": "U-PPGM202",
+      "title": "Time-reversed causal audit (post-failure backward trace)",
+      "scope": "src/engines/TimeReversedAuditEngine.ts — given (failure_event, measurement, program, tool, sf_inputs, constants_version, calibration_source, operator_badge, machine_state_at_run), walks backward through forensic_tool_autopsy action (prism_diagnosis) + InverseSolverEngine + drift_canary history; identifies probable root cause + confidence; ranks remediation. Variability: ≥3 failure modes (catastrophic crash, slow drift, sudden scrap). Adversarial: missing telemetry, conflicting witnesses (operator says X, machine says Y).",
+      "files_to_modify": [
+        "src/engines/TimeReversedAuditEngine.ts"
+      ],
+      "tests_to_add": [
+        "src/__tests__/TimeReversedAudit.integration.test.ts"
+      ]
+    },
+    {
+      "id": "U-PPGM203",
+      "title": "Tolerance warpath projection (drift-rate forward simulation)",
+      "scope": "src/engines/ToleranceWarpathEngine.ts — given (current_machine_drift_rate, current_calibration_state, GDT_envelope_per_characteristic, planned_job_queue), projects forward 1/3/6/12 months: 'at current rate, characteristic X will fail at confidence Y%.' Pre-emptive recalibration recommendation. Variability: ≥3 machine drift profiles (linear, exponential, step-change). Adversarial: missing drift history, calibration data corruption.",
+      "files_to_modify": [
+        "src/engines/ToleranceWarpathEngine.ts"
+      ],
+      "tests_to_add": [
+        "src/__tests__/ToleranceWarpath.integration.test.ts"
+      ]
+    },
+    {
+      "id": "U-PPGM204",
+      "title": "Inverse reverse-engineering: ingest competitor program → reproduce on PRISM",
+      "scope": "src/engines/InverseReverseEngineerEngine.ts — given competitor G-code, extract material guess, machine guess, strategy guess, parameter envelope; route through PRISMCreativeReasoningEngine; reproduce on PRISM stack with documented assumptions and confidence per parameter. Variability: ≥3 source dialects (Mastercam, hyperMILL, manual). Adversarial: heavily macro'd program, encrypted post output.",
+      "files_to_modify": [
+        "src/engines/InverseReverseEngineerEngine.ts"
+      ],
+      "tests_to_add": [
+        "src/__tests__/InverseReverseEngineer.integration.test.ts"
+      ]
+    },
+    {
+      "id": "U-PPGM205",
+      "title": "Wizard CounterfactualPanel — trade-off graph + 'show me the alternative' UI",
+      "scope": "web/src/components/ppg/CounterfactualPanel.tsx — slider per parameter, real-time updated trade-off graph; 'show me 5 alternatives in the Pareto frontier' button (hands off to MS35); audit log captures the perturbation history.",
+      "files_to_modify": [
+        "web/src/components/ppg/CounterfactualPanel.tsx",
+        "web/src/pages/PostProcessorGeneratorPage.tsx"
+      ],
+      "tests_to_add": [
+        "src/__tests__/web-api/CounterfactualPanel.test.ts"
+      ]
+    },
+    {
+      "id": "U-PPGM205b",
+      "title": "Bayesian UQ → predictive per-characteristic quality assurance",
+      "scope": "src/engines/PredictiveQAPerCharacteristicEngine.ts — for each toleranced characteristic, fits Bayesian posterior over (process Cpk, machine drift rate, tool wear contribution); predicts probability of escape (out-of-tolerance shipment) for next N parts; surfaces in wizard with confidence interval. Closes the gap between process capability (current SPC) and predictive escape risk (forward-looking). Cross-domain transfer from uncertainty quantification to quality control. Variability: ≥3 characteristic classes (size/orientation/profile). Adversarial: zero-sample characteristic (cold start), bimodal Cpk history.",
+      "files_to_modify": [
+        "src/engines/PredictiveQAPerCharacteristicEngine.ts",
+        "src/engines/PreEmitSafetyPredicateEngine.ts"
+      ],
+      "tests_to_add": [
+        "src/__tests__/PredictiveQAPerCharacteristic.integration.test.ts"
+      ],
+      "ollama_finding_source": "cross-domain: Bayesian UQ → quality control (qwen2.5-coder:7b 2026-04-29)"
+    }
+  ],
+  "completion_criteria": [
+    "Counterfactual simulation returns trade-off graph in <1s on JM Die D2 reference; ≥3 perturbation classes tested",
+    "Monte Carlo P99 gate HARD BLOCKs on shop_floor when P99 stall > 0.1%; zero false BLOCKs on 50-program corpus; 10/10 injected catastrophic faults caught",
+    "Time-reversed audit identifies root cause within 5 seconds across 10 historical scrap incidents from JM Die archive",
+    "Tolerance warpath projection within ±10% of measured drift over 90-day validation window",
+    "Inverse reverse-engineer reproduces 3 reference competitor programs with ≥80% parameter accuracy",
+    "Wizard CounterfactualPanel usable by operator in <30s per perturbation",
+    "Predictive QA per-characteristic emits P(escape) with confidence band on JM Die D2 reference; ≥80% accuracy at characteristic-level escape prediction"
+  ],
+  "depends_on": [
+    "PPG-MS1",
+    "PPG-MS9",
+    "PPG-MS14",
+    "PPG-MS17",
+    "PPG-MS18"
+  ],
+  "blocks": [
+    "PPG-MS12"
+  ],
+  "leverage_class": "novel-uses-existing-engines",
+  "schemaVersion": "1.0.0",
+  "created_at": "2026-04-29T04:37:47.554Z",
+  "last_updated": "2026-04-29T18:58:26.757Z",
+  "total_units": 7,
+  "completed_units": 0,
+  "_patches": [
+    "ppg-round3-novel-2026-04-29",
+    "ollama-findings-2026-04-29",
+    "ppg-round4-gapfills-2026-04-29",
+    "ppg-round5-fixes-2026-04-29"
+  ]
+}

@@ -269,21 +269,41 @@ export class AdaptiveSystemIntegrationEngine {
       programVerified: true,
     });
 
+    // Map AdaptiveCuttingConditions material names to ISO cutting-material groups
+    // ISO 513: P=steel, M=stainless, K=cast_iron, N=aluminum, S=titanium/superalloy, H=hardened
+    const materialIsoMap: Record<string, "P" | "M" | "K" | "N" | "S" | "H"> = {
+      steel: "P",
+      stainless: "M",
+      aluminum: "N",
+      cast_iron: "K",
+      titanium: "S",
+      superalloy: "S",
+    };
+    const materialIso = materialIsoMap[params.conditions.material] ?? "P";
+
     // Get integration based on domain
+    const toolDiameter = params.conditions.tool_diameter_mm ?? 12;
     const integration = params.domain === "milling"
       ? adaptiveMachiningIntegrationEngine.getMillIntegration(
-          params.conditions.cutting_speed_mpm,
-          params.conditions.feed_mm_rev / 4,
-          params.conditions.depth_of_cut_mm,
-          (params.conditions.tool_diameter_mm ?? 12) * 0.5,
-          params.conditions.tool_diameter_mm ?? 12
+          params.conditions.material,          // material: string
+          materialIso,                          // materialIso
+          toolDiameter,                         // toolDiameter: number
+          4,                                    // flutes: number (standard 4-flute default)
+          params.conditions.depth_of_cut_mm,   // axialDepth: number
+          toolDiameter * 0.5,                   // radialDepth: number (50% stepover default)
+          params.conditions.feed_mm_rev / 4,   // feedPerTooth: number (fz = f/z, z=4)
+          params.conditions.cutting_speed_mpm  // cuttingSpeed: number
         )
       : adaptiveMachiningIntegrationEngine.getLatheIntegration(
-          params.conditions.cutting_speed_mpm,
-          params.conditions.feed_mm_rev,
-          params.conditions.depth_of_cut_mm,
-          0.8,
-          1500
+          params.conditions.material,                       // material: string
+          materialIso,                                      // materialIso
+          50,                                               // diameter: number mm (default workpiece OD; not in AdaptiveCuttingConditions)
+          params.conditions.depth_of_cut_mm,               // depthOfCut: number
+          params.conditions.feed_mm_rev,                   // feedPerRev: number
+          params.conditions.rake_angle_deg ?? 5,           // leadAngle: number deg (rake_angle_deg is closest available; 5° default)
+          params.conditions.insert_nose_radius_mm ?? 0.8,  // noseRadius: number mm
+          params.conditions.cutting_speed_mpm,             // cuttingSpeed: number
+          "od_turning"                                      // operationType
         );
 
     // Build risk assessment

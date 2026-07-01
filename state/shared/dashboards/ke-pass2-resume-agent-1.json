@@ -1,0 +1,2890 @@
+{
+ "CAMX-MS11::U-CAMX06": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-cam.md",
+   "knowledge/wiki/architecture/actions/cam/powermill-code-generate.md",
+   "knowledge/wiki/architecture/actions/cam/powermill-controller-lookup.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "mcp-tool-design",
+   "dispatcher-action-design"
+  ],
+  "systemImpact": "PowerMill plugin engine surfaces under prism_cam (powermill_* actions) — consumed by /cam-strategy-select and /powermill-strategy-guide skills. Sister to mastercam/solidcam/nxcam plugin engines; shares the per-CAM strategy + safety + material-bridge pattern.",
+  "csDepth": [
+   "Vendor plugin process spawn is I/O-bound; idempotency via deterministic operation IDs.",
+   "Failure mode: PowerMill not installed must fail-loud R12, never silent skip."
+  ]
+ },
+ "CAMX-MS12::U01": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-cam.md",
+   "knowledge/wiki/architecture/engines/cam/featurestrategyknowledgebaseengine.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "test-design-real-values"
+  ],
+  "systemImpact": "FeatureStrategyKnowledgeBaseEngine seeds strategy-selection for the feature->strategy mapping consumed by prism_cam:cam_strategy_recommend and the per-CAM strategy engines (MS3-MS8). Knowledge base must round-trip with mill/lathe/wedm feature taxonomies.",
+  "csDepth": [
+   "Lookup is O(features * strategy_rules); needs index for >1k rules.",
+   "Edge: unknown feature must fall back to conservative default, never crash."
+  ]
+ },
+ "CAMX-MS12::U02": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-cam.md",
+   "knowledge/wiki/architecture/dispatcher-calc.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "test-design-real-values",
+   "regression-prevention-doctrine"
+  ],
+  "systemImpact": "StrategyBenchmarkEngine compares strategy candidates via cycle-time + cost + risk metrics; consumed by /cam-strategy-compare and prism_cam:strategy_benchmark_compare. Feeds StrategyComparisonEngine and the ML ranker (CAMX-MS12::U04).",
+  "csDepth": [
+   "Pairwise compare is O(n^2); cap candidate set at 16 for interactive use.",
+   "Monte-Carlo noise: same input must yield deterministic ranking for reproducibility."
+  ]
+ },
+ "CAMX-MS12::U03": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-cam.md",
+   "knowledge/wiki/architecture/dispatcher-calc.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "test-design-real-values"
+  ],
+  "systemImpact": "StrategyComparisonEngine produces head-to-head + radar-chart deltas across strategies; surfaces via prism_cam:strategy_compare/strategy_head_to_head/strategy_radar_chart. Consumed by /cam-strategy-compare skill and StrategyBenchmarkEngine.",
+  "csDepth": [
+   "Pareto-frontier extraction O(n log n); ensure stable sort under equal-cost ties.",
+   "Edge: empty candidate list -> return well-typed empty result, not throw."
+  ]
+ },
+ "CAMX-MS12::U04": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-cam.md",
+   "knowledge/wiki/architecture/dispatcher-aireasoning.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "test-design-real-values",
+   "mcp-tool-design"
+  ],
+  "systemImpact": "MachineLearningStrategyRankerEngine learns per-shop strategy preferences from outcome ledger; consumed by prism_cam:ml_strategy_recommend/record/history. Pairs with PredictionCalibrationEngine (CAMX-MS15::U-CAMX06) for accuracy drift.",
+  "csDepth": [
+   "Beta posterior update is O(1) per outcome; ranking O(n log n) on sample.",
+   "Cold-start: needs >=30 outcomes per arm before recommending; guard with minSamples."
+  ]
+ },
+ "CAMX-MS12::U05": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-cam.md",
+   "knowledge/wiki/architecture/dispatcher-safety.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "safety-tier-discipline",
+   "test-design-real-values"
+  ],
+  "systemImpact": "ContextualStrategyOverrideEngine applies controller/machine/fixture context to override default strategy; consumed by prism_cam:strategy_override_check/apply and StrategySequencingEngine. Hard-blocks unsafe overrides via SafetyVetoEngine (CAMX-MS14::U-CAMX02).",
+  "csDepth": [
+   "Override rule evaluation O(rules * context); short-circuit on first deny.",
+   "Invariant: override CAN only narrow, never widen the safe envelope."
+  ]
+ },
+ "CAMX-MS12::U06": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-cam.md",
+   "knowledge/wiki/architecture/dispatcher-calc.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "test-design-real-values"
+  ],
+  "systemImpact": "StrategySequencingEngine orders multi-operation strategies to minimize setup + tool changes + rework; consumes feature-precedence graph from CAD (prism_cad:feature_precedence_graph). Feeds CAM toolpath generation and ProductionBatchOptimizationEngine.",
+  "csDepth": [
+   "Sequencing is TSP-like; use nearest-neighbor + 2-opt for n<50, ILP for larger.",
+   "Constraint: precedence violation (drill before bore) must throw, not silently reorder."
+  ]
+ },
+ "CAMX-MS12::U07": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-cam.md",
+   "knowledge/wiki/architecture/engines/cam/fixtureawarestrategyengine.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "test-design-real-values"
+  ],
+  "systemImpact": "FixtureAwareStrategyEngine narrows strategy candidates by fixture clearance + clamp positions; consumes prism_cad:fixture_design_recommend + prism_safety:check_fixture_clearance. Surfaces via prism_cam:strategy_fixture_adjust/validate.",
+  "csDepth": [
+   "Per-strategy clearance check O(strategies * clamps); bounding-volume early reject.",
+   "Edge: fixture undefined must surface as a feasibility-check failure, not assume open envelope."
+  ]
+ },
+ "CAMX-MS12::U08": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-cam.md",
+   "knowledge/wiki/architecture/dispatcher-business.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "test-design-real-values"
+  ],
+  "systemImpact": "BatchSizeStrategyEngine adapts strategy for batch size; single-piece favors flexible HSM, high-volume favors dedicated cycle-time-min. Consumed by prism_business:batch_group/sequence/setup_matrix + ProductionBatchOptimizationEngine (CAMX-MS21::U08).",
+  "csDepth": [
+   "Threshold curves continuous in N (batch size); linear interpolation between brackets.",
+   "Edge: N=0 must return diagnostic, not divide by zero."
+  ]
+ },
+ "CAMX-MS12::U09": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-cam.md",
+   "knowledge/wiki/architecture/dispatcher-tools.md"
+  ],
+  "addSeWiki": [
+   "dispatcher-action-design",
+   "mcp-tool-design",
+   "schema-read-discipline"
+  ],
+  "systemImpact": "Dispatcher wiring for CAMX-MS12 strategy engines into prism_cam (~13 strategy_* actions). Round-trip zod schemas + DSL shortcodes; consumed by /cam-strategy-* skills.",
+  "csDepth": [
+   "Schema enum drift caught only by real-data E2E (lesson from RGS-TOOL-AUTOINVOKE-MS1 U-DISPATCHER P0).",
+   "z.enum action validation MUST run in production tests, not just mocked unit tests."
+  ]
+ },
+ "CAMX-MS12::U10": {
+  "addArchWiki": [],
+  "addSeWiki": [
+   "test-design-real-values",
+   "regression-prevention-doctrine",
+   "per-file-scrutiny-gate"
+  ],
+  "systemImpact": "Test pass for CAMX-MS12 strategy/ML engines; real strategy comparisons across mill/lathe materials. Feeds the 3-of-3 scrutiny gate ledger.",
+  "csDepth": [
+   "Tests must use real Kienzle kc1.1 constants, never inline; placeholder asserts blocked by hook.",
+   "Real-data E2E required (mock-fake-readers proved insufficient in MS1 U-INTEG-FIX-P0)."
+  ]
+ },
+ "CAMX-MS12::U11": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-cam.md",
+   "knowledge/wiki/architecture/dispatcher-calc.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "test-design-real-values"
+  ],
+  "systemImpact": "Stochastic strategy comparison adds Monte-Carlo variance to StrategyBenchmarkEngine; propagates uncertainty from material/tool variability. Consumed by prism_cam:strategy_stochastic_compare/rank/monte_carlo.",
+  "csDepth": [
+   "N>=1000 Monte-Carlo trials per pairwise compare; vectorize for tractability.",
+   "Variance-reduction (antithetic) required to keep CI tight at N=1000."
+  ]
+ },
+ "CAMX-MS12::U12": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-cam.md",
+   "knowledge/wiki/architecture/dispatcher-quality.md",
+   "knowledge/wiki/architecture/dispatcher-calc.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "safety-tier-discipline",
+   "test-design-real-values"
+  ],
+  "systemImpact": "Cpk prediction gate; predicts process Cpk from strategy + machine + material; blocks deploy if Cpk<1.33. Consumed by prism_cam:strategy_cpk_gate/filter and PredictionCalibrationEngine.",
+  "csDepth": [
+   "Cpk formula uses 6 sigma; needs >=30 samples or robust estimator.",
+   "Hard gate: predicted Cpk<1.0 -> block (R12 fail-loud), never warn-and-continue."
+  ]
+ },
+ "CAMX-MS12::U13": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-cam.md",
+   "knowledge/wiki/architecture/dispatcher-calc.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "test-design-real-values"
+  ],
+  "systemImpact": "Robust optimization under uncertainty; replaces nominal cost with worst-case-95% across uncertainty band. Consumed by prism_cam:strategy_robust_optimize/worst_case and ProductionBatchOptimizationEngine.",
+  "csDepth": [
+   "Robust min-max is convex when objective is convex; otherwise scenario decomposition.",
+   "Edge: uncertainty zero must degrade to nominal optimize, not throw."
+  ]
+ },
+ "CAMX-MS13::U-CAMX01": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-cam.md",
+   "knowledge/wiki/architecture/dispatcher-business.md",
+   "knowledge/wiki/architecture/dispatcher-calc.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "test-design-real-values"
+  ],
+  "systemImpact": "PipelineCostModelEngine computes per-stage cost (tool + cycle + setup + coolant + energy); aggregated across the 18-stage DOMAIN-PIPELINE-MS0 sequence. Consumed by prism_cam:pipeline_cost_compute and TCODashboardEngine (CAMX-MS13::U-CAMX06).",
+  "csDepth": [
+   "Cost sum O(stages * resources); pre-aggregate by stage for sensitivity.",
+   "Edge: missing resource cost must fail-loud R12 with stage name (not silent zero)."
+  ]
+ },
+ "CAMX-MS13::U-CAMX02": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-cam.md",
+   "knowledge/wiki/architecture/dispatcher-business.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "test-design-real-values"
+  ],
+  "systemImpact": "ToolChangeOptimizationEngine minimizes tool-change count across multi-op sequence via tool sharing + magazine layout; consumed by prism_cam:tool_change_optimize/magazine/sharing. Feeds StrategySequencingEngine.",
+  "csDepth": [
+   "Tool-sharing graph coloring NP-hard; greedy + 2-opt sufficient for n<24 pockets.",
+   "Constraint: required-tool-life check before sharing across ops."
+  ]
+ },
+ "CAMX-MS13::U-CAMX03": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-cam.md",
+   "knowledge/wiki/architecture/dispatcher-business.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "test-design-real-values"
+  ],
+  "systemImpact": "CoolantCostOptimizationEngine selects flood/MQL/dry/cryo by material+operation+sustainability constraints; consumed by prism_cam:coolant_cost_compare/optimal/lifecycle. Feeds PipelineCostModelEngine.",
+  "csDepth": [
+   "Lifecycle cost includes disposal; discrete choice over 4 modes is O(1) per op.",
+   "Hazard: cryo selected for material without LN2 supply must surface as feasibility veto."
+  ]
+ },
+ "CAMX-MS13::U-CAMX04": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-cam.md",
+   "knowledge/wiki/architecture/dispatcher-business.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "test-design-real-values"
+  ],
+  "systemImpact": "EnergyOptimizationEngine reduces kWh by feed/speed/coolant tuning; surfaces via prism_cam:camx_energy_optimize/breakdown/suggest_savings. Feeds PipelineCostModelEngine + Cpk gate.",
+  "csDepth": [
+   "Energy model: specific cutting energy * MRR + idle baseline; minimization convex in feed.",
+   "Trade-off: low energy may extend cycle time; multi-objective Pareto required."
+  ]
+ },
+ "CAMX-MS13::U-CAMX05": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-cam.md",
+   "knowledge/wiki/architecture/dispatcher-business.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "test-design-real-values"
+  ],
+  "systemImpact": "SetupCostOptimizationEngine batches like-setups + reduces fixture changes; consumed by prism_cam:setup_cost_optimize and prism_business:capacity_what_if. Feeds ProductionBatchOptimizationEngine.",
+  "csDepth": [
+   "Setup-grouping is bin-packing NP-hard; first-fit-decreasing within 11/9 ratio.",
+   "Edge: single-piece batches must skip grouping logic, not enter degenerate state."
+  ]
+ },
+ "CAMX-MS13::U-CAMX06": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-cam.md",
+   "knowledge/wiki/architecture/dispatcher-business.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "test-design-real-values",
+   "html-companion-discipline"
+  ],
+  "systemImpact": "TCODashboardEngine renders Total-Cost-of-Ownership across machine+tooling+labor+overhead; consumed by /tco-dashboard and prism_cam:tco_dashboard/savings/drivers. Aggregates all CAMX-MS13 engines.",
+  "csDepth": [
+   "Dashboard is read-heavy; cache rollups, invalidate on cost-input mutation.",
+   "HTML companion required for operator review (per html-companion-discipline)."
+  ]
+ },
+ "CAMX-MS14::U-CAMX01": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-cam.md",
+   "knowledge/wiki/architecture/dispatcher-safety.md",
+   "knowledge/wiki/architecture/dispatcher-guard.md"
+  ],
+  "addSeWiki": [
+   "safety-tier-discipline",
+   "fail-loud-r12-patterns",
+   "per-file-scrutiny-gate"
+  ],
+  "systemImpact": "PipelineSafetyOrchestratorEngine runs SafetyVetoEngine + CollisionPreventionEngine + WorkholdingVerificationEngine at every pipeline transition; consumed by prism_cam:pipeline_safety_assess/veto/batch. Hard-blocks pipeline advance.",
+  "csDepth": [
+   "Orchestration is short-circuit; first veto stops chain (O(1) on veto path).",
+   "Invariant: SAFETY_VALIDATE stage cannot be bypassed (DOMAIN-PIPELINE-MS0 hard constraint)."
+  ]
+ },
+ "CAMX-MS14::U-CAMX02": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-cam.md",
+   "knowledge/wiki/architecture/dispatcher-safety.md"
+  ],
+  "addSeWiki": [
+   "safety-tier-discipline",
+   "fail-loud-r12-patterns",
+   "per-file-scrutiny-gate"
+  ],
+  "systemImpact": "SafetyVetoEngine emits binary veto with cited rule; consumed by prism_cam:safety_veto_check/all/escalate and PipelineSafetyOrchestratorEngine. Routes to SafetyEscalationEngine (CAMX-MS14::U-CAMX03) on critical class.",
+  "csDepth": [
+   "Veto rule eval O(rules * context); ordered by severity so critical short-circuit.",
+   "R12: every veto MUST include rule_id + measured_value + threshold (never opaque 'unsafe')."
+  ]
+ },
+ "CAMX-MS14::U-CAMX03": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-cam.md",
+   "knowledge/wiki/architecture/dispatcher-safety.md"
+  ],
+  "addSeWiki": [
+   "safety-tier-discipline",
+   "fail-loud-r12-patterns"
+  ],
+  "systemImpact": "SafetyEscalationEngine routes vetos to operator + audit log + chat-bus broadcast; consumed by prism_cam:safety_escalate/preview. Pairs with prism_guard:safety_explain_veto.",
+  "csDepth": [
+   "Escalation is fire-and-forget for audit, blocking for operator confirmation.",
+   "Edge: chat-bus down must log to disk fallback, never drop a safety event."
+  ]
+ },
+ "CAMX-MS14::U-CAMX04": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-cam.md",
+   "knowledge/wiki/architecture/dispatcher-safety.md"
+  ],
+  "addSeWiki": [
+   "safety-tier-discipline",
+   "fail-loud-r12-patterns",
+   "test-design-real-values"
+  ],
+  "systemImpact": "CollisionPreventionEngine sweeps tool envelope through toolpath vs stock+fixture+spindle housing; consumed by prism_cam:collision_prevent_full/certify/zones. Hard-blocks toolpath generation on detected hit.",
+  "csDepth": [
+   "Swept-volume test is BVH-accelerated O(n log n); voxel fallback for complex stock.",
+   "Tolerance band: epsilon must be larger than CAM rounding error (~10um) to avoid false negatives."
+  ]
+ },
+ "CAMX-MS14::U-CAMX05": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-cam.md",
+   "knowledge/wiki/architecture/dispatcher-safety.md",
+   "knowledge/wiki/architecture/dispatcher-calc.md"
+  ],
+  "addSeWiki": [
+   "safety-tier-discipline",
+   "engine-creation-discipline",
+   "test-design-real-values"
+  ],
+  "systemImpact": "ToolBreakagePredictionEngine forecasts breakage probability from cumulative force + chip-load anomaly + Weibull tool-life; consumed by prism_cam:tool_breakage_predict/cumulative_damage/risk. Feeds adaptive feed override.",
+  "csDepth": [
+   "Weibull fit + cumulative damage O(n) per tool; live update via Kalman.",
+   "Conservative: false-positive (warn) better than false-negative (broken tool)."
+  ]
+ },
+ "CAMX-MS14::U-CAMX06": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-cam.md",
+   "knowledge/wiki/architecture/dispatcher-safety.md"
+  ],
+  "addSeWiki": [
+   "safety-tier-discipline",
+   "fail-loud-r12-patterns",
+   "per-file-scrutiny-gate"
+  ],
+  "systemImpact": "WorkholdingVerificationEngine checks clamp force + pullout + liftoff + contact stress for the proposed cut; consumed by prism_cam:workholding_verify/verify_all/min_safety. Hard-blocks if min safety factor < 1.5.",
+  "csDepth": [
+   "Clamp-force compute is closed-form O(clamps); Hertzian contact for stress.",
+   "Invariant: never approve workholding with mu assumed > 0.3; fail-loud R12."
+  ]
+ },
+ "CAMX-MS15::U-CAMX01": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-cam.md",
+   "knowledge/wiki/architecture/dispatcher-aireasoning.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "test-design-real-values",
+   "jsonl-ledger-conventions"
+  ],
+  "systemImpact": "StrategyPerformanceTrackerEngine logs predicted-vs-actual per strategy; ledger feeds StrategyRankingUpdateEngine + MachineLearningStrategyRankerEngine. Surfaces via prism_cam:strategy_ranking_record/get/confidence.",
+  "csDepth": [
+   "Append-only JSONL; rotation at 64MB chunks (per jsonl-ledger-conventions).",
+   "Predicted-actual diff must include unit context (material+tool+machine) for stratified rank."
+  ]
+ },
+ "CAMX-MS15::U-CAMX02": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-cam.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "test-design-real-values"
+  ],
+  "systemImpact": "StrategyRankingUpdateEngine recomputes per-context strategy ranks from the performance ledger; consumed by prism_cam:strategy_ranking_get/confidence and the ML ranker. Bayesian update on Beta(alpha,beta) per strategy.",
+  "csDepth": [
+   "Bayesian update O(1) per outcome; rank recompute O(n log n) per context bucket.",
+   "Cold-start prior: Beta(1,1); informative prior only after >=5 outcomes."
+  ]
+ },
+ "CAMX-MS15::U-CAMX03": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-cam.md",
+   "knowledge/wiki/architecture/dispatcher-machinelive.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "fail-loud-r12-patterns",
+   "test-design-real-values"
+  ],
+  "systemImpact": "AnomalyDetectionEngine flags strategy outcomes >3 sigma from prior distribution; consumed by prism_cam:anomaly_detect/record_and_detect/history/auto_adjust. Routes to adaptive-feed override + tribal-tip emit.",
+  "csDepth": [
+   "Online MAD-based detector O(1) per sample; window 200 outcomes.",
+   "Edge: <5 samples must report 'insufficient data', never spurious 'anomaly'."
+  ]
+ },
+ "CAMX-MS15::U-CAMX04": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-cam.md",
+   "knowledge/wiki/architecture/dispatcher-knowledge.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "test-design-real-values"
+  ],
+  "systemImpact": "FleetLearningStrategyEngine federates per-shop strategy learnings across the fleet with anonymization + correction; consumed by prism_cam:fleet_aggregate/transfer/insights. Pairs with learn-* skills.",
+  "csDepth": [
+   "FedAvg-style aggregation; outlier shops down-weighted by IQR.",
+   "Privacy: never propagate shop-id; only material+strategy+outcome aggregates."
+  ]
+ },
+ "CAMX-MS15::U-CAMX05": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-cam.md",
+   "knowledge/wiki/architecture/dispatcher-aireasoning.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "test-design-real-values"
+  ],
+  "systemImpact": "StrategyEvolutionEngine mutates+crosses strategies to discover novel candidates; consumed by prism_cam:strategy_evolve/best_discoveries/evolution_history. Sandbox-tested before promotion to KB.",
+  "csDepth": [
+   "GA population n=24, 40 generations; fitness eval expensive; cache.",
+   "Discovered strategies must pass SafetyVetoEngine before KB promotion."
+  ]
+ },
+ "CAMX-MS15::U-CAMX06": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-cam.md",
+   "knowledge/wiki/architecture/dispatcher-calc.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "test-design-real-values",
+   "regression-prevention-doctrine"
+  ],
+  "systemImpact": "PredictionCalibrationEngine measures prediction-vs-actual drift across all CAM predictors; consumed by prism_cam:prediction_calibrate/get_factors/calibration_history. Auto-tunes ML ranker temperature.",
+  "csDepth": [
+   "Calibration via isotonic regression O(n log n); ECE as headline metric.",
+   "Recurring class: a mocked test that fakes the calibration reader hides production drift; needs real-data E2E."
+  ]
+ },
+ "CAMX-MS15::U-CAMX11": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-edm.md",
+   "knowledge/wiki/architecture/dispatcher-cam.md",
+   "knowledge/wiki/architecture/dispatcher-knowledge.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "test-design-real-values"
+  ],
+  "systemImpact": "Wire TransferLearningEngine seeds new wire-EDM material params from similar-material posterior; consumed by prism_edm:wedm_transfer_params/material_similarity/batch_transfer. Reuses learn_transfer_* surface.",
+  "csDepth": [
+   "Material-similarity via feature distance; weighted average of donor priors.",
+   "Validation: transfer must NOT widen safe envelope (only narrow or hold)."
+  ]
+ },
+ "CAMX-MS15::U-CAMX12": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-edm.md",
+   "knowledge/wiki/architecture/dispatcher-cam.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "jsonl-ledger-conventions",
+   "test-design-real-values"
+  ],
+  "systemImpact": "Wire FeedbackPersistence + MLFeedback; durable storage of per-cut outcomes + ML training set for the WEDM LoRA. Consumed by prism_edm:wedm_feedback_submit/history/get_calibration.",
+  "csDepth": [
+   "Append-only JSONL with schemaVersion; durable across /compact.",
+   "Schema-read-first when consuming; drift kills the ML signal silently."
+  ]
+ },
+ "CAMX-MS16::U01": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-cam.md"
+  ],
+  "addSeWiki": [
+   "dispatcher-action-design",
+   "mcp-tool-design",
+   "schema-read-discipline"
+  ],
+  "systemImpact": "camDispatcher expansion; adds ~150 new actions covering post-gen, cost, mill-turn, multi-process. Consumed by every /cam-* skill + the per-CAM strategy engines.",
+  "csDepth": [
+   "Action enum drift risk; z.enum strictness MUST hold against production payloads.",
+   "Dispatcher size already 70KB; splitting into sub-dispatchers eventually required."
+  ]
+ },
+ "CAMX-MS16::U02": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-calc.md"
+  ],
+  "addSeWiki": [
+   "dispatcher-action-design",
+   "mcp-tool-design",
+   "schema-read-discipline"
+  ],
+  "systemImpact": "calcDispatcher expansion; adds adaptive/peck/specific-cutting-energy/u-wire actions. Consumed by prism_calc actions across mill/lathe/wedm + SpeedFeedCascadeEngine.",
+  "csDepth": [
+   "calcDispatcher is the largest at 35KB; split-points around physics families.",
+   "Constants MUST be imported from src/physics/constants.ts (never inlined)."
+  ]
+ },
+ "CAMX-MS16::U03": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-toolpath.md",
+   "knowledge/wiki/architecture/dispatcher-cam.md"
+  ],
+  "addSeWiki": [
+   "dispatcher-action-design",
+   "mcp-tool-design",
+   "schema-read-discipline"
+  ],
+  "systemImpact": "toolpathDispatcher expansion; adds smoothing, cycle-time-estimate, transition-path actions. Consumed by per-CAM bridges + StrategySequencingEngine.",
+  "csDepth": [
+   "Toolpath ops are O(segments); large parts (>100K segs) need streaming.",
+   "Action contract MUST surface the algorithm choice (HSM/trochoidal/...) explicitly."
+  ]
+ },
+ "CAMX-MS16::U04": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-integration.md",
+   "knowledge/wiki/architecture/dispatcher-cam.md"
+  ],
+  "addSeWiki": [
+   "dispatcher-action-design",
+   "mcp-tool-design",
+   "schema-read-discipline"
+  ],
+  "systemImpact": "integrationDispatcher expansion; CAM/CMM/DNC/ERP/mobile/measure surfaces. Consumed by /cam-bridge + integration-* skills + ProcessRouterEngine.",
+  "csDepth": [
+   "External-system call requires retry+backoff; network is the failure mode.",
+   "Auth-token discipline: never log secrets, follow auth-token rules."
+  ]
+ },
+ "CAMX-MS16::U05": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-cam.md",
+   "knowledge/wiki/architecture/dispatcher-toolpath.md",
+   "knowledge/wiki/architecture/dispatcher-calc.md"
+  ],
+  "addSeWiki": [
+   "dispatcher-action-design",
+   "mcp-tool-design",
+   "schema-read-discipline"
+  ],
+  "systemImpact": "ToolRouter expansion; routes a manufacturing task to the right dispatcher action. Consumed by prism_session:tool_route + the auto-skill-trigger hook.",
+  "csDepth": [
+   "Route classification is keyword-weighted; precision over recall (false routes are loud).",
+   "Must NOT shadow user-explicit dispatcher action choice."
+  ]
+ },
+ "CAMX-MS16::U06": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-cam.md",
+   "knowledge/wiki/architecture/dispatcher-calc.md"
+  ],
+  "addSeWiki": [
+   "dispatcher-action-design",
+   "schema-read-discipline",
+   "regression-prevention-doctrine"
+  ],
+  "systemImpact": "z.enum sync; sync action enums across MCP SDK + production dispatchers. Stops the 'mock-passes-prod-fails' class (RGS U-DISPATCHER P0).",
+  "csDepth": [
+   "Enum-as-source-of-truth requires generated TypeScript types per dispatcher.",
+   "Real-data E2E required; mocked MCPServer bypasses the SDK gate."
+  ]
+ },
+ "CAMX-MS16::U07": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-cam.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "schema-read-discipline",
+   "dispatcher-action-design"
+  ],
+  "systemImpact": "index.ts exports; surface every CAMX engine through index for consumer imports; pairs with auto-wire stop hook.",
+  "csDepth": [
+   "Tree-shake friendly named exports; no default exports.",
+   "Audit MUST confirm engine is exported AND wired to a dispatcher (orphan otherwise)."
+  ]
+ },
+ "CAMX-MS16::U08": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-cam.md"
+  ],
+  "addSeWiki": [
+   "regression-prevention-doctrine",
+   "per-file-scrutiny-gate",
+   "ts-error-recipe-bank"
+  ],
+  "systemImpact": "Build verification; full tsc + esbuild + vitest pass after CAMX-MS16 dispatcher expansion. Stop-on-fail gate.",
+  "csDepth": [
+   "Build is the last truth; passing unit tests + failing build = ship blocker.",
+   "TS errors decompose by class; use ts-error-recipe-bank patterns."
+  ]
+ },
+ "CAMX-MS17::U-CAMX01": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-cam.md"
+  ],
+  "addSeWiki": [
+   "claude-md-as-pointer-index",
+   "doc-reflection-rule",
+   "handoff-discipline"
+  ],
+  "systemImpact": "Per-CAM setup commands (/cam-fusion, /cam-hypermill, /cam-mastercam, /catia-cam); operator entry points for each vendor flow. Consumed via slash-command auto-trigger hook.",
+  "csDepth": [
+   "Skill body must reference live dispatcher actions, not hard-coded examples.",
+   "Pipeline integration frontmatter feeds skill-auto-trigger ledger."
+  ]
+ },
+ "CAMX-MS17::U-CAMX02": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-cam.md"
+  ],
+  "addSeWiki": [
+   "claude-md-as-pointer-index",
+   "doc-reflection-rule"
+  ],
+  "systemImpact": "Per-CAM strategy guides; vendor-specific strategy selection runbooks. Consumed via /cam-strategy-* skills + strategy-kb-query.",
+  "csDepth": [
+   "Guides MUST cite the engine action they delegate to (no inline duplicated logic).",
+   "Frontmatter triggers populate the skill-trigger jsonl ledger."
+  ]
+ },
+ "CAMX-MS17::U-CAMX03": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-cam.md"
+  ],
+  "addSeWiki": [
+   "claude-md-as-pointer-index",
+   "prompt-engineering-rails"
+  ],
+  "systemImpact": "/cam-strategy-select skill; interactive strategy picker with cost+safety+sequencing. Wraps prism_cam:cam_strategy_recommend + StrategyComparisonEngine.",
+  "csDepth": [
+   "Skill must surface candidate set with safety+cost breakdown, not just pick one.",
+   "Operator override path required; never silently choose for high-risk parts."
+  ]
+ },
+ "CAMX-MS17::U-CAMX04": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-cam.md"
+  ],
+  "addSeWiki": [
+   "claude-md-as-pointer-index",
+   "prompt-engineering-rails"
+  ],
+  "systemImpact": "/cam-strategy-compare; side-by-side strategy comparison (cycle, cost, risk, surface). Wraps StrategyBenchmarkEngine + StrategyComparisonEngine.",
+  "csDepth": [
+   "Pairwise display; <=4 strategies for screen-readability.",
+   "Output must include uncertainty band, not a single number per metric."
+  ]
+ },
+ "CAMX-MS17::U-CAMX05": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-cam.md",
+   "knowledge/wiki/architecture/dispatcher-bridge.md"
+  ],
+  "addSeWiki": [
+   "claude-md-as-pointer-index",
+   "prompt-engineering-rails"
+  ],
+  "systemImpact": "/cam-bridge; bridges PRISM physics output to external CAM (Fusion360/hyperMILL/Mastercam). Wraps cam_bridge_status + per-CAM integration engines.",
+  "csDepth": [
+   "External-app bridge requires version check; mismatched API silently mis-renders.",
+   "Cited tool/feed values must propagate (operator audit trail)."
+  ]
+ },
+ "CAMX-MS17::U-CAMX06": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-cam.md",
+   "knowledge/wiki/architecture/dispatcher-bridge.md"
+  ],
+  "addSeWiki": [
+   "claude-md-as-pointer-index",
+   "prompt-engineering-rails"
+  ],
+  "systemImpact": "/cam-export-tools; export tool library to vendor format. Wraps universal_tool_export + hypermill/inventor/mastercam tool_export.",
+  "csDepth": [
+   "Tool-library format drift between vendor versions; schema-read-first per export.",
+   "Round-trip test: export -> import -> equal-shape required for safety."
+  ]
+ },
+ "CAMX-MS18::U01": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-cam.md"
+  ],
+  "addSeWiki": [
+   "test-design-real-values",
+   "regression-prevention-doctrine",
+   "per-file-scrutiny-gate"
+  ],
+  "systemImpact": "Strategy taxonomy tests pass for CAMX milestone deliverables. Feeds 3-of-3 scrutiny ledger; real-data E2E required to avoid the mock-passes-prod-fails class.",
+  "csDepth": [
+   "Real reference values mandatory (no placeholder asserts; hook blocks).",
+   "Stratified test: per-CAM x per-material x per-machine to catch interaction defects."
+  ]
+ },
+ "CAMX-MS18::U02": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-cam.md"
+  ],
+  "addSeWiki": [
+   "test-design-real-values",
+   "regression-prevention-doctrine",
+   "per-file-scrutiny-gate"
+  ],
+  "systemImpact": "Pipeline integration tests pass for CAMX milestone deliverables. Feeds 3-of-3 scrutiny ledger; real-data E2E required to avoid the mock-passes-prod-fails class.",
+  "csDepth": [
+   "Real reference values mandatory (no placeholder asserts; hook blocks).",
+   "Stratified test: per-CAM x per-material x per-machine to catch interaction defects."
+  ]
+ },
+ "CAMX-MS18::U03": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-cam.md"
+  ],
+  "addSeWiki": [
+   "test-design-real-values",
+   "regression-prevention-doctrine",
+   "per-file-scrutiny-gate"
+  ],
+  "systemImpact": "Per-CAM engine tests pass for CAMX milestone deliverables. Feeds 3-of-3 scrutiny ledger; real-data E2E required to avoid the mock-passes-prod-fails class.",
+  "csDepth": [
+   "Real reference values mandatory (no placeholder asserts; hook blocks).",
+   "Stratified test: per-CAM x per-material x per-machine to catch interaction defects."
+  ]
+ },
+ "CAMX-MS18::U04": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-cam.md"
+  ],
+  "addSeWiki": [
+   "test-design-real-values",
+   "regression-prevention-doctrine",
+   "per-file-scrutiny-gate"
+  ],
+  "systemImpact": "Cross-CAM consistency tests pass for CAMX milestone deliverables. Feeds 3-of-3 scrutiny ledger; real-data E2E required to avoid the mock-passes-prod-fails class.",
+  "csDepth": [
+   "Real reference values mandatory (no placeholder asserts; hook blocks).",
+   "Stratified test: per-CAM x per-material x per-machine to catch interaction defects."
+  ]
+ },
+ "CAMX-MS18::U05": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-cam.md",
+   "knowledge/wiki/architecture/dispatcher-business.md"
+  ],
+  "addSeWiki": [
+   "test-design-real-values",
+   "regression-prevention-doctrine",
+   "per-file-scrutiny-gate"
+  ],
+  "systemImpact": "Cost optimization tests pass for CAMX milestone deliverables. Feeds 3-of-3 scrutiny ledger; real-data E2E required to avoid the mock-passes-prod-fails class.",
+  "csDepth": [
+   "Real reference values mandatory (no placeholder asserts; hook blocks).",
+   "Stratified test: per-CAM x per-material x per-machine to catch interaction defects."
+  ]
+ },
+ "CAMX-MS18::U06": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-cam.md",
+   "knowledge/wiki/architecture/dispatcher-safety.md"
+  ],
+  "addSeWiki": [
+   "test-design-real-values",
+   "regression-prevention-doctrine",
+   "per-file-scrutiny-gate"
+  ],
+  "systemImpact": "Safety tests pass for CAMX milestone deliverables. Feeds 3-of-3 scrutiny ledger; real-data E2E required to avoid the mock-passes-prod-fails class.",
+  "csDepth": [
+   "Real reference values mandatory (no placeholder asserts; hook blocks).",
+   "Stratified test: per-CAM x per-material x per-machine to catch interaction defects."
+  ]
+ },
+ "CAMX-MS18::U07": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-cam.md",
+   "knowledge/wiki/architecture/dispatcher-aireasoning.md"
+  ],
+  "addSeWiki": [
+   "test-design-real-values",
+   "regression-prevention-doctrine",
+   "per-file-scrutiny-gate"
+  ],
+  "systemImpact": "Self-learning tests pass for CAMX milestone deliverables. Feeds 3-of-3 scrutiny ledger; real-data E2E required to avoid the mock-passes-prod-fails class.",
+  "csDepth": [
+   "Real reference values mandatory (no placeholder asserts; hook blocks).",
+   "Stratified test: per-CAM x per-material x per-machine to catch interaction defects."
+  ]
+ },
+ "CAMX-MS18::U08": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-cam.md",
+   "knowledge/wiki/architecture/dispatcher-integration.md"
+  ],
+  "addSeWiki": [
+   "test-design-real-values",
+   "regression-prevention-doctrine",
+   "per-file-scrutiny-gate"
+  ],
+  "systemImpact": "API bridge tests pass for CAMX milestone deliverables. Feeds 3-of-3 scrutiny ledger; real-data E2E required to avoid the mock-passes-prod-fails class.",
+  "csDepth": [
+   "Real reference values mandatory (no placeholder asserts; hook blocks).",
+   "Stratified test: per-CAM x per-material x per-machine to catch interaction defects."
+  ]
+ },
+ "CAMX-MS18::U09": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-cam.md"
+  ],
+  "addSeWiki": [
+   "test-design-real-values",
+   "regression-prevention-doctrine",
+   "per-file-scrutiny-gate"
+  ],
+  "systemImpact": "Regression tests pass for CAMX milestone deliverables. Feeds 3-of-3 scrutiny ledger; real-data E2E required to avoid the mock-passes-prod-fails class.",
+  "csDepth": [
+   "Real reference values mandatory (no placeholder asserts; hook blocks).",
+   "Stratified test: per-CAM x per-material x per-machine to catch interaction defects."
+  ]
+ },
+ "CAMX-MS18::U10": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-cam.md"
+  ],
+  "addSeWiki": [
+   "test-design-real-values",
+   "regression-prevention-doctrine",
+   "per-file-scrutiny-gate"
+  ],
+  "systemImpact": "Performance benchmarks pass for CAMX milestone deliverables. Feeds 3-of-3 scrutiny ledger; real-data E2E required to avoid the mock-passes-prod-fails class.",
+  "csDepth": [
+   "Real reference values mandatory (no placeholder asserts; hook blocks).",
+   "Stratified test: per-CAM x per-material x per-machine to catch interaction defects."
+  ]
+ },
+ "CAMX-MS19::U01": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-cam.md",
+   "knowledge/wiki/architecture/dispatcher-mill.md",
+   "knowledge/wiki/architecture/dispatcher-turning.md",
+   "knowledge/wiki/architecture/dispatcher-edm.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "test-design-real-values"
+  ],
+  "systemImpact": "PrintToProgramPipelineEngine v2; orchestrates the 18-stage DOMAIN-PIPELINE-MS0 (intake->OCR->features->...->G-code). Consumed by /print-to-program + per-domain studios.",
+  "csDepth": [
+   "Pipeline is staged DAG; failure at stage i must roll back to stage i-1 atomically.",
+   "R12: missing input data must fail-loud with stage name, never invent defaults."
+  ]
+ },
+ "CAMX-MS19::U02": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-cam.md",
+   "knowledge/wiki/architecture/dispatcher-aireasoning.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "prompt-engineering-rails"
+  ],
+  "systemImpact": "Strategy explanation in output; every strategy choice carries 'why' with cited rule + alternative considered. Pairs with cam_reasoning_explain.",
+  "csDepth": [
+   "Reasoning chain serializable for audit/replay.",
+   "Hidden assumption disclosure required (e.g., material substituted)."
+  ]
+ },
+ "CAMX-MS19::U03": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-cam.md",
+   "knowledge/wiki/architecture/dispatcher-mill.md",
+   "knowledge/wiki/architecture/dispatcher-turning.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "test-design-real-values"
+  ],
+  "systemImpact": "Multi-strategy zone decomposition; splits part into zones with per-zone strategy (HSM core, trochoidal corners, finish pass). Consumed by multi_process_route + StrategySequencingEngine.",
+  "csDepth": [
+   "Zone decomposition is graph partitioning; spectral cut for k zones.",
+   "Zone boundary continuity (no scallop step) is a hard constraint."
+  ]
+ },
+ "CAMX-MS19::U04": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-cam.md",
+   "knowledge/wiki/architecture/dispatcher-business.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "test-design-real-values"
+  ],
+  "systemImpact": "Cost summary in output; per-stage cost breakdown attached to G-code header. Wraps PipelineCostModelEngine + TCODashboardEngine.",
+  "csDepth": [
+   "Cost surfacing must include uncertainty band (cost +/- 10%).",
+   "Auditable: cost change requires named driver (tool change, material upgrade)."
+  ]
+ },
+ "CAMX-MS19::U05": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-cam.md",
+   "knowledge/wiki/architecture/dispatcher-safety.md"
+  ],
+  "addSeWiki": [
+   "safety-tier-discipline",
+   "engine-creation-discipline"
+  ],
+  "systemImpact": "Safety report in output; every program ships with a safety dossier (vetos, overrides, residual risks). Wraps PipelineSafetyOrchestratorEngine.",
+  "csDepth": [
+   "Dossier is append-only; bypasses logged with operator id (per goal-gate-bypasses.jsonl pattern).",
+   "Critical residual risk requires operator sign-off before run."
+  ]
+ },
+ "CAMX-MS19::U06": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-cam.md",
+   "knowledge/wiki/architecture/dispatcher-integration.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "mcp-tool-design"
+  ],
+  "systemImpact": "CAM system recommendation; recommends best-fit CAM (Mastercam vs hyperMILL vs Fusion360) for the part. Wraps per-CAM strategy + capability registries.",
+  "csDepth": [
+   "Recommendation must cite controller + machine compat AND user shop's installed seats.",
+   "Tie-break: cost-per-seat * cycle-time."
+  ]
+ },
+ "CAMX-MS19::U07": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-cam.md",
+   "knowledge/wiki/architecture/dispatcher-context.md"
+  ],
+  "addSeWiki": [
+   "claude-md-as-pointer-index",
+   "prompt-engineering-rails"
+  ],
+  "systemImpact": "Interactive mode; interactive PrintToProgram flow with operator-in-the-loop gates. Pairs with operator-gate doctrine.",
+  "csDepth": [
+   "Stateful session; checkpoint after each stage per loop-state-tracking-discipline.",
+   "Operator gate cannot be auto-resumed across /compact."
+  ]
+ },
+ "CAMX-MS19::U08": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-cam.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "jsonl-ledger-conventions"
+  ],
+  "systemImpact": "Batch mode; non-interactive batch PrintToProgram for many parts. Wraps PrintToProgramPipelineEngine + ProductionBatchOptimizationEngine.",
+  "csDepth": [
+   "Batch must checkpoint per-part; resume on crash without re-running clean parts.",
+   "Stop-on-first-failure vs continue-on-error a CLI flag."
+  ]
+ },
+ "CAMX-MS19::U09": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-cam.md",
+   "knowledge/wiki/architecture/dispatcher-export.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "mcp-tool-design"
+  ],
+  "systemImpact": "Export modes; PDF setup sheet, Excel cost report, DXF for inspection, STEP for CMM. Wraps integration_export_* + render_*.",
+  "csDepth": [
+   "Format fan-out is per-template; templates schema-versioned for back-compat.",
+   "Export must be deterministic (sortable JSON inputs -> byte-identical output)."
+  ]
+ },
+ "CAMX-MS19::U10": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-cam.md",
+   "knowledge/wiki/architecture/dispatcher-mill.md",
+   "knowledge/wiki/architecture/dispatcher-turning.md"
+  ],
+  "addSeWiki": [
+   "test-design-real-values",
+   "regression-prevention-doctrine",
+   "per-file-scrutiny-gate"
+  ],
+  "systemImpact": "E2E integration tests; full PrintToProgram pipeline against real Haas/Fanuc programs (JM-DIE corpus). Feeds 3-of-3 scrutiny.",
+  "csDepth": [
+   "E2E >=30 min runtime; nightly only, not per-commit.",
+   "Real-data E2E (not hermetic); the lesson from MS1 U-INTEG-FIX-P0."
+  ]
+ },
+ "CAMX-MS19::U11": {
+  "addArchWiki": [],
+  "addSeWiki": [
+   "schema-read-discipline"
+  ],
+  "systemImpact": "Unit lacks a milestone-envelope title; treat as documentation or close-out candidate.",
+  "csDepth": []
+ },
+ "CAMX-MS19::U12": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-cam.md",
+   "knowledge/wiki/architecture/dispatcher-toolpath.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "dispatcher-action-design"
+  ],
+  "systemImpact": "MultiProcessCAMRouter expansion; routes multi-process parts (mill+turn+grind+inspect) to correct dispatcher per stage. Wraps multi_process_route.",
+  "csDepth": [
+   "Process selection per feature; conflict resolution by cost+capability vector.",
+   "Edge: a feature accepted by N processes must pick by deterministic tiebreak, not random."
+  ]
+ },
+ "CAMX-MS19::U13": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-turning.md",
+   "knowledge/wiki/architecture/dispatcher-turningprogram.md",
+   "knowledge/wiki/architecture/dispatcher-cam.md"
+  ],
+  "addSeWiki": [
+   "dispatcher-action-design",
+   "engine-creation-discipline"
+  ],
+  "systemImpact": "Turning strategy dispatcher action; surfaces lathe strategy recommendations via prism_turning. Pairs with TurningStrategyEngine + /lathe-studio.",
+  "csDepth": [
+   "Turning vs milling has different constraint set (CSS, nose radius, chip control).",
+   "Must NOT shadow mill strategy actions in prism_cam (separate dispatchers)."
+  ]
+ },
+ "CAMX-MS19::U14": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-turning.md",
+   "knowledge/wiki/architecture/dispatcher-cam.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "claude-md-as-pointer-index"
+  ],
+  "systemImpact": "MillTurn/Swiss web UI; operator-facing config + monitoring for multi-channel mill-turn + Swiss-type lathes. Pairs with mill_turn_* + /swiss-program.",
+  "csDepth": [
+   "Multi-channel sync visualization requires real-time event stream.",
+   "Swiss has unique guide-bushing dimension; UI must capture it."
+  ]
+ },
+ "CAMX-MS19::U15": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-cam.md"
+  ],
+  "addSeWiki": [
+   "claude-md-as-pointer-index",
+   "html-companion-discipline"
+  ],
+  "systemImpact": "CAM strategy web pages; per-strategy explainer pages with physics + when-to-use + risks. Consumed by /cam-strategy-* skills.",
+  "csDepth": [
+   "Static-generated from strategy-taxonomy; per-strategy 1 file.",
+   "Update on strategy-KB change (drift guard)."
+  ]
+ },
+ "CAMX-MS20::U01": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-cam.md",
+   "knowledge/wiki/architecture/dispatcher-cad.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "test-design-real-values",
+   "schema-read-discipline"
+  ],
+  "systemImpact": "STEPNCParserEngine reads STEP-NC AP238 files into PRISM feature taxonomy; consumed by prism_cad/cam STEPNC actions. Pairs with stepnc_generate.",
+  "csDepth": [
+   "STEP-NC parser is recursive descent; schema versions AP238 ed1/ed2.",
+   "Edge: unrecognized entity -> log + skip, not throw (forward-compat)."
+  ]
+ },
+ "CAMX-MS20::U02": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-cam.md",
+   "knowledge/wiki/architecture/dispatcher-cad.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "test-design-real-values",
+   "schema-read-discipline"
+  ],
+  "systemImpact": "STEPNCGeneratorEngine emits STEP-NC AP238 from PRISM CAM output; round-trips STEPNCParserEngine.",
+  "csDepth": [
+   "Round-trip test: parse -> regen -> byte-equivalent or semantically equal.",
+   "Validation against AP238 schema required pre-emit."
+  ]
+ },
+ "CAMX-MS20::U03": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-cam.md",
+   "knowledge/wiki/architecture/dispatcher-cad.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "test-design-real-values",
+   "schema-read-discipline"
+  ],
+  "systemImpact": "ISO13399ToolDataEngine reads ISO 13399 tool catalog data; consumed by prism_cam:iso13399_import/export/validate + tool-catalog skills.",
+  "csDepth": [
+   "ISO 13399 is XML with deep schema; parser must streaming for >10k tool catalogs.",
+   "Vendor extensions tolerated; required core attrs strict."
+  ]
+ },
+ "CAMX-MS20::U04": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-cam.md",
+   "knowledge/wiki/architecture/dispatcher-quality.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "test-design-real-values",
+   "schema-read-discipline"
+  ],
+  "systemImpact": "QIFIntegrationEngine reads/writes QIF 3.0 inspection plans + results; consumed by prism_cam:qif_import_plan/import_results/export_plan/results. Pairs with CMM measurement engines.",
+  "csDepth": [
+   "QIF is XML + namespaced; XSD validation required.",
+   "Result schema must round-trip; data loss in re-export is a bug."
+  ]
+ },
+ "CAMX-MS20::U05": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-cam.md",
+   "knowledge/wiki/architecture/dispatcher-integration.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "test-design-real-values"
+  ],
+  "systemImpact": "VericutBridgeEngine exports PRISM CAM to VERICUT verification; consumed by prism_cam:vericut_export/import_optipath/import_collision.",
+  "csDepth": [
+   "VERICUT API version drift; pin tested version.",
+   "Collision-detection results must propagate back into prism_safety ledger."
+  ]
+ },
+ "CAMX-MS20::U06": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-cam.md",
+   "knowledge/wiki/architecture/dispatcher-integration.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "test-design-real-values"
+  ],
+  "systemImpact": "NCSIMULBridgeEngine exports PRISM CAM to NCSIMUL; consumed by prism_cam:ncsimul_export/import.",
+  "csDepth": [
+   "Same vendor-API-version hazard as VERICUT bridge.",
+   "Symmetric: round-trip semantic equivalence required."
+  ]
+ },
+ "CAMX-MS20::U07": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-cam.md"
+  ],
+  "addSeWiki": [
+   "dispatcher-action-design",
+   "mcp-tool-design",
+   "schema-read-discipline"
+  ],
+  "systemImpact": "Dispatcher wiring for CAMX-MS20 interop engines (STEPNC, ISO13399, QIF, VERICUT, NCSIMUL); consumed by /cam-bridge + integration skills.",
+  "csDepth": [
+   "Format drift: each external vendor evolves spec at different cadence; schema sniff first.",
+   "Real-data round-trip in CI (mocked tests miss schema drift)."
+  ]
+ },
+ "CAMX-MS20::U08": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-cam.md",
+   "knowledge/wiki/architecture/dispatcher-integration.md"
+  ],
+  "addSeWiki": [
+   "test-design-real-values",
+   "regression-prevention-doctrine",
+   "per-file-scrutiny-gate"
+  ],
+  "systemImpact": "Tests for CAMX-MS20 interop; round-trip STEP-NC + QIF + ISO13399 against real vendor sample files.",
+  "csDepth": [
+   "Sample files must include each vendor's quirks (Mastercam, Siemens, Renishaw outputs differ).",
+   "Round-trip is the regression oracle."
+  ]
+ },
+ "CAMX-MS21::U01": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-cam.md",
+   "knowledge/wiki/architecture/dispatcher-business.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "test-design-real-values"
+  ],
+  "systemImpact": "MakeVsBuyDecisionEngine; recommend make-in-house vs outsource by cost+capacity+capability. Consumed by /quote and prism_business:capacity_what_if.",
+  "csDepth": [
+   "Decision matrix: cost margin + capacity fit + capability gap -> score.",
+   "Edge: tied score -> prefer in-house (preserve learning loop)."
+  ]
+ },
+ "CAMX-MS21::U02": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-cam.md",
+   "knowledge/wiki/architecture/dispatcher-business.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "fleet-coordination-discipline"
+  ],
+  "systemImpact": "ShopNetworkEngine federates capacity across partner shops; consumed by prism_cam:shop_network_register/search/broadcast/stats.",
+  "csDepth": [
+   "Network broadcast is fan-out O(shops); throttle to avoid flood.",
+   "Privacy: never share customer or quote data, only capability+capacity."
+  ]
+ },
+ "CAMX-MS21::U03": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-cad.md",
+   "knowledge/wiki/architecture/dispatcher-cam.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "test-design-real-values"
+  ],
+  "systemImpact": "WorkholdingSurfaceInferenceEngine infers candidate workholding surfaces from CAD; consumed by prism_cam:workholding_infer_surfaces + FixtureAwareStrategyEngine.",
+  "csDepth": [
+   "Surface inference is geometric: planar faces >= area_min, parallel to base.",
+   "Edge: thin-wall part must surface as no-grip-zone risk."
+  ]
+ },
+ "CAMX-MS21::U04": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-cam.md",
+   "knowledge/wiki/architecture/dispatcher-business.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "test-design-real-values"
+  ],
+  "systemImpact": "QuoteToShipOrchestratorEngine orchestrates the full quote->design->program->cut->inspect->ship flow; consumed by /quote-to-ship skill.",
+  "csDepth": [
+   "Long-running orchestration; checkpoint per stage; resumable across /compact.",
+   "Failure at any stage must record stage + reason + recovery action."
+  ]
+ },
+ "CAMX-MS21::U05": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-cam.md",
+   "knowledge/wiki/architecture/dispatcher-business.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "test-design-real-values"
+  ],
+  "systemImpact": "PackingSlipEngine generates ship-ready packing slip with traceability codes; consumed by /ship + invoice flow.",
+  "csDepth": [
+   "Slip is deterministic from order+lot data; PDF render via template.",
+   "Heat lot/material cert traceability MUST persist on slip."
+  ]
+ },
+ "CAMX-MS21::U06": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-cam.md",
+   "knowledge/wiki/architecture/dispatcher-quality.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "test-design-real-values",
+   "jsonl-ledger-conventions"
+  ],
+  "systemImpact": "MaterialCertTraceabilityEngine ties material lot -> heat -> job -> part -> ship. Consumed by prism_cam:material_cert_register/assign/link_program.",
+  "csDepth": [
+   "Traceability graph: lot is root, parts are leaves; query both directions.",
+   "Audit: missing cert blocks ship in aerospace/medical industries."
+  ]
+ },
+ "CAMX-MS21::U07": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-cam.md",
+   "knowledge/wiki/architecture/dispatcher-quality.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "test-design-real-values"
+  ],
+  "systemImpact": "FirstArticleInspectionPipelineEngine orchestrates FAI from CAD -> balloons -> CMM -> report. Consumed by prism_cam:fai_run/disposition/generate_forms.",
+  "csDepth": [
+   "FAI flow has many vendor-specific report formats (AS9102, ISIR, PPAP); pluggable.",
+   "Disposition: ACCEPT/REWORK/SCRAP must be a hard gate before ship."
+  ]
+ },
+ "CAMX-MS21::U08": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-cam.md",
+   "knowledge/wiki/architecture/dispatcher-business.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "test-design-real-values"
+  ],
+  "systemImpact": "ProductionBatchOptimizationEngine sequences a batch of jobs to minimize setup+tooling+cycle. Wraps SetupCostOptimizationEngine + ToolChangeOptimizationEngine.",
+  "csDepth": [
+   "Batch sequencing is permutation problem; nearest-neighbor + 2-opt for n<24.",
+   "Constraint: due-date hard, setup-share soft (preference)."
+  ]
+ },
+ "CAMX-MS21::U09": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-cam.md"
+  ],
+  "addSeWiki": [
+   "dispatcher-action-design",
+   "mcp-tool-design",
+   "schema-read-discipline"
+  ],
+  "systemImpact": "Dispatcher wiring for CAMX-MS21 quote-to-ship engines into prism_cam + prism_business.",
+  "csDepth": [
+   "Cross-dispatcher wiring (cam + business); z.enum sync between both.",
+   "Real-data test on a full quote-to-ship round-trip."
+  ]
+ },
+ "CAMX-MS21::U10": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-cam.md",
+   "knowledge/wiki/architecture/dispatcher-business.md"
+  ],
+  "addSeWiki": [
+   "test-design-real-values",
+   "regression-prevention-doctrine",
+   "per-file-scrutiny-gate"
+  ],
+  "systemImpact": "Tests for CAMX-MS21 quote-to-ship cluster; JM-DIE customer corpus (ITW, Alcoa, Optimas).",
+  "csDepth": [
+   "Customer-specific quote profiles; per-customer regression to catch drift.",
+   "Real-data E2E required; mocked customer profiles miss real-world quirks."
+  ]
+ },
+ "CAMX-MS22::U01": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-cam.md",
+   "knowledge/wiki/architecture/dispatcher-mill.md"
+  ],
+  "addSeWiki": [
+   "test-design-real-values",
+   "regression-prevention-doctrine",
+   "engine-creation-discipline"
+  ],
+  "systemImpact": "Milling reference programs corpus; real vendor programs (Haas/Fanuc/Mitsubishi/Studer/...) seed the per-domain reference benchmark + regression oracle. Feeds /cam-compare and StrategyBenchmarkEngine.",
+  "csDepth": [
+   "Reference programs MUST be real (Box corpus), not synthetic; synthetic hides real-world quirks.",
+   "Per-vendor dialect (G-code) must round-trip through post-processor."
+  ]
+ },
+ "CAMX-MS22::U02": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-cam.md",
+   "knowledge/wiki/architecture/dispatcher-fiveaxis.md"
+  ],
+  "addSeWiki": [
+   "test-design-real-values",
+   "regression-prevention-doctrine",
+   "engine-creation-discipline"
+  ],
+  "systemImpact": "5-Axis reference programs corpus; real vendor programs (Haas/Fanuc/Mitsubishi/Studer/...) seed the per-domain reference benchmark + regression oracle. Feeds /cam-compare and StrategyBenchmarkEngine.",
+  "csDepth": [
+   "Reference programs MUST be real (Box corpus), not synthetic; synthetic hides real-world quirks.",
+   "Per-vendor dialect (G-code) must round-trip through post-processor."
+  ]
+ },
+ "CAMX-MS22::U03": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-cam.md",
+   "knowledge/wiki/architecture/dispatcher-grinding.md"
+  ],
+  "addSeWiki": [
+   "test-design-real-values",
+   "regression-prevention-doctrine",
+   "engine-creation-discipline"
+  ],
+  "systemImpact": "Grinding reference programs corpus; real vendor programs (Haas/Fanuc/Mitsubishi/Studer/...) seed the per-domain reference benchmark + regression oracle. Feeds /cam-compare and StrategyBenchmarkEngine.",
+  "csDepth": [
+   "Reference programs MUST be real (Box corpus), not synthetic; synthetic hides real-world quirks.",
+   "Per-vendor dialect (G-code) must round-trip through post-processor."
+  ]
+ },
+ "CAMX-MS22::U04": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-cam.md",
+   "knowledge/wiki/architecture/dispatcher-edm.md"
+  ],
+  "addSeWiki": [
+   "test-design-real-values",
+   "regression-prevention-doctrine",
+   "engine-creation-discipline"
+  ],
+  "systemImpact": "Wire EDM reference programs corpus; real vendor programs (Haas/Fanuc/Mitsubishi/Studer/...) seed the per-domain reference benchmark + regression oracle. Feeds /cam-compare and StrategyBenchmarkEngine.",
+  "csDepth": [
+   "Reference programs MUST be real (Box corpus), not synthetic; synthetic hides real-world quirks.",
+   "Per-vendor dialect (G-code) must round-trip through post-processor."
+  ]
+ },
+ "CAMX-MS22::U05": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-cam.md",
+   "knowledge/wiki/architecture/dispatcher-edm.md"
+  ],
+  "addSeWiki": [
+   "test-design-real-values",
+   "regression-prevention-doctrine",
+   "engine-creation-discipline"
+  ],
+  "systemImpact": "Sinker EDM reference programs corpus; real vendor programs (Haas/Fanuc/Mitsubishi/Studer/...) seed the per-domain reference benchmark + regression oracle. Feeds /cam-compare and StrategyBenchmarkEngine.",
+  "csDepth": [
+   "Reference programs MUST be real (Box corpus), not synthetic; synthetic hides real-world quirks.",
+   "Per-vendor dialect (G-code) must round-trip through post-processor."
+  ]
+ },
+ "CAMX-MS22::U06": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-cam.md"
+  ],
+  "addSeWiki": [
+   "test-design-real-values",
+   "regression-prevention-doctrine",
+   "engine-creation-discipline"
+  ],
+  "systemImpact": "Laser cutting reference programs corpus; real vendor programs (Haas/Fanuc/Mitsubishi/Studer/...) seed the per-domain reference benchmark + regression oracle. Feeds /cam-compare and StrategyBenchmarkEngine.",
+  "csDepth": [
+   "Reference programs MUST be real (Box corpus), not synthetic; synthetic hides real-world quirks.",
+   "Per-vendor dialect (G-code) must round-trip through post-processor."
+  ]
+ },
+ "CAMX-MS22::U07": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-cam.md"
+  ],
+  "addSeWiki": [
+   "test-design-real-values",
+   "regression-prevention-doctrine",
+   "engine-creation-discipline"
+  ],
+  "systemImpact": "Waterjet reference programs corpus; real vendor programs (Haas/Fanuc/Mitsubishi/Studer/...) seed the per-domain reference benchmark + regression oracle. Feeds /cam-compare and StrategyBenchmarkEngine.",
+  "csDepth": [
+   "Reference programs MUST be real (Box corpus), not synthetic; synthetic hides real-world quirks.",
+   "Per-vendor dialect (G-code) must round-trip through post-processor."
+  ]
+ },
+ "CAMX-MS22::U08": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-cam.md",
+   "knowledge/wiki/architecture/dispatcher-mill.md"
+  ],
+  "addSeWiki": [
+   "test-design-real-values",
+   "regression-prevention-doctrine",
+   "engine-creation-discipline"
+  ],
+  "systemImpact": "Mill-Turn reference programs corpus; real vendor programs (Haas/Fanuc/Mitsubishi/Studer/...) seed the per-domain reference benchmark + regression oracle. Feeds /cam-compare and StrategyBenchmarkEngine.",
+  "csDepth": [
+   "Reference programs MUST be real (Box corpus), not synthetic; synthetic hides real-world quirks.",
+   "Per-vendor dialect (G-code) must round-trip through post-processor."
+  ]
+ },
+ "CAMX-MS22::U09": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-cam.md",
+   "knowledge/wiki/architecture/dispatcher-mill.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "test-design-real-values",
+   "fail-loud-r12-patterns"
+  ],
+  "systemImpact": "Milling pipeline closes a real defect in the corresponding domain pipeline. Consumed by per-domain studio skills (/lathe-studio, /wire-edm-studio, etc).",
+  "csDepth": [
+   "Pipeline stage outputs must be data-typed (no opaque strings).",
+   "R12: missing pipeline data must fail-loud with stage name, never invent."
+  ]
+ },
+ "CAMX-MS22::U10": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-cam.md",
+   "knowledge/wiki/architecture/dispatcher-fiveaxis.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "test-design-real-values",
+   "fail-loud-r12-patterns"
+  ],
+  "systemImpact": "5-Axis pipeline closes a real defect in the corresponding domain pipeline. Consumed by per-domain studio skills (/lathe-studio, /wire-edm-studio, etc).",
+  "csDepth": [
+   "Pipeline stage outputs must be data-typed (no opaque strings).",
+   "R12: missing pipeline data must fail-loud with stage name, never invent."
+  ]
+ },
+ "CAMX-MS22::U11": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-cam.md",
+   "knowledge/wiki/architecture/dispatcher-turning.md",
+   "knowledge/wiki/architecture/dispatcher-mill.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "test-design-real-values",
+   "fail-loud-r12-patterns"
+  ],
+  "systemImpact": "Mill-Turn pipeline closes a real defect in the corresponding domain pipeline. Consumed by per-domain studio skills (/lathe-studio, /wire-edm-studio, etc).",
+  "csDepth": [
+   "Pipeline stage outputs must be data-typed (no opaque strings).",
+   "R12: missing pipeline data must fail-loud with stage name, never invent."
+  ]
+ },
+ "CAMX-MS22::U12": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-cam.md",
+   "knowledge/wiki/architecture/dispatcher-grinding.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "test-design-real-values",
+   "fail-loud-r12-patterns"
+  ],
+  "systemImpact": "Grinding pipeline closes a real defect in the corresponding domain pipeline. Consumed by per-domain studio skills (/lathe-studio, /wire-edm-studio, etc).",
+  "csDepth": [
+   "Pipeline stage outputs must be data-typed (no opaque strings).",
+   "R12: missing pipeline data must fail-loud with stage name, never invent."
+  ]
+ },
+ "CAMX-MS22::U13": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-cam.md",
+   "knowledge/wiki/architecture/dispatcher-edm.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "test-design-real-values",
+   "fail-loud-r12-patterns"
+  ],
+  "systemImpact": "Wire EDM pipeline closes a real defect in the corresponding domain pipeline. Consumed by per-domain studio skills (/lathe-studio, /wire-edm-studio, etc).",
+  "csDepth": [
+   "Pipeline stage outputs must be data-typed (no opaque strings).",
+   "R12: missing pipeline data must fail-loud with stage name, never invent."
+  ]
+ },
+ "CAMX-MS22::U14": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-cam.md",
+   "knowledge/wiki/architecture/dispatcher-edm.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "test-design-real-values",
+   "fail-loud-r12-patterns"
+  ],
+  "systemImpact": "Sinker EDM pipeline closes a real defect in the corresponding domain pipeline. Consumed by per-domain studio skills (/lathe-studio, /wire-edm-studio, etc).",
+  "csDepth": [
+   "Pipeline stage outputs must be data-typed (no opaque strings).",
+   "R12: missing pipeline data must fail-loud with stage name, never invent."
+  ]
+ },
+ "CAMX-MS22::U15": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-cam.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "test-design-real-values",
+   "fail-loud-r12-patterns"
+  ],
+  "systemImpact": "Laser pipeline closes a real defect in the corresponding domain pipeline. Consumed by per-domain studio skills (/lathe-studio, /wire-edm-studio, etc).",
+  "csDepth": [
+   "Pipeline stage outputs must be data-typed (no opaque strings).",
+   "R12: missing pipeline data must fail-loud with stage name, never invent."
+  ]
+ },
+ "CAMX-MS22::U16": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-cam.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "test-design-real-values",
+   "fail-loud-r12-patterns"
+  ],
+  "systemImpact": "Waterjet pipeline closes a real defect in the corresponding domain pipeline. Consumed by per-domain studio skills (/lathe-studio, /wire-edm-studio, etc).",
+  "csDepth": [
+   "Pipeline stage outputs must be data-typed (no opaque strings).",
+   "R12: missing pipeline data must fail-loud with stage name, never invent."
+  ]
+ },
+ "CAMX-MS22::U17": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-cam.md",
+   "knowledge/wiki/architecture/dispatcher-aireasoning.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "test-design-real-values",
+   "regression-prevention-doctrine"
+  ],
+  "systemImpact": "Decision reasoning audit closes a real defect in the corresponding domain pipeline. Consumed by per-domain studio skills (/lathe-studio, /wire-edm-studio, etc).",
+  "csDepth": [
+   "Pipeline stage outputs must be data-typed (no opaque strings).",
+   "R12: missing pipeline data must fail-loud with stage name, never invent."
+  ]
+ },
+ "CAMX-MS22::U18": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-cam.md",
+   "knowledge/wiki/architecture/dispatcher-safety.md"
+  ],
+  "addSeWiki": [
+   "safety-tier-discipline",
+   "fail-loud-r12-patterns",
+   "per-file-scrutiny-gate"
+  ],
+  "systemImpact": "Safety verification closes a real defect in the corresponding domain pipeline. Consumed by per-domain studio skills (/lathe-studio, /wire-edm-studio, etc).",
+  "csDepth": [
+   "Pipeline stage outputs must be data-typed (no opaque strings).",
+   "R12: missing pipeline data must fail-loud with stage name, never invent."
+  ]
+ },
+ "CAMX-MS22::U19": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-cam.md",
+   "knowledge/wiki/architecture/dispatcher-calc.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "test-design-real-values",
+   "regression-prevention-doctrine"
+  ],
+  "systemImpact": "Variability verification closes a real defect in the corresponding domain pipeline. Consumed by per-domain studio skills (/lathe-studio, /wire-edm-studio, etc).",
+  "csDepth": [
+   "Pipeline stage outputs must be data-typed (no opaque strings).",
+   "R12: missing pipeline data must fail-loud with stage name, never invent."
+  ]
+ },
+ "CAMX-MS22::U20": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-cam.md",
+   "knowledge/wiki/architecture/dispatcher-mill.md",
+   "knowledge/wiki/architecture/dispatcher-turning.md",
+   "knowledge/wiki/architecture/dispatcher-edm.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "test-design-real-values",
+   "regression-prevention-doctrine"
+  ],
+  "systemImpact": "E2E integration test closes a real defect in the corresponding domain pipeline. Consumed by per-domain studio skills (/lathe-studio, /wire-edm-studio, etc).",
+  "csDepth": [
+   "Pipeline stage outputs must be data-typed (no opaque strings).",
+   "R12: missing pipeline data must fail-loud with stage name, never invent."
+  ]
+ },
+ "CAMX-MS2::U01": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-cam.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "test-design-real-values"
+  ],
+  "systemImpact": "ControllerStrategyValidatorEngine; validates a strategy against the target controller's capabilities (Fanuc, Siemens, Haas, Okuma). Consumed by prism_cam:strategy_controller_validate/find_compatible.",
+  "csDepth": [
+   "Capability matrix per controller; lookup O(1).",
+   "Edge: unknown controller must surface as unsupported, never silently allow."
+  ]
+ },
+ "CAMX-MS2::U02": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-cam.md",
+   "knowledge/wiki/architecture/dispatcher-mill.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "test-design-real-values"
+  ],
+  "systemImpact": "MachineStrategyConstraintEngine; narrows strategy candidates by machine constraints (spindle power, rapid feed, work envelope). Consumed by prism_cam:strategy_machine_validate/find_best_machine.",
+  "csDepth": [
+   "Power-feed-MRR constraint check O(1) per strategy.",
+   "Real machine specs from MachineCapabilityRegistry, not assumed."
+  ]
+ },
+ "CAMX-MS2::U03": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-cam.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "fail-loud-r12-patterns"
+  ],
+  "systemImpact": "Strategy fallback chain; when chosen strategy fails (collision/feasibility/safety) fall back to safer alternative. Consumed by prism_cam:strategy_fallback_chain/default_chain.",
+  "csDepth": [
+   "Chain is bounded depth (<=4); cycle detection required.",
+   "R12: chain exhausted must fail-loud, never deliver an unsafe default."
+  ]
+ },
+ "CAMX-MS2::U04": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-cam.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "dispatcher-action-design"
+  ],
+  "systemImpact": "Wire CAMX-MS2 strategy engines into PostProcessorPipelineEngine; surfaces controller+machine validation into post-processing. Closes WIRE-UNWIRED.",
+  "csDepth": [
+   "Wiring is additive; never replace existing validators.",
+   "Audit: post-gate engine must round-trip through prism_cam."
+  ]
+ },
+ "CAMX-MS2::U05": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-cam.md",
+   "knowledge/wiki/architecture/dispatcher-business.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "test-design-real-values"
+  ],
+  "systemImpact": "Cost-optimal decision engine; picks the lowest-TCO strategy under safety+capability constraints. Consumed by prism_cam:strategy_cost_compute/decide/sensitivity.",
+  "csDepth": [
+   "Constrained optimization: minimize cost s.t. safety+capability.",
+   "Tie-break: prefer strategy with better learning data (lower epistemic uncertainty)."
+  ]
+ },
+ "CAMX-MS2::U06": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-cam.md",
+   "knowledge/wiki/architecture/dispatcher-safety.md"
+  ],
+  "addSeWiki": [
+   "safety-tier-discipline",
+   "engine-creation-discipline",
+   "fail-loud-r12-patterns"
+  ],
+  "systemImpact": "Safety decision engine; final safety review across all strategies; routes to SafetyEscalationEngine on residual risk. Consumed by prism_cam:strategy_safety_assess/decide/filter.",
+  "csDepth": [
+   "Final-veto gate: any-fail -> veto. No averaging.",
+   "R7 conflict-fork: surface ambiguity, never silent average."
+  ]
+ },
+ "CAMX-MS2::U07": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-cam.md"
+  ],
+  "addSeWiki": [
+   "dispatcher-action-design",
+   "mcp-tool-design",
+   "schema-read-discipline"
+  ],
+  "systemImpact": "Dispatcher wiring for CAMX-MS2 engines (controller/machine validators + cost/safety decision).",
+  "csDepth": [
+   "Wiring drift caught by real-data E2E (RGS lesson).",
+   "Schema enum sync per CAMX-MS16::U06."
+  ]
+ },
+ "CAMX-MS2::U08": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-cam.md",
+   "knowledge/wiki/architecture/dispatcher-mill.md",
+   "knowledge/wiki/architecture/dispatcher-turning.md"
+  ],
+  "addSeWiki": [
+   "test-design-real-values",
+   "regression-prevention-doctrine",
+   "per-file-scrutiny-gate"
+  ],
+  "systemImpact": "Tests for CAMX-MS2; controller x machine x material x strategy matrix.",
+  "csDepth": [
+   "Combinatorial test space; stratified sampling required.",
+   "Real-data E2E (no mocked validators)."
+  ]
+ },
+ "CAMX-MS3::U-CAMX01": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-cam.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "test-design-real-values",
+   "mcp-tool-design"
+  ],
+  "systemImpact": "MastercamStrategyEngine strategy-recommend for Mastercam's Dynamic Motion/OptiRough/etc. Consumed by /cam-mastercam + prism_cam:mastercam_strategy_*.",
+  "csDepth": [
+   "Per-CAM engines share the strategy+safety+material+controller pattern across MS3-MS9.",
+   "Vendor capability drift requires periodic re-validation against real Mastercam install."
+  ]
+ },
+ "CAMX-MS3::U-CAMX02": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-cam.md",
+   "knowledge/wiki/architecture/dispatcher-safety.md"
+  ],
+  "addSeWiki": [
+   "safety-tier-discipline",
+   "fail-loud-r12-patterns",
+   "per-file-scrutiny-gate"
+  ],
+  "systemImpact": "MastercamSafetyHooksEngine safety validators specific to Mastercam (Dynamic Motion engagement, safe Z, plunge limits). Consumed by prism_cam:mastercam_safety_validate/rules.",
+  "csDepth": [
+   "Per-CAM engines share the strategy+safety+material+controller pattern across MS3-MS9.",
+   "Vendor capability drift requires periodic re-validation against real Mastercam install."
+  ]
+ },
+ "CAMX-MS3::U-CAMX04": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-cam.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "test-design-real-values",
+   "mcp-tool-design"
+  ],
+  "systemImpact": "MastercamMaterialBridgeEngine bridges PRISM material registry to Mastercam material library. Consumed by prism_cam:mastercam_material_find/get_physics/list.",
+  "csDepth": [
+   "Per-CAM engines share the strategy+safety+material+controller pattern across MS3-MS9.",
+   "Vendor capability drift requires periodic re-validation against real Mastercam install."
+  ]
+ },
+ "CAMX-MS3::U-CAMX05": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-cam.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "test-design-real-values",
+   "mcp-tool-design"
+  ],
+  "systemImpact": "MastercamControllerCatalogEngine catalog of Mastercam-supported controllers + dialect. Consumed by prism_cam:mastercam_controller_lookup/list.",
+  "csDepth": [
+   "Per-CAM engines share the strategy+safety+material+controller pattern across MS3-MS9.",
+   "Vendor capability drift requires periodic re-validation against real Mastercam install."
+  ]
+ },
+ "CAMX-MS3::U-CAMX03": {
+  "addArchWiki": [],
+  "addSeWiki": [
+   "schema-read-discipline"
+  ],
+  "systemImpact": "Unit lacks a milestone-envelope title; treat as documentation or close-out candidate.",
+  "csDepth": []
+ },
+ "CAMX-MS3::U-CAMX06": {
+  "addArchWiki": [],
+  "addSeWiki": [
+   "schema-read-discipline"
+  ],
+  "systemImpact": "Unit lacks a milestone-envelope title; treat as documentation or close-out candidate.",
+  "csDepth": []
+ },
+ "CAMX-MS3::U-CAMX11": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-cam.md"
+  ],
+  "addSeWiki": [
+   "dispatcher-action-design",
+   "mcp-tool-design",
+   "schema-read-discipline"
+  ],
+  "systemImpact": "Dispatcher wiring; 10+ mc_* actions for Mastercam. Consumed by /cam-mastercam + /mastercam-strategy-guide.",
+  "csDepth": [
+   "Action names follow mastercam_* convention (NOT mc_*; naming aligned with prism_cam taxonomy).",
+   "Real-data E2E required."
+  ]
+ },
+ "CAMX-MS3::U-CAMX12": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-cam.md"
+  ],
+  "addSeWiki": [
+   "claude-md-as-pointer-index",
+   "test-design-real-values",
+   "prompt-engineering-rails"
+  ],
+  "systemImpact": "Slash commands /mastercam-setup /mastercam-strategy-guide + 50 tests.",
+  "csDepth": [
+   "Skill body MUST reference live dispatcher actions.",
+   "50 tests sound ambitious; must be real assertions, not toBeDefined."
+  ]
+ },
+ "CAMX-MS4::U-CAMX01": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-cam.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "test-design-real-values"
+  ],
+  "systemImpact": "SolidCAMStrategyEngine; strategy-recommend for SolidCAM's iMachining/HSS/HSR. Consumed by /cam-solidcam + prism_cam:solidcam_strategy_*.",
+  "csDepth": [
+   "iMachining is SolidCAM's flagship; its chipload/engagement physics are vendor-proprietary; PRISM uses generic adaptive model.",
+   "Per-CAM strategy class must NOT inline vendor physics constants."
+  ]
+ },
+ "CAMX-MS4::U-CAMX02": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-cam.md",
+   "knowledge/wiki/architecture/dispatcher-safety.md"
+  ],
+  "addSeWiki": [
+   "safety-tier-discipline",
+   "fail-loud-r12-patterns",
+   "per-file-scrutiny-gate"
+  ],
+  "systemImpact": "SolidCAMSafetyHooksEngine; safety validators for iMachining + HSS + turning. Consumed by prism_cam:solidcam_safety_validate/rules.",
+  "csDepth": [
+   "iMachining engagement override safety check.",
+   "Real-data validation against published iMachining limits."
+  ]
+ },
+ "CAMX-MS4::U-CAMX03": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-cam.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "test-design-real-values",
+   "dispatcher-action-design"
+  ],
+  "systemImpact": "SolidCAMiMachiningEngine; CONSOLIDATE 18 existing iMachining engines into 1 authoritative engine. Closes engine sprawl per dedup discipline.",
+  "csDepth": [
+   "Consolidation: enumerate the 18 sources, identify the canonical, deprecate the rest with WIRE-EXEMPT + reason.",
+   "Risk: silent behavior change during consolidation; diff every call site."
+  ]
+ },
+ "CAMX-MS4::U-CAMX04": {
+  "addArchWiki": [],
+  "addSeWiki": [
+   "schema-read-discipline"
+  ],
+  "systemImpact": "Unit lacks a milestone-envelope title; treat as documentation or close-out candidate.",
+  "csDepth": []
+ },
+ "CAMX-MS4::U-CAMX05": {
+  "addArchWiki": [],
+  "addSeWiki": [
+   "schema-read-discipline"
+  ],
+  "systemImpact": "Unit lacks a milestone-envelope title; treat as documentation or close-out candidate.",
+  "csDepth": []
+ },
+ "CAMX-MS4::U-CAMX06": {
+  "addArchWiki": [],
+  "addSeWiki": [
+   "schema-read-discipline"
+  ],
+  "systemImpact": "Unit lacks a milestone-envelope title; treat as documentation or close-out candidate.",
+  "csDepth": []
+ },
+ "CAMX-MS4::U-CAMX11": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-cam.md"
+  ],
+  "addSeWiki": [
+   "dispatcher-action-design",
+   "mcp-tool-design",
+   "schema-read-discipline"
+  ],
+  "systemImpact": "Dispatcher wiring; 10+ sc_* actions for SolidCAM. Consumed by /cam-solidcam.",
+  "csDepth": [
+   "Naming: solidcam_* per prism_cam taxonomy.",
+   "Schema sync."
+  ]
+ },
+ "CAMX-MS4::U-CAMX12": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-cam.md"
+  ],
+  "addSeWiki": [
+   "claude-md-as-pointer-index",
+   "test-design-real-values",
+   "prompt-engineering-rails"
+  ],
+  "systemImpact": "/solidcam-setup + /solidcam-imachining-guide + 50 tests.",
+  "csDepth": [
+   "Tests must use real iMachining outputs, not synthetic.",
+   "Skill body cites live actions."
+  ]
+ },
+ "CAMX-MS5::U-CAMX01": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-cam.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "test-design-real-values"
+  ],
+  "systemImpact": "NXCAMStrategyEngine; strategy-recommend for NX-CAM (Adaptive, Fixed Axis Surface, Multi-axis). Consumed by /cam-nx + prism_cam:nx_cam_*.",
+  "csDepth": [
+   "NX-CAM has deep multiaxis support; strategy taxonomy must capture tilt + lead-lag.",
+   "Vendor capability matrix differs per Siemens release."
+  ]
+ },
+ "CAMX-MS5::U-CAMX02": {
+  "addArchWiki": [],
+  "addSeWiki": [
+   "schema-read-discipline"
+  ],
+  "systemImpact": "Unit lacks a milestone-envelope title; treat as documentation or close-out candidate.",
+  "csDepth": []
+ },
+ "CAMX-MS5::U-CAMX03": {
+  "addArchWiki": [],
+  "addSeWiki": [
+   "schema-read-discipline"
+  ],
+  "systemImpact": "Unit lacks a milestone-envelope title; treat as documentation or close-out candidate.",
+  "csDepth": []
+ },
+ "CAMX-MS5::U-CAMX04": {
+  "addArchWiki": [],
+  "addSeWiki": [
+   "schema-read-discipline"
+  ],
+  "systemImpact": "Unit lacks a milestone-envelope title; treat as documentation or close-out candidate.",
+  "csDepth": []
+ },
+ "CAMX-MS5::U-CAMX05": {
+  "addArchWiki": [],
+  "addSeWiki": [
+   "schema-read-discipline"
+  ],
+  "systemImpact": "Unit lacks a milestone-envelope title; treat as documentation or close-out candidate.",
+  "csDepth": []
+ },
+ "CAMX-MS5::U-CAMX06": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-cam.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "test-design-real-values"
+  ],
+  "systemImpact": "NXCAMCodeGeneratorEngine; emit NX journal scripts or CLSF/APT. Consumed by prism_cam:nx_code_generate/templates.",
+  "csDepth": [
+   "Generated code must round-trip (NX -> file -> re-import) for verification.",
+   "Templates per controller post-processor."
+  ]
+ },
+ "CAMX-MS6::U-CAMX01": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-cam.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "test-design-real-values"
+  ],
+  "systemImpact": "PowerMillStrategyEngine; Vortex/Steep&Shallow/Pencil. Consumed by /cam-powermill + prism_cam:pm_*.",
+  "csDepth": [
+   "Vortex is PowerMill's adaptive flagship; PRISM uses generic adaptive feed model.",
+   "Strategy capability per PowerMill release."
+  ]
+ },
+ "CAMX-MS6::U-CAMX02": {
+  "addArchWiki": [],
+  "addSeWiki": [
+   "schema-read-discipline"
+  ],
+  "systemImpact": "Unit lacks a milestone-envelope title; treat as documentation or close-out candidate.",
+  "csDepth": []
+ },
+ "CAMX-MS6::U-CAMX03": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-cam.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "test-design-real-values"
+  ],
+  "systemImpact": "PowerMillCodeGeneratorEngine; emit PowerMill macros. Consumed by prism_cam:powermill_code_generate/templates.",
+  "csDepth": [
+   "Macros are tcl-flavored; escape carefully.",
+   "Round-trip test via PowerMill execution."
+  ]
+ },
+ "CAMX-MS6::U-CAMX04": {
+  "addArchWiki": [],
+  "addSeWiki": [
+   "schema-read-discipline"
+  ],
+  "systemImpact": "Unit lacks a milestone-envelope title; treat as documentation or close-out candidate.",
+  "csDepth": []
+ },
+ "CAMX-MS6::U-CAMX05": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-cam.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "test-design-real-values"
+  ],
+  "systemImpact": "CATIAStrategyEngine; strategy-recommend for CATIA Machining. Consumed by /cam-catia + prism_cam:catia_strategy_*.",
+  "csDepth": [
+   "CATIA has KBM (knowledge-based machining); bridge to PRISM strategy KB.",
+   "Capability per CATIA release."
+  ]
+ },
+ "CAMX-MS6::U-CAMX06": {
+  "addArchWiki": [],
+  "addSeWiki": [
+   "schema-read-discipline"
+  ],
+  "systemImpact": "Unit lacks a milestone-envelope title; treat as documentation or close-out candidate.",
+  "csDepth": []
+ },
+ "CAMX-MS7::U-CAMX01": {
+  "addArchWiki": [],
+  "addSeWiki": [
+   "schema-read-discipline"
+  ],
+  "systemImpact": "Unit lacks a milestone-envelope title; treat as documentation or close-out candidate.",
+  "csDepth": []
+ },
+ "CAMX-MS7::U-CAMX02": {
+  "addArchWiki": [],
+  "addSeWiki": [
+   "schema-read-discipline"
+  ],
+  "systemImpact": "Unit lacks a milestone-envelope title; treat as documentation or close-out candidate.",
+  "csDepth": []
+ },
+ "CAMX-MS7::U-CAMX03": {
+  "addArchWiki": [],
+  "addSeWiki": [
+   "schema-read-discipline"
+  ],
+  "systemImpact": "Unit lacks a milestone-envelope title; treat as documentation or close-out candidate.",
+  "csDepth": []
+ },
+ "CAMX-MS7::U-CAMX04": {
+  "addArchWiki": [],
+  "addSeWiki": [
+   "schema-read-discipline"
+  ],
+  "systemImpact": "Unit lacks a milestone-envelope title; treat as documentation or close-out candidate.",
+  "csDepth": []
+ },
+ "CAMX-MS7::U-CAMX05": {
+  "addArchWiki": [],
+  "addSeWiki": [
+   "schema-read-discipline"
+  ],
+  "systemImpact": "Unit lacks a milestone-envelope title; treat as documentation or close-out candidate.",
+  "csDepth": []
+ },
+ "CAMX-MS7::U-CAMX06": {
+  "addArchWiki": [],
+  "addSeWiki": [
+   "schema-read-discipline"
+  ],
+  "systemImpact": "Unit lacks a milestone-envelope title; treat as documentation or close-out candidate.",
+  "csDepth": []
+ },
+ "CAMX-MS8::U-CAMX01": {
+  "addArchWiki": [],
+  "addSeWiki": [
+   "schema-read-discipline"
+  ],
+  "systemImpact": "Unit lacks a milestone-envelope title; treat as documentation or close-out candidate.",
+  "csDepth": []
+ },
+ "CAMX-MS8::U-CAMX02": {
+  "addArchWiki": [],
+  "addSeWiki": [
+   "schema-read-discipline"
+  ],
+  "systemImpact": "Unit lacks a milestone-envelope title; treat as documentation or close-out candidate.",
+  "csDepth": []
+ },
+ "CAMX-MS8::U-CAMX03": {
+  "addArchWiki": [],
+  "addSeWiki": [
+   "schema-read-discipline"
+  ],
+  "systemImpact": "Unit lacks a milestone-envelope title; treat as documentation or close-out candidate.",
+  "csDepth": []
+ },
+ "CAMX-MS8::U-CAMX04": {
+  "addArchWiki": [],
+  "addSeWiki": [
+   "schema-read-discipline"
+  ],
+  "systemImpact": "Unit lacks a milestone-envelope title; treat as documentation or close-out candidate.",
+  "csDepth": []
+ },
+ "CAMX-MS8::U-CAMX05": {
+  "addArchWiki": [],
+  "addSeWiki": [
+   "schema-read-discipline"
+  ],
+  "systemImpact": "Unit lacks a milestone-envelope title; treat as documentation or close-out candidate.",
+  "csDepth": []
+ },
+ "CAMX-MS8::U-CAMX06": {
+  "addArchWiki": [],
+  "addSeWiki": [
+   "schema-read-discipline"
+  ],
+  "systemImpact": "Unit lacks a milestone-envelope title; treat as documentation or close-out candidate.",
+  "csDepth": []
+ },
+ "CAMX-MS8::U-CAMX13": {
+  "addArchWiki": [],
+  "addSeWiki": [
+   "schema-read-discipline"
+  ],
+  "systemImpact": "Unit lacks a milestone-envelope title; treat as documentation or close-out candidate.",
+  "csDepth": []
+ },
+ "CAMX-MS8::U-CAMX14": {
+  "addArchWiki": [],
+  "addSeWiki": [
+   "schema-read-discipline"
+  ],
+  "systemImpact": "Unit lacks a milestone-envelope title; treat as documentation or close-out candidate.",
+  "csDepth": []
+ },
+ "CAMX-MS8::U-CAMX15": {
+  "addArchWiki": [],
+  "addSeWiki": [
+   "schema-read-discipline"
+  ],
+  "systemImpact": "Unit lacks a milestone-envelope title; treat as documentation or close-out candidate.",
+  "csDepth": []
+ },
+ "CAMX-MS8::U-CAMX16": {
+  "addArchWiki": [],
+  "addSeWiki": [
+   "schema-read-discipline"
+  ],
+  "systemImpact": "Unit lacks a milestone-envelope title; treat as documentation or close-out candidate.",
+  "csDepth": []
+ },
+ "CAMX-MS8::U-CAMX11": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-cam.md",
+   "knowledge/wiki/architecture/dispatcher-safety.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "safety-tier-discipline",
+   "test-design-real-values"
+  ],
+  "systemImpact": "Batch safety hooks + material bridges; uniform safety+material layer across GibbsCAM/ESPRIT/SurfCAM/CAMWorks/BobCAD/TopSolid. Closes the long-tail per-CAM gap.",
+  "csDepth": [
+   "Reuse the per-CAM safety pattern from MS3-MS6.",
+   "Material bridge round-trip per vendor."
+  ]
+ },
+ "CAMX-MS8::U-CAMX12": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-cam.md"
+  ],
+  "addSeWiki": [
+   "dispatcher-action-design",
+   "test-design-real-values",
+   "mcp-tool-design"
+  ],
+  "systemImpact": "Dispatcher wiring + tests for batch CAMs (CAMX-MS8::U01-U06).",
+  "csDepth": [
+   "Schema sync for batch.",
+   "Real-data E2E per vendor."
+  ]
+ },
+ "CAMX-MS9::U-CAMX01": {
+  "addArchWiki": [],
+  "addSeWiki": [
+   "schema-read-discipline"
+  ],
+  "systemImpact": "Unit lacks a milestone-envelope title; treat as documentation or close-out candidate.",
+  "csDepth": []
+ },
+ "CAMX-MS9::U-CAMX02": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-cam.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "test-design-real-values"
+  ],
+  "systemImpact": "HyperMillCodeGeneratorEngine; emit hyperMILL job-list/AC scripts. Consumed by prism_cam:hypermill_code_generate/templates.",
+  "csDepth": [
+   "AC scripts run inside hyperMILL Automation Center; version-pinned.",
+   "Round-trip test via in-host execution."
+  ]
+ },
+ "CAMX-MS9::U-CAMX03": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-cam.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "test-design-real-values"
+  ],
+  "systemImpact": "HyperMillToolExportEngine; export PRISM tool library to hyperMILL DB. Consumed by prism_cam:hypermill_tool_export/job + universal_tool_export.",
+  "csDepth": [
+   "Tool library schema is XML; vendor schema versioned.",
+   "Round-trip: export -> import -> equal-shape."
+  ]
+ },
+ "CAMX-MS9::U-CAMX04": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-cam.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "test-design-real-values"
+  ],
+  "systemImpact": "Fusion360StrategyEngine; strategy-recommend for Fusion360 Manufacture Extension (Adaptive, Steep&Shallow). Consumed by /cam-fusion + prism_cam:fusion360_strategy_*.",
+  "csDepth": [
+   "Fusion has deep MfgExt strategy set + cloud-API; capability matrix per release.",
+   "Adaptive engagement physics vendor-proprietary; PRISM uses generic."
+  ]
+ },
+ "CAMX-MS9::U-CAMX05": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-cam.md",
+   "knowledge/wiki/architecture/dispatcher-safety.md"
+  ],
+  "addSeWiki": [
+   "safety-tier-discipline",
+   "fail-loud-r12-patterns",
+   "per-file-scrutiny-gate"
+  ],
+  "systemImpact": "Fusion360SafetyHooksEngine; safety validators for Fusion (engagement, plunge, safe Z, retract). Consumed by prism_cam:fusion360_safety_validate/rules.",
+  "csDepth": [
+   "Fusion-specific safety: Adaptive radial engagement override check.",
+   "Real-data validation against published Fusion limits."
+  ]
+ },
+ "CAMX-MS9::U-CAMX06": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-cam.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "test-design-real-values"
+  ],
+  "systemImpact": "Fusion360MaterialBridgeEngine; bridges PRISM materials to Fusion360 material library. Consumed by prism_cam:fusion360_material_*.",
+  "csDepth": [
+   "Material library: Fusion uses 'group ISO' taxonomy; bridge to PRISM ISO-P/M/K/N/S/H.",
+   "Round-trip required."
+  ]
+ },
+ "CAMX-V17-P0A::U01": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-cad.md",
+   "knowledge/wiki/architecture/dispatcher-cam.md"
+  ],
+  "addSeWiki": [
+   "test-design-real-values",
+   "regression-prevention-doctrine",
+   "per-file-scrutiny-gate"
+  ],
+  "systemImpact": "Test BlueprintOCREngine with 5 real Haas drawings; real-data E2E for OCR -> features. Closes the hermetic-fake regression class.",
+  "csDepth": [
+   "Real Haas drawings have hand-written notes, oblique angles; OCR must handle.",
+   "Stratified: 5 drawings across material + tolerance + view types."
+  ]
+ },
+ "CAMX-V17-P0A::U02": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-cad.md"
+  ],
+  "addSeWiki": [
+   "test-design-real-values",
+   "regression-prevention-doctrine",
+   "per-file-scrutiny-gate"
+  ],
+  "systemImpact": "Test PrintToGeometryEngine; actually EXECUTE the CadQuery output (not just generate code).",
+  "csDepth": [
+   "Execution catches syntax + topology defects unit-tests miss.",
+   "Lesson: passing-test-without-execution is the classic hermetic-fake bug."
+  ]
+ },
+ "CAMX-V17-P0A::U03": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-cad.md"
+  ],
+  "addSeWiki": [
+   "test-design-real-values",
+   "regression-prevention-doctrine",
+   "per-file-scrutiny-gate"
+  ],
+  "systemImpact": "Test StepImportEngine with real STEP files from BOX corpus.",
+  "csDepth": [
+   "Vendor STEP files have schema quirks (AP203 vs AP214 vs AP242).",
+   "Round-trip: STEP -> BREP -> STEP."
+  ]
+ },
+ "CAMX-V17-P0A::U04": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-cad.md",
+   "knowledge/wiki/architecture/dispatcher-cam.md"
+  ],
+  "addSeWiki": [
+   "test-design-real-values",
+   "regression-prevention-doctrine",
+   "per-file-scrutiny-gate"
+  ],
+  "systemImpact": "Test FeatureRecognitionEngine on real geometry from the JM-DIE corpus.",
+  "csDepth": [
+   "Feature recognition is the failure-mode gold mine; pockets vs slots vs grooves.",
+   "Per-feature-class assertions + per-material edge cases."
+  ]
+ },
+ "CAMX-V17-P0A::U05": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-cad.md",
+   "knowledge/wiki/architecture/dispatcher-turning.md",
+   "knowledge/wiki/architecture/dispatcher-turningprogram.md"
+  ],
+  "addSeWiki": [
+   "test-design-real-values",
+   "regression-prevention-doctrine",
+   "per-file-scrutiny-gate"
+  ],
+  "systemImpact": "End-to-end lathe: drawing -> features -> turning program. Real Haas lathe drawing through full pipeline.",
+  "csDepth": [
+   "E2E catches integration defects unit tests miss (DOMAIN-PIPELINE-MS0 lesson).",
+   "Per-stage assertions to localize failure."
+  ]
+ },
+ "CAMX-V17-P0A::U06": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-cad.md",
+   "knowledge/wiki/architecture/dispatcher-mill.md",
+   "knowledge/wiki/architecture/dispatcher-cam.md"
+  ],
+  "addSeWiki": [
+   "test-design-real-values",
+   "regression-prevention-doctrine",
+   "per-file-scrutiny-gate"
+  ],
+  "systemImpact": "End-to-end mill: drawing -> features -> milling program. Real Haas mill drawing through full pipeline.",
+  "csDepth": [
+   "Same pattern as U05 but mill domain.",
+   "Real cycle-time + cost validation against shop history."
+  ]
+ },
+ "CAMX-V17-P0B::U-CAMX01": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-cam.md",
+   "knowledge/wiki/architecture/dispatcher-turning.md"
+  ],
+  "addSeWiki": [
+   "fail-loud-r12-patterns",
+   "test-design-real-values",
+   "regression-prevention-doctrine"
+  ],
+  "systemImpact": "Fix multi-start threading; generate N G76 blocks (not 1). Bug: silent under-thread.",
+  "csDepth": [
+   "Multi-start threading: N starts -> N G76 calls with start-angle offset.",
+   "Regression oracle: real multi-start screw G-code must match published spec."
+  ]
+ },
+ "CAMX-V17-P0B::U-CAMX02": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-cam.md",
+   "knowledge/wiki/architecture/dispatcher-turning.md"
+  ],
+  "addSeWiki": [
+   "fail-loud-r12-patterns",
+   "test-design-real-values",
+   "regression-prevention-doctrine"
+  ],
+  "systemImpact": "Fix facing; implement G72 multi-pass or pass-loop. Bug: single-pass on deep face.",
+  "csDepth": [
+   "Multi-pass facing per DOC >=0.5mm.",
+   "Edge: face profile not flat -> G72 path planning required."
+  ]
+ },
+ "CAMX-V17-P0B::U-CAMX03": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-cam.md",
+   "knowledge/wiki/architecture/dispatcher-turning.md",
+   "knowledge/wiki/architecture/dispatcher-mill.md"
+  ],
+  "addSeWiki": [
+   "fail-loud-r12-patterns",
+   "engine-creation-discipline",
+   "test-design-real-values"
+  ],
+  "systemImpact": "Fix MillTurn assembleProgram() crash. Live regression; assembleProgram throws on real input.",
+  "csDepth": [
+   "Repro: real input -> crash. Bug-finding-wiki gate doctrine.",
+   "Memory: bug-finding requires wiki entry per [[feedback_always_update_wiki_on_bug_finding]]."
+  ]
+ },
+ "CAMX-V17-P0B::U-CAMX04": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-cam.md"
+  ],
+  "addSeWiki": [
+   "dispatcher-action-design",
+   "fail-loud-r12-patterns",
+   "regression-prevention-doctrine"
+  ],
+  "systemImpact": "Fix routing; action names + method names drifted. Real-data E2E to catch.",
+  "csDepth": [
+   "Action name registry; mismatch must throw at registration not at call.",
+   "Recurring class: schema-read-first per CAMX-MS16::U06."
+  ]
+ },
+ "CAMX-V17-P0B::U-CAMX05": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-cam.md",
+   "knowledge/wiki/architecture/dispatcher-turning.md",
+   "knowledge/wiki/architecture/dispatcher-calc.md"
+  ],
+  "addSeWiki": [
+   "physics-constants-discipline",
+   "fail-loud-r12-patterns",
+   "test-design-real-values"
+  ],
+  "systemImpact": "Fix Kienzle approach angle in turning. Bug: missing approach-angle correction in turning kc1.1.",
+  "csDepth": [
+   "Kienzle force: F = kc1.1 * b * h * (h/h0)^(-mc); angle correction per ISO 3685.",
+   "Constant kc1.1 MUST be imported from src/physics/constants.ts."
+  ]
+ },
+ "CAMX-V17-P0B::U-CAMX06": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-cam.md"
+  ],
+  "addSeWiki": [
+   "fail-loud-r12-patterns",
+   "engine-creation-discipline",
+   "test-design-real-values"
+  ],
+  "systemImpact": "Fix robustness_weight=0 in OptimalStrategySelection. Bug: robustness silently ignored.",
+  "csDepth": [
+   "Default weights must be visible + non-zero; zero is a config error not a no-op.",
+   "R12: weight=0 -> log warning, never silent."
+  ]
+ },
+ "CAMX-V17-P0C::U-CAMX01": {
+  "addArchWiki": [],
+  "addSeWiki": [
+   "regression-prevention-doctrine",
+   "fail-loud-r12-patterns",
+   "per-file-scrutiny-gate"
+  ],
+  "systemImpact": "Audit and fix ALL `|| true` and keyword-only assertions across the codebase. Closes the silent-pass class.",
+  "csDepth": [
+   "`|| true` defeats fail-loud R12; grep + fix every site.",
+   "Keyword-only assertion (toContain('error')) hides defects when real error class changes."
+  ]
+ },
+ "CAMX-V17-P0C::U-CAMX02": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-cam.md"
+  ],
+  "addSeWiki": [
+   "engine-creation-discipline",
+   "test-design-real-values",
+   "schema-read-discipline"
+  ],
+  "systemImpact": "Define 14-stage pipeline validation matrix; per-stage I/O contract + assertions. Maps to DOMAIN-PIPELINE-MS0.",
+  "csDepth": [
+   "Stage contract = typed I/O + invariants.",
+   "Validation matrix enables stage-skip-detection."
+  ]
+ },
+ "CAMX-V17-P0C::U-CAMX03": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-cam.md",
+   "knowledge/wiki/architecture/dispatcher-calc.md"
+  ],
+  "addSeWiki": [
+   "physics-constants-discipline",
+   "test-design-real-values",
+   "engine-creation-discipline"
+  ],
+  "systemImpact": "Create cross-material S/F range tables; published Sandvik/Kennametal ranges per ISO group.",
+  "csDepth": [
+   "Source: vendor catalogs; cite source per entry.",
+   "Range MUST encode uncertainty (vc +/- 20%), not single value."
+  ]
+ },
+ "CAMX-V17-P0C::U-CAMX04": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-cam.md"
+  ],
+  "addSeWiki": [
+   "test-design-real-values",
+   "engine-creation-discipline",
+   "schema-read-discipline"
+  ],
+  "systemImpact": "Create controller dialect assertion library; Fanuc/Siemens/Haas/Okuma dialect differences.",
+  "csDepth": [
+   "Dialect = G-code subset + extension; assertions per controller.",
+   "Round-trip: post-processor must emit valid dialect."
+  ]
+ },
+ "CAMX-V17-P0C::U-CAMX05": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-cam.md"
+  ],
+  "addSeWiki": [
+   "test-design-real-values",
+   "fail-loud-r12-patterns",
+   "regression-prevention-doctrine"
+  ],
+  "systemImpact": "Create 50+ negative/error input test battery; invalid input + edge cases.",
+  "csDepth": [
+   "Negative-input testing is the foundation of fail-loud R12.",
+   "Each test must assert the SPECIFIC error, not just 'throws'."
+  ]
+ },
+ "CAMX-V17-P0C::U-CAMX06": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-cam.md",
+   "knowledge/wiki/architecture/dispatcher-safety.md"
+  ],
+  "addSeWiki": [
+   "fail-loud-r12-patterns",
+   "safety-tier-discipline",
+   "test-design-real-values"
+  ],
+  "systemImpact": "Create parameter sanity guard; sanity-check inputs (vc>0, ap>0, fz>0, material known).",
+  "csDepth": [
+   "Sanity check at API entry, not deep in math.",
+   "R12: NaN/Infinity must throw with field name."
+  ]
+ },
+ "CAMX-V17-P10::U-CAMX01": {
+  "addArchWiki": [],
+  "addSeWiki": [
+   "claude-md-as-pointer-index",
+   "doc-reflection-rule"
+  ],
+  "systemImpact": "Pointer-only unit citing CAMX-FINAL-ROADMAP-v17.md and LATHE-COMPREHENSIVE-ROADMAP.md for the 105-unit detailed breakdown. No standalone deliverable.",
+  "csDepth": [
+   "Pointer units are valid per claude-md-as-pointer-index; keep detail in the linked roadmap.",
+   "Drift risk: pointer can rot if linked doc deletes section."
+  ]
+ },
+ "CAMX-V17-P10::U-CAMX02": {
+  "addArchWiki": [],
+  "addSeWiki": [
+   "claude-md-as-pointer-index",
+   "doc-reflection-rule"
+  ],
+  "systemImpact": "Pointer-only unit citing CAMX-FINAL-ROADMAP-v17.md and LATHE-COMPREHENSIVE-ROADMAP.md for the 105-unit detailed breakdown. No standalone deliverable.",
+  "csDepth": [
+   "Pointer units are valid per claude-md-as-pointer-index; keep detail in the linked roadmap.",
+   "Drift risk: pointer can rot if linked doc deletes section."
+  ]
+ },
+ "CAMX-V17-P10::U-CAMX03": {
+  "addArchWiki": [],
+  "addSeWiki": [
+   "claude-md-as-pointer-index",
+   "doc-reflection-rule"
+  ],
+  "systemImpact": "Pointer-only unit citing CAMX-FINAL-ROADMAP-v17.md and LATHE-COMPREHENSIVE-ROADMAP.md for the 105-unit detailed breakdown. No standalone deliverable.",
+  "csDepth": [
+   "Pointer units are valid per claude-md-as-pointer-index; keep detail in the linked roadmap.",
+   "Drift risk: pointer can rot if linked doc deletes section."
+  ]
+ },
+ "CAMX-V17-P10::U-CAMX04": {
+  "addArchWiki": [],
+  "addSeWiki": [
+   "claude-md-as-pointer-index",
+   "doc-reflection-rule"
+  ],
+  "systemImpact": "Pointer-only unit citing CAMX-FINAL-ROADMAP-v17.md and LATHE-COMPREHENSIVE-ROADMAP.md for the 105-unit detailed breakdown. No standalone deliverable.",
+  "csDepth": [
+   "Pointer units are valid per claude-md-as-pointer-index; keep detail in the linked roadmap.",
+   "Drift risk: pointer can rot if linked doc deletes section."
+  ]
+ },
+ "CAMX-V17-P10::U-CAMX05": {
+  "addArchWiki": [],
+  "addSeWiki": [
+   "claude-md-as-pointer-index",
+   "doc-reflection-rule"
+  ],
+  "systemImpact": "Pointer-only unit citing CAMX-FINAL-ROADMAP-v17.md and LATHE-COMPREHENSIVE-ROADMAP.md for the 105-unit detailed breakdown. No standalone deliverable.",
+  "csDepth": [
+   "Pointer units are valid per claude-md-as-pointer-index; keep detail in the linked roadmap.",
+   "Drift risk: pointer can rot if linked doc deletes section."
+  ]
+ },
+ "CAMX-V17-P11::U-CAMX01": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-cam.md",
+   "knowledge/wiki/architecture/dispatcher-calc.md"
+  ],
+  "addSeWiki": [
+   "physics-constants-discipline",
+   "test-design-real-values",
+   "regression-prevention-doctrine"
+  ],
+  "systemImpact": "Physics validation against Sandvik published kc1.1. Closes the inlined-constant class.",
+  "csDepth": [
+   "Validation tolerance: +/-10% (vendor publishes nominal).",
+   "Constants MUST be imported from src/physics/constants.ts."
+  ]
+ },
+ "CAMX-V17-P11::U-CAMX02": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-cam.md",
+   "knowledge/wiki/architecture/dispatcher-calc.md"
+  ],
+  "addSeWiki": [
+   "test-design-real-values",
+   "regression-prevention-doctrine",
+   "engine-creation-discipline"
+  ],
+  "systemImpact": "S/F validation against Sandvik/Kennametal/ISCAR recommendations. Real-data benchmark across 3 vendors.",
+  "csDepth": [
+   "Three-vendor agreement is the strongest signal.",
+   "Disagreement: surface as 'vendor-band' uncertainty."
+  ]
+ },
+ "CAMX-V17-P11::U-CAMX03": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-cam.md",
+   "knowledge/wiki/architecture/dispatcher-mill.md",
+   "knowledge/wiki/architecture/dispatcher-calc.md"
+  ],
+  "addSeWiki": [
+   "test-design-real-values",
+   "regression-prevention-doctrine"
+  ],
+  "systemImpact": "Cross-material milling test; same part in 12 materials. Full physics+strategy regression.",
+  "csDepth": [
+   "12 materials cover ISO P/M/K/N/S/H x 2 hardness brackets.",
+   "Per-material expected MRR + tool life from published tables."
+  ]
+ },
+ "CAMX-V17-P11::U-CAMX04": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-cam.md",
+   "knowledge/wiki/architecture/dispatcher-turning.md",
+   "knowledge/wiki/architecture/dispatcher-calc.md"
+  ],
+  "addSeWiki": [
+   "test-design-real-values",
+   "regression-prevention-doctrine"
+  ],
+  "systemImpact": "Cross-material turning test; same part in 10 materials.",
+  "csDepth": [
+   "10 materials x turning physics.",
+   "Per-material chip-form prediction."
+  ]
+ },
+ "CAMX-V17-P11::U-CAMX05": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-cam.md",
+   "knowledge/wiki/architecture/dispatcher-mill.md",
+   "knowledge/wiki/architecture/dispatcher-turning.md"
+  ],
+  "addSeWiki": [
+   "test-design-real-values",
+   "regression-prevention-doctrine"
+  ],
+  "systemImpact": "Cross-machine test; same part on 4 machine classes (VMC/HMC/turning-center/Swiss).",
+  "csDepth": [
+   "Machine class x strategy interaction; separate concern from material x strategy.",
+   "Cycle-time scaling per machine."
+  ]
+ },
+ "CAMX-V17-P11::U-CAMX06": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-cam.md",
+   "knowledge/wiki/architecture/dispatcher-mill.md"
+  ],
+  "addSeWiki": [
+   "test-design-real-values",
+   "engine-creation-discipline"
+  ],
+  "systemImpact": "Mold cavity; P20 injection mold real-world test case.",
+  "csDepth": [
+   "Mold has steep-shallow + small-corner-radius; strategy switch zones.",
+   "Real injection mold dimensions; not synthetic."
+  ]
+ },
+ "CAMX-V17-P11::U-CAMX11": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-cam.md",
+   "knowledge/wiki/architecture/dispatcher-fiveaxis.md",
+   "knowledge/wiki/architecture/dispatcher-mill.md"
+  ],
+  "addSeWiki": [
+   "test-design-real-values",
+   "engine-creation-discipline",
+   "safety-tier-discipline"
+  ],
+  "systemImpact": "Aerospace engine component; full lifecycle test (blisk/impeller). Multi-axis + tight tolerance.",
+  "csDepth": [
+   "AS9100 traceability mandatory; FAI required.",
+   "5-axis singularity handling tested explicitly."
+  ]
+ },
+ "CAMX-V17-P11::U-CAMX12": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-cam.md",
+   "knowledge/wiki/architecture/dispatcher-turning.md"
+  ],
+  "addSeWiki": [
+   "test-design-real-values",
+   "engine-creation-discipline",
+   "safety-tier-discipline"
+  ],
+  "systemImpact": "Swiss bone screw; Ti 3.5mm medical. Swiss-type lathe + Ti machining + ISO 13485 traceability.",
+  "csDepth": [
+   "Ti 3.5mm has chip-control + heat-control challenges.",
+   "ISO 13485 material cert traceability gate."
+  ]
+ },
+ "CAMX-V17-P11::U-CAMX13": {
+  "addArchWiki": [
+   "knowledge/wiki/architecture/dispatcher-cam.md"
+  ],
+  "addSeWiki": [
+   "test-design-real-values",
+   "regression-prevention-doctrine"
+  ],
+  "systemImpact": "PRISM vs tutorial programs; benchmark across 9 machine types. Closes the 'PRISM matches expert practice' gate.",
+  "csDepth": [
+   "Tutorials = expert practice (Mastercam/hyperMILL/SolidCAM); PRISM should match within cost+cycle band.",
+   "Benchmark deltas flag where PRISM diverges from convention."
+  ]
+ }
+}

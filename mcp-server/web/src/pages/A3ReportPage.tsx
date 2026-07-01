@@ -129,7 +129,7 @@ const TEMPLATES: A3Template[] = [
       rootCauseAnalysis: 'Chatter root cause traced to worn tailstock center and excessive tool overhang. Dimensional drift caused by thermal growth without compensation macro.',
       countermeasures: [
         { id: 'cm-1', description: 'Replace tailstock live center (worn bearing)', owner: 'Maintenance', date: '2026-04-08' },
-        { id: 'cm-2', description: 'Enable thermal compensation macro on CNC-L01/L02', owner: 'CNC Programmer', date: '2026-04-12' },
+        { id: 'cm-2', description: 'Enable thermal compensation macro on LTH-01/LTH-02', owner: 'CNC Programmer', date: '2026-04-12' },
         { id: 'cm-3', description: 'Standardize tool overhang to max 4xD on setup sheets', owner: 'Process Engineer', date: '2026-04-15' },
       ],
       implementationPlan: { startDate: '2026-04-06', milestones: 'Day 1: Tailstock replacement\nWeek 2: Macro activation + test runs\nWeek 3: Setup sheet rollout\nWeek 5: Scrap trend review', budget: '$1,800' },
@@ -161,7 +161,7 @@ const TEMPLATES: A3Template[] = [
     description: 'Investigate and resolve a specific non-conformance event using A3 problem-solving.',
     prefill: {
       title: 'NCR Investigation — Customer Return',
-      background: 'Customer returned 12 units from PO-4421 due to surface finish non-conformance on bore ID. Ra measured 3.2 um versus 1.6 um requirement. All 12 from same run on CNC-L03.',
+      background: 'HOLO-KROME returned 12 die buttons from PO-4421 due to surface finish non-conformance on the bore ID. Ra measured 125 uin versus the 63 uin requirement. All 12 from the same run on LTH-03.',
       currentCondition: { oee: '81', scrapRate: '3.5', cycleTimeDeviation: '+3' },
       goal: { targetOee: '85', targetScrapRate: '1.0', targetCycleTime: '0' },
       rootCauseAnalysis: 'Boring bar insert grade changed from coated carbide (IC928) to uncoated (IC20) by second-shift operator without process engineer approval. Uncoated grade produces built-up edge at the programmed speed.',
@@ -205,7 +205,7 @@ const SEED_REPORTS: A3Report[] = [
     author: 'Sarah L.',
     date: '2026-03-15',
     status: 'submitted',
-    background: 'Scrap on turned shafts averaged 4.1% versus 2% target.',
+    background: 'Scrap on turned die buttons averaged 4.1% versus 2% target.',
     currentCondition: { oee: '78', scrapRate: '4.1', cycleTimeDeviation: '+5' },
     goal: { targetOee: '82', targetScrapRate: '2.0', targetCycleTime: '+2' },
     rootCauseAnalysis: 'Thermal drift and excessive tool overhang contributing to chatter and dimensional variation.',

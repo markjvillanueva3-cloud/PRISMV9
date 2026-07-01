@@ -1,0 +1,41 @@
+---
+title: "MIT 18.02-spring-2006 triplet stubs — auto-extracted 2026-05-23"
+type: triplet-stub
+course_code: "18.02-spring-2006"
+course_slug: mit-18-02-spring-2006
+generated_by: scripts/mit-course-triplet-extractor.mjs
+generated_at: 2026-05-24T01:37:14.239Z
+slot: india
+goal: MIT-COURSE-INTEGRATION batch extract
+related:
+  - knowledge/wiki/architecture/courses/mit-18-02-spring-2006.md
+  - state/shared/MIT-COURSE-TRIPLET-INDEX-2026-05-23.md
+---
+
+# MIT 18.02-spring-2006 — triplet stubs (auto-extracted)
+
+> Per-formula triplet stubs auto-generated from the parent course wiki entry.
+> Each row is a candidate (course → formula → engine) triplet. ✅ rows have
+> full hand-written memory + concept wiki entry. 📝 rows are stubs awaiting
+> a per-formula deep dive (lima slot, prism-academy-specialist).
+> ⬜ rows have no consuming engine documented — lima audit pending.
+
+**Source course:** [[mit-18-02-spring-2006]] · **Code:** `18.02-spring-2006` · **Dept:** MIT (subject varies)
+
+**Purpose in PRISM:** (catalog metadata only — lima audit pending)
+
+**Raw extracted-content string:** `(catalog metadata only — lima audit pending)`
+
+## Triplet candidates
+
+| Formula / algorithm / concept | Documented consuming engine(s) | Triplet status |
+|---|---|---|
+| (catalog metadata only — lima audit pending) | (no consuming engine documented in course wiki) | ⬜ no engine — needs lima audit |
+
+## Apply
+
+- Lima slot picks each 📝 row and writes the full per-formula triplet (paired memory + wiki concept entry following the [[ewma-run-to-run-controller-2026-05-23]] template).
+- ⬜ rows require an engine audit first: either the formula has no PRISM implementation yet (build candidate), or the course wiki's "Consuming engines" row is incomplete (wiki fix).
+- Re-run `node scripts/mit-course-triplet-extractor.mjs` after any course-wiki edit; the stubs are idempotent.
+
+Related: [[mit-18-02-spring-2006]] · [[reference_mit_courses_goal_scope_handoff_2026_05_23]]

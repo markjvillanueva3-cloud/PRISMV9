@@ -1,0 +1,133 @@
+{
+  "master_post_fine_tune_stats": {
+    "http": 200,
+    "parsed": {
+      "total_weights": 0,
+      "total_observations": 0,
+      "avg_confidence": 0
+    }
+  },
+  "master_post_fine_tune_get_params": {
+    "http": 200,
+    "parsed": {
+      "success": false,
+      "error": "Invalid params for 'master_post_fine_tune_get_params': controller: Invalid option: expected one of \"fanuc\"|\"siemens\"|\"haas\"|\"okuma\"|\"mazak\"|\"mitsubishi\"|\"heidenhain\"|\"hurco\"|\"brother\"|\"generic\"; operation: Invalid option: expected one of \"roughing\"|\"semi_finishing\"|\"finishing\"|\"drilling\"|\"tapping\"|\"boring\"|\"threading\"|\"probing\"|\"5axis\"|\"hsm\"|\"adaptive\"|\"unknown\"",
+      "action": "master_post_fine_tune_get_params",
+      "dispatcher": "prism_cam"
+    }
+  },
+  "master_post_unified_agi_analyze": {
+    "http": 200,
+    "parsed": {
+      "success": true,
+      "data": {
+        "quality_score": 60,
+        "dimensions": {
+          "safety": 50,
+          "efficiency": 70,
+          "accuracy": 75,
+          "maintainability": 50,
+          "controller_optimization": 50,
+          "physics_compliance": 60,
+          "tribal_adherence": 50,
+          "best_practices": 75
+        },
+        "detected_controller": "hurco_winmax_v11",
+        "detected_operations": [
+          "general_milling"
+        ],
+        "line_stats": {
+          "total": 6,
+          "rapid_moves": 0,
+          "feed_moves": 0,
+          "tool_changes": 0,
+          "comments": 0
+        },
+        "estimated_cycle_time_sec": 0,
+        "bottlenecks": [
+          {
+            "location": "safety dimension",
+            "reason": "Score 50/100 below optimal threshold",
+            "improvement_potential": 50
+          },
+          {
+            "location": "maintainability dimension",
+            "reason": "Score 50/100 below optimal threshold",
+            "improvement_potential": 50
+          },
+          {
+            "location": "controller_optimization dimension",
+            "reason": "Score 50/100 below optimal threshold",
+            "improvement_potential": 50
+          }
+        ],
+        "applicable_tribal_tips": [
+          {
+            "tip_id": "mat-003",
+            "tip_text": "Aluminum (N group) - 3x normal chipload OK with polished inserts",
+            "category": "speeds_feeds",
+            "source": "PRISM Tribal",
+            "relevance_score": 30
+          }
+        ],
+        "warnings": [
+          "Safety score below threshold - review safe start/end blocks",
+          "Controller features underutilized for hurco_winmax_v11"
+        ]
+      }
+    }
+  },
+  "master_post_get_controller_profile": {
+    "http": 200,
+    "parsed": {
+      "success": true,
+      "profile": {
+        "id": "generic",
+        "name": "Generic Fanuc-compatible",
+        "families": [
+          "Generic"
+        ],
+        "features": {
+          "coolant": {
+            "flood": {
+              "on": "M8",
+              "off": "M9"
+            }
+          }
+        }
+      }
+    }
+  },
+  "master_post_get_stats": {
+    "http": 200,
+    "parsed": {
+      "success": true,
+      "version": "1.0.0",
+      "total_engines": 61,
+      "engine_categories": {
+        "master": 1,
+        "advanced": 1,
+        "optimizer": 1,
+        "pipeline": 1,
+        "generator": 1,
+        "physics": 8,
+        "deep-learning": 6,
+        "knowledge": 5,
+        "controller": 14,
+        "kinematics": 1,
+        "lathe": 5,
+        "wedm": 3,
+        "cam": 4,
+        "orchestration": 5,
+        "analysis": 1,
+        "verification": 2,
+        "telemetry": 1,
+        "learning": 1
+      },
+      "controllers_supported": 14,
+      "tribal_tips": 14,
+      "cam_systems": 18,
+      "physics_models": 8
+    }
+  }
+}

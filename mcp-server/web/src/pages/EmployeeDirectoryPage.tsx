@@ -13,6 +13,7 @@ import {
   shiftClockOut,
   updateEmployeeStatus,
 } from '../api/client';
+import { unwrapPrism } from '../api/unwrap';
 import { ErrorState, LoadingState } from '../components/LoadingState';
 import {
   ActionButton,
@@ -71,7 +72,8 @@ export function EmployeeDirectoryPage() {
     setError(null);
     try {
       const response = searchQuery ? await employeeSearch({ query: searchQuery }) : await listEmployees();
-      setEmployees((((response.result as any)?.employees ?? response.result ?? []) as Employee[]));
+      const payload = unwrapPrism(response);
+      setEmployees((((payload as any)?.employees ?? payload ?? []) as Employee[]));
     } catch (issue) {
       setError(issue instanceof ApiError ? issue.message : 'Failed to load employees');
     } finally {
@@ -84,7 +86,8 @@ export function EmployeeDirectoryPage() {
     setError(null);
     try {
       const response = await employeeDeptSummary();
-      setDeptSummary((((response.result as any)?.departments ?? response.result ?? []) as any[]));
+      const payload = unwrapPrism(response);
+      setDeptSummary((((payload as any)?.departments ?? payload ?? []) as any[]));
     } catch (issue) {
       setError(issue instanceof ApiError ? issue.message : 'Failed to load departments');
     } finally {
@@ -202,7 +205,7 @@ export function EmployeeDirectoryPage() {
         role: newRole,
         hourly_rate: parseFloat(newRate) || 0,
       });
-      const result = response.result as any;
+      const result = unwrapPrism(response) as any;
       setOnboardResult(result);
       setOnboardingEmployee({ id: result?.id ?? '', name: `${newFirst} ${newLast}` });
       await loadEmployees();
@@ -218,7 +221,7 @@ export function EmployeeDirectoryPage() {
     setError(null);
     try {
       const response = await employeeAddSkill({ employee_id: skillEmpId, skill: skillName });
-      setSkillResult(response.result);
+      setSkillResult(unwrapPrism(response));
       await loadEmployees();
     } catch (issue) {
       setError(issue instanceof ApiError ? issue.message : 'Failed to add skill');
@@ -293,7 +296,7 @@ export function EmployeeDirectoryPage() {
     setError(null);
     try {
       const response = await employeeUtilization({ employee_id: utilEmpId });
-      setUtilData(response.result);
+      setUtilData(unwrapPrism(response));
     } catch (issue) {
       setError(issue instanceof ApiError ? issue.message : 'Failed to load utilization');
     } finally {

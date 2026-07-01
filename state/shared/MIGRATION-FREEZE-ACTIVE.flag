@@ -1,0 +1,25 @@
+# PRISM HW-MIGRATION FREEZE — ACTIVE MARKER
+#
+# The EXISTENCE of this file asserts the operator's hardware/drive-migration
+# freeze is currently ACTIVE. While present, fleet-task-health-watch.mjs treats
+# DELIBERATELY-DISABLED non-load-bearing PRISM scheduled tasks as an EXPECTED
+# pause (informational) instead of a degraded safety net — so the every-Stop
+# "scheduled-task safety net WARN" stops crying wolf on a state the operator
+# intentionally created. (~47 tasks are frozen; the disabled set fluctuates
+# across readings, so a marker — not a static list — is the only robust track.)
+#
+# SOURCE OF TRUTH (the human note this machine-readable marker mirrors):
+#   .claude/helpers/install-vault-rot-sentinel-cron.ps1 lines 11-16
+#   "DO NOT run this installer ... until the operator confirms the migration is complete."
+#   Project memory: project_scheduled_task_migration_freeze_2026_06_08
+#
+# LOAD-BEARING TASKS ARE NEVER EXCUSED BY THIS MARKER: a disabled MUST_EXIST or
+# crash-critical task (e.g. a reaper) still escalates — the operator would not
+# freeze a load-bearing safety net, so a disabled one is a real signal.
+#
+# WHEN THE MIGRATION COMPLETES: DELETE this file. The watch will immediately
+# resume flagging any still-disabled task as a degradation — your re-enable
+# reminder surfaces exactly when it should. (Override without deleting:
+# env PRISM_MIGRATION_FREEZE_ACTIVE=0 forces inactive even if this file exists.)
+#
+# Created: 2026-06-09 (slot golf, synergy /goal — U-FTH-MIGRATION-FREEZE-MARKER)

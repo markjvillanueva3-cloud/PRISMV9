@@ -1,0 +1,283 @@
+{
+  "id": "WEDM-GAPFILL-MS0",
+  "title": "Wire EDM Gap Fill — 91→100 Production Hardening",
+  "track": "WEDM-GAPFILL",
+  "version": "1.0.0",
+  "status": "complete",
+  "created_at": "2026-04-11",
+  "completed_at": "2026-04-12",
+  "completion_commit": "e816b7e6d",
+  "completion_note": "11 of 15 U-WGAP units complete. 4 INFRA-blocked units (electrical/scheduling infrastructure) out of WEDM scope — noted in roadmap-index.json. All in-scope gaps closed.",
+  "philosophy": "Close the 5 structural gaps identified by 10-role scrutiny audit. Each gap maps to a specific role deficit. Prioritized by production impact for JM Die Monday testing.",
+  "dependencies": ["WEDM-HARDEN-MS0"],
+  "total_units": 15,
+  "sessions": 5,
+  "estimated_hours": 8,
+
+  "gap_analysis": {
+    "source": "10-role scrutiny audit (2026-04-11)",
+    "starting_score": 91,
+    "target_score": 98,
+    "note": "100 requires machine I/O integration (electrical safety) and scheduling infrastructure — those are INFRA-MS0 dependencies, not WEDM scope",
+    "gaps": [
+      {
+        "id": "GAP-1",
+        "title": "Imperial/Inch G-code Output",
+        "score_cost": -2.0,
+        "roles_affected": ["Operator", "CAM Programmer"],
+        "description": "All 5 controller posts hardcode G21 (metric). Coordinates never converted to inches. Feed rates inconsistent. JM Die runs inch mode on Mitsubishi FA-10S.",
+        "root_cause": "formatCoord() always outputs mm. No G20 header emission. Only H-offset converted in Mitsubishi post.",
+        "files": ["EDMPostProcessGCodeEngine.ts"]
+      },
+      {
+        "id": "GAP-2",
+        "title": "Wire Break Recovery Logic",
+        "score_cost": -2.0,
+        "roles_affected": ["Operator", "Process Engineer"],
+        "description": "System predicts wire break risk but has zero recovery logic. No backup distance calculation, no restart markers for break recovery, no auto-retry in G-code.",
+        "root_cause": "Wire break is predicted (EDMCuttingParamFlushEngine) but no recovery path exists. Tribal knowledge tip wedm-kb-003 documents the manual process but it's not automated.",
+        "files": ["EDMPostProcessGCodeEngine.ts", "EDMCuttingParamFlushEngine.ts"]
+      },
+      {
+        "id": "GAP-3",
+        "title": "Machine Scheduling/Capacity Integration",
+        "score_cost": -2.0,
+        "roles_affected": ["Owner", "Sales Engineer"],
+        "description": "No machine availability check before promising delivery. No queue depth, no reservation, no conflict detection.",
+        "root_cause": "Requires scheduling infrastructure (CapacityPlanningEngine exists for milling but not wired for WEDM).",
+        "files": ["EDMFeasibilityEngine.ts", "CapacityPlanningEngine.ts"],
+        "note": "Partially blocked by INFRA — but basic queue awareness can be added"
+      },
+      {
+        "id": "GAP-4",
+        "title": "STEP/IGES Geometry Import Flow",
+        "score_cost": -1.5,
+        "roles_affected": ["CAM Programmer"],
+        "description": "Routes advertise STEP/IGES support but P2P pipeline only handles DXF and pre-parsed contours. StepImportEngine exists but not wired into WEDM flow.",
+        "root_cause": "photo-to-program route checks for dxf_content and image_base64 but not step_content or iges_content.",
+        "files": ["edm.ts (route)", "WEDMPrintToProgramEngine.ts"]
+      },
+      {
+        "id": "GAP-5",
+        "title": "Electrical Safety Active Checks",
+        "score_cost": -1.5,
+        "roles_affected": ["Safety Officer"],
+        "description": "No dielectric level validation, no tank interlock status, no emergency stop handling, no fire suppression verification. Setup sheet has warnings but no active checks.",
+        "root_cause": "Requires machine I/O integration for true active checks. Can add pre-flight checklist validation as intermediate step.",
+        "files": ["WEDMSetupSheetEngine.ts", "EDMPostProcessGCodeEngine.ts"]
+      }
+    ]
+  },
+
+  "phases": [
+    {
+      "id": "P1",
+      "title": "Imperial G-code + Wire Break Recovery",
+      "sessions": 2,
+      "units": [
+        {
+          "id": "U-WGAP01",
+          "title": "Imperial coordinate conversion in formatCoord()",
+          "description": "Add units parameter to formatCoord(). When imperial: divide all X/Y/U/V coordinates by 25.4, emit G20 instead of G21 in header, convert feed rates to IPM.",
+          "depends_on": [],
+          "files_modified": ["src/engines/EDMPostProcessGCodeEngine.ts"],
+          "exit_criteria": [
+            "G20 emitted in header when units='imperial'",
+            "All X/Y/U/V coordinates output in inches",
+            "Feed rates output in IPM",
+            "Existing metric tests still pass"
+          ],
+          "abort_criteria": ["Any existing WEDM test fails", "Build breaks", "Metric output changes"]
+        },
+        {
+          "id": "U-WGAP02",
+          "title": "Imperial support across all 5 controller posts",
+          "description": "Apply imperial conversion to Fanuc, Sodick, Makino, AgieCharmilles posts (Mitsubishi done in U-WGAP01). Each post gets G20/G21 header and coordinate conversion.",
+          "depends_on": ["U-WGAP01"],
+          "files_modified": ["src/engines/EDMPostProcessGCodeEngine.ts"],
+          "exit_criteria": [
+            "All 5 posts emit correct G20/G21 based on units parameter",
+            "Coordinates consistent across posts",
+            "New test: imperial output produces valid inch-mode G-code"
+          ]
+        },
+        {
+          "id": "U-WGAP03",
+          "title": "Wire break recovery: backup distance calculation",
+          "description": "New function calculateBreakRecovery(breakPosition, passNumber, material) → {backup_mm, retry_count, reduced_params}. Based on tribal knowledge tip wedm-kb-003 (2mm behind break) with material-specific adjustments.",
+          "depends_on": [],
+          "files_modified": ["src/engines/EDMCuttingParamFlushEngine.ts"],
+          "knowledge_sources": ["wedm-knowledge-tips.ts: wedm-kb-003", "Sodick operation manual: AWT retry"],
+          "exit_criteria": [
+            "calculateBreakRecovery returns valid backup distance",
+            "Backup distance 1.5-3mm range (material-dependent)",
+            "Reduced parameters (20% power reduction) for restart",
+            "Max retry count 3 (matches industry standard)"
+          ]
+        },
+        {
+          "id": "U-WGAP04",
+          "title": "Wire break recovery: G-code restart markers",
+          "description": "Emit Mitsubishi-specific restart markers in G-code at every pass boundary. On wire break, controller can jump to nearest restart marker and back up by calculated distance. Uses N-number restart convention.",
+          "depends_on": ["U-WGAP03"],
+          "files_modified": ["src/engines/EDMPostProcessGCodeEngine.ts"],
+          "exit_criteria": [
+            "Restart markers (N-numbers with comments) at every pass start",
+            "Break recovery block with M21/M20 re-thread sequence",
+            "G-code comment documenting backup distance per restart point",
+            "Dispatcher action wedm_plan_break_recovery added"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "P2",
+      "title": "Machine Capacity + STEP/IGES",
+      "sessions": 2,
+      "units": [
+        {
+          "id": "U-WGAP05",
+          "title": "WEDM machine queue awareness",
+          "description": "Wire CapacityPlanningEngine's machine_availability check into EDMFeasibilityEngine. When checking delivery feasibility, query machine queue for estimated available slot. Not full scheduling — just 'machine busy until X, your job takes Y hours'.",
+          "depends_on": [],
+          "files_modified": ["src/engines/EDMFeasibilityEngine.ts"],
+          "knowledge_sources": ["CapacityPlanningEngine.ts", "ShopConfigurationEngine.ts (JM Die machine list)"],
+          "exit_criteria": [
+            "Feasibility result includes machine_availability field",
+            "If machine has queued jobs, estimated_start_time is populated",
+            "delivery_hours check accounts for queue wait time",
+            "Graceful fallback if no queue data available"
+          ]
+        },
+        {
+          "id": "U-WGAP06",
+          "title": "WEDM machine reservation (book-ahead)",
+          "description": "New dispatcher action wedm_reserve_machine that creates a time slot reservation for a WEDM job. Simple file-based reservation (JSON in data/state/). Checks for conflicts before booking.",
+          "depends_on": ["U-WGAP05"],
+          "files_created": ["src/engines/WEDMSchedulingEngine.ts"],
+          "files_modified": ["src/tools/dispatchers/edmDispatcher.ts", "src/routes/edm.ts"],
+          "exit_criteria": [
+            "wedm_reserve_machine action creates reservation",
+            "wedm_check_availability action returns open slots",
+            "Conflict detection prevents double-booking",
+            "Reservation persists to disk (data/state/wedm-reservations.json)"
+          ]
+        },
+        {
+          "id": "U-WGAP07",
+          "title": "STEP file import → WEDM contour extraction",
+          "description": "Wire StepImportEngine output into WEDMPrintToProgramEngine. Route /photo-to-program and /gcode-export-from-dxf accept step_content parameter. Extract 2D profiles from 3D STEP solid for wire EDM path planning.",
+          "depends_on": [],
+          "files_modified": ["src/routes/edm.ts", "src/engines/WEDMPrintToProgramEngine.ts"],
+          "knowledge_sources": ["StepImportEngine.ts"],
+          "exit_criteria": [
+            "step_content parameter accepted in P2P pipeline",
+            "STEP geometry extracted as WireEDMContour[]",
+            "Route /photo-to-program handles STEP input",
+            "Fallback error message if STEP parsing fails"
+          ]
+        },
+        {
+          "id": "U-WGAP08",
+          "title": "IGES file import → WEDM contour extraction",
+          "description": "Same as U-WGAP07 but for IGES files. Wire IGESImportEngine output into P2P pipeline.",
+          "depends_on": ["U-WGAP07"],
+          "files_modified": ["src/routes/edm.ts", "src/engines/WEDMPrintToProgramEngine.ts"],
+          "exit_criteria": [
+            "iges_content parameter accepted in P2P pipeline",
+            "IGES 2D profiles extracted as WireEDMContour[]",
+            "Both STEP and IGES paths tested"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "P3",
+      "title": "Safety Hardening + Final Polish",
+      "sessions": 1,
+      "units": [
+        {
+          "id": "U-WGAP09",
+          "title": "Pre-flight safety checklist engine",
+          "description": "New pre-flight checklist that the operator must acknowledge before the machine runs a PRISM-generated program. Checklist items are dynamic based on job parameters (thickness, material, taper, submerged mode). Not machine I/O — human verification gate.",
+          "depends_on": [],
+          "files_created": ["src/engines/WEDMPreFlightCheckEngine.ts"],
+          "files_modified": ["src/tools/dispatchers/edmDispatcher.ts", "src/routes/edm.ts"],
+          "exit_criteria": [
+            "wedm_preflight_check action generates checklist",
+            "Checklist items are material/thickness/taper-specific",
+            "Includes: dielectric level, interlock, wire path, tank level, fire suppression",
+            "Returns JSON checklist + printable HTML",
+            "Route /edm/preflight exposes checklist"
+          ]
+        },
+        {
+          "id": "U-WGAP10",
+          "title": "Safety interlock simulation in G-code comments",
+          "description": "Add safety verification comments to generated G-code. Before M84 (power on), emit comment block reminding operator to verify interlocks. Before M78 (tank fill), verify tank valve position. These are comments, not M-codes — controller ignores them but operator sees them on screen.",
+          "depends_on": ["U-WGAP09"],
+          "files_modified": ["src/engines/EDMPostProcessGCodeEngine.ts"],
+          "exit_criteria": [
+            "Safety verification comments before M84, M78, M20",
+            "Material-specific caution comments (carbide → wire type, titanium → alpha case)",
+            "Pre-cut checklist summary in program header comments"
+          ]
+        },
+        {
+          "id": "U-WGAP11",
+          "title": "Comprehensive test suite for all gap fills",
+          "description": "50+ new tests covering: imperial output validation, wire break recovery params, machine availability check, STEP/IGES input paths, pre-flight checklist generation, safety comments in G-code.",
+          "depends_on": ["U-WGAP01", "U-WGAP03", "U-WGAP05", "U-WGAP07", "U-WGAP09"],
+          "files_created": ["src/__tests__/wedm-gapfill-validation.test.ts"],
+          "exit_criteria": [
+            "50+ new tests all passing",
+            "Imperial tests verify inch coordinates",
+            "Break recovery tests verify backup distance",
+            "Pre-flight tests verify dynamic checklist",
+            "No regression in existing 487 WEDM tests"
+          ]
+        }
+      ]
+    }
+  ],
+
+  "forge_triple": {
+    "protective_hook": "wedm-production-gate — blocks program download if pre-flight checklist not acknowledged",
+    "mcp_actions": [
+      "wedm_preflight_check — generates pre-flight safety checklist",
+      "wedm_plan_break_recovery — calculates wire break recovery parameters",
+      "wedm_reserve_machine — books machine time slot",
+      "wedm_check_availability — queries machine queue"
+    ],
+    "skills": [
+      "/wedm-preflight — run pre-flight check before cutting",
+      "/wedm-quote-photo — photo-to-quote shortcut (already implemented)"
+    ]
+  },
+
+  "score_projection": {
+    "after_P1": "+4 pts (imperial + wire break recovery) → 95/100",
+    "after_P2": "+3.5 pts (scheduling + STEP/IGES) → 98.5/100",
+    "after_P3": "+1.5 pts (safety hardening) → ~98/100",
+    "theoretical_max": "98/100 — remaining 2 pts require machine I/O integration (INFRA dependency)",
+    "roles_at_9_plus": "All 10 roles at 9.0+ after P3"
+  },
+
+  "risks": [
+    {
+      "risk": "Imperial conversion breaks existing inch-mode programs at JM Die",
+      "mitigation": "Test against real JM Die NC files before deploying. Keep metric as default.",
+      "severity": "high"
+    },
+    {
+      "risk": "StepImportEngine may not handle all STEP AP214/AP242 variants",
+      "mitigation": "Graceful fallback with descriptive error. DXF remains primary path.",
+      "severity": "medium"
+    },
+    {
+      "risk": "Wire break recovery backup distance varies by controller firmware version",
+      "mitigation": "Make backup distance configurable with sensible default (2mm from wedm-kb-003).",
+      "severity": "low"
+    }
+  ]
+}

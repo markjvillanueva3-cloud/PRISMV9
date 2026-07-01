@@ -1,0 +1,358 @@
+diff --git a/mcp-server/src/__tests__/erp-rfq-routes.test.ts b/mcp-server/src/__tests__/erp-rfq-routes.test.ts
+index c752a1fbc2..1e97a02268 100644
+--- a/mcp-server/src/__tests__/erp-rfq-routes.test.ts
++++ b/mcp-server/src/__tests__/erp-rfq-routes.test.ts
+@@ -69,6 +69,21 @@ const callTool: CallToolFn = vi.fn(async (tool: string, action: string, params:
+   if (action === "rfq_receive") {
+     return env({ success: true, data: { id: "RFQ-NEW", status: "rfq_received" } });
+   }
++  if (action === "credit_review_all") {
++    return env({
++      success: true,
++      data: {
++        reviews: [
++          { customer_id: "C2", customer_name: "Over", utilization_pct: 120, over_limit: true, risk: "over_limit" },
++          { customer_id: "C1", customer_name: "Low", utilization_pct: 10, over_limit: false, risk: "ok" },
++        ],
++        summary: { total: 2, over_limit: 1, on_hold: 0, at_risk: 1 },
++      },
++    });
++  }
++  if (action === "credit_review") {
++    return env({ success: true, data: { customer_id: params.customer_id, utilization_pct: 50, risk: "ok" } });
++  }
+   return env({ success: true, data: {} });
+ });
+ 
+@@ -149,3 +164,24 @@ describe("U-HOTEL-RFQ-ASSIGN: /api/v1/erp/rfq* routes", () => {
+     expect(json.data.id).toBe("RFQ-NEW");
+   });
+ });
++
++describe("U-HOTEL-CREDIT-REVIEW: /api/v1/erp/credit-review* routes (gap #3)", () => {
++  it("GET /credit-review-all surfaces {reviews,summary} at res.data (envelope-unwrapped)", async () => {
++    const { status, json } = await http("GET", "/api/v1/erp/credit-review-all");
++    expect(status).toBe(200);
++    expect(json.ok).toBe(true);
++    // The FE reads arrayFromPayload(res, ['reviews',...]) -> data.reviews must be the array.
++    expect(Array.isArray(json.data.reviews)).toBe(true);
++    expect(json.data.reviews[0].customer_id).toBe("C2");
++    expect(json.data.summary.over_limit).toBe(1);
++  });
++
++  it("GET /credit-review/:customer_id forwards the path param to the dispatcher", async () => {
++    calls.length = 0;
++    const { status, json } = await http("GET", "/api/v1/erp/credit-review/ALCOA");
++    expect(status).toBe(200);
++    const c = calls.find((x) => x.action === "credit_review");
++    expect(c?.params.customer_id).toBe("ALCOA");
++    expect(json.data.customer_id).toBe("ALCOA");
++  });
++});
+diff --git a/mcp-server/src/engines/CustomerManagementEngine.ts b/mcp-server/src/engines/CustomerManagementEngine.ts
+index 1ca84fc1d0..0c2f4bfd7f 100644
+--- a/mcp-server/src/engines/CustomerManagementEngine.ts
++++ b/mcp-server/src/engines/CustomerManagementEngine.ts
+@@ -26,6 +26,26 @@ export interface Customer {
+   tags: string[];
+ }
+ 
++/**
++ * A standing credit-review row for the CreditManagementPage desk. Reflects the SHOP's view of a
++ * CUSTOMER's credit posture (limit/balance/utilization) -- not the shop's own cost/margin. Operator-only
++ * (the credit routes are verifyToken-gated), so this carries no anon-leak concern.
++ */
++export interface CreditReview {
++  customer_id: string;
++  customer_name: string;
++  status: Customer['status'];
++  credit_limit: number;
++  current_balance: number;
++  available_credit: number;
++  /** current_balance as a % of credit_limit (0 when no limit). */
++  utilization_pct: number;
++  over_limit: boolean;
++  payment_terms: string;
++  /** Release-risk tier: on_hold (status) > over_limit > at_risk (>=90% util) > ok. */
++  risk: 'ok' | 'at_risk' | 'over_limit' | 'on_hold';
++}
++
+ export interface CommunicationLog {
+   id: string;
+   customer_id: string;
+@@ -293,6 +313,68 @@ class CustomerManagementEngine {
+     };
+   }
+ 
++  /**
++   * Standing credit review for ONE customer (no pending order). Computes the posture the credit desk
++   * uses to decide whether to release/hold a customer: available credit, utilization, and a risk tier.
++   * Reuses the same credit_limit/current_balance arithmetic as checkCredit (single source).
++   * @param customer_id - the customer to review.
++   * @returns the credit review row.
++   * @throws if the customer is unknown (fail-loud).
++   */
++  reviewCredit(customer_id: string): CreditReview {
++    const cust = this.customers.get(customer_id);
++    if (!cust) throw new Error(`Customer ${customer_id} not found`);
++    return this.buildCreditReview(cust);
++  }
++
++  /**
++   * Batch credit review across ALL customers (the CreditManagementPage desk view). Sorted worst-first
++   * (highest utilization) so the operator sees release-risk customers at the top.
++   * @returns { reviews, summary } -- reviews is the per-customer array the FE renders.
++   */
++  reviewAllCredit(): { reviews: CreditReview[]; summary: { total: number; over_limit: number; on_hold: number; at_risk: number } } {
++    const reviews = [...this.customers.values()]
++      .map((c) => this.buildCreditReview(c))
++      .sort((a, b) => b.utilization_pct - a.utilization_pct);
++    return {
++      reviews,
++      summary: {
++        total: reviews.length,
++        over_limit: reviews.filter((r) => r.over_limit).length,
++        on_hold: reviews.filter((r) => r.risk === "on_hold").length,
++        at_risk: reviews.filter((r) => r.risk === "at_risk" || r.risk === "over_limit").length,
++      },
++    };
++  }
++
++  /** Shared credit-review row builder (single source for reviewCredit + reviewAllCredit). */
++  private buildCreditReview(cust: Customer): CreditReview {
++    const available = cust.credit_limit - cust.current_balance;
++    const over_limit = available < 0;
++    // Utilization as a % of the limit (0 when no limit set, to avoid divide-by-zero).
++    const utilization_pct = cust.credit_limit > 0
++      ? Math.round((cust.current_balance / cust.credit_limit) * 1000) / 10
++      : 0;
++    // Risk tier: an on_hold status dominates; else over-limit; else >=90% utilization is at-risk.
++    const risk: CreditReview["risk"] =
++      cust.status === "on_hold" ? "on_hold"
++        : over_limit ? "over_limit"
++          : utilization_pct >= 90 ? "at_risk"
++            : "ok";
++    return {
++      customer_id: cust.id,
++      customer_name: cust.name,
++      status: cust.status,
++      credit_limit: cust.credit_limit,
++      current_balance: cust.current_balance,
++      available_credit: available,
++      utilization_pct,
++      over_limit,
++      payment_terms: cust.payment_terms,
++      risk,
++    };
++  }
++
+   // --- Communication Log ---
+   logCommunication(params: Omit<CommunicationLog, 'id'>): CommunicationLog {
+     const log: CommunicationLog = { ...params, id: `COMM-${Date.now()}` };
+diff --git a/mcp-server/src/routes/erp.ts b/mcp-server/src/routes/erp.ts
+index fe435a03d0..0efd6941a8 100644
+--- a/mcp-server/src/routes/erp.ts
++++ b/mcp-server/src/routes/erp.ts
+@@ -137,6 +137,16 @@ export function createErpRouter(callTool: CallToolFn): Router {
+   router.post("/rfq-assign", verifyToken, rfqRoute("rfq_assign"));
+   router.post("/rfq-status", verifyToken, rfqRoute("rfq_update_status"));
+ 
++  // ─── Credit Management (U-HOTEL-CREDIT-REVIEW, gap #3) ─────────────────────
++  // The CreditManagementPage (web/src/pages/CreditManagementPage.tsx) calls creditReviewAll() and
++  // creditReview(id) -> these routes were missing -> the desk was dead. Reuses the rfqRoute envelope-
++  // unwrap helper (prism_business returns the {type,text} slimResponse envelope -- same dead-panel class).
++  // requireRole(lead+): customer credit_limit/balance/utilization is sensitive financial data (the credit
++  // desk is a manager function), mirroring erp.ts's financial-tier on invoice/dispatch routes.
++  router.get("/credit-review-all", verifyToken, requireRole("lead", "hr_manager", "admin"), rfqRoute("credit_review_all"));
++  router.get("/credit-review/:customer_id", verifyToken, requireRole("lead", "hr_manager", "admin"),
++    rfqRoute("credit_review", (req) => ({ customer_id: String(req.params.customer_id) })));
++
+   // ─── Job Management ───────────────────────────────────────────────────────
+   router.post("/job/plan", verifyToken, async (req, res) => {
+     try {
+diff --git a/mcp-server/src/tools/dispatchers/businessDispatcher.ts b/mcp-server/src/tools/dispatchers/businessDispatcher.ts
+index 965f230f4c..da2a708721 100644
+--- a/mcp-server/src/tools/dispatchers/businessDispatcher.ts
++++ b/mcp-server/src/tools/dispatchers/businessDispatcher.ts
+@@ -799,6 +799,8 @@ const ACTIONS = [
+   "customer_list",
+   "customer_seed_jm_corpus",
+   "customer_credit_check",
++  "credit_review",
++  "credit_review_all",
+   "customer_log_comm",
+   "customer_comm_history",
+   "customer_follow_ups",
+@@ -3599,6 +3601,17 @@ Params vary by action — pass relevant fields in params object.`,
+             );
+             break;
+           }
++          // HOTEL/U-HOTEL-CREDIT-REVIEW (gap #3): standing credit-desk reviews (no pending order).
++          case "credit_review": {
++            const engine = await getEngine("customerMgmt");
++            result = { success: true, data: engine.reviewCredit(params.customer_id ?? "") };
++            break;
++          }
++          case "credit_review_all": {
++            const engine = await getEngine("customerMgmt");
++            result = { success: true, data: engine.reviewAllCredit() };
++            break;
++          }
+           case "customer_log_comm": {
+             const engine = await getEngine("customerMgmt");
+             result = engine.logCommunication({
+diff --git a/mcp-server/web/src/pages/CreditManagementPage.tsx b/mcp-server/web/src/pages/CreditManagementPage.tsx
+index 88b67e40fd..c4b13adfd1 100644
+--- a/mcp-server/web/src/pages/CreditManagementPage.tsx
++++ b/mcp-server/web/src/pages/CreditManagementPage.tsx
+@@ -76,7 +76,12 @@ export function CreditManagementPage() {
+   }
+ 
+   const atRiskCount = reviews.filter((entry) => {
+-    const status = firstText(entry, ['status', 'risk', 'credit_status']).toLowerCase();
++    // Prefer the engine's authoritative `risk` tier (at_risk | over_limit | on_hold | ok) -- read it FIRST,
++    // since the customer `status` ('active') would otherwise shadow it and under-count over-limit accounts.
++    const risk = firstText(entry, ['risk', 'credit_status']).toLowerCase();
++    if (risk) return risk === 'at_risk' || risk === 'over_limit' || risk === 'on_hold';
++    // Legacy fallback for any payload without a `risk` field.
++    const status = firstText(entry, ['status']).toLowerCase();
+     return status.includes('hold') || status.includes('risk') || status.includes('past');
+   }).length;
+   const pipelineValue = pipeline.reduce((sum, entry) => sum + (firstNumber(entry, ['value', 'amount', 'quote_amount']) ?? 0), 0);
+
+=== NEW FILE: CustomerManagementEngine.credit-review.test.ts ===
+/**
+ * CustomerManagementEngine.credit-review.test.ts -- U-HOTEL-CREDIT-REVIEW (gap #3 of HOTEL-ERP-FRONTEND-WIRING-SPEC)
+ *
+ * The CreditManagementPage desk had no backing route -- creditReviewAll()/creditReview(id) 404'd.
+ * This unit added reviewCredit(id) + reviewAllCredit() (standing credit reviews, no pending order) onto
+ * CustomerManagementEngine. Tests the credit posture math + risk tiering + the batch sort, with real
+ * reference values (no toBeDefined stubs).
+ *
+ * Engine isolation: the singleton's customers Map is process-global -- cleared before each test
+ * (mirrors the sibling normalize test's reset()). Assumes vitest serial in-file execution.
+ */
+import { describe, it, expect, beforeEach } from "vitest";
+import { customerManagementEngine } from "../engines/CustomerManagementEngine.js";
+import type { Customer } from "../engines/CustomerManagementEngine.js";
+
+function reset(): void {
+  (customerManagementEngine as any).customers.clear();
+  (customerManagementEngine as any).jobHistory?.clear?.();
+  (customerManagementEngine as any).nextId = 1;
+}
+
+type CustomerInput = Omit<Customer, "id" | "current_balance" | "created_at" | "status">;
+function customerDefaults(over: Partial<CustomerInput> = {}): CustomerInput {
+  return {
+    name: "Acme",
+    company: "Acme Inc",
+    contact_name: "Jane Doe",
+    email: "jane@acme.com",
+    phone: "(555) 111-2222",
+    address: { street: "1 Main", city: "Town", state: "OH", zip: "44000" },
+    credit_limit: 100000,
+    payment_terms: "Net 30",
+    pricing_tier: "standard",
+    discount_pct: 0,
+    tax_exempt: false,
+    tags: [],
+    ...over,
+  };
+}
+
+/** Create a customer then set its balance + status (createCustomer always starts balance=0, active). */
+function seedCustomer(over: Partial<CustomerInput>, balance: number, status?: Customer["status"]): Customer {
+  const c = customerManagementEngine.createCustomer(customerDefaults(over));
+  return customerManagementEngine.updateCustomer(c.id, { current_balance: balance, ...(status ? { status } : {}) });
+}
+
+describe("CustomerManagementEngine -- credit review (U-HOTEL-CREDIT-REVIEW gap #3)", () => {
+  beforeEach(() => reset());
+
+  it("reviewCredit computes available_credit + utilization for a healthy customer", () => {
+    const c = seedCustomer({ name: "Healthy", credit_limit: 100000 }, 25000);
+    const r = customerManagementEngine.reviewCredit(c.id);
+    expect(r.credit_limit).toBe(100000);
+    expect(r.current_balance).toBe(25000);
+    expect(r.available_credit).toBe(75000);
+    expect(r.utilization_pct).toBe(25.0); // 25000/100000
+    expect(r.over_limit).toBe(false);
+    expect(r.risk).toBe("ok");
+  });
+
+  it("reviewCredit flags over_limit (balance exceeds limit) with negative available_credit", () => {
+    const c = seedCustomer({ name: "OverLimit", credit_limit: 50000 }, 60000);
+    const r = customerManagementEngine.reviewCredit(c.id);
+    expect(r.available_credit).toBe(-10000);
+    expect(r.over_limit).toBe(true);
+    expect(r.risk).toBe("over_limit");
+  });
+
+  it("reviewCredit flags at_risk at >=90% utilization (not yet over limit)", () => {
+    const c = seedCustomer({ name: "Tight", credit_limit: 100000 }, 95000);
+    const r = customerManagementEngine.reviewCredit(c.id);
+    expect(r.utilization_pct).toBe(95.0);
+    expect(r.over_limit).toBe(false);
+    expect(r.risk).toBe("at_risk");
+  });
+
+  it("reviewCredit: exactly 90.0% utilization is at_risk (the inclusive boundary -- pins >= not >)", () => {
+    const c = seedCustomer({ name: "Boundary", credit_limit: 100000 }, 90000);
+    const r = customerManagementEngine.reviewCredit(c.id);
+    expect(r.utilization_pct).toBe(90.0);
+    expect(r.risk).toBe("at_risk"); // a >90 (exclusive) change would flip this to "ok" -> test fails
+  });
+
+  it("reviewCredit: 89.9% utilization is still ok (just below the at_risk boundary)", () => {
+    const c = seedCustomer({ name: "JustUnder", credit_limit: 100000 }, 89900);
+    const r = customerManagementEngine.reviewCredit(c.id);
+    expect(r.utilization_pct).toBe(89.9);
+    expect(r.risk).toBe("ok");
+  });
+
+  it("reviewCredit: on_hold status dominates the risk tier (even if utilization is low)", () => {
+    const c = seedCustomer({ name: "Held", credit_limit: 100000 }, 1000, "on_hold");
+    const r = customerManagementEngine.reviewCredit(c.id);
+    expect(r.status).toBe("on_hold");
+    expect(r.risk).toBe("on_hold"); // status wins over the low-utilization "ok"
+  });
+
+  it("reviewCredit: zero credit_limit yields 0% utilization (no divide-by-zero)", () => {
+    const c = seedCustomer({ name: "NoLimit", credit_limit: 0 }, 0);
+    const r = customerManagementEngine.reviewCredit(c.id);
+    expect(r.utilization_pct).toBe(0);
+    expect(Number.isFinite(r.utilization_pct)).toBe(true);
+  });
+
+  it("reviewCredit throws on an unknown customer (fail-loud)", () => {
+    expect(() => customerManagementEngine.reviewCredit("NOPE")).toThrow(/not found/);
+  });
+
+  it("reviewAllCredit returns every customer, sorted worst-first (highest utilization), with a summary", () => {
+    seedCustomer({ name: "Low", credit_limit: 100000 }, 10000); // 10%
+    seedCustomer({ name: "High", credit_limit: 100000 }, 95000); // 95% at_risk
+    seedCustomer({ name: "Over", credit_limit: 50000 }, 60000); // 120% over_limit
+    const { reviews, summary } = customerManagementEngine.reviewAllCredit();
+    expect(reviews).toHaveLength(3);
+    // worst-first: 120% > 95% > 10%
+    expect(reviews.map((r) => r.utilization_pct)).toEqual([120.0, 95.0, 10.0]);
+    expect(summary.total).toBe(3);
+    expect(summary.over_limit).toBe(1);
+    expect(summary.at_risk).toBe(2); // the over_limit one + the 95% one
+  });
+
+  it("reviewAllCredit summary counts on_hold separately", () => {
+    seedCustomer({ name: "A", credit_limit: 100000 }, 5000, "on_hold");
+    seedCustomer({ name: "B", credit_limit: 100000 }, 5000);
+    const { summary } = customerManagementEngine.reviewAllCredit();
+    expect(summary.on_hold).toBe(1);
+    expect(summary.over_limit).toBe(0);
+  });
+
+  it("reviewAllCredit on an empty portfolio returns an empty list + zeroed summary (no throw)", () => {
+    const { reviews, summary } = customerManagementEngine.reviewAllCredit();
+    expect(reviews).toEqual([]);
+    expect(summary).toEqual({ total: 0, over_limit: 0, on_hold: 0, at_risk: 0 });
+  });
+});

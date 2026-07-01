@@ -1,0 +1,22 @@
+{
+  "schemaVersion": "1.0.0",
+  "_doc": "Rotating coordinator schedule. The coordinator is the only chat allowed to merge phase branches to main. Rotates every 24h or on >2h idle. Verified by hooks/coordinator-only-mainmerge.mjs.",
+  "rotation_interval_hours": 24,
+  "idle_promotion_hours": 2,
+  "current_coordinator": null,
+  "current_coordinator_since": null,
+  "current_coordinator_expires": null,
+  "history": [],
+  "schedule": {
+    "_doc": "Round-robin among the 6 stable session-id slots that are most frequently active. Filled in by helpers/coordinator-elect.mjs when 6 active chats are observed.",
+    "slots": [
+      {"slot": 1, "chat_id": null, "last_active": null},
+      {"slot": 2, "chat_id": null, "last_active": null},
+      {"slot": 3, "chat_id": null, "last_active": null},
+      {"slot": 4, "chat_id": null, "last_active": null},
+      {"slot": 5, "chat_id": null, "last_active": null},
+      {"slot": 6, "chat_id": null, "last_active": null}
+    ]
+  },
+  "election_rule": "Whoever's stable-session-id sorts first alphabetically among active chats becomes coordinator at midnight UTC. If that chat is idle >2h, next-in-sort takes over. Coordinator can voluntarily release via /coordinator-status --release."
+}

@@ -1591,12 +1591,10 @@ export class WireEDMDeepAIHardeningEngine {
     let pulseOff = 10;
 
     if (eCodeFamily && eCodeFamily.passes.length > 0) {
-      // Use first pass parameters as baseline
-      const firstPass = eCodeFamily.passes[0];
-      // E-codes typically encode parameters, extract approximate values
-      peakCurrent = firstPass.on ?? 15;
-      pulseOn = firstPass.on ?? 5;
-      pulseOff = firstPass.off ?? 10;
+      // ECodePass carries geometry/feed data only (feed_ipm, offset_mm, etc.).
+      // Pulse-on/pulse-off/peak-current are encoded in the E-code string but are
+      // not parsed into the struct -- retain the safe defaults declared above.
+      void eCodeFamily;
     }
 
     // Map material ISO group to material name for science engine

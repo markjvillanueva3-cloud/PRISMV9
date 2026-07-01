@@ -5,6 +5,7 @@
  */
 import { Router } from "express";
 import type { CallToolFn } from "./index.js";
+import { verifyToken } from "../middleware/auth.js";
 
 type LearningDomain = "CAD" | "CAM" | "ShopPractice" | "MachineOperation";
 type NormalizedModuleStatus = "locked" | "available" | "in_progress" | "completed";
@@ -587,6 +588,39 @@ export function createLearningRouter(callTool: CallToolFn): Router {
       res,
       () => callTool("prism_machine_live", "digital_twin_state", req.body),
       (result) => normalizeTwin(result, req.body),
+    );
+  });
+
+  // ── Document Learning (CC-EXT-MS0 P0-U07) ──────────────────────────────
+  // Express adapter for the prism_doc_learn dispatcher (documentLearningDispatcher).
+  // Upload/extract/list/get/delete document knowledge from PDFs, notes, papers.
+  //
+  // AUTH (surgical, U-INBOX-INTEGRATIONS-AUTH slot:hotel): the /document/* routes ingest + return + DELETE
+  // uploaded document content (customer prints/notes/papers) -- shop-internal, no public view -- so each is
+  // gated with verifyToken (-> 401 for anon). NOT a global `router.use`: the rest of this router (assess /
+  // plan / recommend / select / tribal / knowledge / twin) is public-ish learning reference and a global gate
+  // would regress the anon learning dashboard. DELETE especially must be gated -- a destructive doc mutation.
+  router.post("/document/upload", verifyToken, async (req, res) => {
+    await handleRoute(res, () => callTool("prism_doc_learn", "doc_upload", req.body));
+  });
+
+  router.post("/document/extract", verifyToken, async (req, res) => {
+    await handleRoute(res, () => callTool("prism_doc_learn", "doc_extract", req.body));
+  });
+
+  router.get("/documents", verifyToken, async (_req, res) => {
+    await handleRoute(res, () => callTool("prism_doc_learn", "doc_list", {}));
+  });
+
+  router.get("/document/:id", verifyToken, async (req, res) => {
+    await handleRoute(res, () =>
+      callTool("prism_doc_learn", "doc_get", { document_id: req.params.id }),
+    );
+  });
+
+  router.delete("/document/:id", verifyToken, async (req, res) => {
+    await handleRoute(res, () =>
+      callTool("prism_doc_learn", "doc_delete", { document_id: req.params.id }),
     );
   });
 

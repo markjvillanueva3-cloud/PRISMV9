@@ -23,13 +23,14 @@ related:
 |-------|-------|
 | Name | `ship-lathe` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/ship-lathe.md` |
+| Source | `C:/Users/wompu/.claude/commands/ship-lathe.md` |
 | Model | default |
 | Tags | _(none)_ |
 
 ## Description (first paragraph)
 
-You are completing a LATHE / LATHE-PRO / LATHE-PROD-READY roadmap unit. This is the lathe-specialized end-of-unit protocol — a strict superset of `/ship` that adds physics rigor, post-processor lint, lathe program validation, and JM Die regression coverage. Execute every section — skip nothing. Hard gates abort the ship; soft warnings continue with explicit user override.
+
+# /ship-lathe — Lathe Unit Completion Protocol
 
 <!-- AUTO-END -->
 

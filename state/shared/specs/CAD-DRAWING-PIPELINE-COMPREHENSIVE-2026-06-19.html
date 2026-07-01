@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta name="prism-source-hash" content="9aa6504e68a7556fa753beed4881fe430481be3424f4126d606524c3065de238">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Comprehensive CAD-Drawing Pipeline — print → validated CAD (Ollama-draws / Claude-failsafe)</title>
+<style>
+  :root {
+    --bg: #0f1014;
+    --panel: #1a1c23;
+    --panel-2: #232631;
+    --fg: #e4e6eb;
+    --fg-dim: #9aa0a8;
+    --border: #2c303a;
+    --ok: #4ade80;
+    --warn: #fbbf24;
+    --fail: #f87171;
+    --info: #60a5fa;
+    --link: #93c5fd;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; padding: 1.5rem; background: var(--bg); color: var(--fg);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, sans-serif;
+    font-size: 14px; line-height: 1.5; }
+  h1 { font-size: 1.6rem; margin: 0 0 0.25rem 0; }
+  h2 { font-size: 1.15rem; margin: 1.5rem 0 0.5rem 0; padding-bottom: 0.25rem;
+    border-bottom: 1px solid var(--border); color: var(--fg); }
+  .meta { color: var(--fg-dim); font-size: 0.85rem; margin-bottom: 1rem; }
+  .panel { background: var(--panel); border: 1px solid var(--border); border-radius: 6px;
+    padding: 0.75rem 1rem; margin-bottom: 1rem; }
+  .headline-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 0.5rem; margin-bottom: 1rem; }
+  .card { background: var(--panel-2); border: 1px solid var(--border); border-radius: 6px;
+    padding: 0.65rem 0.85rem; }
+  .card .lbl { font-size: 0.8rem; color: var(--fg-dim); }
+  .card .val { font-size: 1.4rem; font-weight: 600; margin: 0.15rem 0; font-variant-numeric: tabular-nums; }
+  .card .hint { font-size: 0.75rem; color: var(--fg-dim); }
+  .card.ok    { border-left: 3px solid var(--ok); }
+  .card.warn  { border-left: 3px solid var(--warn); }
+  .card.fail  { border-left: 3px solid var(--fail); }
+  .card.info  { border-left: 3px solid var(--info); }
+  table { width: 100%; border-collapse: collapse; margin: 0.5rem 0 1rem; font-size: 0.9rem;
+    background: var(--panel); border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }
+  caption { text-align: left; padding: 0.4rem 0.65rem; color: var(--fg-dim);
+    background: var(--panel-2); font-weight: 500; }
+  th, td { padding: 0.4rem 0.65rem; text-align: left; border-bottom: 1px solid var(--border);
+    font-variant-numeric: tabular-nums; vertical-align: top; }
+  th { background: var(--panel-2); color: var(--fg-dim); font-weight: 500;
+    text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.04em; }
+  tr:last-child td { border-bottom: none; }
+  td.right { text-align: right; }
+  ul, ol { margin: 0.4rem 0 1rem 1.25rem; }
+  li { margin: 0.15rem 0; }
+  .badge { display: inline-block; padding: 0.1rem 0.5rem; border-radius: 999px;
+    font-size: 0.75rem; font-weight: 500; background: var(--panel-2); color: var(--fg-dim);
+    border: 1px solid var(--border); }
+  .badge.ok   { background: rgba(74, 222, 128, 0.12); color: var(--ok);   border-color: rgba(74,222,128,0.3); }
+  .badge.warn { background: rgba(251, 191, 36, 0.12); color: var(--warn); border-color: rgba(251,191,36,0.3); }
+  .badge.fail { background: rgba(248, 113, 113, 0.12); color: var(--fail); border-color: rgba(248,113,113,0.3); }
+  .badge.info { background: rgba(96, 165, 250, 0.12); color: var(--info); border-color: rgba(96,165,250,0.3); }
+  .badge-grid { display: flex; flex-wrap: wrap; gap: 0.3rem; margin: 0.3rem 0 1rem 0; }
+  .kv { display: grid; grid-template-columns: max-content 1fr; gap: 0.2rem 0.85rem;
+    margin: 0.4rem 0 1rem 0; }
+  .kv .k { color: var(--fg-dim); }
+  svg.bar-chart { display: block; max-width: 100%; height: auto; }
+  svg .bar { fill: var(--info); }
+  svg .bar.ok   { fill: var(--ok); }
+  svg .bar.warn { fill: var(--warn); }
+  svg .bar.fail { fill: var(--fail); }
+  svg text { fill: var(--fg); font-family: monospace; font-size: 11px; }
+  svg .axis text { fill: var(--fg-dim); }
+  code { background: var(--panel-2); padding: 0 0.3rem; border-radius: 3px;
+    font-family: "Fira Code", Consolas, Menlo, monospace; font-size: 0.85em; }
+  a { color: var(--link); }
+  footer { margin-top: 2rem; padding-top: 0.75rem; border-top: 1px solid var(--border);
+    font-size: 0.8rem; color: var(--fg-dim); }
+</style>
+</head>
+<body>
+<h1 id="comprehensive-cad-drawing-pipeline-print-validated-cad-ollam">Comprehensive CAD-Drawing Pipeline — print → validated CAD (Ollama-draws / Claude-failsafe)</h1>
+<div class="meta">rendered from state/shared/specs/CAD-DRAWING-PIPELINE-COMPREHENSIVE-2026-06-19.md</div>
+<div class="meta">Generated 2026-06-19T18:20:41.731Z</div>
+<style>
+  .prism-md-body { max-width: 70rem; margin: 0 auto; }
+  .prism-h1 { font-size: 1.6rem; }
+  .prism-h2 { font-size: 1.25rem; border-bottom: 1px solid var(--border); padding-bottom: 0.25rem; }
+  .prism-h3 { font-size: 1.1rem; color: var(--info); }
+  .prism-h4, .prism-h5, .prism-h6 { font-size: 1rem; color: var(--fg-dim); }
+  .prism-md-body p { margin: 0.5rem 0; }
+  .prism-md-list { margin: 0.5rem 0 0.5rem 1.25rem; padding: 0; }
+  .prism-md-list li { margin: 0.15rem 0; }
+  .prism-md-table { border-collapse: collapse; margin: 0.75rem 0; width: 100%; }
+  .prism-md-table th, .prism-md-table td { border: 1px solid var(--border); padding: 0.35rem 0.6rem; text-align: left; }
+  .prism-md-table th { background: var(--panel-2); }
+  .prism-codeblock { background: var(--panel-2); border: 1px solid var(--border); border-radius: 4px; padding: 0.6rem 0.8rem; overflow-x: auto; font-family: "Cascadia Code", Consolas, monospace; font-size: 13px; }
+  .prism-inline-code { background: var(--panel-2); padding: 0 0.25rem; border-radius: 3px; font-family: "Cascadia Code", Consolas, monospace; font-size: 0.92em; }
+  .prism-quote { border-left: 3px solid var(--info); background: var(--panel-2); padding: 0.5rem 0.85rem; margin: 0.75rem 0; color: var(--fg-dim); }
+  .prism-hr { border: 0; border-top: 1px solid var(--border); margin: 1rem 0; }
+  .prism-link { color: var(--link); text-decoration: none; }
+  .prism-link:hover { text-decoration: underline; }
+  .prism-bad-link { color: var(--fail); text-decoration: line-through; }
+  .prism-unclosed::before { content: "⚠ unterminated code block"; display: block; color: var(--warn); font-size: 0.85em; margin-bottom: 0.25rem; }
+  </style><a href="#content" class="skip-link">Skip to content</a><main class="prism-md-body" role="main" id="content"><p>&lt;!--   COMPREHENSIVE CAD-DRAWING PIPELINE — design spec + dependency-ordered build plan.   Authored: slot:delta (CAD), 2026-06-19, in response to operator /goal work order.   Grounded by a 4-agent cite-backed assessment of the live repo (H:/prism + H:/prism-slot-delta).   Maintainer: slot delta. Status: DESIGN APPROVED-FOR-BUILD; build in progress (U-CADDRAW-FEATURE-LEDGER first). --&gt;</p>
+<h1 class="prism-h1" id="comprehensive-cad-drawing-pipeline-print-validated-cad-ollam-1">Comprehensive CAD-Drawing Pipeline — print → validated CAD (Ollama-draws / Claude-failsafe)</h1>
+<h2 class="prism-h2" id="0-operator-vision-verbatim-intent">0. Operator vision (verbatim intent)</h2>
+<blockquote class="prism-quote">Assess our CAD drawing capabilities in Fusion. We ran a test yesterday on a print but <strong>missed several features</strong>. Build a <strong>more comprehensive pipeline</strong> that:</blockquote>
+<blockquote class="prism-quote">1. feeds <strong>tribal knowledge + wikis + memories DURING drawing</strong>;</blockquote>
+<blockquote class="prism-quote">2. authors <strong>2D sketches → 3D features</strong> as the <strong>first line of defense</strong> for checking work against the print;</blockquote>
+<blockquote class="prism-quote">3. <strong>final validation</strong> = regenerate a print of the drawn model and compare it <strong>dimension-by-dimension, same layout</strong> as the original → prove the CAD is <strong>100% correct</strong> (planning ahead for <strong>secondary ops</strong> — leave material for grind/hone, spark gap, etc.);</blockquote>
+<blockquote class="prism-quote">4. <strong>final build</strong> = local LLMs (Ollama) draw via the PRISM AI system (cheap/free); <strong>Claude is the failsafe / last line of defense</strong>.</blockquote>
+<h2 class="prism-h2" id="1-root-cause-of-quot-we-missed-several-features-quot-ground-">1. Root-cause of &quot;we missed several features&quot; (ground truth, not assumed)</h2>
+<p>The yesterday-test was a <strong>stepped-bore / bushing print</strong> read by the <strong>Ollama VLM ensemble</strong> (<code class="prism-inline-code">scripts/blueprint-ocr-training-loop.mjs</code> via <code class="prism-inline-code">scripts/lib/ollama-vision-extract-lib.mjs</code>). It missed (a) the <strong>far-side smaller bore diameter</strong> and (b) the <strong>internal lead-in transition chamfer</strong>. <strong>Root cause:</strong> the extraction <em>prompt</em> never told the model a bore can have multiple diameters along its axis, nor to capture internal transition chamfers — the schema supported both. Fixed in commit <code class="prism-inline-code">84a78522f8</code> (+3 prompt rules, +1 regression test, 65/65).</p>
+<p><strong>Generalized lesson (the keystone):</strong> features drop silently at <em>every</em> stage (extract, sketch, model, validate) because <strong>nothing enumerates the print&#39;s full feature set and reconciles every downstream artifact against it</strong>. The pipeline&#39;s backbone must be a <strong>Feature Completeness Ledger</strong> that fails loud on any feature present in the print but absent downstream. The fix in <code class="prism-inline-code">84a78522f8</code> patched ONE prompt; the ledger structurally prevents the whole class.</p>
+<h2 class="prism-h2" id="2-executive-pipeline-diagram">2. Executive pipeline diagram</h2>
+<pre class="prism-codeblock"><code>PRINT (PDF/image)
+  │
+  ▼  S0  EXHAUSTIVE EXTRACTION ............... [BUILT] PDFBlueprintDimensionExtractorEngine + VLM ensemble (84a78522f8 multi-dia/chamfer fix)
+  │       └─ dims, GD&amp;T, datums, feature list
+  ▼  S0.5 FEATURE COMPLETENESS LEDGER ........ [NET-NEW ⭐ U-CADDRAW-FEATURE-LEDGER]  ← keystone; every stage reconciles to this
+  │       └─ canonical enumerated {id,type,nominal,tol±,datum,view,status} ; stepped bore → N entries, not 1
+  ▼  S1  SKETCH-FIRST AUTHORING .............. [PARTIAL] Fusion bridge createSketch (geometry-only, no constraints) + [NET-NEW] dim-capture+diff gate
+  │       └─ per-view 2D sketch; capture sketch dims; DIFF vs ledger BEFORE 3D → per-sketch PASS/FAIL  (FIRST LINE OF DEFENSE)
+  ▼  S2  TRIBAL/WIKI/MEMORY FEED (per feature) [NET-NEW] CADTribalDrawInjection (clone of CAMTribalKnowledgeInjectionEngine)
+  │       └─ retrieve+APPLY: spark-gap, archetype-match-before-scale, no-periodic-Bspline, inch-units, topology-before-tolerance
+  ▼  S3  3D FEATURE BUILD (sketch→feature) ... [PARTIAL] Fusion360LiveBridgeEngine extrude/revolve/loft/sweep (:18360, unproven live)
+  │       └─ each built feature checks off its ledger entry (status: modeled)
+  ▼  S4  SECONDARY-OP FINISH-STOCK ........... [NET-NEW] CADStockAllowance (geometry offset, datum-aware) ; spark-gap from constants.ts:643-668
+  │       └─ bake grind/hone/spark-gap stock into geometry; record per-surface allowance for S5 reconcile
+  ▼  S5  PRINT REGEN + DIM-BY-DIM VALIDATE ... [NET-NEW ⭐ all 5 sub-steps]  (FINAL GATE)
+  │       └─ model→orthographic views (same layout) → extract regen dims → pair to ledger by feature/datum → per-callout PASS/FAIL (stock-reconciled)
+  ▼  S6  GEOMETRY-FIDELITY CROSS-CHECK ....... [BUILT] CADGeometryComparisonEngine Hausdorff/Chamfer/volume(bbox)/Jaccard, unit-aware
+  │
+  ▼  VALIDATED CAD (STEP) + per-dimension proof table + ledger 100% reconciled
+
+ROUTING OVERLAY (every stage): Ollama attempts → per-stage eval gate → escalate to Claude on fail/low-confidence
+  [NET-NEW] add `cad_drawing` task class to AISystemRouterEngine (today CAD falls to &quot;unknown&quot;, no fallback chain)</code></pre>
+<h2 class="prism-h2" id="3-stage-contracts-input-output-asset-eval-gate">3. Stage contracts (input → output · asset · eval gate)</h2>
+<table class="prism-md-table"><thead><tr><th>Stage</th><th>Input</th><th>Output</th><th>Asset (cite)</th><th>Eval gate</th></tr></thead><tbody><tr><td>S0</td><td>print PDF/img</td><td><code class="prism-inline-code">DimensionExtractionResult</code> (dims, GD&amp;T, threads, finish)</td><td><strong>BUILT</strong> <code class="prism-inline-code">PDFBlueprintDimensionExtractorEngine.ts:21-66</code>; VLM <code class="prism-inline-code">ollama-vision-extract-lib.mjs</code> (fix 84a78522f8)</td><td>per-field OCR conf ≥0.70 → operator-confirm</td></tr>
+<tr><td>S0.5</td><td>S0 output</td><td>canonical Feature Ledger (enumerated, schema-versioned, part-keyed)</td><td><strong>NET-NEW</strong> <code class="prism-inline-code">CADFeatureCompletenessLedgerEngine</code></td><td>every print feature has a ledger entry; multi-dia bore = N entries</td></tr>
+<tr><td>S1</td><td>ledger + print views</td><td>per-view constrained sketch + dim-diff report</td><td><strong>PARTIAL</strong> <code class="prism-inline-code">Fusion360LiveBridgeEngine.createSketch():490</code> (no constraints) + <strong>NET-NEW</strong> sketch-dim-capture+diff</td><td>sketch dim within tol of ledger nominal → PASS, else block 3D</td></tr>
+<tr><td>S2</td><td>current feature + corpus</td><td>applied drawing rule(s)</td><td><strong>NET-NEW</strong> CAD per-feature RAG (model on <code class="prism-inline-code">CAMTribalKnowledgeInjectionEngine</code> @ <code class="prism-inline-code">camDispatcher.ts:16162</code>); corpus <code class="prism-inline-code">cad-tribal-delta.jsonl</code> (6 tips)</td><td>retrieved rule APPLIED (e.g. geometry reflects spark-gap), not just surfaced</td></tr>
+<tr><td>S3</td><td>passing sketches</td><td>3D solid (STEP)</td><td><strong>PARTIAL</strong> <code class="prism-inline-code">Fusion360LiveBridgeEngine</code> extrude:506/revolve:557/loft:680/sweep:641</td><td>feature built → ledger entry status=modeled</td></tr>
+<tr><td>S4</td><td>solid + finish plan</td><td>stock-thickened solid + allowance map</td><td><strong>NET-NEW</strong> <code class="prism-inline-code">CADStockAllowanceEngine</code>; spark-gap <code class="prism-inline-code">constants.ts:643-668</code></td><td>per-surface allowance recorded; validated nominal = finish+stock</td></tr>
+<tr><td>S5</td><td>stock solid + ledger</td><td>per-dimension PASS/FAIL table</td><td><strong>NET-NEW</strong> model→drawing + view-match + dim-extract + pair + verdict</td><td>every ledger dim paired &amp; within tol (stock-reconciled)</td></tr>
+<tr><td>S6</td><td>solid + reference STEP</td><td>Hausdorff/Chamfer/volume report</td><td><strong>BUILT</strong> <code class="prism-inline-code">CADGeometryComparisonEngine.ts</code> (cb1ec539a3)</td><td>Hausdorff/mean within fidelity band</td></tr></tbody></table>
+<h2 class="prism-h2" id="4-the-5-operator-requirements-stage-mapping-status">4. The 5 operator requirements → stage mapping + status</h2>
+<table class="prism-md-table"><thead><tr><th>#</th><th>Operator requirement</th><th>Satisfied by</th><th>Status</th></tr></thead><tbody><tr><td>R1</td><td>sketch-first as first line of defense</td><td>S1 (sketch dim-diff vs ledger before 3D)</td><td>PARTIAL (bridge exists, no constraints/dim-gate) → <strong>NET-NEW gate</strong></td></tr>
+<tr><td>R2</td><td>tribal/wiki/memory feed <strong>during</strong> drawing</td><td>S2 (per-feature RAG + apply)</td><td><strong>NET-NEW</strong> (CAM has it, CAD does not)</td></tr>
+<tr><td>R3</td><td>print-regen same-layout dim-by-dim → 100%</td><td>S5 (model→drawing→extract→pair→verdict)</td><td><strong>NET-NEW</strong> (all 5 sub-steps; biggest build)</td></tr>
+<tr><td>R4</td><td>plan secondary ops (grind/hone/spark-gap stock)</td><td>S4 (geometry stock offset)</td><td><strong>NET-NEW</strong> (stock is CAM-param only today)</td></tr>
+<tr><td>R5</td><td>Ollama draws via PRISM AI, Claude failsafe</td><td>routing overlay (cad_drawing task class + per-stage eval)</td><td><strong>NET-NEW</strong> (router has no CAD class)</td></tr>
+<tr><td>—</td><td>enumerate features so none are missed</td><td>S0.5 ledger (threads R1/R3)</td><td><strong>NET-NEW keystone</strong> (root-cause fix)</td></tr></tbody></table>
+<h2 class="prism-h2" id="5-build-units-dependency-ordered-r15-wire-test-validate-appl">5. Build units — dependency-ordered (R15: WIRE→TEST→VALIDATE→APPLY)</h2>
+<blockquote class="prism-quote">All buildable on trunk WITHOUT the operator-gated <code class="prism-inline-code">U-MERGE-SLOT-DELTA</code> (410-commit merge), except where noted. Each ships engine + dispatcher wiring + real tests (happy + ≥3 failure + ≥2 adversarial, round-tripped through the dispatcher) + live-data validation in the same unit.</blockquote>
+<ol class="prism-md-list"><li><strong>⭐ U-CADDRAW-FEATURE-LEDGER</strong> — <code class="prism-inline-code">CADFeatureCompletenessLedgerEngine</code>. galaxy: <code class="prism-inline-code">mcp-server/src/engines/</code> (cad). Wire: <code class="prism-inline-code">cadDispatcher</code> actions <code class="prism-inline-code">cad_feature_ledger_build</code> / <code class="prism-inline-code">_reconcile</code> / <code class="prism-inline-code">_status</code> (+ z.enum + schema + lazy import). Auto-invoke: advisory Stop/<code class="prism-inline-code">cad_regen</code> post-hook that reconciles a drawn model vs its ledger (fires after a draw session). Scope: DOMAIN (cad) now; ledger pattern is FLEET-generalizable later. <strong>#1 NEXT (see §6).</strong></li><li><strong>U-CADDRAW-SKETCH-DIM-GATE</strong> — sketch-dimension capture + diff-vs-ledger (S1 first line of defense). Consumes ledger. Wire: <code class="prism-inline-code">cadDispatcher:cad_sketch_dim_verify</code>. Depends on #1.</li><li><strong>U-CADDRAW-TRIBAL-INJECT</strong> — <code class="prism-inline-code">CADTribalDrawInjectionEngine</code> (clone <code class="prism-inline-code">CAMTribalKnowledgeInjectionEngine</code>); seed real &quot;how to draw X&quot; corpus into <code class="prism-inline-code">cad-tribal-delta.jsonl</code>. Wire: injected in the draw loop + <code class="prism-inline-code">cad_tribal_draw_query</code>. APPLY-TO-ALL: the inject pattern already serves CAM; clone (don&#39;t fork) to CAD.</li><li><strong>U-CADDRAW-STOCK-OFFSET</strong> — <code class="prism-inline-code">CADStockAllowanceEngine</code> (datum-aware geometry offset; spark-gap from <code class="prism-inline-code">constants.ts</code>). Wire: <code class="prism-inline-code">cadDispatcher:cad_apply_stock_allowance</code>. Feeds S5 nominal reconcile.</li><li><strong>U-CADDRAW-ROUTE-CLASS</strong> — add <code class="prism-inline-code">cad_drawing</code> task class + Ollama-first/Claude-fallback chain to <code class="prism-inline-code">AISystemRouterEngine</code>; per-stage confidence eval. Wire: consumed by every stage&#39;s attempt-then-escalate.</li><li><strong>⭐ U-CADDRAW-PRINT-REGEN-VALIDATE</strong> (multi-unit) — S5 final gate: (6a) model→orthographic-view projection; (6b) same-layout view matching; (6c) dimension extraction from regen drawing; (6d) feature/datum dim pairing vs ledger; (6e) per-callout PASS/FAIL table + stock reconcile. Largest build; depends on #1 (ledger) + #4 (stock). Reuses <code class="prism-inline-code">CrossSourceDimensionReconciliationEngine</code> for pairing logic.</li><li><strong>U-CADDRAW-STEPPED-BORE-FEATURE</strong> — extend <code class="prism-inline-code">CADFeatureRecognitionEngine</code> FeatureType with <code class="prism-inline-code">counterbore</code>/<code class="prism-inline-code">stepped_bore</code>/<code class="prism-inline-code">transition_chamfer</code> (the exact yesterday-miss classes). Small; hardens S0.5 + S3.</li></ol>
+<h2 class="prism-h2" id="6-the-1-next-build-unit-u-caddraw-feature-ledger">6. The #1 next build unit — U-CADDRAW-FEATURE-LEDGER</h2>
+<p><strong>Why first (dependency-first + highest-ROI):</strong> it is the keystone the operator&#39;s failure exposed — the structural fix for &quot;we missed several features.&quot; It is the data contract S1 (sketch-diff) and S5 (final dim-pair) both reconcile against, so building it first unblocks the two requirements the operator emphasized most. It is buildable NOW from the already-BUILT <code class="prism-inline-code">PDFBlueprintDimensionExtractorEngine</code> output (no merge, no Fusion live, no GPU), is small-to-medium, and is fully testable with real reference values (the recorded stepped-bore case: 2 diameters + 1 transition chamfer = <strong>3</strong> ledger entries; a 1-feature model must reconcile to <strong>2 MISSING</strong>). It also supplies the <strong>persistent part-keyed ground-truth registry</strong> the assessment found missing (<code class="prism-inline-code">CrossSourceDimensionReconciliationEngine</code> is stateless).</p>
+<p><strong>Engine contract:</strong></p>
+<ul class="prism-md-list"><li><code class="prism-inline-code">build(extraction, partNo) → Ledger</code> — canonical enumerated entries <code class="prism-inline-code">{id, featureType, nominal, tolPlus, tolMinus, datumRef, view, sourceConfidence, status:&#39;extracted&#39;}</code>; stepped/multi-diameter bores enumerate one entry per diameter + one per internal transition chamfer (the yesterday-miss class).</li><li><code class="prism-inline-code">reconcile(ledger, modelFeatures) → {missing[], extra[], mismatched[], complete:boolean}</code> — fail-loud: any ledger entry absent from the model = MISSING; out-of-tol = MISMATCHED.</li><li><code class="prism-inline-code">advance(ledger, featureId, status)</code> — status transitions extracted→sketched→modeled→validated as stages check off.</li><li>persist as schema-versioned JSON keyed by part number.</li></ul>
+<p><strong>R15 plan:</strong> wire to <code class="prism-inline-code">cadDispatcher</code> (3 actions + schema + z.enum + lazy import); tests = happy (stepped-bore 3-entry) + ≥3 failure (empty extraction, malformed dim, duplicate ids) + ≥2 adversarial (NaN nominal, Infinity tol, oversize count), all round-tripped through the dispatcher; validate against real <code class="prism-inline-code">PDFBlueprintDimensionExtractorEngine</code> output and prove reconcile catches a deliberately-incomplete model. APPLY: DOMAIN-only (cad) for now; note the ledger/reconcile pattern as a FLEET candidate (quoting/CAM feature-completeness) for a later clone.</p></main><footer>
+<div>html-report-render schemaVersion 1.0.0</div>
+</footer>
+</body>
+</html>

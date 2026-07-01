@@ -1,0 +1,1406 @@
+[
+  {
+    "id": "chat-bus-inject",
+    "file": ".claude/hooks/chat-bus-inject.mjs",
+    "wired": true,
+    "disabled": false,
+    "events": [
+      {
+        "event": "UserPromptSubmit",
+        "matcher": "",
+        "timeout": 3000,
+        "type": "command",
+        "layer": "project",
+        "disabled": false
+      }
+    ],
+    "description": "UserPromptSubmit hook",
+    "descriptionInferred": false,
+    "tier": "T2",
+    "sizeBytes": 11442,
+    "lines": 324
+  },
+  {
+    "id": "chat-cleanup-on-stop",
+    "file": ".claude/hooks/chat-cleanup-on-stop.mjs",
+    "wired": false,
+    "disabled": false,
+    "events": [],
+    "description": "Stop hook",
+    "descriptionInferred": false,
+    "tier": "T4",
+    "sizeBytes": 5941,
+    "lines": 157
+  },
+  {
+    "id": "chat-slot-heartbeat",
+    "file": ".claude/hooks/chat-slot-heartbeat.mjs",
+    "wired": false,
+    "disabled": false,
+    "events": [],
+    "description": "PostToolUse hook (all matchers)",
+    "descriptionInferred": false,
+    "tier": "T4",
+    "sizeBytes": 5293,
+    "lines": 148
+  },
+  {
+    "id": "chat-state-isolator",
+    "file": ".claude/hooks/chat-state-isolator.mjs",
+    "wired": true,
+    "disabled": false,
+    "events": [
+      {
+        "event": "SessionStart",
+        "matcher": "",
+        "timeout": 5000,
+        "type": "command",
+        "layer": "user",
+        "disabled": false
+      },
+      {
+        "event": "SessionStart",
+        "matcher": "",
+        "timeout": 5000,
+        "type": "command",
+        "layer": "project",
+        "disabled": false
+      }
+    ],
+    "description": "SessionStart hook",
+    "descriptionInferred": false,
+    "tier": "T4",
+    "sizeBytes": 4658,
+    "lines": 182
+  },
+  {
+    "id": "checkin-args-surface",
+    "file": ".claude/hooks/checkin-args-surface.mjs",
+    "wired": true,
+    "disabled": false,
+    "events": [
+      {
+        "event": "UserPromptSubmit",
+        "matcher": "",
+        "timeout": 1500,
+        "type": "command",
+        "layer": "user",
+        "disabled": false
+      }
+    ],
+    "description": "UserPromptSubmit hook.",
+    "descriptionInferred": false,
+    "tier": "T2",
+    "sizeBytes": 7356,
+    "lines": 166
+  },
+  {
+    "id": "checkpoint-auto-trigger",
+    "file": ".claude/hooks/checkpoint-auto-trigger.mjs",
+    "wired": false,
+    "disabled": false,
+    "events": [],
+    "description": "Context Retention Hook",
+    "descriptionInferred": false,
+    "tier": "T3",
+    "sizeBytes": 4146,
+    "lines": 148
+  },
+  {
+    "id": "claim-registry-precompact",
+    "file": ".claude/hooks/claim-registry-precompact.mjs",
+    "wired": false,
+    "disabled": false,
+    "events": [],
+    "description": "PreCompact hook — flush this terminal's active claims to status=compacted",
+    "descriptionInferred": false,
+    "tier": "T4",
+    "sizeBytes": 1183,
+    "lines": 41
+  },
+  {
+    "id": "claim-registry-release",
+    "file": ".claude/hooks/claim-registry-release.mjs",
+    "wired": true,
+    "disabled": false,
+    "events": [
+      {
+        "event": "Stop",
+        "matcher": "",
+        "timeout": 3000,
+        "type": "command",
+        "layer": "user",
+        "disabled": false
+      },
+      {
+        "event": "Stop",
+        "matcher": "",
+        "timeout": 3000,
+        "type": "command",
+        "layer": "project",
+        "disabled": false
+      }
+    ],
+    "description": "Stop / SessionEnd hook — release this terminal's claims so peers can",
+    "descriptionInferred": false,
+    "tier": "T4",
+    "sizeBytes": 1395,
+    "lines": 45
+  },
+  {
+    "id": "claim-registry-surface",
+    "file": ".claude/hooks/claim-registry-surface.mjs",
+    "wired": false,
+    "disabled": false,
+    "events": [],
+    "description": "SessionStart hook — surfaces other sessions' active roadmap claims in",
+    "descriptionInferred": false,
+    "tier": "T4",
+    "sizeBytes": 1596,
+    "lines": 54
+  },
+  {
+    "id": "claim-required",
+    "file": ".claude/hooks/claim-required.mjs",
+    "wired": false,
+    "disabled": false,
+    "events": [],
+    "description": "Phase 1 Tier 5D",
+    "descriptionInferred": false,
+    "tier": "T0",
+    "sizeBytes": 4048,
+    "lines": 97
+  },
+  {
+    "id": "claude-brief-inject",
+    "file": ".claude/hooks/claude-brief-inject.mjs",
+    "wired": true,
+    "disabled": false,
+    "events": [
+      {
+        "event": "SessionStart",
+        "matcher": "",
+        "timeout": 5000,
+        "type": "command",
+        "layer": "user",
+        "disabled": false
+      },
+      {
+        "event": "SessionStart",
+        "matcher": "",
+        "timeout": 5000,
+        "type": "command",
+        "layer": "project",
+        "disabled": false
+      }
+    ],
+    "description": "SessionStart hook (pointer mode by default, Wave 2).",
+    "descriptionInferred": false,
+    "tier": "T2",
+    "sizeBytes": 5465,
+    "lines": 150
+  },
+  {
+    "id": "claude-brief-precompact",
+    "file": ".claude/hooks/claude-brief-precompact.mjs",
+    "wired": true,
+    "disabled": false,
+    "events": [
+      {
+        "event": "PreCompact",
+        "matcher": "",
+        "timeout": 2000,
+        "type": "command",
+        "layer": "user",
+        "disabled": false
+      },
+      {
+        "event": "PreCompact",
+        "matcher": "",
+        "timeout": 2000,
+        "type": "command",
+        "layer": "project",
+        "disabled": false
+      }
+    ],
+    "description": "PreCompact hook",
+    "descriptionInferred": false,
+    "tier": "T4",
+    "sizeBytes": 4159,
+    "lines": 87
+  },
+  {
+    "id": "claude-brief-staleness-check",
+    "file": ".claude/hooks/claude-brief-staleness-check.mjs",
+    "wired": false,
+    "disabled": false,
+    "events": [],
+    "description": "UserPromptSubmit hook",
+    "descriptionInferred": false,
+    "tier": "T2",
+    "sizeBytes": 4825,
+    "lines": 140
+  },
+  {
+    "id": "claude-md-golf-only-guard",
+    "file": ".claude/hooks/claude-md-golf-only-guard.mjs",
+    "wired": true,
+    "disabled": false,
+    "events": [
+      {
+        "event": "PreToolUse",
+        "matcher": "Edit|Write|MultiEdit",
+        "timeout": 5000,
+        "type": "command",
+        "layer": "user",
+        "disabled": false
+      }
+    ],
+    "description": "PreToolUse T0 hook (OBSIDIAN-BRAIN-FIX-MS0/U-OBF-GOLF)",
+    "descriptionInferred": false,
+    "tier": "T0",
+    "sizeBytes": 12548,
+    "lines": 311
+  },
+  {
+    "id": "claude-md-mirror",
+    "file": ".claude/hooks/claude-md-mirror.mjs",
+    "wired": false,
+    "disabled": false,
+    "events": [],
+    "description": "SessionStart: mirror H:\\.claude\\CLAUDE.md → ~/.claude/CLAUDE.md.",
+    "descriptionInferred": false,
+    "tier": "T4",
+    "sizeBytes": 2031,
+    "lines": 57
+  },
+  {
+    "id": "claude-no-delete-files",
+    "file": ".claude/hooks/claude-no-delete-files.mjs",
+    "wired": false,
+    "disabled": false,
+    "events": [],
+    "description": "PreToolUse Bash hook.",
+    "descriptionInferred": false,
+    "tier": "T1",
+    "sizeBytes": 6871,
+    "lines": 180
+  },
+  {
+    "id": "claudemd-ollama-enforcer",
+    "file": ".claude/hooks/claudemd-ollama-enforcer.mjs",
+    "wired": true,
+    "disabled": false,
+    "events": [
+      {
+        "event": "UserPromptSubmit",
+        "matcher": "",
+        "timeout": 5000,
+        "type": "command",
+        "layer": "project",
+        "disabled": false
+      }
+    ],
+    "description": "UserPromptSubmit hook",
+    "descriptionInferred": false,
+    "tier": "T4",
+    "sizeBytes": 11775,
+    "lines": 351
+  },
+  {
+    "id": "claudemd-section-update",
+    "file": ".claude/hooks/claudemd-section-update.mjs",
+    "wired": false,
+    "disabled": false,
+    "events": [],
+    "description": "PostToolUse hook",
+    "descriptionInferred": false,
+    "tier": "T3",
+    "sizeBytes": 3117,
+    "lines": 99
+  },
+  {
+    "id": "close-out-audit-suggest",
+    "file": ".claude/hooks/close-out-audit-suggest.mjs",
+    "wired": true,
+    "disabled": false,
+    "events": [
+      {
+        "event": "UserPromptSubmit",
+        "matcher": "",
+        "timeout": 1500,
+        "type": "command",
+        "layer": "user",
+        "disabled": false
+      }
+    ],
+    "description": "close-out-audit-suggest.mjs",
+    "descriptionInferred": false,
+    "tier": "T2",
+    "sizeBytes": 5844,
+    "lines": 162
+  },
+  {
+    "id": "code-completeness-gate",
+    "file": ".claude/hooks/code-completeness-gate.mjs",
+    "wired": true,
+    "disabled": false,
+    "events": [
+      {
+        "event": "PreToolUse",
+        "matcher": "^(Edit|Write|MultiEdit|NotebookEdit)$",
+        "timeout": 5000,
+        "type": "command",
+        "layer": "project",
+        "disabled": false
+      },
+      {
+        "event": "PreToolUse",
+        "matcher": "Edit|Write|MultiEdit",
+        "timeout": null,
+        "type": "command",
+        "layer": "user",
+        "disabled": false,
+        "viaBundle": "edit-bundle"
+      },
+      {
+        "event": "PreToolUse",
+        "matcher": "Edit|Write|MultiEdit",
+        "timeout": null,
+        "type": "command",
+        "layer": "project",
+        "disabled": false,
+        "viaBundle": "edit-bundle"
+      }
+    ],
+    "description": "PreToolUse hook for Edit/Write",
+    "descriptionInferred": false,
+    "tier": "T0",
+    "sizeBytes": 7773,
+    "lines": 268
+  },
+  {
+    "id": "coding-pattern-hint",
+    "file": ".claude/hooks/coding-pattern-hint.mjs",
+    "wired": false,
+    "disabled": false,
+    "events": [],
+    "description": "Coding Standards Auto-Inject",
+    "descriptionInferred": false,
+    "tier": "T4",
+    "sizeBytes": 4102,
+    "lines": 120
+  },
+  {
+    "id": "cog-bridge-ai-memory-capture",
+    "file": ".claude/hooks/cog-bridge-ai-memory-capture.mjs",
+    "wired": false,
+    "disabled": false,
+    "events": [],
+    "description": "COGNITIVE-BRIDGE-MS0/U-WIRE-COG-BATCH10",
+    "descriptionInferred": false,
+    "tier": "T3",
+    "sizeBytes": 3654,
+    "lines": 105
+  },
+  {
+    "id": "cog-bridge-awareness-rebuild",
+    "file": ".claude/hooks/cog-bridge-awareness-rebuild.mjs",
+    "wired": false,
+    "disabled": false,
+    "events": [],
+    "description": "COGNITIVE-BRIDGE-MS0/U-WIRE-COG-BATCH10",
+    "descriptionInferred": false,
+    "tier": "T3",
+    "sizeBytes": 3604,
+    "lines": 106
+  },
+  {
+    "id": "cog-bridge-context-auto-compact",
+    "file": ".claude/hooks/cog-bridge-context-auto-compact.mjs",
+    "wired": false,
+    "disabled": false,
+    "events": [],
+    "description": "COGNITIVE-BRIDGE-MS0/U-WIRE-COG-BATCH10",
+    "descriptionInferred": false,
+    "tier": "T2",
+    "sizeBytes": 3680,
+    "lines": 106
+  },
+  {
+    "id": "cognitive-budget-allocator",
+    "file": ".claude/hooks/cognitive-budget-allocator.mjs",
+    "wired": true,
+    "disabled": false,
+    "events": [
+      {
+        "event": "SessionStart",
+        "matcher": "",
+        "timeout": 3000,
+        "type": "command",
+        "layer": "user",
+        "disabled": false
+      },
+      {
+        "event": "SessionStart",
+        "matcher": "",
+        "timeout": 3000,
+        "type": "command",
+        "layer": "project",
+        "disabled": false
+      }
+    ],
+    "description": "U-AI06 Cognitive Budget Allocator",
+    "descriptionInferred": false,
+    "tier": "T4",
+    "sizeBytes": 5696,
+    "lines": 173
+  },
+  {
+    "id": "command-telemetry-record",
+    "file": ".claude/hooks/command-telemetry-record.mjs",
+    "wired": false,
+    "disabled": false,
+    "events": [],
+    "description": "PostToolUse \"Skill\" hook",
+    "descriptionInferred": false,
+    "tier": "T1",
+    "sizeBytes": 12099,
+    "lines": 261
+  },
+  {
+    "id": "commit-coordination-acquire",
+    "file": ".claude/hooks/commit-coordination-acquire.mjs",
+    "wired": true,
+    "disabled": false,
+    "events": [
+      {
+        "event": "PreToolUse",
+        "matcher": "Bash",
+        "timeout": 60000,
+        "type": "command",
+        "layer": "user",
+        "disabled": false
+      }
+    ],
+    "description": "PreToolUse(Bash) hook.",
+    "descriptionInferred": false,
+    "tier": "T2",
+    "sizeBytes": 5654,
+    "lines": 144
+  },
+  {
+    "id": "commit-coordination-release",
+    "file": ".claude/hooks/commit-coordination-release.mjs",
+    "wired": true,
+    "disabled": false,
+    "events": [
+      {
+        "event": "PostToolUse",
+        "matcher": "Bash",
+        "timeout": 12000,
+        "type": "command",
+        "layer": "user",
+        "disabled": false
+      }
+    ],
+    "description": "PostToolUse(Bash) hook.",
+    "descriptionInferred": false,
+    "tier": "T3",
+    "sizeBytes": 2600,
+    "lines": 76
+  },
+  {
+    "id": "commit-draft-suggest",
+    "file": ".claude/hooks/commit-draft-suggest.mjs",
+    "wired": false,
+    "disabled": false,
+    "events": [],
+    "description": "OLLAMA-DEV-03",
+    "descriptionInferred": false,
+    "tier": "T1",
+    "sizeBytes": 7764,
+    "lines": 204
+  },
+  {
+    "id": "commit-format-validator",
+    "file": ".claude/hooks/commit-format-validator.mjs",
+    "wired": true,
+    "disabled": false,
+    "events": [
+      {
+        "event": "PostToolUse",
+        "matcher": "Bash",
+        "timeout": 2000,
+        "type": "command",
+        "layer": "user",
+        "disabled": false
+      }
+    ],
+    "description": "PostToolUse Bash (P6-U02).",
+    "descriptionInferred": false,
+    "tier": "T3",
+    "sizeBytes": 4106,
+    "lines": 129
+  },
+  {
+    "id": "commit-ownership-guard",
+    "file": ".claude/hooks/commit-ownership-guard.mjs",
+    "wired": true,
+    "disabled": false,
+    "events": [
+      {
+        "event": "PreToolUse",
+        "matcher": "Bash",
+        "timeout": null,
+        "type": "command",
+        "layer": "user",
+        "disabled": false,
+        "viaBundle": "bash-bundle"
+      },
+      {
+        "event": "PreToolUse",
+        "matcher": "Bash",
+        "timeout": null,
+        "type": "command",
+        "layer": "project",
+        "disabled": false,
+        "viaBundle": "bash-bundle"
+      }
+    ],
+    "description": "Prevents cross-session commit mixing.",
+    "descriptionInferred": false,
+    "tier": "T0",
+    "sizeBytes": 9862,
+    "lines": 269
+  },
+  {
+    "id": "commit-pressure-stop-gate",
+    "file": ".claude/hooks/commit-pressure-stop-gate.mjs",
+    "wired": true,
+    "disabled": false,
+    "events": [
+      {
+        "event": "Stop",
+        "matcher": "",
+        "timeout": 8000,
+        "type": "command",
+        "layer": "user",
+        "disabled": false
+      },
+      {
+        "event": "Stop",
+        "matcher": "",
+        "timeout": 8000,
+        "type": "command",
+        "layer": "project",
+        "disabled": false
+      }
+    ],
+    "description": "Proactive memory-pressure gate with self-heal",
+    "descriptionInferred": false,
+    "tier": "T4",
+    "sizeBytes": 5193,
+    "lines": 145
+  },
+  {
+    "id": "compact-interval-warning",
+    "file": ".claude/hooks/compact-interval-warning.mjs",
+    "wired": true,
+    "disabled": false,
+    "events": [
+      {
+        "event": "Stop",
+        "matcher": "",
+        "timeout": 2000,
+        "type": "command",
+        "layer": "user",
+        "disabled": false
+      }
+    ],
+    "description": "Stop",
+    "descriptionInferred": false,
+    "tier": "T4",
+    "sizeBytes": 4038,
+    "lines": 119
+  },
+  {
+    "id": "compaction-budget-nudge",
+    "file": ".claude/hooks/compaction-budget-nudge.mjs",
+    "wired": false,
+    "disabled": false,
+    "events": [],
+    "description": "PostToolUse hook",
+    "descriptionInferred": false,
+    "tier": "T3",
+    "sizeBytes": 3966,
+    "lines": 128
+  },
+  {
+    "id": "compaction-survival-auto",
+    "file": ".claude/hooks/compaction-survival-auto.mjs",
+    "wired": false,
+    "disabled": false,
+    "events": [],
+    "description": "PostToolUse hook",
+    "descriptionInferred": false,
+    "tier": "T3",
+    "sizeBytes": 3336,
+    "lines": 126
+  },
+  {
+    "id": "complexity-gate",
+    "file": ".claude/hooks/complexity-gate.mjs",
+    "wired": false,
+    "disabled": false,
+    "events": [],
+    "description": "PreToolUse hook for Edit/Write/MultiEdit",
+    "descriptionInferred": false,
+    "tier": "T1",
+    "sizeBytes": 8827,
+    "lines": 321
+  },
+  {
+    "id": "comprehensive-build-enforce",
+    "file": ".claude/hooks/comprehensive-build-enforce.mjs",
+    "wired": true,
+    "disabled": false,
+    "events": [
+      {
+        "event": "UserPromptSubmit",
+        "matcher": "",
+        "timeout": 2000,
+        "type": "command",
+        "layer": "user",
+        "disabled": false
+      },
+      {
+        "event": "UserPromptSubmit",
+        "matcher": "",
+        "timeout": 2000,
+        "type": "command",
+        "layer": "project",
+        "disabled": false
+      }
+    ],
+    "description": "UserPromptSubmit enforcement hook",
+    "descriptionInferred": false,
+    "tier": "T0",
+    "sizeBytes": 10317,
+    "lines": 264
+  },
+  {
+    "id": "compression-precompact",
+    "file": ".claude/hooks/compression-precompact.mjs",
+    "wired": true,
+    "disabled": false,
+    "events": [
+      {
+        "event": "PreCompact",
+        "matcher": "",
+        "timeout": 3000,
+        "type": "command",
+        "layer": "project",
+        "disabled": false
+      }
+    ],
+    "description": "Context Compression Before Compact",
+    "descriptionInferred": false,
+    "tier": "T4",
+    "sizeBytes": 5785,
+    "lines": 187
+  },
+  {
+    "id": "consistent-return-checker",
+    "file": ".claude/hooks/consistent-return-checker.mjs",
+    "wired": true,
+    "disabled": false,
+    "events": [
+      {
+        "event": "PreToolUse",
+        "matcher": "Edit|Write|MultiEdit",
+        "timeout": null,
+        "type": "command",
+        "layer": "user",
+        "disabled": false,
+        "viaBundle": "edit-bundle"
+      },
+      {
+        "event": "PreToolUse",
+        "matcher": "Edit|Write|MultiEdit",
+        "timeout": null,
+        "type": "command",
+        "layer": "project",
+        "disabled": false,
+        "viaBundle": "edit-bundle"
+      }
+    ],
+    "description": "PreToolUse hook for Edit/Write/MultiEdit",
+    "descriptionInferred": false,
+    "tier": "T1",
+    "sizeBytes": 6045,
+    "lines": 209
+  },
+  {
+    "id": "context-priority-coordinator",
+    "file": ".claude/hooks/context-priority-coordinator.mjs",
+    "wired": false,
+    "disabled": false,
+    "events": [],
+    "description": "UserPromptSubmit hook",
+    "descriptionInferred": false,
+    "tier": "T4",
+    "sizeBytes": 4046,
+    "lines": 113
+  },
+  {
+    "id": "coordination-startup-banner",
+    "file": ".claude/hooks/coordination-startup-banner.mjs",
+    "wired": true,
+    "disabled": false,
+    "events": [
+      {
+        "event": "SessionStart",
+        "matcher": "",
+        "timeout": 2000,
+        "type": "command",
+        "layer": "user",
+        "disabled": false
+      }
+    ],
+    "description": "coordination-startup-banner.mjs (U-COORD06)",
+    "descriptionInferred": false,
+    "tier": "T2",
+    "sizeBytes": 8115,
+    "lines": 223
+  },
+  {
+    "id": "coordination-update-reminder",
+    "file": ".claude/hooks/coordination-update-reminder.mjs",
+    "wired": false,
+    "disabled": false,
+    "events": [],
+    "description": "Coordination Update Reminder Hook (PostToolUse for Bash git commit)",
+    "descriptionInferred": false,
+    "tier": "T3",
+    "sizeBytes": 2473,
+    "lines": 87
+  },
+  {
+    "id": "corpus-integrity",
+    "file": ".claude/hooks/corpus-integrity.mjs",
+    "wired": false,
+    "disabled": false,
+    "events": [],
+    "description": "CADCAM-DAGI-MS0/U-DAGI03 guard hook",
+    "descriptionInferred": false,
+    "tier": "T3",
+    "sizeBytes": 3771,
+    "lines": 112
+  },
+  {
+    "id": "cost-bridge-on-cad-import",
+    "file": ".claude/hooks/cost-bridge-on-cad-import.mjs",
+    "wired": false,
+    "disabled": false,
+    "events": [],
+    "description": "PostToolUse advisory.",
+    "descriptionInferred": false,
+    "tier": "T3",
+    "sizeBytes": 1829,
+    "lines": 30
+  },
+  {
+    "id": "cost-bridge-on-cam-strategy-select",
+    "file": ".claude/hooks/cost-bridge-on-cam-strategy-select.mjs",
+    "wired": false,
+    "disabled": false,
+    "events": [],
+    "description": "PostToolUse advisory.",
+    "descriptionInferred": false,
+    "tier": "T3",
+    "sizeBytes": 2046,
+    "lines": 31
+  },
+  {
+    "id": "cost-bridge-on-cam-tool-select",
+    "file": ".claude/hooks/cost-bridge-on-cam-tool-select.mjs",
+    "wired": false,
+    "disabled": false,
+    "events": [],
+    "description": "PostToolUse advisory.",
+    "descriptionInferred": false,
+    "tier": "T3",
+    "sizeBytes": 1939,
+    "lines": 32
+  },
+  {
+    "id": "cost-bridge-on-machine-rate",
+    "file": ".claude/hooks/cost-bridge-on-machine-rate.mjs",
+    "wired": false,
+    "disabled": false,
+    "events": [],
+    "description": "PostToolUse advisory.",
+    "descriptionInferred": false,
+    "tier": "T3",
+    "sizeBytes": 1749,
+    "lines": 30
+  },
+  {
+    "id": "cost-bridge-on-material-price",
+    "file": ".claude/hooks/cost-bridge-on-material-price.mjs",
+    "wired": false,
+    "disabled": false,
+    "events": [],
+    "description": "PostToolUse advisory.",
+    "descriptionInferred": false,
+    "tier": "T3",
+    "sizeBytes": 1833,
+    "lines": 47
+  },
+  {
+    "id": "cost-bridge-on-operator-override",
+    "file": ".claude/hooks/cost-bridge-on-operator-override.mjs",
+    "wired": false,
+    "disabled": false,
+    "events": [],
+    "description": "PostToolUse advisory.",
+    "descriptionInferred": false,
+    "tier": "T3",
+    "sizeBytes": 1891,
+    "lines": 31
+  },
+  {
+    "id": "cost-bridge-on-pdf-extract",
+    "file": ".claude/hooks/cost-bridge-on-pdf-extract.mjs",
+    "wired": false,
+    "disabled": false,
+    "events": [],
+    "description": "PostToolUse advisory.",
+    "descriptionInferred": false,
+    "tier": "T3",
+    "sizeBytes": 1956,
+    "lines": 31
+  },
+  {
+    "id": "cost-bridge-on-precommit",
+    "file": ".claude/hooks/cost-bridge-on-precommit.mjs",
+    "wired": false,
+    "disabled": false,
+    "events": [],
+    "description": "PostToolUse advisory.",
+    "descriptionInferred": false,
+    "tier": "T3",
+    "sizeBytes": 1967,
+    "lines": 31
+  },
+  {
+    "id": "cost-bridge-on-program-emit",
+    "file": ".claude/hooks/cost-bridge-on-program-emit.mjs",
+    "wired": false,
+    "disabled": false,
+    "events": [],
+    "description": "PostToolUse advisory hook.",
+    "descriptionInferred": false,
+    "tier": "T3",
+    "sizeBytes": 2350,
+    "lines": 80
+  },
+  {
+    "id": "cost-bridge-on-quote-accept",
+    "file": ".claude/hooks/cost-bridge-on-quote-accept.mjs",
+    "wired": false,
+    "disabled": false,
+    "events": [],
+    "description": "PostToolUse advisory.",
+    "descriptionInferred": false,
+    "tier": "T3",
+    "sizeBytes": 1912,
+    "lines": 48
+  },
+  {
+    "id": "cost-bridge-on-reverse-cad",
+    "file": ".claude/hooks/cost-bridge-on-reverse-cad.mjs",
+    "wired": false,
+    "disabled": false,
+    "events": [],
+    "description": "PostToolUse advisory.",
+    "descriptionInferred": false,
+    "tier": "T3",
+    "sizeBytes": 1868,
+    "lines": 48
+  },
+  {
+    "id": "cost-bridge-on-runtime-predict",
+    "file": ".claude/hooks/cost-bridge-on-runtime-predict.mjs",
+    "wired": false,
+    "disabled": false,
+    "events": [],
+    "description": "PostToolUse advisory.",
+    "descriptionInferred": false,
+    "tier": "T3",
+    "sizeBytes": 1836,
+    "lines": 48
+  },
+  {
+    "id": "cost-bridge-on-shop-config-change",
+    "file": ".claude/hooks/cost-bridge-on-shop-config-change.mjs",
+    "wired": false,
+    "disabled": false,
+    "events": [],
+    "description": "PostToolUse advisory.",
+    "descriptionInferred": false,
+    "tier": "T3",
+    "sizeBytes": 1942,
+    "lines": 31
+  },
+  {
+    "id": "cost-bridge-on-spc-log",
+    "file": ".claude/hooks/cost-bridge-on-spc-log.mjs",
+    "wired": false,
+    "disabled": false,
+    "events": [],
+    "description": "PostToolUse advisory.",
+    "descriptionInferred": false,
+    "tier": "T3",
+    "sizeBytes": 1906,
+    "lines": 32
+  },
+  {
+    "id": "cost-bridge-on-tool-catalog",
+    "file": ".claude/hooks/cost-bridge-on-tool-catalog.mjs",
+    "wired": false,
+    "disabled": false,
+    "events": [],
+    "description": "PostToolUse advisory.",
+    "descriptionInferred": false,
+    "tier": "T3",
+    "sizeBytes": 1888,
+    "lines": 48
+  },
+  {
+    "id": "cost-bridge-on-tool-wear-log",
+    "file": ".claude/hooks/cost-bridge-on-tool-wear-log.mjs",
+    "wired": false,
+    "disabled": false,
+    "events": [],
+    "description": "fires when operator logs tool wear.",
+    "descriptionInferred": false,
+    "tier": "T3",
+    "sizeBytes": 1143,
+    "lines": 15
+  },
+  {
+    "id": "cost-ceiling-stop",
+    "file": ".claude/hooks/cost-ceiling-stop.mjs",
+    "wired": false,
+    "disabled": false,
+    "events": [],
+    "description": "Stop hook.",
+    "descriptionInferred": false,
+    "tier": "T0",
+    "sizeBytes": 3713,
+    "lines": 130
+  },
+  {
+    "id": "critical-file-guard",
+    "file": ".claude/hooks/critical-file-guard.mjs",
+    "wired": true,
+    "disabled": false,
+    "events": [
+      {
+        "event": "PreToolUse",
+        "matcher": "^(Edit|Write|MultiEdit|NotebookEdit)$",
+        "timeout": 3000,
+        "type": "command",
+        "layer": "project",
+        "disabled": false
+      }
+    ],
+    "description": "Phase 0.16 Safety-Critical File Guard",
+    "descriptionInferred": false,
+    "tier": "T0",
+    "sizeBytes": 7547,
+    "lines": 223
+  },
+  {
+    "id": "critical-memory-compact-nudge",
+    "file": ".claude/hooks/critical-memory-compact-nudge.mjs",
+    "wired": true,
+    "disabled": false,
+    "events": [
+      {
+        "event": "UserPromptSubmit",
+        "matcher": "",
+        "timeout": 3000,
+        "type": "command",
+        "layer": "user",
+        "disabled": false
+      }
+    ],
+    "description": "UserPromptSubmit actuator that drives a",
+    "descriptionInferred": false,
+    "tier": "T2",
+    "sizeBytes": 11673,
+    "lines": 270
+  },
+  {
+    "id": "cross-chat-directive-detector",
+    "file": ".claude/hooks/cross-chat-directive-detector.mjs",
+    "wired": false,
+    "disabled": false,
+    "events": [],
+    "description": "UserPromptSubmit hook.",
+    "descriptionInferred": false,
+    "tier": "T2",
+    "sizeBytes": 7884,
+    "lines": 242
+  },
+  {
+    "id": "cross-session-awareness",
+    "file": ".claude/hooks/cross-session-awareness.mjs",
+    "wired": false,
+    "disabled": false,
+    "events": [],
+    "description": "Force Cross-Session Visibility",
+    "descriptionInferred": false,
+    "tier": "T1",
+    "sizeBytes": 6581,
+    "lines": 196
+  },
+  {
+    "id": "cross-session-orchestrator",
+    "file": ".claude/hooks/cross-session-orchestrator.mjs",
+    "wired": true,
+    "disabled": false,
+    "events": [
+      {
+        "event": "PostToolUse",
+        "matcher": "Edit|Write|MultiEdit|NotebookEdit",
+        "timeout": 4000,
+        "type": "command",
+        "layer": "user",
+        "disabled": false
+      },
+      {
+        "event": "PreToolUse",
+        "matcher": "^(Edit|Write|MultiEdit|NotebookEdit)$",
+        "timeout": 4000,
+        "type": "command",
+        "layer": "user",
+        "disabled": false
+      }
+    ],
+    "description": "PreToolUse / PostToolUse cross-session event bridge",
+    "descriptionInferred": false,
+    "tier": "T1",
+    "sizeBytes": 7784,
+    "lines": 220
+  },
+  {
+    "id": "cross-terminal-conflict",
+    "file": ".claude/hooks/cross-terminal-conflict.mjs",
+    "wired": false,
+    "disabled": false,
+    "events": [],
+    "description": "Phase 1 Tier 5D",
+    "descriptionInferred": false,
+    "tier": "T0",
+    "sizeBytes": 3520,
+    "lines": 100
+  },
+  {
+    "id": "curiosity-explorer",
+    "file": ".claude/hooks/curiosity-explorer.mjs",
+    "wired": true,
+    "disabled": false,
+    "events": [
+      {
+        "event": "SessionStart",
+        "matcher": "",
+        "timeout": 3000,
+        "type": "command",
+        "layer": "user",
+        "disabled": false
+      },
+      {
+        "event": "SessionStart",
+        "matcher": "",
+        "timeout": 3000,
+        "type": "command",
+        "layer": "project",
+        "disabled": false
+      }
+    ],
+    "description": "U-AI05 Curiosity-Driven Explorer",
+    "descriptionInferred": false,
+    "tier": "T4",
+    "sizeBytes": 7127,
+    "lines": 234
+  },
+  {
+    "id": "customer-directory-watcher",
+    "file": ".claude/hooks/customer-directory-watcher.mjs",
+    "wired": false,
+    "disabled": false,
+    "events": [],
+    "description": "U-CUC05 Stop hook",
+    "descriptionInferred": false,
+    "tier": "T4",
+    "sizeBytes": 4769,
+    "lines": 177
+  },
+  {
+    "id": "dead-pixel-guard",
+    "file": ".claude/hooks/dead-pixel-guard.mjs",
+    "wired": false,
+    "disabled": false,
+    "events": [],
+    "description": "dead-pixel-guard.mjs (SessionStart advisory hook)",
+    "descriptionInferred": false,
+    "tier": "T4",
+    "sizeBytes": 2293,
+    "lines": 62
+  },
+  {
+    "id": "decision-capture",
+    "file": ".claude/hooks/decision-capture.mjs",
+    "wired": false,
+    "disabled": false,
+    "events": [],
+    "description": "Decision Capture — PostToolUse Hook",
+    "descriptionInferred": false,
+    "tier": "T3",
+    "sizeBytes": 2651,
+    "lines": 102
+  },
+  {
+    "id": "dedup-auto-invoke",
+    "file": ".claude/hooks/dedup-auto-invoke.mjs",
+    "wired": true,
+    "disabled": false,
+    "events": [
+      {
+        "event": "PreToolUse",
+        "matcher": "Edit|Write|MultiEdit",
+        "timeout": null,
+        "type": "command",
+        "layer": "user",
+        "disabled": false,
+        "viaBundle": "edit-bundle"
+      },
+      {
+        "event": "PreToolUse",
+        "matcher": "Edit|Write|MultiEdit",
+        "timeout": null,
+        "type": "command",
+        "layer": "project",
+        "disabled": false,
+        "viaBundle": "edit-bundle"
+      }
+    ],
+    "description": "PreToolUse hook (HOOK-SYNERGY-MS0 / U-HOOK-COMPRESS H9)",
+    "descriptionInferred": false,
+    "tier": "T1",
+    "sizeBytes": 1965,
+    "lines": 53
+  },
+  {
+    "id": "dep-graph-impact",
+    "file": ".claude/hooks/dep-graph-impact.mjs",
+    "wired": false,
+    "disabled": false,
+    "events": [],
+    "description": "Phase 1 Tier 5D",
+    "descriptionInferred": false,
+    "tier": "T0",
+    "sizeBytes": 3228,
+    "lines": 82
+  },
+  {
+    "id": "dev-outcome-tracker",
+    "file": ".claude/hooks/dev-outcome-tracker.mjs",
+    "wired": false,
+    "disabled": false,
+    "events": [],
+    "description": "Dev Outcome Tracker — PostToolUse Hook (Bash)",
+    "descriptionInferred": false,
+    "tier": "T3",
+    "sizeBytes": 8805,
+    "lines": 272
+  },
+  {
+    "id": "dfm-block",
+    "file": ".claude/hooks/dfm-block.mjs",
+    "wired": false,
+    "disabled": false,
+    "events": [],
+    "description": "PostToolUse hook",
+    "descriptionInferred": false,
+    "tier": "T3",
+    "sizeBytes": 2505,
+    "lines": 84
+  },
+  {
+    "id": "directive-summary-refresh-iooms",
+    "file": ".claude/hooks/directive-summary-refresh-iooms.mjs",
+    "wired": true,
+    "disabled": false,
+    "events": [
+      {
+        "event": "PostToolUse",
+        "matcher": "Edit|Write|MultiEdit",
+        "timeout": 3000,
+        "type": "command",
+        "layer": "project",
+        "disabled": false
+      },
+      {
+        "event": "PostToolUse",
+        "matcher": "Edit|Write|MultiEdit",
+        "timeout": null,
+        "type": "command",
+        "layer": "user",
+        "disabled": false,
+        "viaBundle": "posttool-edit-bundle"
+      },
+      {
+        "event": "PreToolUse",
+        "matcher": "Edit|Write|MultiEdit",
+        "timeout": null,
+        "type": "command",
+        "layer": "user",
+        "disabled": false,
+        "viaBundle": "posttool-edit-bundle"
+      },
+      {
+        "event": "PreToolUse",
+        "matcher": "Edit|Write|MultiEdit",
+        "timeout": null,
+        "type": "command",
+        "layer": "project",
+        "disabled": false,
+        "viaBundle": "posttool-edit-bundle"
+      }
+    ],
+    "description": "directive-summary-refresh.mjs — PostToolUse hook",
+    "descriptionInferred": false,
+    "tier": "T4",
+    "sizeBytes": 4330,
+    "lines": 134
+  },
+  {
+    "id": "directive-summary-refresh",
+    "file": ".claude/hooks/directive-summary-refresh.mjs",
+    "wired": false,
+    "disabled": false,
+    "events": [],
+    "description": "directive-summary-refresh.mjs",
+    "descriptionInferred": false,
+    "tier": "T3",
+    "sizeBytes": 3894,
+    "lines": 139
+  },
+  {
+    "id": "discipline-expert-inject",
+    "file": ".claude/hooks/discipline-expert-inject.mjs",
+    "wired": true,
+    "disabled": false,
+    "events": [
+      {
+        "event": "UserPromptSubmit",
+        "matcher": "",
+        "timeout": 5000,
+        "type": "command",
+        "layer": "project",
+        "disabled": false
+      }
+    ],
+    "description": "UserPromptSubmit hook",
+    "descriptionInferred": false,
+    "tier": "T4",
+    "sizeBytes": 41333,
+    "lines": 1060
+  },
+  {
+    "id": "dispatcher-digest-regen",
+    "file": ".claude/hooks/dispatcher-digest-regen.mjs",
+    "wired": true,
+    "disabled": false,
+    "events": [
+      {
+        "event": "PostToolUse",
+        "matcher": "Edit|Write|MultiEdit",
+        "timeout": 5000,
+        "type": "command",
+        "layer": "project",
+        "disabled": false
+      }
+    ],
+    "description": "PostToolUse:Edit|Write|MultiEdit (BACKEND-DEVTOOLS-HVA / iter 7).",
+    "descriptionInferred": false,
+    "tier": "T2",
+    "sizeBytes": 4788,
+    "lines": 130
+  },
+  {
+    "id": "dispatcher-import-validator",
+    "file": ".claude/hooks/dispatcher-import-validator.mjs",
+    "wired": true,
+    "disabled": false,
+    "events": [
+      {
+        "event": "PostToolUse",
+        "matcher": "Edit|Write|MultiEdit",
+        "timeout": 3000,
+        "type": "command",
+        "layer": "project",
+        "disabled": false
+      },
+      {
+        "event": "PostToolUse",
+        "matcher": "Edit|Write|MultiEdit",
+        "timeout": null,
+        "type": "command",
+        "layer": "user",
+        "disabled": false,
+        "viaBundle": "posttool-edit-bundle"
+      },
+      {
+        "event": "PreToolUse",
+        "matcher": "Edit|Write|MultiEdit",
+        "timeout": null,
+        "type": "command",
+        "layer": "user",
+        "disabled": false,
+        "viaBundle": "posttool-edit-bundle"
+      },
+      {
+        "event": "PreToolUse",
+        "matcher": "Edit|Write|MultiEdit",
+        "timeout": null,
+        "type": "command",
+        "layer": "project",
+        "disabled": false,
+        "viaBundle": "posttool-edit-bundle"
+      }
+    ],
+    "description": "PostToolUse hook",
+    "descriptionInferred": false,
+    "tier": "T3",
+    "sizeBytes": 3404,
+    "lines": 109
+  },
+  {
+    "id": "dist-integrity-check",
+    "file": ".claude/hooks/dist-integrity-check.mjs",
+    "wired": false,
+    "disabled": false,
+    "events": [],
+    "description": "SessionStart hook (PILLAR-TELEMETRY-RECOVERY-MS0/U-PTR04)",
+    "descriptionInferred": false,
+    "tier": "T2",
+    "sizeBytes": 9152,
+    "lines": 228
+  }
+]

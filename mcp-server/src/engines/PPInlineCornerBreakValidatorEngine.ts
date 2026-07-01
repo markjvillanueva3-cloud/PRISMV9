@@ -204,9 +204,9 @@ export class PPInlineCornerBreakValidatorEngine {
         const x = this.extractAxis(stripped, "X");
         const y = this.extractAxis(stripped, "Y");
         const z = this.extractAxis(stripped, "Z");
-        const newX = x !== null ? x : lastMotionX;
-        const newY = y !== null ? y : lastMotionY;
-        const newZ = z !== null ? z : lastMotionZ;
+        const newX: number | null = x !== null ? x : lastMotionX;
+        const newY: number | null = y !== null ? y : lastMotionY;
+        const newZ: number | null = z !== null ? z : lastMotionZ;
 
         motions.push({
           line: lineNo,

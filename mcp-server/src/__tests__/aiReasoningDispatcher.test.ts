@@ -21,8 +21,17 @@ describe("aiReasoningDispatcher", () => {
   // ═══════════════════════════════════════════════════════════════════════════
 
   describe("schema validation", () => {
-    it("should have 10 actions defined", () => {
-      expect(AI_REASONING_ACTIONS).toHaveLength(10);
+    it("keeps the action enum coherent: no dups, bijective with the schema map, no count regression", () => {
+      // R9: a frozen magic count (was `toHaveLength(424)`) breaks on every legitimate
+      // action addition (it was already bumped once; actual is 426 as of 2026-06-23).
+      // Encode the real invariant instead -- additions are fine, but a duplicate action,
+      // an action without a schema, an orphan schema, or a drop below the known baseline
+      // all signal genuine drift.
+      const actions = AI_REASONING_ACTIONS as readonly string[];
+      const schemaKeys = Object.keys(ACTION_AI_REASONING_SCHEMAS);
+      expect(new Set(actions).size).toBe(actions.length);           // no duplicate actions
+      expect(schemaKeys.length).toBe(actions.length);               // bijective: no orphan schema / schemaless action
+      expect(actions.length).toBeGreaterThanOrEqual(426);           // regression floor; additions OK, losses caught
     });
 
     it("should have schemas for all actions", () => {

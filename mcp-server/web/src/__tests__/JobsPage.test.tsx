@@ -313,7 +313,7 @@ describe('JobsPage', () => {
     expect(captureParams.get('job')).toBe('JOB-001');
   });
 
-  it('keeps the PRISM AI copilot built into the jobs desk and auto-briefs live dispatch context', async () => {
+  it('keeps the Kienzle AI copilot built into the jobs desk and auto-briefs live dispatch context', async () => {
     const controlledServices: OperatingSystemServices = {
       ...fixtureOperatingSystemServices,
       buildJobDeskRecords: async () => [
@@ -439,7 +439,7 @@ describe('JobsPage', () => {
     renderJobsPage('/jobs', controlledServices);
 
     await screen.findByText('Mounted traveler route');
-    await waitFor(() => expect(screen.getByText(/PRISM AI copilot/i)).toBeDefined());
+    await waitFor(() => expect(screen.getByText(/Kienzle AI copilot/i)).toBeDefined());
     await waitFor(() => expect(screen.getByText(/Autonomous desk brief on/i)).toBeDefined());
     expect(screen.getByRole('button', { name: /Refresh AI brief/i })).toBeDefined();
     await waitFor(() => expect(screen.getByText(/Clear tooling shortage before the next queue pull\./i)).toBeDefined());
@@ -1088,7 +1088,7 @@ describe('JobsPage', () => {
     await waitFor(() => {
       expect(screen.getAllByText('Shop hot').length).toBeGreaterThan(0);
       expect(screen.getByText('Upper management flagged this job hot for shop-wide execution ordering.')).toBeDefined();
-      expect(window.localStorage.getItem('prism.hot-jobs.v1')).toContain('JOB-002');
+      expect(window.localStorage.getItem('kienzle.hot-jobs.v1')).toContain('JOB-002');
     });
 
     const orderedCards = screen.getAllByTestId(/dispatch-job-/);
@@ -1199,7 +1199,7 @@ describe('JobsPage', () => {
       getHotJobs: vi.fn(async () => []),
       subscribeHotJobs: () => () => undefined,
       isJobHot: () => false,
-      setJobHot: vi.fn(async () => [
+      setJobHot: vi.fn(async (_input: { jobId: string; partNumber: string; customer: string; dueDate?: string; note?: string; setBy?: string }) => [
         {
           jobId: 'JOB-002',
           partNumber: 'HOT-99',
@@ -1207,6 +1207,7 @@ describe('JobsPage', () => {
           dueDate: '2026-04-05',
           note: 'Canonical control room priority from provider response.',
           setBy: 'Control room',
+          setAt: '2026-04-01T00:00:00Z',
         },
       ]),
     };

@@ -1,0 +1,1149 @@
+{
+  "schemaVersion": "1.0.0",
+  "generated_at": "2026-06-03T20:33:55.981Z",
+  "domain": "mill",
+  "rung": "B — TRUE print→program→post roundtrip (regenerate via MillingPrintToProgramEngine, diff vs JM master mill program)",
+  "honest_note": "Accuracy = PARAMETER-ENVELOPE AGREEMENT (op-coverage + spindle-RPM + feed within ±band), NOT byte-match. Features are derived from the master program itself (no paired print PDF yet), so a miss reflects PRISM physics/data OR derived-input divergence — the per-category punch list says which. This is the real measured number; it is NOT asserted as 100% unless the data earns it (R12).",
+  "KNOWN_LIMITATIONS": {
+    "tool_coupling": "RPM (=Vc·1000/(π·D)) and feed (=fz·flutes·RPM) are COUPLED to tool selection. A miss can reflect PRISM's Vc/fz physics OR a tool-diameter / flute-count divergence from the master (the program states no tool geometry). op_coverage is the cleanest, least-coupled axis.",
+    "ground_truth_fz": "Ground-truth feed-per-tooth (chip thickness) is NOT extractable from the master G-code (needs the tool table: diameter + flute count, which live in the setup sheet). So fz is reported as PRISM's PLANNED chip-load surface per category, not a vs-master diff.",
+    "material_default": "Material is inferred from filename + comments via a die-shop keyword dictionary; unmatched parts default to 4140 / ISO-P (conservative middle, NOT the most-aggressive case). Defaulted parts may mis-set Vc and depress the RPM axis. The inferred/defaulted split + material histogram are in this report.",
+    "feature_inference": "Features (face/pocket/holes/threads/bores) are synthesized from detected op categories + coordinate extents, NOT from a paired engineering drawing. Geometry-exact feature recovery is the next rung (print↔program pairing).",
+    "okuma_feed_excluded": "Okuma .MIN (OSP) feed words do not follow ISO G94 ipm semantics reliably (observed F1.0-style values scaling to ~1 IPM, implausible for milling), so .MIN programs are EXCLUDED from the feed axis — their RPM + op-coverage are still scored. A dedicated OSP feed parser is the next-rung fix; until then the feed-axis number reflects Haas/Fanuc/Hurco (confirmed G94 ipm) programs only."
+  },
+  "config": {
+    "band_pct": 35,
+    "sample_mode": "stratified",
+    "seed": 1337,
+    "dir_filter": null
+  },
+  "corpus": {
+    "roots": [
+      "CNC MILL HAAS",
+      "HAAS-HURCO",
+      "HURCO CNC PROGRAMS",
+      "ROKU-ROKU"
+    ],
+    "root_path": "H:/PRISM/JM DIE",
+    "scanned_total": 35,
+    "regenerated": 28,
+    "regen_failures": 0,
+    "parse_errors": 0,
+    "skipped_no_groundtruth": 7,
+    "skipped_too_big": 0,
+    "reconciliation": "scanned_total ≈ regenerated + regen_failures + parse_errors + skipped_no_groundtruth + skipped_too_big (− unsampled when not --all)"
+  },
+  "material_inference": {
+    "inferred": 14,
+    "defaulted": 14,
+    "histogram": {
+      "304 Stainless": 2,
+      "M2 HSS": 4,
+      "6061 Aluminum": 2,
+      "4140 Alloy Steel": 14,
+      "D2 Tool Steel": 4,
+      "H13 Tool Steel": 2
+    }
+  },
+  "runtime_ms": 69721,
+  "headline": {
+    "mean_accuracy_pct": 46.8,
+    "median_accuracy_pct": 44.4,
+    "p25": 33.3,
+    "p75": 50,
+    "programs_scored": 28
+  },
+  "axes": {
+    "op_coverage_pct": 100,
+    "rpm_in_band_pct": 16.3,
+    "feed_in_band_pct": 3.4,
+    "op_n": 49,
+    "rpm_n": 49,
+    "feed_n": 29
+  },
+  "systematic_bias_regen_over_master": {
+    "note": "geomean(regen/master) per category. ~1.0 = aligned; >1 PRISM faster, <1 slower. Most actionable data-optimization signal.",
+    "rpm": {
+      "mill_cut": {
+        "regen_over_master": 1.31,
+        "n": 28
+      },
+      "bore": {
+        "regen_over_master": 3.07,
+        "n": 5
+      },
+      "drill": {
+        "regen_over_master": 5.96,
+        "n": 13
+      },
+      "tap": {
+        "regen_over_master": 0.38,
+        "n": 3
+      }
+    },
+    "feed": {
+      "mill_cut": {
+        "regen_over_master": 2.11,
+        "n": 20
+      },
+      "drill": {
+        "regen_over_master": 5.08,
+        "n": 8
+      },
+      "tap": {
+        "regen_over_master": 0.09,
+        "n": 1
+      }
+    }
+  },
+  "prism_chip_load_surface_fz_mm": {
+    "mill_cut": {
+      "median_fz_mm": 0.08,
+      "n": 122
+    },
+    "drill": {
+      "median_fz_mm": 0.1149986,
+      "n": 32
+    },
+    "bore": {
+      "median_fz_mm": 0.03,
+      "n": 5
+    },
+    "tap": {
+      "median_fz_mm": 0.06,
+      "n": 3
+    }
+  },
+  "punch_list_by_category": {
+    "mill_cut": {
+      "rpm": 20,
+      "feed": 19,
+      "op": 0
+    },
+    "drill": {
+      "rpm": 13,
+      "feed": 8,
+      "op": 0
+    },
+    "bore": {
+      "rpm": 5,
+      "feed": 0,
+      "op": 0
+    },
+    "tap": {
+      "rpm": 3,
+      "feed": 1,
+      "op": 0
+    }
+  },
+  "programs_sampled": [
+    {
+      "file": "UPSET-876-2-.495.MIN",
+      "bucket": "CNC MILL HAAS/AJ MANUFACTURING",
+      "controller": "okuma_osp",
+      "material": "304 Stainless",
+      "mat_inferred": true,
+      "units": "inch",
+      "feed_mode": "ipr",
+      "regen_ok": true,
+      "regen_tools": 4,
+      "master_tools": 0,
+      "op_coverage": "1/1",
+      "rpm_match": "0/1",
+      "feed_match": "0/0",
+      "accuracy_pct": 50,
+      "master_cats": [
+        "mill_cut"
+      ],
+      "regen_cats": [
+        "mill_cut"
+      ],
+      "cat_detail": {
+        "mill_cut": {
+          "master_rpm": 900,
+          "regen_rpm": 2069,
+          "master_feed_mm_min": null,
+          "regen_feed_mm_min": 993
+        }
+      }
+    },
+    {
+      "file": "WAFER1314.MIN",
+      "bucket": "CNC MILL HAAS/ATF",
+      "controller": "okuma_osp",
+      "material": "M2 HSS",
+      "mat_inferred": true,
+      "units": "inch",
+      "feed_mode": "ipr",
+      "regen_ok": true,
+      "regen_tools": 11,
+      "master_tools": 0,
+      "op_coverage": "4/4",
+      "rpm_match": "0/4",
+      "feed_match": "0/0",
+      "accuracy_pct": 50,
+      "master_cats": [
+        "mill_cut",
+        "bore",
+        "drill",
+        "tap"
+      ],
+      "regen_cats": [
+        "mill_cut",
+        "drill",
+        "bore",
+        "tap"
+      ],
+      "cat_detail": {
+        "mill_cut": {
+          "master_rpm": 200,
+          "regen_rpm": 955,
+          "master_feed_mm_min": null,
+          "regen_feed_mm_min": 229
+        },
+        "bore": {
+          "master_rpm": 800,
+          "regen_rpm": 1273,
+          "master_feed_mm_min": null,
+          "regen_feed_mm_min": 38
+        },
+        "drill": {
+          "master_rpm": 200,
+          "regen_rpm": 2425,
+          "master_feed_mm_min": null,
+          "regen_feed_mm_min": 395
+        },
+        "tap": {
+          "master_rpm": 650,
+          "regen_rpm": 239,
+          "master_feed_mm_min": null,
+          "regen_feed_mm_min": 43
+        }
+      }
+    },
+    {
+      "file": "WAFER1314.MIN",
+      "bucket": "CNC MILL HAAS/FASTRON",
+      "controller": "okuma_osp",
+      "material": "M2 HSS",
+      "mat_inferred": true,
+      "units": "inch",
+      "feed_mode": "ipr",
+      "regen_ok": true,
+      "regen_tools": 11,
+      "master_tools": 0,
+      "op_coverage": "4/4",
+      "rpm_match": "0/4",
+      "feed_match": "0/0",
+      "accuracy_pct": 50,
+      "master_cats": [
+        "mill_cut",
+        "bore",
+        "drill",
+        "tap"
+      ],
+      "regen_cats": [
+        "mill_cut",
+        "drill",
+        "bore",
+        "tap"
+      ],
+      "cat_detail": {
+        "mill_cut": {
+          "master_rpm": 200,
+          "regen_rpm": 955,
+          "master_feed_mm_min": null,
+          "regen_feed_mm_min": 229
+        },
+        "bore": {
+          "master_rpm": 800,
+          "regen_rpm": 1273,
+          "master_feed_mm_min": null,
+          "regen_feed_mm_min": 38
+        },
+        "drill": {
+          "master_rpm": 200,
+          "regen_rpm": 2425,
+          "master_feed_mm_min": null,
+          "regen_feed_mm_min": 395
+        },
+        "tap": {
+          "master_rpm": 650,
+          "regen_rpm": 239,
+          "master_feed_mm_min": null,
+          "regen_feed_mm_min": 43
+        }
+      }
+    },
+    {
+      "file": "B-0506-6.NC",
+      "bucket": "CNC MILL HAAS/FONTANA",
+      "controller": "haas_ngc",
+      "material": "6061 Aluminum",
+      "mat_inferred": true,
+      "units": "inch",
+      "feed_mode": "ipm",
+      "regen_ok": true,
+      "regen_tools": 4,
+      "master_tools": 2,
+      "op_coverage": "1/1",
+      "rpm_match": "0/1",
+      "feed_match": "0/1",
+      "accuracy_pct": 33.3,
+      "master_cats": [
+        "mill_cut"
+      ],
+      "regen_cats": [
+        "mill_cut"
+      ],
+      "cat_detail": {
+        "mill_cut": {
+          "master_rpm": 1151,
+          "regen_rpm": 8100,
+          "master_feed_mm_min": 350.5,
+          "regen_feed_mm_min": 3240
+        }
+      }
+    },
+    {
+      "file": "O32471.NC",
+      "bucket": "CNC MILL HAAS/SFS GROUP USA",
+      "controller": "haas_ngc",
+      "material": "4140 Alloy Steel",
+      "mat_inferred": false,
+      "units": "inch",
+      "feed_mode": "ipm",
+      "regen_ok": true,
+      "regen_tools": 6,
+      "master_tools": 12,
+      "op_coverage": "2/2",
+      "rpm_match": "0/2",
+      "feed_match": "0/2",
+      "accuracy_pct": 33.3,
+      "master_cats": [
+        "mill_cut",
+        "drill"
+      ],
+      "regen_cats": [
+        "mill_cut",
+        "drill"
+      ],
+      "cat_detail": {
+        "mill_cut": {
+          "master_rpm": 2100,
+          "regen_rpm": 3183,
+          "master_feed_mm_min": 381,
+          "regen_feed_mm_min": 1910
+        },
+        "drill": {
+          "master_rpm": 1000,
+          "regen_rpm": 8084,
+          "master_feed_mm_min": 127,
+          "regen_feed_mm_min": 1318
+        }
+      }
+    },
+    {
+      "file": "TT2_206H_It-065523A_MILL_ELE1.NC",
+      "bucket": "CNC MILL HAAS/TAPTITE",
+      "controller": "haas_ngc",
+      "material": "D2 Tool Steel",
+      "mat_inferred": true,
+      "units": "inch",
+      "feed_mode": "ipm",
+      "regen_ok": true,
+      "regen_tools": 5,
+      "master_tools": 2,
+      "op_coverage": "1/1",
+      "rpm_match": "0/1",
+      "feed_match": "0/1",
+      "accuracy_pct": 33.3,
+      "master_cats": [
+        "mill_cut"
+      ],
+      "regen_cats": [
+        "mill_cut"
+      ],
+      "cat_detail": {
+        "mill_cut": {
+          "master_rpm": 20000,
+          "regen_rpm": 3056,
+          "master_feed_mm_min": 1270,
+          "regen_feed_mm_min": 733
+        }
+      }
+    },
+    {
+      "file": "1001.min",
+      "bucket": "HURCO CNC PROGRAMS",
+      "controller": "okuma_osp",
+      "material": "4140 Alloy Steel",
+      "mat_inferred": false,
+      "units": "inch",
+      "feed_mode": "ipr",
+      "regen_ok": true,
+      "regen_tools": 4,
+      "master_tools": 0,
+      "op_coverage": "1/1",
+      "rpm_match": "1/1",
+      "feed_match": "0/0",
+      "accuracy_pct": 100,
+      "master_cats": [
+        "mill_cut"
+      ],
+      "regen_cats": [
+        "mill_cut"
+      ],
+      "cat_detail": {
+        "mill_cut": {
+          "master_rpm": 2500,
+          "regen_rpm": 3183,
+          "master_feed_mm_min": null,
+          "regen_feed_mm_min": 1910
+        }
+      }
+    },
+    {
+      "file": "BLANKS.MIN",
+      "bucket": "ROKU-ROKU/BRICO",
+      "controller": "okuma_osp",
+      "material": "M2 HSS",
+      "mat_inferred": true,
+      "units": "inch",
+      "feed_mode": "ipm",
+      "regen_ok": true,
+      "regen_tools": 5,
+      "master_tools": 0,
+      "op_coverage": "1/1",
+      "rpm_match": "1/1",
+      "feed_match": "0/0",
+      "accuracy_pct": 100,
+      "master_cats": [
+        "mill_cut"
+      ],
+      "regen_cats": [
+        "mill_cut"
+      ],
+      "cat_detail": {
+        "mill_cut": {
+          "master_rpm": 1000,
+          "regen_rpm": 955,
+          "master_feed_mm_min": null,
+          "regen_feed_mm_min": 229
+        }
+      }
+    },
+    {
+      "file": "014-41009H-00.NC",
+      "bucket": "ROKU-ROKU/ITW SHAKEPROOF",
+      "controller": "fanuc",
+      "material": "D2 Tool Steel",
+      "mat_inferred": true,
+      "units": "inch",
+      "feed_mode": "ipm",
+      "regen_ok": true,
+      "regen_tools": 5,
+      "master_tools": 2,
+      "op_coverage": "1/1",
+      "rpm_match": "1/1",
+      "feed_match": "0/1",
+      "accuracy_pct": 66.7,
+      "master_cats": [
+        "mill_cut"
+      ],
+      "regen_cats": [
+        "mill_cut"
+      ],
+      "cat_detail": {
+        "mill_cut": {
+          "master_rpm": 3200,
+          "regen_rpm": 3973,
+          "master_feed_mm_min": 635,
+          "regen_feed_mm_min": 954
+        }
+      }
+    },
+    {
+      "file": "SLEEVE1376.MIN",
+      "bucket": "ROKU-ROKU/REED & PRINCE MFG",
+      "controller": "okuma_osp",
+      "material": "4140 Alloy Steel",
+      "mat_inferred": false,
+      "units": "inch",
+      "feed_mode": "ipr",
+      "regen_ok": true,
+      "regen_tools": 7,
+      "master_tools": 0,
+      "op_coverage": "3/3",
+      "rpm_match": "0/3",
+      "feed_match": "0/0",
+      "accuracy_pct": 50,
+      "master_cats": [
+        "mill_cut",
+        "bore",
+        "drill"
+      ],
+      "regen_cats": [
+        "mill_cut",
+        "drill",
+        "bore"
+      ],
+      "cat_detail": {
+        "mill_cut": {
+          "master_rpm": 500,
+          "regen_rpm": 3183,
+          "master_feed_mm_min": null,
+          "regen_feed_mm_min": 1910
+        },
+        "bore": {
+          "master_rpm": 500,
+          "regen_rpm": 3565,
+          "master_feed_mm_min": null,
+          "regen_feed_mm_min": 285
+        },
+        "drill": {
+          "master_rpm": 150,
+          "regen_rpm": 8084,
+          "master_feed_mm_min": null,
+          "regen_feed_mm_min": 1318
+        }
+      }
+    },
+    {
+      "file": "CH425-10-PLATE.MIN",
+      "bucket": "ROKU-ROKU/TOPURA",
+      "controller": "okuma_osp",
+      "material": "4140 Alloy Steel",
+      "mat_inferred": false,
+      "units": "inch",
+      "feed_mode": "ipm",
+      "regen_ok": true,
+      "regen_tools": 7,
+      "master_tools": 0,
+      "op_coverage": "3/3",
+      "rpm_match": "0/3",
+      "feed_match": "0/0",
+      "accuracy_pct": 50,
+      "master_cats": [
+        "mill_cut",
+        "bore",
+        "drill"
+      ],
+      "regen_cats": [
+        "mill_cut",
+        "drill",
+        "bore"
+      ],
+      "cat_detail": {
+        "mill_cut": {
+          "master_rpm": 600,
+          "regen_rpm": 3183,
+          "master_feed_mm_min": null,
+          "regen_feed_mm_min": 1910
+        },
+        "bore": {
+          "master_rpm": 600,
+          "regen_rpm": 3565,
+          "master_feed_mm_min": null,
+          "regen_feed_mm_min": 285
+        },
+        "drill": {
+          "master_rpm": 600,
+          "regen_rpm": 8084,
+          "master_feed_mm_min": null,
+          "regen_feed_mm_min": 1318
+        }
+      }
+    },
+    {
+      "file": "ALL STAR.NC",
+      "bucket": "CNC MILL HAAS/ALL STAR",
+      "controller": "haas_ngc",
+      "material": "D2 Tool Steel",
+      "mat_inferred": true,
+      "units": "inch",
+      "feed_mode": "ipm",
+      "regen_ok": true,
+      "regen_tools": 10,
+      "master_tools": 5,
+      "op_coverage": "3/3",
+      "rpm_match": "0/3",
+      "feed_match": "1/3",
+      "accuracy_pct": 44.4,
+      "master_cats": [
+        "drill",
+        "mill_cut",
+        "tap"
+      ],
+      "regen_cats": [
+        "mill_cut",
+        "drill",
+        "tap"
+      ],
+      "cat_detail": {
+        "drill": {
+          "master_rpm": 1018,
+          "regen_rpm": 2425,
+          "master_feed_mm_min": 61,
+          "regen_feed_mm_min": 395
+        },
+        "mill_cut": {
+          "master_rpm": 5000,
+          "regen_rpm": 1172,
+          "master_feed_mm_min": 381,
+          "regen_feed_mm_min": 281
+        },
+        "tap": {
+          "master_rpm": 603,
+          "regen_rpm": 239,
+          "master_feed_mm_min": 480.1,
+          "regen_feed_mm_min": 43
+        }
+      }
+    },
+    {
+      "file": "FD1500-006.NC",
+      "bucket": "CNC MILL HAAS/FONTANA",
+      "controller": "haas_ngc",
+      "material": "4140 Alloy Steel",
+      "mat_inferred": false,
+      "units": "inch",
+      "feed_mode": "ipm",
+      "regen_ok": true,
+      "regen_tools": 4,
+      "master_tools": 2,
+      "op_coverage": "1/1",
+      "rpm_match": "0/1",
+      "feed_match": "0/1",
+      "accuracy_pct": 33.3,
+      "master_cats": [
+        "mill_cut"
+      ],
+      "regen_cats": [
+        "mill_cut"
+      ],
+      "cat_detail": {
+        "mill_cut": {
+          "master_rpm": 5000,
+          "regen_rpm": 3183,
+          "master_feed_mm_min": 1143,
+          "regen_feed_mm_min": 1910
+        }
+      }
+    },
+    {
+      "file": "O32472.NC",
+      "bucket": "CNC MILL HAAS/SFS GROUP USA",
+      "controller": "haas_ngc",
+      "material": "4140 Alloy Steel",
+      "mat_inferred": false,
+      "units": "inch",
+      "feed_mode": "ipm",
+      "regen_ok": true,
+      "regen_tools": 6,
+      "master_tools": 4,
+      "op_coverage": "2/2",
+      "rpm_match": "1/2",
+      "feed_match": "0/2",
+      "accuracy_pct": 50,
+      "master_cats": [
+        "mill_cut",
+        "drill"
+      ],
+      "regen_cats": [
+        "mill_cut",
+        "drill"
+      ],
+      "cat_detail": {
+        "mill_cut": {
+          "master_rpm": 3000,
+          "regen_rpm": 3183,
+          "master_feed_mm_min": 508,
+          "regen_feed_mm_min": 1910
+        },
+        "drill": {
+          "master_rpm": 2500,
+          "regen_rpm": 8084,
+          "master_feed_mm_min": 508,
+          "regen_feed_mm_min": 1318
+        }
+      }
+    },
+    {
+      "file": "ITW500-32970-00000-17-A.MIN",
+      "bucket": "ROKU-ROKU/ITW SHAKEPROOF",
+      "controller": "okuma_osp",
+      "material": "M2 HSS",
+      "mat_inferred": true,
+      "units": "inch",
+      "feed_mode": "ipm",
+      "regen_ok": true,
+      "regen_tools": 8,
+      "master_tools": 0,
+      "op_coverage": "3/3",
+      "rpm_match": "0/3",
+      "feed_match": "0/0",
+      "accuracy_pct": 50,
+      "master_cats": [
+        "mill_cut",
+        "bore",
+        "drill"
+      ],
+      "regen_cats": [
+        "mill_cut",
+        "drill",
+        "bore"
+      ],
+      "cat_detail": {
+        "mill_cut": {
+          "master_rpm": 250,
+          "regen_rpm": 955,
+          "master_feed_mm_min": null,
+          "regen_feed_mm_min": 229
+        },
+        "bore": {
+          "master_rpm": 500,
+          "regen_rpm": 1273,
+          "master_feed_mm_min": null,
+          "regen_feed_mm_min": 38
+        },
+        "drill": {
+          "master_rpm": 500,
+          "regen_rpm": 2425,
+          "master_feed_mm_min": null,
+          "regen_feed_mm_min": 395
+        }
+      }
+    },
+    {
+      "file": "C-01271.NC",
+      "bucket": "CNC MILL HAAS/FONTANA",
+      "controller": "haas_ngc",
+      "material": "4140 Alloy Steel",
+      "mat_inferred": false,
+      "units": "inch",
+      "feed_mode": "ipm",
+      "regen_ok": true,
+      "regen_tools": 4,
+      "master_tools": 1,
+      "op_coverage": "1/1",
+      "rpm_match": "0/1",
+      "feed_match": "0/1",
+      "accuracy_pct": 33.3,
+      "master_cats": [
+        "mill_cut"
+      ],
+      "regen_cats": [
+        "mill_cut"
+      ],
+      "cat_detail": {
+        "mill_cut": {
+          "master_rpm": 5000,
+          "regen_rpm": 3183,
+          "master_feed_mm_min": 1016,
+          "regen_feed_mm_min": 1910
+        }
+      }
+    },
+    {
+      "file": "O32472.NC",
+      "bucket": "CNC MILL HAAS/SFS GROUP USA",
+      "controller": "haas_ngc",
+      "material": "4140 Alloy Steel",
+      "mat_inferred": false,
+      "units": "inch",
+      "feed_mode": "ipm",
+      "regen_ok": true,
+      "regen_tools": 6,
+      "master_tools": 4,
+      "op_coverage": "2/2",
+      "rpm_match": "1/2",
+      "feed_match": "0/2",
+      "accuracy_pct": 50,
+      "master_cats": [
+        "mill_cut",
+        "drill"
+      ],
+      "regen_cats": [
+        "mill_cut",
+        "drill"
+      ],
+      "cat_detail": {
+        "mill_cut": {
+          "master_rpm": 3000,
+          "regen_rpm": 3183,
+          "master_feed_mm_min": 508,
+          "regen_feed_mm_min": 1910
+        },
+        "drill": {
+          "master_rpm": 2500,
+          "regen_rpm": 8084,
+          "master_feed_mm_min": 508,
+          "regen_feed_mm_min": 1318
+        }
+      }
+    },
+    {
+      "file": "B-1289-11.2.NC",
+      "bucket": "CNC MILL HAAS/FONTANA",
+      "controller": "haas_ngc",
+      "material": "304 Stainless",
+      "mat_inferred": true,
+      "units": "inch",
+      "feed_mode": "ipm",
+      "regen_ok": true,
+      "regen_tools": 4,
+      "master_tools": 1,
+      "op_coverage": "1/1",
+      "rpm_match": "0/1",
+      "feed_match": "0/1",
+      "accuracy_pct": 33.3,
+      "master_cats": [
+        "mill_cut"
+      ],
+      "regen_cats": [
+        "mill_cut"
+      ],
+      "cat_detail": {
+        "mill_cut": {
+          "master_rpm": 2500,
+          "regen_rpm": 3511,
+          "master_feed_mm_min": 508,
+          "regen_feed_mm_min": 1620
+        }
+      }
+    },
+    {
+      "file": "O32473.NC",
+      "bucket": "CNC MILL HAAS/SFS GROUP USA",
+      "controller": "haas_ngc",
+      "material": "H13 Tool Steel",
+      "mat_inferred": true,
+      "units": "inch",
+      "feed_mode": "ipm",
+      "regen_ok": true,
+      "regen_tools": 7,
+      "master_tools": 9,
+      "op_coverage": "2/2",
+      "rpm_match": "1/2",
+      "feed_match": "0/2",
+      "accuracy_pct": 50,
+      "master_cats": [
+        "drill",
+        "mill_cut"
+      ],
+      "regen_cats": [
+        "mill_cut",
+        "drill"
+      ],
+      "cat_detail": {
+        "drill": {
+          "master_rpm": 1000,
+          "regen_rpm": 2425,
+          "master_feed_mm_min": 127,
+          "regen_feed_mm_min": 395
+        },
+        "mill_cut": {
+          "master_rpm": 2444,
+          "regen_rpm": 3056,
+          "master_feed_mm_min": 508,
+          "regen_feed_mm_min": 733
+        }
+      }
+    },
+    {
+      "file": "O32473.nc",
+      "bucket": "CNC MILL HAAS/SFS GROUP USA",
+      "controller": "haas_ngc",
+      "material": "H13 Tool Steel",
+      "mat_inferred": true,
+      "units": "inch",
+      "feed_mode": "ipm",
+      "regen_ok": true,
+      "regen_tools": 7,
+      "master_tools": 9,
+      "op_coverage": "2/2",
+      "rpm_match": "1/2",
+      "feed_match": "0/2",
+      "accuracy_pct": 50,
+      "master_cats": [
+        "drill",
+        "mill_cut"
+      ],
+      "regen_cats": [
+        "mill_cut",
+        "drill"
+      ],
+      "cat_detail": {
+        "drill": {
+          "master_rpm": 1000,
+          "regen_rpm": 2425,
+          "master_feed_mm_min": 127,
+          "regen_feed_mm_min": 395
+        },
+        "mill_cut": {
+          "master_rpm": 2444,
+          "regen_rpm": 3056,
+          "master_feed_mm_min": 457.2,
+          "regen_feed_mm_min": 733
+        }
+      }
+    },
+    {
+      "file": "FD-1500-006A.NC",
+      "bucket": "CNC MILL HAAS/FONTANA",
+      "controller": "haas_ngc",
+      "material": "4140 Alloy Steel",
+      "mat_inferred": false,
+      "units": "inch",
+      "feed_mode": "ipm",
+      "regen_ok": true,
+      "regen_tools": 4,
+      "master_tools": 2,
+      "op_coverage": "1/1",
+      "rpm_match": "0/1",
+      "feed_match": "0/1",
+      "accuracy_pct": 33.3,
+      "master_cats": [
+        "mill_cut"
+      ],
+      "regen_cats": [
+        "mill_cut"
+      ],
+      "cat_detail": {
+        "mill_cut": {
+          "master_rpm": 5000,
+          "regen_rpm": 3183,
+          "master_feed_mm_min": 1143,
+          "regen_feed_mm_min": 1910
+        }
+      }
+    },
+    {
+      "file": "O32471.NC",
+      "bucket": "CNC MILL HAAS/SFS GROUP USA",
+      "controller": "haas_ngc",
+      "material": "4140 Alloy Steel",
+      "mat_inferred": false,
+      "units": "inch",
+      "feed_mode": "ipm",
+      "regen_ok": true,
+      "regen_tools": 6,
+      "master_tools": 12,
+      "op_coverage": "2/2",
+      "rpm_match": "0/2",
+      "feed_match": "0/2",
+      "accuracy_pct": 33.3,
+      "master_cats": [
+        "mill_cut",
+        "drill"
+      ],
+      "regen_cats": [
+        "mill_cut",
+        "drill"
+      ],
+      "cat_detail": {
+        "mill_cut": {
+          "master_rpm": 1350,
+          "regen_rpm": 3183,
+          "master_feed_mm_min": 381,
+          "regen_feed_mm_min": 1910
+        },
+        "drill": {
+          "master_rpm": 1000,
+          "regen_rpm": 8084,
+          "master_feed_mm_min": 127,
+          "regen_feed_mm_min": 1318
+        }
+      }
+    },
+    {
+      "file": "TC-0127-5.2.NC",
+      "bucket": "CNC MILL HAAS/FONTANA",
+      "controller": "haas_ngc",
+      "material": "4140 Alloy Steel",
+      "mat_inferred": false,
+      "units": "inch",
+      "feed_mode": "ipm",
+      "regen_ok": true,
+      "regen_tools": 4,
+      "master_tools": 2,
+      "op_coverage": "1/1",
+      "rpm_match": "1/1",
+      "feed_match": "0/1",
+      "accuracy_pct": 66.7,
+      "master_cats": [
+        "mill_cut"
+      ],
+      "regen_cats": [
+        "mill_cut"
+      ],
+      "cat_detail": {
+        "mill_cut": {
+          "master_rpm": 4500,
+          "regen_rpm": 3183,
+          "master_feed_mm_min": 1016,
+          "regen_feed_mm_min": 1910
+        }
+      }
+    },
+    {
+      "file": "C-01271.NC",
+      "bucket": "CNC MILL HAAS/FONTANA",
+      "controller": "haas_ngc",
+      "material": "4140 Alloy Steel",
+      "mat_inferred": false,
+      "units": "inch",
+      "feed_mode": "ipm",
+      "regen_ok": true,
+      "regen_tools": 4,
+      "master_tools": 1,
+      "op_coverage": "1/1",
+      "rpm_match": "0/1",
+      "feed_match": "0/1",
+      "accuracy_pct": 33.3,
+      "master_cats": [
+        "mill_cut"
+      ],
+      "regen_cats": [
+        "mill_cut"
+      ],
+      "cat_detail": {
+        "mill_cut": {
+          "master_rpm": 5000,
+          "regen_rpm": 3183,
+          "master_feed_mm_min": 1016,
+          "regen_feed_mm_min": 1910
+        }
+      }
+    },
+    {
+      "file": "B-0506-2.NC",
+      "bucket": "CNC MILL HAAS/FONTANA",
+      "controller": "haas_ngc",
+      "material": "D2 Tool Steel",
+      "mat_inferred": true,
+      "units": "inch",
+      "feed_mode": "ipm",
+      "regen_ok": true,
+      "regen_tools": 7,
+      "master_tools": 9,
+      "op_coverage": "2/2",
+      "rpm_match": "0/2",
+      "feed_match": "0/2",
+      "accuracy_pct": 33.3,
+      "master_cats": [
+        "mill_cut",
+        "drill"
+      ],
+      "regen_cats": [
+        "mill_cut",
+        "drill"
+      ],
+      "cat_detail": {
+        "mill_cut": {
+          "master_rpm": 3667,
+          "regen_rpm": 955,
+          "master_feed_mm_min": 558.8,
+          "regen_feed_mm_min": 229
+        },
+        "drill": {
+          "master_rpm": 1000,
+          "regen_rpm": 2425,
+          "master_feed_mm_min": 40.6,
+          "regen_feed_mm_min": 395
+        }
+      }
+    },
+    {
+      "file": "B-0506-6.NC",
+      "bucket": "CNC MILL HAAS/FONTANA",
+      "controller": "haas_ngc",
+      "material": "6061 Aluminum",
+      "mat_inferred": true,
+      "units": "inch",
+      "feed_mode": "ipm",
+      "regen_ok": true,
+      "regen_tools": 4,
+      "master_tools": 2,
+      "op_coverage": "1/1",
+      "rpm_match": "0/1",
+      "feed_match": "0/1",
+      "accuracy_pct": 33.3,
+      "master_cats": [
+        "mill_cut"
+      ],
+      "regen_cats": [
+        "mill_cut"
+      ],
+      "cat_detail": {
+        "mill_cut": {
+          "master_rpm": 1151,
+          "regen_rpm": 8100,
+          "master_feed_mm_min": 350.5,
+          "regen_feed_mm_min": 3240
+        }
+      }
+    },
+    {
+      "file": "O01506.nc",
+      "bucket": "CNC MILL HAAS/FONTANA",
+      "controller": "haas_ngc",
+      "material": "4140 Alloy Steel",
+      "mat_inferred": false,
+      "units": "inch",
+      "feed_mode": "ipm",
+      "regen_ok": true,
+      "regen_tools": 4,
+      "master_tools": 2,
+      "op_coverage": "1/1",
+      "rpm_match": "0/1",
+      "feed_match": "0/1",
+      "accuracy_pct": 33.3,
+      "master_cats": [
+        "mill_cut"
+      ],
+      "regen_cats": [
+        "mill_cut"
+      ],
+      "cat_detail": {
+        "mill_cut": {
+          "master_rpm": 5000,
+          "regen_rpm": 3183,
+          "master_feed_mm_min": 1143,
+          "regen_feed_mm_min": 1910
+        }
+      }
+    },
+    {
+      "file": "O15006.nc",
+      "bucket": "CNC MILL HAAS/FONTANA",
+      "controller": "haas_ngc",
+      "material": "4140 Alloy Steel",
+      "mat_inferred": false,
+      "units": "inch",
+      "feed_mode": "ipm",
+      "regen_ok": true,
+      "regen_tools": 4,
+      "master_tools": 2,
+      "op_coverage": "1/1",
+      "rpm_match": "0/1",
+      "feed_match": "0/1",
+      "accuracy_pct": 33.3,
+      "master_cats": [
+        "mill_cut"
+      ],
+      "regen_cats": [
+        "mill_cut"
+      ],
+      "cat_detail": {
+        "mill_cut": {
+          "master_rpm": 5000,
+          "regen_rpm": 3183,
+          "master_feed_mm_min": 1143,
+          "regen_feed_mm_min": 1910
+        }
+      }
+    }
+  ]
+}

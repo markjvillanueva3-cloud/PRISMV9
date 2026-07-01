@@ -1,3 +1,4 @@
+// WIRE-EXEMPT: internal wiring helper for LATHE-MASTER U-LTH18 — auto-wires 27 PP* validators to generated lathe posts. Consumed transitively by LathePostGeneratorEngine; not a direct dispatcher target.
 /**
  * LathePostGeneratorValidatorWiringEngine — LATHE-MASTER U-LTH18
  *
@@ -37,7 +38,7 @@ export const ValidatorConfigSchema = z.object({
   enabled: z.boolean().default(true),
   severity: ValidatorSeveritySchema.default("error"),
   category: ValidatorCategorySchema,
-  config: z.record(z.unknown()).optional(),
+  config: z.record(z.string(), z.unknown()).optional(),
   skip_on_dialect: z.array(z.string()).optional(),
   require_on_dialect: z.array(z.string()).optional(),
 });

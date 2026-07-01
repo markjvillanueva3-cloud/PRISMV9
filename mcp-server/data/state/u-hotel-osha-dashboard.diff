@@ -1,0 +1,329 @@
+diff --git a/mcp-server/src/__tests__/erp-rfq-routes.test.ts b/mcp-server/src/__tests__/erp-rfq-routes.test.ts
+index c12028f085..89dc1385b0 100644
+--- a/mcp-server/src/__tests__/erp-rfq-routes.test.ts
++++ b/mcp-server/src/__tests__/erp-rfq-routes.test.ts
+@@ -99,6 +99,40 @@ const callTool: CallToolFn = vi.fn(async (tool: string, action: string, params:
+       { id: "reduced_speed", name: "Reduced Speed", category: "performance", minutes_lost: 35, description: "x" },
+     ]);
+   }
++  if (action === "osha_incidents") {
++    // Real dispatcher returns a BARE array of incidents with employee_name joined + recordable/status emitted
++    // as STRINGS (the FE firstText helper is string-only): `recordable` "true"/"false" drives the recordable
++    // metric (page:93 .includes('true')), `status` "recordable"/"non-recordable" drives the card label
++    // (page:182). Mirror that exact shape (R9 -- a bare boolean would mask the always-0-metric bug).
++    return env([
++      { id: "OSHA-1", incident_date: "2026-08-20", employee_id: "EMP-1", employee_name: "Jane Doe", injury_type: "injury", recordable: "true", status: "recordable" },
++      { id: "OSHA-2", incident_date: "2026-03-15", employee_id: "EMP-2", employee_name: "Bob Lee", injury_type: "near_miss", recordable: "false", status: "non-recordable" },
++    ]);
++  }
++  if (action === "osha_300_log") {
++    // BARE array of OSHA300Row, filtered to recordable + year by the engine.
++    return env([
++      { case_number: "OSHA-1", employee_name: "Jane Doe", date_of_injury: "2026-08-20", days_away: 0 },
++    ]);
++  }
++  if (action === "osha_ppe_records") {
++    // BARE array of PPE assignments (employee_name joined, needs_replacement decorated).
++    return env([
++      { id: "PPE-1", employee_id: "EMP-1", employee_name: "Jane Doe", ppe_type: "Glasses", condition: "good", needs_replacement: false },
++    ]);
++  }
++  if (action === "osha_near_miss") {
++    // The dispatcher createIncident case returns {success:true, data: the created incident}.
++    return env({ success: true, data: { id: "OSHA-NM", injury_type: "near_miss", recordable: false, description: params.description } });
++  }
++  if (action === "safety_training_list_all") {
++    // The dispatcher returns {records:[...]} (an OBJECT with a records key), course_name + employee_name joined.
++    return env({
++      records: [
++        { id: "TRN-000001", employee_id: "EMP-1", employee_name: "Jane Doe", topic_id: "loto", course_name: "loto", status: "assigned" },
++      ],
++    });
++  }
+   if (action === "oee_trend") {
+     // trend([]) -> [] (the FE posts {days:30} with no samples on first load -> honest empty). With samples,
+     // a bare OEETrendDay[]. Replicate the dispatcher's `params.samples ?? params.days_samples ?? []` -> trend.
+@@ -262,3 +296,65 @@ describe("U-HOTEL-OEE-DASHBOARD: /api/v1/erp/oee-* routes (gap #4)", () => {
+     expect(json.data).toHaveLength(0);
+   });
+ });
++
++describe("U-HOTEL-OSHA-DASHBOARD: /api/v1/erp/osha-* routes (gap #5)", () => {
++  it("GET /osha-incidents surfaces the BARE incidents array at res.data (envelope-unwrapped)", async () => {
++    const { status, json } = await http("GET", "/api/v1/erp/osha-incidents");
++    expect(status).toBe(200);
++    expect(json.ok).toBe(true);
++    expect(Array.isArray(json.data)).toBe(true);
++    expect(json.data[0].id).toBe("OSHA-1");
++    expect(json.data[0].employee_name).toBe("Jane Doe"); // the EmployeeEngine join survives the wire
++    // The dispatcher emits recordable + status as STRINGS (the FE firstText helper is string-only -> a bare
++    // boolean renders "" -> "Status unavailable" card + a permanently-0 recordable metric). Pin BOTH:
++    //   recordable "true"/"false" -> the FE metric (page:93 .includes('true')) counts correctly;
++    //   status "recordable"/"non-recordable" -> the per-card label (page:182) renders the posture.
++    expect(json.data[0].recordable).toBe("true");
++    expect(json.data[1].recordable).toBe("false");
++    expect(json.data[0].status).toBe("recordable");
++    expect(json.data[1].status).toBe("non-recordable");
++    // The FE recordableCount (page:93) does firstText(['recordable','status']).includes('true');
++    // prove that contract holds against this wire shape (would FAIL if recordable were a bare boolean).
++    const recordableCount = json.data.filter((e: any) =>
++      String(e.recordable ?? e.status).toLowerCase().includes("true")).length;
++    expect(recordableCount).toBe(1);
++  });
++
++  it("GET /osha-300-log forwards ?year and surfaces the BARE 300-row array", async () => {
++    calls.length = 0;
++    const { status, json } = await http("GET", "/api/v1/erp/osha-300-log?year=2026");
++    expect(status).toBe(200);
++    const c = calls.find((x) => x.action === "osha_300_log");
++    expect(String(c?.params.year)).toBe("2026");
++    expect(Array.isArray(json.data)).toBe(true);
++    expect(json.data[0].case_number).toBe("OSHA-1");
++  });
++
++  it("GET /safety-training surfaces {records} at res.data (object, not bare array -- FE reads data.records)", async () => {
++    const { status, json } = await http("GET", "/api/v1/erp/safety-training");
++    expect(status).toBe(200);
++    // The FE does arrayFromPayload(res, ['records',...]) -> data.records must be the array.
++    expect(Array.isArray(json.data.records)).toBe(true);
++    expect(json.data.records[0].course_name).toBe("loto"); // the course_name alias the FE card reads
++    expect(json.data.records[0].employee_name).toBe("Jane Doe");
++  });
++
++  it("GET /ppe-records surfaces the BARE PPE array at res.data", async () => {
++    const { status, json } = await http("GET", "/api/v1/erp/ppe-records");
++    expect(status).toBe(200);
++    expect(Array.isArray(json.data)).toBe(true);
++    expect(json.data[0].ppe_type).toBe("Glasses");
++    expect(json.data[0].needs_replacement).toBe(false);
++  });
++
++  it("POST /osha-near-miss forwards the body + returns the created near-miss incident at res.data", async () => {
++    const { status, json } = await http("POST", "/api/v1/erp/osha-near-miss", {
++      employee_name: "Jane Doe", description: "Almost slipped on coolant", incident_date: "2026-06-24",
++    });
++    expect(status).toBe(200);
++    expect(json.data.injury_type).toBe("near_miss");
++    expect(json.data.recordable).toBe(false);
++    const c = calls.find((x) => x.action === "osha_near_miss");
++    expect(c?.params.description).toBe("Almost slipped on coolant");
++  });
++});
+diff --git a/mcp-server/src/engines/OSHAComplianceEngine.ts b/mcp-server/src/engines/OSHAComplianceEngine.ts
+index 915deff60c..f25d28af8c 100644
+--- a/mcp-server/src/engines/OSHAComplianceEngine.ts
++++ b/mcp-server/src/engines/OSHAComplianceEngine.ts
+@@ -141,6 +141,18 @@ class OSHAComplianceEngine {
+       .map(p => ({ ...p, needs_replacement: p.condition === "replace" }));
+   }
+ 
++  /**
++   * List EVERY PPE assignment (the unfiltered sibling of listPPEByEmployee), each decorated with
++   * `needs_replacement`. Backs the OSHACompliancePage PPE panel, which lists all assignments across
++   * employees rather than one employee's. Newest assignment first (the id embeds Date.now()).
++   * @returns all PPE assignments with the needs_replacement flag, sorted newest-first.
++   */
++  listAllPPE(): (PPEAssignment & { needs_replacement: boolean })[] {
++    return Array.from(this.ppeAssignments.values())
++      .map(p => ({ ...p, needs_replacement: p.condition === "replace" }))
++      .sort((a, b) => b.id.localeCompare(a.id));
++  }
++
+   listIncidents(filters?: { year?: number; recordable_only?: boolean }): OSHAIncident[] {
+     let results = Array.from(this.incidents.values());
+     if (filters?.year) {
+diff --git a/mcp-server/src/routes/erp.ts b/mcp-server/src/routes/erp.ts
+index 68c4ef0bf8..72e1476937 100644
+--- a/mcp-server/src/routes/erp.ts
++++ b/mcp-server/src/routes/erp.ts
+@@ -159,6 +159,21 @@ export function createErpRouter(callTool: CallToolFn): Router {
+   router.post("/oee-losses", verifyToken, rfqRoute("oee_losses"));
+   router.post("/oee-trend", verifyToken, rfqRoute("oee_trend"));
+ 
++  // ─── OSHA Compliance dashboard (U-HOTEL-OSHA-DASHBOARD, gap #5) ────────────
++  // OSHACompliancePage calls oshaIncidents()/osha300LogFeed()/oshaSafetyTraining()/oshaPpeRecords()/
++  // oshaNearMiss() -> these routes were missing -> the whole desk was dead. Wires the previously-unwired
++  // OSHAComplianceEngine incident STORE (incidents/300-log/PPE/near-miss) + the all-records training list.
++  // Reuses rfqRoute so the prism_business {type,text} slimResponse envelope is unwrapped (the recurring
++  // dead-panel class); the list cases return a BARE array surfaced via rfqRoute's r?.data ?? r fallback.
++  // verifyToken-only: matches the sibling safety/training analytics tier (compliance data is internal; the
++  // page is a logged-in operator safety desk). Incidents/PPE carry employee_name -- a tier-review note,
++  // not a financial leak; mirror the existing safety/HR route tier.
++  router.get("/osha-incidents", verifyToken, rfqRoute("osha_incidents", (req) => ({ year: req.query.year })));
++  router.get("/osha-300-log", verifyToken, rfqRoute("osha_300_log", (req) => ({ year: req.query.year })));
++  router.get("/safety-training", verifyToken, rfqRoute("safety_training_list_all"));
++  router.get("/ppe-records", verifyToken, rfqRoute("osha_ppe_records"));
++  router.post("/osha-near-miss", verifyToken, rfqRoute("osha_near_miss"));
++
+   // ─── Job Management ───────────────────────────────────────────────────────
+   router.post("/job/plan", verifyToken, async (req, res) => {
+     try {
+diff --git a/mcp-server/src/tools/dispatchers/businessDispatcher.ts b/mcp-server/src/tools/dispatchers/businessDispatcher.ts
+index 59bb17e517..080dd6d61a 100644
+--- a/mcp-server/src/tools/dispatchers/businessDispatcher.ts
++++ b/mcp-server/src/tools/dispatchers/businessDispatcher.ts
+@@ -1540,6 +1540,11 @@ const ACTIONS = [
+   "osha_classify_recordable",
+   "osha_reporting_window",
+   "osha_annual_300a",
++  "osha_incidents",
++  "osha_300_log",
++  "osha_ppe_records",
++  "osha_near_miss",
++  "safety_training_list_all",
+   // WIRE-BUSINESS-DIRECT-MS0/U-VICTOR-BUSINESS-DIRECT (slot:victor, 2026-05-26)
+   // Wires 3 previously-unwired business engines from the fresh audit:
+   //   scenario_batch_run             → ScenarioBatchRunnerEngine.run
+@@ -7757,6 +7762,99 @@ Params vary by action — pass relevant fields in params object.`,
+             result = { success: true, data: osha300LogEngine.buildAnnual300A(p.year, p.records ?? []) };
+             break;
+           }
++          // HOTEL/U-HOTEL-OSHA-DASHBOARD -- wire the unwired OSHAComplianceEngine incident STORE
++          // (distinct from the OSHA300LogEngine recordability CALC engine above) to back the dead
++          // OSHACompliancePage. Each list case joins employee_name from EmployeeEngine so the FE cards
++          // (firstText(['employee_name',...])) show a real name (the records only key employee_id).
++          case "osha_incidents": {
++            const { oshaComplianceEngine } = await import("../../engines/OSHAComplianceEngine.js");
++            const { employeeEngine } = await import("../../engines/EmployeeEngine.js");
++            // Employee has first_name/last_name, not employee_name -> compose the display name for the join.
++            const empName = (id: string | undefined): string | undefined => {
++              const e = id ? employeeEngine.get(id) : undefined;
++              return e ? `${e.first_name} ${e.last_name}`.trim() : undefined;
++            };
++            const p = params as any;
++            const rows = oshaComplianceEngine.listIncidents(p.year ? { year: Number(p.year) } : undefined);
++            result = rows.map((r) => ({
++              ...r,
++              employee_name: r.employee_name ?? empName(r.employee_id) ?? r.employee_id,
++              // The FE reads recordable through firstText, which only accepts STRINGS (text() rejects a
++              // boolean). Two FE consumers, two key orders:
++              //   - recordableCount (page:93): firstText(['recordable','status']).includes('true')  -> needs
++              //     `recordable` to be the STRING "true"/"false" (a bare boolean -> '' -> count always 0).
++              //   - per-card status (page:182): firstText(['status','recordable'])                  -> reads
++              //     the human-readable `status` first.
++              // So emit BOTH as strings: `recordable` "true"/"false" (drives the metric) + `status`
++              // "recordable"/"non-recordable" (drives the card label). Overriding the spread boolean is safe
++              // here -- the result is an inline object literal, not typed OSHAIncident.
++              recordable: r.recordable ? "true" : "false",
++              status: r.recordable ? "recordable" : "non-recordable",
++            }));
++            break;
++          }
++          case "osha_300_log": {
++            const { oshaComplianceEngine } = await import("../../engines/OSHAComplianceEngine.js");
++            const p = params as any;
++            result = oshaComplianceEngine.generateOSHA300Log(Number(p.year) || new Date().getFullYear());
++            break;
++          }
++          case "osha_ppe_records": {
++            const { oshaComplianceEngine } = await import("../../engines/OSHAComplianceEngine.js");
++            const { employeeEngine } = await import("../../engines/EmployeeEngine.js");
++            const empName = (id: string | undefined): string | undefined => {
++              const e = id ? employeeEngine.get(id) : undefined;
++              return e ? `${e.first_name} ${e.last_name}`.trim() : undefined;
++            };
++            result = oshaComplianceEngine.listAllPPE().map((p) => ({
++              ...p,
++              employee_name: empName(p.employee_id) ?? p.employee_id,
++            }));
++            break;
++          }
++          case "osha_near_miss": {
++            const { oshaComplianceEngine } = await import("../../engines/OSHAComplianceEngine.js");
++            const p = params as any;
++            // A near miss is an OSHA incident with injury_type "near_miss": no medical treatment, no lost/
++            // restricted days -> createIncident computes recordable=false (correct -- a near miss is not a
++            // recordable injury). Fill the required-but-FE-omitted fields with safe defaults.
++            const created = oshaComplianceEngine.createIncident({
++              incident_date: p.incident_date ?? new Date().toISOString().slice(0, 10),
++              employee_id: p.employee_id,
++              employee_name: p.employee_name,
++              location: p.location ?? "Shop floor",
++              description: p.description ?? "",
++              injury_type: "near_miss",
++              body_part_affected: p.body_part_affected,
++              days_away: 0,
++              days_restricted: 0,
++              medical_treatment: "first_aid",
++              osha_case_number: undefined,
++              reported_by: p.reported_by ?? p.employee_name ?? "Unassigned",
++              anonymous: p.anonymous ?? false,
++              witnesses: p.witnesses ?? [],
++              corrective_actions: p.corrective_actions ?? [],
++            });
++            result = { success: true, data: created };
++            break;
++          }
++          case "safety_training_list_all": {
++            const { safetyTrainingRecordEngine } = await import("../../engines/SafetyTrainingRecordEngine.js");
++            const { employeeEngine } = await import("../../engines/EmployeeEngine.js");
++            const empName = (id: string | undefined): string | undefined => {
++              const e = id ? employeeEngine.get(id) : undefined;
++              return e ? `${e.first_name} ${e.last_name}`.trim() : undefined;
++            };
++            const p = params as any;
++            const { records } = safetyTrainingRecordEngine.listAllRecords(p.as_of ? { as_of: String(p.as_of) } : undefined);
++            result = {
++              records: records.map((r) => ({
++                ...r,
++                employee_name: empName(r.employee_id) ?? r.employee_id,
++              })),
++            };
++            break;
++          }
+           // ─── WIRE-BUSINESS-DIRECT-MS0/U-VICTOR-BUSINESS-DIRECT (2026-05-26) ───
+           // 3 specialized business sub-engines lifted from the unwired-audit list.
+           case "scenario_batch_run": {
+=== NEW: SafetyTrainingRecordEngine.ts ===
+diff --git a/mcp-server/src/engines/SafetyTrainingRecordEngine.ts b/mcp-server/src/engines/SafetyTrainingRecordEngine.ts
+new file mode 100644
+index 0000000000..97c930cc8d
+--- /dev/null
++  listAllRecords(args?: { as_of?: string }): { records: ReadonlyArray<TrainingRecord & { course_name: string }> } {
++    const as_of = args?.as_of ?? new Date().toISOString().slice(0, 10);
++    const decorated = [...this.records.values()]
++      // course_name aliases topic_id (the topic IS the course identifier, e.g. "lockout_tagout") so the
++      // OSHACompliancePage card title -- firstText(['employee_name','course_name']) -- has a real value
++      // to show. (employee_name is joined in by the dispatcher from EmployeeEngine; the record only keys id.)
++      .map((r) => Object.freeze({ ...r, status: this.computeStatus({ record_id: r.id, as_of }), course_name: r.topic_id }))
++      .sort((a, b) => b.assigned_at.localeCompare(a.assigned_at));
++    return Object.freeze({ records: Object.freeze(decorated) });
++  }
++
++  /**
++   * Return all OSHA-recognized training topics with their default expiration windows.
++   */
++  listTopics(): ReadonlyArray<{ topic_id: string; default_expiration_days: number }> {
++    return Object.freeze(
++      Object.entries(DEFAULT_EXPIRATION_DAYS).map(([t, d]) =>
++        Object.freeze({ topic_id: t, default_expiration_days: d }),
++      ),
+=== NEW: OSHAComplianceEngine.test.ts ===
+diff --git a/mcp-server/src/__tests__/OSHAComplianceEngine.test.ts b/mcp-server/src/__tests__/OSHAComplianceEngine.test.ts
+new file mode 100644
+=== NEW: SafetyTrainingRecordEngine.test.ts (listAllRecords) ===
++  describe("listAllRecords", () => {
++    it("returns EVERY record across employees, each decorated with live status + course_name (= topic_id)", () => {
++      safetyTrainingRecordEngine.assignTraining({ employee_id: "EMP-A", topic_id: "loto" });
++      safetyTrainingRecordEngine.assignTraining({ employee_id: "EMP-B", topic_id: "hazcom" });
++      const { records } = safetyTrainingRecordEngine.listAllRecords();
++      expect(records).toHaveLength(2);
++      // every record carries a live status + the course_name alias the FE card reads
++      for (const r of records) {
++        expect(["assigned", "completed", "expired", "overdue"]).toContain(r.status);
++        expect(r.course_name).toBe(r.topic_id);
++      }
++      // both employees' records are present (unfiltered, unlike getEmployeeComplianceReport)
++      expect(records.map((r) => r.employee_id).sort()).toEqual(["EMP-A", "EMP-B"]);
++    });
++
++    it("decorates an overdue assigned record (due in the past) with status 'overdue'", () => {
++      safetyTrainingRecordEngine.assignTraining({ employee_id: "EMP-OD", topic_id: "loto", due_at: "2020-01-01" });
++      const { records } = safetyTrainingRecordEngine.listAllRecords({ as_of: "2026-06-24" });
++      expect(records).toHaveLength(1);
++      expect(records[0].status).toBe("overdue");
++    });
++
++    it("R12 FAIL-CLOSED: empty store -> { records: [] } (no throw)", () => {
++      expect(safetyTrainingRecordEngine.listAllRecords()).toEqual({ records: [] });
++    });

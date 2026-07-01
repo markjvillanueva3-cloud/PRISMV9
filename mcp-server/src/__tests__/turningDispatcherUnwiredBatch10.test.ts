@@ -2,7 +2,7 @@
  * E2E test for ENGINE-WIRE-LATHE-MS0/U-WIRE-LATHE-BATCH10 — 6 unwired
  * LoRA cadence-orch/knowledge-graph/master-orch/model-selector/monitoring/resource-mgr engines.
  */
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, beforeEach } from "vitest";
 import { promises as fsp } from "node:fs";
 import path from "node:path";
 import { latheLoRACadenceOrchestratorEngine } from "../engines/LatheLoRACadenceOrchestratorEngine.js";
@@ -63,6 +63,13 @@ const EXPECTED_RESOURCE_ZERO = {
 } as const;
 
 describe("U-WIRE-LATHE-BATCH10 — engines", () => {
+  // The ModelSelector zero-state assertion below shares the exported singleton with
+  // dispatcher.latheLoRASelectorLoop.test.ts (which registers models). Safe under vitest
+  // isolate:true, but reset here so the zero-state assertion is robust if isolation ever changes.
+  beforeEach(() => {
+    latheLoRAModelSelectorEngine.reset();
+  });
+
   it("CadenceOrchestrator.getConfig has enabled=false (DEFAULT_CONFIG line 106)", () => {
     const c = latheLoRACadenceOrchestratorEngine.getConfig();
     expect(c.enabled).toBe(false);

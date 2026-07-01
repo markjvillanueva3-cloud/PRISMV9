@@ -1,17 +1,12 @@
 ---
 name: feedback-settings-wiring-drift-2026-05-16
 description: "Settings.json hook wiring SILENTLY REVERTS across multi-chat fleets. Hooks shipped to disk + memos written + envelope marked complete, but settings.json edits get clobbered later by another chat's merge/regen. Detection: grep settings.json for the wired hook name before declaring a unit complete."
-metadata:
-  type: feedback
-  scope: project
-  surface: hooks-and-settings
-  discovered: 2026-05-16
-  related_units:
-    - SYSTEM-VIZ-BRAIN-MS0/U-P0-AUDIT-VIZ-FIRST
-    - SYSTEM-VIZ-BRAIN-MS0/U-P1-POST-SHIP-DISTILL
-  related_commits:
-    - 0c11ff1cb  # original ship that included the wiring
+aliases: feedback_settings_wiring_drift_2026_05_16
+type: feedback
+source: prism-memory
+synced: 2026-06-27T20:30:46.443Z
 ---
+
 
 # Settings.json wiring silently reverts across multi-chat fleets
 

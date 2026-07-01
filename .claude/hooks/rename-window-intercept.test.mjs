@@ -16,6 +16,7 @@ import {
   chatIdFromSession,
   parseRenameArg,
   isPeerForm,
+  composeSlotTitle,
 } from "./rename-window-intercept.mjs";
 
 const HOOK = fileURLToPath(new URL("./rename-window-intercept.mjs", import.meta.url));
@@ -85,6 +86,40 @@ describe("isPeerForm", () => {
   test("guards: no slots array / empty arg", () => {
     assert.equal(isPeerForm("alpha x", null), false);
     assert.equal(isPeerForm("", slots), false);
+  });
+});
+
+describe("composeSlotTitle (U-ZM1-05)", () => {
+  test("slot + topic → 'PRISM <slot> - <topic>'", () => {
+    assert.equal(composeSlotTitle("bravo", "zebra-orchestr"), "PRISM bravo - zebra-orchestr");
+  });
+  test("topicless slot → 'PRISM <slot>' (the hwnd:title-missing fix)", () => {
+    // A chat with no topic must STILL carry a deterministic, resolvable
+    // caption — that absence was the root cause of hwnd:title-missing.
+    assert.equal(composeSlotTitle("bravo", ""), "PRISM bravo");
+    assert.equal(composeSlotTitle("bravo", null), "PRISM bravo");
+    assert.equal(composeSlotTitle("bravo", undefined), "PRISM bravo");
+    assert.equal(composeSlotTitle("bravo", "   "), "PRISM bravo"); // whitespace topic
+  });
+  test("missing slot → '' so the caller skips the title set", () => {
+    assert.equal(composeSlotTitle("", "topic"), "");
+    assert.equal(composeSlotTitle(null, "topic"), "");
+    assert.equal(composeSlotTitle(undefined, undefined), "");
+  });
+  test("trims slot and topic", () => {
+    assert.equal(composeSlotTitle("  bravo  ", "  work item  "), "PRISM bravo - work item");
+  });
+  test("intent: every non-empty caption contains the resolvable 'PRISM <slot>' prefix", () => {
+    // The zebra orchestrator resolves a chat window by matching this prefix
+    // via the resolver's `contains` tier — so it MUST always be present.
+    assert.ok(composeSlotTitle("bravo", "anything").includes("PRISM bravo"));
+    assert.ok(composeSlotTitle("bravo", "").includes("PRISM bravo"));
+  });
+  test("intent: 'PRISM <slot>' prefix is unambiguous across slots", () => {
+    // A topic that merely mentions another slot name must NOT collide — the
+    // resolver's uniqueness guarantee depends on the literal 'PRISM ' lead.
+    assert.equal(composeSlotTitle("alpha", "bravo-handoff-review").includes("PRISM bravo"), false);
+    assert.ok(composeSlotTitle("alpha", "bravo-handoff-review").includes("PRISM alpha"));
   });
 });
 

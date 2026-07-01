@@ -21,9 +21,7 @@ related:
 
 ## Description (from file header)
 
-extraction-log-drift.mjs — Phase 1 Tier 5B
-PreTool hook that blocks if extraction log references deleted files.
-Ensures extraction log integrity matches actual artifacts.
+_(no header docblock — read source for behavior)_
 
 ## Events
 

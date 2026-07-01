@@ -23,13 +23,20 @@ related:
 |-------|-------|
 | Name | `forge-deps` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/forge-deps.md` |
+| Source | `C:/Users/wompu/.claude/commands/forge-deps.md` |
 | Model | default |
 | Tags | _(none)_ |
 
 ## Description (first paragraph)
 
-_(no body content)_
+
+# Forge Deps — Dependency Health Analyzer
+
+You are running a specialized autopilot pipeline that analyzes dependency health across the PRISM project. Checks for outdated packages, security advisories, unused dependencies, and circular imports. Designed to run in the **background**.
+
+## Args: $ARGUMENTS
+- Empty: full dependency health check — npm audit + outdated + unused + circular
+- `secu
 
 <!-- AUTO-END -->
 

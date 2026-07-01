@@ -1,0 +1,193 @@
+{
+  "schemaVersion": "1.0.0",
+  "id": "PPG-MS17",
+  "version": "1.0.0",
+  "title": "PPG-MS17 — Cross-Simulator Live Verification (Fusion Verify + Vericut/NCSIMUL + ensemble 3-tier verdict)",
+  "track": "PPG",
+  "parent_roadmap": "PRISM-UNIFIED-ROADMAP-v2",
+  "pillar": "P3-PPG-SFC-LEARNING-LOOP",
+  "status": "not_started",
+  "created_at": "2026-04-29T03:15:00.000Z",
+  "last_updated": "2026-04-29T15:12:31.240Z",
+  "total_units": 10,
+  "completed_units": 0,
+  "description": "Adds the missing live-verify round-trip — pushes PRISM-emitted programs into the host CAM simulator (Fusion Verify today; hyperMILL hyperVIEW + Mastercam Verify next), runs Vericut/NCSIMUL as the gold-standard tier, and aggregates all three verdicts (PRISM physics + host geometric + Vericut controller-accurate) into one ensemble decision shown in the wizard. Closes the gap between PRISM's internal cnc_simulate_physics (Tier A) and what shop programmers actually trust to send to the machine.",
+  "rationale": "User asked: can we live-test programs with our posts inside Fusion? Fusion's Verify is excellent for geometric checks (collision, gouge, axis-limit, kinematics) but doesn't catch physics violations (chatter, deflection, force) and uses generic controller models that don't simulate Hurco UltiMotion G05.3 / Okuma G131 / Mitsubishi M800 dialect quirks. PRISM's cnc_simulate_physics is the inverse — physics-aware but not controller-accurate. Vericut/NCSIMUL fill the controller-accuracy gap. Ensemble of all three is the only honest verdict. Existing actions exist (cnc_simulate*, vericut_export, ncsimul_export, f360_live_*) but no PPG-MS owns wiring them into a single live-test flow.",
+  "leverage_existing": [
+    "cnc_simulate / cnc_simulate_report / cnc_simulate_physics / cnc_simulate_predictive — Tier A PRISM physics simulator (already wired)",
+    "f360_live_* family (14 actions: sketch, extrude, fillet, chamfer, revolve, hole, pattern, combine, shell, export, geometry, undo, new_doc, execute_raw) — Fusion 360 Live API for CAD construction, extend with verify",
+    "vericut_export + vericut_import_optipath + vericut_import_collision — Vericut I/O actions (already wired, untested round-trip)",
+    "ncsimul_export + ncsimul_import — NCSIMUL I/O actions (already wired, untested round-trip)",
+    "cam_addin_generate + cam_addin_http_client + cam_addin_ui_panel + cam_addin_post_integration — Fusion Add-In scaffold for verify bridge",
+    "PostProcessorPipelineEngine — emit chain feeds the ensemble verifier as a final stage",
+    "OmegaSafetyScoreEngine + omega-thresholds.json (PPG-MS8) — tier-aware HARD BLOCK on disagreement",
+    "WEDMRunPipelineEngine + wedm_run_pipeline + wedm_studio_pipeline + wedm_advanced_analysis + wedm_generate_complete_program — WEDM-native verifier substrate",
+    "WEDMSafetyGateEngine — emit-time gates that double as a verifier when run on existing programs",
+    "wedm_verify_quality + wedm_assess_surface_integrity — quality verification actions",
+    "Custom WEDM simulation: WEDMSparkErosionEngine + WEDMGapVoltageEngine + WEDMMRREngine — physics-accurate simulation (Vericut does NOT cover WEDM)"
+  ],
+  "the_worked_example_that_proves_it": {
+    "scenario": "Programmer at JM Die generates a Hurco V11 D2 die plate program through the wizard. Block 47 has a corner where PRISM's per-block force estimates 2,600 N (over the 2,500 N machine ceiling).",
+    "today_pre_ppg_ms17": "Fusion's Verify shows clean (geometry is fine, no collision). PRISM's cnc_simulate_physics flags the force violation. Programmer doesn't trust PRISM (\"the simulator says it's fine\") and runs the program. Spindle stalls. $80 endmill chips.",
+    "should_be_post_ppg_ms17": "Wizard runs all three tiers: (A) PRISM physics → BLOCK on force ceiling at block 47; (B) Fusion Verify → CLEAN; (C) Vericut → CLEAN with predicted cycle-time. Ensemble panel shows all three verdicts side-by-side with the disagreement flagged: 'Tier A blocks on physics; Tiers B+C clean on geometry. Override at shop_floor requires explicit physics-violation acceptance.' Programmer sees the WHY and accepts the auto-fix from PPG-MS14 (derate Vc 15%). All three tiers re-run; all three pass; emit proceeds.",
+    "gap_now_closed": "Programmers see ALL the truth, not just one perspective. Disagreement between simulators is surfaced, not hidden."
+  },
+  "units": [
+    {
+      "id": "U-PPGM101",
+      "title": "CamSimulatorAdapter interface + Fusion 360 Add-In Verify implementation",
+      "scope": "src/engines/CamSimulatorAdapterEngine.ts — abstract interface (loadProgram, runVerify, getVerdict, getCollisionReport, getCycleTime). Fusion implementation pushes .cps + sidecar to running Fusion via Add-In HTTP bridge (cam_addin_http_client); auto-launches Fusion if not running; reads Verify result JSON back. Live in-host, not file-based.",
+      "files_to_modify": [
+        "src/engines/CamSimulatorAdapterEngine.ts",
+        "src/engines/Fusion360VerifyAdapterEngine.ts"
+      ],
+      "tests_to_add": [
+        "src/__tests__/Fusion360VerifyAdapter.integration.test.ts"
+      ]
+    },
+    {
+      "id": "U-PPGM102",
+      "title": "Vericut round-trip adapter wiring",
+      "scope": "src/engines/VericutAdapterEngine.ts — extends existing vericut_export action; runs Vericut headless via subprocess (where licensed); parses VERICUT XML reports; ingests collision + axis-travel + cycle-time verdict via vericut_import_collision + vericut_import_optipath. Tier C / gold-standard.",
+      "files_to_modify": [
+        "src/engines/VericutAdapterEngine.ts"
+      ],
+      "tests_to_add": [
+        "src/__tests__/VericutAdapter.integration.test.ts"
+      ]
+    },
+    {
+      "id": "U-PPGM103",
+      "title": "NCSIMUL adapter wiring",
+      "scope": "src/engines/NCSimulAdapterEngine.ts — parallel to Vericut adapter but for NCSIMUL; uses ncsimul_export + ncsimul_import. Selectable per-shop (shop preference stored in ShopConfigurationEngine).",
+      "files_to_modify": [
+        "src/engines/NCSimulAdapterEngine.ts"
+      ],
+      "tests_to_add": [
+        "src/__tests__/NCSimulAdapter.integration.test.ts"
+      ]
+    },
+    {
+      "id": "U-PPGM104",
+      "title": "hyperMILL hyperVIEW + Mastercam Verify adapter stubs (expansion hooks)",
+      "scope": "src/engines/HyperMillHyperViewAdapterEngine.ts + src/engines/MastercamVerifyAdapterEngine.ts — adapter shape + interface only. Loads programs via host-specific path; placeholder verdict (PASS-WITH-WARNING) until the user expands to hyperMILL/Mastercam. Implements CamSimulatorAdapter interface so EnsembleVerdictAggregator can plug them in transparently.",
+      "files_to_modify": [
+        "src/engines/HyperMillHyperViewAdapterEngine.ts",
+        "src/engines/MastercamVerifyAdapterEngine.ts"
+      ],
+      "tests_to_add": [
+        "src/__tests__/HyperMillHyperViewAdapterStub.test.ts",
+        "src/__tests__/MastercamVerifyAdapterStub.test.ts"
+      ]
+    },
+    {
+      "id": "U-PPGM105",
+      "title": "EnsembleVerdictAggregatorEngine (combines Tier A + B + C, flags disagreement)",
+      "scope": "src/engines/EnsembleVerdictAggregatorEngine.ts — runs all configured tiers in parallel; aggregates verdicts; computes ENSEMBLE = worst-of-three for HARD BLOCK on shop_floor; flags disagreements (Tier A says BLOCK, Tier B says CLEAN) as explicit reconciliation entries; tier-aware via omega-thresholds.json.",
+      "files_to_modify": [
+        "src/engines/EnsembleVerdictAggregatorEngine.ts"
+      ],
+      "tests_to_add": [
+        "src/__tests__/EnsembleVerdictAggregator.test.ts"
+      ]
+    },
+    {
+      "id": "U-PPGM106",
+      "title": "Wizard 3-tier verdict UI (all tiers visible, disagreement explainer, one-click rerun-tier)",
+      "scope": "web/src/components/ppg/EnsembleVerdictPanel.tsx — three columns (PRISM physics / Fusion Verify / Vericut), per-column verdict (PASS/WARN/BLOCK) + summary, disagreement banner with explainer, per-tier rerun button. Wired into PostProcessorGeneratorPage step 4.",
+      "files_to_modify": [
+        "web/src/components/ppg/EnsembleVerdictPanel.tsx",
+        "web/src/pages/PostProcessorGeneratorPage.tsx"
+      ],
+      "tests_to_add": [
+        "src/__tests__/web-api/EnsembleVerdictPanel.test.ts"
+      ]
+    },
+    {
+      "id": "U-PPGM107",
+      "title": "End-to-end ensemble verify on D2 reference part (3-tier round-trip)",
+      "scope": "src/__tests__/EnsembleVerify.e2e.integration.test.ts — runs the D2 die plate reference job through all three tiers; asserts ensemble verdict matches expected (Tier A force-block + Tier B clean + Tier C clean → ENSEMBLE BLOCK on shop_floor); validates wizard banner copy; validates rerun-tier flow.",
+      "files_to_modify": [],
+      "tests_to_add": [
+        "src/__tests__/EnsembleVerify.e2e.integration.test.ts"
+      ]
+    },
+    {
+      "id": "U-PPGM108",
+      "title": "Cross-CAM forward feature emission expansion (Mastercam Dynamic Motion / hyperMILL Maxx / SolidCAM iMachining / PowerMill Vortex → post emit)",
+      "scope": "Closes PP-REV-MS5 cross-CAM feature-injection orphan. Extends MS17 hyperMILL/Mastercam adapter stubs from VERIFY-only to BIDIRECTIONAL: ingests proprietary CAM features (Mastercam Dynamic Motion / OptiRough; hyperMILL Maxx Machining / 5X Tangent; SolidCAM iMachining; PowerMill Vortex / Steep & Shallow) and emits dialect-correct G-code into the post pipeline. Per-CAM CamFeatureAdapter interface; each adapter declares supported features + emission strategy. Backward telemetry ingest stubbed (CAM run-stats → PPG calibration) for future MS11 wiring.",
+      "files_to_modify": [
+        "src/engines/CamFeatureAdapterEngine.ts",
+        "src/engines/MastercamFeatureEmitter.ts",
+        "src/engines/HyperMillFeatureEmitter.ts",
+        "src/engines/SolidCamFeatureEmitter.ts",
+        "src/engines/PowerMillFeatureEmitter.ts"
+      ],
+      "tests_to_add": [
+        "src/__tests__/CrossCAMFeatureEmission.integration.test.ts",
+        "src/__tests__/CamFeatureAdapter.contract.test.ts"
+      ]
+    },
+    {
+      "id": "U-PPGM107b",
+      "title": "WEDM verifier path (no Vericut substitute — uses native WEDM physics simulation)",
+      "scope": "src/engines/WEDMVerifyAdapterEngine.ts — implements CamSimulatorAdapter interface but routes to WEDM-native physics simulation (WEDMRunPipelineEngine + wedm_safety_gate_evaluate + wedm_predict_wire_break + wedm_assess_surface_integrity + wedm_kerf_overcut + wedm_thermal_release_evaluate); produces same verdict structure as Fusion/Vericut adapters so EnsembleVerdictAggregator treats it transparently. Vericut/NCSIMUL do not support WEDM dialects (Mitsubishi M800 / Sodick / AgieCharmilles WEDM-specific) — PRISM owns this gap. WEDM reference job corpus ≥3: (1) MV1200R 5-pass D2 12mm 4° taper (canonical); (2) Sodick AQ325L 4-pass H13 8mm straight; (3) AgieCharmilles CUT 1000 micro-EDM 6mm carbide with 0.25R corners. Adversarial: (a) program references undefined wire diameter → reject; (b) flush pressure 0 in sidecar → predict wire-break >50% and HARD BLOCK on shop_floor. HAZ verifier (S05): native physics simulation routes wedm_haz_predict + wedm_haz_stock_allowance + wedm_assess_surface_integrity to verify HAZ ≤spec at verify time (closes the gap that HAZ was leveraged in MS3 only, not gated at emit OR verify).",
+      "files_to_modify": [
+        "src/engines/WEDMVerifyAdapterEngine.ts",
+        "src/engines/EnsembleVerdictAggregatorEngine.ts"
+      ],
+      "tests_to_add": [
+        "src/__tests__/WEDMVerifyAdapter.integration.test.ts"
+      ]
+    },
+    {
+      "id": "U-PPGM107c",
+      "title": "Lathe verifier path (Fusion 360 lathe + Vericut + native lathe physics)",
+      "scope": "src/engines/LatheVerifyAdapterEngine.ts — Fusion 360 has lathe verify (different from mill verify); Vericut supports lathe controllers (Okuma OSP, Fanuc lathe); add native lathe physics fallback (LatheCollisionCheckEngine + LatheSwingCheckEngine + LatheChatterAnalysisEngine) for offline verification. Lathe reference job corpus ≥3: (1) Okuma B250IIW OD turning + boring + threading 4140 (canonical); (2) Multus B250IIW mill-turn 304SS with live tooling + sub-spindle handoff; (3) Hardinge GS 200 hard-turn D2 62HRC. Adversarial: (a) program references chuck force exceeding clamp limit → reject; (b) G76 thread schedule with Vc > tool-life-cliff → predict tool failure and HARD BLOCK.",
+      "files_to_modify": [
+        "src/engines/LatheVerifyAdapterEngine.ts",
+        "src/engines/Fusion360VerifyAdapterEngine.ts",
+        "src/engines/VericutAdapterEngine.ts"
+      ],
+      "tests_to_add": [
+        "src/__tests__/LatheVerifyAdapter.integration.test.ts"
+      ]
+    }
+  ],
+  "completion_criteria": [
+    "Fusion Verify Adapter can push a PRISM-emitted program to a running Fusion 360 instance via Add-In HTTP, trigger Verify, and ingest the result without operator manual steps",
+    "Vericut + NCSIMUL adapters round-trip a program and ingest collision + axis-travel + cycle-time verdicts (gated by license availability)",
+    "hyperMILL + Mastercam adapter stubs implement CamSimulatorAdapter cleanly so future expansion is a drop-in",
+    "EnsembleVerdictAggregator surfaces disagreement explicitly: any 2-of-3 verdicts diverging triggers a reconciliation banner",
+    "Wizard 3-tier verdict panel readable + actionable: programmer can identify which tier blocks and rerun individual tiers in <30s",
+    "End-to-end ensemble verify test passes on D2 reference part through all three tiers",
+    "WEDM verifier path uses native physics simulation; ensemble verdict passes Mitsubishi MV1200R 5-pass D2 reference",
+    "Lathe verifier path uses Fusion 360 lathe verify + Vericut + native lathe physics; ensemble verdict passes Okuma B250 OD turning reference"
+  ],
+  "depends_on": [
+    "PPG-MS5",
+    "PPG-MS8",
+    "PPG-MS14"
+  ],
+  "blocks": [
+    "PPG-MS12",
+    "PPG-MS19",
+    "PPG-MS22",
+    "PPG-MS26",
+    "PPG-MS29",
+    "PPG-MS30",
+    "PPG-MS31",
+    "PPG-MS33"
+  ],
+  "supersedes": [
+    "PP-REV-MS5 (Cross-CAM Feature Injection stub — folded into MS17 cross-CAM scope)",
+    "F360-MS2/U-F360-12 + U-F360-13 + U-F360-14 (Fusion CAM I/O — Verify Adapter scope)",
+    "LATHE-MASTER/U-LTH19 (Regression Test Auto-Generator — ensemble verify)",
+    "LATHE-MASTER/U-LTH29 + U-LTH31 (cross-CAM lathe scope)",
+    "CAM-PARITY-AGI-MS0/U-CAMP16 (full-suite integration test — ensemble verify covers)"
+  ],
+  "_patches": [
+    "ppg-leverage-16-2026-04-29"
+  ],
+  "_reverse_reciprocity_patch": "ppg-round3-novel-2026-04-29"
+}

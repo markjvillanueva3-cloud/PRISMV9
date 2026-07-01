@@ -23,7 +23,9 @@
 
 import fs from "node:fs";
 import path from "node:path";
-import { spawnSync } from "node:child_process";
+// Heap-safe single-source spawn (NODE_OPTIONS=--max-old-space-size baked in) — the
+// 167MB tribal index OOMs a default-heap child, which silently killed injection here.
+import { spawnTribalRerank } from "../../scripts/lib/tribal-rerank-spawn.mjs";
 
 const PRISM = "H:/prism";
 const L2 = `${PRISM}/.claude/scripts/tribal-rerank.mjs`;
@@ -82,10 +84,8 @@ process.stdin.on("end", () => {
   const args = [L2, "--query", query, "--k", String(k), "--json", "--caller", "inject-on-edit"];
   if (domain) args.push("--domain", domain);
 
-  const r = spawnSync(process.execPath, args, {
-    encoding: "utf8", timeout: TIMEOUT_MS,
-  });
-  if (r.status !== 0 || !r.stdout) return passthrough();
+  const r = spawnTribalRerank(args, { timeoutMs: TIMEOUT_MS });
+  if (!r.ok || !r.stdout) return passthrough();
 
   let result;
   try { result = JSON.parse(r.stdout); } catch { return passthrough(); }

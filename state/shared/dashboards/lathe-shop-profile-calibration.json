@@ -1,0 +1,92 @@
+{
+  "schemaVersion": "1.0.0",
+  "generated_at": "2026-06-03T20:28:18.665Z",
+  "kind": "JM-shop-profile-calibration (per-op-category SFM/IPR multipliers, learned on TRAIN split)",
+  "honest_note": "Multipliers = median(JM master) / median(PRISM baseline-regen) per op-category, learned on TRAIN ONLY. Held-out TEST accuracy is the real generalization number; teaching-to-the-test is avoided by the split. A positive held-out lift = PRISM genuinely getting closer to JM-realistic output. NOT a 100% claim (R12).",
+  "config": {
+    "sample": 24,
+    "test_frac": 0.34,
+    "band_pct": 35,
+    "seed": 1337,
+    "min_train_samples": 3
+  },
+  "split": {
+    "train_programs": 16,
+    "test_programs": 8,
+    "train_skipped": 0,
+    "test_skipped": 0
+  },
+  "calibration": {
+    "sfm": {
+      "rough": 0.3463636363650218,
+      "finish": 0.19050000000076198
+    },
+    "ipr": {
+      "rough": 0.5926666666666667,
+      "finish": 0.635,
+      "drill": 0.42333333333333334
+    },
+    "provenance": {
+      "rough": {
+        "sfm_n": 15,
+        "ipr_n": 15
+      },
+      "finish": {
+        "sfm_n": 16,
+        "ipr_n": 16
+      },
+      "drill": {
+        "sfm_n": 1,
+        "ipr_n": 12
+      },
+      "thread": {
+        "sfm_n": 0,
+        "ipr_n": 0
+      },
+      "groove": {
+        "sfm_n": 0,
+        "ipr_n": 0
+      },
+      "part_off": {
+        "sfm_n": 0,
+        "ipr_n": 0
+      }
+    }
+  },
+  "results": {
+    "train_baseline": {
+      "mean": 39.7,
+      "op": 100,
+      "sfm": 6.3,
+      "ipr": 4.7,
+      "n": 16
+    },
+    "train_calibrated": {
+      "mean": 77.5,
+      "op": 100,
+      "sfm": 59.4,
+      "ipr": 69.8,
+      "n": 16
+    },
+    "test_baseline": {
+      "mean": 45.2,
+      "op": 100,
+      "sfm": 13.3,
+      "ipr": 10,
+      "n": 8
+    },
+    "test_calibrated": {
+      "mean": 76,
+      "op": 100,
+      "sfm": 60,
+      "ipr": 65,
+      "n": 8
+    },
+    "heldout_mean_lift_pct": 30.8,
+    "heldout_sfm_lift_pct": 46.7,
+    "heldout_ipr_lift_pct": 55,
+    "overfit_gap_pct": 1.5,
+    "overfit_flag": "ok"
+  },
+  "runtime_ms": 88200
+}

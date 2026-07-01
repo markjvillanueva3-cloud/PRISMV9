@@ -1,0 +1,40 @@
+---
+name: reference_ollama_roster_fitness_audit_2026_06_09
+description: "Audit (2026-06-09, slot charlie) of the synergy /goal's LITERAL #1 clause: 'synergize ollama -- make sure we pulled correct models relative to gpu/cpu/nvme/128GB RAM.' PULL-SIDE = VALIDATED PASS: 10 models pulled, all Blackwell-fitted (gpt-oss:120b 60.9GB fits 96GB VRAM resident, nothing exceeds VRAM), ZERO retired tags pulled, covers every routing target (synthesis/coding/vision-OCR/embed). RESIDUAL (for owning slots india=prism_ai-reasoning + alpha=model-routing to verify): a few live-config refs still NAME retired/unpulled tags -- mostly stale .describe() docs + capability-probe-handled catalog entries, NOT confirmed cold-fails. Don't re-audit the pull-side."
+type: reference
+source: prism-memory
+synced: 2026-06-27T20:30:46.681Z
+aliases: reference_ollama_roster_fitness_audit_2026_06_09
+---
+
+
+The synergy /goal's first-named, fleet-general, verifiable clause: **"make sure we pulled correct models relative to gpu, cpu, nvme ssd and 128gb ram."** Charlie audited it (the loop's own iter-1 framing). This is NOT 25-slot work -- it's one roster check. Continues [[reference_cascade_defaults_retired_model_2026_06_09]] (charlie's prior fix of prism_ai cascade dispatcher defaults pointing at retired models).
+
+## PULL-SIDE: VALIDATED PASS (live `GET /api/tags`, 2026-06-09)
+
+10 models, 119.3 GB on-disk, all fitted to RTX PRO 6000 (96 GB VRAM) + 128 GB RAM:
+
+| Size | Model | Role |
+|------|-------|------|
+| 60.9 GB | gpt-oss:120b (MXFP4) | heavy synthesis -- fits 96GB VRAM resident w/ headroom |
+| 18.5 GB | qwen2.5-coder:32b (Q4_K_M) | default coder (ask-ollama DEFAULT_MODEL) |
+| 12.8 GB | gpt-oss:20b (MXFP4) | mid synthesis |
+| 7.3 GB | llama3.2-vision:11b | OCR/vision (xray multi-VLM ensemble) |
+| 5.7/5.7/5.6 GB | qwen3-vl:8b(+instruct), qwen2.5vl:7b | vision/OCR ensemble |
+| 1.6 GB | moondream:1.8b | tiny vision |
+| 0.9 GB | qwen2.5-coder:1.5b | tiny fast coder (fast-classify candidate) |
+| 0.3 GB | nomic-embed-text | embeddings (ONNX/vector backbone) |
+
+Fitness verdict: **PASS** -- (a) no single model exceeds 96GB VRAM (largest = gpt-oss:120b @ 60.9GB resident); (b) total on-disk 119.3GB < 128GB RAM (and models load on-demand w/ keep_alive eviction anyway); (c) ZERO retired tags PULLED (qwen2.5-coder:3b/7b/14b + deepseek-r1:14b are gone per BLACKWELL-MODEL-UPGRADE); (d) covers every documented routing target -- synthesis (gpt-oss 120b/20b), coding (qwen2.5-coder 32b/1.5b), vision/OCR (4 VLMs + moondream), embeddings (nomic). The canonical defaults (ask-ollama qwen2.5-coder:32b; host-aware-synthesis-model gpt-oss:120b/qwen2.5-coder:32b) are all pulled.
+
+## RESIDUAL live-config refs to retired/unpulled tags (for owning slots to verify -- NOT confirmed cold-fails)
+
+These NAME a retired/unpulled tag but are likely stale-doc or gracefully handled; the owning slot should confirm the runtime resolution and fix/doc-correct:
+- **`mcp-server/src/schemas/aiReasoningActionSchemas.ts:2758,2762,2801,2804,2807`** (india/prism_ai) -- two_pass + cascade_run `.describe()` DOC strings say "Default: env X or qwen2.5-coder:3b/7b/14b". These are doc strings on `.optional()` fields (no runtime `.default()`); the real fallback is the dispatcher/resolver (which charlie's `e32e1e455` fix already touched at the engine layer). If that fix updated the engine default to a pulled model, these docs are STALE (should say 1.5b/32b or "the host-aware resolver") -- a 5-line doc-reflect R15 completion. If the dispatcher still falls back to 3b/7b/14b, it's a real cold-fail. VERIFY the dispatcher resolution before editing. **VERIFIED 2026-06-10 (sierra): NON-ISSUE / already doc-correct -- the live lines read `qwen2.5-coder:1.5b` (cheap), `qwen2.5-coder:32b` (strong), `gpt-oss:20b` (mid); the retired :3b/:7b tags appear ONLY as historical parentheticals ("the legacy :3b tag was retired 2026-06-04"), NOT as live defaults. NO edit. The audit's residual framing here was stale. (OllamaTaskOffloaderEngine codellama:7b + AISystemRouterEngine ollama-codellama/deepseek remain alpha-lane to confirm -- audit itself says likely capability-probe-handled.)** **PROBE-LAYER CONFIRMED 2026-06-10 (sierra), `OllamaCapabilityProbeEngine.ts:275-303`: `routableCatalog()` filters the catalog to present-and-fitting ollama models only (so `route()` "can never pick an absent/unfittable local model"), and the capability-oracle selector returns `null` -> caller MUST fall back to a cloud voice ("never dispatch to a phantom local model", fail-loud R12). So an absent codellama:7b / deepseek catalog entry is FILTERED, never invoked -- the defensive layer is real + correct, not just hypothesized. REMAINING -> NOW A CONCRETE LOCATED GAP (sierra read both consumers 2026-06-10; alpha-domain to fix): NEITHER consumer obviously routes through `OllamaCapabilityProbeEngine.routableCatalog`. (a) `OllamaTaskOffloaderEngine` = NON-ISSUE (sierra CONFIRMED 2026-06-10, correcting an earlier annotation here that wrongly called it a gap): the static catalog (L88-119) does list 3 unpulled models (gemma4:31b L92, codellama:7b L106, deepseek-coder:6.7b L113), BUT `selectModel()` (L224-226) filters `OLLAMA_MODELS.filter(m => m.capabilities.includes(category) && this.installedModels.includes(m.name))` -- `installedModels` is populated from a live `/api/tags` probe (L178), and the L62-73 comments confirm the entries are "INERT until /api/tags confirms each is pulled (the gate is the runtime filter)". So the phantoms are runtime install-gated, NEVER invoked. No fix needed. (b) `AISystemRouterEngine` = NON-ISSUE (sierra CONFIRMED 2026-06-10, free-reign): it is ADVISORY / read-only (header L14-16: "callers consult route(task) and decide how to dispatch" -- it NEVER invokes a model). Its `probe()` Ollama-UP check only sets `reachable` on a RouteDecision; a caller acting on an `ml_inference -> ollama-codellama` decision still dispatches through the GATED invoke path (`OllamaTaskOffloaderEngine.selectModel` / `OllamaCapabilityProbeEngine`, both install-gated), so an absent model can't be invoked. The `AIBackend` substrate labels `ollama-codellama`/`ollama-deepseek` + the L7-12 route table DO name retired models -- but that is COSMETIC label-staleness on an advisory engine; renaming the enum is a type-ripple refactor across every consumer for ZERO functional gain (NOT worth the regression risk -- R13 is comprehensive CORRECTNESS, not cosmetic churn). NET (clause 1 FULLY VERIFIED fleet-wide): NO phantom-invoke gap exists anywhere -- every ollama invoke path is install/presence-gated; the audit's 3 residuals are all confirmed non-issues (aiReasoningActionSchemas already doc-correct; OllamaTaskOffloaderEngine + AISystemRouterEngine both gated). Only cosmetic label-staleness remains (deferrable, low-value). VERIFY-BEFORE-EDIT discipline paid off: each "residual" was already-fine, not a cold-fail.**
+- **`mcp-server/src/engines/OllamaTaskOffloaderEngine.ts:106`** (alpha/fleet) -- `name: "codellama:7b"` (not pulled). Likely a catalog entry that `OllamaCapabilityProbeEngine` skips when absent (the documented "don't hardcode an absent model" defensive pattern, OllamaCapabilityProbeEngine.ts:273/293) -- not a hard cold-fail, but confirm.
+- **`mcp-server/src/engines/AISystemRouterEngine.ts:30,281,305`** (alpha) -- `ollama-codellama` / `ollama-deepseek` substrate enum + case handler. Confirm these route via capability-probe (graceful) vs hardcoded invoke.
+
+## Lane note
+charlie surfaced this while addressing the goal's #1 clause; the residual files are india (prism_ai reasoning) + alpha (model routing) domain. Recorded + chat-bussed for owners rather than cross-lane-editing AI-reasoning internals without confirming the dispatcher resolution (drift discipline [[feedback_autonomous_loop_drift_discipline]]). Pull-side is the charlie-verifiable part and it PASSES.
+
+Related: [[reference_cascade_defaults_retired_model_2026_06_09]] · [[feedback_build_for_blackwell_hardware]] · [[reference_quoting_ollama_offload_audit_2026_06_09]] · [[feedback_utilize_ollama_for_efficiency]].

@@ -1,0 +1,408 @@
+{
+  "schemaVersion": "1.0.0",
+  "generatedAt": "2026-05-26T04:44:33.614Z",
+  "auditor": "slot:india",
+  "milestone": "PRISM-LAUNCH-READINESS-MS0",
+  "unit": "P0-U06",
+  "batchId": "001",
+  "mode": "full",
+  "omega_floor": 0.8,
+  "pass_rate": 0.6,
+  "pass_omega": false,
+  "totals": {
+    "evaluated": 200,
+    "pass": 120,
+    "fail": 80,
+    "structuralFail": 0,
+    "runtimeFail": 80
+  },
+  "by_controller": {
+    "fanuc-30i": {
+      "pass": 40,
+      "fail": 0
+    },
+    "okuma-osp-p300": {
+      "pass": 40,
+      "fail": 0
+    },
+    "haas-ngc": {
+      "pass": 40,
+      "fail": 0
+    },
+    "heidenhain-itnc640": {
+      "pass": 0,
+      "fail": 40
+    },
+    "mitsubishi-m800": {
+      "pass": 0,
+      "fail": 40
+    }
+  },
+  "by_operation": {
+    "turning": {
+      "pass": 24,
+      "fail": 17
+    },
+    "milling": {
+      "pass": 27,
+      "fail": 15
+    },
+    "boring": {
+      "pass": 23,
+      "fail": 19
+    },
+    "threading": {
+      "pass": 26,
+      "fail": 19
+    },
+    "drilling": {
+      "pass": 20,
+      "fail": 10
+    }
+  },
+  "by_error_class": {
+    "quality-below-omega-floor": 80
+  },
+  "sample_failures": [
+    {
+      "scenarioId": "PP-S-00121",
+      "controller": "heidenhain-itnc640",
+      "operation": "threading",
+      "cycle": "thread-turn",
+      "axis_count": 4,
+      "pass": false,
+      "structural": {
+        "passed": true,
+        "errors": []
+      },
+      "runtime": {
+        "passed": false,
+        "errors": [
+          "quality-below-omega-floor:50<80"
+        ],
+        "warnings": [
+          "lines-below-min:11<40",
+          "engine-warn:Missing safe start block - recommend adding G28 G91 Z0"
+        ],
+        "result": {
+          "line_count": 11,
+          "quality_score": 50,
+          "profile_id": "heidenhain",
+          "enhancements": [
+            "physics_validated",
+            "tribal_knowledge_injected"
+          ],
+          "kinematics_valid": null,
+          "processing_time_ms": 0
+        },
+        "skipped": false
+      }
+    },
+    {
+      "scenarioId": "PP-S-00122",
+      "controller": "heidenhain-itnc640",
+      "operation": "drilling",
+      "cycle": "spot-drill",
+      "axis_count": 5,
+      "pass": false,
+      "structural": {
+        "passed": true,
+        "errors": []
+      },
+      "runtime": {
+        "passed": false,
+        "errors": [
+          "quality-below-omega-floor:55<80"
+        ],
+        "warnings": [
+          "lines-below-min:11<70",
+          "engine-warn:Missing safe start block - recommend adding G28 G91 Z0"
+        ],
+        "result": {
+          "line_count": 11,
+          "quality_score": 55,
+          "profile_id": "heidenhain",
+          "enhancements": [
+            "physics_validated",
+            "tribal_knowledge_injected"
+          ],
+          "kinematics_valid": null,
+          "processing_time_ms": 0
+        },
+        "skipped": false
+      }
+    },
+    {
+      "scenarioId": "PP-S-00123",
+      "controller": "heidenhain-itnc640",
+      "operation": "boring",
+      "cycle": "bore",
+      "axis_count": 5,
+      "pass": false,
+      "structural": {
+        "passed": true,
+        "errors": []
+      },
+      "runtime": {
+        "passed": false,
+        "errors": [
+          "quality-below-omega-floor:55<80"
+        ],
+        "warnings": [
+          "lines-below-min:11<70",
+          "engine-warn:Missing safe start block - recommend adding G28 G91 Z0"
+        ],
+        "result": {
+          "line_count": 11,
+          "quality_score": 55,
+          "profile_id": "heidenhain",
+          "enhancements": [
+            "physics_validated",
+            "tribal_knowledge_injected"
+          ],
+          "kinematics_valid": null,
+          "processing_time_ms": 0
+        },
+        "skipped": false
+      }
+    },
+    {
+      "scenarioId": "PP-S-00124",
+      "controller": "heidenhain-itnc640",
+      "operation": "milling",
+      "cycle": "helical-bore",
+      "axis_count": 5,
+      "pass": false,
+      "structural": {
+        "passed": true,
+        "errors": []
+      },
+      "runtime": {
+        "passed": false,
+        "errors": [
+          "quality-below-omega-floor:50<80"
+        ],
+        "warnings": [
+          "lines-below-min:10<100",
+          "engine-warn:Missing safe start block - recommend adding G28 G91 Z0"
+        ],
+        "result": {
+          "line_count": 10,
+          "quality_score": 50,
+          "profile_id": "heidenhain",
+          "enhancements": [
+            "physics_validated",
+            "tribal_knowledge_injected"
+          ],
+          "kinematics_valid": null,
+          "processing_time_ms": 0
+        },
+        "skipped": false
+      }
+    },
+    {
+      "scenarioId": "PP-S-00125",
+      "controller": "heidenhain-itnc640",
+      "operation": "threading",
+      "cycle": "thread-mill",
+      "axis_count": 5,
+      "pass": false,
+      "structural": {
+        "passed": true,
+        "errors": []
+      },
+      "runtime": {
+        "passed": false,
+        "errors": [
+          "quality-below-omega-floor:50<80"
+        ],
+        "warnings": [
+          "lines-below-min:11<70",
+          "engine-warn:Missing safe start block - recommend adding G28 G91 Z0"
+        ],
+        "result": {
+          "line_count": 11,
+          "quality_score": 50,
+          "profile_id": "heidenhain",
+          "enhancements": [
+            "physics_validated",
+            "tribal_knowledge_injected"
+          ],
+          "kinematics_valid": null,
+          "processing_time_ms": 0
+        },
+        "skipped": false
+      }
+    },
+    {
+      "scenarioId": "PP-S-00126",
+      "controller": "heidenhain-itnc640",
+      "operation": "boring",
+      "cycle": "bore",
+      "axis_count": 4,
+      "pass": false,
+      "structural": {
+        "passed": true,
+        "errors": []
+      },
+      "runtime": {
+        "passed": false,
+        "errors": [
+          "quality-below-omega-floor:55<80"
+        ],
+        "warnings": [
+          "lines-below-min:11<40",
+          "engine-warn:Missing safe start block - recommend adding G28 G91 Z0"
+        ],
+        "result": {
+          "line_count": 11,
+          "quality_score": 55,
+          "profile_id": "heidenhain",
+          "enhancements": [
+            "physics_validated",
+            "tribal_knowledge_injected"
+          ],
+          "kinematics_valid": null,
+          "processing_time_ms": 0
+        },
+        "skipped": false
+      }
+    },
+    {
+      "scenarioId": "PP-S-00127",
+      "controller": "heidenhain-itnc640",
+      "operation": "boring",
+      "cycle": "bore-precision",
+      "axis_count": 5,
+      "pass": false,
+      "structural": {
+        "passed": true,
+        "errors": []
+      },
+      "runtime": {
+        "passed": false,
+        "errors": [
+          "quality-below-omega-floor:55<80"
+        ],
+        "warnings": [
+          "lines-below-min:11<70",
+          "engine-warn:Missing safe start block - recommend adding G28 G91 Z0"
+        ],
+        "result": {
+          "line_count": 11,
+          "quality_score": 55,
+          "profile_id": "heidenhain",
+          "enhancements": [
+            "physics_validated",
+            "tribal_knowledge_injected"
+          ],
+          "kinematics_valid": null,
+          "processing_time_ms": 0
+        },
+        "skipped": false
+      }
+    },
+    {
+      "scenarioId": "PP-S-00128",
+      "controller": "heidenhain-itnc640",
+      "operation": "boring",
+      "cycle": "bore",
+      "axis_count": 3,
+      "pass": false,
+      "structural": {
+        "passed": true,
+        "errors": []
+      },
+      "runtime": {
+        "passed": false,
+        "errors": [
+          "quality-below-omega-floor:55<80"
+        ],
+        "warnings": [
+          "lines-below-min:11<20",
+          "engine-warn:Missing safe start block - recommend adding G28 G91 Z0"
+        ],
+        "result": {
+          "line_count": 11,
+          "quality_score": 55,
+          "profile_id": "heidenhain",
+          "enhancements": [
+            "physics_validated",
+            "tribal_knowledge_injected"
+          ],
+          "kinematics_valid": null,
+          "processing_time_ms": 1
+        },
+        "skipped": false
+      }
+    },
+    {
+      "scenarioId": "PP-S-00129",
+      "controller": "heidenhain-itnc640",
+      "operation": "boring",
+      "cycle": "bore-precision",
+      "axis_count": 5,
+      "pass": false,
+      "structural": {
+        "passed": true,
+        "errors": []
+      },
+      "runtime": {
+        "passed": false,
+        "errors": [
+          "quality-below-omega-floor:55<80"
+        ],
+        "warnings": [
+          "lines-below-min:11<70",
+          "engine-warn:Missing safe start block - recommend adding G28 G91 Z0"
+        ],
+        "result": {
+          "line_count": 11,
+          "quality_score": 55,
+          "profile_id": "heidenhain",
+          "enhancements": [
+            "physics_validated",
+            "tribal_knowledge_injected"
+          ],
+          "kinematics_valid": null,
+          "processing_time_ms": 1
+        },
+        "skipped": false
+      }
+    },
+    {
+      "scenarioId": "PP-S-00130",
+      "controller": "heidenhain-itnc640",
+      "operation": "threading",
+      "cycle": "tap-rigid",
+      "axis_count": 5,
+      "pass": false,
+      "structural": {
+        "passed": true,
+        "errors": []
+      },
+      "runtime": {
+        "passed": false,
+        "errors": [
+          "quality-below-omega-floor:50<80"
+        ],
+        "warnings": [
+          "lines-below-min:11<70",
+          "engine-warn:Missing safe start block - recommend adding G28 G91 Z0"
+        ],
+        "result": {
+          "line_count": 11,
+          "quality_score": 50,
+          "profile_id": "heidenhain",
+          "enhancements": [
+            "physics_validated",
+            "tribal_knowledge_injected"
+          ],
+          "kinematics_valid": null,
+          "processing_time_ms": 0
+        },
+        "skipped": false
+      }
+    }
+  ]
+}

@@ -14,6 +14,8 @@
  */
 
 import { useCallback, useMemo, useState } from 'react';
+import { ApiError } from '../api/client';
+import { GatedError } from '../components/entitlement';
 import {
   ActionButton,
   Field,
@@ -74,6 +76,7 @@ export function LathePrintToProgramPage() {
   const [stage, setStage] = useState<PipelineStage>('idle');
   const [, setProgress] = useState(0);
   const [error, setError] = useState<string | null>(null);
+  const [gateError, setGateError] = useState<unknown>(null);
   const [result, setResult] = useState<PipelineResult | null>(null);
 
   // File drop handler
@@ -108,6 +111,7 @@ export function LathePrintToProgramPage() {
 
   // Run full pipeline
   const runPipeline = useCallback(async () => {
+    setGateError(null);
     if (!fileData) {
       setError('Please upload a blueprint first');
       return;
@@ -144,7 +148,10 @@ export function LathePrintToProgramPage() {
       });
 
       if (!response.ok) {
-        throw new Error(`API error: ${response.status}`);
+        // Throw an ApiError (not a plain Error) carrying the HTTP status so a 403
+        // tier-gate is detectable by GatedError -> isEntitlementError (which requires
+        // an ApiError instance). Otherwise the gate would be dormant forever here.
+        throw new ApiError(response.status, `API error: ${response.status}`);
       }
 
       const data = await response.json();
@@ -157,6 +164,7 @@ export function LathePrintToProgramPage() {
       setStage('complete');
       setProgress(100);
     } catch (err) {
+      setGateError(err);
       setError(err instanceof Error ? err.message : 'Pipeline failed');
       setStage('error');
     }
@@ -304,9 +312,11 @@ export function LathePrintToProgramPage() {
           </div>
 
           {error && (
-            <div style={{ marginTop: '1rem', color: '#f44336', fontSize: '0.9rem' }}>
-              {error}
-            </div>
+            <GatedError error={gateError} feature='print_to_cnc' fallback={
+              <div style={{ marginTop: '1rem', color: '#f44336', fontSize: '0.9rem' }}>
+                {error}
+              </div>
+            } />
           )}
         </PanelCard>
 

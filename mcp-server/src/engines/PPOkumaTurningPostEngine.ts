@@ -5,14 +5,16 @@
  * using OSP-P300L dialect. JM Die's primary production machines — 7 Okuma
  * lathes producing cold heading dies and tooling inserts.
  *
- * Covers:
- *   - OD roughing/finishing (G71/G70 or manual)
- *   - ID boring
- *   - Grooving/parting (G75)
- *   - Threading (G76 single-point, G92 simple thread)
- *   - Face turning
+ * Covers (Okuma OSP dialect -- NOT Fanuc; verified vs Mark's running JM .MIN +
+ * reference_echo_okuma_cycle_dialect_2026_06_28, cloned from OkumaB250LatheMasterPostEngine):
+ *   - OD roughing/finishing (explicit G0/G1 multi-pass -- no canned cycle)
+ *   - ID boring (explicit G0/G1)
+ *   - Grooving/parting (explicit G1 plunge + G4 F<sec> dwell -- NOT Fanuc G75; G75 has no valid OSP form)
+ *   - Threading (OSP G71 single-line cycle: G71 X Z B D U H F M33 M73 -- NOT Fanuc G76; on OSP G71 IS threading)
+ *   - Face turning (explicit G0/G1)
+ *   - Drilling (G83 axial peck -- VERIFIED valid on OSP)
  *   - CSS (constant surface speed) G96/G97
- *   - Turret indexing (T0101 format)
+ *   - Turret indexing (6-digit T<station><offset><wear>, e.g. T010101 -- NOT 4-digit)
  *   - Tailstock engagement
  *   - Sub-spindle transfer (LU3000)
  *
@@ -76,6 +78,28 @@ export interface TurningProgram {
 
 // ── Engine ─────────────────────────────────────────────────────────────
 
+/** U-PP-NONFINITE-EMIT-SWEEP: numeric op fields that format directly into an emitted
+ *  token (X/Z coords, F feed, S speed, thread/cut params). A present-but-non-finite
+ *  value formats into a literal `XNaN`/`SInfinity`/`FNaN` the OSP control rejects -- so
+ *  HALT the op's emit (fail loud), never silently emit a wrong-but-valid coord (a silent
+ *  0 could rapid the turret to centerline). The `?? default` fallbacks in the generators
+ *  only catch null/undefined, NOT NaN/Infinity. Sibling of the OkumaB250/OkumaOSP/
+ *  HurcoV11/Mitsubishi fixes (R15 apply-to-all). Absent fields are not flagged. */
+function nonFiniteTurningEmitFields(op: TurningOperation): string[] {
+  const FIELDS = [
+    "start_x_mm", "end_x_mm", "start_z_mm", "end_z_mm",
+    "feed_mm_rev", "feed_ipr", "depth_of_cut_mm", "finish_allowance_mm",
+    "speed_sfm", "speed_rpm", "max_rpm",
+    "thread_pitch_mm", "thread_depth_mm",
+  ] as const;
+  const bad: string[] = [];
+  for (const f of FIELDS) {
+    const v = (op as unknown as Record<string, unknown>)[f];
+    if (typeof v === "number" && !Number.isFinite(v)) bad.push(`${f}=${v}`);
+  }
+  return bad;
+}
+
 export class PPOkumaTurningPostEngine {
   /**
    * Generate a complete turning program for an Okuma lathe.
@@ -105,8 +129,25 @@ export class PPOkumaTurningPostEngine {
       const op = input.operations[i];
       lines.push(`(--- OP ${i + 1}: ${op.type.toUpperCase()} T${String(op.tool_number).padStart(2, "0")} ---)`);
 
-      // Tool change
-      lines.push(`T${String(op.tool_number).padStart(2, "0")}${String(op.tool_position).padStart(2, "0")}`);
+      // U-PP-NONFINITE-EMIT-SWEEP: a non-finite coord/feed/speed/thread field would emit a
+      // literal `XNaN`/`SInfinity`/`FNaN` the OSP control rejects -- HALT the op's emit
+      // (fail loud) + warn; never silently emit a wrong-but-valid coord.
+      const badEmit = nonFiniteTurningEmitFields(op);
+      if (badEmit.length > 0) {
+        warnings.push(`Op ${i + 1} (${op.type}): non-finite emit field(s) [${badEmit.join(", ")}] -- operation block replaced with an ERROR marker to avoid a literal XNaN/SInfinity/FNaN the OSP control rejects; fix the upstream toolpath before running.`);
+        lines.push(`(ERROR: OP ${i + 1} ${op.type.toUpperCase()} NON-FINITE ${badEmit.join(" ")} -- DO NOT RUN, REVIEW TOOLPATH)`);
+        lines.push("");
+        continue;
+      }
+
+      // Tool change -- Okuma OSP 6-digit T<station><offset><wear> (all three pairs = the tool
+      // number), NOT the 4-digit T<NN><NN> form. Verified vs Mark's running JM programs
+      // (T010101/T020202/T070707/T111111 dominate the corpus 85,498x; the prior 4-digit form
+      // appears 0x). Cloned from OkumaB250LatheMasterPostEngine.generateToolChange
+      // (reference_echo_okuma_cycle_dialect_2026_06_28). op.tool_position stays on the input for
+      // back-compat but the OSP convention sets offset+wear = station per Mark's corpus.
+      const tnum = String(op.tool_number).padStart(2, "0");
+      lines.push(`T${tnum}${tnum}${tnum}`);
 
       // CSS or direct RPM
       if (op.css && op.speed_sfm) {
@@ -264,29 +305,53 @@ export class PPOkumaTurningPostEngine {
     const grooveZ = op.end_z_mm ?? -20;
     const startX = op.start_x_mm ?? 50;
 
-    lines.push(`G0 X${(startX + 2).toFixed(1)} Z${grooveZ.toFixed(1)}`);
+    // Okuma OSP grooving + part-off are EXPLICIT (G1 plunge / G4 F<sec> dwell / retract) -- NOT the
+    // Fanuc G75 peck cycle, which has NO valid OSP form (the real JM corpus uses G75 0x). Cloned from
+    // the dialect-complete OkumaB250LatheMasterPostEngine.generateGroovingCycle/generatePartOff
+    // (verified vs Mark's running .MIN: THREAD M8X125.MIN:44-52 OD groove, A05-LSC-25-B.MIN:118-133
+    // ID groove). Okuma dwell is G4 F<seconds>, NOT Fanuc G04 P<ms>. See
+    // reference_echo_okuma_cycle_dialect_2026_06_28.
+    lines.push(`G0 X${(startX + 2).toFixed(1)} Z${grooveZ.toFixed(1)} (RAPID TO GROOVE)`);
     if (isPartOff) {
       lines.push(`G1 X${grooveX.toFixed(1)} F${feed.toFixed(3)} (PART OFF)`);
+      lines.push(`G4 F0.5 (DWELL AT CENTER)`);
     } else {
-      lines.push(`G75 R0.5 (PECK GROOVE)`);
-      lines.push(`G75 X${grooveX.toFixed(1)} Z${grooveZ.toFixed(1)} P1000 Q500 F${feed.toFixed(3)}`);
+      lines.push(`G1 X${grooveX.toFixed(1)} F${feed.toFixed(3)} (PLUNGE TO GROOVE BOTTOM)`);
+      lines.push(`G4 F0.5 (DWELL -- CLEAN GROOVE BOTTOM)`);
     }
-    lines.push(`G0 X${(startX + 2).toFixed(1)}`);
+    lines.push(`G0 X${(startX + 2).toFixed(1)} (RETRACT CLEAR)`);
   }
 
   private generateThread(lines: string[], op: TurningOperation, warnings: string[]) {
     const pitch = op.thread_pitch_mm ?? 1.5;
     const depth = op.thread_depth_mm ?? pitch * 0.6134; // 60° standard
-    const passes = op.thread_passes ?? 6;
     const startX = op.start_x_mm ?? 30;
     const endZ = op.end_z_mm ?? -20;
 
     if (pitch > 4) warnings.push(`Large thread pitch ${pitch}mm — verify machine capability`);
 
+    // Okuma OSP G71 single-line threading cycle -- NOT Fanuc G76. On Okuma OSP, G71 IS the
+    // threading cycle (Fanuc's G71 = longitudinal roughing); emitting Fanuc G76 here alarms /
+    // mis-cycles the control. Cloned from the dialect-complete
+    // OkumaB250LatheMasterPostEngine.generateThreadingCycle, verified line-for-line vs Mark's
+    // running JM programs (THREAD M8X125.MIN, A05-LSC-25-B.MIN) + the JM Multus .cps. Canonical:
+    //   G71 X<minor dia, diametral> Z<end> B<incl angle> D<first cut> U<finish allow>
+    //       H<height, diametral = 2x radial> F<lead mm> M33 M73
+    // D/U = Mark's proven D.003"=0.08mm first cut, U.001"=0.025mm finish. G71 manages infeed/passes
+    // internally (no Fanuc P/Q pass-count word). See reference_echo_okuma_cycle_dialect_2026_06_28.
+    const angle = 60; // included thread angle (deg)
+    const firstCut = 0.08; // D, first pass depth mm (Mark D.003")
+    const finishAllow = 0.025; // U, finish allowance mm (Mark U.001")
+    const minorDia = startX - depth * 2; // minor dia endpoint (diametral)
+    const heightDia = depth * 2; // H output as diameter (2x radial depth)
+
     lines.push(`G0 X${(startX + 5).toFixed(1)} Z3.0 (THREAD START)`);
-    lines.push(`(THREAD: PITCH=${pitch}mm, DEPTH=${depth.toFixed(3)}mm, ${passes} PASSES)`);
-    lines.push(`G76 P0${passes < 10 ? "0" : ""}${passes}0060 Q100 R0.05`);
-    lines.push(`G76 X${(startX - depth * 2).toFixed(3)} Z${endZ.toFixed(1)} P${Math.round(depth * 1000)} Q200 F${pitch.toFixed(3)}`);
+    lines.push(`(THREAD: PITCH=${pitch}mm DEPTH=${depth.toFixed(3)}mm -- OSP G71 SINGLE-LINE)`);
+    lines.push(
+      `G71 X${minorDia.toFixed(3)} Z${endZ.toFixed(3)} B${angle} ` +
+        `D${firstCut.toFixed(3)} U${finishAllow.toFixed(3)} H${heightDia.toFixed(3)} ` +
+        `F${pitch.toFixed(3)} M33 M73`,
+    );
   }
 
   private generateDrill(lines: string[], op: TurningOperation) {

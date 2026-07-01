@@ -21,14 +21,7 @@ related:
 
 ## Description (from file header)
 
-pre-rename-guard.mjs — Phase 0.8 Rename Guard Hook
-PreToolUse hook that fires on Edit/Write when the target path differs
-from the source path (indicating a rename). Requires:
-1. Alias table update planned
-2. Dependent notification
-3. Test file rename planned
-BLOCKS if dependents not re-pointed.
-@phase Universal 0.8 — Rename/Delete/Impact Protocol
+_(no header docblock — read source for behavior)_
 
 ## Events
 

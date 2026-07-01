@@ -566,9 +566,12 @@ class PostProcessorPhysicsAwareGeneratorEngine {
     gcode.push(`T${toolNumber} M06`);
     gcode.push(`S${rpm} ${controller.spindle.cw}`);
 
-    // Coolant
+    // Coolant. Cryogenic (LN2/CO2) is through-tool/through-spindle delivery, so it
+    // emits the same code as TSC; flood/mist map to their own codes.
     if (state.coolantType !== "dry") {
-      gcode.push(`${controller.coolantCodes[state.coolantType === "tsc" ? "tsc" : state.coolantType]}`);
+      const coolantKey =
+        state.coolantType === "tsc" || state.coolantType === "cryogenic" ? "tsc" : state.coolantType;
+      gcode.push(`${controller.coolantCodes[coolantKey]}`);
     }
     gcode.push("");
 

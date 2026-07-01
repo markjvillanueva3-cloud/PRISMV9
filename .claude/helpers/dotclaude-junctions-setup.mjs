@@ -79,7 +79,7 @@ function isJunctionTo(path, expectedTarget) {
 
 function claudeCodeRunning() {
   // Check for claude.exe and node.exe processes with "claude-code" in path
-  const r = spawnSync("tasklist", ["/FI", "IMAGENAME eq claude.exe", "/NH"], { encoding: "utf8" });
+  const r = spawnSync("tasklist", ["/FI", "IMAGENAME eq claude.exe", "/NH"], { windowsHide: true, encoding: "utf8" });
   return r.status === 0 && /claude\.exe/i.test(r.stdout);
 }
 
@@ -91,7 +91,7 @@ function robocopyMerge(src, dst) {
   const r = spawnSync("robocopy", [
     src, dst, "/E", "/XC", "/XN", "/XO",
     "/R:2", "/W:2", "/XJ", "/NP", "/NFL", "/NDL",
-  ], { encoding: "utf8" });
+  ], { windowsHide: true, encoding: "utf8" });
   if (r.status == null || r.status >= 8) {
     die(`robocopy failed (exit ${r.status}). Output:\n${(r.stdout || "") + (r.stderr || "")}`);
   }
@@ -121,7 +121,7 @@ function backupAndJunction(subdir) {
       // Wrong junction target — just remove it and recreate. Underlying data safe on H:.
       info(`  [fix ] ${subdir}  wrong junction target, re-pointing`);
       if (!dryRun) {
-        const r = spawnSync("cmd.exe", ["/c", "rmdir", cPath], { encoding: "utf8" });
+        const r = spawnSync("cmd.exe", ["/c", "rmdir", cPath], { windowsHide: true, encoding: "utf8" });
         if (r.status !== 0) die(`rmdir junction failed for ${cPath}: ${r.stderr}`);
       }
     } else {
@@ -137,7 +137,7 @@ function backupAndJunction(subdir) {
   // Create junction.
   info(`  [link] ${subdir}  mklink /J  "${cPath}"  "${hPath}"`);
   if (!dryRun) {
-    const r = spawnSync("cmd.exe", ["/c", "mklink", "/J", cPath, hPath], { encoding: "utf8" });
+    const r = spawnSync("cmd.exe", ["/c", "mklink", "/J", cPath, hPath], { windowsHide: true, encoding: "utf8" });
     if (r.status !== 0) die(`mklink failed for ${cPath}: ${r.stderr || r.stdout}`);
   }
 

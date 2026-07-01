@@ -1,0 +1,143 @@
+{
+  "schemaVersion": "1.0.0",
+  "id": "PPG-MS3",
+  "version": "1.0.0",
+  "title": "PPG-MS3 — Ultimate Wire EDM Master Post (Fusion has no WEDM CPS)",
+  "track": "PPG",
+  "parent_roadmap": "PRISM-UNIFIED-ROADMAP-v2",
+  "pillar": "P3-PPG-SFC-LEARNING-LOOP",
+  "status": "not_started",
+  "created_at": "2026-04-28T21:30:00.000Z",
+  "last_updated": "2026-04-29T15:12:31.240Z",
+  "total_units": 10,
+  "completed_units": 0,
+  "description": "Builds the WEDM master post that Fusion 360 does not provide. Covers 5 controller dialects (Mitsubishi M700V/M800, Sodick MotionLink, AgieCharmilles CC100/CT, Makino, Fanuc 31i WEDM) with full multi-pass skim schedule, taper compensation, wire tension/flush per-pass, thermal recast prediction, and corner overcut compensation. Inherits the sidecar bridge from PPG-MS0.",
+  "rationale": "JM Die's Mitsubishi MV1200R is the highest-margin machine in the shop, and the existing PPG-WIRE-MS0 wired the engine to MCP — but the engine itself was a 1-pass placeholder. Real production WEDM needs 4-6 skim passes with pass-specific energy, wire tension, flush pressure, and offset table. No CAM vendor (Fusion, Mastercam, hyperMILL) ships a usable WEDM post for the M800. PRISM owns this gap.",
+  "leverage_existing": [
+    "MitsubishiMV1200RWireEDMMasterPostEngine — basic engine wired in PPG-WIRE-MS0/U-PPGW03 (26 tests). PPG-MS3 EXTENDS it to full multi-pass schedule rather than re-implementing.",
+    "WEDMPostMitsubishi/Sodick/Makino/Fanuc/Agie — 5 dialect emitters (currently emit-only, do not call physics)",
+    "RecastLayerEngine — recast layer thickness per pass (formerly cited as WEDMThermalRecastEngine)",
+    "EDMWireSlugCornerTaperEngine — corner radius / taper geometry compensation (formerly cited as WEDMCornerOvercut/WEDMTaperCompensationEngine)",
+    "EDMCuttingParamFlushEngine — flush adequacy (formerly cited as WEDMFlushAdequacyEngine)",
+    "EDMMultiPassStrategyEngine — multi-pass plan (formerly cited as WEDMMultiPassPlanEngine)",
+    "edm_corner_taper_analyze + wedm_multi_pass_plan dispatcher actions (already exist, currently unwired to posts)",
+    "NEW engines required (subject to /dedup verification): WEDMWireStressAnalysisEngine (wire tension safe envelope, breakage probability) — created in U-PPGM21b; WEDMTaperUVCompensationEngine if EDMWireSlugCornerTaperEngine does not cover full UV taper offsets — confirmed in U-PPGM20b",
+    "WEDM engine pool (144 engines actually exist; wedm-engine-registry.ts shows 55 — STALE, queue refresh in U-PPGM26b)",
+    "WEDMLatticeGraphEngine — 62-engine 64-dim GNN (lift to generic PrismLatticeGraph for cross-domain reuse in PPG-MS9)",
+    "WEDMPrototypicalNetwork — ProtoMAML for new-material few-shot (already used in PPG-MS9; promote shared module)",
+    "WEDMGraphAttention — graph attention over engine lattice (lift to generic PrismGraphAttention)",
+    "WEDMRecastMLEngine — ML-driven recast prediction (overlay on RecastLayerEngine physics)",
+    "WEDMHazPredictEngine + WEDMHazStockAllowanceEngine — heat-affected-zone allowance",
+    "WEDMSparkErosionModelEngine + WEDMMaterialSparkDatabaseEngine + WEDMGapVoltageEngine + WEDMMRREngine — core spark erosion physics",
+    "WEDMWireDeflectionEngine + WEDMWireFlushDeflectionEngine + WEDMWireHeatingJouleEngine + WEDMWireHeatingRACascadeEngine — wire mechanics",
+    "WEDMThinWireDerateEngine — sub-0.1mm wire current derating",
+    "WEDMKerfOverkerfEngine + WEDMKerfWidthEngine + WEDMKerfRoughnessEngine — kerf prediction",
+    "WEDMSafetyGateEngine + WEDMUnitTagEngine + WEDMHeadClearanceEngine + WEDMFlushAdequacyEngine + WEDMThermalReleaseEngine + WEDMDialectVerifyEngine — 6 emit-time gates",
+    "WEDMTribalRuntimeEngine + WEDMTipLearnerEngine + WEDMTribalPlaybookEngine — tribal/learning"
+  ],
+  "the_worked_example_that_proves_it": {
+    "scenario": "JM Die D2 fastener die, 12 mm thick, 4° taper, 0.25 mm corner radius. Mitsubishi MV1200R.",
+    "today_pre_ppg_ms3": "Programmer hand-codes the skim schedule from a paper schedule sheet. Forgets to derate flush pressure on skim 4 → wire breaks twice on the corner → 90 min lost.",
+    "should_be_post_ppg_ms3": "Wizard generates 5-pass skim (rough → 4 skims) with pass-specific E (energy), TON, TOFF, IP, wire tension, flush. Corner overcut compensated (predicted 8 µm, programmed offset adjusts). Recast layer predicted ≤2 µm. Wire-break probability <0.5% per pass. Cuts first try, finishes spec.",
+    "gap_now_closed": "Highest-margin JM Die machine has a production-grade post that no CAM vendor ships."
+  },
+  "units": [
+    {
+      "id": "U-PPGM19",
+      "title": "Multi-pass skim schedule generator",
+      "scope": "Wire EDMMultiPassStrategyEngine (correct name) into MitsubishiMV1200RWireEDMMasterPostEngine; emit per-pass (E, TON, TOFF, IP, servo voltage, wire tension, flush). Inherits basic engine wiring from PPG-WIRE-MS0/U-PPGW03 — does NOT rebuild it."
+    },
+    {
+      "id": "U-PPGM20",
+      "title": "Taper compensation in toolpath emit",
+      "scope": "Per-pass UV taper offsets via EDMWireSlugCornerTaperEngine; if tests reveal a gap on full taper schedule, U-PPGM20b creates WEDMTaperUVCompensationEngine after /dedup check."
+    },
+    {
+      "id": "U-PPGM21",
+      "title": "Wire tension + flush per-pass",
+      "scope": "Wire EDMCuttingParamFlushEngine (correct name) for flush + create WEDMWireStressAnalysisEngine (after /dedup check) for tension safe envelope; pass-specific overrides."
+    },
+    {
+      "id": "U-PPGM22",
+      "title": "Thermal recast prediction overlay",
+      "scope": "RecastLayerEngine (correct name) result emitted into setup sheet; wizard overlays expected recast vs spec ceiling."
+    },
+    {
+      "id": "U-PPGM23",
+      "title": "Corner overcut compensation",
+      "scope": "Wire EDMWireSlugCornerTaperEngine into post; pre-shrink corner radius by predicted overcut; verify with golden parts."
+    },
+    {
+      "id": "U-PPGM24",
+      "title": "5-dialect emitter coverage (Mitsubishi M700V/M800, Sodick MotionLink, AgieCharmilles, Makino, Fanuc-31i WEDM)",
+      "scope": "Each WEDMPost* emitter promoted from emit-only to physics-aware; sidecar physics constants per dialect"
+    },
+    {
+      "id": "U-PPGM25",
+      "title": "Wizard WEDM mode (pass count, taper, no-core, glue-stop)",
+      "scope": "web/src/components/ppg/WEDMWizardPanel.tsx — full multi-pass UI with per-pass param table editable"
+    },
+    {
+      "id": "U-PPGM26",
+      "title": "Prove-out + cut-time regression tests",
+      "scope": "10 golden WEDM programs (D2/M2/H13/carbide); assert recast ≤spec, wire-break prob <0.5%, cut-time within ±5% of measured shop value"
+    },
+    {
+      "id": "U-PPGM26b",
+      "title": "Refresh wedm-engine-registry.ts (55 → 144 engines)",
+      "scope": "Audit src/engines/WEDM*.ts (currently 144 files); rebuild src/data/wedm-engine-registry.ts entries with capability + dispatcher route + test-coverage flag; assert MS3 leverage_existing matches a non-empty subset.",
+      "files_to_modify": [
+        "src/data/wedm-engine-registry.ts"
+      ],
+      "tests_to_add": [
+        "src/__tests__/WEDMEngineRegistryFreshness.test.ts"
+      ]
+    },
+    {
+      "id": "U-PPGM26c",
+      "title": "Lift WEDMLatticeGraph + ProtoMAML + GraphAttention to generic PrismLattice* (consumed by PPG-MS9)",
+      "scope": "Extract reusable lattice infrastructure into src/engines/PrismLatticeGraphEngine.ts + PrismPrototypicalNetworkEngine.ts + PrismGraphAttentionEngine.ts; WEDM versions become thin wrappers; PPG-MS9 ProtoMAML wiring consumes the generic layer instead of WEDM-specific. Variability sweep: ≥3 reference materials exercising the generic layer (D2 hard die, 4140 prehard, 17-4PH stainless) × ≥3 operations (multi-pass skim, taper, thin-wire <0.1mm) × ≥3 dialects (Mitsubishi M800, Sodick MotionLink, AgieCharmilles). Adversarial: (a) empty embedding query — must return canonical fallback; (b) circular cross-reference in lattice — must detect cycle and fail closed; (c) ProtoMAML transfer source = nearest-neighbor with cosine sim <0.3 — must flag low-confidence transfer.",
+      "files_to_modify": [
+        "src/engines/PrismLatticeGraphEngine.ts",
+        "src/engines/PrismPrototypicalNetworkEngine.ts",
+        "src/engines/PrismGraphAttentionEngine.ts",
+        "src/engines/WEDMLatticeGraphEngine.ts",
+        "src/engines/WEDMPrototypicalNetwork.ts",
+        "src/engines/WEDMGraphAttention.ts"
+      ],
+      "tests_to_add": [
+        "src/__tests__/PrismLatticeGraphPromotion.test.ts"
+      ]
+    }
+  ],
+  "completion_criteria": [
+    "All 5 WEDM dialects emit physics-aware multi-pass programs from the wizard",
+    "Mitsubishi MV1200R end-to-end: 5-pass schedule, taper compensation, recast/wire/flush all sourced from physics engines, not hard-coded",
+    "Prove-out passes 10/10 golden programs; recast ≤spec on every pass; predicted wire-break <0.5% per pass measured across ≥600 spark-cuts (statistically significant sample); cut-time within ±5% of measured shop value",
+    "Corner overcut compensation verified on real cut: nominal radius within 5 µm of programmed",
+    "wedm-engine-registry.ts reflects all 144 WEDM engines with dispatcher routes",
+    "PrismLatticeGraph + PrismPrototypicalNetwork + PrismGraphAttention generic layer extracted; WEDM-specific engines pass through; PPG-MS9 consumes generic"
+  ],
+  "depends_on": [
+    "PPG-MS0",
+    "PPG-WIRE-MS0",
+    "PPG-MS18"
+  ],
+  "blocks": [
+    "PPG-MS4",
+    "PPG-MS6"
+  ],
+  "_patches": [
+    "ppg-leverage-16-2026-04-29",
+    "ppg-fixes-round2-2026-04-29",
+    "ppg-round4-gapfills-2026-04-29"
+  ],
+  "_graph_reciprocity_patch": "ppg-fixes-round2-2026-04-29",
+  "forward_references_2026_04_29": {
+    "note": "These engines are TO-BE-BUILT in this milestone's units; they appear in leverage_existing as forward references (the units in this same milestone create them) — not as historical assets. R4-S02 'broken citation' verdicts are misleading for forward-refs; the milestone IS the build site.",
+    "forward_ref_engines": [
+      "WEDMTaperUVCompensationEngine",
+      "WEDMWireStressAnalysisEngine"
+    ]
+  }
+}

@@ -228,11 +228,12 @@ export class PPGDialectRankerEngine {
 
       try {
         const ragResult = PPGRAGDialectMatchEngine.match({
-          controller_family: firstCandidate.controller_family,
+          controller: firstCandidate.controller_family,
           material: query.material,
-          operation_types: [firstCandidate.operation_type],
-          top_k: 10,
-          include_tips: true,
+          operation: firstCandidate.operation_type,
+          top_k_programs: 10,
+          top_k_tips: 10,
+          min_score: 0.2,
         });
 
         if (ragResult.ok) {

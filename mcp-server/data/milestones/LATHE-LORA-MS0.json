@@ -1,0 +1,2378 @@
+{
+  "schemaVersion": 1,
+  "id": "LATHE-LORA-MS0",
+  "title": "LatheLoRA Fine-Tuning Pipeline with Deep AI Integration",
+  "track": "AI-LATHE",
+  "version": "1.0.0",
+  "created_at": "2026-04-18T18:00:00Z",
+  "status": "in_progress",
+  "total_units": 50,
+  "completed_units": 23,
+  "sessions": 19,
+  "estimated_hours": "24-32",
+  "complexity": "XL",
+  "description": "Complete LatheLoRA fine-tuning pipeline for local G-code generation with full PRISM AI integration including deep learning, reasoning, adaptive control, neural networks, knowledge graphs, ensemble methods, and meta-learning.",
+  "dependencies": [],
+  "ai_systems_integrated": {
+    "deep_learning": 56,
+    "reasoning": 83,
+    "adaptive": 26,
+    "neural": 25,
+    "ensemble": 4,
+    "meta_learning": 4,
+    "knowledge_graph": 6,
+    "transfer_learning": 3,
+    "reinforcement": 4,
+    "total_available": 211
+  },
+  "knowledge_sources": {
+    "jm_die_archive": "H:/PRISM/JM DIE/CNC LATHE",
+    "program_count": 5297,
+    "tribal_tips": 3700,
+    "playbook_rules": 296,
+    "formulas": [
+      "Kienzle",
+      "Taylor",
+      "Deflection"
+    ],
+    "physics_engines": [
+      "CuttingForceEngine",
+      "TurningForceEngine",
+      "ToolLifeEngine",
+      "TurningWearPredictionEngine",
+      "ToolDeflectionEngine",
+      "BoringBarDeflectionEngine",
+      "ThermalExpansionEngine",
+      "LatheThermodynamicsEngine",
+      "ChatterStabilityLobeEngine",
+      "ChuckJawForceEngine",
+      "SafetyVetoEngine"
+    ],
+    "constants_reference": "src/physics/constants.ts",
+    "existing_engines_to_wire": [
+      "LatheEnsembleLearningEngine",
+      "LatheMetaLearningEngine",
+      "LatheAdaptiveMachiningEngine",
+      "LatheNeuralIntelligenceEngine",
+      "LatheKnowledgeGraphEngine",
+      "LatheDeepReasoningEngine",
+      "LatheAIReasoningEngine",
+      "LatheTransferLearningEngine",
+      "LatheReinforcementLearningEngine",
+      "LatheActiveLearningEngine",
+      "LatheBayesianOptimizationEngine",
+      "LatheTransformerEngine",
+      "LatheAttentionMechanismEngine",
+      "LatheAnomalyDetectionEngine",
+      "LatheDeepLearningEngine",
+      "LatheDeepLearningIntelligenceEngine",
+      "LatheUnifiedAIOrchestrator",
+      "LatheTribalInjectorEngine",
+      "PRISMLoRAAdapterEngine",
+      "TribalKnowledgeEngine",
+      "MachiningPlaybookEngine"
+    ],
+    "wire_not_rebuild_note": "Check existing engines before creating — use duplicationGuardEngine.checkBeforeCreating()",
+    "orphan_tip_files_to_wire": [
+      "lathe-tribal-tips-okuma.ts — Okuma OSP tips, NOT imported by TribalKnowledgeEngine",
+      "lathe-physics-science-tips.ts — Kienzle/Taylor tips, NOT imported by TribalKnowledgeEngine"
+    ],
+    "pre_phase2_task": "Wire orphan tip files into TribalKnowledgeEngine imports before U-LLR05",
+    "safety_integration": {
+      "engine": "SafetyVetoEngine",
+      "rules": [
+        "collision",
+        "force_limit",
+        "spindle_limit",
+        "feed_limit",
+        "thermal",
+        "deflection",
+        "chatter",
+        "coolant"
+      ],
+      "s_x_threshold": 0.7
+    }
+  },
+  "phases": [
+    {
+      "phase": 1,
+      "title": "Foundation — Engine Porting & Registry Setup",
+      "units": [
+        {
+          "id": "U-LLR01",
+          "title": "U-LLR01 — LATHE-LORA-MS0 unit 1",
+          "description": "LATHE-LORA-MS0 unit 1. Follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP). Consult KNOWLEDGE_SOURCES before coding. Forge-triple ownership declared in milestone header.",
+          "exit_conditions": [
+            "Implementation complete per unit description",
+            "Tests pass: npx vitest run (≥10 cases for engines)",
+            "Typecheck clean: npx tsc --noEmit on touched files",
+            "Machinist-acceptance: output matches reference within ±10%"
+          ],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "status": "pending"
+        },
+        {
+          "id": "U-LLR02",
+          "title": "U-LLR02 — LATHE-LORA-MS0 unit 2",
+          "description": "LATHE-LORA-MS0 unit 2. Follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP). Consult KNOWLEDGE_SOURCES before coding. Forge-triple ownership declared in milestone header.",
+          "exit_conditions": [
+            "Implementation complete per unit description",
+            "Tests pass: npx vitest run (≥10 cases for engines)",
+            "Typecheck clean: npx tsc --noEmit on touched files",
+            "Machinist-acceptance: output matches reference within ±10%"
+          ],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "status": "pending"
+        },
+        {
+          "id": "U-LLR03",
+          "title": "U-LLR03 — LATHE-LORA-MS0 unit 3",
+          "description": "LATHE-LORA-MS0 unit 3. Follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP). Consult KNOWLEDGE_SOURCES before coding. Forge-triple ownership declared in milestone header.",
+          "exit_conditions": [
+            "Implementation complete per unit description",
+            "Tests pass: npx vitest run (≥10 cases for engines)",
+            "Typecheck clean: npx tsc --noEmit on touched files",
+            "Machinist-acceptance: output matches reference within ±10%"
+          ],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "status": "pending"
+        },
+        {
+          "id": "U-LLR04",
+          "title": "U-LLR04 — LATHE-LORA-MS0 unit 4",
+          "description": "LATHE-LORA-MS0 unit 4. Follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP). Consult KNOWLEDGE_SOURCES before coding. Forge-triple ownership declared in milestone header.",
+          "exit_conditions": [
+            "Implementation complete per unit description",
+            "Tests pass: npx vitest run (≥10 cases for engines)",
+            "Typecheck clean: npx tsc --noEmit on touched files",
+            "Machinist-acceptance: output matches reference within ±10%"
+          ],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "status": "pending"
+        },
+        {
+          "id": "U-LLLO05",
+          "legacy_id": "U-LLR04a",
+          "title": "U-LLLO05 — LATHE-LORA-MS0 unit 5",
+          "description": "LATHE-LORA-MS0 unit 5. Follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP). Consult KNOWLEDGE_SOURCES before coding. Forge-triple ownership declared in milestone header.",
+          "exit_conditions": [
+            "Implementation complete per unit description",
+            "Tests pass: npx vitest run (≥10 cases for engines)",
+            "Typecheck clean: npx tsc --noEmit on touched files",
+            "Machinist-acceptance: output matches reference within ±10%"
+          ],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "status": "pending"
+        },
+        {
+          "id": "U-LLLO06",
+          "legacy_id": "U-LLR04b",
+          "title": "U-LLLO06 — LATHE-LORA-MS0 unit 6",
+          "description": "LATHE-LORA-MS0 unit 6. Follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP). Consult KNOWLEDGE_SOURCES before coding. Forge-triple ownership declared in milestone header.",
+          "exit_conditions": [
+            "Implementation complete per unit description",
+            "Tests pass: npx vitest run (≥10 cases for engines)",
+            "Typecheck clean: npx tsc --noEmit on touched files",
+            "Machinist-acceptance: output matches reference within ±10%"
+          ],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "status": "pending"
+        },
+        {
+          "id": "U-LLLO07",
+          "legacy_id": "U-LLR04c",
+          "title": "U-LLLO07 — LATHE-LORA-MS0 unit 7",
+          "description": "LATHE-LORA-MS0 unit 7. Follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP). Consult KNOWLEDGE_SOURCES before coding. Forge-triple ownership declared in milestone header.",
+          "exit_conditions": [
+            "Implementation complete per unit description",
+            "Tests pass: npx vitest run (≥10 cases for engines)",
+            "Typecheck clean: npx tsc --noEmit on touched files",
+            "Machinist-acceptance: output matches reference within ±10%"
+          ],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "status": "pending"
+        }
+      ],
+      "sessions": [
+        1,
+        2
+      ],
+      "forge_triple": {
+        "hook": "lathe-lora-engine-validation",
+        "action": "prism_ai:lathe_lora_status",
+        "skill": "/lathe-lora"
+      }
+    },
+    {
+      "phase": 2,
+      "title": "Dataset Intelligence — Deep Learning Integration",
+      "units": [
+        {
+          "id": "U-LLR05",
+          "title": "U-LLR05 — LATHE-LORA-MS0 unit 1",
+          "description": "LATHE-LORA-MS0 unit 1. Follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP). Consult KNOWLEDGE_SOURCES before coding. Forge-triple ownership declared in milestone header.",
+          "exit_conditions": [
+            "Implementation complete per unit description",
+            "Tests pass: npx vitest run (≥10 cases for engines)",
+            "Typecheck clean: npx tsc --noEmit on touched files",
+            "Machinist-acceptance: output matches reference within ±10%"
+          ],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "status": "pending"
+        },
+        {
+          "id": "U-LLR06",
+          "title": "U-LLR06 — LATHE-LORA-MS0 unit 2",
+          "description": "LATHE-LORA-MS0 unit 2. Follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP). Consult KNOWLEDGE_SOURCES before coding. Forge-triple ownership declared in milestone header.",
+          "exit_conditions": [
+            "Implementation complete per unit description",
+            "Tests pass: npx vitest run (≥10 cases for engines)",
+            "Typecheck clean: npx tsc --noEmit on touched files",
+            "Machinist-acceptance: output matches reference within ±10%"
+          ],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "status": "pending"
+        },
+        {
+          "id": "U-LLR07",
+          "title": "U-LLR07 — LATHE-LORA-MS0 unit 3",
+          "description": "LATHE-LORA-MS0 unit 3. Follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP). Consult KNOWLEDGE_SOURCES before coding. Forge-triple ownership declared in milestone header.",
+          "exit_conditions": [
+            "Implementation complete per unit description",
+            "Tests pass: npx vitest run (≥10 cases for engines)",
+            "Typecheck clean: npx tsc --noEmit on touched files",
+            "Machinist-acceptance: output matches reference within ±10%"
+          ],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "status": "pending"
+        },
+        {
+          "id": "U-LLR08",
+          "title": "U-LLR08 — LATHE-LORA-MS0 unit 4",
+          "description": "LATHE-LORA-MS0 unit 4. Follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP). Consult KNOWLEDGE_SOURCES before coding. Forge-triple ownership declared in milestone header.",
+          "exit_conditions": [
+            "Implementation complete per unit description",
+            "Tests pass: npx vitest run (≥10 cases for engines)",
+            "Typecheck clean: npx tsc --noEmit on touched files",
+            "Machinist-acceptance: output matches reference within ±10%"
+          ],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "status": "pending"
+        }
+      ],
+      "sessions": [
+        3,
+        4
+      ],
+      "forge_triple": {
+        "hook": "lathe-lora-dataset-quality",
+        "action": "prism_ai:lathe_lora_build_dataset",
+        "skill": "/lathe-lora build"
+      }
+    },
+    {
+      "phase": 3,
+      "title": "Training Intelligence — Adaptive Learning",
+      "units": [
+        {
+          "id": "U-LLR09",
+          "title": "U-LLR09 — LATHE-LORA-MS0 unit 1",
+          "description": "LATHE-LORA-MS0 unit 1. Follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP). Consult KNOWLEDGE_SOURCES before coding. Forge-triple ownership declared in milestone header.",
+          "exit_conditions": [
+            "Implementation complete per unit description",
+            "Tests pass: npx vitest run (≥10 cases for engines)",
+            "Typecheck clean: npx tsc --noEmit on touched files",
+            "Machinist-acceptance: output matches reference within ±10%"
+          ],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "status": "pending"
+        },
+        {
+          "id": "U-LLR10",
+          "title": "U-LLR10 — LATHE-LORA-MS0 unit 2",
+          "description": "LATHE-LORA-MS0 unit 2. Follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP). Consult KNOWLEDGE_SOURCES before coding. Forge-triple ownership declared in milestone header.",
+          "exit_conditions": [
+            "Implementation complete per unit description",
+            "Tests pass: npx vitest run (≥10 cases for engines)",
+            "Typecheck clean: npx tsc --noEmit on touched files",
+            "Machinist-acceptance: output matches reference within ±10%"
+          ],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "status": "pending"
+        },
+        {
+          "id": "U-LLR11",
+          "title": "U-LLR11 — LATHE-LORA-MS0 unit 3",
+          "description": "LATHE-LORA-MS0 unit 3. Follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP). Consult KNOWLEDGE_SOURCES before coding. Forge-triple ownership declared in milestone header.",
+          "exit_conditions": [
+            "Implementation complete per unit description",
+            "Tests pass: npx vitest run (≥10 cases for engines)",
+            "Typecheck clean: npx tsc --noEmit on touched files",
+            "Machinist-acceptance: output matches reference within ±10%"
+          ],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "status": "pending"
+        },
+        {
+          "id": "U-LLR12",
+          "title": "U-LLR12 — LATHE-LORA-MS0 unit 4",
+          "description": "LATHE-LORA-MS0 unit 4. Follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP). Consult KNOWLEDGE_SOURCES before coding. Forge-triple ownership declared in milestone header.",
+          "exit_conditions": [
+            "Implementation complete per unit description",
+            "Tests pass: npx vitest run (≥10 cases for engines)",
+            "Typecheck clean: npx tsc --noEmit on touched files",
+            "Machinist-acceptance: output matches reference within ±10%"
+          ],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "status": "pending"
+        }
+      ],
+      "sessions": [
+        5,
+        6
+      ],
+      "forge_triple": {
+        "hook": "lathe-lora-training-guard",
+        "action": "prism_ai:lathe_lora_generate_training",
+        "skill": "/lathe-lora train"
+      }
+    },
+    {
+      "phase": 4,
+      "title": "Evaluation Intelligence — Multi-Dimensional Assessment",
+      "units": [
+        {
+          "id": "U-LLR13",
+          "title": "U-LLR13 — LATHE-LORA-MS0 unit 1",
+          "description": "LATHE-LORA-MS0 unit 1. Follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP). Consult KNOWLEDGE_SOURCES before coding. Forge-triple ownership declared in milestone header.",
+          "exit_conditions": [
+            "Implementation complete per unit description",
+            "Tests pass: npx vitest run (≥10 cases for engines)",
+            "Typecheck clean: npx tsc --noEmit on touched files",
+            "Machinist-acceptance: output matches reference within ±10%"
+          ],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "status": "pending"
+        },
+        {
+          "id": "U-LLR14",
+          "title": "U-LLR14 — LATHE-LORA-MS0 unit 2",
+          "description": "LATHE-LORA-MS0 unit 2. Follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP). Consult KNOWLEDGE_SOURCES before coding. Forge-triple ownership declared in milestone header.",
+          "exit_conditions": [
+            "Implementation complete per unit description",
+            "Tests pass: npx vitest run (≥10 cases for engines)",
+            "Typecheck clean: npx tsc --noEmit on touched files",
+            "Machinist-acceptance: output matches reference within ±10%"
+          ],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "status": "pending"
+        },
+        {
+          "id": "U-LLR15",
+          "title": "U-LLR15 — LATHE-LORA-MS0 unit 3",
+          "description": "LATHE-LORA-MS0 unit 3. Follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP). Consult KNOWLEDGE_SOURCES before coding. Forge-triple ownership declared in milestone header.",
+          "exit_conditions": [
+            "Implementation complete per unit description",
+            "Tests pass: npx vitest run (≥10 cases for engines)",
+            "Typecheck clean: npx tsc --noEmit on touched files",
+            "Machinist-acceptance: output matches reference within ±10%"
+          ],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "status": "pending"
+        },
+        {
+          "id": "U-LLR16",
+          "title": "U-LLR16 — LATHE-LORA-MS0 unit 4",
+          "description": "LATHE-LORA-MS0 unit 4. Follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP). Consult KNOWLEDGE_SOURCES before coding. Forge-triple ownership declared in milestone header.",
+          "exit_conditions": [
+            "Implementation complete per unit description",
+            "Tests pass: npx vitest run (≥10 cases for engines)",
+            "Typecheck clean: npx tsc --noEmit on touched files",
+            "Machinist-acceptance: output matches reference within ±10%"
+          ],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "status": "pending"
+        }
+      ],
+      "sessions": [
+        7,
+        8
+      ],
+      "forge_triple": {
+        "hook": "lathe-lora-eval-physics",
+        "action": "prism_ai:lathe_lora_evaluate",
+        "skill": "/lathe-lora eval"
+      }
+    },
+    {
+      "phase": 5,
+      "title": "Model Merging & Optimization",
+      "units": [
+        {
+          "id": "U-LLR17",
+          "title": "U-LLR17 — LATHE-LORA-MS0 unit 1",
+          "description": "LATHE-LORA-MS0 unit 1. Follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP). Consult KNOWLEDGE_SOURCES before coding. Forge-triple ownership declared in milestone header.",
+          "exit_conditions": [
+            "Implementation complete per unit description",
+            "Tests pass: npx vitest run (≥10 cases for engines)",
+            "Typecheck clean: npx tsc --noEmit on touched files",
+            "Machinist-acceptance: output matches reference within ±10%"
+          ],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "status": "pending"
+        },
+        {
+          "id": "U-LLR18",
+          "title": "U-LLR18 — LATHE-LORA-MS0 unit 2",
+          "description": "LATHE-LORA-MS0 unit 2. Follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP). Consult KNOWLEDGE_SOURCES before coding. Forge-triple ownership declared in milestone header.",
+          "exit_conditions": [
+            "Implementation complete per unit description",
+            "Tests pass: npx vitest run (≥10 cases for engines)",
+            "Typecheck clean: npx tsc --noEmit on touched files",
+            "Machinist-acceptance: output matches reference within ±10%"
+          ],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "status": "pending"
+        },
+        {
+          "id": "U-LLR19",
+          "title": "U-LLR19 — LATHE-LORA-MS0 unit 3",
+          "description": "LATHE-LORA-MS0 unit 3. Follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP). Consult KNOWLEDGE_SOURCES before coding. Forge-triple ownership declared in milestone header.",
+          "exit_conditions": [
+            "Implementation complete per unit description",
+            "Tests pass: npx vitest run (≥10 cases for engines)",
+            "Typecheck clean: npx tsc --noEmit on touched files",
+            "Machinist-acceptance: output matches reference within ±10%"
+          ],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "status": "pending"
+        },
+        {
+          "id": "U-LLR20",
+          "title": "U-LLR20 — LATHE-LORA-MS0 unit 4",
+          "description": "LATHE-LORA-MS0 unit 4. Follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP). Consult KNOWLEDGE_SOURCES before coding. Forge-triple ownership declared in milestone header.",
+          "exit_conditions": [
+            "Implementation complete per unit description",
+            "Tests pass: npx vitest run (≥10 cases for engines)",
+            "Typecheck clean: npx tsc --noEmit on touched files",
+            "Machinist-acceptance: output matches reference within ±10%"
+          ],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "status": "pending"
+        }
+      ],
+      "sessions": [
+        9,
+        10
+      ],
+      "forge_triple": {
+        "hook": "lathe-lora-merge-validation",
+        "action": "prism_ai:lathe_lora_merge_quant",
+        "skill": "/lathe-lora merge"
+      }
+    },
+    {
+      "phase": 6,
+      "title": "Deployment Intelligence — Ollama Integration",
+      "units": [
+        {
+          "id": "U-LLR21",
+          "title": "U-LLR21 — LATHE-LORA-MS0 unit 1",
+          "description": "LATHE-LORA-MS0 unit 1. Follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP). Consult KNOWLEDGE_SOURCES before coding. Forge-triple ownership declared in milestone header.",
+          "exit_conditions": [
+            "Implementation complete per unit description",
+            "Tests pass: npx vitest run (≥10 cases for engines)",
+            "Typecheck clean: npx tsc --noEmit on touched files",
+            "Machinist-acceptance: output matches reference within ±10%"
+          ],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "status": "pending"
+        },
+        {
+          "id": "U-LLR22",
+          "title": "U-LLR22 — LATHE-LORA-MS0 unit 2",
+          "description": "LATHE-LORA-MS0 unit 2. Follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP). Consult KNOWLEDGE_SOURCES before coding. Forge-triple ownership declared in milestone header.",
+          "exit_conditions": [
+            "Implementation complete per unit description",
+            "Tests pass: npx vitest run (≥10 cases for engines)",
+            "Typecheck clean: npx tsc --noEmit on touched files",
+            "Machinist-acceptance: output matches reference within ±10%"
+          ],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "status": "pending"
+        },
+        {
+          "id": "U-LLR23",
+          "title": "U-LLR23 — LATHE-LORA-MS0 unit 3",
+          "description": "LATHE-LORA-MS0 unit 3. Follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP). Consult KNOWLEDGE_SOURCES before coding. Forge-triple ownership declared in milestone header.",
+          "exit_conditions": [
+            "Implementation complete per unit description",
+            "Tests pass: npx vitest run (≥10 cases for engines)",
+            "Typecheck clean: npx tsc --noEmit on touched files",
+            "Machinist-acceptance: output matches reference within ±10%"
+          ],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "status": "pending"
+        },
+        {
+          "id": "U-LLR24",
+          "title": "U-LLR24 — LATHE-LORA-MS0 unit 4",
+          "description": "LATHE-LORA-MS0 unit 4. Follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP). Consult KNOWLEDGE_SOURCES before coding. Forge-triple ownership declared in milestone header.",
+          "exit_conditions": [
+            "Implementation complete per unit description",
+            "Tests pass: npx vitest run (≥10 cases for engines)",
+            "Typecheck clean: npx tsc --noEmit on touched files",
+            "Machinist-acceptance: output matches reference within ±10%"
+          ],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "status": "pending"
+        }
+      ],
+      "sessions": [
+        11,
+        12
+      ],
+      "forge_triple": {
+        "hook": "lathe-lora-deploy-safety",
+        "action": "prism_ai:lathe_lora_ollama_deploy",
+        "skill": "/lathe-lora deploy"
+      }
+    },
+    {
+      "phase": 7,
+      "title": "Inference Intelligence — Deep AI Integration",
+      "units": [
+        {
+          "id": "U-LLR25",
+          "title": "U-LLR25 — LATHE-LORA-MS0 unit 1",
+          "description": "LATHE-LORA-MS0 unit 1. Follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP). Consult KNOWLEDGE_SOURCES before coding. Forge-triple ownership declared in milestone header.",
+          "exit_conditions": [
+            "Implementation complete per unit description",
+            "Tests pass: npx vitest run (≥10 cases for engines)",
+            "Typecheck clean: npx tsc --noEmit on touched files",
+            "Machinist-acceptance: output matches reference within ±10%"
+          ],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "status": "pending"
+        },
+        {
+          "id": "U-LLR26",
+          "title": "U-LLR26 — LATHE-LORA-MS0 unit 2",
+          "description": "LATHE-LORA-MS0 unit 2. Follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP). Consult KNOWLEDGE_SOURCES before coding. Forge-triple ownership declared in milestone header.",
+          "exit_conditions": [
+            "Implementation complete per unit description",
+            "Tests pass: npx vitest run (≥10 cases for engines)",
+            "Typecheck clean: npx tsc --noEmit on touched files",
+            "Machinist-acceptance: output matches reference within ±10%"
+          ],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "status": "pending"
+        },
+        {
+          "id": "U-LLR27",
+          "title": "U-LLR27 — LATHE-LORA-MS0 unit 3",
+          "description": "LATHE-LORA-MS0 unit 3. Follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP). Consult KNOWLEDGE_SOURCES before coding. Forge-triple ownership declared in milestone header.",
+          "exit_conditions": [
+            "Implementation complete per unit description",
+            "Tests pass: npx vitest run (≥10 cases for engines)",
+            "Typecheck clean: npx tsc --noEmit on touched files",
+            "Machinist-acceptance: output matches reference within ±10%"
+          ],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "status": "pending"
+        },
+        {
+          "id": "U-LLR28",
+          "title": "U-LLR28 — LATHE-LORA-MS0 unit 4",
+          "description": "LATHE-LORA-MS0 unit 4. Follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP). Consult KNOWLEDGE_SOURCES before coding. Forge-triple ownership declared in milestone header.",
+          "exit_conditions": [
+            "Implementation complete per unit description",
+            "Tests pass: npx vitest run (≥10 cases for engines)",
+            "Typecheck clean: npx tsc --noEmit on touched files",
+            "Machinist-acceptance: output matches reference within ±10%"
+          ],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "status": "pending"
+        }
+      ],
+      "sessions": [
+        13,
+        14
+      ],
+      "forge_triple": {
+        "hook": "lathe-lora-inference-physics",
+        "action": "prism_ai:lathe_lora_inference",
+        "skill": "/lathe-lora infer"
+      }
+    },
+    {
+      "phase": 8,
+      "title": "Cadence Intelligence — Automated Retraining",
+      "units": [
+        {
+          "id": "U-LLR29",
+          "title": "U-LLR29 — LATHE-LORA-MS0 unit 1",
+          "description": "LATHE-LORA-MS0 unit 1. Follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP). Consult KNOWLEDGE_SOURCES before coding. Forge-triple ownership declared in milestone header.",
+          "exit_conditions": [
+            "Implementation complete per unit description",
+            "Tests pass: npx vitest run (≥10 cases for engines)",
+            "Typecheck clean: npx tsc --noEmit on touched files",
+            "Machinist-acceptance: output matches reference within ±10%"
+          ],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "status": "pending"
+        },
+        {
+          "id": "U-LLR30",
+          "title": "U-LLR30 — LATHE-LORA-MS0 unit 2",
+          "description": "LATHE-LORA-MS0 unit 2. Follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP). Consult KNOWLEDGE_SOURCES before coding. Forge-triple ownership declared in milestone header.",
+          "exit_conditions": [
+            "Implementation complete per unit description",
+            "Tests pass: npx vitest run (≥10 cases for engines)",
+            "Typecheck clean: npx tsc --noEmit on touched files",
+            "Machinist-acceptance: output matches reference within ±10%"
+          ],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "status": "pending"
+        },
+        {
+          "id": "U-LLR31",
+          "title": "U-LLR31 — LATHE-LORA-MS0 unit 3",
+          "description": "LATHE-LORA-MS0 unit 3. Follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP). Consult KNOWLEDGE_SOURCES before coding. Forge-triple ownership declared in milestone header.",
+          "exit_conditions": [
+            "Implementation complete per unit description",
+            "Tests pass: npx vitest run (≥10 cases for engines)",
+            "Typecheck clean: npx tsc --noEmit on touched files",
+            "Machinist-acceptance: output matches reference within ±10%"
+          ],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "status": "pending"
+        },
+        {
+          "id": "U-LLR32",
+          "title": "U-LLR32 — LATHE-LORA-MS0 unit 4",
+          "description": "LATHE-LORA-MS0 unit 4. Follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP). Consult KNOWLEDGE_SOURCES before coding. Forge-triple ownership declared in milestone header.",
+          "exit_conditions": [
+            "Implementation complete per unit description",
+            "Tests pass: npx vitest run (≥10 cases for engines)",
+            "Typecheck clean: npx tsc --noEmit on touched files",
+            "Machinist-acceptance: output matches reference within ±10%"
+          ],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "status": "pending"
+        }
+      ],
+      "sessions": [
+        15
+      ],
+      "forge_triple": {
+        "hook": "lathe-lora-cadence-guard",
+        "action": "prism_turning:lathe_lora_cadence_status",
+        "skill": "/lathe-lora cadence"
+      }
+    },
+    {
+      "phase": 9,
+      "title": "Neural Integration — Deep Neural Bridging",
+      "units": [
+        {
+          "id": "U-LLR33",
+          "title": "U-LLR33 — LATHE-LORA-MS0 unit 1",
+          "description": "LATHE-LORA-MS0 unit 1. Follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP). Consult KNOWLEDGE_SOURCES before coding. Forge-triple ownership declared in milestone header.",
+          "exit_conditions": [
+            "Implementation complete per unit description",
+            "Tests pass: npx vitest run (≥10 cases for engines)",
+            "Typecheck clean: npx tsc --noEmit on touched files",
+            "Machinist-acceptance: output matches reference within ±10%"
+          ],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "status": "pending"
+        },
+        {
+          "id": "U-LLR34",
+          "title": "U-LLR34 — LATHE-LORA-MS0 unit 2",
+          "description": "LATHE-LORA-MS0 unit 2. Follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP). Consult KNOWLEDGE_SOURCES before coding. Forge-triple ownership declared in milestone header.",
+          "exit_conditions": [
+            "Implementation complete per unit description",
+            "Tests pass: npx vitest run (≥10 cases for engines)",
+            "Typecheck clean: npx tsc --noEmit on touched files",
+            "Machinist-acceptance: output matches reference within ±10%"
+          ],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "status": "pending"
+        },
+        {
+          "id": "U-LLR35",
+          "title": "U-LLR35 — LATHE-LORA-MS0 unit 3",
+          "description": "LATHE-LORA-MS0 unit 3. Follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP). Consult KNOWLEDGE_SOURCES before coding. Forge-triple ownership declared in milestone header.",
+          "exit_conditions": [
+            "Implementation complete per unit description",
+            "Tests pass: npx vitest run (≥10 cases for engines)",
+            "Typecheck clean: npx tsc --noEmit on touched files",
+            "Machinist-acceptance: output matches reference within ±10%"
+          ],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "status": "pending"
+        },
+        {
+          "id": "U-LLR36",
+          "title": "U-LLR36 — LATHE-LORA-MS0 unit 4",
+          "description": "LATHE-LORA-MS0 unit 4. Follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP). Consult KNOWLEDGE_SOURCES before coding. Forge-triple ownership declared in milestone header.",
+          "exit_conditions": [
+            "Implementation complete per unit description",
+            "Tests pass: npx vitest run (≥10 cases for engines)",
+            "Typecheck clean: npx tsc --noEmit on touched files",
+            "Machinist-acceptance: output matches reference within ±10%"
+          ],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "status": "pending"
+        }
+      ],
+      "sessions": [
+        16
+      ],
+      "forge_triple": {
+        "hook": "lathe-lora-neural-safety",
+        "action": "prism_ai:lathe_lora_neural_orchestrate",
+        "skill": "/lathe-lora neural"
+      }
+    },
+    {
+      "phase": 10,
+      "title": "Knowledge Graph Integration",
+      "units": [
+        {
+          "id": "U-LLR37",
+          "title": "U-LLR37 — LATHE-LORA-MS0 unit 1",
+          "description": "LATHE-LORA-MS0 unit 1. Follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP). Consult KNOWLEDGE_SOURCES before coding. Forge-triple ownership declared in milestone header.",
+          "exit_conditions": [
+            "Implementation complete per unit description",
+            "Tests pass: npx vitest run (≥10 cases for engines)",
+            "Typecheck clean: npx tsc --noEmit on touched files",
+            "Machinist-acceptance: output matches reference within ±10%"
+          ],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "status": "pending"
+        },
+        {
+          "id": "U-LLR38",
+          "title": "U-LLR38 — LATHE-LORA-MS0 unit 2",
+          "description": "LATHE-LORA-MS0 unit 2. Follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP). Consult KNOWLEDGE_SOURCES before coding. Forge-triple ownership declared in milestone header.",
+          "exit_conditions": [
+            "Implementation complete per unit description",
+            "Tests pass: npx vitest run (≥10 cases for engines)",
+            "Typecheck clean: npx tsc --noEmit on touched files",
+            "Machinist-acceptance: output matches reference within ±10%"
+          ],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "status": "pending"
+        },
+        {
+          "id": "U-LLR39",
+          "title": "U-LLR39 — LATHE-LORA-MS0 unit 3",
+          "description": "LATHE-LORA-MS0 unit 3. Follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP). Consult KNOWLEDGE_SOURCES before coding. Forge-triple ownership declared in milestone header.",
+          "exit_conditions": [
+            "Implementation complete per unit description",
+            "Tests pass: npx vitest run (≥10 cases for engines)",
+            "Typecheck clean: npx tsc --noEmit on touched files",
+            "Machinist-acceptance: output matches reference within ±10%"
+          ],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "status": "pending"
+        },
+        {
+          "id": "U-LLR40",
+          "title": "U-LLR40 — LATHE-LORA-MS0 unit 4",
+          "description": "LATHE-LORA-MS0 unit 4. Follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP). Consult KNOWLEDGE_SOURCES before coding. Forge-triple ownership declared in milestone header.",
+          "exit_conditions": [
+            "Implementation complete per unit description",
+            "Tests pass: npx vitest run (≥10 cases for engines)",
+            "Typecheck clean: npx tsc --noEmit on touched files",
+            "Machinist-acceptance: output matches reference within ±10%"
+          ],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "status": "pending"
+        }
+      ],
+      "sessions": [
+        17
+      ],
+      "forge_triple": {
+        "hook": "lathe-lora-kg-validate",
+        "action": "prism_knowledge_ext:lathe_lora_kg_query",
+        "skill": "/lathe-lora knowledge"
+      }
+    },
+    {
+      "phase": 11,
+      "title": "Ensemble & Meta-Learning",
+      "units": [
+        {
+          "id": "U-LLR41",
+          "title": "U-LLR41 — LATHE-LORA-MS0 unit 1",
+          "description": "LATHE-LORA-MS0 unit 1. Follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP). Consult KNOWLEDGE_SOURCES before coding. Forge-triple ownership declared in milestone header.",
+          "exit_conditions": [
+            "Implementation complete per unit description",
+            "Tests pass: npx vitest run (≥10 cases for engines)",
+            "Typecheck clean: npx tsc --noEmit on touched files",
+            "Machinist-acceptance: output matches reference within ±10%"
+          ],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "status": "pending"
+        },
+        {
+          "id": "U-LLR42",
+          "title": "U-LLR42 — LATHE-LORA-MS0 unit 2",
+          "description": "LATHE-LORA-MS0 unit 2. Follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP). Consult KNOWLEDGE_SOURCES before coding. Forge-triple ownership declared in milestone header.",
+          "exit_conditions": [
+            "Implementation complete per unit description",
+            "Tests pass: npx vitest run (≥10 cases for engines)",
+            "Typecheck clean: npx tsc --noEmit on touched files",
+            "Machinist-acceptance: output matches reference within ±10%"
+          ],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "status": "pending"
+        },
+        {
+          "id": "U-LLR43",
+          "title": "U-LLR43 — LATHE-LORA-MS0 unit 3",
+          "description": "LATHE-LORA-MS0 unit 3. Follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP). Consult KNOWLEDGE_SOURCES before coding. Forge-triple ownership declared in milestone header.",
+          "exit_conditions": [
+            "Implementation complete per unit description",
+            "Tests pass: npx vitest run (≥10 cases for engines)",
+            "Typecheck clean: npx tsc --noEmit on touched files",
+            "Machinist-acceptance: output matches reference within ±10%"
+          ],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "status": "pending"
+        },
+        {
+          "id": "U-LLR44",
+          "title": "U-LLR44 — LATHE-LORA-MS0 unit 4",
+          "description": "LATHE-LORA-MS0 unit 4. Follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP). Consult KNOWLEDGE_SOURCES before coding. Forge-triple ownership declared in milestone header.",
+          "exit_conditions": [
+            "Implementation complete per unit description",
+            "Tests pass: npx vitest run (≥10 cases for engines)",
+            "Typecheck clean: npx tsc --noEmit on touched files",
+            "Machinist-acceptance: output matches reference within ±10%"
+          ],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "status": "pending"
+        }
+      ],
+      "sessions": [
+        18
+      ],
+      "forge_triple": {
+        "hook": "lathe-lora-ensemble-consensus",
+        "action": "prism_ai:lathe_lora_ensemble",
+        "skill": "/lathe-lora ensemble"
+      }
+    },
+    {
+      "phase": 12,
+      "title": "Unified Orchestration & Skill Integration",
+      "units": [
+        {
+          "id": "U-LLR45",
+          "title": "U-LLR45 — LATHE-LORA-MS0 unit 1",
+          "description": "LATHE-LORA-MS0 unit 1. Follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP). Consult KNOWLEDGE_SOURCES before coding. Forge-triple ownership declared in milestone header.",
+          "exit_conditions": [
+            "Implementation complete per unit description",
+            "Tests pass: npx vitest run (≥10 cases for engines)",
+            "Typecheck clean: npx tsc --noEmit on touched files",
+            "Machinist-acceptance: output matches reference within ±10%"
+          ],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "status": "pending"
+        },
+        {
+          "id": "U-LLR46",
+          "title": "U-LLR46 — LATHE-LORA-MS0 unit 2",
+          "description": "LATHE-LORA-MS0 unit 2. Follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP). Consult KNOWLEDGE_SOURCES before coding. Forge-triple ownership declared in milestone header.",
+          "exit_conditions": [
+            "Implementation complete per unit description",
+            "Tests pass: npx vitest run (≥10 cases for engines)",
+            "Typecheck clean: npx tsc --noEmit on touched files",
+            "Machinist-acceptance: output matches reference within ±10%"
+          ],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "status": "pending"
+        },
+        {
+          "id": "U-LLR48",
+          "title": "U-LLR48 — LATHE-LORA-MS0 unit 3",
+          "description": "LATHE-LORA-MS0 unit 3. Follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP). Consult KNOWLEDGE_SOURCES before coding. Forge-triple ownership declared in milestone header.",
+          "exit_conditions": [
+            "Implementation complete per unit description",
+            "Tests pass: npx vitest run (≥10 cases for engines)",
+            "Typecheck clean: npx tsc --noEmit on touched files",
+            "Machinist-acceptance: output matches reference within ±10%"
+          ],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "status": "pending"
+        }
+      ],
+      "sessions": [
+        19
+      ],
+      "forge_triple": {
+        "hook": "lathe-lora-master-guard",
+        "action": "prism_turning:lathe_lora_orchestrate",
+        "skill": "/lathe-lora"
+      }
+    }
+  ],
+  "units": [
+    {
+      "id": "U-LLR01",
+      "title": "Port LatheLoRACadenceEngine",
+      "phase": 1,
+      "session": 1,
+      "status": "complete",
+      "fourLoop": "BUILD->SCRUTINIZE->GAP_FILL->TIE_UP",
+      "commit": "91c8cf950",
+      "exit_conditions": [
+        "Implementation complete per description",
+        "Tests pass: npx vitest run",
+        "Typecheck clean: npx tsc --noEmit"
+      ],
+      "description": "Port LatheLoRACadenceEngine — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ]
+    },
+    {
+      "id": "U-LLR02",
+      "title": "Port LatheLoRAPipelineEngine",
+      "phase": 1,
+      "session": 1,
+      "status": "complete",
+      "fourLoop": "BUILD->SCRUTINIZE->GAP_FILL->TIE_UP",
+      "commit": "91c8cf950",
+      "exit_conditions": [
+        "Implementation complete per description",
+        "Tests pass: npx vitest run",
+        "Typecheck clean: npx tsc --noEmit"
+      ],
+      "description": "Port LatheLoRAPipelineEngine — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ]
+    },
+    {
+      "id": "U-LLR03",
+      "title": "Port LatheLoRATrainingScriptEngine",
+      "phase": 1,
+      "session": 1,
+      "status": "complete",
+      "fourLoop": "BUILD->SCRUTINIZE->GAP_FILL->TIE_UP",
+      "compactCheckpoint": true,
+      "commit": "91c8cf950",
+      "exit_conditions": [
+        "Implementation complete per description",
+        "Tests pass: npx vitest run",
+        "Typecheck clean: npx tsc --noEmit"
+      ],
+      "description": "Port LatheLoRATrainingScriptEngine — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ]
+    },
+    {
+      "id": "U-LLR04",
+      "title": "Create LatheLoRAHooks.ts (training guard)",
+      "phase": 1,
+      "session": 2,
+      "status": "complete",
+      "fourLoop": "BUILD->SCRUTINIZE->GAP_FILL->TIE_UP",
+      "note": "Moved from Phase 12 - hooks needed before training",
+      "commit": "91c8cf950",
+      "exit_conditions": [
+        "Implementation complete per description",
+        "Tests pass: npx vitest run",
+        "Typecheck clean: npx tsc --noEmit"
+      ],
+      "description": "Create LatheLoRAHooks.ts (training guard) — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ]
+    },
+    {
+      "id": "U-LLR04a",
+      "title": "Wire 4 prism_ai:lathe_lora_* actions",
+      "phase": 1,
+      "session": 2,
+      "status": "complete",
+      "fourLoop": "BUILD->SCRUTINIZE->GAP_FILL->TIE_UP",
+      "dispatcher": "prism_ai",
+      "actions": [
+        "lathe_lora_status",
+        "lathe_lora_build_dataset",
+        "lathe_lora_generate_training",
+        "lathe_lora_evaluate"
+      ],
+      "commit": "36dc2bdc3",
+      "exit_conditions": [
+        "Implementation complete per description",
+        "Tests pass: npx vitest run",
+        "Typecheck clean: npx tsc --noEmit"
+      ],
+      "description": "Wire 4 prism_ai:lathe_lora_* actions — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ]
+    },
+    {
+      "id": "U-LLR04b",
+      "title": "Wire 4 prism_turning:lathe_lora_* actions",
+      "phase": 1,
+      "session": 2,
+      "status": "complete",
+      "fourLoop": "BUILD->SCRUTINIZE->GAP_FILL->TIE_UP",
+      "dispatcher": "prism_turning",
+      "actions": [
+        "lathe_lora_cadence_status",
+        "lathe_lora_orchestrate",
+        "lathe_lora_inference",
+        "lathe_lora_deploy"
+      ],
+      "commit": "36dc2bdc3",
+      "exit_conditions": [
+        "Implementation complete per description",
+        "Tests pass: npx vitest run",
+        "Typecheck clean: npx tsc --noEmit"
+      ],
+      "description": "Wire 4 prism_turning:lathe_lora_* actions — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ]
+    },
+    {
+      "id": "U-LLR04c",
+      "title": "Wire 4 prism_knowledge_ext:lathe_lora_* actions",
+      "phase": 1,
+      "session": 2,
+      "status": "complete",
+      "fourLoop": "BUILD->SCRUTINIZE->GAP_FILL->TIE_UP",
+      "dispatcher": "prism_knowledge_ext",
+      "actions": [
+        "lathe_lora_kg_query",
+        "lathe_lora_merge_quant",
+        "lathe_lora_neural_orchestrate",
+        "lathe_lora_ensemble"
+      ],
+      "compactCheckpoint": true,
+      "commit": "36dc2bdc3",
+      "exit_conditions": [
+        "Implementation complete per description",
+        "Tests pass: npx vitest run",
+        "Typecheck clean: npx tsc --noEmit"
+      ],
+      "description": "Wire 4 prism_knowledge_ext:lathe_lora_* actions — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ]
+    },
+    {
+      "id": "U-LLR05",
+      "title": "Create LatheLoRADatasetBuilderEngine",
+      "phase": 2,
+      "session": 3,
+      "status": "complete",
+      "fourLoop": "BUILD->SCRUTINIZE->GAP_FILL->TIE_UP",
+      "tribalKnowledge": [
+        "TribalKnowledgeEngine.query('lathe dataset')",
+        "MachiningPlaybookEngine.getRules('data collection')"
+      ],
+      "commit": "bb9c28cd0",
+      "tests": 11,
+      "exit_conditions": [
+        "Implementation complete per description",
+        "Tests pass: npx vitest run",
+        "Typecheck clean: npx tsc --noEmit"
+      ],
+      "description": "Create LatheLoRADatasetBuilderEngine — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ]
+    },
+    {
+      "id": "U-LLR06",
+      "title": "Create LatheLoRAProgramParserEngine",
+      "phase": 2,
+      "session": 3,
+      "status": "complete",
+      "fourLoop": "BUILD->SCRUTINIZE->GAP_FILL->TIE_UP",
+      "compactCheckpoint": true,
+      "tribalKnowledge": [
+        "TribalKnowledgeEngine.query('okuma osp')",
+        "lathe-tribal-tips-okuma.ts"
+      ],
+      "commit": "bb9c28cd0",
+      "tests": 24,
+      "exit_conditions": [
+        "Implementation complete per description",
+        "Tests pass: npx vitest run",
+        "Typecheck clean: npx tsc --noEmit"
+      ],
+      "description": "Create LatheLoRAProgramParserEngine — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ]
+    },
+    {
+      "id": "U-LLR07",
+      "title": "Create LatheLoRAExampleGeneratorEngine",
+      "phase": 2,
+      "session": 3,
+      "status": "complete",
+      "fourLoop": "BUILD->SCRUTINIZE->GAP_FILL->TIE_UP",
+      "tribalKnowledge": [
+        "MachiningPlaybookEngine.getRules('turning')",
+        "lathe-physics-science-tips.ts"
+      ],
+      "commit": "bb9c28cd0",
+      "tests": 20,
+      "exit_conditions": [
+        "Implementation complete per description",
+        "Tests pass: npx vitest run",
+        "Typecheck clean: npx tsc --noEmit"
+      ],
+      "description": "Create LatheLoRAExampleGeneratorEngine — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ]
+    },
+    {
+      "id": "U-LLR08",
+      "title": "Create LatheLoRADatasetValidatorEngine",
+      "phase": 2,
+      "session": 4,
+      "status": "complete",
+      "fourLoop": "BUILD->SCRUTINIZE->GAP_FILL->TIE_UP",
+      "tribalKnowledge": [
+        "LatheTribalInjectorEngine.validateTips()"
+      ],
+      "commit": "bb9c28cd0",
+      "tests": 22,
+      "exit_conditions": [
+        "Implementation complete per description",
+        "Tests pass: npx vitest run",
+        "Typecheck clean: npx tsc --noEmit"
+      ],
+      "description": "Create LatheLoRADatasetValidatorEngine — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ]
+    },
+    {
+      "id": "U-LLR09",
+      "title": "Create LatheLoRAHyperparameterOptimizerEngine",
+      "phase": 3,
+      "session": 5,
+      "status": "complete",
+      "fourLoop": "BUILD->SCRUTINIZE->GAP_FILL->TIE_UP",
+      "compactCheckpoint": true,
+      "commit": "c68c37def",
+      "tests": 20,
+      "exit_conditions": [
+        "Implementation complete per description",
+        "Tests pass: npx vitest run",
+        "Typecheck clean: npx tsc --noEmit"
+      ],
+      "description": "Create LatheLoRAHyperparameterOptimizerEngine — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ]
+    },
+    {
+      "id": "U-LLR10",
+      "title": "Create LatheLoRATransferStrategyEngine",
+      "phase": 3,
+      "session": 5,
+      "status": "complete",
+      "fourLoop": "BUILD->SCRUTINIZE->GAP_FILL->TIE_UP",
+      "commit": "81c86244f",
+      "tests": 10,
+      "exit_conditions": [
+        "Implementation complete per description",
+        "Tests pass: npx vitest run",
+        "Typecheck clean: npx tsc --noEmit"
+      ],
+      "description": "Create LatheLoRATransferStrategyEngine — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ]
+    },
+    {
+      "id": "U-LLR11",
+      "title": "Create LatheLoRARewardShapingEngine",
+      "phase": 3,
+      "session": 5,
+      "status": "complete",
+      "fourLoop": "BUILD->SCRUTINIZE->GAP_FILL->TIE_UP",
+      "commit": "81c86244f",
+      "tests": 4,
+      "exit_conditions": [
+        "Implementation complete per description",
+        "Tests pass: npx vitest run",
+        "Typecheck clean: npx tsc --noEmit"
+      ],
+      "description": "Create LatheLoRARewardShapingEngine — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ]
+    },
+    {
+      "id": "U-LLR12",
+      "title": "Create LatheLoRATrainingMonitorEngine",
+      "phase": 3,
+      "session": 6,
+      "status": "complete",
+      "fourLoop": "BUILD->SCRUTINIZE->GAP_FILL->TIE_UP",
+      "compactCheckpoint": true,
+      "commit": "81c86244f",
+      "tests": 5,
+      "exit_conditions": [
+        "Implementation complete per description",
+        "Tests pass: npx vitest run",
+        "Typecheck clean: npx tsc --noEmit"
+      ],
+      "description": "Create LatheLoRATrainingMonitorEngine — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ]
+    },
+    {
+      "id": "U-LLR13",
+      "title": "Create LatheLoRAPhysicsEvaluatorEngine",
+      "phase": 4,
+      "session": 7,
+      "status": "complete",
+      "fourLoop": "BUILD->SCRUTINIZE->GAP_FILL->TIE_UP",
+      "physicsRequired": [
+        "CuttingForceEngine",
+        "ToolLifeEngine",
+        "ChatterStabilityLobeEngine",
+        "constants.ts"
+      ],
+      "dimensionalAnalysis": true,
+      "commit": "2cc767231",
+      "tests": 20,
+      "exit_conditions": [
+        "Implementation complete per description",
+        "Tests pass: npx vitest run",
+        "Typecheck clean: npx tsc --noEmit"
+      ],
+      "description": "Create LatheLoRAPhysicsEvaluatorEngine — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ]
+    },
+    {
+      "id": "U-LLR14",
+      "title": "Create LatheLoRASafetyEvaluatorEngine",
+      "phase": 4,
+      "session": 7,
+      "status": "complete",
+      "fourLoop": "BUILD->SCRUTINIZE->GAP_FILL->TIE_UP",
+      "physicsRequired": [
+        "SafetyVetoEngine"
+      ],
+      "commit": "2cc767231",
+      "tests": 27,
+      "exit_conditions": [
+        "Implementation complete per description",
+        "Tests pass: npx vitest run",
+        "Typecheck clean: npx tsc --noEmit"
+      ],
+      "description": "Create LatheLoRASafetyEvaluatorEngine — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ]
+    },
+    {
+      "id": "U-LLR15",
+      "title": "Create LatheLoRAReasoningEvaluatorEngine",
+      "phase": 4,
+      "session": 7,
+      "status": "complete",
+      "fourLoop": "BUILD->SCRUTINIZE->GAP_FILL->TIE_UP",
+      "compactCheckpoint": true,
+      "commit": "2cc767231",
+      "tests": 28,
+      "exit_conditions": [
+        "Implementation complete per description",
+        "Tests pass: npx vitest run",
+        "Typecheck clean: npx tsc --noEmit"
+      ],
+      "description": "Create LatheLoRAReasoningEvaluatorEngine — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ]
+    },
+    {
+      "id": "U-LLR16",
+      "title": "Create LatheLoRABenchmarkSuiteEngine",
+      "phase": 4,
+      "session": 8,
+      "status": "complete",
+      "fourLoop": "BUILD->SCRUTINIZE->GAP_FILL->TIE_UP",
+      "commit": "4c720df2f",
+      "tests": 32,
+      "exit_conditions": [
+        "Implementation complete per description",
+        "Tests pass: npx vitest run",
+        "Typecheck clean: npx tsc --noEmit"
+      ],
+      "description": "Create LatheLoRABenchmarkSuiteEngine — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ]
+    },
+    {
+      "id": "U-LLR17",
+      "title": "Create LatheLoRAMergeStrategyEngine",
+      "phase": 5,
+      "session": 9,
+      "status": "complete",
+      "fourLoop": "BUILD->SCRUTINIZE->GAP_FILL->TIE_UP",
+      "commit": "106abeb22",
+      "tests": 10,
+      "exit_conditions": [
+        "Implementation complete per description",
+        "Tests pass: npx vitest run",
+        "Typecheck clean: npx tsc --noEmit"
+      ],
+      "description": "Create LatheLoRAMergeStrategyEngine — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ]
+    },
+    {
+      "id": "U-LLR18",
+      "title": "Create LatheLoRAQuantizationOptimizerEngine",
+      "phase": 5,
+      "session": 9,
+      "status": "complete",
+      "fourLoop": "BUILD->SCRUTINIZE->GAP_FILL->TIE_UP",
+      "compactCheckpoint": true,
+      "commit": "106abeb22",
+      "tests": 10,
+      "exit_conditions": [
+        "Implementation complete per description",
+        "Tests pass: npx vitest run",
+        "Typecheck clean: npx tsc --noEmit"
+      ],
+      "description": "Create LatheLoRAQuantizationOptimizerEngine — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ]
+    },
+    {
+      "id": "U-LLR19",
+      "title": "Create LatheLoRAModelRegistryEngine",
+      "phase": 5,
+      "session": 9,
+      "status": "complete",
+      "fourLoop": "BUILD->SCRUTINIZE->GAP_FILL->TIE_UP",
+      "commit": "106abeb22",
+      "tests": 11,
+      "exit_conditions": [
+        "Implementation complete per description",
+        "Tests pass: npx vitest run",
+        "Typecheck clean: npx tsc --noEmit"
+      ],
+      "description": "Create LatheLoRAModelRegistryEngine — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ]
+    },
+    {
+      "id": "U-LLR20",
+      "title": "Create LatheLoRAModelOptimizerEngine",
+      "phase": 5,
+      "session": 10,
+      "status": "complete",
+      "fourLoop": "BUILD->SCRUTINIZE->GAP_FILL->TIE_UP",
+      "commit": "106abeb22",
+      "tests": 9,
+      "exit_conditions": [
+        "Implementation complete per description",
+        "Tests pass: npx vitest run",
+        "Typecheck clean: npx tsc --noEmit"
+      ],
+      "description": "Create LatheLoRAModelOptimizerEngine — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ]
+    },
+    {
+      "id": "U-LLR21",
+      "title": "Create LatheLoRAOllamaDeployerEngine",
+      "phase": 6,
+      "session": 11,
+      "status": "not_started",
+      "fourLoop": "BUILD->SCRUTINIZE->GAP_FILL->TIE_UP",
+      "compactCheckpoint": true,
+      "exit_conditions": [
+        "Implementation complete per description",
+        "Tests pass: npx vitest run",
+        "Typecheck clean: npx tsc --noEmit"
+      ],
+      "description": "Create LatheLoRAOllamaDeployerEngine — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ]
+    },
+    {
+      "id": "U-LLR22",
+      "title": "Create LatheLoRAInferenceGatewayEngine",
+      "phase": 6,
+      "session": 11,
+      "status": "not_started",
+      "fourLoop": "BUILD->SCRUTINIZE->GAP_FILL->TIE_UP",
+      "exit_conditions": [
+        "Implementation complete per description",
+        "Tests pass: npx vitest run",
+        "Typecheck clean: npx tsc --noEmit"
+      ],
+      "description": "Create LatheLoRAInferenceGatewayEngine — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ]
+    },
+    {
+      "id": "U-LLR23",
+      "title": "Create LatheLoRAHealthMonitorEngine",
+      "phase": 6,
+      "session": 11,
+      "status": "not_started",
+      "fourLoop": "BUILD->SCRUTINIZE->GAP_FILL->TIE_UP",
+      "exit_conditions": [
+        "Implementation complete per description",
+        "Tests pass: npx vitest run",
+        "Typecheck clean: npx tsc --noEmit"
+      ],
+      "description": "Create LatheLoRAHealthMonitorEngine — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ]
+    },
+    {
+      "id": "U-LLR24",
+      "title": "Create LatheLoRAVerificationEngine",
+      "phase": 6,
+      "session": 12,
+      "status": "not_started",
+      "fourLoop": "BUILD->SCRUTINIZE->GAP_FILL->TIE_UP",
+      "compactCheckpoint": true,
+      "exit_conditions": [
+        "Implementation complete per description",
+        "Tests pass: npx vitest run",
+        "Typecheck clean: npx tsc --noEmit"
+      ],
+      "description": "Create LatheLoRAVerificationEngine — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ]
+    },
+    {
+      "id": "U-LLR25",
+      "title": "Create LatheLoRAPhysicsAugmentedInferenceEngine",
+      "phase": 7,
+      "session": 13,
+      "status": "not_started",
+      "fourLoop": "BUILD->SCRUTINIZE->GAP_FILL->TIE_UP",
+      "physicsRequired": [
+        "CuttingForceEngine",
+        "ToolDeflectionEngine",
+        "SafetyVetoEngine"
+      ],
+      "exit_conditions": [
+        "Implementation complete per description",
+        "Tests pass: npx vitest run",
+        "Typecheck clean: npx tsc --noEmit"
+      ],
+      "description": "Create LatheLoRAPhysicsAugmentedInferenceEngine — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ]
+    },
+    {
+      "id": "U-LLR26",
+      "title": "Create LatheLoRAReasoningChainInferenceEngine",
+      "phase": 7,
+      "session": 13,
+      "status": "not_started",
+      "fourLoop": "BUILD->SCRUTINIZE->GAP_FILL->TIE_UP",
+      "exit_conditions": [
+        "Implementation complete per description",
+        "Tests pass: npx vitest run",
+        "Typecheck clean: npx tsc --noEmit"
+      ],
+      "description": "Create LatheLoRAReasoningChainInferenceEngine — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ]
+    },
+    {
+      "id": "U-LLR27",
+      "title": "Create LatheLoRAAdaptiveRefinementEngine",
+      "phase": 7,
+      "session": 13,
+      "status": "not_started",
+      "fourLoop": "BUILD->SCRUTINIZE->GAP_FILL->TIE_UP",
+      "compactCheckpoint": true,
+      "exit_conditions": [
+        "Implementation complete per description",
+        "Tests pass: npx vitest run",
+        "Typecheck clean: npx tsc --noEmit"
+      ],
+      "description": "Create LatheLoRAAdaptiveRefinementEngine — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ]
+    },
+    {
+      "id": "U-LLR28",
+      "title": "Create LatheLoRATribalAugmentationEngine",
+      "phase": 7,
+      "session": 14,
+      "status": "not_started",
+      "fourLoop": "BUILD->SCRUTINIZE->GAP_FILL->TIE_UP",
+      "exit_conditions": [
+        "Implementation complete per description",
+        "Tests pass: npx vitest run",
+        "Typecheck clean: npx tsc --noEmit"
+      ],
+      "description": "Create LatheLoRATribalAugmentationEngine — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ]
+    },
+    {
+      "id": "U-LLR29",
+      "title": "Create LatheLoRADriftDetectorEngine",
+      "phase": 8,
+      "session": 15,
+      "status": "not_started",
+      "fourLoop": "BUILD->SCRUTINIZE->GAP_FILL->TIE_UP",
+      "exit_conditions": [
+        "Implementation complete per description",
+        "Tests pass: npx vitest run",
+        "Typecheck clean: npx tsc --noEmit"
+      ],
+      "description": "Create LatheLoRADriftDetectorEngine — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ]
+    },
+    {
+      "id": "U-LLR30",
+      "title": "Create LatheLoRAContinualLearningEngine",
+      "phase": 8,
+      "session": 15,
+      "status": "not_started",
+      "fourLoop": "BUILD->SCRUTINIZE->GAP_FILL->TIE_UP",
+      "compactCheckpoint": true,
+      "exit_conditions": [
+        "Implementation complete per description",
+        "Tests pass: npx vitest run",
+        "Typecheck clean: npx tsc --noEmit"
+      ],
+      "description": "Create LatheLoRAContinualLearningEngine — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ]
+    },
+    {
+      "id": "U-LLR31",
+      "title": "Create LatheLoRACadenceOrchestratorEngine",
+      "phase": 8,
+      "session": 15,
+      "status": "not_started",
+      "fourLoop": "BUILD->SCRUTINIZE->GAP_FILL->TIE_UP",
+      "exit_conditions": [
+        "Implementation complete per description",
+        "Tests pass: npx vitest run",
+        "Typecheck clean: npx tsc --noEmit"
+      ],
+      "description": "Create LatheLoRACadenceOrchestratorEngine — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ]
+    },
+    {
+      "id": "U-LLR32",
+      "title": "Create LatheLoRACronJobEngine",
+      "phase": 8,
+      "session": 15,
+      "status": "not_started",
+      "fourLoop": "BUILD->SCRUTINIZE->GAP_FILL->TIE_UP",
+      "exit_conditions": [
+        "Implementation complete per description",
+        "Tests pass: npx vitest run",
+        "Typecheck clean: npx tsc --noEmit"
+      ],
+      "description": "Create LatheLoRACronJobEngine — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ]
+    },
+    {
+      "id": "U-LLR33",
+      "title": "Create LatheLoRANeuralBridgeEngine",
+      "phase": 9,
+      "session": 16,
+      "status": "not_started",
+      "fourLoop": "BUILD->SCRUTINIZE->GAP_FILL->TIE_UP",
+      "compactCheckpoint": true,
+      "exit_conditions": [
+        "Implementation complete per description",
+        "Tests pass: npx vitest run",
+        "Typecheck clean: npx tsc --noEmit"
+      ],
+      "description": "Create LatheLoRANeuralBridgeEngine — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ]
+    },
+    {
+      "id": "U-LLR34",
+      "title": "Create LatheLoRAAttentionAnalyzerEngine",
+      "phase": 9,
+      "session": 16,
+      "status": "not_started",
+      "fourLoop": "BUILD->SCRUTINIZE->GAP_FILL->TIE_UP",
+      "exit_conditions": [
+        "Implementation complete per description",
+        "Tests pass: npx vitest run",
+        "Typecheck clean: npx tsc --noEmit"
+      ],
+      "description": "Create LatheLoRAAttentionAnalyzerEngine — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ]
+    },
+    {
+      "id": "U-LLR35",
+      "title": "Create LatheLoRAEmbeddingCacheEngine",
+      "phase": 9,
+      "session": 16,
+      "status": "not_started",
+      "fourLoop": "BUILD->SCRUTINIZE->GAP_FILL->TIE_UP",
+      "exit_conditions": [
+        "Implementation complete per description",
+        "Tests pass: npx vitest run",
+        "Typecheck clean: npx tsc --noEmit"
+      ],
+      "description": "Create LatheLoRAEmbeddingCacheEngine — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ]
+    },
+    {
+      "id": "U-LLR36",
+      "title": "Create LatheLoRANeuralOrchestratorEngine",
+      "phase": 9,
+      "session": 16,
+      "status": "not_started",
+      "fourLoop": "BUILD->SCRUTINIZE->GAP_FILL->TIE_UP",
+      "compactCheckpoint": true,
+      "exit_conditions": [
+        "Implementation complete per description",
+        "Tests pass: npx vitest run",
+        "Typecheck clean: npx tsc --noEmit"
+      ],
+      "description": "Create LatheLoRANeuralOrchestratorEngine — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ]
+    },
+    {
+      "id": "U-LLR37",
+      "title": "Create LatheLoRAKnowledgeExtractorEngine",
+      "phase": 10,
+      "session": 17,
+      "status": "not_started",
+      "fourLoop": "BUILD->SCRUTINIZE->GAP_FILL->TIE_UP",
+      "exit_conditions": [
+        "Implementation complete per description",
+        "Tests pass: npx vitest run",
+        "Typecheck clean: npx tsc --noEmit"
+      ],
+      "description": "Create LatheLoRAKnowledgeExtractorEngine — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ]
+    },
+    {
+      "id": "U-LLR38",
+      "title": "Create LatheLoRASemanticContextEngine",
+      "phase": 10,
+      "session": 17,
+      "status": "not_started",
+      "fourLoop": "BUILD->SCRUTINIZE->GAP_FILL->TIE_UP",
+      "exit_conditions": [
+        "Implementation complete per description",
+        "Tests pass: npx vitest run",
+        "Typecheck clean: npx tsc --noEmit"
+      ],
+      "description": "Create LatheLoRASemanticContextEngine — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ]
+    },
+    {
+      "id": "U-LLR39",
+      "title": "Create LatheLoRAExperienceLedgerEngine",
+      "phase": 10,
+      "session": 17,
+      "status": "not_started",
+      "fourLoop": "BUILD->SCRUTINIZE->GAP_FILL->TIE_UP",
+      "compactCheckpoint": true,
+      "exit_conditions": [
+        "Implementation complete per description",
+        "Tests pass: npx vitest run",
+        "Typecheck clean: npx tsc --noEmit"
+      ],
+      "description": "Create LatheLoRAExperienceLedgerEngine — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ]
+    },
+    {
+      "id": "U-LLR40",
+      "title": "Create LatheLoRAKnowledgeFusionEngine",
+      "phase": 10,
+      "session": 17,
+      "status": "not_started",
+      "fourLoop": "BUILD->SCRUTINIZE->GAP_FILL->TIE_UP",
+      "exit_conditions": [
+        "Implementation complete per description",
+        "Tests pass: npx vitest run",
+        "Typecheck clean: npx tsc --noEmit"
+      ],
+      "description": "Create LatheLoRAKnowledgeFusionEngine — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ]
+    },
+    {
+      "id": "U-LLR41",
+      "title": "Create LatheLoRAEnsembleInferenceEngine",
+      "phase": 11,
+      "session": 18,
+      "status": "not_started",
+      "fourLoop": "BUILD->SCRUTINIZE->GAP_FILL->TIE_UP",
+      "exit_conditions": [
+        "Implementation complete per description",
+        "Tests pass: npx vitest run",
+        "Typecheck clean: npx tsc --noEmit"
+      ],
+      "description": "Create LatheLoRAEnsembleInferenceEngine — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ]
+    },
+    {
+      "id": "U-LLR42",
+      "title": "Create LatheLoRAMetaAdaptationEngine",
+      "phase": 11,
+      "session": 18,
+      "status": "not_started",
+      "fourLoop": "BUILD->SCRUTINIZE->GAP_FILL->TIE_UP",
+      "compactCheckpoint": true,
+      "exit_conditions": [
+        "Implementation complete per description",
+        "Tests pass: npx vitest run",
+        "Typecheck clean: npx tsc --noEmit"
+      ],
+      "description": "Create LatheLoRAMetaAdaptationEngine — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ]
+    },
+    {
+      "id": "U-LLR43",
+      "title": "Create LatheLoRAUncertaintyQuantifierEngine",
+      "phase": 11,
+      "session": 18,
+      "status": "not_started",
+      "fourLoop": "BUILD->SCRUTINIZE->GAP_FILL->TIE_UP",
+      "exit_conditions": [
+        "Implementation complete per description",
+        "Tests pass: npx vitest run",
+        "Typecheck clean: npx tsc --noEmit"
+      ],
+      "description": "Create LatheLoRAUncertaintyQuantifierEngine — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ]
+    },
+    {
+      "id": "U-LLR44",
+      "title": "Create LatheLoRAModelSelectionEngine",
+      "phase": 11,
+      "session": 18,
+      "status": "not_started",
+      "fourLoop": "BUILD->SCRUTINIZE->GAP_FILL->TIE_UP",
+      "exit_conditions": [
+        "Implementation complete per description",
+        "Tests pass: npx vitest run",
+        "Typecheck clean: npx tsc --noEmit"
+      ],
+      "description": "Create LatheLoRAModelSelectionEngine — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ]
+    },
+    {
+      "id": "U-LLR45",
+      "title": "Create LatheLoRAMasterOrchestratorEngine",
+      "phase": 12,
+      "session": 19,
+      "status": "not_started",
+      "fourLoop": "BUILD->SCRUTINIZE->GAP_FILL->TIE_UP",
+      "compactCheckpoint": true,
+      "exit_conditions": [
+        "Implementation complete per description",
+        "Tests pass: npx vitest run",
+        "Typecheck clean: npx tsc --noEmit"
+      ],
+      "description": "Create LatheLoRAMasterOrchestratorEngine — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ]
+    },
+    {
+      "id": "U-LLR46",
+      "title": "Create /lathe-lora skill",
+      "phase": 12,
+      "session": 19,
+      "status": "not_started",
+      "fourLoop": "BUILD->SCRUTINIZE->GAP_FILL->TIE_UP",
+      "exit_conditions": [
+        "Implementation complete per description",
+        "Tests pass: npx vitest run",
+        "Typecheck clean: npx tsc --noEmit"
+      ],
+      "description": "Create /lathe-lora skill — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ]
+    },
+    {
+      "id": "U-LLR48",
+      "title": "Create comprehensive test suite",
+      "phase": 12,
+      "session": 19,
+      "status": "not_started",
+      "fourLoop": "BUILD->SCRUTINIZE->GAP_FILL->TIE_UP",
+      "compactCheckpoint": true,
+      "exit_conditions": [
+        "Implementation complete per description",
+        "Tests pass: npx vitest run",
+        "Typecheck clean: npx tsc --noEmit"
+      ],
+      "description": "Create comprehensive test suite — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ]
+    }
+  ],
+  "enforcement_hooks": [
+    "knowledge-consult",
+    "context-retention",
+    "stub-detector",
+    "test-quality",
+    "constants-checker",
+    "physics-agent",
+    "wiring-agent",
+    "review-gate",
+    "wiring-gate",
+    "forge-triple-gate",
+    "session-audit-agent",
+    "safety-veto-integration"
+  ],
+  "mcp_utilization": {
+    "session_start": [
+      "context_boot",
+      "dispatcher_map",
+      "memory_recall",
+      "system_snapshot"
+    ],
+    "during_work": [
+      "auto_checkpoint",
+      "action_search",
+      "tool_route_best",
+      "wip_capture"
+    ],
+    "session_end": [
+      "memory_save",
+      "system_snapshot",
+      "checkpoint_enhanced"
+    ]
+  },
+  "svi_target_delta": "+15%",
+  "omega_target": 1,
+  "smart_config": {
+    "role": "senior-architect + domain-specialist",
+    "model": "opus",
+    "effort": "MAX",
+    "context_budget": "65%"
+  },
+  "mcp_lifecycle": {
+    "session_start": [
+      "prism_session:context_boot",
+      "prism_session:dispatcher_map",
+      "prism_session:memory_recall",
+      "prism_session:system_snapshot",
+      "prism_session:action_search"
+    ],
+    "during_work": [
+      "prism_session:auto_checkpoint",
+      "prism_session:tool_route_best",
+      "prism_session:wip_capture"
+    ],
+    "session_end": [
+      "prism_session:memory_save",
+      "prism_session:system_snapshot",
+      "prism_session:checkpoint_enhanced"
+    ]
+  },
+  "forge_triple": {
+    "protective_hook": "lathe-lora-ms0-gate",
+    "mcp_action": "prism_ai-lathe:lathe_lora_ms0_run",
+    "skill_command": "/lathe-lora-ms0",
+    "ownership": "DECLARED — BUILT in terminal unit of this milestone"
+  },
+  "feature_cascade": {
+    "new_hooks": [
+      "lathe-lora-ms0-gate"
+    ],
+    "new_actions": [
+      "lathe_lora_ms0_run"
+    ],
+    "new_skills": [
+      "/lathe-lora-ms0"
+    ],
+    "available_to": [
+      "downstream CAMX milestones",
+      "prism app consumers"
+    ]
+  },
+  "intent": "Complete LatheLoRA fine-tuning pipeline for local G-code generation with full PRISM AI integration including deep learning, reasoning, adaptive control, neural networks, knowledge graphs, ensemble methods, and meta-learning.",
+  "compact_checkpoint": "every 3 units — auto-triggered by hook",
+  "enforcement_hooks_active": [
+    "physics agent",
+    "wiring agent",
+    "constants checker",
+    "stub detector",
+    "test quality",
+    "forge-triple gate",
+    "session audit agent"
+  ]
+}

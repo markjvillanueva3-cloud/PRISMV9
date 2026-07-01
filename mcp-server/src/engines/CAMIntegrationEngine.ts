@@ -45,6 +45,9 @@ export interface CAMOperation {
     axial_depth_mm?: number;
     radial_depth_mm?: number;
     stepover_pct?: number;
+    /** Real material volume to remove (cm^3) for the cycle-time estimate. Omitted ->
+     *  DEFAULT_REMOVED_VOLUME_CM3 (the cycle time stays a rough approximation). */
+    material_volume_cm3?: number;
   };
   constraints?: {
     surface_finish_ra_max_um?: number;
@@ -110,6 +113,10 @@ export interface ToolLibraryEntry {
 
 // ─── Parameter Calculation ───────────────────────────────────────────────────
 
+// Fallback material-removal volume (cm^3) for the rough cycle-time estimate when the caller supplies
+// no op.parameters.material_volume_cm3. The cycle time stays a "rough approximation" either way.
+const DEFAULT_REMOVED_VOLUME_CM3 = 50;
+
 /** Calculate recommended parameters for a CAM operation */
 function calculateRecommendation(op: CAMOperation): CAMRecommendation {
   const dia = op.tool.diameter_mm;
@@ -168,10 +175,13 @@ function calculateRecommendation(op: CAMOperation): CAMRecommendation {
   const chatterRisk: "low" | "medium" | "high" =
     stickoutRatio > 5 ? "high" : stickoutRatio > 3.5 ? "medium" : "low";
 
-  // Cycle time estimate (rough approximation)
+  // Cycle time estimate (rough approximation). Use the caller's real removal volume when supplied;
+  // else a documented default (ENGINE-AUDIT 2026-06-19, slot:bravo: replaces a magic `50` literal).
   const mrr = (ap * ae * feedMmMin) / 1000; // cm³/min
-  const estimatedVolume = 50; // cm³ assumed
-  const cycleTime = mrr > 0 ? Math.round((estimatedVolume / mrr) * 10) / 10 : 0;
+  const removedVolume = op.parameters?.material_volume_cm3 && op.parameters.material_volume_cm3 > 0
+    ? op.parameters.material_volume_cm3
+    : DEFAULT_REMOVED_VOLUME_CM3;
+  const cycleTime = mrr > 0 ? Math.round((removedVolume / mrr) * 10) / 10 : 0;
 
   // Tool life estimate
   const toolLife = mat.includes("titanium") || mat.includes("inconel") ? 15 : mat.includes("aluminum") ? 90 : 45;

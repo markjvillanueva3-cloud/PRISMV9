@@ -1,0 +1,30 @@
+# DOMAIN-GALAXY-DOCTRINE-MS1/U-GALAXY-MS1-E2-COUNTER-DOMAIN-DIM — [MAIN] [BOOTSTRAP-SLOT-ENFORCE] [DOMAIN-GALAXY-DOCTRINE-MS1]/U-GALAXY-MS1-E2-COUNTER-DOMAIN-DIM (slot:alpha /loop iter21 — first MS1 ship, yolo proof-of-concept): Phase C per DOMAIN-GALAXY-DOCTRINE-2026-05-26.md. Extend .claude/helpers/feature-counter.mjs S6 lib with optional `domain` field — per-feature `perDomain:{}` subcount + `lastDomain:null` + top-level `perDomainTotals:{}` census rollup. Wired through buildFreshState + mergeCount + incrementFeature signatures (all 3 keep `domain` optional, default null). Backwards-compat:  legacy callers without domain still work (entries get null lastDomain + empty perDomain + no perDomainTotals mutation); legacy state JSON files lazy-init perDomainTotals on first new write. No schema-version bump — additive only. TESTS: 16/16 PASS hermetic via node --test (14 original + 2 new: mergeCount-domain-populates-perDomain-perDomainTotals + mergeCount-backwards-compat-no-domain-preserves-empty). Consumer-side patch (9 D-tier wire sites — psn-leg-state-inject, master-index-precheck-inject, wiki-precheck-inject, memory-relevance-inject, tribal-by-domain-inject, obsidian-precheck-inject, awareness-snapshot-inject, nn-graph-health-inject, rtk-savings-headline-inject, build-state-inject) deferred to a follow-up unit per the doctrine spec — those sites pass slot today; adding `domain:` derived from slot affinity or CWD is a separate ship per Phase C plan. First MS1 unit demonstrates the yolo-loop pattern for the operator's overnight loop. Cumulative this session: 13 commits, ~1430 lines.
+
+**Commit:** `a7b0d66c9613` · **By:** markjvillanueva3-cloud · **At:** 2026-05-26T19:56:25-05:00
+**Tags:** domain-galaxy-doctrine-ms1, u-galaxy-ms1-e2-counter-domain-dim, auto-distilled
+
+## Subject
+[MAIN] [BOOTSTRAP-SLOT-ENFORCE] [DOMAIN-GALAXY-DOCTRINE-MS1]/U-GALAXY-MS1-E2-COUNTER-DOMAIN-DIM (slot:alpha /loop iter21 — first MS1 ship, yolo proof-of-concept): Phase C per DOMAIN-GALAXY-DOCTRINE-2026-05-26.md. Extend .claude/helpers/feature-counter.mjs S6 lib with optional `domain` field — per-feature `perDomain:{}` subcount + `lastDomain:null` + top-level `perDomainTotals:{}` census rollup. Wired through buildFreshState + mergeCount + incrementFeature signatures (all 3 keep `domain` optional, default null). Backwards-compat:  legacy callers without domain still work (entries get null lastDomain + empty perDomain + no perDomainTotals mutation); legacy state JSON files lazy-init perDomainTotals on first new write. No schema-version bump — additive only. TESTS: 16/16 PASS hermetic via node --test (14 original + 2 new: mergeCount-domain-populates-perDomain-perDomainTotals + mergeCount-backwards-compat-no-domain-preserves-empty). Consumer-side patch (9 D-tier wire sites — psn-leg-state-inject, master-index-precheck-inject, wiki-precheck-inject, memory-relevance-inject, tribal-by-domain-inject, obsidian-precheck-inject, awareness-snapshot-inject, nn-graph-health-inject, rtk-savings-headline-inject, build-state-inject) deferred to a follow-up unit per the doctrine spec — those sites pass slot today; adding `domain:` derived from slot affinity or CWD is a separate ship per Phase C plan. First MS1 unit demonstrates the yolo-loop pattern for the operator's overnight loop. Cumulative this session: 13 commits, ~1430 lines.
+
+## Body
+```
+[MAIN] [BOOTSTRAP-SLOT-ENFORCE] [DOMAIN-GALAXY-DOCTRINE-MS1]/U-GALAXY-MS1-E2-COUNTER-DOMAIN-DIM (slot:alpha /loop iter21 — first MS1 ship, yolo proof-of-concept): Phase C per DOMAIN-GALAXY-DOCTRINE-2026-05-26.md. Extend .claude/helpers/feature-counter.mjs S6 lib with optional `domain` field — per-feature `perDomain:{}` subcount + `lastDomain:null` + top-level `perDomainTotals:{}` census rollup. Wired through buildFreshState + mergeCount + incrementFeature signatures (all 3 keep `domain` optional, default null). Backwards-compat:  legacy callers without domain still work (entries get null lastDomain + empty perDomain + no perDomainTotals mutation); legacy state JSON files lazy-init perDomainTotals on first new write. No schema-version bump — additive only. TESTS: 16/16 PASS hermetic via node --test (14 original + 2 new: mergeCount-domain-populates-perDomain-perDomainTotals + mergeCount-backwards-compat-no-domain-preserves-empty). Consumer-side patch (9 D-tier wire sites — psn-leg-state-inject, master-index-precheck-inject, wiki-precheck-inject, memory-relevance-inject, tribal-by-domain-inject, obsidian-precheck-inject, awareness-snapshot-inject, nn-graph-health-inject, rtk-savings-headline-inject, build-state-inject) deferred to a follow-up unit per the doctrine spec — those sites pass slot today; adding `domain:` derived from slot affinity or CWD is a separate ship per Phase C plan. First MS1 unit demonstrates the yolo-loop pattern for the operator's overnight loop. Cumulative this session: 13 commits, ~1430 lines.
+```
+
+## Files touched (3)
+- .claude/helpers/feature-counter.mjs      | 30 +++++++++++++++++++++++++++---
+- .claude/helpers/feature-counter.test.mjs | 28 ++++++++++++++++++++++++++++
+- 2 files changed, 55 insertions(+), 3 deletions(-)
+
+## Lessons surfaced in commit body
+- till work (entries get null lastDomain + empty perDomain + no perDomainTotals mutation); legacy state JSON files lazy-init perDomainTotals on first new write. No schema-version bump — additive only. TESTS: 16/16 PASS hermetic via node --test (14 original + 2 new: mergeCount-domain-populates-perDomain-perDomainTotals + mergeCount-backwards-compat-no-domain-preserves-empty). Consumer-side patch (9 D-ti
+
+## Verification
+**Scrutiny ledger**: arms A✗ B✗ C✗ for session 
+
+## Cross-references
+- Full commit: `git -C H:/prism show a7b0d66c9613`
+- Milestone envelope: `mcp-server/data/milestones/DOMAIN-GALAXY-DOCTRINE-MS1.json`
+
+---
+_Auto-distilled by `scripts/distill-session-learnings.mjs` per [[feedback_auto_close_out]] / SYSTEM-VIZ-BRAIN-MS0/U-P1-POST-SHIP-DISTILL._

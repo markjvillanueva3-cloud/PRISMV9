@@ -1,0 +1,73 @@
+{
+  "id": "PSN-SYNERGY-COLLECT-MS0",
+  "version": "1.0.0",
+  "title": "PSN Synergy Collector — Live-Disk Inventory Feed for the Inspector",
+  "brief": "Pure Node.js script that reads the PRISM filesystem and emits a live `PSNLegInventory[]` snapshot for PSNSynergyInspectorEngine. Closes R1 of the inspector envelope: the engine is pure by design, but production callers had no canonical way to produce real inventories — they would have to either inject hand-curated fixtures (defeating the purpose) or each re-derive their own walkers (defeating reuse). This script is the canonical caller-side feeder.",
+  "created_at": "2026-05-23T21:30:00Z",
+  "created_by": "claude-64f03cee (slot echo)",
+  "track": "META",
+  "track_name": "PRISM Synergy Network Tooling",
+  "status": "complete",
+  "completed_at": "2026-05-23T21:35:00Z",
+  "completed_by": "claude-64f03cee (slot echo)",
+  "close_out_log": [
+    {
+      "unit": "P0-U01",
+      "status": "shipped",
+      "note": "scripts/psn-synergy-collect.mjs — ~280 LOC pure Node script reading all 11 PSN legs from disk (obsidian_brain via C:/Users/wompu/.claude/projects/H--prism/memory, prism_os via dispatcher action enum, wiki via knowledge/wiki, memories via knowledge/memories, tribal via knowledge/wiki/code-tribal + tribal-extract, system_viz via state/shared/system-viz/system-graph.json, engines via mcp-server/src/engines, algorithms via mcp-server/src/algorithms, formulas via mcp-server/src/physics, nn_gnn via mcp-server/src/nn-graph, prism_ai via mcp-server/src/engines/PRISM*). Cross-ref scanners use cheap regex on sampled content (CONTENT_SAMPLE_BYTES=16384, FILE_CAP_PER_LEG=5000) — bounded scan so a runaway directory cannot wedge the script. Outputs state/shared/psn-synergy-snapshot.{json,md}: JSON is the machine input for `prism_intelligence:psn_synergy_inspect`, MD is the operator-readable per-leg table. First run: 11 legs, 299,904 nodes counted, runtime <2s."
+    }
+  ],
+  "linked_roadmap": "state/shared/specs/ROADMAP-CONSOLIDATED.md",
+  "phases": [
+    {
+      "id": "P0",
+      "title": "Disk-reading collector + snapshot output",
+      "sessions": "1",
+      "units": [
+        {
+          "id": "P0-U01",
+          "title": "scripts/psn-synergy-collect.mjs — pure-Node 11-leg walker → snapshot writer",
+          "effort": 30,
+          "dependencies": [
+            "PSN-SYNERGY-INSPECT-MS0"
+          ],
+          "exit_conditions": [
+            "Script walks all 11 PSN legs with bounded scans (FILE_CAP_PER_LEG, CONTENT_SAMPLE_BYTES)",
+            "Cross-ref scanners cover at least: wiki-links-in-memories, engine-mentions-in-wiki, wiki-mentions-in-engines, algorithm-imports-in-engines, formula-imports-in-engines, memory-mentions-in-engines, engine-mentions-in-memories",
+            "Writes state/shared/psn-synergy-snapshot.json (machine input for inspector)",
+            "Writes state/shared/psn-synergy-snapshot.md (operator-readable per-leg table)",
+            "Pure Node — no engine I/O, no engine imports (engine purity preserved)",
+            "Runs to completion on this repo without errors"
+          ],
+          "description": "The inspector engine is pure by design (R12 fail-loud caller-supplies inventories). This script is the caller — reads disk, builds `PSNLegInventory[]`, writes the snapshot. Operators can now run `node scripts/psn-synergy-collect.mjs && prism_intelligence:psn_synergy_inspect` from any chat and get a real ranked bridge list rather than fixture-only output.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        }
+      ]
+    }
+  ],
+  "acceptance": "scripts/psn-synergy-collect.mjs runs to completion on this repo, writes state/shared/psn-synergy-snapshot.{json,md}, and produces an 11-leg inventory the inspector can rank without further massaging. First run measured 11 legs / 299,904 nodes counted in <2s.",
+  "risks": [
+    {
+      "id": "R1",
+      "description": "Cross-ref scanners are regex-based heuristics on sampled content (first 16KB per file). A wiki entry referencing an engine deep in its body past the sample window will not be counted. Mitigation: the sample size is a knob (CONTENT_SAMPLE_BYTES); raise for finer accuracy at scan-time cost. The ranking is robust to noise — it's the *zero-ref* pairs that matter most, and those are insensitive to sample size."
+    },
+    {
+      "id": "R2",
+      "description": "tribal leg currently scans `knowledge/wiki/code-tribal` + `knowledge/tribal-extract` — the live tribal-tip corpus also has surfaces at `data/tribal-tips/*.json` and inside engines. First-run snapshot shows tribal=0 which surfaces a (likely real but partly synthetic) P0_critical bridge candidate. Follow-up unit P1-U01 (out of scope here) will fold those additional surfaces in."
+    },
+    {
+      "id": "R3",
+      "description": "FILE_CAP_PER_LEG=5000 means very large legs (obsidian_brain, wiki, system_viz already capped) under-count node totals. Cross-ref signals remain meaningful because they're directional — under-wired pairs surface regardless of cap. Mitigation: cap is a knob; raise for one-off precision runs."
+    }
+  ],
+  "blocks": [],
+  "blocked_by": [
+    "PSN-SYNERGY-INSPECT-MS0"
+  ],
+  "updated_at": "2026-05-24T01:25:00Z"
+}

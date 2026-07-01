@@ -1,0 +1,81 @@
+{
+  "file_name": "3 degree stop",
+  "file_id": "urn:adsk.wipprod:dm.lineage:beKhfvESSqGTihO-z2UbUw",
+  "project": "Mark Villanueva",
+  "folder": "Mark Villanueva",
+  "extracted_at": "2026-04-05T10:48:11",
+  "design": {
+    "body_count": 4,
+    "occurrence_count": 0,
+    "feature_count": 11,
+    "bodies": [
+      {
+        "name": "Body1",
+        "volume_cm3": 0.6317452274936626,
+        "area_cm2": 5.610101910606286,
+        "face_count": 30,
+        "edge_count": 84
+      },
+      {
+        "name": "Body2",
+        "volume_cm3": 0.9148044037179448,
+        "area_cm2": 7.962741758654101,
+        "face_count": 29,
+        "edge_count": 78
+      },
+      {
+        "name": "Body3",
+        "volume_cm3": 0.43584987735719866,
+        "area_cm2": 4.7898741761418915,
+        "face_count": 56,
+        "edge_count": 150
+      },
+      {
+        "name": "Body4",
+        "volume_cm3": 50.338001837291046,
+        "area_cm2": 95.34264016764533,
+        "face_count": 6,
+        "edge_count": 12
+      }
+    ]
+  },
+  "cam": {
+    "has_cam": true,
+    "setup_count": 1,
+    "setups": [
+      {
+        "name": "OP1",
+        "type": "0",
+        "operations": [
+          {
+            "name": "2D Contour1",
+            "strategy": "contour2d",
+            "tool": {
+              "description": "#12 - \u00d81/2\" flat (1/2\" 6F 1.625 LOC)",
+              "tool_diameter": "0.5in",
+              "tool_numberOfFlutes": "6",
+              "tool_bodyLength": "1.8in",
+              "tool_fluteLength": "1.625in",
+              "tool_cornerRadius": "0.0in",
+              "tool_shaftDiameter": "tool_diameter",
+              "tool_shoulderLength": "1.75in",
+              "tool_productId": "'FINISHING CONTOUR'",
+              "tool_vendor": "''"
+            },
+            "parameters": {
+              "tool_spindleSpeed": "3055.7749073643904",
+              "tool_feedCutting": "tool_feedPerTooth * tool_spindleSpeed * tool_numberOfFlutes",
+              "tool_feedPlunge": "50.in/min",
+              "tool_surfaceSpeed": "tool_diameter * Math.PI * tool_spindleSpeed",
+              "tool_feedPerTooth": ".003in",
+              "tool_feedPerRevolution": "tool_spindleSpeed > 0 ? tool_feedPlunge/tool_spindleSpeed : 0.0",
+              "maximumStepdown": ".7in",
+              "maximumStepover": "Math.max((tool_diameter - (2 * tool_cornerRadius)) * 0.95; tool_diameter * 0.20)",
+              "tolerance": ".001in"
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

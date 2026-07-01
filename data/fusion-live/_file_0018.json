@@ -1,0 +1,60 @@
+{
+  "file_name": "CUTOFF MODIFY",
+  "file_id": "urn:adsk.wipprod:dm.lineage:_g8ALSFPSASobuCgLscjvQ",
+  "project": "Mark Villanueva",
+  "folder": "Mark Villanueva",
+  "extracted_at": "2026-04-05T10:53:07",
+  "design": {
+    "body_count": 1,
+    "occurrence_count": 0,
+    "feature_count": 2,
+    "bodies": [
+      {
+        "name": "Body1",
+        "volume_cm3": 77.32645825000002,
+        "area_cm2": 151.20937500000002,
+        "face_count": 8,
+        "edge_count": 18
+      }
+    ]
+  },
+  "cam": {
+    "has_cam": true,
+    "setup_count": 1,
+    "setups": [
+      {
+        "name": "Setup1",
+        "type": "0",
+        "operations": [
+          {
+            "name": "2D Adaptive1",
+            "strategy": "adaptive2d",
+            "tool": {
+              "description": "#15 - \u00d80.99\"R0.06\" face (.99 ZENI 2 FLUTE)",
+              "tool_diameter": "0.99in",
+              "tool_numberOfFlutes": "2",
+              "tool_bodyLength": "1.5in",
+              "tool_fluteLength": "0.25in",
+              "tool_cornerRadius": "0.06in",
+              "tool_shaftDiameter": "0.75in",
+              "tool_shoulderLength": "0.75in",
+              "tool_productId": "'.66 ROC, .015 DOC'",
+              "tool_vendor": "''"
+            },
+            "parameters": {
+              "tool_spindleSpeed": "1000",
+              "tool_feedCutting": "20in/min",
+              "tool_feedPlunge": "50.in/min",
+              "tool_surfaceSpeed": "tool_diameter * Math.PI * tool_spindleSpeed",
+              "tool_feedPerTooth": "tool_spindleSpeed > 0 ? tool_feedCutting/(tool_spindleSpeed * tool_numberOfFlutes) : 0.0",
+              "tool_feedPerRevolution": "tool_spindleSpeed > 0 ? tool_feedPlunge/tool_spindleSpeed : 0.0",
+              "maximumStepdown": ".03in",
+              "tolerance": "0.004in",
+              "optimalLoad": ".66in"
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

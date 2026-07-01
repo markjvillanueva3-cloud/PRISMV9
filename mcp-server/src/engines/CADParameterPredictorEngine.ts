@@ -157,6 +157,10 @@ const FEATURE_OUTPUTS: Record<FeatureType, PredictableParam[]> = {
   step:               ["extrusion_depth_mm", "fillet_radius_mm"],
   groove:             ["groove_width_mm", "groove_depth_mm"],
   thread_external:    ["hole_diameter_mm", "thread_pitch_mm"],
+  thread_internal:    ["hole_diameter_mm", "hole_depth_mm", "thread_pitch_mm"],
+  pocket_complex:     ["pocket_depth_mm", "fillet_radius_mm"],
+  slot_dovetail:      ["slot_width_mm", "slot_length_mm", "pocket_depth_mm"],
+  slot_t_shaped:      ["slot_width_mm", "slot_length_mm", "pocket_depth_mm"],
   contour_2d:         ["extrusion_depth_mm"],
   contour_3d:         ["extrusion_depth_mm", "fillet_radius_mm"],
 };

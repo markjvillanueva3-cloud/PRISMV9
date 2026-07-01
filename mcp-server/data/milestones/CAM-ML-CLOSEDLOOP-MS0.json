@@ -1,0 +1,409 @@
+{
+  "id": "CAM-ML-CLOSEDLOOP-MS0",
+  "version": "1.0.0",
+  "title": "Cross-CAM ML Closed-Loop — LoRA Cadence, Training Ledger, Feedback-to-Master-AI Wiring",
+  "brief": "Close the 3 gaps identified in the CAM ML system: (1) extend the production-grade Lathe LoRA cadence pattern to the other 7 machine types (milling, 5-axis, grinding, wire EDM, sinker EDM, laser, waterjet, mill-turn); (2) build a cross-pipeline MasterAITrainingLedgerEngine generalized from LathePerformanceSLORegistryEngine + U-LPR-TRAINING-LEDGER; (3) close the loop from CAMAGIMasterOrchestrator orchestrator confidence back into fleet storage and per-CAM priors so the master AI continuously improves.",
+  "created_at": "2026-04-19T21:00:00Z",
+  "created_by": "claude-opus-4.7",
+  "prerequisites": [
+    "LATHE-PROD-READY-MS0 LoRA engines (49) as reference pattern",
+    "SelfLearningCAMEngine (Bayesian + Kalman + Mahalanobis + fleet)",
+    "CAMAGIMasterOrchestratorEngine (8 reasoning modes)",
+    "FleetLearningStrategyEngine + FederatedLearningEngine",
+    "KnowledgeIngestionOrchestratorEngine + FeedbackCollectorEngine"
+  ],
+  "phases": [
+    {
+      "id": "P0",
+      "title": "LoRA Cadence Extension — Milling + 5-Axis + Mill-Turn",
+      "units": [
+        {
+          "id": "U-CMCCL01",
+          "title": "MillingLoRADatasetBuilderEngine + MillingLoRACadenceEngine",
+          "description": "Generalize LatheLoRADatasetBuilderEngine + LatheLoRACadenceEngine into MillingLoRADatasetBuilder + MillingLoRACadenceEngine. Inputs: PrintToProgramPipeline outputs, actual CMM results, ERP actuals. Outputs: LoRA adapter for milling feed/speed + strategy selection. Cadence: nightly retrain with drift detection. Fingerprint: (material, tool_class, op_type, machine_class).",
+          "exit_conditions": [
+            "MillingLoRADatasetBuilderEngine present with buildDataset(jobs[]) method",
+            "MillingLoRACadenceEngine with nightly run + drift trigger",
+            "Dataset geometry-hashed via LoRAGeometryHashEngine pattern",
+            "≥10 test cases verifying dataset shape + cadence triggers"
+          ],
+          "status": "not_started",
+          "legacy_id": "U01",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-CMCCL02",
+          "title": "FiveAxisLoRADatasetBuilderEngine + FiveAxisLoRACadenceEngine",
+          "description": "5-axis LoRA pipeline. Dataset: tilted-WP + TCPC + NURBS programs with actual surface finish results. LoRA adapter fine-tunes tool-axis optimization + singularity avoidance priors. Cadence: weekly (lower volume than milling). Integration with FiveAxisDeepLearningEngine.",
+          "exit_conditions": [
+            "FiveAxisLoRADatasetBuilderEngine present",
+            "FiveAxisLoRACadenceEngine with weekly cadence",
+            "Singularity-aware sampling in dataset split",
+            "≥10 tests"
+          ],
+          "status": "not_started",
+          "legacy_id": "U02",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-CMCCL03",
+          "title": "MillTurnLoRADatasetBuilderEngine + MillTurnLoRACadenceEngine",
+          "description": "Mill-turn LoRA pipeline. Dataset: multi-channel programs with sync marker performance (wait time, channel balance). LoRA adapter predicts optimal channel allocation + sub-spindle transfer timing. Cadence: weekly.",
+          "exit_conditions": [
+            "MillTurnLoRADatasetBuilderEngine present",
+            "MillTurnLoRACadenceEngine with weekly cadence",
+            "Multi-channel sync performance captured in dataset",
+            "≥10 tests"
+          ],
+          "status": "not_started",
+          "legacy_id": "U03",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "P1",
+      "title": "LoRA Cadence Extension — EDM + Laser + Waterjet + Grinding",
+      "units": [
+        {
+          "id": "U-CMCCL04",
+          "title": "WEDMLoRADatasetBuilderEngine + WEDMLoRACadenceEngine",
+          "description": "Wire EDM LoRA. Leverage existing WEDMFeedbackIngestionEngine + WEDMFeedbackCalibrationEngine. Dataset: 4-pass skim programs with actual Ra + wire-break events. LoRA predicts optimal pass schedule. Cadence: weekly.",
+          "exit_conditions": [
+            "WEDMLoRADatasetBuilderEngine consumes WEDM feedback registry",
+            "WEDMLoRACadenceEngine with weekly retrain",
+            "Wire-break label propagation",
+            "≥10 tests"
+          ],
+          "status": "not_started",
+          "legacy_id": "U04",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-CMCCL05",
+          "title": "SinkerEDMLoRADatasetBuilderEngine + SinkerEDMLoRACadenceEngine",
+          "description": "Sinker EDM LoRA. Dataset: multi-electrode sequences with actual wear + surface finish. LoRA predicts electrode sequencing + orbit radius schedule. Cadence: monthly (low volume).",
+          "exit_conditions": [
+            "SinkerEDMLoRADatasetBuilderEngine present",
+            "SinkerEDMLoRACadenceEngine monthly cadence",
+            "Electrode wear coupling captured",
+            "≥10 tests"
+          ],
+          "status": "not_started",
+          "legacy_id": "U05",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-CMCCL06",
+          "title": "LaserLoRADatasetBuilderEngine + LaserLoRACadenceEngine",
+          "description": "Laser LoRA. Dataset: nested sheet programs with actual pierce success + edge quality + dross events. LoRA predicts pierce strategy + lead-in/out geometry per material/thickness. Cadence: weekly.",
+          "exit_conditions": [
+            "LaserLoRADatasetBuilderEngine present",
+            "LaserLoRACadenceEngine weekly cadence",
+            "Pierce failure telemetry ingested",
+            "≥10 tests"
+          ],
+          "status": "not_started",
+          "legacy_id": "U06",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-CMCCL07",
+          "title": "WaterjetLoRADatasetBuilderEngine + WaterjetLoRACadenceEngine",
+          "description": "Waterjet LoRA. Dataset: Q1-Q5 programs with actual edge taper + cycle time. LoRA predicts quality-to-feed mapping per material. Cadence: weekly.",
+          "exit_conditions": [
+            "WaterjetLoRADatasetBuilderEngine present",
+            "WaterjetLoRACadenceEngine weekly cadence",
+            "Quality-level feedback loop",
+            "≥10 tests"
+          ],
+          "status": "not_started",
+          "legacy_id": "U07",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-CMCCL08",
+          "title": "GrindingLoRADatasetBuilderEngine + GrindingLoRACadenceEngine",
+          "description": "Grinding LoRA. Dataset: traverse + plunge + creep-feed programs with actual Ra + wheel wear + burn-risk events. LoRA predicts infeed + spark-out schedule + dress interval. Cadence: weekly.",
+          "exit_conditions": [
+            "GrindingLoRADatasetBuilderEngine present",
+            "GrindingLoRACadenceEngine weekly cadence",
+            "Burn-risk labels propagated",
+            "≥10 tests"
+          ],
+          "status": "not_started",
+          "legacy_id": "U08",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "P2",
+      "title": "Master AI Training Ledger — Cross-Pipeline Observability",
+      "units": [
+        {
+          "id": "U-CMCCL09",
+          "title": "MasterAITrainingLedgerEngine — generalized from LathePerformanceSLORegistry + U-LPR-TRAINING-LEDGER",
+          "description": "One ledger that tracks all LoRA runs across 8 CAM pipelines. Schema: run_id, pipeline_type, dataset_fingerprint, training_metrics (loss, accuracy, MAE), deployment_status, SLO targets, actual vs predicted drift. Replay + audit per pipeline. Cross-pipeline comparison (which pipeline's LoRA is most stable).",
+          "exit_conditions": [
+            "MasterAITrainingLedgerEngine with schemaVersion",
+            "Ingests from all 8 pipeline LoRA cadence engines",
+            "Cross-pipeline SLO dashboard accessible via dispatcher",
+            "Replay by run_id",
+            "≥15 tests"
+          ],
+          "status": "not_started",
+          "legacy_id": "U09",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-CMCCL10",
+          "title": "LoRADriftCoordinatorEngine — cross-pipeline drift detection",
+          "description": "Monitors drift signals from all 8 pipeline LoRA DriftDetectors. Fires a master retrain trigger when 2+ pipelines drift simultaneously (suggests shared upstream cause like material batch variation). Publishes alerts to AGENT_CHAT.md + PagerDuty.",
+          "exit_conditions": [
+            "LoRADriftCoordinatorEngine present",
+            "Multi-pipeline drift correlation",
+            "Master retrain trigger wired",
+            "Alert publication",
+            "≥10 tests"
+          ],
+          "status": "not_started",
+          "legacy_id": "U10",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-CMCCL11",
+          "title": "TrainingLedger dispatcher wiring — prism_ai.ledger_* actions",
+          "description": "Add ledger_query, ledger_status, ledger_drift, ledger_replay, ledger_compare, ledger_slo to prism_ai dispatcher. Enables shop operator + agent access to cross-pipeline training health.",
+          "exit_conditions": [
+            "6 new prism_ai actions wired (enum + case handlers)",
+            "Zod schemas for each action",
+            "Dispatcher test suite ≥6 tests (one per action)"
+          ],
+          "status": "not_started",
+          "legacy_id": "U11",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "P3",
+      "title": "Master AI Feedback Loop — Orchestrator Confidence → Fleet Priors",
+      "units": [
+        {
+          "id": "U-CMCCL12",
+          "title": "CAMAGIMasterOrchestratorEngine emits confidence_commit hook",
+          "description": "After every orchestration decision, CAMAGIMaster emits (decision_id, reasoning_mode, chosen_cam, confidence, outcome_placeholder) via a new confidence_commit hook. OutcomeAccumulator updates on observed result.",
+          "exit_conditions": [
+            "CAMAGIMaster emits confidence_commit events",
+            "OutcomeAccumulatorEngine subscribes",
+            "Event schema versioned",
+            "≥10 tests"
+          ],
+          "status": "not_started",
+          "legacy_id": "U12",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-CMCCL13",
+          "title": "OrchestratorConfidenceFeedbackEngine — writes back to fleet",
+          "description": "When outcome is observed, OrchestratorConfidenceFeedback updates CAM-system-level Bayesian priors in the fleet (e.g., Mastercam performed 12% better than hyperMILL for this feature class on this material class). These priors feed CAMAGIMaster's next routing decision. Closes the loop.",
+          "exit_conditions": [
+            "OrchestratorConfidenceFeedbackEngine present",
+            "Writes CAM-system-level priors to FleetLearningStrategy",
+            "CAMAGIMaster reads priors on next routing",
+            "Hysteresis to prevent oscillation",
+            "≥10 tests"
+          ],
+          "status": "not_started",
+          "legacy_id": "U13",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-CMCCL14",
+          "title": "CrossCAMComparisonLedgerEngine — head-to-head CAM system performance",
+          "description": "Per feature-class × material-class × machine-class cell, tracks which CAM system (hyperMILL / Mastercam / Fusion / InventorCAM / SolidCAM / NX / CATIA) produces best predicted-vs-actual agreement. Exposed via prism_ai.cross_cam_leaderboard.",
+          "exit_conditions": [
+            "CrossCAMComparisonLedgerEngine present",
+            "Per-cell Wilson-score ranks",
+            "Leaderboard dispatcher action wired",
+            "≥10 tests"
+          ],
+          "status": "not_started",
+          "legacy_id": "U14",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-CMCCL15",
+          "title": "End-to-end closed-loop test — JM Die job → actual → ledger → next-job priors",
+          "description": "E2E test: run a JM Die part through CAMAGIMasterOrchestrator, record predicted cycle/Ra/force, simulate actual via CalibratedSimulationEngine perturbation, ingest via FeedbackCollectorEngine, verify SelfLearningCAMEngine Bayesian posterior shift, verify FleetLearningStrategy prior update, verify next orchestrator call picks a different (improved) strategy. 5-stage assertion chain.",
+          "exit_conditions": [
+            "E2E test harness with 5-stage assertion chain",
+            "Real engines (no mocks) for all 5 stages",
+            "Verifies posterior shift magnitude",
+            "Verifies next-call strategy change",
+            "Test file in __tests__/ with ≥15 assertions"
+          ],
+          "status": "not_started",
+          "legacy_id": "U15",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        }
+      ]
+    }
+  ],
+  "status": "not_started",
+  "total_units": 15,
+  "track": "CAM-ML",
+  "notes": "Built on the LATHE-PROD-READY-MS0 LoRA reference pattern (49 engines). Extends closed-loop learning to cross-CAM master orchestration level. Prereq: existing 95 DL/LoRA engines + 92 learning/ingest/feedback engines remain in-place; this milestone wires them together at the master level rather than rebuilding.",
+  "smart_config": {
+    "role": "senior-architect + domain-specialist",
+    "model": "opus",
+    "effort": "MAX",
+    "context_budget": "65%"
+  },
+  "mcp_lifecycle": {
+    "session_start": [
+      "prism_session:context_boot",
+      "prism_session:dispatcher_map",
+      "prism_session:memory_recall",
+      "prism_session:system_snapshot",
+      "prism_session:action_search"
+    ],
+    "during_work": [
+      "prism_session:auto_checkpoint",
+      "prism_session:tool_route_best",
+      "prism_session:wip_capture"
+    ],
+    "session_end": [
+      "prism_session:memory_save",
+      "prism_session:system_snapshot",
+      "prism_session:checkpoint_enhanced"
+    ]
+  },
+  "forge_triple": {
+    "protective_hook": "cam-ml-closedloop-ms0-gate",
+    "mcp_action": "prism_cam-ml:cam_ml_closedloop_ms0_run",
+    "skill_command": "/cam-ml-closedloop-ms0",
+    "ownership": "DECLARED — BUILT in terminal unit of this milestone"
+  },
+  "feature_cascade": {
+    "new_hooks": [
+      "cam-ml-closedloop-ms0-gate"
+    ],
+    "new_actions": [
+      "cam_ml_closedloop_ms0_run"
+    ],
+    "new_skills": [
+      "/cam-ml-closedloop-ms0"
+    ],
+    "available_to": [
+      "downstream CAMX milestones",
+      "prism app consumers"
+    ]
+  },
+  "knowledge_sources": {
+    "engines": [
+      "ENGINE_DIGEST.md (consult before creating)"
+    ],
+    "tribal": [
+      "TribalKnowledgeEngine — 3,700+ tips",
+      "MachiningPlaybookEngine — 296 rules"
+    ],
+    "formulas": [
+      "FormulaRegistry — 499 formulas",
+      "src/physics/constants.ts — canonical"
+    ],
+    "reference": [
+      "EXTERNAL-REFERENCE-PROGRAMS-INDEX.md",
+      "MaterialRegistry",
+      "MachineRegistry",
+      "ToolCatalogEngine (95,608 tools)"
+    ]
+  },
+  "intent": "Close the 3 gaps identified in the CAM ML system: (1) extend the production-grade Lathe LoRA cadence pattern to the other 7 machine types (milling, 5-axis, grinding, wire EDM, sinker EDM, laser, waterjet, mill-turn); (2) build a cross-pipeline MasterAITrainingLedgerEngine generalized from LathePerformanceSLORegistryEngine + U-LPR-TRAINING-LEDGER; (3) close the loop from CAMAGIMasterOrchestrator orchestrator confidence back into fleet storage and per-CAM priors so the master AI continuously improves.",
+  "compact_checkpoint": "every 3 units — auto-triggered by hook",
+  "enforcement_hooks_active": [
+    "physics agent",
+    "wiring agent",
+    "constants checker",
+    "stub detector",
+    "test quality",
+    "forge-triple gate",
+    "session audit agent"
+  ]
+}

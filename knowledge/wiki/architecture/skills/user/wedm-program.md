@@ -23,13 +23,14 @@ related:
 |-------|-------|
 | Name | `wedm-program` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/wedm-program.md` |
+| Source | `C:/Users/wompu/.claude/commands/wedm-program.md` |
 | Model | default |
 | Tags | _(none)_ |
 
 ## Description (first paragraph)
 
-Generate a complete, production-ready Wire EDM NC program with physics-derived parameters, per-pass optimization, and full traceability.
+
+# /wedm-program — Physics-Optimized Wire EDM Program Generator
 
 <!-- AUTO-END -->
 

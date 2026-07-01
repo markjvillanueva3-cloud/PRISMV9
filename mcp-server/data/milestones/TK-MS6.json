@@ -1,0 +1,63 @@
+{
+  "id": "TK-MS6",
+  "title": "Knowledge Graph + Master Machinist + CourseBuilder Integration",
+  "track": "TK",
+  "status": "complete",
+  "completed_at": "2026-04-14",
+  "total_units": 3,
+  "completed_units": 3,
+  "units": [
+    {
+      "id": "TK-MS6-U29",
+      "title": "Knowledge graph from auto-categorized tips",
+      "status": "complete",
+      "files_modified": [
+        "src/engines/KnowledgeGraphEngine.ts",
+        "src/tools/dispatchers/knowledgeDispatcher.ts",
+        "src/schemas/knowledgeActionSchemas.ts"
+      ],
+      "files_created": [
+        "src/__tests__/tk-ms6-tribal-graph.test.ts"
+      ],
+      "details": "Added 'tribal_tip' to NodeType and 'relates_to' to EdgeType in KnowledgeGraphEngine. Created tribal_graph action for seeding graph with auto-categorized tips. Added seedTribalTips() and queryTribalGraph() functions.",
+      "tests": 6
+    },
+    {
+      "id": "TK-MS6-U30",
+      "title": "Master Machinist recommendation mode",
+      "status": "complete",
+      "files_modified": [
+        "src/engines/TribalKnowledgeEngine.ts",
+        "src/tools/dispatchers/knowledgeDispatcher.ts",
+        "src/schemas/knowledgeActionSchemas.ts"
+      ],
+      "files_created": [
+        "src/__tests__/tk-ms6-master-machinist.test.ts"
+      ],
+      "details": "Added masterMachinistRecommend() method that returns top 3 tips with 'Senior machinists say:' prefix, provenance chain (captured_by, times_applied, success_rate), and relevance scoring (confidence + usage + evidence).",
+      "tests": 8
+    },
+    {
+      "id": "TK-MS6-U31",
+      "title": "CourseBuilder + Academy integration",
+      "status": "complete",
+      "files_modified": [
+        "src/engines/CourseBuilderEngine.ts",
+        "src/tools/dispatchers/knowledgeDispatcher.ts",
+        "src/schemas/knowledgeActionSchemas.ts"
+      ],
+      "files_created": [
+        "src/__tests__/tk-ms6-coursebuilder-integration.test.ts"
+      ],
+      "details": "Added domain-aware grouping to courseBuild() with groupBy parameter ('category', 'domain', 'domain_category'). Added preferDomain parameter to sort cam_software domain tips first for CAM courses. Added DOMAIN_LABELS mapping. ApprenticeEngine bridge to tribalKnowledgeEngine.ingest() confirmed functional.",
+      "tests": 18
+    }
+  ],
+  "exit_gate": {
+    "total_tests": 32,
+    "graph_node_type_added": true,
+    "master_machinist_mode": true,
+    "coursebuilder_domain_aware": true,
+    "apprentice_bridge_functional": true
+  }
+}

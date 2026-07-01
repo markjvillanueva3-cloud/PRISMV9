@@ -95,6 +95,23 @@ const doe_analyze = z.object({
 // EXPORT MAP
 // ============================================================================
 
+// WIRE-PROCESS-DIRECT-MS0/U-VICTOR-PROCESS-DIRECT (slot:victor, 2026-05-26)
+// 2 schemas for newly-wired DOETaguchEngine + CUSUMEngine. Passthrough at
+// dispatcher edge; engines own input validation.
+const doe_taguchi_compute = z.object({}).passthrough()
+  .describe("DOETaguchEngine.compute — Taguchi orthogonal-array DOE analysis. Distinct from doe_analyze (DOEAnalysisEngine — factorial). Inputs: DOEInput (factors + levels + responses). Returns AtomicValue<DOEResult> with main-effects + S/N ratio + optimal-level recommendation.");
+const cusum_stream_analyze = z.object({
+  values: z.array(z.number()).optional().describe("Stream of measurements (preferred)"),
+  data: z.array(z.number()).optional().describe("Alias for `values`"),
+  config: z.object({
+    target: z.number(),
+    k: z.number(),
+    h: z.number(),
+    sigma: z.number(),
+  }).passthrough().optional().describe("CusumConfig: target/k/h/sigma. Defaults (target:0, k:0.5, h:5, sigma:1) if omitted."),
+}).passthrough()
+  .describe("CUSUMEngine one-shot stream wrapper. Replays the values through a fresh engine instance, returns full trace + alarm count + final state. Stateless from the MCP perspective.");
+
 export const PROCESS_CONTROL_ACTION_SCHEMAS: ActionSchemaMap = {
   ctc_analyze,
   ctc_optimal_gain,
@@ -102,4 +119,6 @@ export const PROCESS_CONTROL_ACTION_SCHEMAS: ActionSchemaMap = {
   spc_ewma,
   spc_cusum,
   doe_analyze,
+  doe_taguchi_compute,
+  cusum_stream_analyze,
 };

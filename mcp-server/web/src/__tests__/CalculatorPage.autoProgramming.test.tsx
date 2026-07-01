@@ -230,7 +230,7 @@ describe('CalculatorPage auto-programming workbench', () => {
       fireEvent.click(within(panel).getByRole('button', { name: /Thread Od/i }));
       fireEvent.change(within(panel).getByLabelText(/Radial stock offset/i), { target: { value: '0.2' } });
       fireEvent.change(within(panel).getByLabelText(/Batch quantity/i), { target: { value: '24' } });
-      fireEvent.click(within(panel).getByRole('button', { name: /PRISM auto-program/i }));
+      fireEvent.click(within(panel).getByRole('button', { name: /Kienzle auto-program/i }));
     });
 
     await screen.findByText(/Lathe program ready/i);
@@ -270,7 +270,7 @@ describe('CalculatorPage auto-programming workbench', () => {
       fireEvent.change(within(panel).getByLabelText(/Origin X/i), { target: { value: '10' } });
       fireEvent.change(within(panel).getByLabelText(/Origin Y/i), { target: { value: '5' } });
       fireEvent.change(within(panel).getByLabelText(/Per-pass offset overrides/i), { target: { value: '0.18, 0.06, 0.02' } });
-      fireEvent.click(within(panel).getByRole('button', { name: /PRISM auto-program/i }));
+      fireEvent.click(within(panel).getByRole('button', { name: /Kienzle auto-program/i }));
     });
 
     await screen.findByText(/Wire program ready/i);
@@ -329,8 +329,8 @@ describe('CalculatorPage auto-programming workbench', () => {
       fireEvent.change(within(panel).getByLabelText(/Spark gap per side/i), { target: { value: '0.06' } });
       fireEvent.change(within(panel).getByLabelText(/Wear allowance/i), { target: { value: '0.02' } });
       fireEvent.change(within(panel).getByLabelText(/Finish passes/i), { target: { value: '3' } });
-      fireEvent.change(within(panel).getByLabelText(/Legacy Roku-Roku reference folder/i), { target: { value: 'H:\\PRISM\\JM DIE\\ROKU-ROKU' } });
-      fireEvent.click(within(panel).getByRole('button', { name: /PRISM auto-program/i }));
+      fireEvent.change(within(panel).getByLabelText(/Legacy Roku-Roku reference folder/i), { target: { value: 'H:\\Kienzle\\JM DIE\\ROKU-ROKU' } });
+      fireEvent.click(within(panel).getByRole('button', { name: /Kienzle auto-program/i }));
     });
 
     await screen.findByText(/Electrode NC ready/i);
@@ -353,7 +353,7 @@ describe('CalculatorPage auto-programming workbench', () => {
       wear_allowance_mm: 0.02,
       finish_pass_count: 3,
       legacy_macro_path: 'H:\\Automated Program_Corrected 5-25.xlsm',
-      legacy_reference_path: 'H:\\PRISM\\JM DIE\\ROKU-ROKU',
+      legacy_reference_path: 'H:\\Kienzle\\JM DIE\\ROKU-ROKU',
     });
   });
 });

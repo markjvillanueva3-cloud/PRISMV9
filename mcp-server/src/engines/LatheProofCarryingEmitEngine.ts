@@ -260,10 +260,14 @@ class LatheProofCarryingEmitEngine {
         min_x_mm: envCheck.min_x_mm,
         min_z_mm: envCheck.min_z_mm,
       });
+      // Map PredicateStatus to GateSignature status:
+      // UNVERIFIED (downgrade only) -> WARNING; SAFE and BLOCKED map directly.
+      const predicateGateStatus: GateSignature['status'] =
+        predicateResult.status === 'UNVERIFIED' ? 'WARNING' : predicateResult.status;
       signatures.push({
         engine_id: "LatheSafetyPredicateEngine",
         version: "1.0.0",
-        status: predicateResult.status,
+        status: predicateGateStatus,
         result_hash: this.hash({
           status: predicateResult.status,
           blocking: predicateResult.blocking,

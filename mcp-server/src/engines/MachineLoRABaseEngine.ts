@@ -546,10 +546,73 @@ export class BaseLoRACadence {
   }
 }
 
+/**
+ * Introspection payload for the shared LoRA foundation -- returned by
+ * {@link machineLoRABase.getInfo}. Pure metadata: the reusable helpers, the
+ * canonical defaults consumers inherit, and the machine-type pipelines that
+ * compose on this base.
+ */
+export interface MachineLoRABaseInfo {
+  engine: string;
+  version: string;
+  description: string;
+  /** The reusable building blocks this foundation exposes. */
+  helpers: string[];
+  /** Canonical defaults every per-machine wrapper inherits. */
+  defaults: {
+    split: DatasetSplitConfig;
+    cadence: CadenceConfig;
+  };
+  /** Machine-type pipelines that compose on this base (CAM-ML-CLOSEDLOOP-MS0). */
+  machineTypes: string[];
+  /** Cadence enums available to per-machine wrappers. */
+  cadence: {
+    intervals: CadenceInterval[];
+    triggers: TriggerType[];
+    runStatuses: RunStatus[];
+  };
+}
+
 // Singleton export for dispatcher-level wiring (per-machine engines also
 // export their own singletons, but having a base instance lets tools
 // inspect the default config.)
 export const machineLoRABase = {
   buildDatasetHelper: (opts: DatasetBuilderOptions) => new BaseLoRADatasetBuilder(opts),
   createCadence: (initial?: Partial<CadenceConfig>, clock?: () => Date) => new BaseLoRACadence(initial, clock),
+
+  /**
+   * Introspect the shared LoRA foundation: the reusable helpers, the canonical
+   * DEFAULT_SPLIT / DEFAULT_CADENCE every per-machine wrapper inherits, and the
+   * machine-type pipelines that compose on it. Pure + deterministic (no I/O, no
+   * args) -- the dispatcher's machine_lora_base_info action surfaces this so a
+   * caller can discover the base contract without instantiating a builder.
+   *
+   * @returns Static metadata describing the MachineLoRABase foundation.
+   */
+  getInfo(): MachineLoRABaseInfo {
+    return {
+      engine: "MachineLoRABaseEngine",
+      version: "1.0.0",
+      description:
+        "Shared foundation for per-machine LoRA pipelines: geometry-hashed dataset " +
+        "assembly (stratified train/val/test split, Alpaca export) + cadence scheduling " +
+        "with drift triggers, version management, auto-promotion, and retention pruning.",
+      helpers: ["buildDatasetHelper", "createCadence"],
+      defaults: {
+        split: { ...DEFAULT_SPLIT },
+        cadence: { ...DEFAULT_CADENCE },
+      },
+      machineTypes: [
+        "milling", "5axis", "mill-turn", "wedm",
+        "sinker-edm", "laser", "waterjet", "grinding",
+      ],
+      cadence: {
+        // Each literal is checked against its union type below -- a typo or a
+        // dropped member fails compilation (single honest source of the enums).
+        intervals: ["daily", "weekly", "biweekly", "monthly", "on-demand"],
+        triggers: ["scheduled", "data-drift", "performance-drop", "manual"],
+        runStatuses: ["pending", "running", "completed", "failed"],
+      },
+    };
+  },
 };

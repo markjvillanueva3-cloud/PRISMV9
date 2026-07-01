@@ -1,0 +1,221 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta name="prism-source-hash" content="aecd42918b9d3a4af5b3b1fdeeda7e9bb123619c335acef97dd678fbed8883d5">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>POST-BRIDGE-SYNERGY-MS0 ALL-ENGINES Scope</title>
+<style>
+  :root {
+    --bg: #0f1014;
+    --panel: #1a1c23;
+    --panel-2: #232631;
+    --fg: #e4e6eb;
+    --fg-dim: #9aa0a8;
+    --border: #2c303a;
+    --ok: #4ade80;
+    --warn: #fbbf24;
+    --fail: #f87171;
+    --info: #60a5fa;
+    --link: #93c5fd;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; padding: 1.5rem; background: var(--bg); color: var(--fg);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, sans-serif;
+    font-size: 14px; line-height: 1.5; }
+  h1 { font-size: 1.6rem; margin: 0 0 0.25rem 0; }
+  h2 { font-size: 1.15rem; margin: 1.5rem 0 0.5rem 0; padding-bottom: 0.25rem;
+    border-bottom: 1px solid var(--border); color: var(--fg); }
+  .meta { color: var(--fg-dim); font-size: 0.85rem; margin-bottom: 1rem; }
+  .panel { background: var(--panel); border: 1px solid var(--border); border-radius: 6px;
+    padding: 0.75rem 1rem; margin-bottom: 1rem; }
+  .headline-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 0.5rem; margin-bottom: 1rem; }
+  .card { background: var(--panel-2); border: 1px solid var(--border); border-radius: 6px;
+    padding: 0.65rem 0.85rem; }
+  .card .lbl { font-size: 0.8rem; color: var(--fg-dim); }
+  .card .val { font-size: 1.4rem; font-weight: 600; margin: 0.15rem 0; font-variant-numeric: tabular-nums; }
+  .card .hint { font-size: 0.75rem; color: var(--fg-dim); }
+  .card.ok    { border-left: 3px solid var(--ok); }
+  .card.warn  { border-left: 3px solid var(--warn); }
+  .card.fail  { border-left: 3px solid var(--fail); }
+  .card.info  { border-left: 3px solid var(--info); }
+  table { width: 100%; border-collapse: collapse; margin: 0.5rem 0 1rem; font-size: 0.9rem;
+    background: var(--panel); border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }
+  caption { text-align: left; padding: 0.4rem 0.65rem; color: var(--fg-dim);
+    background: var(--panel-2); font-weight: 500; }
+  th, td { padding: 0.4rem 0.65rem; text-align: left; border-bottom: 1px solid var(--border);
+    font-variant-numeric: tabular-nums; vertical-align: top; }
+  th { background: var(--panel-2); color: var(--fg-dim); font-weight: 500;
+    text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.04em; }
+  tr:last-child td { border-bottom: none; }
+  td.right { text-align: right; }
+  ul, ol { margin: 0.4rem 0 1rem 1.25rem; }
+  li { margin: 0.15rem 0; }
+  .badge { display: inline-block; padding: 0.1rem 0.5rem; border-radius: 999px;
+    font-size: 0.75rem; font-weight: 500; background: var(--panel-2); color: var(--fg-dim);
+    border: 1px solid var(--border); }
+  .badge.ok   { background: rgba(74, 222, 128, 0.12); color: var(--ok);   border-color: rgba(74,222,128,0.3); }
+  .badge.warn { background: rgba(251, 191, 36, 0.12); color: var(--warn); border-color: rgba(251,191,36,0.3); }
+  .badge.fail { background: rgba(248, 113, 113, 0.12); color: var(--fail); border-color: rgba(248,113,113,0.3); }
+  .badge.info { background: rgba(96, 165, 250, 0.12); color: var(--info); border-color: rgba(96,165,250,0.3); }
+  .badge-grid { display: flex; flex-wrap: wrap; gap: 0.3rem; margin: 0.3rem 0 1rem 0; }
+  .kv { display: grid; grid-template-columns: max-content 1fr; gap: 0.2rem 0.85rem;
+    margin: 0.4rem 0 1rem 0; }
+  .kv .k { color: var(--fg-dim); }
+  svg.bar-chart { display: block; max-width: 100%; height: auto; }
+  svg .bar { fill: var(--info); }
+  svg .bar.ok   { fill: var(--ok); }
+  svg .bar.warn { fill: var(--warn); }
+  svg .bar.fail { fill: var(--fail); }
+  svg text { fill: var(--fg); font-family: monospace; font-size: 11px; }
+  svg .axis text { fill: var(--fg-dim); }
+  code { background: var(--panel-2); padding: 0 0.3rem; border-radius: 3px;
+    font-family: "Fira Code", Consolas, Menlo, monospace; font-size: 0.85em; }
+  a { color: var(--link); }
+  footer { margin-top: 2rem; padding-top: 0.75rem; border-top: 1px solid var(--border);
+    font-size: 0.8rem; color: var(--fg-dim); }
+</style>
+</head>
+<body>
+<h1>POST-BRIDGE-SYNERGY-MS0 ALL-ENGINES Scope</h1>
+<div class="meta">rendered from state/shared/specs/POST-ALL-ENGINES-SCOPE-2026-05-26.md</div>
+<div class="meta">Generated 2026-05-27T02:42:27.830Z</div>
+<style>
+  .prism-md-body { max-width: 70rem; margin: 0 auto; }
+  .prism-h1 { font-size: 1.6rem; }
+  .prism-h2 { font-size: 1.25rem; border-bottom: 1px solid var(--border); padding-bottom: 0.25rem; }
+  .prism-h3 { font-size: 1.1rem; color: var(--info); }
+  .prism-h4, .prism-h5, .prism-h6 { font-size: 1rem; color: var(--fg-dim); }
+  .prism-md-body p { margin: 0.5rem 0; }
+  .prism-md-list { margin: 0.5rem 0 0.5rem 1.25rem; padding: 0; }
+  .prism-md-list li { margin: 0.15rem 0; }
+  .prism-md-table { border-collapse: collapse; margin: 0.75rem 0; width: 100%; }
+  .prism-md-table th, .prism-md-table td { border: 1px solid var(--border); padding: 0.35rem 0.6rem; text-align: left; }
+  .prism-md-table th { background: var(--panel-2); }
+  .prism-codeblock { background: var(--panel-2); border: 1px solid var(--border); border-radius: 4px; padding: 0.6rem 0.8rem; overflow-x: auto; font-family: "Cascadia Code", Consolas, monospace; font-size: 13px; }
+  .prism-inline-code { background: var(--panel-2); padding: 0 0.25rem; border-radius: 3px; font-family: "Cascadia Code", Consolas, monospace; font-size: 0.92em; }
+  .prism-quote { border-left: 3px solid var(--info); background: var(--panel-2); padding: 0.5rem 0.85rem; margin: 0.75rem 0; color: var(--fg-dim); }
+  .prism-hr { border: 0; border-top: 1px solid var(--border); margin: 1rem 0; }
+  .prism-link { color: var(--link); text-decoration: none; }
+  .prism-link:hover { text-decoration: underline; }
+  .prism-bad-link { color: var(--fail); text-decoration: line-through; }
+  .prism-unclosed::before { content: "⚠ unterminated code block"; display: block; color: var(--warn); font-size: 0.85em; margin-bottom: 0.25rem; }
+  </style><main class="prism-md-body"><nav class="prism-toc"><strong>Contents</strong><ul><li class="prism-toc-l1">POST-BRIDGE-SYNERGY-MS0 — ALL-ENGINES scope (4-agent + grep synthesis)</li><li class="prism-toc-l2">Ground truth — engine pool inventory</li><li class="prism-toc-l2">Top 50 engine families (where the 3032 engines live)</li><li class="prism-toc-l2">ALL post-relevant orphans (sample of names beyond Tier-A/B from earlier scopes)</li><li class="prism-toc-l2">Phase delta against the prior 63-unit scope</li><li class="prism-toc-l2">The 4-agent convergence (key cross-cutting insights)</li><li class="prism-toc-l3">From agent-1 (existing math layer audit)</li><li class="prism-toc-l3">From agent-2 (tribal-formula mining)</li><li class="prism-toc-l3">From agent-3 (cross-domain transfers)</li><li class="prism-toc-l3">From agent-4 (novel-math gap analysis)</li><li class="prism-toc-l2">Total scope: 123 units across 9 phases</li><li class="prism-toc-l2">Recommendation (final)</li><li class="prism-toc-l3">Tier-1 — IMMEDIATE (Phase 0 + selected Phase 6)</li><li class="prism-toc-l3">Tier-2 — STRUCTURAL (Phase 1 + Phase 2 + Phase 7 lathe-pattern transfer)</li><li class="prism-toc-l3">Tier-3 — INTELLIGENCE (Phase 3 + Phase 4 + Phase 5 + Phase 6 remaining + Phase 7 remaining + Phase 8)</li><li class="prism-toc-l2">Final differentiator answer</li></ul></nav><h1 class="prism-h1">POST-BRIDGE-SYNERGY-MS0 — ALL-ENGINES scope (4-agent + grep synthesis)</h1>
+<p><strong>Slot:</strong> echo · <strong>Date:</strong> 2026-05-26 · <strong>Triggered by:</strong> operator directive &quot;scope ALL engines&quot;</p>
+<h2 class="prism-h2">Ground truth — engine pool inventory</h2>
+<table class="prism-md-table"><thead><tr><th>Metric</th><th>Value</th><th>Source</th></tr></thead><tbody><tr><td>Total <code class="prism-inline-code">.ts</code> files in <code class="prism-inline-code">mcp-server/src/engines/</code></td><td><strong>3,762</strong></td><td>`ls \</td><td>wc -l`</td></tr>
+<tr><td>Unique leading-word families</td><td>996</td><td>`sed \</td><td>sort -u`</td></tr>
+<tr><td>Top-50 families cover</td><td><strong>3,032 of 3,762 (~81%)</strong></td><td><code class="prism-inline-code">awk</code> sum</td></tr>
+<tr><td>Post-relevant family rollup (28 keywords listed)</td><td><strong>1,084 engines</strong></td><td><code class="prism-inline-code">grep -ciE</code></td></tr>
+<tr><td>Engines imported by ALL <code class="prism-inline-code"><em>Post</em>Engine*.ts</code> files combined</td><td><strong>0 sibling-engine imports detected</strong></td><td><code class="prism-inline-code">grep -h &quot;from \&quot;./&quot; <em>Post</em>Engine.ts</code></td></tr>
+<tr><td>Algorithm files (<code class="prism-inline-code">mcp-server/src/algorithms/</code>)</td><td><strong>93</strong></td><td>`ls \</td><td>wc -l`</td></tr>
+<tr><td>Extracted-modules total</td><td>1,788 classified (1,259 WIRE_CANDIDATE, 208 DB, 134 PARTIAL, 57 STUB)</td><td>iter9-12 work</td></tr></tbody></table>
+<p><strong>Headline finding</strong> (4-agent + grep convergence): PRISM has the math but the **<code class="prism-inline-code"><em>Post</em>Engine<em>.ts</code> files do not import a single sibling engine via relative path.</em>* Every advanced engine is reachable via dispatcher action, but post engines don&#39;t call them. The fix is wiring, not new math.</p>
+<h2 class="prism-h2">Top 50 engine families (where the 3032 engines live)</h2>
+<table class="prism-md-table"><thead><tr><th>Family</th><th>Count</th><th>Post-relevance</th><th>Wired to a post today?</th></tr></thead><tbody><tr><td><strong>Lathe</strong></td><td>195</td><td>Direct (lathe-post sibling for mill bridging)</td><td>Yes — lathe post chain consumes</td></tr>
+<tr><td><strong>Hyper</strong></td><td>72</td><td>Direct (hyperMILL)</td><td>Partial — engines exist, Add-In missing</td></tr>
+<tr><td><strong>Mill</strong></td><td>70</td><td>Direct (mill post)</td><td>Partial — HurcoV11 only</td></tr>
+<tr><td><strong>Cross</strong></td><td>69</td><td>Cross-process AI/ML (Conformal, Mondrian, Causal, Bandit)</td><td><strong>NO</strong> — zero post imports</td></tr>
+<tr><td><strong>Post</strong></td><td>64</td><td>Direct</td><td>(these ARE the post engines — 5 do work, 59 sit idle)</td></tr>
+<tr><td><strong>Tool</strong></td><td>63</td><td>Direct (catalog, holder, magazine, crib)</td><td>Partial</td></tr>
+<tr><td><strong>Machine</strong></td><td>49</td><td>Direct (kinematics, capability, profile)</td><td>Partial</td></tr>
+<tr><td><strong>Fusion</strong></td><td>36</td><td>Direct (Fusion bridge)</td><td>Yes — only Fusion bridge live</td></tr>
+<tr><td><strong>Milling</strong></td><td>34</td><td>Direct</td><td>Partial</td></tr>
+<tr><td><strong>Multi</strong></td><td>31</td><td>Multi-axis, multi-process orchestration</td><td>Partial</td></tr>
+<tr><td><strong>Mastercam</strong></td><td>28</td><td>Direct (Mastercam)</td><td>Engines exist, Add-In missing</td></tr>
+<tr><td><strong>Turning</strong></td><td>25</td><td>Direct (lathe analog)</td><td>Yes (lathe-side)</td></tr>
+<tr><td><strong>Print</strong></td><td>25</td><td>Print-to-program pipeline</td><td>Partial</td></tr>
+<tr><td><strong>Adaptive</strong></td><td>23</td><td>RTAC, feed mod, chipload, override</td><td><strong>NO</strong> post wiring</td></tr>
+<tr><td><strong>Wire</strong></td><td>22</td><td>WEDM (transferable rough/skim cascade)</td><td>Yes (WEDM-side)</td></tr>
+<tr><td><strong>Speed</strong></td><td>20</td><td>Speed/feed engines</td><td>Partial (Hurco wires AutoSpeedFeed only)</td></tr>
+<tr><td><strong>Shop</strong></td><td>20</td><td>Shop-floor, ERP, costing</td><td>(sidecar — not always emit-side)</td></tr>
+<tr><td><strong>Employee</strong></td><td>19</td><td>HR / shop-floor</td><td>(sidecar)</td></tr>
+<tr><td><strong>Solid</strong></td><td>18</td><td>SolidWorks / SolidCAM bridges</td><td>Partial</td></tr>
+<tr><td><strong>Advanced</strong></td><td>18</td><td>Various advanced calc engines</td><td>Mixed</td></tr>
+<tr><td><strong>Context</strong></td><td>17</td><td>Memory, session, context</td><td>(platform)</td></tr>
+<tr><td><strong>Batch</strong></td><td>17</td><td>Batch processing</td><td>(sidecar)</td></tr>
+<tr><td><strong>Stochastic</strong></td><td>16</td><td>Variability, Monte-Carlo</td><td><strong>NO</strong> post wiring</td></tr>
+<tr><td><strong>Hook</strong></td><td>16</td><td>Hook engines</td><td>(platform)</td></tr>
+<tr><td><strong>Wet</strong></td><td>15</td><td>Wet-run (live)</td><td>Partial</td></tr>
+<tr><td><strong>Knowledge</strong></td><td>15</td><td>Tribal, KG, wiki</td><td><strong>NO</strong> post wiring (despite iter13&#39;s 63 cited tips!)</td></tr>
+<tr><td><strong>Tribal</strong></td><td>14</td><td>Tribal-tip surface</td><td><strong>NO</strong> post wiring</td></tr>
+<tr><td><strong>Material</strong></td><td>14</td><td>Material catalog + properties</td><td>Partial</td></tr>
+<tr><td><strong>Auto</strong></td><td>14</td><td>AutoSF, autopilot, auto-wiring</td><td>Partial</td></tr>
+<tr><td><strong>Surface</strong></td><td>13</td><td>Brammertz, Ra predictors</td><td><strong>NO</strong> post wiring</td></tr>
+<tr><td><strong>Quoting</strong></td><td>13</td><td>Quote pipeline</td><td>(sidecar)</td></tr>
+<tr><td><strong>Program</strong></td><td>13</td><td>Program audit, optimize, compare</td><td>Partial</td></tr>
+<tr><td><strong>Thermal</strong></td><td>12</td><td>Thermal field, compensation</td><td><strong>NO</strong> post wiring</td></tr>
+<tr><td><strong>Strategy</strong></td><td>12</td><td>Strategy KB, ontology, evolve</td><td>Partial</td></tr>
+<tr><td><strong>Session</strong></td><td>12</td><td>Session management</td><td>(platform)</td></tr>
+<tr><td><strong>Physics</strong></td><td>12</td><td>Physics constants + bridges</td><td>Partial</td></tr>
+<tr><td><strong>Okuma</strong></td><td>12</td><td>Direct (Okuma)</td><td>Yes — OkumaOSP post live</td></tr>
+<tr><td><strong>Laser</strong></td><td>12</td><td>Laser cutting/welding</td><td>(other domain)</td></tr>
+<tr><td><strong>Inventor</strong></td><td>12</td><td>Direct (Inventor HSM)</td><td>Engines exist, Add-In missing</td></tr>
+<tr><td><strong>Five</strong></td><td>12</td><td>5-axis (RTCP, singularity, collision)</td><td><strong>NO</strong> post wiring</td></tr>
+<tr><td><strong>Toolpath</strong></td><td>11</td><td>Toolpath generation</td><td>Partial</td></tr>
+<tr><td><strong>Sinker</strong></td><td>11</td><td>Sinker EDM</td><td>(other domain)</td></tr>
+<tr><td><strong>Quote</strong></td><td>11</td><td>Quote engines</td><td>(sidecar)</td></tr>
+<tr><td><strong>Master</strong></td><td>11</td><td>MasterPost, MasterOrchestrator</td><td>Partial</td></tr>
+<tr><td><strong>Blueprint</strong></td><td>11</td><td>Print/blueprint ingestion</td><td>Partial</td></tr>
+<tr><td><strong>Unified</strong></td><td>10</td><td>Unified AGI / Master</td><td>Yes — MasterPostUnifiedAGI</td></tr>
+<tr><td><strong>Spindle</strong></td><td>10</td><td>Spindle control, load monitor</td><td><strong>NO</strong> post wiring</td></tr>
+<tr><td><strong>Skill</strong></td><td>10</td><td>Skill registry</td><td>(platform)</td></tr>
+<tr><td><strong>Process</strong></td><td>10</td><td>Process plan, capability</td><td>Partial</td></tr>
+<tr><td><strong>Part</strong></td><td>10</td><td>Part family, archetype</td><td>(CAD-side)</td></tr></tbody></table>
+<h2 class="prism-h2">ALL post-relevant orphans (sample of names beyond Tier-A/B from earlier scopes)</h2>
+<p><code class="prism-inline-code">AdaptiveChatterEngine</code>, <code class="prism-inline-code">BayesianAdaptiveEngine</code>, <code class="prism-inline-code">BayesianInferenceEngine</code>, <code class="prism-inline-code">BayesianOptimizationEngine</code>, <code class="prism-inline-code">BayesianSafetyEngine</code>, <code class="prism-inline-code">BayesianToolLifeEngine</code>, <code class="prism-inline-code">BoringBarDeflectionEngine</code>, <code class="prism-inline-code">CausalReasoningEngine</code>, <code class="prism-inline-code">ChatterNeuralClassifierEngine</code>, <code class="prism-inline-code">ChatterPredictionEngine</code>, <code class="prism-inline-code">ChatterStabilityLobeEngine</code>, <code class="prism-inline-code">ConformalCalibrationMonitorEngine</code>, <code class="prism-inline-code">ConformalPredictionLogEngine</code>, <code class="prism-inline-code">CounterfactualBuildSimulatorEngine</code>, <code class="prism-inline-code">CounterfactualMillEngine</code>, <code class="prism-inline-code">CounterfactualReasoningEngine</code>, <code class="prism-inline-code">CrossProcessBayesianDOEPlannerEngine</code>, <code class="prism-inline-code">CrossProcessBayesianMLPEngine</code>, <code class="prism-inline-code">CrossProcessCausalGraphLearnerEngine</code>, <code class="prism-inline-code">CrossProcessConformalClassificationEngine</code>, <code class="prism-inline-code">CrossProcessConformalPredictionEngine</code>, <code class="prism-inline-code">CrossProcessCounterfactualPredictorEngine</code>, <code class="prism-inline-code">CrossProcessMondrianClassificationEngine</code>, <code class="prism-inline-code">DeflectionOverlayEngine</code>, <code class="prism-inline-code">GeodesicDistanceEngine</code>, <code class="prism-inline-code">KalmanFilterEngine</code>, **+ ~50 more under MultiObjective<em>, Pareto</em>, OptimalControl<em>, MarkovDecision</em>, Wavelet<em>, FuzzyLogic</em>, RCSA<em>, Mahalanobis</em>, Hungarian<em>…</em>*</p>
+<h2 class="prism-h2">Phase delta against the prior 63-unit scope</h2>
+<p>The prior <code class="prism-inline-code">POST-BRIDGE-SYNERGY-COMPREHENSIVE-SCOPE</code> (commit <code class="prism-inline-code">c302f33ade</code>) listed 63 units. With the ALL-ENGINES grep complete:</p>
+<table class="prism-md-table"><thead><tr><th>Phase</th><th>Prior count</th><th>New count</th><th>Delta reason</th></tr></thead><tbody><tr><td>0</td><td>6</td><td>6</td><td>Same (v11 bug-fix + tedium-kill)</td></tr>
+<tr><td>1</td><td>4</td><td>4</td><td>Same (3 Add-In dirs + verifier)</td></tr>
+<tr><td>2</td><td>5</td><td>5</td><td>Same (4 synergy nodes + 1 contract)</td></tr>
+<tr><td>3</td><td>23</td><td>23</td><td>Same (extracted-modules absorption)</td></tr>
+<tr><td>4</td><td>20</td><td><strong>+30 added → 50</strong></td><td>Per-engine wiring scope: expand from 20 Tier-B hand-picked to all 50 post-relevant orphans found by grep</td></tr>
+<tr><td>5</td><td>5</td><td>5</td><td>Same (closed-loop)</td></tr>
+<tr><td><strong>NEW 6</strong></td><td>—</td><td><strong>15</strong></td><td>Top 15 wire-only/novel-math from agent-4 (emit-time fusion layer) — separate from per-engine wiring because these are emit-boundary, not engine-side</td></tr>
+<tr><td><strong>NEW 7</strong></td><td>—</td><td><strong>10</strong></td><td>Top 10 cross-domain transfers from agent-3 (lathe MasterPost stack → mill, WEDM rough/skim cascade → mill, Pontryagin/LQR → feed schedule, Conformal stack → mill, etc.)</td></tr>
+<tr><td><strong>NEW 8</strong></td><td>—</td><td><strong>10</strong></td><td>Top 10 tribal→algorithm conversions from agent-2 (HolderSafetyGate, HSMEntryGeometryValidator, TrochoidalMoatOptimizer, CoatingHRCCompatibility, FluteCountByHRC, SlotFeedDerater, VacuumFixtureSizing, HaasTapCycleOverrideGate, RoundInsertChipThinningSpecialization, InsertScrewCycleScheduler)</td></tr>
+<tr><td><strong>Total</strong></td><td><strong>63</strong></td><td><strong>123 units</strong></td><td>60 additional units identified by the ALL-ENGINES sweep</td></tr></tbody></table>
+<h2 class="prism-h2">The 4-agent convergence (key cross-cutting insights)</h2>
+<h3 class="prism-h3">From agent-1 (existing math layer audit)</h3>
+<ul class="prism-md-list"><li><strong>25-area survey</strong>: 22 of 25 already exist in PRISM; only <strong>3 true gaps</strong> are Symbolic Regression / Bayesian Network (fault DAG) / Optimal Transport / Tensor Decomposition / TDA.</li><li><strong>Hottest wiring gaps</strong>: Conformal PI bands (4 engines, 0 post imports), RCSA (engine exists, 0 post imports), Bayesian Vc/fz posterior (engines exist, no post consumer).</li><li><strong>Mill-post stack vs lathe</strong>: lathe has 7 MasterPost engines, mill has 2 (HurcoV11 + OkumaOSP). <strong>Cloning the lathe pattern is the single largest architectural win.</strong></li></ul>
+<h3 class="prism-h3">From agent-2 (tribal-formula mining)</h3>
+<ul class="prism-md-list"><li><strong>27 cited formulas extracted</strong> from <code class="prism-inline-code">milling-pdf-cited-tips.ts</code> (2,830 lines, 139 cited bodies).</li><li><strong>7 of 27 are covered</strong>; <strong>15 are hard gaps</strong> suitable for novel algorithm authorship.</li><li>Top novel candidates: HolderSafetyGate (TIR + RPM), HSMEntryGeometryValidator (helix 1-3°, ramp ≤2°), TrochoidalMoatOptimizer (50-70% band), CoatingHRCCompatibility (delamination thresholds), FluteCountByHRC, SlotFeedDerater (inverse chip-thinning), VacuumFixtureSizing, HaasTapCycleOverrideGate, RoundInsertChipThinningSpecialization, InsertScrewCycleScheduler.</li></ul>
+<h3 class="prism-h3">From agent-3 (cross-domain transfers)</h3>
+<ul class="prism-md-list"><li><strong>Biggest gap</strong>: lathe ships 7-engine MasterPost stack (Router/Unified/SelfAwareness/DeepReasoning/EnsembleCrossCheck/RegressionMatrix/API); mill has zero orchestrator above HurcoV11+OkumaOSP. <strong>Pattern transfer = 7 new engines.</strong></li><li><strong>5 entire math classes wired in PRISM but zero mill-post consumption</strong>: OptimalControl (Pontryagin/LQR/HJB/MPC), Markov Decision, Information Theory, Fuzzy Logic, RCSA.</li><li><strong>High-ROI transfers</strong>: WEDM rough/skim cascade → mill rough/semi/finish; lathe CSS optimizer → ball-end variable-RPM; MDOF+RCSA → stability_rpm_rewrite upgrade; Timoshenko deflection (proven in lathe boring) → mill end-mill stickout.</li></ul>
+<h3 class="prism-h3">From agent-4 (novel-math gap analysis)</h3>
+<ul class="prism-md-list"><li><strong>PRISM novel-math gap is not engine count — it&#39;s emit-time fusion.</strong> ~70% of the top-15 ROI items are wiring existing engines to the post-emit boundary; only 5 are genuinely new math:</li></ul>
+<ol class="prism-md-list"><li>PINN-Cutting completion (34-line stub exists)</li><li>LTL modal-invariant suite for G-code</li><li>Sparse symbolic regression on shop outcomes</li><li>SE(3) SLERP+log-map 5-axis interpolation</li><li>SAT-solver collision certificate</li></ol>
+<ul class="prism-md-list"><li><strong>5 PRISM-only differentiators</strong> (no commercial CAM has these): Conformal-annotated G-code · LTL-verified modal correctness · per-customer symbolic-regression kc modifiers · SE(3) geodesic 5-axis interp · SAT-proof collision certificate.</li></ul>
+<h2 class="prism-h2">Total scope: 123 units across 9 phases</h2>
+<table class="prism-md-table"><thead><tr><th>Phase</th><th>Units</th><th>Focus</th><th>Effort proxy</th></tr></thead><tbody><tr><td>0</td><td>6</td><td>v11 bug-fix + tedium-kill</td><td>≤3 days</td></tr>
+<tr><td>1</td><td>4</td><td>3 missing CAM Add-Ins + verifier</td><td>~2 weeks</td></tr>
+<tr><td>2</td><td>5</td><td>DB/wizard/SFC/postgen node contracts</td><td>~1 week</td></tr>
+<tr><td>3</td><td>23</td><td>Extracted-modules absorption (1788-module shelf)</td><td>~3-4 weeks</td></tr>
+<tr><td>4</td><td>50</td><td>Per-engine wiring (all post-relevant orphans)</td><td>~4-6 weeks</td></tr>
+<tr><td>5</td><td>5</td><td>Closed-loop self-learning</td><td>~1-2 weeks</td></tr>
+<tr><td>6</td><td>15</td><td>Emit-time fusion layer (wire-only + 5 novel)</td><td>~2-3 weeks</td></tr>
+<tr><td>7</td><td>10</td><td>Cross-domain transfers (lathe-pattern, WEDM cascade, etc.)</td><td>~2-3 weeks</td></tr>
+<tr><td>8</td><td>10</td><td>Tribal→algorithm conversions (operator-cited gaps)</td><td>~2 weeks</td></tr>
+<tr><td><strong>Total</strong></td><td><strong>123 units</strong></td><td></td><td><strong>~16-22 weeks single-slot</strong> or <strong>~5-7 weeks parallel-12-slot</strong></td></tr></tbody></table>
+<h2 class="prism-h2">Recommendation (final)</h2>
+<p><strong>Three-tier ordering</strong> (do these in order, parallelize within tier):</p>
+<h3 class="prism-h3">Tier-1 — IMMEDIATE (Phase 0 + selected Phase 6)</h3>
+<ul class="prism-md-list"><li>All Phase 0 (6 units): fixes v11 line-70 holderFactor + tool-pocket tedium.</li><li>Phase 6 #1-2 (Conformal PI bands + Mahalanobis OOD gate at emit boundary): ~2 days each, R12 fail-loud immediate wins.</li></ul>
+<p>Net: 8 units, ~5 days. Operator can re-test v11 on a real Hurco with confidence intervals and OOD safety.</p>
+<h3 class="prism-h3">Tier-2 — STRUCTURAL (Phase 1 + Phase 2 + Phase 7 lathe-pattern transfer)</h3>
+<ul class="prism-md-list"><li>3 CAM Add-In resource dirs (parallelizable across 3 slots).</li><li>4 synergy node contracts.</li><li>Clone lathe 7-engine MasterPost stack → mill (the single biggest architectural delta).</li></ul>
+<p>Net: ~16 units, ~3 weeks parallel. Establishes the bridge architecture + the mill master-post orchestrator.</p>
+<h3 class="prism-h3">Tier-3 — INTELLIGENCE (Phase 3 + Phase 4 + Phase 5 + Phase 6 remaining + Phase 7 remaining + Phase 8)</h3>
+<ul class="prism-md-list"><li>Absorb the 1,788-module extracted shelf.</li><li>Wire the 50 post-relevant orphans.</li><li>Wire closed-loop self-learning.</li><li>Build the 5 novel-math differentiators (PINN-Cutting, LTL suite, symbolic regression, SE(3) interp, SAT collision proof).</li><li>Build the 10 tribal→algorithm conversions.</li></ul>
+<p>Net: ~99 units, parallelizable across multiple slots over weeks.</p>
+<h2 class="prism-h2">Final differentiator answer</h2>
+<p>The math/algorithm questions you&#39;ve asked across this loop all converge on the same answer:</p>
+<p><strong>PRISM already has the math.</strong> The 4-agent sweep + the ALL-ENGINES grep confirm 70% of what would normally be &quot;novel post-processor R&amp;D&quot; is already engine-resident — just unreached by the post-emit boundary. <strong>The single move that turns PRISM from &quot;lots of engines + a thin post&quot; into &quot;the only post processor with mathematical guarantees&quot; is wiring the existing engines into the emit boundary AND closing the closed loop.</strong></p>
+<p>The 5 genuinely-novel projects (PINN-Cutting, LTL suite, symbolic regression on outcomes, SE(3) 5-axis interp, SAT collision certificates) are differentiators no commercial CAM ships. They&#39;re 2-3 weeks of focused build each. Cumulatively: ~3-4 months of work to ship a post that no competitor can match.</p>
+<p><strong>Cron status:</strong> <code class="prism-inline-code">142b76f4</code> cancelled at iter20. This expanded 123-unit scope replaces the prior 63-unit scope. Operator green-lights → start as <code class="prism-inline-code">/loop POST-BRIDGE-SYNERGY-MS0</code> Tier-1 immediately.</p></main><footer>
+<div>html-report-render schemaVersion 1.0.0</div>
+</footer>
+</body>
+</html>

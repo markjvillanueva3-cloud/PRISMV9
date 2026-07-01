@@ -35,7 +35,13 @@ function cfg() {
     TIMEOUT_MS: parseInt(process.env.PRISM_BROKER_TIMEOUT_MS || "2000", 10),
     HEALTH_TIMEOUT_MS: parseInt(process.env.PRISM_BROKER_HEALTH_TIMEOUT_MS || "500", 10),
     HOOKS_DIR: process.env.PRISM_BROKER_HOOKS_DIR || "H:/prism/.claude/hooks",
-    FALLBACK_BIN: process.env.PRISM_BROKER_FALLBACK_BIN || "H:/.claude/bin/portable-node",
+    // Default to the running node binary, NOT the extensionless "portable-node" shim: the fallback
+    // path cp.spawn's this WITHOUT shell (spawnFallback line ~121), and Windows CreateProcess
+    // ENOENTs on a no-extension file -> the broker's safety-net fallback would never run a hook.
+    // (Same bug class as the stop-consensus-drain silent-autofire fix; the broker's OWN test already
+    // overrides this to process.execPath, proving the shim default was broken.) process.execPath is
+    // always a real, spawnable .exe.
+    FALLBACK_BIN: process.env.PRISM_BROKER_FALLBACK_BIN || process.execPath,
     DISABLED: process.env.PRISM_BROKER_DISABLE === "1",
   };
 }

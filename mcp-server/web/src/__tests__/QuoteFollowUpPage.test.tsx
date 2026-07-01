@@ -148,7 +148,7 @@ describe('QuoteFollowUpPage', () => {
 
     const customersUrl = new URL(
       (await screen.findByRole('link', { name: 'Open Customers follow-up' })).getAttribute('href') ?? '',
-      'https://prism.local',
+      'https://kienzle.local',
     );
     expect(customersUrl.pathname).toBe('/customers');
     expect(customersUrl.searchParams.get('source')).toBe('quote-follow-up');
@@ -161,7 +161,7 @@ describe('QuoteFollowUpPage', () => {
 
     const quoteBuilderUrl = new URL(
       (await screen.findByRole('link', { name: 'Open Quote Builder' })).getAttribute('href') ?? '',
-      'https://prism.local',
+      'https://kienzle.local',
     );
     expect(quoteBuilderUrl.pathname).toBe('/quote-builder');
     expect(quoteBuilderUrl.searchParams.get('source')).toBe('quote-follow-up');

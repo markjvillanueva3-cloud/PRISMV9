@@ -1,3 +1,4 @@
+// WIRE-EXEMPT: internal ML component composed by LatheSelfAwarenessIntegrationEngine and LatheUnifiedAIOrchestrator (both wired). No direct dispatcher action — exposed through those orchestrators.
 /**
  * LatheTransformerEngine — LATHE-TRANSFORMER-MS0
  * ================================================
@@ -2338,7 +2339,7 @@ export class LatheTransformerEngine {
         line_number: issue.line_range?.[0] || 0,
         line_content: "",
         error_type: issue.category,
-        severity: issue.severity,
+        severity: (issue.severity === "suggestion" ? "info" : issue.severity) as "critical" | "warning" | "info",
         description: issue.description,
         suggestion: issue.recommendation,
         confidence: 0.7,
@@ -2441,7 +2442,7 @@ export class LatheTransformerEngine {
       importance: number;
       context: string[];
     }>;
-    model_stats: ReturnType<typeof this.getModelStats>;
+    model_stats: ReturnType<LatheTransformerEngine["getModelStats"]>;
   } {
     const inputIds = this.tokenizeProgram(program);
     const encoderOutput = this.encodeSequence(inputIds);

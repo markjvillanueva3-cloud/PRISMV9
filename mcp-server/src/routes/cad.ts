@@ -53,5 +53,37 @@ export function createCadRouter(callTool: CallToolFn): Router {
     } catch (e) { next(e); }
   });
 
+  // POST /api/v1/cad/blueprint-redact -- auto-redact customer identity from an
+  // uploaded print/CAD doc before it is displayed or quoted (U-3VIEW-REDACT-WIRE).
+  // Privacy-critical: wraps the tested blueprintRedaction lib via prism_cad.
+  router.post("/blueprint-redact", async (req, res, next) => {
+    try {
+      const result = await callTool("prism_cad", "blueprint_redact", req.body);
+      res.json({ result });
+    } catch (e) { next(e); }
+  });
+
+  // POST /api/v1/cad/blueprint-extract-contract -- normalize a producer extraction (VLM `fused`
+  // ensemble output OR a Drawing2DExtractionEngine `drawing` result) into the versioned, mm-canonical
+  // BlueprintExtractionContract the app binds to. The app obtains the extraction via the producer
+  // action first, then calls this to get the stable contract (U-XRAY-EXTRACT-CONTRACT-WIRE).
+  router.post("/blueprint-extract-contract", async (req, res, next) => {
+    try {
+      const result = await callTool("prism_cad", "blueprint_extract_contract", req.body);
+      res.json({ result });
+    } catch (e) { next(e); }
+  });
+
+  // POST /api/v1/cad/blueprint-extract-route -- given a validated BlueprintExtractionContract, return
+  // the fan-out plan: which downstream prism features (quote / print-to-program / inspection / feature-
+  // recognize / cad-reconstruct / redact / material-resolve) this extraction can drive, with per-consumer
+  // payloads + commitment confirm-gates. Chains after blueprint-extract-contract (U-XRAY-EXTRACT-CONSUMER-ROUTER).
+  router.post("/blueprint-extract-route", async (req, res, next) => {
+    try {
+      const result = await callTool("prism_cad", "blueprint_extract_route", req.body);
+      res.json({ result });
+    } catch (e) { next(e); }
+  });
+
   return router;
 }

@@ -29,8 +29,11 @@ related:
 
 ## Description (first paragraph)
 
-
-# /welder-studio — Welding Studio Pipeline
+Full-featured robotic/CNC welder programming:
+- Weld path planning
+- Process selection (MIG/TIG/laser)
+- Parameter optimization
+- Distortion prediction
 
 <!-- AUTO-END -->
 

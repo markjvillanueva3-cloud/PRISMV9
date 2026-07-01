@@ -1,0 +1,45 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-04-15T21:30:00.000Z",
+  "description": "Maps WEDM skills to their dependencies (engines, actions, hooks)",
+  "skills": {
+    "/wedm-studio": {
+      "path": "~/.claude/commands/wedm-studio.md",
+      "engines": ["WEDMMRREngine", "WEDMSurfaceFinishEngine", "WEDMPostProcessorEngine", "WEDMTaperSolverEngine", "WEDMCostEstimatorEngine"],
+      "actions": ["wedm_predict_mrr", "wedm_predict_ra", "wedm_generate_gcode", "wedm_solve_taper", "wedm_estimate_cost"],
+      "hooks": ["wedm-sx-safety", "wedm-gcode-injection"],
+      "playbooks": ["wedm_drawing_to_program.json"]
+    },
+    "/wedm-learn": {
+      "path": "~/.claude/commands/wedm-learn.md",
+      "engines": ["WEDMFeedbackCalibrationEngine", "WEDMPDFExtractorEngine"],
+      "actions": ["wedm_feedback_submit", "wedm_extract_knowledge"],
+      "hooks": ["wedm-calibration-validate", "wedm-learning-trigger"],
+      "playbooks": ["wedm_new_material_learning.json", "wedm_continuous_learning.json"]
+    },
+    "/wedm-compare": {
+      "path": "~/.claude/commands/wedm-compare.md",
+      "engines": ["WEDMSurfaceFinishEngine", "WEDMMRREngine"],
+      "actions": ["wedm_compare_programs", "wedm_compare_parameters"],
+      "hooks": [],
+      "playbooks": []
+    },
+    "/wedm-troubleshoot": {
+      "path": "~/.claude/commands/wedm-troubleshoot.md",
+      "engines": ["WEDMDiagnosticEngine", "WEDMWireBreakAnalyzer"],
+      "actions": ["wedm_diagnose_wire_break", "wedm_analyze_incident"],
+      "hooks": ["wedm-drift-alert"],
+      "playbooks": ["wedm_wire_break_diagnosis.json"]
+    },
+    "/wedm-batch": {
+      "path": "~/.claude/commands/wedm-batch.md",
+      "engines": ["WEDMBatchOptimizer", "WEDMSchedulingEngine"],
+      "actions": ["wedm_batch_optimize", "wedm_schedule_jobs"],
+      "hooks": ["wedm-batch-deps", "wedm-schedule-conflict"],
+      "playbooks": ["wedm_batch_optimization.json"]
+    }
+  },
+  "totalSkills": 12,
+  "indexedSkills": 5,
+  "lastUpdated": "2026-04-15T21:30:00.000Z"
+}

@@ -1,0 +1,195 @@
+# TANGO Queue Reconcile -- verified-shipped overrides
+
+Generated: 2026-06-15T01:22:43.556Z
+Eligible scanned: 3046 | confirmed-via-commit-subject: 166 | recon-seed: 20
+Overrides total after merge: 185
+
+Advisory only. The picker (priority-queue / slot-queue) subtracts these ids via
+readVerifiedShippedOverrides (shipped-units-source-of-truth.mjs source (e)).
+
+## Verified-shipped ids (evidence)
+- `U-A1` -- commit-subject
+- `U-A2` -- commit-subject
+- `U-A3` -- commit-subject
+- `U-A4` -- commit-subject
+- `U-A5` -- commit-subject
+- `U-ACTION-TRACES` -- recon-seed f432ace730
+- `U-AGI12` -- commit-subject
+- `U-AIMAX11` -- commit-subject
+- `U-AUTH1` -- commit-subject
+- `U-B1` -- commit-subject
+- `U-B2` -- commit-subject
+- `U-B3` -- commit-subject
+- `U-B4` -- commit-subject
+- `U-B5` -- commit-subject
+- `U-BRIDGE-AI-TIER1-TIER2` -- commit-subject
+- `U-BRIDGE-AI-TIER2-TIER3` -- commit-subject
+- `U-BRIDGE-ERP-QUOTE` -- commit-subject
+- `U-BRIDGE-ERP-SCHED` -- commit-subject
+- `U-BRIDGE-LEARN-CAM` -- commit-subject
+- `U-BRIDGE-LEARN-SFC` -- commit-subject
+- `U-BRIDGE-MASTERPOST-CAM` -- commit-subject
+- `U-BRIDGE-OPERATOR-GATES` -- commit-subject
+- `U-BRIDGE-SFC-ESPRIT` -- commit-subject
+- `U-BRIDGE-SFC-FUSION` -- commit-subject
+- `U-BRIDGE-SFC-HYPERMILL` -- commit-subject
+- `U-BRIDGE-SFC-INVENTORHSM` -- commit-subject
+- `U-BRIDGE-SFC-SOLIDWORKS` -- commit-subject
+- `U-BRIDGE-SHOPFLOOR-LEARN` -- commit-subject
+- `U-BRIDGE-WIRE-BUSINESS` -- commit-subject
+- `U-BRIDGE-WIRE-CROSS` -- commit-subject
+- `U-BRIDGE-WIRE-INVENTOR` -- commit-subject
+- `U-BRIDGE-WIRE-LIVE` -- commit-subject
+- `U-BRIDGE-WIRE-MOBILE` -- commit-subject
+- `U-BRIDGE-WIRE-SWISS` -- commit-subject
+- `U-BRIDGE-WIRE-TRIBAL` -- commit-subject
+- `U-C2` -- commit-subject
+- `U-C3` -- commit-subject
+- `U-C4` -- commit-subject
+- `U-CAM81` -- commit-subject
+- `U-CGT01` -- commit-subject
+- `U-CGT03` -- commit-subject
+- `U-CGT04` -- commit-subject
+- `U-CGT05` -- commit-subject
+- `U-CGT06` -- commit-subject
+- `U-CGT07` -- commit-subject
+- `U-CGT08` -- commit-subject
+- `U-CGT09` -- commit-subject
+- `U-CGT10` -- commit-subject
+- `U-CK11` -- recon-seed 18cc9e3f1a
+- `U-CK14` -- recon-seed 8f814a25f6
+- `U-CK28` -- recon-seed 2389e3365b
+- `U-CK29` -- recon-seed 36645c59a1
+- `U-CONFLICT-RESOLUTION` -- recon-seed a6a1196637
+- `U-CONNECTION-FINDER` -- recon-seed 947b724dbc
+- `U-CONTEXT-EVAL-GATE` -- recon-seed 0b52fee450
+- `U-CUC04` -- commit-subject
+- `U-CUC05` -- commit-subject
+- `U-CUC06` -- commit-subject
+- `U-CUC07` -- commit-subject
+- `U-CUC08` -- commit-subject
+- `U-CUC09` -- commit-subject
+- `U-CUC11` -- commit-subject
+- `U-CUC13` -- commit-subject
+- `U-CUC14` -- commit-subject
+- `U-CUC15` -- commit-subject
+- `U-CUC16` -- commit-subject
+- `U-CUC17` -- commit-subject
+- `U-CUC18` -- commit-subject
+- `U-DAILY-CONTEXT-WORKFLOW` -- recon-seed 4ad7d90d5a
+- `U-DOCKER-HOOK-BROKER` -- commit-subject
+- `U-FORGE-GO-CHAIN` -- commit-subject
+- `U-FUS-API01` -- commit-subject
+- `U-GAP-TRIBAL-MACRO-INTEL` -- commit-subject
+- `U-HTML-DASHBOARD` -- recon-seed 78d26b1619
+- `U-HTML-DESIGN-SYSTEM` -- recon-seed 3a88b92710
+- `U-HTML-OUTPUT-MODE` -- recon-seed 1c17d2646d
+- `U-INT-05` -- commit-subject
+- `U-INV-LATHE-06` -- commit-subject
+- `U-JM01` -- commit-subject
+- `U-JM02` -- commit-subject
+- `U-JM03` -- commit-subject
+- `U-JM06` -- commit-subject
+- `U-KAR17` -- commit-subject
+- `U-KNOWLEDGE-DISTILLATION` -- recon-seed 35c78a2b96
+- `U-LPR26` -- commit-subject
+- `U-LPR27` -- commit-subject
+- `U-LPR28` -- commit-subject
+- `U-LPR29` -- commit-subject
+- `U-LTH04` -- commit-subject
+- `U-LTH04B` -- commit-subject
+- `U-LTH15` -- commit-subject
+- `U-LTH16` -- commit-subject
+- `U-LTH17` -- commit-subject
+- `U-LTH18` -- commit-subject
+- `U-LTH19` -- commit-subject
+- `U-LTH20` -- commit-subject
+- `U-LTH21` -- commit-subject
+- `U-LTH22` -- commit-subject
+- `U-LTH23` -- commit-subject
+- `U-LTH24` -- commit-subject
+- `U-LTH25` -- commit-subject
+- `U-LTH26` -- commit-subject
+- `U-LTH27` -- commit-subject
+- `U-LTH28` -- commit-subject
+- `U-LTH29` -- commit-subject
+- `U-LTH30` -- commit-subject
+- `U-LTH31` -- commit-subject
+- `U-LTH32` -- commit-subject
+- `U-LTH33` -- commit-subject
+- `U-LTH34` -- commit-subject
+- `U-LTH35` -- commit-subject
+- `U-LTH36` -- commit-subject
+- `U-LTH37` -- commit-subject
+- `U-LTH38` -- commit-subject
+- `U-LTH39` -- commit-subject
+- `U-LTH40` -- commit-subject
+- `U-LTH41` -- commit-subject
+- `U-LTH42` -- commit-subject
+- `U-LTH43` -- commit-subject
+- `U-LTH44` -- commit-subject
+- `U-LTH45` -- commit-subject
+- `U-LTH46` -- commit-subject
+- `U-LTH47` -- commit-subject
+- `U-LTH48` -- commit-subject
+- `U-LTH49` -- commit-subject
+- `U-LTH50` -- commit-subject
+- `U-LTH51` -- commit-subject
+- `U-LTH52` -- commit-subject
+- `U-LTH53` -- commit-subject
+- `U-LTH54` -- commit-subject
+- `U-LTH55` -- commit-subject
+- `U-LTH56` -- commit-subject
+- `U-LTH57` -- commit-subject
+- `U-LTH58` -- commit-subject
+- `U-LTH59` -- commit-subject
+- `U-LTH60` -- commit-subject
+- `U-LTH61` -- commit-subject
+- `U-LTH63` -- commit-subject
+- `U-LTH64` -- commit-subject
+- `U-LTH65` -- commit-subject
+- `U-LTH66` -- commit-subject
+- `U-LTH67` -- commit-subject
+- `U-LTH68` -- commit-subject
+- `U-LTH69` -- commit-subject
+- `U-LTH70` -- commit-subject
+- `U-LTH71` -- commit-subject
+- `U-LTH72` -- commit-subject
+- `U-LTH73` -- commit-subject
+- `U-LTH74` -- commit-subject
+- `U-LTH75` -- commit-subject
+- `U-LTH76` -- commit-subject
+- `U-MCAT01` -- commit-subject
+- `U-MCAT02` -- commit-subject
+- `U-MCAT08` -- commit-subject
+- `U-MONO-MAT-REPOINT` -- commit-subject
+- `U-ONTOLOGY-LAYER` -- recon-seed 892b667e24
+- `U-P4-DL-01` -- commit-subject
+- `U-P4-DL-02` -- commit-subject
+- `U-P4-DL-03` -- commit-subject
+- `U-PPGM07` -- commit-subject
+- `U-PPGM09` -- commit-subject
+- `U-PPGM10` -- commit-subject
+- `U-PPGM11` -- commit-subject
+- `U-PPGM12` -- commit-subject
+- `U-PPGM13` -- commit-subject
+- `U-PPGM14` -- commit-subject
+- `U-PPGM15` -- commit-subject
+- `U-PPGM16` -- commit-subject
+- `U-PROJECT-AUTO-UPDATER` -- recon-seed 6e3c61d9fb
+- `U-PROVENANCE-LAYER` -- recon-seed 36e6b5db39
+- `U-QUEUE-PROCESSOR` -- recon-seed d69835b03c
+- `U-REREAD-SIGNAL-FINISH` -- recon-seed 229d535240
+- `U-TRAIN-13` -- commit-subject
+- `U-VAULT01` -- commit-subject
+- `U-VAULT04` -- commit-subject
+- `U-WEEKLY-SYNTHESIS` -- recon-seed 6718a1cd62
+- `U-WIKI01` -- commit-subject
+- `U-WIKI02` -- commit-subject
+- `U-WIKI03` -- commit-subject
+- `U-WIKI04` -- commit-subject
+- `U-WIKI05` -- commit-subject
+- `U-WIKI06` -- commit-subject
+- `U-WIKI07` -- commit-subject
+- `U-WIKI08` -- commit-subject
+- `U-WIRE-BACKLOG-TRIBAL` -- commit-subject

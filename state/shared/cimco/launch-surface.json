@@ -1,0 +1,61 @@
+{
+  "schemaVersion": "1.0.0",
+  "generatedBy": "U-CIMCO-LAUNCH-PROBE (slot:echo, 2026-06-03)",
+  "installRoot": "resources/cimco-2026/CIMCOEdit",
+  "provenance": "Verified against the local CIMCO Edit 2026 install + decompiled CHM help (resources/cimco-2026/_extracted/edit_us/*.htm). Each executable's path + sizeBytes was confirmed on disk. Launch patterns are marked verified:true (documented behavior AND exe present) vs needsLiveVerify:true (plausible from CIMCO conventions but NOT confirmable without driving the live licensed app). No CLI flag is asserted unless documented — a `strings` scan of CIMCOEdit.exe surfaced no usage banner, so beyond the file-open arg the compare/batch flags stay unverified (R12 fail-loud).",
+  "executables": [
+    { "id": "edit", "exe": "CIMCOEdit.exe", "role": "main NC editor; hosts File Compare and Machine Simulation", "sizeBytes": 30796600, "primary": true },
+    { "id": "sim", "exe": "Dll/CIMCOSimulation.exe", "role": "3D machine-simulation engine/viewer (the sim-verdict surface; the SPINE-2 UIA report reader targets this)", "sizeBytes": 7038776 },
+    { "id": "keymgr", "exe": "Sys/KeyManager.exe", "role": "license/key manager — a valid license must be present before Machine Simulation runs", "sizeBytes": 379704 },
+    { "id": "grooving", "exe": "Dll/GroovingKernelWrapper.exe", "role": "grooving-cycle kernel wrapper (lathe groove expansion)", "sizeBytes": 98560 }
+  ],
+  "launchPatterns": [
+    {
+      "id": "open-file",
+      "verified": true,
+      "needsLiveVerify": false,
+      "channel": "cli",
+      "template": "CIMCOEdit.exe \"<ncFilePath>\"",
+      "purpose": "Open a generated NC program in the editor, bypassing the File > Open GUI dialog. The blind-preferred way to load a candidate post for inspection/compare.",
+      "source": "nav-map editor.file.open (channel cli) + standard Windows file-association behavior"
+    },
+    {
+      "id": "open-pair",
+      "verified": false,
+      "needsLiveVerify": true,
+      "channel": "cli",
+      "template": "CIMCOEdit.exe \"<goldenPath>\" \"<candidatePath>\"",
+      "purpose": "Open two files (golden + candidate) ready for side-by-side File Compare. CIMCO Edit accepts multiple file args, but the File-Compare ACTION itself is UIA-only — there is no documented compare CLI flag.",
+      "source": "inferred from CIMCO multi-file open convention; compare invocation unconfirmed blind"
+    },
+    {
+      "id": "standalone-sim-replay",
+      "verified": false,
+      "needsLiveVerify": true,
+      "channel": "cli",
+      "template": "<PresentationViewer>.exe \"<savedSimulationFile>\"",
+      "purpose": "Replay an archived simulation/presentation bundle in the standalone Presentation Viewer without the full editor. Lets a proven post's collision/position record be re-inspected later.",
+      "source": "nav-map pv.app (channel cli, presentation-viewer.htm) — viewer exe name + arg unconfirmed on this install"
+    }
+  ],
+  "integrationHook": {
+    "id": "external-command",
+    "channel": "file",
+    "blindSafe": true,
+    "where": "Editor Setup > External Commands (surfaces in the NC Functions tab > Commands menu)",
+    "mechanism": "Configure External Command 1 or 2 to call an external program; CIMCO appends macro-substituted args and (optionally) reads/uses the configured $OUTFILE for the result. This is a FILE-channel hook — fully blind-drivable, no UIA needed.",
+    "macros": {
+      "$FILE": "file name without path",
+      "$FILENOEXT": "file name without extension",
+      "$PATH": "path of the file",
+      "$FILEPATH": "file name with path",
+      "$OUTFILE": "output file name as configured below (e.g. $PATH\\$FILENOEXT.NEW)"
+    },
+    "prismUse": "Register PRISM's post-verifier as External Command 1 (title e.g. 'PRISM Verify'). From inside CIMCO on the currently open NC file the operator invokes it; PRISM receives $FILEPATH, runs prism_cimco verification, and writes the verdict to $OUTFILE. This is the blind-safe integration path that needs NO UIA automation — it complements (does not replace) the SPINE-2 UIA Simulation-Report reader, which is still required for the in-app Machine-Simulation collision verdict.",
+    "source": "setupexternalcommands.htm"
+  },
+  "licenseGate": {
+    "verified": true,
+    "note": "Machine Simulation requires a valid CIMCO license (managed by Sys/KeyManager.exe). A blind launch can open + text-edit + (UIA) text-compare a program, but the SIMULATION VERDICT half (collision/over-travel/gouge) is gated on a live license AND UIA — see the SPINE-2 UIA Simulation-Report reader keystone."
+  }
+}

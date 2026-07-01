@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>`/diagnose-fix` — Forensic Fix Pipeline (U-CK22)</title>
+<style>
+  :root {
+    --bg: #0f1014;
+    --panel: #1a1c23;
+    --panel-2: #232631;
+    --fg: #e4e6eb;
+    --fg-dim: #9aa0a8;
+    --border: #2c303a;
+    --ok: #4ade80;
+    --warn: #fbbf24;
+    --fail: #f87171;
+    --info: #60a5fa;
+    --link: #93c5fd;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; padding: 1.5rem; background: var(--bg); color: var(--fg);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, sans-serif;
+    font-size: 14px; line-height: 1.5; }
+  h1 { font-size: 1.6rem; margin: 0 0 0.25rem 0; }
+  h2 { font-size: 1.15rem; margin: 1.5rem 0 0.5rem 0; padding-bottom: 0.25rem;
+    border-bottom: 1px solid var(--border); color: var(--fg); }
+  .meta { color: var(--fg-dim); font-size: 0.85rem; margin-bottom: 1rem; }
+  .panel { background: var(--panel); border: 1px solid var(--border); border-radius: 6px;
+    padding: 0.75rem 1rem; margin-bottom: 1rem; }
+  .headline-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 0.5rem; margin-bottom: 1rem; }
+  .card { background: var(--panel-2); border: 1px solid var(--border); border-radius: 6px;
+    padding: 0.65rem 0.85rem; }
+  .card .lbl { font-size: 0.8rem; color: var(--fg-dim); }
+  .card .val { font-size: 1.4rem; font-weight: 600; margin: 0.15rem 0; font-variant-numeric: tabular-nums; }
+  .card .hint { font-size: 0.75rem; color: var(--fg-dim); }
+  .card.ok    { border-left: 3px solid var(--ok); }
+  .card.warn  { border-left: 3px solid var(--warn); }
+  .card.fail  { border-left: 3px solid var(--fail); }
+  .card.info  { border-left: 3px solid var(--info); }
+  table { width: 100%; border-collapse: collapse; margin: 0.5rem 0 1rem; font-size: 0.9rem;
+    background: var(--panel); border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }
+  caption { text-align: left; padding: 0.4rem 0.65rem; color: var(--fg-dim);
+    background: var(--panel-2); font-weight: 500; }
+  th, td { padding: 0.4rem 0.65rem; text-align: left; border-bottom: 1px solid var(--border);
+    font-variant-numeric: tabular-nums; vertical-align: top; }
+  th { background: var(--panel-2); color: var(--fg-dim); font-weight: 500;
+    text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.04em; }
+  tr:last-child td { border-bottom: none; }
+  td.right { text-align: right; }
+  ul, ol { margin: 0.4rem 0 1rem 1.25rem; }
+  li { margin: 0.15rem 0; }
+  .badge { display: inline-block; padding: 0.1rem 0.5rem; border-radius: 999px;
+    font-size: 0.75rem; font-weight: 500; background: var(--panel-2); color: var(--fg-dim);
+    border: 1px solid var(--border); }
+  .badge.ok   { background: rgba(74, 222, 128, 0.12); color: var(--ok);   border-color: rgba(74,222,128,0.3); }
+  .badge.warn { background: rgba(251, 191, 36, 0.12); color: var(--warn); border-color: rgba(251,191,36,0.3); }
+  .badge.fail { background: rgba(248, 113, 113, 0.12); color: var(--fail); border-color: rgba(248,113,113,0.3); }
+  .badge.info { background: rgba(96, 165, 250, 0.12); color: var(--info); border-color: rgba(96,165,250,0.3); }
+  .badge-grid { display: flex; flex-wrap: wrap; gap: 0.3rem; margin: 0.3rem 0 1rem 0; }
+  .kv { display: grid; grid-template-columns: max-content 1fr; gap: 0.2rem 0.85rem;
+    margin: 0.4rem 0 1rem 0; }
+  .kv .k { color: var(--fg-dim); }
+  svg.bar-chart { display: block; max-width: 100%; height: auto; }
+  svg .bar { fill: var(--info); }
+  svg .bar.ok   { fill: var(--ok); }
+  svg .bar.warn { fill: var(--warn); }
+  svg .bar.fail { fill: var(--fail); }
+  svg text { fill: var(--fg); font-family: monospace; font-size: 11px; }
+  svg .axis text { fill: var(--fg-dim); }
+  code { background: var(--panel-2); padding: 0 0.3rem; border-radius: 3px;
+    font-family: "Fira Code", Consolas, Menlo, monospace; font-size: 0.85em; }
+  a { color: var(--link); }
+  footer { margin-top: 2rem; padding-top: 0.75rem; border-top: 1px solid var(--border);
+    font-size: 0.8rem; color: var(--fg-dim); }
+</style>
+</head>
+<body>
+<h1>`/diagnose-fix` — Forensic Fix Pipeline (U-CK22)</h1>
+<div class="meta">rendered from H:/prism/knowledge/wiki/os/pipelines/diagnose-fix.md</div>
+<div class="meta">Generated 2026-05-17T22:41:26.919Z</div>
+<style>
+  .prism-md-body { max-width: 70rem; margin: 0 auto; }
+  .prism-h1 { font-size: 1.6rem; }
+  .prism-h2 { font-size: 1.25rem; border-bottom: 1px solid var(--border); padding-bottom: 0.25rem; }
+  .prism-h3 { font-size: 1.1rem; color: var(--info); }
+  .prism-h4, .prism-h5, .prism-h6 { font-size: 1rem; color: var(--fg-dim); }
+  .prism-md-body p { margin: 0.5rem 0; }
+  .prism-md-list { margin: 0.5rem 0 0.5rem 1.25rem; padding: 0; }
+  .prism-md-list li { margin: 0.15rem 0; }
+  .prism-md-table { border-collapse: collapse; margin: 0.75rem 0; width: 100%; }
+  .prism-md-table th, .prism-md-table td { border: 1px solid var(--border); padding: 0.35rem 0.6rem; text-align: left; }
+  .prism-md-table th { background: var(--panel-2); }
+  .prism-codeblock { background: var(--panel-2); border: 1px solid var(--border); border-radius: 4px; padding: 0.6rem 0.8rem; overflow-x: auto; font-family: "Cascadia Code", Consolas, monospace; font-size: 13px; }
+  .prism-inline-code { background: var(--panel-2); padding: 0 0.25rem; border-radius: 3px; font-family: "Cascadia Code", Consolas, monospace; font-size: 0.92em; }
+  .prism-quote { border-left: 3px solid var(--info); background: var(--panel-2); padding: 0.5rem 0.85rem; margin: 0.75rem 0; color: var(--fg-dim); }
+  .prism-hr { border: 0; border-top: 1px solid var(--border); margin: 1rem 0; }
+  .prism-link { color: var(--link); text-decoration: none; }
+  .prism-link:hover { text-decoration: underline; }
+  .prism-bad-link { color: var(--fail); text-decoration: line-through; }
+  .prism-unclosed::before { content: "⚠ unterminated code block"; display: block; color: var(--warn); font-size: 0.85em; margin-bottom: 0.25rem; }
+  </style><main class="prism-md-body"><nav class="prism-toc"><strong>Contents</strong><ul><li class="prism-toc-l1"><code class="prism-inline-code">/diagnose-fix</code> — Forensic Fix Pipeline (U-CK22)</li><li class="prism-toc-l2">Stage table</li><li class="prism-toc-l2">Classification taxonomy</li><li class="prism-toc-l2">Rollback chain</li><li class="prism-toc-l2">Inputs</li><li class="prism-toc-l2">Composes-with</li><li class="prism-toc-l2">Karpathy discipline pins</li><li class="prism-toc-l2">Knobs</li><li class="prism-toc-l2">Related</li><li class="prism-toc-l2">See also</li></ul></nav><hr class="prism-hr">
+<p>title: PRISM pipeline — /diagnose-fix forensic-classify -&gt; apply -&gt; test -&gt; trace slug: diagnose-fix kind: pipeline status: shipped date: 2026-05-17 milestone: COMMAND-KERNEL-MS0 unit: U-CK22 author: claude-2d30710b (slot hotel, /loop command-kernel) trigger: command composed_of: [/forge-debug, error-pattern-memory-lookup, regression-hunter-agent, /scrutiny-gate, test-runner-agent, trace-log] stages: [classify, suggest, apply, test, trace, optional-memory-write] consumes:</p>
+<ul class="prism-md-list"><li>mcp-server/data/state/error-memory.json</li><li>.claude/commands/forge-debug.md</li><li>.claude/commands/scrutiny-gate.md</li></ul>
+<p>produces:</p>
+<ul class="prism-md-list"><li>fix-diff</li><li>test-verdict</li><li>state/shared/diagnose-fix-log.jsonl</li><li>novel-class-memory-candidate</li></ul>
+<p>downgrade:   mode: user-prompt   fallback_to: manual-fix-without-classifier telemetry:   ledger: state/shared/pipeline-telemetry.jsonl   fields: [fire_ts, chain_id, step_id, latency_ms, outcome, session_id, slot]</p>
+<hr class="prism-hr">
+<h1 class="prism-h1"><code class="prism-inline-code">/diagnose-fix</code> — Forensic Fix Pipeline (U-CK22)</h1>
+<p>Composed front-end for &quot;something broke, here&#39;s the artifact, fix it.&quot; Classifies the failure, proposes a fix grounded in error-pattern memory, applies under per-file scrutiny, runs tests, traces the verdict. R8: adds 0 logic.</p>
+<h2 class="prism-h2">Stage table</h2>
+<table class="prism-md-table"><thead><tr><th>#</th><th>Stage</th><th>What</th><th>Stop-on-fail</th></tr></thead><tbody><tr><td>1</td><td>classify</td><td>read artifact + error-pattern-memory lookup + regression-hunter agent</td><td>yes — unknown class escalates to operator</td></tr>
+<tr><td>2</td><td>suggest</td><td>based on class, propose fix; cite prior memory; dry-run diff</td><td>yes — HARD-BLOCK if fix would weaken assertion or skip test</td></tr>
+<tr><td>3</td><td>apply</td><td>operator confirm (or --yes) → Edit/Write → per-file scrutiny Mode A fires</td><td>yes — scrutiny FAIL reverts Edit</td></tr>
+<tr><td>4</td><td>test</td><td>run affected tests (or SUT if artifact IS a test)</td><td>yes — N=3 retry budget then revert</td></tr>
+<tr><td>5</td><td>trace</td><td>append to state/shared/diagnose-fix-log.jsonl</td><td>warn — advisory</td></tr>
+<tr><td>6</td><td>memory-write (optional)</td><td>novel class + repeated → memory candidate for operator review</td><td>no — opt-in</td></tr></tbody></table>
+<h2 class="prism-h2">Classification taxonomy</h2>
+<table class="prism-md-table"><thead><tr><th>Class</th><th>Pattern</th><th>Typical fix</th></tr></thead><tbody><tr><td>stub-assertion</td><td><code class="prism-inline-code">toBeDefined()</code> / <code class="prism-inline-code">toBe(true)</code> against opaque result</td><td>replace with reference-value assertion (R12)</td></tr>
+<tr><td>schema-drift</td><td>engine API doesn&#39;t match dispatcher schema</td><td>align schema OR fix engine API; reject &quot;weaken schema to fit&quot;</td></tr>
+<tr><td>inline-constant</td><td>physics const inlined instead of imported from <code class="prism-inline-code">physics/constants.ts</code></td><td>extract to constants, import</td></tr>
+<tr><td>race</td><td>shared-tree commit collision, RTK sweep, file-claim conflict</td><td>retry with raw git, slot-task-claim, conflict-fork</td></tr>
+<tr><td>wedged-cli</td><td>RTK silently drops output / commit</td><td>bypass with <code class="prism-inline-code">PATH=/c/Program\ Files/Git/cmd git</code> raw</td></tr>
+<tr><td>missing-handler</td><td>dispatcher action defined but case handler absent</td><td>add case handler + lazy import</td></tr>
+<tr><td>encoding</td><td>C0 control bytes in PS5.1 ConvertTo-Json</td><td>strip <code class="prism-inline-code">[\x00-\x1F]</code> pre-serialization</td></tr>
+<tr><td>path-resolution</td><td>hardcoded cwd-relative path breaks under different invocation cwd</td><td>switch to fileURLToPath / PROJECT_ROOT pattern</td></tr>
+<tr><td>other</td><td>unrecognized</td><td>escalate to operator</td></tr></tbody></table>
+<h2 class="prism-h2">Rollback chain</h2>
+<table class="prism-md-table"><thead><tr><th>Failed stage</th><th>Rollback</th></tr></thead><tbody><tr><td>1 classify</td><td>no-op (read-only)</td></tr>
+<tr><td>2 suggest</td><td>no-op (dry-run diff is read-only)</td></tr>
+<tr><td>3 apply</td><td>git restore the edited file</td></tr>
+<tr><td>4 test</td><td>git restore (after max attempts); release slot-task claim</td></tr>
+<tr><td>5 trace</td><td>no-op (log append already happened or didn&#39;t — non-load-bearing)</td></tr>
+<tr><td>6 memory-write</td><td>git restore memory file + revert MEMORY.md pointer</td></tr></tbody></table>
+<h2 class="prism-h2">Inputs</h2>
+<table class="prism-md-table"><thead><tr><th>Flag</th><th>Default</th><th>Purpose</th></tr></thead><tbody><tr><td><code class="prism-inline-code">&lt;artifact&gt;</code></td><td>(required)</td><td>path to broken file</td></tr>
+<tr><td><code class="prism-inline-code">--symptom &lt;text&gt;</code></td><td>(none)</td><td>aids classification</td></tr>
+<tr><td><code class="prism-inline-code">--yes</code></td><td>false</td><td>auto-apply (extreme caution)</td></tr>
+<tr><td><code class="prism-inline-code">--max-attempts &lt;N&gt;</code></td><td>3</td><td>TEST retry budget</td></tr>
+<tr><td><code class="prism-inline-code">--no-memory-write</code></td><td>false</td><td>skip stage 6</td></tr></tbody></table>
+<h2 class="prism-h2">Composes-with</h2>
+<p>Composed BY:</p>
+<ul class="prism-md-list"><li><code class="prism-inline-code">/session-cycle</code> (U-CK17) BUILD when deliverable is &quot;fix broken X&quot;</li><li><code class="prism-inline-code">/loop</code> autonomous-iter test-failure sweeps</li><li><code class="prism-inline-code">/pipeline execute diagnose-fix</code> (U-CK25)</li><li>direct operator invocation when an artifact breaks</li></ul>
+<p>Composes:</p>
+<ul class="prism-md-list"><li><code class="prism-inline-code">/forge-debug</code> — diagnostic harness</li><li>error-pattern-memory (<code class="prism-inline-code">mcp-server/data/state/error-memory.json</code>)</li><li><code class="prism-inline-code">regression-hunter</code> agent</li><li><code class="prism-inline-code">test-runner</code> agent</li><li><code class="prism-inline-code">/scrutiny-gate</code> (U-CK19) Mode A on APPLY</li><li><code class="prism-inline-code">/learn-pipeline</code> (U-CK20) for stage-6 novel-class ingest</li></ul>
+<h2 class="prism-h2">Karpathy discipline pins</h2>
+<ul class="prism-md-list"><li><strong>R8</strong> — CLASSIFY before fix; never edit without classifying</li><li><strong>R12</strong> — fix that weakens assertion is HARD-BLOCKED at SUGGEST stage</li><li><strong>R10</strong> — each stage explicit verdict (class? proposed? PASS/FAIL?)</li><li><strong>never delete only disable</strong> — fixes preserve artifact when possible</li></ul>
+<h2 class="prism-h2">Knobs</h2>
+<ul class="prism-md-list"><li><code class="prism-inline-code">PRISM_DIAGNOSE_FIX_AUTO_APPLY=1</code> — <code class="prism-inline-code">--yes</code> alias</li><li><code class="prism-inline-code">PRISM_DIAGNOSE_FIX_MAX_ATTEMPTS=N</code> — override default 3</li><li><code class="prism-inline-code">PRISM_DIAGNOSE_FIX_NO_MEMORY=1</code> — <code class="prism-inline-code">--no-memory-write</code> alias</li><li>Scrutiny gate Mode A on APPLY is non-bypassable</li></ul>
+<h2 class="prism-h2">Related</h2>
+<ul class="prism-md-list"><li>[[session-cycle]] — fires diagnose-fix in BUILD for fix-class units</li><li>[[learn-pipeline]] — stage 6 candidate emission target (U-CK20)</li><li>[[scrutiny-gate]] — Mode A APPLY-stage backstop (U-CK19)</li><li>[[pipeline]] — meta-command (U-CK25)</li></ul>
+<h2 class="prism-h2">See also</h2>
+<ul class="prism-md-list"><li><code class="prism-inline-code">.claude/commands/diagnose-fix.md</code> — operator skill spec (gitignored mirror)</li><li><code class="prism-inline-code">feedback_always_capture_lessons.md</code> — memory-write doctrine</li><li><code class="prism-inline-code">mcp-server/data/state/error-memory.json</code> — error-pattern memory source</li><li><code class="prism-inline-code">mcp-server/data/milestones/COMMAND-KERNEL-MS0.json</code> U-CK22 — envelope</li></ul></main><footer><div>generated by mdToHtml() at 2026-05-17T22:41:26.919Z</div>
+<div>html-report-render schemaVersion 1.0.0</div>
+</footer>
+</body>
+</html>

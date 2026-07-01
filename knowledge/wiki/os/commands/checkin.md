@@ -129,7 +129,7 @@ this corpus).
 - [[whoami]] (syscall) — identity resolution
 - [[handoff]] (syscall) — phase-3 output
 - [[knowledge-vault-schema]] — 5-namespace doctrine
-- [[command-schema]] — frontmatter contract this entry follows
+- [[_command-schema]] — frontmatter contract this entry follows
 
 ## See also
 

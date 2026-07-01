@@ -1,0 +1,2030 @@
+{
+  "cleanupPeriodDays": 60,
+  "env": {
+    "PRISM_FLEET_REAPER_DISABLE": "0",
+    "PRISM_GOLF_GUARDIAN_DISABLE": "0",
+    "PRISM_FLEET_REAPER_DRY_RUN": "1",
+    "PRISM_GALAXY_MEMORY_OBSIDIAN_MIRROR": "1",
+    "PRISM_OBSIDIAN_LIVE": "1",
+    "PATH": "H:/Tools/nodejs/node_modules/.bin;H:/.claude/bin;C:/Program Files/Docker/Docker/resources/bin;C:/Windows/System32;C:/Windows;C:/Windows/System32/Wbem;C:/Windows/System32/WindowsPowerShell/v1.0;C:/Windows/System32/OpenSSH",
+    "OLLAMA_MODELS": "H:/Tools/ollama/models",
+    "PRISM_PYTHON_GPU_PATH": "H:/Tools/python-gpu/Scripts/python.exe",
+    "PRISM_PYTHON_PATH": "H:/Tools/python/python.exe",
+    "PRISM_EMBED_CONCURRENCY": "24",
+    "PRISM_ROUTER_TABLE_ADVISE_DISABLE": "1",
+    "PRISM_OLLAMA_OFFLOAD_AUTOEXEC": "1",
+    "PRISM_OLLAMA_ROUTE_AUTO": "1",
+    "PRISM_CODEGEN_MODEL": "gpt-oss:120b",
+    "OLLAMA_URL": "http://127.0.0.1:11434",
+    "PRISM_OBSIDIAN_API_KEY": "17618a35131fb454a54c89853ccc75ee618b9eeecd26e272a7b73b771a45dfd4",
+    "PRISM_OBSIDIAN_URL": "https://127.0.0.1:27123",
+    "NIM_URL": "http://127.0.0.1:8000/v1",
+    "NIM_EMBED_URL": "http://127.0.0.1:8010/v1",
+    "VLLM_URL": "http://127.0.0.1:8020/v1",
+    "LOCAL_LLM_BACKEND": "ollama",
+    "NIM_FALLBACK_TO_OLLAMA": "1",
+    "CLAUDE_CODE_DISABLE_ADAPTIVE_THINKING": "1",
+    "CLAUDE_CODE_DISABLE_1M_CONTEXT": "0",
+    "ANTHROPIC_DEFAULT_OPUS_MODEL": "claude-opus-4-8[1m]",
+    "CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS": "1",
+    "CLAUDE_CODE_MAX_TOOL_USE_CONCURRENCY": "24",
+    "CLAUDE_CODE_RESUME_INTERRUPTED_TURN": "1",
+    "CLAUDE_CODE_SUBPROCESS_ENV_SCRUB": "0",
+    "CLAUDE_CODE_USE_POWERSHELL_TOOL": "1",
+    "CLAUDE_CODE_MAX_OUTPUT_TOKENS": "120000",
+    "CLAUDE_CODE_STOP_HOOK_BLOCK_CAP": "1000000000",
+    "PRECOMPACT_DISABLE": "1",
+    "PRECOMPACT_SOFT_TOKENS": "860000",
+    "PRECOMPACT_HARD_TOKENS": "900000",
+    "ENABLE_PROMPT_CACHING_1H": "1",
+    "DISABLE_AUTOUPDATER": "1",
+    "LINEAR_PROJECT": "PRISM",
+    "PRISM_CHAT_BUS_COMPACT": "1",
+    "BASH_DEFAULT_TIMEOUT_MS": "600000",
+    "BASH_MAX_TIMEOUT_MS": "3600000",
+    "MCP_TOOL_TIMEOUT": "1200000",
+    "DISABLE_TELEMETRY": "1",
+    "DISABLE_ERROR_REPORTING": "1",
+    "CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC": "1",
+    "PRISM_WORKTREE_ROUTE_ENABLE": "1",
+    "PRISM_GIT_ADD_LANE_ENABLE": "1",
+    "PRISM_MAINTREE_WRITE_BLOCK_ENABLE": "1",
+    "PRISM_MAINTREE_WRITE_BLOCK_DISABLE": "1",
+    "PRISM_GOAL_GATE_AUDIT_BYPASS": "1",
+    "PRISM_ALLOW_UNWIRED": "0",
+    "PRISM_MCP_ENFORCE_DISABLE": "1",
+    "PRISM_MCP_BROADCAST_INJECT_DISABLE": "1",
+    "PRISM_SUBAGENT_MODEL_ENFORCE": "strict",
+    "PRISM_LS_CAT_ENFORCE_ENABLE": "1",
+    "PRISM_RTK_ENFORCE_ENABLE": "1",
+    "PRISM_MASTER_INDEX_INJECT": "1",
+    "PRISM_MEMORY_INDEX_INJECT": "1",
+    "PRISM_WIKI_PRECHECK_INJECT": "1",
+    "PRISM_TRIBAL_DOMAIN_INJECT_THROTTLE_MS": "300000",
+    "PRISM_MASTER_INDEX_THROTTLE_MS": "300000",
+    "PRISM_MEMORY_INDEX_THROTTLE_MS": "300000",
+    "PRISM_WIKI_PRECHECK_THROTTLE_MS": "300000",
+    "PRISM_PROMPT_REWRITE_THROTTLE_MS": "300000",
+    "PRISM_MEMORY_RAG_DISABLED": "1",
+    "PRISM_PROMPT_CONTEXT_INJECT_OFF": "1",
+    "PRISM_OBSIDIAN_VAULT_PRECHECK_DISABLE": "0",
+    "PRISM_GOLF_WRITE_ALLOWLIST_BYPASS": "1",
+    "PRISM_BRIEF_INJECT_MODE": "headline",
+    "PRISM_SKILL_AUTO_TRIGGER_DISABLE": "0",
+    "PRISM_PSN_CHECKLIST_INJECT_DISABLE": "1",
+    "PRISM_AI_MEMO_INJECT": "0",
+    "PRISM_GOAL_SYNERGY_INJECT": "0",
+    "PRISM_KNOWLEDGE_LINK_AUDIT_INJECT": "0",
+    "PRISM_NN_GRAPH_INJECT": "0",
+    "PRISM_SUBSTRATE_HEALTH_INJECT": "0",
+    "PRISM_MEMORY_AUTOCOMPACT_DISABLE": "1",
+    "PRISM_CRIT_MEM_NUDGE_DISABLE": "1",
+    "PRISM_TASK_BOUNDARY_COMPACT_DISABLE": "1",
+    "PRISM_COMPOUND_BUDGET_DISABLE": "1",
+    "PRISM_TOKEN_AWARENESS_INJECT_DISABLE": "1",
+    "PRISM_TOKEN_AWARE_INJECT": "0",
+    "PRISM_STOP_SPEND_SUMMARY_DISABLE": "1",
+    "PRISM_INJECTION_BUDGET_CAP_BYTES": "6144",
+    "PRISM_INJECTION_BUDGET_CAP_DISABLE": "1",
+    "PRISM_AWARENESS_INJECT_MODE": "silent",
+    "PRISM_BUILD_STATE_INJECT_MODE": "silent",
+    "PRISM_CLOSE_OUT_AUDIT_INJECT": "0",
+    "PRISM_NODE_CAPABILITY_INJECT": "0",
+    "PRISM_META_INJECT_DISABLE": "1",
+    "PRISM_MEMORY_SIZE_WATCHDOG_NO_COMPACT": "1",
+    "PRISM_TOKEN_AWARE_STOP_DISABLE": "1",
+    "PRISM_TOKEN_BUDGET_WARN_DISABLE": "1",
+    "PRISM_FORCE_LOOP_BLOCK": "1",
+    "PRISM_LOOP_MAX_ROLLS": "1000000000",
+    "PRISM_LOOP_DEFAULT_TARGET": "1000000000",
+    "PRISM_WEEKLY_SYNTHESIS_OCTOPUS": "1",
+    "PRISM_GOAL_CLEAR_ADVANCE_MAX": "1000000000",
+    "PRISM_MAX_CONTEXT_TOKENS": "1000000",
+    "DOCKER_DEFAULT_MEM_LIMIT": "64g",
+    "DOCKER_DEFAULT_CPU_SHARES": "8192",
+    "PRISM_MODEL_ROUTER_ENABLED": "1",
+    "PRISM_DEFAULT_TO_LOCAL_FIRST": "1",
+    "PRISM_CLAUDE_ESCALATION_THRESHOLD": "0.65",
+    "PRISM_AUTO_INVOCATION_ENABLED": "1",
+    "PRISM_BUILD_CONTEXT_CLASSIFIER": "1",
+    "PRISM_PREFER_OLLAMA_FOR_BUILD": "1",
+    "PRISM_LOCAL_HEAVY_MODEL": "gpt-oss:120b",
+    "PRISM_LOCAL_MEDIUM_MODEL": "qwen3-coder:30b",
+    "PRISM_HERMES_MODE": "1",
+    "PRISM_HERMES_MODE_REVERT": "0",
+    "PRISM_AGENT_FANOUT_GATE": "warn"
+  },
+  "includeCoAuthoredBy": false,
+  "permissions": {
+    "defaultMode": "bypassPermissions"
+  },
+  "model": "opus[1m]",
+  "enabledMcpjsonServers": [
+    "prism",
+    "claude-flow"
+  ],
+  "skillOverrides": {
+    "ollama-explain": "user-invocable-only",
+    "ollama-summarize": "user-invocable-only",
+    "ollama-docstring": "user-invocable-only",
+    "ollama-classify": "user-invocable-only",
+    "ollama-diff-summary": "user-invocable-only",
+    "ollama-error-triage": "user-invocable-only",
+    "ollama-extract": "user-invocable-only",
+    "ollama-test-stub": "user-invocable-only",
+    "ollama-boilerplate": "user-invocable-only"
+  },
+  "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"$CLAUDE_PROJECT_DIR/.claude/hooks/stress-harness-emit.mjs\"",
+            "timeout": 2000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/session-id-pin.mjs",
+            "timeout": 1500
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/session-start-terminal-pin.mjs",
+            "timeout": 5000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/slot-session-sidecar-sessionstart.mjs",
+            "timeout": 5000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/settings-mirror-guard.mjs",
+            "timeout": 2000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/portable-node-guard.mjs",
+            "timeout": 5000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/scripts/verify-hook-refs.mjs",
+            "timeout": 5000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/portable-python-guard.mjs",
+            "timeout": 5000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/route-savings-session-start-inject.mjs",
+            "timeout": 2000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/session-start-savings-headline.mjs",
+            "timeout": 2000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/session-start-cag-hitrate-headline.mjs",
+            "timeout": 2000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/sessionstart-cli-context-drift-warn.mjs",
+            "timeout": 4000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/multi-computer-awareness.mjs",
+            "timeout": 3000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/ollama-autostart.mjs",
+            "timeout": 5000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/nim-autostart.mjs",
+            "timeout": 5000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/docker-intel-autostart.mjs",
+            "timeout": 8000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/ensure-index-daemon-guardian.mjs",
+            "timeout": 2000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/.claude/hooks/plugin-path-fixer.mjs",
+            "timeout": 3000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/git-health-guard.mjs",
+            "timeout": 8000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/git-sync-fetch.mjs",
+            "timeout": 5000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/dotclaude-junctions-guard.mjs",
+            "timeout": 5000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/roadmap-resume.mjs",
+            "timeout": 3000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/session-start-goal-inject.mjs",
+            "timeout": 3000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/inventory-check-guard.mjs",
+            "timeout": 5000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/expert-role-inject.mjs",
+            "timeout": 2000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/ai-command-awareness.mjs",
+            "timeout": 3000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/ai-deep-intelligence.mjs",
+            "timeout": 3000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/claude-brief-inject.mjs",
+            "timeout": 5000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/build-state-inject.mjs",
+            "timeout": 8000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/fleet-work-digest-inject.mjs",
+            "timeout": 4000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/awareness-snapshot-inject.mjs",
+            "timeout": 4000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/injection-budget-snapshot-refresh.mjs",
+            "timeout": 4000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/.claude/hooks/alpha-token-domain-awareness-inject.mjs",
+            "timeout": 4000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/knowledge-link-audit-inject.mjs",
+            "timeout": 3000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/wiki-tribal-coverage-inject.mjs",
+            "timeout": 3000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/wiki-tribal-coverage-per-domain-inject.mjs",
+            "timeout": 3000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/prism-ai-memo-coverage-inject.mjs",
+            "timeout": 3000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/goal-synergy-status-inject.mjs",
+            "timeout": 3000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/nn-graph-health-inject.mjs",
+            "timeout": 3000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/substrate-health-inject.mjs",
+            "timeout": 10000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/hermes-proxy-health-inject.mjs",
+            "timeout": 5000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/brain-health-inject.mjs",
+            "timeout": 3000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/meta-systems-health-inject.mjs",
+            "timeout": 3000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/galaxy-brain-startup-inject.mjs",
+            "timeout": 3000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/blueprint-join-index-stale-check.mjs",
+            "timeout": 2000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/gsd-inject.mjs",
+            "timeout": 2000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/tier1-context-pack.mjs",
+            "timeout": 3000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/output-cache-inject.mjs",
+            "timeout": 2000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/settings-baseline-snapshot.mjs",
+            "timeout": 2000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/cognitive-budget-allocator.mjs",
+            "timeout": 3000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/curiosity-explorer.mjs",
+            "timeout": 3000
+          },
+          {
+            "type": "command",
+            "command": "node H:/prism/.claude/hooks/chat-state-isolator.mjs",
+            "timeout": 5000
+          },
+          {
+            "type": "command",
+            "command": "node \"H:/prism/.claude/hooks/session-handoff-load.mjs\"",
+            "timeout": 8000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/session-start-zombie-reap.mjs",
+            "timeout": 8000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/agent-worktree-stale-unlock.mjs",
+            "timeout": 3000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/coordination-startup-banner.mjs",
+            "timeout": 2000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/golf-slot-reaper-guardian.mjs",
+            "timeout": 10000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/sessionstart-graph-staleness-inject.mjs",
+            "timeout": 3000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/obsidian-learning-revival-sessionstart.mjs",
+            "timeout": 3000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/slot-worktree-cwd-advisory.mjs",
+            "timeout": 4000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/cag-cold-cache-anchor.mjs",
+            "timeout": 3000
+          }
+        ]
+      },
+      {
+        "matcher": "compact",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/session-start-auto-resume.mjs",
+            "timeout": 5000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/stale-slot-cron-advisory.mjs",
+            "timeout": 3000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/cag-cold-cache-anchor.mjs",
+            "timeout": 3000
+          }
+        ]
+      },
+      {
+        "matcher": "clear",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/session-start-auto-resume.mjs",
+            "timeout": 5000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/stale-slot-cron-advisory.mjs",
+            "timeout": 3000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/cag-cold-cache-anchor.mjs",
+            "timeout": 3000
+          }
+        ]
+      },
+      {
+        "matcher": "startup",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/session-start-auto-resume.mjs",
+            "timeout": 5000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/stale-slot-cron-advisory.mjs",
+            "timeout": 3000
+          }
+        ]
+      },
+      {
+        "matcher": "resume",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/session-start-auto-resume.mjs",
+            "timeout": 5000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/stale-slot-cron-advisory.mjs",
+            "timeout": 3000
+          }
+        ]
+      }
+    ],
+    "PreCompact": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"$CLAUDE_PROJECT_DIR/.claude/hooks/stress-harness-emit.mjs\"",
+            "timeout": 2000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/claude-brief-precompact.mjs",
+            "timeout": 2000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/helpers/precompact-handoff.mjs",
+            "timeout": 5000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/precompact-memo-emit.mjs",
+            "timeout": 4000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/precompact-release-slot.mjs",
+            "timeout": 3000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/precompact-pending-guard.mjs",
+            "timeout": 3000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/quality-dashboard-alert.mjs",
+            "timeout": 5000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/octopus-provider-probe.mjs",
+            "timeout": 5000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/file-read-cache.mjs",
+            "timeout": 2000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/precompact-regen-digests.mjs",
+            "timeout": 10000
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/stop-reblock-storm-breaker.mjs",
+            "timeout": 4000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/goal-complete-gate.mjs",
+            "timeout": 3000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/scrutinize-before-stop.mjs",
+            "timeout": 10000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/stop-task-boundary-compact-nudge.mjs",
+            "timeout": 8000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/macro-bulk-emit-guard.mjs",
+            "timeout": 5000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/stop-sync-cli-context.mjs",
+            "timeout": 25000
+          },
+          {
+            "type": "command",
+            "command": "\"$CLAUDE_PROJECT_DIR/.claude/hooks/stop-force-handoff.mjs\"",
+            "timeout": 5000
+          },
+          {
+            "type": "command",
+            "command": "\"$CLAUDE_PROJECT_DIR/.claude/hooks/stop-force-loop-continue.mjs\"",
+            "timeout": 5000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/stop-goal-clear-advance.mjs",
+            "timeout": 35000
+          },
+          {
+            "type": "command",
+            "command": "\"$CLAUDE_PROJECT_DIR/.claude/hooks/stress-harness-emit.mjs\"",
+            "timeout": 2000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/stop-cross-pc-handoff-verify.mjs",
+            "timeout": 3000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/skill-candidate-observe.mjs",
+            "timeout": 3000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/stop-dream-queue-produce.mjs",
+            "timeout": 8000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/stop-dream-queue-surface.mjs",
+            "timeout": 3000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/stop-soul-evolution.mjs",
+            "timeout": 5000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/git-sync-stop.mjs",
+            "timeout": 8000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/stop-slot-task-claims-advisory.mjs",
+            "timeout": 3000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/rgs-outcome-record-stop.mjs",
+            "timeout": 3000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/stop-cross-tree-collision-advisory.mjs",
+            "timeout": 3000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/stop-system-viz-drift.mjs",
+            "timeout": 3000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/post-ship-distill.mjs",
+            "timeout": 3000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/handoff-memory-seed-stop.mjs",
+            "timeout": 3000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/regression-auto-write.mjs",
+            "timeout": 3000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/stop-bug-finding-wiki-gate.mjs",
+            "timeout": 4000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/stop-memory-to-wiki-suggest.mjs",
+            "timeout": 12000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/stop-playbook-corpus-drift-advisory.mjs",
+            "timeout": 3000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/scrutiny-verdict-persist.mjs",
+            "timeout": 3000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/error-fix-vault-bridge.mjs",
+            "timeout": 2000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/stop-wiring-audit-suggest.mjs",
+            "timeout": 2000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/error-pattern-promote.mjs",
+            "timeout": 5000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/blueprint-coverage-floor-guard.mjs",
+            "timeout": 3000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/token-awareness-sidecar.mjs",
+            "timeout": 5000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/token-awareness-stop-advisory.mjs",
+            "timeout": 3000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/silent-suggestion-surfacer-stop.mjs",
+            "timeout": 3000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/bundles/stop-regression-bundle.mjs",
+            "timeout": 30000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/stop_on_cutting_calculation_protocol.mjs",
+            "timeout": 5000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/commit-pressure-stop-gate.mjs",
+            "timeout": 8000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/always-build-guard.mjs",
+            "timeout": 3000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/stop_on_unsafe_gcode.mjs",
+            "timeout": 3000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/quality-dashboard-alert.mjs",
+            "timeout": 5000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/stop-auto-capture-per-slot.mjs",
+            "timeout": 3000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/stop-obsidian-memory-feed.mjs",
+            "timeout": 3000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/stop-brain-refresh.mjs",
+            "timeout": 3000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/stop-psn-autonomy-tick.mjs",
+            "timeout": 8000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/stop-session-spend-summary.mjs",
+            "timeout": 2000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/rtk-savings-stop-rollup.mjs",
+            "timeout": 3000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/stop-ledger-prune.mjs",
+            "timeout": 3000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/stop-psn-savings-aggregate.mjs",
+            "timeout": 3000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/stop-wiki-from-nodes-autopopulate.mjs",
+            "timeout": 3000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/fleet-reaper-stop.mjs",
+            "timeout": 3000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/stop-close-own-bg-tasks.mjs",
+            "timeout": 10000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/fleet-task-health-stop.mjs",
+            "timeout": 3000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/fleet-work-digest-stop.mjs",
+            "timeout": 3000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/docker-service-health-stop.mjs",
+            "timeout": 4000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/wiki-propagation-watchdog-stop.mjs",
+            "timeout": 3000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/enforce-handoff-topic.mjs",
+            "timeout": 5000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/slot-session-sidecar-stop.mjs",
+            "timeout": 3000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/skill-auto-trigger.mjs",
+            "timeout": 3000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/active-chat-priority-decay.mjs",
+            "timeout": 3000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/stop-hook-aggregator.mjs",
+            "timeout": 5000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/memory-index-sidecar-regen.mjs",
+            "timeout": 3000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/stop-graph-staleness-backstop.mjs",
+            "timeout": 3000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/bundles/stop-bundle.mjs",
+            "timeout": 20000
+          }
+        ]
+      },
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/stop-memory-size-watchdog.mjs",
+            "timeout": 3000
+          }
+        ]
+      },
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/stop-system-awareness-freshness.mjs",
+            "timeout": 5000
+          }
+        ]
+      },
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/compact-interval-warning.mjs",
+            "timeout": 2000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/stop-tab-blink.mjs",
+            "timeout": 2000
+          }
+        ]
+      },
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/stop-token-savings-summary.mjs",
+            "timeout": 5000
+          }
+        ]
+      },
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/stop-extraction-intake-drain.mjs"
+          }
+        ]
+      },
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/stop-consensus-drain.mjs",
+            "timeout": 3000
+          }
+        ]
+      },
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/stop-dispatcher-method-drift-advisory.mjs",
+            "timeout": 8000
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/precompact-auto-trigger.mjs --pre",
+            "timeout": 2000
+          }
+        ]
+      },
+      {
+        "matcher": "Bash|Agent|Task|Workflow",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/fork-storm-circuit-breaker.mjs"
+          }
+        ]
+      },
+      {
+        "matcher": "Write|MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/activate-before-build-precheck.mjs",
+            "timeout": 2000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/injection-knob-enforce.mjs",
+            "timeout": 3000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/injection-budget-cap-enforce.mjs",
+            "timeout": 3000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/enforce-plan-before-build.mjs",
+            "timeout": 3000
+          }
+        ]
+      },
+      {
+        "matcher": "^(Edit|Write|MultiEdit|NotebookEdit)$",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/cross-session-orchestrator.mjs --pre",
+            "timeout": 4000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/pre-edit-galaxy-cascade-inject.mjs",
+            "timeout": 2000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/pre-write-cross-galaxy-warn.mjs",
+            "timeout": 2000
+          }
+        ]
+      },
+      {
+        "matcher": "^mcp__prism.*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/helpers/mcp-action-router.mjs",
+            "timeout": 2000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/helpers/mcp-pretool-injector.mjs",
+            "timeout": 2000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/stale-graph-guard.mjs",
+            "timeout": 5000
+          }
+        ]
+      },
+      {
+        "matcher": "^Task$",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/agent-rules-inject.mjs",
+            "timeout": 2000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/subagent-model-enforce.mjs",
+            "timeout": 3000
+          }
+        ]
+      },
+      {
+        "matcher": "Edit|Write|MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/bundles/edit-bundle.mjs",
+            "timeout": 12000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/slot-signature-advisory.mjs",
+            "timeout": 2500
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/localhost-ollama-hardcode-guard.mjs",
+            "timeout": 2000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/auto-consensus-critical-edit.mjs",
+            "timeout": 2000
+          }
+        ]
+      },
+      {
+        "matcher": "Agent",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/agent-fanout-pressure-gate.mjs",
+            "timeout": 2000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/ai-system-router-inject.mjs",
+            "timeout": 2000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/agent-vs-direct.mjs",
+            "timeout": 2000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/subagent-model-enforce.mjs",
+            "timeout": 3000
+          }
+        ]
+      },
+      {
+        "matcher": "Workflow",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/agent-fanout-pressure-gate.mjs",
+            "timeout": 2000
+          }
+        ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/bundles/bash-bundle.mjs",
+            "timeout": 15000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/commit-coordination-acquire.mjs",
+            "timeout": 60000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/hallucinated-node-id-guard.mjs",
+            "timeout": 5000
+          }
+        ]
+      },
+      {
+        "matcher": "Read",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/bundles/read-bundle.mjs",
+            "timeout": 5000
+          }
+        ]
+      },
+      {
+        "matcher": "Glob|Grep",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/bundles/grep-glob-bundle.mjs",
+            "timeout": 10000
+          }
+        ]
+      },
+      {
+        "matcher": "mcp__prism__",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node H:/prism/.claude/hooks/mcp-connection-coordinator.mjs",
+            "timeout": 5000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/cost-bridge-margin-floor-gate.mjs",
+            "timeout": 3000
+          }
+        ]
+      },
+      {
+        "matcher": ".*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node H:/prism/.claude/hooks/tribal-spike.mjs",
+            "timeout": 1000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/autonomous-loop-defer.mjs",
+            "timeout": 2000
+          }
+        ]
+      },
+      {
+        "matcher": ".*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/node-process-janitor.mjs",
+            "timeout": 3000
+          }
+        ]
+      },
+      {
+        "matcher": "Write|Edit|MultiEdit|Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/error-block-prewarn.mjs",
+            "timeout": 5000
+          }
+        ]
+      },
+      {
+        "matcher": "Edit|Write|MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/file-claim-guard.mjs",
+            "timeout": 5000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/claude-md-golf-only-guard.mjs",
+            "timeout": 5000
+          }
+        ]
+      },
+      {
+        "matcher": "Edit|Write|MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/ascii-guard.mjs",
+            "timeout": 5000
+          }
+        ]
+      },
+      {
+        "matcher": "Bash|PowerShell|WebFetch|WebSearch|Write|Edit|MultiEdit|NotebookEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/intake-quarantine-guard.mjs",
+            "timeout": 5000
+          }
+        ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/build-cache-guard.mjs",
+            "timeout": 3000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/nav-rerank-advisory.mjs",
+            "timeout": 1500
+          }
+        ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/raw-graph-parse-precommit-guard.mjs",
+            "timeout": 8000
+          }
+        ]
+      },
+      {
+        "matcher": "^mcp__prism.*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/mcp-readonly-cache.mjs",
+            "timeout": 3000
+          }
+        ]
+      },
+      {
+        "matcher": "Edit|MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/pretool-memory-size-gate.mjs",
+            "timeout": 3000
+          }
+        ]
+      },
+      {
+        "matcher": "^(Write|Edit)$",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/engine-digest-precheck.mjs",
+            "timeout": 2000
+          }
+        ]
+      },
+      {
+        "matcher": "Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/pre-write-graph-inject.mjs",
+            "timeout": 4000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/pre-tool-savings-multi.mjs",
+            "timeout": 2000
+          }
+        ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/gpu-vram-admission-guard.mjs",
+            "timeout": 6000
+          }
+        ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/auto-consensus-sync-bash.mjs",
+            "timeout": 15000
+          }
+        ]
+      },
+      {
+        "matcher": "Edit|Write|MultiEdit|NotebookEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/main-tree-write-block.mjs",
+            "timeout": 4000
+          }
+        ]
+      },
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/pre-tool-router-table-advise.mjs",
+            "timeout": 3000
+          }
+        ]
+      },
+      {
+        "matcher": ".*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/mcp-bridge-enforce-pretool.mjs",
+            "timeout": 5000
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/rename-window-intercept.mjs",
+            "timeout": 6000
+          },
+          {
+            "type": "command",
+            "command": "\"$CLAUDE_PROJECT_DIR/.claude/hooks/stress-harness-emit.mjs\"",
+            "timeout": 2000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/checkin-args-surface.mjs",
+            "timeout": 1500
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/skill-auto-trigger.mjs",
+            "timeout": 1500
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/close-out-audit-suggest.mjs",
+            "timeout": 1500
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/obsidian-vault-precheck-inject.mjs",
+            "timeout": 1500
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/prompt-context-inject.mjs",
+            "timeout": 1500
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/fleet-work-digest-inject.mjs",
+            "timeout": 2000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/cag-router-inject.mjs",
+            "timeout": 1500
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/master-index-precheck-inject.mjs",
+            "timeout": 3000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/sierra-graph-health-inject.mjs",
+            "timeout": 3000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/synergy-definition-inject.mjs",
+            "timeout": 3000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/task-start-substrate-inject.mjs",
+            "timeout": 3000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/auto-fix-blackwell-doctrine-inject.mjs",
+            "timeout": 2000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/ollama-nav-enforce-inject.mjs",
+            "timeout": 2000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/ollama-pipeline-injector.mjs",
+            "timeout": 8000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/model-tier-advisor.mjs",
+            "timeout": 5000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/ollama-prewarm-on-pipeline.mjs",
+            "timeout": 8000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/node-card-prefetch-inject.mjs",
+            "timeout": 3000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/agent-handoff-canonicalize.mjs",
+            "timeout": 3000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/memory-rag-inject.mjs",
+            "timeout": 4000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/.claude/hooks/search-thoroughness-inject.mjs",
+            "timeout": 2000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/tribal-by-domain-inject.mjs",
+            "timeout": 5000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/path-replay-advise.mjs",
+            "timeout": 3000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/mcp-connectivity-check.mjs",
+            "timeout": 2000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/node-capability-inject.mjs",
+            "timeout": 2500
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/memory-index-precheck-inject.mjs",
+            "timeout": 5000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/token-awareness-sidecar.mjs",
+            "timeout": 3000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/token-awareness-inject.mjs",
+            "timeout": 2000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/audit-viz-first-inject.mjs",
+            "timeout": 3000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/session-id-pin.mjs",
+            "timeout": 1500
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/ensure-index-daemon-guardian.mjs",
+            "timeout": 2000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/slot-bind-enforce.mjs",
+            "timeout": 12000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/slot-domain-awareness-inject.mjs",
+            "timeout": 3000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/slot-soul-inject.mjs",
+            "timeout": 2000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/galaxy-claudemd-inject.mjs",
+            "timeout": 3000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/slot-brief-inject.mjs",
+            "timeout": 2000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/slot-context-bundle-inject.mjs",
+            "timeout": 3000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/ai-synergy-awareness-inject.mjs",
+            "timeout": 3000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/zulu-advisory-inject.mjs",
+            "timeout": 3000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/zulu-build-pointer-inject.mjs",
+            "timeout": 2000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/psn-tag-parser-inject.mjs",
+            "timeout": 2000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/session-reorient-inject.mjs",
+            "timeout": 3000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/stale-state-warn.mjs",
+            "timeout": 2000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/rtk-savings-headline-inject.mjs",
+            "timeout": 2000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/local-compute-intent.mjs",
+            "timeout": 5000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/comprehensive-build-enforce.mjs",
+            "timeout": 2000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/all-means-all-inject.mjs",
+            "timeout": 1500
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/token-budget-gate.mjs",
+            "timeout": 2000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/critical-memory-compact-nudge.mjs",
+            "timeout": 3000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/fleet-survival-advisory.mjs",
+            "timeout": 3000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/auto-consensus-userprompt.mjs",
+            "timeout": 5000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/auto-fanout-advisory.mjs",
+            "timeout": 3000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/loop-iteration-inject.mjs",
+            "timeout": 5000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/pick-prefresh-inject.mjs",
+            "timeout": 5000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/goal-prereq-inject.mjs",
+            "timeout": 5000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/heartbeat-keepalive.mjs",
+            "timeout": 8000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/slot-session-sidecar-heartbeat.mjs",
+            "timeout": 3000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/golf-slot-reaper-guardian.mjs",
+            "timeout": 10000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/active-chat-priority-boost.mjs",
+            "timeout": 3000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/psn-leg-state-inject.mjs",
+            "timeout": 2000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/psn-prompt-checklist-inject.mjs",
+            "timeout": 2000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/mcp-broadcast-reconnect-inject.mjs",
+            "timeout": 3000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/bundles/ups-domain-bundle.mjs",
+            "timeout": 20000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/prompt-route-inject.mjs",
+            "timeout": 3000
+          }
+        ]
+      },
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/forge-queue-inject.mjs"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write|MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/post-nc-dialect-guard.mjs",
+            "timeout": 4000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/h-to-c-obsidian-mirror.mjs",
+            "timeout": 3000
+          }
+        ]
+      },
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/token-awareness-sidecar.mjs",
+            "timeout": 3000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" -e \"/* TIER3e 2026-05-10: mcp-posttool-tracker moved from (none) matcher to mcp__prism__.* matcher. Source preserved at H:/prism/.claude/helpers/mcp-posttool-tracker.mjs. The (none) copy fired on EVERY tool call but the hook only does work for MCP calls. To revert: restore command path here. */ process.exit(0)\"",
+            "timeout": 1000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/skill-auto-trigger.mjs",
+            "timeout": 1500
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/mcp-route-takeup.mjs",
+            "timeout": 2000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/posttool-rtk-adoption-measure.mjs",
+            "timeout": 1500
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/chat-slot-heartbeat.mjs",
+            "timeout": 2000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/outcome-bus-auto-tap.mjs",
+            "timeout": 2000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/session-reorient-capture.mjs",
+            "timeout": 2500
+          }
+        ]
+      },
+      {
+        "matcher": "Read",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "READ_ONCE_MODE=post \"H:/.claude/bin/portable-node\" H:/prism/.claude/helpers/read-once-cache.mjs",
+            "timeout": 2000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/recall-counter-track.mjs",
+            "timeout": 2500
+          }
+        ]
+      },
+      {
+        "matcher": "Agent",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/agent-pid-tracker.mjs",
+            "timeout": 5000
+          }
+        ]
+      },
+      {
+        "matcher": "Grep",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/grep-result-cache.mjs",
+            "timeout": 2000
+          }
+        ]
+      },
+      {
+        "matcher": "mcp__prism__prism_.*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/post-recommendation-capture.mjs",
+            "timeout": 3000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/post-memory-context-eval.mjs",
+            "timeout": 3000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/cost-bridge-dispatch.mjs",
+            "timeout": 3000
+          }
+        ]
+      },
+      {
+        "matcher": "Edit|Write|MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/bundles/posttool-edit-bundle.mjs",
+            "timeout": 20000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/cad-step-lint-guard.mjs",
+            "timeout": 5000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/.claude/hooks/lathe-gcode-lint-guard.mjs",
+            "timeout": 5000
+          }
+        ]
+      },
+      {
+        "matcher": "Bash|Read",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/bundles/posttool-bash-read-bundle.mjs",
+            "timeout": 15000
+          }
+        ]
+      },
+      {
+        "matcher": "Edit|Write|MultiEdit|NotebookEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/cross-session-orchestrator.mjs --post",
+            "timeout": 4000
+          }
+        ]
+      },
+      {
+        "matcher": "Edit|Write|MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/wiki-recall-on-write.mjs",
+            "timeout": 3000
+          }
+        ]
+      },
+      {
+        "matcher": "Edit|Write|MultiEdit|Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/blueprint-accuracy-guard.mjs",
+            "timeout": 3000
+          }
+        ]
+      },
+      {
+        "matcher": "Bash|Edit|MultiEdit|Grep|Glob",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/error-pattern-capture.mjs",
+            "timeout": 5000
+          }
+        ]
+      },
+      {
+        "matcher": "Write|Edit|MultiEdit|Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/error-block-capture.mjs",
+            "timeout": 5000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism-slot-lima/.claude/hooks/lima-course-ship-guard.mjs",
+            "timeout": 2000
+          }
+        ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/commit-coordination-release.mjs",
+            "timeout": 12000
+          }
+        ]
+      },
+      {
+        "matcher": "Edit|Write|MultiEdit|NotebookEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/build-cache-guard.mjs",
+            "timeout": 3000
+          }
+        ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/commit-format-validator.mjs",
+            "timeout": 2000
+          }
+        ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/extraction-intake-trigger.mjs"
+          }
+        ]
+      }
+    ],
+    "SubagentStart": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/subagent-start-context.mjs",
+            "timeout": 5000
+          }
+        ]
+      }
+    ]
+  },
+  "enableWorkflows": true,
+  "statusLine": {
+    "type": "command",
+    "command": "\"H:/Tools/nodejs/node.exe\" H:/prism/.claude/statusline.mjs",
+    "padding": 0
+  },
+  "enabledPlugins": {
+    "superpowers@claude-plugins-official": true,
+    "figma@claude-plugins-official": true,
+    "qodo-skills@claude-plugins-official": true,
+    "agent-sdk-dev@claude-plugins-official": true,
+    "clangd-lsp@claude-plugins-official": true,
+    "claude-code-setup@claude-plugins-official": true,
+    "claude-md-management@claude-plugins-official": true,
+    "code-review@claude-plugins-official": true,
+    "code-simplifier@claude-plugins-official": true,
+    "commit-commands@claude-plugins-official": true,
+    "context7@claude-plugins-official": true,
+    "feature-dev@claude-plugins-official": true,
+    "frontend-design@claude-plugins-official": true,
+    "github@claude-plugins-official": true,
+    "greptile@claude-plugins-official": true,
+    "hookify@claude-plugins-official": true,
+    "linear@claude-plugins-official": true,
+    "playwright@claude-plugins-official": true,
+    "pr-review-toolkit@claude-plugins-official": true,
+    "rust-analyzer-lsp@claude-plugins-official": true,
+    "serena@claude-plugins-official": true,
+    "skill-creator@claude-plugins-official": true,
+    "supabase@claude-plugins-official": true,
+    "typescript-lsp@claude-plugins-official": true,
+    "swift-lsp@claude-plugins-official": true,
+    "octo@nyldn-plugins": false
+  },
+  "extraKnownMarketplaces": {
+    "nyldn-plugins": {
+      "source": {
+        "source": "git",
+        "url": "https://github.com/nyldn/plugins.git"
+      }
+    },
+    "wshobson-agents": {
+      "source": {
+        "source": "git",
+        "url": "https://github.com/wshobson/agents.git"
+      }
+    }
+  },
+  "spinnerTipsEnabled": false,
+  "alwaysThinkingEnabled": false,
+  "effortLevel": "high",
+  "ultracode": true,
+  "showThinkingSummaries": true,
+  "skipDangerousModePermissionPrompt": true,
+  "skipWorkflowUsageWarning": true,
+  "theme": "dark",
+  "editorMode": "normal",
+  "autoCompactEnabled": true,
+  "agentPushNotifEnabled": true,
+  "skipAutoPermissionPrompt": true
+}

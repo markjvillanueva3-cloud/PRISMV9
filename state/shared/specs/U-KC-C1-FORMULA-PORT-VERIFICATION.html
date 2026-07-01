@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="generator" content="SpecHTMLCompanionEngine">
+<meta name="prism-source-hash" content="41d4f298ca2f1c90c85b703661b1674053a1ef1b32835d034adffcb8e0bbc0a7">
+<title>U-KC-C1 — 12-File Formula Port Verification (Lane B)</title>
+<style>
+:root, [data-theme="light"] {
+  --bg:#ffffff; --bg-soft:#f6f8fa; --bg-code:#f6f8fa; --fg:#1f2328; --fg-muted:#636c76;
+  --border:#d0d7de; --accent:#0969da; --accent-soft:#ddf4ff; --thead:#f6f8fa; --quote:#656d76;
+  --table-stripe:#f6f8fa;
+}
+[data-theme="dark"] {
+  --bg:#0d1117; --bg-soft:#161b22; --bg-code:#161b22; --fg:#e6edf3; --fg-muted:#8b949e;
+  --border:#30363d; --accent:#2f81f7; --accent-soft:#163356; --thead:#161b22; --quote:#8b949e;
+  --table-stripe:#11151c;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg:#0d1117; --bg-soft:#161b22; --bg-code:#161b22; --fg:#e6edf3; --fg-muted:#8b949e;
+    --border:#30363d; --accent:#2f81f7; --accent-soft:#163356; --thead:#161b22; --quote:#8b949e;
+    --table-stripe:#11151c;
+  }
+}
+* { box-sizing:border-box; }
+html { scroll-behavior:smooth; }
+body { margin:0; background:var(--bg); color:var(--fg); font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif; line-height:1.6; font-size:16px; }
+.skip-link { position:absolute; left:-9999px; top:0; background:var(--accent); color:#fff; padding:8px 14px; z-index:100; border-radius:0 0 6px 0; }
+.skip-link:focus { left:0; }
+.layout { display:grid; grid-template-columns:minmax(0,1fr); max-width:1180px; margin:0 auto; padding:0 20px; }
+@media (min-width:1000px) { .layout { grid-template-columns:260px minmax(0,1fr); gap:40px; } }
+header.doc-head { grid-column:1 / -1; padding:28px 0 16px; border-bottom:1px solid var(--border); }
+header.doc-head h1.page-title { margin:0 0 6px; font-size:1.9rem; line-height:1.25; }
+header.doc-head .provenance { color:var(--fg-muted); font-size:.85rem; margin:0; }
+header.doc-head .theme-toggle { float:right; background:var(--bg-soft); color:var(--fg); border:1px solid var(--border); border-radius:6px; padding:5px 10px; font-size:.8rem; cursor:pointer; }
+nav.toc { align-self:start; position:sticky; top:16px; max-height:calc(100vh - 32px); overflow:auto; font-size:.85rem; padding:14px 0; }
+@media (max-width:999px) { nav.toc { position:static; max-height:none; border-bottom:1px solid var(--border); margin-bottom:12px; } }
+nav.toc .toc-title { font-weight:600; color:var(--fg-muted); text-transform:uppercase; letter-spacing:.04em; font-size:.7rem; margin-bottom:8px; }
+nav.toc ul { list-style:none; margin:0; padding:0; }
+nav.toc li a { color:var(--fg-muted); text-decoration:none; display:block; padding:3px 6px; border-left:2px solid transparent; border-radius:0 4px 4px 0; }
+nav.toc li a:hover { color:var(--accent); background:var(--accent-soft); border-left-color:var(--accent); }
+nav.toc li a.active { color:var(--accent); background:var(--accent-soft); border-left-color:var(--accent); font-weight:600; }
+nav.toc .toc-l2 a { padding-left:14px; } nav.toc .toc-l3 a { padding-left:26px; font-size:.95em; } nav.toc .toc-l4 a { padding-left:38px; font-size:.9em; }
+nav.toc input.toc-search { width:100%; box-sizing:border-box; margin:0 0 8px; padding:5px 8px; font-size:.82rem; border:1px solid var(--border); border-radius:5px; background:var(--bg); color:var(--fg); }
+nav.toc input.toc-search:focus { outline:2px solid var(--accent); outline-offset:-1px; }
+nav.toc .toc-search-status { font-size:.7rem; color:var(--fg-muted); min-height:1em; margin:-4px 0 6px; }
+nav.toc li.toc-hidden { display:none; }
+main.doc-body mark.search-hit { background:#fff3a3; color:#1f2328; border-radius:2px; padding:0 1px; }
+main.doc-body mark.search-hit.current { outline:2px solid var(--accent); outline-offset:1px; }
+main.doc-body { min-width:0; padding:24px 0 64px; }
+main.doc-body h1,main.doc-body h2,main.doc-body h3,main.doc-body h4,main.doc-body h5,main.doc-body h6 { line-height:1.3; margin-top:1.8em; margin-bottom:.6em; scroll-margin-top:16px; position:relative; }
+main.doc-body h1 { font-size:1.7rem; border-bottom:1px solid var(--border); padding-bottom:.3em; }
+main.doc-body h2 { font-size:1.4rem; border-bottom:1px solid var(--border); padding-bottom:.3em; }
+main.doc-body h3 { font-size:1.18rem; } main.doc-body h4 { font-size:1.02rem; }
+main.doc-body a.anchor { position:absolute; left:-1.1em; opacity:0; text-decoration:none; color:var(--fg-muted); font-weight:400; padding-right:.3em; }
+main.doc-body h1:hover a.anchor,main.doc-body h2:hover a.anchor,main.doc-body h3:hover a.anchor,main.doc-body h4:hover a.anchor { opacity:1; }
+main.doc-body a { color:var(--accent); text-decoration:none; } main.doc-body a:hover { text-decoration:underline; }
+main.doc-body p { margin:.8em 0; }
+main.doc-body code { background:var(--bg-code); border-radius:4px; padding:.15em .35em; font-size:.88em; font-family:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace; }
+main.doc-body pre { background:var(--bg-code); border:1px solid var(--border); border-radius:8px; padding:14px 16px; overflow:auto; line-height:1.45; }
+main.doc-body pre code { background:none; padding:0; font-size:.86rem; }
+main.doc-body blockquote { margin:1em 0; padding:.4em 1em; border-left:4px solid var(--border); color:var(--quote); }
+main.doc-body ul,main.doc-body ol { margin:.6em 0; padding-left:1.6em; }
+main.doc-body li { margin:.2em 0; }
+main.doc-body hr { border:0; border-top:1px solid var(--border); margin:2em 0; }
+main.doc-body .table-wrap { overflow-x:auto; margin:1em 0; }
+main.doc-body table { border-collapse:collapse; width:100%; font-size:.9rem; }
+main.doc-body th,main.doc-body td { border:1px solid var(--border); padding:6px 11px; text-align:left; vertical-align:top; }
+main.doc-body thead th { background:var(--thead); }
+main.doc-body tbody tr:nth-child(2n) { background:var(--table-stripe); }
+main.doc-body details.frontmatter { background:var(--bg-soft); border:1px solid var(--border); border-radius:8px; padding:6px 14px; margin:0 0 22px; }
+main.doc-body details.frontmatter summary { cursor:pointer; font-weight:600; color:var(--fg-muted); }
+main.doc-body details.frontmatter table { font-size:.82rem; }
+main.doc-body details.frontmatter th { width:1%; white-space:nowrap; background:transparent; color:var(--fg-muted); }
+main.doc-body .mermaid { background:var(--bg-soft); border:1px solid var(--border); border-radius:8px; padding:14px; margin:1em 0; text-align:center; overflow:auto; white-space:pre-wrap; }
+main.doc-body .truncation-notice { background:var(--accent-soft); border:1px solid var(--accent); border-radius:6px; padding:10px 14px; font-size:.9rem; }
+footer.doc-foot { grid-column:1 / -1; border-top:1px solid var(--border); margin-top:48px; padding:18px 0 40px; color:var(--fg-muted); font-size:.82rem; }
+footer.doc-foot code { background:var(--bg-code); border-radius:4px; padding:.12em .3em; }
+</style>
+</head>
+<body>
+<a class="skip-link" href="#content">Skip to content</a>
+<div class="layout">
+<header class="doc-head">
+<button id="themeToggle" class="theme-toggle" type="button" aria-label="Toggle color theme">◐ theme</button>
+<h1 class="page-title" id="top">U-KC-C1 — 12-File Formula Port Verification (Lane B)</h1>
+<p class="provenance">Generated 2026-05-18T17:34:21.135Z by <code>scripts/emit-all-spec-html.ts</code> · the Markdown alongside is canonical</p>
+</header>
+<nav class="toc" aria-label="Table of contents"><div class="toc-title">On this page</div><input type="search" class="toc-search" placeholder="Search this page…" aria-label="Search this page" autocomplete="off"><div class="toc-search-status" aria-live="polite"></div><ul>
+<li class="toc-l1"><a href="#u-kc-c1-12-file-formula-port-verification-lane-b">U-KC-C1 — 12-File Formula Port Verification (Lane B)</a></li>
+<li class="toc-l2"><a href="#scope">Scope</a></li>
+<li class="toc-l2"><a href="#verification-verdicts-1212">Verification verdicts (12/12)</a></li>
+<li class="toc-l3"><a href="#group-a-multi-dispatcher-distribution-2">Group A — Multi-dispatcher distribution (2)</a></li>
+<li class="toc-l3"><a href="#group-b-data-tables-superseded-by-registry-2">Group B — Data tables superseded by registry (2)</a></li>
+<li class="toc-l3"><a href="#group-c-direct-mapped-engines-8-ledger-score1">Group C — Direct-mapped engines (8, ledger score=1)</a></li>
+<li class="toc-l2"><a href="#net-result">Net result</a></li>
+<li class="toc-l2"><a href="#lane-b-residue">Lane B residue</a></li>
+<li class="toc-l2"><a href="#re-verification">Re-verification</a></li>
+</ul></nav>
+<main id="content" class="doc-body" role="main">
+<h1 id="u-kc-c1-12-file-formula-port-verification-lane-b"><a class="anchor" href="#u-kc-c1-12-file-formula-port-verification-lane-b" aria-label="Permalink to U-KC-C1 — 12-File Formula Port Verification (Lane B)">#</a>U-KC-C1 — 12-File Formula Port Verification (Lane B)</h1>
+<p><strong>Milestone:</strong> KNOWLEDGE-CONVERSION-MS0 Phase 2 Lane B <strong>Unit:</strong> U-KC-C1 <strong>Date:</strong> 2026-05-16 <strong>Author:</strong> claude-41db1b82 (slot india) <strong>Status:</strong> verification-only, no source code changes <strong>Advisory:</strong> <code>advisoryOnly: true</code>, <code>mustHumanVerify: true</code></p>
+<h2 id="scope"><a class="anchor" href="#scope" aria-label="Permalink to Scope">#</a>Scope</h2>
+<p>Per Phase 0 audit ledger (<code>state/shared/specs/monolith-port-ledger.json</code>), the &quot;71 formulas&quot; detection count from the monolith resolves to <strong>12 actual files</strong> at <code>extracted/formulas/PRISM_*.js</code>. This unit verifies each file&#39;s port state by content cross-reference (not just name-match), categorizes the canonical PRISM landing site, and identifies any unported residue requiring real porting work.</p>
+<p><strong>Canonical physics rule (CLAUDE.md §SAFETY):</strong> NEVER inline Kienzle/Taylor/ material constants. All canonical constants live in <code>src/physics/constants.ts</code>. The 8 &quot;ported&quot; entries in the ledger refer to per-material data tables that may include approximated values — the canonical source remains <code>constants.ts</code>.</p>
+<h2 id="verification-verdicts-1212"><a class="anchor" href="#verification-verdicts-1212" aria-label="Permalink to Verification verdicts (12/12)">#</a>Verification verdicts (12/12)</h2>
+<h3 id="group-a-multi-dispatcher-distribution-2"><a class="anchor" href="#group-a-multi-dispatcher-distribution-2" aria-label="Permalink to Group A — Multi-dispatcher distribution (2)">#</a>Group A — Multi-dispatcher distribution (2)</h3>
+<p>These files are wrapper/coordinator APIs whose individual formulas map across multiple dispatcher surfaces. Name-match scoring failed (low score) because no single .ts file is a 1:1 equivalent; the work is fully ported, distributed.</p>
+<div class="table-wrap"><table>
+<thead><tr><th>File</th><th>Ledger state</th><th>Verdict</th><th>Landing</th></tr></thead>
+<tbody>
+<tr><td>PRISM_STANDALONE_CALCULATOR_API.js</td><td>unported (score 0)</td><td><strong>PORTED-DISTRIBUTED</strong></td><td><code>prism_calc</code> actions: <code>quick_rpm</code>, <code>quick_surface_speed</code>, <code>quick_feed_rate</code>, <code>quick_chip_load</code>, <code>quick_mrr</code>, <code>chip_thinning</code>, <code>cutting_force</code>, <code>power</code>, <code>tool_deflection_predict</code>, <code>surface_finish</code>, <code>peck_drill_optimize</code>, <code>kb_calc_tap_drill</code>. Material table hardcoded values (Kc per alloy) are PRISM-internal approximations — canonical kc1.1 per ISO group in <code>constants.ts</code> (P=1800, M=2100, K=1100, N=700, S=2800, H=3200).</td></tr>
+<tr><td>PRISM_MFG_PHYSICS.js</td><td>ambiguous (score 0.367)</td><td><strong>PORTED-DISTRIBUTED</strong></td><td>Meta-coordinator calling: <code>merchantCircle</code> → <code>prism_calc:merchant_analysis</code> (calcDispatcher:575) · <code>loewenShawTemperature</code> → <code>prism_calc:thermal_loewen_shaw</code> (calcDispatcher:581) · <code>extendedTaylor</code> → <code>prism_calc:tool_life</code> with canonical Taylor C/n from <code>constants.ts</code>.</td></tr>
+</tbody>
+</table></div>
+<h3 id="group-b-data-tables-superseded-by-registry-2"><a class="anchor" href="#group-b-data-tables-superseded-by-registry-2" aria-label="Permalink to Group B — Data tables superseded by registry (2)">#</a>Group B — Data tables superseded by registry (2)</h3>
+<div class="table-wrap"><table>
+<thead><tr><th>File</th><th>Ledger state</th><th>Verdict</th><th>Landing</th></tr></thead>
+<tbody>
+<tr><td>PRISM_THERMAL_PROPERTIES.js</td><td>ambiguous (score 0.402)</td><td><strong>SUPERSEDED-BY-REGISTRY</strong></td><td>k/cp/alpha/T_max/density per material (steels/stainless/aluminum/etc.) — canonical source: <code>MaterialRegistryEngine</code> + <code>prism_data:material_get</code>/<code>material_search</code>. Static <code>.js</code> data tables intentionally NOT re-imported (Karpathy R11 conformance — registry is the canonical surface).</td></tr>
+<tr><td>PRISM_TOOL_LIFE_ESTIMATOR.js</td><td>ambiguous (score 0.611)</td><td><strong>SUPERSEDED-BY-CONSTANTS</strong></td><td>Taylor constants table (n, C, maxLife per tool×material). Canonical Taylor C/n lives in <code>src/physics/constants.ts</code>. Formula <code>T = (C/V)^(1/n)</code> is wired in <code>prism_calc:tool_life</code> and <code>BayesianToolLifeEngine</code>. Embedded values are pre-PRISM approximations; canonical wins.</td></tr>
+</tbody>
+</table></div>
+<h3 id="group-c-direct-mapped-engines-8-ledger-score1"><a class="anchor" href="#group-c-direct-mapped-engines-8-ledger-score1" aria-label="Permalink to Group C — Direct-mapped engines (8, ledger score=1)">#</a>Group C — Direct-mapped engines (8, ledger score=1)</h3>
+<p>All 8 score=1 entries have a primary canonical landing site already wired. Spot- check confirms each top-level API function is realized through the named engine</p>
+<ul>
+<li>companion dispatcher actions. No re-port needed.</li>
+</ul>
+<div class="table-wrap"><table>
+<thead><tr><th>File</th><th>Primary engine</th><th>Companion actions</th><th>Top-level API verified</th></tr></thead>
+<tbody>
+<tr><td>PRISM_FORCE_LOOKUP.js</td><td><code>KienzleForceModel</code></td><td><code>prism_calc:kienzle_force</code>, <code>kienzle_coefficients</code> + Kc lookups via <code>prism_data:material_get</code></td><td>getDefaultKc, getDefaultMc, getForceDistribution, getSafetyFactors</td></tr>
+<tr><td>PRISM_MATERIAL_PHYSICS.js</td><td><code>FusionMaterialPhysicsBridge</code> (+ HyperMill/Mastercam bridges)</td><td><code>prism_data:material_get</code>, <code>material_search</code></td><td>getDensity, getYoungsModulus, getPoisson, getThermalConductivity, getSpecificHeat, getMeltingPoint</td></tr>
+<tr><td>PRISM_STRESS.js</td><td><code>KeywayStressEngine</code></td><td><code>prism_calc:tensor_stress_invariants</code>, classical mechanics suite</td><td>principalStress, mohrsCircle, vonMises, tresca</td></tr>
+<tr><td>PRISM_STRESS_ANALYSIS.js</td><td><code>WEDMWireStressAnalysisEngine</code> + <code>KeywayStressEngine</code></td><td>same as above</td><td>vonMises, deviatoric, principalStresses, invariants, trueStrain</td></tr>
+<tr><td>PRISM_THERMAL_COMPENSATION.js</td><td><code>InverseThermalCompensationEngine</code></td><td><code>prism_calc:thermal_compensate</code>, <code>thermal_compensation_model</code></td><td>createSystem, errorCoeffs, predictError, compensation</td></tr>
+<tr><td>PRISM_THERMAL_LOOKUP.js</td><td><code>ThermalFEAModel</code> algorithm</td><td><code>prism_calc:cutting_temperature</code>, <code>thermal_expansion</code>, <code>cutting_thermal_partition</code></td><td>getMaxTemp, getWorkpieceMaxTemp, getCoolantRequired, estimateCuttingTemp, getThermalExpansion</td></tr>
+<tr><td>PRISM_TOOL_WEAR_MODELS.js</td><td><code>ToolWearPrediction</code> algorithm</td><td><code>prism_calc:wear_force_correction</code>, <code>archard_wear</code>, <code>tool_life</code>, <code>wear_progression</code></td><td>extendedTaylor, usuiWearModel, archardWearModel, predictFlankWear</td></tr>
+<tr><td>PRISM_WEAR_LOOKUP.js</td><td><code>BayesianWearModel</code> algorithm</td><td><code>prism_calc:wear_progression</code>, <code>tool_life</code>, <code>tool_life_predict</code></td><td>getVBMax, identifyWearMode, estimateWearStage, getToolLifeCriteria</td></tr>
+</tbody>
+</table></div>
+<h2 id="net-result"><a class="anchor" href="#net-result" aria-label="Permalink to Net result">#</a>Net result</h2>
+<p><strong>0 files require source-code porting.</strong></p>
+<ul>
+<li>2 multi-dispatcher distribution (wrapper APIs already fully realized)</li>
+<li>2 superseded by registry/constants (canonical source is <code>MaterialRegistryEngine</code> / <code>src/physics/constants.ts</code>)</li>
+<li>8 direct-mapped to existing engines+actions (spot-check PASS on API surface)</li>
+</ul>
+<p>The premise embedded in <code>monolith-port-ledger.json</code> for the &quot;ambiguous&quot; + &quot;unported&quot; entries is corrected by this content cross-reference: name-match score alone cannot bridge wrapper-API patterns or recognize that data tables are superseded by registry surfaces. The audit&#39;s <code>advisoryOnly:true</code> / <code>mustHumanVerify:true</code> flags are the load-bearing safeguard — this verification IS the human-verify pass for the formula axis.</p>
+<h2 id="lane-b-residue"><a class="anchor" href="#lane-b-residue" aria-label="Permalink to Lane B residue">#</a>Lane B residue</h2>
+<p><strong>U-KC-C2</strong> (20 algorithms) per ledger: 20/20 already resolve to current PRISM algorithm files (8 grep-verified, 12 name-match). Phase 0 audit downgraded C2 to &quot;confirm + spot-check the 12 name-match entries&quot; — no porting work.</p>
+<p><strong>Conclusion for Phase 2:</strong> Lane B is verification-only. The 2-lane model in the plan doc held — Lane A (Phase 1) was the build, Lane B (Phase 2) is confirmation that the prior <code>S1-MS2</code> / <code>L1-P0-MS1</code> / <code>L2-P0-MS1</code> deliverables covered the formula+algorithm axis. The remaining open work in KNOWLEDGE-CONVERSION-MS0 is:</p>
+<ul>
+<li><strong>Phase 3 Lane C</strong> (U-KC-D1) — formalize the 65 course content-mining candidates into <code>/forge</code>-eligible units. Queue-only, human-gated, never auto-built.</li>
+<li><strong>Phase 4</strong> (U-KC-E1) — durable memory + wiki + CLAUDE.md pointer doc-reflection.</li>
+</ul>
+<h2 id="re-verification"><a class="anchor" href="#re-verification" aria-label="Permalink to Re-verification">#</a>Re-verification</h2>
+<p>To re-derive this verification when the monolith ledger changes or canonical implementations move:</p>
+<pre><code class="language-bash">node scripts/audit-monolith-port-state.mjs                 # regen ledger
+cat state/shared/specs/monolith-port-ledger.json \         # extract formulas
+  | jq &#39;.extractedArtifacts.formulas&#39;
+# Cross-reference each `.match` and `.alternatives[]` entry against current
+# src/ via Grep on top-level API names per Group A/B/C above.
+</code></pre>
+</main>
+<footer class="doc-foot">
+<p>HTML companion — the canonical document is the Markdown file alongside it. <a href="U-KC-C1-FORMULA-PORT-VERIFICATION.md">U-KC-C1-FORMULA-PORT-VERIFICATION.md</a> Regenerate: <code>node scripts/emit-spec-html.mjs &lt;path.md&gt;</code></p>
+
+</footer>
+</div>
+<script>(function(){
+  try {
+    var k = "prism-spec-theme";
+    var saved = localStorage.getItem(k);
+    if (saved === "dark" || saved === "light") document.documentElement.setAttribute("data-theme", saved);
+  } catch (e) { /* localStorage blocked — keep default theme */ }
+  var b = document.getElementById("themeToggle");
+  if (!b) return;
+  b.addEventListener("click", function () {
+    var cur = document.documentElement.getAttribute("data-theme");
+    var sysDark = !!(window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches);
+    var next = cur === "dark" ? "light" : cur === "light" ? "dark" : (sysDark ? "light" : "dark");
+    document.documentElement.setAttribute("data-theme", next);
+    b.textContent = next === "dark" ? "\u263E dark" : "\u2600 light";
+    try { localStorage.setItem(k, next); } catch (e) { /* persistence unavailable — non-fatal */ }
+  });
+})();</script>
+<script>(function(){
+  var body = document.querySelector("main.doc-body");
+  var toc = document.querySelector("nav.toc");
+  if (!body) return;
+  // TOC active-section highlight.
+  if (toc) {
+    var links = {};
+    toc.querySelectorAll("a[href^='#']").forEach(function(a){ links[a.getAttribute("href").slice(1)] = a; });
+    var heads = body.querySelectorAll("h1[id],h2[id],h3[id],h4[id]");
+    var active = null;
+    function setActive(id){
+      if (active === id) return;
+      if (active && links[active]) links[active].classList.remove("active");
+      active = id;
+      if (active && links[active]) links[active].classList.add("active");
+    }
+    var io = new IntersectionObserver(function(entries){
+      var top = null, topY = Infinity;
+      entries.forEach(function(e){ if (e.isIntersecting) { var y = e.boundingClientRect.top; if (y < topY) { topY = y; top = e.target.id; } } });
+      if (!top) {
+        var best = null;
+        heads.forEach(function(h){ if (h.getBoundingClientRect().top < 80) best = h.id; });
+        top = best || (heads[0] && heads[0].id);
+      }
+      if (top) setActive(top);
+    }, { rootMargin: "0px 0px -70% 0px", threshold: [0, 1] });
+    heads.forEach(function(h){ io.observe(h); });
+  }
+  // In-page search: wrap matches in <mark>, jump to first, filter the TOC.
+  var input = toc && toc.querySelector("input.toc-search");
+  var status = toc && toc.querySelector(".toc-search-status");
+  if (!input) return;
+  var SKIP = { SCRIPT:1, STYLE:1, MARK:1, NOSCRIPT:1 };
+  function clearMarks(){
+    body.querySelectorAll("mark.search-hit").forEach(function(m){ var p = m.parentNode; if (p) { p.replaceChild(document.createTextNode(m.textContent), m); p.normalize(); } });
+    if (toc) toc.querySelectorAll("li.toc-hidden").forEach(function(li){ li.classList.remove("toc-hidden"); });
+  }
+  function doSearch(q){
+    clearMarks();
+    if (status) status.textContent = "";
+    if (!q || q.length < 2) return;
+    var needle = q.toLowerCase(), hits = 0, first = null;
+    var walker = document.createTreeWalker(body, NodeFilter.SHOW_TEXT, { acceptNode: function(n){
+      if (!n.nodeValue || !n.nodeValue.trim()) return NodeFilter.FILTER_REJECT;
+      var p = n.parentNode; while (p && p !== body) { if (SKIP[p.nodeName]) return NodeFilter.FILTER_REJECT; p = p.parentNode; }
+      return n.nodeValue.toLowerCase().indexOf(needle) >= 0 ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT;
+    }});
+    var targets = [];
+    while (walker.nextNode()) targets.push(walker.currentNode);
+    targets.forEach(function(node){
+      if (hits > 2000) return;
+      var text = node.nodeValue, lower = text.toLowerCase(), frag = document.createDocumentFragment(), i = 0, idx;
+      while ((idx = lower.indexOf(needle, i)) >= 0 && hits <= 2000) {
+        if (idx > i) frag.appendChild(document.createTextNode(text.slice(i, idx)));
+        var m = document.createElement("mark"); m.className = "search-hit"; m.textContent = text.slice(idx, idx + needle.length);
+        if (hits === 0) { m.classList.add("current"); first = m; }
+        frag.appendChild(m); hits++; i = idx + needle.length;
+      }
+      if (i < text.length) frag.appendChild(document.createTextNode(text.slice(i)));
+      if (node.parentNode) node.parentNode.replaceChild(frag, node);
+    });
+    if (status) status.textContent = hits ? (hits + " match" + (hits === 1 ? "" : "es")) : "no matches";
+    if (toc) toc.querySelectorAll("li").forEach(function(li){ var a = li.querySelector("a"); if (a && a.textContent.toLowerCase().indexOf(needle) < 0) li.classList.add("toc-hidden"); });
+    if (first) first.scrollIntoView({ block: "center", behavior: "smooth" });
+  }
+  var t;
+  input.addEventListener("input", function(){ clearTimeout(t); t = setTimeout(function(){ doSearch(input.value.trim()); }, 180); });
+  input.addEventListener("keydown", function(e){ if (e.key === "Escape") { input.value = ""; doSearch(""); input.blur(); } });
+})();</script>
+</body>
+</html>

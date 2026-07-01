@@ -23,13 +23,21 @@ related:
 |-------|-------|
 | Name | `findings` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/findings.md` |
+| Source | `C:/Users/wompu/.claude/commands/findings.md` |
 | Model | default |
 | Tags | _(none)_ |
 
 ## Description (first paragraph)
 
-_(no body content)_
+
+# Findings — Open Issue Tracker
+
+You are scanning all PRISM milestone envelopes and state files to build a consolidated view of open findings (CRITICAL, MAJOR, MINOR). This helps prioritize what to fix next and tracks resolution progress.
+
+## Args: $ARGUMENTS
+- Empty: show all open findings across all milestones
+- `critical`: show only CRITICAL findings
+- `major`: show CRITICAL + MAJOR fi
 
 <!-- AUTO-END -->
 

@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `counts` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/counts.md` |
+| Source | `C:/Users/wompu/.claude/commands/counts.md` |
 | Model | default |
 | Tags | _(none)_ |
 

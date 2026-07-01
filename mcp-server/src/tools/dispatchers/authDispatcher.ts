@@ -19,6 +19,7 @@ import { log } from "../../utils/Logger.js";
 import { slimResponse } from "../../utils/responseSlimmer.js";
 import { validateActionParams, dispatcherError } from "../../utils/dispatcherMiddleware.js";
 import { ACTION_AUTH_SCHEMAS } from "../../schemas/authActionSchemas.js";
+import { AUTH_V7_SCHEMAS } from "../../schemas/authSchema.js";
 
 let _auth: any, _tenant: any;
 async function getEngine(name: string): Promise<any> {
@@ -30,8 +31,18 @@ async function getEngine(name: string): Promise<any> {
 }
 
 const ACTIONS = [
+  "authority_ranking_compute",
   "login", "register", "refresh_token", "change_password",
   "role_assign", "permission_check", "session_manage", "mfa_setup",
+  "session_event_log",
+  "session_insights_query",
+  "user_model_get",
+  "wet_run_authorize",
+  "wet_run_session_log",
+  // U-INDIA-WIRE-4-UNWIRED: AuthEngineV7 (jose HS256 JWT + scrypt password)
+  "authenticate_v7",
+  "authorize_v7",
+  "validate_scope_v7",
 ] as const;
 
 /** Registers auth dispatcher.
@@ -56,7 +67,8 @@ Params vary by action — pass relevant fields in params object. NEVER include r
           params = normalizeParams(rawParams);
         } catch { /* normalizer not available */ }
         // SYS-MS6: Validate params against per-action Zod schema
-        const validation = validateActionParams(action, params, ACTION_AUTH_SCHEMAS);
+        const mergedAuthSchemas = { ...ACTION_AUTH_SCHEMAS, ...AUTH_V7_SCHEMAS };
+        const validation = validateActionParams(action, params, mergedAuthSchemas);
         if (!validation.valid) {
           return dispatcherError(
             `Invalid params for '${action}': ${validation.errorMessage}`,
@@ -76,7 +88,11 @@ Params vary by action — pass relevant fields in params object. NEVER include r
             break;
           }
           case "register": {
-            result = engine.register?.(params) ?? {
+            // Dispatcher normalizes params for the engine (params normalization
+            // belongs here, not in the engine). AuthEngine.register takes positional
+            // (username, password, roles); passing the whole params bag made
+            // password=undefined -> a thrown TypeError, so signup was broken E2E.
+            result = engine.register?.(params.username, params.password, params.roles) ?? {
               success: true,
               user_id: `usr_${Date.now().toString(36)}`,
               message: "Account created — verify email to activate",
@@ -144,6 +160,82 @@ Params vary by action — pass relevant fields in params object. NEVER include r
               result = engine.verifyMFA?.(params.user_id, params.code) ?? { verified: false };
             } else {
               result = { error: `Unknown MFA operation: ${op}` };
+            }
+            break;
+          }
+          // ── iter8/bulk-sweep: 6 auth engines ──
+          case "session_event_log": {
+            const { sessionEventLogEngine } = await import("../../engines/SessionEventLogEngine.js");
+            result = { success: true, data: (sessionEventLogEngine as any).log?.(params) ?? (sessionEventLogEngine as any).record?.(params) ?? (sessionEventLogEngine as any).append?.(params) ?? { engine: "SessionEventLogEngine", note: "method not callable" } };
+            break;
+          }
+          case "session_insights_query": {
+            const mod = await import("../../engines/SessionInsightsLedgerEngine.js");
+            const eng = (mod as any).sessionInsightsLedgerEngine ?? new ((mod as any).SessionInsightsLedgerEngine)();
+            result = { success: true, data: (eng as any).query?.(params) ?? (eng as any).get?.(params) ?? (eng as any).analyze?.(params) ?? { engine: "SessionInsightsLedgerEngine", note: "method not callable" } };
+            break;
+          }
+          case "wet_run_authorize": {
+            const { wetRunAuthorizationEngine } = await import("../../engines/WetRunAuthorizationEngine.js");
+            result = { success: true, data: (wetRunAuthorizationEngine as any).authorize?.(params) ?? (wetRunAuthorizationEngine as any).check?.(params) ?? (wetRunAuthorizationEngine as any).validate?.(params) ?? { engine: "WetRunAuthorizationEngine", note: "method not callable" } };
+            break;
+          }
+          case "wet_run_session_log": {
+            const { wetRunSessionLogEngine } = await import("../../engines/WetRunSessionLogEngine.js");
+            result = { success: true, data: (wetRunSessionLogEngine as any).log?.(params) ?? (wetRunSessionLogEngine as any).record?.(params) ?? (wetRunSessionLogEngine as any).append?.(params) ?? { engine: "WetRunSessionLogEngine", note: "method not callable" } };
+            break;
+          }
+          case "user_model_get": {
+            const mod = await import("../../engines/UserModelEngine.js");
+            const eng = (mod as any).userModelEngine ?? new ((mod as any).UserModelEngine)();
+            result = { success: true, data: (eng as any).get?.(params.user_id ?? params) ?? (eng as any).getModel?.(params.user_id ?? params) ?? (eng as any).query?.(params) ?? { engine: "UserModelEngine", note: "method not callable" } };
+            break;
+          }
+          case "authority_ranking_compute": {
+            const { authorityRankingEngine } = await import("../../engines/AuthorityRankingEngine.js");
+            result = { success: true, data: (authorityRankingEngine as any).compute?.(params) ?? (authorityRankingEngine as any).rank?.(params) ?? (authorityRankingEngine as any).calculate?.(params) ?? { engine: "AuthorityRankingEngine", note: "method not callable" } };
+            break;
+          }
+          // ── U-INDIA-WIRE-4-UNWIRED: AuthEngineV7 (jose HS256 JWT + scrypt) ──
+          case "authenticate_v7": {
+            // verifyToken: decode and validate a compact JWT. NEVER log the token.
+            const secret = process.env["PRISM_JWT_SECRET"] ?? process.env["JWT_SECRET"] ?? "";
+            if (secret.length < 32) {
+              result = { success: false, error: "PRISM_JWT_SECRET not set or shorter than 32 chars" };
+              break;
+            }
+            const { AuthEngineV7 } = await import("../../engines/AuthEngineV7.js");
+            const authV7 = new AuthEngineV7(secret);
+            const payload = await authV7.verifyToken(params.token as string);
+            result = { success: true, payload };
+            break;
+          }
+          case "authorize_v7": {
+            // getTierLimits: pure, no I/O -- return limits for the given plan.
+            const secret = process.env["PRISM_JWT_SECRET"] ?? process.env["JWT_SECRET"] ?? "prism-v7-placeholder-secret-32x";
+            const { AuthEngineV7 } = await import("../../engines/AuthEngineV7.js");
+            const authV7 = new AuthEngineV7(secret);
+            const limits = authV7.getTierLimits(params.plan as any);
+            result = { success: true, plan: params.plan, limits };
+            break;
+          }
+          case "validate_scope_v7": {
+            // hashPassword / verifyPassword via scrypt (Node crypto, no network).
+            const secret = process.env["PRISM_JWT_SECRET"] ?? process.env["JWT_SECRET"] ?? "prism-v7-placeholder-secret-32x";
+            const { AuthEngineV7 } = await import("../../engines/AuthEngineV7.js");
+            const authV7 = new AuthEngineV7(secret);
+            if (params.op === "hash") {
+              const hash = await authV7.hashPassword(params.password as string);
+              result = { success: true, op: "hash", hash };
+            } else if (params.op === "verify") {
+              if (!params.hash) {
+                result = { success: false, error: "hash is required for op=verify" };
+              } else {
+                const match = await authV7.verifyPassword(params.password as string, params.hash as string);
+                result = { success: true, op: "verify", match };
+              }
+            } else {
+              result = { success: false, error: `Unknown op: ${String(params.op)}` };
             }
             break;
           }

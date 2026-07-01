@@ -49,7 +49,7 @@ const STOP_LOG = path.join(ROOT, "state/shared/STOP_AUTO_WIRE.json");
 function findGit() {
   for (const g of ["git", "C:\\Program Files\\Git\\cmd\\git.exe"]) {
     try {
-      const r = spawnSync(g, ["--version"], { timeout: 2000, encoding: "utf8" });
+      const r = spawnSync(g, ["--version"], { windowsHide: true, timeout: 2000, encoding: "utf8" });
       if (r.status === 0) return g;
     } catch {}
   }
@@ -58,7 +58,7 @@ function findGit() {
 
 function gitDiff(git, args) {
   try {
-    const r = spawnSync(git, args, { cwd: ROOT, timeout: 5000, encoding: "utf8" });
+    const r = spawnSync(git, args, { windowsHide: true, cwd: ROOT, timeout: 5000, encoding: "utf8" });
     if (r.status !== 0) return [];
     return r.stdout.split(/\r?\n/).filter(Boolean);
   } catch {
@@ -157,7 +157,7 @@ function refreshInventoryBackground() {
     if (!fs.existsSync(INVENTORY_SCRIPT)) return;
     const child = spawn(process.execPath, [INVENTORY_SCRIPT], {
       cwd: ROOT,
-      detached: true,
+      detached: true, windowsHide: true,
       stdio: "ignore",
     });
     child.unref();

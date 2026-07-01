@@ -36,6 +36,9 @@ type Segment = LineSegment | ArcSegment;
 
 export interface ContourData {
   id: string;
+  // Optional display name; some upstream contour sources (e.g. layered DXF
+  // imports) carry a layer/feature label. UI falls back to "Contour N".
+  name?: string;
   segments: Segment[];
   is_closed: boolean;
   is_exterior: boolean;

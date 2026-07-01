@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `check-dsl` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/check-dsl.md` |
+| Source | `C:/Users/wompu/.claude/commands/check-dsl.md` |
 | Model | default |
 | Tags | _(none)_ |
 

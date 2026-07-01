@@ -1,0 +1,111 @@
+{
+  "id": "CAMX-MS20",
+  "version": "7.0.0",
+  "title": "Standards & Interoperability — STEP-NC, ISO 13399, Vericut, NCSIMUL",
+  "brief": "STEP-NC parser/generator (ISO 14649/AP238). ISO 13399 tool data. QIF integration. Vericut + NCSIMUL simulation bridges.",
+  "created_at": "2026-03-22T14:54:56Z",
+  "created_by": "claude-opus-4.6",
+  "phases": [
+    {
+      "id": "P0",
+      "title": "Standards Engines",
+      "units": [
+        {
+          "id": "U01",
+          "title": "STEPNCParserEngine",
+          "description": "Parse ISO 14649/AP238 STEP-NC. Extract workingsteps, workplans, features, tooling.",
+          "exit_conditions": [
+            "Parser works",
+            "Feature extraction",
+            "Tests pass"
+          ],
+          "status": "complete",
+          "completed_at": "2026-04-19T15:33:00Z"
+        },
+        {
+          "id": "U02",
+          "title": "STEPNCGeneratorEngine",
+          "description": "Generate STEP-NC from PRISM pipeline. ISO 14649 Part 10/11/12.",
+          "exit_conditions": [
+            "Generator works",
+            "Milling + turning",
+            "Tests pass"
+          ],
+          "status": "complete",
+          "completed_at": "2026-04-19T15:33:00Z"
+        },
+        {
+          "id": "U03",
+          "title": "ISO13399ToolDataEngine",
+          "description": "Full ISO 13399 (GTC) import/export. Tool assemblies, cutting items.",
+          "exit_conditions": [
+            "Import/export works",
+            "Tests pass"
+          ],
+          "status": "complete",
+          "completed_at": "2026-04-19T15:33:00Z"
+        },
+        {
+          "id": "U04",
+          "title": "QIFIntegrationEngine",
+          "description": "Quality Information Framework. Import measurement plans, export results.",
+          "exit_conditions": [
+            "QIF integration works",
+            "Tests pass"
+          ],
+          "status": "complete",
+          "completed_at": "2026-04-19T15:33:00Z"
+        },
+        {
+          "id": "U05",
+          "title": "VericutBridgeEngine",
+          "description": "Export G-code + machine + stock + fixture for Vericut. Import OptiPath + collision results.",
+          "exit_conditions": [
+            "Vericut export works",
+            "Import results",
+            "Tests pass"
+          ],
+          "status": "complete",
+          "completed_at": "2026-04-19T15:33:00Z"
+        },
+        {
+          "id": "U06",
+          "title": "NCSIMULBridgeEngine",
+          "description": "Export for NCSIMUL simulation. Import verification results.",
+          "exit_conditions": [
+            "NCSIMUL bridge works",
+            "Tests pass"
+          ],
+          "status": "complete",
+          "completed_at": "2026-04-19T15:33:00Z"
+        },
+        {
+          "id": "U07",
+          "title": "Dispatcher wiring",
+          "description": "7 actions.",
+          "exit_conditions": [
+            "7 actions wired",
+            "Build passes"
+          ],
+          "status": "complete",
+          "completed_at": "2026-04-19T15:33:00Z"
+        },
+        {
+          "id": "U08",
+          "title": "Tests",
+          "description": "30+ tests.",
+          "exit_conditions": [
+            "30+ tests pass"
+          ],
+          "status": "complete",
+          "completed_at": "2026-04-19T15:33:00Z"
+        }
+      ]
+    }
+  ],
+  "status": "complete",
+  "completed_at": "2026-04-19T15:33:00Z",
+  "completed_units": 8,
+  "total_units": 8,
+  "closure_notes": "52/52 tests pass across 8 units. Verified: STEPNCParserEngine (parse/extractFeatures/extractTooling/extractParameters), STEPNCGeneratorEngine (generateToolDefinition/Definitions/Workplan), ISO13399ToolDataEngine (listGTCClasses/mapGTCClass/importISO13399/validateISO13399), QIFIntegrationEngine (importPlan/importResults/validateQIF/mapToFeatures), VericutBridgeEngine (getMachineMapping/exportForVericut/importOptiPath/importCollisionReport), NCSIMULBridgeEngine (getMachineMapping/exportForNCSIMUL). Dispatcher wiring: 14 actions in camDispatcher enum (stepnc_parse, stepnc_generate, iso13399_{import,export,validate}, qif_{import_plan,import_results,export_plan,export_results}, vericut_{export,import_optipath,import_collision}, ncsimul_{export,import}) — exceeds U07 threshold of 7."
+}

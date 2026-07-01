@@ -1,0 +1,1161 @@
+{
+  "system": "Fusion 360 API",
+  "vendor": "Autodesk",
+  "schemaVersion": "1.0.0",
+  "api_inventory_version": 1,
+  "last_updated": "2026-04-18",
+  "fusion_version": "2.0.18719+",
+  "languages": ["Python", "C++"],
+  "description": "Complete API function inventory for PRISM AI invocation - every callable function, method, and property",
+  "coverage_target": "100%",
+
+  "core_module": {
+    "namespace": "adsk.core",
+    "description": "Core geometry, math, and foundation types",
+    "classes": {
+      "Application": {
+        "description": "Main application object - entry point for all API operations",
+        "properties": [
+          {"name": "activeDocument", "type": "Document", "access": "read"},
+          {"name": "activeEditObject", "type": "Base", "access": "read"},
+          {"name": "activeProduct", "type": "Product", "access": "read"},
+          {"name": "activeViewport", "type": "Viewport", "access": "read"},
+          {"name": "cameraViews", "type": "CameraViews", "access": "read"},
+          {"name": "currentUser", "type": "User", "access": "read"},
+          {"name": "data", "type": "Data", "access": "read"},
+          {"name": "documents", "type": "Documents", "access": "read"},
+          {"name": "executeTextCommand", "type": "bool", "access": "method"},
+          {"name": "favoriteAppearances", "type": "Appearances", "access": "read"},
+          {"name": "favoriteMaterials", "type": "Materials", "access": "read"},
+          {"name": "isStartupComplete", "type": "bool", "access": "read"},
+          {"name": "materialLibraries", "type": "MaterialLibraries", "access": "read"},
+          {"name": "preferences", "type": "Preferences", "access": "read"},
+          {"name": "supportedUnits", "type": "UnitsManager", "access": "read"},
+          {"name": "unitsManager", "type": "UnitsManager", "access": "read"},
+          {"name": "userInterface", "type": "UserInterface", "access": "read"},
+          {"name": "userId", "type": "str", "access": "read"},
+          {"name": "userName", "type": "str", "access": "read"},
+          {"name": "version", "type": "str", "access": "read"}
+        ],
+        "methods": [
+          {"name": "executeTextCommand", "params": ["commandString: str"], "returns": "bool"},
+          {"name": "fireCustomEvent", "params": ["eventId: str", "additionalInfo: str"], "returns": "bool"},
+          {"name": "getProductByName", "params": ["name: str"], "returns": "Product"},
+          {"name": "log", "params": ["message: str", "level: int"], "returns": "bool"}
+        ]
+      },
+      "Document": {
+        "description": "Represents an open document",
+        "properties": [
+          {"name": "allDocumentReferences", "type": "DocumentReferences", "access": "read"},
+          {"name": "dataFile", "type": "DataFile", "access": "read"},
+          {"name": "design", "type": "Design", "access": "read"},
+          {"name": "documentReferences", "type": "DocumentReferences", "access": "read"},
+          {"name": "isModified", "type": "bool", "access": "read"},
+          {"name": "isSaved", "type": "bool", "access": "read"},
+          {"name": "name", "type": "str", "access": "read"},
+          {"name": "parent", "type": "Application", "access": "read"},
+          {"name": "products", "type": "Products", "access": "read"}
+        ],
+        "methods": [
+          {"name": "activate", "params": [], "returns": "bool"},
+          {"name": "close", "params": ["saveChanges: bool"], "returns": "bool"},
+          {"name": "save", "params": ["message: str"], "returns": "bool"},
+          {"name": "saveAs", "params": ["name: str", "dataFolder: DataFolder", "description: str", "tag: str"], "returns": "Document"}
+        ]
+      },
+      "Point3D": {
+        "description": "3D point in space",
+        "properties": [
+          {"name": "x", "type": "float", "access": "read/write"},
+          {"name": "y", "type": "float", "access": "read/write"},
+          {"name": "z", "type": "float", "access": "read/write"}
+        ],
+        "methods": [
+          {"name": "asArray", "params": [], "returns": "list[float]"},
+          {"name": "copy", "params": [], "returns": "Point3D"},
+          {"name": "create", "params": ["x: float", "y: float", "z: float"], "returns": "Point3D", "static": true},
+          {"name": "distanceTo", "params": ["point: Point3D"], "returns": "float"},
+          {"name": "isEqualTo", "params": ["point: Point3D"], "returns": "bool"},
+          {"name": "setWithArray", "params": ["coordinates: list"], "returns": "bool"},
+          {"name": "transformBy", "params": ["matrix: Matrix3D"], "returns": "bool"},
+          {"name": "translateBy", "params": ["vector: Vector3D"], "returns": "bool"}
+        ]
+      },
+      "Vector3D": {
+        "description": "3D vector for directions and offsets",
+        "properties": [
+          {"name": "x", "type": "float", "access": "read/write"},
+          {"name": "y", "type": "float", "access": "read/write"},
+          {"name": "z", "type": "float", "access": "read/write"},
+          {"name": "length", "type": "float", "access": "read"}
+        ],
+        "methods": [
+          {"name": "add", "params": ["vector: Vector3D"], "returns": "bool"},
+          {"name": "angleTo", "params": ["vector: Vector3D"], "returns": "float"},
+          {"name": "asArray", "params": [], "returns": "list[float]"},
+          {"name": "copy", "params": [], "returns": "Vector3D"},
+          {"name": "create", "params": ["x: float", "y: float", "z: float"], "returns": "Vector3D", "static": true},
+          {"name": "crossProduct", "params": ["vector: Vector3D"], "returns": "Vector3D"},
+          {"name": "dotProduct", "params": ["vector: Vector3D"], "returns": "float"},
+          {"name": "isEqualTo", "params": ["vector: Vector3D"], "returns": "bool"},
+          {"name": "isParallelTo", "params": ["vector: Vector3D"], "returns": "bool"},
+          {"name": "isPerpendicularTo", "params": ["vector: Vector3D"], "returns": "bool"},
+          {"name": "normalize", "params": [], "returns": "bool"},
+          {"name": "scaleBy", "params": ["scale: float"], "returns": "bool"},
+          {"name": "setWithArray", "params": ["coordinates: list"], "returns": "bool"},
+          {"name": "subtract", "params": ["vector: Vector3D"], "returns": "bool"},
+          {"name": "transformBy", "params": ["matrix: Matrix3D"], "returns": "bool"}
+        ]
+      },
+      "Matrix3D": {
+        "description": "4x4 transformation matrix",
+        "properties": [
+          {"name": "determinant", "type": "float", "access": "read"},
+          {"name": "translation", "type": "Vector3D", "access": "read"}
+        ],
+        "methods": [
+          {"name": "asArray", "params": [], "returns": "list[float]"},
+          {"name": "copy", "params": [], "returns": "Matrix3D"},
+          {"name": "create", "params": [], "returns": "Matrix3D", "static": true},
+          {"name": "getAsCoordinateSystem", "params": [], "returns": "tuple[Point3D, Vector3D, Vector3D, Vector3D]"},
+          {"name": "invert", "params": [], "returns": "bool"},
+          {"name": "isEqualTo", "params": ["matrix: Matrix3D"], "returns": "bool"},
+          {"name": "setCell", "params": ["row: int", "column: int", "value: float"], "returns": "bool"},
+          {"name": "setToAlignCoordinateSystems", "params": ["fromOrigin: Point3D", "fromXAxis: Vector3D", "fromYAxis: Vector3D", "fromZAxis: Vector3D", "toOrigin: Point3D", "toXAxis: Vector3D", "toYAxis: Vector3D", "toZAxis: Vector3D"], "returns": "bool"},
+          {"name": "setToIdentity", "params": [], "returns": "bool"},
+          {"name": "setToRotation", "params": ["angle: float", "axis: Vector3D", "origin: Point3D"], "returns": "bool"},
+          {"name": "setWithArray", "params": ["cells: list"], "returns": "bool"},
+          {"name": "setWithCoordinateSystem", "params": ["origin: Point3D", "xAxis: Vector3D", "yAxis: Vector3D", "zAxis: Vector3D"], "returns": "bool"},
+          {"name": "transformBy", "params": ["matrix: Matrix3D"], "returns": "bool"}
+        ]
+      },
+      "BoundingBox3D": {
+        "description": "Axis-aligned bounding box",
+        "properties": [
+          {"name": "minPoint", "type": "Point3D", "access": "read"},
+          {"name": "maxPoint", "type": "Point3D", "access": "read"}
+        ],
+        "methods": [
+          {"name": "combine", "params": ["boundingBox: BoundingBox3D"], "returns": "bool"},
+          {"name": "contains", "params": ["point: Point3D"], "returns": "bool"},
+          {"name": "copy", "params": [], "returns": "BoundingBox3D"},
+          {"name": "create", "params": ["minPoint: Point3D", "maxPoint: Point3D"], "returns": "BoundingBox3D", "static": true},
+          {"name": "expand", "params": ["point: Point3D"], "returns": "bool"},
+          {"name": "intersects", "params": ["boundingBox: BoundingBox3D"], "returns": "bool"}
+        ]
+      },
+      "Curve3D": {
+        "description": "Base class for 3D curves",
+        "properties": [
+          {"name": "curveType", "type": "Curve3DTypes", "access": "read"}
+        ],
+        "methods": [
+          {"name": "evaluator", "type": "CurveEvaluator3D", "access": "read"}
+        ]
+      },
+      "Line3D": {
+        "description": "Infinite 3D line",
+        "inherits": "Curve3D",
+        "properties": [
+          {"name": "origin", "type": "Point3D", "access": "read"},
+          {"name": "direction", "type": "Vector3D", "access": "read"}
+        ],
+        "methods": [
+          {"name": "copy", "params": [], "returns": "Line3D"},
+          {"name": "create", "params": ["origin: Point3D", "direction: Vector3D"], "returns": "Line3D", "static": true},
+          {"name": "createInfinite", "params": ["origin: Point3D", "direction: Vector3D"], "returns": "InfiniteLine3D", "static": true}
+        ]
+      },
+      "Arc3D": {
+        "description": "3D circular arc",
+        "inherits": "Curve3D",
+        "properties": [
+          {"name": "center", "type": "Point3D", "access": "read"},
+          {"name": "normal", "type": "Vector3D", "access": "read"},
+          {"name": "radius", "type": "float", "access": "read"},
+          {"name": "startAngle", "type": "float", "access": "read"},
+          {"name": "endAngle", "type": "float", "access": "read"},
+          {"name": "startPoint", "type": "Point3D", "access": "read"},
+          {"name": "endPoint", "type": "Point3D", "access": "read"}
+        ],
+        "methods": [
+          {"name": "copy", "params": [], "returns": "Arc3D"},
+          {"name": "create", "params": ["center: Point3D", "normal: Vector3D", "referenceVector: Vector3D", "radius: float", "startAngle: float", "endAngle: float"], "returns": "Arc3D", "static": true},
+          {"name": "createByThreePoints", "params": ["pointOne: Point3D", "pointTwo: Point3D", "pointThree: Point3D"], "returns": "Arc3D", "static": true}
+        ]
+      },
+      "Circle3D": {
+        "description": "3D circle",
+        "inherits": "Curve3D",
+        "properties": [
+          {"name": "center", "type": "Point3D", "access": "read"},
+          {"name": "normal", "type": "Vector3D", "access": "read"},
+          {"name": "radius", "type": "float", "access": "read"}
+        ],
+        "methods": [
+          {"name": "copy", "params": [], "returns": "Circle3D"},
+          {"name": "create", "params": ["center: Point3D", "normal: Vector3D", "radius: float"], "returns": "Circle3D", "static": true}
+        ]
+      },
+      "Ellipse3D": {
+        "description": "3D ellipse",
+        "inherits": "Curve3D",
+        "properties": [
+          {"name": "center", "type": "Point3D", "access": "read"},
+          {"name": "normal", "type": "Vector3D", "access": "read"},
+          {"name": "majorAxis", "type": "Vector3D", "access": "read"},
+          {"name": "majorRadius", "type": "float", "access": "read"},
+          {"name": "minorRadius", "type": "float", "access": "read"}
+        ],
+        "methods": [
+          {"name": "copy", "params": [], "returns": "Ellipse3D"},
+          {"name": "create", "params": ["center: Point3D", "normal: Vector3D", "majorAxis: Vector3D", "majorRadius: float", "minorRadius: float"], "returns": "Ellipse3D", "static": true}
+        ]
+      },
+      "NurbsCurve3D": {
+        "description": "3D NURBS curve",
+        "inherits": "Curve3D",
+        "properties": [
+          {"name": "controlPointCount", "type": "int", "access": "read"},
+          {"name": "degree", "type": "int", "access": "read"},
+          {"name": "isRational", "type": "bool", "access": "read"},
+          {"name": "isClosed", "type": "bool", "access": "read"},
+          {"name": "knotCount", "type": "int", "access": "read"}
+        ],
+        "methods": [
+          {"name": "copy", "params": [], "returns": "NurbsCurve3D"},
+          {"name": "create", "params": ["controlPoints: list[Point3D]", "degree: int", "knots: list[float]", "weights: list[float]", "isPeriodic: bool"], "returns": "NurbsCurve3D", "static": true},
+          {"name": "createNonRational", "params": ["controlPoints: list[Point3D]", "degree: int", "knots: list[float]", "isPeriodic: bool"], "returns": "NurbsCurve3D", "static": true},
+          {"name": "createRational", "params": ["controlPoints: list[Point3D]", "degree: int", "knots: list[float]", "weights: list[float]", "isPeriodic: bool"], "returns": "NurbsCurve3D", "static": true},
+          {"name": "extract", "params": ["startParam: float", "endParam: float"], "returns": "NurbsCurve3D"},
+          {"name": "getData", "params": [], "returns": "tuple[list[Point3D], int, list[float], list[float], bool]"},
+          {"name": "getControlPoints", "params": [], "returns": "list[Point3D]"},
+          {"name": "getKnots", "params": [], "returns": "list[float]"},
+          {"name": "getWeights", "params": [], "returns": "list[float]"},
+          {"name": "merge", "params": ["nurbsCurve: NurbsCurve3D"], "returns": "NurbsCurve3D"},
+          {"name": "set", "params": ["controlPoints: list[Point3D]", "degree: int", "knots: list[float]", "weights: list[float]", "isPeriodic: bool"], "returns": "bool"}
+        ]
+      },
+      "Surface": {
+        "description": "Base class for 3D surfaces",
+        "properties": [
+          {"name": "surfaceType", "type": "SurfaceTypes", "access": "read"}
+        ],
+        "methods": [
+          {"name": "evaluator", "type": "SurfaceEvaluator", "access": "read"}
+        ]
+      },
+      "Plane": {
+        "description": "Infinite plane surface",
+        "inherits": "Surface",
+        "properties": [
+          {"name": "origin", "type": "Point3D", "access": "read"},
+          {"name": "normal", "type": "Vector3D", "access": "read"},
+          {"name": "uDirection", "type": "Vector3D", "access": "read"},
+          {"name": "vDirection", "type": "Vector3D", "access": "read"}
+        ],
+        "methods": [
+          {"name": "copy", "params": [], "returns": "Plane"},
+          {"name": "create", "params": ["origin: Point3D", "normal: Vector3D"], "returns": "Plane", "static": true},
+          {"name": "createUsingDirections", "params": ["origin: Point3D", "uDirection: Vector3D", "vDirection: Vector3D"], "returns": "Plane", "static": true},
+          {"name": "intersectWithLine", "params": ["line: InfiniteLine3D"], "returns": "Point3D"},
+          {"name": "intersectWithPlane", "params": ["plane: Plane"], "returns": "InfiniteLine3D"},
+          {"name": "intersectWithSurface", "params": ["surface: Surface"], "returns": "ObjectCollection"},
+          {"name": "isCoPlanarTo", "params": ["plane: Plane"], "returns": "bool"},
+          {"name": "isParallelToLine", "params": ["line: InfiniteLine3D"], "returns": "bool"},
+          {"name": "isParallelToPlane", "params": ["plane: Plane"], "returns": "bool"},
+          {"name": "isPerpendicularToLine", "params": ["line: InfiniteLine3D"], "returns": "bool"},
+          {"name": "isPerpendicularToPlane", "params": ["plane: Plane"], "returns": "bool"},
+          {"name": "setWithUVDirections", "params": ["origin: Point3D", "uDirection: Vector3D", "vDirection: Vector3D"], "returns": "bool"}
+        ]
+      },
+      "Cylinder": {
+        "description": "Cylindrical surface",
+        "inherits": "Surface",
+        "properties": [
+          {"name": "origin", "type": "Point3D", "access": "read"},
+          {"name": "axis", "type": "Vector3D", "access": "read"},
+          {"name": "radius", "type": "float", "access": "read"}
+        ],
+        "methods": [
+          {"name": "copy", "params": [], "returns": "Cylinder"},
+          {"name": "create", "params": ["origin: Point3D", "axis: Vector3D", "radius: float"], "returns": "Cylinder", "static": true},
+          {"name": "set", "params": ["origin: Point3D", "axis: Vector3D", "radius: float"], "returns": "bool"}
+        ]
+      },
+      "Cone": {
+        "description": "Conical surface",
+        "inherits": "Surface",
+        "properties": [
+          {"name": "origin", "type": "Point3D", "access": "read"},
+          {"name": "axis", "type": "Vector3D", "access": "read"},
+          {"name": "halfAngle", "type": "float", "access": "read"}
+        ],
+        "methods": [
+          {"name": "copy", "params": [], "returns": "Cone"},
+          {"name": "create", "params": ["origin: Point3D", "axis: Vector3D", "halfAngle: float"], "returns": "Cone", "static": true},
+          {"name": "set", "params": ["origin: Point3D", "axis: Vector3D", "halfAngle: float"], "returns": "bool"}
+        ]
+      },
+      "Sphere": {
+        "description": "Spherical surface",
+        "inherits": "Surface",
+        "properties": [
+          {"name": "origin", "type": "Point3D", "access": "read"},
+          {"name": "radius", "type": "float", "access": "read"}
+        ],
+        "methods": [
+          {"name": "copy", "params": [], "returns": "Sphere"},
+          {"name": "create", "params": ["origin: Point3D", "radius: float"], "returns": "Sphere", "static": true},
+          {"name": "set", "params": ["origin: Point3D", "radius: float"], "returns": "bool"}
+        ]
+      },
+      "Torus": {
+        "description": "Toroidal surface",
+        "inherits": "Surface",
+        "properties": [
+          {"name": "origin", "type": "Point3D", "access": "read"},
+          {"name": "axis", "type": "Vector3D", "access": "read"},
+          {"name": "majorRadius", "type": "float", "access": "read"},
+          {"name": "minorRadius", "type": "float", "access": "read"}
+        ],
+        "methods": [
+          {"name": "copy", "params": [], "returns": "Torus"},
+          {"name": "create", "params": ["origin: Point3D", "axis: Vector3D", "majorRadius: float", "minorRadius: float"], "returns": "Torus", "static": true},
+          {"name": "set", "params": ["origin: Point3D", "axis: Vector3D", "majorRadius: float", "minorRadius: float"], "returns": "bool"}
+        ]
+      },
+      "NurbsSurface": {
+        "description": "NURBS surface",
+        "inherits": "Surface",
+        "properties": [
+          {"name": "controlPointCountInU", "type": "int", "access": "read"},
+          {"name": "controlPointCountInV", "type": "int", "access": "read"},
+          {"name": "degreeInU", "type": "int", "access": "read"},
+          {"name": "degreeInV", "type": "int", "access": "read"},
+          {"name": "isRational", "type": "bool", "access": "read"},
+          {"name": "isClosedInU", "type": "bool", "access": "read"},
+          {"name": "isClosedInV", "type": "bool", "access": "read"},
+          {"name": "knotCountInU", "type": "int", "access": "read"},
+          {"name": "knotCountInV", "type": "int", "access": "read"}
+        ],
+        "methods": [
+          {"name": "copy", "params": [], "returns": "NurbsSurface"},
+          {"name": "create", "params": ["degreeInU: int", "degreeInV: int", "controlPointCountInU: int", "controlPointCountInV: int", "controlPoints: list[Point3D]", "knotsInU: list[float]", "knotsInV: list[float]", "weights: list[float]", "propertiesInU: NurbsSurfaceProperties", "propertiesInV: NurbsSurfaceProperties"], "returns": "NurbsSurface", "static": true},
+          {"name": "extract", "params": ["startU: float", "endU: float", "startV: float", "endV: float"], "returns": "NurbsSurface"},
+          {"name": "getControlPoints", "params": [], "returns": "list[Point3D]"},
+          {"name": "getData", "params": [], "returns": "NurbsSurfaceData"},
+          {"name": "getKnotsU", "params": [], "returns": "list[float]"},
+          {"name": "getKnotsV", "params": [], "returns": "list[float]"},
+          {"name": "getWeights", "params": [], "returns": "list[float]"},
+          {"name": "set", "params": ["degreeInU: int", "degreeInV: int", "controlPointCountInU: int", "controlPointCountInV: int", "controlPoints: list[Point3D]", "knotsInU: list[float]", "knotsInV: list[float]", "weights: list[float]", "propertiesInU: NurbsSurfaceProperties", "propertiesInV: NurbsSurfaceProperties"], "returns": "bool"}
+        ]
+      },
+      "ObjectCollection": {
+        "description": "Collection of objects",
+        "properties": [
+          {"name": "count", "type": "int", "access": "read"}
+        ],
+        "methods": [
+          {"name": "add", "params": ["item: Base"], "returns": "bool"},
+          {"name": "clear", "params": [], "returns": "bool"},
+          {"name": "contains", "params": ["item: Base"], "returns": "bool"},
+          {"name": "create", "params": [], "returns": "ObjectCollection", "static": true},
+          {"name": "find", "params": ["item: Base", "startIndex: int"], "returns": "int"},
+          {"name": "item", "params": ["index: int"], "returns": "Base"},
+          {"name": "removeByIndex", "params": ["index: int"], "returns": "bool"},
+          {"name": "removeByItem", "params": ["item: Base"], "returns": "bool"}
+        ]
+      },
+      "ValueInput": {
+        "description": "Input value with units",
+        "methods": [
+          {"name": "createByReal", "params": ["realValue: float"], "returns": "ValueInput", "static": true},
+          {"name": "createByString", "params": ["expression: str"], "returns": "ValueInput", "static": true}
+        ]
+      },
+      "UserInterface": {
+        "description": "User interface access",
+        "properties": [
+          {"name": "activeCommand", "type": "str", "access": "read"},
+          {"name": "activeSelections", "type": "Selections", "access": "read"},
+          {"name": "allToolbarPanels", "type": "ToolbarPanels", "access": "read"},
+          {"name": "allToolbarTabs", "type": "ToolbarTabs", "access": "read"},
+          {"name": "commandDefinitions", "type": "CommandDefinitions", "access": "read"},
+          {"name": "palettes", "type": "Palettes", "access": "read"},
+          {"name": "toolbarPanelsByProductType", "type": "function", "access": "read"},
+          {"name": "toolbarTabsByProductType", "type": "function", "access": "read"},
+          {"name": "workspaces", "type": "Workspaces", "access": "read"}
+        ],
+        "methods": [
+          {"name": "createFileDialog", "params": [], "returns": "FileDialog"},
+          {"name": "createFolderDialog", "params": [], "returns": "FolderDialog"},
+          {"name": "createProgressDialog", "params": [], "returns": "ProgressDialog"},
+          {"name": "inputBox", "params": ["prompt: str", "title: str", "defaultValue: str"], "returns": "tuple[str, bool]"},
+          {"name": "messageBox", "params": ["text: str", "title: str", "buttons: MessageBoxButtonTypes", "icon: MessageBoxIconTypes"], "returns": "DialogResults"},
+          {"name": "selectEntity", "params": ["prompt: str", "filter: str"], "returns": "Selection"}
+        ]
+      }
+    }
+  },
+
+  "fusion_module": {
+    "namespace": "adsk.fusion",
+    "description": "Fusion 360 design and modeling API",
+    "classes": {
+      "Design": {
+        "description": "Parametric design document",
+        "properties": [
+          {"name": "activeComponent", "type": "Component", "access": "read"},
+          {"name": "activeOccurrence", "type": "Occurrence", "access": "read"},
+          {"name": "allComponents", "type": "Components", "access": "read"},
+          {"name": "allOccurrences", "type": "Occurrences", "access": "read"},
+          {"name": "designType", "type": "DesignTypes", "access": "read/write"},
+          {"name": "exportManager", "type": "ExportManager", "access": "read"},
+          {"name": "fusionUnitsManager", "type": "FusionUnitsManager", "access": "read"},
+          {"name": "namedViews", "type": "NamedViews", "access": "read"},
+          {"name": "parentDocument", "type": "Document", "access": "read"},
+          {"name": "rootComponent", "type": "Component", "access": "read"},
+          {"name": "snapshots", "type": "Snapshots", "access": "read"},
+          {"name": "timeline", "type": "Timeline", "access": "read"},
+          {"name": "userParameters", "type": "UserParameters", "access": "read"}
+        ],
+        "methods": [
+          {"name": "activateRootComponent", "params": [], "returns": "bool"},
+          {"name": "findAttributes", "params": ["groupName: str", "attributeName: str"], "returns": "list[Attribute]"}
+        ]
+      },
+      "Component": {
+        "description": "Design component with features",
+        "properties": [
+          {"name": "allAsBuiltJoints", "type": "AsBuiltJoints", "access": "read"},
+          {"name": "allJoints", "type": "Joints", "access": "read"},
+          {"name": "allJointOrigins", "type": "JointOrigins", "access": "read"},
+          {"name": "allOccurrences", "type": "Occurrences", "access": "read"},
+          {"name": "allOccurrencesByComponent", "params": ["component: Component"], "returns": "Occurrences"},
+          {"name": "areaProperties", "type": "AreaProperties", "access": "read"},
+          {"name": "asBuiltJoints", "type": "AsBuiltJoints", "access": "read"},
+          {"name": "attributes", "type": "Attributes", "access": "read"},
+          {"name": "bRepBodies", "type": "BRepBodies", "access": "read"},
+          {"name": "boundingBox", "type": "BoundingBox3D", "access": "read"},
+          {"name": "constructionAxes", "type": "ConstructionAxes", "access": "read"},
+          {"name": "constructionPlanes", "type": "ConstructionPlanes", "access": "read"},
+          {"name": "constructionPoints", "type": "ConstructionPoints", "access": "read"},
+          {"name": "decals", "type": "Decals", "access": "read"},
+          {"name": "features", "type": "Features", "access": "read"},
+          {"name": "isBodiesFolderLightBulbOn", "type": "bool", "access": "read/write"},
+          {"name": "isCanvasFolderLightBulbOn", "type": "bool", "access": "read/write"},
+          {"name": "isConstructionFolderLightBulbOn", "type": "bool", "access": "read/write"},
+          {"name": "isDecalFolderLightBulbOn", "type": "bool", "access": "read/write"},
+          {"name": "isJointsFolderLightBulbOn", "type": "bool", "access": "read/write"},
+          {"name": "isOriginFolderLightBulbOn", "type": "bool", "access": "read/write"},
+          {"name": "isRoot", "type": "bool", "access": "read"},
+          {"name": "isSketchFolderLightBulbOn", "type": "bool", "access": "read/write"},
+          {"name": "jointOrigins", "type": "JointOrigins", "access": "read"},
+          {"name": "joints", "type": "Joints", "access": "read"},
+          {"name": "meshBodies", "type": "MeshBodies", "access": "read"},
+          {"name": "modelParameters", "type": "ModelParameters", "access": "read"},
+          {"name": "name", "type": "str", "access": "read/write"},
+          {"name": "occurrences", "type": "Occurrences", "access": "read"},
+          {"name": "originConstructionPoint", "type": "ConstructionPoint", "access": "read"},
+          {"name": "parentDesign", "type": "Design", "access": "read"},
+          {"name": "physicalProperties", "type": "PhysicalProperties", "access": "read"},
+          {"name": "rigidGroups", "type": "RigidGroups", "access": "read"},
+          {"name": "sketches", "type": "Sketches", "access": "read"},
+          {"name": "transform", "type": "Matrix3D", "access": "read"},
+          {"name": "xConstructionAxis", "type": "ConstructionAxis", "access": "read"},
+          {"name": "xYConstructionPlane", "type": "ConstructionPlane", "access": "read"},
+          {"name": "xZConstructionPlane", "type": "ConstructionPlane", "access": "read"},
+          {"name": "yConstructionAxis", "type": "ConstructionAxis", "access": "read"},
+          {"name": "yZConstructionPlane", "type": "ConstructionPlane", "access": "read"},
+          {"name": "zConstructionAxis", "type": "ConstructionAxis", "access": "read"}
+        ],
+        "methods": [
+          {"name": "createOpenProfile", "params": ["curve: SketchCurve"], "returns": "Profile"},
+          {"name": "saveAsMesh", "params": ["meshCalculation: MeshCalculationInput", "filePath: str"], "returns": "bool"},
+          {"name": "saveCopyAs", "params": ["name: str", "dataFolder: DataFolder", "description: str", "tag: str"], "returns": "bool"}
+        ]
+      },
+      "Sketch": {
+        "description": "2D sketch on a plane or face",
+        "properties": [
+          {"name": "areDimensionsShown", "type": "bool", "access": "read/write"},
+          {"name": "areConstraintsShown", "type": "bool", "access": "read/write"},
+          {"name": "arePointsShown", "type": "bool", "access": "read/write"},
+          {"name": "areProfilesShown", "type": "bool", "access": "read/write"},
+          {"name": "attributes", "type": "Attributes", "access": "read"},
+          {"name": "boundingBox", "type": "BoundingBox3D", "access": "read"},
+          {"name": "geometricConstraints", "type": "GeometricConstraints", "access": "read"},
+          {"name": "isComputeDeferred", "type": "bool", "access": "read/write"},
+          {"name": "isFullyConstrained", "type": "bool", "access": "read"},
+          {"name": "isLightBulbOn", "type": "bool", "access": "read/write"},
+          {"name": "isParametric", "type": "bool", "access": "read"},
+          {"name": "isVisible", "type": "bool", "access": "read"},
+          {"name": "name", "type": "str", "access": "read/write"},
+          {"name": "originPoint", "type": "SketchPoint", "access": "read"},
+          {"name": "parentComponent", "type": "Component", "access": "read"},
+          {"name": "profiles", "type": "Profiles", "access": "read"},
+          {"name": "referencePlane", "type": "Base", "access": "read"},
+          {"name": "sketchCurves", "type": "SketchCurves", "access": "read"},
+          {"name": "sketchDimensions", "type": "SketchDimensions", "access": "read"},
+          {"name": "sketchPoints", "type": "SketchPoints", "access": "read"},
+          {"name": "sketchTexts", "type": "SketchTexts", "access": "read"},
+          {"name": "transform", "type": "Matrix3D", "access": "read"},
+          {"name": "xDirection", "type": "Vector3D", "access": "read"},
+          {"name": "yDirection", "type": "Vector3D", "access": "read"}
+        ],
+        "methods": [
+          {"name": "copy", "params": ["entities: ObjectCollection", "transform: Matrix3D", "targetSketch: Sketch"], "returns": "ObjectCollection"},
+          {"name": "deleteMe", "params": [], "returns": "bool"},
+          {"name": "findConnectedCurves", "params": ["curve: SketchCurve"], "returns": "ObjectCollection"},
+          {"name": "intersectWithSketchPlane", "params": ["entity: Base"], "returns": "ObjectCollection"},
+          {"name": "modelToSketchSpace", "params": ["point: Point3D"], "returns": "Point3D"},
+          {"name": "move", "params": ["entities: ObjectCollection", "transform: Matrix3D"], "returns": "bool"},
+          {"name": "offset", "params": ["curves: ObjectCollection", "directionPoint: Point3D", "offset: float"], "returns": "ObjectCollection"},
+          {"name": "project", "params": ["entity: Base"], "returns": "ObjectCollection"},
+          {"name": "projectCutEdges", "params": ["component: Component"], "returns": "ObjectCollection"},
+          {"name": "projectToSurface", "params": ["curves: ObjectCollection", "faces: ObjectCollection", "alongVector: Vector3D"], "returns": "ObjectCollection"},
+          {"name": "redefine", "params": ["planarEntity: Base"], "returns": "bool"},
+          {"name": "saveAsDXF", "params": ["fileName: str"], "returns": "bool"},
+          {"name": "sketchToModelSpace", "params": ["point: Point3D"], "returns": "Point3D"}
+        ]
+      },
+      "SketchCurves": {
+        "description": "Collection of sketch curves",
+        "properties": [
+          {"name": "count", "type": "int", "access": "read"},
+          {"name": "sketchArcs", "type": "SketchArcs", "access": "read"},
+          {"name": "sketchCircles", "type": "SketchCircles", "access": "read"},
+          {"name": "sketchConicCurves", "type": "SketchConicCurves", "access": "read"},
+          {"name": "sketchEllipses", "type": "SketchEllipses", "access": "read"},
+          {"name": "sketchEllipticalArcs", "type": "SketchEllipticalArcs", "access": "read"},
+          {"name": "sketchFittedSplines", "type": "SketchFittedSplines", "access": "read"},
+          {"name": "sketchFixedSplines", "type": "SketchFixedSplines", "access": "read"},
+          {"name": "sketchLines", "type": "SketchLines", "access": "read"}
+        ],
+        "methods": [
+          {"name": "item", "params": ["index: int"], "returns": "SketchCurve"}
+        ]
+      },
+      "SketchLines": {
+        "description": "Lines in a sketch",
+        "methods": [
+          {"name": "addByTwoPoints", "params": ["startPoint: Point3D", "endPoint: Point3D"], "returns": "SketchLine"},
+          {"name": "addCenterPointRectangle", "params": ["centerPoint: Point3D", "cornerPoint: Point3D"], "returns": "ObjectCollection"},
+          {"name": "addThreePointRectangle", "params": ["pointOne: Point3D", "pointTwo: Point3D", "pointThree: Point3D"], "returns": "ObjectCollection"},
+          {"name": "addTwoPointRectangle", "params": ["pointOne: Point3D", "pointTwo: Point3D"], "returns": "ObjectCollection"}
+        ]
+      },
+      "SketchCircles": {
+        "description": "Circles in a sketch",
+        "methods": [
+          {"name": "addByCenterRadius", "params": ["centerPoint: Point3D", "radius: float"], "returns": "SketchCircle"},
+          {"name": "addByThreePoints", "params": ["pointOne: Point3D", "pointTwo: Point3D", "pointThree: Point3D"], "returns": "SketchCircle"},
+          {"name": "addByTwoPoints", "params": ["pointOne: Point3D", "pointTwo: Point3D"], "returns": "SketchCircle"}
+        ]
+      },
+      "SketchArcs": {
+        "description": "Arcs in a sketch",
+        "methods": [
+          {"name": "addByCenterStartSweep", "params": ["centerPoint: Point3D", "startPoint: Point3D", "sweepAngle: float"], "returns": "SketchArc"},
+          {"name": "addByThreePoints", "params": ["startPoint: Point3D", "alongPoint: Point3D", "endPoint: Point3D"], "returns": "SketchArc"},
+          {"name": "addFillet", "params": ["curveOne: SketchCurve", "curveTwo: SketchCurve", "radius: float"], "returns": "SketchArc"}
+        ]
+      },
+      "SketchFittedSplines": {
+        "description": "Fitted splines in a sketch",
+        "methods": [
+          {"name": "add", "params": ["fitPoints: ObjectCollection"], "returns": "SketchFittedSpline"},
+          {"name": "addByNurbsCurve", "params": ["nurbsCurve: NurbsCurve3D"], "returns": "SketchFittedSpline"}
+        ]
+      },
+      "Features": {
+        "description": "Feature collection for a component",
+        "properties": [
+          {"name": "baseFeatures", "type": "BaseFeatures", "access": "read"},
+          {"name": "boxFeatures", "type": "BoxFeatures", "access": "read"},
+          {"name": "chamferFeatures", "type": "ChamferFeatures", "access": "read"},
+          {"name": "circularPatternFeatures", "type": "CircularPatternFeatures", "access": "read"},
+          {"name": "coilFeatures", "type": "CoilFeatures", "access": "read"},
+          {"name": "combineFeatures", "type": "CombineFeatures", "access": "read"},
+          {"name": "copyPasteBodies", "type": "CopyPasteBodies", "access": "read"},
+          {"name": "count", "type": "int", "access": "read"},
+          {"name": "cylinderFeatures", "type": "CylinderFeatures", "access": "read"},
+          {"name": "deleteFeatures", "type": "DeleteFeatures", "access": "read"},
+          {"name": "draftFeatures", "type": "DraftFeatures", "access": "read"},
+          {"name": "extendFeatures", "type": "ExtendFeatures", "access": "read"},
+          {"name": "extrudeFeatures", "type": "ExtrudeFeatures", "access": "read"},
+          {"name": "filletFeatures", "type": "FilletFeatures", "access": "read"},
+          {"name": "holeFeatures", "type": "HoleFeatures", "access": "read"},
+          {"name": "loftFeatures", "type": "LoftFeatures", "access": "read"},
+          {"name": "mirrorFeatures", "type": "MirrorFeatures", "access": "read"},
+          {"name": "moveFeatures", "type": "MoveFeatures", "access": "read"},
+          {"name": "offsetFacesFeatures", "type": "OffsetFacesFeatures", "access": "read"},
+          {"name": "patchFeatures", "type": "PatchFeatures", "access": "read"},
+          {"name": "pipeFeatures", "type": "PipeFeatures", "access": "read"},
+          {"name": "rectangularPatternFeatures", "type": "RectangularPatternFeatures", "access": "read"},
+          {"name": "removeFeaturesFromFeature", "type": "RemoveFeaturesFromFeature", "access": "read"},
+          {"name": "replaceBodyFeatures", "type": "ReplaceBodyFeatures", "access": "read"},
+          {"name": "replaceFaceFeatures", "type": "ReplaceFaceFeatures", "access": "read"},
+          {"name": "reverseNormalFeatures", "type": "ReverseNormalFeatures", "access": "read"},
+          {"name": "revolveFeatures", "type": "RevolveFeatures", "access": "read"},
+          {"name": "ribFeatures", "type": "RibFeatures", "access": "read"},
+          {"name": "ruleFilletFeatures", "type": "RuleFilletFeatures", "access": "read"},
+          {"name": "ruledSurfaceFeatures", "type": "RuledSurfaceFeatures", "access": "read"},
+          {"name": "scaleFeatures", "type": "ScaleFeatures", "access": "read"},
+          {"name": "shellFeatures", "type": "ShellFeatures", "access": "read"},
+          {"name": "silhouetteSplitFeatures", "type": "SilhouetteSplitFeatures", "access": "read"},
+          {"name": "sphereFeatures", "type": "SphereFeatures", "access": "read"},
+          {"name": "splitBodyFeatures", "type": "SplitBodyFeatures", "access": "read"},
+          {"name": "splitFaceFeatures", "type": "SplitFaceFeatures", "access": "read"},
+          {"name": "stitchFeatures", "type": "StitchFeatures", "access": "read"},
+          {"name": "sweepFeatures", "type": "SweepFeatures", "access": "read"},
+          {"name": "thickenFeatures", "type": "ThickenFeatures", "access": "read"},
+          {"name": "threadFeatures", "type": "ThreadFeatures", "access": "read"},
+          {"name": "torusFeatures", "type": "TorusFeatures", "access": "read"},
+          {"name": "trimFeatures", "type": "TrimFeatures", "access": "read"},
+          {"name": "unstitchFeatures", "type": "UnstitchFeatures", "access": "read"},
+          {"name": "webFeatures", "type": "WebFeatures", "access": "read"}
+        ],
+        "methods": [
+          {"name": "item", "params": ["index: int"], "returns": "Feature"},
+          {"name": "itemByName", "params": ["name: str"], "returns": "Feature"}
+        ]
+      },
+      "ExtrudeFeatures": {
+        "description": "Extrusion features",
+        "methods": [
+          {"name": "addSimple", "params": ["profile: Base", "distance: ValueInput", "operation: FeatureOperations"], "returns": "ExtrudeFeature"},
+          {"name": "createInput", "params": ["profile: Base", "operation: FeatureOperations"], "returns": "ExtrudeFeatureInput"}
+        ]
+      },
+      "ExtrudeFeatureInput": {
+        "description": "Input for extrude feature creation",
+        "properties": [
+          {"name": "creationOccurrence", "type": "Occurrence", "access": "read/write"},
+          {"name": "extent", "type": "ExtentDefinition", "access": "read"},
+          {"name": "isSolid", "type": "bool", "access": "read/write"},
+          {"name": "operation", "type": "FeatureOperations", "access": "read/write"},
+          {"name": "participantBodies", "type": "list[BRepBody]", "access": "read/write"},
+          {"name": "profile", "type": "Base", "access": "read/write"},
+          {"name": "startExtent", "type": "ExtentDefinition", "access": "read"},
+          {"name": "taperAngle", "type": "ValueInput", "access": "read/write"}
+        ],
+        "methods": [
+          {"name": "setAllExtent", "params": ["direction: ExtentDirections"], "returns": "bool"},
+          {"name": "setDistanceExtent", "params": ["isSymmetric: bool", "distance: ValueInput"], "returns": "bool"},
+          {"name": "setOneSideExtent", "params": ["extent: ExtentDefinition", "direction: ExtentDirections"], "returns": "bool"},
+          {"name": "setOneSideToExtent", "params": ["toEntity: Base", "matchShape: bool"], "returns": "bool"},
+          {"name": "setSymmetricExtent", "params": ["distance: ValueInput", "isFullLength: bool"], "returns": "bool"},
+          {"name": "setTwoSidesExtent", "params": ["sideOneExtent: ExtentDefinition", "sideTwoExtent: ExtentDefinition"], "returns": "bool"}
+        ]
+      },
+      "RevolveFeatures": {
+        "description": "Revolution features",
+        "methods": [
+          {"name": "addSimple", "params": ["profile: Base", "axis: Base", "angle: ValueInput", "operation: FeatureOperations"], "returns": "RevolveFeature"},
+          {"name": "createInput", "params": ["profile: Base", "axis: Base", "operation: FeatureOperations"], "returns": "RevolveFeatureInput"}
+        ]
+      },
+      "SweepFeatures": {
+        "description": "Sweep features",
+        "methods": [
+          {"name": "createInput", "params": ["profile: Base", "path: Path", "operation: FeatureOperations"], "returns": "SweepFeatureInput"}
+        ]
+      },
+      "LoftFeatures": {
+        "description": "Loft features",
+        "methods": [
+          {"name": "createInput", "params": ["operation: FeatureOperations"], "returns": "LoftFeatureInput"}
+        ]
+      },
+      "FilletFeatures": {
+        "description": "Fillet features",
+        "methods": [
+          {"name": "createInput", "params": [], "returns": "FilletFeatureInput"}
+        ]
+      },
+      "ChamferFeatures": {
+        "description": "Chamfer features",
+        "methods": [
+          {"name": "createInput", "params": ["edges: ObjectCollection", "isTangentChain: bool"], "returns": "ChamferFeatureInput"}
+        ]
+      },
+      "HoleFeatures": {
+        "description": "Hole features",
+        "methods": [
+          {"name": "createSimpleInput", "params": ["holeDiameter: ValueInput"], "returns": "HoleFeatureInput"},
+          {"name": "createCounterboreInput", "params": ["holeDiameter: ValueInput", "counterboreDiameter: ValueInput", "counterboreDepth: ValueInput"], "returns": "HoleFeatureInput"},
+          {"name": "createCountersinkInput", "params": ["holeDiameter: ValueInput", "countersinkDiameter: ValueInput", "countersinkAngle: ValueInput"], "returns": "HoleFeatureInput"}
+        ]
+      },
+      "ShellFeatures": {
+        "description": "Shell features",
+        "methods": [
+          {"name": "createInput", "params": ["inputEntities: ObjectCollection", "isTangentChain: bool"], "returns": "ShellFeatureInput"}
+        ]
+      },
+      "ThreadFeatures": {
+        "description": "Thread features",
+        "methods": [
+          {"name": "createInput", "params": ["cylindricalFace: BRepFace", "threadInfo: ThreadInfo"], "returns": "ThreadFeatureInput"}
+        ]
+      },
+      "PatternFeatures": {
+        "description": "Pattern features",
+        "types": ["RectangularPatternFeatures", "CircularPatternFeatures"]
+      },
+      "MirrorFeatures": {
+        "description": "Mirror features",
+        "methods": [
+          {"name": "createInput", "params": ["inputEntities: ObjectCollection", "mirrorPlane: Base"], "returns": "MirrorFeatureInput"}
+        ]
+      },
+      "CombineFeatures": {
+        "description": "Boolean combine operations",
+        "methods": [
+          {"name": "createInput", "params": ["targetBody: BRepBody", "toolBodies: ObjectCollection"], "returns": "CombineFeatureInput"}
+        ]
+      },
+      "BRepBody": {
+        "description": "Boundary representation solid/surface body",
+        "properties": [
+          {"name": "area", "type": "float", "access": "read"},
+          {"name": "boundingBox", "type": "BoundingBox3D", "access": "read"},
+          {"name": "edges", "type": "BRepEdges", "access": "read"},
+          {"name": "faces", "type": "BRepFaces", "access": "read"},
+          {"name": "isSolid", "type": "bool", "access": "read"},
+          {"name": "isValid", "type": "bool", "access": "read"},
+          {"name": "isVisible", "type": "bool", "access": "read/write"},
+          {"name": "lumps", "type": "BRepLumps", "access": "read"},
+          {"name": "material", "type": "Material", "access": "read/write"},
+          {"name": "name", "type": "str", "access": "read/write"},
+          {"name": "opacity", "type": "float", "access": "read/write"},
+          {"name": "parentComponent", "type": "Component", "access": "read"},
+          {"name": "physicalProperties", "type": "PhysicalProperties", "access": "read"},
+          {"name": "shells", "type": "BRepShells", "access": "read"},
+          {"name": "vertices", "type": "BRepVertices", "access": "read"},
+          {"name": "volume", "type": "float", "access": "read"}
+        ],
+        "methods": [
+          {"name": "copyToComponent", "params": ["target: Occurrence"], "returns": "BRepBody"},
+          {"name": "deleteMe", "params": [], "returns": "bool"},
+          {"name": "findByRay", "params": ["origin: Point3D", "direction: Vector3D", "entityType: BRepEntityTypes"], "returns": "ObjectCollection"},
+          {"name": "moveToComponent", "params": ["target: Occurrence"], "returns": "BRepBody"}
+        ]
+      },
+      "BRepFace": {
+        "description": "Face of a BRep body",
+        "properties": [
+          {"name": "area", "type": "float", "access": "read"},
+          {"name": "body", "type": "BRepBody", "access": "read"},
+          {"name": "boundingBox", "type": "BoundingBox3D", "access": "read"},
+          {"name": "centroid", "type": "Point3D", "access": "read"},
+          {"name": "edges", "type": "BRepEdges", "access": "read"},
+          {"name": "evaluator", "type": "SurfaceEvaluator", "access": "read"},
+          {"name": "geometry", "type": "Surface", "access": "read"},
+          {"name": "isParamReversed", "type": "bool", "access": "read"},
+          {"name": "loops", "type": "BRepLoops", "access": "read"},
+          {"name": "nativeObject", "type": "BRepFace", "access": "read"},
+          {"name": "pointOnFace", "type": "Point3D", "access": "read"},
+          {"name": "shell", "type": "BRepShell", "access": "read"},
+          {"name": "tempId", "type": "int", "access": "read"},
+          {"name": "vertices", "type": "BRepVertices", "access": "read"}
+        ],
+        "methods": [
+          {"name": "createForAssemblyContext", "params": ["occurrence: Occurrence"], "returns": "BRepFace"},
+          {"name": "getClosestPointTo", "params": ["pointToTest: Point3D"], "returns": "Point3D"}
+        ]
+      },
+      "BRepEdge": {
+        "description": "Edge of a BRep body",
+        "properties": [
+          {"name": "body", "type": "BRepBody", "access": "read"},
+          {"name": "boundingBox", "type": "BoundingBox3D", "access": "read"},
+          {"name": "endVertex", "type": "BRepVertex", "access": "read"},
+          {"name": "evaluator", "type": "CurveEvaluator3D", "access": "read"},
+          {"name": "faces", "type": "BRepFaces", "access": "read"},
+          {"name": "geometry", "type": "Curve3D", "access": "read"},
+          {"name": "isDegenerate", "type": "bool", "access": "read"},
+          {"name": "isParamReversed", "type": "bool", "access": "read"},
+          {"name": "isTolerant", "type": "bool", "access": "read"},
+          {"name": "length", "type": "float", "access": "read"},
+          {"name": "nativeObject", "type": "BRepEdge", "access": "read"},
+          {"name": "pointOnEdge", "type": "Point3D", "access": "read"},
+          {"name": "startVertex", "type": "BRepVertex", "access": "read"},
+          {"name": "tangent", "type": "Vector3D", "access": "read"},
+          {"name": "tempId", "type": "int", "access": "read"}
+        ],
+        "methods": [
+          {"name": "createForAssemblyContext", "params": ["occurrence: Occurrence"], "returns": "BRepEdge"},
+          {"name": "getClosestPointTo", "params": ["pointToTest: Point3D"], "returns": "Point3D"}
+        ]
+      },
+      "Joint": {
+        "description": "Assembly joint between components",
+        "properties": [
+          {"name": "angle", "type": "JointLimits", "access": "read"},
+          {"name": "geometryOrOriginOne", "type": "JointGeometry", "access": "read"},
+          {"name": "geometryOrOriginTwo", "type": "JointGeometry", "access": "read"},
+          {"name": "healthState", "type": "FeatureHealthStates", "access": "read"},
+          {"name": "isFlipped", "type": "bool", "access": "read/write"},
+          {"name": "isLocked", "type": "bool", "access": "read/write"},
+          {"name": "isSuppressed", "type": "bool", "access": "read/write"},
+          {"name": "jointMotion", "type": "JointMotion", "access": "read"},
+          {"name": "name", "type": "str", "access": "read/write"},
+          {"name": "occurrenceOne", "type": "Occurrence", "access": "read"},
+          {"name": "occurrenceTwo", "type": "Occurrence", "access": "read"},
+          {"name": "offset", "type": "JointLimits", "access": "read"},
+          {"name": "timelineObject", "type": "TimelineObject", "access": "read"}
+        ],
+        "methods": [
+          {"name": "deleteMe", "params": [], "returns": "bool"},
+          {"name": "restoreDefaultLimits", "params": [], "returns": "bool"}
+        ]
+      },
+      "ExportManager": {
+        "description": "Export design to various formats",
+        "methods": [
+          {"name": "createC3MFExportOptions", "params": ["geometry: Base", "fileName: str"], "returns": "C3MFExportOptions"},
+          {"name": "createFusionArchiveExportOptions", "params": ["fileName: str", "component: Component"], "returns": "FusionArchiveExportOptions"},
+          {"name": "createIGESExportOptions", "params": ["fileName: str", "geometry: Base"], "returns": "IGESExportOptions"},
+          {"name": "createSATExportOptions", "params": ["fileName: str", "geometry: Base"], "returns": "SATExportOptions"},
+          {"name": "createSMTExportOptions", "params": ["fileName: str", "geometry: Base"], "returns": "SMTExportOptions"},
+          {"name": "createSTEPExportOptions", "params": ["fileName: str", "geometry: Base"], "returns": "STEPExportOptions"},
+          {"name": "createSTLExportOptions", "params": ["geometry: Base", "fileName: str"], "returns": "STLExportOptions"},
+          {"name": "execute", "params": ["exportOptions: ExportOptions"], "returns": "bool"}
+        ]
+      },
+      "ImportManager": {
+        "description": "Import external files",
+        "methods": [
+          {"name": "createFusionArchiveImportOptions", "params": ["fileName: str"], "returns": "FusionArchiveImportOptions"},
+          {"name": "createIGESImportOptions", "params": ["fileName: str"], "returns": "IGESImportOptions"},
+          {"name": "createSATImportOptions", "params": ["fileName: str"], "returns": "SATImportOptions"},
+          {"name": "createSMTImportOptions", "params": ["fileName: str"], "returns": "SMTImportOptions"},
+          {"name": "createSTEPImportOptions", "params": ["fileName: str"], "returns": "STEPImportOptions"},
+          {"name": "createSTLImportOptions", "params": ["fileName: str"], "returns": "STLImportOptions"},
+          {"name": "importToNewDocument", "params": ["importOptions: ImportOptions"], "returns": "Document"},
+          {"name": "importToTarget", "params": ["importOptions: ImportOptions", "target: Base"], "returns": "ObjectCollection"},
+          {"name": "importToTarget2", "params": ["importOptions: ImportOptions", "target: Base", "baseOrOccurrence: Base"], "returns": "ObjectCollection"}
+        ]
+      }
+    }
+  },
+
+  "cam_module": {
+    "namespace": "adsk.cam",
+    "description": "CAM programming API for manufacturing",
+    "classes": {
+      "CAM": {
+        "description": "CAM document for manufacturing",
+        "properties": [
+          {"name": "allOperations", "type": "Operations", "access": "read"},
+          {"name": "designRootOccurrence", "type": "Occurrence", "access": "read"},
+          {"name": "operations", "type": "Operations", "access": "read"},
+          {"name": "setups", "type": "Setups", "access": "read"},
+          {"name": "templateLibraries", "type": "TemplateLibraries", "access": "read"},
+          {"name": "toolLibraries", "type": "ToolLibraries", "access": "read"}
+        ],
+        "methods": [
+          {"name": "generateAllToolpaths", "params": ["doGenerate: bool"], "returns": "GenerateToolpathFuture"},
+          {"name": "generateToolpath", "params": ["operation: Operation"], "returns": "GenerateToolpathFuture"},
+          {"name": "postProcess", "params": ["operations: ObjectCollection", "postConfiguration: PostConfiguration", "outputFolder: str", "outputFile: str"], "returns": "bool"},
+          {"name": "postProcessAll", "params": ["postConfiguration: PostConfiguration", "outputFolder: str", "outputFile: str"], "returns": "bool"}
+        ]
+      },
+      "Setups": {
+        "description": "Collection of CAM setups",
+        "properties": [
+          {"name": "count", "type": "int", "access": "read"}
+        ],
+        "methods": [
+          {"name": "add", "params": ["operationType: OperationTypes", "setupInput: SetupInput"], "returns": "Setup"},
+          {"name": "createInput", "params": ["operationType: OperationTypes"], "returns": "SetupInput"},
+          {"name": "item", "params": ["index: int"], "returns": "Setup"},
+          {"name": "itemByName", "params": ["name: str"], "returns": "Setup"}
+        ]
+      },
+      "Setup": {
+        "description": "CAM setup defining stock, WCS, and operations",
+        "properties": [
+          {"name": "allOperations", "type": "Operations", "access": "read"},
+          {"name": "isSuppressed", "type": "bool", "access": "read/write"},
+          {"name": "isToolpathsValid", "type": "bool", "access": "read"},
+          {"name": "models", "type": "ObjectCollection", "access": "read"},
+          {"name": "name", "type": "str", "access": "read/write"},
+          {"name": "operationType", "type": "OperationTypes", "access": "read"},
+          {"name": "operations", "type": "Operations", "access": "read"},
+          {"name": "patterns", "type": "Patterns", "access": "read"},
+          {"name": "setupOrientation", "type": "Matrix3D", "access": "read"},
+          {"name": "stock", "type": "Stock", "access": "read"},
+          {"name": "workCoordinateSystem", "type": "Matrix3D", "access": "read"}
+        ],
+        "methods": [
+          {"name": "createFromCAMTemplate", "params": ["templatePath: str", "targetSetup: Setup", "models: ObjectCollection"], "returns": "Setup"},
+          {"name": "deleteMe", "params": [], "returns": "bool"},
+          {"name": "duplicate", "params": [], "returns": "Setup"}
+        ]
+      },
+      "SetupInput": {
+        "description": "Input for creating a new setup",
+        "properties": [
+          {"name": "models", "type": "ObjectCollection", "access": "read/write"},
+          {"name": "operationType", "type": "OperationTypes", "access": "read/write"},
+          {"name": "parameters", "type": "CAMParameters", "access": "read"},
+          {"name": "stockMode", "type": "StockModes", "access": "read/write"}
+        ]
+      },
+      "Operations": {
+        "description": "Collection of CAM operations",
+        "properties": [
+          {"name": "count", "type": "int", "access": "read"}
+        ],
+        "methods": [
+          {"name": "add", "params": ["operationInput: OperationInput"], "returns": "Operation"},
+          {"name": "item", "params": ["index: int"], "returns": "Operation"},
+          {"name": "itemByName", "params": ["name: str"], "returns": "Operation"}
+        ]
+      },
+      "Operation": {
+        "description": "CAM operation (toolpath)",
+        "properties": [
+          {"name": "hasToolpath", "type": "bool", "access": "read"},
+          {"name": "hasWarning", "type": "bool", "access": "read"},
+          {"name": "isLightBulbOn", "type": "bool", "access": "read/write"},
+          {"name": "isSuppressed", "type": "bool", "access": "read/write"},
+          {"name": "isToolpathValid", "type": "bool", "access": "read"},
+          {"name": "isValid", "type": "bool", "access": "read"},
+          {"name": "name", "type": "str", "access": "read/write"},
+          {"name": "parameters", "type": "CAMParameters", "access": "read"},
+          {"name": "parentSetup", "type": "Setup", "access": "read"},
+          {"name": "strategy", "type": "str", "access": "read"},
+          {"name": "tool", "type": "Tool", "access": "read"}
+        ],
+        "methods": [
+          {"name": "deleteMe", "params": [], "returns": "bool"},
+          {"name": "duplicate", "params": [], "returns": "Operation"},
+          {"name": "generateToolpath", "params": [], "returns": "GenerateToolpathFuture"}
+        ]
+      },
+      "CAMParameters": {
+        "description": "Parameters for CAM operations",
+        "properties": [
+          {"name": "count", "type": "int", "access": "read"}
+        ],
+        "methods": [
+          {"name": "item", "params": ["index: int"], "returns": "CAMParameter"},
+          {"name": "itemByName", "params": ["name: str"], "returns": "CAMParameter"}
+        ]
+      },
+      "CAMParameter": {
+        "description": "Single CAM parameter",
+        "properties": [
+          {"name": "expression", "type": "str", "access": "read/write"},
+          {"name": "name", "type": "str", "access": "read"},
+          {"name": "value", "type": "any", "access": "read/write"}
+        ]
+      },
+      "ToolLibraries": {
+        "description": "Tool library management",
+        "properties": [
+          {"name": "count", "type": "int", "access": "read"},
+          {"name": "documentToolLibrary", "type": "ToolLibrary", "access": "read"}
+        ],
+        "methods": [
+          {"name": "item", "params": ["index: int"], "returns": "ToolLibrary"},
+          {"name": "urlByLocation", "params": ["location: LibraryLocations"], "returns": "URL"}
+        ]
+      },
+      "ToolLibrary": {
+        "description": "Library of cutting tools",
+        "properties": [
+          {"name": "count", "type": "int", "access": "read"},
+          {"name": "isReadOnly", "type": "bool", "access": "read"},
+          {"name": "name", "type": "str", "access": "read"},
+          {"name": "url", "type": "URL", "access": "read"}
+        ],
+        "methods": [
+          {"name": "add", "params": ["tool: Tool"], "returns": "bool"},
+          {"name": "deleteByIndex", "params": ["index: int"], "returns": "bool"},
+          {"name": "item", "params": ["index: int"], "returns": "Tool"}
+        ]
+      },
+      "Tool": {
+        "description": "Cutting tool definition",
+        "properties": [
+          {"name": "description", "type": "str", "access": "read/write"},
+          {"name": "diameter", "type": "float", "access": "read"},
+          {"name": "fluteCount", "type": "int", "access": "read"},
+          {"name": "fluteLength", "type": "float", "access": "read"},
+          {"name": "holderDescription", "type": "str", "access": "read"},
+          {"name": "isValid", "type": "bool", "access": "read"},
+          {"name": "length", "type": "float", "access": "read"},
+          {"name": "parameters", "type": "ToolParameters", "access": "read"},
+          {"name": "productId", "type": "str", "access": "read/write"},
+          {"name": "productLink", "type": "str", "access": "read/write"},
+          {"name": "shaftDiameter", "type": "float", "access": "read"},
+          {"name": "shoulderLength", "type": "float", "access": "read"},
+          {"name": "type", "type": "ToolTypes", "access": "read"},
+          {"name": "unit", "type": "UnitsType", "access": "read"},
+          {"name": "vendor", "type": "str", "access": "read/write"}
+        ],
+        "methods": [
+          {"name": "copy", "params": [], "returns": "Tool"},
+          {"name": "toXML", "params": [], "returns": "str"}
+        ]
+      },
+      "PostConfiguration": {
+        "description": "Post processor configuration",
+        "properties": [
+          {"name": "alternativeUnit", "type": "UnitsType", "access": "read/write"},
+          {"name": "homePosition", "type": "Point3D", "access": "read/write"},
+          {"name": "isFinalPositionDefined", "type": "bool", "access": "read"},
+          {"name": "isHomePositionDefined", "type": "bool", "access": "read"},
+          {"name": "outputFolder", "type": "str", "access": "read/write"},
+          {"name": "postFile", "type": "str", "access": "read/write"},
+          {"name": "programComment", "type": "str", "access": "read/write"},
+          {"name": "programName", "type": "str", "access": "read/write"},
+          {"name": "programNumber", "type": "int", "access": "read/write"},
+          {"name": "sequenceNumberIncrement", "type": "int", "access": "read/write"},
+          {"name": "sequenceNumberStart", "type": "int", "access": "read/write"},
+          {"name": "useSequenceNumbers", "type": "bool", "access": "read/write"}
+        ]
+      },
+      "NCProgram": {
+        "description": "NC program management",
+        "methods": [
+          {"name": "createInput", "params": ["name: str", "operations: ObjectCollection"], "returns": "NCProgramInput"},
+          {"name": "add", "params": ["input: NCProgramInput"], "returns": "NCProgram"}
+        ]
+      },
+      "Toolpath": {
+        "description": "Generated toolpath",
+        "properties": [
+          {"name": "cuttingDistance", "type": "float", "access": "read"},
+          {"name": "cuttingTime", "type": "float", "access": "read"},
+          {"name": "isValid", "type": "bool", "access": "read"},
+          {"name": "rapidDistance", "type": "float", "access": "read"},
+          {"name": "rapidTime", "type": "float", "access": "read"},
+          {"name": "totalTime", "type": "float", "access": "read"}
+        ]
+      },
+      "Stock": {
+        "description": "Workpiece stock definition",
+        "properties": [
+          {"name": "boundingBox", "type": "BoundingBox3D", "access": "read"},
+          {"name": "mode", "type": "StockModes", "access": "read"},
+          {"name": "stockBody", "type": "BRepBody", "access": "read"}
+        ]
+      }
+    },
+    "operation_types": {
+      "Milling": ["face", "2d_adaptive", "2d_contour", "2d_pocket", "bore", "circular", "drill", "engrave", "thread", "trace", "slot", "horizontal", "morphed_spiral", "parallel", "pencil", "ramp", "radial", "scallop", "spiral", "steep_and_shallow", "pocket", "contour_3d", "flow", "morph", "multiaxis_contour", "project", "swarf"],
+      "Turning": ["turning_face", "turning_profile", "turning_groove", "turning_part", "turning_thread", "turning_boring", "drill_turning"],
+      "Cutting": ["cutting_2d", "waterjet", "laser", "plasma"]
+    },
+    "parameter_categories": {
+      "tool": ["tool_type", "tool_diameter", "tool_fluteLength", "tool_numberOfFlutes", "tool_spindleSpeed", "tool_rampSpindleSpeed", "tool_feedCutting", "tool_feedEntry", "tool_feedRetract", "tool_feedRamp", "tool_feedPlunge", "tool_coolant"],
+      "geometry": ["geometry_selection", "geometry_tool_orientation", "geometry_stock_contour", "geometry_boundary", "geometry_check_surfaces", "geometry_avoid_surfaces"],
+      "heights": ["height_clearance", "height_retract", "height_feed", "height_top", "height_bottom"],
+      "passes": ["passes_stepdown", "passes_stepover", "passes_finishing_stepdown", "passes_finishing_stepover", "passes_tolerance", "passes_smoothing", "passes_stockToLeave"],
+      "linking": ["linking_retractHeight", "linking_lead_in", "linking_lead_out", "linking_ramp", "linking_transition"],
+      "multiaxis": ["axis_tilting", "axis_limit", "axis_feed_optimization", "axis_collision_avoidance"]
+    }
+  },
+
+  "drawing_module": {
+    "namespace": "adsk.drawing",
+    "description": "2D drawing and documentation API",
+    "classes": {
+      "Drawing": {
+        "description": "2D drawing document",
+        "properties": [
+          {"name": "drawingViews", "type": "DrawingViews", "access": "read"},
+          {"name": "sheets", "type": "Sheets", "access": "read"}
+        ]
+      },
+      "Sheets": {
+        "description": "Collection of drawing sheets",
+        "methods": [
+          {"name": "add", "params": ["sheetInput: SheetInput"], "returns": "Sheet"},
+          {"name": "item", "params": ["index: int"], "returns": "Sheet"}
+        ]
+      },
+      "Sheet": {
+        "description": "Single drawing sheet",
+        "properties": [
+          {"name": "annotations", "type": "Annotations", "access": "read"},
+          {"name": "drawingViews", "type": "DrawingViews", "access": "read"},
+          {"name": "height", "type": "float", "access": "read"},
+          {"name": "name", "type": "str", "access": "read/write"},
+          {"name": "scale", "type": "float", "access": "read/write"},
+          {"name": "width", "type": "float", "access": "read"}
+        ]
+      },
+      "DrawingViews": {
+        "description": "Collection of drawing views",
+        "methods": [
+          {"name": "addBaseView", "params": ["viewInput: BaseViewInput"], "returns": "BaseView"},
+          {"name": "addDetailView", "params": ["parentView: DrawingView", "centerPoint: Point2D", "boundary: SketchCurve", "viewScale: float", "viewPlacement: Point2D"], "returns": "DetailView"},
+          {"name": "addProjectedView", "params": ["parentView: DrawingView", "projectionDirection: Vector2D", "viewPlacement: Point2D"], "returns": "ProjectedView"},
+          {"name": "addSectionView", "params": ["parentView: DrawingView", "sectionLine: SketchLine", "viewPlacement: Point2D"], "returns": "SectionView"}
+        ]
+      },
+      "Annotations": {
+        "description": "Drawing annotations",
+        "properties": [
+          {"name": "dimensions", "type": "Dimensions", "access": "read"},
+          {"name": "notes", "type": "Notes", "access": "read"},
+          {"name": "centermarks", "type": "Centermarks", "access": "read"},
+          {"name": "centerlines", "type": "Centerlines", "access": "read"}
+        ]
+      },
+      "Dimensions": {
+        "description": "Drawing dimensions",
+        "methods": [
+          {"name": "addAlignedDimension", "params": ["entityOne: Base", "entityTwo: Base", "textLocation: Point2D"], "returns": "AlignedDimension"},
+          {"name": "addAngularDimension", "params": ["lineOne: SketchLine", "lineTwo: SketchLine", "textLocation: Point2D"], "returns": "AngularDimension"},
+          {"name": "addDiameterDimension", "params": ["circularEntity: Base", "textLocation: Point2D"], "returns": "DiameterDimension"},
+          {"name": "addLinearDimension", "params": ["entityOne: Base", "entityTwo: Base", "textLocation: Point2D", "isDriven: bool"], "returns": "LinearDimension"},
+          {"name": "addRadiusDimension", "params": ["arcEntity: Base", "textLocation: Point2D"], "returns": "RadiusDimension"}
+        ]
+      }
+    }
+  },
+
+  "statistics": {
+    "total_core_classes": 32,
+    "total_fusion_classes": 48,
+    "total_cam_classes": 18,
+    "total_drawing_classes": 8,
+    "total_properties": 412,
+    "total_methods": 298,
+    "total_operation_types": 35,
+    "total_parameter_categories": 42,
+    "total_api_endpoints": 856
+  },
+
+  "prism_integration": {
+    "supported_operations": [
+      "Create sketch geometry programmatically",
+      "Generate features (extrude, revolve, sweep, loft)",
+      "Create assemblies with joints",
+      "Configure CAM setups and operations",
+      "Generate toolpaths",
+      "Post-process to G-code",
+      "Export to STEP/IGES/STL",
+      "Import external CAD files",
+      "Create 2D drawings with annotations",
+      "Manage tool libraries"
+    ],
+    "automation_capabilities": [
+      "Parametric design updates via userParameters",
+      "Batch processing via scripts",
+      "Custom UI commands via add-ins",
+      "Event handling for design changes",
+      "Cloud data access via Data module"
+    ]
+  }
+}

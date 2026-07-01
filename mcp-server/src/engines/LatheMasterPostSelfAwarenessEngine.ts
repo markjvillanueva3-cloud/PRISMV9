@@ -520,6 +520,8 @@ export class LatheMasterPostSelfAwarenessEngine {
         id: subPostId,
         name: `Test Post ${subPostId}`,
         dialect: "generic",
+        version: "1.0.0",
+        machineIds: [],
       });
     }
 

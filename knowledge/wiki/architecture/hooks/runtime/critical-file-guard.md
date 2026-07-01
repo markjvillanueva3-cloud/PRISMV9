@@ -21,7 +21,7 @@ related:
 
 ## Description (from file header)
 
-critical-file-guard.mjs — Phase 0.16 Safety-Critical File GuardPreToolUse(Edit|Write|MultiEdit) hook that requires explicit--confirm-critical flag (or CONFIRM_CRITICAL=true env) for edits toKienzle/Taylor/S(x) and other safety-critical files.Critical paths defined in state/shared/CRITICAL_FILES.json. Edits tothose paths without the confirm flag return {decision:"block"}.Both legacy export-default form (for adapter callers) and nativeClaude-Code-protocol main() are exported. main() runs wh
+_(no header docblock — read source for behavior)_
 
 ## Events
 

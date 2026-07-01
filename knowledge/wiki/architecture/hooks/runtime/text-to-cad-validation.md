@@ -21,7 +21,7 @@ related:
 
 ## Description (from file header)
 
-text-to-cad-validation.mjs — PostToolUse hookCADCAM-DAGI-MS0/U-DAGI09Monitors TextToCADGenerationEngine output quality:- Empty feature extraction- Unrecognized keywords- Refinement failures- Multi-turn context issues
+_(no header docblock — read source for behavior)_
 
 ## Events
 

@@ -24,6 +24,7 @@
  */
 import fs from "node:fs";
 import path from "node:path";
+import os from "node:os";
 
 // Anthropic harness truncates the auto-loaded MEMORY.md past this byte count.
 const CEILING_BYTES = 24576;
@@ -31,7 +32,31 @@ const CEILING_BYTES = 24576;
 const WARN_RATIO = 0.90;
 const CRITICAL_RATIO = 0.97;
 
-const MEMORY_MD = "C:/Users/wompu/.claude/projects/H--prism/memory/MEMORY.md";
+// 2026-05-18 (slot bravo) — was hardcoded `C:/Users/wompu/.claude/projects/H--prism/...`
+// which broke verification on every PC that wasn't user `wompu` (e.g., this PC's user
+// `Mark Villanueva` → ENOENT, status=measurement-error). Also the project-dir spelling
+// is case-sensitive on some Windows configurations (H--PRISM vs H--prism). Resolve via
+// $PRISM_AUTO_MEMORY_FILE override → home-dir probe of both casings → first existing wins.
+function resolveMemoryFile() {
+  const envOverride = process.env.PRISM_AUTO_MEMORY_FILE;
+  if (envOverride && fs.existsSync(envOverride)) return envOverride;
+  const home = os.homedir();
+  const candidates = [
+    path.join(home, ".claude/projects/H--PRISM/memory/MEMORY.md"),
+    path.join(home, ".claude/projects/H--prism/memory/MEMORY.md"),
+    // Legacy hardcoded path — kept as the final candidate so existing automation on
+    // the original PC user still resolves even if home-dir probe surprises us.
+    "C:/Users/wompu/.claude/projects/H--prism/memory/MEMORY.md",
+  ];
+  for (const c of candidates) {
+    if (fs.existsSync(c)) return c;
+  }
+  // No existing file — return the first home-dir candidate so the downstream
+  // statSync fails loudly with a path that names the operator's actual user.
+  return candidates[0];
+}
+
+const MEMORY_MD = resolveMemoryFile();
 const HISTORY = "H:/prism/state/shared/memory-size-history.jsonl";
 
 function measure() {

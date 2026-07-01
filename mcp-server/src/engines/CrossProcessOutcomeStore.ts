@@ -112,6 +112,8 @@ export interface OutcomeRequestSummary
   extends OutcomeCategoricalFeatures,
     OutcomeNumericFeatures {
   intent?: string;
+  /** CAM system slug set by CAM bridges (e.g. "mastercam", "hypermill"). */
+  cam_system?: string;
 }
 
 export interface OutcomeResponseSummary {
@@ -235,7 +237,7 @@ export class CrossProcessOutcomeStore {
         `CrossProcessOutcomeStore.record: process "${String(input.process)}" not in [${OUTCOME_PROCESSES.join(", ")}]`,
       );
     }
-    validateNumericFeatures(input.request_summary);
+    validateNumericFeatures(input.request_summary as unknown as Record<string, unknown>);
     if (input.outcome) {
       validateOutcomeKind(input.outcome.kind);
     }
@@ -389,7 +391,7 @@ export class CrossProcessOutcomeStore {
     if (!context || typeof context !== "object") {
       throw new Error("CrossProcessOutcomeStore.retrieveSimilar: context object required");
     }
-    validateNumericFeatures(context);
+    validateNumericFeatures(context as unknown as Record<string, unknown>);
     const scored: SimilarityResult[] = this.events.map((record) => ({
       record,
       distance: computeDistance(context, record),
@@ -712,8 +714,17 @@ export class CrossProcessOutcomeStore {
         try {
           const parsed = JSON.parse(line) as OutcomeRecord;
           if (parsed.schemaVersion !== SCHEMA_VERSION) continue;
-          this.events.push(parsed);
-          this.byId.set(parsed.id, this.events.length - 1);
+          // U-XPROC-LEDGER-DURABLE: dedup by id on reload. The ledger is append-only, so a
+          // pending->terminal transition writes TWO lines for one id. Replacing the existing
+          // events[] entry (latest line wins) keeps events[] unique-by-id, matching live
+          // semantics -- otherwise replay()/replaySince() would double-count reloaded outcomes.
+          const existingIdx = this.byId.get(parsed.id);
+          if (existingIdx !== undefined) {
+            this.events[existingIdx] = parsed;
+          } else {
+            this.events.push(parsed);
+            this.byId.set(parsed.id, this.events.length - 1);
+          }
           // Bump nextId past any loaded id of the form "evt-N"
           const m = parsed.id.match(/^evt-(\d+)$/);
           if (m) {

@@ -1,0 +1,1530 @@
+Dynamic Milling
+
+June 2014
+TERMS OF USE     Mastercam® X8 Dynamic Milling
+
+                 Date: June 2014
+                 Copyright © 2014 CNC Software, Inc.-- All rights reserved.
+                 Software: Mastercam X8
+
+                 Use of this document is subject to the Mastercam End User License Agreement. A
+                 copy of the Mastercam End User License Agreement is included with the
+                 Mastercam product package of which this document is part. The Mastercam End
+                 User License Agreement can also be found at:
+                 http://www.mastercam.com/companyinfo/legal/LicenseAgreement.aspx
+
+Be sure you      Information might have been changed or added since this document was
+have the latest  published. The latest version of this document is installed with Mastercam or can
+information!
+                 be obtained from your local Reseller. A ReadMe file (ReadMe.pdf)--installed
+                 with each release--includes the latest information about Mastercam features and
+                 enhancements.
+                                                                                                                                                         iii
+
+Contents
+
+Introduction ....................................................................................................... 1
+
+      Tutorial Goals................................................................................................. 3
+
+ 1. Dynamic Milling Overview.................................................... 5
+
+      Chain Selection for Dynamic Toolpaths...................................................... 5
+      Dynamic Mill (Stay Inside strategy) ........................................................... 6
+      Dynamic Mill (Rest Material strategy) ....................................................... 7
+      Dynamic Mill (From Outside Strategy) ....................................................... 7
+      Dynamic Contour .......................................................................................... 8
+      Dynamic Milling Parameters ....................................................................... 9
+
+ 2. Chain and Entry Selection................................................... 11
+
+      Lesson Goals ............................................................................................... 11
+      Exercise 1: Preparing Mastercam for Toolpath Creation ..................... 11
+      Exercise 2: Creating a Dynamic Toolpath............................................ 12
+      Exercise 3: Adding Avoidance Regions to an Operation...................... 15
+      Exercise 4: Adding Containment Regions to an Operation .................. 18
+      Exercise 5: Selecting an Entry Method ............................................... 20
+      Exercise 6: Adding Air regions to an Operation................................... 22
+
+ 3. Dynamic Mill Toolpath (Stay Inside Strategy).................... 25
+
+      Lesson Goals ............................................................................................... 25
+      Exercise 1: Preparing Mastercam for Toolpath Creation ..................... 25
+      Exercise 2: Creating a Dynamic Mill Toolpath..................................... 26
+      Exercise 3: Creating a Pocket Toolpath............................................... 31
+      Exercise 4: Comparing the Operations ................................................ 34
+iv MASTERCAM X8
+
+ 4. Dynamic Mill Toolpath (Rest Mill Strategy) ....................... 37
+
+      Lesson Goals ............................................................................................... 37
+      Exercise 1: Preparing Mastercam for Toolpath Creation...................... 37
+      Exercise 2: Creating a Dynamic Mill Toolpath ..................................... 38
+      Exercise 3: Creating An Area Mill Toolpath ......................................... 44
+      Exercise 4: Comparing the Operations ................................................ 48
+
+ 5. Dynamic Mill Toolpath (From Outside Strategy) ................ 51
+
+      Lesson Goals ............................................................................................... 51
+      Exercise 1: Preparing Mastercam for Toolpath Creation...................... 51
+      Exercise 2: Creating a Dynamic Mill Toolpath ..................................... 52
+      Exercise 3: Creating a Pocket Toolpath ............................................... 56
+      Exercise 4: Comparing the Operations ................................................ 59
+
+ 6. Dynamic Contour Toolpath.................................................. 61
+
+      Lesson Goals ............................................................................................... 61
+      Exercise 1: Preparing Mastercam for Toolpath Creation...................... 61
+      Exercise 2: Creating a Dynamic Contour Toolpath............................... 62
+      Exercise 3: Creating a Contour Toolpath ............................................. 65
+      Exercise 4: Comparing the Operations ................................................ 67
+
+ Conclusion......................................................................................................... 69
+
+      Mastercam Resources ............................................................................... 69
+      Mastercam Documentation ....................................................................... 70
+Introduction
+
+Mastercam's 2D high speed dynamic milling toolpaths utilize the entire flute length of
+their cutting tools to achieve great efficiency in milling. They are designed to maximize
+material removal while minimizing tool wear.
+Additional benefits you gain by using high speed dynamic milling toolpaths include:
+
+       Tool burial avoidance
+       Minimum heat buildup
+       Better chip evacuation
+This tutorial introduces you to all of the following intelligent application-specific 2D
+high speed dynamic milling toolpaths available in Mastercam.
+Dynamic Mill (Stay Inside Strategy)--Machines pockets using one or more chains to
+drive the toolpath. This strategy is enabled by default.
+
+Dynamic Mill (From Outside Strategy)--Machines open pocket shapes or standing
+core shapes using the outmost chain as the stock boundary. The tool moves freely
+2 MASTERCAM X8/ Introduction
+
+outside of this area.The toolpath starts from the outside and works its way towards the
+inner boundary.
+
+Dynamic Mill (Rest Mill Strategy) --Targets material left from previous operations.
+Dynamic motion is used to rapidly remove material left by previous operations or by a
+specified tool size. Use this strategy when the roughing tools leave material in corners
+or narrow part areas.
+
+Dynamic Contour-- Mills material off walls supporting closed or open chains. The tool
+motion converts to dynamic in areas where the tool would bind or encounter too
+much material. Use Dynamic Contour on walls or contours that contain small radii.
+
+DYNAMIC MILLING
+                                                                                                                            TUTORIAL GOALS 3
+
+Tutorial Goals
+
+       Learn the benefits and uses of the Dynamic toolpath types
+       Understand chaining and entry options specific to Dynamic toolpaths
+       Create basic Dynamic toolpaths
+       Compare and contrast the Dynamic toolpaths with their non-Dynamic
+
+           counterparts.
+
+         IMPORTANT: Screen colors in the tutorial pictures were modified to
+         enhance image quality; they may not match your Mastercam settings or
+         the tutorial results. These color differences do not affect the lesson or
+         the exercise results.
+
+General Tutorial Requirements
+
+All Mastercam tutorials have the following general requirements:
+       You must be comfortable using the Windows® operating system.
+       The tutorials cannot be used with Mastercam Demo/Home Learning Edition
+           (HLE). The Demo/HLE file format (EMCX-8) is different from Mastercam (MCX-
+           8), and basic Mastercam functions, such as file conversions and posting, are
+           unavailable.
+       Each lesson in the tutorial builds on the mastery of preceding lesson's skills.
+           We recommend that you complete them in order.
+       Additional files may accompany a tutorial. Unless the tutorial provides specific
+           instructions on where to place these files, store them in a folder that can be
+           accessed from the Mastercam workstation, either with the tutorial or in any
+           location that you prefer.
+       You will need an internet connection to view videos that are referenced in the
+           tutorials. All videos can be found on our YouTube channel:
+           www.youtube.com/user/MastercamTechDocs.
+       All Mastercam tutorials require you to configure Mastercam to work in a
+           default metric or English configuration. The tutorial provides instructions for
+           loading the appropriate configuration file.
+
+                                                                                                                             DYNAMIC MILLING
+4 MASTERCAM X8/ Introduction
+DYNAMIC MILLING
+LESSON 1
+
+Dynamic Milling Overview
+
+1
+
+Mastercam's 2D high speed toolpaths (HST) contain two types that utilize dynamic
+motion:
+
+       Dynamic Mill
+       Dynamic Contour
+Dynamic toolpaths utilize as much of the tool's flute length as possible, while mini-
+mizing tool burial. This method enables the toolpath to rapidly and efficiently remove
+the maximum amount of material and extend tool life at the same time.
+
+Chain Selection for Dynamic Toolpaths
+
+Dynamic Mill and Dynamic Contour require a unique way of understanding chain
+selection. Dynamic Mill requires at least one Machining region defined, which can be
+either a closed chain or open chain. Any remaining geometry can be defined as an
+Avoidance region, Containment region, or Air region.
+6 MASTERCAM X8/ Dynamic Milling Overview
+
+Dynamic Contour does not require a closed chain to calculate a toolpath. All geometry
+selected will be cut by the tool motion.
+
+Chaining options are explored further throughout subsequent lessons.
+
+Dynamic Mill (Stay Inside strategy)
+
+Dynamic Mill with the Machining region strategy set to Stay Inside is a pocket tool-
+path that utilizes dynamic motion. A boundary is selected; islands, bosses, and geom-
+etry to avoid are added; tooling, parameters, entry method, and linking values are
+entered; and the toolpath is generated. Material is removed from the inside to the
+outside in a highly efficient manner.
+
+DYNAMIC MILLING
+                                                                                     DYNAMIC MILL (REST MATERIAL STRATEGY) 7
+
+Dynamic Mill (Rest Material strategy)
+
+Dynamic Mill with the Rest Mill strategy enabled specializes in removing material left
+by previous operations using dynamic motion. The material to remove is calculated by
+previous operations or previous roughing tools. Only unmachined areas are processed
+for a Dynamic Mill operation.
+
+Dynamic Mill (From Outside Strategy)
+
+Dynamic Mill with the Machining region strategy set to From Outside is a facing
+operation that has island avoidance capabilities. The toolpath is created using dynamic
+motion for maximum efficiency. The tool removes material from the outside to the
+inside. This movement creates a toolpath that is allowed to move outside the selected
+boundary.
+
+                                                                                                                             DYNAMIC MILLING
+8 MASTERCAM X8/ Dynamic Milling Overview
+
+Dynamic Contour
+
+Dynamic Contour creates a familiar contour operation using dynamic motion and
+specialized options found in the dynamic toolpath parameters. The dynamic motion
+prevents tool burial and binding in small radii corners. In addition, parameters are
+provided for you to instruct Mastercam on the material left on the walls to be
+machined.
+
+DYNAMIC MILLING
+                                                                                                      DYNAMIC MILLING PARAMETERS 9
+
+Dynamic Milling Parameters
+
+Several parameter options separate the Dynamic operations from their standard 2D
+HST counterparts.
+
+       Micro lift
+       Entry methods
+       Entry feeds/speeds
+       Contour wall
+Micro lift options allow the tool to rise above the floor of the part for the portion of
+the toolpath that is not removing material. Benefits of micro lift include chip clearing
+and avoiding excess tool heat. The feedrate is controllable for the back move as well.
+
+Entry methods provide several ways to enter the material for a Dynamic Mill operation.
+Options range from a simple helix to a medial path with trochoidal motion to a
+selected open chain. Mastercam's Help contains detailed information on each of the
+methods available.
+
+                                                                                                                             DYNAMIC MILLING
+10 MASTERCAM X8/ Dynamic Milling Overview
+
+Use entry feeds and speeds to avoid placing too much load on the tool upon entry.
+Set a short dwell interval after entry to allow the spindle to reach the necessary speed
+before beginning material removal.
+
+Contour wall parameters provide input for remaining stock and previous tool informa-
+tion. The values entered help Mastercam to calculate the most efficient material
+removal strategy when machining part walls.
+
+Dynamic Milling toolpaths create highly efficient motion based on selected chains.
+They are part of the 2D HST family of toolpaths with many similarities, but with the
+stated enhancements. They are an incremental step in the evolution of high speed
+machining options provided by Mastercam. The high speed toolpaths themselves are
+a leap ahead of the standard pocket, face, and contour operations.
+Creating and reviewing the motion of dynamic toolpaths is the best way to learn
+about the benefits and uses. Continue on to Lesson 2 to learn about chain and entry
+selection and the effect it has on your toolpath.
+
+DYNAMIC MILLING
+LESSON 2
+
+Chain and Entry Selection
+
+2
+
+Lesson 1 provided a brief overview of Mastercam's Dynamic toolpath options. This
+lesson focuses on chain and entry selection using simplified examples. The techniques
+and behavior demonstrated are easily translated to the more complicated and intricate
+parts you deal with on a daily basis. The geometry, selections, and parameters are
+simplified to ensure the methods and results are the focal points.
+
+Detailed steps on such actions as selecting a machine definition, changing the
+graphics view or construction plane, making levels visible, and backplotting will not be
+provided.
+
+Lesson Goals
+
+       Configure Mastercam for metric operation
+       Create a Dynamic Mill toolpath
+       Add geometry, modify parameters, and review the tool motion
+
+Exercise 1: Preparing Mastercam for Toolpath Creation
+
+       1 Start Mastercam using your
+           preferred method:
+
+           Double-click Mastercam's
+               desktop icon.
+               Or
+
+           Launch Mastercam from the
+               Windows Start menu.
+
+       2 Select the default metric configuration file:
+
+           a Select Settings, Configuration
+               from Mastercam's menu.
+12 MASTERCAM X8/ Chain and Entry Selection
+
+           b Choose ...\mcamxm.config <Metric> from the Current drop-down list.
+
+           c Click OK.
+       3 Open the part file Chaining_Examples.MCX-8, which was provided with the
+
+           tutorial.
+
+       4 If necessary, fit the geometry to the screen using [Alt+F1] or the Fit button.
+       5 Choose File, Save As, and save the part under a different file name. This
+
+           protects the original tutorial file from being overwritten.
+
+Exercise 2: Creating a Dynamic Toolpath
+
+Dynamic Mill is used to demonstrate chaining and entry options. Some of these
+options also apply to Dynamic Contour.
+
+DYNAMIC MILLING
+                                       CREATING A DYNAMIC TOOLPATH 13
+
+1 From the Mastercam menu, choose
+
+    Toolpaths, 2D High Speed,
+    Dynamic Mill.
+
+2 Click OK if prompted to enter a new
+    NC file name.
+    The Chain Options dialog box
+    displays.
+
+3 Click Select under Machining
+    regions. The Chaining dialog box
+    displays.
+    Machining regions are areas to be
+    machined.
+
+4 Chain the rectangle in a
+    counterclockwise direction.
+
+                                       DYNAMIC MILLING
+14 MASTERCAM X8/ Chain and Entry Selection
+
+       5 Click OK on the Chaining dialog box. Click OK in the Chain Options dialog
+           box.
+           The 2D High Speed Toolpath - Dynamic Mill dialog box displays.
+
+       6 Select the Tool page
+
+       7 Click the Select library tool button.
+           The Tool Selection dialog box
+           displays.
+
+       8 Select the 5mm bull endmill with a
+           1.0mm radius and click OK.
+
+       9 Click OK to generate the Dynamic Mill toolpath on the selected geometry.
+           Observe the toolpath pattern. Backplot the operation if necessary.
+
+     10 Save your part file.
+
+DYNAMIC MILLING
+                                                                           ADDING AVOIDANCE REGIONS TO AN OPERATION 15
+
+The toolpath is created inside of the selected Machining regions. With the Machining
+region strategy set to Stay Inside, the toolpath does not venture outside of the
+selected chain.
+
+         TIP: Use Analyze, Volume/Area, 2D Area on your selected chains if the
+         toolpath is not being created as expected. The cause will invariably be
+         an incorrect assumption about the enclosed 2D Area of your geometry.
+
+     11 From the Toolpaths Manager, press [T] to toggle off the toolpath display in
+           the graphics window.
+           Hiding the operation's toolpath makes it easier to select geometry in the next
+           exercise.
+
+Exercise 3: Adding Avoidance Regions to an Operation
+
+       1 Select the Level Manager from the Status Bar. The Level Manager dialog box
+           displays.
+
+       2 In the Visible column for level 2, click
+           once to turn on the display of the
+           Avoidance regions geometry.
+           The X in the Visible column
+           indicates that the level is displayed
+           in the graphics window.
+
+       3 Click OK on the Level Manager.
+           Level 2:Avoidance wireframe is
+           now visible.
+
+                                                                                                                             DYNAMIC MILLING
+16 MASTERCAM X8/ Chain and Entry Selection
+
+       4 Click Geometry under operation 1.
+           The Chain Options dialog box
+           opens.
+
+       5 Click Select under Avoidance
+           regions.
+           The Chaining dialog box opens.
+
+       6 Select the oval and small rectangle
+           as indicated. Chain direction does
+           not matter.
+
+       7 Click OK in the Chaining and Chain Options dialog boxes.
+       8 Click Regenerate all dirty
+
+           operations in the Toolpaths
+           Manager.
+
+DYNAMIC MILLING
+                                                                           ADDING AVOIDANCE REGIONS TO AN OPERATION 17
+
+       9 Press [T] to toggle on the toolpath display in the graphics window.
+
+         NOTE: Based on your defaults, your toolpath may differ slightly from
+         the one in the image.
+     10 Backplot the operation if necessary.
+     11 Save your part file.
+The toolpath avoids the added chains since the encompassed 2D area of each is less
+than the outer chain. Of particular interest is the small rectangle that overlaps the
+larger one. A standard pocket toolpath would require you to trim geometry and
+rechain the boundary. Dynamic Mill gives you the ability to add and avoid geometry
+simply by adding a chain.
+For instance, you draw a simple rectangle to represent a clamp that must be used to
+hold your part. Sketch a rectangle, add it to the operation's chains, regenerate the
+operation, and you have the toolpath needed. There is no need to alter the original
+part geometry.
+
+                                                                                                                             DYNAMIC MILLING
+18 MASTERCAM X8/ Chain and Entry Selection
+
+Exercise 4: Adding Containment Regions to an Operation
+
+       1 Use the Level Manager to make level 3:Containment regions visible.
+
+         TIP: Press [T] to toggle the toolpath display in the graphics window.
+       2 Click Geometry under operation 1. The Chain Options dialog box displays.
+       3 Click Select under Containment regions. The Chaining dialog box displays.
+       4 Select the circle as indicated. Chain
+
+           direction does not matter.
+
+       5 Click OK in the Chaining and Chain Options dialog boxes.
+
+DYNAMIC MILLING
+                                                                      ADDING CONTAINMENT REGIONS TO AN OPERATION 19
+
+       6 Click Regenerate all dirty
+           operations in the Toolpaths
+           Manager.
+
+       7 Press [T] to toggle on the toolpath display in the graphics window.
+
+       8 Backplot the operation if necessary.
+       9 Save your part file.
+Containment regions are areas that the tool cannot move outside of. The toolpath is
+now contained inside the circle and also avoids the geometry previously selected as
+Avoidance regions.
+
+                                                                                                                             DYNAMIC MILLING
+20 MASTERCAM X8/ Chain and Entry Selection
+
+Exercise 5: Selecting an Entry Method
+
+       1 Use the Level Manager to make level 4:Entry chain visible and level
+           3:Containment regions invisible.
+
+       2 Click Parameters under operation 1.
+           The 2D High Speed Toolpath -
+           Dynamic Mill dialog box opens.
+
+       3 Select the Toolpath Type page.
+       4 Under Containment regions, click
+
+           Deselect.
+           This will remove all Containment
+           regions from the toolpath.
+       5 Select the Entry Motion page.
+
+       6 Select Custom, use entry chain
+           from the drop-down list in the Entry
+           method group box.
+
+DYNAMIC MILLING
+                                      SELECTING AN ENTRY METHOD 21
+
+7 Click Select in the Chain geometry
+    group box.
+
+    The Chain Manager dialog box
+    displays.
+
+8 Right-click in the Chain Manager dialog box and select Add chain.
+9 Select the open chain as indicated.
+
+10 Click OK in both the Chaining and Chain Manager dialog boxes, as well as the
+      2D High Speed Toolpath - Dynamic Mill dialog box.
+
+11 Click Regenerate all dirty operations in the Toolpaths Manager.
+
+12 Backplot the operation if necessary. Pay special attention to how the tool
+      enters the material.
+
+13 Save your part file.
+
+                                      DYNAMIC MILLING
+22 MASTERCAM X8/ Chain and Entry Selection
+
+Entry methods provide numerous ways to begin removing material from your part.
+These methods will be reviewed in subsequent lessons. Consult Mastercam's Help if
+you wish to learn more about the entry options for dynamic toolpaths at this time.
+
+Exercise 6: Adding Air regions to an Operation
+
+       1 Use the Level Manager to make level 4:Entry chain invisible.
+
+       2 Click Parameters under operation 1.
+           The 2D High Speed - Dynamic Mill
+           Toolpath dialog box displays.
+
+       3 Select the Entry Motion page.
+       4 Set the Entry Motion to Helix only
+
+           and deselect the Chain geometry.
+           This will remove the Entry chain
+           from the toolpath.
+       5 Select the Toolpath Type page.
+
+DYNAMIC MILLING
+                                         ADDING AIR REGIONS TO AN OPERATION 23
+
+6 Click Select under Air regions.
+    The Chaining dialog box displays.
+
+7 In the Chaining dialog box, select
+    Partial.
+
+    This allows you to create an open
+    chain.
+
+8 Select the line as indicated. Chain
+    direction does not matter.
+
+ 9 Click OK in the Chaining dialog box.
+
+10 Click Regenerate all dirty
+      operations in the Toolpaths
+      Manager.
+
+                                         DYNAMIC MILLING
+24 MASTERCAM X8/ Chain and Entry Selection
+
+     11 Press [T] to toggle on the toolpath display in the graphics window.
+
+     12 Backplot the operation if necessary.
+     13 Save your part file.
+Notice that the toolpath now enters from the selected Air region chain. By partially
+chaining that line segment, it tells Mastercam that there is no material there. This
+allows the tool to travel through it when machining.
+At this point you can see how quickly and easily you make significant changes to your
+toolpath motion. Take some time to change entry methods, add and remove chains
+from your toolpath, and observe how the changes affect the backplot. When ready,
+continue on to the next lessons for a more in depth look at Dynamic Mill and its
+machining strategies.
+
+DYNAMIC MILLING
+LESSON 3
+
+Dynamic Mill Toolpath (Stay Inside
+
+3
+
+Strategy)
+
+Lesson 2 exposed how chaining is handled for Dynamic Mill toolpaths, in addition to a
+brief glimpse of the entry methods. This lesson centers around creating a Dynamic Mill
+toolpath, with the Machining region strategy set to Stay Inside. A pocket toolpath is
+created for comparison with the dynamic toolpath.
+
+Lesson Goals
+
+       Create a Dynamic Mill toolpath with the Stay Inside strategy
+       Create a Pocket toolpath
+       Compare the two toolpaths
+
+Exercise 1: Preparing Mastercam for Toolpath Creation
+
+       1 Open the part file Dynamic_Mill_StayInside.MCX-8, which was provided
+           with the tutorial.
+
+       2 If necessary, select the default Mill metric machine definition.
+       3 Select Isometric (WCS) from the Gview menu.
+       4 Shade the part, if necessary, using [Alt+S].
+26 MASTERCAM X8/ Dynamic Mill Toolpath (Stay Inside Strategy)
+
+       5 Fit the geometry to the screen using [Alt+F1] or the Fit button.
+       6 Choose File, Save As, and save the part under a different file name. This
+
+           protects the original tutorial file from being overwritten.
+
+Exercise 2: Creating a Dynamic Mill Toolpath
+
+       1 From the Mastercam menu, choose
+           Toolpaths, 2D High Speed,
+           Dynamic Mill.
+
+       2 Click OK if prompted to enter a new
+           NC file name.
+           The Chain Options dialog box
+           displays.
+
+       3 Click Select under Machining
+           regions.
+           The Chaining dialog box displays.
+
+DYNAMIC MILLING
+                                                                                 CREATING A DYNAMIC MILL TOOLPATH 27
+
+4 Chain the wireframe geometry around the part as indicated.
+
+5 Click OK to close the Chaining dialog box and return to the Chain Options
+    dialog box.
+
+6 Click Select under Avoidance
+    regions.
+    The Chaining dialog box displays.
+
+7 Chain the wireframe geometry as indicated.
+
+                                                                                                                    DYNAMIC MILLING
+28 MASTERCAM X8/ Dynamic Mill Toolpath (Stay Inside Strategy)
+
+       8 Ensure that the Machining region
+           strategy is set to Stay inside.
+           This strategy is enabled by default
+           and keeps the toolpath inside the
+           selected machining region.
+
+       9 Click OK to close the Chain Options dialog box.
+           The 2D High Speed - Dynamic Mill Toolpath dialog box displays.
+
+     10 Select the Tool page.
+
+     11 Click the Select library tool button.
+           The Tool Selection dialog box
+           displays.
+
+     12 Select the 16mm flat endmill and
+           click OK.
+
+     13 Select the Cut Parameters page.
+
+DYNAMIC MILLING
+                                 CREATING A DYNAMIC MILL TOOLPATH 29
+
+14 Set the parameters as shown.
+
+      Use micro lift distance to raise the tool above the floor when making a
+      connecting move. The lift creates a period of time where heat is not being
+      added to the tool or the part, extending tool life.
+    TIP: Click Help to learn more about the individual fields. Information is
+    provided to explain how the available options affect your toolpath.
+15 Select the Entry Motion page.
+
+16 Select Profile from the Entry method
+      drop-down list.
+
+                                                                                                                      DYNAMIC MILLING
+30 MASTERCAM X8/ Dynamic Mill Toolpath (Stay Inside Strategy)
+
+     17 Enter 1.0 mm for Z clearance and
+           2.0 degrees for the Plunge angle.
+
+     18 Select the Linking Parameters
+           page.
+
+     19 Enter -9.525 mm for the Depth.
+           Ensure that it is set to Incremental.
+
+     20 Click OK to generate the Dynamic Mill toolpath.
+
+           With the Machining region strategy set to Stay inside, the toolpath does
+           not leave the selected Machining region. The toolpath also avoids the two
+           selected chains.
+
+DYNAMIC MILLING
+                                                                                                     CREATING A POCKET TOOLPATH 31
+
+     21 Click Only display selected
+           toolpaths in the Toolpaths
+           Manager.
+           Clicking the button does not affect
+           the current display. The graphics
+           view will be less cluttered when
+           additional operations are added
+           later in this lesson.
+
+     22 Save your part file.
+Dynamic Mill is able to cut the material at full depth using as much of the tool's flute
+length as necessary. Depth cuts are available for pocket depths and materials that
+prevent machining at full depth with one pass.
+
+Exercise 3: Creating a Pocket Toolpath
+
+       1 From the Mastercam menu, choose
+           Toolpaths, Pocket.
+           The Chaining dialog box displays.
+
+       2 Chain the wireframe geometry around the part and features as indicated:
+
+                                                                                                                             DYNAMIC MILLING
+32 MASTERCAM X8/ Dynamic Mill Toolpath (Stay Inside Strategy)
+
+       3 Click OK in the Chaining dialog box.
+           The 2D Toolpaths - Pocket dialog box displays.
+
+       4 Select the Cut Parameters page.
+
+           Pocket is automatically selected on the Toolpath Type page as well as the
+           16mm flat endmill on the Tool page. Select those pages if you wish to verify
+           the selections.
+       5 Enter 0.5 mm for the Stock to leave
+           on walls, and 0.0 mm for Stock to
+           leave on floors.
+
+       6 Select the Roughing page.
+           The defaults will be used instead of changing any parameters. The page is
+           selected simply to show the Stepover percentage is set to 50.0, equalling a
+           Stepover distance of 8.0 mm.
+
+       7 Select the Entry Motion page.
+       8 Activate Ramp and set the
+
+           parameters as shown. The only
+           options that should require
+           changing are circled.
+
+DYNAMIC MILLING
+                                              CREATING A POCKET TOOLPATH 33
+
+9 Select the Depth Cuts page.
+
+10 Click the Depth cuts checkbox and
+      set the Max rough step to 3.0 mm.
+
+11 Select the Linking Parameters
+      page.
+
+12 Enter -9.525 mm for the Depth.
+      Ensure that it is set to Incremental.
+
+13 Click OK to generate the Pocket toolpath.
+
+     14 Save your part file.
+The same geometry is used to generate the toolpath for Dynamic Mill and the Pocket
+toolpath. The tool motion is drastically different. Both operations will machine your
+
+                                                                                                                             DYNAMIC MILLING
+34 MASTERCAM X8/ Dynamic Mill Toolpath (Stay Inside Strategy)
+
+part for you with the given parameters. Switch back and forth between selected oper-
+ations in the Toolpaths Manager to quickly view the differences.
+
+Exercise 4: Comparing the Operations
+
+       1 Select operation 1 in the Toolpaths
+           Manager.
+
+       2 Press [F3] to refresh the graphics
+           display if necessary.
+
+       3 Click Backplot selected operations
+           in the Toolpaths Manager.
+
+       4 Click Play to review the tool motion
+           for the Dynamic Mill operation.
+
+       5 Click Expand in the upper left
+           corner of the Backplot dialog box.
+
+DYNAMIC MILLING
+                                          COMPARING THE OPERATIONS 35
+
+6 Select the Info tab in the lower half
+    of the expanded Backplot dialog
+    box.
+
+    Valuable information is available on
+    this tab. Of most interest in this
+    exercise is the total runtime.
+    Dynamic Mill is able to machine the
+    part in the time shown with the
+    given parameters.
+
+7 Click OK to close the Backplot
+    dialog box.
+
+8 Select operation 2 in the Toolpaths
+    Manager.
+
+       9 Press [F3] to refresh the graphics display if necessary.
+     10 Click Backplot selected operations.
+     11 Click Play to review the tool motion for the Pocket operation.
+     12 Select the Info tab in the lower half
+
+           of the expanded Backplot dialog
+           box.
+           Pocket is able to machine the part in
+           the time shown with the given
+           parameters.
+
+Dynamic Mill with the Machining strategy set to Stay inside, is able to remove the
+material in the pocket in less than half the time it takes for the standard Pocket opera-
+tion. Each operation is set to leave 0.5 mm of stock on the pocket walls. The Pocket
+operation has a single finish pass enabled to achieve a finish on the walls similar to
+what you get from the dynamic toolpath. Disable the finish pass in the pocket opera-
+tion and the runtime drops to just under 22 minutes, which is still significantly longer
+than the dynamic operation.
+
+                                                                                                                             DYNAMIC MILLING
+36 MASTERCAM X8/ Dynamic Mill Toolpath (Stay Inside Strategy)
+
+Substantial improvements in productivity and efficiency can be achieved using the
+dynamic toolpaths. Neither of the two operations in this lesson are fully optimized for
+your part, material, tooling, or machine. Even so, you will see significant benefits in
+using dynamic motion and the dynamic toolpaths in Mastercam. When ready,
+continue on to Lesson 4 to begin working with a Dynamic Mill toolpath with a Rest Mill
+strategy.
+
+DYNAMIC MILLING
+LESSON 4
+
+Dynamic Mill Toolpath (Rest Mill
+
+4
+
+Strategy)
+
+Lesson 3 demonstrated some of the advantages a Dynamic Mill toolpath with the Stay
+Inside strategy has over a Pocket toolpath. This lesson shows how a Dynamic Mill tool-
+path with the Rest Mill strategy improves upon the previous generation of the Area
+Mill toolpath with the Rest Mill strategy. Each toolpath has uses, however, in areas
+where you want to avoid tool burial while taking a full depth of cut, the dynamic
+option is the better choice.
+
+Lesson Goals
+
+       Create a Dynamic Mill toolpath with the Rest Mill strategy
+       Create an Area Mill toolpath with the Rest Mill strategy
+       Compare the two toolpaths
+
+Exercise 1: Preparing Mastercam for Toolpath Creation
+
+       1 Open the part file Dynamic_Mill_Rest.MCX-8, which was provided with the
+           tutorial. Optionally, you may continue using the file from the end of the
+           previous lesson.
+38 MASTERCAM X8/ Dynamic Mill Toolpath (Rest Mill Strategy)
+
+       2 Fit the geometry to the screen using [Alt+F1] or the Fit button.
+       3 Save your part file if you are using the file from the previous lesson.
+
+           OR
+           Choose File, Save As, and save the part under a different file name, if you
+           opened Dynamic_Mill_Rest.MCX-8. (See Step 1)
+
+Exercise 2: Creating a Dynamic Mill Toolpath
+
+       1 From the Mastercam menu, choose
+           Toolpaths, 2D High Speed,
+           Dynamic Mill.
+
+       2 Click OK if prompted to enter a new NC file name.
+           The Chain Options dialog box displays.
+
+       3 Click Select under Machining
+           regions.
+           The Chaining dialog box displays.
+
+DYNAMIC MILLING
+                                                                                 CREATING A DYNAMIC MILL TOOLPATH 39
+
+4 Chain the wireframe geometry around the part as indicated.
+
+5 Click OK to close the Chaining dialog box and return to the Chain Options
+    dialog box.
+
+6 Click Select under Avoidance
+    regions.
+    The Chaining dialog box displays.
+
+7 Chain the wireframe geometry around the two features as indicated.
+
+                                                                                                                    DYNAMIC MILLING
+40 MASTERCAM X8/ Dynamic Mill Toolpath (Rest Mill Strategy)
+
+       8 Click OK to close the Chaining dialog box. Click OK to close the Chain Options
+           dialog box.
+           The 2D High Speed - Dynamic Mill Toolpath dialog box displays.
+
+       9 Select the Tool page.
+
+     10 Click the Select library tool button.
+            The Tool Selection dialog box
+           displays.
+
+     11 Select the 8mm flat endmill and
+           click OK.
+
+     12 Select the Cut Parameters page.
+
+     13 Set the following parameters:
+           Deselect the Optimize cut order within pocket.
+           Set the % of tool diameter to 500.0.
+
+DYNAMIC MILLING
+                                                                                   CREATING A DYNAMIC MILL TOOLPATH 41
+
+      Set the Stock to leave on walls and Stock to leave on floors parameters
+          to 0.0.
+
+14 Select the Rest Material page.
+15 Select the Rest material checkbox to enable the page.
+
+                                                                                                                      DYNAMIC MILLING
+42 MASTERCAM X8/ Dynamic Mill Toolpath (Rest Mill Strategy)
+
+     16 Select One other operation, operation 1, and Use remaining stock as
+           computed as shown.
+
+     17 Select the Linking Parameters
+           page.
+
+     18 Enter -9.525 mm for the Depth.
+           Ensure that it is set to Incremental.
+
+DYNAMIC MILLING
+                                                                                          CREATING A DYNAMIC MILL TOOLPATH 43
+
+     19 Click OK to generate the Dynamic Mill toolpath.
+
+     20 Activate Only display selected
+           toolpaths in the Toolpaths
+           Manager, if it is not already selected.
+
+     21 Save your part file.
+Dynamic Mill removes material with a full depth of cut just like the previous lesson's
+Dynamic Mill toolpath. The same efficient motion is used to safely and quickly remove
+all remaining material.
+
+                                                                                                                             DYNAMIC MILLING
+44 MASTERCAM X8/ Dynamic Mill Toolpath (Rest Mill Strategy)
+
+Exercise 3: Creating An Area Mill Toolpath
+
+       1 From the Mastercam menu, choose
+           Toolpaths, 2D High Speed, Area.
+
+       2 Click OK if prompted to enter a new NC file name.
+           The Chain Options dialog box displays.
+
+       3 Click Select under Machining
+           regions.
+           The Chaining dialog box displays.
+
+       4 Chain the wireframe geometry around the part as indicated.
+
+DYNAMIC MILLING
+                                                                                     CREATING AN AREA MILL TOOLPATH 45
+
+5 Click OK to close the Chaining dialog box and return to the Chain Options
+    dialog box.
+
+6 Click Select under Avoidance
+    regions.
+    The Chaining dialog box displays.
+
+7 Chain the wireframe geometry around the two features as indicated.
+
+8 Click OK to close the Chaining dialog box. Click OK to close the Chain Options
+    dialog box.
+
+    The 2D High Speed Toolpath - Area Mill dialog box displays.
+
+9 Select the Tool page.
+
+10 Select the 8mm flat endmill from
+      the tool list.
+
+                                     DYNAMIC MILLING
+46 MASTERCAM X8/ Dynamic Mill Toolpath (Rest Mill Strategy)
+
+     11 Select the Cut Parameters page.
+
+     12 Enter 0.0 mm in the Stock to leave
+           on walls and Stock to leave on
+           floors parameters.
+
+     13 Select the Depth Cuts page.
+
+     14 Click the Depth cuts checkbox and
+           set the Max rough step to 3.0 mm.
+
+     15 Select the Rest Material page.
+
+     16 Select the Rest material checkbox to enable the page.
+     17 Set the following parameters:
+
+           Set Compute remaining stock from to One other operation. Select the
+               first 2D High Speed Dynamic Mill operation.
+
+           Set Adjustments to remaining stock to Adjust remaining stock to mill
+               small cusps.
+               This option sets the adjustment distance to expand the stock model and
+               Mastercam outputs cuts that engage small amounts of material.
+
+DYNAMIC MILLING
+                                                                                       CREATING AN AREA MILL TOOLPATH 47
+
+      Enter 0.5 for the Adjustment distance.
+
+18 Select the Linking Parameters
+      page.
+
+19 Enter -9.525 mm for the Depth.
+      Ensure that it is set to Incremental.
+
+                                                                                                                      DYNAMIC MILLING
+48 MASTERCAM X8/ Dynamic Mill Toolpath (Rest Mill Strategy)
+
+     20 Click OK to generate the Area Mill toolpath.
+
+     21 Save your part file.
+
+Exercise 4: Comparing the Operations
+
+       1 Select operation 3 in the Toolpaths
+           Manager.
+
+       2 Press [F3] to refresh the graphics display if necessary.
+       3 Click Backplot selected operations in the Toolpaths Manager.
+       4 Click Play to review the tool motion for the Dynamic Mill operation.
+       5 If necessary, click Expand in the upper left corner of the Backplot dialog box.
+       6 Select the Info tab in the lower half
+
+           of the expanded Backplot dialog
+           box.
+           Once again, the total runtime is of
+           most interest for this exercise.
+
+DYNAMIC MILLING
+                                              COMPARING THE OPERATIONS 49
+
+7 Click OK to close the Backplot dialog box.
+
+8 Select operation 4 in the Toolpaths
+    Manager.
+
+       9 Press [F3] to refresh the graphics display if necessary.
+     10 Click Backplot selected operations.
+     11 Click Play to review the tool motion for the Area Mill operation.
+     12 Select the Info tab in the lower half
+
+           of the expanded Backplot dialog
+           box.
+
+Edit the Area Mill and Dynamic Mill parameters to match how you operate your
+machinery. Regenerate the toolpaths and compare the runtimes again. In most cases
+the dynamic options will be more efficient. There are exceptions and that is why both
+Area Mill and Dynamic Mill are offered in Mastercam. When ready, continue on to
+Lesson 5 to examine another Dynamic Mill toolpath.
+
+                                              DYNAMIC MILLING
+50 MASTERCAM X8/ Dynamic Mill Toolpath (Rest Mill Strategy)
+DYNAMIC MILLING
+LESSON 5
+
+Dynamic Mill Toolpath (From Outside
+
+5
+
+Strategy)
+
+Lesson 4 showed how the Dynamic Mill toolpath is an improvement over the standard
+Area Mill toolpath. This lesson compares a Dynamic Mill toolpath with the Machining
+region strategy set to From Outside with a standard Pocket toolpath.
+
+Lesson Goals
+
+       Create a Dynamic Mill toolpath with the From Outside strategy
+       Create a Pocket toolpath
+       Compare the two operations
+
+Exercise 1: Preparing Mastercam for Toolpath Creation
+
+       1 Open the part file Dynamic_Mill_FromOutside.MCX-8, which was provided
+           with the tutorial.
+
+       2 Select Isometric (WCS) from the Gview menu.
+       3 Shade the part, if necessary, using [Alt+S].
+       4 Fit the geometry to the screen using [Alt+F1] or the Fit button.
+52 MASTERCAM X8/ Dynamic Mill Toolpath (From Outside Strategy)
+
+       5 Choose File, Save As, and save the part under a different file name. This
+           protects the original tutorial file from being overwritten.
+
+Exercise 2: Creating a Dynamic Mill Toolpath
+
+       1 From the Mastercam menu, choose
+           Toolpaths, 2D High Speed,
+           Dynamic Mill.
+
+       2 Click OK if prompted to enter a new
+           NC file name.
+           The Chain Options dialog box
+           displays.
+
+       3 Click Select under Machining
+           regions.
+           The Chaining dialog box displays.
+
+       4 Select Solids in the Chaining dialog
+           box.
+
+DYNAMIC MILLING
+                                   CREATING A DYNAMIC MILL TOOLPATH 53
+
+5 Select the solid face as shown.
+
+6 Click OK to close the Chaining dialog box and return to the Chain Options
+    dialog box.
+
+7 Set the Machining region strategy
+    to From outside.
+
+8 Click Select under Avoidance
+    regions.
+    The Chaining dialog box displays.
+
+                                                                                                                    DYNAMIC MILLING
+54 MASTERCAM X8/ Dynamic Mill Toolpath (From Outside Strategy)
+
+       9 Select the solid face as shown.
+
+     10 Click OK to close the Chaining dialog box, and again on the Chain Options
+           dialog box.
+           The 2D High Speed Toolpath - Dynamic Mill dialog box displays.
+           The lower face that was selected will be machined. The face on top of the
+           walls is used as geometry to be avoided because it has a smaller 2D area.
+
+     11 Select the Tool page.
+
+     12 Click the Select library tool button.
+           The Tool Selection dialog box
+           displays.
+
+DYNAMIC MILLING
+                                     CREATING A DYNAMIC MILL TOOLPATH 55
+
+13 Select the 12mm flat endmill and
+      click OK.
+
+14 Select the Cut Parameters page.
+15 Set the parameters as shown.
+
+                                     DYNAMIC MILLING
+56 MASTERCAM X8/ Dynamic Mill Toolpath (From Outside Strategy)
+
+     16 Click OK to generate the Dynamic Mill toolpath.
+
+     17 Activate Only display selected
+           toolpaths in the Toolpaths
+           Manager, if it is not already selected.
+
+     18 Save your part file.
+
+Exercise 3: Creating a Pocket Toolpath
+
+       1 Use the Level Manager to make level 5:Pocket boundary visible.
+       2 From the Mastercam menu, choose
+
+           Toolpaths, Pocket.
+
+DYNAMIC MILLING
+                                           CREATING A POCKET TOOLPATH 57
+
+3 Select Wireframe in the Chaining
+    dialog box.
+
+4 Select the chain as shown and click OK.
+
+5 Select the Roughing page.
+6 Select Parallel Spiral for the cutting
+
+    method.
+
+7 Select the Entry Motion page.
+
+                                           DYNAMIC MILLING
+58 MASTERCAM X8/ Dynamic Mill Toolpath (From Outside Strategy)
+
+       8 Activate Helix. Use the default
+           parameters for the helix entry
+           method.
+
+       9 Select the Depth Cuts page.
+
+     10 Click the Depth cuts checkbox and
+           set the Max rough step to 6.0 mm.
+
+     11 Select the Linking Parameters
+           page.
+
+     12 Enter -30.48 mm for the Depth.
+           Ensure that it is set to Incremental.
+
+DYNAMIC MILLING
+                                              COMPARING THE OPERATIONS 59
+
+13 Click OK to generate the Pocket toolpath.
+
+     14 Save your part file.
+
+Exercise 4: Comparing the Operations
+
+      1 Select operation 1 in the Toolpaths
+           Manager.
+
+      2 Press [F3] to refresh the graphics display if necessary.
+      3 Click Backplot selected operations in the Toolpaths Manager.
+      4 Click Play to review the tool motion for the Dynamic Mill operation.
+      5 If necessary, click Expand in the upper left corner of the Backplot dialog box.
+
+                                                                                                                             DYNAMIC MILLING
+60 MASTERCAM X8/ Dynamic Mill Toolpath (From Outside Strategy)
+
+       6 Select the Info tab in the lower half
+           of the expanded Backplot dialog
+           box.
+
+       7 Click OK to close the Backplot dialog box.
+       8 Select operation 2 in the Toolpaths
+
+           Manager.
+
+       9 Press [F3] to refresh the graphics display if necessary.
+     10 Click Backplot selected operations.
+     11 Click Play to review the tool motion for the Pocket operation.
+     12 Select the Info tab in the lower half
+
+           of the expanded Backplot dialog
+           box.
+
+Edit the Pocket operation to test the runtime with parameters suitable for your
+machine. Experiment with reasonable values to see what parameters are necessary to
+better the runtime for the Dynamic Mill operation. Drastic changes, such as increasing
+the max rough step to 16.0 mm, result in a runtime that is still four minutes longer
+than the dynamic operation. When ready, continue on to Lesson 6 to review a Dynamic
+Contour toolpath.
+
+DYNAMIC MILLING
+LESSON 6
+
+Dynamic Contour Toolpath
+
+6
+
+Lesson 5 presented Dynamic Mill and Pocket as options for milling a sample part. This
+lesson creates a Dynamic Contour toolpath in contrast to a standard Contour toolpath.
+The part presents challenging areas where a standard Contour toolpath will bury the
+tool if cutting anything other than a finish pass.
+
+Lesson Goals
+
+       Create a Dynamic Contour toolpath
+       Create a Contour toolpath
+       Compare the two operations
+
+Exercise 1: Preparing Mastercam for Toolpath Creation
+
+       1 Open the part file Dynamic_Contour.MCX-8, which was provided with the
+           tutorial.
+
+       2 Select Isometric (WCS) from the Gview menu.
+       3 Shade the part, if necessary, using [Alt+S].
+       4 Fit the geometry to the screen using [Alt+F1] or the Fit button.
+       5 Choose File, Save As, and save the part under a different file name. This
+
+           protects the original tutorial file from being overwritten.
+62 MASTERCAM X8/ Dynamic Contour Toolpath
+
+Exercise 2: Creating a Dynamic Contour Toolpath
+
+       1 From the Mastercam menu, choose
+           Toolpaths, 2D High Speed,
+           Dynamic Contour.
+
+       2 Click OK if prompted to enter a new
+           NC file name.
+           The Chain Options dialog box
+           displays.
+
+       3 Click Select under Machining
+           regions.
+           The Chaining dialog box displays.
+
+DYNAMIC MILLING
+                                                                         CREATING A DYNAMIC CONTOUR TOOLPATH 63
+
+4 Select the contour around the upper
+    edge of the part as shown.
+    Chain the contour in a clockwise
+    direction. Disable shading as needed
+    to make selection and direction
+    easier.
+
+5 Click OK to close the Chaining dialog box, and again for the Chain Options
+    dialog box.
+    The 2D High Speed Toolpaths - Dynamic Contour dialog box displays.
+
+6 Select the Tool page.
+7 Click the Select library tool button.
+
+    The Tool Selection dialog box
+    displays.
+8 Select the 8mm flat endmill and
+    click OK.
+
+9 Select the Cut Parameters page.
+
+                                                                                                                    DYNAMIC MILLING
+64 MASTERCAM X8/ Dynamic Contour Toolpath
+
+     10 Set the parameters as shown.
+
+     11 Select the Contour Wall page.
+     12 Enter the parameters as shown.
+     13 Select the Linking Parameters
+
+           page.
+
+DYNAMIC MILLING
+                                             CREATING A CONTOUR TOOLPATH 65
+
+14 Enter -10.0 mm for the Depth.
+      Ensure that it is set to Incremental.
+
+15 Click OK to generate the Dynamic Contour toolpath. Shading has been
+      disabled to make the tool motion more apparent.
+
+     16 Click Only display selected toolpaths in the Toolpaths Manager, if it is not
+           already selected.
+
+     17 Save your part file.
+
+Exercise 3: Creating a Contour Toolpath
+
+      1 From the Mastercam menu, choose
+           Toolpaths, Contour.
+           The Chaining dialog box displays.
+
+                                                                                                                             DYNAMIC MILLING
+66 MASTERCAM X8/ Dynamic Contour Toolpath
+
+       2 Click Last in the Chaining dialog .
+           box, then click OK.
+           The 2D Toolpaths - Contour dialog
+           box displays.
+
+       3 Select the Cut Parameters page.
+       4 Deselect Infinite look ahead.
+
+       5 Select the Depth Cuts page.
+       6 Click the Depth cuts checkbox and
+
+           set the Max rough step to 5.0 mm.
+
+       7 Select the Multi Passes page.
+       8 Click the Multi Passes checkbox
+
+           and enter the values shown.
+           Multi Passes are used for this part to
+           avoid burying the tool in the four
+           concave sections of the contour.
+
+       9 Select the Linking Parameters
+           page.
+
+DYNAMIC MILLING
+                                               COMPARING THE OPERATIONS 67
+
+10 Enter -10.0 mm for the Depth.
+
+11 Click OK to generate the Contour toolpath.
+
+           Immediately you can see unnecessary tool motion around the outer edge of
+           the part. The multi passes that are needed to avoid tool burial in the concave
+           sections generate extra passes on the external edges. You can get around this
+           by creating operations to remove material in the concave sections before
+           generating a simpler contour operation. However, the overall machining time,
+           as well as programming time, exceeds that of the Dynamic Contour operation.
+     12 Save your part file.
+
+Exercise 4: Comparing the Operations
+
+      1 Select operation 1 in the Toolpaths
+           Manager.
+
+      2 Press [F3] to refresh the graphics display if necessary.
+      3 Click Backplot selected operations in the Toolpaths Manager.
+      4 Click Play to review the tool motion for the Dynamic Contour operation.
+
+                                                                                                                             DYNAMIC MILLING
+68 MASTERCAM X8/ Dynamic Contour Toolpath
+
+       5 If necessary, click Expand in the upper left corner of the Backplot dialog box.
+       6 Select the Info tab in the lower half
+
+           of the expanded Backplot dialog
+           box.
+
+       7 Click OK to close the Backplot dialog box.
+       8 Select operation 2 in the Toolpaths
+
+           Manager.
+
+       9 Press [F3] to refresh the graphics display if necessary.
+     10 Click Backplot selected operations.
+     11 Click Play to review the tool motion for the Pocket operation.
+     12 Select the Info tab in the lower half
+
+           of the expanded Backplot dialog
+           box.
+
+Once again you should edit the parameters for the contour operation to match your
+machine's capabilities. The standard contour operation has a shorter runtime without
+multi passes. If your machine, part material, and tooling allow for full tool burial then
+that may be a better option for your toolpath. Dynamic contour is the more efficient
+selection for parts containing pinched areas and small radii.
+
+DYNAMIC MILLING
+                                                                                                              MASTERCAM RESOURCES 69
+
+Conclusion
+
+Congratulations! You have completed the Dynamic Milling tutorial. Now that you have
+mastered the skills in this tutorial, explore Mastercam's other features and functions.
+
+You may be interested in other tutorials that we offer. The Mastercam tutorial series is
+in continual development, and we will add modules as we complete them. For infor-
+mation and availability, please visit our website.
+
+Mastercam Resources
+
+Enhance your Mastercam experience by using the following resources:
+
+       Mastercam Help--Access Mastercam Help by selecting Help, Contents from
+           Mastercam's menu bar or by pressing [Alt+H] on your keyboard.Also, most
+           dialog boxes and ribbon bars feature a Help button that opens Mastercam
+           Help directly to related information.
+
+       Mastercam Reseller--Your local Mastercam Reseller can help with most
+           questions about Mastercam.
+
+       Technical Support--CNC Software's Technical Support department (860-875-
+           5006 or support@mastercam.com) is open Monday through Friday from 8:00
+           a.m. to 5:30 p.m. USA Eastern Standard Time.
+
+       Mastercam University--CNC Software sponsors Mastercam University, an
+           affordable online learning platform that gives you 24/7 access to Mastercam
+           training materials. Take advantage of more than 180 videos to master your
+           skills at your own pace and help prepare yourself for Mastercam Certification.
+           For more information on Mastercam University, please contact your
+           Authorized Mastercam Reseller, visit www.mastercamu.com, or email
+           training@mastercam.com.
+
+       Online communities-- You can find a wealth of information, including many
+           videos, at www.mastercam.com.
+           For tech tips and the latest Mastercam news, you can join us on Facebook
+           (www.facebook.com/mastercam), follow us on Twitter (www.twitter.com/
+          mastercam), and subscribe to our blog, Mastercam Xtras (http://
+           blog.mastercam.com). Visit our YouTube channel to see Mastercam in action
+           (www.youtube.com/user/MastercamCadCam)!
+
+           Registered users can search for information or ask questions on the
+           Mastercam Web forum, forum.mastercam.com, or use the knowledge base at
+           kb.mastercam.com. To register, select Help, Link on Mastercam.com from
+           the Mastercam menu and follow the instructions.
+
+                                                                                                                             DYNAMIC MILLING
+70 MASTERCAM X8/ Dynamic Contour Toolpath
+
+Mastercam Documentation
+
+Mastercam installs the following documents in the \Documentation folder of your
+Mastercam installation:
+
+       What's New in Mastercam X8
+       Mastercam X8 Installation Guide
+       Mastercam X8 Administrator Guide
+       Mastercam X8 Transition Guide
+       Mastercam X8 Quick Reference Card
+       Mastercam X8 Post Debugger User's Guide
+       Getting Started with Renishaw Productivity+TM
+       Mastercam X8 ReadMe
+
+Contact Us
+
+For questions about this or other Mastercam documentation, contact the Technical
+Documentation department by email at techdocs@mastercam.com.
+
+DYNAMIC MILLING
+MASTERCAM DOCUMENTATION 71
+                        DYNAMIC MILLING
+72 MASTERCAM X8/ Dynamic Contour Toolpath
+DYNAMIC MILLING
+                   Attention! Updates may be available.
+      Go to Mastercam.com/Support for the latest downloads.
+
+671 Old Post Road
+Tolland, CT 06084 USA
+www.mastercam.com
+

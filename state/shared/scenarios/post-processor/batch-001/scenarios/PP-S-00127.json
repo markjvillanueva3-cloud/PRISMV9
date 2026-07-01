@@ -1,0 +1,71 @@
+{
+  "id": "PP-S-00127",
+  "schemaVersion": "1.0.0",
+  "controller": {
+    "id": "heidenhain-itnc640",
+    "vendor": "Heidenhain",
+    "family": "iTNC 640",
+    "dialect": "heidenhain"
+  },
+  "operation": "boring",
+  "cycle": "bore-precision",
+  "axis_count": 5,
+  "material": {
+    "id": "K-GG25",
+    "group": "K",
+    "name": "grey cast iron"
+  },
+  "envelope": {
+    "id": "large",
+    "x_mm": 1626,
+    "y_mm": 813,
+    "z_mm": 762
+  },
+  "geometry": {
+    "depth_mm": 190.02,
+    "diameter_mm": 9.84,
+    "pitch_mm": null,
+    "rapid_z_mm": 38.5
+  },
+  "dialect_features": [
+    "canned-cycle",
+    "probing"
+  ],
+  "expected_gcode_shape": {
+    "lines_min": 70,
+    "lines_max": 200,
+    "must_contain": [
+      "BEGIN PGM",
+      "END PGM",
+      "L M3",
+      "M128"
+    ],
+    "must_not_contain": [
+      "G54",
+      "G90",
+      "G81",
+      "G83"
+    ]
+  },
+  "safety_tier": "shop_floor",
+  "omega_floor": 0.98,
+  "sx_floor": 0.98,
+  "validation": {
+    "oracle": "master_post_generate",
+    "controller_profile_check": "master_post_get_controller_profile",
+    "dialect_features_check": "dialect_features",
+    "pass_criteria": "shape_match AND dialect_correct AND validation_pass AND omega_meets_floor",
+    "reject_on": [
+      "textual-cross-map",
+      "missing-dialect-resolve",
+      "softened-master-post-threshold"
+    ]
+  },
+  "metadata": {
+    "generatedAt": "2026-05-25T00:00:26.728Z",
+    "generator": "generate-post-processor-scenarios.mjs",
+    "slot_owner": "india",
+    "milestone": "PRISM-LAUNCH-READINESS-MS0",
+    "unit": "P0-U06"
+  }
+}

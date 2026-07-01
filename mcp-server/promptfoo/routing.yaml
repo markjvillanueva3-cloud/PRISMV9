@@ -1,0 +1,293 @@
+# PRISM MCP Server — Dispatcher Routing Evaluation (standalone)
+# Verifies that the LLM correctly routes natural language machinist queries
+# to the appropriate PRISM dispatcher actions.
+#
+# Run:   npx promptfoo eval --config routing.yaml
+# View:  npx promptfoo view
+#
+# Requires ANTHROPIC_API_KEY environment variable.
+# Metric target: >=90% pass rate across all 30 test cases.
+
+description: "PRISM Dispatcher Routing Evaluation — 30 canonical machinist queries"
+
+providers:
+  - id: anthropic:messages:claude-sonnet-4-20250514
+    config:
+      temperature: 0
+      max_tokens: 512
+      system: |
+        You are PRISM, a CNC machining assistant. Given a machinist query,
+        respond with a JSON object identifying the correct dispatcher action
+        and extracted parameters. Format:
+        {
+          "action": "<dispatcher_action_name>",
+          "dispatcher": "<dispatcher_name>",
+          "params": { "<key>": "<value>" }
+        }
+
+        Available top-level actions include (not exhaustive):
+        sf_orchestrate, sf_quick, kienzle_force, cnc_simulate,
+        cnc_simulate_physics, cnc_simulate_predictive, playbook_query,
+        quote_estimate, tool_catalog_search, tool_unified_search,
+        feasibility_full_analysis, feasibility_quick_check,
+        post_process, post_verify, tool_wear_compensate,
+        stability_lobe_diagram, machine_match, material_lookup,
+        gdt_stackup, process_capability_predict, coolant_strategy_select.
+
+prompts:
+  - id: machinist-query
+    raw: "{{query}}"
+
+defaultTest:
+  assert:
+    - type: is-json
+      description: "Response must be valid JSON"
+
+tests:
+  # ---- Speed / Feed Orchestration (calcDispatcher / sfDispatcher) ----
+  - description: "sf_orchestrate: aluminum milling"
+    vars:
+      query: "Calculate speed and feed for milling 6061 aluminum with a 0.5 inch 4-flute carbide end mill at 600 SFM"
+    assert:
+      - type: javascript
+        value: "JSON.parse(output).action.includes('sf_orchestrate') || JSON.parse(output).action.includes('sf_')"
+      - type: javascript
+        value: "JSON.parse(output).params && (JSON.parse(output).params.material?.includes('6061') || JSON.parse(output).params.material?.includes('aluminum'))"
+
+  - description: "sf_orchestrate: stainless turning"
+    vars:
+      query: "Speed and feed for turning 316L stainless with CNMG432 insert at 200 SFM, 0.010 IPR"
+    assert:
+      - type: javascript
+        value: "JSON.parse(output).action.includes('sf_orchestrate') || JSON.parse(output).action.includes('sf_')"
+      - type: javascript
+        value: "JSON.parse(output).params && (JSON.parse(output).params.sfm === 200 || JSON.parse(output).params.surface_speed === 200 || JSON.parse(output).params.sfm === '200')"
+
+  - description: "sf_quick: quick feed estimate"
+    vars:
+      query: "Quick feed rate estimate: 3/8 ball end mill, 7075 aluminum, 800 SFM"
+    assert:
+      - type: javascript
+        value: "JSON.parse(output).action.includes('sf_')"
+      - type: javascript
+        value: "JSON.parse(output).params !== undefined"
+
+  # ---- Kienzle Cutting Force ----
+  - description: "kienzle_force: 4140 steel"
+    vars:
+      query: "Cutting force for 4140 steel milling, chip thickness h=0.005 inch, width b=0.3 inch"
+    assert:
+      - type: javascript
+        value: "JSON.parse(output).action.includes('kienzle')"
+      - type: javascript
+        value: "JSON.parse(output).params && (JSON.parse(output).params.material?.includes('4140') || JSON.parse(output).params.material?.includes('steel'))"
+
+  - description: "kienzle_force: cast iron"
+    vars:
+      query: "Kienzle force model for gray cast iron GG25: ap=3mm, fz=0.1mm/tooth, kc1.1=1350"
+    assert:
+      - type: javascript
+        value: "JSON.parse(output).action.includes('kienzle')"
+
+  # ---- CNC Simulation ----
+  - description: "cnc_simulate: G-code safety check"
+    vars:
+      query: "Simulate and safety-check this G-code block for my Haas VF-3: G43 H1 Z50, G0 X10 Y10, G1 Z-5 F100"
+    assert:
+      - type: javascript
+        value: "JSON.parse(output).action.includes('cnc_simulate')"
+      - type: javascript
+        value: "JSON.parse(output).params && (JSON.parse(output).params.machine?.toLowerCase().includes('haas') || JSON.parse(output).params.controller?.toLowerCase().includes('haas'))"
+
+  - description: "cnc_simulate_physics: force and wear prediction"
+    vars:
+      query: "Physics simulation of titanium pocket milling: predict cutting forces, thermal load, and tool wear per pass"
+    assert:
+      - type: javascript
+        value: "JSON.parse(output).action.includes('cnc_simulate')"
+      - type: javascript
+        value: "JSON.parse(output).params && JSON.parse(output).params.material?.toLowerCase().includes('titan')"
+
+  - description: "cnc_simulate_predictive: batch optimization"
+    vars:
+      query: "Predictive simulation for a batch of 200 Inconel parts — optimize tool change intervals and minimize cost per part"
+    assert:
+      - type: javascript
+        value: "JSON.parse(output).action.includes('cnc_simulate')"
+
+  # ---- Machining Playbook ----
+  - description: "playbook_query: chatter suppression"
+    vars:
+      query: "Playbook rules for suppressing chatter when face milling Inconel 718 at high speeds"
+    assert:
+      - type: javascript
+        value: "JSON.parse(output).action.includes('playbook')"
+      - type: javascript
+        value: "JSON.parse(output).params && (JSON.parse(output).params.material?.toLowerCase().includes('inconel') || JSON.parse(output).params.operation?.toLowerCase().includes('mill'))"
+
+  - description: "playbook_query: hard turning"
+    vars:
+      query: "Best machining rules for hard turning D2 tool steel at 62 HRC with CBN inserts"
+    assert:
+      - type: javascript
+        value: "JSON.parse(output).action.includes('playbook')"
+      - type: javascript
+        value: "JSON.parse(output).params !== undefined"
+
+  - description: "playbook_query: deep hole drilling"
+    vars:
+      query: "Rules for gun drilling a 0.2 inch hole 8 inches deep (40:1 aspect ratio) in 17-4 PH stainless"
+    assert:
+      - type: javascript
+        value: "JSON.parse(output).action.includes('playbook')"
+
+  # ---- Quote Estimation ----
+  - description: "quote_estimate: steel batch"
+    vars:
+      query: "Estimate machining cost for 100 parts from 4140 steel, 90 minute cycle time, Haas UMC-750 3+2 setup"
+    assert:
+      - type: javascript
+        value: "JSON.parse(output).action.includes('quote')"
+      - type: javascript
+        value: "JSON.parse(output).params && (JSON.parse(output).params.quantity === 100 || JSON.parse(output).params.batch_size === 100 || JSON.parse(output).params.quantity === '100')"
+
+  - description: "quote_estimate: aluminum aerospace"
+    vars:
+      query: "Quote 500 aluminum 6061-T6 aerospace brackets, 30 minute cycle, 2 setups, $85/hr machine rate"
+    assert:
+      - type: javascript
+        value: "JSON.parse(output).action.includes('quote')"
+      - type: javascript
+        value: "JSON.parse(output).params && (JSON.parse(output).params.machine_rate === 85 || JSON.parse(output).params.machine_rate === '85' || JSON.parse(output).params.hourly_rate === 85)"
+
+  # ---- Tool Catalog Search ----
+  - description: "tool_catalog_search: carbide end mill"
+    vars:
+      query: "Find a 0.5 inch 4-flute carbide end mill with AlTiN coating from Kennametal or OSG for steel"
+    assert:
+      - type: javascript
+        value: "JSON.parse(output).action.includes('tool') && (JSON.parse(output).action.includes('search') || JSON.parse(output).action.includes('catalog'))"
+      - type: javascript
+        value: "JSON.parse(output).params && (JSON.parse(output).params.manufacturer?.toLowerCase().includes('kennametal') || JSON.parse(output).params.coating?.toLowerCase().includes('altin'))"
+
+  - description: "tool_catalog_search: CBN insert"
+    vars:
+      query: "Search for CBN turning inserts for hardened steel, CNMG or TNMG geometry, from Kennametal"
+    assert:
+      - type: javascript
+        value: "JSON.parse(output).action.includes('tool') && JSON.parse(output).action.includes('search')"
+      - type: javascript
+        value: "JSON.parse(output).params && (JSON.parse(output).params.material?.toLowerCase().includes('cbn') || JSON.parse(output).params.type?.toLowerCase().includes('insert'))"
+
+  - description: "tool_unified_search: holder and tool combo"
+    vars:
+      query: "I need a complete tooling setup: BT40 shrink fit holder plus a 10mm carbide 4-flute end mill for titanium"
+    assert:
+      - type: javascript
+        value: "JSON.parse(output).action.includes('tool')"
+      - type: javascript
+        value: "JSON.parse(output).params !== undefined"
+
+  # ---- Feasibility Analysis ----
+  - description: "feasibility_full_analysis: thin wall"
+    vars:
+      query: "Full feasibility check: can I machine a 1mm thick wall 80mm tall in aluminum from a solid billet?"
+    assert:
+      - type: javascript
+        value: "JSON.parse(output).action.includes('feasibility')"
+      - type: javascript
+        value: "JSON.parse(output).params && (JSON.parse(output).params.material?.toLowerCase().includes('aluminum') || JSON.parse(output).params.wall_thickness === 1)"
+
+  - description: "feasibility_full_analysis: deep pocket accessibility"
+    vars:
+      query: "Feasibility analysis for a 5 inch deep pocket 1 inch wide in 17-4 PH stainless — can standard tooling reach?"
+    assert:
+      - type: javascript
+        value: "JSON.parse(output).action.includes('feasibility')"
+
+  - description: "feasibility_quick_check: rapid viability"
+    vars:
+      query: "Quick feasibility: 0.5mm micro-milling in titanium with a 0.3mm micro end mill, is it viable?"
+    assert:
+      - type: javascript
+        value: "JSON.parse(output).action.includes('feasibility')"
+
+  # ---- G-code Post Processing ----
+  - description: "post_process: Fanuc 30i"
+    vars:
+      query: "Post-process my roughing toolpath for Fanuc 30i-B with look-ahead G05.1 Q1 and metric units"
+    assert:
+      - type: javascript
+        value: "JSON.parse(output).action.includes('post')"
+      - type: javascript
+        value: "JSON.parse(output).params && (JSON.parse(output).params.controller?.toLowerCase().includes('fanuc') || JSON.parse(output).params.dialect?.toLowerCase().includes('fanuc'))"
+
+  - description: "post_process: Heidenhain TNC640"
+    vars:
+      query: "Generate Heidenhain TNC640 compatible output from my 5-axis toolpath with TCPM and M128"
+    assert:
+      - type: javascript
+        value: "JSON.parse(output).action.includes('post')"
+      - type: javascript
+        value: "JSON.parse(output).params && (JSON.parse(output).params.controller?.toLowerCase().includes('heidenhain') || JSON.parse(output).params.dialect?.toLowerCase().includes('tnc'))"
+
+  - description: "post_verify: G-code safety verification"
+    vars:
+      query: "Verify my G-code program for safety issues: check feeds, speeds, travel limits, and missing tool length compensation"
+    assert:
+      - type: javascript
+        value: "JSON.parse(output).action.includes('post') || JSON.parse(output).action.includes('verify') || JSON.parse(output).action.includes('safe')"
+
+  # ---- Additional dispatchers ----
+  - description: "stability_lobe_diagram: chatter-free RPM"
+    vars:
+      query: "Stability lobe diagram for my 4-flute 20mm end mill, natural frequency 800 Hz, damping ratio 0.03"
+    assert:
+      - type: javascript
+        value: "JSON.parse(output).action.includes('stability') || JSON.parse(output).action.includes('lobe') || JSON.parse(output).action.includes('chatter')"
+
+  - description: "material_lookup: titanium grade"
+    vars:
+      query: "Material properties for Ti-6Al-4V Grade 5: hardness, tensile strength, machinability index, kc1.1 value"
+    assert:
+      - type: javascript
+        value: "JSON.parse(output).action.includes('material')"
+      - type: javascript
+        value: "JSON.parse(output).params && (JSON.parse(output).params.material?.toLowerCase().includes('ti-6') || JSON.parse(output).params.material?.toLowerCase().includes('grade 5'))"
+
+  - description: "gdt_stackup: assembly tolerance"
+    vars:
+      query: "GD&T tolerance stackup for 4-part linear assembly, each part ±0.002 inch flatness, worst-case and RSS"
+    assert:
+      - type: javascript
+        value: "JSON.parse(output).action.includes('gdt') || JSON.parse(output).action.includes('stackup') || JSON.parse(output).action.includes('tolerance')"
+
+  - description: "process_capability_predict: bore Cpk"
+    vars:
+      query: "Predict Cpk for holding 50.000 +0.000/-0.025mm bore in production with our Mazak Integrex"
+    assert:
+      - type: javascript
+        value: "JSON.parse(output).action.includes('cpk') || JSON.parse(output).action.includes('capabilit') || JSON.parse(output).action.includes('process')"
+
+  - description: "coolant_strategy_select: titanium HSM"
+    vars:
+      query: "Best coolant strategy for high-speed machining Ti-6Al-4V at 400 SFM — flood, MQL, or cryogenic?"
+    assert:
+      - type: javascript
+        value: "JSON.parse(output).action.includes('coolant')"
+      - type: javascript
+        value: "JSON.parse(output).params && JSON.parse(output).params.material?.toLowerCase().includes('ti')"
+
+  - description: "machine_match: 5-axis machine selection"
+    vars:
+      query: "Which 5-axis machine in our shop suits a 500x400x300mm aerospace titanium part requiring 0.01mm accuracy?"
+    assert:
+      - type: javascript
+        value: "JSON.parse(output).action.includes('machine') || JSON.parse(output).action.includes('match')"
+
+  - description: "tool_wear_compensate: wear offset update"
+    vars:
+      query: "My tool has worn 0.015mm on diameter — calculate the wear compensation offset for my finishing pass"
+    assert:
+      - type: javascript
+        value: "JSON.parse(output).action.includes('wear') || JSON.parse(output).action.includes('compensat')"

@@ -82,6 +82,30 @@ describe("FCFSyntaxValidatorEngine", () => {
     expect(r.issues.some((x) => x.code === "MISSING_DATUM")).toBe(true);
   });
 
+  it("flags concentricity without datum (datum-requiring location control, ASME Y14.5)", () => {
+    const r = fcfSyntaxValidatorEngine.validate({
+      fcf: makeFCF({ symbol: "concentricity", datums: [] }),
+    });
+    expect(r.valid).toBe(false);
+    expect(r.issues.some((x) => x.code === "MISSING_DATUM")).toBe(true);
+  });
+
+  it("flags symmetry without datum (datum-requiring location control)", () => {
+    const r = fcfSyntaxValidatorEngine.validate({
+      fcf: makeFCF({ symbol: "symmetry", datums: [] }),
+    });
+    expect(r.valid).toBe(false);
+    expect(r.issues.some((x) => x.code === "MISSING_DATUM")).toBe(true);
+  });
+
+  it("concentricity WITH a datum does NOT raise MISSING_DATUM (only the deprecation warning)", () => {
+    const r = fcfSyntaxValidatorEngine.validate({
+      fcf: makeFCF({ symbol: "concentricity", datums: [{ label: "A" }] }),
+    });
+    expect(r.issues.some((x) => x.code === "MISSING_DATUM")).toBe(false);
+    expect(r.issues.some((x) => x.code === "DEPRECATED_SYMBOL")).toBe(true);
+  });
+
   it("detects duplicate datum reference", () => {
     const r = fcfSyntaxValidatorEngine.validate({
       fcf: makeFCF({

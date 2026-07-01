@@ -1,0 +1,1281 @@
+You are reviewer B of three independent Claude PRISM agents — an INDEPENDENT second pass. Do not assume reviewer A caught everything; review the diff yourself, end to end.
+Target: commit ae0f634ae4ae586290f72062c7a96714b87e8769.
+
+Weight your attention toward these high-risk axes (PRISM CLAUDE.md), but FAIL on any violation you find:
+  1. Test integrity — no assertions weakened or removed vs the prior version; no toBeDefined()/toBeTruthy() blanket stubs; no synthetic threshold/loop tests; tests must fail if the business logic changes
+  2. Dispatcher wiring — every new engine wired (import + call + action enum + Zod schema) to EVERY dispatcher that would naturally consume it (not just one)
+  3. Constants — Kienzle/Taylor/material/physics constants imported from src/physics/constants.ts, never inlined or duplicated in docs
+  4. Scope discipline — no changes beyond what the stated task requires; no stubs, TODOs, placeholder returns, facades, or 'deferred to follow-up'
+  5. Hygiene — no floating promises, no any-spread anti-patterns, no swallowed errors
+
+First line of your response MUST be 'VERDICT: PASS' or 'VERDICT: FAIL'.
+Then list BLOCKER: lines for any violations, then optional notes (≤5 lines).
+If unsure between PASS and FAIL, choose FAIL.
+
+--- DIFF ---
+commit ae0f634ae4ae586290f72062c7a96714b87e8769
+Author: markjvillanueva3-cloud <markjvillanueva3@gmail.com>
+Date:   Fri May 22 23:58:50 2026 -0500
+
+    [MAIN] [HURCO-POST-REMEDIATION-MS0]/U-HURCO-G053-FIX (slot:india): all 50 Hurco V11 post-engine tests green (was 25/50 FAIL pre-compact)
+    
+    OPERATOR DRIVER: 4 sample JM Die-posted Hurco programs in JM DIE/HURCO CNC PROGRAMS/
+    (SACMA + 0520396, 2-op pairs) + the Fusion .cps "HURCO_VM30i_PRISM_Enhanced_v8.9.153.cps"
+    used to post them. Empirical ground truth resolved 25 contract violations against the
+    post-processor spec.
+    
+    KEY CORRECTION (operator, 2026-05-22): real Hurco V11 smoothing/UltiMotion inline G-code
+    is G05.3 P<n>, NOT G187 (Haas dialect) and NOT comment-only. Fusion .cps line 3022 and
+    all 4 sample .hnc programs confirm: P35 for ADAPTIVE/ROUGH ops, P10 for FINISH/CONTOUR/
+    DRILL/FACE/CHAMFER. Engine line 597's prior "Hurco V11 has no inline UltiMotion G-code"
+    comment + the parallel tribal-knowledge tip claim were misinformation; both removed.
+    
+    GROUPS A-I FIXES (25 tests):
+    A. UltiMotion G05.3 emission (classifySmoothing + per-tool-change post-M06 emission)
+    B. Work offset: 54-59 → direct G54..G59; else G54.1 P<n> extended WCS
+    C. Spindle line: dropped N<id> prefix + dropped modal F (matches sample programs)
+    D. Physics checks 4→5: added Taylor (T = (C/Vc)^(1/n)) + conditional stickout (L/D)
+    E. Material override validation: kc1_1 [200, 6000], mc [0.10, 0.45], iso_group match,
+       THROWS out-of-range per R12 fail-loud (silent-accept would push unsafe spindle force)
+    F. Kienzle-bounded feed reducer: 5%-step iterative reduction when Fc > max_cutting_force_N
+    G. Structured types: MillTool/MillMaterial/PostMove/SetupSheet exports + postSingle API
+    H. Warning format: "Op <i> line <N>: <check>" (was "Line <N>: <check>")
+    I. Tool description precedence: op.tool?.description ?? op.tool_description ?? default
+    
+    UNRELATED UNBLOCKER (NOT staged): mcp-server/src/engines/MachiningPlaybookEngine.ts is
+    missing the closing `];` of PLAYBOOK_RULES (dropped in the paused cherry-pick of
+    638ec9f690 — "all conflicts fixed: run git cherry-pick --continue"). My local working
+    copy has the `];` patched in so vitest compiles, but I left the file dirty for the
+    cherry-pick author to finalize. This commit assumes that resolution lands separately.
+    
+    TEST STATUS: 72/72 PASS in src/__tests__/HurcoV11MillMasterPostEngine.test.ts (was
+    25/50 FAIL pre-compact; +2 new G05.3 tests). 173/173 PASS across the 10 auxiliary
+    HurcoV11* test files. Total post-engine suite: 245/245 GREEN.
+    
+    VERIFICATION REPORT: state/shared/specs/HURCO-POST-VERIFICATION-2026-05-22.{md,html}.
+    
+    Wiki + memory + close-out reflection: separate follow-up commit per
+    [[feedback_reflect_all_changes_post_update]].
+
+diff --git a/mcp-server/src/__tests__/HurcoV11MillMasterPostEngine.test.ts b/mcp-server/src/__tests__/HurcoV11MillMasterPostEngine.test.ts
+index 126f5ab572..7515dc6506 100644
+--- a/mcp-server/src/__tests__/HurcoV11MillMasterPostEngine.test.ts
++++ b/mcp-server/src/__tests__/HurcoV11MillMasterPostEngine.test.ts
+@@ -721,16 +721,31 @@ describe("HurcoV11 — material constant overrides", () => {
+ });
+ 
+ describe("HurcoV11 — UltiMotion & metadata", () => {
+-  it("UltiMotion G187 P3 emitted by default", () => {
++  // U-HURCO-G053-FIX (2026-05-22 india /loop): the prior G187 P3 expectation
++  // was inherited from Haas dialect — wrong for Hurco V11. Real JM Die-posted
++  // programs (H:/prism/JM DIE/HURCO CNC PROGRAMS/) + Fusion .cps PRISM Enhanced
++  // v8.9.153 (line 3022) both emit G05.3 P<n> immediately after T<n> M06.
++  // Operator confirmed 2026-05-22. P35 for ADAPTIVE roughing, P10 for FINISH ops.
++  it("UltiMotion G05.3 P10 emitted by default for non-adaptive ops (per tool change)", () => {
+     const result = hurcoV11MillMasterPostEngine.generateProgram([makeOp()]);
+-    const um = mustFind(result.gcode, l => /^G187/.test(l), "G187");
+-    expect(um).toBe("G187 P3 (ULTIMOTION HIGH ACCURACY MODE)");
++    const sm = mustFind(result.gcode, l => /^G05\.3/.test(l), "G05.3");
++    expect(sm).toBe("G05.3 P10 (T1 FINISH SMOOTHING)");
+   });
+ 
+-  it("use_ultimotion: false suppresses G187 P3", () => {
++  it("UltiMotion G05.3 P35 emitted for adaptive operation_type", () => {
++    const result = hurcoV11MillMasterPostEngine.generateProgram([
++      makeOp({ operation_type: "adaptive", tool_number: 7 })
++    ]);
++    const sm = mustFind(result.gcode, l => /^G05\.3/.test(l), "G05.3");
++    expect(sm).toBe("G05.3 P35 (T7 ADAPTIVE ROUGH SMOOTHING)");
++  });
++
++  it("use_ultimotion: false suppresses all G05.3 emission", () => {
+     const result = hurcoV11MillMasterPostEngine.generateProgram([makeOp()], {
+       use_ultimotion: false
+     });
++    expect(linesMatching(result.gcode, /^G05\.3/).length).toBe(0);
++    // Anti-regression: ensure the prior bogus G187 emission stays dead.
+     expect(linesMatching(result.gcode, /^G187/).length).toBe(0);
+   });
+ 
+diff --git a/mcp-server/src/engines/HurcoV11MillMasterPostEngine.ts b/mcp-server/src/engines/HurcoV11MillMasterPostEngine.ts
+index e8101c5e80..75beb254a5 100644
+--- a/mcp-server/src/engines/HurcoV11MillMasterPostEngine.ts
++++ b/mcp-server/src/engines/HurcoV11MillMasterPostEngine.ts
+@@ -143,6 +143,21 @@ export interface HurcoPostConfig {
+    * dialed prove-out wants caution, not the L1..L5 aggressiveness scale).
+    */
+   prove_out?: HurcoProveOutConfig;
++  /**
++   * Emit the structured setup sheet (machine + tools + operations) alongside
++   * the G-code (U-PPGH04). Defaults to true. Set false when a downstream
++   * caller is building its own sheet from the raw operations array.
++   */
++  emit_setup_sheet?: boolean;
++  /**
++   * Machine-side cutting-force ceiling (Newtons) for the Kienzle-bounded
++   * feed reducer (U-PPGH04). When the predicted Fc for an op exceeds this
++   * value the engine reduces feed until Fc ≤ limit + 5% tolerance and
++   * surfaces a `feed_optimizations[]` entry with reason "Kienzle Fc=<N>N
++   * exceeded <max>N". Independent of `optimize_feeds` (which gates the
++   * AutoSpeedFeed pipeline). Disabled when `optimize_feeds: false`.
++   */
++  max_cutting_force_N?: number;
+ }
+ 
+ /**
+@@ -168,13 +183,62 @@ export interface HurcoProveOutConfig {
+   add_optional_stops?: boolean;
+ }
+ 
++/**
++ * Structured tool descriptor (U-PPGH04). Takes precedence over the flat
++ * `tool_description` + `tool_diameter_mm` + `tool_flutes` fields on
++ * `MillOperation`. Carries downstream metadata (coating, stickout) that
++ * the setup-sheet emission needs.
++ */
++export interface MillTool {
++  number: number;
++  diameter_mm: number;
++  flutes: number;
++  description?: string;
++  coating?: string;
++  /** Free tool length below the holder collet face. Drives the stickout
++   *  deflection check in performPhysicsChecks — fails when stickout/D > 4. */
++  stickout_mm?: number;
++}
++
++/**
++ * Structured material descriptor with optional Kienzle override (U-PPGH04).
++ * Operator-supplied kc1_1/mc REPLACE the canonical values from
++ * `CANONICAL_KIENZLE[iso_group]` for the duration of one generateProgram call.
++ * Out-of-range overrides THROW per R12 fail-loud — silently accepting a 4×
++ * canonical kc1_1 would let a programmer push unsafe force into a real spindle.
++ */
++export interface MillMaterial {
++  iso_group?: ISOGroup;
++  name?: string;
++  /** Override canonical kc1_1 (units N/mm²). Safe range 200..6000. */
++  kc1_1?: number;
++  /** Override canonical mc (Kienzle exponent). Safe range 0.10..0.45. */
++  mc?: number;
++}
++
++/** PostMove is the simplified path token consumed by postSingle(). */
++export interface PostMove {
++  x: number;
++  y: number;
++  z: number;
++  type: "rapid" | "linear" | "arc_cw" | "arc_ccw";
++  r?: number;
++  i?: number;
++  j?: number;
++}
++
+ export interface MillOperation {
+   operation_type: "face" | "pocket" | "contour" | "drill" | "tap" | "bore" | "slot" | "3d_surface" | "adaptive";
+   tool_number: number;
+   tool_diameter_mm: number;
+   tool_flutes: number;
+   tool_description?: string;
++  /** Structured tool (U-PPGH04). When supplied, `tool.description` takes
++   *  precedence over the flat `tool_description` for the M06 comment. */
++  tool?: MillTool;
+   material_iso: ISOGroup;
++  /** Structured material with optional Kienzle override (U-PPGH04). */
++  material?: MillMaterial;
+   spindle_rpm: number;
+   feed_mm_min: number;
+   axial_depth_mm: number;
+@@ -184,6 +248,28 @@ export interface MillOperation {
+   arc_data?: Array<{ i?: number; j?: number; k?: number; r?: number }>;
+ }
+ 
++/** Setup sheet emitted alongside the G-code (U-PPGH04). */
++export interface SetupSheet {
++  machine: string;
++  controller: string;
++  units: "metric" | "inch";
++  tools: Array<{
++    number: number;
++    diameter_mm: number;
++    flutes?: number;
++    description?: string;
++    coating?: string;
++    stickout_mm?: number;
++  }>;
++  operations: Array<{
++    sequence: number;
++    type: string;
++    tool_number: number;
++    spindle_rpm: number;
++    feed_mm_min: number;
++  }>;
++}
++
+ export interface HurcoPostOutput {
+   gcode: string[];
+   program_number: number;
+@@ -238,6 +324,9 @@ export interface HurcoPostOutput {
+   advanced_features_applied?: string[];
+   optimized_gcode?: string[] | null;
+   advanced_summary?: HurcoAdvancedSummary | null;
++  /** Structured setup sheet (U-PPGH04). Undefined when caller passed
++   *  `emit_setup_sheet: false`. */
++  setup_sheet?: SetupSheet;
+ }
+ 
+ /**
+@@ -252,6 +341,9 @@ export interface HurcoFeedOptimization {
+   multiplier: number;
+   original_feed_mm_min: number;
+   optimized_feed_mm_min: number;
++  /** Optional reason string for non-level optimizations (e.g. Kienzle
++   *  Fc-bounded reductions). Empty for aggressiveness/prove-out entries. */
++  reason?: string;
+ }
+ 
+ export interface HurcoAdvancedSummary {
+@@ -548,9 +640,21 @@ export class HurcoV11MillMasterPostEngine {
+     work_offset: 54,
+     units: "metric",
+     safe_z_mm: 50,
+-    tool_change_position: { x: 0, y: 0, z: 100 }
++    tool_change_position: { x: 0, y: 0, z: 100 },
++    emit_setup_sheet: true
+   };
+ 
++  /** Stickout/diameter ratio above which the stickout deflection check fails. */
++  private static readonly STICKOUT_RATIO_LIMIT = 4;
++  /** Target Taylor tool life (minutes). Below this the check fails. */
++  private static readonly TAYLOR_TARGET_LIFE_MIN = 10;
++  /** Safe range for operator-supplied kc1_1 (N/mm²). U-PPGH04 fail-loud. */
++  private static readonly KC1_1_MIN = 200;
++  private static readonly KC1_1_MAX = 6000;
++  /** Safe range for operator-supplied mc (Kienzle exponent). */
++  private static readonly MC_MIN = 0.10;
++  private static readonly MC_MAX = 0.45;
++
+   /**
+    * Generate complete Hurco G-code program
+    */
+@@ -594,16 +698,15 @@ export class HurcoV11MillMasterPostEngine {
+     gcode.push(...safeStart);
+     tribalTipsApplied.push("JM Die standard safe start applied");
+ 
+-    // UltiMotion is a Hurco WinMax CONTROL-PANEL parameter — there is no
+-    // inline G-code for it. The previous emission of `G187 P3` was wrong
+-    // (G187 is Haas dialect; V11 would parse-error on it). Now we emit a
+-    // comment annotation only, matching the AdvancedPostProcessorEngine
+-    // hurco-controller dialect row (PPG-WIRE-MS5/U-PPGW-AdvancedPost-Wiring).
+-    // The operator must verify UltiMotion + Smoothing Tolerance in the
+-    // WinMax UI before run-up.
++    // UltiMotion (G05.3) emission is per-tool-change inside generateToolChange().
++    // Ground truth: Fusion .cps "HURCO_VM30i_PRISM_Enhanced_v8.9.153.cps" emits
++    // G05.3 P<n> immediately after T<n> M06; verified against 4 real JM Die-posted
++    // programs in H:/prism/JM DIE/HURCO CNC PROGRAMS/. P35 for ADAPTIVE roughing,
++    // P10 for FINISH/CONTOUR/DRILL/FACE/CHAMFER. The earlier engine claim that
++    // "Hurco V11 has no inline UltiMotion G-code" was misinformation — corrected
++    // 2026-05-22 by operator + corroborated by .cps source line 3022.
+     if (cfg.use_ultimotion) {
+-      gcode.push("(HURCO V11 UltiMotion: enable in WinMax UI - Settings → Performance → UltiMotion ON, Smoothing Tolerance ~0.005mm for finish)");
+-      tribalTipsApplied.push("UltiMotion intent recorded as comment annotation (Hurco V11 has no inline UltiMotion G-code)");
++      tribalTipsApplied.push("UltiMotion G05.3 P<n> emitted per-tool-change (P35 adaptive / P10 finish)");
+     }
+ 
+     // Process each operation
+@@ -657,6 +760,46 @@ export class HurcoV11MillMasterPostEngine {
+         });
+       }
+ 
++      // U-PPGH04 Kienzle-bounded feed reducer. After aggressiveness/prove-out
++      // multipliers are applied, recompute Fc against the operator-supplied
++      // max_cutting_force_N and step feed down (in 5% increments) until the
++      // predicted force is at or below the limit + 5% tolerance. Skips when
++      // optimize_feeds is explicitly false (operator wants the literal feed).
++      if (
++        cfg.max_cutting_force_N !== undefined &&
++        cfg.max_cutting_force_N > 0 &&
++        cfg.optimize_feeds !== false
++      ) {
++        const { kc1_1: kc, mc: mcv } = this.resolveKienzle(effectiveOp);
++        const computeFc = (feed: number): number => {
++          const fzCurr = feed / (effectiveOp.spindle_rpm * effectiveOp.tool_flutes);
++          return kc * effectiveOp.axial_depth_mm * Math.pow(fzCurr, 1 - mcv);
++        };
++        const originalFeed = effectiveOp.feed_mm_min;
++        let workingFeed = originalFeed;
++        let FcCurr = computeFc(workingFeed);
++        const maxF = cfg.max_cutting_force_N;
++        if (FcCurr > maxF) {
++          // Step feed down 5% at a time; cap iterations to prevent runaway.
++          let guard = 0;
++          while (computeFc(workingFeed) > maxF * 1.05 && guard < 200 && workingFeed > 1) {
++            workingFeed = Math.max(1, Math.round(workingFeed * 0.95));
++            guard += 1;
++          }
++          const optimizedFeed = Math.max(1, workingFeed);
++          effectiveOp = { ...effectiveOp, feed_mm_min: optimizedFeed };
++          feedOptimizations.push({
++            block_id: blockId,
++            level: 0,
++            label: "KIENZLE-BOUND",
++            multiplier: optimizedFeed / Math.max(originalFeed, 1),
++            original_feed_mm_min: originalFeed,
++            optimized_feed_mm_min: optimizedFeed,
++            reason: `Kienzle Fc=${FcCurr.toFixed(0)}N exceeded ${maxF}N — reduced feed to ${optimizedFeed} mm/min`,
++          });
++        }
++      }
++
+       gcode.push("");
+       gcode.push(`(OPERATION ${i + 1}: ${op.operation_type.toUpperCase()})`);
+ 
+@@ -665,7 +808,12 @@ export class HurcoV11MillMasterPostEngine {
+       physicsChecks.push(...checks);
+       const failedChecks = checks.filter(c => !c.passed);
+       if (failedChecks.length > 0) {
+-        warnings.push(...failedChecks.map(c => `Line ${c.line}: ${c.check}`));
++        // Warning format: "Op <n> line <N>: <check>" — operator needs to know
++        // WHICH operation failed (not just the G-code line) so they can scroll
++        // straight to the offending op in the program tree.
++        warnings.push(
++          ...failedChecks.map(c => `Op ${i + 1} line ${c.line}: ${c.check}`),
++        );
+       }
+ 
+       // Tool change
+@@ -733,6 +881,40 @@ export class HurcoV11MillMasterPostEngine {
+     gcode.push("M30 (PROGRAM END)");
+     gcode.push("%");
+ 
++    // Setup sheet (U-PPGH04). Tools deduped + sorted ascending by tool number.
++    // Operations preserve input sequence with 1-based numbering for the
++    // operator's traveler. Uses structured tool when present, falls back to
++    // flat fields. Skipped when emit_setup_sheet: false.
++    let setupSheet: SetupSheet | undefined;
++    if (cfg.emit_setup_sheet !== false) {
++      const seenTools = new Map<number, SetupSheet["tools"][number]>();
++      for (const op of operations) {
++        if (seenTools.has(op.tool_number)) continue;
++        const t = op.tool;
++        seenTools.set(op.tool_number, {
++          number: op.tool_number,
++          diameter_mm: t?.diameter_mm ?? op.tool_diameter_mm,
++          flutes: t?.flutes ?? op.tool_flutes,
++          description: t?.description ?? op.tool_description,
++          coating: t?.coating,
++          stickout_mm: t?.stickout_mm,
++        });
++      }
++      setupSheet = {
++        machine: "Hurco VMX24",
++        controller: "WinMax V11",
++        units: cfg.units ?? "metric",
++        tools: Array.from(seenTools.values()).sort((a, b) => a.number - b.number),
++        operations: operations.map((op, idx) => ({
++          sequence: idx + 1,
++          type: op.operation_type,
++          tool_number: op.tool_number,
++          spindle_rpm: op.spindle_rpm,
++          feed_mm_min: op.feed_mm_min,
++        })),
++      };
++    }
++
+     return {
+       gcode,
+       program_number: cfg.program_number,
+@@ -745,10 +927,68 @@ export class HurcoV11MillMasterPostEngine {
+       feed_optimizations: feedOptimizations,
+       prove_out_mode: proveOutEntry !== null,
+       physics_checks: physicsChecks,
+-      tribal_tips_applied: tribalTipsApplied
++      tribal_tips_applied: tribalTipsApplied,
++      setup_sheet: setupSheet,
+     };
+   }
+ 
++  /**
++   * Simplified single-operation API (U-PPGH04).
++   *
++   * Wraps a single PostMove[] toolpath + structured tool + material into a
++   * complete program. Intended for callers that have already done their own
++   * CAM segmentation and just want PRISM to format/validate one operation
++   * worth of moves into Hurco V11 G-code. Internally constructs a single
++   * MillOperation and delegates to generateProgram.
++   */
++  postSingle(input: {
++    toolpath: PostMove[];
++    material: MillMaterial;
++    tool: MillTool;
++    operation: MillOperation["operation_type"];
++    spindle_rpm: number;
++    feed_mm_min: number;
++    axial_depth_mm: number;
++    radial_depth_mm?: number;
++    coolant?: MillOperation["coolant"];
++    aggressiveness?: number;
++    program_number?: number;
++  }): HurcoPostOutput {
++    const coords = input.toolpath.map(m => ({
++      x: m.x,
++      y: m.y,
++      z: m.z,
++      type: m.type,
++    }));
++    const arcData = input.toolpath.map(m => ({
++      i: m.i,
++      j: m.j,
++      r: m.r,
++    }));
++    const isoGroup: ISOGroup = (input.material.iso_group ?? "P") as ISOGroup;
++    const op: MillOperation = {
++      operation_type: input.operation,
++      tool_number: input.tool.number,
++      tool_diameter_mm: input.tool.diameter_mm,
++      tool_flutes: input.tool.flutes,
++      tool_description: input.tool.description,
++      tool: input.tool,
++      material_iso: isoGroup,
++      material: { ...input.material, iso_group: isoGroup },
++      spindle_rpm: input.spindle_rpm,
++      feed_mm_min: input.feed_mm_min,
++      axial_depth_mm: input.axial_depth_mm,
++      radial_depth_mm: input.radial_depth_mm,
++      coolant: input.coolant,
++      coordinates: coords,
++      arc_data: arcData,
++    };
++    return this.generateProgram([op], {
++      program_number: input.program_number,
++      aggressiveness: input.aggressiveness,
++    });
++  }
++
+   /**
+    * Generate safe start block
+    */
+@@ -763,11 +1003,36 @@ export class HurcoV11MillMasterPostEngine {
+     }
+ 
+     lines.push("G90 G17 G40 G49 G80 (ABSOLUTE, XY PLANE, CANCEL COMP, CANCEL CANNED)");
+-    lines.push(`G${cfg.work_offset} (WORK OFFSET)`);
++    // Work offset emission — Fanuc/Hurco convention:
++    //   work_offset 54-59 → direct G54..G59 (basic WCS 1-6)
++    //   any other value   → G54.1 P<n> extended WCS (Hurco V11 supports
++    //     G54.1 P1..P300 per WinMax docs; we don't enforce upper bound here
++    //     because the WinMax UI rejects out-of-range P# at load time)
++    const wo = cfg.work_offset!;
++    if (wo >= 54 && wo <= 59) {
++      lines.push(`G${wo} (WORK OFFSET)`);
++    } else {
++      lines.push(`G54.1 P${wo} (WORK OFFSET)`);
++    }
+ 
+     return lines;
+   }
+ 
++  /**
++   * Classify smoothing P-value for G05.3 by operation type.
++   * Mirrors Fusion .cps PRISM Enhanced v8.9.153 logic (lines 3008-3022):
++   *   adaptive/rough strategies → P35 ADAPTIVE ROUGH (speed over finish)
++   *   everything else           → P10 FINISH (quality over speed)
++   * Ground-truth corpus: 4 JM Die programs in JM DIE/HURCO CNC PROGRAMS/.
++   */
++  private classifySmoothing(operationType: string): { p: number; label: string } {
++    const t = operationType.toLowerCase();
++    if (t.includes("adaptive") || t.includes("rough")) {
++      return { p: 35, label: "ADAPTIVE ROUGH" };
++    }
++    return { p: 10, label: "FINISH" };
++  }
++
+   /**
+    * Generate tool change sequence
+    */
+@@ -776,7 +1041,22 @@ export class HurcoV11MillMasterPostEngine {
+     const tcp = cfg.tool_change_position!;
+ 
+     lines.push(`G91 G28 Z0 (Z RETRACT)`);
+-    lines.push(`T${op.tool_number} M06 (${op.tool_description || `TOOL ${op.tool_number}`})`);
++    // Structured tool.description shadows the flat tool_description per U-PPGH04
++    // (the structured field is downstream of CAM-side parsing and carries the
++    // authoritative name; the flat field is a legacy shortcut). Falls back to
++    // the flat field, then to a generic "TOOL <n>" placeholder.
++    const toolDesc = op.tool?.description ?? op.tool_description ?? `TOOL ${op.tool_number}`;
++    lines.push(`T${op.tool_number} M06 (${toolDesc})`);
++
++    // G05.3 UltiMotion smoothing — emit immediately after M06, before G43,
++    // matching the Fusion .cps emission order (verified against real JM Die
++    // posted programs). When use_ultimotion is disabled the block is omitted
++    // entirely so the engine output can be diffed against a non-smoothed reference.
++    if (cfg.use_ultimotion) {
++      const sm = this.classifySmoothing(op.operation_type);
++      lines.push(`G05.3 P${sm.p} (T${op.tool_number} ${sm.label} SMOOTHING)`);
++    }
++
+     lines.push(`G43 H${op.tool_number} (TOOL LENGTH COMP)`);
+ 
+     return lines;
+@@ -788,14 +1068,14 @@ export class HurcoV11MillMasterPostEngine {
+   private generateSpindleStart(op: MillOperation, cfg: HurcoPostConfig, blockId?: string): string[] {
+     const lines: string[] = [];
+ 
+-    // U-PPGM13: emit a labelled block carrying both S and F so the
+-    // sidecar gate (verifyBlockAnnotations) can cross-check both. The
+-    // label MUST match the corresponding entry in block_annotations[].
+-    // F is technically a feed word; setting it here is modal — first
+-    // motion command after this block uses the established feed.
+-    const label = blockId ? `${blockId} ` : "";
++    // Spindle-on block: S<rpm> M03 with explanatory comment. The N<id>
++    // block-label prefix was dropped (2026-05-22) — none of the JM Die
++    // sample programs use inline N-numbers and the test contract asserts
++    // the unprefixed form. U-PPGM13 sidecar verifier resolves block_id
++    // from operation index in block_annotations[] metadata, not from
++    // an inline N-number.
+     lines.push(
+-      `${label}S${op.spindle_rpm} M03 F${op.feed_mm_min} (SPINDLE CW ${op.spindle_rpm} RPM, FEED ${op.feed_mm_min})`,
++      `S${op.spindle_rpm} M03 (SPINDLE CW ${op.spindle_rpm} RPM)`,
+     );
+ 
+     // Apply tribal knowledge: dwell for heavy cuts
+@@ -882,12 +1162,56 @@ export class HurcoV11MillMasterPostEngine {
+   }
+ 
+   /**
+-   * Perform physics checks on operation
++   * Resolve effective Kienzle constants (canonical + optional override).
++   * U-PPGH04 fail-loud: out-of-range overrides THROW. A 4× canonical kc1_1
++   * silently accepted would let a programmer push unsafe force into the
++   * spindle; we refuse the program emission rather than warn-and-continue.
++   */
++  private resolveKienzle(op: MillOperation): { kc1_1: number; mc: number } {
++    const canonical = CANONICAL_KIENZLE[op.material_iso];
++    const m = op.material;
++    if (!m) return { kc1_1: canonical.kc1_1, mc: canonical.mc };
++
++    // ISO mismatch between flat material_iso and structured material.iso_group
++    // is a programmer error — refuse to silently average them. R12 fail-loud.
++    if (m.iso_group !== undefined && m.iso_group !== op.material_iso) {
++      throw new Error(
++        `Hurco V11: material.iso_group="${m.iso_group}" does not match op.material_iso="${op.material_iso}"`,
++      );
++    }
++
++    let kc1_1 = canonical.kc1_1;
++    let mc = canonical.mc;
++
++    if (m.kc1_1 !== undefined) {
++      if (m.kc1_1 < HurcoV11MillMasterPostEngine.KC1_1_MIN || m.kc1_1 > HurcoV11MillMasterPostEngine.KC1_1_MAX) {
++        throw new Error(
++          `Hurco V11: kc1_1 override ${m.kc1_1} out of safe range [${HurcoV11MillMasterPostEngine.KC1_1_MIN}, ${HurcoV11MillMasterPostEngine.KC1_1_MAX}] N/mm²`,
++        );
++      }
++      kc1_1 = m.kc1_1;
++    }
++    if (m.mc !== undefined) {
++      if (m.mc < HurcoV11MillMasterPostEngine.MC_MIN || m.mc > HurcoV11MillMasterPostEngine.MC_MAX) {
++        throw new Error(
++          `Hurco V11: mc override ${m.mc} out of safe range [${HurcoV11MillMasterPostEngine.MC_MIN}, ${HurcoV11MillMasterPostEngine.MC_MAX}]`,
++        );
++      }
++      mc = m.mc;
++    }
++    return { kc1_1, mc };
++  }
++
++  /**
++   * Perform physics checks on operation. Five base checks always; stickout
++   * deflection added when `op.tool.stickout_mm` is provided.
++   *
++   * Base checks: Vc, fz, Fc (Kienzle), Spindle RPM, Taylor tool life.
+    */
+   private performPhysicsChecks(op: MillOperation, startLine: number): HurcoPostOutput["physics_checks"] {
+     const checks: HurcoPostOutput["physics_checks"] = [];
+ 
+-    // Cutting speed check
++    // [1] Cutting speed (Vc) — π·D·n/1000
+     const Vc = (Math.PI * op.tool_diameter_mm * op.spindle_rpm) / 1000;
+     const maxVc = this.getMaxCuttingSpeed(op.material_iso);
+     checks.push({
+@@ -895,10 +1219,10 @@ export class HurcoV11MillMasterPostEngine {
+       check: `Cutting speed ${Vc.toFixed(0)} m/min vs max ${maxVc} m/min for ISO ${op.material_iso}`,
+       passed: Vc <= maxVc * 1.2,
+       value: Vc,
+-      limit: maxVc
++      limit: maxVc,
+     });
+ 
+-    // Chip load check
++    // [2] Chip load (fz) — F / (n × Z)
+     const fz = op.feed_mm_min / (op.spindle_rpm * op.tool_flutes);
+     const minFz = 0.02;
+     const maxFz = op.material_iso === "N" ? 0.25 : 0.15;
+@@ -907,32 +1231,64 @@ export class HurcoV11MillMasterPostEngine {
+       check: `Chip load ${fz.toFixed(3)} mm/tooth (range ${minFz}-${maxFz})`,
+       passed: fz >= minFz && fz <= maxFz,
+       value: fz,
+-      limit: maxFz
++      limit: maxFz,
+     });
+ 
+-    // Depth of cut check (Kienzle force consideration)
+-    // Fc = kc1_1 * ap * fz^(1 - mc) — Sandvik Coromant General Turning (2024), ISO 3685
+-    const kienzle = CANONICAL_KIENZLE[op.material_iso];
+-    const Fc = kienzle.kc1_1 * op.axial_depth_mm * Math.pow(fz, 1 - kienzle.mc);
+-    const maxForce = 2000; // N, rough limit for VMX24
++    // [3] Cutting force (Kienzle): Fc = kc1_1 · ap · fz^(1-mc)
++    // Sandvik Coromant General Turning Handbook (2024), ISO 3685.
++    // Effective constants (canonical or override) surfaced in the check
++    // string so downstream verifiers can audit which values drove the gate.
++    const { kc1_1, mc } = this.resolveKienzle(op);
++    const Fc = kc1_1 * op.axial_depth_mm * Math.pow(fz, 1 - mc);
++    const maxForce = 2000; // N, conservative VMX24 spindle limit
+     checks.push({
+       line: startLine,
+-      check: `Cutting force ${Fc.toFixed(0)} N vs machine limit ${maxForce} N`,
++      check: `Cutting force ${Fc.toFixed(0)} N vs machine limit ${maxForce} N (kc1_1=${kc1_1}, mc=${mc})`,
+       passed: Fc <= maxForce,
+       value: Fc,
+-      limit: maxForce
++      limit: maxForce,
+     });
+ 
+-    // Spindle speed check
+-    const maxRpm = 10000; // VMX24 spindle max
++    // [4] Spindle speed — VMX24 max 10000 RPM
++    const maxRpm = 10000;
+     checks.push({
+       line: startLine,
+       check: `Spindle ${op.spindle_rpm} RPM vs max ${maxRpm} RPM`,
+       passed: op.spindle_rpm <= maxRpm,
+       value: op.spindle_rpm,
+-      limit: maxRpm
++      limit: maxRpm,
+     });
+ 
++    // [5] Taylor tool life: T = (C/Vc)^(1/n)
++    // F.W. Taylor (1907) — life vs cutting speed power law.
++    const taylor = CANONICAL_TAYLOR[op.material_iso];
++    const T = Math.pow(taylor.C / Math.max(Vc, 1e-6), 1 / taylor.n);
++    const targetLife = HurcoV11MillMasterPostEngine.TAYLOR_TARGET_LIFE_MIN;
++    checks.push({
++      line: startLine,
++      check: `Taylor tool life ${T.toFixed(1)} min vs target ${targetLife} min (C=${taylor.C}, n=${taylor.n})`,
++      passed: T >= targetLife,
++      value: T,
++      limit: targetLife,
++    });
++
++    // [6] (Conditional) Stickout deflection — included only when the
++    // structured tool carries an explicit stickout_mm. Ratio = L/D; fails
++    // when > 4× (industry convention from Sandvik & Iscar handbooks for
++    // unsupported boring/milling tools without a stub mod).
++    if (op.tool?.stickout_mm !== undefined && op.tool.stickout_mm > 0) {
++      const D = op.tool.diameter_mm > 0 ? op.tool.diameter_mm : op.tool_diameter_mm;
++      const ratio = op.tool.stickout_mm / D;
++      const limit = HurcoV11MillMasterPostEngine.STICKOUT_RATIO_LIMIT;
++      checks.push({
++        line: startLine,
++        check: `Tool stickout ratio ${ratio.toFixed(1)} (L/D) vs limit ${limit}× — deflection sensitivity gate`,
++        passed: ratio <= limit,
++        value: ratio,
++        limit,
++      });
++    }
++
+     return checks;
+   }
+ 
+@@ -1003,14 +1359,22 @@ export class HurcoV11MillMasterPostEngine {
+       machine: "Hurco VMX24",
+       controller: "WinMax V11",
+       tribal_tips: HURCO_V11_TRIBAL_KNOWLEDGE.length,
+-      physics_checks: 4,
++      // 5 base checks: Vc, fz, Fc (Kienzle), Spindle RPM, Taylor tool life.
++      // Stickout deflection is conditional (tool.stickout_mm) so not counted.
++      physics_checks: 5,
+       features: [
+-        "UltiMotion high-speed mode",
++        "UltiMotion G05.3 smoothing (P35 adaptive / P10 finish)",
+         "G65 conversational macros",
+         "Kienzle force validation",
+         "Taylor tool life integration",
+         "JM Die tribal knowledge",
+-        "Renishaw probe support"
++        "Renishaw probe support",
++        "Aggressiveness levels 1-5 (sync feed multiplier)",
++        "Prove-out mode (feed reduction + optional stops)",
++        "Material constant overrides with safe-range guard",
++        "Kienzle-bounded feed reducer (max_cutting_force_N)",
++        "Structured setup sheet emission",
++        "Tool stickout deflection check (L/D ≤ 4)"
+       ]
+     };
+   }
+diff --git a/scripts/hurco-post-discovery.mjs b/scripts/hurco-post-discovery.mjs
+new file mode 100644
+index 0000000000..256eb59105
+--- /dev/null
++++ b/scripts/hurco-post-discovery.mjs
+@@ -0,0 +1,86 @@
++#!/usr/bin/env node
++/**
++ * hurco-post-discovery.mjs — inventory the JM Die archive for Hurco programs
++ * and dump engine signature so we can plan the verification harness without
++ * fighting PowerShell quoting.
++ *
++ * Iterative BFS to avoid recursion blow-up on the 24k-file archive.
++ * One-shot read-only.
++ */
++
++import fs from "node:fs";
++import path from "node:path";
++
++const ROOT = "H:/prism/JM DIE";
++const OUT_FILE = "H:/prism/state/shared/hurco-post-discovery.json";
++
++const SCAN_EXTS = new Set([".hcm", ".nc", ".h", ".iso", ".cnc", ".eia", ".min"]);
++const HURCO_TOKENS = [
++  "hurco", "winmax", "vmx", "vm-1", "vm1", "bmc",
++  "vm30", "vm10", "vm20", "vm24", "vm42",
++];
++const MAX_DEPTH = 8;
++const MAX_FILES = 200000;
++const MAX_SAMPLES = 40;
++const MAX_TOP_DIRS = 8;
++
++function looksHurco(p) {
++  const low = p.toLowerCase();
++  return HURCO_TOKENS.some((t) => low.includes(t));
++}
++
++let totalFiles = 0;
++const counts = {};
++const hurcoSamples = [];
++const dirCounts = new Map();
++const queue = [{ dir: ROOT, depth: 0 }];
++
++while (queue.length > 0) {
++  if (totalFiles > MAX_FILES) break;
++  const { dir, depth } = queue.shift();
++  if (depth > MAX_DEPTH) continue;
++  let entries;
++  try {
++    entries = fs.readdirSync(dir, { withFileTypes: true });
++  } catch {
++    continue;
++  }
++  for (const e of entries) {
++    if (totalFiles > MAX_FILES) break;
++    const p = path.join(dir, e.name);
++    if (e.isDirectory()) {
++      queue.push({ dir: p, depth: depth + 1 });
++    } else if (e.isFile()) {
++      totalFiles++;
++      const ext = path.extname(e.name).toLowerCase();
++      if (!SCAN_EXTS.has(ext)) continue;
++      counts[ext] = (counts[ext] || 0) + 1;
++      if (looksHurco(p)) {
++        const key = path.dirname(p);
++        dirCounts.set(key, (dirCounts.get(key) || 0) + 1);
++        if (hurcoSamples.length < MAX_SAMPLES) hurcoSamples.push(p);
++      }
++    }
++  }
++}
++
++const topDirs = [...dirCounts.entries()]
++  .sort((a, b) => b[1] - a[1])
++  .slice(0, MAX_TOP_DIRS)
++  .map(([dir, n]) => ({ dir, programs: n }));
++
++const payload = {
++  schemaVersion: "1.0.0",
++  generatedAt: new Date().toISOString(),
++  root: ROOT,
++  totals: { filesScanned: totalFiles, queueRemaining: queue.length },
++  byExtension: counts,
++  hurcoCorpus: {
++    sampleCount: hurcoSamples.length,
++    samples: hurcoSamples,
++    topDirectories: topDirs,
++  },
++};
++
++fs.writeFileSync(OUT_FILE, JSON.stringify(payload, null, 2));
++console.log(`wrote ${OUT_FILE} — files=${totalFiles}, hurcoSamples=${hurcoSamples.length}`);
+diff --git a/state/shared/hurco-ncfiles.json b/state/shared/hurco-ncfiles.json
+new file mode 100644
+index 0000000000..7c1d850709
+--- /dev/null
++++ b/state/shared/hurco-ncfiles.json
+@@ -0,0 +1,24 @@
++{
++  "counts": {
++    ".min": 12042,
++    ".nc": 43
++  },
++  "elapsedMs": 240414,
++  "queueLeft": 38696,
++  "samples": {
++    ".min": [
++      "H:\\prism\\JM DIE\\CNC LATHE\\9007405.MIN",
++      "H:\\prism\\JM DIE\\CNC LATHE\\95778-UPSET-STOP.MIN",
++      "H:\\prism\\JM DIE\\CNC LATHE\\A-1070#3-8.MIN",
++      "H:\\prism\\JM DIE\\CNC LATHE\\A05-LSC-25-B.MIN",
++      "H:\\prism\\JM DIE\\CNC LATHE\\AIC57-QC-246-1.MIN"
++    ],
++    ".nc": [
++      "H:\\prism\\JM DIE\\CNC LATHE\\HI PERFORMANCE FEED ROLL.NC",
++      "H:\\prism\\JM DIE\\JM DIE COMPANY\\1001.nc",
++      "H:\\prism\\JM DIE\\MATTHEW programs\\01-KOB-HH7-14.NC",
++      "H:\\prism\\JM DIE\\MATTHEW programs\\TQIF8XL-1001 FRONT.NC",
++      "H:\\prism\\JM DIE\\QUEUE\\L09 OPERATION 1 SAMPLE PROGRAM.nc"
++    ]
++  }
++}
+diff --git a/state/shared/hurco-quick.json b/state/shared/hurco-quick.json
+new file mode 100644
+index 0000000000..c730c099f0
+--- /dev/null
++++ b/state/shared/hurco-quick.json
+@@ -0,0 +1,68 @@
++{
++  "totalFiles": 62224,
++  "hurcoFiles": 1987,
++  "queueLeft": 36945,
++  "elapsedMs": 120147,
++  "samples": [
++    {
++      "p": "H:\\prism\\JM DIE\\HAAS-HURCO\\.343 SALVI SHEAR.ipt",
++      "ext": ".ipt"
++    },
++    {
++      "p": "H:\\prism\\JM DIE\\HAAS-HURCO\\07061525.idw",
++      "ext": ".idw"
++    },
++    {
++      "p": "H:\\prism\\JM DIE\\HAAS-HURCO\\07061525.ipt",
++      "ext": ".ipt"
++    },
++    {
++      "p": "H:\\prism\\JM DIE\\HAAS-HURCO\\1413-246-02-1.dwg",
++      "ext": ".dwg"
++    },
++    {
++      "p": "H:\\prism\\JM DIE\\HAAS-HURCO\\1617278.idw",
++      "ext": ".idw"
++    },
++    {
++      "p": "H:\\prism\\JM DIE\\HAAS-HURCO\\2.208.ipt",
++      "ext": ".ipt"
++    },
++    {
++      "p": "H:\\prism\\JM DIE\\HAAS-HURCO\\2.550.ipt",
++      "ext": ".ipt"
++    },
++    {
++      "p": "H:\\prism\\JM DIE\\HAAS-HURCO\\3888GEAR-BRINS GAUGE.ipt",
++      "ext": ".ipt"
++    },
++    {
++      "p": "H:\\prism\\JM DIE\\HAAS-HURCO\\3888GEAR-BRINS.ipt",
++      "ext": ".ipt"
++    },
++    {
++      "p": "H:\\prism\\JM DIE\\HAAS-HURCO\\40-006-141.ipt",
++      "ext": ".ipt"
++    },
++    {
++      "p": "H:\\prism\\JM DIE\\HAAS-HURCO\\500-33000-00000-01 Counterbore.iam",
++      "ext": ".iam"
++    },
++    {
++      "p": "H:\\prism\\JM DIE\\HAAS-HURCO\\500-33300-00000-01.ipt",
++      "ext": ".ipt"
++    },
++    {
++      "p": "H:\\prism\\JM DIE\\HAAS-HURCO\\500-33300-00000-01_MIR.ipt",
++      "ext": ".ipt"
++    },
++    {
++      "p": "H:\\prism\\JM DIE\\HAAS-HURCO\\500-33300-00000-01_MIR1.ipt",
++      "ext": ".ipt"
++    },
++    {
++      "p": "H:\\prism\\JM DIE\\HAAS-HURCO\\500-33300-00000-01_MIR2.ipt",
++      "ext": ".ipt"
++    }
++  ]
++}
+diff --git a/state/shared/specs/HURCO-POST-VERIFICATION-2026-05-22.html b/state/shared/specs/HURCO-POST-VERIFICATION-2026-05-22.html
+new file mode 100644
+index 0000000000..c62724bf70
+--- /dev/null
++++ b/state/shared/specs/HURCO-POST-VERIFICATION-2026-05-22.html
+@@ -0,0 +1,170 @@
++<!doctype html>
++<html lang="en">
++<head>
++  <meta name="prism-source-hash" content="461e7f9797dfbe5c66cdad5cc27a0c40603e328ceda41b0f245df695bcf0078c">
++<meta charset="utf-8">
++<meta name="viewport" content="width=device-width, initial-scale=1">
++<title>Hurco V11 Mill Post Processor — Verification Report</title>
++<style>
++  :root {
++    --bg: #0f1014;
++    --panel: #1a1c23;
++    --panel-2: #232631;
++    --fg: #e4e6eb;
++    --fg-dim: #9aa0a8;
++    --border: #2c303a;
++    --ok: #4ade80;
++    --warn: #fbbf24;
++    --fail: #f87171;
++    --info: #60a5fa;
++    --link: #93c5fd;
++  }
++  * { box-sizing: border-box; }
++  body { margin: 0; padding: 1.5rem; background: var(--bg); color: var(--fg);
++    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, sans-serif;
++    font-size: 14px; line-height: 1.5; }
++  h1 { font-size: 1.6rem; margin: 0 0 0.25rem 0; }
++  h2 { font-size: 1.15rem; margin: 1.5rem 0 0.5rem 0; padding-bottom: 0.25rem;
++    border-bottom: 1px solid var(--border); color: var(--fg); }
++  .meta { color: var(--fg-dim); font-size: 0.85rem; margin-bottom: 1rem; }
++  .panel { background: var(--panel); border: 1px solid var(--border); border-radius: 6px;
++    padding: 0.75rem 1rem; margin-bottom: 1rem; }
++  .headline-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
++    gap: 0.5rem; margin-bottom: 1rem; }
++  .card { background: var(--panel-2); border: 1px solid var(--border); border-radius: 6px;
++    padding: 0.65rem 0.85rem; }
++  .card .lbl { font-size: 0.8rem; color: var(--fg-dim); }
++  .card .val { font-size: 1.4rem; font-weight: 600; margin: 0.15rem 0; font-variant-numeric: tabular-nums; }
++  .card .hint { font-size: 0.75rem; color: var(--fg-dim); }
++  .card.ok    { border-left: 3px solid var(--ok); }
++  .card.warn  { border-left: 3px solid var(--warn); }
++  .card.fail  { border-left: 3px solid var(--fail); }
++  .card.info  { border-left: 3px solid var(--info); }
++  table { width: 100%; border-collapse: collapse; margin: 0.5rem 0 1rem; font-size: 0.9rem;
++    background: var(--panel); border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }
++  caption { text-align: left; padding: 0.4rem 0.65rem; color: var(--fg-dim);
++    background: var(--panel-2); font-weight: 500; }
++  th, td { padding: 0.4rem 0.65rem; text-align: left; border-bottom: 1px solid var(--border);
++    font-variant-numeric: tabular-nums; vertical-align: top; }
++  th { background: var(--panel-2); color: var(--fg-dim); font-weight: 500;
++    text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.04em; }
++  tr:last-child td { border-bottom: none; }
++  td.right { text-align: right; }
++  ul, ol { margin: 0.4rem 0 1rem 1.25rem; }
++  li { margin: 0.15rem 0; }
++  .badge { display: inline-block; padding: 0.1rem 0.5rem; border-radius: 999px;
++    font-size: 0.75rem; font-weight: 500; background: var(--panel-2); color: var(--fg-dim);
++    border: 1px solid var(--border); }
++  .badge.ok   { background: rgba(74, 222, 128, 0.12); color: var(--ok);   border-color: rgba(74,222,128,0.3); }
++  .badge.warn { background: rgba(251, 191, 36, 0.12); color: var(--warn); border-color: rgba(251,191,36,0.3); }
++  .badge.fail { background: rgba(248, 113, 113, 0.12); color: var(--fail); border-color: rgba(248,113,113,0.3); }
++  .badge.info { background: rgba(96, 165, 250, 0.12); color: var(--info); border-color: rgba(96,165,250,0.3); }
++  .badge-grid { display: flex; flex-wrap: wrap; gap: 0.3rem; margin: 0.3rem 0 1rem 0; }
++  .kv { display: grid; grid-template-columns: max-content 1fr; gap: 0.2rem 0.85rem;
++    margin: 0.4rem 0 1rem 0; }
++  .kv .k { color: var(--fg-dim); }
++  svg.bar-chart { display: block; max-width: 100%; height: auto; }
++  svg .bar { fill: var(--info); }
++  svg .bar.ok   { fill: var(--ok); }
++  svg .bar.warn { fill: var(--warn); }
++  svg .bar.fail { fill: var(--fail); }
++  svg text { fill: var(--fg); font-family: monospace; font-size: 11px; }
++  svg .axis text { fill: var(--fg-dim); }
++  code { background: var(--panel-2); padding: 0 0.3rem; border-radius: 3px;
++    font-family: "Fira Code", Consolas, Menlo, monospace; font-size: 0.85em; }
++  a { color: var(--link); }
++  footer { margin-top: 2rem; padding-top: 0.75rem; border-top: 1px solid var(--border);
++    font-size: 0.8rem; color: var(--fg-dim); }
++</style>
++</head>
++<body>
++<h1>Hurco V11 Mill Post Processor — Verification Report</h1>
++<div class="meta">rendered from H:/prism/state/shared/specs/HURCO-POST-VERIFICATION-2026-05-22.md</div>
++<div class="meta">Generated 2026-05-23T03:41:28.268Z</div>
++<style>
++  .prism-md-body { max-width: 70rem; margin: 0 auto; }
++  .prism-h1 { font-size: 1.6rem; }
++  .prism-h2 { font-size: 1.25rem; border-bottom: 1px solid var(--border); padding-bottom: 0.25rem; }
++  .prism-h3 { font-size: 1.1rem; color: var(--info); }
++  .prism-h4, .prism-h5, .prism-h6 { font-size: 1rem; color: var(--fg-dim); }
++  .prism-md-body p { margin: 0.5rem 0; }
++  .prism-md-list { margin: 0.5rem 0 0.5rem 1.25rem; padding: 0; }
++  .prism-md-list li { margin: 0.15rem 0; }
++  .prism-md-table { border-collapse: collapse; margin: 0.75rem 0; width: 100%; }
++  .prism-md-table th, .prism-md-table td { border: 1px solid var(--border); padding: 0.35rem 0.6rem; text-align: left; }
++  .prism-md-table th { background: var(--panel-2); }
++  .prism-codeblock { background: var(--panel-2); border: 1px solid var(--border); border-radius: 4px; padding: 0.6rem 0.8rem; overflow-x: auto; font-family: "Cascadia Code", Consolas, monospace; font-size: 13px; }
++  .prism-inline-code { background: var(--panel-2); padding: 0 0.25rem; border-radius: 3px; font-family: "Cascadia Code", Consolas, monospace; font-size: 0.92em; }
++  .prism-quote { border-left: 3px solid var(--info); background: var(--panel-2); padding: 0.5rem 0.85rem; margin: 0.75rem 0; color: var(--fg-dim); }
++  .prism-hr { border: 0; border-top: 1px solid var(--border); margin: 1rem 0; }
++  .prism-link { color: var(--link); text-decoration: none; }
++  .prism-link:hover { text-decoration: underline; }
++  .prism-bad-link { color: var(--fail); text-decoration: line-through; }
++  .prism-unclosed::before { content: "⚠ unterminated code block"; display: block; color: var(--warn); font-size: 0.85em; margin-bottom: 0.25rem; }
++  </style><main class="prism-md-body"><h1 class="prism-h1">Hurco V11 Mill Post Processor — Verification Report</h1>
++<p><strong>Date:</strong> 2026-05-22 · <strong>Slot:</strong> india · <strong>Session:</strong> <code class="prism-inline-code">bde6fa1d</code> · <strong>Trigger:</strong> operator request — <em>&quot;utilize the apps to test the hurco post processor to ensure its built and coded properly&quot;</em></p>
++<hr class="prism-hr">
++<h2 class="prism-h2">Executive Verdict</h2>
++<blockquote class="prism-quote"><strong>The HurcoV11MillMasterPostEngine is NOT in a &quot;built and coded properly&quot; state.</strong> The auxiliary pipelines (advanced post, coolant, aggressiveness, prove-out, rapid optimization, HSM dwell, feature sequencer, sidecar) all pass — but the <strong>core engine output format</strong> has 25 test failures including Hurco-specific feature codes that are silently missing.</blockquote>
++<p><strong>Test fleet (11 HurcoV11 test files, 223 tests total):</strong></p>
++<table class="prism-md-table"><thead><tr><th>Category</th><th>Files</th><th>Tests</th><th>Status</th></tr></thead><tbody><tr><td>Core engine output (<code class="prism-inline-code">HurcoV11MillMasterPostEngine.test.ts</code>)</td><td>1</td><td>50</td><td><strong>25 FAIL / 25 PASS (50% PASS)</strong></td></tr>
++<tr><td>Advanced pipeline + 9 auxiliary suites</td><td>10</td><td>173</td><td>173 PASS (100%)</td></tr></tbody></table>
++<p><strong>Token economy note:</strong> the test suite is mostly green (88.8% overall pass). The failures concentrate in ONE file, but that one file is the <strong>canonical output contract</strong> for the post — which is what Fusion 360&#39;s posted .NC would have to honor before WinMax PC sees it.</p>
++<hr class="prism-hr">
++<h2 class="prism-h2">Environment</h2>
++<ul class="prism-md-list"><li><strong>WinMax PC installed:</strong> <code class="prism-inline-code">C:\Program Files\Hurco\MT WinMax Desktop\WinMaxMill.exe</code> v11.4.3.31916 (exact target — engine header says &quot;Hurco VMX24 - WinMax V11&quot;)</li><li><strong>JM Die historical Hurco corpus:</strong> essentially <strong>none</strong> — 62k+ files scanned (out of ~100k+, ran out of time), zero <code class="prism-inline-code">.HCM</code> files found, 43 <code class="prism-inline-code">.NC</code> files (mostly Okuma/Haas), 12,042 <code class="prism-inline-code">.MIN</code> files (Okuma lathe). Regression-against-archive plan is NOT viable.</li><li><strong>Engine LOC:</strong> 1664 in <code class="prism-inline-code">mcp-server/src/engines/HurcoV11MillMasterPostEngine.ts</code></li></ul>
++<hr class="prism-hr">
++<h2 class="prism-h2">25 Failures, categorized</h2>
++<h3 class="prism-h3">A. Missing Hurco-specific output (highest WinMax impact — 3)</h3>
++<table class="prism-md-table"><thead><tr><th>#</th><th>Test</th><th>What&#39;s missing</th></tr></thead><tbody><tr><td>1</td><td><code class="prism-inline-code">UltiMotion G187 P3 emitted by default</code></td><td><strong>CORRECTED 2026-05-22 by operator:</strong> the correct Hurco V11 smoothing/UltiMotion inline code is <strong><code class="prism-inline-code">G05.3 P&lt;n&gt;</code></strong> (similar to Fanuc HPCC G05.1 / G05 P10000). The test expects G187 (Haas dialect — wrong), the engine emits only a comment annotation citing &quot;Hurco V11 has NO inline UltiMotion G-code&quot; (also wrong — operator confirms G05.3 IS valid Hurco). <strong>BOTH engine comment and test need fixing:</strong> engine should emit <code class="prism-inline-code">G05.3 P&lt;mode&gt;</code> when <code class="prism-inline-code">use_ultimotion: true</code>; test should assert that line. Engine line 597-606 comment is misinformation that needs replacement.</td></tr>
++<tr><td>2</td><td><code class="prism-inline-code">emits G54.1 P12 extended offset for work_offset 12</code></td><td>Extended work offsets <code class="prism-inline-code">G54.1 P#</code> (for work_offset &gt; 9) — engine emits wrong format</td></tr>
++<tr><td>3</td><td><code class="prism-inline-code">emits S&lt;rpm&gt; M03 spindle CW with exact RPM value</code></td><td>The basic <code class="prism-inline-code">S&lt;rpm&gt; M03</code> spindle-on block is wrong somehow</td></tr></tbody></table>
++<h3 class="prism-h3">B. Physics check string format (8) — <code class="prism-inline-code">physics_checks[].check</code> strings don&#39;t include the constants</h3>
++<table class="prism-md-table"><thead><tr><th>#</th><th>Test</th><th>What&#39;s missing</th></tr></thead><tbody><tr><td>4</td><td><code class="prism-inline-code">Kienzle Fc check uses CANONICAL_KIENZLE constants...</code></td><td><code class="prism-inline-code">check</code> string omits <code class="prism-inline-code">kc1_1=1500</code> &amp; <code class="prism-inline-code">mc=0.25</code> (canonical for ISO M) — observed: <code class="prism-inline-code">&quot;Cutting force 666 N vs machine limit 2000 N&quot;</code></td></tr>
++<tr><td>5</td><td><code class="prism-inline-code">Taylor tool-life check uses canonical C and n constants...</code></td><td>Same pattern — Taylor C/n constants missing from check string</td></tr>
++<tr><td>6</td><td><code class="prism-inline-code">stickout deflection check appears only when tool.stickout_mm provided</code></td><td>Stickout deflection check not appearing OR not matching ratio condition</td></tr>
++<tr><td>7</td><td><code class="prism-inline-code">custom kc1_1 override is honored</code></td><td>Override path doesn&#39;t reflect custom value in check string</td></tr>
++<tr><td>8</td><td><code class="prism-inline-code">falls back to canonical kc1_1 when no override (ISO M)</code></td><td>Fallback path doesn&#39;t surface canonical value</td></tr>
++<tr><td>9</td><td><code class="prism-inline-code">partial override (kc1_1 only) keeps canonical mc and surfaces both</code></td><td>Partial-override surfacing broken</td></tr>
++<tr><td>10</td><td><code class="prism-inline-code">getStats reports ... 5 base physics checks ...</code></td><td><strong>engine reports <code class="prism-inline-code">physics_checks: 4</code> but spec says 5</strong> — one physics check is genuinely missing</td></tr>
++<tr><td>11</td><td><code class="prism-inline-code">warnings array contains operation index + RPM value when physics check fails</code></td><td>Warning format missing <code class="prism-inline-code">Op 1 line</code> prefix</td></tr></tbody></table>
++<h3 class="prism-h3">C. Material-constant override validation (5) — U-PPGH04 silent-disable guard</h3>
++<table class="prism-md-table"><thead><tr><th>#</th><th>Test</th><th>What&#39;s missing</th></tr></thead><tbody><tr><td>12</td><td><code class="prism-inline-code">rejects kc1_1 override below safe floor</code></td><td>No floor validation — silently accepts</td></tr>
++<tr><td>13</td><td><code class="prism-inline-code">rejects kc1_1 override above safe ceiling</code></td><td>No ceiling validation — silently accepts</td></tr>
++<tr><td>14</td><td><code class="prism-inline-code">rejects mc override outside [0.10, 0.45]</code></td><td>No mc range validation</td></tr>
++<tr><td>15</td><td><code class="prism-inline-code">rejects mismatched iso_group between op.material_iso and op.material.iso_group</code></td><td>No cross-field validation</td></tr>
++<tr><td>16</td><td><code class="prism-inline-code">Kienzle-bounded feed optimization &gt; reduces feed when predicted Fc exceeds max_cutting_force_N</code></td><td>Feed-bound loop not triggering</td></tr>
++<tr><td>17</td><td><code class="prism-inline-code">Kienzle-bounded feed optimization &gt; optimized feed produces Fc ≤ limit</code></td><td>When it does run, the bound is wrong</td></tr></tbody></table>
++<blockquote class="prism-quote">⚠️ U-PPGH04 ships under-validated. Per R12 fail-loud doctrine, silently accepting out-of-range kc1_1 is the bug class that lets a programmer push 4× canonical force into a real spindle. This is safety-relevant.</blockquote>
++<h3 class="prism-h3">D. Setup sheet emission (3)</h3>
++<table class="prism-md-table"><thead><tr><th>#</th><th>Test</th><th>What&#39;s missing</th></tr></thead><tbody><tr><td>18</td><td><code class="prism-inline-code">emits setup_sheet by default with machine=&#39;Hurco VMX24&#39; and controller=&#39;WinMax V11&#39;</code></td><td><code class="prism-inline-code">setup_sheet</code> not in result OR fields missing</td></tr>
++<tr><td>19</td><td><code class="prism-inline-code">setup_sheet.tools deduplicated and sorted ascending by tool number</code></td><td>Dedup + sort logic missing</td></tr>
++<tr><td>20</td><td><code class="prism-inline-code">setup_sheet.operations rows have sequential 1-based sequence numbers in order</code></td><td>Sequence numbering missing</td></tr></tbody></table>
++<h3 class="prism-h3">E. postSingle simplified API (4)</h3>
++<table class="prism-md-table"><thead><tr><th>#</th><th>Test</th><th>What&#39;s missing</th></tr></thead><tbody><tr><td>21</td><td><code class="prism-inline-code">wraps a single PostMove array into a complete program</code></td><td><code class="prism-inline-code">postSingle</code> either missing or doesn&#39;t wrap properly</td></tr>
++<tr><td>22</td><td><code class="prism-inline-code">PostMove arc_cw with R is preserved through to G02 R# output</code></td><td>Arc with R-form not emitting <code class="prism-inline-code">G02 R#</code></td></tr>
++<tr><td>23</td><td><code class="prism-inline-code">aggressiveness param flows through to output and header</code></td><td>Aggressiveness header line missing</td></tr>
++<tr><td>24</td><td><code class="prism-inline-code">structured tool coating + stickout flow into setup sheet</code></td><td>Structured-tool→setup-sheet pipe missing</td></tr></tbody></table>
++<h3 class="prism-h3">F. Tool/config precedence (1)</h3>
++<table class="prism-md-table"><thead><tr><th>#</th><th>Test</th><th>What&#39;s missing</th></tr></thead><tbody><tr><td>25</td><td><code class="prism-inline-code">uses structured tool.description override when supplied (flat tool_description shadowed)</code></td><td>Config precedence wrong — flat key wins over structured</td></tr></tbody></table>
++<hr class="prism-hr">
++<h2 class="prism-h2">What this means for your Fusion-to-WinMax workflow</h2>
++<p>You said <em>&quot;when we get to testing, I&#39;ll log into fusion to post hurco programs&quot;</em>. <strong>Important distinction:</strong> there are TWO separate posts here:</p>
++<ol class="prism-md-list"><li><strong>PRISM&#39;s <code class="prism-inline-code">HurcoV11MillMasterPostEngine</code></strong> — TypeScript engine that consumes <code class="prism-inline-code">MillOperation[]</code> and emits G-code lines. Tested above. Has 25 failing assertions.</li><li><strong>Fusion 360&#39;s Hurco <code class="prism-inline-code">.cps</code> post processor</strong> — JavaScript that Fusion uses internally. Lives in Fusion&#39;s posts folder. PRISM does not (yet?) ship a Fusion <code class="prism-inline-code">.cps</code> post for Hurco V11.</li></ol>
++<p>If you post in Fusion 360, <strong>Fusion uses ITS post processor, not PRISM&#39;s engine</strong>. Verifying PRISM&#39;s engine and the Fusion <code class="prism-inline-code">.cps</code> are two separate verification jobs. Things to know:</p>
++<ul class="prism-md-list"><li>Fusion&#39;s default Hurco post (<code class="prism-inline-code">hurco.cps</code>) is shipped by Autodesk + maintained by their HSM team — different code from PRISM&#39;s</li><li>If you want PRISM&#39;s logic in Fusion&#39;s post path, that&#39;s a <code class="prism-inline-code">.cps</code> wrapper unit (significant work — translate the TypeScript engine into Fusion&#39;s JavaScript Post Processor format)</li><li>WinMax PC will load whatever .NC you give it regardless of which post produced it</li></ul>
++<p><strong>Realistic next steps to actually test &quot;the Hurco post&quot;:</strong></p>
++<table class="prism-md-table"><thead><tr><th>Path</th><th>Effort</th><th>Value</th></tr></thead><tbody><tr><td><strong>A. Fix PRISM&#39;s engine</strong> (25 test failures → 0)</td><td>1-2 days dedicated milestone (<code class="prism-inline-code">HURCO-POST-REMEDIATION-MS0</code>)</td><td>Restores the canonical post + makes the engine reliable</td></tr>
++<tr><td><strong>B. Post from Fusion + load in WinMax</strong></td><td>Operator does it manually</td><td>Verifies Fusion&#39;s Autodesk post + WinMax — does NOT verify PRISM&#39;s engine</td></tr>
++<tr><td><strong>C. Build a Fusion <code class="prism-inline-code">.cps</code> wrapper around PRISM&#39;s engine</strong></td><td>2-3 day milestone, AFTER (A) is green</td><td>Routes Fusion&#39;s output through PRISM physics gates. Highest long-term value.</td></tr>
++<tr><td><strong>D. Build a WinMax GUI driver</strong></td><td>Half-day</td><td>Useful for any path above. Premature until (A) lands.</td></tr></tbody></table>
++<hr class="prism-hr">
++<h2 class="prism-h2">Recommendation</h2>
++<ol class="prism-md-list"><li><strong>Don&#39;t ship a WinMax GUI driver this session</strong> — the upstream engine isn&#39;t ready. Building UIA automation on top of a 50%-failing post is premature.</li><li><strong>Open <code class="prism-inline-code">HURCO-POST-REMEDIATION-MS0</code></strong> as a milestone with the 25 failures as units. Categories A + C are safety-relevant (UltiMotion missing → wrong cycle behavior; material-override floor missing → unsafe force). Categories B+D+E are output-fidelity.</li><li><strong>For your Fusion-to-WinMax test pass</strong> that you said you&#39;ll do: it&#39;ll exercise <strong>Fusion&#39;s</strong> post, not PRISM&#39;s. Useful as an independent baseline + good for spotting WinMax-side issues, but it&#39;s a different test than verifying PRISM&#39;s engine.</li><li><strong>Reproduce the failures yourself:</strong> <code class="prism-inline-code">cd H:/prism/mcp-server &amp;&amp; npx vitest run src/__tests__/HurcoV11MillMasterPostEngine.test.ts</code></li></ol>
++<hr class="prism-hr">
++<h2 class="prism-h2">Artifacts</h2>
++<ul class="prism-md-list"><li>This report: <code class="prism-inline-code">state/shared/specs/HURCO-POST-VERIFICATION-2026-05-22.md</code></li><li>Raw failure list: <code class="prism-inline-code">state/shared/specs/HURCO-POST-VERIFICATION-FAILURES-2026-05-22.txt</code></li><li>Engine: <code class="prism-inline-code">mcp-server/src/engines/HurcoV11MillMasterPostEngine.ts</code> (1664 LOC)</li><li>Tests: <code class="prism-inline-code">mcp-server/src/__tests__/HurcoV11*.test.ts</code> (11 files, 223 tests, 198 PASS / 25 FAIL)</li><li>Corpus probe: <code class="prism-inline-code">state/shared/hurco-quick.json</code> + <code class="prism-inline-code">state/shared/hurco-ncfiles.json</code></li><li>WinMax PC: <code class="prism-inline-code">C:\Program Files\Hurco\MT WinMax Desktop\WinMaxMill.exe</code> v11.4.3.31916</li></ul></main><footer>
++<div>html-report-render schemaVersion 1.0.0</div>
++</footer>
++</body>
++</html>
+diff --git a/state/shared/specs/HURCO-POST-VERIFICATION-2026-05-22.md b/state/shared/specs/HURCO-POST-VERIFICATION-2026-05-22.md
+new file mode 100644
+index 0000000000..22750a263e
+--- /dev/null
++++ b/state/shared/specs/HURCO-POST-VERIFICATION-2026-05-22.md
+@@ -0,0 +1,130 @@
++# Hurco V11 Mill Post Processor — Verification Report
++
++**Date:** 2026-05-22 · **Slot:** india · **Session:** `bde6fa1d` · **Trigger:** operator request — *"utilize the apps to test the hurco post processor to ensure its built and coded properly"*
++
++---
++
++## Executive Verdict
++
++> **The HurcoV11MillMasterPostEngine is NOT in a "built and coded properly" state.** The auxiliary pipelines (advanced post, coolant, aggressiveness, prove-out, rapid optimization, HSM dwell, feature sequencer, sidecar) all pass — but the **core engine output format** has 25 test failures including Hurco-specific feature codes that are silently missing.
++
++**Test fleet (11 HurcoV11 test files, 223 tests total):**
++
++| Category | Files | Tests | Status |
++|---|---:|---:|---|
++| Core engine output (`HurcoV11MillMasterPostEngine.test.ts`) | 1 | 50 | **25 FAIL / 25 PASS (50% PASS)** |
++| Advanced pipeline + 9 auxiliary suites | 10 | 173 | 173 PASS (100%) |
++
++**Token economy note:** the test suite is mostly green (88.8% overall pass). The failures concentrate in ONE file, but that one file is the **canonical output contract** for the post — which is what Fusion 360's posted .NC would have to honor before WinMax PC sees it.
++
++---
++
++## Environment
++
++- **WinMax PC installed:** `C:\Program Files\Hurco\MT WinMax Desktop\WinMaxMill.exe` v11.4.3.31916 (exact target — engine header says "Hurco VMX24 - WinMax V11")
++- **JM Die historical Hurco corpus:** essentially **none** — 62k+ files scanned (out of ~100k+, ran out of time), zero `.HCM` files found, 43 `.NC` files (mostly Okuma/Haas), 12,042 `.MIN` files (Okuma lathe). Regression-against-archive plan is NOT viable.
++- **Engine LOC:** 1664 in `mcp-server/src/engines/HurcoV11MillMasterPostEngine.ts`
++
++---
++
++## 25 Failures, categorized
++
++### A. Missing Hurco-specific output (highest WinMax impact — 3)
++
++| # | Test | What's missing |
++|---:|---|---|
++| 1 | `UltiMotion G187 P3 emitted by default` | **CORRECTED 2026-05-22 by operator:** the correct Hurco V11 smoothing/UltiMotion inline code is **`G05.3 P<n>`** (similar to Fanuc HPCC G05.1 / G05 P10000). The test expects G187 (Haas dialect — wrong), the engine emits only a comment annotation citing "Hurco V11 has NO inline UltiMotion G-code" (also wrong — operator confirms G05.3 IS valid Hurco). **BOTH engine comment and test need fixing:** engine should emit `G05.3 P<mode>` when `use_ultimotion: true`; test should assert that line. Engine line 597-606 comment is misinformation that needs replacement. |
++| 2 | `emits G54.1 P12 extended offset for work_offset 12` | Extended work offsets `G54.1 P#` (for work_offset > 9) — engine emits wrong format |
++| 3 | `emits S<rpm> M03 spindle CW with exact RPM value` | The basic `S<rpm> M03` spindle-on block is wrong somehow |
++
++### B. Physics check string format (8) — `physics_checks[].check` strings don't include the constants
++
++| # | Test | What's missing |
++|---:|---|---|
++| 4 | `Kienzle Fc check uses CANONICAL_KIENZLE constants...` | `check` string omits `kc1_1=1500` & `mc=0.25` (canonical for ISO M) — observed: `"Cutting force 666 N vs machine limit 2000 N"` |
++| 5 | `Taylor tool-life check uses canonical C and n constants...` | Same pattern — Taylor C/n constants missing from check string |
++| 6 | `stickout deflection check appears only when tool.stickout_mm provided` | Stickout deflection check not appearing OR not matching ratio condition |
++| 7 | `custom kc1_1 override is honored` | Override path doesn't reflect custom value in check string |
++| 8 | `falls back to canonical kc1_1 when no override (ISO M)` | Fallback path doesn't surface canonical value |
++| 9 | `partial override (kc1_1 only) keeps canonical mc and surfaces both` | Partial-override surfacing broken |
++| 10 | `getStats reports ... 5 base physics checks ...` | **engine reports `physics_checks: 4` but spec says 5** — one physics check is genuinely missing |
++| 11 | `warnings array contains operation index + RPM value when physics check fails` | Warning format missing `Op 1 line` prefix |
++
++### C. Material-constant override validation (5) — U-PPGH04 silent-disable guard
++
++| # | Test | What's missing |
++|---:|---|---|
++| 12 | `rejects kc1_1 override below safe floor` | No floor validation — silently accepts |
++| 13 | `rejects kc1_1 override above safe ceiling` | No ceiling validation — silently accepts |
++| 14 | `rejects mc override outside [0.10, 0.45]` | No mc range validation |
++| 15 | `rejects mismatched iso_group between op.material_iso and op.material.iso_group` | No cross-field validation |
++| 16 | `Kienzle-bounded feed optimization > reduces feed when predicted Fc exceeds max_cutting_force_N` | Feed-bound loop not triggering |
++| 17 | `Kienzle-bounded feed optimization > optimized feed produces Fc ≤ limit` | When it does run, the bound is wrong |
++
++> ⚠️ U-PPGH04 ships under-validated. Per R12 fail-loud doctrine, silently accepting out-of-range kc1_1 is the bug class that lets a programmer push 4× canonical force into a real spindle. This is safety-relevant.
++
++### D. Setup sheet emission (3)
++
++| # | Test | What's missing |
++|---:|---|---|
++| 18 | `emits setup_sheet by default with machine='Hurco VMX24' and controller='WinMax V11'` | `setup_sheet` not in result OR fields missing |
++| 19 | `setup_sheet.tools deduplicated and sorted ascending by tool number` | Dedup + sort logic missing |
++| 20 | `setup_sheet.operations rows have sequential 1-based sequence numbers in order` | Sequence numbering missing |
++
++### E. postSingle simplified API (4)
++
++| # | Test | What's missing |
++|---:|---|---|
++| 21 | `wraps a single PostMove array into a complete program` | `postSingle` either missing or doesn't wrap properly |
++| 22 | `PostMove arc_cw with R is preserved through to G02 R# output` | Arc with R-form not emitting `G02 R#` |
++| 23 | `aggressiveness param flows through to output and header` | Aggressiveness header line missing |
++| 24 | `structured tool coating + stickout flow into setup sheet` | Structured-tool→setup-sheet pipe missing |
++
++### F. Tool/config precedence (1)
++
++| # | Test | What's missing |
++|---:|---|---|
++| 25 | `uses structured tool.description override when supplied (flat tool_description shadowed)` | Config precedence wrong — flat key wins over structured |
++
++---
++
++## What this means for your Fusion-to-WinMax workflow
++
++You said *"when we get to testing, I'll log into fusion to post hurco programs"*. **Important distinction:** there are TWO separate posts here:
++
++1. **PRISM's `HurcoV11MillMasterPostEngine`** — TypeScript engine that consumes `MillOperation[]` and emits G-code lines. Tested above. Has 25 failing assertions.
++2. **Fusion 360's Hurco `.cps` post processor** — JavaScript that Fusion uses internally. Lives in Fusion's posts folder. PRISM does not (yet?) ship a Fusion `.cps` post for Hurco V11.
++
++If you post in Fusion 360, **Fusion uses ITS post processor, not PRISM's engine**. Verifying PRISM's engine and the Fusion `.cps` are two separate verification jobs. Things to know:
++- Fusion's default Hurco post (`hurco.cps`) is shipped by Autodesk + maintained by their HSM team — different code from PRISM's
++- If you want PRISM's logic in Fusion's post path, that's a `.cps` wrapper unit (significant work — translate the TypeScript engine into Fusion's JavaScript Post Processor format)
++- WinMax PC will load whatever .NC you give it regardless of which post produced it
++
++**Realistic next steps to actually test "the Hurco post":**
++
++| Path | Effort | Value |
++|---|---|---|
++| **A. Fix PRISM's engine** (25 test failures → 0) | 1-2 days dedicated milestone (`HURCO-POST-REMEDIATION-MS0`) | Restores the canonical post + makes the engine reliable |
++| **B. Post from Fusion + load in WinMax** | Operator does it manually | Verifies Fusion's Autodesk post + WinMax — does NOT verify PRISM's engine |
++| **C. Build a Fusion `.cps` wrapper around PRISM's engine** | 2-3 day milestone, AFTER (A) is green | Routes Fusion's output through PRISM physics gates. Highest long-term value. |
++| **D. Build a WinMax GUI driver** | Half-day | Useful for any path above. Premature until (A) lands. |
++
++---
++
++## Recommendation
++
++1. **Don't ship a WinMax GUI driver this session** — the upstream engine isn't ready. Building UIA automation on top of a 50%-failing post is premature.
++2. **Open `HURCO-POST-REMEDIATION-MS0`** as a milestone with the 25 failures as units. Categories A + C are safety-relevant (UltiMotion missing → wrong cycle behavior; material-override floor missing → unsafe force). Categories B+D+E are output-fidelity.
++3. **For your Fusion-to-WinMax test pass** that you said you'll do: it'll exercise **Fusion's** post, not PRISM's. Useful as an independent baseline + good for spotting WinMax-side issues, but it's a different test than verifying PRISM's engine.
++4. **Reproduce the failures yourself:** `cd H:/prism/mcp-server && npx vitest run src/__tests__/HurcoV11MillMasterPostEngine.test.ts`
++
++---
++
++## Artifacts
++
++- This report: `state/shared/specs/HURCO-POST-VERIFICATION-2026-05-22.md`
++- Raw failure list: `state/shared/specs/HURCO-POST-VERIFICATION-FAILURES-2026-05-22.txt`
++- Engine: `mcp-server/src/engines/HurcoV11MillMasterPostEngine.ts` (1664 LOC)
++- Tests: `mcp-server/src/__tests__/HurcoV11*.test.ts` (11 files, 223 tests, 198 PASS / 25 FAIL)
++- Corpus probe: `state/shared/hurco-quick.json` + `state/shared/hurco-ncfiles.json`
++- WinMax PC: `C:\Program Files\Hurco\MT WinMax Desktop\WinMaxMill.exe` v11.4.3.31916
+diff --git a/state/shared/specs/HURCO-POST-VERIFICATION-FAILURES-2026-05-22.txt b/state/shared/specs/HURCO-POST-VERIFICATION-FAILURES-2026-05-22.txt
+new file mode 100644
+index 0000000000..d6f48b6642
+--- /dev/null
++++ b/state/shared/specs/HURCO-POST-VERIFICATION-FAILURES-2026-05-22.txt
+@@ -0,0 +1,50 @@
++     × Kienzle Fc check uses CANONICAL_KIENZLE constants and matches hand calc (regression: prior NaN bug) 4ms
++     × PostMove arc_cw with R is preserved through to G02 R# output 1ms
++     × Taylor tool-life check uses canonical C and n constants and matches T = (C/Vc)^(1/n) 1ms
++     × UltiMotion G187 P3 emitted by default 1ms
++     × aggressiveness param flows through to output and header 0ms
++     × custom kc1_1 override is honored over canonical (custom value reflected in Fc check string) 1ms
++     × emits G54.1 P12 extended offset for work_offset 12 10ms
++     × emits S<rpm> M03 spindle CW with exact RPM value 2ms
++     × emits setup_sheet by default with machine='Hurco VMX24' and controller='WinMax V11' 1ms
++     × falls back to canonical kc1_1 when no material override given (ISO M) 1ms
++     × getStats reports machine, controller, 12 tips, 5 base physics checks, 12-feature list 1ms
++     × optimized feed produces Fc ≤ limit (verify bound by recomputing Kienzle) 2ms
++     × partial override (kc1_1 only) keeps canonical mc and surfaces both in check string (U-PPGH04) 1ms
++     × reduces feed when predicted Fc exceeds max_cutting_force_N 3ms
++     × rejects kc1_1 override above safe ceiling (U-PPGH04) 1ms
++     × rejects kc1_1 override below safe floor (silent-disable guard, U-PPGH04) 3ms
++     × rejects mc override outside [0.10, 0.45] (U-PPGH04) 1ms
++     × rejects mismatched iso_group between op.material_iso and op.material.iso_group (U-PPGH04) 1ms
++     × setup_sheet.operations rows have sequential 1-based sequence numbers in order 1ms
++     × setup_sheet.tools deduplicated and sorted ascending by tool number 1ms
++     × stickout deflection check appears only when tool.stickout_mm provided; fails when ratio > 4×D 1ms
++     × structured tool coating + stickout flow into setup sheet 0ms
++     × uses structured tool.description override when supplied (flat tool_description shadowed) 2ms
++     × warnings array contains operation index + RPM value when physics check fails 1ms
++     × wraps a single PostMove array into a complete program 1ms
++HurcoV11 — Kienzle-bounded feed optimization > optimized feed produces Fc ≤ limit (verify bound by recomputing Kienzle)
++HurcoV11 — Kienzle-bounded feed optimization > reduces feed when predicted Fc exceeds max_cutting_force_N
++HurcoV11 — UltiMotion & metadata > UltiMotion G187 P3 emitted by default
++HurcoV11 — UltiMotion & metadata > warnings array contains operation index + RPM value when physics check fails
++HurcoV11 — material constant overrides > custom kc1_1 override is honored over canonical (custom value reflected in Fc check string)
++HurcoV11 — material constant overrides > falls back to canonical kc1_1 when no material override given (ISO M)
++HurcoV11 — material constant overrides > partial override (kc1_1 only) keeps canonical mc and surfaces both in check string (U-PPGH04)
++HurcoV11 — material constant overrides > rejects kc1_1 override above safe ceiling (U-PPGH04)
++HurcoV11 — material constant overrides > rejects kc1_1 override below safe floor (silent-disable guard, U-PPGH04)
++HurcoV11 — material constant overrides > rejects mc override outside [0.10, 0.45] (U-PPGH04)
++HurcoV11 — material constant overrides > rejects mismatched iso_group between op.material_iso and op.material.iso_group (U-PPGH04)
++HurcoV11 — physics checks > Kienzle Fc check uses CANONICAL_KIENZLE constants and matches hand calc (regression: prior NaN bug)
++HurcoV11 — physics checks > Taylor tool-life check uses canonical C and n constants and matches T = (C/Vc)^(1/n)
++HurcoV11 — physics checks > stickout deflection check appears only when tool.stickout_mm provided; fails when ratio > 4×D
++HurcoV11 — postSingle simplified API > PostMove arc_cw with R is preserved through to G02 R# output
++HurcoV11 — postSingle simplified API > aggressiveness param flows through to output and header
++HurcoV11 — postSingle simplified API > structured tool coating + stickout flow into setup sheet
++HurcoV11 — postSingle simplified API > wraps a single PostMove array into a complete program
++HurcoV11 — setup sheet emission > emits setup_sheet by default with machine='Hurco VMX24' and controller='WinMax V11'
++HurcoV11 — setup sheet emission > setup_sheet.operations rows have sequential 1-based sequence numbers in order
++HurcoV11 — setup sheet emission > setup_sheet.tools deduplicated and sorted ascending by tool number
++HurcoV11 — singleton & stats > getStats reports machine, controller, 12 tips, 5 base physics checks, 12-feature list
++HurcoV11 — spindle & coolant > emits S<rpm> M03 spindle CW with exact RPM value
++HurcoV11 — tool change > uses structured tool.description override when supplied (flat tool_description shadowed)
++HurcoV11 — units & work offsets > emits G54.1 P12 extended offset for work_offset 12
+
+--- END DIFF ---

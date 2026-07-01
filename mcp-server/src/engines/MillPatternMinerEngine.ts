@@ -21,9 +21,16 @@
  * @module engines/MillPatternMinerEngine
  */
 
+import { readFileSync } from "node:fs";
 import { log } from "../utils/Logger.js";
+// Static ESM imports for the parser singletons (was inline `require(...)` inside
+// mineJMDiePrograms -- CommonJS require is undefined under ESM/tsx and threw on every program,
+// yielding 0 chip-load samples. No circular dep: none of these parsers import MillPatternMiner.
+import { haasParserEngine } from "./HaasParserEngine.js";
 import type { HaasProgram, HaasToolSection, HaasOperation } from "./HaasParserEngine.js";
+import { hurcoParserEngine } from "./HurcoParserEngine.js";
 import type { HurcoProgram, HurcoToolSection, HurcoOperation } from "./HurcoParserEngine.js";
+import { rokuRokuParserEngine } from "./RokuRokuParserEngine.js";
 import type { RokuRokuProgram, RokuRokuToolSection, RokuRokuOperation } from "./RokuRokuParserEngine.js";
 
 // ============================================================================
@@ -105,6 +112,13 @@ export interface MillMineResult {
   top_patterns: MillPattern[];
   rpm_diameter_data: Array<{ rpm: number; diameter_mm: number; program: string }>;
 }
+
+// Controllers whose programs are G-code the Haas/Hurco/RokuRoku parsers can read. Anything else
+// (notably Mastercam .mcx-8 CAD/CAM binaries) is NOT G-code: reading it as utf-8 yields garbage and
+// 0 samples, so the JM Die miner skips + ACCOUNTS for it explicitly rather than silently undercounting.
+const MILL_GCODE_CONTROLLERS = new Set(["haas_ngc", "hurco_winmax", "fanuc"]);
+// Mastercam binary part files: .mcx, .mcx-8, .mcx-9, .mcam, etc.
+const MASTERCAM_BINARY_RE = /\.(mcx(-?\d+)?|mcam)$/i;
 
 // ============================================================================
 // CANNED CYCLE DEFINITIONS
@@ -664,13 +678,22 @@ export class MillPatternMinerEngine {
     controller: string;
     customer: string;
     topFolder: string;
-  }>): MillMineResult & { byCustomer: Record<string, number>; byTopFolder: Record<string, number> } {
+  }>): MillMineResult & {
+    byCustomer: Record<string, number>;
+    byTopFolder: Record<string, number>;
+    skipped_programs: number;
+    skipped_by_reason: Record<string, number>;
+  } {
     const result = this._initResult() as MillMineResult & {
       byCustomer: Record<string, number>;
       byTopFolder: Record<string, number>;
+      skipped_programs: number;
+      skipped_by_reason: Record<string, number>;
     };
     result.byCustomer = {};
     result.byTopFolder = {};
+    result.skipped_programs = 0;
+    result.skipped_by_reason = {};
 
     // Filter to mill programs only
     const millPrograms = programEntries.filter(p => p.programType === "mill");
@@ -682,13 +705,24 @@ export class MillPatternMinerEngine {
       result.byCustomer[entry.customer] = (result.byCustomer[entry.customer] || 0) + 1;
       result.byTopFolder[entry.topFolder] = (result.byTopFolder[entry.topFolder] || 0) + 1;
 
+      // Skip non-G-code entries (R12: account for them, never silently undercount). Mastercam
+      // .mcx-8 binaries + unknown controllers are not readable by the G-code parsers, so reading
+      // them as utf-8 produces 0 samples with no explanation.
+      const isMastercamBinary = MASTERCAM_BINARY_RE.test(entry.filePath);
+      if (isMastercamBinary || !MILL_GCODE_CONTROLLERS.has(entry.controller)) {
+        const reason = isMastercamBinary
+          ? "mastercam_binary"
+          : `unparsed_controller:${entry.controller || "unknown"}`;
+        result.skipped_programs++;
+        result.skipped_by_reason[reason] = (result.skipped_by_reason[reason] || 0) + 1;
+        continue;
+      }
+
       try {
         // Read and parse based on controller
-        const fs = require("fs");
-        const source = fs.readFileSync(entry.filePath, "utf-8");
+        const source = readFileSync(entry.filePath, "utf-8");
 
         if (entry.controller === "haas_ngc") {
-          const { haasParserEngine } = require("./HaasParserEngine.js");
           const parsed = haasParserEngine.parse(source, entry.filePath);
           result.total_tools += parsed.toolSections.length;
 
@@ -698,7 +732,6 @@ export class MillPatternMinerEngine {
             this._extractHaasCannedCycles(entry.filePath, section.operations, result);
           }
         } else if (entry.controller === "hurco_winmax") {
-          const { hurcoParserEngine } = require("./HurcoParserEngine.js");
           const parsed = hurcoParserEngine.parse(source, entry.filePath);
           result.total_tools += parsed.toolSections.length;
 
@@ -709,7 +742,6 @@ export class MillPatternMinerEngine {
           }
         } else if (entry.controller === "fanuc") {
           // Roku-Roku uses FANUC-style controller
-          const { rokuRokuParserEngine } = require("./RokuRokuParserEngine.js");
           const parsed = rokuRokuParserEngine.parse(source, entry.filePath);
           result.total_tools += parsed.toolSections.length;
 
@@ -728,7 +760,8 @@ export class MillPatternMinerEngine {
     this._computeTopPatterns(result);
 
     log.info(`[MillPatternMiner] JM Die mining complete: ` +
-      `${result.total_programs} programs, ${result.chip_load_samples.length} chip load samples, ` +
+      `${result.total_programs} programs (${result.skipped_programs} skipped: ${JSON.stringify(result.skipped_by_reason)}), ` +
+      `${result.chip_load_samples.length} chip load samples, ` +
       `${Object.keys(result.byCustomer).length} customers`);
 
     return result;

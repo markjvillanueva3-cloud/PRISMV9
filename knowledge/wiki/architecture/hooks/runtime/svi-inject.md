@@ -21,7 +21,7 @@ related:
 
 ## Description (from file header)
 
-svi-inject.mjs — Phase 0.14 SVI Session InjectionSessionStart hook that injects current SVI/Ψ summary into session context.Runs after awareness-bootstrap per HOOK_ORDER_REGISTRY.
+_(no header docblock — read source for behavior)_
 
 ## Events
 

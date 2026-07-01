@@ -23,15 +23,14 @@ related:
 |-------|-------|
 | Name | `frontend-merge-plan` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/frontend-merge-plan.md` |
+| Source | `C:/Users/wompu/.claude/commands/frontend-merge-plan.md` |
 | Model | default |
 | Tags | _(none)_ |
 
 ## Description (first paragraph)
 
-Reads `BUILD_STATE.NEEDS_FRONTEND.trees` and produces a
-port-vs-sandbox-vs-deprecate decision per build, plus the
-version-alignment work needed before merge.
+
+# /frontend-merge-plan — Codex frontend merge planner
 
 <!-- AUTO-END -->
 

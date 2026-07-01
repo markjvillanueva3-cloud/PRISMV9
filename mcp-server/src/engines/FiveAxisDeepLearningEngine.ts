@@ -317,6 +317,9 @@ const JM_DIE_TEMPLATES: FiveAxisTemplate[] = [
       mc: 0.22,
       hardness_hrc: 58,
       thermal_conductivity_w_mk: 20.5,
+      // ASM Handbook Vol. 1 (10th ed.) Table 2, AISI D2 tool steel
+      density_kg_m3: 7700,
+      specific_heat_j_kgk: 460,
     },
     strategy: FIVE_AXIS_STRATEGY_CATALOG.find(s => s.id === "hm_5x_shape_offset")!,
     cutting_params: [
@@ -401,6 +404,9 @@ const JM_DIE_TEMPLATES: FiveAxisTemplate[] = [
       mc: 0.21,
       hardness_hrc: 62,
       thermal_conductivity_w_mk: 24,
+      // ASM Handbook Vol. 16 (Machining), Table 1: M2 high-speed steel (W-Mo type)
+      density_kg_m3: 8160,
+      specific_heat_j_kgk: 420,
     },
     strategy: FIVE_AXIS_STRATEGY_CATALOG.find(s => s.id === "hm_5x_swarf")!,
     cutting_params: [
@@ -485,6 +491,9 @@ const JM_DIE_TEMPLATES: FiveAxisTemplate[] = [
       mc: 0.30,
       hardness_hrc: 0,
       thermal_conductivity_w_mk: 120,
+      // POCO EDM-3 Graphite datasheet (Entegris/POCO, rev 2019): density 1.81 g/cm³, cp 711 J/kgK
+      density_kg_m3: 1810,
+      specific_heat_j_kgk: 711,
     },
     strategy: FIVE_AXIS_STRATEGY_CATALOG.find(s => s.id === "mc_5x_flowline")!,
     cutting_params: [

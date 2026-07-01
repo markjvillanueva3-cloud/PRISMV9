@@ -1,0 +1,69 @@
+{
+  "id": "PP-S-00043",
+  "schemaVersion": "1.0.0",
+  "controller": {
+    "id": "okuma-osp-p300",
+    "vendor": "Okuma",
+    "family": "OSP-P300A",
+    "dialect": "okuma"
+  },
+  "operation": "threading",
+  "cycle": "tap-floating",
+  "axis_count": 5,
+  "material": {
+    "id": "K-GG25",
+    "group": "K",
+    "name": "grey cast iron"
+  },
+  "envelope": {
+    "id": "xl",
+    "x_mm": 2032,
+    "y_mm": 1016,
+    "z_mm": 762
+  },
+  "geometry": {
+    "depth_mm": 78.02,
+    "diameter_mm": 36.64,
+    "pitch_mm": 0.85,
+    "rapid_z_mm": 38.9
+  },
+  "dialect_features": [
+    "wcs",
+    "canned-cycle"
+  ],
+  "expected_gcode_shape": {
+    "lines_min": 70,
+    "lines_max": 200,
+    "must_contain": [
+      "%",
+      "G15 H",
+      "G94",
+      "G169"
+    ],
+    "must_not_contain": [
+      "CYCL DEF",
+      "BEGIN PGM"
+    ]
+  },
+  "safety_tier": "shop_floor",
+  "omega_floor": 0.98,
+  "sx_floor": 0.98,
+  "validation": {
+    "oracle": "master_post_generate",
+    "controller_profile_check": "master_post_get_controller_profile",
+    "dialect_features_check": "dialect_features",
+    "pass_criteria": "shape_match AND dialect_correct AND validation_pass AND omega_meets_floor",
+    "reject_on": [
+      "textual-cross-map",
+      "missing-dialect-resolve",
+      "softened-master-post-threshold"
+    ]
+  },
+  "metadata": {
+    "generatedAt": "2026-05-25T00:00:26.726Z",
+    "generator": "generate-post-processor-scenarios.mjs",
+    "slot_owner": "india",
+    "milestone": "PRISM-LAUNCH-READINESS-MS0",
+    "unit": "P0-U06"
+  }
+}

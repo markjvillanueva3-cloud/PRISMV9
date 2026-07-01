@@ -1,0 +1,249 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta name="prism-source-hash" content="eb6ec095fd879a6443b5c6faf7b352af9c989fe435a0b84d675cfc361fb6d72b">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SF-PSN-WIRE-MS0/U-SFPSN-02B — Taylor Formula Reconciliation Spec</title>
+<style>
+  :root {
+    --bg: #0f1014;
+    --panel: #1a1c23;
+    --panel-2: #232631;
+    --fg: #e4e6eb;
+    --fg-dim: #9aa0a8;
+    --border: #2c303a;
+    --ok: #4ade80;
+    --warn: #fbbf24;
+    --fail: #f87171;
+    --info: #60a5fa;
+    --link: #93c5fd;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; padding: 1.5rem; background: var(--bg); color: var(--fg);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, sans-serif;
+    font-size: 14px; line-height: 1.5; }
+  h1 { font-size: 1.6rem; margin: 0 0 0.25rem 0; }
+  h2 { font-size: 1.15rem; margin: 1.5rem 0 0.5rem 0; padding-bottom: 0.25rem;
+    border-bottom: 1px solid var(--border); color: var(--fg); }
+  .meta { color: var(--fg-dim); font-size: 0.85rem; margin-bottom: 1rem; }
+  .panel { background: var(--panel); border: 1px solid var(--border); border-radius: 6px;
+    padding: 0.75rem 1rem; margin-bottom: 1rem; }
+  .headline-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 0.5rem; margin-bottom: 1rem; }
+  .card { background: var(--panel-2); border: 1px solid var(--border); border-radius: 6px;
+    padding: 0.65rem 0.85rem; }
+  .card .lbl { font-size: 0.8rem; color: var(--fg-dim); }
+  .card .val { font-size: 1.4rem; font-weight: 600; margin: 0.15rem 0; font-variant-numeric: tabular-nums; }
+  .card .hint { font-size: 0.75rem; color: var(--fg-dim); }
+  .card.ok    { border-left: 3px solid var(--ok); }
+  .card.warn  { border-left: 3px solid var(--warn); }
+  .card.fail  { border-left: 3px solid var(--fail); }
+  .card.info  { border-left: 3px solid var(--info); }
+  table { width: 100%; border-collapse: collapse; margin: 0.5rem 0 1rem; font-size: 0.9rem;
+    background: var(--panel); border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }
+  caption { text-align: left; padding: 0.4rem 0.65rem; color: var(--fg-dim);
+    background: var(--panel-2); font-weight: 500; }
+  th, td { padding: 0.4rem 0.65rem; text-align: left; border-bottom: 1px solid var(--border);
+    font-variant-numeric: tabular-nums; vertical-align: top; }
+  th { background: var(--panel-2); color: var(--fg-dim); font-weight: 500;
+    text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.04em; }
+  tr:last-child td { border-bottom: none; }
+  td.right { text-align: right; }
+  ul, ol { margin: 0.4rem 0 1rem 1.25rem; }
+  li { margin: 0.15rem 0; }
+  .badge { display: inline-block; padding: 0.1rem 0.5rem; border-radius: 999px;
+    font-size: 0.75rem; font-weight: 500; background: var(--panel-2); color: var(--fg-dim);
+    border: 1px solid var(--border); }
+  .badge.ok   { background: rgba(74, 222, 128, 0.12); color: var(--ok);   border-color: rgba(74,222,128,0.3); }
+  .badge.warn { background: rgba(251, 191, 36, 0.12); color: var(--warn); border-color: rgba(251,191,36,0.3); }
+  .badge.fail { background: rgba(248, 113, 113, 0.12); color: var(--fail); border-color: rgba(248,113,113,0.3); }
+  .badge.info { background: rgba(96, 165, 250, 0.12); color: var(--info); border-color: rgba(96,165,250,0.3); }
+  .badge-grid { display: flex; flex-wrap: wrap; gap: 0.3rem; margin: 0.3rem 0 1rem 0; }
+  .kv { display: grid; grid-template-columns: max-content 1fr; gap: 0.2rem 0.85rem;
+    margin: 0.4rem 0 1rem 0; }
+  .kv .k { color: var(--fg-dim); }
+  svg.bar-chart { display: block; max-width: 100%; height: auto; }
+  svg .bar { fill: var(--info); }
+  svg .bar.ok   { fill: var(--ok); }
+  svg .bar.warn { fill: var(--warn); }
+  svg .bar.fail { fill: var(--fail); }
+  svg text { fill: var(--fg); font-family: monospace; font-size: 11px; }
+  svg .axis text { fill: var(--fg-dim); }
+  code { background: var(--panel-2); padding: 0 0.3rem; border-radius: 3px;
+    font-family: "Fira Code", Consolas, Menlo, monospace; font-size: 0.85em; }
+  a { color: var(--link); }
+  footer { margin-top: 2rem; padding-top: 0.75rem; border-top: 1px solid var(--border);
+    font-size: 0.8rem; color: var(--fg-dim); }
+</style>
+</head>
+<body>
+<h1>SF-PSN-WIRE-MS0/U-SFPSN-02B — Taylor Formula Reconciliation Spec</h1>
+<div class="meta">rendered from state/shared/specs/SF-PSN-TAYLOR-FORMULA-RECONCILIATION-2026-05-22.md</div>
+<div class="meta">Generated 2026-05-23T00:46:57.831Z</div>
+<style>
+  .prism-md-body { max-width: 70rem; margin: 0 auto; }
+  .prism-h1 { font-size: 1.6rem; }
+  .prism-h2 { font-size: 1.25rem; border-bottom: 1px solid var(--border); padding-bottom: 0.25rem; }
+  .prism-h3 { font-size: 1.1rem; color: var(--info); }
+  .prism-h4, .prism-h5, .prism-h6 { font-size: 1rem; color: var(--fg-dim); }
+  .prism-md-body p { margin: 0.5rem 0; }
+  .prism-md-list { margin: 0.5rem 0 0.5rem 1.25rem; padding: 0; }
+  .prism-md-list li { margin: 0.15rem 0; }
+  .prism-md-table { border-collapse: collapse; margin: 0.75rem 0; width: 100%; }
+  .prism-md-table th, .prism-md-table td { border: 1px solid var(--border); padding: 0.35rem 0.6rem; text-align: left; }
+  .prism-md-table th { background: var(--panel-2); }
+  .prism-codeblock { background: var(--panel-2); border: 1px solid var(--border); border-radius: 4px; padding: 0.6rem 0.8rem; overflow-x: auto; font-family: "Cascadia Code", Consolas, monospace; font-size: 13px; }
+  .prism-inline-code { background: var(--panel-2); padding: 0 0.25rem; border-radius: 3px; font-family: "Cascadia Code", Consolas, monospace; font-size: 0.92em; }
+  .prism-quote { border-left: 3px solid var(--info); background: var(--panel-2); padding: 0.5rem 0.85rem; margin: 0.75rem 0; color: var(--fg-dim); }
+  .prism-hr { border: 0; border-top: 1px solid var(--border); margin: 1rem 0; }
+  .prism-link { color: var(--link); text-decoration: none; }
+  .prism-link:hover { text-decoration: underline; }
+  .prism-bad-link { color: var(--fail); text-decoration: line-through; }
+  .prism-unclosed::before { content: "⚠ unterminated code block"; display: block; color: var(--warn); font-size: 0.85em; margin-bottom: 0.25rem; }
+  </style><main class="prism-md-body"><h1 class="prism-h1">SF-PSN-WIRE-MS0/U-SFPSN-02B — Taylor Formula Reconciliation Spec</h1>
+<p><strong>Date:</strong> 2026-05-22 · <strong>Author:</strong> claude-a8894112 (slot juliett /loop iter 5) · <strong>Milestone:</strong> [[SF-PSN-WIRE-MS0]] · <strong>Companion:</strong> [[reference_sf_psn_u02_semantic_gap_2026_05_22]]</p>
+<h2 class="prism-h2">1. Problem statement</h2>
+<p>U-SFPSN-02A composed <code class="prism-inline-code">KienzleForceModel</code> via a bit-equivalent behaviour-preserving shim (shipped <code class="prism-inline-code">d46733d245</code>, 180 fixtures pass within 1e-12). The Taylor side cannot follow the same pattern: the engine&#39;s inline <code class="prism-inline-code">extendedTaylorToolLife()</code> and the module&#39;s <code class="prism-inline-code">ExtendedTaylorModel.calculate()</code> use <strong>structurally different formulas</strong>, not just differently-parameterised forms of the same formula.</p>
+<h3 class="prism-h3">1.1 Inline (engine, UltimateSpeedFeedEngine.ts:925)</h3>
+<pre class="prism-codeblock"><code>T = (C / (V * f^m * d^p))^(1/n),   m = p = 0.1 (hard-coded defaults)</code></pre>
+<p>Canonical extended-Taylor: a single <code class="prism-inline-code">^(1/n)</code> over the entire <code class="prism-inline-code">C/X</code> ratio.</p>
+<h3 class="prism-h3">1.2 Module (<code class="prism-inline-code">src/algorithms/ExtendedTaylorModel.ts</code> — actual implementation, lines 311-361)</h3>
+<p>The docstring header advertises:</p>
+<pre class="prism-codeblock"><code>T = (C * k_coat * k_temp * k_hard) / (V^(1/n) * f^a * ap^b)</code></pre>
+<p><strong>but the implementation differs from the docstring on two counts</strong> (verified by reading <code class="prism-inline-code">calculate()</code> body at U-02B pickup, 2026-05-22 iter 8):</p>
+<ol class="prism-md-list"><li><code class="prism-inline-code">C</code> is <strong>inside</strong> the <code class="prism-inline-code">^(1/n)</code> operation: <code class="prism-inline-code">baseLife = (C/Vc)^(1/n)</code> (line 313). The docstring&#39;s <code class="prism-inline-code">Vc^(1/n)</code> denominator (with <code class="prism-inline-code">C</code> raised to power 1) is wrong.</li><li><code class="prism-inline-code">f</code> and <code class="prism-inline-code">ap</code> are <strong>normalized against reference values</strong> before being raised to <code class="prism-inline-code">^a</code> and <code class="prism-inline-code">^b</code>:</li></ol>
+<p>``<code class="prism-inline-code">    feedFactor = (f / REFERENCE_FEED)^a       REFERENCE_FEED  = 0.30 mm/rev   (line 169, 320)    depthFactor = (ap / REFERENCE_DEPTH)^b    REFERENCE_DEPTH = 2.0 mm        (line 170, 321)    </code>`<code class="prism-inline-code">    The docstring&#39;s raw </code>f^a * ap^b` is missing the normalization.</p>
+<p>The <strong>actual</strong> module formula is:</p>
+<pre class="prism-codeblock"><code>T_module = (C/Vc)^(1/n) * (k_coat * k_temp * k_hard) / ((f/0.30)^a * (ap/2.0)^b)</code></pre>
+<p>Where <code class="prism-inline-code">a, b</code> are per-ISO-group <code class="prism-inline-code">EXTENDED_EXPONENTS</code> (P: 0.77/0.37, M: 0.82/0.35, K: 0.70/0.40, N: 0.60/0.30, S: 0.85/0.42, H: 0.80/0.38).</p>
+<h3 class="prism-h3">1.3 The two formulas are still NOT algebraically equivalent — but the gap is smaller than spec v1 thought</h3>
+<p>Expanding inline (canonical):</p>
+<pre class="prism-codeblock"><code>T_inline = (C/V)^(1/n) * f^(-0.1/n) * d^(-0.1/n)</code></pre>
+<p>Expanding module (corrected understanding):</p>
+<pre class="prism-codeblock"><code>T_module(k=1) = (C/V)^(1/n) * (0.30/f)^a * (2.0/ap)^b
+              = (C/V)^(1/n) * 0.30^a * 2.0^b * f^(-a) * ap^(-b)</code></pre>
+<table class="prism-md-table"><thead><tr><th>Term</th><th>Inline</th><th>Module</th></tr></thead><tbody><tr><td>C</td><td><code class="prism-inline-code">(C/V)^(1/n)</code></td><td><code class="prism-inline-code">(C/V)^(1/n)</code> — <strong>same</strong></td></tr>
+<tr><td>V</td><td>inside <code class="prism-inline-code">^(1/n)</code></td><td>inside <code class="prism-inline-code">^(1/n)</code> — <strong>same</strong></td></tr>
+<tr><td>f</td><td><code class="prism-inline-code">f^(-0.1/n)</code> ≈ <code class="prism-inline-code">f^-0.4</code> (n=0.25)</td><td><code class="prism-inline-code">0.30^0.77 <em> f^-0.77</code> ≈ <code class="prism-inline-code">0.394 </em> f^-0.77</code></td></tr>
+<tr><td>d</td><td><code class="prism-inline-code">d^(-0.1/n)</code> ≈ <code class="prism-inline-code">d^-0.4</code></td><td><code class="prism-inline-code">2.0^0.37 <em> ap^-0.37</code> ≈ <code class="prism-inline-code">1.293 </em> ap^-0.37</code></td></tr></tbody></table>
+<p>The first two terms agree exactly; the third and fourth differ in exponent topology (the inline ties <code class="prism-inline-code">m/n</code> and <code class="prism-inline-code">p/n</code> to the speed exponent, the module&#39;s <code class="prism-inline-code">a, b</code> are independent material-tuned values).</p>
+<h3 class="prism-h3">1.4 Worked divergence — REVISED (ISO P, V=150, C=250, f=0.15, ap=2, n=0.25)</h3>
+<table class="prism-md-table"><thead><tr><th>Formula</th><th>Computation</th><th>Result</th></tr></thead><tbody><tr><td>Inline</td><td><code class="prism-inline-code">(250 / (150 <em> 0.15^0.1 </em> 2^0.1))^4 = (250/132.97)^4</code></td><td><strong>≈ 12.5 min</strong></td></tr>
+<tr><td>Module (actual impl, k=1)</td><td><code class="prism-inline-code">(250/150)^4 <em> (0.30/0.15)^0.77 </em> (2.0/2.0)^0.37 = 7.716 <em> 1.706 </em> 1.0</code></td><td><strong>≈ 13.2 min</strong></td></tr>
+<tr><td>Module per docstring (wrong)</td><td><code class="prism-inline-code">(250 <em> 1) / (150^4 </em> 0.15^0.77 * 2^0.37)</code></td><td>~1.8 × 10⁻⁶ min (spec v1, refuted)</td></tr></tbody></table>
+<p><strong>Spec v1&#39;s &quot;orders-of-magnitude divergence&quot; claim was wrong</strong> — it computed the docstring formula, not the actual implementation. The real divergence is ~5% for this fixture, scaling with the difference between <code class="prism-inline-code">(0.10/n, 0.10/n)</code> (inline) and <code class="prism-inline-code">(a, b)</code> (module) exponents. This is still not bit-equivalent — option (a) inline_compat is still required for U-02B&#39;s headline exit-condition (preserve engine outputs bit-equivalent) — but spec v2 must record the actual algebra, not the docstring&#39;s.</p>
+<h2 class="prism-h2">2. Decision</h2>
+<p><strong>OPTION (a) — extend <code class="prism-inline-code">ExtendedTaylorModel</code> with an <code class="prism-inline-code">inline_compat</code> mode that reproduces the engine&#39;s <code class="prism-inline-code">m = p = 0.1</code> form.</strong></p>
+<p>The module continues to expose its richer extended form (coating/temp/hardness corrections + ISO-group exponents) as the default. Callers requesting bit-equivalence to the engine&#39;s pre-refactor behaviour pass <code class="prism-inline-code">mode: &quot;inline_compat&quot;</code> and the module emits:</p>
+<pre class="prism-codeblock"><code>T = (C / (V * f^0.1 * d^0.1))^(1/n)</code></pre>
+<p>No corrections applied; no ISO-group exponent override. This is structurally identical to the engine&#39;s inline formula.</p>
+<h3 class="prism-h3">2.1 Why option (a) over option (b)</h3>
+<table class="prism-md-table"><thead><tr><th>Criterion</th><th>(a) inline_compat shim</th><th>(b) accept module physics, re-baseline tests</th></tr></thead><tbody><tr><td>Engine-side risk</td><td>None — bit-equivalent</td><td>High — 22.4K + 33.1K LOC of UltimateSF test fixtures must be re-baselined</td></tr>
+<tr><td>Module physics gained</td><td>None in default callers</td><td>Coating/temp/hardness + better-tuned exponents flow through every SF call</td></tr>
+<tr><td>Effort</td><td>≈30 (add mode flag + branch)</td><td>≈100+ (re-baseline + verify each fixture is intentional)</td></tr>
+<tr><td>Reversibility</td><td>Cheap — flip default later</td><td>Hard — fixture deltas merge with peer changes</td></tr>
+<tr><td>Cohesion with U-02A</td><td>High — same shim pattern</td><td>Low — different mental model</td></tr>
+<tr><td>Unblocks U-02C?</td><td>Yes</td><td>Yes</td></tr></tbody></table>
+<p>(a) is the safer first step. It preserves engine behaviour while making the algorithm-module composition real, which is what U-SFPSN-02B&#39;s headline exit-condition requires.</p>
+<h3 class="prism-h3">2.2 (b) is tracked as a future evolution, not lost</h3>
+<p>A new unit <strong>U-SFPSN-02D</strong> (effort ≈100, P2) is added to the milestone envelope when this spec lands: <em>&quot;adopt ExtendedTaylorModel&#39;s full extended form across the SF physics path + re-baseline UltimateSF test fixtures&quot;</em>. (b)&#39;s better physics is captured as a follow-up rather than being abandoned.</p>
+<h2 class="prism-h2">3. Implementation plan (U-SFPSN-02B&#39;s coding work)</h2>
+<h3 class="prism-h3">3.1 Module change (additive, low-risk)</h3>
+<p>Add an <code class="prism-inline-code">inline_compat</code> flag to <code class="prism-inline-code">TaylorInput</code>:</p>
+<pre class="prism-codeblock" data-lang="ts"><code>export interface TaylorInput extends AlgorithmInput {
+  // ... existing fields ...
+  /** When true, reproduce the canonical extended-Taylor form
+   * T = (C / (V * f^m * d^p))^(1/n) with m = p = 0.1 and no corrections.
+   * Used by SF engine shims (SF-PSN-WIRE-MS0/U-SFPSN-02B) to preserve
+   * pre-2026-05-22 engine outputs bit-equivalent. */
+  inline_compat?: boolean;
+}</code></pre>
+<p>Branch at the top of <code class="prism-inline-code">calculate()</code> (after validation):</p>
+<pre class="prism-codeblock" data-lang="ts"><code>if (input.inline_compat) {
+  const Vc = input.Vc_m_min;
+  const f = input.f_mm;
+  const ap = input.ap_mm;
+  const { C, n, isoGroup } = resolveTaylor(input);  // existing helper
+  const m = 0.1, p = 0.1;
+  const T = Math.pow(C / (Vc * Math.pow(f, m) * Math.pow(ap, p)), 1 / n);
+  const T_clamped = Math.max(1, Math.min(600, T));
+  return {
+    tool_life_min: createAtomicValue(T_clamped, &quot;min&quot;, 15, &quot;Taylor-inline-compat&quot;, 0.85,
+      `T = (${C}/(${Vc}*${f}^0.1*${ap}^0.1))^(1/${n})`),
+    base_life_min: createAtomicValue(T, &quot;min&quot;, 15, &quot;Taylor-inline-compat&quot;, 0.85),
+    taylor_C: createAtomicValue(C, &quot;m/min&quot;, 5, &quot;canonical&quot;, 0.95),
+    taylor_n: createAtomicValue(n, &quot;-&quot;, 5, &quot;canonical&quot;, 0.95),
+    feed_exponent: 0.1,
+    depth_exponent: 0.1,
+    coating_factor: 1.0,
+    temperature_factor: 1.0,
+    hardness_factor: 1.0,
+    total_correction: 1.0,
+    changes_per_hour: createAtomicValue(60 / T_clamped, &quot;1/h&quot;, 15, &quot;derived&quot;, 0.85),
+    safety: { score: 0.85 } as SafetyScore,
+    computed_at: new Date().toISOString(),
+    algorithm_version: ExtendedTaylorModelImpl.VERSION,
+    warnings: [],
+  };
+}
+// ... existing extended-form code below ...</code></pre>
+<h3 class="prism-h3">3.2 Engine shim (in UltimateSpeedFeedEngine.ts:925)</h3>
+<pre class="prism-codeblock" data-lang="ts"><code>import { ExtendedTaylorModel } from &quot;../algorithms/ExtendedTaylorModel.js&quot;;
+
+function extendedTaylorToolLife(
+  Vc_mpm: number, n: number, C: number,
+  feed_mm?: number, doc_mm?: number,
+  m: number = 0.1, p: number = 0.1,
+): TaylorResult {
+  const f = Math.max(0.01, feed_mm || 0.15);
+  const d = Math.max(0.1, doc_mm || 2.0);
+
+  // U-SFPSN-02B: delegate to ExtendedTaylorModel&#39;s inline_compat mode.
+  // Engine&#39;s inline_compat hard-codes m=p=0.1; if the caller passes other
+  // m/p the inline path is exercised directly (rare — only one caller does).
+  let T_min: number;
+  if (m === 0.1 &amp;&amp; p === 0.1) {
+    const out = ExtendedTaylorModel.calculate({
+      Vc_m_min: Vc_mpm,
+      f_mm: f,
+      ap_mm: d,
+      inline_compat: true,
+      material: { name: &quot;inline-shim&quot;, kc1_1: 0, mc: 0.25, taylor_C: C, taylor_n: n, iso_group: &quot;P&quot; } as any,
+    });
+    T_min = out.tool_life_min.value;
+  } else {
+    // Non-default m/p — fall through to local formula (no module support yet).
+    T_min = Math.pow(C / (Vc_mpm * Math.pow(f, m) * Math.pow(d, p)), 1 / n);
+    T_min = Math.max(1, Math.min(600, T_min));
+  }
+
+  const speedSens = -1 / n;
+  const feedSens = -m / n;
+  const docSens = -p / n;
+  const absSens = [Math.abs(speedSens), Math.abs(feedSens), Math.abs(docSens)];
+  const dominant = absSens[0] &gt;= absSens[1] &amp;&amp; absSens[0] &gt;= absSens[2] ? &quot;speed&quot; as const
+    : absSens[1] &gt;= absSens[2] ? &quot;feed&quot; as const : &quot;doc&quot; as const;
+  return { T_min, sensitivity: { speed: speedSens, feed: feedSens, doc: docSens, dominant } };
+}</code></pre>
+<p>Sensitivity analysis stays inline (it&#39;s algebraic, not formula-dependent).</p>
+<h3 class="prism-h3">3.3 Equivalence test (mirrors U-02A pattern)</h3>
+<p><code class="prism-inline-code">mcp-server/src/__tests__/TaylorShimEquivalence.test.ts</code>:</p>
+<ul class="prism-md-list"><li>Frozen <code class="prism-inline-code">oldExtendedTaylorToolLife</code> baseline embedded verbatim from <code class="prism-inline-code">df730c2f3a:925-945</code>.</li><li>100+ fixtures: 6 ISO C/n pairs × 5 Vc × 4 f × 4 d.</li><li>Assert <code class="prism-inline-code">|T_new - T_old| / max(1, |T_old|) &lt; 1e-10</code> (allow some FP drift since module re-enters validation pipeline).</li><li>Verify <code class="prism-inline-code">sensitivity</code> triple matches exactly (purely algebraic).</li></ul>
+<h2 class="prism-h2">4. Acceptance criteria (recorded against U-SFPSN-02B)</h2>
+<ol class="prism-md-list"><li><code class="prism-inline-code">ExtendedTaylorModel.calculate()</code> accepts <code class="prism-inline-code">inline_compat: true</code> and returns bit-equivalent (within 1e-10) of the engine&#39;s pre-refactor inline formula.</li><li><code class="prism-inline-code">extendedTaylorToolLife()</code> shim delegates to the module for the default <code class="prism-inline-code">m=p=0.1</code> path, falls through for non-default m/p (single edge case).</li><li><code class="prism-inline-code">TaylorShimEquivalence.test.ts</code> passes 100+ fixtures.</li><li>Existing UltimateSpeedFeedEngine.test.ts pass-rate unchanged (currently 46/52, the 6 pre-existing failures stay pre-existing).</li><li><code class="prism-inline-code">scripts/sf-psn-leverage-rank.mjs</code> re-run shows <code class="prism-inline-code">composedAlgorithmModules</code> ⊇ <code class="prism-inline-code">{KienzleForceModel, ExtendedTaylorModel}</code> and <code class="prism-inline-code">compositionGapPct</code> falls.</li></ol>
+<h2 class="prism-h2">5. Risks + mitigations</h2>
+<table class="prism-md-table"><thead><tr><th>Risk</th><th>Mitigation</th></tr></thead><tbody><tr><td>Module&#39;s <code class="prism-inline-code">inline_compat</code> mode&#39;s clamp <code class="prism-inline-code">[1, 600]</code> differs from inline <code class="prism-inline-code">Math.max(1, Math.min(600, T_min))</code></td><td>Same clamp on both sides — identical.</td></tr>
+<tr><td>Module validation rejects <code class="prism-inline-code">f_mm &lt; 0.01</code> or <code class="prism-inline-code">ap_mm &lt; 0.1</code> where inline accepted</td><td>Pre-floor the shim inputs to module&#39;s min before calling. Document as U-02A-style &quot;documented gap&quot; if behaviour differs at degenerate inputs.</td></tr>
+<tr><td>Material override via inline <code class="prism-inline-code">taylor_C, taylor_n</code> mid-MaterialPhysics shape</td><td>Same <code class="prism-inline-code">as any</code> pattern as U-02A (already linted-disabled with explanation).</td></tr>
+<tr><td>TypeScript compile errors from new <code class="prism-inline-code">inline_compat</code> field</td><td>Schema migration — bump ExtendedTaylorModel&#39;s interface version, regenerate any generated schemas.</td></tr></tbody></table>
+<h2 class="prism-h2">6. Out of scope</h2>
+<ul class="prism-md-list"><li>Adopting the module&#39;s full extended form (coating/temp/hardness corrections + ISO-group exponents) → tracked as U-SFPSN-02D (new unit, P2).</li><li>Reading the module&#39;s actual <code class="prism-inline-code">calculate()</code> body to confirm the docstring formula matches implementation. The <code class="prism-inline-code">inline_compat</code> branch sidesteps this; U-02D will require it.</li><li>Modifying any test fixture that depends on the engine&#39;s current Taylor outputs.</li></ul>
+<h2 class="prism-h2">7. Approval gate</h2>
+<ul class="prism-md-list"><li>[ ] 3-of-3 scrutiny at next /loop iter (per CLAUDE.md scrutiny gate).</li><li>[x] <strong>2026-05-22 iter 8 (claude-a8894112/juliett)</strong> — module&#39;s <code class="prism-inline-code">calculate()</code> body read; spec §1.2/1.3/1.4 revised. Docstring was wrong on (a) <code class="prism-inline-code">C</code> placement inside <code class="prism-inline-code">^(1/n)</code> and (b) reference-value normalization of f/ap. Spec&#39;s &quot;orders-of-magnitude divergence&quot; claim refuted; real gap ~5% for ISO-P/n=0.25 fixture. Option (a) inline_compat still chosen — divergence is structural (exponent topology) even if smaller than first thought. Implementation now safe to proceed.</li></ul>
+<h2 class="prism-h2">8. Linked</h2>
+<ul class="prism-md-list"><li>Audit: <code class="prism-inline-code">state/shared/specs/SF-PSN-VALUE-NODE-AUDIT-2026-05-22.md</code> (F1)</li><li>Finding: <code class="prism-inline-code">knowledge/memories/reference/reference_sf_psn_u02_semantic_gap_2026_05_22.md</code></li><li>U-02A shipped: commit <code class="prism-inline-code">d46733d245</code>, test file <code class="prism-inline-code">mcp-server/src/__tests__/KienzleShimEquivalence.test.ts</code></li><li>Module: <code class="prism-inline-code">mcp-server/src/algorithms/ExtendedTaylorModel.ts</code></li><li>Engine: <code class="prism-inline-code">mcp-server/src/engines/UltimateSpeedFeedEngine.ts</code> lines 925-945</li><li>Meta artifact: <code class="prism-inline-code">scripts/sf-psn-leverage-rank.mjs</code></li></ul></main><footer>
+<div>html-report-render schemaVersion 1.0.0</div>
+</footer>
+</body>
+</html>

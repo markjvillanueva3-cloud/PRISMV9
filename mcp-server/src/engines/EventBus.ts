@@ -309,7 +309,15 @@ export interface ScheduleEventPayload {
 const EVENT_CONSTANTS = {
   MAX_HISTORY: 1000,
   DEFAULT_TIMEOUT_MS: 5000,
-  MAX_SUBSCRIPTIONS: 500,
+  // Raised 500 -> 50000 (2026-06-01, slot:echo). ROOT CAUSE of the recurring
+  // "Max subscriptions reached" wedge: the fresh-McpServer-per-request wiring (1297b0a8f5
+  // buildRequestServer/bindDispatchers) subscribes to this singleton per /mcp request without
+  // an unsubscribe on request-end, so a busy multi-chat fleet saturated the 500 cap in ~12 calls
+  // and EVERY action then 500'd — defeating sustained post-training across the JM fleet. The PROPER
+  // fix is per-request subscription teardown (owner: MCP-core/golf, routed via chat bus); this
+  // ceiling raise unblocks training now and is bounded by the existing RSS watchdog (3GB preemptive
+  // restart) + the 60s CLEANUP_INTERVAL — it cannot regress behaviour (strictly higher ceiling).
+  MAX_SUBSCRIPTIONS: 50000,
   CLEANUP_INTERVAL_MS: 60000,
   MAX_EVENT_PAYLOAD_SIZE: 1024 * 1024  // 1MB
 };
@@ -596,6 +604,12 @@ export class EventBus {
 
     const totalTime = Date.now() - startTime;
     this.handlerTimes.push(totalTime);
+    // Bound synchronously at the push site: the 60s startCleanup interval also
+    // trims, but between ticks a busy bus accumulates well past the cap. Same
+    // 1000/500 high-water/retain as startCleanup, so avgHandlerTime is unchanged.
+    if (this.handlerTimes.length > 1000) {
+      this.handlerTimes = this.handlerTimes.slice(-500);
+    }
 
     // Add to history
     this.addToHistory({
@@ -1213,6 +1227,17 @@ export class EventBus {
     name: string,
     handler: (params: Record<string, any>, context: { trigger: TypedEvent; chain_id: string }) => Promise<Record<string, any>>,
   ): void {
+    // FAIL-LOUD dup-guard (slot:bravo, 2026-06-18, U-EVENTBUS-DUP-WARN). Registration is
+    // last-writer-wins (Map.set), so a SECOND registration of the same name silently REPLACES the
+    // first -> one handler becomes unreachable and a reactive-chain step (executeChain looks the
+    // handler up by name) resolves to the WRONG handler. That was a real latent bug: two bootstraps
+    // both registered "reoptimize_schedule" (U-REOPT-COLLISION-FIX). We still overwrite (back-compat:
+    // legitimate re-registration / hot-reload stays allowed) but now WARN loudly so a collision is
+    // surfaced, never silent. There are zero duplicate action names today, so this fires only on a
+    // real future collision -- turning the silent footgun into a loud one (R12 fail-loud).
+    if (this.actionRegistry.has(name)) {
+      log.warn(`[EventBus] Action "${name}" RE-REGISTERED -- the previous handler is now unreachable (last-writer-wins). If two modules registered the same action name this is a collision: rename one.`);
+    }
     this.actionRegistry.set(name, handler);
     log.debug(`[EventBus] Action registered: ${name}`);
   }

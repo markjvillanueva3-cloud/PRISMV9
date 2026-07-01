@@ -72,6 +72,23 @@ export interface HurcoOperation {
   g_code: string | null;
   line_number: number;
   params: Record<string, number | string>;
+  /**
+   * U-HURCO-PARSER-GCODE-MODE (echo iter9 2026-05-24) — populated by the new
+   * inline-G-code op extraction path. Optional + additive so legacy callers
+   * + the 14 existing V11 test files stay untouched.
+   */
+  tool_number?: number;
+  spindle_rpm?: number;
+  feed_mm_min?: number;
+  axial_depth_mm?: number;
+  radial_depth_mm?: number;
+  end_line_number?: number;
+  /**
+   * Motion coordinates parsed from G1/G2/G3 blocks within this tool segment.
+   * Empty for canned-cycle ops (G81/G83/etc.) which carry their position
+   * in `params` instead.
+   */
+  coordinates?: Array<{ x: number; y: number; z: number; type: "rapid" | "linear" | "arc_cw" | "arc_ccw" }>;
 }
 
 export interface HurcoSafetyInfo {
@@ -150,6 +167,29 @@ export class HurcoParserEngine {
     this._extractPartSetup(lines, program);
     this._extractToolSections(lines, program);
     this._extractOperations(lines, program);
+    // U-HURCO-PARSER-GCODE-MODE (echo iter9): fallback for inline-G-code .hnc
+    // files (Fanuc-style with linear motion, no canned cycles). Synthesizes
+    // one HurcoOperation per T# M6 tool-change segment so downstream consumers
+    // (roundtrip harness, JM Die programs) see a populated operations[] with
+    // actual motion coordinates. Trigger: mode is gcode/mixed AND no existing
+    // op already carries coordinates (the canned-cycle classifier never sets
+    // them, so its conversational-comment matches don't block this fallback —
+    // a real production .hnc with "(face mill)" in a tool comment was the
+    // false-positive that hid this path until iter9 caught it).
+    // U-HURCO-PARSER-MS1-INLINE-NEXT-TO-CANNED (echo iter12): files like
+    // 0520396.hnc carry BOTH G81/G84 canned cycles AND inline G1 motion in
+    // different tool segments. The canned-cycle classifier emits ops with
+    // g_code !== null BUT NO coordinates, leaving the harness with nothing
+    // re-emittable. Run the fallback whenever no op has coords, regardless
+    // of g_code presence — the inline path picks up the surrounding G0/G1
+    // setup motion AND tool-change boundaries, complementing (not replacing)
+    // the canned-cycle classifier ops.
+    if (
+      (program.mode === "gcode" || program.mode === "mixed") &&
+      !program.operations.some(o => (o.coordinates?.length ?? 0) > 0)
+    ) {
+      this._extractInlineGCodeOps(lines, program);
+    }
     this._validateSafety(lines, program);
 
     // Rotary axis detection
@@ -319,6 +359,177 @@ export class HurcoParserEngine {
         const section = program.toolSections.find(s => s.tool_number === currentTool);
         if (section) section.operations.push(op);
       }
+    }
+  }
+
+  /**
+   * U-HURCO-PARSER-GCODE-MODE (echo iter9 2026-05-24) — segment an inline-G-code
+   * .hnc file into one synthetic HurcoOperation per T# M6 boundary. Captures
+   * each segment's tool number, first-seen spindle RPM + feed rate, and all
+   * G1/G2/G3 motion coordinates (rapids included). Operation `type` is best-
+   * effort classified from preceding annotation comments
+   * (`(STRATEGY: ADAPTIVE2D)`, `(OPERATION: DRILL)`, `(FACE MILL)`, etc.)
+   * with `gcode_segment` as the safe default. Pure / non-throwing / defensive
+   * against malformed numerics.
+   */
+  private _extractInlineGCodeOps(lines: string[], program: HurcoProgram): void {
+    // Find tool-change boundaries.
+    const TOOL_CHANGE_RE = /T(\d+)\s*M0?6|M0?6\s*T(\d+)/;
+    const boundaries: Array<{ lineIdx: number; toolNum: number }> = [];
+    for (let i = 0; i < lines.length; i++) {
+      const m = lines[i].toUpperCase().match(TOOL_CHANGE_RE);
+      if (m) {
+        const tn = parseInt(m[1] ?? m[2], 10);
+        if (Number.isFinite(tn)) boundaries.push({ lineIdx: i, toolNum: tn });
+      }
+    }
+    if (boundaries.length === 0) return;
+
+    const STRATEGY_RE = /\(\s*(?:STRATEGY|OPERATION)\s*:\s*([A-Z0-9_\- ]+)\)/i;
+    const NAMED_OP_RE = /\((?:[^)]*?)(FACE\s*MILL|POCKET\s*MILL|CONTOUR\s*MILL|DRILL\s*PATTERN|BOLT\s*CIRCLE|FRAME\s*MILL|ADAPTIVE|HSM|TRACE|FINISH|ROUGH|CHAMFER|TAP|BORE|REAM)(?:[^)]*)\)/i;
+
+    function classifyFromAnnotation(window: string): string {
+      const strat = window.match(STRATEGY_RE);
+      if (strat) {
+        const s = strat[1].trim().toLowerCase().replace(/\s+/g, "_");
+        if (s.includes("adapt")) return "adaptive";
+        if (s.includes("face")) return "face";
+        if (s.includes("pocket")) return "pocket";
+        if (s.includes("contour")) return "contour";
+        if (s.includes("drill")) return "drill";
+        if (s.includes("tap")) return "tap";
+        if (s.includes("chamfer")) return "chamfer";
+        if (s.includes("bore")) return "bore";
+        if (s.includes("finish")) return "finish";
+        if (s.includes("rough")) return "rough";
+        return s.slice(0, 32) || "gcode_segment";
+      }
+      const named = window.match(NAMED_OP_RE);
+      if (named) {
+        const n = named[1].toLowerCase().replace(/\s+/g, "_");
+        if (n.includes("face")) return "face";
+        if (n.includes("pocket")) return "pocket";
+        if (n.includes("contour")) return "contour";
+        if (n.includes("drill")) return "drill";
+        if (n.includes("bolt")) return "bolt_circle";
+        if (n.includes("frame")) return "frame";
+        if (n.includes("adaptive") || n.includes("hsm")) return "adaptive";
+        if (n.includes("chamfer")) return "chamfer";
+        if (n.includes("tap")) return "tap";
+        if (n.includes("bore")) return "bore";
+        if (n.includes("ream")) return "ream";
+        if (n.includes("finish")) return "finish";
+        if (n.includes("rough")) return "rough";
+      }
+      return "gcode_segment";
+    }
+
+    // G-code is MODAL — motion mode persists until re-stated. JM Die / Hurco
+    // programs frequently emit X/Y/Z-only blocks after the initial G1 (or
+    // G2/G3). The parser must track the current mode AND emit a coordinate
+    // any time X/Y/Z appears, using whatever motion mode is currently active.
+    const MOTION_SET_RE = /(?:^|\s)(G0+|G0|G1|G01|G2|G02|G3|G03)(?=\b|\s|$)/i;
+    const X_RE = /(?:^|\s)X\s*(-?\d+\.?\d*)/i;
+    const Y_RE = /(?:^|\s)Y\s*(-?\d+\.?\d*)/i;
+    const Z_RE = /(?:^|\s)Z\s*(-?\d+\.?\d*)/i;
+    const S_RE = /(?:^|\s)S\s*(\d+)/i;
+    const F_RE = /(?:^|\s)F\s*(\d+\.?\d*)/i;
+    // Lines that explicitly DROP modal motion (canned cycles, dwell, etc.)
+    // shouldn't emit a synthetic coord even if they have X/Y/Z fields.
+    const NON_MOTION_PREFIX_RE = /(?:^|\s)(G4|G04|G28|G30|G43|G49|G53|G54|G55|G56|G57|G58|G59|G80|G81|G82|G83|G84|G85|G86|G87|G88|G89|G90|G91|G92|G98|G99|G5\.|G05\.|G64|G61|G68|G69|G17|G18|G19|G20|G21|G40|G41|G42)\b/i;
+
+    function classifyMotion(g: string): NonNullable<HurcoOperation["coordinates"]>[number]["type"] {
+      const gu = g.toUpperCase();
+      if (gu === "G2" || gu === "G02") return "arc_cw";
+      if (gu === "G3" || gu === "G03") return "arc_ccw";
+      if (gu === "G0" || gu === "G00") return "rapid";
+      return "linear"; // G1 / G01 / fallthrough
+    }
+
+    // Process each segment [boundaries[i].lineIdx .. boundaries[i+1].lineIdx - 1].
+    for (let segIdx = 0; segIdx < boundaries.length; segIdx++) {
+      const start = boundaries[segIdx].lineIdx;
+      const end = segIdx + 1 < boundaries.length ? boundaries[segIdx + 1].lineIdx - 1 : lines.length - 1;
+      const toolNum = boundaries[segIdx].toolNum;
+
+      // Annotation window: 10 lines preceding the tool change + 5 after
+      const annStart = Math.max(0, start - 10);
+      const annEnd = Math.min(lines.length - 1, start + 5);
+      const annotationWindow = lines.slice(annStart, annEnd + 1).join("\n");
+      const opType = classifyFromAnnotation(annotationWindow);
+
+      // Modal state — persists across lines within this segment
+      let curX = 0, curY = 0, curZ = 0;
+      let currentMotion: NonNullable<HurcoOperation["coordinates"]>[number]["type"] | null = null;
+      let seenAnyCoord = false;
+      let firstSpindle: number | undefined;
+      let firstFeed: number | undefined;
+      const coordinates: NonNullable<HurcoOperation["coordinates"]> = [];
+
+      for (let li = start; li <= end; li++) {
+        const raw = lines[li];
+        const upper = raw.toUpperCase();
+
+        // Capture first S/F seen in segment (defensive numeric)
+        const sm = upper.match(S_RE);
+        if (sm && firstSpindle === undefined) {
+          const v = parseFloat(sm[1]);
+          if (Number.isFinite(v) && v > 0) firstSpindle = v;
+        }
+        const fm = upper.match(F_RE);
+        if (fm && firstFeed === undefined) {
+          const v = parseFloat(fm[1]);
+          if (Number.isFinite(v) && v > 0) firstFeed = v;
+        }
+
+        // Update modal motion if a G-motion-code appears on this line
+        const gm = upper.match(MOTION_SET_RE);
+        if (gm) currentMotion = classifyMotion(gm[1]);
+
+        // Skip lines that prefix a non-motion canned cycle / setup / coolant
+        // EVEN if they have X/Y/Z (e.g. `G43 Z1.59 H9` is a Z-comp set, not a feed move).
+        // Exception: if a motion code is ALSO present on the line, treat as motion.
+        if (!gm && NON_MOTION_PREFIX_RE.test(upper)) continue;
+
+        // Parse X/Y/Z fields
+        const xm = raw.match(X_RE);
+        const ym = raw.match(Y_RE);
+        const zm = raw.match(Z_RE);
+        if (xm) { const v = parseFloat(xm[1]); if (Number.isFinite(v)) curX = v; }
+        if (ym) { const v = parseFloat(ym[1]); if (Number.isFinite(v)) curY = v; }
+        if (zm) { const v = parseFloat(zm[1]); if (Number.isFinite(v)) curZ = v; }
+
+        // Emit a coordinate iff (a) at least one of X/Y/Z was specified AND
+        // (b) we have a current motion mode (either set on this line or
+        // inherited from prior). No motion mode + just numbers = not motion
+        // (parameter line, sub-call, etc.) — skip.
+        if ((xm || ym || zm) && currentMotion !== null) {
+          coordinates.push({ x: curX, y: curY, z: curZ, type: currentMotion });
+          seenAnyCoord = true;
+        }
+      }
+
+      // Skip segments with zero coordinates — these are typically standalone
+      // tool-prep blocks (G43 / G54 / coolant-on) with no motion. Including
+      // them would emit empty ops that the harness adapter filters out anyway.
+      if (!seenAnyCoord) continue;
+
+      const op: HurcoOperation = {
+        type: opType,
+        mode: "gcode",
+        g_code: null,
+        line_number: start,
+        end_line_number: end,
+        params: {},
+        tool_number: toolNum,
+        coordinates,
+      };
+      if (firstSpindle !== undefined) op.spindle_rpm = firstSpindle;
+      if (firstFeed !== undefined) op.feed_mm_min = firstFeed;
+      program.operations.push(op);
+
+      const section = program.toolSections.find(s => s.tool_number === toolNum);
+      if (section) section.operations.push(op);
     }
   }
 

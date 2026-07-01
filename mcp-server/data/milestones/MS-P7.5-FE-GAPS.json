@@ -1,0 +1,463 @@
+{
+  "id": "MS-P7.5-FE-GAPS",
+  "title": "WEDM Frontend Closure — R5 Codex-Alignment Gaps",
+  "track": "WEDM-CONSOLIDATED",
+  "phase": "P7.5",
+  "status": "not_started",
+  "created": "2026-04-16",
+  "rgs_version": "v10",
+  "schemaVersion": 1,
+  "insertion_point": "between MS-P7-UI-M7 and MS-P8-FEBE",
+  "philosophy": "Round 5 scrutiny (researcher + code-analyzer + Plan, 2026-04-16) measured Codex-built frontend against the WEDM backend spine and found 7 WEDM-specific gaps: (1) WireEdmStudioPage 6-step wizard = ~5,862 LOC of Codex scaffolding (WizardShell + ProfileCanvas + 6 Step components + WedmStudioContext + useWedmPipeline) is the cleanest vertical but has no maintenance gate, (2) CalculatorPage wire_edm mode-switch leaks tool/material/operation state, (3) 4 hardcoded 'fanuc-wire-standard' defaults risk breakage on registry rename, (4) no 'Print Drop' frontend bridge page that auto-dispatches CAD/PDF to /wire-edm-studio, (5) jobId-via-URL handoff fails for multi-op jobs (mill->WEDM), (6) WEDM-relevant orphan API clients (feasibility, toolpath, cadGeometry, edmFeatures) unused, (7) WireEdmStudioPage (/wire-edm 6-step) and WireEdmWizardPage (/wire-edm-wizard single-page, APPW-MS0 tagged, solveWireEdmWizard API) are parallel wizards with unclear purpose split — risking user confusion and forked maintenance. This milestone closes WEDM's share of those 7 gaps without duplicating Universal Phase 0 work.",
+  "scrutiny_round": 5,
+  "blocks_reached_by": [
+    "researcher",
+    "code-analyzer",
+    "Plan"
+  ],
+  "total_units": 7,
+  "completed_units": 0,
+  "sessions": 3,
+  "dependencies": [
+    "MS-P7-UI-M1",
+    "MS-P7-UI-M5",
+    "MS-P7-UI-M7",
+    "APPW-MS0",
+    "APPW-MS1"
+  ],
+  "blocks": [
+    "MS-P8-FEBE",
+    "MS-P9-WIRE",
+    "MS-P9-XAI"
+  ],
+  "omega_target": 1,
+  "svi_delta_target": 0.025,
+  "knowledge_sources": {
+    "engines": [
+      "AutoPrintToProgramBridgeEngine (backend branch BUILT in MS-P1.5-ONESHOT)",
+      "ShopConfigurationEngine (for machine default lookup)",
+      "feasibilityEngine (orphan API client — to wire)"
+    ],
+    "formulas": [],
+    "tribal": [],
+    "reference": [
+      "H:/prism/SCRUTINY-R5-CODEX-FRONTEND-UNIVERSAL-ALIGNMENT-2026-04-16.md",
+      "mcp-server/web/src/pages/WireEdmStudioPage.tsx (121 LOC wrapper, /wire-edm route, canonical 6-step wizard host)",
+      "mcp-server/web/src/contexts/WedmStudioContext.tsx (~408 LOC, WedmStudioProvider + useWedmNavigation + useWedmData)",
+      "mcp-server/web/src/hooks/useWedmPipeline.ts (~200 LOC, useParseGeometry + useWedmStep pipeline hooks)",
+      "mcp-server/web/src/components/wedm-studio/WizardShell.tsx (~311 LOC, 6-step shell UI)",
+      "mcp-server/web/src/components/wedm-studio/ProfileCanvas.tsx (~837 LOC, geometry overlay + profile viz)",
+      "mcp-server/web/src/components/wedm-studio/StepImport.tsx (~688 LOC, CAD/DXF/DWG/STEP/PDF intake)",
+      "mcp-server/web/src/components/wedm-studio/StepReview.tsx (~729 LOC, geometry review + feature detection)",
+      "mcp-server/web/src/components/wedm-studio/StepWcs.tsx (~643 LOC, WCS + origin picker)",
+      "mcp-server/web/src/components/wedm-studio/StepToolpath.tsx (~714 LOC, lead-in/lead-out + strategy)",
+      "mcp-server/web/src/components/wedm-studio/StepOptimize.tsx (~1,054 LOC, parameter optimization — largest step)",
+      "mcp-server/web/src/components/wedm-studio/StepProgram.tsx (~688 LOC, G-code render + post)",
+      "mcp-server/web/src/components/wedm-studio/StepErrorCard.tsx (~41 LOC, shared step error UI)",
+      "mcp-server/web/src/components/wedm-studio/InfoTip.tsx (~36 LOC, shared tip UI)",
+      "mcp-server/web/src/pages/WireEdmWizardPage.tsx (183 LOC, /wire-edm-wizard single-page quick planner, appw_stage: 'APPW-MS0 machining calculation')",
+      "mcp-server/web/src/pages/WireEdmUploadPage.tsx (appw_stage: 'APPW-MS0 machining intake')",
+      "mcp-server/web/src/pages/WireEdmResultsPage.tsx",
+      "mcp-server/web/src/pages/CalculatorPage.tsx:1987 + :2028 + :4334 (fanuc-wire-standard hardcodes)",
+      "mcp-server/web/src/data/calculatorWorkspace.ts:2 (MachineMode canonical type)",
+      "mcp-server/web/src/api/client.ts:178 (solveWireEdmWizard — binds WireEdmWizardPage to backend)",
+      "mcp-server/web/src/api/ (87 clients, 46% orphan rate)",
+      "mcp-server/data/milestones/APPW-MS0.json (App Full-Stack Wiring — binds appw_stage tags)",
+      "mcp-server/data/milestones/APPW-MS1.json (intelligence hardening layer)"
+    ],
+    "codex_wizard_stack_loc": "5,862 LOC total across 12 Codex-built files (Studio wizard) + 183 LOC (Wizard quick-planner) = 6,045 LOC under this milestone's protection"
+  },
+  "smart_config": {
+    "role": "UIEngineer+WireEDMSpecialist+FrontendIntegrator",
+    "model": "opus",
+    "effort": "MAX",
+    "context_budget_pct": 70
+  },
+  "skills": [
+    "/forge-wiring",
+    "/scrutinize",
+    "/test",
+    "/prism-review",
+    "/scope",
+    "/checkpoint"
+  ],
+  "plugins": [
+    "Vitest MCP",
+    "Playwright MCP",
+    "ESLint MCP"
+  ],
+  "session_split": {
+    "session_1": [
+      "U-P7.5-FE-01",
+      "U-P7.5-FE-02",
+      "U-P7.5-FE-03"
+    ],
+    "session_2": [
+      "U-P7.5-FE-04",
+      "U-P7.5-FE-05"
+    ],
+    "session_3": [
+      "U-P7.5-FE-06",
+      "U-P7.5-FE-07"
+    ],
+    "compact_checkpoints": [
+      "after U-P7.5-FE-03",
+      "after U-P7.5-FE-05"
+    ]
+  },
+  "canonical_paths": {
+    "frontend_canonical": "mcp-server/web/",
+    "frontend_stale_mirror": "web/ (25-46 KB divergent; R5 verdict: retire or codegen)",
+    "parity_mechanism_decision": "see R5 Decision #3 — recommended: codegen under Universal 0.6 auto-wiring"
+  },
+  "units": [
+    {
+      "id": "U-P7.5-FE-01",
+      "title": "WireEdmStudio canonical-template maintenance gate — full 5,862 LOC wizard-stack snapshot",
+      "files_created": [
+        "mcp-server/src/engines/WireEdmStudioGuardEngine.ts",
+        ".claude/hooks/wedm-studio-drift-watch.mjs",
+        "mcp-server/data/state/WEDM_STUDIO_WIZARD_SNAPSHOT.json"
+      ],
+      "files_modified": [],
+      "protected_files": [
+        "mcp-server/web/src/pages/WireEdmStudioPage.tsx",
+        "mcp-server/web/src/contexts/WedmStudioContext.tsx",
+        "mcp-server/web/src/hooks/useWedmPipeline.ts",
+        "mcp-server/web/src/components/wedm-studio/WizardShell.tsx",
+        "mcp-server/web/src/components/wedm-studio/ProfileCanvas.tsx",
+        "mcp-server/web/src/components/wedm-studio/StepImport.tsx",
+        "mcp-server/web/src/components/wedm-studio/StepReview.tsx",
+        "mcp-server/web/src/components/wedm-studio/StepWcs.tsx",
+        "mcp-server/web/src/components/wedm-studio/StepToolpath.tsx",
+        "mcp-server/web/src/components/wedm-studio/StepOptimize.tsx",
+        "mcp-server/web/src/components/wedm-studio/StepProgram.tsx",
+        "mcp-server/web/src/components/wedm-studio/StepErrorCard.tsx",
+        "mcp-server/web/src/components/wedm-studio/InfoTip.tsx"
+      ],
+      "estimated_loc": 420,
+      "abort_conditions": [
+        "tsc > 0 errors",
+        "WireEdmStudioPage.tsx 6-step wizard structure broken (step IDs: import, review, wcs, toolpath, optimize, program)",
+        "WedmStudioContext useWedmNavigation or useWedmData hook signatures drift",
+        "useWedmPipeline useParseGeometry or useWedmStep hook signatures drift",
+        "any of the 12 protected files deleted or renamed without snapshot-version bump",
+        "hook approves drift > 10% on wizard step count / step IDs / context API surface"
+      ],
+      "rollback": "git checkout engine && rm -f hook && rm -f data/state/WEDM_STUDIO_WIZARD_SNAPSHOT.json",
+      "exit_criteria": [
+        "WEDM_STUDIO_WIZARD_SNAPSHOT.json records: 6-step wizard schema (step IDs, required props, handoff surface), WedmStudioContext public API (useWedmNavigation + useWedmData exports + markStepComplete/markStepError/markStale/setStepData/setFileInfo method signatures), useWedmPipeline public API (useParseGeometry + useWedmStep signatures), WizardShell props contract, ProfileCanvas geometry input/overlay contract, each Step component's step-specific props + completion handoff",
+        "WireEdmStudioGuardEngine.validateSnapshot(currentFiles) returns {ok, drift[], violations[]} — hash-based file-content check plus semantic step/hook/prop extraction",
+        "wedm-studio-drift-watch hook BUILT here: blocks PRs that alter any of the 12 protected files without also updating WEDM_STUDIO_WIZARD_SNAPSHOT.json (snapshot-version bump + rationale field required)",
+        "R5-identified 'cleanest vertical' status locked in regression — all 5,862 LOC of wizard scaffolding under active drift-watch",
+        "honors web/CLAUDE.md HARD RULE ('DO NOT build over Codex frontend builds/web pages') — this unit adds no new frontend files, only protects existing ones",
+        "integration test: deliberate 7-step mutation is BLOCKED, no-op is PASS",
+        "integration test: renaming useWedmNavigation -> useWedmNav is BLOCKED, valid rename with snapshot-bump is PASS",
+        "integration test: deleting ProfileCanvas.tsx is BLOCKED with explicit message listing its 837 LOC geometry responsibility"
+      ],
+      "description": "WireEdmStudio canonical-template maintenance gate — full 5,862 LOC wizard-stack snapshot — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ]
+    },
+    {
+      "id": "U-P7.5-FE-02",
+      "title": "CalculatorPage wire_edm mode-switch hygiene + state reset",
+      "files_modified": [
+        "mcp-server/web/src/pages/CalculatorPage.tsx"
+      ],
+      "estimated_loc": 220,
+      "abort_conditions": [
+        "mode-switch mill->wire_edm keeps selectedTool/selectedMaterial/operation (the exact R5 bug)",
+        "existing lathe-specific reset regresses",
+        "Playwright mode-switch test fails"
+      ],
+      "exit_criteria": [
+        "switching TO wire_edm clears selectedTool, selectedMaterial, machineTypeId (unless valid wire_edm machine), operation, programming, selectedToolpath, selectedControllerOption",
+        "switching FROM wire_edm clears the same set back to mode-appropriate defaults",
+        "Playwright test: mill->wire_edm->mill cycle leaves no cross-mode residue",
+        "unit test: reset matrix covers 6x6 mode transitions"
+      ],
+      "description": "CalculatorPage wire_edm mode-switch hygiene + state reset — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ]
+    },
+    {
+      "id": "U-P7.5-FE-03",
+      "title": "Remove hardcoded 'fanuc-wire-standard' default + registry lookup",
+      "files_modified": [
+        "mcp-server/web/src/pages/CalculatorPage.tsx",
+        "mcp-server/web/src/data/calculatorHolderLibrary.ts"
+      ],
+      "files_created": [
+        "mcp-server/src/engines/WEDMDefaultResolverEngine.ts"
+      ],
+      "estimated_loc": 320,
+      "abort_conditions": [
+        "any hardcoded 'fanuc-wire-standard' literal remains in CalculatorPage.tsx",
+        "ShopConfigurationEngine rename breaks the page (regression test)",
+        "WEDMDefaultResolverEngine returns undefined when valid shop profile exists"
+      ],
+      "exit_criteria": [
+        "4 hardcoded occurrences replaced with WEDMDefaultResolverEngine.resolveDefaultMachine(shopProfile, process)",
+        "WEDMDefaultResolverEngine prefers shop profile -> machine registry -> fallback (with warning)",
+        "registry rename simulation test: rename 'fanuc-wire-standard' -> 'fanuc-wire-v2' and page still loads",
+        "wedm-hardcoded-default-guard hook BUILT here: blocks any new hardcoded machine ID literal in mcp-server/web/src/"
+      ],
+      "description": "Remove hardcoded 'fanuc-wire-standard' default + registry lookup — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ]
+    },
+    {
+      "id": "U-P7.5-FE-04",
+      "title": "Print Drop bridge page — WEDM routing leg",
+      "files_created": [
+        "mcp-server/web/src/pages/PrintDropPage.tsx",
+        "mcp-server/web/src/components/print-drop/PrintDropWEDMRouter.tsx"
+      ],
+      "files_modified": [
+        "mcp-server/web/src/App.tsx"
+      ],
+      "estimated_loc": 480,
+      "abort_conditions": [
+        "CAD/PDF upload does not auto-dispatch to /wire-edm-studio for wire_edm process",
+        "STEP/DXF file with wire_edm capability manifest match fails to route",
+        "drop zone accepts file types but capability classification never runs"
+      ],
+      "exit_criteria": [
+        "PrintDropPage accepts {DXF, DWG, STEP, PDF} and calls backend AutoPrintToProgramBridgeEngine (built in MS-P1.5-ONESHOT)",
+        "when backend returns {process: 'wire_edm'}, PrintDropWEDMRouter navigates to /wire-edm-studio with dropped file staged",
+        "when backend returns ambiguous capability, disambiguator UI shows {mill, lathe, wire_edm, sinker_edm} choices",
+        "routed to /wire-edm-studio with file staged in step 1 (Upload) pre-populated",
+        "Playwright end-to-end: drop sample WEDM DXF -> land on /wire-edm-studio with file loaded"
+      ],
+      "description": "Print Drop bridge page — WEDM routing leg — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ]
+    },
+    {
+      "id": "U-P7.5-FE-05",
+      "title": "Unified job-session store — WEDM consumer leg",
+      "files_created": [
+        "mcp-server/web/src/stores/jobSessionStore.ts",
+        "mcp-server/web/src/hooks/useJobSession.ts"
+      ],
+      "files_modified": [
+        "mcp-server/web/src/pages/WireEdmUploadPage.tsx",
+        "mcp-server/web/src/pages/WireEdmWizardPage.tsx",
+        "mcp-server/web/src/pages/WireEdmResultsPage.tsx"
+      ],
+      "estimated_loc": 420,
+      "abort_conditions": [
+        "jobSessionStore is not TypeScript-typed (must be zod-validated)",
+        "multi-op handoff mill->WEDM loses CAD + fixture + material context",
+        "store persists across hard reload (must use sessionStorage)"
+      ],
+      "exit_criteria": [
+        "jobSessionStore is minimal Zustand (or React Context fallback) keyed by jobId",
+        "store holds {cadFile, process, machineId, material, wireSpec, partNumber, priorOps[]}",
+        "WireEdmUploadPage reads prior mill op from store -> inherits material + fixture defaults",
+        "WireEdmResultsPage writes completed WEDM op back to store.priorOps[] for downstream ops",
+        "integration test: mill job -> WEDM handoff preserves 7/7 context fields"
+      ],
+      "description": "Unified job-session store — WEDM consumer leg — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ]
+    },
+    {
+      "id": "U-P7.5-FE-06",
+      "title": "Wire orphan WEDM-relevant API clients",
+      "files_modified": [
+        "mcp-server/web/src/pages/WireEdmStudioPage.tsx",
+        "mcp-server/web/src/pages/WireEdmWizardPage.tsx",
+        "mcp-server/web/src/pages/CalculatorPage.tsx"
+      ],
+      "estimated_loc": 380,
+      "abort_conditions": [
+        "any of {feasibility, toolpath, cadGeometry, edmFeatures} remain without a WEDM-page consumer",
+        "wiring bypasses consultAwareness middleware (built in MS-P0.5-COORD-01)",
+        "no error-boundary around new fetches"
+      ],
+      "exit_criteria": [
+        "4 orphan clients wired: api/feasibility -> WireEdmStudioPage (step 2 validation), api/toolpath -> WireEdmWizardPage (step 4 preview), api/cadGeometry -> WireEdmUploadPage (step 1 geometry inspection), api/edmFeatures -> CalculatorPage wire_edm mode",
+        "each wiring invokes consultAwareness on dispatcher entry",
+        "error-boundary + skeleton loader + retry on each new fetch",
+        "46% orphan rate (R5 baseline) drops by 4 clients for WEDM surface",
+        "Playwright test: each new fetch renders a UI element driven by its response"
+      ],
+      "description": "Wire orphan WEDM-relevant API clients — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ]
+    },
+    {
+      "id": "U-P7.5-FE-07",
+      "title": "Wire EDM wizard-duality reconciliation — Studio (6-step) vs Wizard (quick planner)",
+      "files_created": [
+        "mcp-server/data/state/WEDM_WIZARD_DUALITY_DECISION.json",
+        "mcp-server/web/src/pages/WireEdmWizardPage.md (inline purpose doc)",
+        "mcp-server/web/src/pages/WireEdmStudioPage.md (inline purpose doc)"
+      ],
+      "files_modified": [
+        "mcp-server/web/src/pages/WireEdmWizardPage.tsx",
+        "mcp-server/web/src/pages/WireEdmStudioPage.tsx",
+        "mcp-server/web/src/App.tsx",
+        "mcp-server/web/src/components/shell/shellCatalog.ts",
+        "mcp-server/src/routes/wireEdm.ts"
+      ],
+      "estimated_loc": 380,
+      "abort_conditions": [
+        "decision record absent — duality left undocumented",
+        "solveWireEdmWizard backend contract drifts from WireEdmWizardPage payload",
+        "APPW-MS0 'machining calculation' tag on WireEdmWizardPage.tsx:98 not bound to APPW-MS0 lifecycle (must flow through APPW-MS0 nav + APPW-MS1 copilot hardening)",
+        "user-facing entry point lacks clear 'Studio vs Wizard' signposting (risk of confusion)",
+        "consolidation path chosen without user-visible migration (hard-deprecate without redirect)"
+      ],
+      "rollback": "git revert and restore App.tsx + shellCatalog.ts routes",
+      "exit_criteria": [
+        "WEDM_WIZARD_DUALITY_DECISION.json records the canonical purpose split: WireEdmStudioPage (/wire-edm) = full print->program 6-step authoring surface (CAD intake + WCS + toolpath + optimize + G-code); WireEdmWizardPage (/wire-edm-wizard) = quick-planner single-page surface (material/thickness/qty/tolerance -> feasibility + estimate, no G-code emission)",
+        "WireEdmWizardPage.tsx updated: when user completes quick planner and opts to proceed to programming, emit handoff to /wire-edm (Studio) with staged params via jobSessionStore (U-P7.5-FE-05) — NOT a navigate-and-restart",
+        "WireEdmStudioPage.tsx updated: step 1 (Import) detects pre-staged Wizard handoff params and auto-prefills material + thickness + wire spec hints",
+        "solveWireEdmWizard backend contract (mcp-server/src/routes/wireEdm.ts) verified to match WireEdmWizardPage payload — Zod schema introduced; contract test added",
+        "WireEdmWizardPage appw_stage tag ('APPW-MS0 machining calculation') bound: APPW-MS0 U-APPW02 adds /wireEdm route with verifyToken + requireRole('lead'), APPW-MS1 copilot hardening applies to this page",
+        "sidebar / shellCatalog entries distinguish the two surfaces: 'Wire EDM Studio' (primary, full program) + 'Wire EDM Quick Planner' (secondary, under Calculators group)",
+        "inline .md purpose docs sit alongside each page (honors web/CLAUDE.md: no new pages, only clarity on existing ones)",
+        "Playwright end-to-end: Wizard quick-planner -> 'Proceed to Studio' button -> Studio step 1 opens with material/thickness pre-filled",
+        "regression test: visiting /wire-edm-wizard without completing APPW-MS0 backend route returns graceful error (not a 404 or broken page)",
+        "honors web/CLAUDE.md HARD RULE ('DO NOT build over Codex frontend builds/web pages') — this unit modifies existing pages only, creates zero new pages"
+      ],
+      "description": "Wire EDM wizard-duality reconciliation — Studio (6-step) vs Wizard (quick planner) — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ]
+    }
+  ],
+  "forge_triple": {
+    "hook": {
+      "name": "wedm-studio-drift-watch",
+      "description": "blocks PRs that alter WireEdmStudioPage 6-step wizard structure without updating snapshot",
+      "built_in": "U-P7.5-FE-01"
+    },
+    "hook_2": {
+      "name": "wedm-hardcoded-default-guard",
+      "description": "blocks hardcoded machine/holder ID literals in mcp-server/web/src/",
+      "built_in": "U-P7.5-FE-03"
+    },
+    "action": {
+      "name": "prism_edm:wedm_frontend_gaps_report",
+      "built_in": "U-P7.5-FE-01"
+    },
+    "skill": {
+      "name": "/wedm-fe-gaps",
+      "built_in": "U-P7.5-FE-01"
+    }
+  },
+  "r5_alignment": {
+    "universal_phase_0_consumer": true,
+    "non_duplication_check": [
+      "awareness middleware adoption delegated to Universal 0.2 (we consume, don't rebuild)",
+      "auto-wiring mechanism delegated to Universal 0.6 (we register, don't rebuild)",
+      "capability manifest delegated to Universal 0.17 (we register WEDM capabilities, don't rebuild the format)",
+      "/web parity mechanism delegated to R5 Decision #3 (we do not re-decide here)"
+    ],
+    "calc_expansion_coordination": "R5 scopes CALC-WEDM-MS0 at ~1,300 LOC in W6. Our MS-P7-UI-M5 wraps WEDM-UNIFIED-MS5 which covers the 4 calculator sub-panels. This milestone (MS-P7.5-FE-GAPS) closes the R5-identified gaps AROUND the calculator (mode-switch hygiene + hardcoded defaults) — not the panels themselves.",
+    "codex_frontend_coverage": "MS-P7.5-FE-GAPS protects 6,045 LOC of Codex-built Wire EDM UI across 14 files: 12-file Studio wizard stack (5,862 LOC), WireEdmWizardPage quick planner (183 LOC). Snapshot + drift-watch hooks enforce web/CLAUDE.md 'DO NOT build over Codex frontend' HARD RULE.",
+    "appw_binding": "U-P7.5-FE-07 binds WireEdmWizardPage's 'APPW-MS0 machining calculation' tag to APPW-MS0 (route + auth + Zod) and APPW-MS1 (copilot hardening) lifecycles. Without this unit, the appw_stage tag is orphan metadata."
+  },
+  "exit_gate": {
+    "criteria": [
+      "all 7 units green",
+      "WireEdmStudioPage 6-step wizard locked via regression gate (14 protected files under drift-watch)",
+      "WEDM_STUDIO_WIZARD_SNAPSHOT.json exists and matches current file hashes",
+      "WEDM_WIZARD_DUALITY_DECISION.json documents Studio-vs-Wizard purpose split",
+      "mode-switch hygiene Playwright suite 6x6 green",
+      "zero hardcoded 'fanuc-wire-standard' in mcp-server/web/src/",
+      "Print Drop -> /wire-edm-studio end-to-end test green",
+      "mill->WEDM job-session handoff preserves 7/7 context fields",
+      "4 orphan API clients have WEDM page consumers + consultAwareness",
+      "WireEdmWizardPage -> WireEdmStudioPage handoff preserves material/thickness/wire-spec prefill",
+      "solveWireEdmWizard contract test green (Zod schema enforced on both ends)",
+      "APPW-MS0 /wireEdm route exists + verifyToken + requireRole('lead')",
+      "1255 existing tests still green + >=22 new Playwright cases (+4 from U-P7.5-FE-07)"
+    ],
+    "omega_target": 1,
+    "svi_delta": "+2.5%"
+  },
+  "feature_cascade": {
+    "new_hooks": [
+      "wedm-studio-drift-watch",
+      "wedm-hardcoded-default-guard"
+    ],
+    "new_actions": [
+      "prism_edm:wedm_frontend_gaps_report"
+    ],
+    "new_skills": [
+      "/wedm-fe-gaps"
+    ],
+    "new_state_files": [
+      "WEDM_STUDIO_WIZARD_SNAPSHOT.json",
+      "WEDM_WIZARD_DUALITY_DECISION.json"
+    ],
+    "available_to": [
+      "P8",
+      "P9",
+      "P10",
+      "APPW-MS1 (via handoff contract)"
+    ]
+  },
+  "mcp_lifecycle": {
+    "session_start": [
+      "prism_session:context_boot",
+      "prism_session:dispatcher_map",
+      "prism_session:memory_recall",
+      "prism_session:system_snapshot",
+      "prism_session:action_search"
+    ],
+    "during_work": [
+      "prism_session:auto_checkpoint",
+      "prism_session:tool_route_best",
+      "prism_session:wip_capture"
+    ],
+    "session_end": [
+      "prism_session:memory_save",
+      "prism_session:system_snapshot",
+      "prism_session:checkpoint_enhanced"
+    ]
+  },
+  "intent": "Deliver WEDM Frontend Closure — R5 Codex-Alignment Gaps per roadmap spec.",
+  "compact_checkpoint": "every 3 units — auto-triggered by hook",
+  "enforcement_hooks_active": [
+    "physics agent",
+    "wiring agent",
+    "constants checker",
+    "stub detector",
+    "test quality",
+    "forge-triple gate",
+    "session audit agent"
+  ]
+}

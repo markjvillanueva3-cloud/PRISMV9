@@ -1,0 +1,67 @@
+{
+  "schemaVersion": "1.0.0",
+  "generatedAt": "2026-06-27T20:33:04.437Z",
+  "generatedBy": "combo-efficiency-baseline.mjs",
+  "substrates": {
+    "obsidian": {
+      "status": "RED",
+      "reason": "24287 broken (no total)",
+      "brokenCount": 24287,
+      "breakPct": null,
+      "totalLinks": null,
+      "wikiDir": "knowledge/wiki",
+      "memDir": "knowledge/memories"
+    },
+    "systemViz": {
+      "status": "UNKNOWN",
+      "reason": "awareness-missing",
+      "unwiredEngines": null,
+      "ghostCount": null,
+      "orphanCount": null
+    },
+    "masterIndex": {
+      "status": "RED",
+      "reason": "take-rate 0.2% (5/2296)",
+      "fires": 2296,
+      "takes": 5,
+      "takeRate": 0.0022,
+      "dominantClassifier": "backendAuditChain",
+      "dominantShare": 0.7326,
+      "healthSignal": "below-target-take-rate"
+    },
+    "ollama": {
+      "status": "YELLOW",
+      "reason": "offload 28.2% (71/252)",
+      "offloaded": 71,
+      "keptOnClaude": 181,
+      "offloadRate": 0.28174603174603174,
+      "tokensSaved": 44184,
+      "silentSuggestions": 1140,
+      "injectedSuggestions": 71
+    }
+  },
+  "comboUmbrella": {
+    "status": "OBSERVED",
+    "reason": "2763 hits / 5560 nudges / 584,900 tokens saved",
+    "nudges": 5560,
+    "hits": 2763,
+    "savedTokens": 584900,
+    "misses": 16112,
+    "ledgersWithData": 6
+  },
+  "overall": {
+    "score": 0.16666666666666666,
+    "zone": "RED",
+    "contributingCount": 3,
+    "unknownCount": 1
+  },
+  "blockers": [
+    "obsidian: 24287 broken (no total)",
+    "systemViz UNKNOWN: awareness-missing",
+    "masterIndex: take-rate 0.2% (5/2296)"
+  ],
+  "recommendations": [
+    "Run P1-U01 (take-rate fix) — biggest single leverage; turns nudges into adoptions.",
+    "Run P1-U02 (wiki link densifier) — closes broken `[[name]]` tokens."
+  ]
+}

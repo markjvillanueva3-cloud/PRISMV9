@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `calc` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/calc.md` |
+| Source | `C:/Users/wompu/.claude/commands/calc.md` |
 | Model | default |
 | Tags | _(none)_ |
 

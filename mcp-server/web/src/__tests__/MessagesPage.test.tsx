@@ -163,7 +163,7 @@ describe('MessagesPage', () => {
     expect(screen.getByText('Reply by email')).toBeDefined();
   });
 
-  it('keeps the PRISM AI copilot built into the messages desk with persistent memory context', async () => {
+  it('keeps the Kienzle AI copilot built into the messages desk with persistent memory context', async () => {
     persistAdminShellSession({
       id: 'login-ops-manager',
       displayName: 'Olivia Reyes',
@@ -174,8 +174,8 @@ describe('MessagesPage', () => {
 
     await waitFor(() => {
       expect(screen.getByRole('heading', { name: 'Messages' })).toBeDefined();
-      expect(screen.getByText(/PRISM AI copilot/i)).toBeDefined();
-      expect(screen.getByText(/Persistent PRISM memory/i)).toBeDefined();
+      expect(screen.getByText(/Kienzle AI copilot/i)).toBeDefined();
+      expect(screen.getByText(/Persistent Kienzle memory/i)).toBeDefined();
       expect(screen.getByText(/Safety-critical CNC manufacturing control system\./i)).toBeDefined();
       expect(screen.getByText(/Mounted messages workspace/i)).toBeDefined();
     });
@@ -505,8 +505,8 @@ describe('MessagesPage', () => {
 
     const workflowJobsLink = screen.getAllByRole('link', { name: /Open Jobs follow-up/i })[0];
     const workflowPrintLink = screen.getAllByRole('link', { name: /Open Print to CNC/i })[0];
-    const workflowJobsUrl = new URL(workflowJobsLink.getAttribute('href')!, 'https://prism.local');
-    const workflowPrintUrl = new URL(workflowPrintLink.getAttribute('href')!, 'https://prism.local');
+    const workflowJobsUrl = new URL(workflowJobsLink.getAttribute('href')!, 'https://kienzle.local');
+    const workflowPrintUrl = new URL(workflowPrintLink.getAttribute('href')!, 'https://kienzle.local');
 
     expect(workflowJobsUrl.pathname).toBe('/jobs');
     expect(workflowJobsUrl.searchParams.get('originSource')).toBe('customers');
@@ -540,8 +540,8 @@ describe('MessagesPage', () => {
 
     expect(stagedPrintLink).toBeDefined();
 
-    const stagedJobsUrl = new URL(stagedJobsLink.getAttribute('href')!, 'https://prism.local');
-    const stagedPrintUrl = new URL(stagedPrintLink!.getAttribute('href')!, 'https://prism.local');
+    const stagedJobsUrl = new URL(stagedJobsLink.getAttribute('href')!, 'https://kienzle.local');
+    const stagedPrintUrl = new URL(stagedPrintLink!.getAttribute('href')!, 'https://kienzle.local');
 
     expect(stagedJobsUrl.pathname).toBe('/jobs');
     expect(stagedJobsUrl.searchParams.get('originSource')).toBe('customers');

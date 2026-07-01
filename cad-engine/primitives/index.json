@@ -1,0 +1,162 @@
+[
+  {
+    "name": "bolt_circle",
+    "description": "Circular pattern of equally-spaced holes for bolt mounting",
+    "tags": ["hole", "pattern", "mounting", "fastener", "circular"],
+    "params": ["diameter", "hole_diameter", "hole_depth", "count"],
+    "processes": ["drilling", "milling"],
+    "tooling": ["drill_bit", "end_mill"]
+  },
+  {
+    "name": "o_ring_groove",
+    "description": "Annular groove with rectangular cross-section for O-ring seal",
+    "tags": ["groove", "seal", "o-ring", "annular", "fluid"],
+    "params": ["groove_diameter", "groove_width", "groove_depth"],
+    "processes": ["turning", "milling"],
+    "tooling": ["grooving_tool", "end_mill"]
+  },
+  {
+    "name": "keyway",
+    "description": "Rectangular slot in shaft/bore for key-based power transmission",
+    "tags": ["slot", "keyway", "shaft", "power_transmission", "coupling"],
+    "params": ["width", "depth", "length"],
+    "processes": ["milling", "broaching"],
+    "tooling": ["end_mill", "broach"]
+  },
+  {
+    "name": "counterbore",
+    "description": "Stepped hole with flat-bottom recess for socket head cap screws",
+    "tags": ["hole", "counterbore", "fastener", "recess"],
+    "params": ["hole_diameter", "bore_diameter", "bore_depth", "hole_depth"],
+    "processes": ["drilling", "milling"],
+    "tooling": ["drill_bit", "counterbore_cutter", "end_mill"]
+  },
+  {
+    "name": "countersink",
+    "description": "Conical recess for flush-mounting flat-head screws",
+    "tags": ["hole", "countersink", "fastener", "flush", "conical"],
+    "params": ["hole_diameter", "sink_diameter", "angle", "hole_depth"],
+    "processes": ["drilling"],
+    "tooling": ["drill_bit", "countersink_cutter"]
+  },
+  {
+    "name": "tapped_hole",
+    "description": "Threaded hole for bolt/screw (ISO metric)",
+    "tags": ["hole", "thread", "tapped", "fastener", "metric"],
+    "params": ["nominal_diameter", "pitch", "depth"],
+    "processes": ["drilling", "tapping"],
+    "tooling": ["drill_bit", "tap"]
+  },
+  {
+    "name": "shoulder",
+    "description": "Stepped diameter transition on shaft for bearing/gear location",
+    "tags": ["shaft", "shoulder", "step", "bearing", "location"],
+    "params": ["large_diameter", "small_diameter", "length", "fillet_radius"],
+    "processes": ["turning"],
+    "tooling": ["turning_insert", "facing_tool"]
+  },
+  {
+    "name": "step",
+    "description": "Rectangular step/ledge machined into block face",
+    "tags": ["step", "ledge", "face", "machined", "rectangular"],
+    "params": ["width", "height", "depth"],
+    "processes": ["milling"],
+    "tooling": ["end_mill", "face_mill"]
+  },
+  {
+    "name": "pocket",
+    "description": "Rectangular or circular pocket milled into face",
+    "tags": ["pocket", "cavity", "milled", "rectangular", "circular"],
+    "params": ["width", "length", "depth", "corner_radius", "shape"],
+    "processes": ["milling"],
+    "tooling": ["end_mill"]
+  },
+  {
+    "name": "slot",
+    "description": "Elongated slot with radiused ends (through or blind)",
+    "tags": ["slot", "elongated", "milled", "adjustment"],
+    "params": ["length", "width", "depth"],
+    "processes": ["milling"],
+    "tooling": ["end_mill", "slot_drill"]
+  },
+  {
+    "name": "boss",
+    "description": "Raised cylindrical pad, optionally with central hole for mounting",
+    "tags": ["boss", "pad", "mounting", "cylindrical", "raised"],
+    "params": ["diameter", "height", "fillet_radius", "hole_diameter"],
+    "processes": ["milling", "turning"],
+    "tooling": ["end_mill"]
+  },
+  {
+    "name": "rib",
+    "description": "Thin structural reinforcement wall between surfaces",
+    "tags": ["rib", "structural", "reinforcement", "wall", "support"],
+    "params": ["thickness", "height", "length", "draft_angle"],
+    "processes": ["milling", "casting"],
+    "tooling": ["end_mill"]
+  },
+  {
+    "name": "gusset",
+    "description": "Triangular reinforcement plate at junction of two surfaces",
+    "tags": ["gusset", "reinforcement", "triangular", "bracket", "structural"],
+    "params": ["width", "height", "thickness"],
+    "processes": ["milling", "welding", "casting"],
+    "tooling": ["end_mill"]
+  },
+  {
+    "name": "fillet_break",
+    "description": "Rounded edge break (fillet) for deburring and stress relief",
+    "tags": ["fillet", "edge_break", "radius", "deburr", "finishing"],
+    "params": ["radius", "edge_selector"],
+    "processes": ["milling", "deburring"],
+    "tooling": ["ball_end_mill", "deburring_tool"]
+  },
+  {
+    "name": "chamfer_break",
+    "description": "Angled edge break (chamfer) for deburring and assembly ease",
+    "tags": ["chamfer", "edge_break", "bevel", "deburr", "finishing"],
+    "params": ["distance", "edge_selector"],
+    "processes": ["milling", "deburring"],
+    "tooling": ["chamfer_mill", "deburring_tool"]
+  },
+  {
+    "name": "draft_wall",
+    "description": "Tapered wall with draft angle for mold release / die casting",
+    "tags": ["draft", "taper", "wall", "mold", "casting"],
+    "params": ["width", "height", "depth", "angle"],
+    "processes": ["casting", "injection_molding", "milling"],
+    "tooling": ["end_mill", "mold"]
+  },
+  {
+    "name": "shell",
+    "description": "Hollow out solid body leaving thin-wall shell",
+    "tags": ["shell", "hollow", "thin_wall", "enclosure"],
+    "params": ["thickness"],
+    "processes": ["milling", "casting", "injection_molding"],
+    "tooling": ["end_mill", "mold"]
+  },
+  {
+    "name": "thread_relief",
+    "description": "Annular groove at thread termination for complete thread engagement",
+    "tags": ["thread", "relief", "groove", "undercut", "termination"],
+    "params": ["diameter", "width", "depth"],
+    "processes": ["turning"],
+    "tooling": ["grooving_tool", "threading_insert"]
+  },
+  {
+    "name": "undercut",
+    "description": "Internal or external relief groove for snap rings or assemblies",
+    "tags": ["undercut", "groove", "relief", "snap_ring", "retaining"],
+    "params": ["diameter", "width", "depth"],
+    "processes": ["turning"],
+    "tooling": ["grooving_tool"]
+  },
+  {
+    "name": "dovetail",
+    "description": "Trapezoidal slot or rail for sliding assembly (e.g. machine ways)",
+    "tags": ["dovetail", "slide", "way", "trapezoidal", "guide", "assembly"],
+    "params": ["width_top", "width_bottom", "depth", "length"],
+    "processes": ["milling"],
+    "tooling": ["dovetail_cutter", "end_mill"]
+  }
+]

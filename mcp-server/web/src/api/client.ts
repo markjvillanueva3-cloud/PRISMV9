@@ -14,6 +14,13 @@ import type {
   InstantQuoteResult,
   InstantQuoteShareToken,
   PrismResponse,
+  QuoteEstimate,
+  GeneratedTraveler,
+  TravelerJobChecklist,
+  TravelerStepChecklist,
+  TravelerMyTasks,
+  ErpAutofeedPayload,
+  ErpCommitResult,
 } from './types';
 import {
   ApiError,
@@ -31,6 +38,12 @@ export {
   type ApiErrorPresentation,
 } from './requestCore';
 
+// Relative on every form factor. The global fetch proxy (installApiFetchProxy,
+// installed once in main.tsx) rewrites this to the resolved backend origin when
+// the app is packaged (Electron/mobile); on the web it stays relative. Keeping
+// the constant relative means ALL 217+ backend call sites -- here, in the other
+// src/api/* modules, and in ad-hoc component fetches -- share ONE mechanism.
+// See src/lib/apiBase.ts.
 const API_BASE = '/api/v1';
 
 let apiKey: string | null = null;
@@ -52,26 +65,26 @@ export function getRequestHeaders(): Record<string, string> {
 async function request<T>(
   method: 'GET' | 'POST' | 'PATCH',
   path: string,
-  body?: Record<string, unknown>,
+  body?: unknown,
 ): Promise<PrismResponse<T>> {
   return fetchJson<PrismResponse<T>>(`${API_BASE}${path}`, {
     method,
     headers: getRequestHeaders(),
     body: body ? JSON.stringify(body) : undefined,
-    fallbackMessage: 'PRISM request failed',
+    fallbackMessage: 'Kienzle request failed',
   });
 }
 
 async function requestData<T>(
   method: 'GET' | 'POST' | 'PATCH',
   path: string,
-  body?: Record<string, unknown>,
+  body?: unknown,
 ): Promise<DataResponse<T>> {
   return fetchJson<DataResponse<T>>(`${API_BASE}${path}`, {
     method,
     headers: getRequestHeaders(),
     body: body ? JSON.stringify(body) : undefined,
-    fallbackMessage: 'PRISM data request failed',
+    fallbackMessage: 'Kienzle data request failed',
   });
 }
 
@@ -638,6 +651,16 @@ export async function maintenanceWorkOrderComplete(params: {
   notes?: string;
 }): Promise<PrismResponse> {
   return request('POST', '/erp/maintenance-work-orders/complete', params);
+}
+// U-HOTEL-MAINT-WORKORDER (gap #6): the MaintenanceWorkOrderPage queue. Distinct from maintenanceWorkOrders()
+// above (which targets the hyphen path /erp/maintenance-work-orders used by PreventiveMaintenancePage). This pair
+// targets the slash path /erp/maintenance/work-orders + /maintenance/refresh that MaintenanceWorkOrderPage uses,
+// migrating it off raw fetch() so the auth header is attached (the raw fetch 401'd behind verifyToken).
+export async function maintenanceWorkOrderQueue(): Promise<PrismResponse> {
+  return request('GET', '/erp/maintenance/work-orders');
+}
+export async function maintenanceWorkOrderRefresh(): Promise<PrismResponse> {
+  return request('POST', '/erp/maintenance/refresh', {});
 }
 export async function pmSchedules(): Promise<PrismResponse> {
   return request('GET', '/erp/pm-schedules');
@@ -1392,8 +1415,446 @@ export async function quoteCompareMaterials(params: Record<string, unknown>): Pr
   return request('POST', '/quote/compare-materials', params);
 }
 
+// === What-if scenario pricing (U-WHATIF01) -- re-prices a base quote under labeled
+// scenario deltas (e.g. qty x10, finer tolerance, alt material) via prism_business:quote_what_if
+// (QuoteEstimatorEngine.whatIf). The /quote/what-if route wraps the engine array in { result }
+// (sendCompatResponse), so callers unwrap with unwrapQuotingBody<WhatIfRow[]>.
+export interface WhatIfRow {
+  // Engine-assigned label ("Scenario 1", ...); the page overrides it with a human label by index.
+  scenario: string;
+  unit_price: number;
+  // Percent change in unit price vs the base quote (+ = more expensive, - = cheaper).
+  delta_pct: number;
+}
+
 export async function quoteWhatIf(params: Record<string, unknown>): Promise<PrismResponse> {
   return request('POST', '/quote/what-if', params);
+}
+
+// === Three-view pricing (U-3VIEW01) -- current / optimal-vs-market / cost-floor ===
+// Routes through the generic prism_quoting dispatch endpoint (mounted at
+// /api/v1/quoting). The engine grounds every number in canonical JM shop rates.
+
+export interface ThreeViewPriceConfidence {
+  tier: 'tight' | 'medium' | 'wide';
+  half_width_usd: number;
+  low_usd: number;
+  high_usd: number;
+  comparables: number;
+  basis: string;
+}
+
+export interface ThreeViewPriceView {
+  key: 'current' | 'optimal' | 'cost_floor';
+  label: string;
+  advisory: boolean;
+  unit_price_usd: number;
+  total_usd: number;
+  margin_pct: number;
+  confidence: ThreeViewPriceConfidence;
+  derivation: string;
+}
+
+export interface ThreeViewImprovementLever {
+  id: string;
+  headline: string;
+  upside_usd_per_lot: number;
+  action: string;
+  severity: 'info' | 'opportunity' | 'warning';
+}
+
+export interface ThreeViewPricingResult {
+  ok: boolean;
+  reason?: string;
+  headline: ThreeViewPriceView;
+  views: ThreeViewPriceView[];
+  cost_floor_usd: number;
+  belowMarginFloor: boolean;
+  margin_floor_pct: number;
+  improvement: ThreeViewImprovementLever[];
+  provenance: {
+    rates_source: string;
+    material_price_source: string;
+    cost_floor_source: string;
+    rate_advisor_source: string;
+  };
+}
+
+export async function quoteThreeView(params: {
+  material: string;
+  process?: 'mill' | 'lathe' | 'wedm' | 'sinker_edm' | 'grind' | 'other';
+  machine_hours_per_part: number;
+  labor_hours_per_part?: number;
+  setup_hours?: number;
+  programming_hours?: number;
+  material_lb_per_part?: number;
+  tooling_cost_per_part?: number;
+  quantity: number;
+  material_cost_per_lb_override?: number;
+  verified_comparables?: number;
+  profile_id?: string;
+  region?: string;
+}): Promise<PrismResponse> {
+  // Generic prism_quoting dispatch: { action, params } -> POST /api/v1/quoting/.
+  return request('POST', '/quoting', { action: 'three_view_pricing', params });
+}
+
+// === Location/logistics/vendor-aware pricing (U-LVP01) ===
+// Total landed cost (part + freight + customs) across current + alternative JM vendors
+// by region, ranked, with a sourcing suggestion. Wraps prism_quoting:location_vendor_pricing.
+
+/** Per-vendor ADVISORY unit-price band (U-LVP02). NOT a firm quote -- mid is a central estimate. */
+export interface VendorUnitPriceBand {
+  tier: 'api' | 'catalog' | 'quote' | 'unknown';
+  programmatic: boolean;
+  region_supply_factor: number;
+  unit_low_usd: number;
+  unit_mid_usd: number;
+  unit_high_usd: number;
+  lot_mid_usd: number;
+  confidence: number;
+  basis: {
+    anchor_unit_price_usd: number;
+    band_half_width_fraction: number;
+    source: string;
+  };
+}
+
+export interface VendorLandedOption {
+  vendor_id: string;
+  vendor_name: string;
+  vendor_region: string;
+  is_current: boolean;
+  region_assumed: boolean;
+  total_landed_usd: number;
+  zone: string;
+  transit_days: number;
+  landed: {
+    partValueUsd: number;
+    shippingUsd: number;
+    customsDutyUsd: number;
+    totalLandedUsd: number;
+  };
+  /** U-LVP02: this vendor's differentiated advisory unit-price band (tier + region supply factor). */
+  unit_price_band: VendorUnitPriceBand;
+}
+
+export interface SourcingSuggestion {
+  verdict: 'current-competitive' | 'switch-opportunity' | 'no-alternatives';
+  headline: string;
+  savings_usd_per_lot: number;
+  best_alternative_vendor_id?: string;
+  action: string;
+}
+
+export interface LocationVendorPricingResult {
+  ok: boolean;
+  reason?: string;
+  current: VendorLandedOption | null;
+  alternatives: VendorLandedOption[];
+  suggestion: SourcingSuggestion;
+  provenance: {
+    landed_cost_source: string;
+    vendor_catalog_source: string;
+    vendors_considered: number;
+  };
+}
+
+export async function quoteLocationVendorPricing(params: {
+  part_value_usd: number;
+  per_part_weight_kg?: number;
+  quantity?: number;
+  buyer_region?: string;
+  category: string;
+  expedite?: boolean;
+  same_metro?: boolean;
+  current_vendor_id?: string;
+}): Promise<PrismResponse> {
+  // Generic prism_quoting dispatch: { action, params } -> POST /api/v1/quoting/.
+  return request('POST', '/quoting', { action: 'location_vendor_pricing', params });
+}
+
+// === Market pricing intelligence -- operator-internal pricing priors (U-MKTPRICE01) ===
+// Two ADMIN-ONLY priors that bracket a quote: the shop's real outbound SOLD-price distribution
+// (sell-side market prior) and the shop's internal AP COST-basis (cost-side). Both hit dedicated
+// TYPED verbs gated by verifyToken + requireRole("admin") on the backend -- the ONLY authenticated
+// path; the generic /quoting handler deny-lists these actions. COST BASIS NEVER leaves the operator
+// surface: these fns are operator-page-only and feed no customer packet/share/public-quote flow.
+//
+// The typed verb forwards req.body DIRECTLY to the dispatcher (no { action, params } wrapper), so the
+// body IS the params object. The response is the bare engine output -> unwrapQuotingBody<T>() on read.
+// A 401/403 (not authenticated as admin) yields a body whose unwrap is null -> the page shows an
+// auth-required state, never throws.
+
+/** OCR-noisy confidence tier on a real outbound order (jm-sold-orders). */
+export type OrderConfidence = 'high' | 'medium' | 'low' | 'none';
+
+/**
+ * Distribution summary of a real outbound price series. `minMassFrac` = the fraction of values equal
+ * to `min` -- an OCR "$1" floor-spike signature; warn when > 0.25 (treat the low tail with suspicion).
+ */
+export interface PriceDistribution {
+  n: number;
+  min: number;
+  minMassFrac: number;
+  p5: number;
+  p10: number;
+  p25: number;
+  median: number;
+  p75: number;
+  p90: number;
+  p95: number;
+  max: number;
+  mean: number;
+}
+
+/**
+ * Real outbound SOLD-price distribution prior (OutboundPriceIndexEngine.pricePrior). Confidence-gated,
+ * advisory-only (OCR-noisy market prior) -- ALWAYS render the advisoryOnly + caveat banner. READ-ONLY
+ * analysis; never a quote emitter.
+ */
+export interface PricePriorResult {
+  ok: boolean;
+  // Nullable: the engine's fail-soft emptyResult path returns path/caveat = null when the index file
+  // is missing/unresolved (OutboundPriceIndexEngine.ts emptyResult). Match the real contract (R12).
+  path: string | null;
+  minConfidence: OrderConfidence;
+  ordersProcessed: number;
+  recordsAvailable: number;
+  includedOrders: number;
+  advisoryOnly: boolean;
+  caveat: string | null;
+  byConfidence: Record<OrderConfidence, number>;
+  confirmedExtRevenue: number;
+  unitPrice: PriceDistribution | null;
+  extPrice: PriceDistribution | null;
+  orderTotal: PriceDistribution | null;
+}
+
+/**
+ * Per-category unit-cost stat from the AP cost-index. UNITS-BLENDED: median blends $/bar + $/foot +
+ * $/piece across the category -- display ONLY with the inline "units-blended" caveat (spend-concentration
+ * / cold-start range context), NEVER as a clean per-unit cost.
+ */
+export interface UnitCostStat {
+  min: number;
+  median: number;
+  max: number;
+  n: number;
+}
+
+export interface CategoryPrior {
+  category: string;
+  count: number;
+  spend: number;
+  vendorCount: number;
+  unitCost: UnitCostStat | null;
+}
+
+export interface CostIndexTotals {
+  records: number;
+  grossSpend: number;
+  creditTotal: number;
+  netSpend: number;
+  vendorCount: number;
+}
+
+/**
+ * Internal AP COST-basis prior (VendorCostIndexEngine.prior). With a `category` -> single `prior`;
+ * without -> all `categories`. COST BASIS -- operator-internal only, never to a customer surface.
+ */
+export interface CostIndexPriorResult {
+  ok: boolean;
+  totals: CostIndexTotals;
+  category?: string;
+  prior?: CategoryPrior | null;
+  categories?: Record<string, CategoryPrior>;
+  // Nullable: the engine's fail-soft emptyResult path returns path = null when the cost-index file is
+  // missing/unresolved (VendorCostIndexEngine.ts emptyResult). Match the real contract (R12).
+  path: string | null;
+}
+
+/** Discriminates an admin-gate rejection (401/403) from a genuine error. The typed cost-basis verbs
+ * throw ApiError on a non-2xx (verifyToken 401 / requireRole 403); the page treats that as
+ * "not authorized" (null), but a real network/5xx error must still surface. */
+function isAuthRejection(err: unknown): boolean {
+  return err instanceof ApiError && (err.status === 401 || err.status === 403);
+}
+
+/**
+ * Real outbound SOLD-price distribution prior (sell-side market). ADMIN-ONLY. POSTs to the typed verb
+ * /api/v1/quoting/outbound-price-prior (body = params directly). Returns the bare PricePriorResult, or
+ * null when the session is not an authenticated admin (401/403) or the body is malformed -- the page
+ * renders an auth-required / unavailable state. A genuine network/5xx error is re-thrown (R12).
+ */
+export async function outboundPricePrior(params: {
+  minConfidence?: OrderConfidence;
+  indexPath?: string;
+} = {}): Promise<PricePriorResult | null> {
+  try {
+    const resp = await request('POST', '/quoting/outbound-price-prior', params);
+    return unwrapQuotingBody<PricePriorResult>(resp);
+  } catch (err) {
+    if (isAuthRejection(err)) return null;
+    throw err;
+  }
+}
+
+/**
+ * Internal AP COST-basis prior (cost-side). ADMIN-ONLY. POSTs to the typed verb
+ * /api/v1/quoting/cost-index-prior (body = params directly). Returns the bare CostIndexPriorResult, or
+ * null when the session is not an authenticated admin (401/403) or the body is malformed -- the page
+ * renders an auth-required / unavailable state. A genuine network/5xx error is re-thrown (R12).
+ */
+export async function costIndexPrior(params: {
+  category?: string;
+  indexPath?: string;
+} = {}): Promise<CostIndexPriorResult | null> {
+  try {
+    const resp = await request('POST', '/quoting/cost-index-prior', params);
+    return unwrapQuotingBody<CostIndexPriorResult>(resp);
+  } catch (err) {
+    if (isAuthRejection(err)) return null;
+    throw err;
+  }
+}
+
+/**
+ * Unwrap a quoting dispatch response body across the THREE response shapes the backend emits:
+ *   1. /quoting generic-dispatch  -> the engine output BARE          ({ ok, ... })
+ *   2. /quote/* simple compat     -> { result: <engine output> }     (sendCompatResponse)
+ *   3. /quote/* MCP-content compat -> { result: { type:"text", text:"<json>" } }  (un-parsed content)
+ * Reading `.result` on shape 1 yields undefined; reading `.result` on shape 3 yields the content
+ * envelope, not the data -> the panel silently never renders (the U-QT04 dead-panel bug). This peels
+ * the outer .result (if present), then an MCP {type:"text", text} content envelope (parsing the JSON),
+ * so a caller always gets the real engine object regardless of route. (U-QT04 fix, 2026-06-23)
+ */
+export function unwrapQuotingBody<T>(resp: unknown): T | null {
+  if (resp == null || typeof resp !== 'object') return null;
+  const body = resp as { result?: unknown };
+  let inner: unknown = body.result !== undefined ? body.result : body;
+  // Shape 3: an MCP content envelope { type:"text", text:"<json>" } -> parse the JSON payload.
+  if (inner != null && typeof inner === 'object') {
+    const c = inner as { type?: unknown; text?: unknown };
+    if (c.type === 'text' && typeof c.text === 'string') {
+      try {
+        inner = JSON.parse(c.text);
+      } catch {
+        return null; // malformed content payload -> null (never throws into the render path)
+      }
+    }
+  }
+  return (inner as T) ?? null;
+}
+
+// === Quote-estimate shape adapter (U-WHATIF01 / estimate-flow fix, 2026-06-23) ===
+// QuoteEstimatorEngine.estimate() returns a NESTED QuoteEstimateResult ({ costs.material.total,
+// pricing.unit_price, ... }) -- but the web QuoteEstimate type the QuoteBuilderPage renders is FLAT
+// ({ material_cost, total, unit_price, cycle_time_min, ... }). The page read the raw .result as a
+// flat QuoteEstimate, so EVERY field was undefined (formatCurrency(undefined) throws -> the estimate
+// tab crashed/blanked, and every downstream seed -- three-view machine_hours, make-vs-buy in-house
+// total -- read undefined). This adapter maps the engine's nested shape to the flat one the page
+// consumes. Null-safe: returns null when the input is not a recognizable nested estimate.
+//
+// Field map (flat <- nested):
+//   material_cost  <- costs.material.total      machining_cost <- costs.machining.total
+//   setup_cost     <- costs.setup.total         tooling_cost   <- costs.tooling.total
+//   overhead       <- costs.overhead.total      total          <- pricing.total_price
+//   unit_price     <- pricing.unit_price        cycle_time_min <- costs.machining.cycle_time_min
+//   margin         <- pricing.total_price - costs.total_cost   (price - cost = total margin $)
+//   confidence     <- confidence_score / 100    (engine emits 0-100; page treats confidence as 0-1)
+//   price_breaks   <- engine [{qty,unit_price,total,lead_days}] -> [{quantity,unit_price,savings_pct}]
+//   pricing        <- { margin_pct, below_margin_floor, margin_floor_pct } (margin-floor gate passthrough)
+export function adaptQuoteEstimate(raw: unknown): QuoteEstimate | null {
+  if (raw == null || typeof raw !== 'object') return null;
+  const e = raw as {
+    costs?: {
+      material?: { total?: number };
+      machining?: { total?: number; cycle_time_min?: number };
+      setup?: { total?: number };
+      tooling?: { total?: number };
+      overhead?: { total?: number };
+      total_cost?: number;
+    };
+    pricing?: {
+      unit_price?: number;
+      total_price?: number;
+      margin_pct?: number;
+      below_margin_floor?: boolean;
+      margin_floor_pct?: number;
+    };
+    confidence_score?: number;
+    price_breaks?: Array<{ qty?: number; unit_price?: number; total?: number; lead_days?: number }>;
+  };
+  // Require the two load-bearing nested groups; a flat or malformed body -> null (panel hides).
+  if (!e.costs || !e.pricing) return null;
+  const num = (v: unknown): number => (typeof v === 'number' && Number.isFinite(v) ? v : 0);
+
+  const totalPrice = num(e.pricing.total_price);
+  const totalCost = num(e.costs.total_cost);
+  // Price breaks: the engine reports an absolute unit_price per qty; the page renders a savings_pct
+  // vs the smallest (qty=1-ish) break. Derive it from the most expensive (smallest-qty) break.
+  const rawBreaks = Array.isArray(e.price_breaks) ? e.price_breaks : [];
+  const baselineUnit = rawBreaks.length > 0 ? num(rawBreaks[0]?.unit_price) : 0;
+  const priceBreaks = rawBreaks.map((b) => {
+    const unit = num(b?.unit_price);
+    const savingsPct = baselineUnit > 0 ? ((baselineUnit - unit) / baselineUnit) * 100 : 0;
+    return { quantity: num(b?.qty), unit_price: unit, savings_pct: Math.max(0, savingsPct) };
+  });
+
+  return {
+    material_cost: num(e.costs.material?.total),
+    machining_cost: num(e.costs.machining?.total),
+    setup_cost: num(e.costs.setup?.total),
+    tooling_cost: num(e.costs.tooling?.total),
+    overhead: num(e.costs.overhead?.total),
+    margin: totalPrice - totalCost,
+    total: totalPrice,
+    unit_price: num(e.pricing.unit_price),
+    cycle_time_min: num(e.costs.machining?.cycle_time_min),
+    // Engine confidence_score is 0-100; the page multiplies by 100 for display and compares < 0.82,
+    // so normalize to a 0-1 fraction here.
+    confidence: num(e.confidence_score) / 100,
+    price_breaks: priceBreaks.length > 0 ? priceBreaks : undefined,
+    pricing: {
+      margin_pct: e.pricing.margin_pct,
+      below_margin_floor: e.pricing.below_margin_floor,
+      margin_floor_pct: e.pricing.margin_floor_pct,
+    },
+  };
+}
+
+// === Make-vs-buy outsource recommendation (U-QT04) ===
+// In-house vs outsource verdict with savings + a capacity/material/cost reason. Pairs with the
+// vendor-sourcing panel (LVP answers "which vendor"; this answers "should we outsource at all").
+
+export interface OutsourceReport {
+  ok: boolean;
+  recommendation: 'in-house' | 'outsource' | 'toss-up';
+  in_house_total_usd: number;
+  outsource_estimate_usd: number;
+  savings_usd: number; // positive = outsourcing saves money
+  savings_pct: number;
+  reason_code: 'capacity-constrained' | 'material-unavailable' | 'outsource-cheaper' | 'in-house-cheaper' | 'within-band';
+  reason_text: string;
+  shop_loading_pct: number;
+  margin_threshold: number;
+}
+
+export async function quoteOutsourceRecommend(params: {
+  in_house_total_usd: number;
+  in_house_lead_time_days: number;
+  process: 'mill' | 'lathe' | 'wedm' | 'sinker_edm';
+  material: 'aluminum_6061' | 'steel_a36' | 'stainless_304' | 'copper_c110';
+  tolerance_class: 'coarse' | 'medium' | 'fine' | 'very_fine';
+  quantity: number;
+  shop_loading_pct: number;
+  estimated_volume_cm3_per_part: number;
+  margin_threshold?: number;
+  unavailable_materials?: Array<'aluminum_6061' | 'steel_a36' | 'stainless_304' | 'copper_c110'>;
+}): Promise<PrismResponse> {
+  // Generic prism_quoting dispatch: { action, params } -> POST /api/v1/quoting/.
+  return request('POST', '/quoting', { action: 'outsource_recommend', params });
 }
 
 // === DFM ===
@@ -1458,6 +1919,29 @@ export async function analyticsCalibration(): Promise<PrismResponse> {
 
 export async function blueprintToQuote(params: Record<string, unknown>): Promise<PrismResponse> {
   return request('POST', '/quote/blueprint', params);
+}
+
+// === Blueprint redaction (U-3VIEW-REDACT-WIRE) ===
+// Auto-redacts customer identity (names, part numbers, title-block details) from an
+// uploaded print/CAD doc BEFORE it is displayed or quoted. Wraps prism_cad:blueprint_redact.
+
+export interface BlueprintRedactResult {
+  success: boolean;
+  data: {
+    text?: string;
+    extraction?: Record<string, unknown>;
+    regions?: unknown;
+  };
+}
+
+export async function blueprintRedact(params: {
+  text?: string;
+  extraction?: Record<string, unknown>;
+  regions?: unknown;
+  aggressive?: boolean;
+  auditCleartext?: boolean;
+}): Promise<PrismResponse> {
+  return request('POST', '/cad/blueprint-redact', params);
 }
 
 // === Sheet Metal Quote ===
@@ -2243,4 +2727,120 @@ export async function notifyMarkRead(employeeId: string, notificationId: string)
 }
 export async function notifyUnreadCount(employeeId: string): Promise<PrismResponse> {
   return request('GET', `/erp/notify-unread-count/${encodeURIComponent(employeeId)}`);
+}
+
+// 2026-05-26 (slot golf, tsc-fix): wedmRequestApproval is called by WireEdmWizardPage:426
+// (production code) and mocked by WireEdmPages.test.tsx. The real backend route was never
+// wired. Per R12 fail-loud — production try/catch at WireEdmWizardPage:432 already routes
+// failure to setErpError('Failed to request approval'), so user-visible failure is honest.
+// Tests bypass via vi.fn(). Future U-WEB-WEDM-REQUEST-APPROVAL implements the real route.
+export async function wedmRequestApproval(_params: { reason: string }): Promise<PrismResponse<{ status: string; ticketId?: string }>> {
+  throw new Error('NOT_IMPLEMENTED: wedmRequestApproval was never wired — see U-WEB-WEDM-REQUEST-APPROVAL');
+}
+
+// 2026-05-27 (slot golf, GOAL-TSC-FIX iter6): wedmApprovalStatus + WedmApprovalStatus
+// referenced by WireEdmWizardPage but never landed. Same fail-loud pattern.
+// Future U-WEB-WEDM-APPROVAL-STATUS wires the real route.
+export interface WedmApprovalStatus {
+  status: 'pending' | 'approved' | 'rejected' | string;
+  ticketId?: string;
+  // camelCase + snake_case both accepted — backend returns snake_case but some
+  // frontend call sites use camelCase. Future U-WEB-API-CASE-NORMALIZE picks one.
+  approvedBy?: string;
+  approvedAt?: string;
+  approver?: string;
+  approved_at?: string;
+  approved?: boolean;
+  requires_approval?: boolean;
+  reason?: string;
+  [key: string]: unknown;
+}
+
+export async function wedmApprovalStatus(_ticketId?: string): Promise<PrismResponse<WedmApprovalStatus>> {
+  throw new Error('NOT_IMPLEMENTED: wedmApprovalStatus was never wired — see U-WEB-WEDM-APPROVAL-STATUS');
+}
+
+// ── Job Traveler: auto-generated print->shipping order-of-operations ──
+// (types imported at top of file)
+
+/** Auto-generate the full print->shipping traveler from a part/quote spec. */
+export async function generateTraveler(
+  params: Record<string, unknown>,
+): Promise<DataResponse<GeneratedTraveler>> {
+  return requestData('POST', '/traveler/generate', params);
+}
+
+/** Get the whole-job checklist (per step, per item, with check-off state). */
+export async function getTravelerChecklist(
+  jobId: string,
+): Promise<DataResponse<TravelerJobChecklist>> {
+  return requestData('GET', `/traveler/${encodeURIComponent(jobId)}/checklist`);
+}
+
+/** Check (mark done) a checklist item as the logged-in employee. */
+export async function checkTravelerItem(
+  jobId: string,
+  stepSeq: number,
+  itemId: string,
+  body: { employee_id: string; employee_department?: string; employee_role?: string; note?: string },
+): Promise<DataResponse<TravelerStepChecklist>> {
+  return requestData(
+    'POST',
+    `/traveler/${encodeURIComponent(jobId)}/steps/${stepSeq}/checklist/${encodeURIComponent(itemId)}/check`,
+    body,
+  );
+}
+
+/** Un-check a checklist item (correct a mistake). */
+export async function uncheckTravelerItem(
+  jobId: string,
+  stepSeq: number,
+  itemId: string,
+  body: { employee_id: string; employee_department?: string; employee_role?: string },
+): Promise<DataResponse<TravelerStepChecklist>> {
+  return requestData(
+    'POST',
+    `/traveler/${encodeURIComponent(jobId)}/steps/${stepSeq}/checklist/${encodeURIComponent(itemId)}/uncheck`,
+    body,
+  );
+}
+
+/** "My tasks": filter the job's steps to a given employee's department/role. */
+export async function getTravelerMyTasks(
+  jobId: string,
+  query: { employee_id?: string; department?: string; role?: string } = {},
+): Promise<DataResponse<TravelerMyTasks>> {
+  const qs = new URLSearchParams();
+  if (query.employee_id) qs.set('employee_id', query.employee_id);
+  if (query.department) qs.set('department', query.department);
+  if (query.role) qs.set('role', query.role);
+  const suffix = qs.toString() ? `?${qs.toString()}` : '';
+  return requestData('GET', `/traveler/${encodeURIComponent(jobId)}/my-tasks${suffix}`);
+}
+
+// ── ERP Autofeed (QUOTING-ERP-AUTOFEED) ──
+// Project a completed quote-to-ship result into the ERP/department/portal
+// field-map (read-only). verifyToken-gated server-side (no anon view).
+//
+// ENVELOPE: the /quote/erp-* routes return the prism_business dispatcher result
+// VERBATIM (res.json(await callTool(...))). prism_business emits a
+// slimResponse({type,text}) with NO content[] wrapper, so callTool cannot peel
+// it -> the FE receives the bare {type:"text", text:"<json>"} envelope, NOT a
+// {ok,data} DataResponse. Reading `.data` on that is the recurring dead-panel
+// bug (U-QT04 class); unwrapQuotingBody parses the .text payload. We then wrap
+// the parsed payload back into a DataResponse the page consumes via `.data`.
+export async function quoteToShipErpAutofeed(
+  params: Record<string, unknown>,
+): Promise<DataResponse<ErpAutofeedPayload | null>> {
+  const raw = await request('POST', '/quote/erp-autofeed', params);
+  return { ok: true, data: unwrapQuotingBody<ErpAutofeedPayload>(raw) };
+}
+
+// Materialize the job into the ERP (shop-floor job + work order + portal
+// tasks). Privileged write -- verifyToken + supervisory role server-side.
+export async function quoteToShipErpCommit(
+  params: Record<string, unknown>,
+): Promise<DataResponse<ErpCommitResult | null>> {
+  const raw = await request('POST', '/quote/erp-commit', params);
+  return { ok: true, data: unwrapQuotingBody<ErpCommitResult>(raw) };
 }

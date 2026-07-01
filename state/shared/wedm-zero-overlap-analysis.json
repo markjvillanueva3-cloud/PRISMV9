@@ -1,0 +1,27 @@
+{
+  "schema_version": "1.0.0",
+  "generated_at": "2026-05-23T05:00:00Z",
+  "purpose": "Cross-check iter-44 zero-wmd (18) ∩ iter-47 zero-pst (16) to verify iter-44 default-machine-def hypothesis",
+  "source_catalog": "state/shared/wedm-mcx-wmd-catalog.json",
+  "zero_wmd_count": 18,
+  "zero_pst_count": 16,
+  "intersection_count": 16,
+  "zero_wmd_only_count": 2,
+  "zero_pst_only_count": 0,
+  "jaccard_similarity": 0.889,
+  "conclusion": "iter-44 default-machine-def hypothesis CORROBORATED. Operator workflow that produces zero .wmd refs also produces zero .pst refs (operator never customized either — Mastercam left both at default). The 2 zero-wmd-only manifests are exactly the cross-process manifests from iter-48: they have a NON-WEDM .pst (mill/lathe post selected) but no .wmd because operator never selected a WEDM machine-def for them. Both signals agree.",
+  "zero_wmd_only_manifests": [
+    {
+      "stem": "3004-201819",
+      "cross_process_via": "iter-48 pst+hints (mill+lathe)",
+      "explanation": "operator selected a mill/lathe post but no WEDM machine-def — file is cross-process, treated as non-WEDM by operator"
+    },
+    {
+      "stem": "34n-d749-tt",
+      "cross_process_via": "iter-48 pst+hints (lathe)",
+      "explanation": "same pattern — lathe post selected, no WEDM machine-def"
+    }
+  ],
+  "zero_pst_only_manifests": [],
+  "implication": "The 18 zero-wmd + 16 zero-pst sets resolve to ONE underlying class: 16 'pure default-only WEDM projects' (operator never customized machine-def OR post) + 2 'cross-process projects in WEDM dir' (operator customized post for the non-WEDM process but never touched WEDM machine-def). Phase-A coverage now structurally exhausted at every cross-validation layer."
+}

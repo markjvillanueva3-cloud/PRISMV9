@@ -1,8 +1,11 @@
 ---
 description: Force-claim slot LIMA + run the full /checkin pipeline. NATO-phonetic shortcut for `/checkin --preferSlot lima --force`. Slot added 2026-05-16.
 allowed-tools: Bash, Read, Edit, Write, Glob, Grep, TodoWrite, Task, AskUserQuestion
+composes_with:
+  - "/checkin"
+  - "/handoff"
+  - "/pick-unit"
 ---
-
 # /checkin-lima — slot-locked /checkin
 
 Force-takes the **lima** slot (evicting any prior owner with `--force true --confirmRecent true`), binds the handoff to `lima-work`, then runs the standard `/checkin` pipeline. Slot added 2026-05-16 to support `/checkin-<slot>` for the full NATO alphabet through Lima.

@@ -1,0 +1,28 @@
+{
+  "id": "CROSS-DOMAIN-RAG-FEDERATION-MS0",
+  "title": "Federated retrieval across <domain>-knowledge Qdrant collections",
+  "track": "RAG",
+  "status": "pending",
+  "owner": "tango",
+  "rationale": "Each of the 13 domain chats builds its own Qdrant collection (lathe-knowledge, mill-knowledge, wedm-knowledge, cad-knowledge, ...). Cross-domain queries today fail because no single collection has the answer; today's RAG layer can't fan out. Federation lets a query from any domain reach all collections, rerank, and return a unified result.",
+  "estimated_duration": "1 week",
+  "total_units": 6,
+  "completed_units": 0,
+  "units": [
+    {"id": "CDRF-01", "title": "QdrantFederatedRetrieverEngine — fans query to N collections in parallel", "status": "pending", "owner_slot": "tango"},
+    {"id": "CDRF-02", "title": "Cross-collection reranker (RRF — Reciprocal Rank Fusion)", "status": "pending", "owner_slot": "tango"},
+    {"id": "CDRF-03", "title": "Domain-affinity weighting — boost collections matching the query's inferred domain", "status": "pending", "owner_slot": "tango"},
+    {"id": "CDRF-04", "title": "BM25 fallback per-collection when dense retrieval is sparse", "status": "pending", "owner_slot": "tango"},
+    {"id": "CDRF-05", "title": "prism_session:federated_rag_query dispatcher action", "status": "pending", "owner_slot": "tango"},
+    {"id": "CDRF-06", "title": "End-to-end test — cross-domain query 'how do tribal chatter rules apply to lathe?' surfaces foxtrot + whiskey hits", "status": "pending", "owner_slot": "tango"}
+  ],
+  "exit_gate": {
+    "all_13_collections_federated": "query hits all 13 domain collections in parallel",
+    "rerank_quality": "MRR@10 > 0.5 on operator-curated cross-domain test set",
+    "latency_ms": "<800ms p95 for fanout + rerank across 13 collections",
+    "fallback_path": "BM25 fallback fires when any collection returns < 3 dense hits"
+  },
+  "depends_on": ["AI-STACK-PER-DOMAIN-MS0"],
+  "summary": "Federated retrieval over 13 per-domain Qdrant collections. RRF reranking + domain-affinity weighting + BM25 fallback. Foundation for cross-domain reasoning (e.g. lathe chatter advice informed by mill-tribal rules).",
+  "references": ["reference_psn_r4_deep_stack_2026_05_25 — R4 RAG variants section"]
+}

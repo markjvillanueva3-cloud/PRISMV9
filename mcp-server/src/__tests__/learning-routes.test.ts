@@ -189,6 +189,10 @@ describe("Learning route adapter", () => {
         };
       }
 
+      if (toolName === "prism_doc_learn") {
+        return { dispatched_action: action, dispatched_params: params };
+      }
+
       throw new Error(`Unexpected tool call: ${toolName}:${action}`);
     });
 
@@ -284,5 +288,44 @@ describe("Learning route adapter", () => {
       feed_rate_mmmin: 2400,
     });
     expect(response.data.data.alerts).toEqual([]);
+  });
+
+  // ── Document Learning routes (CC-EXT-MS0 P0-U07) ──────────────────────
+  it("wires POST /document/upload to prism_doc_learn:doc_upload", async () => {
+    const body = { file_path: "H:/docs/manual.pdf", title: "Haas Manual" };
+    const response = await httpRequest("POST", "/api/v1/learning/document/upload", body);
+    expect(response.status).toBe(200);
+    expect(calls[0]).toMatchObject({ toolName: "prism_doc_learn", action: "doc_upload" });
+    expect(calls[0].params).toMatchObject(body);
+    expect(response.data.data.dispatched_action).toBe("doc_upload");
+  });
+
+  it("wires POST /document/extract to prism_doc_learn:doc_extract", async () => {
+    const body = { document_id: "DOC-001", force_domain: "CAM" };
+    const response = await httpRequest("POST", "/api/v1/learning/document/extract", body);
+    expect(response.status).toBe(200);
+    expect(calls[0]).toMatchObject({ toolName: "prism_doc_learn", action: "doc_extract" });
+    expect(calls[0].params).toMatchObject(body);
+  });
+
+  it("wires GET /documents to prism_doc_learn:doc_list", async () => {
+    const response = await httpRequest("GET", "/api/v1/learning/documents");
+    expect(response.status).toBe(200);
+    expect(calls[0]).toMatchObject({ toolName: "prism_doc_learn", action: "doc_list" });
+    expect(calls[0].params).toEqual({});
+  });
+
+  it("wires GET /document/:id to prism_doc_learn:doc_get with the path id", async () => {
+    const response = await httpRequest("GET", "/api/v1/learning/document/DOC-042");
+    expect(response.status).toBe(200);
+    expect(calls[0]).toMatchObject({ toolName: "prism_doc_learn", action: "doc_get" });
+    expect(calls[0].params).toEqual({ document_id: "DOC-042" });
+  });
+
+  it("wires DELETE /document/:id to prism_doc_learn:doc_delete with the path id", async () => {
+    const response = await httpRequest("DELETE", "/api/v1/learning/document/DOC-099");
+    expect(response.status).toBe(200);
+    expect(calls[0]).toMatchObject({ toolName: "prism_doc_learn", action: "doc_delete" });
+    expect(calls[0].params).toEqual({ document_id: "DOC-099" });
   });
 });

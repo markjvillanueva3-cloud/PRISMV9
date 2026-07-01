@@ -1,0 +1,331 @@
+{
+  "id": "ARCH-MS1",
+  "title": "Structural Hierarchy — Shadow Database Elimination",
+  "track": "ARCH",
+  "status": "complete",
+  "description": "Replace all hardcoded inline data in engines with service layer calls. Targets: GenerativeProcessEngine (shadow MATERIAL_DATA + SHOP_RATE + planHistory), MaterialSelectionEngine (shadow MATERIALS[]), MachineSelectionEngine (shadow MACHINES[]), QuoteEngine (hardcoded markup tables), AdvancedCalculations (inline physics constants), CAMKernelEngine (missing physics import). Each engine gets rewired to use the service contracts from ARCH-MS0.",
+  "dependencies": [
+    "ARCH-MS0"
+  ],
+  "knowledge_sources": {
+    "engines": [
+      "GenerativeProcessEngine.ts:180 (MATERIAL_DATA), :215 (SHOP_RATE), :222 (planHistory[])",
+      "MaterialSelectionEngine.ts:91 (MATERIALS[])",
+      "MachineSelectionEngine.ts:78 (MACHINES[])",
+      "QuoteEngine.ts:80 (COMPLEXITY_MARKUP, URGENCY_MARKUP, QUANTITY_DISCOUNT_BREAKS)",
+      "AdvancedCalculations.ts:114 (STABILITY_CONSTANTS, THERMAL_CONSTANTS)",
+      "CAMKernelEngine.ts (no physics import)"
+    ],
+    "services": [
+      "MaterialService (from ARCH-MS0)",
+      "MachineService (from ARCH-MS0)",
+      "PhysicsConstantsService (from ARCH-MS0)",
+      "ConfigService (from ARCH-MS0)"
+    ],
+    "registries": [
+      "MaterialRegistry (2,957 materials)",
+      "MachineRegistry (910 machines)"
+    ],
+    "physics": [
+      "src/physics/constants.ts (canonical Kienzle/Taylor + thermal constants verified in ARCH-MS0)"
+    ]
+  },
+  "forge_triple": {
+    "hook": "shadow-data-detector — DECLARED here, BUILT in ARCH-MS4 U-ENFO02",
+    "action": "prism_system:shadow_data_scan — DECLARED here, BUILT in ARCH-MS4 U-ENFO03",
+    "skill": "/shadow-scan — DECLARED here, BUILT in ARCH-MS4 U-ENFO03"
+  },
+  "enforcement": {
+    "pre_level": [
+      "knowledge-consult",
+      "context-retention"
+    ],
+    "post_level": [
+      "constants-checker (blocks inline physics values)",
+      "stub-detector"
+    ],
+    "compact_level": [
+      "review-gate",
+      "forge-triple-gate",
+      "session-audit"
+    ]
+  },
+  "mcp_lifecycle": {
+    "session_start": [
+      "prism_session:context_boot",
+      "prism_session:dispatcher_map",
+      "prism_session:memory_recall",
+      "prism_session:system_snapshot"
+    ],
+    "during_work": [
+      "prism_session:auto_checkpoint (every 5-10 tool calls)",
+      "prism_session:wip_capture"
+    ],
+    "session_end": [
+      "prism_session:memory_save",
+      "prism_session:system_snapshot",
+      "prism_session:checkpoint_enhanced"
+    ]
+  },
+  "sessions": [
+    {
+      "id": "ARCH-MS1-S1",
+      "title": "Rewire Material & Machine Shadow Databases",
+      "smart_config": {
+        "role": "Refactoring Specialist + Manufacturing Domain Expert",
+        "model": "opus",
+        "effort": "MAX",
+        "context_budget": "50%"
+      },
+      "knowledge": [
+        "GenerativeProcessEngine.ts (full read)",
+        "MaterialSelectionEngine.ts (full read)",
+        "MachineSelectionEngine.ts (full read)",
+        "MaterialService interface",
+        "MachineService interface"
+      ],
+      "intent": "Engines query real registries (2,957 materials, 910 machines) instead of stale 6-15 item inline tables. Results are richer, automatically updated when registries grow. A machinist querying material data gets the full catalog, not a hardcoded subset.",
+      "skills": [
+        "/prism-review",
+        "/test",
+        "/scrutinize",
+        "/trace",
+        "/checkpoint",
+        "/scope"
+      ],
+      "plugins": [
+        "Vitest MCP (mcp__vitest__run_tests)"
+      ],
+      "units": [
+        {
+          "id": "U-SHAD01",
+          "title": "Rewire GenerativeProcessEngine — eliminate MATERIAL_DATA + SHOP_RATE + planHistory",
+          "description": "1) Replace inline MATERIAL_DATA (line 180) with MaterialService.findByName() calls. 2) Replace SHOP_RATE/SETUP_TIME_MIN/TOOL_CHANGE_SEC (line 215) with ConfigService.getShopConfig(). 3) Replace module-level planHistory[] (line 222) with a class-scoped Map or inject a storage service. 4) Preserve all existing method signatures — callers must not break.",
+          "depends_on": [],
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "exit_criteria": [
+            "Zero inline MATERIAL_DATA object",
+            "Zero hardcoded SHOP_RATE/SETUP_TIME_MIN",
+            "planHistory is instance-scoped not module-scoped",
+            "All existing tests pass",
+            "tsc 0 errors",
+            "Output matches prior output for same inputs (snapshot pre/post diff)"
+          ],
+          "rollback": {
+            "files_created": [],
+            "files_modified": [
+              "src/engines/GenerativeProcessEngine.ts"
+            ],
+            "abort_criteria": [
+              "tsc errors > 0",
+              "test failures > 0",
+              "output regression detected via snapshot diff"
+            ],
+            "rollback_procedure": "git checkout -- src/engines/GenerativeProcessEngine.ts"
+          }
+        },
+        {
+          "id": "U-SHAD02",
+          "title": "Rewire MaterialSelectionEngine — replace MATERIALS[] with MaterialService",
+          "description": "Replace inline MATERIALS[] array (line 91, ~15 entries) with MaterialService queries. The engine's scoring/ranking logic stays — only the data source changes. REGRESSION CHECK: Before modifying, capture output for 3 test inputs. After modifying, verify identical ranking order for same inputs.",
+          "depends_on": [],
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "exit_criteria": [
+            "Zero inline MATERIALS array",
+            "MaterialService imported and called",
+            "Scoring logic unchanged",
+            "Output matches prior output for 3+ test inputs (snapshot pre/post diff)",
+            "Tests pass",
+            "tsc 0 errors"
+          ],
+          "rollback": {
+            "files_created": [],
+            "files_modified": [
+              "src/engines/MaterialSelectionEngine.ts"
+            ],
+            "abort_criteria": [
+              "tsc errors > 0",
+              "test failures > 0",
+              "ranking order changed for test inputs"
+            ],
+            "rollback_procedure": "git checkout -- src/engines/MaterialSelectionEngine.ts"
+          }
+        },
+        {
+          "id": "U-SHAD03",
+          "title": "Rewire MachineSelectionEngine — replace MACHINES[] with MachineService",
+          "description": "Replace inline MACHINES[] array (line 78, 12 entries) with MachineService queries. Machine scoring/selection logic stays. REGRESSION CHECK: Before modifying, capture selection output for 3 test part specs. After modifying, verify identical machine ranking for same inputs.",
+          "depends_on": [],
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "exit_criteria": [
+            "Zero inline MACHINES array",
+            "MachineService imported and called",
+            "Selection logic unchanged",
+            "Output matches prior output for 3+ test inputs (snapshot pre/post diff)",
+            "Tests pass",
+            "tsc 0 errors"
+          ],
+          "rollback": {
+            "files_created": [],
+            "files_modified": [
+              "src/engines/MachineSelectionEngine.ts"
+            ],
+            "abort_criteria": [
+              "tsc errors > 0",
+              "test failures > 0",
+              "machine ranking changed for test inputs"
+            ],
+            "rollback_procedure": "git checkout -- src/engines/MachineSelectionEngine.ts"
+          }
+        }
+      ],
+      "exit_gate": "✓ 3 engines rewired to services | ✓ Zero inline material/machine tables | ✓ Snapshot pre/post diffs show identical output | ✓ All tests pass | ✓ tsc 0 errors | omega_floor >= 0.90 | SVI delta: +3%",
+      "feature_cascade": {
+        "new_hooks": [],
+        "new_actions": [],
+        "new_skills": [],
+        "available_to": [
+          "ARCH-MS1-S2"
+        ]
+      },
+      "compact_checkpoint": true
+    },
+    {
+      "id": "ARCH-MS1-S2",
+      "title": "Rewire Physics Constants + Pricing Policy",
+      "smart_config": {
+        "role": "Physics Specialist + Business Logic Architect",
+        "model": "opus",
+        "effort": "MAX",
+        "context_budget": "45%"
+      },
+      "knowledge": [
+        "AdvancedCalculations.ts (full read)",
+        "CAMKernelEngine.ts (full read)",
+        "QuoteEngine.ts (full read)",
+        "src/physics/constants.ts (canonical source — thermal constants verified present in ARCH-MS0)",
+        "PhysicsConstantsService interface",
+        "ConfigService interface"
+      ],
+      "intent": "All physics values come from one canonical source. Pricing policy is configurable, not compiled into engine code. A shop owner can change markup tables without recompiling. A machinist can trust that physics values are consistent across all engines.",
+      "skills": [
+        "/physics-verify",
+        "/prism-review",
+        "/test",
+        "/calibrate",
+        "/checkpoint"
+      ],
+      "plugins": [
+        "Vitest MCP (mcp__vitest__run_tests)"
+      ],
+      "units": [
+        {
+          "id": "U-SHAD04",
+          "title": "Rewire AdvancedCalculations — import canonical physics constants with value snapshot",
+          "description": "SNAPSHOT-DIFF PROTOCOL: 1) Log current inline values (CHIP_HEAT_FRACTION, TOOL_HEAT_FRACTION, STEEL_THERMAL_EXPANSION, all STABILITY_CONSTANTS). 2) Log values from constants.ts for the same keys. 3) Assert numerical equality. 4) Only then replace inline with import. If any value differs, document the discrepancy and use the constants.ts value (canonical wins). Replace inline STABILITY_CONSTANTS and THERMAL_CONSTANTS (line 114-130) with imports from PhysicsConstantsService or directly from src/physics/constants.ts.",
+          "depends_on": [],
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "exit_criteria": [
+            "Zero inline physics constants",
+            "All values imported from canonical source",
+            "Snapshot log shows old==new for each value (or documents justified difference)",
+            "Dimensional units preserved in all method signatures",
+            "/physics-verify passes",
+            "Tests pass",
+            "tsc 0 errors",
+            "Machinist-grade: calculated forces/temperatures unchanged for reference input"
+          ],
+          "rollback": {
+            "files_created": [],
+            "files_modified": [
+              "src/engines/AdvancedCalculations.ts"
+            ],
+            "abort_criteria": [
+              "tsc errors > 0",
+              "physics value mismatch without documented justification",
+              "test failures > 0",
+              "force/temperature output changed by >0.1%"
+            ],
+            "rollback_procedure": "git checkout -- src/engines/AdvancedCalculations.ts"
+          }
+        },
+        {
+          "id": "U-SHAD05",
+          "title": "Rewire CAMKernelEngine — add physics constants import + create regression test",
+          "description": "CAMKernelEngine generates toolpath parameters without referencing canonical physics. 1) Audit every numeric literal for physics values that should be imported. 2) Add PhysicsConstantsService or constants.ts import for any speed/feed/force calculations. 3) MANDATORY: If no test file exists for CAMKernelEngine, CREATE one with at least 3 test cases covering representative inputs before making changes, then verify tests still pass after changes.",
+          "depends_on": [],
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "exit_criteria": [
+            "Physics constants imported from canonical source",
+            "No inline Kienzle/Taylor constants",
+            "Test file exists with 3+ test cases",
+            "Tests pass before AND after modification",
+            "/physics-verify passes",
+            "tsc 0 errors",
+            "Machinist-grade: toolpath parameters unchanged for reference input"
+          ],
+          "rollback": {
+            "files_created": [
+              "src/__tests__/CAMKernelEngine.test.ts (if created)"
+            ],
+            "files_modified": [
+              "src/engines/CAMKernelEngine.ts"
+            ],
+            "abort_criteria": [
+              "tsc errors > 0",
+              "test failures > 0",
+              "toolpath parameter output changed"
+            ],
+            "rollback_procedure": "git checkout -- src/engines/CAMKernelEngine.ts"
+          }
+        },
+        {
+          "id": "U-SHAD06",
+          "title": "Rewire QuoteEngine — externalize pricing policy to ConfigService",
+          "description": "Move COMPLEXITY_MARKUP, URGENCY_MARKUP, QUANTITY_DISCOUNT_BREAKS (line 80-89) to src/data/pricing-config.json. QuoteEngine reads via ConfigService.getPricingConfig(). Pricing changes become data changes, not code changes.",
+          "depends_on": [],
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "exit_criteria": [
+            "Zero hardcoded markup/discount tables in QuoteEngine",
+            "pricing-config.json created with extracted values",
+            "ConfigService serves pricing data",
+            "Quote output identical for same inputs (snapshot diff)",
+            "Tests pass",
+            "tsc 0 errors"
+          ],
+          "rollback": {
+            "files_created": [
+              "src/data/pricing-config.json"
+            ],
+            "files_modified": [
+              "src/engines/QuoteEngine.ts",
+              "src/services/ConfigService.ts"
+            ],
+            "abort_criteria": [
+              "tsc errors > 0",
+              "pricing output differs by >$0.01 for test inputs",
+              "test failures > 0"
+            ],
+            "rollback_procedure": "git checkout -- src/engines/QuoteEngine.ts src/services/ConfigService.ts && rm src/data/pricing-config.json"
+          }
+        }
+      ],
+      "exit_gate": "✓ 3 engines rewired | ✓ Zero inline physics constants | ✓ Snapshot diffs document all value transitions | ✓ Pricing externalized to JSON | ✓ All tests pass | ✓ /physics-verify clean | ✓ tsc 0 errors | ✓ Machinist-grade outputs verified for physics units | omega_floor >= 0.90 | SVI delta: +2%",
+      "feature_cascade": {
+        "new_hooks": [],
+        "new_actions": [],
+        "new_skills": [],
+        "available_to": [
+          "ARCH-MS2",
+          "ARCH-MS3",
+          "ARCH-MS4"
+        ]
+      },
+      "compact_checkpoint": true
+    }
+  ],
+  "total_units": 6,
+  "completed_units": 6,
+  "completed_at": "2026-04-04T16:15:00Z",
+  "completion_note": "Shadow databases rewired to MaterialService/MachineService with fallback catalogs. ConfigService already externalized. dataLoader.ts deleted."
+}

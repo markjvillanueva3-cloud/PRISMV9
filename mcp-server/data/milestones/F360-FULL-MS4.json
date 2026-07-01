@@ -1,0 +1,115 @@
+{
+  "id": "F360-FULL-MS4",
+  "version": "1.0.0",
+  "title": "Full Tool Library with Collision Geometry",
+  "brief": "Export ALL tool geometry fields (taper angle, point angle, rake, relief, edge radius, holder bore/runout/balance). Tool assembly import. Collision pre-check BEFORE toolpath generation with HARD BLOCK.",
+  "created_at": "2026-04-03T00:00:00Z",
+  "created_by": "claude-opus-4.6",
+  "track": "F360-FULL",
+  "track_name": "Fusion 360 Full PRISM Capabilities",
+  "status": "not_started",
+  "total_units": 4,
+  "completed_units": 0,
+  "estimated_sessions": 2,
+  "dependencies": [
+    "F360-FULL-MS1"
+  ],
+  "smart_config": {
+    "role": "implementer + reviewer",
+    "model": "sonnet",
+    "effort": "HIGH",
+    "context_budget": "65%"
+  },
+  "mcp_lifecycle": {
+    "session_start": [
+      "prism_session:context_boot",
+      "prism_session:dispatcher_map",
+      "prism_session:memory_recall",
+      "prism_session:system_snapshot",
+      "prism_session:action_search"
+    ],
+    "during_work": [
+      "prism_session:auto_checkpoint",
+      "prism_session:tool_route_best",
+      "prism_session:wip_capture"
+    ],
+    "session_end": [
+      "prism_session:memory_save",
+      "prism_session:system_snapshot",
+      "prism_session:checkpoint_enhanced"
+    ]
+  },
+  "forge_triple": {
+    "protective_hook": "f360-full-ms4-gate",
+    "mcp_action": "prism_f360-full:f360_full_ms4_run",
+    "skill_command": "/f360-full-ms4",
+    "ownership": "DECLARED — BUILT in terminal unit of this milestone"
+  },
+  "feature_cascade": {
+    "new_hooks": [
+      "f360-full-ms4-gate"
+    ],
+    "new_actions": [
+      "f360_full_ms4_run"
+    ],
+    "new_skills": [
+      "/f360-full-ms4"
+    ],
+    "available_to": [
+      "downstream CAMX milestones",
+      "prism app consumers"
+    ]
+  },
+  "knowledge_sources": {
+    "engines": [
+      "ENGINE_DIGEST.md (consult before creating)"
+    ],
+    "tribal": [
+      "TribalKnowledgeEngine — 3,700+ tips",
+      "MachiningPlaybookEngine — 296 rules"
+    ],
+    "formulas": [
+      "FormulaRegistry — 499 formulas",
+      "src/physics/constants.ts — canonical"
+    ],
+    "reference": [
+      "EXTERNAL-REFERENCE-PROGRAMS-INDEX.md",
+      "MaterialRegistry",
+      "MachineRegistry",
+      "ToolCatalogEngine (95,608 tools)"
+    ]
+  },
+  "intent": "Export ALL tool geometry fields (taper angle, point angle, rake, relief, edge radius, holder bore/runout/balance). Tool assembly import. Collision pre-check BEFORE toolpath generation with HARD BLOCK.",
+  "compact_checkpoint": "every 3 units — auto-triggered by hook",
+  "enforcement_hooks_active": [
+    "physics agent",
+    "wiring agent",
+    "constants checker",
+    "stub detector",
+    "test quality",
+    "forge-triple gate",
+    "session audit agent"
+  ],
+  "units": [
+    {
+      "id": "U-FXXX01",
+      "title": "F360-FULL-MS4 — Coordinator",
+      "description": "Master coordinator envelope for F360-FULL-MS4. Tracks sub-milestones, aggregates their exit gates, and opens closure after every child milestone flips to complete. Follow 4-LOOP at the aggregation layer.",
+      "exit_conditions": [
+        "All sub-milestones listed in dependencies reach status=complete",
+        "Aggregate scrutiny score ≥80 across children",
+        "Cross-track coherence verified: no orphan engines, no duplicate actions",
+        "Final /rgs pass through the 10-agent gate returns PASS"
+      ],
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ],
+      "status": "pending",
+      "role": "coordinator"
+    }
+  ],
+  "_role": "coordinator"
+}

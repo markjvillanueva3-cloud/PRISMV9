@@ -9,6 +9,7 @@
  */
 
 import { useEffect, useMemo, useState } from 'react';
+import { GatedError } from '../components/entitlement';
 import {
   fsmList,
   fsmOpen,
@@ -50,6 +51,7 @@ export default function CADAIStatePage() {
   const [allowed, setAllowed] = useState<CADAIEvent[]>([]);
   const [newSessionId, setNewSessionId] = useState('');
   const [error, setError] = useState<string | null>(null);
+  const [gateError, setGateError] = useState<unknown>(null);
 
   useEffect(() => {
     let active = true;
@@ -60,6 +62,7 @@ export default function CADAIStatePage() {
         setSessions(r.sessions);
         if (!selected && r.sessions.length > 0) setSelected(r.sessions[0]!);
       } catch (e) {
+        setGateError(e);
         setError((e as Error).message);
       }
     }
@@ -86,7 +89,9 @@ export default function CADAIStatePage() {
         setLog(logRes.log);
         setAllowed(allowedRes.events);
         setError(null);
+        setGateError(null);
       } catch (e) {
+        setGateError(e);
         setError((e as Error).message);
       }
     }
@@ -105,6 +110,7 @@ export default function CADAIStatePage() {
       setSelected(newSessionId.trim());
       setNewSessionId('');
     } catch (e) {
+      setGateError(e);
       setError((e as Error).message);
     }
   }
@@ -115,6 +121,7 @@ export default function CADAIStatePage() {
       const snap = await fsmDispatch(selected, event);
       setSnapshot(snap);
     } catch (e) {
+      setGateError(e);
       setError((e as Error).message);
     }
   }
@@ -138,9 +145,11 @@ export default function CADAIStatePage() {
       </header>
 
       {error && (
-        <div className="border border-red-400/30 bg-red-500/10 text-red-300 rounded px-4 py-2 text-sm">
-          {error}
-        </div>
+        <GatedError error={gateError} feature='cadcam' fallback={
+          <div className="border border-red-400/30 bg-red-500/10 text-red-300 rounded px-4 py-2 text-sm">
+            {error}
+          </div>
+        } />
       )}
 
       <section className="space-y-2">

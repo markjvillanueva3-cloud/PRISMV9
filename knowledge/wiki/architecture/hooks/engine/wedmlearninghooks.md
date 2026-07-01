@@ -21,7 +21,14 @@ related:
 
 ## Description (from file header)
 
-WEDM Learning Hooks — WEDM AGI Phase 3 / P3-MS1 (U-P3-05, U-P3-06)Two post-tool hooks that wire the WEDM continuous-learning stack into thePRISM hook bus:  1. wedm_learning_trigger (U-P3-05) — routes any learning-signal action     through WEDMContinuousLearningEngine.ingest. Warns when the 30 s     P3-MS1 budget is exceeded or when the underlying signal was rejected.  2. wedm_drift_alert (U-P3-06) — consumes a drift-verdict payload from     WEDMDriftDetectionEngine and raises a warning wh
+WEDM Learning Hooks — WEDM AGI Phase 3 / P3-MS1 (U-P3-05, U-P3-06)
+Two post-tool hooks that wire the WEDM continuous-learning stack into the
+PRISM hook bus:
+  1. wedm_learning_trigger (U-P3-05) — routes any learning-signal action
+     through WEDMContinuousLearningEngine.ingest. Warns when the 30 s
+     P3-MS1 budget is exceeded or when the underlying signal was rejected.
+  2. wedm_drift_alert (U-P3-06) — consumes a drift-verdict payload from
+     WEDMDriftDetectionEngine and raises a warning wh
 
 ## Events
 

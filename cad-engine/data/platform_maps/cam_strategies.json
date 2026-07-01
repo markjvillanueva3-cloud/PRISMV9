@@ -1,0 +1,296 @@
+{
+  "schema_version": "1.0.0",
+  "domain": "cam_strategies",
+  "updated_at": "2026-03-01T22:20:00Z",
+  "platforms": ["mastercam", "fusion_cam", "solidworks_cam", "esprit", "gibbscam", "hypermill"],
+  "strategy_count": 22,
+  "categories": {
+    "roughing": [
+      {
+        "canonical": "adaptive_clearing",
+        "description": "Constant tool engagement roughing with smooth toolpaths and high axial DOC",
+        "platforms": {
+          "mastercam": {"term": "Dynamic Mill", "toolpath_type": "2D/3D Dynamic"},
+          "fusion_cam": {"term": "Adaptive Clearing", "toolpath_type": "3D Adaptive"},
+          "solidworks_cam": {"term": "Volumill / iMachining", "notes": "Requires add-on"},
+          "esprit": {"term": "ProfitMilling", "toolpath_type": "Profit Roughing"},
+          "gibbscam": {"term": "VoluMill", "notes": "Integrated VoluMill"},
+          "hypermill": {"term": "hyperMILL MAXX Machining", "toolpath_type": "Roughing"}
+        },
+        "parameters": ["stepover_pct", "axial_doc", "ramp_angle", "engagement_limit"]
+      },
+      {
+        "canonical": "pocket_roughing",
+        "description": "Traditional pocket roughing with constant Z-level or spiral patterns",
+        "platforms": {
+          "mastercam": {"term": "Pocket", "toolpath_type": "2D Pocket"},
+          "fusion_cam": {"term": "Pocket Clearing (2D)", "toolpath_type": "2D Pocket"},
+          "solidworks_cam": {"term": "Pocket Mill", "toolpath_type": "Pocket"},
+          "esprit": {"term": "Pocket", "toolpath_type": "2D Pocket"},
+          "gibbscam": {"term": "Pocket Roughing", "toolpath_type": "Pocket"},
+          "hypermill": {"term": "Pocket Milling", "toolpath_type": "2D Pocket"}
+        },
+        "parameters": ["stepover", "axial_doc", "pattern", "corner_rounding"]
+      },
+      {
+        "canonical": "face_milling",
+        "description": "Flat surface material removal across top of workpiece",
+        "platforms": {
+          "mastercam": {"term": "Face Mill", "toolpath_type": "Face"},
+          "fusion_cam": {"term": "Face", "toolpath_type": "2D Face"},
+          "solidworks_cam": {"term": "Face Mill", "toolpath_type": "Face"},
+          "esprit": {"term": "Face Milling", "toolpath_type": "Face"},
+          "gibbscam": {"term": "Face Mill", "toolpath_type": "Face"},
+          "hypermill": {"term": "Face Milling", "toolpath_type": "Face"}
+        },
+        "parameters": ["stepover", "stock_to_leave", "approach_type"]
+      },
+      {
+        "canonical": "plunge_roughing",
+        "description": "Axial plunge cuts for deep cavities and tough materials",
+        "platforms": {
+          "mastercam": {"term": "Plunge Rough", "toolpath_type": "Plunge"},
+          "fusion_cam": {"term": "Bore (plunge pattern)", "notes": "Manual setup"},
+          "solidworks_cam": {"term": "Plunge Roughing", "notes": "Limited support"},
+          "esprit": {"term": "Plunge Milling", "toolpath_type": "Plunge"},
+          "hypermill": {"term": "Plunge Cutting", "toolpath_type": "Plunge"}
+        },
+        "parameters": ["plunge_depth", "stepover", "retract_height"]
+      },
+      {
+        "canonical": "z_level_roughing",
+        "description": "Constant Z-level roughing for 3D surfaces",
+        "platforms": {
+          "mastercam": {"term": "Area Roughing", "toolpath_type": "3D Area Roughing"},
+          "fusion_cam": {"term": "Morphed Spiral (rough)", "toolpath_type": "3D Pocket"},
+          "solidworks_cam": {"term": "3-Axis Rough", "toolpath_type": "Rough Mill"},
+          "esprit": {"term": "Z-Level Roughing", "toolpath_type": "3D Roughing"},
+          "hypermill": {"term": "Z-Level Roughing", "toolpath_type": "3D Roughing"}
+        },
+        "parameters": ["z_step", "stepover", "stock_to_leave"]
+      }
+    ],
+    "finishing": [
+      {
+        "canonical": "contour_finishing",
+        "description": "Profile following along walls and edges",
+        "platforms": {
+          "mastercam": {"term": "Contour", "toolpath_type": "2D Contour"},
+          "fusion_cam": {"term": "Contour", "toolpath_type": "2D Contour"},
+          "solidworks_cam": {"term": "Contour Mill", "toolpath_type": "Contour"},
+          "esprit": {"term": "Profiling", "toolpath_type": "2D Profile"},
+          "gibbscam": {"term": "Contour", "toolpath_type": "Profile"},
+          "hypermill": {"term": "Profile Finishing", "toolpath_type": "2D Profile"}
+        },
+        "parameters": ["depth_of_cut", "passes", "stock_to_leave", "lead_in_out"]
+      },
+      {
+        "canonical": "parallel_finishing",
+        "description": "Parallel passes across 3D surface for finish machining",
+        "platforms": {
+          "mastercam": {"term": "Parallel", "toolpath_type": "Surface Finish Parallel"},
+          "fusion_cam": {"term": "Parallel", "toolpath_type": "3D Parallel"},
+          "solidworks_cam": {"term": "Parallel Finish", "toolpath_type": "Pattern Project"},
+          "esprit": {"term": "Parallel Finish", "toolpath_type": "3D Parallel"},
+          "hypermill": {"term": "Plane Machining", "toolpath_type": "3D Parallel"}
+        },
+        "parameters": ["stepover", "cut_direction", "angle"]
+      },
+      {
+        "canonical": "scallop_finishing",
+        "description": "Constant-scallop-height finishing for curved surfaces",
+        "platforms": {
+          "mastercam": {"term": "Scallop", "toolpath_type": "Surface Finish Scallop"},
+          "fusion_cam": {"term": "Scallop", "toolpath_type": "3D Scallop"},
+          "solidworks_cam": {"term": "Constant Stepover", "toolpath_type": "Scallop"},
+          "esprit": {"term": "Scallop", "toolpath_type": "3D Scallop"},
+          "hypermill": {"term": "Equidistant Milling", "toolpath_type": "3D Scallop"}
+        },
+        "parameters": ["scallop_height", "stepover", "tolerance"]
+      },
+      {
+        "canonical": "pencil_finishing",
+        "description": "Finish machining along concave corners and fillets",
+        "platforms": {
+          "mastercam": {"term": "Pencil", "toolpath_type": "Surface Finish Pencil"},
+          "fusion_cam": {"term": "Pencil", "toolpath_type": "3D Pencil"},
+          "solidworks_cam": {"term": "Corner Finishing", "notes": "Limited"},
+          "esprit": {"term": "Rest Finishing", "toolpath_type": "Pencil"},
+          "hypermill": {"term": "Rest Machining", "toolpath_type": "Pencil"}
+        },
+        "parameters": ["tool_diameter", "stepover"]
+      },
+      {
+        "canonical": "flowline_finishing",
+        "description": "Toolpath follows surface flow lines for smooth finish",
+        "platforms": {
+          "mastercam": {"term": "Flowline", "toolpath_type": "Surface Finish Flowline"},
+          "fusion_cam": {"term": "Flow", "toolpath_type": "3D Flow"},
+          "esprit": {"term": "Flowline", "toolpath_type": "3D Flowline"},
+          "hypermill": {"term": "3D Flow Finishing", "toolpath_type": "Flowline"}
+        },
+        "parameters": ["flow_direction", "stepover", "tolerance"]
+      },
+      {
+        "canonical": "z_level_finishing",
+        "description": "Constant Z-level contouring for steep wall finishing",
+        "platforms": {
+          "mastercam": {"term": "Z-Level Finish", "toolpath_type": "Surface Finish Zlevel"},
+          "fusion_cam": {"term": "Steep and Shallow", "toolpath_type": "3D Steep and Shallow"},
+          "solidworks_cam": {"term": "Z-Level Finish", "toolpath_type": "Z-Level"},
+          "esprit": {"term": "Z-Level Finishing", "toolpath_type": "3D Z-Level"},
+          "hypermill": {"term": "Z-Level Finishing", "toolpath_type": "3D Z-Level"}
+        },
+        "parameters": ["z_step", "overlap", "steep_angle_threshold"]
+      },
+      {
+        "canonical": "flat_finishing",
+        "description": "Machine flat areas detected on 3D part",
+        "platforms": {
+          "mastercam": {"term": "Flat Finish", "toolpath_type": "Surface Finish Flat"},
+          "fusion_cam": {"term": "Flat", "toolpath_type": "3D Flat"},
+          "esprit": {"term": "Flat Area Finishing", "toolpath_type": "3D Flat"},
+          "hypermill": {"term": "Level Plane Finishing", "toolpath_type": "Flat"}
+        },
+        "parameters": ["stepover", "tolerance"]
+      }
+    ],
+    "hole_making": [
+      {
+        "canonical": "drilling",
+        "description": "Standard point-to-point drilling",
+        "platforms": {
+          "mastercam": {"term": "Drill", "toolpath_type": "Drill"},
+          "fusion_cam": {"term": "Drill", "toolpath_type": "Drilling"},
+          "solidworks_cam": {"term": "Drill", "toolpath_type": "Drill"},
+          "esprit": {"term": "Drilling", "toolpath_type": "Drill"},
+          "gibbscam": {"term": "Drill", "toolpath_type": "Drill"},
+          "hypermill": {"term": "Drilling", "toolpath_type": "Drill"}
+        },
+        "parameters": ["depth", "peck_depth", "dwell", "retract"]
+      },
+      {
+        "canonical": "peck_drilling",
+        "description": "Drilling with periodic retract for chip clearing",
+        "platforms": {
+          "mastercam": {"term": "Peck Drill", "toolpath_type": "Peck Drill", "gcode": "G73/G83"},
+          "fusion_cam": {"term": "Drill (Peck)", "toolpath_type": "Drilling", "gcode": "G73/G83"},
+          "solidworks_cam": {"term": "Peck Drill", "gcode": "G73/G83"},
+          "esprit": {"term": "Peck Drilling", "gcode": "G73/G83"},
+          "hypermill": {"term": "Peck Drilling", "gcode": "G73/G83"}
+        },
+        "parameters": ["total_depth", "first_peck", "peck_reduction", "retract_type"]
+      },
+      {
+        "canonical": "tapping",
+        "description": "Thread cutting in existing hole",
+        "platforms": {
+          "mastercam": {"term": "Tap", "toolpath_type": "Tap", "gcode": "G84"},
+          "fusion_cam": {"term": "Tapping", "toolpath_type": "Tapping", "gcode": "G84"},
+          "solidworks_cam": {"term": "Tap", "gcode": "G84"},
+          "esprit": {"term": "Tapping", "gcode": "G84"},
+          "hypermill": {"term": "Tapping", "gcode": "G84"}
+        },
+        "parameters": ["pitch", "depth", "thread_type"]
+      },
+      {
+        "canonical": "reaming",
+        "description": "Precision hole finishing",
+        "platforms": {
+          "mastercam": {"term": "Reaming", "toolpath_type": "Drill (ream)", "gcode": "G85"},
+          "fusion_cam": {"term": "Reaming", "toolpath_type": "Drilling", "gcode": "G85"},
+          "solidworks_cam": {"term": "Ream", "gcode": "G85"},
+          "esprit": {"term": "Reaming", "gcode": "G85"},
+          "hypermill": {"term": "Reaming", "gcode": "G85"}
+        },
+        "parameters": ["depth", "feed_rate", "retract_feed"]
+      },
+      {
+        "canonical": "boring",
+        "description": "Precision internal cylindrical machining",
+        "platforms": {
+          "mastercam": {"term": "Bore", "toolpath_type": "Bore", "gcode": "G86/G76"},
+          "fusion_cam": {"term": "Bore", "toolpath_type": "Boring", "gcode": "G86/G76"},
+          "solidworks_cam": {"term": "Bore", "gcode": "G86"},
+          "esprit": {"term": "Boring", "gcode": "G86"},
+          "hypermill": {"term": "Boring", "gcode": "G86/G76"}
+        },
+        "parameters": ["depth", "bore_type", "orientation_stop"]
+      },
+      {
+        "canonical": "helical_interpolation",
+        "description": "Helical toolpath for hole enlargement or thread milling",
+        "platforms": {
+          "mastercam": {"term": "Helix Bore", "toolpath_type": "Circle Mill"},
+          "fusion_cam": {"term": "Bore (Helical)", "toolpath_type": "Bore"},
+          "solidworks_cam": {"term": "Thread Mill / Circle Mill", "toolpath_type": "Thread Mill"},
+          "esprit": {"term": "Helical Interpolation", "toolpath_type": "Helical"},
+          "hypermill": {"term": "Helical Drilling", "toolpath_type": "Helical"}
+        },
+        "parameters": ["hole_diameter", "helix_pitch", "depth"]
+      }
+    ],
+    "turning": [
+      {
+        "canonical": "od_roughing",
+        "description": "External diameter roughing on lathe",
+        "platforms": {
+          "mastercam": {"term": "Rough", "toolpath_type": "Lathe Rough"},
+          "fusion_cam": {"term": "Turning Profile Roughing", "toolpath_type": "Turning Roughing"},
+          "solidworks_cam": {"term": "Rough Turn", "toolpath_type": "Turn Rough"},
+          "esprit": {"term": "OD Roughing", "toolpath_type": "Turning Rough"},
+          "hypermill": {"term": "Roughing", "toolpath_type": "Turning Rough"}
+        },
+        "parameters": ["doc", "feed", "speed", "stock_to_leave"]
+      },
+      {
+        "canonical": "od_finishing",
+        "description": "External diameter finishing on lathe",
+        "platforms": {
+          "mastercam": {"term": "Finish", "toolpath_type": "Lathe Finish"},
+          "fusion_cam": {"term": "Turning Profile Finishing", "toolpath_type": "Turning Finishing"},
+          "solidworks_cam": {"term": "Finish Turn", "toolpath_type": "Turn Finish"},
+          "esprit": {"term": "OD Finishing", "toolpath_type": "Turning Finish"},
+          "hypermill": {"term": "Finishing", "toolpath_type": "Turning Finish"}
+        },
+        "parameters": ["passes", "feed", "speed", "nose_radius_comp"]
+      },
+      {
+        "canonical": "grooving",
+        "description": "Groove/undercut machining on lathe",
+        "platforms": {
+          "mastercam": {"term": "Groove", "toolpath_type": "Lathe Groove"},
+          "fusion_cam": {"term": "Turning Groove", "toolpath_type": "Turning Grooving"},
+          "solidworks_cam": {"term": "Groove", "toolpath_type": "Turn Groove"},
+          "esprit": {"term": "Grooving", "toolpath_type": "Grooving"},
+          "hypermill": {"term": "Grooving", "toolpath_type": "Turning Grooving"}
+        },
+        "parameters": ["width", "depth", "feed", "plunge_feed"]
+      },
+      {
+        "canonical": "threading_lathe",
+        "description": "Single-point thread cutting on lathe",
+        "platforms": {
+          "mastercam": {"term": "Thread", "toolpath_type": "Lathe Thread", "gcode": "G76/G92"},
+          "fusion_cam": {"term": "Turning Thread", "toolpath_type": "Turning Threading", "gcode": "G76"},
+          "solidworks_cam": {"term": "Thread", "toolpath_type": "Turn Thread", "gcode": "G76"},
+          "esprit": {"term": "Threading", "toolpath_type": "Threading", "gcode": "G76"},
+          "hypermill": {"term": "Threading", "toolpath_type": "Turning Threading", "gcode": "G76"}
+        },
+        "parameters": ["pitch", "depth", "passes", "infeed_angle", "thread_type"]
+      },
+      {
+        "canonical": "parting",
+        "description": "Cut-off operation on lathe",
+        "platforms": {
+          "mastercam": {"term": "Cutoff", "toolpath_type": "Lathe Cutoff"},
+          "fusion_cam": {"term": "Turning Part", "toolpath_type": "Turning Parting"},
+          "solidworks_cam": {"term": "Cutoff", "toolpath_type": "Turn Cutoff"},
+          "esprit": {"term": "Parting", "toolpath_type": "Cutoff"},
+          "hypermill": {"term": "Parting Off", "toolpath_type": "Cutoff"}
+        },
+        "parameters": ["cutoff_width", "feed", "speed_reduction_pct"]
+      }
+    ]
+  }
+}

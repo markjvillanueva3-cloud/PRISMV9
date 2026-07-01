@@ -67,6 +67,8 @@ export const NAV_SECTIONS: readonly NavSection[] = [
         keywords: ['cam', 'tooling', 'setup', 'machining'],
         items: [
           { to: '/calculator', label: 'Studio', keywords: ['costing', 'feeds', 'speeds'] },
+          { to: '/speed-feed-calc', label: 'Speed/Feed Calc', keywords: ['sfc', 'feeds', 'speeds', 'smart selector'] },
+          { to: '/speed-feed', label: 'Speed/Feed (Full)', keywords: ['sfc', 'orchestrator', 'uncertainty', 'confidence', 'ci95', 'weibull', 'feeds', 'speeds', 'full'] },
           { to: '/toolpath', label: 'Toolpath Advisor', keywords: ['strategy', 'operations'] },
           { to: '/what-if', label: 'What-If Analysis', keywords: ['compare', 'scenario'] },
           { to: '/thread-calculator', label: 'Thread Calculator', keywords: ['threads', 'tap drill', 'gauge'] },
@@ -173,6 +175,7 @@ export const NAV_SECTIONS: readonly NavSection[] = [
       { to: '/commissions', label: 'Commissions', keywords: ['compensation', 'sales commissions', 'pay'], minClearance: 'hr_manager' },
       { to: '/credit-management', label: 'Credit Management', keywords: ['credit', 'terms', 'risk', 'collections'], minClearance: 'hr_manager' },
       { to: '/vendor-scorecard', label: 'Vendor Scorecard', keywords: ['supplier scorecard', 'vendor quality', 'procurement'], minClearance: 'lead' },
+      { to: '/vendor-catalog', label: 'Vendor Catalog', keywords: ['vendor catalog', 'supplier directory', 'sourcing', 'tool makers', 'procurement'], minClearance: 'lead' },
       { to: '/receiving', label: 'Receiving', keywords: ['receipts', 'incoming', 'inspection', 'dock'], minClearance: 'lead' },
       { to: '/shipping', label: 'Shipping', keywords: ['packout', 'shipment', 'bol', 'tracking'], minClearance: 'lead' },
     ],

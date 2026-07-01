@@ -240,7 +240,7 @@ export interface CuttingToolSpec {
 
 export interface HolderReasoningStep {
   step: number;
-  type: "constraint_check" | "type_filter" | "scoring" | "jmdie_fit" | "synthesis";
+  type: "constraint_check" | "type_filter" | "scoring" | "jmdie_fit" | "synthesis" | "observation";
   description: string;
   evidence: string[];
   confidence: number;

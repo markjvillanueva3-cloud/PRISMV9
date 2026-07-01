@@ -1,0 +1,57 @@
+{
+  "lastUpdated": "2026-01-20T19:30:00Z",
+  "currentSession": "1.A.2",
+  "sessionName": "Extract Machine Databases (7 core databases)",
+  "status": "IN_PROGRESS",
+  
+  "clarification": {
+    "note": "There's a distinction between ENHANCED manufacturer DBs (already done) and CORE machine DBs (need extraction)",
+    "enhancedManufacturers": {
+      "status": "COMPLETE",
+      "count": 33,
+      "location": "EXTRACTED/machines/ENHANCED/",
+      "description": "Individual manufacturer machine specs with full kinematics"
+    },
+    "coreMachineDatabases": {
+      "status": "NOT_STARTED",
+      "count": 7,
+      "location": "EXTRACTED/machines/BASIC/ (target)",
+      "description": "Core infrastructure databases from monolith",
+      "databases": [
+        "PRISM_POST_MACHINE_DATABASE - Post processor machine configs",
+        "PRISM_LATHE_MACHINE_DB - Lathe specifications", 
+        "PRISM_LATHE_V2_MACHINE_DATABASE_V2 - Lathe V2 specifications",
+        "PRISM_MACHINE_3D_DATABASE - 3D machine models",
+        "PRISM_MACHINE_3D_MODEL_DATABASE_V2 - 3D models V2",
+        "PRISM_MACHINE_3D_MODEL_DATABASE_V3 - 3D models V3",
+        "PRISM_OKUMA_MACHINE_CAD_DATABASE - Okuma-specific CAD models"
+      ]
+    }
+  },
+  
+  "sourceFile": {
+    "name": "PRISM_v8_89_002_TRUE_100_PERCENT.zip",
+    "location": "_BUILD/",
+    "needsExtraction": true,
+    "note": "Must unzip HTML file to read and extract modules"
+  },
+  
+  "nextAction": "Extract the 7 core machine databases from the monolith HTML file",
+  
+  "completedSessions": [
+    "0.0.1 - Development Prompt",
+    "0.EXT.1 - Living System First Session",
+    "0.EXT.1b - Materials Database (archived)",
+    "0.EXT.2 - Machines Database (started ENHANCED tier)",
+    "0.EXT.2f.6 - ENHANCED Machine Expansion",
+    "REORG.1 - Folder Reorganization"
+  ],
+  
+  "extractionProgress": {
+    "1.A.1_Materials": "NEEDS_VERIFICATION",
+    "1.A.2_Machines": "IN_PROGRESS - ENHANCED done, CORE not started",
+    "1.A.3_Tools": "NOT_STARTED",
+    "1.A.4_Workholding": "NOT_STARTED",
+    "1.A.5_PostProcessors": "NOT_STARTED"
+  }
+}

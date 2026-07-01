@@ -37,9 +37,11 @@ These are the canonical index and digest surfaces both Claude and Codex should p
   Canonical roadmap envelope index and milestone lookup surface.
 - `roadmap_section_index` [roadmap] priority 2 — present — `C:\PRISM\mcp-server\data\docs\roadmap\ROADMAP_SECTION_INDEX.md`
   Section-level roadmap navigation before scanning full roadmap docs.
+- `db_manifest` [database] priority 1 — present — `data/databases/DB_MANIFEST.json`
+  Canonical PRISM database registry (33 stores: core / specialty / juliett directory / DB-BRIDGE / JM financial). The fleet's single discovery surface for every DB — id, source path, load_path, and consumer galaxies. Includes the JM financial stores (AP ledger / sold-orders / tool-purchases). Query via `prism_data:database_list` / `database_search` or `node scripts/db-toolbelt.mjs --status`. (Path repo-relative to `H:/prism`; the legacy `C:\PRISM` entries above predate the H: move — added BLACKWELL-DB-GEN-MS0, slot:juliett 2026-06-04.)
 
 ## Summary
 
-- Present: 11
+- Present: 12
 - Missing: 0
 

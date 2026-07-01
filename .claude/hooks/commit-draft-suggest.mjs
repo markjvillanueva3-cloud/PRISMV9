@@ -82,7 +82,7 @@ if (!isGeneric) exit(0);
 // ── Verify there's something staged to commit ─────────────────────────
 let stagedDiff = "";
 try {
-  stagedDiff = execSync("git diff --cached --stat", {
+  stagedDiff = execSync("git diff --cached --stat", { windowsHide: true,
     encoding: "utf-8",
     maxBuffer: 64 * 1024,
     timeout: 2000,
@@ -116,14 +116,14 @@ function recordEvent(decision, suggestion, latencyMs) {
 // We hit Ollama directly instead of going through the dispatcher to
 // keep the hook self-contained and below the 100-line guideline.
 const OLLAMA_URL = process.env.OLLAMA_URL ?? "http://127.0.0.1:11434";
-const OLLAMA_MODEL = process.env.OLLAMA_COMMIT_MODEL ?? "qwen2.5-coder:7b";
+const OLLAMA_MODEL = process.env.OLLAMA_COMMIT_MODEL ?? "qwen2.5-coder:32b";
 const TIMEOUT_MS = 6_000;
 
 async function suggestDraft() {
   const startedAt = Date.now();
   let stagedDetailedDiff = "";
   try {
-    stagedDetailedDiff = execSync("git diff --cached", {
+    stagedDetailedDiff = execSync("git diff --cached", { windowsHide: true,
       encoding: "utf-8",
       maxBuffer: 256 * 1024,
       timeout: 2000,

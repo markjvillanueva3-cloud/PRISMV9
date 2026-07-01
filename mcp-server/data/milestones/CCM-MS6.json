@@ -1,0 +1,648 @@
+{
+  "id": "CCM-MS6",
+  "version": "1.0.0",
+  "title": "Security & Sandbox Configuration",
+  "brief": "Implement filesystem/network sandboxing and permission hardening. Currently NO sandbox config. Add: filesystem allowRead/allowWrite paths locked to PRISM + ~/.claude/, network allowedDomains, permission audit, MCP server sandboxing per agent, protected path enforcement, subagent permission scoping, secrets detection hook, security audit skill.",
+  "created_at": "2026-03-20T12:00:00Z",
+  "created_by": "claude-opus-4.6",
+  "track": "CCM",
+  "track_name": "Claude Code Modernization",
+  "status": "not_started",
+  "dependencies": [],
+  "wave": 1,
+  "phases": [
+    {
+      "id": "P0",
+      "title": "Security & Sandbox Hardening",
+      "description": "Configure filesystem and network sandboxing, audit permissions, enforce protected paths, scope subagent access, add secrets detection hook, and create security audit skill.",
+      "sessions": "2-3",
+      "primary_role": "R1",
+      "primary_model": "opus-4.6",
+      "units": [
+        {
+          "id": "P0-U01",
+          "title": "Filesystem sandbox config",
+          "phase": "P0",
+          "sequence": 1,
+          "role": "R1",
+          "role_name": "Systems Architect",
+          "model": "opus-4.6",
+          "effort": 85,
+          "rationale": "Filesystem sandbox restricts read/write access to known-safe paths, preventing accidental writes to system directories or reads of sensitive files outside the project.",
+          "tools": [
+            "Bash"
+          ],
+          "skills": [],
+          "scripts": [],
+          "hooks": [],
+          "features": [
+            "Filesystem allowRead/allowWrite sandbox"
+          ],
+          "dependencies": [],
+          "entry_conditions": [
+            "settings.json accessible at ~/.claude/settings.json or project settings"
+          ],
+          "exit_conditions": [
+            "Sandbox active in settings.json with allowRead and allowWrite paths",
+            "allowRead covers C:/PRISM/, ~/.claude/, /tmp/",
+            "allowWrite covers C:/PRISM/mcp-server/, ~/.claude/, /tmp/"
+          ],
+          "rollback": "git checkout -- state/CCM-MS6/",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Audit current settings.json for any existing sandbox or permission entries."
+            },
+            {
+              "number": 2,
+              "instruction": "Add sandbox.filesystem.allowRead array with C:/PRISM/, ~/.claude/, C:/tmp/."
+            },
+            {
+              "number": 3,
+              "instruction": "Add sandbox.filesystem.allowWrite array with C:/PRISM/mcp-server/, ~/.claude/, C:/tmp/."
+            },
+            {
+              "number": 4,
+              "instruction": "Test that reads outside allowRead are blocked and writes outside allowWrite are blocked."
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "state/CCM-MS6/sandbox-config.json",
+              "type": "config",
+              "description": "Filesystem sandbox configuration snapshot"
+            }
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": false,
+          "creates_hook": false,
+          "creates_command": false,
+          "description": "Filesystem sandbox config — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P0-U02",
+          "title": "Network sandbox config",
+          "phase": "P0",
+          "sequence": 2,
+          "role": "R1",
+          "role_name": "Systems Architect",
+          "model": "opus-4.6",
+          "effort": 85,
+          "rationale": "Network sandbox restricts outbound connections to known-safe domains, preventing data exfiltration or unexpected API calls.",
+          "tools": [
+            "Bash"
+          ],
+          "skills": [],
+          "scripts": [],
+          "hooks": [],
+          "features": [
+            "Network allowedDomains sandbox"
+          ],
+          "dependencies": [
+            "P0-U01"
+          ],
+          "entry_conditions": [
+            "Filesystem sandbox configured from P0-U01"
+          ],
+          "exit_conditions": [
+            "Network restricted to npm registry, GitHub, anthropic.com, localhost",
+            "Outbound connections to other domains blocked",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
+          ],
+          "rollback": "git checkout -- state/CCM-MS6/",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Add sandbox.network.allowedDomains array with registry.npmjs.org, github.com, api.github.com, anthropic.com, api.anthropic.com, localhost."
+            },
+            {
+              "number": 2,
+              "instruction": "Test that WebFetch to allowed domains works."
+            },
+            {
+              "number": 3,
+              "instruction": "Verify that requests to non-listed domains are blocked or flagged."
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "state/CCM-MS6/network-sandbox.json",
+              "type": "config",
+              "description": "Network sandbox configuration snapshot"
+            }
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": false,
+          "creates_hook": false,
+          "creates_command": false,
+          "description": "Network sandbox config — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P0-U03",
+          "title": "Permission audit",
+          "phase": "P0",
+          "sequence": 3,
+          "role": "R1",
+          "role_name": "Systems Architect",
+          "model": "opus-4.6",
+          "effort": 85,
+          "rationale": "Current allow/deny rules may be overly broad (e.g., blanket Bash allow). Audit tightens permissions to principle of least privilege.",
+          "tools": [
+            "Bash",
+            "Grep"
+          ],
+          "skills": [],
+          "scripts": [],
+          "hooks": [],
+          "features": [
+            "Permission audit and tightening"
+          ],
+          "dependencies": [
+            "P0-U01",
+            "P0-U02"
+          ],
+          "entry_conditions": [
+            "Filesystem and network sandbox configured"
+          ],
+          "exit_conditions": [
+            "All allow/deny rules reviewed",
+            "Overly broad rules narrowed",
+            "Missing denials added for dangerous operations"
+          ],
+          "rollback": "git checkout -- state/CCM-MS6/",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Extract all allow/deny rules from settings.json and hook configs."
+            },
+            {
+              "number": 2,
+              "instruction": "Identify overly broad rules (e.g., 'Bash: *' instead of scoped patterns)."
+            },
+            {
+              "number": 3,
+              "instruction": "Add explicit denials for rm -rf /, format, and other destructive system commands."
+            },
+            {
+              "number": 4,
+              "instruction": "Document the audit results in state/CCM-MS6/permission-audit.json."
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "state/CCM-MS6/permission-audit.json",
+              "type": "data",
+              "description": "Permission audit results and recommendations"
+            }
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": false,
+          "creates_hook": false,
+          "creates_command": false,
+          "description": "Permission audit — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P0-U04",
+          "title": "MCP server sandboxing",
+          "phase": "P0",
+          "sequence": 4,
+          "role": "R1",
+          "role_name": "Systems Architect",
+          "model": "opus-4.6",
+          "effort": 85,
+          "rationale": "Different MCP servers (Serena, Playwright, Context7) should have scoped access. A physics analysis agent should not invoke Playwright browser tools.",
+          "tools": [
+            "Bash"
+          ],
+          "skills": [],
+          "scripts": [],
+          "hooks": [],
+          "features": [
+            "Per-agent MCP tool access scoping"
+          ],
+          "dependencies": [
+            "P0-U03"
+          ],
+          "entry_conditions": [
+            "Permission audit complete from P0-U03"
+          ],
+          "exit_conditions": [
+            "Agents have scoped MCP access based on their role",
+            "Config documented in state/CCM-MS6/mcp-scoping.json",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
+          ],
+          "rollback": "git checkout -- state/CCM-MS6/",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Define MCP tool access profiles: analysis (serena+context7), web (playwright+context7), forge (serena only), test (serena only)."
+            },
+            {
+              "number": 2,
+              "instruction": "Configure MCP server access restrictions per agent type in settings.json."
+            },
+            {
+              "number": 3,
+              "instruction": "Test that restricted agents cannot invoke tools outside their scope."
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "state/CCM-MS6/mcp-scoping.json",
+              "type": "config",
+              "description": "MCP tool access profiles per agent type"
+            }
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": false,
+          "creates_hook": false,
+          "creates_command": false,
+          "description": "MCP server sandboxing — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P0-U05",
+          "title": "Protected path enforcement",
+          "phase": "P0",
+          "sequence": 5,
+          "role": "R1",
+          "role_name": "Systems Architect",
+          "model": "opus-4.6",
+          "effort": 85,
+          "rationale": "Critical paths like .git/, credentials files, and system configs should never be writable without explicit human approval, even if within the allowWrite zone.",
+          "tools": [
+            "Bash"
+          ],
+          "skills": [],
+          "scripts": [],
+          "hooks": [
+            "pretooluse-unified"
+          ],
+          "features": [
+            "Protected path write enforcement"
+          ],
+          "dependencies": [
+            "P0-U01"
+          ],
+          "entry_conditions": [
+            "Filesystem sandbox configured from P0-U01"
+          ],
+          "exit_conditions": [
+            "Protected paths enforced: .git/, *.env, credentials.*, *.key, *.pem",
+            "Writes to protected paths require explicit approval via hook",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
+          ],
+          "rollback": "git checkout -- state/CCM-MS6/",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Define protected path patterns: .git/*, *.env, credentials.*, *.key, *.pem, *.secret."
+            },
+            {
+              "number": 2,
+              "instruction": "Add check to pretooluse-unified hook that blocks Edit/Write to protected paths."
+            },
+            {
+              "number": 3,
+              "instruction": "Test that writes to .git/ and .env files are blocked."
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "state/CCM-MS6/protected-paths.json",
+              "type": "config",
+              "description": "Protected path patterns list"
+            }
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": false,
+          "creates_hook": true,
+          "creates_command": false,
+          "description": "Protected path enforcement — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P0-U06",
+          "title": "Subagent permission scoping",
+          "phase": "P0",
+          "sequence": 6,
+          "role": "R1",
+          "role_name": "Systems Architect",
+          "model": "opus-4.6",
+          "effort": 85,
+          "rationale": "Subagents spawned via Agent tool should have tailored permissions: read-only for analyzers, acceptEdits for implementers, no Bash for planners.",
+          "tools": [
+            "Bash"
+          ],
+          "skills": [],
+          "scripts": [],
+          "hooks": [
+            "pretooluse-unified"
+          ],
+          "features": [
+            "Role-based subagent permission scoping"
+          ],
+          "dependencies": [
+            "P0-U04"
+          ],
+          "entry_conditions": [
+            "MCP scoping from P0-U04 complete"
+          ],
+          "exit_conditions": [
+            "Agents have tailored permissions: read-only analyzers, edit-capable implementers, no-Bash planners",
+            "Permission matrix documented",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
+          ],
+          "rollback": "git checkout -- state/CCM-MS6/",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Define permission matrix: planner (Read/Grep/Glob only), analyzer (Read/Grep/Glob/Bash-readonly), implementer (all tools with edit)."
+            },
+            {
+              "number": 2,
+              "instruction": "Wire SubagentStart hook to apply permission scope based on agent role tag."
+            },
+            {
+              "number": 3,
+              "instruction": "Test each role's restrictions are enforced."
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "state/CCM-MS6/permission-matrix.json",
+              "type": "config",
+              "description": "Subagent permission matrix"
+            }
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": false,
+          "creates_hook": true,
+          "creates_command": false,
+          "description": "Subagent permission scoping — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P0-U07",
+          "title": "Secrets detection hook",
+          "phase": "P0",
+          "sequence": 7,
+          "role": "R1",
+          "role_name": "Systems Architect",
+          "model": "opus-4.6",
+          "effort": 85,
+          "rationale": "Prevent accidental commit or write of API keys, passwords, tokens, and other secrets. PreToolUse hook scans Write/Edit content for secret patterns before allowing the operation.",
+          "tools": [
+            "Bash"
+          ],
+          "skills": [],
+          "scripts": [],
+          "hooks": [
+            "pretooluse-unified"
+          ],
+          "features": [
+            "Secrets detection in writes before commit"
+          ],
+          "dependencies": [
+            "P0-U05"
+          ],
+          "entry_conditions": [
+            "Protected path enforcement from P0-U05 working"
+          ],
+          "exit_conditions": [
+            "Secrets blocked before commit",
+            "Patterns detected: API keys (sk-*, AKIA*), passwords, Bearer tokens, private keys",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
+          ],
+          "rollback": "git checkout -- state/CCM-MS6/",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Define secret detection regex patterns: sk-[a-zA-Z0-9]{20,}, AKIA[A-Z0-9]{16}, password\\s*[:=], Bearer\\s+[a-zA-Z0-9._-]+, -----BEGIN (RSA|EC|PRIVATE) KEY-----."
+            },
+            {
+              "number": 2,
+              "instruction": "Add check to pretooluse-unified that scans new_string/content in Edit/Write calls against patterns."
+            },
+            {
+              "number": 3,
+              "instruction": "Block the tool call and warn the user if a secret pattern is detected."
+            },
+            {
+              "number": 4,
+              "instruction": "Test with synthetic secret strings to verify detection."
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "state/CCM-MS6/secret-patterns.json",
+              "type": "config",
+              "description": "Secret detection regex patterns"
+            }
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": false,
+          "creates_hook": true,
+          "creates_command": false,
+          "description": "Secrets detection hook — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P0-U08",
+          "title": "Security audit skill",
+          "phase": "P0",
+          "sequence": 8,
+          "role": "R1",
+          "role_name": "Systems Architect",
+          "model": "opus-4.6",
+          "effort": 85,
+          "rationale": "A /security-audit skill provides on-demand scanning of the entire configuration for misconfigurations, missing sandboxes, overly broad permissions, and secret leaks.",
+          "tools": [
+            "Bash",
+            "Grep"
+          ],
+          "skills": [],
+          "scripts": [],
+          "hooks": [],
+          "features": [
+            "/security-audit skill for configuration scanning"
+          ],
+          "dependencies": [
+            "P0-U01",
+            "P0-U02",
+            "P0-U03",
+            "P0-U05",
+            "P0-U07"
+          ],
+          "entry_conditions": [
+            "All prior security units complete"
+          ],
+          "exit_conditions": [
+            "Skill created and working",
+            "Scans settings.json, hooks, MCP configs for misconfigurations",
+            "Produces security score and remediation suggestions"
+          ],
+          "rollback": "git checkout -- state/CCM-MS6/",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Create /security-audit skill that checks: sandbox present, network restricted, protected paths enforced, secrets hook active, permissions audited."
+            },
+            {
+              "number": 2,
+              "instruction": "Score each category pass/warn/fail and produce overall security score."
+            },
+            {
+              "number": 3,
+              "instruction": "Output remediation suggestions for any warn/fail items."
+            },
+            {
+              "number": 4,
+              "instruction": "Test the skill produces accurate results against current config."
+            }
+          ],
+          "deliverables": [
+            {
+              "path": ".claude/skills/security-audit.md",
+              "type": "skill",
+              "description": "/security-audit skill for config scanning"
+            }
+          ],
+          "index_in_master": false,
+          "creates_skill": true,
+          "creates_script": false,
+          "creates_hook": false,
+          "creates_command": false,
+          "description": "Security audit skill — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        }
+      ]
+    }
+  ],
+  "smart_config": {
+    "role": "implementer + reviewer",
+    "model": "sonnet",
+    "effort": "HIGH",
+    "context_budget": "65%"
+  },
+  "mcp_lifecycle": {
+    "session_start": [
+      "prism_session:context_boot",
+      "prism_session:dispatcher_map",
+      "prism_session:memory_recall",
+      "prism_session:system_snapshot",
+      "prism_session:action_search"
+    ],
+    "during_work": [
+      "prism_session:auto_checkpoint",
+      "prism_session:tool_route_best",
+      "prism_session:wip_capture"
+    ],
+    "session_end": [
+      "prism_session:memory_save",
+      "prism_session:system_snapshot",
+      "prism_session:checkpoint_enhanced"
+    ]
+  },
+  "forge_triple": {
+    "protective_hook": "ccm-ms6-gate",
+    "mcp_action": "prism_ccm:ccm_ms6_run",
+    "skill_command": "/ccm-ms6",
+    "ownership": "DECLARED — BUILT in terminal unit of this milestone"
+  },
+  "feature_cascade": {
+    "new_hooks": [
+      "ccm-ms6-gate"
+    ],
+    "new_actions": [
+      "ccm_ms6_run"
+    ],
+    "new_skills": [
+      "/ccm-ms6"
+    ],
+    "available_to": [
+      "downstream CAMX milestones",
+      "prism app consumers"
+    ]
+  },
+  "knowledge_sources": {
+    "engines": [
+      "ENGINE_DIGEST.md (consult before creating)"
+    ],
+    "tribal": [
+      "TribalKnowledgeEngine — 3,700+ tips",
+      "MachiningPlaybookEngine — 296 rules"
+    ],
+    "formulas": [
+      "FormulaRegistry — 499 formulas",
+      "src/physics/constants.ts — canonical"
+    ],
+    "reference": [
+      "EXTERNAL-REFERENCE-PROGRAMS-INDEX.md",
+      "MaterialRegistry",
+      "MachineRegistry",
+      "ToolCatalogEngine (95,608 tools)"
+    ]
+  },
+  "intent": "Implement filesystem/network sandboxing and permission hardening. Currently NO sandbox config. Add: filesystem allowRead/allowWrite paths locked to PRISM + ~/.claude/, network allowedDomains, permission audit, MCP server sandboxing per agent, protected path enforcement, subagent permission scoping, secrets detection hook, security audit skill.",
+  "compact_checkpoint": "every 3 units — auto-triggered by hook",
+  "enforcement_hooks_active": [
+    "physics agent",
+    "wiring agent",
+    "constants checker",
+    "stub detector",
+    "test quality",
+    "forge-triple gate",
+    "session audit agent"
+  ]
+}

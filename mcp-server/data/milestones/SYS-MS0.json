@@ -1,0 +1,83 @@
+{
+  "id": "SYS-MS0",
+  "title": "CLAUDE.md Modular Architecture",
+  "track": "SYS",
+  "status": "complete",
+  "description": "Split monolithic CLAUDE.md (726 lines) into modular, path-based conditional loading. Fix stale counts across all 5 CLAUDE.md files. Based on Reddit modular architecture insights.",
+  "units": [
+    {
+      "id": "SYS-MS0-U00",
+      "title": "Audit Current CLAUDE.md Files",
+      "status": "complete",
+      "steps": [
+        {"number": 1, "instruction": "Read all 5 CLAUDE.md files and catalog their sections"},
+        {"number": 2, "instruction": "Identify stale data (counts, milestone numbers, action counts)"},
+        {"number": 3, "instruction": "Classify each section as core (always needed), domain (context-specific), or scaffold (temporary patch)"},
+        {"number": 4, "instruction": "Map which sections are relevant to which file paths"}
+      ],
+      "exit_conditions": ["Classification table of all sections with core/domain/scaffold labels"]
+    },
+    {
+      "id": "SYS-MS0-U01",
+      "title": "Extract Core Rules",
+      "status": "complete",
+      "steps": [
+        {"number": 1, "instruction": "Create mcp-server/.claude/ directory structure if needed"},
+        {"number": 2, "instruction": "Extract safety laws (S(x) hard block, no placeholders, etc.) into core hard-walls"},
+        {"number": 3, "instruction": "Extract build instructions into core"},
+        {"number": 4, "instruction": "Keep core rules under 200 lines total"}
+      ],
+      "exit_conditions": ["Core rules file exists with safety laws + build instructions", "Under 200 lines"]
+    },
+    {
+      "id": "SYS-MS0-U02",
+      "title": "Extract Domain-Specific Rules",
+      "status": "complete",
+      "steps": [
+        {"number": 1, "instruction": "Move engine conventions (AtomicValue, calculation patterns) into engines/CLAUDE.md"},
+        {"number": 2, "instruction": "Move dispatcher conventions (parameter normalization, action routing) into dispatchers/CLAUDE.md"},
+        {"number": 3, "instruction": "Move orchestration/swarm rules into a dedicated context file"},
+        {"number": 4, "instruction": "Move registry counts and data sections into a data context file"}
+      ],
+      "exit_conditions": ["Each domain file is self-contained and under 100 lines", "No duplication across files"]
+    },
+    {
+      "id": "SYS-MS0-U03",
+      "title": "Identify and Remove Scaffolds",
+      "status": "complete",
+      "steps": [
+        {"number": 1, "instruction": "Identify rules that patch model limitations vs encode permanent knowledge"},
+        {"number": 2, "instruction": "Remove or archive scaffolds that are no longer needed with current model capabilities"},
+        {"number": 3, "instruction": "Document remaining scaffolds with expiry criteria"}
+      ],
+      "exit_conditions": ["Scaffold inventory with rationale for keep/remove decisions"]
+    },
+    {
+      "id": "SYS-MS0-U04",
+      "title": "Fix All Stale Counts",
+      "status": "complete",
+      "steps": [
+        {"number": 1, "instruction": "Update mcp-server/CLAUDE.md: 54/80 -> 61/90 milestones, 684 -> 1060 actions, etc."},
+        {"number": 2, "instruction": "Update dispatchers/CLAUDE.md: 684 -> 1060 actions"},
+        {"number": 3, "instruction": "Update engines/CLAUDE.md: 74 -> 171 engines"},
+        {"number": 4, "instruction": "Update root CLAUDE.md if any counts are referenced"},
+        {"number": 5, "instruction": "Verify all counts match QA-verified values from MEMORY.md"}
+      ],
+      "exit_conditions": ["All 5 CLAUDE.md files have correct counts matching QA-verified reality"]
+    },
+    {
+      "id": "SYS-MS0-U05",
+      "title": "Validate and Document Architecture",
+      "status": "complete",
+      "steps": [
+        {"number": 1, "instruction": "Verify total token count of new modular system vs old monolith"},
+        {"number": 2, "instruction": "Verify each file loads only when relevant paths are touched"},
+        {"number": 3, "instruction": "Update MASTER_INDEX.md with new CLAUDE.md architecture"},
+        {"number": 4, "instruction": "Run a test session to verify rules load correctly"}
+      ],
+      "exit_conditions": ["Documented token savings", "No regression in rule adherence"]
+    }
+  ],
+  "dependencies": [],
+  "deliverables": ["Modular CLAUDE.md architecture", "All counts fixed", "Token savings documented"]
+}

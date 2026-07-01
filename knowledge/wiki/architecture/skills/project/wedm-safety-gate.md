@@ -29,7 +29,8 @@ related:
 
 ## Description (first paragraph)
 
-Evaluates the composite S(x) safety score for a WEDM program before allowing emit. Hard blocks programs with S(x) < 0.70.
+
+# WEDM Safety Gate
 
 <!-- AUTO-END -->
 

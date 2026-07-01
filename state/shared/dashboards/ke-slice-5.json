@@ -1,0 +1,815 @@
+[
+ {
+  "id": "CAMK-MS2::U04",
+  "title": "SurfaceFinishPredictorEngine — Scallop + roughness from novel paths",
+  "awareness": [
+   "camx-ms0-3-u04-coatingselecti...",
+   "wedm-erp-routes-u04",
+   "quick-scallop-height",
+   "scallop"
+  ]
+ },
+ {
+  "id": "CAMK-MS3::U01",
+  "title": "RestMachiningEngine — IPW-aware re-machining with novel algorithms",
+  "awareness": [
+   "camx-ms0-3-u01-pipelinedecisi...",
+   "restmachiningengine",
+   "nx-cam-ipw",
+   "cost-aware-route"
+  ]
+ },
+ {
+  "id": "CAMK-MS3::U02",
+  "title": "OperationSequencerEngine — Optimal operation ordering",
+  "awareness": [
+   "camx-ms0-3-u02-decisiontaxonomy",
+   "operationsequencerengine",
+   "coolant-cost-optimal",
+   "lam-optimal-spacing"
+  ]
+ },
+ {
+  "id": "CAMK-MS3::U05",
+  "title": "MultiSetupPlannerEngine — Part orientation + fixturing optimization",
+  "awareness": [
+   "camx-ms0-3-u05-engagementopti...",
+   "wedm-erp-routes-u05",
+   "intel-ollama-obsidian-ms0-p8-u05",
+   "multisetupplannerengine"
+  ]
+ },
+ {
+  "id": "CAMX-MS0.3::U-CAMX04",
+  "title": "Replace HARDCODED coating/material decisions",
+  "awareness": [
+   "Coating",
+   "coating-select",
+   "coating-thickness-calc",
+   "coating-get"
+  ]
+ },
+ {
+  "id": "CAMX-MS0.3::U-CAMX05",
+  "title": "Replace HARDCODED engagement decisions",
+  "awareness": [
+   "ai-lathe-adaptive-engagement",
+   "cad-solidcam-engagement-geometry",
+   "adaptive-engagement-calc",
+   "corner-engagement-analyze"
+  ]
+ },
+ {
+  "id": "CAMX-MS0.3::U-CAMX06",
+  "title": "Wire CoolantStrategyEngine into all pipelines",
+  "awareness": [
+   "wire-pipeline",
+   "edm-wire-calc",
+   "wire-drawing-calc",
+   "wire-rope-calc"
+  ]
+ },
+ {
+  "id": "CAMX-MS0.3::U-CAMX07",
+  "title": "Wire EntryExitStrategyEngine into all pipelines",
+  "awareness": [
+   "wire-pipeline",
+   "edm-wire-calc",
+   "wire-drawing-calc",
+   "wire-rope-calc"
+  ]
+ },
+ {
+  "id": "CAMX-MS0.3::U-CAMX08",
+  "title": "Wire IntelligentSequencingEngine into all pipelines",
+  "awareness": [
+   "wire-pipeline",
+   "edm-wire-calc",
+   "wire-drawing-calc",
+   "wire-rope-calc"
+  ]
+ },
+ {
+  "id": "CAMX-MS0.3::U-CAMX09",
+  "title": "Wire WorkholdingViabilityEngine",
+  "awareness": [
+   "edm-wire-calc",
+   "wire-drawing-calc",
+   "wire-rope-calc",
+   "edm-wire-program"
+  ]
+ },
+ {
+  "id": "CAMX-MS0.3::U-CAMX10",
+  "title": "Wire CrossCamRecommenderEngine for strategy",
+  "awareness": [
+   "edm-wire-calc",
+   "wire-drawing-calc",
+   "wire-rope-calc",
+   "edm-wire-program"
+  ]
+ },
+ {
+  "id": "CAMX-MS0.3::U-CAMX11",
+  "title": "Smart WCS selection",
+  "awareness": [
+   "smart-defaults-chipload",
+   "smart-defaults-coolant",
+   "smart-defaults-engagement",
+   "smart-defaults-get"
+  ]
+ },
+ {
+  "id": "CAMX-MS0.3::U-CAMX12",
+  "title": "Smart safe-Z calculation",
+  "awareness": [
+   "smart-defaults-chipload",
+   "smart-defaults-coolant",
+   "smart-defaults-engagement",
+   "smart-defaults-get"
+  ]
+ },
+ {
+  "id": "CAMX-MS0.3::U-CAMX13",
+  "title": "Decision audit trail",
+  "awareness": [
+   "audit-trail",
+   "ai-explain-decision",
+   "neural-route-decision",
+   "calc-conformance-decision"
+  ]
+ },
+ {
+  "id": "CAMX-MS0.3::U-CAMX14",
+  "title": "Tests for decision orchestrator",
+  "awareness": [
+   "cam-kernel-orchestrator-dedic...",
+   "cam-kernel-orchestrator",
+   "decision-business-diagnostic",
+   "feasibility-orchestrator"
+  ]
+ },
+ {
+  "id": "CAMX-MS0.3::U-CAMX15",
+  "title": "Wire thermal engines into program generation",
+  "awareness": [
+   "edm-wire-program",
+   "camdispatcher-hybrid-program-...",
+   "edm-wire-calc",
+   "wire-drawing-calc"
+  ]
+ },
+ {
+  "id": "CAMX-MS0.3::U-CAMX16",
+  "title": "Wire vibration engines into strategy/parameter selection",
+  "awareness": [
+   "edm-wire-calc",
+   "wire-drawing-calc",
+   "wire-rope-calc",
+   "edm-wire-program"
+  ]
+ },
+ {
+  "id": "CAMX-MS0.3::U-CAMX17",
+  "title": "Wire surface finish engines into validation",
+  "awareness": [
+   "cad-surface-finish-model-meta...",
+   "cad-surface-finish-predict-batch",
+   "cad-surface-finish-predict",
+   "grinding-surface-finish-calc"
+  ]
+ },
+ {
+  "id": "CAMX-MS0.3::U-CAMX18",
+  "title": "Wire wear engines into tool life and batch planning",
+  "awareness": [
+   "turning-wear-batch-life",
+   "devdispatcher-rgs-tool-plan-wire",
+   "composite-tool-wear",
+   "physics-archard-tool-wear"
+  ]
+ },
+ {
+  "id": "CAMX-MS0.3::U-CAMX19",
+  "title": "Wire chip management engines",
+  "awareness": [
+   "wedm-plan-wire-management",
+   "edm-wire-calc",
+   "wire-drawing-calc",
+   "wire-rope-calc"
+  ]
+ },
+ {
+  "id": "CAMX-MS0.3::U-CAMX20",
+  "title": "Wire thread/hole/drilling engines",
+  "awareness": [
+   "prism-deep-hole-drilling-engine",
+   "deep-hole-drilling-physics",
+   "threaddispatcher-thread-metho...",
+   "edm-wire-calc"
+  ]
+ },
+ {
+  "id": "CAMX-MS0.3::U-CAMX21",
+  "title": "ToolROIEngine",
+  "awareness": []
+ },
+ {
+  "id": "CAMX-MS0.3::U-CAMX22",
+  "title": "Wire AutoSpeedFeedEngine into PrintToProgram",
+  "awareness": [
+   "edm-wire-calc",
+   "wire-drawing-calc",
+   "wire-rope-calc",
+   "edm-wire-program"
+  ]
+ },
+ {
+  "id": "CAMX-MS0.3::U-CAMX24",
+  "title": "Wire SetupSheetFromGCodeEngine into PrintToProgram",
+  "awareness": [
+   "edm-wire-calc",
+   "wire-drawing-calc",
+   "wire-rope-calc",
+   "edm-wire-program"
+  ]
+ },
+ {
+  "id": "CAMX-MS0.5::U-CAMX01",
+  "title": "Establish lazy _getEngine() pattern",
+  "awareness": [
+   "prism-lazy-loader",
+   "ai-resource-okuma-pattern",
+   "pattern-query",
+   "pattern-record"
+  ]
+ },
+ {
+  "id": "CAMX-MS0.5::U-CAMX02",
+  "title": "Desilo PrintToProgramPipelineEngine",
+  "awareness": [
+   "printtoprogrampipelineengine"
+  ]
+ },
+ {
+  "id": "CAMX-MS0.5::U-CAMX03",
+  "title": "Desilo PartGeometryPipelineEngine",
+  "awareness": [
+   "partgeometrypipelineengine"
+  ]
+ },
+ {
+  "id": "CAMX-MS0.5::U-CAMX04",
+  "title": "Desilo SpeedFeedOrchestratorEngine",
+  "awareness": [
+   "speedfeedorchestratorengine-c...",
+   "combo-speedfeedorchestratoren..."
+  ]
+ },
+ {
+  "id": "CAMX-MS0.5::U-CAMX05",
+  "title": "Desilo CAMKernelOrchestratorEngine",
+  "awareness": [
+   "camkernelorchestratorengine"
+  ]
+ },
+ {
+  "id": "CAMX-MS0.5::U-CAMX06",
+  "title": "Desilo TurningPrintToProgramEngine",
+  "awareness": [
+   "turningprinttoprogramengine",
+   "combo-turningprinttoprogramen..."
+  ]
+ },
+ {
+  "id": "CAMX-MS0.5::U-CAMX07",
+  "title": "Desilo UnifiedCAMPipelineEngine",
+  "awareness": [
+   "unifiedcampipelineengine"
+  ]
+ },
+ {
+  "id": "CAMX-MS0.5::U-CAMX08",
+  "title": "Desilo DesignToFloorPipelineEngine",
+  "awareness": [
+   "designtofloorpipelineengine"
+  ]
+ },
+ {
+  "id": "CAMX-MS0.5::U-CAMX09",
+  "title": "Shared MC/Weibull infrastructure",
+  "awareness": [
+   "state/shared",
+   "shared-components",
+   "shared-directives-index",
+   "tool-life-weibull"
+  ]
+ },
+ {
+  "id": "CAMX-MS0.5::U-CAMX10",
+  "title": "Fix collision detection stub",
+  "awareness": [
+   "prism-collision-detection-v2",
+   "continuous-collision-detection",
+   "ppg-collision-detection",
+   "gcode-safety-fix"
+  ]
+ },
+ {
+  "id": "CAMX-MS0.5::U-CAMX11",
+  "title": "Dispatcher integration",
+  "awareness": [
+   "dispatcher-integration",
+   "asc-get-dispatcher-actions",
+   "wrtl-by-dispatcher",
+   "dispatcher-map-compact"
+  ]
+ },
+ {
+  "id": "CAMX-MS0.5::U-CAMX12",
+  "title": "Desiloing verification tests",
+  "awareness": [
+   "benchmark-formula-verification",
+   "formal-verification-engine",
+   "pp-ms5-five-axis-verification",
+   "verification"
+  ]
+ },
+ {
+  "id": "CAMX-MS0.5::U-CAMX13",
+  "title": "Wire fixture/setup engines",
+  "awareness": [
+   "fixture-setup",
+   "edm-wire-calc",
+   "wire-drawing-calc",
+   "wire-rope-calc"
+  ]
+ },
+ {
+  "id": "CAMX-MS0.5::U-CAMX14",
+  "title": "Wire DFM/quality engines",
+  "awareness": [
+   "calcdispatcher-spindle-harmon...",
+   "edm-wire-calc",
+   "wire-drawing-calc",
+   "wire-rope-calc"
+  ]
+ },
+ {
+  "id": "CAMX-MS0.5::U-CAMX15",
+  "title": "Wire energy engines",
+  "awareness": [
+   "u-wire-energy",
+   "wire-unwired-ms0-u-wire-energ...",
+   "calcdispatcher-specific-cutti...",
+   "edm-wire-calc"
+  ]
+ },
+ {
+  "id": "CAMX-MS0.5::U-CAMX16",
+  "title": "Wire geometry/feature recognition engines",
+  "awareness": [
+   "edm-wire-calc",
+   "wire-drawing-calc",
+   "wire-rope-calc",
+   "edm-wire-program"
+  ]
+ },
+ {
+  "id": "CAMX-MS0.7::U-CAMX01",
+  "title": "Wire UncertaintyPropagationPipelineEngine into SFO",
+  "awareness": [
+   "edm-wire-calc",
+   "wire-drawing-calc",
+   "wire-rope-calc",
+   "edm-wire-program"
+  ]
+ },
+ {
+  "id": "CAMX-MS0.7::U-CAMX02",
+  "title": "Connect Link 4: Surface Finish(±σ) → Strategy Selection(CI)",
+  "awareness": [
+   "cad-surface-finish-model-meta...",
+   "cad-surface-finish-predict-batch",
+   "cad-surface-finish-predict",
+   "grinding-surface-finish-calc"
+  ]
+ },
+ {
+  "id": "CAMX-MS0.7::U-CAMX03",
+  "title": "Connect Link 5: Strategy → Tool Life(Weibull)",
+  "awareness": [
+   "tool-life-weibull",
+   "tool-life-predict",
+   "tool-life-replacement",
+   "report-tool-life-forecast"
+  ]
+ },
+ {
+  "id": "CAMX-MS0.7::U-CAMX04",
+  "title": "Connect Link 6: Tool Life(Weibull) → Cost(±σ)",
+  "awareness": [
+   "tool-life-weibull",
+   "tool-life-predict",
+   "tool-life-replacement",
+   "report-tool-life-forecast"
+  ]
+ },
+ {
+  "id": "CAMX-MS0.7::U-CAMX05",
+  "title": "Connect Link 7: Cost(±σ) → Pipeline Output(confidence)",
+  "awareness": [
+   "pipeline-cost-breakeven",
+   "pipeline-cost-compare",
+   "pipeline-cost-compute",
+   "pipeline-cost-sensitivity"
+  ]
+ },
+ {
+  "id": "CAMX-MS0.7::U-CAMX06",
+  "title": "Sobol sensitivity at pipeline output",
+  "awareness": [
+   "pipeline-cost-sensitivity",
+   "validate-pipeline-output",
+   "uncertainty-sobol-sequence",
+   "profitability-sensitivity"
+  ]
+ },
+ {
+  "id": "CAMX-MS0.7::U-CAMX07",
+  "title": "Taguchi robustness in strategy selection",
+  "awareness": [
+   "doe-taguchi",
+   "math-taguchi",
+   "process-robustness",
+   "Strategy"
+  ]
+ },
+ {
+  "id": "CAMX-MS0.7::U-CAMX08",
+  "title": "Markov tool state integration",
+  "awareness": [
+   "markov-steady-state",
+   "state/tool-call-parallelization",
+   "tool-mask-state",
+   "cam-tool-get"
+  ]
+ },
+ {
+  "id": "CAMX-MS0.7::U-CAMX09",
+  "title": "Digital twin calibration loop",
+  "awareness": [
+   "digital-twin-query",
+   "digital-twin-sync",
+   "digital-twin-divergence",
+   "digital-twin-drift-detect"
+  ]
+ },
+ {
+  "id": "CAMX-MS0.7::U-CAMX10",
+  "title": "Uncertainty chain tests",
+  "awareness": [
+   "chain-uncertainty-learning",
+   "uncertainty-chain",
+   "advanced-uncertainty-methods",
+   "advanced-uncertainty"
+  ]
+ },
+ {
+  "id": "CAMX-MS0::U01",
+  "title": "StrategyTaxonomyEngine",
+  "awareness": [
+   "camx-ms0-3-u01-pipelinedecisi...",
+   "strategytaxonomyengine"
+  ]
+ },
+ {
+  "id": "CAMX-MS0::U02",
+  "title": "Strategy equivalence map",
+  "awareness": [
+   "prism-crosscam-strategy-map",
+   "prism-feature-strategy-map",
+   "camx-ms0-3-u02-decisiontaxonomy",
+   "Strategy"
+  ]
+ },
+ {
+  "id": "CAMX-MS0::U03",
+  "title": "Strategy capability matrix",
+  "awareness": [
+   "strategy-compatibility-matrix",
+   "pp-capability-matrix",
+   "ai-capability-enhancement-str...",
+   "camx-ms0-3-u03-smarttoolselec..."
+  ]
+ },
+ {
+  "id": "CAMX-MS0::U04",
+  "title": "Backfill existing engines",
+  "awareness": [
+   "camx-ms0-3-u04-coatingselecti...",
+   "wedm-erp-routes-u04",
+   "wedm-archive-backfill-state",
+   "new-report-an-existing-report..."
+  ]
+ },
+ {
+  "id": "CAMX-MS0::U05",
+  "title": "Strategy physics profile",
+  "awareness": [
+   "camx-ms0-3-u05-engagementopti...",
+   "wedm-erp-routes-u05",
+   "intel-ollama-obsidian-ms0-p8-u05",
+   "Strategy"
+  ]
+ },
+ {
+  "id": "CAMX-MS0::U06",
+  "title": "Strategy cost model",
+  "awareness": [
+   "batch-strategy-cost",
+   "strategy-cost-compute",
+   "strategy-cost-decide",
+   "strategy-cost-sensitivity"
+  ]
+ },
+ {
+  "id": "CAMX-MS0::U07",
+  "title": "Dispatcher wiring",
+  "awareness": [
+   "catalog-dispatcher-wiring",
+   "learn-dispatcher-wiring",
+   "dispatcher-wiring-pattern",
+   "spec-u-course-forge-dispatche..."
+  ]
+ },
+ {
+  "id": "CAMX-MS0::U08",
+  "title": "Tests",
+  "awareness": [
+   "camx-ms0-3-u08-intelligentseq...",
+   "build-guard-affected-tests",
+   "run-attack-tests",
+   "stop-on-failing-tests"
+  ]
+ },
+ {
+  "id": "CAMX-MS1::U-CAMX01",
+  "title": "OptimalStrategySelectionEngine",
+  "awareness": []
+ },
+ {
+  "id": "CAMX-MS1::U-CAMX02",
+  "title": "Wire into PrintToProgramPipelineEngine",
+  "awareness": [
+   "edm-wire-calc",
+   "wire-drawing-calc",
+   "wire-rope-calc",
+   "edm-wire-program"
+  ]
+ },
+ {
+  "id": "CAMX-MS1::U-CAMX03",
+  "title": "Wire into PartGeometryPipelineEngine",
+  "awareness": [
+   "edm-wire-calc",
+   "wire-drawing-calc",
+   "wire-rope-calc",
+   "edm-wire-program"
+  ]
+ },
+ {
+  "id": "CAMX-MS1::U-CAMX04",
+  "title": "Wire into CAMKernelOrchestratorEngine",
+  "awareness": [
+   "edm-wire-calc",
+   "wire-drawing-calc",
+   "wire-rope-calc",
+   "edm-wire-program"
+  ]
+ },
+ {
+  "id": "CAMX-MS1::U-CAMX05",
+  "title": "Wire into UnifiedCAMPipelineEngine",
+  "awareness": [
+   "edm-wire-calc",
+   "wire-drawing-calc",
+   "wire-rope-calc",
+   "edm-wire-program"
+  ]
+ },
+ {
+  "id": "CAMX-MS1::U-CAMX06",
+  "title": "Multi-strategy zone decomposition",
+  "awareness": [
+   "acct-multi-period-compare",
+   "multi-process-estimate",
+   "multi-process-quote",
+   "chatter-multi-frequency"
+  ]
+ },
+ {
+  "id": "CAMX-MS1::U-CAMX07",
+  "title": "User preference system",
+  "awareness": [
+   "mem/user",
+   "user_expert_role",
+   "user_hex_pin_process",
+   "user_industry"
+  ]
+ },
+ {
+  "id": "CAMX-MS1::U-CAMX08",
+  "title": "Decision explanation engine",
+  "awareness": [
+   "ai-explain-decision",
+   "neural-route-decision",
+   "calc-conformance-decision",
+   "decision-tree"
+  ]
+ },
+ {
+  "id": "CAMX-MS1::U-CAMX09",
+  "title": "Dispatcher wiring",
+  "awareness": [
+   "catalog-dispatcher-wiring",
+   "learn-dispatcher-wiring",
+   "dispatcher-wiring-pattern",
+   "spec-u-course-forge-dispatche..."
+  ]
+ },
+ {
+  "id": "CAMX-MS1::U-CAMX10",
+  "title": "Tests",
+  "awareness": [
+   "build-guard-affected-tests",
+   "run-attack-tests",
+   "stop-on-failing-tests",
+   "stop-on-missing-tests"
+  ]
+ },
+ {
+  "id": "CAMX-MS1::U-CAMX11",
+  "title": "CrossCamRecommender expansion 8→22 CAM systems",
+  "awareness": [
+   "variability-apply-expansion",
+   "thermal-expansion-calc",
+   "thermal-expansion-joint-calc",
+   "thermal-expansion"
+  ]
+ },
+ {
+  "id": "CAMX-MS1::U-CAMX12",
+  "title": "CrossCamRecommender turning support",
+  "awareness": [
+   "turning",
+   "diamond-turning-forces",
+   "diamond-turning-machine-config",
+   "diamond-turning-surface"
+  ]
+ },
+ {
+  "id": "CAMX-MS1::U-CAMX13",
+  "title": "MachiningPlaybook integration",
+  "awareness": [
+   "integration",
+   "integration-export-ar-aging",
+   "integration-export-csv",
+   "integration-export-payroll-tax"
+  ]
+ },
+ {
+  "id": "CAMX-MS1::U-CAMX14",
+  "title": "ToolpathStrategyRegistry utilization",
+  "awareness": [
+   "employee-utilization",
+   "cad-license-utilization",
+   "machine-utilization",
+   "master-index-utilization-dash..."
+  ]
+ },
+ {
+  "id": "CAMX-MS1::U-CAMX15",
+  "title": "MultiObjectivePareto in strategy selection",
+  "awareness": [
+   "Strategy",
+   "ai-mill-adaptive-strategy",
+   "am-scan-strategy",
+   "cmm-sampling-strategy"
+  ]
+ },
+ {
+  "id": "CAMX-MS1::U-CAMX16",
+  "title": "Sensitivity analysis at every decision",
+  "awareness": [
+   "calc-sensitivity-analysis",
+   "turning-sensitivity-analysis",
+   "profitability-sensitivity",
+   "report-cost-sensitivity"
+  ]
+ },
+ {
+  "id": "CAMX-MS10::U-CAMX01",
+  "title": "MastercamToolExportEngine",
+  "awareness": []
+ },
+ {
+  "id": "CAMX-MS10::U-CAMX02",
+  "title": "SolidCAMToolExportEngine",
+  "awareness": []
+ },
+ {
+  "id": "CAMX-MS10::U-CAMX03",
+  "title": "NXToolExportEngine",
+  "awareness": []
+ },
+ {
+  "id": "CAMX-MS10::U-CAMX04",
+  "title": "UniversalToolExportEngine",
+  "awareness": [
+   "universaltoolexportengine"
+  ]
+ },
+ {
+  "id": "CAMX-MS10::U-CAMX05",
+  "title": "ToolSyncOrchestratorEngine",
+  "awareness": [
+   "toolsyncorchestratorengine"
+  ]
+ },
+ {
+  "id": "CAMX-MS10::U-CAMX06",
+  "title": "CuttingDataExportEngine",
+  "awareness": [
+   "cuttingdataexportengine"
+  ]
+ },
+ {
+  "id": "CAMX-MS10::U-CAMX07",
+  "title": "Dispatcher wiring",
+  "awareness": [
+   "catalog-dispatcher-wiring",
+   "learn-dispatcher-wiring",
+   "dispatcher-wiring-pattern",
+   "spec-u-course-forge-dispatche..."
+  ]
+ },
+ {
+  "id": "CAMX-MS10::U-CAMX08",
+  "title": "Tests",
+  "awareness": [
+   "build-guard-affected-tests",
+   "run-attack-tests",
+   "stop-on-failing-tests",
+   "stop-on-missing-tests"
+  ]
+ },
+ {
+  "id": "CAMX-MS11::U-CAMX01",
+  "title": "CAMAddInFrameworkEngine",
+  "awareness": [
+   "camaddinframeworkengine-6-6-d...",
+   "camaddinframeworkengine"
+  ]
+ },
+ {
+  "id": "CAMX-MS11::U-CAMX02",
+  "title": "Mastercam NetHook Add-In",
+  "awareness": [
+   "cad-mastercam-plan-execution",
+   "mastercam-build-part",
+   "mastercam-capabilities",
+   "mastercam-execute"
+  ]
+ },
+ {
+  "id": "CAMX-MS11::U-CAMX03",
+  "title": "SolidCAM SolidWorks Add-In",
+  "awareness": [
+   "cad-solidcam-adjust-feed",
+   "cad-solidcam-chip-thickness",
+   "cad-solidcam-engagement-geometry",
+   "cam-solidcam-create-imachining"
+  ]
+ },
+ {
+  "id": "CAMX-MS11::U-CAMX04",
+  "title": "NX CAM Add-In",
+  "awareness": [
+   "cam-tool-library-add",
+   "cam-inventor-hsm-build-tool-l...",
+   "energy-add-to-cost",
+   "strategy-kb-add"
+  ]
+ },
+ {
+  "id": "CAMX-MS11::U-CAMX05",
+  "title": "hyperMILL AC Add-In",
+  "awareness": [
+   "ai-resource-hypermill-patterns",
+   "hypermill-diameter-sf",
+   "hypermill-machinability",
+   "hypermill-material-lookup"
+  ]
+ }
+]

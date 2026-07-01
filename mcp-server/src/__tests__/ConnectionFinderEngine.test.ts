@@ -733,8 +733,11 @@ describe("ConnectionFinderEngine.runWeekly", () => {
 /* ─── module defaults ──────────────────────────────────────────────────── */
 
 describe("module defaults", () => {
-  it("DEFAULT_OLLAMA_MODEL is qwen2.5-coder:7b unless overridden", () => {
-    expect(DEFAULT_OLLAMA_MODEL).toBe("qwen2.5-coder:7b");
+  it("DEFAULT_OLLAMA_MODEL is qwen2.5-coder:32b unless overridden", () => {
+    // qwen2.5-coder:7b was `ollama rm`'d 2026-06-04 (U-BW-TS-ENGINES-RETIRE,
+    // slot:alpha) and the engine default re-pointed to the 32b Blackwell floor.
+    // Env PRISM_CONNECTION_FINDER_OLLAMA_MODEL still overrides at module load.
+    expect(DEFAULT_OLLAMA_MODEL).toBe("qwen2.5-coder:32b");
   });
 
   it("MAX_SOURCE_BYTES is a positive integer ≤ 16K", () => {

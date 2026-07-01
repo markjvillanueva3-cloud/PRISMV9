@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `capabilities` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/capabilities.md` |
+| Source | `C:/Users/wompu/.claude/commands/capabilities.md` |
 | Model | default |
 | Tags | _(none)_ |
 

@@ -1,0 +1,230 @@
+{
+  "id": "ACP-MS5",
+  "version": "1.0.0",
+  "title": "Post Processor + Print-to-Program Autopilots",
+  "brief": "Post processor chain: controller detection, template selection, generation, verification. Print-to-program chain: drawing interpretation, process planning, toolpath, G-code generation. Agent team coordination with existing forge-team/pipeline-team patterns.",
+  "created_at": "2026-03-25T14:30:00Z",
+  "created_by": "claude-opus-4.6",
+  "track": "ACP",
+  "track_name": "Automation Control Plane",
+  "status": "not_started",
+  "phases": [
+    {
+      "id": "P0",
+      "title": "Post Processor Autopilot",
+      "sessions": "2",
+      "units": [
+        {
+          "id": "P0-U01",
+          "title": "Implement controller detection chain: identify CNC controller from user input or drawing metadata",
+          "effort": 70,
+          "dependencies": [],
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit"
+          ],
+          "description": "Implement controller detection chain: identify CNC controller from user input or drawing metadata — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P0-U02",
+          "title": "Implement template selection and post processor generation chain: match controller to template, generate post processor code",
+          "effort": 80,
+          "dependencies": [
+            "P0-U01"
+          ],
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit"
+          ],
+          "description": "Implement template selection and post processor generation chain: match controller to template, generate post processor code — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P0-U03",
+          "title": "Implement post processor verification chain: syntax validation, G-code output spot-check, known-good comparison",
+          "effort": 75,
+          "dependencies": [
+            "P0-U02"
+          ],
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit"
+          ],
+          "description": "Implement post processor verification chain: syntax validation, G-code output spot-check, known-good comparison — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "P1",
+      "title": "Print-to-Program Autopilot",
+      "sessions": "2",
+      "units": [
+        {
+          "id": "P1-U01",
+          "title": "Implement drawing interpretation chain: extract dimensions, tolerances, features from drawing input",
+          "effort": 85,
+          "dependencies": [],
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit"
+          ],
+          "description": "Implement drawing interpretation chain: extract dimensions, tolerances, features from drawing input — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P1-U02",
+          "title": "Implement process planning and toolpath chain: operation sequencing, tool selection, toolpath strategy",
+          "effort": 90,
+          "dependencies": [
+            "P1-U01"
+          ],
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit"
+          ],
+          "description": "Implement process planning and toolpath chain: operation sequencing, tool selection, toolpath strategy — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P1-U03",
+          "title": "Wire agent team coordination: dispatch to forge-team/pipeline-team patterns for multi-step generation and review",
+          "effort": 75,
+          "dependencies": [
+            "P0-U03",
+            "P1-U02"
+          ],
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit"
+          ],
+          "description": "Wire agent team coordination: dispatch to forge-team/pipeline-team patterns for multi-step generation and review — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        }
+      ]
+    }
+  ],
+  "dependencies": [
+    "ACP-MS4"
+  ],
+  "exit_conditions": [
+    "Post processor chain: controller detect -> template select -> generate -> verify working end-to-end",
+    "Print-to-program chain: drawing interpret -> process plan -> toolpath -> G-code working end-to-end",
+    "Agent team coordination dispatches correctly to forge-team/pipeline-team",
+    "Both chains produce verifiable outputs with quality checks"
+  ],
+  "spec_path": "docs/superpowers/specs/2026-03-25-mcp-automation-control-plane-roadmap-design.md",
+  "smart_config": {
+    "role": "implementer + reviewer",
+    "model": "sonnet",
+    "effort": "HIGH",
+    "context_budget": "65%"
+  },
+  "mcp_lifecycle": {
+    "session_start": [
+      "prism_session:context_boot",
+      "prism_session:dispatcher_map",
+      "prism_session:memory_recall",
+      "prism_session:system_snapshot",
+      "prism_session:action_search"
+    ],
+    "during_work": [
+      "prism_session:auto_checkpoint",
+      "prism_session:tool_route_best",
+      "prism_session:wip_capture"
+    ],
+    "session_end": [
+      "prism_session:memory_save",
+      "prism_session:system_snapshot",
+      "prism_session:checkpoint_enhanced"
+    ]
+  },
+  "forge_triple": {
+    "protective_hook": "acp-ms5-gate",
+    "mcp_action": "prism_acp:acp_ms5_run",
+    "skill_command": "/acp-ms5",
+    "ownership": "DECLARED — BUILT in terminal unit of this milestone"
+  },
+  "feature_cascade": {
+    "new_hooks": [
+      "acp-ms5-gate"
+    ],
+    "new_actions": [
+      "acp_ms5_run"
+    ],
+    "new_skills": [
+      "/acp-ms5"
+    ],
+    "available_to": [
+      "downstream CAMX milestones",
+      "prism app consumers"
+    ]
+  },
+  "knowledge_sources": {
+    "engines": [
+      "ENGINE_DIGEST.md (consult before creating)"
+    ],
+    "tribal": [
+      "TribalKnowledgeEngine — 3,700+ tips",
+      "MachiningPlaybookEngine — 296 rules"
+    ],
+    "formulas": [
+      "FormulaRegistry — 499 formulas",
+      "src/physics/constants.ts — canonical"
+    ],
+    "reference": [
+      "EXTERNAL-REFERENCE-PROGRAMS-INDEX.md",
+      "MaterialRegistry",
+      "MachineRegistry",
+      "ToolCatalogEngine (95,608 tools)"
+    ]
+  },
+  "intent": "Post processor chain: controller detection, template selection, generation, verification. Print-to-program chain: drawing interpretation, process planning, toolpath, G-code generation. Agent team coordination with existing forge-team/pipeline-team patterns.",
+  "compact_checkpoint": "every 3 units — auto-triggered by hook",
+  "enforcement_hooks_active": [
+    "physics agent",
+    "wiring agent",
+    "constants checker",
+    "stub detector",
+    "test quality",
+    "forge-triple gate",
+    "session audit agent"
+  ]
+}

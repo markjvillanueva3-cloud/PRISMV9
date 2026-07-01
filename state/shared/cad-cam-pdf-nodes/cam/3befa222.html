@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><title>1.1-Using EXCEL files in PWServer</title>
+<style>body{font:14px/1.5 system-ui,-apple-system,sans-serif;max-width:960px;margin:2em auto;padding:0 1em;background:#0d1117;color:#c9d1d9}h1{font-size:1.4em;border-bottom:1px solid #30363d;padding-bottom:.4em}dl{display:grid;grid-template-columns:max-content 1fr;gap:.3em 1em}dt{font-weight:600;color:#8b949e}pre{white-space:pre-wrap;word-wrap:break-word;background:#161b22;padding:1em;border:1px solid #30363d;border-radius:6px;font-size:13px}</style>
+</head><body>
+<h1>1.1-Using EXCEL files in PWServer</h1>
+<dl>
+<dt>Domain</dt><dd>cam</dd>
+<dt>Software</dt><dd>hypermill</dd>
+<dt>Path</dt><dd><code>HYPERMILL/hyperMILL/33.0/addins project/hmAutoColor/doc/documents/1.1-Using EXCEL files in PWServer.pdf</code></dd>
+<dt>Pages</dt><dd>4</dd>
+<dt>Text chars</dt><dd>2116</dd>
+</dl>
+<h2>Extracted text</h2>
+<pre>1
+Using PW Server with Excel files
+Configuration file
+Before start, we have some parameters to be defined.
+Those parameters can be defined in the file “autoProgramConfig.pcf”
+This config file can be found on C:\Program Files\OPEN
+MIND\hyperMILL\#version#\addins\hmAutoColor
+In this case the version is 29.0
+We have 3 parameters to be defined
+*EXCEL_FOLDER=c:/temp/defaultExcel.xlsx
+*DEFAULT_TEMPLATE=c:/temp/HCS_template.hmc
+*DEFAULT_TEMP_START_FILE=c:/temp/start.hmc
+The EXCEL file, found in the in-server folder will be copied to the name defined in the parameter
+“*EXCEL_FOLDER”.
+In the file defined in “*DEFAULT_TEMPLATE” will be copied to the file defined in
+“*DEFAULT_TEMP_START_FILE”
+hyperCAD-S will be started with “*DEFAULT_TEMP_START_FILE”
+In the script the user should read the EXCEL file from “*EXCEL_FOLDER”. It is supposed that a script
+name for the process has been defined in it. It has to be called from the start script
+In the EXCEL it is supposed to find a model file to be merged in the current model.
+The file should be saved to a place defined in the EXCEL file.
+The file must be edited as Admin.
+
+-- 1 of 4 --
+
+2
+I configured my file as you can see in the picture below.
+HCS_template file
+We can define a hyperCAD-S template to be used in the process.
+In this template we can define layers, colors and so on.
+The AC will copy the template to the DEFAULT_START_FILE and starts based on this file
+
+-- 2 of 4 --
+
+3
+Template folder
+We can keep in this folder only the file we defined on DEFAULT_TEMPLATE
+Excel file
+Just as an example, I defined 3 parameters in the Excel file
+• File path → Will defined the location of the 3D model to be merged
+• File → Will defined the 3D model to be merged
+• Script → With define the script that should be started
+
+-- 3 of 4 --
+
+4
+Master Script to run this kind of application
+I created a simple script to be called when the Excel file exist in the watch folder.
+In this case, I’m reading the Excel and using the information to Merge the file and call the script.
+That means, the file and script will be totally flexible based on the Excel file.
+
+-- 4 of 4 --
+
+</pre>
+</body></html>

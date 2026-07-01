@@ -1,0 +1,224 @@
+{
+  "schemaVersion": "1.0.0",
+  "_lastBackfillTs": "2026-05-08T16:41:54.025Z",
+  "audit_id": "QA-MS11-P0-U03",
+  "title": "HookEngine Execution Chain Correctness Audit",
+  "audited_at": "2026-04-14T17:55:00Z",
+  "auditor": "claude-opus-4.5",
+  "status": "PASS",
+  "architecture_note": "PRISM has a DUAL hook system by design (M-020)",
+  "hook_systems": {
+    "HookEngine": {
+      "location": "src/engines/HookEngine.ts",
+      "type": "Event-bus-based, EventEmitter pub/sub",
+      "execution_model": "Async, event-driven, many-to-many subscriptions",
+      "use_cases": [
+        "Cognitive patterns (Bayesian, RL, optimization)",
+        "Lifecycle events",
+        "Fine-grained event subscriptions"
+      ],
+      "phases": [
+        "before",
+        "after",
+        "on_error",
+        "on_success",
+        "on_start",
+        "on_complete",
+        "on_cancel",
+        "on_timeout"
+      ],
+      "cognitive_patterns": [
+        "BAYES",
+        "OPT",
+        "MULTI",
+        "GRAD",
+        "RL",
+        "ENSEMBLE",
+        "CAUSAL"
+      ]
+    },
+    "HookExecutor": {
+      "location": "src/engines/HookExecutor.ts",
+      "type": "Phase-chain-based, synchronous enforcement",
+      "execution_model": "Sync-first, phase-gated, chain-ordered, blocking-capable",
+      "use_cases": [
+        "Safety gates (pre/post-calculation, pre-output)",
+        "Compliance hooks",
+        "Dispatcher auto-fire cadences"
+      ],
+      "modes": [
+        "blocking",
+        "warning",
+        "logging",
+        "silent"
+      ],
+      "categories": [
+        "enforcement",
+        "validation",
+        "lifecycle",
+        "observability",
+        "automation",
+        "cognitive",
+        "manufacturing",
+        "controller",
+        "recovery",
+        "schema"
+      ]
+    }
+  },
+  "execution_chain_order": {
+    "HookEngine": {
+      "priority_enum": {
+        "critical": 0,
+        "high": 1,
+        "normal": 2,
+        "low": 3,
+        "background": 4
+      },
+      "sorting": "Array sort by PRIORITY_ORDER[priority] ascending",
+      "chain_halt": "Hook can return { halt: true } to stop chain"
+    },
+    "HookExecutor": {
+      "priority_values": {
+        "critical": 0,
+        "high": 25,
+        "normal": 50,
+        "low": 75,
+        "background": 100
+      },
+      "sorting": "Array sort by PRIORITY_VALUES[priority] ascending",
+      "chain_halt": "Blocking hook failure stops chain (unless continueOnError=true)"
+    }
+  },
+  "pre_post_hook_semantics": {
+    "pre_hooks": "Execute BEFORE operation, can block/modify input",
+    "post_hooks": "Execute AFTER operation, observe/log/validate output",
+    "data_flow": "previousResults array passed to each hook in chain",
+    "modification": "Hooks can return modified data for next hook in chain"
+  },
+  "error_handling": {
+    "HookEngine": {
+      "timeout": "DEFAULT_TIMEOUT_MS: 5000, MAX_TIMEOUT_MS: 30000",
+      "retries": "DEFAULT_RETRIES: 1, MAX_RETRIES: 3",
+      "on_error_phase": "Triggered on operation error"
+    },
+    "HookExecutor": {
+      "continueOnError": "Config flag to control chain continuation",
+      "blocking_mode": "Failed blocking hook stops entire chain",
+      "warning_mode": "Failed warning hook logs and continues",
+      "timeout": "Configurable per hook"
+    }
+  },
+  "hook_priority_mechanism": {
+    "purpose": "Ensure critical hooks (safety, security) run before lower-priority ones",
+    "implementation": "Numeric priority values, sort ascending before execution",
+    "critical_examples": "Safety checks, security validation",
+    "background_examples": "Logging, metrics collection"
+  },
+  "phase_coverage": {
+    "HookExecutor_phases_count": 44,
+    "categories": {
+      "file_operations": [
+        "pre-file-read",
+        "post-file-read",
+        "pre-file-write",
+        "post-file-write",
+        "pre-file-delete",
+        "post-file-delete"
+      ],
+      "material_operations": [
+        "pre-material-add",
+        "post-material-add",
+        "pre-material-update",
+        "post-material-update",
+        "pre-material-delete",
+        "post-material-delete"
+      ],
+      "machine_operations": [
+        "pre-machine-add",
+        "post-machine-add",
+        "pre-machine-update",
+        "post-machine-update"
+      ],
+      "calculation_operations": [
+        "pre-calculation",
+        "post-calculation",
+        "pre-kienzle",
+        "post-kienzle",
+        "pre-taylor",
+        "post-taylor",
+        "pre-johnson-cook",
+        "post-johnson-cook"
+      ],
+      "session_operations": [
+        "on-session-start",
+        "on-session-end",
+        "on-session-checkpoint",
+        "on-session-resume",
+        "on-context-pressure",
+        "on-compaction"
+      ],
+      "quality_operations": [
+        "pre-output",
+        "post-output",
+        "on-quality-drop",
+        "on-quality-improve"
+      ],
+      "agent_operations": [
+        "pre-agent-execute",
+        "post-agent-execute",
+        "on-agent-error",
+        "on-agent-timeout"
+      ],
+      "swarm_operations": [
+        "pre-swarm-execute",
+        "post-swarm-complete",
+        "on-swarm-consensus",
+        "on-swarm-timeout"
+      ],
+      "manufacturing_safety": [
+        "on-force-limit",
+        "on-thermal-limit",
+        "on-tool-life-warning",
+        "on-machine-limit"
+      ]
+    }
+  },
+  "system_events": {
+    "HookEngine_builtin": [
+      "system.startup",
+      "system.shutdown",
+      "system.error",
+      "task.created",
+      "task.started",
+      "task.completed",
+      "task.failed",
+      "task.cancelled",
+      "agent.registered",
+      "agent.executed",
+      "swarm.started",
+      "swarm.completed",
+      "calculation.started",
+      "calculation.completed",
+      "validation.started",
+      "validation.completed",
+      "safety.check",
+      "safety.violation"
+    ]
+  },
+  "related_engines": [
+    "NLHookEngine.ts - Natural language hook generation",
+    "HookEfficiencyEngine.ts - Hook performance optimization",
+    "HookRuleMatcherEngine.ts - Rule-based hook matching",
+    "PipelineConsistencyHookEngine.ts - Pipeline consistency validation",
+    "MastercamSafetyHooksEngine.ts - Mastercam-specific safety",
+    "SolidCAMSafetyHooksEngine.ts - SolidCAM-specific safety"
+  ],
+  "findings": [],
+  "exit_conditions_met": {
+    "hook_execution_chain_order_verified": true,
+    "pre_post_hook_semantics_verified": true,
+    "error_handling_in_hook_chain_verified": true,
+    "hook_priority_mechanism_documented": true
+  }
+}

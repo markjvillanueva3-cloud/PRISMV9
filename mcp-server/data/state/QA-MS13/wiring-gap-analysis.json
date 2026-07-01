@@ -1,0 +1,331 @@
+{
+  "schemaVersion": "1.0.0",
+  "_lastBackfillTs": "2026-05-08T16:41:54.025Z",
+  "audit_id": "QA-MS13-P0-U01",
+  "title": "Dispatcher-to-Function (D2F) Wiring Gap Analysis",
+  "audited_at": "2026-04-13T21:40:00Z",
+  "auditor": "claude-opus-4.5",
+  "scope": "Wiring status of all dispatcher actions to engine functions",
+  "summary": {
+    "total_dispatchers": 82,
+    "total_case_branches": 4848,
+    "claimed_gap_percentage": 86,
+    "claimed_gap_source": "R15 monolith extraction (536 files → 73 wired)"
+  },
+  "wiring_analysis": {
+    "narrow_metric": {
+      "description": "Direct await import + immediate result assignment",
+      "pattern": "result = engine.X() or result = await X()",
+      "wired_count": 644,
+      "wiring_rate_pct": 13.3,
+      "gap_pct": 86.7,
+      "note": "Matches original 86% claim but misses many wiring patterns"
+    },
+    "broad_metric": {
+      "description": "Any result assignment to object method call",
+      "pattern": "result = variable.method()",
+      "wired_count": 2558,
+      "wiring_rate_pct": 52.8,
+      "gap_pct": 47.2,
+      "note": "More accurate representation of actual wiring"
+    }
+  },
+  "per_dispatcher_wiring": {
+    "well_wired_over_50pct": [
+      {
+        "dispatcher": "calc",
+        "cases": 1282,
+        "wired": 805,
+        "rate_pct": 62.8
+      },
+      {
+        "dispatcher": "business",
+        "cases": 467,
+        "wired": 372,
+        "rate_pct": 79.7
+      },
+      {
+        "dispatcher": "cam",
+        "cases": 923,
+        "wired": 505,
+        "rate_pct": 54.7
+      },
+      {
+        "dispatcher": "data",
+        "cases": 201,
+        "wired": 131,
+        "rate_pct": 65.2
+      },
+      {
+        "dispatcher": "edm",
+        "cases": 110,
+        "wired": 70,
+        "rate_pct": 63.6
+      },
+      {
+        "dispatcher": "turning",
+        "cases": 41,
+        "wired": 32,
+        "rate_pct": 78
+      },
+      {
+        "dispatcher": "compliance",
+        "cases": 39,
+        "wired": 30,
+        "rate_pct": 76.9
+      },
+      {
+        "dispatcher": "l2Engine",
+        "cases": 73,
+        "wired": 49,
+        "rate_pct": 67.1
+      },
+      {
+        "dispatcher": "toolpath",
+        "cases": 34,
+        "wired": 22,
+        "rate_pct": 64.7
+      },
+      {
+        "dispatcher": "feasibility",
+        "cases": 37,
+        "wired": 24,
+        "rate_pct": 64.9
+      },
+      {
+        "dispatcher": "provenPipeline",
+        "cases": 26,
+        "wired": 18,
+        "rate_pct": 69.2
+      },
+      {
+        "dispatcher": "cncOps",
+        "cases": 72,
+        "wired": 41,
+        "rate_pct": 56.9
+      }
+    ],
+    "partially_wired_20_50pct": [
+      {
+        "dispatcher": "knowledge",
+        "cases": 153,
+        "wired": 75,
+        "rate_pct": 49
+      },
+      {
+        "dispatcher": "dev",
+        "cases": 143,
+        "wired": 76,
+        "rate_pct": 53.1
+      },
+      {
+        "dispatcher": "cad",
+        "cases": 96,
+        "wired": 38,
+        "rate_pct": 39.6
+      },
+      {
+        "dispatcher": "quality",
+        "cases": 23,
+        "wired": 8,
+        "rate_pct": 34.8
+      },
+      {
+        "dispatcher": "product",
+        "cases": 57,
+        "wired": 17,
+        "rate_pct": 29.8
+      },
+      {
+        "dispatcher": "diagnosis",
+        "cases": 69,
+        "wired": 12,
+        "rate_pct": 17.4
+      },
+      {
+        "dispatcher": "machineLive",
+        "cases": 53,
+        "wired": 10,
+        "rate_pct": 18.9
+      }
+    ],
+    "unwired_under_20pct": [
+      {
+        "dispatcher": "intelligence",
+        "cases": 61,
+        "wired": 0,
+        "rate_pct": 0,
+        "note": "Forwarding dispatcher"
+      },
+      {
+        "dispatcher": "operatingSystem",
+        "cases": 51,
+        "wired": 0,
+        "rate_pct": 0
+      },
+      {
+        "dispatcher": "session",
+        "cases": 48,
+        "wired": 0,
+        "rate_pct": 0,
+        "note": "State management"
+      },
+      {
+        "dispatcher": "knowledgeExt",
+        "cases": 44,
+        "wired": 1,
+        "rate_pct": 2.3
+      },
+      {
+        "dispatcher": "hook",
+        "cases": 41,
+        "wired": 0,
+        "rate_pct": 0,
+        "note": "Hook orchestration"
+      },
+      {
+        "dispatcher": "context",
+        "cases": 30,
+        "wired": 0,
+        "rate_pct": 0,
+        "note": "Context management"
+      },
+      {
+        "dispatcher": "cpl",
+        "cases": 54,
+        "wired": 0,
+        "rate_pct": 0
+      },
+      {
+        "dispatcher": "integration",
+        "cases": 75,
+        "wired": 1,
+        "rate_pct": 1.3
+      }
+    ]
+  },
+  "gap_categorization": {
+    "intentional_placeholders": {
+      "count": 280,
+      "description": "Actions defined for future implementation",
+      "examples": [
+        "telemetry_*",
+        "tenant_*",
+        "memory_*"
+      ]
+    },
+    "forwarding_dispatchers": {
+      "count": 200,
+      "description": "Actions that forward to sub-dispatchers (SYS-MS1 refactor)",
+      "examples": [
+        "intelligence → product/machine_live/integration/diagnosis"
+      ]
+    },
+    "state_management": {
+      "count": 150,
+      "description": "Session/context actions that don't need calc engines",
+      "examples": [
+        "session_*",
+        "context_*",
+        "hook_*"
+      ]
+    },
+    "accidental_gaps": {
+      "count": 1660,
+      "description": "Actions with case statements but no wiring",
+      "priority": "HIGH - should be audited for real implementation need"
+    }
+  },
+  "critical_gaps": {
+    "high_action_count_low_wiring": [
+      {
+        "dispatcher": "operatingSystem",
+        "cases": 51,
+        "gap": "No engine wiring"
+      },
+      {
+        "dispatcher": "integration",
+        "cases": 75,
+        "gap": "Only 1 wired"
+      },
+      {
+        "dispatcher": "cpl",
+        "cases": 54,
+        "gap": "No engine wiring"
+      }
+    ],
+    "safety_critical_dispatchers": [
+      {
+        "dispatcher": "safety",
+        "note": "Not in sample - needs verification"
+      },
+      {
+        "dispatcher": "validation",
+        "note": "Low wiring rate - needs review"
+      },
+      {
+        "dispatcher": "guard",
+        "note": "Low wiring rate - needs review"
+      }
+    ]
+  },
+  "remediation_priority_list": {
+    "priority_1": {
+      "description": "Safety-critical dispatchers",
+      "dispatchers": [
+        "safety",
+        "validation",
+        "guard"
+      ],
+      "action": "Verify all safety actions have real implementations"
+    },
+    "priority_2": {
+      "description": "High-action-count unwired dispatchers",
+      "dispatchers": [
+        "integration",
+        "cpl",
+        "operatingSystem"
+      ],
+      "action": "Audit each action - wire or deprecate"
+    },
+    "priority_3": {
+      "description": "Forwarding dispatcher cleanup",
+      "dispatchers": [
+        "intelligence"
+      ],
+      "action": "Verify forwarding is complete and remove stale actions"
+    },
+    "priority_4": {
+      "description": "Partial wiring completion",
+      "dispatchers": [
+        "diagnosis",
+        "machineLive",
+        "product"
+      ],
+      "action": "Complete wiring for remaining actions"
+    }
+  },
+  "findings": {
+    "key_insight": "86% gap claim is based on narrow metric (direct imports). Broader analysis shows 47% gap.",
+    "largest_contributor": "calcDispatcher (1282 actions) is 63% wired - not the main gap source",
+    "real_gap_sources": [
+      "operatingSystem (51 actions, 0% wired)",
+      "integration (75 actions, 1% wired)",
+      "cpl (54 actions, 0% wired)",
+      "intelligence forwarding (61 actions → sub-dispatchers)"
+    ],
+    "recommendations": [
+      "Update baseline metric to use broader wiring detection",
+      "Audit unwired dispatchers to determine stub vs intentional",
+      "Add wiring health check to CI pipeline",
+      "Document which actions are intentionally forwarding vs stub"
+    ]
+  },
+  "verification_status": {
+    "d2f_matrix_built": true,
+    "wiring_percentage_calculated": true,
+    "gap_categorization_complete": true,
+    "remediation_priority_list_produced": true,
+    "unit_complete": true
+  }
+}

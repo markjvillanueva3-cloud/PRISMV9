@@ -23,18 +23,14 @@ related:
 |-------|-------|
 | Name | `quote` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/quote.md` |
+| Source | `C:/Users/wompu/.claude/commands/quote.md` |
 | Model | default |
 | Tags | _(none)_ |
 
 ## Description (first paragraph)
 
-Generate comprehensive manufacturing quotes:
-- Material costs
-- Machine time
-- Setup time
-- Tooling costs
-- Overhead and profit
+
+# /quote — Manufacturing Quote Generation
 
 <!-- AUTO-END -->
 

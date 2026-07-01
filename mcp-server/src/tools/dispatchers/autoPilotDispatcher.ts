@@ -97,7 +97,9 @@ export function registerAutoPilotDispatcher(server: any): void {
           case "brainstorm_lenses": {
             if (!AutoPilotClass) { result = { error: "AutoPilot module not loaded" }; break; }
             const ap = new AutoPilotClass();
-            const r = await (ap as unknown as { brainstorm: (problem: string, context: Record<string, unknown>) => Promise<Record<string, unknown>> }).brainstorm(params.problem || "", params.context || {});
+            // AutoPilot now exposes a real public brainstorm(problem, context) (was a non-existent
+            // method that threw on every call). Routes through the free Ollama-first substrate.
+            const r = await ap.brainstorm(params.problem || "", params.context || {});
             result = { problem: params.problem, assumptions: r.assumptions, alternatives: r.alternatives,
               inversions: r.inversions, fusions: r.fusions, tenX: r.tenX, simplifications: r.simplifications,
               futureProof: r.futureProof, approach: r.optimizedApproach, formula: r.formulaUsed };

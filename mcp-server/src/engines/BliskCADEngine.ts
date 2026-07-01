@@ -151,6 +151,15 @@ export interface BliskProfileInfo {
   suitableFor: BliskStageType[];
   thicknessPercent: number;
   notes: string;
+  /**
+   * Whether BladeProfileLibraryEngine can currently synthesize this profile's
+   * geometry. Omitted (undefined) means generatable; explicit `false` flags a
+   * recommended-but-not-yet-buildable section (e.g. NACA 6-series, which needs
+   * tabulated ordinates -- see U-BLISK-6SERIES-ORDINATES). Honest capability
+   * surface so callers never receive a profile that validate()/generate() will
+   * reject. U-BLISK-6SERIES-PARSE.
+   */
+  generatable?: boolean;
 }
 
 // ── Errors ───────────────────────────────────────────────────────────────
@@ -282,6 +291,13 @@ export class BliskCADEngine {
     const errors: string[] = [];
     const warnings: string[] = [];
 
+    // Blade spec presence -- guard before any spec.blade.* dereference so a
+    // missing blade fails loud (structured) instead of throwing a TypeError.
+    if (!spec.blade || typeof spec.blade !== "object") {
+      errors.push("blade: blade specification is required");
+      return { valid: false, errors, warnings };
+    }
+
     // Required fields
     if (!spec.id || spec.id.trim() === "") {
       errors.push("id: must be non-empty");
@@ -330,6 +346,20 @@ export class BliskCADEngine {
     if (!Number.isFinite(spec.blade.outletAngle_deg) ||
         spec.blade.outletAngle_deg < 0 || spec.blade.outletAngle_deg > 90) {
       errors.push("blade.outletAngle_deg: must be 0-90");
+    }
+
+    // Blade profile must be synthesizable by the profile library -- otherwise
+    // generate() throws at getProfile(). Surface it here so validate() and
+    // generate() agree (closes the validate/generate consistency gap that let
+    // a recommended NACA 6-series profile pass validate then throw at
+    // generate). U-BLISK-6SERIES-PARSE.
+    if (typeof spec.blade.profile !== "string" || spec.blade.profile.trim() === "") {
+      errors.push("blade.profile: must be a non-empty NACA designation");
+    } else {
+      const cap = this.profileLib.canGenerate(spec.blade.profile);
+      if (!cap.ok) {
+        errors.push(`blade.profile "${spec.blade.profile}": ${cap.reason}`);
+      }
     }
 
     // Warnings (non-fatal)
@@ -470,13 +500,19 @@ export class BliskCADEngine {
         designation: "NACA 65-010",
         suitableFor: ["compressor"],
         thicknessPercent: 10,
-        notes: "65-series — optimized for compressor cascade",
+        notes:
+          "65-series -- optimized for compressor cascade. NOT YET GENERATABLE: " +
+          "6-series thickness-form ordinates pending (U-BLISK-6SERIES-ORDINATES).",
+        generatable: false,
       },
       {
         designation: "NACA 65-012",
         suitableFor: ["compressor", "turbine"],
         thicknessPercent: 12,
-        notes: "65-series — balanced performance",
+        notes:
+          "65-series -- balanced performance. NOT YET GENERATABLE: 6-series " +
+          "thickness-form ordinates pending (U-BLISK-6SERIES-ORDINATES).",
+        generatable: false,
       },
       {
         designation: "NACA 23012",

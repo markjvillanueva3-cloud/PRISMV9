@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta name="prism-source-hash" content="7d099067f367460f8ef4cc8f1cabb031f0adcdf763d1ed30738a5604b38e16fe">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Session-Continuity Stack — PSN + /system-viz Upgrade Research</title>
+<style>
+  :root {
+    --bg: #0f1014;
+    --panel: #1a1c23;
+    --panel-2: #232631;
+    --fg: #e4e6eb;
+    --fg-dim: #9aa0a8;
+    --border: #2c303a;
+    --ok: #4ade80;
+    --warn: #fbbf24;
+    --fail: #f87171;
+    --info: #60a5fa;
+    --link: #93c5fd;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; padding: 1.5rem; background: var(--bg); color: var(--fg);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, sans-serif;
+    font-size: 14px; line-height: 1.5; }
+  h1 { font-size: 1.6rem; margin: 0 0 0.25rem 0; }
+  h2 { font-size: 1.15rem; margin: 1.5rem 0 0.5rem 0; padding-bottom: 0.25rem;
+    border-bottom: 1px solid var(--border); color: var(--fg); }
+  .meta { color: var(--fg-dim); font-size: 0.85rem; margin-bottom: 1rem; }
+  .panel { background: var(--panel); border: 1px solid var(--border); border-radius: 6px;
+    padding: 0.75rem 1rem; margin-bottom: 1rem; }
+  .headline-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 0.5rem; margin-bottom: 1rem; }
+  .card { background: var(--panel-2); border: 1px solid var(--border); border-radius: 6px;
+    padding: 0.65rem 0.85rem; }
+  .card .lbl { font-size: 0.8rem; color: var(--fg-dim); }
+  .card .val { font-size: 1.4rem; font-weight: 600; margin: 0.15rem 0; font-variant-numeric: tabular-nums; }
+  .card .hint { font-size: 0.75rem; color: var(--fg-dim); }
+  .card.ok    { border-left: 3px solid var(--ok); }
+  .card.warn  { border-left: 3px solid var(--warn); }
+  .card.fail  { border-left: 3px solid var(--fail); }
+  .card.info  { border-left: 3px solid var(--info); }
+  table { width: 100%; border-collapse: collapse; margin: 0.5rem 0 1rem; font-size: 0.9rem;
+    background: var(--panel); border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }
+  caption { text-align: left; padding: 0.4rem 0.65rem; color: var(--fg-dim);
+    background: var(--panel-2); font-weight: 500; }
+  th, td { padding: 0.4rem 0.65rem; text-align: left; border-bottom: 1px solid var(--border);
+    font-variant-numeric: tabular-nums; vertical-align: top; }
+  th { background: var(--panel-2); color: var(--fg-dim); font-weight: 500;
+    text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.04em; }
+  tr:last-child td { border-bottom: none; }
+  td.right { text-align: right; }
+  ul, ol { margin: 0.4rem 0 1rem 1.25rem; }
+  li { margin: 0.15rem 0; }
+  .badge { display: inline-block; padding: 0.1rem 0.5rem; border-radius: 999px;
+    font-size: 0.75rem; font-weight: 500; background: var(--panel-2); color: var(--fg-dim);
+    border: 1px solid var(--border); }
+  .badge.ok   { background: rgba(74, 222, 128, 0.12); color: var(--ok);   border-color: rgba(74,222,128,0.3); }
+  .badge.warn { background: rgba(251, 191, 36, 0.12); color: var(--warn); border-color: rgba(251,191,36,0.3); }
+  .badge.fail { background: rgba(248, 113, 113, 0.12); color: var(--fail); border-color: rgba(248,113,113,0.3); }
+  .badge.info { background: rgba(96, 165, 250, 0.12); color: var(--info); border-color: rgba(96,165,250,0.3); }
+  .badge-grid { display: flex; flex-wrap: wrap; gap: 0.3rem; margin: 0.3rem 0 1rem 0; }
+  .kv { display: grid; grid-template-columns: max-content 1fr; gap: 0.2rem 0.85rem;
+    margin: 0.4rem 0 1rem 0; }
+  .kv .k { color: var(--fg-dim); }
+  svg.bar-chart { display: block; max-width: 100%; height: auto; }
+  svg .bar { fill: var(--info); }
+  svg .bar.ok   { fill: var(--ok); }
+  svg .bar.warn { fill: var(--warn); }
+  svg .bar.fail { fill: var(--fail); }
+  svg text { fill: var(--fg); font-family: monospace; font-size: 11px; }
+  svg .axis text { fill: var(--fg-dim); }
+  code { background: var(--panel-2); padding: 0 0.3rem; border-radius: 3px;
+    font-family: "Fira Code", Consolas, Menlo, monospace; font-size: 0.85em; }
+  a { color: var(--link); }
+  footer { margin-top: 2rem; padding-top: 0.75rem; border-top: 1px solid var(--border);
+    font-size: 0.8rem; color: var(--fg-dim); }
+</style>
+</head>
+<body>
+<h1>Session-Continuity Stack — PSN + /system-viz Upgrade Research</h1>
+<div class="meta">rendered from state/shared/specs/SESSION-CONTINUITY-PSN-UPGRADE-RESEARCH-2026-05-25.md</div>
+<div class="meta">Generated 2026-05-25T20:17:13.010Z</div>
+<style>
+  .prism-md-body { max-width: 70rem; margin: 0 auto; }
+  .prism-h1 { font-size: 1.6rem; }
+  .prism-h2 { font-size: 1.25rem; border-bottom: 1px solid var(--border); padding-bottom: 0.25rem; }
+  .prism-h3 { font-size: 1.1rem; color: var(--info); }
+  .prism-h4, .prism-h5, .prism-h6 { font-size: 1rem; color: var(--fg-dim); }
+  .prism-md-body p { margin: 0.5rem 0; }
+  .prism-md-list { margin: 0.5rem 0 0.5rem 1.25rem; padding: 0; }
+  .prism-md-list li { margin: 0.15rem 0; }
+  .prism-md-table { border-collapse: collapse; margin: 0.75rem 0; width: 100%; }
+  .prism-md-table th, .prism-md-table td { border: 1px solid var(--border); padding: 0.35rem 0.6rem; text-align: left; }
+  .prism-md-table th { background: var(--panel-2); }
+  .prism-codeblock { background: var(--panel-2); border: 1px solid var(--border); border-radius: 4px; padding: 0.6rem 0.8rem; overflow-x: auto; font-family: "Cascadia Code", Consolas, monospace; font-size: 13px; }
+  .prism-inline-code { background: var(--panel-2); padding: 0 0.25rem; border-radius: 3px; font-family: "Cascadia Code", Consolas, monospace; font-size: 0.92em; }
+  .prism-quote { border-left: 3px solid var(--info); background: var(--panel-2); padding: 0.5rem 0.85rem; margin: 0.75rem 0; color: var(--fg-dim); }
+  .prism-hr { border: 0; border-top: 1px solid var(--border); margin: 1rem 0; }
+  .prism-link { color: var(--link); text-decoration: none; }
+  .prism-link:hover { text-decoration: underline; }
+  .prism-bad-link { color: var(--fail); text-decoration: line-through; }
+  .prism-unclosed::before { content: "⚠ unterminated code block"; display: block; color: var(--warn); font-size: 0.85em; margin-bottom: 0.25rem; }
+  </style><main class="prism-md-body"><nav class="prism-toc"><strong>Contents</strong><ul><li class="prism-toc-l1">Session-Continuity Stack — PSN + /system-viz Upgrade Research</li><li class="prism-toc-l2">Honest baseline</li><li class="prism-toc-l2">Hard prereqs (block most upgrades)</li><li class="prism-toc-l2">25 upgrade vectors across 6 groups</li><li class="prism-toc-l3">Group A — PreCompact upgrades (4)</li><li class="prism-toc-l3">Group B — Compaction-aware upgrades (3)</li><li class="prism-toc-l3">Group C — Handoff upgrades (5)</li><li class="prism-toc-l3">Group D — Startup upgrades (6)</li><li class="prism-toc-l3">Group E — Dashboard utilization (the direct ask) (4)</li><li class="prism-toc-l3">Group F — Cross-phase integration (3)</li><li class="prism-toc-l2">Variability axis</li><li class="prism-toc-l2">Dependency matrix (which upgrades need what)</li><li class="prism-toc-l2">Sequenced priority (compounding leverage)</li><li class="prism-toc-l2">Specific answer on dashboard utilization</li><li class="prism-toc-l2">Honest call</li><li class="prism-toc-l2">Out of scope</li></ul></nav><h1 class="prism-h1">Session-Continuity Stack — PSN + /system-viz Upgrade Research</h1>
+<p><strong>Date:</strong> 2026-05-25 <strong>Scope:</strong> Upgrade vectors for the PreCompact → Compaction → Handoff → Startup pipeline now that PSN (11-leg taxonomy) and /system-viz (10-layer + 28 augmentation overlays) exist as substrates. <strong>Status:</strong> Research deliverable. Not a build plan. <strong>Companions:</strong> [[SYSTEM-VIZ-GALAXY-RESEARCH-2026-05-25]], [[OBSIDIAN-BRAIN-EFFICIENCY-RESEARCH-2026-05-25]].</p>
+<hr class="prism-hr">
+<h2 class="prism-h2">Honest baseline</h2>
+<p>The four session-lifecycle phases (PreCompact → Compaction → Handoff → Startup) are wired and working. Existing pipeline (this session verified):</p>
+<table class="prism-md-table"><thead><tr><th>Phase</th><th>Hooks/skills wired</th><th>Working today</th></tr></thead><tbody><tr><td><strong>PreCompact</strong></td><td>8 hooks (handoff write, slot release, pending guard, quality alert, octopus probe, file-read cache, claude-brief snapshot, stress-harness)</td><td>Yes — auto-fires on <code class="prism-inline-code">/compact</code></td></tr>
+<tr><td><strong>Compaction</strong></td><td>Built-in Claude Code; no Ruflo control over the compaction itself</td><td>Yes</td></tr>
+<tr><td><strong>Handoff</strong></td><td><code class="prism-inline-code">per-agent-handoff.mjs</code> + <code class="prism-inline-code">--source live-chat</code> strict gate; per-chat HANDOFF-&lt;id&gt;-&lt;topic&gt;.md</td><td>Yes</td></tr>
+<tr><td><strong>Startup</strong></td><td>~30+ SessionStart hooks; matchers for <code class="prism-inline-code">compact</code> / <code class="prism-inline-code">clear</code> / <code class="prism-inline-code">startup</code> re-fire <code class="prism-inline-code">session-start-auto-resume.mjs</code></td><td>Yes — handoff loads correctly</td></tr></tbody></table>
+<p>The pipeline isn&#39;t broken. The opportunity is to make it PSN-aware and /system-viz-aware so each phase produces and consumes richer state.</p>
+<h2 class="prism-h2">Hard prereqs (block most upgrades)</h2>
+<p>Most of the high-leverage upgrades require substrates to actually be healthy:</p>
+<table class="prism-md-table"><thead><tr><th>Prereq</th><th>Today</th><th>Blocks</th></tr></thead><tbody><tr><td><code class="prism-inline-code">regen-viz</code> heap fix</td><td>OOM-crashing</td><td>Every system-viz-aware upgrade (A1-A3, B3, C1-C3, D1-D6, E1-E4, F1-F3)</td></tr>
+<tr><td>Ollama <code class="prism-inline-code">/api/chat</code> daemon</td><td>Dead all session</td><td>Semantic-edge upgrades, embedding-driven retrieval</td></tr>
+<tr><td><code class="prism-inline-code">INFRA/U-CLAUDE-GRAPH-INDEX</code> (compact JSONL+HTML)</td><td>Proposed, not built</td><td>Any hook that needs to load graph state into context</td></tr>
+<tr><td><code class="prism-inline-code">OBSIDIAN-BRAIN-EFFICIENCY-MS0</code> A1 (JSONL pointer index)</td><td>Proposed, not built</td><td>Hooks that batch-query the memory vault</td></tr></tbody></table>
+<hr class="prism-hr">
+<h2 class="prism-h2">25 upgrade vectors across 6 groups</h2>
+<h3 class="prism-h3">Group A — PreCompact upgrades (4)</h3>
+<ul class="prism-md-list"><li><strong>A1: PSN-leg state snapshot in handoff.</strong> Every leg&#39;s current health/freshness baked into RESUME → next chat knows which legs are degraded.</li><li><strong>A2: System-viz focus-set freeze.</strong> Record which nodes were &quot;in focus&quot; this session (edited, mentioned, claimed) → next chat sees them pre-highlighted in L2 local-graph.</li><li><strong>A3: Edge/bridge churn delta.</strong> What graph edges changed this session → next chat sees them.</li><li><strong>A4: Outstanding-claim snapshot.</strong> Which file-claims this chat held → release properly + advertise to peers if applicable.</li></ul>
+<h3 class="prism-h3">Group B — Compaction-aware upgrades (3)</h3>
+<ul class="prism-md-list"><li><strong>B1: Compaction-triggered system-viz refresh.</strong> If <code class="prism-inline-code">/compact</code> fires and graph is &gt;2 days stale → queue regen via doc-drift bus (needs CLAUDE-GRAPH-INDEX queue first).</li><li><strong>B2: Compaction summary → memory.</strong> Auto-create <code class="prism-inline-code">reference_session_&lt;date&gt;.md</code> capturing what shipped this session (feeds Obsidian-brain).</li><li><strong>B3: Pre-compaction PSN-leg coverage report.</strong> Which legs did this session touch? Inject into compaction summary so post-compact chat has the context.</li></ul>
+<h3 class="prism-h3">Group C — Handoff upgrades (5)</h3>
+<ul class="prism-md-list"><li><strong>C1: PSN-leg pointer in handoff.</strong> Primary legs touched listed so next chat boots leg-priority-aware.</li><li><strong>C2: System-viz subgraph snapshot in handoff.</strong> Small JSON of N-hop subgraph around focus nodes for next chat&#39;s L2 view.</li><li><strong>C3: Bridge-utilization markers.</strong> If session activated cross-domain bridges (16 deep-integration bridges in PRISM), mark in handoff.</li><li><strong>C4: Memory-write log in handoff.</strong> What memos did this session create/update — Obsidian-brain orientation hint.</li><li><strong>C5: Outstanding-prereq propagation.</strong> If session created units that block other units, surface to next chat&#39;s handoff.</li></ul>
+<h3 class="prism-h3">Group D — Startup upgrades (6)</h3>
+<ul class="prism-md-list"><li><strong>D1: Expanded PSN-leg state inject.</strong> <code class="prism-inline-code">psn-leg-state-inject.mjs</code> exists; today only injects <em>concerning</em> legs. Expand: full per-leg status when relevant.</li><li><strong>D2: System-viz local-graph inject.</strong> When chat starts with a topic, inject the local subgraph around topic-related nodes.</li><li><strong>D3: Recent graph deltas inject.</strong> What changed in system-viz since this chat&#39;s last session (recency-relevant only).</li><li><strong>D4: Next-units inject pulled from priority-queue.</strong> The <code class="prism-inline-code">priority_queue</code> roost surfacing exists; tie to SessionStart.</li><li><strong>D5: Master-index per-task pre-search at SessionStart.</strong> Already partially done in subagent-start-context.mjs; expand to live chat.</li><li><strong>D6: Bridge-affordance inject.</strong> If session topic crosses domains, surface relevant bridges proactively.</li></ul>
+<h3 class="prism-h3">Group E — Dashboard utilization (the direct ask) (4)</h3>
+<ul class="prism-md-list"><li><strong>E1: Live /system-viz side panel during session.</strong> Open as side-window, refreshes on PostToolUse events; chat sees graph state live.</li><li><strong>E2: Compact-target highlighting.</strong> Pre-compact, /system-viz highlights &quot;what I shipped this session&quot; (diff visualization).</li><li><strong>E3: Handoff-deep-link in RESUME.</strong> Handoff RESUME contains a <code class="prism-inline-code">/system-viz?focus=&lt;node&gt;</code> deep-link that opens the panel to the relevant subgraph.</li><li><strong>E4: PSN-leg health gauges + gates.</strong> Dashboard shows current PSN leg health as gauges; can gate compaction (don&#39;t /compact if a leg is mid-write).</li></ul>
+<h3 class="prism-h3">Group F — Cross-phase integration (3)</h3>
+<ul class="prism-md-list"><li><strong>F1: Session-state-graph node per chat.</strong> Each chat becomes a node in /system-viz; state (active/idle/compacting/done) shows on the dashboard.</li><li><strong>F2: Fleet-view dashboard mode.</strong> All 26 chats visible as nodes — slots, topics, branches shown. Coordination at a glance.</li><li><strong>F3: Cross-chat awareness.</strong> Chat A sees chat B&#39;s recent commits as edges on /system-viz; avoid duplicate work.</li></ul>
+<hr class="prism-hr">
+<h2 class="prism-h2">Variability axis</h2>
+<ul class="prism-md-list"><li><strong>Inputs:</strong> PreCompact event, /compact, /clear, SessionStart-compact, SessionStart-startup, normal SessionStart, normal Stop</li><li><strong>States:</strong> system-viz fresh/stale, Ollama up/down, MCP up/down, slot-binding correct/drifted, claim-set active/empty</li><li><strong>Failure modes:</strong> subgraph too big for context budget, graph stale, peer chat contention on handoff, missing CURRENT_POSITION, dead PSN leg #10 (NN/GNN)</li><li><strong>Adversarial:</strong> prompt-injection in handoff RESUME, malicious system-viz node injection, graph snapshot exceeds context budget</li></ul>
+<hr class="prism-hr">
+<h2 class="prism-h2">Dependency matrix (which upgrades need what)</h2>
+<table class="prism-md-table"><thead><tr><th>Upgrade group</th><th>Needs <code class="prism-inline-code">regen-viz</code> fix</th><th>Needs <code class="prism-inline-code">CLAUDE-GRAPH-INDEX</code></th><th>Needs <code class="prism-inline-code">OBSIDIAN-BRAIN-EFFICIENCY</code> A1</th><th>Needs Ollama health</th></tr></thead><tbody><tr><td>A (PreCompact)</td><td>⚠ (A1-A3)</td><td>for compact reads</td><td>—</td><td>—</td></tr>
+<tr><td>B (Compaction)</td><td>⚠ (B3)</td><td>⚠ (B1)</td><td>⚠ (B2)</td><td>—</td></tr>
+<tr><td>C (Handoff)</td><td>⚠ (C1-C3)</td><td>for compact reads</td><td>⚠ (C4)</td><td>—</td></tr>
+<tr><td>D (Startup)</td><td>⚠ (D1-D3, D6)</td><td>⚠ (D2-D3)</td><td>—</td><td>⚠ (D2 semantic)</td></tr>
+<tr><td>E (Dashboard)</td><td>⚠ (all)</td><td>—</td><td>—</td><td>—</td></tr>
+<tr><td>F (Cross-phase)</td><td>⚠ (all)</td><td>for chat-as-node</td><td>—</td><td>—</td></tr></tbody></table>
+<p><strong>Reading:</strong> essentially nothing ships cleanly until regen-viz OOM is fixed. The CLAUDE-GRAPH-INDEX is the secondary critical-path artifact.</p>
+<hr class="prism-hr">
+<h2 class="prism-h2">Sequenced priority (compounding leverage)</h2>
+<table class="prism-md-table"><thead><tr><th>Order</th><th>Item</th><th>Why now</th><th>Effort</th></tr></thead><tbody><tr><td>1</td><td>Fix <code class="prism-inline-code">regen-viz</code> OOM (heap or streaming)</td><td>Unblocks 90% of the upgrades below</td><td>1-4 hr</td></tr>
+<tr><td>2</td><td>Build <code class="prism-inline-code">CLAUDE-GRAPH-INDEX</code> (~1.5MB JSONL + HTML)</td><td>Hooks can read graph state cheaply</td><td>4-6 hr</td></tr>
+<tr><td>3</td><td>D5 master-index pre-search at SessionStart (live chat)</td><td>No external deps; immediate context-injection quality win</td><td>1 hr</td></tr>
+<tr><td>4</td><td>A1 + A4 PreCompact PSN/claim snapshot</td><td>RESUME contains substrate state</td><td>2 hr</td></tr>
+<tr><td>5</td><td>B2 compaction summary → memory (Obsidian-brain feed)</td><td>Auto-builds session reference memo every /compact</td><td>1 hr</td></tr>
+<tr><td>6</td><td>D1 expanded PSN-leg state inject (full not just concerning)</td><td>Existing hook surface; expand keyword gate</td><td>1 hr</td></tr>
+<tr><td>7</td><td>C1 PSN-leg pointer in handoff</td><td>Sits naturally in existing handoff schema</td><td>1 hr</td></tr>
+<tr><td>8</td><td>E1 live /system-viz side panel</td><td>Substantial UI work but high &quot;wow&quot; factor</td><td>8-12 hr</td></tr>
+<tr><td>9</td><td>C2 + D2 subgraph snapshot in handoff</td><td>Needs graph-index from #2 first</td><td>4 hr</td></tr>
+<tr><td>10</td><td>F1 chat-as-graph-node + F2 fleet view</td><td>Coordination win at fleet scale</td><td>4-6 hr</td></tr>
+<tr><td>11</td><td>Remaining items (A2, A3, B1, B3, C3-C5, D3-D6, E2-E4, F3)</td><td>Polish + completeness</td><td>varies</td></tr></tbody></table>
+<p><strong>Tier-1 (orders 3-7) = 6 hours of work, no external deps beyond what&#39;s already shipping.</strong></p>
+<hr class="prism-hr">
+<h2 class="prism-h2">Specific answer on dashboard utilization</h2>
+<p>The user&#39;s direct ask: can <code class="prism-inline-code">/system-viz</code> be utilized beneficially? Yes — <strong>3 distinct utilizations</strong>:</p>
+<ol class="prism-md-list"><li><strong>PRE-compact (E2):</strong> before compaction, highlight the diff — &quot;you touched these 12 nodes this session&quot; — visualized in /system-viz. Operator-facing visualization of session output, no LLM cost.</li><li><strong>HANDOFF (E3):</strong> RESUME directive includes a deep-link URL. Next chat (or operator) clicks → /system-viz opens at the relevant subgraph immediately. Zero re-orientation.</li><li><strong>DURING session (E1):</strong> side panel always shows the live local-graph around current focus node. Highest-value but most expensive to build (E1 is 8-12 hours).</li></ol>
+<p>The cheapest dashboard win is <strong>E3 (handoff deep-link)</strong> — single-line append to RESUME, no UI changes. The most operator-visible is <strong>E2 (pre-compact diff)</strong> — visualization of &quot;what shipped this session&quot; before the conversation gets summarized away.</p>
+<hr class="prism-hr">
+<h2 class="prism-h2">Honest call</h2>
+<p>This is a real, valuable upgrade direction — but <strong>none of it ships cleanly until regen-viz OOM is fixed</strong>. Right now, all the system-viz-aware upgrades would render stale data, defeating the purpose. Order matters:</p>
+<ol class="prism-md-list"><li>Fix <code class="prism-inline-code">regen-viz</code> first (separate <code class="prism-inline-code">[BUG-FIX]</code> unit, scope known)</li><li>Build <code class="prism-inline-code">CLAUDE-GRAPH-INDEX</code> (proposed in this session, ~6 hr unit)</li><li>THEN tier-1 of this milestone (~6 hr)</li><li>THEN the dashboard utilizations (E group)</li><li>THEN the cross-phase integrations (F group)</li></ol>
+<p>Recommend opening this as <code class="prism-inline-code">SESSION-CONTINUITY-PSN-UPGRADE-MS0</code> with the dependency chain made explicit in the envelope.</p>
+<hr class="prism-hr">
+<h2 class="prism-h2">Out of scope</h2>
+<ul class="prism-md-list"><li>Replacing Claude Code&#39;s built-in <code class="prism-inline-code">/compact</code> summarization — that&#39;s Anthropic&#39;s runtime, not ours</li><li>Cross-fleet (multi-machine) handoff — multi-host coexistence is a separate doctrine</li><li>Replacing the strict <code class="prism-inline-code">--source live-chat</code> gate on per-agent-handoff (security/integrity floor)</li></ul></main><footer>
+<div>html-report-render schemaVersion 1.0.0</div>
+</footer>
+</body>
+</html>

@@ -1,0 +1,323 @@
+{
+  "id": "HM-KC-MS2",
+  "version": "8.3.0",
+  "title": "Fixture/Setup Parameter Catalog — Stock, WCS, Clearance, Workholding ~200 Schemas",
+  "track": "HM-KC",
+  "status": "complete",
+  "description": "Generate parameter schemas, skills, scripts, and hooks for the fixture and setup domain: fixture body import/creation (~4 params), soft jaw design (~4), vise setup (~4), chuck/collet selection (~4), tombstone/pallet layout (~3), vacuum/magnetic workholding (~3), stock model creation (~4), WCS/datum assignment (~4), clearance planes (~6), allowance settings (~4), and coordinate system configuration (~4). Includes critical safety hooks for clamp interference, grip force vs cutting force, and clearance plane validation.",
+  "dependencies": [
+    "HM-KC-MS0"
+  ],
+  "knowledge_sources": {
+    "engines": [
+      "HyperMillCycleDefaultsEngine",
+      "HyperMillSafetyHooks"
+    ],
+    "registries": [
+      "MachineRegistry",
+      "ToolRegistry"
+    ],
+    "services": [],
+    "physics": [
+      "src/physics/constants.ts"
+    ],
+    "reference": [
+      "data/hypermill/HyperMillParameterCatalog.json (Fixture domain subset)",
+      "hyperMILL training manuals (setup, workholding, clearance sections)",
+      "hypermill-cam-tips-ext.ts (clearance plane safety tips)"
+    ]
+  },
+  "forge_triple": {
+    "hook": "fixtureSetupSafetyValidator — BUILT — validates clearance, clamp force, WCS consistency",
+    "action": "generate_fixture_catalog — BUILT — generates fixture domain artifacts from schemas",
+    "skill": "/hypermill-fixture-params — BUILT — fixture/setup parameter reference and recommendations"
+  },
+  "enforcement": {
+    "pre_level": [
+      "knowledge-consult"
+    ],
+    "post_level": [
+      "stub-detector",
+      "constants-checker"
+    ],
+    "compact_level": [
+      "review-gate",
+      "forge-triple-gate"
+    ]
+  },
+  "mcp_lifecycle": {
+    "session_start": [
+      "prism_session:context_boot",
+      "prism_session:dispatcher_map",
+      "prism_session:memory_recall",
+      "prism_session:system_snapshot"
+    ],
+    "during_work": [
+      "prism_session:auto_checkpoint (every 5-10 tool calls)",
+      "prism_session:wip_capture"
+    ],
+    "session_end": [
+      "prism_session:memory_save",
+      "prism_session:system_snapshot",
+      "prism_session:checkpoint_enhanced"
+    ]
+  },
+  "sessions": [
+    {
+      "id": "HM-KC-MS2-S1",
+      "title": "Workholding + Stock Model Parameter Schemas (~100 params)",
+      "smart_config": {
+        "role": "fixture-domain-expert",
+        "model": "opus",
+        "effort": "MAX",
+        "context_budget": "40%"
+      },
+      "knowledge": [
+        "data/hypermill/HyperMillParameterCatalog.json (Fixture domain)",
+        "Fixture body, soft jaw, vise, chuck/collet, tombstone, vacuum/magnetic parameter lists",
+        "Stock model creation parameters (bounding box, offset solid, from body, cylinder)"
+      ],
+      "intent": "Generate schemas for all workholding device parameters and stock model creation parameters. Critical safety hooks for grip force vs cutting force, clamp zone interference with toolpath, and centrifugal jaw loss at high RPM.",
+      "skills": [
+        "/forge-schemas",
+        "/forge-hooks",
+        "/test",
+        "/checkpoint"
+      ],
+      "plugins": [
+        "Vitest MCP",
+        "ESLint MCP"
+      ],
+      "units": [
+        {
+          "id": "U-HKC12",
+          "title": "Workholding Parameter Schemas — vise, chuck, tombstone, vacuum ~60 parameters",
+          "description": "Generate schemas for all workholding types: fixture body (import, create, position, clamp zone), soft jaw (design from part, bore profile, step jaw, dovetail), vise (jaw width, opening, stop position, parallels), chuck/collet (3-jaw, 4-jaw, collet selection, grip force), tombstone (pallet layout, indexing, multi-part), vacuum/magnetic (zone definition, hold force, seal check). Safety hooks for grip force validation against computed cutting forces.",
+          "depends_on": [
+            "U-HKC06"
+          ],
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "exit_criteria": [
+            "Schemas generated for >= 55 workholding parameters across 6 device types",
+            "Grip force validation hook compares hold force to KienzleForceModel output",
+            "Chuck centrifugal loss hook warns when RPM × jaw mass exceeds grip margin",
+            "Unit tests for vise jaw width range and chuck grip force computation"
+          ],
+          "rollback": {
+            "files_created": [
+              "src/schemas/hypermill/fixture/workholdingSchemas.ts"
+            ],
+            "files_modified": [],
+            "abort_criteria": [
+              "tsc errors > 0"
+            ],
+            "rollback_procedure": "git checkout -- src/schemas/hypermill/fixture/"
+          }
+        },
+        {
+          "id": "U-HKC13",
+          "title": "Stock Model + WCS/Datum Parameter Schemas — ~40 parameters",
+          "description": "Generate schemas for stock model creation (from bounding box, offset solid, from body, cylinder — each with dimensions, material, allowance fields) and WCS/datum assignment (G54-G59 frame parameters, datum transfer rules, probe verification settings). Stock vs part interference hook ensures stock envelope fully contains the part.",
+          "depends_on": [
+            "U-HKC06"
+          ],
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "exit_criteria": [
+            "Stock model schemas: >= 16 parameters with allowance validation",
+            "WCS/Datum schemas: >= 20 parameters with frame consistency hooks",
+            "Stock interference hook validates stock > part in all dimensions",
+            "Unit tests for stock offset validation and WCS frame naming conventions"
+          ],
+          "rollback": {
+            "files_created": [
+              "src/schemas/hypermill/fixture/stockModelSchemas.ts",
+              "src/schemas/hypermill/fixture/wcsSchemas.ts"
+            ],
+            "files_modified": [],
+            "abort_criteria": [
+              "tsc errors > 0"
+            ],
+            "rollback_procedure": "git checkout -- src/schemas/hypermill/fixture/stockModelSchemas.ts src/schemas/hypermill/fixture/wcsSchemas.ts"
+          }
+        }
+      ],
+      "exit_gate": "✓ >= 95 fixture/stock/WCS schemas | ✓ grip force + stock interference hooks | omega_floor >= 0.90",
+      "feature_cascade": {
+        "new_hooks": [
+          "gripForceValidator",
+          "stockInterferenceValidator",
+          "centrifugalJawLossWarning"
+        ],
+        "new_actions": [
+          "generate_workholding_schemas",
+          "generate_stock_schemas"
+        ],
+        "new_skills": [],
+        "available_to": [
+          "HM-KC-MS8"
+        ]
+      },
+      "compact_checkpoint": true
+    },
+    {
+      "id": "HM-KC-MS2-S2",
+      "title": "Clearance/Heights + Setup + Artifact Generation (~100 params)",
+      "smart_config": {
+        "role": "fixture-domain-expert",
+        "model": "opus",
+        "effort": "MAX",
+        "context_budget": "40%"
+      },
+      "knowledge": [
+        "Clearance plane, retract, feed height, link parameters from Metric.cfg",
+        "Job management and coordinate system setup parameters",
+        "Allowance parameters (radial, axial, XY, corner radius, negative)"
+      ],
+      "intent": "Generate schemas for clearance/heights parameters, CAM setup parameters (job management, tool assignment, rest machining, transformation), allowance parameters, and then batch-generate all fixture domain artifacts (skills, scripts, hooks).",
+      "skills": [
+        "/forge-schemas",
+        "/forge-skills",
+        "/forge-hooks",
+        "/test",
+        "/checkpoint"
+      ],
+      "plugins": [
+        "Vitest MCP",
+        "ESLint MCP"
+      ],
+      "units": [
+        {
+          "id": "U-HKC14",
+          "title": "Clearance + Setup + Allowance Schemas — ~60 parameters",
+          "description": "Generate schemas for clearance/heights (clearance_plane, retract_height, feed_height, top_height, bottom_height, safety_offset per cycle), CAM setup (job create/modify/copy, coordinate system, tool assignment, rest machining source), and allowance (radial, axial, XY, corner radius, negative allowance). Critical clearance plane safety hook and negative allowance blocking hook.",
+          "depends_on": [
+            "U-HKC06"
+          ],
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "exit_criteria": [
+            "Clearance/heights schemas: >= 24 parameters with clearance plane safety hook",
+            "CAM setup schemas: >= 20 parameters with sequence validation",
+            "Allowance schemas: >= 12 parameters with negative allowance BLOCKING hook",
+            "Unit tests for clearance plane range validation and negative allowance rejection"
+          ],
+          "rollback": {
+            "files_created": [
+              "src/schemas/hypermill/fixture/clearanceSchemas.ts",
+              "src/schemas/hypermill/fixture/setupSchemas.ts",
+              "src/schemas/hypermill/fixture/allowanceSchemas.ts"
+            ],
+            "files_modified": [],
+            "abort_criteria": [
+              "tsc errors > 0"
+            ],
+            "rollback_procedure": "git checkout -- src/schemas/hypermill/fixture/clearanceSchemas.ts src/schemas/hypermill/fixture/setupSchemas.ts src/schemas/hypermill/fixture/allowanceSchemas.ts"
+          }
+        },
+        {
+          "id": "U-HKC15",
+          "title": "Fixture Domain Artifact Batch Generation — ~200 skills + scripts + hooks",
+          "description": "Artifact generation run for the entire fixture/setup domain. Reads all ~200 fixture parameter schemas and auto-generates skill templates, AC Python setter scripts, and hook validation rules. Registers clearance plane, negative allowance, grip force, stock interference, and WCS consistency hooks in HookExecutor.",
+          "depends_on": [
+            "U-HKC12",
+            "U-HKC13",
+            "U-HKC14"
+          ],
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "exit_criteria": [
+            "Skill templates generated for all ~200 fixture parameters",
+            "AC Python setter scripts generated for all ~200 fixture parameters",
+            ">= 11 safety hooks registered for fixture domain (clamp, clearance, allowance, WCS, stock)",
+            "tsc --noEmit passes with 0 errors on all generated artifacts"
+          ],
+          "rollback": {
+            "files_created": [
+              "src/engines/hypermill/HyperMillFixtureArtifactGeneratorEngine.ts"
+            ],
+            "files_modified": [
+              "src/hooks/hookRegistry.ts"
+            ],
+            "abort_criteria": [
+              "tsc errors > 0"
+            ],
+            "rollback_procedure": "git checkout -- src/engines/hypermill/HyperMillFixtureArtifactGeneratorEngine.ts src/hooks/hookRegistry.ts"
+          }
+        }
+      ],
+      "exit_gate": "✓ >= 195 total fixture schemas | ✓ ~200 skills + scripts | ✓ >= 11 hooks registered | omega_floor >= 0.90",
+      "feature_cascade": {
+        "new_hooks": [
+          "clearancePlaneSafetyHook",
+          "negativeAllowanceBlocker",
+          "wcsConsistencyValidator"
+        ],
+        "new_actions": [
+          "generate_fixture_catalog"
+        ],
+        "new_skills": [
+          "/hypermill-fixture-params"
+        ],
+        "available_to": [
+          "HM-KC-MS8",
+          "HM-KC-MS9"
+        ]
+      },
+      "compact_checkpoint": true
+    }
+  ],
+  "total_units": 4,
+  "completed_units": 4,
+  "smart_config": {
+    "role": "implementer + reviewer",
+    "model": "sonnet",
+    "effort": "HIGH",
+    "context_budget": "65%"
+  },
+  "feature_cascade": {
+    "new_hooks": [
+      "hm-kc-ms2-gate"
+    ],
+    "new_actions": [
+      "hm_kc_ms2_run"
+    ],
+    "new_skills": [
+      "/hm-kc-ms2"
+    ],
+    "available_to": [
+      "downstream CAMX milestones",
+      "prism app consumers"
+    ]
+  },
+  "intent": "Generate parameter schemas, skills, scripts, and hooks for the fixture and setup domain: fixture body import/creation (~4 params), soft jaw design (~4), vise setup (~4), chuck/collet selection (~4), tombstone/pallet layout (~3), vacuum/magnetic workholding (~3), stock model creation (~4), WCS/datum assignment (~4), clearance planes (~6), allowance settings (~4), and coordinate system configuration (~4). Includes critical safety hooks for clamp interference, grip force vs cutting force, and clearance plane validation.",
+  "compact_checkpoint": "every 3 units — auto-triggered by hook",
+  "enforcement_hooks_active": [
+    "physics agent",
+    "wiring agent",
+    "constants checker",
+    "stub detector",
+    "test quality",
+    "forge-triple gate",
+    "session audit agent"
+  ],
+  "units": [
+    {
+      "id": "U-HKKC01",
+      "title": "HM-KC-MS2 — Coordinator",
+      "description": "Master coordinator envelope for HM-KC-MS2. Tracks sub-milestones, aggregates their exit gates, and opens closure after every child milestone flips to complete. Follow 4-LOOP at the aggregation layer.",
+      "exit_conditions": [
+        "All sub-milestones listed in dependencies reach status=complete",
+        "Aggregate scrutiny score ≥80 across children",
+        "Cross-track coherence verified: no orphan engines, no duplicate actions",
+        "Final /rgs pass through the 10-agent gate returns PASS"
+      ],
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ],
+      "status": "pending",
+      "role": "coordinator"
+    }
+  ],
+  "_role": "coordinator"
+}

@@ -1,0 +1,72 @@
+{
+  "summary": {
+    "totalFires": 2296,
+    "totalTakes": 5,
+    "fleetTakeRate": 0.0022,
+    "dominantClassifier": "backendAuditChain",
+    "dominantShare": 0.7326,
+    "healthSignal": "below-target-take-rate"
+  },
+  "rows": [
+    {
+      "classifier": "backendAuditChain",
+      "fires": 1682,
+      "takes": 1,
+      "takeRate": 0.0005945303210463733,
+      "share": 0.7325783972125436,
+      "recommendation": "suppress"
+    },
+    {
+      "classifier": "doctrineSurface",
+      "fires": 468,
+      "takes": 4,
+      "takeRate": 0.008547008547008548,
+      "share": 0.2038327526132404,
+      "recommendation": "retune"
+    },
+    {
+      "classifier": "isLargeRead",
+      "fires": 77,
+      "takes": 0,
+      "takeRate": 0,
+      "share": 0.03353658536585366,
+      "recommendation": "verify-wiring"
+    },
+    {
+      "classifier": "isVerboseBash",
+      "fires": 65,
+      "takes": 0,
+      "takeRate": 0,
+      "share": 0.028310104529616725,
+      "recommendation": "verify-wiring"
+    },
+    {
+      "classifier": "ollama",
+      "fires": 2,
+      "takes": 0,
+      "takeRate": 0,
+      "share": 0.0008710801393728223,
+      "recommendation": "keep"
+    },
+    {
+      "classifier": "isBroadGrep",
+      "fires": 1,
+      "takes": 0,
+      "takeRate": 0,
+      "share": 0.00043554006968641115,
+      "recommendation": "keep"
+    },
+    {
+      "classifier": "isBroadGlob",
+      "fires": 1,
+      "takes": 0,
+      "takeRate": 0,
+      "share": 0.00043554006968641115,
+      "recommendation": "keep"
+    }
+  ],
+  "meta": {
+    "ts": "2026-05-26T19:31:57.018Z",
+    "statsFile": "H:/prism/state/shared/mcp-route-suggest-stats.json"
+  }
+}

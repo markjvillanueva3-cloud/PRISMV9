@@ -29,8 +29,7 @@ related:
 
 ## Description (first paragraph)
 
-
-# /post-generate — Generate NC Code from CAM
+Generate production-ready NC code with adaptive parameter injection.
 
 <!-- AUTO-END -->
 

@@ -211,5 +211,7 @@ export function recordTaskEvent(input: {
     throw new Error(`Tracked task ${input.taskId} was not found in the current shop-floor task set.`);
   }
 
-  return { tasks };
+  // tasks.map branches widen status into a string union per branch; cast to the
+  // narrowed Task type since all branches preserve the discriminated structure.
+  return { tasks: tasks as ShopFloorTrackedTask[] };
 }

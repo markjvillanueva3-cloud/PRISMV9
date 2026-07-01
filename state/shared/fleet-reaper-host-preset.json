@@ -1,0 +1,18 @@
+{
+  "schemaVersion": 1,
+  "host": "DESKTOP-N7MI1VB",
+  "preset": "home",
+  "appliedAt": "2026-05-23T15:49:20Z",
+  "appliedBy": "claude-30a6a98b (slot:golf, U-RAG-PSN-OS-WIRE session)",
+  "env": {
+    "PRISM_FLEET_REAPER_OLLAMA_MODEL": "qwen2.5-coder:7b",
+    "PRISM_FLEET_REAPER_OLLAMA_KEEPALIVE_MIN": "10",
+    "PRISM_FLEET_REAPER_GPU_FLOOR_MB": "2048",
+    "PRISM_FLEET_REAPER_PRESSURE_FLOOR_PCT": "90",
+    "PRISM_FLEET_REAPER_PREWARM": "1",
+    "PRISM_FLEET_REAPER_HOST_TIER": "home",
+    "PRISM_FLEET_REAPER_SOFT_RELIEF_AGGRESSIVE": "1",
+    "PRISM_FLEET_REAPER_MCP_ZOMBIE_HUNT": "1"
+  },
+  "rationale": "128GB RAM home machine — RTX 4080+ class. Permits longer keep-alive, larger GPU floor, higher pressure trigger. Aggressive soft-relief turned on to catch MCP-server zombies (this session found 106 mcp-server processes, root cause of 81% memory pressure)."
+}

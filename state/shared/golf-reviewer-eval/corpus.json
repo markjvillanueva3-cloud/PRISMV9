@@ -1,0 +1,88 @@
+{
+  "schemaVersion": 1,
+  "description": "CLEANUP-MS0/U-CLEANUP-B9 — frozen model-drift eval corpus for the golf peer-commit reviewer. 10 known-bug commits with operator-verified verdicts. The weekly cron (32-golf-reviewer-drift-eval.ps1) runs the reviewer against these and tracks accuracy in accuracy-history.jsonl. SEEDING: replace each placeholder commitSha (\"\") with a real historical commit SHA from this repo whose verdict is independently known; until seeded, the cron reports corpus_unseeded and never pollutes the accuracy trend. expectedVerdict in {bug,clean,needs-review}; expectedSeverity in {P0,P1,P2,P3,none}. promptVersion lets the suite flag prompt drift separately from model drift.",
+  "generator": "U-CLEANUP-B9 (golf-reviewer-drift-eval.mjs ships this skeleton)",
+  "lastSeededAt": null,
+  "entries": [
+    {
+      "id": "eval-01-p0-inlined-physics-constant",
+      "commitSha": "",
+      "description": "A commit that inlined a Kienzle kc1.1 constant instead of importing from src/physics/constants.ts — the reviewer must catch this as a P0 (safety-critical: a drifted constant scraps parts).",
+      "expectedVerdict": "bug",
+      "expectedSeverity": "P0",
+      "promptVersion": "v1"
+    },
+    {
+      "id": "eval-02-p0-stub-engine-return",
+      "commitSha": "",
+      "description": "A commit that shipped a stub engine returning a hardcoded placeholder — reviewer must catch as P0 (comprehensive-build-enforce violation).",
+      "expectedVerdict": "bug",
+      "expectedSeverity": "P0",
+      "promptVersion": "v1"
+    },
+    {
+      "id": "eval-03-p1-missing-dispatcher-wiring",
+      "commitSha": "",
+      "description": "A new engine committed without dispatcher wiring (no import + action enum + schema) — reviewer must catch as P1.",
+      "expectedVerdict": "bug",
+      "expectedSeverity": "P1",
+      "promptVersion": "v1"
+    },
+    {
+      "id": "eval-04-p1-weakened-test-assertion",
+      "commitSha": "",
+      "description": "A commit that weakened a real assertion to toBeDefined() to make a test green — reviewer must catch as P1.",
+      "expectedVerdict": "bug",
+      "expectedSeverity": "P1",
+      "promptVersion": "v1"
+    },
+    {
+      "id": "eval-05-p2-magic-number-uninlined",
+      "commitSha": "",
+      "description": "A commit with a magic number that should be a named constant — reviewer should flag as P2.",
+      "expectedVerdict": "bug",
+      "expectedSeverity": "P2",
+      "promptVersion": "v1"
+    },
+    {
+      "id": "eval-06-p2-missing-edge-case",
+      "commitSha": "",
+      "description": "A commit whose function lacks a documented edge-case guard (empty/null) — reviewer should flag as P2.",
+      "expectedVerdict": "bug",
+      "expectedSeverity": "P2",
+      "promptVersion": "v1"
+    },
+    {
+      "id": "eval-07-p3-docblock-drift",
+      "commitSha": "",
+      "description": "A commit whose JSDoc no longer matches the function signature — reviewer should flag as P3.",
+      "expectedVerdict": "bug",
+      "expectedSeverity": "P3",
+      "promptVersion": "v1"
+    },
+    {
+      "id": "eval-08-clean-pure-refactor",
+      "commitSha": "",
+      "description": "A clean, behavior-preserving refactor with tests intact — reviewer must NOT flag a false positive (verdict=clean).",
+      "expectedVerdict": "clean",
+      "expectedSeverity": "none",
+      "promptVersion": "v1"
+    },
+    {
+      "id": "eval-09-clean-doc-only",
+      "commitSha": "",
+      "description": "A documentation-only commit — reviewer must return clean (no false positive on prose changes).",
+      "expectedVerdict": "clean",
+      "expectedSeverity": "none",
+      "promptVersion": "v1"
+    },
+    {
+      "id": "eval-10-needs-review-ambiguous-physics",
+      "commitSha": "",
+      "description": "A commit touching a physics formula whose correctness depends on context the diff alone can't establish — reviewer should return needs-review (escalate, don't guess).",
+      "expectedVerdict": "needs-review",
+      "expectedSeverity": "none",
+      "promptVersion": "v1"
+    }
+  ]
+}

@@ -23,11 +23,12 @@ related:
 |-------|-------|
 | Name | `health` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/health.md` |
+| Source | `C:/Users/wompu/.claude/commands/health.md` |
 | Model | default |
 | Tags | _(none)_ |
 
 ## Description (first paragraph)
+
 
 ---
 effort: high
@@ -44,7 +45,7 @@ You are running a comprehensive health check on the PRISM MCP Server system. Che
 - Empty: full health check
 - `build`: build health only
 - `drift`: roadmap drift only
-- `claims`: claim s
+- `claims`: claim
 
 <!-- AUTO-END -->
 

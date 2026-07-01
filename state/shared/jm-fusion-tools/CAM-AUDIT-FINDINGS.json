@@ -1,0 +1,665 @@
+{
+  "generatedAt": null,
+  "root": "H:/prism/state/shared/jm-fusion-tools",
+  "stats": {
+    "files": 139,
+    "toolsAudited": 2702,
+    "mcamFiles": 2,
+    "hmtFiles": 2,
+    "fusionCsvFiles": 135
+  },
+  "counts": {
+    "P0": 2,
+    "P1": 4,
+    "P2": 4,
+    "info": 81
+  },
+  "byDim": {
+    "D2-unit": 4,
+    "D1-complete": 2,
+    "D7-uniformity": 4,
+    "D6-dup": 80,
+    "D5-xcam": 1
+  },
+  "findings": [
+    {
+      "severity": "P0",
+      "file": "JM_CRIB.mcam-tools",
+      "dim": "D2-unit",
+      "toolRef": "  SXZCR2020K15",
+      "message": "diameter_mm 161.29 outside [0.1,100] -- possible 25.4x scale error",
+      "value": 161.29
+    },
+    {
+      "severity": "P0",
+      "file": "JM_CRIB.mcam-tools",
+      "dim": "D2-unit",
+      "toolRef": "  SXZCR2020K15",
+      "message": "shank_diameter_mm 161.29 > 100mm -- gross 25.4x scale error (CAM will reject)",
+      "value": 161.29
+    },
+    {
+      "severity": "P1",
+      "file": "JM_CRIB.mcam-tools",
+      "dim": "D1-complete",
+      "toolRef": "PRISM-JM_DIE-154",
+      "message": "flute_length_mm missing/<=0 (0)"
+    },
+    {
+      "severity": "P1",
+      "file": "JM_CRIB.mcam-tools",
+      "dim": "D1-complete",
+      "toolRef": "OD THREADING",
+      "message": "flute_length_mm missing/<=0 (0)"
+    },
+    {
+      "severity": "P1",
+      "file": "JM_CRIB.mcam-tools",
+      "dim": "D2-unit",
+      "toolRef": "ID Grooving",
+      "message": "overall_length_mm 2.79 outside [3,600]"
+    },
+    {
+      "severity": "P1",
+      "file": "JM_CRIB.mcam-tools",
+      "dim": "D2-unit",
+      "toolRef": "  SXZCR2020K15",
+      "message": "overall_length_mm 762 outside [3,600]"
+    },
+    {
+      "severity": "P2",
+      "file": "JM_CRIB.mcam-tools",
+      "dim": "D7-uniformity",
+      "toolRef": null,
+      "message": "ALL 218 tools coating=\"uncoated\" -- likely lost catalog coating data (coated tools allow 30-80% higher vc)"
+    },
+    {
+      "severity": "P2",
+      "file": "JM_CRIB.mcam-tools",
+      "dim": "D7-uniformity",
+      "toolRef": null,
+      "message": "ALL 218 tools share helix_angle_deg=35 -- likely a default, not per-tool catalog data"
+    },
+    {
+      "severity": "P2",
+      "file": "JM_HELICAL_END_MILLS.mcam-tools",
+      "dim": "D7-uniformity",
+      "toolRef": null,
+      "message": "ALL 2484 tools coating=\"uncoated\" -- likely lost catalog coating data (coated tools allow 30-80% higher vc)"
+    },
+    {
+      "severity": "P2",
+      "file": "JM_HELICAL_END_MILLS.mcam-tools",
+      "dim": "D7-uniformity",
+      "toolRef": null,
+      "message": "ALL 2484 tools share helix_angle_deg=35 -- likely a default, not per-tool catalog data"
+    },
+    {
+      "severity": "info",
+      "file": "JM_CRIB.mcam-tools",
+      "dim": "D6-dup",
+      "toolRef": ".437 ",
+      "message": "duplicate part_number \".437\""
+    },
+    {
+      "severity": "info",
+      "file": "JM_CRIB.mcam-tools",
+      "dim": "D6-dup",
+      "toolRef": ".4688",
+      "message": "duplicate part_number \".4688\""
+    },
+    {
+      "severity": "info",
+      "file": "JM_CRIB.mcam-tools",
+      "dim": "D6-dup",
+      "toolRef": ".484",
+      "message": "duplicate part_number \".484\""
+    },
+    {
+      "severity": "info",
+      "file": "JM_CRIB.mcam-tools",
+      "dim": "D6-dup",
+      "toolRef": ".493",
+      "message": "duplicate part_number \".493\""
+    },
+    {
+      "severity": "info",
+      "file": "JM_CRIB.mcam-tools",
+      "dim": "D6-dup",
+      "toolRef": ".500 ",
+      "message": "duplicate part_number \".500\""
+    },
+    {
+      "severity": "info",
+      "file": "JM_CRIB.mcam-tools",
+      "dim": "D6-dup",
+      "toolRef": ".515",
+      "message": "duplicate part_number \".515\""
+    },
+    {
+      "severity": "info",
+      "file": "JM_CRIB.mcam-tools",
+      "dim": "D6-dup",
+      "toolRef": ".531 ",
+      "message": "duplicate part_number \".531\""
+    },
+    {
+      "severity": "info",
+      "file": "JM_CRIB.mcam-tools",
+      "dim": "D6-dup",
+      "toolRef": ".5625 ",
+      "message": "duplicate part_number \".5625\""
+    },
+    {
+      "severity": "info",
+      "file": "JM_CRIB.mcam-tools",
+      "dim": "D6-dup",
+      "toolRef": ".568 ",
+      "message": "duplicate part_number \".568\""
+    },
+    {
+      "severity": "info",
+      "file": "JM_CRIB.mcam-tools",
+      "dim": "D6-dup",
+      "toolRef": ".593 ",
+      "message": "duplicate part_number \".593\""
+    },
+    {
+      "severity": "info",
+      "file": "JM_CRIB.mcam-tools",
+      "dim": "D6-dup",
+      "toolRef": ".610",
+      "message": "duplicate part_number \".610\""
+    },
+    {
+      "severity": "info",
+      "file": "JM_CRIB.mcam-tools",
+      "dim": "D6-dup",
+      "toolRef": ".625",
+      "message": "duplicate part_number \".625\""
+    },
+    {
+      "severity": "info",
+      "file": "JM_CRIB.mcam-tools",
+      "dim": "D6-dup",
+      "toolRef": ".656",
+      "message": "duplicate part_number \".656\""
+    },
+    {
+      "severity": "info",
+      "file": "JM_CRIB.mcam-tools",
+      "dim": "D6-dup",
+      "toolRef": ".6875",
+      "message": "duplicate part_number \".6875\""
+    },
+    {
+      "severity": "info",
+      "file": "JM_CRIB.mcam-tools",
+      "dim": "D6-dup",
+      "toolRef": ".708",
+      "message": "duplicate part_number \".708\""
+    },
+    {
+      "severity": "info",
+      "file": "JM_CRIB.mcam-tools",
+      "dim": "D6-dup",
+      "toolRef": ".7188",
+      "message": "duplicate part_number \".7188\""
+    },
+    {
+      "severity": "info",
+      "file": "JM_CRIB.mcam-tools",
+      "dim": "D6-dup",
+      "toolRef": ".728",
+      "message": "duplicate part_number \".728\""
+    },
+    {
+      "severity": "info",
+      "file": "JM_CRIB.mcam-tools",
+      "dim": "D6-dup",
+      "toolRef": ".737",
+      "message": "duplicate part_number \".737\""
+    },
+    {
+      "severity": "info",
+      "file": "JM_CRIB.mcam-tools",
+      "dim": "D6-dup",
+      "toolRef": ".75",
+      "message": "duplicate part_number \".75\""
+    },
+    {
+      "severity": "info",
+      "file": "JM_CRIB.mcam-tools",
+      "dim": "D6-dup",
+      "toolRef": ".787",
+      "message": "duplicate part_number \".787\""
+    },
+    {
+      "severity": "info",
+      "file": "JM_CRIB.mcam-tools",
+      "dim": "D6-dup",
+      "toolRef": ".812 ",
+      "message": "duplicate part_number \".812\""
+    },
+    {
+      "severity": "info",
+      "file": "JM_CRIB.mcam-tools",
+      "dim": "D6-dup",
+      "toolRef": ".821",
+      "message": "duplicate part_number \".821\""
+    },
+    {
+      "severity": "info",
+      "file": "JM_CRIB.mcam-tools",
+      "dim": "D6-dup",
+      "toolRef": ".838 ",
+      "message": "duplicate part_number \".838\""
+    },
+    {
+      "severity": "info",
+      "file": "JM_CRIB.mcam-tools",
+      "dim": "D6-dup",
+      "toolRef": ".843",
+      "message": "duplicate part_number \".843\""
+    },
+    {
+      "severity": "info",
+      "file": "JM_CRIB.mcam-tools",
+      "dim": "D6-dup",
+      "toolRef": ".859 ",
+      "message": "duplicate part_number \".859\""
+    },
+    {
+      "severity": "info",
+      "file": "JM_CRIB.mcam-tools",
+      "dim": "D6-dup",
+      "toolRef": ".868",
+      "message": "duplicate part_number \".868\""
+    },
+    {
+      "severity": "info",
+      "file": "JM_CRIB.mcam-tools",
+      "dim": "D6-dup",
+      "toolRef": ".875",
+      "message": "duplicate part_number \".875\""
+    },
+    {
+      "severity": "info",
+      "file": "JM_CRIB.mcam-tools",
+      "dim": "D6-dup",
+      "toolRef": ".893",
+      "message": "duplicate part_number \".893\""
+    },
+    {
+      "severity": "info",
+      "file": "JM_CRIB.mcam-tools",
+      "dim": "D6-dup",
+      "toolRef": ".906 ",
+      "message": "duplicate part_number \".906\""
+    },
+    {
+      "severity": "info",
+      "file": "JM_CRIB.mcam-tools",
+      "dim": "D6-dup",
+      "toolRef": ".925 ",
+      "message": "duplicate part_number \".925\""
+    },
+    {
+      "severity": "info",
+      "file": "JM_CRIB.mcam-tools",
+      "dim": "D6-dup",
+      "toolRef": ".9375 ",
+      "message": "duplicate part_number \".9375\""
+    },
+    {
+      "severity": "info",
+      "file": "JM_CRIB.mcam-tools",
+      "dim": "D6-dup",
+      "toolRef": ".9449 ",
+      "message": "duplicate part_number \".9449\""
+    },
+    {
+      "severity": "info",
+      "file": "JM_CRIB.mcam-tools",
+      "dim": "D6-dup",
+      "toolRef": ".968 ",
+      "message": "duplicate part_number \".968\""
+    },
+    {
+      "severity": "info",
+      "file": "JM_CRIB.mcam-tools",
+      "dim": "D6-dup",
+      "toolRef": ".981",
+      "message": "duplicate part_number \".981\""
+    },
+    {
+      "severity": "info",
+      "file": "JM_CRIB.mcam-tools",
+      "dim": "D6-dup",
+      "toolRef": ".984",
+      "message": "duplicate part_number \".984\""
+    },
+    {
+      "severity": "info",
+      "file": "JM_CRIB.mcam-tools",
+      "dim": "D6-dup",
+      "toolRef": "1\" ",
+      "message": "duplicate part_number \"1\"\""
+    },
+    {
+      "severity": "info",
+      "file": "JM_CRIB.mcam-tools",
+      "dim": "D6-dup",
+      "toolRef": "1.015",
+      "message": "duplicate part_number \"1.015\""
+    },
+    {
+      "severity": "info",
+      "file": "JM_CRIB.mcam-tools",
+      "dim": "D6-dup",
+      "toolRef": "1.031",
+      "message": "duplicate part_number \"1.031\""
+    },
+    {
+      "severity": "info",
+      "file": "JM_CRIB.mcam-tools",
+      "dim": "D6-dup",
+      "toolRef": "1.063",
+      "message": "duplicate part_number \"1.063\""
+    },
+    {
+      "severity": "info",
+      "file": "JM_CRIB.mcam-tools",
+      "dim": "D6-dup",
+      "toolRef": "1.093",
+      "message": "duplicate part_number \"1.093\""
+    },
+    {
+      "severity": "info",
+      "file": "JM_CRIB.mcam-tools",
+      "dim": "D6-dup",
+      "toolRef": "1.125",
+      "message": "duplicate part_number \"1.125\""
+    },
+    {
+      "severity": "info",
+      "file": "JM_CRIB.mcam-tools",
+      "dim": "D6-dup",
+      "toolRef": "1.156",
+      "message": "duplicate part_number \"1.156\""
+    },
+    {
+      "severity": "info",
+      "file": "JM_CRIB.mcam-tools",
+      "dim": "D6-dup",
+      "toolRef": "1.1875",
+      "message": "duplicate part_number \"1.1875\""
+    },
+    {
+      "severity": "info",
+      "file": "JM_CRIB.mcam-tools",
+      "dim": "D6-dup",
+      "toolRef": "1.218",
+      "message": "duplicate part_number \"1.218\""
+    },
+    {
+      "severity": "info",
+      "file": "JM_CRIB.mcam-tools",
+      "dim": "D6-dup",
+      "toolRef": "1.25",
+      "message": "duplicate part_number \"1.25\""
+    },
+    {
+      "severity": "info",
+      "file": "JM_CRIB.mcam-tools",
+      "dim": "D6-dup",
+      "toolRef": "1.281",
+      "message": "duplicate part_number \"1.281\""
+    },
+    {
+      "severity": "info",
+      "file": "JM_CRIB.mcam-tools",
+      "dim": "D6-dup",
+      "toolRef": "1.3125",
+      "message": "duplicate part_number \"1.3125\""
+    },
+    {
+      "severity": "info",
+      "file": "JM_CRIB.mcam-tools",
+      "dim": "D6-dup",
+      "toolRef": "1.350 ",
+      "message": "duplicate part_number \"1.350\""
+    },
+    {
+      "severity": "info",
+      "file": "JM_CRIB.mcam-tools",
+      "dim": "D6-dup",
+      "toolRef": "1.375",
+      "message": "duplicate part_number \"1.375\""
+    },
+    {
+      "severity": "info",
+      "file": "JM_CRIB.mcam-tools",
+      "dim": "D6-dup",
+      "toolRef": "1.406",
+      "message": "duplicate part_number \"1.406\""
+    },
+    {
+      "severity": "info",
+      "file": "JM_CRIB.mcam-tools",
+      "dim": "D6-dup",
+      "toolRef": "1.5",
+      "message": "duplicate part_number \"1.5\""
+    },
+    {
+      "severity": "info",
+      "file": "JM_CRIB.mcam-tools",
+      "dim": "D6-dup",
+      "toolRef": "5/16 CARBIDE BORING BAR",
+      "message": "duplicate part_number \"5/16 CARBIDE BORING BAR\""
+    },
+    {
+      "severity": "info",
+      "file": "JM_CRIB.mcam-tools",
+      "dim": "D6-dup",
+      "toolRef": "1\" CARBIDE BORING BAR ",
+      "message": "duplicate part_number \"1\" CARBIDE BORING BAR\""
+    },
+    {
+      "severity": "info",
+      "file": "JM_CRIB.mcam-tools",
+      "dim": "D6-dup",
+      "toolRef": "1/2 CARBIDE BORING BAR",
+      "message": "duplicate part_number \"1/2 CARBIDE BORING BAR\""
+    },
+    {
+      "severity": "info",
+      "file": "JM_CRIB.mcam-tools",
+      "dim": "D6-dup",
+      "toolRef": "1/4 CARBIDE BORING BAR",
+      "message": "duplicate part_number \"1/4 CARBIDE BORING BAR\""
+    },
+    {
+      "severity": "info",
+      "file": "JM_CRIB.mcam-tools",
+      "dim": "D6-dup",
+      "toolRef": "3/4 CARBIDE BORING BAR",
+      "message": "duplicate part_number \"3/4 CARBIDE BORING BAR\""
+    },
+    {
+      "severity": "info",
+      "file": "JM_CRIB.mcam-tools",
+      "dim": "D6-dup",
+      "toolRef": "3/8 CARBIDE BORING BAR",
+      "message": "duplicate part_number \"3/8 CARBIDE BORING BAR\""
+    },
+    {
+      "severity": "info",
+      "file": "JM_CRIB.mcam-tools",
+      "dim": "D6-dup",
+      "toolRef": "5/8 CARBIDE BORING BAR",
+      "message": "duplicate part_number \"5/8 CARBIDE BORING BAR\""
+    },
+    {
+      "severity": "info",
+      "file": "JM_CRIB.mcam-tools",
+      "dim": "D6-dup",
+      "toolRef": "1\" CARBIDE BORING BAR ",
+      "message": "duplicate part_number \"1\" CARBIDE BORING BAR\""
+    },
+    {
+      "severity": "info",
+      "file": "JM_CRIB.mcam-tools",
+      "dim": "D6-dup",
+      "toolRef": ".375 CARBIDE BORING BAR",
+      "message": "duplicate part_number \".375 CARBIDE BORING BAR\""
+    },
+    {
+      "severity": "info",
+      "file": "JM_CRIB.mcam-tools",
+      "dim": "D6-dup",
+      "toolRef": ".3125 CARBIDE BORING BAR",
+      "message": "duplicate part_number \".3125 CARBIDE BORING BAR\""
+    },
+    {
+      "severity": "info",
+      "file": "JM_CRIB.mcam-tools",
+      "dim": "D6-dup",
+      "toolRef": ".500 CARBIDE BORING BAR",
+      "message": "duplicate part_number \".500 CARBIDE BORING BAR\""
+    },
+    {
+      "severity": "info",
+      "file": "JM_CRIB.mcam-tools",
+      "dim": "D6-dup",
+      "toolRef": ".25 CARBIDE BORING BAR",
+      "message": "duplicate part_number \".25 CARBIDE BORING BAR\""
+    },
+    {
+      "severity": "info",
+      "file": "JM_CRIB.mcam-tools",
+      "dim": "D6-dup",
+      "toolRef": ".625 CARBIDE BORING BAR",
+      "message": "duplicate part_number \".625 CARBIDE BORING BAR\""
+    },
+    {
+      "severity": "info",
+      "file": "JM_CRIB.mcam-tools",
+      "dim": "D6-dup",
+      "toolRef": ".750 CARBIDE BORING BAR",
+      "message": "duplicate part_number \".750 CARBIDE BORING BAR\""
+    },
+    {
+      "severity": "info",
+      "file": "JM_CRIB.mcam-tools",
+      "dim": "D6-dup",
+      "toolRef": "1\" CARBIDE BORING BAR ",
+      "message": "duplicate part_number \"1\" CARBIDE BORING BAR\""
+    },
+    {
+      "severity": "info",
+      "file": "JM_CRIB.mcam-tools",
+      "dim": "D6-dup",
+      "toolRef": "1/2\" .875 LOC .03R",
+      "message": "duplicate part_number \"1/2\" .875 LOC .03R\""
+    },
+    {
+      "severity": "info",
+      "file": "JM_CRIB.mcam-tools",
+      "dim": "D6-dup",
+      "toolRef": "1/2\" .875 LOC .03R",
+      "message": "duplicate part_number \"1/2\" .875 LOC .03R\""
+    },
+    {
+      "severity": "info",
+      "file": "JM_CRIB.mcam-tools",
+      "dim": "D6-dup",
+      "toolRef": "1/2\" .875 LOC .03R",
+      "message": "duplicate part_number \"1/2\" .875 LOC .03R\""
+    },
+    {
+      "severity": "info",
+      "file": "JM_CRIB.mcam-tools",
+      "dim": "D6-dup",
+      "toolRef": "VCMT - MACHINE 1 ",
+      "message": "duplicate part_number \"VCMT - MACHINE 1\""
+    },
+    {
+      "severity": "info",
+      "file": "JM_CRIB.mcam-tools",
+      "dim": "D6-dup",
+      "toolRef": "VCMT - MACHINE 4",
+      "message": "duplicate part_number \"VCMT - MACHINE 4\""
+    },
+    {
+      "severity": "info",
+      "file": "JM_CRIB.mcam-tools",
+      "dim": "D6-dup",
+      "toolRef": "VCMT - MACHINE 4",
+      "message": "duplicate part_number \"VCMT - MACHINE 4\""
+    },
+    {
+      "severity": "info",
+      "file": "JM_CRIB.mcam-tools",
+      "dim": "D6-dup",
+      "toolRef": "ID Grooving",
+      "message": "duplicate part_number \"ID Grooving\""
+    },
+    {
+      "severity": "info",
+      "file": "JM_CRIB.mcam-tools",
+      "dim": "D6-dup",
+      "toolRef": "CNMT Right Hand NEW INSERTS",
+      "message": "duplicate part_number \"CNMT Right Hand NEW INSERTS\""
+    },
+    {
+      "severity": "info",
+      "file": "JM_CRIB.mcam-tools",
+      "dim": "D6-dup",
+      "toolRef": "CNMT Right Hand NEW INSERTS",
+      "message": "duplicate part_number \"CNMT Right Hand NEW INSERTS\""
+    },
+    {
+      "severity": "info",
+      "file": "JM_CRIB.mcam-tools",
+      "dim": "D6-dup",
+      "toolRef": "CNMT Right Hand NEW INSERT",
+      "message": "duplicate part_number \"CNMT Right Hand NEW INSERT\""
+    },
+    {
+      "severity": "info",
+      "file": "JM_CRIB.mcam-tools",
+      "dim": "D6-dup",
+      "toolRef": "CNMT Right Hand NEW INSERT",
+      "message": "duplicate part_number \"CNMT Right Hand NEW INSERT\""
+    },
+    {
+      "severity": "info",
+      "file": "JM_CRIB.mcam-tools",
+      "dim": "D6-dup",
+      "toolRef": ".375",
+      "message": "duplicate part_number \".375\""
+    },
+    {
+      "severity": "info",
+      "file": "JM_CRIB.mcam-tools",
+      "dim": "D6-dup",
+      "toolRef": ".437 ",
+      "message": "duplicate part_number \".437\""
+    },
+    {
+      "severity": "info",
+      "file": "JM_CRIB.mcam-tools",
+      "dim": "D6-dup",
+      "toolRef": ".493",
+      "message": "duplicate part_number \".493\""
+    },
+    {
+      "severity": "info",
+      "file": "JM-HELICAL-END-MILLS.fusion.csv",
+      "dim": "D5-xcam",
+      "toolRef": null,
+      "message": "cross-CAM matched 2484 tools vs Fusion CSV, 0 geometry mismatch(es)"
+    }
+  ]
+}

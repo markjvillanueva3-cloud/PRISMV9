@@ -1,0 +1,890 @@
+{
+  "id": "CCM-MS12",
+  "version": "1.0.0",
+  "title": "Autonomous Bot & Messaging Integration",
+  "brief": "Make PRISM accessible via messaging platforms (Discord/Slack) for autonomous manufacturing assistance, inspired by OpenClaw model. Discord bot scaffold, slash command mapping, conversational context per channel, autonomous pipeline execution, rich embeds, multi-user isolation, notifications, webhook receivers, rate limiting, cross-platform adapter.",
+  "created_at": "2026-03-20T12:00:00Z",
+  "created_by": "claude-opus-4.6",
+  "track": "CCM",
+  "track_name": "Claude Code Modernization",
+  "status": "not_started",
+  "dependencies": [
+    "CCM-MS8",
+    "CCM-MS9"
+  ],
+  "wave": 4,
+  "phases": [
+    {
+      "id": "P0",
+      "title": "Autonomous Bot & Messaging Integration",
+      "description": "Build messaging platform integrations (Discord, Slack, Teams, Telegram) for autonomous PRISM manufacturing assistance. Bot scaffold, slash commands, conversational context, pipeline execution, rich formatting, multi-user isolation, notifications, webhooks, rate limiting, cross-platform abstraction.",
+      "sessions": "4-6",
+      "primary_role": "R1",
+      "primary_model": "opus-4.6",
+      "units": [
+        {
+          "id": "P0-U01",
+          "title": "Discord bot scaffold",
+          "phase": "P0",
+          "sequence": 1,
+          "role": "R1",
+          "role_name": "Systems Architect",
+          "model": "opus-4.6",
+          "effort": 85,
+          "rationale": "Create Discord bot that receives manufacturing queries from chat, routes them to PRISM MCP server, and returns results -- the foundation for all messaging integrations.",
+          "tools": [
+            "Write",
+            "Read",
+            "Bash"
+          ],
+          "skills": [],
+          "scripts": [
+            "src/bot/discord-bot.ts"
+          ],
+          "hooks": [],
+          "features": [
+            "Discord bot connecting to PRISM MCP server"
+          ],
+          "dependencies": [],
+          "entry_conditions": [
+            "PRISM MCP server running",
+            "Discord bot token configured"
+          ],
+          "exit_conditions": [
+            "Bot connects to Discord",
+            "Responds to manufacturing queries via MCP",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
+          ],
+          "rollback": "git checkout -- src/bot/",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Create src/bot/discord-bot.ts using discord.js library"
+            },
+            {
+              "number": 2,
+              "instruction": "Implement message handler that routes natural language to PRISM dispatchers"
+            },
+            {
+              "number": 3,
+              "instruction": "Add intent classification: speed/feed query, material lookup, tool search, quote request"
+            },
+            {
+              "number": 4,
+              "instruction": "Connect to PRISM MCP server via stdio or HTTP transport"
+            },
+            {
+              "number": 5,
+              "instruction": "Test with basic manufacturing queries in test Discord server"
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "src/bot/discord-bot.ts",
+              "type": "script",
+              "description": "Discord bot scaffold for PRISM manufacturing queries"
+            }
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": true,
+          "creates_hook": false,
+          "creates_command": false,
+          "description": "Discord bot scaffold — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P0-U02",
+          "title": "Slash command mapping",
+          "phase": "P0",
+          "sequence": 2,
+          "role": "R1",
+          "role_name": "Systems Architect",
+          "model": "opus-4.6",
+          "effort": 80,
+          "rationale": "Map top 30 PRISM skills to Discord slash commands with proper parameter definitions, autocomplete, and help text for discoverability.",
+          "tools": [
+            "Write",
+            "Read",
+            "Grep"
+          ],
+          "skills": [],
+          "scripts": [
+            "src/bot/slash-commands.ts"
+          ],
+          "hooks": [],
+          "features": [
+            "Discord slash commands for PRISM skills"
+          ],
+          "dependencies": [
+            "P0-U01"
+          ],
+          "entry_conditions": [
+            "Bot scaffold functional"
+          ],
+          "exit_conditions": [
+            "30 slash commands registered",
+            "Autocomplete works for material/machine/tool parameters",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
+          ],
+          "rollback": "git checkout -- src/bot/slash-commands.ts",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Create slash-commands.ts defining all 30 commands with options and descriptions"
+            },
+            {
+              "number": 2,
+              "instruction": "Map: /calc, /sf, /quote, /material, /tool, /playbook, /simulate, /program, /post, /feasibility"
+            },
+            {
+              "number": 3,
+              "instruction": "Map: /machine, /alarm, /tribal, /strategy, /novel, /video-replay, /fusion-generate, /auto-speed-feed"
+            },
+            {
+              "number": 4,
+              "instruction": "Add autocomplete handlers for material (28), machine (25), operation (27) parameters"
+            },
+            {
+              "number": 5,
+              "instruction": "Register commands with Discord API and test each one"
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "src/bot/slash-commands.ts",
+              "type": "script",
+              "description": "Discord slash command definitions mapped to PRISM skills"
+            }
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": true,
+          "creates_hook": false,
+          "creates_command": false,
+          "description": "Slash command mapping — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P0-U03",
+          "title": "Conversational context",
+          "phase": "P0",
+          "sequence": 3,
+          "role": "R1",
+          "role_name": "Systems Architect",
+          "model": "opus-4.6",
+          "effort": 85,
+          "rationale": "Maintain per-channel context (active machine, material, operation) so users can have flowing conversations without re-specifying parameters in every message.",
+          "tools": [
+            "Write",
+            "Read"
+          ],
+          "skills": [],
+          "scripts": [
+            "src/bot/context-manager.ts"
+          ],
+          "hooks": [],
+          "features": [
+            "Per-channel conversational context maintenance"
+          ],
+          "dependencies": [
+            "P0-U01"
+          ],
+          "entry_conditions": [
+            "Bot scaffold functional"
+          ],
+          "exit_conditions": [
+            "Context maintained across messages in same channel",
+            "Context includes machine, material, operation, tool",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
+          ],
+          "rollback": "git checkout -- src/bot/context-manager.ts",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Create context-manager.ts with per-channel context store"
+            },
+            {
+              "number": 2,
+              "instruction": "Track: active machine, material, operation type, tool selection, coolant, workholding"
+            },
+            {
+              "number": 3,
+              "instruction": "Auto-extract context from messages: 'using Ti-6Al-4V' sets material, 'on DMG DMU 50' sets machine"
+            },
+            {
+              "number": 4,
+              "instruction": "Pass accumulated context to PRISM dispatchers as default parameters"
+            },
+            {
+              "number": 5,
+              "instruction": "Add /context command to view/reset current channel context"
+            },
+            {
+              "number": 6,
+              "instruction": "Implement context expiry: 4 hours inactive = suggest refresh"
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "src/bot/context-manager.ts",
+              "type": "script",
+              "description": "Per-channel conversational context manager"
+            }
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": true,
+          "creates_hook": false,
+          "creates_command": false,
+          "description": "Conversational context — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P0-U04",
+          "title": "Autonomous task execution",
+          "phase": "P0",
+          "sequence": 4,
+          "role": "R1",
+          "role_name": "Systems Architect",
+          "model": "opus-4.6",
+          "effort": 90,
+          "rationale": "Enable users to describe a complete manufacturing job and have the bot autonomously run the full pipeline: speed/feed calculation, program generation, post-processing, and quoting.",
+          "tools": [
+            "Write",
+            "Read",
+            "Bash"
+          ],
+          "skills": [],
+          "scripts": [
+            "src/bot/autonomous-executor.ts"
+          ],
+          "hooks": [],
+          "features": [
+            "Full autonomous pipeline execution from chat description"
+          ],
+          "dependencies": [
+            "P0-U02",
+            "P0-U03"
+          ],
+          "entry_conditions": [
+            "Slash commands and context manager functional"
+          ],
+          "exit_conditions": [
+            "User describes job, bot runs full pipeline",
+            "Results delivered as structured message",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
+          ],
+          "rollback": "git checkout -- src/bot/autonomous-executor.ts",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Create autonomous-executor.ts that parses job description into pipeline parameters"
+            },
+            {
+              "number": 2,
+              "instruction": "Orchestrate: material resolve -> tool select -> speed/feed -> program gen -> post-process -> quote"
+            },
+            {
+              "number": 3,
+              "instruction": "Show progress messages during execution: 'Calculating speeds...', 'Generating program...'"
+            },
+            {
+              "number": 4,
+              "instruction": "Handle partial specifications: ask for missing critical params, use defaults for optional"
+            },
+            {
+              "number": 5,
+              "instruction": "Return structured result with key metrics and downloadable G-code attachment"
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "src/bot/autonomous-executor.ts",
+              "type": "script",
+              "description": "Autonomous pipeline executor for chat-based manufacturing jobs"
+            }
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": true,
+          "creates_hook": false,
+          "creates_command": false,
+          "description": "Autonomous task execution — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P0-U05",
+          "title": "Result formatting — rich embeds",
+          "phase": "P0",
+          "sequence": 5,
+          "role": "R1",
+          "role_name": "Systems Architect",
+          "model": "opus-4.6",
+          "effort": 75,
+          "rationale": "Format PRISM results as rich Discord/Slack embeds with tables, color-coded severity, file attachments for G-code and setup sheets, and collapsible detail sections.",
+          "tools": [
+            "Write",
+            "Read"
+          ],
+          "skills": [],
+          "scripts": [
+            "src/bot/formatters.ts"
+          ],
+          "hooks": [],
+          "features": [
+            "Rich embed formatting for messaging platforms"
+          ],
+          "dependencies": [
+            "P0-U01"
+          ],
+          "entry_conditions": [
+            "Bot scaffold functional"
+          ],
+          "exit_conditions": [
+            "Rich embeds work for speed/feed, quote, simulation results",
+            "File attachments work for G-code",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
+          ],
+          "rollback": "git checkout -- src/bot/formatters.ts",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Create formatters.ts with embed builders for each result type"
+            },
+            {
+              "number": 2,
+              "instruction": "Speed/feed: color-coded embed with RPM, feed, depth, warnings"
+            },
+            {
+              "number": 3,
+              "instruction": "Quote: embed with cycle time, cost breakdown, confidence interval"
+            },
+            {
+              "number": 4,
+              "instruction": "Simulation: embed with force/thermal/deflection summary, safety status"
+            },
+            {
+              "number": 5,
+              "instruction": "File attachments: G-code as .nc file, setup sheet as .txt, report as .json"
+            },
+            {
+              "number": 6,
+              "instruction": "Add table rendering for multi-operation results"
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "src/bot/formatters.ts",
+              "type": "script",
+              "description": "Rich embed formatters for messaging platform results"
+            }
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": true,
+          "creates_hook": false,
+          "creates_command": false,
+          "description": "Result formatting — rich embeds — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P0-U06",
+          "title": "Multi-user isolation",
+          "phase": "P0",
+          "sequence": 6,
+          "role": "R1",
+          "role_name": "Systems Architect",
+          "model": "opus-4.6",
+          "effort": 80,
+          "rationale": "Separate user contexts to prevent cross-contamination (one user's machine selection affecting another), while allowing shared shop-floor context per channel.",
+          "tools": [
+            "Write",
+            "Read"
+          ],
+          "skills": [],
+          "scripts": [
+            "src/bot/user-isolation.ts"
+          ],
+          "hooks": [],
+          "features": [
+            "Per-user context isolation with shared channel context"
+          ],
+          "dependencies": [
+            "P0-U03"
+          ],
+          "entry_conditions": [
+            "Context manager functional"
+          ],
+          "exit_conditions": [
+            "Users have isolated personal contexts",
+            "Shared channel context for shop-floor info",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
+          ],
+          "rollback": "git checkout -- src/bot/user-isolation.ts",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Create user-isolation.ts with dual-layer context: user-private + channel-shared"
+            },
+            {
+              "number": 2,
+              "instruction": "User-private: tool library, preferences, recent queries, custom presets"
+            },
+            {
+              "number": 3,
+              "instruction": "Channel-shared: shop machine list, default material, coolant setup, workholding"
+            },
+            {
+              "number": 4,
+              "instruction": "Merge logic: user-private overrides channel-shared for same keys"
+            },
+            {
+              "number": 5,
+              "instruction": "Admin commands: /set-shop to configure shared context, /my-prefs for private"
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "src/bot/user-isolation.ts",
+              "type": "script",
+              "description": "Multi-user context isolation layer"
+            }
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": true,
+          "creates_hook": false,
+          "creates_command": false,
+          "description": "Multi-user isolation — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P0-U07",
+          "title": "Notification integration",
+          "phase": "P0",
+          "sequence": 7,
+          "role": "R1",
+          "role_name": "Systems Architect",
+          "model": "opus-4.6",
+          "effort": 75,
+          "rationale": "Push notifications for build failures, test regressions, catalog updates, cron job results, and long-running task completions to designated channels or DMs.",
+          "tools": [
+            "Write",
+            "Read"
+          ],
+          "skills": [],
+          "scripts": [
+            "src/bot/notifications.ts"
+          ],
+          "hooks": [],
+          "features": [
+            "Push notification system for PRISM events"
+          ],
+          "dependencies": [
+            "P0-U01"
+          ],
+          "entry_conditions": [
+            "Bot scaffold functional"
+          ],
+          "exit_conditions": [
+            "Notifications sent for build failures, test regressions, task completions",
+            "Tests pass: npx vitest run (min 10 cases for engine units)",
+            "Typecheck clean: npx tsc --noEmit on touched files"
+          ],
+          "rollback": "git checkout -- src/bot/notifications.ts",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Create notifications.ts with event-to-channel routing"
+            },
+            {
+              "number": 2,
+              "instruction": "Build failure: post to #prism-ci with error summary and diff link"
+            },
+            {
+              "number": 3,
+              "instruction": "Test regression: post to #prism-tests with failing test names and last-passing commit"
+            },
+            {
+              "number": 4,
+              "instruction": "Catalog update: post to #prism-data with new tool/material counts"
+            },
+            {
+              "number": 5,
+              "instruction": "Task completion: DM the requesting user with result summary"
+            },
+            {
+              "number": 6,
+              "instruction": "Configure notification preferences per user/channel"
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "src/bot/notifications.ts",
+              "type": "script",
+              "description": "Push notification system for PRISM events"
+            }
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": true,
+          "creates_hook": false,
+          "creates_command": false,
+          "description": "Notification integration — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P0-U08",
+          "title": "Webhook receivers",
+          "phase": "P0",
+          "sequence": 8,
+          "role": "R1",
+          "role_name": "Systems Architect",
+          "model": "opus-4.6",
+          "effort": 80,
+          "rationale": "HTTP endpoints that external systems (CAM software, CNC controllers, CI pipelines) can post events to, which are then routed to appropriate Discord/Slack channels.",
+          "tools": [
+            "Write",
+            "Read",
+            "Bash"
+          ],
+          "skills": [],
+          "scripts": [
+            "src/bot/webhook-server.ts"
+          ],
+          "hooks": [],
+          "features": [
+            "HTTP webhook receivers for external system events"
+          ],
+          "dependencies": [
+            "P0-U07"
+          ],
+          "entry_conditions": [
+            "Notification system functional"
+          ],
+          "exit_conditions": [
+            "Webhooks received from external systems",
+            "Events routed to correct channels",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
+          ],
+          "rollback": "git checkout -- src/bot/webhook-server.ts",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Create webhook-server.ts with Express HTTP endpoints on configurable port"
+            },
+            {
+              "number": 2,
+              "instruction": "POST /webhooks/cam — receive CAM system events (job complete, error, tool change)"
+            },
+            {
+              "number": 3,
+              "instruction": "POST /webhooks/controller — receive CNC controller events (alarm, cycle end, tool break)"
+            },
+            {
+              "number": 4,
+              "instruction": "POST /webhooks/ci — receive CI pipeline events (build, test, deploy)"
+            },
+            {
+              "number": 5,
+              "instruction": "Validate webhook signatures, route to notification system"
+            },
+            {
+              "number": 6,
+              "instruction": "Add webhook registration API for external systems to self-register"
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "src/bot/webhook-server.ts",
+              "type": "script",
+              "description": "HTTP webhook receiver server for external events"
+            }
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": true,
+          "creates_hook": false,
+          "creates_command": false,
+          "description": "Webhook receivers — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P0-U09",
+          "title": "Rate limiting & auth",
+          "phase": "P0",
+          "sequence": 9,
+          "role": "R1",
+          "role_name": "Systems Architect",
+          "model": "opus-4.6",
+          "effort": 80,
+          "rationale": "API key authentication for webhook endpoints, per-user rate limits for bot commands, admin-only commands, and abuse prevention to protect PRISM compute resources.",
+          "tools": [
+            "Write",
+            "Read"
+          ],
+          "skills": [],
+          "scripts": [
+            "src/bot/auth-rate-limit.ts"
+          ],
+          "hooks": [],
+          "features": [
+            "Authentication and rate limiting for bot and webhooks"
+          ],
+          "dependencies": [
+            "P0-U01",
+            "P0-U08"
+          ],
+          "entry_conditions": [
+            "Bot and webhook server functional"
+          ],
+          "exit_conditions": [
+            "Rate limiting active per user",
+            "API key auth on webhooks",
+            "Admin commands restricted"
+          ],
+          "rollback": "git checkout -- src/bot/auth-rate-limit.ts",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Create auth-rate-limit.ts with token bucket rate limiter per user"
+            },
+            {
+              "number": 2,
+              "instruction": "Default limits: 30 commands/hour per user, 5 pipeline executions/hour"
+            },
+            {
+              "number": 3,
+              "instruction": "API key auth for webhook endpoints with HMAC signature verification"
+            },
+            {
+              "number": 4,
+              "instruction": "Admin role check for destructive commands (/set-shop, /reset-context, /manage-keys)"
+            },
+            {
+              "number": 5,
+              "instruction": "Log rate limit hits and auth failures for monitoring"
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "src/bot/auth-rate-limit.ts",
+              "type": "script",
+              "description": "Authentication and rate limiting middleware"
+            }
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": true,
+          "creates_hook": false,
+          "creates_command": false,
+          "description": "Rate limiting & auth — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P0-U10",
+          "title": "Cross-platform adapter",
+          "phase": "P0",
+          "sequence": 10,
+          "role": "R1",
+          "role_name": "Systems Architect",
+          "model": "opus-4.6",
+          "effort": 85,
+          "rationale": "Abstract the messaging layer so PRISM bot works identically across Discord, Slack, Teams, and Telegram with platform-specific formatting adapters.",
+          "tools": [
+            "Write",
+            "Read"
+          ],
+          "skills": [],
+          "scripts": [
+            "src/bot/platform-adapter.ts"
+          ],
+          "hooks": [],
+          "features": [
+            "Cross-platform messaging abstraction layer"
+          ],
+          "dependencies": [
+            "P0-U01",
+            "P0-U05"
+          ],
+          "entry_conditions": [
+            "Discord bot and formatters functional"
+          ],
+          "exit_conditions": [
+            "Same bot logic works across Discord, Slack, Teams, Telegram",
+            "Tests pass: npx vitest run (min 10 cases for engine units)",
+            "Typecheck clean: npx tsc --noEmit on touched files"
+          ],
+          "rollback": "git checkout -- src/bot/platform-adapter.ts",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Create platform-adapter.ts with abstract PlatformAdapter interface"
+            },
+            {
+              "number": 2,
+              "instruction": "Define unified message types: text, embed, file, reaction, thread"
+            },
+            {
+              "number": 3,
+              "instruction": "Implement DiscordAdapter (existing bot), SlackAdapter (Bolt SDK), TeamsAdapter (Bot Framework)"
+            },
+            {
+              "number": 4,
+              "instruction": "Implement TelegramAdapter (telegraf) with inline keyboard for parameters"
+            },
+            {
+              "number": 5,
+              "instruction": "Platform-specific formatting: Discord embeds, Slack blocks, Teams adaptive cards"
+            },
+            {
+              "number": 6,
+              "instruction": "Test same query across all 4 platforms produces equivalent output"
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "src/bot/platform-adapter.ts",
+              "type": "script",
+              "description": "Cross-platform messaging abstraction layer"
+            }
+          ],
+          "index_in_master": false,
+          "creates_skill": false,
+          "creates_script": true,
+          "creates_hook": false,
+          "creates_command": false,
+          "description": "Cross-platform adapter — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        }
+      ]
+    }
+  ],
+  "smart_config": {
+    "role": "senior-architect + domain-specialist",
+    "model": "opus",
+    "effort": "MAX",
+    "context_budget": "65%"
+  },
+  "mcp_lifecycle": {
+    "session_start": [
+      "prism_session:context_boot",
+      "prism_session:dispatcher_map",
+      "prism_session:memory_recall",
+      "prism_session:system_snapshot",
+      "prism_session:action_search"
+    ],
+    "during_work": [
+      "prism_session:auto_checkpoint",
+      "prism_session:tool_route_best",
+      "prism_session:wip_capture"
+    ],
+    "session_end": [
+      "prism_session:memory_save",
+      "prism_session:system_snapshot",
+      "prism_session:checkpoint_enhanced"
+    ]
+  },
+  "forge_triple": {
+    "protective_hook": "ccm-ms12-gate",
+    "mcp_action": "prism_ccm:ccm_ms12_run",
+    "skill_command": "/ccm-ms12",
+    "ownership": "DECLARED — BUILT in terminal unit of this milestone"
+  },
+  "feature_cascade": {
+    "new_hooks": [
+      "ccm-ms12-gate"
+    ],
+    "new_actions": [
+      "ccm_ms12_run"
+    ],
+    "new_skills": [
+      "/ccm-ms12"
+    ],
+    "available_to": [
+      "downstream CAMX milestones",
+      "prism app consumers"
+    ]
+  },
+  "knowledge_sources": {
+    "engines": [
+      "ENGINE_DIGEST.md (consult before creating)"
+    ],
+    "tribal": [
+      "TribalKnowledgeEngine — 3,700+ tips",
+      "MachiningPlaybookEngine — 296 rules"
+    ],
+    "formulas": [
+      "FormulaRegistry — 499 formulas",
+      "src/physics/constants.ts — canonical"
+    ],
+    "reference": [
+      "EXTERNAL-REFERENCE-PROGRAMS-INDEX.md",
+      "MaterialRegistry",
+      "MachineRegistry",
+      "ToolCatalogEngine (95,608 tools)"
+    ]
+  },
+  "intent": "Make PRISM accessible via messaging platforms (Discord/Slack) for autonomous manufacturing assistance, inspired by OpenClaw model. Discord bot scaffold, slash command mapping, conversational context per channel, autonomous pipeline execution, rich embeds, multi-user isolation, notifications, webhook receivers, rate limiting, cross-platform adapter.",
+  "compact_checkpoint": "every 3 units — auto-triggered by hook",
+  "enforcement_hooks_active": [
+    "physics agent",
+    "wiring agent",
+    "constants checker",
+    "stub detector",
+    "test quality",
+    "forge-triple gate",
+    "session audit agent"
+  ]
+}

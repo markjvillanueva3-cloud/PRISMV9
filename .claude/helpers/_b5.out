@@ -1,0 +1,50 @@
+TAP version 13
+# Subtest: formatWebSearchNudge: WebSearch with query emits nudge
+ok 1 - formatWebSearchNudge: WebSearch with query emits nudge
+  ---
+  duration_ms: 3.7133
+  ...
+# Subtest: formatWebSearchNudge: long query truncated in preview
+ok 2 - formatWebSearchNudge: long query truncated in preview
+  ---
+  duration_ms: 0.986
+  ...
+# Subtest: formatWebSearchNudge: non-WebSearch tool → null
+ok 3 - formatWebSearchNudge: non-WebSearch tool → null
+  ---
+  duration_ms: 0.214
+  ...
+# Subtest: formatWebSearchNudge: empty query → null
+ok 4 - formatWebSearchNudge: empty query → null
+  ---
+  duration_ms: 0.143
+  ...
+# Subtest: formatWebSearchNudge: whitespace-only query → null
+ok 5 - formatWebSearchNudge: whitespace-only query → null
+  ---
+  duration_ms: 0.1219
+  ...
+# Subtest: formatWebSearchNudge: includes /ollama-bridge fallback
+ok 6 - formatWebSearchNudge: includes /ollama-bridge fallback
+  ---
+  duration_ms: 0.1211
+  ...
+# Subtest: formatWebSearchNudge: includes kill-switch
+ok 7 - formatWebSearchNudge: includes kill-switch
+  ---
+  duration_ms: 0.2399
+  ...
+# Subtest: formatWebSearchNudge: hookType is 'general' (verified real action)
+ok 8 - formatWebSearchNudge: hookType is 'general' (verified real action)
+  ---
+  duration_ms: 0.118
+  ...
+1..8
+# tests 8
+# suites 0
+# pass 8
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 152.9265

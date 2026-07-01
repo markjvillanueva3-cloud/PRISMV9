@@ -223,7 +223,7 @@ function normalizeLatheDraft(params: {
       controller,
       optimization_target: 'balanced',
     },
-    warnings: ['PRISM could not normalize the uploaded turning geometry.'],
+    warnings: ['Kienzle could not normalize the uploaded turning geometry.'],
     ambiguities: [],
   };
 }
@@ -308,7 +308,7 @@ function buildEdmElectrodeTemplateProgram(params: {
   const sequence = EDM_ELECTRODE_FEATURE_OPTIONS.map((item) => item.label.toUpperCase()).join(' / ');
   return [
     '%',
-    `O7001 (PRISM ELECTRODE PACKET - ${params.partNumber})`,
+    `O7001 (Kienzle ELECTRODE PACKET - ${params.partNumber})`,
     `(ELECTRODE MATERIAL: ${EDM_ELECTRODE_MATERIAL.toUpperCase()})`,
     `(HOLDER PACKAGE: ${EDM_HOLDER_PACKAGE.toUpperCase()})`,
     `(ELECTRODE MACHINE: ${EDM_ELECTRODE_MACHINE.brand.toUpperCase()} ${EDM_ELECTRODE_MACHINE.model.toUpperCase()})`,
@@ -610,7 +610,7 @@ export function CalculatorProgramWorkbench({
         setStatus(
           draft.features.length
             ? `Loaded ${draft.features.length} lathe features from ${file.name}.`
-            : `PRISM read ${file.name}, but no turning features were ready for auto-programming yet.`,
+            : `Kienzle read ${file.name}, but no turning features were ready for auto-programming yet.`,
         );
       } else if (mode === 'wire_edm') {
         const lowerName = file.name.toLowerCase();
@@ -631,7 +631,7 @@ export function CalculatorProgramWorkbench({
           setStatus(
             contours.length
               ? `Loaded ${contours.length} wire contours from ${file.name}.`
-              : `PRISM accepted ${file.name}, but did not detect selectable contours.`,
+              : `Kienzle accepted ${file.name}, but did not detect selectable contours.`,
           );
         } else {
           const contentBase64 = await readFileAsBase64(file);
@@ -651,7 +651,7 @@ export function CalculatorProgramWorkbench({
             content,
           });
           setStatus(
-            `Loaded ${formatEdmElectrodeSourceLabel(format)} from ${file.name}. PRISM can draft a Roku-Roku electrode NC and keep the System 3R / trilobe packet attached.`,
+            `Loaded ${formatEdmElectrodeSourceLabel(format)} from ${file.name}. Kienzle can draft a Roku-Roku electrode NC and keep the System 3R / trilobe packet attached.`,
           );
         } else {
           const contentBase64 = await readFileAsBase64(file);
@@ -662,7 +662,7 @@ export function CalculatorProgramWorkbench({
             contentBase64,
           });
           setStatus(
-            `Loaded ${file.name}. PRISM will build a macro-ready copper-tungsten electrode packet for ${EDM_ELECTRODE_MACHINE.brand} ${EDM_ELECTRODE_MACHINE.model}; DXF, IGES, or structured text unlock the draft NC lane.`,
+            `Loaded ${file.name}. Kienzle will build a macro-ready copper-tungsten electrode packet for ${EDM_ELECTRODE_MACHINE.brand} ${EDM_ELECTRODE_MACHINE.model}; DXF, IGES, or structured text unlock the draft NC lane.`,
           );
         }
       }
@@ -716,7 +716,7 @@ export function CalculatorProgramWorkbench({
                 : 'balanced',
         });
         setLatheProgram(result.result);
-        setStatus(`PRISM generated ${result.result.program_line_count} lines with ${result.result.total_operations} operations.`);
+        setStatus(`Kienzle generated ${result.result.program_line_count} lines with ${result.result.total_operations} operations.`);
       } else if (mode === 'wire_edm') {
         if (!wireSource) {
           throw new Error('Upload a print or CAD file before generating a wire program.');
@@ -759,7 +759,7 @@ export function CalculatorProgramWorkbench({
           throw new Error(response.data?.warnings?.join(', ') || 'Wire program generation failed.');
         }
         setWireProgram(response.data);
-        setStatus(`PRISM generated ${response.data.line_count} lines across ${response.data.passes_per_profile} passes.`);
+        setStatus(`Kienzle generated ${response.data.line_count} lines across ${response.data.passes_per_profile} passes.`);
       } else {
         if (!edmElectrodeSource) {
           throw new Error('Upload a print, scan, or CAD file before generating the electrode packet.');
@@ -798,7 +798,7 @@ export function CalculatorProgramWorkbench({
           burnTarget,
         });
         const warnings: string[] = [
-          'PRISM currently carries the trilobe macro and Roku-Roku legacy library path as release metadata; live macro execution and indexed legacy mining still need the dedicated bridge.',
+          'Kienzle currently carries the trilobe macro and Roku-Roku legacy library path as release metadata; live macro execution and indexed legacy mining still need the dedicated bridge.',
         ];
 
         if (edmElectrodeSource.kind === 'parseable' && edmElectrodeSource.content) {
@@ -839,7 +839,7 @@ export function CalculatorProgramWorkbench({
               sourceMode = 'draft-nc';
               programText = candidate.program_text.trim();
             } else {
-              warnings.push('Parsed electrode source did not return toolpath-ready NC, so PRISM emitted a macro-ready packet instead.');
+              warnings.push('Parsed electrode source did not return toolpath-ready NC, so Kienzle emitted a macro-ready packet instead.');
             }
             if (candidate?.warnings?.length) {
               warnings.push(
@@ -873,8 +873,8 @@ export function CalculatorProgramWorkbench({
         });
         setStatus(
           sourceMode === 'draft-nc'
-            ? `PRISM generated a draft Roku-Roku electrode NC for ${partNumber}.`
-            : `PRISM generated a macro-ready Roku-Roku electrode packet for ${partNumber}.`,
+            ? `Kienzle generated a draft Roku-Roku electrode NC for ${partNumber}.`
+            : `Kienzle generated a macro-ready Roku-Roku electrode packet for ${partNumber}.`,
         );
       }
     } catch (issue) {
@@ -892,7 +892,7 @@ export function CalculatorProgramWorkbench({
       ? 'Drop wire DXF, photo, or PDF here.'
       : 'Drop electrode prints, scans, DXF, IGES, or structured notes here.';
   const uploadDescription = mode === 'lathe'
-    ? 'PRISM will classify the upload through the lathe intake route, normalize the extracted features, and let you choose what actually gets programmed.'
+    ? 'Kienzle will classify the upload through the lathe intake route, normalize the extracted features, and let you choose what actually gets programmed.'
     : mode === 'wire_edm'
       ? 'DXF unlocks contour-by-contour selection with a 2D and 3D preview. Images and PDFs still flow straight into wire auto-programming.'
       : 'Sinker EDM uses this lane to stage the electrode machining packet: copper-tungsten stock, System 3R ER-32 hardware, trilobe macro notes, and a draft Roku-Roku NC whenever the source is parseable.';
@@ -916,8 +916,8 @@ export function CalculatorProgramWorkbench({
           </div>
           <div className="mt-3 text-xl font-black tracking-tight text-slate-50">
             {mode === 'edm'
-              ? 'Upload the print, scan, or CAD, then let PRISM build the electrode packet and draft the Roku-Roku release.'
-              : 'Upload the print or CAD, choose the features, then let PRISM write the program.'}
+              ? 'Upload the print, scan, or CAD, then let Kienzle build the electrode packet and draft the Roku-Roku release.'
+              : 'Upload the print or CAD, choose the features, then let Kienzle write the program.'}
           </div>
           <p className="mt-2 text-sm leading-6 text-slate-300">
             {mode === 'edm'
@@ -1001,7 +1001,7 @@ export function CalculatorProgramWorkbench({
             <SummaryMetric
               label={mode === 'edm' ? 'Macro / handoff' : 'Target finish'}
               value={mode === 'edm' ? 'Trilobe macro + burn packet' : `${targetRaUm.toFixed(2)} um Ra`}
-              hint={mode === 'edm' ? 'Setup notes keep the H: drive macro path and Roku-Roku reference path attached to the release.' : 'PRISM keeps this aligned with the calculator finish target.'}
+              hint={mode === 'edm' ? 'Setup notes keep the H: drive macro path and Roku-Roku reference path attached to the release.' : 'Kienzle keeps this aligned with the calculator finish target.'}
             />
           </div>
 
@@ -1207,7 +1207,7 @@ export function CalculatorProgramWorkbench({
                 <div className="text-[10px] font-bold uppercase tracking-[0.18em] text-slate-400">Feature selection</div>
                 <div className="mt-2 text-sm font-semibold text-slate-100">
                   {mode === 'lathe'
-                    ? 'Select the turning features that should feed PRISM auto-programming.'
+                    ? 'Select the turning features that should feed Kienzle auto-programming.'
                     : mode === 'wire_edm'
                       ? 'Select the wire contours that should be burned in the generated NC file.'
                       : 'Select the electrode package items that must stay attached to the Roku-Roku release and sinker handoff.'}
@@ -1348,7 +1348,7 @@ export function CalculatorProgramWorkbench({
           disabled={generateDisabled}
           className="inline-flex items-center rounded-full border border-cyan-300/40 bg-cyan-300/[0.12] px-5 py-3 text-sm font-semibold text-cyan-50 transition hover:border-cyan-200/55 hover:bg-cyan-300/[0.18] disabled:cursor-not-allowed disabled:border-slate-700/60 disabled:bg-slate-900 disabled:text-slate-500"
         >
-          {uploading ? 'Reading upload...' : generating ? 'PRISM is programming...' : 'PRISM auto-program'}
+          {uploading ? 'Reading upload...' : generating ? 'Kienzle is programming...' : 'Kienzle auto-program'}
         </button>
         <div className="text-sm text-slate-400">
           {mode === 'lathe'

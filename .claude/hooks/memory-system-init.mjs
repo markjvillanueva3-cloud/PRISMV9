@@ -5,7 +5,7 @@
  *
  * Checks memory system health and reports status:
  * - Qdrant connection (localhost:6333)
- * - Ollama embeddings (localhost:11434)
+ * - Ollama embeddings (127.0.0.1:11434)
  * - agent-memory.json count
  * - Claude memory files
  *
@@ -18,7 +18,7 @@ import os from 'node:os';
 import path from 'node:path';
 
 const QDRANT_URL = 'http://localhost:6333';
-const OLLAMA_URL = 'http://localhost:11434';
+const OLLAMA_URL = 'http://127.0.0.1:11434';
 const AGENT_MEMORY_PATH = 'H:/prism/mcp-server/data/state/agent-memory.json';
 // Per-PC memory dir. Home PC: C:\Users\wompu\... · Work PC: C:\Users\Mark Villanueva\...
 // Resolve via os.homedir() so it works on both. Folder name casing (H--PRISM vs H--prism) is

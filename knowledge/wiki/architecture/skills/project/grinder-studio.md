@@ -29,8 +29,11 @@ related:
 
 ## Description (first paragraph)
 
-
-# /grinder-studio — Grinding Studio Pipeline
+Full-featured CNC Grinder programming:
+- Surface and cylindrical grinding
+- Wheel selection and dressing
+- Coolant optimization
+- Finish specification
 
 <!-- AUTO-END -->
 

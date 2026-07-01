@@ -1,0 +1,170 @@
+{
+  "id": "okuma-m460v-5ax",
+  "machine_id": "VMC-02",
+  "manufacturer": "Okuma",
+  "model": "M460V-5AX",
+  "version": "1.0.0",
+  "created_at": "2026-06-03T00:00:00Z",
+  "updated_at": "2026-06-03T00:00:00Z",
+
+  "cover_info": {
+    "manufacturer": "Okuma",
+    "model_family": "GENOS M-V 5AX",
+    "models_covered": ["M460V-5AX", "GENOS M460V-5AX"],
+    "language": "en",
+    "source": {
+      "handbook_title": "Okuma GENOS M460V-5AX published specifications (Okuma spec sheet) + OSP-P300MA control reference",
+      "extraction_method": "web_scrape",
+      "confidence": 0.78,
+      "extracted_at": "2026-06-03T00:00:00Z"
+    }
+  },
+
+  "spindle_specs": {
+    "max_rpm": 15000,
+    "min_rpm": 0,
+    "power_continuous_kw": 15,
+    "power_30min_kw": 22,
+    "torque_max_nm": 120,
+    "taper_type": "CT40",
+    "drive_type": "integral",
+    "warmup_procedure": "Run Okuma spindle warm-up; Thermo-Friendly Concept reduces but does not eliminate warm-up after >4 hours idle.",
+    "source": {
+      "handbook_title": "Okuma GENOS M460V-5AX spindle specification (No.40 taper, 15000 rpm, 30 hp 30-min rating)",
+      "extraction_method": "web_scrape",
+      "confidence": 0.76,
+      "extracted_at": "2026-06-03T00:00:00Z"
+    }
+  },
+
+  "axis_kinematics": {
+    "axes": [
+      { "name": "X", "travel_mm": 762, "rapid_mm_min": 40000, "max_feed_mm_min": 40000, "repeatability_um": 3, "accuracy_um": 5, "linear_scale": false },
+      { "name": "Y", "travel_mm": 460, "rapid_mm_min": 40000, "max_feed_mm_min": 40000, "repeatability_um": 3, "accuracy_um": 5, "linear_scale": false },
+      { "name": "Z", "travel_mm": 460, "rapid_mm_min": 40000, "max_feed_mm_min": 40000, "repeatability_um": 3, "accuracy_um": 5, "linear_scale": false },
+      { "name": "A", "travel_mm": 150, "rapid_mm_min": 1, "max_feed_mm_min": 1 },
+      { "name": "C", "travel_mm": 360, "rapid_mm_min": 1, "max_feed_mm_min": 1 }
+    ],
+    "simultaneous_axes": 5,
+    "work_envelope_mm": { "x": 762, "y": 460, "z": 460 },
+    "source": {
+      "handbook_title": "Okuma GENOS M460V-5AX travel & trunnion specification (X762/Y460/Z460, A trunnion tilt + C rotary table, 5-axis simultaneous). A/C rows use placeholder linear rapid fields (schema requires positive mm_min); true A/C motion is rotary (deg).",
+      "extraction_method": "web_scrape",
+      "confidence": 0.74,
+      "extracted_at": "2026-06-03T00:00:00Z"
+    }
+  },
+
+  "controller_features": {
+    "controller_manufacturer": "Okuma",
+    "controller_model": "OSP-P300MA-H",
+    "custom_g_codes": [
+      { "code": "G43.4", "description": "Tool center point control (TCP) for 5-axis machining — maintains tool tip while A/C tilt.", "syntax": "G43.4 H[offset]", "example": "G43.4 H1\nG01 X50. Y30. Z-5. A-45. C30. F800" },
+      { "code": "G68.2", "description": "Tilted working plane for 3+2 machining (Euler angles).", "syntax": "G68.2 X.. Y.. Z.. I[rx] J[ry] K[rz]", "example": "G68.2 X0. Y0. Z0. I0. J-45. K0." },
+      { "code": "G12.1", "description": "Polar coordinate interpolation ON.", "syntax": "G12.1", "example": "G12.1\nG01 X30. C90. F200\nG13.1" },
+      { "code": "G05", "description": "High-speed / high-accuracy machining mode (look-ahead path smoothing).", "syntax": "G05 P[n]", "example": "G05 P10000\nG01 X100. Y50. F8000\nG05 P0" },
+      { "code": "G84.2", "description": "Rigid tapping cycle (synchronous spindle).", "syntax": "G84.2 Z[depth] R[ref] F[pitch_mm]", "example": "G84.2 Z-15. R2. F1.5" },
+      { "code": "G31", "description": "Skip / probe touch signal.", "syntax": "G31 X.. Y.. Z.. F..", "example": "G31 Z-50. F300" }
+    ],
+    "custom_m_codes": [
+      { "code": "M03", "description": "Spindle CW.", "modal": true },
+      { "code": "M04", "description": "Spindle CCW.", "modal": true },
+      { "code": "M05", "description": "Spindle stop.", "modal": true },
+      { "code": "M06", "description": "Tool change (ATC).", "modal": false },
+      { "code": "M08", "description": "Flood coolant ON.", "modal": true },
+      { "code": "M09", "description": "Coolant OFF.", "modal": true },
+      { "code": "M68", "description": "A/C axis clamp ON (3+2 positioning).", "modal": false },
+      { "code": "M69", "description": "A/C axis clamp OFF (5-axis simultaneous).", "modal": false }
+    ],
+    "macro_support": {
+      "type": "OSP User Task / Custom Macro",
+      "variable_range": "VC1-VC999 (common), VB (boolean)",
+      "supports_goto": true
+    },
+    "probing_cycles": [
+      { "cycle_code": "G31", "description": "Touch probe skip.", "parameters": ["X", "Y", "Z", "F"] }
+    ],
+    "max_tool_offsets": 300,
+    "max_work_offsets": 200,
+    "conversational_mode": true,
+    "high_speed_machining": true,
+    "look_ahead_blocks": 600,
+    "source": {
+      "handbook_title": "Okuma OSP-P300MA control reference — 5-axis TCP (G43.4), tilted plane (G68.2), Collision Avoidance System, Advanced One-Touch IGF conversational",
+      "extraction_method": "web_scrape",
+      "confidence": 0.74,
+      "extracted_at": "2026-06-03T00:00:00Z"
+    }
+  },
+
+  "alarm_codes": [],
+  "parts_book": [],
+
+  "maintenance_schedule": [
+    {
+      "task_id": "M460V-MAINT-001",
+      "task": "Check way-lube and coolant levels",
+      "interval": "daily",
+      "category": "lubrication",
+      "procedure_steps": ["Check way-lube reservoir (ISO VG68)", "Check coolant tank level", "Clear chips from trunnion / A-axis pivot area"],
+      "parts_needed": [],
+      "safety_warnings": ["Return A/C to home (A0 C0) before clearing chips"],
+      "estimated_time_min": 10,
+      "requires_power_off": false,
+      "source": { "handbook_title": "Okuma M460V-5AX generic preventive-maintenance checklist (parts intentionally omitted — no public OEM PN)", "extraction_method": "web_scrape", "confidence": 0.68, "extracted_at": "2026-06-03T00:00:00Z" }
+    },
+    {
+      "task_id": "M460V-MAINT-002",
+      "task": "5-axis pivot-point calibration check",
+      "interval": "quarterly",
+      "category": "calibration",
+      "procedure_steps": ["Mount precision test sphere on trunnion table", "Run Okuma 5-axis calibration cycle", "Compare A pivot / C center to stored compensation", "Update if deviation exceeds tolerance"],
+      "parts_needed": [],
+      "safety_warnings": [],
+      "estimated_time_min": 90,
+      "requires_power_off": false,
+      "source": { "handbook_title": "Okuma M460V-5AX generic preventive-maintenance checklist", "extraction_method": "web_scrape", "confidence": 0.68, "extracted_at": "2026-06-03T00:00:00Z" }
+    }
+  ],
+
+  "programming_tips": [
+    {
+      "topic": "5-Axis TCP (G43.4) on a Trunnion-Table Machine",
+      "controller_dialect": "OSP-P300MA",
+      "code_example": "G43.4 H1 (TCP ON)\nG01 X50. Y0. Z-5. A-45. C30. F800\nG49 (TCP OFF)\nG00 A0. C0.",
+      "description": "TCP compensates for the distance between the tool tip and the A/C center of rotation so tilting the table does not move the part relative to the tool. Tool-length-offset error is amplified by the lever arm at steep A angles — measure H accurately. Keep the work-offset origin close to the A/C center to avoid pushing the linear axes to travel limits.",
+      "gotchas": ["G49 must precede G28/home — homing with TCP active gives wrong positions", "Trunnion table load decreases as A tilts toward vertical — observe the derating limits", "Verify with dry run: TCP can drive linear axes to limits at extreme A angles"],
+      "related_alarms": [],
+      "applicable_operations": ["5axis_simultaneous", "3plus2_machining", "5axis_setup"],
+      "source": { "handbook_title": "Okuma OSP 5-axis programming reference — G43.4 / G68.2", "extraction_method": "web_scrape", "confidence": 0.72, "extracted_at": "2026-06-03T00:00:00Z" }
+    }
+  ],
+
+  "safety_limits": [
+    { "parameter": "Maximum spindle speed", "max_value": 15000, "unit": "RPM", "consequence_of_violation": "Spindle overspeed / thermal fault", "interlock_type": "software", "requires_override_key": false, "source": { "handbook_title": "Okuma M460V-5AX spindle specification", "extraction_method": "web_scrape", "confidence": 0.74, "extracted_at": "2026-06-03T00:00:00Z" } },
+    { "parameter": "X-axis travel", "max_value": 762, "unit": "mm", "consequence_of_violation": "Over-travel alarm", "interlock_type": "software", "requires_override_key": false, "source": { "handbook_title": "Okuma M460V-5AX travel specification", "extraction_method": "web_scrape", "confidence": 0.74, "extracted_at": "2026-06-03T00:00:00Z" } },
+    { "parameter": "Y-axis travel", "max_value": 460, "unit": "mm", "consequence_of_violation": "Over-travel alarm", "interlock_type": "software", "requires_override_key": false, "source": { "handbook_title": "Okuma M460V-5AX travel specification", "extraction_method": "web_scrape", "confidence": 0.74, "extracted_at": "2026-06-03T00:00:00Z" } },
+    { "parameter": "Z-axis travel", "max_value": 460, "unit": "mm", "consequence_of_violation": "Over-travel alarm", "interlock_type": "software", "requires_override_key": false, "source": { "handbook_title": "Okuma M460V-5AX travel specification", "extraction_method": "web_scrape", "confidence": 0.74, "extracted_at": "2026-06-03T00:00:00Z" } },
+    { "parameter": "Maximum trunnion table load", "max_value": 300, "unit": "kg", "consequence_of_violation": "A-axis servo overload, trunnion bearing damage; derates further as A tilts toward vertical", "interlock_type": "none", "requires_override_key": false, "source": { "handbook_title": "Okuma M460V-5AX trunnion load specification (660 lb max, decreases with tilt angle) per Okuma spec", "extraction_method": "web_scrape", "confidence": 0.76, "extracted_at": "2026-06-03T00:00:00Z" } }
+  ],
+
+  "coolant_specs": {
+    "coolant_types": [
+      { "type": "Water-soluble semi-synthetic", "concentration_pct_min": 6, "concentration_pct_max": 10 }
+    ],
+    "through_spindle": true,
+    "mql_capable": false,
+    "chip_conveyor_type": "Chip conveyor with trunnion chip wash",
+    "source": { "handbook_title": "Okuma M460V-5AX coolant system specification", "extraction_method": "web_scrape", "confidence": 0.66, "extracted_at": "2026-06-03T00:00:00Z" }
+  },
+
+  "tooling_constraints": {
+    "max_tool_diameter_mm": 80,
+    "max_tool_length_mm": 300,
+    "max_tool_weight_kg": 8,
+    "magazine_capacity": 32,
+    "taper_type": "CT40",
+    "gauge_line_mm": 50.8,
+    "source": { "handbook_title": "Okuma M460V-5AX tooling / ATC specification (No.40 taper, 32-tool magazine)", "extraction_method": "web_scrape", "confidence": 0.7, "extracted_at": "2026-06-03T00:00:00Z" }
+  }
+}

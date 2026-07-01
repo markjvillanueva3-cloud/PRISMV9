@@ -384,7 +384,12 @@ export class RoadmapIntelligenceEngine {
       return {
         id: m.id,
         name: m.name,
-        category: "milestone" as const,
+        // "milestone" is NOT a DecisionCategory member; use "strategy" to match the
+        // problem-level category (~L424). category is a LABEL here -- decide() scores from
+        // problem.criteria, not the candidate category -- so this is behavior-neutral.
+        // Adding "milestone" to the union would cascade into 3 exhaustive
+        // Record<DecisionCategory,...> maps needing fabricated weights/rubrics (cascade trap).
+        category: "strategy" as const,
         properties: {
           phase: m.phase,
           complexity: assessment.overall_complexity,

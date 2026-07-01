@@ -18,7 +18,34 @@ const DOCS_DIR = path.join(import.meta.dirname, "../../data/docs");
 const LEGACY_STATE_DIR = PATHS.STATE_DIR;
 if (!fs.existsSync(DOCS_DIR)) fs.mkdirSync(DOCS_DIR, { recursive: true });
 
-function getDocPath(name: string): string { return path.join(DOCS_DIR, name); }
+/**
+ * Resolve a caller-supplied document name to an absolute path INSIDE DOCS_DIR,
+ * throwing on any path-traversal escape. `name` arrives from `z.string()` with
+ * NO path constraint, so `../../../settings.json` (or an absolute path, or a
+ * NUL byte) would otherwise let `write`/`append` write anywhere the process can
+ * reach. Every doc accessor (read/write/exists/stat) funnels through here, so
+ * this single chokepoint closes traversal on BOTH the read and write paths.
+ * The thrown Error is caught by the dispatcher's try/catch → `dispatcherError`.
+ * Exported for direct unit testing of the containment invariant.
+ */
+export function getDocPath(name: string): string {
+  if (typeof name !== "string" || name.length === 0 || name.includes("\0")) {
+    throw new Error(`Invalid document name: ${JSON.stringify(name)}`);
+  }
+  const resolved = path.resolve(DOCS_DIR, name);
+  // Containment check: `resolved` must equal DOCS_DIR or sit strictly beneath it.
+  // path.relative is "" for the dir itself, starts with ".." for an escape, and
+  // is absolute when the two share no common root (e.g. a Windows drive switch).
+  const rel = path.relative(DOCS_DIR, resolved);
+  // Precise containment: rel === ".." (the parent dir) or rel starts with "../"
+  // (an escape), or rel is absolute (no shared root). NOTE the `".." + sep` form,
+  // not a bare `startsWith("..")` -- the latter would also false-reject a LEGIT
+  // contained file literally named "..foo.md" (3-of-3 scrutiny P2). Fails safe either way.
+  if (rel === ".." || rel.startsWith(".." + path.sep) || path.isAbsolute(rel)) {
+    throw new Error(`Path traversal blocked: document name escapes the docs directory: ${name}`);
+  }
+  return resolved;
+}
 function docExists(name: string): boolean { return fs.existsSync(getDocPath(name)); }
 function readDoc(name: string): string {
   const docPath = getDocPath(name);

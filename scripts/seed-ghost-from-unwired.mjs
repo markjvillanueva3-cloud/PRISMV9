@@ -28,11 +28,22 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { buildEngineDispatcherMap, inferDispatcherBySibling } from "./lib/wired-engine-mapper.mjs";
+import { readGraphStreaming, writeGraphStreamingAtomic } from "./lib/graph-io.mjs";
+import { MCP_TOOL_TO_DISP_NODE_ID, mcpToolToDispNodeId } from "./lib/viz-dispatcher-node-id.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, "..");
 const ENGINES_DIR = path.join(ROOT, "mcp-server", "src", "engines");
 const DISPATCHERS_DIR = path.join(ROOT, "mcp-server", "src", "tools", "dispatchers");
+// WIRE-NOTE (U-VIZ-F11-CROSS-LOCK): this is a 4th DIRECT writer of
+// system-graph.json (writeGraphStreamingAtomic below). It is covered TODAY only because it
+// runs exclusively as a regen-viz.mjs post-merge subprocess (regen-viz holds
+// the shared .system-graph-write.pid lock for its whole child chain). If this
+// script is EVER invoked standalone (cron, an nn-graph data refresh, a manual
+// `node scripts/seed-ghost-from-unwired.mjs --apply`), it would write the
+// graph with NO F11 lock and silently clobber a concurrent regen/on-commit
+// merge. Standalone callers MUST wrap the write in
+// withGraphWriteLock(...) from scripts/lib/system-graph-write-lock.mjs.
 const GRAPH_PATH = path.join(ROOT, "state", "shared", "system-viz", "system-graph.json");
 
 // Dispatcher inference table — ordered, first-match-wins.
@@ -77,6 +88,15 @@ export const DISPATCHER_INFERENCE_RULES = Object.freeze([
   { pattern: /\b(mill|milling|drill|tap|bore|countersink|reamer|endmill|ballmill)/i, dispatcher: "prism_cam", confidence: 0.65, reason: "milling tool keyword (catch-all)" },
   { pattern: /\b(base|abstract[-_]?engine|core[-_]?engine|util|helper)/i, dispatcher: "prism_dev", confidence: 0.50, reason: "base/util keyword (low conf — review)" },
 ]);
+
+// U-VIZ-G4-SEEDER-FIX (2026-05-20 sierra) → extracted to a shared SSOT lib in
+// U-VIZ-G4-DEAD-EDGE (2026-05-30 sierra). The MCP-tool → disp-node-id mapping +
+// resolver now live in ./lib/viz-dispatcher-node-id.mjs (imported above) so the
+// other ghost/bridge producers resolve through ONE source of truth instead of
+// re-introducing the `dispatcher.<mcp_tool>` dead-edge bug. Re-exported here for
+// back-compat with existing importers + this seeder's own test. See that lib for
+// the full dead-edge-class rationale.
+export { MCP_TOOL_TO_DISP_NODE_ID, mcpToolToDispNodeId };
 
 export const MIN_CONFIDENCE = 0.5;
 
@@ -184,7 +204,7 @@ export function buildGhostFromUnwired(engine, opts = {}) {
   const edge = inf.confidence >= MIN_CONFIDENCE
     ? {
         from: node.id,
-        to: `dispatcher.${inf.dispatcher}`,
+        to: mcpToolToDispNodeId(inf.dispatcher),
         type: "ghost-wire",
         relation: "proposed-wire",
         status: "proposed",
@@ -211,32 +231,54 @@ function parseArgs(argv) {
   return out;
 }
 
-function atomicWrite(filePath, content) {
-  const tmp = filePath + ".tmp";
-  fs.writeFileSync(tmp, content);
-  const delays = [50, 100, 200, 400, 800, 1600];
-  for (const d of delays) {
-    try { fs.renameSync(tmp, filePath); return; }
-    catch (err) {
-      const code = err?.code;
-      if (code !== "EBUSY" && code !== "EPERM" && code !== "EACCES" && code !== "EEXIST") throw err;
-      const until = Date.now() + d;
-      while (Date.now() < until) { /* spin */ }
-    }
+/**
+ * finalizeGraphMeta -- stamp the graph's self-describing metadata to the ACTUAL
+ * post-merge reality. generate-system-viz.mjs writes BOTH meta.totals AND the
+ * top-level generatedAt at base-generation time, then merge-augmentations + the
+ * post-merge stages (this script is the LAST graph writer in the regen pipeline)
+ * rewrite the graph WITHOUT refreshing either field:
+ *   - meta.totals stayed at the base ~60K (vs the merged ~355K) -- a ~5.8x node /
+ *     ~4.5x edge undercount read by every consumer (`headline` query, spawned-
+ *     agent-context-lib). (U-VIZ-META-TOTALS-FINALIZE, 2026-06-23.)
+ *   - generatedAt stayed frozen at the base-gen date though the graph regenerates
+ *     daily -- a misleading freshness signal in the headline + awareness-snapshot
+ *     displays. Nothing keys on it for correctness (sidecars use sourceMtimeMs),
+ *     so as the final writer we set it to the regen time. (U-VIZ-GENERATEDAT-
+ *     FINALIZE, 2026-06-23.) R7: this is a deliberate semantic -- generatedAt now
+ *     means "graph last (re)generated at", the natural reading for a continuously
+ *     regenerated artifact.
+ * Idempotent + cheap (counts already-in-memory arrays). `now` injectable for
+ * deterministic tests. (Was refreshGraphTotals; renamed to cover both fields.)
+ */
+export function finalizeGraphMeta(g, { now = new Date().toISOString() } = {}) {
+  if (!g || typeof g !== "object") return g;
+  if (g.meta && typeof g.meta === "object") {
+    g.meta.totals = {
+      nodes: Array.isArray(g.nodes) ? g.nodes.length : 0,
+      edges: Array.isArray(g.edges) ? g.edges.length : 0,
+      layers: Array.isArray(g.layers) ? g.layers.length : (g.meta.totals?.layers ?? 0),
+    };
   }
-  throw new Error(`rename retry exhausted: ${filePath}`);
+  g.generatedAt = now;
+  return g;
 }
 
 export function main() {
   const opts = parseArgs(process.argv.slice(2));
 
   if (opts.revert) {
-    const g = JSON.parse(fs.readFileSync(GRAPH_PATH, "utf8"));
+    const g = readGraphStreaming(GRAPH_PATH); // streaming read — see scripts/lib/graph-io.mjs
     const before = g.nodes.length;
     const ghostIds = new Set(g.nodes.filter((n) => n?.kind === "ghost.unwired-engine").map((n) => n.id));
     g.nodes = g.nodes.filter((n) => !ghostIds.has(n.id));
     g.edges = g.edges.filter((e) => !ghostIds.has(e.from));
-    atomicWrite(GRAPH_PATH, JSON.stringify(g, null, 2));
+    // Cap-safe per-element streaming write: the merged system-graph.json is >512MiB, so even a
+    // compact JSON.stringify(g) throws V8's max-string-length cap (Cannot create a string longer
+    // than 0x1fffffe8). writeGraphStreamingAtomic streams per-element + does its own atomic
+    // tmp+rename. (Was JSON.stringify -- the stale "mirrors merge-augmentations" note predated
+    // merge's own streaming migration.) U-VIZ-SEEDGHOST-CAPSAFE (sierra 2026-06-23).
+    finalizeGraphMeta(g); // stamp accurate post-mutation totals + regen timestamp (U-VIZ-META-TOTALS-FINALIZE)
+    writeGraphStreamingAtomic(GRAPH_PATH, g);
     console.log(`reverted — removed ${ghostIds.size} ghost.unwired-engine nodes; graph now ${g.nodes.length} nodes (was ${before})`);
     return;
   }
@@ -273,7 +315,12 @@ export function main() {
 
   // Apply: idempotent merge (by id)
   console.log(`Reading graph ${GRAPH_PATH}...`);
-  const g = JSON.parse(fs.readFileSync(GRAPH_PATH, "utf8"));
+  // Cap-safe streaming read -- the merged graph is >512MiB, so JSON.parse(readFileSync(..,"utf8"))
+  // throws V8's "Cannot create a string longer than 0x1fffffe8" (U-VIZ-SEEDGHOST-CAPSAFE, sierra
+  // 2026-06-23). This was the regen `failed=1` that blocked the success-stamp: --dry-run reads via
+  // readGraphStreaming (line ~254) so it passed, but --apply (the mode regen-viz runs) used the raw
+  // string read here. Mirrors the sibling post-merge stages (repair/dedup/reparent).
+  const g = readGraphStreaming(GRAPH_PATH);
   const existingIds = new Set(g.nodes.map((n) => n.id));
   const existingEdgeKeys = new Set(g.edges.map((e) => `${e.from}::${e.to}::${e.type || ""}`));
 
@@ -300,8 +347,12 @@ export function main() {
   }
 
   console.log(`Writing ${GRAPH_PATH} (nodes added=${nodesAdded} updated=${nodesUpdated}, edges added=${edgesAdded})...`);
-  atomicWrite(GRAPH_PATH, JSON.stringify(g, null, 2));
-  console.log(`DONE — graph nodes=${g.nodes.length} edges=${g.edges.length}`);
+  // Cap-safe per-element streaming write -- JSON.stringify(g) on the >512MiB graph throws the V8
+  // string-cap (same class as the read above). writeGraphStreamingAtomic does its own atomic
+  // tmp+rename, matching the sibling post-merge stages (U-VIZ-SEEDGHOST-CAPSAFE, sierra 2026-06-23).
+  finalizeGraphMeta(g); // stamp accurate post-merge totals + regen timestamp (U-VIZ-META-TOTALS-FINALIZE)
+  writeGraphStreamingAtomic(GRAPH_PATH, g);
+  console.log(`DONE -- graph nodes=${g.nodes.length} edges=${g.edges.length} totals=${JSON.stringify(g.meta?.totals)} generatedAt=${g.generatedAt}`);
 }
 
 const isMain = (() => {

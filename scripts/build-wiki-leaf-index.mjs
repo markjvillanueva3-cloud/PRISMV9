@@ -39,7 +39,36 @@ const ORPHANS_PATH = resolve(PRISM_ROOT, "state/shared/wiki-orphans.json");
 // canonical code-tribal entries. Each line gets a distinct `type` so consumers
 // can tell them apart from architecture entries.
 const TRIBAL_DIR = process.env.PRISM_WIKI_TRIBAL_DIR || resolve(PRISM_ROOT, "knowledge/tribal");
-const CODE_TRIBAL_DIR = process.env.PRISM_WIKI_CODE_TRIBAL_DIR || resolve(PRISM_ROOT, "knowledge/wiki/code-tribal");
+// Every hand-written wiki sub-tree OUTSIDE architecture/ (architecture/ is walked
+// above). The generator originally walked ONLY code-tribal/, which left the
+// software-engineering/, lessons/, decisions/, … Karpathy-wiki dirs invisible to
+// the recall hooks (wiki-precheck-inject / wiki-recall-on-read) — the
+// "writer-without-reader" stagnation: ~80 hand-written backend-dev / lessons
+// entries that no recall surface could ever return. Each dir's basename becomes
+// the default `type` (frontmatter `type:` still overrides) so consumers filter
+// by it; build-wiki-embeddings.mjs CONCEPT_TYPES MUST list each of these basenames
+// or they're indexed-but-not-embedded. PRISM_WIKI_CODE_TRIBAL_DIR stays honored
+// (back-compat — redirects the code-tribal entry only); PRISM_WIKI_HAND_DIRS
+// (comma-separated absolute paths) overrides the whole set for the test harness.
+const WIKI_ROOT = resolve(PRISM_ROOT, "knowledge/wiki");
+const HAND_WIKI_DIRS = process.env.PRISM_WIKI_HAND_DIRS
+  ? process.env.PRISM_WIKI_HAND_DIRS.split(",").map((s) => s.trim()).filter(Boolean)
+  : [
+      process.env.PRISM_WIKI_CODE_TRIBAL_DIR || join(WIKI_ROOT, "code-tribal"),
+      join(WIKI_ROOT, "software-engineering"),
+      join(WIKI_ROOT, "lessons"),
+      join(WIKI_ROOT, "concepts"),
+      join(WIKI_ROOT, "patterns"),
+      join(WIKI_ROOT, "decisions"),
+      join(WIKI_ROOT, "consensus"),
+      join(WIKI_ROOT, "coordination"),
+      join(WIKI_ROOT, "entities"),
+      join(WIKI_ROOT, "os"),
+      join(WIKI_ROOT, "reference"),
+      join(WIKI_ROOT, "trajectories"),
+      join(WIKI_ROOT, "ux-design"),
+      join(WIKI_ROOT, "summaries"),
+    ];
 // Personal-memory mirror: `memory-mirror-to-vault.mjs` writes the auto-memory
 // dir (`feedback_*.md`, `reference_*.md`, `project_*.md`, `user_*.md`, …) into
 // `knowledge/memories/` so it lives in-vault alongside the wiki tree. Indexing
@@ -208,21 +237,32 @@ function main() {
       tribalCount++;
     }
   }
-  // Canonical code-tribal entries (knowledge/wiki/code-tribal/**) — wiki entries
-  // that live outside architecture/. type from frontmatter, default "code-tribal".
-  let codeTribalCount = 0;
-  if (existsSync(CODE_TRIBAL_DIR)) {
-    for (const f of walkMd(CODE_TRIBAL_DIR)) {
+  // Hand-written wiki sub-trees (knowledge/wiki/<dir>/**, dir != architecture/).
+  // Generalizes the original code-tribal-only walk to EVERY hand-written dir so
+  // none sits stagnant outside the recall surface. Each dir's basename is the
+  // default `type` (frontmatter `type:` overrides). index.md / log.md /
+  // `_`-prefixed files are index/noise — never recall entries — so they're
+  // skipped. Full rebuild semantics (writeFileSync below) mean a previously
+  // bloated/duplicated index self-heals on regen.
+  let handWikiCount = 0;
+  const handWikiByDir = Object.create(null);
+  for (const dir of HAND_WIKI_DIRS) {
+    if (!existsSync(dir)) continue;
+    const defaultType = basename(dir);
+    for (const f of walkMd(dir)) {
+      const bn = basename(f, ".md");
+      if (bn === "index" || bn === "log" || bn.startsWith("_")) continue;
       let content;
       try { content = readFileSync(f, "utf8"); } catch { skipped++; continue; }
       const fm = parseFrontmatter(content);
-      const name = basename(f, ".md");
+      const name = bn;
       const title = fm.title || firstH1(content) || name;
-      const type = fm.type || "code-tribal";
+      const type = fm.type || defaultType;
       const desc = firstBlockquote(content) || (content.replace(/^---[\s\S]*?\n---\s*\n/, "").split(/\r?\n/).find((l) => l.trim() && !l.startsWith("#")) || "").trim().slice(0, DESC_MAX);
       const path = relative(PRISM_ROOT, f).replace(/\\/g, "/");
       pushEntry(name, title, type, desc, path, normalizeBoostKeywords(fm.boost_keywords));
-      codeTribalCount++;
+      handWikiCount++;
+      handWikiByDir[defaultType] = (handWikiByDir[defaultType] || 0) + 1;
     }
   }
   // Personal-memory mirror (knowledge/memories/**) — auto-mirrored from the
@@ -327,7 +367,7 @@ tags: [architecture, wiki, stats, self-awareness]
 > \`index.md\` lines — it does **not** see this tree. This file is the real
 > number. (If you maintain \`generate-system-viz.mjs\`, count \`architecture/**/*.md\`.)
 
-**Total recall-index entries:** ${lines.length}  (\`architecture/\` tree: ${archCount} · tribal tips: ${tribalCount} · code-tribal: ${codeTribalCount} · memories: ${memoryCount})
+**Total recall-index entries:** ${lines.length}  (\`architecture/\` tree: ${archCount} · tribal tips: ${tribalCount} · hand-wiki (code-tribal+software-engineering+lessons+…): ${handWikiCount} · memories: ${memoryCount})
 **Leaf index:** \`_leaf-index.jsonl\` (${(Buffer.byteLength(jsonl) / 1048576).toFixed(2)} MB) — consumed by \`wiki-precheck-inject.mjs\` (BM25 + cosine) and \`wiki-recall-on-read.mjs\` for keyword/path recall
 **Semantic index:** \`_embeddings.jsonl\` (int8 nomic-embed-text vectors over concept entries; built by \`build-wiki-embeddings.mjs\` — present iff Ollama was reachable at last regen)
 **Orphan rate:** ${orphanLine}  (rescue hub: \`_orphans-rescue.md\` — every orphan gets an inbound link there, so effective orphan rate ≈ 0)
@@ -361,7 +401,8 @@ then \`system-viz-obsidian-bridge-v2\`, \`export-graph-cypher\`, \`inject-wiki-c
 `;
   writeFileSync(STATS_PATH, stats, "utf8");
 
-  process.stdout.write(`leaf-index: ${lines.length} entries (arch ${archCount} + tribal ${tribalCount} + code-tribal ${codeTribalCount} + memories ${memoryCount}) -> _leaf-index.jsonl (${(Buffer.byteLength(jsonl) / 1048576).toFixed(2)} MB) + _stats.md, ${boostEntryCount} with boost_keywords, ${Date.now() - t0}ms, skipped ${skipped}\n`);
+  const handWikiBreakdown = Object.entries(handWikiByDir).map(([k, v]) => `${k}:${v}`).join(",") || "none";
+  process.stdout.write(`leaf-index: ${lines.length} entries (arch ${archCount} + tribal ${tribalCount} + hand-wiki ${handWikiCount} [${handWikiBreakdown}] + memories ${memoryCount}) -> _leaf-index.jsonl (${(Buffer.byteLength(jsonl) / 1048576).toFixed(2)} MB) + _stats.md, ${boostEntryCount} with boost_keywords, ${Date.now() - t0}ms, skipped ${skipped}\n`);
 }
 
 // Run only when invoked directly — importing this module (the U-CLEANUP-D5 test

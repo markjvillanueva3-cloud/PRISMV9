@@ -23,13 +23,18 @@ related:
 |-------|-------|
 | Name | `cycle-time-crush` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/cycle-time-crush.md` |
+| Source | `C:/Users/wompu/.claude/commands/cycle-time-crush.md` |
 | Model | default |
 | Tags | _(none)_ |
 
 ## Description (first paragraph)
 
-_(no body content)_
+
+# Cycle Time Crush — Find Every Second Hiding in Your Program
+
+Takes an existing CNC program and finds every opportunity to reduce cycle time while staying within machine limits, tool life constraints, and quality requirements. Most shops have 15-40% hidden cycle time they don't know about — in conservative feeds, unnecessary rapids, suboptimal tool paths, and idle time.
+
+**Value**: 1 second
 
 <!-- AUTO-END -->
 

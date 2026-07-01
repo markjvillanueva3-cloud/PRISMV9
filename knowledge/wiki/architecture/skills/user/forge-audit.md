@@ -23,12 +23,11 @@ related:
 |-------|-------|
 | Name | `forge-audit` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/forge-audit.md` |
+| Source | `C:/Users/wompu/.claude/commands/forge-audit.md` |
 | Model | default |
 | Tags | _(none)_ |
 
 ## Description (first paragraph)
-
 
 
 # Forge Audit — Codebase Quality Scan Autopilot
@@ -40,10 +39,10 @@ Comprehensive quality scan across PRISM. Designed for background execution — p
 Refresh the live inventory so all counts are current, then read it:
 
 ```bash
-node H:/prism/scripts/update-prism-inventory.mjs --quiet
+node scripts/update-prism-inventory.mjs --quiet
 ```
 
-Then read `H:/prism/PRISM-INVENTORY-LATEST.
+Then read `PRISM-INVENTORY-LATEST.md` for the authorit
 
 <!-- AUTO-END -->
 

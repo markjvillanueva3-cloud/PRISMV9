@@ -35,11 +35,96 @@ export interface MfgFeature {
   [k: string]: unknown;
 }
 
+/**
+ * Severity of a precedence edge. Most edges are normal type-based or geometric
+ * constraints. When a constraint matches a playbook anti-pattern, the edge is
+ * elevated to the anti-pattern's severity ("critical" | "important" | …) and
+ * carries the matched rule IDs for traceability. PB-MS0/P3-U01.
+ */
+export type PrecedenceEdgeSeverity = "normal" | "critical" | "important" | "recommended" | "tip";
+
+/**
+ * Anti-pattern shape used by the cross-reference helper. Matches the subset of
+ * `PlaybookRule` (`MachiningPlaybookEngine`) that the cross-ref logic reads.
+ * Kept as a structural type so tests can inject fixtures without importing the
+ * full PlaybookRule (with its 14+ optional fields). PB-MS0/P3-U01.
+ */
+export interface AntiPatternRule {
+  id: string;
+  severity: string;
+  title: string;
+  rule: string;
+  reasoning: string;
+}
+
+/**
+ * Severity rank table — single source of truth shared between the engine and
+ * its tests. Critical > important > recommended > tip > normal. When multiple
+ * anti-patterns match a single precedence edge, the highest-ranked severity
+ * wins. PB-MS0/P3-U01.
+ */
+export const PRECEDENCE_SEVERITY_RANK: Readonly<Record<string, number>> = Object.freeze({
+  normal: 0,
+  tip: 1,
+  recommended: 2,
+  important: 3,
+  critical: 4,
+});
+
+/**
+ * Pure matcher: given an edge's two endpoint feature types + a list of
+ * anti-pattern rules, return the elevation to apply (highest-rank severity +
+ * matching rule IDs) or `null` if no anti-pattern references BOTH endpoints.
+ *
+ * The both-endpoints rule is what prevents global false-positive elevation —
+ * a rule mentioning only one endpoint type would otherwise elevate every edge
+ * that touched a feature of that type. PB-MS0/P3-U01.
+ *
+ * @param fromType      Lowercased feature type at edge tail
+ * @param toType        Lowercased feature type at edge head
+ * @param antiPatterns  Candidate anti-pattern rules (already filtered by category)
+ * @returns Elevation result, or `null` to leave the edge unchanged
+ */
+export function matchAntiPatternsToEdge(
+  fromType: string,
+  toType: string,
+  antiPatterns: readonly AntiPatternRule[],
+): { severity: PrecedenceEdgeSeverity; ruleIds: string[] } | null {
+  if (!fromType || !toType || antiPatterns.length === 0) return null;
+  const matchedIds: string[] = [];
+  let maxSeverity: PrecedenceEdgeSeverity | null = null;
+  let maxRank = PRECEDENCE_SEVERITY_RANK.normal;
+
+  for (const ap of antiPatterns) {
+    const ruleText = `${ap.title} ${ap.rule} ${ap.reasoning}`.toLowerCase();
+    if (ruleText.includes(fromType) && ruleText.includes(toType)) {
+      const apRank = PRECEDENCE_SEVERITY_RANK[ap.severity];
+      // Skip rules whose severity isn't in the rank table — they cannot
+      // legitimately elevate any edge. Returning a "normal" elevation with
+      // attached ruleIds would violate the elevation-is-meaningful contract.
+      if (apRank === undefined) continue;
+      if (!matchedIds.includes(ap.id)) matchedIds.push(ap.id);
+      if (apRank > maxRank) {
+        maxRank = apRank;
+        maxSeverity = ap.severity as PrecedenceEdgeSeverity;
+      }
+    }
+  }
+
+  return (matchedIds.length > 0 && maxSeverity !== null)
+    ? { severity: maxSeverity, ruleIds: matchedIds }
+    : null;
+}
+
 export interface PrecedenceEdge {
   from: string;
   to: string;
   type: string;
   constraint: string;
+  /** Elevated when a playbook anti-pattern matches the constraint. PB-MS0/P3-U01. */
+  severity?: PrecedenceEdgeSeverity;
+  /** Playbook rule IDs that elevated this edge. PB-MS0/P3-U01. */
+  antiPatternRuleIds?: string[];
 }
 
 export interface PrecedenceGraph {
@@ -146,7 +231,56 @@ class FeatureInteractionEngineImpl {
       }
     }
 
+    // PB-MS0/P3-U01: cross-reference precedence edges with playbook anti-patterns;
+    // elevate severity + record matched rule IDs for downstream consumers.
+    this._crossReferenceAntiPatterns(graph, features);
+
     return graph;
+  }
+
+  /**
+   * For each precedence edge in `graph`, query the playbook anti-pattern set
+   * and elevate the edge when an anti-pattern rule mentions both endpoint
+   * feature types. Fail-soft — if the playbook isn't available the graph is
+   * returned unchanged. Mutates `graph.edges` in place. PB-MS0/P3-U01.
+   *
+   * @param graph     Precedence graph whose edges are cross-referenced
+   * @param features  Feature list (provides feature-type metadata for endpoints)
+   */
+  private _crossReferenceAntiPatterns(graph: PrecedenceGraph, features: MfgFeature[]): void {
+    let antiPatterns: readonly AntiPatternRule[] = [];
+    try {
+      const { machiningPlaybookEngine } = require("./MachiningPlaybookEngine.js");
+      const featureTypes = features.map(f => f.type?.toLowerCase()).filter((t): t is string => Boolean(t));
+      if (featureTypes.length === 0) return;
+      antiPatterns = (machiningPlaybookEngine.antiPatterns({ features: featureTypes }) ?? []) as readonly AntiPatternRule[];
+    } catch { return; }
+
+    if (antiPatterns.length === 0) return;
+    this.applyAntiPatternsToEdges(graph, antiPatterns);
+  }
+
+  /**
+   * Apply a pre-fetched anti-pattern list to a graph's edges. Split out from
+   * `_crossReferenceAntiPatterns` so tests can inject deterministic anti-pattern
+   * fixtures and exercise the matching/elevation paths without depending on the
+   * live MachiningPlaybookEngine state. PB-MS0/P3-U01.
+   *
+   * @param graph         Precedence graph (mutated in place)
+   * @param antiPatterns  Anti-pattern rules to test each edge against
+   */
+  applyAntiPatternsToEdges(graph: PrecedenceGraph, antiPatterns: readonly AntiPatternRule[]): void {
+    for (const edge of graph.edges) {
+      const fromType = graph.nodes.get(edge.from)?.feature.type?.toLowerCase();
+      const toType = graph.nodes.get(edge.to)?.feature.type?.toLowerCase();
+      if (!fromType || !toType) continue;
+
+      const match = matchAntiPatternsToEdge(fromType, toType, antiPatterns);
+      if (match) {
+        edge.severity = match.severity;
+        edge.antiPatternRuleIds = match.ruleIds;
+      }
+    }
   }
 
   /** Detect interactions between feature pairs. */

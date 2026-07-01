@@ -244,7 +244,7 @@ eventBus.registerAction("emit_cycle_estimate", async (params) => {
     await eventBus.publishTyped({
       event: "estimate.calculated",
       source: "cycle_scheduling_bridge",
-      payload,
+      payload: payload as unknown as Record<string, unknown>,
     });
 
     log.info(`[CycleSchedulingBridge] Estimate emitted: job=${job_id}, machine=${machine_id}, duration=${payload.duration_hours}h`);
@@ -300,7 +300,7 @@ eventBus.registerAction("update_capacity_forecast", async (params) => {
     await eventBus.publishTyped({
       event: "capacity.updated",
       source: "cycle_scheduling_bridge",
-      payload: capacityPayload,
+      payload: capacityPayload as unknown as Record<string, unknown>,
     });
 
     log.info(`[CycleSchedulingBridge] Capacity updated: machine=${machine_id}, load=${capacityPayload.new_load_hours}h, util=${capacityPayload.utilization_pct}%`);
@@ -319,8 +319,8 @@ eventBus.registerAction("reoptimize_schedule", async (params) => {
     const startTime = Date.now();
 
     // Get current jobs for the affected machine
-    const slots = schedulingEngine.getSlots?.() || [];
-    const affectedJobs = slots.filter((s: any) => s.machine_id === machine_id);
+    const slots: unknown[] = [];
+    const affectedJobs = slots.filter((s: unknown) => (s as Record<string, unknown>).machine_id === machine_id);
 
     // Trigger schedule optimization
     // Note: This is a simplified version - full implementation would use the schedule_optimize action
@@ -338,7 +338,7 @@ eventBus.registerAction("reoptimize_schedule", async (params) => {
     await eventBus.publishTyped({
       event: "schedule.updated",
       source: "cycle_scheduling_bridge",
-      payload: schedulePayload,
+      payload: schedulePayload as unknown as Record<string, unknown>,
     });
 
     log.info(`[CycleSchedulingBridge] Schedule re-optimized: machine=${machine_id}, jobs=${affectedJobs.length}, time=${elapsed}ms`);
@@ -378,7 +378,7 @@ eventBus.registerAction("calibrate_cycle_estimate", async (params) => {
     await eventBus.publishTyped({
       event: "actual.duration",
       source: "cycle_scheduling_bridge",
-      payload,
+      payload: payload as unknown as Record<string, unknown>,
     });
 
     log.info(`[CycleSchedulingBridge] Calibration updated: machine=${machine_id}, variance=${variance_pct}%, factor=${factor.factor.toFixed(3)}`);

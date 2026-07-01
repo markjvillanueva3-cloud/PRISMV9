@@ -23,13 +23,19 @@ related:
 |-------|-------|
 | Name | `forge-hooks` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/forge-hooks.md` |
+| Source | `C:/Users/wompu/.claude/commands/forge-hooks.md` |
 | Model | default |
 | Tags | _(none)_ |
 
 ## Description (first paragraph)
 
-_(no body content)_
+
+# Forge Hooks — Hook Discovery + Creation Autopilot
+
+You are running a specialized autopilot pipeline focused on discovering, designing, building, and registering new Claude Code hooks that benefit the PRISM system and app. This command chains system analysis, hook identification, creation via hookify, testing, and registration into one continuous flow.
+
+## Args: $ARGUMENTS
+- Empty: full di
 
 <!-- AUTO-END -->
 

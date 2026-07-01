@@ -1,30 +1,55 @@
 # NN-GRAPH-MS0 GNN Tier-5 Assessment — NN-EVAL
 
-**Status: DEFERRED** — insufficient-reference-pool
+**Assessed:** 2026-06-27T06:09:35.662Z  ·  **Holdout:** 200 reference ghosts
 
-A trained GraphSAGE checkpoint **is present and loaded cleanly** — the
-U4 training-pipeline blocker is resolved.
+> Internal-consistency metric — measures whether the GNN agrees with the
+> keyword/sibling tiers' high-confidence labels. NOT verified ground truth.
 
-The deploy gate cannot be graded yet for a **data-side** reason, not
-a code-side one:
+## Mandatory gates
 
-- Reference pool in the current system-viz graph: **0** high-
-  confidence ghost classifications (a leave-out holdout needs >= 2). The
-  tier-5 gate is dormant by data — the `ghost.unwired-engine` count
-  fluctuates 0..811 with each system-viz regeneration and is currently
-  at the low end.
+| Metric | Value | Gate | Result |
+|---|---|---|---|
+| AUROC | 0.7525 | >= 0.78 | FAIL |
+| macro-F1 | 0.2834 | >= 0.55 | FAIL |
+| Brier | 0.22 | <= 0.15 | FAIL |
+| accuracy | 0.555 | (informational) | — |
 
-Trained-checkpoint link-prediction diagnostic (the pretext task —
-expected weak on this heterophilous, type-imbalanced graph; this is
-NOT the deploy gate):
+**Verdict: SHIPPED-RESEARCH-ONLY**
 
-- AUROC 0.0961 · Brier(raw) 0.3253 · Brier(cal) 0.2495
-- epochs 30 · finalLoss 0.7373 · calibrator reliable (n=2624)
+Gate failures: AUROC 0.7525 < 0.78; macro-F1 0.2834 < 0.55; Brier 0.2200 > 0.15
 
-**Unblock:** re-run after a system-viz regeneration that yields >= 2
-high-confidence reference ghosts (no retraining needed — only the graph
-data must change):
 
-```
-node scripts/lib/nn-graph-eval.mjs --checkpoint state/shared/nn-graph/graphsage-checkpoint.json
-```
+## Per-bucket calibration
+
+| Confidence | Count | Mean prob | Accuracy | Brier |
+|---|---|---|---|---|
+| [0.00, 0.20) | 0 | — | — | — |
+| [0.20, 0.40) | 12 | 0.3496 | 0.1667 | 0.173 |
+| [0.40, 0.60) | 58 | 0.5039 | 0.3448 | 0.2443 |
+| [0.60, 0.80) | 59 | 0.7051 | 0.4915 | 0.3105 |
+| [0.80, 1.00) | 71 | 0.8 | 0.8451 | 0.133 |
+
+## Selective deployment (risk-coverage)
+
+> Tier-5 ABSTAINS below its confidence gate and defers to the LLM tier, so the
+> deploy-relevant quality is the EMITTED set's risk at each operating τ — not the
+> full-holdout risk (which scores predictions the tier never emits). The full-holdout
+> grade above is retained; this is reported WITH its coverage, never instead of it.
+
+| τ (gate) | Coverage | Emitted | Brier | macro-F1 | Accuracy | Brier≤gate | macroF1≥gate |
+|---|---|---|---|---|---|---|---|
+| 0.4 | 94.0% | 188 | 0.223 | 0.3065 | 0.5798 | ✗ | ✗ |
+| 0.45 | 90.0% | 180 | 0.2232 | 0.3088 | 0.5944 | ✗ | ✗ |
+| 0.5 | 82.5% | 165 | 0.2226 | 0.3442 | 0.6303 | ✗ | ✗ |
+| 0.55 | 70.0% | 140 | 0.2178 | 0.3975 | 0.6643 | ✗ | ✗ |
+| 0.6 | 65.0% | 130 | 0.2136 | 0.3978 | 0.6846 | ✗ | ✗ |
+| 0.65 | 58.5% | 117 | 0.2129 | 0.4092 | 0.6838 | ✗ | ✗ |
+| 0.7 | 49.5% | 99 | 0.2005 | 0.4117 | 0.7172 | ✗ | ✗ |
+| 0.75 | 43.0% | 86 | 0.1771 | 0.4666 | 0.7674 | ✗ | ✗ |
+| 0.8 | 35.5% | 71 | 0.133 | 0.6155 | 0.8451 | ✓ | ✓ |
+
+**Selective verdict: NO-DEPLOYABLE-OPERATING-POINT** — AUROC 0.7525 < 0.78 (global ranking); at the production gate τ=0.7 the emitted set fails: Brier 0.2005 > 0.15, macro-F1 0.4117 < 0.55.
+
+_(A lower gate τ=0.8 would clear at 35.5% coverage, but production runs at τ=0.7.)_
+
+_Small-holdout caveat: this verdict is fit on 200 holdout samples; the operating point is the fixed production gate (not tuned to the holdout), but re-confirm as the reference pool grows._

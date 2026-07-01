@@ -1,0 +1,231 @@
+{
+  "id": "MXU-MS4",
+  "version": "1.0.0",
+  "title": "Course-to-Capability Transformation",
+  "brief": "Inventory extracted learning assets. Build course-source ledger. Define transformation pipeline (concept->lesson->skill->test). Attach provenance metadata. Quality gates: same scrutiny standard as hand-written assets.",
+  "created_at": "2026-03-25T14:30:00Z",
+  "created_by": "claude-opus-4.6",
+  "track": "MXU",
+  "track_name": "Max Utilization",
+  "status": "not_started",
+  "phases": [
+    {
+      "id": "P0",
+      "title": "Asset Inventory & Ledger",
+      "sessions": "1-2",
+      "units": [
+        {
+          "id": "P0-U01",
+          "title": "Inventory all extracted learning assets from courses/tutorials/docs",
+          "effort": 60,
+          "dependencies": [],
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit"
+          ],
+          "description": "Inventory all extracted learning assets from courses/tutorials/docs — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P0-U02",
+          "title": "Build course-source ledger: map each asset to its origin course/section/timestamp",
+          "effort": 50,
+          "dependencies": [
+            "P0-U01"
+          ],
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit"
+          ],
+          "description": "Build course-source ledger: map each asset to its origin course/section/timestamp — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "P1",
+      "title": "Transformation Pipeline & Quality",
+      "sessions": "1-2",
+      "units": [
+        {
+          "id": "P1-U01",
+          "title": "Define transformation pipeline stages: concept -> lesson -> skill -> test",
+          "effort": 60,
+          "dependencies": [
+            "P0-U02"
+          ],
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit"
+          ],
+          "description": "Define transformation pipeline stages: concept -> lesson -> skill -> test — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P1-U02",
+          "title": "Attach provenance metadata to each transformed asset (source, version, confidence)",
+          "effort": 50,
+          "dependencies": [
+            "P1-U01"
+          ],
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit"
+          ],
+          "description": "Attach provenance metadata to each transformed asset (source, version, confidence) — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P1-U03",
+          "title": "Define quality gates: same 3-agent scrutiny standard as hand-written assets",
+          "effort": 60,
+          "dependencies": [
+            "P1-U02"
+          ],
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit"
+          ],
+          "description": "Define quality gates: same 3-agent scrutiny standard as hand-written assets — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P1-U04",
+          "title": "Validate pipeline end-to-end on 3 sample course extractions",
+          "effort": 50,
+          "dependencies": [
+            "P1-U03"
+          ],
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit"
+          ],
+          "description": "Validate pipeline end-to-end on 3 sample course extractions — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        }
+      ]
+    }
+  ],
+  "dependencies": [
+    "MXU-MS0"
+  ],
+  "exit_conditions": [
+    "All extracted learning assets inventoried with provenance",
+    "Course-source ledger complete",
+    "Transformation pipeline defined and validated on 3 samples",
+    "Quality gates match hand-written asset scrutiny standard"
+  ],
+  "spec_path": "docs/superpowers/specs/2026-03-25-mcp-max-utilization-roadmap-design.md",
+  "smart_config": {
+    "role": "implementer + reviewer",
+    "model": "sonnet",
+    "effort": "HIGH",
+    "context_budget": "65%"
+  },
+  "mcp_lifecycle": {
+    "session_start": [
+      "prism_session:context_boot",
+      "prism_session:dispatcher_map",
+      "prism_session:memory_recall",
+      "prism_session:system_snapshot",
+      "prism_session:action_search"
+    ],
+    "during_work": [
+      "prism_session:auto_checkpoint",
+      "prism_session:tool_route_best",
+      "prism_session:wip_capture"
+    ],
+    "session_end": [
+      "prism_session:memory_save",
+      "prism_session:system_snapshot",
+      "prism_session:checkpoint_enhanced"
+    ]
+  },
+  "forge_triple": {
+    "protective_hook": "mxu-ms4-gate",
+    "mcp_action": "prism_mxu:mxu_ms4_run",
+    "skill_command": "/mxu-ms4",
+    "ownership": "DECLARED — BUILT in terminal unit of this milestone"
+  },
+  "feature_cascade": {
+    "new_hooks": [
+      "mxu-ms4-gate"
+    ],
+    "new_actions": [
+      "mxu_ms4_run"
+    ],
+    "new_skills": [
+      "/mxu-ms4"
+    ],
+    "available_to": [
+      "downstream CAMX milestones",
+      "prism app consumers"
+    ]
+  },
+  "knowledge_sources": {
+    "engines": [
+      "ENGINE_DIGEST.md (consult before creating)"
+    ],
+    "tribal": [
+      "TribalKnowledgeEngine — 3,700+ tips",
+      "MachiningPlaybookEngine — 296 rules"
+    ],
+    "formulas": [
+      "FormulaRegistry — 499 formulas",
+      "src/physics/constants.ts — canonical"
+    ],
+    "reference": [
+      "EXTERNAL-REFERENCE-PROGRAMS-INDEX.md",
+      "MaterialRegistry",
+      "MachineRegistry",
+      "ToolCatalogEngine (95,608 tools)"
+    ]
+  },
+  "intent": "Inventory extracted learning assets. Build course-source ledger. Define transformation pipeline (concept->lesson->skill->test). Attach provenance metadata. Quality gates: same scrutiny standard as hand-written assets.",
+  "compact_checkpoint": "every 3 units — auto-triggered by hook",
+  "enforcement_hooks_active": [
+    "physics agent",
+    "wiring agent",
+    "constants checker",
+    "stub detector",
+    "test quality",
+    "forge-triple gate",
+    "session audit agent"
+  ]
+}

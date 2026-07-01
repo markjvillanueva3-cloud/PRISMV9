@@ -191,7 +191,21 @@ export class AutodeskFusionMCPProxyEngine {
 
   /** Generic tool dispatch — preferred over the typed wrappers when caller already has args validated. */
   async callTool(name: FusionToolName, args: Record<string, unknown>): Promise<MCPToolCallResult> {
-    return this.send<MCPToolCallResult>("tools/call", { name, arguments: args });
+    const result = await this.send<MCPToolCallResult>("tools/call", { name, arguments: args });
+    // CLOSE-THE-LOOPS-MS0: DATA-only outcome emit (fire-and-forget, off the Fusion critical path).
+    try {
+      const { emitPipelineOutcome } = await import("./pipelineOutcomeEmit.js");
+      emitPipelineOutcome({
+        domain: "fusion_bridge",
+        engineName: "AutodeskFusionMCPProxyEngine",
+        outcomeEventId: `fusion_${name}`,
+        inline: { tool_name: name },
+        adapted: { content_length: result?.content?.length ?? 0 },
+        reward: { objective: "other", raw_value: result?.isError ? 0 : 1, sign_convention: "maximize" },
+        metadata: { is_error: result?.isError ?? false },
+      });
+    } catch { /* never let an emit failure break a Fusion op */ }
+    return result;
   }
 
   // ── fusion_mcp_execute wrappers ────────────────────────────────────────────

@@ -97,10 +97,10 @@ function buildProgrammingAuthority(
 
 function buildUnsupportedReason(mode: CalculatorWorkspaceMode | null) {
   if (mode === 'wire_edm') {
-    return 'Post processor generation is not yet supported for this routed wire EDM posture. PRISM keeps this surface fail-closed until the canonical EDM post and controller contract is extracted.';
+    return 'Post processor generation is not yet supported for this routed wire EDM posture. Kienzle keeps this surface fail-closed until the canonical EDM post and controller contract is extracted.';
   }
   if (mode === 'edm') {
-    return 'Post processor generation is not yet supported for this routed sinker EDM posture. PRISM keeps this surface fail-closed until the canonical sinker EDM post, controller, and electrode release contract is extracted.';
+    return 'Post processor generation is not yet supported for this routed sinker EDM posture. Kienzle keeps this surface fail-closed until the canonical sinker EDM post, controller, and electrode release contract is extracted.';
   }
   return undefined;
 }

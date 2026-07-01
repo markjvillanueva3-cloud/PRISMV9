@@ -1,11 +1,12 @@
 ---
 name: reverse-merge-then-ff-only
 description: "Landing a feature branch into a busy shared tree without thrashing — reverse-merge target → feature in an isolated worktree, then ff-only into the shared tree"
-metadata: 
-  node_type: memory
-  type: reference
-  originSessionId: aec2148c-c55a-49c5-a648-da9d4a0da0c0
+aliases: reference_reverse_merge_then_ff_only
+type: reference
+source: prism-memory
+synced: 2026-06-27T20:30:47.145Z
 ---
+
 
 When `H:/prism` is on `cad-fusion-live-ms0` with 6 concurrent peers (recurring `index.lock`, guard hooks that `git reset` in-progress merges, peer chats advancing HEAD every few minutes), a forward `git merge --no-ff <feature>` in `H:/prism` will be undone — either by the index.lock race or by a peer-staging-triggered guard reset. Both patterns observed 2026-05-12 during SKILLS-UTILIZATION-MS0 landing.
 

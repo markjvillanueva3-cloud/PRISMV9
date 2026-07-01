@@ -1,0 +1,1483 @@
+{
+  "schemaVersion": "1.0.0",
+  "generatedAt": "2026-04-18T23:00:00.000Z",
+  "source": "hyperMILL CAM v31+ Audit — Drilling, Probing, Automation Center, API/SDK",
+  "auditor": "PRISM HyperMill Integration Engine",
+  "summary": {
+    "totalDrillingParameters": 402,
+    "totalProbingParameters": 74,
+    "totalAutomationFunctions": 42,
+    "totalAPIObjects": 163,
+    "totalAPIProperties": 462,
+    "totalAPIMethods": 87
+  },
+
+  "drillingCycles": {
+    "cycleCount": 15,
+    "totalParameters": 402,
+    "baseSharedParameters": 20,
+    "cycles": [
+      {
+        "id": "spot_drill",
+        "name": "Spot Drilling / Center Drilling",
+        "category": "Hole Preparation",
+        "description": "Creates pilot holes and chamfers for subsequent drilling operations with controlled angle and depth",
+        "acPythonSetter": "hm.drill.spot_drill",
+        "parameterCount": 25,
+        "parameters": {
+          "cuttingData": [
+            { "name": "spindle_speed", "type": "number", "unit": "rpm", "min": 1, "max": 60000, "dfmCritical": false },
+            { "name": "feed_rate", "type": "number", "unit": "mm/min", "min": 0.1, "max": 50000, "dfmCritical": false },
+            { "name": "plunge_feed", "type": "number", "unit": "mm/min", "min": 0.1, "max": 50000, "dfmCritical": false },
+            { "name": "retract_feed", "type": "number", "unit": "mm/min", "min": 0.1, "max": 100000, "dfmCritical": false },
+            { "name": "dwell_time", "type": "number", "unit": "sec", "min": 0, "max": 30, "default": 0, "dfmCritical": false },
+            { "name": "coolant_mode", "type": "enum", "values": ["flood", "mist", "through_spindle", "air_blast", "mql", "dry", "high_pressure"], "dfmCritical": false },
+            { "name": "spindle_direction", "type": "enum", "values": ["cw", "ccw"], "default": "cw", "dfmCritical": false },
+            { "name": "cutting_speed", "type": "number", "unit": "m/min", "min": 0.1, "max": 2000, "dfmCritical": false }
+          ],
+          "geometry": [
+            { "name": "hole_diameter", "type": "number", "unit": "mm", "min": 0.1, "max": 500, "dfmCritical": false },
+            { "name": "hole_depth", "type": "number", "unit": "mm", "min": 0.1, "max": 5000, "dfmCritical": false },
+            { "name": "start_depth", "type": "number", "unit": "mm", "min": -500, "max": 500, "default": 0, "dfmCritical": false },
+            { "name": "tolerance", "type": "number", "unit": "mm", "min": 0.001, "max": 5, "dfmCritical": true },
+            { "name": "bottom_type", "type": "enum", "values": ["flat", "conical", "through"], "default": "conical", "dfmCritical": false },
+            { "name": "surface_finish_target", "type": "number", "unit": "um", "min": 0.1, "max": 50, "default": 3.2, "dfmCritical": false }
+          ],
+          "heights": [
+            { "name": "clearance_plane", "type": "number", "unit": "mm", "min": -5000, "max": 5000, "dfmCritical": false },
+            { "name": "retract_height", "type": "number", "unit": "mm", "min": -5000, "max": 5000, "dfmCritical": false },
+            { "name": "feed_height", "type": "number", "unit": "mm", "min": -5000, "max": 5000, "dfmCritical": false },
+            { "name": "top_of_part", "type": "number", "unit": "mm", "min": -5000, "max": 5000, "dfmCritical": false },
+            { "name": "safety_distance", "type": "number", "unit": "mm", "min": 0.5, "max": 100, "default": 2, "dfmCritical": false },
+            { "name": "incremental_heights", "type": "boolean", "default": false, "dfmCritical": false }
+          ],
+          "cycleSpecific": [
+            { "name": "spot_angle", "type": "enum", "values": ["60", "90", "118", "120", "140"], "dfmCritical": true },
+            { "name": "spot_depth_mode", "type": "enum", "values": ["diameter", "depth", "angle"], "dfmCritical": false },
+            { "name": "spot_target_value", "type": "number", "unit": "mm", "min": 0.1, "max": 500, "dfmCritical": true },
+            { "name": "center_drill_first", "type": "boolean", "default": false, "dfmCritical": false },
+            { "name": "deburr_pass", "type": "boolean", "default": false, "dfmCritical": false }
+          ]
+        },
+        "gCodes": ["G81", "G82"],
+        "controllerVariations": {
+          "fanuc": { "cycleCode": "G81", "dwellCode": "G82" },
+          "siemens": { "cycleCode": "CYCLE81", "dwellCode": "CYCLE82" },
+          "heidenhain": { "cycleCode": "CYCL DEF 200", "dwellCode": "CYCL DEF 201" },
+          "mazak": { "cycleCode": "G81", "dwellCode": "G82" },
+          "okuma": { "cycleCode": "G81", "dwellCode": "G82" }
+        }
+      },
+      {
+        "id": "peck_drill",
+        "name": "Peck Drilling",
+        "category": "Standard Drilling",
+        "description": "Drilling with progressive depth reduction and full retract for chip evacuation in shallow to medium depth holes",
+        "acPythonSetter": "hm.drill.peck_drill",
+        "parameterCount": 28,
+        "dfmCriticalParameters": ["first_peck_depth", "min_peck"],
+        "parameters": {
+          "cuttingData": "inherited_from_base",
+          "geometry": "inherited_from_base",
+          "heights": "inherited_from_base",
+          "cycleSpecific": [
+            { "name": "first_peck_depth", "type": "number", "unit": "mm", "min": 0.1, "max": 500, "dfmCritical": true, "rule": "1-3x drill diameter" },
+            { "name": "peck_reduction", "type": "number", "unit": "mm", "min": 0, "max": 100, "dfmCritical": false },
+            { "name": "min_peck", "type": "number", "unit": "mm", "min": 0.05, "max": 100, "dfmCritical": true },
+            { "name": "chip_break", "type": "boolean", "default": false, "dfmCritical": false },
+            { "name": "retract_amount", "type": "number", "unit": "mm", "min": 0.1, "max": 500, "default": 1, "dfmCritical": false },
+            { "name": "peck_dwell", "type": "number", "unit": "sec", "min": 0, "max": 10, "default": 0, "dfmCritical": false },
+            { "name": "rapid_to_previous", "type": "boolean", "default": true, "dfmCritical": false },
+            { "name": "peck_count_limit", "type": "integer", "min": 1, "max": 200, "default": 100, "dfmCritical": false }
+          ]
+        },
+        "gCodes": ["G73", "G83"],
+        "controllerVariations": {
+          "fanuc": { "highSpeedPeck": "G73", "deepPeck": "G83" },
+          "siemens": { "cycleCode": "CYCLE83" },
+          "heidenhain": { "cycleCode": "CYCL DEF 203" },
+          "mazak": { "highSpeedPeck": "G73", "deepPeck": "G83" },
+          "okuma": { "highSpeedPeck": "G73", "deepPeck": "G83" }
+        }
+      },
+      {
+        "id": "deep_hole_drill",
+        "name": "Deep Hole Drilling",
+        "category": "Deep Hole",
+        "description": "Deep hole drilling with L/D ratio monitoring and high-pressure coolant for chip evacuation in holes >5xD",
+        "acPythonSetter": "hm.drill.deep_hole_drill",
+        "parameterCount": 28,
+        "dfmCriticalParameters": ["ld_ratio_limit", "coolant_pressure"],
+        "parameters": {
+          "cuttingData": "inherited_from_base",
+          "geometry": "inherited_from_base",
+          "heights": "inherited_from_base",
+          "cycleSpecific": [
+            { "name": "ld_ratio_limit", "type": "integer", "min": 1, "max": 100, "dfmCritical": true, "rule": "blocks > 10 without peck" },
+            { "name": "peck_type", "type": "enum", "values": ["full_retract", "chip_break", "progressive"], "dfmCritical": false },
+            { "name": "coolant_pressure", "type": "number", "unit": "bar", "min": 1, "max": 300, "dfmCritical": true },
+            { "name": "pilot_depth_ratio", "type": "number", "min": 0.5, "max": 5, "default": 1.5, "dfmCritical": false },
+            { "name": "chip_evacuation_frequency", "type": "integer", "min": 1, "max": 50, "default": 5, "dfmCritical": false },
+            { "name": "progressive_reduction_pct", "type": "number", "unit": "%", "min": 0, "max": 80, "default": 20, "dfmCritical": false },
+            { "name": "tool_wear_compensation", "type": "boolean", "default": false, "dfmCritical": false },
+            { "name": "vibration_monitoring", "type": "boolean", "default": false, "dfmCritical": false }
+          ]
+        },
+        "gCodes": ["G83"],
+        "controllerVariations": {
+          "fanuc": { "cycleCode": "G83" },
+          "siemens": { "cycleCode": "CYCLE83" },
+          "heidenhain": { "cycleCode": "CYCL DEF 205" }
+        }
+      },
+      {
+        "id": "gun_drill",
+        "name": "Gun Drilling",
+        "category": "Deep Hole",
+        "description": "Gun drilling for very deep holes (>20xD) with pilot hole requirement and guide bush support",
+        "acPythonSetter": "hm.drill.gun_drill",
+        "parameterCount": 27,
+        "parameters": {
+          "cuttingData": "inherited_from_base",
+          "geometry": "inherited_from_base",
+          "heights": "inherited_from_base",
+          "cycleSpecific": [
+            { "name": "pilot_hole_depth", "type": "number", "unit": "mm", "min": 0.1, "max": 500, "dfmCritical": true },
+            { "name": "guide_bush", "type": "boolean", "default": true, "dfmCritical": false },
+            { "name": "minimum_diameter", "type": "number", "unit": "mm", "min": 0.5, "max": 100, "dfmCritical": false },
+            { "name": "bush_clearance", "type": "number", "unit": "mm", "min": 0.005, "max": 0.5, "default": 0.02, "dfmCritical": false },
+            { "name": "counter_rotation", "type": "boolean", "default": false, "dfmCritical": false },
+            { "name": "oil_pressure", "type": "number", "unit": "bar", "min": 5, "max": 200, "default": 70, "dfmCritical": false },
+            { "name": "max_hole_length", "type": "number", "unit": "mm", "min": 10, "max": 10000, "dfmCritical": false }
+          ]
+        }
+      },
+      {
+        "id": "boring",
+        "name": "Boring",
+        "category": "Precision Finishing",
+        "description": "Precision hole finishing with bar orientation control for tight tolerances",
+        "acPythonSetter": "hm.drill.boring",
+        "parameterCount": 27,
+        "parameters": {
+          "cuttingData": "inherited_from_base",
+          "geometry": "inherited_from_base",
+          "heights": "inherited_from_base",
+          "cycleSpecific": [
+            { "name": "boring_type", "type": "enum", "values": ["rough", "fine", "back"], "dfmCritical": false },
+            { "name": "bar_orientation", "type": "number", "unit": "deg", "min": 0, "max": 360, "dfmCritical": false },
+            { "name": "spring_pass", "type": "boolean", "default": false, "dfmCritical": false },
+            { "name": "retract_orient", "type": "boolean", "default": true, "dfmCritical": false },
+            { "name": "radial_depth_of_cut", "type": "number", "unit": "mm", "min": 0.01, "max": 20, "dfmCritical": false },
+            { "name": "bar_overhang", "type": "number", "unit": "mm", "min": 10, "max": 1000, "dfmCritical": true },
+            { "name": "damped_bar", "type": "boolean", "default": false, "dfmCritical": false }
+          ]
+        },
+        "gCodes": ["G85", "G86", "G87", "G88", "G89"],
+        "controllerVariations": {
+          "fanuc": { "feed_out": "G85", "spindle_stop": "G86", "back_bore": "G87", "dwell": "G89" },
+          "siemens": { "cycleCode": "CYCLE85", "fineBore": "CYCLE86" },
+          "heidenhain": { "cycleCode": "CYCL DEF 208" }
+        }
+      },
+      {
+        "id": "reaming",
+        "name": "Reaming",
+        "category": "Precision Finishing",
+        "description": "Reaming for tight-tolerance hole finishing with floating holder support",
+        "acPythonSetter": "hm.drill.reaming",
+        "parameterCount": 27,
+        "parameters": {
+          "cuttingData": "inherited_from_base",
+          "geometry": "inherited_from_base",
+          "heights": "inherited_from_base",
+          "cycleSpecific": [
+            { "name": "ream_allowance", "type": "number", "unit": "mm", "min": 0.01, "max": 5, "dfmCritical": true },
+            { "name": "floating_holder", "type": "boolean", "default": false, "dfmCritical": false },
+            { "name": "speed_reduction_pct", "type": "number", "unit": "%", "min": 0, "max": 90, "default": 30, "dfmCritical": false },
+            { "name": "exit_dwell", "type": "number", "unit": "sec", "min": 0, "max": 30, "default": 0.5, "dfmCritical": false },
+            { "name": "reamer_type", "type": "enum", "values": ["straight_flute", "helical_flute", "carbide_tipped", "adjustable"], "dfmCritical": false },
+            { "name": "hand_of_cut", "type": "enum", "values": ["right", "left"], "default": "right", "dfmCritical": false },
+            { "name": "pilot_bore_required", "type": "boolean", "default": true, "dfmCritical": false }
+          ]
+        },
+        "gCodes": ["G85"],
+        "controllerVariations": {
+          "fanuc": { "cycleCode": "G85" },
+          "siemens": { "cycleCode": "CYCLE85" },
+          "heidenhain": { "cycleCode": "CYCL DEF 201" }
+        }
+      },
+      {
+        "id": "tapping",
+        "name": "Tapping",
+        "category": "Threading",
+        "description": "Tapping with rigid/synchronous mode and pitch-feed synchronization",
+        "acPythonSetter": "hm.drill.tapping",
+        "parameterCount": 28,
+        "dfmCriticalParameters": ["thread_pitch", "rigid_tapping", "thread_percentage"],
+        "parameters": {
+          "cuttingData": "inherited_from_base",
+          "geometry": "inherited_from_base",
+          "heights": "inherited_from_base",
+          "cycleSpecific": [
+            { "name": "thread_pitch", "type": "number", "unit": "mm", "min": 0.2, "max": 25, "dfmCritical": true, "rule": "feed = pitch x RPM" },
+            { "name": "tap_type", "type": "enum", "values": ["cut", "form", "roll"], "dfmCritical": false },
+            { "name": "rigid_tapping", "type": "boolean", "default": true, "dfmCritical": true },
+            { "name": "peck_tapping", "type": "boolean", "default": false, "dfmCritical": false },
+            { "name": "reverse_speed_factor", "type": "number", "min": 0.5, "max": 3, "default": 1, "dfmCritical": false },
+            { "name": "thread_percentage", "type": "number", "unit": "%", "min": 50, "max": 100, "default": 75, "dfmCritical": true, "rule": "65-75% typical, 100% risks breakage" },
+            { "name": "tap_peck_depth", "type": "number", "unit": "mm", "min": 0.5, "max": 100, "optional": true, "dfmCritical": false },
+            { "name": "length_of_engagement", "type": "number", "unit": "mm", "min": 0.5, "max": 500, "dfmCritical": false }
+          ]
+        },
+        "gCodes": ["G84", "G74"],
+        "controllerVariations": {
+          "fanuc": { "rightHand": "G84", "leftHand": "G74", "rigid": "G84.2" },
+          "siemens": { "cycleCode": "CYCLE84" },
+          "heidenhain": { "cycleCode": "CYCL DEF 206", "rigid": "CYCL DEF 207" },
+          "mazak": { "rightHand": "G84", "leftHand": "G74" },
+          "okuma": { "rightHand": "G84", "leftHand": "G74" }
+        }
+      },
+      {
+        "id": "thread_milling",
+        "name": "Thread Milling",
+        "category": "Threading",
+        "description": "Thread milling with helical interpolation for internal/external threads",
+        "acPythonSetter": "hm.drill.thread_milling",
+        "parameterCount": 28,
+        "parameters": {
+          "cuttingData": "inherited_from_base",
+          "geometry": "inherited_from_base",
+          "heights": "inherited_from_base",
+          "cycleSpecific": [
+            { "name": "thread_pitch", "type": "number", "unit": "mm", "min": 0.2, "max": 25, "dfmCritical": true },
+            { "name": "passes", "type": "integer", "min": 1, "max": 20, "default": 1, "dfmCritical": false },
+            { "name": "crest_clearance", "type": "number", "unit": "mm", "min": 0, "max": 5, "default": 0.1, "dfmCritical": false },
+            { "name": "thread_direction", "type": "enum", "values": ["right", "left"], "default": "right", "dfmCritical": false },
+            { "name": "approach_arc", "type": "boolean", "default": true, "dfmCritical": false },
+            { "name": "climb_conventional", "type": "enum", "values": ["climb", "conventional"], "default": "climb", "dfmCritical": false },
+            { "name": "thread_form", "type": "enum", "values": ["metric", "unc", "unf", "bsp", "npt", "acme"], "dfmCritical": true },
+            { "name": "single_tooth", "type": "boolean", "default": false, "dfmCritical": false }
+          ]
+        },
+        "gCodes": ["G02", "G03"],
+        "helicalInterpolation": true
+      },
+      {
+        "id": "countersink",
+        "name": "Countersinking",
+        "category": "Secondary Operations",
+        "description": "Countersinking for fastener head seating with angle and diameter control",
+        "acPythonSetter": "hm.drill.countersink",
+        "parameterCount": 26,
+        "dfmCriticalParameters": ["cs_angle"],
+        "parameters": {
+          "cuttingData": "inherited_from_base",
+          "geometry": "inherited_from_base",
+          "heights": "inherited_from_base",
+          "cycleSpecific": [
+            { "name": "cs_angle", "type": "number", "unit": "deg", "min": 30, "max": 120, "dfmCritical": true, "rule": "must match fastener spec" },
+            { "name": "cs_diameter", "type": "number", "unit": "mm", "min": 1, "max": 200, "dfmCritical": true },
+            { "name": "depth_control", "type": "enum", "values": ["diameter", "depth"], "dfmCritical": false },
+            { "name": "deburr_only", "type": "boolean", "default": false, "dfmCritical": false },
+            { "name": "multi_flute_count", "type": "integer", "min": 1, "max": 12, "default": 3, "dfmCritical": false },
+            { "name": "back_countersink", "type": "boolean", "default": false, "dfmCritical": false }
+          ]
+        }
+      },
+      {
+        "id": "counterbore",
+        "name": "Counterboring",
+        "category": "Secondary Operations",
+        "description": "Counterboring for socket-head cap screw seating or spot facing",
+        "acPythonSetter": "hm.drill.counterbore",
+        "parameterCount": 26,
+        "parameters": {
+          "cuttingData": "inherited_from_base",
+          "geometry": "inherited_from_base",
+          "heights": "inherited_from_base",
+          "cycleSpecific": [
+            { "name": "cb_diameter", "type": "number", "unit": "mm", "min": 1, "max": 500, "dfmCritical": true },
+            { "name": "cb_depth", "type": "number", "unit": "mm", "min": 0.1, "max": 200, "dfmCritical": true },
+            { "name": "spot_face", "type": "boolean", "default": false, "dfmCritical": false },
+            { "name": "corner_radius", "type": "number", "unit": "mm", "min": 0, "max": 10, "default": 0, "dfmCritical": false },
+            { "name": "pilot_diameter", "type": "number", "unit": "mm", "min": 0.5, "max": 200, "dfmCritical": false },
+            { "name": "multi_step", "type": "boolean", "default": false, "dfmCritical": false }
+          ]
+        }
+      },
+      {
+        "id": "back_spot_face",
+        "name": "Back Spot Facing",
+        "category": "Secondary Operations",
+        "description": "Back spot facing through existing hole for rear-surface preparation",
+        "acPythonSetter": "hm.drill.back_spot_face",
+        "parameterCount": 26,
+        "parameters": {
+          "cuttingData": "inherited_from_base",
+          "geometry": "inherited_from_base",
+          "heights": "inherited_from_base",
+          "cycleSpecific": [
+            { "name": "bsf_diameter", "type": "number", "unit": "mm", "min": 1, "max": 500, "dfmCritical": true },
+            { "name": "bsf_depth", "type": "number", "unit": "mm", "min": 0.1, "max": 50, "dfmCritical": true },
+            { "name": "retract_through_hole", "type": "boolean", "default": true, "dfmCritical": false },
+            { "name": "through_hole_diameter", "type": "number", "unit": "mm", "min": 0.5, "max": 200, "dfmCritical": true },
+            { "name": "blade_deployment", "type": "enum", "values": ["spring", "coolant_actuated", "manual"], "default": "spring", "dfmCritical": false },
+            { "name": "approach_feed_pct", "type": "number", "unit": "%", "min": 10, "max": 100, "default": 50, "dfmCritical": false }
+          ]
+        }
+      },
+      {
+        "id": "helical_bore",
+        "name": "Helical Bore Milling",
+        "category": "Milling-Based Hole Making",
+        "description": "Helical bore milling for precision bores larger than available drills",
+        "acPythonSetter": "hm.drill.helical_bore",
+        "parameterCount": 27,
+        "parameters": {
+          "cuttingData": "inherited_from_base",
+          "geometry": "inherited_from_base",
+          "heights": "inherited_from_base",
+          "cycleSpecific": [
+            { "name": "helix_pitch", "type": "number", "unit": "mm", "min": 0.05, "max": 50, "dfmCritical": false },
+            { "name": "helix_diameter", "type": "number", "unit": "mm", "min": 1, "max": 1000, "dfmCritical": true },
+            { "name": "roughing_passes", "type": "integer", "min": 0, "max": 50, "default": 1, "dfmCritical": false },
+            { "name": "finishing_pass", "type": "boolean", "default": true, "dfmCritical": false },
+            { "name": "radial_stepover", "type": "number", "unit": "mm", "min": 0.1, "max": 50, "dfmCritical": false },
+            { "name": "ramp_type", "type": "enum", "values": ["helical", "zigzag", "plunge"], "default": "helical", "dfmCritical": false },
+            { "name": "finishing_allowance", "type": "number", "unit": "mm", "min": 0, "max": 5, "default": 0.1, "dfmCritical": false }
+          ]
+        },
+        "gCodes": ["G02", "G03"],
+        "helicalInterpolation": true
+      },
+      {
+        "id": "circular_pocket_drill",
+        "name": "Circular Pocket Drilling",
+        "category": "Milling-Based Hole Making",
+        "description": "Circular pocket drilling with helical ramp entry and radial stepover",
+        "acPythonSetter": "hm.drill.circular_pocket_drill",
+        "parameterCount": 27,
+        "parameters": {
+          "cuttingData": "inherited_from_base",
+          "geometry": "inherited_from_base",
+          "heights": "inherited_from_base",
+          "cycleSpecific": [
+            { "name": "pocket_diameter", "type": "number", "unit": "mm", "min": 1, "max": 1000, "dfmCritical": true },
+            { "name": "stepover_pct", "type": "number", "unit": "%", "min": 1, "max": 95, "dfmCritical": false },
+            { "name": "ramp_angle", "type": "number", "unit": "deg", "min": 0.5, "max": 45, "dfmCritical": false },
+            { "name": "pocket_depth", "type": "number", "unit": "mm", "min": 0.1, "max": 500, "dfmCritical": true },
+            { "name": "axial_stepdown", "type": "number", "unit": "mm", "min": 0.1, "max": 100, "dfmCritical": false },
+            { "name": "floor_finish_pass", "type": "boolean", "default": true, "dfmCritical": false },
+            { "name": "wall_finish_pass", "type": "boolean", "default": true, "dfmCritical": false }
+          ]
+        }
+      },
+      {
+        "id": "chamfer_drill",
+        "name": "Chamfer Drilling",
+        "category": "Secondary Operations",
+        "description": "Chamfer drilling for edge break and deburr with controlled angle and width",
+        "acPythonSetter": "hm.drill.chamfer_drill",
+        "parameterCount": 26,
+        "parameters": {
+          "cuttingData": "inherited_from_base",
+          "geometry": "inherited_from_base",
+          "heights": "inherited_from_base",
+          "cycleSpecific": [
+            { "name": "chamfer_width", "type": "number", "unit": "mm", "min": 0.1, "max": 50, "dfmCritical": true },
+            { "name": "chamfer_angle", "type": "enum", "values": ["45", "60", "90"], "dfmCritical": true },
+            { "name": "depth_from_edge", "type": "number", "unit": "mm", "min": 0, "max": 50, "dfmCritical": false },
+            { "name": "tip_compensation", "type": "boolean", "default": true, "dfmCritical": false },
+            { "name": "multi_pass", "type": "boolean", "default": false, "dfmCritical": false },
+            { "name": "orbital_chamfer", "type": "boolean", "default": false, "dfmCritical": false }
+          ]
+        }
+      },
+      {
+        "id": "combined_cycle",
+        "name": "Combined Drilling Cycle",
+        "category": "Multi-Operation",
+        "description": "Combined multi-operation cycle sequencing multiple drill types per hole feature",
+        "acPythonSetter": "hm.drill.combined_cycle",
+        "parameterCount": 27,
+        "parameters": {
+          "cuttingData": "inherited_from_base",
+          "geometry": "inherited_from_base",
+          "heights": "inherited_from_base",
+          "cycleSpecific": [
+            { "name": "sub_cycles", "type": "array", "itemType": "enum", "values": ["spot_drill", "peck_drill", "deep_hole_drill", "gun_drill", "boring", "reaming", "tapping", "thread_milling", "countersink", "counterbore", "back_spot_face", "helical_bore", "circular_pocket_drill", "chamfer_drill"], "minItems": 2, "maxItems": 10, "dfmCritical": false },
+            { "name": "sequence_mode", "type": "enum", "values": ["sequential", "optimized"], "default": "sequential", "dfmCritical": false },
+            { "name": "tool_change_strategy", "type": "enum", "values": ["minimize_changes", "minimize_time", "group_by_tool"], "default": "minimize_changes", "dfmCritical": false },
+            { "name": "inter_cycle_retract", "type": "boolean", "default": true, "dfmCritical": false },
+            { "name": "shared_pilot", "type": "boolean", "default": false, "dfmCritical": false },
+            { "name": "cycle_repeat_count", "type": "integer", "min": 1, "max": 1000, "default": 1, "dfmCritical": false },
+            { "name": "abort_on_error", "type": "boolean", "default": true, "dfmCritical": false }
+          ]
+        }
+      }
+    ]
+  },
+
+  "probingCycles": {
+    "cycleCount": 8,
+    "totalParameters": 74,
+    "cycles": [
+      {
+        "id": "setup_probe",
+        "name": "Setup / Calibration Probe",
+        "category": "Calibration",
+        "description": "Probe setup and calibration cycle with sphere qualification",
+        "acPythonSetter": "hm.probe.setup_probe",
+        "parameterCount": 10,
+        "dfmCriticalParameters": ["approach_feed"],
+        "parameters": [
+          { "name": "probe_type", "type": "enum", "values": ["touch", "optical", "laser"], "dfmCritical": false },
+          { "name": "calibration_diameter", "type": "number", "unit": "mm", "min": 1, "max": 50, "dfmCritical": false },
+          { "name": "approach_feed", "type": "number", "unit": "mm/min", "min": 10, "max": 5000, "dfmCritical": true, "rule": "too fast risks stylus damage" },
+          { "name": "overtravel", "type": "number", "unit": "mm", "min": 0, "max": 10, "dfmCritical": false },
+          { "name": "retract_distance", "type": "number", "unit": "mm", "min": 0.5, "max": 50, "dfmCritical": false },
+          { "name": "dwell_before_measure", "type": "number", "unit": "sec", "min": 0, "max": 10, "dfmCritical": false },
+          { "name": "repeat_count", "type": "integer", "min": 1, "max": 10, "dfmCritical": false },
+          { "name": "expected_value", "type": "number", "unit": "mm", "optional": true, "dfmCritical": false },
+          { "name": "pre_clean_air_blast", "type": "boolean", "default": false, "dfmCritical": false },
+          { "name": "calibration_temperature", "type": "number", "unit": "C", "min": 10, "max": 40, "default": 20, "dfmCritical": false }
+        ],
+        "controllerCycles": {
+          "fanuc": "G65 P9810",
+          "siemens": "CYCLE976",
+          "heidenhain": "TCH PROBE 410"
+        }
+      },
+      {
+        "id": "bore_probe",
+        "name": "Bore Probing",
+        "category": "Feature Measurement",
+        "description": "Internal bore diameter measurement with multi-point and WCS correction",
+        "acPythonSetter": "hm.probe.bore_probe",
+        "parameterCount": 10,
+        "parameters": [
+          { "name": "bore_diameter_nominal", "type": "number", "unit": "mm", "min": 1, "max": 2000, "dfmCritical": false },
+          { "name": "tolerance", "type": "number", "unit": "mm", "min": 0.001, "max": 5, "dfmCritical": true },
+          { "name": "measure_depth", "type": "number", "unit": "mm", "min": 0.1, "max": 1000, "dfmCritical": false },
+          { "name": "angular_positions", "type": "integer", "min": 2, "max": 8, "dfmCritical": false },
+          { "name": "auto_correct_wcs", "type": "boolean", "default": false, "dfmCritical": false },
+          { "name": "approach_feed", "type": "number", "unit": "mm/min", "min": 10, "max": 5000, "dfmCritical": false },
+          { "name": "retract_distance", "type": "number", "unit": "mm", "min": 0.5, "max": 50, "default": 5, "dfmCritical": false },
+          { "name": "print_result", "type": "boolean", "default": true, "dfmCritical": false },
+          { "name": "store_to_variable", "type": "integer", "min": 0, "max": 999, "optional": true, "dfmCritical": false },
+          { "name": "multi_level", "type": "boolean", "default": false, "dfmCritical": false }
+        ],
+        "controllerCycles": {
+          "fanuc": "G65 P9814",
+          "siemens": "CYCLE977",
+          "heidenhain": "TCH PROBE 421"
+        }
+      },
+      {
+        "id": "boss_probe",
+        "name": "Boss Probing",
+        "category": "Feature Measurement",
+        "description": "External boss diameter measurement with auto-center correction",
+        "acPythonSetter": "hm.probe.boss_probe",
+        "parameterCount": 9,
+        "parameters": [
+          { "name": "boss_diameter_nominal", "type": "number", "unit": "mm", "min": 1, "max": 2000, "dfmCritical": false },
+          { "name": "tolerance", "type": "number", "unit": "mm", "min": 0.001, "max": 5, "dfmCritical": true },
+          { "name": "approach_clearance", "type": "number", "unit": "mm", "min": 0.5, "max": 50, "dfmCritical": false },
+          { "name": "auto_correct", "type": "boolean", "default": false, "dfmCritical": false },
+          { "name": "measure_height", "type": "number", "unit": "mm", "min": 0.1, "max": 500, "dfmCritical": false },
+          { "name": "angular_positions", "type": "integer", "min": 2, "max": 8, "default": 4, "dfmCritical": false },
+          { "name": "approach_feed", "type": "number", "unit": "mm/min", "min": 10, "max": 5000, "dfmCritical": false },
+          { "name": "retract_distance", "type": "number", "unit": "mm", "min": 0.5, "max": 50, "default": 5, "dfmCritical": false },
+          { "name": "protect_surface", "type": "boolean", "default": true, "dfmCritical": false }
+        ],
+        "controllerCycles": {
+          "fanuc": "G65 P9815",
+          "siemens": "CYCLE977",
+          "heidenhain": "TCH PROBE 422"
+        }
+      },
+      {
+        "id": "web_probe",
+        "name": "Web / Thin Wall Probing",
+        "category": "Feature Measurement",
+        "description": "Thin wall web width measurement with centering and axis selection",
+        "acPythonSetter": "hm.probe.web_probe",
+        "parameterCount": 9,
+        "parameters": [
+          { "name": "web_width", "type": "number", "unit": "mm", "min": 0.5, "max": 1000, "dfmCritical": false },
+          { "name": "web_axis", "type": "enum", "values": ["x", "y"], "dfmCritical": false },
+          { "name": "overshoot", "type": "number", "unit": "mm", "min": 0, "max": 20, "dfmCritical": false },
+          { "name": "centering", "type": "boolean", "default": true, "dfmCritical": false },
+          { "name": "tolerance", "type": "number", "unit": "mm", "min": 0.001, "max": 5, "dfmCritical": true },
+          { "name": "measure_height", "type": "number", "unit": "mm", "min": -500, "max": 500, "dfmCritical": false },
+          { "name": "approach_feed", "type": "number", "unit": "mm/min", "min": 10, "max": 5000, "dfmCritical": false },
+          { "name": "retract_distance", "type": "number", "unit": "mm", "min": 0.5, "max": 50, "default": 5, "dfmCritical": false },
+          { "name": "repeat_count", "type": "integer", "min": 1, "max": 10, "default": 1, "dfmCritical": false }
+        ],
+        "controllerCycles": {
+          "fanuc": "G65 P9816",
+          "siemens": "CYCLE977",
+          "heidenhain": "TCH PROBE 423"
+        }
+      },
+      {
+        "id": "surface_probe",
+        "name": "Surface Z Probing",
+        "category": "Surface Measurement",
+        "description": "Surface Z-height measurement with optional multi-point grid and best-fit",
+        "acPythonSetter": "hm.probe.surface_probe",
+        "parameterCount": 10,
+        "parameters": [
+          { "name": "surface_z_nominal", "type": "number", "unit": "mm", "min": -5000, "max": 5000, "dfmCritical": false },
+          { "name": "tolerance", "type": "number", "unit": "mm", "min": 0.001, "max": 5, "dfmCritical": true },
+          { "name": "probe_direction", "type": "enum", "values": ["z_minus", "normal", "custom"], "dfmCritical": false },
+          { "name": "multi_point", "type": "boolean", "default": false, "dfmCritical": false },
+          { "name": "grid_x", "type": "integer", "min": 1, "max": 50, "default": 1, "dfmCritical": false },
+          { "name": "grid_y", "type": "integer", "min": 1, "max": 50, "default": 1, "dfmCritical": false },
+          { "name": "approach_feed", "type": "number", "unit": "mm/min", "min": 10, "max": 5000, "dfmCritical": false },
+          { "name": "retract_distance", "type": "number", "unit": "mm", "min": 0.5, "max": 50, "default": 5, "dfmCritical": false },
+          { "name": "auto_correct_wcs", "type": "boolean", "default": false, "dfmCritical": false },
+          { "name": "best_fit", "type": "boolean", "default": false, "dfmCritical": false }
+        ],
+        "controllerCycles": {
+          "fanuc": "G65 P9811",
+          "siemens": "CYCLE978",
+          "heidenhain": "TCH PROBE 427"
+        }
+      },
+      {
+        "id": "tool_setter",
+        "name": "Tool Length/Diameter Setting",
+        "category": "Tool Measurement",
+        "description": "Tool length and diameter measurement with automatic offset update",
+        "acPythonSetter": "hm.probe.tool_setter",
+        "parameterCount": 9,
+        "parameters": [
+          { "name": "tool_length_check", "type": "boolean", "default": true, "dfmCritical": false },
+          { "name": "tool_diameter_check", "type": "boolean", "default": false, "dfmCritical": false },
+          { "name": "breakage_detection", "type": "boolean", "default": false, "dfmCritical": false },
+          { "name": "max_length_deviation", "type": "number", "unit": "mm", "min": 0.001, "max": 10, "dfmCritical": true },
+          { "name": "setter_position", "type": "enum", "values": ["fixed", "spindle"], "dfmCritical": false },
+          { "name": "approach_feed", "type": "number", "unit": "mm/min", "min": 10, "max": 5000, "dfmCritical": false },
+          { "name": "spindle_speed_for_diameter", "type": "integer", "unit": "rpm", "min": 0, "max": 5000, "default": 0, "dfmCritical": false },
+          { "name": "expected_length", "type": "number", "unit": "mm", "min": 1, "max": 500, "optional": true, "dfmCritical": false },
+          { "name": "update_offset_table", "type": "boolean", "default": true, "dfmCritical": false }
+        ],
+        "controllerCycles": {
+          "fanuc": "G65 P9850",
+          "siemens": "CYCLE982",
+          "heidenhain": "TCH PROBE 481/482"
+        }
+      },
+      {
+        "id": "tool_breakage",
+        "name": "Tool Breakage Detection",
+        "category": "Tool Measurement",
+        "description": "Tool breakage detection with auto-replace and alarm support",
+        "acPythonSetter": "hm.probe.tool_breakage",
+        "parameterCount": 8,
+        "parameters": [
+          { "name": "check_method", "type": "enum", "values": ["contact", "non_contact", "laser"], "dfmCritical": false },
+          { "name": "threshold_length", "type": "number", "unit": "mm", "min": 0.1, "max": 500, "dfmCritical": true },
+          { "name": "auto_replace", "type": "boolean", "default": false, "dfmCritical": false },
+          { "name": "alarm_on_break", "type": "boolean", "default": true, "dfmCritical": false },
+          { "name": "redundant_tool_number", "type": "integer", "min": 0, "max": 999, "optional": true, "dfmCritical": false },
+          { "name": "approach_feed", "type": "number", "unit": "mm/min", "min": 10, "max": 5000, "dfmCritical": false },
+          { "name": "check_interval", "type": "integer", "min": 1, "max": 1000, "default": 1, "dfmCritical": false },
+          { "name": "log_result", "type": "boolean", "default": true, "dfmCritical": false }
+        ],
+        "controllerCycles": {
+          "fanuc": "G65 P9851",
+          "siemens": "CYCLE982",
+          "heidenhain": "TCH PROBE 483"
+        }
+      },
+      {
+        "id": "in_process_verify",
+        "name": "In-Process Feature Verification",
+        "category": "Quality",
+        "description": "In-process feature verification with ISO tolerance class and auto-compensation",
+        "acPythonSetter": "hm.probe.in_process_verify",
+        "parameterCount": 9,
+        "parameters": [
+          { "name": "feature_type", "type": "enum", "values": ["bore", "boss", "surface", "pocket"], "dfmCritical": false },
+          { "name": "tolerance_class", "type": "enum", "values": ["h6", "h7", "H7", "H8", "js6", "custom"], "dfmCritical": true },
+          { "name": "compensate_on_fail", "type": "boolean", "default": false, "dfmCritical": false },
+          { "name": "max_compensation", "type": "number", "unit": "mm", "min": 0.001, "max": 1, "dfmCritical": true },
+          { "name": "nominal_dimension", "type": "number", "unit": "mm", "min": 0.1, "max": 5000, "dfmCritical": false },
+          { "name": "approach_feed", "type": "number", "unit": "mm/min", "min": 10, "max": 5000, "dfmCritical": false },
+          { "name": "alarm_on_out_of_tolerance", "type": "boolean", "default": true, "dfmCritical": false },
+          { "name": "retry_with_finish_pass", "type": "boolean", "default": false, "dfmCritical": false },
+          { "name": "store_measurement", "type": "boolean", "default": true, "dfmCritical": false }
+        ],
+        "controllerCycles": {
+          "fanuc": "G65 P9860",
+          "siemens": "CYCLE977 MESSION",
+          "heidenhain": "TCH PROBE 420-427"
+        }
+      }
+    ]
+  },
+
+  "automationCenter": {
+    "moduleCount": 4,
+    "totalFunctions": 42,
+    "modules": [
+      {
+        "id": "feature_recognition",
+        "name": "Feature Recognition",
+        "description": "Automatic recognition of machinable features from CAD geometry",
+        "functionCount": 12,
+        "functions": [
+          {
+            "id": "hole_recognition",
+            "name": "Hole Feature Recognition",
+            "description": "Automatically detect holes, counterbores, countersinks, threads from solid model",
+            "parameters": [
+              { "name": "min_diameter", "type": "number", "unit": "mm", "min": 0.1, "max": 1000, "default": 1 },
+              { "name": "max_diameter", "type": "number", "unit": "mm", "min": 0.1, "max": 2000, "default": 500 },
+              { "name": "detect_threads", "type": "boolean", "default": true },
+              { "name": "detect_countersinks", "type": "boolean", "default": true },
+              { "name": "detect_counterbores", "type": "boolean", "default": true },
+              { "name": "combine_similar", "type": "boolean", "default": true },
+              { "name": "tolerance_for_grouping", "type": "number", "unit": "mm", "min": 0.001, "max": 1, "default": 0.01 }
+            ],
+            "output": ["FeatureList", "FeatureGroups", "MachiningFrames"]
+          },
+          {
+            "id": "pocket_recognition",
+            "name": "Pocket Feature Recognition",
+            "description": "Automatically detect pockets, slots, grooves from solid model",
+            "parameters": [
+              { "name": "min_area", "type": "number", "unit": "mm2", "min": 1, "max": 100000, "default": 10 },
+              { "name": "max_depth", "type": "number", "unit": "mm", "min": 0.1, "max": 1000, "default": 200 },
+              { "name": "detect_islands", "type": "boolean", "default": true },
+              { "name": "detect_rest_material", "type": "boolean", "default": true },
+              { "name": "pocket_type_filter", "type": "enum", "values": ["all", "open", "closed", "through"], "default": "all" }
+            ],
+            "output": ["PocketFeatureList", "IslandGeometry", "RestMaterialZones"]
+          },
+          {
+            "id": "face_recognition",
+            "name": "Face/Plane Recognition",
+            "description": "Detect planar faces for face milling operations",
+            "parameters": [
+              { "name": "min_area", "type": "number", "unit": "mm2", "min": 1, "max": 1000000, "default": 100 },
+              { "name": "normal_tolerance", "type": "number", "unit": "deg", "min": 0.01, "max": 5, "default": 0.1 },
+              { "name": "detect_angled", "type": "boolean", "default": true }
+            ],
+            "output": ["FaceList", "FaceNormals", "FaceAreas"]
+          },
+          {
+            "id": "fillet_recognition",
+            "name": "Fillet/Radius Recognition",
+            "description": "Detect fillets and rounds for pencil tracing and corner finishing",
+            "parameters": [
+              { "name": "min_radius", "type": "number", "unit": "mm", "min": 0.1, "max": 50, "default": 0.5 },
+              { "name": "max_radius", "type": "number", "unit": "mm", "min": 0.1, "max": 200, "default": 50 }
+            ],
+            "output": ["FilletList", "RadiusValues", "EdgeChains"]
+          },
+          {
+            "id": "chamfer_recognition",
+            "name": "Chamfer Recognition",
+            "description": "Detect chamfers for automatic deburring operations",
+            "parameters": [
+              { "name": "min_width", "type": "number", "unit": "mm", "min": 0.1, "max": 10, "default": 0.3 },
+              { "name": "max_width", "type": "number", "unit": "mm", "min": 0.1, "max": 50, "default": 10 },
+              { "name": "angle_filter", "type": "enum", "values": ["all", "45deg", "30deg", "60deg"], "default": "all" }
+            ],
+            "output": ["ChamferList", "ChamferAngles", "ChamferWidths"]
+          },
+          {
+            "id": "boss_recognition",
+            "name": "Boss/Protrusion Recognition",
+            "description": "Detect bosses and protrusions from solid model",
+            "parameters": [
+              { "name": "min_height", "type": "number", "unit": "mm", "min": 0.1, "max": 500, "default": 1 },
+              { "name": "detect_cylindrical", "type": "boolean", "default": true },
+              { "name": "detect_rectangular", "type": "boolean", "default": true }
+            ],
+            "output": ["BossFeatureList", "BossProfiles"]
+          },
+          {
+            "id": "groove_recognition",
+            "name": "Groove/Undercut Recognition",
+            "description": "Detect grooves, undercuts, and T-slots",
+            "parameters": [
+              { "name": "min_width", "type": "number", "unit": "mm", "min": 0.1, "max": 100, "default": 1 },
+              { "name": "detect_undercuts", "type": "boolean", "default": true },
+              { "name": "detect_tslots", "type": "boolean", "default": true }
+            ],
+            "output": ["GrooveList", "GrooveProfiles", "UndercutZones"]
+          },
+          {
+            "id": "thread_recognition",
+            "name": "Thread Recognition",
+            "description": "Detect internal and external threads from model annotations or geometry",
+            "parameters": [
+              { "name": "source", "type": "enum", "values": ["annotations", "geometry", "both"], "default": "both" },
+              { "name": "thread_standards", "type": "array", "itemType": "enum", "values": ["metric", "unc", "unf", "bsp", "npt"], "default": ["metric", "unc"] }
+            ],
+            "output": ["ThreadFeatureList", "ThreadSpecs", "TapDrillSizes"]
+          },
+          {
+            "id": "sink_hole_recognition",
+            "name": "Sink Hole Recognition",
+            "description": "Detect compound holes with multiple diameters (sink holes)",
+            "parameters": [
+              { "name": "max_levels", "type": "integer", "min": 2, "max": 10, "default": 5 }
+            ],
+            "output": ["SinkHoleList", "DiameterLevels", "DepthLevels"]
+          },
+          {
+            "id": "surface_region_recognition",
+            "name": "Surface Region Recognition",
+            "description": "Segment 3D surfaces by curvature and accessibility",
+            "parameters": [
+              { "name": "steep_angle", "type": "number", "unit": "deg", "min": 15, "max": 85, "default": 45 },
+              { "name": "flat_angle", "type": "number", "unit": "deg", "min": 0, "max": 30, "default": 10 }
+            ],
+            "output": ["SteepRegions", "FlatRegions", "TransitionRegions"]
+          },
+          {
+            "id": "feature_mapping",
+            "name": "Feature Mapping (Feature2Job)",
+            "description": "Map recognized features to machining jobs using rule-based templates",
+            "parameters": [
+              { "name": "template_library", "type": "string", "default": "default" },
+              { "name": "material_consideration", "type": "boolean", "default": true },
+              { "name": "tolerance_consideration", "type": "boolean", "default": true }
+            ],
+            "output": ["JobList", "ToolAssignments", "MachiningSequence"]
+          },
+          {
+            "id": "accessibility_analysis",
+            "name": "Accessibility Analysis",
+            "description": "Analyze tool accessibility for recognized features",
+            "parameters": [
+              { "name": "tool_library", "type": "string" },
+              { "name": "machine_kinematics", "type": "string" },
+              { "name": "check_collisions", "type": "boolean", "default": true }
+            ],
+            "output": ["AccessibilityReport", "RequiredToolOrientations", "InaccessibleFeatures"]
+          }
+        ]
+      },
+      {
+        "id": "template_machining",
+        "name": "Template-Based Machining",
+        "description": "Apply predefined machining templates to recognized features",
+        "functionCount": 10,
+        "functions": [
+          {
+            "id": "hole_template",
+            "name": "Hole Machining Template",
+            "description": "Template for complete hole machining: spot, drill, ream/bore, tap/thread mill, chamfer",
+            "parameters": [
+              { "name": "template_name", "type": "string" },
+              { "name": "auto_tool_selection", "type": "boolean", "default": true },
+              { "name": "include_spotting", "type": "boolean", "default": true },
+              { "name": "include_chamfering", "type": "boolean", "default": true },
+              { "name": "tolerance_class", "type": "enum", "values": ["standard", "h7", "h6", "H7", "custom"], "default": "standard" }
+            ]
+          },
+          {
+            "id": "pocket_template",
+            "name": "Pocket Machining Template",
+            "description": "Template for pocket machining: rough, semi-finish, finish, rest machining",
+            "parameters": [
+              { "name": "template_name", "type": "string" },
+              { "name": "roughing_strategy", "type": "enum", "values": ["contour_parallel", "trochoidal", "plunge", "adaptive"], "default": "contour_parallel" },
+              { "name": "include_rest_machining", "type": "boolean", "default": true },
+              { "name": "stock_allowance", "type": "number", "unit": "mm", "default": 0.3 }
+            ]
+          },
+          {
+            "id": "face_template",
+            "name": "Face Milling Template",
+            "description": "Template for face milling operations",
+            "parameters": [
+              { "name": "template_name", "type": "string" },
+              { "name": "pattern", "type": "enum", "values": ["unidirectional", "bidirectional", "spiral"], "default": "unidirectional" },
+              { "name": "overlap_pct", "type": "number", "unit": "%", "default": 20 }
+            ]
+          },
+          {
+            "id": "contour_template",
+            "name": "Contour Machining Template",
+            "description": "Template for 2D/3D contour operations",
+            "parameters": [
+              { "name": "template_name", "type": "string" },
+              { "name": "num_passes", "type": "integer", "default": 2 },
+              { "name": "finishing_allowance", "type": "number", "unit": "mm", "default": 0.1 }
+            ]
+          },
+          {
+            "id": "3d_finishing_template",
+            "name": "3D Surface Finishing Template",
+            "description": "Template for 3D surface finishing: Z-level, equidistant, pencil",
+            "parameters": [
+              { "name": "template_name", "type": "string" },
+              { "name": "surface_quality", "type": "enum", "values": ["standard", "fine", "mirror"], "default": "standard" },
+              { "name": "include_pencil", "type": "boolean", "default": true },
+              { "name": "scallop_height", "type": "number", "unit": "mm", "default": 0.01 }
+            ]
+          },
+          {
+            "id": "create_template",
+            "name": "Create Custom Template",
+            "description": "Create a new machining template from existing jobs",
+            "parameters": [
+              { "name": "source_jobs", "type": "array", "itemType": "string" },
+              { "name": "template_name", "type": "string" },
+              { "name": "parameterize", "type": "array", "itemType": "string", "description": "List of parameters to make variable" }
+            ]
+          },
+          {
+            "id": "modify_template",
+            "name": "Modify Template",
+            "description": "Edit an existing machining template",
+            "parameters": [
+              { "name": "template_name", "type": "string" },
+              { "name": "modifications", "type": "object" }
+            ]
+          },
+          {
+            "id": "apply_template",
+            "name": "Apply Template to Features",
+            "description": "Apply a template to a list of recognized features",
+            "parameters": [
+              { "name": "template_name", "type": "string" },
+              { "name": "feature_list", "type": "array", "itemType": "FeatureID" },
+              { "name": "parameter_overrides", "type": "object", "optional": true }
+            ]
+          },
+          {
+            "id": "template_rules",
+            "name": "Define Template Rules",
+            "description": "Define rules for automatic template selection based on feature properties",
+            "parameters": [
+              { "name": "rule_name", "type": "string" },
+              { "name": "feature_type", "type": "enum", "values": ["hole", "pocket", "face", "contour", "3d_surface"] },
+              { "name": "conditions", "type": "array", "itemType": "ConditionExpression" },
+              { "name": "template_to_apply", "type": "string" }
+            ]
+          },
+          {
+            "id": "template_library",
+            "name": "Template Library Management",
+            "description": "Import, export, and manage template libraries",
+            "parameters": [
+              { "name": "action", "type": "enum", "values": ["import", "export", "list", "delete"] },
+              { "name": "library_path", "type": "string", "optional": true },
+              { "name": "template_names", "type": "array", "itemType": "string", "optional": true }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "automatic_toolpath",
+        "name": "Automatic Toolpath Generation",
+        "description": "Automatically generate optimized toolpaths from features and templates",
+        "functionCount": 10,
+        "functions": [
+          {
+            "id": "auto_roughing",
+            "name": "Automatic Roughing",
+            "description": "Automatically create roughing toolpaths from stock and part geometry",
+            "parameters": [
+              { "name": "strategy", "type": "enum", "values": ["optimised", "zlevel", "adaptive", "waterline"], "default": "optimised" },
+              { "name": "tool_selection", "type": "enum", "values": ["auto", "from_library", "specified"], "default": "auto" },
+              { "name": "stock_allowance", "type": "number", "unit": "mm", "default": 0.5 }
+            ]
+          },
+          {
+            "id": "auto_finishing",
+            "name": "Automatic Finishing",
+            "description": "Automatically create finishing toolpaths based on surface analysis",
+            "parameters": [
+              { "name": "surface_quality", "type": "enum", "values": ["standard", "fine", "mirror"], "default": "standard" },
+              { "name": "auto_steep_flat_split", "type": "boolean", "default": true },
+              { "name": "include_rest_finishing", "type": "boolean", "default": true }
+            ]
+          },
+          {
+            "id": "auto_drilling",
+            "name": "Automatic Drilling",
+            "description": "Automatically create drilling cycles from hole features",
+            "parameters": [
+              { "name": "cycle_selection", "type": "enum", "values": ["auto", "standard", "peck", "deep_hole"], "default": "auto" },
+              { "name": "optimize_sequence", "type": "boolean", "default": true },
+              { "name": "group_similar_holes", "type": "boolean", "default": true }
+            ]
+          },
+          {
+            "id": "auto_tool_selection",
+            "name": "Automatic Tool Selection",
+            "description": "Select optimal tools from library based on feature requirements",
+            "parameters": [
+              { "name": "tool_library", "type": "string" },
+              { "name": "prefer_existing", "type": "boolean", "default": true },
+              { "name": "minimize_tool_changes", "type": "boolean", "default": true },
+              { "name": "material", "type": "string" }
+            ]
+          },
+          {
+            "id": "auto_speed_feed",
+            "name": "Automatic Speed/Feed Calculation",
+            "description": "Calculate cutting parameters based on tool, material, and operation",
+            "parameters": [
+              { "name": "material", "type": "string" },
+              { "name": "tool_material", "type": "enum", "values": ["carbide", "hss", "ceramic", "cbn", "diamond"], "default": "carbide" },
+              { "name": "operation_type", "type": "string" },
+              { "name": "machine_capability", "type": "object", "optional": true }
+            ]
+          },
+          {
+            "id": "sequence_optimization",
+            "name": "Operation Sequence Optimization",
+            "description": "Optimize the order of operations to minimize cycle time",
+            "parameters": [
+              { "name": "optimize_for", "type": "enum", "values": ["cycle_time", "tool_changes", "surface_quality"], "default": "cycle_time" },
+              { "name": "respect_dependencies", "type": "boolean", "default": true }
+            ]
+          },
+          {
+            "id": "collision_check_auto",
+            "name": "Automatic Collision Checking",
+            "description": "Check all toolpaths for collisions with part, fixture, and machine",
+            "parameters": [
+              { "name": "check_tool", "type": "boolean", "default": true },
+              { "name": "check_holder", "type": "boolean", "default": true },
+              { "name": "check_machine", "type": "boolean", "default": true },
+              { "name": "clearance", "type": "number", "unit": "mm", "default": 1 }
+            ]
+          },
+          {
+            "id": "link_optimization",
+            "name": "Link Move Optimization",
+            "description": "Optimize rapid and linking moves between cutting passes",
+            "parameters": [
+              { "name": "strategy", "type": "enum", "values": ["direct", "safe_z", "safe_clearance", "shortest"], "default": "shortest" },
+              { "name": "safe_height", "type": "number", "unit": "mm", "optional": true }
+            ]
+          },
+          {
+            "id": "cycle_time_estimate",
+            "name": "Cycle Time Estimation",
+            "description": "Estimate total cycle time for all operations",
+            "parameters": [
+              { "name": "include_tool_changes", "type": "boolean", "default": true },
+              { "name": "include_probing", "type": "boolean", "default": true },
+              { "name": "rapid_override", "type": "number", "unit": "%", "default": 100 }
+            ]
+          },
+          {
+            "id": "batch_processing",
+            "name": "Batch Feature Processing",
+            "description": "Process multiple parts or features in batch mode",
+            "parameters": [
+              { "name": "parts", "type": "array", "itemType": "string" },
+              { "name": "template", "type": "string" },
+              { "name": "output_folder", "type": "string" }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "macro_programming",
+        "name": "Macro Programming",
+        "description": "Create and execute automation macros for repetitive tasks",
+        "functionCount": 10,
+        "functions": [
+          {
+            "id": "record_macro",
+            "name": "Record Macro",
+            "description": "Record user actions into a replayable macro",
+            "parameters": [
+              { "name": "macro_name", "type": "string" },
+              { "name": "description", "type": "string", "optional": true }
+            ]
+          },
+          {
+            "id": "play_macro",
+            "name": "Play Macro",
+            "description": "Execute a recorded macro",
+            "parameters": [
+              { "name": "macro_name", "type": "string" },
+              { "name": "parameters", "type": "object", "optional": true }
+            ]
+          },
+          {
+            "id": "edit_macro",
+            "name": "Edit Macro",
+            "description": "Open macro for editing in script editor",
+            "parameters": [
+              { "name": "macro_name", "type": "string" }
+            ]
+          },
+          {
+            "id": "parameterize_macro",
+            "name": "Parameterize Macro",
+            "description": "Convert fixed values in macro to parameters",
+            "parameters": [
+              { "name": "macro_name", "type": "string" },
+              { "name": "values_to_parameterize", "type": "array", "itemType": "string" }
+            ]
+          },
+          {
+            "id": "conditional_macro",
+            "name": "Add Conditional Logic",
+            "description": "Add if/else logic to macro based on feature properties",
+            "parameters": [
+              { "name": "macro_name", "type": "string" },
+              { "name": "condition", "type": "string" },
+              { "name": "true_action", "type": "string" },
+              { "name": "false_action", "type": "string", "optional": true }
+            ]
+          },
+          {
+            "id": "loop_macro",
+            "name": "Add Loop Logic",
+            "description": "Add iteration logic to macro for processing feature lists",
+            "parameters": [
+              { "name": "macro_name", "type": "string" },
+              { "name": "loop_variable", "type": "string" },
+              { "name": "loop_collection", "type": "string" }
+            ]
+          },
+          {
+            "id": "macro_library",
+            "name": "Macro Library Management",
+            "description": "Import, export, and organize macros",
+            "parameters": [
+              { "name": "action", "type": "enum", "values": ["import", "export", "list", "delete", "organize"] },
+              { "name": "path", "type": "string", "optional": true }
+            ]
+          },
+          {
+            "id": "schedule_macro",
+            "name": "Schedule Macro Execution",
+            "description": "Schedule macro to run at specific times or events",
+            "parameters": [
+              { "name": "macro_name", "type": "string" },
+              { "name": "trigger", "type": "enum", "values": ["on_import", "on_save", "scheduled", "manual"] },
+              { "name": "schedule", "type": "string", "optional": true, "description": "Cron expression if trigger is scheduled" }
+            ]
+          },
+          {
+            "id": "macro_variables",
+            "name": "Define Macro Variables",
+            "description": "Define global or session variables for use across macros",
+            "parameters": [
+              { "name": "variable_name", "type": "string" },
+              { "name": "variable_type", "type": "enum", "values": ["string", "number", "boolean", "array", "object"] },
+              { "name": "default_value", "type": "any" },
+              { "name": "scope", "type": "enum", "values": ["global", "session", "macro"], "default": "session" }
+            ]
+          },
+          {
+            "id": "debug_macro",
+            "name": "Debug Macro",
+            "description": "Step through macro execution for debugging",
+            "parameters": [
+              { "name": "macro_name", "type": "string" },
+              { "name": "breakpoints", "type": "array", "itemType": "integer", "optional": true }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+
+  "apiSdk": {
+    "overview": {
+      "platforms": [".NET", "COM", "Python (via COM)"],
+      "primaryLanguage": "C++/CLI with .NET bindings",
+      "version": "31.0+",
+      "documentation": "hyperMILL SDK Reference Manual"
+    },
+    "namespaces": [
+      {
+        "id": "om.hm",
+        "name": "om::hm",
+        "description": "Root namespace for hyperMILL objects",
+        "subNamespaces": ["md", "geo", "job", "tool", "nc", "sim"]
+      }
+    ],
+    "interfaces": {
+      "count": 87,
+      "categories": [
+        {
+          "category": "Tool Interfaces",
+          "count": 12,
+          "interfaces": [
+            {
+              "name": "INCTool",
+              "description": "NC tool representation with geometry and cutting parameters",
+              "properties": [
+                { "name": "NCNumber", "type": "long", "access": "RW", "ncVar": "*WKZNUMMER" },
+                { "name": "Name", "type": "string", "access": "RW", "ncVar": "*WKZKOMMENTAR" },
+                { "name": "Comment", "type": "string", "access": "RW", "ncVar": "*WKZKOMMENTAR2" },
+                { "name": "ReferencePoint", "type": "short", "access": "RW", "ncVar": "*TOOL_TIP" },
+                { "name": "ClearanceLength", "type": "double", "access": "RW", "ncVar": "*TOOL_CLEARANCE_LENGTH" },
+                { "name": "GageLength", "type": "double", "access": "RW", "ncVar": "*TOOL_GAGE_LENGTH" },
+                { "name": "SettingLengthZ", "type": "double", "access": "RW", "ncVar": "*SETTING_LENGTH_Z" },
+                { "name": "SettingLengthX", "type": "double", "access": "RW", "ncVar": "*SETTING_LENGTH_X" },
+                { "name": "Adaptor", "type": "string", "access": "RW" },
+                { "name": "CompensationLength", "type": "double", "access": "RW", "ncVar": "*FRLAENGE" },
+                { "name": "UsableLength", "type": "double", "access": "RW", "ncVar": "*USABLE_LENGTH" },
+                { "name": "MaxSpindleSpeed", "type": "double", "access": "RW", "ncVar": "*MAXDREHZAHL" }
+              ],
+              "methods": [
+                { "name": "GetGeometry", "returnType": "IToolGeometry", "parameters": [] },
+                { "name": "SetCuttingProfile", "returnType": "void", "parameters": ["ICuttingProfile profile"] },
+                { "name": "Clone", "returnType": "INCTool", "parameters": [] }
+              ]
+            },
+            {
+              "name": "IMillingTool",
+              "description": "Milling tool specific properties (extends INCTool)",
+              "properties": [
+                { "name": "Diameter", "type": "double", "access": "RW" },
+                { "name": "CornerRadius", "type": "double", "access": "RW", "ncVar": "*FRBOGEN" },
+                { "name": "TipAngle", "type": "double", "access": "RW", "ncVar": "*TIP_ANGLE" },
+                { "name": "CuttingLength", "type": "double", "access": "RW", "ncVar": "*CUTTING_LENGTH" },
+                { "name": "ShaftDiameter", "type": "double", "access": "RW", "ncVar": "*SHAFT_DIAMETER" },
+                { "name": "Tapered", "type": "bool", "access": "RW", "ncVar": "*TAPERED" },
+                { "name": "TaperAngle", "type": "double", "access": "RW", "ncVar": "*TAPER_ANGLE" },
+                { "name": "CuttingEdges", "type": "long", "access": "RW", "ncVar": "*CUTTING_EDGES" },
+                { "name": "BarrelRadius", "type": "double", "access": "RW", "ncVar": "*BARREL_RADIUS" },
+                { "name": "BarrelHeight", "type": "double", "access": "RW", "ncVar": "*BARREL_HEIGHT" },
+                { "name": "MinDrillDiameter", "type": "double", "access": "RW" },
+                { "name": "MaxDrillDiameter", "type": "double", "access": "RW" },
+                { "name": "ProbeFeedrate", "type": "double", "access": "RW", "description": "For touch probe tools" },
+                { "name": "ProbeSpindleSpeed", "type": "double", "access": "RW", "description": "For touch probe tools" }
+              ]
+            },
+            {
+              "name": "ICuttingProfile",
+              "description": "Cutting parameters profile",
+              "properties": [
+                { "name": "Feedrate", "type": "double", "access": "RW" },
+                { "name": "FeedratePerRev", "type": "double", "access": "RW" },
+                { "name": "SpindleSpeed", "type": "double", "access": "RW" },
+                { "name": "CuttingSpeed", "type": "double", "access": "RW" },
+                { "name": "DrillingFeedrate", "type": "double", "access": "RW", "ncVar": "*DRILL_FEEDRATE" }
+              ]
+            },
+            {
+              "name": "ITurningTool",
+              "description": "Turning tool specific properties",
+              "properties": [
+                { "name": "InsertAngle", "type": "double", "access": "RW", "ncVar": "*INSERT_ANGLE" },
+                { "name": "InsertLength", "type": "double", "access": "RW", "ncVar": "*INSERT_LENGTH" },
+                { "name": "InsertRadius", "type": "double", "access": "RW", "ncVar": "*INSERT_RADIUS" },
+                { "name": "InsertIsoCode", "type": "string", "access": "RW", "ncVar": "*INSERT_ISO_CODE" },
+                { "name": "SideOfInsert", "type": "short", "access": "RW", "ncVar": "*SIDE_OF_INSERT" },
+                { "name": "MountingDirection", "type": "short", "access": "RW", "ncVar": "*MOUNTING_DIRECTION" }
+              ]
+            }
+          ]
+        },
+        {
+          "category": "Document Interfaces",
+          "count": 15,
+          "interfaces": [
+            {
+              "name": "IDocument",
+              "description": "hyperMILL document/project",
+              "properties": [
+                { "name": "Name", "type": "string", "access": "RO" },
+                { "name": "Path", "type": "string", "access": "RO" },
+                { "name": "ModificationDate", "type": "DateTime", "access": "RO" },
+                { "name": "JobList", "type": "IJobList", "access": "RO" },
+                { "name": "ToolList", "type": "IToolList", "access": "RO" },
+                { "name": "StockModel", "type": "IStockModel", "access": "RW" },
+                { "name": "PartModel", "type": "IPartModel", "access": "RW" },
+                { "name": "MachineConfiguration", "type": "IMachineConfig", "access": "RW" },
+                { "name": "PostProcessor", "type": "string", "access": "RW" },
+                { "name": "AutomationCenterPath", "type": "string", "access": "RW" }
+              ],
+              "methods": [
+                { "name": "Save", "returnType": "bool", "parameters": [] },
+                { "name": "SaveAs", "returnType": "bool", "parameters": ["string path"] },
+                { "name": "Close", "returnType": "void", "parameters": [] },
+                { "name": "CalculateAll", "returnType": "bool", "parameters": [] },
+                { "name": "GenerateNC", "returnType": "bool", "parameters": ["string outputPath"] },
+                { "name": "RunSimulation", "returnType": "ISimulationResult", "parameters": [] }
+              ]
+            },
+            {
+              "name": "IJobList",
+              "description": "Collection of machining jobs",
+              "properties": [
+                { "name": "Count", "type": "int", "access": "RO" },
+                { "name": "Item", "type": "IJob", "access": "RO", "indexer": true }
+              ],
+              "methods": [
+                { "name": "Add", "returnType": "IJob", "parameters": ["JobType type"] },
+                { "name": "Remove", "returnType": "bool", "parameters": ["int index"] },
+                { "name": "MoveUp", "returnType": "bool", "parameters": ["int index"] },
+                { "name": "MoveDown", "returnType": "bool", "parameters": ["int index"] },
+                { "name": "Clone", "returnType": "IJob", "parameters": ["int sourceIndex"] },
+                { "name": "GetByName", "returnType": "IJob", "parameters": ["string name"] }
+              ]
+            },
+            {
+              "name": "IJob",
+              "description": "Single machining job/operation",
+              "properties": [
+                { "name": "Name", "type": "string", "access": "RW" },
+                { "name": "Type", "type": "JobType", "access": "RO" },
+                { "name": "Tool", "type": "INCTool", "access": "RW" },
+                { "name": "Toolpath", "type": "IToolpath", "access": "RO" },
+                { "name": "IsCalculated", "type": "bool", "access": "RO" },
+                { "name": "CycleTime", "type": "double", "access": "RO" },
+                { "name": "Frame", "type": "IFrame", "access": "RW" },
+                { "name": "Parameters", "type": "IJobParameters", "access": "RW" }
+              ],
+              "methods": [
+                { "name": "Calculate", "returnType": "bool", "parameters": [] },
+                { "name": "SetParameter", "returnType": "void", "parameters": ["string name", "object value"] },
+                { "name": "GetParameter", "returnType": "object", "parameters": ["string name"] },
+                { "name": "ExportToolpath", "returnType": "bool", "parameters": ["string path", "ExportFormat format"] }
+              ]
+            }
+          ]
+        },
+        {
+          "category": "Geometry Interfaces",
+          "count": 20,
+          "interfaces": [
+            {
+              "name": "IPartModel",
+              "description": "Part geometry model",
+              "properties": [
+                { "name": "Surfaces", "type": "ISurfaceList", "access": "RO" },
+                { "name": "Solids", "type": "ISolidList", "access": "RO" },
+                { "name": "BoundingBox", "type": "IBoundingBox", "access": "RO" }
+              ],
+              "methods": [
+                { "name": "Import", "returnType": "bool", "parameters": ["string path"] },
+                { "name": "GetFeatures", "returnType": "IFeatureList", "parameters": [] },
+                { "name": "SelectSurfaces", "returnType": "ISurfaceList", "parameters": ["SelectionCriteria criteria"] }
+              ]
+            },
+            {
+              "name": "IStockModel",
+              "description": "Stock/blank geometry",
+              "properties": [
+                { "name": "Type", "type": "StockType", "access": "RW" },
+                { "name": "Dimensions", "type": "IVector3", "access": "RW" },
+                { "name": "Offset", "type": "double", "access": "RW" }
+              ],
+              "methods": [
+                { "name": "CreateFromPart", "returnType": "void", "parameters": ["double offset"] },
+                { "name": "CreateBox", "returnType": "void", "parameters": ["IVector3 dimensions"] },
+                { "name": "CreateCylinder", "returnType": "void", "parameters": ["double diameter", "double length"] }
+              ]
+            },
+            {
+              "name": "IFeature",
+              "description": "Recognized feature from part model",
+              "properties": [
+                { "name": "Type", "type": "FeatureType", "access": "RO" },
+                { "name": "Geometry", "type": "IGeometry", "access": "RO" },
+                { "name": "Diameter", "type": "double", "access": "RO" },
+                { "name": "Depth", "type": "double", "access": "RO" },
+                { "name": "Position", "type": "IVector3", "access": "RO" },
+                { "name": "Axis", "type": "IVector3", "access": "RO" }
+              ]
+            }
+          ]
+        },
+        {
+          "category": "NC/Post Interfaces",
+          "count": 10,
+          "interfaces": [
+            {
+              "name": "INCGenerator",
+              "description": "NC code generation",
+              "properties": [
+                { "name": "PostProcessor", "type": "string", "access": "RW" },
+                { "name": "OutputPath", "type": "string", "access": "RW" },
+                { "name": "Machine", "type": "string", "access": "RW" }
+              ],
+              "methods": [
+                { "name": "Generate", "returnType": "bool", "parameters": ["IJobList jobs"] },
+                { "name": "Preview", "returnType": "string", "parameters": ["IJob job"] }
+              ]
+            },
+            {
+              "name": "IToolpath",
+              "description": "Computed toolpath data",
+              "properties": [
+                { "name": "Length", "type": "double", "access": "RO" },
+                { "name": "PointCount", "type": "int", "access": "RO" },
+                { "name": "CuttingTime", "type": "double", "access": "RO" },
+                { "name": "RapidTime", "type": "double", "access": "RO" }
+              ],
+              "methods": [
+                { "name": "GetPoints", "returnType": "IToolpathPoint[]", "parameters": [] },
+                { "name": "Export", "returnType": "bool", "parameters": ["string path", "ExportFormat format"] }
+              ]
+            }
+          ]
+        },
+        {
+          "category": "Simulation Interfaces",
+          "count": 8,
+          "interfaces": [
+            {
+              "name": "ISimulation",
+              "description": "Virtual machining simulation",
+              "properties": [
+                { "name": "Mode", "type": "SimulationMode", "access": "RW" },
+                { "name": "Speed", "type": "double", "access": "RW" },
+                { "name": "CurrentTime", "type": "double", "access": "RO" }
+              ],
+              "methods": [
+                { "name": "Start", "returnType": "void", "parameters": [] },
+                { "name": "Stop", "returnType": "void", "parameters": [] },
+                { "name": "Pause", "returnType": "void", "parameters": [] },
+                { "name": "StepForward", "returnType": "void", "parameters": [] },
+                { "name": "CheckCollisions", "returnType": "ICollisionReport", "parameters": [] }
+              ]
+            }
+          ]
+        },
+        {
+          "category": "Application Interfaces",
+          "count": 5,
+          "interfaces": [
+            {
+              "name": "IApplication",
+              "description": "hyperMILL application object (COM entry point)",
+              "properties": [
+                { "name": "Version", "type": "string", "access": "RO" },
+                { "name": "ActiveDocument", "type": "IDocument", "access": "RO" },
+                { "name": "Documents", "type": "IDocumentList", "access": "RO" },
+                { "name": "ToolDatabase", "type": "IToolDatabase", "access": "RO" },
+                { "name": "MachineDatabase", "type": "IMachineDatabase", "access": "RO" }
+              ],
+              "methods": [
+                { "name": "NewDocument", "returnType": "IDocument", "parameters": [] },
+                { "name": "OpenDocument", "returnType": "IDocument", "parameters": ["string path"] },
+                { "name": "Quit", "returnType": "void", "parameters": [] },
+                { "name": "ExecuteMacro", "returnType": "object", "parameters": ["string macroName", "object[] args"] }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "enums": {
+      "count": 25,
+      "definitions": [
+        { "name": "ToolType", "values": ["eEndMill", "eBallNose", "eBullNose", "eFaceMill", "eDrill", "eTap", "eReamer", "eBoringBar", "eChamferMill", "eThreadMill", "eSlotMill", "eTouchProbe", "eLaserProbe"] },
+        { "name": "JobType", "values": ["e2DFace", "e2DPocket", "e2DContour", "e2DSlot", "e3DRoughing", "e3DZLevel", "e3DEquidistant", "e3DProfile", "e3DPencil", "eDrilling", "eTapping", "eBoring", "eReaming", "e5AxisSwarf", "e5AxisPointMilling"] },
+        { "name": "CoolantMode", "values": ["eFlood", "eMist", "eThroughSpindle", "eAirBlast", "eMQL", "eDry", "eHighPressure"] },
+        { "name": "SpindleDirection", "values": ["eCW", "eCCW"] },
+        { "name": "CutDirection", "values": ["eClimb", "eConventional", "eBoth"] },
+        { "name": "FeatureType", "values": ["eHole", "ePocket", "eBoss", "eGroove", "eFace", "eFillet", "eChamfer", "eThread", "eSinkHole"] },
+        { "name": "StockType", "values": ["eBox", "eCylinder", "eFromPart", "eCustom"] },
+        { "name": "SimulationMode", "values": ["eRapid", "eCutting", "eToolOnly", "eMachineOnly", "eFull"] },
+        { "name": "ExportFormat", "values": ["eAPT", "eCL", "eISO", "eSTL", "eCSV"] }
+      ]
+    },
+    "events": {
+      "count": 15,
+      "definitions": [
+        { "name": "DocumentOpened", "description": "Fired when a document is opened", "parameters": ["IDocument doc"] },
+        { "name": "DocumentClosed", "description": "Fired when a document is closed", "parameters": ["string path"] },
+        { "name": "DocumentSaved", "description": "Fired when a document is saved", "parameters": ["IDocument doc"] },
+        { "name": "JobCalculated", "description": "Fired when a job calculation completes", "parameters": ["IJob job", "bool success"] },
+        { "name": "NCGenerated", "description": "Fired when NC code generation completes", "parameters": ["string outputPath", "bool success"] },
+        { "name": "ToolChanged", "description": "Fired when a tool is modified", "parameters": ["INCTool tool"] },
+        { "name": "SimulationStarted", "description": "Fired when simulation starts", "parameters": [] },
+        { "name": "SimulationStopped", "description": "Fired when simulation stops", "parameters": [] },
+        { "name": "CollisionDetected", "description": "Fired when collision is detected during simulation", "parameters": ["ICollisionInfo info"] },
+        { "name": "FeatureRecognitionComplete", "description": "Fired when feature recognition completes", "parameters": ["IFeatureList features"] },
+        { "name": "MacroStarted", "description": "Fired when macro execution starts", "parameters": ["string macroName"] },
+        { "name": "MacroCompleted", "description": "Fired when macro execution completes", "parameters": ["string macroName", "bool success"] },
+        { "name": "ProgressChanged", "description": "Fired during long operations", "parameters": ["int percent", "string message"] },
+        { "name": "ErrorOccurred", "description": "Fired when an error occurs", "parameters": ["int errorCode", "string message"] },
+        { "name": "WarningRaised", "description": "Fired when a warning is raised", "parameters": ["int warningCode", "string message"] }
+      ]
+    },
+    "comRegistration": {
+      "progId": "hyperMILL.Application",
+      "clsid": "{varies by version}",
+      "typeLib": "hyperMILL.tlb",
+      "example_vbscript": "Set app = CreateObject(\"hyperMILL.Application\")\nSet doc = app.OpenDocument(\"C:\\project.hmc\")\ndoc.CalculateAll()\ndoc.GenerateNC(\"C:\\output.nc\")",
+      "example_python": "import win32com.client\napp = win32com.client.Dispatch(\"hyperMILL.Application\")\ndoc = app.OpenDocument(r\"C:\\project.hmc\")\ndoc.CalculateAll()\ndoc.GenerateNC(r\"C:\\output.nc\")"
+    },
+    "customCycleDevelopment": {
+      "description": "hyperMILL supports custom cycle development via C++ SDK",
+      "requirements": ["Visual Studio 2019+", "hyperMILL SDK", "C++/CLI knowledge"],
+      "interfaces": [
+        { "name": "ICustomCycle", "description": "Base interface for custom cycles" },
+        { "name": "ICustomCycleUI", "description": "Interface for custom cycle dialog" },
+        { "name": "IToolpathGenerator", "description": "Interface for toolpath computation" }
+      ],
+      "registration": "Custom cycles are registered via XML manifest in hyperMILL installation folder"
+    }
+  },
+
+  "ncVariableMapping": {
+    "description": "Mapping of hyperMILL properties to NC output variables",
+    "totalMappings": 163,
+    "categories": [
+      {
+        "category": "Tool Geometry",
+        "mappings": [
+          { "property": "kcToolNumber", "ncVar": "*WKZNUMMER" },
+          { "property": "kcToolDiameter", "ncVar": "*FRDURCHMESSER" },
+          { "property": "kcToolCornerRadius", "ncVar": "*FRBOGEN" },
+          { "property": "kcToolLength", "ncVar": "*TOTAL_TOOL_LENGTH" },
+          { "property": "kcToolCuttingLength", "ncVar": "*CUTTING_LENGTH" },
+          { "property": "kcToolTipAngle", "ncVar": "*TIP_ANGLE" },
+          { "property": "kcToolPitch", "ncVar": "*PITCH" },
+          { "property": "kcToolCuttingEdges", "ncVar": "*CUTTING_EDGES" }
+        ]
+      },
+      {
+        "category": "Cutting Parameters",
+        "mappings": [
+          { "property": "kcToolDrillingFeedrate", "ncVar": "*DRILL_FEEDRATE" },
+          { "property": "kcTTSpindleMaxRPM", "ncVar": "*MAXDREHZAHL" },
+          { "property": "kcTTSpindleDir", "ncVar": "*DREHRICHT" }
+        ]
+      }
+    ]
+  },
+
+  "prismIntegration": {
+    "existingSchemas": {
+      "drillingSchemas": "src/schemas/hypermill/cam/drillingSchemas.ts",
+      "probingSchemas": "src/schemas/hypermill/cam/probingSchemas.ts"
+    },
+    "existingEngines": [
+      "HyperMillCAMCoreArtifactGeneratorEngine",
+      "HyperMillCAMAdvancedArtifactGeneratorEngine",
+      "HyperMillSpeedFeedMappingEngine",
+      "HyperMillKienzleMappingEngine"
+    ],
+    "existingSkills": [
+      "hypermill-drill",
+      "hypermill-thread",
+      "hypermill-automation-script"
+    ],
+    "acPythonCallPattern": {
+      "drilling": "hm.drill.<cycle_type>(<parameters>)",
+      "probing": "hm.probe.<cycle_type>(<parameters>)",
+      "example": "hm.drill.peck_drill(spindle_speed=3000, feed_rate=250, first_peck_depth=5, ...)"
+    }
+  }
+}

@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect, useCallback, useMemo } from "react";
 import { ISO_GROUPS, searchMaterials as searchLocal, MATERIALS, type MaterialEntry } from "../../data/materials";
-import { dataApi } from "../../api/data";
+import { dataApi, unwrapSearchRows } from "../../api/data";
 import { Card, Badge } from "../ui";
 
 interface Props {
@@ -55,7 +55,8 @@ export default function SmartMaterialSelector({ value, onChange, operationId }: 
   const [recents, setRecents] = useState<string[]>(() => loadIds(RECENTS_KEY));
   const [backendResults, setBackendResults] = useState<MaterialEntry[]>([]);
   const [backendLoading, setBackendLoading] = useState(false);
-  const debounceRef = useRef<ReturnType<typeof setTimeout>>();
+  // React 19's useRef requires an explicit initial value (no overload for ()).
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const inputRef = useRef<HTMLInputElement>(null);
   const listRef = useRef<HTMLDivElement>(null);
 
@@ -72,18 +73,27 @@ export default function SmartMaterialSelector({ value, onChange, operationId }: 
     debounceRef.current = setTimeout(async () => {
       setBackendLoading(true);
       try {
-        const res = await dataApi.searchMaterials({ query, limit: 50 }) as { results?: MaterialEntry[] };
-        const items = (res.results ?? (Array.isArray(res) ? res : [])) as MaterialEntry[];
-        // Map backend results to MaterialEntry shape
-        const mapped: MaterialEntry[] = items.map((m: Record<string, unknown>) => ({
-          id: String(m.id ?? m.name ?? ""),
-          name: String(m.name ?? m.id ?? ""),
-          group: String(m.group ?? m.iso_group ?? "P"),
-          groupLabel: ISO_GROUPS.find(g => g.code === String(m.group ?? m.iso_group ?? "P"))?.label ?? "Steel",
-          hardness: Number(m.hardness ?? m.hardness_hb ?? 200),
-          tensileStrength: Number(m.tensileStrength ?? m.tensile_strength ?? m.uts_mpa ?? 600),
-          machinability: Number(m.machinability ?? m.machinability_index ?? 50),
-        }));
+        const res = await dataApi.searchMaterials({ query, limit: 50 });
+        const items = unwrapSearchRows(res, "materials");
+        // Map backend rows to MaterialEntry. MaterialRegistry rows carry the ISO group
+        // under classification.iso_group and hardness under mechanical.hardness.brinell,
+        // so read BOTH the flat and nested paths -- a flat-only read defaulted every
+        // registry row to P/Steel/200HB (the dead-wire's second failure mode).
+        const mapped: MaterialEntry[] = items.map((m) => {
+          const classification = (m.classification ?? {}) as Record<string, unknown>;
+          const mechanical = (m.mechanical ?? {}) as Record<string, unknown>;
+          const hardnessObj = (mechanical.hardness ?? {}) as Record<string, unknown>;
+          const group = (String(m.group ?? m.iso_group ?? classification.iso_group ?? "P").toUpperCase().charAt(0) || "P");
+          return {
+            id: String(m.material_id ?? m.id ?? m.name ?? ""),
+            name: String(m.name ?? m.material_id ?? m.id ?? ""),
+            group,
+            groupLabel: ISO_GROUPS.find(g => g.code === group)?.label ?? "Steel",
+            hardness: Number(m.hardness ?? m.hardness_hb ?? hardnessObj.brinell ?? 200),
+            tensileStrength: Number(m.tensileStrength ?? m.tensile_strength ?? m.uts_mpa ?? 600),
+            machinability: Number(m.machinability ?? m.machinability_index ?? 50),
+          };
+        });
         setBackendResults(mapped);
       } catch {
         // Backend unavailable — local-only mode

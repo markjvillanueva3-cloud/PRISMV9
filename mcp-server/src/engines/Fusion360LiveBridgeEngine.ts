@@ -13,7 +13,12 @@ import type { ExtractedAction, CADActionType } from "./VideoActionExtractorEngin
 
 // ── Configuration ───────────────────────────────────────────────────
 
-const F360_URL = "http://127.0.0.1:18360";
+// Default add-in port is :18360 (generic). delta's OPERATOR-DESIGNATED Fusion CAD window is :18362
+// (kilo CAM = :18361) per reference_fusion_port_assignment_kilo_18361_2026_06_02. Override the whole
+// URL via env F360_URL, or just the port via PRISM_FUSION_DELTA_PORT (e.g. 18362 for delta's live drive),
+// or pass baseUrl to the constructor. Back-compat: env unset -> :18360 (unchanged).
+const F360_PORT = process.env.PRISM_FUSION_DELTA_PORT || "18360";
+const F360_URL = process.env.F360_URL || `http://127.0.0.1:${F360_PORT}`;
 const CONNECT_TIMEOUT_MS = 2000;
 const REQUEST_TIMEOUT_MS = 30000;
 
@@ -483,10 +488,14 @@ export class Fusion360LiveBridgeEngine {
    * Create a sketch with shapes on a construction plane.
    * @param params.plane - "XY" | "XZ" | "YZ" (default: "XY")
    * @param params.shapes - Array of shapes to create
+   * @param params.offset_mm - Optional offset (mm) of a construction plane from
+   *   the named base plane. Enables stacked profiles for loft / multi-level
+   *   features. Absent or 0 → sketch sits on the base plane (legacy behaviour).
    */
   async createSketch(params: {
     plane?: string;
     shapes: SketchShape[];
+    offset_mm?: number;
   }): Promise<SketchResult> {
     return this._post<SketchResult>("/sketch", params);
   }
@@ -564,6 +573,22 @@ export class Fusion360LiveBridgeEngine {
   }
 
   /**
+   * Import a real CAD file (STEP/IGES/F3D/SMT) into the active design. After import, GET /geometry
+   * returns Fusion's KERNEL bounding box of the imported solid -- the AUTHORITATIVE part envelope, with
+   * the file's own units resolved natively by Fusion (no manual mm/inch 25.4x scaling). This is the
+   * kernel-ground-truth path that resolves the ~9.5% of corpus STEP parts (concentrated in
+   * casing/bushing/die) whose point-cloud (CARTESIAN_POINT) bbox is degenerate in the text extractor.
+   * Requires the /import add-in route (resources/FUSION360/.../prism_api_server.py) -- loaded via an
+   * operator add-in Stop+Run. NOTE: an assembly STEP imports as occurrences (sub-component bodies); the
+   * root-only /geometry reports the root bRepBodies only (single-solid parts land directly in root).
+   * @param params.path - absolute path to the CAD file on the Fusion host
+   * @param params.format - optional format override ("step"|"stp"|"iges"|"igs"|"f3d"|"smt"); inferred from the extension when omitted
+   */
+  async importStep(params: { path: string; format?: string }): Promise<OperationResult> {
+    return this._post<OperationResult>("/import", params);
+  }
+
+  /**
    * Create a hole feature.
    * @param params.diameter_mm - Hole diameter in mm
    * @param params.depth_mm - Hole depth in mm
@@ -629,6 +654,66 @@ export class Fusion360LiveBridgeEngine {
     body_index?: number;
   }): Promise<OperationResult> {
     return this._post<OperationResult>("/shell", params);
+  }
+
+  /**
+   * Sweep a closed profile along a path curve (adsk.fusion sweepFeatures).
+   * Unlocks tubes, organic extrusions along curves, twisted/tapered bodies —
+   * geometry that plain extrude/revolve cannot express. The profile and path
+   * live in SEPARATE sketches (e.g. profile on XY, path on XZ).
+   * @param params.profile_sketch_name - sketch holding the closed profile (default: most-recent sketch)
+   * @param params.path_sketch_name - sketch holding the open path curve (default: most-recent sketch ≠ profile)
+   * @param params.profile_index - which profile in the profile sketch (default 0)
+   * @param params.operation - "new_body" | "join" | "cut" | "intersect" (default "new_body")
+   * @param params.twist_deg - total twist about the path tangent (optional)
+   * @param params.taper_deg - profile draft along the path (optional)
+   */
+  async sweep(params: {
+    profile_sketch_name?: string;
+    path_sketch_name?: string;
+    profile_index?: number;
+    operation?: "new_body" | "join" | "cut" | "intersect";
+    twist_deg?: number;
+    taper_deg?: number;
+  }): Promise<OperationResult> {
+    if (params.twist_deg !== undefined && !Number.isFinite(params.twist_deg)) {
+      return { success: false, error: "sweep: twist_deg must be a finite number" };
+    }
+    if (params.taper_deg !== undefined && !Number.isFinite(params.taper_deg)) {
+      return { success: false, error: "sweep: taper_deg must be a finite number" };
+    }
+    if (params.profile_index !== undefined &&
+        (!Number.isInteger(params.profile_index) || params.profile_index < 0)) {
+      return { success: false, error: "sweep: profile_index must be a non-negative integer" };
+    }
+    return this._post<OperationResult>("/sweep", params);
+  }
+
+  /**
+   * Loft a solid/surface through 2+ profile sections (adsk.fusion loftFeatures).
+   * Unlocks transitions, organic blends, impeller/airfoil-style bodies. Sections
+   * are typically sketched on stacked offset planes — see createSketch({offset_mm}).
+   * @param params.sections - ordered list (len ≥ 2) of {sketch_name, profile_index}
+   * @param params.operation - "new_body" | "join" | "cut" | "intersect" (default "new_body")
+   * @param params.closed - connect last profile back to first (default false)
+   * @param params.output_type - "solid" | "surface" (default "solid")
+   */
+  async loft(params: {
+    sections: Array<{ sketch_name?: string; profile_index?: number }>;
+    operation?: "new_body" | "join" | "cut" | "intersect";
+    closed?: boolean;
+    output_type?: "solid" | "surface";
+  }): Promise<OperationResult> {
+    if (!Array.isArray(params.sections) || params.sections.length < 2) {
+      return { success: false, error: "loft: sections must be an array of at least 2 entries" };
+    }
+    for (let i = 0; i < params.sections.length; i++) {
+      const pi = params.sections[i]?.profile_index;
+      if (pi !== undefined && (!Number.isInteger(pi) || pi < 0)) {
+        return { success: false, error: `loft: sections[${i}].profile_index must be a non-negative integer` };
+      }
+    }
+    return this._post<OperationResult>("/loft", params);
   }
 
   // ── Export ──────────────────────────────────────────────────────

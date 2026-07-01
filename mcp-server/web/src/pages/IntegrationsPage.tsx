@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react';
 import { callIntegrationRoute, OrphanRouteError } from '../api/orphanRoutes';
 
 type IntegrationAction = {
-  id: 'cam' | 'dnc' | 'erp' | 'mobile' | 'measurement';
+  id: 'cam' | 'dnc' | 'erp' | 'mobile' | 'measurement' | 'e2_sync' | 'qbo_invoices' | 'qbo_payments' | 'qbo_reconcile';
   label: string;
   detail: string;
 };
@@ -20,9 +20,9 @@ const INTEGRATION_ACTIONS: readonly IntegrationAction[] = [
   { id: 'mobile', label: 'Mobile Lookup', detail: 'Surface mobile-first lookup posture for operators and field users.' },
   { id: 'measurement', label: 'Measurement Import', detail: 'Pull measurement or CMM payloads into the quality lane.' },
   { id: 'e2_sync', label: 'E2 Shop System Sync', detail: 'Bidirectional sync with E2 MRP: jobs, employees, time entries, invoices.' },
-  { id: 'qbo_invoices', label: 'QBO Sync Invoices', detail: 'Push approved PRISM invoices to QuickBooks Online.' },
-  { id: 'qbo_payments', label: 'QBO Sync Payments', detail: 'Pull payments from QuickBooks Online and mark PRISM invoices paid.' },
-  { id: 'qbo_reconcile', label: 'QBO GL Reconcile', detail: 'Compare PRISM GL totals with QuickBooks trial balance and report discrepancies.' },
+  { id: 'qbo_invoices', label: 'QBO Sync Invoices', detail: 'Push approved Kienzle invoices to QuickBooks Online.' },
+  { id: 'qbo_payments', label: 'QBO Sync Payments', detail: 'Pull payments from QuickBooks Online and mark Kienzle invoices paid.' },
+  { id: 'qbo_reconcile', label: 'QBO GL Reconcile', detail: 'Compare Kienzle GL totals with QuickBooks trial balance and report discrepancies.' },
 ] as const;
 
 function formatTimestamp(value: string) {

@@ -138,7 +138,7 @@ function FeedbackForm() {
           </Field>
           <div />
           <Field label="Predicted Value">
-            <Input type="number" value={predicted} onChange={e => setPredicted((e.target as HTMLInputElement).value)} placeholder="PRISM prediction" />
+            <Input type="number" value={predicted} onChange={e => setPredicted((e.target as HTMLInputElement).value)} placeholder="Kienzle prediction" />
           </Field>
           <Field label="Actual Value">
             <Input type="number" value={actual} onChange={e => setActual((e.target as HTMLInputElement).value)} placeholder="Measured on machine" />
@@ -221,7 +221,7 @@ function MeasurementForm() {
             </Select>
           </Field>
           <Field label="Predicted">
-            <Input type="number" value={predicted} onChange={e => setPredicted((e.target as HTMLInputElement).value)} placeholder="PRISM value" />
+            <Input type="number" value={predicted} onChange={e => setPredicted((e.target as HTMLInputElement).value)} placeholder="Kienzle value" />
           </Field>
           <Field label="Measured">
             <Input type="number" value={measured} onChange={e => setMeasured((e.target as HTMLInputElement).value)} placeholder="Actual value" />
@@ -265,7 +265,7 @@ export function FleetLearningDashboardPage() {
       <WorkspaceHero
         eyebrow="Knowledge Pipeline"
         title="Fleet Learning"
-        description="Monitor per-machine calibration, detect drift, record measurements, and submit operator feedback. Every data point makes PRISM's predictions more accurate."
+        description="Monitor per-machine calibration, detect drift, record measurements, and submit operator feedback. Every data point makes Kienzle's predictions more accurate."
         metrics={
           <>
             <SummaryTile
@@ -364,13 +364,13 @@ export function FleetLearningDashboardPage() {
         <PanelCard title="Transfer Learning" subtitle="New machines can inherit calibration from similar existing machines. Use the fleet similarity API to find the best match.">
           <div className="space-y-4">
             <p className="text-sm text-slate-300">
-              When a new machine is added to the fleet, PRISM can transfer learned calibration data from the most similar existing machine.
+              When a new machine is added to the fleet, Kienzle can transfer learned calibration data from the most similar existing machine.
               This reduces the warm-up period from weeks of data collection to immediate usability.
             </p>
             <div className="rounded-xl border border-white/8 bg-white/[0.02] p-4 space-y-2">
               <h4 className="text-sm font-semibold text-slate-100">How Transfer Works</h4>
               <ol className="space-y-1 text-sm text-slate-400">
-                <li>1. PRISM computes weighted cosine similarity between machine specs (power, RPM, rigidity, accuracy, axes)</li>
+                <li>1. Kienzle computes weighted cosine similarity between machine specs (power, RPM, rigidity, accuracy, axes)</li>
                 <li>2. Parameters are physics-scaled based on capability ratios (e.g., lower power = reduced material removal rate)</li>
                 <li>3. Safety validation checks that transferred params respect the target machine's limits</li>
                 <li>4. Gaussian Process interpolation fills gaps where direct parameter mapping isn't possible</li>

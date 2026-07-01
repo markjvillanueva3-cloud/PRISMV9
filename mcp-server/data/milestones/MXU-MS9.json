@@ -1,0 +1,212 @@
+{
+  "id": "MXU-MS9",
+  "version": "1.0.0",
+  "title": "End-to-End Validation & Benchmarks",
+  "brief": "Validate all activation claims end-to-end. Benchmark token reduction (target <=30% vs baseline). Benchmark cold-start recovery (target <=3 exchanges to productive state). Produce quantitative evidence for all MXU targets.",
+  "created_at": "2026-03-25T14:30:00Z",
+  "created_by": "claude-opus-4.6",
+  "track": "MXU",
+  "track_name": "Max Utilization",
+  "status": "not_started",
+  "phases": [
+    {
+      "id": "P0",
+      "title": "Activation Validation",
+      "sessions": "1-2",
+      "units": [
+        {
+          "id": "P0-U01",
+          "title": "Validate activation claims: run each bundle, verify all declared capabilities are callable",
+          "effort": 70,
+          "dependencies": [],
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit"
+          ],
+          "description": "Validate activation claims: run each bundle, verify all declared capabilities are callable — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P0-U02",
+          "title": "Benchmark token reduction: compare baseline vs optimized workflows, verify <=30% reduction",
+          "effort": 80,
+          "dependencies": [
+            "P0-U01"
+          ],
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit"
+          ],
+          "description": "Benchmark token reduction: compare baseline vs optimized workflows, verify <=30% reduction — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "P1",
+      "title": "Recovery & Regression Benchmarks",
+      "sessions": "1-2",
+      "units": [
+        {
+          "id": "P1-U01",
+          "title": "Benchmark cold-start recovery: measure exchanges to productive state, verify <=3 target",
+          "effort": 70,
+          "dependencies": [
+            "P0-U01"
+          ],
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit"
+          ],
+          "description": "Benchmark cold-start recovery: measure exchanges to productive state, verify <=3 target — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P1-U02",
+          "title": "Regression test suite: ensure no capability lost during MXU optimization",
+          "effort": 60,
+          "dependencies": [
+            "P0-U02",
+            "P1-U01"
+          ],
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit"
+          ],
+          "description": "Regression test suite: ensure no capability lost during MXU optimization — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P1-U03",
+          "title": "Produce validation report with quantitative evidence for all MXU targets",
+          "effort": 40,
+          "dependencies": [
+            "P1-U02"
+          ],
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit"
+          ],
+          "description": "Produce validation report with quantitative evidence for all MXU targets — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        }
+      ]
+    }
+  ],
+  "dependencies": [
+    "MXU-MS8"
+  ],
+  "exit_conditions": [
+    "All activation claims validated end-to-end",
+    "Token reduction <=30% confirmed with data",
+    "Cold-start recovery <=3 exchanges confirmed",
+    "Validation report published"
+  ],
+  "spec_path": "docs/superpowers/specs/2026-03-25-mcp-max-utilization-roadmap-design.md",
+  "smart_config": {
+    "role": "implementer + reviewer",
+    "model": "sonnet",
+    "effort": "HIGH",
+    "context_budget": "65%"
+  },
+  "mcp_lifecycle": {
+    "session_start": [
+      "prism_session:context_boot",
+      "prism_session:dispatcher_map",
+      "prism_session:memory_recall",
+      "prism_session:system_snapshot",
+      "prism_session:action_search"
+    ],
+    "during_work": [
+      "prism_session:auto_checkpoint",
+      "prism_session:tool_route_best",
+      "prism_session:wip_capture"
+    ],
+    "session_end": [
+      "prism_session:memory_save",
+      "prism_session:system_snapshot",
+      "prism_session:checkpoint_enhanced"
+    ]
+  },
+  "forge_triple": {
+    "protective_hook": "mxu-ms9-gate",
+    "mcp_action": "prism_mxu:mxu_ms9_run",
+    "skill_command": "/mxu-ms9",
+    "ownership": "DECLARED — BUILT in terminal unit of this milestone"
+  },
+  "feature_cascade": {
+    "new_hooks": [
+      "mxu-ms9-gate"
+    ],
+    "new_actions": [
+      "mxu_ms9_run"
+    ],
+    "new_skills": [
+      "/mxu-ms9"
+    ],
+    "available_to": [
+      "downstream CAMX milestones",
+      "prism app consumers"
+    ]
+  },
+  "knowledge_sources": {
+    "engines": [
+      "ENGINE_DIGEST.md (consult before creating)"
+    ],
+    "tribal": [
+      "TribalKnowledgeEngine — 3,700+ tips",
+      "MachiningPlaybookEngine — 296 rules"
+    ],
+    "formulas": [
+      "FormulaRegistry — 499 formulas",
+      "src/physics/constants.ts — canonical"
+    ],
+    "reference": [
+      "EXTERNAL-REFERENCE-PROGRAMS-INDEX.md",
+      "MaterialRegistry",
+      "MachineRegistry",
+      "ToolCatalogEngine (95,608 tools)"
+    ]
+  },
+  "intent": "Validate all activation claims end-to-end. Benchmark token reduction (target <=30% vs baseline). Benchmark cold-start recovery (target <=3 exchanges to productive state). Produce quantitative evidence for all MXU targets.",
+  "compact_checkpoint": "every 3 units — auto-triggered by hook",
+  "enforcement_hooks_active": [
+    "physics agent",
+    "wiring agent",
+    "constants checker",
+    "stub detector",
+    "test quality",
+    "forge-triple gate",
+    "session audit agent"
+  ]
+}

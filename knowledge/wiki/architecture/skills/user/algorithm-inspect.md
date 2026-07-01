@@ -23,13 +23,16 @@ related:
 |-------|-------|
 | Name | `algorithm-inspect` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/algorithm-inspect.md` |
+| Source | `C:/Users/wompu/.claude/commands/algorithm-inspect.md` |
 | Model | default |
 | Tags | _(none)_ |
 
 ## Description (first paragraph)
 
-_(no body content)_
+
+# Algorithm Inspect — PRISM Algorithm Explorer
+
+You are inspecting PRISM's 51 algorithms. Each algorithm implements the `Algorithm<I,O>` interface with validate, calculate, and getMetadata methods. They span 17 domains from cutting forces to neural inference. Use this to understand available algorithms, check their metadata, find the right algorithm for a task, or audit safety classifications.
 
 <!-- AUTO-END -->
 

@@ -1,0 +1,166 @@
+{
+  "$schema": "milling-vendor-online-resources.v1",
+  "schemaVersion": "1.0.0",
+  "generatedAt": "2026-05-26T15:20:00Z",
+  "generator": "slot=foxtrot, session=claude-ef40a9d1, /loop iter5",
+  "intent": "Deep online research manifest — DAPRA, Sandvik, Widia/Kennametal, Ingersoll, Iscar, Mitsubishi, Seco, Sumitomo, plus the PTS-Tools entry point (their library was not surface-discoverable; flagged for manual operator login). Sibling to milling-pdf-corpus.json. Same foxtrot-soul rules: every URL cites vendor + evidence_level; draft-confidence until /pdf-learn extracts the actual content; URLs are reference seeds, not promoted doctrine.",
+  "advisoryOnly": true,
+  "mustHumanVerify": true,
+  "domain": "milling",
+  "researchedAt": "2026-05-26T15:00:00Z",
+  "sources": [
+    {
+      "vendor": "DAPRA Corporation",
+      "evidenceLevel": "manufacturer_official",
+      "entryPoint": "https://www.dapra.com",
+      "topics": ["face_milling", "high_feed_milling", "indexable_milling", "speeds_feeds_formulas"],
+      "primaryResources": [
+        { "id": "DAPRA-VOLUM3-FACE", "title": "VOLUM3™ Double-Sided 45-Degree Indexable Face Milling Platform", "url": "https://www.dapra.com/face-milling-volum3", "format": "html", "topics": ["face_milling", "45_deg_lead_angle", "double_sided_inserts"] },
+        { "id": "DAPRA-VOLUM3-PDF", "title": "VOLUM3 45° Face Milling — PDF", "url": "https://www.dapra.com/customer/downloads/milling/Dapra-VOLUM3-Double-Sided-45-Degree-Face-Milling.pdf", "format": "pdf", "topics": ["face_milling"] },
+        { "id": "DAPRA-VAPOR-HF", "title": "VAPOR™ Double-Sided High-Feed Indexable Milling Platform", "url": "https://www.dapra.com/high-feed-vapor", "format": "html", "topics": ["high_feed_milling", "trigon_inserts", "extreme_mrr"] },
+        { "id": "DAPRA-HF-APP-INFO", "title": "High-Feed Milling Application Information & Technical Considerations", "url": "https://www.dapra.com/high-feed/application-information", "format": "html", "topics": ["high_feed_milling", "rhino_feed"] },
+        { "id": "DAPRA-HF-OPS", "title": "Operating Instructions for High-Feed Indexable Milling Tools", "url": "https://www.dapra.com/high-feed/operating-instructions", "format": "html", "topics": ["mini_feed", "mid_feed", "heavy_feed"] },
+        { "id": "DAPRA-HF-REF-TS", "title": "High-Feed Milling Reference & Troubleshooting Info", "url": "https://www.dapra.com/high-feed/reference", "format": "html", "topics": ["troubleshooting", "high_feed_milling"] },
+        { "id": "DAPRA-FORMULAS", "title": "Common Formulas for Milling Operations — Speed, Feed, SFM, IPT, MRR", "url": "https://www.dapra.com/resources/milling-formulas", "format": "html", "topics": ["formulas", "lead_angle_chip_thinning", "effective_cutting_diameter"] },
+        { "id": "DAPRA-SSPM-90", "title": "SSPM Series 90° Production Milling Tools", "url": "https://www.dapra.com/CatSearch/85/sspm-production-milling-tools", "format": "html_plus_pdf", "topics": ["90_degree_milling", "square_shoulder"] }
+      ]
+    },
+    {
+      "vendor": "Sandvik Coromant",
+      "evidenceLevel": "manufacturer_official",
+      "entryPoint": "https://www.sandvik.coromant.com",
+      "topics": ["full_milling_catalog", "iso_grades", "kc11", "kapr", "down_vs_up_milling", "thread_milling"],
+      "primaryResources": [
+        { "id": "SANDVIK-DOWNLOADS-HUB", "title": "Catalogues & Handbooks — Downloads Hub", "url": "https://www.sandvik.coromant.com/en-gb/downloads", "format": "directory", "topics": ["all_catalogs", "rotating_tools_volume"] },
+        { "id": "SANDVIK-KNOWLEDGE-HUB", "title": "Metal Cutting Knowledge — Technical Guide", "url": "https://www.sandvik.coromant.com/en-us/knowledge", "format": "html", "topics": ["formulas", "definitions", "machining_processes", "tips"] },
+        { "id": "SANDVIK-MILL-APP-GUIDE", "title": "Milling Application Guide", "url": "https://www.sandvik.coromant.com/en-us/milling-appl-guide", "format": "html", "topics": ["down_vs_up_milling", "face_mill_diameter_rule_60_70_pct"] },
+        { "id": "SANDVIK-FACE-MILL-PDF", "title": "Face Milling (PDF, direct)", "url": "https://cdn2.sandvik.coromant.com/files/a53b485b-be0f-019d-8100-3f0d1619b9fa/357cffb0-b3c6-429d-9d58-cf1f5871a2f6/facemilling.pdf", "format": "pdf", "topics": ["face_milling", "GC1020_grade"] },
+        { "id": "SANDVIK-MILL-FORMULAS", "title": "Milling Formulas and Definitions", "url": "https://www.sandvik.coromant.com/en-us/knowledge/machining-formulas-definitions/milling-formulas-definitions", "format": "html", "topics": ["formulas", "vc", "fz", "mrr"] },
+        { "id": "SANDVIK-THREAD-MILL-TIPS", "title": "Thread Milling Application Tips", "url": "https://www.sandvik.coromant.com/en-us/knowledge/threading/thread-milling/pages/application-tips.aspx", "format": "html", "topics": ["thread_milling", "diameter_ratio_70_pct", "profile_deviation"] },
+        { "id": "SANDVIK-MILL-INSERT-GRADES", "title": "Milling Inserts and Grades", "url": "https://www.sandvik.coromant.com/en-us/tools/inserts-grades/insert-grade-information/milling-inserts-grades", "format": "html", "topics": ["cvd_pvd_grades", "cermet", "cbn_ceramic_pcd"] }
+      ]
+    },
+    {
+      "vendor": "WIDIA (Kennametal)",
+      "evidenceLevel": "manufacturer_official",
+      "entryPoint": "https://www.widia.com",
+      "topics": ["widia_inserts", "kennametal_milling", "novo_app", "conversion_guide"],
+      "primaryResources": [
+        { "id": "KENN-CATALOGS-HUB", "title": "Digital Catalogs, Brochures, and Data Sheets", "url": "https://www.kennametal.com/us/en/resources/catalogs-literature.html", "format": "directory", "topics": ["all_catalogs"] },
+        { "id": "KENN-MAIN-RES", "title": "Kennametal Resources — Catalogs, Calculators, Blog", "url": "https://www.kennametal.com/us/en/resources.html", "format": "directory", "topics": ["calculators", "novo_app"] },
+        { "id": "KENN-METALWORKING", "title": "Metal Cutting & Tooling Systems Catalogs", "url": "https://www.kennametal.com/us/en/resources/catalogs-literature/tooling-systems-metalworking-catalogs.html", "format": "directory", "topics": ["metalworking_catalogs"] },
+        { "id": "KENN-MILL-TIPS", "title": "Milling Tech Tips", "url": "https://www.kennametal.com/us/en/resources/technical-tips/milling.html", "format": "html", "topics": ["tech_tips", "insert_nomenclature"] },
+        { "id": "KENN-PATENTS", "title": "Kennametal + WIDIA Patents PDF", "url": "https://www.kennametal.com/content/dam/final/corporate/docs/patents/kennametal-and-widia-patents.pdf", "format": "pdf", "topics": ["patents", "ip_history"] },
+        { "id": "WIDIA-RES-HUB", "title": "WIDIA Resources Hub", "url": "https://www.widia.com/id/en/resources.html", "format": "directory", "topics": ["widia_hanita_catalogs", "calculators"] },
+        { "id": "WIDIA-CONVERSION", "title": "Indexable + Solid Carbide Insert Conversion Guide", "url": "https://www.widia.com/us/en/resources/conversion-guide.html", "format": "html", "topics": ["grade_conversion", "geometry_conversion"] }
+      ]
+    },
+    {
+      "vendor": "Ingersoll Cutting Tools (IMC Group)",
+      "evidenceLevel": "manufacturer_official",
+      "entryPoint": "https://www.ingersoll-imc.com",
+      "topics": ["taegutmill", "maxline", "bore_line", "solid_carbide_mills", "winsfeed"],
+      "primaryResources": [
+        { "id": "ING-CAT-HUB", "title": "Catalogs Hub (PDF + Flipbook)", "url": "https://www.ingersoll-imc.com/catalogs", "format": "directory", "topics": ["all_catalogs"] },
+        { "id": "ING-TAEGUTMILL", "title": "TaeguTmill Catalog (CAT-007 PDF)", "url": "https://ssl.ingersoll-imc.com/resources/pdf/Ingersoll_CAT-007.pdf", "format": "pdf", "topics": ["face_milling", "slotting", "shoulder_milling", "contouring", "helical_ramping"] },
+        { "id": "ING-MAXLINE", "title": "MAXline Catalog (CAT-008-1 PDF)", "url": "https://ssl.ingersoll-imc.com/resources/pdf/Ingersoll_CAT-008-1_MAXline.pdf", "format": "pdf", "topics": ["radial_chip_thinning_factor", "metric_inch_inserts"] },
+        { "id": "ING-SOLID-CARBIDE", "title": "Solid Carbide Milling (CAT-019-1 PDF)", "url": "http://www.ingersoll-imc.com/en/products/solidcarbide/cat-019-1_solid_carbide_milling.pdf", "format": "pdf", "topics": ["solid_carbide_end_mills"] },
+        { "id": "ING-BORELINE", "title": "BOREline Holemaking Catalog (CAT-002-2 PDF)", "url": "https://ssl.ingersoll-imc.com/resources/pdf/Ingersoll_CAT-002-2.pdf", "format": "pdf", "topics": ["qwik_twist", "quad_drill_plus", "gun_drills"] },
+        { "id": "ING-WINSFEED", "title": "WinSFeed New Products Catalog", "url": "https://www.ingersoll-imc.com/new-products-catalog", "format": "directory", "topics": ["winsfeed_high_feed"] },
+        { "id": "ING-INSERT-MASTER", "title": "Insert Master Reference (MAN-009-1 PDF)", "url": "https://ssl.ingersoll-imc.com/resources/pdf/insert_master/MAN-009-1_Insert_Master.pdf", "format": "pdf", "topics": ["ceramic_grades", "TC430_AS500_SC10_AS10_AS20", "superalloy_milling"] },
+        { "id": "ING-PRODUCT-LINES", "title": "Product Lines Overview", "url": "https://www.ingersoll-imc.com/product-lines", "format": "html", "topics": ["innofit_damping", "octo_geometry_16_edge", "cerasfeed"] }
+      ]
+    },
+    {
+      "vendor": "Iscar (IMC Group)",
+      "evidenceLevel": "manufacturer_official",
+      "entryPoint": "https://www.iscar.com",
+      "topics": ["fast_feed_milling", "shoulder_milling", "heavy_machining", "chipformer_codes", "ITA_calculators"],
+      "primaryResources": [
+        { "id": "ISCAR-MILL-BASICS", "title": "Milling Applications and Cutter Basics Reference Guide", "url": "https://www.iscar.com/Catalogs/Publication/english_1/Milling_Applications_and_Cutter_Basics_Guide/Milling_Applications_and_Cutter_Basics_Guide.pdf", "format": "pdf", "topics": ["HFM", "plunge_milling", "turn_milling", "wet_dry_machining"] },
+        { "id": "ISCAR-HEAVY", "title": "Solutions for Heavy Machining", "url": "https://www.iscar.com/Catalogs/Publication/Brochure_Mm/english_1/solutions_for_Heavy_Machining/solutions-for-Heavy-Machining.pdf", "format": "pdf", "topics": ["chipformer_code_key", "tangential_inserts", "heavy_milling"] },
+        { "id": "ISCAR-FAST-FEED-MM", "title": "Fast Feed Milling Brochure (Metric)", "url": "https://www.iscar.com/Catalogs/Publication/english_1/FAST_FEED_MILL_Brochure_INCH/FAST_FEED_MILL_Brochure_INCH_2022.pdf", "format": "pdf", "topics": ["fast_feed_milling"] },
+        { "id": "ISCAR-FAST-FEED-INCH", "title": "Fast Feed Milling Brochure (Inch)", "url": "https://www.iscar.com/Catalogs/Publication/Brochure_Inch/english_1/FAST_FEED_MILL_Brochure/FAST_FEED_MILL_Brochure.pdf", "format": "pdf", "topics": ["fast_feed_milling_imperial"] },
+        { "id": "ISCAR-SHOULDER-MILL", "title": "Practical Guide Shoulder Milling", "url": "https://www.iscar.com/Catalogs/publication-2023/germany-7/ISCAR_Practical_Guide_Shoulder_Milling_EN/ISCAR_Practical_Guide_Shoulder_Milling_EN.pdf", "format": "pdf", "topics": ["shoulder_milling", "square_shoulder"] },
+        { "id": "ISCAR-PCBN-PCD", "title": "Machining with PCBN, PCD & Ceramic Inserts", "url": "https://www.iscar.com/ITC/UserGuide/Turning%20with%20advanced%20materials.pdf", "format": "pdf", "topics": ["PCBN_chipbreakers", "HF_HM", "advanced_materials"] },
+        { "id": "ISCAR-DRILL-DR", "title": "Drilling Insert Setup Guide (DR)", "url": "https://www.iscar.com/eCatalog/Ecat/datafileENM/INFO/DR.pdf", "format": "pdf", "topics": ["drilling_setup", "chipformer_geometry_range"] },
+        { "id": "ISCAR-ITA-CALC", "title": "ITA Calculators (online)", "url": "https://www.iscar.com/ITC/Calculators.aspx?units=M", "format": "web_app", "topics": ["speeds_feeds_calculator", "metric_imperial"] }
+      ]
+    },
+    {
+      "vendor": "Mitsubishi Materials Corporation",
+      "evidenceLevel": "manufacturer_official",
+      "entryPoint": "https://www.mmc-carbide.com",
+      "topics": ["WSX_ASX_AHX_milling", "VOX400_AXD7000", "kapr_cutting_edge_angle", "run_out_5_10_um"],
+      "primaryResources": [
+        { "id": "MMC-CAT-DL", "title": "General Catalog Download", "url": "https://www.mmc-carbide.com/us/download/catalog", "format": "directory", "topics": ["catalogs", "CAD_data"] },
+        { "id": "MMC-TECH-HUB", "title": "Technical Info / Cutting Formula Hub", "url": "https://www.mmc-carbide.com/us/technical_information", "format": "html", "topics": ["face_milling_formulas", "ball_nose_speed_formula", "drilling_formula", "thread_lead_angle"] },
+        { "id": "MMC-MILL-TECH", "title": "Face Milling Technical Page", "url": "https://www.mmc-carbide.com/us/technical_information/tec_rotating_tools/face_mills", "format": "html", "topics": ["WSX445", "ASX445", "AHX440S_475S_640S", "VOX400", "ASX400", "APX3000_4000", "AXD4000_7000", "AJX", "SRF_SUF"] },
+        { "id": "MMC-MILL-INSERTS", "title": "Milling Inserts Technical Page", "url": "https://www.mmc-carbide.com/us/technical_information/tec_rotating_tools/tec_rotating_insert", "format": "html", "topics": ["kapr", "tool_life_vs_lead_angle"] },
+        { "id": "MMC-UP-DOWN-CUT", "title": "Up Cut and Down Cut Milling", "url": "https://www.mmc-carbide.com/us/technical_information/tec_rotating_tools/technical/tec_milling_function_cut", "format": "html", "topics": ["down_milling_preferred", "tool_life_comparison"] },
+        { "id": "MMC-SETTING", "title": "Milling Setting / Tooling Run-Out Guide", "url": "https://www.mmc-carbide.com/in/technical_information/tec_rotating_tools/face_mills/guide/tec_milling_setting_fixture", "format": "html", "topics": ["dial_gauge_setup", "10um_general", "5um_finishing"] },
+        { "id": "MMC-ISO13399", "title": "ISO 13399 CAD/Spec Data (Machining Cloud + CIMSOURCE)", "url": "https://www.mmc-carbide.com/us/technical_information/iso/platformer", "format": "external", "topics": ["ISO13399", "GTC", "CAD_data"] }
+      ]
+    },
+    {
+      "vendor": "Seco Tools",
+      "evidenceLevel": "manufacturer_official",
+      "entryPoint": "https://www.secotools.com",
+      "topics": ["machining_navigator_milling", "solid_milling", "grades_materials"],
+      "primaryResources": [
+        { "id": "SECO-CAT-HUB", "title": "Seco Tools Interactive Catalogs", "url": "https://www.secotools.com/catalog", "format": "directory", "topics": ["all_catalogs"] },
+        { "id": "SECO-NAV-MILL", "title": "Machining Navigator — Milling Catalog", "url": "https://www.secotools.com/article/machining_navigator___product_catalog_milling?language=en", "format": "directory", "topics": ["machining_navigator", "all_milling"] },
+        { "id": "SECO-MILL-REF", "title": "Milling Reference Guide", "url": "https://www.secotools.com/article/123183?language=en", "format": "guide", "topics": ["milling_reference"] },
+        { "id": "SECO-SOLID-MILL-REF", "title": "Solid Milling Reference Guide", "url": "https://www.secotools.com/article/123180?language=en", "format": "guide", "topics": ["solid_carbide_milling"] },
+        { "id": "SECO-MILL-2021", "title": "Machining Navigator Milling 2021.2 (PDF)", "url": "https://www.secotools.com/article/119891", "format": "pdf_link", "topics": ["2021_catalog"] },
+        { "id": "SECO-MILL-APP", "title": "Milling Application Article", "url": "https://www.secotools.com/article/milling_application?language=en", "format": "html", "topics": ["application_fundamentals"] },
+        { "id": "SECO-GRADES", "title": "Guide to Milling Grades, Materials and Solutions", "url": "https://www.secotools.com/article/123778?language=en", "format": "html", "topics": ["grade_selection", "material_solutions"] },
+        { "id": "SECO-TECH-STRAT-1", "title": "Technical Machining Strategy Part 1", "url": "https://www.secotools.com/article/123241", "format": "html", "topics": ["strategy_optimization"] }
+      ]
+    },
+    {
+      "vendor": "Sumitomo Electric Carbide",
+      "evidenceLevel": "manufacturer_official",
+      "entryPoint": "https://www.sumitool.com",
+      "topics": ["WGX_WaveMill", "DGC_DualMill", "ANX_PCD", "milling_troubleshooting"],
+      "primaryResources": [
+        { "id": "SUMI-N-TECH-PDF", "title": "N Technical Guidance Reference (PDF)", "url": "https://www.sumitool.com/en/downloads/cutting-tools/general-catalog/assets/pdf/n2.pdf", "format": "pdf", "topics": ["SEC_WaveMill_WGX", "Sumi_Dual_Mill_DGC", "PCD_Cutter_ANX", "troubleshooting"] }
+      ]
+    },
+    {
+      "vendor": "PTSolutions (PTS-Tools)",
+      "evidenceLevel": "distributor_portal",
+      "entryPoint": "https://www.pts-tools.com",
+      "topics": ["distribution_portal", "no_public_pdf_library_surface_discoverable"],
+      "primaryResources": [
+        { "id": "PTS-HOME", "title": "PTSolutions Home", "url": "https://www.pts-tools.com/", "format": "html", "topics": ["distributor_entry_point"] }
+      ],
+      "operatorAction": "PTSolutions is a distributor (not a manufacturer); their public site does not surface a downloadable PDF library via search. Operator should log into the PTSolutions vendor portal to access the catalog or contact a rep for the PDF library."
+    }
+  ],
+  "operationTopicCoverage": {
+    "face_milling": ["DAPRA-VOLUM3-FACE", "DAPRA-VOLUM3-PDF", "SANDVIK-MILL-APP-GUIDE", "SANDVIK-FACE-MILL-PDF", "ING-TAEGUTMILL", "MMC-MILL-TECH", "SECO-NAV-MILL"],
+    "high_feed_milling": ["DAPRA-VAPOR-HF", "DAPRA-HF-APP-INFO", "DAPRA-HF-OPS", "ING-WINSFEED", "ISCAR-FAST-FEED-MM", "ISCAR-FAST-FEED-INCH"],
+    "shoulder_milling": ["DAPRA-SSPM-90", "ISCAR-SHOULDER-MILL", "ING-TAEGUTMILL"],
+    "thread_milling": ["SANDVIK-THREAD-MILL-TIPS"],
+    "drilling_strategies": ["ING-BORELINE", "ISCAR-DRILL-DR"],
+    "chip_thinning_formulas": ["DAPRA-FORMULAS", "ING-MAXLINE", "SANDVIK-MILL-FORMULAS", "MMC-TECH-HUB"],
+    "grades_selection": ["SANDVIK-MILL-INSERT-GRADES", "WIDIA-CONVERSION", "ING-INSERT-MASTER", "SECO-GRADES", "MMC-TECH-HUB"],
+    "advanced_materials_pcbn_pcd": ["ISCAR-PCBN-PCD", "SUMI-N-TECH-PDF"],
+    "down_vs_up_milling": ["SANDVIK-MILL-APP-GUIDE", "MMC-UP-DOWN-CUT"],
+    "kapr_lead_angle": ["DAPRA-FORMULAS", "MMC-MILL-TECH", "MMC-MILL-INSERTS"],
+    "run_out_setup": ["MMC-SETTING"],
+    "iso_13399": ["MMC-ISO13399"]
+  },
+  "evidenceLevelLegend": {
+    "manufacturer_official": "Vendor-published catalogs, manuals, application guides — Tier-A authoritative",
+    "distributor_portal": "Resale/distribution site; technical depth depends on which vendors they re-host — Tier-B"
+  },
+  "nextActions": [
+    "Run /pdf-learn against the 23 directly-downloadable PDFs in primaryResources (DAPRA + Sandvik + Ingersoll + Iscar + Sumitomo)",
+    "WebFetch the html-format technical pages (Sandvik Knowledge Hub, Mitsubishi tech pages, Seco articles) into wiki entries with citation preserved",
+    "Promote a tip to playbook doctrine only after ≥2-vendor corroboration (e.g. 'down-milling preferred for tool life' is corroborated by Sandvik + Mitsubishi → eligible for promotion)",
+    "Build PTS-Tools portal scraper or capture an operator-supplied PDF dump separately",
+    "Render this manifest as HTML companion at state/shared/dashboards/milling-vendor-online-resources.html"
+  ]
+}

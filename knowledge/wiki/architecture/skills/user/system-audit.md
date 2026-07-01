@@ -23,13 +23,23 @@ related:
 |-------|-------|
 | Name | `system-audit` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/system-audit.md` |
+| Source | `C:/Users/wompu/.claude/commands/system-audit.md` |
 | Model | default |
 | Tags | _(none)_ |
 
 ## Description (first paragraph)
 
-_(no body content)_
+
+# System Audit — Complete PRISM System Health Check
+
+Full system verification: build status, code quality, registry drift, wiring validation, type coverage, dead code scan, and metrics dashboard. Run before releases or after major changes.
+
+## Args:
+- Empty: full audit (all phases)
+- `quick`: build + test + drift only
+- `pre-release`: full audit + doc sync + test gauntlet
+
+## Phase 1: B
 
 <!-- AUTO-END -->
 

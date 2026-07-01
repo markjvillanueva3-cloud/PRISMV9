@@ -1,0 +1,82 @@
+{
+  "id": "CAMK-MS1",
+  "version": "7.0.0",
+  "title": "Novel Algorithm → G-Code Pipeline",
+  "brief": "Transform novel algorithm segment arrays into verified, post-processed G-code for major CNC controllers. End-to-end: segments → interpolation → G-code blocks → verification.",
+  "created_at": "2026-03-07T22:00:00Z",
+  "created_by": "claude-opus-4.6",
+  "phases": [
+    {
+      "id": "P0",
+      "title": "Segment-to-GCode Translation",
+      "units": [
+        {
+          "id": "U01",
+          "title": "SegmentInterpolatorEngine — Novel segments → motion blocks",
+          "description": "Convert NovelToolpathResult.segments[] into CNC motion blocks. Linear interpolation (G01) for straight segments, circular (G02/G03) fitting with Bézier→arc approximation (tolerance-based), helical interpolation (G02/G03 with Z). Handles: feed_mmmin, rpm, ae_mm, ap_mm per segment. Inserts tool changes, coolant on/off (M08/M09), spindle commands (M03/M04/M05). Applies PTDC compensation offsets to coordinates.",
+          "exit_conditions": [
+            "G01/G02/G03 generation",
+            "Arc fitting from segments",
+            "Tool change insertion",
+            "Coolant/spindle macros",
+            "Tests for each interpolation type"
+          ],
+          "status": "complete"
+        },
+        {
+          "id": "U02",
+          "title": "NovelPostProcessorBridge — Controller-specific G-code output",
+          "description": "Bridge between SegmentInterpolator output and existing PostProcessorEngine. Maps novel algorithm metadata to post-processor context: controller dialect (Fanuc/Siemens/Heidenhain/Mazak/Haas), 5-axis format (RTCP/TCP, BC/AC axes), canned cycles, subprogram calls. Embeds novel algorithm name + physics summary as G-code comments. Supports: Fanuc (G43.4 RTCP), Siemens (CYCLE800, TRAORI), Heidenhain (M128 TCPM), Mazak (G43.4), Haas (G234 DWO).",
+          "exit_conditions": [
+            "5 controller dialects",
+            "RTCP/TCP variants",
+            "Canned cycle mapping",
+            "Physics comments in output",
+            "Tests per controller"
+          ],
+          "status": "complete"
+        },
+        {
+          "id": "U03",
+          "title": "ProgramStructureEngine — Complete NC program assembly",
+          "description": "Assemble complete NC programs from novel algorithm results: program header (O-number, date, material, algorithm used), safety block (G90 G40 G80 G17/G18/G19), tool calls with H/D offsets, work offset (G54-G59), approach/retract moves, cut segments, tool change blocks, program end (M30). Auto-generates setup sheet data. Handles multi-operation programs (rough→finish with different novel algorithms).",
+          "exit_conditions": [
+            "Complete program structure",
+            "Multi-operation support",
+            "Safety blocks",
+            "Setup sheet metadata",
+            "Tests with TGAR→HRAF sequence"
+          ],
+          "status": "complete"
+        },
+        {
+          "id": "U04",
+          "title": "GCodeVerificationEngine — Syntax + physics validation",
+          "description": "Verify generated G-code: (1) syntax validation per controller dialect, (2) motion continuity (no jumps > retract height), (3) feed rate limits vs machine capability, (4) spindle speed limits, (5) rapid traverse safety (Z-first retract), (6) work envelope bounds check, (7) tool length/diameter vs collision data. Uses existing GCodeSafetyAnalyzerEngine rules + novel-algorithm-specific checks (PTDC compensation bounds, VCER retract heights, TGAR thermal zone transitions).",
+          "exit_conditions": [
+            "Syntax validation for 5 dialects",
+            "Motion continuity check",
+            "Machine limit enforcement",
+            "Novel-algorithm-specific rules",
+            "Reject invalid programs with clear errors"
+          ],
+          "status": "complete"
+        },
+        {
+          "id": "U05",
+          "title": "EndToEndPipelineEngine — One-call feature→G-code",
+          "description": "Orchestration engine: takes (feature_description, material, machine, tool, priority) → returns {gcode: string, algorithm_used: string, physics_summary: string, cycle_time_sec: number, setup_sheet: object}. Chains: FeatureToZone → AlgorithmSelector → NovelCompute → SegmentInterpolator → PostProcessor → Verification. Single dispatcher action: 'novel_generate_program'. Falls back to conventional strategy if novel algorithm fails.",
+          "exit_conditions": [
+            "Single-call API",
+            "Full chain working",
+            "Fallback to conventional",
+            "Dispatcher action wired",
+            "Integration test with 3 materials"
+          ],
+          "status": "complete"
+        }
+      ]
+    }
+  ],
+  "status": "complete"
+}

@@ -1,0 +1,316 @@
+{
+  "id": "MS-VIZ-ROADMAP-BIND",
+  "version": "7.6.0",
+  "title": "MS-VIZ-ROADMAP-BIND — bind the roadmap to system-viz ghost-nodes (SHARED LANE — converge with the peer's audit-roadmap-viz-bindings.mjs)",
+  "brief": "Each roadmap unit becomes a viz node; unbuilt = ghost; closing it lights up the corresponding engine/dispatcher node. SHARED with the peer chat (they're building scripts/audit-roadmap-viz-bindings.mjs — currently EXIT-FAILS=103 on the backend-devtools roadmap because its units invent viz namespaces). Co-design ONE canonical viz_node_id resolver using ONLY real graph namespaces (eng.<domain>.<name>, fe.page.<name>, D.<dispatcher>.<action>, ghost.ms.<milestone>.<unit>). Build scripts/roadmap-to-viz-nodes.mjs + ghost-node schema + scripts/reconcile-roadmap-vs-viz.mjs + a doc_propagation field on each unit. Coordinate before building — this chat will only add viz_node_id + doc_propagation to the revenue-roadmap envelopes; the peer owns the binding script.",
+  "created_at": "2026-05-11T18:00:32.098Z",
+  "created_by": "claude-99eca613 (register-revenue-roadmap-envelopes.mjs, v7.6 §R10)",
+  "track": "revenue",
+  "track_name": "REVENUE-ROADMAP v7.6",
+  "roadmap_priority": 1,
+  "tier": 1,
+  "status": "completed",
+  "closeout": {
+    "completed_at": "2026-05-22T16:30:00.000Z",
+    "completed_by": "claude-b2bcf85e (slot sierra)",
+    "summary": "Brief deliverables all shipped + verified: (1) scripts/roadmap-to-viz-nodes.mjs — canonical viz_node_id resolver (engine/dispatcher-action/milestone-unit/frontend-page/script/skill -> real graph namespaces) + GHOST_NODE_SCHEMA export; (2) scripts/reconcile-roadmap-vs-viz.mjs — reconciler CLI (live run: 709 envelopes / 5736 units / 258,605 graph nodes; BOUND 6, GHOST 586, MISSING-ID 5057, UNRESOLVED 86, BAD-ENVELOPE 1 handled gracefully); (3) scripts/audit-roadmap-viz-bindings.mjs — peer's pre-existing binding auditor (converged-with, not duplicated); (4) doc_propagation field already present on envelope units. 25/25 node:test cases pass (scripts/roadmap-to-viz-nodes.test.mjs).",
+    "placeholder_disclosure": "The 10 units U-MS-VIZ-ROADMAP-BIND-01..10 are RGS auto-generated placeholders (their titles literally say 'placeholder — enumerate from the §R-layer prose during execution'; they carry no status field). They were never enumerated into real work items — the milestone's true deliverables are defined by the `brief` field above, and all are now shipped. total_units/completed_units left untouched as they describe the never-real placeholder array; this closeout block is the authoritative completion record.",
+    "followup": "reconcile-roadmap-vs-viz surfaced 86 UNRESOLVED viz_node_id bindings + 5057 MISSING-ID units across the roadmap — roadmap-data hygiene, a separate downstream effort, not an MS-VIZ-ROADMAP-BIND gap.",
+    "taxonomy_duplication_flag": "scripts/roadmap-to-viz-nodes.mjs inlines REAL_TOP_PREFIXES (mirrors scripts/audit-roadmap-viz-bindings.mjs) — a future cleanup unit should extract scripts/lib/viz-node-taxonomy.mjs and have both import it (R7 flagged, not done this pass to avoid editing the working peer script).",
+    "scrutiny_fix": "3-of-3 reviewer B caught resolver-shape bugs across two review rounds. Round 1 (FAIL on ca0840b4d0): skill emitted skill.<name> (corrected to skill.project.<name>) and script stripped hyphens (corrected to hyphen-preserving) — both genuine, both fixed. Round 1 also flagged frontend-page fe.page.<name>; commit 42ad655bc4 changed it to fe.pages.<name> following that blocker. Round 2 (FAIL on 42ad655bc4): that change was WRONG — definitive system-graph.json count is 730 fe.page.* (singular, hyphen-stripped) vs only 14 fe.pages.* (page-groups), and the milestone brief itself specifies fe.page.<name>. Reverted frontend-page to the original fe.page.<name>/nameSlug form. Lesson: round-1's fe blocker cherry-picked a 14-node minority namespace — count, never sample. Final verified state: skill/script/frontend-page all bind against the real graph; 26/26 tests incl. a graph-BOUND test with verified-real exemplars (skill.project.advisor-strategy, fe.page.adminpage, script.add-jsdoc)."
+  },
+  "source": "§R8.6 — SHARED; peer is partway in (commit 21a128ccb, work/rgs6-audit-v2)",
+  "viz_node_id": "ghost.ms.ms-viz-roadmap-bind",
+  "doc_propagation": [
+    "claude.md",
+    "gsd",
+    "wiki",
+    "system-viz"
+  ],
+  "dependencies": [
+    "MS-CI-GATES"
+  ],
+  "blocks": [],
+  "phases": [
+    {
+      "id": "P0",
+      "title": "MS-VIZ-ROADMAP-BIND — bind the roadmap to system-viz ghost-nodes (SHARED LANE — converge with the peer's audit-roadmap-viz-bindings.mjs)",
+      "sessions": "3",
+      "units": [
+        {
+          "id": "U-MS-VIZ-ROADMAP-BIND-01",
+          "title": "MS-VIZ-ROADMAP-BIND unit 1 of 10 (placeholder — enumerate from the §R-layer prose during execution)",
+          "effort": 90,
+          "dependencies": [],
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit",
+            "Dispatcher wiring verified: import + call + action-enum + Zod schema all match (test invokes through the dispatcher, not only the engine singleton)"
+          ],
+          "description": "MS-VIZ-ROADMAP-BIND unit 1 — follow the 4-LOOP; consult the §R-layer prose in REVENUE-ROADMAP-v7.6.md for the concrete deliverable; run duplicationGuardEngine.checkBeforeCreating() before any new asset.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "viz_node_id": "ghost.ms.ms-viz-roadmap-bind.u01",
+          "doc_propagation": [
+            "wiki",
+            "skill",
+            "digest",
+            "system-viz"
+          ],
+          "status": "superseded"
+        },
+        {
+          "id": "U-MS-VIZ-ROADMAP-BIND-02",
+          "title": "MS-VIZ-ROADMAP-BIND unit 2 of 10 (placeholder — enumerate from the §R-layer prose during execution)",
+          "effort": 90,
+          "dependencies": [],
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit",
+            "Dispatcher wiring verified: import + call + action-enum + Zod schema all match (test invokes through the dispatcher, not only the engine singleton)"
+          ],
+          "description": "MS-VIZ-ROADMAP-BIND unit 2 — follow the 4-LOOP; consult the §R-layer prose in REVENUE-ROADMAP-v7.6.md for the concrete deliverable; run duplicationGuardEngine.checkBeforeCreating() before any new asset.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "viz_node_id": "ghost.ms.ms-viz-roadmap-bind.u02",
+          "doc_propagation": [
+            "wiki",
+            "skill",
+            "digest",
+            "system-viz"
+          ],
+          "status": "superseded"
+        },
+        {
+          "id": "U-MS-VIZ-ROADMAP-BIND-03",
+          "title": "MS-VIZ-ROADMAP-BIND unit 3 of 10 (placeholder — enumerate from the §R-layer prose during execution)",
+          "effort": 90,
+          "dependencies": [],
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit",
+            "Dispatcher wiring verified: import + call + action-enum + Zod schema all match (test invokes through the dispatcher, not only the engine singleton)"
+          ],
+          "description": "MS-VIZ-ROADMAP-BIND unit 3 — follow the 4-LOOP; consult the §R-layer prose in REVENUE-ROADMAP-v7.6.md for the concrete deliverable; run duplicationGuardEngine.checkBeforeCreating() before any new asset.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "viz_node_id": "ghost.ms.ms-viz-roadmap-bind.u03",
+          "doc_propagation": [
+            "wiki",
+            "skill",
+            "digest",
+            "system-viz"
+          ],
+          "status": "superseded"
+        },
+        {
+          "id": "U-MS-VIZ-ROADMAP-BIND-04",
+          "title": "MS-VIZ-ROADMAP-BIND unit 4 of 10 (placeholder — enumerate from the §R-layer prose during execution)",
+          "effort": 90,
+          "dependencies": [],
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit",
+            "Dispatcher wiring verified: import + call + action-enum + Zod schema all match (test invokes through the dispatcher, not only the engine singleton)"
+          ],
+          "description": "MS-VIZ-ROADMAP-BIND unit 4 — follow the 4-LOOP; consult the §R-layer prose in REVENUE-ROADMAP-v7.6.md for the concrete deliverable; run duplicationGuardEngine.checkBeforeCreating() before any new asset.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "viz_node_id": "ghost.ms.ms-viz-roadmap-bind.u04",
+          "doc_propagation": [
+            "wiki",
+            "skill",
+            "digest",
+            "system-viz"
+          ],
+          "status": "superseded"
+        },
+        {
+          "id": "U-MS-VIZ-ROADMAP-BIND-05",
+          "title": "MS-VIZ-ROADMAP-BIND unit 5 of 10 (placeholder — enumerate from the §R-layer prose during execution)",
+          "effort": 90,
+          "dependencies": [],
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit",
+            "Dispatcher wiring verified: import + call + action-enum + Zod schema all match (test invokes through the dispatcher, not only the engine singleton)"
+          ],
+          "description": "MS-VIZ-ROADMAP-BIND unit 5 — follow the 4-LOOP; consult the §R-layer prose in REVENUE-ROADMAP-v7.6.md for the concrete deliverable; run duplicationGuardEngine.checkBeforeCreating() before any new asset.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "viz_node_id": "ghost.ms.ms-viz-roadmap-bind.u05",
+          "doc_propagation": [
+            "wiki",
+            "skill",
+            "digest",
+            "system-viz"
+          ],
+          "status": "superseded"
+        },
+        {
+          "id": "U-MS-VIZ-ROADMAP-BIND-06",
+          "title": "MS-VIZ-ROADMAP-BIND unit 6 of 10 (placeholder — enumerate from the §R-layer prose during execution)",
+          "effort": 90,
+          "dependencies": [],
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit",
+            "Dispatcher wiring verified: import + call + action-enum + Zod schema all match (test invokes through the dispatcher, not only the engine singleton)"
+          ],
+          "description": "MS-VIZ-ROADMAP-BIND unit 6 — follow the 4-LOOP; consult the §R-layer prose in REVENUE-ROADMAP-v7.6.md for the concrete deliverable; run duplicationGuardEngine.checkBeforeCreating() before any new asset.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "viz_node_id": "ghost.ms.ms-viz-roadmap-bind.u06",
+          "doc_propagation": [
+            "wiki",
+            "skill",
+            "digest",
+            "system-viz"
+          ],
+          "status": "superseded"
+        },
+        {
+          "id": "U-MS-VIZ-ROADMAP-BIND-07",
+          "title": "MS-VIZ-ROADMAP-BIND unit 7 of 10 (placeholder — enumerate from the §R-layer prose during execution)",
+          "effort": 90,
+          "dependencies": [],
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit",
+            "Dispatcher wiring verified: import + call + action-enum + Zod schema all match (test invokes through the dispatcher, not only the engine singleton)"
+          ],
+          "description": "MS-VIZ-ROADMAP-BIND unit 7 — follow the 4-LOOP; consult the §R-layer prose in REVENUE-ROADMAP-v7.6.md for the concrete deliverable; run duplicationGuardEngine.checkBeforeCreating() before any new asset.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "viz_node_id": "ghost.ms.ms-viz-roadmap-bind.u07",
+          "doc_propagation": [
+            "wiki",
+            "skill",
+            "digest",
+            "system-viz"
+          ],
+          "status": "superseded"
+        },
+        {
+          "id": "U-MS-VIZ-ROADMAP-BIND-08",
+          "title": "MS-VIZ-ROADMAP-BIND unit 8 of 10 (placeholder — enumerate from the §R-layer prose during execution)",
+          "effort": 90,
+          "dependencies": [],
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit",
+            "Dispatcher wiring verified: import + call + action-enum + Zod schema all match (test invokes through the dispatcher, not only the engine singleton)"
+          ],
+          "description": "MS-VIZ-ROADMAP-BIND unit 8 — follow the 4-LOOP; consult the §R-layer prose in REVENUE-ROADMAP-v7.6.md for the concrete deliverable; run duplicationGuardEngine.checkBeforeCreating() before any new asset.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "viz_node_id": "ghost.ms.ms-viz-roadmap-bind.u08",
+          "doc_propagation": [
+            "wiki",
+            "skill",
+            "digest",
+            "system-viz"
+          ],
+          "status": "superseded"
+        },
+        {
+          "id": "U-MS-VIZ-ROADMAP-BIND-09",
+          "title": "MS-VIZ-ROADMAP-BIND unit 9 of 10 (placeholder — enumerate from the §R-layer prose during execution)",
+          "effort": 90,
+          "dependencies": [],
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit",
+            "Dispatcher wiring verified: import + call + action-enum + Zod schema all match (test invokes through the dispatcher, not only the engine singleton)"
+          ],
+          "description": "MS-VIZ-ROADMAP-BIND unit 9 — follow the 4-LOOP; consult the §R-layer prose in REVENUE-ROADMAP-v7.6.md for the concrete deliverable; run duplicationGuardEngine.checkBeforeCreating() before any new asset.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "viz_node_id": "ghost.ms.ms-viz-roadmap-bind.u09",
+          "doc_propagation": [
+            "wiki",
+            "skill",
+            "digest",
+            "system-viz"
+          ],
+          "status": "superseded"
+        },
+        {
+          "id": "U-MS-VIZ-ROADMAP-BIND-10",
+          "title": "MS-VIZ-ROADMAP-BIND unit 10 of 10 (placeholder — enumerate from the §R-layer prose during execution)",
+          "effort": 90,
+          "dependencies": [],
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit",
+            "Dispatcher wiring verified: import + call + action-enum + Zod schema all match (test invokes through the dispatcher, not only the engine singleton)"
+          ],
+          "description": "MS-VIZ-ROADMAP-BIND unit 10 — follow the 4-LOOP; consult the §R-layer prose in REVENUE-ROADMAP-v7.6.md for the concrete deliverable; run duplicationGuardEngine.checkBeforeCreating() before any new asset.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "viz_node_id": "ghost.ms.ms-viz-roadmap-bind.u10",
+          "doc_propagation": [
+            "wiki",
+            "skill",
+            "digest",
+            "system-viz"
+          ],
+          "status": "superseded"
+        }
+      ]
+    }
+  ],
+  "total_units": 10,
+  "completed_units": 10,
+  "updated_at": "2026-05-22T16:48:35.645Z"
+}

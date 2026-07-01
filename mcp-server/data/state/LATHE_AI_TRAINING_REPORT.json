@@ -1,0 +1,663 @@
+{
+  "schemaVersion": "1.0.0",
+  "_lastBackfillTs": "2026-05-08T16:41:54.025Z",
+  "timestamp": "2026-04-15T12:38:33.262Z",
+  "archivePath": "H:/PRISM/JM DIE/CNC LATHE",
+  "version": "1.0.0",
+  "totalProgramsFound": 16558,
+  "programsParsed": 16558,
+  "programsAnalyzed": 16558,
+  "parseErrors": 0,
+  "totalTimeMs": 7684,
+  "avgTimePerProgramMs": 0.46406570841889117,
+  "avgProgramScore": 80.4,
+  "medianProgramScore": 80,
+  "scoreDistribution": [
+    {
+      "range": "0-20",
+      "count": 63,
+      "percentage": 0.4
+    },
+    {
+      "range": "21-40",
+      "count": 89,
+      "percentage": 0.5
+    },
+    {
+      "range": "41-60",
+      "count": 1101,
+      "percentage": 6.6
+    },
+    {
+      "range": "61-80",
+      "count": 7970,
+      "percentage": 48.1
+    },
+    {
+      "range": "81-100",
+      "count": 7335,
+      "percentage": 44.3
+    }
+  ],
+  "totalMistakesFound": 38199,
+  "avgMistakesPerProgram": 2.31,
+  "avgImprovementPotential": 25,
+  "mistakesByCategory": [
+    {
+      "category": "safety",
+      "count": 24981,
+      "percentage": 65.4
+    },
+    {
+      "category": "efficiency",
+      "count": 12163,
+      "percentage": 31.8
+    },
+    {
+      "category": "sequence",
+      "count": 538,
+      "percentage": 1.4
+    },
+    {
+      "category": "speed_feed",
+      "count": 517,
+      "percentage": 1.4
+    }
+  ],
+  "mistakesBySeverity": [
+    {
+      "severity": "critical",
+      "count": 9528,
+      "percentage": 24.9
+    },
+    {
+      "severity": "warning",
+      "count": 15992,
+      "percentage": 41.9
+    },
+    {
+      "severity": "suggestion",
+      "count": 12679,
+      "percentage": 33.2
+    }
+  ],
+  "topMistakes": [
+    {
+      "mistakeId": "MISSING_PROGRAM_END",
+      "description": "No M30 or proper program end",
+      "count": 15316,
+      "percentage": 92.49909409348956
+    },
+    {
+      "mistakeId": "CSS_WITHOUT_MAX_RPM",
+      "description": "G96 (CSS mode) without G50 max RPM limit",
+      "count": 9337,
+      "percentage": 56.38966058702742
+    },
+    {
+      "mistakeId": "NO_CANNED_CYCLES",
+      "description": "Point-to-point programming instead of canned cycles",
+      "count": 8853,
+      "percentage": 53.466602246648144
+    },
+    {
+      "mistakeId": "CONSTANT_RPM_FACING",
+      "description": "Using G97 (constant RPM) for facing instead of CSS",
+      "count": 3310,
+      "percentage": 19.990336997221885
+    },
+    {
+      "mistakeId": "NO_FACING_BEFORE_OD",
+      "description": "No facing operation before OD turning",
+      "count": 538,
+      "percentage": 3.2491846841405962
+    },
+    {
+      "mistakeId": "LOW_FINISH_FEED",
+      "description": "Finish feed too low (<0.002 IPR causes rubbing)",
+      "count": 516,
+      "percentage": 3.116318395941539
+    },
+    {
+      "mistakeId": "RAPID_TO_MATERIAL",
+      "description": "Rapid move (G0) without clearance before cutting",
+      "count": 190,
+      "percentage": 1.1474815799009541
+    },
+    {
+      "mistakeId": "NO_COOLANT_ROUGHING",
+      "description": "Roughing operation without coolant (M8)",
+      "count": 138,
+      "percentage": 0.8334339896122721
+    },
+    {
+      "mistakeId": "EXCESSIVE_FEED_CUTOFF",
+      "description": "Cutoff feed rate too high (>0.0015 IPR risks insert breakage)",
+      "count": 1,
+      "percentage": 0.0060393767363208116
+    }
+  ],
+  "antiPatterns": [
+    {
+      "pattern": "MISSING_PROGRAM_END",
+      "count": 15316,
+      "severity": "warning",
+      "description": "No M30 or proper program end"
+    },
+    {
+      "pattern": "CSS_WITHOUT_MAX_RPM",
+      "count": 9337,
+      "severity": "critical",
+      "description": "G96 (CSS mode) without G50 max RPM limit"
+    },
+    {
+      "pattern": "NO_CANNED_CYCLES",
+      "count": 8853,
+      "severity": "suggestion",
+      "description": "Point-to-point programming instead of canned cycles"
+    },
+    {
+      "pattern": "CONSTANT_RPM_FACING",
+      "count": 3310,
+      "severity": "suggestion",
+      "description": "Using G97 (constant RPM) for facing instead of CSS"
+    },
+    {
+      "pattern": "NO_FACING_BEFORE_OD",
+      "count": 538,
+      "severity": "warning",
+      "description": "No facing operation before OD turning"
+    }
+  ],
+  "bestPracticesAdoption": [
+    {
+      "practice": "Uses canned cycles (G70-G76)",
+      "adoptionRate": 32
+    },
+    {
+      "practice": "Has G50 max RPM with CSS",
+      "adoptionRate": 98
+    },
+    {
+      "practice": "Uses coolant (M8)",
+      "adoptionRate": 96
+    },
+    {
+      "practice": "Uses bar feeder",
+      "adoptionRate": 56
+    },
+    {
+      "practice": "Uses macros/variables",
+      "adoptionRate": 61
+    }
+  ],
+  "customersAnalyzed": 194,
+  "bestCustomers": [
+    {
+      "customer": "TOPURA",
+      "programCount": 16,
+      "avgScore": 93.5,
+      "totalMistakes": 19,
+      "criticalMistakes": 4,
+      "commonMistakes": {},
+      "bestProgram": {
+        "filename": "C-159-7-M5-TAPTITE2000-CASE.min",
+        "score": 100
+      },
+      "worstProgram": {
+        "filename": "H20-B.MIN",
+        "score": 61
+      },
+      "avgImprovementPotential": 12.5
+    },
+    {
+      "customer": "NATHANS USB",
+      "programCount": 1772,
+      "avgScore": 90.99774266365672,
+      "totalMistakes": 4081,
+      "criticalMistakes": 267,
+      "commonMistakes": {},
+      "bestProgram": {
+        "filename": "250N-HH-875 SIDE A.min",
+        "score": 100
+      },
+      "worstProgram": {
+        "filename": "3037-214594.MIN",
+        "score": 44
+      },
+      "avgImprovementPotential": 18.826185101580137
+    },
+    {
+      "customer": "ALCOA",
+      "programCount": 11,
+      "avgScore": 90.63636363636364,
+      "totalMistakes": 13,
+      "criticalMistakes": 4,
+      "commonMistakes": {},
+      "bestProgram": {
+        "filename": "A0137471.MIN",
+        "score": 100
+      },
+      "worstProgram": {
+        "filename": "A703A02-0007-1.MIN",
+        "score": 72
+      },
+      "avgImprovementPotential": 15
+    },
+    {
+      "customer": "CHOCTAW",
+      "programCount": 56,
+      "avgScore": 90.16071428571429,
+      "totalMistakes": 97,
+      "criticalMistakes": 17,
+      "commonMistakes": {},
+      "bestProgram": {
+        "filename": "C10T10076.MIN",
+        "score": 100
+      },
+      "worstProgram": {
+        "filename": "UPSET-1000STOP.MIN",
+        "score": 59
+      },
+      "avgImprovementPotential": 18.035714285714285
+    },
+    {
+      "customer": "FALL RIVER",
+      "programCount": 17,
+      "avgScore": 89.52941176470588,
+      "totalMistakes": 28,
+      "criticalMistakes": 7,
+      "commonMistakes": {},
+      "bestProgram": {
+        "filename": "HW-100NT.MIN",
+        "score": 100
+      },
+      "worstProgram": {
+        "filename": "SCP-38-FR-A.MIN",
+        "score": 64
+      },
+      "avgImprovementPotential": 19.41176470588235
+    },
+    {
+      "customer": "GESIPA",
+      "programCount": 24,
+      "avgScore": 89.125,
+      "totalMistakes": 50,
+      "criticalMistakes": 5,
+      "commonMistakes": {},
+      "bestProgram": {
+        "filename": "1498217.MIN",
+        "score": 100
+      },
+      "worstProgram": {
+        "filename": "G22-0466-1-B.MIN",
+        "score": 59
+      },
+      "avgImprovementPotential": 18.541666666666668
+    },
+    {
+      "customer": "SEMBLEX",
+      "programCount": 117,
+      "avgScore": 89.04273504273503,
+      "totalMistakes": 180,
+      "criticalMistakes": 41,
+      "commonMistakes": {},
+      "bestProgram": {
+        "filename": "DI10285.MIN",
+        "score": 100
+      },
+      "worstProgram": {
+        "filename": "DC10180.MIN",
+        "score": 44
+      },
+      "avgImprovementPotential": 17.692307692307686
+    },
+    {
+      "customer": "CLENDENIN BROTHERS",
+      "programCount": 93,
+      "avgScore": 88.46236559139787,
+      "totalMistakes": 196,
+      "criticalMistakes": 31,
+      "commonMistakes": {},
+      "bestProgram": {
+        "filename": "A2B872C438D07ANGLE4175.MIN",
+        "score": 100
+      },
+      "worstProgram": {
+        "filename": "4140 ROLLER.MIN",
+        "score": 47
+      },
+      "avgImprovementPotential": 20.430107526881724
+    },
+    {
+      "customer": "TFI Aerospace",
+      "programCount": 13,
+      "avgScore": 88.46153846153847,
+      "totalMistakes": 18,
+      "criticalMistakes": 4,
+      "commonMistakes": {},
+      "bestProgram": {
+        "filename": "BU-1365-0000-002.MIN",
+        "score": 100
+      },
+      "worstProgram": {
+        "filename": "TFI-SL-014-30.MIN",
+        "score": 52
+      },
+      "avgImprovementPotential": 15
+    },
+    {
+      "customer": "CLENDENIN",
+      "programCount": 95,
+      "avgScore": 87.96842105263156,
+      "totalMistakes": 200,
+      "criticalMistakes": 33,
+      "commonMistakes": {},
+      "bestProgram": {
+        "filename": "A2B872C438D07ANGLE4175.MIN",
+        "score": 100
+      },
+      "worstProgram": {
+        "filename": "4140 ROLLER.MIN",
+        "score": 47
+      },
+      "avgImprovementPotential": 20.63157894736842
+    }
+  ],
+  "worstCustomers": [
+    {
+      "customer": "JACOBSON",
+      "programCount": 96,
+      "avgScore": 61.927083333333336,
+      "totalMistakes": 264,
+      "criticalMistakes": 104,
+      "commonMistakes": {},
+      "bestProgram": {
+        "filename": "J-23-586-1.MIN",
+        "score": 97
+      },
+      "worstProgram": {
+        "filename": "J-8006820PSS3-R.MIN",
+        "score": 19
+      },
+      "avgImprovementPotential": 35.000000000000014
+    },
+    {
+      "customer": "BIRMINGHAM FASTENER",
+      "programCount": 75,
+      "avgScore": 67.32,
+      "totalMistakes": 221,
+      "criticalMistakes": 67,
+      "commonMistakes": {},
+      "bestProgram": {
+        "filename": "BH-1078-4260.MIN",
+        "score": 100
+      },
+      "worstProgram": {
+        "filename": "HRC-52-54-L.MIN",
+        "score": 14
+      },
+      "avgImprovementPotential": 33.53333333333333
+    },
+    {
+      "customer": "ELECTRODE",
+      "programCount": 335,
+      "avgScore": 67.46567164179108,
+      "totalMistakes": 709,
+      "criticalMistakes": 324,
+      "commonMistakes": {},
+      "bestProgram": {
+        "filename": "A9099009.MIN",
+        "score": 100
+      },
+      "worstProgram": {
+        "filename": "A9102203 - Copy.MIN",
+        "score": 43
+      },
+      "avgImprovementPotential": 29.597014925373134
+    },
+    {
+      "customer": "PRECIOSION FASTENER",
+      "programCount": 9,
+      "avgScore": 67.55555555555556,
+      "totalMistakes": 27,
+      "criticalMistakes": 9,
+      "commonMistakes": {},
+      "bestProgram": {
+        "filename": "DS6-336-1077.MIN",
+        "score": 72
+      },
+      "worstProgram": {
+        "filename": "01-DS8-249-1072.MIN",
+        "score": 64
+      },
+      "avgImprovementPotential": 35
+    },
+    {
+      "customer": "IMAGE",
+      "programCount": 60,
+      "avgScore": 68.23333333333335,
+      "totalMistakes": 172,
+      "criticalMistakes": 53,
+      "commonMistakes": {},
+      "bestProgram": {
+        "filename": "SC75-2H.MIN",
+        "score": 100
+      },
+      "worstProgram": {
+        "filename": "PEFIL2998-447-1667.MIN",
+        "score": 52
+      },
+      "avgImprovementPotential": 32.83333333333333
+    },
+    {
+      "customer": "MIDWEST",
+      "programCount": 129,
+      "avgScore": 68.2480620155039,
+      "totalMistakes": 358,
+      "criticalMistakes": 111,
+      "commonMistakes": {},
+      "bestProgram": {
+        "filename": "HP346-B.MIN",
+        "score": 100
+      },
+      "worstProgram": {
+        "filename": "RM 131-56A1111111.MIN",
+        "score": 47
+      },
+      "avgImprovementPotential": 31.744186046511636
+    },
+    {
+      "customer": "JM DIE",
+      "programCount": 163,
+      "avgScore": 68.75460122699387,
+      "totalMistakes": 454,
+      "criticalMistakes": 148,
+      "commonMistakes": {},
+      "bestProgram": {
+        "filename": "EXTRUDE-HOLDER-370.MIN",
+        "score": 100
+      },
+      "worstProgram": {
+        "filename": "CASING-OD1937-ID1117-B.MIN",
+        "score": 59
+      },
+      "avgImprovementPotential": 32.51533742331288
+    },
+    {
+      "customer": "SAFETY SOCKET",
+      "programCount": 83,
+      "avgScore": 69.57831325301206,
+      "totalMistakes": 223,
+      "criticalMistakes": 76,
+      "commonMistakes": {},
+      "bestProgram": {
+        "filename": "CH225-30.MIN",
+        "score": 100
+      },
+      "worstProgram": {
+        "filename": "CH225-29.MIN",
+        "score": 52
+      },
+      "avgImprovementPotential": 32.590361445783145
+    },
+    {
+      "customer": "MULTI TECH",
+      "programCount": 44,
+      "avgScore": 70.34090909090911,
+      "totalMistakes": 115,
+      "criticalMistakes": 37,
+      "commonMistakes": {},
+      "bestProgram": {
+        "filename": "104-HH-2-PUI-6S-1.MIN",
+        "score": 100
+      },
+      "worstProgram": {
+        "filename": "104N45-S5-SLAT-10-DGR.MIN",
+        "score": 54
+      },
+      "avgImprovementPotential": 30.681818181818183
+    },
+    {
+      "customer": "EJOT",
+      "programCount": 138,
+      "avgScore": 70.34782608695653,
+      "totalMistakes": 376,
+      "criticalMistakes": 122,
+      "commonMistakes": {},
+      "bestProgram": {
+        "filename": "T110240068.MIN",
+        "score": 100
+      },
+      "worstProgram": {
+        "filename": "T110310009-SLEEVE.MIN",
+        "score": 49
+      },
+      "avgImprovementPotential": 31.594202898550737
+    }
+  ],
+  "bestPrograms": [
+    {
+      "filepath": "H:\\PRISM\\JM DIE\\CNC LATHE\\AEROTECH\\THREAD ID-1 3-4 -12 .MIN",
+      "score": 100,
+      "customer": "AEROTECH"
+    },
+    {
+      "filepath": "H:\\PRISM\\JM DIE\\CNC LATHE\\AGRATI\\1234.MIN",
+      "score": 100,
+      "customer": "AGRATI"
+    },
+    {
+      "filepath": "H:\\PRISM\\JM DIE\\CNC LATHE\\AGRATI\\9082526.MIN",
+      "score": 100,
+      "customer": "AGRATI"
+    },
+    {
+      "filepath": "H:\\PRISM\\JM DIE\\CNC LATHE\\AGRATI\\9097756.MIN",
+      "score": 100,
+      "customer": "AGRATI"
+    },
+    {
+      "filepath": "H:\\PRISM\\JM DIE\\CNC LATHE\\AGRATI\\9098758.MIN",
+      "score": 100,
+      "customer": "AGRATI"
+    },
+    {
+      "filepath": "H:\\PRISM\\JM DIE\\CNC LATHE\\AGRATI\\9100236.MIN",
+      "score": 100,
+      "customer": "AGRATI"
+    },
+    {
+      "filepath": "H:\\PRISM\\JM DIE\\CNC LATHE\\AGRATI\\9102610A.MIN",
+      "score": 100,
+      "customer": "AGRATI"
+    },
+    {
+      "filepath": "H:\\PRISM\\JM DIE\\CNC LATHE\\AGRATI\\A9083164.MIN",
+      "score": 100,
+      "customer": "AGRATI"
+    },
+    {
+      "filepath": "H:\\PRISM\\JM DIE\\CNC LATHE\\AGRATI\\A9087290.MIN",
+      "score": 100,
+      "customer": "AGRATI"
+    },
+    {
+      "filepath": "H:\\PRISM\\JM DIE\\CNC LATHE\\AGRATI\\A9087329.MIN",
+      "score": 100,
+      "customer": "AGRATI"
+    }
+  ],
+  "worstPrograms": [
+    {
+      "filepath": "H:\\PRISM\\JM DIE\\CNC LATHE\\SCREWS\\C2500-2497-867-R.MIN",
+      "score": 14,
+      "customer": "SCREWS",
+      "mistakes": 6
+    },
+    {
+      "filepath": "H:\\PRISM\\JM DIE\\CNC LATHE\\SCREWS\\C2500-2497-867-L.MIN",
+      "score": 14,
+      "customer": "SCREWS",
+      "mistakes": 6
+    },
+    {
+      "filepath": "H:\\PRISM\\JM DIE\\CNC LATHE\\OPTIMAS\\PH-305-HP-9850-R.MIN",
+      "score": 14,
+      "customer": "OPTIMAS",
+      "mistakes": 6
+    },
+    {
+      "filepath": "H:\\PRISM\\JM DIE\\CNC LATHE\\ITW\\T8047D3-R.MIN",
+      "score": 14,
+      "customer": "ITW",
+      "mistakes": 6
+    },
+    {
+      "filepath": "H:\\PRISM\\JM DIE\\CNC LATHE\\ITW\\T8047D3-L.MIN",
+      "score": 14,
+      "customer": "ITW",
+      "mistakes": 6
+    },
+    {
+      "filepath": "H:\\PRISM\\JM DIE\\CNC LATHE\\IMPACT TOOL\\SPHC-TH4-6A-L.MIN",
+      "score": 14,
+      "customer": "IMPACT TOOL",
+      "mistakes": 6
+    },
+    {
+      "filepath": "H:\\PRISM\\JM DIE\\CNC LATHE\\HEADER\\SRD-891-232-R.MIN",
+      "score": 14,
+      "customer": "HEADER",
+      "mistakes": 6
+    },
+    {
+      "filepath": "H:\\PRISM\\JM DIE\\CNC LATHE\\HEADER\\SRD-890-420-R.MIN",
+      "score": 14,
+      "customer": "HEADER",
+      "mistakes": 6
+    },
+    {
+      "filepath": "H:\\PRISM\\JM DIE\\CNC LATHE\\HEADER\\SDR-891-232-R.MIN",
+      "score": 14,
+      "customer": "HEADER",
+      "mistakes": 6
+    },
+    {
+      "filepath": "H:\\PRISM\\JM DIE\\CNC LATHE\\HEADER\\SAK-56A-750-A.MIN",
+      "score": 14,
+      "customer": "HEADER",
+      "mistakes": 6
+    }
+  ],
+  "globalRecommendations": [
+    "92.5% of programs have \"No M30 or proper program end\" - prioritize training on this",
+    "Average improvement potential is 25.0% - significant optimization opportunity",
+    "Only 32% use canned cycles - train programmers on G71/G70",
+    "9528 critical safety issues found - immediate attention required"
+  ],
+  "estimatedImprovementIfFixed": 25,
+  "patternsLearned": 14,
+  "knowledgeGraphNodes": 600,
+  "experienceBufferSize": 16558
+}

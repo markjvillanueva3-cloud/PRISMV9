@@ -28,7 +28,7 @@ related:
 | Course ID | `course-1` |
 | Source | `mcp-server/src/data/academy/course-1-manufacturing-fundamentals.ts` |
 | Level | Novice |
-| Modules (declared / counted) | 12 / 24 |
+| Modules (declared / counted) | 12 / 26 |
 | Lessons (counted) | 12 |
 | Est. hours | 8 |
 

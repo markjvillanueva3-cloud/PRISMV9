@@ -210,7 +210,7 @@ export const DEFAULT_RUNBOOK: OnboardingStep[] = [
 
 const STALL_THRESHOLD_MS = 7 * 24 * 60 * 60 * 1000; // 7 days
 
-class TenantOnboardingRunbookEngine {
+export class TenantOnboardingRunbookEngine {
   private runbook: OnboardingStep[] = [...DEFAULT_RUNBOOK];
   private tenants: Map<string, Tenant> = new Map();
   private states: Map<string, TenantStepState[]> = new Map(); // tenant_id → step states

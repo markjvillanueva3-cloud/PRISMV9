@@ -18,6 +18,7 @@
 
 import fs from "node:fs";
 import path from "node:path";
+import { createHash } from "node:crypto";
 import { mdToHtml } from "./lib/html-report-render.mjs";
 
 function parseArgs(argv) {
@@ -61,10 +62,18 @@ if (!fs.existsSync(input)) {
   process.exit(2);
 }
 
+// 2026-05-18 (slot kilo, U-MD2HTML-IDEMPOTENT, Reviewer B P1-A fix): pass deterministic
+// generatedAt (source-file mtime) + empty note so re-rendering unchanged input produces
+// byte-identical output. Without this, every render embedded `new Date().toISOString()`
+// twice (header + footer), dirtying the .html on every regen across the 13-chat fleet
+// and the c-to-h-mirror replication path — defeating the drift-check value proposition.
+const inputMtime = fs.statSync(input).mtime.toISOString();
 const html = mdToHtml(input, {
   includeToc: !!args.toc,
   title: args.title,
   subtitle: args.subtitle,
+  generatedAt: inputMtime,
+  note: "", // explicit empty — suppresses the footer's wall-clock timestamp
 });
 
 if (!html) {
@@ -72,7 +81,22 @@ if (!html) {
   process.exit(3);
 }
 
+// 2026-05-18 (slot kilo, U-MD2HTML-SRCHASH): inject <meta prism-source-hash>
+// so html-companion-guard.mjs can drift-check this output (the guard's
+// extractSourceHash() pulls the hex out of any attr-order; format flexibility
+// is fine). Hash is computed over the SAME raw bytes the guard reads via
+// readFileSync(mdAbs) — must match for drift detection to fire correctly.
+// First-occurrence-only via the non-global regex: a hand-authored CLAUDE.md
+// referencing the literal string "<head>" inside a code-fence does NOT inject
+// a second meta because String.prototype.replace with a non-/g regex stops
+// after the first hit.
+const sourceHash = createHash("sha256").update(fs.readFileSync(input)).digest("hex");
+const sourceHashMeta = `<meta name="prism-source-hash" content="${sourceHash}">`;
+const htmlWithHash = /<head\b[^>]*>/i.test(html)
+  ? html.replace(/<head\b[^>]*>/i, (m) => `${m}\n  ${sourceHashMeta}`)
+  : html; // graceful no-op when the renderer ever ships a non-HTML5 doc
+
 const out = args.out || input.replace(/\.md$/i, ".html");
 fs.mkdirSync(path.dirname(out), { recursive: true });
-fs.writeFileSync(out, html, "utf8");
-console.log(`md-to-html: wrote ${out} (${html.length} bytes)`);
+fs.writeFileSync(out, htmlWithHash, "utf8");
+console.log(`md-to-html: wrote ${out} (${htmlWithHash.length} bytes, hash ${sourceHash.slice(0, 12)}…)`);

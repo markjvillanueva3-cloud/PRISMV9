@@ -1,0 +1,122 @@
+TAP version 13
+# Subtest: formatActionHint: isBroadGrep → master_index_query
+ok 1 - formatActionHint: isBroadGrep → master_index_query
+  ---
+  duration_ms: 1.2924
+  ...
+# Subtest: formatActionHint: isVerboseBash → action_search
+ok 2 - formatActionHint: isVerboseBash → action_search
+  ---
+  duration_ms: 0.1458
+  ...
+# Subtest: formatActionHint: isLargeRead → dispatcher_map_compact
+ok 3 - formatActionHint: isLargeRead → dispatcher_map_compact
+  ---
+  duration_ms: 0.2127
+  ...
+# Subtest: formatActionHint: isLargeWrite → prism_dev:file_write
+ok 4 - formatActionHint: isLargeWrite → prism_dev:file_write
+  ---
+  duration_ms: 0.9743
+  ...
+# Subtest: formatActionHint: isBroadGlob → master_index_query
+ok 5 - formatActionHint: isBroadGlob → master_index_query
+  ---
+  duration_ms: 0.1723
+  ...
+# Subtest: formatActionHint: isBroadWebSearch → prism_knowledge:search
+ok 6 - formatActionHint: isBroadWebSearch → prism_knowledge:search
+  ---
+  duration_ms: 0.1449
+  ...
+# Subtest: formatActionHint: doctrineSurface (top-2 firer) → dispatcher_map_compact
+ok 7 - formatActionHint: doctrineSurface (top-2 firer) → dispatcher_map_compact
+  ---
+  duration_ms: 0.1233
+  ...
+# Subtest: formatActionHint: backendAuditChain → prism_dev:code_search
+ok 8 - formatActionHint: backendAuditChain → prism_dev:code_search
+  ---
+  duration_ms: 0.1057
+  ...
+# Subtest: formatActionHint: unknown classifier returns null (no false hint)
+ok 9 - formatActionHint: unknown classifier returns null (no false hint)
+  ---
+  duration_ms: 0.4026
+  ...
+# Subtest: formatActionHint: null/undefined/non-string inputs return null
+ok 10 - formatActionHint: null/undefined/non-string inputs return null
+  ---
+  duration_ms: 0.4384
+  ...
+# Subtest: formatActionHint: ollama classifier deliberately has no hint
+ok 11 - formatActionHint: ollama classifier deliberately has no hint
+  ---
+  duration_ms: 0.1844
+  ...
+# Subtest: appendActionHints: empty array passes through
+ok 12 - appendActionHints: empty array passes through
+  ---
+  duration_ms: 1.0289
+  ...
+# Subtest: appendActionHints: non-array passes through unchanged
+ok 13 - appendActionHints: non-array passes through unchanged
+  ---
+  duration_ms: 0.1173
+  ...
+# Subtest: appendActionHints: skips non-string entries (defensive)
+ok 14 - appendActionHints: skips non-string entries (defensive)
+  ---
+  duration_ms: 0.1397
+  ...
+# Subtest: appendActionHints: real broad-Grep nudge gets master_index_query suffix
+ok 15 - appendActionHints: real broad-Grep nudge gets master_index_query suffix
+  ---
+  duration_ms: 0.1659
+  ...
+# Subtest: appendActionHints: real doctrineSurface nudge gains a concrete action (iter22 gap)
+ok 16 - appendActionHints: real doctrineSurface nudge gains a concrete action (iter22 gap)
+  ---
+  duration_ms: 0.1101
+  ...
+# Subtest: appendActionHints: real backendAuditChain nudge gains code_search
+ok 17 - appendActionHints: real backendAuditChain nudge gains code_search
+  ---
+  duration_ms: 0.1051
+  ...
+# Subtest: appendActionHints: Ollama-prefixed message (🤖 Suggested route:) is NOT augmented
+ok 18 - appendActionHints: Ollama-prefixed message (🤖 Suggested route:) is NOT augmented
+  ---
+  duration_ms: 0.1204
+  ...
+# Subtest: appendActionHints: message with no classifier match passes through
+ok 19 - appendActionHints: message with no classifier match passes through
+  ---
+  duration_ms: 0.1146
+  ...
+# Subtest: U-PSN-TAKEUP-MAP-EXPORT: TAKEUP_CREDITED_ACTIONS derived non-empty + well-shaped (canonical source)
+ok 20 - U-PSN-TAKEUP-MAP-EXPORT: TAKEUP_CREDITED_ACTIONS derived non-empty + well-shaped (canonical source)
+  ---
+  duration_ms: 0.2303
+  ...
+# Subtest: PSN synergy: every action in _PREFERRED_ACTION_FOR_CLASSIFIER is credited by mcp-route-takeup
+ok 21 - PSN synergy: every action in _PREFERRED_ACTION_FOR_CLASSIFIER is credited by mcp-route-takeup
+  ---
+  duration_ms: 0.1481
+  ...
+# Subtest: PSN synergy: extractMcpAction (takeup) recognizes the hinted action shape
+ok 22 - PSN synergy: extractMcpAction (takeup) recognizes the hinted action shape
+  ---
+  duration_ms: 0.1686
+  ...
+# Subtest: _PREFERRED_ACTION_FOR_CLASSIFIER: all entries are non-empty strings
+ok 23 - _PREFERRED_ACTION_FOR_CLASSIFIER: all entries are non-empty strings
+  ---
+  duration_ms: 0.1454
+  ...
+# Subtest: _PREFERRED_ACTION_FOR_CLASSIFIER: omits 'ollama' deliberately
+ok 24 - _PREFERRED_ACTION_FOR_CLASSIFIER: omits 'ollama' deliberately
+  ---
+  duration_ms: 0.0922
+  ...
+# {"continue":true}

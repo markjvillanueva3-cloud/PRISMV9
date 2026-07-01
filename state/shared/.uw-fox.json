@@ -1,0 +1,576 @@
+{
+  "schemaVersion": "1.0.0",
+  "generated": "2026-05-17T18:20:47.307Z",
+  "generatedBy": "scripts/validate-unwired-signal.mjs",
+  "source": "H:\\prism\\state\\shared\\UNWIRED-ENGINE-AUDIT-2026-05-07.json",
+  "sourceMtime": "2026-05-16T18:02:37.944Z",
+  "args": {
+    "sample": 110,
+    "seed": 7717,
+    "all": false,
+    "maxFpRate": 10
+  },
+  "totalUnwiredPool": 836,
+  "sampleSize": 110,
+  "counts": {
+    "TRULY-UNWIRED": 2,
+    "FALSE-POSITIVE-WIRED": 31,
+    "WEAK-SIGNAL": 77,
+    "EXEMPT": 0
+  },
+  "falsePositiveRatePct": 28.18,
+  "threshold": 10,
+  "verdict": "FAIL",
+  "perEngine": [
+    {
+      "engineName": "SmartPrefetchEngine",
+      "classification": "WEAK-SIGNAL",
+      "firstMatch": "test:__tests__/smart-prefetch-engine.test.ts"
+    },
+    {
+      "engineName": "PrintToProgramCoverageAnalyzerEngine",
+      "classification": "WEAK-SIGNAL",
+      "firstMatch": "test:__tests__/engines/PrintToProgramCoverageAnalyzerEngine.test.ts"
+    },
+    {
+      "engineName": "CostEstimationEngine",
+      "classification": "WEAK-SIGNAL",
+      "firstMatch": "test:__tests__/engine-consolidation.test.ts"
+    },
+    {
+      "engineName": "LatheDeepAIHardeningEngine",
+      "classification": "WEAK-SIGNAL",
+      "firstMatch": "cross-engine:engines/LatheAIOrchestrationEngine.ts"
+    },
+    {
+      "engineName": "RegretMinimizationEngine",
+      "classification": "WEAK-SIGNAL",
+      "firstMatch": "test:__tests__/regret-minimization-engine.test.ts"
+    },
+    {
+      "engineName": "ImpellerEngine",
+      "classification": "WEAK-SIGNAL",
+      "firstMatch": "test:__tests__/batch83-engines.test.ts"
+    },
+    {
+      "engineName": "SensorSimulatorEngine",
+      "classification": "WEAK-SIGNAL",
+      "firstMatch": "test:__tests__/sci-ms0-sensors.test.ts"
+    },
+    {
+      "engineName": "LaserLoRADatasetBuilderEngine",
+      "classification": "WEAK-SIGNAL",
+      "firstMatch": "test:__tests__/p1-lora-pairs.test.ts"
+    },
+    {
+      "engineName": "VendorTurningCatalogExtractorEngine",
+      "classification": "FALSE-POSITIVE-WIRED",
+      "firstMatch": "dispatcher:tools/dispatchers/turningDispatcher.ts"
+    },
+    {
+      "engineName": "PostAMFinishingPlanEngine",
+      "classification": "WEAK-SIGNAL",
+      "firstMatch": "test:__tests__/secondary-finishing-engines.test.ts"
+    },
+    {
+      "engineName": "RegistryFederationEngine",
+      "classification": "FALSE-POSITIVE-WIRED",
+      "firstMatch": "dispatcher:tools/dispatchers/infraDispatcher.ts"
+    },
+    {
+      "engineName": "SpeedFeedUltimateAIEngine",
+      "classification": "WEAK-SIGNAL",
+      "firstMatch": "test:__tests__/speed-feed-ultimate-ai.test.ts"
+    },
+    {
+      "engineName": "LathePartClassifierEngine",
+      "classification": "WEAK-SIGNAL",
+      "firstMatch": "cross-engine:engines/LatheDeepAIHardeningEngine.ts"
+    },
+    {
+      "engineName": "WEDMRolloutSimulatorEngine",
+      "classification": "WEAK-SIGNAL",
+      "firstMatch": "test:__tests__/wedm/wedm_rollout_simulator.test.ts"
+    },
+    {
+      "engineName": "OutcomeTraceEngine",
+      "classification": "WEAK-SIGNAL",
+      "firstMatch": "test:__tests__/OutcomeTraceEngine.test.ts"
+    },
+    {
+      "engineName": "LathePrintToProgramDLIntelligenceEngine",
+      "classification": "FALSE-POSITIVE-WIRED",
+      "firstMatch": "dispatcher:tools/dispatchers/camDispatcher.ts"
+    },
+    {
+      "engineName": "PerformanceBudgetEngine",
+      "classification": "FALSE-POSITIVE-WIRED",
+      "firstMatch": "dispatcher:tools/dispatchers/infraDispatcher.ts"
+    },
+    {
+      "engineName": "TurningThreadRobustOptimizerEngine",
+      "classification": "FALSE-POSITIVE-WIRED",
+      "firstMatch": "dispatcher:tools/dispatchers/devDispatcher.ts"
+    },
+    {
+      "engineName": "WEDMJobPatternLearnerEngine",
+      "classification": "WEAK-SIGNAL",
+      "firstMatch": "test:__tests__/WEDMJobPatternLearnerEngine.test.ts"
+    },
+    {
+      "engineName": "RoadmapDAGEngine",
+      "classification": "FALSE-POSITIVE-WIRED",
+      "firstMatch": "dispatcher:tools/dispatchers/devDispatcher.ts"
+    },
+    {
+      "engineName": "AutoCADDotNetBridgeEngine",
+      "classification": "WEAK-SIGNAL",
+      "firstMatch": "test:__tests__/AutoCADDotNetBridgeEngine.test.ts"
+    },
+    {
+      "engineName": "ChaosDrillSchedulerEngine",
+      "classification": "WEAK-SIGNAL",
+      "firstMatch": "test:__tests__/engines/ChaosDrillSchedulerEngine.test.ts"
+    },
+    {
+      "engineName": "WEDMPostMakinoEngine",
+      "classification": "WEAK-SIGNAL",
+      "firstMatch": "cross-engine:engines/WEDMPostDialectRouterEngine.ts"
+    },
+    {
+      "engineName": "CATIACAAV5BridgeEngine",
+      "classification": "WEAK-SIGNAL",
+      "firstMatch": "test:__tests__/CATIACAAV5BridgeEngine.test.ts"
+    },
+    {
+      "engineName": "HyperMillPluginAdapterEngine",
+      "classification": "FALSE-POSITIVE-WIRED",
+      "firstMatch": "dispatcher:tools/dispatchers/camDispatcher.ts"
+    },
+    {
+      "engineName": "LathePrintSetupSelectionEngine",
+      "classification": "FALSE-POSITIVE-WIRED",
+      "firstMatch": "dispatcher:tools/dispatchers/camDispatcher.ts"
+    },
+    {
+      "engineName": "ElectrodeUltimateAIEngine",
+      "classification": "WEAK-SIGNAL",
+      "firstMatch": "test:__tests__/electrode-ultimate-ai.test.ts"
+    },
+    {
+      "engineName": "AnchoredConfidenceEngine",
+      "classification": "FALSE-POSITIVE-WIRED",
+      "firstMatch": "dispatcher:tools/dispatchers/devDispatcher.ts"
+    },
+    {
+      "engineName": "DrumBrakeEngine",
+      "classification": "WEAK-SIGNAL",
+      "firstMatch": "test:__tests__/batch73-engines.test.ts"
+    },
+    {
+      "engineName": "MachineOptionContractEngine",
+      "classification": "WEAK-SIGNAL",
+      "firstMatch": "cross-engine:engines/MachineConsumerBindingEngine.ts"
+    },
+    {
+      "engineName": "WetRunOnCallRotationEngine",
+      "classification": "FALSE-POSITIVE-WIRED",
+      "firstMatch": "dispatcher:tools/dispatchers/devDispatcher.ts"
+    },
+    {
+      "engineName": "LatheFullArchiveTrainingEngine",
+      "classification": "WEAK-SIGNAL",
+      "firstMatch": "test:__tests__/lathe-full-archive-deep-training.test.ts"
+    },
+    {
+      "engineName": "GateFailureHistoryEngine",
+      "classification": "FALSE-POSITIVE-WIRED",
+      "firstMatch": "dispatcher:tools/dispatchers/devDispatcher.ts"
+    },
+    {
+      "engineName": "WEDMMaintenanceSchedulerEngine",
+      "classification": "WEAK-SIGNAL",
+      "firstMatch": "test:__tests__/wedm/wedm_maintenance_scheduler.test.ts"
+    },
+    {
+      "engineName": "SensorDataSchemaEngine",
+      "classification": "WEAK-SIGNAL",
+      "firstMatch": "test:__tests__/sci-ms0-sensors.test.ts"
+    },
+    {
+      "engineName": "WEDMProductionReadinessEngine",
+      "classification": "WEAK-SIGNAL",
+      "firstMatch": "cross-engine:engines/WireEDMMasterAIEngine.ts"
+    },
+    {
+      "engineName": "UniversalFeedbackCommandEngine",
+      "classification": "FALSE-POSITIVE-WIRED",
+      "firstMatch": "dispatcher:tools/dispatchers/devDispatcher.ts"
+    },
+    {
+      "engineName": "ERPToolInventoryEngine",
+      "classification": "WEAK-SIGNAL",
+      "firstMatch": "test:__tests__/L2P4-ERPMeasurement.test.ts"
+    },
+    {
+      "engineName": "CAMTribalTipLinkerEngine",
+      "classification": "FALSE-POSITIVE-WIRED",
+      "firstMatch": "dispatcher:tools/dispatchers/camDispatcher.ts"
+    },
+    {
+      "engineName": "WEDMLoRADatasetBuilderEngine",
+      "classification": "WEAK-SIGNAL",
+      "firstMatch": "test:__tests__/p1-lora-pairs.test.ts"
+    },
+    {
+      "engineName": "NCPatternMinerEngine",
+      "classification": "WEAK-SIGNAL",
+      "firstMatch": "cross-engine:engines/CustomerPortfolioMinerEngine.ts"
+    },
+    {
+      "engineName": "MastercamStrategyEngine.test",
+      "classification": "TRULY-UNWIRED",
+      "firstMatch": null
+    },
+    {
+      "engineName": "ConsensusAIBridgeEngine",
+      "classification": "WEAK-SIGNAL",
+      "firstMatch": "test:__tests__/ConsensusAIBridgeEngine.test.ts"
+    },
+    {
+      "engineName": "WorkNCCAMBridgeEngine",
+      "classification": "FALSE-POSITIVE-WIRED",
+      "firstMatch": "dispatcher:tools/dispatchers/camDispatcher.ts"
+    },
+    {
+      "engineName": "OutcomeCaptureBusEngine",
+      "classification": "WEAK-SIGNAL",
+      "firstMatch": "cross-engine:engines/PPGOutcomeCaptureWireEngine.ts"
+    },
+    {
+      "engineName": "WEDMRecipeAdaptationEngine",
+      "classification": "WEAK-SIGNAL",
+      "firstMatch": "test:__tests__/wedm/wedm_recipe_adaptation.test.ts"
+    },
+    {
+      "engineName": "SpeedFeedDeepLearningEngine",
+      "classification": "WEAK-SIGNAL",
+      "firstMatch": "cross-engine:engines/SpeedFeedAdvancedAIEngine.ts"
+    },
+    {
+      "engineName": "SweptVolumeEngine",
+      "classification": "WEAK-SIGNAL",
+      "firstMatch": "cross-engine:engines/CNCSimulationPipelineEngine.ts"
+    },
+    {
+      "engineName": "TurningStochasticPlanEngine",
+      "classification": "WEAK-SIGNAL",
+      "firstMatch": "cross-engine:engines/TurningRobustOptimizerEngine.ts"
+    },
+    {
+      "engineName": "ProcessRobustnessEngine",
+      "classification": "WEAK-SIGNAL",
+      "firstMatch": "test:__tests__/cross-cam-batch6.test.ts"
+    },
+    {
+      "engineName": "MITCourseFullIntegrationEngine",
+      "classification": "FALSE-POSITIVE-WIRED",
+      "firstMatch": "dispatcher:tools/dispatchers/devDispatcher.ts"
+    },
+    {
+      "engineName": "WorkholdingRetrofitAdvisorEngine",
+      "classification": "WEAK-SIGNAL",
+      "firstMatch": "test:__tests__/workholding-retrofit-advisor.test.ts"
+    },
+    {
+      "engineName": "DomainOrchestratorPluginRegistry",
+      "classification": "WEAK-SIGNAL",
+      "firstMatch": "test:__tests__/kar-ms6-puoa-routes.test.ts"
+    },
+    {
+      "engineName": "PalletPoolOptimizerEngine",
+      "classification": "WEAK-SIGNAL",
+      "firstMatch": "test:__tests__/PalletPoolOptimizerEngine.test.ts"
+    },
+    {
+      "engineName": "WEDMRULEngine",
+      "classification": "WEAK-SIGNAL",
+      "firstMatch": "cross-engine:engines/WEDMMaintenanceSchedulerEngine.ts"
+    },
+    {
+      "engineName": "MultiSetupFeasibilityChainEngine",
+      "classification": "WEAK-SIGNAL",
+      "firstMatch": "test:__tests__/multi-setup-feasibility-chain.test.ts"
+    },
+    {
+      "engineName": "CompactionStrategyEngine",
+      "classification": "FALSE-POSITIVE-WIRED",
+      "firstMatch": "dispatcher:tools/dispatchers/devDispatcher.ts"
+    },
+    {
+      "engineName": "WEDMSchedulingEngine",
+      "classification": "WEAK-SIGNAL",
+      "firstMatch": "test:__tests__/wedm-gapfill-validation.test.ts"
+    },
+    {
+      "engineName": "FrequentPathEngine",
+      "classification": "WEAK-SIGNAL",
+      "firstMatch": "test:__tests__/frequent-path-engine.test.ts"
+    },
+    {
+      "engineName": "ElectrospinningEngine",
+      "classification": "WEAK-SIGNAL",
+      "firstMatch": "test:__tests__/batch97-engines.test.ts"
+    },
+    {
+      "engineName": "MobileTimerEngine",
+      "classification": "WEAK-SIGNAL",
+      "firstMatch": "test:__tests__/L2P4-ShopFloorMobile.test.ts"
+    },
+    {
+      "engineName": "InterOperationStateEngine",
+      "classification": "WEAK-SIGNAL",
+      "firstMatch": "cross-engine:engines/AdaptiveMachiningIntegrationEngine.ts"
+    },
+    {
+      "engineName": "ToolOutputSummarizerEngine",
+      "classification": "WEAK-SIGNAL",
+      "firstMatch": "test:__tests__/tool-output-summarizer-engine.test.ts"
+    },
+    {
+      "engineName": "QdrantVectorStoreEngine",
+      "classification": "WEAK-SIGNAL",
+      "firstMatch": "cross-engine:engines/MemorySyncEngine.ts"
+    },
+    {
+      "engineName": "ComplexPartPlannerEngine",
+      "classification": "FALSE-POSITIVE-WIRED",
+      "firstMatch": "dispatcher:tools/dispatchers/cadAutomationDispatcher.ts"
+    },
+    {
+      "engineName": "WaterHammerEngine",
+      "classification": "WEAK-SIGNAL",
+      "firstMatch": "test:__tests__/batch71-engines.test.ts"
+    },
+    {
+      "engineName": "BarRemnantManagementEngine",
+      "classification": "WEAK-SIGNAL",
+      "firstMatch": "test:__tests__/BarRemnantManagementEngine.test.ts"
+    },
+    {
+      "engineName": "MasterPostProcessorUnifiedAGIEngine",
+      "classification": "TRULY-UNWIRED",
+      "firstMatch": null
+    },
+    {
+      "engineName": "SaaSAPIEngine",
+      "classification": "FALSE-POSITIVE-WIRED",
+      "firstMatch": "dispatcher:tools/dispatchers/businessDispatcher.ts"
+    },
+    {
+      "engineName": "EWMAEngine",
+      "classification": "WEAK-SIGNAL",
+      "firstMatch": "test:__tests__/ewma-engine.test.ts"
+    },
+    {
+      "engineName": "RTDEngine",
+      "classification": "WEAK-SIGNAL",
+      "firstMatch": "test:__tests__/batch81-engines.test.ts"
+    },
+    {
+      "engineName": "SustainOptimizeEngine",
+      "classification": "WEAK-SIGNAL",
+      "firstMatch": "test:__tests__/L2P4-SFCSustain.test.ts"
+    },
+    {
+      "engineName": "WedmProgramIndexEngine",
+      "classification": "FALSE-POSITIVE-WIRED",
+      "firstMatch": "dispatcher:tools/dispatchers/devDispatcher.ts"
+    },
+    {
+      "engineName": "OptimizationFormulasEngine",
+      "classification": "FALSE-POSITIVE-WIRED",
+      "firstMatch": "dispatcher:tools/dispatchers/calcDispatcher.ts"
+    },
+    {
+      "engineName": "AgenticLoopEngine",
+      "classification": "FALSE-POSITIVE-WIRED",
+      "firstMatch": "dispatcher:tools/dispatchers/agentDispatcher.ts"
+    },
+    {
+      "engineName": "LatheCAMIntelligenceEngine",
+      "classification": "WEAK-SIGNAL",
+      "firstMatch": "test:__tests__/ai-reasoning-lathe-cam.test.ts"
+    },
+    {
+      "engineName": "WEDMParetoFrontierSearchEngine",
+      "classification": "WEAK-SIGNAL",
+      "firstMatch": "cross-engine:engines/WEDMParetoCacheEngine.ts"
+    },
+    {
+      "engineName": "MobileLookupEngine",
+      "classification": "FALSE-POSITIVE-WIRED",
+      "firstMatch": "dispatcher:tools/dispatchers/devDispatcher.ts"
+    },
+    {
+      "engineName": "ForceNeuralPredictorEngine",
+      "classification": "WEAK-SIGNAL",
+      "firstMatch": "test:__tests__/ForceNeuralPredictorEngine.test.ts"
+    },
+    {
+      "engineName": "MultiAgentCoordinatorEngine",
+      "classification": "WEAK-SIGNAL",
+      "firstMatch": "cross-engine:engines/AgentWorkflowEngine.ts"
+    },
+    {
+      "engineName": "EmbeddingGuardEngine",
+      "classification": "WEAK-SIGNAL",
+      "firstMatch": "test:__tests__/embedding-guard-engine.test.ts"
+    },
+    {
+      "engineName": "IncrementalReadEngine",
+      "classification": "WEAK-SIGNAL",
+      "firstMatch": "test:__tests__/incremental-read-engine.test.ts"
+    },
+    {
+      "engineName": "MOUStallGateEngine",
+      "classification": "WEAK-SIGNAL",
+      "firstMatch": "cross-engine:engines/WetRunAuthorizationEngine.ts"
+    },
+    {
+      "engineName": "DistributionNetworkEngine",
+      "classification": "WEAK-SIGNAL",
+      "firstMatch": "test:__tests__/VendorEngine.test.ts"
+    },
+    {
+      "engineName": "ShopMachineOverlayEngine",
+      "classification": "WEAK-SIGNAL",
+      "firstMatch": "cross-engine:engines/MachineConsumerBindingEngine.ts"
+    },
+    {
+      "engineName": "ToolDatabaseDeepLearningEngine",
+      "classification": "WEAK-SIGNAL",
+      "firstMatch": "test:__tests__/TOOL-DB-DEEP.test.ts"
+    },
+    {
+      "engineName": "SurfaceLocationErrorEngine",
+      "classification": "FALSE-POSITIVE-WIRED",
+      "firstMatch": "dispatcher:tools/dispatchers/calcDispatcher.ts"
+    },
+    {
+      "engineName": "LatheSubSpindleTransferPurgeEngine",
+      "classification": "WEAK-SIGNAL",
+      "firstMatch": "test:__tests__/LatheSubSpindleTransferPurgeEngine.test.ts"
+    },
+    {
+      "engineName": "StockBoundaryGateEngine",
+      "classification": "FALSE-POSITIVE-WIRED",
+      "firstMatch": "dispatcher:tools/dispatchers/camDispatcher.ts"
+    },
+    {
+      "engineName": "SwissTypeCollisionEngine",
+      "classification": "WEAK-SIGNAL",
+      "firstMatch": "test:__tests__/SwissTypeCollisionEngine.test.ts"
+    },
+    {
+      "engineName": "ToolLifeGnnEngine",
+      "classification": "WEAK-SIGNAL",
+      "firstMatch": "test:__tests__/ToolLifeGnnEngine.test.ts"
+    },
+    {
+      "engineName": "PairedPrintProgramBundleEngine",
+      "classification": "WEAK-SIGNAL",
+      "firstMatch": "cross-engine:engines/PrintToProgramCoverageAnalyzerEngine.ts"
+    },
+    {
+      "engineName": "LatheLoRATribalExtractorEngine",
+      "classification": "WEAK-SIGNAL",
+      "firstMatch": "test:__tests__/LatheLoRATribalExtractorEngine.test.ts"
+    },
+    {
+      "engineName": "MultiSpindleAutomaticEngine",
+      "classification": "WEAK-SIGNAL",
+      "firstMatch": "test:__tests__/multi-spindle-automatic.test.ts"
+    },
+    {
+      "engineName": "PostProcessorUnificationEngine",
+      "classification": "WEAK-SIGNAL",
+      "firstMatch": "test:__tests__/PostProcessorUnificationEngine.test.ts"
+    },
+    {
+      "engineName": "SPCProcessCapabilityEngine",
+      "classification": "WEAK-SIGNAL",
+      "firstMatch": "cross-engine:engines/HyperMillSPCBridge.ts"
+    },
+    {
+      "engineName": "ContinuousCollisionDetectionEngine",
+      "classification": "FALSE-POSITIVE-WIRED",
+      "firstMatch": "dispatcher:tools/dispatchers/devDispatcher.ts"
+    },
+    {
+      "engineName": "LatheLoRATransferStrategyEngine",
+      "classification": "WEAK-SIGNAL",
+      "firstMatch": "test:__tests__/LatheLoRAPhase3Engines.test.ts"
+    },
+    {
+      "engineName": "HypothesisPrioritizerEngine",
+      "classification": "FALSE-POSITIVE-WIRED",
+      "firstMatch": "dispatcher:tools/dispatchers/devDispatcher.ts"
+    },
+    {
+      "engineName": "PDFTableExtractionEngine",
+      "classification": "WEAK-SIGNAL",
+      "firstMatch": "cross-engine:engines/PDFHandbookBatchProcessorEngine.ts"
+    },
+    {
+      "engineName": "IntegrationForesightEngine",
+      "classification": "FALSE-POSITIVE-WIRED",
+      "firstMatch": "dispatcher:tools/dispatchers/devDispatcher.ts"
+    },
+    {
+      "engineName": "PDFHighlightExtractorEngine",
+      "classification": "FALSE-POSITIVE-WIRED",
+      "firstMatch": "dispatcher:tools/dispatchers/devDispatcher.ts"
+    },
+    {
+      "engineName": "FormalVerificationEngine",
+      "classification": "WEAK-SIGNAL",
+      "firstMatch": "test:__tests__/formal-verification-engine.test.ts"
+    },
+    {
+      "engineName": "ConveyorDesignEngine",
+      "classification": "WEAK-SIGNAL",
+      "firstMatch": "test:__tests__/conveyor-design-engine.test.ts"
+    },
+    {
+      "engineName": "CapacityMonteCarloEngine",
+      "classification": "FALSE-POSITIVE-WIRED",
+      "firstMatch": "dispatcher:tools/dispatchers/devDispatcher.ts"
+    },
+    {
+      "engineName": "LatheLoRANeuralBridgeEngine",
+      "classification": "WEAK-SIGNAL",
+      "firstMatch": "test:__tests__/LatheLoRANeuralBridgeEngine.test.ts"
+    },
+    {
+      "engineName": "ReceptanceCouplingEngine",
+      "classification": "FALSE-POSITIVE-WIRED",
+      "firstMatch": "dispatcher:tools/dispatchers/calcDispatcher.ts"
+    },
+    {
+      "engineName": "ElectrodeDeepLearningEngine",
+      "classification": "WEAK-SIGNAL",
+      "firstMatch": "cross-engine:engines/ElectrodeAdvancedAIEngine.ts"
+    },
+    {
+      "engineName": "FormulaHarvesterEngine",
+      "classification": "WEAK-SIGNAL",
+      "firstMatch": "test:__tests__/FormulaHarvesterEngine.test.ts"
+    },
+    {
+      "engineName": "MarksMultusPatternMinerEngine",
+      "classification": "FALSE-POSITIVE-WIRED",
+      "firstMatch": "dispatcher:tools/dispatchers/devDispatcher.ts"
+    }
+  ]
+}

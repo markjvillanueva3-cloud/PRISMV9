@@ -1,0 +1,288 @@
+{
+  "id": "HM-REV-MS12",
+  "version": "8.3.0",
+  "title": "Skills Phase 2+3 + Scripts + Hooks Batch",
+  "track": "HM-REV",
+  "status": "complete",
+  "description": "Build 45 remaining skills (20 operational + 25 advanced), 30 AC Python scripts (7 extraction + 10 AC + 6 bridge + 7 utility), verify all 20 safety hooks registered and firing. Complete the operator-facing tooling layer.",
+  "dependencies": [
+    "HM-REV-MS3",
+    "HM-REV-MS11"
+  ],
+  "knowledge_sources": {
+    "engines": [
+      "HyperMillStrategyEngine.ts (492 LOC)",
+      "HyperMillCycleCatalogEngine.ts (232 LOC)",
+      "HyperMillMultiAxisEngine.ts (657 LOC)",
+      "HyperMillSafetyHooks.ts (264 LOC)",
+      "HyperMillCodeGeneratorEngine.ts (982 LOC)",
+      "TribalKnowledgeEngine.ts (3,700+ tips)",
+      "MachiningPlaybookEngine.ts (296 rules)"
+    ],
+    "registries": [
+      "hookRegistry",
+      "FormulaRegistry (499 formulas)",
+      "ToolpathStrategyRegistry (762 strategies)"
+    ],
+    "services": [],
+    "physics": [
+      "src/physics/constants.ts"
+    ],
+    "reference": [
+      "hypermill-cam-tips-ext.ts (83 tips)",
+      "hypermill-cutting-tech.json",
+      "hypermill-tools.json"
+    ]
+  },
+  "forge_triple": {
+    "hook": "hypermill-hook-verification — BUILT here U-HMR68",
+    "action": "cam:hypermill_batch_script — BUILT here U-HMR66",
+    "skill": "/hypermill-post-optimize + 45 Phase 2+3 skills — BUILT here U-HMR64,U-HMR65"
+  },
+  "enforcement": {
+    "pre_level": [
+      "knowledge-consult"
+    ],
+    "post_level": [
+      "stub-detector",
+      "constants-checker"
+    ],
+    "compact_level": [
+      "review-gate",
+      "forge-triple-gate"
+    ]
+  },
+  "mcp_lifecycle": {
+    "session_start": [
+      "prism_session:context_boot",
+      "prism_session:dispatcher_map",
+      "prism_session:memory_recall",
+      "prism_session:system_snapshot"
+    ],
+    "during_work": [
+      "prism_session:auto_checkpoint (every 5-10 tool calls)",
+      "prism_session:wip_capture"
+    ],
+    "session_end": [
+      "prism_session:memory_save",
+      "prism_session:system_snapshot",
+      "prism_session:checkpoint_enhanced"
+    ]
+  },
+  "sessions": [
+    {
+      "id": "HM-REV-MS12-S1",
+      "title": "Skills Phase 2 (20 Operational) + Phase 3 (25 Advanced)",
+      "smart_config": {
+        "role": "Skill Architect + CAM Domain Expert",
+        "model": "opus",
+        "effort": "MAX",
+        "context_budget": "40%"
+      },
+      "knowledge": [
+        "HyperMillStrategyEngine.ts",
+        "HyperMillCycleCatalogEngine.ts",
+        "hypermill-cam-tips-ext.ts",
+        "TribalKnowledgeEngine.ts"
+      ],
+      "intent": "Every hyperMILL operation has a dedicated PRISM skill. Machinists can invoke /hypermill-pocket, /hypermill-impeller, /hypermill-probe-setup etc. to get physics-backed guidance.",
+      "skills": [
+        "/forge-engines",
+        "/prism-review",
+        "/checkpoint",
+        "/scope"
+      ],
+      "plugins": [
+        "Vitest MCP",
+        "ESLint MCP"
+      ],
+      "units": [
+        {
+          "id": "U-HMR64",
+          "title": "Build 20 Phase 2 operational skills",
+          "description": "Skills: pocket, contour, face-mill, bore, chamfer, rest, pencil, plunge, hsc, defaults, allowance-calc, surface-quality, impeller, blade, port, swarf, dental, 5axis-drill, turning-strategy, millturn. Each skill scaffolds from template + wires to relevant engine.",
+          "depends_on": [],
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "exit_criteria": [
+            "20 skill .md files in skills directory",
+            "Each skill references correct engine",
+            "Skill integration test: 5 representative skills produce valid output",
+            "tsc passes"
+          ],
+          "rollback": {
+            "files_created": [
+              "20 skill files in .claude/skills/"
+            ],
+            "files_modified": [],
+            "abort_criteria": [
+              "tsc errors > 0",
+              "skill output invalid"
+            ],
+            "rollback_procedure": "rm .claude/skills/hypermill-{pocket,contour,...}.md"
+          }
+        },
+        {
+          "id": "U-HMR65",
+          "title": "Build 25 Phase 3 advanced skills",
+          "description": "Skills: probe-setup, probe-validate, tool-measure, batch, gcode-check, simulate, first-part-right, cycle-time, print-to-program, setup-sheet, tips, troubleshoot, learn + 12 more. Each references appropriate engines and tribal knowledge.",
+          "depends_on": [
+            "U-HMR64"
+          ],
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "exit_criteria": [
+            "25 skill .md files created",
+            "Each references correct engine chain",
+            "5 representative skills produce valid output",
+            "tsc passes"
+          ],
+          "rollback": {
+            "files_created": [
+              "25 skill files"
+            ],
+            "files_modified": [],
+            "abort_criteria": [
+              "tsc errors > 0",
+              "skills reference nonexistent engines"
+            ],
+            "rollback_procedure": "rm advanced skill files"
+          }
+        },
+        {
+          "id": "U-HMR66",
+          "title": "Build 30 AC Python scripts",
+          "description": "7 extraction (demo.db, IM_Macro_DB, etc.), 10 AC execution (job setup, tool load, roughing, finishing, 5-axis, NC gen, batch), 6 bridge (ToolExport SQL, material sync, etc.), 7 utility (project template, backup, report, etc.). Each script generated via HyperMillCodeGeneratorEngine.",
+          "depends_on": [],
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "exit_criteria": [
+            "30 .py scripts in scripts/hypermill/",
+            "Each passes Python syntax check",
+            "cam:hypermill_batch_script action registered",
+            "5 scripts execute without error in mock mode"
+          ],
+          "rollback": {
+            "files_created": [
+              "30 .py files in scripts/hypermill/"
+            ],
+            "files_modified": [
+              "src/tools/dispatchers/camDispatcher.ts"
+            ],
+            "abort_criteria": [
+              "Python syntax errors",
+              "action not callable"
+            ],
+            "rollback_procedure": "rm -r scripts/hypermill/"
+          }
+        }
+      ],
+      "exit_gate": "✓ 45 skills created | ✓ 30 scripts created | ✓ cam:hypermill_batch_script action | ✓ tsc 0 errors | omega_floor >= 0.90",
+      "feature_cascade": {
+        "new_hooks": [],
+        "new_actions": [
+          "cam:hypermill_batch_script"
+        ],
+        "new_skills": [
+          "45 hypermill skills"
+        ],
+        "available_to": [
+          "HM-REV-MS13"
+        ]
+      },
+      "compact_checkpoint": true
+    },
+    {
+      "id": "HM-REV-MS12-S2",
+      "title": "Hook Verification + Integration Tests",
+      "smart_config": {
+        "role": "Safety Engineer + Test Architect",
+        "model": "opus",
+        "effort": "MAX",
+        "context_budget": "35%"
+      },
+      "knowledge": [
+        "HyperMillSafetyHooks.ts (264 LOC)",
+        "hookRegistry"
+      ],
+      "intent": "All 20 safety hooks verified registered and firing. Each skill produces valid output. Scripts execute without error.",
+      "skills": [
+        "/prism-review",
+        "/test",
+        "/hook-browse",
+        "/checkpoint",
+        "/scope"
+      ],
+      "plugins": [
+        "Vitest MCP",
+        "ESLint MCP"
+      ],
+      "units": [
+        {
+          "id": "U-HMR67",
+          "title": "Skill + script integration tests",
+          "description": "Build test suite verifying: (1) each of 60 skills resolves and produces structured output, (2) each of 30 scripts passes syntax validation, (3) batch execution of 5 representative workflows end-to-end.",
+          "depends_on": [
+            "U-HMR66"
+          ],
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "exit_criteria": [
+            "60/60 skills resolve",
+            "30/30 scripts pass syntax",
+            "5 batch workflows complete",
+            "tsc passes"
+          ],
+          "rollback": {
+            "files_created": [
+              "src/__tests__/hypermill-skills-scripts.test.ts"
+            ],
+            "files_modified": [],
+            "abort_criteria": [
+              "any skill fails to resolve",
+              "any script syntax error"
+            ],
+            "rollback_procedure": "rm src/__tests__/hypermill-skills-scripts.test.ts"
+          }
+        },
+        {
+          "id": "U-HMR68",
+          "title": "Hook registration verification + firing test suite",
+          "description": "Verify all 20 hyperMILL safety hooks are registered in hookExecutor AND fire when their conditions are met. Test each hook with a triggering input and verify it blocks/warns correctly.",
+          "depends_on": [
+            "U-HMR67"
+          ],
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "exit_criteria": [
+            "20/20 hooks registered",
+            "20/20 hooks fire on trigger input",
+            "Blocking hooks actually block",
+            "Warning hooks surface warnings",
+            "hypermill-hook-verification test suite green"
+          ],
+          "rollback": {
+            "files_created": [
+              "src/__tests__/hypermill-hook-verification.test.ts"
+            ],
+            "files_modified": [],
+            "abort_criteria": [
+              "any hook not registered",
+              "any hook fails to fire"
+            ],
+            "rollback_procedure": "rm src/__tests__/hypermill-hook-verification.test.ts"
+          }
+        }
+      ],
+      "exit_gate": "✓ 60 skills resolve | ✓ 30 scripts valid | ✓ 20/20 hooks fire | ✓ 5 batch workflows | ✓ tsc 0 errors | omega_floor >= 0.90 | SVI delta: +5%",
+      "feature_cascade": {
+        "new_hooks": [
+          "hypermill-hook-verification"
+        ],
+        "new_actions": [],
+        "new_skills": [],
+        "available_to": [
+          "HM-REV-MS13"
+        ]
+      },
+      "compact_checkpoint": true
+    }
+  ],
+  "total_units": 5,
+  "completed_units": 5
+}

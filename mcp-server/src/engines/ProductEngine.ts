@@ -30,6 +30,22 @@ import {
   type SurfaceFinishResult,
   type MRRResult,
 } from "./ManufacturingCalculations.js";
+import {
+  CANONICAL_KIENZLE,
+  CANONICAL_TAYLOR,
+  AISI_CUTTING_COEFFICIENTS,
+  SPINDLE_DRIVE_EFFICIENCY,
+  EXTENDED_MATERIAL_DB,
+  hrcToHb,
+  type ISOGroup,
+} from "../physics/constants.js";
+import {
+  getCoatingMaterialSpeedFactor,
+  getCoatingMaterialLifeFactor,
+  coatingIncompatibleLifeCap,
+  isCoatingMaterialIncompatible,
+} from "../physics/coating-material-speed.js";
+import { getMultipliers as getCoolantVcMultipliers, type CoolantType, type IsoGroupLabel } from "../algorithms/CoolantVcModifier.js";
 
 import {
   calculateStabilityLobes,
@@ -361,13 +377,35 @@ export interface SFCInput {
   material_hardness?: number;
   material_group?: string;
   tool_material?: string;
+  /** Tool coating (e.g. "TiAlN", "AlCrN", "DLC", "diamond"/"PCD", "uncoated"). Auto-adjusts the
+   *  published cutting speed + tool life via the material-specific coating layer
+   *  (src/physics/coating-material-speed.ts). DERATE-ONLY today: a compatible coating is a no-op;
+   *  an incompatible (coating, ISO) pair -- diamond/PCD on a ferrous workpiece -- derates Vc, caps
+   *  tool life, and raises an operator warning. The compatible-coating speed boost is a follow-on. */
+  coating?: string;
   tool_diameter?: number;
   number_of_teeth?: number;
   operation?: string;
   depth_of_cut?: number;
   width_of_cut?: number;
+  /** Aliases for depth_of_cut/width_of_cut -- the SFC web page (SfcParams) posts the cut
+   *  geometry under these shorter names. Accepted so the customer's depth/width are honored
+   *  (canonical depth_of_cut/width_of_cut still take precedence). */
+  depth?: number;
+  width?: number;
   machine_power_kw?: number;
   machine_max_rpm?: number;
+  /** Coolant delivery from the panel (flood/mist/mql/dry/air_blast). DERATE-ONLY (U-OSC-SFC-COOLANT):
+   *  a lower-than-flood coolant (dry, air_blast) LOWERS Vc + Taylor tool life via CoolantVcModifier
+   *  (algo 8.5, Sandvik/Iscar/ISO-14955 cited); flood/mist/mql are no-ops in this step (the >1.0
+   *  mist/MQL/cryo BOOST is a separate physics-reviewer-gated unit -- raising Vc raises P=Fc*Vc).
+   *  Both the Vc and the Taylor-C multiplier are clamped <=1.0. Physics-reviewer-approved 2026-07-01. */
+  coolant?: string;
+  /** Goal selector for the recommended operating point (the SFC page's "cost / balanced /
+   *  productivity" slider). Scales the canonical-band Vc/fz toward the goal: cost trades speed
+   *  for tool life (the Gilbert cost-optimum Vc sits below max-production Vc), productivity trades
+   *  tool life for MRR. Default "balanced" reproduces the prior single recommendation exactly. */
+  optimize_for?: "cost" | "balanced" | "productivity";
   tier?: ProductTier;
 }
 
@@ -454,37 +492,143 @@ export interface SFCOptimizeResult {
   iterations: number;
 }
 
-// ─── Material Hardness Lookup ───────────────────────────────────────────────
+// --- Material Identity + Canonical Coefficient Resolution -------------------
+// Material IDENTITY (representative hardness + ISO 513 machining group) is keyed
+// by grade. The Kienzle (kc1_1/mc) and Taylor (C/n) cutting CONSTANTS are NOT
+// inlined here -- they are resolved from the canonical source of truth
+// (src/physics/constants.ts) at module load, so the SFC page publishes the SAME
+// force + tool life as every other PRISM consumer. Previously these columns held
+// inline values that DIVERGED from canonical (e.g. 1045 Taylor C=250 vs the
+// ISO-3685 canonical 350 -> tool life ~4x too short on the customer-facing page).
+// Soul refuse: inline-physics-constants. CLAUDE.md: "canonical kc1.1/Taylor
+// values live ONLY in src/physics/constants.ts."
 
-const MATERIAL_HARDNESS: Record<string, { hardness: number; group: string; kc1_1: number; mc: number; C: number; n: number }> = {
-  "1045": { hardness: 200, group: "steel_medium_carbon", kc1_1: 1800, mc: 0.25, C: 250, n: 0.25 },
-  "4140": { hardness: 280, group: "steel_alloy", kc1_1: 2000, mc: 0.25, C: 220, n: 0.22 },
-  "4340": { hardness: 300, group: "steel_alloy", kc1_1: 2100, mc: 0.25, C: 200, n: 0.20 },
-  "316": { hardness: 180, group: "stainless_austenitic", kc1_1: 2100, mc: 0.21, C: 180, n: 0.20 },
-  "316L": { hardness: 170, group: "stainless_austenitic", kc1_1: 2050, mc: 0.21, C: 180, n: 0.20 },
-  "304": { hardness: 170, group: "stainless_austenitic", kc1_1: 2000, mc: 0.21, C: 190, n: 0.20 },
-  "6061": { hardness: 95, group: "aluminum_wrought", kc1_1: 700, mc: 0.30, C: 800, n: 0.30 },
-  "6061-T6": { hardness: 95, group: "aluminum_wrought", kc1_1: 700, mc: 0.30, C: 800, n: 0.30 },
-  "7075": { hardness: 150, group: "aluminum_wrought", kc1_1: 750, mc: 0.28, C: 700, n: 0.28 },
-  "7075-T6": { hardness: 150, group: "aluminum_wrought", kc1_1: 750, mc: 0.28, C: 700, n: 0.28 },
-  "A356": { hardness: 80, group: "aluminum_cast", kc1_1: 600, mc: 0.28, C: 900, n: 0.32 },
-  "Ti-6Al-4V": { hardness: 334, group: "titanium", kc1_1: 2800, mc: 0.28, C: 80, n: 0.18 },
-  "Inconel 718": { hardness: 380, group: "superalloy", kc1_1: 2800, mc: 0.22, C: 50, n: 0.15 },
-  "GG25": { hardness: 190, group: "cast_iron_gray", kc1_1: 1100, mc: 0.28, C: 300, n: 0.25 },
-  "GGG50": { hardness: 220, group: "cast_iron_ductile", kc1_1: 1300, mc: 0.26, C: 280, n: 0.24 },
-  "C360": { hardness: 80, group: "copper_brass", kc1_1: 550, mc: 0.32, C: 600, n: 0.30 },
-  "PEEK": { hardness: 100, group: "plastic_engineering", kc1_1: 250, mc: 0.35, C: 1000, n: 0.35 },
+const MATERIAL_IDENTITY: Record<string, { hardness: number; group: string }> = {
+  "1045": { hardness: 200, group: "steel_medium_carbon" },
+  "4140": { hardness: 280, group: "steel_alloy" },
+  "4340": { hardness: 300, group: "steel_alloy" },
+  "316": { hardness: 180, group: "stainless_austenitic" },
+  "316L": { hardness: 170, group: "stainless_austenitic" },
+  "304": { hardness: 170, group: "stainless_austenitic" },
+  "6061": { hardness: 95, group: "aluminum_wrought" },
+  "6061-T6": { hardness: 95, group: "aluminum_wrought" },
+  "7075": { hardness: 150, group: "aluminum_wrought" },
+  "7075-T6": { hardness: 150, group: "aluminum_wrought" },
+  "A356": { hardness: 80, group: "aluminum_cast" },
+  "Ti-6Al-4V": { hardness: 334, group: "titanium" },
+  "Inconel 718": { hardness: 380, group: "superalloy" },
+  "GG25": { hardness: 190, group: "cast_iron_gray" },
+  "GGG50": { hardness: 220, group: "cast_iron_ductile" },
+  "C360": { hardness: 80, group: "copper_brass" },
+  "PEEK": { hardness: 100, group: "plastic_engineering" },
 };
+
+// Grade key -> AISI_CUTTING_COEFFICIENTS key for grades whose canonical catalog
+// name differs (cast irons). Temper/condition variants ("6061-T6", "316L",
+// "7075-T651") are normalized by the strip in canonicalCoefficients(); exact
+// grade matches ("1045","4140","316","6061","Ti-6Al-4V","Inconel 718") need no
+// entry. Grades absent from the per-material AISI table (A356/C360/PEEK) fall
+// back to the per-ISO CANONICAL_KIENZLE/CANONICAL_TAYLOR bucket (sourced, coarser).
+const GRADE_TO_AISI: Record<string, string> = {
+  GG25: "gray_iron",
+  GGG50: "ductile_iron",
+};
+
+/**
+ * Resolve canonical Kienzle (kc1_1/mc) + Taylor (C/n) coefficients for a grade.
+ * Precedence mirrors buildMaterialPhysics() in constants.ts: per-material
+ * AISI_CUTTING_COEFFICIENTS override (exact key -> named alias -> temper-stripped
+ * key) THEN per-ISO CANONICAL_KIENZLE / CANONICAL_TAYLOR fallback. No inline
+ * physics constants -- every number traces to src/physics/constants.ts.
+ *
+ * @param gradeKey  Material grade ("1045","6061-T6","GG25"); "" forces per-ISO.
+ * @param iso       ISO 513 machining group for the per-ISO fallback.
+ * @returns         { kc1_1, mc, C, n } sourced from canonical constants.
+ */
+function canonicalCoefficients(
+  gradeKey: string,
+  iso: ISOGroup,
+): { kc1_1: number; mc: number; C: number; n: number } {
+  const stripped = gradeKey.replace(/[-\s]?T\d.*$/i, "").replace(/L$/, "");
+  const aisi =
+    AISI_CUTTING_COEFFICIENTS[gradeKey] ??
+    AISI_CUTTING_COEFFICIENTS[GRADE_TO_AISI[gradeKey] ?? ""] ??
+    AISI_CUTTING_COEFFICIENTS[stripped];
+  const kienzle = CANONICAL_KIENZLE[iso];
+  const taylor = CANONICAL_TAYLOR[iso];
+  return {
+    kc1_1: aisi?.kc1_1 ?? kienzle.kc1_1,
+    mc: aisi?.mc ?? kienzle.mc,
+    C: aisi?.taylor_C ?? taylor.C,
+    n: aisi?.taylor_n ?? taylor.n,
+  };
+}
+
+// Compose identity + canonical coefficients at module load. The shape is
+// preserved ({hardness, group, kc1_1, mc, C, n}) so every existing
+// MATERIAL_HARDNESS consumer is unaffected; only the (previously inline,
+// divergent) coefficient VALUES change to canonical.
+const MATERIAL_HARDNESS: Record<
+  string,
+  { hardness: number; group: string; kc1_1: number; mc: number; C: number; n: number }
+> = Object.fromEntries(
+  Object.entries(MATERIAL_IDENTITY).map(([grade, id]) => {
+    const coeff = canonicalCoefficients(grade, groupToISO(id.group));
+    return [grade, { hardness: id.hardness, group: id.group, ...coeff }];
+  }),
+);
 
 // ─── SFC Engine Functions ───────────────────────────────────────────────────
 
+// Common material CATEGORY names (as a UI dropdown / external API caller may send
+// them) -> a representative grade in MATERIAL_HARDNESS. Without this, "stainless"
+// (etc.) miss the grade table and silently fall back to medium-carbon STEEL --
+// the exact material-blind defect this resolves (a category caller would get steel
+// speeds/feeds for stainless/aluminium/titanium).
+const MATERIAL_CATEGORY_ALIASES: Record<string, string> = {
+  "steel": "1045", "carbonsteel": "1045", "carbon steel": "1045", "mildsteel": "1045",
+  "alloysteel": "4140", "alloy steel": "4140",
+  "stainless": "316", "stainlesssteel": "316", "stainless steel": "316",
+  "aluminum": "6061", "aluminium": "6061", "alu": "6061",
+  "titanium": "Ti-6Al-4V", "ti": "Ti-6Al-4V",
+  "superalloy": "Inconel 718", "inconel": "Inconel 718", "nickel": "Inconel 718",
+  "castiron": "GG25", "cast iron": "GG25", "grayiron": "GG25",
+  "brass": "C360", "copper": "C360", "bronze": "C360",
+};
+
 function resolveMaterial(material?: string, hardness?: number, group?: string) {
-  const key = material?.replace(/\s+/g, "") ?? "";
-  const lookup = MATERIAL_HARDNESS[key] ?? MATERIAL_HARDNESS[material ?? ""] ?? null;
+  // Normalize separators so underscore/space/no-space category names ALL resolve to the
+  // same alias (e.g. "stainless_steel" == "stainless steel" == "stainlesssteel"). Without
+  // this, the underscore form (common in frontend enum ids like "stainless_steel",
+  // "cast_iron") matched neither the spaced nor the tight alias key and silently fell
+  // through to the P-steel fallback -- a dangerous OVER-SPEED on M/K/N/S materials
+  // (+50% on stainless). DEFECT-A fix (SFC math-accuracy audit 2026-06-28).
+  const raw = (material ?? "").trim();
+  const norm = raw.toLowerCase();
+  const normSpace = norm.replace(/[\s_]+/g, " ");
+  const normTight = norm.replace(/[\s_]+/g, "");
+  const key = raw.replace(/[\s_]+/g, "");
+  const aliasKey =
+    MATERIAL_CATEGORY_ALIASES[normSpace] ??
+    MATERIAL_CATEGORY_ALIASES[normTight] ??
+    MATERIAL_CATEGORY_ALIASES[norm] ??
+    "";
+  const lookup = MATERIAL_HARDNESS[key] ?? MATERIAL_HARDNESS[material ?? ""] ?? MATERIAL_HARDNESS[aliasKey] ?? null;
+
+  // R1 hardness-unit guard (SFC math-accuracy audit 2026-06-28): the live SfcCalculatorPage
+  // sends ONE unlabeled hardness number. A value at/below the Rockwell-C scale ceiling (<=70)
+  // is impossible as Brinell (the softest machinable metal is ~80 HB) -> it is HRC; convert it
+  // to HB via the canonical hrcToHb. SAFE-DIRECTION: conversion RAISES hardness (55 -> 560 HB)
+  // -> harder -> SLOWER speed, so it errs safe even in the 70-80 ambiguous band. Without this,
+  // "55" meant as 55 HRC read as 55 HB = +47% over-speed into hardened steel from one keystroke.
+  const HRC_SCALE_CEILING = 70; // Rockwell C scale max; below every real machinable Brinell value
+  const resolvedHardness = (typeof hardness === "number" && hardness > 0 && hardness <= HRC_SCALE_CEILING)
+    ? hrcToHb(hardness)
+    : hardness;
 
   if (lookup) {
     return {
-      hardness: hardness ?? lookup.hardness,
+      hardness: resolvedHardness ?? lookup.hardness,
       group: group ?? lookup.group,
       kc1_1: lookup.kc1_1,
       mc: lookup.mc,
@@ -495,17 +639,67 @@ function resolveMaterial(material?: string, hardness?: number, group?: string) {
     };
   }
 
-  // Fallback: use provided hardness or default medium carbon steel
+  // EXTENDED registry layer (2,746 MaterialRegistry materials) BEFORE the
+  // P-steel fallback: a named grade the curated MATERIAL_HARDNESS table +
+  // category aliases miss (e.g. "Inconel 625", "Nitronic 60", "Hastelloy C-276",
+  // "17-4PH") now resolves to its real registry physics instead of silently
+  // defaulting to P-steel -- the exact material-blind fallback that priced a
+  // nickel superalloy as plain steel. kc1.1/mc/Taylor are derived by the same
+  // canonical buildMaterialPhysics pipeline as constants.ts (never inlined); the
+  // bare iso_group letter is groupToISO-safe (a P/M/K/N/S/H letter maps to itself).
+  const ext = EXTENDED_MATERIAL_DB[normSpace] ?? EXTENDED_MATERIAL_DB[norm] ?? EXTENDED_MATERIAL_DB[normTight];
+  if (ext) {
+    return {
+      hardness: resolvedHardness ?? ext.hardness_HB ?? 200,
+      group: group ?? ext.iso_group,
+      kc1_1: ext.kc1_1,
+      mc: ext.mc,
+      C: ext.taylor_C,
+      n: ext.taylor_n,
+      name: material ?? raw,
+      resolved: true,
+    };
+  }
+
+  // Fallback: unknown material -> canonical P-group (steel) coefficients, hardness
+  // from the caller or a medium-carbon default. No inline kc1.1/Taylor here -- the
+  // per-ISO canonical bucket supplies them (e.g. Taylor C=350 for P, not 250).
+  const fallbackGroup = group ?? "steel_medium_carbon";
+  const fb = canonicalCoefficients("", groupToISO(fallbackGroup));
   return {
-    hardness: hardness ?? 200,
-    group: group ?? "steel_medium_carbon",
-    kc1_1: 1800,
-    mc: 0.25,
-    C: 250,
-    n: 0.25,
+    hardness: resolvedHardness ?? 200,
+    group: fallbackGroup,
+    kc1_1: fb.kc1_1,
+    mc: fb.mc,
+    C: fb.C,
+    n: fb.n,
     name: material ?? "unknown",
     resolved: false,
   };
+}
+
+/**
+ * Map a resolved material GROUP string (e.g. "stainless_austenitic",
+ * "aluminum_wrought") to its ISO 513 machining group (P/M/K/N/S/H) so the
+ * speed/feed model can anchor on the canonical per-group milling tables.
+ * Order matters: the more specific groups (stainless, tool/hardened steel) are
+ * tested before the generic "steel" catch-all. Defaults to P (steel) for an
+ * unknown group -- the most conservative speed/feed bucket for an unknown metal.
+ */
+function groupToISO(group: string): ISOGroup {
+  const g = (group ?? "").toLowerCase();
+  // A bare ISO 513 letter (P/M/K/N/S/H) -- as the frontend iso_group enum sends it --
+  // must map to itself; without this, N/S/H/M/K all hit the "P" default below =
+  // wrong (over-)speed for non-steel groups. DEFECT-A2 fix (SFC audit 2026-06-28).
+  const up = (group ?? "").trim().toUpperCase();
+  if (up === "P" || up === "M" || up === "K" || up === "N" || up === "S" || up === "H") return up as ISOGroup;
+  if (g.includes("stainless")) return "M";
+  if (g.includes("hardened") || g.includes("tool_steel") || g.includes("tool-steel")) return "H";
+  if (g.includes("cast_iron") || g.includes("iron")) return "K";
+  if (g.includes("titanium") || g.includes("superalloy") || g.includes("inconel") || g.includes("nickel")) return "S";
+  if (g.includes("alumin") || g.includes("copper") || g.includes("brass") || g.includes("bronze") || g.includes("magnesium") || g.includes("plastic")) return "N";
+  if (g.includes("steel")) return "P";
+  return "P";
 }
 
 function calculateSafetyScore(
@@ -553,13 +747,27 @@ function calculateSafetyScore(
     warnings.push(`Width of cut ${ae.toFixed(1)} mm > tool diameter — full slot`);
   }
 
-  // Power check
-  if (machinePower && power > machinePower * 0.95) {
+  // Power check -- the spindle MOTOR must supply the cutting power Pc PLUS drivetrain
+  // (belt/gear/bearing) losses, so the real demand is P_spindle = Pc / eta_drive.
+  // `power` here is the CUTTING power (Fc*Vc/60000). Comparing raw Pc to the rated
+  // spindle power is ~1/eta too LENIENT (a 95%-cutting cut actually draws ~112% of
+  // spindle) and under-protects against stall, so we compare the efficiency-corrected
+  // spindle draw. SPINDLE_DRIVE_EFFICIENCY is canonical (constants.ts) -- never inline.
+  const spindlePower = power / SPINDLE_DRIVE_EFFICIENCY;
+  if (machinePower && spindlePower > machinePower * 1.5) {
+    // Severe over-power (>150%): no feed/depth trim recovers this -- the spindle
+    // stalls hard. -0.8 from a 1.0 base forces score < the 0.4 "danger" threshold.
+    score -= 0.8;
+    warnings.push(`Spindle draw ${spindlePower.toFixed(1)} kW (cutting ${power.toFixed(1)} kW / ${SPINDLE_DRIVE_EFFICIENCY} drive eff) is ${((spindlePower / machinePower) * 100).toFixed(0)}% of machine spindle ${machinePower.toFixed(1)} kW -- SEVERE over-power, reduce depth/width or use a larger machine`);
+  } else if (machinePower && spindlePower > machinePower) {
+    score -= 0.5;
+    warnings.push(`Spindle draw ${spindlePower.toFixed(1)} kW (cutting ${power.toFixed(1)} kW / ${SPINDLE_DRIVE_EFFICIENCY} drive eff) EXCEEDS machine spindle ${machinePower.toFixed(1)} kW (${((spindlePower / machinePower) * 100).toFixed(0)}%) -- spindle will stall`);
+  } else if (machinePower && spindlePower > machinePower * 0.95) {
     score -= 0.3;
-    warnings.push(`Required power ${power.toFixed(1)} kW at ${((power / machinePower) * 100).toFixed(0)}% of machine capacity`);
-  } else if (machinePower && power > machinePower * 0.80) {
+    warnings.push(`Spindle draw ${spindlePower.toFixed(1)} kW at ${((spindlePower / machinePower) * 100).toFixed(0)}% of machine capacity (cutting ${power.toFixed(1)} kW / ${SPINDLE_DRIVE_EFFICIENCY} drive eff)`);
+  } else if (machinePower && spindlePower > machinePower * 0.80) {
     score -= 0.1;
-    warnings.push(`Power usage at ${((power / machinePower) * 100).toFixed(0)}% of machine capacity — consider reducing`);
+    warnings.push(`Spindle draw at ${((spindlePower / machinePower) * 100).toFixed(0)}% of machine capacity -- consider reducing`);
   }
 
   // Force check
@@ -579,6 +787,88 @@ function mapOperation(op: string): "roughing" | "finishing" | "semi-finishing" {
   return "roughing"; // milling, drilling, turning, etc. default to roughing
 }
 
+/**
+ * optimize_for goal scalers for the SFC recommended operating point. These are PRODUCT-POLICY
+ * tuning knobs (NOT physics constants -- Kienzle/Taylor/material values live in physics/constants.ts),
+ * bounded to +/-15% so the goal-shifted Vc/fz stay inside the canonical material band; the existing
+ * safety scoring still runs on the result and flags/clamps anything that crosses a machine limit.
+ *   - cost:         lower Vc -> super-linear tool-life gain (Taylor T=(C/Vc)^(1/n)) -> fewer tool
+ *                   changes / lower cost-per-part (classic Gilbert cost-optimum < max-production Vc).
+ *   - balanced:     identity -- reproduces the prior single recommendation byte-for-byte.
+ *   - productivity: higher Vc + modest higher fz -> higher MRR (parts/hour) at shorter tool life.
+ * Analogous to the G-Wizard / HSMAdvisor "conservative <-> aggressive" tool-engagement slider.
+ */
+const SFC_GOAL_SCALERS: Record<"cost" | "balanced" | "productivity", { vc: number; fz: number }> = {
+  cost: { vc: 0.85, fz: 1.0 },
+  balanced: { vc: 1.0, fz: 1.0 },
+  productivity: { vc: 1.15, fz: 1.1 },
+};
+
+/**
+ * Normalize a free-text tool coating to the `COATING_ISO_SPEED_OVERRIDE` key set
+ * (diamond / DLC / AlCrN / TiAlN / AlTiN). Only coatings with a material-specific override cell need
+ * an exact key; every other coating falls through to a neutral 1.0 factor (no-op). Diamond synonyms
+ * (PCD) MUST map so the diamond-on-ferrous incompatibility fires. Returns undefined for empty input.
+ */
+function normalizeCoatingKey(coating: string | undefined | null): string | undefined {
+  if (!coating) return undefined;
+  const c = coating.toLowerCase().replace(/[\s_-]/g, "");
+  if (c.includes("diamond") || c.includes("pcd")) return "diamond";
+  if (c.includes("dlc")) return "DLC";
+  if (c.includes("alcrn")) return "AlCrN";
+  if (c.includes("altin")) return "AlTiN";
+  if (c.includes("tialn")) return "TiAlN";
+  return coating.trim();
+}
+
+// Panel coolant label -> CoolantVcModifier CoolantType. air_blast maps to dry (no lubricating film),
+// mql -> MQL. cryogenic is not a panel option. Same panel->algo mapping UltimateSpeedFeedEngine uses.
+const COOLANT_ALGO_MAP: Record<string, CoolantType> = {
+  flood: "flood", mist: "mist", mql: "MQL", dry: "dry", air_blast: "dry",
+};
+
+/**
+ * Coating + coolant tooling DERATE FACTORS for a resolved material/ISO context -- the SINGLE
+ * source of truth shared by sfcCalculate, sfcCompare, and sfcOptimize so every SFC surface applies
+ * IDENTICAL physics. Without it, compare/optimize silently over-state speed + tool life vs the
+ * calculator (the arm-C divergence, U-OSC-SFC-DERATE-PARITY). All factors are DERATE-ONLY (<=1.0);
+ * a compatible/absent coating and flood/mist/mql coolant all resolve to 1.0 (no-op).
+ *  - coatingSpeedFactor / coolantVcFactor : multiply Vc (P = Fc*Vc falls, Kienzle force unchanged).
+ *  - coolantCFactor : PRE-SCALE the Taylor constant C (life ~ C^(1/n), NOT linear), so a lowered Vc
+ *    does not over-state tool life (physics-reviewer-approved 2026-07-01).
+ *  - coatingLifeFactor / coatingLifeCap : derate + cap life on an INCOMPATIBLE (coating,ISO) pair
+ *    (diamond/PCD on ferrous) whose chemical/crater wear a lower Vc does not arrest.
+ * @param params SFC input carrying the panel coating + coolant selections.
+ * @param isoGroup resolved ISO 513 group of the workpiece material.
+ * @returns the six derate factors, each already clamped/neutralised for safe multiplication.
+ */
+function sfcToolingDerates(
+  params: SFCInput,
+  isoGroup: ISOGroup,
+): {
+  coatingSpeedFactor: number;
+  coolantVcFactor: number;
+  coolantCFactor: number;
+  coatingLifeFactor: number;
+  coatingLifeCap: number;
+  coolantKey: CoolantType | undefined;
+} {
+  const coatingKey = normalizeCoatingKey(params.coating);
+  const coatingSpeedFactor = getCoatingMaterialSpeedFactor(coatingKey, 1.0, isoGroup);
+  const coatingLifeFactor = getCoatingMaterialLifeFactor(coatingKey, 1.0, isoGroup);
+  const coatingLifeCap = coatingIncompatibleLifeCap(coatingKey, isoGroup);
+
+  let coolantVcFactor = 1;
+  let coolantCFactor = 1;
+  const coolantKey = COOLANT_ALGO_MAP[(params.coolant ?? "").toLowerCase()];
+  if (coolantKey) {
+    const cm = getCoolantVcMultipliers({ iso_group: isoGroup as IsoGroupLabel, coolant: coolantKey });
+    coolantVcFactor = Math.min(1, cm.vc_multiplier.value);
+    coolantCFactor = Math.min(1, cm.taylor_C_multiplier.value);
+  }
+  return { coatingSpeedFactor, coolantVcFactor, coolantCFactor, coatingLifeFactor, coatingLifeCap, coolantKey };
+}
+
 function sfcCalculate(params: SFCInput): { result: SFCResult } | { error: string } {
   const startTime = Date.now();
   const tier = params.tier ?? "pro";
@@ -591,22 +881,92 @@ function sfcCalculate(params: SFCInput): { result: SFCResult } | { error: string
   const toolDiam = params.tool_diameter ?? 12;
   const numTeeth = params.number_of_teeth ?? 4;
   const operation = params.operation ?? "milling";
-  const ap = params.depth_of_cut ?? toolDiam * 0.5;
-  const ae = params.width_of_cut ?? toolDiam * 0.5;
+  // Accept the SFC web page's shorter `depth`/`width` field names as aliases for
+  // depth_of_cut/width_of_cut (canonical wins) -- the page posted depth/width, which were
+  // previously dropped so every page result was computed at the toolDiam*0.5 default.
+  const ap = params.depth_of_cut ?? params.depth ?? toolDiam * 0.5;
+  const ae = params.width_of_cut ?? params.width ?? toolDiam * 0.5;
 
-  // 1. Speed & Feed
+  // R12 input guards (SFC math-accuracy audit DEFECT G/H, 2026-06-28): reject physically
+  // impossible user inputs BEFORE the calc so they never publish a nonsense result. Without
+  // these, number_of_teeth=-4 -> negative feed/MRR; =Infinity -> Infinity feed; ap/ae=Infinity
+  // flowed in silently-clamped. Only EXPLICIT bad values are rejected -- omitted fields keep
+  // their positive defaults, so valid calls + the existing default path are unaffected. The
+  // {error} envelope is surfaced to the UI exactly like the other safety blocks.
+  if (!Number.isFinite(toolDiam) || toolDiam <= 0)
+    return { error: `tool_diameter must be a positive finite number (got ${params.tool_diameter})` };
+  if (!Number.isFinite(numTeeth) || numTeeth <= 0 || !Number.isInteger(numTeeth))
+    return { error: `number_of_teeth must be a positive whole number (got ${params.number_of_teeth})` };
+  if (!Number.isFinite(ap) || ap <= 0)
+    return { error: `depth of cut must be a positive finite number (got ${params.depth_of_cut ?? params.depth})` };
+  if (!Number.isFinite(ae) || ae <= 0)
+    return { error: `width of cut must be a positive finite number (got ${params.width_of_cut ?? params.width})` };
+
+  // 1. Speed & Feed -- pass the ISO 513 group so the engine uses the canonical
+  // per-group milling tables (material-aware Vc + chip load) instead of the
+  // material-blind legacy fallback.
   const sfResult: SpeedFeedResult = calculateSpeedFeed({
     material_hardness: mat.hardness,
     tool_material: toolMat as SpeedFeedInput["tool_material"],
     operation: mapOperation(operation),
     tool_diameter: toolDiam,
     number_of_teeth: numTeeth,
+    iso_group: groupToISO(mat.group),
   });
 
-  const vc = sfResult.cutting_speed;
-  const fz = sfResult.feed_per_tooth;
-  const rpm = sfResult.spindle_speed;
-  const vf = sfResult.feed_rate;
+  let vc = sfResult.cutting_speed;
+  let fz = sfResult.feed_per_tooth;
+  let rpm = sfResult.spindle_speed;
+  let vf = sfResult.feed_rate;
+
+  // Goal-aware operating point (optimize_for): scale the canonical-band Vc/fz toward the
+  // selected goal BEFORE the machine clamp + force/tool-life/MRR/safety calc, so every
+  // downstream number reflects the goal. "balanced" is the identity (prior behavior preserved).
+  const goalScaler = SFC_GOAL_SCALERS[params.optimize_for ?? "balanced"] ?? SFC_GOAL_SCALERS.balanced;
+  if (goalScaler.vc !== 1 || goalScaler.fz !== 1) {
+    vc = vc * goalScaler.vc;
+    fz = fz * goalScaler.fz;
+    rpm = (1000 * vc) / (Math.PI * toolDiam);
+    vf = fz * numTeeth * rpm;
+  }
+
+  // Tooling factor -- COATING cutting-speed adjustment (U-OSC-SFC-COATING-CUSTOMER-WIRE). Reuses the
+  // already-physics-reviewed src/physics/coating-material-speed.ts (commit 2ce6a47af). DERATE-ONLY:
+  // baseScalar=1.0 (neutral) so a COMPATIBLE (coating, ISO) pair is a no-op -- never double-counts
+  // calculateSpeedFeed's coating-agnostic Vc -- and only an INCOMPATIBLE / reduced-benefit pair LOWERS
+  // Vc (monotonically safe: lowering Vc also lowers P = Fc*Vc). The compatible-coating speed BOOST
+  // (CoatingRegistry baseline + TiAlN normalization) is a separate physics-reviewer-gated unit.
+  const coatingKey = normalizeCoatingKey(params.coating);
+  const isoGroup = groupToISO(mat.group) as ISOGroup;
+  // Coating + coolant derates via the shared single-source helper (sfcToolingDerates) so this
+  // customer path, sfcCompare, and sfcOptimize all apply IDENTICAL physics. DERATE-ONLY (<=1.0).
+  const derates = sfcToolingDerates(params, isoGroup);
+  const { coatingSpeedFactor, coolantVcFactor, coolantCFactor } = derates;
+  if (coatingSpeedFactor !== 1) {
+    vc = vc * coatingSpeedFactor;
+    rpm = (1000 * vc) / (Math.PI * toolDiam);
+    vf = fz * numTeeth * rpm;
+  }
+  // COOLANT Vc derate (recompute rpm/vf; Kienzle Fc is Vc-independent so power falls, force
+  // unchanged). The matching C derate is applied by PRE-SCALING mat.C into the Taylor call below
+  // (life ~ C^(1/n), NOT linear); deriding Vc without it would OVER-state tool life.
+  if (coolantVcFactor < 1) {
+    vc = vc * coolantVcFactor;
+    rpm = (1000 * vc) / (Math.PI * toolDiam);
+    vf = fz * numTeeth * rpm;
+  }
+
+  // Clamp to the machine spindle ceiling: an SFC product must NEVER recommend an
+  // rpm the spindle cannot reach (the old code only warned + reported the
+  // impossible rpm). Clamp rpm, then rescale Vc and table feed so the identities
+  // Vc = pi*D*rpm/1000 and vf = rpm*fz*teeth stay self-consistent.
+  let rpmClamped = false;
+  if (params.machine_max_rpm && rpm > params.machine_max_rpm) {
+    rpm = params.machine_max_rpm;
+    vc = (Math.PI * toolDiam * rpm) / 1000;
+    vf = fz * numTeeth * rpm;
+    rpmClamped = true;
+  }
 
   // 2. Cutting Force (Kienzle)
   const forceResult: CuttingForceResult = calculateKienzleCuttingForce(
@@ -622,17 +982,34 @@ function sfcCalculate(params: SFCInput): { result: SFCResult } | { error: string
   );
 
   // 3. Tool Life (Taylor)
+  // Coolant C-derate: pre-scale the Taylor constant by the (clamped <=1.0) coolant Taylor-C multiplier
+  // so published tool life falls by kC^(1/n) through the existing (C/Vc)^(1/n) math (physics-reviewer-
+  // approved 2026-07-01). This is what stops dry/air_blast from OVER-stating life once Vc is lowered.
   const taylorResult: ToolLifeResult = calculateTaylorToolLife(
     vc,
-    { C: mat.C, n: mat.n, material_id: mat.name },
+    { C: mat.C * coolantCFactor, n: mat.n, material_id: mat.name },
     fz,
     ap,
   );
 
+  // Coating tool-LIFE: an INCOMPATIBLE pair (diamond/PCD on ferrous) suffers chemical/crater wear that
+  // a lower Vc does NOT arrest, so Taylor's (C/Vc)^(1/n) would OVER-state life on the exact wrong-tool
+  // pair the speed layer just derated. Apply the material-specific life factor + absolute incompatibility
+  // cap from coating-material-speed.ts -- DERATE-ONLY, so published tool life can only fall, never claim
+  // a physically impossible long life on a wrong-tool-for-material pair.
+  let toolLifeMin = taylorResult.tool_life_minutes;
+  toolLifeMin = toolLifeMin * derates.coatingLifeFactor;
+  const coatingLifeCap = derates.coatingLifeCap;
+  if (Number.isFinite(coatingLifeCap)) toolLifeMin = Math.min(toolLifeMin, coatingLifeCap);
+
   // 4. Surface Finish
   const noseRadius = toolDiam > 6 ? 0.8 : 0.4;
+  // Brammertz feed-direction Ra = f^2/(32*r) takes the per-TOOTH feed (fz) for milling
+  // (each tooth leaves the cusp), NOT the per-rev feed fz*numTeeth -- passing fz*numTeeth
+  // inflated Ra by numTeeth^2 (~16x for 4 flutes -> an absurd ~100 um). Every other caller
+  // (IntelligenceEngine, the prism_calc:surface_finish panel) correctly passes fz.
   const raResult: SurfaceFinishResult = calculateSurfaceFinish(
-    fz * numTeeth, noseRadius, true, ae, toolDiam, operation,
+    fz, noseRadius, true, ae, toolDiam, operation,
   );
 
   // 5. MRR
@@ -651,15 +1028,44 @@ function sfcCalculate(params: SFCInput): { result: SFCResult } | { error: string
     forceResult.power, params.machine_power_kw, forceResult.Fc,
   );
 
-  // RPM machine limit check
-  if (params.machine_max_rpm && rpm > params.machine_max_rpm) {
-    safety.warnings.push(`Calculated RPM ${rpm} exceeds machine max ${params.machine_max_rpm}`);
-    safety.score = Math.max(0, safety.score - 0.15);
+  // RPM machine limit: rpm was already CLAMPED to the spindle ceiling above (so we
+  // never report an unreachable rpm). If a clamp happened, inform the operator the
+  // optimal Vc could not be reached on this machine -- advisory, not a safety fault.
+  if (rpmClamped) {
+    safety.warnings.push(`Optimal RPM exceeded machine max ${params.machine_max_rpm}; clamped to ${Math.round(rpm)} rpm (Vc reduced to ${Math.round(vc)} m/min -- use a higher-rpm spindle for full speed)`);
   }
 
   // Material resolution warning
   if (!mat.resolved) {
     safety.warnings.push(`Material "${params.material}" not in product database — using defaults`);
+  }
+
+  // Coating-material compatibility warning (distinct from the speed derate): a carbon-diffusion
+  // incompatible pair (diamond/PCD on a ferrous workpiece) is a do-not-recommend, not merely slow.
+  if (isCoatingMaterialIncompatible(coatingKey, isoGroup)) {
+    safety.warnings.push(`Coating "${params.coating}" is incompatible with a ferrous workpiece (carbon diffusion -> rapid chemical/crater wear) -- select a PVD/CVD carbide grade. Cutting speed derated and tool life capped.`);
+  } else if (coatingSpeedFactor < 1) {
+    safety.warnings.push(`Coating "${params.coating}" has reduced benefit on ISO ${isoGroup}; cutting speed derated to ${Math.round(coatingSpeedFactor * 100)}% of the coating-agnostic value.`);
+  }
+
+  // Coolant derate advisory: a lower-than-flood coolant reduces the published Vc and/or tool life.
+  if (coolantVcFactor < 1 || coolantCFactor < 1) {
+    safety.warnings.push(`Coolant "${params.coolant}" derates vs a flood baseline on ISO ${isoGroup}: cutting speed to ${Math.round(coolantVcFactor * 100)}% and the Taylor tool-life constant to ${Math.round(coolantCFactor * 100)}% -- use flood for full speed + tool life.`);
+  }
+
+  // Tooling factor -- CHIP-THINNING advisory (U-OSC-SFC-CHIPTHIN-ADVISORY). Below 50% radial
+  // engagement (ae < D/2) the actual chip is thinner than the programmed fz, so the tool rubs
+  // instead of cutting (work-hardening, poor finish + short tool life). Reuse the already
+  // physics-reviewer-adjudicated calculateEngagementAngle (Altintas "Manufacturing Automation" 2e)
+  // to surface the radial-engagement %, the mean chip thickness, and a chip-thinning feed-
+  // compensation suggestion. ADVISORY ONLY: adds a warning string, does NOT change vc/fz/force/
+  // MRR/safety -- the auto-fz raise is force-affecting and is a separate physics-reviewer-gated
+  // unit. Monotonically safe. The ae = D/2 default (full radial) is >= 50% -> no advisory (no spam).
+  const engagement = calculateEngagementAngle(toolDiam, ae, fz, true, vc);
+  if (engagement.radial_engagement_percent < 50) {
+    const chipThinFactor = vc > 0 ? engagement.effective_cutting_speed / vc : 1;
+    const compensatedFz = Math.round(fz * chipThinFactor * 1000) / 1000;
+    safety.warnings.push(`Radial engagement ${engagement.radial_engagement_percent}% (< 50%, ae ${ae.toFixed(2)} / D ${toolDiam} mm) causes chip thinning: mean chip ${engagement.average_chip_thickness} mm is below the programmed ${fz.toFixed(3)} mm/tooth (rubbing / work-hardening risk). To restore the target chip load, apply chip-thinning feed compensation ~${chipThinFactor.toFixed(2)}x (fz ${fz.toFixed(3)} -> ${compensatedFz} mm/tooth). Advisory -- the SFC does not auto-raise feed (physics-reviewer-gated).`);
   }
 
   // 7. Uncertainty bounds
@@ -674,8 +1080,8 @@ function sfcCalculate(params: SFCInput): { result: SFCResult } | { error: string
       Math.round(forceResult.Fc * (1 + uncertaintyFactor)),
     ] as [number, number],
     tool_life_range: [
-      Math.round(taylorResult.tool_life_minutes * (1 - uncertaintyFactor * 1.5)),
-      Math.round(taylorResult.tool_life_minutes * (1 + uncertaintyFactor * 1.5)),
+      Math.round(toolLifeMin * (1 - uncertaintyFactor * 1.5)),
+      Math.round(toolLifeMin * (1 + uncertaintyFactor * 1.5)),
     ] as [number, number],
     surface_roughness_range: [
       Math.round(raResult.Ra * (1 - uncertaintyFactor) * 100) / 100,
@@ -722,7 +1128,7 @@ function sfcCalculate(params: SFCInput): { result: SFCResult } | { error: string
     power_kW: Math.round(forceResult.power * 100) / 100,
     torque_Nm: Math.round(forceResult.torque * 100) / 100,
     specific_cutting_force_N_mm2: Math.round(forceResult.specific_force),
-    tool_life_min: taylorResult.tool_life_minutes,
+    tool_life_min: toolLifeMin,
     optimal_speed_m_min: taylorResult.optimal_speed ?? vc,
     surface_roughness_Ra_um: Math.round(ra * 100) / 100,
     surface_finish_grade: sfGrade,
@@ -745,8 +1151,14 @@ function sfcCompare(params: SFCInput): { result: SFCCompareResult } | { error: s
   const mat = resolveMaterial(params.material, params.material_hardness, params.material_group);
   const toolDiam = params.tool_diameter ?? 12;
   const numTeeth = params.number_of_teeth ?? 4;
-  const ap = params.depth_of_cut ?? toolDiam * 0.5;
-  const ae = params.width_of_cut ?? toolDiam * 0.5;
+  const ap = params.depth_of_cut ?? params.depth ?? toolDiam * 0.5;
+  const ae = params.width_of_cut ?? params.width ?? toolDiam * 0.5;
+
+  // Tooling derates (coating + coolant) -- shared with sfcCalculate/sfcOptimize so the compare
+  // surface publishes the SAME derated speed + tool life the calculator does (arm-C divergence fix).
+  const isoGroup = groupToISO(mat.group) as ISOGroup;
+  const derates = sfcToolingDerates(params, isoGroup);
+  const vcFactor = derates.coatingSpeedFactor * derates.coolantVcFactor;
 
   const toolMaterials = ["Carbide", "HSS", "Ceramic"];
   const approaches: SFCCompareResult["approaches"] = [];
@@ -758,11 +1170,16 @@ function sfcCompare(params: SFCInput): { result: SFCCompareResult } | { error: s
       operation: mapOperation(params.operation ?? "milling"),
       tool_diameter: toolDiam,
       number_of_teeth: numTeeth,
+      iso_group: groupToISO(mat.group),
     });
+
+    // Apply the shared coating+coolant Vc derate so every compared tool material is scored in the
+    // same derated frame the calculator publishes (fz is unaffected by coolant/coating).
+    const vc = sf.cutting_speed * vcFactor;
 
     const force = calculateKienzleCuttingForce(
       {
-        cutting_speed: sf.cutting_speed,
+        cutting_speed: vc,
         feed_per_tooth: sf.feed_per_tooth,
         axial_depth: ap,
         radial_depth: ae,
@@ -772,35 +1189,39 @@ function sfcCompare(params: SFCInput): { result: SFCCompareResult } | { error: s
       { kc1_1: mat.kc1_1, mc: mat.mc, material_id: mat.name },
     );
 
+    // Coolant C-derate pre-scales Taylor C (life ~ C^(1/n)); coating life factor + incompatibility
+    // cap applied after -- identical physics to sfcCalculate, so compare never over-states life.
     const tl = calculateTaylorToolLife(
-      sf.cutting_speed,
+      vc,
       {
-        C: mat.C * (tool === "HSS" ? 0.4 : tool === "Ceramic" ? 1.8 : 1.0),
+        C: mat.C * (tool === "HSS" ? 0.4 : tool === "Ceramic" ? 1.8 : 1.0) * derates.coolantCFactor,
         n: mat.n * (tool === "HSS" ? 1.0 : tool === "Ceramic" ? 0.8 : 1.0),
         material_id: mat.name,
       },
       sf.feed_per_tooth, ap,
     );
+    let toolLife = tl.tool_life_minutes * derates.coatingLifeFactor;
+    if (Number.isFinite(derates.coatingLifeCap)) toolLife = Math.min(toolLife, derates.coatingLifeCap);
 
     const ra = calculateSurfaceFinish(
-      sf.feed_per_tooth * numTeeth, 0.8, true, ae, toolDiam,
+      sf.feed_per_tooth, 0.8, true, ae, toolDiam, // per-TOOTH fz (milling Brammertz), not fz*teeth
     );
 
     const mrr = calculateMRR({
-      cutting_speed: sf.cutting_speed, feed_per_tooth: sf.feed_per_tooth,
+      cutting_speed: vc, feed_per_tooth: sf.feed_per_tooth,
       axial_depth: ap, radial_depth: ae,
       tool_diameter: toolDiam, number_of_teeth: numTeeth,
     });
 
     // Composite score: balanced across productivity, tool life, quality
-    const score = (mrr.mrr / 100) * 0.3 + (tl.tool_life_minutes / 60) * 0.3
+    const score = (mrr.mrr / 100) * 0.3 + (toolLife / 60) * 0.3
       + (1 / (ra.Ra + 0.1)) * 0.2 + (1 - force.power / 20) * 0.2;
 
     approaches.push({
       name: `${tool} endmill`,
-      cutting_speed: Math.round(sf.cutting_speed),
+      cutting_speed: Math.round(vc),
       feed: Math.round(sf.feed_per_tooth * 1000) / 1000,
-      tool_life: Math.round(tl.tool_life_minutes * 10) / 10,
+      tool_life: Math.round(toolLife * 10) / 10,
       mrr: Math.round(mrr.mrr * 100) / 100,
       power: Math.round(force.power * 100) / 100,
       surface_roughness: Math.round(ra.Ra * 100) / 100,
@@ -831,8 +1252,8 @@ function sfcOptimize(params: SFCInput & { objective?: string }): { result: SFCOp
   const mat = resolveMaterial(params.material, params.material_hardness, params.material_group);
   const toolDiam = params.tool_diameter ?? 12;
   const numTeeth = params.number_of_teeth ?? 4;
-  const ap = params.depth_of_cut ?? toolDiam * 0.5;
-  const ae = params.width_of_cut ?? toolDiam * 0.5;
+  const ap = params.depth_of_cut ?? params.depth ?? toolDiam * 0.5;
+  const ae = params.width_of_cut ?? params.width ?? toolDiam * 0.5;
   const objective = params.objective ?? "balanced";
 
   // Get baseline
@@ -842,10 +1263,19 @@ function sfcOptimize(params: SFCInput & { objective?: string }): { result: SFCOp
     operation: mapOperation(params.operation ?? "milling"),
     tool_diameter: toolDiam,
     number_of_teeth: numTeeth,
+    iso_group: groupToISO(mat.group),
   });
 
+  // Tooling derates (coating + coolant) -- shared with sfcCalculate/sfcCompare so the optimizer
+  // searches the SAME derated frame the calculator publishes (arm-C divergence fix). Vc-only here
+  // (feed is unaffected by coolant/coating); the C + coating-life derates are applied per candidate.
+  const isoGroup = groupToISO(mat.group) as ISOGroup;
+  const derates = sfcToolingDerates(params, isoGroup);
+  const vcFactor = derates.coatingSpeedFactor * derates.coolantVcFactor;
+  const baseVc = sf.cutting_speed * vcFactor;
+
   // Optimization: grid search around baseline
-  let bestVc = sf.cutting_speed;
+  let bestVc = baseVc;
   let bestFz = sf.feed_per_tooth;
   let bestAp = ap;
   let bestAe = ae;
@@ -853,18 +1283,24 @@ function sfcOptimize(params: SFCInput & { objective?: string }): { result: SFCOp
   let foundValid = false;
   let iterations = 0;
 
-  const vcRange = [sf.cutting_speed * 0.7, sf.cutting_speed * 1.3];
+  const vcRange = [baseVc * 0.7, baseVc * 1.3];
   const fzRange = [sf.feed_per_tooth * 0.7, sf.feed_per_tooth * 1.3];
 
   for (let vcMult = 0.7; vcMult <= 1.3; vcMult += 0.1) {
     for (let fzMult = 0.7; fzMult <= 1.3; fzMult += 0.1) {
       iterations++;
-      const testVc = sf.cutting_speed * vcMult;
+      const testVc = baseVc * vcMult;
       const testFz = sf.feed_per_tooth * fzMult;
 
+      // Coolant C-derate: pre-scale Taylor C (life ~ C^(1/n)) so a lower-than-flood coolant does
+      // not over-state candidate tool life -- identical physics to sfcCalculate.
       const tl = calculateTaylorToolLife(
-        testVc, { C: mat.C, n: mat.n, material_id: mat.name }, testFz, ap,
+        testVc, { C: mat.C * derates.coolantCFactor, n: mat.n, material_id: mat.name }, testFz, ap,
       );
+      // Coating life factor + incompatibility cap (diamond/PCD on ferrous) so the optimizer never
+      // scores an incompatible pair with a physically impossible long life.
+      let candLife = tl.tool_life_minutes * derates.coatingLifeFactor;
+      if (Number.isFinite(derates.coatingLifeCap)) candLife = Math.min(candLife, derates.coatingLifeCap);
 
       const mrr = calculateMRR({
         cutting_speed: testVc, feed_per_tooth: testFz,
@@ -885,32 +1321,32 @@ function sfcOptimize(params: SFCInput & { objective?: string }): { result: SFCOp
       );
 
       const ra = calculateSurfaceFinish(
-        testFz * numTeeth, 0.8, true, ae, toolDiam,
+        testFz, 0.8, true, ae, toolDiam, // per-TOOTH fz (milling Brammertz), not fz*teeth
       );
 
       // Score based on objective
       let score = 0;
       if (objective === "productivity" || objective === "mrr") {
-        score = mrr.mrr * 0.6 + tl.tool_life_minutes * 0.2 - force.power * 0.2;
+        score = mrr.mrr * 0.6 + candLife * 0.2 - force.power * 0.2;
       } else if (objective === "tool_life") {
-        score = tl.tool_life_minutes * 0.6 + mrr.mrr * 0.2 - ra.Ra * 0.2;
+        score = candLife * 0.6 + mrr.mrr * 0.2 - ra.Ra * 0.2;
       } else if (objective === "quality" || objective === "surface") {
-        score = (1 / (ra.Ra + 0.01)) * 0.6 + tl.tool_life_minutes * 0.3 - force.power * 0.1;
+        score = (1 / (ra.Ra + 0.01)) * 0.6 + candLife * 0.3 - force.power * 0.1;
       } else if (objective === "cost") {
         const toolCostPerMin = 0.5;
         const machineCostPerMin = 2.0;
         const safeMrr = Math.max(mrr.mrr, 0.001);
-        const safeLife = Math.max(tl.tool_life_minutes, 0.01);
+        const safeLife = Math.max(candLife, 0.01);
         const costPerPart = (10 / safeMrr) * machineCostPerMin + (10 / safeLife) * toolCostPerMin * 30;
         score = -costPerPart; // Minimize cost
       } else {
         // Balanced
-        score = mrr.mrr * 0.25 + tl.tool_life_minutes * 0.25 + (1 / (ra.Ra + 0.1)) * 0.25 - force.power * 0.25;
+        score = mrr.mrr * 0.25 + candLife * 0.25 + (1 / (ra.Ra + 0.1)) * 0.25 - force.power * 0.25;
       }
 
       // Safety constraint: reject dangerous parameters
       if (testVc > SAFETY_LIMITS.MAX_CUTTING_SPEED || testFz > SAFETY_LIMITS.MAX_FEED_PER_TOOTH) continue;
-      if (tl.tool_life_minutes < 3) continue; // Minimum tool life constraint
+      if (candLife < 3) continue; // Minimum tool life constraint
       if (params.machine_power_kw && force.power > params.machine_power_kw * 0.95) continue;
 
       if (score > bestScore) {
@@ -924,7 +1360,7 @@ function sfcOptimize(params: SFCInput & { objective?: string }): { result: SFCOp
 
   // Calculate improvement
   const origMRR = calculateMRR({
-    cutting_speed: sf.cutting_speed, feed_per_tooth: sf.feed_per_tooth,
+    cutting_speed: baseVc, feed_per_tooth: sf.feed_per_tooth,
     axial_depth: ap, radial_depth: ae,
     tool_diameter: toolDiam, number_of_teeth: numTeeth,
   });
@@ -941,7 +1377,7 @@ function sfcOptimize(params: SFCInput & { objective?: string }): { result: SFCOp
     result: {
       objective,
       original: {
-        vc: Math.round(sf.cutting_speed),
+        vc: Math.round(baseVc),
         fz: Math.round(sf.feed_per_tooth * 1000) / 1000,
         ap: Math.round(ap * 10) / 10,
         ae: Math.round(ae * 10) / 10,
@@ -1013,10 +1449,11 @@ function sfcSafety(params: SFCInput): any {
     operation: mapOperation(params.operation ?? "milling"),
     tool_diameter: params.tool_diameter ?? 12,
     number_of_teeth: params.number_of_teeth ?? 4,
+    iso_group: groupToISO(mat.group),
   });
   const toolDiam = params.tool_diameter ?? 12;
-  const ap = params.depth_of_cut ?? toolDiam * 0.5;
-  const ae = params.width_of_cut ?? toolDiam * 0.5;
+  const ap = params.depth_of_cut ?? params.depth ?? toolDiam * 0.5;
+  const ae = params.width_of_cut ?? params.width ?? toolDiam * 0.5;
 
   const force = calculateKienzleCuttingForce(
     {
@@ -1030,10 +1467,22 @@ function sfcSafety(params: SFCInput): any {
     { kc1_1: mat.kc1_1, mc: mat.mc, material_id: mat.name },
   );
 
-  return calculateSafetyScore(
+  const safety = calculateSafetyScore(
     sf.cutting_speed, sf.feed_per_tooth, ap, ae, toolDiam,
     force.power, params.machine_power_kw, force.Fc,
   );
+
+  // Coating-material incompatibility is a categorical do-NOT-run condition (diamond/PCD on a ferrous
+  // workpiece -> carbon diffusion / rapid crater wear). sfcSafety recomputes the operating point
+  // INDEPENDENTLY of sfcCalculate, so without this it would SILENTLY pass an incompatible tool/material
+  // pair -- the safety-critical residual of the customer-path coating wire (U-OSC-SFC-SAFETY-COATING-GAP).
+  // Additive: surfaces the same warning sfcCalculate:1014-1015 raises; the score/formulas are unchanged.
+  const coatingKey = normalizeCoatingKey(params.coating);
+  const isoGroup = groupToISO(mat.group) as ISOGroup;
+  if (isCoatingMaterialIncompatible(coatingKey, isoGroup)) {
+    safety.warnings.push(`Coating "${params.coating}" is incompatible with a ferrous workpiece (carbon diffusion -> rapid chemical/crater wear) -- do NOT run this tool/material pair; select a PVD/CVD carbide grade.`);
+  }
+  return safety;
 }
 
 // ─── SFC History (in-memory for session) ────────────────────────────────────
@@ -1604,6 +2053,7 @@ function shopEstimateOpCycleTime(
     operation: mapOperation(operation),
     tool_diameter: toolDiam,
     number_of_teeth: numTeeth,
+    iso_group: groupToISO(matPhysics.group),
   });
 
   const vc = sfResult.cutting_speed;
@@ -2180,6 +2630,7 @@ function acncParameterCalc(
     operation: mapOperation(operation),
     tool_diameter: toolDiam,
     number_of_teeth: numTeeth,
+    iso_group: groupToISO(matPhysics.group),
   });
 
   const vc = sfResult.cutting_speed;
@@ -2519,6 +2970,7 @@ export function productACNC(action: string, params: Record<string, any>): any {
         operation: mapOperation(featureDef.operations[0]),
         tool_diameter: featureDef.default_tool_diam,
         number_of_teeth: featureDef.default_teeth,
+        iso_group: groupToISO(matPhysics.group),
       });
 
       const result = acncGenerateGCode(feature, controller, {

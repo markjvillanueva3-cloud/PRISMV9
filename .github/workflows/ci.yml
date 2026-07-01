@@ -150,6 +150,14 @@ jobs:
       - name: Run Vitest tests
         run: npx vitest run --cache
 
+      - name: Test legitimacy gate (block new fake/placeholder tests)
+        # CI is the only test-integrity gate that env flags (PRISM_ALLOW_*)
+        # cannot bypass. Scans only test files CHANGED vs the base ref, so the
+        # pre-existing legacy violators are reported as advisory, not failing.
+        run: |
+          git fetch --no-tags --depth=50 origin "${{ github.base_ref || 'main' }}" || true
+          node "$GITHUB_WORKSPACE/scripts/ci-test-legitimacy-scan.mjs" --base "origin/${{ github.base_ref || 'main' }}"
+
       - name: Upload build artifact
         uses: actions/upload-artifact@v4
         with:

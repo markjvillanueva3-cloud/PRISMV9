@@ -185,7 +185,11 @@ export class GCodeSnippetEngine {
 
     let code = snippet.code;
     for (const [key, value] of Object.entries(params)) {
-      code = code.replace(new RegExp(`\\{${key}\\}`, "g"), String(value));
+      // Literal split/join (not RegExp + String-replacement): a param KEY containing a
+      // regex metacharacter (e.g. "a(b") would otherwise make `new RegExp` THROW, and a
+      // VALUE containing "$&"/"$`"/"$$" would trigger JS replacement-pattern substitution
+      // and inject an unexpected token into emitted G-code. split/join treats both as literals.
+      code = code.split(`{${key}}`).join(String(value));
     }
     return code;
   }

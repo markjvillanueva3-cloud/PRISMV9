@@ -839,7 +839,7 @@ RUNTIME INGESTION (AI grows with shop):
   public getStatistics(): {
     version: string;
     catalogs: { machines: number; materials: number; tools: number; holders: number; fixtures: number; total: number };
-    entries: ReturnType<typeof this.getTotalEntries>;
+    entries: ReturnType<PostProcessorComprehensiveKnowledgeEngine["getTotalEntries"]>;
     hDriveResources: number;
     runtimeIngested: number;
     uniqueBrands: string[];

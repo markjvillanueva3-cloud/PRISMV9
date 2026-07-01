@@ -1,0 +1,139 @@
+{
+  "source": "Mastercam X8 - Mitsubishi FA-Series 4X Wire (TECH).pst",
+  "source_path": "resources/MasterCam/MASTERCAM/mcamX8/compressed/common/SharedDefaults/wire/Posts/Mitsubishi FA-Series 4X Wire (TECH).pst",
+  "post_lines": 2286,
+  "controller": "Mitsubishi FA-Series (FA10S, FA20S, etc.)",
+  "axes": "4-axis (XY + UV taper)",
+
+  "m_codes": {
+    "M78_M78": "Tank fill (submerged machining) - DOUBLE CALL confirmed in post source line 508",
+    "M58": "Tank drain",
+    "M84": "Power ON",
+    "M85": "Power OFF",
+    "M82": "Wire ON (wire feed run)",
+    "M83": "Wire OFF (wire feed stop)",
+    "M80": "Water ON (flush)",
+    "M81": "Water OFF",
+    "M20": "Auto wire thread (AWT)",
+    "M21": "Cut wire",
+    "M90": "Adaptive control ON",
+    "M91": "Adaptive control OFF",
+    "M01": "Optional stop (used as glue stop for slug retention)",
+    "M00": "Program stop",
+    "M02": "Program end",
+    "M30": "Program end and rewind",
+    "M102": "Power Master ON (optional, use_PM flag)",
+    "M101": "Power Master OFF (optional)"
+  },
+
+  "h_register_styles": {
+    "style_1": {
+      "description": "H variables loaded at SOF, E/H/F inline per pass",
+      "example_header": "H1 =.00725\nH2 =.0065\nH3 =.0055",
+      "example_inline": "E1261 H1 F.1",
+      "jm_die_uses": true,
+      "note": "JM Die programs use style 1 with H175 master offset: H1=.0085+H175"
+    },
+    "style_2": {
+      "description": "H variables for offset + E-power + Feed at SOF",
+      "example_header": "H1 = .00725 H11 = 0101 H21 = .1",
+      "example_inline": "EH11 FH21\nG41 H1 G01 Y-1.95452"
+    },
+    "style_3": {
+      "description": "Same as style 2 but all H vars initialized to zero",
+      "note": "Used when operator enters values at controller"
+    },
+    "style_4": {
+      "description": "All inline, no SOF header. DEFAULT in post.",
+      "example_inline": "G41 H1=.0093 G01 X0 Y-1.95452 F.16 H1"
+    }
+  },
+
+  "program_structure": {
+    "header": "% (SOF marker)",
+    "program_id": "L001 (program label)",
+    "date_comment": "(MM/DD/YY)",
+    "h_variable_block": "H175=0.0000 then H1-H5 = offset + H175",
+    "body_per_cutout": [
+      "G90 (absolute mode)",
+      "M91 (adaptive OFF during positioning)",
+      "G92 X0.0 Y0.0 (set origin)",
+      "G1 X0 Y0 F25.0 (rapid to start)",
+      "M20 (thread wire)",
+      "M78 M78 (fill tank)",
+      "M80 (water on)",
+      "M82 (wire on)",
+      "M84 (power on)",
+      "E#### H# F#.## (PASS=1) — technology condition",
+      "M90 (adaptive ON)",
+      "G41/G42 cutting path...",
+      "M01 (glue stop between cutouts)",
+      "Repeat M78/M80/M82/M84 sequence for next cutout",
+      "E#### for skim passes (alternating G41/G42)",
+      "M85 M83 M81 (power/wire/water OFF)",
+      "M21 (cut wire)",
+      "M58 (drain tank)",
+      "M02 (program end)"
+    ],
+    "skim_pass_direction": "Pass 1-2: G42, Pass 3: G41 (reverse), Pass 4: G42 (forward)",
+    "note": "Wire comp direction alternates on skim passes for better surface finish"
+  },
+
+  "e_code_families_from_jm_die": {
+    "E12xx_standard_2axis": {
+      "E1221": "Pass 1 (rough cut)",
+      "E1222": "Pass 2 (skim 1)",
+      "E1223": "Pass 3 (skim 2)",
+      "E1224": "Pass 4 (skim 3)",
+      "wire_offsets": { "H1": 0.0085, "H2": 0.0064, "H3": 0.0058, "H4": 0.0053 },
+      "feeds_ipm": { "pass1": 0.12, "pass2": 0.24, "pass3": 0.21, "pass4": 0.20 }
+    },
+    "E12xx_heavy_5pass": {
+      "E1281": "Pass 1 (rough)",
+      "E1282": "Pass 2",
+      "E1283": "Pass 3",
+      "E1284": "Pass 4",
+      "E1285": "Pass 5 (final skim)",
+      "wire_offsets": { "H1": 0.00995, "H2": 0.00725, "H3": 0.00585, "H4": 0.00535, "H5": 0.0052 },
+      "feeds_ipm": { "pass1": 0.06, "pass2": 0.15, "pass3": 0.12, "pass4": 0.16, "pass5": 0.13 }
+    },
+    "E28xx_4axis_taper": {
+      "E2821": "Pass 1 (rough, UV taper)",
+      "E2822": "Pass 2",
+      "E2823": "Pass 3",
+      "E2824": "Pass 4",
+      "E2825": "Pass 5 (final)",
+      "feeds_ipm": { "pass1": 0.16, "pass2": 0.23, "pass3": 0.26, "pass4": 0.30, "pass5": null },
+      "note": "UV coordinates on every move for tapered die profiles"
+    }
+  },
+
+  "post_user_settings": {
+    "use_adaptive_control": true,
+    "fill_tank": true,
+    "drain_tank": true,
+    "thread_wire_at_SOF": true,
+    "cut_wire_at_EOF": false,
+    "force_UV_output": true,
+    "force_XY_output": true,
+    "h_reg_style": 4,
+    "output_pass_comments": false,
+    "full_restate_per_cutout": true,
+    "dwell_after_rough": false
+  },
+
+  "prism_post_gaps_identified": [
+    "Double M78 M78 tank fill (PRISM posts use single M78)",
+    "M01 glue stop support for slug retention between cutouts",
+    "H-variable wire offset style 1 with H175 master offset",
+    "Wire comp direction alternation (G42/G41/G42 pattern per pass)",
+    "Full M78/M80/M82/M84 restate between cutouts",
+    "G04 dwell after rough pass (optional per do_end_of_rough_dwell)"
+  ],
+
+  "mill_nc_programs_available": {
+    "path": "resources/MasterCam/MASTERCAM/POSTS/Mill/NC/",
+    "count": "~200+ production NC files from Roku-Roku/Haas",
+    "note": "Real production G-code that can be parsed for speed/feed/tool calibration"
+  }
+}

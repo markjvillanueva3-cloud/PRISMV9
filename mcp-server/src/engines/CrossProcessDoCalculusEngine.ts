@@ -198,7 +198,7 @@ export class CrossProcessDoCalculusEngine {
   static doIntervene(input: DoInterveneInput): DoInterveneResult {
     const parsed = DoIntervenInputSchema.parse(input);
     const events = parsed.events as Event[];
-    const dag = parsed.dag as CausalDAG;
+    const dag = parsed.dag as unknown as CausalDAG;
     const treatment = parsed.treatment;
     const target = parsed.target;
     const xValue = parsed.x_value;

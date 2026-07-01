@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta name="prism-source-hash" content="fe07cb08487d85665efe07968ac833ddcbb73f2427780999b8b25d6e1015f91a">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Fleet Doc-Drift Campaign — papa-owned (operator directive 2026-06-09)</title>
+<style>
+  :root {
+    --bg: #0f1014;
+    --panel: #1a1c23;
+    --panel-2: #232631;
+    --fg: #e4e6eb;
+    --fg-dim: #9aa0a8;
+    --border: #2c303a;
+    --ok: #4ade80;
+    --warn: #fbbf24;
+    --fail: #f87171;
+    --info: #60a5fa;
+    --link: #93c5fd;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; padding: 1.5rem; background: var(--bg); color: var(--fg);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, sans-serif;
+    font-size: 14px; line-height: 1.5; }
+  h1 { font-size: 1.6rem; margin: 0 0 0.25rem 0; }
+  h2 { font-size: 1.15rem; margin: 1.5rem 0 0.5rem 0; padding-bottom: 0.25rem;
+    border-bottom: 1px solid var(--border); color: var(--fg); }
+  .meta { color: var(--fg-dim); font-size: 0.85rem; margin-bottom: 1rem; }
+  .panel { background: var(--panel); border: 1px solid var(--border); border-radius: 6px;
+    padding: 0.75rem 1rem; margin-bottom: 1rem; }
+  .headline-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 0.5rem; margin-bottom: 1rem; }
+  .card { background: var(--panel-2); border: 1px solid var(--border); border-radius: 6px;
+    padding: 0.65rem 0.85rem; }
+  .card .lbl { font-size: 0.8rem; color: var(--fg-dim); }
+  .card .val { font-size: 1.4rem; font-weight: 600; margin: 0.15rem 0; font-variant-numeric: tabular-nums; }
+  .card .hint { font-size: 0.75rem; color: var(--fg-dim); }
+  .card.ok    { border-left: 3px solid var(--ok); }
+  .card.warn  { border-left: 3px solid var(--warn); }
+  .card.fail  { border-left: 3px solid var(--fail); }
+  .card.info  { border-left: 3px solid var(--info); }
+  table { width: 100%; border-collapse: collapse; margin: 0.5rem 0 1rem; font-size: 0.9rem;
+    background: var(--panel); border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }
+  caption { text-align: left; padding: 0.4rem 0.65rem; color: var(--fg-dim);
+    background: var(--panel-2); font-weight: 500; }
+  th, td { padding: 0.4rem 0.65rem; text-align: left; border-bottom: 1px solid var(--border);
+    font-variant-numeric: tabular-nums; vertical-align: top; }
+  th { background: var(--panel-2); color: var(--fg-dim); font-weight: 500;
+    text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.04em; }
+  tr:last-child td { border-bottom: none; }
+  td.right { text-align: right; }
+  ul, ol { margin: 0.4rem 0 1rem 1.25rem; }
+  li { margin: 0.15rem 0; }
+  .badge { display: inline-block; padding: 0.1rem 0.5rem; border-radius: 999px;
+    font-size: 0.75rem; font-weight: 500; background: var(--panel-2); color: var(--fg-dim);
+    border: 1px solid var(--border); }
+  .badge.ok   { background: rgba(74, 222, 128, 0.12); color: var(--ok);   border-color: rgba(74,222,128,0.3); }
+  .badge.warn { background: rgba(251, 191, 36, 0.12); color: var(--warn); border-color: rgba(251,191,36,0.3); }
+  .badge.fail { background: rgba(248, 113, 113, 0.12); color: var(--fail); border-color: rgba(248,113,113,0.3); }
+  .badge.info { background: rgba(96, 165, 250, 0.12); color: var(--info); border-color: rgba(96,165,250,0.3); }
+  .badge-grid { display: flex; flex-wrap: wrap; gap: 0.3rem; margin: 0.3rem 0 1rem 0; }
+  .kv { display: grid; grid-template-columns: max-content 1fr; gap: 0.2rem 0.85rem;
+    margin: 0.4rem 0 1rem 0; }
+  .kv .k { color: var(--fg-dim); }
+  svg.bar-chart { display: block; max-width: 100%; height: auto; }
+  svg .bar { fill: var(--info); }
+  svg .bar.ok   { fill: var(--ok); }
+  svg .bar.warn { fill: var(--warn); }
+  svg .bar.fail { fill: var(--fail); }
+  svg text { fill: var(--fg); font-family: monospace; font-size: 11px; }
+  svg .axis text { fill: var(--fg-dim); }
+  code { background: var(--panel-2); padding: 0 0.3rem; border-radius: 3px;
+    font-family: "Fira Code", Consolas, Menlo, monospace; font-size: 0.85em; }
+  a { color: var(--link); }
+  footer { margin-top: 2rem; padding-top: 0.75rem; border-top: 1px solid var(--border);
+    font-size: 0.8rem; color: var(--fg-dim); }
+</style>
+</head>
+<body>
+<h1>Fleet Doc-Drift Campaign — papa-owned (operator directive 2026-06-09)</h1>
+<div class="meta">rendered from state/shared/specs/FLEET-DOC-DRIFT-CAMPAIGN-2026-06-09.md</div>
+<div class="meta">Generated 2026-06-09T20:49:00.510Z</div>
+<style>
+  .prism-md-body { max-width: 70rem; margin: 0 auto; }
+  .prism-h1 { font-size: 1.6rem; }
+  .prism-h2 { font-size: 1.25rem; border-bottom: 1px solid var(--border); padding-bottom: 0.25rem; }
+  .prism-h3 { font-size: 1.1rem; color: var(--info); }
+  .prism-h4, .prism-h5, .prism-h6 { font-size: 1rem; color: var(--fg-dim); }
+  .prism-md-body p { margin: 0.5rem 0; }
+  .prism-md-list { margin: 0.5rem 0 0.5rem 1.25rem; padding: 0; }
+  .prism-md-list li { margin: 0.15rem 0; }
+  .prism-md-table { border-collapse: collapse; margin: 0.75rem 0; width: 100%; }
+  .prism-md-table th, .prism-md-table td { border: 1px solid var(--border); padding: 0.35rem 0.6rem; text-align: left; }
+  .prism-md-table th { background: var(--panel-2); }
+  .prism-codeblock { background: var(--panel-2); border: 1px solid var(--border); border-radius: 4px; padding: 0.6rem 0.8rem; overflow-x: auto; font-family: "Cascadia Code", Consolas, monospace; font-size: 13px; }
+  .prism-inline-code { background: var(--panel-2); padding: 0 0.25rem; border-radius: 3px; font-family: "Cascadia Code", Consolas, monospace; font-size: 0.92em; }
+  .prism-quote { border-left: 3px solid var(--info); background: var(--panel-2); padding: 0.5rem 0.85rem; margin: 0.75rem 0; color: var(--fg-dim); }
+  .prism-hr { border: 0; border-top: 1px solid var(--border); margin: 1rem 0; }
+  .prism-link { color: var(--link); text-decoration: none; }
+  .prism-link:hover { text-decoration: underline; }
+  .prism-bad-link { color: var(--fail); text-decoration: line-through; }
+  .prism-unclosed::before { content: "⚠ unterminated code block"; display: block; color: var(--warn); font-size: 0.85em; margin-bottom: 0.25rem; }
+  </style><main class="prism-md-body"><h1 class="prism-h1">Fleet Doc-Drift Campaign — papa-owned (operator directive 2026-06-09)</h1>
+<blockquote class="prism-quote"><strong>Owner:</strong> slot <strong>papa</strong> (operator: &quot;making your chat slot responsible for all the system wide, fleet wide, galaxy wide updates. utilize ollama when viable.&quot;).</blockquote>
+<blockquote class="prism-quote"><strong>Mission:</strong> eliminate documentation/config drift fleet-wide for (a) host specs, (b) the new Ollama LLM roster + how/when, (c) /system-viz upgrades — across CLAUDE.md (root + galaxy), memories, wikis, GSD, settings, hooks, scripts, skills, and ALL slash-commands + pipelines.</blockquote>
+<blockquote class="prism-quote"><strong>Reality:</strong> multi-file, multi-category, <strong>multi-/compact</strong> marathon. This doc is the durable backbone — resume from here every session. Source of truth for facts: <code class="prism-inline-code">CANONICAL-HOST-FACTS-2026-06-09.md</code>.</blockquote>
+<h2 class="prism-h2">VERIFIED replacement ladder (THE key asset — every fix cites this, never guesses)</h2>
+<p>Installed Ollama roster (live <code class="prism-inline-code">ollama /api/tags</code>, 2026-06-09): <code class="prism-inline-code">gpt-oss:120b</code>(65GB), <code class="prism-inline-code">gpt-oss:20b</code>(14GB), <code class="prism-inline-code">qwen2.5-coder:32b</code>(20GB), <code class="prism-inline-code">qwen2.5-coder:1.5b</code>(1GB), 5 VLMs (<code class="prism-inline-code">qwen3-vl:8b-instruct</code>,<code class="prism-inline-code">qwen3-vl:8b</code>,<code class="prism-inline-code">qwen2.5vl:7b</code>,<code class="prism-inline-code">llama3.2-vision:11b</code>,<code class="prism-inline-code">moondream:1.8b</code>), <code class="prism-inline-code">nomic-embed-text</code>.</p>
+<table class="prism-md-table"><thead><tr><th>Stale model (NOT installed)</th><th>Canonical replacement</th><th>Source of decision</th></tr></thead><tbody><tr><td><code class="prism-inline-code">qwen2.5-coder:7b</code> (the doc&#39;d fleet offload default)</td><td><code class="prism-inline-code">qwen2.5-coder:32b</code> (heavy code) / <code class="prism-inline-code">qwen2.5-coder:1.5b</code> (trivial)</td><td><code class="prism-inline-code">ModelRoutingEngine.ts:341</code> (BLACKWELL retirement note)</td></tr>
+<tr><td><code class="prism-inline-code">qwen2.5-coder:3b</code> (cascade cheap)</td><td><code class="prism-inline-code">qwen2.5-coder:1.5b</code></td><td>nearest installed tiny coder</td></tr>
+<tr><td><code class="prism-inline-code">qwen2.5-coder:14b</code> (cascade strong)</td><td><code class="prism-inline-code">gpt-oss:120b</code> (deep) or <code class="prism-inline-code">qwen2.5-coder:32b</code> (code)</td><td>roster + ModelRoutingEngine</td></tr>
+<tr><td>deep reasoning / synthesis</td><td><code class="prism-inline-code">gpt-oss:120b</code> (fits 96GB VRAM)</td><td>the Blackwell unlock</td></tr>
+<tr><td>mid reasoning / triage</td><td><code class="prism-inline-code">gpt-oss:20b</code></td><td>roster</td></tr>
+<tr><td>embeddings</td><td><code class="prism-inline-code">nomic-embed-text</code> (unchanged)</td><td>canonical</td></tr></tbody></table>
+<h2 class="prism-h2">METHODOLOGY (verify-before-replace — most &quot;drift&quot; is NOT actionable)</h2>
+<p>A naive fleet-wide find/replace of a stale model string would <strong>corrupt</strong> these — EXCLUDE them:</p>
+<ul class="prism-md-list"><li><strong>Corpus artifacts</strong> (<code class="prism-inline-code">cad-engine/knowledge_store/doc-*.json</code>, ~50 files) — record the historical extraction model; leave.</li><li><strong>Test fixtures</strong> (<code class="prism-inline-code">*.test.ts/.mjs</code> using the model id as a literal) — fixture data; leave.</li><li><strong>Historical comments</strong> (<code class="prism-inline-code">ModelRoutingEngine.ts:340</code>, <code class="prism-inline-code">ConnectionFinderEngine.test.ts:737</code> — &quot;RETIRED 2026-06-04 ... ollama rm&#39;d&quot;) — correct; leave.</li><li><strong>Synthesis-provenance stamps</strong> (galaxy <code class="prism-inline-code">MEMORY.md</code> &quot;qwen2.5-coder:7b-synthesized from N memories&quot;) — auto-generated header; fix at the GENERATOR, not per-file.</li><li>**<code class="prism-inline-code">.bak-<em></code>, <code class="prism-inline-code">commands-archive/</code>, <code class="prism-inline-code">.scratch/</code></em>* — not live.</li></ul>
+<p><strong>Fix targets = LIVE config/doctrine only.</strong> And: <strong>runtime fallback + its <code class="prism-inline-code">.describe()</code>/doc text must be fixed TOGETHER</strong> — fixing the doc alone makes it lie about the code&#39;s actual default (R12).</p>
+<h2 class="prism-h2">Slice inventory (status: [ ] todo / [~] partial / [x] done)</h2>
+<table class="prism-md-table"><thead><tr><th>#</th><th>Slice</th><th>Scope</th><th>Ollama-offload?</th><th>Status</th></tr></thead><tbody><tr><td>S0</td><td>Canonical facts</td><td><code class="prism-inline-code">CANONICAL-HOST-FACTS-2026-06-09.md</code> + memory</td><td>—</td><td>[x] done (commit U-CANONICAL-HOST-FACTS)</td></tr>
+<tr><td>S1</td><td>Ollama cascade/two_pass model defaults</td><td><code class="prism-inline-code">aiReasoningActionSchemas.ts:2758/2762/2801/2804/2807</code> (3b/7b/14b ladder) + the consuming <code class="prism-inline-code">TwoPassEngine</code>/<code class="prism-inline-code">CascadeFallbackChainEngine</code> runtime fallbacks (fix together)</td><td>classify w/ 32b</td><td>[~] FOUND, not yet fixed (needs runtime-fallback read)</td></tr>
+<tr><td>S2</td><td>Global + project CLAUDE.md Ollama section</td><td><code class="prism-inline-code">~/.claude/CLAUDE.md</code> + <code class="prism-inline-code">H:/prism/CLAUDE.md</code> &quot;qwen2.5-coder:7b&quot; offload default → 32b/1.5b + add gpt-oss:120b + 5-VLM ensemble</td><td>draft w/ 32b, verify</td><td>[ ]</td></tr>
+<tr><td>S3</td><td>Ollama offload hooks/engine</td><td><code class="prism-inline-code">.claude/hooks/{ollama-cost-router,prompt-rewriter-ollama,posttool-ollama-rewriter-corpus,...}.mjs</code> (9) + <code class="prism-inline-code">OllamaHookBridgeEngine</code> + <code class="prism-inline-code">IdeaBlockGovernanceEngine.ts:12</code> — live model defaults only</td><td>per-file judge</td><td>[ ]</td></tr>
+<tr><td>S4</td><td>/ollama-* skills + token-routing doctrine</td><td><code class="prism-inline-code">.claude/commands/ollama-*</code> + <code class="prism-inline-code">feedback_ollama_token_routing</code> memory</td><td>draft w/ 32b</td><td>[ ]</td></tr>
+<tr><td>S5</td><td>Galaxy synthesis-provenance generator</td><td>the emitter of &quot;qwen2.5-coder:7b-synthesized&quot; MEMORY.md headers (one fix → all 34)</td><td>—</td><td>[ ]</td></tr>
+<tr><td>S6</td><td>/system-viz upgrades capture</td><td>track what sierra upgraded (recent commits/memories) → propagate to memories/wikis</td><td>summarize commits w/ 120b</td><td>[ ] (partly sierra&#39;s lane)</td></tr>
+<tr><td>S7</td><td>Galaxy CLAUDE.md/memories/wikis</td><td>spec+ollama refresh × 34 galaxies (most already accurate per S0 — point at canonical, don&#39;t re-state)</td><td>bulk draft w/ 120b</td><td>[ ]</td></tr>
+<tr><td>S8</td><td>Slash commands + pipelines</td><td>~440 skills/pipelines referencing stale specs/models</td><td>bulk classify+draft w/ 120b/32b</td><td>[ ] (the big one)</td></tr>
+<tr><td>S9</td><td>GSD docs</td><td><code class="prism-inline-code">knowledge/gsd/</code> spec/model refs</td><td>draft w/ 32b</td><td>[ ]</td></tr></tbody></table>
+<h2 class="prism-h2">Ollama-offload execution plan (operator: &quot;utilize ollama when viable&quot;)</h2>
+<ul class="prism-md-list"><li><strong>Classification/scan</strong> (which files are live-config vs noise): <code class="prism-inline-code">qwen2.5-coder:32b</code> via <code class="prism-inline-code">scripts/ask-ollama.mjs</code> or a batch script.</li><li><strong>Prose drafting</strong> (CLAUDE.md/wiki/memory sections for the new roster): <code class="prism-inline-code">gpt-oss:120b</code> (deep) drafts → <strong>papa verifies + commits</strong> (never ship an unverified Ollama edit into canonical docs — R12).</li><li><strong>Mechanical replacements</strong> (verified stale→canonical literal swaps in live config): deterministic edit, no LLM.</li><li>Papa stays the conductor + verifier; Ollama does the bulk reading/drafting to keep papa&#39;s context lean.</li></ul>
+<h2 class="prism-h2">Resume protocol (every session)</h2>
+<ol class="prism-md-list"><li>Read this file + <code class="prism-inline-code">CANONICAL-HOST-FACTS-2026-06-09.md</code>.</li><li>Pick the lowest-numbered <code class="prism-inline-code">[ ]</code>/<code class="prism-inline-code">[~]</code> slice.</li><li>Apply the methodology (exclude noise; fix runtime+doc together; cite the ladder).</li><li>Verify (build/test for code; re-read for docs) → commit <code class="prism-inline-code">[MAIN] [BOOTSTRAP-SLOT-ENFORCE] [DOC-DRIFT]/U-&lt;slice&gt;</code> → tick the box here.</li></ol></main><footer>
+<div>html-report-render schemaVersion 1.0.0</div>
+</footer>
+</body>
+</html>

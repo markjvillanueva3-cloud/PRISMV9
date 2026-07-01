@@ -44,7 +44,7 @@ function main() {
     fail("bin_wrapper_missing", `${BIN_WRAPPER} not found. Shell wrappers missing from H:\\.claude\\bin\\.`);
   }
 
-  const r = spawnSync(PYTHON_EXE, ["--version"], { encoding: "utf8", timeout: 3000 });
+  const r = spawnSync(PYTHON_EXE, ["--version"], { windowsHide: true, encoding: "utf8", timeout: 3000 });
   if (r.status !== 0) {
     fail("python_run_failed", `python --version exited ${r.status}. stderr: ${r.stderr?.trim() || "(empty)"}`);
   }

@@ -101,14 +101,31 @@ describe("CAMSpeedFeedBridgeEngine — Schemas", () => {
     expect(() => SFBridgeResponseSchema.parse(r)).not.toThrow();
   });
 
-  it("supportedTargets() returns all five target slots", () => {
+  it("supportedTargets() returns all seven target slots (6 tier-1 CAM + generic)", () => {
     expect(SFB.supportedTargets()).toEqual([
       "hypermill",
       "fusion360",
       "inventor_hsm",
       "mastercam",
+      "esprit",
+      "solidcam",
       "generic",
     ]);
+  });
+
+  it("SFBridgeTargetSchema accepts esprit and solidcam", () => {
+    expect(() =>
+      SFBridgeRequestSchema.parse({
+        target: "esprit",
+        native_request: { operation_id: "OP-ESP" },
+      }),
+    ).not.toThrow();
+    expect(() =>
+      SFBridgeRequestSchema.parse({
+        target: "solidcam",
+        native_request: { operation_id: "OP-SC" },
+      }),
+    ).not.toThrow();
   });
 });
 
@@ -376,56 +393,196 @@ describe("CAMSpeedFeedBridgeEngine — End-to-end compute", () => {
   });
 });
 
+describe("CAMSpeedFeedBridgeEngine — ESPRIT + SolidCAM translation", () => {
+  it("translates ESPRIT cutterDiameter + surfaceSpeed(SFM) + feedPerToothEsp", () => {
+    const input = normalizeRequest("esprit", {
+      operation_id: "OP-ESP-1",
+      cutterDiameter: 9.525,
+      surfaceSpeed: 400,
+      feedPerToothEsp: 0.06,
+      flutes: 2,
+    });
+    expect(input.tool_diameter_mm).toBe(9.525);
+    expect(input.flutes).toBe(2);
+    expect(input.cam_system).toBe("ESPRIT");
+    expect((input as Record<string, unknown>).__vc_override).toBeCloseTo(121.92, 3);
+    expect((input as Record<string, unknown>).__fz_override).toBe(0.06);
+  });
+
+  it("translates SolidCAM solidcamDiameter + spinSpeed + feedZ", () => {
+    const input = normalizeRequest("solidcam", {
+      operation_id: "OP-SC-1",
+      solidcamDiameter: 16.0,
+      spinSpeed: 5200,
+      feedZ: 0.07,
+    });
+    expect(input.tool_diameter_mm).toBe(16.0);
+    expect(input.cam_system).toBe("SolidCAM");
+    expect((input as Record<string, unknown>).__rpm_override).toBe(5200);
+    expect((input as Record<string, unknown>).__fz_override).toBe(0.07);
+  });
+
+  it("ESPRIT surfaceSpeed defers to explicit cuttingSpeedVc when both present", () => {
+    const input = normalizeRequest("esprit", {
+      operation_id: "OP-ESP-2",
+      cutterDiameter: 10,
+      cuttingSpeedVc: 175.0,
+      surfaceSpeed: 400,
+    });
+    expect((input as Record<string, unknown>).__vc_override).toBe(175.0);
+  });
+
+  it("generic tool_diameter_mm still wins over esprit native cutterDiameter", () => {
+    const input = normalizeRequest("esprit", {
+      operation_id: "OP-ESP-3",
+      tool_diameter_mm: 25.0,
+      cutterDiameter: 9.525,
+    });
+    expect(input.tool_diameter_mm).toBe(25.0);
+  });
+
+  it("rejects negative cutterDiameter / spinSpeed and zero feedZ (adversarial)", () => {
+    expect(() =>
+      SFNativeRequestSchema.parse({ operation_id: "OP-X", cutterDiameter: -1 }),
+    ).toThrow();
+    expect(() =>
+      SFNativeRequestSchema.parse({ operation_id: "OP-X", spinSpeed: -100 }),
+    ).toThrow();
+    expect(() =>
+      SFNativeRequestSchema.parse({ operation_id: "OP-X", feedZ: 0 }),
+    ).toThrow();
+  });
+});
+
+describe("CAMSpeedFeedBridgeEngine — ESPRIT + SolidCAM response encoding", () => {
+  const result = minimalResult({
+    cutting_speed_mpm: 152.4,
+    spindle_rpm: 6000,
+    feed_per_tooth_mm: 0.05,
+    feed_rate_mmmin: 900,
+  });
+
+  it("ESPRIT → pipe-delimited record, vc echoed back in SFM", () => {
+    const payload = encodeResponse("esprit", "OP-1", result, null);
+    const parts = payload.split("|");
+    expect(parts[0]).toBe("ESPRIT");
+    expect(parts[1]).toBe("OP-1");
+    expect(parts[2]).toBe("6000");
+    expect(parts[3]).toBe("900.0");
+    expect(parts[4]).toBe("0.0500");
+    expect(Number(parts[5])).toBeCloseTo(500.0, 1);
+  });
+
+  it("SolidCAM → flat JSON tag with spinSpeed/feedZ", () => {
+    const payload = encodeResponse("solidcam", "OP-1", result, null);
+    const parsed = JSON.parse(payload);
+    expect(parsed.type).toBe("solidcam.speedFeed");
+    expect(parsed.operationId).toBe("OP-1");
+    expect(parsed.spinSpeed).toBe(6000);
+    expect(parsed.feedZ).toBe(0.05);
+    expect(parsed.feedRate).toBe(900);
+    expect(parsed.vc).toBeCloseTo(152.4, 2);
+  });
+
+  it("ESPRIT compute_error encodes as JSON error envelope (shared path)", () => {
+    const payload = encodeResponse("esprit", "OP-1", null, "tool not in catalog");
+    const parsed = JSON.parse(payload);
+    expect(parsed.status).toBe("compute_error");
+    expect(parsed.error).toBe("tool not in catalog");
+  });
+});
+
 // ── Real-corpus integration ──────────────────────────────────────────────────
 // Exercises the *default* compute path against the real
-// SpeedFeedOrchestratorEngine. This makes sure the bridge is not just shape-
-// correct under stubs — it produces sensible cutting parameters end-to-end
-// against the real physics resolvers.
+// SpeedFeedOrchestratorEngine. Asserts the actual response contract
+// (native_payload, with concrete field checks — not presence-only).
 
 describe("CAMSpeedFeedBridgeEngine — real-orchestrator integration", () => {
-  it("default compute path returns ok status with non-zero rpm and feed", () => {
+  it("default compute path: ok ⇒ physical rpm/feed; error ⇒ captured string", () => {
     const r = SFB.compute({
       target: "generic",
       native_request: {
         operation_id: "REAL-1",
-        // Real request: 6mm 4-flute carbide end-mill in steel (ISO P)
         dia: 6,
         flutes: 4,
-        material_iso: "P",
+        iso_group: "P",
         operation: "milling",
-      } as SFNativeRequest,
+      },
     });
-    // Either ok or compute_error — but if ok, the rpm/feed must be physical
+    expect(() => SFBridgeResponseSchema.parse(r)).not.toThrow();
     if (r.status === "ok") {
-      const obj = JSON.parse(r.payload);
-      // Generic encoder shape: presence of any non-zero numeric speed/feed field
-      const hasSpeed = JSON.stringify(obj).match(/\d+(\.\d+)?/);
-      expect(hasSpeed).not.toBeNull();
+      const obj = JSON.parse(r.native_payload);
+      expect(obj.type).toBe("speed_feed_recommendation");
+      expect(typeof obj.rpm).toBe("number");
+      expect(obj.rpm).toBeGreaterThan(0);
+      expect(obj.feed_rate_mm_min).toBeGreaterThan(0);
+      expect(r.orchestrator_result).not.toBeNull();
     } else {
-      // Compute_error is acceptable if the real orchestrator can't resolve
-      // the supplied catalog material/tool — but the error message must be
-      // a string, proving the bridge captured it cleanly.
+      expect(r.status).toBe("compute_error");
       expect(typeof r.error).toBe("string");
+      expect(r.error!.length).toBeGreaterThan(0);
+      expect(r.orchestrator_result).toBeNull();
     }
   });
 
-  it("default compute on Fusion target produces JSON-RPC envelope when ok", () => {
+  it("default compute on Fusion target: ok ⇒ JSON-RPC 2.0 envelope", () => {
     const r = SFB.compute({
       target: "fusion360",
       native_request: {
         operation_id: "REAL-2",
         dia: 8,
         flutes: 3,
-        material_iso: "M",
+        iso_group: "M",
         operation: "milling",
-      } as SFNativeRequest,
+      },
     });
-    if (r.status === "ok") {
-      const obj = JSON.parse(r.payload);
-      expect(obj.jsonrpc).toBe("2.0");
-    }
-    // Either way, response shape must validate
     expect(() => SFBridgeResponseSchema.parse(r)).not.toThrow();
+    if (r.status === "ok") {
+      const obj = JSON.parse(r.native_payload);
+      expect(obj.jsonrpc).toBe("2.0");
+      expect(obj.method).toBe("cam.speedFeedRecommendation");
+      expect(obj.params.rpm).toBeGreaterThan(0);
+    }
+  });
+
+  it("default ESPRIT compute: ok ⇒ ESPRIT pipe record with positive rpm + SFM", () => {
+    const r = SFB.compute({
+      target: "esprit",
+      native_request: {
+        operation_id: "REAL-ESP",
+        cutterDiameter: 9.525,
+        flutes: 2,
+        iso_group: "P",
+        operation: "milling",
+      },
+    });
+    expect(() => SFBridgeResponseSchema.parse(r)).not.toThrow();
+    if (r.status === "ok") {
+      const parts = r.native_payload.split("|");
+      expect(parts[0]).toBe("ESPRIT");
+      expect(Number(parts[2])).toBeGreaterThan(0);
+      expect(Number(parts[5])).toBeGreaterThan(0);
+    }
+  });
+
+  it("default SolidCAM compute: ok ⇒ solidcam.speedFeed JSON, positive feedZ", () => {
+    const r = SFB.compute({
+      target: "solidcam",
+      native_request: {
+        operation_id: "REAL-SC",
+        solidcamDiameter: 12.0,
+        flutes: 4,
+        iso_group: "N",
+        operation: "milling",
+      },
+    });
+    expect(() => SFBridgeResponseSchema.parse(r)).not.toThrow();
+    if (r.status === "ok") {
+      const obj = JSON.parse(r.native_payload);
+      expect(obj.type).toBe("solidcam.speedFeed");
+      expect(obj.spinSpeed).toBeGreaterThan(0);
+      expect(obj.feedZ).toBeGreaterThan(0);
+    }
   });
 
   it("default compute path is deterministic for the same input", () => {
@@ -435,27 +592,98 @@ describe("CAMSpeedFeedBridgeEngine — real-orchestrator integration", () => {
         operation_id: "REAL-3",
         dia: 6,
         flutes: 4,
-        material_iso: "P",
-        operation: "milling",
-      } as SFNativeRequest,
+        iso_group: "P" as const,
+        operation: "milling" as const,
+      },
     };
     const r1 = SFB.compute(req);
     const r2 = SFB.compute(req);
     expect(r1.status).toBe(r2.status);
-    if (r1.status === "ok" && r2.status === "ok") {
-      expect(r1.payload).toBe(r2.payload);
-    }
+    expect(r1.native_payload).toBe(r2.native_payload);
   });
 
-  it("translateRequest converts mastercam SFM → m/min on the real path", () => {
+  it("translateRequest converts ESPRIT surfaceSpeed SFM → m/min on the real path", () => {
     const native: SFNativeRequest = {
-      operation_id: "OP-CONV",
-      dia: 6,
-      sfm: 500, // 500 SFM = 152.4 m/min
+      operation_id: "OP-CONV-ESP",
+      cutterDiameter: 6,
+      surfaceSpeed: 500,
     };
-    const t = SFB.translateRequest("mastercam", native);
-    const override = (t as Record<string, unknown>).__vc_override as number | undefined;
-    expect(override).toBeDefined();
-    expect(override!).toBeCloseTo(500 * 0.3048, 3);
+    const t = SFB.translateRequest("esprit", native);
+    const override = (t as Record<string, unknown>).__vc_override as number;
+    expect(override).toBeCloseTo(500 * 0.3048, 3);
+  });
+});
+
+// ── Dispatcher round-trip (wiring verification) ──────────────────────────────
+// camDispatcher.ts case "cam_speedfeed_compute" lazily imports the engine and
+// calls .compute({target, native_request}). This replays that exact path with
+// the NEW targets and asserts the concrete native_payload contract — proving
+// esprit/solidcam survive the dispatcher boundary (engine Zod enum is the gate).
+
+describe("CAMSpeedFeedBridgeEngine — dispatcher round-trip", () => {
+  it("cam_speedfeed_compute path: ESPRIT lazy-import → pipe record", async () => {
+    const { CAMSpeedFeedBridgeEngine } = await import(
+      "../engines/CAMSpeedFeedBridgeEngine.js"
+    );
+    const result = CAMSpeedFeedBridgeEngine.compute(
+      {
+        target: "esprit",
+        native_request: {
+          operation_id: "DISP-ESP",
+          cutterDiameter: 10,
+          surfaceSpeed: 400,
+          flutes: 3,
+        },
+      },
+      stubCompute(minimalResult({ spindle_rpm: 7100, feed_rate_mmmin: 1065 })),
+    );
+    expect(result.status).toBe("ok");
+    expect(result.target).toBe("esprit");
+    const parts = result.native_payload.split("|");
+    expect(parts[0]).toBe("ESPRIT");
+    expect(parts[1]).toBe("DISP-ESP");
+    expect(Number(parts[2])).toBe(7100);
+    expect(Number(parts[3])).toBeCloseTo(1065, 1);
+  });
+
+  it("cam_speedfeed_compute path: SolidCAM lazy-import → JSON tag", async () => {
+    const { CAMSpeedFeedBridgeEngine } = await import(
+      "../engines/CAMSpeedFeedBridgeEngine.js"
+    );
+    const result = CAMSpeedFeedBridgeEngine.compute(
+      {
+        target: "solidcam",
+        native_request: {
+          operation_id: "DISP-SC",
+          solidcamDiameter: 16,
+          spinSpeed: 5200,
+        },
+      },
+      stubCompute(minimalResult({ spindle_rpm: 5200, feed_per_tooth_mm: 0.07 })),
+    );
+    expect(result.status).toBe("ok");
+    expect(result.target).toBe("solidcam");
+    const obj = JSON.parse(result.native_payload);
+    expect(obj.type).toBe("solidcam.speedFeed");
+    expect(obj.operationId).toBe("DISP-SC");
+    expect(obj.spinSpeed).toBe(5200);
+    expect(obj.feedZ).toBe(0.07);
+  });
+
+  it("cam_speedfeed_translate path: ESPRIT lazy-import → OrchestratorInput", async () => {
+    const { CAMSpeedFeedBridgeEngine } = await import(
+      "../engines/CAMSpeedFeedBridgeEngine.js"
+    );
+    const translated = CAMSpeedFeedBridgeEngine.translateRequest("esprit", {
+      operation_id: "DISP-T-ESP",
+      cutterDiameter: 12,
+      surfaceSpeed: 500,
+    });
+    expect(translated.tool_diameter_mm).toBe(12);
+    expect(translated.cam_system).toBe("ESPRIT");
+    expect((translated as Record<string, unknown>).__vc_override).toBeCloseTo(
+      152.4,
+      3,
+    );
   });
 });

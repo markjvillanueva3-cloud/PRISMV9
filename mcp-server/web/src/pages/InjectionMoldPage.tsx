@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { ApiError, injectionMoldDfm, injectionMoldMaterials, injectionMoldQuote } from '../api/client';
 import { ErrorState, LoadingState } from '../components/LoadingState';
+import { GatedError } from '../components/entitlement';
 import type { DfmResult, InjectionMoldMaterial, InjectionMoldQuoteResult } from '../api/types';
 import {
   ActionButton,
@@ -38,6 +39,7 @@ export function InjectionMoldPage() {
   const [dfm, setDfm] = useState<DfmResult | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [gateError, setGateError] = useState<unknown>(null);
   const [form, setForm] = useState({
     material: 'ABS',
     quantity: '10000',
@@ -74,6 +76,7 @@ export function InjectionMoldPage() {
       setResult((response.result as unknown as InjectionMoldQuoteResult) ?? null);
       setTab('quote');
     } catch (issue) {
+      setGateError(issue);
       setError(issue instanceof ApiError ? issue.message : 'Failed to generate quote');
     } finally {
       setLoading(false);
@@ -91,6 +94,7 @@ export function InjectionMoldPage() {
         [];
       setMaterials(Array.isArray(next) ? next : []);
     } catch (issue) {
+      setGateError(issue);
       setError(issue instanceof ApiError ? issue.message : 'Failed to load materials');
     } finally {
       setLoading(false);
@@ -109,6 +113,7 @@ export function InjectionMoldPage() {
       });
       setDfm((response.result as unknown as DfmResult) ?? null);
     } catch (issue) {
+      setGateError(issue);
       setError(issue instanceof ApiError ? issue.message : 'DFM analysis failed');
     } finally {
       setLoading(false);
@@ -173,7 +178,7 @@ export function InjectionMoldPage() {
       </div>
 
       {loading ? <LoadingState label="Refreshing injection mold desk..." /> : null}
-      {error ? <ErrorState message={error} onRetry={tab === 'quote' ? handleQuote : tab === 'materials' ? loadMaterials : runDfm} /> : null}
+      {error ? <GatedError error={gateError} feature='quoting' fallback={<ErrorState message={error} onRetry={tab === 'quote' ? handleQuote : tab === 'materials' ? loadMaterials : runDfm} />} /> : null}
 
       <div className="grid gap-6 xl:grid-cols-[minmax(0,1.08fr)_minmax(360px,0.92fr)]">
         <div className="space-y-6">

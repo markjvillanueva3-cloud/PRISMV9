@@ -15,7 +15,7 @@ import type {
   DocDeleteRequest,
   DocDeleteResult,
 } from "../types/docLearn";
-import { ApiError } from "./client";
+import { ApiError, getRequestHeaders } from "./client";
 
 const BASE_URL = "/api/v1/doc-learn";
 const TIMEOUT_MS = 120_000; // Extraction can take time
@@ -35,7 +35,9 @@ async function docPost<TReq, TRes>(
   try {
     const res = await fetch(`${BASE_URL}${endpoint}`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      // getRequestHeaders() sets Content-Type + attaches the Bearer once setApiKey ran at login, so the
+      // verifyToken-gated /doc-learn routes authenticate (U-INBOX-INTEGRATIONS-AUTH).
+      headers: getRequestHeaders(),
       body: JSON.stringify(body),
       signal: combinedSignal,
     });
@@ -65,6 +67,7 @@ async function docGet<TRes>(
   try {
     const res = await fetch(`${BASE_URL}${endpoint}`, {
       method: "GET",
+      headers: getRequestHeaders(),
       signal: combinedSignal,
     });
 
@@ -93,6 +96,7 @@ async function docDelete<TRes>(
   try {
     const res = await fetch(`${BASE_URL}${endpoint}`, {
       method: "DELETE",
+      headers: getRequestHeaders(),
       signal: combinedSignal,
     });
 

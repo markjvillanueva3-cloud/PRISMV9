@@ -1,0 +1,299 @@
+{
+  "schemaVersion": 1,
+  "platform": "esprit",
+  "writtenAt": "2026-05-25T19:37:45.560Z",
+  "atomicOpCount": 38,
+  "actions": [
+    {
+      "op": "sketch.create-plane",
+      "fn": "Document.CreateWorkplane",
+      "args": [
+        "origin",
+        "xAxis",
+        "yAxis"
+      ],
+      "notes": "VBScript automation"
+    },
+    {
+      "op": "sketch.line-2pt",
+      "fn": "Geometry.AddLine",
+      "args": [
+        "p1",
+        "p2"
+      ],
+      "notes": ""
+    },
+    {
+      "op": "sketch.line-polyline",
+      "fn": "Geometry.AddPolyline",
+      "args": [
+        "points[]"
+      ],
+      "notes": ""
+    },
+    {
+      "op": "sketch.arc-3pt",
+      "fn": "Geometry.AddArcByThreePoints",
+      "args": [
+        "p1",
+        "p2",
+        "p3"
+      ],
+      "notes": ""
+    },
+    {
+      "op": "sketch.arc-cse",
+      "fn": "Geometry.AddArcByCenter",
+      "args": [
+        "center",
+        "start",
+        "end"
+      ],
+      "notes": ""
+    },
+    {
+      "op": "sketch.circle-cr",
+      "fn": "Geometry.AddCircle",
+      "args": [
+        "center",
+        "radius"
+      ],
+      "notes": ""
+    },
+    {
+      "op": "sketch.ellipse-axes",
+      "fn": "Geometry.AddEllipse",
+      "args": [
+        "center",
+        "a",
+        "b"
+      ],
+      "notes": ""
+    },
+    {
+      "op": "sketch.spline-poly",
+      "fn": "Geometry.AddSpline",
+      "args": [
+        "points[]"
+      ],
+      "notes": ""
+    },
+    {
+      "op": "sketch.rect-2pt",
+      "fn": "Geometry.AddRectangle",
+      "args": [
+        "p1",
+        "p2"
+      ],
+      "notes": ""
+    },
+    {
+      "op": "sketch.rect-center",
+      "fn": "Geometry.AddRectCenter",
+      "args": [
+        "center",
+        "w",
+        "h"
+      ],
+      "notes": ""
+    },
+    {
+      "op": "sketch.polygon-n",
+      "fn": "Geometry.AddPolygon",
+      "args": [
+        "center",
+        "N",
+        "radius"
+      ],
+      "notes": ""
+    },
+    {
+      "op": "sketch.slot-straight",
+      "fn": "Geometry.AddSlot",
+      "args": [
+        "p1",
+        "p2",
+        "width"
+      ],
+      "notes": ""
+    },
+    {
+      "op": "sketch.slot-arc",
+      "fn": "Geometry.AddSlotArc",
+      "args": [
+        "arcCenter",
+        "p1",
+        "p2",
+        "width"
+      ],
+      "notes": ""
+    },
+    {
+      "op": "sketch.offset",
+      "fn": "Geometry.Offset",
+      "args": [
+        "entities",
+        "distance"
+      ],
+      "notes": ""
+    },
+    {
+      "op": "sketch.trim",
+      "fn": "Geometry.Trim",
+      "args": [
+        "entity",
+        "boundary"
+      ],
+      "notes": ""
+    },
+    {
+      "op": "sketch.fillet-2d",
+      "fn": "Geometry.Fillet",
+      "args": [
+        "c1",
+        "c2",
+        "radius"
+      ],
+      "notes": ""
+    },
+    {
+      "op": "op.extrude",
+      "fn": "(handled by post-CAD)",
+      "args": [],
+      "notes": ""
+    },
+    {
+      "op": "op.extrude-cut",
+      "fn": "(handled by post-CAD)",
+      "args": [],
+      "notes": ""
+    },
+    {
+      "op": "op.revolve",
+      "fn": "(handled by post-CAD)",
+      "args": [],
+      "notes": ""
+    },
+    {
+      "op": "op.loft",
+      "fn": "(handled by post-CAD)",
+      "args": [],
+      "notes": ""
+    },
+    {
+      "op": "op.sweep",
+      "fn": "(handled by post-CAD)",
+      "args": [],
+      "notes": ""
+    },
+    {
+      "op": "op.shell",
+      "fn": "(handled by post-CAD)",
+      "args": [],
+      "notes": ""
+    },
+    {
+      "op": "op.fillet",
+      "fn": "(handled by post-CAD)",
+      "args": [],
+      "notes": ""
+    },
+    {
+      "op": "op.chamfer",
+      "fn": "(handled by post-CAD)",
+      "args": [],
+      "notes": ""
+    },
+    {
+      "op": "op.draft",
+      "fn": "(handled by post-CAD)",
+      "args": [],
+      "notes": ""
+    },
+    {
+      "op": "op.mirror",
+      "fn": "Geometry.Mirror",
+      "args": [
+        "entity",
+        "plane"
+      ],
+      "notes": ""
+    },
+    {
+      "op": "op.pattern-rect",
+      "fn": "Geometry.PatternRect",
+      "args": [
+        "..."
+      ],
+      "notes": ""
+    },
+    {
+      "op": "op.pattern-circ",
+      "fn": "Geometry.PatternCirc",
+      "args": [
+        "..."
+      ],
+      "notes": ""
+    },
+    {
+      "op": "op.hole-simple",
+      "fn": "(handled by post-CAD)",
+      "args": [],
+      "notes": ""
+    },
+    {
+      "op": "op.hole-threaded",
+      "fn": "(handled by post-CAD)",
+      "args": [],
+      "notes": ""
+    },
+    {
+      "op": "op.thread-external",
+      "fn": "(handled by post-CAD)",
+      "args": [],
+      "notes": ""
+    },
+    {
+      "op": "op.boolean-add",
+      "fn": "Geometry.BooleanAdd",
+      "args": [],
+      "notes": ""
+    },
+    {
+      "op": "op.boolean-cut",
+      "fn": "Geometry.BooleanCut",
+      "args": [],
+      "notes": ""
+    },
+    {
+      "op": "op.boolean-intersect",
+      "fn": "Geometry.BooleanIntersect",
+      "args": [],
+      "notes": ""
+    },
+    {
+      "op": "asm.insert-component",
+      "fn": "(import as part)",
+      "args": [],
+      "notes": ""
+    },
+    {
+      "op": "asm.mate-coincident",
+      "fn": "(N/A)",
+      "args": [],
+      "notes": ""
+    },
+    {
+      "op": "asm.mate-concentric",
+      "fn": "(N/A)",
+      "args": [],
+      "notes": ""
+    },
+    {
+      "op": "asm.mate-distance",
+      "fn": "(N/A)",
+      "args": [],
+      "notes": ""
+    }
+  ]
+}

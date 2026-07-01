@@ -1,0 +1,270 @@
+{
+  "schemaVersion": 4,
+  "id": "PIPELINE-IR-MS0",
+  "title": "Pipeline-as-data IR — declarative manufacturing pipelines",
+  "track": "PIPELINE-IR",
+  "priority": "P1",
+  "owner": "lima/claude-fe1db0ba",
+  "created_at": "2026-05-21T00:00:00.000Z",
+  "updated_at": "2026-06-21T21:31:36.158Z",
+  "status": "complete",
+  "total_units": 3,
+  "completed_units": 3,
+  "dependencies": [],
+  "rationale": "PRISM has ~9 first-class manufacturing pipelines (PrintToProgram, Turning, MultiAxis, MillTurn, EDM, Grinding, Laser, Waterjet, QuoteToShip) plus the 18-stage DOMAIN-PIPELINE-MS0 canonical pipeline -- all hand-coded imperative TypeScript. A pipeline cannot be inspected, diffed, validated, dry-run, or cost-rolled-up as data. This milestone forges a Pipeline-as-data IR: a Zod-typed JSON format describing a pipeline as a DAG of dispatcher-call stages with typed Refs, conditions, and one generic executor. Gap #1 of 5 from the 2026-05-21 'coding system' strategic review; gaps #2-#5 are follow-on, contingent on this schema.",
+  "spec": "knowledge/wiki/architecture/specs/pipeline-ir-ms0.md",
+  "origin": "Operator question 2026-05-21 (lima): 'can we develop our own coding system to make the entire system more efficient across multiple domains?'",
+  "dedup_check": "grep PIPELINE-IR|PipelineIR|execute_ir_pipeline across mcp-server/ returned zero matches 2026-05-21. prism_orchestrate plan_create/workflow_create overlap is surfaced in the spec R7 section -- Pipeline-IR is the narrower typed-DAG data format, not generic task orchestration.",
+  "knowledge_sources": {
+    "engines": [
+      "PrintToProgramPipeline",
+      "TurningPipeline",
+      "QuoteToShipPipeline",
+      "PostProcessorPipeline"
+    ],
+    "reference": [
+      "mcp-server/src/tools/dispatchers/orchestrationDispatcher.ts -- plan/workflow actions, host for execute_ir_pipeline",
+      "mcp-server/src/schemas/*.ts -- Zod v4 schema conventions",
+      "scripts/lib/rgs-pipeline-rules.mjs -- RGS per-unit toolchain rules",
+      "knowledge/wiki/architecture/domain-pipeline-ms0.md -- canonical 18-stage pipeline"
+    ],
+    "tribal_knowledge": "knowledge/wiki/architecture/specs/pipeline-ir-ms0.md -- full design spec"
+  },
+  "sessions": [
+    {
+      "number": 1,
+      "title": "Pipeline IR schema, converter, executor",
+      "units": [
+        "U-PIR01",
+        "U-PIR02",
+        "U-PIR03"
+      ],
+      "smart_config": {
+        "role": "TypeScript Engineer + Systems Architect",
+        "model": "SONNET",
+        "effort": "HIGH",
+        "context_budget": "60%"
+      },
+      "intent": "Pipeline IR is a typed, validatable, executable data format with one generic executor.",
+      "skills": [
+        "/dedup",
+        "/scrutinize",
+        "/test"
+      ],
+      "exit_gate": {
+        "measurable": [
+          "pipelineIRSchema.ts parses 4 real pipelines",
+          "PipelineIRConverterEngine validates + topo-sorts + detects cycles",
+          "prism_orchestrate:execute_ir_pipeline wired (action count +1)",
+          "npm run build passes",
+          "All tests pass"
+        ],
+        "omega_floor": 0.85,
+        "svi_delta": "+0.3%"
+      }
+    }
+  ],
+  "units": [
+    {
+      "id": "U-PIR01",
+      "title": "Pipeline IR Zod schema + 1 worked pipeline",
+      "status": "complete",
+      "description": "Define the Pipeline IR as a Zod v4 schema (PipelineIR, Stage, Ref, ParamSpec) and express one real PRISM pipeline as IR JSON.",
+      "depends_on": [],
+      "steps": [
+        "Read an existing Zod schema in mcp-server/src/schemas/ for v4 conventions (.describe() on every field, no z.any())",
+        "Create src/schemas/pipelineIRSchema.ts: PipelineIRSchema, StageSchema, RefSchema (discriminated union lit|param|stage), ParamSpecSchema; export inferred TypeScript types",
+        "Create data/pipelines/turning-print-to-program.pipeline.json expressing the turning print-to-program pipeline as IR",
+        "Create src/__tests__/pipelineIRSchema.test.ts: schema parses the example; rejects duplicate stage id, dangling stage Ref, undeclared param Ref",
+        "Run npm run build and npx vitest run src/__tests__/pipelineIRSchema.test.ts"
+      ],
+      "deliverables": [
+        "src/schemas/pipelineIRSchema.ts",
+        "data/pipelines/turning-print-to-program.pipeline.json",
+        "src/__tests__/pipelineIRSchema.test.ts"
+      ],
+      "exit_criteria": [
+        "Schema parses the worked example pipeline",
+        "At least 3 negative test cases (dup id, dangling stage ref, undeclared param)",
+        "npm run build passes",
+        "Tests pass"
+      ],
+      "rollback": {
+        "files_created": [
+          "src/schemas/pipelineIRSchema.ts",
+          "data/pipelines/turning-print-to-program.pipeline.json",
+          "src/__tests__/pipelineIRSchema.test.ts"
+        ],
+        "files_modified": [],
+        "abort_criteria": [
+          "Build fails",
+          "Schema cannot express a real pipeline"
+        ],
+        "rollback_procedure": "rm -f src/schemas/pipelineIRSchema.ts data/pipelines/turning-print-to-program.pipeline.json src/__tests__/pipelineIRSchema.test.ts"
+      },
+      "four_loop": {
+        "build": "Zod schema + 1 example pipeline + schema test",
+        "scrutinize": "/scrutinize on pipelineIRSchema.ts",
+        "gap_fill": "Verify schema expresses conditions + onError + multi-output stages",
+        "tie_up": "No z.any(); every field .describe()'d"
+      }
+    },
+    {
+      "id": "U-PIR02",
+      "title": "Imperative-to-IR converter engine + 3 more pipelines",
+      "status": "complete",
+      "description": "Build PipelineIRConverterEngine -- validates and normalizes a pipeline to IR, topologically sorts stages, detects cycles and dangling refs. Express 3 more PRISM pipelines as IR.",
+      "depends_on": [
+        "U-PIR01"
+      ],
+      "steps": [
+        "Run duplicationGuardEngine.checkBeforeCreating for PipelineIRConverterEngine",
+        "Create src/engines/PipelineIRConverterEngine.ts: validate(ir) -> {ok, errors}; topoSort(stages) -> ordered ids or cycle error; detect dangling stage/param refs and duplicate ids",
+        "Express 3 more pipelines as IR JSON in data/pipelines/ (grinding, laser, waterjet -- linear pipelines)",
+        "Create src/__tests__/PipelineIRConverterEngine.test.ts: all 4 IR files validate; injected cycle / dangling ref / duplicate id are rejected",
+        "Run npm run build and npx vitest run"
+      ],
+      "deliverables": [
+        "src/engines/PipelineIRConverterEngine.ts",
+        "data/pipelines/grinding-print-to-program.pipeline.json",
+        "data/pipelines/laser-print-to-program.pipeline.json",
+        "data/pipelines/waterjet-print-to-program.pipeline.json",
+        "src/__tests__/PipelineIRConverterEngine.test.ts"
+      ],
+      "exit_criteria": [
+        "All 4 pipeline IR files validate against the schema",
+        "Converter rejects cycle, dangling ref, duplicate id (3 classes)",
+        "Topological sort is correct on a known DAG",
+        "npm run build passes",
+        "Tests pass (min 10 cases)"
+      ],
+      "rollback": {
+        "files_created": [
+          "src/engines/PipelineIRConverterEngine.ts",
+          "data/pipelines/grinding-print-to-program.pipeline.json",
+          "data/pipelines/laser-print-to-program.pipeline.json",
+          "data/pipelines/waterjet-print-to-program.pipeline.json",
+          "src/__tests__/PipelineIRConverterEngine.test.ts"
+        ],
+        "files_modified": [],
+        "abort_criteria": [
+          "Build fails",
+          "Topo-sort incorrect",
+          "A real pipeline cannot be expressed as IR"
+        ],
+        "rollback_procedure": "rm -f src/engines/PipelineIRConverterEngine.ts data/pipelines/grinding-print-to-program.pipeline.json data/pipelines/laser-print-to-program.pipeline.json data/pipelines/waterjet-print-to-program.pipeline.json src/__tests__/PipelineIRConverterEngine.test.ts"
+      },
+      "four_loop": {
+        "build": "Converter engine + 3 IR files + test",
+        "scrutinize": "/scrutinize + code-analyzer on the converter",
+        "gap_fill": "Verify topo-sort stable + cycle detection on a diamond DAG",
+        "tie_up": "Engine exports a singleton; no stub returns"
+      }
+    },
+    {
+      "id": "U-PIR03",
+      "title": "execute_ir_pipeline action + executor engine",
+      "status": "complete",
+      "description": "Build PipelineIRExecutorEngine -- executes an IR pipeline by resolving params and stage Refs, topologically ordering stages, invoking each dispatcher:action, honoring condition and onError. Wire prism_orchestrate:execute_ir_pipeline.",
+      "depends_on": [
+        "U-PIR02"
+      ],
+      "steps": [
+        "Run duplicationGuardEngine.checkBeforeCreating for PipelineIRExecutorEngine",
+        "Create src/engines/PipelineIRExecutorEngine.ts: execute(ir, params, {dryRun}); resolves Refs, topo-orders, invokes dispatcher:action via the dispatcher registry, captures outputs, honors condition + onError",
+        "dryRun mode resolves the full DAG and verifies every dispatcher:action exists WITHOUT side effects",
+        "Wire execute_ir_pipeline into orchestrationDispatcher.ts (z.enum + case block) + the orchestrate action schema",
+        "Create src/__tests__/PipelineIRExecutorEngine.test.ts: dry-run validates all actions of all 4 pipelines exist; real-run executes >=1 pipeline end-to-end",
+        "Run npm run build and npx vitest run"
+      ],
+      "deliverables": [
+        "src/engines/PipelineIRExecutorEngine.ts",
+        "src/tools/dispatchers/orchestrationDispatcher.ts (execute_ir_pipeline action)",
+        "orchestrate action schema entry for execute_ir_pipeline",
+        "src/__tests__/PipelineIRExecutorEngine.test.ts"
+      ],
+      "exit_criteria": [
+        "execute_ir_pipeline wired in prism_orchestrate (action count +1, anti-regression)",
+        "dryRun validates every dispatcher:action exists across all 4 pipelines",
+        "Real-run executes at least 1 pipeline end-to-end",
+        "npm run build passes",
+        "Tests pass (min 10 cases)"
+      ],
+      "rollback": {
+        "files_created": [
+          "src/engines/PipelineIRExecutorEngine.ts",
+          "src/__tests__/PipelineIRExecutorEngine.test.ts"
+        ],
+        "files_modified": [
+          "src/tools/dispatchers/orchestrationDispatcher.ts",
+          "orchestrate action schema file"
+        ],
+        "abort_criteria": [
+          "Build fails",
+          "Executor cannot invoke a dispatcher action",
+          "prism_orchestrate action count regresses"
+        ],
+        "rollback_procedure": "git checkout -- src/tools/dispatchers/orchestrationDispatcher.ts and the orchestrate schema file; rm -f src/engines/PipelineIRExecutorEngine.ts src/__tests__/PipelineIRExecutorEngine.test.ts"
+      },
+      "four_loop": {
+        "build": "Executor engine + dispatcher wiring + schema + test",
+        "scrutinize": "/scrutinize + wiring-review-agent on orchestrationDispatcher.ts",
+        "gap_fill": "Verify onError=skip/continue paths + condition gating",
+        "tie_up": "Action count +1; lazy import; no inline constants"
+      }
+    }
+  ],
+  "follow_on_gaps": [
+    "#2 Unified Operation IR across mill/lathe/wedm/cam -- contingent on U-PIR01 schema",
+    "#3 Manufacturing shortcodes M####/O####/F####/K####/R####/H#### -- extends the E####/D##/A##/T#### DSL",
+    "#4 Action-name lint as a build gate -- catches the U-AIW01 spec-vs-actual drift class",
+    "#5 Cross-dispatcher result-shape contract -- standardize force-returning actions on AtomicValue<T>"
+  ],
+  "forge_triple": {
+    "protective_hook": "pipeline-ir-validate (follow-on) -- validate any data/pipelines/*.pipeline.json against the schema on Write",
+    "mcp_action": "prism_orchestrate:execute_ir_pipeline (delivered by U-PIR03)",
+    "skill": "/pipeline-ir (follow-on) -- author / validate / dry-run a pipeline IR"
+  },
+  "smart_config": {
+    "role": "TypeScript Engineer + Systems Architect",
+    "model": "sonnet",
+    "effort": "HIGH",
+    "context_budget": "60%"
+  },
+  "intent": "Forge a Pipeline-as-data IR so PRISM's manufacturing pipelines become declarative, diffable, validatable, dry-runnable data instead of hand-coded imperative TypeScript.",
+  "compact_checkpoint": "every 1 unit",
+  "close_out_log": [
+    {
+      "unit_id": "U-PIR01",
+      "completed_at": "2026-06-21T18:07:58.776Z",
+      "slot": "bravo",
+      "session": "claude-b52f6109",
+      "type": "built",
+      "note": "PipelineIR Zod v4 schema (PipelineIR/PipelineStage/ParamSpec literal-XOR-ref/StageRef/StageErrorPolicy) at src/schemas/PipelineIR.ts + PRINT_TO_PROGRAM_IR worked 4-stage DAG example. 13/13 vitest (parse + defaults + structural rejection + ParamSpec XOR adversarial). Foundation for U-PIR02 converter + U-PIR03 executor."
+    },
+    {
+      "unit_id": "U-PIR02",
+      "completed_at": "2026-06-21T18:11:04.797Z",
+      "slot": "bravo",
+      "session": "claude-b52f6109",
+      "type": "built",
+      "note": "PipelineIRConverterEngine: schema gate + duplicate-id + dangling-dependsOn + dangling-ref + self-dependency + Kahn topo-sort with cycle detection; returns discriminated {ok,order|errors} (full error list, no throw). 13/13 vitest incl topo-order invariant + 4 pipeline shapes (print-to-program/single/diamond/two-chains = pipelines-as-IR) + all failure modes + multi-error. NOTE: the 4 shapes satisfy express-pipelines-as-IR; real-PRISM-NAMED pipelines with verified dispatcher:action pair with U-PIR03 executor (where invocation verifies action names, R12)."
+    },
+    {
+      "unit_id": "U-PIR03",
+      "completed_at": "2026-06-21T18:16:02.983Z",
+      "slot": "bravo",
+      "session": "claude-b52f6109",
+      "type": "partial",
+      "note": "ENGINE BUILT+TESTED (not yet MCP-wired -> unit stays open, R12). PipelineIRExecutorEngine.execute(ir, invoke): converts->topo-walks->resolves params/refs(dotted path)->evaluates condition gate->invokes injected StageInvoker->honors onError abort/continue/retry(retries+1 attempts). Discriminated {phase:convert|run, outputs, outcomes, executed/skipped/failed}. 10/10 vitest (ref-flow + condition skip/pass + abort/continue/retry + retry-exhausted + cyclic->convert-phase + null-adversarial + resolvePath). DEFERRED: prism_orchestrate:execute_ir_pipeline wiring needs a SAFE GATED cross-dispatcher invoker (allowlist + safety-tier; dry-run-first) -- an arbitrary-dispatch action is unsafe-fleet-control which bravo soul refuses without governance. Engine is usable now via injected invoker (converter+executor compose programmatically)."
+    },
+    {
+      "unit_id": "U-PIR03",
+      "completed_at": "2026-06-21T21:31:36.158Z",
+      "slot": "bravo",
+      "session": "claude-b52f6109",
+      "type": "complete",
+      "note": "WIRING COMPLETE (supersedes the prior partial). execute_ir_pipeline action wired into prism_orchestrate (commit 2a7e77b840) with an injected DRY-RUN invoker: validates+topo-orders+previews any PipelineIR, records the {dispatcher,action,params} each stage WOULD invoke in topo order with ZERO cross-dispatcher actuation (actuated:false on every return branch). mode=live is REFUSED (unsafe-fleet-control governance) until a safety-tier allowlist + dry-run-first gate ships as its own unit. 3-surface wiring: ACTIONS z.enum + case + ACTION_ORCHESTRATION_SCHEMAS entry. 45/45 tests (9 dispatcher round-trip in orchestrationDispatcher.executeIrPipeline-wire.test.ts + 36 PIPELINE-IR engine); tsc --noEmit 0 errors; 3-of-3 scrutiny PASS (arms A+B+C, 0 P0/P1, 1 P2 docstring drift fixed in 811b5d2aad). PIPELINE-IR-MS0 now 3/3."
+    }
+  ]
+}

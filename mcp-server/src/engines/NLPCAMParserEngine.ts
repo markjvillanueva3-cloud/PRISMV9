@@ -92,7 +92,102 @@ const MACHINE_PATTERNS: Array<{ pattern: RegExp; name: string }> = [
   { pattern: /hurco\s*(vm|tmx)/i, name: "Hurco" },
 ];
 
+/** Raw dimension values extracted from natural language text. */
+export interface ParsedDimensions {
+  length_mm?: number;
+  width_mm?: number;
+  depth_mm?: number;
+  diameter_mm?: number;
+  tolerance_mm?: number;
+  surface_finish_Ra?: number;
+}
+
 export class NLPCAMParserEngine {
+  /**
+   * Extract only dimension values from natural language text without full parsing.
+   * Uses the same DIM_PATTERNS as parse(), but returns just the numbers.
+   *
+   * @param text - Natural language description (e.g. "80x50mm, 15mm deep, +/-0.01")
+   * @returns ParsedDimensions with whichever dimensions were found
+   */
+  extractDimensions(text: string): ParsedDimensions {
+    const dims: ParsedDimensions = {};
+
+    const wxhMatch = text.match(DIM_PATTERNS.wxh);
+    if (wxhMatch) {
+      dims.length_mm = parseFloat(wxhMatch[1]);
+      dims.width_mm = parseFloat(wxhMatch[2]);
+    }
+
+    const depthMatch = text.match(DIM_PATTERNS.depth);
+    if (depthMatch) {
+      dims.depth_mm = parseFloat(depthMatch[1] || depthMatch[2]);
+    }
+
+    const diaMatch = text.match(DIM_PATTERNS.diameter);
+    if (diaMatch) {
+      dims.diameter_mm = parseFloat(diaMatch[1] || diaMatch[2] || diaMatch[3]);
+    }
+
+    const lenMatch = text.match(DIM_PATTERNS.length);
+    if (lenMatch) {
+      const val = parseFloat(lenMatch[1] || lenMatch[2] || lenMatch[3]);
+      if (!dims.length_mm) dims.length_mm = val;
+    }
+
+    const tolMatch = text.match(DIM_PATTERNS.tolerance);
+    if (tolMatch) {
+      dims.tolerance_mm = parseFloat(tolMatch[1] || tolMatch[2]);
+    }
+
+    const raMatch = text.match(DIM_PATTERNS.ra);
+    if (raMatch) {
+      dims.surface_finish_Ra = parseFloat(raMatch[1] || raMatch[2] || raMatch[3]);
+    }
+
+    return dims;
+  }
+
+  /**
+   * Parse with explicit material and/or machine context overrides.
+   * Calls parse() then overlays the caller-supplied material/machine values,
+   * raising confidence when context is provided.
+   *
+   * @param text - Natural language description
+   * @param material - Optional material name override (e.g. "Ti-6Al-4V")
+   * @param machine - Optional machine name override (e.g. "Haas VF2")
+   * @returns ParsedCAMRequest with overridden context fields
+   */
+  parseWithContext(text: string, material?: string, machine?: string): ParsedCAMRequest {
+    const result = this.parse(text);
+
+    if (material) {
+      // Find ISO group for the supplied material string
+      let matchedIso: string | undefined;
+      for (const mp of MATERIAL_PATTERNS) {
+        if (mp.pattern.test(material)) {
+          matchedIso = mp.iso;
+          result.material = mp.name;
+          break;
+        }
+      }
+      // If no pattern matched, store the raw string and leave iso as-is
+      if (!matchedIso) {
+        result.material = material;
+      } else {
+        result.material_iso_group = matchedIso as ParsedCAMRequest["material_iso_group"];
+      }
+      result.confidence = Math.min(0.95, result.confidence + 0.05);
+    }
+
+    if (machine) {
+      result.machine_name = machine;
+      result.confidence = Math.min(0.95, result.confidence + 0.05);
+    }
+
+    return result;
+  }
+
   /**
    * Parse natural language description into structured CAM request.
    */

@@ -1,3 +1,4 @@
+// WIRE-EXEMPT: internal LLM API client consumed by MultiModelConsensusEngine (octopus); not a user-facing dispatcher action.
 /**
  * DeepSeekClientEngine — HTTP client for DeepSeek's hosted API.
  *

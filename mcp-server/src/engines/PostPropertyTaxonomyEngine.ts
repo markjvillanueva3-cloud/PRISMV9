@@ -1995,6 +1995,10 @@ class PostPropertyTaxonomyEngineImpl {
    * @param controllerName - Controller name, brand, or CPS filename
    */
   mapDialect(controllerName: string): DialectMappingResult | null {
+    // Guard: an empty string would match every dialect via .includes("") -- return null
+    if (!controllerName || controllerName.trim().length === 0) {
+      return null;
+    }
     const family = this.detectFamily(controllerName);
     const dialect = CONTROLLER_DIALECTS.find(
       d => d.family === family ||

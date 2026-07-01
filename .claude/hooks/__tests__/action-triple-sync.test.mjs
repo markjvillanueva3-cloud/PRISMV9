@@ -19,7 +19,7 @@ let failed = 0;
 
 async function runHook(input) {
   return new Promise((resolve, reject) => {
-    const child = spawn("node", [HOOK], { stdio: ["pipe", "pipe", "pipe"] });
+    const child = spawn(process.execPath, [HOOK], { stdio: ["pipe", "pipe", "pipe"] });
     let stdout = "";
     let stderr = "";
     child.stdout.on("data", (d) => (stdout += d.toString()));

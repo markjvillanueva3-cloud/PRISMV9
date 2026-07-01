@@ -1,0 +1,53 @@
+{
+  "schemaVersion": "1.0.0",
+  "models": [
+    "qwen3-vl:8b-instruct",
+    "qwen2.5vl:7b",
+    "llama3.2-vision:11b"
+  ],
+  "n_models": 3,
+  "calibrate": {
+    "count_attempted": 0,
+    "cases": [],
+    "samples": 0,
+    "calibration": {
+      "byF": [],
+      "totalN": 0,
+      "minF": null,
+      "maxF": null,
+      "calibrated": false,
+      "reliable": false,
+      "minReliableSamples": 50
+    }
+  },
+  "weak_label": {
+    "real_prints": 1,
+    "scored": 0,
+    "aggregate": {
+      "parts": 0,
+      "total_labels": 0,
+      "trainable_labels": 0,
+      "trainable_yield": 0,
+      "tier_totals": {
+        "gold": 0,
+        "silver": 0,
+        "bronze": 0,
+        "reject": 0,
+        "uncalibrated": 0
+      },
+      "active_learning_queue": 0,
+      "calibration": {
+        "calibrated": false,
+        "reliable": false,
+        "totalN": 0,
+        "byF": []
+      }
+    }
+  },
+  "outputs": {
+    "trainset": "state\\shared\\ocr-training-loop\\diag-known-good\\trainset.jsonl",
+    "active_learning_queue": "state\\shared\\ocr-training-loop\\diag-known-good\\active-learning-queue.jsonl"
+  },
+  "mustHumanVerify": true,
+  "note": "Pseudo-labels are ensemble-distilled. Gold/silver are calibration-tiered (validated on synthetic perfect-GT); operator must confirm the active-learning queue before LoRA fine-tune (india)."
+}

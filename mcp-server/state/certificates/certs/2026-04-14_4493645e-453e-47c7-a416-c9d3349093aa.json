@@ -1,0 +1,20 @@
+import { createRequire } from 'module'; import { fileURLToPath } from 'url'; import { dirname } from 'path'; const require = createRequire(import.meta.url); const __filename = fileURLToPath(import.meta.url); const __dirname = dirname(__filename);
+
+// src/engines/CpsDialectMapperEngine.ts
+var VENDOR_CONTROLLER_MAP = {
+  "Autodesk": "generic_fanuc",
+  "Haas Automation": "haas_ngc",
+  "Siemens": "siemens_840d",
+  "Heidenhain": "heidenhain_tnc640",
+  "Mazak": "mazak_smooth_ai",
+  "Okuma": "okuma_osp_p300",
+  "FANUC": "fanuc_31i",
+  "Fanuc": "fanuc_31i",
+  "Brother": "brother_speedio",
+  "Mitsubishi": "mitsubishi_m80",
+  "Fagor": "fagor_8065",
+  "Citizen": "citizen_cincom",
+  "Star": "star_fanuc",
+  "Hurco": "hurco_max5",
+  "DMG MORI": "dmg_celos_siemens",
+  "DMG Mori": "dmg_celos_siem

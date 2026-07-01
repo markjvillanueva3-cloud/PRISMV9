@@ -1,0 +1,714 @@
+{
+  "id": "MS-TRAIN-DEEP",
+  "version": "7.6.0",
+  "title": "MS-TRAIN-DEEP — 3 model-training fronts (print→CNC-program · print→CAD/CAM · SFC-accuracy calibration loop), 26 units",
+  "brief": "Extends the existing 20-unit MS-TRAIN. The plumbing is wired, NOTHING is trained — ~80 LoRA engines, every checkpoint status:'not_trained' samples:0, base = mistral-7B-v0.1. Front 1 (print→CNC-program, 8u): ~1,330 print↔g-code PNs (the v5 join's exact+loose tiers — categorical confidence, NOT a numeric ≥0.85 threshold) + the 55 verified triples (38 exact >0.95) + the RE-OPTIMIZED 16,558-program lathe corpus (NOT the raw one — the raw archive is a noisy teacher, 38K mistakes); functional-equivalence via cnc_simulate_physics is the GATING metric, edit-distance-to-archive is a SOFT flag. Front 2 (print→CAD/CAM, 7u): ~1,500-2,500 print↔CAD pairs; geometric-similarity + feature-F1 validation. Front 3 (SFC-accuracy calibration loop, 6u): Bayesian calibration of Kienzle/Taylor per (ISO-group × machine × tool-class) cell — see MS-SFC-CALIBRATE. Cross-cutting (5u): the detached-GPU runner needs a real HF/peft backend (the one stub all fronts share — one CUDA GPU ≥16GB, mistral-7B QLoRA overnight; CPU-only inference after 4-bit quant).",
+  "created_at": "2026-05-11T18:00:32.098Z",
+  "created_by": "claude-99eca613 (register-revenue-roadmap-envelopes.mjs, v7.6 §R10)",
+  "track": "revenue",
+  "track_name": "REVENUE-ROADMAP v7.6",
+  "roadmap_priority": 1,
+  "tier": 1,
+  "status": "not_started",
+  "source": "§R8.3 — corrections baked in: v4→v5 join, categorical confidence, clean lathe corpus for U-TRAIN-P2P-06, drop MinerU",
+  "viz_node_id": "ghost.ms.ms-train-deep",
+  "doc_propagation": [
+    "claude.md",
+    "gsd",
+    "wiki",
+    "system-viz"
+  ],
+  "dependencies": [
+    "MS-CRITWIRE",
+    "MS-DOCU-INGEST",
+    "MS-RES-NC-MINE"
+  ],
+  "blocks": [],
+  "phases": [
+    {
+      "id": "P0",
+      "title": "MS-TRAIN-DEEP — 3 model-training fronts (print→CNC-program · print→CAD/CAM · SFC-accuracy calibration loop), 26 units",
+      "sessions": "7",
+      "units": [
+        {
+          "id": "U-MS-TRAIN-DEEP-01",
+          "title": "MS-TRAIN-DEEP unit 1 of 26 (placeholder — enumerate from the §R-layer prose during execution)",
+          "effort": 90,
+          "dependencies": [],
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit",
+            "Dispatcher wiring verified: import + call + action-enum + Zod schema all match (test invokes through the dispatcher, not only the engine singleton)"
+          ],
+          "description": "MS-TRAIN-DEEP unit 1 — follow the 4-LOOP; consult the §R-layer prose in REVENUE-ROADMAP-v7.6.md for the concrete deliverable; run duplicationGuardEngine.checkBeforeCreating() before any new asset.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "viz_node_id": "ghost.ms.ms-train-deep.u01",
+          "doc_propagation": [
+            "wiki",
+            "skill",
+            "digest",
+            "system-viz"
+          ]
+        },
+        {
+          "id": "U-MS-TRAIN-DEEP-02",
+          "title": "MS-TRAIN-DEEP unit 2 of 26 (placeholder — enumerate from the §R-layer prose during execution)",
+          "effort": 90,
+          "dependencies": [],
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit",
+            "Dispatcher wiring verified: import + call + action-enum + Zod schema all match (test invokes through the dispatcher, not only the engine singleton)"
+          ],
+          "description": "MS-TRAIN-DEEP unit 2 — follow the 4-LOOP; consult the §R-layer prose in REVENUE-ROADMAP-v7.6.md for the concrete deliverable; run duplicationGuardEngine.checkBeforeCreating() before any new asset.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "viz_node_id": "ghost.ms.ms-train-deep.u02",
+          "doc_propagation": [
+            "wiki",
+            "skill",
+            "digest",
+            "system-viz"
+          ]
+        },
+        {
+          "id": "U-MS-TRAIN-DEEP-03",
+          "title": "MS-TRAIN-DEEP unit 3 of 26 (placeholder — enumerate from the §R-layer prose during execution)",
+          "effort": 90,
+          "dependencies": [],
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit",
+            "Dispatcher wiring verified: import + call + action-enum + Zod schema all match (test invokes through the dispatcher, not only the engine singleton)"
+          ],
+          "description": "MS-TRAIN-DEEP unit 3 — follow the 4-LOOP; consult the §R-layer prose in REVENUE-ROADMAP-v7.6.md for the concrete deliverable; run duplicationGuardEngine.checkBeforeCreating() before any new asset.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "viz_node_id": "ghost.ms.ms-train-deep.u03",
+          "doc_propagation": [
+            "wiki",
+            "skill",
+            "digest",
+            "system-viz"
+          ]
+        },
+        {
+          "id": "U-MS-TRAIN-DEEP-04",
+          "title": "MS-TRAIN-DEEP unit 4 of 26 (placeholder — enumerate from the §R-layer prose during execution)",
+          "effort": 90,
+          "dependencies": [],
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit",
+            "Dispatcher wiring verified: import + call + action-enum + Zod schema all match (test invokes through the dispatcher, not only the engine singleton)"
+          ],
+          "description": "MS-TRAIN-DEEP unit 4 — follow the 4-LOOP; consult the §R-layer prose in REVENUE-ROADMAP-v7.6.md for the concrete deliverable; run duplicationGuardEngine.checkBeforeCreating() before any new asset.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "viz_node_id": "ghost.ms.ms-train-deep.u04",
+          "doc_propagation": [
+            "wiki",
+            "skill",
+            "digest",
+            "system-viz"
+          ]
+        },
+        {
+          "id": "U-MS-TRAIN-DEEP-05",
+          "title": "MS-TRAIN-DEEP unit 5 of 26 (placeholder — enumerate from the §R-layer prose during execution)",
+          "effort": 90,
+          "dependencies": [],
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit",
+            "Dispatcher wiring verified: import + call + action-enum + Zod schema all match (test invokes through the dispatcher, not only the engine singleton)"
+          ],
+          "description": "MS-TRAIN-DEEP unit 5 — follow the 4-LOOP; consult the §R-layer prose in REVENUE-ROADMAP-v7.6.md for the concrete deliverable; run duplicationGuardEngine.checkBeforeCreating() before any new asset.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "viz_node_id": "ghost.ms.ms-train-deep.u05",
+          "doc_propagation": [
+            "wiki",
+            "skill",
+            "digest",
+            "system-viz"
+          ]
+        },
+        {
+          "id": "U-MS-TRAIN-DEEP-06",
+          "title": "MS-TRAIN-DEEP unit 6 of 26 (placeholder — enumerate from the §R-layer prose during execution)",
+          "effort": 90,
+          "dependencies": [],
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit",
+            "Dispatcher wiring verified: import + call + action-enum + Zod schema all match (test invokes through the dispatcher, not only the engine singleton)"
+          ],
+          "description": "MS-TRAIN-DEEP unit 6 — follow the 4-LOOP; consult the §R-layer prose in REVENUE-ROADMAP-v7.6.md for the concrete deliverable; run duplicationGuardEngine.checkBeforeCreating() before any new asset.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "viz_node_id": "ghost.ms.ms-train-deep.u06",
+          "doc_propagation": [
+            "wiki",
+            "skill",
+            "digest",
+            "system-viz"
+          ]
+        },
+        {
+          "id": "U-MS-TRAIN-DEEP-07",
+          "title": "MS-TRAIN-DEEP unit 7 of 26 (placeholder — enumerate from the §R-layer prose during execution)",
+          "effort": 90,
+          "dependencies": [],
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit",
+            "Dispatcher wiring verified: import + call + action-enum + Zod schema all match (test invokes through the dispatcher, not only the engine singleton)"
+          ],
+          "description": "MS-TRAIN-DEEP unit 7 — follow the 4-LOOP; consult the §R-layer prose in REVENUE-ROADMAP-v7.6.md for the concrete deliverable; run duplicationGuardEngine.checkBeforeCreating() before any new asset.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "viz_node_id": "ghost.ms.ms-train-deep.u07",
+          "doc_propagation": [
+            "wiki",
+            "skill",
+            "digest",
+            "system-viz"
+          ]
+        },
+        {
+          "id": "U-MS-TRAIN-DEEP-08",
+          "title": "MS-TRAIN-DEEP unit 8 of 26 (placeholder — enumerate from the §R-layer prose during execution)",
+          "effort": 90,
+          "dependencies": [],
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit",
+            "Dispatcher wiring verified: import + call + action-enum + Zod schema all match (test invokes through the dispatcher, not only the engine singleton)"
+          ],
+          "description": "MS-TRAIN-DEEP unit 8 — follow the 4-LOOP; consult the §R-layer prose in REVENUE-ROADMAP-v7.6.md for the concrete deliverable; run duplicationGuardEngine.checkBeforeCreating() before any new asset.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "viz_node_id": "ghost.ms.ms-train-deep.u08",
+          "doc_propagation": [
+            "wiki",
+            "skill",
+            "digest",
+            "system-viz"
+          ]
+        },
+        {
+          "id": "U-MS-TRAIN-DEEP-09",
+          "title": "MS-TRAIN-DEEP unit 9 of 26 (placeholder — enumerate from the §R-layer prose during execution)",
+          "effort": 90,
+          "dependencies": [],
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit",
+            "Dispatcher wiring verified: import + call + action-enum + Zod schema all match (test invokes through the dispatcher, not only the engine singleton)"
+          ],
+          "description": "MS-TRAIN-DEEP unit 9 — follow the 4-LOOP; consult the §R-layer prose in REVENUE-ROADMAP-v7.6.md for the concrete deliverable; run duplicationGuardEngine.checkBeforeCreating() before any new asset.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "viz_node_id": "ghost.ms.ms-train-deep.u09",
+          "doc_propagation": [
+            "wiki",
+            "skill",
+            "digest",
+            "system-viz"
+          ]
+        },
+        {
+          "id": "U-MS-TRAIN-DEEP-10",
+          "title": "MS-TRAIN-DEEP unit 10 of 26 (placeholder — enumerate from the §R-layer prose during execution)",
+          "effort": 90,
+          "dependencies": [],
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit",
+            "Dispatcher wiring verified: import + call + action-enum + Zod schema all match (test invokes through the dispatcher, not only the engine singleton)"
+          ],
+          "description": "MS-TRAIN-DEEP unit 10 — follow the 4-LOOP; consult the §R-layer prose in REVENUE-ROADMAP-v7.6.md for the concrete deliverable; run duplicationGuardEngine.checkBeforeCreating() before any new asset.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "viz_node_id": "ghost.ms.ms-train-deep.u10",
+          "doc_propagation": [
+            "wiki",
+            "skill",
+            "digest",
+            "system-viz"
+          ]
+        },
+        {
+          "id": "U-MS-TRAIN-DEEP-11",
+          "title": "MS-TRAIN-DEEP unit 11 of 26 (placeholder — enumerate from the §R-layer prose during execution)",
+          "effort": 90,
+          "dependencies": [],
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit",
+            "Dispatcher wiring verified: import + call + action-enum + Zod schema all match (test invokes through the dispatcher, not only the engine singleton)"
+          ],
+          "description": "MS-TRAIN-DEEP unit 11 — follow the 4-LOOP; consult the §R-layer prose in REVENUE-ROADMAP-v7.6.md for the concrete deliverable; run duplicationGuardEngine.checkBeforeCreating() before any new asset.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "viz_node_id": "ghost.ms.ms-train-deep.u11",
+          "doc_propagation": [
+            "wiki",
+            "skill",
+            "digest",
+            "system-viz"
+          ]
+        },
+        {
+          "id": "U-MS-TRAIN-DEEP-12",
+          "title": "MS-TRAIN-DEEP unit 12 of 26 (placeholder — enumerate from the §R-layer prose during execution)",
+          "effort": 90,
+          "dependencies": [],
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit",
+            "Dispatcher wiring verified: import + call + action-enum + Zod schema all match (test invokes through the dispatcher, not only the engine singleton)"
+          ],
+          "description": "MS-TRAIN-DEEP unit 12 — follow the 4-LOOP; consult the §R-layer prose in REVENUE-ROADMAP-v7.6.md for the concrete deliverable; run duplicationGuardEngine.checkBeforeCreating() before any new asset.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "viz_node_id": "ghost.ms.ms-train-deep.u12",
+          "doc_propagation": [
+            "wiki",
+            "skill",
+            "digest",
+            "system-viz"
+          ]
+        },
+        {
+          "id": "U-MS-TRAIN-DEEP-13",
+          "title": "MS-TRAIN-DEEP unit 13 of 26 (placeholder — enumerate from the §R-layer prose during execution)",
+          "effort": 90,
+          "dependencies": [],
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit",
+            "Dispatcher wiring verified: import + call + action-enum + Zod schema all match (test invokes through the dispatcher, not only the engine singleton)"
+          ],
+          "description": "MS-TRAIN-DEEP unit 13 — follow the 4-LOOP; consult the §R-layer prose in REVENUE-ROADMAP-v7.6.md for the concrete deliverable; run duplicationGuardEngine.checkBeforeCreating() before any new asset.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "viz_node_id": "ghost.ms.ms-train-deep.u13",
+          "doc_propagation": [
+            "wiki",
+            "skill",
+            "digest",
+            "system-viz"
+          ]
+        },
+        {
+          "id": "U-MS-TRAIN-DEEP-14",
+          "title": "MS-TRAIN-DEEP unit 14 of 26 (placeholder — enumerate from the §R-layer prose during execution)",
+          "effort": 90,
+          "dependencies": [],
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit",
+            "Dispatcher wiring verified: import + call + action-enum + Zod schema all match (test invokes through the dispatcher, not only the engine singleton)"
+          ],
+          "description": "MS-TRAIN-DEEP unit 14 — follow the 4-LOOP; consult the §R-layer prose in REVENUE-ROADMAP-v7.6.md for the concrete deliverable; run duplicationGuardEngine.checkBeforeCreating() before any new asset.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "viz_node_id": "ghost.ms.ms-train-deep.u14",
+          "doc_propagation": [
+            "wiki",
+            "skill",
+            "digest",
+            "system-viz"
+          ]
+        },
+        {
+          "id": "U-MS-TRAIN-DEEP-15",
+          "title": "MS-TRAIN-DEEP unit 15 of 26 (placeholder — enumerate from the §R-layer prose during execution)",
+          "effort": 90,
+          "dependencies": [],
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit",
+            "Dispatcher wiring verified: import + call + action-enum + Zod schema all match (test invokes through the dispatcher, not only the engine singleton)"
+          ],
+          "description": "MS-TRAIN-DEEP unit 15 — follow the 4-LOOP; consult the §R-layer prose in REVENUE-ROADMAP-v7.6.md for the concrete deliverable; run duplicationGuardEngine.checkBeforeCreating() before any new asset.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "viz_node_id": "ghost.ms.ms-train-deep.u15",
+          "doc_propagation": [
+            "wiki",
+            "skill",
+            "digest",
+            "system-viz"
+          ]
+        },
+        {
+          "id": "U-MS-TRAIN-DEEP-16",
+          "title": "MS-TRAIN-DEEP unit 16 of 26 (placeholder — enumerate from the §R-layer prose during execution)",
+          "effort": 90,
+          "dependencies": [],
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit",
+            "Dispatcher wiring verified: import + call + action-enum + Zod schema all match (test invokes through the dispatcher, not only the engine singleton)"
+          ],
+          "description": "MS-TRAIN-DEEP unit 16 — follow the 4-LOOP; consult the §R-layer prose in REVENUE-ROADMAP-v7.6.md for the concrete deliverable; run duplicationGuardEngine.checkBeforeCreating() before any new asset.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "viz_node_id": "ghost.ms.ms-train-deep.u16",
+          "doc_propagation": [
+            "wiki",
+            "skill",
+            "digest",
+            "system-viz"
+          ]
+        },
+        {
+          "id": "U-MS-TRAIN-DEEP-17",
+          "title": "MS-TRAIN-DEEP unit 17 of 26 (placeholder — enumerate from the §R-layer prose during execution)",
+          "effort": 90,
+          "dependencies": [],
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit",
+            "Dispatcher wiring verified: import + call + action-enum + Zod schema all match (test invokes through the dispatcher, not only the engine singleton)"
+          ],
+          "description": "MS-TRAIN-DEEP unit 17 — follow the 4-LOOP; consult the §R-layer prose in REVENUE-ROADMAP-v7.6.md for the concrete deliverable; run duplicationGuardEngine.checkBeforeCreating() before any new asset.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "viz_node_id": "ghost.ms.ms-train-deep.u17",
+          "doc_propagation": [
+            "wiki",
+            "skill",
+            "digest",
+            "system-viz"
+          ]
+        },
+        {
+          "id": "U-MS-TRAIN-DEEP-18",
+          "title": "MS-TRAIN-DEEP unit 18 of 26 (placeholder — enumerate from the §R-layer prose during execution)",
+          "effort": 90,
+          "dependencies": [],
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit",
+            "Dispatcher wiring verified: import + call + action-enum + Zod schema all match (test invokes through the dispatcher, not only the engine singleton)"
+          ],
+          "description": "MS-TRAIN-DEEP unit 18 — follow the 4-LOOP; consult the §R-layer prose in REVENUE-ROADMAP-v7.6.md for the concrete deliverable; run duplicationGuardEngine.checkBeforeCreating() before any new asset.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "viz_node_id": "ghost.ms.ms-train-deep.u18",
+          "doc_propagation": [
+            "wiki",
+            "skill",
+            "digest",
+            "system-viz"
+          ]
+        },
+        {
+          "id": "U-MS-TRAIN-DEEP-19",
+          "title": "MS-TRAIN-DEEP unit 19 of 26 (placeholder — enumerate from the §R-layer prose during execution)",
+          "effort": 90,
+          "dependencies": [],
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit",
+            "Dispatcher wiring verified: import + call + action-enum + Zod schema all match (test invokes through the dispatcher, not only the engine singleton)"
+          ],
+          "description": "MS-TRAIN-DEEP unit 19 — follow the 4-LOOP; consult the §R-layer prose in REVENUE-ROADMAP-v7.6.md for the concrete deliverable; run duplicationGuardEngine.checkBeforeCreating() before any new asset.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "viz_node_id": "ghost.ms.ms-train-deep.u19",
+          "doc_propagation": [
+            "wiki",
+            "skill",
+            "digest",
+            "system-viz"
+          ]
+        },
+        {
+          "id": "U-MS-TRAIN-DEEP-20",
+          "title": "MS-TRAIN-DEEP unit 20 of 26 (placeholder — enumerate from the §R-layer prose during execution)",
+          "effort": 90,
+          "dependencies": [],
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit",
+            "Dispatcher wiring verified: import + call + action-enum + Zod schema all match (test invokes through the dispatcher, not only the engine singleton)"
+          ],
+          "description": "MS-TRAIN-DEEP unit 20 — follow the 4-LOOP; consult the §R-layer prose in REVENUE-ROADMAP-v7.6.md for the concrete deliverable; run duplicationGuardEngine.checkBeforeCreating() before any new asset.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "viz_node_id": "ghost.ms.ms-train-deep.u20",
+          "doc_propagation": [
+            "wiki",
+            "skill",
+            "digest",
+            "system-viz"
+          ]
+        },
+        {
+          "id": "U-MS-TRAIN-DEEP-21",
+          "title": "MS-TRAIN-DEEP unit 21 of 26 (placeholder — enumerate from the §R-layer prose during execution)",
+          "effort": 90,
+          "dependencies": [],
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit",
+            "Dispatcher wiring verified: import + call + action-enum + Zod schema all match (test invokes through the dispatcher, not only the engine singleton)"
+          ],
+          "description": "MS-TRAIN-DEEP unit 21 — follow the 4-LOOP; consult the §R-layer prose in REVENUE-ROADMAP-v7.6.md for the concrete deliverable; run duplicationGuardEngine.checkBeforeCreating() before any new asset.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "viz_node_id": "ghost.ms.ms-train-deep.u21",
+          "doc_propagation": [
+            "wiki",
+            "skill",
+            "digest",
+            "system-viz"
+          ]
+        },
+        {
+          "id": "U-MS-TRAIN-DEEP-22",
+          "title": "MS-TRAIN-DEEP unit 22 of 26 (placeholder — enumerate from the §R-layer prose during execution)",
+          "effort": 90,
+          "dependencies": [],
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit",
+            "Dispatcher wiring verified: import + call + action-enum + Zod schema all match (test invokes through the dispatcher, not only the engine singleton)"
+          ],
+          "description": "MS-TRAIN-DEEP unit 22 — follow the 4-LOOP; consult the §R-layer prose in REVENUE-ROADMAP-v7.6.md for the concrete deliverable; run duplicationGuardEngine.checkBeforeCreating() before any new asset.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "viz_node_id": "ghost.ms.ms-train-deep.u22",
+          "doc_propagation": [
+            "wiki",
+            "skill",
+            "digest",
+            "system-viz"
+          ]
+        },
+        {
+          "id": "U-MS-TRAIN-DEEP-23",
+          "title": "MS-TRAIN-DEEP unit 23 of 26 (placeholder — enumerate from the §R-layer prose during execution)",
+          "effort": 90,
+          "dependencies": [],
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit",
+            "Dispatcher wiring verified: import + call + action-enum + Zod schema all match (test invokes through the dispatcher, not only the engine singleton)"
+          ],
+          "description": "MS-TRAIN-DEEP unit 23 — follow the 4-LOOP; consult the §R-layer prose in REVENUE-ROADMAP-v7.6.md for the concrete deliverable; run duplicationGuardEngine.checkBeforeCreating() before any new asset.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "viz_node_id": "ghost.ms.ms-train-deep.u23",
+          "doc_propagation": [
+            "wiki",
+            "skill",
+            "digest",
+            "system-viz"
+          ]
+        },
+        {
+          "id": "U-MS-TRAIN-DEEP-24",
+          "title": "MS-TRAIN-DEEP unit 24 of 26 (placeholder — enumerate from the §R-layer prose during execution)",
+          "effort": 90,
+          "dependencies": [],
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit",
+            "Dispatcher wiring verified: import + call + action-enum + Zod schema all match (test invokes through the dispatcher, not only the engine singleton)"
+          ],
+          "description": "MS-TRAIN-DEEP unit 24 — follow the 4-LOOP; consult the §R-layer prose in REVENUE-ROADMAP-v7.6.md for the concrete deliverable; run duplicationGuardEngine.checkBeforeCreating() before any new asset.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "viz_node_id": "ghost.ms.ms-train-deep.u24",
+          "doc_propagation": [
+            "wiki",
+            "skill",
+            "digest",
+            "system-viz"
+          ]
+        },
+        {
+          "id": "U-MS-TRAIN-DEEP-25",
+          "title": "MS-TRAIN-DEEP unit 25 of 26 (placeholder — enumerate from the §R-layer prose during execution)",
+          "effort": 90,
+          "dependencies": [],
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit",
+            "Dispatcher wiring verified: import + call + action-enum + Zod schema all match (test invokes through the dispatcher, not only the engine singleton)"
+          ],
+          "description": "MS-TRAIN-DEEP unit 25 — follow the 4-LOOP; consult the §R-layer prose in REVENUE-ROADMAP-v7.6.md for the concrete deliverable; run duplicationGuardEngine.checkBeforeCreating() before any new asset.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "viz_node_id": "ghost.ms.ms-train-deep.u25",
+          "doc_propagation": [
+            "wiki",
+            "skill",
+            "digest",
+            "system-viz"
+          ]
+        },
+        {
+          "id": "U-MS-TRAIN-DEEP-26",
+          "title": "MS-TRAIN-DEEP unit 26 of 26 (placeholder — enumerate from the §R-layer prose during execution)",
+          "effort": 90,
+          "dependencies": [],
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit",
+            "Dispatcher wiring verified: import + call + action-enum + Zod schema all match (test invokes through the dispatcher, not only the engine singleton)"
+          ],
+          "description": "MS-TRAIN-DEEP unit 26 — follow the 4-LOOP; consult the §R-layer prose in REVENUE-ROADMAP-v7.6.md for the concrete deliverable; run duplicationGuardEngine.checkBeforeCreating() before any new asset.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "viz_node_id": "ghost.ms.ms-train-deep.u26",
+          "doc_propagation": [
+            "wiki",
+            "skill",
+            "digest",
+            "system-viz"
+          ]
+        }
+      ]
+    }
+  ],
+  "total_units": 26,
+  "completed_units": 0
+}

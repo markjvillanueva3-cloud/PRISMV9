@@ -83,6 +83,100 @@ export interface ShaftParams {
   density: number;   // kg/m³
 }
 
+/**
+ * Inputs for trend-based predictive chatter analysis.
+ * Composes already-shipped {@link ChatterPredictionEngineImpl.checkStability}
+ * with a linear-regression vibration-trend slope to estimate time-to-chatter.
+ *
+ * Re-modularized from monolith asset `PRISM_FFT_PREDICTIVE_CHATTER`
+ * (R2.3.3 algorithm gap extraction). Base FFT + lobes already shipped —
+ * this adds the trend / time-to-chatter / tiered action layer the monolith
+ * exposed via its `predictChatter()` + `_getRecommendation()` methods.
+ *
+ * Reference: Tobias (1965) "Machine Tool Vibration"; Altintas & Weck (2004)
+ * CIRP "Chatter Stability of Metal Cutting and Grinding" §4 (predictive
+ * envelopes from trend analysis).
+ */
+export interface PredictWithTrendInput {
+  /** Current spindle RPM. */
+  rpm: number;
+  /** Current axial depth of cut, mm. */
+  axialDepth_mm: number;
+  /**
+   * Vibration trend samples in chronological order (RMS, peak amplitude,
+   * or other monotonic chatter proxy). Slope is taken via least-squares
+   * regression over the index axis — units must be self-consistent.
+   * Must have ≥2 samples for trend to be meaningful (1 or 0 → slope=0).
+   */
+  vibrationTrend: number[];
+  /** Pre-computed lobe diagram (from {@link generateStabilityLobes}). */
+  lobes: StabilityLobeResult;
+  /** Margin% below this triggers WARNING (default 20). */
+  warningMarginPercent?: number;
+  /** Margin% below this + positive trend triggers IMMINENT (default 10). */
+  imminentMarginPercent?: number;
+  /** Trend slope above this is considered actively-rising (default 0.1). */
+  imminentTrendSlope?: number;
+  /**
+   * Empirical scale factor mapping trend-slope-units to depth-encroachment-rate
+   * (mm/s). Default 10 mirrors the monolith asset; callers should tune to
+   * sensor-calibrated values when available.
+   */
+  trendScaleFactor?: number;
+}
+
+/** Tiered recommended action with explicit speed/DOC delta vectors. */
+export interface ChatterAction {
+  urgency: "NONE" | "SOON" | "IMMEDIATE";
+  /** Suggested RPM change (signed; 0 = no change). */
+  speedDelta: number;
+  /** Suggested axial DOC change in mm (signed; 0 = no change). */
+  docDelta_mm: number;
+  description: string;
+}
+
+/**
+ * Empirical tuning constants for {@link ChatterPredictionEngineImpl.predictWithTrend}.
+ * These are calibrated confidence/recommendation values, NOT physics constants
+ * — physics constants live in `src/physics/constants.ts`. Exposed for
+ * deterministic tests + downstream tuning.
+ */
+export const PREDICT_WITH_TREND_CONFIG = {
+  /** Confidence assigned when prediction is ACTIVE. */
+  CONF_ACTIVE: 0.95,
+  /** Confidence assigned when prediction is IMMINENT. */
+  CONF_IMMINENT: 0.85,
+  /** Confidence assigned when prediction is STABLE. */
+  CONF_STABLE: 0.9,
+  /** Confidence assigned when prediction is WARNING. */
+  CONF_WARNING: 0.75,
+  /** Emergency RPM reduction fraction when chatter is ACTIVE. */
+  ACTION_ACTIVE_RPM_FRACTION: 0.15,
+  /** Emergency depth reduction fraction when chatter is ACTIVE. */
+  ACTION_ACTIVE_DEPTH_FRACTION: 0.5,
+  /** Safe-setpoint fraction of critical depth when pulling back IMMINENT chatter. */
+  ACTION_IMMINENT_SAFE_DEPTH_FRACTION: 0.8,
+  /** Fallback depth fraction when critical depth is not finite (IMMINENT). */
+  ACTION_IMMINENT_FALLBACK_FRACTION: 0.7,
+  /** Mild RPM reduction fraction when WARNING. */
+  ACTION_WARNING_RPM_FRACTION: 0.05,
+} as const;
+
+export interface PredictWithTrendResult {
+  prediction: "STABLE" | "WARNING" | "IMMINENT" | "ACTIVE";
+  /** 0..1, calibrated per prediction class. */
+  confidence: number;
+  /** Margin between critical depth and current depth, mm (can be negative). */
+  marginToChatter_mm: number;
+  /** Margin as percentage of critical depth. */
+  marginPercent: number;
+  /** Vibration trend slope (least-squares over index axis). */
+  trendSlope: number;
+  /** Seconds until margin is exhausted at current trend rate; null when not IMMINENT. */
+  timeToChatterSec: number | null;
+  action: ChatterAction;
+}
+
 export interface CriticalSpeedResult {
   supportType: string;
   criticalSpeeds: Array<{
@@ -557,6 +651,210 @@ class ChatterPredictionEngineImpl {
       tooth_passing_frequency_Hz: r2(toothFreq),
       monitoring_comment: monitoringComment,
       recommended_rpm_change: recommendedRPM,
+    };
+  }
+
+  /**
+   * Predict chatter onset using stability margin + vibration trend slope.
+   *
+   * Composes the already-shipped {@link checkStability} (which returns the
+   * critical depth for the current RPM from a precomputed lobe diagram) with
+   * a least-squares linear-regression slope over a recent vibration trend
+   * window to estimate **time-to-chatter** when margin is shrinking under a
+   * rising trend.
+   *
+   * Returns 4 prediction states with tiered action vectors:
+   *   - ACTIVE   margin < 0                              (chatter happening)
+   *   - IMMINENT marginPct < imminentPct AND slope > thr (rising into the wall)
+   *   - WARNING  marginPct < warningPct                  (thin margin, no rise)
+   *   - STABLE   otherwise
+   *
+   * Re-modularized from monolith `PRISM_FFT_PREDICTIVE_CHATTER` (R2.3.3) —
+   * base FFT + lobes already shipped; this is the trend / time-to-chatter
+   * / urgency-tiered action layer that the monolith's `predictChatter()` +
+   * `_getRecommendation()` exposed.
+   *
+   * **JSON-roundtrip note:** the returned `marginToChatter_mm` may be
+   * `Infinity` when no lobe covers the current RPM (no stability constraint).
+   * Callers that serialize via `JSON.stringify` will see `null` and must
+   * guard `Number.isFinite(margin)` themselves. Internal action-building
+   * already handles this case via the `Number.isFinite(criticalDepth)`
+   * guard in `buildChatterAction`. IMMINENT state is unreachable when
+   * criticalDepth is Infinity (marginPct = 100), so the fallback path is
+   * defensive-only in current usage but matters if callers compose
+   * cross-process via the MCP dispatcher boundary.
+   *
+   * **Trend-window sizing:** typical chatter windows are 50-500 samples.
+   * `vibrationTrend.length > 1e5` accumulates Σ(dx²) ≈ n³/12; for n=1e6,
+   * den ≈ 8e16 (near double-precision limit). Keep windows ≤ 1e4 samples.
+   *
+   * @param input - rpm, depth, vibration trend window, precomputed lobes
+   * @returns prediction state, margin, slope, timeToChatter, action vectors
+   * @throws Error if rpm/axialDepth non-finite or non-positive, lobes missing,
+   *               vibrationTrend non-array or contains non-finite elements,
+   *               or imminentMarginPercent > warningMarginPercent (silent
+   *               dead-WARNING-tier trap).
+   */
+  // WIRE-EXEMPT: input includes a StabilityLobeResult (closure of in-memory
+  // lobe interpolators) that does not round-trip through a JSON dispatcher
+  // boundary; consumers compose generateStabilityLobes() + predictWithTrend()
+  // in-process. A future cross-process wiring would need a serializable
+  // lobe-id reference cache, not naive JSON serialization.
+  predictWithTrend(input: PredictWithTrendInput): PredictWithTrendResult {
+    if (!Number.isFinite(input.rpm) || input.rpm <= 0) {
+      throw new Error(`predictWithTrend: rpm must be a finite positive number (got ${input.rpm})`);
+    }
+    if (!Number.isFinite(input.axialDepth_mm) || input.axialDepth_mm < 0) {
+      throw new Error(`predictWithTrend: axialDepth_mm must be a finite non-negative number (got ${input.axialDepth_mm})`);
+    }
+    if (!input.lobes || !Array.isArray(input.lobes.lobes)) {
+      throw new Error("predictWithTrend: lobes (StabilityLobeResult) is required — call generateStabilityLobes() first");
+    }
+    if (!Array.isArray(input.vibrationTrend)) {
+      throw new Error("predictWithTrend: vibrationTrend must be an array (use [] for no trend data)");
+    }
+    // R12 (fail loud) — silent NaN/Infinity poisoning of slope is exactly
+    // the "30 records silently skipped" class of bug. Throw with the
+    // offending index so sensor-data faults surface immediately.
+    for (let i = 0; i < input.vibrationTrend.length; i++) {
+      if (!Number.isFinite(input.vibrationTrend[i])) {
+        throw new Error(
+          `predictWithTrend: vibrationTrend[${i}] is not a finite number (got ${input.vibrationTrend[i]})`,
+        );
+      }
+    }
+
+    const warningPct = input.warningMarginPercent ?? 20;
+    const imminentPct = input.imminentMarginPercent ?? 10;
+    // Ordering invariant — without it, WARNING tier becomes dead-code when
+    // imminentPct > warningPct (silent — caller sees no error, but margin
+    // levels in (warningPct, imminentPct) misclassify per priority order).
+    if (imminentPct > warningPct) {
+      throw new Error(
+        `predictWithTrend: imminentMarginPercent (${imminentPct}) must be <= warningMarginPercent (${warningPct}) — otherwise the WARNING tier is unreachable`,
+      );
+    }
+    const imminentSlope = input.imminentTrendSlope ?? 0.1;
+    const trendScale = input.trendScaleFactor ?? 10;
+
+    // Margin from already-shipped checkStability — no formula duplication.
+    // Use the UN-rounded margin for the time-to-chatter divide; round only
+    // at the return boundary so safety-critical thin-margin precision is
+    // preserved (P0 — double-r4 would erode 4-decimal precision in the
+    // exact regime the IMMINENT branch serves).
+    const stab = this.checkStability(input.rpm, input.axialDepth_mm, input.lobes);
+    const marginRaw = stab.criticalDepth_mm - input.axialDepth_mm;
+    const marginPct = stab.marginPercent;
+    const slope = this.linearTrendSlope(input.vibrationTrend);
+
+    let prediction: PredictWithTrendResult["prediction"];
+    let confidence: number;
+    let timeToChatterSec: number | null = null;
+
+    if (marginRaw < 0) {
+      prediction = "ACTIVE";
+      confidence = PREDICT_WITH_TREND_CONFIG.CONF_ACTIVE;
+    } else if (marginPct < imminentPct && slope > imminentSlope) {
+      prediction = "IMMINENT";
+      confidence = PREDICT_WITH_TREND_CONFIG.CONF_IMMINENT;
+      // Encroachment rate: slope × empirical-mm-per-unit-trend → seconds-to-zero-margin.
+      const rate = slope * trendScale;
+      timeToChatterSec = rate > 0 && Number.isFinite(marginRaw) ? r4(marginRaw / rate) : null;
+    } else if (marginPct < warningPct) {
+      prediction = "WARNING";
+      confidence = PREDICT_WITH_TREND_CONFIG.CONF_WARNING;
+    } else {
+      prediction = "STABLE";
+      confidence = PREDICT_WITH_TREND_CONFIG.CONF_STABLE;
+    }
+
+    const action = this.buildChatterAction(prediction, input.rpm, input.axialDepth_mm, stab.criticalDepth_mm);
+
+    return {
+      prediction,
+      confidence: r4(confidence),
+      marginToChatter_mm: Number.isFinite(marginRaw) ? r4(marginRaw) : marginRaw,
+      marginPercent: r2(marginPct),
+      trendSlope: r4(slope),
+      timeToChatterSec,
+      action,
+    };
+  }
+
+  /**
+   * Least-squares slope of y[i] vs i. Returns 0 for <2 samples or zero variance.
+   * Pure numerical primitive — no physics constants involved.
+   */
+  private linearTrendSlope(trend: number[]): number {
+    const n = trend.length;
+    if (n < 2) return 0;
+    const xMean = (n - 1) / 2;
+    let ySum = 0;
+    for (let i = 0; i < n; i++) ySum += trend[i];
+    const yMean = ySum / n;
+    let num = 0;
+    let den = 0;
+    for (let i = 0; i < n; i++) {
+      const dx = i - xMean;
+      num += dx * (trend[i] - yMean);
+      den += dx * dx;
+    }
+    return den > 0 ? num / den : 0;
+  }
+
+  /**
+   * Build the tiered recommended-action vector for a prediction state.
+   * Speed/DOC deltas mirror the monolith's `_getRecommendation` /
+   * `_getChatterAction` tiers but anchor depth-deltas to the critical-depth
+   * setpoint (safer than fixed-magnitude reductions when current depth is small).
+   */
+  private buildChatterAction(
+    prediction: PredictWithTrendResult["prediction"],
+    rpm: number,
+    currentDepth: number,
+    criticalDepth: number,
+  ): ChatterAction {
+    const C = PREDICT_WITH_TREND_CONFIG;
+    if (prediction === "ACTIVE") {
+      // Emergency: drop to (1-DEPTH_FRACTION) of current depth, shave RPM_FRACTION off RPM.
+      // `|| 0` neutralizes negative-zero when currentDepth === 0 (cosmetic
+      // hygiene for JSON serialization — `-0` survives JSON.stringify on some
+      // platforms; reviewers consume the contract).
+      const depthDrop = r4(currentDepth * C.ACTION_ACTIVE_DEPTH_FRACTION);
+      return {
+        urgency: "IMMEDIATE",
+        speedDelta: -Math.round(rpm * C.ACTION_ACTIVE_RPM_FRACTION) || 0,
+        docDelta_mm: depthDrop > 0 ? -depthDrop : 0,
+        description: `EMERGENCY: chatter active — reduce RPM ${Math.round(C.ACTION_ACTIVE_RPM_FRACTION * 100)}% and depth ${Math.round(C.ACTION_ACTIVE_DEPTH_FRACTION * 100)}% immediately`,
+      };
+    }
+    if (prediction === "IMMINENT") {
+      // Pull depth to SAFE_FRACTION of critical (safe setpoint) — preserves productivity.
+      const safeDepth = Number.isFinite(criticalDepth)
+        ? criticalDepth * C.ACTION_IMMINENT_SAFE_DEPTH_FRACTION
+        : currentDepth * C.ACTION_IMMINENT_FALLBACK_FRACTION;
+      const docDelta = r4(safeDepth - currentDepth); // negative if current > safe
+      return {
+        urgency: "IMMEDIATE",
+        speedDelta: 0,
+        docDelta_mm: docDelta,
+        description: `Chatter imminent — pull depth to ${r4(safeDepth)} mm (${Math.round(C.ACTION_IMMINENT_SAFE_DEPTH_FRACTION * 100)}% of critical) before margin collapses`,
+      };
+    }
+    if (prediction === "WARNING") {
+      return {
+        urgency: "SOON",
+        speedDelta: -Math.round(rpm * C.ACTION_WARNING_RPM_FRACTION),
+        docDelta_mm: 0,
+        description: `Margin thin — nudge RPM down ${Math.round(C.ACTION_WARNING_RPM_FRACTION * 100)}% and increase monitoring frequency`,
+      };
+    }
+    // STABLE
+    return {
+      urgency: "NONE",
+      speedDelta: 0,
+      docDelta_mm: 0,
+      description: "Stable — no action required",
     };
   }
 }

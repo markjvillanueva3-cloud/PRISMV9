@@ -464,11 +464,11 @@ export class HyperMillSurfaceIntegrityBridge {
     const k_term = C_THETA * Math.pow(kc, 0.6);
     const recommendedMaxVc_m_min = k_term > 0
       ? Math.pow(Math.max(theta_safe - ambientTemp_C, 1) / k_term, 1 / 0.4)
-      : threshold.maxSafeVc_m_min;
+      : 0;
 
     const message = blocked
       ? `WHITE LAYER HARD BLOCK — Predicted cutting temp ${predictedTemp_C.toFixed(0)}°C exceeds ` +
-        `threshold ${threshold.threshold_C}°C for ${threshold.description}. ` +
+        `threshold ${threshold.threshold_C}°C for ${threshold.source}. ` +
         `Reduce Vc to ≤${Math.round(recommendedMaxVc_m_min)}m/min or apply cryogenic cooling.`
       : `White layer gate PASS — Predicted ${predictedTemp_C.toFixed(0)}°C vs threshold ${threshold.threshold_C}°C ` +
         `(headroom: ${Math.round(headroom_C)}°C)`;

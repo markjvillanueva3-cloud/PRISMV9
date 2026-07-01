@@ -404,7 +404,11 @@ class ElectrodeAdvancedAIEngine {
     const currentRa = current.predicted_Ra_um;
 
     // Generate improvement scenarios
-    const scenarios = [
+    const scenarios: Array<{
+      scenario: string;
+      changes: Record<string, { from: number; to: number }>;
+      newParams: typeof params;
+    }> = [
       {
         scenario: "Reduce discharge energy by 30%",
         changes: { discharge_energy_mJ: { from: params.discharge_energy_mJ, to: params.discharge_energy_mJ * 0.7 } },
@@ -889,7 +893,8 @@ class ElectrodeAdvancedAIEngine {
    */
   ensemblePredict(
     predictionType: "wear" | "finish" | "force",
-    params: Record<string, number>
+    params: Record<string, number>,
+    stringParams?: Record<string, string>
   ): EnsemblePrediction {
     this.queryCount++;
 
@@ -952,7 +957,7 @@ class ElectrodeAdvancedAIEngine {
         params.e_dia_in,
         params.rpm || 1500,
         params.feed_ipr || 0.003,
-        params.workpiece_material || "graphite"
+        stringParams?.workpiece_material ?? "graphite"
       );
       modelPredictions.push({ model: "MLP-neural", prediction: mlpResult.variation_percent, weight: 0.5 });
 
@@ -1153,6 +1158,7 @@ class ElectrodeAdvancedAIEngine {
         e_dia_in: params.e_dia_in,
         rpm: params.rpm || 1500,
         feed_ipr: params.feed_ipr || 0.003,
+      }, {
         workpiece_material: params.workpiece_material,
       });
     }

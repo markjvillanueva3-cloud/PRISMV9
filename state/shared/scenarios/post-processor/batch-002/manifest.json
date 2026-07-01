@@ -1,0 +1,149 @@
+{
+  "schemaVersion": "2.0.0",
+  "batchId": "002",
+  "generatedAt": "2026-05-25T00:18:53.800Z",
+  "generator": "generate-post-processor-scenarios.mjs",
+  "seed": 137,
+  "target": 200,
+  "actual_count": 200,
+  "slot_owner": "india",
+  "milestone": "PRISM-LAUNCH-READINESS-MS0",
+  "unit": "P0-U06",
+  "controllers": [
+    "fanuc-30i",
+    "okuma-osp-p300",
+    "haas-ngc",
+    "heidenhain-itnc640",
+    "mitsubishi-m800"
+  ],
+  "coverage": {
+    "by_controller": {
+      "fanuc-0itf": 29,
+      "siemens-840dsl": 29,
+      "haas-ngc": 29,
+      "okuma-ospp300m": 29,
+      "mazak-smoothg": 29,
+      "heidenhain-tnc640": 29,
+      "mitsubishi-m800": 26
+    },
+    "by_operation": {
+      "threading": 40,
+      "milling": 39,
+      "drilling": 43,
+      "boring": 37,
+      "turning": 41
+    },
+    "by_cycle": {
+      "tap-rigid": 10,
+      "contour": 9,
+      "drill": 11,
+      "thread-turn": 14,
+      "thread-mill": 10,
+      "bore": 13,
+      "drill-peck": 13,
+      "ream": 9,
+      "spot-drill": 8,
+      "bore-back": 7,
+      "trochoidal": 6,
+      "bore-precision": 8,
+      "slot": 12,
+      "face-turn": 9,
+      "drill-deep": 11,
+      "helical-bore": 3,
+      "finish-turn": 10,
+      "groove": 9,
+      "tap-floating": 14,
+      "pocket": 5,
+      "face": 4,
+      "rough-turn": 5
+    },
+    "by_axis_count": {
+      "3": 66,
+      "4": 73,
+      "5": 61
+    },
+    "by_material_group": {
+      "M": 24,
+      "K": 25,
+      "H": 43,
+      "P": 32,
+      "S": 34,
+      "N": 42
+    },
+    "by_envelope": {},
+    "by_dialect_feature": {},
+    "by_machine_make": {
+      "Fadal": 29,
+      "Tormach": 27,
+      "Taig": 10,
+      "Generic": 12,
+      "Bridgeport": 2,
+      "Datron": 22,
+      "Hurco": 16,
+      "Industrial Hobbies": 6,
+      "Haas": 59,
+      "Omniturn": 4,
+      "CNC Masters": 2,
+      "MillRight": 5,
+      "Shopmaster": 6
+    },
+    "by_machine_type": {
+      "Mill": 159,
+      "Lathe": 41
+    },
+    "by_spindle_taper": {
+      "CAT40": 94,
+      "R8": 27,
+      "OTHER40": 31,
+      "HSK25": 22,
+      "D140": 10,
+      "A240": 16
+    },
+    "by_spindle_rpm_class": {
+      "med": 94,
+      "low": 54,
+      "high": 52
+    },
+    "by_optional_feature": {
+      "bar_feeder": 44,
+      "mist": 15,
+      "flood": 45,
+      "atc": 39,
+      "gantry_loader": 42,
+      "five_axis_tcp": 95,
+      "mql": 37,
+      "hsm": 86,
+      "hpc": 30,
+      "live_tooling": 36,
+      "sub_spindle": 41,
+      "tsc": 4,
+      "air": 3,
+      "probing_renishaw": 2,
+      "ssv": 3,
+      "probing_wips": 2
+    },
+    "by_hp_class": {
+      "medium": 94,
+      "manual-mill": 27,
+      "unknown": 79
+    },
+    "coverage_pct": {
+      "controller": 1,
+      "operation": 1,
+      "cycle": 0.9565217391304348,
+      "axis_count": 1,
+      "material": 1,
+      "optional_feature": 0.8888888888888888,
+      "spindle_taper": 0.75,
+      "spindle_rpm_class": 1,
+      "machine_type": 0.6666666666666666
+    },
+    "composite_coverage": 0.9180085882984432
+  },
+  "safety": {
+    "tier": "shop_floor",
+    "omega_floor": 0.98,
+    "sx_floor": 0.98,
+    "validation_oracle": "prism_cam:master_post_generate"
+  }
+}

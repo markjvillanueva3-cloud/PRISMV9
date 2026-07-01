@@ -1,0 +1,185 @@
+{
+  "id": "SCIMATH-MS0",
+  "version": "1.0.0",
+  "title": "Core Linear Algebra & Matrix Methods",
+  "brief": "SVD, QR, Cholesky, eigensolvers, sparse matrices, tensor algebra — the foundation every downstream engine needs for PCA, FEM, optimization, and system identification.",
+  "track": "SCIMATH",
+  "created_at": "2026-04-01T14:00:00Z",
+  "created_by": "claude-opus-4.6",
+  "status": "not_started",
+  "total_units": 17,
+  "completed_units": 0,
+  "dependencies": [],
+  "phases": [
+    {
+      "id": "P0",
+      "title": "Matrix Decompositions",
+      "units": [
+        {
+          "id": "P0-U01",
+          "title": "SVDEngine — Singular Value Decomposition",
+          "description": "Golub-Kahan bidiagonalization for U*Sigma*V^T; truncated SVD for dimensionality reduction; condition number estimation; pseudo-inverse via SVD; rank determination with tolerance. Used by: PCA, least-squares, low-rank approximation.",
+          "exit_conditions": ["Full SVD for arbitrary m×n matrices", "Truncated SVD with rank-k approximation", "Condition number output", "Pseudo-inverse computation", "20+ test cases including Hilbert matrices"],
+          "courses": ["MIT 18.06", "MIT 18.065"],
+          "status": "not_started"
+        },
+        {
+          "id": "P0-U02",
+          "title": "QRDecompositionEngine — QR Factorization",
+          "description": "Householder reflectors + Givens rotations; column-pivoted rank-revealing QR; thin QR for overdetermined systems; application to least-squares fitting of Taylor tool life curves and Kienzle coefficient regression.",
+          "exit_conditions": ["Householder QR", "Givens rotation variant", "Column pivoting for rank-revealing", "Thin QR for overdetermined systems", "Tests with known decompositions"],
+          "courses": ["MIT 18.06", "MIT 18.335"],
+          "status": "not_started"
+        },
+        {
+          "id": "P0-U03",
+          "title": "CholeskyEngine — Cholesky Factorization",
+          "description": "LL^T for symmetric positive-definite matrices; incomplete Cholesky for preconditioning; LDLT for semi-definite; validates positive-definiteness before factoring. Used by Bayesian posterior covariance, Kalman filter, FEM stiffness.",
+          "exit_conditions": ["LL^T factorization", "Positive-definiteness check", "LDLT variant", "Incomplete Cholesky for preconditioning", "Graceful failure on non-SPD input"],
+          "courses": ["MIT 18.06", "MIT 18.335"],
+          "status": "not_started"
+        },
+        {
+          "id": "P0-U04",
+          "title": "EigensolverEngine — Eigenvalue/Eigenvector Computation",
+          "description": "Power iteration (dominant), inverse iteration (target), QR algorithm (full spectrum), Lanczos (symmetric sparse for FEM modal analysis); shift-and-invert for interior eigenvalues; generalized eigenvalue (A*x = lambda*B*x for FEM).",
+          "exit_conditions": ["Power iteration", "QR algorithm for full spectrum", "Lanczos for large sparse symmetric", "Generalized eigenvalue problem", "Tests against known eigenvalues"],
+          "courses": ["MIT 18.06", "MIT 18.065"],
+          "status": "not_started"
+        },
+        {
+          "id": "P0-U05",
+          "title": "MatrixFactorizationEngine — NMF, Sparse Storage, Matrix Exponential",
+          "description": "Non-negative Matrix Factorization for process fingerprinting; sparse matrix storage (CSR/CSC) for FEM; matrix exponential (Pade approximation) for continuous-time Markov; Kronecker product for multi-dimensional FEM assembly.",
+          "exit_conditions": ["NMF with multiplicative update", "CSR/CSC sparse storage", "Matrix exponential via Pade", "Kronecker product", "Memory efficiency tests"],
+          "courses": ["MIT 18.06", "MIT 18.335"],
+          "status": "not_started"
+        }
+      ]
+    },
+    {
+      "id": "P1",
+      "title": "Numerical Linear Algebra Infrastructure",
+      "units": [
+        {
+          "id": "P1-U01",
+          "title": "IterativeSolverEngine — CG, BiCGSTAB, GMRES",
+          "description": "Conjugate Gradient for SPD systems; BiCGSTAB for non-symmetric; GMRES with restart; preconditioners (Jacobi, ILU(0), SSOR); convergence monitoring with residual tracking.",
+          "exit_conditions": ["CG solver with tolerance", "GMRES(m) with restart", "Preconditioner interface", "Convergence history output", "Tests on ill-conditioned systems"],
+          "courses": ["MIT 18.335", "MIT 18.085"],
+          "status": "not_started"
+        },
+        {
+          "id": "P1-U02",
+          "title": "SparseMatrixEngine — CSR/CSC/COO with Fill-Reducing Ordering",
+          "description": "CSR/CSC/COO sparse formats; sparse BLAS (SpMV, SpMM); fill-reducing ordering (Cuthill-McKee, AMD); sparse Cholesky; triplet assembly for FEM global stiffness.",
+          "exit_conditions": ["CSR/CSC conversion", "SpMV operation", "Cuthill-McKee ordering", "Triplet assembly", "Memory vs dense comparison tests"],
+          "courses": ["MIT 18.085", "MIT 18.335"],
+          "status": "not_started"
+        },
+        {
+          "id": "P1-U03",
+          "title": "MatrixNormEngine — Frobenius, Spectral, Condition Number",
+          "description": "Frobenius, spectral (2-norm), infinity, 1-norm; condition number estimation without full SVD; matrix logarithm for rotation interpolation; matrix square root for covariance decomposition.",
+          "exit_conditions": ["4 matrix norms", "Condition number estimation", "Matrix logarithm", "Numerical stability diagnostics"],
+          "courses": ["MIT 18.335"],
+          "status": "not_started"
+        },
+        {
+          "id": "P1-U04",
+          "title": "TensorAlgebraEngine — Stress/Strain Tensors for Solid Mechanics",
+          "description": "Rank-2 and rank-4 tensor operations; Voigt notation (6×6 ↔ 3×3×3×3); tensor rotation (Q*T*Q^T); stress/strain invariants (I1, I2, I3, J2); deviatoric/hydrostatic decomposition; elastic stiffness tensor (C_ijkl).",
+          "exit_conditions": ["Voigt conversion", "Tensor rotation", "Stress invariants (I1, I2, I3, J2, von Mises)", "Deviatoric decomposition", "Anisotropic stiffness tensor"],
+          "courses": ["MIT 2.071", "MIT 2.072"],
+          "status": "not_started"
+        }
+      ]
+    },
+    {
+      "id": "P2",
+      "title": "Applied Matrix Methods for Manufacturing",
+      "units": [
+        {
+          "id": "P2-U01",
+          "title": "SystemIdentificationEngine — Subspace ID from Sensor Data",
+          "description": "Least-squares system ID; recursive least squares (RLS) for online parameter estimation; total least squares for errors-in-variables; N4SID subspace identification for MIMO cutting dynamics.",
+          "exit_conditions": ["RLS for online estimation", "N4SID subspace ID", "Transfer function output", "Validation against known systems"],
+          "courses": ["MIT 2.14", "MIT 6.241"],
+          "status": "not_started"
+        },
+        {
+          "id": "P2-U02",
+          "title": "RobustRegressionEngine — Ridge, Lasso, RANSAC",
+          "description": "Ridge (L2), Lasso (L1), Elastic Net for regularized cutting coefficient fitting; Huber regression for outlier-robust force calibration; RANSAC for geometric fitting from CMM data.",
+          "exit_conditions": ["Ridge/Lasso/ElasticNet", "Huber robust regression", "RANSAC geometric fitting", "Comparison with OLS on noisy data"],
+          "courses": ["MIT 18.065", "MIT 6.867"],
+          "status": "not_started"
+        },
+        {
+          "id": "P2-U03",
+          "title": "RandomMatrixEngine — Noise Floor Estimation",
+          "description": "Marchenko-Pastur distribution for noise floor in sensor covariance; Tracy-Widom for signal detection (significant eigenvalues); spiked covariance for process signal separation.",
+          "exit_conditions": ["Marchenko-Pastur noise floor", "Tracy-Widom significance test", "Signal vs noise eigenvalue separation"],
+          "courses": ["MIT 18.338", "MIT 18.065"],
+          "status": "not_started"
+        },
+        {
+          "id": "P2-U04",
+          "title": "LinearAlgebraDispatcherActions — Wire to calcDispatcher",
+          "description": "Wire SVD, QR, Cholesky, Eigen, Sparse solve, Tensor ops into calcDispatcher: svd_decompose, qr_factorize, cholesky_factor, eigen_solve, sparse_solve, tensor_stress_invariants, system_identify, robust_regression.",
+          "exit_conditions": ["8 dispatcher actions wired", "Zod schemas for all actions", "Integration tests for each action"],
+          "courses": [],
+          "status": "not_started"
+        }
+      ]
+    },
+    {
+      "id": "P3",
+      "title": "Validation & Cross-Wiring",
+      "units": [
+        {
+          "id": "P3-U01",
+          "title": "LinearAlgebraTestSuite — 40+ Exhaustive Tests",
+          "description": "Known decompositions for Hilbert matrices, random SPD, rank-deficient, singular (graceful failure), ill-conditioned (warning), sparse CG convergence, tensor rotations.",
+          "exit_conditions": ["40+ test cases", "Edge case coverage", "Performance benchmarks", "All tests pass"],
+          "courses": [],
+          "status": "not_started"
+        },
+        {
+          "id": "P3-U02",
+          "title": "Upgrade PCA → SVD-backed with Kernel/Incremental PCA",
+          "description": "Upgrade PrincipalComponentEngine to use SVDEngine; add kernel PCA (RBF for nonlinear process monitoring); incremental PCA for streaming sensor data; robust PCA via nuclear norm.",
+          "exit_conditions": ["PCA uses SVDEngine internally", "Kernel PCA with RBF", "Incremental PCA for streaming", "Backward compatibility with existing callers"],
+          "courses": ["MIT 18.065"],
+          "status": "not_started"
+        },
+        {
+          "id": "P3-U03",
+          "title": "Upgrade FEM → Sparse Solver Backend",
+          "description": "Upgrade FiniteElementEngine to use SparseMatrixEngine and IterativeSolverEngine; add 2D quad4 elements; connect EigensolverEngine for modal analysis.",
+          "exit_conditions": ["FEM uses sparse assembly", "Iterative solver for large systems", "Modal analysis via eigensolver", "Performance improvement on large problems"],
+          "courses": ["MIT 2.093", "MIT 2.094"],
+          "status": "not_started"
+        },
+        {
+          "id": "P3-U04",
+          "title": "FormulaRegistryUpdate — Register Linear Algebra Methods",
+          "description": "Register SVD, QR, Cholesky, eigenvalue formulas; add AlgorithmRegistry entries; update constants.ts with numerical tolerances (EPS_SVD, EPS_CHOLESKY).",
+          "exit_conditions": ["All methods registered in FormulaRegistry", "AlgorithmRegistry entries", "Numerical tolerance constants added"],
+          "courses": [],
+          "status": "not_started"
+        }
+      ]
+    }
+  ],
+  "forge_triple": {
+    "hook": "enforce-linalg-canonical — blocks ad-hoc matrix decomposition; forces import from SVD/QR/Cholesky engines",
+    "action": "scimath_linalg (8 sub-actions in calcDispatcher)",
+    "skill": "/scimath-linalg"
+  },
+  "safety_gates": [
+    "All decompositions must handle singular/ill-conditioned matrices gracefully (throw descriptive error, never NaN)",
+    "Condition number warning when κ > 10^12",
+    "Sparse solver convergence must be monitored; fail after max iterations with partial result"
+  ]
+}

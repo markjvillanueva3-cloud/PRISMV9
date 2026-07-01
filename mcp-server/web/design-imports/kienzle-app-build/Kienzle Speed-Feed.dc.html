@@ -1,0 +1,726 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <script type="module" src="jm-data.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Archivo:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; background: #070809; height: 100%; overflow: hidden; }
+    select, input { font-family: 'Archivo', sans-serif; }
+    select { -webkit-appearance: none; appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%236B7280' stroke-width='2.5' stroke-linecap='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 10px center; }
+    input[type=range] { -webkit-appearance: none; appearance: none; background: transparent; cursor: pointer; }
+    input[type=range]::-webkit-slider-runnable-track { height: 7px; border-radius: 999px; background: linear-gradient(90deg,#36D399 0%,#F4B740 55%,#FF5A2B 100%); }
+    input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 22px; height: 22px; border-radius: 50%; background: #F3F4F6; border: 3px solid #FF5A2B; margin-top: -8px; box-shadow: 0 2px 10px rgba(0,0,0,0.5); }
+    .kz-scroll::-webkit-scrollbar { width: 8px; height: 8px; }
+    .kz-scroll::-webkit-scrollbar-thumb { background: #23262E; border-radius: 8px; }
+    @keyframes kzpulse { 0%,100% { opacity:.5 } 50% { opacity:1 } }
+    @keyframes kzspark { 0%,100% { opacity:.4; transform:scale(0.9) } 50% { opacity:1; transform:scale(1.1) } }
+  </style>
+</helmet>
+<div style="position:fixed;inset:0;background:#070809;display:flex;align-items:center;justify-content:center;overflow:hidden;">
+<div style="width:1600px;height:980px;flex:none;transform:scale({{ scale }});transform-origin:center center;display:flex;background:#0A0B0D;color:#F3F4F6;font-family:'Archivo',sans-serif;overflow:hidden;border-radius:16px;box-shadow:0 40px 120px rgba(0,0,0,0.6);">
+
+  <aside style="width:72px;flex:none;background:#0C0D10;border-right:1px solid rgba(255,255,255,0.06);display:flex;flex-direction:column;align-items:center;padding:18px 0;gap:6px;">
+    <svg viewBox="0 0 120 120" width="34" height="34" style="margin-bottom:14px;"><rect x="22" y="20" width="13" height="80" rx="1.5" fill="#F3F4F6"/><path d="M35 60 L86 22" stroke="#F3F4F6" stroke-width="13" stroke-linecap="round"/><path d="M35 60 L92 98 L92 74 L58 60 Z" fill="#FF5A2B"/></svg>
+    <button style="width:50px;height:48px;border-radius:12px;border:1px solid rgba(255,90,43,0.35);background:rgba(255,90,43,0.1);color:#FF7A4D;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:9px;"><span style="font-size:15px;">⌀</span>MAKE</button>
+    <button style="width:50px;height:48px;border-radius:12px;border:1px solid transparent;background:transparent;color:#6B7280;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:9px;"><span style="font-size:15px;">$</span>QUOTE</button>
+    <button style="width:50px;height:48px;border-radius:12px;border:1px solid transparent;background:transparent;color:#6B7280;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:9px;"><span style="font-size:15px;">▤</span>RUN</button>
+    <button style="width:50px;height:48px;border-radius:12px;border:1px solid transparent;background:transparent;color:#6B7280;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:9px;"><span style="font-size:15px;">⌂</span>SHOP</button>
+    <div style="flex:1;"></div>
+    <div style="width:38px;height:38px;border-radius:50%;background:#1B1E24;border:1px solid rgba(255,255,255,0.1);display:flex;align-items:center;justify-content:center;font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:13px;color:#AEB4BE;">JM</div>
+  </aside>
+
+  <main style="flex:1;display:flex;flex-direction:column;min-width:0;">
+    <header style="flex:none;height:64px;border-bottom:1px solid rgba(255,255,255,0.06);display:flex;align-items:center;justify-content:space-between;padding:0 24px;background:#0C0D10;">
+      <div>
+        <div style="font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:19px;letter-spacing:-0.01em;">Speed &amp; Feed</div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:10.5px;color:#6B7280;letter-spacing:0.04em;margin-top:1px;">JM DIE · {{ jobLabel }}</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;">
+        <div style="display:flex;align-items:center;gap:6px;padding:6px 11px;border:1px solid rgba(54,211,153,0.25);background:rgba(54,211,153,0.06);border-radius:8px;font-family:'JetBrains Mono',monospace;font-size:10.5px;color:#36D399;"><span style="width:6px;height:6px;border-radius:50%;background:#36D399;animation:kzpulse 2s infinite;"></span>LEARNED · {{ runCount }} JM RUNS</div>
+        <div style="display:flex;align-items:center;gap:6px;padding:6px 11px;border:1px solid rgba(255,255,255,0.1);border-radius:8px;font-size:12px;color:#AEB4BE;">{{ machineLabel }}</div>
+        <div style="display:inline-flex;background:#16181D;border-radius:8px;padding:3px;border:1px solid rgba(255,255,255,0.07);">
+          <button onClick="{{ setInch }}" style="{{ unitInchStyle }}">inch</button>
+          <button onClick="{{ setMetric }}" style="{{ unitMetricStyle }}">mm</button>
+        </div>
+      </div>
+    </header>
+
+    <div style="flex:1;display:grid;grid-template-columns:368px minmax(0,1fr) 366px;min-height:0;">
+
+      <!-- ───────── INPUT COLUMN ───────── -->
+      <section class="kz-scroll" style="border-right:1px solid rgba(255,255,255,0.06);overflow-y:auto;min-width:0;padding:18px 20px 44px;background:#0A0B0D;">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:0.18em;color:#FF5A2B;margin-bottom:11px;">01 · MACHINE</div>
+        <select value="{{ machineId }}" onChange="{{ setMachine }}" style="width:100%;height:40px;background:#14161B;border:1px solid rgba(255,255,255,0.1);border-radius:9px;color:#F3F4F6;font-size:13px;padding:0 32px 0 11px;margin-bottom:9px;">
+          <optgroup label="Mills">
+          <option value="vm30i">VMC-01 · Hurco VM30i · 12k</option>
+          <option value="m460v">VMC-02 · Okuma M460V-5AX · 15k</option>
+          <option value="vf2">VMC-03 · Haas VF-2 · 8.1k</option>
+          <option value="om2">VMC-04 · Haas OM-2 · 30k</option>
+          <option value="roku">VMC-05 · Roku-Roku HC658-II · 40k</option>
+          </optgroup>
+          <optgroup label="Lathes / mill-turn">
+          <option value="l300m">LTH-01 · Okuma GENOS L300-M · live</option>
+          <option value="l200em">LTH-02 · Okuma GENOS L200E-M · live</option>
+          <option value="lnc8">LTH-03 · Okuma LNC8</option>
+          <option value="crown">LTH-04 · Okuma Crown L1060</option>
+          <option value="l400ii">LTH-05 · Okuma GENOS L400II-E</option>
+          <option value="lb3000">LTH-06 · Okuma LB3000EX Big Bore</option>
+          <option value="multus">LTH-07 · Okuma Multus B250II · B-axis</option>
+          </optgroup>
+        </select>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px;margin-bottom:10px;">
+          <div style="background:#0E0F12;border:1px solid rgba(255,255,255,0.07);border-radius:8px;padding:7px 9px;"><div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:#6B7280;letter-spacing:0.05em;">SPINDLE</div><div style="font-family:'JetBrains Mono',monospace;font-size:12px;color:#C7CCD4;margin-top:2px;">{{ spindleLabel }}</div></div>
+          <div style="background:#0E0F12;border:1px solid rgba(255,255,255,0.07);border-radius:8px;padding:7px 9px;"><div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:#6B7280;letter-spacing:0.05em;">CONTROL</div><div style="font-family:'JetBrains Mono',monospace;font-size:12px;color:#C7CCD4;margin-top:2px;">{{ controllerLabel }}</div></div>
+          <div style="background:#0E0F12;border:1px solid rgba(255,255,255,0.07);border-radius:8px;padding:7px 9px;"><div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:#6B7280;letter-spacing:0.05em;">RIGIDITY</div><div style="font-family:'JetBrains Mono',monospace;font-size:12px;color:{{ rigidColor }};margin-top:2px;">{{ rigidLabel }}</div></div>
+        </div>
+        <div style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:16px;">
+          <button onClick="{{ toggleThru }}" style="{{ optThruStyle }}">Thru-spindle</button>
+          <button onClick="{{ toggleHp }}" style="{{ optHpStyle }}">HP 70bar</button>
+          <button onClick="{{ toggleProbe }}" style="{{ optProbeStyle }}">Probing</button>
+        </div>
+
+        <div style="font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:0.18em;color:#FF5A2B;margin-bottom:11px;">02 · MATERIAL &amp; STOCK</div>
+        <select value="{{ materialId }}" onChange="{{ setMaterial }}" style="width:100%;height:40px;background:#14161B;border:1px solid rgba(255,255,255,0.1);border-radius:9px;color:#F3F4F6;font-size:13px;padding:0 32px 0 11px;margin-bottom:9px;">
+          <option value="d2">D2 Tool Steel · 58-60 HRC</option>
+          <option value="a2">A2 Tool Steel · 58 HRC</option>
+          <option value="s7">S7 Shock Steel · 54 HRC</option>
+          <option value="4140">4140 PH · 28-32 HRC</option>
+          <option value="h13">H13 · 48 HRC</option>
+          <option value="174ph">17-4 PH H900 · 40 HRC</option>
+          <option value="ti64">Ti-6Al-4V · 36 HRC</option>
+          <option value="6061">6061-T6 Aluminum</option>
+          <option value="graphite">Graphite electrode</option>
+        </select>
+        <div style="display:flex;gap:7px;margin-bottom:9px;">
+          <div style="flex:1;background:#0E0F12;border:1px solid rgba(255,255,255,0.07);border-radius:8px;padding:7px 9px;"><div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:#6B7280;letter-spacing:0.05em;">ISO</div><div style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:13px;color:#FF7A4D;margin-top:2px;">{{ isoGroup }}</div></div>
+          <div style="flex:1.5;background:#0E0F12;border:1px solid rgba(255,255,255,0.07);border-radius:8px;padding:7px 9px;"><div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:#6B7280;letter-spacing:0.05em;">k<tspan>c1.1</tspan></div><div style="font-family:'JetBrains Mono',monospace;font-size:12px;color:#C7CCD4;margin-top:2px;">{{ kc11 }} <span style="color:#6B7280;font-size:9px;">N/mm²</span></div></div>
+          <div style="flex:1.3;background:#0E0F12;border:1px solid rgba(255,255,255,0.07);border-radius:8px;padding:7px 9px;"><div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:#6B7280;letter-spacing:0.05em;">HRC</div><div style="font-family:'JetBrains Mono',monospace;font-size:12px;color:#C7CCD4;margin-top:2px;">{{ hardness }}</div></div>
+        </div>
+        <div style="display:flex;align-items:center;gap:7px;margin-bottom:11px;padding:6px 10px;border:1px solid {{ calibBorder }};background:{{ calibBg }};border-radius:8px;">
+          <span style="font-family:'JetBrains Mono',monospace;font-size:10.5px;color:{{ calibColor }};">{{ calibText }}</span>
+        </div>
+        <div style="font-size:11px;color:#9398A2;margin-bottom:6px;">Stock L × W × H ({{ lenUnit }})</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px;margin-bottom:16px;">
+          <input type="number" step="0.1" value="{{ stockL }}" onChange="{{ setStockL }}" style="height:38px;background:#14161B;border:1px solid rgba(255,255,255,0.1);border-radius:8px;color:#F3F4F6;font-size:12.5px;padding:0 10px;">
+          <input type="number" step="0.1" value="{{ stockW }}" onChange="{{ setStockW }}" style="height:38px;background:#14161B;border:1px solid rgba(255,255,255,0.1);border-radius:8px;color:#F3F4F6;font-size:12.5px;padding:0 10px;">
+          <input type="number" step="0.1" value="{{ stockH }}" onChange="{{ setStockH }}" style="height:38px;background:#14161B;border:1px solid rgba(255,255,255,0.1);border-radius:8px;color:#F3F4F6;font-size:12.5px;padding:0 10px;">
+        </div>
+
+        <div style="font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:0.18em;color:#FF5A2B;margin-bottom:11px;">03 · TOOL &amp; HOLDER</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px 9px;margin-bottom:10px;">
+          <div><label style="display:block;font-size:11px;color:#9398A2;margin-bottom:4px;">Tooling</label><select value="{{ toolType }}" onChange="{{ setToolType }}" style="width:100%;height:40px;background:#14161B;border:1px solid rgba(255,255,255,0.1);border-radius:9px;color:#F3F4F6;font-size:12px;padding:0 28px 0 11px;"><option value="carbide_tialn">Carbide·TiAlN</option><option value="carbide_alcrn">Carbide·AlCrN</option><option value="carbide">Carbide·bare</option><option value="ceramic">Ceramic/CBN</option><option value="hss">HSS</option></select></div>
+          <div><label style="display:block;font-size:11px;color:#9398A2;margin-bottom:4px;">Holder</label><select value="{{ holderId }}" onChange="{{ setHolder }}" style="width:100%;height:40px;background:#14161B;border:1px solid rgba(255,255,255,0.1);border-radius:9px;color:#F3F4F6;font-size:12px;padding:0 28px 0 11px;"><option value="shrink">Shrink·HAIMER</option><option value="hydraulic">Hyd·Schunk</option><option value="er">ER·BIG</option><option value="sidelock">Side-lock</option></select></div>
+          <div><label style="display:block;font-size:11px;color:#9398A2;margin-bottom:4px;">Ø ({{ lenUnit }})</label><input type="number" step="0.01" value="{{ toolDia }}" onChange="{{ setToolDia }}" style="width:100%;height:40px;background:#14161B;border:1px solid rgba(255,255,255,0.1);border-radius:9px;color:#F3F4F6;font-size:12.5px;padding:0 11px;"></div>
+          <div><label style="display:block;font-size:11px;color:#9398A2;margin-bottom:4px;">Flutes</label><input type="number" step="1" value="{{ flutes }}" onChange="{{ setFlutes }}" style="width:100%;height:40px;background:#14161B;border:1px solid rgba(255,255,255,0.1);border-radius:9px;color:#F3F4F6;font-size:12.5px;padding:0 11px;"></div>
+        </div>
+        <label style="display:flex;justify-content:space-between;font-size:11px;color:#9398A2;margin-bottom:6px;">Stickout <span style="font-family:'JetBrains Mono',monospace;color:{{ stickoutColor }};">{{ stickout }}{{ lenUnit }} · {{ stickoutRatio }}×Ø</span></label>
+        <input type="range" min="{{ stickMin }}" max="{{ stickMax }}" step="0.05" value="{{ stickout }}" onChange="{{ setStickout }}" oninput="{{ setStickout }}" style="width:100%;margin-bottom:16px;">
+
+        <div style="font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:0.18em;color:#FF5A2B;margin-bottom:11px;">04 · CUT</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px 9px;">
+          <div><label style="display:block;font-size:11px;color:#9398A2;margin-bottom:4px;">Operation</label><select value="{{ operationId }}" onChange="{{ setOperation }}" style="width:100%;height:40px;background:#14161B;border:1px solid rgba(255,255,255,0.1);border-radius:9px;color:#F3F4F6;font-size:12px;padding:0 28px 0 11px;"><option value="roughing">Roughing</option><option value="profiling">Profile/wall</option><option value="slotting">Slotting</option><option value="finishing">Finish floor</option></select></div>
+          <div><label style="display:block;font-size:11px;color:#9398A2;margin-bottom:4px;">CAM seat</label><select value="{{ camSeat }}" onChange="{{ setCamSeat }}" style="width:100%;height:40px;background:#14161B;border:1px solid rgba(255,255,255,0.1);border-radius:9px;color:#F3F4F6;font-size:12px;padding:0 28px 0 11px;"><option value="fusion">Fusion 360</option><option value="hypermill">hyperCAD/hyperMILL v31</option><option value="mastercam">Mastercam X8</option></select></div>
+          <div><label style="display:block;font-size:11px;color:#9398A2;margin-bottom:4px;">Axial a<tspan>p</tspan> ({{ lenUnit }})</label><input type="number" step="0.005" value="{{ ap }}" onChange="{{ setAp }}" style="width:100%;height:40px;background:#14161B;border:1px solid rgba(255,255,255,0.1);border-radius:9px;color:#F3F4F6;font-size:12.5px;padding:0 11px;"></div>
+          <div><label style="display:block;font-size:11px;color:#9398A2;margin-bottom:4px;">Radial a<tspan>e</tspan> ({{ lenUnit }})</label><input type="number" step="0.005" value="{{ ae }}" onChange="{{ setAe }}" style="width:100%;height:40px;background:#14161B;border:1px solid rgba(255,255,255,0.1);border-radius:9px;color:#F3F4F6;font-size:12.5px;padding:0 11px;"></div>
+          <div><label style="display:block;font-size:11px;color:#9398A2;margin-bottom:4px;">Coolant</label><select value="{{ coolantId }}" onChange="{{ setCoolant }}" style="width:100%;height:40px;background:#14161B;border:1px solid rgba(255,255,255,0.1);border-radius:9px;color:#F3F4F6;font-size:12px;padding:0 28px 0 11px;"><option value="flood">Flood</option><option value="through">Through</option><option value="mql">MQL</option><option value="air">Air</option><option value="dry">Dry</option></select></div>
+          <div><label style="display:block;font-size:11px;color:#9398A2;margin-bottom:4px;">Finish Ra</label><select value="{{ raId }}" onChange="{{ setRa }}" style="width:100%;height:40px;background:#14161B;border:1px solid rgba(255,255,255,0.1);border-radius:9px;color:#F3F4F6;font-size:12px;padding:0 28px 0 11px;"><option value="rough">Rough</option><option value="125">125µin</option><option value="63">63µin</option><option value="32">32µin</option><option value="16">16µin</option><option value="8">8µin</option></select></div>
+        </div>
+        <label style="display:block;font-size:11px;color:#9398A2;margin:13px 0 6px;">Toolpath <span style="color:#6B7280;font-family:'JetBrains Mono',monospace;font-size:9.5px;">· {{ seatLabel }} · light border = seat-enabled</span></label>
+        <div style="display:flex;flex-wrap:wrap;gap:6px;">
+          <sc-for list="{{ toolpathChips }}" as="t" hint-placeholder-count="6"><button onClick="{{ t.on }}" style="{{ t.style }}">{{ t.label }}</button></sc-for>
+        </div>
+      </section>
+      <section style="overflow:hidden;min-width:0;padding:16px 18px;background:radial-gradient(900px 480px at 70% -12%, rgba(255,90,43,0.05), transparent 60%),#0B0C0F;display:flex;flex-direction:column;gap:14px;">
+
+        <div style="flex:1.15;min-height:0;background:#0C0D11;border:1px solid rgba(255,255,255,0.08);border-radius:15px;display:flex;flex-direction:column;overflow:hidden;position:relative;">
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 16px 8px;">
+            <div style="display:flex;align-items:center;gap:9px;"><span style="font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:14px;">Cut viewport</span><span style="font-family:'JetBrains Mono',monospace;font-size:10px;color:#6B7280;">{{ toolDia }}{{ lenUnit }} {{ flutes }}FL · {{ operationLabel }}</span></div>
+            <div style="display:flex;gap:5px;">
+              <sc-for list="{{ camPresets }}" as="c" hint-placeholder-count="4">
+                <button onClick="{{ c.on }}" style="{{ c.style }}">{{ c.label }}</button>
+              </sc-for>
+            </div>
+          </div>
+          <div style="flex:1;min-height:0;position:relative;">
+            <svg viewBox="0 0 740 360" preserveAspectRatio="xMidYMid meet" width="100%" height="100%" style="display:block;">
+              <sc-for list="{{ gridLines }}" as="g" hint-placeholder-count="10">
+                <line x1="{{ g.x1 }}" y1="{{ g.y1 }}" x2="{{ g.x2 }}" y2="{{ g.y2 }}" stroke="rgba(255,255,255,0.055)" stroke-width="1"></line>
+              </sc-for>
+              <sc-for list="{{ faces }}" as="f" hint-placeholder-count="14">
+                <polygon points="{{ f.pts }}" fill="{{ f.fill }}" stroke="{{ f.stroke }}" stroke-width="1" stroke-linejoin="round"></polygon>
+              </sc-for>
+              <polyline points="{{ toolpathPts }}" fill="none" stroke="#FF7A4D" stroke-width="1.4" stroke-dasharray="4 3" opacity="0.85" stroke-linejoin="round"></polyline>
+              <sc-for list="{{ fluteLines }}" as="l" hint-placeholder-count="6">
+                <line x1="{{ l.x1 }}" y1="{{ l.y1 }}" x2="{{ l.x2 }}" y2="{{ l.y2 }}" stroke="{{ l.c }}" stroke-width="1.2"></line>
+              </sc-for>
+              <circle cx="{{ sparkX }}" cy="{{ sparkY }}" r="13" fill="#FF5A2B" opacity="0.22" style="animation:kzspark 1.6s infinite;"></circle>
+              <circle cx="{{ sparkX }}" cy="{{ sparkY }}" r="5" fill="#FF8A5A"></circle>
+            </svg>
+            <div style="position:absolute;left:16px;bottom:12px;display:flex;gap:14px;font-family:'JetBrains Mono',monospace;font-size:10px;color:#9398A2;">
+              <span style="display:flex;align-items:center;gap:5px;"><span style="width:9px;height:9px;border-radius:2px;background:{{ loadColor }};"></span>engagement heat</span>
+              <span style="display:flex;align-items:center;gap:5px;"><span style="width:14px;height:0;border-top:1.4px dashed #FF7A4D;"></span>toolpath</span>
+              <span>MRR {{ mrr }} {{ mrrUnit }}</span>
+            </div>
+          </div>
+        </div>
+
+        <div style="flex:1;min-height:0;background:#0C0D11;border:1px solid rgba(255,255,255,0.08);border-radius:15px;display:flex;flex-direction:column;overflow:hidden;">
+          <div style="display:flex;align-items:center;gap:6px;padding:11px 14px 8px;border-bottom:1px solid rgba(255,255,255,0.05);">
+            <sc-for list="{{ chartTabs }}" as="t" hint-placeholder-count="5">
+              <button onClick="{{ t.on }}" style="{{ t.style }}">{{ t.label }}</button>
+            </sc-for>
+            <div style="flex:1;"></div>
+            <span style="font-family:'JetBrains Mono',monospace;font-size:10px;color:#6B7280;">{{ chartCaption }}</span>
+          </div>
+          <div style="flex:1;min-height:0;display:flex;">
+            <svg viewBox="0 0 740 196" preserveAspectRatio="xMidYMid meet" width="100%" height="100%" style="display:block;">
+              <line x1="44" y1="14" x2="44" y2="168" stroke="#23262E" stroke-width="1"></line>
+              <line x1="44" y1="168" x2="726" y2="168" stroke="#23262E" stroke-width="1"></line>
+              <sc-for list="{{ chartYTicks }}" as="y" hint-placeholder-count="4">
+                <line x1="44" y1="{{ y.y }}" x2="726" y2="{{ y.y }}" stroke="rgba(255,255,255,0.04)" stroke-width="1"></line>
+                <text x="40" y="{{ y.ty }}" text-anchor="end" font-family="JetBrains Mono" font-size="9" fill="#6B7280">{{ y.label }}</text>
+              </sc-for>
+              <polygon points="{{ chartArea }}" fill="{{ chartAreaFill }}"></polygon>
+              <polyline points="{{ chartLine }}" fill="none" stroke="{{ chartColor }}" stroke-width="2" stroke-linejoin="round"></polyline>
+              <line x1="44" y1="{{ chartRefY }}" x2="726" y2="{{ chartRefY }}" stroke="{{ chartRefColor }}" stroke-width="1.2" stroke-dasharray="4 3" opacity="{{ chartRefOpacity }}"></line>
+              <text x="722" y="{{ chartRefLabelY }}" text-anchor="end" font-family="JetBrains Mono" font-size="9" fill="{{ chartRefColor }}" opacity="{{ chartRefOpacity }}">{{ chartRefLabel }}</text>
+              <line x1="{{ chartMarkerX }}" y1="14" x2="{{ chartMarkerX }}" y2="168" stroke="#FF5A2B" stroke-width="1" stroke-dasharray="2 2" opacity="0.45"></line>
+              <circle cx="{{ chartMarkerX }}" cy="{{ chartMarkerY }}" r="5" fill="#FF5A2B" stroke="#0C0D11" stroke-width="2"></circle>
+              <text x="386" y="190" text-anchor="middle" font-family="JetBrains Mono" font-size="9" fill="#6B7280">{{ chartXLabel }}</text>
+            </svg>
+          </div>
+        </div>
+      </section>
+
+      <!-- ───────── RESULTS COLUMN ───────── -->
+      <section class="kz-scroll" style="border-left:1px solid rgba(255,255,255,0.06);overflow-y:auto;min-width:0;padding:16px 18px 44px;background:#0A0B0D;">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:0.16em;color:#6B7280;margin-bottom:9px;">SOLVE FOR</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:13px;">
+          <button onClick="{{ setModeTool }}" style="{{ modeToolStyle }}"><span style="font-size:15px;">🛡</span><span style="font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:12.5px;color:#F3F4F6;">Tool-Saving</span></button>
+          <button onClick="{{ setModeRush }}" style="{{ modeRushStyle }}"><span style="font-size:15px;">⚡</span><span style="font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:12.5px;color:#F3F4F6;">Rush Job</span></button>
+          <button onClick="{{ setModeOptimal }}" style="{{ modeOptimalStyle }}"><span style="font-size:15px;">◎</span><span style="font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:12.5px;color:#F3F4F6;">Optimal</span></button>
+          <button onClick="{{ setModeUpgrade }}" style="{{ modeUpgradeStyle }}"><span style="font-size:15px;">▲</span><span style="font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:12.5px;color:#F3F4F6;">Upgrade</span></button>
+        </div>
+        <div style="display:flex;align-items:center;gap:11px;background:#0E0F12;border:1px solid rgba(255,255,255,0.07);border-radius:11px;padding:10px 14px;margin-bottom:13px;">
+          <div style="flex:none;"><div style="font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:0.1em;color:#6B7280;">AGGRO</div><div style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:14px;color:{{ aggrColor }};">{{ aggrLabel }}</div></div>
+          <input type="range" min="0" max="100" step="1" value="{{ aggr }}" onChange="{{ setAggr }}" oninput="{{ setAggr }}" style="flex:1;">
+        </div>
+
+        <sc-if value="{{ hasWarnings }}" hint-placeholder-val="{{ false }}">
+          <div style="background:#0E0F12;border:1px solid rgba(244,183,64,0.22);border-radius:13px;padding:11px 14px;margin-bottom:11px;">
+            <div style="font-family:'JetBrains Mono',monospace;font-size:9.5px;letter-spacing:0.1em;color:#F4B740;margin-bottom:7px;">⚠ SOLVE NOTES · {{ warnCount }}</div>
+            <sc-for list="{{ warnRows }}" as="w" hint-placeholder-count="2">
+              <div style="display:flex;gap:9px;align-items:flex-start;padding:3px 0;"><span style="flex:none;margin-top:4px;width:7px;height:7px;border-radius:50%;background:{{ w.dot }};"></span><span style="font-size:11.5px;color:#C7CCD4;line-height:1.35;">{{ w.text }}</span></div>
+            </sc-for>
+          </div>
+        </sc-if>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:11px;">
+          <div style="background:linear-gradient(180deg,rgba(255,90,43,0.1),#0E0F12);border:1px solid rgba(255,90,43,0.28);border-radius:13px;padding:14px 15px;"><div style="font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.08em;color:#FF7A4D;">SPINDLE</div><div style="font-family:'JetBrains Mono',monospace;font-weight:700;font-size:30px;color:#F3F4F6;line-height:1;margin-top:7px;">{{ rpm }}</div><div style="font-size:11px;color:#9398A2;margin-top:5px;">RPM · {{ sfm }} {{ sfmUnit }}</div></div>
+          <div style="background:linear-gradient(180deg,rgba(255,90,43,0.1),#0E0F12);border:1px solid rgba(255,90,43,0.28);border-radius:13px;padding:14px 15px;"><div style="font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.08em;color:#FF7A4D;">FEED</div><div style="font-family:'JetBrains Mono',monospace;font-weight:700;font-size:30px;color:#F3F4F6;line-height:1;margin-top:7px;">{{ feed }}</div><div style="font-size:11px;color:#9398A2;margin-top:5px;">{{ feedUnit }} · {{ fz }}/t</div></div>
+        </div>
+
+        <div style="background:#0E0F12;border:1px solid rgba(255,255,255,0.08);border-radius:13px;padding:13px 15px;margin-bottom:11px;display:flex;align-items:center;gap:14px;">
+          <svg viewBox="0 0 72 72" width="72" height="72" style="flex:none;">
+            <circle cx="36" cy="36" r="28" fill="none" stroke="#1B1E24" stroke-width="7"></circle>
+            <circle cx="36" cy="36" r="28" fill="none" stroke="{{ loadColor }}" stroke-width="7" stroke-linecap="round" stroke-dasharray="{{ loadDash }}" transform="rotate(-90 36 36)"></circle>
+            <text x="36" y="33" text-anchor="middle" font-family="JetBrains Mono" font-size="15" font-weight="700" fill="#F3F4F6">{{ loadPct }}</text>
+            <text x="36" y="46" text-anchor="middle" font-family="JetBrains Mono" font-size="8" fill="#6B7280">% LOAD</text>
+          </svg>
+          <svg viewBox="0 0 72 72" width="72" height="72" style="flex:none;">
+            <circle cx="36" cy="36" r="28" fill="none" stroke="#1B1E24" stroke-width="7"></circle>
+            <circle cx="36" cy="36" r="28" fill="none" stroke="{{ safetyColor }}" stroke-width="7" stroke-linecap="round" stroke-dasharray="{{ safetyDash }}" transform="rotate(-90 36 36)"></circle>
+            <text x="36" y="33" text-anchor="middle" font-family="JetBrains Mono" font-size="15" font-weight="700" fill="#F3F4F6">{{ safety }}</text>
+            <text x="36" y="46" text-anchor="middle" font-family="JetBrains Mono" font-size="8" fill="#6B7280">SAFETY</text>
+          </svg>
+          <div style="flex:1;min-width:0;">
+            <div style="display:flex;justify-content:space-between;font-size:11px;color:#9398A2;padding:3px 0;"><span>Force F<tspan>c</tspan></span><span style="font-family:'JetBrains Mono',monospace;color:#C7CCD4;">{{ forceN }} N</span></div>
+            <div style="display:flex;justify-content:space-between;font-size:11px;color:#9398A2;padding:3px 0;"><span>Deflection</span><span style="font-family:'JetBrains Mono',monospace;color:{{ deflColor }};">{{ deflThou }} th</span></div>
+            <div style="display:flex;justify-content:space-between;font-size:11px;color:#9398A2;padding:3px 0;"><span>Tool life</span><span style="font-family:'JetBrains Mono',monospace;color:#C7CCD4;">{{ toolLife }} min · {{ partsPerEdge }} pc/edge</span></div>
+            <div style="display:flex;justify-content:space-between;align-items:center;font-size:11px;color:#9398A2;padding:3px 0;"><span>Edge wear</span><span style="display:flex;align-items:center;gap:6px;"><span style="width:54px;height:5px;border-radius:999px;background:#1B1E24;overflow:hidden;display:inline-block;"><span style="display:block;height:100%;width:{{ wearPct }};background:{{ wearColor }};"></span></span><span style="font-family:'JetBrains Mono',monospace;color:{{ wearColor }};">{{ wearLabel }}</span></span></div>
+            <div style="display:flex;justify-content:space-between;font-size:11px;color:#9398A2;padding:3px 0;"><span>Cut temp</span><span style="font-family:'JetBrains Mono',monospace;color:{{ tempColor }};">{{ tempC }}°C · {{ tempLabel }}</span></div>
+            <div style="display:flex;justify-content:space-between;font-size:11px;color:#9398A2;padding:3px 0;"><span>Confidence</span><span style="font-family:'JetBrains Mono',monospace;color:#C7CCD4;">{{ confidence }}%</span></div>
+          </div>
+        </div>
+
+        <div style="background:#0E0F12;border:1px solid rgba(255,255,255,0.08);border-radius:13px;padding:11px 15px;margin-bottom:11px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;"><span style="font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:13px;">Entry move</span><span style="font-family:'JetBrains Mono',monospace;font-size:9.5px;color:#6B7280;">{{ entryType }}</span></div>
+          <div style="display:flex;gap:14px;">
+            <div style="flex:1;"><div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:#6B7280;">RAMP ∠</div><div style="font-family:'JetBrains Mono',monospace;font-size:15px;color:#C7CCD4;margin-top:2px;">{{ rampAngle }}°</div></div>
+            <div style="flex:1;"><div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:#6B7280;">PLUNGE FEED</div><div style="font-family:'JetBrains Mono',monospace;font-size:15px;color:#C7CCD4;margin-top:2px;">{{ plungeFeed }}</div></div>
+            <div style="flex:1;"><div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:#6B7280;">HELIX Ø</div><div style="font-family:'JetBrains Mono',monospace;font-size:15px;color:#C7CCD4;margin-top:2px;">{{ helixDia }}</div></div>
+            <div style="flex:1.3;"><div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:#6B7280;">PER REV</div><div style="font-family:'JetBrains Mono',monospace;font-size:15px;color:#C7CCD4;margin-top:2px;">{{ helixPitch }}</div></div>
+          </div>
+        </div>
+
+        <div style="background:#0E0F12;border:1px solid rgba(255,255,255,0.08);border-radius:13px;padding:13px 15px;margin-bottom:11px;"><span style="font-family:'JetBrains Mono',monospace;font-size:9.5px;color:#6B7280;">{{ modeLabel }} vs optimal</span></div>
+          <div style="display:flex;align-items:center;gap:10px;">
+            <svg viewBox="0 0 168 150" width="168" height="150" style="flex:none;">
+              <sc-for list="{{ radarRings }}" as="r" hint-placeholder-count="4">
+                <polygon points="{{ r.pts }}" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="1"></polygon>
+              </sc-for>
+              <sc-for list="{{ radarAxes }}" as="a" hint-placeholder-count="5">
+                <line x1="{{ a.x1 }}" y1="{{ a.y1 }}" x2="{{ a.x2 }}" y2="{{ a.y2 }}" stroke="rgba(255,255,255,0.08)" stroke-width="1"></line>
+              </sc-for>
+              <polygon points="{{ radarOptimal }}" fill="rgba(42,111,219,0.10)" stroke="#2A6FDB" stroke-width="1.4" stroke-dasharray="3 2"></polygon>
+              <polygon points="{{ radarCurrent }}" fill="rgba(255,90,43,0.16)" stroke="#FF5A2B" stroke-width="1.8"></polygon>
+              <sc-for list="{{ radarLabels }}" as="l" hint-placeholder-count="5">
+                <text x="{{ l.x }}" y="{{ l.y }}" text-anchor="middle" font-family="JetBrains Mono" font-size="8" fill="#9398A2">{{ l.t }}</text>
+              </sc-for>
+            </svg>
+            <div style="flex:1;min-width:0;">
+              <sc-for list="{{ modeRows }}" as="row" hint-placeholder-count="3">
+                <div style="display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid rgba(255,255,255,0.05);">
+                  <span style="font-size:11.5px;color:#9398A2;">{{ row.k }}</span>
+                  <span style="font-family:'JetBrains Mono',monospace;font-size:12px;color:{{ row.c }};">{{ row.v }}</span>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+        </div>
+
+        <div style="background:linear-gradient(90deg,rgba(54,211,153,0.05),transparent);border:1px solid rgba(255,255,255,0.08);border-radius:13px;padding:13px 15px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;"><span style="font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:13px;">Vs. the old way</span><span style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:16px;color:#36D399;">{{ improvePct }}</span></div>
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;font-family:'JetBrains Mono',monospace;font-size:11.5px;"><span style="color:#6B7280;text-decoration:line-through;">{{ baseRpm }}/{{ baseFeed }}</span><span style="color:#FF7A4D;">→</span><span style="color:#F3F4F6;">{{ rpm }}/{{ feed }}</span></div>
+          <div style="font-size:11.5px;color:#C7CCD4;line-height:1.4;">{{ insight }}</div>
+        </div>
+      </section>
+    </div>
+  </main>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = {
+    units: 'in', machineId: 'vm30i', materialId: 'd2', operationId: 'roughing', strategyId: 'adaptive', camSeat: 'hypermill',
+    toolType: 'carbide_tialn', holderId: 'shrink', toolDia: 0.5, flutes: 4, stickout: 1.5,
+    ap: 0.25, ae: 0.15, coolantId: 'flood', raId: 'rough', stockL: 6, stockW: 4, stockH: 2.5,
+    aggr: 50, mode: 'optimal', cam: 'iso', chartTab: 'lobe',
+    optThru: true, optHp: false, optProbe: true,
+    scale: (typeof window !== 'undefined') ? Math.min(window.innerWidth / 1600, window.innerHeight / 980) : 0.6,
+  };
+  componentDidMount() {
+    this._fit = () => this.setState({ scale: Math.min(window.innerWidth / 1600, window.innerHeight / 980) }); window.addEventListener('resize', this._fit); this._fit();
+    // ── live bind: pull kc1.1 / mc / Taylor from the shared source (jm-data.js) so SFC physics correlates with Materials DB, Quote, Post ──
+    this._trySync = (n) => {
+      try {
+        const K = (typeof window !== 'undefined') && window.KIENZLE;
+        if (K && K.MATERIALS) {
+          Object.keys(this.MAT).forEach(id => { const k = K.MATERIALS[id]; if (k) { this.MAT[id].kc = k.kc; this.MAT[id].mc = k.mc; this.MAT[id].tC = k.tC; this.MAT[id].tN = k.tN; } });
+          this._synced = true; this.forceUpdate();
+        } else if ((n || 0) < 25) { setTimeout(() => this._trySync((n || 0) + 1), 100); }
+      } catch (e) { /* fall back to local constants */ }
+    };
+    this._trySync(0);
+  }
+  componentWillUnmount() { if (this._fit) window.removeEventListener('resize', this._fit); }
+
+  MACH = {
+    vm30i:  { label: 'Hurco VM30i', spindle: '12k·20hp', ctrl: 'WinMAX v10', maxRpm: 12000, hp: 20, rigid: 0.92, rigidLabel: 'High', kind: 'mill' },
+    m460v:  { label: 'Okuma M460V-5AX', spindle: '15k·30hp', ctrl: 'OSP-P300MA', maxRpm: 15000, hp: 30, rigid: 1.0, rigidLabel: 'V.High', kind: 'mill' },
+    vf2:    { label: 'Haas VF-2', spindle: '8.1k·30hp', ctrl: 'PRE-NGC', maxRpm: 8100, hp: 30, rigid: 0.74, rigidLabel: 'Mod', kind: 'mill' },
+    om2:    { label: 'Haas OM-2', spindle: '30k·7.5hp', ctrl: 'PRE-NGC', maxRpm: 30000, hp: 7.5, rigid: 0.6, rigidLabel: 'Light', kind: 'mill' },
+    roku:   { label: 'Roku-Roku HC658-II', spindle: '40k·15hp', ctrl: 'Fanuc 31i-B5', maxRpm: 40000, hp: 15, rigid: 0.95, rigidLabel: 'V.High', kind: 'mill' },
+    l300m:  { label: 'Okuma GENOS L300-M', spindle: '5k·20hp', ctrl: 'OSP-P300L-R', maxRpm: 5000, hp: 20, rigid: 0.9, rigidLabel: 'High', kind: 'turn' },
+    l200em: { label: 'Okuma GENOS L200E-M', spindle: '6k·15hp', ctrl: 'OSP-P200LA-R', maxRpm: 6000, hp: 15, rigid: 0.86, rigidLabel: 'High', kind: 'turn' },
+    lnc8:   { label: 'Okuma LNC8', spindle: '4.5k·10hp', ctrl: 'OSP-U10L', maxRpm: 4500, hp: 10, rigid: 0.78, rigidLabel: 'Mod', kind: 'turn' },
+    crown:  { label: 'Okuma Crown L1060', spindle: '3.8k·20hp', ctrl: 'OSP-U10L', maxRpm: 3800, hp: 20, rigid: 0.84, rigidLabel: 'High', kind: 'turn' },
+    l400ii: { label: 'Okuma GENOS L400II-E', spindle: '3.8k·25hp', ctrl: 'OSP-P300LA-E', maxRpm: 3800, hp: 25, rigid: 0.9, rigidLabel: 'High', kind: 'turn' },
+    lb3000: { label: 'Okuma LB3000EX BB', spindle: '3.2k·25hp', ctrl: 'OSP-P500', maxRpm: 3200, hp: 25, rigid: 0.92, rigidLabel: 'V.High', kind: 'turn' },
+    multus: { label: 'Okuma Multus B250II', spindle: '5k·22hp', ctrl: 'OSP-P300SA', maxRpm: 5000, hp: 22, rigid: 0.88, rigidLabel: 'High', kind: 'millturn' },
+  };
+  MAT = {
+    d2:       { name:'D2', sfm: 200, fz: 0.0014, kc: 3100, mc: 0.18, tC: 110, tN: 0.16, hard: '58-60', iso: 'K/H', cal: true,  unc: 0.08 },
+    a2:       { name:'A2', sfm: 215, fz: 0.0015, kc: 2950, mc: 0.19, tC: 120, tN: 0.17, hard: '58', iso: 'K/H', cal: false, unc: 0.14 },
+    s7:       { name:'S7', sfm: 250, fz: 0.0017, kc: 2750, mc: 0.20, tC: 140, tN: 0.18, hard: '54', iso: 'K/H', cal: false, unc: 0.15 },
+    '4140':   { name:'4140', sfm: 360, fz: 0.0028, kc: 1950, mc: 0.23, tC: 200, tN: 0.20, hard: '28-32', iso: 'P', cal: true, unc: 0.08 },
+    h13:      { name:'H13', sfm: 300, fz: 0.0020, kc: 2400, mc: 0.22, tC: 165, tN: 0.19, hard: '48', iso: 'H', cal: false, unc: 0.13 },
+    '174ph':  { name:'17-4PH', sfm: 330, fz: 0.0024, kc: 2350, mc: 0.26, tC: 175, tN: 0.20, hard: '40', iso: 'M', cal: true, unc: 0.10 },
+    ti64:     { name:'Ti64', sfm: 190, fz: 0.0018, kc: 1450, mc: 0.32, tC: 90, tN: 0.22, hard: '36', iso: 'S', cal: true, unc: 0.12 },
+    '6061':   { name:'6061', sfm: 1200, fz: 0.0040, kc: 700, mc: 0.21, tC: 900, tN: 0.33, hard: '95HB', iso: 'N', cal: false, unc: 0.12 },
+    graphite: { name:'Graphite', sfm: 1600, fz: 0.0050, kc: 300, mc: 0.22, tC: 1200, tN: 0.30, hard: 'n/a', iso: 'EDM', cal: false, unc: 0.20 },
+  };
+  MODES = { tool: { vc: 0.78, fz: 0.82 }, rush: { vc: 1.28, fz: 1.22 }, optimal: { vc: 1.0, fz: 1.0 }, upgrade: { vc: 1.12, fz: 1.10 } };
+  HOLDER = { shrink: { k: 1.0, life: 1.0 }, hydraulic: { k: 0.97, life: 0.97 }, er: { k: 0.86, life: 0.85 }, sidelock: { k: 0.78, life: 0.72 } };
+  TOOL = { carbide_tialn: { vc: 1.0, E: 600000, price: 58 }, carbide_alcrn: { vc: 1.22, E: 600000, price: 74 }, carbide: { vc: 0.82, E: 600000, price: 42 }, ceramic: { vc: 2.6, E: 380000, price: 165 }, hss: { vc: 0.45, E: 210000, price: 22 } };
+  STRAT = { conventional: { mrr: 1.0, life: 1.0, label:'Conv' }, adaptive: { mrr: 1.15, life: 1.5, label:'Adaptive' }, hsm: { mrr: 1.05, life: 1.25, label:'HSM' }, trochoidal: { mrr: 1.1, life: 1.6, label:'Trochoidal' }, fiveaxis: { mrr: 1.0, life: 1.3, label:'5-Axis' }, maxx: { mrr: 1.25, life: 1.45, label:'MAXX' }, turning: { mrr: 1.0, life: 1.0, label:'Turning' }, facing: { mrr: 1.0, life: 1.0, label:'Facing' }, grooving: { mrr: 0.8, life: 0.9, label:'Grooving' }, parting: { mrr: 0.7, life: 0.85, label:'Parting' }, threading: { mrr: 0.9, life: 1.0, label:'Threading' }, drilling: { mrr: 1.0, life: 1.0, label:'Drilling' }, boring: { mrr: 0.95, life: 1.0, label:'Boring' }, highfeedturn: { mrr: 1.3, life: 1.2, label:'High-feed turn' }, dynamicturn: { mrr: 1.2, life: 1.5, label:'Dynamic turn' } };
+  SEATS = { fusion: { label: 'Fusion 360', paths: ['adaptive', 'hsm', 'trochoidal', 'dynamicturn'] }, hypermill: { label: 'hyperMILL v31', paths: ['adaptive', 'hsm', 'trochoidal', 'fiveaxis', 'maxx', 'dynamicturn', 'highfeedturn'] }, mastercam: { label: 'Mastercam X8', paths: ['adaptive', 'hsm', 'trochoidal', 'dynamicturn', 'highfeedturn'] } };
+  MILLPATHS = [['conventional', 'Conventional'], ['adaptive', 'Adaptive'], ['trochoidal', 'Trochoidal'], ['hsm', 'HSM'], ['maxx', 'MAXX'], ['fiveaxis', '5-Axis']];
+  LATHEPATHS = [['turning', 'Turning'], ['facing', 'Facing'], ['boring', 'Boring'], ['grooving', 'Grooving'], ['parting', 'Parting'], ['threading', 'Threading'], ['drilling', 'Drilling'], ['highfeedturn', 'High-feed'], ['dynamicturn', 'Dynamic']];
+  TRAD = { conventional: 1, turning: 1, facing: 1, boring: 1, grooving: 1, parting: 1, threading: 1, drilling: 1 };
+  RA = { rough: 250, '125': 125, '63': 63, '32': 32, '16': 16, '8': 8 };
+  OPLABEL = { roughing: 'Roughing', profiling: 'Profile', slotting: 'Slotting', finishing: 'Finish' };
+
+  num(v, d) { const n = parseFloat(v); return Number.isFinite(n) ? n : d; }
+
+  solve(st) {
+    const mat = this.MAT[st.materialId], mach = this.MACH[st.machineId];
+    const mode = this.MODES[st.mode] || this.MODES.optimal;
+    const holder = this.HOLDER[st.holderId], tool = this.TOOL[st.toolType], strat = this.STRAT[st.strategyId];
+    const warn = [];
+    const aggrF = 0.62 + (st.aggr / 100) * 0.76;
+    const dia = Math.max(0.03, st.toolDia), flutes = Math.max(1, Math.round(st.flutes));
+    // ── input guards ──
+    let ae = Math.max(0, st.ae), ap = Math.max(0, st.ap);
+    if (ae > dia) { ae = dia; warn.push(['Radial aₑ > tool Ø — clamped to ' + dia.toFixed(3) + '"', 2]); }
+    if (st.operationId === 'slotting' && ae < dia * 0.98) warn.push(['Slotting engages full Ø — aₑ forced to width', 1]);
+    if (ap > dia * 3) warn.push(['Axial aₚ is ' + (ap / dia).toFixed(1) + '×Ø — very deep, expect deflection', 1]);
+    if (st.flutes < 1) warn.push(['Flute count rounded up to 1', 1]);
+    if (st.operationId === 'slotting') ae = dia;
+    const coolBonus = ((st.optHp || st.coolantId === 'through' || st.optThru) && (mat.iso === 'S' || mat.iso === 'M')) ? 1.12 : 1.0;
+    let sfm = mat.sfm * tool.vc * mode.vc * aggrF;
+    let rpm = (sfm * 12) / (Math.PI * dia);
+    let rpmCapped = false;
+    if (rpm > mach.maxRpm) { rpm = mach.maxRpm; sfm = (rpm * Math.PI * dia) / 12; rpmCapped = true; warn.push(['Spindle maxed at ' + mach.maxRpm.toLocaleString() + ' RPM — surface speed limited', 1]); }
+    const engRatio = Math.min(1, ae / Math.max(0.01, dia));
+    const rctf = engRatio < 0.5 ? Math.min(1.8, 1 / Math.sqrt(Math.max(0.12, 2 * engRatio - engRatio * engRatio))) : 1.0;
+    let fz = mat.fz * Math.pow(dia / 0.5, 0.35) * mode.fz * aggrF * (0.9 + 0.1 * holder.k) * (st.strategyId === 'conventional' ? 1 : rctf) * coolBonus;
+    const raTarget = this.RA[st.raId], rNose = dia * 0.1 * 25400;
+    const fzMaxRa = st.raId === 'rough' ? Infinity : Math.sqrt(raTarget * 31.8 * rNose) / 25400;
+    const raLimited = fzMaxRa < fz; if (raLimited) { fz = fzMaxRa; warn.push(['Feed capped by ' + st.raId + ' µin finish target', 0]); }
+    const apmm = ap * 25.4, aemm = ae * 25.4, diamm = dia * 25.4;
+    const engaged = Math.min(1, aemm / Math.max(0.1, diamm));
+    // ── spindle torque knee: below nBase the spindle is torque-limited, so usable hp scales with rpm ──
+    const nBase = mach.maxRpm / 6;
+    const availHp = mach.hp * Math.min(1, rpm / nBase);
+    const powerOf = (fzv) => { const Fc = mat.kc * Math.max(0.1, apmm) * Math.pow(Math.max(0.01, fzv * 25.4), 1 - mat.mc) * (0.35 + 0.65 * engaged); return { Fc, hp: ((Fc * (sfm * 0.3048)) / 60000 / 0.85) * 1.341 }; };
+    let pw = powerOf(fz);
+    let derated = false;
+    if (pw.hp > availHp) {
+      const ratio = availHp / pw.hp; const fzScale = Math.pow(ratio, 1 / (1 - mat.mc));
+      const fzNew = fz * Math.max(0.3, fzScale);
+      if (fzNew < fz - 1e-9) { fz = fzNew; pw = powerOf(fz); derated = true; warn.push([(rpm < nBase ? 'Low-RPM torque' : 'Spindle power') + ' limit — feed derated to fit ' + availHp.toFixed(1) + ' hp', 2]); }
+    }
+    let feedIpm = fz * flutes * rpm;
+    const feedMax = mach.maxRpm >= 12000 ? 650 : (mach.kind === 'turret' ? 400 : 500);
+    if (feedIpm > feedMax) { feedIpm = feedMax; fz = feedIpm / (flutes * rpm); pw = powerOf(fz); warn.push(['Table feed clamped to ' + feedMax + ' ' + (st.units === 'mm' ? '' : 'in/min') + ' max', 1]); }
+    const Fc_eff = pw.Fc, powerHp = pw.hp;
+    const loadPct = Math.min(160, (powerHp / Math.max(0.1, availHp)) * 100);
+    const mrr = ap * ae * feedIpm * strat.mrr;
+    const fzmm = fz * 25.4;
+    const E = tool.E, I = (Math.PI * Math.pow(diamm, 4)) / 64, L = st.stickout * 25.4, Fr = Fc_eff * 0.45;
+    const deflThou = ((Fr * Math.pow(L, 3)) / (3 * E * I) / holder.k / 25.4) * 1000;
+    if (deflThou > 3) warn.push(['Tool deflects ' + deflThou.toFixed(1) + ' thou — shorten stickout or lighten cut', 2]);
+    const vcm = sfm * 0.3048;
+    // OSCAR rules: through-coolant +15-40% life on P/M; adaptive <40% engagement gains life, >40% loses it; coated edge fades late
+    const throughCool = st.optThru || st.optHp || st.coolantId === 'through';
+    const lifeCool = (throughCool && (mat.iso === 'P' || mat.iso === 'M')) ? 1.28 : (st.coolantId === 'dry' ? 0.78 : 1.0);
+    const engGain = st.strategyId !== 'conventional' ? (engaged <= 0.4 ? 1.0 + (0.4 - engaged) * 1.6 : Math.max(0.7, 1 - (engaged - 0.4) * 0.5)) : 1.0;
+    let life = Math.pow(mat.tC / Math.max(1, vcm), 1 / mat.tN) * strat.life * holder.life * lifeCool * engGain;
+    life = Math.max(2, Math.min(360, life));
+    const LD = st.stickout / dia;
+    if (LD > 5 && (st.operationId === 'finishing' || st.operationId === 'profiling')) warn.push(['L/D ' + LD.toFixed(1) + ' in finishing \u2014 deflection comp on; actual DOC runs ' + (deflThou * 0.5).toFixed(1) + ' thou shallow', 1]);
+    if (mat.iso === 'S' && !throughCool) warn.push(['Ti/superalloy without high-pressure coolant \u2014 life drops fast, HP strongly advised', 2]);
+    if (st.strategyId !== 'conventional' && engaged > 0.4) warn.push(['Engagement ' + (engaged * 100).toFixed(0) + '% > 40% \u2014 trochoidal life benefit lost above 40%', 1]);
+    const sr = st.stickout / dia;
+    const aCrit = Math.max(0.6, 7.0 * mach.rigid * holder.k / (sr * 0.55) / (mat.kc / 1600) * (st.strategyId === 'conventional' ? 1 : 1.25));
+    const lobeAt = (n) => aCrit * (1 + 0.85 * Math.pow(Math.abs(Math.sin((n / (mach.maxRpm / 6)) * Math.PI)), 1.6));
+    const stableHere = apmm < lobeAt(rpm);
+    let risk = Math.max(0, Math.min(1, (1 - Math.min(1, lobeAt(rpm) / Math.max(0.1, apmm))) * 0.8 + (deflThou - 1.5) * 0.06 + (loadPct - 80) / 140));
+    const chatter = stableHere && risk < 0.4 ? 'Stable' : risk < 0.7 ? 'Marginal' : 'Chatter';
+    let S = 1;
+    if (loadPct > 90) S -= (loadPct - 90) / 55;
+    if (deflThou > 1.5) S -= (deflThou - 1.5) * 0.09;
+    S -= risk * 0.38; if (!stableHere) S -= 0.15; if (rpm >= mach.maxRpm - 1) S -= 0.06;
+    S = Math.max(0.05, Math.min(1, S));
+    let conf = Math.max(0.4, Math.min(0.98, 0.92 - mat.unc * 1.4 + (mat.cal ? 0.05 : -0.03) + (st.optProbe ? 0.03 : 0) - (sr > 5 ? 0.05 : 0)));
+    const lifeUnc = Math.min(0.6, mat.unc * 2.6);
+    const lifeP5 = Math.max(1, life * (1 - 1.5 * lifeUnc)), lifeP95 = life * (1 + 1.9 * lifeUnc);
+    const V = Math.max(0.4, st.stockL * st.stockW * st.stockH * 0.28);
+    const cutMin = V / Math.max(0.01, mrr), cycleMin = cutMin * 1.3;
+    const toolWear = (cutMin / life) * tool.price;
+    const costPart = (cycleMin / 60) * 95 + toolWear;
+    const Ra = st.raId === 'rough' ? (fz * fz) / (32 * Math.max(0.001, dia * 0.1)) * 1e6 : raTarget;
+    const baseRpm = Math.max(400, Math.min(mach.maxRpm, Math.round((100 * 12) / (Math.PI * dia) / 50) * 50));
+    const baseFeed = baseRpm * 0.001 * flutes;
+    const baseMrr = Math.max(0.0001, st.ap * Math.min(st.ae, dia * 0.5) * baseFeed);
+    const improve = ((V / baseMrr - cutMin) / (V / baseMrr)) * 100;
+    // tool-condition: parts per edge from Taylor life ÷ cut time/part; wear-now warning
+    const cutPerPart = cutMin / Math.max(1, (V / Math.max(0.01, mrr)) / Math.max(1, st.stockL));
+    const minPerPart = Math.max(0.05, cutMin);
+    const partsPerEdge = Math.max(1, Math.floor(life / minPerPart));
+    const wearFrac = Math.max(0, Math.min(1, (loadPct / 100) * 0.5 + (mat.cal ? 0 : 0.1) + (deflThou > 2 ? 0.15 : 0) + (st.aggr / 100) * 0.35));
+    // cutting-interface temperature (PRISM_CUTTING_THERMAL_ENGINE): rises with Vc, force, low-conductivity alloys; coolant pulls it down
+    const isoTherm = { 'P': 1.0, 'M': 1.25, 'K/H': 1.1, 'H': 1.18, 'S': 1.65, 'N': 0.5, 'EDM': 0.7, 'electrode': 0.7, 'graphite': 0.7 };
+    const coolF = ({ flood: 0.70, through: 0.60, mql: 0.85, air: 0.95, dry: 1.18 })[st.coolantId] || 0.9;
+    const tempAtSfm = (sfmv) => Math.round((20 + 68 * Math.pow(Math.max(1, sfmv * 0.3048), 0.42) * Math.pow(Math.max(0.01, fzmm), 0.15) * (mat.kc / 1600) * (isoTherm[mat.iso] || 1)) * coolF);
+    const tempC = tempAtSfm(sfm);
+    const tempRed = st.toolType === 'hss' ? 550 : st.toolType === 'ceramic' ? 1100 : (st.toolType === 'carbide_alcrn' || st.toolType === 'carbide_tialn') ? 820 : 620;
+    warn.sort((a, b) => b[1] - a[1]);
+    return { mat, mach, holder, tool, strat, sfm, rpm, fz, feedIpm, mrr, Fc_eff, powerHp, loadPct, deflThou, life, lifeP5, lifeP95, chatter, risk, stableHere, S, conf, sr, aCrit, lobeAt, baseRpm, baseFeed, improve, costPart, cycleMin, toolWear, raLimited, Ra, cutMin, engaged, V, warnings: warn, availHp, derated, rpmCapped, partsPerEdge, wearFrac, tempC, tempRed, tempAtSfm };
+  }
+
+  // 3D isometric projection engine
+  proj(x, y, z, yaw, pitch) {
+    const ry = yaw * Math.PI / 180, rx = pitch * Math.PI / 180;
+    const x1 = x * Math.cos(ry) + z * Math.sin(ry);
+    const z1 = -x * Math.sin(ry) + z * Math.cos(ry);
+    const y2 = y * Math.cos(rx) - z1 * Math.sin(rx);
+    const z2 = y * Math.sin(rx) + z1 * Math.cos(rx);
+    return [x1, y2, z2];
+  }
+
+  renderVals() {
+    const s = this.state, r = this.solve(s), imp = s.units === 'in';
+    const fmt = (n, d = 0) => Number.isFinite(n) ? n.toLocaleString('en-US', { minimumFractionDigits: d, maximumFractionDigits: d }) : '—';
+    const conv = { feed: imp ? r.feedIpm : r.feedIpm * 25.4, sfm: imp ? r.sfm : r.sfm * 0.3048, fz: imp ? r.fz : r.fz * 25.4, mrr: imp ? r.mrr : r.mrr * 16.387 };
+    const aggrLabel = s.aggr < 34 ? 'Safe' : s.aggr < 67 ? 'Bal' : 'Hot';
+    const aggrColor = s.aggr < 34 ? '#36D399' : s.aggr < 67 ? '#F4B740' : '#FF5A2B';
+    const safetyColor = r.S >= 0.8 ? '#36D399' : r.S >= 0.6 ? '#F4B740' : '#FF5247';
+    const deflColor = r.deflThou < 1 ? '#36D399' : r.deflThou < 2.5 ? '#F4B740' : '#FF5247';
+    const loadColor = r.loadPct < 80 ? '#36D399' : r.loadPct < 100 ? '#F4B740' : '#FF5247';
+    const stickoutColor = r.sr < 4 ? '#36D399' : r.sr < 6 ? '#F4B740' : '#FF5247';
+
+    // ── 3D SCENE ──
+    const PRE = { iso: [-37, 30], top: [0, 88], front: [0, 2], right: [90, 2] };
+    const [yaw, pitch] = PRE[s.cam] || PRE.iso;
+    const cx = 370, cy = 196, sc = 1.0;
+    const P = (x, y, z) => { const [a, b] = this.proj(x, y, z, yaw, pitch); return [cx + a * sc, cy - b * sc]; };
+    const D = (x, y, z) => this.proj(x, y, z, yaw, pitch)[2];
+    const ptsOf = (verts) => verts.map(v => P(v[0], v[1], v[2]).map(n => n.toFixed(1)).join(',')).join(' ');
+    const depthOf = (verts) => verts.reduce((a, v) => a + D(v[0], v[1], v[2]), 0) / verts.length;
+    // stock extents
+    const hx = 150, hz = 96, hy = 70; const px = 96, pz = 54, pd = 30; // pocket half-extents + depth
+    const heat = loadColor;
+    const heatWall = r.loadPct < 80 ? 'rgba(54,211,153,0.32)' : r.loadPct < 100 ? 'rgba(244,183,64,0.34)' : 'rgba(255,82,71,0.4)';
+    let faces = [
+      { v: [[-hx,-hy,hz],[hx,-hy,hz],[hx,0,hz],[-hx,0,hz]], fill: '#15171C', stroke: '#0A0B0D' }, // front side z+
+      { v: [[hx,-hy,-hz],[hx,-hy,hz],[hx,0,hz],[hx,0,-hz]], fill: '#101216', stroke: '#0A0B0D' }, // right side x+
+      { v: [[-hx,-hy,-hz],[-hx,-hy,hz],[-hx,0,hz],[-hx,0,-hz]], fill: '#0E0F13', stroke: '#0A0B0D' }, // left x-
+      { v: [[-hx,-hy,-hz],[hx,-hy,-hz],[hx,0,-hz],[-hx,0,-hz]], fill: '#0D0E12', stroke: '#0A0B0D' }, // back z-
+      { v: [[-hx,-hy,-hz],[hx,-hy,-hz],[hx,-hy,hz],[-hx,-hy,hz]], fill: '#0C0D10', stroke: '#0A0B0D' }, // bottom
+      // top border strips (top minus pocket opening)
+      { v: [[-hx,0,-hz],[hx,0,-hz],[hx,0,-pz],[-hx,0,-pz]], fill: '#262A31', stroke: '#16181D' },
+      { v: [[-hx,0,pz],[hx,0,pz],[hx,0,hz],[-hx,0,hz]], fill: '#21242B', stroke: '#16181D' },
+      { v: [[-hx,0,-pz],[-px,0,-pz],[-px,0,pz],[-hx,0,pz]], fill: '#23272E', stroke: '#16181D' },
+      { v: [[px,0,-pz],[hx,0,-pz],[hx,0,pz],[px,0,pz]], fill: '#23272E', stroke: '#16181D' },
+      // pocket floor + 4 walls (heatmap-tinted)
+      { v: [[-px,-pd,-pz],[px,-pd,-pz],[px,-pd,pz],[-px,-pd,pz]], fill: heatWall, stroke: 'rgba(255,255,255,0.1)' },
+      { v: [[-px,0,pz],[px,0,pz],[px,-pd,pz],[-px,-pd,pz]], fill: 'rgba(255,90,43,0.14)', stroke: 'rgba(255,255,255,0.08)' },
+      { v: [[-px,0,-pz],[px,0,-pz],[px,-pd,-pz],[-px,-pd,-pz]], fill: 'rgba(255,90,43,0.1)', stroke: 'rgba(255,255,255,0.07)' },
+      { v: [[-px,0,-pz],[-px,0,pz],[-px,-pd,pz],[-px,-pd,-pz]], fill: 'rgba(255,90,43,0.1)', stroke: 'rgba(255,255,255,0.07)' },
+      { v: [[px,0,-pz],[px,0,pz],[px,-pd,pz],[px,-pd,-pz]], fill: 'rgba(255,90,43,0.12)', stroke: 'rgba(255,255,255,0.07)' },
+    ];
+    // tool octagonal prism at cut position
+    const tr = 18, tx = 60, tz = 0, tTop = 64, tBot = -pd;
+    const oct = []; for (let i = 0; i < 8; i++) { const a = (i / 8) * Math.PI * 2 + Math.PI / 8; oct.push([tx + tr * Math.cos(a), tz + tr * Math.sin(a)]); }
+    for (let i = 0; i < 8; i++) { const j = (i + 1) % 8; faces.push({ v: [[oct[i][0], tTop, oct[i][1]], [oct[j][0], tTop, oct[j][1]], [oct[j][0], tBot, oct[j][1]], [oct[i][0], tBot, oct[i][1]]], fill: i < 4 ? '#3A3F47' : '#2B2F36', stroke: '#1B1E24', tool: true }); }
+    faces.push({ v: oct.map(o => [o[0], tTop, o[1]]), fill: '#4B515B', stroke: '#2B2F36', tool: true });
+    // depth sort
+    faces.forEach(f => { f.d = depthOf(f.v); });
+    faces.sort((a, b) => a.d - b.d);
+    const facesOut = faces.map(f => ({ pts: ptsOf(f.v), fill: f.fill, stroke: f.stroke }));
+    // grid lines on floor plane y=-hy
+    const gridLines = [];
+    for (let i = -3; i <= 3; i++) {
+      const gx = (i / 3) * (hx + 30);
+      let p1 = P(gx, -hy - 1, -(hz + 30)), p2 = P(gx, -hy - 1, (hz + 30));
+      gridLines.push({ x1: p1[0].toFixed(1), y1: p1[1].toFixed(1), x2: p2[0].toFixed(1), y2: p2[1].toFixed(1) });
+      const gz = (i / 3) * (hz + 30);
+      let p3 = P(-(hx + 30), -hy - 1, gz), p4 = P((hx + 30), -hy - 1, gz);
+      gridLines.push({ x1: p3[0].toFixed(1), y1: p3[1].toFixed(1), x2: p4[0].toFixed(1), y2: p4[1].toFixed(1) });
+    }
+    // toolpath spiral on pocket floor
+    const tp = []; const insets = [4, 22, 40];
+    insets.forEach((d, k) => {
+      const ax = px - d, az = pz - d, yy = -pd + 1.5;
+      const corners = [[-ax, az], [ax, az], [ax, -az], [-ax, -az], [-ax, az]];
+      corners.forEach(c => tp.push(P(c[0], yy, c[1])));
+    });
+    const toolpathPts = tp.map(p => p.map(n => n.toFixed(1)).join(',')).join(' ');
+    // flute lines on tool (front 4 edges)
+    const fluteLines = [];
+    for (let i = 0; i < 8; i++) { const top = P(oct[i][0], tTop, oct[i][1]), bot = P(oct[i][0], tBot, oct[i][1]); if (D(oct[i][0], 0, oct[i][1]) > -5) fluteLines.push({ x1: top[0].toFixed(1), y1: top[1].toFixed(1), x2: bot[0].toFixed(1), y2: bot[1].toFixed(1), c: i % 2 === 0 ? '#5A6069' : '#3A3F47' }); }
+    const sp = P(tx, tBot, tz);
+
+    // ── CHARTS ──
+    const PL = { L: 44, R: 726, T: 14, B: 168 };
+    const sx = (t) => PL.L + Math.max(0, Math.min(1, t)) * (PL.R - PL.L);
+    const sy = (v) => PL.B - Math.max(0, Math.min(1, v)) * (PL.B - PL.T);
+    let chartLine = '', chartArea = '', chartColor = '#FF7A4D', chartAreaFill = 'rgba(255,90,43,0.08)';
+    let chartMarkerX = sx(0.5), chartMarkerY = sy(0.5), chartRefY = -10, chartRefOpacity = 0, chartRefColor = '#36D399', chartRefLabel = '', chartRefLabelY = -10;
+    let chartXLabel = '', chartCaption = '', chartYTicks = [];
+    const mkTicks = (vals, fmtf) => vals.map(t => ({ y: sy(t.p).toFixed(1), ty: (sy(t.p) + 3).toFixed(1), label: fmtf(t.v) }));
+    const tab = s.chartTab;
+    if (tab === 'lobe') {
+      chartCaption = 'depth vs RPM'; chartXLabel = 'spindle RPM';
+      const aMax = Math.max(s.ap * 25.4 * 1.4, r.aCrit * 2.3);
+      const pts = []; for (let i = 0; i <= 60; i++) { const n = (i / 60) * r.mach.maxRpm; pts.push([sx(i / 60), sy(Math.min(1, r.lobeAt(n) / aMax))]); }
+      chartLine = pts.map(p => p.map(n => n.toFixed(1)).join(',')).join(' ');
+      chartArea = `${sx(0)},${sy(0)} ${chartLine} ${sx(1)},${sy(0)}`;
+      chartColor = '#36D399'; chartAreaFill = 'rgba(54,211,153,0.08)';
+      chartMarkerX = sx(r.rpm / r.mach.maxRpm); chartMarkerY = sy(Math.min(1, (s.ap * 25.4) / aMax));
+      chartYTicks = mkTicks([{ p: 0.25, v: aMax * 0.25 }, { p: 0.5, v: aMax * 0.5 }, { p: 0.75, v: aMax * 0.75 }], v => (imp ? (v / 25.4).toFixed(2) : v.toFixed(1)));
+    } else if (tab === 'life') {
+      chartCaption = 'Taylor V·Tⁿ'; chartXLabel = 'surface speed';
+      const sfmMax = r.mat.sfm * r.tool.vc * 1.7;
+      const lifeAt = (sfmv) => Math.max(2, Math.min(320, Math.pow(r.mat.tC / Math.max(1, sfmv * 0.3048), 1 / r.mat.tN) * r.strat.life * r.holder.life));
+      const lMax = lifeAt(sfmMax * 0.2);
+      const pts = []; for (let i = 1; i <= 60; i++) { const sfmv = (i / 60) * sfmMax; pts.push([sx(i / 60), sy(Math.min(1, lifeAt(sfmv) / lMax))]); }
+      chartLine = pts.map(p => p.map(n => n.toFixed(1)).join(',')).join(' ');
+      chartArea = `${sx(0)},${sy(0)} ${chartLine} ${sx(1)},${sy(0)}`;
+      chartColor = '#7FB2FF'; chartAreaFill = 'rgba(42,111,219,0.08)';
+      chartMarkerX = sx(r.sfm / sfmMax); chartMarkerY = sy(Math.min(1, r.life / lMax));
+      chartYTicks = mkTicks([{ p: 0.33, v: lMax * 0.33 }, { p: 0.66, v: lMax * 0.66 }], v => fmt(v, 0) + 'm');
+    } else if (tab === 'power') {
+      chartCaption = 'power vs limit'; chartXLabel = 'spindle RPM';
+      const pMax = r.mach.hp * 1.4;
+      const powAt = (n) => r.powerHp * (n / Math.max(1, r.rpm));
+      const pts = []; for (let i = 0; i <= 60; i++) { const n = (i / 60) * r.mach.maxRpm; pts.push([sx(i / 60), sy(Math.min(1, powAt(n) / pMax))]); }
+      chartLine = pts.map(p => p.map(n => n.toFixed(1)).join(',')).join(' ');
+      chartArea = `${sx(0)},${sy(0)} ${chartLine} ${sx(1)},${sy(0)}`;
+      chartColor = '#FF7A4D';
+      chartMarkerX = sx(r.rpm / r.mach.maxRpm); chartMarkerY = sy(Math.min(1, r.powerHp / pMax));
+      chartRefY = sy(r.mach.hp / pMax); chartRefOpacity = 1; chartRefColor = '#FF5247'; chartRefLabel = r.mach.hp + 'hp limit'; chartRefLabelY = (sy(r.mach.hp / pMax) - 4).toFixed(1);
+      chartYTicks = mkTicks([{ p: 0.35, v: pMax * 0.35 }, { p: 0.7, v: pMax * 0.7 }], v => fmt(v, 0) + 'hp');
+    } else if (tab === 'finish') {
+      chartCaption = 'Ra vs feed/tooth'; chartXLabel = 'feed per tooth';
+      const fzMax = 0.006, rNose = s.toolDia * 0.1;
+      const raAt = (fzv) => (fzv * fzv) / (32 * Math.max(0.001, rNose)) * 1e6;
+      const raMax = raAt(fzMax);
+      const pts = []; for (let i = 0; i <= 60; i++) { const fzv = (i / 60) * fzMax; pts.push([sx(i / 60), sy(Math.min(1, raAt(fzv) / raMax))]); }
+      chartLine = pts.map(p => p.map(n => n.toFixed(1)).join(',')).join(' ');
+      chartArea = `${sx(0)},${sy(0)} ${chartLine} ${sx(1)},${sy(0)}`;
+      chartColor = '#A855F7'; chartAreaFill = 'rgba(168,85,247,0.08)';
+      chartMarkerX = sx(r.fz / fzMax); chartMarkerY = sy(Math.min(1, raAt(r.fz) / raMax));
+      if (s.raId !== 'rough') { chartRefY = sy(this.RA[s.raId] / raMax); chartRefOpacity = 1; chartRefColor = '#36D399'; chartRefLabel = s.raId + 'µin target'; chartRefLabelY = (sy(this.RA[s.raId] / raMax) - 4).toFixed(1); }
+      chartYTicks = mkTicks([{ p: 0.35, v: raMax * 0.35 }, { p: 0.7, v: raMax * 0.7 }], v => fmt(v, 0));
+    } else if (tab === 'thermal') {
+      chartCaption = 'interface temp vs Vc'; chartXLabel = 'surface speed';
+      const sfmMax = r.mat.sfm * r.tool.vc * 1.7;
+      const tMax = Math.max(r.tempRed * 1.15, r.tempAtSfm(sfmMax));
+      const pts = []; for (let i = 0; i <= 60; i++) { const sfmv = (i / 60) * sfmMax; pts.push([sx(i / 60), sy(Math.min(1, r.tempAtSfm(sfmv) / tMax))]); }
+      chartLine = pts.map(p => p.map(n => n.toFixed(1)).join(',')).join(' ');
+      chartArea = `${sx(0)},${sy(0)} ${chartLine} ${sx(1)},${sy(0)}`;
+      chartColor = '#FF5A2B'; chartAreaFill = 'rgba(255,90,43,0.08)';
+      chartMarkerX = sx(r.sfm / sfmMax); chartMarkerY = sy(Math.min(1, r.tempC / tMax));
+      chartRefY = sy(r.tempRed / tMax); chartRefOpacity = 1; chartRefColor = '#FF5247'; chartRefLabel = r.tempRed + '°C coating limit'; chartRefLabelY = (sy(r.tempRed / tMax) - 4).toFixed(1);
+      chartYTicks = mkTicks([{ p: 0.35, v: tMax * 0.35 }, { p: 0.7, v: tMax * 0.7 }], v => fmt(v, 0) + '°');
+    } else {
+      chartCaption = 'Kienzle force vs DOC'; chartXLabel = 'axial depth aₚ';
+      const apMax = 0.6, fzmm = r.fz * 25.4;
+      const fcAt = (apv) => r.mat.kc * (apv * 25.4) * Math.pow(Math.max(0.01, fzmm), 1 - r.mat.mc) * (0.35 + 0.65 * r.engaged);
+      const fMax = fcAt(apMax);
+      const pts = []; for (let i = 0; i <= 60; i++) { const apv = (i / 60) * apMax; pts.push([sx(i / 60), sy(Math.min(1, fcAt(apv) / fMax))]); }
+      chartLine = pts.map(p => p.map(n => n.toFixed(1)).join(',')).join(' ');
+      chartArea = `${sx(0)},${sy(0)} ${chartLine} ${sx(1)},${sy(0)}`;
+      chartColor = '#FF7A4D';
+      chartMarkerX = sx(s.ap / apMax); chartMarkerY = sy(Math.min(1, r.Fc_eff / fMax));
+      chartYTicks = mkTicks([{ p: 0.35, v: fMax * 0.35 }, { p: 0.7, v: fMax * 0.7 }], v => fmt(v, 0) + 'N');
+    }
+
+    // ── RADAR (multi-objective) ──
+    const metricsFor = (mode) => { const rr = this.solve({ ...s, mode }); const ra = rr.raLimited ? this.RA[s.raId] : (rr.fz * rr.fz) / (32 * Math.max(0.001, s.toolDia * 0.1)) * 1e6; return { mrr: rr.mrr, life: rr.life, cost: rr.costPart, finish: 1 / (1 + ra / 32), safety: rr.S }; };
+    const M = { tool: metricsFor('tool'), rush: metricsFor('rush'), optimal: metricsFor('optimal'), upgrade: metricsFor('upgrade') };
+    const all = Object.values(M);
+    const maxMrr = Math.max(...all.map(m => m.mrr)), maxLife = Math.max(...all.map(m => m.life));
+    const minCost = Math.min(...all.map(m => m.cost)), maxCost = Math.max(...all.map(m => m.cost));
+    const maxFin = Math.max(...all.map(m => m.finish)), maxSaf = Math.max(...all.map(m => m.safety));
+    const normVec = (m) => [m.mrr / maxMrr, m.life / maxLife, (maxCost - m.cost) / Math.max(0.01, maxCost - minCost), m.finish / maxFin, m.safety / maxSaf];
+    const cur = normVec(M[s.mode] || M.optimal), opt = normVec(M.optimal);
+    const rcx = 84, rcy = 72, rrad = 50, axes = 5;
+    const radPt = (i, val) => { const ang = (i / axes) * Math.PI * 2 - Math.PI / 2; return [rcx + rrad * val * Math.cos(ang), rcy + rrad * val * Math.sin(ang)]; };
+    const radarRings = [0.25, 0.5, 0.75, 1].map(rg => ({ pts: Array.from({ length: axes }, (_, i) => radPt(i, rg).map(n => n.toFixed(1)).join(',')).join(' ') }));
+    const radarAxes = Array.from({ length: axes }, (_, i) => { const p = radPt(i, 1); return { x1: rcx, y1: rcy, x2: p[0].toFixed(1), y2: p[1].toFixed(1) }; });
+    const radarCurrent = cur.map((v, i) => radPt(i, Math.max(0.05, v)).map(n => n.toFixed(1)).join(',')).join(' ');
+    const radarOptimal = opt.map((v, i) => radPt(i, Math.max(0.05, v)).map(n => n.toFixed(1)).join(',')).join(' ');
+    const rlabels = ['MRR', 'Life', 'Cost', 'Fin', 'Safe'];
+    const radarLabels = rlabels.map((t, i) => { const p = radPt(i, 1.24); return { x: p[0].toFixed(1), y: (p[1] + 2).toFixed(1), t }; });
+
+    // mode rows
+    const cleanRows = (arr) => arr.map(x => ({ k: x.k, v: x.v, c: x.c || '#C7CCD4' }));
+    let modeRows;
+    if (s.mode === 'tool') modeRows = cleanRows([{ k: 'Tool life', v: `${fmt(r.lifeP5, 0)}–${fmt(r.lifeP95, 0)}m`, c: '#36D399' }, { k: 'Wear/part', v: `$${fmt(r.toolWear, 2)}`, c: '#36D399' }, { k: 'Cycle', v: `+14%`, c: '#F4B740' }]);
+    else if (s.mode === 'rush') modeRows = cleanRows([{ k: 'Cycle', v: `${fmt(r.cycleMin, 1)}m`, c: '#FF7A4D' }, { k: 'Tool life', v: `${fmt(r.life, 0)}m`, c: '#FF5247' }, { k: 'Extra tool', v: `+$${fmt(r.toolWear * 18, 0)}`, c: '#F4B740' }]);
+    else if (s.mode === 'upgrade') modeRows = cleanRows([{ k: s.holderId !== 'shrink' ? 'HAIMER shrink' : 'AlCrN coat', v: '+35% life', c: '#7FB2FF' }, { k: 'Thru-coolant', v: '+30% feed', c: '#7FB2FF' }, { k: 'Ceramic >55HRC', v: '2.6× Vc', c: '#7FB2FF' }]);
+    else modeRows = cleanRows([{ k: 'Cost/part', v: `$${fmt(r.costPart, 2)}`, c: '#36D399' }, { k: 'Cycle', v: `${fmt(r.cycleMin, 1)}m`, c: '#C7CCD4' }, { k: 'Tool life', v: `${fmt(r.life, 0)}m`, c: '#C7CCD4' }]);
+
+    const insight = !r.stableHere ? `RPM sits inside a chatter lobe — the lobe chart shows the stable pocket.`
+      : r.deflThou > 2 ? `${fmt(s.stickout, 2)}in stickout flexes the tool ${r.deflThou.toFixed(1)} thou — the size wander they fought blind.`
+      : r.raLimited ? `Feed capped by the ${s.raId}µin finish target — defensible to the customer's FAI.`
+      : `Force-matched feed banks ${fmt(r.improve, 0)}% cycle safely — kc set it, not habit.`;
+
+    const modeBtn = (on) => `display:flex;align-items:center;gap:7px;border-radius:11px;padding:11px 12px;cursor:pointer;transition:all .15s;background:${on ? 'linear-gradient(180deg,rgba(255,90,43,0.14),#0E0F12)' : '#0E0F12'};border:1px solid ${on ? 'rgba(255,90,43,0.55)' : 'rgba(255,255,255,0.08)'};`;
+    const unitOn = "border:none;background:#FF5A2B;color:#0A0B0D;border-radius:6px;padding:5px 11px;font-size:12px;font-weight:600;cursor:pointer;";
+    const unitOff = "border:none;background:transparent;color:#9398A2;border-radius:6px;padding:5px 11px;font-size:12px;font-weight:600;cursor:pointer;";
+    const chip = (on) => `border:1px solid ${on ? 'rgba(255,90,43,0.5)' : 'rgba(255,255,255,0.12)'};background:${on ? 'rgba(255,90,43,0.1)' : 'transparent'};color:${on ? '#FF7A4D' : '#9398A2'};border-radius:7px;padding:6px 9px;font-size:11px;cursor:pointer;font-family:'Archivo',sans-serif;`;
+    const camChip = (id, label) => ({ label, on: () => this.setState({ cam: id }), style: `border:1px solid ${s.cam === id ? 'rgba(255,90,43,0.5)' : 'rgba(255,255,255,0.12)'};background:${s.cam === id ? 'rgba(255,90,43,0.12)' : 'transparent'};color:${s.cam === id ? '#FF7A4D' : '#9398A2'};border-radius:6px;padding:4px 9px;font-family:'JetBrains Mono',monospace;font-size:10px;cursor:pointer;` });
+    const tabChip = (id, label) => ({ label, on: () => this.setState({ chartTab: id }), style: `border:none;background:${s.chartTab === id ? 'rgba(255,90,43,0.14)' : 'transparent'};color:${s.chartTab === id ? '#FF7A4D' : '#9398A2'};border-radius:7px;padding:5px 11px;font-size:11.5px;font-weight:600;cursor:pointer;font-family:'Archivo',sans-serif;` });
+    const setNum = (k) => (e) => this.setState({ [k]: this.num(e.target.value, this.state[k]) });
+    const setVal = (k) => (e) => this.setState({ [k]: e.target.value });
+    const tog = (k) => () => this.setState({ [k]: !this.state[k] });
+    const jobLabels = { roughing: 'COLD-FORM PUNCH · OP10 ROUGH', profiling: 'CAVITY WALL · OP20', slotting: 'EJECTOR SLOT · OP15', finishing: 'CORE FLOOR · OP30' };
+
+    return {
+      scale: s.scale,
+      jobLabel: jobLabels[s.operationId], runCount: this._synced ? '1,284 · ⊹' : '1,284', operationLabel: this.OPLABEL[s.operationId],
+      machineId: s.machineId, materialId: s.materialId, operationId: s.operationId, strategyId: s.strategyId,
+      toolType: s.toolType, holderId: s.holderId, coolantId: s.coolantId, raId: s.raId,
+      machineLabel: r.mach.label, spindleLabel: r.mach.spindle, controllerLabel: r.mach.ctrl,
+      rigidLabel: r.mach.rigidLabel, rigidColor: r.mach.rigid >= 0.9 ? '#36D399' : r.mach.rigid >= 0.8 ? '#F4B740' : '#FF7A4D',
+      isoGroup: r.mat.iso, kc11: r.mat.kc, hardness: r.mat.hard,
+      calibText: r.mat.cal ? '✓ JM-CALIBRATED from runs' : `generic ISO ${r.mat.iso} — wider band`,
+      calibColor: r.mat.cal ? '#36D399' : '#F4B740', calibBorder: r.mat.cal ? 'rgba(54,211,153,0.3)' : 'rgba(244,183,64,0.3)', calibBg: r.mat.cal ? 'rgba(54,211,153,0.06)' : 'rgba(244,183,64,0.05)',
+      stockL: s.stockL, stockW: s.stockW, stockH: s.stockH,
+      toolDia: s.toolDia, flutes: s.flutes, stickout: s.stickout.toFixed(2), ap: s.ap, ae: s.ae, aggr: s.aggr,
+      lenUnit: imp ? 'in' : 'mm', stickMin: 0.5, stickMax: 6, stickoutRatio: r.sr.toFixed(1), stickoutColor,
+      rpm: fmt(r.rpm, 0), feed: fmt(conv.feed, imp ? 1 : 0), feedUnit: imp ? 'in/min' : 'mm/min',
+      sfm: fmt(conv.sfm, 0), sfmUnit: imp ? 'SFM' : 'm/min', fz: (conv.fz).toFixed(imp ? 4 : 3),
+      mrr: fmt(conv.mrr, imp ? 2 : 0), mrrUnit: imp ? 'in³/min' : 'cm³/min', toolLife: fmt(r.life, 0),
+      partsPerEdge: r.partsPerEdge, wearPct: Math.round(r.wearFrac * 100) + '%',
+      wearColor: r.wearFrac < 0.45 ? '#36D399' : r.wearFrac < 0.72 ? '#F4B740' : '#FF5247',
+      wearLabel: r.wearFrac < 0.45 ? 'fresh' : r.wearFrac < 0.72 ? 'monitor' : 'swap soon',
+      forceN: fmt(r.Fc_eff, 0), loadPct: fmt(r.loadPct, 0), loadColor, loadDash: `${(Math.min(100, r.loadPct) / 100 * 175.9).toFixed(1)} 175.9`,
+      deflThou: r.deflThou.toFixed(1), deflColor,
+      safety: r.S.toFixed(2), safetyColor, safetyDash: `${(r.S * 175.9).toFixed(1)} 175.9`,
+      confidence: Math.round(r.conf * 100),
+      aggrLabel, aggrColor,
+      baseRpm: fmt(r.baseRpm, 0), baseFeed: fmt(r.baseFeed, 1), improvePct: (r.improve >= 0 ? '−' : '+') + fmt(Math.abs(r.improve), 0) + '%', insight,
+      hasWarnings: r.warnings.length > 0, warnCount: r.warnings.length,
+      warnRows: r.warnings.slice(0, 4).map(w => ({ text: w[0], dot: w[1] === 2 ? '#FF5247' : w[1] === 1 ? '#F4B740' : '#36D399' })),
+      modeLabel: (this.MODES[s.mode] && s.mode) || 'optimal',
+      faces: facesOut, gridLines, toolpathPts, fluteLines, sparkX: sp[0].toFixed(1), sparkY: sp[1].toFixed(1),
+      camPresets: [camChip('iso', 'ISO'), camChip('top', 'TOP'), camChip('front', 'FRONT'), camChip('right', 'RIGHT')],
+      chartTabs: [tabChip('lobe', 'Stability'), tabChip('life', 'Tool Life'), tabChip('power', 'Power'), tabChip('thermal', 'Thermal'), tabChip('finish', 'Finish'), tabChip('force', 'Force')],
+      tempC: r.tempC, tempColor: r.tempC < r.tempRed * 0.6 ? '#36D399' : r.tempC < r.tempRed * 0.85 ? '#F4B740' : '#FF5247',
+      tempLabel: r.tempC < r.tempRed * 0.6 ? 'cool' : r.tempC < r.tempRed * 0.85 ? 'warm' : 'over coating',
+      entryType: (s.operationId === 'slotting' || s.operationId === 'roughing') ? 'helical ramp into pocket' : 'angled lead-in',
+      rampAngle: ((s.operationId === 'finishing' || s.operationId === 'profiling') ? 0 : (r.mat.iso === 'S' || r.mat.iso === 'H' ? 1.5 : r.mat.iso === 'N' ? 5 : 3)).toFixed(1),
+      plungeFeed: fmt((imp ? r.feedIpm : r.feedIpm * 25.4) * 0.4, imp ? 1 : 0) + (imp ? ' ipm' : ' mm'),
+      helixDia: (conv.feed, (imp ? (s.toolDia * 0.9).toFixed(3) + 'in' : (s.toolDia * 22.86).toFixed(1) + 'mm')),
+      helixPitch: ((imp ? r.fz * r.tool && s.flutes : 0), (imp ? (Math.max(0.002, Math.tan((r.mat.iso === 'S' ? 1.5 : 3) * Math.PI / 180) * Math.PI * s.toolDia * 0.9).toFixed(3)) + 'in' : (Math.max(0.05, Math.tan(3 * Math.PI / 180) * Math.PI * s.toolDia * 22.86)).toFixed(2) + 'mm')),
+      chartLine, chartArea, chartColor, chartAreaFill, chartMarkerX: chartMarkerX.toFixed(1), chartMarkerY: chartMarkerY.toFixed(1),
+      chartRefY: (chartRefY).toFixed ? chartRefY.toFixed(1) : chartRefY, chartRefOpacity, chartRefColor, chartRefLabel, chartRefLabelY,
+      chartXLabel, chartCaption, chartYTicks,
+      radarRings, radarAxes, radarCurrent, radarOptimal, radarLabels, modeRows,
+      unitInchStyle: imp ? unitOn : unitOff, unitMetricStyle: imp ? unitOff : unitOn,
+      modeToolStyle: modeBtn(s.mode === 'tool'), modeRushStyle: modeBtn(s.mode === 'rush'), modeOptimalStyle: modeBtn(s.mode === 'optimal'), modeUpgradeStyle: modeBtn(s.mode === 'upgrade'),
+      optThruStyle: chip(s.optThru), optHpStyle: chip(s.optHp), optProbeStyle: chip(s.optProbe),
+      setMachine: (e) => { const id = e.target.value; const kind = (this.MACH[id] || {}).kind || 'mill'; const def = kind === 'turn' ? 'turning' : s.strategyId; this.setState({ machineId: id, strategyId: kind === 'turn' && !['turning','facing','boring','grooving','parting','threading','drilling','highfeedturn','dynamicturn'].includes(s.strategyId) ? def : (kind !== 'turn' && ['turning','facing','boring','grooving','parting','threading','drilling','highfeedturn','dynamicturn'].includes(s.strategyId) ? 'conventional' : s.strategyId) }); }, setMaterial: setVal('materialId'), setOperation: setVal('operationId'), setStrategy: setVal('strategyId'),
+      camSeat: s.camSeat, seatLabel: (this.SEATS[s.camSeat] || this.SEATS.fusion).label,
+      setCamSeat: (e) => { const seat = e.target.value; const paths = (this.SEATS[seat] || this.SEATS.fusion).paths; const keep = (s.strategyId === 'conventional' || paths.includes(s.strategyId)) ? s.strategyId : 'conventional'; this.setState({ camSeat: seat, strategyId: keep }); },
+      toolpathChips: (() => { const kind = (this.MACH[s.machineId] || {}).kind || 'mill'; const set = kind === 'turn' ? this.LATHEPATHS : kind === 'millturn' ? this.MILLPATHS.concat(this.LATHEPATHS) : this.MILLPATHS; const seat = this.SEATS[s.camSeat] || this.SEATS.fusion; return set.map(([id, label]) => { const avail = this.TRAD[id] || seat.paths.includes(id); const on = s.strategyId === id; const base = on ? 'border:1px solid #FF7A4D;background:rgba(255,90,43,0.16);color:#FF7A4D;' : avail ? 'border:1px solid rgba(127,178,255,0.5);background:rgba(127,178,255,0.06);color:#C7CCD4;' : 'border:1px dashed rgba(255,255,255,0.1);background:transparent;color:#4B5563;'; return { label: this.TRAD[id] ? label + ' ◆' : label, on: avail ? (() => this.setState({ strategyId: id })) : (() => {}), style: base + "border-radius:8px;padding:7px 11px;font-size:11px;font-weight:600;cursor:" + (avail ? 'pointer' : 'not-allowed') + ";font-family:'Archivo',sans-serif;" }; }); })(),
+      setToolType: setVal('toolType'), setHolder: setVal('holderId'), setCoolant: setVal('coolantId'), setRa: setVal('raId'),
+      setToolDia: setNum('toolDia'), setFlutes: setNum('flutes'), setStickout: setNum('stickout'), setAp: setNum('ap'), setAe: setNum('ae'), setAggr: setNum('aggr'),
+      setStockL: setNum('stockL'), setStockW: setNum('stockW'), setStockH: setNum('stockH'),
+      setInch: () => this.setState({ units: 'in' }), setMetric: () => this.setState({ units: 'mm' }),
+      setModeTool: () => this.setState({ mode: 'tool' }), setModeRush: () => this.setState({ mode: 'rush' }),
+      setModeOptimal: () => this.setState({ mode: 'optimal' }), setModeUpgrade: () => this.setState({ mode: 'upgrade' }),
+      toggleThru: tog('optThru'), toggleHp: tog('optHp'), toggleProbe: tog('optProbe'),
+    };
+  }
+}
+</script>
+</body>
+</html>

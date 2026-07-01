@@ -1,0 +1,13 @@
+---
+name: "tribal-cad-param-fusion360-centermark-linetype"
+domain: "cad"
+system: "fusion360"
+function: "CENTERMARK"
+parameter: "Linetype"
+---
+
+# Tribal — `fusion360` parameter `Linetype` of `CENTERMARK`
+
+_(no operator guidance yet — fill from shop-floor knowledge or vendor docs)_
+
+When set outside [—], expect API-side type rejection.

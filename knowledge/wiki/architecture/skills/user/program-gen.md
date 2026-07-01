@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `program-gen` |
 | Scope | user |
-| Source | `C:/Users/Mark Villanueva/.claude/commands/program-gen.md` |
+| Source | `C:/Users/wompu/.claude/commands/program-gen.md` |
 | Model | default |
 | Tags | _(none)_ |
 

@@ -44,7 +44,7 @@ const wedmGnnRebuildStale: HookDefinition = {
   description:
     "Post-tool warning that fires when WEDM_GNN_WEIGHTS.json is older than 7 days AND ≥50 new jobs are in WEDM_JOB_HISTORY.json since last train. Hint to re-run wedmGraphAttentionEngine.train().",
   phase: "post-tool",
-  category: "quality",
+  category: "validation",
   mode: "warning",
   priority: "low",
   enabled: true,

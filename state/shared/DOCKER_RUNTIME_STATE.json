@@ -1,0 +1,65 @@
+{
+  "schemaVersion": 1,
+  "startedAt": "2026-06-13T05:27:58.037Z",
+  "services_requested": [
+    "postgres",
+    "prism-server",
+    "prometheus",
+    "qdrant"
+  ],
+  "models_requested": [],
+  "steps": {
+    "native_ollama": {
+      "status": "already-running",
+      "port": 11434,
+      "models": [
+        "qwen2.5vl:32b",
+        "deepseek-r1:32b",
+        "qwen3-coder:30b",
+        "qwen2.5-coder:1.5b",
+        "gpt-oss:120b",
+        "qwen2.5-coder:32b",
+        "gpt-oss:20b",
+        "qwen3-vl:8b-instruct",
+        "qwen3-vl:8b",
+        "qwen2.5vl:7b",
+        "moondream:1.8b",
+        "llama3.2-vision:11b",
+        "nomic-embed-text:latest"
+      ]
+    },
+    "docker_ready": {
+      "ok": true,
+      "alreadyRunning": true
+    },
+    "port_conflict_filter": {
+      "kept": [
+        "prism-server"
+      ],
+      "skipped": [
+        {
+          "service": "postgres",
+          "port": 5432,
+          "reason": "host-port-in-use"
+        },
+        {
+          "service": "prometheus",
+          "port": 9090,
+          "reason": "host-port-in-use"
+        },
+        {
+          "service": "qdrant",
+          "port": 6333,
+          "reason": "host-port-in-use"
+        }
+      ]
+    },
+    "compose_up": {
+      "ok": false,
+      "stdout": "#1 [internal] load local bake definitions\n#1 reading from stdin 518B done\n#1 DONE 0.0s\n\n#2 [internal] load build definition from Dockerfile\n#2 transferring dockerfile: 1.42kB 0.0s done\n#2 DONE 0.0s\n\n#3 [internal] load metadata for docker.io/library/node:22-alpine\n#3 ...\n\n#4 [auth] library/node:pull token for registry-1.docker.io\n#4 DONE 0.0s\n\n#3 [internal] load metadata for docker.io/library/node:22-alpine\n#3 DONE 0.7s\n\n#5 [internal] load .dockerignore\n#5 transferring context: 172B 0.0s done\n#5 DONE 0.0s\n\n#6 [internal] load build context\n#6 DONE 0.0s\n\n#7 [builder 1/9] FROM docker.io/library/node:22-alpine@sha256:9385cd9f3001dfc3431e8ead12c43e9e1f87cc1b9b5c6cfd0f73865d405b27c4\n#7 resolve docker.io/library/node:22-alpine@sha256:9385cd9f3001dfc3431e8ead12c43e9e1f87cc1b9b5c6cfd0f73865d405b27c4 0.0s done\n#7 DONE 0.0s\n\n#8 [builder 2/9] WORKDIR /app\n#8 CACHED\n\n#9 [runtime 3/8] RUN addgroup -S prism && adduser -S prism -G prism\n#9 CACHED\n\n#6 [internal] load build context\n#6 transferring context: 35.57MB 4.8s\n#6 transferring context: 84.89MB 9.9s\n#6 transferring context: 87.66MB 10.6s done\n#6 DONE 10.9s\n\n#10 [builder 5/9] COPY tsconfig.json ./\n#10 CACHED\n\n#11 [builder 3/9] COPY package.json package-lock.json ./\n#11 CACHED\n\n#12 [builder 4/9] RUN npm ci --ignore-scripts\n#12 CACHED\n\n#13 [builder 6/9] COPY src/ ./src/\n#13 ERROR: failed to calculate checksum of ref 4klvj5kit1d46g5315yh49pgj::vvss2tnbbck62158gvvm8zwgv: \"/src\": not found\n\n#14 [runtime 4/8] COPY package.json package-lock.json ./\n#14 CANCELED\n\n#10 [builder 5/9] COPY tsconfig.json ./\n#10 ERROR: failed to calculate checksum of ref 4klvj5kit1d46g5315yh49pgj::vvss2tnbbck62158gvvm8zwgv: \"/tsconfig.json\": not found\n------\n > [builder 5/9] COPY tsconfig.json ./:\n------\n------\n > [builder 6/9] COPY src/ ./src/:\n------",
+      "stderr": "time=\"2026-06-13T00:27:58-05:00\" level=warning msg=\"H:\\\\PRISM\\\\docker-compose.yml: the attribute `version` is obsolete, it will be ignored, please remove it to avoid potential confusion\"\n Image prism-prism-server Building \nDockerfile:21\n\n--------------------\n\n  19 |     \n\n  20 |     COPY tsconfig.json ./\n\n  21 | >>> COPY src/ ./src/\n\n  22 |     COPY data/ ./data/\n\n  23 |     COPY scripts/ ./scripts/\n\n--------------------\n\nfailed to solve: failed to compute cache key: failed to calculate checksum of ref 4klvj5kit1d46g5315yh49pgj::vvss2tnbbck62158gvvm8zwgv: \"/src\": not found\n\n\n\nView build details: docker-desktop://dashboard/build/default/default/x39156pciaxke42jdnytmfyx7"
+    }
+  },
+  "status": "fail",
+  "reason": "compose-up-failed"
+}

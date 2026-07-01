@@ -1,0 +1,315 @@
+{
+  "schemaVersion": 1,
+  "platform": "mastercam",
+  "writtenAt": "2026-05-25T19:37:45.560Z",
+  "atomicOpCount": 38,
+  "actions": [
+    {
+      "op": "sketch.create-plane",
+      "fn": "Plane.Create",
+      "args": [
+        "origin",
+        "xAxis",
+        "yAxis"
+      ],
+      "notes": "Plane manager interface"
+    },
+    {
+      "op": "sketch.line-2pt",
+      "fn": "Geometry.Line2D",
+      "args": [
+        "p1",
+        "p2"
+      ],
+      "notes": "NetHook geometry helper"
+    },
+    {
+      "op": "sketch.line-polyline",
+      "fn": "Geometry.Polyline",
+      "args": [
+        "points[]"
+      ],
+      "notes": ""
+    },
+    {
+      "op": "sketch.arc-3pt",
+      "fn": "Geometry.Arc.ByThreePoints",
+      "args": [
+        "p1",
+        "p2",
+        "p3"
+      ],
+      "notes": ""
+    },
+    {
+      "op": "sketch.arc-cse",
+      "fn": "Geometry.Arc.ByCenterStartEnd",
+      "args": [
+        "center",
+        "start",
+        "end"
+      ],
+      "notes": ""
+    },
+    {
+      "op": "sketch.circle-cr",
+      "fn": "Geometry.Circle.ByCenterRadius",
+      "args": [
+        "center",
+        "radius"
+      ],
+      "notes": ""
+    },
+    {
+      "op": "sketch.ellipse-axes",
+      "fn": "Geometry.Ellipse",
+      "args": [
+        "center",
+        "a",
+        "b"
+      ],
+      "notes": ""
+    },
+    {
+      "op": "sketch.spline-poly",
+      "fn": "Geometry.NurbsSpline",
+      "args": [
+        "points[]",
+        "degree"
+      ],
+      "notes": ""
+    },
+    {
+      "op": "sketch.rect-2pt",
+      "fn": "Geometry.Rectangle",
+      "args": [
+        "p1",
+        "p2"
+      ],
+      "notes": ""
+    },
+    {
+      "op": "sketch.rect-center",
+      "fn": "Geometry.Rectangle.Center",
+      "args": [
+        "center",
+        "w",
+        "h"
+      ],
+      "notes": ""
+    },
+    {
+      "op": "sketch.polygon-n",
+      "fn": "Geometry.Polygon",
+      "args": [
+        "center",
+        "N",
+        "radius"
+      ],
+      "notes": ""
+    },
+    {
+      "op": "sketch.slot-straight",
+      "fn": "Geometry.Slot.Straight",
+      "args": [
+        "p1",
+        "p2",
+        "width"
+      ],
+      "notes": ""
+    },
+    {
+      "op": "sketch.slot-arc",
+      "fn": "Geometry.Slot.Arc",
+      "args": [
+        "arcCenter",
+        "p1",
+        "p2",
+        "width"
+      ],
+      "notes": ""
+    },
+    {
+      "op": "sketch.offset",
+      "fn": "Edit.Offset",
+      "args": [
+        "entities",
+        "distance"
+      ],
+      "notes": ""
+    },
+    {
+      "op": "sketch.trim",
+      "fn": "Edit.Trim",
+      "args": [
+        "entity",
+        "boundary"
+      ],
+      "notes": ""
+    },
+    {
+      "op": "sketch.fillet-2d",
+      "fn": "Edit.Fillet2D",
+      "args": [
+        "c1",
+        "c2",
+        "radius"
+      ],
+      "notes": ""
+    },
+    {
+      "op": "op.extrude",
+      "fn": "(handled by post-CAD)",
+      "args": [],
+      "notes": "Mastercam imports geometry; extrude is CAD-side"
+    },
+    {
+      "op": "op.extrude-cut",
+      "fn": "(handled by post-CAD)",
+      "args": [],
+      "notes": ""
+    },
+    {
+      "op": "op.revolve",
+      "fn": "(handled by post-CAD)",
+      "args": [],
+      "notes": ""
+    },
+    {
+      "op": "op.loft",
+      "fn": "(handled by post-CAD)",
+      "args": [],
+      "notes": ""
+    },
+    {
+      "op": "op.sweep",
+      "fn": "(handled by post-CAD)",
+      "args": [],
+      "notes": ""
+    },
+    {
+      "op": "op.shell",
+      "fn": "(handled by post-CAD)",
+      "args": [],
+      "notes": ""
+    },
+    {
+      "op": "op.fillet",
+      "fn": "(handled by post-CAD)",
+      "args": [],
+      "notes": ""
+    },
+    {
+      "op": "op.chamfer",
+      "fn": "(handled by post-CAD)",
+      "args": [],
+      "notes": ""
+    },
+    {
+      "op": "op.draft",
+      "fn": "(handled by post-CAD)",
+      "args": [],
+      "notes": ""
+    },
+    {
+      "op": "op.mirror",
+      "fn": "Xform.Mirror",
+      "args": [
+        "entities[]",
+        "plane"
+      ],
+      "notes": ""
+    },
+    {
+      "op": "op.pattern-rect",
+      "fn": "Xform.PatternRect",
+      "args": [
+        "entities[]",
+        "qty1",
+        "qty2",
+        "spacing"
+      ],
+      "notes": ""
+    },
+    {
+      "op": "op.pattern-circ",
+      "fn": "Xform.PatternCirc",
+      "args": [
+        "entities[]",
+        "axis",
+        "qty",
+        "angle"
+      ],
+      "notes": ""
+    },
+    {
+      "op": "op.hole-simple",
+      "fn": "(handled by post-CAD)",
+      "args": [],
+      "notes": ""
+    },
+    {
+      "op": "op.hole-threaded",
+      "fn": "(handled by post-CAD)",
+      "args": [],
+      "notes": ""
+    },
+    {
+      "op": "op.thread-external",
+      "fn": "(handled by post-CAD)",
+      "args": [],
+      "notes": ""
+    },
+    {
+      "op": "op.boolean-add",
+      "fn": "Solids.Boolean.Add",
+      "args": [
+        "target",
+        "tools[]"
+      ],
+      "notes": ""
+    },
+    {
+      "op": "op.boolean-cut",
+      "fn": "Solids.Boolean.Cut",
+      "args": [
+        "target",
+        "tools[]"
+      ],
+      "notes": ""
+    },
+    {
+      "op": "op.boolean-intersect",
+      "fn": "Solids.Boolean.Intersect",
+      "args": [
+        "target",
+        "tools[]"
+      ],
+      "notes": ""
+    },
+    {
+      "op": "asm.insert-component",
+      "fn": "(assembly via Toolpath Groups)",
+      "args": [],
+      "notes": "Mastercam does not have full assemblies"
+    },
+    {
+      "op": "asm.mate-coincident",
+      "fn": "(N/A)",
+      "args": [],
+      "notes": ""
+    },
+    {
+      "op": "asm.mate-concentric",
+      "fn": "(N/A)",
+      "args": [],
+      "notes": ""
+    },
+    {
+      "op": "asm.mate-distance",
+      "fn": "(N/A)",
+      "args": [],
+      "notes": ""
+    }
+  ]
+}

@@ -138,7 +138,16 @@ export class AtomicMultiFileWriteEngine {
    */
   async prepare(operations: FileOperation[]): Promise<PreparedWrite> {
     const prepareId = `prep-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
-    const tempDir = path.join(os.tmpdir(), `${TEMP_DIR_PREFIX}${prepareId}`);
+    // WIRE-UNWIRED-PAPA/U-WIRE-ATOMIC-MULTIFILE (slot:papa 2026-05-26 iter2):
+    // os.tmpdir() returns paths containing unexpanded `%SystemDrive%` on some
+    // Windows-portable-Node configurations (incl. this repo's vitest harness),
+    // which makes the temp path relative-to-cwd and crashes the rename phase
+    // with EPERM. Fall back to baseDir/data/.atomic-temp/ in that case — same
+    // drive as the engine itself + always expanded.
+    const osTmp = os.tmpdir();
+    const isSafeOsTmp = !osTmp.includes("%") && path.isAbsolute(osTmp);
+    const tempBase = isSafeOsTmp ? osTmp : path.join(this.baseDir, "data", ".atomic-temp");
+    const tempDir = path.join(tempBase, `${TEMP_DIR_PREFIX}${prepareId}`);
 
     // Create temp directory
     fs.mkdirSync(tempDir, { recursive: true });

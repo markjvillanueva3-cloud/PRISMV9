@@ -53,7 +53,7 @@ describe('ProtectedRoute', () => {
   });
 
   it('shows an access-restricted state when clearance is insufficient', async () => {
-    window.localStorage.setItem('prism-auth-token', JSON.stringify({
+    window.localStorage.setItem('kienzle-auth-token', JSON.stringify({
       token: 'token-shop-floor',
       userId: 'user-1',
       employee: {
@@ -75,7 +75,7 @@ describe('ProtectedRoute', () => {
   });
 
   it('renders the protected desk when clearance is sufficient', async () => {
-    window.localStorage.setItem('prism-auth-token', JSON.stringify({
+    window.localStorage.setItem('kienzle-auth-token', JSON.stringify({
       token: 'token-admin',
       userId: 'user-2',
       employee: {

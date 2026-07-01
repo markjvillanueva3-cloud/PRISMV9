@@ -1,0 +1,897 @@
+{
+  "schemaVersion": "1.0.0",
+  "generatedBy": "scripts/classify-engine-reachability.mjs (slot:romeo)",
+  "candidateCount": 110,
+  "dispatcherFilesScanned": 109,
+  "engineFilesScanned": 3802,
+  "byVerdict": {
+    "GENUINE_ORPHAN": 49,
+    "AGGREGATOR_REACHABLE": 35,
+    "CONSUMED_BY_UNWIRED": 7,
+    "CAPABILITY_WIRED_ELSEWHERE": 7,
+    "DIRECT_WIRED": 12
+  },
+  "results": [
+    {
+      "name": "PlaywrightAutomationEngine",
+      "verdict": "GENUINE_ORPHAN",
+      "facade": false,
+      "fileExists": true,
+      "note": "no dispatcher ref, no engine consumer, no capability-root in dispatcher"
+    },
+    {
+      "name": "ShopRepositoryPort",
+      "verdict": "AGGREGATOR_REACHABLE",
+      "facade": true,
+      "via": [
+        "ShopStateEngine"
+      ],
+      "note": "reachable through a WIRED engine wrapper (WIRE-EXEMPT candidate)"
+    },
+    {
+      "name": "PRISMIntelligenceLayer",
+      "verdict": "AGGREGATOR_REACHABLE",
+      "facade": true,
+      "via": [
+        "AIAutoUtilizationEngine",
+        "AIFeatureAutoRegistryEngine",
+        "ElectrodeAIReasoningEngine",
+        "FiveAxisDecisionEngine"
+      ],
+      "note": "reachable through a WIRED engine wrapper (WIRE-EXEMPT candidate)"
+    },
+    {
+      "name": "ToolDatabaseDeepLearningEngine",
+      "verdict": "GENUINE_ORPHAN",
+      "facade": false,
+      "fileExists": true,
+      "note": "no dispatcher ref, no engine consumer, no capability-root in dispatcher"
+    },
+    {
+      "name": "MITCourseIntegrationEngine",
+      "verdict": "AGGREGATOR_REACHABLE",
+      "facade": false,
+      "via": [
+        "AssetWiringSummaryEngine"
+      ],
+      "note": "reachable through a WIRED engine wrapper (WIRE-EXEMPT candidate)"
+    },
+    {
+      "name": "LocalEmbeddingEngine",
+      "verdict": "AGGREGATOR_REACHABLE",
+      "facade": false,
+      "via": [
+        "EmbeddingFilterEngine"
+      ],
+      "note": "reachable through a WIRED engine wrapper (WIRE-EXEMPT candidate)"
+    },
+    {
+      "name": "FormalVerificationEngine",
+      "verdict": "AGGREGATOR_REACHABLE",
+      "facade": false,
+      "via": [
+        "FormulaIntegrationEngine"
+      ],
+      "note": "reachable through a WIRED engine wrapper (WIRE-EXEMPT candidate)"
+    },
+    {
+      "name": "EmbeddingGuardEngine",
+      "verdict": "CONSUMED_BY_UNWIRED",
+      "facade": false,
+      "via": [
+        "LayeredAssetCheckEngine"
+      ],
+      "note": "referenced only by other unwired engines (chain orphan)"
+    },
+    {
+      "name": "ExpandingMandrelEngine",
+      "verdict": "CAPABILITY_WIRED_ELSEWHERE",
+      "facade": false,
+      "fileExists": true,
+      "capabilityRoot": "ExpandingMandrel",
+      "note": "root \"ExpandingMandrel\" appears in a dispatcher — capability likely wired under a different name; verify before wiring (dead-duplicate risk)"
+    },
+    {
+      "name": "SemanticAssetIndexEngine",
+      "verdict": "GENUINE_ORPHAN",
+      "facade": false,
+      "fileExists": true,
+      "note": "no dispatcher ref, no engine consumer, no capability-root in dispatcher"
+    },
+    {
+      "name": "FeedbackCollectorEngine",
+      "verdict": "AGGREGATOR_REACHABLE",
+      "facade": false,
+      "via": [
+        "CADPerAdapterFeedbackCollectorEngine",
+        "CAMFeedbackLoopEngine"
+      ],
+      "note": "reachable through a WIRED engine wrapper (WIRE-EXEMPT candidate)"
+    },
+    {
+      "name": "QdrantVectorStoreEngine",
+      "verdict": "AGGREGATOR_REACHABLE",
+      "facade": false,
+      "via": [
+        "MemorySyncEngine",
+        "QdrantMemoryEngine"
+      ],
+      "note": "reachable through a WIRED engine wrapper (WIRE-EXEMPT candidate)"
+    },
+    {
+      "name": "CNCToolOffsetPersistenceEngine",
+      "verdict": "GENUINE_ORPHAN",
+      "facade": false,
+      "fileExists": true,
+      "note": "no dispatcher ref, no engine consumer, no capability-root in dispatcher"
+    },
+    {
+      "name": "MITCourseExpansionEngine",
+      "verdict": "GENUINE_ORPHAN",
+      "facade": false,
+      "fileExists": true,
+      "note": "no dispatcher ref, no engine consumer, no capability-root in dispatcher"
+    },
+    {
+      "name": "CounterfactualMillEngine",
+      "verdict": "GENUINE_ORPHAN",
+      "facade": false,
+      "fileExists": true,
+      "note": "no dispatcher ref, no engine consumer, no capability-root in dispatcher"
+    },
+    {
+      "name": "ERPImportEngine",
+      "verdict": "AGGREGATOR_REACHABLE",
+      "facade": false,
+      "via": [
+        "BusinessSyncEngine"
+      ],
+      "note": "reachable through a WIRED engine wrapper (WIRE-EXEMPT candidate)"
+    },
+    {
+      "name": "AcquisitionRecommendationEngine",
+      "verdict": "AGGREGATOR_REACHABLE",
+      "facade": false,
+      "via": [
+        "MachineConsumerBindingEngine"
+      ],
+      "note": "reachable through a WIRED engine wrapper (WIRE-EXEMPT candidate)"
+    },
+    {
+      "name": "SFCCompareEngine",
+      "verdict": "GENUINE_ORPHAN",
+      "facade": false,
+      "fileExists": true,
+      "note": "no dispatcher ref, no engine consumer, no capability-root in dispatcher"
+    },
+    {
+      "name": "ToolLifeGnnEngine",
+      "verdict": "GENUINE_ORPHAN",
+      "facade": false,
+      "fileExists": true,
+      "note": "no dispatcher ref, no engine consumer, no capability-root in dispatcher"
+    },
+    {
+      "name": "TransferLearningAdapterEngine",
+      "verdict": "AGGREGATOR_REACHABLE",
+      "facade": false,
+      "via": [
+        "TransferLearningBridgeEngine"
+      ],
+      "note": "reachable through a WIRED engine wrapper (WIRE-EXEMPT candidate)"
+    },
+    {
+      "name": "CircularDependencyEngine",
+      "verdict": "GENUINE_ORPHAN",
+      "facade": false,
+      "fileExists": true,
+      "note": "no dispatcher ref, no engine consumer, no capability-root in dispatcher"
+    },
+    {
+      "name": "AttractorDetectionEngine",
+      "verdict": "GENUINE_ORPHAN",
+      "facade": false,
+      "fileExists": true,
+      "note": "no dispatcher ref, no engine consumer, no capability-root in dispatcher"
+    },
+    {
+      "name": "VariabilitySourceTrackerEngine",
+      "verdict": "AGGREGATOR_REACHABLE",
+      "facade": false,
+      "via": [
+        "AdaptiveMachiningIntegrationEngine",
+        "InterOperationStateEngine",
+        "LatheAdaptiveMachiningEngine"
+      ],
+      "note": "reachable through a WIRED engine wrapper (WIRE-EXEMPT candidate)"
+    },
+    {
+      "name": "CatalogRegistryBridgeEngine",
+      "verdict": "DIRECT_WIRED",
+      "facade": false,
+      "fileExists": true,
+      "note": "dispatcher references class or singleton (FALSE ghost.unwired)"
+    },
+    {
+      "name": "EntropyTrackerEngine",
+      "verdict": "GENUINE_ORPHAN",
+      "facade": false,
+      "fileExists": true,
+      "note": "no dispatcher ref, no engine consumer, no capability-root in dispatcher"
+    },
+    {
+      "name": "SubprogramExtractionEngine",
+      "verdict": "GENUINE_ORPHAN",
+      "facade": false,
+      "fileExists": true,
+      "note": "no dispatcher ref, no engine consumer, no capability-root in dispatcher"
+    },
+    {
+      "name": "MetacognitionBudgetEngine",
+      "verdict": "GENUINE_ORPHAN",
+      "facade": false,
+      "fileExists": true,
+      "note": "no dispatcher ref, no engine consumer, no capability-root in dispatcher"
+    },
+    {
+      "name": "OperatorPreferencesEngine",
+      "verdict": "GENUINE_ORPHAN",
+      "facade": false,
+      "fileExists": true,
+      "note": "no dispatcher ref, no engine consumer, no capability-root in dispatcher"
+    },
+    {
+      "name": "FusionDeepLearningEngine",
+      "verdict": "AGGREGATOR_REACHABLE",
+      "facade": false,
+      "via": [
+        "F3DSQLiteParserEngine",
+        "FusionAIOrchestrationEngine"
+      ],
+      "note": "reachable through a WIRED engine wrapper (WIRE-EXEMPT candidate)"
+    },
+    {
+      "name": "PRISMVerificationPluginEngine",
+      "verdict": "AGGREGATOR_REACHABLE",
+      "facade": false,
+      "via": [
+        "DeflectionOverlayEngine",
+        "ForceOverlayVisualizationEngine",
+        "Fusion360PluginAdapterEngine",
+        "HyperMillPluginAdapterEngine"
+      ],
+      "note": "reachable through a WIRED engine wrapper (WIRE-EXEMPT candidate)"
+    },
+    {
+      "name": "LokiLogSinkEngine",
+      "verdict": "GENUINE_ORPHAN",
+      "facade": false,
+      "fileExists": true,
+      "note": "no dispatcher ref, no engine consumer, no capability-root in dispatcher"
+    },
+    {
+      "name": "DisasterRecoveryEngine",
+      "verdict": "CONSUMED_BY_UNWIRED",
+      "facade": false,
+      "via": [
+        "BackupRestoreDrillEngine"
+      ],
+      "note": "referenced only by other unwired engines (chain orphan)"
+    },
+    {
+      "name": "BackupRestoreDrillEngine",
+      "verdict": "CONSUMED_BY_UNWIRED",
+      "facade": false,
+      "via": [
+        "ChaosDrillSchedulerEngine"
+      ],
+      "note": "referenced only by other unwired engines (chain orphan)"
+    },
+    {
+      "name": "TenantOnboardingRunbookEngine",
+      "verdict": "AGGREGATOR_REACHABLE",
+      "facade": false,
+      "via": [
+        "SupplierOnboardingEngine"
+      ],
+      "note": "reachable through a WIRED engine wrapper (WIRE-EXEMPT candidate)"
+    },
+    {
+      "name": "ChaosDrillSchedulerEngine",
+      "verdict": "AGGREGATOR_REACHABLE",
+      "facade": false,
+      "via": [
+        "PreWetRunChaosGateEngine"
+      ],
+      "note": "reachable through a WIRED engine wrapper (WIRE-EXEMPT candidate)"
+    },
+    {
+      "name": "SBOMReviewEngine",
+      "verdict": "GENUINE_ORPHAN",
+      "facade": false,
+      "fileExists": true,
+      "note": "no dispatcher ref, no engine consumer, no capability-root in dispatcher"
+    },
+    {
+      "name": "TriLevelKillSwitchEngine",
+      "verdict": "GENUINE_ORPHAN",
+      "facade": false,
+      "fileExists": true,
+      "note": "no dispatcher ref, no engine consumer, no capability-root in dispatcher"
+    },
+    {
+      "name": "WetRunStateMachineEngine",
+      "verdict": "GENUINE_ORPHAN",
+      "facade": false,
+      "fileExists": true,
+      "note": "no dispatcher ref, no engine consumer, no capability-root in dispatcher"
+    },
+    {
+      "name": "SimulationStallDetectorEngine",
+      "verdict": "GENUINE_ORPHAN",
+      "facade": false,
+      "fileExists": true,
+      "note": "no dispatcher ref, no engine consumer, no capability-root in dispatcher"
+    },
+    {
+      "name": "SwissTypeDecisionEngine",
+      "verdict": "GENUINE_ORPHAN",
+      "facade": false,
+      "fileExists": true,
+      "note": "no dispatcher ref, no engine consumer, no capability-root in dispatcher"
+    },
+    {
+      "name": "TPEHyperparameterSearchEngine",
+      "verdict": "GENUINE_ORPHAN",
+      "facade": false,
+      "fileExists": true,
+      "note": "no dispatcher ref, no engine consumer, no capability-root in dispatcher"
+    },
+    {
+      "name": "RegressionBaselineEngine",
+      "verdict": "AGGREGATOR_REACHABLE",
+      "facade": false,
+      "via": [
+        "WetRunAuthorizationEngine"
+      ],
+      "note": "reachable through a WIRED engine wrapper (WIRE-EXEMPT candidate)"
+    },
+    {
+      "name": "PreMOUKickoffChecklistEngine",
+      "verdict": "AGGREGATOR_REACHABLE",
+      "facade": false,
+      "via": [
+        "WetRunAuthorizationEngine"
+      ],
+      "note": "reachable through a WIRED engine wrapper (WIRE-EXEMPT candidate)"
+    },
+    {
+      "name": "WetRunChangeFreezeEngine",
+      "verdict": "AGGREGATOR_REACHABLE",
+      "facade": false,
+      "via": [
+        "WetRunPilotOrchestratorEngine"
+      ],
+      "note": "reachable through a WIRED engine wrapper (WIRE-EXEMPT candidate)"
+    },
+    {
+      "name": "CreoToolkitBridgeEngine",
+      "verdict": "CONSUMED_BY_UNWIRED",
+      "facade": false,
+      "via": [
+        "CreoAddinRibbonEngine"
+      ],
+      "note": "referenced only by other unwired engines (chain orphan)"
+    },
+    {
+      "name": "CreoAddinRibbonEngine",
+      "verdict": "GENUINE_ORPHAN",
+      "facade": false,
+      "fileExists": true,
+      "note": "no dispatcher ref, no engine consumer, no capability-root in dispatcher"
+    },
+    {
+      "name": "CreoIntegrationTestSuiteEngine",
+      "verdict": "GENUINE_ORPHAN",
+      "facade": false,
+      "fileExists": true,
+      "note": "no dispatcher ref, no engine consumer, no capability-root in dispatcher"
+    },
+    {
+      "name": "MeasureSummaryEngine",
+      "verdict": "CAPABILITY_WIRED_ELSEWHERE",
+      "facade": false,
+      "fileExists": true,
+      "capabilityRoot": "MeasureSummary",
+      "note": "root \"MeasureSummary\" appears in a dispatcher — capability likely wired under a different name; verify before wiring (dead-duplicate risk)"
+    },
+    {
+      "name": "SyncCodeVerificationEngine",
+      "verdict": "GENUINE_ORPHAN",
+      "facade": false,
+      "fileExists": true,
+      "note": "no dispatcher ref, no engine consumer, no capability-root in dispatcher"
+    },
+    {
+      "name": "TurretLayoutEngine",
+      "verdict": "CAPABILITY_WIRED_ELSEWHERE",
+      "facade": false,
+      "fileExists": true,
+      "capabilityRoot": "TurretLayout",
+      "note": "root \"TurretLayout\" appears in a dispatcher — capability likely wired under a different name; verify before wiring (dead-duplicate risk)"
+    },
+    {
+      "name": "WetRunRetentionPolicyEngine",
+      "verdict": "AGGREGATOR_REACHABLE",
+      "facade": false,
+      "via": [
+        "WetRunPilotOrchestratorEngine"
+      ],
+      "note": "reachable through a WIRED engine wrapper (WIRE-EXEMPT candidate)"
+    },
+    {
+      "name": "MeasurementSystemAnalysisEngine",
+      "verdict": "GENUINE_ORPHAN",
+      "facade": false,
+      "fileExists": true,
+      "note": "no dispatcher ref, no engine consumer, no capability-root in dispatcher"
+    },
+    {
+      "name": "PactContractTestEngine",
+      "verdict": "GENUINE_ORPHAN",
+      "facade": false,
+      "fileExists": true,
+      "note": "no dispatcher ref, no engine consumer, no capability-root in dispatcher"
+    },
+    {
+      "name": "CATIACAAV5BridgeEngine",
+      "verdict": "CONSUMED_BY_UNWIRED",
+      "facade": false,
+      "via": [
+        "CATIAAddinPluginEngine"
+      ],
+      "note": "referenced only by other unwired engines (chain orphan)"
+    },
+    {
+      "name": "CATIAAddinPluginEngine",
+      "verdict": "GENUINE_ORPHAN",
+      "facade": false,
+      "fileExists": true,
+      "note": "no dispatcher ref, no engine consumer, no capability-root in dispatcher"
+    },
+    {
+      "name": "WEDMLoRADatasetBuilderEngine",
+      "verdict": "AGGREGATOR_REACHABLE",
+      "facade": false,
+      "via": [
+        "AutoPrintToProgramBridgeEngine"
+      ],
+      "note": "reachable through a WIRED engine wrapper (WIRE-EXEMPT candidate)"
+    },
+    {
+      "name": "SwissChannelFileEmitterEngine",
+      "verdict": "AGGREGATOR_REACHABLE",
+      "facade": false,
+      "via": [
+        "SwissPartTransferSequenceEngine"
+      ],
+      "note": "reachable through a WIRED engine wrapper (WIRE-EXEMPT candidate)"
+    },
+    {
+      "name": "RhinoCommonBridgeEngine",
+      "verdict": "GENUINE_ORPHAN",
+      "facade": false,
+      "fileExists": true,
+      "note": "no dispatcher ref, no engine consumer, no capability-root in dispatcher"
+    },
+    {
+      "name": "OnshapeAPIBridgeEngine",
+      "verdict": "GENUINE_ORPHAN",
+      "facade": false,
+      "fileExists": true,
+      "note": "no dispatcher ref, no engine consumer, no capability-root in dispatcher"
+    },
+    {
+      "name": "OnshapeLiveCollabAdapter",
+      "verdict": "GENUINE_ORPHAN",
+      "facade": true,
+      "fileExists": true,
+      "note": "no consumer; facade-suffixed (verify not a layer-only construct)"
+    },
+    {
+      "name": "NXOpenAssemblyDrawingEngine",
+      "verdict": "GENUINE_ORPHAN",
+      "facade": false,
+      "fileExists": true,
+      "note": "no dispatcher ref, no engine consumer, no capability-root in dispatcher"
+    },
+    {
+      "name": "CommonlyMissedPatternsRegistry",
+      "verdict": "AGGREGATOR_REACHABLE",
+      "facade": false,
+      "via": [
+        "GapPredictorEngine"
+      ],
+      "note": "reachable through a WIRED engine wrapper (WIRE-EXEMPT candidate)"
+    },
+    {
+      "name": "CoolantStrategyAdapter",
+      "verdict": "CAPABILITY_WIRED_ELSEWHERE",
+      "facade": true,
+      "fileExists": true,
+      "capabilityRoot": "CoolantStrategy",
+      "note": "root \"CoolantStrategy\" appears in a dispatcher — capability likely wired under a different name; verify before wiring (dead-duplicate risk)"
+    },
+    {
+      "name": "EntryExitStrategyAdapter",
+      "verdict": "CAPABILITY_WIRED_ELSEWHERE",
+      "facade": true,
+      "fileExists": true,
+      "capabilityRoot": "EntryExitStrategy",
+      "note": "root \"EntryExitStrategy\" appears in a dispatcher — capability likely wired under a different name; verify before wiring (dead-duplicate risk)"
+    },
+    {
+      "name": "IntentRouterEngine",
+      "verdict": "DIRECT_WIRED",
+      "facade": false,
+      "fileExists": true,
+      "note": "dispatcher references class or singleton (FALSE ghost.unwired)"
+    },
+    {
+      "name": "cycleSchedulingBridge",
+      "verdict": "GENUINE_ORPHAN",
+      "facade": true,
+      "fileExists": true,
+      "note": "no consumer; facade-suffixed (verify not a layer-only construct)"
+    },
+    {
+      "name": "BarRemnantManagementEngine",
+      "verdict": "GENUINE_ORPHAN",
+      "facade": false,
+      "fileExists": true,
+      "note": "no dispatcher ref, no engine consumer, no capability-root in dispatcher"
+    },
+    {
+      "name": "UnifiedProgramParserEngine",
+      "verdict": "AGGREGATOR_REACHABLE",
+      "facade": false,
+      "via": [
+        "HarvestPipelineEngine"
+      ],
+      "note": "reachable through a WIRED engine wrapper (WIRE-EXEMPT candidate)"
+    },
+    {
+      "name": "IntelligentSequencingAdapter",
+      "verdict": "CAPABILITY_WIRED_ELSEWHERE",
+      "facade": true,
+      "fileExists": true,
+      "capabilityRoot": "IntelligentSequencing",
+      "note": "root \"IntelligentSequencing\" appears in a dispatcher — capability likely wired under a different name; verify before wiring (dead-duplicate risk)"
+    },
+    {
+      "name": "MastercamHeadlessIntegrationTestEngine",
+      "verdict": "GENUINE_ORPHAN",
+      "facade": false,
+      "fileExists": true,
+      "note": "no dispatcher ref, no engine consumer, no capability-root in dispatcher"
+    },
+    {
+      "name": "CodexClientEngine",
+      "verdict": "AGGREGATOR_REACHABLE",
+      "facade": false,
+      "via": [
+        "MultiModelConsensusEngine"
+      ],
+      "note": "reachable through a WIRED engine wrapper (WIRE-EXEMPT candidate)"
+    },
+    {
+      "name": "GeminiClientEngine",
+      "verdict": "AGGREGATOR_REACHABLE",
+      "facade": false,
+      "via": [
+        "MultiModelConsensusEngine"
+      ],
+      "note": "reachable through a WIRED engine wrapper (WIRE-EXEMPT candidate)"
+    },
+    {
+      "name": "GrokClientEngine",
+      "verdict": "AGGREGATOR_REACHABLE",
+      "facade": false,
+      "via": [
+        "MultiModelConsensusEngine"
+      ],
+      "note": "reachable through a WIRED engine wrapper (WIRE-EXEMPT candidate)"
+    },
+    {
+      "name": "DeepSeekClientEngine",
+      "verdict": "GENUINE_ORPHAN",
+      "facade": false,
+      "fileExists": true,
+      "note": "no dispatcher ref, no engine consumer, no capability-root in dispatcher"
+    },
+    {
+      "name": "ConsensusObsidianPersistenceEngine",
+      "verdict": "DIRECT_WIRED",
+      "facade": false,
+      "fileExists": true,
+      "note": "dispatcher references class or singleton (FALSE ghost.unwired)"
+    },
+    {
+      "name": "AutodeskFusionMCPProxyEngine",
+      "verdict": "AGGREGATOR_REACHABLE",
+      "facade": false,
+      "via": [
+        "CADSystemRouterEngine",
+        "InventorCADExecutionBridge",
+        "MastercamCADExecutionBridge",
+        "SolidWorksCADExecutionBridge"
+      ],
+      "note": "reachable through a WIRED engine wrapper (WIRE-EXEMPT candidate)"
+    },
+    {
+      "name": "reactiveChainBootstrap",
+      "verdict": "DIRECT_WIRED",
+      "facade": false,
+      "fileExists": true,
+      "note": "dispatcher references class or singleton (FALSE ghost.unwired)"
+    },
+    {
+      "name": "XProcNeuralAutoFireEngine",
+      "verdict": "DIRECT_WIRED",
+      "facade": false,
+      "fileExists": true,
+      "note": "dispatcher references class or singleton (FALSE ghost.unwired)"
+    },
+    {
+      "name": "PipelineRegistryBridge",
+      "verdict": "AGGREGATOR_REACHABLE",
+      "facade": true,
+      "via": [
+        "GrindingProgramAssemblerEngine",
+        "LaserProgramAssemblerEngine",
+        "MillingPrintToProgramEngine",
+        "MillTurnSwissPipelineEngine"
+      ],
+      "note": "reachable through a WIRED engine wrapper (WIRE-EXEMPT candidate)"
+    },
+    {
+      "name": "DesignToFloorPipelineEngine",
+      "verdict": "GENUINE_ORPHAN",
+      "facade": false,
+      "fileExists": true,
+      "note": "no dispatcher ref, no engine consumer, no capability-root in dispatcher"
+    },
+    {
+      "name": "GrokCLIClientEngine",
+      "verdict": "GENUINE_ORPHAN",
+      "facade": false,
+      "fileExists": true,
+      "note": "no dispatcher ref, no engine consumer, no capability-root in dispatcher"
+    },
+    {
+      "name": "HyperMillACBridgeEngine",
+      "verdict": "DIRECT_WIRED",
+      "facade": false,
+      "fileExists": true,
+      "note": "dispatcher references class or singleton (FALSE ghost.unwired)"
+    },
+    {
+      "name": "HyperMillACScriptExecutor",
+      "verdict": "AGGREGATOR_REACHABLE",
+      "facade": false,
+      "via": [
+        "HyperMillACBridgeEngine",
+        "HyperMILLAutomationBridge",
+        "HyperMillSkillsBatchEngine"
+      ],
+      "note": "reachable through a WIRED engine wrapper (WIRE-EXEMPT candidate)"
+    },
+    {
+      "name": "BlueprintOCRAdapter",
+      "verdict": "CAPABILITY_WIRED_ELSEWHERE",
+      "facade": true,
+      "fileExists": true,
+      "capabilityRoot": "BlueprintOCR",
+      "note": "root \"BlueprintOCR\" appears in a dispatcher — capability likely wired under a different name; verify before wiring (dead-duplicate risk)"
+    },
+    {
+      "name": "CohortBridgeShimEngine",
+      "verdict": "GENUINE_ORPHAN",
+      "facade": false,
+      "fileExists": true,
+      "note": "no dispatcher ref, no engine consumer, no capability-root in dispatcher"
+    },
+    {
+      "name": "HzpDashAuditEngine",
+      "verdict": "GENUINE_ORPHAN",
+      "facade": false,
+      "fileExists": true,
+      "note": "no dispatcher ref, no engine consumer, no capability-root in dispatcher"
+    },
+    {
+      "name": "PSNHealthCheckEngine",
+      "verdict": "GENUINE_ORPHAN",
+      "facade": false,
+      "fileExists": true,
+      "note": "no dispatcher ref, no engine consumer, no capability-root in dispatcher"
+    },
+    {
+      "name": "MOEAStoppingCriterion",
+      "verdict": "GENUINE_ORPHAN",
+      "facade": false,
+      "fileExists": true,
+      "note": "no dispatcher ref, no engine consumer, no capability-root in dispatcher"
+    },
+    {
+      "name": "BayesianAcquisitionRefiner",
+      "verdict": "GENUINE_ORPHAN",
+      "facade": false,
+      "fileExists": true,
+      "note": "no dispatcher ref, no engine consumer, no capability-root in dispatcher"
+    },
+    {
+      "name": "SlotSessionHistoryEngine",
+      "verdict": "GENUINE_ORPHAN",
+      "facade": false,
+      "fileExists": true,
+      "note": "no dispatcher ref, no engine consumer, no capability-root in dispatcher"
+    },
+    {
+      "name": "ShopOutcomeIngestProcessorEngine",
+      "verdict": "DIRECT_WIRED",
+      "facade": false,
+      "fileExists": true,
+      "note": "dispatcher references class or singleton (FALSE ghost.unwired)"
+    },
+    {
+      "name": "SpeedFeedBaselineComparatorEngine",
+      "verdict": "DIRECT_WIRED",
+      "facade": false,
+      "fileExists": true,
+      "note": "dispatcher references class or singleton (FALSE ghost.unwired)"
+    },
+    {
+      "name": "SpeedFeedDownstreamSubscriberEngine",
+      "verdict": "GENUINE_ORPHAN",
+      "facade": false,
+      "fileExists": true,
+      "note": "no dispatcher ref, no engine consumer, no capability-root in dispatcher"
+    },
+    {
+      "name": "SpeedFeedPSNDecisionPriorEngine",
+      "verdict": "AGGREGATOR_REACHABLE",
+      "facade": false,
+      "via": [
+        "SpeedFeedPDFCorpusBridgeEngine"
+      ],
+      "note": "reachable through a WIRED engine wrapper (WIRE-EXEMPT candidate)"
+    },
+    {
+      "name": "SpeedFeedChatterStabilityAdapterEngine",
+      "verdict": "DIRECT_WIRED",
+      "facade": false,
+      "fileExists": true,
+      "note": "dispatcher references class or singleton (FALSE ghost.unwired)"
+    },
+    {
+      "name": "SpeedFeedExhaustiveCombinationEngine",
+      "verdict": "GENUINE_ORPHAN",
+      "facade": false,
+      "fileExists": true,
+      "note": "no dispatcher ref, no engine consumer, no capability-root in dispatcher"
+    },
+    {
+      "name": "MonolithWorkholdingDatabaseEngine",
+      "verdict": "DIRECT_WIRED",
+      "facade": false,
+      "fileExists": true,
+      "note": "dispatcher references class or singleton (FALSE ghost.unwired)"
+    },
+    {
+      "name": "MonolithToolTypesDatabaseEngine",
+      "verdict": "AGGREGATOR_REACHABLE",
+      "facade": false,
+      "via": [
+        "CatalogUnifiedQueryEngine"
+      ],
+      "note": "reachable through a WIRED engine wrapper (WIRE-EXEMPT candidate)"
+    },
+    {
+      "name": "MonolithFixtureDatabaseEngine",
+      "verdict": "AGGREGATOR_REACHABLE",
+      "facade": false,
+      "via": [
+        "CatalogUnifiedQueryEngine"
+      ],
+      "note": "reachable through a WIRED engine wrapper (WIRE-EXEMPT candidate)"
+    },
+    {
+      "name": "MonolithSurfaceFinishDatabaseEngine",
+      "verdict": "AGGREGATOR_REACHABLE",
+      "facade": false,
+      "via": [
+        "CatalogUnifiedQueryEngine"
+      ],
+      "note": "reachable through a WIRED engine wrapper (WIRE-EXEMPT candidate)"
+    },
+    {
+      "name": "MonolithHyperMillFixtureDatabaseEngine",
+      "verdict": "AGGREGATOR_REACHABLE",
+      "facade": false,
+      "via": [
+        "CatalogUnifiedQueryEngine",
+        "MonolithRoughingMachineConfigsEngine"
+      ],
+      "note": "reachable through a WIRED engine wrapper (WIRE-EXEMPT candidate)"
+    },
+    {
+      "name": "QuotingClosedLoopEngine",
+      "verdict": "CONSUMED_BY_UNWIRED",
+      "facade": false,
+      "via": [
+        "QuotingClosedLoopRunnerEngine"
+      ],
+      "note": "referenced only by other unwired engines (chain orphan)"
+    },
+    {
+      "name": "GCodeMaterialParserEngine",
+      "verdict": "DIRECT_WIRED",
+      "facade": false,
+      "fileExists": true,
+      "note": "dispatcher references class or singleton (FALSE ghost.unwired)"
+    },
+    {
+      "name": "MillPrintToProgramEngine",
+      "verdict": "DIRECT_WIRED",
+      "facade": false,
+      "fileExists": true,
+      "note": "dispatcher references class or singleton (FALSE ghost.unwired)"
+    },
+    {
+      "name": "DocuStrataMaterialPriorEngine",
+      "verdict": "AGGREGATOR_REACHABLE",
+      "facade": false,
+      "via": [
+        "DocumentInboxEngine"
+      ],
+      "note": "reachable through a WIRED engine wrapper (WIRE-EXEMPT candidate)"
+    },
+    {
+      "name": "QuotingClosedLoopRunnerEngine",
+      "verdict": "GENUINE_ORPHAN",
+      "facade": false,
+      "fileExists": true,
+      "note": "no dispatcher ref, no engine consumer, no capability-root in dispatcher"
+    },
+    {
+      "name": "JMCustomerVendorDatabaseEngine",
+      "verdict": "GENUINE_ORPHAN",
+      "facade": false,
+      "fileExists": true,
+      "note": "no dispatcher ref, no engine consumer, no capability-root in dispatcher"
+    },
+    {
+      "name": "HyperCADSElectrodeEngine",
+      "verdict": "GENUINE_ORPHAN",
+      "facade": false,
+      "fileExists": true,
+      "note": "no dispatcher ref, no engine consumer, no capability-root in dispatcher"
+    },
+    {
+      "name": "GWizardComparatorBridgeEngine",
+      "verdict": "CONSUMED_BY_UNWIRED",
+      "facade": false,
+      "via": [
+        "SpeedFeedTriComparatorEngine"
+      ],
+      "note": "referenced only by other unwired engines (chain orphan)"
+    },
+    {
+      "name": "SpeedFeedTriComparatorEngine",
+      "verdict": "GENUINE_ORPHAN",
+      "facade": false,
+      "fileExists": true,
+      "note": "no dispatcher ref, no engine consumer, no capability-root in dispatcher"
+    }
+  ]
+}

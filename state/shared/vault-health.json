@@ -1,0 +1,80 @@
+{
+  "generatedAt": "2026-06-27T20:31:12.493Z",
+  "overall": "WARN",
+  "counts": {
+    "warn": 1,
+    "info": 3,
+    "missing": 0,
+    "stale": 0,
+    "needsScan": 0,
+    "lowCoverage": 1,
+    "sources": 5
+  },
+  "rows": [
+    {
+      "key": "rot",
+      "title": "vault-rot (stale AND orphaned)",
+      "state": "present",
+      "value": 0,
+      "severity": "ok",
+      "detail": "21827 scanned, 19529 orphaned",
+      "ageDays": 0,
+      "stale": false,
+      "needsScan": false,
+      "lowCoverage": false,
+      "regen": "node scripts/vault-rot-sentinel.mjs --write"
+    },
+    {
+      "key": "supersession",
+      "title": "supersession (stale-as-current)",
+      "state": "present",
+      "value": 141,
+      "severity": "warn",
+      "detail": "149 marked, 60 stems",
+      "ageDays": 0,
+      "stale": false,
+      "needsScan": false,
+      "lowCoverage": false,
+      "regen": "node scripts/vault-supersession-detector.mjs --write"
+    },
+    {
+      "key": "contradiction",
+      "title": "doctrine contradictions",
+      "state": "present",
+      "value": 0,
+      "severity": "info",
+      "detail": "0 found BUT only 149/1130 pairs (cov 0.132), gpt-oss:20b -- LOW COVERAGE, not a clean bill",
+      "ageDays": 4.2,
+      "stale": false,
+      "needsScan": false,
+      "lowCoverage": true,
+      "regen": "node scripts/lint-memory-contradictions.mjs"
+    },
+    {
+      "key": "ambiguous",
+      "title": "ambiguous broken links",
+      "state": "present",
+      "value": 11,
+      "severity": "info",
+      "detail": "11 captured",
+      "ageDays": 0,
+      "stale": false,
+      "needsScan": false,
+      "lowCoverage": false,
+      "regen": "node scripts/vault-link-doctor.mjs --ambiguous"
+    },
+    {
+      "key": "brain-refresh",
+      "title": "brain-refresh (last overnight run)",
+      "state": "present",
+      "value": 0,
+      "severity": "info",
+      "detail": "deferred (Ollama down; 5 ran)",
+      "ageDays": 0,
+      "stale": false,
+      "needsScan": false,
+      "lowCoverage": false,
+      "regen": "node scripts/brain-refresh.mjs --force"
+    }
+  ]
+}

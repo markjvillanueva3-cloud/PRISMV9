@@ -1,0 +1,164 @@
+{
+  "id": "SYSTEM-AWARENESS-FRESHNESS-MS0",
+  "name": "System Awareness Freshness MS0 — drainable plan to keep PRISM doc/awareness layer current",
+  "status": "in_progress",
+  "owner_slot": "golf",
+  "created_at": "2026-05-19",
+  "updated_at": "2026-05-20",
+  "spec_path": "state/shared/specs/SYSTEM-AWARENESS-FRESHNESS-MS0.md",
+  "baseline_path": "state/shared/SYSTEM-AWARENESS-FRESHNESS-BASELINE-2026-05-19.json",
+  "roi_score": 8.5,
+  "summary": "Detect + drain + prevent 6 staleness types in PRISM's awareness layer. Phase 0 ships the audit tooling (217 findings on first run); Phases 1-5 are drainable follow-up units.",
+  "units": [
+    {
+      "id": "U-SAF-A1",
+      "unit_id": "U-SAF-A1",
+      "name": "system-awareness-freshness-audit.mjs (Phase 0 audit script)",
+      "status": "shipped",
+      "shipped_at": "2026-05-19",
+      "ship_commit": "f9438997b7",
+      "owner_slot": "golf",
+      "phase": 0
+    },
+    {
+      "id": "U-SAF-A2",
+      "unit_id": "U-SAF-A2",
+      "name": "Audit script tests (35 cases incl. real-data E2E)",
+      "status": "shipped",
+      "shipped_at": "2026-05-19",
+      "ship_commit": "f9438997b7",
+      "owner_slot": "golf",
+      "phase": 0
+    },
+    {
+      "id": "U-SAF-A3",
+      "unit_id": "U-SAF-A3",
+      "name": "Baseline snapshot 2026-05-19 (217 findings frozen as starting reference)",
+      "status": "shipped",
+      "shipped_at": "2026-05-19",
+      "ship_commit": "f9438997b7",
+      "owner_slot": "golf",
+      "phase": 0
+    },
+    {
+      "id": "U-SAF-B1",
+      "unit_id": "U-SAF-B1",
+      "name": "CLAUDE.md milestone-summary drain (category 1, 183 items at baseline)",
+      "status": "shipped",
+      "shipped_at": "2026-05-19",
+      "ship_commit": "f5525bbba9",
+      "owner_slot": "golf",
+      "phase": 1,
+      "depends_on": ["U-SAF-A1", "U-SAF-A3"]
+    },
+    {
+      "id": "U-SAF-B2",
+      "unit_id": "U-SAF-B2",
+      "name": "CLAUDE.md stale-family section drain (category 5, 2 items at baseline)",
+      "status": "shipped",
+      "shipped_at": "2026-05-19",
+      "ship_commit": "b322cf538e",
+      "owner_slot": "golf",
+      "phase": 1,
+      "depends_on": ["U-SAF-A1"]
+    },
+    {
+      "id": "U-SAF-B3-C3-E2",
+      "unit_id": "U-SAF-B3-C3-E2",
+      "name": "Combined cat5+cat3+cat6 staleness drain (2026-05-20 close-out)",
+      "status": "shipped",
+      "shipped_at": "2026-05-20",
+      "ship_commit": "fb0e53df6c",
+      "owner_slot": "golf",
+      "phase": 1
+    },
+    {
+      "id": "U-SAF-C1",
+      "unit_id": "U-SAF-C1",
+      "name": "Wiki subsystem cross-ref gap drain (category 2 — detection deferred)",
+      "status": "pending",
+      "owner_slot": "any",
+      "phase": 2,
+      "depends_on": ["U-SAF-A1"]
+    },
+    {
+      "id": "U-SAF-C2",
+      "unit_id": "U-SAF-C2",
+      "name": "Broken-wikilinks drain (category 3, 15 items at baseline)",
+      "status": "shipped",
+      "shipped_at": "2026-05-19",
+      "ship_commit": "91cf09d302",
+      "owner_slot": "any",
+      "phase": 2,
+      "depends_on": ["U-SAF-A1"]
+    },
+    {
+      "id": "U-SAF-D1",
+      "unit_id": "U-SAF-D1",
+      "name": "Superseded-but-unmarked docs drain (category 4 — detection deferred)",
+      "status": "pending",
+      "owner_slot": "golf",
+      "phase": 3,
+      "depends_on": ["U-SAF-A1"]
+    },
+    {
+      "id": "U-SAF-D2",
+      "unit_id": "U-SAF-D2",
+      "name": "MEMORY.md ↔ auto-memory-dir reconciliation",
+      "status": "pending",
+      "owner_slot": "golf",
+      "phase": 3,
+      "depends_on": ["U-SAF-A1"]
+    },
+    {
+      "id": "U-SAF-E1",
+      "unit_id": "U-SAF-E1",
+      "name": "Count-claim → inventory-pointer sweep (category 6, 17 items at baseline)",
+      "status": "shipped",
+      "shipped_at": "2026-05-19",
+      "ship_commit": "af897f2131",
+      "owner_slot": "any",
+      "phase": 4,
+      "depends_on": ["U-SAF-A1"]
+    },
+    {
+      "id": "U-SAF-F1",
+      "unit_id": "U-SAF-F1",
+      "name": "stop-system-awareness-freshness.mjs Stop-hook advisory",
+      "status": "shipped",
+      "shipped_at": "2026-05-19",
+      "ship_commit": "524a2f806d",
+      "owner_slot": "golf",
+      "phase": 5,
+      "depends_on": ["U-SAF-A1", "U-SAF-A3"]
+    },
+    {
+      "id": "U-SAF-F2",
+      "unit_id": "U-SAF-F2",
+      "name": "Scheduled-task daily cron (sister to PRISM Fleet Reaper pattern)",
+      "status": "shipped",
+      "shipped_at": "2026-05-19",
+      "ship_commit": "ccbe3730b3",
+      "owner_slot": "golf",
+      "phase": 5,
+      "depends_on": ["U-SAF-F1"]
+    },
+    {
+      "id": "U-SAF-F3",
+      "unit_id": "U-SAF-F3",
+      "name": "CLAUDE.md `## Recent staleness` inbox auto-population from cron output",
+      "status": "pending",
+      "owner_slot": "golf",
+      "phase": 5,
+      "depends_on": ["U-SAF-F2"]
+    }
+  ],
+  "acceptance": [
+    "Phase 0 audit script ships + has tests (DONE)",
+    "All 6 staleness categories have first-run baseline counts (DONE: 217 findings)",
+    "≥80% of HIGH-severity items resolved (Phase 1+2 drain)",
+    "Stop-hook gate catches NEW staleness within 24h (Phase 5)",
+    "Re-run shows monotonic decrease (no regressions)"
+  ],
+  "close_out_notes": "Envelope reconciled 2026-05-20 by alpha after git-log audit: 10 of 14 units shipped (A1+A2+A3 in f9438997b7; B1 in f5525bbba9; B2 in b322cf538e; B3-C3-E2 in fb0e53df6c; C2 in 91cf09d302; E1 in af897f2131; F1 in 524a2f806d; F2 in ccbe3730b3). Pending: C1 (detection deferred), D1 (detection deferred), D2 (reconciliation work), F3 (depends on F2 cron emitting). Each unit now has `id` field alongside `unit_id` so milestone-progress loader picks them up (was emitting 0/0)."
+}

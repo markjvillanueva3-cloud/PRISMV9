@@ -1,0 +1,63 @@
+{
+  "version": "1.0.0",
+  "skills": {
+    "build-verify": {
+      "triggers": [
+        "engine_creation",
+        "build_start",
+        "pr_review"
+      ],
+      "cost": "medium",
+      "preferred_model": "local"
+    },
+    "codebase-memory-tracing": {
+      "triggers": [
+        "refactor",
+        "large_edit",
+        "debug"
+      ],
+      "cost": "low",
+      "preferred_model": "local"
+    },
+    "adaptive-optimize": {
+      "triggers": [
+        "performance_issue",
+        "heavy_computation"
+      ],
+      "cost": "medium",
+      "preferred_model": "local"
+    }
+  },
+  "scripts": {
+    "inventory-refresh": {
+      "triggers": [
+        "engine_creation",
+        "daily"
+      ],
+      "cost": "low"
+    },
+    "mirror-c-to-h": {
+      "triggers": [
+        "claude_md_edit",
+        "settings_change"
+      ],
+      "cost": "low"
+    }
+  },
+  "hooks": {
+    "duplication-guard": {
+      "triggers": [
+        "engine_creation",
+        "skill_creation"
+      ],
+      "auto": true
+    },
+    "logical-build-hook": {
+      "triggers": [
+        "build_start",
+        "complex_task"
+      ],
+      "auto": true
+    }
+  }
+}

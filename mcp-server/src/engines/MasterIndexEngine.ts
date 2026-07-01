@@ -94,14 +94,40 @@ const HIGH_DEGREE_PCTILE = 0.85;
 const LOW_DEGREE_THRESHOLD = 1;
 /** Cap on rows returned in dashboard top-K lists. */
 const DASHBOARD_TOP_K = 25;
-/** Stopwords stripped from queries (English noise + PRISM-meta noise). */
-const STOPWORDS = new Set([
+/**
+ * Stopword sets — pickable per-query via `opts.stopwords`.
+ *
+ * `default`: full set — English noise + PRISM-meta vocabulary. Back-compat;
+ *   current behavior preserved when `opts.stopwords` is unset.
+ * `minimal`: English noise ONLY — drops the PRISM-meta vocabulary
+ *   (`engine`/`system`/`wiki`/`memory`/`prism`/`feature`/`node`/`label`/`info`)
+ *   so a code-search query like "engine dispatcher" actually scores hits
+ *   matching "engine" instead of degrading to "dispatcher" only.
+ * `off`: empty set — every token reaches the inverted index.
+ *
+ * Callers may also pass an explicit `string[]` for a custom set.
+ *
+ * Iter-2 of BACKEND-DEV-LOOP (slot hotel, 2026-05-18) addresses pinned-quirk
+ * #2 from iter-0: the prior unconditional inclusion of PRISM-meta tokens
+ * was UX-hostile for the engine's own primary use case (searching PRISM
+ * codebase for engines / systems / wiki entries).
+ */
+const STOPWORDS_DEFAULT = new Set([
   "a", "an", "and", "are", "as", "at", "be", "by", "for", "from",
   "has", "have", "in", "is", "it", "its", "of", "on", "or", "the",
   "to", "was", "were", "with", "this", "that", "these", "those",
   "engine", "engines", "feature", "features", "system", "systems",
   "node", "label", "info", "wiki", "memory", "prism",
 ]);
+const STOPWORDS_MINIMAL = new Set([
+  "a", "an", "and", "are", "as", "at", "be", "by", "for", "from",
+  "has", "have", "in", "is", "it", "its", "of", "on", "or", "the",
+  "to", "was", "were", "with", "this", "that", "these", "those",
+]);
+const STOPWORDS_OFF = new Set<string>();
+
+/** Back-compat alias — older code references STOPWORDS directly. */
+const STOPWORDS = STOPWORDS_DEFAULT;
 
 // ============================================================================
 // TYPES
@@ -210,6 +236,16 @@ export interface MasterIndexQueryOptions {
   minConfidence?: number;
   /** Drop hits whose buildClass is not in this set. */
   buildClasses?: Array<MasterIndexHit["buildClass"]>;
+  /**
+   * Stopword mode for query tokenization. `"default"` (or unset) preserves
+   * the historical full-stop-list behavior. `"minimal"` drops only English
+   * noise (a/the/is/are/…) so code-search terms like `engine`, `system`,
+   * `wiki`, `memory`, `prism` reach the inverted index. `"off"` disables
+   * stopword filtering entirely. An explicit `string[]` defines a custom set.
+   *
+   * Added BACKEND-DEV-LOOP/U-MIQ-STOPWORDS-CONFIG (iter-2, 2026-05-18).
+   */
+  stopwords?: "default" | "minimal" | "off" | string[];
 }
 
 /** Full query result. */
@@ -311,7 +347,7 @@ function safeReadJson<T>(p: string): T | null {
  * info / wiki entry names survive. Truncation backsteps to a whitespace
  * boundary so a long query can't lose its final token mid-word.
  */
-function tokenize(text: string): string[] {
+function tokenize(text: string, stopwords: Set<string> = STOPWORDS_DEFAULT): string[] {
   if (!text || typeof text !== "string") return [];
   let trimmed = text;
   if (text.length > MAX_QUERY_LEN) {
@@ -326,13 +362,45 @@ function tokenize(text: string): string[] {
   const out: string[] = [];
   for (const tok of cleaned.split(/\s+/)) {
     if (tok.length < MIN_TOKEN_LEN) continue;
-    if (STOPWORDS.has(tok)) continue;
+    if (stopwords.has(tok)) continue;
     if (seen.has(tok)) continue;
     seen.add(tok);
     out.push(tok);
     if (out.length >= MAX_QUERY_TOKENS) break;
   }
   return out;
+}
+
+/**
+ * Resolve the user's `opts.stopwords` value to the actual Set used by
+ * tokenize(). Returns the back-compat `STOPWORDS_DEFAULT` for unset / null /
+ * empty inputs so existing callers see no behavior change.
+ *
+ * Accepts:
+ *   - `"default"` (or unset) → STOPWORDS_DEFAULT
+ *   - `"minimal"`            → STOPWORDS_MINIMAL (English noise only)
+ *   - `"off"`                → STOPWORDS_OFF (empty set, nothing dropped)
+ *   - `string[]`             → custom set built from the array (lowercased,
+ *                              empty/non-string entries dropped — never throws)
+ *
+ * Unknown string mode → falls back to default (defensive — never silently
+ * misinterprets a caller's intent, never throws either).
+ */
+function resolveStopwords(value: unknown): Set<string> {
+  if (value === undefined || value === null) return STOPWORDS_DEFAULT;
+  if (Array.isArray(value)) {
+    const out = new Set<string>();
+    for (const item of value) {
+      if (typeof item === "string" && item.length > 0) out.add(item.toLowerCase());
+    }
+    return out;
+  }
+  if (typeof value === "string") {
+    if (value === "minimal") return STOPWORDS_MINIMAL;
+    if (value === "off" || value === "none") return STOPWORDS_OFF;
+    return STOPWORDS_DEFAULT; // "default" + any unknown string
+  }
+  return STOPWORDS_DEFAULT;
 }
 
 /**
@@ -507,7 +575,14 @@ class MasterIndexEngine {
       const wikiNames = (n.knowledge?.wikiEntries ?? []).map(entryName).join(" ");
       const memNames = (n.knowledge?.memoryEntries ?? []).map(entryName).join(" ");
       const blob = `${n.id} ${n.label ?? ""} ${n.info ?? ""} ${wikiNames} ${memNames}`;
-      for (const tok of tokenize(blob)) {
+      // BACKEND-DEV-LOOP/U-MIQ-STOPWORDS-CONFIG (iter-2): build the index
+      // with the MINIMAL stopword set (English noise only). Without this,
+      // PRISM-meta tokens (engine/system/wiki/memory/prism/feature/node/
+      // label/info) would never get inverted-index buckets — making them
+      // unfindable regardless of which stopword mode the QUERY uses. Index
+      // size grows ~9 buckets × N (bounded); query-time filtering still
+      // applies the caller's chosen stopword set against this richer index.
+      for (const tok of tokenize(blob, STOPWORDS_MINIMAL)) {
         let bucket = invertedIndex.get(tok);
         if (!bucket) {
           bucket = new Set<string>();
@@ -586,7 +661,10 @@ class MasterIndexEngine {
       MAX_LIMIT,
       Math.max(1, Number.isFinite(opts.limit) ? Number(opts.limit) : DEFAULT_LIMIT),
     );
-    const tokens = tokenize(query ?? "");
+    // Stopword resolution — opt-in per-query. Unset / null / unknown → the
+    // historical STOPWORDS_DEFAULT set, so every existing caller is unchanged.
+    const activeStopwords = resolveStopwords(opts.stopwords);
+    const tokens = tokenize(query ?? "", activeStopwords);
 
     // Empty query → empty structured result. Never throw.
     if (tokens.length === 0) {
@@ -725,10 +803,17 @@ class MasterIndexEngine {
         : (c.engine ?? c.capability);
       const buildClass = classifyBuildClass(undefined, id, unwiredSet);
       if (allowedClasses && !allowedClasses.has(buildClass)) continue;
-      // Capability hits don't have edge utilization — surface 0 (caller can
-      // sort by confidence alone if utilization isn't relevant for skills).
+      // Capability hits (engine/action/skill/hook from PRISMSelfAwarenessEngine)
+      // do NOT carry edge-graph utilization. We surface 0 as the API-visible
+      // value, but 0 here is a SENTINEL for "N/A" — not a real "low utilization"
+      // measurement. Applying `minUtilization > 0` against this sentinel would
+      // silently nuke every capability hit — a R12 contract violation in the
+      // same class as the iter-0 min_confidence blend bug (see
+      // U-MIQ-MINCONF-CONTRACT). Fix (iter-3, U-MIQ-CAPABILITY-MIN-UTIL):
+      // `minUtilization` is a graph-node concept; capability hits are exempt.
+      // Callers wanting to exclude capability hits should use
+      // `sources: ["graph_node", ...]` (the documented surface).
       const utilization = 0;
-      if (typeof opts.minUtilization === "number" && utilization < opts.minUtilization) continue;
       if (typeof opts.minConfidence === "number" && c.confidence < opts.minConfidence) continue;
       hits.push({
         source,
@@ -749,27 +834,45 @@ class MasterIndexEngine {
       const utilFactor = Math.max(UTIL_FLOOR, Math.pow(h.utilization, UTIL_BIAS));
       h.confidence = Math.max(0, Math.min(1, h.confidence * utilFactor));
     }
-    hits.sort((a, b) => b.confidence - a.confidence);
 
-    // ----- Aggregations + final cap -----
+    // ----- Post-blend filter pass (R12 contract enforcement) -----
+    // The early prune at lines 668/732 cuts items whose RAW confidence is
+    // below threshold (perf optimization — saves scoring work on obvious
+    // losers). But the user-facing `confidence` is the BLENDED score
+    // (raw × utilFactor where utilFactor ∈ [UTIL_FLOOR, 1]). Since the
+    // blend monotonically reduces, items passing the raw prune can still
+    // fall below threshold after blending. The user's contract is
+    // "every returned hit has confidence ≥ minConfidence" against the
+    // value they see — so we re-apply the filter post-blend. Mirrored
+    // by MasterIndexFilters.dispatcher.e2e.test.ts (regression oracle).
+    let filteredHits = hits;
+    if (typeof opts.minConfidence === "number") {
+      const minConf = opts.minConfidence;
+      filteredHits = filteredHits.filter((h) => h.confidence >= minConf);
+    }
+    filteredHits.sort((a, b) => b.confidence - a.confidence);
+
+    // ----- Aggregations + final cap (all derived from filteredHits — the
+    // post-blend, post-min-confidence array — so totals match what the user
+    // actually sees) -----
     const bySource: Record<string, number> = {};
     const byBuildClass: Record<string, number> = {};
-    for (const h of hits) {
+    for (const h of filteredHits) {
       bySource[h.source] = (bySource[h.source] ?? 0) + 1;
       byBuildClass[h.buildClass] = (byBuildClass[h.buildClass] ?? 0) + 1;
     }
-    const topUtilized = [...hits]
+    const topUtilized = [...filteredHits]
       .filter((h) => h.utilization > 0)
       .sort((a, b) => b.utilization - a.utilization)
       .slice(0, 5);
-    const underUtilized = hits
+    const underUtilized = filteredHits
       .filter((h) => h.source === "graph_node" && h.utilization < 0.1)
       .slice(0, 5);
 
     return {
       query: query ?? "",
-      totalHits: hits.length,
-      hits: hits.slice(0, limit),
+      totalHits: filteredHits.length,
+      hits: filteredHits.slice(0, limit),
       bySource,
       byBuildClass,
       topUtilized,

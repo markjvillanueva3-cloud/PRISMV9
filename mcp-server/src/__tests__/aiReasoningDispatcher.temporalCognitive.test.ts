@@ -58,22 +58,19 @@ describe("aiReasoningDispatcher — ai_temporal_* (TemporalReasoningEngine)", ()
     ];
     await Promise.all(
       dates.map((at, i) =>
-        invoke("ai_temporal_record", {
+        invoke("temporal_record", {
           series: "U09_linear_synth",
           value: 10 + i,
           at,
         }),
       ),
     );
-    const out = await invoke("ai_temporal_project", {
+    const out = await invoke("temporal_project", {
       series: "U09_linear_synth",
       windowSize: 5,
     });
     expect(out.success).toBe(true);
-    const proj = out.data as {
-      slopePerDay: number; intercept: number; r2: number;
-      current: number; windowSize: number;
-    };
+    const proj = (out.data as { projection: { slopePerDay: number; intercept: number; r2: number; current: number; windowSize: number } }).projection;
     // Perfect linear fit → slope=1, R²=1, current=14, intercept=10
     expect(proj.slopePerDay).toBeCloseTo(1.0, 4);
     expect(proj.intercept).toBeCloseTo(10.0, 4);
@@ -89,22 +86,22 @@ describe("aiReasoningDispatcher — ai_temporal_* (TemporalReasoningEngine)", ()
       "2026-04-22T00:00:00.000Z",
     ];
     await Promise.all(
-      dates.map((at) => invoke("ai_temporal_record", { series: "U09_flat", value: 7, at })),
+      dates.map((at) => invoke("temporal_record", { series: "U09_flat", value: 7, at })),
     );
-    const out = await invoke("ai_temporal_project", { series: "U09_flat" });
-    const proj = out.data as { slopePerDay: number; r2: number; current: number };
+    const out = await invoke("temporal_project", { series: "U09_flat" });
+    const proj = (out.data as { projection: { slopePerDay: number; r2: number; current: number } }).projection;
     expect(proj.slopePerDay).toBeCloseTo(0, 4);
     expect(proj.r2).toBeCloseTo(1, 4);
     expect(proj.current).toBe(7);
   });
 
   it("project on insufficient data (n<2) returns null payload", async () => {
-    await invoke("ai_temporal_record", {
+    await invoke("temporal_record", {
       series: "U09_lonely",
       value: 1,
       at: "2026-04-20T00:00:00.000Z",
     });
-    const out = await invoke("ai_temporal_project", { series: "U09_lonely" });
+    const out = await invoke("temporal_project", { series: "U09_lonely" });
     expect(out.success).toBe(true);
     const data = out.data as { series: string; projection: unknown };
     expect(data.series).toBe("U09_lonely");
@@ -120,14 +117,14 @@ describe("aiReasoningDispatcher — ai_temporal_* (TemporalReasoningEngine)", ()
     ];
     await Promise.all(
       dates.map((at, i) =>
-        invoke("ai_temporal_record", {
+        invoke("temporal_record", {
           series: "U09_eta",
           value: 10 + 2 * i,
           at,
         }),
       ),
     );
-    const out = await invoke("ai_temporal_forecast", {
+    const out = await invoke("temporal_forecast", {
       series: "U09_eta",
       target: 20,
       windowSize: 3,
@@ -150,11 +147,11 @@ describe("aiReasoningDispatcher — ai_temporal_* (TemporalReasoningEngine)", ()
         "2026-04-20T00:00:00.000Z",
         "2026-04-21T00:00:00.000Z",
       ].map((at, i) =>
-        invoke("ai_temporal_record", { series: "U09_at_tgt", value: 5 + i, at }),
+        invoke("temporal_record", { series: "U09_at_tgt", value: 5 + i, at }),
       ),
     );
     // Current is 6, target is 6 → hit immediately
-    const out = await invoke("ai_temporal_forecast", {
+    const out = await invoke("temporal_forecast", {
       series: "U09_at_tgt",
       target: 6,
       windowSize: 2,
@@ -174,12 +171,12 @@ describe("aiReasoningDispatcher — ai_temporal_* (TemporalReasoningEngine)", ()
         "2026-04-21T00:00:00.000Z",
         "2026-04-22T00:00:00.000Z",
       ].map((at, i) =>
-        invoke("ai_temporal_record", {
+        invoke("temporal_record", {
           series: "U09_unreach", value: 10 - i, at,
         }),
       ),
     );
-    const out = await invoke("ai_temporal_forecast", {
+    const out = await invoke("temporal_forecast", {
       series: "U09_unreach",
       target: 20,
       windowSize: 3,
@@ -197,7 +194,7 @@ describe("aiReasoningDispatcher — ai_temporal_* (TemporalReasoningEngine)", ()
   });
 
   it("Zod rejects empty series name (boundary)", async () => {
-    const out = await invoke("ai_temporal_record", {
+    const out = await invoke("temporal_record", {
       series: "",
       value: 1,
     });
@@ -206,7 +203,7 @@ describe("aiReasoningDispatcher — ai_temporal_* (TemporalReasoningEngine)", ()
   });
 
   it("Zod rejects non-finite value (Infinity adversarial)", async () => {
-    const out = await invoke("ai_temporal_record", {
+    const out = await invoke("temporal_record", {
       series: "U09_inf",
       value: Number.POSITIVE_INFINITY,
     });
@@ -215,7 +212,7 @@ describe("aiReasoningDispatcher — ai_temporal_* (TemporalReasoningEngine)", ()
   });
 
   it("Zod rejects malformed `at` timestamp (not ISO-8601 prefix)", async () => {
-    const out = await invoke("ai_temporal_record", {
+    const out = await invoke("temporal_record", {
       series: "U09_bad_iso",
       value: 1,
       at: "not-a-real-date",
@@ -225,7 +222,7 @@ describe("aiReasoningDispatcher — ai_temporal_* (TemporalReasoningEngine)", ()
   });
 
   it("Zod rejects windowSize < 2 (boundary on project)", async () => {
-    const out = await invoke("ai_temporal_project", {
+    const out = await invoke("temporal_project", {
       series: "U09_w1",
       windowSize: 1,
     });
@@ -238,7 +235,7 @@ describe("aiReasoningDispatcher — ai_temporal_* (TemporalReasoningEngine)", ()
 
 describe("aiReasoningDispatcher — ai_cognitive_* (CognitiveBudgetAllocatorEngine)", () => {
   it("variability: shallow tier for read+low-risk (base 1, score < 3)", async () => {
-    const out = await invoke("ai_cognitive_allocate", {
+    const out = await invoke("cognitive_budget_allocate", {
       kind: "read",
       riskLevel: "low",
     });
@@ -256,7 +253,7 @@ describe("aiReasoningDispatcher — ai_cognitive_* (CognitiveBudgetAllocatorEngi
   });
 
   it("variability: medium tier for edit+medium-risk (base 2 + riskBoost 1 = 3)", async () => {
-    const out = await invoke("ai_cognitive_allocate", {
+    const out = await invoke("cognitive_budget_allocate", {
       kind: "edit",
       riskLevel: "medium",
     });
@@ -268,7 +265,7 @@ describe("aiReasoningDispatcher — ai_cognitive_* (CognitiveBudgetAllocatorEngi
   });
 
   it("variability: deep tier for refactor+critical+critical-file (4+4+3=11)", async () => {
-    const out = await invoke("ai_cognitive_allocate", {
+    const out = await invoke("cognitive_budget_allocate", {
       kind: "refactor",
       riskLevel: "critical",
       touchesCriticalFile: true,
@@ -286,7 +283,7 @@ describe("aiReasoningDispatcher — ai_cognitive_* (CognitiveBudgetAllocatorEngi
   });
 
   it("user-urgent applies a -1 penalty (refactor 4 - 1 = 3 → medium)", async () => {
-    const out = await invoke("ai_cognitive_allocate", {
+    const out = await invoke("cognitive_budget_allocate", {
       kind: "refactor",
       userUrgent: true,
     });
@@ -298,7 +295,7 @@ describe("aiReasoningDispatcher — ai_cognitive_* (CognitiveBudgetAllocatorEngi
   });
 
   it("expectedDependents boost is capped at 3 (50 dependents × 0.1 = 5 → capped)", async () => {
-    const out = await invoke("ai_cognitive_allocate", {
+    const out = await invoke("cognitive_budget_allocate", {
       kind: "edit",
       expectedDependents: 50,
     });
@@ -309,25 +306,25 @@ describe("aiReasoningDispatcher — ai_cognitive_* (CognitiveBudgetAllocatorEngi
   });
 
   it("classify maps thresholds correctly: 0→shallow, 3→medium, 6→deep", async () => {
-    const shallow = await invoke("ai_cognitive_classify", { score: 0 });
+    const shallow = await invoke("cognitive_classify", { score: 0 });
     expect((shallow.data as { depth: string; score: number }).depth).toBe("shallow");
     expect((shallow.data as { score: number }).score).toBe(0);
 
-    const med = await invoke("ai_cognitive_classify", { score: 3 });
+    const med = await invoke("cognitive_classify", { score: 3 });
     expect((med.data as { depth: string }).depth).toBe("medium");
 
-    const deep = await invoke("ai_cognitive_classify", { score: 6 });
+    const deep = await invoke("cognitive_classify", { score: 6 });
     expect((deep.data as { depth: string }).depth).toBe("deep");
 
     // Boundaries: 2.99 still shallow, 5.99 still medium
-    const subShallow = await invoke("ai_cognitive_classify", { score: 2.99 });
+    const subShallow = await invoke("cognitive_classify", { score: 2.99 });
     expect((subShallow.data as { depth: string }).depth).toBe("shallow");
-    const subMed = await invoke("ai_cognitive_classify", { score: 5.99 });
+    const subMed = await invoke("cognitive_classify", { score: 5.99 });
     expect((subMed.data as { depth: string }).depth).toBe("medium");
   });
 
   it("Zod rejects unknown kind enum (adversarial)", async () => {
-    const out = await invoke("ai_cognitive_allocate", {
+    const out = await invoke("cognitive_budget_allocate", {
       kind: "telepathy",
     });
     expect(out.success).toBe(false);
@@ -335,7 +332,7 @@ describe("aiReasoningDispatcher — ai_cognitive_* (CognitiveBudgetAllocatorEngi
   });
 
   it("Zod rejects negative expectedDependents (boundary)", async () => {
-    const out = await invoke("ai_cognitive_allocate", {
+    const out = await invoke("cognitive_budget_allocate", {
       kind: "edit",
       expectedDependents: -3,
     });
@@ -344,7 +341,7 @@ describe("aiReasoningDispatcher — ai_cognitive_* (CognitiveBudgetAllocatorEngi
   });
 
   it("Zod rejects non-finite score on classify (NaN adversarial)", async () => {
-    const out = await invoke("ai_cognitive_classify", {
+    const out = await invoke("cognitive_classify", {
       score: Number.NaN,
     });
     expect(out.success).toBe(false);

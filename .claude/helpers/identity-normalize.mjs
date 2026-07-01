@@ -37,7 +37,7 @@ export function getStableSessionId() {
   try {
     const out = execSync(
       `node "${path.join(__dirname, "stable-session-id.mjs")}"`,
-      { encoding: "utf8", stdio: ["ignore", "pipe", "ignore"], timeout: 2000 }
+      { windowsHide: true, encoding: "utf8", stdio: ["ignore", "pipe", "ignore"], timeout: 2000 }
     ).trim();
     if (out && /^[a-z0-9-]+$/i.test(out)) return out;
   } catch {

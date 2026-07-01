@@ -1,0 +1,216 @@
+- generic [active] [ref=e1]:
+  - heading "PRISM Dashboard" [level=1] [ref=e2]
+  - generic [ref=e3]: Unified PRISM brain — viz / build_state / fleet / brief / recall / scrutiny / workboard
+  - generic [ref=e4]: Generated 2026-05-16T01:08:54.016Z
+  - generic [ref=e6]:
+    - generic [ref=e7]: system-viz
+    - generic [ref=e8]: (no headline counts in briefing)
+  - heading "PRISM Brain — Live 3D Map" [level=2] [ref=e9]
+  - paragraph [ref=e11]:
+    - text: "Live 3D viz:"
+    - link "http://localhost:8765" [ref=e12] [cursor=pointer]:
+      - /url: http://localhost:8765
+    - text: · regenerate with
+    - code [ref=e13]: node scripts/regen-wiki-from-viz.mjs
+  - generic [ref=e14]:
+    - generic [ref=e15]:
+      - generic [ref=e16]: engines wired
+      - generic [ref=e17]: "0"
+    - generic [ref=e18]:
+      - generic [ref=e19]: engines unwired
+      - generic [ref=e20]: "0"
+    - generic [ref=e21]:
+      - generic [ref=e22]: envelope drift
+      - generic [ref=e23]: "0"
+    - generic [ref=e24]:
+      - generic [ref=e25]: frontends pending
+      - generic [ref=e26]: "0"
+  - table "Chat fleet — 12 slots" [ref=e27]:
+    - caption [ref=e28]: Chat fleet — 12 slots
+    - rowgroup [ref=e29]:
+      - row "slot chat topic activity heartbeat" [ref=e30]:
+        - columnheader "slot" [ref=e31]
+        - columnheader "chat" [ref=e32]
+        - columnheader "topic" [ref=e33]
+        - columnheader "activity" [ref=e34]
+        - columnheader "heartbeat" [ref=e35]
+    - rowgroup [ref=e36]:
+      - row "alpha claude-b6c4b196 system-viz-inference-tune loop6 ⚠ 7m" [ref=e37]:
+        - cell "alpha" [ref=e38]
+        - cell "claude-b6c4b196" [ref=e39]
+        - cell "system-viz-inference-tune" [ref=e40]
+        - cell "loop6" [ref=e41]
+        - cell "⚠ 7m" [ref=e42]
+      - row "bravo (idle) · —" [ref=e43]:
+        - cell "bravo" [ref=e44]
+        - cell "(idle)" [ref=e45]
+        - cell [ref=e46]
+        - cell [ref=e47]
+        - cell "· —" [ref=e48]
+      - row "charlie claude-c0f06dee obsidian-int checkin ⚠ 7m" [ref=e49]:
+        - cell "charlie" [ref=e50]
+        - cell "claude-c0f06dee" [ref=e51]
+        - cell "obsidian-int" [ref=e52]
+        - cell "checkin" [ref=e53]
+        - cell "⚠ 7m" [ref=e54]
+      - row "delta claude-6d0595bf delta-hva-loop checkin ✗ 16m" [ref=e55]:
+        - cell "delta" [ref=e56]
+        - cell "claude-6d0595bf" [ref=e57]
+        - cell "delta-hva-loop" [ref=e58]
+        - cell "checkin" [ref=e59]
+        - cell "✗ 16m" [ref=e60]
+      - row "echo (idle) · —" [ref=e61]:
+        - cell "echo" [ref=e62]
+        - cell "(idle)" [ref=e63]
+        - cell [ref=e64]
+        - cell [ref=e65]
+        - cell "· —" [ref=e66]
+      - row "foxtrot claude-32a39c0c print-program-loop loop-iter0 ✗ 12m" [ref=e67]:
+        - cell "foxtrot" [ref=e68]
+        - cell "claude-32a39c0c" [ref=e69]
+        - cell "print-program-loop" [ref=e70]
+        - cell "loop-iter0" [ref=e71]
+        - cell "✗ 12m" [ref=e72]
+      - row "golf (idle) · —" [ref=e73]:
+        - cell "golf" [ref=e74]
+        - cell "(idle)" [ref=e75]
+        - cell [ref=e76]
+        - cell [ref=e77]
+        - cell "· —" [ref=e78]
+      - row "hotel claude-a2b1b5ca obsidian-intelligence-ms3 checkin ⚠ 7m" [ref=e79]:
+        - cell "hotel" [ref=e80]
+        - cell "claude-a2b1b5ca" [ref=e81]
+        - cell "obsidian-intelligence-ms3" [ref=e82]
+        - cell "checkin" [ref=e83]
+        - cell "⚠ 7m" [ref=e84]
+      - row "india claude-41db1b82 tribal-taxonom checkin ✗ 12m" [ref=e85]:
+        - cell "india" [ref=e86]
+        - cell "claude-41db1b82" [ref=e87]
+        - cell "tribal-taxonom" [ref=e88]
+        - cell "checkin" [ref=e89]
+        - cell "✗ 12m" [ref=e90]
+      - row "juliett (idle) · —" [ref=e91]:
+        - cell "juliett" [ref=e92]
+        - cell "(idle)" [ref=e93]
+        - cell [ref=e94]
+        - cell [ref=e95]
+        - cell "· —" [ref=e96]
+      - row "kilo (idle) · —" [ref=e97]:
+        - cell "kilo" [ref=e98]
+        - cell "(idle)" [ref=e99]
+        - cell [ref=e100]
+        - cell [ref=e101]
+        - cell "· —" [ref=e102]
+      - row "lima (idle) · —" [ref=e103]:
+        - cell "lima" [ref=e104]
+        - cell "(idle)" [ref=e105]
+        - cell [ref=e106]
+        - cell [ref=e107]
+        - cell "· —" [ref=e108]
+  - heading "CLAUDE-BRIEF (preview)" [level=2] [ref=e109]
+  - generic [ref=e110]:
+    - heading "CLAUDE-BRIEF — PRISM Continuous Awareness" [level=2] [ref=e111]
+    - paragraph [ref=e112]: "**Auto-generated:** 2026-05-16T00:39:25.197Z · Regenerated each SessionStart by `generate-claude-brief.mjs`."
+    - paragraph [ref=e113]: "If timestamp >24h old, run: `node H:/prism/mcp-server/scripts/generate-claude-brief.mjs`"
+    - paragraph [ref=e114]: "---"
+    - heading "What PRISM is" [level=3] [ref=e115]
+    - paragraph [ref=e116]: "Manufacturing-intelligence platform Mark is building. Speed/Feed Calculator (SFC) + Master Post are the two saleable subscription products. CAD/CAM AI consumes both and drives autonomous CAD generation + CAM programming. Six tier-1 CAM bridges (Fusion 360, hyperMILL, Mastercam, Esprit, Inventor HSM, SolidWorks). Three-tier AI hierarchy: Claude (Tier-1 master orchestrator), FullSystemAICoordinator (Tier-2), seven domain specialist AIs (Tier-3). Closed-loop learning from shop floor + ERP. JM Die Company is the test shop. Operator-in-the-loop is unconditional."
+    - heading "Identity & paths" [level=3] [ref=e117]
+    - paragraph [ref=e118]: "- **MCP root:** `H:/prism/mcp-server/dist` · **port:** 3100"
+    - paragraph [ref=e119]: "- **Source of truth:** `H:/prism` (C:\\ is legacy/avoid; auto-mirrored from C:\\Users\\wompu\\.claude only for harness settings)"
+    - paragraph [ref=e120]: "- **Test shop assets:** `H:/prism/JM DIE/` (production NC, NOT canonical) · `H:/prism/Resources/` (custom posts in mid-modification)"
+    - paragraph [ref=e121]: "- **Worktrees:** `H:/prism` is the main; per-milestone forks in sibling `H:/prism-<scope>/`"
+    - heading "System scale" [level=3] [ref=e122]
+    - paragraph [ref=e123]: "- Engines: 3245 · Dispatchers: 97 · Actions: ? · Hooks: 54"
+    - paragraph [ref=e124]: "- Audit cards: `PRISM-INVENTORY-LATEST.md`, `state/shared/AUDIT-*.md`, `state/shared/DISCOVERY-*.md`"
+    - paragraph [ref=e125]: "- **Honest coverage** (60 vision sub-elements graded): production 38% · beta 47% · stub 10% · planned 5%"
+    - 'heading "System map (live · from `system-graph.json`)" [level=3] [ref=e126]'
+    - paragraph [ref=e127]: "**Total:** 372,731 nodes · 591,479 edges · graph generated 2026-05-15T14:13:43.917Z"
+    - paragraph [ref=e128]: "**Headline:** 2365 engines wired · 870 unwired · 175 envelope drift · 2 frontend merges pending · 23981 wiki entries"
+    - paragraph [ref=e129]: "**Layers:** L0=14 · L1=837 · L10=19,835 · L11=1,615 · L12=278,589 · L13=57 · L2=20 · L3=33 · L4=97 · L4a=9,557 · L5=3,332 · L6=7,504 · L7=166 · L8=21,774 · L9=28,589 · Lgit=712"
+    - paragraph [ref=e130]: "**Top unwired engine domains (need dispatcher wiring):**"
+    - paragraph [ref=e131]: 1. Other (145) ◇ 9/2212 drilled (145)
+    - paragraph [ref=e132]: 2. lathe (200 engines) (89)
+    - paragraph [ref=e133]: 3. machine (96 engines) (17)
+    - paragraph [ref=e134]: 4. multi (32 engines) (11)
+    - paragraph [ref=e135]: 5. turning (48 engines) (11)
+    - paragraph [ref=e136]: "> Per-layer detail: `knowledge/wiki/architecture/layer-l*.md` (auto-regenerated by `scripts/generate-layer-wiki.mjs`). Viewer: `/system-viz` slash command. Adapter: `node scripts/system-viz-query.mjs roadmap-candidates`."
+    - heading "Wiki brain (live · auto-generated from the system-viz graph)" [level=3] [ref=e137]
+    - paragraph [ref=e138]: "**23981 architecture wiki entries** under `knowledge/wiki/architecture/` — one per engine, action, dispatcher, registry, layer, domain, skill, hook, formula, algorithm, milestone, monolith category, frontend, JM-Die customer, combo, design-spec. (The graph's `meta.headline.wikiEntries` ≈776 only counts `index.md` lines — **23981** is the real number; source of truth: `knowledge/wiki/architecture/_stats.md`.)"
+    - paragraph [ref=e139]: "**Breakdown:** action:9242 · architecture:7426 · tribal-tip:4245 · engine:1702 · hook:456 · skill:276 · code-tribal:185 · test:140 · formula:80"
+    - paragraph [ref=e140]: "**Orphan rate:** 182 orphans / 19560 files (0.9%) (rescue hub: `_orphans-rescue.md` — every orphan gets an inbound link there, so effective orphan rate ≈ 0) · **Last regen:** 2026-05-15T03:30:49.613Z"
+    - paragraph [ref=e141]: "**Semantic index:** 14738 int8 vectors (nomic-embed-text, 768-d) → `_embeddings.jsonl` — powers the recall hook's paraphrase fallback."
+    - paragraph [ref=e142]: "**Stays fresh via** `scripts/regen-wiki-from-viz.mjs` (21-stage orchestrator) on every post-commit + hourly cron, with a fingerprint gate so commits that don't touch the graph/inputs skip the ~8min chain. Recall hooks: `wiki-precheck-inject.mjs` (UserPromptSubmit — BM25 over index.md + `_leaf-index.jsonl`, cosine fallback over `_embeddings.jsonl`) and `wiki-recall-on-read.mjs` (PostToolUse:Read — injects the wiki summary when you open a documented source file). Single entry: `/wiki-query <name>`. Neo4j export: `state/shared/system-viz/graph.cypher` + `graph-queries.cypher`."
+    - heading "Process priority" [level=3] [ref=e143]
+    - paragraph [ref=e144]: 1. **Mill** — production. Kienzle/Taylor/SLD/deflection/thermal/wear/chatter all wired.
+    - paragraph [ref=e145]: 2. **Lathe / mill-turn / sub-spindle** — production 98%. Forces, threading, hard-turn, P2P pipeline, AGI knowledge graph all wired. Includes Okuma B250IIW.
+    - paragraph [ref=e146]: 3. **Wire EDM** — production 95%. All safety gates, P2P pipeline, AGI orchestration wired.
+    - paragraph [ref=e147]: 4. Laser / waterjet / sinker EDM — deferred (scaffolding only).
+    - heading "CAM integration status (tier-1)" [level=3] [ref=e148]
+  - heading "Wiki recall — top 2 entries by hit-count" [level=2] [ref=e149]
+  - img "Wiki recall — top 2 entries by hit-count" [ref=e150]:
+    - generic [ref=e151]:
+      - generic [ref=e152]: totalRecalls
+      - generic [ref=e154]: "23"
+    - generic [ref=e155]:
+      - generic [ref=e156]: entryCount
+      - generic [ref=e158]: "17"
+  - table "Scrutiny ledger — last 1" [ref=e159]:
+    - caption [ref=e160]: Scrutiny ledger — last 1
+    - rowgroup [ref=e161]:
+      - row "session target A B C status updated" [ref=e162]:
+        - columnheader "session" [ref=e163]
+        - columnheader "target" [ref=e164]
+        - columnheader "A" [ref=e165]
+        - columnheader "B" [ref=e166]
+        - columnheader "C" [ref=e167]
+        - columnheader "status" [ref=e168]
+        - columnheader "updated" [ref=e169]
+    - rowgroup [ref=e170]:
+      - row "entries — — — — OPEN —" [ref=e171]:
+        - cell "entries" [ref=e172]
+        - cell "—" [ref=e173]
+        - cell "—" [ref=e174]
+        - cell "—" [ref=e175]
+        - cell "—" [ref=e176]
+        - cell "OPEN" [ref=e177]
+        - cell "—" [ref=e178]
+  - heading "Agent workboard" [level=2] [ref=e179]
+  - generic [ref=e180]:
+    - heading "Agent Workboard" [level=2] [ref=e181]
+    - paragraph [ref=e182]: "Updated: 2026-05-16T01:03:13.152Z"
+    - heading "Agent Families" [level=3] [ref=e183]
+    - listitem [ref=e184]: "Agent: 225 instance(s)"
+    - listitem [ref=e185]: "Claude: 267 instance(s)"
+    - heading "Agent@DESKTOP-N7MI1VB/pid-12176" [level=3] [ref=e186]
+    - listitem [ref=e187]: "Family: Agent"
+    - listitem [ref=e188]: "Machine: DESKTOP-N7MI1VB"
+    - listitem [ref=e189]: "Session: pid-12176"
+    - listitem [ref=e190]: "Status: commiting"
+    - listitem [ref=e191]: "Lane: unspecified"
+    - listitem [ref=e192]: "Current: not set"
+    - listitem [ref=e193]: "Next: not set"
+    - listitem [ref=e194]: "Last Message: commit-intent [committing_at=2026-05-07T02:10:08.562Z]: COMMIT NOW at 2026-05-07 02:10:08Z. subject=\"$(cat <<'EOF' | [INTEL-OLLAMA-OBSIDIAN-MS0]/DRIFT-CLOSE-2: parser improvements + c\" cmd=\"cd H:/prism-iooms0 && git commit -m \"$(cat <<'EOF' | [INTEL-OLLAMA-OBSIDIAN-MS0]/DRIFT-CLOSE-2: parser improvements + clos\""
+    - listitem [ref=e195]: "Last Updated: 2026-05-07T02:10:08.613Z"
+    - listitem [ref=e196]: "Recent Completed:"
+    - paragraph [ref=e197]: none
+    - heading "Agent@DESKTOP-N7MI1VB/pid-12964" [level=3] [ref=e198]
+    - listitem [ref=e199]: "Family: Agent"
+    - listitem [ref=e200]: "Machine: DESKTOP-N7MI1VB"
+    - listitem [ref=e201]: "Session: pid-12964"
+    - listitem [ref=e202]: "Status: unknown"
+    - listitem [ref=e203]: "Lane: unspecified"
+    - listitem [ref=e204]: "Current: not set"
+    - listitem [ref=e205]: "Next: not set"
+    - listitem [ref=e206]: "Last Message: claude-d402b194 (slot bravo): TOOK OVER SKILLS-UTILIZATION-MS0 from claude-4bc6a3b8 (heartbeat stale >67min). Worktree H:/prism-skills-util on work/skills-utilization-ms0 (prior bravo's WIP: skillQualitySchema.ts + SkillQualityRegistryBuilder.ts untracked). Resuming U-SKU06 (registry schema foundation) — adding populator script + skillRegistry.test.ts + SKILL_QUALITY_REGISTRY.json artifact, then U-SKU03 linter. Touch surface: mcp-server/src/{schemas,registries,__tests__}/skill* + scripts/build-skill-quality-registry.mjs + state/shared/registries/SKILL_QUALITY_REGISTRY.json — all NEW files, no overlap. @alpha: U-SKU01/U-SKU03 will eventually touch .claude/hooks/ + settings.json (your surface) — will coordinate before then | not there yet. @delta: U-SKU02/U-SKU04 eventually touch devDispatcher.ts (your surface) — will coordinate | not there yet."
+    - listitem [ref=e207]: "Last Updated: 2026-05-12T00:17:46.408Z"
+    - listitem [ref=e208]: "Recent Completed:"
+    - paragraph [ref=e209]: none
+    - heading "Agent@DESKTOP-N7MI1VB/pid-13448" [level=3] [ref=e210]
+    - listitem [ref=e211]: "Family: Agent"
+    - listitem [ref=e212]: "Machine: DESKTOP-N7MI1VB"
+    - listitem [ref=e213]: "Session: pid-13448"
+    - listitem [ref=e214]: "Status: unknown"
+  - contentinfo [ref=e215]:
+    - generic [ref=e216]: Auto-regenerated by .claude/hooks/stop-dashboard-regen.mjs (T3, async, throttled). C2 / OBSIDIAN-INTELLIGENCE-MS3.
+    - generic [ref=e217]: html-report-render schemaVersion 1.0.0

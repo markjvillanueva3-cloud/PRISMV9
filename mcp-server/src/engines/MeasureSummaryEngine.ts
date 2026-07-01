@@ -29,7 +29,7 @@ export const MeasurementSummarySchema = z.object({
     failed: z.number(),
     passRate: z.number(),
   }),
-  bySource: z.record(z.object({
+  bySource: z.record(z.string(), z.object({
     features: z.number(),
     passed: z.number(),
     failed: z.number(),

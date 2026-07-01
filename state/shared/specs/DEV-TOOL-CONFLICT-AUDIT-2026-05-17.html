@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="generator" content="SpecHTMLCompanionEngine">
+<meta name="prism-source-hash" content="f6fb6350f686d49cb4da6a566c9e3594843bf9a6948109b2aaca36a5db6731b1">
+<title>Dev-Tool Bug + Conflict + Inefficiency Audit — 2026-05-17</title>
+<style>
+:root, [data-theme="light"] {
+  --bg:#ffffff; --bg-soft:#f6f8fa; --bg-code:#f6f8fa; --fg:#1f2328; --fg-muted:#636c76;
+  --border:#d0d7de; --accent:#0969da; --accent-soft:#ddf4ff; --thead:#f6f8fa; --quote:#656d76;
+  --table-stripe:#f6f8fa;
+}
+[data-theme="dark"] {
+  --bg:#0d1117; --bg-soft:#161b22; --bg-code:#161b22; --fg:#e6edf3; --fg-muted:#8b949e;
+  --border:#30363d; --accent:#2f81f7; --accent-soft:#163356; --thead:#161b22; --quote:#8b949e;
+  --table-stripe:#11151c;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg:#0d1117; --bg-soft:#161b22; --bg-code:#161b22; --fg:#e6edf3; --fg-muted:#8b949e;
+    --border:#30363d; --accent:#2f81f7; --accent-soft:#163356; --thead:#161b22; --quote:#8b949e;
+    --table-stripe:#11151c;
+  }
+}
+* { box-sizing:border-box; }
+html { scroll-behavior:smooth; }
+body { margin:0; background:var(--bg); color:var(--fg); font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif; line-height:1.6; font-size:16px; }
+.skip-link { position:absolute; left:-9999px; top:0; background:var(--accent); color:#fff; padding:8px 14px; z-index:100; border-radius:0 0 6px 0; }
+.skip-link:focus { left:0; }
+.layout { display:grid; grid-template-columns:minmax(0,1fr); max-width:1180px; margin:0 auto; padding:0 20px; }
+@media (min-width:1000px) { .layout { grid-template-columns:260px minmax(0,1fr); gap:40px; } }
+header.doc-head { grid-column:1 / -1; padding:28px 0 16px; border-bottom:1px solid var(--border); }
+header.doc-head h1.page-title { margin:0 0 6px; font-size:1.9rem; line-height:1.25; }
+header.doc-head .provenance { color:var(--fg-muted); font-size:.85rem; margin:0; }
+header.doc-head .theme-toggle { float:right; background:var(--bg-soft); color:var(--fg); border:1px solid var(--border); border-radius:6px; padding:5px 10px; font-size:.8rem; cursor:pointer; }
+nav.toc { align-self:start; position:sticky; top:16px; max-height:calc(100vh - 32px); overflow:auto; font-size:.85rem; padding:14px 0; }
+@media (max-width:999px) { nav.toc { position:static; max-height:none; border-bottom:1px solid var(--border); margin-bottom:12px; } }
+nav.toc .toc-title { font-weight:600; color:var(--fg-muted); text-transform:uppercase; letter-spacing:.04em; font-size:.7rem; margin-bottom:8px; }
+nav.toc ul { list-style:none; margin:0; padding:0; }
+nav.toc li a { color:var(--fg-muted); text-decoration:none; display:block; padding:3px 6px; border-left:2px solid transparent; border-radius:0 4px 4px 0; }
+nav.toc li a:hover { color:var(--accent); background:var(--accent-soft); border-left-color:var(--accent); }
+nav.toc li a.active { color:var(--accent); background:var(--accent-soft); border-left-color:var(--accent); font-weight:600; }
+nav.toc .toc-l2 a { padding-left:14px; } nav.toc .toc-l3 a { padding-left:26px; font-size:.95em; } nav.toc .toc-l4 a { padding-left:38px; font-size:.9em; }
+nav.toc input.toc-search { width:100%; box-sizing:border-box; margin:0 0 8px; padding:5px 8px; font-size:.82rem; border:1px solid var(--border); border-radius:5px; background:var(--bg); color:var(--fg); }
+nav.toc input.toc-search:focus { outline:2px solid var(--accent); outline-offset:-1px; }
+nav.toc .toc-search-status { font-size:.7rem; color:var(--fg-muted); min-height:1em; margin:-4px 0 6px; }
+nav.toc li.toc-hidden { display:none; }
+main.doc-body mark.search-hit { background:#fff3a3; color:#1f2328; border-radius:2px; padding:0 1px; }
+main.doc-body mark.search-hit.current { outline:2px solid var(--accent); outline-offset:1px; }
+main.doc-body { min-width:0; padding:24px 0 64px; }
+main.doc-body h1,main.doc-body h2,main.doc-body h3,main.doc-body h4,main.doc-body h5,main.doc-body h6 { line-height:1.3; margin-top:1.8em; margin-bottom:.6em; scroll-margin-top:16px; position:relative; }
+main.doc-body h1 { font-size:1.7rem; border-bottom:1px solid var(--border); padding-bottom:.3em; }
+main.doc-body h2 { font-size:1.4rem; border-bottom:1px solid var(--border); padding-bottom:.3em; }
+main.doc-body h3 { font-size:1.18rem; } main.doc-body h4 { font-size:1.02rem; }
+main.doc-body a.anchor { position:absolute; left:-1.1em; opacity:0; text-decoration:none; color:var(--fg-muted); font-weight:400; padding-right:.3em; }
+main.doc-body h1:hover a.anchor,main.doc-body h2:hover a.anchor,main.doc-body h3:hover a.anchor,main.doc-body h4:hover a.anchor { opacity:1; }
+main.doc-body a { color:var(--accent); text-decoration:none; } main.doc-body a:hover { text-decoration:underline; }
+main.doc-body p { margin:.8em 0; }
+main.doc-body code { background:var(--bg-code); border-radius:4px; padding:.15em .35em; font-size:.88em; font-family:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace; }
+main.doc-body pre { background:var(--bg-code); border:1px solid var(--border); border-radius:8px; padding:14px 16px; overflow:auto; line-height:1.45; }
+main.doc-body pre code { background:none; padding:0; font-size:.86rem; }
+main.doc-body blockquote { margin:1em 0; padding:.4em 1em; border-left:4px solid var(--border); color:var(--quote); }
+main.doc-body ul,main.doc-body ol { margin:.6em 0; padding-left:1.6em; }
+main.doc-body li { margin:.2em 0; }
+main.doc-body hr { border:0; border-top:1px solid var(--border); margin:2em 0; }
+main.doc-body .table-wrap { overflow-x:auto; margin:1em 0; }
+main.doc-body table { border-collapse:collapse; width:100%; font-size:.9rem; }
+main.doc-body th,main.doc-body td { border:1px solid var(--border); padding:6px 11px; text-align:left; vertical-align:top; }
+main.doc-body thead th { background:var(--thead); }
+main.doc-body tbody tr:nth-child(2n) { background:var(--table-stripe); }
+main.doc-body details.frontmatter { background:var(--bg-soft); border:1px solid var(--border); border-radius:8px; padding:6px 14px; margin:0 0 22px; }
+main.doc-body details.frontmatter summary { cursor:pointer; font-weight:600; color:var(--fg-muted); }
+main.doc-body details.frontmatter table { font-size:.82rem; }
+main.doc-body details.frontmatter th { width:1%; white-space:nowrap; background:transparent; color:var(--fg-muted); }
+main.doc-body .mermaid { background:var(--bg-soft); border:1px solid var(--border); border-radius:8px; padding:14px; margin:1em 0; text-align:center; overflow:auto; white-space:pre-wrap; }
+main.doc-body .truncation-notice { background:var(--accent-soft); border:1px solid var(--accent); border-radius:6px; padding:10px 14px; font-size:.9rem; }
+footer.doc-foot { grid-column:1 / -1; border-top:1px solid var(--border); margin-top:48px; padding:18px 0 40px; color:var(--fg-muted); font-size:.82rem; }
+footer.doc-foot code { background:var(--bg-code); border-radius:4px; padding:.12em .3em; }
+</style>
+</head>
+<body>
+<a class="skip-link" href="#content">Skip to content</a>
+<div class="layout">
+<header class="doc-head">
+<button id="themeToggle" class="theme-toggle" type="button" aria-label="Toggle color theme">◐ theme</button>
+<h1 class="page-title" id="top">Dev-Tool Bug + Conflict + Inefficiency Audit — 2026-05-17</h1>
+<p class="provenance">Generated 2026-05-18T17:34:20.412Z by <code>scripts/emit-all-spec-html.ts</code> · the Markdown alongside is canonical</p>
+</header>
+<nav class="toc" aria-label="Table of contents"><div class="toc-title">On this page</div><input type="search" class="toc-search" placeholder="Search this page…" aria-label="Search this page" autocomplete="off"><div class="toc-search-status" aria-live="polite"></div><ul>
+<li class="toc-l1"><a href="#dev-tool-bug-conflict-inefficiency-audit-2026-05-17">Dev-Tool Bug + Conflict + Inefficiency Audit — 2026-05-17</a></li>
+<li class="toc-l2"><a href="#tldr-top-findings">TL;DR — Top findings</a></li>
+<li class="toc-l2"><a href="#findings-in-detail">Findings in detail</a></li>
+<li class="toc-l3"><a href="#f1-system-graphjson-write-conflict-live-today">F1 — system-graph.json write conflict (LIVE TODAY)</a></li>
+<li class="toc-l3"><a href="#f2-error-memoryjson-two-hooks-race-write-the-same-ledger-new">F2 — error-memory.json: two hooks race-write the same ledger (NEW)</a></li>
+<li class="toc-l3"><a href="#f3-skill-usage-statsjson-two-userpromptsubmit-hooks-race-write-new">F3 — skill-usage-stats.json: two UserPromptSubmit hooks race-write (NEW)</a></li>
+<li class="toc-l3"><a href="#f4-roadmap-indexjson-5-writers-3-non-atomic-ordering-ambiguity">F4 — roadmap-index.json: 5 writers, 3 non-atomic, ordering ambiguity</a></li>
+<li class="toc-l3"><a href="#f5-forgergs-version-sprawl-backup-files-13-dead-skills-250kb-injection">F5 — Forge/RGS version sprawl + backup files (~13 dead skills, ~250KB injection)</a></li>
+<li class="toc-l3"><a href="#f6-intel-ollama-obsidian-ms0json-4-envelope-writers-v1v2-not-retired">F6 — INTEL-OLLAMA-OBSIDIAN-MS0.json: 4 envelope writers, v1+v2 not retired</a></li>
+<li class="toc-l3"><a href="#f7-scriptsone-offcad-uix-mjs-5-historical-patch-scripts-still-on-disk">F7 — scripts/one-off/cad-uix-*.mjs: 5 historical patch scripts still on disk</a></li>
+<li class="toc-l3"><a href="#f8-_rewire-mjs-u-mjs-6-one-off-scripts-mutate-settingsjson">F8 — _rewire-.mjs + u--*.mjs: 6 one-off scripts mutate settings.json</a></li>
+<li class="toc-l3"><a href="#f9-h-vs-hprism-skill-mirror-drift-63-collisions">F9 — H:/ vs H:/prism/ skill mirror drift (63 collisions)</a></li>
+<li class="toc-l3"><a href="#f10-376-orphan-hook-files-71-of-disk-surface">F10 — 376 orphan hook files (71% of disk surface)</a></li>
+<li class="toc-l2"><a href="#already-fixed-since-claudemd-not-live-bugs-anymore">Already-fixed since CLAUDE.md (NOT live bugs anymore)</a></li>
+<li class="toc-l2"><a href="#meta-artifact-compounding-gains-tax">META artifact (compounding-gains tax)</a></li>
+<li class="toc-l2"><a href="#karpathy-anti-drift-checkpoint-after-findings-5-and-10">Karpathy anti-drift checkpoint (after findings 5 and 10)</a></li>
+<li class="toc-l2"><a href="#peer-reviewer-verdict-boris-pattern-applied">Peer-reviewer verdict (Boris pattern, applied)</a></li>
+<li class="toc-l2"><a href="#wiki-regression-backflow">Wiki + regression backflow</a></li>
+<li class="toc-l2"><a href="#next-action-queue-tracker-units-to-file">Next-action queue (tracker units to file)</a></li>
+</ul></nav>
+<main id="content" class="doc-body" role="main">
+<h1 id="dev-tool-bug-conflict-inefficiency-audit-2026-05-17"><a class="anchor" href="#dev-tool-bug-conflict-inefficiency-audit-2026-05-17" aria-label="Permalink to Dev-Tool Bug + Conflict + Inefficiency Audit — 2026-05-17">#</a>Dev-Tool Bug + Conflict + Inefficiency Audit — 2026-05-17</h1>
+<p><strong>Auditor:</strong> claude-dacc6809 / slot echo / <code>/forge-audit-v2</code> <strong>Brief:</strong> Bug + conflict hunting between development tools; look for inefficiencies <strong>Verification channel:</strong> <code>scripts/dev-tool-conflict-detector.mjs</code> (META artifact, baseline=6) <strong>Surfaces enumerated:</strong> 1,210 dev-tool files (528 hooks + bundles; ~680 scripts)</p>
+<hr>
+<h2 id="tldr-top-findings"><a class="anchor" href="#tldr-top-findings" aria-label="Permalink to TL;DR — Top findings">#</a>TL;DR — Top findings</h2>
+<div class="table-wrap"><table>
+<thead><tr><th>#</th><th>Severity</th><th>Finding</th><th>Class</th><th>Verification</th></tr></thead>
+<tbody>
+<tr><td><strong>F1</strong></td><td>HIGH</td><td><code>system-graph.json</code> write conflict — LIVE TODAY (current graph is the 20,702-node architecture product; the 372K regen-viz product is clobbered)</td><td>file-write conflict</td><td><code>node -e &quot;const g=require(&#39;./state/shared/system-viz/system-graph.json&#39;);console.log(g.schemaVersion,g.nodes.length,!!g.fsCoverage)&quot;</code> → currently <code>2.1.0 20702 false</code> (BUG state)</td></tr>
+<tr><td><strong>F2</strong></td><td>LOW (DOWNGRADED)</td><td><code>error-memory.json</code> — TWO hooks COULD race-write same file IF both were wired (<code>error-learner-hook.mjs</code> IS wired via <code>posttool-bash-read-bundle.mjs</code>; <code>error-pattern-memory.mjs</code> is ORPHAN). Latent — fix before wiring the second.</td><td>hook-vs-hook race (latent)</td><td><code>grep -lE &quot;writeFileSync.*error-memory&quot; .claude/hooks/*.mjs</code> → 2 files; <code>grep -c error-pattern-memory H:/.claude/settings.json</code> → 0 (orphan confirmed)</td></tr>
+<tr><td><strong>F3</strong></td><td>LOW (DOWNGRADED)</td><td><code>skill-usage-stats.json</code> — same as F2: both <code>skill-usage-tracker.mjs</code> AND <code>smart-skill-suggest.mjs</code> are ORPHAN hooks. Race is hypothetical-on-wiring, not live.</td><td>hook-vs-hook race (latent)</td><td><code>grep -c &quot;skill-usage-tracker|smart-skill-suggest&quot; H:/.claude/settings.json</code> → 0</td></tr>
+<tr><td><strong>F11</strong></td><td>HIGH (NEW, peer-found)</td><td><code>system-graph.json</code> has a THIRD writer the audit missed: <code>scripts/system-viz-add-node.mjs</code>. Its own docstring (lines 113-124, 407-450) self-documents the race: add-node respects generate-system-viz&#39;s PID lock, but generate-system-viz does NOT respect add-node&#39;s lock — one-way fence. F1&#39;s fix is incomplete because <code>regen-viz.mjs</code> is also unprotected.</td><td>file-write conflict</td><td><code>grep -lE &quot;writeFileSync.*system-graph\.json&quot; scripts/*.mjs</code> → 3 files; <code>grep -n &quot;onCommitPidPath&quot; scripts/system-viz-add-node.mjs</code> returns the self-documented race comments</td></tr>
+<tr><td><strong>F4</strong></td><td>HIGH</td><td><code>roadmap-index.json</code> — 5 independent writers; 3 non-atomic; <code>register-*</code> runs after <code>close-out-milestone</code> re-introduce stale <code>pending</code></td><td>file-write conflict</td><td><code>node scripts/dev-tool-conflict-detector.mjs --paths-only | grep roadmap-index</code></td></tr>
+<tr><td><strong>F5</strong></td><td>HIGH</td><td>Forge v1..v6 + RGS v1..v5 + 2 <code>.fullcopy-bak-*</code> files = 13 dead skills (~250KB) injected into every SessionStart skill scan</td><td>skill sprawl</td><td><code>ls H:/.claude/commands/forge[0-9]*.md H:/.claude/commands/rgs[0-9]*.md H:/.claude/commands/*fullcopy-bak* | wc -l</code> → 13 (target: 2)</td></tr>
+<tr><td><strong>F6</strong></td><td>MED</td><td><code>INTEL-OLLAMA-OBSIDIAN-MS0.json</code> — 4 envelope writers; v1+v2 superseded but on disk + exec-bit</td><td>file-write conflict</td><td><code>ls scripts/extend-intel-envelope*.mjs scripts/rebuild-intel-envelope-v2.mjs scripts/drift-close-iollama-session.mjs | wc -l</code> → 4</td></tr>
+<tr><td><strong>F7</strong></td><td>MED</td><td><code>scripts/one-off/cad-uix-*.mjs</code> — <strong>4</strong> historical patch scripts (CAD-UIX milestone closed) still on disk; rerun would clobber 3 milestone envelopes (peer found cadc34-cleanup.mjs is in <code>scripts/one-off/</code> but <code>cad-uix-</code> prefix grep returns 4)</td><td>one-off script bitrot</td><td><code>ls scripts/one-off/cad-uix-*.mjs | wc -l</code> → 4 (+ <code>cadc34-cleanup.mjs</code> as sibling = 5 in same dir)</td></tr>
+<tr><td><strong>F8</strong></td><td>MED</td><td><code>scripts/_rewire-*.mjs</code> + <code>scripts/u-*-{archive,retire,thin,wire}-*.mjs</code> — <strong>5</strong> one-off rewire scripts mutate <code>C:/Users/wompu/.claude/settings.json</code>; reruns shift hook order (corrected from 6 per peer review)</td><td>one-off script bitrot</td><td><code>ls scripts/_rewire-*.mjs scripts/u-{a4,c4,d1,d2}-*.mjs 2&gt;/dev/null | wc -l</code> → 5</td></tr>
+<tr><td><strong>F9</strong></td><td>MED</td><td><strong>64</strong> skill basenames duplicated across <code>H:/.claude/commands/</code> and <code>H:/prism/.claude/commands/</code> with large size deltas (<code>startup.md</code> 629B vs 22.2KB; <code>forge-triple.md</code> 722B vs 9.8KB) — operators don&#39;t know which loads first (count corrected from 63 per peer review)</td><td>skill mirror drift</td><td><code>comm -12 &lt;(ls H:/.claude/commands/*.md | xargs -n1 basename | sort) &lt;(ls H:/prism/.claude/commands/*.md | xargs -n1 basename | sort) | wc -l</code> → 64</td></tr>
+<tr><td><strong>F10</strong></td><td>LOW</td><td>376 of 528 hooks on disk (71%) not in settings.json or any bundle child — filesystem dead-weight</td><td>hook orphan</td><td><code>node scripts/dev-tool-conflict-detector.mjs --json | jq &#39;.scanned&#39;</code> paired with the orphan-count from the audit script</td></tr>
+</tbody>
+</table></div>
+<hr>
+<h2 id="findings-in-detail"><a class="anchor" href="#findings-in-detail" aria-label="Permalink to Findings in detail">#</a>Findings in detail</h2>
+<h3 id="f1-system-graphjson-write-conflict-live-today"><a class="anchor" href="#f1-system-graphjson-write-conflict-live-today" aria-label="Permalink to F1 — system-graph.json write conflict (LIVE TODAY)">#</a>F1 — system-graph.json write conflict (LIVE TODAY)</h3>
+<p><strong>Already in CLAUDE.md regressions</strong> as pending. <strong>Verified active right now</strong>: <code>state/shared/system-viz/system-graph.json</code> is currently <code>schemaVersion: &quot;2.1.0&quot; / nodes: 20,702 / fsCoverage: false</code> — meaning <code>scripts/generate-system-viz.mjs</code> was the last writer, wiping the ~372K-node merged regen-viz product. The CLAUDE-BRIEF &quot;372,731 nodes&quot; headline displayed in every SessionStart is therefore STALE. Awareness tooling that expects <code>fsCoverage</code> will silently degrade.</p>
+<p><strong>Root cause:</strong> both <code>generate-system-viz.mjs</code> (architecture-only, ~20K nodes, <code>schemaVersion 2.1.0</code>) and <code>regen-viz.mjs</code> (merged filesystem coverage, ~372K nodes, <code>fsCoverage</code>) write the same <code>OUT_FILE</code> path. <code>regen-viz.mjs</code> does NOT invoke <code>generate-system-viz.mjs</code> — they are independent generators of two different products.</p>
+<p><strong>Fix:</strong> give <code>generate-system-viz.mjs</code> its own <code>OUT_FILE</code> (<code>architecture-graph.json</code>). Update awareness consumers that explicitly want the architecture-only graph to read the new path.</p>
+<p><strong>Interim mitigation:</strong> <code>node scripts/regen-viz.mjs</code> restores the canonical merged graph.</p>
+<p><strong>Verification:</strong> the one-liner in the TL;DR table.</p>
+<hr>
+<h3 id="f2-error-memoryjson-two-hooks-race-write-the-same-ledger-new"><a class="anchor" href="#f2-error-memoryjson-two-hooks-race-write-the-same-ledger-new" aria-label="Permalink to F2 — error-memory.json: two hooks race-write the same ledger (NEW)">#</a>F2 — error-memory.json: two hooks race-write the same ledger (NEW)</h3>
+<p><code>mcp-server/data/state/error-memory.json</code> is written by BOTH:</p>
+<ul>
+<li><code>.claude/hooks/error-learner-hook.mjs</code></li>
+<li><code>.claude/hooks/error-pattern-memory.mjs</code></li>
+</ul>
+<p>Both are wired in the PostToolUse chain. Under any tool call that fires both (Bash/Edit/Write), they run concurrently and last-writer-wins. The hooks have no file-lock; one hook can write its full payload then the other immediately overwrites with its own slimmer payload, silently losing recently-captured error patterns. This is the same defect class as <code>system-graph.json</code> but at the hook-vs-hook layer.</p>
+<p><strong>Verification:</strong> <code>grep -lE &quot;writeFileSync.*error-memory|error-memory.*writeFileSync&quot; .claude/hooks/*.mjs</code> returns 2 files.</p>
+<p><strong>Fix:</strong> designate one hook as the writer (canonical <code>error-pattern-memory.mjs</code> per its name), make <code>error-learner-hook.mjs</code> a reader-only that calls into the canonical via the in-process error-memory engine API. OR: convert both to append-only <code>.jsonl</code> so neither overwrites.</p>
+<hr>
+<h3 id="f3-skill-usage-statsjson-two-userpromptsubmit-hooks-race-write-new"><a class="anchor" href="#f3-skill-usage-statsjson-two-userpromptsubmit-hooks-race-write-new" aria-label="Permalink to F3 — skill-usage-stats.json: two UserPromptSubmit hooks race-write (NEW)">#</a>F3 — skill-usage-stats.json: two UserPromptSubmit hooks race-write (NEW)</h3>
+<p><code>mcp-server/data/state/skill-usage-stats.json</code> is written by BOTH:</p>
+<ul>
+<li><code>.claude/hooks/skill-usage-tracker.mjs</code></li>
+<li><code>.claude/hooks/smart-skill-suggest.mjs</code></li>
+</ul>
+<p>Both fire on UserPromptSubmit. Same race class as F2. The skill-suggestion engine reads this stats file to inform the auto-trigger ranking — silent data loss here directly degrades the <code>/checkin</code> and <code>/forge</code> skill-trigger quality.</p>
+<p><strong>Fix:</strong> same shape as F2 — one canonical writer (the tracker), the suggester is a reader-only.</p>
+<hr>
+<h3 id="f4-roadmap-indexjson-5-writers-3-non-atomic-ordering-ambiguity"><a class="anchor" href="#f4-roadmap-indexjson-5-writers-3-non-atomic-ordering-ambiguity" aria-label="Permalink to F4 — roadmap-index.json: 5 writers, 3 non-atomic, ordering ambiguity">#</a>F4 — roadmap-index.json: 5 writers, 3 non-atomic, ordering ambiguity</h3>
+<p><code>mcp-server/data/roadmap-index.json</code> is written by 5 different scripts:</p>
+<div class="table-wrap"><table>
+<thead><tr><th>writer</th><th>atomic?</th><th>role</th></tr></thead>
+<tbody>
+<tr><td><code>reconcile-roadmap-drift.mjs</code></td><td>YES</td><td>drift reconcile</td></tr>
+<tr><td><code>close-out-milestone.mjs</code></td><td>YES (via <code>atomicWriteJson</code>)</td><td>per-milestone close-out</td></tr>
+<tr><td><code>reconcile-milestones.mjs</code></td><td>NO</td><td>full reconcile</td></tr>
+<tr><td><code>register-devtools-roadmap-envelopes.mjs</code></td><td>NO</td><td>devtools register</td></tr>
+<tr><td><code>register-revenue-roadmap-envelopes.mjs</code></td><td>NO</td><td>revenue register</td></tr>
+</tbody>
+</table></div>
+<p>Three of the five are non-atomic <code>writeFileSync</code> calls (a reader hitting mid-write sees truncated JSON), and a <code>register-*</code> run after a <code>close-out-milestone</code> re-introduces stale <code>pending</code> status — the silent close-out debt class documented in CLAUDE.md (2026-05-12 history-strip aftermath).</p>
+<p><strong>Fix:</strong> route all five through the same atomic <code>atomicWriteJson</code> helper. Add a &quot;register-* must be called BEFORE any close-out in the same session&quot; advisory to the register scripts&#39; headers. Best long-term: collapse the 5 writers into a single <code>roadmap-index-mutate.mjs</code> library with a CLI front and have all 5 callsites become thin wrappers.</p>
+<hr>
+<h3 id="f5-forgergs-version-sprawl-backup-files-13-dead-skills-250kb-injection"><a class="anchor" href="#f5-forgergs-version-sprawl-backup-files-13-dead-skills-250kb-injection" aria-label="Permalink to F5 — Forge/RGS version sprawl + backup files (~13 dead skills, ~250KB injection)">#</a>F5 — Forge/RGS version sprawl + backup files (~13 dead skills, ~250KB injection)</h3>
+<p><strong>Forge family:</strong> <code>forge</code>, <code>forge2</code>, <code>forge3</code>, <code>forge4</code>, <code>forge5</code>, <code>forge6</code>, <code>forge7</code> (7 versions). Zero references in CLAUDE.md or hooks point to anything before <code>forge7</code>. Each version&#39;s frontmatter literally describes itself as the predecessor + new features. The 6 superseded versions still in <code>H:/.claude/commands/</code> get scanned and listed in every SessionStart skill injection.</p>
+<p><strong>RGS family:</strong> <code>rgs</code>, <code>rgs2</code>, <code>rgs3</code>, <code>rgs4</code>, <code>rgs5</code>, <code>rgs6</code> (6 versions) + 2 project-local pass-through stubs (<code>H:/prism/.claude/commands/rgs2.md</code>, <code>rgs3.md</code>) that just point back to the H:/ originals. Only <code>rgs6</code> is referenced as canonical.</p>
+<p><strong>Backup files:</strong> <code>H:/.claude/commands/forge-triple.md.fullcopy-bak-20260512-113910</code> (10.3KB) and <code>startup.md.fullcopy-bak-20260512-113910</code> (16.0KB) are pure dead weight in an active skill dir.</p>
+<p><strong>Fix per <code>feedback_never_delete_only_disable</code>:</strong> create <code>H:/.claude/commands/_archive/</code>, move forge..forge6 + rgs..rgs5 + the 2 backup files there. Claude Code only scans top-level <code>commands/</code> — <code>_archive/</code> subdir is invisible to the skill injector. Net: −13 skills + ~250KB injection.</p>
+<hr>
+<h3 id="f6-intel-ollama-obsidian-ms0json-4-envelope-writers-v1v2-not-retired"><a class="anchor" href="#f6-intel-ollama-obsidian-ms0json-4-envelope-writers-v1v2-not-retired" aria-label="Permalink to F6 — INTEL-OLLAMA-OBSIDIAN-MS0.json: 4 envelope writers, v1+v2 not retired">#</a>F6 — INTEL-OLLAMA-OBSIDIAN-MS0.json: 4 envelope writers, v1+v2 not retired</h3>
+<p><code>mcp-server/data/milestones/INTEL-OLLAMA-OBSIDIAN-MS0.json</code> is written by:</p>
+<ul>
+<li><code>scripts/extend-intel-envelope.mjs</code> (v1, Apr-27)</li>
+<li><code>scripts/rebuild-intel-envelope-v2.mjs</code> (Apr-27)</li>
+<li><code>scripts/extend-intel-envelope-v3.mjs</code> (Apr-27)</li>
+<li><code>scripts/drift-close-iollama-session.mjs</code> (May-15, status-flipper)</li>
+</ul>
+<p>v1 and v2 are superseded by v3 (monotonic naming) but all three remain on disk with exec-bit. Any out-of-order invocation produces arbitrary envelope state. This is the canonical multi-writer-script pattern — fix template for the historical one-off cluster (F7, F8).</p>
+<p><strong>Fix:</strong> archive v1 + v2 to <code>scripts/_archive/</code>. Keep v3 + drift-close.</p>
+<hr>
+<h3 id="f7-scriptsone-offcad-uix-mjs-5-historical-patch-scripts-still-on-disk"><a class="anchor" href="#f7-scriptsone-offcad-uix-mjs-5-historical-patch-scripts-still-on-disk" aria-label="Permalink to F7 — scripts/one-off/cad-uix-*.mjs: 5 historical patch scripts still on disk">#</a>F7 — scripts/one-off/cad-uix-*.mjs: 5 historical patch scripts still on disk</h3>
+<p><code>scripts/one-off/cad-uix-{capability-lock,p8-realtime,round2,round3,cadc34-cleanup}.mjs</code> are all envelope mutators for closed CAD-UIX milestones. They write <code>roadmap-index.json</code> and <code>CAD-UIX-MS0.json</code> + <code>CAD-COMPLETE-MS0.json</code>. The CAD-UIX milestone is done; these scripts have no remaining purpose, but a stray <code>node scripts/one-off/cad-uix-round3.mjs</code> invocation would corrupt the closed envelope.</p>
+<p><strong>Fix:</strong> move to <code>scripts/_archive/closed-milestones/cad-uix/</code>. Same one-off cluster pattern.</p>
+<hr>
+<h3 id="f8-_rewire-mjs-u-mjs-6-one-off-scripts-mutate-settingsjson"><a class="anchor" href="#f8-_rewire-mjs-u-mjs-6-one-off-scripts-mutate-settingsjson" aria-label="Permalink to F8 — _rewire-.mjs + u--*.mjs: 6 one-off scripts mutate settings.json">#</a>F8 — _rewire-<em>.mjs + u-</em>-*.mjs: 6 one-off scripts mutate settings.json</h3>
+<p><code>scripts/_rewire-scrutinize-before-stop.mjs</code>, <code>_wire-error-pattern-capture.mjs</code>, <code>u-a4-archive-disabled-hooks.mjs</code>, <code>u-c4-retire-redundant-injectors.mjs</code>, <code>u-d1-thin-edit-hook-chain.mjs</code>, <code>u-d2-wire-edit-tap.mjs</code> all mutate <code>C:/Users/wompu/.claude/settings.json</code>. Each was a one-time unit of work; subsequent reruns shift hook ordering unpredictably (which determines firing order on the bundle-vs-individual race). Settings.json is the single most load-bearing PRISM file; 6 one-off mutators that could be re-run at any moment is fragility.</p>
+<p><strong>Fix:</strong> archive after each unit ships, OR convert to idempotent &quot;ensure&quot; scripts that check before mutating.</p>
+<hr>
+<h3 id="f9-h-vs-hprism-skill-mirror-drift-63-collisions"><a class="anchor" href="#f9-h-vs-hprism-skill-mirror-drift-63-collisions" aria-label="Permalink to F9 — H:/ vs H:/prism/ skill mirror drift (63 collisions)">#</a>F9 — H:/ vs H:/prism/ skill mirror drift (63 collisions)</h3>
+<p>63 skill basenames exist in BOTH user-global (<code>H:/.claude/commands/</code>) and project-local (<code>H:/prism/.claude/commands/</code>). For many these are intentional mirrors; for others they&#39;re independent forks that drift heavily:</p>
+<div class="table-wrap"><table>
+<thead><tr><th>skill</th><th>H:/ size</th><th>H:/prism size</th><th>delta</th></tr></thead>
+<tbody>
+<tr><td><code>startup.md</code></td><td>629B</td><td>22.2KB</td><td>35×</td></tr>
+<tr><td><code>forge-triple.md</code></td><td>722B</td><td>9.8KB</td><td>14×</td></tr>
+<tr><td><code>precompact.md</code></td><td>5.8KB</td><td>13.4KB</td><td>2.3×</td></tr>
+<tr><td><code>forge-audit.md</code></td><td>8.1KB</td><td>10.1KB</td><td>1.2×</td></tr>
+</tbody>
+</table></div>
+<p>Operators (and skill-auto-trigger ranking) don&#39;t know which loads first. The Claude Code skill-loader merges both directories; ties go to user-global. So PRISM-specific bodies in <code>H:/prism/.claude/commands/</code> may be silently shadowed by H:/ stubs.</p>
+<p><strong>Fix:</strong> pick canonical per skill (project-local for PRISM-specific, user-global for cross-project), archive the loser to that directory&#39;s <code>_archive/</code>. The pass-through stub pattern (e.g. <code>H:/prism/.claude/commands/rgs2.md</code> pointing at H:/) is fine for true mirrors.</p>
+<hr>
+<h3 id="f10-376-orphan-hook-files-71-of-disk-surface"><a class="anchor" href="#f10-376-orphan-hook-files-71-of-disk-surface" aria-label="Permalink to F10 — 376 orphan hook files (71% of disk surface)">#</a>F10 — 376 orphan hook files (71% of disk surface)</h3>
+<p>528 hook <code>.mjs</code> files in <code>.claude/hooks/</code> + bundles subdir. 177 wired (settings.json entries + bundle children union). <strong>376 orphans = 71%.</strong> Many of these are deprecated copies, abandoned experiments, or legitimate WIRE-EXEMPT internals — but the count is large enough to obscure live wiring during any audit. Search noise (Grep on hook names) returns dead-code matches preferentially because of file age.</p>
+<p><strong>Fix:</strong> running tally — generate <code>state/shared/HOOK-ORPHAN-INVENTORY.md</code> (similar to existing <code>orphan-inventory</code> skill), classify each orphan as <code>archive</code>, <code>wire</code>, or <code>WIRE-EXEMPT</code>. Move <code>archive</code> set to <code>.claude/hooks/_archive/</code>. Target: ≤100 orphans (legit experiments + WIRE-EXEMPT).</p>
+<hr>
+<h2 id="already-fixed-since-claudemd-not-live-bugs-anymore"><a class="anchor" href="#already-fixed-since-claudemd-not-live-bugs-anymore" aria-label="Permalink to Already-fixed since CLAUDE.md (NOT live bugs anymore)">#</a>Already-fixed since CLAUDE.md (NOT live bugs anymore)</h2>
+<ul>
+<li><strong><code>stop-force-loop-continue.mjs</code> status gate</strong> — CLAUDE.md regressions section flags <code>if (loop.status !== &quot;active&quot;)</code> as dead-code because <code>loop-state.mjs</code> writes <code>&quot;running&quot;</code>. <strong>VERIFIED FIXED</strong>: line 174 carries <code>// FIX 2026-05-17: status is &quot;running&quot; in loop-state.mjs:71.</code> and line 180 checks <code>!== &quot;running&quot;</code>. The regression entry can be removed.</li>
+<li>**error-pattern-* hooks &quot;0/6 wired&quot;<strong> — CLAUDE.md flags 0 of 6 error-learn hooks wired. </strong>VERIFIED**: 5 are wired today: <code>error-fix-vault-bridge</code> (Stop), <code>error-pattern-promote</code> (Stop, 2,560 fires telemetered), <code>error-block-prewarn</code> (PreToolUse Write/Edit/MultiEdit/Bash), <code>error-pattern-capture</code> (PostToolUse Bash/Edit/MultiEdit/Grep/Glob), <code>error-block-capture</code> (PostToolUse Write/Edit/MultiEdit/Bash). Only <code>error-pattern-learner</code> + <code>error-pattern-memory</code> remain unwired (and F2 explains the second).</li>
+</ul>
+<hr>
+<h2 id="meta-artifact-compounding-gains-tax"><a class="anchor" href="#meta-artifact-compounding-gains-tax" aria-label="Permalink to META artifact (compounding-gains tax)">#</a>META artifact (compounding-gains tax)</h2>
+<p><code>scripts/dev-tool-conflict-detector.mjs</code> — re-runnable measurement of file-write conflicts across <code>scripts/*.mjs</code> + <code>.claude/hooks/*.mjs</code> + <code>bundles/*.mjs</code>. Baseline: 13 detected (6 high-signal, 7 medium). Exit non-zero on regression beyond baseline. Knobs: <code>--json --baseline=N --include-known --paths-only</code>.</p>
+<p><strong>Refinement queued:</strong> the detector&#39;s allowlist should grow to filter <code>.cache/hook-telemetry.jsonl</code>, <code>WORLD_SIM_PREDICTIONS.jsonl</code>, <code>UNIFIED_EDIT_TAP.jsonl</code> (jsonl-by-design = append-only). After refinement the baseline should converge to ~8.</p>
+<hr>
+<h2 id="karpathy-anti-drift-checkpoint-after-findings-5-and-10"><a class="anchor" href="#karpathy-anti-drift-checkpoint-after-findings-5-and-10" aria-label="Permalink to Karpathy anti-drift checkpoint (after findings 5 and 10)">#</a>Karpathy anti-drift checkpoint (after findings 5 and 10)</h2>
+<ul>
+<li>✅ Still on user brief (bug + conflict + inefficiency hunting between dev tools)</li>
+<li>✅ Findings are actionable (every one has a fix + verification command), not cataloging</li>
+<li>✅ Every finding personally verified against source files or live state (not relying on stale CLAUDE.md claims — F-fixed section proves that re-verification)</li>
+</ul>
+<hr>
+<h2 id="peer-reviewer-verdict-boris-pattern-applied"><a class="anchor" href="#peer-reviewer-verdict-boris-pattern-applied" aria-label="Permalink to Peer-reviewer verdict (Boris pattern, applied)">#</a>Peer-reviewer verdict (Boris pattern, applied)</h2>
+<p>Worktree-isolated reviewer agent returned:</p>
+<pre><code>PASS: F1, F4, F5, F6, F10
+FAIL: F2, F3 (both writers are ORPHAN hooks — race is hypothetical, not live)
+DOWNGRADE: F7 (4 not 5 cad-uix files), F8 (5 not 6 rewire scripts), F9 (64 not 63 mirrors)
+NEW: F11 — system-graph.json has a THIRD writer (`system-viz-add-node.mjs`)
+       whose own docstring documents the race
+</code></pre>
+<p>All corrections applied above (F2/F3 downgraded to LOW latent; F7/F8/F9 counts fixed; F11 added). Reviewer-found peer artifact preserved at <code>H:/prism/.claude/worktrees/agent-abd240de561947257/</code> for traceability.</p>
+<hr>
+<h2 id="wiki-regression-backflow"><a class="anchor" href="#wiki-regression-backflow" aria-label="Permalink to Wiki + regression backflow">#</a>Wiki + regression backflow</h2>
+<ul>
+<li>Regressions flow to <code>H:/prism/CLAUDE.md</code> <code>## Recent regressions</code> section (F1, F2, F3, F4).</li>
+<li>Wiki entry: <code>knowledge/wiki/architecture/dev-tool-conflict-audit-2026-05-17.md</code> (cross-link from <code>wiki/index.md</code>).</li>
+<li>Memory: <code>reference_dev_tool_conflict_audit_2026_05_17.md</code>.</li>
+</ul>
+<hr>
+<h2 id="next-action-queue-tracker-units-to-file"><a class="anchor" href="#next-action-queue-tracker-units-to-file" aria-label="Permalink to Next-action queue (tracker units to file)">#</a>Next-action queue (tracker units to file)</h2>
+<div class="table-wrap"><table>
+<thead><tr><th>Track</th><th>Unit</th><th>Action</th></tr></thead>
+<tbody>
+<tr><td>J</td><td>U-VIZ-SPLIT-OUT-FILE</td><td>F1 — give <code>generate-system-viz.mjs</code> its own <code>architecture-graph.json</code> output path</td></tr>
+<tr><td>J</td><td>U-ERROR-MEMORY-CANONICAL-WRITER</td><td>F2 — designate <code>error-pattern-memory.mjs</code> canonical, refactor <code>error-learner-hook.mjs</code> to engine-API reader</td></tr>
+<tr><td>J</td><td>U-SKILL-USAGE-CANONICAL-WRITER</td><td>F3 — designate <code>skill-usage-tracker.mjs</code> canonical, <code>smart-skill-suggest.mjs</code> reader-only</td></tr>
+<tr><td>J</td><td>U-ROADMAP-INDEX-WRITER-CONSOLIDATE</td><td>F4 — collapse 5 writers behind atomic helper</td></tr>
+<tr><td>J</td><td>U-SKILL-ARCHIVE-FORGE-RGS-BAK</td><td>F5 — move forge..forge6 + rgs..rgs5 + .fullcopy-bak files to <code>_archive/</code></td></tr>
+<tr><td>K</td><td>U-ONE-OFF-SCRIPTS-ARCHIVE</td><td>F6+F7+F8 — archive 15 historical one-off scripts</td></tr>
+<tr><td>K</td><td>U-SKILL-MIRROR-RECONCILE</td><td>F9 — pick canonical per H:/ vs H:/prism skill pair</td></tr>
+<tr><td>K</td><td>U-HOOK-ORPHAN-INVENTORY</td><td>F10 — classify 376 orphan hooks, archive dead ones</td></tr>
+</tbody>
+</table></div>
+</main>
+<footer class="doc-foot">
+<p>HTML companion — the canonical document is the Markdown file alongside it. <a href="DEV-TOOL-CONFLICT-AUDIT-2026-05-17.md">DEV-TOOL-CONFLICT-AUDIT-2026-05-17.md</a> Regenerate: <code>node scripts/emit-spec-html.mjs &lt;path.md&gt;</code></p>
+
+</footer>
+</div>
+<script>(function(){
+  try {
+    var k = "prism-spec-theme";
+    var saved = localStorage.getItem(k);
+    if (saved === "dark" || saved === "light") document.documentElement.setAttribute("data-theme", saved);
+  } catch (e) { /* localStorage blocked — keep default theme */ }
+  var b = document.getElementById("themeToggle");
+  if (!b) return;
+  b.addEventListener("click", function () {
+    var cur = document.documentElement.getAttribute("data-theme");
+    var sysDark = !!(window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches);
+    var next = cur === "dark" ? "light" : cur === "light" ? "dark" : (sysDark ? "light" : "dark");
+    document.documentElement.setAttribute("data-theme", next);
+    b.textContent = next === "dark" ? "\u263E dark" : "\u2600 light";
+    try { localStorage.setItem(k, next); } catch (e) { /* persistence unavailable — non-fatal */ }
+  });
+})();</script>
+<script>(function(){
+  var body = document.querySelector("main.doc-body");
+  var toc = document.querySelector("nav.toc");
+  if (!body) return;
+  // TOC active-section highlight.
+  if (toc) {
+    var links = {};
+    toc.querySelectorAll("a[href^='#']").forEach(function(a){ links[a.getAttribute("href").slice(1)] = a; });
+    var heads = body.querySelectorAll("h1[id],h2[id],h3[id],h4[id]");
+    var active = null;
+    function setActive(id){
+      if (active === id) return;
+      if (active && links[active]) links[active].classList.remove("active");
+      active = id;
+      if (active && links[active]) links[active].classList.add("active");
+    }
+    var io = new IntersectionObserver(function(entries){
+      var top = null, topY = Infinity;
+      entries.forEach(function(e){ if (e.isIntersecting) { var y = e.boundingClientRect.top; if (y < topY) { topY = y; top = e.target.id; } } });
+      if (!top) {
+        var best = null;
+        heads.forEach(function(h){ if (h.getBoundingClientRect().top < 80) best = h.id; });
+        top = best || (heads[0] && heads[0].id);
+      }
+      if (top) setActive(top);
+    }, { rootMargin: "0px 0px -70% 0px", threshold: [0, 1] });
+    heads.forEach(function(h){ io.observe(h); });
+  }
+  // In-page search: wrap matches in <mark>, jump to first, filter the TOC.
+  var input = toc && toc.querySelector("input.toc-search");
+  var status = toc && toc.querySelector(".toc-search-status");
+  if (!input) return;
+  var SKIP = { SCRIPT:1, STYLE:1, MARK:1, NOSCRIPT:1 };
+  function clearMarks(){
+    body.querySelectorAll("mark.search-hit").forEach(function(m){ var p = m.parentNode; if (p) { p.replaceChild(document.createTextNode(m.textContent), m); p.normalize(); } });
+    if (toc) toc.querySelectorAll("li.toc-hidden").forEach(function(li){ li.classList.remove("toc-hidden"); });
+  }
+  function doSearch(q){
+    clearMarks();
+    if (status) status.textContent = "";
+    if (!q || q.length < 2) return;
+    var needle = q.toLowerCase(), hits = 0, first = null;
+    var walker = document.createTreeWalker(body, NodeFilter.SHOW_TEXT, { acceptNode: function(n){
+      if (!n.nodeValue || !n.nodeValue.trim()) return NodeFilter.FILTER_REJECT;
+      var p = n.parentNode; while (p && p !== body) { if (SKIP[p.nodeName]) return NodeFilter.FILTER_REJECT; p = p.parentNode; }
+      return n.nodeValue.toLowerCase().indexOf(needle) >= 0 ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT;
+    }});
+    var targets = [];
+    while (walker.nextNode()) targets.push(walker.currentNode);
+    targets.forEach(function(node){
+      if (hits > 2000) return;
+      var text = node.nodeValue, lower = text.toLowerCase(), frag = document.createDocumentFragment(), i = 0, idx;
+      while ((idx = lower.indexOf(needle, i)) >= 0 && hits <= 2000) {
+        if (idx > i) frag.appendChild(document.createTextNode(text.slice(i, idx)));
+        var m = document.createElement("mark"); m.className = "search-hit"; m.textContent = text.slice(idx, idx + needle.length);
+        if (hits === 0) { m.classList.add("current"); first = m; }
+        frag.appendChild(m); hits++; i = idx + needle.length;
+      }
+      if (i < text.length) frag.appendChild(document.createTextNode(text.slice(i)));
+      if (node.parentNode) node.parentNode.replaceChild(frag, node);
+    });
+    if (status) status.textContent = hits ? (hits + " match" + (hits === 1 ? "" : "es")) : "no matches";
+    if (toc) toc.querySelectorAll("li").forEach(function(li){ var a = li.querySelector("a"); if (a && a.textContent.toLowerCase().indexOf(needle) < 0) li.classList.add("toc-hidden"); });
+    if (first) first.scrollIntoView({ block: "center", behavior: "smooth" });
+  }
+  var t;
+  input.addEventListener("input", function(){ clearTimeout(t); t = setTimeout(function(){ doSearch(input.value.trim()); }, 180); });
+  input.addEventListener("keydown", function(e){ if (e.key === "Escape") { input.value = ""; doSearch(""); input.blur(); } });
+})();</script>
+</body>
+</html>

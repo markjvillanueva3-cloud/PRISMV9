@@ -1,0 +1,28 @@
+{
+  "schemaVersion": "1.0.0",
+  "generated_from": "H:\\prism\\state\\shared\\ocr-training-loop\\perfect-print-cad-program-parts.json",
+  "models": [
+    "qwen3-vl:8b-instruct",
+    "qwen2.5vl:7b"
+  ],
+  "rel_tol": 0.02,
+  "recall_pass_threshold": 0.5,
+  "parts_listed": 3,
+  "scored": 1,
+  "passed": 0,
+  "pass_rate": 0,
+  "mean_recall": 0.4286,
+  "mean_precision": 0.1714,
+  "skipped": {
+    "print_unresolved": 0,
+    "program_unresolved": 0,
+    "program_not_nc": 1,
+    "program_non_lathe": 0,
+    "program_contour_gt": 1,
+    "program_mill_no_gt": 0,
+    "axis_filtered": 0,
+    "raster_failed": 0,
+    "ocr_failed": 0
+  },
+  "note": "GT = CALLOUT-CLASS machined dims. LATHE: distinct G1/G2/G3 FEED-move feature diameters + overall feed-Z length (inch->mm). MILL: hole/bore feature diameters from tool-change comments (.250 DRILL, 1/2 REAM, .531 C'BORE) + full-circle G2/G3 arc bores (2*radius) -- tap-drill + end-mill cutter diameters EXCLUDED (not print callouts). NOT every toolpath vertex (a roughing pass has ~100+ points a print never dimensions; that denominator would falsely fail even perfect OCR). recall = fraction of callout-class GT the OCR corroborated; precision = fraction of OCR dims that are real machined dims. PASS at recall>=0.5. GUARDS: only POSTED G-code text (binary .mcx-8/CAM sources -> program-not-nc); lathe X=diameter, mill X/Y=position so mill GT is hole/bore dia (unknown axis -> program-non-lathe); a contour lathe part -> program-contour-gt, a mill part with no hole/bore feature -> program-mill-no-gt (no callout answer-key, skipped not scored). HONESTY: a low recall here = real-scan OCR reads few dims (a domain-shift weakness vs clean synthetic prints), NOT a metric artifact. Resumable: re-run continues from processed-cursor.jsonl."
+}

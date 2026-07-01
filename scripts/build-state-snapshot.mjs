@@ -156,7 +156,7 @@ function topPendingUnits(milestoneProgress, n = 20) {
   );
   const rows = [];
   for (const m of active.slice(0, 10)) {
-    const pendingUnits = (m.units || []).filter((u) => !u.shipped);
+    const pendingUnits = (m.units || []).filter((u) => !u.shipped && !u.resolved);
     for (const u of pendingUnits.slice(0, 4)) {
       rows.push({
         milestone: m.id,
@@ -349,8 +349,10 @@ function refreshDependenciesIfStale() {
     if (latestAge > DEPENDENCY_STALENESS_HOURS) {
       spawnRegen("UNWIRED-ENGINE-AUDIT", join(REPO_ROOT, "scripts/audit-unwired-engines.mjs"), 180_000);
     }
-  } catch {
-    // No problem — best-effort.
+  } catch (e) {
+    // Best-effort, but NOT silent (R12): a swallowed failure here meant a stale
+    // or missing audit fed every downstream BUILD_STATE consumer with no signal.
+    process.stderr.write(`[build-state] WARN unwired-audit refresh check failed: ${e.code || e.message}\n`);
   }
 }
 
@@ -383,8 +385,12 @@ async function main() {
         wiredViaOrch: c["WIRED-VIA-ORCH"] ?? 0,
         wiredViaRoute: c["WIRED-VIA-ROUTE"] ?? 0,
         wiredViaSingleton: c["WIRED-VIA-SINGLETON"] ?? 0,
+        // DORMANT-BRIDGE (audit-unwired-engines U-AUDIT-DORMANT-BRIDGE): built + boot-wired but
+        // gated default-off (e.g. reactive-chains). NOT a wiring gap -- counted in `built`, surfaced
+        // distinctly so "is the backend complete?" sees "built but not running pending a flag".
+        dormantBridges: c["DORMANT-BRIDGE"] ?? 0,
       }
-    : { totalEngines: 0, unwired: unwired.length };
+    : { totalEngines: 0, unwired: unwired.length, dormantBridges: 0 };
 
   const built = stat.totalEngines - stat.unwired;
   const topPending = topPendingUnits(ms, 24);
@@ -407,6 +413,7 @@ async function main() {
       built_engines: built,
       built_with_wiki: wikiTitles.size,
       needs_wiring: stat.unwired,
+      dormant_bridges: stat.dormantBridges ?? 0,
       needs_building_active_units: ms?.totals?.pending ?? 0,
       needs_frontend_merge_count: frontends.filter(
         (f) => f.merge_status === "PENDING_MERGE",
@@ -432,6 +439,15 @@ async function main() {
     BUILT: {
       summary: `${built}/${stat.totalEngines} engines wired (${stat.totalEngines > 0 ? Math.round((built / stat.totalEngines) * 100) : 0}%); ${wikiTitles.size} wiki entries indexed.`,
       breakdown: stat,
+    },
+
+    DORMANT_BRIDGES: {
+      summary: `${stat.dormantBridges ?? 0} engine(s) built + boot-wired but gated default-off -- remedy: enable the gate, NOT add a dispatcher action (so the fleet does not chase them as wiring targets).`,
+      bridges: (audit?.json?.dormantBridges ?? []).map((b) => ({
+        engine: b.engine,
+        gateEnv: b.gateEnv ?? null,
+        remedy: b.remedy ?? null,
+      })),
     },
 
     NEEDS_WIRING: {

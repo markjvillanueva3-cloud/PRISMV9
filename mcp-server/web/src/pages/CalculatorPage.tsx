@@ -7,6 +7,7 @@
   useRef,
   useState,
   type ComponentType,
+  type LazyExoticComponent,
   type ReactNode,
 } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
@@ -181,13 +182,17 @@ import { buildWorkflowPath } from '../utils/workflowRouteContext';
 
 export { scoreToolForToolpath, selectPreferredToolForToolpath, toolSupportsToolpath } from '../utils/calculatorTooling';
 
-function lazyNamed<TModule extends Record<string, unknown>, TKey extends keyof TModule>(
+// 2026-05-26 (slot golf, tsc-fix): preserve the imported component's PROP TYPES
+// via TModule[TKey] inference. Previous `as ComponentType` cast erased the props
+// (became `ComponentType<{}>`, zero-props), surfacing 6 false-positive
+// IntrinsicAttributes errors in CalculatorPage on every lazy-loaded component.
+function lazyNamed<TModule extends Record<string, ComponentType<any>>, TKey extends keyof TModule>(
   loader: () => Promise<TModule>,
   key: TKey,
-) {
+): LazyExoticComponent<TModule[TKey]> {
   return lazy(async () => {
     const module = await loader();
-    return { default: module[key] as ComponentType };
+    return { default: module[key] };
   });
 }
 
@@ -238,6 +243,23 @@ const LatheCostPanel = lazyNamed(
 const LatheSketch2D = lazyNamed(
   () => import('../components/calculator/LatheSketch2D'),
   'LatheSketch2D',
+);
+// MILL-STUDIO-MS0/U-MSTUD-A1 (oscar 2026-05-23) — wire the 3 existing mill stub
+// panels via the new components/mill barrel. JSX rendering inside mill-mode
+// blocks lands in a follow-up edit (per spec §9 pickup order). Importing here
+// makes them appear in the system-viz graph + ensures the bundler treats them
+// as reachable lazy chunks (was: L0/unreachable orphans).
+const MillStrategyPanel = lazyNamed(
+  () => import('../components/mill'),
+  'StrategyPanel',
+);
+const MillProgramPreview = lazyNamed(
+  () => import('../components/mill'),
+  'ProgramPreview',
+);
+const MillSimPanel = lazyNamed(
+  () => import('../components/mill'),
+  'SimPanel',
 );
 const WireEdmSurfaceIntegrityPanel = lazyNamed(
   () => import('../components/calculator/WireEdmSurfaceIntegrityPanel'),
@@ -563,8 +585,8 @@ const CALCULATOR_HELP_TOPICS: Record<HelpTopicId, CalculatorHelpTopic> = {
   },
   'prism-flow': {
     badge: 'Workflow engine',
-    title: 'What PRISM Flow is doing',
-    summary: 'PRISM Flow turns the calculator into an intake lane instead of a standalone number box.',
+    title: 'What Kienzle Flow is doing',
+    summary: 'Kienzle Flow turns the calculator into an intake lane instead of a standalone number box.',
     bullets: [
       'Where intake and preflight are wired, it carries setup context forward instead of restarting each downstream lane from zero.',
       'Today that means machine, tool, and inventory checks before the solve, plus lathe and wire intake surfaces for print-to-program work.',
@@ -587,7 +609,7 @@ const CALCULATOR_HELP_TOPICS: Record<HelpTopicId, CalculatorHelpTopic> = {
     summary: 'Feature verification keeps the selected machine honest at the option-package level.',
     bullets: [
       'High-speed modes, probing, coolant delivery, and multiaxis packages are not universal.',
-      'Turning these on or off changes what PRISM assumes is legal and cost-effective.',
+      'Turning these on or off changes what Kienzle assumes is legal and cost-effective.',
       'Use this panel to match the exact machine sitting on the floor.',
     ],
   },
@@ -617,7 +639,7 @@ const CALCULATOR_HELP_TOPICS: Record<HelpTopicId, CalculatorHelpTopic> = {
     summary: 'The tool, holder, and fixture act as one stability system.',
     bullets: [
       'A strong tool in the wrong holder can still chatter or miss the finish target.',
-      'Fixture posture changes reach, rigidity, and how aggressively PRISM should push the machine.',
+      'Fixture posture changes reach, rigidity, and how aggressively Kienzle should push the machine.',
       'This panel is where setup realism replaces generic catalog assumptions.',
     ],
   },
@@ -673,7 +695,7 @@ function calculatorGuideHint(label: string) {
   if (normalized.includes('woc') || normalized.includes('stepover')) return 'Width of cut changes radial load, chip thinning, and finish behavior.';
   if (normalized.includes('feed')) return 'Feed should stay consistent with tool geometry, material, and finish target.';
   if (normalized.includes('finish') || normalized.includes('ra')) return 'Use finish controls to decide whether the stack is roughing, balanced, or finish-first.';
-  if (normalized.includes('guideway')) return 'Guideway and measured dynamics tune how aggressively PRISM should trust the machine.';
+  if (normalized.includes('guideway')) return 'Guideway and measured dynamics tune how aggressively Kienzle should trust the machine.';
   if (normalized.includes('station') || normalized.includes('magazine') || normalized.includes('turret')) return 'Installed station count limits how much tooling the machine can realistically carry.';
   return 'Use this control to tighten the setup truth before trusting the cutting results.';
 }
@@ -794,7 +816,7 @@ function estimateToolPrice(tool: Pick<ToolCatalogItem, 'geometryClass' | 'operat
   return DEFAULT_TOOL_PRICE_BY_TYPE[inferToolInventoryType(tool)] ?? 96;
 }
 
-function inferInventoryCondition(status: 'ready' | 'watch') {
+function inferInventoryCondition(status: 'ready' | 'watch'): 'worn' | 'good' {
   return status === 'watch' ? 'worn' : 'good';
 }
 
@@ -1398,6 +1420,8 @@ const EXPERIENCE_STYLES: Record<ExperienceLevel, string> = {
   beginner: 'border-emerald-500/40 bg-emerald-950/30 text-emerald-400',
   journeyman: 'border-amber-500/40 bg-amber-950/30 text-amber-400',
   master: 'border-rose-500/40 bg-rose-950/30 text-rose-400',
+  // 2026-05-27 iter8: 'expert' alias of 'master' (added to ExperienceLevel for test compat).
+  expert: 'border-rose-500/40 bg-rose-950/30 text-rose-400',
 };
 
 const MACHINE_MODE_LED_TONES: Record<
@@ -1574,7 +1598,7 @@ const STOCK_SOURCE_OPTIONS: SelectionOption[] = [
 ];
 
 const SETUP_SOURCE_OPTIONS: SelectionOption[] = [
-  { id: 'recommended', label: 'PRISM recommended', detail: 'Use PRISM defaults for tooling, holder posture, and fixture choices.' },
+  { id: 'recommended', label: 'Kienzle recommended', detail: 'Use Kienzle defaults for tooling, holder posture, and fixture choices.' },
   { id: 'shop-crib', label: 'My shop crib', detail: 'Assume the setup should match the tools and fixtures already on your floor.' },
   { id: 'new-package', label: 'New setup package', detail: 'Bias the selection toward a fresh tooling / fixture package for the job.' },
 ];
@@ -2120,7 +2144,7 @@ function defaultHolderPackageForMachine(
     if (profile.hasMillingHead && profile.turretTypeId === 'turret-standard') return 'generic-vtl-milling-head';
     if (profile.hasMillingHead) return 'okuma-capto-c6-milling-head';
     if (profile.turretCount >= 2) return 'nakamura-vdi30-twin';
-    if (['vdi30', 'vdi40', 'vdi50', 'vdi60', 'vdi80'].includes(profile.turretTypeId)) {
+    if ((['vdi30', 'vdi40', 'vdi50', 'vdi60', 'vdi80'] as string[]).includes(profile.turretTypeId ?? '')) {
       return CANONICAL_JM_DIE_HOLDER_IDS.lathe[0] ?? 'sandvik-vdi-turn';
     }
     if (profile.turretTypeId === 'capto-c6') return 'okuma-capto-c6-turn';
@@ -3560,10 +3584,10 @@ export function CalculatorPage() {
     (item) => item.source === 'fallback' || item.source === 'empty',
   ).length;
   const materialSourceLabel = effectiveCatalogSource(materialCatalogStatus) === 'live'
-    ? calculatorCopy(interfaceLanguage, 'material.sourceLive', 'live registry merged with PRISM baseline')
+    ? calculatorCopy(interfaceLanguage, 'material.sourceLive', 'live registry merged with Kienzle baseline')
     : effectiveCatalogSource(materialCatalogStatus) === 'hybrid'
       ? calculatorCopy(interfaceLanguage, 'material.sourceHybrid', 'sampled live + curated')
-      : calculatorCopy(interfaceLanguage, 'material.sourceFallback', 'PRISM baseline while the live registry recovers');
+      : calculatorCopy(interfaceLanguage, 'material.sourceFallback', 'Kienzle baseline while the live registry recovers');
   const selectedTool =
     toolsForMode.find((item) => item.id === toolId)
     ?? compatibleToolsForMode.find((item) => item.id === toolId)
@@ -4657,6 +4681,9 @@ export function CalculatorPage() {
             condition: inferCurrentToolCondition(selectedTool, inventoryWorkspace),
             holder_type: selectedHolderPackage?.label ?? holderStyle,
             notes: 'Active calculator setup tool',
+            // 2026-05-27 iter28: ToolRoiAnalysisParams.user_inventory requires
+            // price; estimate from the catalog like buildToolRoiInventory does.
+            price: estimateToolPrice(selectedTool),
           }]
         : [];
       const inventoryCandidates = [...(inventory ?? [])];
@@ -4723,8 +4750,8 @@ export function CalculatorPage() {
         setResultSolveSource('quick');
         setError(
           orchestrateError?.message
-            ? `Full PRISM solve unavailable: ${orchestrateError.message}. Quick fallback is advisory only.`
-            : 'Full PRISM solve unavailable. Quick fallback is advisory only.',
+            ? `Full Kienzle solve unavailable: ${orchestrateError.message}. Quick fallback is advisory only.`
+            : 'Full Kienzle solve unavailable. Quick fallback is advisory only.',
         );
       }
       }
@@ -5232,7 +5259,7 @@ export function CalculatorPage() {
           return {
             status: 'release-ready',
             label: 'Release-ready with verification trail',
-            heading: 'This wire EDM setup cleared the current PRISM safety gate.',
+            heading: 'This wire EDM setup cleared the current Kienzle safety gate.',
             summary: 'The wire EDM solve returned a stable skim strategy and acceptable risk posture for release.',
             guidance: 'Carry the skim-pass ladder, wire class, and surface-integrity notes into setup and post.',
             tone: 'emerald',
@@ -5694,13 +5721,13 @@ export function CalculatorPage() {
         glow: 'rgba(168,85,247,0.34)',
         glowSoft: 'rgba(45,212,191,0.2)',
         badge: 'Guidance active',
-        detail: 'PRISM is actively steering setup assumptions, upgrade paths, and machine-aware guidance inside the currently wired solve lanes.',
+        detail: 'Kienzle is actively steering setup assumptions, upgrade paths, and machine-aware guidance inside the currently wired solve lanes.',
       }
     : {
         glow: 'rgba(14,165,233,0.28)',
         glowSoft: 'rgba(168,85,247,0.16)',
         badge: 'Guidance lane',
-        detail: 'Open the machine-aware PRISM lane to apply setup guidance and inspect upgrade paths worth buying.',
+        detail: 'Open the machine-aware Kienzle lane to apply setup guidance and inspect upgrade paths worth buying.',
       };
   const toolbarOptimizationSummary =
     toolbarOptimizationScore >= 90
@@ -5712,14 +5739,19 @@ export function CalculatorPage() {
           : 'The package still needs setup work.';
   const toolbarPrismSummary = prismModeEnabled ? 'Machine-aware guidance is active.' : 'Open the guarded machine-aware guidance lane.';
   const activeCalculatorLaneLabel = prismModeEnabled
-    ? 'Machine-aware PRISM solve'
+    ? 'Machine-aware Kienzle solve'
     : guidedModeEnabled
       ? 'Guided setup lane'
       : 'Calculator Studio';
+  // 2026-05-26 (slot golf, tsc-fix): removed guide-detail enrichment here —
+  // `currentGuideMeta` and `currentGuideStep` are declared 659 lines later
+  // (line 6398/6394). The original `currentGuideMeta?.detail ?? currentGuideStep?.detail`
+  // expression was a TDZ-violating real runtime bug (would throw on first guided-mode render).
+  // Guided mode falls through to toolbarOptimizationSummary — same as it would have anyway.
   const activeCalculatorLaneDetail = prismModeEnabled
     ? toolbarPrismTone.detail
     : guidedModeEnabled
-      ? currentGuideMeta?.detail ?? currentGuideStep?.detail ?? toolbarOptimizationSummary
+      ? toolbarOptimizationSummary
       : `${toolbarOptimizationSummary} ${resultSafety.summary}`;
   const resultSolveSourceLabel = resultSolveSource === 'quick'
     ? 'Quick estimate'
@@ -5727,7 +5759,7 @@ export function CalculatorPage() {
       ? 'Machine-aware solve'
       : 'No solve yet';
   const calculatorCatalogTruthDetail = `${overallCatalogLabel} with ${liveBackboneCount} live, ${hybridBackboneCount} hybrid, and ${fallbackBackboneCount} fallback backbone lanes across machines, materials, programming, workholding, tooling, and holders.`;
-  const calculatorSolveTruthDetail = `${resultSafety.heading} ${resultSafety.summary} Current solve posture: ${resultSolveSourceLabel}. Optimization confidence is ${toolbarOptimizationScore}%, PRISM confidence is ${prismModePlan.confidenceScore}%, and ${resultSignalStack.length} active signals are influencing the release posture.`;
+  const calculatorSolveTruthDetail = `${resultSafety.heading} ${resultSafety.summary} Current solve posture: ${resultSolveSourceLabel}. Optimization confidence is ${toolbarOptimizationScore}%, Kienzle confidence is ${prismModePlan.confidenceScore}%, and ${resultSignalStack.length} active signals are influencing the release posture.`;
   const calculatorWorkflowTruthDetail = `${calculatorRouteAuthority.releaseNote} ${calculatorRouteAuthority.toolpathNote} Current packet ${calculatorPacketId} is staged for downstream release, toolpath, quote, purchasing, and post workflows.`;
   const calculatorMyShopTruthDetail = loadedFileName
     ? `Loaded file ${loadedFileName}. My Shop currently has ${toolCribImportCount} imports and ${toolCribLibraryCount} linked libraries.${toolCribImportSummary ? ` ${toolCribImportSummary}` : ''}${toolCribImportError ? ` Import issue: ${toolCribImportError}` : ''}${toolCribScanError ? ` Scan issue: ${toolCribScanError}` : ''}`
@@ -5753,7 +5785,7 @@ export function CalculatorPage() {
         }.`
       : result
         ? `${result.formula ?? 'Backend model active'} on ${result.resolvedMachineLabel ?? selectedMachine?.model ?? 'the selected machine'} with ${result.resolvedCamLabel ?? selectedToolpath?.label ?? 'the active toolpath'} driving the live recommendation.`
-        : 'Run the backend solve so PRISM can interpret release readiness from the live machine, tooling, and workflow evidence.';
+        : 'Run the backend solve so Kienzle can interpret release readiness from the live machine, tooling, and workflow evidence.';
   const hasEmbeddedProgramStudio = machineMode === 'lathe' || machineMode === 'wire_edm' || machineMode === 'edm';
   const machineProgramLaunchPlan = useMemo(() => {
     if (machineMode === 'mill') {
@@ -5768,7 +5800,7 @@ export function CalculatorPage() {
       return {
         summary: 'Lathe wizard + CAD/program studio',
         body: 'Carry the live turning setup into the lathe wizard or drop straight into the in-page print / CAD to program studio when you need a faster feature-first pass.',
-        primaryLabel: 'Launch Lathe Wizard',
+        primaryLabel: 'Launch Kienzle',
         secondaryLabel: 'Open Lathe CAD / Program Studio',
       };
     }
@@ -5791,7 +5823,7 @@ export function CalculatorPage() {
     if (machineMode === 'laser') {
       return {
         summary: 'Laser print-to-program pipeline',
-        body: 'Laser programming still routes through the shared print-to-program pipeline while the dedicated wizard contract is being extracted, so PRISM keeps the handoff explicit instead of implying a hidden engine.',
+        body: 'Laser programming still routes through the shared print-to-program pipeline while the dedicated wizard contract is being extracted, so Kienzle keeps the handoff explicit instead of implying a hidden engine.',
         primaryLabel: 'Open Laser Program Pipeline',
         secondaryLabel: 'Open full Print to CNC',
       };
@@ -5832,14 +5864,14 @@ export function CalculatorPage() {
   ]);
   const prismModeExplainerCards = [
     {
-      title: 'What PRISM mode unlocks',
+      title: 'What Kienzle mode unlocks',
       body: 'It turns the calculator from a number box into a machine-aware decision lane that keeps setup, tooling, finish, and downstream buy choices connected.',
       accent: 'text-cyan-100',
       shell: 'border-cyan-400/18 bg-[linear-gradient(180deg,rgba(10,32,48,0.96)_0%,rgba(8,18,32,0.98)_100%)]',
     },
     {
       title: 'Why it feels better than competitors',
-      body: 'Most competitive tools stay narrow: simple S&F calculators, CAM-locked wizards, isolated tooling catalogs, or generic assistants. PRISM keeps those slices in one operating lane.',
+      body: 'Most competitive tools stay narrow: simple S&F calculators, CAM-locked wizards, isolated tooling catalogs, or generic assistants. Kienzle keeps those slices in one operating lane.',
       accent: 'text-violet-100',
       shell: 'border-violet-400/18 bg-[linear-gradient(180deg,rgba(30,18,52,0.96)_0%,rgba(12,16,32,0.98)_100%)]',
     },
@@ -5995,7 +6027,7 @@ export function CalculatorPage() {
         setPrismLivePurchaseRecommendations(null);
         setPrismPurchaseRecommendationSource('heuristic');
         setPrismPurchaseRecommendationNote(
-          'Using the local PRISM heuristic while the live ROI engine is unavailable.',
+          'Using the local Kienzle heuristic while the live ROI engine is unavailable.',
         );
         setPrismPurchaseRecommendationWarnings([]);
       }
@@ -6051,8 +6083,8 @@ export function CalculatorPage() {
     finishControlMode === 'auto' ? 'Auto-calculated surface finish' : 'Manual surface finish target';
   const finishModeBody =
     finishControlMode === 'auto'
-      ? 'PRISM is deriving this Ra target from the machine, material, toolpath, DOC/WOC, coolant, tooling stack, holder posture, and any live cut-state inputs currently available.'
-      : 'Manual override is pinned to the finish you choose. Switch back to Auto any time to let PRISM follow the current setup again.';
+      ? 'Kienzle is deriving this Ra target from the machine, material, toolpath, DOC/WOC, coolant, tooling stack, holder posture, and any live cut-state inputs currently available.'
+      : 'Manual override is pinned to the finish you choose. Switch back to Auto any time to let Kienzle follow the current setup again.';
   const finishModeSliderLabel =
     finishControlMode === 'auto' ? 'Auto-calculated Ra finish' : 'Manual desired Ra finish';
   const finishModeSliderHint =
@@ -6097,7 +6129,7 @@ export function CalculatorPage() {
       panelId: 'machine-features',
       title: machineFeaturesTitle,
       detail: 'Confirm only the options that are physically installed on this machine.',
-      prompt: 'Control packages, coolant support, and verified features keep PRISM from suggesting unsupported capability.',
+      prompt: 'Control packages, coolant support, and verified features keep Kienzle from suggesting unsupported capability.',
       mode: 'required',
     },
     {
@@ -6132,7 +6164,7 @@ export function CalculatorPage() {
       panelId: 'process-notes',
       title: processNotesTitle,
       detail: 'Skim the process notes lane for the current stack interpretation.',
-      prompt: 'PRISM summarizes coolant, tooling, programming, and workholding posture here so you can spot drift quickly.',
+      prompt: 'Kienzle summarizes coolant, tooling, programming, and workholding posture here so you can spot drift quickly.',
       mode: 'review',
     },
     {
@@ -6725,7 +6757,7 @@ export function CalculatorPage() {
                       <PrismHeaderMark />
                     </div>
                       <div className="calculator-toolbar-brand-title-copy min-w-0">
-                        <div className="calculator-toolbar-brand-wordmark">PRISM</div>
+                        <div className="calculator-toolbar-brand-wordmark">Kienzle</div>
                         <div className="calculator-toolbar-brand-title">Ultimate Machining Tool</div>
                         <div className="calculator-toolbar-brand-subtitle">
                           Process Readiness Intelligence for Setup & Machining.
@@ -6787,7 +6819,7 @@ export function CalculatorPage() {
                             {t('toolbar.confidence')}
                             <CalculatorInfoHint
                               label="Optimization confidence"
-                              body="This is PRISM's overall trust level in the current setup. It reflects machine fit, tooling legality, engagement, finish posture, and solve stability."
+                              body="This is Kienzle's overall trust level in the current setup. It reflects machine fit, tooling legality, engagement, finish posture, and solve stability."
                               className="ml-2"
                             />
                           </div>
@@ -6845,7 +6877,7 @@ export function CalculatorPage() {
                     <button
                       type="button"
                       title={t('toolbar.prismModeTitle')}
-                      aria-label="Open PRISM engine"
+                      aria-label="Open Kienzle engine"
                       onClick={() => setShowPrismModeDialog(true)}
                       className="calculator-toolbar-prism-action"
                     >
@@ -6854,8 +6886,8 @@ export function CalculatorPage() {
                           <div className="calculator-toolbar-prism-label">
                             Prism Engine
                             <CalculatorInfoHint
-                              label="PRISM engine"
-                              body="PRISM mode runs the richer machine-aware solve. It keeps machine legality, tool/holder posture, finish expectation, and shop memory in the same decision loop."
+                              label="Kienzle engine"
+                              body="Kienzle mode runs the richer machine-aware solve. It keeps machine legality, tool/holder posture, finish expectation, and shop memory in the same decision loop."
                               className="ml-2"
                             />
                           </div>
@@ -7241,7 +7273,7 @@ export function CalculatorPage() {
                 <button
                   type="button"
                   title={t('toolbar.uploadWorkflowTitle')}
-                  aria-label="Open PRISM Flow"
+                  aria-label="Open Kienzle Flow"
                   onClick={() => setShowUploadWorkflowDialog(true)}
                   className={`calculator-toolbar-flow-shell ${
                     showUploadWorkflowDialog ? 'calculator-toolbar-flow-shell-active' : ''
@@ -7251,8 +7283,8 @@ export function CalculatorPage() {
                     <span className="calculator-toolbar-flow-label">
                       {t('toolbar.uploadWorkflow')}
                       <CalculatorInfoHint
-                        label="PRISM Flow"
-                        body="PRISM Flow is the lane that interprets the part, builds the setup plan, matches machine and tooling, estimates runtime, and shapes pricing posture."
+                        label="Kienzle Flow"
+                        body="Kienzle Flow is the lane that interprets the part, builds the setup plan, matches machine and tooling, estimates runtime, and shapes pricing posture."
                         className="ml-2"
                       />
                     </span>
@@ -7918,9 +7950,11 @@ export function CalculatorPage() {
                 options={MATERIAL_GROUPS.filter((item) => (machineMode === 'mill' || machineMode === 'lathe' ? item.id !== 'nontraditional' : true)).map((item) => ({
                   id: item.id,
                   label: item.label,
-                  detail: item.detail,
+                  // MATERIAL_GROUPS rows are {id,label} today; future catalog
+                  // versions may add `detail` — coalesce via index-access.
+                  detail: (item as { detail?: string }).detail,
                 }))}
-                guideHint="Start with the material family so PRISM narrows speed, wear, and finish behavior into the right band."
+                guideHint="Start with the material family so Kienzle narrows speed, wear, and finish behavior into the right band."
               />
 
               <SelectField
@@ -8018,7 +8052,7 @@ export function CalculatorPage() {
                   value={stockSource}
                   onChange={setStockSource}
                   options={STOCK_SOURCE_OPTIONS}
-                  guideHint="Tell PRISM where the stock definition came from so it can judge confidence and whether this is prototype, purchased, or model-driven material."
+                  guideHint="Tell Kienzle where the stock definition came from so it can judge confidence and whether this is prototype, purchased, or model-driven material."
                 />
                 <div className="text-[10px] font-semibold text-slate-400 mt-1">{t('material.stockShape')}</div>
                 <div className="flex flex-wrap gap-1">
@@ -8476,13 +8510,13 @@ export function CalculatorPage() {
                       <div className="flex flex-wrap items-start justify-between gap-3">
                         <div className="max-w-3xl">
                           <div className="inline-flex items-center rounded-full border border-cyan-300/28 bg-cyan-300/10 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.2em] text-cyan-100">
-                            What makes PRISM mode credible
+                            What makes Kienzle mode credible
                           </div>
                           <div className="mt-3 text-lg font-semibold text-slate-50">
                             Real machining math and science, without dumping the internal recipe.
                           </div>
                           <p className="mt-2 text-sm leading-6 text-slate-300">
-                            PRISM mode is not a generic assistant wrapper. It sits on top of machine legality, cut-state math, finish estimation, and manufacturing-specific knowledge so the recommendations stay physically believable and commercially useful.
+                            Kienzle mode is not a generic assistant wrapper. It sits on top of machine legality, cut-state math, finish estimation, and manufacturing-specific knowledge so the recommendations stay physically believable and commercially useful.
                           </p>
                         </div>
                         <div className="rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-3 text-right">
@@ -8508,7 +8542,7 @@ export function CalculatorPage() {
                             Pricing structure
                           </div>
                           <div className="mt-3 text-lg font-semibold text-slate-50">
-                            PRISM calculator pricing ladder
+                            Kienzle calculator pricing ladder
                           </div>
                           <p className="mt-2 text-sm leading-6 text-slate-300">
                             Start with the calculator lane, then unlock deeper machine-aware setup logic, shop-memory coverage, and workflow guidance as the tiers move up.
@@ -8806,7 +8840,7 @@ export function CalculatorPage() {
                       <div className="flex flex-wrap gap-3">
                         <button
                           type="button"
-                          aria-label={prismModeEnabled ? 'Disable PRISM auto-apply' : 'Enable PRISM auto-apply'}
+                          aria-label={prismModeEnabled ? 'Disable Kienzle auto-apply' : 'Enable Kienzle auto-apply'}
                           aria-pressed={prismModeEnabled}
                           onClick={() => setPrismModeEnabled((current) => !current)}
                           className={`inline-flex items-center rounded-full border px-5 py-2.5 text-[11px] font-bold uppercase tracking-[0.2em] transition ${
@@ -8819,7 +8853,7 @@ export function CalculatorPage() {
                         </button>
                         <button
                           type="button"
-                          aria-label="Apply PRISM setup now"
+                          aria-label="Apply Kienzle setup now"
                           onClick={applyPrismModeSetup}
                           className="inline-flex items-center rounded-full border border-cyan-300/45 bg-[linear-gradient(135deg,rgba(34,211,238,0.22)_0%,rgba(59,130,246,0.16)_100%)] px-5 py-2.5 text-[11px] font-bold uppercase tracking-[0.2em] text-cyan-50 shadow-[0_0_28px_rgba(34,211,238,0.18)] transition hover:border-cyan-200/65 hover:shadow-[0_0_32px_rgba(34,211,238,0.24)]"
                         >
@@ -8930,7 +8964,7 @@ export function CalculatorPage() {
                           <button
                             key={recommendation.id}
                             type="button"
-                            aria-label={`Open PRISM purchase option ${recommendation.title}`}
+                            aria-label={`Open Kienzle purchase option ${recommendation.title}`}
                             onClick={() => setPrismPurchaseTarget(recommendation)}
                             className={`group rounded-[22px] border px-4 py-4 text-left transition duration-200 ${tone.card}`}
                           >
@@ -8988,7 +9022,7 @@ export function CalculatorPage() {
                     value={finishTarget}
                     onChange={handleFinishTargetChange}
                     options={FINISH_TARGET_OPTIONS}
-                    guideHint="Choose whether this operation is roughing, balanced, or finish-first so PRISM tunes the cut around the real goal."
+                    guideHint="Choose whether this operation is roughing, balanced, or finish-first so Kienzle tunes the cut around the real goal."
                   />
                 </div>
 
@@ -9083,7 +9117,7 @@ export function CalculatorPage() {
                         {finishModeSliderLabel}
                         <CalculatorInfoHint
                           label="Desired Ra finish"
-                          body="Requested Ra is the finish target you want to hit. PRISM compares that target with the finish this machine, toolpath, tooling, and cut state are likely to produce."
+                          body="Requested Ra is the finish target you want to hit. Kienzle compares that target with the finish this machine, toolpath, tooling, and cut state are likely to produce."
                           className="ml-2"
                         />
                       </span>
@@ -9134,7 +9168,7 @@ export function CalculatorPage() {
                             <select
                               data-guide-managed="true"
                               data-guide-label="Operation"
-                              data-guide-description="Operation selects the machining intent for the cut. It helps PRISM decide which tools, feeds, and finish logic are even plausible."
+                              data-guide-description="Operation selects the machining intent for the cut. It helps Kienzle decide which tools, feeds, and finish logic are even plausible."
                               value={operation}
                               onChange={(event) => setOperation(event.target.value)}
                               className="w-full rounded-lg border border-slate-600 bg-[#08111f] px-2.5 py-1.5 text-[12px] text-slate-100 outline-none transition focus:border-sky-500"
@@ -9210,6 +9244,45 @@ export function CalculatorPage() {
                             </div>
                           )}
 
+                          {/* MILL-STUDIO-MS0/U-MSTUD-A1 (oscar 2026-05-23) — wire the 3 mill stub panels.
+                              Phase A: render the existing stubs with safe default props so they show up
+                              in mill mode. Phase B (U-MSTUD-B1..B8) will replace these with the 8 mill-
+                              specific panels per spec §6. Feature-class chips + g-code preview + sim
+                              cards are the minimal-viable mill calculator surface. */}
+                          {machineMode === 'mill' && (
+                            <div className="col-span-full mt-2">
+                              <DeferredCalculatorSurface label="Loading mill strategy panelâ€¦">
+                                <MillStrategyPanel
+                                  selectedStrategies={[]}
+                                  onStrategiesChange={() => { /* Phase B: wire to calculatorStore */ }}
+                                  materialIsoGroup="P"
+                                />
+                              </DeferredCalculatorSurface>
+                            </div>
+                          )}
+                          {machineMode === 'mill' && (
+                            <div className="col-span-full mt-2">
+                              <DeferredCalculatorSurface label="Loading mill program previewâ€¦">
+                                <MillProgramPreview
+                                  gcode=""
+                                  annotations={[]}
+                                />
+                              </DeferredCalculatorSurface>
+                            </div>
+                          )}
+                          {machineMode === 'mill' && (
+                            <div className="col-span-full mt-2">
+                              <DeferredCalculatorSurface label="Loading mill simulationâ€¦">
+                                <MillSimPanel
+                                  isRunning={false}
+                                  progress={0}
+                                  onStartSim={() => { /* Phase B: wire to program_simulate */ }}
+                                  onStopSim={() => { /* Phase B */ }}
+                                />
+                              </DeferredCalculatorSurface>
+                            </div>
+                          )}
+
                           {/* Wire EDM calculator panels */}
                           {machineMode === 'wire_edm' && (
                             <div className="col-span-full mt-2">
@@ -9250,7 +9323,7 @@ export function CalculatorPage() {
                             min={1}
                             step={1}
                             integer
-                            guideHint="Flute or station count changes chip evacuation, feed capability, and how aggressively PRISM should push the cut."
+                            guideHint="Flute or station count changes chip evacuation, feed capability, and how aggressively Kienzle should push the cut."
                           />
                           <ActionNumberField
                             label="DOC"
@@ -9302,7 +9375,7 @@ export function CalculatorPage() {
                     <div className="rounded-2xl border border-slate-700/50 bg-[#0a1628] px-4 py-4">
                       <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">Generated finish view</div>
                       <p className="mt-2 text-xs leading-5 text-slate-400">
-                        Left is the finish reference PRISM is targeting. Right is the finish this exact machine, material, coolant, toolpath, tooling stack, and live cut state are currently likely to leave behind.
+                        Left is the finish reference Kienzle is targeting. Right is the finish this exact machine, material, coolant, toolpath, tooling stack, and live cut state are currently likely to leave behind.
                       </p>
                       <div className="mt-3 rounded-xl border border-slate-700/50 bg-[#08111f] px-3 py-3 text-[11px] leading-5 text-slate-400">
                         This is a comparator-style visual expectation, not an inspection photo. The preview now blends process lay, material reflectivity, and finish band together so the surface reads more like a real machining outcome.
@@ -9456,7 +9529,7 @@ export function CalculatorPage() {
                     disabled={loading || !modeNote.livePhysics}
                     className="inline-flex items-center rounded-full bg-slate-950 px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:bg-slate-300"
                   >
-                    {loading ? 'Calculating...' : modeNote.livePhysics ? 'Run PRISM calculation' : 'Setup-first mode'}
+                    {loading ? 'Calculating...' : modeNote.livePhysics ? 'Run Kienzle calculation' : 'Setup-first mode'}
                   </button>
                   <span className="text-sm text-slate-500">
                     {modeNote.livePhysics
@@ -9667,7 +9740,7 @@ export function CalculatorPage() {
                       selectedProgramming={selectedProgramming?.label}
                       workflowPacketId={calculatorPacketId}
                       workflowFocusId={calculatorFocusId}
-                      releaseSupported={calculatorRouteAuthority.releaseSupported}
+                      releaseSupported={Boolean(calculatorRouteAuthority.releaseSupported)}
                       toolpathSupported={calculatorRouteAuthority.toolpathSupported}
                       releaseNote={calculatorRouteAuthority.releaseNote}
                       toolpathNote={calculatorRouteAuthority.toolpathNote}
@@ -9893,7 +9966,7 @@ export function CalculatorPage() {
                       value={setupSource}
                       onChange={setSetupSource}
                       options={SETUP_SOURCE_OPTIONS}
-                      guideHint="Tell PRISM whether this posture comes from the floor, CAM, or a saved baseline so it weights trust correctly."
+                      guideHint="Tell Kienzle whether this posture comes from the floor, CAM, or a saved baseline so it weights trust correctly."
                     />
                     <SelectField
                       label="Holder brand"
@@ -9987,7 +10060,7 @@ export function CalculatorPage() {
                         value={toolBodyFilter}
                         onChange={(value) => setToolBodyFilter(value as ToolBodyFilter)}
                         options={toolBodyFilterOptions}
-                        guideHint="Start with the tool-body family so PRISM knows whether it is solving around solid, indexable, or specialty tooling."
+                        guideHint="Start with the tool-body family so Kienzle knows whether it is solving around solid, indexable, or specialty tooling."
                       />
                       <div className="grid gap-4 md:grid-cols-2">
                         <SelectField
@@ -10136,7 +10209,7 @@ export function CalculatorPage() {
                         value={workholdingCategory}
                         onChange={setWorkholdingCategory}
                         options={workholdingCategoryOptions}
-                        guideHint="Start with the fixture family so PRISM knows how the part is restrained before it judges load and finish."
+                        guideHint="Start with the fixture family so Kienzle knows how the part is restrained before it judges load and finish."
                       />
                       <SelectField
                         label="Workholding brand"
@@ -10164,7 +10237,7 @@ export function CalculatorPage() {
                         value={stabilityId}
                         onChange={setStabilityId}
                         options={stabilityOptions}
-                        guideHint="Stability posture tells PRISM how aggressive it can be with load, chatter risk, and finish expectations."
+                        guideHint="Stability posture tells Kienzle how aggressive it can be with load, chatter risk, and finish expectations."
                       />
                     </div>
                     <div className="mt-4">
@@ -10516,7 +10589,7 @@ export function CalculatorPage() {
                           key={action.title}
                           type="button"
                           aria-label={action.title}
-                          onClick={() => navigate(action.href, action.state ? { state: action.state } : undefined)}
+                          onClick={() => navigate(action.href ?? '#', action.state ? { state: action.state } : undefined)}
                           className="rounded-xl border border-slate-700/50 bg-[#0f1f36] px-4 py-4 text-left transition hover:border-slate-700/50 hover:bg-[#162742]"
                         >
                           <div className="text-sm font-semibold text-slate-100">{action.title}</div>
@@ -10712,6 +10785,14 @@ const COMMON_TOOLING_STATION_OPTIONS = {
   magazine: [24, 30, 40, 48, 60, 80, 120],
   turret: [8, 10, 12, 16, 24],
   gang: [6, 8, 10, 12],
+  // 2026-05-27 iter28: lasers don't carry physical stations (single beam +
+  // nozzle), but the lookup must cover every MachineToolingLayoutKind value or
+  // the TS index access throws TS7053. Treat as a degenerate 1-station rig.
+  laser: [1],
+  // 2026-05-27 iter28: same rationale as laser (single-process non-traditional rig).
+  waterjet: [1],
+  wire: [1],
+  electrode: [1, 4, 8, 16],
 } as const;
 type ToolingLayoutKind = NonNullable<MachineCatalogItem['toolingLayout']>['kind'];
 
@@ -12031,7 +12112,7 @@ function StockInputs({
         onChange={(value) => setStockY(parseLength(value, unitSystem))}
         min={unitSystem === 'inch' ? 0.01 : 0.1}
         step={unitSystem === 'inch' ? 0.125 : 1}
-        guideHint={`${labels[1]} helps PRISM judge engagement, reach, and clamping realism from the starting stock.`}
+        guideHint={`${labels[1]} helps Kienzle judge engagement, reach, and clamping realism from the starting stock.`}
       />
       <NumberField
         label={labels[2]}
@@ -12155,7 +12236,7 @@ function WireEdmResultCards({ wedmResult, controller, calcParams }: { wedmResult
       return;
     }
 
-    setProgramError('Upload DXF geometry first so PRISM can generate NC from the actual contour.');
+    setProgramError('Upload DXF geometry first so Kienzle can generate NC from the actual contour.');
     setProgramGenState('error');
   }
 
@@ -12331,7 +12412,7 @@ function WireEdmResultCards({ wedmResult, controller, calcParams }: { wedmResult
       lines.push(`Wire: $${(wedmResult.estimated_cost.wire_usd ?? 0).toFixed(2)}`);
       lines.push(`Total: $${(wedmResult.estimated_cost.total_usd ?? 0).toFixed(2)}`);
     }
-    lines.push('', 'Ã¢â€â‚¬Ã¢â€â‚¬ Generated by PRISM Wire EDM Calculator Ã¢â€â‚¬Ã¢â€â‚¬');
+    lines.push('', 'Ã¢â€â‚¬Ã¢â€â‚¬ Generated by Kienzle Wire EDM Calculator Ã¢â€â‚¬Ã¢â€â‚¬');
 
     const blob = new Blob([lines.join('\n')], { type: 'text/plain' });
     const url = URL.createObjectURL(blob);
@@ -13278,7 +13359,7 @@ function programmingLogo(label: string) {
   if (key.includes('flowxpert')) return { mark: 'FX', wordmark: 'FlowXpert' };
   if (key.includes('basic')) return { mark: 'BSC', wordmark: 'Basic' };
   if (key.includes('conversational')) return { mark: 'CNV', wordmark: 'Conversational' };
-  if (key.includes('prism')) return { mark: 'PR', wordmark: 'PRISM' };
+  if (key.includes('prism')) return { mark: 'KZ', wordmark: 'Kienzle' };
   if (key.includes('manual')) return { mark: 'MNL', wordmark: 'Manual' };
   return { mark: label.slice(0, 2).toUpperCase(), wordmark: label };
 }

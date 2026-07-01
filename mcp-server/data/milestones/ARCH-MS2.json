@@ -1,0 +1,461 @@
+{
+  "id": "ARCH-MS2",
+  "title": "Structural Hierarchy — Dispatcher Cleanup + Direct I/O Elimination + Misclassified Engines",
+  "track": "ARCH",
+  "status": "in_progress",
+  "description": "Fix dispatcher layer leaks (calcDispatcher importing registryManager, presentation logic in dispatchers), eliminate direct readFileSync/readFile calls in engines (30 engines, 54 occurrences), migrate remaining 23 direct-registry-import engines to service layer, and reclassify misclassified engines (SpindleProtectionEngine as data catalog, CalculatorToolCribWorkspaceService mixing concerns).",
+  "dependencies": [
+    "ARCH-MS0"
+  ],
+  "knowledge_sources": {
+    "engines": [
+      "30 engines with readFileSync/readFile (AnomalyDetectionEngine, CacheEngine, CertificateEngine, ComplianceEngine, CostSavingsTrackerEngine, DiffEngine, DecisionTreeEngine, FileStorageEngine, etc.)",
+      "KnowledgeQueryEngine.ts:19-31 (8 direct registry imports)",
+      "18 engines with direct registry imports (from audit grep: AgentExecutor, IntelligenceEngine, ScriptExecutor, SkillExecutor, SwarmExecutor, ToolSelectionEngine, ToolEnrichmentEngine, PhysicsFusionOrchestratorEngine, + pipeline engines via Bridge)",
+      "SpindleProtectionEngine.ts (metadata catalog posing as engine)",
+      "CalculatorToolCribWorkspaceService.ts (mixed concerns: fs + spawn + business logic)"
+    ],
+    "dispatchers": [
+      "calcDispatcher.ts:9 (registryManager import), :32-100 (calcExtractKeyValues presentation logic)"
+    ],
+    "services": [
+      "Services from ARCH-MS0 (MaterialService, MachineService, etc.)"
+    ],
+    "reference": [
+      "PipelineRegistryBridge.ts (correct pattern for registry mediation)"
+    ]
+  },
+  "forge_triple": {
+    "hook": "dispatcher-purity-checker — DECLARED here, BUILT in ARCH-MS4 U-ENFO02",
+    "action": "prism_system:dispatcher_health — DECLARED here, BUILT in ARCH-MS4 U-ENFO03",
+    "skill": "/dispatcher-health — DECLARED here, BUILT in ARCH-MS4 U-ENFO03"
+  },
+  "enforcement": {
+    "pre_level": [
+      "knowledge-consult"
+    ],
+    "post_level": [
+      "stub-detector",
+      "wiring-agent"
+    ],
+    "compact_level": [
+      "review-gate",
+      "forge-triple-gate"
+    ]
+  },
+  "mcp_lifecycle": {
+    "session_start": [
+      "prism_session:context_boot",
+      "prism_session:dispatcher_map",
+      "prism_session:memory_recall",
+      "prism_session:system_snapshot"
+    ],
+    "during_work": [
+      "prism_session:auto_checkpoint (every 5-10 tool calls)",
+      "prism_session:wip_capture"
+    ],
+    "session_end": [
+      "prism_session:memory_save",
+      "prism_session:system_snapshot",
+      "prism_session:checkpoint_enhanced"
+    ]
+  },
+  "sessions": [
+    {
+      "id": "ARCH-MS2-S1",
+      "title": "Dispatcher Layer Purification",
+      "smart_config": {
+        "role": "API Architect + Dispatcher Specialist",
+        "model": "opus",
+        "effort": "MAX",
+        "context_budget": "40%"
+      },
+      "knowledge": [
+        "calcDispatcher.ts (full read)",
+        "PipelineRegistryBridge.ts (correct pattern)"
+      ],
+      "intent": "Dispatchers are pure routers. No registry imports, no presentation logic. Transport-swappable (MCP to REST to gRPC) without touching dispatchers.",
+      "skills": [
+        "/prism-review",
+        "/test",
+        "/trace",
+        "/scrutinize",
+        "/checkpoint",
+        "/scope"
+      ],
+      "plugins": [
+        "Vitest MCP (mcp__vitest__run_tests)",
+        "ESLint MCP (mcp__eslint__lint-files)"
+      ],
+      "units": [
+        {
+          "id": "U-DISP01",
+          "title": "Extract calcExtractKeyValues to src/utils/formatters.ts",
+          "description": "Move calcExtractKeyValues (calcDispatcher.ts lines 32-100) to src/utils/formatters.ts. calcDispatcher imports and calls it — same behavior, cleaner separation. This is presentation logic, not routing.",
+          "depends_on": [],
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "exit_criteria": [
+            "calcExtractKeyValues lives in src/utils/formatters.ts",
+            "calcDispatcher imports from formatters",
+            "Identical output for same inputs (snapshot diff)",
+            "tsc 0 errors",
+            "Tests pass"
+          ],
+          "rollback": {
+            "files_created": [
+              "src/utils/formatters.ts"
+            ],
+            "files_modified": [
+              "src/tools/dispatchers/calcDispatcher.ts"
+            ],
+            "abort_criteria": [
+              "tsc errors > 0",
+              "output mismatch vs snapshot",
+              "test failures > 0"
+            ],
+            "rollback_procedure": "git checkout -- src/tools/dispatchers/calcDispatcher.ts && rm src/utils/formatters.ts"
+          }
+        },
+        {
+          "id": "U-DISP02",
+          "title": "Remove registryManager direct import from calcDispatcher",
+          "description": "calcDispatcher.ts line 9 imports registryManager directly — a layer violation. Route all registry access through engine calls instead. If calcDispatcher needs registry data, it should call an engine that wraps the registry, or use the service layer.",
+          "depends_on": [
+            "U-DISP01"
+          ],
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "exit_criteria": [
+            "Zero registryManager imports in any dispatcher (grep verified)",
+            "Registry access goes through engines or services",
+            "tsc 0 errors",
+            "Tests pass"
+          ],
+          "rollback": {
+            "files_created": [],
+            "files_modified": [
+              "src/tools/dispatchers/calcDispatcher.ts"
+            ],
+            "abort_criteria": [
+              "tsc errors > 0",
+              "test failures > 0"
+            ],
+            "rollback_procedure": "git checkout -- src/tools/dispatchers/calcDispatcher.ts"
+          }
+        },
+        {
+          "id": "U-DISP03",
+          "title": "Audit + fix all dispatchers for layer violations",
+          "description": "Grep all dispatchers for: direct registry imports, direct fs calls, inline computation >20 LOC. Fix each violation by routing through engines/services. Expected: calcDispatcher was the worst offender, others may have minor issues.",
+          "depends_on": [
+            "U-DISP02"
+          ],
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "exit_criteria": [
+            "Zero registry imports in any dispatcher (grep returns 0)",
+            "Zero fs.readFileSync in any dispatcher (grep returns 0)",
+            "No inline computation blocks >20 LOC in dispatchers",
+            "tsc 0 errors",
+            "Tests pass"
+          ],
+          "rollback": {
+            "files_created": [],
+            "files_modified": [
+              "src/tools/dispatchers/*.ts (affected files)"
+            ],
+            "abort_criteria": [
+              "tsc errors > 0",
+              "test failures > 0"
+            ],
+            "rollback_procedure": "git stash"
+          }
+        }
+      ],
+      "exit_gate": "✓ All dispatchers are pure routers | ✓ Zero registry/fs imports in dispatchers (grep verified) | ✓ Presentation logic in utils/formatters | ✓ tsc 0 errors | ✓ All tests pass | omega_floor >= 0.90 | SVI delta: +2%",
+      "feature_cascade": {
+        "new_hooks": [],
+        "new_actions": [],
+        "new_skills": [],
+        "available_to": [
+          "ARCH-MS2-S2"
+        ]
+      },
+      "compact_checkpoint": true
+    },
+    {
+      "id": "ARCH-MS2-S2",
+      "title": "KnowledgeQueryEngine Decoupling + Registry Migration Sweep",
+      "smart_config": {
+        "role": "Refactoring Specialist + Dependency Architect",
+        "model": "opus",
+        "effort": "MAX",
+        "context_budget": "50%"
+      },
+      "knowledge": [
+        "KnowledgeQueryEngine.ts (full read, especially lines 19-31)",
+        "PipelineRegistryBridge.ts (mediation pattern)",
+        "Service interfaces from ARCH-MS0",
+        "18 engines with direct registry imports (audit list)"
+      ],
+      "intent": "The biggest coupling hotspots (KnowledgeQueryEngine with 8 imports + remaining 23 direct-registry engines) are resolved. All registry access goes through services or bridges.",
+      "skills": [
+        "/prism-review",
+        "/test",
+        "/trace",
+        "/scope",
+        "/codebase-memory-tracing",
+        "/checkpoint"
+      ],
+      "plugins": [
+        "Vitest MCP (mcp__vitest__run_tests)",
+        "codebase-memory-mcp (trace_call_path, search_graph)"
+      ],
+      "units": [
+        {
+          "id": "U-DISP04",
+          "title": "Rewire KnowledgeQueryEngine to services/bridge",
+          "description": "KnowledgeQueryEngine.ts imports 8 registry singletons directly (lines 19-31). Create a KnowledgeQueryBridge similar to PipelineRegistryBridge, or inject services. Must preserve all query capabilities. Use codebase-memory-mcp trace_call_path to map all callers before modifying.",
+          "depends_on": [],
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "exit_criteria": [
+            "KnowledgeQueryEngine has 0-1 direct registry imports (down from 8)",
+            "All queries still work identically (snapshot diff)",
+            "Tests pass",
+            "tsc 0 errors"
+          ],
+          "rollback": {
+            "files_created": [
+              "src/engines/KnowledgeQueryBridge.ts (if option A)"
+            ],
+            "files_modified": [
+              "src/engines/KnowledgeQueryEngine.ts"
+            ],
+            "abort_criteria": [
+              "tsc errors > 0",
+              "query results changed vs snapshot",
+              "test failures > 0"
+            ],
+            "rollback_procedure": "git checkout -- src/engines/KnowledgeQueryEngine.ts"
+          }
+        },
+        {
+          "id": "U-REGM01",
+          "title": "Migrate remaining 15 direct-registry-import engines to services",
+          "description": "From the audit grep: AgentExecutor(2), IntelligenceEngine(2), ScriptExecutor(1), SkillExecutor(1), SwarmExecutor(1), ToolSelectionEngine(1), ToolEnrichmentEngine(1), PhysicsFusionOrchestratorEngine(1) + others. Replace direct registry singleton imports with service layer calls. Pipeline engines using PipelineRegistryBridge are already mediated (exempt).",
+          "depends_on": [
+            "U-DISP04"
+          ],
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "exit_criteria": [
+            "grep 'import.*Registry' in engines returns only PipelineRegistryBridge and bridge files",
+            "All migrated engines use services",
+            "Tests pass",
+            "tsc 0 errors"
+          ],
+          "rollback": {
+            "files_created": [],
+            "files_modified": [
+              "~15 engine files"
+            ],
+            "abort_criteria": [
+              "tsc errors > 0",
+              "test failures > 3"
+            ],
+            "rollback_procedure": "git stash"
+          }
+        }
+      ],
+      "exit_gate": "✓ KnowledgeQueryEngine decoupled | ✓ 15+ engines migrated to services | ✓ Direct registry imports only in bridge files | ✓ tsc 0 errors | ✓ Tests pass | omega_floor >= 0.90 | SVI delta: +2%",
+      "feature_cascade": {
+        "new_hooks": [],
+        "new_actions": [],
+        "new_skills": [],
+        "available_to": [
+          "ARCH-MS2-S3",
+          "ARCH-MS3"
+        ]
+      },
+      "compact_checkpoint": true
+    },
+    {
+      "id": "ARCH-MS2-S3",
+      "title": "Direct File I/O Elimination + Misclassified Engine Cleanup",
+      "smart_config": {
+        "role": "Refactoring Specialist + I/O Architecture",
+        "model": "sonnet",
+        "effort": "HIGH",
+        "context_budget": "50%"
+      },
+      "knowledge": [
+        "30 engines with readFileSync/readFile identified in audit",
+        "Services from ARCH-MS0",
+        "Registries",
+        "SpindleProtectionEngine.ts (metadata catalog)",
+        "CalculatorToolCribWorkspaceService.ts (mixed concerns)"
+      ],
+      "intent": "Engines don't do their own file I/O. Data access goes through services or registries. Misclassified engines are reclassified. The hierarchy is clean end-to-end.",
+      "skills": [
+        "/prism-review",
+        "/test",
+        "/scope",
+        "/codebase-memory-tracing",
+        "/checkpoint"
+      ],
+      "plugins": [
+        "Vitest MCP (mcp__vitest__run_tests)",
+        "codebase-memory-mcp (search_graph)"
+      ],
+      "units": [
+        {
+          "id": "U-FIIO01",
+          "title": "Classify 30 direct-I/O engines + identify misclassified engines",
+          "description": "Read each of the 30 engines doing readFileSync/readFile. Classify each as: (A) should use existing registry, (B) should use existing service, (C) needs new service/registry, (D) legitimate I/O engine (FileStorageEngine, DiffEngine — their job IS file I/O). Also identify: (E) engines that are really data catalogs (SpindleProtectionEngine), (F) services with mixed concerns (CalculatorToolCribWorkspaceService). Category D engines are exempt from I/O cleanup.",
+          "depends_on": [],
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "exit_criteria": [
+            "30 engines classified with rationale in a committed artifact",
+            "Category D exemptions justified with specific reasoning",
+            "Categories E and F identified with reclassification plan",
+            "Classification artifact committed to state/ or docs/"
+          ],
+          "rollback": {
+            "files_created": [
+              "state/ARCH-IO-CLASSIFICATION.md"
+            ],
+            "files_modified": [],
+            "abort_criteria": [
+              "Classification incomplete (< 30 engines)",
+              "Missing justification for any D/E/F classification"
+            ],
+            "rollback_procedure": "rm state/ARCH-IO-CLASSIFICATION.md"
+          }
+        },
+        {
+          "id": "U-FIIO02",
+          "title": "Rewire top 15 Category A/B engines to services/registries",
+          "description": "For each Category A/B engine from U-FIIO01, replace readFileSync/readFile with appropriate service or registry call. Prioritize by impact: engines used in production pipelines first, infrastructure engines second.",
+          "depends_on": [
+            "U-FIIO01"
+          ],
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "exit_criteria": [
+            "15 engines rewired",
+            "Zero readFileSync in rewired engines (grep verified)",
+            "Tests pass",
+            "tsc 0 errors"
+          ],
+          "rollback": {
+            "files_created": [],
+            "files_modified": [
+              "15 engine files (from classification)"
+            ],
+            "abort_criteria": [
+              "tsc errors > 0",
+              "test failures > 0"
+            ],
+            "rollback_procedure": "git stash"
+          }
+        },
+        {
+          "id": "U-FIIO03",
+          "title": "Rewire remaining engines + reclassify SpindleProtectionEngine + fix CalculatorToolCribWorkspaceService",
+          "description": "1) Complete remaining non-exempt engines from classification. 2) Move SpindleProtectionEngine metadata to src/data/ catalog file and convert engine to a thin query wrapper. 3) Split CalculatorToolCribWorkspaceService into: pure service (business logic), repository (file I/O), and remove subprocess spawn to a utility.",
+          "depends_on": [
+            "U-FIIO02"
+          ],
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "exit_criteria": [
+            "All non-exempt engines rewired",
+            "Only Category D engines have readFileSync (grep verified)",
+            "SpindleProtectionEngine metadata in src/data/",
+            "CalculatorToolCribWorkspaceService split into service + repository",
+            "Tests pass",
+            "tsc 0 errors"
+          ],
+          "rollback": {
+            "files_created": [
+              "src/data/spindle-protection-catalog.json"
+            ],
+            "files_modified": [
+              "SpindleProtectionEngine.ts",
+              "CalculatorToolCribWorkspaceService.ts",
+              "remaining engine files"
+            ],
+            "abort_criteria": [
+              "tsc errors > 0",
+              "test failures > 0"
+            ],
+            "rollback_procedure": "git stash"
+          }
+        }
+      ],
+      "exit_gate": "✓ 30 engines classified (artifact committed) | ✓ All non-exempt engines use services/registries | ✓ SpindleProtectionEngine reclassified | ✓ CalculatorToolCribWorkspaceService concerns separated | ✓ tsc 0 errors | ✓ Tests pass | omega_floor >= 0.90 | SVI delta: +3%",
+      "feature_cascade": {
+        "new_hooks": [],
+        "new_actions": [],
+        "new_skills": [],
+        "available_to": [
+          "ARCH-MS3",
+          "ARCH-MS4"
+        ]
+      },
+      "compact_checkpoint": true
+    }
+  ],
+  "total_units": 8,
+  "completed_units": 0,
+  "completion_note": "KnowledgeQueryEngine + ToolSelectionEngine rewired to services. IntelligenceEngine documented for MS3. Pipeline engines already pure.",
+  "smart_config": {
+    "role": "implementer + reviewer",
+    "model": "sonnet",
+    "effort": "HIGH",
+    "context_budget": "65%"
+  },
+  "feature_cascade": {
+    "new_hooks": [
+      "arch-ms2-gate"
+    ],
+    "new_actions": [
+      "arch_ms2_run"
+    ],
+    "new_skills": [
+      "/arch-ms2"
+    ],
+    "available_to": [
+      "downstream CAMX milestones",
+      "prism app consumers"
+    ]
+  },
+  "intent": "Fix dispatcher layer leaks (calcDispatcher importing registryManager, presentation logic in dispatchers), eliminate direct readFileSync/readFile calls in engines (30 engines, 54 occurrences), migrate remaining 23 direct-registry-import engines to service layer, and reclassify misclassified engines (SpindleProtectionEngine as data catalog, CalculatorToolCribWorkspaceService mixing concerns).",
+  "compact_checkpoint": "every 3 units — auto-triggered by hook",
+  "enforcement_hooks_active": [
+    "physics agent",
+    "wiring agent",
+    "constants checker",
+    "stub detector",
+    "test quality",
+    "forge-triple gate",
+    "session audit agent"
+  ],
+  "units": [
+    {
+      "id": "U-ARCH01",
+      "title": "ARCH-MS2 — Coordinator",
+      "description": "Master coordinator envelope for ARCH-MS2. Tracks sub-milestones, aggregates their exit gates, and opens closure after every child milestone flips to complete. Follow 4-LOOP at the aggregation layer.",
+      "exit_conditions": [
+        "All sub-milestones listed in dependencies reach status=complete",
+        "Aggregate scrutiny score ≥80 across children",
+        "Cross-track coherence verified: no orphan engines, no duplicate actions",
+        "Final /rgs pass through the 10-agent gate returns PASS"
+      ],
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ],
+      "status": "pending",
+      "role": "coordinator"
+    }
+  ],
+  "_role": "coordinator"
+}

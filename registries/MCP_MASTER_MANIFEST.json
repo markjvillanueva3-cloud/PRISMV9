@@ -1,0 +1,230 @@
+{
+  "version": "16.0.0",
+  "generatedAt": "2026-02-01T03:45:00Z",
+  "system": "PRISM Manufacturing Intelligence MCP Server",
+  "goldenRule": "IF IT CAN BE USED, USE IT - BUT WITH PRECISION!",
+  "architecture": "v16.0 - Precise Wiring with Foundation Layers",
+  
+  "foundation": {
+    "constants": {
+      "count": 140,
+      "categories": 7,
+      "registry": "CONSTANTS_FOUNDATION.json",
+      "description": "Immutable reference values - inherited by ALL layers"
+    },
+    "types": {
+      "schemas": 490,
+      "domainTypes": 9,
+      "registry": "TYPE_SYSTEM.json",
+      "description": "Input/output schemas for all formulas"
+    },
+    "validators": {
+      "count": 52,
+      "critical": 17,
+      "boundaries": 6,
+      "registry": "VALIDATORS.json",
+      "description": "Validation rules at every layer boundary"
+    }
+  },
+  
+  "resources": {
+    "databases": {
+      "count": 99,
+      "records": 114012,
+      "categories": 17,
+      "registry": "DATABASE_REGISTRY.json",
+      "description": "Structured data (materials, machines, tools, alarms, etc.)"
+    },
+    "formulas": {
+      "count": 490,
+      "categories": 42,
+      "hierarchy": "domain/methodology/system",
+      "registry": "FORMULA_REGISTRY.json",
+      "description": "Mathematical computations with hierarchical categorization"
+    },
+    "engines": {
+      "count": 447,
+      "categories": 23,
+      "hierarchy": "physics/ai_ml/cam/cad/post/business",
+      "registry": "ENGINE_REGISTRY.json",
+      "description": "Implementation engines with precise wiring"
+    },
+    "skills": {
+      "count": 1227,
+      "categories": 29,
+      "registry": "SKILL_REGISTRY.json",
+      "description": "Orchestration capabilities"
+    },
+    "agents": {
+      "count": 64,
+      "registry": "AGENT_REGISTRY.json",
+      "description": "Specialized domain agents"
+    },
+    "hooks": {
+      "count": 6632,
+      "domains": 58,
+      "registry": "HOOK_REGISTRY.json",
+      "description": "Integration hooks"
+    },
+    "scripts": {
+      "count": 1257,
+      "categories": 34,
+      "registry": "SCRIPT_REGISTRY.json",
+      "description": "Automation scripts"
+    },
+    "products": {
+      "count": 4,
+      "names": ["SPEED_FEED_CALCULATOR", "POST_PROCESSOR", "SHOP_MANAGER", "AUTO_CNC_PROGRAMMER"],
+      "description": "User-facing products"
+    }
+  },
+  
+  "wiring": {
+    "methodology": "PRECISE (5-15 per component) vs BULK (245 avg)",
+    "formula_to_engine": {
+      "connections": 2855,
+      "avgPerFormula": 5.8,
+      "registry": "PRECISE_WIRING_F2E.json",
+      "improvement": "42x reduction from v15"
+    },
+    "database_to_formula": {
+      "type": "pattern-based",
+      "patterns": 211
+    },
+    "engine_to_skill": {
+      "type": "pattern-based",
+      "patterns": 1032
+    },
+    "skill_to_product": {
+      "type": "explicit",
+      "connections": "See skillProductWiring below"
+    }
+  },
+  
+  "skillProductWiring": {
+    "SPEED_FEED_CALCULATOR": {
+      "description": "Calculate optimal cutting parameters",
+      "primarySkills": [
+        "prism-fanuc-programming",
+        "prism-siemens-programming",
+        "prism-heidenhain-programming",
+        "prism-gcode-reference",
+        "prism-universal-formulas",
+        "prism-material-physics",
+        "prism-material-lookup",
+        "prism-safety-framework"
+      ],
+      "supportSkills": [
+        "prism-manufacturing-tables",
+        "prism-validator",
+        "prism-error-catalog",
+        "prism-reasoning-engine",
+        "prism-code-perfection"
+      ],
+      "engines": ["KIENZLE", "MERCHANT", "TAYLOR", "POWER_CALC", "THERMAL", "SAFETY_CHECK"],
+      "databases": ["DB-MAT-MASTER", "DB-TOOL-MASTER", "DB-MACH-MASTER"]
+    },
+    "POST_PROCESSOR": {
+      "description": "Generate machine-specific G-code",
+      "primarySkills": [
+        "prism-fanuc-programming",
+        "prism-siemens-programming",
+        "prism-heidenhain-programming",
+        "prism-mazak-programming",
+        "prism-okuma-programming",
+        "prism-haas-programming",
+        "prism-gcode-reference",
+        "prism-error-catalog"
+      ],
+      "supportSkills": [
+        "prism-validator",
+        "prism-manufacturing-tables",
+        "prism-safety-framework"
+      ],
+      "engines": ["GCODE_GEN", "POST_PROCESSOR", "VERIFICATION", "COLLISION_CHECK"],
+      "databases": ["DB-CTRL-MASTER", "DB-GCODE-MASTER", "DB-MACH-MASTER", "DB-ALARM-*"]
+    },
+    "SHOP_MANAGER": {
+      "description": "Quoting, scheduling, inventory management",
+      "primarySkills": [
+        "prism-universal-formulas",
+        "prism-manufacturing-tables",
+        "prism-material-lookup",
+        "prism-process-optimizer"
+      ],
+      "supportSkills": [
+        "prism-reasoning-engine",
+        "prism-validator",
+        "prism-error-catalog"
+      ],
+      "engines": ["COST_CALC", "CYCLE_TIME", "SCHEDULE", "INVENTORY", "QUOTE_ENGINE"],
+      "databases": ["DB-MAT-MASTER", "DB-MACH-MASTER", "DB-TOOL-MASTER", "DB-COST-*"]
+    },
+    "AUTO_CNC_PROGRAMMER": {
+      "description": "Automated CAM programming",
+      "primarySkills": [
+        "prism-fanuc-programming",
+        "prism-siemens-programming",
+        "prism-heidenhain-programming",
+        "prism-gcode-reference",
+        "prism-universal-formulas",
+        "prism-material-physics",
+        "prism-algorithm-selector",
+        "prism-ai-ml-master"
+      ],
+      "supportSkills": [
+        "prism-safety-framework",
+        "prism-validator",
+        "prism-error-catalog",
+        "prism-reasoning-engine",
+        "prism-code-perfection",
+        "prism-process-optimizer"
+      ],
+      "engines": ["TOOLPATH_GEN", "ADAPTIVE_HSM", "COLLISION_CHECK", "STOCK_SIM", "OPTIMIZATION", "AI_PREDICTOR"],
+      "databases": ["DB-MAT-MASTER", "DB-TOOL-MASTER", "DB-MACH-MASTER", "DB-CTRL-MASTER", "DB-CAM-*"]
+    }
+  },
+  
+  "totals": {
+    "constants": 140,
+    "typeSchemas": 490,
+    "validators": 52,
+    "databases": 99,
+    "formulas": 490,
+    "engines": 447,
+    "skills": 1227,
+    "agents": 64,
+    "hooks": 6632,
+    "scripts": 1257,
+    "products": 4,
+    "totalResources": 10810,
+    "preciseConnections": {
+      "F2E": 2855,
+      "D2F_patterns": 211,
+      "E2S_patterns": 1032,
+      "S2P": 48
+    }
+  },
+  
+  "safetyEnforcement": {
+    "criticalValidators": 17,
+    "hardBlockThreshold": "S(x) >= 0.70",
+    "auditRetention": "FOREVER for safety events"
+  },
+  
+  "registryFiles": [
+    "CONSTANTS_FOUNDATION.json",
+    "TYPE_SYSTEM.json",
+    "VALIDATORS.json",
+    "DATABASE_REGISTRY.json",
+    "FORMULA_REGISTRY.json",
+    "ENGINE_REGISTRY.json",
+    "SKILL_REGISTRY.json",
+    "AGENT_REGISTRY.json",
+    "HOOK_REGISTRY.json",
+    "SCRIPT_REGISTRY.json",
+    "PRECISE_WIRING_F2E.json",
+    "LAYER_TAXONOMY_v16.json",
+    "COMPLETE_ARCHITECTURE_v16.json"
+  ]
+}

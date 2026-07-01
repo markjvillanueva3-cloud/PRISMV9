@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="generator" content="SpecHTMLCompanionEngine">
+<meta name="prism-source-hash" content="6e628d00ff15070578b5e3dfb7459ab520c027b1ecbf689bc1489eb9d5626811">
+<title>JULIETT RGS-V2 REVAMP DECISION — /forge-audit-v2 of the roadmap (2026-05-17, iter-5)</title>
+<style>
+:root, [data-theme="light"] {
+  --bg:#ffffff; --bg-soft:#f6f8fa; --bg-code:#f6f8fa; --fg:#1f2328; --fg-muted:#636c76;
+  --border:#d0d7de; --accent:#0969da; --accent-soft:#ddf4ff; --thead:#f6f8fa; --quote:#656d76;
+  --table-stripe:#f6f8fa;
+}
+[data-theme="dark"] {
+  --bg:#0d1117; --bg-soft:#161b22; --bg-code:#161b22; --fg:#e6edf3; --fg-muted:#8b949e;
+  --border:#30363d; --accent:#2f81f7; --accent-soft:#163356; --thead:#161b22; --quote:#8b949e;
+  --table-stripe:#11151c;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg:#0d1117; --bg-soft:#161b22; --bg-code:#161b22; --fg:#e6edf3; --fg-muted:#8b949e;
+    --border:#30363d; --accent:#2f81f7; --accent-soft:#163356; --thead:#161b22; --quote:#8b949e;
+    --table-stripe:#11151c;
+  }
+}
+* { box-sizing:border-box; }
+html { scroll-behavior:smooth; }
+body { margin:0; background:var(--bg); color:var(--fg); font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif; line-height:1.6; font-size:16px; }
+.skip-link { position:absolute; left:-9999px; top:0; background:var(--accent); color:#fff; padding:8px 14px; z-index:100; border-radius:0 0 6px 0; }
+.skip-link:focus { left:0; }
+.layout { display:grid; grid-template-columns:minmax(0,1fr); max-width:1180px; margin:0 auto; padding:0 20px; }
+@media (min-width:1000px) { .layout { grid-template-columns:260px minmax(0,1fr); gap:40px; } }
+header.doc-head { grid-column:1 / -1; padding:28px 0 16px; border-bottom:1px solid var(--border); }
+header.doc-head h1.page-title { margin:0 0 6px; font-size:1.9rem; line-height:1.25; }
+header.doc-head .provenance { color:var(--fg-muted); font-size:.85rem; margin:0; }
+header.doc-head .theme-toggle { float:right; background:var(--bg-soft); color:var(--fg); border:1px solid var(--border); border-radius:6px; padding:5px 10px; font-size:.8rem; cursor:pointer; }
+nav.toc { align-self:start; position:sticky; top:16px; max-height:calc(100vh - 32px); overflow:auto; font-size:.85rem; padding:14px 0; }
+@media (max-width:999px) { nav.toc { position:static; max-height:none; border-bottom:1px solid var(--border); margin-bottom:12px; } }
+nav.toc .toc-title { font-weight:600; color:var(--fg-muted); text-transform:uppercase; letter-spacing:.04em; font-size:.7rem; margin-bottom:8px; }
+nav.toc ul { list-style:none; margin:0; padding:0; }
+nav.toc li a { color:var(--fg-muted); text-decoration:none; display:block; padding:3px 6px; border-left:2px solid transparent; border-radius:0 4px 4px 0; }
+nav.toc li a:hover { color:var(--accent); background:var(--accent-soft); border-left-color:var(--accent); }
+nav.toc li a.active { color:var(--accent); background:var(--accent-soft); border-left-color:var(--accent); font-weight:600; }
+nav.toc .toc-l2 a { padding-left:14px; } nav.toc .toc-l3 a { padding-left:26px; font-size:.95em; } nav.toc .toc-l4 a { padding-left:38px; font-size:.9em; }
+nav.toc input.toc-search { width:100%; box-sizing:border-box; margin:0 0 8px; padding:5px 8px; font-size:.82rem; border:1px solid var(--border); border-radius:5px; background:var(--bg); color:var(--fg); }
+nav.toc input.toc-search:focus { outline:2px solid var(--accent); outline-offset:-1px; }
+nav.toc .toc-search-status { font-size:.7rem; color:var(--fg-muted); min-height:1em; margin:-4px 0 6px; }
+nav.toc li.toc-hidden { display:none; }
+main.doc-body mark.search-hit { background:#fff3a3; color:#1f2328; border-radius:2px; padding:0 1px; }
+main.doc-body mark.search-hit.current { outline:2px solid var(--accent); outline-offset:1px; }
+main.doc-body { min-width:0; padding:24px 0 64px; }
+main.doc-body h1,main.doc-body h2,main.doc-body h3,main.doc-body h4,main.doc-body h5,main.doc-body h6 { line-height:1.3; margin-top:1.8em; margin-bottom:.6em; scroll-margin-top:16px; position:relative; }
+main.doc-body h1 { font-size:1.7rem; border-bottom:1px solid var(--border); padding-bottom:.3em; }
+main.doc-body h2 { font-size:1.4rem; border-bottom:1px solid var(--border); padding-bottom:.3em; }
+main.doc-body h3 { font-size:1.18rem; } main.doc-body h4 { font-size:1.02rem; }
+main.doc-body a.anchor { position:absolute; left:-1.1em; opacity:0; text-decoration:none; color:var(--fg-muted); font-weight:400; padding-right:.3em; }
+main.doc-body h1:hover a.anchor,main.doc-body h2:hover a.anchor,main.doc-body h3:hover a.anchor,main.doc-body h4:hover a.anchor { opacity:1; }
+main.doc-body a { color:var(--accent); text-decoration:none; } main.doc-body a:hover { text-decoration:underline; }
+main.doc-body p { margin:.8em 0; }
+main.doc-body code { background:var(--bg-code); border-radius:4px; padding:.15em .35em; font-size:.88em; font-family:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace; }
+main.doc-body pre { background:var(--bg-code); border:1px solid var(--border); border-radius:8px; padding:14px 16px; overflow:auto; line-height:1.45; }
+main.doc-body pre code { background:none; padding:0; font-size:.86rem; }
+main.doc-body blockquote { margin:1em 0; padding:.4em 1em; border-left:4px solid var(--border); color:var(--quote); }
+main.doc-body ul,main.doc-body ol { margin:.6em 0; padding-left:1.6em; }
+main.doc-body li { margin:.2em 0; }
+main.doc-body hr { border:0; border-top:1px solid var(--border); margin:2em 0; }
+main.doc-body .table-wrap { overflow-x:auto; margin:1em 0; }
+main.doc-body table { border-collapse:collapse; width:100%; font-size:.9rem; }
+main.doc-body th,main.doc-body td { border:1px solid var(--border); padding:6px 11px; text-align:left; vertical-align:top; }
+main.doc-body thead th { background:var(--thead); }
+main.doc-body tbody tr:nth-child(2n) { background:var(--table-stripe); }
+main.doc-body details.frontmatter { background:var(--bg-soft); border:1px solid var(--border); border-radius:8px; padding:6px 14px; margin:0 0 22px; }
+main.doc-body details.frontmatter summary { cursor:pointer; font-weight:600; color:var(--fg-muted); }
+main.doc-body details.frontmatter table { font-size:.82rem; }
+main.doc-body details.frontmatter th { width:1%; white-space:nowrap; background:transparent; color:var(--fg-muted); }
+main.doc-body .mermaid { background:var(--bg-soft); border:1px solid var(--border); border-radius:8px; padding:14px; margin:1em 0; text-align:center; overflow:auto; white-space:pre-wrap; }
+main.doc-body .truncation-notice { background:var(--accent-soft); border:1px solid var(--accent); border-radius:6px; padding:10px 14px; font-size:.9rem; }
+footer.doc-foot { grid-column:1 / -1; border-top:1px solid var(--border); margin-top:48px; padding:18px 0 40px; color:var(--fg-muted); font-size:.82rem; }
+footer.doc-foot code { background:var(--bg-code); border-radius:4px; padding:.12em .3em; }
+</style>
+</head>
+<body>
+<a class="skip-link" href="#content">Skip to content</a>
+<div class="layout">
+<header class="doc-head">
+<button id="themeToggle" class="theme-toggle" type="button" aria-label="Toggle color theme">◐ theme</button>
+<h1 class="page-title" id="top">JULIETT RGS-V2 REVAMP DECISION — /forge-audit-v2 of the roadmap (2026-05-17, iter-5)</h1>
+<p class="provenance">Generated 2026-05-18T17:34:20.653Z by <code>scripts/emit-all-spec-html.ts</code> · the Markdown alongside is canonical</p>
+</header>
+<nav class="toc" aria-label="Table of contents"><div class="toc-title">On this page</div><input type="search" class="toc-search" placeholder="Search this page…" aria-label="Search this page" autocomplete="off"><div class="toc-search-status" aria-live="polite"></div><ul>
+<li class="toc-l1"><a href="#juliett-rgs-v2-revamp-decision-forge-audit-v2-of-the-roadmap-2026-05-17-iter-5">JULIETT RGS-V2 REVAMP DECISION — /forge-audit-v2 of the roadmap (2026-05-17, iter-5)</a></li>
+<li class="toc-l2"><a href="#0-answer">§0 — ANSWER</a></li>
+<li class="toc-l2"><a href="#1-why-current-rgs-cant-power-the-queues-r5">§1 — Why current RGS can&#39;t power the queues (R5)</a></li>
+<li class="toc-l2"><a href="#2-revamped-pipeline-design-r7-r8-r9-synthesis">§2 — Revamped pipeline design (R7 + R8 + R9 synthesis)</a></li>
+<li class="toc-l2"><a href="#3-decision-v1-incremental-r10-hybrid-tilt">§3 — DECISION: V1-INCREMENTAL (R10, hybrid tilt)</a></li>
+<li class="toc-l2"><a href="#4-other-audit-findings-r1-r4-r6">§4 — Other audit findings (R1, R4, R6)</a></li>
+<li class="toc-l2"><a href="#5-new-units-this-audit-adds">§5 — NEW UNITS this audit adds</a></li>
+<li class="toc-l2"><a href="#6-operator-question-decide-before-next-iter">§6 — OPERATOR QUESTION (decide before next iter)</a></li>
+<li class="toc-l2"><a href="#7-session-health-alert">§7 — SESSION HEALTH ALERT</a></li>
+<li class="toc-l2"><a href="#8-references">§8 — REFERENCES</a></li>
+</ul></nav>
+<main id="content" class="doc-body" role="main">
+<h1 id="juliett-rgs-v2-revamp-decision-forge-audit-v2-of-the-roadmap-2026-05-17-iter-5"><a class="anchor" href="#juliett-rgs-v2-revamp-decision-forge-audit-v2-of-the-roadmap-2026-05-17-iter-5" aria-label="Permalink to JULIETT RGS-V2 REVAMP DECISION — /forge-audit-v2 of the roadmap (2026-05-17, iter-5)">#</a>JULIETT RGS-V2 REVAMP DECISION — /forge-audit-v2 of the roadmap (2026-05-17, iter-5)</h1>
+<blockquote>
+<p>User question: &quot;do we need to run each chat slot task queue through a revamped RGS pipeline that takes advantage of all current systems and tools?&quot; 10-agent forge-audit-v2 swarm (R1-R10); R2+R3 rate-limited (Anthropic limit resets 1:50pm CDT). 8 verdicts synthesized.</p>
+</blockquote>
+<hr>
+<h2 id="0-answer"><a class="anchor" href="#0-answer" aria-label="Permalink to §0 — ANSWER">#</a>§0 — ANSWER</h2>
+<p><strong>YES — the revamp is needed AND justified, but ship it SEQUENCED (5-day incremental), NOT as a monolith now.</strong></p>
+<p>The decisive finding (R5, confirmed): <strong>the current RGS pipeline is structurally broken for the roadmap I built.</strong> <code>roadmap-tool-plans.json</code> has 648 plans, <strong>ALL 648 with empty <code>tools:[]</code></strong> — both the 0.30 (271) and 0.60 (377) confidence tiers ship zero tools; <strong>zero plans at ≥0.75</strong>. 0 of 104 phase-1 backend-dev units have a usable plan. Running the slot queues through <em>today&#39;s</em> RGS produces nothing actionable.</p>
+<p>So the slot queues DO need a revamped RGS — but R10&#39;s trade-off analysis (8 active peer chats, rate-limit already hit twice this session, RGS files contended) says a 1-day V2 monolith is high-risk. The lower-revert-cost, better-learning-signal path is incremental.</p>
+<hr>
+<h2 id="1-why-current-rgs-cant-power-the-queues-r5"><a class="anchor" href="#1-why-current-rgs-cant-power-the-queues-r5" aria-label="Permalink to §1 — Why current RGS can&#39;t power the queues (R5)">#</a>§1 — Why current RGS can&#39;t power the queues (R5)</h2>
+<div class="table-wrap"><table>
+<thead><tr><th>Blocker</th><th>Evidence</th><th>Fix</th><th>Owner</th><th>Cost</th></tr></thead>
+<tbody>
+<tr><td><strong>F1 — 200MB graph cap</strong></td><td><code>master-index-search-lib.mjs:142,306</code> hard-codes <code>200*1024*1024</code>; live graph 331MB → silent null fleet-wide</td><td>lift to 512MB OR honor <code>PRISM_GRAPH_MAX_BYTES</code> everywhere</td><td>any slot</td><td>~15min</td></tr>
+<tr><td><strong>648/648 empty tools[]</strong></td><td>sampled 5 plans, all <code>tools:[]</code>; rule table not emitting tool slates</td><td>U-RGS-RULE-BACKEND-DEV + diagnose emit path</td><td>lima</td><td>~1h</td></tr>
+<tr><td><strong>U-RGS-RULE-BACKEND-DEV unshipped</strong></td><td><code>rgs-pipeline-rules.mjs</code> has 0 <code>backend.?dev</code> refs; spec exists, code doesn&#39;t</td><td>ship lima W0 unit</td><td>lima</td><td>~1h</td></tr>
+<tr><td><strong><code>degraded:true</code> is STALE</strong></td><td>Ollama actually UP (HTTP 200); degradation is structural (empty tools regardless of daemon)</td><td>informational — don&#39;t chase Ollama</td><td>—</td><td>—</td></tr>
+</tbody>
+</table></div>
+<p><strong>Pre-flight gate before slot-queue auto-loop activates:</strong> F1 + U-RGS-RULE-BACKEND-DEV must ship AND a re-run must show ≥1 sampled plan with non-empty <code>tools[]</code> + confidence ≥0.75. Until then, <code>/checkin-&lt;nato&gt;</code> auto-loop would dispatch 104 units against a planner returning <code>tools:[]</code> (Karpathy R12 violation — <code>degraded:true</code> set but consumers ignore it).</p>
+<hr>
+<h2 id="2-revamped-pipeline-design-r7-r8-r9-synthesis"><a class="anchor" href="#2-revamped-pipeline-design-r7-r8-r9-synthesis" aria-label="Permalink to §2 — Revamped pipeline design (R7 + R8 + R9 synthesis)">#</a>§2 — Revamped pipeline design (R7 + R8 + R9 synthesis)</h2>
+<p><strong>9 missing-but-built signal sources</strong> (all on disk; ~270 LOC additive readers, zero new infra):</p>
+<div class="table-wrap"><table>
+<thead><tr><th>Source</th><th>Reader</th><th>LOC</th></tr></thead>
+<tbody>
+<tr><td>per-unit specs (<code>specs/UNITS/&lt;unit&gt;.md</code>)</td><td><code>readers.perUnitSpec</code> → {acceptance, file_targets, prior_art}</td><td>30</td></tr>
+<tr><td>slot-task-queues.json</td><td><code>readers.slotContext</code> → {owner_slot, queue_position, peer_slots}</td><td>25</td></tr>
+<tr><td>token-budget-telemetry</td><td><code>readers.cost</code> → {p95, budget_remaining_pct}</td><td>40</td></tr>
+<tr><td>ollama-pipeline health</td><td><code>readers.ollamaHealth</code> → skip reader on cold daemon</td><td>15</td></tr>
+<tr><td>vault-unified-query</td><td><code>readers.vault</code> → 5-namespace top-K (replaces tribal-only)</td><td>50</td></tr>
+<tr><td>error-fix-vault-bridge</td><td><code>readers.priorErrors</code> → {class, recipe} keyed by file overlap</td><td>35</td></tr>
+<tr><td>chat-bus</td><td><code>readers.peerActivity</code> → flip <code>defer:true</code> on collision</td><td>25</td></tr>
+<tr><td>slot-domain affinity table</td><td>rule extension: +0.10 conf when unit.domain==slot.domain</td><td>20</td></tr>
+<tr><td>master-index-search-lib (post-F1)</td><td><code>readers.graphHits</code> → top-5 nodes</td><td>30</td></tr>
+</tbody>
+</table></div>
+<p><strong>Revamped plan SHAPE (sidecar v1.0.0 → v1.2.0, additive):</strong></p>
+<pre><code class="language-json">{
+  &quot;unit_key&quot;: &quot;...&quot;, &quot;pipeline&quot;: [...],
+  &quot;slot_hint&quot;: &quot;lima&quot;, &quot;slot_confidence&quot;: 0.90, &quot;slot_alignment_score&quot;: 0.0-1.0,
+  &quot;budget&quot;: { &quot;model&quot;: &quot;haiku|sonnet|opus&quot;, &quot;thinking_tokens&quot;: N, &quot;agents_max&quot;: 1-8, &quot;ollama_offload_pct&quot;: 0.30 },
+  &quot;context_pre_fetch&quot;: [&quot;spec://...&quot;, &quot;wiki://...&quot;, &quot;tribal://...&quot;, &quot;memory://...&quot;],
+  &quot;prior_errors&quot;: [{&quot;class&quot;:&quot;...&quot;,&quot;recipe&quot;:&quot;error-fixes/...&quot;}],
+  &quot;expected_files_to_touch&quot;: [...],
+  &quot;peer_collision_risk&quot;: {&quot;score&quot;:0.0-1.0,&quot;blocking_slots&quot;:[]},
+  &quot;clear_or_compact&quot;: &quot;clear|compact&quot;,
+  &quot;confidence&quot;: 0.87
+}
+</code></pre>
+<p><strong>R8 slot-aware scoring:</strong> <code>score = base × (1 + α·affinity(rule.tools, slot_preference_vector[slot]))</code>, α≈0.35. 6 rules slot-neutral, 8 gain slot-multiplier, 0 new slot-only rules. <code>slot_hint===null</code> → α=0 → byte-identical to current (regression-safe; 84/84 MS1 E2E must stay green).</p>
+<p><strong>R9 token-savings:</strong> the 5 <code>budget</code>/<code>context_pre_fetch</code>/<code>clear_or_compact</code> fields → <strong>~60% per-session token reduction</strong> (model-routing −45%, thinking-budget −8%, prefetch −5%, /clear −2%, team-cap amortized −15-25% on long loops). This directly operationalizes the iter-4 token audit.</p>
+<hr>
+<h2 id="3-decision-v1-incremental-r10-hybrid-tilt"><a class="anchor" href="#3-decision-v1-incremental-r10-hybrid-tilt" aria-label="Permalink to §3 — DECISION: V1-INCREMENTAL (R10, hybrid tilt)">#</a>§3 — DECISION: V1-INCREMENTAL (R10, hybrid tilt)</h2>
+<p>5-day sequenced plan — each unit small, reversible, observable; lima already owns the RGS files (no peer conflict):</p>
+<div class="table-wrap"><table>
+<thead><tr><th>Day</th><th>Unit</th><th>Owner</th><th>Cost</th><th>Fixes</th></tr></thead>
+<tbody>
+<tr><td>1</td><td><strong>F1 graph-cap fix</strong> + <strong>U-RGS-RULE-BACKEND-DEV</strong></td><td>any slot + lima</td><td>15min + 1h</td><td>R6 token-budget gap across all 104 plans; graph-search fleet-wide</td></tr>
+<tr><td>2</td><td><strong>U-UNIT-SPEC-GENERATOR</strong></td><td>juliett</td><td>M</td><td>feeds <code>readers.perUnitSpec</code> (dead-weight until specs exist — only 5/4500 today)</td></tr>
+<tr><td>3</td><td><strong>U-RGS-NEXT-INTEGRATE</strong> (S9)</td><td>lima</td><td>M</td><td>R5 fallback routing; wires sidecar into /pick-unit</td></tr>
+<tr><td>4</td><td>synthesize R7+R8+R9 + day1-3 telemetry → <strong>U-RGS-V2-REVAMPED spec</strong></td><td>juliett</td><td>S</td><td>spec from real data, not untested assumptions</td></tr>
+<tr><td>5</td><td><strong>U-RGS-V2-REVAMPED</strong></td><td>lima</td><td>M</td><td>slot-affinity + budget + context-prefetch + prior-errors + peer-collision</td></tr>
+</tbody>
+</table></div>
+<p><strong>Fast-path option (operator&#39;s call):</strong> ship <strong>U-RGS-V2-MINIMAL</strong> = <code>slot_hint + budget + context_pre_fetch</code> triplet only (~3h, lima). Captures 70% of revamp value at 40% cost; defer <code>prior_errors</code> + <code>peer_collision_risk</code> to MS3.</p>
+<hr>
+<h2 id="4-other-audit-findings-r1-r4-r6"><a class="anchor" href="#4-other-audit-findings-r1-r4-r6" aria-label="Permalink to §4 — Other audit findings (R1, R4, R6)">#</a>§4 — Other audit findings (R1, R4, R6)</h2>
+<p><strong>R1 structural (slot-task-queues.json):</strong> schema valid; <strong>2 cross-slot dups</strong> (U-SKILL-CHAIN-MANIFEST bravo+foxtrot, U-CLOSE-OUT-TRIAGE-CAMP foxtrot+hotel — pick canonical, drop dup); <strong>10 false-positive broken-deps</strong> (resolver must union <code>operator_gates[].id</code> — 1-line fix in <code>generate-slot-queues.mjs</code>); <strong>6 starving slots</strong> (charlie/delta/india/juliett/kilo/mike got 0 long_tail).</p>
+<p><strong>R4 unclassified triage:</strong> 122 of 123 are slot-assignable; <strong>1 true orphan</strong> (U-CLEANUP-G9 pr-ci-watch, DEFERRED). <strong>Dominant gap is milestone-prefix→slot mapping, NOT per-unit keywords</strong> — biggest clusters: 28 WORKTREE-CONSOLIDATE→charlie, 23 OIMS3→hotel, 23 COMMAND-KERNEL→lima, 14 GIT-TREE split charlie/golf. Add milestone-prefix routing to <code>SLOT_KEYWORDS</code> → ~99% next-regen capture. Fix = <code>U-SLOT-CLASSIFIER-V2</code> (S, juliett).</p>
+<p><strong>R6 REVENUE promotion:</strong> <strong>56 of 395 parked units are backend-infra mislabeled</strong> (formula/algorithm extraction, registry/catalog import, graph parser, CI gates — no operator surface). Top clusters: MS-RES-FORMULA-ALGO, MS-RES-POST-CYCLE-LIB (reference lib), MS-VIZ-ROADMAP-BIND (pure devtool). Ship <code>U-PHASE-PROMOTE-RES-BACKEND</code> (S, roadmap-only re-shelve, human-verify via <code>audit-close-out-candidates.mjs</code> first). Operator directive HONORED — these are backend-dev <em>prerequisites</em> mislabeled by source roadmap, not revenue work.</p>
+<hr>
+<h2 id="5-new-units-this-audit-adds"><a class="anchor" href="#5-new-units-this-audit-adds" aria-label="Permalink to §5 — NEW UNITS this audit adds">#</a>§5 — NEW UNITS this audit adds</h2>
+<div class="table-wrap"><table>
+<thead><tr><th>Unit</th><th>Owner</th><th>Cost</th><th>Purpose</th></tr></thead>
+<tbody>
+<tr><td>U-RGS-V2-REVAMPED</td><td>lima</td><td>M</td><td>9-reader revamp (day-5)</td></tr>
+<tr><td>U-RGS-V2-MINIMAL (alt)</td><td>lima</td><td>S</td><td>fast-path: slot_hint+budget+prefetch only</td></tr>
+<tr><td>U-PHASE-PROMOTE-RES-BACKEND</td><td>juliett</td><td>S</td><td>re-shelve 56 mislabeled REVENUE→phase1</td></tr>
+<tr><td>U-SLOT-CLASSIFIER-V2</td><td>juliett</td><td>S</td><td>milestone-prefix routing → 99% capture</td></tr>
+<tr><td>U-SLOT-QUEUE-RESOLVER-FIX</td><td>juliett</td><td>XS</td><td>union operator_gates[].id (kills 10 false broken-deps)</td></tr>
+</tbody>
+</table></div>
+<p>These ADD to the 35→40 unit count. Total session units: 40 + comprehensive long_tail.</p>
+<hr>
+<h2 id="6-operator-question-decide-before-next-iter"><a class="anchor" href="#6-operator-question-decide-before-next-iter" aria-label="Permalink to §6 — OPERATOR QUESTION (decide before next iter)">#</a>§6 — OPERATOR QUESTION (decide before next iter)</h2>
+<p><strong>Ship V1-incremental (5 small units over 5 days, observable, lima-locked, low-risk) OR bet on V2-revamped monolith now (1-day spike, HIGH peer-conflict with 8 active chats + rate-limit already hit 2× this session)?</strong></p>
+<p>Recommendation: <strong>V1-incremental.</strong> R7/R8/R9 prove the revamp value is real but cleanly separable; R10 proves the monolith risk is high right now.</p>
+<hr>
+<h2 id="7-session-health-alert"><a class="anchor" href="#7-session-health-alert" aria-label="Permalink to §7 — SESSION HEALTH ALERT">#</a>§7 — SESSION HEALTH ALERT</h2>
+<p>Golf fleet-memory-monitor: one chat already OOM-crashed; largest trees 918MB/840MB/836MB; 11+ hours of <code>/compact</code> advisories with <code>slotLabel:null</code>. <strong>This juliett session is at ~5.9M tokens.</strong> Per the CLEAR-NOT-COMPACT doctrine I shipped iter-3: <strong>operator should <code>/clear</code> this session</strong> — all state is on-disk (this spec + slot-task-queues.json + per-agent handoff). Next iter picks up from handoff RESUME.</p>
+<hr>
+<h2 id="8-references"><a class="anchor" href="#8-references" aria-label="Permalink to §8 — REFERENCES">#</a>§8 — REFERENCES</h2>
+<ul>
+<li>Roadmap built: <code>state/shared/slot-task-queues.json</code> (commit 9680a13af9) + <code>scripts/generate-slot-queues.mjs</code> + <code>scripts/slot-queue.mjs</code> + <code>state/shared/specs/SLOT-AUTO-LOOP-MS0.md</code></li>
+<li>Allocation lineage: <code>JULIETT-{12CHAT-ROI-ALLOCATION,DEVTOOLS-SYNERGY-MAP,FAN-OUT-T1-T5-ADDENDUM,TOKEN-OPTIMIZATION-AUDIT}-2026-05-17.md</code></li>
+<li>RGS source: <code>scripts/rgs-tool-planner.mjs</code>, <code>scripts/lib/rgs-signal-fusion.mjs</code>, <code>scripts/lib/rgs-pipeline-rules.mjs</code></li>
+<li>Sidecar: <code>state/shared/roadmap-tool-plans.json</code> (648 plans, all empty tools[] — bump v1.0.0→v1.2.0)</li>
+<li>Memory: [[reference_rgs_tool_autoinvoke_ms1_2026_05_16]], [[reference_juliett_devtools_synergy_map_2026_05_17]]</li>
+</ul>
+</main>
+<footer class="doc-foot">
+<p>HTML companion — the canonical document is the Markdown file alongside it. <a href="JULIETT-RGS-V2-DECISION-2026-05-17.md">JULIETT-RGS-V2-DECISION-2026-05-17.md</a> Regenerate: <code>node scripts/emit-spec-html.mjs &lt;path.md&gt;</code></p>
+
+</footer>
+</div>
+<script>(function(){
+  try {
+    var k = "prism-spec-theme";
+    var saved = localStorage.getItem(k);
+    if (saved === "dark" || saved === "light") document.documentElement.setAttribute("data-theme", saved);
+  } catch (e) { /* localStorage blocked — keep default theme */ }
+  var b = document.getElementById("themeToggle");
+  if (!b) return;
+  b.addEventListener("click", function () {
+    var cur = document.documentElement.getAttribute("data-theme");
+    var sysDark = !!(window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches);
+    var next = cur === "dark" ? "light" : cur === "light" ? "dark" : (sysDark ? "light" : "dark");
+    document.documentElement.setAttribute("data-theme", next);
+    b.textContent = next === "dark" ? "\u263E dark" : "\u2600 light";
+    try { localStorage.setItem(k, next); } catch (e) { /* persistence unavailable — non-fatal */ }
+  });
+})();</script>
+<script>(function(){
+  var body = document.querySelector("main.doc-body");
+  var toc = document.querySelector("nav.toc");
+  if (!body) return;
+  // TOC active-section highlight.
+  if (toc) {
+    var links = {};
+    toc.querySelectorAll("a[href^='#']").forEach(function(a){ links[a.getAttribute("href").slice(1)] = a; });
+    var heads = body.querySelectorAll("h1[id],h2[id],h3[id],h4[id]");
+    var active = null;
+    function setActive(id){
+      if (active === id) return;
+      if (active && links[active]) links[active].classList.remove("active");
+      active = id;
+      if (active && links[active]) links[active].classList.add("active");
+    }
+    var io = new IntersectionObserver(function(entries){
+      var top = null, topY = Infinity;
+      entries.forEach(function(e){ if (e.isIntersecting) { var y = e.boundingClientRect.top; if (y < topY) { topY = y; top = e.target.id; } } });
+      if (!top) {
+        var best = null;
+        heads.forEach(function(h){ if (h.getBoundingClientRect().top < 80) best = h.id; });
+        top = best || (heads[0] && heads[0].id);
+      }
+      if (top) setActive(top);
+    }, { rootMargin: "0px 0px -70% 0px", threshold: [0, 1] });
+    heads.forEach(function(h){ io.observe(h); });
+  }
+  // In-page search: wrap matches in <mark>, jump to first, filter the TOC.
+  var input = toc && toc.querySelector("input.toc-search");
+  var status = toc && toc.querySelector(".toc-search-status");
+  if (!input) return;
+  var SKIP = { SCRIPT:1, STYLE:1, MARK:1, NOSCRIPT:1 };
+  function clearMarks(){
+    body.querySelectorAll("mark.search-hit").forEach(function(m){ var p = m.parentNode; if (p) { p.replaceChild(document.createTextNode(m.textContent), m); p.normalize(); } });
+    if (toc) toc.querySelectorAll("li.toc-hidden").forEach(function(li){ li.classList.remove("toc-hidden"); });
+  }
+  function doSearch(q){
+    clearMarks();
+    if (status) status.textContent = "";
+    if (!q || q.length < 2) return;
+    var needle = q.toLowerCase(), hits = 0, first = null;
+    var walker = document.createTreeWalker(body, NodeFilter.SHOW_TEXT, { acceptNode: function(n){
+      if (!n.nodeValue || !n.nodeValue.trim()) return NodeFilter.FILTER_REJECT;
+      var p = n.parentNode; while (p && p !== body) { if (SKIP[p.nodeName]) return NodeFilter.FILTER_REJECT; p = p.parentNode; }
+      return n.nodeValue.toLowerCase().indexOf(needle) >= 0 ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT;
+    }});
+    var targets = [];
+    while (walker.nextNode()) targets.push(walker.currentNode);
+    targets.forEach(function(node){
+      if (hits > 2000) return;
+      var text = node.nodeValue, lower = text.toLowerCase(), frag = document.createDocumentFragment(), i = 0, idx;
+      while ((idx = lower.indexOf(needle, i)) >= 0 && hits <= 2000) {
+        if (idx > i) frag.appendChild(document.createTextNode(text.slice(i, idx)));
+        var m = document.createElement("mark"); m.className = "search-hit"; m.textContent = text.slice(idx, idx + needle.length);
+        if (hits === 0) { m.classList.add("current"); first = m; }
+        frag.appendChild(m); hits++; i = idx + needle.length;
+      }
+      if (i < text.length) frag.appendChild(document.createTextNode(text.slice(i)));
+      if (node.parentNode) node.parentNode.replaceChild(frag, node);
+    });
+    if (status) status.textContent = hits ? (hits + " match" + (hits === 1 ? "" : "es")) : "no matches";
+    if (toc) toc.querySelectorAll("li").forEach(function(li){ var a = li.querySelector("a"); if (a && a.textContent.toLowerCase().indexOf(needle) < 0) li.classList.add("toc-hidden"); });
+    if (first) first.scrollIntoView({ block: "center", behavior: "smooth" });
+  }
+  var t;
+  input.addEventListener("input", function(){ clearTimeout(t); t = setTimeout(function(){ doSearch(input.value.trim()); }, 180); });
+  input.addEventListener("keydown", function(e){ if (e.key === "Escape") { input.value = ""; doSearch(""); input.blur(); } });
+})();</script>
+</body>
+</html>

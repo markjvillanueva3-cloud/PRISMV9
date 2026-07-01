@@ -688,6 +688,61 @@ N920 M30
   prismEngines: ["GCodeSafetyAnalyzerEngine"],
 }];
 
+const mod11: Lesson[] = [{
+  id: `${CID}-m11-l1`, moduleId: `${CID}-mod-11`,
+  title: "Citation Discipline — G-Code Standards & Controller References", order: 1,
+  content: [{
+    type: "text",
+    body: `# Citation Discipline — G-Code & Controllers
+
+**Prerequisite:** Modules 1-10 of this course (G-code structure, motion, canned cycles, comp).
+**Learning objective:** For every G-code, M-code, and canned cycle, identify the *governing standard* (ISO baseline) AND the *controller-specific dialect* (vendor extension). G-code is *not* one language — it is one ISO base + many vendor dialects.
+**Assessment:** Print a real program from your shop. Cite the controller manual for every non-ISO-standard code in it.
+
+## Why G-Code Needs Cited References
+
+G83 on a Fanuc controller does *deep-hole peck drilling*. G83 on a Heidenhain controller does *something completely different*. ISO 6983 defines a base vocabulary; every vendor extends it. A program that runs on machine A may crash machine B unless the *target controller* is cited.
+
+## Citation Pattern (G-Code Variant)
+
+\`<code/cycle> [per <controller manual, model, edition, section> | base: <ISO clause>]\`
+
+Examples revisiting modules of THIS course:
+
+- **"G-code program structure (N/G/M/X/Y/Z/F/S address words)"** [per ISO 6983-1:2009, *Numerical control of machines — Program format and definitions of address words* — ISO; clause 5.]
+- **"G81/G83 canned drilling cycles"** [per Fanuc 30i/31i/32i Operator's Manual (B-64304EN) — Section: Canned Cycle for Drilling — *Fanuc-specific behavior; do NOT assume Heidenhain or Siemens 840D match.* Base ref: ISO 6983-2.]
+- **"G41/G42 cutter compensation"** [per ISO 6983-1:2009 clause 6 + vendor-specific lookahead behavior (Fanuc Series 30i / Haas NGC / Okuma OSP-P300) — vendor manual is authoritative for lookahead window.]
+- **"G54-G59 work offsets"** [per ISO 6983-1:2009; extended offsets G54.1 Px per Fanuc 30i Operator's Manual (Macro Compiler variants vary).]
+- **"M-codes M03/M04/M05/M06/M08/M09"** [per ISO 6983-1:2009 §7 — these six are standardized; M-codes ≥M50 are vendor-defined.]
+- **"Haas G-code dialect (G187, G253, etc.)"** [per Haas *Mill Operator's Manual*, current revision, available via Haas Tooling — these are Haas-specific extensions, not portable.]
+- **"Okuma OSP-P300 user tasks"** [per Okuma *OSP-P300M Programming Manual* — User Tasks 1/2 are Okuma-specific; do not exist on Fanuc/Haas.]
+- **"Macro programming (#variables, IF/GOTO)"** [per Fanuc *Macro B* (Custom Macro B) manual or Haas *Macros B Programming Reference* — vendor dialects differ; #100-#199 vs #100-#149 ranges vary.]
+
+## Doctrine vs Technique vs Reference (G-Code Lens)
+
+| Category | In G-code | Examples |
+|----------|-----------|----------|
+| **Doctrine** | ISO 6983 base + universal cycle structures. | Modal codes · linear G01 syntax · M03 = spindle on CW |
+| **Technique** | Hand-coding from formula or macro pattern. | Writing a bolt-circle subprogram · expressing a chamfer in G01 |
+| **Reference** | Controller-specific everything else. | Fanuc canned cycles · Haas G/M codes · Okuma user tasks · macro variable ranges · post-processor output |
+
+## The Cross-Controller Failure Mode
+
+A program written for a Fanuc 0i-MF runs perfectly. The shop buys a Haas Mini Mill. The same program "runs" but G73 peck drilling has different retract behavior (Fanuc = retract to R-plane; Haas may differ per setting #22). Result: tool crashes on the second hole. **Defense:** for any program that will move between controllers, cite the *target controller manual* on every canned cycle and macro, then verify on the new controller before production.
+
+## Practice (Assessment)
+
+Pull a recent post-processed program. For each line:
+
+1. Is the G-code in ISO 6983 baseline (G00/G01/G02/G03/G17/G18/G19/G40/G41/G42/G54-G59/G80-G89/G90/G91)? If yes → portable.
+2. If not (e.g., G187 on Haas, G131 on Fanuc) → cite the **controller manual section** that defines it.
+3. For every M-code ≥ M50 → cite the **machine-specific M-code list** (Haas, Fanuc, Okuma, Heidenhain, Siemens).
+4. For every macro variable → cite the **macro programming manual** that allocates that range.
+
+If a code can't be cited → it may be a non-standard code that won't run on a substitute machine. Flag for post-processor regeneration.`,
+  }],
+}];
+
 // ═══════════════════════════════════════════════════════════
 // Quiz Questions
 // ═══════════════════════════════════════════════════════════
@@ -755,6 +810,23 @@ export const COURSE_3_QUIZZES: Record<string, Question[]> = {
       tags: ["gcode", "canned_cycle", "safety"],
     },
   ],
+  [`${CID}-mod-11-quiz`]: [
+    {
+      id: "c3-m11-q1", type: "multiple_choice", difficulty: 2,
+      text: "A program written for a Fanuc 0i-MF uses G73 peck drilling. The shop transfers it to a Haas Mini Mill. The same program runs but the second hole crashes. What's the most likely root cause + cited remedy?",
+      options: [
+        { id: "a", text: "G73 retract behavior differs between Fanuc and Haas (Setting #22) — cite each controller's manual for canned-cycle semantics", isCorrect: true },
+        { id: "b", text: "Tool offset overflow — Haas can only hold 200 offsets", isCorrect: false,
+          explanation: "Both controllers handle hundreds of offsets — this is not a portability issue." },
+        { id: "c", text: "Coolant code M08 means something different on Haas", isCorrect: false,
+          explanation: "M03/M05/M08/M09 are ISO 6983 standardized; portable across controllers." },
+        { id: "d", text: "G54 work offset behavior differs", isCorrect: false,
+          explanation: "G54-G59 are ISO 6983 standardized; portable." },
+      ],
+      explanation: "Citation: Fanuc 30i Operator's Manual + Haas Mill Operator's Manual both define G73 differently — peck retract is controller-specific even though the G-code letter+number match. ISO 6983-2 acknowledges this divergence. The remedy is post-processor regeneration targeting Haas, not assuming program portability.",
+      tags: ["citation_discipline", "gcode", "iso_6983", "controller_dialect"],
+    },
+  ],
 };
 
 // ═══════════════════════════════════════════════════════════
@@ -786,4 +858,5 @@ export const COURSE_3_MODULES: Module[] = [
   mk(8, "Program Structure", mod8, 35),
   mk(9, "Common Mistakes", mod9, 45),
   mk(10, "Reading Real Programs", mod10, 50),
+  mk(11, "Citation Discipline — G-Code Standards & Controller References", mod11, 40),
 ];

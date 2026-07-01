@@ -1,0 +1,45 @@
+{
+  "schemaVersion": 1,
+  "refreshedAt": "2026-06-13T05:59:58.722Z",
+  "source": "retrain-lifecycle.jsonl",
+  "ts": "2026-06-12T02:02:19.632Z",
+  "action": "not-promoted",
+  "ok": true,
+  "trained": true,
+  "trainExitCode": 0,
+  "assessment": {
+    "deferred": false,
+    "holdoutN": 13,
+    "metrics": {
+      "auroc": 0.4286,
+      "macroF1": 0.1053,
+      "brier": 0.2555,
+      "accuracy": 0.4615
+    },
+    "grade": {
+      "pass": false,
+      "verdict": "shipped-research-only",
+      "failures": [
+        "AUROC 0.4286 < 0.78",
+        "macro-F1 0.1053 < 0.55",
+        "Brier 0.2555 > 0.15"
+      ]
+    }
+  },
+  "promote": {
+    "promote": false,
+    "reason": "gate not cleared (AUROC 0.4286 < 0.78; macro-F1 0.1053 < 0.55; Brier 0.2555 > 0.15) -- NEVER promote a sub-gate checkpoint (selective path also not robust)"
+  },
+  "promoted": false,
+  "drift": {
+    "retrain": true,
+    "reason": "forced (--force)"
+  },
+  "fingerprint": {
+    "nodeCount": 336405,
+    "edgeCount": 698135,
+    "ghostCount": 208
+  },
+  "errors": [],
+  "note": "Latest candidate from retrain-lifecycle.jsonl. SessionStart PSN-LEG-STATE banner should prefer this over the stale NN-EVAL.json checkpoint when present + trained:true."
+}

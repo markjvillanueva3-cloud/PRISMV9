@@ -1,0 +1,1781 @@
+[
+  {
+    "id": "doc-cascade",
+    "file": ".claude/hooks/doc-cascade.mjs",
+    "wired": false,
+    "disabled": false,
+    "events": [],
+    "description": "Phase 0.15 Documentation Cascade",
+    "descriptionInferred": false,
+    "tier": "T4",
+    "sizeBytes": 2043,
+    "lines": 80
+  },
+  {
+    "id": "doc-freshness-check",
+    "file": ".claude/hooks/doc-freshness-check.mjs",
+    "wired": false,
+    "disabled": false,
+    "events": [],
+    "description": "Phase 0.15 Documentation Freshness Check",
+    "descriptionInferred": false,
+    "tier": "T4",
+    "sizeBytes": 2031,
+    "lines": 87
+  },
+  {
+    "id": "docker-intel-autostart",
+    "file": ".claude/hooks/docker-intel-autostart.mjs",
+    "wired": true,
+    "disabled": false,
+    "events": [
+      {
+        "event": "SessionStart",
+        "matcher": "",
+        "timeout": 8000,
+        "type": "command",
+        "layer": "user",
+        "disabled": false
+      }
+    ],
+    "description": "Auto-start the PRISM intel-stack containers",
+    "descriptionInferred": false,
+    "tier": "T1",
+    "sizeBytes": 13633,
+    "lines": 303
+  },
+  {
+    "id": "document-preserve-guard",
+    "file": ".claude/hooks/document-preserve-guard.mjs",
+    "wired": false,
+    "disabled": false,
+    "events": [],
+    "description": "Document Preservation Guard — Stop Hook",
+    "descriptionInferred": false,
+    "tier": "T0",
+    "sizeBytes": 4705,
+    "lines": 141
+  },
+  {
+    "id": "dotclaude-junctions-guard",
+    "file": ".claude/hooks/dotclaude-junctions-guard.mjs",
+    "wired": true,
+    "disabled": false,
+    "events": [
+      {
+        "event": "SessionStart",
+        "matcher": "",
+        "timeout": 5000,
+        "type": "command",
+        "layer": "user",
+        "disabled": false
+      },
+      {
+        "event": "SessionStart",
+        "matcher": "",
+        "timeout": 5000,
+        "type": "command",
+        "layer": "project",
+        "disabled": false
+      }
+    ],
+    "description": "SessionStart verification for ~/.claude subfolder junctions.",
+    "descriptionInferred": false,
+    "tier": "T4",
+    "sizeBytes": 2820,
+    "lines": 79
+  },
+  {
+    "id": "dsl-output-compressor",
+    "file": ".claude/hooks/dsl-output-compressor.mjs",
+    "wired": true,
+    "disabled": false,
+    "events": [
+      {
+        "event": "PostToolUse",
+        "matcher": "Bash",
+        "timeout": 2000,
+        "type": "command",
+        "layer": "project",
+        "disabled": false
+      },
+      {
+        "event": "PostToolUse",
+        "matcher": "Bash|Read",
+        "timeout": null,
+        "type": "command",
+        "layer": "user",
+        "disabled": false,
+        "viaBundle": "posttool-bash-read-bundle"
+      }
+    ],
+    "description": "PostToolUse hook (any tool).",
+    "descriptionInferred": false,
+    "tier": "T3",
+    "sizeBytes": 4136,
+    "lines": 118
+  },
+  {
+    "id": "duplication-guard-stop",
+    "file": ".claude/hooks/duplication-guard-stop.mjs",
+    "wired": true,
+    "disabled": false,
+    "events": [
+      {
+        "event": "Stop",
+        "matcher": "",
+        "timeout": 3000,
+        "type": "command",
+        "layer": "user",
+        "disabled": false
+      },
+      {
+        "event": "Stop",
+        "matcher": "",
+        "timeout": 3000,
+        "type": "command",
+        "layer": "project",
+        "disabled": false
+      }
+    ],
+    "description": "Stop hook",
+    "descriptionInferred": false,
+    "tier": "T4",
+    "sizeBytes": 5626,
+    "lines": 187
+  },
+  {
+    "id": "duplication-hard-block",
+    "file": ".claude/hooks/duplication-hard-block.mjs",
+    "wired": true,
+    "disabled": false,
+    "events": [
+      {
+        "event": "PreToolUse",
+        "matcher": "Edit|Write|MultiEdit",
+        "timeout": null,
+        "type": "command",
+        "layer": "user",
+        "disabled": false,
+        "viaBundle": "edit-bundle"
+      },
+      {
+        "event": "PreToolUse",
+        "matcher": "Edit|Write|MultiEdit",
+        "timeout": null,
+        "type": "command",
+        "layer": "project",
+        "disabled": false,
+        "viaBundle": "edit-bundle"
+      }
+    ],
+    "description": "PreToolUse hook (U-AWARE07)",
+    "descriptionInferred": false,
+    "tier": "T0",
+    "sizeBytes": 6601,
+    "lines": 173
+  },
+  {
+    "id": "edit-batch-detector",
+    "file": ".claude/hooks/edit-batch-detector.mjs",
+    "wired": true,
+    "disabled": false,
+    "events": [
+      {
+        "event": "PostToolUse",
+        "matcher": "Edit|Write|MultiEdit",
+        "timeout": 2000,
+        "type": "command",
+        "layer": "project",
+        "disabled": false
+      },
+      {
+        "event": "PostToolUse",
+        "matcher": "Edit|Write|MultiEdit",
+        "timeout": null,
+        "type": "command",
+        "layer": "user",
+        "disabled": false,
+        "viaBundle": "posttool-edit-bundle"
+      },
+      {
+        "event": "PreToolUse",
+        "matcher": "Edit|Write|MultiEdit",
+        "timeout": null,
+        "type": "command",
+        "layer": "user",
+        "disabled": false,
+        "viaBundle": "posttool-edit-bundle"
+      },
+      {
+        "event": "PreToolUse",
+        "matcher": "Edit|Write|MultiEdit",
+        "timeout": null,
+        "type": "command",
+        "layer": "project",
+        "disabled": false,
+        "viaBundle": "posttool-edit-bundle"
+      }
+    ],
+    "description": "PostToolUse Edit",
+    "descriptionInferred": false,
+    "tier": "T3",
+    "sizeBytes": 2916,
+    "lines": 110
+  },
+  {
+    "id": "edit-multiedit-suggest",
+    "file": ".claude/hooks/edit-multiedit-suggest.mjs",
+    "wired": true,
+    "disabled": false,
+    "events": [
+      {
+        "event": "PostToolUse",
+        "matcher": "Edit|Write|MultiEdit",
+        "timeout": 2000,
+        "type": "command",
+        "layer": "project",
+        "disabled": false
+      },
+      {
+        "event": "PostToolUse",
+        "matcher": "Edit|Write|MultiEdit",
+        "timeout": null,
+        "type": "command",
+        "layer": "user",
+        "disabled": false,
+        "viaBundle": "posttool-edit-bundle"
+      },
+      {
+        "event": "PreToolUse",
+        "matcher": "Edit|Write|MultiEdit",
+        "timeout": null,
+        "type": "command",
+        "layer": "user",
+        "disabled": false,
+        "viaBundle": "posttool-edit-bundle"
+      },
+      {
+        "event": "PreToolUse",
+        "matcher": "Edit|Write|MultiEdit",
+        "timeout": null,
+        "type": "command",
+        "layer": "project",
+        "disabled": false,
+        "viaBundle": "posttool-edit-bundle"
+      }
+    ],
+    "description": "PostToolUse Edit",
+    "descriptionInferred": false,
+    "tier": "T3",
+    "sizeBytes": 3753,
+    "lines": 141
+  },
+  {
+    "id": "edit-old-string-verify",
+    "file": ".claude/hooks/edit-old-string-verify.mjs",
+    "wired": true,
+    "disabled": false,
+    "events": [
+      {
+        "event": "PreToolUse",
+        "matcher": "Edit|Write|MultiEdit",
+        "timeout": null,
+        "type": "command",
+        "layer": "user",
+        "disabled": false,
+        "viaBundle": "edit-bundle"
+      },
+      {
+        "event": "PreToolUse",
+        "matcher": "Edit|Write|MultiEdit",
+        "timeout": null,
+        "type": "command",
+        "layer": "project",
+        "disabled": false,
+        "viaBundle": "edit-bundle"
+      }
+    ],
+    "description": "PreToolUse Edit",
+    "descriptionInferred": false,
+    "tier": "T1",
+    "sizeBytes": 3803,
+    "lines": 119
+  },
+  {
+    "id": "efficiency-monitor",
+    "file": ".claude/hooks/efficiency-monitor.mjs",
+    "wired": true,
+    "disabled": false,
+    "events": [
+      {
+        "event": "PostToolUse",
+        "matcher": "Bash",
+        "timeout": 1000,
+        "type": "command",
+        "layer": "project",
+        "disabled": false
+      },
+      {
+        "event": "PostToolUse",
+        "matcher": "Bash|Read",
+        "timeout": null,
+        "type": "command",
+        "layer": "user",
+        "disabled": false,
+        "viaBundle": "posttool-bash-read-bundle"
+      }
+    ],
+    "description": "Efficiency Monitor — PostToolUse Hook",
+    "descriptionInferred": false,
+    "tier": "T3",
+    "sizeBytes": 2373,
+    "lines": 96
+  },
+  {
+    "id": "embed-vault-on-save",
+    "file": ".claude/hooks/embed-vault-on-save.mjs",
+    "wired": false,
+    "disabled": false,
+    "events": [],
+    "description": "embed-vault-on-save.mjs",
+    "descriptionInferred": false,
+    "tier": "T3",
+    "sizeBytes": 9004,
+    "lines": 236
+  },
+  {
+    "id": "embedder-inject-qdrant",
+    "file": ".claude/hooks/embedder-inject-qdrant.mjs",
+    "wired": true,
+    "disabled": false,
+    "events": [
+      {
+        "event": "SessionStart",
+        "matcher": "",
+        "timeout": 5000,
+        "type": "command",
+        "layer": "project",
+        "disabled": false
+      }
+    ],
+    "description": "SessionStart smoke test for Qdrant embedder",
+    "descriptionInferred": false,
+    "tier": "T4",
+    "sizeBytes": 4788,
+    "lines": 143
+  },
+  {
+    "id": "embedding-cache-guard",
+    "file": ".claude/hooks/embedding-cache-guard.mjs",
+    "wired": true,
+    "disabled": false,
+    "events": [
+      {
+        "event": "PostToolUse",
+        "matcher": "Edit|Write|MultiEdit",
+        "timeout": 3000,
+        "type": "command",
+        "layer": "project",
+        "disabled": false
+      }
+    ],
+    "description": "PostToolUse hook",
+    "descriptionInferred": false,
+    "tier": "T4",
+    "sizeBytes": 2963,
+    "lines": 90
+  },
+  {
+    "id": "encoding-guard",
+    "file": ".claude/hooks/encoding-guard.mjs",
+    "wired": true,
+    "disabled": false,
+    "events": [
+      {
+        "event": "PostToolUse",
+        "matcher": "Edit|Write|MultiEdit",
+        "timeout": null,
+        "type": "command",
+        "layer": "user",
+        "disabled": false,
+        "viaBundle": "posttool-edit-bundle"
+      },
+      {
+        "event": "PreToolUse",
+        "matcher": "Edit|Write|MultiEdit",
+        "timeout": null,
+        "type": "command",
+        "layer": "user",
+        "disabled": false,
+        "viaBundle": "edit-bundle"
+      },
+      {
+        "event": "PreToolUse",
+        "matcher": "Edit|Write|MultiEdit",
+        "timeout": null,
+        "type": "command",
+        "layer": "project",
+        "disabled": false,
+        "viaBundle": "edit-bundle"
+      },
+      {
+        "event": "PreToolUse",
+        "matcher": "Edit|Write|MultiEdit",
+        "timeout": null,
+        "type": "command",
+        "layer": "user",
+        "disabled": false,
+        "viaBundle": "posttool-edit-bundle"
+      },
+      {
+        "event": "PreToolUse",
+        "matcher": "Edit|Write|MultiEdit",
+        "timeout": null,
+        "type": "command",
+        "layer": "project",
+        "disabled": false,
+        "viaBundle": "posttool-edit-bundle"
+      }
+    ],
+    "description": "PreToolUse hook (Phase A.3 of DEV-VELOCITY-AUTOTRIGGER-MS0).",
+    "descriptionInferred": false,
+    "tier": null,
+    "sizeBytes": 18498,
+    "lines": 412
+  },
+  {
+    "id": "enforce-handoff-topic",
+    "file": ".claude/hooks/enforce-handoff-topic.mjs",
+    "wired": true,
+    "disabled": false,
+    "events": [
+      {
+        "event": "Stop",
+        "matcher": "",
+        "timeout": 5000,
+        "type": "command",
+        "layer": "user",
+        "disabled": false
+      },
+      {
+        "event": "Stop",
+        "matcher": "",
+        "timeout": 3000,
+        "type": "command",
+        "layer": "project",
+        "disabled": false
+      }
+    ],
+    "description": "Stop hook",
+    "descriptionInferred": false,
+    "tier": "T4",
+    "sizeBytes": 5974,
+    "lines": 158
+  },
+  {
+    "id": "enforce-roadmap-closeout",
+    "file": ".claude/hooks/enforce-roadmap-closeout.mjs",
+    "wired": true,
+    "disabled": false,
+    "events": [
+      {
+        "event": "Stop",
+        "matcher": "",
+        "timeout": 5000,
+        "type": "command",
+        "layer": "project",
+        "disabled": false
+      }
+    ],
+    "description": "Stop hook",
+    "descriptionInferred": false,
+    "tier": "T0",
+    "sizeBytes": 19939,
+    "lines": 499
+  },
+  {
+    "id": "engine-digest-precheck",
+    "file": ".claude/hooks/engine-digest-precheck.mjs",
+    "wired": true,
+    "disabled": false,
+    "events": [
+      {
+        "event": "PreToolUse",
+        "matcher": "^(Write|Edit)$",
+        "timeout": 2000,
+        "type": "command",
+        "layer": "user",
+        "disabled": false
+      }
+    ],
+    "description": "PreToolUse Write/Edit (P6-U02).",
+    "descriptionInferred": false,
+    "tier": "T1",
+    "sizeBytes": 5424,
+    "lines": 165
+  },
+  {
+    "id": "erp-quote-variance-guard",
+    "file": ".claude/hooks/erp-quote-variance-guard.mjs",
+    "wired": false,
+    "disabled": false,
+    "events": [],
+    "description": "PreToolUse hook (U-LTH57 P5)",
+    "descriptionInferred": false,
+    "tier": "T0",
+    "sizeBytes": 3411,
+    "lines": 116
+  },
+  {
+    "id": "error-block-capture",
+    "file": ".claude/hooks/error-block-capture.mjs",
+    "wired": true,
+    "disabled": false,
+    "events": [
+      {
+        "event": "PostToolUse",
+        "matcher": "Write|Edit|MultiEdit|Bash",
+        "timeout": 5000,
+        "type": "command",
+        "layer": "user",
+        "disabled": false
+      }
+    ],
+    "description": "PostToolUse hook.",
+    "descriptionInferred": false,
+    "tier": "T0",
+    "sizeBytes": 4297,
+    "lines": 137
+  },
+  {
+    "id": "error-block-prewarn",
+    "file": ".claude/hooks/error-block-prewarn.mjs",
+    "wired": true,
+    "disabled": false,
+    "events": [
+      {
+        "event": "PreToolUse",
+        "matcher": "Write|Edit|MultiEdit|Bash",
+        "timeout": 5000,
+        "type": "command",
+        "layer": "user",
+        "disabled": false
+      }
+    ],
+    "description": "PreToolUse hook.",
+    "descriptionInferred": false,
+    "tier": "T4",
+    "sizeBytes": 7873,
+    "lines": 232
+  },
+  {
+    "id": "error-fix-vault-bridge",
+    "file": ".claude/hooks/error-fix-vault-bridge.mjs",
+    "wired": true,
+    "disabled": false,
+    "events": [
+      {
+        "event": "Stop",
+        "matcher": "",
+        "timeout": 2000,
+        "type": "command",
+        "layer": "user",
+        "disabled": false
+      }
+    ],
+    "description": "Stop hook (T3 observer).",
+    "descriptionInferred": false,
+    "tier": "T3",
+    "sizeBytes": 17055,
+    "lines": 400
+  },
+  {
+    "id": "error-learner-hook",
+    "file": ".claude/hooks/error-learner-hook.mjs",
+    "wired": true,
+    "disabled": false,
+    "events": [
+      {
+        "event": "PostToolUse",
+        "matcher": "Bash",
+        "timeout": 1000,
+        "type": "command",
+        "layer": "project",
+        "disabled": false
+      },
+      {
+        "event": "PostToolUse",
+        "matcher": "Bash|Read",
+        "timeout": null,
+        "type": "command",
+        "layer": "user",
+        "disabled": false,
+        "viaBundle": "posttool-bash-read-bundle"
+      }
+    ],
+    "description": "Error Learner Hook — PostToolUse Hook",
+    "descriptionInferred": false,
+    "tier": "T3",
+    "sizeBytes": 3771,
+    "lines": 132
+  },
+  {
+    "id": "error-pattern-capture",
+    "file": ".claude/hooks/error-pattern-capture.mjs",
+    "wired": true,
+    "disabled": false,
+    "events": [
+      {
+        "event": "PostToolUse",
+        "matcher": "Bash|Edit|MultiEdit|Grep|Glob",
+        "timeout": 5000,
+        "type": "command",
+        "layer": "user",
+        "disabled": false
+      }
+    ],
+    "description": "EXTENSION to existing error-block-capture infrastructure.",
+    "descriptionInferred": false,
+    "tier": "T2",
+    "sizeBytes": 6881,
+    "lines": 199
+  },
+  {
+    "id": "error-pattern-learner",
+    "file": ".claude/hooks/error-pattern-learner.mjs",
+    "wired": false,
+    "disabled": false,
+    "events": [],
+    "description": "dual-mode hook.",
+    "descriptionInferred": false,
+    "tier": "T3",
+    "sizeBytes": 9403,
+    "lines": 260
+  },
+  {
+    "id": "error-pattern-memory",
+    "file": ".claude/hooks/error-pattern-memory.mjs",
+    "wired": false,
+    "disabled": false,
+    "events": [],
+    "description": "PostToolUse Hook (Bash, Edit, Write)",
+    "descriptionInferred": false,
+    "tier": "T3",
+    "sizeBytes": 10113,
+    "lines": 357
+  },
+  {
+    "id": "error-pattern-promote",
+    "file": ".claude/hooks/error-pattern-promote.mjs",
+    "wired": true,
+    "disabled": false,
+    "events": [
+      {
+        "event": "Stop",
+        "matcher": "",
+        "timeout": 5000,
+        "type": "command",
+        "layer": "user",
+        "disabled": false
+      },
+      {
+        "event": "Stop",
+        "matcher": "",
+        "timeout": 5000,
+        "type": "command",
+        "layer": "project",
+        "disabled": false
+      }
+    ],
+    "description": "Stop hook.",
+    "descriptionInferred": false,
+    "tier": "T4",
+    "sizeBytes": 8734,
+    "lines": 206
+  },
+  {
+    "id": "error-recovery-memory",
+    "file": ".claude/hooks/error-recovery-memory.mjs",
+    "wired": true,
+    "disabled": false,
+    "events": [
+      {
+        "event": "PostToolUse",
+        "matcher": "Bash",
+        "timeout": 1000,
+        "type": "command",
+        "layer": "project",
+        "disabled": false
+      },
+      {
+        "event": "PostToolUse",
+        "matcher": "Bash|Read",
+        "timeout": null,
+        "type": "command",
+        "layer": "user",
+        "disabled": false,
+        "viaBundle": "posttool-bash-read-bundle"
+      }
+    ],
+    "description": "PostToolUse (all tools)",
+    "descriptionInferred": false,
+    "tier": "T3",
+    "sizeBytes": 4520,
+    "lines": 156
+  },
+  {
+    "id": "expert-role-inject",
+    "file": ".claude/hooks/expert-role-inject.mjs",
+    "wired": true,
+    "disabled": false,
+    "events": [
+      {
+        "event": "SessionStart",
+        "matcher": "",
+        "timeout": 2000,
+        "type": "command",
+        "layer": "user",
+        "disabled": false
+      },
+      {
+        "event": "SessionStart",
+        "matcher": "",
+        "timeout": 2000,
+        "type": "command",
+        "layer": "project",
+        "disabled": false
+      }
+    ],
+    "description": "SessionStart hook",
+    "descriptionInferred": false,
+    "tier": "T4",
+    "sizeBytes": 1233,
+    "lines": 53
+  },
+  {
+    "id": "extended-thinking-auto",
+    "file": ".claude/hooks/extended-thinking-auto.mjs",
+    "wired": false,
+    "disabled": false,
+    "events": [],
+    "description": "Extended Thinking Auto-Switch — UserPromptSubmit Hook",
+    "descriptionInferred": false,
+    "tier": "T4",
+    "sizeBytes": 19251,
+    "lines": 435
+  },
+  {
+    "id": "extraction-log-drift",
+    "file": ".claude/hooks/extraction-log-drift.mjs",
+    "wired": false,
+    "disabled": false,
+    "events": [],
+    "description": "Phase 1 Tier 5B",
+    "descriptionInferred": false,
+    "tier": "T4",
+    "sizeBytes": 2408,
+    "lines": 96
+  },
+  {
+    "id": "extraction-to-tribal",
+    "file": ".claude/hooks/extraction-to-tribal.mjs",
+    "wired": false,
+    "disabled": false,
+    "events": [],
+    "description": "Extraction to Tribal Knowledge — PostToolUse Hook",
+    "descriptionInferred": false,
+    "tier": "T3",
+    "sizeBytes": 4840,
+    "lines": 149
+  },
+  {
+    "id": "figma-ui-consistency",
+    "file": ".claude/hooks/figma-ui-consistency.mjs",
+    "wired": true,
+    "disabled": false,
+    "events": [
+      {
+        "event": "PreToolUse",
+        "matcher": "Edit|Write|MultiEdit",
+        "timeout": null,
+        "type": "command",
+        "layer": "user",
+        "disabled": false,
+        "viaBundle": "edit-bundle"
+      },
+      {
+        "event": "PreToolUse",
+        "matcher": "Edit|Write|MultiEdit",
+        "timeout": null,
+        "type": "command",
+        "layer": "project",
+        "disabled": false,
+        "viaBundle": "edit-bundle"
+      }
+    ],
+    "description": "PreToolUse hook",
+    "descriptionInferred": false,
+    "tier": "T1",
+    "sizeBytes": 4578,
+    "lines": 157
+  },
+  {
+    "id": "file-claim-commit-guard",
+    "file": ".claude/hooks/file-claim-commit-guard.mjs",
+    "wired": false,
+    "disabled": false,
+    "events": [],
+    "description": "PreToolUse Bash hook",
+    "descriptionInferred": false,
+    "tier": "T0",
+    "sizeBytes": 8951,
+    "lines": 268
+  },
+  {
+    "id": "file-claim-guard",
+    "file": ".claude/hooks/file-claim-guard.mjs",
+    "wired": true,
+    "disabled": false,
+    "events": [
+      {
+        "event": "PreToolUse",
+        "matcher": "^(Edit|Write|MultiEdit|NotebookEdit)$",
+        "timeout": 3000,
+        "type": "command",
+        "layer": "project",
+        "disabled": false
+      },
+      {
+        "event": "PreToolUse",
+        "matcher": "Edit|Write|MultiEdit",
+        "timeout": 5000,
+        "type": "command",
+        "layer": "user",
+        "disabled": false
+      }
+    ],
+    "description": "PreToolUse hook for Edit | Write | MultiEdit",
+    "descriptionInferred": false,
+    "tier": "T0",
+    "sizeBytes": 7851,
+    "lines": 249
+  },
+  {
+    "id": "file-ownership-tracker",
+    "file": ".claude/hooks/file-ownership-tracker.mjs",
+    "wired": true,
+    "disabled": false,
+    "events": [
+      {
+        "event": "PreToolUse",
+        "matcher": "Edit|Write|MultiEdit",
+        "timeout": null,
+        "type": "command",
+        "layer": "user",
+        "disabled": false,
+        "viaBundle": "edit-bundle"
+      },
+      {
+        "event": "PreToolUse",
+        "matcher": "Edit|Write|MultiEdit",
+        "timeout": null,
+        "type": "command",
+        "layer": "project",
+        "disabled": false,
+        "viaBundle": "edit-bundle"
+      }
+    ],
+    "description": "Tracks which session is editing which files.",
+    "descriptionInferred": false,
+    "tier": "T1",
+    "sizeBytes": 5021,
+    "lines": 161
+  },
+  {
+    "id": "file-read-cache",
+    "file": ".claude/hooks/file-read-cache.mjs",
+    "wired": true,
+    "disabled": false,
+    "events": [
+      {
+        "event": "PreCompact",
+        "matcher": "",
+        "timeout": 2000,
+        "type": "command",
+        "layer": "user",
+        "disabled": false
+      },
+      {
+        "event": "PreCompact",
+        "matcher": "",
+        "timeout": 2000,
+        "type": "command",
+        "layer": "project",
+        "disabled": false
+      },
+      {
+        "event": "PreToolUse",
+        "matcher": "Read",
+        "timeout": null,
+        "type": "command",
+        "layer": "user",
+        "disabled": false,
+        "viaBundle": "read-bundle"
+      },
+      {
+        "event": "PreToolUse",
+        "matcher": "Read",
+        "timeout": null,
+        "type": "command",
+        "layer": "project",
+        "disabled": false,
+        "viaBundle": "read-bundle"
+      }
+    ],
+    "description": "PreToolUse:Read hard-dedup hook",
+    "descriptionInferred": false,
+    "tier": "T4",
+    "sizeBytes": 12596,
+    "lines": 320
+  },
+  {
+    "id": "fix-stdin-pattern",
+    "file": ".claude/hooks/fix-stdin-pattern.mjs",
+    "wired": false,
+    "disabled": false,
+    "events": [],
+    "description": "Batch fix /dev/stdin pattern in hooks for Windows compatibility.",
+    "descriptionInferred": false,
+    "tier": "T0",
+    "sizeBytes": 2424,
+    "lines": 94
+  },
+  {
+    "id": "fleet-reaper-stop",
+    "file": ".claude/hooks/fleet-reaper-stop.mjs",
+    "wired": true,
+    "disabled": false,
+    "events": [
+      {
+        "event": "Stop",
+        "matcher": "",
+        "timeout": 3000,
+        "type": "command",
+        "layer": "user",
+        "disabled": false
+      }
+    ],
+    "description": "Stop-hook arm of the slot-aware orphan reaper.",
+    "descriptionInferred": false,
+    "tier": "T4",
+    "sizeBytes": 6670,
+    "lines": 160
+  },
+  {
+    "id": "fleet-task-health-stop",
+    "file": ".claude/hooks/fleet-task-health-stop.mjs",
+    "wired": true,
+    "disabled": false,
+    "events": [
+      {
+        "event": "Stop",
+        "matcher": "",
+        "timeout": 3000,
+        "type": "command",
+        "layer": "user",
+        "disabled": false
+      }
+    ],
+    "description": "Stop-hook arm of the scheduled-task health",
+    "descriptionInferred": false,
+    "tier": "T3",
+    "sizeBytes": 10207,
+    "lines": 238
+  },
+  {
+    "id": "forge-intent-claim",
+    "file": ".claude/hooks/forge-intent-claim.mjs",
+    "wired": false,
+    "disabled": false,
+    "events": [],
+    "description": "Phase 1 Tier 5D",
+    "descriptionInferred": false,
+    "tier": "T0",
+    "sizeBytes": 4392,
+    "lines": 106
+  },
+  {
+    "id": "formula-algorithm-suggest",
+    "file": ".claude/hooks/formula-algorithm-suggest.mjs",
+    "wired": false,
+    "disabled": false,
+    "events": [],
+    "description": "Formula & Algorithm Suggest — UserPromptSubmit Hook",
+    "descriptionInferred": false,
+    "tier": "T4",
+    "sizeBytes": 3877,
+    "lines": 126
+  },
+  {
+    "id": "git-add-lane-guard",
+    "file": ".claude/hooks/git-add-lane-guard.mjs",
+    "wired": true,
+    "disabled": false,
+    "events": [
+      {
+        "event": "PreToolUse",
+        "matcher": "Bash",
+        "timeout": 4000,
+        "type": "command",
+        "layer": "user",
+        "disabled": false
+      },
+      {
+        "event": "PreToolUse",
+        "matcher": "Bash",
+        "timeout": null,
+        "type": "command",
+        "layer": "user",
+        "disabled": false,
+        "viaBundle": "bash-bundle"
+      },
+      {
+        "event": "PreToolUse",
+        "matcher": "Bash",
+        "timeout": null,
+        "type": "command",
+        "layer": "project",
+        "disabled": false,
+        "viaBundle": "bash-bundle"
+      }
+    ],
+    "description": "PreToolUse(Bash) `git add` SLOT-LANE gate.",
+    "descriptionInferred": false,
+    "tier": "T0",
+    "sizeBytes": 18019,
+    "lines": 459
+  },
+  {
+    "id": "git-anti-clobber-release",
+    "file": ".claude/hooks/git-anti-clobber-release.mjs",
+    "wired": false,
+    "disabled": false,
+    "events": [],
+    "description": "Git Anti-Clobber Release — PostToolUse (Worktree-Aware v2)",
+    "descriptionInferred": false,
+    "tier": "T3",
+    "sizeBytes": 4532,
+    "lines": 145
+  },
+  {
+    "id": "git-anti-clobber",
+    "file": ".claude/hooks/git-anti-clobber.mjs",
+    "wired": false,
+    "disabled": false,
+    "events": [],
+    "description": "Git Anti-Clobber Hook — PreToolUse (Worktree-Aware v2)",
+    "descriptionInferred": false,
+    "tier": "T3",
+    "sizeBytes": 10815,
+    "lines": 308
+  },
+  {
+    "id": "git-commit-checkin",
+    "file": ".claude/hooks/git-commit-checkin.mjs",
+    "wired": false,
+    "disabled": false,
+    "events": [],
+    "description": "PreToolUse check-in on git commit/push",
+    "descriptionInferred": false,
+    "tier": "T1",
+    "sizeBytes": 6703,
+    "lines": 187
+  },
+  {
+    "id": "git-health-guard",
+    "file": ".claude/hooks/git-health-guard.mjs",
+    "wired": true,
+    "disabled": false,
+    "events": [
+      {
+        "event": "SessionStart",
+        "matcher": "",
+        "timeout": 8000,
+        "type": "command",
+        "layer": "user",
+        "disabled": false
+      },
+      {
+        "event": "SessionStart",
+        "matcher": "",
+        "timeout": 8000,
+        "type": "command",
+        "layer": "project",
+        "disabled": false
+      }
+    ],
+    "description": "SessionStart guard for git repository health.",
+    "descriptionInferred": false,
+    "tier": "T4",
+    "sizeBytes": 7143,
+    "lines": 216
+  },
+  {
+    "id": "git-lock-sweeper",
+    "file": ".claude/hooks/git-lock-sweeper.mjs",
+    "wired": true,
+    "disabled": false,
+    "events": [
+      {
+        "event": "PreToolUse",
+        "matcher": "Bash",
+        "timeout": null,
+        "type": "command",
+        "layer": "user",
+        "disabled": false,
+        "viaBundle": "bash-bundle"
+      },
+      {
+        "event": "PreToolUse",
+        "matcher": "Bash",
+        "timeout": null,
+        "type": "command",
+        "layer": "project",
+        "disabled": false,
+        "viaBundle": "bash-bundle"
+      },
+      {
+        "event": "PreToolUse",
+        "matcher": "Edit|Write|MultiEdit",
+        "timeout": null,
+        "type": "command",
+        "layer": "user",
+        "disabled": false,
+        "viaBundle": "edit-bundle"
+      },
+      {
+        "event": "PreToolUse",
+        "matcher": "Edit|Write|MultiEdit",
+        "timeout": null,
+        "type": "command",
+        "layer": "project",
+        "disabled": false,
+        "viaBundle": "edit-bundle"
+      }
+    ],
+    "description": "HS-02 mid-session stale-lock cleanup.",
+    "descriptionInferred": false,
+    "tier": "T2",
+    "sizeBytes": 7142,
+    "lines": 184
+  },
+  {
+    "id": "git-output-condenser",
+    "file": ".claude/hooks/git-output-condenser.mjs",
+    "wired": true,
+    "disabled": false,
+    "events": [
+      {
+        "event": "PostToolUse",
+        "matcher": "Bash",
+        "timeout": 2000,
+        "type": "command",
+        "layer": "project",
+        "disabled": false
+      },
+      {
+        "event": "PostToolUse",
+        "matcher": "Bash|Read",
+        "timeout": null,
+        "type": "command",
+        "layer": "user",
+        "disabled": false,
+        "viaBundle": "posttool-bash-read-bundle"
+      }
+    ],
+    "description": "PostToolUse Bash hook.",
+    "descriptionInferred": false,
+    "tier": "T3",
+    "sizeBytes": 3698,
+    "lines": 100
+  },
+  {
+    "id": "git-sync-fetch",
+    "file": ".claude/hooks/git-sync-fetch.mjs",
+    "wired": true,
+    "disabled": false,
+    "events": [
+      {
+        "event": "SessionStart",
+        "matcher": "",
+        "timeout": 5000,
+        "type": "command",
+        "layer": "user",
+        "disabled": false
+      },
+      {
+        "event": "SessionStart",
+        "matcher": "",
+        "timeout": 5000,
+        "type": "command",
+        "layer": "project",
+        "disabled": false
+      }
+    ],
+    "description": "SessionStart hook for cross-PC continuity.",
+    "descriptionInferred": false,
+    "tier": "T4",
+    "sizeBytes": 6472,
+    "lines": 205
+  },
+  {
+    "id": "git-sync-stop",
+    "file": ".claude/hooks/git-sync-stop.mjs",
+    "wired": true,
+    "disabled": false,
+    "events": [
+      {
+        "event": "Stop",
+        "matcher": "",
+        "timeout": 8000,
+        "type": "command",
+        "layer": "user",
+        "disabled": false
+      },
+      {
+        "event": "Stop",
+        "matcher": "",
+        "timeout": 2000,
+        "type": "command",
+        "layer": "project",
+        "disabled": false
+      }
+    ],
+    "description": "Stop hook for cross-PC continuity.",
+    "descriptionInferred": false,
+    "tier": "T4",
+    "sizeBytes": 11030,
+    "lines": 329
+  },
+  {
+    "id": "glob-narrow-path",
+    "file": ".claude/hooks/glob-narrow-path.mjs",
+    "wired": true,
+    "disabled": false,
+    "events": [
+      {
+        "event": "PreToolUse",
+        "matcher": "Glob",
+        "timeout": 2000,
+        "type": "command",
+        "layer": "user",
+        "disabled": false
+      },
+      {
+        "event": "PreToolUse",
+        "matcher": "Glob",
+        "timeout": 2000,
+        "type": "command",
+        "layer": "project",
+        "disabled": false
+      }
+    ],
+    "description": "PreToolUse Glob",
+    "descriptionInferred": false,
+    "tier": "T1",
+    "sizeBytes": 6865,
+    "lines": 165
+  },
+  {
+    "id": "goal-complete-gate",
+    "file": ".claude/hooks/goal-complete-gate.mjs",
+    "wired": true,
+    "disabled": false,
+    "events": [
+      {
+        "event": "Stop",
+        "matcher": "",
+        "timeout": 3000,
+        "type": "command",
+        "layer": "user",
+        "disabled": false
+      }
+    ],
+    "description": "goal-complete-gate.mjs",
+    "descriptionInferred": false,
+    "tier": "T0",
+    "sizeBytes": 13230,
+    "lines": 347
+  },
+  {
+    "id": "goal-prereq-inject",
+    "file": ".claude/hooks/goal-prereq-inject.mjs",
+    "wired": true,
+    "disabled": false,
+    "events": [
+      {
+        "event": "UserPromptSubmit",
+        "matcher": "",
+        "timeout": 5000,
+        "type": "command",
+        "layer": "user",
+        "disabled": false
+      }
+    ],
+    "description": "UserPromptSubmit hook for /goal awareness.",
+    "descriptionInferred": false,
+    "tier": "T2",
+    "sizeBytes": 10822,
+    "lines": 229
+  },
+  {
+    "id": "goal-stack-init",
+    "file": ".claude/hooks/goal-stack-init.mjs",
+    "wired": false,
+    "disabled": false,
+    "events": [],
+    "description": "Phase 0.13 Goal Stack Initialization",
+    "descriptionInferred": false,
+    "tier": "T4",
+    "sizeBytes": 2023,
+    "lines": 74
+  },
+  {
+    "id": "goal-stack-inject",
+    "file": ".claude/hooks/goal-stack-inject.mjs",
+    "wired": true,
+    "disabled": false,
+    "events": [
+      {
+        "event": "UserPromptSubmit",
+        "matcher": "",
+        "timeout": 3000,
+        "type": "command",
+        "layer": "project",
+        "disabled": false
+      }
+    ],
+    "description": "Phase 0.13 Goal Stack Injection Hook",
+    "descriptionInferred": false,
+    "tier": "T4",
+    "sizeBytes": 1656,
+    "lines": 63
+  },
+  {
+    "id": "goal-synergy-status-inject",
+    "file": ".claude/hooks/goal-synergy-status-inject.mjs",
+    "wired": true,
+    "disabled": false,
+    "events": [
+      {
+        "event": "SessionStart",
+        "matcher": "",
+        "timeout": 3000,
+        "type": "command",
+        "layer": "user",
+        "disabled": false
+      }
+    ],
+    "description": "SessionStart hook — single-line synergy-health digest from",
+    "descriptionInferred": false,
+    "tier": "T2",
+    "sizeBytes": 5542,
+    "lines": 133
+  },
+  {
+    "id": "golf-slot-reaper-guardian",
+    "file": ".claude/hooks/golf-slot-reaper-guardian.mjs",
+    "wired": true,
+    "disabled": false,
+    "events": [
+      {
+        "event": "SessionStart",
+        "matcher": "",
+        "timeout": 10000,
+        "type": "command",
+        "layer": "user",
+        "disabled": false
+      },
+      {
+        "event": "UserPromptSubmit",
+        "matcher": "",
+        "timeout": 10000,
+        "type": "command",
+        "layer": "user",
+        "disabled": false
+      }
+    ],
+    "description": "the GOLF slot owns the fleet reaper.",
+    "descriptionInferred": false,
+    "tier": "T3",
+    "sizeBytes": 16670,
+    "lines": 347
+  },
+  {
+    "id": "golf-slot-write-allowlist",
+    "file": ".claude/hooks/golf-slot-write-allowlist.mjs",
+    "wired": false,
+    "disabled": false,
+    "events": [],
+    "description": "PreToolUse T0 hook (U-CLEANUP-A5)",
+    "descriptionInferred": false,
+    "tier": "T0",
+    "sizeBytes": 15147,
+    "lines": 358
+  },
+  {
+    "id": "grep-index-first",
+    "file": ".claude/hooks/grep-index-first.mjs",
+    "wired": true,
+    "disabled": false,
+    "events": [
+      {
+        "event": "PreToolUse",
+        "matcher": "Glob|Grep",
+        "timeout": 2000,
+        "type": "command",
+        "layer": "user",
+        "disabled": false
+      },
+      {
+        "event": "PreToolUse",
+        "matcher": "Glob|Grep",
+        "timeout": 2000,
+        "type": "command",
+        "layer": "project",
+        "disabled": false
+      }
+    ],
+    "description": "PreToolUse Grep",
+    "descriptionInferred": false,
+    "tier": "T1",
+    "sizeBytes": 12050,
+    "lines": 301
+  },
+  {
+    "id": "grep-result-cache",
+    "file": ".claude/hooks/grep-result-cache.mjs",
+    "wired": true,
+    "disabled": false,
+    "events": [
+      {
+        "event": "PostToolUse",
+        "matcher": "Grep",
+        "timeout": 2000,
+        "type": "command",
+        "layer": "user",
+        "disabled": false
+      },
+      {
+        "event": "PostToolUse",
+        "matcher": "Grep",
+        "timeout": 2000,
+        "type": "command",
+        "layer": "project",
+        "disabled": false
+      }
+    ],
+    "description": "PostToolUse Grep",
+    "descriptionInferred": false,
+    "tier": "T3",
+    "sizeBytes": 3303,
+    "lines": 110
+  },
+  {
+    "id": "gsd-inject",
+    "file": ".claude/hooks/gsd-inject.mjs",
+    "wired": true,
+    "disabled": false,
+    "events": [
+      {
+        "event": "SessionStart",
+        "matcher": "",
+        "timeout": 2000,
+        "type": "command",
+        "layer": "user",
+        "disabled": false
+      },
+      {
+        "event": "SessionStart",
+        "matcher": "",
+        "timeout": 2000,
+        "type": "command",
+        "layer": "project",
+        "disabled": false
+      }
+    ],
+    "description": "GSD Inject — SessionStart Hook",
+    "descriptionInferred": false,
+    "tier": "T4",
+    "sizeBytes": 3918,
+    "lines": 120
+  },
+  {
+    "id": "gsd-section-retrieve",
+    "file": ".claude/hooks/gsd-section-retrieve.mjs",
+    "wired": false,
+    "disabled": false,
+    "events": [],
+    "description": "UserPromptSubmit hook",
+    "descriptionInferred": false,
+    "tier": "T2",
+    "sizeBytes": 4555,
+    "lines": 122
+  },
+  {
+    "id": "gsd-section-update",
+    "file": ".claude/hooks/gsd-section-update.mjs",
+    "wired": false,
+    "disabled": false,
+    "events": [],
+    "description": "PostToolUse hook",
+    "descriptionInferred": false,
+    "tier": "T3",
+    "sizeBytes": 2915,
+    "lines": 95
+  },
+  {
+    "id": "h-drive-audit",
+    "file": ".claude/hooks/h-drive-audit.mjs",
+    "wired": false,
+    "disabled": false,
+    "events": [],
+    "description": "H: Drive Audit Hook — SessionStart",
+    "descriptionInferred": false,
+    "tier": "T4",
+    "sizeBytes": 3321,
+    "lines": 131
+  },
+  {
+    "id": "h-drive-enforcement",
+    "file": ".claude/hooks/h-drive-enforcement.mjs",
+    "wired": true,
+    "disabled": false,
+    "events": [
+      {
+        "event": "PreToolUse",
+        "matcher": "^(Edit|Write|MultiEdit|NotebookEdit)$",
+        "timeout": 3000,
+        "type": "command",
+        "layer": "project",
+        "disabled": false
+      }
+    ],
+    "description": "H: Drive Enforcement Hook — PreToolUse",
+    "descriptionInferred": false,
+    "tier": "T1",
+    "sizeBytes": 8176,
+    "lines": 207
+  },
+  {
+    "id": "handoff-memory-seed-stop",
+    "file": ".claude/hooks/handoff-memory-seed-stop.mjs",
+    "wired": true,
+    "disabled": false,
+    "events": [
+      {
+        "event": "Stop",
+        "matcher": "",
+        "timeout": 3000,
+        "type": "command",
+        "layer": "user",
+        "disabled": false
+      }
+    ],
+    "description": "Stop hook",
+    "descriptionInferred": false,
+    "tier": "T3",
+    "sizeBytes": 11300,
+    "lines": 254
+  },
+  {
+    "id": "harness-audit-staleness",
+    "file": ".claude/hooks/harness-audit-staleness.mjs",
+    "wired": false,
+    "disabled": false,
+    "events": [],
+    "description": "SessionStart hook.",
+    "descriptionInferred": false,
+    "tier": "T2",
+    "sizeBytes": 2947,
+    "lines": 101
+  },
+  {
+    "id": "heartbeat-keepalive",
+    "file": ".claude/hooks/heartbeat-keepalive.mjs",
+    "wired": true,
+    "disabled": false,
+    "events": [
+      {
+        "event": "UserPromptSubmit",
+        "matcher": "",
+        "timeout": 8,
+        "type": "command",
+        "layer": "user",
+        "disabled": false
+      }
+    ],
+    "description": "UserPromptSubmit hook that refreshes this chat's",
+    "descriptionInferred": false,
+    "tier": "T3",
+    "sizeBytes": 8434,
+    "lines": 204
+  },
+  {
+    "id": "hook-basin-drift",
+    "file": ".claude/hooks/hook-basin-drift.mjs",
+    "wired": false,
+    "disabled": false,
+    "events": [],
+    "description": "hook_basin_drift — USSH Phase 0.25",
+    "descriptionInferred": false,
+    "tier": "T3",
+    "sizeBytes": 4084,
+    "lines": 156
+  },
+  {
+    "id": "hook-circular-dep-check",
+    "file": ".claude/hooks/hook-circular-dep-check.mjs",
+    "wired": false,
+    "disabled": false,
+    "events": [],
+    "description": "hook_circular_dep_check — USSH Phase 0.25",
+    "descriptionInferred": false,
+    "tier": "T4",
+    "sizeBytes": 3484,
+    "lines": 147
+  },
+  {
+    "id": "hook-condition-number",
+    "file": ".claude/hooks/hook-condition-number.mjs",
+    "wired": false,
+    "disabled": false,
+    "events": [],
+    "description": "hook_condition_number — USSH Phase 0.25",
+    "descriptionInferred": false,
+    "tier": "T3",
+    "sizeBytes": 2679,
+    "lines": 102
+  },
+  {
+    "id": "hook-creation-gate",
+    "file": ".claude/hooks/hook-creation-gate.mjs",
+    "wired": true,
+    "disabled": false,
+    "events": [
+      {
+        "event": "PreToolUse",
+        "matcher": "^Write$",
+        "timeout": 3000,
+        "type": "command",
+        "layer": "project",
+        "disabled": false
+      }
+    ],
+    "description": "PreToolUse(Write) advisory dedup gate",
+    "descriptionInferred": false,
+    "tier": "T0",
+    "sizeBytes": 12138,
+    "lines": 310
+  },
+  {
+    "id": "hook-cross-worktree-block",
+    "file": ".claude/hooks/hook-cross-worktree-block.mjs",
+    "wired": true,
+    "disabled": false,
+    "events": [
+      {
+        "event": "PreToolUse",
+        "matcher": "^(Edit|Write|MultiEdit|NotebookEdit)$",
+        "timeout": 3000,
+        "type": "command",
+        "layer": "project",
+        "disabled": false
+      }
+    ],
+    "description": "Tier-0 PreToolUse firewall",
+    "descriptionInferred": false,
+    "tier": "T0",
+    "sizeBytes": 13323,
+    "lines": 276
+  },
+  {
+    "id": "hook-modification-justification",
+    "file": ".claude/hooks/hook-modification-justification.mjs",
+    "wired": false,
+    "disabled": false,
+    "events": [],
+    "description": "PreToolUse:Edit|Write|MultiEdit gate.",
+    "descriptionInferred": false,
+    "tier": "T0",
+    "sizeBytes": 8016,
+    "lines": 245
+  },
+  {
+    "id": "hook-registry-regen",
+    "file": ".claude/hooks/hook-registry-regen.mjs",
+    "wired": true,
+    "disabled": false,
+    "events": [
+      {
+        "event": "PostToolUse",
+        "matcher": "Edit|Write|MultiEdit",
+        "timeout": 5000,
+        "type": "command",
+        "layer": "project",
+        "disabled": false
+      }
+    ],
+    "description": "PostToolUse:Edit|Write|MultiEdit (HOOK-SYNERGY-MS0 / U-H1 step-4).",
+    "descriptionInferred": false,
+    "tier": "T2",
+    "sizeBytes": 4039,
+    "lines": 74
+  },
+  {
+    "id": "hook-saturation-alert",
+    "file": ".claude/hooks/hook-saturation-alert.mjs",
+    "wired": false,
+    "disabled": false,
+    "events": [],
+    "description": "hook_saturation_alert — USSH Phase 0.25",
+    "descriptionInferred": false,
+    "tier": "T3",
+    "sizeBytes": 3825,
+    "lines": 132
+  },
+  {
+    "id": "hook-stability-check",
+    "file": ".claude/hooks/hook-stability-check.mjs",
+    "wired": false,
+    "disabled": false,
+    "events": [],
+    "description": "hook_stability_check — USSH Phase 0.25",
+    "descriptionInferred": false,
+    "tier": "T3",
+    "sizeBytes": 4384,
+    "lines": 163
+  },
+  {
+    "id": "hook-tier-validator",
+    "file": ".claude/hooks/hook-tier-validator.mjs",
+    "wired": true,
+    "disabled": false,
+    "events": [
+      {
+        "event": "PreToolUse",
+        "matcher": "Edit|Write|MultiEdit",
+        "timeout": 3000,
+        "type": "command",
+        "layer": "project",
+        "disabled": false
+      }
+    ],
+    "description": "HOOK-SYNERGY-MS0 / U-HOOK-TIERS (H3)",
+    "descriptionInferred": false,
+    "tier": "T1",
+    "sizeBytes": 3094,
+    "lines": 86
+  }
+]

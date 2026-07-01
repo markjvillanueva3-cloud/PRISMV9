@@ -1,0 +1,20 @@
+---
+name: reference_mastercam_cad_adapter_ghost_test_2026_06_21
+description: "FINDING (slot:india 2026-06-21, NEVER-IDLE sibling-generator sweep): MastercamCADGeneratorAdapter.test.ts is a 126-test GHOST -- a complete TDD spec for a MastercamCADGeneratorAdapter NetHook-C# class (U-CADC77 PHASE-12) that was NEVER built. Importing non-existent MastercamCADGeneratorAdapter/mastercamCADGeneratorAdapter -> 'not a constructor' -> all 126 red. Renaming to the real MastercamCodeGeneratorEngine is WRONG (engine emits a different style: 0/115 behavioral asserts match). KILO (CAM) domain: build the adapter or retire the ghost test."
+type: reference
+source: prism-memory
+synced: 2026-06-27T20:30:46.649Z
+aliases: reference_mastercam_cad_adapter_ghost_test_2026_06_21
+---
+
+
+**THE GHOST (verified, NOT a mechanical fix -- for kilo/CAM):** `mcp-server/src/__tests__/MastercamCADGeneratorAdapter.test.ts` (126 tests) imports `MastercamCADGeneratorAdapter` (class) + `mastercamCADGeneratorAdapter` (singleton) from `../engines/MastercamCodeGeneratorEngine.js`. **Neither name exists** -- the file exports `MastercamCodeGeneratorEngine` (class, L162) + `mastercamCodeGeneratorEngine` (singleton, L1098). So the import resolves `undefined` -> `new undefined()` -> `TypeError: MastercamCADGeneratorAdapter is not a constructor` in `beforeEach` -> **all 126 tests red**.
+
+**Why this is a GHOST, not a rename (proven this session, R8/R12):**
+- `git log --all -S "class MastercamCADGeneratorAdapter"` = **0 commits** -- the class was NEVER committed anywhere. It is an unbuilt TDD spec (header: "U-CADC77 PHASE-12 Mastercam Integration", "Exhaustive coverage of the ICADCodeGenerator adapter that emits Mastercam NetHook C# code").
+- I tried repointing the imports at the real `MastercamCodeGeneratorEngine` -> constructor works (11/126 pass) but **115 fail on BEHAVIORAL assertions** the engine does not satisfy: it expects NetHook C# (`public class PRISMMastercamCAD : NetHook3App`, `using Mastercam.Solids`, `ArcGeometry(new Point3D(...), r, start, sweep)`, `EndConditionType.UpToSurface`, `.TargetSurface = stopFace;`, `DatabaseManager.Regen(true)`, `.cs` filename, `requiresSubprocess`, `typicalLatencyMs>=1000`, `supportedOps.size>40`, `limits.maxLoftProfiles/maxChainEntities`). `grep -c "EndConditionType|TargetSurface|UpToSurface" MastercamCodeGeneratorEngine.ts` = **0** -- the existing engine emits a different, simpler style. So `MastercamCodeGeneratorEngine` is NOT the class the test was written for. I **reverted** the rename (restored HEAD) -- the original "not a constructor" red is the clearer ghost signal than 115 fake behavioral fails that mislabel the engine as broken.
+- Production wiring uses ONLY the engine name (`CADAdapterRegistry.ts:97` -> `mod.mastercamCodeGeneratorEngine`; `MastercamAutomationBridge.ts:23`; `PrintToMastercamBridge.ts:15`; `CAMAGIMasterOrchestratorEngine.ts:1202/1214`). The sole `MastercamCADGeneratorAdapter` reference outside the test is a STALE doc-comment at `CADAdapterRegistry.ts:14`.
+
+**KILO RESOLUTION OPTIONS (CAM domain -- needs Mastercam NetHook C# API expertise; india must NOT guess the API):** (A) BUILD `MastercamCADGeneratorAdapter` as a real `extends UnifiedCADCodeGeneratorBase` class emitting NetHook C# per the 126-test spec (sibling pattern: Inventor has BOTH `InventorCADCodeGeneratorEngine` AND a separate `InventorCADGeneratorAdapter` -- the Mastercam adapter is the never-built twin); the test is a ready-made TDD spec. (B) If the adapter is intentionally superseded by `MastercamCodeGeneratorEngine`, RETIRE the ghost test (delete or rewrite to the engine's real output) -- but that is a deliberate CAM-owner decision, not a silent skip.
+
+**Sibling sweep result (this session):** of the 5 CAD-generator test files -- FreeCAD ✓, Fusion360 adapter ✓, UnifiedCADCodeGeneratorBase ✓, InventorCADGeneratorAdapter ✓ all GREEN; only Mastercam is the ghost. Inventor's own 6 stale fixtures were genuinely fixable and shipped (`5ede615333`). Parent: [[reference_mcp_vs_root_tsconfig_phantom_errors_2026_06_21]] (the InventorCAP build fix that started this CAD-generator sweep).

@@ -21,9 +21,7 @@ related:
 
 ## Description (from file header)
 
-session-end-p1.mjs — Phase 1 Tier 0
-Stop/SessionEnd hook that finalizes session state.
-Ensures clean handoff and no orphaned work.
+_(no header docblock — read source for behavior)_
 
 ## Events
 

@@ -118,9 +118,15 @@ function isValidOllamaSchema(obj) {
  *   buildVsIntegrate: "build"|"integrate"|"close-out",
  *   complexityTier: "S"|"M"|"L"|"XL",
  *   confidence: number,
+ *   rawConfidence?: number,
  *   rationale: string,
  *   source: "ollama"|"deterministic"
  * }} ToolPlan
+ *
+ * `rawConfidence` is NOT set by fuseSignals — the planner (rgs-tool-planner
+ * .mjs, U-LIMA-A7) stamps it with the pre-calibration `confidence` whenever
+ * confidence calibration is active, so a later calibration run can recover
+ * the raw model output rather than an already-calibrated value.
  */
 
 /**

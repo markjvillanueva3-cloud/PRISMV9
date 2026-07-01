@@ -1,0 +1,112 @@
+{
+  "id": "MS-RES-MATERIAL-ENRICH",
+  "version": "7.6.0",
+  "title": "MS-RES-MATERIAL-ENRICH (= RES-MS22) — parse the SolidWorks .sldmat files → MaterialRegistry physical-property enrichment",
+  "brief": "3 SolidWorks .sldmat files (UTF-16 XML, ~300-500 materials w/ density/elastic-modulus/thermal-conductivity/yield/Poisson/stress-strain) → enrich MaterialRegistry. Fills the audit's 'no tool-steel property tables' gap (M2/D2/S7/A2/H13/carbide/graphite physical props). Feeds prism_mechanical (fixture/tool-stickout deflection) + Kienzle/Taylor calibration for the JM-Die tool-steel families.",
+  "created_at": "2026-05-11T18:00:32.098Z",
+  "created_by": "claude-99eca613 (register-revenue-roadmap-envelopes.mjs, v7.6 §R10)",
+  "track": "revenue",
+  "track_name": "REVENUE-ROADMAP v7.6",
+  "roadmap_priority": 1,
+  "tier": 1,
+  "status": "not_started",
+  "source": "§R10.1 (= RES-MS22)",
+  "viz_node_id": "ghost.ms.ms-res-material-enrich",
+  "doc_propagation": [
+    "claude.md",
+    "gsd",
+    "wiki",
+    "system-viz"
+  ],
+  "dependencies": [],
+  "blocks": [],
+  "phases": [
+    {
+      "id": "P0",
+      "title": "MS-RES-MATERIAL-ENRICH (= RES-MS22) — parse the SolidWorks .sldmat files → MaterialRegistry physical-property enrichment",
+      "sessions": "1",
+      "units": [
+        {
+          "id": "U-MS-RES-MATERIAL-ENRICH-01",
+          "title": "MS-RES-MATERIAL-ENRICH unit 1 of 3 (placeholder — enumerate from the §R-layer prose during execution)",
+          "effort": 90,
+          "dependencies": [],
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit",
+            "Dispatcher wiring verified: import + call + action-enum + Zod schema all match (test invokes through the dispatcher, not only the engine singleton)"
+          ],
+          "description": "MS-RES-MATERIAL-ENRICH unit 1 — follow the 4-LOOP; consult the §R-layer prose in REVENUE-ROADMAP-v7.6.md for the concrete deliverable; run duplicationGuardEngine.checkBeforeCreating() before any new asset.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "viz_node_id": "ghost.ms.ms-res-material-enrich.u01",
+          "doc_propagation": [
+            "wiki",
+            "skill",
+            "digest",
+            "system-viz"
+          ]
+        },
+        {
+          "id": "U-MS-RES-MATERIAL-ENRICH-02",
+          "title": "MS-RES-MATERIAL-ENRICH unit 2 of 3 (placeholder — enumerate from the §R-layer prose during execution)",
+          "effort": 90,
+          "dependencies": [],
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit",
+            "Dispatcher wiring verified: import + call + action-enum + Zod schema all match (test invokes through the dispatcher, not only the engine singleton)"
+          ],
+          "description": "MS-RES-MATERIAL-ENRICH unit 2 — follow the 4-LOOP; consult the §R-layer prose in REVENUE-ROADMAP-v7.6.md for the concrete deliverable; run duplicationGuardEngine.checkBeforeCreating() before any new asset.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "viz_node_id": "ghost.ms.ms-res-material-enrich.u02",
+          "doc_propagation": [
+            "wiki",
+            "skill",
+            "digest",
+            "system-viz"
+          ]
+        },
+        {
+          "id": "U-MS-RES-MATERIAL-ENRICH-03",
+          "title": "MS-RES-MATERIAL-ENRICH unit 3 of 3 (placeholder — enumerate from the §R-layer prose during execution)",
+          "effort": 90,
+          "dependencies": [],
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit",
+            "Dispatcher wiring verified: import + call + action-enum + Zod schema all match (test invokes through the dispatcher, not only the engine singleton)"
+          ],
+          "description": "MS-RES-MATERIAL-ENRICH unit 3 — follow the 4-LOOP; consult the §R-layer prose in REVENUE-ROADMAP-v7.6.md for the concrete deliverable; run duplicationGuardEngine.checkBeforeCreating() before any new asset.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "viz_node_id": "ghost.ms.ms-res-material-enrich.u03",
+          "doc_propagation": [
+            "wiki",
+            "skill",
+            "digest",
+            "system-viz"
+          ]
+        }
+      ]
+    }
+  ],
+  "total_units": 3,
+  "completed_units": 0
+}

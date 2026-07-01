@@ -26,6 +26,7 @@ import { CADFileIndexerEngine, type IndexerFS } from "./CADFileIndexerEngine.js"
 import {
   CAD_FORMATS,
   type CADFormat,
+  type CADFileEntry,
   type MasterIndex,
   type IndexOptions,
 } from "../schemas/cadFileIndexSchema.js";
@@ -188,6 +189,95 @@ export class UniversalCADIndexEngine {
   hasUniversalCoverage(index: MasterIndex, minCoveragePct: number = 1.0): boolean {
     const cov = this.computeCoverage(index);
     return cov.coveragePct >= minCoveragePct;
+  }
+
+  // ── Registry query surface (prism_cad cad_registry_* actions) ────────────────
+  // The dispatcher's cad_registry_scan/search/get/stats actions called these
+  // methods, but they were never implemented (dark capability). scan is a thin
+  // alias over index(); get/search/stats query the PERSISTED MasterIndex via
+  // load() so they work without a re-scan. All fail soft when no index exists.
+
+  /**
+   * Scan + persist the universal index. Positional alias over index() for the
+   * cad_registry_scan action: scan(rootPaths, options).
+   * @param rootPaths - optional root paths (defaults to UNIVERSAL_ROOT_PATHS)
+   * @param options - remaining IndexOptions
+   * @param fsImpl - injectable FS
+   */
+  async scan(
+    rootPaths?: string[],
+    options: Omit<IndexOptions, "rootPaths"> = {},
+    fsImpl?: IndexerFS,
+  ): Promise<UniversalIndexResult> {
+    const opts: IndexOptions = { ...options };
+    if (rootPaths && rootPaths.length) opts.rootPaths = rootPaths;
+    return this.index(opts, fsImpl);
+  }
+
+  /**
+   * Look up a single indexed file by its absolute path. Loads the persisted
+   * master index; returns null if no index exists or the path is not indexed.
+   * Matching is EXACT against the stored `absolutePath` key (case- and
+   * separator-sensitive) -- callers must pass the path in its indexed form.
+   * @param absolutePath - the file's absolute path (the entry key)
+   * @param fsImpl - injectable FS
+   */
+  get(absolutePath: string, fsImpl?: IndexerFS): CADFileEntry | null {
+    if (!absolutePath) return null;
+    const index = this.load(undefined, fsImpl);
+    if (!index) return null;
+    return index.files.find((f) => f.absolutePath === absolutePath) ?? null;
+  }
+
+  /**
+   * Search the persisted index by free-text path query + optional format and
+   * customer filters. `total` is the full match count; `results` is capped at
+   * `limit` (default 50). Fail-soft to an empty result when no index exists.
+   * @param criteria - { query?, format?, customer?, limit? }
+   * @param fsImpl - injectable FS
+   */
+  search(
+    criteria: { query?: string; format?: string; customer?: string; limit?: number } = {},
+    fsImpl?: IndexerFS,
+  ): { results: CADFileEntry[]; total: number } {
+    const index = this.load(undefined, fsImpl);
+    if (!index) return { results: [], total: 0 };
+    const q = (criteria.query ?? "").toLowerCase();
+    const fmt = criteria.format;
+    const cust = criteria.customer?.toLowerCase();
+    const limit = typeof criteria.limit === "number" ? criteria.limit : 50;
+    const matched = index.files.filter(
+      (f) =>
+        (!q || f.absolutePath.toLowerCase().includes(q)) &&
+        (!fmt || f.format === fmt) &&
+        (!cust || f.customer.toLowerCase() === cust),
+    );
+    return { results: matched.slice(0, Math.max(0, limit)), total: matched.length };
+  }
+
+  /**
+   * Summary stats for the persisted index (counts + format coverage). Fail-soft
+   * to zeros when no index exists.
+   * @param fsImpl - injectable FS
+   */
+  stats(fsImpl?: IndexerFS): {
+    totalFiles: number;
+    byFormat: Record<string, number>;
+    byCustomer: Record<string, number>;
+    byMachineCategory: Record<string, number>;
+    coveragePct: number;
+  } {
+    const index = this.load(undefined, fsImpl);
+    if (!index) {
+      return { totalFiles: 0, byFormat: {}, byCustomer: {}, byMachineCategory: {}, coveragePct: 0 };
+    }
+    return {
+      totalFiles: index.totalFiles,
+      byFormat: index.byFormat,
+      byCustomer: index.byCustomer,
+      byMachineCategory: index.byMachineCategory,
+      coveragePct: this.computeCoverage(index).coveragePct,
+    };
   }
 }
 

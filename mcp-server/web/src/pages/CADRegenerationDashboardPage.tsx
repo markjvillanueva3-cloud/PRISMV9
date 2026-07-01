@@ -397,6 +397,12 @@ export default function CADRegenerationDashboardPage() {
         {/* Safety Banner */}
         <SafetyBanner />
 
+        {/* Sample-data notice (R12) -- renders getMockData() until the real CADRegenerationTestEngine
+            (prism_cad cad_regen_batch aggregation) is wired by delta. */}
+        <div data-testid="sample-data-notice" className="mb-6 rounded-lg border border-amber-500/40 bg-amber-900/20 p-3 text-sm text-amber-200">
+          Sample data -- this view is a UI preview and is not yet connected to live CAD regeneration test results.
+        </div>
+
         {/* Overall Progress */}
         <div className="mb-8 grid gap-6 md:grid-cols-[auto_1fr]">
           <div className="flex justify-center">

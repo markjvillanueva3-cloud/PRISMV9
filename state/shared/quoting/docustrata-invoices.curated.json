@@ -1,0 +1,18 @@
+{
+  "schema_version": "1.1.0",
+  "generated_iso": "2026-06-22T00:00:00.000Z",
+  "source": "manual-curation-real-part-ids",
+  "note": "U-QP-CURATE-WITH-REAL-PART-IDS (slot:charlie). REPLACES the iter42 fictional-part_id fixture. The 10 (customer, part_id) pairs below are VERIFIED to exist in state/shared/quoting/baseline-records-corpus-with-synth.json (the overlay's baseline input), confirmed via per-record grep against the live 47,905-record corpus. This lets quoting-real-revenue-overlay.mjs demonstrate a NON-ZERO match rate end-to-end (the iter59 0/10 was caused by fictional part_ids AF-102-05/AG-1138-L/etc that never appear in the corpus). PROVENANCE HONESTY (charlie soul refuse: never pass synthetic as real): the revenue numbers (actual_invoice_usd) remain hand-curated PLACEHOLDER values in realistic JM-Die-shop ranges per machine-class; they are NOT extracted from real invoices. The corpus records these overlay onto also carry synthetic uniform economics (600s in-cut / $95/hr / $60 material). This fixture proves the OVERLAY MATCH MECHANISM works on real keys; it does NOT supply real economics. The data ceiling (real outbound revenue) still requires U-QP-ACCOUNTING-WIRE / ERP credentials. Customers: ATF, AGRATI, ALLFAST FASTENING SYSTEMS, JM DIE, FONTANA (all present in the corpus; GENERAL BANDAGES from the old fixture was dropped, absent from the corpus).",
+  "invoices": [
+    { "date": "2026-04-15", "customer": "ATF", "part_id": "1069", "material": "PLACEHOLDER", "predicted_quote_usd": 245.0, "actual_invoice_usd": 268.0, "quantity": 25 },
+    { "date": "2026-04-22", "customer": "ATF", "part_id": "1250", "material": "PLACEHOLDER", "predicted_quote_usd": 410.0, "actual_invoice_usd": 425.0, "quantity": 10 },
+    { "date": "2026-03-30", "customer": "AGRATI", "part_id": "0021", "material": "tool_steel_a2", "predicted_quote_usd": 175.0, "actual_invoice_usd": 182.0, "quantity": 50 },
+    { "date": "2026-04-05", "customer": "AGRATI", "part_id": "9099772", "material": "tool_steel_a2", "predicted_quote_usd": 195.0, "actual_invoice_usd": 210.0, "quantity": 50 },
+    { "date": "2026-04-10", "customer": "ALLFAST FASTENING SYSTEMS", "part_id": "10-010-150-2__FROM__ALLFAST__2", "material": "PLACEHOLDER", "predicted_quote_usd": 320.0, "actual_invoice_usd": 338.0, "quantity": 30 },
+    { "date": "2026-04-12", "customer": "ALLFAST FASTENING SYSTEMS", "part_id": "0017", "material": "PLACEHOLDER", "predicted_quote_usd": 280.0, "actual_invoice_usd": 295.0, "quantity": 30 },
+    { "date": "2026-04-18", "customer": "JM DIE", "part_id": "1001", "material": "PLACEHOLDER", "predicted_quote_usd": 850.0, "actual_invoice_usd": 875.0, "quantity": 1 },
+    { "date": "2026-04-20", "customer": "JM DIE", "part_id": "1375", "material": "PLACEHOLDER", "predicted_quote_usd": 920.0, "actual_invoice_usd": 945.0, "quantity": 1 },
+    { "date": "2026-04-25", "customer": "FONTANA", "part_id": "4309__FROM__FONTANA", "material": "PLACEHOLDER", "predicted_quote_usd": 480.0, "actual_invoice_usd": 510.0, "quantity": 15 },
+    { "date": "2026-05-01", "customer": "FONTANA", "part_id": "0025", "material": "PLACEHOLDER", "predicted_quote_usd": 520.0, "actual_invoice_usd": 545.0, "quantity": 15 }
+  ]
+}

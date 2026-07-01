@@ -23,7 +23,8 @@ export class MaterialRegistry extends BaseRegistry<Material> {
   private indexByName: Map<string, string[]> = new Map();
   private indexByISO: Map<string, string[]> = new Map();
   private indexByCategory: Map<string, string[]> = new Map();
-  
+  private loadPromise: Promise<void> | null = null;
+
   constructor() {
     super(
       "MaterialRegistry",
@@ -42,26 +43,39 @@ export class MaterialRegistry extends BaseRegistry<Material> {
    */
   async load(): Promise<void> {
     if (this.loaded) return;
-    
+    // In-flight guard (2026-06-26, whiskey): load() is called concurrently by many callers
+    // (the closed-loop harness generates programs in parallel). Without this, each caller races
+    // past `if (this.loaded)` before the first load finishes and starts its OWN full load ->
+    // redundant full reloads (and the concurrency that compounded the EMFILE storm). Share one
+    // in-flight promise so concurrent callers await the same load.
+    if (this.loadPromise) return this.loadPromise;
+    this.loadPromise = this.doLoad();
+    try {
+      await this.loadPromise;
+    } finally {
+      this.loadPromise = null;
+    }
+  }
+
+  private async doLoad(): Promise<void> {
     log.info("Loading MaterialRegistry...");
     log.info(`  MATERIALS_DB path: ${PATHS.MATERIALS_DB}`);
     
-    // Load from ISO group directories in parallel (P_STEELS, M_STAINLESS, etc.)
+    // Load from ISO group directories SEQUENTIALLY (P_STEELS, M_STAINLESS, etc.).
     const isoGroups = ["P_STEELS", "M_STAINLESS", "K_CAST_IRON", "N_NONFERROUS", "S_SUPERALLOYS", "H_HARDENED", "X_SPECIALTY"];
 
-    await Promise.all(isoGroups.map(async (group) => {
+    // EMFILE FIX (2026-06-26, whiskey): load groups sequentially; combined with the bounded
+    // inner read concurrency in loadISOGroup, this caps total concurrent open file handles and
+    // prevents the EMFILE storm (reference_whiskey_jm_stock_turning_state_2026_06_26).
+    for (const group of isoGroups) {
       const groupPath = path.join(PATHS.MATERIALS_DB, group);
       const exists = await fileExists(groupPath);
-      /** If.
-       * @param exists - exists
-       * @returns void
-       */
       if (exists) {
         await this.loadISOGroup(group, groupPath);
       } else {
         log.info(`  ${group}: directory not found at ${groupPath}`);
       }
-    }));
+    }
     
     // Build indexes
     this.buildIndexes();
@@ -114,17 +128,27 @@ export class MaterialRegistry extends BaseRegistry<Material> {
       const files = await listDirectory(groupPath);
       const jsonFiles = files.filter(f => f.name.endsWith(".json") && f.name !== "index.json");
 
-      // Read all JSON files in parallel, then merge results sequentially
+      // Read JSON files in bounded-concurrency batches, then merge sequentially.
+      // EMFILE FIX (2026-06-26, whiskey): an unbounded Promise.all over all files in a group
+      // (x parallel groups) opened too many handles at once -> EMFILE "too many open files"
+      // (CONFIRMED via diagnostic: 4806 occurrences) -> reads failed, mislabeled "parse" by
+      // readJsonFile's ENOENT-only catch -> 0 materials -> the W5 guard never set loaded -> a
+      // per-call reload storm -> heap OOM. Cap at 8 concurrent reads.
       const timestamp = new Date().toISOString();
-      const results = await Promise.all(jsonFiles.map(async (file) => {
-        try {
-          const data = await readJsonFile<{ materials?: Material[], category?: string }>(file.path);
-          return { file, materials: data.materials || [] };
-        } catch (error) {
-          log.warn(`Failed to load material file ${file.name}: ${error}`);
-          return { file, materials: [] as Material[] };
-        }
-      }));
+      const READ_CONCURRENCY = 8;
+      const results: { file: (typeof jsonFiles)[number]; materials: Material[] }[] = [];
+      for (let i = 0; i < jsonFiles.length; i += READ_CONCURRENCY) {
+        const batch = await Promise.all(jsonFiles.slice(i, i + READ_CONCURRENCY).map(async (file) => {
+          try {
+            const data = await readJsonFile<{ materials?: Material[], category?: string }>(file.path);
+            return { file, materials: data.materials || [] };
+          } catch (error) {
+            log.warn(`Failed to load material file ${file.name}: ${error}`);
+            return { file, materials: [] as Material[] };
+          }
+        }));
+        results.push(...batch);
+      }
 
       // Merge parsed results into registry (must be sequential for Map safety)
       /** For.

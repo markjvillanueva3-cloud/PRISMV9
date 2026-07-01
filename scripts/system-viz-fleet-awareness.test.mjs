@@ -100,7 +100,7 @@ describe("buildFleetAwarenessPanel", () => {
     assert.equal(out.summary.chatsLive, 0);
     assert.equal(out.summary.chatsCrashed, 0);
     assert.equal(out.summary.slotsOccupied, 0);
-    assert.equal(out.summary.slotsAvailable, 13);
+    assert.equal(out.summary.slotsAvailable, SLOT_NAMES_FALLBACK.length);
     assert.equal(out.summary.totalCommits24h, 0);
   });
 
@@ -551,10 +551,12 @@ describe("readHandoffsDir", () => {
 });
 
 describe("readChatSlots", () => {
-  it("returns {state, slotNames} with 13 slot names from live module", async () => {
+  it("returns {state, slotNames} matching the canonical fleet roster from the live module", async () => {
     const { state, slotNames } = await readChatSlots();
     assert.equal(typeof state, "object");
-    assert.equal(slotNames.length, 13);
+    // Track the canonical roster length (26 after SLOT-RECLAIM 13->26), not a magic
+    // number; the deep-equal below enforces fallback==live.
+    assert.equal(slotNames.length, SLOT_NAMES_FALLBACK.length);
     assert.deepEqual(slotNames, SLOT_NAMES_FALLBACK);
   });
 

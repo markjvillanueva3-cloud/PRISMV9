@@ -1,0 +1,274 @@
+{
+  "id": "WEDM-HARDEN-MS0",
+  "title": "WEDM Hardening — 20-Agent Scrutiny Remediation",
+  "track": "WEDM-HARDEN",
+  "status": "complete",
+  "priority": "P0",
+  "depends_on": ["WEDM-MS0", "WEDM-MS1", "WEDM-INT-MS0"],
+  "created_at": "2026-04-02",
+  "completed_at": "2026-04-05",
+  "total_units": 24,
+  "completed_units": 24,
+  "source": "20-agent scrutiny (2026-04-02): 18 agents scored avg 66/100, 29 CRIT + 54 HIGH findings",
+  "brief": "Remediate all CRITICAL and HIGH findings from the 20-agent Wire EDM Studio scrutiny. Organized into 6 sessions by dependency order: G-code safety (P0 blocker), physics unification, DXF parser fixes, API/type safety, quality compliance, and frontend hardening. Each session targets specific agent findings with measurable exit gates.",
+  "sessions": [
+    {
+      "id": "WEDM-H-S1",
+      "title": "G-code Safety — Arc Emission, Taper, Comp Direction, Tabs",
+      "priority": "P0-BLOCKER",
+      "source_agents": ["G-code Expert (52/100)", "Security (62/100)"],
+      "smart_config": {
+        "role": "CNC G-code Specialist + Wire EDM Post Processor Expert",
+        "model": "opus",
+        "effort": "MAX"
+      },
+      "units": [
+        {
+          "id": "U-WH01",
+          "title": "Emit G02/G03 arc interpolation for approach/departure/contour arcs",
+          "description": "In EDMPostProcessGCodeEngine.ts: detect pt.type === 'arc' in approach/departure/contour rendering loops. Emit G02 (CW) or G03 (CCW) with I/J center coordinates instead of G01. Implement for all 5 controller dialects. The cw_arc_code/ccw_arc_code config fields are already defined but never used — wire them up. Add arc segment support to contour_points (I/J or R for curved features).",
+          "source_finding": "G-code CRIT-1: Arc interpolation never emitted, all arcs silently downgraded to G01",
+          "exit_gate": "G02/G03 emitted for arc approach/departure. contour arcs use I/J. All 5 dialects tested."
+        },
+        {
+          "id": "U-WH02",
+          "title": "Fix Fanuc taper from G51 U/V to correct WEDM taper command",
+          "description": "Replace G51 U/V (scaling command) with the correct Fanuc WEDM taper: either G76 taper angle or per-block UV incremental coordinates. Fix the same issue in Mitsubishi dialect (line 1749). Reference Fanuc 310iW/300iW programming manual for correct syntax.",
+          "source_finding": "G-code CRIT-2: Fanuc taper uses G51 (scaling) instead of correct WEDM taper",
+          "exit_gate": "Fanuc and Mitsubishi taper commands match controller manual. Taper test for 5° and 15° angles."
+        },
+        {
+          "id": "U-WH03",
+          "title": "Add G40 cutter comp cancel to preamble + implement G41/G42 direction logic",
+          "description": "Add G40 (and G49 where applicable) to the program preamble of all 5 controllers to cancel residual compensation. Implement G41/G42 selection based on profile direction: for OD profiles CW=G42 CCW=G41, for ID profiles the inverse. Use the profile.type (closed_external vs closed_internal) to determine inside/outside.",
+          "source_finding": "G-code CRIT-3+4: G40 missing from preambles, G41 only (no G42 for ID/OD)",
+          "exit_gate": "G40 in all 5 preambles. G41/G42 correctly chosen per profile type. Test with ID and OD profiles."
+        },
+        {
+          "id": "U-WH04",
+          "title": "Fix tab retention across ALL passes + Sodick trailing % + safe clearance moves",
+          "description": "Fix tab skip logic to retain tabs on ALL passes (rough + skim), not just rough. Remove trailing % from Sodick post (only start % is needed). Add safe clearance rapid moves between profiles (retract to clearance height before moving to next start hole).",
+          "source_finding": "G-code CRIT-5: Tabs only retained on rough. HIGH: Sodick trailing %. HIGH: No clearance between profiles.",
+          "exit_gate": "Tabs preserved through all passes. Sodick has single %. Safe rapids between profiles. Full chain test passes."
+        }
+      ],
+      "exit_gate": "All 5 G-code dialects generate correct arc interpolation, taper commands, compensation direction, tab retention, and clearance moves. 17/17 E2E tests still pass. G-code output reviewed by domain expert agent.",
+      "compact_checkpoint": true
+    },
+    {
+      "id": "WEDM-H-S2",
+      "title": "Physics Unification — Frontend/Engine Formula Sync + Corrections",
+      "priority": "P1",
+      "source_agents": ["Materials Science (62/100)", "Dimensional Analysis (88/100)", "Statistics (72/100)"],
+      "smart_config": {
+        "role": "Materials Science Specialist + Physics Engineer",
+        "model": "opus",
+        "effort": "MAX"
+      },
+      "units": [
+        {
+          "id": "U-WH05",
+          "title": "Unify frontend/engine surface integrity formulas — single source of truth",
+          "description": "StepOptimize.tsx lines 111-143 replicates physics from EDMMonitorSurfaceIntegrityEngine with different constants (k-values: frontend Ti=0.80/Al=0.65/steel=0.70 vs engine flat 0.70; HAZ multipliers: frontend Ti=2/Al=3/Ni=4/steel=3 vs engine flat 3; residual stress: frontend material-dependent vs engine energy-dependent). Resolution: make the frontend call the backend engine API for surface integrity calculations instead of inline physics. The frontend should display results from the backend, not compute its own. If latency is a concern, adopt the frontend's material-dependent constants in the engine (they are more physically correct per Materials Science agent).",
+          "source_finding": "Materials CRIT-1+2: Frontend/engine formula divergence on k-values, HAZ multipliers, residual stress",
+          "exit_gate": "Single calculation path for recast/HAZ/stress/fatigue. Frontend displays engine results. No inline physics in StepOptimize."
+        },
+        {
+          "id": "U-WH06",
+          "title": "Fix thermal diffusivity values for 4140/4340 steel and WC",
+          "description": "In EDMMonitorSurfaceIntegrityEngine.ts MATERIAL_ALPHA table: update 4140 from 8.0 to 11.0 mm²/s, 4340 from 8.5 to 11.0 mm²/s, WC from 10.0 to 25.0 mm²/s (cemented carbide with 10% Co binder). Optionally derive alpha from canonical physics/constants.ts: alpha = k_thermal / (density * cp). Add comment with source reference.",
+          "source_finding": "Materials CRIT-2: Thermal diffusivity 25-30% too low for steels, 60% too low for WC",
+          "exit_gate": "Alpha values match published data within 5%. Recast predictions for 4140/4340/WC increase accordingly. Pin tests updated."
+        },
+        {
+          "id": "U-WH07",
+          "title": "Fix wire lag formula + discharge energy voltage selection",
+          "description": "Wire lag in EDMWireSlugCornerTaperEngine.ts line 568: change F*L²/(8T) to F*L/(4T) for point-load wire deflection, or document that F is distributed load w (N/mm) and adjust units. Discharge energy in EDMCuttingParamFlushEngine.ts line 583: use servo_voltage_V (gap voltage ~40-50V) instead of open_voltage_V (80-120V) for E = V*I*t_on. Current formula overestimates energy by ~2x.",
+          "source_finding": "Dimensional HIGH: Wire lag dimensional mismatch. Dimensional MEDIUM: Discharge energy uses open voltage",
+          "exit_gate": "Wire lag formula dimensionally consistent (result in mm). Discharge energy uses gap voltage. Pin tests updated."
+        },
+        {
+          "id": "U-WH08",
+          "title": "Fix Bayesian update variance coupling + stratify by material×machine",
+          "description": "In EDMQualityOrchestratorEngine.ts: (1) Fix bayesianUpdate at line 1449 — use a fixed observation variance (hyperparameter) instead of tying it to the shrinking posterior variance. (2) Change parameterPriors Map key from flat parameter name to composite '${materialGroup}:${machineClass}:${paramName}'. (3) Increase initial samples from 1 to 10 for stability. (4) Fix lognormal sampling in StochasticEDMEngine.ts: use sigma_ln = sqrt(ln(1+CV²)) instead of treating CV directly as sigma.",
+          "source_finding": "Statistics HIGH-1: Bayesian variance coupling bug. Statistics MEDIUM: Lognormal sampling approximation. Data Arch CRIT-2: No stratification",
+          "exit_gate": "Bayesian priors stratified. Observation variance fixed. Lognormal sigma correct. Initial samples=10."
+        }
+      ],
+      "exit_gate": "All physics formulas produce correct results. No frontend/engine divergence. Dimensional analysis passes. Statistical methods correct. 201+ WEDM tests pass.",
+      "compact_checkpoint": true
+    },
+    {
+      "id": "WEDM-H-S3",
+      "title": "DXF Parser Fixes + Security Guards",
+      "priority": "P1",
+      "source_agents": ["DXF/Geometry (62/100)", "Security (62/100)"],
+      "smart_config": {
+        "role": "CAD/DXF Specialist + Security Engineer",
+        "model": "opus",
+        "effort": "MAX"
+      },
+      "units": [
+        {
+          "id": "U-WH09",
+          "title": "Fix LWPOLYLINE bulge alignment for mixed straight/arc edges",
+          "description": "In DXFGeometryParserEngine.ts LWPOLYLINE parser: track which vertex each bulge belongs to during parsing. Build xs/ys/bulges in lockstep — when group 42 appears, assign it to the most recently pushed vertex. Current flat bulges[] array shifts values to wrong vertices when some vertices lack bulge values. Add test: LWPOLYLINE with vertices [straight, arc(bulge=0.5), straight, arc(bulge=-0.3)].",
+          "source_finding": "DXF CRIT-1: LWPOLYLINE bulge values misaligned to wrong vertices",
+          "exit_gate": "Mixed straight/arc LWPOLYLINE produces correct arcs on correct segments. New test case passes."
+        },
+        {
+          "id": "U-WH10",
+          "title": "Fix self-intersection detection for arcs + ellipse rotation",
+          "description": "In DXFGeometryParserEngine.ts: (1) Replace line-only approximation in segmentsIntersect with proper arc-line and arc-arc intersection tests (solve quadratic for circle-line, then check sweep range). (2) Fix ellipseToArcs to account for major axis rotation angle: use rotated sampling x = cx + rx*cos(a)*cos_rot - ry*sin(a)*sin_rot. (3) Add DXF HEADER parsing for $INSUNITS to detect inch vs mm.",
+          "source_finding": "DXF CRIT-3: Self-intersection treats arcs as lines. DXF HIGH-4: Ellipse rotation ignored. DXF HIGH-2: No unit detection.",
+          "exit_gate": "Arc self-intersections detected. Rotated ellipses parsed correctly. $INSUNITS read. Tests added."
+        },
+        {
+          "id": "U-WH11",
+          "title": "Add DoS guards — entity limits, string bounds, array bounds",
+          "description": "Security hardening: (1) Add .max(20_000_000) to content field in wedm_parse_geometry and wedm_validate_geometry Zod schemas. (2) Add MAX_ENTITIES = 500_000 guard in parseDXFGroups(). (3) Add .max(100_000) to contour_points, .max(10_000) to features, .max(1_000) to profiles in Zod schemas. (4) Replace .passthrough() with .strict() on safety-critical schemas (parse_geometry, validate_geometry, generate_gcode). (5) Guard guide_distance_mm division — make required or add if-check before dividing.",
+          "source_finding": "Security CRIT-1+2: Unbounded DXF string, no entity limits, division by undefined. Security HIGH-2: .passthrough() allows key injection.",
+          "exit_gate": "Zod schemas have max bounds. Parser rejects >500K entities. Division by zero/undefined guarded. .strict() on critical schemas."
+        }
+      ],
+      "exit_gate": "DXF parser handles mixed bulge, rotated ellipses, detects arc intersections. Security guards in place. All 201+ tests pass.",
+      "compact_checkpoint": true
+    },
+    {
+      "id": "WEDM-H-S4",
+      "title": "API Contract + TypeScript Safety",
+      "priority": "P1",
+      "source_agents": ["API Contract (62/100)", "TypeScript Safety (52/100)"],
+      "smart_config": {
+        "role": "Full-Stack TypeScript Engineer + API Architect",
+        "model": "opus",
+        "effort": "MAX"
+      },
+      "units": [
+        {
+          "id": "U-WH12",
+          "title": "Add dispatcher shape bridges for all 11 mismatched WEDM endpoints",
+          "description": "In edmDispatcher.ts: add transformation logic in each wedm_* case to bridge between frontend param shapes and engine input shapes. Key bridges: (1) feasibility: add workpiece object from features bounding box. (2) selection: flatten FullSelectionResult to MaterialMachineWireSelection. (3) toolpath: map features→profiles, rename profiles_classified→profiles, total_profile_length_mm→total_cut_length_mm. (4) multipass: add thickness_mm, profile_length_mm defaults. (5) gcode: add start_hole, approach, departure to profiles. (6) cost: build nested machine_time/wire/consumables from flat params. (7) setup sheet: flatten nested result. Per the WEDM-INT-MS0 roadmap design.",
+          "source_finding": "API CRIT+HIGH: Frontend-to-Zod schema mismatches across 11+ endpoints. Quick Generate non-functional.",
+          "exit_gate": "All endpoints accept frontend param shapes. Quick Generate completes end-to-end. Error messages readable (not [object Object])."
+        },
+        {
+          "id": "U-WH13",
+          "title": "Fix TypeScript type safety — eliminate as any, fix return types, align enums",
+          "description": "Fix all CRIT+HIGH TypeScript findings: (1) Remove 'as any' cast in StepReview:214 — type COMMON_MACHINES.controller as ControllerDialect. (2) Fix 4 API functions returning input types as response (tabs, sequence, calculateCorners, solveTaper). (3) Fix quickGenerate passing wrong shapes to typed API functions. (4) Add 'accutex' to G-code Zod schema controller enum. (5) Align flushing mode 'jet' vs 'spray' between frontend and Zod. (6) Replace 'any' in useValidateGeometry, wedmApi.interpret, and validation_issues. (7) Fix StepReview undeclared 'selection' variable.",
+          "source_finding": "TypeScript CRIT-1..5: as any casts, wrong return types, parameter mismatches. TypeScript HIGH-1+2: enum mismatches.",
+          "exit_gate": "Zero 'as any' in WEDM components. All API return types correct. Enums aligned. tsc --noEmit passes."
+        },
+        {
+          "id": "U-WH14",
+          "title": "Add machineUvTravel route + wire Quick Generate to context",
+          "description": "API orphan fix: (1) Add POST /api/v1/edm/machine-uv-travel route that queries MachineRegistry for UV travel limits. (2) Wire Quick Generate results into WedmStudioContext by calling setStepData for each step as results arrive, populating QuickGenerateJob.result. (3) Fix error shape extraction in frontend post() helper: use errBody.error?.message ?? errBody.message ?? res.statusText.",
+          "source_finding": "API CRIT: machineUvTravel orphan. API HIGH: Quick Generate non-functional. API MEDIUM: Error shape wrong.",
+          "exit_gate": "machineUvTravel route returns UV limits. Quick Generate populates wizard state. Error messages human-readable."
+        }
+      ],
+      "exit_gate": "All API endpoints work end-to-end with frontend shapes. TypeScript strict-safe. Quick Generate functional. tsc 0 errors.",
+      "compact_checkpoint": true
+    },
+    {
+      "id": "WEDM-H-S5",
+      "title": "Quality Compliance — AMS 2628, Traceability, Audit Trail",
+      "priority": "P2",
+      "source_agents": ["Quality Systems (52/100)", "WEDM Domain Expert (82/100)"],
+      "smart_config": {
+        "role": "Quality Systems Specialist + Wire EDM Process Expert",
+        "model": "opus",
+        "effort": "MAX"
+      },
+      "units": [
+        {
+          "id": "U-WH15",
+          "title": "Implement AMS 2628 per-material class limits with spec selector",
+          "description": "Replace fabricated fixed AMS 2628 limits in StepOptimize with per-material limits from the actual standard (already specified in WEDM-MS1.json AMS_2628_material_class_limits). Add spec selector dropdown (Class A/B/C for aerospace, ASTM F86 medical, OEM automotive, custom). Show per-feature pass/fail against the selected spec's material-specific limits.",
+          "source_finding": "Quality CRIT-1: AMS 2628 limits fabricated, not per-material. Domain HIGH: Tech table codes are placeholders.",
+          "exit_gate": "Spec selector works. Per-material limits from AMS 2628. Class A/B/C correctly applied."
+        },
+        {
+          "id": "U-WH16",
+          "title": "Add material traceability + quality gate persistence + job intent",
+          "description": "(1) Add heat_number, cert_number, cert_date, cert_document_ref fields to FirstArticleReport and wire through UI. (2) Persist quality gate overrides to backend via wedm_record_job — add reference number field, store in durable log. (3) Add job_intent field (rough_blank/finished_part/electrode) — quality gate applies only to finished_part, others bypass with disclosure note. (4) Wire backend buildFirstArticleReport to frontend FAI download instead of placeholder text.",
+          "source_finding": "Quality CRIT-2: No material traceability. Quality HIGH: Override not persisted. Quality HIGH: No job intent bypass.",
+          "exit_gate": "FAI includes material cert linkage. Gate overrides persisted with reference number. Job intent bypasses gate correctly."
+        },
+        {
+          "id": "U-WH17",
+          "title": "Persist job history + durable Bayesian priors + audit trail",
+          "description": "(1) Persist jobHistory and parameterPriors from EDMQualityOrchestratorEngine to MemoryGraph or file-backed store. Load on construction, write-through on mutation. (2) Add document_id (UUID), retention_period, and retention_until to FirstArticleReport. (3) Add session-level audit logging for quality decisions (gate evaluations, spec selections, overrides) with operator ID and timestamp. (4) Add DI water conductivity + hydrogen safety note, WC cobalt hazard note to safety notes.",
+          "source_finding": "Data Arch CRIT-1: Job history in-memory only. Quality MEDIUM: No retention. Domain CRIT: Missing safety notes.",
+          "exit_gate": "Job history survives restart. FAI has document_id + retention. Audit trail persisted. Safety notes complete."
+        }
+      ],
+      "exit_gate": "Quality systems audit-ready for AS9100/ISO 13485. Material traceability complete. Overrides persisted. Safety notes comprehensive.",
+      "compact_checkpoint": true
+    },
+    {
+      "id": "WEDM-H-S6",
+      "title": "Frontend Hardening — React, Canvas, A11y, Performance",
+      "priority": "P2",
+      "source_agents": ["React Architecture (74/100)", "Accessibility (72/100)", "Canvas Rendering (72/100)", "Performance (68/100)", "Error Handling (72/100)"],
+      "smart_config": {
+        "role": "Senior React Engineer + Accessibility Specialist",
+        "model": "opus",
+        "effort": "MAX"
+      },
+      "units": [
+        {
+          "id": "U-WH18",
+          "title": "Decompose StepOptimize into sub-components + fix context re-render",
+          "description": "Extract StepOptimize (1054 lines) into 5+ sub-components: WireBreakRecoveryCard, SurfaceIntegrityCard, WireConsumptionCard, SpecComplianceCard, ProcessControlCard. Each gets its own useMemo boundaries. Fix navValue memoization in WedmStudioContext — separate stepStatus from monolithic record state to prevent nav consumers re-rendering on data changes.",
+          "source_finding": "React CRIT-1: StepOptimize >1000 lines. React CRIT-2: navValue memoization defeated.",
+          "exit_gate": "StepOptimize <300 lines. Sub-components individually memoizable. Context re-renders isolated."
+        },
+        {
+          "id": "U-WH19",
+          "title": "Canvas hardening — auto-enable taper layers, fix dirty flag, cache offsets",
+          "description": "(1) Auto-merge taper layers into visibleLayers when taperConfig is provided (compute effectiveLayers in useMemo). (2) Set viewRef.current.dirty = true when non-contour props change (toolpathProfiles, startHoles, tabs, etc.). (3) Cache calculateBottomGuidePath results — currently computed twice per frame. (4) Cache offset contour results keyed by contour ID + offset distance. (5) Fix cursor style to use state instead of ref. (6) Add IntersectionObserver to pause rAF when canvas not visible.",
+          "source_finding": "Canvas CRIT: Taper layers not auto-enabled. Canvas MEDIUM: Dirty flag, duplicate computation, cursor. Performance HIGH: rAF runs when hidden.",
+          "exit_gate": "Taper auto-shows. Props trigger redraw. No duplicate computation. rAF pauses when hidden."
+        },
+        {
+          "id": "U-WH20",
+          "title": "Accessibility fixes — canvas alt text, chart alternatives, touch targets",
+          "description": "(1) Add role='img' + dynamic aria-label to ProfileCanvas describing current view. (2) Add visually-hidden text summaries for recast attenuation chart, wire usage bar, gap voltage bar. (3) Fix tab position/width inputs and feature table inputs to have min-h-[44px]. (4) Add scope='col' to StepOptimize and StepProgram table headers. (5) Fix InfoTip tooltip to be hoverable (pointer-events-auto) with brief hide delay.",
+          "source_finding": "A11y CRIT-1..4: Canvas no alt text, 3 charts no alternatives. A11y HIGH: Missing touch targets, scope, tooltip.",
+          "exit_gate": "Canvas has aria-label. Charts have sr-only alternatives. All inputs 44px. Tables have scope. Tooltip hoverable."
+        },
+        {
+          "id": "U-WH21",
+          "title": "Error handling hardening — try-catch, partial failure, math guards",
+          "description": "(1) Wrap apiFn call in useWedmStep.execute() with try-catch. (2) Show per-sub-call errors in StepProgram when cost or setup fails independently. (3) Guard Math.log(1 - probability) at p=0.999 max. (4) Guard Math.log(actual/limit) for limit=0. (5) Add autoFetchError state to StepToolpath. (6) Add exponential backoff (1s, 2s, 4s) and max retry count (3) to useWedmStep.retry(). (7) Implement clipboard fallback.",
+          "source_finding": "Error CRIT-1+2: Unhandled promise rejection, silent partial failure. Error HIGH: Math guards, no backoff.",
+          "exit_gate": "All API calls have try-catch. Partial failures show individual errors. Math safe. Retry has backoff."
+        }
+      ],
+      "exit_gate": "Frontend clean: components decomposed, canvas hardened, accessible, error-resilient. Performance optimized. tsc passes. All tests green.",
+      "compact_checkpoint": true
+    }
+  ],
+  "exit_gate": {
+    "criteria": [
+      "All 29 CRITICAL findings resolved",
+      "All 54 HIGH findings resolved or documented as accepted risk",
+      "tsc --noEmit: 0 errors (web + mcp-server)",
+      "201+ WEDM tests pass with 0 regressions",
+      "17/17 E2E pipeline tests pass",
+      "G-code output verified for all 5 dialects with arc + taper + tabs",
+      "No frontend/engine formula divergence",
+      "Quality gate override persisted to backend",
+      "AMS 2628 per-material limits correct",
+      "DXF parser handles mixed bulge LWPOLYLINE correctly",
+      "Security: all Zod schemas have max bounds, entity limits enforced"
+    ],
+    "target_score": "20-agent re-scrutiny average >= 80/100"
+  },
+  "forge_triple": {
+    "protective_hook": "wedm-hardening-gate — blocks WEDM engine edits without running affected E2E tests",
+    "mcp_action": "prism_edm:wedm_hardening_status — reports current hardening progress and remaining findings",
+    "skill": "/wedm-harden-status — dashboard of scrutiny finding resolution"
+  }
+}

@@ -1,8 +1,11 @@
 ---
 description: Force-claim slot BRAVO + run the full /checkin pipeline. NATO-phonetic shortcut for `/checkin --preferSlot bravo --force`.
 allowed-tools: Bash, Read, Edit, Write, Glob, Grep, TodoWrite, Task, AskUserQuestion
+composes_with:
+  - "/checkin"
+  - "/handoff"
+  - "/pick-unit"
 ---
-
 # /checkin-bravo — slot-locked /checkin
 
 Force-takes the **bravo** slot (evicting any prior owner with `--force true --confirmRecent true`), binds the handoff to `bravo-work`, then runs the standard `/checkin` pipeline. Use when you want this specific slot regardless of who currently holds it.

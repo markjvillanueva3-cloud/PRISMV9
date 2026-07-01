@@ -34,6 +34,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { execFileSync } from "node:child_process";
+import { readGraphStreaming } from "./lib/graph-io.mjs";
 
 const ROOT = path.resolve(path.join(path.dirname(new URL(import.meta.url).pathname.replace(/^\/([A-Za-z]:)/, "$1")), ".."));
 const VIZ_DIR = path.join(ROOT, "state", "shared", "system-viz");
@@ -147,8 +148,7 @@ function graphHeadline() {
   if (nodes === null) {
     // last resort: parse the graph (large; guarded)
     try {
-      const raw = fs.readFileSync(path.join(VIZ_DIR, "system-graph.json"), "utf8");
-      const g = JSON.parse(raw);
+      const g = readGraphStreaming(path.join(VIZ_DIR, "system-graph.json"));  // off-heap: JSON.parse(readFileSync utf8) threw Invalid-string-length at >512MiB (U-VIZ-READER-CAPSAFE 2026-06-10)
       nodes = (g.nodes || []).length; edges = (g.edges || []).length;
       for (const nd of (g.nodes || [])) layers[nd.layer] = (layers[nd.layer] || 0) + 1;
     } catch { /* leave null */ }
